@@ -21,19 +21,19 @@ import (
 // ========== 常量 ==========
 
 const (
-	// TokenExpiry Token有效期
+	// TokenExpiry Token有效期.
 	TokenExpiry = 1 * time.Hour
-	// RefreshTokenExpiry Refresh Token有效期
+	// RefreshTokenExpiry Refresh Token有效期.
 	RefreshTokenExpiry = 30 * 24 * time.Hour
-	// CodeExpiry 授权码有效期
+	// CodeExpiry 授权码有效期.
 	CodeExpiry = 10 * time.Minute
-	// MaxClients 最大客户端数
+	// MaxClients 最大客户端数.
 	MaxClients = 100
 )
 
 // ========== OAuth2 类型 ==========
 
-// GrantType 授权类型
+// GrantType 授权类型.
 type GrantType string
 
 const (
@@ -42,7 +42,7 @@ const (
 	GrantRefreshToken      GrantType = "refresh_token"
 )
 
-// ResponseType 响应类型
+// ResponseType 响应类型.
 type ResponseType string
 
 const (
@@ -50,7 +50,7 @@ const (
 	ResponseTypeToken ResponseType = "token"
 )
 
-// OAuthClient OAuth2客户端
+// OAuthClient OAuth2客户端.
 type OAuthClient struct {
 	ID           string      `json:"id"`
 	Secret       string      `json:"secret"`
@@ -65,7 +65,7 @@ type OAuthClient struct {
 	UpdatedAt    time.Time   `json:"updated_at"`
 }
 
-// AuthorizationCode 授权码
+// AuthorizationCode 授权码.
 type AuthorizationCode struct {
 	Code        string    `json:"code"`
 	ClientID    string    `json:"client_id"`
@@ -76,7 +76,7 @@ type AuthorizationCode struct {
 	Used        bool      `json:"used"`
 }
 
-// TokenPair Token对
+// TokenPair Token对.
 type TokenPair struct {
 	AccessToken  string    `json:"access_token"`
 	RefreshToken string    `json:"refresh_token"`
@@ -86,7 +86,7 @@ type TokenPair struct {
 	IssuedAt     time.Time `json:"issued_at"`
 }
 
-// AccessTokenClaims Access Token声明
+// AccessTokenClaims Access Token声明.
 type AccessTokenClaims struct {
 	Issuer    string   `json:"iss"`
 	Subject   string   `json:"sub"`
@@ -97,7 +97,7 @@ type AccessTokenClaims struct {
 	TokenType string   `json:"token_type"`
 }
 
-// RefreshToken Refresh Token
+// RefreshToken Refresh Token.
 type RefreshToken struct {
 	Token     string    `json:"token"`
 	ClientID  string    `json:"client_id"`
@@ -107,7 +107,7 @@ type RefreshToken struct {
 	Revoked   bool      `json:"revoked"`
 }
 
-// OIDCDiscovery OIDC发现文档
+// OIDCDiscovery OIDC发现文档.
 type OIDCDiscovery struct {
 	Issuer                            string   `json:"issuer"`
 	AuthorizationEndpoint             string   `json:"authorization_endpoint"`
@@ -123,7 +123,7 @@ type OIDCDiscovery struct {
 	ClaimsSupported                   []string `json:"claims_supported"`
 }
 
-// IDToken ID Token (OIDC)
+// IDToken ID Token (OIDC).
 type IDToken struct {
 	Issuer    string `json:"iss"`
 	Subject   string `json:"sub"`
@@ -136,7 +136,7 @@ type IDToken struct {
 	Picture   string `json:"picture,omitempty"`
 }
 
-// SAMLRequest SAML认证请求
+// SAMLRequest SAML认证请求.
 type SAMLRequest struct {
 	ID           string    `json:"id"`
 	Issuer       string    `json:"issuer"`
@@ -147,7 +147,7 @@ type SAMLRequest struct {
 	ExpiresAt    time.Time `json:"expires_at"`
 }
 
-// SAMLResponse SAML认证响应
+// SAMLResponse SAML认证响应.
 type SAMLResponse struct {
 	ID           string              `json:"id"`
 	InResponseTo string              `json:"in_response_to"`
@@ -160,7 +160,7 @@ type SAMLResponse struct {
 	SignedAt     time.Time           `json:"signed_at"`
 }
 
-// SSOUser SSO用户信息 (OIDC UserInfo)
+// SSOUser SSO用户信息 (OIDC UserInfo).
 type SSOUser struct {
 	Sub       string   `json:"sub"`
 	Name      string   `json:"name"`
@@ -170,7 +170,7 @@ type SSOUser struct {
 	UpdatedAt int64    `json:"updated_at,omitempty"`
 }
 
-// SSOServer SSO服务器
+// SSOServer SSO服务器.
 type SSOServer struct {
 	mu            sync.RWMutex
 	clients       map[string]*OAuthClient
@@ -184,7 +184,7 @@ type SSOServer struct {
 	issuer        string
 }
 
-// NewSSOServer 创建SSO服务器
+// NewSSOServer 创建SSO服务器.
 func NewSSOServer(baseURL string) (*SSOServer, error) {
 	// 生成RSA密钥对（用于签名Token）
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
@@ -207,7 +207,7 @@ func NewSSOServer(baseURL string) (*SSOServer, error) {
 	return server, nil
 }
 
-// RegisterClient 注册OAuth2客户端
+// RegisterClient 注册OAuth2客户端.
 func (s *SSOServer) RegisterClient(client *OAuthClient) error {
 	if client.Name == "" {
 		return fmt.Errorf("客户端名不能为空")
@@ -243,7 +243,7 @@ func (s *SSOServer) RegisterClient(client *OAuthClient) error {
 	return nil
 }
 
-// GetClient 获取客户端
+// GetClient 获取客户端.
 func (s *SSOServer) GetClient(clientID string) (*OAuthClient, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -254,7 +254,7 @@ func (s *SSOServer) GetClient(clientID string) (*OAuthClient, error) {
 	return client, nil
 }
 
-// ListClients 列出所有客户端
+// ListClients 列出所有客户端.
 func (s *SSOServer) ListClients() []*OAuthClient {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -265,7 +265,7 @@ func (s *SSOServer) ListClients() []*OAuthClient {
 	return result
 }
 
-// DeleteClient 删除客户端
+// DeleteClient 删除客户端.
 func (s *SSOServer) DeleteClient(clientID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -276,7 +276,7 @@ func (s *SSOServer) DeleteClient(clientID string) error {
 	return nil
 }
 
-// Authorize 生成授权码 (OAuth2 Authorization Endpoint)
+// Authorize 生成授权码 (OAuth2 Authorization Endpoint).
 func (s *SSOServer) Authorize(clientID, redirectURI, scope, state, userID string) (string, error) {
 	s.mu.RLock()
 	client, ok := s.clients[clientID]
@@ -318,7 +318,7 @@ func (s *SSOServer) Authorize(clientID, redirectURI, scope, state, userID string
 	return code.Code, nil
 }
 
-// ExchangeToken 交换Token (OAuth2 Token Endpoint)
+// ExchangeToken 交换Token (OAuth2 Token Endpoint).
 func (s *SSOServer) ExchangeToken(grantType GrantType, code, clientID, clientSecret, refreshToken, scope string) (*TokenPair, error) {
 	switch grantType {
 	case GrantAuthorizationCode:
@@ -456,7 +456,7 @@ func (s *SSOServer) generateTokenPair(clientID, userID string, scopes []string) 
 	}, nil
 }
 
-// ValidateToken 验证Access Token
+// ValidateToken 验证Access Token.
 func (s *SSOServer) ValidateToken(accessToken string) (*AccessTokenClaims, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -471,7 +471,7 @@ func (s *SSOServer) ValidateToken(accessToken string) (*AccessTokenClaims, error
 	return claims, nil
 }
 
-// RevokeToken 撤销Token
+// RevokeToken 撤销Token.
 func (s *SSOServer) RevokeToken(token string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -491,7 +491,7 @@ func (s *SSOServer) RevokeToken(token string) error {
 	return fmt.Errorf("token不存在")
 }
 
-// GetUserInfo 获取用户信息 (OIDC UserInfo Endpoint)
+// GetUserInfo 获取用户信息 (OIDC UserInfo Endpoint).
 func (s *SSOServer) GetUserInfo(accessToken string) (*SSOUser, error) {
 	claims, err := s.ValidateToken(accessToken)
 	if err != nil {
@@ -513,7 +513,7 @@ func (s *SSOServer) GetUserInfo(accessToken string) (*SSOUser, error) {
 	return user, nil
 }
 
-// GetOIDCDiscovery 获取OIDC发现文档
+// GetOIDCDiscovery 获取OIDC发现文档.
 func (s *SSOServer) GetOIDCDiscovery() *OIDCDiscovery {
 	return &OIDCDiscovery{
 		Issuer:                            s.issuer,
@@ -531,7 +531,7 @@ func (s *SSOServer) GetOIDCDiscovery() *OIDCDiscovery {
 	}
 }
 
-// GetJWKS 获取JWKS
+// GetJWKS 获取JWKS.
 func (s *SSOServer) GetJWKS() map[string]interface{} {
 	// 简化实现 - 返回公钥信息
 	n := base64.RawURLEncoding.EncodeToString(s.publicKey.N.Bytes())
@@ -549,7 +549,7 @@ func (s *SSOServer) GetJWKS() map[string]interface{} {
 	}
 }
 
-// GetStats 获取SSO统计信息
+// GetStats 获取SSO统计信息.
 func (s *SSOServer) GetStats() map[string]interface{} {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -570,7 +570,7 @@ func (s *SSOServer) GetStats() map[string]interface{} {
 
 // ========== HTTP Handlers ==========
 
-// SSOHandlers SSO HTTP处理器
+// SSOHandlers SSO HTTP处理器.
 type SSOHandlers struct {
 	server *SSOServer
 }
@@ -753,7 +753,7 @@ func generateRandomString(length int) string {
 	return base64.RawURLEncoding.EncodeToString(b)[:length]
 }
 
-// hashToken 对Token进行SHA-256哈希（用于日志记录）
+// hashToken 对Token进行SHA-256哈希（用于日志记录）.
 func hashToken(token string) string {
 	h := sha256.Sum256([]byte(token))
 	return base64.RawURLEncoding.EncodeToString(h[:8])

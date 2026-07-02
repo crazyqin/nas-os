@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers HTTP处理器
+// Handlers HTTP处理器.
 type Handlers struct {
 	mgr *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{mgr: mgr}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	g := rg.Group("/cloudfederation")
 	{
@@ -60,14 +60,14 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// ListProviders 列出云提供商
+// ListProviders 列出云提供商.
 func (h *Handlers) ListProviders(c *gin.Context) {
 	providerType := CloudProvider(c.Query("type"))
 	providers := h.mgr.ListProviders(providerType)
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": providers, "total": len(providers)})
 }
 
-// RegisterProvider 注册云提供商
+// RegisterProvider 注册云提供商.
 func (h *Handlers) RegisterProvider(c *gin.Context) {
 	var cfg CloudProviderConfig
 	if err := c.ShouldBindJSON(&cfg); err != nil {
@@ -81,7 +81,7 @@ func (h *Handlers) RegisterProvider(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": cfg})
 }
 
-// GetProvider 获取云提供商
+// GetProvider 获取云提供商.
 func (h *Handlers) GetProvider(c *gin.Context) {
 	provider, err := h.mgr.GetProvider(c.Param("id"))
 	if err != nil {
@@ -91,7 +91,7 @@ func (h *Handlers) GetProvider(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": provider})
 }
 
-// UpdateProvider 更新云提供商
+// UpdateProvider 更新云提供商.
 func (h *Handlers) UpdateProvider(c *gin.Context) {
 	var cfg CloudProviderConfig
 	if err := c.ShouldBindJSON(&cfg); err != nil {
@@ -105,7 +105,7 @@ func (h *Handlers) UpdateProvider(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "updated"})
 }
 
-// DeleteProvider 删除云提供商
+// DeleteProvider 删除云提供商.
 func (h *Handlers) DeleteProvider(c *gin.Context) {
 	if err := h.mgr.DeleteProvider(c.Param("id")); err != nil {
 		c.JSON(http.StatusConflict, gin.H{"code": -1, "message": err.Error()})
@@ -114,7 +114,7 @@ func (h *Handlers) DeleteProvider(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "deleted"})
 }
 
-// CheckProviderHealth 检查提供商健康状态
+// CheckProviderHealth 检查提供商健康状态.
 func (h *Handlers) CheckProviderHealth(c *gin.Context) {
 	status, err := h.mgr.CheckProviderHealth(c.Param("id"))
 	if err != nil {
@@ -124,13 +124,13 @@ func (h *Handlers) CheckProviderHealth(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": gin.H{"status": status}})
 }
 
-// ListNamespaces 列出命名空间
+// ListNamespaces 列出命名空间.
 func (h *Handlers) ListNamespaces(c *gin.Context) {
 	namespaces := h.mgr.ListNamespaces()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": namespaces, "total": len(namespaces)})
 }
 
-// CreateNamespace 创建命名空间
+// CreateNamespace 创建命名空间.
 func (h *Handlers) CreateNamespace(c *gin.Context) {
 	var ns Namespace
 	if err := c.ShouldBindJSON(&ns); err != nil {
@@ -144,7 +144,7 @@ func (h *Handlers) CreateNamespace(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": ns})
 }
 
-// GetNamespace 获取命名空间
+// GetNamespace 获取命名空间.
 func (h *Handlers) GetNamespace(c *gin.Context) {
 	ns, err := h.mgr.GetNamespace(c.Param("id"))
 	if err != nil {
@@ -154,7 +154,7 @@ func (h *Handlers) GetNamespace(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": ns})
 }
 
-// DeleteNamespace 删除命名空间
+// DeleteNamespace 删除命名空间.
 func (h *Handlers) DeleteNamespace(c *gin.Context) {
 	if err := h.mgr.DeleteNamespace(c.Param("id")); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"code": -1, "message": err.Error()})
@@ -163,7 +163,7 @@ func (h *Handlers) DeleteNamespace(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "deleted"})
 }
 
-// ListObjects 列出对象
+// ListObjects 列出对象.
 func (h *Handlers) ListObjects(c *gin.Context) {
 	prefix := c.Query("prefix")
 	limit := 100
@@ -175,7 +175,7 @@ func (h *Handlers) ListObjects(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": objects, "total": len(objects)})
 }
 
-// PlaceObject 放置对象
+// PlaceObject 放置对象.
 func (h *Handlers) PlaceObject(c *gin.Context) {
 	var obj StorageObject
 	if err := c.ShouldBindJSON(&obj); err != nil {
@@ -190,7 +190,7 @@ func (h *Handlers) PlaceObject(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": obj, "provider": providerID})
 }
 
-// GetObject 获取对象
+// GetObject 获取对象.
 func (h *Handlers) GetObject(c *gin.Context) {
 	obj, err := h.mgr.GetObject(c.Param("id"), c.Param("key"))
 	if err != nil {
@@ -200,7 +200,7 @@ func (h *Handlers) GetObject(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": obj})
 }
 
-// DeleteObject 删除对象
+// DeleteObject 删除对象.
 func (h *Handlers) DeleteObject(c *gin.Context) {
 	if err := h.mgr.DeleteObject(c.Param("id"), c.Param("key")); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"code": -1, "message": err.Error()})
@@ -209,14 +209,14 @@ func (h *Handlers) DeleteObject(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "deleted"})
 }
 
-// ListSyncTasks 列出同步任务
+// ListSyncTasks 列出同步任务.
 func (h *Handlers) ListSyncTasks(c *gin.Context) {
 	status := SyncStatus(c.Query("status"))
 	tasks := h.mgr.ListSyncTasks(status)
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": tasks, "total": len(tasks)})
 }
 
-// CreateSyncTask 创建同步任务
+// CreateSyncTask 创建同步任务.
 func (h *Handlers) CreateSyncTask(c *gin.Context) {
 	var task SyncTask
 	if err := c.ShouldBindJSON(&task); err != nil {
@@ -230,7 +230,7 @@ func (h *Handlers) CreateSyncTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": task})
 }
 
-// GetSyncTask 获取同步任务
+// GetSyncTask 获取同步任务.
 func (h *Handlers) GetSyncTask(c *gin.Context) {
 	task, err := h.mgr.GetSyncTask(c.Param("id"))
 	if err != nil {
@@ -240,14 +240,14 @@ func (h *Handlers) GetSyncTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": task})
 }
 
-// ListMigrationTasks 列出迁移任务
+// ListMigrationTasks 列出迁移任务.
 func (h *Handlers) ListMigrationTasks(c *gin.Context) {
 	status := MigrationStatus(c.Query("status"))
 	tasks := h.mgr.ListMigrationTasks(status)
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": tasks, "total": len(tasks)})
 }
 
-// CreateMigrationTask 创建迁移任务
+// CreateMigrationTask 创建迁移任务.
 func (h *Handlers) CreateMigrationTask(c *gin.Context) {
 	var task MigrationTask
 	if err := c.ShouldBindJSON(&task); err != nil {
@@ -261,7 +261,7 @@ func (h *Handlers) CreateMigrationTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": task})
 }
 
-// GetMigrationTask 获取迁移任务
+// GetMigrationTask 获取迁移任务.
 func (h *Handlers) GetMigrationTask(c *gin.Context) {
 	task, err := h.mgr.GetMigrationTask(c.Param("id"))
 	if err != nil {
@@ -271,7 +271,7 @@ func (h *Handlers) GetMigrationTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": task})
 }
 
-// CancelMigrationTask 取消迁移任务
+// CancelMigrationTask 取消迁移任务.
 func (h *Handlers) CancelMigrationTask(c *gin.Context) {
 	if err := h.mgr.CancelMigrationTask(c.Param("id")); err != nil {
 		c.JSON(http.StatusConflict, gin.H{"code": -1, "message": err.Error()})
@@ -280,7 +280,7 @@ func (h *Handlers) CancelMigrationTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "cancelled"})
 }
 
-// AnalyzeCosts 成本分析
+// AnalyzeCosts 成本分析.
 func (h *Handlers) AnalyzeCosts(c *gin.Context) {
 	period := c.DefaultQuery("period", "monthly")
 	analysis, err := h.mgr.AnalyzeCosts(period)
@@ -291,7 +291,7 @@ func (h *Handlers) AnalyzeCosts(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": analysis})
 }
 
-// GetFederationStats 获取联邦统计
+// GetFederationStats 获取联邦统计.
 func (h *Handlers) GetFederationStats(c *gin.Context) {
 	stats := h.mgr.GetFederationStats()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": stats})

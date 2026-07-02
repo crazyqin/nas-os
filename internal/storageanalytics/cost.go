@@ -71,10 +71,10 @@ func (ca *CostAnalyzer) AnalyzeCosts(result *CollectResult, report *StorageRepor
 // 基于文件访问频率和年龄推断数据适合的存储层级.
 func (ca *CostAnalyzer) estimateTierUsage(result *CollectResult) map[StorageTier]int64 {
 	tierUsage := map[StorageTier]int64{
-		TierNVMe: 0,
-		TierSSD:  0,
-		TierHDD:  0,
-		TierCold: 0,
+		TierNVMe:  0,
+		TierSSD:   0,
+		TierHDD:   0,
+		TierCold:  0,
 		TierCloud: 0,
 	}
 

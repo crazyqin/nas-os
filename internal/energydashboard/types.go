@@ -4,7 +4,7 @@ package energydashboard
 
 import "time"
 
-// ComponentType 硬件组件类型
+// ComponentType 硬件组件类型.
 type ComponentType string
 
 const (
@@ -14,7 +14,7 @@ const (
 	ComponentSystem ComponentType = "system"
 )
 
-// PowerState 电源状态
+// PowerState 电源状态.
 type PowerState string
 
 const (
@@ -25,7 +25,7 @@ const (
 	PowerStateOff     PowerState = "off"
 )
 
-// EnergyReportPeriod 能耗报表周期
+// EnergyReportPeriod 能耗报表周期.
 type EnergyReportPeriod string
 
 const (
@@ -35,7 +35,7 @@ const (
 	PeriodYearly  EnergyReportPeriod = "yearly"
 )
 
-// SleepPolicy 休眠策略类型
+// SleepPolicy 休眠策略类型.
 type SleepPolicy string
 
 const (
@@ -44,7 +44,7 @@ const (
 	SleepPolicyPowerSaver SleepPolicy = "power_saver"
 )
 
-// PowerReading 功耗读数
+// PowerReading 功耗读数.
 type PowerReading struct {
 	ID          string        `json:"id"`
 	Component   ComponentType `json:"component"`
@@ -55,7 +55,7 @@ type PowerReading struct {
 	Timestamp   time.Time     `json:"timestamp"`
 }
 
-// SystemPowerSnapshot 系统功耗快照
+// SystemPowerSnapshot 系统功耗快照.
 type SystemPowerSnapshot struct {
 	ID             string         `json:"id"`
 	CPUPower       float64        `json:"cpu_power"`
@@ -67,7 +67,7 @@ type SystemPowerSnapshot struct {
 	Timestamp      time.Time      `json:"timestamp"`
 }
 
-// ElectricityRate 电价配置
+// ElectricityRate 电价配置.
 type ElectricityRate struct {
 	ID           string     `json:"id"`
 	Region       string     `json:"region" binding:"required"`
@@ -77,7 +77,7 @@ type ElectricityRate struct {
 	UpdatedAt    time.Time  `json:"updated_at"`
 }
 
-// RateTier 分时电价阶梯
+// RateTier 分时电价阶梯.
 type RateTier struct {
 	Name      string  `json:"name"`
 	StartTime string  `json:"start_time"` // HH:MM 格式
@@ -85,7 +85,7 @@ type RateTier struct {
 	PriceKWh  float64 `json:"price_kwh"`  // 每度电价格
 }
 
-// EnergyCost 能耗费用
+// EnergyCost 能耗费用.
 type EnergyCost struct {
 	ID        string             `json:"id"`
 	Region    string             `json:"region"`
@@ -99,7 +99,7 @@ type EnergyCost struct {
 	CreatedAt time.Time          `json:"created_at"`
 }
 
-// CostBreakdown 费用细分
+// CostBreakdown 费用细分.
 type CostBreakdown struct {
 	Component  ComponentType `json:"component"`
 	KWh        float64       `json:"kwh"`
@@ -107,7 +107,7 @@ type CostBreakdown struct {
 	Percentage float64       `json:"percentage"`
 }
 
-// EfficiencyScore 能效评分
+// EfficiencyScore 能效评分.
 type EfficiencyScore struct {
 	ID              string    `json:"id"`
 	TotalStorageTB  float64   `json:"total_storage_tb"`
@@ -119,7 +119,7 @@ type EfficiencyScore struct {
 	UpdatedAt       time.Time `json:"updated_at"`
 }
 
-// SleepSchedule 休眠计划
+// SleepSchedule 休眠计划.
 type SleepSchedule struct {
 	ID           string      `json:"id"`
 	Name         string      `json:"name" binding:"required"`
@@ -133,7 +133,7 @@ type SleepSchedule struct {
 	UpdatedAt    time.Time   `json:"updated_at"`
 }
 
-// EnergyReport 能耗报表
+// EnergyReport 能耗报表.
 type EnergyReport struct {
 	ID              string             `json:"id"`
 	Period          EnergyReportPeriod `json:"period"`
@@ -151,7 +151,7 @@ type EnergyReport struct {
 	CreatedAt       time.Time          `json:"created_at"`
 }
 
-// ComponentReport 组件能耗报表
+// ComponentReport 组件能耗报表.
 type ComponentReport struct {
 	Component   ComponentType `json:"component"`
 	DeviceName  string        `json:"device_name"`
@@ -161,7 +161,7 @@ type ComponentReport struct {
 	UptimeHours float64       `json:"uptime_hours"`
 }
 
-// CarbonEstimate 碳排放估算
+// CarbonEstimate 碳排放估算.
 type CarbonEstimate struct {
 	ID             string             `json:"id"`
 	KWh            float64            `json:"kwh"`
@@ -175,7 +175,7 @@ type CarbonEstimate struct {
 	CreatedAt      time.Time          `json:"created_at"`
 }
 
-// DashboardSummary 仪表盘总览
+// DashboardSummary 仪表盘总览.
 type DashboardSummary struct {
 	CurrentPower    *SystemPowerSnapshot `json:"current_power"`
 	TodayKWh        float64              `json:"today_kwh"`
@@ -189,7 +189,7 @@ type DashboardSummary struct {
 	LastUpdated     time.Time            `json:"last_updated"`
 }
 
-// DashboardConfig 能耗仪表盘配置
+// DashboardConfig 能耗仪表盘配置.
 type DashboardConfig struct {
 	Enabled          bool    `json:"enabled"`
 	MonitorInterval  int     `json:"monitor_interval"` // 采样间隔秒数
@@ -201,7 +201,7 @@ type DashboardConfig struct {
 	EnableSleepSched bool    `json:"enable_sleep_sched"`
 }
 
-// DefaultDashboardConfig 默认配置
+// DefaultDashboardConfig 默认配置.
 func DefaultDashboardConfig() *DashboardConfig {
 	return &DashboardConfig{
 		Enabled:          true,
@@ -215,7 +215,7 @@ func DefaultDashboardConfig() *DashboardConfig {
 	}
 }
 
-// GetDefaultRates 获取默认电价（中国居民用电）
+// GetDefaultRates 获取默认电价（中国居民用电）.
 func GetDefaultRates() []RateTier {
 	return []RateTier{
 		{Name: "峰时", StartTime: "08:00", EndTime: "22:00", PriceKWh: 0.56},
@@ -223,12 +223,12 @@ func GetDefaultRates() []RateTier {
 	}
 }
 
-// SupportedPeriods 支持的报表周期
+// SupportedPeriods 支持的报表周期.
 func SupportedPeriods() []EnergyReportPeriod {
 	return []EnergyReportPeriod{PeriodDaily, PeriodWeekly, PeriodMonthly, PeriodYearly}
 }
 
-// IsValidPeriod 校验周期是否有效
+// IsValidPeriod 校验周期是否有效.
 func IsValidPeriod(p EnergyReportPeriod) bool {
 	for _, period := range SupportedPeriods() {
 		if period == p {

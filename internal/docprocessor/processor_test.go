@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-// TestDetectType 测试文档类型检测
+// TestDetectType 测试文档类型检测.
 func TestDetectType(t *testing.T) {
 	p := NewProcessor()
 
@@ -44,7 +44,7 @@ func TestDetectType(t *testing.T) {
 	}
 }
 
-// TestAnalyzeDocument 测试文档分析
+// TestAnalyzeDocument 测试文档分析.
 func TestAnalyzeDocument(t *testing.T) {
 	p := NewProcessor()
 
@@ -91,7 +91,7 @@ func TestAnalyzeDocument(t *testing.T) {
 	}
 }
 
-// TestClassifyDocument 测试文档分类
+// TestClassifyDocument 测试文档分类.
 func TestClassifyDocument(t *testing.T) {
 	p := NewProcessor()
 
@@ -133,7 +133,7 @@ func TestClassifyDocument(t *testing.T) {
 	}
 }
 
-// TestSummarizeDocument 测试文档摘要
+// TestSummarizeDocument 测试文档摘要.
 func TestSummarizeDocument(t *testing.T) {
 	p := NewProcessor()
 
@@ -167,7 +167,7 @@ func TestSummarizeDocument(t *testing.T) {
 	}
 }
 
-// TestDiffDocuments 测试文档对比
+// TestDiffDocuments 测试文档对比.
 func TestDiffDocuments(t *testing.T) {
 	p := NewProcessor()
 
@@ -204,7 +204,7 @@ func TestDiffDocuments(t *testing.T) {
 	}
 }
 
-// TestSearchDocuments 测试文档搜索
+// TestSearchDocuments 测试文档搜索.
 func TestSearchDocuments(t *testing.T) {
 	p := NewProcessor()
 
@@ -262,7 +262,7 @@ func TestSearchDocuments(t *testing.T) {
 	}
 }
 
-// TestIndexAndRetrieve 测试索引和检索
+// TestIndexAndRetrieve 测试索引和检索.
 func TestIndexAndRetrieve(t *testing.T) {
 	p := NewProcessor()
 
@@ -304,7 +304,7 @@ func TestIndexAndRetrieve(t *testing.T) {
 	}
 }
 
-// TestAnalyzeHandler 测试分析API
+// TestAnalyzeHandler 测试分析API.
 func TestAnalyzeHandler(t *testing.T) {
 	p := NewProcessor()
 	handler := NewAPIHandler(p)
@@ -337,7 +337,7 @@ func TestAnalyzeHandler(t *testing.T) {
 	}
 }
 
-// TestClassifyHandler 测试分类API
+// TestClassifyHandler 测试分类API.
 func TestClassifyHandler(t *testing.T) {
 	p := NewProcessor()
 	handler := NewAPIHandler(p)
@@ -370,7 +370,7 @@ func TestClassifyHandler(t *testing.T) {
 	}
 }
 
-// TestSummarizeHandler 测试摘要API
+// TestSummarizeHandler 测试摘要API.
 func TestSummarizeHandler(t *testing.T) {
 	p := NewProcessor()
 	handler := NewAPIHandler(p)
@@ -403,7 +403,7 @@ func TestSummarizeHandler(t *testing.T) {
 	}
 }
 
-// TestDiffHandler 测试对比API
+// TestDiffHandler 测试对比API.
 func TestDiffHandler(t *testing.T) {
 	p := NewProcessor()
 	handler := NewAPIHandler(p)
@@ -436,7 +436,7 @@ func TestDiffHandler(t *testing.T) {
 	}
 }
 
-// TestSearchHandler 测试搜索API
+// TestSearchHandler 测试搜索API.
 func TestSearchHandler(t *testing.T) {
 	p := NewProcessor()
 	handler := NewAPIHandler(p)
@@ -471,7 +471,7 @@ func TestSearchHandler(t *testing.T) {
 	}
 }
 
-// TestMethodNotAllowed 测试方法不允许
+// TestMethodNotAllowed 测试方法不允许.
 func TestMethodNotAllowed(t *testing.T) {
 	p := NewProcessor()
 	handler := NewAPIHandler(p)
@@ -490,7 +490,7 @@ func TestMethodNotAllowed(t *testing.T) {
 	}
 }
 
-// TestBadRequest 测试错误请求
+// TestBadRequest 测试错误请求.
 func TestBadRequest(t *testing.T) {
 	p := NewProcessor()
 	handler := NewAPIHandler(p)
@@ -511,7 +511,7 @@ func TestBadRequest(t *testing.T) {
 	}
 }
 
-// TestHelperFunctions 测试辅助函数
+// TestHelperFunctions 测试辅助函数.
 func TestHelperFunctions(t *testing.T) {
 	// 测试countWords
 	if countWords("") != 0 {
@@ -558,7 +558,7 @@ func TestHelperFunctions(t *testing.T) {
 	}
 }
 
-// TestDocTypeString 测试文档类型字符串
+// TestDocTypeString 测试文档类型字符串.
 func TestDocTypeString(t *testing.T) {
 	tests := []struct {
 		docType  DocType
@@ -582,7 +582,7 @@ func TestDocTypeString(t *testing.T) {
 	}
 }
 
-// TestTokenize 测试分词
+// TestTokenize 测试分词.
 func TestTokenize(t *testing.T) {
 	// 测试英文分词
 	words := tokenize("hello world")
@@ -597,7 +597,7 @@ func TestTokenize(t *testing.T) {
 	}
 }
 
-// TestExtractKeywords 测试关键词提取
+// TestExtractKeywords 测试关键词提取.
 func TestExtractKeywords(t *testing.T) {
 	text := "Docker是一个容器化平台，Docker容器可以快速部署应用。Docker使用简单，功能强大。"
 	keywords := extractKeywords(text)
@@ -613,7 +613,7 @@ func TestExtractKeywords(t *testing.T) {
 	}
 }
 
-// BenchmarkAnalyzeDocument 基准测试文档分析
+// BenchmarkAnalyzeDocument 基准测试文档分析.
 func BenchmarkAnalyzeDocument(b *testing.B) {
 	p := NewProcessor()
 	doc := &Document{
@@ -633,7 +633,7 @@ func BenchmarkAnalyzeDocument(b *testing.B) {
 	}
 }
 
-// BenchmarkSearchDocuments 基准测试文档搜索
+// BenchmarkSearchDocuments 基准测试文档搜索.
 func BenchmarkSearchDocuments(b *testing.B) {
 	p := NewProcessor()
 

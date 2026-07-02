@@ -26,7 +26,7 @@ var (
 
 // ==================== 枚举类型 ====================
 
-// FaultType 故障注入类型
+// FaultType 故障注入类型.
 type FaultType string
 
 const (
@@ -40,7 +40,7 @@ const (
 	FaultDiskIO         FaultType = "disk_io"         // 磁盘IO延迟
 )
 
-// Severity 严重程度
+// Severity 严重程度.
 type Severity string
 
 const (
@@ -50,7 +50,7 @@ const (
 	SeverityCritical Severity = "critical" // 严重
 )
 
-// ExperimentStatus 实验状态
+// ExperimentStatus 实验状态.
 type ExperimentStatus string
 
 const (
@@ -62,7 +62,7 @@ const (
 	StatusScheduled ExperimentStatus = "scheduled" // 已调度
 )
 
-// RecoveryStatus 恢复状态
+// RecoveryStatus 恢复状态.
 type RecoveryStatus string
 
 const (
@@ -72,7 +72,7 @@ const (
 	RecoveryFailed  RecoveryStatus = "failed"  // 恢复失败
 )
 
-// TargetType 目标类型
+// TargetType 目标类型.
 type TargetType string
 
 const (
@@ -84,7 +84,7 @@ const (
 	TargetService TargetType = "service" // 服务
 )
 
-// ScheduleType 调度类型
+// ScheduleType 调度类型.
 type ScheduleType string
 
 const (
@@ -96,7 +96,7 @@ const (
 
 // ==================== 核心类型 ====================
 
-// FaultConfig 故障注入配置
+// FaultConfig 故障注入配置.
 type FaultConfig struct {
 	Type       FaultType      `json:"type"`        // 故障类型
 	Target     string         `json:"target"`      // 目标（磁盘路径、网卡名等）
@@ -106,7 +106,7 @@ type FaultConfig struct {
 	Duration   time.Duration  `json:"duration"`    // 持续时间
 }
 
-// SafetyBoundary 安全边界配置
+// SafetyBoundary 安全边界配置.
 type SafetyBoundary struct {
 	MaxDuration       time.Duration `json:"max_duration"`       // 最大持续时间
 	MaxCPUUsage       float64       `json:"max_cpu_usage"`      // 最大 CPU 使用率 (0-100)
@@ -118,7 +118,7 @@ type SafetyBoundary struct {
 	RequireConfirm    bool          `json:"require_confirm"`    // 需要确认
 }
 
-// Schedule 实验调度配置
+// Schedule 实验调度配置.
 type Schedule struct {
 	Type      ScheduleType  `json:"type"`                 // 调度类型
 	CronExpr  string        `json:"cron_expr,omitempty"`  // Cron 表达式
@@ -126,20 +126,20 @@ type Schedule struct {
 	StartTime *time.Time    `json:"start_time,omitempty"` // 开始时间
 }
 
-// Hypothesis 实验假设
+// Hypothesis 实验假设.
 type Hypothesis struct {
 	Description string `json:"description"` // 假设描述
 	Expected    string `json:"expected"`    // 预期结果
 }
 
-// MetricPoint 指标数据点
+// MetricPoint 指标数据点.
 type MetricPoint struct {
 	Timestamp time.Time `json:"timestamp"`
 	Value     float64   `json:"value"`
 	Unit      string    `json:"unit"`
 }
 
-// ResilienceScore 韧性评分
+// ResilienceScore 韧性评分.
 type ResilienceScore struct {
 	Overall      float64            `json:"overall"`      // 总分 (0-100)
 	Recovery     float64            `json:"recovery"`     // 恢复能力
@@ -148,7 +148,7 @@ type ResilienceScore struct {
 	Breakdown    map[string]float64 `json:"breakdown"`    // 分项评分
 }
 
-// RecoveryResult 恢复结果
+// RecoveryResult 恢复结果.
 type RecoveryResult struct {
 	Status    RecoveryStatus `json:"status"`     // 恢复状态
 	StartTime time.Time      `json:"start_time"` // 开始时间
@@ -158,7 +158,7 @@ type RecoveryResult struct {
 	Error     string         `json:"error"`      // 错误信息
 }
 
-// RecoveryStep 恢复步骤
+// RecoveryStep 恢复步骤.
 type RecoveryStep struct {
 	Name      string    `json:"name"`       // 步骤名称
 	Status    string    `json:"status"`     // 状态
@@ -167,7 +167,7 @@ type RecoveryStep struct {
 	Error     string    `json:"error"`      // 错误信息
 }
 
-// Observation 实验观察记录
+// Observation 实验观察记录.
 type Observation struct {
 	Timestamp time.Time          `json:"timestamp"`
 	Phase     string             `json:"phase"` // before/during/after
@@ -175,7 +175,7 @@ type Observation struct {
 	Notes     string             `json:"notes"`
 }
 
-// Experiment 实验定义
+// Experiment 实验定义.
 type Experiment struct {
 	ID          string           `json:"id"`
 	Name        string           `json:"name"`
@@ -199,7 +199,7 @@ type Experiment struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// ResilienceReport 韧性评估报告
+// ResilienceReport 韧性评估报告.
 type ResilienceReport struct {
 	ID                string           `json:"id"`
 	GeneratedAt       time.Time        `json:"generated_at"`
@@ -212,7 +212,7 @@ type ResilienceReport struct {
 	ExperimentIDs     []string         `json:"experiment_ids"`
 }
 
-// Dashboard 仪表盘数据
+// Dashboard 仪表盘数据.
 type Dashboard struct {
 	TotalExperiments     int               `json:"total_experiments"`
 	RunningExperiments   int               `json:"running_experiments"`
@@ -224,7 +224,7 @@ type Dashboard struct {
 	UpdatedAt            time.Time         `json:"updated_at"`
 }
 
-// Manager 混沌工程管理器
+// Manager 混沌工程管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	experiments map[string]*Experiment
@@ -235,7 +235,7 @@ type Manager struct {
 	cancel      context.CancelFunc
 }
 
-// Config 管理器配置
+// Config 管理器配置.
 type Config struct {
 	Enabled         bool           `json:"enabled"`
 	DefaultSafety   SafetyBoundary `json:"default_safety"`
@@ -243,7 +243,7 @@ type Config struct {
 	MetricsInterval time.Duration  `json:"metrics_interval"`
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled: true,
@@ -262,7 +262,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// ValidateFaultType 验证故障类型
+// ValidateFaultType 验证故障类型.
 func ValidateFaultType(ft FaultType) error {
 	switch ft {
 	case FaultDiskFull, FaultNetworkLatency, FaultNetworkLoss,
@@ -274,7 +274,7 @@ func ValidateFaultType(ft FaultType) error {
 	}
 }
 
-// ValidateSeverity 验证严重程度
+// ValidateSeverity 验证严重程度.
 func ValidateSeverity(s Severity) error {
 	switch s {
 	case SeverityLow, SeverityMedium, SeverityHigh, SeverityCritical:

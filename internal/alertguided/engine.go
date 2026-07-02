@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 引导式告警管理器
+// Manager 引导式告警管理器.
 type Manager struct {
 	alerts     map[string]*GuidedAlert
 	rules      map[string]*AlertRule
@@ -19,7 +19,7 @@ type Manager struct {
 	logger     *zap.Logger
 }
 
-// NewManager 创建告警管理器
+// NewManager 创建告警管理器.
 func NewManager(logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -34,7 +34,7 @@ func NewManager(logger *zap.Logger) *Manager {
 	return m
 }
 
-// RegisterRule 注册告警规则
+// RegisterRule 注册告警规则.
 func (m *Manager) RegisterRule(rule *AlertRule) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -42,7 +42,7 @@ func (m *Manager) RegisterRule(rule *AlertRule) {
 	m.logger.Info("registered alert rule", zap.String("name", rule.Name))
 }
 
-// Fire 触发告警
+// Fire 触发告警.
 func (m *Manager) Fire(ruleName, message string) *GuidedAlert {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -125,7 +125,7 @@ func (m *Manager) Fire(ruleName, message string) *GuidedAlert {
 	return alert
 }
 
-// correlateAlerts 关联分析：同类别未确认告警关联
+// correlateAlerts 关联分析：同类别未确认告警关联.
 func (m *Manager) correlateAlerts(newAlert *GuidedAlert) {
 	for _, existing := range m.alerts {
 		if existing.ID == newAlert.ID {
@@ -138,7 +138,7 @@ func (m *Manager) correlateAlerts(newAlert *GuidedAlert) {
 	}
 }
 
-// buildContext 构建上下文信息
+// buildContext 构建上下文信息.
 func (m *Manager) buildContext() *ContextInfo {
 	activeCount := 0
 	for _, a := range m.alerts {
@@ -151,7 +151,7 @@ func (m *Manager) buildContext() *ContextInfo {
 	}
 }
 
-// Acknowledge 确认告警
+// Acknowledge 确认告警.
 func (m *Manager) Acknowledge(id, reason string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -165,7 +165,7 @@ func (m *Manager) Acknowledge(id, reason string) error {
 	return nil
 }
 
-// Silence 静音告警
+// Silence 静音告警.
 func (m *Manager) Silence(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -179,7 +179,7 @@ func (m *Manager) Silence(id string) error {
 	return nil
 }
 
-// UpdateStatus 更新告警状态
+// UpdateStatus 更新告警状态.
 func (m *Manager) UpdateStatus(id string, status AlertStatus, reason, changedBy string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -214,7 +214,7 @@ func (m *Manager) UpdateStatus(id string, status AlertStatus, reason, changedBy 
 	return nil
 }
 
-// Get 获取单个告警
+// Get 获取单个告警.
 func (m *Manager) Get(id string) (*GuidedAlert, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -222,7 +222,7 @@ func (m *Manager) Get(id string) (*GuidedAlert, bool) {
 	return alert, ok
 }
 
-// List 获取告警列表
+// List 获取告警列表.
 func (m *Manager) List() []*GuidedAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -233,7 +233,7 @@ func (m *Manager) List() []*GuidedAlert {
 	return result
 }
 
-// ListBySeverity 按严重级别筛选
+// ListBySeverity 按严重级别筛选.
 func (m *Manager) ListBySeverity(severity Severity) []*GuidedAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -246,7 +246,7 @@ func (m *Manager) ListBySeverity(severity Severity) []*GuidedAlert {
 	return result
 }
 
-// ListByStatus 按状态筛选
+// ListByStatus 按状态筛选.
 func (m *Manager) ListByStatus(status AlertStatus) []*GuidedAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -259,7 +259,7 @@ func (m *Manager) ListByStatus(status AlertStatus) []*GuidedAlert {
 	return result
 }
 
-// Summary 获取告警汇总
+// Summary 获取告警汇总.
 func (m *Manager) Summary() *AlertSummary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -286,7 +286,7 @@ func (m *Manager) Summary() *AlertSummary {
 	return summary
 }
 
-// GetRules 获取所有规则
+// GetRules 获取所有规则.
 func (m *Manager) GetRules() []*AlertRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -297,7 +297,7 @@ func (m *Manager) GetRules() []*AlertRule {
 	return result
 }
 
-// registerBuiltinRules 注册内置告警规则
+// registerBuiltinRules 注册内置告警规则.
 func (m *Manager) registerBuiltinRules() {
 	m.rules["smart_warning"] = &AlertRule{
 		Name:      "smart_warning",

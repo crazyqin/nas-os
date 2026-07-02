@@ -7,17 +7,17 @@ import (
 	"time"
 )
 
-// Handlers HTTP 处理器
+// Handlers HTTP 处理器.
 type Handlers struct {
 	mgr *Manager
 }
 
-// NewHandlers 创建 HTTP 处理器
+// NewHandlers 创建 HTTP 处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{mgr: mgr}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux, prefix string) {
 	mux.HandleFunc(prefix+"/forecast", h.handleForecast)
 	mux.HandleFunc(prefix+"/growth", h.handleGrowth)
@@ -46,7 +46,7 @@ func writeJSON(w http.ResponseWriter, code int, data interface{}) {
 	json.NewEncoder(w).Encode(data)
 }
 
-// handleForecast 容量预测
+// handleForecast 容量预测.
 func (h *Handlers) handleForecast(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -74,7 +74,7 @@ func (h *Handlers) handleForecast(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleGrowth 增长率分析
+// handleGrowth 增长率分析.
 func (h *Handlers) handleGrowth(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -94,7 +94,7 @@ func (h *Handlers) handleGrowth(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleAlerts 获取告警
+// handleAlerts 获取告警.
 func (h *Handlers) handleAlerts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -111,7 +111,7 @@ func (h *Handlers) handleAlerts(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleDismissAlert 忽略告警
+// handleDismissAlert 忽略告警.
 func (h *Handlers) handleDismissAlert(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -137,7 +137,7 @@ func (h *Handlers) handleDismissAlert(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleAcknowledgeAlert 确认告警
+// handleAcknowledgeAlert 确认告警.
 func (h *Handlers) handleAcknowledgeAlert(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -163,7 +163,7 @@ func (h *Handlers) handleAcknowledgeAlert(w http.ResponseWriter, r *http.Request
 	})
 }
 
-// handleWhatIf What-If 模拟
+// handleWhatIf What-If 模拟.
 func (h *Handlers) handleWhatIf(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -194,7 +194,7 @@ func (h *Handlers) handleWhatIf(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleListScenarios 列出模拟场景
+// handleListScenarios 列出模拟场景.
 func (h *Handlers) handleListScenarios(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -209,7 +209,7 @@ func (h *Handlers) handleListScenarios(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleGetScenario 获取模拟场景
+// handleGetScenario 获取模拟场景.
 func (h *Handlers) handleGetScenario(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -235,7 +235,7 @@ func (h *Handlers) handleGetScenario(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleExpansion 扩容建议
+// handleExpansion 扩容建议.
 func (h *Handlers) handleExpansion(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -255,7 +255,7 @@ func (h *Handlers) handleExpansion(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleSnapshots 获取快照
+// handleSnapshots 获取快照.
 func (h *Handlers) handleSnapshots(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -280,7 +280,7 @@ func (h *Handlers) handleSnapshots(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleAddSnapshot 添加快照
+// handleAddSnapshot 添加快照.
 func (h *Handlers) handleAddSnapshot(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -306,7 +306,7 @@ func (h *Handlers) handleAddSnapshot(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleStats 获取统计
+// handleStats 获取统计.
 func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -321,7 +321,7 @@ func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleConfig 管理配置
+// handleConfig 管理配置.
 func (h *Handlers) handleConfig(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:

@@ -78,7 +78,7 @@ func TestCostAnalyzer_CloudComparison(t *testing.T) {
 	costAnalyzer := NewCostAnalyzer(nil)
 
 	totalBytes := int64(1024 * 1024 * 1024 * 1024) // 1TB
-	localCost := 100.0 // 100元/月
+	localCost := 100.0                             // 100元/月
 
 	comparison := costAnalyzer.CompareCloudCosts(totalBytes, localCost)
 
@@ -95,9 +95,9 @@ func TestCostAnalyzer_GrowthRate(t *testing.T) {
 	report := &StorageReport{
 		Trends: TrendAnalysis{
 			Monthly: []TrendPoint{
-				{Date: time.Now().AddDate(0, -3, 0), Growth: 1024 * 1024 * 1024},      // 1GB
-				{Date: time.Now().AddDate(0, -2, 0), Growth: 1024 * 1024 * 1024 * 2},  // 2GB
-				{Date: time.Now().AddDate(0, -1, 0), Growth: 1024 * 1024 * 1024 * 3},  // 3GB
+				{Date: time.Now().AddDate(0, -3, 0), Growth: 1024 * 1024 * 1024},     // 1GB
+				{Date: time.Now().AddDate(0, -2, 0), Growth: 1024 * 1024 * 1024 * 2}, // 2GB
+				{Date: time.Now().AddDate(0, -1, 0), Growth: 1024 * 1024 * 1024 * 3}, // 3GB
 			},
 		},
 	}

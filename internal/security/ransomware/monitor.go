@@ -16,7 +16,7 @@ import (
 )
 
 // FileEventMonitor 文件事件监控器
-// 使用fsnotify实时捕获文件系统事件
+// 使用fsnotify实时捕获文件系统事件.
 type FileEventMonitor struct {
 	config            MonitorConfig
 	watcher           *fsnotify.Watcher
@@ -34,7 +34,7 @@ type FileEventMonitor struct {
 	statsMu           sync.RWMutex
 }
 
-// MonitorStats 监控器统计信息
+// MonitorStats 监控器统计信息.
 type MonitorStats struct {
 	TotalEvents    int64                   `json:"total_events"`
 	EventsByType   map[FileOperation]int64 `json:"events_by_type"`
@@ -46,7 +46,7 @@ type MonitorStats struct {
 	BufferCapacity int                     `json:"buffer_capacity"`
 }
 
-// EventBuffer 事件缓冲队列
+// EventBuffer 事件缓冲队列.
 type EventBuffer struct {
 	events   []FileEvent
 	capacity int
@@ -55,7 +55,7 @@ type EventBuffer struct {
 	overflow int64
 }
 
-// RateLimiter 速率限制器
+// RateLimiter 速率限制器.
 type RateLimiter struct {
 	maxEventsPerSecond int
 	eventCounts        map[string]int
@@ -63,12 +63,12 @@ type RateLimiter struct {
 	mu                 sync.Mutex
 }
 
-// ProcessInfoGetter 进程信息获取接口
+// ProcessInfoGetter 进程信息获取接口.
 type ProcessInfoGetter interface {
 	GetProcessInfo(path string) (*ProcessInfo, error)
 }
 
-// NewFileEventMonitor 创建文件事件监控器
+// NewFileEventMonitor 创建文件事件监控器.
 func NewFileEventMonitor(config MonitorConfig) (*FileEventMonitor, error) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -99,12 +99,12 @@ func NewFileEventMonitor(config MonitorConfig) (*FileEventMonitor, error) {
 	return monitor, nil
 }
 
-// SetProcessInfoGetter 设置进程信息获取器
+// SetProcessInfoGetter 设置进程信息获取器.
 func (m *FileEventMonitor) SetProcessInfoGetter(getter ProcessInfoGetter) {
 	m.processInfoGetter = getter
 }
 
-// Start 启动监控器
+// Start 启动监控器.
 func (m *FileEventMonitor) Start(ctx context.Context) (<-chan FileEvent, <-chan error, error) {
 	m.mu.Lock()
 	if m.running {
@@ -136,7 +136,7 @@ func (m *FileEventMonitor) Start(ctx context.Context) (<-chan FileEvent, <-chan 
 	return m.eventChan, m.errorChan, nil
 }
 
-// Stop 停止监控器
+// Stop 停止监控器.
 func (m *FileEventMonitor) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -157,7 +157,7 @@ func (m *FileEventMonitor) Stop() error {
 	return nil
 }
 
-// AddWatchPath 添加监控路径
+// AddWatchPath 添加监控路径.
 func (m *FileEventMonitor) AddWatchPath(path string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -202,7 +202,7 @@ func (m *FileEventMonitor) AddWatchPath(path string) error {
 	return nil
 }
 
-// RemoveWatchPath 移除监控路径
+// RemoveWatchPath 移除监控路径.
 func (m *FileEventMonitor) RemoveWatchPath(path string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -223,7 +223,7 @@ func (m *FileEventMonitor) RemoveWatchPath(path string) error {
 	return nil
 }
 
-// addRecursiveWatch 递归添加目录监控
+// addRecursiveWatch 递归添加目录监控.
 func (m *FileEventMonitor) addRecursiveWatch(rootPath string) error {
 	return filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -253,7 +253,7 @@ func (m *FileEventMonitor) addRecursiveWatch(rootPath string) error {
 	})
 }
 
-// processLoop 事件处理循环
+// processLoop 事件处理循环.
 func (m *FileEventMonitor) processLoop(ctx context.Context) {
 	for {
 		select {
@@ -268,7 +268,7 @@ func (m *FileEventMonitor) processLoop(ctx context.Context) {
 	}
 }
 
-// handleFsnotifyEvent 处理fsnotify事件
+// handleFsnotifyEvent 处理fsnotify事件.
 func (m *FileEventMonitor) handleFsnotifyEvent(event fsnotify.Event) {
 	// 速率限制检查
 	if !m.rateLimiter.Allow(event.Name) {
@@ -316,7 +316,7 @@ func (m *FileEventMonitor) handleFsnotifyEvent(event fsnotify.Event) {
 	}
 }
 
-// convertEvent 转换fsnotify事件为FileEvent
+// convertEvent 转换fsnotify事件为FileEvent.
 func (m *FileEventMonitor) convertEvent(event fsnotify.Event) FileEvent {
 	now := time.Now()
 	path := event.Name
@@ -345,7 +345,7 @@ func (m *FileEventMonitor) convertEvent(event fsnotify.Event) FileEvent {
 	}
 }
 
-// determineOperation 确定文件操作类型
+// determineOperation 确定文件操作类型.
 func (m *FileEventMonitor) determineOperation(event fsnotify.Event) FileOperation {
 	op := event.Op
 
@@ -386,7 +386,7 @@ func (m *FileEventMonitor) determineOperation(event fsnotify.Event) FileOperatio
 	return FileOpModify // 默认
 }
 
-// errorLoop 错误处理循环
+// errorLoop 错误处理循环.
 func (m *FileEventMonitor) errorLoop(ctx context.Context) {
 	for {
 		select {
@@ -401,7 +401,7 @@ func (m *FileEventMonitor) errorLoop(ctx context.Context) {
 	}
 }
 
-// sendError 发送错误
+// sendError 发送错误.
 func (m *FileEventMonitor) sendError(err error) {
 	m.statsMu.Lock()
 	m.stats.LastError = err.Error()
@@ -416,7 +416,7 @@ func (m *FileEventMonitor) sendError(err error) {
 	}
 }
 
-// rateLimiterResetLoop 速率限制器重置循环
+// rateLimiterResetLoop 速率限制器重置循环.
 func (m *FileEventMonitor) rateLimiterResetLoop(ctx context.Context) {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
@@ -431,7 +431,7 @@ func (m *FileEventMonitor) rateLimiterResetLoop(ctx context.Context) {
 	}
 }
 
-// updateStats 更新统计信息
+// updateStats 更新统计信息.
 func (m *FileEventMonitor) updateStats(event FileEvent) {
 	m.statsMu.Lock()
 	defer m.statsMu.Unlock()
@@ -443,7 +443,7 @@ func (m *FileEventMonitor) updateStats(event FileEvent) {
 	m.stats.BufferCapacity = m.buffer.Capacity()
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *FileEventMonitor) GetStats() MonitorStats {
 	m.statsMu.RLock()
 	defer m.statsMu.RUnlock()
@@ -452,24 +452,24 @@ func (m *FileEventMonitor) GetStats() MonitorStats {
 	return stats
 }
 
-// GetBufferedEvents 获取缓冲的事件
+// GetBufferedEvents 获取缓冲的事件.
 func (m *FileEventMonitor) GetBufferedEvents(limit int) []FileEvent {
 	return m.buffer.GetRecent(limit)
 }
 
-// ClearBuffer 清除缓冲区
+// ClearBuffer 清除缓冲区.
 func (m *FileEventMonitor) ClearBuffer() {
 	m.buffer.Clear()
 }
 
-// IsRunning 检查是否正在运行
+// IsRunning 检查是否正在运行.
 func (m *FileEventMonitor) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.running
 }
 
-// GetWatchedPaths 获取监控路径列表
+// GetWatchedPaths 获取监控路径列表.
 func (m *FileEventMonitor) GetWatchedPaths() []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -483,7 +483,7 @@ func (m *FileEventMonitor) GetWatchedPaths() []string {
 
 // ========== EventBuffer ==========
 
-// NewEventBuffer 创建事件缓冲队列
+// NewEventBuffer 创建事件缓冲队列.
 func NewEventBuffer(capacity int) *EventBuffer {
 	return &EventBuffer{
 		events:   make([]FileEvent, capacity),
@@ -492,7 +492,7 @@ func NewEventBuffer(capacity int) *EventBuffer {
 	}
 }
 
-// Add 添加事件到缓冲队列
+// Add 添加事件到缓冲队列.
 func (b *EventBuffer) Add(event FileEvent) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -505,7 +505,7 @@ func (b *EventBuffer) Add(event FileEvent) {
 	}
 }
 
-// GetRecent 获取最近的事件
+// GetRecent 获取最近的事件.
 func (b *EventBuffer) GetRecent(limit int) []FileEvent {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -535,17 +535,17 @@ func (b *EventBuffer) GetRecent(limit int) []FileEvent {
 	return result
 }
 
-// Size 获取缓冲区大小
+// Size 获取缓冲区大小.
 func (b *EventBuffer) Size() int {
 	return b.position
 }
 
-// Capacity 获取缓冲区容量
+// Capacity 获取缓冲区容量.
 func (b *EventBuffer) Capacity() int {
 	return b.capacity
 }
 
-// Clear 清除缓冲区
+// Clear 清除缓冲区.
 func (b *EventBuffer) Clear() {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -555,7 +555,7 @@ func (b *EventBuffer) Clear() {
 	b.overflow = 0
 }
 
-// Overflow 获取溢出次数
+// Overflow 获取溢出次数.
 func (b *EventBuffer) Overflow() int64 {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -564,7 +564,7 @@ func (b *EventBuffer) Overflow() int64 {
 
 // ========== RateLimiter ==========
 
-// NewRateLimiter 创建速率限制器
+// NewRateLimiter 创建速率限制器.
 func NewRateLimiter(maxEventsPerSecond int) *RateLimiter {
 	return &RateLimiter{
 		maxEventsPerSecond: maxEventsPerSecond,
@@ -573,7 +573,7 @@ func NewRateLimiter(maxEventsPerSecond int) *RateLimiter {
 	}
 }
 
-// Allow 检查是否允许事件
+// Allow 检查是否允许事件.
 func (r *RateLimiter) Allow(path string) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -593,7 +593,7 @@ func (r *RateLimiter) Allow(path string) bool {
 	return true
 }
 
-// Reset 重置计数器
+// Reset 重置计数器.
 func (r *RateLimiter) Reset() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -603,15 +603,15 @@ func (r *RateLimiter) Reset() {
 
 // ========== LinuxProcessInfoGetter ==========
 
-// LinuxProcessInfoGetter Linux进程信息获取器
+// LinuxProcessInfoGetter Linux进程信息获取器.
 type LinuxProcessInfoGetter struct{}
 
-// NewLinuxProcessInfoGetter 创建Linux进程信息获取器
+// NewLinuxProcessInfoGetter 创建Linux进程信息获取器.
 func NewLinuxProcessInfoGetter() *LinuxProcessInfoGetter {
 	return &LinuxProcessInfoGetter{}
 }
 
-// GetProcessInfo 获取进程信息（通过/proc文件系统）
+// GetProcessInfo 获取进程信息（通过/proc文件系统）.
 func (g *LinuxProcessInfoGetter) GetProcessInfo(filePath string) (*ProcessInfo, error) {
 	// 注意：要获取修改文件的进程信息需要更复杂的方法
 	// 这里提供简化实现，实际应用中可以使用auditd或eBPF
@@ -627,7 +627,7 @@ func (g *LinuxProcessInfoGetter) GetProcessInfo(filePath string) (*ProcessInfo, 
 
 // ========== 配置加载 ==========
 
-// DefaultMonitorConfig 返回默认监控配置
+// DefaultMonitorConfig 返回默认监控配置.
 func DefaultMonitorConfig() MonitorConfig {
 	return MonitorConfig{
 		Enabled:             true,

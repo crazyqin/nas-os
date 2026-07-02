@@ -4,7 +4,7 @@ package dlpengine
 
 import "time"
 
-// SensitivityLevel 敏感级别
+// SensitivityLevel 敏感级别.
 type SensitivityLevel string
 
 const (
@@ -15,7 +15,7 @@ const (
 	SensitivityNone     SensitivityLevel = "none"
 )
 
-// PatternType 模式类型
+// PatternType 模式类型.
 type PatternType string
 
 const (
@@ -26,7 +26,7 @@ const (
 	PatternML          PatternType = "ml"
 )
 
-// ViolationStatus 违规状态
+// ViolationStatus 违规状态.
 type ViolationStatus string
 
 const (
@@ -38,7 +38,7 @@ const (
 	ViolationStatusDismissed     ViolationStatus = "dismissed"
 )
 
-// TransferProtocol 传输协议
+// TransferProtocol 传输协议.
 type TransferProtocol string
 
 const (
@@ -52,7 +52,7 @@ const (
 	ProtocolAPI   TransferProtocol = "api"
 )
 
-// PolicyAction 策略动作
+// PolicyAction 策略动作.
 type PolicyAction string
 
 const (
@@ -65,7 +65,7 @@ const (
 	ActionNotify     PolicyAction = "notify"
 )
 
-// DLPPolicy DLP策略
+// DLPPolicy DLP策略.
 type DLPPolicy struct {
 	ID          string             `json:"id"`
 	Name        string             `json:"name" binding:"required"`
@@ -85,7 +85,7 @@ type DLPPolicy struct {
 	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
-// SensitivePattern 敏感数据模式
+// SensitivePattern 敏感数据模式.
 type SensitivePattern struct {
 	ID          string           `json:"id"`
 	Name        string           `json:"name" binding:"required"`
@@ -102,7 +102,7 @@ type SensitivePattern struct {
 	CreatedAt   time.Time        `json:"created_at"`
 }
 
-// Violation 违规记录
+// Violation 违规记录.
 type Violation struct {
 	ID          string           `json:"id"`
 	PolicyID    string           `json:"policy_id"`
@@ -127,7 +127,7 @@ type Violation struct {
 	Notes       string           `json:"notes,omitempty"`
 }
 
-// MatchedContent 匹配内容
+// MatchedContent 匹配内容.
 type MatchedContent struct {
 	PatternName string  `json:"pattern_name"`
 	Match       string  `json:"match"`
@@ -136,7 +136,7 @@ type MatchedContent struct {
 	Confidence  float64 `json:"confidence"`
 }
 
-// ScanResult 扫描结果
+// ScanResult 扫描结果.
 type ScanResult struct {
 	ID              string           `json:"id"`
 	ScanID          string           `json:"scan_id"`
@@ -154,7 +154,7 @@ type ScanResult struct {
 	Action          PolicyAction     `json:"action"`
 }
 
-// ScanRequest 扫描请求
+// ScanRequest 扫描请求.
 type ScanRequest struct {
 	ID          string           `json:"id"`
 	Content     []byte           `json:"content" binding:"required"`
@@ -166,7 +166,7 @@ type ScanRequest struct {
 	Destination string           `json:"destination,omitempty"`
 }
 
-// ContentInspection 内容检查结果
+// ContentInspection 内容检查结果.
 type ContentInspection struct {
 	ContentType string           `json:"content_type"`
 	Encoding    string           `json:"encoding,omitempty"`
@@ -178,7 +178,7 @@ type ContentInspection struct {
 	Entities    []DetectedEntity `json:"entities,omitempty"`
 }
 
-// DetectedEntity 检测到的实体
+// DetectedEntity 检测到的实体.
 type DetectedEntity struct {
 	Type       string  `json:"type"`
 	Value      string  `json:"value"`
@@ -187,7 +187,7 @@ type DetectedEntity struct {
 	Confidence float64 `json:"confidence"`
 }
 
-// ScanStats 扫描统计
+// ScanStats 扫描统计.
 type ScanStats struct {
 	TotalScans       int64                      `json:"total_scans"`
 	ViolationsFound  int64                      `json:"violations_found"`
@@ -199,21 +199,21 @@ type ScanStats struct {
 	TopUsers         []UserStat                 `json:"top_users"`
 }
 
-// PatternStat 模式统计
+// PatternStat 模式统计.
 type PatternStat struct {
 	PatternID   string `json:"pattern_id"`
 	PatternName string `json:"pattern_name"`
 	MatchCount  int64  `json:"match_count"`
 }
 
-// UserStat 用户统计
+// UserStat 用户统计.
 type UserStat struct {
 	UserID         string `json:"user_id"`
 	UserName       string `json:"user_name"`
 	ViolationCount int64  `json:"violation_count"`
 }
 
-// DLPConfig DLP引擎配置
+// DLPConfig DLP引擎配置.
 type DLPConfig struct {
 	Enabled              bool    `json:"enabled"`
 	ScanTimeout          int     `json:"scan_timeout_seconds"`
@@ -230,7 +230,7 @@ type DLPConfig struct {
 	ContentInspection    bool    `json:"content_inspection"`
 }
 
-// DefaultDLPConfig 默认配置
+// DefaultDLPConfig 默认配置.
 func DefaultDLPConfig() *DLPConfig {
 	return &DLPConfig{
 		Enabled:              true,

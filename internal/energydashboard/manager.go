@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 能耗仪表盘管理器
+// Manager 能耗仪表盘管理器.
 type Manager struct {
 	mu            sync.RWMutex
 	logger        *zap.Logger
@@ -28,7 +28,7 @@ type Manager struct {
 	running       bool
 }
 
-// NewManager 创建能耗仪表盘管理器
+// NewManager 创建能耗仪表盘管理器.
 func NewManager(logger *zap.Logger, config *DashboardConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -56,12 +56,12 @@ func NewManager(logger *zap.Logger, config *DashboardConfig) *Manager {
 	return m
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	return fmt.Sprintf("%d", time.Now().UnixNano())
 }
 
-// initDefaultRates 初始化默认电价
+// initDefaultRates 初始化默认电价.
 func (m *Manager) initDefaultRates() {
 	defaultRates := []*ElectricityRate{
 		{
@@ -93,7 +93,7 @@ func (m *Manager) initDefaultRates() {
 	}
 }
 
-// initDefaultSchedules 初始化默认休眠计划
+// initDefaultSchedules 初始化默认休眠计划.
 func (m *Manager) initDefaultSchedules() {
 	defaultSchedules := []*SleepSchedule{
 		{
@@ -124,7 +124,7 @@ func (m *Manager) initDefaultSchedules() {
 	}
 }
 
-// Start 启动能耗监控
+// Start 启动能耗监控.
 func (m *Manager) Start(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -145,7 +145,7 @@ func (m *Manager) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止能耗监控
+// Stop 停止能耗监控.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -159,14 +159,14 @@ func (m *Manager) Stop() {
 	m.logger.Info("energy dashboard stopped")
 }
 
-// IsRunning 是否运行中
+// IsRunning 是否运行中.
 func (m *Manager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.running
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (m *Manager) monitorLoop(ctx context.Context) {
 	interval := time.Duration(m.config.MonitorInterval) * time.Second
 	ticker := time.NewTicker(interval)
@@ -184,7 +184,7 @@ func (m *Manager) monitorLoop(ctx context.Context) {
 	}
 }
 
-// collectReadings 采集功耗读数
+// collectReadings 采集功耗读数.
 func (m *Manager) collectReadings() {
 	now := time.Now()
 
@@ -220,7 +220,7 @@ func (m *Manager) collectReadings() {
 	m.mu.Unlock()
 }
 
-// simulateReadings 模拟功耗读数
+// simulateReadings 模拟功耗读数.
 func (m *Manager) simulateReadings(now time.Time) []PowerReading {
 	hour := float64(now.Hour()) + float64(now.Minute())/60.0
 
@@ -276,7 +276,7 @@ func (m *Manager) simulateReadings(now time.Time) []PowerReading {
 	return readings
 }
 
-// RecordPowerReading 手动记录功耗读数
+// RecordPowerReading 手动记录功耗读数.
 func (m *Manager) RecordPowerReading(reading *PowerReading) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -292,7 +292,7 @@ func (m *Manager) RecordPowerReading(reading *PowerReading) {
 	m.readings[key] = append(m.readings[key], reading)
 }
 
-// GetLatestSnapshot 获取最新功耗快照
+// GetLatestSnapshot 获取最新功耗快照.
 func (m *Manager) GetLatestSnapshot() *SystemPowerSnapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -308,7 +308,7 @@ func (m *Manager) GetLatestSnapshot() *SystemPowerSnapshot {
 	return m.snapshots[len(m.snapshots)-1]
 }
 
-// GetSnapshots 获取功耗快照历史
+// GetSnapshots 获取功耗快照历史.
 func (m *Manager) GetSnapshots(since time.Time, limit int) []*SystemPowerSnapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -332,7 +332,7 @@ func (m *Manager) GetSnapshots(since time.Time, limit int) []*SystemPowerSnapsho
 	return result
 }
 
-// CreateRate 创建电价配置
+// CreateRate 创建电价配置.
 func (m *Manager) CreateRate(req *ElectricityRate) (*ElectricityRate, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -357,7 +357,7 @@ func (m *Manager) CreateRate(req *ElectricityRate) (*ElectricityRate, error) {
 	return req, nil
 }
 
-// GetRate 获取电价配置
+// GetRate 获取电价配置.
 func (m *Manager) GetRate(id string) (*ElectricityRate, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -369,7 +369,7 @@ func (m *Manager) GetRate(id string) (*ElectricityRate, error) {
 	return rate, nil
 }
 
-// ListRates 列出所有电价配置
+// ListRates 列出所有电价配置.
 func (m *Manager) ListRates() []*ElectricityRate {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -381,7 +381,7 @@ func (m *Manager) ListRates() []*ElectricityRate {
 	return rates
 }
 
-// UpdateRate 更新电价配置
+// UpdateRate 更新电价配置.
 func (m *Manager) UpdateRate(id string, req *ElectricityRate) (*ElectricityRate, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -409,7 +409,7 @@ func (m *Manager) UpdateRate(id string, req *ElectricityRate) (*ElectricityRate,
 	return rate, nil
 }
 
-// DeleteRate 删除电价配置
+// DeleteRate 删除电价配置.
 func (m *Manager) DeleteRate(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -421,7 +421,7 @@ func (m *Manager) DeleteRate(id string) error {
 	return nil
 }
 
-// CalculateEnergyCost 计算能耗费用
+// CalculateEnergyCost 计算能耗费用.
 func (m *Manager) CalculateEnergyCost(ctx context.Context, period EnergyReportPeriod, rateID string) (*EnergyCost, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -490,7 +490,7 @@ func (m *Manager) CalculateEnergyCost(ctx context.Context, period EnergyReportPe
 	}, nil
 }
 
-// CalculateEfficiencyScore 计算能效评分
+// CalculateEfficiencyScore 计算能效评分.
 func (m *Manager) CalculateEfficiencyScore() *EfficiencyScore {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -519,7 +519,7 @@ func (m *Manager) CalculateEfficiencyScore() *EfficiencyScore {
 	}
 }
 
-// getAveragePower 获取平均功耗
+// getAveragePower 获取平均功耗.
 func (m *Manager) getAveragePower(duration time.Duration) float64 {
 	if len(m.snapshots) == 0 {
 		return 0
@@ -542,7 +542,7 @@ func (m *Manager) getAveragePower(duration time.Duration) float64 {
 	return total / float64(count)
 }
 
-// calculateScoreRating 计算评分和等级
+// calculateScoreRating 计算评分和等级.
 func (m *Manager) calculateScoreRating(wattsPerTB float64) (int, string) {
 	// 评分标准（W/TB）：
 	// A+: < 3, A: 3-5, B: 5-8, C: 8-12, D: > 12
@@ -564,7 +564,7 @@ func (m *Manager) calculateScoreRating(wattsPerTB float64) (int, string) {
 	}
 }
 
-// generateRecommendations 生成节能建议
+// generateRecommendations 生成节能建议.
 func (m *Manager) generateRecommendations(wattsPerTB, avgPower float64) []string {
 	var recs []string
 
@@ -597,7 +597,7 @@ func (m *Manager) generateRecommendations(wattsPerTB, avgPower float64) []string
 	return recs
 }
 
-// EstimateCarbon 碳排放估算
+// EstimateCarbon 碳排放估算.
 func (m *Manager) EstimateCarbon(ctx context.Context, period EnergyReportPeriod) (*CarbonEstimate, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -638,7 +638,7 @@ func (m *Manager) EstimateCarbon(ctx context.Context, period EnergyReportPeriod)
 	return estimate, nil
 }
 
-// GenerateReport 生成能耗报表
+// GenerateReport 生成能耗报表.
 func (m *Manager) GenerateReport(ctx context.Context, period EnergyReportPeriod, rateID string) (*EnergyReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -763,7 +763,7 @@ func (m *Manager) GenerateReport(ctx context.Context, period EnergyReportPeriod,
 	return report, nil
 }
 
-// GetReport 获取能耗报表
+// GetReport 获取能耗报表.
 func (m *Manager) GetReport(id string) (*EnergyReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -775,7 +775,7 @@ func (m *Manager) GetReport(id string) (*EnergyReport, error) {
 	return report, nil
 }
 
-// ListReports 列出能耗报表
+// ListReports 列出能耗报表.
 func (m *Manager) ListReports(period EnergyReportPeriod, limit int) []*EnergyReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -803,7 +803,7 @@ func (m *Manager) ListReports(period EnergyReportPeriod, limit int) []*EnergyRep
 	return reports
 }
 
-// CreateSchedule 创建休眠计划
+// CreateSchedule 创建休眠计划.
 func (m *Manager) CreateSchedule(req *SleepSchedule) (*SleepSchedule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -835,7 +835,7 @@ func (m *Manager) CreateSchedule(req *SleepSchedule) (*SleepSchedule, error) {
 	return req, nil
 }
 
-// GetSchedule 获取休眠计划
+// GetSchedule 获取休眠计划.
 func (m *Manager) GetSchedule(id string) (*SleepSchedule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -847,7 +847,7 @@ func (m *Manager) GetSchedule(id string) (*SleepSchedule, error) {
 	return sched, nil
 }
 
-// ListSchedules 列出所有休眠计划
+// ListSchedules 列出所有休眠计划.
 func (m *Manager) ListSchedules() []*SleepSchedule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -859,7 +859,7 @@ func (m *Manager) ListSchedules() []*SleepSchedule {
 	return schedules
 }
 
-// UpdateSchedule 更新休眠计划
+// UpdateSchedule 更新休眠计划.
 func (m *Manager) UpdateSchedule(id string, req *SleepSchedule) (*SleepSchedule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -887,7 +887,7 @@ func (m *Manager) UpdateSchedule(id string, req *SleepSchedule) (*SleepSchedule,
 	return sched, nil
 }
 
-// DeleteSchedule 删除休眠计划
+// DeleteSchedule 删除休眠计划.
 func (m *Manager) DeleteSchedule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -899,7 +899,7 @@ func (m *Manager) DeleteSchedule(id string) error {
 	return nil
 }
 
-// ToggleSchedule 启用/禁用休眠计划
+// ToggleSchedule 启用/禁用休眠计划.
 func (m *Manager) ToggleSchedule(id string) (*SleepSchedule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -915,7 +915,7 @@ func (m *Manager) ToggleSchedule(id string) (*SleepSchedule, error) {
 	return sched, nil
 }
 
-// GetDashboardSummary 获取仪表盘总览
+// GetDashboardSummary 获取仪表盘总览.
 func (m *Manager) GetDashboardSummary() *DashboardSummary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -994,7 +994,7 @@ func (m *Manager) GetDashboardSummary() *DashboardSummary {
 	}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *DashboardConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1002,7 +1002,7 @@ func (m *Manager) GetConfig() *DashboardConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(cfg *DashboardConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1011,7 +1011,7 @@ func (m *Manager) UpdateConfig(cfg *DashboardConfig) {
 	}
 }
 
-// calculatePeriodRange 计算时间范围
+// calculatePeriodRange 计算时间范围.
 func calculatePeriodRange(period EnergyReportPeriod, now time.Time) (start, end time.Time) {
 	end = now
 
@@ -1033,7 +1033,7 @@ func calculatePeriodRange(period EnergyReportPeriod, now time.Time) (start, end 
 	return start, end
 }
 
-// getCurrentRate 获取当前时段电价
+// getCurrentRate 获取当前时段电价.
 func getCurrentRate(rate *ElectricityRate, now time.Time) float64 {
 	currentTime := now.Format("15:04")
 
@@ -1050,7 +1050,7 @@ func getCurrentRate(rate *ElectricityRate, now time.Time) float64 {
 	return 0
 }
 
-// isTimeInRange 检查时间是否在范围内
+// isTimeInRange 检查时间是否在范围内.
 func isTimeInRange(current, start, end string) bool {
 	if start <= end {
 		return current >= start && current < end
@@ -1059,7 +1059,7 @@ func isTimeInRange(current, start, end string) bool {
 	return current >= start || current < end
 }
 
-// isValidTimeFormat 校验时间格式 HH:MM
+// isValidTimeFormat 校验时间格式 HH:MM.
 func isValidTimeFormat(t string) bool {
 	if len(t) != 5 {
 		return false

@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// GPUPassthroughConfig GPU透传配置
+// GPUPassthroughConfig GPU透传配置.
 type GPUPassthroughConfig struct {
 	// GPU设备配置
 	GPUID      string `json:"gpuId"`      // GPU设备ID (如 nvidia0)
@@ -36,23 +36,23 @@ type GPUPassthroughConfig struct {
 	IntelConfig *IntelGPUConfig `json:"intelConfig,omitempty"`
 }
 
-// GPUMode GPU透传模式
+// GPUMode GPU透传模式.
 type GPUMode string
 
 const (
-	// GPUModeFull 完全透传 - 设备完全分配给容器
+	// GPUModeFull 完全透传 - 设备完全分配给容器.
 	GPUModeFull GPUMode = "full"
-	// GPUModeShared 共享模式 - 多容器共享GPU
+	// GPUModeShared 共享模式 - 多容器共享GPU.
 	GPUModeShared GPUMode = "shared"
-	// GPUModeVirtual 虚拟GPU - 使用vGPU技术
+	// GPUModeVirtual 虚拟GPU - 使用vGPU技术.
 	GPUModeVirtual GPUMode = "virtual"
-	// GPUModeMIG MIG模式 - NVIDIA Multi-Instance GPU
+	// GPUModeMIG MIG模式 - NVIDIA Multi-Instance GPU.
 	GPUModeMIG GPUMode = "mig"
-	// GPUModeVFIO VFIO透传 - 使用VFIO驱动
+	// GPUModeVFIO VFIO透传 - 使用VFIO驱动.
 	GPUModeVFIO GPUMode = "vfio"
 )
 
-// NVIDIAGPUConfig NVIDIA GPU特定配置
+// NVIDIAGPUConfig NVIDIA GPU特定配置.
 type NVIDIAGPUConfig struct {
 	// CUDA配置
 	CUDAVersion  string `json:"cudaVersion"`  // CUDA版本
@@ -80,7 +80,7 @@ type NVIDIAGPUConfig struct {
 	DriverVersion string `json:"driverVersion"` // 驱动版本
 }
 
-// AMDGPUConfig AMD GPU特定配置
+// AMDGPUConfig AMD GPU特定配置.
 type AMDGPUConfig struct {
 	// ROCm配置
 	ROCmVersion  string `json:"rocmVersion"`  // ROCm版本
@@ -98,7 +98,7 @@ type AMDGPUConfig struct {
 	DriverVersion string `json:"driverVersion"` // 驱动版本
 }
 
-// IntelGPUConfig Intel GPU特定配置
+// IntelGPUConfig Intel GPU特定配置.
 type IntelGPUConfig struct {
 	// OneAPI配置
 	OneAPIVersion string `json:"oneapiVersion"` // OneAPI版本
@@ -112,7 +112,7 @@ type IntelGPUConfig struct {
 	DriverVersion string `json:"driverVersion"` // 驱动版本
 }
 
-// GPUDeviceInfo GPU设备信息
+// GPUDeviceInfo GPU设备信息.
 type GPUDeviceInfo struct {
 	ID           string  `json:"id"`
 	Index        int     `json:"index"`
@@ -129,7 +129,7 @@ type GPUDeviceInfo struct {
 	MIGAvailable bool    `json:"migAvailable"` // MIG可用
 }
 
-// AttachGPU 将GPU附加到LXC容器
+// AttachGPU 将GPU附加到LXC容器.
 func (m *Manager) AttachGPU(ctx context.Context, containerName string, config *GPUPassthroughConfig) error {
 	// 验证GPU设备
 	if err := m.validateGPUDevice(config); err != nil {
@@ -181,7 +181,7 @@ func (m *Manager) AttachGPU(ctx context.Context, containerName string, config *G
 	return nil
 }
 
-// DetachGPU 从LXC容器分离GPU
+// DetachGPU 从LXC容器分离GPU.
 func (m *Manager) DetachGPU(ctx context.Context, containerName, gpuID string) error {
 	args := []string{"config", "device", "remove", containerName, gpuID}
 
@@ -194,7 +194,7 @@ func (m *Manager) DetachGPU(ctx context.Context, containerName, gpuID string) er
 	return nil
 }
 
-// ListGPUDevices 列出可用GPU设备
+// ListGPUDevices 列出可用GPU设备.
 func (m *Manager) ListGPUDevices(ctx context.Context) ([]GPUDeviceInfo, error) {
 	var devices []GPUDeviceInfo
 
@@ -219,7 +219,7 @@ func (m *Manager) ListGPUDevices(ctx context.Context) ([]GPUDeviceInfo, error) {
 	return devices, nil
 }
 
-// GetContainerGPUStatus 获取容器的GPU状态
+// GetContainerGPUStatus 获取容器的GPU状态.
 func (m *Manager) GetContainerGPUStatus(ctx context.Context, containerName string) ([]GPUDeviceInfo, error) {
 	container, err := m.GetContainer(ctx, containerName)
 	if err != nil {
@@ -247,7 +247,7 @@ func (m *Manager) GetContainerGPUStatus(ctx context.Context, containerName strin
 	return gpuDevices, nil
 }
 
-// validateGPUDevice 验证GPU设备
+// validateGPUDevice 验证GPU设备.
 func (m *Manager) validateGPUDevice(config *GPUPassthroughConfig) error {
 	if config.GPUID == "" && config.GPUIndex < 0 && config.GPUUUID == "" && config.PCIAddress == "" {
 		return fmt.Errorf("必须指定GPUID、GPUIndex、GPUUUID或PCIAddress")
@@ -276,7 +276,7 @@ func (m *Manager) validateGPUDevice(config *GPUPassthroughConfig) error {
 	return nil
 }
 
-// buildGPUDeviceConfig 构建GPU设备配置
+// buildGPUDeviceConfig 构建GPU设备配置.
 func (m *Manager) buildGPUDeviceConfig(config *GPUPassthroughConfig) Device {
 	device := Device{
 		Type:   "gpu",
@@ -326,7 +326,7 @@ func (m *Manager) buildGPUDeviceConfig(config *GPUPassthroughConfig) Device {
 	return device
 }
 
-// buildNVIDIADeviceConfig 构建NVIDIA设备配置
+// buildNVIDIADeviceConfig 构建NVIDIA设备配置.
 func (m *Manager) buildNVIDIADeviceConfig(config *NVIDIAGPUConfig, deviceConfig map[string]string) {
 	// CUDA能力
 	capabilities := "utility"
@@ -377,7 +377,7 @@ func (m *Manager) buildNVIDIADeviceConfig(config *NVIDIAGPUConfig, deviceConfig 
 	}
 }
 
-// buildAMDDeviceConfig 构建AMD设备配置
+// buildAMDDeviceConfig 构建AMD设备配置.
 func (m *Manager) buildAMDDeviceConfig(config *AMDGPUConfig, deviceConfig map[string]string) {
 	// ROCm能力
 	if config.EnableROCm {
@@ -401,7 +401,7 @@ func (m *Manager) buildAMDDeviceConfig(config *AMDGPUConfig, deviceConfig map[st
 	}
 }
 
-// buildIntelDeviceConfig 构建Intel设备配置
+// buildIntelDeviceConfig 构建Intel设备配置.
 func (m *Manager) buildIntelDeviceConfig(config *IntelGPUConfig, deviceConfig map[string]string) {
 	// OneAPI能力
 	if config.EnableLevel0 {
@@ -420,7 +420,7 @@ func (m *Manager) buildIntelDeviceConfig(config *IntelGPUConfig, deviceConfig ma
 	}
 }
 
-// configureNVIDIAGPU 配置NVIDIA GPU
+// configureNVIDIAGPU 配置NVIDIA GPU.
 func (m *Manager) configureNVIDIAGPU(ctx context.Context, containerName string, config *GPUPassthroughConfig) error {
 	if config.NVIDIAConfig == nil {
 		return nil
@@ -466,7 +466,7 @@ func (m *Manager) configureNVIDIAGPU(ctx context.Context, containerName string, 
 	return nil
 }
 
-// configureAMDGPU 配置AMD GPU
+// configureAMDGPU 配置AMD GPU.
 func (m *Manager) configureAMDGPU(ctx context.Context, containerName string, config *GPUPassthroughConfig) error {
 	if config.AMDConfig == nil {
 		return nil
@@ -495,7 +495,7 @@ func (m *Manager) configureAMDGPU(ctx context.Context, containerName string, con
 	if config.AMDConfig.MountROCm && config.AMDConfig.ROCmVersion != "" {
 		rocmPath := fmt.Sprintf("/opt/rocm-%s", config.AMDConfig.ROCmVersion)
 		args := []string{"config", "device", "add", containerName, "rocm-lib", "disk"}
-		args = append(args, fmt.Sprintf("source=%s", rocmPath), fmt.Sprintf("path=/opt/rocm"))
+		args = append(args, fmt.Sprintf("source=%s", rocmPath), "path=/opt/rocm")
 		cmd := m.cmd(args...)
 		cmd.Run()
 	}
@@ -503,7 +503,7 @@ func (m *Manager) configureAMDGPU(ctx context.Context, containerName string, con
 	return nil
 }
 
-// configureIntelGPU 配置Intel GPU
+// configureIntelGPU 配置Intel GPU.
 func (m *Manager) configureIntelGPU(ctx context.Context, containerName string, config *GPUPassthroughConfig) error {
 	if config.IntelConfig == nil {
 		return nil
@@ -529,7 +529,7 @@ func (m *Manager) configureIntelGPU(ctx context.Context, containerName string, c
 	if config.IntelConfig.MountOneAPI && config.IntelConfig.OneAPIVersion != "" {
 		oneapiPath := fmt.Sprintf("/opt/intel/oneapi-%s", config.IntelConfig.OneAPIVersion)
 		args := []string{"config", "device", "add", containerName, "oneapi-lib", "disk"}
-		args = append(args, fmt.Sprintf("source=%s", oneapiPath), fmt.Sprintf("path=/opt/intel/oneapi"))
+		args = append(args, fmt.Sprintf("source=%s", oneapiPath), "path=/opt/intel/oneapi")
 		cmd := m.cmd(args...)
 		cmd.Run()
 	}
@@ -537,7 +537,7 @@ func (m *Manager) configureIntelGPU(ctx context.Context, containerName string, c
 	return nil
 }
 
-// getNVIDIAVisibleDevices 获取NVIDIA可见设备列表
+// getNVIDIAVisibleDevices 获取NVIDIA可见设备列表.
 func (m *Manager) getNVIDIAVisibleDevices(config *GPUPassthroughConfig) string {
 	if config.GPUUUID != "" {
 		return config.GPUUUID
@@ -552,7 +552,7 @@ func (m *Manager) getNVIDIAVisibleDevices(config *GPUPassthroughConfig) string {
 	return "all"
 }
 
-// getDeviceName 获取设备名称
+// getDeviceName 获取设备名称.
 func (config *GPUPassthroughConfig) getDeviceName() string {
 	if config.GPUID != "" {
 		return config.GPUID
@@ -566,7 +566,7 @@ func (config *GPUPassthroughConfig) getDeviceName() string {
 	return "gpu0"
 }
 
-// detectNVIDIAGPUs 检测NVIDIA GPU
+// detectNVIDIAGPUs 检测NVIDIA GPU.
 func (m *Manager) detectNVIDIAGPUs(ctx context.Context) ([]GPUDeviceInfo, error) {
 	var devices []GPUDeviceInfo
 
@@ -615,7 +615,7 @@ func (m *Manager) detectNVIDIAGPUs(ctx context.Context) ([]GPUDeviceInfo, error)
 	return devices, nil
 }
 
-// detectAMDGPUs 检测AMD GPU
+// detectAMDGPUs 检测AMD GPU.
 func (m *Manager) detectAMDGPUs(ctx context.Context) ([]GPUDeviceInfo, error) {
 	var devices []GPUDeviceInfo
 
@@ -663,7 +663,7 @@ func (m *Manager) detectAMDGPUs(ctx context.Context) ([]GPUDeviceInfo, error) {
 	return devices, nil
 }
 
-// detectAMDGPUsByLSPCI 通过lspci检测AMD GPU
+// detectAMDGPUsByLSPCI 通过lspci检测AMD GPU.
 func (m *Manager) detectAMDGPUsByLSPCI(ctx context.Context) ([]GPUDeviceInfo, error) {
 	var devices []GPUDeviceInfo
 
@@ -692,7 +692,7 @@ func (m *Manager) detectAMDGPUsByLSPCI(ctx context.Context) ([]GPUDeviceInfo, er
 	return devices, nil
 }
 
-// detectIntelGPUs 检测Intel GPU
+// detectIntelGPUs 检测Intel GPU.
 func (m *Manager) detectIntelGPUs(ctx context.Context) ([]GPUDeviceInfo, error) {
 	var devices []GPUDeviceInfo
 
@@ -737,7 +737,7 @@ func (m *Manager) detectIntelGPUs(ctx context.Context) ([]GPUDeviceInfo, error) 
 	return devices, nil
 }
 
-// parseInt 解析整数
+// parseInt 解析整数.
 func parseInt(s string) int {
 	s = strings.TrimSpace(s)
 	var n int
@@ -745,7 +745,7 @@ func parseInt(s string) int {
 	return n
 }
 
-// parseMemorySize 解析内存大小
+// parseMemorySize 解析内存大小.
 func parseMemorySize(s string) uint64 {
 	s = strings.TrimSpace(strings.ToLower(s))
 

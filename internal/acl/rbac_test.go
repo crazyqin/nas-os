@@ -152,14 +152,14 @@ func TestRBACManager_AuditLog(t *testing.T) {
 
 func TestRBACManager_FallbackToACL(t *testing.T) {
 	aclMgr := NewManager()
-	
+
 	// 使用 ACE-based API 创建 ACL
 	aclMgr.CreateACL(CreateACLRequest{
-		Path:        "/shared",
-		Owner:       "admin",
-		EntryType:   EntryDirectory,
+		Path:      "/shared",
+		Owner:     "admin",
+		EntryType: EntryDirectory,
 	})
-	
+
 	// 添加 ACE 规则
 	aclMgr.AddACE("/shared", AddACERequest{
 		Subject:     "user1",

@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 创建测试用的 SMART 数据
+// 创建测试用的 SMART 数据.
 func createTestData(device string, reallocated uint64, pending uint64, temp int, poh uint64, isSSD bool) SMARTData {
 	attrs := []SMARTAttribute{
 		{ID: SMARTIDReallocatedSectorCt, Name: "Reallocated_Sector_Ct", RawValue: reallocated, Value: 100, Threshold: 10, IsCritical: true},
@@ -54,7 +54,7 @@ func createTestData(device string, reallocated uint64, pending uint64, temp int,
 	}
 }
 
-// 创建测试服务（使用简单设备名）
+// 创建测试服务（使用简单设备名）.
 func createTestService() *DiskHealthService {
 	svc := NewDiskHealthService(100)
 

@@ -51,13 +51,13 @@ func errResp(code int, message string) APIResponse {
 	return APIResponse{Code: code, Message: message}
 }
 
-// GET /api/v1/compliance-report/standards
+// GET /api/v1/compliance-report/standards.
 func (h *Handlers) listStandards(c *gin.Context) {
 	standards := h.standards.ListStandards()
 	c.JSON(http.StatusOK, okResp(standards))
 }
 
-// POST /api/v1/compliance-report/scan
+// POST /api/v1/compliance-report/scan.
 func (h *Handlers) triggerScan(c *gin.Context) {
 	var req ScanRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -74,7 +74,7 @@ func (h *Handlers) triggerScan(c *gin.Context) {
 	c.JSON(http.StatusOK, okResp(report))
 }
 
-// GET /api/v1/compliance-report/reports
+// GET /api/v1/compliance-report/reports.
 func (h *Handlers) listReports(c *gin.Context) {
 	var standard *ComplianceStandard
 	if s := c.Query("standard"); s != "" {
@@ -86,7 +86,7 @@ func (h *Handlers) listReports(c *gin.Context) {
 	c.JSON(http.StatusOK, okResp(reports))
 }
 
-// GET /api/v1/compliance-report/reports/:id
+// GET /api/v1/compliance-report/reports/:id.
 func (h *Handlers) getReport(c *gin.Context) {
 	id := c.Param("id")
 	report, ok := h.generator.GetReport(id)
@@ -98,7 +98,7 @@ func (h *Handlers) getReport(c *gin.Context) {
 	c.JSON(http.StatusOK, okResp(report))
 }
 
-// GET /api/v1/compliance-report/reports/:id/export
+// GET /api/v1/compliance-report/reports/:id/export.
 func (h *Handlers) exportReport(c *gin.Context) {
 	id := c.Param("id")
 	report, exists := h.generator.GetReport(id)
@@ -120,7 +120,7 @@ func (h *Handlers) exportReport(c *gin.Context) {
 	}
 }
 
-// GET /api/v1/compliance-report/status
+// GET /api/v1/compliance-report/status.
 func (h *Handlers) getStatus(c *gin.Context) {
 	status := h.generator.GetStatus()
 	c.JSON(http.StatusOK, okResp(status))

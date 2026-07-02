@@ -25,7 +25,7 @@ var (
 
 // ========== 配置结构 ==========
 
-// Mode 快速去重模式
+// Mode 快速去重模式.
 type Mode string
 
 const (
@@ -34,7 +34,7 @@ const (
 	ModeHybrid Mode = "hybrid" // 混合模式 - 结合内联和异步
 )
 
-// HashAlgorithm 哈希算法
+// HashAlgorithm 哈希算法.
 type HashAlgorithm string
 
 const (
@@ -44,7 +44,7 @@ const (
 	HashFletcher4 HashAlgorithm = "fletcher4" // Fletcher-4（最快）
 )
 
-// Config 快速去重配置
+// Config 快速去重配置.
 type Config struct {
 	// 基础配置
 	Enabled       bool          `json:"enabled"`
@@ -78,7 +78,7 @@ type Config struct {
 	CreateBackup     bool `json:"createBackup"`     // 创建备份
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:           false,
@@ -99,7 +99,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// Validate 验证配置
+// Validate 验证配置.
 func (c *Config) Validate() error {
 	if c.ChunkSizeKB < 4 {
 		c.ChunkSizeKB = 4
@@ -150,7 +150,7 @@ func (c *Config) Validate() error {
 
 // ========== 状态结构 ==========
 
-// State 运行状态
+// State 运行状态.
 type State int32
 
 const (
@@ -175,7 +175,7 @@ func (s State) String() string {
 	}
 }
 
-// Status 快速去重状态
+// Status 快速去重状态.
 type Status struct {
 	// 运行状态
 	State         State     `json:"state"`
@@ -208,7 +208,7 @@ type Status struct {
 	RecentErrors []string `json:"recentErrors,omitempty"`
 }
 
-// GetSavingsPercent 计算节省百分比
+// GetSavingsPercent 计算节省百分比.
 func (s *Status) GetSavingsPercent() float64 {
 	if s.TotalDataSize == 0 {
 		return 0
@@ -218,7 +218,7 @@ func (s *Status) GetSavingsPercent() float64 {
 
 // ========== 进度结构 ==========
 
-// Phase 去重阶段
+// Phase 去重阶段.
 type Phase string
 
 const (
@@ -230,7 +230,7 @@ const (
 	PhaseCleanup Phase = "cleanup" // 清理
 )
 
-// Progress 去重进度
+// Progress 去重进度.
 type Progress struct {
 	Phase      Phase     `json:"phase"`
 	PhaseStr   string    `json:"phaseStr"`
@@ -244,7 +244,7 @@ type Progress struct {
 	LastUpdate time.Time `json:"lastUpdate"`
 }
 
-// Update 更新进度
+// Update 更新进度.
 func (p *Progress) Update(current int64) {
 	p.Current = current
 	if p.Total > 0 {
@@ -265,7 +265,7 @@ func (p *Progress) Update(current int64) {
 
 // ========== 结果结构 ==========
 
-// Result 去重结果
+// Result 去重结果.
 type Result struct {
 	Success         bool          `json:"success"`
 	BlocksProcessed int64         `json:"blocksProcessed"`
@@ -282,7 +282,7 @@ type Result struct {
 	Errors         []DedupError `json:"errors,omitempty"`
 }
 
-// DedupError 去重错误
+// DedupError 去重错误.
 type DedupError struct {
 	BlockHash string    `json:"blockHash"`
 	Path      string    `json:"path"`
@@ -293,7 +293,7 @@ type DedupError struct {
 
 // ========== Bloom Filter ==========
 
-// BloomFilter 快速哈希查找过滤器
+// BloomFilter 快速哈希查找过滤器.
 type BloomFilter struct {
 	bits  []uint64
 	size  int   // 位图大小（位）
@@ -302,7 +302,7 @@ type BloomFilter struct {
 	mu    sync.RWMutex
 }
 
-// NewBloomFilter 创建 Bloom Filter
+// NewBloomFilter 创建 Bloom Filter.
 func NewBloomFilter(sizeBits int, k int) *BloomFilter {
 	numWords := (sizeBits / 64) + 1
 	return &BloomFilter{
@@ -312,7 +312,7 @@ func NewBloomFilter(sizeBits int, k int) *BloomFilter {
 	}
 }
 
-// NewBloomFilterWithMemory 根据内存大小创建 Bloom Filter
+// NewBloomFilterWithMemory 根据内存大小创建 Bloom Filter.
 func NewBloomFilterWithMemory(memoryMB int, expectedItems int) *BloomFilter {
 	// 计算最优 k 值
 	sizeBits := memoryMB * 1024 * 1024 * 8 // MB 转 位
@@ -327,7 +327,7 @@ func NewBloomFilterWithMemory(memoryMB int, expectedItems int) *BloomFilter {
 	return NewBloomFilter(sizeBits, k)
 }
 
-// Add 添加哈希值
+// Add 添加哈希值.
 func (bf *BloomFilter) Add(hash []byte) {
 	bf.mu.Lock()
 	defer bf.mu.Unlock()
@@ -341,7 +341,7 @@ func (bf *BloomFilter) Add(hash []byte) {
 	bf.count++
 }
 
-// MightContain 检查可能存在（有假阳性，无假阴性）
+// MightContain 检查可能存在（有假阳性，无假阴性）.
 func (bf *BloomFilter) MightContain(hash []byte) bool {
 	bf.mu.RLock()
 	defer bf.mu.RUnlock()
@@ -357,7 +357,7 @@ func (bf *BloomFilter) MightContain(hash []byte) bool {
 	return true
 }
 
-// hashWithSeed 带种子的哈希计算
+// hashWithSeed 带种子的哈希计算.
 func (bf *BloomFilter) hashWithSeed(data []byte, seed int) uint64 {
 	// 使用双重哈希技术
 	h1 := bf.hash1(data)
@@ -385,14 +385,14 @@ func (bf *BloomFilter) hash2(data []byte) uint64 {
 	return h
 }
 
-// Count 返回已添加元素数量
+// Count 返回已添加元素数量.
 func (bf *BloomFilter) Count() int64 {
 	bf.mu.RLock()
 	defer bf.mu.RUnlock()
 	return bf.count
 }
 
-// EstimatedFalsePositiveRate 估算假阳性率
+// EstimatedFalsePositiveRate 估算假阳性率.
 func (bf *BloomFilter) EstimatedFalsePositiveRate() float64 {
 	bf.mu.RLock()
 	defer bf.mu.RUnlock()
@@ -405,7 +405,7 @@ func (bf *BloomFilter) EstimatedFalsePositiveRate() float64 {
 	return math.Pow(1-math.Exp(-k*n/m), k)
 }
 
-// Reset 重置 Bloom Filter
+// Reset 重置 Bloom Filter.
 func (bf *BloomFilter) Reset() {
 	bf.mu.Lock()
 	defer bf.mu.Unlock()
@@ -418,7 +418,7 @@ func (bf *BloomFilter) Reset() {
 
 // ========== Dedup Table ==========
 
-// DedupEntry 去重表条目
+// DedupEntry 去重表条目.
 type DedupEntry struct {
 	Hash       string    `json:"hash"`
 	Size       int64     `json:"size"`
@@ -428,7 +428,7 @@ type DedupEntry struct {
 	LastAccess time.Time `json:"lastAccess"`
 }
 
-// DedupTable 去重表（DDT）
+// DedupTable 去重表（DDT）.
 type DedupTable struct {
 	entries   map[string]*DedupEntry
 	bloom     *BloomFilter
@@ -443,7 +443,7 @@ type DedupTable struct {
 	exactMisses  int64
 }
 
-// NewDedupTable 创建去重表
+// NewDedupTable 创建去重表.
 func NewDedupTable(maxMemoryMB int, bloomFilterSizeMB int) *DedupTable {
 	bloom := NewBloomFilterWithMemory(bloomFilterSizeMB, 1000000) // 估计100万块
 	return &DedupTable{
@@ -453,7 +453,7 @@ func NewDedupTable(maxMemoryMB int, bloomFilterSizeMB int) *DedupTable {
 	}
 }
 
-// Lookup 查找块（先 Bloom Filter，再精确查找）
+// Lookup 查找块（先 Bloom Filter，再精确查找）.
 func (dt *DedupTable) Lookup(hash string) (*DedupEntry, bool) {
 	atomic.AddInt64(&dt.totalLookups, 1)
 
@@ -482,7 +482,7 @@ func (dt *DedupTable) Lookup(hash string) (*DedupEntry, bool) {
 	return entry, exists
 }
 
-// Add 添加块条目
+// Add 添加块条目.
 func (dt *DedupTable) Add(hash string, size int64) *DedupEntry {
 	dt.mu.Lock()
 	defer dt.mu.Unlock()
@@ -517,7 +517,7 @@ func (dt *DedupTable) Add(hash string, size int64) *DedupEntry {
 	return entry
 }
 
-// Remove 减少引用计数
+// Remove 减少引用计数.
 func (dt *DedupTable) Remove(hash string) bool {
 	dt.mu.Lock()
 	defer dt.mu.Unlock()
@@ -536,7 +536,7 @@ func (dt *DedupTable) Remove(hash string) bool {
 	return false
 }
 
-// Stats 获取 DDT 统计
+// Stats 获取 DDT 统计.
 func (dt *DedupTable) Stats() DedupTableStats {
 	dt.mu.RLock()
 	entries := len(dt.entries)
@@ -606,7 +606,7 @@ func (dt *DedupTable) cleanup() {
 
 // ========== Fast Dedup Manager ==========
 
-// Manager 快速去重管理器
+// Manager 快速去重管理器.
 type Manager struct {
 	config     *Config
 	dedupTable *DedupTable
@@ -628,7 +628,7 @@ type Manager struct {
 	autoTask *AutoTask
 }
 
-// AutoTask 自动去重任务
+// AutoTask 自动去重任务.
 type AutoTask struct {
 	ID       string    `json:"id"`
 	Enabled  bool      `json:"enabled"`
@@ -639,7 +639,7 @@ type AutoTask struct {
 	Result   *Result   `json:"result,omitempty"`
 }
 
-// NewManager 创建快速去重管理器
+// NewManager 创建快速去重管理器.
 func NewManager(config *Config) (*Manager, error) {
 	if config == nil {
 		config = DefaultConfig()
@@ -669,14 +669,14 @@ func NewManager(config *Config) (*Manager, error) {
 	return m, nil
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config *Config) error {
 	if err := config.Validate(); err != nil {
 		return err
@@ -692,7 +692,7 @@ func (m *Manager) UpdateConfig(config *Config) error {
 	return nil
 }
 
-// GetStatus 获取状态
+// GetStatus 获取状态.
 func (m *Manager) GetStatus() Status {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -704,21 +704,21 @@ func (m *Manager) GetStatus() Status {
 	return m.status
 }
 
-// GetProgress 获取进度
+// GetProgress 获取进度.
 func (m *Manager) GetProgress() Progress {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.progress
 }
 
-// GetResult 获取结果
+// GetResult 获取结果.
 func (m *Manager) GetResult() *Result {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.result
 }
 
-// Enable 启用快速去重
+// Enable 启用快速去重.
 func (m *Manager) Enable() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -733,7 +733,7 @@ func (m *Manager) Enable() error {
 	return nil
 }
 
-// Disable 禁用快速去重
+// Disable 禁用快速去重.
 func (m *Manager) Disable() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -747,7 +747,7 @@ func (m *Manager) Disable() error {
 	return nil
 }
 
-// StartScan 开始扫描
+// StartScan 开始扫描.
 func (m *Manager) StartScan(poolName, dataset string) error {
 	if !m.config.Enabled {
 		return ErrNotEnabled
@@ -778,7 +778,7 @@ func (m *Manager) StartScan(poolName, dataset string) error {
 	return nil
 }
 
-// StartDedup 开始去重
+// StartDedup 开始去重.
 func (m *Manager) StartDedup(poolName, dataset string, dryRun bool) error {
 	if !m.config.Enabled {
 		return ErrNotEnabled
@@ -809,18 +809,18 @@ func (m *Manager) StartDedup(poolName, dataset string, dryRun bool) error {
 	return nil
 }
 
-// Cancel 取消操作
+// Cancel 取消操作.
 func (m *Manager) Cancel() {
 	m.cancel()
 	atomic.StoreInt32(&m.state, int32(StateIdle))
 }
 
-// SetProgressHandler 设置 WebSocket 进度回调
+// SetProgressHandler 设置 WebSocket 进度回调.
 func (m *Manager) SetProgressHandler(handler func(Progress)) {
 	m.wsHandler = handler
 }
 
-// reportProgress 报告进度
+// reportProgress 报告进度.
 func (m *Manager) reportProgress() {
 	if m.wsHandler != nil {
 		m.mu.RLock()
@@ -830,7 +830,7 @@ func (m *Manager) reportProgress() {
 	}
 }
 
-// performScan 执行扫描
+// performScan 执行扫描.
 func (m *Manager) performScan(poolName, dataset string) {
 	defer atomic.StoreInt32(&m.state, int32(StateIdle))
 
@@ -870,7 +870,7 @@ func (m *Manager) performScan(poolName, dataset string) {
 	m.reportProgress()
 }
 
-// performDedup 执行去重
+// performDedup 执行去重.
 func (m *Manager) performDedup(poolName, dataset string) {
 	defer atomic.StoreInt32(&m.state, int32(StateIdle))
 
@@ -923,14 +923,14 @@ func (m *Manager) performDedup(poolName, dataset string) {
 	m.reportProgress()
 }
 
-// GetAutoTask 获取自动任务状态
+// GetAutoTask 获取自动任务状态.
 func (m *Manager) GetAutoTask() *AutoTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.autoTask
 }
 
-// EnableAutoDedup 启用自动去重
+// EnableAutoDedup 启用自动去重.
 func (m *Manager) EnableAutoDedup(enabled bool, schedule string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -944,7 +944,7 @@ func (m *Manager) EnableAutoDedup(enabled bool, schedule string) error {
 	return nil
 }
 
-// ToJSON 序列化为 JSON
+// ToJSON 序列化为 JSON.
 func (s *Status) ToJSON() string {
 	data, _ := json.MarshalIndent(s, "", "  ")
 	return string(data)
@@ -960,7 +960,7 @@ func (r *Result) ToJSON() string {
 	return string(data)
 }
 
-// ternary 三元运算辅助函数
+// ternary 三元运算辅助函数.
 func ternary(cond bool, a, b string) string {
 	if cond {
 		return a

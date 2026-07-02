@@ -489,7 +489,7 @@ func generateRandomPassphrase() string {
 	return fmt.Sprintf("%x", b)
 }
 
-// maskUserID 脱敏用户ID（用于日志）
+// maskUserID 脱敏用户ID（用于日志）.
 func maskUserID(userID string) string {
 	if len(userID) <= 4 {
 		return "****"

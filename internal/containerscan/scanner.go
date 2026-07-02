@@ -12,14 +12,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// VulnDatabase is an interface for vulnerability database lookups
+// VulnDatabase is an interface for vulnerability database lookups.
 type VulnDatabase interface {
 	Lookup(ctx context.Context, pkg, version, distro string) ([]CVE, error)
 	Update(ctx context.Context) error
 	LastUpdate() time.Time
 }
 
-// Scanner performs vulnerability scanning on container images
+// Scanner performs vulnerability scanning on container images.
 type Scanner struct {
 	logger        *zap.Logger
 	cache         map[string]*ScanResult
@@ -29,19 +29,19 @@ type Scanner struct {
 	layerAnalyzer *LayerAnalyzer
 }
 
-// LayerAnalyzer analyzes image layers
+// LayerAnalyzer analyzes image layers.
 type LayerAnalyzer struct {
 	logger *zap.Logger
 }
 
-// packageInfo represents a package found in an image layer
+// packageInfo represents a package found in an image layer.
 type packageInfo struct {
 	Name    string
 	Version string
 	Path    string
 }
 
-// NewScanner creates a new image scanner
+// NewScanner creates a new image scanner.
 func NewScanner(logger *zap.Logger, vulnDB VulnDatabase, cacheTTL time.Duration) *Scanner {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -58,7 +58,7 @@ func NewScanner(logger *zap.Logger, vulnDB VulnDatabase, cacheTTL time.Duration)
 	}
 }
 
-// ScanImage performs a full vulnerability scan on a container image
+// ScanImage performs a full vulnerability scan on a container image.
 func (s *Scanner) ScanImage(ctx context.Context, image, registry string, forceRescan bool) (*ScanResult, error) {
 	startTime := time.Now()
 	fullImage := image
@@ -126,7 +126,7 @@ func (s *Scanner) ScanImage(ctx context.Context, image, registry string, forceRe
 	return result, nil
 }
 
-// inspectImage extracts image metadata (digest, layers)
+// inspectImage extracts image metadata (digest, layers).
 func (s *Scanner) inspectImage(ctx context.Context, image string) (string, []ImageLayer, error) {
 	s.logger.Info("inspecting image", zap.String("image", image))
 
@@ -156,7 +156,7 @@ func (s *Scanner) inspectImage(ctx context.Context, image string) (string, []Ima
 	return digest, layers, nil
 }
 
-// scanLayer scans a single image layer for vulnerabilities
+// scanLayer scans a single image layer for vulnerabilities.
 func (s *Scanner) scanLayer(ctx context.Context, image string, layer ImageLayer, index int) ([]Vulnerability, error) {
 	if s.vulnDB == nil {
 		return nil, nil
@@ -187,7 +187,7 @@ func (s *Scanner) scanLayer(ctx context.Context, image string, layer ImageLayer,
 	return vulns, nil
 }
 
-// extractPackages extracts package information from a layer
+// extractPackages extracts package information from a layer.
 func (s *Scanner) extractPackages(layer ImageLayer) []packageInfo {
 	var packages []packageInfo
 
@@ -202,7 +202,7 @@ func (s *Scanner) extractPackages(layer ImageLayer) []packageInfo {
 	return packages
 }
 
-// buildSummary creates a vulnerability summary
+// buildSummary creates a vulnerability summary.
 func (s *Scanner) buildSummary(vulns []Vulnerability) VulnSummary {
 	summary := VulnSummary{Total: len(vulns)}
 	for _, v := range vulns {
@@ -222,7 +222,7 @@ func (s *Scanner) buildSummary(vulns []Vulnerability) VulnSummary {
 	return summary
 }
 
-// generateFixSuggestions creates auto-fix suggestions for vulnerabilities
+// generateFixSuggestions creates auto-fix suggestions for vulnerabilities.
 func (s *Scanner) generateFixSuggestions(vulns []Vulnerability) []FixSuggestion {
 	var suggestions []FixSuggestion
 	seen := make(map[string]bool)
@@ -250,7 +250,7 @@ func (s *Scanner) generateFixSuggestions(vulns []Vulnerability) []FixSuggestion 
 	return suggestions
 }
 
-// getFromCache retrieves a cached scan result
+// getFromCache retrieves a cached scan result.
 func (s *Scanner) getFromCache(image string) *ScanResult {
 	s.cacheMu.RLock()
 	defer s.cacheMu.RUnlock()
@@ -267,26 +267,26 @@ func (s *Scanner) getFromCache(image string) *ScanResult {
 	return result
 }
 
-// setCache stores a scan result in cache
+// setCache stores a scan result in cache.
 func (s *Scanner) setCache(image string, result *ScanResult) {
 	s.cacheMu.Lock()
 	defer s.cacheMu.Unlock()
 	s.cache[image] = result
 }
 
-// ClearCache clears the scan cache
+// ClearCache clears the scan cache.
 func (s *Scanner) ClearCache() {
 	s.cacheMu.Lock()
 	defer s.cacheMu.Unlock()
 	s.cache = make(map[string]*ScanResult)
 }
 
-// GetCachedResult returns a cached result without scanning
+// GetCachedResult returns a cached result without scanning.
 func (s *Scanner) GetCachedResult(image string) *ScanResult {
 	return s.getFromCache(image)
 }
 
-// ListCachedImages returns all cached image names
+// ListCachedImages returns all cached image names.
 func (s *Scanner) ListCachedImages() []string {
 	s.cacheMu.RLock()
 	defer s.cacheMu.RUnlock()

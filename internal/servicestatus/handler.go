@@ -14,17 +14,17 @@ import (
 // Handler 服务仪表盘 HTTP 处理器
 // ============================================================
 
-// Handler 服务仪表盘 HTTP 处理器
+// Handler 服务仪表盘 HTTP 处理器.
 type Handler struct {
 	dashboard *ServiceDashboard
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(dashboard *ServiceDashboard) *Handler {
 	return &Handler{dashboard: dashboard}
 }
 
-// RegisterRoutes 注册路由到给定的 ServeMux
+// RegisterRoutes 注册路由到给定的 ServeMux.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/dashboard/services", h.handleServices)
 	mux.HandleFunc("/api/dashboard/services/", h.handleServiceByID)
@@ -33,26 +33,26 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/dashboard/groups/", h.handleGroupAction)
 }
 
-// apiResponse 标准 API 响应
+// apiResponse 标准 API 响应.
 type apiResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// writeJSON 输出 JSON 响应
+// writeJSON 输出 JSON 响应.
 func writeJSON(w http.ResponseWriter, status int, resp apiResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(resp)
 }
 
-// writeError 输出错误响应
+// writeError 输出错误响应.
 func writeError(w http.ResponseWriter, status int, msg string) {
 	writeJSON(w, status, apiResponse{Code: 1, Message: msg})
 }
 
-// writeSuccess 输出成功响应
+// writeSuccess 输出成功响应.
 func writeSuccess(w http.ResponseWriter, data interface{}) {
 	writeJSON(w, http.StatusOK, apiResponse{Code: 0, Message: "success", Data: data})
 }
@@ -73,7 +73,7 @@ func (h *Handler) handleServices(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// listServices GET /api/dashboard/services?status=&type=&group=
+// listServices GET /api/dashboard/services?status=&type=&group=.
 func (h *Handler) listServices(w http.ResponseWriter, r *http.Request) {
 	status := ServiceStatus(r.URL.Query().Get("status"))
 	svcType := ServiceType(r.URL.Query().Get("type"))
@@ -83,7 +83,7 @@ func (h *Handler) listServices(w http.ResponseWriter, r *http.Request) {
 	writeSuccess(w, services)
 }
 
-// registerService POST /api/dashboard/services
+// registerService POST /api/dashboard/services.
 func (h *Handler) registerService(w http.ResponseWriter, r *http.Request) {
 	var svc Service
 	if err := json.NewDecoder(r.Body).Decode(&svc); err != nil {
@@ -137,7 +137,7 @@ func (h *Handler) handleServiceByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleServiceDetail GET /api/dashboard/services/:id
+// handleServiceDetail GET /api/dashboard/services/:id.
 func (h *Handler) handleServiceDetail(w http.ResponseWriter, r *http.Request, svcID ServiceID) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -153,7 +153,7 @@ func (h *Handler) handleServiceDetail(w http.ResponseWriter, r *http.Request, sv
 	writeSuccess(w, svc)
 }
 
-// handleStartService POST /api/dashboard/services/:id/start
+// handleStartService POST /api/dashboard/services/:id/start.
 func (h *Handler) handleStartService(w http.ResponseWriter, r *http.Request, svcID ServiceID) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -168,7 +168,7 @@ func (h *Handler) handleStartService(w http.ResponseWriter, r *http.Request, svc
 	writeSuccess(w, map[string]string{"message": fmt.Sprintf("服务 %s 启动中", svcID)})
 }
 
-// handleStopService POST /api/dashboard/services/:id/stop
+// handleStopService POST /api/dashboard/services/:id/stop.
 func (h *Handler) handleStopService(w http.ResponseWriter, r *http.Request, svcID ServiceID) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -183,7 +183,7 @@ func (h *Handler) handleStopService(w http.ResponseWriter, r *http.Request, svcI
 	writeSuccess(w, map[string]string{"message": fmt.Sprintf("服务 %s 已停止", svcID)})
 }
 
-// handleRestartService POST /api/dashboard/services/:id/restart
+// handleRestartService POST /api/dashboard/services/:id/restart.
 func (h *Handler) handleRestartService(w http.ResponseWriter, r *http.Request, svcID ServiceID) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -198,7 +198,7 @@ func (h *Handler) handleRestartService(w http.ResponseWriter, r *http.Request, s
 	writeSuccess(w, map[string]string{"message": fmt.Sprintf("服务 %s 重启中", svcID)})
 }
 
-// handleServiceHealth GET /api/dashboard/services/:id/health
+// handleServiceHealth GET /api/dashboard/services/:id/health.
 func (h *Handler) handleServiceHealth(w http.ResponseWriter, r *http.Request, svcID ServiceID) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -214,7 +214,7 @@ func (h *Handler) handleServiceHealth(w http.ResponseWriter, r *http.Request, sv
 	writeSuccess(w, hc)
 }
 
-// handleServiceMetrics GET /api/dashboard/services/:id/metrics
+// handleServiceMetrics GET /api/dashboard/services/:id/metrics.
 func (h *Handler) handleServiceMetrics(w http.ResponseWriter, r *http.Request, svcID ServiceID) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")

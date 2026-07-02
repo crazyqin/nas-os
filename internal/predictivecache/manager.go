@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// AccessPattern 访问模式类型
+// AccessPattern 访问模式类型.
 type AccessPattern string
 
 const (
@@ -23,7 +23,7 @@ const (
 	PatternSeasonal   AccessPattern = "seasonal"
 )
 
-// CacheLevel 缓存层级
+// CacheLevel 缓存层级.
 type CacheLevel string
 
 const (
@@ -32,7 +32,7 @@ const (
 	CacheL3 CacheLevel = "l3" // HDD缓存
 )
 
-// PredictionConfidence 预测置信度
+// PredictionConfidence 预测置信度.
 type PredictionConfidence string
 
 const (
@@ -41,7 +41,7 @@ const (
 	ConfidenceLow    PredictionConfidence = "low"
 )
 
-// FileAccessRecord 文件访问记录
+// FileAccessRecord 文件访问记录.
 type FileAccessRecord struct {
 	FilePath   string    `json:"file_path"`
 	AccessTime time.Time `json:"access_time"`
@@ -51,7 +51,7 @@ type FileAccessRecord struct {
 	Duration   int       `json:"duration_ms"`
 }
 
-// AccessPatternAnalysis 访问模式分析
+// AccessPatternAnalysis 访问模式分析.
 type AccessPatternAnalysis struct {
 	FilePath      string               `json:"file_path"`
 	Pattern       AccessPattern        `json:"pattern"`
@@ -63,7 +63,7 @@ type AccessPatternAnalysis struct {
 	Seasonality   float64              `json:"seasonality"` // 季节性因子
 }
 
-// CacheEntry 缓存条目
+// CacheEntry 缓存条目.
 type CacheEntry struct {
 	ID         string     `json:"id"`
 	FilePath   string     `json:"file_path"`
@@ -79,7 +79,7 @@ type CacheEntry struct {
 	Pinned     bool       `json:"pinned"` // 是否固定在缓存中
 }
 
-// WarmingTask 预热任务
+// WarmingTask 预热任务.
 type WarmingTask struct {
 	ID          string     `json:"id"`
 	FilePath    string     `json:"file_path"`
@@ -92,7 +92,7 @@ type WarmingTask struct {
 	Error       string     `json:"error,omitempty"`
 }
 
-// PredictionModel 预测模型配置
+// PredictionModel 预测模型配置.
 type PredictionModel struct {
 	WindowSize          int     `json:"window_size"`          // 分析窗口大小（天）
 	MinSamples          int     `json:"min_samples"`          // 最小样本数
@@ -102,7 +102,7 @@ type PredictionModel struct {
 	SeasonWeight        float64 `json:"season_weight"`        // 季节性权重
 }
 
-// CachePolicy 缓存策略
+// CachePolicy 缓存策略.
 type CachePolicy struct {
 	MaxL1SizeGB     float64 `json:"max_l1_size_gb"`   // L1缓存最大容量
 	MaxL2SizeGB     float64 `json:"max_l2_size_gb"`   // L2缓存最大容量
@@ -113,7 +113,7 @@ type CachePolicy struct {
 	WarmingSchedule string  `json:"warming_schedule"` // 预热计划 (cron表达式)
 }
 
-// Manager 预测缓存管理器
+// Manager 预测缓存管理器.
 type Manager struct {
 	mu              sync.RWMutex
 	accessRecords   map[string][]*FileAccessRecord
@@ -126,7 +126,7 @@ type Manager struct {
 	misses          int64
 }
 
-// NewManager 创建新的预测缓存管理器
+// NewManager 创建新的预测缓存管理器.
 func NewManager() *Manager {
 	return &Manager{
 		accessRecords: make(map[string][]*FileAccessRecord),
@@ -153,7 +153,7 @@ func NewManager() *Manager {
 	}
 }
 
-// RecordAccess 记录文件访问
+// RecordAccess 记录文件访问.
 func (m *Manager) RecordAccess(record *FileAccessRecord) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -175,7 +175,7 @@ func (m *Manager) RecordAccess(record *FileAccessRecord) {
 	}
 }
 
-// AnalyzePatterns 分析访问模式
+// AnalyzePatterns 分析访问模式.
 func (m *Manager) AnalyzePatterns(filePath string) *AccessPatternAnalysis {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -222,7 +222,7 @@ func (m *Manager) AnalyzePatterns(filePath string) *AccessPatternAnalysis {
 	return analysis
 }
 
-// calculateFrequency 计算访问频率
+// calculateFrequency 计算访问频率.
 func (m *Manager) calculateFrequency(records []*FileAccessRecord) float64 {
 	if len(records) < 2 {
 		return 0
@@ -241,7 +241,7 @@ func (m *Manager) calculateFrequency(records []*FileAccessRecord) float64 {
 	return float64(len(records)) / (duration.Hours() / 24)
 }
 
-// detectPattern 检测访问模式
+// detectPattern 检测访问模式.
 func (m *Manager) detectPattern(records []*FileAccessRecord) AccessPattern {
 	if len(records) < 3 {
 		return PatternRandom
@@ -292,7 +292,7 @@ func (m *Manager) detectPattern(records []*FileAccessRecord) AccessPattern {
 	return PatternRandom
 }
 
-// calculateTrend 计算趋势分数
+// calculateTrend 计算趋势分数.
 func (m *Manager) calculateTrend(records []*FileAccessRecord) float64 {
 	if len(records) < 10 {
 		return 0.5
@@ -315,7 +315,7 @@ func (m *Manager) calculateTrend(records []*FileAccessRecord) float64 {
 	return math.Max(0, math.Min(1, trend))
 }
 
-// calculateSeasonality 计算季节性因子
+// calculateSeasonality 计算季节性因子.
 func (m *Manager) calculateSeasonality(records []*FileAccessRecord) float64 {
 	if len(records) < 7 {
 		return 0
@@ -343,7 +343,7 @@ func (m *Manager) calculateSeasonality(records []*FileAccessRecord) float64 {
 	return 1 - (entropy / maxEntropy)
 }
 
-// predictNextAccess 预测下次访问时间
+// predictNextAccess 预测下次访问时间.
 func (m *Manager) predictNextAccess(records []*FileAccessRecord, pattern AccessPattern, frequency float64) time.Time {
 	if len(records) == 0 {
 		return time.Time{}
@@ -379,7 +379,7 @@ func (m *Manager) predictNextAccess(records []*FileAccessRecord, pattern AccessP
 	return lastAccess.Add(24 * time.Hour)
 }
 
-// calculateConfidence 计算预测置信度
+// calculateConfidence 计算预测置信度.
 func (m *Manager) calculateConfidence(records []*FileAccessRecord, pattern AccessPattern, trendScore float64) PredictionConfidence {
 	sampleScore := math.Min(1, float64(len(records))/50) // 样本数量分数
 	patternScore := 0.5
@@ -404,7 +404,7 @@ func (m *Manager) calculateConfidence(records []*FileAccessRecord, pattern Acces
 	return ConfidenceLow
 }
 
-// LoadToCache 加载文件到缓存
+// LoadToCache 加载文件到缓存.
 func (m *Manager) LoadToCache(filePath string, sizeBytes int64, cacheLevel CacheLevel) (*CacheEntry, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -430,7 +430,7 @@ func (m *Manager) LoadToCache(filePath string, sizeBytes int64, cacheLevel Cache
 	return entry, nil
 }
 
-// checkCacheCapacity 检查缓存容量
+// checkCacheCapacity 检查缓存容量.
 func (m *Manager) checkCacheCapacity(level CacheLevel, newSize int64) bool {
 	var maxSize int64
 	switch level {
@@ -452,7 +452,7 @@ func (m *Manager) checkCacheCapacity(level CacheLevel, newSize int64) bool {
 	return currentSize+newSize <= maxSize
 }
 
-// evictCache 驱逐缓存
+// evictCache 驱逐缓存.
 func (m *Manager) evictCache(level CacheLevel, neededBytes int64) {
 	// 收集同层级的缓存条目
 	entries := make([]*CacheEntry, 0)
@@ -495,7 +495,7 @@ func (m *Manager) evictCache(level CacheLevel, neededBytes int64) {
 	}
 }
 
-// calculateEvictionScore 计算驱逐分数 (越低越容易被驱逐)
+// calculateEvictionScore 计算驱逐分数 (越低越容易被驱逐).
 func (m *Manager) calculateEvictionScore(entry *CacheEntry) float64 {
 	age := time.Since(entry.LastAccess).Hours()
 	hitRate := entry.HitRate
@@ -505,7 +505,7 @@ func (m *Manager) calculateEvictionScore(entry *CacheEntry) float64 {
 	return hitRate*0.4 + priority*0.3 + (1/(1+age))*0.3
 }
 
-// calculatePriority 计算文件优先级
+// calculatePriority 计算文件优先级.
 func (m *Manager) calculatePriority(filePath string) int {
 	analysis := m.patterns[filePath]
 	if analysis == nil {
@@ -544,7 +544,7 @@ func (m *Manager) calculatePriority(filePath string) int {
 	return max(1, min(10, priority))
 }
 
-// CreateWarmingTask 创建预热任务
+// CreateWarmingTask 创建预热任务.
 func (m *Manager) CreateWarmingTask(filePath string, cacheLevel CacheLevel) *WarmingTask {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -562,7 +562,7 @@ func (m *Manager) CreateWarmingTask(filePath string, cacheLevel CacheLevel) *War
 	return task
 }
 
-// GetWarmingTask 获取预热任务
+// GetWarmingTask 获取预热任务.
 func (m *Manager) GetWarmingTask(taskID string) (*WarmingTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -575,7 +575,7 @@ func (m *Manager) GetWarmingTask(taskID string) (*WarmingTask, error) {
 	return task, nil
 }
 
-// ListWarmingTasks 列出预热任务
+// ListWarmingTasks 列出预热任务.
 func (m *Manager) ListWarmingTasks(status string) []*WarmingTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -595,7 +595,7 @@ func (m *Manager) ListWarmingTasks(status string) []*WarmingTask {
 	return tasks
 }
 
-// GetCacheStats 获取缓存统计
+// GetCacheStats 获取缓存统计.
 func (m *Manager) GetCacheStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -632,7 +632,7 @@ func (m *Manager) GetCacheStats() map[string]interface{} {
 	return stats
 }
 
-// GetPatternAnalysis 获取模式分析
+// GetPatternAnalysis 获取模式分析.
 func (m *Manager) GetPatternAnalysis(filePath string) *AccessPatternAnalysis {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -640,7 +640,7 @@ func (m *Manager) GetPatternAnalysis(filePath string) *AccessPatternAnalysis {
 	return m.patterns[filePath]
 }
 
-// ListPatterns 列出所有模式分析
+// ListPatterns 列出所有模式分析.
 func (m *Manager) ListPatterns(minConfidence PredictionConfidence) []*AccessPatternAnalysis {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -668,7 +668,7 @@ func (m *Manager) ListPatterns(minConfidence PredictionConfidence) []*AccessPatt
 	return patterns
 }
 
-// AutoWarm 自动预热
+// AutoWarm 自动预热.
 func (m *Manager) AutoWarm() []*WarmingTask {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -723,7 +723,7 @@ func (m *Manager) AutoWarm() []*WarmingTask {
 	return tasks
 }
 
-// analyzePatternInternal 内部模式分析
+// analyzePatternInternal 内部模式分析.
 func (m *Manager) analyzePatternInternal(records []*FileAccessRecord) *AccessPatternAnalysis {
 	if len(records) < 2 {
 		return nil
@@ -748,7 +748,7 @@ func (m *Manager) analyzePatternInternal(records []*FileAccessRecord) *AccessPat
 	}
 }
 
-// shouldWarm 判断是否应该预热
+// shouldWarm 判断是否应该预热.
 func (m *Manager) shouldWarm(analysis *AccessPatternAnalysis) bool {
 	// 检查预测时间
 	if analysis.NextPredicted.IsZero() {
@@ -769,7 +769,7 @@ func (m *Manager) shouldWarm(analysis *AccessPatternAnalysis) bool {
 	return false
 }
 
-// determineCacheLevel 确定缓存层级
+// determineCacheLevel 确定缓存层级.
 func (m *Manager) determineCacheLevel(records []*FileAccessRecord) CacheLevel {
 	// 计算平均文件大小
 	totalSize := int64(0)
@@ -787,7 +787,7 @@ func (m *Manager) determineCacheLevel(records []*FileAccessRecord) CacheLevel {
 	return CacheL3
 }
 
-// GetCacheEntry 获取缓存条目
+// GetCacheEntry 获取缓存条目.
 func (m *Manager) GetCacheEntry(filePath string) *CacheEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -806,7 +806,7 @@ func (m *Manager) GetCacheEntry(filePath string) *CacheEntry {
 	return entry
 }
 
-// PinCache 固定缓存条目
+// PinCache 固定缓存条目.
 func (m *Manager) PinCache(filePath string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -820,7 +820,7 @@ func (m *Manager) PinCache(filePath string) error {
 	return nil
 }
 
-// UnpinCache 取消固定缓存条目
+// UnpinCache 取消固定缓存条目.
 func (m *Manager) UnpinCache(filePath string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -834,7 +834,7 @@ func (m *Manager) UnpinCache(filePath string) error {
 	return nil
 }
 
-// ClearCache 清空缓存
+// ClearCache 清空缓存.
 func (m *Manager) ClearCache(level CacheLevel) int {
 	m.mu.Lock()
 	defer m.mu.Unlock()

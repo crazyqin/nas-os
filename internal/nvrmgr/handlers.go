@@ -9,17 +9,17 @@ import (
 	"time"
 )
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	// 摄像头管理
 	mux.HandleFunc("/api/nvrmgr/cameras", h.handleCameras)
@@ -49,7 +49,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 
 // ========== 通用响应 ==========
 
-// APIResponse API 响应
+// APIResponse API 响应.
 type APIResponse struct {
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data,omitempty"`
@@ -59,14 +59,14 @@ type APIResponse struct {
 	Size    int         `json:"size,omitempty"`
 }
 
-// respondJSON 返回 JSON 响应
+// respondJSON 返回 JSON 响应.
 func respondJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(data)
 }
 
-// respondSuccess 成功响应
+// respondSuccess 成功响应.
 func respondSuccess(w http.ResponseWriter, data interface{}) {
 	respondJSON(w, http.StatusOK, APIResponse{
 		Success: true,
@@ -74,7 +74,7 @@ func respondSuccess(w http.ResponseWriter, data interface{}) {
 	})
 }
 
-// respondError 错误响应
+// respondError 错误响应.
 func respondError(w http.ResponseWriter, status int, err string) {
 	respondJSON(w, status, APIResponse{
 		Success: false,
@@ -84,7 +84,7 @@ func respondError(w http.ResponseWriter, status int, err string) {
 
 // ========== 摄像头管理 ==========
 
-// handleCameras 处理 /api/nvrmgr/cameras
+// handleCameras 处理 /api/nvrmgr/cameras.
 func (h *Handler) handleCameras(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -118,7 +118,7 @@ func (h *Handler) handleCameras(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleCameraByID 处理 /api/nvrmgr/cameras/{id}
+// handleCameraByID 处理 /api/nvrmgr/cameras/{id}.
 func (h *Handler) handleCameraByID(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Path[len("/api/nvrmgr/cameras/"):]
 	if id == "" {
@@ -163,7 +163,7 @@ func (h *Handler) handleCameraByID(w http.ResponseWriter, r *http.Request) {
 
 // ========== 录像管理 ==========
 
-// handleRecordings 处理 /api/nvrmgr/recordings
+// handleRecordings 处理 /api/nvrmgr/recordings.
 func (h *Handler) handleRecordings(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -224,7 +224,7 @@ func (h *Handler) handleRecordings(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleRecordingByID 处理 /api/nvrmgr/recordings/{id}
+// handleRecordingByID 处理 /api/nvrmgr/recordings/{id}.
 func (h *Handler) handleRecordingByID(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Path[len("/api/nvrmgr/recordings/"):]
 	if id == "" {
@@ -247,7 +247,7 @@ func (h *Handler) handleRecordingByID(w http.ResponseWriter, r *http.Request) {
 
 // ========== 时间线 ==========
 
-// handleTimeline 处理 /api/nvrmgr/timeline
+// handleTimeline 处理 /api/nvrmgr/timeline.
 func (h *Handler) handleTimeline(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		respondError(w, http.StatusMethodNotAllowed, "方法不允许")
@@ -282,7 +282,7 @@ func (h *Handler) handleTimeline(w http.ResponseWriter, r *http.Request) {
 
 // ========== 移动侦测 ==========
 
-// handleMotion 处理 /api/nvrmgr/motion
+// handleMotion 处理 /api/nvrmgr/motion.
 func (h *Handler) handleMotion(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -332,7 +332,7 @@ func (h *Handler) handleMotion(w http.ResponseWriter, r *http.Request) {
 
 // ========== 告警管理 ==========
 
-// handleAlerts 处理 /api/nvrmgr/alerts
+// handleAlerts 处理 /api/nvrmgr/alerts.
 func (h *Handler) handleAlerts(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -367,7 +367,7 @@ func (h *Handler) handleAlerts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleAlertByID 处理 /api/nvrmgr/alerts/{id}
+// handleAlertByID 处理 /api/nvrmgr/alerts/{id}.
 func (h *Handler) handleAlertByID(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Path[len("/api/nvrmgr/alerts/"):]
 	if id == "" {
@@ -390,7 +390,7 @@ func (h *Handler) handleAlertByID(w http.ResponseWriter, r *http.Request) {
 
 // ========== 存储策略 ==========
 
-// handleStoragePlans 处理 /api/nvrmgr/storage-plans
+// handleStoragePlans 处理 /api/nvrmgr/storage-plans.
 func (h *Handler) handleStoragePlans(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		respondError(w, http.StatusMethodNotAllowed, "方法不允许")
@@ -408,7 +408,7 @@ func (h *Handler) handleStoragePlans(w http.ResponseWriter, r *http.Request) {
 	respondSuccess(w, plans)
 }
 
-// handleStoragePlanByID 处理 /api/nvrmgr/storage-plans/{id}
+// handleStoragePlanByID 处理 /api/nvrmgr/storage-plans/{id}.
 func (h *Handler) handleStoragePlanByID(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Path[len("/api/nvrmgr/storage-plans/"):]
 	if id == "" {
@@ -451,7 +451,7 @@ func (h *Handler) handleStoragePlanByID(w http.ResponseWriter, r *http.Request) 
 
 // ========== 统计信息 ==========
 
-// handleStats 处理 /api/nvrmgr/stats
+// handleStats 处理 /api/nvrmgr/stats.
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		respondError(w, http.StatusMethodNotAllowed, "方法不允许")

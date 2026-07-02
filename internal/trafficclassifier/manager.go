@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 流量分类管理器
+// Manager 流量分类管理器.
 type Manager struct {
 	mu                sync.RWMutex
 	logger            *zap.Logger
@@ -33,7 +33,7 @@ type Manager struct {
 	running           bool
 }
 
-// NewManager 创建流量分类管理器
+// NewManager 创建流量分类管理器.
 func NewManager(logger *zap.Logger, config *ClassifierConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -59,14 +59,14 @@ func NewManager(logger *zap.Logger, config *ClassifierConfig) *Manager {
 	return m
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// initDPISignatures 初始化 DPI 签名库
+// initDPISignatures 初始化 DPI 签名库.
 func (m *Manager) initDPISignatures() {
 	m.dpiSignatures = []DPISignature{
 		{Name: "HTTP", Pattern: "^(GET|POST|PUT|DELETE|HEAD|OPTIONS|PATCH) ", TrafficType: TrafficTypeOffice, Port: 80, Protocol: "tcp"},
@@ -89,7 +89,7 @@ func (m *Manager) initDPISignatures() {
 	}
 }
 
-// initDefaultPolicies 初始化默认带宽策略
+// initDefaultPolicies 初始化默认带宽策略.
 func (m *Manager) initDefaultPolicies() {
 	now := time.Now()
 	defaults := []BandwidthPolicy{
@@ -106,7 +106,7 @@ func (m *Manager) initDefaultPolicies() {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -118,7 +118,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -130,14 +130,14 @@ func (m *Manager) Stop() {
 	m.logger.Info("traffic classifier stopped")
 }
 
-// IsRunning 是否运行中
+// IsRunning 是否运行中.
 func (m *Manager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.running
 }
 
-// AnalyzeFlows 分析流量
+// AnalyzeFlows 分析流量.
 func (m *Manager) AnalyzeFlows(req *AnalyzeRequest) (*AnalyzeResponse, error) {
 	if !m.config.Enabled {
 		return nil, fmt.Errorf("traffic classifier is disabled")
@@ -193,7 +193,7 @@ func (m *Manager) AnalyzeFlows(req *AnalyzeRequest) (*AnalyzeResponse, error) {
 	}, nil
 }
 
-// extractFeatures 提取流量特征
+// extractFeatures 提取流量特征.
 func (m *Manager) extractFeatures(flow *TrafficFlow) *TrafficFeature {
 	totalPackets := flow.PacketsIn + flow.PacketsOut
 	totalBytes := flow.BytesIn + flow.BytesOut
@@ -225,7 +225,7 @@ func (m *Manager) extractFeatures(flow *TrafficFlow) *TrafficFeature {
 	}
 }
 
-// estimateBursts 估计突发数
+// estimateBursts 估计突发数.
 func estimateBursts(packets int64, duration float64) int {
 	if duration <= 0 {
 		return 0
@@ -237,7 +237,7 @@ func estimateBursts(packets int64, duration float64) int {
 	return int(rate / 10)
 }
 
-// classifyFlow 分类流量流
+// classifyFlow 分类流量流.
 func (m *Manager) classifyFlow(flow *TrafficFlow, features *TrafficFeature, withDPI bool) *ClassificationResult {
 	result := &ClassificationResult{
 		FlowID:    flow.ID,
@@ -295,7 +295,7 @@ func (m *Manager) classifyFlow(flow *TrafficFlow, features *TrafficFeature, with
 	return result
 }
 
-// matchRule 匹配自定义规则
+// matchRule 匹配自定义规则.
 func (m *Manager) matchRule(rule *ClassificationRule, flow *TrafficFlow) bool {
 	if rule.SrcIPPattern != "" {
 		if matched, _ := matchPattern(rule.SrcIPPattern, flow.SrcIP); !matched {
@@ -344,7 +344,7 @@ func max64(a, b int64) int64 {
 	return b
 }
 
-// matchPattern 匹配 IP 模式(CIDR 或正则)
+// matchPattern 匹配 IP 模式(CIDR 或正则).
 func matchPattern(pattern, ip string) (bool, error) {
 	// 尝试 CIDR
 	if strings.Contains(pattern, "/") {
@@ -362,31 +362,31 @@ func matchPattern(pattern, ip string) (bool, error) {
 	return regexp.MatchString(pattern, ip)
 }
 
-// classifyByPort 基于端口分类
+// classifyByPort 基于端口分类.
 func (m *Manager) classifyByPort(port int) TrafficType {
-	switch {
-	case port == 80 || port == 443 || port == 8080 || port == 8443:
+	switch port {
+	case 80, 443, 8080, 8443:
 		return TrafficTypeOffice
-	case port == 22 || port == 3389 || port == 5900:
+	case 22, 3389, 5900:
 		return TrafficTypeOffice
-	case port == 554 || port == 1935 || port == 8554:
+	case 554, 1935, 8554:
 		return TrafficTypeVideo
-	case port == 5060 || port == 5061 || port == 5004:
+	case 5060, 5061, 5004:
 		return TrafficTypeAudio
-	case port == 27015 || port == 27016 || port == 3074 || port == 9293 || port == 3478:
+	case 27015, 27016, 3074, 9293, 3478:
 		return TrafficTypeGame
-	case port == 21 || port == 6881 || port == 6882 || port == 6969:
+	case 21, 6881, 6882, 6969:
 		return TrafficTypeDownload
-	case port == 1883 || port == 8883 || port == 5683 || port == 5684:
+	case 1883, 8883, 5683, 5684:
 		return TrafficTypeIoT
-	case port == 53:
+	case 53:
 		return TrafficTypeOffice
 	default:
 		return TrafficTypeUnknown
 	}
 }
 
-// classifyByFeatures 基于特征分类
+// classifyByFeatures 基于特征分类.
 func (m *Manager) classifyByFeatures(f *TrafficFeature) TrafficType {
 	// 高带宽 + 长持续时间 → 视频或下载
 	if f.ByteRate > 5000000 { // >5Mbps
@@ -414,7 +414,7 @@ func (m *Manager) classifyByFeatures(f *TrafficFeature) TrafficType {
 	return TrafficTypeUnknown
 }
 
-// dpiInspect 深度包检测
+// dpiInspect 深度包检测.
 func (m *Manager) dpiInspect(flow *TrafficFlow) (TrafficType, string) {
 	// 基于端口和协议匹配签名
 	for _, sig := range m.dpiSignatures {
@@ -427,7 +427,7 @@ func (m *Manager) dpiInspect(flow *TrafficFlow) (TrafficType, string) {
 	return TrafficTypeUnknown, ""
 }
 
-// detectAnomaly 检测异常流量
+// detectAnomaly 检测异常流量.
 func (m *Manager) detectAnomaly(flow *TrafficFlow, features *TrafficFeature) *AnomalyAlert {
 	// DDoS 检测：高包率 + 小包
 	if features.PacketRate > 10000 && features.AvgPacketSize < 100 {
@@ -457,7 +457,7 @@ func (m *Manager) detectAnomaly(flow *TrafficFlow, features *TrafficFeature) *An
 	return nil
 }
 
-// createAlert 创建告警
+// createAlert 创建告警.
 func (m *Manager) createAlert(atype AnomalyType, severity AlertSeverity, flow *TrafficFlow, desc string) *AnomalyAlert {
 	return &AnomalyAlert{
 		ID:          generateID(),
@@ -474,7 +474,7 @@ func (m *Manager) createAlert(atype AnomalyType, severity AlertSeverity, flow *T
 	}
 }
 
-// updateStats 更新统计信息
+// updateStats 更新统计信息.
 func (m *Manager) updateStats(flows []TrafficFlow) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -496,7 +496,7 @@ func (m *Manager) updateStats(flows []TrafficFlow) {
 	m.updateTopTalkers(flows)
 }
 
-// updateTopTalkers 更新 Top Talkers
+// updateTopTalkers 更新 Top Talkers.
 func (m *Manager) updateTopTalkers(flows []TrafficFlow) {
 	talkerMap := make(map[string]*EndpointStats)
 	for _, flow := range flows {
@@ -525,7 +525,7 @@ func (m *Manager) updateTopTalkers(flows []TrafficFlow) {
 	m.stats.TopTalkers = talkers
 }
 
-// GetStats 获取流量统计
+// GetStats 获取流量统计.
 func (m *Manager) GetStats() *TrafficStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -545,7 +545,7 @@ func (m *Manager) GetStats() *TrafficStats {
 	return &stats
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *ClassifierConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -553,7 +553,7 @@ func (m *Manager) GetConfig() *ClassifierConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(cfg *ClassifierConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -564,7 +564,7 @@ func (m *Manager) UpdateConfig(cfg *ClassifierConfig) {
 
 // --- 分类规则管理 ---
 
-// AddRule 添加分类规则
+// AddRule 添加分类规则.
 func (m *Manager) AddRule(rule *ClassificationRule) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -577,7 +577,7 @@ func (m *Manager) AddRule(rule *ClassificationRule) {
 	m.logger.Info("rule added", zap.String("id", rule.ID), zap.String("name", rule.Name))
 }
 
-// UpdateRule 更新分类规则
+// UpdateRule 更新分类规则.
 func (m *Manager) UpdateRule(rule *ClassificationRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -589,7 +589,7 @@ func (m *Manager) UpdateRule(rule *ClassificationRule) error {
 	return nil
 }
 
-// DeleteRule 删除分类规则
+// DeleteRule 删除分类规则.
 func (m *Manager) DeleteRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -600,7 +600,7 @@ func (m *Manager) DeleteRule(id string) error {
 	return nil
 }
 
-// ListRules 列出所有规则
+// ListRules 列出所有规则.
 func (m *Manager) ListRules() []*ClassificationRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -614,7 +614,7 @@ func (m *Manager) ListRules() []*ClassificationRule {
 	return rules
 }
 
-// GetRule 获取单条规则
+// GetRule 获取单条规则.
 func (m *Manager) GetRule(id string) (*ClassificationRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -627,7 +627,7 @@ func (m *Manager) GetRule(id string) (*ClassificationRule, error) {
 
 // --- 带宽策略管理 ---
 
-// AddBandwidthPolicy 添加带宽策略
+// AddBandwidthPolicy 添加带宽策略.
 func (m *Manager) AddBandwidthPolicy(policy *BandwidthPolicy) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -639,7 +639,7 @@ func (m *Manager) AddBandwidthPolicy(policy *BandwidthPolicy) {
 	m.bandwidthPolicies[policy.ID] = policy
 }
 
-// ListBandwidthPolicies 列出带宽策略
+// ListBandwidthPolicies 列出带宽策略.
 func (m *Manager) ListBandwidthPolicies() []*BandwidthPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -650,7 +650,7 @@ func (m *Manager) ListBandwidthPolicies() []*BandwidthPolicy {
 	return policies
 }
 
-// GetBandwidthPolicy 获取带宽策略
+// GetBandwidthPolicy 获取带宽策略.
 func (m *Manager) GetBandwidthPolicy(id string) (*BandwidthPolicy, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -661,7 +661,7 @@ func (m *Manager) GetBandwidthPolicy(id string) (*BandwidthPolicy, error) {
 	return p, nil
 }
 
-// DeleteBandwidthPolicy 删除带宽策略
+// DeleteBandwidthPolicy 删除带宽策略.
 func (m *Manager) DeleteBandwidthPolicy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -674,7 +674,7 @@ func (m *Manager) DeleteBandwidthPolicy(id string) error {
 
 // --- 镜像管理 ---
 
-// AddMirrorConfig 添加镜像配置
+// AddMirrorConfig 添加镜像配置.
 func (m *Manager) AddMirrorConfig(cfg *MirrorConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -685,7 +685,7 @@ func (m *Manager) AddMirrorConfig(cfg *MirrorConfig) {
 	m.mirrorConfigs[cfg.ID] = cfg
 }
 
-// ListMirrorConfigs 列出镜像配置
+// ListMirrorConfigs 列出镜像配置.
 func (m *Manager) ListMirrorConfigs() []*MirrorConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -696,7 +696,7 @@ func (m *Manager) ListMirrorConfigs() []*MirrorConfig {
 	return configs
 }
 
-// DeleteMirrorConfig 删除镜像配置
+// DeleteMirrorConfig 删除镜像配置.
 func (m *Manager) DeleteMirrorConfig(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -709,7 +709,7 @@ func (m *Manager) DeleteMirrorConfig(id string) error {
 
 // --- QoS 规则管理 ---
 
-// AddQoSRule 添加 QoS 规则
+// AddQoSRule 添加 QoS 规则.
 func (m *Manager) AddQoSRule(rule *QoSRule) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -721,7 +721,7 @@ func (m *Manager) AddQoSRule(rule *QoSRule) {
 	m.qosRules[rule.ID] = rule
 }
 
-// ListQoSRules 列出 QoS 规则
+// ListQoSRules 列出 QoS 规则.
 func (m *Manager) ListQoSRules() []*QoSRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -732,7 +732,7 @@ func (m *Manager) ListQoSRules() []*QoSRule {
 	return rules
 }
 
-// DeleteQoSRule 删除 QoS 规则
+// DeleteQoSRule 删除 QoS 规则.
 func (m *Manager) DeleteQoSRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -745,7 +745,7 @@ func (m *Manager) DeleteQoSRule(id string) error {
 
 // --- 异常告警管理 ---
 
-// ListAlerts 列出告警
+// ListAlerts 列出告警.
 func (m *Manager) ListAlerts(resolved bool) []*AnomalyAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -764,7 +764,7 @@ func (m *Manager) ListAlerts(resolved bool) []*AnomalyAlert {
 	return alerts
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (m *Manager) ResolveAlert(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -780,7 +780,7 @@ func (m *Manager) ResolveAlert(id string) error {
 
 // --- 报告生成 ---
 
-// GenerateReport 生成流量报告
+// GenerateReport 生成流量报告.
 func (m *Manager) GenerateReport(req *ReportRequest) *TrafficReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -835,7 +835,7 @@ func (m *Manager) GenerateReport(req *ReportRequest) *TrafficReport {
 	return report
 }
 
-// GetReport 获取报告
+// GetReport 获取报告.
 func (m *Manager) GetReport(id string) (*TrafficReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -847,7 +847,7 @@ func (m *Manager) GetReport(id string) (*TrafficReport, error) {
 	return nil, fmt.Errorf("report %s not found", id)
 }
 
-// ListReports 列出报告
+// ListReports 列出报告.
 func (m *Manager) ListReports() []*TrafficReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 文件管理器核心管理器
+// Manager 文件管理器核心管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	config     Config
@@ -36,7 +36,7 @@ type Manager struct {
 	logger *zap.Logger
 }
 
-// NewManager 创建文件管理器
+// NewManager 创建文件管理器.
 func NewManager(config Config, logger *zap.Logger) (*Manager, error) {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -72,7 +72,7 @@ func NewManager(config Config, logger *zap.Logger) (*Manager, error) {
 	return mgr, nil
 }
 
-// Search 搜索文件
+// Search 搜索文件.
 func (m *Manager) Search(query SearchQuery) (*SearchResult, error) {
 	startTime := time.Now()
 
@@ -204,7 +204,7 @@ func (m *Manager) Search(query SearchQuery) (*SearchResult, error) {
 	}, nil
 }
 
-// ListFavorites 列出收藏
+// ListFavorites 列出收藏.
 func (m *Manager) ListFavorites(userID string) []*Favorite {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -219,7 +219,7 @@ func (m *Manager) ListFavorites(userID string) []*Favorite {
 	return result
 }
 
-// AddFavorite 添加收藏
+// AddFavorite 添加收藏.
 func (m *Manager) AddFavorite(path string, userID string) (*Favorite, error) {
 	// 验证路径
 	cleanPath := filepath.Clean(path)
@@ -271,7 +271,7 @@ func (m *Manager) AddFavorite(path string, userID string) (*Favorite, error) {
 	return fav, nil
 }
 
-// RemoveFavorite 删除收藏
+// RemoveFavorite 删除收藏.
 func (m *Manager) RemoveFavorite(id string, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -295,7 +295,7 @@ func (m *Manager) RemoveFavorite(id string, userID string) error {
 	return nil
 }
 
-// ListVersions 列出文件版本
+// ListVersions 列出文件版本.
 func (m *Manager) ListVersions(filePath string) ([]*FileVersion, error) {
 	if !m.config.EnableVersions {
 		return nil, fmt.Errorf("版本管理功能未启用")
@@ -317,7 +317,7 @@ func (m *Manager) ListVersions(filePath string) ([]*FileVersion, error) {
 	return versions, nil
 }
 
-// CreateVersion 创建文件版本
+// CreateVersion 创建文件版本.
 func (m *Manager) CreateVersion(filePath string, comment string, userID string) (*FileVersion, error) {
 	if !m.config.EnableVersions {
 		return nil, fmt.Errorf("版本管理功能未启用")
@@ -370,7 +370,7 @@ func (m *Manager) CreateVersion(filePath string, comment string, userID string) 
 	return version, nil
 }
 
-// RestoreVersion 恢复文件版本
+// RestoreVersion 恢复文件版本.
 func (m *Manager) RestoreVersion(versionID string) error {
 	if !m.config.EnableVersions {
 		return fmt.Errorf("版本管理功能未启用")
@@ -396,32 +396,32 @@ func (m *Manager) RestoreVersion(versionID string) error {
 	return fmt.Errorf("版本不存在: %s", versionID)
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() Config {
 	return m.config
 }
 
-// GetBrowser 获取浏览器
+// GetBrowser 获取浏览器.
 func (m *Manager) GetBrowser() *Browser {
 	return m.browser
 }
 
-// GetOperations 获取操作管理器
+// GetOperations 获取操作管理器.
 func (m *Manager) GetOperations() *Operations {
 	return m.operations
 }
 
-// GetPreview 获取预览器
+// GetPreview 获取预览器.
 func (m *Manager) GetPreview() *Preview {
 	return m.preview
 }
 
-// GetShare 获取分享管理器
+// GetShare 获取分享管理器.
 func (m *Manager) GetShare() *Share {
 	return m.share
 }
 
-// fuzzyMatch 模糊匹配
+// fuzzyMatch 模糊匹配.
 func fuzzyMatch(s, pattern string) bool {
 	if pattern == "" {
 		return true
@@ -446,7 +446,7 @@ func fuzzyMatch(s, pattern string) bool {
 	return patternIdx == len(pattern)
 }
 
-// searchFileContent 搜索文件内容
+// searchFileContent 搜索文件内容.
 func (m *Manager) searchFileContent(path string, keyword string) bool {
 	// 简化实现：读取文件内容搜索
 	// 实际实现应该使用 bleve 等全文搜索引擎
@@ -459,7 +459,7 @@ func (m *Manager) searchFileContent(path string, keyword string) bool {
 	return strings.Contains(strings.ToLower(string(content)), strings.ToLower(keyword))
 }
 
-// sortFileNodes 排序文件节点
+// sortFileNodes 排序文件节点.
 func sortFileNodes(nodes []*FileNode, sortBy, sortOrder string) {
 	// 使用简单的插入排序
 	for i := 1; i < len(nodes); i++ {
@@ -474,7 +474,7 @@ func sortFileNodes(nodes []*FileNode, sortBy, sortOrder string) {
 	}
 }
 
-// shouldSwap 判断是否需要交换
+// shouldSwap 判断是否需要交换.
 func shouldSwap(a, b *FileNode, sortBy, sortOrder string) bool {
 	var less bool
 
@@ -493,7 +493,7 @@ func shouldSwap(a, b *FileNode, sortBy, sortOrder string) bool {
 	return less
 }
 
-// cleanupRoutine 定期清理过期分享链接
+// cleanupRoutine 定期清理过期分享链接.
 func (m *Manager) cleanupRoutine() {
 	ticker := time.NewTicker(1 * time.Hour)
 	defer ticker.Stop()

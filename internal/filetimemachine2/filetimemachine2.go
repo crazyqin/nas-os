@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// TimeMachineEngine 时间机器引擎
+// TimeMachineEngine 时间机器引擎.
 type TimeMachineEngine struct {
 	mu              sync.RWMutex
 	logger          *zap.Logger
@@ -28,7 +28,7 @@ type TimeMachineEngine struct {
 	stopChan        chan struct{}
 }
 
-// NewEngine 创建时间机器引擎
+// NewEngine 创建时间机器引擎.
 func NewEngine(storageRoot string, logger *zap.Logger) (*TimeMachineEngine, error) {
 	if err := os.MkdirAll(storageRoot, 0755); err != nil {
 		return nil, fmt.Errorf("创建存储目录失败: %w", err)
@@ -54,14 +54,14 @@ func NewEngine(storageRoot string, logger *zap.Logger) (*TimeMachineEngine, erro
 	return e, nil
 }
 
-// Stop 停止引擎
+// Stop 停止引擎.
 func (e *TimeMachineEngine) Stop() {
 	close(e.stopChan)
 }
 
 // ==================== 快照管理 ====================
 
-// CreateSnapshot 创建快照
+// CreateSnapshot 创建快照.
 func (e *TimeMachineEngine) CreateSnapshot(req CreateSnapshotRequest) (*Snapshot, error) {
 	if err := e.validateRootPath(req.RootPath); err != nil {
 		return nil, err
@@ -160,7 +160,7 @@ func (e *TimeMachineEngine) CreateSnapshot(req CreateSnapshotRequest) (*Snapshot
 	return snapshot, nil
 }
 
-// DeleteSnapshot 删除快照
+// DeleteSnapshot 删除快照.
 func (e *TimeMachineEngine) DeleteSnapshot(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -188,7 +188,7 @@ func (e *TimeMachineEngine) DeleteSnapshot(id string) error {
 	return nil
 }
 
-// ListSnapshots 列出快照
+// ListSnapshots 列出快照.
 func (e *TimeMachineEngine) ListSnapshots() []SnapshotListItem {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -213,7 +213,7 @@ func (e *TimeMachineEngine) ListSnapshots() []SnapshotListItem {
 	return items
 }
 
-// GetSnapshot 获取快照详情
+// GetSnapshot 获取快照详情.
 func (e *TimeMachineEngine) GetSnapshot(id string) (*Snapshot, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -227,7 +227,7 @@ func (e *TimeMachineEngine) GetSnapshot(id string) (*Snapshot, error) {
 
 // ==================== 快照浏览 ====================
 
-// BrowseSnapshot 浏览快照内容
+// BrowseSnapshot 浏览快照内容.
 func (e *TimeMachineEngine) BrowseSnapshot(id string, subPath string) (*SnapshotContent, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -273,7 +273,7 @@ func (e *TimeMachineEngine) BrowseSnapshot(id string, subPath string) (*Snapshot
 	}, nil
 }
 
-// GetFileContent 获取快照中的文件内容
+// GetFileContent 获取快照中的文件内容.
 func (e *TimeMachineEngine) GetFileContent(snapshotID, filePath string) ([]byte, error) {
 	e.mu.RLock()
 	snapshot, ok := e.snapshots[snapshotID]
@@ -297,7 +297,7 @@ func (e *TimeMachineEngine) GetFileContent(snapshotID, filePath string) ([]byte,
 
 // ==================== Diff 引擎 ====================
 
-// DiffSnapshots 对比两个快照
+// DiffSnapshots 对比两个快照.
 func (e *TimeMachineEngine) DiffSnapshots(snapshotA, snapshotB string) (*DiffResult, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -402,7 +402,7 @@ func (e *TimeMachineEngine) DiffSnapshots(snapshotA, snapshotB string) (*DiffRes
 
 // ==================== 恢复功能 ====================
 
-// RestoreSnapshot 恢复快照
+// RestoreSnapshot 恢复快照.
 func (e *TimeMachineEngine) RestoreSnapshot(snapshotID string, req RestoreRequest) (*RestoreResult, error) {
 	e.mu.RLock()
 	snapshot, ok := e.snapshots[snapshotID]
@@ -483,7 +483,7 @@ func (e *TimeMachineEngine) RestoreSnapshot(snapshotID string, req RestoreReques
 
 // ==================== 时间线 ====================
 
-// GetTimeline 获取时间线数据
+// GetTimeline 获取时间线数据.
 func (e *TimeMachineEngine) GetTimeline(granularity AggregationGranularity, startTime, endTime time.Time) (*TimelineData, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -518,14 +518,14 @@ func (e *TimeMachineEngine) GetTimeline(granularity AggregationGranularity, star
 
 // ==================== 保留策略 ====================
 
-// GetRetentionConfig 获取保留策略配置
+// GetRetentionConfig 获取保留策略配置.
 func (e *TimeMachineEngine) GetRetentionConfig() *RetentionConfig {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.retentionConfig
 }
 
-// UpdateRetentionConfig 更新保留策略
+// UpdateRetentionConfig 更新保留策略.
 func (e *TimeMachineEngine) UpdateRetentionConfig(req UpdateRetentionRequest) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -537,7 +537,7 @@ func (e *TimeMachineEngine) UpdateRetentionConfig(req UpdateRetentionRequest) {
 	e.retentionConfig.AutoCleanup = req.AutoCleanup
 }
 
-// CleanupExpired 清理过期快照
+// CleanupExpired 清理过期快照.
 func (e *TimeMachineEngine) CleanupExpired() (*CleanupResult, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -597,7 +597,7 @@ func (e *TimeMachineEngine) CleanupExpired() (*CleanupResult, error) {
 
 // ==================== 存储统计 ====================
 
-// GetStorageStats 获取存储统计
+// GetStorageStats 获取存储统计.
 func (e *TimeMachineEngine) GetStorageStats() *StorageStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -659,7 +659,7 @@ func (e *TimeMachineEngine) GetStorageStats() *StorageStats {
 
 // ==================== 搜索 ====================
 
-// SearchFiles 搜索文件版本
+// SearchFiles 搜索文件版本.
 func (e *TimeMachineEngine) SearchFiles(req SearchRequest) (*SearchResult, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -729,7 +729,7 @@ func (e *TimeMachineEngine) SearchFiles(req SearchRequest) (*SearchResult, error
 
 // ==================== 标签管理 ====================
 
-// AddTags 添加标签
+// AddTags 添加标签.
 func (e *TimeMachineEngine) AddTags(id string, tags []string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -757,7 +757,7 @@ func (e *TimeMachineEngine) AddTags(id string, tags []string) error {
 
 // ==================== 内部辅助函数 ====================
 
-// validateRootPath 验证根路径
+// validateRootPath 验证根路径.
 func (e *TimeMachineEngine) validateRootPath(path string) error {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -769,7 +769,7 @@ func (e *TimeMachineEngine) validateRootPath(path string) error {
 	return nil
 }
 
-// fileHash 计算文件哈希
+// fileHash 计算文件哈希.
 func (e *TimeMachineEngine) fileHash(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -784,7 +784,7 @@ func (e *TimeMachineEngine) fileHash(path string) (string, error) {
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
-// generateID 生成唯一ID
+// generateID 生成唯一ID.
 func generateID() string {
 	b := make([]byte, 16)
 	for i := range b {
@@ -794,7 +794,7 @@ func generateID() string {
 	return hex.EncodeToString(h[:8])
 }
 
-// autoTag 自动打标签
+// autoTag 自动打标签.
 func (e *TimeMachineEngine) autoTag(t time.Time) []string {
 	tags := []string{"auto"}
 
@@ -820,7 +820,7 @@ func (e *TimeMachineEngine) autoTag(t time.Time) []string {
 	return tags
 }
 
-// isBinaryByExt 根据扩展名判断是否为二进制文件
+// isBinaryByExt 根据扩展名判断是否为二进制文件.
 func (e *TimeMachineEngine) isBinaryByExt(path string) bool {
 	binaryExts := map[string]bool{
 		".jpg": true, ".jpeg": true, ".png": true, ".gif": true, ".bmp": true,
@@ -834,7 +834,7 @@ func (e *TimeMachineEngine) isBinaryByExt(path string) bool {
 	return binaryExts[ext]
 }
 
-// computeLineDiff 计算文本文件行级差异（简化实现）
+// computeLineDiff 计算文本文件行级差异（简化实现）.
 func (e *TimeMachineEngine) computeLineDiff(fileA, fileB string) []LineDiff {
 	dataA, errA := os.ReadFile(fileA)
 	dataB, errB := os.ReadFile(fileB)
@@ -892,7 +892,7 @@ func (e *TimeMachineEngine) computeLineDiff(fileA, fileB string) []LineDiff {
 	return diffs
 }
 
-// aggregateByGranularity 按粒度聚合
+// aggregateByGranularity 按粒度聚合.
 func (e *TimeMachineEngine) aggregateByGranularity(snapshots []*Snapshot, granularity AggregationGranularity) []TimelineBucket {
 	if len(snapshots) == 0 {
 		return nil
@@ -924,7 +924,7 @@ func (e *TimeMachineEngine) aggregateByGranularity(snapshots []*Snapshot, granul
 	return buckets
 }
 
-// bucketKey 生成桶键
+// bucketKey 生成桶键.
 func (e *TimeMachineEngine) bucketKey(t time.Time, granularity AggregationGranularity) string {
 	switch granularity {
 	case GranularityHour:
@@ -941,7 +941,7 @@ func (e *TimeMachineEngine) bucketKey(t time.Time, granularity AggregationGranul
 	}
 }
 
-// bucketRange 计算桶时间范围
+// bucketRange 计算桶时间范围.
 func (e *TimeMachineEngine) bucketRange(t time.Time, granularity AggregationGranularity) (time.Time, time.Time) {
 	switch granularity {
 	case GranularityHour:
@@ -966,7 +966,7 @@ func (e *TimeMachineEngine) bucketRange(t time.Time, granularity AggregationGran
 	}
 }
 
-// parseInterval 解析时间间隔
+// parseInterval 解析时间间隔.
 func (e *TimeMachineEngine) parseInterval(interval string) time.Duration {
 	switch interval {
 	case "1h", "1hour":
@@ -984,7 +984,7 @@ func (e *TimeMachineEngine) parseInterval(interval string) time.Duration {
 	}
 }
 
-// hasTag 检查标签
+// hasTag 检查标签.
 func (e *TimeMachineEngine) hasTag(tags []string, tag string) bool {
 	for _, t := range tags {
 		if t == tag {
@@ -994,7 +994,7 @@ func (e *TimeMachineEngine) hasTag(tags []string, tag string) bool {
 	return false
 }
 
-// matchWildcard 通配符匹配
+// matchWildcard 通配符匹配.
 func (e *TimeMachineEngine) matchWildcard(name, pattern string) bool {
 	if pattern == "*" || pattern == "" {
 		return true
@@ -1008,7 +1008,7 @@ func (e *TimeMachineEngine) matchWildcard(name, pattern string) bool {
 	return strings.Contains(strings.ToLower(name), strings.ToLower(pattern))
 }
 
-// isSubPath 检查是否为子路径
+// isSubPath 检查是否为子路径.
 func (e *TimeMachineEngine) isSubPath(path string, parents []string) bool {
 	for _, p := range parents {
 		if strings.HasPrefix(path, p+"/") {
@@ -1018,7 +1018,7 @@ func (e *TimeMachineEngine) isSubPath(path string, parents []string) bool {
 	return false
 }
 
-// copyFile 复制文件
+// copyFile 复制文件.
 func (e *TimeMachineEngine) copyFile(src, dst string) error {
 	in, err := os.Open(src)
 	if err != nil {

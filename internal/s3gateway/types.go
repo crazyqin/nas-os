@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// BucketPolicy 存储桶访问策略
+// BucketPolicy 存储桶访问策略.
 type BucketPolicy string
 
 const (
@@ -14,7 +14,7 @@ const (
 	PolicyCustom  BucketPolicy = "custom"
 )
 
-// StorageClass 存储类别
+// StorageClass 存储类别.
 type StorageClass string
 
 const (
@@ -23,7 +23,7 @@ const (
 	StorageClassArchive    StorageClass = "GLACIER"
 )
 
-// Permission ACL权限类型
+// Permission ACL权限类型.
 type Permission string
 
 const (
@@ -34,7 +34,7 @@ const (
 	PermissionFullControl Permission = "FULL_CONTROL"
 )
 
-// GranteeType 被授权者类型
+// GranteeType 被授权者类型.
 type GranteeType string
 
 const (
@@ -42,7 +42,7 @@ const (
 	GranteeGroup GranteeType = "Group"
 )
 
-// VersioningStatus 版本控制状态
+// VersioningStatus 版本控制状态.
 type VersioningStatus string
 
 const (
@@ -50,7 +50,7 @@ const (
 	VersioningSuspended VersioningStatus = "Suspended"
 )
 
-// LifecycleAction 生命周期动作类型
+// LifecycleAction 生命周期动作类型.
 type LifecycleAction string
 
 const (
@@ -58,7 +58,7 @@ const (
 	ActionTransition LifecycleAction = "Transition"
 )
 
-// S3Config S3网关配置
+// S3Config S3网关配置.
 type S3Config struct {
 	StorageRoot   string       `json:"storageRoot"`
 	DefaultPolicy BucketPolicy `json:"defaultPolicy"`
@@ -68,7 +68,7 @@ type S3Config struct {
 	Region        string       `json:"region"`
 }
 
-// Bucket 存储桶
+// Bucket 存储桶.
 type Bucket struct {
 	Name       string            `json:"name"`
 	OwnerID    string            `json:"ownerId"`
@@ -81,20 +81,20 @@ type Bucket struct {
 	Region     string            `json:"region"`
 }
 
-// BucketQuota 存储桶配额
+// BucketQuota 存储桶配额.
 type BucketQuota struct {
 	MaxSize    int64 `json:"maxSize"`
 	MaxObjects int64 `json:"maxObjects"`
 }
 
-// ACLGrant ACL授权条目
+// ACLGrant ACL授权条目.
 type ACLGrant struct {
 	GranteeID   string      `json:"granteeId"`
 	GranteeType GranteeType `json:"granteeType"`
 	Permission  Permission  `json:"permission"`
 }
 
-// Object 存储对象
+// Object 存储对象.
 type Object struct {
 	Key          string            `json:"key"`
 	Bucket       string            `json:"bucket"`
@@ -112,7 +112,7 @@ type Object struct {
 	Data         []byte            `json:"-"`
 }
 
-// ObjectVersion 对象版本
+// ObjectVersion 对象版本.
 type ObjectVersion struct {
 	Key       string    `json:"key"`
 	VersionID string    `json:"versionId"`
@@ -123,7 +123,7 @@ type ObjectVersion struct {
 	OwnerID   string    `json:"ownerId"`
 }
 
-// MultipartUpload 多部分上传
+// MultipartUpload 多部分上传.
 type MultipartUpload struct {
 	UploadID    string            `json:"uploadId"`
 	Bucket      string            `json:"bucket"`
@@ -135,7 +135,7 @@ type MultipartUpload struct {
 	InitiatedAt time.Time         `json:"initiatedAt"`
 }
 
-// UploadPart 上传分片
+// UploadPart 上传分片.
 type UploadPart struct {
 	PartNumber int       `json:"partNumber"`
 	Size       int64     `json:"size"`
@@ -144,7 +144,7 @@ type UploadPart struct {
 	Data       []byte    `json:"-"`
 }
 
-// AccessKey 访问密钥
+// AccessKey 访问密钥.
 type AccessKey struct {
 	AccessKeyID     string     `json:"accessKeyId"`
 	SecretAccessKey string     `json:"secretAccessKey"`
@@ -155,7 +155,7 @@ type AccessKey struct {
 	LastUsedAt      *time.Time `json:"lastUsedAt,omitempty"`
 }
 
-// LifecycleRule 生命周期规则
+// LifecycleRule 生命周期规则.
 type LifecycleRule struct {
 	ID             string          `json:"id"`
 	Bucket         string          `json:"bucket"`
@@ -167,7 +167,7 @@ type LifecycleRule struct {
 	Action         LifecycleAction `json:"action"`
 }
 
-// AccessLog 访问日志
+// AccessLog 访问日志.
 type AccessLog struct {
 	Timestamp time.Time `json:"timestamp"`
 	UserID    string    `json:"userId"`
@@ -181,7 +181,7 @@ type AccessLog struct {
 	IPAddress string    `json:"ipAddress,omitempty"`
 }
 
-// TrafficStats 流量统计
+// TrafficStats 流量统计.
 type TrafficStats struct {
 	TotalBuckets int64                   `json:"totalBuckets"`
 	TotalObjects int64                   `json:"totalObjects"`
@@ -192,7 +192,7 @@ type TrafficStats struct {
 	ByClass      map[string]int64        `json:"byClass,omitempty"`
 }
 
-// UserStats 用户维度统计
+// UserStats 用户维度统计.
 type UserStats struct {
 	Buckets   int64 `json:"buckets"`
 	Objects   int64 `json:"objects"`
@@ -201,7 +201,7 @@ type UserStats struct {
 	Downloads int64 `json:"downloads"`
 }
 
-// BucketStats 存储桶维度统计
+// BucketStats 存储桶维度统计.
 type BucketStats struct {
 	Objects   int64 `json:"objects"`
 	TotalSize int64 `json:"totalSize"`

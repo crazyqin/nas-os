@@ -14,7 +14,7 @@ import (
 // LockService 文件锁定服务
 // 对标: 群晖Drive 4.0文件锁定机制
 
-// LockState 锁定状态
+// LockState 锁定状态.
 type LockState struct {
 	Path      string    // 文件路径
 	LockedBy  string    // 锁定者用户
@@ -24,7 +24,7 @@ type LockState struct {
 	LockType  LockType  // 锁类型
 }
 
-// LockType 锁类型
+// LockType 锁类型.
 type LockType int
 
 const (
@@ -32,7 +32,7 @@ const (
 	LockTypeWrite LockType = 2 // 写锁 (排他锁)
 )
 
-// LockConflict 锁冲突信息
+// LockConflict 锁冲突信息.
 type LockConflict struct {
 	Path         string
 	RequestBy    string
@@ -40,7 +40,7 @@ type LockConflict struct {
 	ConflictType string
 }
 
-// LockBackend 锁后端接口
+// LockBackend 锁后端接口.
 type LockBackend interface {
 	Acquire(ctx context.Context, path, user, session string, lockType LockType, ttl time.Duration) (*LockState, error)
 	Release(ctx context.Context, path, session string) error
@@ -50,7 +50,7 @@ type LockBackend interface {
 	List(ctx context.Context, user string) ([]LockState, error)
 }
 
-// MemoryLockBackend 内存锁后端 (开发测试用)
+// MemoryLockBackend 内存锁后端 (开发测试用).
 type MemoryLockBackend struct {
 	locks map[string]*LockState
 	mu    sync.RWMutex
@@ -195,14 +195,14 @@ func (b *MemoryLockBackend) List(ctx context.Context, user string) ([]LockState,
 	return locks, nil
 }
 
-// FileLockService 文件锁定服务
+// FileLockService 文件锁定服务.
 type FileLockService struct {
 	backend    LockBackend
 	defaultTTL time.Duration
 	mu         sync.RWMutex
 }
 
-// NewFileLockService 创建文件锁定服务
+// NewFileLockService 创建文件锁定服务.
 func NewFileLockService(backend LockBackend) *FileLockService {
 	return &FileLockService{
 		backend:    backend,
@@ -210,37 +210,37 @@ func NewFileLockService(backend LockBackend) *FileLockService {
 	}
 }
 
-// LockFile 锁定文件
+// LockFile 锁定文件.
 func (s *FileLockService) LockFile(ctx context.Context, path, user, session string) (*LockState, error) {
 	return s.backend.Acquire(ctx, path, user, session, LockTypeWrite, s.defaultTTL)
 }
 
-// UnlockFile 解锁文件
+// UnlockFile 解锁文件.
 func (s *FileLockService) UnlockFile(ctx context.Context, path, session string) error {
 	return s.backend.Release(ctx, path, session)
 }
 
-// GetLock 获取文件锁状态
+// GetLock 获取文件锁状态.
 func (s *FileLockService) GetLock(ctx context.Context, path string) (*LockState, error) {
 	return s.backend.Get(ctx, path)
 }
 
-// CheckLock 检查锁冲突
+// CheckLock 检查锁冲突.
 func (s *FileLockService) CheckLock(ctx context.Context, path, user string) (*LockConflict, error) {
 	return s.backend.Check(ctx, path, user)
 }
 
-// ExtendLock 延长锁时间
+// ExtendLock 延长锁时间.
 func (s *FileLockService) ExtendLock(ctx context.Context, path, session string) error {
 	return s.backend.Extend(ctx, path, session, s.defaultTTL)
 }
 
-// ListUserLocks 获取用户所有锁
+// ListUserLocks 获取用户所有锁.
 func (s *FileLockService) ListUserLocks(ctx context.Context, user string) ([]LockState, error) {
 	return s.backend.List(ctx, user)
 }
 
-// TryLock 尝试锁定 (不阻塞)
+// TryLock 尝试锁定 (不阻塞).
 func (s *FileLockService) TryLock(ctx context.Context, path, user, session string) (*LockState, bool, error) {
 	// 先检查冲突
 	conflict, err := s.CheckLock(ctx, path, user)
@@ -260,7 +260,7 @@ func (s *FileLockService) TryLock(ctx context.Context, path, user, session strin
 	return lock, true, nil
 }
 
-// WaitForLock 等待锁释放
+// WaitForLock 等待锁释放.
 func (s *FileLockService) WaitForLock(ctx context.Context, path, user, session string, timeout time.Duration) (*LockState, error) {
 	deadline := time.Now().Add(timeout)
 
@@ -280,7 +280,7 @@ func (s *FileLockService) WaitForLock(ctx context.Context, path, user, session s
 	return nil, fmt.Errorf("lock wait timeout")
 }
 
-// AutoUnlock 自动解锁过期锁
+// AutoUnlock 自动解锁过期锁.
 func (s *FileLockService) AutoUnlock(ctx context.Context) int {
 	locks, err := s.backend.List(ctx, "")
 	if err != nil {
@@ -299,7 +299,7 @@ func (s *FileLockService) AutoUnlock(ctx context.Context) int {
 	return count
 }
 
-// StartAutoUnlock 启动自动解锁后台任务
+// StartAutoUnlock 启动自动解锁后台任务.
 func (s *FileLockService) StartAutoUnlock(ctx context.Context, interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
@@ -367,7 +367,7 @@ func (b *DistributedLockBackend) List(ctx context.Context, user string) ([]LockS
 	return b.memory.List(ctx, user)
 }
 
-// NotifyLockEvent 锁事件通知
+// NotifyLockEvent 锁事件通知.
 type LockEvent struct {
 	Type      string // acquired/released/conflict/expired
 	Path      string
@@ -376,12 +376,12 @@ type LockEvent struct {
 	Timestamp time.Time
 }
 
-// LockNotifier 锁事件通知器接口
+// LockNotifier 锁事件通知器接口.
 type LockNotifier interface {
 	Notify(event LockEvent)
 }
 
-// WebhookNotifier Webhook通知器
+// WebhookNotifier Webhook通知器.
 type WebhookNotifier struct {
 	URL string
 }

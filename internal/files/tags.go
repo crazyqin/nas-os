@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// SharedTag 共享标签
+// SharedTag 共享标签.
 type SharedTag struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -24,7 +24,7 @@ type SharedTag struct {
 	FileCount   int       `json:"file_count"` // 关联文件数
 }
 
-// FileTagAssociation 文件-标签关联
+// FileTagAssociation 文件-标签关联.
 type FileTagAssociation struct {
 	FileID    string    `json:"file_id"`
 	TagID     string    `json:"tag_id"`
@@ -33,7 +33,7 @@ type FileTagAssociation struct {
 	Note      string    `json:"note,omitempty"` // 备注
 }
 
-// SharedTagService 共享标签服务
+// SharedTagService 共享标签服务.
 type SharedTagService struct {
 	tags         map[string]*SharedTag            // tagID -> tag
 	associations map[string][]*FileTagAssociation // fileID -> associations
@@ -41,7 +41,7 @@ type SharedTagService struct {
 	mu           sync.RWMutex
 }
 
-// NewSharedTagService 创建服务
+// NewSharedTagService 创建服务.
 func NewSharedTagService() *SharedTagService {
 	return &SharedTagService{
 		tags:         make(map[string]*SharedTag),
@@ -50,7 +50,7 @@ func NewSharedTagService() *SharedTagService {
 	}
 }
 
-// CreateTag 创建标签
+// CreateTag 创建标签.
 func (s *SharedTagService) CreateTag(ctx context.Context, req *CreateTagRequest) (*SharedTag, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -77,7 +77,7 @@ func (s *SharedTagService) CreateTag(ctx context.Context, req *CreateTagRequest)
 	return tag, nil
 }
 
-// GetTag 获取标签
+// GetTag 获取标签.
 func (s *SharedTagService) GetTag(tagID string) (*SharedTag, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -89,7 +89,7 @@ func (s *SharedTagService) GetTag(tagID string) (*SharedTag, error) {
 	return tag, nil
 }
 
-// ListTags 列出标签
+// ListTags 列出标签.
 func (s *SharedTagService) ListTags(ctx context.Context, userID string, includePublic bool) ([]*SharedTag, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -117,7 +117,7 @@ func (s *SharedTagService) ListTags(ctx context.Context, userID string, includeP
 	return result, nil
 }
 
-// TagFile 标记文件
+// TagFile 标记文件.
 func (s *SharedTagService) TagFile(ctx context.Context, req *TagFileRequest) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -147,7 +147,7 @@ func (s *SharedTagService) TagFile(ctx context.Context, req *TagFileRequest) err
 	return nil
 }
 
-// UntagFile 移除文件标签
+// UntagFile 移除文件标签.
 func (s *SharedTagService) UntagFile(ctx context.Context, fileID, tagID, userID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -169,7 +169,7 @@ func (s *SharedTagService) UntagFile(ctx context.Context, fileID, tagID, userID 
 	return fmt.Errorf("tag association not found")
 }
 
-// GetFileTags 获取文件的所有标签
+// GetFileTags 获取文件的所有标签.
 func (s *SharedTagService) GetFileTags(fileID string) ([]*SharedTag, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -186,7 +186,7 @@ func (s *SharedTagService) GetFileTags(fileID string) ([]*SharedTag, error) {
 	return tags, nil
 }
 
-// SearchByTag 按标签搜索文件
+// SearchByTag 按标签搜索文件.
 func (s *SharedTagService) SearchByTag(ctx context.Context, tagIDs []string) ([]string, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -211,7 +211,7 @@ func (s *SharedTagService) SearchByTag(ctx context.Context, tagIDs []string) ([]
 	return fileIDs, nil
 }
 
-// DeleteTag 删除标签
+// DeleteTag 删除标签.
 func (s *SharedTagService) DeleteTag(ctx context.Context, tagID, userID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -252,7 +252,7 @@ func (s *SharedTagService) DeleteTag(ctx context.Context, tagID, userID string) 
 	return nil
 }
 
-// ExportTags 导出标签数据
+// ExportTags 导出标签数据.
 func (s *SharedTagService) ExportTags(ctx context.Context, userID string) ([]byte, error) {
 	tags, err := s.ListTags(ctx, userID, true)
 	if err != nil {
@@ -262,7 +262,7 @@ func (s *SharedTagService) ExportTags(ctx context.Context, userID string) ([]byt
 	return json.MarshalIndent(tags, "", "  ")
 }
 
-// 请求类型
+// 请求类型.
 type CreateTagRequest struct {
 	Name        string `json:"name"`
 	Color       string `json:"color"`

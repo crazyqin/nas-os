@@ -392,7 +392,7 @@ func TestCircuitBreaker_Recovery(t *testing.T) {
 	}
 }
 
-// testError 测试错误
+// testError 测试错误.
 type testError struct{}
 
 func (e *testError) Error() string {

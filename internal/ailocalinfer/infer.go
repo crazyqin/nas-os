@@ -19,7 +19,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// engine implements the InferenceEngine interface
+// engine implements the InferenceEngine interface.
 type engine struct {
 	config      *InferenceEngineConfig
 	models      map[string]*Model
@@ -32,7 +32,7 @@ type engine struct {
 	closed      bool
 }
 
-// NewInferenceEngine creates a new local inference engine
+// NewInferenceEngine creates a new local inference engine.
 func NewInferenceEngine(cfg *InferenceEngineConfig) (InferenceEngine, error) {
 	if cfg == nil {
 		cfg = DefaultConfig()
@@ -87,7 +87,7 @@ func NewInferenceEngine(cfg *InferenceEngineConfig) (InferenceEngine, error) {
 	return e, nil
 }
 
-// LoadModel loads a model into memory
+// LoadModel loads a model into memory.
 func (e *engine) LoadModel(ctx context.Context, modelName string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -140,7 +140,7 @@ func (e *engine) LoadModel(ctx context.Context, modelName string) error {
 	return nil
 }
 
-// doLoadModel performs the actual model loading
+// doLoadModel performs the actual model loading.
 func (e *engine) doLoadModel(ctx context.Context, model *Model) error {
 	// Check GPU requirements
 	if model.GPURequired && (e.gpuInfo == nil || !e.gpuInfo.Available) {
@@ -163,7 +163,7 @@ func (e *engine) doLoadModel(ctx context.Context, model *Model) error {
 	return nil
 }
 
-// UnloadModel unloads a model from memory
+// UnloadModel unloads a model from memory.
 func (e *engine) UnloadModel(ctx context.Context, modelName string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -202,7 +202,7 @@ func (e *engine) UnloadModel(ctx context.Context, modelName string) error {
 	return nil
 }
 
-// ListModels lists all available models
+// ListModels lists all available models.
 func (e *engine) ListModels(ctx context.Context) ([]ModelInfo, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -229,7 +229,7 @@ func (e *engine) ListModels(ctx context.Context) ([]ModelInfo, error) {
 	return models, nil
 }
 
-// getModelCapabilities returns capabilities for a model
+// getModelCapabilities returns capabilities for a model.
 func (e *engine) getModelCapabilities(model *Model) []string {
 	capabilities := []string{}
 	switch model.Type {
@@ -245,7 +245,7 @@ func (e *engine) getModelCapabilities(model *Model) []string {
 	return capabilities
 }
 
-// GetModelStatus gets the status of a model
+// GetModelStatus gets the status of a model.
 func (e *engine) GetModelStatus(ctx context.Context, modelName string) (*Model, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -264,7 +264,7 @@ func (e *engine) GetModelStatus(ctx context.Context, modelName string) (*Model, 
 	return &copy, nil
 }
 
-// Inference runs inference on a single request
+// Inference runs inference on a single request.
 func (e *engine) Inference(ctx context.Context, req *InferenceRequest) (*InferenceResponse, error) {
 	if e.closed {
 		return nil, fmt.Errorf("engine is closed")
@@ -308,7 +308,7 @@ func (e *engine) Inference(ctx context.Context, req *InferenceRequest) (*Inferen
 	return resp, nil
 }
 
-// doInference performs the actual inference
+// doInference performs the actual inference.
 func (e *engine) doInference(ctx context.Context, req *InferenceRequest) (*InferenceResponse, error) {
 	e.mu.RLock()
 	model, exists := e.models[req.ModelName]
@@ -353,7 +353,7 @@ func (e *engine) doInference(ctx context.Context, req *InferenceRequest) (*Infer
 	}, nil
 }
 
-// handleTextGeneration handles text generation requests
+// handleTextGeneration handles text generation requests.
 func (e *engine) handleTextGeneration(ctx context.Context, model *Model, req *InferenceRequest) (*TextGenerationOutput, error) {
 	input, ok := req.Input.(*TextGenerationInput)
 	if !ok {
@@ -398,7 +398,7 @@ func (e *engine) handleTextGeneration(ctx context.Context, model *Model, req *In
 	}, nil
 }
 
-// handleImageRecognition handles image recognition requests
+// handleImageRecognition handles image recognition requests.
 func (e *engine) handleImageRecognition(ctx context.Context, model *Model, req *InferenceRequest) (*ImageRecognitionOutput, error) {
 	input, ok := req.Input.(*ImageRecognitionInput)
 	if !ok {
@@ -445,7 +445,7 @@ func (e *engine) handleImageRecognition(ctx context.Context, model *Model, req *
 	}, nil
 }
 
-// handleSpeechRecognition handles speech recognition requests
+// handleSpeechRecognition handles speech recognition requests.
 func (e *engine) handleSpeechRecognition(ctx context.Context, model *Model, req *InferenceRequest) (*SpeechRecognitionOutput, error) {
 	input, ok := req.Input.(*SpeechRecognitionInput)
 	if !ok {
@@ -486,7 +486,7 @@ func (e *engine) handleSpeechRecognition(ctx context.Context, model *Model, req 
 	}, nil
 }
 
-// BatchInference runs inference on a batch of requests
+// BatchInference runs inference on a batch of requests.
 func (e *engine) BatchInference(ctx context.Context, req *BatchRequest) (*BatchResponse, error) {
 	if e.closed {
 		return nil, fmt.Errorf("engine is closed")
@@ -558,7 +558,7 @@ func (e *engine) BatchInference(ctx context.Context, req *BatchRequest) (*BatchR
 	}, nil
 }
 
-// GetGPUInfo gets GPU information
+// GetGPUInfo gets GPU information.
 func (e *engine) GetGPUInfo(ctx context.Context) (*GPUInfo, error) {
 	if e.gpuInfo == nil {
 		return &GPUInfo{Available: false}, nil
@@ -569,12 +569,12 @@ func (e *engine) GetGPUInfo(ctx context.Context) (*GPUInfo, error) {
 	return &copy, nil
 }
 
-// GetMetrics gets performance metrics
+// GetMetrics gets performance metrics.
 func (e *engine) GetMetrics(ctx context.Context) (*PerformanceMetrics, error) {
 	return e.metrics.GetMetrics(), nil
 }
 
-// Close closes the engine and releases resources
+// Close closes the engine and releases resources.
 func (e *engine) Close() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -599,7 +599,7 @@ func (e *engine) Close() error {
 	return nil
 }
 
-// validateRequest validates an inference request
+// validateRequest validates an inference request.
 func (e *engine) validateRequest(req *InferenceRequest) error {
 	if req.ModelName == "" {
 		return fmt.Errorf("model name is required")
@@ -610,7 +610,7 @@ func (e *engine) validateRequest(req *InferenceRequest) error {
 	return nil
 }
 
-// ensureCacheSpace ensures there's enough cache space for a model
+// ensureCacheSpace ensures there's enough cache space for a model.
 func (e *engine) ensureCacheSpace(model *Model) error {
 	if e.modelCache.Size()+1 <= e.config.CacheSize {
 		return nil
@@ -629,7 +629,7 @@ func (e *engine) ensureCacheSpace(model *Model) error {
 	return nil
 }
 
-// scanModels scans the model directory for existing models
+// scanModels scans the model directory for existing models.
 func (e *engine) scanModels() error {
 	entries, err := os.ReadDir(e.config.ModelDir)
 	if err != nil {
@@ -650,11 +650,11 @@ func (e *engine) scanModels() error {
 			info, _ := entry.Info()
 			modelType := e.detectModelType(name)
 			model := &Model{
-				Name:   strings.TrimSuffix(name, filepath.Ext(name)),
-				Type:   modelType,
-				Path:   filepath.Join(e.config.ModelDir, name),
-				Size:   info.Size(),
-				Status: ModelStatusUnloaded,
+				Name:        strings.TrimSuffix(name, filepath.Ext(name)),
+				Type:        modelType,
+				Path:        filepath.Join(e.config.ModelDir, name),
+				Size:        info.Size(),
+				Status:      ModelStatusUnloaded,
 				GPURequired: e.isGPURequired(modelType),
 			}
 			e.models[model.Name] = model
@@ -664,7 +664,7 @@ func (e *engine) scanModels() error {
 	return nil
 }
 
-// isModelFile checks if a file is a model file
+// isModelFile checks if a file is a model file.
 func (e *engine) isModelFile(name string) bool {
 	extensions := []string{".gguf", ".ggml", ".bin", ".onnx", ".pt", ".pth", ".safetensors"}
 	for _, ext := range extensions {
@@ -675,7 +675,7 @@ func (e *engine) isModelFile(name string) bool {
 	return false
 }
 
-// detectModelType detects model type from filename
+// detectModelType detects model type from filename.
 func (e *engine) detectModelType(name string) ModelType {
 	lower := strings.ToLower(name)
 	switch {
@@ -690,7 +690,7 @@ func (e *engine) detectModelType(name string) ModelType {
 	}
 }
 
-// isGPURequired checks if a model type typically requires GPU
+// isGPURequired checks if a model type typically requires GPU.
 func (e *engine) isGPURequired(modelType ModelType) bool {
 	switch modelType {
 	case ModelTypeImageRecognition:
@@ -700,7 +700,7 @@ func (e *engine) isGPURequired(modelType ModelType) bool {
 	}
 }
 
-// detectGPU detects available GPU
+// detectGPU detects available GPU.
 func (e *engine) detectGPU() *GPUInfo {
 	// Try nvidia-smi for NVIDIA GPUs
 	if output, err := exec.Command("nvidia-smi", "--query-gpu=name,memory.total,memory.used,driver_version", "--format=csv,noheader,nounits").Output(); err == nil {
@@ -744,7 +744,7 @@ func (e *engine) detectGPU() *GPUInfo {
 	return &GPUInfo{Available: false}
 }
 
-// parseInt parses a string to int, returns 0 on error
+// parseInt parses a string to int, returns 0 on error.
 func parseInt(s string) int {
 	var v int
 	fmt.Sscanf(s, "%d", &v)
@@ -753,7 +753,7 @@ func parseInt(s string) int {
 
 // ==================== LRU Cache Implementation ====================
 
-// NewLRUCache creates a new LRU cache
+// NewLRUCache creates a new LRU cache.
 func NewLRUCache(capacity int) *LRUCache {
 	return &LRUCache{
 		capacity: capacity,
@@ -762,7 +762,7 @@ func NewLRUCache(capacity int) *LRUCache {
 	}
 }
 
-// Get gets an item from the cache
+// Get gets an item from the cache.
 func (c *LRUCache) Get(key string) (interface{}, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -780,7 +780,7 @@ func (c *LRUCache) Get(key string) (interface{}, bool) {
 	return item.Value, true
 }
 
-// Put puts an item into the cache
+// Put puts an item into the cache.
 func (c *LRUCache) Put(key string, value interface{}, size int64) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -812,7 +812,7 @@ func (c *LRUCache) Put(key string, value interface{}, size int64) {
 	}
 }
 
-// Remove removes an item from the cache
+// Remove removes an item from the cache.
 func (c *LRUCache) Remove(key string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -823,7 +823,7 @@ func (c *LRUCache) Remove(key string) {
 	}
 }
 
-// evict removes the least recently used item
+// evict removes the least recently used item.
 func (c *LRUCache) evict() {
 	back := c.order.Back()
 	if back == nil {
@@ -837,12 +837,12 @@ func (c *LRUCache) evict() {
 	}
 }
 
-// Size returns the number of items in the cache
+// Size returns the number of items in the cache.
 func (c *LRUCache) Size() int {
 	return c.order.Size()
 }
 
-// NewDoublyLinkedList creates a new doubly linked list
+// NewDoublyLinkedList creates a new doubly linked list.
 func NewDoublyLinkedList() *DoublyLinkedList {
 	head := &ListNode{}
 	tail := &ListNode{}
@@ -855,7 +855,7 @@ func NewDoublyLinkedList() *DoublyLinkedList {
 	}
 }
 
-// PushFront pushes an item to the front
+// PushFront pushes an item to the front.
 func (l *DoublyLinkedList) PushFront(key string) *ListNode {
 	node := &ListNode{key: key}
 	node.next = l.head.next
@@ -866,20 +866,20 @@ func (l *DoublyLinkedList) PushFront(key string) *ListNode {
 	return node
 }
 
-// Remove removes a node
+// Remove removes a node.
 func (l *DoublyLinkedList) Remove(node *ListNode) {
 	node.prev.next = node.next
 	node.next.prev = node.prev
 	l.size--
 }
 
-// MoveToFront moves a node to the front
+// MoveToFront moves a node to the front.
 func (l *DoublyLinkedList) MoveToFront(node *ListNode) {
 	l.Remove(node)
 	l.PushFront(node.key)
 }
 
-// Back returns the last node
+// Back returns the last node.
 func (l *DoublyLinkedList) Back() *ListNode {
 	if l.size == 0 {
 		return nil
@@ -887,14 +887,14 @@ func (l *DoublyLinkedList) Back() *ListNode {
 	return l.tail.prev
 }
 
-// Size returns the size of the list
+// Size returns the size of the list.
 func (l *DoublyLinkedList) Size() int {
 	return l.size
 }
 
 // ==================== Model Cache Implementation ====================
 
-// NewModelCache creates a new model cache
+// NewModelCache creates a new model cache.
 func NewModelCache(maxSize int64) *ModelCache {
 	return &ModelCache{
 		cache:   NewLRUCache(100), // Max 100 models in cache
@@ -902,7 +902,7 @@ func NewModelCache(maxSize int64) *ModelCache {
 	}
 }
 
-// Get gets a model from cache
+// Get gets a model from cache.
 func (c *ModelCache) Get(modelName string) (*Model, bool) {
 	val, ok := c.cache.Get(modelName)
 	if !ok {
@@ -911,17 +911,17 @@ func (c *ModelCache) Get(modelName string) (*Model, bool) {
 	return val.(*Model), true
 }
 
-// Put puts a model into cache
+// Put puts a model into cache.
 func (c *ModelCache) Put(model *Model) {
 	c.cache.Put(model.Name, model, model.Size)
 }
 
-// Remove removes a model from cache
+// Remove removes a model from cache.
 func (c *ModelCache) Remove(modelName string) {
 	c.cache.Remove(modelName)
 }
 
-// Evict evicts the least recently used model
+// Evict evicts the least recently used model.
 func (c *ModelCache) Evict() string {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -933,19 +933,19 @@ func (c *ModelCache) Evict() string {
 	return back.key
 }
 
-// Size returns the number of cached models
+// Size returns the number of cached models.
 func (c *ModelCache) Size() int {
 	return c.cache.Size()
 }
 
-// Clear clears the cache
+// Clear clears the cache.
 func (c *ModelCache) Clear() {
 	c.cache = NewLRUCache(100)
 }
 
 // ==================== Metrics Collector Implementation ====================
 
-// NewMetricsCollector creates a new metrics collector
+// NewMetricsCollector creates a new metrics collector.
 func NewMetricsCollector() *MetricsCollector {
 	return &MetricsCollector{
 		requests:  make([]LatencyRecord, 0, 10000),
@@ -953,7 +953,7 @@ func NewMetricsCollector() *MetricsCollector {
 	}
 }
 
-// Record records a latency
+// Record records a latency.
 func (m *MetricsCollector) Record(latency time.Duration, success bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -974,7 +974,7 @@ func (m *MetricsCollector) Record(latency time.Duration, success bool) {
 	m.lastRequest = &now
 }
 
-// GetMetrics returns current metrics
+// GetMetrics returns current metrics.
 func (m *MetricsCollector) GetMetrics() *PerformanceMetrics {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1018,7 +1018,7 @@ func (m *MetricsCollector) GetMetrics() *PerformanceMetrics {
 	return metrics
 }
 
-// percentile calculates percentile
+// percentile calculates percentile.
 func percentile(sorted []int64, p float64) float64 {
 	if len(sorted) == 0 {
 		return 0
@@ -1035,7 +1035,7 @@ func percentile(sorted []int64, p float64) float64 {
 
 // ==================== Utility Functions ====================
 
-// RegisterModel registers a new model in the engine
+// RegisterModel registers a new model in the engine.
 func (e *engine) RegisterModel(model *Model) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -1052,7 +1052,7 @@ func (e *engine) RegisterModel(model *Model) error {
 	return nil
 }
 
-// UnregisterModel unregisters a model from the engine
+// UnregisterModel unregisters a model from the engine.
 func (e *engine) UnregisterModel(modelName string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()

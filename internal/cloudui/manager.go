@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-// Theme 主题
+// Theme 主题.
 type Theme string
 
 const (
@@ -15,7 +15,7 @@ const (
 	ThemeAuto  Theme = "auto"
 )
 
-// Widget 小部件
+// Widget 小部件.
 type Widget struct {
 	ID       string
 	Name     string
@@ -25,19 +25,19 @@ type Widget struct {
 	Config   map[string]interface{}
 }
 
-// Position 位置
+// Position 位置.
 type Position struct {
 	X int
 	Y int
 }
 
-// Size 大小
+// Size 大小.
 type Size struct {
 	Width  int
 	Height int
 }
 
-// Dashboard 仪表板
+// Dashboard 仪表板.
 type Dashboard struct {
 	ID        string
 	Name      string
@@ -48,7 +48,7 @@ type Dashboard struct {
 	UpdatedAt string
 }
 
-// CloudUIManager 云UI管理器
+// CloudUIManager 云UI管理器.
 type CloudUIManager struct {
 	dashboards map[string]*Dashboard
 	theme      Theme
@@ -57,16 +57,16 @@ type CloudUIManager struct {
 	templates  map[string]*template.Template
 }
 
-// UIConfig UI配置
+// UIConfig UI配置.
 type UIConfig struct {
-	DefaultTheme    Theme
-	EnableAnimations bool
+	DefaultTheme        Theme
+	EnableAnimations    bool
 	EnableNotifications bool
-	RefreshInterval int // 秒
-	MaxDashboards   int
+	RefreshInterval     int // 秒
+	MaxDashboards       int
 }
 
-// NewCloudUIManager 创建云UI管理器
+// NewCloudUIManager 创建云UI管理器.
 func NewCloudUIManager(config UIConfig) *CloudUIManager {
 	return &CloudUIManager{
 		dashboards: make(map[string]*Dashboard),
@@ -76,7 +76,7 @@ func NewCloudUIManager(config UIConfig) *CloudUIManager {
 	}
 }
 
-// CreateDashboard 创建仪表板
+// CreateDashboard 创建仪表板.
 func (m *CloudUIManager) CreateDashboard(dashboard *Dashboard) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -101,7 +101,7 @@ func (m *CloudUIManager) CreateDashboard(dashboard *Dashboard) error {
 	return nil
 }
 
-// GetDashboard 获取仪表板
+// GetDashboard 获取仪表板.
 func (m *CloudUIManager) GetDashboard(id string) (*Dashboard, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -114,7 +114,7 @@ func (m *CloudUIManager) GetDashboard(id string) (*Dashboard, error) {
 	return dashboard, nil
 }
 
-// UpdateDashboard 更新仪表板
+// UpdateDashboard 更新仪表板.
 func (m *CloudUIManager) UpdateDashboard(dashboard *Dashboard) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -127,7 +127,7 @@ func (m *CloudUIManager) UpdateDashboard(dashboard *Dashboard) error {
 	return nil
 }
 
-// DeleteDashboard 删除仪表板
+// DeleteDashboard 删除仪表板.
 func (m *CloudUIManager) DeleteDashboard(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -140,7 +140,7 @@ func (m *CloudUIManager) DeleteDashboard(id string) error {
 	return nil
 }
 
-// ListDashboards 列出所有仪表板
+// ListDashboards 列出所有仪表板.
 func (m *CloudUIManager) ListDashboards() []*Dashboard {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -153,7 +153,7 @@ func (m *CloudUIManager) ListDashboards() []*Dashboard {
 	return dashboards
 }
 
-// AddWidget 添加小部件
+// AddWidget 添加小部件.
 func (m *CloudUIManager) AddWidget(dashboardID string, widget Widget) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -174,7 +174,7 @@ func (m *CloudUIManager) AddWidget(dashboardID string, widget Widget) error {
 	return nil
 }
 
-// RemoveWidget 移除小部件
+// RemoveWidget 移除小部件.
 func (m *CloudUIManager) RemoveWidget(dashboardID, widgetID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -194,7 +194,7 @@ func (m *CloudUIManager) RemoveWidget(dashboardID, widgetID string) error {
 	return fmt.Errorf("widget not found: %s", widgetID)
 }
 
-// UpdateWidget 更新小部件
+// UpdateWidget 更新小部件.
 func (m *CloudUIManager) UpdateWidget(dashboardID string, widget Widget) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -214,21 +214,21 @@ func (m *CloudUIManager) UpdateWidget(dashboardID string, widget Widget) error {
 	return fmt.Errorf("widget not found: %s", widget.ID)
 }
 
-// SetTheme 设置主题
+// SetTheme 设置主题.
 func (m *CloudUIManager) SetTheme(theme Theme) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.theme = theme
 }
 
-// GetTheme 获取主题
+// GetTheme 获取主题.
 func (m *CloudUIManager) GetTheme() Theme {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.theme
 }
 
-// RenderDashboard 渲染仪表板
+// RenderDashboard 渲染仪表板.
 func (m *CloudUIManager) RenderDashboard(id string) (string, error) {
 	m.mu.RLock()
 	dashboard, exists := m.dashboards[id]
@@ -243,7 +243,7 @@ func (m *CloudUIManager) RenderDashboard(id string) (string, error) {
 	return html, nil
 }
 
-// generateDashboardHTML 生成仪表板HTML
+// generateDashboardHTML 生成仪表板HTML.
 func (m *CloudUIManager) generateDashboardHTML(dashboard *Dashboard) string {
 	// 简化实现，返回基本HTML
 	html := fmt.Sprintf(`<!DOCTYPE html>
@@ -278,7 +278,7 @@ func (m *CloudUIManager) generateDashboardHTML(dashboard *Dashboard) string {
 	return html
 }
 
-// ExportDashboard 导出仪表板配置
+// ExportDashboard 导出仪表板配置.
 func (m *CloudUIManager) ExportDashboard(id string) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -289,18 +289,18 @@ func (m *CloudUIManager) ExportDashboard(id string) (map[string]interface{}, err
 	}
 
 	export := map[string]interface{}{
-		"id":        dashboard.ID,
-		"name":      dashboard.Name,
-		"theme":     dashboard.Theme,
-		"layout":    dashboard.Layout,
-		"columns":   dashboard.Columns,
-		"widgets":   dashboard.Widgets,
+		"id":      dashboard.ID,
+		"name":    dashboard.Name,
+		"theme":   dashboard.Theme,
+		"layout":  dashboard.Layout,
+		"columns": dashboard.Columns,
+		"widgets": dashboard.Widgets,
 	}
 
 	return export, nil
 }
 
-// ImportDashboard 导入仪表板配置
+// ImportDashboard 导入仪表板配置.
 func (m *CloudUIManager) ImportDashboard(config map[string]interface{}) error {
 	// 处理Theme类型转换
 	var theme Theme
@@ -335,7 +335,7 @@ func (m *CloudUIManager) ImportDashboard(config map[string]interface{}) error {
 	return m.CreateDashboard(dashboard)
 }
 
-// GetWidgetData 获取小部件数据
+// GetWidgetData 获取小部件数据.
 func (m *CloudUIManager) GetWidgetData(dashboardID, widgetID string) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

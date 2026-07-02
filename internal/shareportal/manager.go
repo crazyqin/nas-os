@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Manager 分享门户管理器
+// Manager 分享门户管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	storagePath string
@@ -25,7 +25,7 @@ type Manager struct {
 	uploads   map[string][]*ShareUpload // linkID -> uploads
 }
 
-// NewManager 创建分享门户管理器
+// NewManager 创建分享门户管理器.
 func NewManager(storagePath string) *Manager {
 	return &Manager{
 		storagePath: storagePath,
@@ -38,7 +38,7 @@ func NewManager(storagePath string) *Manager {
 	}
 }
 
-// CreateShare 创建分享链接
+// CreateShare 创建分享链接.
 func (m *Manager) CreateShare(ctx context.Context, link ShareLink) (*ShareLink, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -63,7 +63,7 @@ func (m *Manager) CreateShare(ctx context.Context, link ShareLink) (*ShareLink, 
 	return &link, nil
 }
 
-// UpdateShare 更新分享链接
+// UpdateShare 更新分享链接.
 func (m *Manager) UpdateShare(ctx context.Context, linkID string, updates ShareLink) (*ShareLink, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -104,7 +104,7 @@ func (m *Manager) UpdateShare(ctx context.Context, linkID string, updates ShareL
 	return link, nil
 }
 
-// DeleteShare 删除分享链接
+// DeleteShare 删除分享链接.
 func (m *Manager) DeleteShare(ctx context.Context, linkID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -123,7 +123,7 @@ func (m *Manager) DeleteShare(ctx context.Context, linkID string) error {
 	return nil
 }
 
-// GetShare 获取分享信息
+// GetShare 获取分享信息.
 func (m *Manager) GetShare(ctx context.Context, linkID string) (*ShareLink, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -136,7 +136,7 @@ func (m *Manager) GetShare(ctx context.Context, linkID string) (*ShareLink, erro
 	return link, nil
 }
 
-// GetShareByShortURL 通过短链获取分享信息
+// GetShareByShortURL 通过短链获取分享信息.
 func (m *Manager) GetShareByShortURL(ctx context.Context, shortURL string) (*ShareLink, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -154,7 +154,7 @@ func (m *Manager) GetShareByShortURL(ctx context.Context, shortURL string) (*Sha
 	return link, nil
 }
 
-// ValidateAccess 验证访问（密码+过期）
+// ValidateAccess 验证访问（密码+过期）.
 func (m *Manager) ValidateAccess(ctx context.Context, linkID, password string) (bool, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -192,7 +192,7 @@ func (m *Manager) ValidateAccess(ctx context.Context, linkID, password string) (
 	return true, nil
 }
 
-// RecordAccess 记录访问
+// RecordAccess 记录访问.
 func (m *Manager) RecordAccess(ctx context.Context, access ShareAccess) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -222,7 +222,7 @@ func (m *Manager) RecordAccess(ctx context.Context, access ShareAccess) error {
 	return nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats(ctx context.Context, linkID string) (*ShareStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -312,7 +312,7 @@ func (m *Manager) GetStats(ctx context.Context, linkID string) (*ShareStats, err
 	}, nil
 }
 
-// SetBranding 设置品牌配置
+// SetBranding 设置品牌配置.
 func (m *Manager) SetBranding(ctx context.Context, branding ShareBranding) (*ShareBranding, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -332,7 +332,7 @@ func (m *Manager) SetBranding(ctx context.Context, branding ShareBranding) (*Sha
 	return &branding, nil
 }
 
-// GetBranding 获取品牌配置
+// GetBranding 获取品牌配置.
 func (m *Manager) GetBranding(ctx context.Context, brandingID string) (*ShareBranding, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -345,7 +345,7 @@ func (m *Manager) GetBranding(ctx context.Context, brandingID string) (*ShareBra
 	return branding, nil
 }
 
-// CreatePortal 创建门户
+// CreatePortal 创建门户.
 func (m *Manager) CreatePortal(ctx context.Context, portal SharePortal) (*SharePortal, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -360,12 +360,12 @@ func (m *Manager) CreatePortal(ctx context.Context, portal SharePortal) (*ShareP
 	return &portal, nil
 }
 
-// GenerateShortURL 生成短链
+// GenerateShortURL 生成短链.
 func (m *Manager) GenerateShortURL(ctx context.Context) string {
 	return m.generateShortURL()
 }
 
-// generateShortURL 内部生成短链
+// generateShortURL 内部生成短链.
 func (m *Manager) generateShortURL() string {
 	b := make([]byte, 4)
 	rand.Read(b)

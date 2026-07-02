@@ -4,7 +4,7 @@ package smartrecipe
 
 import "time"
 
-// Category 菜谱分类
+// Category 菜谱分类.
 type Category string
 
 const (
@@ -18,7 +18,7 @@ const (
 	CategoryDrink    Category = "drink"    // 饮品
 )
 
-// Difficulty 难度
+// Difficulty 难度.
 type Difficulty string
 
 const (
@@ -27,7 +27,7 @@ const (
 	DifficultyHard   Difficulty = "hard"   // 困难
 )
 
-// IngredientCategory 食材分类
+// IngredientCategory 食材分类.
 type IngredientCategory string
 
 const (
@@ -41,7 +41,7 @@ const (
 	IngredientCategoryOther     IngredientCategory = "other"     // 其他
 )
 
-// InventoryStatus 库存状态
+// InventoryStatus 库存状态.
 type InventoryStatus string
 
 const (
@@ -51,7 +51,7 @@ const (
 	InventoryStatusExpired      InventoryStatus = "expired"       // 已过期
 )
 
-// Nutrient 营养成分
+// Nutrient 营养成分.
 type Nutrient struct {
 	Calories float64 `json:"calories"`  // 卡路里
 	Protein  float64 `json:"protein"`   // 蛋白质(g)
@@ -65,7 +65,7 @@ type Nutrient struct {
 	Iron     float64 `json:"iron"`      // 铁(mg)
 }
 
-// Ingredient 食材
+// Ingredient 食材.
 type Ingredient struct {
 	ID             string             `json:"id"`
 	Name           string             `json:"name"`
@@ -76,7 +76,7 @@ type Ingredient struct {
 	CreatedAt      time.Time          `json:"created_at"`
 }
 
-// RecipeIngredient 菜谱中的食材
+// RecipeIngredient 菜谱中的食材.
 type RecipeIngredient struct {
 	IngredientID string  `json:"ingredient_id"`
 	Name         string  `json:"name"`
@@ -85,7 +85,7 @@ type RecipeIngredient struct {
 	Optional     bool    `json:"optional,omitempty"`
 }
 
-// Recipe 菜谱
+// Recipe 菜谱.
 type Recipe struct {
 	ID             string             `json:"id"`
 	Name           string             `json:"name"`
@@ -105,7 +105,7 @@ type Recipe struct {
 	UpdatedAt      time.Time          `json:"updated_at"`
 }
 
-// InventoryItem 库存项
+// InventoryItem 库存项.
 type InventoryItem struct {
 	ID             string          `json:"id"`
 	IngredientID   string          `json:"ingredient_id"`
@@ -119,7 +119,7 @@ type InventoryItem struct {
 	UpdatedAt      time.Time       `json:"updated_at"`
 }
 
-// MealPlan 膳食计划
+// MealPlan 膳食计划.
 type MealPlan struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -130,20 +130,20 @@ type MealPlan struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// DayPlan 每日计划
+// DayPlan 每日计划.
 type DayPlan struct {
 	Date  string      `json:"date"` // YYYY-MM-DD
 	Meals []MealEntry `json:"meals"`
 }
 
-// MealEntry 餐食条目
+// MealEntry 餐食条目.
 type MealEntry struct {
 	MealType string `json:"meal_type"` // breakfast, lunch, dinner, snack
 	RecipeID string `json:"recipe_id"`
 	Servings int    `json:"servings"`
 }
 
-// NutritionSummary 营养摘要
+// NutritionSummary 营养摘要.
 type NutritionSummary struct {
 	StartDate     string  `json:"start_date"`
 	EndDate       string  `json:"end_date"`
@@ -156,7 +156,7 @@ type NutritionSummary struct {
 	MealCount     int     `json:"meal_count"`
 }
 
-// RecommendationRequest 推荐请求
+// RecommendationRequest 推荐请求.
 type RecommendationRequest struct {
 	AvailableIngredients []string   `json:"available_ingredients,omitempty"`
 	MaxPrepTime          int        `json:"max_prep_time,omitempty"`
@@ -168,7 +168,7 @@ type RecommendationRequest struct {
 	Limit                int        `json:"limit,omitempty"`
 }
 
-// RecommendationResult 推荐结果
+// RecommendationResult 推荐结果.
 type RecommendationResult struct {
 	Recipe             Recipe  `json:"recipe"`
 	MatchScore         float64 `json:"match_score"`         // 匹配度百分比
@@ -176,7 +176,7 @@ type RecommendationResult struct {
 	MissingIngredients int     `json:"missing_ingredients"` // 缺少的食材数
 }
 
-// ShoppingItem 购物项
+// ShoppingItem 购物项.
 type ShoppingItem struct {
 	IngredientID   string   `json:"ingredient_id"`
 	IngredientName string   `json:"ingredient_name"`
@@ -187,7 +187,7 @@ type ShoppingItem struct {
 	Checked        bool     `json:"checked"`
 }
 
-// ShoppingList 购物清单
+// ShoppingList 购物清单.
 type ShoppingList struct {
 	ID        string         `json:"id"`
 	Name      string         `json:"name"`
@@ -197,7 +197,7 @@ type ShoppingList struct {
 	UpdatedAt time.Time      `json:"updated_at"`
 }
 
-// ExpiryAlert 过期提醒
+// ExpiryAlert 过期提醒.
 type ExpiryAlert struct {
 	ID             string     `json:"id"`
 	IngredientID   string     `json:"ingredient_id"`
@@ -207,7 +207,7 @@ type ExpiryAlert struct {
 	Level          AlertLevel `json:"level"`
 }
 
-// AlertLevel 提醒级别
+// AlertLevel 提醒级别.
 type AlertLevel string
 
 const (
@@ -216,7 +216,7 @@ const (
 	AlertLevelWarning AlertLevel = "warning" // 预警（4-7天）
 )
 
-// RecipeRecommendation 菜谱推荐（简化版）
+// RecipeRecommendation 菜谱推荐（简化版）.
 type RecipeRecommendation struct {
 	Recipe      Recipe   `json:"recipe"`
 	MatchScore  float64  `json:"match_score"`
@@ -225,7 +225,7 @@ type RecipeRecommendation struct {
 	MissingIngs []string `json:"missing_ingredients,omitempty"`
 }
 
-// NutritionInfo 营养信息（详细版）
+// NutritionInfo 营养信息（详细版）.
 type NutritionInfo struct {
 	Calories    int     `json:"calories"`
 	Protein     float64 `json:"protein"`

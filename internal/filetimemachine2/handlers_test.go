@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// setupTestEnv 创建测试环境
+// setupTestEnv 创建测试环境.
 func setupTestEnv(t *testing.T) (*Handlers, string, func()) {
 	t.Helper()
 
@@ -55,7 +55,7 @@ func setupTestEnv(t *testing.T) (*Handlers, string, func()) {
 	return handlers, tmpDir, cleanup
 }
 
-// setupRouter 创建测试路由器
+// setupRouter 创建测试路由器.
 func setupRouter(h *Handlers) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
@@ -64,7 +64,7 @@ func setupRouter(h *Handlers) *gin.Engine {
 	return r
 }
 
-// TestCreateSnapshot 测试创建快照
+// TestCreateSnapshot 测试创建快照.
 func TestCreateSnapshot(t *testing.T) {
 	h, tmpDir, cleanup := setupTestEnv(t)
 	defer cleanup()
@@ -105,7 +105,7 @@ func TestCreateSnapshot(t *testing.T) {
 	}
 }
 
-// TestListSnapshots 测试列出快照
+// TestListSnapshots 测试列出快照.
 func TestListSnapshots(t *testing.T) {
 	h, tmpDir, cleanup := setupTestEnv(t)
 	defer cleanup()
@@ -146,7 +146,7 @@ func TestListSnapshots(t *testing.T) {
 	}
 }
 
-// TestDeleteSnapshot 测试删除快照
+// TestDeleteSnapshot 测试删除快照.
 func TestDeleteSnapshot(t *testing.T) {
 	h, tmpDir, cleanup := setupTestEnv(t)
 	defer cleanup()
@@ -189,7 +189,7 @@ func TestDeleteSnapshot(t *testing.T) {
 	}
 }
 
-// TestBrowseSnapshot 测试浏览快照
+// TestBrowseSnapshot 测试浏览快照.
 func TestBrowseSnapshot(t *testing.T) {
 	h, tmpDir, cleanup := setupTestEnv(t)
 	defer cleanup()
@@ -232,7 +232,7 @@ func TestBrowseSnapshot(t *testing.T) {
 	}
 }
 
-// TestDiffSnapshots 测试快照对比
+// TestDiffSnapshots 测试快照对比.
 func TestDiffSnapshots(t *testing.T) {
 	h, tmpDir, cleanup := setupTestEnv(t)
 	defer cleanup()
@@ -291,7 +291,7 @@ func TestDiffSnapshots(t *testing.T) {
 	}
 }
 
-// TestRestoreSnapshot 测试恢复快照
+// TestRestoreSnapshot 测试恢复快照.
 func TestRestoreSnapshot(t *testing.T) {
 	h, tmpDir, cleanup := setupTestEnv(t)
 	defer cleanup()
@@ -349,7 +349,7 @@ func TestRestoreSnapshot(t *testing.T) {
 	}
 }
 
-// TestTimeline 测试时间线
+// TestTimeline 测试时间线.
 func TestTimeline(t *testing.T) {
 	h, tmpDir, cleanup := setupTestEnv(t)
 	defer cleanup()
@@ -392,7 +392,7 @@ func TestTimeline(t *testing.T) {
 	}
 }
 
-// TestSearchFiles 测试搜索文件
+// TestSearchFiles 测试搜索文件.
 func TestSearchFiles(t *testing.T) {
 	h, tmpDir, cleanup := setupTestEnv(t)
 	defer cleanup()
@@ -430,7 +430,7 @@ func TestSearchFiles(t *testing.T) {
 	}
 }
 
-// TestStorageStats 测试存储统计
+// TestStorageStats 测试存储统计.
 func TestStorageStats(t *testing.T) {
 	h, tmpDir, cleanup := setupTestEnv(t)
 	defer cleanup()
@@ -471,7 +471,7 @@ func TestStorageStats(t *testing.T) {
 	}
 }
 
-// TestRetentionConfig 测试保留策略
+// TestRetentionConfig 测试保留策略.
 func TestRetentionConfig(t *testing.T) {
 	h, _, cleanup := setupTestEnv(t)
 	defer cleanup()
@@ -519,7 +519,7 @@ func TestRetentionConfig(t *testing.T) {
 	}
 }
 
-// TestTagSnapshot 测试标签管理
+// TestTagSnapshot 测试标签管理.
 func TestTagSnapshot(t *testing.T) {
 	h, tmpDir, cleanup := setupTestEnv(t)
 	defer cleanup()
@@ -566,7 +566,7 @@ func TestTagSnapshot(t *testing.T) {
 	}
 }
 
-// TestCreateSnapshotInvalidPath 测试无效路径
+// TestCreateSnapshotInvalidPath 测试无效路径.
 func TestCreateSnapshotInvalidPath(t *testing.T) {
 	h, _, cleanup := setupTestEnv(t)
 	defer cleanup()

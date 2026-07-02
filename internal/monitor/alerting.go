@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// AlertTemplate 告警模板
+// AlertTemplate 告警模板.
 type AlertTemplate struct {
 	ID              string        `json:"id"`
 	Name            string        `json:"name"`
@@ -20,14 +20,14 @@ type AlertTemplate struct {
 	MessageTemplate string        `json:"messageTemplate"`
 }
 
-// 扩展 AlertSeverity 常量（补充 activity.go 未定义的级别）
+// 扩展 AlertSeverity 常量（补充 activity.go 未定义的级别）.
 const (
 	AlertSeverityInfo     AlertSeverity = "info"
 	AlertSeverityWarning  AlertSeverity = "warning"
 	AlertSeverityCritical AlertSeverity = "critical"
 )
 
-// AlertCategory 告警分类
+// AlertCategory 告警分类.
 type AlertCategory string
 
 const (
@@ -545,7 +545,7 @@ func SendHTTPWebhook(ctx context.Context, url string, payload map[string]interfa
 }
 
 // GetAlertTemplates returns all alert templates
-// Enhanced in v2.454.0 with SMB Stateful Failover monitoring templates
+// Enhanced in v2.454.0 with SMB Stateful Failover monitoring templates.
 func (m *AlertManager) GetAlertTemplates() []AlertTemplate {
 	return []AlertTemplate{
 		{

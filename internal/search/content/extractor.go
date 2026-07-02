@@ -19,7 +19,7 @@ import (
 )
 
 // Extractor 文档内容提取器接口
-// 所有格式的提取器都实现此接口
+// 所有格式的提取器都实现此接口.
 type Extractor interface {
 	// Extract 从文件中提取文本内容
 	Extract(path string) (*ExtractedContent, error)
@@ -31,7 +31,7 @@ type Extractor interface {
 	Name() string
 }
 
-// ExtractedContent 提取的文档内容
+// ExtractedContent 提取的文档内容.
 type ExtractedContent struct {
 	Title    string       `json:"title,omitempty"`
 	Content  string       `json:"content"`
@@ -39,7 +39,7 @@ type ExtractedContent struct {
 	Err      error        `json:"-"`
 }
 
-// DocMetadata 文档元数据
+// DocMetadata 文档元数据.
 type DocMetadata struct {
 	Author     string    `json:"author,omitempty"`
 	CreatedAt  time.Time `json:"createdAt,omitempty"`
@@ -51,7 +51,7 @@ type DocMetadata struct {
 	Keywords   []string  `json:"keywords,omitempty"`
 }
 
-// ContentStats 内容统计
+// ContentStats 内容统计.
 type ContentStats struct {
 	TotalChars   int `json:"totalChars"`
 	TotalWords   int `json:"totalWords"`
@@ -60,7 +60,7 @@ type ContentStats struct {
 	EnglishWords int `json:"englishWords"`
 }
 
-// CalcStats 计算内容统计信息
+// CalcStats 计算内容统计信息.
 func (c *ExtractedContent) CalcStats() ContentStats {
 	stats := ContentStats{
 		TotalChars: len([]rune(c.Content)),
@@ -85,14 +85,14 @@ func (c *ExtractedContent) CalcStats() ContentStats {
 // ================== 提取器注册表 ==================
 
 // ExtractorRegistry 提取器注册表
-// 管理所有已注册的文档内容提取器
+// 管理所有已注册的文档内容提取器.
 type ExtractorRegistry struct {
 	extractors map[string]Extractor
 	logger     *zap.Logger
 	mu         sync.RWMutex
 }
 
-// NewExtractorRegistry 创建提取器注册表
+// NewExtractorRegistry 创建提取器注册表.
 func NewExtractorRegistry(logger *zap.Logger) *ExtractorRegistry {
 	r := &ExtractorRegistry{
 		extractors: make(map[string]Extractor),
@@ -108,7 +108,7 @@ func NewExtractorRegistry(logger *zap.Logger) *ExtractorRegistry {
 	return r
 }
 
-// Register 注册提取器
+// Register 注册提取器.
 func (r *ExtractorRegistry) Register(extractor Extractor) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -118,7 +118,7 @@ func (r *ExtractorRegistry) Register(extractor Extractor) {
 	r.logger.Debug("注册文档提取器", zap.String("name", name))
 }
 
-// GetExtractor 获取指定文件扩展名对应的提取器
+// GetExtractor 获取指定文件扩展名对应的提取器.
 func (r *ExtractorRegistry) GetExtractor(ext string) (Extractor, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -133,7 +133,7 @@ func (r *ExtractorRegistry) GetExtractor(ext string) (Extractor, bool) {
 }
 
 // Extract 提取文件内容
-// 根据文件扩展名自动选择合适的提取器
+// 根据文件扩展名自动选择合适的提取器.
 func (r *ExtractorRegistry) Extract(path string) (*ExtractedContent, error) {
 	ext := strings.ToLower(filepath.Ext(path))
 	extractor, ok := r.GetExtractor(ext)
@@ -148,7 +148,7 @@ func (r *ExtractorRegistry) Extract(path string) (*ExtractedContent, error) {
 	return extractor.Extract(path)
 }
 
-// ListExtractors 列出所有已注册的提取器
+// ListExtractors 列出所有已注册的提取器.
 func (r *ExtractorRegistry) ListExtractors() []string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -160,7 +160,7 @@ func (r *ExtractorRegistry) ListExtractors() []string {
 	return names
 }
 
-// Supports 检查是否支持该文件扩展名
+// Supports 检查是否支持该文件扩展名.
 func (r *ExtractorRegistry) Supports(ext string) bool {
 	_, ok := r.GetExtractor(ext)
 	return ok
@@ -169,20 +169,20 @@ func (r *ExtractorRegistry) Supports(ext string) bool {
 // ================== 纯文本提取器 ==================
 
 // PlainTextExtractor 纯文本文件内容提取器
-// 支持 .txt .log .csv .tsv .conf .cfg .ini .env .sh 等
+// 支持 .txt .log .csv .tsv .conf .cfg .ini .env .sh 等.
 type PlainTextExtractor struct{}
 
-// NewPlainTextExtractor 创建纯文本提取器
+// NewPlainTextExtractor 创建纯文本提取器.
 func NewPlainTextExtractor() *PlainTextExtractor {
 	return &PlainTextExtractor{}
 }
 
-// Name 提取器名称
+// Name 提取器名称.
 func (e *PlainTextExtractor) Name() string {
 	return "plaintext"
 }
 
-// Supports 是否支持该扩展名
+// Supports 是否支持该扩展名.
 func (e *PlainTextExtractor) Supports(ext string) bool {
 	supported := map[string]bool{
 		".txt":        true,
@@ -246,7 +246,7 @@ func (e *PlainTextExtractor) Supports(ext string) bool {
 	return supported[ext]
 }
 
-// Extract 从文件提取文本
+// Extract 从文件提取文本.
 func (e *PlainTextExtractor) Extract(path string) (*ExtractedContent, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -257,7 +257,7 @@ func (e *PlainTextExtractor) Extract(path string) (*ExtractedContent, error) {
 	return e.ExtractFromReader(file)
 }
 
-// ExtractFromReader 从 reader 提取文本
+// ExtractFromReader 从 reader 提取文本.
 func (e *PlainTextExtractor) ExtractFromReader(r io.Reader) (*ExtractedContent, error) {
 	data, err := io.ReadAll(r)
 	if err != nil {
@@ -283,25 +283,25 @@ func (e *PlainTextExtractor) ExtractFromReader(r io.Reader) (*ExtractedContent, 
 // ================== Markdown 提取器 ==================
 
 // MarkdownExtractor Markdown 文档内容提取器
-// 从 Markdown 文件中提取纯文本，去除格式标记
+// 从 Markdown 文件中提取纯文本，去除格式标记.
 type MarkdownExtractor struct{}
 
-// NewMarkdownExtractor 创建 Markdown 提取器
+// NewMarkdownExtractor 创建 Markdown 提取器.
 func NewMarkdownExtractor() *MarkdownExtractor {
 	return &MarkdownExtractor{}
 }
 
-// Name 提取器名称
+// Name 提取器名称.
 func (e *MarkdownExtractor) Name() string {
 	return "markdown"
 }
 
-// Supports 是否支持该扩展名
+// Supports 是否支持该扩展名.
 func (e *MarkdownExtractor) Supports(ext string) bool {
 	return ext == ".md" || ext == ".markdown" || ext == ".mdx"
 }
 
-// Extract 从文件提取 Markdown 文本
+// Extract 从文件提取 Markdown 文本.
 func (e *MarkdownExtractor) Extract(path string) (*ExtractedContent, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -312,7 +312,7 @@ func (e *MarkdownExtractor) Extract(path string) (*ExtractedContent, error) {
 	return e.ExtractFromReader(file)
 }
 
-// ExtractFromReader 从 reader 提取 Markdown 文本
+// ExtractFromReader 从 reader 提取 Markdown 文本.
 func (e *MarkdownExtractor) ExtractFromReader(r io.Reader) (*ExtractedContent, error) {
 	data, err := io.ReadAll(r)
 	if err != nil {
@@ -329,7 +329,7 @@ func (e *MarkdownExtractor) ExtractFromReader(r io.Reader) (*ExtractedContent, e
 	}, nil
 }
 
-// extractMarkdownTitle 提取 Markdown 标题
+// extractMarkdownTitle 提取 Markdown 标题.
 func extractMarkdownTitle(content string) string {
 	scanner := bufio.NewScanner(strings.NewReader(content))
 	for scanner.Scan() {
@@ -341,7 +341,7 @@ func extractMarkdownTitle(content string) string {
 	return ""
 }
 
-// stripMarkdownFormatting 去除 Markdown 格式标记
+// stripMarkdownFormatting 去除 Markdown 格式标记.
 func stripMarkdownFormatting(content string) string {
 	var result strings.Builder
 	lines := strings.Split(content, "\n")
@@ -381,7 +381,7 @@ func stripMarkdownFormatting(content string) string {
 	return result.String()
 }
 
-// removeInlineMarkdown 去除行内 Markdown 格式
+// removeInlineMarkdown 去除行内 Markdown 格式.
 func removeInlineMarkdown(line string) string {
 	// 去除粗体
 	line = strings.ReplaceAll(line, "**", "")
@@ -433,20 +433,20 @@ func removeInlineMarkdown(line string) string {
 // ================== Office 文档提取器 ==================
 
 // OfficeExtractor Office 文档内容提取器
-// 支持 .docx, .xlsx, .pptx 格式
+// 支持 .docx, .xlsx, .pptx 格式.
 type OfficeExtractor struct{}
 
-// NewOfficeExtractor 创建 Office 提取器
+// NewOfficeExtractor 创建 Office 提取器.
 func NewOfficeExtractor() *OfficeExtractor {
 	return &OfficeExtractor{}
 }
 
-// Name 提取器名称
+// Name 提取器名称.
 func (e *OfficeExtractor) Name() string {
 	return "office"
 }
 
-// Supports 是否支持该扩展名
+// Supports 是否支持该扩展名.
 func (e *OfficeExtractor) Supports(ext string) bool {
 	supported := map[string]bool{
 		".docx": true,
@@ -456,7 +456,7 @@ func (e *OfficeExtractor) Supports(ext string) bool {
 	return supported[ext]
 }
 
-// Extract 从文件提取 Office 文档内容
+// Extract 从文件提取 Office 文档内容.
 func (e *OfficeExtractor) Extract(path string) (*ExtractedContent, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -477,7 +477,7 @@ func (e *OfficeExtractor) Extract(path string) (*ExtractedContent, error) {
 	}
 }
 
-// ExtractFromReader 从 reader 提取 Office 文档内容
+// ExtractFromReader 从 reader 提取 Office 文档内容.
 func (e *OfficeExtractor) ExtractFromReader(r io.Reader) (*ExtractedContent, error) {
 	// 需要先写入临时文件再处理（Office 文档是 zip 格式）
 	tmpFile, err := os.CreateTemp("", "office-extract-*")
@@ -496,7 +496,7 @@ func (e *OfficeExtractor) ExtractFromReader(r io.Reader) (*ExtractedContent, err
 }
 
 // extractDocx 提取 docx 文档内容
-// docx 文件是 ZIP 格式，包含 word/document.xml
+// docx 文件是 ZIP 格式，包含 word/document.xml.
 func (e *OfficeExtractor) extractDocx(file *os.File) (*ExtractedContent, error) {
 	data, err := io.ReadAll(file)
 	if err != nil {
@@ -517,7 +517,7 @@ func (e *OfficeExtractor) extractDocx(file *os.File) (*ExtractedContent, error) 
 	}, nil
 }
 
-// extractXlsx 提取 xlsx 文档内容
+// extractXlsx 提取 xlsx 文档内容.
 func (e *OfficeExtractor) extractXlsx(file *os.File) (*ExtractedContent, error) {
 	data, err := io.ReadAll(file)
 	if err != nil {
@@ -553,7 +553,7 @@ func (e *OfficeExtractor) extractXlsx(file *os.File) (*ExtractedContent, error) 
 	}, nil
 }
 
-// extractPptx 提取 pptx 文档内容
+// extractPptx 提取 pptx 文档内容.
 func (e *OfficeExtractor) extractPptx(file *os.File) (*ExtractedContent, error) {
 	data, err := io.ReadAll(file)
 	if err != nil {
@@ -593,7 +593,7 @@ func (e *OfficeExtractor) extractPptx(file *os.File) (*ExtractedContent, error) 
 	}, nil
 }
 
-// extractFromZip 从 ZIP 数据中提取指定文件内容
+// extractFromZip 从 ZIP 数据中提取指定文件内容.
 func extractFromZip(zipData []byte, entryPath string) (string, error) {
 	// 使用 Go 标准库的 archive/zip
 	r, err := newZipReaderFromBytes(zipData)
@@ -620,7 +620,7 @@ func extractFromZip(zipData []byte, entryPath string) (string, error) {
 	return "", fmt.Errorf("未找到条目: %s", entryPath)
 }
 
-// extractTextFromXML 从 XML 中提取所有文本内容
+// extractTextFromXML 从 XML 中提取所有文本内容.
 func extractTextFromXML(xmlContent string) string {
 	var texts []string
 	decoder := xml.NewDecoder(strings.NewReader(xmlContent))
@@ -670,7 +670,7 @@ func extractTextFromXML(xmlContent string) string {
 	return strings.Join(texts, " ")
 }
 
-// parseSharedStrings 解析 xlsx 共享字符串表
+// parseSharedStrings 解析 xlsx 共享字符串表.
 func parseSharedStrings(xmlContent string) []string {
 	var strs []string
 	decoder := xml.NewDecoder(strings.NewReader(xmlContent))
@@ -708,7 +708,7 @@ func parseSharedStrings(xmlContent string) []string {
 	return strs
 }
 
-// extractSheetText 提取工作表文本
+// extractSheetText 提取工作表文本.
 func extractSheetText(xmlContent string, sharedStrings []string) string {
 	var texts []string
 	decoder := xml.NewDecoder(strings.NewReader(xmlContent))
@@ -759,25 +759,25 @@ func extractSheetText(xmlContent string, sharedStrings []string) string {
 // ================== PDF 提取器 ==================
 
 // PDFExtractor PDF 文档内容提取器
-// 使用纯 Go 方案解析 PDF 文件结构，提取文本内容
+// 使用纯 Go 方案解析 PDF 文件结构，提取文本内容.
 type PDFExtractor struct{}
 
-// NewPDFExtractor 创建 PDF 提取器
+// NewPDFExtractor 创建 PDF 提取器.
 func NewPDFExtractor() *PDFExtractor {
 	return &PDFExtractor{}
 }
 
-// Name 提取器名称
+// Name 提取器名称.
 func (e *PDFExtractor) Name() string {
 	return "pdf"
 }
 
-// Supports 是否支持该扩展名
+// Supports 是否支持该扩展名.
 func (e *PDFExtractor) Supports(ext string) bool {
 	return ext == ".pdf"
 }
 
-// Extract 从文件提取 PDF 文本
+// Extract 从文件提取 PDF 文本.
 func (e *PDFExtractor) Extract(path string) (*ExtractedContent, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -788,7 +788,7 @@ func (e *PDFExtractor) Extract(path string) (*ExtractedContent, error) {
 	return e.ExtractFromReader(file)
 }
 
-// ExtractFromReader 从 reader 提取 PDF 文本
+// ExtractFromReader 从 reader 提取 PDF 文本.
 func (e *PDFExtractor) ExtractFromReader(r io.Reader) (*ExtractedContent, error) {
 	data, err := io.ReadAll(r)
 	if err != nil {
@@ -809,13 +809,13 @@ func (e *PDFExtractor) ExtractFromReader(r io.Reader) (*ExtractedContent, error)
 	}, nil
 }
 
-// isPDFFile 检查是否为 PDF 文件
+// isPDFFile 检查是否为 PDF 文件.
 func isPDFFile(data []byte) bool {
 	return len(data) >= 5 && string(data[:5]) == "%PDF-"
 }
 
 // extractPDFText 从 PDF 数据中提取文本
-// 使用简化的 PDF 解析：查找文本流并提取可读文本
+// 使用简化的 PDF 解析：查找文本流并提取可读文本.
 func extractPDFText(data []byte) string {
 	var texts []string
 
@@ -857,7 +857,7 @@ func extractPDFText(data []byte) string {
 	return strings.Join(texts, " ")
 }
 
-// extractTextFromStreamBlock 从文本流块中提取文本
+// extractTextFromStreamBlock 从文本流块中提取文本.
 func extractTextFromStreamBlock(block []byte) string {
 	var texts []string
 
@@ -884,7 +884,7 @@ func extractTextFromStreamBlock(block []byte) string {
 	return strings.Join(texts, " ")
 }
 
-// findMatchingParen 查找匹配的右括号
+// findMatchingParen 查找匹配的右括号.
 func findMatchingParen(data []byte, start int) int {
 	depth := 0
 	for i := start; i < len(data); i++ {
@@ -903,7 +903,7 @@ func findMatchingParen(data []byte, start int) int {
 	return -1
 }
 
-// extractReadableText 提取可读文本（用于无结构 PDF）
+// extractReadableText 提取可读文本（用于无结构 PDF）.
 func extractReadableText(data []byte) []string {
 	var texts []string
 	var current strings.Builder
@@ -934,7 +934,7 @@ func extractReadableText(data []byte) []string {
 
 // ================== 辅助函数 ==================
 
-// isBinaryContent 检查内容是否为二进制
+// isBinaryContent 检查内容是否为二进制.
 func isBinaryContent(data []byte) bool {
 	// 检查前 8KB
 	checkLen := len(data)
@@ -953,7 +953,7 @@ func isBinaryContent(data []byte) bool {
 	return float64(nullCount)/float64(checkLen) > 0.01
 }
 
-// isReadableText 检查文本是否可读
+// isReadableText 检查文本是否可读.
 func isReadableText(text string) bool {
 	if len(text) < 1 {
 		return false
@@ -969,7 +969,7 @@ func isReadableText(text string) bool {
 	return float64(printable)/float64(len([]rune(text))) > 0.5
 }
 
-// cleanTextContent 清理文本内容
+// cleanTextContent 清理文本内容.
 func cleanTextContent(content string) string {
 	// 替换多个空白字符为单个空格
 	content = strings.Join(strings.Fields(content), " ")
@@ -985,7 +985,7 @@ func cleanTextContent(content string) string {
 	return strings.TrimSpace(cleaned.String())
 }
 
-// newZipReaderFromBytes 从字节数据创建 ZIP reader
+// newZipReaderFromBytes 从字节数据创建 ZIP reader.
 func newZipReaderFromBytes(data []byte) (*zip.Reader, error) {
 	r := bytes.NewReader(data)
 	return zip.NewReader(r, int64(len(data)))

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// HWCompatChecker 硬件兼容性检测器
+// HWCompatChecker 硬件兼容性检测器.
 type HWCompatChecker struct {
 	mu          sync.RWMutex
 	hardware    *HardwareInfo
@@ -18,7 +18,7 @@ type HWCompatChecker struct {
 	stopChan    chan struct{}
 }
 
-// HardwareInfo 硬件信息
+// HardwareInfo 硬件信息.
 type HardwareInfo struct {
 	CPU         *CPUInfo         `json:"cpu"`
 	Memory      *MemoryInfo      `json:"memory"`
@@ -29,7 +29,7 @@ type HardwareInfo struct {
 	Timestamp   time.Time        `json:"timestamp"`
 }
 
-// CPUInfo CPU 信息
+// CPUInfo CPU 信息.
 type CPUInfo struct {
 	Model       string   `json:"model"`
 	Vendor      string   `json:"vendor"`
@@ -43,7 +43,7 @@ type CPUInfo struct {
 	Temperature float64  `json:"temperature"`
 }
 
-// MemoryInfo 内存信息
+// MemoryInfo 内存信息.
 type MemoryInfo struct {
 	Total   int64           `json:"total"`
 	Used    int64           `json:"used"`
@@ -54,7 +54,7 @@ type MemoryInfo struct {
 	ECC     bool            `json:"ecc"`
 }
 
-// MemoryModule 内存模块
+// MemoryModule 内存模块.
 type MemoryModule struct {
 	Slot         string `json:"slot"`
 	Size         int64  `json:"size"`
@@ -64,7 +64,7 @@ type MemoryModule struct {
 	PartNumber   string `json:"part_number"`
 }
 
-// DiskInfo 磁盘信息
+// DiskInfo 磁盘信息.
 type DiskInfo struct {
 	ID            string       `json:"id"`
 	Name          string       `json:"name"`
@@ -81,7 +81,7 @@ type DiskInfo struct {
 	Partitions    []*Partition `json:"partitions"`
 }
 
-// SMARTStatus SMART 状态
+// SMARTStatus SMART 状态.
 type SMARTStatus struct {
 	Healthy              bool  `json:"healthy"`
 	ReallocatedSectors   int64 `json:"reallocated_sectors"`
@@ -89,7 +89,7 @@ type SMARTStatus struct {
 	OfflineUncorrectable int64 `json:"offline_uncorrectable"`
 }
 
-// Partition 分区
+// Partition 分区.
 type Partition struct {
 	Name  string `json:"name"`
 	Start int64  `json:"start"`
@@ -98,7 +98,7 @@ type Partition struct {
 	UUID  string `json:"uuid"`
 }
 
-// NetworkInfo 网卡信息
+// NetworkInfo 网卡信息.
 type NetworkInfo struct {
 	Name           string   `json:"name"`
 	MAC            string   `json:"mac"`
@@ -111,7 +111,7 @@ type NetworkInfo struct {
 	RingBufferSize int      `json:"ring_buffer_size"`
 }
 
-// GPUInfo GPU 信息
+// GPUInfo GPU 信息.
 type GPUInfo struct {
 	Name        string  `json:"name"`
 	Vendor      string  `json:"vendor"`
@@ -122,7 +122,7 @@ type GPUInfo struct {
 	PowerUsage  int     `json:"power_usage"`
 }
 
-// MotherboardInfo 主板信息
+// MotherboardInfo 主板信息.
 type MotherboardInfo struct {
 	Manufacturer string `json:"manufacturer"`
 	Model        string `json:"model"`
@@ -133,7 +133,7 @@ type MotherboardInfo struct {
 	NVMESlots    int    `json:"nvme_slots"`
 }
 
-// DriverInfo 驱动信息
+// DriverInfo 驱动信息.
 type DriverInfo struct {
 	Name    string       `json:"name"`
 	Version string       `json:"version"`
@@ -143,7 +143,7 @@ type DriverInfo struct {
 	Kernel  string       `json:"kernel"`
 }
 
-// DriverStatus 驱动状态
+// DriverStatus 驱动状态.
 type DriverStatus string
 
 const (
@@ -153,7 +153,7 @@ const (
 	DriverFailed   DriverStatus = "failed"
 )
 
-// CompatRule 兼容性规则
+// CompatRule 兼容性规则.
 type CompatRule struct {
 	ID          string                           `json:"id"`
 	Name        string                           `json:"name"`
@@ -163,7 +163,7 @@ type CompatRule struct {
 	Validator   func(*HardwareInfo) *CompatIssue `json:"-"`
 }
 
-// CompatCategory 兼容性类别
+// CompatCategory 兼容性类别.
 type CompatCategory string
 
 const (
@@ -175,7 +175,7 @@ const (
 	CategorySystem  CompatCategory = "system"
 )
 
-// CompatSeverity 兼容性严重程度
+// CompatSeverity 兼容性严重程度.
 type CompatSeverity string
 
 const (
@@ -185,7 +185,7 @@ const (
 	SeverityBlocker  CompatSeverity = "blocker"
 )
 
-// CompatIssue 兼容性问题
+// CompatIssue 兼容性问题.
 type CompatIssue struct {
 	RuleID     string         `json:"rule_id"`
 	RuleName   string         `json:"rule_name"`
@@ -196,7 +196,7 @@ type CompatIssue struct {
 	Timestamp  time.Time      `json:"timestamp"`
 }
 
-// CompatReport 兼容性报告
+// CompatReport 兼容性报告.
 type CompatReport struct {
 	ID               string                 `json:"id"`
 	Hardware         *HardwareInfo          `json:"hardware"`
@@ -209,7 +209,7 @@ type CompatReport struct {
 	Timestamp        time.Time              `json:"timestamp"`
 }
 
-// TempMonitor 温度监控器
+// TempMonitor 温度监控器.
 type TempMonitor struct {
 	mu         sync.RWMutex
 	sensors    map[string]*TempSensor
@@ -217,7 +217,7 @@ type TempMonitor struct {
 	alerts     []*TempAlert
 }
 
-// TempSensor 温度传感器
+// TempSensor 温度传感器.
 type TempSensor struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -229,7 +229,7 @@ type TempSensor struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// TempStatus 温度状态
+// TempStatus 温度状态.
 type TempStatus struct {
 	CPU     float64 `json:"cpu"`
 	MaxDisk float64 `json:"max_disk"`
@@ -238,7 +238,7 @@ type TempStatus struct {
 	Status  string  `json:"status"`
 }
 
-// TempThresholds 温度阈值
+// TempThresholds 温度阈值.
 type TempThresholds struct {
 	CPUWarning   float64 `json:"cpu_warning"`
 	CPUCritical  float64 `json:"cpu_critical"`
@@ -248,7 +248,7 @@ type TempThresholds struct {
 	GPUCritical  float64 `json:"gpu_critical"`
 }
 
-// TempAlert 温度告警
+// TempAlert 温度告警.
 type TempAlert struct {
 	SensorID   string    `json:"sensor_id"`
 	SensorName string    `json:"sensor_name"`
@@ -257,7 +257,7 @@ type TempAlert struct {
 	Timestamp  time.Time `json:"timestamp"`
 }
 
-// NewHWCompatChecker 创建硬件兼容性检测器
+// NewHWCompatChecker 创建硬件兼容性检测器.
 func NewHWCompatChecker() *HWCompatChecker {
 	checker := &HWCompatChecker{
 		drivers:     make(map[string]*DriverInfo),
@@ -282,7 +282,7 @@ func NewHWCompatChecker() *HWCompatChecker {
 	return checker
 }
 
-// initDefaultRules 初始化默认兼容性规则
+// initDefaultRules 初始化默认兼容性规则.
 func (c *HWCompatChecker) initDefaultRules() {
 	c.compatRules = append(c.compatRules,
 		&CompatRule{
@@ -368,7 +368,7 @@ func (c *HWCompatChecker) initDefaultRules() {
 	)
 }
 
-// ScanHardware 扫描硬件
+// ScanHardware 扫描硬件.
 func (c *HWCompatChecker) ScanHardware() (*HardwareInfo, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -382,7 +382,7 @@ func (c *HWCompatChecker) ScanHardware() (*HardwareInfo, error) {
 	return hw, nil
 }
 
-// GetHardware 获取硬件信息
+// GetHardware 获取硬件信息.
 func (c *HWCompatChecker) GetHardware() *HardwareInfo {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -390,7 +390,7 @@ func (c *HWCompatChecker) GetHardware() *HardwareInfo {
 	return c.hardware
 }
 
-// RegisterDriver 注册驱动信息
+// RegisterDriver 注册驱动信息.
 func (c *HWCompatChecker) RegisterDriver(driver *DriverInfo) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -398,7 +398,7 @@ func (c *HWCompatChecker) RegisterDriver(driver *DriverInfo) {
 	c.drivers[driver.Name] = driver
 }
 
-// GetDriver 获取驱动信息
+// GetDriver 获取驱动信息.
 func (c *HWCompatChecker) GetDriver(name string) (*DriverInfo, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -410,7 +410,7 @@ func (c *HWCompatChecker) GetDriver(name string) (*DriverInfo, error) {
 	return driver, nil
 }
 
-// ListDrivers 列出所有驱动
+// ListDrivers 列出所有驱动.
 func (c *HWCompatChecker) ListDrivers() []*DriverInfo {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -422,7 +422,7 @@ func (c *HWCompatChecker) ListDrivers() []*DriverInfo {
 	return drivers
 }
 
-// CheckDriverStatus 检查驱动状态
+// CheckDriverStatus 检查驱动状态.
 func (c *HWCompatChecker) CheckDriverStatus() map[string]*DriverStatus {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -434,7 +434,7 @@ func (c *HWCompatChecker) CheckDriverStatus() map[string]*DriverStatus {
 	return status
 }
 
-// AddCompatRule 添加兼容性规则
+// AddCompatRule 添加兼容性规则.
 func (c *HWCompatChecker) AddCompatRule(rule *CompatRule) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -442,7 +442,7 @@ func (c *HWCompatChecker) AddCompatRule(rule *CompatRule) {
 	c.compatRules = append(c.compatRules, rule)
 }
 
-// ListCompatRules 列出兼容性规则
+// ListCompatRules 列出兼容性规则.
 func (c *HWCompatChecker) ListCompatRules() []*CompatRule {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -452,7 +452,7 @@ func (c *HWCompatChecker) ListCompatRules() []*CompatRule {
 	return rules
 }
 
-// RunCompatCheck 运行兼容性检查
+// RunCompatCheck 运行兼容性检查.
 func (c *HWCompatChecker) RunCompatCheck() (*CompatReport, error) {
 	c.mu.RLock()
 	hw := c.hardware
@@ -504,7 +504,7 @@ func (c *HWCompatChecker) RunCompatCheck() (*CompatReport, error) {
 	return report, nil
 }
 
-// calculateScore 计算兼容性得分
+// calculateScore 计算兼容性得分.
 func (c *HWCompatChecker) calculateScore(issues []*CompatIssue) float64 {
 	score := 100.0
 
@@ -527,7 +527,7 @@ func (c *HWCompatChecker) calculateScore(issues []*CompatIssue) float64 {
 	return score
 }
 
-// determinePerformanceLevel 确定性能等级
+// determinePerformanceLevel 确定性能等级.
 func (c *HWCompatChecker) determinePerformanceLevel(hw *HardwareInfo) string {
 	score := 0
 
@@ -586,7 +586,7 @@ func (c *HWCompatChecker) determinePerformanceLevel(hw *HardwareInfo) string {
 	}
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (c *HWCompatChecker) generateRecommendations(report *CompatReport) []string {
 	recommendations := make([]string, 0)
 
@@ -608,7 +608,7 @@ func (c *HWCompatChecker) generateRecommendations(report *CompatReport) []string
 	return recommendations
 }
 
-// GetCompatReport 获取兼容性报告
+// GetCompatReport 获取兼容性报告.
 func (c *HWCompatChecker) GetCompatReport(reportID string) (*CompatReport, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -620,7 +620,7 @@ func (c *HWCompatChecker) GetCompatReport(reportID string) (*CompatReport, error
 	return report, nil
 }
 
-// ListCompatReports 列出兼容性报告
+// ListCompatReports 列出兼容性报告.
 func (c *HWCompatChecker) ListCompatReports() []*CompatReport {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -632,7 +632,7 @@ func (c *HWCompatChecker) ListCompatReports() []*CompatReport {
 	return reports
 }
 
-// UpdateTemperature 更新温度数据
+// UpdateTemperature 更新温度数据.
 func (c *HWCompatChecker) UpdateTemperature(sensor *TempSensor) {
 	c.tempMonitor.mu.Lock()
 	defer c.tempMonitor.mu.Unlock()
@@ -644,7 +644,7 @@ func (c *HWCompatChecker) UpdateTemperature(sensor *TempSensor) {
 	c.checkTempAlert(sensor)
 }
 
-// checkTempAlert 检查温度告警
+// checkTempAlert 检查温度告警.
 func (c *HWCompatChecker) checkTempAlert(sensor *TempSensor) {
 	thresholds := c.tempMonitor.thresholds
 	var warningTemp, criticalTemp float64
@@ -684,7 +684,7 @@ func (c *HWCompatChecker) checkTempAlert(sensor *TempSensor) {
 	}
 }
 
-// GetTemperatureStatus 获取温度状态
+// GetTemperatureStatus 获取温度状态.
 func (c *HWCompatChecker) GetTemperatureStatus() *TempStatus {
 	c.tempMonitor.mu.RLock()
 	defer c.tempMonitor.mu.RUnlock()
@@ -722,7 +722,7 @@ func (c *HWCompatChecker) GetTemperatureStatus() *TempStatus {
 	return status
 }
 
-// GetTempAlerts 获取温度告警
+// GetTempAlerts 获取温度告警.
 func (c *HWCompatChecker) GetTempAlerts() []*TempAlert {
 	c.tempMonitor.mu.RLock()
 	defer c.tempMonitor.mu.RUnlock()
@@ -732,7 +732,7 @@ func (c *HWCompatChecker) GetTempAlerts() []*TempAlert {
 	return alerts
 }
 
-// GenerateHardwareReport 生成硬件报告
+// GenerateHardwareReport 生成硬件报告.
 func (c *HWCompatChecker) GenerateHardwareReport() map[string]interface{} {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -773,7 +773,7 @@ func (c *HWCompatChecker) GenerateHardwareReport() map[string]interface{} {
 	return report
 }
 
-// Stop 停止硬件兼容性检测器
+// Stop 停止硬件兼容性检测器.
 func (c *HWCompatChecker) Stop() {
 	close(c.stopChan)
 }

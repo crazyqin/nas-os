@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers NVMe over Fabrics API 处理器
+// Handlers NVMe over Fabrics API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	v1 := r.Group("/v1")
 	{
@@ -51,7 +51,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// createTarget 创建目标
+// createTarget 创建目标.
 func (h *Handlers) createTarget(c *gin.Context) {
 	var req CreateTargetRequest
 
@@ -69,7 +69,7 @@ func (h *Handlers) createTarget(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"data": target})
 }
 
-// listTargets 列出目标
+// listTargets 列出目标.
 func (h *Handlers) listTargets(c *gin.Context) {
 	transport := TransportType(c.Query("transport"))
 
@@ -78,7 +78,7 @@ func (h *Handlers) listTargets(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": targets})
 }
 
-// getTarget 获取目标详情
+// getTarget 获取目标详情.
 func (h *Handlers) getTarget(c *gin.Context) {
 	id := c.Param("id")
 
@@ -91,7 +91,7 @@ func (h *Handlers) getTarget(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": target})
 }
 
-// deleteTarget 删除目标
+// deleteTarget 删除目标.
 func (h *Handlers) deleteTarget(c *gin.Context) {
 	id := c.Param("id")
 
@@ -103,7 +103,7 @@ func (h *Handlers) deleteTarget(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "target deleted"})
 }
 
-// createSubsystem 创建子系统
+// createSubsystem 创建子系统.
 func (h *Handlers) createSubsystem(c *gin.Context) {
 	targetID := c.Param("target_id")
 
@@ -123,7 +123,7 @@ func (h *Handlers) createSubsystem(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"data": subsystem})
 }
 
-// listSubsystems 列出子系统
+// listSubsystems 列出子系统.
 func (h *Handlers) listSubsystems(c *gin.Context) {
 	targetID := c.Query("target_id")
 
@@ -132,7 +132,7 @@ func (h *Handlers) listSubsystems(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": subsystems})
 }
 
-// getSubsystem 获取子系统详情
+// getSubsystem 获取子系统详情.
 func (h *Handlers) getSubsystem(c *gin.Context) {
 	nqn := c.Param("nqn")
 
@@ -145,7 +145,7 @@ func (h *Handlers) getSubsystem(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": subsystem})
 }
 
-// deleteSubsystem 删除子系统
+// deleteSubsystem 删除子系统.
 func (h *Handlers) deleteSubsystem(c *gin.Context) {
 	nqn := c.Param("nqn")
 
@@ -157,7 +157,7 @@ func (h *Handlers) deleteSubsystem(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "subsystem deleted"})
 }
 
-// addNamespace 添加命名空间
+// addNamespace 添加命名空间.
 func (h *Handlers) addNamespace(c *gin.Context) {
 	nqn := c.Param("nqn")
 
@@ -177,7 +177,7 @@ func (h *Handlers) addNamespace(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"data": ns})
 }
 
-// addHost 添加主机
+// addHost 添加主机.
 func (h *Handlers) addHost(c *gin.Context) {
 	nqn := c.Param("nqn")
 
@@ -198,7 +198,7 @@ func (h *Handlers) addHost(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "host added"})
 }
 
-// removeHost 移除主机
+// removeHost 移除主机.
 func (h *Handlers) removeHost(c *gin.Context) {
 	nqn := c.Param("nqn")
 	hostNQN := c.Param("host_nqn")
@@ -211,7 +211,7 @@ func (h *Handlers) removeHost(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "host removed"})
 }
 
-// connectController 连接控制器
+// connectController 连接控制器.
 func (h *Handlers) connectController(c *gin.Context) {
 	nqn := c.Param("nqn")
 
@@ -231,7 +231,7 @@ func (h *Handlers) connectController(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"data": controller})
 }
 
-// listControllers 列出控制器
+// listControllers 列出控制器.
 func (h *Handlers) listControllers(c *gin.Context) {
 	nqn := c.Query("nqn")
 
@@ -240,7 +240,7 @@ func (h *Handlers) listControllers(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": controllers})
 }
 
-// disconnectController 断开控制器
+// disconnectController 断开控制器.
 func (h *Handlers) disconnectController(c *gin.Context) {
 	id := c.Param("id")
 
@@ -252,7 +252,7 @@ func (h *Handlers) disconnectController(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "controller disconnected"})
 }
 
-// getControllerStats 获取控制器统计
+// getControllerStats 获取控制器统计.
 func (h *Handlers) getControllerStats(c *gin.Context) {
 	id := c.Param("id")
 
@@ -265,7 +265,7 @@ func (h *Handlers) getControllerStats(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": stats})
 }
 
-// getStats 获取统计信息
+// getStats 获取统计信息.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 

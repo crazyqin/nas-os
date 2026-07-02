@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// UsageLogger API 密钥使用日志记录器
+// UsageLogger API 密钥使用日志记录器.
 type UsageLogger struct {
 	mu       sync.Mutex
 	logPath  string
@@ -17,7 +17,7 @@ type UsageLogger struct {
 	maxFiles int
 }
 
-// NewUsageLogger 创建使用日志记录器
+// NewUsageLogger 创建使用日志记录器.
 func NewUsageLogger(logPath string) *UsageLogger {
 	return &UsageLogger{
 		logPath:  logPath,
@@ -26,7 +26,7 @@ func NewUsageLogger(logPath string) *UsageLogger {
 	}
 }
 
-// Log 记录使用日志
+// Log 记录使用日志.
 func (l *UsageLogger) Log(usage APIKeyUsage) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -60,7 +60,7 @@ func (l *UsageLogger) Log(usage APIKeyUsage) {
 	}
 }
 
-// rotateIfNeeded 检查并执行日志轮转
+// rotateIfNeeded 检查并执行日志轮转.
 func (l *UsageLogger) rotateIfNeeded() {
 	info, err := os.Stat(l.logPath)
 	if err != nil {
@@ -72,7 +72,7 @@ func (l *UsageLogger) rotateIfNeeded() {
 	}
 }
 
-// rotateLog 执行日志轮转
+// rotateLog 执行日志轮转.
 func (l *UsageLogger) rotateLog() {
 	// 删除最旧文件
 	for i := l.maxFiles - 1; i >= 0; i-- {
@@ -85,7 +85,7 @@ func (l *UsageLogger) rotateLog() {
 	}
 }
 
-// GetUsageStats 获取使用统计
+// GetUsageStats 获取使用统计.
 func (l *UsageLogger) GetUsageStats(keyID string, since time.Time) (map[string]interface{}, error) {
 	// 读取日志文件并统计（简化实现）
 	f, err := os.Open(l.logPath)

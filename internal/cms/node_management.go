@@ -15,7 +15,7 @@ import (
 )
 
 // NodeManagementService 节点管理服务
-// 处理节点生命周期、命令下发、配置管理
+// 处理节点生命周期、命令下发、配置管理.
 type NodeManagementService struct {
 	fleetConfig FleetConfig
 	logger      *zap.Logger
@@ -26,7 +26,7 @@ type NodeManagementService struct {
 	cancel      context.CancelFunc
 }
 
-// NodeConfig 节点配置
+// NodeConfig 节点配置.
 type NodeConfig struct {
 	DeviceID         string            `json:"deviceId"`
 	Name             string            `json:"name"`
@@ -42,7 +42,7 @@ type NodeConfig struct {
 	Version          int               `json:"version"`          // 配置版本
 }
 
-// HealthThresholds 健康阈值
+// HealthThresholds 健康阈值.
 type HealthThresholds struct {
 	CPUHigh        float64 `json:"cpuHigh"`        // CPU高阈值
 	MemoryHigh     float64 `json:"memoryHigh"`     // 内存高阈值
@@ -52,7 +52,7 @@ type HealthThresholds struct {
 	OfflineTimeout int     `json:"offlineTimeout"` // 离线超时（秒）
 }
 
-// DefaultHealthThresholds 默认健康阈值
+// DefaultHealthThresholds 默认健康阈值.
 func DefaultHealthThresholds() HealthThresholds {
 	return HealthThresholds{
 		CPUHigh:        85.0,
@@ -64,7 +64,7 @@ func DefaultHealthThresholds() HealthThresholds {
 	}
 }
 
-// NewNodeManagementService 创建节点管理服务
+// NewNodeManagementService 创建节点管理服务.
 func NewNodeManagementService(config FleetConfig, logger *zap.Logger) *NodeManagementService {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -78,12 +78,12 @@ func NewNodeManagementService(config FleetConfig, logger *zap.Logger) *NodeManag
 	}
 }
 
-// Start 启动服务
+// Start 启动服务.
 func (nms *NodeManagementService) Start() {
 	nms.logger.Info("节点管理服务启动")
 }
 
-// Stop 停止服务
+// Stop 停止服务.
 func (nms *NodeManagementService) Stop() {
 	nms.cancel()
 	nms.logger.Info("节点管理服务停止")
@@ -91,7 +91,7 @@ func (nms *NodeManagementService) Stop() {
 
 // ================== 配置管理 ==================
 
-// SetNodeConfig 设置节点配置
+// SetNodeConfig 设置节点配置.
 func (nms *NodeManagementService) SetNodeConfig(deviceID string, config NodeConfig) error {
 	nms.mu.Lock()
 	defer nms.mu.Unlock()
@@ -109,7 +109,7 @@ func (nms *NodeManagementService) SetNodeConfig(deviceID string, config NodeConf
 	return nil
 }
 
-// GetNodeConfig 获取节点配置
+// GetNodeConfig 获取节点配置.
 func (nms *NodeManagementService) GetNodeConfig(deviceID string) (*NodeConfig, error) {
 	nms.mu.RLock()
 	defer nms.mu.RUnlock()
@@ -122,7 +122,7 @@ func (nms *NodeManagementService) GetNodeConfig(deviceID string) (*NodeConfig, e
 	return config, nil
 }
 
-// GetDefaultConfig 获取默认配置
+// GetDefaultConfig 获取默认配置.
 func (nms *NodeManagementService) GetDefaultConfig(deviceID string) *NodeConfig {
 	return &NodeConfig{
 		DeviceID:         deviceID,
@@ -138,7 +138,7 @@ func (nms *NodeManagementService) GetDefaultConfig(deviceID string) *NodeConfig 
 
 // ================== 命令下发 ==================
 
-// AddCommand 添加节点命令
+// AddCommand 添加节点命令.
 func (nms *NodeManagementService) AddCommand(deviceID string, command NodeCommand) error {
 	nms.mu.Lock()
 	defer nms.mu.Unlock()
@@ -157,7 +157,7 @@ func (nms *NodeManagementService) AddCommand(deviceID string, command NodeComman
 	return nil
 }
 
-// GetPendingCommands 获取待执行命令
+// GetPendingCommands 获取待执行命令.
 func (nms *NodeManagementService) GetPendingCommands(deviceID string) []NodeCommand {
 	nms.mu.Lock()
 	defer nms.mu.Unlock()
@@ -181,7 +181,7 @@ func (nms *NodeManagementService) GetPendingCommands(deviceID string) []NodeComm
 	return validCommands
 }
 
-// ClearCommands 清除节点命令
+// ClearCommands 清除节点命令.
 func (nms *NodeManagementService) ClearCommands(deviceID string) {
 	nms.mu.Lock()
 	defer nms.mu.Unlock()
@@ -190,7 +190,7 @@ func (nms *NodeManagementService) ClearCommands(deviceID string) {
 
 // ================== 批量命令 ==================
 
-// BroadcastCommand 广播命令到所有节点
+// BroadcastCommand 广播命令到所有节点.
 func (nms *NodeManagementService) BroadcastCommand(command NodeCommand, filter DeviceFilter) int {
 	nms.mu.Lock()
 	defer nms.mu.Unlock()
@@ -213,7 +213,7 @@ func (nms *NodeManagementService) BroadcastCommand(command NodeCommand, filter D
 
 // ================== 常用命令生成 ==================
 
-// CreateSyncCommand 创建同步命令
+// CreateSyncCommand 创建同步命令.
 func CreateSyncCommand(paths []string) NodeCommand {
 	return NodeCommand{
 		Command:   "sync",
@@ -223,7 +223,7 @@ func CreateSyncCommand(paths []string) NodeCommand {
 	}
 }
 
-// CreateBackupCommand 创建备份命令
+// CreateBackupCommand 创建备份命令.
 func CreateBackupCommand(sourcePath, targetPath string, schedule string) NodeCommand {
 	return NodeCommand{
 		Command: "backup",
@@ -237,7 +237,7 @@ func CreateBackupCommand(sourcePath, targetPath string, schedule string) NodeCom
 	}
 }
 
-// CreateRestartCommand 创建重启命令
+// CreateRestartCommand 创建重启命令.
 func CreateRestartCommand(reason string) NodeCommand {
 	return NodeCommand{
 		Command:   "restart",
@@ -247,7 +247,7 @@ func CreateRestartCommand(reason string) NodeCommand {
 	}
 }
 
-// CreateUpdateCommand 创建更新命令
+// CreateUpdateCommand 创建更新命令.
 func CreateUpdateCommand(version string, force bool) NodeCommand {
 	return NodeCommand{
 		Command: "update",
@@ -260,7 +260,7 @@ func CreateUpdateCommand(version string, force bool) NodeCommand {
 	}
 }
 
-// CreateHealthCheckCommand 创建健康检查命令
+// CreateHealthCheckCommand 创建健康检查命令.
 func CreateHealthCheckCommand(full bool) NodeCommand {
 	return NodeCommand{
 		Command:   "health_check",
@@ -272,7 +272,7 @@ func CreateHealthCheckCommand(full bool) NodeCommand {
 
 // ================== 配置同步 ==================
 
-// SyncConfig 同步配置到节点
+// SyncConfig 同步配置到节点.
 func (nms *NodeManagementService) SyncConfig(deviceID string) error {
 	config, err := nms.GetNodeConfig(deviceID)
 	if err != nil {
@@ -293,7 +293,7 @@ func (nms *NodeManagementService) SyncConfig(deviceID string) error {
 
 // ================== 节点操作 ==================
 
-// EnableNode 启用节点
+// EnableNode 启用节点.
 func (nms *NodeManagementService) EnableNode(deviceID string) error {
 	config := nms.GetDefaultConfig(deviceID)
 	config.TaskEnabled = true
@@ -301,7 +301,7 @@ func (nms *NodeManagementService) EnableNode(deviceID string) error {
 	return nms.SetNodeConfig(deviceID, *config)
 }
 
-// DisableNode 禁用节点
+// DisableNode 禁用节点.
 func (nms *NodeManagementService) DisableNode(deviceID string) error {
 	config, err := nms.GetNodeConfig(deviceID)
 	if err != nil {
@@ -312,7 +312,7 @@ func (nms *NodeManagementService) DisableNode(deviceID string) error {
 	return nms.SetNodeConfig(deviceID, *config)
 }
 
-// SetNodeRole 设置节点角色
+// SetNodeRole 设置节点角色.
 func (nms *NodeManagementService) SetNodeRole(deviceID, role string) error {
 	config, err := nms.GetNodeConfig(deviceID)
 	if err != nil {
@@ -322,7 +322,7 @@ func (nms *NodeManagementService) SetNodeRole(deviceID, role string) error {
 	return nms.SetNodeConfig(deviceID, *config)
 }
 
-// SetNodeGroup 设置节点分组
+// SetNodeGroup 设置节点分组.
 func (nms *NodeManagementService) SetNodeGroup(deviceID, groupID string) error {
 	config, err := nms.GetNodeConfig(deviceID)
 	if err != nil {
@@ -332,7 +332,7 @@ func (nms *NodeManagementService) SetNodeGroup(deviceID, groupID string) error {
 	return nms.SetNodeConfig(deviceID, *config)
 }
 
-// AddNodeTags 添加节点标签
+// AddNodeTags 添加节点标签.
 func (nms *NodeManagementService) AddNodeTags(deviceID string, tags []string) error {
 	config, err := nms.GetNodeConfig(deviceID)
 	if err != nil {
@@ -355,7 +355,7 @@ func (nms *NodeManagementService) AddNodeTags(deviceID string, tags []string) er
 	return nms.SetNodeConfig(deviceID, *config)
 }
 
-// SetNodeLabels 设置节点自定义标签
+// SetNodeLabels 设置节点自定义标签.
 func (nms *NodeManagementService) SetNodeLabels(deviceID string, labels map[string]string) error {
 	config, err := nms.GetNodeConfig(deviceID)
 	if err != nil {
@@ -375,7 +375,7 @@ func (nms *NodeManagementService) SetNodeLabels(deviceID string, labels map[stri
 
 // ================== 健康检查 ==================
 
-// CheckNodeHealth 检查节点健康状态
+// CheckNodeHealth 检查节点健康状态.
 func (nms *NodeManagementService) CheckNodeHealth(device *Device) NodeHealthReport {
 	config, err := nms.GetNodeConfig(device.ID)
 	if err != nil {
@@ -459,7 +459,7 @@ func (nms *NodeManagementService) CheckNodeHealth(device *Device) NodeHealthRepo
 	return report
 }
 
-// NodeHealthReport 节点健康报告
+// NodeHealthReport 节点健康报告.
 type NodeHealthReport struct {
 	DeviceID  string        `json:"deviceId"`
 	Status    string        `json:"status"`    // healthy, warning, critical, offline
@@ -468,7 +468,7 @@ type NodeHealthReport struct {
 	CheckedAt time.Time     `json:"checkedAt"` // 检查时间
 }
 
-// HealthIssue 健康问题
+// HealthIssue 健康问题.
 type HealthIssue struct {
 	Type     string  `json:"type"`     // 问题类型
 	Message  string  `json:"message"`  // 描述
@@ -478,23 +478,23 @@ type HealthIssue struct {
 
 // ================== HTTP 处理器 ==================
 
-// HTTPHandler HTTP 处理器
+// HTTPHandler HTTP 处理器.
 type HTTPHandler struct {
 	fleetManager *FleetManager
 }
 
-// NewHTTPHandler 创建 HTTP 处理器
+// NewHTTPHandler 创建 HTTP 处理器.
 func NewHTTPHandler(fm *FleetManager) *HTTPHandler {
 	return &HTTPHandler{fleetManager: fm}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *HTTPHandler) RegisterRoutes(r interface{}) {
 	// 使用 gin.RouterGroup 或其他路由注册器
 	// 具体路由注册由调用方实现
 }
 
-// HandleHeartbeat 处理心跳请求
+// HandleHeartbeat 处理心跳请求.
 func (h *HTTPHandler) HandleHeartbeat(w http.ResponseWriter, r *http.Request) {
 	var req HeartbeatRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -512,7 +512,7 @@ func (h *HTTPHandler) HandleHeartbeat(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-// HandleRegister 处理注册请求
+// HandleRegister 处理注册请求.
 func (h *HTTPHandler) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	var req NodeRegistrationRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -530,7 +530,7 @@ func (h *HTTPHandler) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-// HandleConfirm 处理确认注册
+// HandleConfirm 处理确认注册.
 func (h *HTTPHandler) HandleConfirm(w http.ResponseWriter, r *http.Request) {
 	deviceID := r.URL.Query().Get("device_id")
 	token := r.URL.Query().Get("token")
@@ -550,7 +550,7 @@ func (h *HTTPHandler) HandleConfirm(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(device)
 }
 
-// HandleStatus 处理状态查询
+// HandleStatus 处理状态查询.
 func (h *HTTPHandler) HandleStatus(w http.ResponseWriter, r *http.Request) {
 	deviceID := r.URL.Query().Get("device_id")
 

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// FailoverManager SMB HA 故障转移管理器
+// FailoverManager SMB HA 故障转移管理器.
 type FailoverManager struct {
 	mu        sync.RWMutex
 	sessions  map[string]*SessionState
@@ -17,7 +17,7 @@ type FailoverManager struct {
 	state     *FailoverState
 }
 
-// NewFailoverManager 创建故障转移管理器
+// NewFailoverManager 创建故障转移管理器.
 func NewFailoverManager() *FailoverManager {
 	return &FailoverManager{
 		sessions:  make(map[string]*SessionState),
@@ -29,7 +29,7 @@ func NewFailoverManager() *FailoverManager {
 	}
 }
 
-// RegisterSession 注册新会话
+// RegisterSession 注册新会话.
 func (m *FailoverManager) RegisterSession(s *SessionState) error {
 	if s == nil {
 		return fmt.Errorf("session is nil")
@@ -44,7 +44,7 @@ func (m *FailoverManager) RegisterSession(s *SessionState) error {
 	return nil
 }
 
-// GetSession 获取会话
+// GetSession 获取会话.
 func (m *FailoverManager) GetSession(sessionID string) (*SessionState, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -55,7 +55,7 @@ func (m *FailoverManager) GetSession(sessionID string) (*SessionState, error) {
 	return s, nil
 }
 
-// ListSessions 列出所有会话
+// ListSessions 列出所有会话.
 func (m *FailoverManager) ListSessions() []*SessionState {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -66,7 +66,7 @@ func (m *FailoverManager) ListSessions() []*SessionState {
 	return result
 }
 
-// UpdateSessionAccess 更新会话最后访问时间
+// UpdateSessionAccess 更新会话最后访问时间.
 func (m *FailoverManager) UpdateSessionAccess(sessionID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -78,14 +78,14 @@ func (m *FailoverManager) UpdateSessionAccess(sessionID string) error {
 	return nil
 }
 
-// RemoveSession 移除会话
+// RemoveSession 移除会话.
 func (m *FailoverManager) RemoveSession(sessionID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	delete(m.sessions, sessionID)
 }
 
-// CreateSnapshot 创建会话状态快照
+// CreateSnapshot 创建会话状态快照.
 func (m *FailoverManager) CreateSnapshot(sourceNode string) (*Snapshot, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -111,7 +111,7 @@ func (m *FailoverManager) CreateSnapshot(sourceNode string) (*Snapshot, error) {
 	return snap, nil
 }
 
-// GetSnapshot 获取快照
+// GetSnapshot 获取快照.
 func (m *FailoverManager) GetSnapshot(id string) (*Snapshot, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -122,7 +122,7 @@ func (m *FailoverManager) GetSnapshot(id string) (*Snapshot, error) {
 	return s, nil
 }
 
-// RestoreSnapshot 从快照恢复会话
+// RestoreSnapshot 从快照恢复会话.
 func (m *FailoverManager) RestoreSnapshot(snapshotID string) ([]*SessionState, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -148,7 +148,7 @@ func (m *FailoverManager) RestoreSnapshot(snapshotID string) ([]*SessionState, e
 	return restored, nil
 }
 
-// GetState 获取故障转移状态
+// GetState 获取故障转移状态.
 func (m *FailoverManager) GetState() *FailoverState {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -156,7 +156,7 @@ func (m *FailoverManager) GetState() *FailoverState {
 	return &copy
 }
 
-// SetActiveNode 设置活跃节点
+// SetActiveNode 设置活跃节点.
 func (m *FailoverManager) SetActiveNode(node string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

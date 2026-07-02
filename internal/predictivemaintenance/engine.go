@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Config 预测性维护配置
+// Config 预测性维护配置.
 type Config struct {
 	Enabled          bool    `json:"enabled"`
 	CheckIntervalMin int     `json:"checkIntervalMin"`
@@ -18,7 +18,7 @@ type Config struct {
 	RetentionDays    int     `json:"retentionDays"`
 }
 
-// ComponentType 组件类型
+// ComponentType 组件类型.
 type ComponentType string
 
 const (
@@ -31,7 +31,7 @@ const (
 	ComponentGPU     ComponentType = "gpu"
 )
 
-// HealthStatus 健康状态
+// HealthStatus 健康状态.
 type HealthStatus string
 
 const (
@@ -41,7 +41,7 @@ const (
 	StatusFailed   HealthStatus = "failed"
 )
 
-// ComponentHealth 组件健康状态
+// ComponentHealth 组件健康状态.
 type ComponentHealth struct {
 	ID            string        `json:"id"`
 	Type          ComponentType `json:"type"`
@@ -55,7 +55,7 @@ type ComponentHealth struct {
 	LastChecked   time.Time     `json:"lastChecked"`
 }
 
-// Anomaly 异常记录
+// Anomaly 异常记录.
 type Anomaly struct {
 	Timestamp   time.Time `json:"timestamp"`
 	Metric      string    `json:"metric"`
@@ -65,7 +65,7 @@ type Anomaly struct {
 	Description string    `json:"description"`
 }
 
-// MaintenanceSchedule 维护计划
+// MaintenanceSchedule 维护计划.
 type MaintenanceSchedule struct {
 	ID          string        `json:"id"`
 	ComponentID string        `json:"componentId"`
@@ -79,13 +79,13 @@ type MaintenanceSchedule struct {
 	CreatedAt   time.Time     `json:"createdAt"`
 }
 
-// MetricPoint 指标数据点
+// MetricPoint 指标数据点.
 type MetricPoint struct {
 	Timestamp time.Time `json:"timestamp"`
 	Value     float64   `json:"value"`
 }
 
-// PredictionResult 预测结果
+// PredictionResult 预测结果.
 type PredictionResult struct {
 	ComponentID   string    `json:"componentId"`
 	CurrentValue  float64   `json:"currentValue"`
@@ -96,7 +96,7 @@ type PredictionResult struct {
 	PredictedAt   time.Time `json:"predictedAt"`
 }
 
-// Engine 预测性维护引擎
+// Engine 预测性维护引擎.
 type Engine struct {
 	mu          sync.RWMutex
 	cfg         Config
@@ -106,7 +106,7 @@ type Engine struct {
 	predictions map[string]*PredictionResult
 }
 
-// New 创建引擎
+// New 创建引擎.
 func New(cfg Config) *Engine {
 	if cfg.CheckIntervalMin == 0 {
 		cfg.CheckIntervalMin = 30
@@ -126,7 +126,7 @@ func New(cfg Config) *Engine {
 	}
 }
 
-// RegisterComponent 注册组件
+// RegisterComponent 注册组件.
 func (e *Engine) RegisterComponent(id string, compType ComponentType, name string) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -140,7 +140,7 @@ func (e *Engine) RegisterComponent(id string, compType ComponentType, name strin
 	}
 }
 
-// RecordMetric 记录指标
+// RecordMetric 记录指标.
 func (e *Engine) RecordMetric(componentID string, value float64) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -158,7 +158,7 @@ func (e *Engine) RecordMetric(componentID string, value float64) {
 	e.history[componentID] = points[start:]
 }
 
-// Predict 预测组件寿命
+// Predict 预测组件寿命.
 func (e *Engine) Predict(ctx context.Context, componentID string) (*PredictionResult, error) {
 	e.mu.RLock()
 	history := e.history[componentID]
@@ -215,7 +215,7 @@ func (e *Engine) Predict(ctx context.Context, componentID string) (*PredictionRe
 	return result, nil
 }
 
-// GetHealth 获取组件健康状态
+// GetHealth 获取组件健康状态.
 func (e *Engine) GetHealth(componentID string) (*ComponentHealth, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -226,7 +226,7 @@ func (e *Engine) GetHealth(componentID string) (*ComponentHealth, error) {
 	return comp, nil
 }
 
-// ListComponents 列出所有组件
+// ListComponents 列出所有组件.
 func (e *Engine) ListComponents() []*ComponentHealth {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -237,7 +237,7 @@ func (e *Engine) ListComponents() []*ComponentHealth {
 	return result
 }
 
-// CreateSchedule 创建维护计划
+// CreateSchedule 创建维护计划.
 func (e *Engine) CreateSchedule(componentID, schedType, title, desc string, priority int) (*MaintenanceSchedule, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -258,7 +258,7 @@ func (e *Engine) CreateSchedule(componentID, schedType, title, desc string, prio
 	return schedule, nil
 }
 
-// ListSchedules 列出维护计划
+// ListSchedules 列出维护计划.
 func (e *Engine) ListSchedules() []*MaintenanceSchedule {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -269,7 +269,7 @@ func (e *Engine) ListSchedules() []*MaintenanceSchedule {
 	return result
 }
 
-// CheckAll 检查所有组件健康状态
+// CheckAll 检查所有组件健康状态.
 func (e *Engine) CheckAll(ctx context.Context) []*ComponentHealth {
 	e.mu.RLock()
 	ids := make([]string, 0, len(e.components))
@@ -303,7 +303,7 @@ func (e *Engine) CheckAll(ctx context.Context) []*ComponentHealth {
 	return results
 }
 
-// linearRegression 简单线性回归
+// linearRegression 简单线性回归.
 func linearRegression(data []float64) (slope, intercept float64) {
 	n := float64(len(data))
 	if n < 2 {
@@ -326,7 +326,7 @@ func linearRegression(data []float64) (slope, intercept float64) {
 	return
 }
 
-// calculateConfidence 计算 R² 置信度
+// calculateConfidence 计算 R² 置信度.
 func calculateConfidence(data []float64, slope, intercept float64) float64 {
 	if len(data) < 3 {
 		return 0.5

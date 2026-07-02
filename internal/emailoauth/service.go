@@ -7,18 +7,18 @@ import (
 	"time"
 )
 
-// MailNotifier 邮件通知器
+// MailNotifier 邮件通知器.
 type MailNotifier struct {
 	mu     sync.RWMutex
 	config *OAuthConfig
 }
 
-// NewMailNotifier 创建邮件通知器
+// NewMailNotifier 创建邮件通知器.
 func NewMailNotifier() *MailNotifier {
 	return &MailNotifier{}
 }
 
-// SetConfig 设置配置
+// SetConfig 设置配置.
 func (n *MailNotifier) SetConfig(cfg *OAuthConfig) error {
 	if cfg == nil {
 		return fmt.Errorf("config is nil")
@@ -38,7 +38,7 @@ func (n *MailNotifier) SetConfig(cfg *OAuthConfig) error {
 	return nil
 }
 
-// GetConfig 获取配置（隐藏敏感字段）
+// GetConfig 获取配置（隐藏敏感字段）.
 func (n *MailNotifier) GetConfig() *OAuthConfig {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
@@ -52,14 +52,14 @@ func (n *MailNotifier) GetConfig() *OAuthConfig {
 	return &copy
 }
 
-// IsConfigured 是否已配置
+// IsConfigured 是否已配置.
 func (n *MailNotifier) IsConfigured() bool {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
 	return n.config != nil && n.config.ClientID != ""
 }
 
-// RefreshToken 刷新 access token（模拟）
+// RefreshToken 刷新 access token（模拟）.
 func (n *MailNotifier) RefreshToken() error {
 	n.mu.Lock()
 	defer n.mu.Unlock()
@@ -75,7 +75,7 @@ func (n *MailNotifier) RefreshToken() error {
 	return nil
 }
 
-// IsTokenValid 检查 token 是否有效
+// IsTokenValid 检查 token 是否有效.
 func (n *MailNotifier) IsTokenValid() bool {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
@@ -85,7 +85,7 @@ func (n *MailNotifier) IsTokenValid() bool {
 	return n.config.AccessToken != "" && time.Now().Before(n.config.TokenExpiry)
 }
 
-// SendMail 发送邮件
+// SendMail 发送邮件.
 func (n *MailNotifier) SendMail(msg *MailMessage) (*MailResult, error) {
 	n.mu.RLock()
 	config := n.config
@@ -116,16 +116,16 @@ func (n *MailNotifier) SendMail(msg *MailMessage) (*MailResult, error) {
 
 	// Simulate sending (real impl would use smtp.SendMail or Gmail/Outlook API)
 	result := &MailResult{
-		Success:   true,
-		Message:   fmt.Sprintf("sent to %d recipient(s)", len(msg.To)),
-		SentAt:    time.Now(),
-		Method:    config.Method,
-		Provider:  config.Provider,
+		Success:  true,
+		Message:  fmt.Sprintf("sent to %d recipient(s)", len(msg.To)),
+		SentAt:   time.Now(),
+		Method:   config.Method,
+		Provider: config.Provider,
 	}
 	return result, nil
 }
 
-// SendTestMail 发送测试邮件
+// SendTestMail 发送测试邮件.
 func (n *MailNotifier) SendTestMail(to, subject, body string) (*MailResult, error) {
 	if to == "" {
 		return nil, fmt.Errorf("recipient is required")

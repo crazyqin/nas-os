@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// ZoneManager 区域管理器
+// ZoneManager 区域管理器.
 type ZoneManager struct {
 	mu     sync.RWMutex
 	logger *zap.Logger
@@ -18,7 +18,7 @@ type ZoneManager struct {
 	zones  map[string]*Zone
 }
 
-// NewZoneManager 创建区域管理器
+// NewZoneManager 创建区域管理器.
 func NewZoneManager(logger *zap.Logger, engine *SurveillanceEngine) *ZoneManager {
 	return &ZoneManager{
 		logger: logger,
@@ -27,7 +27,7 @@ func NewZoneManager(logger *zap.Logger, engine *SurveillanceEngine) *ZoneManager
 	}
 }
 
-// CreateZone 创建监控区域
+// CreateZone 创建监控区域.
 func (zm *ZoneManager) CreateZone(zone *Zone) error {
 	zm.mu.Lock()
 	defer zm.mu.Unlock()
@@ -57,7 +57,7 @@ func (zm *ZoneManager) CreateZone(zone *Zone) error {
 	return nil
 }
 
-// UpdateZone 更新监控区域
+// UpdateZone 更新监控区域.
 func (zm *ZoneManager) UpdateZone(zone *Zone) error {
 	zm.mu.Lock()
 	defer zm.mu.Unlock()
@@ -73,7 +73,7 @@ func (zm *ZoneManager) UpdateZone(zone *Zone) error {
 	return nil
 }
 
-// DeleteZone 删除监控区域
+// DeleteZone 删除监控区域.
 func (zm *ZoneManager) DeleteZone(zoneID string) error {
 	zm.mu.Lock()
 	defer zm.mu.Unlock()
@@ -87,7 +87,7 @@ func (zm *ZoneManager) DeleteZone(zoneID string) error {
 	return nil
 }
 
-// GetZone 获取监控区域
+// GetZone 获取监控区域.
 func (zm *ZoneManager) GetZone(zoneID string) (*Zone, error) {
 	zm.mu.RLock()
 	defer zm.mu.RUnlock()
@@ -99,7 +99,7 @@ func (zm *ZoneManager) GetZone(zoneID string) (*Zone, error) {
 	return zone, nil
 }
 
-// ListZones 列出所有监控区域
+// ListZones 列出所有监控区域.
 func (zm *ZoneManager) ListZones() []*Zone {
 	zm.mu.RLock()
 	defer zm.mu.RUnlock()
@@ -111,7 +111,7 @@ func (zm *ZoneManager) ListZones() []*Zone {
 	return zones
 }
 
-// GetCameraZones 获取摄像头的所有区域
+// GetCameraZones 获取摄像头的所有区域.
 func (zm *ZoneManager) GetCameraZones(cameraID string) []*Zone {
 	zm.mu.RLock()
 	defer zm.mu.RUnlock()
@@ -125,7 +125,7 @@ func (zm *ZoneManager) GetCameraZones(cameraID string) []*Zone {
 	return zones
 }
 
-// CheckIntrusion 检测入侵
+// CheckIntrusion 检测入侵.
 func (zm *ZoneManager) CheckIntrusion(cameraID string, position Position, detectType DetectionType) []*Zone {
 	zm.mu.RLock()
 	defer zm.mu.RUnlock()
@@ -151,7 +151,7 @@ func (zm *ZoneManager) CheckIntrusion(cameraID string, position Position, detect
 	return triggeredZones
 }
 
-// isTypeEnabled 检查区域是否启用该检测类型
+// isTypeEnabled 检查区域是否启用该检测类型.
 func (zm *ZoneManager) isTypeEnabled(zone *Zone, detectType DetectionType) bool {
 	for _, dt := range zone.DetectionTypes {
 		if dt == detectType {
@@ -161,7 +161,7 @@ func (zm *ZoneManager) isTypeEnabled(zone *Zone, detectType DetectionType) bool 
 	return false
 }
 
-// isPointInZone 检测点是否在区域内
+// isPointInZone 检测点是否在区域内.
 func (zm *ZoneManager) isPointInZone(pos Position, zone *Zone) bool {
 	switch zone.Type {
 	case ZoneTypeRectangle:
@@ -179,7 +179,7 @@ func (zm *ZoneManager) isPointInZone(pos Position, zone *Zone) bool {
 	return false
 }
 
-// pointInPolygon 射线法检测点是否在多边形内
+// pointInPolygon 射线法检测点是否在多边形内.
 func (zm *ZoneManager) pointInPolygon(pos Position, points []Point) bool {
 	if len(points) < 3 {
 		return false
@@ -202,7 +202,7 @@ func (zm *ZoneManager) pointInPolygon(pos Position, points []Point) bool {
 	return inside
 }
 
-// crossLine 检测是否穿越线段（简化版）
+// crossLine 检测是否穿越线段（简化版）.
 func (zm *ZoneManager) crossLine(pos Position, points []Point) bool {
 	if len(points) < 2 {
 		return false
@@ -239,7 +239,7 @@ func (zm *ZoneManager) crossLine(pos Position, points []Point) bool {
 	return dist <= threshold*threshold
 }
 
-// ProcessZoneEvent 处理区域事件
+// ProcessZoneEvent 处理区域事件.
 func (zm *ZoneManager) ProcessZoneEvent(cameraID string, position Position, detectType DetectionType) []*Event {
 	triggeredZones := zm.CheckIntrusion(cameraID, position, detectType)
 

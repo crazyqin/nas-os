@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 提供 SHR 管理的 HTTP 处理器
+// Handlers 提供 SHR 管理的 HTTP 处理器.
 type Handlers struct {
 	manager *SHRManager
 }
 
-// NewHandlers 创建新的 SHR 处理器
+// NewHandlers 创建新的 SHR 处理器.
 func NewHandlers(manager *SHRManager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册 SHR API 路由
+// RegisterRoutes 注册 SHR API 路由.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	shr := rg.Group("/shr")
 	{

@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 联系人 API 处理器
+// Handlers 联系人 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	contacts := r.Group("/contacts")
 	{
@@ -63,14 +63,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// listContacts 列出联系人
+// listContacts 列出联系人.
 func (h *Handlers) listContacts(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "50")
 	offsetStr := c.DefaultQuery("offset", "0")
@@ -92,7 +92,7 @@ func (h *Handlers) listContacts(c *gin.Context) {
 	})
 }
 
-// createContact 创建联系人
+// createContact 创建联系人.
 func (h *Handlers) createContact(c *gin.Context) {
 	var req ContactCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -119,7 +119,7 @@ func (h *Handlers) createContact(c *gin.Context) {
 	})
 }
 
-// getContact 获取联系人
+// getContact 获取联系人.
 func (h *Handlers) getContact(c *gin.Context) {
 	id := c.Param("id")
 	contact, err := h.manager.GetContact(id)
@@ -138,7 +138,7 @@ func (h *Handlers) getContact(c *gin.Context) {
 	})
 }
 
-// updateContact 更新联系人
+// updateContact 更新联系人.
 func (h *Handlers) updateContact(c *gin.Context) {
 	id := c.Param("id")
 	var req ContactUpdateRequest
@@ -166,7 +166,7 @@ func (h *Handlers) updateContact(c *gin.Context) {
 	})
 }
 
-// deleteContact 删除联系人
+// deleteContact 删除联系人.
 func (h *Handlers) deleteContact(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteContact(id); err != nil {
@@ -183,7 +183,7 @@ func (h *Handlers) deleteContact(c *gin.Context) {
 	})
 }
 
-// searchContacts 搜索联系人
+// searchContacts 搜索联系人.
 func (h *Handlers) searchContacts(c *gin.Context) {
 	var req SearchRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -202,7 +202,7 @@ func (h *Handlers) searchContacts(c *gin.Context) {
 	})
 }
 
-// listGroups 列出分组
+// listGroups 列出分组.
 func (h *Handlers) listGroups(c *gin.Context) {
 	groups := h.manager.ListGroups()
 	c.JSON(http.StatusOK, response{
@@ -212,7 +212,7 @@ func (h *Handlers) listGroups(c *gin.Context) {
 	})
 }
 
-// createGroup 创建分组
+// createGroup 创建分组.
 func (h *Handlers) createGroup(c *gin.Context) {
 	var req ContactGroupCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -239,7 +239,7 @@ func (h *Handlers) createGroup(c *gin.Context) {
 	})
 }
 
-// getGroup 获取分组
+// getGroup 获取分组.
 func (h *Handlers) getGroup(c *gin.Context) {
 	id := c.Param("id")
 	group, err := h.manager.GetGroup(id)
@@ -258,7 +258,7 @@ func (h *Handlers) getGroup(c *gin.Context) {
 	})
 }
 
-// updateGroup 更新分组
+// updateGroup 更新分组.
 func (h *Handlers) updateGroup(c *gin.Context) {
 	id := c.Param("id")
 	var req ContactGroupUpdateRequest
@@ -286,7 +286,7 @@ func (h *Handlers) updateGroup(c *gin.Context) {
 	})
 }
 
-// deleteGroup 删除分组
+// deleteGroup 删除分组.
 func (h *Handlers) deleteGroup(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteGroup(id); err != nil {
@@ -303,7 +303,7 @@ func (h *Handlers) deleteGroup(c *gin.Context) {
 	})
 }
 
-// addContactsToGroup 添加联系人到分组
+// addContactsToGroup 添加联系人到分组.
 func (h *Handlers) addContactsToGroup(c *gin.Context) {
 	groupID := c.Param("id")
 	var req struct {
@@ -331,7 +331,7 @@ func (h *Handlers) addContactsToGroup(c *gin.Context) {
 	})
 }
 
-// removeContactsFromGroup 从分组移除联系人
+// removeContactsFromGroup 从分组移除联系人.
 func (h *Handlers) removeContactsFromGroup(c *gin.Context) {
 	groupID := c.Param("id")
 	var req struct {
@@ -359,7 +359,7 @@ func (h *Handlers) removeContactsFromGroup(c *gin.Context) {
 	})
 }
 
-// exportVCard 导出单个联系人 vCard
+// exportVCard 导出单个联系人 vCard.
 func (h *Handlers) exportVCard(c *gin.Context) {
 	id := c.Param("id")
 	vcard, err := h.manager.ExportVCard(id)
@@ -376,7 +376,7 @@ func (h *Handlers) exportVCard(c *gin.Context) {
 	c.String(http.StatusOK, vcard)
 }
 
-// importVCard 导入 vCard
+// importVCard 导入 vCard.
 func (h *Handlers) importVCard(c *gin.Context) {
 	var req struct {
 		Content string `json:"content" binding:"required"`
@@ -406,7 +406,7 @@ func (h *Handlers) importVCard(c *gin.Context) {
 	})
 }
 
-// exportVCardBatch 批量导出 vCard
+// exportVCardBatch 批量导出 vCard.
 func (h *Handlers) exportVCardBatch(c *gin.Context) {
 	var req struct {
 		ContactIDs []string `json:"contact_ids" binding:"required"`
@@ -433,7 +433,7 @@ func (h *Handlers) exportVCardBatch(c *gin.Context) {
 	c.String(http.StatusOK, vcard)
 }
 
-// importCSV 导入 CSV
+// importCSV 导入 CSV.
 func (h *Handlers) importCSV(c *gin.Context) {
 	var req struct {
 		Content string `json:"content" binding:"required"`
@@ -463,7 +463,7 @@ func (h *Handlers) importCSV(c *gin.Context) {
 	})
 }
 
-// findDuplicates 查找重复联系人
+// findDuplicates 查找重复联系人.
 func (h *Handlers) findDuplicates(c *gin.Context) {
 	duplicates := h.manager.FindDuplicates()
 	c.JSON(http.StatusOK, response{
@@ -473,7 +473,7 @@ func (h *Handlers) findDuplicates(c *gin.Context) {
 	})
 }
 
-// mergeContacts 合并联系人
+// mergeContacts 合并联系人.
 func (h *Handlers) mergeContacts(c *gin.Context) {
 	var req struct {
 		KeepID   string   `json:"keep_id" binding:"required"`
@@ -503,7 +503,7 @@ func (h *Handlers) mergeContacts(c *gin.Context) {
 	})
 }
 
-// shareGroup 分享分组
+// shareGroup 分享分组.
 func (h *Handlers) shareGroup(c *gin.Context) {
 	groupID := c.Param("id")
 	var req ShareRequest
@@ -532,7 +532,7 @@ func (h *Handlers) shareGroup(c *gin.Context) {
 	})
 }
 
-// getShares 获取分组分享信息
+// getShares 获取分组分享信息.
 func (h *Handlers) getShares(c *gin.Context) {
 	groupID := c.Param("id")
 	shares := h.manager.GetShares(groupID)
@@ -543,7 +543,7 @@ func (h *Handlers) getShares(c *gin.Context) {
 	})
 }
 
-// revokeShare 撤销分享
+// revokeShare 撤销分享.
 func (h *Handlers) revokeShare(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.RevokeShare(id); err != nil {
@@ -560,7 +560,7 @@ func (h *Handlers) revokeShare(c *gin.Context) {
 	})
 }
 
-// getStats 获取统计信息
+// getStats 获取统计信息.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, response{

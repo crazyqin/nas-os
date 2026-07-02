@@ -10,7 +10,7 @@ import (
 
 var profileCounter int64
 
-// OnboardStep 引导步骤
+// OnboardStep 引导步骤.
 type OnboardStep struct {
 	ID          string `json:"id"`
 	Title       string `json:"title"`
@@ -21,26 +21,26 @@ type OnboardStep struct {
 	Status      string `json:"status"` // pending, in_progress, completed, skipped
 }
 
-// OnboardProfile 引导配置
+// OnboardProfile 引导配置.
 type OnboardProfile struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
 	Steps       []OnboardStep `json:"steps"`
-	CreatedAt   time.Time    `json:"createdAt"`
-	CompletedAt time.Time    `json:"completedAt,omitempty"`
-	Progress    float64      `json:"progress"` // 0-100
+	CreatedAt   time.Time     `json:"createdAt"`
+	CompletedAt time.Time     `json:"completedAt,omitempty"`
+	Progress    float64       `json:"progress"` // 0-100
 }
 
-// SystemHealth 系统健康状态
+// SystemHealth 系统健康状态.
 type SystemHealth struct {
-	Overall     string            `json:"overall"` // healthy, warning, critical
-	Score       int               `json:"score"`   // 0-100
-	Components  map[string]string `json:"components"`
-	Issues      []HealthIssue     `json:"issues"`
-	CheckedAt   time.Time         `json:"checkedAt"`
+	Overall    string            `json:"overall"` // healthy, warning, critical
+	Score      int               `json:"score"`   // 0-100
+	Components map[string]string `json:"components"`
+	Issues     []HealthIssue     `json:"issues"`
+	CheckedAt  time.Time         `json:"checkedAt"`
 }
 
-// HealthIssue 健康问题
+// HealthIssue 健康问题.
 type HealthIssue struct {
 	ID          string `json:"id"`
 	Component   string `json:"component"`
@@ -51,7 +51,7 @@ type HealthIssue struct {
 }
 
 // SmartOnboard 智能引导式初始化
-// 对标 TrueNAS 引导式告警 + 飞牛 onboarding 体验
+// 对标 TrueNAS 引导式告警 + 飞牛 onboarding 体验.
 type SmartOnboard struct {
 	mu       sync.RWMutex
 	profiles map[string]*OnboardProfile
@@ -61,7 +61,7 @@ type SmartOnboard struct {
 	running  bool
 }
 
-// NewSmartOnboard 创建智能引导
+// NewSmartOnboard 创建智能引导.
 func NewSmartOnboard() *SmartOnboard {
 	return &SmartOnboard{
 		profiles: make(map[string]*OnboardProfile),
@@ -70,7 +70,7 @@ func NewSmartOnboard() *SmartOnboard {
 	}
 }
 
-// Start 启动
+// Start 启动.
 func (s *SmartOnboard) Start() {
 	s.mu.Lock()
 	if s.running {
@@ -83,7 +83,7 @@ func (s *SmartOnboard) Start() {
 	log.Println("[SmartOnboard] 智能引导系统已启动")
 }
 
-// Stop 停止
+// Stop 停止.
 func (s *SmartOnboard) Stop() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -94,7 +94,7 @@ func (s *SmartOnboard) Stop() {
 	s.running = false
 }
 
-// CreateProfile 创建引导配置
+// CreateProfile 创建引导配置.
 func (s *SmartOnboard) CreateProfile(name string) *OnboardProfile {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -109,7 +109,7 @@ func (s *SmartOnboard) CreateProfile(name string) *OnboardProfile {
 	return profile
 }
 
-// CompleteStep 完成步骤
+// CompleteStep 完成步骤.
 func (s *SmartOnboard) CompleteStep(profileID, stepID string) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -128,7 +128,7 @@ func (s *SmartOnboard) CompleteStep(profileID, stepID string) bool {
 	return false
 }
 
-// SkipStep 跳过步骤
+// SkipStep 跳过步骤.
 func (s *SmartOnboard) SkipStep(profileID, stepID string) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -161,7 +161,7 @@ func (s *SmartOnboard) updateProgress(profile *OnboardProfile) {
 	}
 }
 
-// CheckHealth 检查系统健康
+// CheckHealth 检查系统健康.
 func (s *SmartOnboard) CheckHealth() *SystemHealth {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -195,9 +195,10 @@ func (s *SmartOnboard) CheckHealth() *SystemHealth {
 	health.Issues = issues
 	score := 100
 	for _, c := range components {
-		if c == "warning" {
+		switch c {
+		case "warning":
 			score -= 10
-		} else if c == "critical" {
+		case "critical":
 			score -= 30
 		}
 	}
@@ -240,7 +241,7 @@ func defaultSteps() []OnboardStep {
 	}
 }
 
-// GetProfiles 获取引导配置
+// GetProfiles 获取引导配置.
 func (s *SmartOnboard) GetProfiles() []*OnboardProfile {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -251,14 +252,14 @@ func (s *SmartOnboard) GetProfiles() []*OnboardProfile {
 	return result
 }
 
-// GetHealth 获取健康状态
+// GetHealth 获取健康状态.
 func (s *SmartOnboard) GetHealth() *SystemHealth {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.health
 }
 
-// GetIssues 获取问题列表
+// GetIssues 获取问题列表.
 func (s *SmartOnboard) GetIssues() []HealthIssue {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

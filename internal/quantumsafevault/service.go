@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Algorithm 后量子算法
+// Algorithm 后量子算法.
 type Algorithm string
 
 const (
@@ -23,7 +23,7 @@ const (
 	AlgorithmSABER     Algorithm = "saber"     // SABER (密钥封装)
 )
 
-// SecurityLevel 安全等级
+// SecurityLevel 安全等级.
 type SecurityLevel int
 
 const (
@@ -32,7 +32,7 @@ const (
 	SecurityLevel5 SecurityLevel = 5 // 256-bit classical security
 )
 
-// KeyType 密钥类型
+// KeyType 密钥类型.
 type KeyType string
 
 const (
@@ -40,7 +40,7 @@ const (
 	KeyTypeSigning    KeyType = "signing"
 )
 
-// KeyPair 密钥对
+// KeyPair 密钥对.
 type KeyPair struct {
 	ID         string        `json:"id"`
 	Algorithm  Algorithm     `json:"algorithm"`
@@ -53,7 +53,7 @@ type KeyPair struct {
 	Tags       []string      `json:"tags"`
 }
 
-// EncryptedData 加密数据
+// EncryptedData 加密数据.
 type EncryptedData struct {
 	ID        string            `json:"id"`
 	KeyID     string            `json:"key_id"`
@@ -65,7 +65,7 @@ type EncryptedData struct {
 	Metadata  map[string]string `json:"metadata"`
 }
 
-// Signature 数字签名
+// Signature 数字签名.
 type Signature struct {
 	ID        string    `json:"id"`
 	KeyID     string    `json:"key_id"`
@@ -76,7 +76,7 @@ type Signature struct {
 	Verified  bool      `json:"verified"`
 }
 
-// AuditLog 审计日志
+// AuditLog 审计日志.
 type AuditLog struct {
 	ID        string    `json:"id"`
 	Action    string    `json:"action"`
@@ -88,7 +88,7 @@ type AuditLog struct {
 	Success   bool      `json:"success"`
 }
 
-// Service 量子安全保险库服务
+// Service 量子安全保险库服务.
 type Service struct {
 	keys       map[string]*KeyPair
 	encrypted  map[string]*EncryptedData
@@ -97,7 +97,7 @@ type Service struct {
 	mu         sync.RWMutex
 }
 
-// NewService 创建服务
+// NewService 创建服务.
 func NewService() *Service {
 	return &Service{
 		keys:       make(map[string]*KeyPair),
@@ -107,7 +107,7 @@ func NewService() *Service {
 	}
 }
 
-// GenerateKeyPair 生成密钥对
+// GenerateKeyPair 生成密钥对.
 func (s *Service) GenerateKeyPair(algorithm Algorithm, keyType KeyType, security SecurityLevel, tags []string) (*KeyPair, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -145,7 +145,7 @@ func (s *Service) GenerateKeyPair(algorithm Algorithm, keyType KeyType, security
 	return keyPair, nil
 }
 
-// GetKey 获取密钥
+// GetKey 获取密钥.
 func (s *Service) GetKey(id string) (*KeyPair, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -158,7 +158,7 @@ func (s *Service) GetKey(id string) (*KeyPair, error) {
 	return key, nil
 }
 
-// ListKeys 列出密钥
+// ListKeys 列出密钥.
 func (s *Service) ListKeys(keyType KeyType, algorithm Algorithm) []*KeyPair {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -174,7 +174,7 @@ func (s *Service) ListKeys(keyType KeyType, algorithm Algorithm) []*KeyPair {
 	return result
 }
 
-// DeleteKey 删除密钥
+// DeleteKey 删除密钥.
 func (s *Service) DeleteKey(id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -189,7 +189,7 @@ func (s *Service) DeleteKey(id string) error {
 	return nil
 }
 
-// Encrypt 加密数据
+// Encrypt 加密数据.
 func (s *Service) Encrypt(keyID string, data []byte, metadata map[string]string) (*EncryptedData, error) {
 	s.mu.RLock()
 	key, ok := s.keys[keyID]
@@ -238,7 +238,7 @@ func (s *Service) Encrypt(keyID string, data []byte, metadata map[string]string)
 	return encryptedData, nil
 }
 
-// Decrypt 解密数据
+// Decrypt 解密数据.
 func (s *Service) Decrypt(encryptedID string) ([]byte, error) {
 	s.mu.RLock()
 	enc, ok := s.encrypted[encryptedID]
@@ -279,7 +279,7 @@ func (s *Service) Decrypt(encryptedID string) ([]byte, error) {
 	return plaintext, nil
 }
 
-// Sign 签名
+// Sign 签名.
 func (s *Service) Sign(keyID string, data []byte) (*Signature, error) {
 	s.mu.RLock()
 	key, ok := s.keys[keyID]
@@ -311,7 +311,7 @@ func (s *Service) Sign(keyID string, data []byte) (*Signature, error) {
 	return signature, nil
 }
 
-// Verify 验证签名
+// Verify 验证签名.
 func (s *Service) Verify(signatureID string) (bool, error) {
 	s.mu.RLock()
 	sig, ok := s.signatures[signatureID]
@@ -338,7 +338,7 @@ func (s *Service) Verify(signatureID string) (bool, error) {
 	return verified, nil
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (s *Service) GetAuditLog(action string, limit int) []AuditLog {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

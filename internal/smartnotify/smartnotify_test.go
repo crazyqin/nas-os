@@ -28,7 +28,7 @@ func setupTestRouter(t *testing.T, m *Manager) *gin.Engine {
 	return r
 }
 
-// 测试场景1: 发送通知
+// 测试场景1: 发送通知.
 func TestSendNotification(t *testing.T) {
 	m := setupTestManager(t)
 
@@ -57,7 +57,7 @@ func TestSendNotification(t *testing.T) {
 	}
 }
 
-// 测试场景2: 规则匹配
+// 测试场景2: 规则匹配.
 func TestRuleMatching(t *testing.T) {
 	m := setupTestManager(t)
 
@@ -94,7 +94,7 @@ func TestRuleMatching(t *testing.T) {
 	}
 }
 
-// 测试场景3: 通知去重
+// 测试场景3: 通知去重.
 func TestNotificationDeduplication(t *testing.T) {
 	cfg := DefaultSmartNotifyConfig()
 	cfg.Deduplication = true
@@ -122,7 +122,7 @@ func TestNotificationDeduplication(t *testing.T) {
 	}
 }
 
-// 测试场景4: 免打扰时段
+// 测试场景4: 免打扰时段.
 func TestSilencePeriod(t *testing.T) {
 	m := setupTestManager(t)
 
@@ -167,7 +167,7 @@ func TestSilencePeriod(t *testing.T) {
 	// 这里我们验证紧急通知不会被静默
 }
 
-// 测试场景5: 规则管理
+// 测试场景5: 规则管理.
 func TestRuleManagement(t *testing.T) {
 	m := setupTestManager(t)
 
@@ -229,7 +229,7 @@ func TestRuleManagement(t *testing.T) {
 	}
 }
 
-// 测试场景6: 模板管理
+// 测试场景6: 模板管理.
 func TestTemplateManagement(t *testing.T) {
 	m := setupTestManager(t)
 
@@ -295,7 +295,7 @@ func TestTemplateManagement(t *testing.T) {
 	}
 }
 
-// 测试场景7: 通知统计
+// 测试场景7: 通知统计.
 func TestNotificationStats(t *testing.T) {
 	cfg := DefaultSmartNotifyConfig()
 	cfg.Deduplication = false // 禁用去重以测试统计
@@ -320,7 +320,7 @@ func TestNotificationStats(t *testing.T) {
 	}
 }
 
-// 测试场景8: HTTP Handler
+// 测试场景8: HTTP Handler.
 func TestHandler_SendNotification(t *testing.T) {
 	m := setupTestManager(t)
 	r := setupTestRouter(t, m)
@@ -345,7 +345,7 @@ func TestHandler_SendNotification(t *testing.T) {
 	}
 }
 
-// 测试场景9: 获取通知详情
+// 测试场景9: 获取通知详情.
 func TestGetNotification(t *testing.T) {
 	m := setupTestManager(t)
 
@@ -366,7 +366,7 @@ func TestGetNotification(t *testing.T) {
 	}
 }
 
-// 测试场景10: 列出通知
+// 测试场景10: 列出通知.
 func TestListNotifications(t *testing.T) {
 	m := setupTestManager(t)
 
@@ -384,7 +384,7 @@ func TestListNotifications(t *testing.T) {
 	}
 }
 
-// 测试场景11: HTTP Handler 列出规则
+// 测试场景11: HTTP Handler 列出规则.
 func TestHandler_ListRules(t *testing.T) {
 	m := setupTestManager(t)
 	r := setupTestRouter(t, m)
@@ -407,7 +407,7 @@ func TestHandler_ListRules(t *testing.T) {
 	}
 }
 
-// 测试场景12: 条件操作符
+// 测试场景12: 条件操作符.
 func TestConditionOperators(t *testing.T) {
 	m := setupTestManager(t)
 
@@ -471,7 +471,7 @@ func TestConditionOperators(t *testing.T) {
 	}
 }
 
-// 测试场景13: 配置管理
+// 测试场景13: 配置管理.
 func TestConfigManagement(t *testing.T) {
 	m := setupTestManager(t)
 
@@ -499,7 +499,7 @@ func TestConfigManagement(t *testing.T) {
 	}
 }
 
-// 测试场景14: 无效通知
+// 测试场景14: 无效通知.
 func TestInvalidNotification(t *testing.T) {
 	cfg := DefaultSmartNotifyConfig()
 	cfg.Enabled = false
@@ -516,7 +516,7 @@ func TestInvalidNotification(t *testing.T) {
 	}
 }
 
-// 测试场景15: 无效渠道
+// 测试场景15: 无效渠道.
 func TestInvalidChannel(t *testing.T) {
 	if IsValidChannel("invalid") {
 		t.Error("expected 'invalid' to be invalid channel")
@@ -526,7 +526,7 @@ func TestInvalidChannel(t *testing.T) {
 	}
 }
 
-// 测试场景16: 渠道名称
+// 测试场景16: 渠道名称.
 func TestChannelNames(t *testing.T) {
 	tests := []struct {
 		channel  NotifyChannel
@@ -549,7 +549,7 @@ func TestChannelNames(t *testing.T) {
 	}
 }
 
-// 测试场景17: 优先级名称
+// 测试场景17: 优先级名称.
 func TestPriorityNames(t *testing.T) {
 	tests := []struct {
 		priority NotifyPriority
@@ -569,7 +569,7 @@ func TestPriorityNames(t *testing.T) {
 	}
 }
 
-// 测试场景18: 默认配置
+// 测试场景18: 默认配置.
 func TestDefaultConfig(t *testing.T) {
 	cfg := DefaultSmartNotifyConfig()
 

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// CarbonIntensitySource 碳强度数据源
+// CarbonIntensitySource 碳强度数据源.
 type CarbonIntensitySource string
 
 const (
@@ -19,7 +19,7 @@ const (
 	SourceCustom          CarbonIntensitySource = "custom"
 )
 
-// GridRegion 电网区域
+// GridRegion 电网区域.
 type GridRegion struct {
 	ID              string    `json:"id"`
 	Name            string    `json:"name"`
@@ -29,7 +29,7 @@ type GridRegion struct {
 	LastUpdated     time.Time `json:"last_updated"`
 }
 
-// CarbonIntensityData 碳强度数据
+// CarbonIntensityData 碳强度数据.
 type CarbonIntensityData struct {
 	Region    string                `json:"region"`
 	Intensity float64               `json:"intensity"` // gCO2/kWh
@@ -38,13 +38,13 @@ type CarbonIntensityData struct {
 	Timestamp time.Time             `json:"timestamp"`
 }
 
-// ForecastPoint 预测点
+// ForecastPoint 预测点.
 type ForecastPoint struct {
 	Timestamp time.Time `json:"timestamp"`
 	Intensity float64   `json:"intensity"`
 }
 
-// TaskCarbonFootprint 任务碳足迹
+// TaskCarbonFootprint 任务碳足迹.
 type TaskCarbonFootprint struct {
 	TaskID      string        `json:"task_id"`
 	TaskName    string        `json:"task_name"`
@@ -56,7 +56,7 @@ type TaskCarbonFootprint struct {
 	CompletedAt time.Time     `json:"completed_at"`
 }
 
-// CarbonAwareTask 碳感知任务
+// CarbonAwareTask 碳感知任务.
 type CarbonAwareTask struct {
 	ID              string               `json:"id"`
 	Name            string               `json:"name"`
@@ -75,7 +75,7 @@ type CarbonAwareTask struct {
 	CarbonFootprint *TaskCarbonFootprint `json:"carbon_footprint,omitempty"`
 }
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -87,7 +87,7 @@ const (
 	TaskStatusCancelled TaskStatus = "cancelled"
 )
 
-// SchedulingStrategy 调度策略
+// SchedulingStrategy 调度策略.
 type SchedulingStrategy string
 
 const (
@@ -97,7 +97,7 @@ const (
 	StrategyCostOptimal SchedulingStrategy = "cost_optimal"
 )
 
-// CarbonAwareConfig 碳感知调度配置
+// CarbonAwareConfig 碳感知调度配置.
 type CarbonAwareConfig struct {
 	Enabled            bool                    `json:"enabled"`
 	DefaultRegion      string                  `json:"default_region"`
@@ -109,7 +109,7 @@ type CarbonAwareConfig struct {
 	Regions            []GridRegion            `json:"regions"`
 }
 
-// CarbonReport 碳排放报告
+// CarbonReport 碳排放报告.
 type CarbonReport struct {
 	ID             string                `json:"id"`
 	Period         string                `json:"period"`
@@ -125,7 +125,7 @@ type CarbonReport struct {
 	GeneratedAt    time.Time             `json:"generated_at"`
 }
 
-// Manager 碳感知调度管理器
+// Manager 碳感知调度管理器.
 type Manager struct {
 	config      *CarbonAwareConfig
 	tasks       map[string]*CarbonAwareTask
@@ -136,7 +136,7 @@ type Manager struct {
 	stopCh      chan struct{}
 }
 
-// NewManager 创建碳感知调度管理器
+// NewManager 创建碳感知调度管理器.
 func NewManager(config *CarbonAwareConfig) *Manager {
 	m := &Manager{
 		config:      config,
@@ -161,7 +161,7 @@ func NewManager(config *CarbonAwareConfig) *Manager {
 	return m
 }
 
-// Start 启动碳感知调度
+// Start 启动碳感知调度.
 func (m *Manager) Start() error {
 	if !m.config.Enabled {
 		return nil
@@ -173,12 +173,12 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止碳感知调度
+// Stop 停止碳感知调度.
 func (m *Manager) Stop() {
 	close(m.stopCh)
 }
 
-// monitorCarbonIntensity 监控碳强度
+// monitorCarbonIntensity 监控碳强度.
 func (m *Manager) monitorCarbonIntensity() {
 	ticker := time.NewTicker(time.Duration(m.config.CheckInterval) * time.Second)
 	defer ticker.Stop()
@@ -193,7 +193,7 @@ func (m *Manager) monitorCarbonIntensity() {
 	}
 }
 
-// updateCarbonIntensity 更新碳强度数据
+// updateCarbonIntensity 更新碳强度数据.
 func (m *Manager) updateCarbonIntensity() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -212,7 +212,7 @@ func (m *Manager) updateCarbonIntensity() {
 	}
 }
 
-// fetchCarbonIntensity 获取碳强度
+// fetchCarbonIntensity 获取碳强度.
 func (m *Manager) fetchCarbonIntensity(regionID string) float64 {
 	// 模拟碳强度数据
 	base := 400.0
@@ -228,7 +228,7 @@ func (m *Manager) fetchCarbonIntensity(regionID string) float64 {
 	return base + float64(len(regionID))*10
 }
 
-// scheduleTasks 调度任务
+// scheduleTasks 调度任务.
 func (m *Manager) scheduleTasks() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
@@ -243,7 +243,7 @@ func (m *Manager) scheduleTasks() {
 	}
 }
 
-// schedulePendingTasks 调度待处理任务
+// schedulePendingTasks 调度待处理任务.
 func (m *Manager) schedulePendingTasks() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -259,7 +259,7 @@ func (m *Manager) schedulePendingTasks() {
 	}
 }
 
-// shouldScheduleNow 判断是否应该立即调度
+// shouldScheduleNow 判断是否应该立即调度.
 func (m *Manager) shouldScheduleNow(task *CarbonAwareTask) bool {
 	region := m.regions[task.Region]
 	if region == nil {
@@ -283,7 +283,7 @@ func (m *Manager) shouldScheduleNow(task *CarbonAwareTask) bool {
 	}
 }
 
-// SubmitTask 提交碳感知任务
+// SubmitTask 提交碳感知任务.
 func (m *Manager) SubmitTask(task *CarbonAwareTask) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -303,7 +303,7 @@ func (m *Manager) SubmitTask(task *CarbonAwareTask) error {
 	return nil
 }
 
-// CompleteTask 完成任务
+// CompleteTask 完成任务.
 func (m *Manager) CompleteTask(taskID string, energyKWh float64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -341,7 +341,7 @@ func (m *Manager) CompleteTask(taskID string, energyKWh float64) error {
 	return nil
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (m *Manager) GetTask(taskID string) (*CarbonAwareTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -354,7 +354,7 @@ func (m *Manager) GetTask(taskID string) (*CarbonAwareTask, error) {
 	return task, nil
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (m *Manager) ListTasks(status TaskStatus) []*CarbonAwareTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -369,7 +369,7 @@ func (m *Manager) ListTasks(status TaskStatus) []*CarbonAwareTask {
 	return tasks
 }
 
-// GetCarbonIntensity 获取碳强度
+// GetCarbonIntensity 获取碳强度.
 func (m *Manager) GetCarbonIntensity(regionID string) (*CarbonIntensityData, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -382,7 +382,7 @@ func (m *Manager) GetCarbonIntensity(regionID string) (*CarbonIntensityData, err
 	return data, nil
 }
 
-// GetGreenestRegion 获取最绿色区域
+// GetGreenestRegion 获取最绿色区域.
 func (m *Manager) GetGreenestRegion() *GridRegion {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -397,7 +397,7 @@ func (m *Manager) GetGreenestRegion() *GridRegion {
 	return greenest
 }
 
-// GenerateReport 生成碳排放报告
+// GenerateReport 生成碳排放报告.
 func (m *Manager) GenerateReport(startDate, endDate time.Time) *CarbonReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -448,7 +448,7 @@ func (m *Manager) GenerateReport(startDate, endDate time.Time) *CarbonReport {
 	return report
 }
 
-// GetDashboard 获取仪表盘数据
+// GetDashboard 获取仪表盘数据.
 func (m *Manager) GetDashboard() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -479,7 +479,7 @@ func (m *Manager) GetDashboard() map[string]interface{} {
 	}
 }
 
-// MarshalJSON 序列化
+// MarshalJSON 序列化.
 func (m *Manager) MarshalJSON() ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

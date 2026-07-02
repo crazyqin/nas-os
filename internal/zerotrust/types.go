@@ -7,7 +7,7 @@ import (
 
 // ==================== 信任评分相关 ====================
 
-// TrustScore 信任评分
+// TrustScore 信任评分.
 type TrustScore struct {
 	Overall    float64       `json:"overall"`    // 0-100
 	Device     float64       `json:"device"`     // 设备信任分
@@ -19,7 +19,7 @@ type TrustScore struct {
 	UpdatedAt  time.Time     `json:"updated_at"`
 }
 
-// TrustFactor 信任因子
+// TrustFactor 信任因子.
 type TrustFactor struct {
 	Name    string  `json:"name"`
 	Score   float64 `json:"score"`
@@ -29,7 +29,7 @@ type TrustFactor struct {
 
 // ==================== 设备信任相关 ====================
 
-// DeviceTrust 设备信任信息
+// DeviceTrust 设备信任信息.
 type DeviceTrust struct {
 	ID              string            `json:"id"`
 	DeviceID        string            `json:"device_id"`
@@ -51,7 +51,7 @@ type DeviceTrust struct {
 	Metadata        map[string]string `json:"metadata,omitempty"`
 }
 
-// Certificate 证书信息
+// Certificate 证书信息.
 type Certificate struct {
 	ID        string    `json:"id"`
 	Subject   string    `json:"subject"`
@@ -61,7 +61,7 @@ type Certificate struct {
 	Status    string    `json:"status"` // valid, expired, revoked
 }
 
-// ComplianceState 合规状态
+// ComplianceState 合规状态.
 type ComplianceState struct {
 	Compliant   bool      `json:"compliant"`
 	LastChecked time.Time `json:"last_checked"`
@@ -71,7 +71,7 @@ type ComplianceState struct {
 	Encryption  string    `json:"encryption"`
 }
 
-// DeviceFilter 设备过滤器
+// DeviceFilter 设备过滤器.
 type DeviceFilter struct {
 	Status     string   `json:"status,omitempty"`
 	DeviceType string   `json:"device_type,omitempty"`
@@ -81,7 +81,7 @@ type DeviceFilter struct {
 
 // ==================== 访问策略相关 ====================
 
-// AccessPolicy 访问策略
+// AccessPolicy 访问策略.
 type AccessPolicy struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
@@ -98,7 +98,7 @@ type AccessPolicy struct {
 	CreatedBy   string         `json:"created_by"`
 }
 
-// PolicySubject 策略主体
+// PolicySubject 策略主体.
 type PolicySubject struct {
 	Type       string            `json:"type"` // user, group, device, service
 	IDs        []string          `json:"ids"`
@@ -106,7 +106,7 @@ type PolicySubject struct {
 	Attributes map[string]string `json:"attributes,omitempty"`
 }
 
-// PolicyResource 策略资源
+// PolicyResource 策略资源.
 type PolicyResource struct {
 	Type       string            `json:"type"` // file, api, database, service
 	IDs        []string          `json:"ids"`
@@ -114,14 +114,14 @@ type PolicyResource struct {
 	Attributes map[string]string `json:"attributes,omitempty"`
 }
 
-// Condition 策略条件
+// Condition 策略条件.
 type Condition struct {
 	Type     string `json:"type"`     // time, location, network, device-trust
 	Operator string `json:"operator"` // equals, not-equals, in, not-in, greater-than, less-than
 	Value    string `json:"value"`
 }
 
-// Constraint 策略约束
+// Constraint 策略约束.
 type Constraint struct {
 	Type  string `json:"type"` // max-session, mfa-required, encryption-required
 	Value string `json:"value"`
@@ -129,7 +129,7 @@ type Constraint struct {
 
 // ==================== 认证会话相关 ====================
 
-// AuthSession 认证会话
+// AuthSession 认证会话.
 type AuthSession struct {
 	ID           string            `json:"id"`
 	UserID       string            `json:"user_id"`
@@ -147,7 +147,7 @@ type AuthSession struct {
 	RiskEvents   []RiskEvent       `json:"risk_events,omitempty"`
 }
 
-// SessionActivity 会话活动
+// SessionActivity 会话活动.
 type SessionActivity struct {
 	Timestamp time.Time `json:"timestamp"`
 	Action    string    `json:"action"`
@@ -155,7 +155,7 @@ type SessionActivity struct {
 	Result    string    `json:"result"`
 }
 
-// RiskEvent 风险事件
+// RiskEvent 风险事件.
 type RiskEvent struct {
 	Timestamp   time.Time `json:"timestamp"`
 	Type        string    `json:"type"`
@@ -163,7 +163,7 @@ type RiskEvent struct {
 	RiskScore   float64   `json:"risk_score"`
 }
 
-// SessionFilter 会话过滤器
+// SessionFilter 会话过滤器.
 type SessionFilter struct {
 	UserID   string `json:"user_id,omitempty"`
 	DeviceID string `json:"device_id,omitempty"`
@@ -172,7 +172,7 @@ type SessionFilter struct {
 
 // ==================== 威胁事件相关 ====================
 
-// ThreatEvent 威胁事件
+// ThreatEvent 威胁事件.
 type ThreatEvent struct {
 	ID          string     `json:"id"`
 	Timestamp   time.Time  `json:"timestamp"`
@@ -189,7 +189,7 @@ type ThreatEvent struct {
 	Notes       string     `json:"notes,omitempty"`
 }
 
-// ThreatFilter 威胁过滤器
+// ThreatFilter 威胁过滤器.
 type ThreatFilter struct {
 	StartTime  *time.Time `json:"start_time,omitempty"`
 	EndTime    *time.Time `json:"end_time,omitempty"`
@@ -200,7 +200,7 @@ type ThreatFilter struct {
 
 // ==================== 统计相关 ====================
 
-// TrustStats 信任统计
+// TrustStats 信任统计.
 type TrustStats struct {
 	TotalDevices       int     `json:"total_devices"`
 	TrustedDevices     int     `json:"trusted_devices"`

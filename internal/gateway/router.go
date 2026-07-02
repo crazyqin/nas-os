@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-// RouteType represents the type of route
+// RouteType represents the type of route.
 type RouteType string
 
 const (
@@ -17,7 +17,7 @@ const (
 	RouteTypeBoth   RouteType = "both"
 )
 
-// Route represents a routing rule
+// Route represents a routing rule.
 type Route struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -32,20 +32,20 @@ type Route struct {
 	pathRegex   *regexp.Regexp
 }
 
-// Router represents the routing engine
+// Router represents the routing engine.
 type Router struct {
 	routes []*Route
 	mu     sync.RWMutex
 }
 
-// NewRouter creates a new router
+// NewRouter creates a new router.
 func NewRouter() *Router {
 	return &Router{
 		routes: make([]*Route, 0),
 	}
 }
 
-// AddRoute adds a routing rule
+// AddRoute adds a routing rule.
 func (r *Router) AddRoute(route *Route) error {
 	if route.Domain == "" && route.Path == "" && route.PathPattern == "" {
 		return fmt.Errorf("route must have at least a domain, path, or path pattern")
@@ -90,7 +90,7 @@ func (r *Router) AddRoute(route *Route) error {
 	return nil
 }
 
-// RemoveRoute removes a routing rule by ID
+// RemoveRoute removes a routing rule by ID.
 func (r *Router) RemoveRoute(id string) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -104,7 +104,7 @@ func (r *Router) RemoveRoute(id string) bool {
 	return false
 }
 
-// UpdateRoute updates a routing rule
+// UpdateRoute updates a routing rule.
 func (r *Router) UpdateRoute(route *Route) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -140,7 +140,7 @@ func (r *Router) UpdateRoute(route *Route) error {
 	return fmt.Errorf("route with ID %s not found", route.ID)
 }
 
-// GetRoute returns a route by ID
+// GetRoute returns a route by ID.
 func (r *Router) GetRoute(id string) (*Route, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -154,7 +154,7 @@ func (r *Router) GetRoute(id string) (*Route, error) {
 	return nil, fmt.Errorf("route with ID %s not found", id)
 }
 
-// GetRoutes returns all routes
+// GetRoutes returns all routes.
 func (r *Router) GetRoutes() []*Route {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -164,7 +164,7 @@ func (r *Router) GetRoutes() []*Route {
 	return routes
 }
 
-// MatchRoute finds the matching route for the given request
+// MatchRoute finds the matching route for the given request.
 func (r *Router) MatchRoute(req *http.Request) *Route {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -190,7 +190,7 @@ func (r *Router) MatchRoute(req *http.Request) *Route {
 	return nil
 }
 
-// matchRoute checks if a route matches the given host and path
+// matchRoute checks if a route matches the given host and path.
 func (r *Router) matchRoute(route *Route, host, path string) bool {
 	switch route.Type {
 	case RouteTypeDomain:
@@ -203,7 +203,7 @@ func (r *Router) matchRoute(route *Route, host, path string) bool {
 	return false
 }
 
-// matchDomain checks if the domain matches
+// matchDomain checks if the domain matches.
 func (r *Router) matchDomain(route *Route, host string) bool {
 	if route.Domain == "" {
 		return true
@@ -218,7 +218,7 @@ func (r *Router) matchDomain(route *Route, host string) bool {
 	return host == route.Domain
 }
 
-// matchPath checks if the path matches
+// matchPath checks if the path matches.
 func (r *Router) matchPath(route *Route, path string) bool {
 	if route.Path == "" && route.pathRegex == nil {
 		return true
@@ -242,7 +242,7 @@ func (r *Router) matchPath(route *Route, path string) bool {
 	return false
 }
 
-// sortRoutes sorts routes by priority (higher priority first)
+// sortRoutes sorts routes by priority (higher priority first).
 func (r *Router) sortRoutes() {
 	for i := 0; i < len(r.routes)-1; i++ {
 		for j := 0; j < len(r.routes)-i-1; j++ {
@@ -253,7 +253,7 @@ func (r *Router) sortRoutes() {
 	}
 }
 
-// EnableRoute enables a route
+// EnableRoute enables a route.
 func (r *Router) EnableRoute(id string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -268,7 +268,7 @@ func (r *Router) EnableRoute(id string) error {
 	return fmt.Errorf("route with ID %s not found", id)
 }
 
-// DisableRoute disables a route
+// DisableRoute disables a route.
 func (r *Router) DisableRoute(id string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -283,7 +283,7 @@ func (r *Router) DisableRoute(id string) error {
 	return fmt.Errorf("route with ID %s not found", id)
 }
 
-// GetRoutesByDomain returns routes for a specific domain
+// GetRoutesByDomain returns routes for a specific domain.
 func (r *Router) GetRoutesByDomain(domain string) []*Route {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -297,7 +297,7 @@ func (r *Router) GetRoutesByDomain(domain string) []*Route {
 	return routes
 }
 
-// GetRoutesByPath returns routes for a specific path prefix
+// GetRoutesByPath returns routes for a specific path prefix.
 func (r *Router) GetRoutesByPath(path string) []*Route {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -311,7 +311,7 @@ func (r *Router) GetRoutesByPath(path string) []*Route {
 	return routes
 }
 
-// ValidateRoute validates a route configuration
+// ValidateRoute validates a route configuration.
 func (r *Router) ValidateRoute(route *Route) error {
 	if route.ID == "" {
 		return fmt.Errorf("route ID is required")

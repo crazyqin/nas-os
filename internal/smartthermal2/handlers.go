@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handlers 温控接口处理器
+// Handlers 温控接口处理器.
 type Handlers struct {
 	logger    *zap.Logger
 	engine    *ThermalEngine
@@ -21,7 +21,7 @@ type Handlers struct {
 	alerts    *AlertManager
 }
 
-// NewHandlers 创建温控接口处理器
+// NewHandlers 创建温控接口处理器.
 func NewHandlers(
 	logger *zap.Logger,
 	engine *ThermalEngine,
@@ -37,7 +37,7 @@ func NewHandlers(
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	st := rg.Group("/smartthermal2")
 	{
@@ -57,13 +57,13 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// getSensors 获取传感器列表和实时温度
+// getSensors 获取传感器列表和实时温度.
 func (h *Handlers) getSensors(c *gin.Context) {
 	sensors := h.engine.GetSensors()
 	c.JSON(http.StatusOK, APIResponse{Code: 0, Data: sensors})
 }
 
-// getSensorHistory 获取传感器历史
+// getSensorHistory 获取传感器历史.
 func (h *Handlers) getSensorHistory(c *gin.Context) {
 	id := c.Param("id")
 	minutes := 60
@@ -77,13 +77,13 @@ func (h *Handlers) getSensorHistory(c *gin.Context) {
 	c.JSON(http.StatusOK, APIResponse{Code: 0, Data: history})
 }
 
-// getFans 获取风扇列表和状态
+// getFans 获取风扇列表和状态.
 func (h *Handlers) getFans(c *gin.Context) {
 	fans := h.fc.GetFans()
 	c.JSON(http.StatusOK, APIResponse{Code: 0, Data: fans})
 }
 
-// updateFan 更新风扇设置
+// updateFan 更新风扇设置.
 func (h *Handlers) updateFan(c *gin.Context) {
 	id := c.Param("id")
 	var req FanUpdateRequest
@@ -99,13 +99,13 @@ func (h *Handlers) updateFan(c *gin.Context) {
 	c.JSON(http.StatusOK, APIResponse{Code: 0, Message: "风扇设置已更新", Data: fan})
 }
 
-// getProfiles 获取散热方案列表
+// getProfiles 获取散热方案列表.
 func (h *Handlers) getProfiles(c *gin.Context) {
 	profiles := h.profiles.List()
 	c.JSON(http.StatusOK, APIResponse{Code: 0, Data: profiles})
 }
 
-// createProfile 创建散热方案
+// createProfile 创建散热方案.
 func (h *Handlers) createProfile(c *gin.Context) {
 	var req ProfileCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -120,7 +120,7 @@ func (h *Handlers) createProfile(c *gin.Context) {
 	c.JSON(http.StatusCreated, APIResponse{Code: 0, Message: "方案已创建", Data: profile})
 }
 
-// setActiveProfile 切换活跃方案
+// setActiveProfile 切换活跃方案.
 func (h *Handlers) setActiveProfile(c *gin.Context) {
 	var req ProfileSwitchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -134,7 +134,7 @@ func (h *Handlers) setActiveProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, APIResponse{Code: 0, Message: "方案已切换"})
 }
 
-// getDashboard 获取温控仪表板
+// getDashboard 获取温控仪表板.
 func (h *Handlers) getDashboard(c *gin.Context) {
 	sensors := h.engine.GetSensors()
 	zones := h.engine.GetZones()
@@ -175,7 +175,7 @@ func (h *Handlers) getDashboard(c *gin.Context) {
 	c.JSON(http.StatusOK, APIResponse{Code: 0, Data: dashboard})
 }
 
-// getPredict 获取温度预测
+// getPredict 获取温度预测.
 func (h *Handlers) getPredict(c *gin.Context) {
 	minutes := 30
 	if m, err := strconv.Atoi(c.Query("minutes")); err == nil && m > 0 {
@@ -195,13 +195,13 @@ func (h *Handlers) getPredict(c *gin.Context) {
 	c.JSON(http.StatusOK, APIResponse{Code: 0, Data: results})
 }
 
-// getNoise 获取噪音评估
+// getNoise 获取噪音评估.
 func (h *Handlers) getNoise(c *gin.Context) {
 	assessment := h.noise.Assess()
 	c.JSON(http.StatusOK, APIResponse{Code: 0, Data: assessment})
 }
 
-// updateSettings 更新全局设置
+// updateSettings 更新全局设置.
 func (h *Handlers) updateSettings(c *gin.Context) {
 	var settings GlobalSettings
 	if err := c.ShouldBindJSON(&settings); err != nil {
@@ -214,7 +214,7 @@ func (h *Handlers) updateSettings(c *gin.Context) {
 	c.JSON(http.StatusOK, APIResponse{Code: 0, Message: "设置已更新", Data: settings})
 }
 
-// getAlerts 获取告警列表
+// getAlerts 获取告警列表.
 func (h *Handlers) getAlerts(c *gin.Context) {
 	limit := 50
 	if l, err := strconv.Atoi(c.Query("limit")); err == nil && l > 0 {
@@ -224,7 +224,7 @@ func (h *Handlers) getAlerts(c *gin.Context) {
 	c.JSON(http.StatusOK, APIResponse{Code: 0, Data: alerts})
 }
 
-// emergencyCooling 紧急降温
+// emergencyCooling 紧急降温.
 func (h *Handlers) emergencyCooling(c *gin.Context) {
 	h.alerts.EmergencyCooling()
 	c.JSON(http.StatusOK, APIResponse{Code: 0, Message: "紧急降温已启动"})

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// ContentType 内容类型
+// ContentType 内容类型.
 type ContentType string
 
 const (
@@ -22,7 +22,7 @@ const (
 	ContentTypeCreative  ContentType = "creative"
 )
 
-// ContentStatus 内容状态
+// ContentStatus 内容状态.
 type ContentStatus string
 
 const (
@@ -32,7 +32,7 @@ const (
 	ContentStatusFailed    ContentStatus = "failed"
 )
 
-// Language 语言
+// Language 语言.
 type Language string
 
 const (
@@ -45,7 +45,7 @@ const (
 	LangSpanish  Language = "es"
 )
 
-// WritingStyle 写作风格
+// WritingStyle 写作风格.
 type WritingStyle string
 
 const (
@@ -57,7 +57,7 @@ const (
 	StyleBusiness  WritingStyle = "business"
 )
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	ModelPath     string        `json:"model_path"`
 	Language      Language      `json:"language"`
@@ -69,7 +69,7 @@ type Config struct {
 	TemplateDir   string        `json:"template_dir"`
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		ModelPath:     "/models/contentai",
@@ -83,7 +83,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// ContentTemplate 内容模板
+// ContentTemplate 内容模板.
 type ContentTemplate struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -99,7 +99,7 @@ type ContentTemplate struct {
 	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
-// ContentTask 内容任务
+// ContentTask 内容任务.
 type ContentTask struct {
 	ID          string                 `json:"id"`
 	UserID      string                 `json:"user_id"`
@@ -118,7 +118,7 @@ type ContentTask struct {
 	CompletedAt *time.Time             `json:"completed_at,omitempty"`
 }
 
-// ContentResult 内容结果
+// ContentResult 内容结果.
 type ContentResult struct {
 	TaskID    string                 `json:"task_id"`
 	Content   string                 `json:"content"`
@@ -133,7 +133,7 @@ type ContentResult struct {
 	CreatedAt time.Time              `json:"created_at"`
 }
 
-// SEOSuggestion SEO建议
+// SEOSuggestion SEO建议.
 type SEOSuggestion struct {
 	Type        string `json:"type"`
 	Title       string `json:"title"`
@@ -143,7 +143,7 @@ type SEOSuggestion struct {
 	Suggestion  string `json:"suggestion"`
 }
 
-// SEOAnalysis SEO分析结果
+// SEOAnalysis SEO分析结果.
 type SEOAnalysis struct {
 	ContentID   string           `json:"content_id"`
 	Score       int              `json:"score"`
@@ -155,14 +155,14 @@ type SEOAnalysis struct {
 	CreatedAt   time.Time        `json:"created_at"`
 }
 
-// KeywordDensity 关键词密度
+// KeywordDensity 关键词密度.
 type KeywordDensity struct {
 	Keyword string  `json:"keyword"`
 	Count   int     `json:"count"`
 	Density float64 `json:"density"`
 }
 
-// GrammarError 语法错误
+// GrammarError 语法错误.
 type GrammarError struct {
 	Start      int    `json:"start"`
 	End        int    `json:"end"`
@@ -172,7 +172,7 @@ type GrammarError struct {
 	Severity   string `json:"severity"`
 }
 
-// GrammarCheckResult 语法检查结果
+// GrammarCheckResult 语法检查结果.
 type GrammarCheckResult struct {
 	Text          string         `json:"text"`
 	Errors        []GrammarError `json:"errors"`
@@ -181,7 +181,7 @@ type GrammarCheckResult struct {
 	CreatedAt     time.Time      `json:"created_at"`
 }
 
-// TranslationResult 翻译结果
+// TranslationResult 翻译结果.
 type TranslationResult struct {
 	SourceText string   `json:"source_text"`
 	TargetText string   `json:"target_text"`
@@ -191,7 +191,7 @@ type TranslationResult struct {
 	CharCount  int      `json:"char_count"`
 }
 
-// SummaryResult 摘要结果
+// SummaryResult 摘要结果.
 type SummaryResult struct {
 	OriginalText     string  `json:"original_text"`
 	Summary          string  `json:"summary"`
@@ -200,7 +200,7 @@ type SummaryResult struct {
 	CompressionRatio float64 `json:"compression_ratio"`
 }
 
-// OutlineSection 大纲章节
+// OutlineSection 大纲章节.
 type OutlineSection struct {
 	Level    int               `json:"level"`
 	Title    string            `json:"title"`
@@ -208,14 +208,14 @@ type OutlineSection struct {
 	Children []*OutlineSection `json:"children,omitempty"`
 }
 
-// OutlineResult 大纲结果
+// OutlineResult 大纲结果.
 type OutlineResult struct {
 	Topic    string            `json:"topic"`
 	Sections []*OutlineSection `json:"sections"`
 	Language Language          `json:"language"`
 }
 
-// WritingImprovement 写作改进
+// WritingImprovement 写作改进.
 type WritingImprovement struct {
 	Original    string   `json:"original"`
 	Improved    string   `json:"improved"`
@@ -224,7 +224,7 @@ type WritingImprovement struct {
 	ScoreAfter  int      `json:"score_after"`
 }
 
-// ContentStats 内容统计
+// ContentStats 内容统计.
 type ContentStats struct {
 	TotalTasks     int            `json:"total_tasks"`
 	CompletedTasks int            `json:"completed_tasks"`
@@ -234,7 +234,7 @@ type ContentStats struct {
 	TasksByLang    map[string]int `json:"tasks_by_lang"`
 }
 
-// ContentAI AI内容创作助手
+// ContentAI AI内容创作助手.
 type ContentAI struct {
 	mu          sync.RWMutex
 	config      *Config
@@ -245,7 +245,7 @@ type ContentAI struct {
 	taskCounter int64
 }
 
-// New 创建ContentAI实例
+// New 创建ContentAI实例.
 func New(config *Config) *ContentAI {
 	if config == nil {
 		config = DefaultConfig()
@@ -262,7 +262,7 @@ func New(config *Config) *ContentAI {
 	return ca
 }
 
-// initDefaultTemplates 初始化默认模板
+// initDefaultTemplates 初始化默认模板.
 func (ca *ContentAI) initDefaultTemplates() {
 	defaultTemplates := []*ContentTemplate{
 		{
@@ -328,7 +328,7 @@ func (ca *ContentAI) initDefaultTemplates() {
 	}
 }
 
-// Start 启动ContentAI
+// Start 启动ContentAI.
 func (ca *ContentAI) Start() error {
 	ca.mu.Lock()
 	defer ca.mu.Unlock()
@@ -342,7 +342,7 @@ func (ca *ContentAI) Start() error {
 	return nil
 }
 
-// Stop 停止ContentAI
+// Stop 停止ContentAI.
 func (ca *ContentAI) Stop() error {
 	ca.mu.Lock()
 	defer ca.mu.Unlock()
@@ -356,27 +356,27 @@ func (ca *ContentAI) Stop() error {
 	return nil
 }
 
-// IsRunning 检查是否运行中
+// IsRunning 检查是否运行中.
 func (ca *ContentAI) IsRunning() bool {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
 	return ca.isRunning
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (ca *ContentAI) GetConfig() *Config {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
 	return ca.config
 }
 
-// generateID 生成唯一ID
+// generateID 生成唯一ID.
 func (ca *ContentAI) generateID(prefix string) string {
 	ca.taskCounter++
 	return fmt.Sprintf("%s_%d_%d", prefix, time.Now().UnixNano(), ca.taskCounter)
 }
 
-// GenerateContent 生成内容
+// GenerateContent 生成内容.
 func (ca *ContentAI) GenerateContent(ctx context.Context, prompt string, templateID string) (*ContentTask, error) {
 	ca.mu.Lock()
 	defer ca.mu.Unlock()
@@ -421,7 +421,7 @@ func (ca *ContentAI) GenerateContent(ctx context.Context, prompt string, templat
 	return task, nil
 }
 
-// processTask 处理内容生成任务
+// processTask 处理内容生成任务.
 func (ca *ContentAI) processTask(task *ContentTask) {
 	ca.mu.Lock()
 	task.Status = ContentStatusPending
@@ -451,13 +451,13 @@ func (ca *ContentAI) processTask(task *ContentTask) {
 	}
 }
 
-// generateMockContent 生成模拟内容
+// generateMockContent 生成模拟内容.
 func (ca *ContentAI) generateMockContent(task *ContentTask) string {
 	// 简单的模拟生成
 	return fmt.Sprintf("根据提示「%s」生成的内容。\n\n这是一段由AI生成的示例内容，用于演示ContentAI模块的功能。在实际应用中，这里会调用本地AI模型来生成高质量的内容。", task.Prompt)
 }
 
-// extractTitle 提取标题
+// extractTitle 提取标题.
 func (ca *ContentAI) extractTitle(content string) string {
 	lines := strings.SplitN(content, "\n", 2)
 	if len(lines) > 0 {
@@ -469,7 +469,7 @@ func (ca *ContentAI) extractTitle(content string) string {
 	return "Untitled"
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (ca *ContentAI) GetTask(taskID string) (*ContentTask, error) {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
@@ -481,7 +481,7 @@ func (ca *ContentAI) GetTask(taskID string) (*ContentTask, error) {
 	return task, nil
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (ca *ContentAI) ListTasks(userID string, status ContentStatus) []*ContentTask {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
@@ -499,7 +499,7 @@ func (ca *ContentAI) ListTasks(userID string, status ContentStatus) []*ContentTa
 	return tasks
 }
 
-// TranslateContent 翻译内容
+// TranslateContent 翻译内容.
 func (ca *ContentAI) TranslateContent(ctx context.Context, text string, targetLang Language) (*TranslationResult, error) {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
@@ -525,7 +525,7 @@ func (ca *ContentAI) TranslateContent(ctx context.Context, text string, targetLa
 	}, nil
 }
 
-// mockTranslate 模拟翻译
+// mockTranslate 模拟翻译.
 func (ca *ContentAI) mockTranslate(text string, targetLang Language) string {
 	// 简单的模拟翻译
 	switch targetLang {
@@ -540,7 +540,7 @@ func (ca *ContentAI) mockTranslate(text string, targetLang Language) string {
 	}
 }
 
-// SummarizeContent 摘要内容
+// SummarizeContent 摘要内容.
 func (ca *ContentAI) SummarizeContent(ctx context.Context, text string, maxLength int) (*SummaryResult, error) {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
@@ -569,7 +569,7 @@ func (ca *ContentAI) SummarizeContent(ctx context.Context, text string, maxLengt
 	}, nil
 }
 
-// mockSummarize 模拟摘要
+// mockSummarize 模拟摘要.
 func (ca *ContentAI) mockSummarize(text string, maxLength int) string {
 	if len(text) <= maxLength {
 		return text
@@ -582,7 +582,7 @@ func (ca *ContentAI) mockSummarize(text string, maxLength int) string {
 	return text
 }
 
-// AnalyzeSEO SEO分析
+// AnalyzeSEO SEO分析.
 func (ca *ContentAI) AnalyzeSEO(ctx context.Context, content string, keywords []string) (*SEOAnalysis, error) {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
@@ -616,7 +616,7 @@ func (ca *ContentAI) AnalyzeSEO(ctx context.Context, content string, keywords []
 	}, nil
 }
 
-// calculateKeywordDensity 计算关键词密度
+// calculateKeywordDensity 计算关键词密度.
 func (ca *ContentAI) calculateKeywordDensity(content string, keywords []string) []KeywordDensity {
 	contentLower := strings.ToLower(content)
 	totalWords := len(strings.Fields(content))
@@ -637,7 +637,7 @@ func (ca *ContentAI) calculateKeywordDensity(content string, keywords []string) 
 	return densities
 }
 
-// generateSEOSuggestions 生成SEO建议
+// generateSEOSuggestions 生成SEO建议.
 func (ca *ContentAI) generateSEOSuggestions(content string, keywords []string) []SEOSuggestion {
 	suggestions := make([]SEOSuggestion, 0)
 
@@ -695,7 +695,7 @@ func (ca *ContentAI) generateSEOSuggestions(content string, keywords []string) [
 	return suggestions
 }
 
-// calculateSEOScore 计算SEO分数
+// calculateSEOScore 计算SEO分数.
 func (ca *ContentAI) calculateSEOScore(content string, densities []KeywordDensity, suggestions []SEOSuggestion) int {
 	score := 100
 
@@ -726,7 +726,7 @@ func (ca *ContentAI) calculateSEOScore(content string, densities []KeywordDensit
 	return score
 }
 
-// generateMetaDescription 生成meta描述
+// generateMetaDescription 生成meta描述.
 func (ca *ContentAI) generateMetaDescription(content string) string {
 	// 取前160个字符作为描述
 	runes := []rune(content)
@@ -736,7 +736,7 @@ func (ca *ContentAI) generateMetaDescription(content string) string {
 	return content
 }
 
-// calculateReadability 计算可读性分数
+// calculateReadability 计算可读性分数.
 func (ca *ContentAI) calculateReadability(content string) int {
 	// 简单的可读性计算
 	sentences := strings.Split(content, "。")
@@ -758,7 +758,7 @@ func (ca *ContentAI) calculateReadability(content string) int {
 	}
 }
 
-// ImproveWriting 改进写作
+// ImproveWriting 改进写作.
 func (ca *ContentAI) ImproveWriting(ctx context.Context, text string) (*WritingImprovement, error) {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
@@ -783,7 +783,7 @@ func (ca *ContentAI) ImproveWriting(ctx context.Context, text string) (*WritingI
 	}, nil
 }
 
-// mockImproveWriting 模拟改进写作
+// mockImproveWriting 模拟改进写作.
 func (ca *ContentAI) mockImproveWriting(text string) (string, []string) {
 	changes := make([]string, 0)
 	improved := text
@@ -802,7 +802,7 @@ func (ca *ContentAI) mockImproveWriting(text string) (string, []string) {
 	return improved, changes
 }
 
-// calculateTextScore 计算文本质量分数
+// calculateTextScore 计算文本质量分数.
 func (ca *ContentAI) calculateTextScore(text string) int {
 	score := 70
 
@@ -823,7 +823,7 @@ func (ca *ContentAI) calculateTextScore(text string) int {
 	return score
 }
 
-// AddTemplate 添加模板
+// AddTemplate 添加模板.
 func (ca *ContentAI) AddTemplate(template *ContentTemplate) error {
 	ca.mu.Lock()
 	defer ca.mu.Unlock()
@@ -844,7 +844,7 @@ func (ca *ContentAI) AddTemplate(template *ContentTemplate) error {
 	return nil
 }
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func (ca *ContentAI) GetTemplate(templateID string) (*ContentTemplate, error) {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
@@ -856,7 +856,7 @@ func (ca *ContentAI) GetTemplate(templateID string) (*ContentTemplate, error) {
 	return tpl, nil
 }
 
-// GetTemplates 获取模板列表
+// GetTemplates 获取模板列表.
 func (ca *ContentAI) GetTemplates() []*ContentTemplate {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
@@ -868,7 +868,7 @@ func (ca *ContentAI) GetTemplates() []*ContentTemplate {
 	return templates
 }
 
-// UpdateTemplate 更新模板
+// UpdateTemplate 更新模板.
 func (ca *ContentAI) UpdateTemplate(template *ContentTemplate) error {
 	ca.mu.Lock()
 	defer ca.mu.Unlock()
@@ -882,7 +882,7 @@ func (ca *ContentAI) UpdateTemplate(template *ContentTemplate) error {
 	return nil
 }
 
-// DeleteTemplate 删除模板
+// DeleteTemplate 删除模板.
 func (ca *ContentAI) DeleteTemplate(templateID string) error {
 	ca.mu.Lock()
 	defer ca.mu.Unlock()
@@ -895,7 +895,7 @@ func (ca *ContentAI) DeleteTemplate(templateID string) error {
 	return nil
 }
 
-// GenerateOutline 生成大纲
+// GenerateOutline 生成大纲.
 func (ca *ContentAI) GenerateOutline(ctx context.Context, topic string) (*OutlineResult, error) {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
@@ -914,7 +914,7 @@ func (ca *ContentAI) GenerateOutline(ctx context.Context, topic string) (*Outlin
 	return outline, nil
 }
 
-// mockGenerateOutline 模拟大纲生成
+// mockGenerateOutline 模拟大纲生成.
 func (ca *ContentAI) mockGenerateOutline(topic string) *OutlineResult {
 	return &OutlineResult{
 		Topic: topic,
@@ -978,7 +978,7 @@ func (ca *ContentAI) mockGenerateOutline(topic string) *OutlineResult {
 	}
 }
 
-// CheckGrammar 语法检查
+// CheckGrammar 语法检查.
 func (ca *ContentAI) CheckGrammar(ctx context.Context, text string) (*GrammarCheckResult, error) {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
@@ -1009,7 +1009,7 @@ func (ca *ContentAI) CheckGrammar(ctx context.Context, text string) (*GrammarChe
 	}, nil
 }
 
-// mockGrammarCheck 模拟语法检查
+// mockGrammarCheck 模拟语法检查.
 func (ca *ContentAI) mockGrammarCheck(text string) []GrammarError {
 	errors := make([]GrammarError, 0)
 
@@ -1041,7 +1041,7 @@ func (ca *ContentAI) mockGrammarCheck(text string) []GrammarError {
 	return errors
 }
 
-// applyCorrections 应用修正
+// applyCorrections 应用修正.
 func (ca *ContentAI) applyCorrections(text string, errors []GrammarError) string {
 	corrected := text
 	for _, err := range errors {
@@ -1052,7 +1052,7 @@ func (ca *ContentAI) applyCorrections(text string, errors []GrammarError) string
 	return corrected
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (ca *ContentAI) GetStats() *ContentStats {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()

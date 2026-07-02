@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// TriggerType 触发方式
+// TriggerType 触发方式.
 type TriggerType string
 
 const (
@@ -18,7 +18,7 @@ const (
 	TriggerSchedule TriggerType = "schedule"
 )
 
-// ComparisonOperator 比较运算符
+// ComparisonOperator 比较运算符.
 type ComparisonOperator string
 
 const (
@@ -32,7 +32,7 @@ const (
 	OpIn           ComparisonOperator = "in"
 )
 
-// LogicalOperator 逻辑运算符
+// LogicalOperator 逻辑运算符.
 type LogicalOperator string
 
 const (
@@ -40,7 +40,7 @@ const (
 	LogicOr  LogicalOperator = "or"
 )
 
-// DeviceType 设备类型
+// DeviceType 设备类型.
 type DeviceType string
 
 const (
@@ -60,7 +60,7 @@ const (
 	DeviceUnknown    DeviceType = "unknown"
 )
 
-// DeviceStatus 设备状态
+// DeviceStatus 设备状态.
 type DeviceStatus string
 
 const (
@@ -70,7 +70,7 @@ const (
 	DeviceBusy    DeviceStatus = "busy"
 )
 
-// RuleStatus 规则状态
+// RuleStatus 规则状态.
 type RuleStatus string
 
 const (
@@ -79,7 +79,7 @@ const (
 	RulePaused   RuleStatus = "paused"
 )
 
-// SceneStatus 场景状态
+// SceneStatus 场景状态.
 type SceneStatus string
 
 const (
@@ -87,7 +87,7 @@ const (
 	SceneInactive SceneStatus = "inactive"
 )
 
-// Device 设备
+// Device 设备.
 type Device struct {
 	ID         string            `json:"id"`
 	Name       string            `json:"name"`
@@ -101,7 +101,7 @@ type Device struct {
 	UpdatedAt  time.Time         `json:"updated_at"`
 }
 
-// DeviceState 设备状态记录
+// DeviceState 设备状态记录.
 type DeviceState struct {
 	DeviceID  string            `json:"device_id"`
 	State     map[string]string `json:"state"`
@@ -109,7 +109,7 @@ type DeviceState struct {
 	Source    string            `json:"source"`
 }
 
-// Condition 条件
+// Condition 条件.
 type Condition struct {
 	DeviceID string             `json:"device_id"`
 	Property string             `json:"property"`
@@ -117,14 +117,14 @@ type Condition struct {
 	Value    string             `json:"value"`
 }
 
-// ConditionGroup 条件组
+// ConditionGroup 条件组.
 type ConditionGroup struct {
 	Logic      LogicalOperator  `json:"logic"`
 	Conditions []Condition      `json:"conditions"`
 	Groups     []ConditionGroup `json:"groups,omitempty"`
 }
 
-// Action 动作
+// Action 动作.
 type Action struct {
 	DeviceID   string            `json:"device_id"`
 	Command    string            `json:"command"`
@@ -132,7 +132,7 @@ type Action struct {
 	Delay      time.Duration     `json:"delay,omitempty"`
 }
 
-// Trigger 触发器
+// Trigger 触发器.
 type Trigger struct {
 	Type       TriggerType `json:"type"`
 	DeviceID   string      `json:"device_id,omitempty"`
@@ -142,13 +142,13 @@ type Trigger struct {
 	TimeWindow *TimeWindow `json:"time_window,omitempty"`
 }
 
-// TimeWindow 时间窗口
+// TimeWindow 时间窗口.
 type TimeWindow struct {
 	Start string `json:"start"` // HH:MM
 	End   string `json:"end"`   // HH:MM
 }
 
-// AutomationRule 自动化规则
+// AutomationRule 自动化规则.
 type AutomationRule struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
@@ -167,7 +167,7 @@ type AutomationRule struct {
 	CreatedBy   string         `json:"created_by"`
 }
 
-// Scene 场景
+// Scene 场景.
 type Scene struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -181,7 +181,7 @@ type Scene struct {
 	CreatedBy   string      `json:"created_by"`
 }
 
-// AutomationLog 自动化日志
+// AutomationLog 自动化日志.
 type AutomationLog struct {
 	ID        string    `json:"id"`
 	RuleID    string    `json:"rule_id"`
@@ -194,7 +194,7 @@ type AutomationLog struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// UsagePattern 使用模式
+// UsagePattern 使用模式.
 type UsagePattern struct {
 	DeviceID  string    `json:"device_id"`
 	Action    string    `json:"action"`
@@ -204,7 +204,7 @@ type UsagePattern struct {
 	LastUsed  time.Time `json:"last_used"`
 }
 
-// Recommendation 智能推荐
+// Recommendation 智能推荐.
 type Recommendation struct {
 	ID          string    `json:"id"`
 	Type        string    `json:"type"` // rule, scene, device
@@ -215,7 +215,7 @@ type Recommendation struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// AutomationStats 自动化统计
+// AutomationStats 自动化统计.
 type AutomationStats struct {
 	TotalRules       int            `json:"total_rules"`
 	ActiveRules      int            `json:"active_rules"`
@@ -228,7 +228,7 @@ type AutomationStats struct {
 	DeviceTypeCounts map[string]int `json:"device_type_counts"`
 }
 
-// RuleStat 规则统计
+// RuleStat 规则统计.
 type RuleStat struct {
 	RuleID   string     `json:"rule_id"`
 	RuleName string     `json:"rule_name"`
@@ -236,7 +236,7 @@ type RuleStat struct {
 	LastRun  *time.Time `json:"last_run"`
 }
 
-// SmartHomeAutomation 智能家居自动化引擎
+// SmartHomeAutomation 智能家居自动化引擎.
 type SmartHomeAutomation struct {
 	mu              sync.RWMutex
 	devices         map[string]*Device
@@ -248,7 +248,7 @@ type SmartHomeAutomation struct {
 	recommendations map[string]*Recommendation
 }
 
-// NewSmartHomeAutomation 创建智能家居自动化引擎
+// NewSmartHomeAutomation 创建智能家居自动化引擎.
 func NewSmartHomeAutomation() *SmartHomeAutomation {
 	return &SmartHomeAutomation{
 		devices:         make(map[string]*Device),
@@ -263,7 +263,7 @@ func NewSmartHomeAutomation() *SmartHomeAutomation {
 
 // ==================== 设备管理 ====================
 
-// AddDevice 添加设备
+// AddDevice 添加设备.
 func (sha *SmartHomeAutomation) AddDevice(device *Device) error {
 	sha.mu.Lock()
 	defer sha.mu.Unlock()
@@ -281,7 +281,7 @@ func (sha *SmartHomeAutomation) AddDevice(device *Device) error {
 	return nil
 }
 
-// RemoveDevice 移除设备
+// RemoveDevice 移除设备.
 func (sha *SmartHomeAutomation) RemoveDevice(deviceID string) error {
 	sha.mu.Lock()
 	defer sha.mu.Unlock()
@@ -295,7 +295,7 @@ func (sha *SmartHomeAutomation) RemoveDevice(deviceID string) error {
 	return nil
 }
 
-// GetDevice 获取设备
+// GetDevice 获取设备.
 func (sha *SmartHomeAutomation) GetDevice(deviceID string) (*Device, error) {
 	sha.mu.RLock()
 	defer sha.mu.RUnlock()
@@ -307,7 +307,7 @@ func (sha *SmartHomeAutomation) GetDevice(deviceID string) (*Device, error) {
 	return device, nil
 }
 
-// ListDevices 列出设备
+// ListDevices 列出设备.
 func (sha *SmartHomeAutomation) ListDevices(deviceType DeviceType, brand string) []*Device {
 	sha.mu.RLock()
 	defer sha.mu.RUnlock()
@@ -325,7 +325,7 @@ func (sha *SmartHomeAutomation) ListDevices(deviceType DeviceType, brand string)
 	return devices
 }
 
-// UpdateDeviceStatus 更新设备状态
+// UpdateDeviceStatus 更新设备状态.
 func (sha *SmartHomeAutomation) UpdateDeviceStatus(deviceID string, status DeviceStatus) error {
 	sha.mu.Lock()
 	defer sha.mu.Unlock()
@@ -341,7 +341,7 @@ func (sha *SmartHomeAutomation) UpdateDeviceStatus(deviceID string, status Devic
 	return nil
 }
 
-// UpdateDeviceProperties 更新设备属性
+// UpdateDeviceProperties 更新设备属性.
 func (sha *SmartHomeAutomation) UpdateDeviceProperties(deviceID string, properties map[string]string) error {
 	sha.mu.Lock()
 	defer sha.mu.Unlock()
@@ -370,7 +370,7 @@ func (sha *SmartHomeAutomation) UpdateDeviceProperties(deviceID string, properti
 	return nil
 }
 
-// GetDeviceStateHistory 获取设备状态历史
+// GetDeviceStateHistory 获取设备状态历史.
 func (sha *SmartHomeAutomation) GetDeviceStateHistory(deviceID string, limit int) []*DeviceState {
 	sha.mu.RLock()
 	defer sha.mu.RUnlock()
@@ -389,7 +389,7 @@ func (sha *SmartHomeAutomation) GetDeviceStateHistory(deviceID string, limit int
 
 // ==================== 规则引擎 ====================
 
-// CreateRule 创建自动化规则
+// CreateRule 创建自动化规则.
 func (sha *SmartHomeAutomation) CreateRule(rule *AutomationRule) error {
 	sha.mu.Lock()
 	defer sha.mu.Unlock()
@@ -409,7 +409,7 @@ func (sha *SmartHomeAutomation) CreateRule(rule *AutomationRule) error {
 	return nil
 }
 
-// UpdateRule 更新自动化规则
+// UpdateRule 更新自动化规则.
 func (sha *SmartHomeAutomation) UpdateRule(rule *AutomationRule) error {
 	sha.mu.Lock()
 	defer sha.mu.Unlock()
@@ -423,7 +423,7 @@ func (sha *SmartHomeAutomation) UpdateRule(rule *AutomationRule) error {
 	return nil
 }
 
-// DeleteRule 删除自动化规则
+// DeleteRule 删除自动化规则.
 func (sha *SmartHomeAutomation) DeleteRule(ruleID string) error {
 	sha.mu.Lock()
 	defer sha.mu.Unlock()
@@ -436,7 +436,7 @@ func (sha *SmartHomeAutomation) DeleteRule(ruleID string) error {
 	return nil
 }
 
-// GetRule 获取规则
+// GetRule 获取规则.
 func (sha *SmartHomeAutomation) GetRule(ruleID string) (*AutomationRule, error) {
 	sha.mu.RLock()
 	defer sha.mu.RUnlock()
@@ -448,7 +448,7 @@ func (sha *SmartHomeAutomation) GetRule(ruleID string) (*AutomationRule, error) 
 	return rule, nil
 }
 
-// ListRules 列出规则
+// ListRules 列出规则.
 func (sha *SmartHomeAutomation) ListRules(status RuleStatus, triggerType TriggerType) []*AutomationRule {
 	sha.mu.RLock()
 	defer sha.mu.RUnlock()
@@ -466,7 +466,7 @@ func (sha *SmartHomeAutomation) ListRules(status RuleStatus, triggerType Trigger
 	return rules
 }
 
-// EnableRule 启用规则
+// EnableRule 启用规则.
 func (sha *SmartHomeAutomation) EnableRule(ruleID string) error {
 	sha.mu.Lock()
 	defer sha.mu.Unlock()
@@ -481,7 +481,7 @@ func (sha *SmartHomeAutomation) EnableRule(ruleID string) error {
 	return nil
 }
 
-// DisableRule 禁用规则
+// DisableRule 禁用规则.
 func (sha *SmartHomeAutomation) DisableRule(ruleID string) error {
 	sha.mu.Lock()
 	defer sha.mu.Unlock()
@@ -496,7 +496,7 @@ func (sha *SmartHomeAutomation) DisableRule(ruleID string) error {
 	return nil
 }
 
-// EvaluateConditions 评估条件
+// EvaluateConditions 评估条件.
 func (sha *SmartHomeAutomation) EvaluateConditions(group ConditionGroup) bool {
 	sha.mu.RLock()
 	defer sha.mu.RUnlock()
@@ -575,7 +575,7 @@ func (sha *SmartHomeAutomation) evaluateCondition(cond Condition) bool {
 	}
 }
 
-// ExecuteRule 执行规则
+// ExecuteRule 执行规则.
 func (sha *SmartHomeAutomation) ExecuteRule(ruleID string) (*AutomationLog, error) {
 	sha.mu.Lock()
 	defer sha.mu.Unlock()
@@ -671,7 +671,7 @@ func (sha *SmartHomeAutomation) executeAction(action Action) error {
 
 // ==================== 场景管理 ====================
 
-// CreateScene 创建场景
+// CreateScene 创建场景.
 func (sha *SmartHomeAutomation) CreateScene(scene *Scene) error {
 	sha.mu.Lock()
 	defer sha.mu.Unlock()
@@ -690,7 +690,7 @@ func (sha *SmartHomeAutomation) CreateScene(scene *Scene) error {
 	return nil
 }
 
-// UpdateScene 更新场景
+// UpdateScene 更新场景.
 func (sha *SmartHomeAutomation) UpdateScene(scene *Scene) error {
 	sha.mu.Lock()
 	defer sha.mu.Unlock()
@@ -704,7 +704,7 @@ func (sha *SmartHomeAutomation) UpdateScene(scene *Scene) error {
 	return nil
 }
 
-// DeleteScene 删除场景
+// DeleteScene 删除场景.
 func (sha *SmartHomeAutomation) DeleteScene(sceneID string) error {
 	sha.mu.Lock()
 	defer sha.mu.Unlock()
@@ -717,7 +717,7 @@ func (sha *SmartHomeAutomation) DeleteScene(sceneID string) error {
 	return nil
 }
 
-// GetScene 获取场景
+// GetScene 获取场景.
 func (sha *SmartHomeAutomation) GetScene(sceneID string) (*Scene, error) {
 	sha.mu.RLock()
 	defer sha.mu.RUnlock()
@@ -729,7 +729,7 @@ func (sha *SmartHomeAutomation) GetScene(sceneID string) (*Scene, error) {
 	return scene, nil
 }
 
-// ListScenes 列出场景
+// ListScenes 列出场景.
 func (sha *SmartHomeAutomation) ListScenes(status SceneStatus) []*Scene {
 	sha.mu.RLock()
 	defer sha.mu.RUnlock()
@@ -749,7 +749,7 @@ func (sha *SmartHomeAutomation) ListScenes(status SceneStatus) []*Scene {
 	return scenes
 }
 
-// ActivateScene 激活场景
+// ActivateScene 激活场景.
 func (sha *SmartHomeAutomation) ActivateScene(sceneID string) (*AutomationLog, error) {
 	sha.mu.Lock()
 	defer sha.mu.Unlock()
@@ -798,7 +798,7 @@ func (sha *SmartHomeAutomation) ActivateScene(sceneID string) (*AutomationLog, e
 
 // ==================== 日志管理 ====================
 
-// GetLogs 获取日志
+// GetLogs 获取日志.
 func (sha *SmartHomeAutomation) GetLogs(ruleID string, limit int) []*AutomationLog {
 	sha.mu.RLock()
 	defer sha.mu.RUnlock()
@@ -816,7 +816,7 @@ func (sha *SmartHomeAutomation) GetLogs(ruleID string, limit int) []*AutomationL
 	return logs
 }
 
-// ClearLogs 清除日志
+// ClearLogs 清除日志.
 func (sha *SmartHomeAutomation) ClearLogs(before time.Time) int {
 	sha.mu.Lock()
 	defer sha.mu.Unlock()
@@ -836,7 +836,7 @@ func (sha *SmartHomeAutomation) ClearLogs(before time.Time) int {
 
 // ==================== 使用模式与推荐 ====================
 
-// TrackUsage 追踪使用模式
+// TrackUsage 追踪使用模式.
 func (sha *SmartHomeAutomation) TrackUsage(deviceID, action string) {
 	sha.mu.Lock()
 	defer sha.mu.Unlock()
@@ -860,7 +860,7 @@ func (sha *SmartHomeAutomation) TrackUsage(deviceID, action string) {
 	pattern.LastUsed = now
 }
 
-// GetRecommendations 获取智能推荐
+// GetRecommendations 获取智能推荐.
 func (sha *SmartHomeAutomation) GetRecommendations(limit int) []*Recommendation {
 	sha.mu.RLock()
 	defer sha.mu.RUnlock()
@@ -880,7 +880,7 @@ func (sha *SmartHomeAutomation) GetRecommendations(limit int) []*Recommendation 
 	return recs
 }
 
-// GenerateRecommendations 生成推荐
+// GenerateRecommendations 生成推荐.
 func (sha *SmartHomeAutomation) GenerateRecommendations() {
 	sha.mu.Lock()
 	defer sha.mu.Unlock()
@@ -913,7 +913,7 @@ func (sha *SmartHomeAutomation) GenerateRecommendations() {
 
 // ==================== 统计 ====================
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (sha *SmartHomeAutomation) GetStats() *AutomationStats {
 	sha.mu.RLock()
 	defer sha.mu.RUnlock()

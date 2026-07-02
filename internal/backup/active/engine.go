@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// EngineState 引擎状态
+// EngineState 引擎状态.
 type EngineState string
 
 const (
@@ -21,7 +21,7 @@ const (
 	EngineStateStopping EngineState = "stopping"
 )
 
-// TaskRun 单次任务执行记录
+// TaskRun 单次任务执行记录.
 type TaskRun struct {
 	ID         string       `json:"id"`
 	JobID      string       `json:"job_id"`
@@ -37,7 +37,7 @@ type TaskRun struct {
 	EndedAt    *time.Time   `json:"ended_at,omitempty"`
 }
 
-// EngineEvent 引擎事件（供 dashboard 订阅）
+// EngineEvent 引擎事件（供 dashboard 订阅）.
 type EngineEvent struct {
 	Type      string    `json:"type"` // "task_start", "task_progress", "task_complete", "task_fail"
 	Timestamp time.Time `json:"timestamp"`
@@ -47,10 +47,10 @@ type EngineEvent struct {
 	Message   string    `json:"message,omitempty"`
 }
 
-// EngineEventCallback 引擎事件回调函数
+// EngineEventCallback 引擎事件回调函数.
 type EngineEventCallback func(event EngineEvent)
 
-// Engine 备份调度引擎
+// Engine 备份调度引擎.
 type Engine struct {
 	mu            sync.RWMutex
 	state         EngineState
@@ -68,7 +68,7 @@ type Engine struct {
 	wg            sync.WaitGroup
 }
 
-// EngineConfig 引擎配置
+// EngineConfig 引擎配置.
 type EngineConfig struct {
 	MaxConcurrent   int    `json:"max_concurrent"`    // 最大并发任务数
 	DedupBlockSize  int    `json:"dedup_block_size"`  // 去重块大小（字节）
@@ -78,7 +78,7 @@ type EngineConfig struct {
 	StoragePath     string `json:"storage_path"`      // 存储路径
 }
 
-// DefaultEngineConfig 返回默认引擎配置
+// DefaultEngineConfig 返回默认引擎配置.
 func DefaultEngineConfig() *EngineConfig {
 	return &EngineConfig{
 		MaxConcurrent:   4,
@@ -90,7 +90,7 @@ func DefaultEngineConfig() *EngineConfig {
 	}
 }
 
-// NewEngine 创建备份调度引擎
+// NewEngine 创建备份调度引擎.
 func NewEngine(manager *BackupManager, config *EngineConfig, logger *zap.Logger) (*Engine, error) {
 	if config == nil {
 		config = DefaultEngineConfig()
@@ -131,7 +131,7 @@ func NewEngine(manager *BackupManager, config *EngineConfig, logger *zap.Logger)
 	return e, nil
 }
 
-// Start 启动引擎
+// Start 启动引擎.
 func (e *Engine) Start(ctx context.Context) error {
 	e.mu.Lock()
 	if e.state == EngineStateRunning {
@@ -156,7 +156,7 @@ func (e *Engine) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止引擎
+// Stop 停止引擎.
 func (e *Engine) Stop() error {
 	e.mu.Lock()
 	if e.state != EngineStateRunning {
@@ -186,21 +186,21 @@ func (e *Engine) Stop() error {
 	return nil
 }
 
-// GetState 获取引擎状态
+// GetState 获取引擎状态.
 func (e *Engine) GetState() EngineState {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.state
 }
 
-// SetEventCallback 设置事件回调
+// SetEventCallback 设置事件回调.
 func (e *Engine) SetEventCallback(cb EngineEventCallback) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.eventCallback = cb
 }
 
-// SubmitTask 提交备份任务执行
+// SubmitTask 提交备份任务执行.
 func (e *Engine) SubmitTask(ctx context.Context, jobID string, backupType BackupType) (*TaskRun, error) {
 	e.mu.RLock()
 	if e.state != EngineStateRunning {
@@ -268,7 +268,7 @@ func (e *Engine) SubmitTask(ctx context.Context, jobID string, backupType Backup
 	return taskRun, nil
 }
 
-// GetTaskRun 获取任务执行记录
+// GetTaskRun 获取任务执行记录.
 func (e *Engine) GetTaskRun(taskRunID string) (*TaskRun, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -280,7 +280,7 @@ func (e *Engine) GetTaskRun(taskRunID string) (*TaskRun, error) {
 	return run, nil
 }
 
-// ListTaskRuns 列出任务执行记录
+// ListTaskRuns 列出任务执行记录.
 func (e *Engine) ListTaskRuns(jobID string) []*TaskRun {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -294,7 +294,7 @@ func (e *Engine) ListTaskRuns(jobID string) []*TaskRun {
 	return result
 }
 
-// CancelTask 取消运行中的任务
+// CancelTask 取消运行中的任务.
 func (e *Engine) CancelTask(jobID string) error {
 	e.mu.RLock()
 	cancel, exists := e.running[jobID]
@@ -309,22 +309,22 @@ func (e *Engine) CancelTask(jobID string) error {
 	return nil
 }
 
-// GetDedupEngine 获取去重引擎
+// GetDedupEngine 获取去重引擎.
 func (e *Engine) GetDedupEngine() *CDCEngine {
 	return e.dedupEngine
 }
 
-// GetScheduler 获取调度管理器
+// GetScheduler 获取调度管理器.
 func (e *Engine) GetScheduler() *ScheduleManager {
 	return e.scheduler
 }
 
-// GetAgentRegistry 获取代理注册表
+// GetAgentRegistry 获取代理注册表.
 func (e *Engine) GetAgentRegistry() *AgentRegistry {
 	return e.agentRegistry
 }
 
-// GetStats 获取引擎统计信息
+// GetStats 获取引擎统计信息.
 func (e *Engine) GetStats() EngineStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -340,9 +340,10 @@ func (e *Engine) GetStats() EngineStats {
 	for _, run := range e.taskRuns {
 		stats.TotalBytesProcessed += run.BytesDone
 		stats.TotalFilesProcessed += run.FilesDone
-		if run.Status == BackupStatusCompleted {
+		switch run.Status {
+		case BackupStatusCompleted:
 			stats.CompletedRuns++
-		} else if run.Status == BackupStatusFailed {
+		case BackupStatusFailed:
 			stats.FailedRuns++
 		}
 	}
@@ -350,7 +351,7 @@ func (e *Engine) GetStats() EngineStats {
 	return stats
 }
 
-// EngineStats 引擎统计信息
+// EngineStats 引擎统计信息.
 type EngineStats struct {
 	State               string `json:"state"`
 	MaxConcurrent       int    `json:"max_concurrent"`
@@ -363,7 +364,7 @@ type EngineStats struct {
 	Agents              int    `json:"agents"`
 }
 
-// executeTask 执行备份任务核心逻辑
+// executeTask 执行备份任务核心逻辑.
 func (e *Engine) executeTask(ctx context.Context, job *BackupJob, run *TaskRun) {
 	result, err := e.manager.RunBackup(ctx, run.JobID)
 
@@ -408,7 +409,7 @@ func (e *Engine) executeTask(ctx context.Context, job *BackupJob, run *TaskRun) 
 	})
 }
 
-// scheduleLoop 定时调度循环
+// scheduleLoop 定时调度循环.
 func (e *Engine) scheduleLoop(ctx context.Context) {
 	defer e.wg.Done()
 
@@ -427,7 +428,7 @@ func (e *Engine) scheduleLoop(ctx context.Context) {
 	}
 }
 
-// checkScheduledJobs 检查需要执行的定时任务
+// checkScheduledJobs 检查需要执行的定时任务.
 func (e *Engine) checkScheduledJobs(ctx context.Context) {
 	jobs := e.manager.ListJobs()
 	now := time.Now()
@@ -470,7 +471,7 @@ func (e *Engine) checkScheduledJobs(ctx context.Context) {
 	}
 }
 
-// emitEvent 发送引擎事件
+// emitEvent 发送引擎事件.
 func (e *Engine) emitEvent(event EngineEvent) {
 	if e.eventCallback != nil {
 		go e.eventCallback(event)

@@ -11,13 +11,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handlers VM API 处理器
+// Handlers VM API 处理器.
 type Handlers struct {
 	manager *Manager
 	logger  *zap.Logger
 }
 
-// NewHandlers 创建 VM API 处理器
+// NewHandlers 创建 VM API 处理器.
 func NewHandlers(manager *Manager, logger *zap.Logger) *Handlers {
 	return &Handlers{
 		manager: manager,
@@ -25,7 +25,7 @@ func NewHandlers(manager *Manager, logger *zap.Logger) *Handlers {
 	}
 }
 
-// NewHandler 兼容旧代码的创建函数
+// NewHandler 兼容旧代码的创建函数.
 func NewHandler(vmMgr *Manager, isoMgr *ISOManager, snapshotMgr *SnapshotManager, logger *zap.Logger) *Handlers {
 	return &Handlers{
 		manager: vmMgr,
@@ -33,7 +33,7 @@ func NewHandler(vmMgr *Manager, isoMgr *ISOManager, snapshotMgr *SnapshotManager
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	// VM 管理
 	mux.HandleFunc("GET /api/v1/vms", h.ListVMs)
@@ -63,7 +63,7 @@ func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/v1/vm/pci-devices", h.ListPCIDevices)
 }
 
-// ListVMs 列出所有虚拟机
+// ListVMs 列出所有虚拟机.
 func (h *Handlers) ListVMs(w http.ResponseWriter, r *http.Request) {
 	if h.manager == nil {
 		h.jsonResponse(w, []interface{}{})
@@ -73,7 +73,7 @@ func (h *Handlers) ListVMs(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, vms)
 }
 
-// CreateVM 创建虚拟机
+// CreateVM 创建虚拟机.
 func (h *Handlers) CreateVM(w http.ResponseWriter, r *http.Request) {
 	var config Config
 	if err := json.NewDecoder(r.Body).Decode(&config); err != nil {
@@ -91,7 +91,7 @@ func (h *Handlers) CreateVM(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, vm)
 }
 
-// GetVM 获取虚拟机详情
+// GetVM 获取虚拟机详情.
 func (h *Handlers) GetVM(w http.ResponseWriter, r *http.Request) {
 	vmID := r.PathValue("id")
 	vm, err := h.manager.GetVM(vmID)
@@ -103,7 +103,7 @@ func (h *Handlers) GetVM(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, vm)
 }
 
-// UpdateVM 更新虚拟机配置
+// UpdateVM 更新虚拟机配置.
 func (h *Handlers) UpdateVM(w http.ResponseWriter, r *http.Request) {
 	vmID := r.PathValue("id")
 
@@ -123,7 +123,7 @@ func (h *Handlers) UpdateVM(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, vm)
 }
 
-// DeleteVM 删除虚拟机
+// DeleteVM 删除虚拟机.
 func (h *Handlers) DeleteVM(w http.ResponseWriter, r *http.Request) {
 	vmID := r.PathValue("id")
 	force := r.URL.Query().Get("force") == "true"
@@ -138,7 +138,7 @@ func (h *Handlers) DeleteVM(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, map[string]string{"message": "VM 已删除"})
 }
 
-// StartVM 启动虚拟机
+// StartVM 启动虚拟机.
 func (h *Handlers) StartVM(w http.ResponseWriter, r *http.Request) {
 	vmID := r.PathValue("id")
 
@@ -152,7 +152,7 @@ func (h *Handlers) StartVM(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, map[string]string{"message": "VM 已启动"})
 }
 
-// StopVM 停止虚拟机
+// StopVM 停止虚拟机.
 func (h *Handlers) StopVM(w http.ResponseWriter, r *http.Request) {
 	vmID := r.PathValue("id")
 	force := r.URL.Query().Get("force") == "true"
@@ -167,7 +167,7 @@ func (h *Handlers) StopVM(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, map[string]string{"message": "VM 已停止"})
 }
 
-// RestartVM 重启虚拟机
+// RestartVM 重启虚拟机.
 func (h *Handlers) RestartVM(w http.ResponseWriter, r *http.Request) {
 	vmID := r.PathValue("id")
 
@@ -188,7 +188,7 @@ func (h *Handlers) RestartVM(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, map[string]string{"message": "VM 已重启"})
 }
 
-// GetVMStats 获取虚拟机统计信息
+// GetVMStats 获取虚拟机统计信息.
 func (h *Handlers) GetVMStats(w http.ResponseWriter, r *http.Request) {
 	vmID := r.PathValue("id")
 
@@ -201,7 +201,7 @@ func (h *Handlers) GetVMStats(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, stats)
 }
 
-// GetVNCConnection 获取 VNC 连接信息
+// GetVNCConnection 获取 VNC 连接信息.
 func (h *Handlers) GetVNCConnection(w http.ResponseWriter, r *http.Request) {
 	vmID := r.PathValue("id")
 
@@ -214,7 +214,7 @@ func (h *Handlers) GetVNCConnection(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, conn)
 }
 
-// ListTemplates 列出 VM 模板
+// ListTemplates 列出 VM 模板.
 func (h *Handlers) ListTemplates(w http.ResponseWriter, r *http.Request) {
 	if h.manager == nil {
 		h.jsonResponse(w, []interface{}{})
@@ -224,7 +224,7 @@ func (h *Handlers) ListTemplates(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, templates)
 }
 
-// GetTemplate 获取模板详情
+// GetTemplate 获取模板详情.
 func (h *Handlers) GetTemplate(w http.ResponseWriter, r *http.Request) {
 	templateID := r.PathValue("id")
 
@@ -237,7 +237,7 @@ func (h *Handlers) GetTemplate(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, tpl)
 }
 
-// CreateTemplate 创建模板
+// CreateTemplate 创建模板.
 func (h *Handlers) CreateTemplate(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Name        string            `json:"name"`
@@ -265,7 +265,7 @@ func (h *Handlers) CreateTemplate(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, tpl)
 }
 
-// DeleteTemplate 删除模板
+// DeleteTemplate 删除模板.
 func (h *Handlers) DeleteTemplate(w http.ResponseWriter, r *http.Request) {
 	templateID := r.PathValue("id")
 
@@ -278,7 +278,7 @@ func (h *Handlers) DeleteTemplate(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, map[string]string{"message": "模板已删除"})
 }
 
-// ListISOs 列出 ISO 镜像
+// ListISOs 列出 ISO 镜像.
 func (h *Handlers) ListISOs(w http.ResponseWriter, r *http.Request) {
 	if h.manager == nil {
 		h.jsonResponse(w, []interface{}{})
@@ -288,7 +288,7 @@ func (h *Handlers) ListISOs(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, isos)
 }
 
-// UploadISO 上传 ISO 镜像（返回上传 URL）
+// UploadISO 上传 ISO 镜像（返回上传 URL）.
 func (h *Handlers) UploadISO(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Name string `json:"name"`
@@ -316,7 +316,7 @@ func (h *Handlers) UploadISO(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, uploadInfo)
 }
 
-// DeleteISO 删除 ISO 镜像
+// DeleteISO 删除 ISO 镜像.
 func (h *Handlers) DeleteISO(w http.ResponseWriter, r *http.Request) {
 	isoID := r.PathValue("id")
 
@@ -329,7 +329,7 @@ func (h *Handlers) DeleteISO(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, map[string]string{"message": "ISO 已删除"})
 }
 
-// ListUSBDevices 列出可用 USB 设备
+// ListUSBDevices 列出可用 USB 设备.
 func (h *Handlers) ListUSBDevices(w http.ResponseWriter, r *http.Request) {
 	if h.manager == nil {
 		h.jsonResponse(w, []interface{}{})
@@ -344,7 +344,7 @@ func (h *Handlers) ListUSBDevices(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, devices)
 }
 
-// ListPCIDevices 列出可用 PCIe 设备
+// ListPCIDevices 列出可用 PCIe 设备.
 func (h *Handlers) ListPCIDevices(w http.ResponseWriter, r *http.Request) {
 	if h.manager == nil {
 		h.jsonResponse(w, []interface{}{})
@@ -359,14 +359,14 @@ func (h *Handlers) ListPCIDevices(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, devices)
 }
 
-// jsonResponse 返回 JSON 响应
+// jsonResponse 返回 JSON 响应.
 func (h *Handlers) jsonResponse(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(data)
 }
 
-// errorResponse 返回错误响应
+// errorResponse 返回错误响应.
 func (h *Handlers) errorResponse(w http.ResponseWriter, code int, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
@@ -377,7 +377,7 @@ func (h *Handlers) errorResponse(w http.ResponseWriter, code int, message string
 	})
 }
 
-// parseIntParam 解析整数参数
+// parseIntParam 解析整数参数.
 func parseIntParam(r *http.Request, key string, defaultValue int) int {
 	val := r.URL.Query().Get(key)
 	if val == "" {
@@ -392,17 +392,17 @@ func parseIntParam(r *http.Request, key string, defaultValue int) int {
 
 // ========== 兼容旧代码的方法别名 ==========
 
-// HandleListVMs 兼容方法
+// HandleListVMs 兼容方法.
 func (h *Handlers) HandleListVMs(w http.ResponseWriter, r *http.Request) {
 	h.ListVMs(w, r)
 }
 
-// HandleCreateVM 兼容方法
+// HandleCreateVM 兼容方法.
 func (h *Handlers) HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 	h.CreateVM(w, r)
 }
 
-// HandleVM 兼容方法（GET/PUT/DELETE）
+// HandleVM 兼容方法（GET/PUT/DELETE）.
 func (h *Handlers) HandleVM(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
@@ -414,12 +414,12 @@ func (h *Handlers) HandleVM(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// HandleListISOs 兼容方法
+// HandleListISOs 兼容方法.
 func (h *Handlers) HandleListISOs(w http.ResponseWriter, r *http.Request) {
 	h.ListISOs(w, r)
 }
 
-// HandleISO 兼容方法
+// HandleISO 兼容方法.
 func (h *Handlers) HandleISO(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
@@ -431,27 +431,27 @@ func (h *Handlers) HandleISO(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// HandleListSnapshots 兼容方法（返回空数组）
+// HandleListSnapshots 兼容方法（返回空数组）.
 func (h *Handlers) HandleListSnapshots(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, []interface{}{})
 }
 
-// HandleSnapshot 兼容方法（返回未实现）
+// HandleSnapshot 兼容方法（返回未实现）.
 func (h *Handlers) HandleSnapshot(w http.ResponseWriter, r *http.Request) {
 	h.errorResponse(w, http.StatusNotImplemented, "快照功能待实现")
 }
 
-// HandleListTemplates 兼容方法
+// HandleListTemplates 兼容方法.
 func (h *Handlers) HandleListTemplates(w http.ResponseWriter, r *http.Request) {
 	h.ListTemplates(w, r)
 }
 
-// HandleUSBDevices 兼容方法
+// HandleUSBDevices 兼容方法.
 func (h *Handlers) HandleUSBDevices(w http.ResponseWriter, r *http.Request) {
 	h.ListUSBDevices(w, r)
 }
 
-// HandlePCIDevices 兼容方法
+// HandlePCIDevices 兼容方法.
 func (h *Handlers) HandlePCIDevices(w http.ResponseWriter, r *http.Request) {
 	h.ListPCIDevices(w, r)
 }

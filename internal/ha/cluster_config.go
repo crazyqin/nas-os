@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// 集群配置相关错误
+// 集群配置相关错误.
 var (
 	ErrClusterAlreadyExists = errors.New("cluster already exists")
 	ErrClusterNotFound      = errors.New("cluster not found")
@@ -30,7 +30,7 @@ var (
 )
 
 // ClusterConfig 集群配置
-// 参考 Synology HA 的双节点架构设计
+// 参考 Synology HA 的双节点架构设计.
 type ClusterConfig struct {
 	// 集群基本信息
 	ClusterID   string    `json:"cluster_id"`
@@ -69,19 +69,19 @@ type ClusterConfig struct {
 	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
-// ClusterType 集群类型
+// ClusterType 集群类型.
 type ClusterType string
 
 const (
-	// ActivePassive 主备模式（群晖 HA 标准）
+	// ActivePassive 主备模式（群晖 HA 标准）.
 	ClusterTypeActivePassive ClusterType = "active-passive"
-	// ActiveActive 双活模式
+	// ActiveActive 双活模式.
 	ClusterTypeActiveActive ClusterType = "active-active"
-	// MultiNode 多节点模式（扩展）
+	// MultiNode 多节点模式（扩展）.
 	ClusterTypeMultiNode ClusterType = "multi-node"
 )
 
-// ClusterState 集群状态
+// ClusterState 集群状态.
 type ClusterState string
 
 const (
@@ -96,7 +96,7 @@ const (
 	ClusterStateError        ClusterState = "error"        // 错误状态
 )
 
-// NodeConfig 节点配置
+// NodeConfig 节点配置.
 type NodeConfig struct {
 	// 基本信息
 	NodeID      string    `json:"node_id"`
@@ -138,7 +138,7 @@ type NodeConfig struct {
 	SyncLatency  time.Duration `json:"sync_latency"`
 }
 
-// NodeAddress 节点网络地址
+// NodeAddress 节点网络地址.
 type NodeAddress struct {
 	Type      string `json:"type"` // management, heartbeat, data_sync, floating
 	IP        string `json:"ip"`
@@ -148,7 +148,7 @@ type NodeAddress struct {
 	IsPrimary bool   `json:"is_primary"` // 是否主要地址
 }
 
-// NodeHardwareInfo 节点硬件信息
+// NodeHardwareInfo 节点硬件信息.
 type NodeHardwareInfo struct {
 	CPUModel     string   `json:"cpu_model"`
 	CPUCores     int      `json:"cpu_cores"`
@@ -158,7 +158,7 @@ type NodeHardwareInfo struct {
 	SerialNumber string   `json:"serial_number"`
 }
 
-// ClusterNetworkConfig 集群网络配置
+// ClusterNetworkConfig 集群网络配置.
 type ClusterNetworkConfig struct {
 	// 心跳网络
 	HeartbeatNetwork *NetworkInfo `json:"heartbeat_network"`
@@ -180,7 +180,7 @@ type ClusterNetworkConfig struct {
 	BondingMode       int  `json:"bonding_mode"`        // 绑定模式
 }
 
-// NetworkInfo 网络信息
+// NetworkInfo 网络信息.
 type NetworkInfo struct {
 	NetworkName string   `json:"network_name"`
 	Subnet      string   `json:"subnet"`
@@ -190,7 +190,7 @@ type NetworkInfo struct {
 }
 
 // ClusterStorageConfig 集群存储配置
-// 参考 Synology HA 的共享存储架构
+// 参考 Synology HA 的共享存储架构.
 type ClusterStorageConfig struct {
 	// 存储类型
 	StorageType StorageType `json:"storage_type"`
@@ -208,7 +208,7 @@ type ClusterStorageConfig struct {
 	SyncPolicy StorageSyncPolicy `json:"sync_policy"`
 }
 
-// StorageType 存储类型
+// StorageType 存储类型.
 type StorageType string
 
 const (
@@ -217,7 +217,7 @@ const (
 	StorageTypeHybrid     StorageType = "hybrid"     // 混合模式
 )
 
-// SharedStorageConfig 共享存储配置
+// SharedStorageConfig 共享存储配置.
 type SharedStorageConfig struct {
 	Type           string   `json:"type"`            // iscsi, fc, nfs
 	Target         string   `json:"target"`          // 存储目标地址
@@ -228,7 +228,7 @@ type SharedStorageConfig struct {
 	MultipathPaths []string `json:"multipath_paths"` // 多路径列表
 }
 
-// ReplicatedStorageConfig 复制存储配置
+// ReplicatedStorageConfig 复制存储配置.
 type ReplicatedStorageConfig struct {
 	// 复制模式
 	ReplicationMode ReplicationMode `json:"replication_mode"`
@@ -251,7 +251,7 @@ type ReplicatedStorageConfig struct {
 	CheckInterval time.Duration `json:"check_interval"`
 }
 
-// ReplicationMode 复制模式
+// ReplicationMode 复制模式.
 type ReplicationMode string
 
 const (
@@ -260,7 +260,7 @@ const (
 	ReplicationModeSemiSync ReplicationMode = "semi_sync" // 半同步
 )
 
-// StoragePoolConfig 存储池配置
+// StoragePoolConfig 存储池配置.
 type StoragePoolConfig struct {
 	PoolName   string   `json:"pool_name"`
 	Volumes    []string `json:"volumes"`
@@ -270,7 +270,7 @@ type StoragePoolConfig struct {
 	RAIDLevel  string   `json:"raid_level"`
 }
 
-// StorageSyncPolicy 存储同步策略
+// StorageSyncPolicy 存储同步策略.
 type StorageSyncPolicy struct {
 	SyncMode       string        `json:"sync_mode"` // full, incremental
 	SyncInterval   time.Duration `json:"sync_interval"`
@@ -279,7 +279,7 @@ type StorageSyncPolicy struct {
 	Priority       int           `json:"priority"`        // 同步优先级
 }
 
-// ClusterHeartbeatConfig 集群心跳配置
+// ClusterHeartbeatConfig 集群心跳配置.
 type ClusterHeartbeatConfig struct {
 	// 心跳方式
 	HeartbeatMethods []HeartbeatMethod `json:"heartbeat_methods"`
@@ -301,7 +301,7 @@ type ClusterHeartbeatConfig struct {
 	EnableMultiPath bool `json:"enable_multi_path"` // 多路径心跳
 }
 
-// HeartbeatMethod 心跳方式
+// HeartbeatMethod 心跳方式.
 type HeartbeatMethod string
 
 const (
@@ -313,7 +313,7 @@ const (
 	HeartbeatMethodShared    HeartbeatMethod = "shared"    // 共享存储心跳
 )
 
-// ClusterFailoverConfig 集群故障转移配置
+// ClusterFailoverConfig 集群故障转移配置.
 type ClusterFailoverConfig struct {
 	// 故障转移策略
 	Strategy FailoverStrategyType `json:"strategy"`
@@ -342,7 +342,7 @@ type ClusterFailoverConfig struct {
 	NotifyChannels   []string `json:"notify_channels"`
 }
 
-// FailoverStrategyType 故障转移策略类型
+// FailoverStrategyType 故障转移策略类型.
 type FailoverStrategyType string
 
 const (
@@ -352,7 +352,7 @@ const (
 	FailoverStrategyScheduled FailoverStrategyType = "scheduled" // 定时故障转移
 )
 
-// ServicePriority 服务优先级
+// ServicePriority 服务优先级.
 type ServicePriority struct {
 	ServiceName string        `json:"service_name"`
 	Priority    int           `json:"priority"`
@@ -360,7 +360,7 @@ type ServicePriority struct {
 	StopDelay   time.Duration `json:"stop_delay"`
 }
 
-// ClusterSyncConfig 集群同步配置
+// ClusterSyncConfig 集群同步配置.
 type ClusterSyncConfig struct {
 	// 同步范围
 	SyncScope []SyncScopeType `json:"sync_scope"`
@@ -386,7 +386,7 @@ type ClusterSyncConfig struct {
 	VerifyInterval time.Duration `json:"verify_interval"`
 }
 
-// SyncScopeType 同步范围类型
+// SyncScopeType 同步范围类型.
 type SyncScopeType string
 
 const (
@@ -397,7 +397,7 @@ const (
 	SyncScopeLogs     SyncScopeType = "logs"     // 日志同步
 )
 
-// SyncMethodType 同步方式
+// SyncMethodType 同步方式.
 type SyncMethodType string
 
 const (
@@ -407,7 +407,7 @@ const (
 	SyncMethodEventDriven   SyncMethodType = "event_driven"  // 事件驱动
 )
 
-// ClusterConfigManager 集群配置管理器
+// ClusterConfigManager 集群配置管理器.
 type ClusterConfigManager struct {
 	config     *ClusterConfig
 	configFile string
@@ -419,14 +419,14 @@ type ClusterConfigManager struct {
 	cancel     context.CancelFunc
 }
 
-// ClusterConfigHook 配置变更钩子
+// ClusterConfigHook 配置变更钩子.
 type ClusterConfigHook interface {
 	OnConfigChange(oldConfig, newConfig *ClusterConfig)
 	OnNodeRoleChange(nodeID string, oldRole, newRole HARole)
 	OnClusterStateChange(oldState, newState ClusterState)
 }
 
-// NewClusterConfigManager 创建集群配置管理器
+// NewClusterConfigManager 创建集群配置管理器.
 func NewClusterConfigManager(dataDir string, logger *zap.Logger) (*ClusterConfigManager, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -448,7 +448,7 @@ func NewClusterConfigManager(dataDir string, logger *zap.Logger) (*ClusterConfig
 	return mgr, nil
 }
 
-// CreateCluster 创建集群
+// CreateCluster 创建集群.
 func (mgr *ClusterConfigManager) CreateCluster(config *ClusterConfig) error {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
@@ -497,7 +497,7 @@ func (mgr *ClusterConfigManager) CreateCluster(config *ClusterConfig) error {
 	return nil
 }
 
-// validateClusterConfig 验证集群配置
+// validateClusterConfig 验证集群配置.
 func (mgr *ClusterConfigManager) validateClusterConfig(config *ClusterConfig) error {
 	if config.ClusterName == "" {
 		return errors.New("cluster name required")
@@ -536,7 +536,7 @@ func (mgr *ClusterConfigManager) validateClusterConfig(config *ClusterConfig) er
 	return nil
 }
 
-// validateNodeConfig 验证节点配置
+// validateNodeConfig 验证节点配置.
 func (mgr *ClusterConfigManager) validateNodeConfig(node *NodeConfig) error {
 	if node.NodeID == "" {
 		return errors.New("node_id required")
@@ -553,7 +553,7 @@ func (mgr *ClusterConfigManager) validateNodeConfig(node *NodeConfig) error {
 	return nil
 }
 
-// validateNetworkConfig 验证网络配置
+// validateNetworkConfig 验证网络配置.
 func (mgr *ClusterConfigManager) validateNetworkConfig(net *ClusterNetworkConfig) error {
 	if net.HeartbeatPort <= 0 || net.HeartbeatPort > 65535 {
 		return errors.New("invalid heartbeat port")
@@ -561,14 +561,14 @@ func (mgr *ClusterConfigManager) validateNetworkConfig(net *ClusterNetworkConfig
 	return nil
 }
 
-// GetClusterConfig 获取集群配置
+// GetClusterConfig 获取集群配置.
 func (mgr *ClusterConfigManager) GetClusterConfig() *ClusterConfig {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
 	return mgr.config
 }
 
-// UpdateClusterConfig 更新集群配置
+// UpdateClusterConfig 更新集群配置.
 func (mgr *ClusterConfigManager) UpdateClusterConfig(newConfig *ClusterConfig) error {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
@@ -605,7 +605,7 @@ func (mgr *ClusterConfigManager) UpdateClusterConfig(newConfig *ClusterConfig) e
 	return nil
 }
 
-// SetPrimaryNode 设置主节点
+// SetPrimaryNode 设置主节点.
 func (mgr *ClusterConfigManager) SetPrimaryNode(node *NodeConfig) error {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
@@ -653,7 +653,7 @@ func (mgr *ClusterConfigManager) SetPrimaryNode(node *NodeConfig) error {
 	return nil
 }
 
-// SetSecondaryNode 设置备节点
+// SetSecondaryNode 设置备节点.
 func (mgr *ClusterConfigManager) SetSecondaryNode(node *NodeConfig) error {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
@@ -679,7 +679,7 @@ func (mgr *ClusterConfigManager) SetSecondaryNode(node *NodeConfig) error {
 	return nil
 }
 
-// UpdateNodeState 更新节点状态
+// UpdateNodeState 更新节点状态.
 func (mgr *ClusterConfigManager) UpdateNodeState(nodeID string, state HAState, healthScore float64) error {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
@@ -707,7 +707,7 @@ func (mgr *ClusterConfigManager) UpdateNodeState(nodeID string, state HAState, h
 	return nil
 }
 
-// SetClusterState 设置集群状态
+// SetClusterState 设置集群状态.
 func (mgr *ClusterConfigManager) SetClusterState(state ClusterState) error {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
@@ -738,7 +738,7 @@ func (mgr *ClusterConfigManager) SetClusterState(state ClusterState) error {
 	return nil
 }
 
-// GetPrimaryNode 获取主节点配置
+// GetPrimaryNode 获取主节点配置.
 func (mgr *ClusterConfigManager) GetPrimaryNode() *NodeConfig {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
@@ -748,7 +748,7 @@ func (mgr *ClusterConfigManager) GetPrimaryNode() *NodeConfig {
 	return mgr.config.PrimaryNode
 }
 
-// GetSecondaryNode 获取备节点配置
+// GetSecondaryNode 获取备节点配置.
 func (mgr *ClusterConfigManager) GetSecondaryNode() *NodeConfig {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
@@ -758,7 +758,7 @@ func (mgr *ClusterConfigManager) GetSecondaryNode() *NodeConfig {
 	return mgr.config.SecondaryNode
 }
 
-// GetNodeByID 根据ID获取节点配置
+// GetNodeByID 根据ID获取节点配置.
 func (mgr *ClusterConfigManager) GetNodeByID(nodeID string) *NodeConfig {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
@@ -777,7 +777,7 @@ func (mgr *ClusterConfigManager) GetNodeByID(nodeID string) *NodeConfig {
 	return nil
 }
 
-// SwapRoles 交换主备角色
+// SwapRoles 交换主备角色.
 func (mgr *ClusterConfigManager) SwapRoles() error {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
@@ -827,7 +827,7 @@ func (mgr *ClusterConfigManager) SwapRoles() error {
 	return nil
 }
 
-// DeleteCluster 删除集群
+// DeleteCluster 删除集群.
 func (mgr *ClusterConfigManager) DeleteCluster() error {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
@@ -856,14 +856,14 @@ func (mgr *ClusterConfigManager) DeleteCluster() error {
 	return nil
 }
 
-// RegisterHook 注册配置变更钩子
+// RegisterHook 注册配置变更钩子.
 func (mgr *ClusterConfigManager) RegisterHook(hook ClusterConfigHook) {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
 	mgr.hooks = append(mgr.hooks, hook)
 }
 
-// 钩子通知方法
+// 钩子通知方法.
 func (mgr *ClusterConfigManager) notifyConfigChange(old, new *ClusterConfig) {
 	for _, hook := range mgr.hooks {
 		go hook.OnConfigChange(old, new)
@@ -882,7 +882,7 @@ func (mgr *ClusterConfigManager) notifyClusterStateChange(oldState, newState Clu
 	}
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (mgr *ClusterConfigManager) loadConfig() error {
 	data, err := os.ReadFile(mgr.configFile)
 	if err != nil {
@@ -898,7 +898,7 @@ func (mgr *ClusterConfigManager) loadConfig() error {
 	return nil
 }
 
-// saveConfig 保存配置
+// saveConfig 保存配置.
 func (mgr *ClusterConfigManager) saveConfig() error {
 	if mgr.config == nil {
 		return nil
@@ -912,7 +912,7 @@ func (mgr *ClusterConfigManager) saveConfig() error {
 	return os.WriteFile(mgr.configFile, data, 0600)
 }
 
-// ExportConfig 导出配置
+// ExportConfig 导出配置.
 func (mgr *ClusterConfigManager) ExportConfig() ([]byte, error) {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
@@ -924,7 +924,7 @@ func (mgr *ClusterConfigManager) ExportConfig() ([]byte, error) {
 	return json.MarshalIndent(mgr.config, "", "  ")
 }
 
-// ImportConfig 导入配置
+// ImportConfig 导入配置.
 func (mgr *ClusterConfigManager) ImportConfig(data []byte) error {
 	var config ClusterConfig
 	if err := json.Unmarshal(data, &config); err != nil {
@@ -934,7 +934,7 @@ func (mgr *ClusterConfigManager) ImportConfig(data []byte) error {
 	return mgr.CreateCluster(&config)
 }
 
-// GetClusterStatus 获取集群状态摘要
+// GetClusterStatus 获取集群状态摘要.
 func (mgr *ClusterConfigManager) GetClusterStatus() *ClusterStatus {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
@@ -976,7 +976,7 @@ func (mgr *ClusterConfigManager) GetClusterStatus() *ClusterStatus {
 	return status
 }
 
-// ClusterStatus 集群状态摘要
+// ClusterStatus 集群状态摘要.
 type ClusterStatus struct {
 	ClusterID     string       `json:"cluster_id"`
 	ClusterName   string       `json:"cluster_name"`
@@ -987,7 +987,7 @@ type ClusterStatus struct {
 	SecondaryNode *NodeStatus  `json:"secondary_node"`
 }
 
-// NodeStatus 节点状态摘要
+// NodeStatus 节点状态摘要.
 type NodeStatus struct {
 	NodeID       string  `json:"node_id"`
 	NodeName     string  `json:"node_name"`
@@ -997,7 +997,7 @@ type NodeStatus struct {
 	ManagementIP string  `json:"management_ip"`
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (mgr *ClusterConfigManager) Stop() {
 	mgr.cancel()
 }

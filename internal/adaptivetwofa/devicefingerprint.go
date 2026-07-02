@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// DeviceFingerprint 设备指纹信息
+// DeviceFingerprint 设备指纹信息.
 type DeviceFingerprint struct {
 	// Fingerprint 指纹哈希
 	Fingerprint string `json:"fingerprint"`
@@ -21,14 +21,14 @@ type DeviceFingerprint struct {
 	Confidence int `json:"confidence"`
 }
 
-// FingerprintGenerator 设备指纹生成器
+// FingerprintGenerator 设备指纹生成器.
 type FingerprintGenerator struct {
 	mu           sync.RWMutex
 	knownDevices map[string]*DeviceFingerprint // fingerprint -> info
 	salt         string
 }
 
-// NewFingerprintGenerator 创建设备指纹生成器
+// NewFingerprintGenerator 创建设备指纹生成器.
 func NewFingerprintGenerator(salt string) *FingerprintGenerator {
 	if salt == "" {
 		salt = "nas-os-default-salt"
@@ -39,7 +39,7 @@ func NewFingerprintGenerator(salt string) *FingerprintGenerator {
 	}
 }
 
-// FingerprintComponents 指纹组件输入
+// FingerprintComponents 指纹组件输入.
 type FingerprintComponents struct {
 	// UserAgent 用户代理字符串
 	UserAgent string `json:"user_agent"`
@@ -65,7 +65,7 @@ type FingerprintComponents struct {
 	Canvas string `json:"canvas,omitempty"`
 }
 
-// Generate 生成设备指纹
+// Generate 生成设备指纹.
 func (fg *FingerprintGenerator) Generate(components *FingerprintComponents) *DeviceFingerprint {
 	fg.mu.Lock()
 	defer fg.mu.Unlock()
@@ -113,7 +113,7 @@ func (fg *FingerprintGenerator) Generate(components *FingerprintComponents) *Dev
 	return deviceFP
 }
 
-// buildFingerprintData 构建指纹数据字符串
+// buildFingerprintData 构建指纹数据字符串.
 func (fg *FingerprintGenerator) buildFingerprintData(components *FingerprintComponents) string {
 	var parts []string
 
@@ -155,7 +155,7 @@ func (fg *FingerprintGenerator) buildFingerprintData(components *FingerprintComp
 	return strings.Join(parts, "|")
 }
 
-// calculateConfidence 计算指纹置信度
+// calculateConfidence 计算指纹置信度.
 func (fg *FingerprintGenerator) calculateConfidence(components *FingerprintComponents) int {
 	score := 0
 
@@ -201,7 +201,7 @@ func (fg *FingerprintGenerator) calculateConfidence(components *FingerprintCompo
 	return score
 }
 
-// IsKnownDevice 检查是否是已知设备
+// IsKnownDevice 检查是否是已知设备.
 func (fg *FingerprintGenerator) IsKnownDevice(fingerprint string) bool {
 	fg.mu.RLock()
 	defer fg.mu.RUnlock()
@@ -210,7 +210,7 @@ func (fg *FingerprintGenerator) IsKnownDevice(fingerprint string) bool {
 	return exists
 }
 
-// GetDevice 获取设备信息
+// GetDevice 获取设备信息.
 func (fg *FingerprintGenerator) GetDevice(fingerprint string) *DeviceFingerprint {
 	fg.mu.RLock()
 	defer fg.mu.RUnlock()
@@ -218,7 +218,7 @@ func (fg *FingerprintGenerator) GetDevice(fingerprint string) *DeviceFingerprint
 	return fg.knownDevices[fingerprint]
 }
 
-// GetDeviceCount 获取已知设备数量
+// GetDeviceCount 获取已知设备数量.
 func (fg *FingerprintGenerator) GetDeviceCount() int {
 	fg.mu.RLock()
 	defer fg.mu.RUnlock()
@@ -226,7 +226,7 @@ func (fg *FingerprintGenerator) GetDeviceCount() int {
 	return len(fg.knownDevices)
 }
 
-// RemoveDevice 移除已知设备
+// RemoveDevice 移除已知设备.
 func (fg *FingerprintGenerator) RemoveDevice(fingerprint string) bool {
 	fg.mu.Lock()
 	defer fg.mu.Unlock()
@@ -238,7 +238,7 @@ func (fg *FingerprintGenerator) RemoveDevice(fingerprint string) bool {
 	return false
 }
 
-// CleanupExpired 清理过期设备
+// CleanupExpired 清理过期设备.
 func (fg *FingerprintGenerator) CleanupExpired(maxAge time.Duration) int {
 	fg.mu.Lock()
 	defer fg.mu.Unlock()
@@ -256,14 +256,14 @@ func (fg *FingerprintGenerator) CleanupExpired(maxAge time.Duration) int {
 	return removed
 }
 
-// GenerateSimpleFingerprint 简单指纹生成 (仅使用IP和UserAgent)
+// GenerateSimpleFingerprint 简单指纹生成 (仅使用IP和UserAgent).
 func GenerateSimpleFingerprint(ip, userAgent string) string {
 	data := fmt.Sprintf("%s|%s", ip, userAgent)
 	hash := sha256.Sum256([]byte(data))
 	return hex.EncodeToString(hash[:])
 }
 
-// CompareFingerprints 比较两个指纹是否相似
+// CompareFingerprints 比较两个指纹是否相似.
 func CompareFingerprints(fp1, fp2 *DeviceFingerprint) float64 {
 	if fp1.Fingerprint == fp2.Fingerprint {
 		return 1.0
@@ -290,7 +290,7 @@ func CompareFingerprints(fp1, fp2 *DeviceFingerprint) float64 {
 	return float64(matches) / float64(total)
 }
 
-// GetFingerprintComponents 从请求中提取指纹组件
+// GetFingerprintComponents 从请求中提取指纹组件.
 func GetFingerprintComponents(ip, userAgent string, extra map[string]string) *FingerprintComponents {
 	components := &FingerprintComponents{
 		IP:        ip,

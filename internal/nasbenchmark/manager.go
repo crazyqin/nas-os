@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// BenchmarkType represents the type of benchmark
+// BenchmarkType represents the type of benchmark.
 type BenchmarkType string
 
 const (
@@ -21,7 +21,7 @@ const (
 	BenchmarkMemory          BenchmarkType = "memory"
 )
 
-// BenchmarkResult represents a benchmark result
+// BenchmarkResult represents a benchmark result.
 type BenchmarkResult struct {
 	ID         string        `json:"id"`
 	Type       BenchmarkType `json:"type"`
@@ -38,7 +38,7 @@ type BenchmarkResult struct {
 	ErrorMsg   string        `json:"error_msg,omitempty"`
 }
 
-// LatencyStats represents latency statistics
+// LatencyStats represents latency statistics.
 type LatencyStats struct {
 	Min time.Duration `json:"min"`
 	Max time.Duration `json:"max"`
@@ -48,7 +48,7 @@ type LatencyStats struct {
 	P99 time.Duration `json:"p99"`
 }
 
-// BenchmarkConfig represents benchmark configuration
+// BenchmarkConfig represents benchmark configuration.
 type BenchmarkConfig struct {
 	Type      BenchmarkType `json:"type"`
 	Path      string        `json:"path"`
@@ -59,7 +59,7 @@ type BenchmarkConfig struct {
 	Count     int           `json:"count"`
 }
 
-// BenchmarkSuite represents a benchmark suite result
+// BenchmarkSuite represents a benchmark suite result.
 type BenchmarkSuite struct {
 	ID        string            `json:"id"`
 	Name      string            `json:"name"`
@@ -69,7 +69,7 @@ type BenchmarkSuite struct {
 	Summary   SuiteSummary      `json:"summary"`
 }
 
-// SuiteSummary represents a summary of benchmark suite
+// SuiteSummary represents a summary of benchmark suite.
 type SuiteSummary struct {
 	TotalTests    int           `json:"total_tests"`
 	PassedTests   int           `json:"passed_tests"`
@@ -80,14 +80,14 @@ type SuiteSummary struct {
 	TotalDuration time.Duration `json:"total_duration"`
 }
 
-// Manager manages benchmarks
+// Manager manages benchmarks.
 type Manager struct {
 	mu      sync.RWMutex
 	results map[string]*BenchmarkResult
 	suites  map[string]*BenchmarkSuite
 }
 
-// NewManager creates a new benchmark manager
+// NewManager creates a new benchmark manager.
 func NewManager() *Manager {
 	return &Manager{
 		results: make(map[string]*BenchmarkResult),
@@ -95,7 +95,7 @@ func NewManager() *Manager {
 	}
 }
 
-// RunBenchmark runs a single benchmark
+// RunBenchmark runs a single benchmark.
 func (m *Manager) RunBenchmark(config BenchmarkConfig) (*BenchmarkResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -162,7 +162,7 @@ func (m *Manager) RunBenchmark(config BenchmarkConfig) (*BenchmarkResult, error)
 	return result, nil
 }
 
-// RunSuite runs a benchmark suite
+// RunSuite runs a benchmark suite.
 func (m *Manager) RunSuite(name string, configs []BenchmarkConfig) (*BenchmarkSuite, error) {
 	suite := &BenchmarkSuite{
 		ID:        fmt.Sprintf("suite-%d", time.Now().UnixNano()),
@@ -205,7 +205,7 @@ func (m *Manager) RunSuite(name string, configs []BenchmarkConfig) (*BenchmarkSu
 	return suite, nil
 }
 
-// GetResult returns a benchmark result by ID
+// GetResult returns a benchmark result by ID.
 func (m *Manager) GetResult(id string) (*BenchmarkResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -218,7 +218,7 @@ func (m *Manager) GetResult(id string) (*BenchmarkResult, error) {
 	return result, nil
 }
 
-// ListResults lists all benchmark results
+// ListResults lists all benchmark results.
 func (m *Manager) ListResults() []*BenchmarkResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -231,7 +231,7 @@ func (m *Manager) ListResults() []*BenchmarkResult {
 	return results
 }
 
-// GetSuite returns a benchmark suite by ID
+// GetSuite returns a benchmark suite by ID.
 func (m *Manager) GetSuite(id string) (*BenchmarkSuite, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -244,7 +244,7 @@ func (m *Manager) GetSuite(id string) (*BenchmarkSuite, error) {
 	return suite, nil
 }
 
-// ListSuites lists all benchmark suites
+// ListSuites lists all benchmark suites.
 func (m *Manager) ListSuites() []*BenchmarkSuite {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -257,7 +257,7 @@ func (m *Manager) ListSuites() []*BenchmarkSuite {
 	return suites
 }
 
-// CompareResults compares two benchmark results
+// CompareResults compares two benchmark results.
 func (m *Manager) CompareResults(id1, id2 string) (map[string]interface{}, error) {
 	r1, err := m.GetResult(id1)
 	if err != nil {

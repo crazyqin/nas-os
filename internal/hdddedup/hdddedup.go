@@ -13,7 +13,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// NewEngine 创建去重压缩引擎
+// NewEngine 创建去重压缩引擎.
 func NewEngine(config *HDDDedupConfig) *Engine {
 	if config == nil {
 		config = DefaultHDDDedupConfig()
@@ -30,7 +30,7 @@ func NewEngine(config *HDDDedupConfig) *Engine {
 	}
 }
 
-// Start 启动引擎
+// Start 启动引擎.
 func (e *Engine) Start() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -50,7 +50,7 @@ func (e *Engine) Start() error {
 	return nil
 }
 
-// Stop 停止引擎
+// Stop 停止引擎.
 func (e *Engine) Stop() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -64,14 +64,14 @@ func (e *Engine) Stop() {
 	log.Println("[HDDDedup] 去重压缩引擎停止")
 }
 
-// IsRunning 检查是否运行中
+// IsRunning 检查是否运行中.
 func (e *Engine) IsRunning() bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.running
 }
 
-// CreateDedupJob 创建去重任务
+// CreateDedupJob 创建去重任务.
 func (e *Engine) CreateDedupJob(targetPath string) (*DedupJob, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -101,7 +101,7 @@ func (e *Engine) CreateDedupJob(targetPath string) (*DedupJob, error) {
 	return job, nil
 }
 
-// executeDedupJob 执行去重任务
+// executeDedupJob 执行去重任务.
 func (e *Engine) executeDedupJob(job *DedupJob) {
 	e.mu.Lock()
 	job.Status = JobStatusRunning
@@ -181,7 +181,7 @@ func (e *Engine) executeDedupJob(job *DedupJob) {
 	e.generateReport(job)
 }
 
-// shouldProcess 检查文件是否应该处理
+// shouldProcess 检查文件是否应该处理.
 func (e *Engine) shouldProcess(path string, info os.FileInfo) bool {
 	// 检查文件大小
 	if info.Size() < int64(e.config.ChunkSize) {
@@ -202,7 +202,7 @@ func (e *Engine) shouldProcess(path string, info os.FileInfo) bool {
 	return true
 }
 
-// matchPolicy 检查文件是否匹配策略
+// matchPolicy 检查文件是否匹配策略.
 func matchPolicy(path string, info os.FileInfo, policy *CompressPolicy) bool {
 	// 检查文件大小
 	if info.Size() < policy.MinSize {
@@ -227,7 +227,7 @@ func matchPolicy(path string, info os.FileInfo, policy *CompressPolicy) bool {
 	return true
 }
 
-// processFile 处理单个文件
+// processFile 处理单个文件.
 func (e *Engine) processFile(path string) (savedBytes int64, dedupCount int64, err error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -277,15 +277,15 @@ func (e *Engine) processFile(path string) (savedBytes int64, dedupCount int64, e
 	return totalSaved, totalDedup, nil
 }
 
-// generateReport 生成效率报告
+// generateReport 生成效率报告.
 func (e *Engine) generateReport(job *DedupJob) {
 	report := &EfficiencyReport{
-		ID:          uuid.New().String(),
-		GeneratedAt: time.Now(),
-		TotalData:   job.TotalFiles * int64(e.config.ChunkSize), // 估算
-		DedupedData: job.SavedBytes,
-		TotalSaved:  job.SavedBytes,
-		ChunkCount:  job.TotalFiles,
+		ID:           uuid.New().String(),
+		GeneratedAt:  time.Now(),
+		TotalData:    job.TotalFiles * int64(e.config.ChunkSize), // 估算
+		DedupedData:  job.SavedBytes,
+		TotalSaved:   job.SavedBytes,
+		ChunkCount:   job.TotalFiles,
 		UniqueChunks: job.TotalFiles - job.DedupCount,
 	}
 
@@ -296,7 +296,7 @@ func (e *Engine) generateReport(job *DedupJob) {
 	e.reports = append(e.reports, report)
 }
 
-// GetJob 获取任务状态
+// GetJob 获取任务状态.
 func (e *Engine) GetJob(jobID string) (*DedupJob, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -309,7 +309,7 @@ func (e *Engine) GetJob(jobID string) (*DedupJob, error) {
 	return job, nil
 }
 
-// ListJobs 列出所有任务
+// ListJobs 列出所有任务.
 func (e *Engine) ListJobs() []*DedupJob {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -321,7 +321,7 @@ func (e *Engine) ListJobs() []*DedupJob {
 	return jobs
 }
 
-// GetEfficiencyReport 获取效率报告
+// GetEfficiencyReport 获取效率报告.
 func (e *Engine) GetEfficiencyReport() *EfficiencyReport {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -335,7 +335,7 @@ func (e *Engine) GetEfficiencyReport() *EfficiencyReport {
 	return e.reports[len(e.reports)-1]
 }
 
-// scheduleWorker 调度工作器
+// scheduleWorker 调度工作器.
 func (e *Engine) scheduleWorker() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -350,7 +350,7 @@ func (e *Engine) scheduleWorker() {
 	}
 }
 
-// checkSchedules 检查调度任务
+// checkSchedules 检查调度任务.
 func (e *Engine) checkSchedules() {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -376,7 +376,7 @@ func (e *Engine) checkSchedules() {
 	}
 }
 
-// CreateSchedule 创建调度
+// CreateSchedule 创建调度.
 func (e *Engine) CreateSchedule(schedule *DedupSchedule) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -395,7 +395,7 @@ func (e *Engine) CreateSchedule(schedule *DedupSchedule) error {
 	return nil
 }
 
-// CreatePolicy 创建压缩策略
+// CreatePolicy 创建压缩策略.
 func (e *Engine) CreatePolicy(policy *CompressPolicy) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -410,7 +410,7 @@ func (e *Engine) CreatePolicy(policy *CompressPolicy) error {
 	return nil
 }
 
-// ListPolicies 列出压缩策略
+// ListPolicies 列出压缩策略.
 func (e *Engine) ListPolicies() []*CompressPolicy {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -422,7 +422,7 @@ func (e *Engine) ListPolicies() []*CompressPolicy {
 	return policies
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (e *Engine) UpdateConfig(config *HDDDedupConfig) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -431,7 +431,7 @@ func (e *Engine) UpdateConfig(config *HDDDedupConfig) {
 	log.Printf("[HDDDedup] 配置已更新")
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (e *Engine) GetConfig() *HDDDedupConfig {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -439,7 +439,7 @@ func (e *Engine) GetConfig() *HDDDedupConfig {
 	return e.config
 }
 
-// GetChunkStats 获取数据块统计
+// GetChunkStats 获取数据块统计.
 func (e *Engine) GetChunkStats() (totalChunks int, uniqueChunks int, totalSize int64) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()

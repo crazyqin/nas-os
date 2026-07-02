@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Snapshot 存储快照
+// Snapshot 存储快照.
 type Snapshot struct {
 	Timestamp  time.Time        `json:"timestamp"`
 	TotalBytes int64            `json:"total_bytes"`
@@ -22,7 +22,7 @@ type Snapshot struct {
 	ByCategory map[string]int64 `json:"by_category"`
 }
 
-// TrendReport 趋势报告
+// TrendReport 趋势报告.
 type TrendReport struct {
 	Period        string  `json:"period"`
 	AvgUsage      float64 `json:"avg_usage"`
@@ -33,7 +33,7 @@ type TrendReport struct {
 	Prediction    string  `json:"prediction"`
 }
 
-// Manager 存储报告管理器
+// Manager 存储报告管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	logger    *zap.Logger
@@ -41,7 +41,7 @@ type Manager struct {
 	dataPath  string
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(logger *zap.Logger, dataPath string) *Manager {
 	m := &Manager{
 		logger:   logger,
@@ -51,7 +51,7 @@ func NewManager(logger *zap.Logger, dataPath string) *Manager {
 	return m
 }
 
-// TakeSnapshot 获取快照
+// TakeSnapshot 获取快照.
 func (m *Manager) TakeSnapshot(total, used int64, categories map[string]int64) *Snapshot {
 	snap := &Snapshot{
 		Timestamp:  time.Now(),
@@ -73,7 +73,7 @@ func (m *Manager) TakeSnapshot(total, used int64, categories map[string]int64) *
 	return snap
 }
 
-// GetTrend 获取趋势
+// GetTrend 获取趋势.
 func (m *Manager) GetTrend(days int) *TrendReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -112,7 +112,7 @@ func (m *Manager) GetTrend(days int) *TrendReport {
 	return report
 }
 
-// GetLatest 获取最新快照
+// GetLatest 获取最新快照.
 func (m *Manager) GetLatest() *Snapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -122,7 +122,7 @@ func (m *Manager) GetLatest() *Snapshot {
 	return m.snapshots[len(m.snapshots)-1]
 }
 
-// GetHistory 获取历史
+// GetHistory 获取历史.
 func (m *Manager) GetHistory(limit int) []*Snapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -135,7 +135,7 @@ func (m *Manager) GetHistory(limit int) []*Snapshot {
 	return result
 }
 
-// GenerateReport 生成报告
+// GenerateReport 生成报告.
 func (m *Manager) GenerateReport() map[string]interface{} {
 	return map[string]interface{}{
 		"current":   m.GetLatest(),
@@ -219,7 +219,7 @@ func (m *Manager) saveData() error {
 	return os.WriteFile(filepath.Join(m.dataPath, "storage_reporter.json"), data, 0o644)
 }
 
-// Handlers API
+// Handlers API.
 type Handlers struct{ mgr *Manager }
 
 func NewHandlers(mgr *Manager) *Handlers { return &Handlers{mgr: mgr} }

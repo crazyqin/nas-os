@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-// TagSearch provides advanced tag-based search with AND/OR/NOT operators
+// TagSearch provides advanced tag-based search with AND/OR/NOT operators.
 type TagSearch struct {
 	tagger  *FileTagger
 	manager *TagManager
 }
 
-// NewTagSearch creates a new TagSearch instance
+// NewTagSearch creates a new TagSearch instance.
 func NewTagSearch(tagger *FileTagger, manager *TagManager) *TagSearch {
 	s := &TagSearch{
 		tagger:  tagger,
@@ -23,7 +23,7 @@ func NewTagSearch(tagger *FileTagger, manager *TagManager) *TagSearch {
 	return s
 }
 
-// Search performs a tag-based search with the given query
+// Search performs a tag-based search with the given query.
 func (s *TagSearch) Search(query SearchQuery) (*SearchResult, error) {
 	if err := query.Validate(); err != nil {
 		return nil, err
@@ -79,7 +79,7 @@ func (s *TagSearch) Search(query SearchQuery) (*SearchResult, error) {
 	}, nil
 }
 
-// searchAND returns files that have ALL specified tags
+// searchAND returns files that have ALL specified tags.
 func (s *TagSearch) searchAND(query SearchQuery) map[string]bool {
 	if len(query.Tags) == 0 {
 		return make(map[string]bool)
@@ -107,7 +107,7 @@ func (s *TagSearch) searchAND(query SearchQuery) map[string]bool {
 	return result
 }
 
-// searchOR returns files that have ANY of the specified tags
+// searchOR returns files that have ANY of the specified tags.
 func (s *TagSearch) searchOR(query SearchQuery) map[string]bool {
 	result := make(map[string]bool)
 	for _, tagID := range query.Tags {
@@ -119,7 +119,7 @@ func (s *TagSearch) searchOR(query SearchQuery) map[string]bool {
 	return result
 }
 
-// searchNOT returns files that do NOT have any of the specified tags
+// searchNOT returns files that do NOT have any of the specified tags.
 func (s *TagSearch) searchNOT(query SearchQuery) map[string]bool {
 	// Get all files
 	allFiles := s.getAllFiles()
@@ -143,7 +143,7 @@ func (s *TagSearch) searchNOT(query SearchQuery) map[string]bool {
 	return result
 }
 
-// getFileSet returns a set of file paths that have a specific tag
+// getFileSet returns a set of file paths that have a specific tag.
 func (s *TagSearch) getFileSet(tagID string) map[string]bool {
 	files := s.tagger.GetTagFiles(tagID)
 	result := make(map[string]bool)
@@ -153,7 +153,7 @@ func (s *TagSearch) getFileSet(tagID string) map[string]bool {
 	return result
 }
 
-// getAllFiles returns all files that have any tag
+// getAllFiles returns all files that have any tag.
 func (s *TagSearch) getAllFiles() map[string]bool {
 	result := make(map[string]bool)
 	// This is a simplified implementation
@@ -161,7 +161,7 @@ func (s *TagSearch) getAllFiles() map[string]bool {
 	return result
 }
 
-// applyFilters applies additional filters (category, keyword, owner, date range)
+// applyFilters applies additional filters (category, keyword, owner, date range).
 func (s *TagSearch) applyFilters(files map[string]bool, query SearchQuery) map[string]bool {
 	if len(files) == 0 {
 		return files
@@ -243,7 +243,7 @@ func (s *TagSearch) applyFilters(files map[string]bool, query SearchQuery) map[s
 	return result
 }
 
-// SearchByCategory searches files by category
+// SearchByCategory searches files by category.
 func (s *TagSearch) SearchByCategory(categoryID string, limit int) (*SearchResult, error) {
 	return s.Search(SearchQuery{
 		Operator:   OpOr,
@@ -252,7 +252,7 @@ func (s *TagSearch) SearchByCategory(categoryID string, limit int) (*SearchResul
 	})
 }
 
-// SearchByKeyword searches files by keyword in tag names
+// SearchByKeyword searches files by keyword in tag names.
 func (s *TagSearch) SearchByKeyword(keyword string, limit int) (*SearchResult, error) {
 	return s.Search(SearchQuery{
 		Operator: OpOr,
@@ -261,7 +261,7 @@ func (s *TagSearch) SearchByKeyword(keyword string, limit int) (*SearchResult, e
 	})
 }
 
-// RecentTagged returns recently tagged files
+// RecentTagged returns recently tagged files.
 func (s *TagSearch) RecentTagged(limit int) *SearchResult {
 	since := time.Now().Add(-7 * 24 * time.Hour) // Last 7 days
 	result, _ := s.Search(SearchQuery{
@@ -272,7 +272,7 @@ func (s *TagSearch) RecentTagged(limit int) *SearchResult {
 	return result
 }
 
-// GetRelatedTags returns tags frequently used together with the given tag
+// GetRelatedTags returns tags frequently used together with the given tag.
 func (s *TagSearch) GetRelatedTags(tagID string, limit int) []*Tag {
 	files := s.tagger.GetTagFiles(tagID)
 	tagCount := make(map[string]int64)

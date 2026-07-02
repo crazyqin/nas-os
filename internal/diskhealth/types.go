@@ -10,7 +10,7 @@ import (
 // 基础类型
 // ============================================================
 
-// HealthGrade 健康等级
+// HealthGrade 健康等级.
 type HealthGrade string
 
 const (
@@ -21,7 +21,7 @@ const (
 	GradeF HealthGrade = "F" // 临界 (0-29)
 )
 
-// DiskStatus 磁盘状态
+// DiskStatus 磁盘状态.
 type DiskStatus string
 
 const (
@@ -35,10 +35,10 @@ const (
 // SMART 属性定义
 // ============================================================
 
-// SMARTAttributeID SMART 属性 ID
+// SMARTAttributeID SMART 属性 ID.
 type SMARTAttributeID int
 
-// 主要 SMART 属性 ID 常量
+// 主要 SMART 属性 ID 常量.
 const (
 	SMARTIDReallocatedSectorCt   SMARTAttributeID = 5   // 重映射扇区计数
 	SMARTIDSpinRetryCount        SMARTAttributeID = 10  // 主轴重试次数
@@ -72,7 +72,7 @@ const (
 	SMARTIDReportedUncorrect     SMARTAttributeID = 188 // 报告的不可修复错误
 )
 
-// SMARTAttribute 单个 SMART 属性
+// SMARTAttribute 单个 SMART 属性.
 type SMARTAttribute struct {
 	ID          SMARTAttributeID `json:"id"`          // 属性 ID
 	Name        string           `json:"name"`        // 属性名称
@@ -85,7 +85,7 @@ type SMARTAttribute struct {
 	Description string           `json:"description"` // 属性说明
 }
 
-// SMARTData 完整 SMART 数据
+// SMARTData 完整 SMART 数据.
 type SMARTData struct {
 	Device             string           `json:"device"`                // 设备路径
 	Model              string           `json:"model"`                 // 型号
@@ -111,7 +111,7 @@ type SMARTData struct {
 // SMART 分析结果
 // ============================================================
 
-// TrendDirection 趋势方向
+// TrendDirection 趋势方向.
 type TrendDirection string
 
 const (
@@ -121,7 +121,7 @@ const (
 	TrendCritical  TrendDirection = "critical"  // 临界
 )
 
-// LinearRegressionResult 线性回归结果
+// LinearRegressionResult 线性回归结果.
 type LinearRegressionResult struct {
 	Slope        float64 `json:"slope"`         // 斜率
 	Intercept    float64 `json:"intercept"`     // 截距
@@ -129,7 +129,7 @@ type LinearRegressionResult struct {
 	Projected90D float64 `json:"projected_90d"` // 90天后预测值
 }
 
-// ZScoreAnomaly Z-score 异常检测结果
+// ZScoreAnomaly Z-score 异常检测结果.
 type ZScoreAnomaly struct {
 	AttributeID   SMARTAttributeID `json:"attribute_id"`
 	AttributeName string           `json:"attribute_name"`
@@ -141,7 +141,7 @@ type ZScoreAnomaly struct {
 	Severity      string           `json:"severity"`   // low/medium/high
 }
 
-// AttributeTrend 单属性趋势分析
+// AttributeTrend 单属性趋势分析.
 type AttributeTrend struct {
 	AttributeID   SMARTAttributeID        `json:"attribute_id"`
 	AttributeName string                  `json:"attribute_name"`
@@ -151,7 +151,7 @@ type AttributeTrend struct {
 	Anomaly       *ZScoreAnomaly          `json:"anomaly,omitempty"`
 }
 
-// SMARTAnalysisResult SMART 分析综合结果
+// SMARTAnalysisResult SMART 分析综合结果.
 type SMARTAnalysisResult struct {
 	Device       string           `json:"device"`
 	Attributes   []AttributeTrend `json:"attributes"`
@@ -164,7 +164,7 @@ type SMARTAnalysisResult struct {
 // 健康评分系统
 // ============================================================
 
-// AttributeScore 属性评分
+// AttributeScore 属性评分.
 type AttributeScore struct {
 	AttributeID   SMARTAttributeID `json:"attribute_id"`
 	AttributeName string           `json:"attribute_name"`
@@ -174,7 +174,7 @@ type AttributeScore struct {
 	Status        string           `json:"status"`         // normal/warning/critical
 }
 
-// CorrelationPenalty 属性关联惩罚
+// CorrelationPenalty 属性关联惩罚.
 type CorrelationPenalty struct {
 	Attribute1ID   SMARTAttributeID `json:"attribute1_id"`
 	Attribute1Name string           `json:"attribute1_name"`
@@ -184,7 +184,7 @@ type CorrelationPenalty struct {
 	Reason         string           `json:"reason"`  // 原因
 }
 
-// HealthScore 健康评分结果
+// HealthScore 健康评分结果.
 type HealthScore struct {
 	Device             string               `json:"device"`
 	Score              float64              `json:"score"`                    // 综合评分 (0-100)
@@ -202,7 +202,7 @@ type HealthScore struct {
 // 故障预测
 // ============================================================
 
-// BayesianPrediction 贝叶斯故障预测结果
+// BayesianPrediction 贝叶斯故障预测结果.
 type BayesianPrediction struct {
 	Device               string     `json:"device"`
 	FailureProbability   float64    `json:"failure_probability"`          // 故障概率 (0-1)
@@ -220,7 +220,7 @@ type BayesianPrediction struct {
 // 维护建议
 // ============================================================
 
-// AdvicePriority 建议优先级
+// AdvicePriority 建议优先级.
 type AdvicePriority string
 
 const (
@@ -231,7 +231,7 @@ const (
 	PriorityInfo   AdvicePriority = "info"   // 信息
 )
 
-// MaintenanceAdvice 维护建议
+// MaintenanceAdvice 维护建议.
 type MaintenanceAdvice struct {
 	ID            string         `json:"id"`
 	Device        string         `json:"device"`
@@ -248,7 +248,7 @@ type MaintenanceAdvice struct {
 // 磁盘组管理
 // ============================================================
 
-// DiskGroup 磁盘组
+// DiskGroup 磁盘组.
 type DiskGroup struct {
 	ID           string      `json:"id"`
 	Name         string      `json:"name"`          // 组名
@@ -266,7 +266,7 @@ type DiskGroup struct {
 // 历史数据
 // ============================================================
 
-// HealthHistoryPoint 历史健康数据点
+// HealthHistoryPoint 历史健康数据点.
 type HealthHistoryPoint struct {
 	Timestamp time.Time   `json:"timestamp"`
 	Score     float64     `json:"score"`
@@ -274,7 +274,7 @@ type HealthHistoryPoint struct {
 	Status    DiskStatus  `json:"status"`
 }
 
-// HealthHistory 健康历史
+// HealthHistory 健康历史.
 type HealthHistory struct {
 	Device string               `json:"device"`
 	Points []HealthHistoryPoint `json:"points"`
@@ -285,7 +285,7 @@ type HealthHistory struct {
 // API 响应类型
 // ============================================================
 
-// DiskListItem 磁盘列表项
+// DiskListItem 磁盘列表项.
 type DiskListItem struct {
 	Device       string      `json:"device"`
 	Model        string      `json:"model"`
@@ -299,7 +299,7 @@ type DiskListItem struct {
 	PowerOnHours uint64      `json:"power_on_hours"`
 }
 
-// DashboardData 仪表板数据
+// DashboardData 仪表板数据.
 type DashboardData struct {
 	TotalDisks    int       `json:"total_disks"`
 	HealthyDisks  int       `json:"healthy_disks"`
@@ -318,7 +318,7 @@ type DashboardData struct {
 // 请求/响应通用类型
 // ============================================================
 
-// APIResponse 通用 API 响应
+// APIResponse 通用 API 响应.
 type APIResponse struct {
 	Success bool        `json:"success"`
 	Message string      `json:"message,omitempty"`
@@ -326,7 +326,7 @@ type APIResponse struct {
 	Error   string      `json:"error,omitempty"`
 }
 
-// ScanTriggerResponse 扫描触发响应
+// ScanTriggerResponse 扫描触发响应.
 type ScanTriggerResponse struct {
 	ScanID    string    `json:"scan_id"`
 	Status    string    `json:"status"`

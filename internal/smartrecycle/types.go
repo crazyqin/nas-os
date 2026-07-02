@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// FileType 文件类型
+// FileType 文件类型.
 type FileType string
 
 const (
@@ -22,7 +22,7 @@ const (
 	FileEmpty     FileType = "empty"
 )
 
-// CleanupItem 清理项
+// CleanupItem 清理项.
 type CleanupItem struct {
 	ID         string    `json:"id"`
 	Path       string    `json:"path"`
@@ -36,7 +36,7 @@ type CleanupItem struct {
 	Reason     string    `json:"reason"`
 }
 
-// ScanPolicy 扫描策略
+// ScanPolicy 扫描策略.
 type ScanPolicy struct {
 	MinFileSize    int64    `json:"min_file_size"`   // 最小文件大小(bytes)
 	MaxAge         int      `json:"max_age"`         // 最大保留天数
@@ -45,7 +45,7 @@ type ScanPolicy struct {
 	IncludeHidden  bool     `json:"include_hidden"`
 }
 
-// ScanResult 扫描结果
+// ScanResult 扫描结果.
 type ScanResult struct {
 	ID         string         `json:"id"`
 	ScanPath   string         `json:"scan_path"`
@@ -57,7 +57,7 @@ type ScanResult struct {
 	Duration   int64          `json:"duration_ms"`
 }
 
-// CleanupReport 清理报告
+// CleanupReport 清理报告.
 type CleanupReport struct {
 	ID          string    `json:"id"`
 	ScanID      string    `json:"scan_id"`
@@ -67,7 +67,7 @@ type CleanupReport struct {
 	CompletedAt time.Time `json:"completed_at"`
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	AutoClean      bool   `json:"auto_clean"`
 	ScheduleCron   string `json:"schedule_cron"`
@@ -76,7 +76,7 @@ type Config struct {
 	RetentionDays  int    `json:"retention_days"`
 }
 
-// Manager 管理器
+// Manager 管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	config   *Config
@@ -91,7 +91,7 @@ var (
 	ErrInvalidPolicy = errors.New("invalid scan policy")
 )
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(dataFile string) *Manager {
 	return &Manager{
 		config: &Config{
@@ -105,12 +105,12 @@ func NewManager(dataFile string) *Manager {
 	}
 }
 
-// Initialize 初始化
+// Initialize 初始化.
 func (m *Manager) Initialize() error {
 	return m.load()
 }
 
-// ScanPath 扫描路径
+// ScanPath 扫描路径.
 func (m *Manager) ScanPath(path string, policy *ScanPolicy) (*ScanResult, error) {
 	if path == "" {
 		return nil, ErrPathRequired
@@ -191,7 +191,7 @@ func (m *Manager) simulateScan(path string, policy *ScanPolicy) []*CleanupItem {
 	return items
 }
 
-// GetScanResult 获取扫描结果
+// GetScanResult 获取扫描结果.
 func (m *Manager) GetScanResult(id string) (*ScanResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -202,7 +202,7 @@ func (m *Manager) GetScanResult(id string) (*ScanResult, error) {
 	return result, nil
 }
 
-// ListScanResults 列出扫描结果
+// ListScanResults 列出扫描结果.
 func (m *Manager) ListScanResults() []*ScanResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -213,7 +213,7 @@ func (m *Manager) ListScanResults() []*ScanResult {
 	return results
 }
 
-// ExecuteCleanup 执行清理
+// ExecuteCleanup 执行清理.
 func (m *Manager) ExecuteCleanup(scanID string, itemIDs []string) (*CleanupReport, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -246,7 +246,7 @@ func (m *Manager) ExecuteCleanup(scanID string, itemIDs []string) (*CleanupRepor
 	return report, m.save()
 }
 
-// DefaultPolicy 默认策略
+// DefaultPolicy 默认策略.
 func (m *Manager) DefaultPolicy() *ScanPolicy {
 	return &ScanPolicy{
 		MinFileSize:    1024 * 1024, // 1MB
@@ -257,7 +257,7 @@ func (m *Manager) DefaultPolicy() *ScanPolicy {
 	}
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

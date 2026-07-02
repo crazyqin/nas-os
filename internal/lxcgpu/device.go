@@ -11,16 +11,16 @@ import (
 )
 
 // DeviceManager GPU设备发现与管理器
-// 负责扫描、识别、监控GPU设备，支持NVIDIA和AMD显卡
+// 负责扫描、识别、监控GPU设备，支持NVIDIA和AMD显卡.
 type DeviceManager struct {
-	mu       sync.RWMutex
-	devices  map[string]*GPUDevice // PCI地址 -> 设备
-	lxcCfg   *LXCConfig
-	stopCh   chan struct{}
-	polling  bool
+	mu      sync.RWMutex
+	devices map[string]*GPUDevice // PCI地址 -> 设备
+	lxcCfg  *LXCConfig
+	stopCh  chan struct{}
+	polling bool
 }
 
-// NewDeviceManager 创建设备管理器
+// NewDeviceManager 创建设备管理器.
 func NewDeviceManager(lxcCfg *LXCConfig) *DeviceManager {
 	if lxcCfg == nil {
 		lxcCfg = DefaultLXCConfig()
@@ -33,7 +33,7 @@ func NewDeviceManager(lxcCfg *LXCConfig) *DeviceManager {
 }
 
 // DiscoverDevices 扫描并发现系统中的GPU设备
-// 通过/sys/bus/pci/devices/和nvidia-smi等工具识别GPU
+// 通过/sys/bus/pci/devices/和nvidia-smi等工具识别GPU.
 func (dm *DeviceManager) DiscoverDevices() ([]*GPUDevice, error) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -75,7 +75,7 @@ func (dm *DeviceManager) DiscoverDevices() ([]*GPUDevice, error) {
 	return result, nil
 }
 
-// scanPCIDevices 扫描PCI总线上的GPU设备
+// scanPCIDevices 扫描PCI总线上的GPU设备.
 func (dm *DeviceManager) scanPCIDevices() (map[string]*GPUDevice, error) {
 	devices := make(map[string]*GPUDevice)
 
@@ -165,7 +165,7 @@ func (dm *DeviceManager) scanPCIDevices() (map[string]*GPUDevice, error) {
 	return devices, nil
 }
 
-// enrichNVIDIAInfo 使用nvidia-smi补充NVIDIA设备信息
+// enrichNVIDIAInfo 使用nvidia-smi补充NVIDIA设备信息.
 func (dm *DeviceManager) enrichNVIDIAInfo() {
 	// 检查nvidia-smi是否可用
 	if _, err := exec.LookPath("nvidia-smi"); err != nil {
@@ -208,7 +208,7 @@ func (dm *DeviceManager) enrichNVIDIAInfo() {
 	}
 }
 
-// enrichAMDInfo 使用rocm-smi补充AMD设备信息
+// enrichAMDInfo 使用rocm-smi补充AMD设备信息.
 func (dm *DeviceManager) enrichAMDInfo() {
 	// 检查rocm-smi是否可用
 	if _, err := exec.LookPath("rocm-smi"); err != nil {
@@ -236,7 +236,7 @@ func (dm *DeviceManager) enrichAMDInfo() {
 }
 
 // normalizePCIAddr 标准化PCI地址格式
-// nvidia-smi返回 00000000:01:00.0，sysfs使用 0000:01:00.0
+// nvidia-smi返回 00000000:01:00.0，sysfs使用 0000:01:00.0.
 func (dm *DeviceManager) normalizePCIAddr(addr string) string {
 	// 去掉前导零，保留标准格式
 	addr = strings.TrimSpace(addr)
@@ -247,7 +247,7 @@ func (dm *DeviceManager) normalizePCIAddr(addr string) string {
 	return addr
 }
 
-// GetDevice 获取指定GPU设备
+// GetDevice 获取指定GPU设备.
 func (dm *DeviceManager) GetDevice(pciAddr string) (*GPUDevice, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -259,7 +259,7 @@ func (dm *DeviceManager) GetDevice(pciAddr string) (*GPUDevice, error) {
 	return device, nil
 }
 
-// ListDevices 列出所有GPU设备
+// ListDevices 列出所有GPU设备.
 func (dm *DeviceManager) ListDevices() []*GPUDevice {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -271,7 +271,7 @@ func (dm *DeviceManager) ListDevices() []*GPUDevice {
 	return devices
 }
 
-// ListAvailableDevices 列出可用GPU设备
+// ListAvailableDevices 列出可用GPU设备.
 func (dm *DeviceManager) ListAvailableDevices() []*GPUDevice {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -285,7 +285,7 @@ func (dm *DeviceManager) ListAvailableDevices() []*GPUDevice {
 	return devices
 }
 
-// GetDeviceForContainer 获取容器的GPU设备列表
+// GetDeviceForContainer 获取容器的GPU设备列表.
 func (dm *DeviceManager) GetDeviceForContainer(containerID string) []*GPUDevice {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -302,7 +302,7 @@ func (dm *DeviceManager) GetDeviceForContainer(containerID string) []*GPUDevice 
 	return result
 }
 
-// UpdateDeviceAssignment 更新设备分配信息
+// UpdateDeviceAssignment 更新设备分配信息.
 func (dm *DeviceManager) UpdateDeviceAssignment(pciAddr string, assignment *LXCGPUAssignment) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -329,7 +329,7 @@ func (dm *DeviceManager) UpdateDeviceAssignment(pciAddr string, assignment *LXCG
 	return nil
 }
 
-// RemoveDeviceAssignment 移除设备分配记录
+// RemoveDeviceAssignment 移除设备分配记录.
 func (dm *DeviceManager) RemoveDeviceAssignment(pciAddr, assignmentID string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -351,7 +351,7 @@ func (dm *DeviceManager) RemoveDeviceAssignment(pciAddr, assignmentID string) er
 }
 
 // StartPolling 启动设备状态轮询
-// 定期检测GPU温度、使用率等信息
+// 定期检测GPU温度、使用率等信息.
 func (dm *DeviceManager) StartPolling(interval time.Duration) {
 	if dm.polling {
 		return
@@ -373,7 +373,7 @@ func (dm *DeviceManager) StartPolling(interval time.Duration) {
 	}()
 }
 
-// StopPolling 停止设备状态轮询
+// StopPolling 停止设备状态轮询.
 func (dm *DeviceManager) StopPolling() {
 	if dm.polling {
 		close(dm.stopCh)
@@ -381,7 +381,7 @@ func (dm *DeviceManager) StopPolling() {
 	}
 }
 
-// pollGPUStats 轮询GPU统计信息（温度、使用率等）
+// pollGPUStats 轮询GPU统计信息（温度、使用率等）.
 func (dm *DeviceManager) pollGPUStats() {
 	// NVIDIA设备：使用nvidia-smi查询
 	if _, err := exec.LookPath("nvidia-smi"); err == nil {
@@ -410,7 +410,7 @@ func (dm *DeviceManager) pollGPUStats() {
 	}
 }
 
-// GetContainerGPUs 获取容器已分配的GPU设备ID列表
+// GetContainerGPUs 获取容器已分配的GPU设备ID列表.
 func (dm *DeviceManager) GetContainerGPUs(containerID string) []string {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -427,7 +427,7 @@ func (dm *DeviceManager) GetContainerGPUs(containerID string) []string {
 	return gpuAddrs
 }
 
-// IsDeviceAvailable 检查设备是否可用于指定容器
+// IsDeviceAvailable 检查设备是否可用于指定容器.
 func (dm *DeviceManager) IsDeviceAvailable(pciAddr string, shareMode ShareMode) (bool, string) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()

@@ -10,14 +10,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handler 流量分析HTTP处理器
+// Handler 流量分析HTTP处理器.
 type Handler struct {
 	collector *Collector
 	analyzer  *Analyzer
 	logger    *zap.Logger
 }
 
-// NewHandler 创建流量分析HTTP处理器
+// NewHandler 创建流量分析HTTP处理器.
 func NewHandler(collector *Collector, analyzer *Analyzer, logger *zap.Logger) *Handler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -29,7 +29,7 @@ func NewHandler(collector *Collector, analyzer *Analyzer, logger *zap.Logger) *H
 	}
 }
 
-// RegisterRoutes 注册流量分析路由到 /api/v1/netflow/
+// RegisterRoutes 注册流量分析路由到 /api/v1/netflow/.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	nf := rg.Group("/netflow")
 	{
@@ -60,7 +60,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// StartCollector handles POST /api/v1/netflow/collector/start
+// StartCollector handles POST /api/v1/netflow/collector/start.
 func (h *Handler) StartCollector(c *gin.Context) {
 	if h.collector.IsRunning() {
 		c.JSON(http.StatusOK, gin.H{"message": "收集器已在运行中"})
@@ -74,7 +74,7 @@ func (h *Handler) StartCollector(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "收集器已启动"})
 }
 
-// StopCollector handles POST /api/v1/netflow/collector/stop
+// StopCollector handles POST /api/v1/netflow/collector/stop.
 func (h *Handler) StopCollector(c *gin.Context) {
 	if !h.collector.IsRunning() {
 		c.JSON(http.StatusOK, gin.H{"message": "收集器未在运行"})
@@ -85,7 +85,7 @@ func (h *Handler) StopCollector(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "收集器已停止"})
 }
 
-// GetCollectorStatus handles GET /api/v1/netflow/collector/status
+// GetCollectorStatus handles GET /api/v1/netflow/collector/status.
 func (h *Handler) GetCollectorStatus(c *gin.Context) {
 	stats := h.collector.GetTrafficStats()
 	c.JSON(http.StatusOK, gin.H{
@@ -99,7 +99,7 @@ func (h *Handler) GetCollectorStatus(c *gin.Context) {
 	})
 }
 
-// GetTrafficStats handles GET /api/v1/netflow/stats
+// GetTrafficStats handles GET /api/v1/netflow/stats.
 func (h *Handler) GetTrafficStats(c *gin.Context) {
 	stats := h.collector.GetTrafficStats()
 	protocols := h.collector.GetProtocolStats()
@@ -112,7 +112,7 @@ func (h *Handler) GetTrafficStats(c *gin.Context) {
 	})
 }
 
-// GetProtocolStats handles GET /api/v1/netflow/stats/protocols
+// GetProtocolStats handles GET /api/v1/netflow/stats/protocols.
 func (h *Handler) GetProtocolStats(c *gin.Context) {
 	protocols := h.collector.GetProtocolStats()
 	c.JSON(http.StatusOK, gin.H{
@@ -121,7 +121,7 @@ func (h *Handler) GetProtocolStats(c *gin.Context) {
 	})
 }
 
-// GetTopHosts handles GET /api/v1/netflow/stats/hosts
+// GetTopHosts handles GET /api/v1/netflow/stats/hosts.
 func (h *Handler) GetTopHosts(c *gin.Context) {
 	n := 10
 	if nStr := c.Query("limit"); nStr != "" {
@@ -137,7 +137,7 @@ func (h *Handler) GetTopHosts(c *gin.Context) {
 	})
 }
 
-// GetBandwidthHistory handles GET /api/v1/netflow/stats/bandwidth
+// GetBandwidthHistory handles GET /api/v1/netflow/stats/bandwidth.
 func (h *Handler) GetBandwidthHistory(c *gin.Context) {
 	history := h.collector.GetBandwidthHistory()
 	c.JSON(http.StatusOK, gin.H{
@@ -146,7 +146,7 @@ func (h *Handler) GetBandwidthHistory(c *gin.Context) {
 	})
 }
 
-// TopHosts handles GET /api/v1/netflow/top/hosts
+// TopHosts handles GET /api/v1/netflow/top/hosts.
 func (h *Handler) TopHosts(c *gin.Context) {
 	n := 10
 	if nStr := c.Query("limit"); nStr != "" {
@@ -159,7 +159,7 @@ func (h *Handler) TopHosts(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// TopProtocols handles GET /api/v1/netflow/top/protocols
+// TopProtocols handles GET /api/v1/netflow/top/protocols.
 func (h *Handler) TopProtocols(c *gin.Context) {
 	n := 10
 	if nStr := c.Query("limit"); nStr != "" {
@@ -172,7 +172,7 @@ func (h *Handler) TopProtocols(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// TopConversations handles GET /api/v1/netflow/top/conversations
+// TopConversations handles GET /api/v1/netflow/top/conversations.
 func (h *Handler) TopConversations(c *gin.Context) {
 	n := 10
 	if nStr := c.Query("limit"); nStr != "" {
@@ -185,7 +185,7 @@ func (h *Handler) TopConversations(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// RunAnalysis handles POST /api/v1/netflow/analyze
+// RunAnalysis handles POST /api/v1/netflow/analyze.
 func (h *Handler) RunAnalysis(c *gin.Context) {
 	alerts := h.analyzer.Analyze()
 	c.JSON(http.StatusOK, gin.H{
@@ -194,7 +194,7 @@ func (h *Handler) RunAnalysis(c *gin.Context) {
 	})
 }
 
-// GetAlerts handles GET /api/v1/netflow/alerts
+// GetAlerts handles GET /api/v1/netflow/alerts.
 func (h *Handler) GetAlerts(c *gin.Context) {
 	limit := 100
 	if lStr := c.Query("limit"); lStr != "" {
@@ -213,13 +213,13 @@ func (h *Handler) GetAlerts(c *gin.Context) {
 	})
 }
 
-// GetAlertStats handles GET /api/v1/netflow/alerts/stats
+// GetAlertStats handles GET /api/v1/netflow/alerts/stats.
 func (h *Handler) GetAlertStats(c *gin.Context) {
 	stats := h.analyzer.GetAlertStats()
 	c.JSON(http.StatusOK, stats)
 }
 
-// ResolveAlert handles PUT /api/v1/netflow/alerts/:id/resolve
+// ResolveAlert handles PUT /api/v1/netflow/alerts/:id/resolve.
 func (h *Handler) ResolveAlert(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.analyzer.ResolveAlert(id); err != nil {
@@ -229,7 +229,7 @@ func (h *Handler) ResolveAlert(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "告警已标记为已解决"})
 }
 
-// updateThresholdsReq 更新阈值请求
+// updateThresholdsReq 更新阈值请求.
 type updateThresholdsReq struct {
 	SpikeThresholdMBPS    *float64 `json:"spike_threshold_mbps"`
 	PortScanThreshold     *int     `json:"port_scan_threshold"`
@@ -237,7 +237,7 @@ type updateThresholdsReq struct {
 	HighConnRateThreshold *int     `json:"high_conn_rate_threshold"`
 }
 
-// UpdateThresholds handles PUT /api/v1/netflow/config/thresholds
+// UpdateThresholds handles PUT /api/v1/netflow/config/thresholds.
 func (h *Handler) UpdateThresholds(c *gin.Context) {
 	var req updateThresholdsReq
 	if err := c.ShouldBindJSON(&req); err != nil {

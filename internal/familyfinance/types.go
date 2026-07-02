@@ -10,36 +10,36 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	// ErrAccountNotFound 账户不存在错误
+	// ErrAccountNotFound 账户不存在错误.
 	ErrAccountNotFound = errors.New("账户不存在")
-	// ErrAccountExists 账户已存在错误
+	// ErrAccountExists 账户已存在错误.
 	ErrAccountExists = errors.New("账户已存在")
-	// ErrTransactionNotFound 交易记录不存在错误
+	// ErrTransactionNotFound 交易记录不存在错误.
 	ErrTransactionNotFound = errors.New("交易记录不存在")
-	// ErrInsufficientFunds 余额不足错误
+	// ErrInsufficientFunds 余额不足错误.
 	ErrInsufficientFunds = errors.New("余额不足")
-	// ErrBudgetNotFound 预算不存在错误
+	// ErrBudgetNotFound 预算不存在错误.
 	ErrBudgetNotFound = errors.New("预算不存在")
-	// ErrBudgetExceeded 预算超支错误
+	// ErrBudgetExceeded 预算超支错误.
 	ErrBudgetExceeded = errors.New("预算已超支")
-	// ErrInvestmentNotFound 投资不存在错误
+	// ErrInvestmentNotFound 投资不存在错误.
 	ErrInvestmentNotFound = errors.New("投资记录不存在")
-	// ErrBillNotFound 账单不存在错误
+	// ErrBillNotFound 账单不存在错误.
 	ErrBillNotFound = errors.New("账单不存在")
-	// ErrInvalidAmount 无效金额错误
+	// ErrInvalidAmount 无效金额错误.
 	ErrInvalidAmount = errors.New("无效金额")
-	// ErrCategoryNotFound 分类不存在错误
+	// ErrCategoryNotFound 分类不存在错误.
 	ErrCategoryNotFound = errors.New("分类不存在")
-	// ErrCategoryExists 分类已存在错误
+	// ErrCategoryExists 分类已存在错误.
 	ErrCategoryExists = errors.New("分类已存在")
 )
 
 // ========== 账户类型 ==========
 
-// AccountType 账户类型
+// AccountType 账户类型.
 type AccountType string
 
-// 账户类型常量
+// 账户类型常量.
 const (
 	AccountTypeBank       AccountType = "bank"       // 银行账户
 	AccountTypeCredit     AccountType = "credit"     // 信用卡
@@ -52,10 +52,10 @@ const (
 
 // ========== 交易类型 ==========
 
-// TransactionType 交易类型
+// TransactionType 交易类型.
 type TransactionType string
 
-// 交易类型常量
+// 交易类型常量.
 const (
 	TransactionTypeIncome   TransactionType = "income"   // 收入
 	TransactionTypeExpense  TransactionType = "expense"  // 支出
@@ -64,10 +64,10 @@ const (
 
 // ========== 投资类型 ==========
 
-// InvestmentType 投资类型
+// InvestmentType 投资类型.
 type InvestmentType string
 
-// 投资类型常量
+// 投资类型常量.
 const (
 	InvestmentTypeFund    InvestmentType = "fund"    // 基金
 	InvestmentTypeStock   InvestmentType = "stock"   // 股票
@@ -79,10 +79,10 @@ const (
 
 // ========== 账单周期 ==========
 
-// BillCycle 账单周期
+// BillCycle 账单周期.
 type BillCycle string
 
-// 账单周期常量
+// 账单周期常量.
 const (
 	BillCycleDaily     BillCycle = "daily"     // 每日
 	BillCycleWeekly    BillCycle = "weekly"    // 每周
@@ -94,7 +94,7 @@ const (
 
 // ========== 核心数据结构 ==========
 
-// Account 账户
+// Account 账户.
 type Account struct {
 	ID         string      `json:"id"`
 	Name       string      `json:"name"`
@@ -111,7 +111,7 @@ type Account struct {
 	UpdatedAt  time.Time   `json:"updated_at"`
 }
 
-// Transaction 交易记录
+// Transaction 交易记录.
 type Transaction struct {
 	ID           string          `json:"id"`
 	AccountID    string          `json:"account_id"`
@@ -130,7 +130,7 @@ type Transaction struct {
 	CreatedAt    time.Time       `json:"created_at"`
 }
 
-// Category 分类
+// Category 分类.
 type Category struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
@@ -141,7 +141,7 @@ type Category struct {
 	Sort     int    `json:"sort"`      // 排序
 }
 
-// Budget 预算
+// Budget 预算.
 type Budget struct {
 	ID           string    `json:"id"`
 	CategoryID   string    `json:"category_id,omitempty"` // 关联分类，空表示总预算
@@ -158,7 +158,7 @@ type Budget struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
-// Investment 投资记录
+// Investment 投资记录.
 type Investment struct {
 	ID              string         `json:"id"`
 	Name            string         `json:"name"`              // 投资名称
@@ -178,7 +178,7 @@ type Investment struct {
 	UpdatedAt       time.Time      `json:"updated_at"`
 }
 
-// Bill 账单
+// Bill 账单.
 type Bill struct {
 	ID           string     `json:"id"`
 	Name         string     `json:"name"`
@@ -200,7 +200,7 @@ type Bill struct {
 
 // ========== 查询与统计 ==========
 
-// TransactionQuery 交易查询参数
+// TransactionQuery 交易查询参数.
 type TransactionQuery struct {
 	AccountID  string          `json:"account_id,omitempty"`
 	Type       TransactionType `json:"type,omitempty"`
@@ -217,7 +217,7 @@ type TransactionQuery struct {
 	SortOrder  string          `json:"sort_order"` // asc, desc
 }
 
-// FinancialSummary 财务摘要
+// FinancialSummary 财务摘要.
 type FinancialSummary struct {
 	TotalIncome    float64           `json:"total_income"`
 	TotalExpense   float64           `json:"total_expense"`
@@ -231,7 +231,7 @@ type FinancialSummary struct {
 	Trend          []TrendPoint      `json:"trend,omitempty"`
 }
 
-// CategorySummary 分类统计
+// CategorySummary 分类统计.
 type CategorySummary struct {
 	CategoryID   string  `json:"category_id"`
 	CategoryName string  `json:"category_name"`
@@ -240,7 +240,7 @@ type CategorySummary struct {
 	Count        int     `json:"count"`
 }
 
-// AccountSummary 账户统计
+// AccountSummary 账户统计.
 type AccountSummary struct {
 	AccountID   string  `json:"account_id"`
 	AccountName string  `json:"account_name"`
@@ -249,7 +249,7 @@ type AccountSummary struct {
 	Expense     float64 `json:"expense"`
 }
 
-// TrendPoint 趋势数据点
+// TrendPoint 趋势数据点.
 type TrendPoint struct {
 	Date    time.Time `json:"date"`
 	Income  float64   `json:"income"`
@@ -258,7 +258,7 @@ type TrendPoint struct {
 	Balance float64   `json:"balance"`
 }
 
-// CashFlowForecast 现金流预测
+// CashFlowForecast 现金流预测.
 type CashFlowForecast struct {
 	GeneratedAt    time.Time         `json:"generated_at"`
 	Months         int               `json:"months"`
@@ -267,7 +267,7 @@ type CashFlowForecast struct {
 	Confidence     float64           `json:"confidence"` // 置信度 0-1
 }
 
-// MonthPrediction 月度预测
+// MonthPrediction 月度预测.
 type MonthPrediction struct {
 	Month        string  `json:"month"`         // YYYY-MM
 	PredictedIn  float64 `json:"predicted_in"`  // 预测收入
@@ -278,7 +278,7 @@ type MonthPrediction struct {
 
 // ========== 默认分类 ==========
 
-// DefaultCategories 默认分类列表
+// DefaultCategories 默认分类列表.
 var DefaultCategories = []Category{
 	// 支出分类
 	{ID: "cat-food", Name: "餐饮美食", Icon: "🍽️", IsIncome: false, Sort: 1},

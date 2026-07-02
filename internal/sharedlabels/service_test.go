@@ -117,9 +117,9 @@ func TestAssignLabels(t *testing.T) {
 	})
 
 	req := AssignLabelRequest{
-		FileID:   "file-001",
-		FilePath: "/shared/project-a/report.pdf",
-		LabelIDs: []string{label.ID, label2.ID},
+		FileID:    "file-001",
+		FilePath:  "/shared/project-a/report.pdf",
+		LabelIDs:  []string{label.ID, label2.ID},
 		AppliedBy: "user1",
 	}
 
@@ -137,9 +137,9 @@ func TestAssignLabels_NonExistentLabel(t *testing.T) {
 	ctx := context.Background()
 
 	req := AssignLabelRequest{
-		FileID:   "file-002",
-		FilePath: "/test/file.txt",
-		LabelIDs: []string{"nonexistent"},
+		FileID:    "file-002",
+		FilePath:  "/test/file.txt",
+		LabelIDs:  []string{"nonexistent"},
 		AppliedBy: "user1",
 	}
 

@@ -221,9 +221,9 @@ func TestExecutorSimpleCommand(t *testing.T) {
 	executor := NewExecutor(mgr, nil, ExecutorConfig{})
 
 	rb := &Runbook{
-		ID:       "rb_exec",
-		Name:     "执行测试",
-		Status:   StatusActive,
+		ID:     "rb_exec",
+		Name:   "执行测试",
+		Status: StatusActive,
 		Steps: []*Step{
 			{ID: "s1", Name: "echo", Type: StepTypeCommand, Command: "echo hello"},
 		},
@@ -252,9 +252,9 @@ func TestExecutorMultiStep(t *testing.T) {
 	executor := NewExecutor(mgr, nil, ExecutorConfig{})
 
 	rb := &Runbook{
-		ID:       "rb_multi",
-		Name:     "多步骤测试",
-		Status:   StatusActive,
+		ID:     "rb_multi",
+		Name:   "多步骤测试",
+		Status: StatusActive,
 		Steps: []*Step{
 			{ID: "s1", Name: "step1", Type: StepTypeCommand, Command: "echo step1"},
 			{ID: "s2", Name: "step2", Type: StepTypeCommand, Command: "echo step2", DependsOn: []string{"s1"}},
@@ -282,9 +282,9 @@ func TestExecutorWithVariables(t *testing.T) {
 	executor := NewExecutor(mgr, nil, ExecutorConfig{})
 
 	rb := &Runbook{
-		ID:       "rb_vars",
-		Name:     "变量测试",
-		Status:   StatusActive,
+		ID:     "rb_vars",
+		Name:   "变量测试",
+		Status: StatusActive,
 		Steps: []*Step{
 			{ID: "s1", Name: "echo var", Type: StepTypeCommand, Command: "echo ${my_var}"},
 		},
@@ -308,9 +308,9 @@ func TestExecutorFailedStep(t *testing.T) {
 	executor := NewExecutor(mgr, nil, ExecutorConfig{})
 
 	rb := &Runbook{
-		ID:       "rb_fail",
-		Name:     "失败测试",
-		Status:   StatusActive,
+		ID:     "rb_fail",
+		Name:   "失败测试",
+		Status: StatusActive,
 		Steps: []*Step{
 			{ID: "s1", Name: "fail", Type: StepTypeCommand, Command: "false"},
 		},
@@ -333,9 +333,9 @@ func TestExecutorContinueOnFailure(t *testing.T) {
 	executor := NewExecutor(mgr, nil, ExecutorConfig{})
 
 	rb := &Runbook{
-		ID:       "rb_continue",
-		Name:     "继续执行测试",
-		Status:   StatusActive,
+		ID:     "rb_continue",
+		Name:   "继续执行测试",
+		Status: StatusActive,
 		Steps: []*Step{
 			{ID: "s1", Name: "fail", Type: StepTypeCommand, Command: "false", ContinueOn: "failure"},
 			{ID: "s2", Name: "success", Type: StepTypeCommand, Command: "echo ok"},

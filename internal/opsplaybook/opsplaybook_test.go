@@ -20,9 +20,9 @@ func TestCreatePlaybook(t *testing.T) {
 			{ID: "s1", Name: "Check SMART", Type: StepCommand, Command: "smartctl -a /dev/sda"},
 			{ID: "s2", Name: "Check Space", Type: StepCommand, Command: "df -h"},
 		},
-		RequiresApproval:  false,
-		SLATargetMinutes:  30,
-		CreatedBy:         "admin",
+		RequiresApproval: false,
+		SLATargetMinutes: 30,
+		CreatedBy:        "admin",
 	}
 
 	if err := m.CreatePlaybook(ctx, pb); err != nil {
@@ -66,8 +66,8 @@ func TestCreateDuplicatePlaybook(t *testing.T) {
 	ctx := context.Background()
 
 	pb := &Playbook{
-		ID:   "pb-dup",
-		Name: "Test",
+		ID:    "pb-dup",
+		Name:  "Test",
 		Steps: []Step{{ID: "s1", Type: StepCommand, Command: "echo hi"}},
 	}
 	_ = m.CreatePlaybook(ctx, pb)
@@ -83,8 +83,8 @@ func TestPublishPlaybook(t *testing.T) {
 	ctx := context.Background()
 
 	pb := &Playbook{
-		ID:   "pb-pub",
-		Name: "Publish Test",
+		ID:    "pb-pub",
+		Name:  "Publish Test",
 		Steps: []Step{{ID: "s1", Type: StepCommand, Command: "echo ok"}},
 	}
 	_ = m.CreatePlaybook(ctx, pb)
@@ -131,8 +131,8 @@ func TestUpdatePlaybook(t *testing.T) {
 	ctx := context.Background()
 
 	pb := &Playbook{
-		ID:   "pb-upd",
-		Name: "Original",
+		ID:    "pb-upd",
+		Name:  "Original",
 		Steps: []Step{{ID: "s1", Type: StepCommand, Command: "echo v1"}},
 	}
 	_ = m.CreatePlaybook(ctx, pb)
@@ -214,8 +214,8 @@ func TestExecutePlaybook(t *testing.T) {
 	ctx := context.Background()
 
 	pb := &Playbook{
-		ID:               "pb-exec",
-		Name:             "Execute Test",
+		ID:   "pb-exec",
+		Name: "Execute Test",
 		Steps: []Step{
 			{ID: "s1", Name: "Step 1", Type: StepCommand, Command: "echo hello"},
 			{ID: "s2", Name: "Step 2", Type: StepCheck, Command: "check disk"},
@@ -240,8 +240,8 @@ func TestExecuteUnpublishedPlaybook(t *testing.T) {
 	ctx := context.Background()
 
 	pb := &Playbook{
-		ID:   "pb-draft",
-		Name: "Draft",
+		ID:    "pb-draft",
+		Name:  "Draft",
 		Steps: []Step{{ID: "s1", Type: StepCommand, Command: "echo hi"}},
 	}
 	_ = m.CreatePlaybook(ctx, pb)
@@ -334,9 +334,9 @@ func TestCancelExecution(t *testing.T) {
 	ctx := context.Background()
 
 	pb := &Playbook{
-		ID:     "pb-cancel",
-		Name:   "Cancel Test",
-		Steps:  []Step{{ID: "s1", Type: StepWait, Timeout: 60}},
+		ID:    "pb-cancel",
+		Name:  "Cancel Test",
+		Steps: []Step{{ID: "s1", Type: StepWait, Timeout: 60}},
 	}
 	if err := m.CreatePlaybook(ctx, pb); err != nil {
 		t.Fatalf("CreatePlaybook failed: %v", err)
@@ -536,8 +536,8 @@ func TestPlaybookStats(t *testing.T) {
 	ctx := context.Background()
 
 	pb := &Playbook{
-		ID:   "pb-stats",
-		Name: "Stats Test",
+		ID:    "pb-stats",
+		Name:  "Stats Test",
 		Steps: []Step{{ID: "s1", Type: StepCommand, Command: "echo ok"}},
 	}
 	if err := m.CreatePlaybook(ctx, pb); err != nil {
@@ -600,5 +600,3 @@ func BenchmarkExecutePlaybook(b *testing.B) {
 		_, _ = m.ExecutePlaybook(ctx, "pb-bench-exec", "admin", nil)
 	}
 }
-
-

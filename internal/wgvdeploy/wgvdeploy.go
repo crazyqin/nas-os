@@ -16,7 +16,7 @@ import (
 // Engine - WireGuard 一键部署引擎
 // ============================================================
 
-// Engine WireGuard 部署引擎
+// Engine WireGuard 部署引擎.
 type Engine struct {
 	mu             sync.RWMutex
 	server         ServerConfig
@@ -30,7 +30,7 @@ type Engine struct {
 	dnsConfig      DNSConfig
 }
 
-// NewEngine 创建新的部署引擎
+// NewEngine 创建新的部署引擎.
 func NewEngine() *Engine {
 	e := &Engine{
 		peers:          make(map[string]*Peer),
@@ -71,7 +71,7 @@ func NewEngine() *Engine {
 // 密钥对生成
 // ============================================================
 
-// GenerateKeyPair 生成 WireGuard 密钥对
+// GenerateKeyPair 生成 WireGuard 密钥对.
 func GenerateKeyPair() (*KeyPair, error) {
 	// 使用 crypto/rand 生成 32 字节私钥
 	privBytes := make([]byte, 32)
@@ -93,7 +93,7 @@ func GenerateKeyPair() (*KeyPair, error) {
 	}, nil
 }
 
-// GeneratePresharedKey 生成预共享密钥
+// GeneratePresharedKey 生成预共享密钥.
 func GeneratePresharedKey() (string, error) {
 	pskBytes := make([]byte, 32)
 	if _, err := rand.Read(pskBytes); err != nil {
@@ -106,7 +106,7 @@ func GeneratePresharedKey() (string, error) {
 // 服务端配置生成
 // ============================================================
 
-// GetServerConfig 获取服务端配置
+// GetServerConfig 获取服务端配置.
 func (e *Engine) GetServerConfig() *ServerConfig {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -119,7 +119,7 @@ func (e *Engine) GetServerConfig() *ServerConfig {
 	return &cfg
 }
 
-// GenerateServerConf 生成 wg0.conf 配置文件内容
+// GenerateServerConf 生成 wg0.conf 配置文件内容.
 func (e *Engine) GenerateServerConf() string {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -127,20 +127,20 @@ func (e *Engine) GenerateServerConf() string {
 	var sb strings.Builder
 
 	sb.WriteString("[Interface]\n")
-	sb.WriteString(fmt.Sprintf("Address = %s\n", e.server.Address))
-	sb.WriteString(fmt.Sprintf("ListenPort = %d\n", e.server.ListenPort))
-	sb.WriteString(fmt.Sprintf("PrivateKey = %s\n", e.server.PrivateKey))
+	fmt.Fprintf(&sb, "Address = %s\n", e.server.Address)
+	fmt.Fprintf(&sb, "ListenPort = %d\n", e.server.ListenPort)
+	fmt.Fprintf(&sb, "PrivateKey = %s\n", e.server.PrivateKey)
 	if e.server.DNS != "" {
-		sb.WriteString(fmt.Sprintf("DNS = %s\n", e.server.DNS))
+		fmt.Fprintf(&sb, "DNS = %s\n", e.server.DNS)
 	}
 	if e.server.MTU > 0 {
-		sb.WriteString(fmt.Sprintf("MTU = %d\n", e.server.MTU))
+		fmt.Fprintf(&sb, "MTU = %d\n", e.server.MTU)
 	}
 	if e.server.PostUp != "" {
-		sb.WriteString(fmt.Sprintf("PostUp = %s\n", e.server.PostUp))
+		fmt.Fprintf(&sb, "PostUp = %s\n", e.server.PostUp)
 	}
 	if e.server.PostDown != "" {
-		sb.WriteString(fmt.Sprintf("PostDown = %s\n", e.server.PostDown))
+		fmt.Fprintf(&sb, "PostDown = %s\n", e.server.PostDown)
 	}
 	sb.WriteString("\n")
 
@@ -149,17 +149,17 @@ func (e *Engine) GenerateServerConf() string {
 			continue
 		}
 		sb.WriteString("[Peer]\n")
-		sb.WriteString(fmt.Sprintf("# %s\n", peer.Name))
-		sb.WriteString(fmt.Sprintf("PublicKey = %s\n", peer.PublicKey))
+		fmt.Fprintf(&sb, "# %s\n", peer.Name)
+		fmt.Fprintf(&sb, "PublicKey = %s\n", peer.PublicKey)
 		if peer.PresharedKey != "" {
-			sb.WriteString(fmt.Sprintf("PresharedKey = %s\n", peer.PresharedKey))
+			fmt.Fprintf(&sb, "PresharedKey = %s\n", peer.PresharedKey)
 		}
-		sb.WriteString(fmt.Sprintf("AllowedIPs = %s\n", peer.AllowedIPs))
+		fmt.Fprintf(&sb, "AllowedIPs = %s\n", peer.AllowedIPs)
 		if peer.Endpoint != "" {
-			sb.WriteString(fmt.Sprintf("Endpoint = %s\n", peer.Endpoint))
+			fmt.Fprintf(&sb, "Endpoint = %s\n", peer.Endpoint)
 		}
 		if peer.PersistentKeepalive > 0 {
-			sb.WriteString(fmt.Sprintf("PersistentKeepalive = %d\n", peer.PersistentKeepalive))
+			fmt.Fprintf(&sb, "PersistentKeepalive = %d\n", peer.PersistentKeepalive)
 		}
 		sb.WriteString("\n")
 	}
@@ -171,7 +171,7 @@ func (e *Engine) GenerateServerConf() string {
 // 客户端配置生成
 // ============================================================
 
-// GenerateClientConfig 生成客户端配置
+// GenerateClientConfig 生成客户端配置.
 func (e *Engine) GenerateClientConfig(peerID string) (string, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -185,25 +185,25 @@ func (e *Engine) GenerateClientConfig(peerID string) (string, error) {
 
 	sb.WriteString("[Interface]\n")
 	if peer.PrivateKey != "" {
-		sb.WriteString(fmt.Sprintf("PrivateKey = %s\n", peer.PrivateKey))
+		fmt.Fprintf(&sb, "PrivateKey = %s\n", peer.PrivateKey)
 	} else {
 		sb.WriteString("PrivateKey = <客户端私钥>\n")
 	}
-	sb.WriteString(fmt.Sprintf("Address = %s\n", peer.AssignedIPv4))
+	fmt.Fprintf(&sb, "Address = %s\n", peer.AssignedIPv4)
 	if peer.DNS != "" {
-		sb.WriteString(fmt.Sprintf("DNS = %s\n", peer.DNS))
+		fmt.Fprintf(&sb, "DNS = %s\n", peer.DNS)
 	} else {
-		sb.WriteString(fmt.Sprintf("DNS = %s\n", e.server.DNS))
+		fmt.Fprintf(&sb, "DNS = %s\n", e.server.DNS)
 	}
 	if e.server.MTU > 0 {
-		sb.WriteString(fmt.Sprintf("MTU = %d\n", e.server.MTU))
+		fmt.Fprintf(&sb, "MTU = %d\n", e.server.MTU)
 	}
 	sb.WriteString("\n")
 
 	sb.WriteString("[Peer]\n")
-	sb.WriteString(fmt.Sprintf("PublicKey = %s\n", e.server.PublicKey))
+	fmt.Fprintf(&sb, "PublicKey = %s\n", e.server.PublicKey)
 	if peer.PresharedKey != "" {
-		sb.WriteString(fmt.Sprintf("PresharedKey = %s\n", peer.PresharedKey))
+		fmt.Fprintf(&sb, "PresharedKey = %s\n", peer.PresharedKey)
 	}
 	sb.WriteString("AllowedIPs = 0.0.0.0/0, ::/0\n")
 
@@ -214,7 +214,7 @@ func (e *Engine) GenerateClientConfig(peerID string) (string, error) {
 // QR 码生成（纯 Go 实现）
 // ============================================================
 
-// GenerateQRCode 生成 QR 码（纯 Go 实现，输出 SVG 格式）
+// GenerateQRCode 生成 QR 码（纯 Go 实现，输出 SVG 格式）.
 func GenerateQRCode(data string, format string) (string, error) {
 	dataHex := hex.EncodeToString([]byte(data))
 	dataLen := len(data)
@@ -239,7 +239,7 @@ func GenerateQRCode(data string, format string) (string, error) {
 	}
 }
 
-// generateQRMatrix 生成 QR 码矩阵（简化实现）
+// generateQRMatrix 生成 QR 码矩阵（简化实现）.
 func generateQRMatrix(data string, size int) [][]bool {
 	matrix := make([][]bool, size)
 	for i := range matrix {
@@ -269,7 +269,7 @@ func generateQRMatrix(data string, size int) [][]bool {
 	return matrix
 }
 
-// drawFinderPattern 绘制定位图案
+// drawFinderPattern 绘制定位图案.
 func drawFinderPattern(matrix [][]bool, startX, startY int) {
 	size := len(matrix)
 
@@ -318,7 +318,7 @@ func drawFinderPattern(matrix [][]bool, startX, startY int) {
 	}
 }
 
-// isFinderRegion 检查是否在定位图案区域
+// isFinderRegion 检查是否在定位图案区域.
 func isFinderRegion(x, y, size int) bool {
 	if x < 8 && y < 8 {
 		return true
@@ -332,22 +332,22 @@ func isFinderRegion(x, y, size int) bool {
 	return false
 }
 
-// generateSVG 生成 SVG 格式的 QR 码
+// generateSVG 生成 SVG 格式的 QR 码.
 func generateSVG(matrix [][]bool, size int) string {
 	moduleSize := 10
 	margin := 4
 	totalSize := size*moduleSize + margin*2
 
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="%d" height="%d">`, totalSize, totalSize, totalSize, totalSize))
-	sb.WriteString(fmt.Sprintf(`<rect width="%d" height="%d" fill="white"/>`, totalSize, totalSize))
+	fmt.Fprintf(&sb, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="%d" height="%d">`, totalSize, totalSize, totalSize, totalSize)
+	fmt.Fprintf(&sb, `<rect width="%d" height="%d" fill="white"/>`, totalSize, totalSize)
 
 	for y := 0; y < size; y++ {
 		for x := 0; x < size; x++ {
 			if matrix[y][x] {
 				sx := x*moduleSize + margin
 				sy := y*moduleSize + margin
-				sb.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="black"/>`, sx, sy, moduleSize, moduleSize))
+				fmt.Fprintf(&sb, `<rect x="%d" y="%d" width="%d" height="%d" fill="black"/>`, sx, sy, moduleSize, moduleSize)
 			}
 		}
 	}
@@ -360,7 +360,7 @@ func generateSVG(matrix [][]bool, size int) string {
 // PeerManager - 对端管理
 // ============================================================
 
-// AddPeer 添加对端
+// AddPeer 添加对端.
 func (e *Engine) AddPeer(req CreatePeerRequest) (*Peer, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -414,7 +414,7 @@ func (e *Engine) AddPeer(req CreatePeerRequest) (*Peer, error) {
 	return peer, nil
 }
 
-// DeletePeer 删除对端
+// DeletePeer 删除对端.
 func (e *Engine) DeletePeer(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -435,7 +435,7 @@ func (e *Engine) DeletePeer(id string) error {
 	return nil
 }
 
-// UpdatePeer 更新对端
+// UpdatePeer 更新对端.
 func (e *Engine) UpdatePeer(id string, req UpdatePeerRequest) (*Peer, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -462,7 +462,7 @@ func (e *Engine) UpdatePeer(id string, req UpdatePeerRequest) (*Peer, error) {
 	return peer, nil
 }
 
-// DisablePeer 禁用对端
+// DisablePeer 禁用对端.
 func (e *Engine) DisablePeer(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -478,7 +478,7 @@ func (e *Engine) DisablePeer(id string) error {
 	return nil
 }
 
-// GetPeer 获取对端信息
+// GetPeer 获取对端信息.
 func (e *Engine) GetPeer(id string) (*Peer, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -491,7 +491,7 @@ func (e *Engine) GetPeer(id string) (*Peer, error) {
 	return peer, nil
 }
 
-// ListPeers 获取对端列表
+// ListPeers 获取对端列表.
 func (e *Engine) ListPeers() []Peer {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -503,7 +503,7 @@ func (e *Engine) ListPeers() []Peer {
 	return peers
 }
 
-// allocateIP 分配 IP 地址
+// allocateIP 分配 IP 地址.
 func (e *Engine) allocateIP(req CreatePeerRequest) (ipv4, ipv6 string, err error) {
 	if req.IPv4 != "" {
 		ipv4 = req.IPv4
@@ -526,7 +526,7 @@ func (e *Engine) allocateIP(req CreatePeerRequest) (ipv4, ipv6 string, err error
 	return ipv4, ipv6, nil
 }
 
-// findNextAvailableIPv4 查找下一个可用的 IPv4 地址
+// findNextAvailableIPv4 查找下一个可用的 IPv4 地址.
 func (e *Engine) findNextAvailableIPv4() (string, error) {
 	_, network, err := net.ParseCIDR(e.server.Address)
 	if err != nil {
@@ -560,7 +560,7 @@ func (e *Engine) findNextAvailableIPv4() (string, error) {
 	return "", fmt.Errorf("没有可用的 IPv4 地址")
 }
 
-// findNextAvailableIPv6 查找下一个可用的 IPv6 地址
+// findNextAvailableIPv6 查找下一个可用的 IPv6 地址.
 func (e *Engine) findNextAvailableIPv6() (string, error) {
 	baseIP := net.ParseIP("fd00::2")
 
@@ -584,7 +584,7 @@ func (e *Engine) findNextAvailableIPv6() (string, error) {
 	return "", fmt.Errorf("没有可用的 IPv6 地址")
 }
 
-// incrementIP 递增 IPv4 地址
+// incrementIP 递增 IPv4 地址.
 func incrementIP(ip net.IP, n int) net.IP {
 	result := make(net.IP, len(ip))
 	copy(result, ip)
@@ -598,7 +598,7 @@ func incrementIP(ip net.IP, n int) net.IP {
 	return result
 }
 
-// incrementIPv6 递增 IPv6 地址
+// incrementIPv6 递增 IPv6 地址.
 func incrementIPv6(ip net.IP, n int) net.IP {
 	result := make(net.IP, len(ip))
 	copy(result, ip)
@@ -612,7 +612,7 @@ func incrementIPv6(ip net.IP, n int) net.IP {
 	return result
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() (string, error) {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {
@@ -625,7 +625,7 @@ func generateID() (string, error) {
 // TrafficMonitor - 流量监控
 // ============================================================
 
-// GetTrafficStats 获取流量统计
+// GetTrafficStats 获取流量统计.
 func (e *Engine) GetTrafficStats() *TrafficStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -659,7 +659,7 @@ func (e *Engine) GetTrafficStats() *TrafficStats {
 	return stats
 }
 
-// GetTrafficHistory 获取历史流量数据
+// GetTrafficHistory 获取历史流量数据.
 func (e *Engine) GetTrafficHistory(req TrafficHistoryRequest) *TrafficHistory {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -712,7 +712,7 @@ func (e *Engine) GetTrafficHistory(req TrafficHistoryRequest) *TrafficHistory {
 	return history
 }
 
-// CheckTrafficAlerts 检查流量异常告警
+// CheckTrafficAlerts 检查流量异常告警.
 func (e *Engine) CheckTrafficAlerts() []TrafficAlert {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -755,7 +755,7 @@ func (e *Engine) CheckTrafficAlerts() []TrafficAlert {
 // ServerManager - 服务管理
 // ============================================================
 
-// Start 启动 WireGuard 服务
+// Start 启动 WireGuard 服务.
 func (e *Engine) Start() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -770,7 +770,7 @@ func (e *Engine) Start() error {
 	return nil
 }
 
-// Stop 停止 WireGuard 服务
+// Stop 停止 WireGuard 服务.
 func (e *Engine) Stop() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -784,7 +784,7 @@ func (e *Engine) Stop() error {
 	return nil
 }
 
-// GetStatus 获取服务状态
+// GetStatus 获取服务状态.
 func (e *Engine) GetStatus() *ServiceStatus {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -806,7 +806,7 @@ func (e *Engine) GetStatus() *ServiceStatus {
 	return status
 }
 
-// ConfigureFirewall 配置防火墙规则
+// ConfigureFirewall 配置防火墙规则.
 func (e *Engine) ConfigureFirewall() []FirewallRule {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -845,7 +845,7 @@ func (e *Engine) ConfigureFirewall() []FirewallRule {
 	return rules
 }
 
-// AddPortForward 添加端口转发规则
+// AddPortForward 添加端口转发规则.
 func (e *Engine) AddPortForward(rule PortForwardRule) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -853,7 +853,7 @@ func (e *Engine) AddPortForward(rule PortForwardRule) {
 	e.portForwards = append(e.portForwards, rule)
 }
 
-// GetPortForwards 获取端口转发规则
+// GetPortForwards 获取端口转发规则.
 func (e *Engine) GetPortForwards() []PortForwardRule {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -861,7 +861,7 @@ func (e *Engine) GetPortForwards() []PortForwardRule {
 	return e.portForwards
 }
 
-// UpdateDNSConfig 更新 DNS 配置
+// UpdateDNSConfig 更新 DNS 配置.
 func (e *Engine) UpdateDNSConfig(cfg DNSConfig) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -869,7 +869,7 @@ func (e *Engine) UpdateDNSConfig(cfg DNSConfig) {
 	e.dnsConfig = cfg
 }
 
-// GetDNSConfig 获取 DNS 配置
+// GetDNSConfig 获取 DNS 配置.
 func (e *Engine) GetDNSConfig() *DNSConfig {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -881,7 +881,7 @@ func (e *Engine) GetDNSConfig() *DNSConfig {
 // ConfigTemplates - 配置模板
 // ============================================================
 
-// initTemplates 初始化配置模板
+// initTemplates 初始化配置模板.
 func (e *Engine) initTemplates() {
 	e.templates = []ConfigTemplate{
 		{
@@ -951,7 +951,7 @@ func (e *Engine) initTemplates() {
 	}
 }
 
-// GetTemplates 获取配置模板列表
+// GetTemplates 获取配置模板列表.
 func (e *Engine) GetTemplates() []ConfigTemplate {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -959,7 +959,7 @@ func (e *Engine) GetTemplates() []ConfigTemplate {
 	return e.templates
 }
 
-// GetTemplate 获取指定配置模板
+// GetTemplate 获取指定配置模板.
 func (e *Engine) GetTemplate(id string) (*ConfigTemplate, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -977,7 +977,7 @@ func (e *Engine) GetTemplate(id string) (*ConfigTemplate, error) {
 // 一键部署
 // ============================================================
 
-// Deploy 一键部署 WireGuard
+// Deploy 一键部署 WireGuard.
 func (e *Engine) Deploy(req DeployRequest) (*DeployResult, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -1069,7 +1069,7 @@ func (e *Engine) Deploy(req DeployRequest) (*DeployResult, error) {
 	}, nil
 }
 
-// formatDuration 格式化时长
+// formatDuration 格式化时长.
 func formatDuration(d time.Duration) string {
 	days := int(d.Hours()) / 24
 	hours := int(d.Hours()) % 24

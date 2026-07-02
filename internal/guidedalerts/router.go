@@ -6,14 +6,14 @@ import (
 	"sync"
 )
 
-// AlertRouter 告警路由器
+// AlertRouter 告警路由器.
 type AlertRouter struct {
 	mu       sync.RWMutex
 	channels map[string]*RouteChannel
 	rules    []*RouteRule
 }
 
-// NewAlertRouter 创建告警路由器
+// NewAlertRouter 创建告警路由器.
 func NewAlertRouter() *AlertRouter {
 	return &AlertRouter{
 		channels: make(map[string]*RouteChannel),
@@ -21,7 +21,7 @@ func NewAlertRouter() *AlertRouter {
 	}
 }
 
-// AddChannel 添加路由通道
+// AddChannel 添加路由通道.
 func (r *AlertRouter) AddChannel(channel *RouteChannel) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -37,7 +37,7 @@ func (r *AlertRouter) AddChannel(channel *RouteChannel) error {
 	return nil
 }
 
-// RemoveChannel 移除路由通道
+// RemoveChannel 移除路由通道.
 func (r *AlertRouter) RemoveChannel(id string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -50,7 +50,7 @@ func (r *AlertRouter) RemoveChannel(id string) error {
 	return nil
 }
 
-// GetChannel 获取通道
+// GetChannel 获取通道.
 func (r *AlertRouter) GetChannel(id string) (*RouteChannel, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -58,7 +58,7 @@ func (r *AlertRouter) GetChannel(id string) (*RouteChannel, bool) {
 	return ch, ok
 }
 
-// ListChannels 列出所有通道
+// ListChannels 列出所有通道.
 func (r *AlertRouter) ListChannels() []*RouteChannel {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -70,7 +70,7 @@ func (r *AlertRouter) ListChannels() []*RouteChannel {
 	return channels
 }
 
-// AddRouteRule 添加路由规则
+// AddRouteRule 添加路由规则.
 func (r *AlertRouter) AddRouteRule(rule *RouteRule) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -90,7 +90,7 @@ func (r *AlertRouter) AddRouteRule(rule *RouteRule) error {
 	return nil
 }
 
-// RemoveRouteRule 移除路由规则
+// RemoveRouteRule 移除路由规则.
 func (r *AlertRouter) RemoveRouteRule(id string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -104,7 +104,7 @@ func (r *AlertRouter) RemoveRouteRule(id string) error {
 	return fmt.Errorf("route rule %s not found", id)
 }
 
-// ListRouteRules 列出路由规则
+// ListRouteRules 列出路由规则.
 func (r *AlertRouter) ListRouteRules() []*RouteRule {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -114,7 +114,7 @@ func (r *AlertRouter) ListRouteRules() []*RouteRule {
 	return rules
 }
 
-// Route 路由告警到匹配的通道
+// Route 路由告警到匹配的通道.
 func (r *AlertRouter) Route(alert *Alert) []*RouteChannel {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -144,7 +144,7 @@ func (r *AlertRouter) Route(alert *Alert) []*RouteChannel {
 	return matched
 }
 
-// matchAlert 检查告警是否匹配路由规则的标签条件
+// matchAlert 检查告警是否匹配路由规则的标签条件.
 func (r *AlertRouter) matchAlert(alert *Alert, matchers []LabelMatcher) bool {
 	if len(matchers) == 0 {
 		return true // 无匹配条件，默认匹配
@@ -163,7 +163,7 @@ func (r *AlertRouter) matchAlert(alert *Alert, matchers []LabelMatcher) bool {
 	return true
 }
 
-// matchLabel 检查单个标签匹配
+// matchLabel 检查单个标签匹配.
 func (r *AlertRouter) matchLabel(alert *Alert, matcher LabelMatcher) bool {
 	var value string
 
@@ -195,7 +195,7 @@ func (r *AlertRouter) matchLabel(alert *Alert, matcher LabelMatcher) bool {
 	return value == matcher.Value
 }
 
-// GetDefaultRouteRules 获取默认路由规则
+// GetDefaultRouteRules 获取默认路由规则.
 func GetDefaultRouteRules() []*RouteRule {
 	return []*RouteRule{
 		{
@@ -232,7 +232,7 @@ func GetDefaultRouteRules() []*RouteRule {
 	}
 }
 
-// GetDefaultChannels 获取默认通道配置
+// GetDefaultChannels 获取默认通道配置.
 func GetDefaultChannels() []*RouteChannel {
 	return []*RouteChannel{
 		{

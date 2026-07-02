@@ -27,15 +27,15 @@ const (
 
 // FlashPool represents a hybrid flash pool configuration.
 type FlashPool struct {
-	ID           string      `json:"id"`
-	Name         string      `json:"name"`
-	FlashVdevs   []VDev      `json:"flash_vdevs"`
-	HDDVdevs     []VDev      `json:"hdd_vdevs"`
+	ID            string        `json:"id"`
+	Name          string        `json:"name"`
+	FlashVdevs    []VDev        `json:"flash_vdevs"`
+	HDDVdevs      []VDev        `json:"hdd_vdevs"`
 	TieringPolicy TieringPolicy `json:"tiering_policy"`
-	CreatedAt    time.Time   `json:"created_at"`
-	TotalFlashGB int64       `json:"total_flash_gb"`
-	TotalHDDGB   int64       `json:"total_hdd_gb"`
-	Status       string      `json:"status"`
+	CreatedAt     time.Time     `json:"created_at"`
+	TotalFlashGB  int64         `json:"total_flash_gb"`
+	TotalHDDGB    int64         `json:"total_hdd_gb"`
+	Status        string        `json:"status"`
 }
 
 // VDev represents a virtual device in a pool.
@@ -50,14 +50,14 @@ type VDev struct {
 
 // TieringPolicy defines how data moves between tiers.
 type TieringPolicy struct {
-	Enabled         bool    `json:"enabled"`
-	HotThreshold    float64 `json:"hot_threshold"`    // access frequency > N/day = hot
-	ColdThreshold   float64 `json:"cold_threshold"`   // access frequency < N/day = cold
-	MigrationWindow string  `json:"migration_window"` // e.g., "02:00-06:00"
-	MinFileAgeHours int     `json:"min_file_age_hours"`
-	MetadataOnFlash bool    `json:"metadata_on_flash"` // always keep metadata on flash
-	SmallFileOnFlash bool   `json:"small_file_on_flash"`
-	SmallFileMaxKB  int     `json:"small_file_max_kb"`
+	Enabled          bool    `json:"enabled"`
+	HotThreshold     float64 `json:"hot_threshold"`    // access frequency > N/day = hot
+	ColdThreshold    float64 `json:"cold_threshold"`   // access frequency < N/day = cold
+	MigrationWindow  string  `json:"migration_window"` // e.g., "02:00-06:00"
+	MinFileAgeHours  int     `json:"min_file_age_hours"`
+	MetadataOnFlash  bool    `json:"metadata_on_flash"` // always keep metadata on flash
+	SmallFileOnFlash bool    `json:"small_file_on_flash"`
+	SmallFileMaxKB   int     `json:"small_file_max_kb"`
 }
 
 // DatasetTierBinding binds a dataset to a specific tier.

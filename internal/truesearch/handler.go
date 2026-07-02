@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler 搜索引擎HTTP处理器
+// Handler 搜索引擎HTTP处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	group := rg.Group("/search")
 	{
@@ -30,7 +30,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// Search 搜索
+// Search 搜索.
 func (h *Handler) Search(c *gin.Context) {
 	query := c.Query("q")
 	if query == "" {
@@ -56,7 +56,7 @@ func (h *Handler) Search(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// Suggest 搜索建议
+// Suggest 搜索建议.
 func (h *Handler) Suggest(c *gin.Context) {
 	prefix := c.Query("prefix")
 	if prefix == "" {
@@ -73,7 +73,7 @@ func (h *Handler) Suggest(c *gin.Context) {
 	})
 }
 
-// IndexDocument 索引文档
+// IndexDocument 索引文档.
 func (h *Handler) IndexDocument(c *gin.Context) {
 	var req struct {
 		ID       string            `json:"id" binding:"required"`
@@ -107,7 +107,7 @@ func (h *Handler) IndexDocument(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "document indexed", "id": req.ID})
 }
 
-// RemoveDocument 移除文档
+// RemoveDocument 移除文档.
 func (h *Handler) RemoveDocument(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.RemoveDocument(id); err != nil {
@@ -117,12 +117,12 @@ func (h *Handler) RemoveDocument(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "document removed", "id": id})
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (h *Handler) RebuildIndex(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "index rebuild initiated"})
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (h *Handler) GetStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, stats)

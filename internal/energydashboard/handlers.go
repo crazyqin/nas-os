@@ -9,17 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 能耗仪表盘 API 处理器
+// Handlers 能耗仪表盘 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	energy := r.Group("/energy")
 	{
@@ -72,14 +72,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// getSummary 获取仪表盘总览
+// getSummary 获取仪表盘总览.
 func (h *Handlers) getSummary(c *gin.Context) {
 	summary := h.manager.GetDashboardSummary()
 	c.JSON(http.StatusOK, response{
@@ -89,7 +89,7 @@ func (h *Handlers) getSummary(c *gin.Context) {
 	})
 }
 
-// getDashboard 获取仪表盘（同 summary）
+// getDashboard 获取仪表盘（同 summary）.
 func (h *Handlers) getDashboard(c *gin.Context) {
 	summary := h.manager.GetDashboardSummary()
 	c.JSON(http.StatusOK, response{
@@ -99,7 +99,7 @@ func (h *Handlers) getDashboard(c *gin.Context) {
 	})
 }
 
-// getLatestPower 获取最新功耗快照
+// getLatestPower 获取最新功耗快照.
 func (h *Handlers) getLatestPower(c *gin.Context) {
 	snapshot := h.manager.GetLatestSnapshot()
 	c.JSON(http.StatusOK, response{
@@ -109,7 +109,7 @@ func (h *Handlers) getLatestPower(c *gin.Context) {
 	})
 }
 
-// getPowerHistory 获取功耗历史
+// getPowerHistory 获取功耗历史.
 func (h *Handlers) getPowerHistory(c *gin.Context) {
 	sinceStr := c.DefaultQuery("since", "")
 	limitStr := c.DefaultQuery("limit", "100")
@@ -142,7 +142,7 @@ func (h *Handlers) getPowerHistory(c *gin.Context) {
 	})
 }
 
-// recordPowerReading 记录功耗读数
+// recordPowerReading 记录功耗读数.
 func (h *Handlers) recordPowerReading(c *gin.Context) {
 	var reading PowerReading
 	if err := c.ShouldBindJSON(&reading); err != nil {
@@ -160,7 +160,7 @@ func (h *Handlers) recordPowerReading(c *gin.Context) {
 	})
 }
 
-// listRates 列出电价配置
+// listRates 列出电价配置.
 func (h *Handlers) listRates(c *gin.Context) {
 	rates := h.manager.ListRates()
 	c.JSON(http.StatusOK, response{
@@ -170,7 +170,7 @@ func (h *Handlers) listRates(c *gin.Context) {
 	})
 }
 
-// createRate 创建电价配置
+// createRate 创建电价配置.
 func (h *Handlers) createRate(c *gin.Context) {
 	var rate ElectricityRate
 	if err := c.ShouldBindJSON(&rate); err != nil {
@@ -197,7 +197,7 @@ func (h *Handlers) createRate(c *gin.Context) {
 	})
 }
 
-// getRate 获取电价配置
+// getRate 获取电价配置.
 func (h *Handlers) getRate(c *gin.Context) {
 	id := c.Param("id")
 	rate, err := h.manager.GetRate(id)
@@ -216,7 +216,7 @@ func (h *Handlers) getRate(c *gin.Context) {
 	})
 }
 
-// updateRate 更新电价配置
+// updateRate 更新电价配置.
 func (h *Handlers) updateRate(c *gin.Context) {
 	id := c.Param("id")
 	var rate ElectricityRate
@@ -244,7 +244,7 @@ func (h *Handlers) updateRate(c *gin.Context) {
 	})
 }
 
-// deleteRate 删除电价配置
+// deleteRate 删除电价配置.
 func (h *Handlers) deleteRate(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteRate(id); err != nil {
@@ -261,7 +261,7 @@ func (h *Handlers) deleteRate(c *gin.Context) {
 	})
 }
 
-// calculateCost 计算能耗费用
+// calculateCost 计算能耗费用.
 func (h *Handlers) calculateCost(c *gin.Context) {
 	period := EnergyReportPeriod(c.DefaultQuery("period", "daily"))
 	rateID := c.DefaultQuery("rate_id", "rate-cn-default")
@@ -282,7 +282,7 @@ func (h *Handlers) calculateCost(c *gin.Context) {
 	})
 }
 
-// getEfficiencyScore 获取能效评分
+// getEfficiencyScore 获取能效评分.
 func (h *Handlers) getEfficiencyScore(c *gin.Context) {
 	score := h.manager.CalculateEfficiencyScore()
 	c.JSON(http.StatusOK, response{
@@ -292,7 +292,7 @@ func (h *Handlers) getEfficiencyScore(c *gin.Context) {
 	})
 }
 
-// estimateCarbon 碳排放估算
+// estimateCarbon 碳排放估算.
 func (h *Handlers) estimateCarbon(c *gin.Context) {
 	period := EnergyReportPeriod(c.DefaultQuery("period", "daily"))
 
@@ -312,7 +312,7 @@ func (h *Handlers) estimateCarbon(c *gin.Context) {
 	})
 }
 
-// listReports 列出能耗报表
+// listReports 列出能耗报表.
 func (h *Handlers) listReports(c *gin.Context) {
 	period := EnergyReportPeriod(c.DefaultQuery("period", ""))
 	limitStr := c.DefaultQuery("limit", "20")
@@ -329,7 +329,7 @@ func (h *Handlers) listReports(c *gin.Context) {
 	})
 }
 
-// generateReport 生成能耗报表
+// generateReport 生成能耗报表.
 func (h *Handlers) generateReport(c *gin.Context) {
 	var req struct {
 		Period EnergyReportPeriod `json:"period" binding:"required"`
@@ -364,7 +364,7 @@ func (h *Handlers) generateReport(c *gin.Context) {
 	})
 }
 
-// getReport 获取能耗报表
+// getReport 获取能耗报表.
 func (h *Handlers) getReport(c *gin.Context) {
 	id := c.Param("id")
 	report, err := h.manager.GetReport(id)
@@ -383,7 +383,7 @@ func (h *Handlers) getReport(c *gin.Context) {
 	})
 }
 
-// listSchedules 列出休眠计划
+// listSchedules 列出休眠计划.
 func (h *Handlers) listSchedules(c *gin.Context) {
 	schedules := h.manager.ListSchedules()
 	c.JSON(http.StatusOK, response{
@@ -393,7 +393,7 @@ func (h *Handlers) listSchedules(c *gin.Context) {
 	})
 }
 
-// createSchedule 创建休眠计划
+// createSchedule 创建休眠计划.
 func (h *Handlers) createSchedule(c *gin.Context) {
 	var sched SleepSchedule
 	if err := c.ShouldBindJSON(&sched); err != nil {
@@ -420,7 +420,7 @@ func (h *Handlers) createSchedule(c *gin.Context) {
 	})
 }
 
-// getSchedule 获取休眠计划
+// getSchedule 获取休眠计划.
 func (h *Handlers) getSchedule(c *gin.Context) {
 	id := c.Param("id")
 	sched, err := h.manager.GetSchedule(id)
@@ -439,7 +439,7 @@ func (h *Handlers) getSchedule(c *gin.Context) {
 	})
 }
 
-// updateSchedule 更新休眠计划
+// updateSchedule 更新休眠计划.
 func (h *Handlers) updateSchedule(c *gin.Context) {
 	id := c.Param("id")
 	var sched SleepSchedule
@@ -467,7 +467,7 @@ func (h *Handlers) updateSchedule(c *gin.Context) {
 	})
 }
 
-// deleteSchedule 删除休眠计划
+// deleteSchedule 删除休眠计划.
 func (h *Handlers) deleteSchedule(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteSchedule(id); err != nil {
@@ -484,7 +484,7 @@ func (h *Handlers) deleteSchedule(c *gin.Context) {
 	})
 }
 
-// toggleSchedule 切换休眠计划状态
+// toggleSchedule 切换休眠计划状态.
 func (h *Handlers) toggleSchedule(c *gin.Context) {
 	id := c.Param("id")
 	sched, err := h.manager.ToggleSchedule(id)
@@ -503,7 +503,7 @@ func (h *Handlers) toggleSchedule(c *gin.Context) {
 	})
 }
 
-// startMonitor 启动监控
+// startMonitor 启动监控.
 func (h *Handlers) startMonitor(c *gin.Context) {
 	if err := h.manager.Start(c.Request.Context()); err != nil {
 		c.JSON(http.StatusConflict, response{
@@ -519,7 +519,7 @@ func (h *Handlers) startMonitor(c *gin.Context) {
 	})
 }
 
-// stopMonitor 停止监控
+// stopMonitor 停止监控.
 func (h *Handlers) stopMonitor(c *gin.Context) {
 	h.manager.Stop()
 	c.JSON(http.StatusOK, response{
@@ -528,7 +528,7 @@ func (h *Handlers) stopMonitor(c *gin.Context) {
 	})
 }
 
-// getMonitorStatus 获取监控状态
+// getMonitorStatus 获取监控状态.
 func (h *Handlers) getMonitorStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, response{
 		Code:    0,
@@ -540,7 +540,7 @@ func (h *Handlers) getMonitorStatus(c *gin.Context) {
 	})
 }
 
-// getConfig 获取配置
+// getConfig 获取配置.
 func (h *Handlers) getConfig(c *gin.Context) {
 	cfg := h.manager.GetConfig()
 	c.JSON(http.StatusOK, response{
@@ -550,7 +550,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 	})
 }
 
-// updateConfig 更新配置
+// updateConfig 更新配置.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var cfg DashboardConfig
 	if err := c.ShouldBindJSON(&cfg); err != nil {

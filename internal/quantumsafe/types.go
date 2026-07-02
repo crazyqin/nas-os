@@ -4,29 +4,29 @@ package quantumsafe
 
 import "time"
 
-// Algorithm 算法类型（与 algorithms.go 兼容）
+// Algorithm 算法类型（与 algorithms.go 兼容）.
 type Algorithm string
 
 const (
-	// Post-quantum KEM algorithms
+	// Post-quantum KEM algorithms.
 	Kyber768  Algorithm = "kyber768"
 	Kyber1024 Algorithm = "kyber1024"
 
-	// Post-quantum signature algorithms
+	// Post-quantum signature algorithms.
 	Dilithium3 Algorithm = "dilithium3"
 	Dilithium5 Algorithm = "dilithium5"
 
-	// Hybrid algorithms
+	// Hybrid algorithms.
 	HybridKyber768   Algorithm = "hybrid-kyber768"
 	HybridDilithium3 Algorithm = "hybrid-dilithium3"
 
-	// Classical algorithms
+	// Classical algorithms.
 	AlgorithmClassic Algorithm = "aes-256-gcm"
 	AlgorithmX25519  Algorithm = "x25519"
 	AlgorithmEd25519 Algorithm = "ed25519"
 )
 
-// KeyStatus 密钥状态
+// KeyStatus 密钥状态.
 type KeyStatus string
 
 const (
@@ -37,7 +37,7 @@ const (
 	KeyStatusArchived   KeyStatus = "archived"
 )
 
-// CipherMode 加密模式
+// CipherMode 加密模式.
 type CipherMode string
 
 const (
@@ -46,7 +46,7 @@ const (
 	ModeClassical   CipherMode = "classical"
 )
 
-// MigrationStatus 迁移状态
+// MigrationStatus 迁移状态.
 type MigrationStatus string
 
 const (
@@ -57,7 +57,7 @@ const (
 	MigrationRolledBack MigrationStatus = "rolled_back"
 )
 
-// AuditAction 审计动作
+// AuditAction 审计动作.
 type AuditAction string
 
 const (
@@ -73,7 +73,7 @@ const (
 	AuditImport      AuditAction = "import"
 )
 
-// SecurityLevel 安全等级
+// SecurityLevel 安全等级.
 type SecurityLevel int
 
 const (
@@ -82,7 +82,7 @@ const (
 	SecurityLevel5 SecurityLevel = 5 // 256-bit classical security
 )
 
-// QuantumKey 量子安全密钥
+// QuantumKey 量子安全密钥.
 type QuantumKey struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name" binding:"required"`
@@ -103,13 +103,13 @@ type QuantumKey struct {
 	Metadata      map[string]string `json:"metadata,omitempty"`
 }
 
-// AlgorithmPair 算法对（用于混合加密）
+// AlgorithmPair 算法对（用于混合加密）.
 type AlgorithmPair struct {
 	PostQuantum Algorithm `json:"post_quantum"`
 	Classical   Algorithm `json:"classical"`
 }
 
-// HybridCipher 混合加密器
+// HybridCipher 混合加密器.
 type HybridCipher struct {
 	ID              string        `json:"id"`
 	Name            string        `json:"name" binding:"required"`
@@ -126,7 +126,7 @@ type HybridCipher struct {
 	Config          *CipherConfig `json:"config,omitempty"`
 }
 
-// CipherConfig 加密配置
+// CipherConfig 加密配置.
 type CipherConfig struct {
 	IVSize        int    `json:"iv_size"`
 	TagSize       int    `json:"tag_size"`
@@ -135,7 +135,7 @@ type CipherConfig struct {
 	Iterations    int    `json:"iterations"`
 }
 
-// MigrationPlan 迁移计划
+// MigrationPlan 迁移计划.
 type MigrationPlan struct {
 	ID              string              `json:"id"`
 	Name            string              `json:"name" binding:"required"`
@@ -158,7 +158,7 @@ type MigrationPlan struct {
 	UpdatedAt       time.Time           `json:"updated_at"`
 }
 
-// MigrationResource 迁移资源
+// MigrationResource 迁移资源.
 type MigrationResource struct {
 	ResourceID   string          `json:"resource_id"`
 	ResourceType string          `json:"resource_type"`
@@ -167,14 +167,14 @@ type MigrationResource struct {
 	MigratedAt   *time.Time      `json:"migrated_at,omitempty"`
 }
 
-// MigrationError 迁移错误
+// MigrationError 迁移错误.
 type MigrationError struct {
 	ResourceID string    `json:"resource_id"`
 	Error      string    `json:"error"`
 	Timestamp  time.Time `json:"timestamp"`
 }
 
-// CryptoAudit 加密审计
+// CryptoAudit 加密审计.
 type CryptoAudit struct {
 	ID        string                 `json:"id"`
 	Action    AuditAction            `json:"action"`
@@ -190,7 +190,7 @@ type CryptoAudit struct {
 	Duration  time.Duration          `json:"duration"`
 }
 
-// EncryptRequest 加密请求
+// EncryptRequest 加密请求.
 type EncryptRequest struct {
 	Plaintext []byte     `json:"plaintext" binding:"required"`
 	KeyID     string     `json:"key_id" binding:"required"`
@@ -199,7 +199,7 @@ type EncryptRequest struct {
 	AAD       []byte     `json:"aad,omitempty"` // Additional Authenticated Data
 }
 
-// EncryptResponse 加密响应
+// EncryptResponse 加密响应.
 type EncryptResponse struct {
 	Ciphertext []byte     `json:"ciphertext"`
 	IV         []byte     `json:"iv,omitempty"`
@@ -209,7 +209,7 @@ type EncryptResponse struct {
 	Mode       CipherMode `json:"mode"`
 }
 
-// DecryptRequest 解密请求
+// DecryptRequest 解密请求.
 type DecryptRequest struct {
 	Ciphertext []byte `json:"ciphertext" binding:"required"`
 	KeyID      string `json:"key_id" binding:"required"`
@@ -218,42 +218,42 @@ type DecryptRequest struct {
 	AAD        []byte `json:"aad,omitempty"`
 }
 
-// DecryptResponse 解密响应
+// DecryptResponse 解密响应.
 type DecryptResponse struct {
 	Plaintext []byte    `json:"plaintext"`
 	KeyID     string    `json:"key_id"`
 	Algorithm Algorithm `json:"algorithm"`
 }
 
-// SignRequest 签名请求
+// SignRequest 签名请求.
 type SignRequest struct {
 	Message   []byte    `json:"message" binding:"required"`
 	KeyID     string    `json:"key_id" binding:"required"`
 	Algorithm Algorithm `json:"algorithm,omitempty"`
 }
 
-// SignResponse 签名响应
+// SignResponse 签名响应.
 type SignResponse struct {
 	Signature []byte    `json:"signature"`
 	KeyID     string    `json:"key_id"`
 	Algorithm Algorithm `json:"algorithm"`
 }
 
-// VerifyRequest 验证请求
+// VerifyRequest 验证请求.
 type VerifyRequest struct {
 	Message   []byte `json:"message" binding:"required"`
 	Signature []byte `json:"signature" binding:"required"`
 	KeyID     string `json:"key_id" binding:"required"`
 }
 
-// VerifyResponse 验证响应
+// VerifyResponse 验证响应.
 type VerifyResponse struct {
 	Valid     bool      `json:"valid"`
 	KeyID     string    `json:"key_id"`
 	Algorithm Algorithm `json:"algorithm"`
 }
 
-// KeyRotationRequest 密钥轮换请求
+// KeyRotationRequest 密钥轮换请求.
 type KeyRotationRequest struct {
 	KeyID          string    `json:"key_id" binding:"required"`
 	NewAlgorithm   Algorithm `json:"new_algorithm,omitempty"`
@@ -262,7 +262,7 @@ type KeyRotationRequest struct {
 	ExpirationDays int       `json:"expiration_days,omitempty"`
 }
 
-// CryptoStats 加密统计
+// CryptoStats 加密统计.
 type CryptoStats struct {
 	TotalKeys        int64                `json:"total_keys"`
 	ActiveKeys       int64                `json:"active_keys"`
@@ -278,7 +278,7 @@ type CryptoStats struct {
 	MigrationsActive int64                `json:"migrations_active"`
 }
 
-// QuantumSafeConfig 量子安全模块配置
+// QuantumSafeConfig 量子安全模块配置.
 type QuantumSafeConfig struct {
 	Enabled              bool          `json:"enabled"`
 	DefaultAlgorithm     Algorithm     `json:"default_algorithm"`
@@ -294,7 +294,7 @@ type QuantumSafeConfig struct {
 	BackupPath           string        `json:"backup_path"`
 }
 
-// DefaultQuantumSafeConfig 默认配置
+// DefaultQuantumSafeConfig 默认配置.
 func DefaultQuantumSafeConfig() *QuantumSafeConfig {
 	return &QuantumSafeConfig{
 		Enabled:              true,
@@ -312,7 +312,7 @@ func DefaultQuantumSafeConfig() *QuantumSafeConfig {
 	}
 }
 
-// SupportedAlgorithms 获取支持的算法列表
+// SupportedAlgorithms 获取支持的算法列表.
 func SupportedAlgorithms() []Algorithm {
 	return []Algorithm{
 		Kyber768,
@@ -327,7 +327,7 @@ func SupportedAlgorithms() []Algorithm {
 	}
 }
 
-// AlgorithmInfo 算法信息
+// AlgorithmInfo 算法信息.
 type AlgorithmInfo struct {
 	Algorithm     Algorithm     `json:"algorithm"`
 	Name          string        `json:"name"`
@@ -339,7 +339,7 @@ type AlgorithmInfo struct {
 	IsHybridReady bool          `json:"is_hybrid_ready"`
 }
 
-// GetAlgorithmInfo 获取算法信息
+// GetAlgorithmInfo 获取算法信息.
 func GetAlgorithmInfo(algo Algorithm) *AlgorithmInfo {
 	algorithms := map[Algorithm]*AlgorithmInfo{
 		Kyber768: {

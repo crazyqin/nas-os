@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// SensitivePattern 定义敏感数据的匹配模式
+// SensitivePattern 定义敏感数据的匹配模式.
 type SensitivePattern struct {
 	Name        string `json:"name"`
 	Pattern     string `json:"pattern"`
@@ -14,7 +14,7 @@ type SensitivePattern struct {
 	Description string `json:"description"`
 }
 
-// MaskRule 定义脱敏规则
+// MaskRule 定义脱敏规则.
 type MaskRule struct {
 	Name       string `json:"name"`
 	Strategy   string `json:"strategy"` // mask, partial, hash, redact
@@ -23,7 +23,7 @@ type MaskRule struct {
 	MaskChar   string `json:"mask_char"`
 }
 
-// SensitiveMatch 敏感数据匹配结果
+// SensitiveMatch 敏感数据匹配结果.
 type SensitiveMatch struct {
 	Pattern   SensitivePattern `json:"pattern"`
 	Value     string           `json:"value"`
@@ -33,7 +33,7 @@ type SensitiveMatch struct {
 	RiskLevel int              `json:"risk_level"`
 }
 
-// ScanResult 文件扫描结果
+// ScanResult 文件扫描结果.
 type ScanResult struct {
 	FilePath     string           `json:"file_path"`
 	Matches      []SensitiveMatch `json:"matches"`
@@ -43,7 +43,7 @@ type ScanResult struct {
 	ScannedAt    time.Time        `json:"scanned_at"`
 }
 
-// ComplianceReport 合规检查报告
+// ComplianceReport 合规检查报告.
 type ComplianceReport struct {
 	ID                string            `json:"id"`
 	GeneratedAt       time.Time         `json:"generated_at"`
@@ -56,7 +56,7 @@ type ComplianceReport struct {
 	Status            string            `json:"status"` // compliant, warning, non-compliant
 }
 
-// ComplianceIssue 合规问题
+// ComplianceIssue 合规问题.
 type ComplianceIssue struct {
 	Type        string   `json:"type"`
 	Severity    string   `json:"severity"` // critical, high, medium, low
@@ -65,7 +65,7 @@ type ComplianceIssue struct {
 	Remediation string   `json:"remediation"`
 }
 
-// RiskScore 风险评估
+// RiskScore 风险评估.
 type RiskScore struct {
 	Overall     float64            `json:"overall"`
 	Density     float64            `json:"density"`      // 敏感数据密度
@@ -76,35 +76,35 @@ type RiskScore struct {
 	AssessedAt  time.Time          `json:"assessed_at"`
 }
 
-// Shield 隐私保护盾核心结构
+// Shield 隐私保护盾核心结构.
 type Shield struct {
 	mu       sync.RWMutex
 	patterns []SensitivePattern
 	rules    map[string]MaskRule
 }
 
-// ScanRequest 扫描请求
+// ScanRequest 扫描请求.
 type ScanRequest struct {
 	Content    string   `json:"content"`
 	FilePath   string   `json:"file_path"`
 	Categories []string `json:"categories,omitempty"`
 }
 
-// MaskRequest 脱敏请求
+// MaskRequest 脱敏请求.
 type MaskRequest struct {
 	Content  string       `json:"content"`
 	Strategy string       `json:"strategy"` // mask, partial, hash, redact
 	Options  *MaskOptions `json:"options,omitempty"`
 }
 
-// MaskOptions 脱敏选项
+// MaskOptions 脱敏选项.
 type MaskOptions struct {
 	PrefixKeep int    `json:"prefix_keep"`
 	SuffixKeep int    `json:"suffix_keep"`
 	MaskChar   string `json:"mask_char"`
 }
 
-// MaskResponse 脱敏响应
+// MaskResponse 脱敏响应.
 type MaskResponse struct {
 	Original   string `json:"original"`
 	Masked     string `json:"masked"`
@@ -112,21 +112,21 @@ type MaskResponse struct {
 	MatchCount int    `json:"match_count"`
 }
 
-// ComplianceRequest 合规检查请求
+// ComplianceRequest 合规检查请求.
 type ComplianceRequest struct {
 	Framework string `json:"framework"` // GDPR, PIPL, ALL
 	Content   string `json:"content"`
 	FilePath  string `json:"file_path,omitempty"`
 }
 
-// RiskAssessmentRequest 风险评估请求
+// RiskAssessmentRequest 风险评估请求.
 type RiskAssessmentRequest struct {
 	Content     string `json:"content"`
 	Encrypted   bool   `json:"encrypted"`
 	AccessLevel string `json:"access_level"` // public, internal, private, restricted
 }
 
-// DefaultPatterns 返回预定义的中国常用敏感数据模式
+// DefaultPatterns 返回预定义的中国常用敏感数据模式.
 func DefaultPatterns() []SensitivePattern {
 	return []SensitivePattern{
 		{
@@ -181,7 +181,7 @@ func DefaultPatterns() []SensitivePattern {
 	}
 }
 
-// DefaultMaskRules 返回默认脱敏规则
+// DefaultMaskRules 返回默认脱敏规则.
 func DefaultMaskRules() map[string]MaskRule {
 	return map[string]MaskRule{
 		"phone": {

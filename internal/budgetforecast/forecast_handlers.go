@@ -10,13 +10,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// ForecastHandlers 预算预测 API 处理器
+// ForecastHandlers 预算预测 API 处理器.
 type ForecastHandlers struct {
 	manager *ForecastManager
 	logger  *zap.Logger
 }
 
-// NewForecastHandlers 创建预算预测处理器
+// NewForecastHandlers 创建预算预测处理器.
 func NewForecastHandlers(manager *ForecastManager, logger *zap.Logger) *ForecastHandlers {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -27,7 +27,7 @@ func NewForecastHandlers(manager *ForecastManager, logger *zap.Logger) *Forecast
 	}
 }
 
-// RegisterForecastRoutes 注册预测路由
+// RegisterForecastRoutes 注册预测路由.
 func (h *ForecastHandlers) RegisterForecastRoutes(rg *gin.RouterGroup) {
 	forecast := rg.Group("/forecast")
 	{
@@ -55,7 +55,7 @@ func (h *ForecastHandlers) RegisterForecastRoutes(rg *gin.RouterGroup) {
 }
 
 // generateForecast 生成预测
-// GET /api/v1/budget/forecast/generate?months=6&model=linear
+// GET /api/v1/budget/forecast/generate?months=6&model=linear.
 func (h *ForecastHandlers) generateForecast(c *gin.Context) {
 	months := 6
 	if m := c.Query("months"); m != "" {
@@ -88,7 +88,7 @@ func (h *ForecastHandlers) generateForecast(c *gin.Context) {
 }
 
 // getAlerts 获取预算告警
-// GET /api/v1/budget/forecast/alerts
+// GET /api/v1/budget/forecast/alerts.
 func (h *ForecastHandlers) getAlerts(c *gin.Context) {
 	alerts := h.manager.GetAlerts()
 
@@ -102,7 +102,7 @@ func (h *ForecastHandlers) getAlerts(c *gin.Context) {
 }
 
 // setAlerts 设置预算告警
-// POST /api/v1/budget/forecast/alerts/config
+// POST /api/v1/budget/forecast/alerts/config.
 func (h *ForecastHandlers) setAlerts(c *gin.Context) {
 	var req struct {
 		ConfigID   string           `json:"config_id" binding:"required"`
@@ -133,7 +133,7 @@ func (h *ForecastHandlers) setAlerts(c *gin.Context) {
 }
 
 // getTrends 获取成本趋势
-// GET /api/v1/budget/forecast/trends?resource_type=storage&period=monthly&start_date=2024-01-01&end_date=2024-12-31
+// GET /api/v1/budget/forecast/trends?resource_type=storage&period=monthly&start_date=2024-01-01&end_date=2024-12-31.
 func (h *ForecastHandlers) getTrends(c *gin.Context) {
 	resourceType := c.DefaultQuery("resource_type", "storage")
 	period := c.DefaultQuery("period", "monthly")
@@ -175,7 +175,7 @@ func (h *ForecastHandlers) getTrends(c *gin.Context) {
 }
 
 // exportReport 导出报告
-// POST /api/v1/budget/forecast/export
+// POST /api/v1/budget/forecast/export.
 func (h *ForecastHandlers) exportReport(c *gin.Context) {
 	var req ExportRequest
 
@@ -212,7 +212,7 @@ func (h *ForecastHandlers) exportReport(c *gin.Context) {
 }
 
 // getExport 获取导出结果
-// GET /api/v1/budget/forecast/export/:exportID
+// GET /api/v1/budget/forecast/export/:exportID.
 func (h *ForecastHandlers) getExport(c *gin.Context) {
 	exportID := c.Param("exportID")
 
@@ -232,7 +232,7 @@ func (h *ForecastHandlers) getExport(c *gin.Context) {
 }
 
 // getModels 获取预测模型列表
-// GET /api/v1/budget/forecast/models
+// GET /api/v1/budget/forecast/models.
 func (h *ForecastHandlers) getModels(c *gin.Context) {
 	models := h.manager.GetModels()
 
@@ -246,7 +246,7 @@ func (h *ForecastHandlers) getModels(c *gin.Context) {
 }
 
 // getConfigs 获取预算配置列表
-// GET /api/v1/budget/forecast/configs
+// GET /api/v1/budget/forecast/configs.
 func (h *ForecastHandlers) getConfigs(c *gin.Context) {
 	configs := h.manager.GetConfigs()
 
@@ -260,7 +260,7 @@ func (h *ForecastHandlers) getConfigs(c *gin.Context) {
 }
 
 // updateConfig 更新预算配置
-// PUT /api/v1/budget/forecast/configs/:configID
+// PUT /api/v1/budget/forecast/configs/:configID.
 func (h *ForecastHandlers) updateConfig(c *gin.Context) {
 	configID := c.Param("configID")
 

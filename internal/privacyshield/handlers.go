@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterRoutes 注册隐私保护盾的 HTTP 路由
+// RegisterRoutes 注册隐私保护盾的 HTTP 路由.
 func RegisterRoutes(r *gin.RouterGroup) {
 	shield := NewShield()
 	h := &Handler{shield: shield}
@@ -37,7 +37,7 @@ func RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// Handler HTTP API 处理器
+// Handler HTTP API 处理器.
 type Handler struct {
 	shield *Shield
 }
@@ -50,7 +50,7 @@ type Handler struct {
 // @Produce json
 // @Param request body ScanRequest true "扫描请求"
 // @Success 200 {object} ScanResult
-// @Router /privacyshield/scan [post]
+// @Router /privacyshield/scan [post].
 func (h *Handler) Scan(c *gin.Context) {
 	var req ScanRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -81,7 +81,7 @@ func (h *Handler) Scan(c *gin.Context) {
 // @Produce json
 // @Param request body ScanRequest true "扫描请求（包含文件路径）"
 // @Success 200 {object} ScanResult
-// @Router /privacyshield/scan/file [post]
+// @Router /privacyshield/scan/file [post].
 func (h *Handler) ScanFile(c *gin.Context) {
 	var req ScanRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -112,7 +112,7 @@ func (h *Handler) ScanFile(c *gin.Context) {
 // @Produce json
 // @Param request body MaskRequest true "脱敏请求"
 // @Success 200 {object} MaskResponse
-// @Router /privacyshield/mask [post]
+// @Router /privacyshield/mask [post].
 func (h *Handler) Mask(c *gin.Context) {
 	var req MaskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -142,7 +142,7 @@ func (h *Handler) Mask(c *gin.Context) {
 // @Produce json
 // @Param request body []MaskRequest true "批量脱敏请求"
 // @Success 200 {object} []MaskResponse
-// @Router /privacyshield/mask/batch [post]
+// @Router /privacyshield/mask/batch [post].
 func (h *Handler) MaskBatch(c *gin.Context) {
 	var requests []MaskRequest
 	if err := c.ShouldBindJSON(&requests); err != nil {
@@ -183,7 +183,7 @@ func (h *Handler) MaskBatch(c *gin.Context) {
 // @Produce json
 // @Param request body ComplianceRequest true "合规检查请求"
 // @Success 200 {object} ComplianceReport
-// @Router /privacyshield/compliance [post]
+// @Router /privacyshield/compliance [post].
 func (h *Handler) ComplianceCheck(c *gin.Context) {
 	var req ComplianceRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -217,7 +217,7 @@ func (h *Handler) ComplianceCheck(c *gin.Context) {
 // @Produce json
 // @Param request body RiskAssessmentRequest true "风险评估请求"
 // @Success 200 {object} RiskScore
-// @Router /privacyshield/risk [post]
+// @Router /privacyshield/risk [post].
 func (h *Handler) RiskAssessment(c *gin.Context) {
 	var req RiskAssessmentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -245,7 +245,7 @@ func (h *Handler) RiskAssessment(c *gin.Context) {
 // @Tags privacy
 // @Produce json
 // @Success 200 {array} SensitivePattern
-// @Router /privacyshield/patterns [get]
+// @Router /privacyshield/patterns [get].
 func (h *Handler) GetPatterns(c *gin.Context) {
 	patterns := h.shield.GetPatterns()
 	c.JSON(http.StatusOK, patterns)
@@ -259,7 +259,7 @@ func (h *Handler) GetPatterns(c *gin.Context) {
 // @Produce json
 // @Param request body SensitivePattern true "模式定义"
 // @Success 200 {object} map[string]string
-// @Router /privacyshield/patterns [post]
+// @Router /privacyshield/patterns [post].
 func (h *Handler) AddPattern(c *gin.Context) {
 	var pattern SensitivePattern
 	if err := c.ShouldBindJSON(&pattern); err != nil {
@@ -283,7 +283,7 @@ func (h *Handler) AddPattern(c *gin.Context) {
 // @Produce json
 // @Param name path string true "模式名称"
 // @Success 200 {object} map[string]string
-// @Router /privacyshield/patterns/{name} [delete]
+// @Router /privacyshield/patterns/{name} [delete].
 func (h *Handler) RemovePattern(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -304,7 +304,7 @@ func (h *Handler) RemovePattern(c *gin.Context) {
 // @Tags privacy
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /privacyshield/health [get]
+// @Router /privacyshield/health [get].
 func (h *Handler) Health(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":   "healthy",

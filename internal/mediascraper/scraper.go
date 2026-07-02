@@ -10,14 +10,14 @@ import (
 	"time"
 )
 
-// Scraper 核心刮削器，负责识别文件名、查询元数据
+// Scraper 核心刮削器，负责识别文件名、查询元数据.
 type Scraper struct {
-	movieDB   map[string]*metadataRecord // 电影元数据库（模拟）
-	tvDB      map[string]*metadataRecord // 电视剧元数据库（模拟）
+	movieDB    map[string]*metadataRecord  // 电影元数据库（模拟）
+	tvDB       map[string]*metadataRecord  // 电视剧元数据库（模拟）
 	subtitleDB map[string][]subtitleRecord // 字幕库（模拟）
 }
 
-// NewScraper 创建一个新的刮削器，初始化模拟数据
+// NewScraper 创建一个新的刮削器，初始化模拟数据.
 func NewScraper() *Scraper {
 	s := &Scraper{
 		movieDB:    make(map[string]*metadataRecord),
@@ -28,7 +28,7 @@ func NewScraper() *Scraper {
 	return s
 }
 
-// seedMockData 填充模拟的元数据，模拟飞牛 fnOS 的元数据API
+// seedMockData 填充模拟的元数据，模拟飞牛 fnOS 的元数据API.
 func (s *Scraper) seedMockData() {
 	// === 电影元数据 ===
 	s.movieDB["inception_2010"] = &metadataRecord{
@@ -126,20 +126,20 @@ func (s *Scraper) seedMockData() {
 	}
 }
 
-// 文件名解析正则表达式
+// 文件名解析正则表达式.
 var (
-	// 匹配 "Title 2010 1080p BluRay" 或 "Title.2010.1080p.BluRay" 等格式
+	// 匹配 "Title 2010 1080p BluRay" 或 "Title.2010.1080p.BluRay" 等格式.
 	moviePattern = regexp.MustCompile(`(?i)^(.+?)[\.\s\_\-\(\[]+(\d{4})[\.\s\_\-\)\]]*`)
-	// 匹配电视剧 "Title S01E02" 或 "Title s01e02"
+	// 匹配电视剧 "Title S01E02" 或 "Title s01e02".
 	tvPattern = regexp.MustCompile(`(?i)^(.+?)[\.\s\_\-\(\[]+[Ss](\d{1,2})[Ee](\d{1,2})`)
-	// 匹配带年份的电视剧 "Title 2008 S01E02"
+	// 匹配带年份的电视剧 "Title 2008 S01E02".
 	tvWithYearPattern = regexp.MustCompile(`(?i)^(.+?)[\.\s\_\-\(\[]+(\d{4})[\.\s\_\-\)\]]*[Ss](\d{1,2})[Ee](\d{1,2})`)
-	// 匹配电视剧 "Title S01E02 2008"（年份在季集号之后）
+	// 匹配电视剧 "Title S01E02 2008"（年份在季集号之后）.
 	tvWithYearAfterPattern = regexp.MustCompile(`(?i)^(.+?)[\.\s\_\-\(\[]+[Ss](\d{1,2})[Ee](\d{1,2})[\.\s\_\-\)\]]+(\d{4})`)
 )
 
 // ParseFileName 解析文件名，提取标题、年份和媒体类型
-// 支持多种常见命名格式，类似飞牛 fnOS 的智能识别
+// 支持多种常见命名格式，类似飞牛 fnOS 的智能识别.
 func ParseFileName(filename string) (title string, year int, mediaType MediaType, err error) {
 	// 去除文件扩展名
 	name := filename
@@ -218,7 +218,7 @@ func ParseFileName(filename string) (title string, year int, mediaType MediaType
 	return name, 0, MediaTypeMovie, nil
 }
 
-// buildKey 构建元数据库查找键
+// buildKey 构建元数据库查找键.
 func buildKey(title string, year int) string {
 	// 标准化：小写、去除空格和标点
 	t := strings.ToLower(title)
@@ -239,7 +239,7 @@ func buildKey(title string, year int) string {
 	return t
 }
 
-// SearchMovie 在电影元数据库中搜索
+// SearchMovie 在电影元数据库中搜索.
 func (s *Scraper) SearchMovie(title string, year int) (*metadataRecord, float64, bool) {
 	key := buildKey(title, year)
 	// 精确匹配
@@ -269,7 +269,7 @@ func (s *Scraper) SearchMovie(title string, year int) (*metadataRecord, float64,
 	return nil, 0, false
 }
 
-// SearchTV 在电视剧元数据库中搜索
+// SearchTV 在电视剧元数据库中搜索.
 func (s *Scraper) SearchTV(title string, year int) (*metadataRecord, float64, bool) {
 	key := buildKey(title, year)
 	if rec, ok := s.tvDB[key]; ok {
@@ -286,7 +286,7 @@ func (s *Scraper) SearchTV(title string, year int) (*metadataRecord, float64, bo
 }
 
 // Scrape 执行刮削：解析文件名 → 查询元数据 → 构建 MediaItem
-// 这是核心入口方法，类似飞牛 fnOS 的自动刮削流程
+// 这是核心入口方法，类似飞牛 fnOS 的自动刮削流程.
 func (s *Scraper) Scrape(filePath string) *ScraperResult {
 	filename := filepath.Base(filePath)
 	title, year, mediaType, err := ParseFileName(filename)
@@ -340,7 +340,7 @@ func (s *Scraper) Scrape(filePath string) *ScraperResult {
 	}
 }
 
-// ScrapeBatch 批量刮削多个文件
+// ScrapeBatch 批量刮削多个文件.
 func (s *Scraper) ScrapeBatch(filePaths []string) []*ScraperResult {
 	results := make([]*ScraperResult, 0, len(filePaths))
 	for _, fp := range filePaths {

@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// NewDataMaskEngine 创建脱敏引擎
+// NewDataMaskEngine 创建脱敏引擎.
 func NewDataMaskEngine(config *DataMaskConfig) *DataMaskEngine {
 	if config == nil {
 		config = DefaultDataMaskConfig()
@@ -23,8 +23,8 @@ func NewDataMaskEngine(config *DataMaskConfig) *DataMaskEngine {
 		patterns: make(map[string]*SensitivePattern),
 		rules:    make(map[string]*MaskRule),
 		stats: &MaskStats{
-			ByType:     make(map[MaskType]int64),
-			ByStrategy: make(map[MaskStrategy]int64),
+			ByType:      make(map[MaskType]int64),
+			ByStrategy:  make(map[MaskStrategy]int64),
 			LastUpdated: time.Now(),
 		},
 		cache:  make(map[string]*MaskResult),
@@ -37,7 +37,7 @@ func NewDataMaskEngine(config *DataMaskConfig) *DataMaskEngine {
 	return engine
 }
 
-// initDefaultPatterns 初始化默认模式
+// initDefaultPatterns 初始化默认模式.
 func (e *DataMaskEngine) initDefaultPatterns() {
 	defaultPatterns := []*SensitivePattern{
 		{
@@ -84,7 +84,7 @@ func (e *DataMaskEngine) initDefaultPatterns() {
 	}
 }
 
-// Start 启动引擎
+// Start 启动引擎.
 func (e *DataMaskEngine) Start() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -102,7 +102,7 @@ func (e *DataMaskEngine) Start() error {
 	return nil
 }
 
-// Stop 停止引擎
+// Stop 停止引擎.
 func (e *DataMaskEngine) Stop() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -116,14 +116,14 @@ func (e *DataMaskEngine) Stop() {
 	log.Println("[AICSODataMask] 数据脱敏引擎停止")
 }
 
-// IsRunning 检查是否运行中
+// IsRunning 检查是否运行中.
 func (e *DataMaskEngine) IsRunning() bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.running
 }
 
-// Mask 执行脱敏
+// Mask 执行脱敏.
 func (e *DataMaskEngine) Mask(request *MaskRequest) (*MaskResult, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -230,7 +230,7 @@ func (e *DataMaskEngine) Mask(request *MaskRequest) (*MaskResult, error) {
 	return result, nil
 }
 
-// applyStrategy 应用脱敏策略
+// applyStrategy 应用脱敏策略.
 func (e *DataMaskEngine) applyStrategy(text string, strategy MaskStrategy) string {
 	switch strategy {
 	case StrategyPartial:
@@ -248,7 +248,7 @@ func (e *DataMaskEngine) applyStrategy(text string, strategy MaskStrategy) strin
 	}
 }
 
-// partialMask 部分遮挡
+// partialMask 部分遮挡.
 func (e *DataMaskEngine) partialMask(text string) string {
 	if len(text) <= 2 {
 		return strings.Repeat("*", len(text))
@@ -258,13 +258,13 @@ func (e *DataMaskEngine) partialMask(text string) string {
 	return string(text[0]) + strings.Repeat("*", len(text)-2) + string(text[len(text)-1])
 }
 
-// hashText 哈希处理
+// hashText 哈希处理.
 func (e *DataMaskEngine) hashText(text string) string {
 	hash := sha256.Sum256([]byte(text))
 	return hex.EncodeToString(hash[:8]) // 使用前8字节
 }
 
-// BatchMask 批量脱敏
+// BatchMask 批量脱敏.
 func (e *DataMaskEngine) BatchMask(request *BatchMaskRequest) (*BatchMaskResult, error) {
 	results := make([]MaskResult, 0, len(request.Requests))
 	success := 0
@@ -292,7 +292,7 @@ func (e *DataMaskEngine) BatchMask(request *BatchMaskRequest) (*BatchMaskResult,
 	}, nil
 }
 
-// AddPattern 添加模式
+// AddPattern 添加模式.
 func (e *DataMaskEngine) AddPattern(pattern *SensitivePattern) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -314,7 +314,7 @@ func (e *DataMaskEngine) AddPattern(pattern *SensitivePattern) error {
 	return nil
 }
 
-// UpdatePattern 更新模式
+// UpdatePattern 更新模式.
 func (e *DataMaskEngine) UpdatePattern(id string, pattern *SensitivePattern) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -336,7 +336,7 @@ func (e *DataMaskEngine) UpdatePattern(id string, pattern *SensitivePattern) err
 	return nil
 }
 
-// DeletePattern 删除模式
+// DeletePattern 删除模式.
 func (e *DataMaskEngine) DeletePattern(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -351,7 +351,7 @@ func (e *DataMaskEngine) DeletePattern(id string) error {
 	return nil
 }
 
-// GetPattern 获取模式
+// GetPattern 获取模式.
 func (e *DataMaskEngine) GetPattern(id string) (*SensitivePattern, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -364,7 +364,7 @@ func (e *DataMaskEngine) GetPattern(id string) (*SensitivePattern, error) {
 	return pattern, nil
 }
 
-// ListPatterns 列出所有模式
+// ListPatterns 列出所有模式.
 func (e *DataMaskEngine) ListPatterns() []*SensitivePattern {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -376,7 +376,7 @@ func (e *DataMaskEngine) ListPatterns() []*SensitivePattern {
 	return patterns
 }
 
-// AddRule 添加规则
+// AddRule 添加规则.
 func (e *DataMaskEngine) AddRule(rule *MaskRule) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -394,7 +394,7 @@ func (e *DataMaskEngine) AddRule(rule *MaskRule) error {
 	return nil
 }
 
-// GetRule 获取规则
+// GetRule 获取规则.
 func (e *DataMaskEngine) GetRule(id string) (*MaskRule, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -407,7 +407,7 @@ func (e *DataMaskEngine) GetRule(id string) (*MaskRule, error) {
 	return rule, nil
 }
 
-// ListRules 列出所有规则
+// ListRules 列出所有规则.
 func (e *DataMaskEngine) ListRules() []*MaskRule {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -419,7 +419,7 @@ func (e *DataMaskEngine) ListRules() []*MaskRule {
 	return rules
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (e *DataMaskEngine) GetStats() *MaskStats {
 	e.stats.mu.RLock()
 	defer e.stats.mu.RUnlock()
@@ -434,7 +434,7 @@ func (e *DataMaskEngine) GetStats() *MaskStats {
 	}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (e *DataMaskEngine) GetConfig() *DataMaskConfig {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -442,7 +442,7 @@ func (e *DataMaskEngine) GetConfig() *DataMaskConfig {
 	return e.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (e *DataMaskEngine) UpdateConfig(config *DataMaskConfig) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -451,7 +451,7 @@ func (e *DataMaskEngine) UpdateConfig(config *DataMaskConfig) {
 	log.Printf("[AICSODataMask] 配置已更新")
 }
 
-// cacheCleaner 缓存清理器
+// cacheCleaner 缓存清理器.
 func (e *DataMaskEngine) cacheCleaner() {
 	ticker := time.NewTicker(e.config.CacheTTL)
 	defer ticker.Stop()
@@ -466,7 +466,7 @@ func (e *DataMaskEngine) cacheCleaner() {
 	}
 }
 
-// cleanCache 清理缓存
+// cleanCache 清理缓存.
 func (e *DataMaskEngine) cleanCache() {
 	e.cacheMu.Lock()
 	defer e.cacheMu.Unlock()
@@ -476,7 +476,7 @@ func (e *DataMaskEngine) cleanCache() {
 	e.cache = make(map[string]*MaskResult)
 }
 
-// copyTypeMap 复制类型映射
+// copyTypeMap 复制类型映射.
 func copyTypeMap(src map[MaskType]int64) map[MaskType]int64 {
 	dst := make(map[MaskType]int64)
 	for k, v := range src {
@@ -485,7 +485,7 @@ func copyTypeMap(src map[MaskType]int64) map[MaskType]int64 {
 	return dst
 }
 
-// copyStrategyMap 复制策略映射
+// copyStrategyMap 复制策略映射.
 func copyStrategyMap(src map[MaskStrategy]int64) map[MaskStrategy]int64 {
 	dst := make(map[MaskStrategy]int64)
 	for k, v := range src {
@@ -494,7 +494,7 @@ func copyStrategyMap(src map[MaskStrategy]int64) map[MaskStrategy]int64 {
 	return dst
 }
 
-// ClearCache 清空缓存
+// ClearCache 清空缓存.
 func (e *DataMaskEngine) ClearCache() {
 	e.cacheMu.Lock()
 	defer e.cacheMu.Unlock()
@@ -503,7 +503,7 @@ func (e *DataMaskEngine) ClearCache() {
 	log.Println("[AICSODataMask] 缓存已清空")
 }
 
-// GetCacheSize 获取缓存大小
+// GetCacheSize 获取缓存大小.
 func (e *DataMaskEngine) GetCacheSize() int {
 	e.cacheMu.RLock()
 	defer e.cacheMu.RUnlock()

@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// DeviceStatus 设备状态
+// DeviceStatus 设备状态.
 type DeviceStatus string
 
 const (
@@ -13,7 +13,7 @@ const (
 	DeviceStatusUnknown DeviceStatus = "unknown" // 未知
 )
 
-// ConnectionStatus 连接状态
+// ConnectionStatus 连接状态.
 type ConnectionStatus string
 
 const (
@@ -23,7 +23,7 @@ const (
 	ConnectionStatusError      ConnectionStatus = "error"      // 错误
 )
 
-// EventType 事件类型
+// EventType 事件类型.
 type EventType string
 
 const (
@@ -37,7 +37,7 @@ const (
 	EventTypeSyncComplete  EventType = "sync_complete"  // 同步完成
 )
 
-// NASDevice NAS 设备
+// NASDevice NAS 设备.
 type NASDevice struct {
 	ID         string       `json:"id"`
 	Name       string       `json:"name"`
@@ -65,7 +65,7 @@ type NASDevice struct {
 	UpdatedAt  time.Time    `json:"updated_at"`
 }
 
-// DeviceGroup 设备分组
+// DeviceGroup 设备分组.
 type DeviceGroup struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -76,7 +76,7 @@ type DeviceGroup struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// Connection 连接信息
+// Connection 连接信息.
 type Connection struct {
 	ID        string           `json:"id"`
 	DeviceID  string           `json:"device_id"`
@@ -88,7 +88,7 @@ type Connection struct {
 	UpdatedAt time.Time        `json:"updated_at"`
 }
 
-// Credential 凭证
+// Credential 凭证.
 type Credential struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -102,7 +102,7 @@ type Credential struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// Event 事件
+// Event 事件.
 type Event struct {
 	ID        string    `json:"id"`
 	Type      EventType `json:"type"`
@@ -111,7 +111,7 @@ type Event struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// Stats 统计信息
+// Stats 统计信息.
 type Stats struct {
 	TotalDevices   int `json:"total_devices"`
 	OnlineDevices  int `json:"online_devices"`

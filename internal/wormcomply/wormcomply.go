@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// Regulation 法规类型
+// Regulation 法规类型.
 type Regulation string
 
 const (
@@ -24,7 +24,7 @@ const (
 	RegCustom Regulation = "CUSTOM"
 )
 
-// RetentionAction 保留策略动作
+// RetentionAction 保留策略动作.
 type RetentionAction string
 
 const (
@@ -35,7 +35,7 @@ const (
 	ActionNotifyOnly RetentionAction = "notify"  // 仅通知，不执行动作
 )
 
-// PolicyState 策略状态
+// PolicyState 策略状态.
 type PolicyState string
 
 const (
@@ -44,7 +44,7 @@ const (
 	PolicyStateExpired   PolicyState = "expired"
 )
 
-// ComplianceLevel 合规等级
+// ComplianceLevel 合规等级.
 type ComplianceLevel string
 
 const (
@@ -53,7 +53,7 @@ const (
 	LevelAdvisory ComplianceLevel = "advisory" // 建议模式，仅告警
 )
 
-// RetentionPolicy 数据保留策略
+// RetentionPolicy 数据保留策略.
 type RetentionPolicy struct {
 	ID               string          `json:"id"`
 	Name             string          `json:"name"`
@@ -73,7 +73,7 @@ type RetentionPolicy struct {
 	Version          int             `json:"version"`
 }
 
-// ComplianceAuditEntry 合规审计日志条目
+// ComplianceAuditEntry 合规审计日志条目.
 type ComplianceAuditEntry struct {
 	ID           string     `json:"id"`
 	PolicyID     string     `json:"policy_id"`
@@ -91,7 +91,7 @@ type ComplianceAuditEntry struct {
 	ClientIP     string     `json:"client_ip,omitempty"`
 }
 
-// ComplianceViolation 合规违规记录
+// ComplianceViolation 合规违规记录.
 type ComplianceViolation struct {
 	ID              string     `json:"id"`
 	PolicyID        string     `json:"policy_id"`
@@ -106,7 +106,7 @@ type ComplianceViolation struct {
 	ResolvedBy      string     `json:"resolved_by,omitempty"`
 }
 
-// ComplianceReport 合规报告
+// ComplianceReport 合规报告.
 type ComplianceReport struct {
 	ID             string                 `json:"id"`
 	GeneratedAt    time.Time              `json:"generated_at"`
@@ -123,7 +123,7 @@ type ComplianceReport struct {
 	Score          float64                `json:"score"` // 0-100
 }
 
-// PolicyViolationError 策略违规错误
+// PolicyViolationError 策略违规错误.
 type PolicyViolationError struct {
 	PolicyID   string
 	PolicyName string
@@ -135,7 +135,7 @@ func (e *PolicyViolationError) Error() string {
 	return fmt.Sprintf("policy violation: policy=%s file=%s reason=%s", e.PolicyName, e.FilePath, e.Reason)
 }
 
-// 预定义错误
+// 预定义错误.
 var (
 	ErrPolicyNotFound  = errors.New("retention policy not found")
 	ErrPolicyExists    = errors.New("retention policy already exists")
@@ -145,7 +145,7 @@ var (
 	ErrAuditLogFull    = errors.New("audit log is full")
 )
 
-// Engine WORM 合规引擎
+// Engine WORM 合规引擎.
 type Engine struct {
 	mu          sync.RWMutex
 	policies    map[string]*RetentionPolicy
@@ -155,7 +155,7 @@ type Engine struct {
 	config      EngineConfig
 }
 
-// EngineConfig 引擎配置
+// EngineConfig 引擎配置.
 type EngineConfig struct {
 	MaxAuditEntries   int             `json:"max_audit_entries"`
 	DefaultLevel      ComplianceLevel `json:"default_level"`
@@ -164,7 +164,7 @@ type EngineConfig struct {
 	ReportDir         string          `json:"report_dir"`
 }
 
-// DefaultEngineConfig 默认引擎配置
+// DefaultEngineConfig 默认引擎配置.
 func DefaultEngineConfig() EngineConfig {
 	return EngineConfig{
 		MaxAuditEntries:   100000,
@@ -175,7 +175,7 @@ func DefaultEngineConfig() EngineConfig {
 	}
 }
 
-// NewEngine 创建 WORM 合规引擎
+// NewEngine 创建 WORM 合规引擎.
 func NewEngine(config EngineConfig) *Engine {
 	if config.MaxAuditEntries <= 0 {
 		config = DefaultEngineConfig()
@@ -189,7 +189,7 @@ func NewEngine(config EngineConfig) *Engine {
 	}
 }
 
-// CreatePolicy 创建保留策略
+// CreatePolicy 创建保留策略.
 func (e *Engine) CreatePolicy(p *RetentionPolicy) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -235,7 +235,7 @@ func (e *Engine) CreatePolicy(p *RetentionPolicy) error {
 	return nil
 }
 
-// UpdatePolicy 更新保留策略
+// UpdatePolicy 更新保留策略.
 func (e *Engine) UpdatePolicy(policyID string, updated *RetentionPolicy) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -268,7 +268,7 @@ func (e *Engine) UpdatePolicy(policyID string, updated *RetentionPolicy) error {
 	return nil
 }
 
-// DeletePolicy 删除保留策略
+// DeletePolicy 删除保留策略.
 func (e *Engine) DeletePolicy(policyID string, userID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -295,7 +295,7 @@ func (e *Engine) DeletePolicy(policyID string, userID string) error {
 	return nil
 }
 
-// GetPolicy 获取策略
+// GetPolicy 获取策略.
 func (e *Engine) GetPolicy(policyID string) (*RetentionPolicy, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -307,7 +307,7 @@ func (e *Engine) GetPolicy(policyID string) (*RetentionPolicy, error) {
 	return p, nil
 }
 
-// ListPolicies 列出所有策略
+// ListPolicies 列出所有策略.
 func (e *Engine) ListPolicies() []*RetentionPolicy {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -319,7 +319,7 @@ func (e *Engine) ListPolicies() []*RetentionPolicy {
 	return result
 }
 
-// ListPoliciesByRegulation 按法规列出策略
+// ListPoliciesByRegulation 按法规列出策略.
 func (e *Engine) ListPoliciesByRegulation(reg Regulation) []*RetentionPolicy {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -362,7 +362,7 @@ func (e *Engine) CheckFileAccess(filePath string, operation string, userID strin
 	return nil
 }
 
-// RecordViolation 记录合规违规
+// RecordViolation 记录合规违规.
 func (e *Engine) RecordViolation(v *ComplianceViolation) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -382,7 +382,7 @@ func (e *Engine) RecordViolation(v *ComplianceViolation) {
 	})
 }
 
-// ResolveViolation 解决违规
+// ResolveViolation 解决违规.
 func (e *Engine) ResolveViolation(violationID string, resolvedBy string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -411,7 +411,7 @@ func (e *Engine) ResolveViolation(violationID string, resolvedBy string) error {
 	return nil
 }
 
-// GetViolations 获取未解决违规
+// GetViolations 获取未解决违规.
 func (e *Engine) GetViolations(unresolvedOnly bool) []*ComplianceViolation {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -426,7 +426,7 @@ func (e *Engine) GetViolations(unresolvedOnly bool) []*ComplianceViolation {
 	return result
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (e *Engine) GetAuditLog(limit int, policyID string) []ComplianceAuditEntry {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -450,7 +450,7 @@ func (e *Engine) GetAuditLog(limit int, policyID string) []ComplianceAuditEntry 
 	return result
 }
 
-// GenerateReport 生成合规报告
+// GenerateReport 生成合规报告.
 func (e *Engine) GenerateReport(period string) *ComplianceReport {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -496,7 +496,7 @@ func (e *Engine) GenerateReport(period string) *ComplianceReport {
 	return report
 }
 
-// SuspendPolicy 暂停策略
+// SuspendPolicy 暂停策略.
 func (e *Engine) SuspendPolicy(policyID string, userID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -524,7 +524,7 @@ func (e *Engine) SuspendPolicy(policyID string, userID string) error {
 	return nil
 }
 
-// ActivatePolicy 激活策略
+// ActivatePolicy 激活策略.
 func (e *Engine) ActivatePolicy(policyID string, userID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -552,7 +552,7 @@ func (e *Engine) ActivatePolicy(policyID string, userID string) error {
 	return nil
 }
 
-// GetExpiredPolicies 获取已过期的策略（保留期已过但未处理）
+// GetExpiredPolicies 获取已过期的策略（保留期已过但未处理）.
 func (e *Engine) GetExpiredPolicies() []*RetentionPolicy {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -567,7 +567,7 @@ func (e *Engine) GetExpiredPolicies() []*RetentionPolicy {
 	return result
 }
 
-// matchesPolicy 检查文件路径是否匹配策略
+// matchesPolicy 检查文件路径是否匹配策略.
 func (e *Engine) matchesPolicy(filePath string, policy *RetentionPolicy) bool {
 	// 检查排除路径
 	for _, exclude := range policy.ExcludePaths {
@@ -598,7 +598,7 @@ func (e *Engine) matchesPolicy(filePath string, policy *RetentionPolicy) bool {
 	return false
 }
 
-// matchPath 检查路径前缀匹配
+// matchPath 检查路径前缀匹配.
 func matchPath(prefix, path string) bool {
 	if len(prefix) > len(path) {
 		return false
@@ -620,7 +620,7 @@ func matchPattern(pattern, path string) bool {
 	return strings.Contains(path, pattern)
 }
 
-// appendAudit 追加审计日志（调用方需持有写锁）
+// appendAudit 追加审计日志（调用方需持有写锁）.
 func (e *Engine) appendAudit(entry *ComplianceAuditEntry) {
 	if entry.ID == "" {
 		entry.ID = fmt.Sprintf("audit-%d-%d", time.Now().UnixNano(), len(e.auditLog))

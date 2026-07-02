@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Manager 引导式告警管理器
+// Manager 引导式告警管理器.
 type Manager struct {
 	alerts  map[string]*GuidedAlert
 	rules   map[string]*AlertRule
@@ -17,7 +17,7 @@ type Manager struct {
 	logger  *slog.Logger
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(logger *slog.Logger) *Manager {
 	if logger == nil {
 		logger = slog.Default()
@@ -31,7 +31,7 @@ func NewManager(logger *slog.Logger) *Manager {
 	return m
 }
 
-// RegisterRule 注册告警规则
+// RegisterRule 注册告警规则.
 func (m *Manager) RegisterRule(rule *AlertRule) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -39,7 +39,7 @@ func (m *Manager) RegisterRule(rule *AlertRule) {
 	m.logger.Info("registered alert rule", "name", rule.Name)
 }
 
-// Fire 触发告警
+// Fire 触发告警.
 func (m *Manager) Fire(ruleName, message string) *GuidedAlert {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -84,7 +84,7 @@ func (m *Manager) Fire(ruleName, message string) *GuidedAlert {
 	return alert
 }
 
-// correlateAlerts 关联分析：同类别未确认告警合并
+// correlateAlerts 关联分析：同类别未确认告警合并.
 func (m *Manager) correlateAlerts(newAlert *GuidedAlert) {
 	for _, existing := range m.alerts {
 		if existing.ID == newAlert.ID {
@@ -97,7 +97,7 @@ func (m *Manager) correlateAlerts(newAlert *GuidedAlert) {
 	}
 }
 
-// Acknowledge 确认告警
+// Acknowledge 确认告警.
 func (m *Manager) Acknowledge(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -110,7 +110,7 @@ func (m *Manager) Acknowledge(id string) error {
 	return nil
 }
 
-// Silence 静音告警
+// Silence 静音告警.
 func (m *Manager) Silence(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -123,7 +123,7 @@ func (m *Manager) Silence(id string) error {
 	return nil
 }
 
-// Get 获取单个告警
+// Get 获取单个告警.
 func (m *Manager) Get(id string) (*GuidedAlert, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -131,7 +131,7 @@ func (m *Manager) Get(id string) (*GuidedAlert, bool) {
 	return alert, ok
 }
 
-// List 获取告警列表
+// List 获取告警列表.
 func (m *Manager) List() []*GuidedAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -142,7 +142,7 @@ func (m *Manager) List() []*GuidedAlert {
 	return result
 }
 
-// Summary 获取告警汇总
+// Summary 获取告警汇总.
 func (m *Manager) Summary() *AlertSummary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -158,7 +158,7 @@ func (m *Manager) Summary() *AlertSummary {
 	return summary
 }
 
-// GetRules 获取所有规则
+// GetRules 获取所有规则.
 func (m *Manager) GetRules() []*AlertRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -169,7 +169,7 @@ func (m *Manager) GetRules() []*AlertRule {
 	return result
 }
 
-// registerBuiltinRules 注册内置告警规则
+// registerBuiltinRules 注册内置告警规则.
 func (m *Manager) registerBuiltinRules() {
 	m.rules["smart_warning"] = &AlertRule{
 		Name:      "smart_warning",

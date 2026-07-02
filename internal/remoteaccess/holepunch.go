@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// 打洞消息类型
+// 打洞消息类型.
 const (
 	HolePunchMsgPing      uint8 = 0x01
 	HolePunchMsgPong      uint8 = 0x02
@@ -26,30 +26,30 @@ const (
 	HolePunchMsgClose     uint8 = 0x05
 )
 
-// HolePunchConn UDP 打洞连接
+// HolePunchConn UDP 打洞连接.
 type HolePunchConn struct {
-	mu            sync.RWMutex
-	logger        *zap.Logger
-	conn          *net.UDPConn
-	localID       string
-	remoteID      string
-	localAddr     *net.UDPAddr
-	remoteAddr    *net.UDPAddr
-	established   int32 // atomic
-	lastPing      time.Time
-	lastPong      time.Time
-	rtt           time.Duration
-	bytesSent     int64 // atomic
-	bytesRecv     int64 // atomic
-	encrypted     bool
-	sharedKey     []byte
-	onData        func([]byte)
-	ctx           context.Context
-	cancel        context.CancelFunc
-	done          chan struct{}
+	mu          sync.RWMutex
+	logger      *zap.Logger
+	conn        *net.UDPConn
+	localID     string
+	remoteID    string
+	localAddr   *net.UDPAddr
+	remoteAddr  *net.UDPAddr
+	established int32 // atomic
+	lastPing    time.Time
+	lastPong    time.Time
+	rtt         time.Duration
+	bytesSent   int64 // atomic
+	bytesRecv   int64 // atomic
+	encrypted   bool
+	sharedKey   []byte
+	onData      func([]byte)
+	ctx         context.Context
+	cancel      context.CancelFunc
+	done        chan struct{}
 }
 
-// HolePunchConfig 打洞配置
+// HolePunchConfig 打洞配置.
 type HolePunchConfig struct {
 	LocalID       string
 	RemoteID      string
@@ -63,7 +63,7 @@ type HolePunchConfig struct {
 	Timeout       time.Duration
 }
 
-// HolePunchManager UDP 打洞管理器
+// HolePunchManager UDP 打洞管理器.
 type HolePunchManager struct {
 	mu        sync.RWMutex
 	logger    *zap.Logger
@@ -73,7 +73,7 @@ type HolePunchManager struct {
 	localAddr *net.UDPAddr
 }
 
-// NewHolePunchManager 创建打洞管理器
+// NewHolePunchManager 创建打洞管理器.
 func NewHolePunchManager(logger *zap.Logger, localID string) *HolePunchManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -86,14 +86,14 @@ func NewHolePunchManager(logger *zap.Logger, localID string) *HolePunchManager {
 	}
 }
 
-// SetLocalAddr 设置本地监听地址
+// SetLocalAddr 设置本地监听地址.
 func (m *HolePunchManager) SetLocalAddr(addr *net.UDPAddr) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.localAddr = addr
 }
 
-// GetExternalAddr 通过 STUN 获取外部地址
+// GetExternalAddr 通过 STUN 获取外部地址.
 func (m *HolePunchManager) GetExternalAddr(ctx context.Context) (*net.UDPAddr, error) {
 	result, err := m.stunPool.QueryBest(ctx)
 	if err != nil {
@@ -105,7 +105,7 @@ func (m *HolePunchManager) GetExternalAddr(ctx context.Context) (*net.UDPAddr, e
 	}, nil
 }
 
-// PunchHole 执行 UDP 打洞
+// PunchHole 执行 UDP 打洞.
 func (m *HolePunchManager) PunchHole(ctx context.Context, config HolePunchConfig) (*HolePunchConn, error) {
 	// 设置默认值
 	if config.MaxRetries <= 0 {
@@ -175,7 +175,7 @@ func (m *HolePunchManager) PunchHole(ctx context.Context, config HolePunchConfig
 	}
 }
 
-// establishedChan 返回连接建立信号通道
+// establishedChan 返回连接建立信号通道.
 func (c *HolePunchConn) establishedChan() <-chan struct{} {
 	ch := make(chan struct{})
 	go func() {
@@ -190,7 +190,7 @@ func (c *HolePunchConn) establishedChan() <-chan struct{} {
 	return ch
 }
 
-// punchLoop 打洞主循环
+// punchLoop 打洞主循环.
 func (c *HolePunchConn) punchLoop(maxRetries int, retryInterval, pingInterval time.Duration) {
 	defer close(c.done)
 
@@ -290,7 +290,7 @@ func (c *HolePunchConn) punchLoop(maxRetries int, retryInterval, pingInterval ti
 	}
 }
 
-// sendPing 发送打洞 ping
+// sendPing 发送打洞 ping.
 func (c *HolePunchConn) sendPing() {
 	c.mu.RLock()
 	remoteAddr := c.remoteAddr
@@ -314,7 +314,7 @@ func (c *HolePunchConn) sendPing() {
 	c.mu.Unlock()
 }
 
-// sendPong 发送打洞 pong
+// sendPong 发送打洞 pong.
 func (c *HolePunchConn) sendPong() {
 	c.mu.RLock()
 	remoteAddr := c.remoteAddr
@@ -333,7 +333,7 @@ func (c *HolePunchConn) sendPong() {
 	atomic.AddInt64(&c.bytesSent, int64(len(msg)))
 }
 
-// Send 发送数据
+// Send 发送数据.
 func (c *HolePunchConn) Send(data []byte) error {
 	if atomic.LoadInt32(&c.established) != 1 {
 		return fmt.Errorf("连接未建立")
@@ -369,12 +369,12 @@ func (c *HolePunchConn) Send(data []byte) error {
 	return nil
 }
 
-// SetOnData 设置数据回调
+// SetOnData 设置数据回调.
 func (c *HolePunchConn) SetOnData(fn func([]byte)) {
 	c.onData = fn
 }
 
-// Close 关闭连接
+// Close 关闭连接.
 func (c *HolePunchConn) Close() error {
 	c.mu.RLock()
 	remoteAddr := c.remoteAddr
@@ -391,25 +391,25 @@ func (c *HolePunchConn) Close() error {
 	return c.conn.Close()
 }
 
-// GetStats 获取连接统计
+// GetStats 获取连接统计.
 func (c *HolePunchConn) GetStats() map[string]interface{} {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
 	return map[string]interface{}{
-		"local_addr":     c.localAddr.String(),
-		"remote_addr":    c.remoteAddr.String(),
-		"established":    atomic.LoadInt32(&c.established) == 1,
-		"bytes_sent":     atomic.LoadInt64(&c.bytesSent),
-		"bytes_recv":     atomic.LoadInt64(&c.bytesRecv),
-		"rtt":            c.rtt,
-		"encrypted":      c.encrypted,
-		"last_ping":      c.lastPing,
-		"last_pong":      c.lastPong,
+		"local_addr":  c.localAddr.String(),
+		"remote_addr": c.remoteAddr.String(),
+		"established": atomic.LoadInt32(&c.established) == 1,
+		"bytes_sent":  atomic.LoadInt64(&c.bytesSent),
+		"bytes_recv":  atomic.LoadInt64(&c.bytesRecv),
+		"rtt":         c.rtt,
+		"encrypted":   c.encrypted,
+		"last_ping":   c.lastPing,
+		"last_pong":   c.lastPong,
 	}
 }
 
-// encrypt 使用 AES-GCM 加密数据
+// encrypt 使用 AES-GCM 加密数据.
 func (c *HolePunchConn) encrypt(data []byte) ([]byte, error) {
 	block, err := aes.NewCipher(c.sharedKey[:32])
 	if err != nil {
@@ -427,7 +427,7 @@ func (c *HolePunchConn) encrypt(data []byte) ([]byte, error) {
 	return gcm.Seal(nonce, nonce, data, nil), nil
 }
 
-// decrypt 使用 AES-GCM 解密数据
+// decrypt 使用 AES-GCM 解密数据.
 func (c *HolePunchConn) decrypt(data []byte) ([]byte, error) {
 	block, err := aes.NewCipher(c.sharedKey[:32])
 	if err != nil {

@@ -17,7 +17,7 @@ import (
 // ConnectionManager - P2P 连接管理器
 // ============================================================
 
-// ConnectionManager P2P 连接管理器
+// ConnectionManager P2P 连接管理器.
 type ConnectionManager struct {
 	mu          sync.RWMutex
 	logger      *zap.Logger
@@ -30,7 +30,7 @@ type ConnectionManager struct {
 	stats *ConnectionStats
 }
 
-// NewConnectionManager 创建连接管理器
+// NewConnectionManager 创建连接管理器.
 func NewConnectionManager(logger *zap.Logger, localPeerID string) *ConnectionManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -50,7 +50,7 @@ func NewConnectionManager(logger *zap.Logger, localPeerID string) *ConnectionMan
 	}
 }
 
-// Connect 建立 P2P 连接
+// Connect 建立 P2P 连接.
 func (cm *ConnectionManager) Connect(req ConnectRequest) (*ConnectResponse, error) {
 	if req.RemotePeerID == "" {
 		return nil, fmt.Errorf("远程节点 ID 不能为空")
@@ -102,7 +102,7 @@ func (cm *ConnectionManager) Connect(req ConnectRequest) (*ConnectResponse, erro
 	}, nil
 }
 
-// Disconnect 断开连接
+// Disconnect 断开连接.
 func (cm *ConnectionManager) Disconnect(connID string, reason string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -123,7 +123,7 @@ func (cm *ConnectionManager) Disconnect(connID string, reason string) error {
 	return nil
 }
 
-// GetConnection 获取连接信息
+// GetConnection 获取连接信息.
 func (cm *ConnectionManager) GetConnection(connID string) (*P2PConnection, error) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -135,7 +135,7 @@ func (cm *ConnectionManager) GetConnection(connID string) (*P2PConnection, error
 	return conn, nil
 }
 
-// ListConnections 列出所有连接
+// ListConnections 列出所有连接.
 func (cm *ConnectionManager) ListConnections() []*P2PConnection {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -147,7 +147,7 @@ func (cm *ConnectionManager) ListConnections() []*P2PConnection {
 	return conns
 }
 
-// GetStats 获取连接统计
+// GetStats 获取连接统计.
 func (cm *ConnectionManager) GetStats() *ConnectionStats {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -162,7 +162,7 @@ func (cm *ConnectionManager) GetStats() *ConnectionStats {
 // NATDetector - NAT 类型检测器
 // ============================================================
 
-// NATDetector NAT 类型检测器
+// NATDetector NAT 类型检测器.
 type NATDetector struct {
 	mu          sync.RWMutex
 	logger      *zap.Logger
@@ -170,7 +170,7 @@ type NATDetector struct {
 	lastResult  *NATDetectionResult
 }
 
-// NewNATDetector 创建 NAT 检测器
+// NewNATDetector 创建 NAT 检测器.
 func NewNATDetector(logger *zap.Logger) *NATDetector {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -181,14 +181,14 @@ func NewNATDetector(logger *zap.Logger) *NATDetector {
 	}
 }
 
-// AddSTUNServer 添加 STUN 服务器
+// AddSTUNServer 添加 STUN 服务器.
 func (nd *NATDetector) AddSTUNServer(server STUNServer) {
 	nd.mu.Lock()
 	defer nd.mu.Unlock()
 	nd.stunServers = append(nd.stunServers, server)
 }
 
-// Detect 检测 NAT 类型
+// Detect 检测 NAT 类型.
 func (nd *NATDetector) Detect() (*NATDetectionResult, error) {
 	nd.mu.RLock()
 	servers := nd.stunServers
@@ -228,7 +228,7 @@ func (nd *NATDetector) Detect() (*NATDetectionResult, error) {
 	return result, nil
 }
 
-// GetLastResult 获取上次检测结果
+// GetLastResult 获取上次检测结果.
 func (nd *NATDetector) GetLastResult() *NATDetectionResult {
 	nd.mu.RLock()
 	defer nd.mu.RUnlock()
@@ -239,15 +239,15 @@ func (nd *NATDetector) GetLastResult() *NATDetectionResult {
 // RelayManager - 中继服务器管理器
 // ============================================================
 
-// RelayManager 中继服务器管理器
+// RelayManager 中继服务器管理器.
 type RelayManager struct {
-	mu        sync.RWMutex
-	logger    *zap.Logger
-	servers   map[string]*RelayServer
-	relays    map[string]*RelayConnection
+	mu      sync.RWMutex
+	logger  *zap.Logger
+	servers map[string]*RelayServer
+	relays  map[string]*RelayConnection
 }
 
-// NewRelayManager 创建中继管理器
+// NewRelayManager 创建中继管理器.
 func NewRelayManager(logger *zap.Logger) *RelayManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -259,7 +259,7 @@ func NewRelayManager(logger *zap.Logger) *RelayManager {
 	}
 }
 
-// AddServer 添加中继服务器
+// AddServer 添加中继服务器.
 func (rm *RelayManager) AddServer(server RelayServer) error {
 	if server.ID == "" {
 		return fmt.Errorf("服务器 ID 不能为空")
@@ -283,7 +283,7 @@ func (rm *RelayManager) AddServer(server RelayServer) error {
 	return nil
 }
 
-// RemoveServer 移除中继服务器
+// RemoveServer 移除中继服务器.
 func (rm *RelayManager) RemoveServer(serverID string) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -296,7 +296,7 @@ func (rm *RelayManager) RemoveServer(serverID string) error {
 	return nil
 }
 
-// GetServer 获取服务器信息
+// GetServer 获取服务器信息.
 func (rm *RelayManager) GetServer(serverID string) (*RelayServer, error) {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -308,7 +308,7 @@ func (rm *RelayManager) GetServer(serverID string) (*RelayServer, error) {
 	return server, nil
 }
 
-// ListServers 列出所有服务器
+// ListServers 列出所有服务器.
 func (rm *RelayManager) ListServers() []*RelayServer {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -320,7 +320,7 @@ func (rm *RelayManager) ListServers() []*RelayServer {
 	return servers
 }
 
-// GetBestServer 获取最佳服务器（延迟最低、负载最小）
+// GetBestServer 获取最佳服务器（延迟最低、负载最小）.
 func (rm *RelayManager) GetBestServer() (*RelayServer, error) {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -357,16 +357,16 @@ func (rm *RelayManager) GetBestServer() (*RelayServer, error) {
 // BandwidthManager - 带宽管理器
 // ============================================================
 
-// BandwidthManager 带宽管理器
+// BandwidthManager 带宽管理器.
 type BandwidthManager struct {
-	mu        sync.RWMutex
-	logger    *zap.Logger
-	config    BandwidthConfig
-	samples   []BandwidthSample
+	mu         sync.RWMutex
+	logger     *zap.Logger
+	config     BandwidthConfig
+	samples    []BandwidthSample
 	maxSamples int
 }
 
-// NewBandwidthManager 创建带宽管理器
+// NewBandwidthManager 创建带宽管理器.
 func NewBandwidthManager(logger *zap.Logger, config BandwidthConfig) *BandwidthManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -385,7 +385,7 @@ func NewBandwidthManager(logger *zap.Logger, config BandwidthConfig) *BandwidthM
 	}
 }
 
-// RecordSample 记录带宽采样
+// RecordSample 记录带宽采样.
 func (bm *BandwidthManager) RecordSample(sample BandwidthSample) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -396,7 +396,7 @@ func (bm *BandwidthManager) RecordSample(sample BandwidthSample) {
 	}
 }
 
-// GetStats 获取带宽统计
+// GetStats 获取带宽统计.
 func (bm *BandwidthManager) GetStats() *BandwidthStats {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -427,14 +427,14 @@ func (bm *BandwidthManager) GetStats() *BandwidthStats {
 	return stats
 }
 
-// GetConfig 获取带宽配置
+// GetConfig 获取带宽配置.
 func (bm *BandwidthManager) GetConfig() BandwidthConfig {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
 	return bm.config
 }
 
-// UpdateConfig 更新带宽配置
+// UpdateConfig 更新带宽配置.
 func (bm *BandwidthManager) UpdateConfig(config BandwidthConfig) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -445,16 +445,16 @@ func (bm *BandwidthManager) UpdateConfig(config BandwidthConfig) {
 // AccessControl - 访问控制管理器
 // ============================================================
 
-// AccessControl 访问控制管理器
+// AccessControl 访问控制管理器.
 type AccessControl struct {
-	mu      sync.RWMutex
-	logger  *zap.Logger
-	entries map[string]*AccessControlEntry
+	mu       sync.RWMutex
+	logger   *zap.Logger
+	entries  map[string]*AccessControlEntry
 	aclRules map[string]*ACLRule
-	peers   map[string]*PeerAuth
+	peers    map[string]*PeerAuth
 }
 
-// NewAccessControl 创建访问控制管理器
+// NewAccessControl 创建访问控制管理器.
 func NewAccessControl(logger *zap.Logger) *AccessControl {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -467,7 +467,7 @@ func NewAccessControl(logger *zap.Logger) *AccessControl {
 	}
 }
 
-// AddEntry 添加访问控制条目
+// AddEntry 添加访问控制条目.
 func (ac *AccessControl) AddEntry(entry AccessControlEntry) error {
 	if entry.ID == "" {
 		entry.ID = generateConnectionID()
@@ -492,7 +492,7 @@ func (ac *AccessControl) AddEntry(entry AccessControlEntry) error {
 	return nil
 }
 
-// RemoveEntry 移除访问控制条目
+// RemoveEntry 移除访问控制条目.
 func (ac *AccessControl) RemoveEntry(entryID string) error {
 	ac.mu.Lock()
 	defer ac.mu.Unlock()
@@ -505,7 +505,7 @@ func (ac *AccessControl) RemoveEntry(entryID string) error {
 	return nil
 }
 
-// CheckAccess 检查访问权限
+// CheckAccess 检查访问权限.
 func (ac *AccessControl) CheckAccess(subject, resource string, permission Permission) bool {
 	ac.mu.RLock()
 	defer ac.mu.RUnlock()
@@ -526,7 +526,7 @@ func (ac *AccessControl) CheckAccess(subject, resource string, permission Permis
 	return false
 }
 
-// AddACLRule 添加 ACL 规则
+// AddACLRule 添加 ACL 规则.
 func (ac *AccessControl) AddACLRule(rule ACLRule) error {
 	if rule.ID == "" {
 		rule.ID = generateConnectionID()
@@ -543,7 +543,7 @@ func (ac *AccessControl) AddACLRule(rule ACLRule) error {
 	return nil
 }
 
-// RemoveACLRule 移除 ACL 规则
+// RemoveACLRule 移除 ACL 规则.
 func (ac *AccessControl) RemoveACLRule(ruleID string) error {
 	ac.mu.Lock()
 	defer ac.mu.Unlock()
@@ -556,7 +556,7 @@ func (ac *AccessControl) RemoveACLRule(ruleID string) error {
 	return nil
 }
 
-// ListACLRules 列出所有 ACL 规则
+// ListACLRules 列出所有 ACL 规则.
 func (ac *AccessControl) ListACLRules() []*ACLRule {
 	ac.mu.RLock()
 	defer ac.mu.RUnlock()
@@ -568,7 +568,7 @@ func (ac *AccessControl) ListACLRules() []*ACLRule {
 	return rules
 }
 
-// AuthenticatePeer 认证节点
+// AuthenticatePeer 认证节点.
 func (ac *AccessControl) AuthenticatePeer(peerID, publicKey, authToken, method string) (*PeerAuth, error) {
 	if peerID == "" {
 		return nil, fmt.Errorf("节点 ID 不能为空")
@@ -597,7 +597,7 @@ func (ac *AccessControl) AuthenticatePeer(peerID, publicKey, authToken, method s
 	return auth, nil
 }
 
-// GetPeerAuth 获取节点认证信息
+// GetPeerAuth 获取节点认证信息.
 func (ac *AccessControl) GetPeerAuth(peerID string) (*PeerAuth, error) {
 	ac.mu.RLock()
 	defer ac.mu.RUnlock()
@@ -618,7 +618,7 @@ func (ac *AccessControl) GetPeerAuth(peerID string) (*PeerAuth, error) {
 // TunnelManager - 隧道管理器
 // ============================================================
 
-// TunnelManager 隧道管理器
+// TunnelManager 隧道管理器.
 type TunnelManager struct {
 	mu      sync.RWMutex
 	logger  *zap.Logger
@@ -626,7 +626,7 @@ type TunnelManager struct {
 	tlsCfg  *TLSConfig
 }
 
-// NewTunnelManager 创建隧道管理器
+// NewTunnelManager 创建隧道管理器.
 func NewTunnelManager(logger *zap.Logger, tlsCfg *TLSConfig) *TunnelManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -638,7 +638,7 @@ func NewTunnelManager(logger *zap.Logger, tlsCfg *TLSConfig) *TunnelManager {
 	}
 }
 
-// CreateTunnel 创建加密隧道
+// CreateTunnel 创建加密隧道.
 func (tm *TunnelManager) CreateTunnel(localPeerID, remotePeerID, protocol string, localPort, remotePort int) (*TunnelStatus, error) {
 	if localPeerID == "" || remotePeerID == "" {
 		return nil, fmt.Errorf("节点 ID 不能为空")
@@ -676,7 +676,7 @@ func (tm *TunnelManager) CreateTunnel(localPeerID, remotePeerID, protocol string
 	return tunnel, nil
 }
 
-// CloseTunnel 关闭隧道
+// CloseTunnel 关闭隧道.
 func (tm *TunnelManager) CloseTunnel(tunnelID string) error {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -690,7 +690,7 @@ func (tm *TunnelManager) CloseTunnel(tunnelID string) error {
 	return nil
 }
 
-// GetTunnel 获取隧道信息
+// GetTunnel 获取隧道信息.
 func (tm *TunnelManager) GetTunnel(tunnelID string) (*TunnelStatus, error) {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -702,7 +702,7 @@ func (tm *TunnelManager) GetTunnel(tunnelID string) (*TunnelStatus, error) {
 	return tunnel, nil
 }
 
-// ListTunnels 列出所有隧道
+// ListTunnels 列出所有隧道.
 func (tm *TunnelManager) ListTunnels() []*TunnelStatus {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -718,7 +718,7 @@ func (tm *TunnelManager) ListTunnels() []*TunnelStatus {
 // RemoteAccessManager - 远程访问总管理器
 // ============================================================
 
-// RemoteAccessManager 远程访问总管理器
+// RemoteAccessManager 远程访问总管理器.
 type RemoteAccessManager struct {
 	logger    *zap.Logger
 	config    RemoteAccessConfig
@@ -735,17 +735,17 @@ type RemoteAccessManager struct {
 	sessMu    sync.RWMutex
 }
 
-// RemoteAccessConfig 远程访问配置
+// RemoteAccessConfig 远程访问配置.
 type RemoteAccessConfig struct {
-	LocalPeerID      string         `json:"local_peer_id"`
-	MaxBandwidth     int64          `json:"max_bandwidth"`
-	BandwidthPolicy  BandwidthPolicy `json:"bandwidth_policy"`
-	TLSEnabled       bool           `json:"tls_enabled"`
-	TLSMinVersion    string         `json:"tls_min_version"`
-	DDNS             *DDNSConfig    `json:"ddns,omitempty"`
+	LocalPeerID     string          `json:"local_peer_id"`
+	MaxBandwidth    int64           `json:"max_bandwidth"`
+	BandwidthPolicy BandwidthPolicy `json:"bandwidth_policy"`
+	TLSEnabled      bool            `json:"tls_enabled"`
+	TLSMinVersion   string          `json:"tls_min_version"`
+	DDNS            *DDNSConfig     `json:"ddns,omitempty"`
 }
 
-// AccessProtocol 访问协议类型
+// AccessProtocol 访问协议类型.
 type AccessProtocol string
 
 const (
@@ -755,7 +755,7 @@ const (
 	ProtocolP2P   AccessProtocol = "p2p"
 )
 
-// DDNSConfig DDNS 配置
+// DDNSConfig DDNS 配置.
 type DDNSConfig struct {
 	Provider   string `json:"provider"`
 	Domain     string `json:"domain"`
@@ -764,17 +764,17 @@ type DDNSConfig struct {
 	LastUpdate string `json:"last_update"`
 }
 
-// RemoteAccessStatus 远程访问状态
+// RemoteAccessStatus 远程访问状态.
 type RemoteAccessStatus struct {
-	Enabled         bool   `json:"enabled"`
-	DDNSEnabled     bool   `json:"ddns_enabled"`
-	TLSEnabled      bool   `json:"tls_enabled"`
-	ActiveSessions  int    `json:"active_sessions"`
-	PublicIP        string `json:"public_ip"`
-	DDNSDomain      string `json:"ddns_domain"`
+	Enabled        bool   `json:"enabled"`
+	DDNSEnabled    bool   `json:"ddns_enabled"`
+	TLSEnabled     bool   `json:"tls_enabled"`
+	ActiveSessions int    `json:"active_sessions"`
+	PublicIP       string `json:"public_ip"`
+	DDNSDomain     string `json:"ddns_domain"`
 }
 
-// AccessSession 访问会话
+// AccessSession 访问会话.
 type AccessSession struct {
 	ID         string         `json:"id"`
 	UserID     string         `json:"user_id"`
@@ -786,7 +786,7 @@ type AccessSession struct {
 	Status     string         `json:"status"`
 }
 
-// AccessLogEntry 访问日志条目
+// AccessLogEntry 访问日志条目.
 type AccessLogEntry struct {
 	Timestamp time.Time      `json:"timestamp"`
 	UserID    string         `json:"user_id"`
@@ -796,7 +796,7 @@ type AccessLogEntry struct {
 	Status    string         `json:"status"`
 }
 
-// CertificateInfo 证书信息
+// CertificateInfo 证书信息.
 type CertificateInfo struct {
 	Domain    string    `json:"domain"`
 	Issuer    string    `json:"issuer"`
@@ -805,7 +805,7 @@ type CertificateInfo struct {
 	Status    string    `json:"status"`
 }
 
-// NewRemoteAccessManager 创建远程访问管理器
+// NewRemoteAccessManager 创建远程访问管理器.
 func NewRemoteAccessManager(logger *zap.Logger, config RemoteAccessConfig) *RemoteAccessManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -848,39 +848,39 @@ func NewRemoteAccessManager(logger *zap.Logger, config RemoteAccessConfig) *Remo
 	}
 }
 
-// GetConnectionManager 获取连接管理器
+// GetConnectionManager 获取连接管理器.
 func (ram *RemoteAccessManager) GetConnectionManager() *ConnectionManager {
 	return ram.connMgr
 }
 
-// GetNATDetector 获取 NAT 检测器
+// GetNATDetector 获取 NAT 检测器.
 func (ram *RemoteAccessManager) GetNATDetector() *NATDetector {
 	return ram.natDetect
 }
 
-// GetRelayManager 获取中继管理器
+// GetRelayManager 获取中继管理器.
 func (ram *RemoteAccessManager) GetRelayManager() *RelayManager {
 	return ram.relayMgr
 }
 
-// GetBandwidthManager 获取带宽管理器
+// GetBandwidthManager 获取带宽管理器.
 func (ram *RemoteAccessManager) GetBandwidthManager() *BandwidthManager {
 	return ram.bwMgr
 }
 
-// GetAccessControl 获取访问控制
+// GetAccessControl 获取访问控制.
 func (ram *RemoteAccessManager) GetAccessControl() *AccessControl {
 	return ram.acl
 }
 
-// GetTunnelManager 获取隧道管理器
+// GetTunnelManager 获取隧道管理器.
 func (ram *RemoteAccessManager) GetTunnelManager() *TunnelManager {
 	return ram.tunnelMgr
 }
 
 // ============= 会话管理方法 =============
 
-// ListActiveSessions 列出活跃会话
+// ListActiveSessions 列出活跃会话.
 func (ram *RemoteAccessManager) ListActiveSessions() []*AccessSession {
 	ram.sessMu.RLock()
 	defer ram.sessMu.RUnlock()
@@ -892,7 +892,7 @@ func (ram *RemoteAccessManager) ListActiveSessions() []*AccessSession {
 	return sessions
 }
 
-// CreateSession 创建访问会话
+// CreateSession 创建访问会话.
 func (ram *RemoteAccessManager) CreateSession(userID, deviceName, ip string, protocol AccessProtocol) (*AccessSession, error) {
 	if userID == "" || deviceName == "" {
 		return nil, fmt.Errorf("user_id and device_name are required")
@@ -921,7 +921,7 @@ func (ram *RemoteAccessManager) CreateSession(userID, deviceName, ip string, pro
 	return session, nil
 }
 
-// GetSession 获取会话
+// GetSession 获取会话.
 func (ram *RemoteAccessManager) GetSession(sessionID string) (*AccessSession, error) {
 	ram.sessMu.RLock()
 	defer ram.sessMu.RUnlock()
@@ -933,7 +933,7 @@ func (ram *RemoteAccessManager) GetSession(sessionID string) (*AccessSession, er
 	return session, nil
 }
 
-// CloseSession 关闭会话
+// CloseSession 关闭会话.
 func (ram *RemoteAccessManager) CloseSession(sessionID string) error {
 	ram.sessMu.Lock()
 	defer ram.sessMu.Unlock()
@@ -952,7 +952,7 @@ func (ram *RemoteAccessManager) CloseSession(sessionID string) error {
 
 // ============= 状态与配置方法 =============
 
-// GetRemoteAccessStatus 获取远程访问状态
+// GetRemoteAccessStatus 获取远程访问状态.
 func (ram *RemoteAccessManager) GetRemoteAccessStatus() *RemoteAccessStatus {
 	ram.sessMu.RLock()
 	activeSessions := len(ram.sessions)
@@ -974,12 +974,12 @@ func (ram *RemoteAccessManager) GetRemoteAccessStatus() *RemoteAccessStatus {
 	}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (ram *RemoteAccessManager) GetConfig() RemoteAccessConfig {
 	return ram.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (ram *RemoteAccessManager) UpdateConfig(config *RemoteAccessConfig) {
 	if config != nil {
 		ram.config = *config
@@ -988,7 +988,7 @@ func (ram *RemoteAccessManager) UpdateConfig(config *RemoteAccessConfig) {
 
 // ============= DDNS 方法 =============
 
-// GetDDNSStatus 获取 DDNS 状态
+// GetDDNSStatus 获取 DDNS 状态.
 func (ram *RemoteAccessManager) GetDDNSStatus() *DDNSConfig {
 	if ram.config.DDNS == nil {
 		return &DDNSConfig{}
@@ -996,7 +996,7 @@ func (ram *RemoteAccessManager) GetDDNSStatus() *DDNSConfig {
 	return ram.config.DDNS
 }
 
-// UpdateDDNS 更新 DDNS 配置
+// UpdateDDNS 更新 DDNS 配置.
 func (ram *RemoteAccessManager) UpdateDDNS(config *DDNSConfig) error {
 	if config == nil {
 		return fmt.Errorf("ddns config is required")
@@ -1008,12 +1008,12 @@ func (ram *RemoteAccessManager) UpdateDDNS(config *DDNSConfig) error {
 
 // ============= 证书方法 =============
 
-// ListCertificates 列出证书
+// ListCertificates 列出证书.
 func (ram *RemoteAccessManager) ListCertificates() []CertificateInfo {
 	return []CertificateInfo{}
 }
 
-// RenewCertificate 续期证书
+// RenewCertificate 续期证书.
 func (ram *RemoteAccessManager) RenewCertificate() error {
 	ram.logger.Info("证书续期请求")
 	return nil
@@ -1021,7 +1021,7 @@ func (ram *RemoteAccessManager) RenewCertificate() error {
 
 // ============= 访问日志方法 =============
 
-// GetAccessLog 获取访问日志
+// GetAccessLog 获取访问日志.
 func (ram *RemoteAccessManager) GetAccessLog(limit int) []AccessLogEntry {
 	ram.sessMu.RLock()
 	defer ram.sessMu.RUnlock()
@@ -1036,7 +1036,7 @@ func (ram *RemoteAccessManager) GetAccessLog(limit int) []AccessLogEntry {
 	return ram.accessLog[start:]
 }
 
-// addAccessLogEntry 添加访问日志
+// addAccessLogEntry 添加访问日志.
 func (ram *RemoteAccessManager) addAccessLogEntry(userID, ip string, protocol AccessProtocol, action, status string) {
 	ram.accessLog = append(ram.accessLog, AccessLogEntry{
 		Timestamp: time.Now(),
@@ -1052,21 +1052,21 @@ func (ram *RemoteAccessManager) addAccessLogEntry(userID, ip string, protocol Ac
 // 辅助函数
 // ============================================================
 
-// generatePeerID 生成节点 ID
+// generatePeerID 生成节点 ID.
 func generatePeerID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return "peer-" + hex.EncodeToString(b)
 }
 
-// generateConnectionID 生成连接 ID
+// generateConnectionID 生成连接 ID.
 func generateConnectionID() string {
 	b := make([]byte, 8)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// clamp 限制值在范围内
+// clamp 限制值在范围内.
 func clamp(value, min, max float64) float64 {
 	return math.Max(min, math.Min(max, value))
 }

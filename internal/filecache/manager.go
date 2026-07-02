@@ -16,7 +16,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// cacheStore 缓存存储接口
+// cacheStore 缓存存储接口.
 type cacheStore interface {
 	Get(key string) (*CacheEntry, bool)
 	Put(key string, entry *CacheEntry)
@@ -27,7 +27,7 @@ type cacheStore interface {
 	Len() int
 }
 
-// Manager 文件缓存管理器
+// Manager 文件缓存管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	logger   *zap.Logger
@@ -51,7 +51,7 @@ type Manager struct {
 	entryIndex map[string]*CacheEntry
 }
 
-// NewManager 创建缓存管理器
+// NewManager 创建缓存管理器.
 func NewManager(logger *zap.Logger, config *CacheConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -86,7 +86,7 @@ func NewManager(logger *zap.Logger, config *CacheConfig) *Manager {
 	return m
 }
 
-// initCacheStores 初始化缓存存储
+// initCacheStores 初始化缓存存储.
 func (m *Manager) initCacheStores() {
 	// 内存缓存（始终启用）
 	switch m.config.Policy {
@@ -159,7 +159,7 @@ func (m *Manager) initCacheStores() {
 	}
 }
 
-// Start 启动缓存管理器
+// Start 启动缓存管理器.
 func (m *Manager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -184,7 +184,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止缓存管理器
+// Stop 停止缓存管理器.
 func (m *Manager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -200,14 +200,14 @@ func (m *Manager) Stop() error {
 	return nil
 }
 
-// IsRunning 运行状态
+// IsRunning 运行状态.
 func (m *Manager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.running
 }
 
-// Get 获取缓存条目
+// Get 获取缓存条目.
 func (m *Manager) Get(key string) (*CacheEntry, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -245,7 +245,7 @@ func (m *Manager) Get(key string) (*CacheEntry, bool) {
 	return nil, false
 }
 
-// Put 放入缓存
+// Put 放入缓存.
 func (m *Manager) Put(key string, entry *CacheEntry) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -295,15 +295,13 @@ func (m *Manager) Put(key string, entry *CacheEntry) error {
 	return nil
 }
 
-// Delete 删除缓存条目
+// Delete 删除缓存条目.
 func (m *Manager) Delete(key string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	found := false
-	if m.memoryCache.Delete(key) {
-		found = true
-	}
+	found := m.memoryCache.Delete(key)
+
 	if m.ssdCache != nil && m.ssdCache.Delete(key) {
 		found = true
 	}
@@ -321,7 +319,7 @@ func (m *Manager) Delete(key string) error {
 	return nil
 }
 
-// promoteToMemory 提升到内存缓存
+// promoteToMemory 提升到内存缓存.
 func (m *Manager) promoteToMemory(key string, entry *CacheEntry) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -333,7 +331,7 @@ func (m *Manager) promoteToMemory(key string, entry *CacheEntry) {
 	m.entryIndex[key] = &memEntry
 }
 
-// promoteToSSD 提升到 SSD 缓存
+// promoteToSSD 提升到 SSD 缓存.
 func (m *Manager) promoteToSSD(key string, entry *CacheEntry) {
 	if m.ssdCache == nil {
 		return
@@ -348,7 +346,7 @@ func (m *Manager) promoteToSSD(key string, entry *CacheEntry) {
 	m.entryIndex[key] = &ssdEntry
 }
 
-// updateLevelStats 更新层级统计
+// updateLevelStats 更新层级统计.
 func (m *Manager) updateLevelStats(level CacheLevel, hit bool) {
 	stats, ok := m.stats.LevelStats[level]
 	if !ok {
@@ -367,7 +365,7 @@ func (m *Manager) updateLevelStats(level CacheLevel, hit bool) {
 	}
 }
 
-// Warmup 缓存预热
+// Warmup 缓存预热.
 func (m *Manager) Warmup(req *WarmupRequest) (*WarmupResult, error) {
 	startTime := time.Now()
 	result := &WarmupResult{}
@@ -483,7 +481,7 @@ func (m *Manager) Warmup(req *WarmupRequest) (*WarmupResult, error) {
 	return result, nil
 }
 
-// Evict 缓存淘汰
+// Evict 缓存淘汰.
 func (m *Manager) Evict(req *EvictionRequest) (*EvictionResult, error) {
 	startTime := time.Now()
 	result := &EvictionResult{}
@@ -581,7 +579,7 @@ func (m *Manager) Evict(req *EvictionRequest) (*EvictionResult, error) {
 	return result, nil
 }
 
-// GetStats 获取缓存统计
+// GetStats 获取缓存统计.
 func (m *Manager) GetStats() *CacheStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -628,7 +626,7 @@ func (m *Manager) GetStats() *CacheStats {
 	return &stats
 }
 
-// GetEntry 获取缓存条目信息
+// GetEntry 获取缓存条目信息.
 func (m *Manager) GetEntry(key string) (*CacheEntry, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -642,7 +640,7 @@ func (m *Manager) GetEntry(key string) (*CacheEntry, bool) {
 	return &entryCopy, true
 }
 
-// ListEntries 列出缓存条目
+// ListEntries 列出缓存条目.
 func (m *Manager) ListEntries(req *ListRequest) *ListResponse {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -703,7 +701,7 @@ func (m *Manager) ListEntries(req *ListRequest) *ListResponse {
 	}
 }
 
-// computeFileChecksum 计算文件校验和
+// computeFileChecksum 计算文件校验和.
 func (m *Manager) computeFileChecksum(path string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -719,7 +717,7 @@ func (m *Manager) computeFileChecksum(path string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// generateKey 生成缓存键
+// generateKey 生成缓存键.
 func (m *Manager) generateKey(path string) string {
 	switch m.config.KeyFunc {
 	case "hash":
@@ -730,7 +728,7 @@ func (m *Manager) generateKey(path string) string {
 	}
 }
 
-// cleanupLoop 清理循环
+// cleanupLoop 清理循环.
 func (m *Manager) cleanupLoop() {
 	ticker := time.NewTicker(m.config.CleanupInterval)
 	defer ticker.Stop()
@@ -745,7 +743,7 @@ func (m *Manager) cleanupLoop() {
 	}
 }
 
-// cleanup 清理过期条目
+// cleanup 清理过期条目.
 func (m *Manager) cleanup() {
 	if !m.config.ExpiredCheck {
 		return
@@ -781,7 +779,7 @@ func (m *Manager) cleanup() {
 	}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *CacheConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -789,7 +787,7 @@ func (m *Manager) GetConfig() *CacheConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(cfg *CacheConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -798,7 +796,7 @@ func (m *Manager) UpdateConfig(cfg *CacheConfig) {
 	}
 }
 
-// Clear 清空所有缓存
+// Clear 清空所有缓存.
 func (m *Manager) Clear() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -826,7 +824,7 @@ func (m *Manager) Clear() {
 	m.logger.Info("cache cleared")
 }
 
-// Contains 检查是否包含键
+// Contains 检查是否包含键.
 func (m *Manager) Contains(key string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -835,7 +833,7 @@ func (m *Manager) Contains(key string) bool {
 	return ok
 }
 
-// Len 返回总条目数
+// Len 返回总条目数.
 func (m *Manager) Len() int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

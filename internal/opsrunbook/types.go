@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// RunbookStatus 运维手册状态
+// RunbookStatus 运维手册状态.
 type RunbookStatus string
 
 const (
@@ -17,7 +17,7 @@ const (
 	StatusExecuting RunbookStatus = "executing"
 )
 
-// StepType 步骤类型
+// StepType 步骤类型.
 type StepType string
 
 const (
@@ -31,20 +31,20 @@ const (
 	StepTypeCondition StepType = "condition" // 条件分支
 )
 
-// StepStatus 步骤执行状态
+// StepStatus 步骤执行状态.
 type StepStatus string
 
 const (
-	StepPending   StepStatus = "pending"
-	StepRunning   StepStatus = "running"
-	StepSuccess   StepStatus = "success"
-	StepFailed    StepStatus = "failed"
-	StepSkipped   StepStatus = "skipped"
-	StepRollback  StepStatus = "rollback"
-	StepWaiting   StepStatus = "waiting_approval"
+	StepPending  StepStatus = "pending"
+	StepRunning  StepStatus = "running"
+	StepSuccess  StepStatus = "success"
+	StepFailed   StepStatus = "failed"
+	StepSkipped  StepStatus = "skipped"
+	StepRollback StepStatus = "rollback"
+	StepWaiting  StepStatus = "waiting_approval"
 )
 
-// Severity 运维手册严重级别
+// Severity 运维手册严重级别.
 type Severity string
 
 const (
@@ -54,18 +54,18 @@ const (
 	SevCritical Severity = "critical"
 )
 
-// TriggerType 触发方式
+// TriggerType 触发方式.
 type TriggerType string
 
 const (
-	TriggerManual    TriggerType = "manual"
-	TriggerAlert     TriggerType = "alert"
-	TriggerSchedule  TriggerType = "schedule"
-	TriggerWebhook   TriggerType = "webhook"
-	TriggerIncident  TriggerType = "incident"
+	TriggerManual   TriggerType = "manual"
+	TriggerAlert    TriggerType = "alert"
+	TriggerSchedule TriggerType = "schedule"
+	TriggerWebhook  TriggerType = "webhook"
+	TriggerIncident TriggerType = "incident"
 )
 
-// Runbook 运维手册定义
+// Runbook 运维手册定义.
 type Runbook struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
@@ -87,7 +87,7 @@ type Runbook struct {
 	SuccessRate float64       `json:"success_rate"`
 }
 
-// Step 运维步骤
+// Step 运维步骤.
 type Step struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -106,7 +106,7 @@ type Step struct {
 	ContinueOn  string            `json:"continue_on"`          // failure, success, always
 }
 
-// Variable 运行时变量
+// Variable 运行时变量.
 type Variable struct {
 	Name         string `json:"name"`
 	Description  string `json:"description"`
@@ -116,25 +116,25 @@ type Variable struct {
 	Secret       bool   `json:"secret"`
 }
 
-// Execution 执行记录
+// Execution 执行记录.
 type Execution struct {
-	ID          string        `json:"id"`
-	RunbookID   string        `json:"runbook_id"`
-	RunbookName string        `json:"runbook_name"`
-	Status      StepStatus    `json:"status"`
-	Trigger     TriggerType   `json:"trigger"`
-	TriggerRef  string        `json:"trigger_ref,omitempty"` // 触发源引用(告警ID/事件ID等)
+	ID          string            `json:"id"`
+	RunbookID   string            `json:"runbook_id"`
+	RunbookName string            `json:"runbook_name"`
+	Status      StepStatus        `json:"status"`
+	Trigger     TriggerType       `json:"trigger"`
+	TriggerRef  string            `json:"trigger_ref,omitempty"` // 触发源引用(告警ID/事件ID等)
 	Variables   map[string]string `json:"variables,omitempty"`
-	Steps       []*StepResult `json:"steps"`
-	StartedAt   time.Time     `json:"started_at"`
-	FinishedAt  *time.Time    `json:"finished_at,omitempty"`
-	Duration    time.Duration `json:"duration"`
-	Operator    string        `json:"operator"`   // 执行人
-	Error       string        `json:"error,omitempty"`
-	Rollbacked  bool          `json:"rollbacked"`
+	Steps       []*StepResult     `json:"steps"`
+	StartedAt   time.Time         `json:"started_at"`
+	FinishedAt  *time.Time        `json:"finished_at,omitempty"`
+	Duration    time.Duration     `json:"duration"`
+	Operator    string            `json:"operator"` // 执行人
+	Error       string            `json:"error,omitempty"`
+	Rollbacked  bool              `json:"rollbacked"`
 }
 
-// StepResult 步骤执行结果
+// StepResult 步骤执行结果.
 type StepResult struct {
 	StepID    string        `json:"step_id"`
 	StepName  string        `json:"step_name"`
@@ -146,33 +146,33 @@ type StepResult struct {
 	Retries   int           `json:"retries"`
 }
 
-// ApprovalRequest 审批请求
+// ApprovalRequest 审批请求.
 type ApprovalRequest struct {
-	ID          string    `json:"id"`
-	ExecutionID string    `json:"execution_id"`
-	StepID      string    `json:"step_id"`
-	StepName    string    `json:"step_name"`
-	Description string    `json:"description"`
-	RequestedBy string    `json:"requested_by"`
-	RequestedAt time.Time `json:"requested_at"`
-	ApprovedBy  string    `json:"approved_by,omitempty"`
+	ID          string     `json:"id"`
+	ExecutionID string     `json:"execution_id"`
+	StepID      string     `json:"step_id"`
+	StepName    string     `json:"step_name"`
+	Description string     `json:"description"`
+	RequestedBy string     `json:"requested_by"`
+	RequestedAt time.Time  `json:"requested_at"`
+	ApprovedBy  string     `json:"approved_by,omitempty"`
 	ApprovedAt  *time.Time `json:"approved_at,omitempty"`
-	Rejected    bool      `json:"rejected"`
-	Reason      string    `json:"reason,omitempty"`
+	Rejected    bool       `json:"rejected"`
+	Reason      string     `json:"reason,omitempty"`
 }
 
-// ExecutionStats 执行统计
+// ExecutionStats 执行统计.
 type ExecutionStats struct {
-	TotalRuns      int           `json:"total_runs"`
-	SuccessRuns    int           `json:"success_runs"`
-	FailedRuns     int           `json:"failed_runs"`
-	RollbackRuns   int           `json:"rollback_runs"`
-	AvgDuration    time.Duration `json:"avg_duration"`
-	LastRunAt      *time.Time    `json:"last_run_at,omitempty"`
-	SuccessRate    float64       `json:"success_rate"`
+	TotalRuns    int           `json:"total_runs"`
+	SuccessRuns  int           `json:"success_runs"`
+	FailedRuns   int           `json:"failed_runs"`
+	RollbackRuns int           `json:"rollback_runs"`
+	AvgDuration  time.Duration `json:"avg_duration"`
+	LastRunAt    *time.Time    `json:"last_run_at,omitempty"`
+	SuccessRate  float64       `json:"success_rate"`
 }
 
-// RunbookFilter 运维手册过滤器
+// RunbookFilter 运维手册过滤器.
 type RunbookFilter struct {
 	Category string        `json:"category,omitempty"`
 	Severity Severity      `json:"severity,omitempty"`
@@ -182,7 +182,7 @@ type RunbookFilter struct {
 	Search   string        `json:"search,omitempty"`
 }
 
-// ExecutionFilter 执行记录过滤器
+// ExecutionFilter 执行记录过滤器.
 type ExecutionFilter struct {
 	RunbookID string      `json:"runbook_id,omitempty"`
 	Status    StepStatus  `json:"status,omitempty"`

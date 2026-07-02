@@ -11,7 +11,7 @@ import (
 // 配置类型
 // ============================================================
 
-// OUSyncConfig OU同步配置
+// OUSyncConfig OU同步配置.
 type OUSyncConfig struct {
 	DomainController string        `json:"domain_controller"` // 域控制器地址
 	BaseDN           string        `json:"base_dn"`           // 基础DN
@@ -22,7 +22,7 @@ type OUSyncConfig struct {
 	LastSyncAt       time.Time     `json:"last_sync_at"`      // 最后同步时间
 }
 
-// DefaultOUSyncConfig 默认OU同步配置
+// DefaultOUSyncConfig 默认OU同步配置.
 func DefaultOUSyncConfig() OUSyncConfig {
 	return OUSyncConfig{
 		SyncInterval: 24 * time.Hour,
@@ -34,7 +34,7 @@ func DefaultOUSyncConfig() OUSyncConfig {
 // OU 相关类型
 // ============================================================
 
-// OUInfo 组织单元信息
+// OUInfo 组织单元信息.
 type OUInfo struct {
 	DN          string    `json:"dn"`           // 可分辨名称
 	Name        string    `json:"name"`         // OU名称
@@ -46,14 +46,14 @@ type OUInfo struct {
 	IsSelected  bool      `json:"is_selected"`  // 是否被选中同步
 }
 
-// OUFilter OU过滤器
+// OUFilter OU过滤器.
 type OUFilter struct {
 	IncludeOUs []string `json:"include_ous"` // 包含的OU列表
 	ExcludeOUs []string `json:"exclude_ous"` // 排除的OU列表
 	Patterns   []string `json:"patterns"`    // 匹配模式（正则表达式）
 }
 
-// SyncRule 同步规则
+// SyncRule 同步规则.
 type SyncRule struct {
 	ID            string    `json:"id"`             // 规则ID
 	Name          string    `json:"name"`           // 规则名称
@@ -71,7 +71,7 @@ type SyncRule struct {
 // 同步状态类型
 // ============================================================
 
-// SyncStatus 同步状态枚举
+// SyncStatus 同步状态枚举.
 type SyncStatus string
 
 const (
@@ -82,7 +82,7 @@ const (
 	SyncStatusPartial SyncStatus = "partial" // 部分成功
 )
 
-// SyncResult 同步结果
+// SyncResult 同步结果.
 type SyncResult struct {
 	ID           string       `json:"id"`            // 同步ID
 	Status       SyncStatus   `json:"status"`        // 同步状态
@@ -99,7 +99,7 @@ type SyncResult struct {
 	Details      []SyncDetail `json:"details"`       // 详细信息
 }
 
-// SyncDetail 同步详细信息
+// SyncDetail 同步详细信息.
 type SyncDetail struct {
 	OUName      string `json:"ou_name"`      // OU名称
 	ObjectType  string `json:"object_type"`  // 对象类型: user, group, computer
@@ -112,7 +112,7 @@ type SyncDetail struct {
 // 同步历史类型
 // ============================================================
 
-// SyncHistory 同步历史记录
+// SyncHistory 同步历史记录.
 type SyncHistory struct {
 	ID        string     `json:"id"`         // 同步ID
 	Status    SyncStatus `json:"status"`     // 状态
@@ -127,7 +127,7 @@ type SyncHistory struct {
 // 统计类型
 // ============================================================
 
-// SyncStats 同步统计
+// SyncStats 同步统计.
 type SyncStats struct {
 	TotalSyncs      int       `json:"total_syncs"`       // 总同步次数
 	SuccessSyncs    int       `json:"success_syncs"`     // 成功次数
@@ -144,61 +144,61 @@ type SyncStats struct {
 // HTTP 请求/响应类型
 // ============================================================
 
-// OUListResponse OU列表响应
+// OUListResponse OU列表响应.
 type OUListResponse struct {
 	Code    int      `json:"code"`
 	Message string   `json:"message"`
 	Data    []OUInfo `json:"data,omitempty"`
 }
 
-// OUSelectionRequest OU选择请求
+// OUSelectionRequest OU选择请求.
 type OUSelectionRequest struct {
 	OUDNs   []string `json:"ou_dns"`  // 要选择的OU DN列表
 	Replace bool     `json:"replace"` // 是否替换现有选择
 }
 
-// SyncRequest 同步请求
+// SyncRequest 同步请求.
 type SyncRequest struct {
 	RuleIDs []string `json:"rule_ids"` // 要应用的规则ID列表，为空则应用所有规则
 	DryRun  bool     `json:"dry_run"`  // 是否仅模拟运行
 }
 
-// SyncResponse 同步响应
+// SyncResponse 同步响应.
 type SyncResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// SyncResultResponse 同步结果响应
+// SyncResultResponse 同步结果响应.
 type SyncResultResponse struct {
 	Code    int        `json:"code"`
 	Message string     `json:"message"`
 	Data    SyncResult `json:"data"`
 }
 
-// SyncHistoryResponse 同步历史响应
+// SyncHistoryResponse 同步历史响应.
 type SyncHistoryResponse struct {
 	Code    int           `json:"code"`
 	Message string        `json:"message"`
 	Data    []SyncHistory `json:"data,omitempty"`
 }
 
-// StatsResponse 统计响应
+// StatsResponse 统计响应.
 type StatsResponse struct {
 	Code    int       `json:"code"`
 	Message string    `json:"message"`
 	Data    SyncStats `json:"data"`
 }
 
-// RuleListResponse 规则列表响应
+// RuleListResponse 规则列表响应.
 type RuleListResponse struct {
 	Code    int        `json:"code"`
 	Message string     `json:"message"`
 	Data    []SyncRule `json:"data,omitempty"`
 }
 
-// RuleRequest 规则请求
+// RuleRequest 规则请求.
 type RuleRequest struct {
 	Rule SyncRule `json:"rule"`
 }
@@ -207,7 +207,7 @@ type RuleRequest struct {
 // LDAP 配置类型
 // ============================================================
 
-// LDAPConfig LDAP 连接配置
+// LDAPConfig LDAP 连接配置.
 type LDAPConfig struct {
 	Host     string `json:"host"`      // 主机地址
 	Port     int    `json:"port"`      // 端口，默认389
@@ -218,7 +218,7 @@ type LDAPConfig struct {
 	Timeout  int    `json:"timeout"`   // 超时（秒）
 }
 
-// DefaultLDAPConfig 默认LDAP配置
+// DefaultLDAPConfig 默认LDAP配置.
 func DefaultLDAPConfig() LDAPConfig {
 	return LDAPConfig{
 		Port:    389,

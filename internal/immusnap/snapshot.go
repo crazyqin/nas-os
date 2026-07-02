@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Manager 不可变快照管理器
+// Manager 不可变快照管理器.
 type Manager struct {
 	mu           sync.RWMutex
 	logger       *slog.Logger
@@ -18,7 +18,7 @@ type Manager struct {
 	threatEvents []ThreatEvent
 }
 
-// NewManager 创建不可变快照管理器
+// NewManager 创建不可变快照管理器.
 func NewManager(logger *slog.Logger) *Manager {
 	if logger == nil {
 		logger = slog.Default()
@@ -30,7 +30,7 @@ func NewManager(logger *slog.Logger) *Manager {
 	}
 }
 
-// generateID 生成快照 ID
+// generateID 生成快照 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	for i := range b {
@@ -40,7 +40,7 @@ func generateID() string {
 }
 
 // CreateSnapshot 创建不可变快照
-// 创建后默认处于 pending 状态，需调用 Lock 才真正不可变
+// 创建后默认处于 pending 状态，需调用 Lock 才真正不可变.
 func (m *Manager) CreateSnapshot(datasetName, sourcePath, storagePath string, retentionHours int, tags []string) (*ImmutableSnapshot, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -87,7 +87,7 @@ func (m *Manager) CreateSnapshot(datasetName, sourcePath, storagePath string, re
 	return snap, nil
 }
 
-// Lock 锁定快照，使其不可变
+// Lock 锁定快照，使其不可变.
 func (m *Manager) Lock(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -113,7 +113,7 @@ func (m *Manager) Lock(id string) error {
 	return nil
 }
 
-// GetSnapshot 获取快照信息
+// GetSnapshot 获取快照信息.
 func (m *Manager) GetSnapshot(id string) (*ImmutableSnapshot, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -125,7 +125,7 @@ func (m *Manager) GetSnapshot(id string) (*ImmutableSnapshot, error) {
 	return snap, nil
 }
 
-// ListSnapshots 列出快照，可按状态过滤
+// ListSnapshots 列出快照，可按状态过滤.
 func (m *Manager) ListSnapshots(statusFilter SnapshotStatus) []*ImmutableSnapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -139,7 +139,7 @@ func (m *Manager) ListSnapshots(statusFilter SnapshotStatus) []*ImmutableSnapsho
 	return result
 }
 
-// DeleteSnapshot 删除快照（仅限未锁定或已过期的快照）
+// DeleteSnapshot 删除快照（仅限未锁定或已过期的快照）.
 func (m *Manager) DeleteSnapshot(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -160,14 +160,14 @@ func (m *Manager) DeleteSnapshot(id string) error {
 	return nil
 }
 
-// GetPolicy 获取保留策略
+// GetPolicy 获取保留策略.
 func (m *Manager) GetPolicy() RetentionPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.policy
 }
 
-// UpdatePolicy 更新保留策略
+// UpdatePolicy 更新保留策略.
 func (m *Manager) UpdatePolicy(policy RetentionPolicy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -188,7 +188,7 @@ func (m *Manager) UpdatePolicy(policy RetentionPolicy) error {
 	return nil
 }
 
-// VerifyIntegrity 验证快照完整性
+// VerifyIntegrity 验证快照完整性.
 func (m *Manager) VerifyIntegrity(id string, actualChecksum string) (*IntegrityResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -222,7 +222,7 @@ func (m *Manager) VerifyIntegrity(id string, actualChecksum string) (*IntegrityR
 	return result, nil
 }
 
-// SetChecksum 设置快照校验和（通常在创建快照时由存储层计算并设置）
+// SetChecksum 设置快照校验和（通常在创建快照时由存储层计算并设置）.
 func (m *Manager) SetChecksum(id, checksum string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -235,7 +235,7 @@ func (m *Manager) SetChecksum(id, checksum string) error {
 	return nil
 }
 
-// SetSize 设置快照大小
+// SetSize 设置快照大小.
 func (m *Manager) SetSize(id string, size int64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -248,7 +248,7 @@ func (m *Manager) SetSize(id string, size int64) error {
 	return nil
 }
 
-// ReportThreat 报告威胁事件，根据策略自动创建不可变快照
+// ReportThreat 报告威胁事件，根据策略自动创建不可变快照.
 func (m *Manager) ReportThreat(level ThreatLevel, modifiedRate float64, description string, datasetName string) (*ThreatEvent, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -290,7 +290,7 @@ func (m *Manager) ReportThreat(level ThreatLevel, modifiedRate float64, descript
 	return &event, nil
 }
 
-// createAutoSnapshotLocked 创建并自动锁定快照（调用者需持有锁）
+// createAutoSnapshotLocked 创建并自动锁定快照（调用者需持有锁）.
 func (m *Manager) createAutoSnapshotLocked(datasetName string, level ThreatLevel) (*ImmutableSnapshot, error) {
 	if m.policy.MaxSnapshots > 0 && m.countActiveSnapshots() >= m.policy.MaxSnapshots {
 		return nil, fmt.Errorf("maximum snapshot count (%d) reached", m.policy.MaxSnapshots)
@@ -315,7 +315,7 @@ func (m *Manager) createAutoSnapshotLocked(datasetName string, level ThreatLevel
 	return snap, nil
 }
 
-// GetThreatEvents 获取威胁事件列表
+// GetThreatEvents 获取威胁事件列表.
 func (m *Manager) GetThreatEvents() []ThreatEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -324,7 +324,7 @@ func (m *Manager) GetThreatEvents() []ThreatEvent {
 	return result
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() Stats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -366,7 +366,7 @@ func (m *Manager) GetStats() Stats {
 	return stats
 }
 
-// ExpireSnapshots 检查并标记过期快照
+// ExpireSnapshots 检查并标记过期快照.
 func (m *Manager) ExpireSnapshots() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -384,7 +384,7 @@ func (m *Manager) ExpireSnapshots() int {
 	return count
 }
 
-// countActiveSnapshots 计算活跃快照数（调用者需持有锁）
+// countActiveSnapshots 计算活跃快照数（调用者需持有锁）.
 func (m *Manager) countActiveSnapshots() int {
 	count := 0
 	for _, snap := range m.snapshots {
@@ -395,7 +395,7 @@ func (m *Manager) countActiveSnapshots() int {
 	return count
 }
 
-// GenerateChecksum 计算 SHA-256 校验和（供外部使用）
+// GenerateChecksum 计算 SHA-256 校验和（供外部使用）.
 func GenerateChecksum(data []byte) string {
 	h := sha256.Sum256(data)
 	return hex.EncodeToString(h[:])

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Container 容器信息
+// Container 容器信息.
 type Container struct {
 	ID           string            `json:"id"`
 	Name         string            `json:"name"`
@@ -26,7 +26,7 @@ type Container struct {
 	Environment  []string          `json:"environment"`
 }
 
-// PortMapping 端口映射
+// PortMapping 端口映射.
 type PortMapping struct {
 	HostIP        string `json:"host_ip"`
 	HostPort      string `json:"host_port"`
@@ -34,7 +34,7 @@ type PortMapping struct {
 	Protocol      string `json:"protocol"`
 }
 
-// VolumeMount 卷挂载
+// VolumeMount 卷挂载.
 type VolumeMount struct {
 	Source      string `json:"source"`
 	Destination string `json:"destination"`
@@ -42,7 +42,7 @@ type VolumeMount struct {
 	RW          bool   `json:"rw"`
 }
 
-// NetworkIO 网络 IO 统计
+// NetworkIO 网络 IO 统计.
 type NetworkIO struct {
 	RxBytes   int64 `json:"rx_bytes"`
 	TxBytes   int64 `json:"tx_bytes"`
@@ -50,7 +50,7 @@ type NetworkIO struct {
 	TxPackets int64 `json:"tx_packets"`
 }
 
-// ComposeProject Compose 项目
+// ComposeProject Compose 项目.
 type ComposeProject struct {
 	ID        string           `json:"id"`
 	Name      string           `json:"name"`
@@ -63,7 +63,7 @@ type ComposeProject struct {
 	UpdatedAt time.Time        `json:"updated_at"`
 }
 
-// ComposeService Compose 服务定义
+// ComposeService Compose 服务定义.
 type ComposeService struct {
 	Name        string            `json:"name"`
 	Image       string            `json:"image"`
@@ -76,7 +76,7 @@ type ComposeService struct {
 	Resources   *Resources        `json:"resources,omitempty"`
 }
 
-// HealthCheck 健康检查配置
+// HealthCheck 健康检查配置.
 type HealthCheck struct {
 	Test        []string `json:"test"`
 	Interval    string   `json:"interval"`
@@ -85,13 +85,13 @@ type HealthCheck struct {
 	StartPeriod string   `json:"start_period"`
 }
 
-// Resources 资源限制
+// Resources 资源限制.
 type Resources struct {
 	CPU    float64 `json:"cpu"`
 	Memory string  `json:"memory"`
 }
 
-// ImageInfo 镜像信息
+// ImageInfo 镜像信息.
 type ImageInfo struct {
 	ID          string            `json:"id"`
 	RepoTags    []string          `json:"repo_tags"`
@@ -102,7 +102,7 @@ type ImageInfo struct {
 	SharedSize  int64             `json:"shared_size"`
 }
 
-// Registry 镜像仓库
+// Registry 镜像仓库.
 type Registry struct {
 	ID       string    `json:"id"`
 	Name     string    `json:"name"`
@@ -113,7 +113,7 @@ type Registry struct {
 	LastSync time.Time `json:"last_sync"`
 }
 
-// ContainerStats 容器统计信息
+// ContainerStats 容器统计信息.
 type ContainerStats struct {
 	CPU     CPUStats     `json:"cpu"`
 	Memory  MemoryStats  `json:"memory"`
@@ -122,21 +122,21 @@ type ContainerStats struct {
 	PIDs    int          `json:"pids"`
 }
 
-// CPUStats CPU 统计
+// CPUStats CPU 统计.
 type CPUStats struct {
 	Usage       float64 `json:"usage"`
 	SystemUsage int64   `json:"system_usage"`
 	OnlineCPUs  int     `json:"online_cpus"`
 }
 
-// MemoryStats 内存统计
+// MemoryStats 内存统计.
 type MemoryStats struct {
 	Usage    int64 `json:"usage"`
 	MaxUsage int64 `json:"max_usage"`
 	Limit    int64 `json:"limit"`
 }
 
-// BlockIOStats 块 IO 统计
+// BlockIOStats 块 IO 统计.
 type BlockIOStats struct {
 	ReadBytes  int64 `json:"read_bytes"`
 	WriteBytes int64 `json:"write_bytes"`
@@ -144,7 +144,7 @@ type BlockIOStats struct {
 	WriteOps   int64 `json:"write_ops"`
 }
 
-// ContainerProConfig 容器专业管理配置
+// ContainerProConfig 容器专业管理配置.
 type ContainerProConfig struct {
 	DockerHost      string   `json:"docker_host"`
 	ComposePath     string   `json:"compose_path"`

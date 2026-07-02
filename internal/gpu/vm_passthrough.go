@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// VMGPUPassthrough VM GPU透传配置
+// VMGPUPassthrough VM GPU透传配置.
 type VMGPUPassthrough struct {
 	VMID         string          `json:"vmId"`
 	VMName       string          `json:"vmName"`
@@ -25,7 +25,7 @@ type VMGPUPassthrough struct {
 	VFIOBound    bool            `json:"vfioBound"`    // 是否绑定VFIO
 }
 
-// VMGPUManager VM GPU管理器
+// VMGPUManager VM GPU管理器.
 type VMGPUManager struct {
 	manager      *Manager
 	logger       Logger
@@ -33,7 +33,7 @@ type VMGPUManager struct {
 	mu           sync.RWMutex
 }
 
-// Logger 简化日志接口
+// Logger 简化日志接口.
 type Logger interface {
 	Info(msg string, fields ...Field)
 	Debug(msg string, fields ...Field)
@@ -41,13 +41,13 @@ type Logger interface {
 	Warn(msg string, fields ...Field)
 }
 
-// Field 日志字段
+// Field 日志字段.
 type Field struct {
 	Key   string
 	Value interface{}
 }
 
-// NewVMGPUManager 创建VM GPU管理器
+// NewVMGPUManager 创建VM GPU管理器.
 func NewVMGPUManager(manager *Manager, logger Logger) *VMGPUManager {
 	return &VMGPUManager{
 		manager:      manager,
@@ -56,7 +56,7 @@ func NewVMGPUManager(manager *Manager, logger Logger) *VMGPUManager {
 	}
 }
 
-// AttachGPUToVM GPU附加到虚拟机
+// AttachGPUToVM GPU附加到虚拟机.
 func (vmgm *VMGPUManager) AttachGPUToVM(ctx context.Context, vmName, gpuDevice string, mode PassthroughMode) error {
 	vmgm.mu.Lock()
 	defer vmgm.mu.Unlock()
@@ -112,7 +112,7 @@ func (vmgm *VMGPUManager) AttachGPUToVM(ctx context.Context, vmName, gpuDevice s
 	return nil
 }
 
-// DetachGPUFromVM 从虚拟机分离GPU
+// DetachGPUFromVM 从虚拟机分离GPU.
 func (vmgm *VMGPUManager) DetachGPUFromVM(ctx context.Context, vmName, gpuDevice string) error {
 	vmgm.mu.Lock()
 	defer vmgm.mu.Unlock()
@@ -147,7 +147,7 @@ func (vmgm *VMGPUManager) DetachGPUFromVM(ctx context.Context, vmName, gpuDevice
 	return nil
 }
 
-// ListVMGPUs 列出VM的GPU配置
+// ListVMGPUs 列出VM的GPU配置.
 func (vmgm *VMGPUManager) ListVMGPUs(vmName string) []*VMGPUPassthrough {
 	vmgm.mu.RLock()
 	defer vmgm.mu.RUnlock()
@@ -162,7 +162,7 @@ func (vmgm *VMGPUManager) ListVMGPUs(vmName string) []*VMGPUPassthrough {
 	return result
 }
 
-// checkIOMMU 检查IOMMU是否启用
+// checkIOMMU 检查IOMMU是否启用.
 func (vmgm *VMGPUManager) checkIOMMU() (bool, error) {
 	// 检查内核参数
 	cmd := exec.Command("grep", "-q", "iommu=on", "/proc/cmdline")
@@ -186,7 +186,7 @@ func (vmgm *VMGPUManager) checkIOMMU() (bool, error) {
 	return false, nil
 }
 
-// bindToVFIO 将设备绑定到VFIO驱动
+// bindToVFIO 将设备绑定到VFIO驱动.
 func (vmgm *VMGPUManager) bindToVFIO(pciAddr string) error {
 	// 1. 获取设备ID
 	vendorID, deviceID, err := vmgm.getPCIDeviceIDs(pciAddr)
@@ -201,7 +201,7 @@ func (vmgm *VMGPUManager) bindToVFIO(pciAddr string) error {
 	}
 
 	// 3. 创建vfio-pci配置文件（需要root权限）
-	configPath := fmt.Sprintf("/sys/bus/pci/drivers/vfio-pci/new_id")
+	configPath := "/sys/bus/pci/drivers/vfio-pci/new_id"
 	configCmd := exec.Command("sh", "-c",
 		fmt.Sprintf("echo '%s %s' > %s", vendorID, deviceID, configPath))
 	if err := configCmd.Run(); err != nil {
@@ -232,7 +232,7 @@ func (vmgm *VMGPUManager) bindToVFIO(pciAddr string) error {
 	return nil
 }
 
-// unbindFromVFIO 从VFIO解绑，恢复原始驱动
+// unbindFromVFIO 从VFIO解绑，恢复原始驱动.
 func (vmgm *VMGPUManager) unbindFromVFIO(pciAddr, vendor string) error {
 	// 确定原始驱动
 	var driver string
@@ -272,7 +272,7 @@ func (vmgm *VMGPUManager) unbindFromVFIO(pciAddr, vendor string) error {
 	return nil
 }
 
-// getPCIDeviceIDs 获取PCI设备的Vendor ID和Device ID
+// getPCIDeviceIDs 获取PCI设备的Vendor ID和Device ID.
 func (vmgm *VMGPUManager) getPCIDeviceIDs(pciAddr string) (string, string, error) {
 	cmd := exec.Command("lspci", "-n", "-s", pciAddr)
 	output, err := cmd.Output()
@@ -296,7 +296,7 @@ func (vmgm *VMGPUManager) getPCIDeviceIDs(pciAddr string) (string, string, error
 	return idParts[0], idParts[1], nil
 }
 
-// GenerateLibvirtXML 生成Libvirt XML片段
+// GenerateLibvirtXML 生成Libvirt XML片段.
 func (vmgm *VMGPUManager) GenerateLibvirtXML(passthrough *VMGPUPassthrough) string {
 	var xmlBuilder strings.Builder
 
@@ -317,7 +317,7 @@ func (vmgm *VMGPUManager) GenerateLibvirtXML(passthrough *VMGPUPassthrough) stri
 	return xmlBuilder.String()
 }
 
-// MIGGPUManager MIG GPU管理器
+// MIGGPUManager MIG GPU管理器.
 type MIGGPUManager struct {
 	manager      *Manager
 	logger       Logger
@@ -325,7 +325,7 @@ type MIGGPUManager struct {
 	mu           sync.RWMutex
 }
 
-// MIGInstance MIG实例
+// MIGInstance MIG实例.
 type MIGInstance struct {
 	GPUID      string    `json:"gpuId"`
 	GPUIndex   int       `json:"gpuIndex"`
@@ -337,7 +337,7 @@ type MIGInstance struct {
 	AttachedTo string    `json:"attachedTo"` // 附加目标
 }
 
-// NewMIGGPUManager 创建MIG管理器
+// NewMIGGPUManager 创建MIG管理器.
 func NewMIGGPUManager(manager *Manager, logger Logger) *MIGGPUManager {
 	return &MIGGPUManager{
 		manager:      manager,
@@ -346,7 +346,7 @@ func NewMIGGPUManager(manager *Manager, logger Logger) *MIGGPUManager {
 	}
 }
 
-// CreateMIGInstance 创建MIG实例
+// CreateMIGInstance 创建MIG实例.
 func (mgm *MIGGPUManager) CreateMIGInstance(ctx context.Context, gpuIndex int, profile string) (*MIGInstance, error) {
 	// 检查GPU是否支持MIG
 	cmd := exec.CommandContext(ctx, "nvidia-smi", "-i", fmt.Sprintf("%d", gpuIndex), "--query-gpu=mig.mode.current", "--format=csv,noheader")
@@ -411,7 +411,7 @@ func (mgm *MIGGPUManager) CreateMIGInstance(ctx context.Context, gpuIndex int, p
 	return instance, nil
 }
 
-// DestroyMIGInstance 销毁MIG实例
+// DestroyMIGInstance 销毁MIG实例.
 func (mgm *MIGGPUManager) DestroyMIGInstance(ctx context.Context, gpuIndex, gi, ci int) error {
 	// 销毁计算实例
 	ciCmd := exec.CommandContext(ctx, "nvidia-smi", "mig", "-dci", "-gi", fmt.Sprintf("%d", gi), "-i", fmt.Sprintf("%d", gpuIndex))
@@ -439,7 +439,7 @@ func (mgm *MIGGPUManager) DestroyMIGInstance(ctx context.Context, gpuIndex, gi, 
 	return nil
 }
 
-// ListMIGInstances 列出MIG实例
+// ListMIGInstances 列出MIG实例.
 func (mgm *MIGGPUManager) ListMIGInstances(gpuIndex int) []*MIGInstance {
 	mgm.mu.RLock()
 	defer mgm.mu.RUnlock()
@@ -454,7 +454,7 @@ func (mgm *MIGGPUManager) ListMIGInstances(gpuIndex int) []*MIGInstance {
 	return result
 }
 
-// parseGIID 解析GI ID
+// parseGIID 解析GI ID.
 func (mgm *MIGGPUManager) parseGIID(output string) int {
 	// 输出格式: "GPU instance ID 0 created"
 	lines := strings.Split(output, "\n")
@@ -473,7 +473,7 @@ func (mgm *MIGGPUManager) parseGIID(output string) int {
 	return 0
 }
 
-// parseCIID 解析CI ID
+// parseCIID 解析CI ID.
 func (mgm *MIGGPUManager) parseCIID(output string) int {
 	// 输出格式: "Compute instance ID 0 created"
 	lines := strings.Split(output, "\n")
@@ -492,7 +492,7 @@ func (mgm *MIGGPUManager) parseCIID(output string) int {
 	return 0
 }
 
-// getProfileMemory 获取profile对应的显存大小
+// getProfileMemory 获取profile对应的显存大小.
 func (mgm *MIGGPUManager) getProfileMemory(profile string) uint64 {
 	// A100 MIG Profiles
 	switch profile {
@@ -511,7 +511,7 @@ func (mgm *MIGGPUManager) getProfileMemory(profile string) uint64 {
 	}
 }
 
-// GetMIGInstanceID 获取MIG实例ID（用于CUDA_VISIBLE_DEVICES）
+// GetMIGInstanceID 获取MIG实例ID（用于CUDA_VISIBLE_DEVICES）.
 func (mgm *MIGGPUManager) GetMIGInstanceID(instance *MIGInstance) string {
 	return fmt.Sprintf("MIG-%d/%d/%d", instance.GPUIndex, instance.GI, instance.CI)
 }

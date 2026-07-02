@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Manager 威胁猎手管理器
+// Manager 威胁猎手管理器.
 type Manager struct {
 	mu             sync.RWMutex
 	config         *ThreatHunterConfig
@@ -26,7 +26,7 @@ type Manager struct {
 	totalIncidents int
 }
 
-// NewManager 创建威胁猎手管理器
+// NewManager 创建威胁猎手管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		config:       DefaultThreatHunterConfig(),
@@ -90,7 +90,7 @@ func (m *Manager) initThreatIntel() {
 	}
 }
 
-// RunScan 执行威胁扫描
+// RunScan 执行威胁扫描.
 func (m *Manager) RunScan(req *ScanRequest) (*ScanResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -377,7 +377,7 @@ func containsCategory(categories []ThreatCategory, target ThreatCategory) bool {
 	return false
 }
 
-// GetThreats 获取威胁列表
+// GetThreats 获取威胁列表.
 func (m *Manager) GetThreats(level ThreatLevel, category ThreatCategory, status ThreatStatus) []*Threat {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -397,7 +397,7 @@ func (m *Manager) GetThreats(level ThreatLevel, category ThreatCategory, status 
 	return result
 }
 
-// GetThreat 获取单个威胁
+// GetThreat 获取单个威胁.
 func (m *Manager) GetThreat(id string) (*Threat, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -408,7 +408,7 @@ func (m *Manager) GetThreat(id string) (*Threat, error) {
 	return threat, nil
 }
 
-// GetScore 获取安全评分
+// GetScore 获取安全评分.
 func (m *Manager) GetScore() *SecurityScore {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -498,7 +498,7 @@ func (m *Manager) generateRecommendations(ts, bs, is, rs float64) []Recommendati
 	return recs
 }
 
-// GetTrends 获取威胁趋势
+// GetTrends 获取威胁趋势.
 func (m *Manager) GetTrends(days int) map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -521,7 +521,7 @@ func (m *Manager) GetTrends(days int) map[string]interface{} {
 	return map[string]interface{}{"period_days": days, "total_threats": len(m.threats), "total_incidents": len(m.incidents), "by_category": cs, "by_level": ls, "by_status": ss, "daily_trend": dt, "score_history": m.scoreHistory}
 }
 
-// ListIncidents 列出安全事件
+// ListIncidents 列出安全事件.
 func (m *Manager) ListIncidents(status IncidentStatus, severity IncidentSeverity) []*Incident {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -538,7 +538,7 @@ func (m *Manager) ListIncidents(status IncidentStatus, severity IncidentSeverity
 	return result
 }
 
-// GetIncident 获取单个事件
+// GetIncident 获取单个事件.
 func (m *Manager) GetIncident(id string) (*Incident, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -549,7 +549,7 @@ func (m *Manager) GetIncident(id string) (*Incident, error) {
 	return inc, nil
 }
 
-// CreateIncident 创建安全事件
+// CreateIncident 创建安全事件.
 func (m *Manager) CreateIncident(req *IncidentRequest) *Incident {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -587,7 +587,7 @@ func (m *Manager) autoRespond(inc *Incident) {
 	inc.UpdatedAt = now
 }
 
-// UpdateIncidentStatus 更新事件状态
+// UpdateIncidentStatus 更新事件状态.
 func (m *Manager) UpdateIncidentStatus(id string, status IncidentStatus) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -605,7 +605,7 @@ func (m *Manager) UpdateIncidentStatus(id string, status IncidentStatus) error {
 	return nil
 }
 
-// ListIntel 列出威胁情报
+// ListIntel 列出威胁情报.
 func (m *Manager) ListIntel(activeOnly bool) []*ThreatIntel {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -619,7 +619,7 @@ func (m *Manager) ListIntel(activeOnly bool) []*ThreatIntel {
 	return result
 }
 
-// ListFeeds 列出情报源
+// ListFeeds 列出情报源.
 func (m *Manager) ListFeeds() []*IntelFeed {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -630,7 +630,7 @@ func (m *Manager) ListFeeds() []*IntelFeed {
 	return result
 }
 
-// GetStats 获取威胁猎手统计
+// GetStats 获取威胁猎手统计.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

@@ -20,26 +20,26 @@ import (
 	"time"
 )
 
-// MCPServer represents a Model Context Protocol server instance
+// MCPServer represents a Model Context Protocol server instance.
 type MCPServer struct {
-	mu          sync.RWMutex
-	name        string
-	version     string
-	transport   TransportType
-	tools       map[string]*Tool
-	resources   map[string]*Resource
-	prompts     map[string]*Prompt
-	running     bool
-	port        int
-	maxConns    int
-	security    *SecurityConfig
-	metrics     *ServerMetrics
-	logger      *slog.Logger
-	ctx         context.Context
-	cancel      context.CancelFunc
+	mu        sync.RWMutex
+	name      string
+	version   string
+	transport TransportType
+	tools     map[string]*Tool
+	resources map[string]*Resource
+	prompts   map[string]*Prompt
+	running   bool
+	port      int
+	maxConns  int
+	security  *SecurityConfig
+	metrics   *ServerMetrics
+	logger    *slog.Logger
+	ctx       context.Context
+	cancel    context.CancelFunc
 }
 
-// TransportType defines the MCP transport protocol
+// TransportType defines the MCP transport protocol.
 type TransportType string
 
 const (
@@ -48,7 +48,7 @@ const (
 	TransportSSE   TransportType = "sse"
 )
 
-// Tool represents an MCP tool that AI models can invoke
+// Tool represents an MCP tool that AI models can invoke.
 type Tool struct {
 	Name        string                 `json:"name"`
 	Description string                 `json:"description"`
@@ -61,61 +61,61 @@ type Tool struct {
 	UpdatedAt   time.Time              `json:"updatedAt"`
 }
 
-// ToolHandler is the function signature for tool execution
+// ToolHandler is the function signature for tool execution.
 type ToolHandler func(ctx context.Context, params map[string]interface{}) (interface{}, error)
 
-// ToolPermission defines access control for tools
+// ToolPermission defines access control for tools.
 type ToolPermission struct {
-	Level       string   `json:"level"` // "public", "authenticated", "admin"
-	AllowedIPs  []string `json:"allowedIPs,omitempty"`
-	RateLimit   int      `json:"rateLimit,omitempty"` // requests per minute
+	Level      string   `json:"level"` // "public", "authenticated", "admin"
+	AllowedIPs []string `json:"allowedIPs,omitempty"`
+	RateLimit  int      `json:"rateLimit,omitempty"` // requests per minute
 }
 
-// Resource represents an MCP resource that AI models can read
+// Resource represents an MCP resource that AI models can read.
 type Resource struct {
-	URI         string                 `json:"uri"`
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	MimeType    string                 `json:"mimeType"`
-	Handler     ResourceHandler        `json:"-"`
-	Enabled     bool                   `json:"enabled"`
-	CreatedAt   time.Time              `json:"createdAt"`
+	URI         string          `json:"uri"`
+	Name        string          `json:"name"`
+	Description string          `json:"description"`
+	MimeType    string          `json:"mimeType"`
+	Handler     ResourceHandler `json:"-"`
+	Enabled     bool            `json:"enabled"`
+	CreatedAt   time.Time       `json:"createdAt"`
 }
 
-// ResourceHandler is the function signature for resource access
+// ResourceHandler is the function signature for resource access.
 type ResourceHandler func(ctx context.Context, uri string) ([]byte, error)
 
-// Prompt represents an MCP prompt template
+// Prompt represents an MCP prompt template.
 type Prompt struct {
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	Arguments   []PromptArgument       `json:"arguments"`
-	Handler     PromptHandler          `json:"-"`
-	Enabled     bool                   `json:"enabled"`
-	CreatedAt   time.Time              `json:"createdAt"`
+	Name        string           `json:"name"`
+	Description string           `json:"description"`
+	Arguments   []PromptArgument `json:"arguments"`
+	Handler     PromptHandler    `json:"-"`
+	Enabled     bool             `json:"enabled"`
+	CreatedAt   time.Time        `json:"createdAt"`
 }
 
-// PromptArgument defines a prompt template argument
+// PromptArgument defines a prompt template argument.
 type PromptArgument struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Required    bool   `json:"required"`
 }
 
-// PromptHandler is the function signature for prompt generation
+// PromptHandler is the function signature for prompt generation.
 type PromptHandler func(ctx context.Context, args map[string]string) (string, error)
 
-// SecurityConfig defines security settings for the MCP server
+// SecurityConfig defines security settings for the MCP server.
 type SecurityConfig struct {
-	SandboxEnabled   bool     `json:"sandboxEnabled"`
-	AllowedDomains   []string `json:"allowedDomains,omitempty"`
-	BlockedCommands  []string `json:"blockedCommands,omitempty"`
-	MaxExecTime      int      `json:"maxExecTime"` // seconds
-	RequireAuth      bool     `json:"requireAuth"`
-	APIKeys          []string `json:"apiKeys,omitempty"`
+	SandboxEnabled  bool     `json:"sandboxEnabled"`
+	AllowedDomains  []string `json:"allowedDomains,omitempty"`
+	BlockedCommands []string `json:"blockedCommands,omitempty"`
+	MaxExecTime     int      `json:"maxExecTime"` // seconds
+	RequireAuth     bool     `json:"requireAuth"`
+	APIKeys         []string `json:"apiKeys,omitempty"`
 }
 
-// ServerMetrics tracks MCP server performance
+// ServerMetrics tracks MCP server performance.
 type ServerMetrics struct {
 	mu              sync.Mutex
 	TotalRequests   int64     `json:"totalRequests"`
@@ -128,7 +128,7 @@ type ServerMetrics struct {
 	StartTime       time.Time `json:"startTime"`
 }
 
-// ServerConfig holds MCP server configuration
+// ServerConfig holds MCP server configuration.
 type ServerConfig struct {
 	Name      string          `json:"name"`
 	Version   string          `json:"version"`
@@ -138,7 +138,7 @@ type ServerConfig struct {
 	Security  *SecurityConfig `json:"security"`
 }
 
-// NewMCPServer creates a new MCP server instance
+// NewMCPServer creates a new MCP server instance.
 func NewMCPServer(config *ServerConfig, logger *slog.Logger) *MCPServer {
 	if logger == nil {
 		logger = slog.Default()
@@ -174,7 +174,7 @@ func NewMCPServer(config *ServerConfig, logger *slog.Logger) *MCPServer {
 	}
 }
 
-// RegisterTool registers a new tool with the MCP server
+// RegisterTool registers a new tool with the MCP server.
 func (s *MCPServer) RegisterTool(tool *Tool) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -199,7 +199,7 @@ func (s *MCPServer) RegisterTool(tool *Tool) error {
 	return nil
 }
 
-// RegisterResource registers a new resource with the MCP server
+// RegisterResource registers a new resource with the MCP server.
 func (s *MCPServer) RegisterResource(res *Resource) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -220,7 +220,7 @@ func (s *MCPServer) RegisterResource(res *Resource) error {
 	return nil
 }
 
-// RegisterPrompt registers a new prompt template with the MCP server
+// RegisterPrompt registers a new prompt template with the MCP server.
 func (s *MCPServer) RegisterPrompt(prompt *Prompt) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -241,7 +241,7 @@ func (s *MCPServer) RegisterPrompt(prompt *Prompt) error {
 	return nil
 }
 
-// InvokeTool invokes a registered tool
+// InvokeTool invokes a registered tool.
 func (s *MCPServer) InvokeTool(ctx context.Context, name string, params map[string]interface{}) (interface{}, error) {
 	s.mu.RLock()
 	tool, exists := s.tools[name]
@@ -280,7 +280,7 @@ func (s *MCPServer) InvokeTool(ctx context.Context, name string, params map[stri
 	return result, nil
 }
 
-// ReadResource reads a registered resource
+// ReadResource reads a registered resource.
 func (s *MCPServer) ReadResource(ctx context.Context, uri string) ([]byte, error) {
 	s.mu.RLock()
 	res, exists := s.resources[uri]
@@ -315,7 +315,7 @@ func (s *MCPServer) ReadResource(ctx context.Context, uri string) ([]byte, error
 	return data, nil
 }
 
-// GetPrompt generates a prompt from a registered template
+// GetPrompt generates a prompt from a registered template.
 func (s *MCPServer) GetPrompt(ctx context.Context, name string, args map[string]string) (string, error) {
 	s.mu.RLock()
 	prompt, exists := s.prompts[name]
@@ -359,7 +359,7 @@ func (s *MCPServer) GetPrompt(ctx context.Context, name string, args map[string]
 	return result, nil
 }
 
-// ListTools returns all registered tools
+// ListTools returns all registered tools.
 func (s *MCPServer) ListTools() []*Tool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -371,7 +371,7 @@ func (s *MCPServer) ListTools() []*Tool {
 	return tools
 }
 
-// ListResources returns all registered resources
+// ListResources returns all registered resources.
 func (s *MCPServer) ListResources() []*Resource {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -383,7 +383,7 @@ func (s *MCPServer) ListResources() []*Resource {
 	return resources
 }
 
-// ListPrompts returns all registered prompts
+// ListPrompts returns all registered prompts.
 func (s *MCPServer) ListPrompts() []*Prompt {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -395,7 +395,7 @@ func (s *MCPServer) ListPrompts() []*Prompt {
 	return prompts
 }
 
-// GetMetrics returns current server metrics
+// GetMetrics returns current server metrics.
 func (s *MCPServer) GetMetrics() *ServerMetrics {
 	s.metrics.mu.Lock()
 	defer s.metrics.mu.Unlock()
@@ -411,7 +411,7 @@ func (s *MCPServer) GetMetrics() *ServerMetrics {
 	}
 }
 
-// Stop gracefully stops the MCP server
+// Stop gracefully stops the MCP server.
 func (s *MCPServer) Stop() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -426,14 +426,14 @@ func (s *MCPServer) Stop() error {
 	return nil
 }
 
-// IsRunning returns whether the server is currently running
+// IsRunning returns whether the server is currently running.
 func (s *MCPServer) IsRunning() bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.running
 }
 
-// UnregisterTool removes a tool from the server
+// UnregisterTool removes a tool from the server.
 func (s *MCPServer) UnregisterTool(name string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -446,7 +446,7 @@ func (s *MCPServer) UnregisterTool(name string) error {
 	return nil
 }
 
-// EnableTool enables a registered tool
+// EnableTool enables a registered tool.
 func (s *MCPServer) EnableTool(name string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -460,7 +460,7 @@ func (s *MCPServer) EnableTool(name string) error {
 	return nil
 }
 
-// DisableTool disables a registered tool
+// DisableTool disables a registered tool.
 func (s *MCPServer) DisableTool(name string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -474,7 +474,7 @@ func (s *MCPServer) DisableTool(name string) error {
 	return nil
 }
 
-// ToJSON exports the server configuration as JSON
+// ToJSON exports the server configuration as JSON.
 func (s *MCPServer) ToJSON() ([]byte, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

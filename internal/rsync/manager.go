@@ -150,7 +150,7 @@ func (m *Manager) RunJob(jobID string) (*RsyncResult, error) {
 		m.mu.Unlock()
 		return nil, fmt.Errorf("任务 %s 不存在", jobID)
 	}
-	target, _ := m.targets[job.TargetID]
+	target := m.targets[job.TargetID]
 	job.Status = JobStatusRunning
 	job.StartedAt = time.Now()
 	m.mu.Unlock()

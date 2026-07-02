@@ -6,17 +6,17 @@ import (
 	"strconv"
 )
 
-// DeidentificationHandler HTTP 处理器
+// DeidentificationHandler HTTP 处理器.
 type DeidentificationHandler struct {
 	manager *DeidentificationManager
 }
 
-// NewDeidentificationHandler 创建处理器
+// NewDeidentificationHandler 创建处理器.
 func NewDeidentificationHandler(manager *DeidentificationManager) *DeidentificationHandler {
 	return &DeidentificationHandler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *DeidentificationHandler) RegisterRoutes(mux *http.ServeMux) {
 	// 规则管理
 	mux.HandleFunc("/api/v1/aideidentification/rules", h.handleListRules)
@@ -34,7 +34,7 @@ func (h *DeidentificationHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/aideidentification/audit", h.handleGetAuditLog)
 }
 
-// handleListRules 处理列出所有规则请求
+// handleListRules 处理列出所有规则请求.
 func (h *DeidentificationHandler) handleListRules(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -50,7 +50,7 @@ func (h *DeidentificationHandler) handleListRules(w http.ResponseWriter, r *http
 	})
 }
 
-// handleCreateRule 处理创建规则请求
+// handleCreateRule 处理创建规则请求.
 func (h *DeidentificationHandler) handleCreateRule(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -82,7 +82,7 @@ func (h *DeidentificationHandler) handleCreateRule(w http.ResponseWriter, r *htt
 	})
 }
 
-// handleUpdateRule 处理更新规则请求
+// handleUpdateRule 处理更新规则请求.
 func (h *DeidentificationHandler) handleUpdateRule(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -114,7 +114,7 @@ func (h *DeidentificationHandler) handleUpdateRule(w http.ResponseWriter, r *htt
 	})
 }
 
-// handleDeleteRule 处理删除规则请求
+// handleDeleteRule 处理删除规则请求.
 func (h *DeidentificationHandler) handleDeleteRule(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -146,7 +146,7 @@ func (h *DeidentificationHandler) handleDeleteRule(w http.ResponseWriter, r *htt
 	})
 }
 
-// handleGetRule 处理获取单个规则请求
+// handleGetRule 处理获取单个规则请求.
 func (h *DeidentificationHandler) handleGetRule(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -178,7 +178,7 @@ func (h *DeidentificationHandler) handleGetRule(w http.ResponseWriter, r *http.R
 	})
 }
 
-// handleDeidentify 处理脱敏请求
+// handleDeidentify 处理脱敏请求.
 func (h *DeidentificationHandler) handleDeidentify(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -210,7 +210,7 @@ func (h *DeidentificationHandler) handleDeidentify(w http.ResponseWriter, r *htt
 	})
 }
 
-// handleDeidentifyBatch 处理批量脱敏请求
+// handleDeidentifyBatch 处理批量脱敏请求.
 func (h *DeidentificationHandler) handleDeidentifyBatch(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -242,7 +242,7 @@ func (h *DeidentificationHandler) handleDeidentifyBatch(w http.ResponseWriter, r
 	})
 }
 
-// handleGetStats 处理获取统计信息请求
+// handleGetStats 处理获取统计信息请求.
 func (h *DeidentificationHandler) handleGetStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -258,7 +258,7 @@ func (h *DeidentificationHandler) handleGetStats(w http.ResponseWriter, r *http.
 	})
 }
 
-// handleGetAuditLog 处理获取审计日志请求
+// handleGetAuditLog 处理获取审计日志请求.
 func (h *DeidentificationHandler) handleGetAuditLog(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -283,7 +283,7 @@ func (h *DeidentificationHandler) handleGetAuditLog(w http.ResponseWriter, r *ht
 	})
 }
 
-// writeJSON 写入JSON响应
+// writeJSON 写入JSON响应.
 func writeJSON(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data)

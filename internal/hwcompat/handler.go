@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler 硬件兼容性 HTTP 处理器
+// Handler 硬件兼容性 HTTP 处理器.
 type Handler struct {
 	checker *HWCompatChecker
 }
 
-// NewHandler 创建 HTTP 处理器
+// NewHandler 创建 HTTP 处理器.
 func NewHandler(checker *HWCompatChecker) *Handler {
 	return &Handler{checker: checker}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	hw := rg.Group("/hwcompat")
 	{
@@ -48,7 +48,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// scanHardware 扫描硬件
+// scanHardware 扫描硬件.
 func (h *Handler) scanHardware(c *gin.Context) {
 	hw, err := h.checker.ScanHardware()
 	if err != nil {
@@ -58,7 +58,7 @@ func (h *Handler) scanHardware(c *gin.Context) {
 	c.JSON(http.StatusOK, hw)
 }
 
-// getHardware 获取硬件信息
+// getHardware 获取硬件信息.
 func (h *Handler) getHardware(c *gin.Context) {
 	hw := h.checker.GetHardware()
 	if hw == nil {
@@ -68,13 +68,13 @@ func (h *Handler) getHardware(c *gin.Context) {
 	c.JSON(http.StatusOK, hw)
 }
 
-// listDrivers 列出驱动
+// listDrivers 列出驱动.
 func (h *Handler) listDrivers(c *gin.Context) {
 	drivers := h.checker.ListDrivers()
 	c.JSON(http.StatusOK, gin.H{"drivers": drivers, "total": len(drivers)})
 }
 
-// getDriver 获取驱动信息
+// getDriver 获取驱动信息.
 func (h *Handler) getDriver(c *gin.Context) {
 	driver, err := h.checker.GetDriver(c.Param("name"))
 	if err != nil {
@@ -84,13 +84,13 @@ func (h *Handler) getDriver(c *gin.Context) {
 	c.JSON(http.StatusOK, driver)
 }
 
-// checkDriverStatus 检查驱动状态
+// checkDriverStatus 检查驱动状态.
 func (h *Handler) checkDriverStatus(c *gin.Context) {
 	status := h.checker.CheckDriverStatus()
 	c.JSON(http.StatusOK, gin.H{"drivers": status, "total": len(status)})
 }
 
-// runCompatCheck 运行兼容性检查
+// runCompatCheck 运行兼容性检查.
 func (h *Handler) runCompatCheck(c *gin.Context) {
 	report, err := h.checker.RunCompatCheck()
 	if err != nil {
@@ -100,7 +100,7 @@ func (h *Handler) runCompatCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, report)
 }
 
-// getCompatReport 获取兼容性报告
+// getCompatReport 获取兼容性报告.
 func (h *Handler) getCompatReport(c *gin.Context) {
 	report, err := h.checker.GetCompatReport(c.Param("id"))
 	if err != nil {
@@ -110,19 +110,19 @@ func (h *Handler) getCompatReport(c *gin.Context) {
 	c.JSON(http.StatusOK, report)
 }
 
-// listCompatReports 列出兼容性报告
+// listCompatReports 列出兼容性报告.
 func (h *Handler) listCompatReports(c *gin.Context) {
 	reports := h.checker.ListCompatReports()
 	c.JSON(http.StatusOK, gin.H{"reports": reports, "total": len(reports)})
 }
 
-// listCompatRules 列出兼容性规则
+// listCompatRules 列出兼容性规则.
 func (h *Handler) listCompatRules(c *gin.Context) {
 	rules := h.checker.ListCompatRules()
 	c.JSON(http.StatusOK, gin.H{"rules": rules, "total": len(rules)})
 }
 
-// addCompatRuleReq 添加规则请求
+// addCompatRuleReq 添加规则请求.
 type addCompatRuleReq struct {
 	ID          string `json:"id" binding:"required"`
 	Name        string `json:"name" binding:"required"`
@@ -131,7 +131,7 @@ type addCompatRuleReq struct {
 	Severity    string `json:"severity"`
 }
 
-// addCompatRule 添加兼容性规则
+// addCompatRule 添加兼容性规则.
 func (h *Handler) addCompatRule(c *gin.Context) {
 	var req addCompatRuleReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -151,13 +151,13 @@ func (h *Handler) addCompatRule(c *gin.Context) {
 	c.JSON(http.StatusCreated, rule)
 }
 
-// getTemperatureStatus 获取温度状态
+// getTemperatureStatus 获取温度状态.
 func (h *Handler) getTemperatureStatus(c *gin.Context) {
 	status := h.checker.GetTemperatureStatus()
 	c.JSON(http.StatusOK, status)
 }
 
-// updateTemperatureReq 更新温度请求
+// updateTemperatureReq 更新温度请求.
 type updateTemperatureReq struct {
 	ID      string  `json:"id" binding:"required"`
 	Name    string  `json:"name"`
@@ -165,7 +165,7 @@ type updateTemperatureReq struct {
 	Current float64 `json:"current" binding:"required"`
 }
 
-// updateTemperature 更新温度
+// updateTemperature 更新温度.
 func (h *Handler) updateTemperature(c *gin.Context) {
 	var req updateTemperatureReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -184,13 +184,13 @@ func (h *Handler) updateTemperature(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "温度已更新"})
 }
 
-// getTempAlerts 获取温度告警
+// getTempAlerts 获取温度告警.
 func (h *Handler) getTempAlerts(c *gin.Context) {
 	alerts := h.checker.GetTempAlerts()
 	c.JSON(http.StatusOK, gin.H{"alerts": alerts, "total": len(alerts)})
 }
 
-// generateHardwareReport 生成硬件报告
+// generateHardwareReport 生成硬件报告.
 func (h *Handler) generateHardwareReport(c *gin.Context) {
 	report := h.checker.GenerateHardwareReport()
 	c.JSON(http.StatusOK, report)

@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// RDMAProtocol RDMA 协议
+// RDMAProtocol RDMA 协议.
 type RDMAProtocol string
 
 const (
@@ -21,7 +21,7 @@ const (
 	ProtocolIWARP      RDMAProtocol = "iwarp"
 )
 
-// RDMADeviceState RDMA 设备状态
+// RDMADeviceState RDMA 设备状态.
 type RDMADeviceState string
 
 const (
@@ -31,7 +31,7 @@ const (
 	DeviceInit  RDMADeviceState = "initializing"
 )
 
-// NFSRDMAState NFS over RDMA 服务状态
+// NFSRDMAState NFS over RDMA 服务状态.
 type NFSRDMAState string
 
 const (
@@ -41,7 +41,7 @@ const (
 	NFSStateError    NFSRDMAState = "error"
 )
 
-// RDMADeviceInfo RDMA 网卡信息
+// RDMADeviceInfo RDMA 网卡信息.
 type RDMADeviceInfo struct {
 	Name      string          `json:"name"`
 	State     RDMADeviceState `json:"state"`
@@ -57,7 +57,7 @@ type RDMADeviceInfo struct {
 	LinkLayer string          `json:"linkLayer"`
 }
 
-// NFSRDMAConfig NFS over RDMA 配置
+// NFSRDMAConfig NFS over RDMA 配置.
 type NFSRDMAConfig struct {
 	Enabled        bool   `json:"enabled"`
 	Device         string `json:"device"`     // RDMA 设备名
@@ -71,7 +71,7 @@ type NFSRDMAConfig struct {
 	AuthType       string `json:"authType"` // "krb5", "sys", "none"
 }
 
-// NFSExport NFS 导出配置
+// NFSExport NFS 导出配置.
 type NFSExport struct {
 	Path         string `json:"path"`
 	Client       string `json:"client"` // "192.168.1.0/24" or "*"
@@ -81,7 +81,7 @@ type NFSExport struct {
 	SecFlavor    string `json:"secFlavor"` // "sys", "krb5", "krb5i", "krb5p"
 }
 
-// PerformanceStats 性能统计
+// PerformanceStats 性能统计.
 type PerformanceStats struct {
 	BytesRead          int64     `json:"bytesRead"`
 	BytesWritten       int64     `json:"bytesWritten"`
@@ -95,7 +95,7 @@ type PerformanceStats struct {
 	CollectAt          time.Time `json:"collectAt"`
 }
 
-// ConnectionInfo 连接信息
+// ConnectionInfo 连接信息.
 type ConnectionInfo struct {
 	ClientAddr   string    `json:"clientAddr"`
 	Device       string    `json:"device"`
@@ -105,7 +105,7 @@ type ConnectionInfo struct {
 	IsRDMA       bool      `json:"isRdma"`
 }
 
-// RDMAServiceStatus RDMA 服务状态概览
+// RDMAServiceStatus RDMA 服务状态概览.
 type RDMAServiceStatus struct {
 	NFSRDMA      NFSRDMAState      `json:"nfsRdmaState"`
 	Devices      []RDMADeviceInfo  `json:"devices"`
@@ -116,7 +116,7 @@ type RDMAServiceStatus struct {
 	Uptime       *time.Duration    `json:"uptime"`
 }
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
 	ConfigPath     string `json:"configPath"`
 	StatsInterval  int    `json:"statsInterval"` // seconds
@@ -124,7 +124,7 @@ type ManagerConfig struct {
 	LogPath        string `json:"logPath"`
 }
 
-// DefaultManagerConfig 默认配置
+// DefaultManagerConfig 默认配置.
 func DefaultManagerConfig() *ManagerConfig {
 	return &ManagerConfig{
 		ConfigPath:     "/var/lib/nas-os/rdmanfs",
@@ -134,7 +134,7 @@ func DefaultManagerConfig() *ManagerConfig {
 	}
 }
 
-// Manager NFS over RDMA 管理器
+// Manager NFS over RDMA 管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	config    *ManagerConfig
@@ -146,7 +146,7 @@ type Manager struct {
 	startTime *time.Time
 }
 
-// NewManager 创建 NFS over RDMA 管理器
+// NewManager 创建 NFS over RDMA 管理器.
 func NewManager(config *ManagerConfig) *Manager {
 	if config == nil {
 		config = DefaultManagerConfig()
@@ -169,7 +169,7 @@ func NewManager(config *ManagerConfig) *Manager {
 	}
 }
 
-// DetectRDMADevices 检测 RDMA 网卡
+// DetectRDMADevices 检测 RDMA 网卡.
 func (m *Manager) DetectRDMADevices(ctx context.Context) ([]RDMADeviceInfo, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -203,7 +203,7 @@ func (m *Manager) DetectRDMADevices(ctx context.Context) ([]RDMADeviceInfo, erro
 	return devices, nil
 }
 
-// GetDevices 获取 RDMA 设备列表
+// GetDevices 获取 RDMA 设备列表.
 func (m *Manager) GetDevices() []RDMADeviceInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -213,7 +213,7 @@ func (m *Manager) GetDevices() []RDMADeviceInfo {
 	return result
 }
 
-// GetDeviceByName 按名称获取设备
+// GetDeviceByName 按名称获取设备.
 func (m *Manager) GetDeviceByName(name string) (*RDMADeviceInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -226,7 +226,7 @@ func (m *Manager) GetDeviceByName(name string) (*RDMADeviceInfo, error) {
 	return nil, fmt.Errorf("RDMA 设备 %s 未找到", name)
 }
 
-// ConfigureNFSRDMA 配置 NFS over RDMA
+// ConfigureNFSRDMA 配置 NFS over RDMA.
 func (m *Manager) ConfigureNFSRDMA(cfg NFSRDMAConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -242,14 +242,14 @@ func (m *Manager) ConfigureNFSRDMA(cfg NFSRDMAConfig) error {
 	return nil
 }
 
-// GetNFSRDMAConfig 获取 NFS over RDMA 配置
+// GetNFSRDMAConfig 获取 NFS over RDMA 配置.
 func (m *Manager) GetNFSRDMAConfig() NFSRDMAConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.nfsConfig
 }
 
-// StartService 启动 NFS over RDMA 服务
+// StartService 启动 NFS over RDMA 服务.
 func (m *Manager) StartService(ctx context.Context) error {
 	if err := ctx.Err(); err != nil {
 		return err
@@ -273,7 +273,7 @@ func (m *Manager) StartService(ctx context.Context) error {
 	return nil
 }
 
-// StopService 停止 NFS over RDMA 服务
+// StopService 停止 NFS over RDMA 服务.
 func (m *Manager) StopService(ctx context.Context) error {
 	if err := ctx.Err(); err != nil {
 		return err
@@ -290,14 +290,14 @@ func (m *Manager) StopService(ctx context.Context) error {
 	return nil
 }
 
-// GetServiceState 获取服务状态
+// GetServiceState 获取服务状态.
 func (m *Manager) GetServiceState() NFSRDMAState {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.state
 }
 
-// AddExport 添加 NFS 导出
+// AddExport 添加 NFS 导出.
 func (m *Manager) AddExport(export NFSExport) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -313,7 +313,7 @@ func (m *Manager) AddExport(export NFSExport) error {
 	return nil
 }
 
-// RemoveExport 移除 NFS 导出
+// RemoveExport 移除 NFS 导出.
 func (m *Manager) RemoveExport(path string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -327,7 +327,7 @@ func (m *Manager) RemoveExport(path string) error {
 	return fmt.Errorf("导出路径 %s 不存在", path)
 }
 
-// ListExports 列出导出
+// ListExports 列出导出.
 func (m *Manager) ListExports() []NFSExport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -337,7 +337,7 @@ func (m *Manager) ListExports() []NFSExport {
 	return result
 }
 
-// CollectStats 收集性能统计
+// CollectStats 收集性能统计.
 func (m *Manager) CollectStats(ctx context.Context) (*PerformanceStats, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -364,14 +364,14 @@ func (m *Manager) CollectStats(ctx context.Context) (*PerformanceStats, error) {
 	return m.stats, nil
 }
 
-// GetStats 获取性能统计
+// GetStats 获取性能统计.
 func (m *Manager) GetStats() *PerformanceStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.stats
 }
 
-// GetStatus 获取整体状态
+// GetStatus 获取整体状态.
 func (m *Manager) GetStatus() *RDMAServiceStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

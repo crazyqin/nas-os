@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// 辅助函数：创建测试用配置
+// 辅助函数：创建测试用配置.
 func createTestConfig() TranscodeConfig {
 	return TranscodeConfig{
 		Resolution:   Resolution1080p,

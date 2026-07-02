@@ -3,7 +3,7 @@ package smartnotify
 
 import "time"
 
-// NotifyChannel 通知渠道
+// NotifyChannel 通知渠道.
 type NotifyChannel string
 
 const (
@@ -16,7 +16,7 @@ const (
 	ChannelPush     NotifyChannel = "push"
 )
 
-// NotifyPriority 通知优先级
+// NotifyPriority 通知优先级.
 type NotifyPriority int
 
 const (
@@ -26,7 +26,7 @@ const (
 	PriorityUrgent    NotifyPriority = 3
 )
 
-// PriorityName 获取优先级名称
+// PriorityName 获取优先级名称.
 func PriorityName(p NotifyPriority) string {
 	switch p {
 	case PriorityUrgent:
@@ -42,7 +42,7 @@ func PriorityName(p NotifyPriority) string {
 	}
 }
 
-// NotifyStatus 通知状态
+// NotifyStatus 通知状态.
 type NotifyStatus string
 
 const (
@@ -55,7 +55,7 @@ const (
 	StatusEscalated NotifyStatus = "escalated"
 )
 
-// RuleOperator 规则操作符
+// RuleOperator 规则操作符.
 type RuleOperator string
 
 const (
@@ -67,7 +67,7 @@ const (
 	OpRegex       RuleOperator = "regex"
 )
 
-// AggregateType 聚合类型
+// AggregateType 聚合类型.
 type AggregateType string
 
 const (
@@ -76,7 +76,7 @@ const (
 	AggregateTime  AggregateType = "time"
 )
 
-// Notification 通知消息
+// Notification 通知消息.
 type Notification struct {
 	ID         string            `json:"id"`
 	Title      string            `json:"title" binding:"required"`
@@ -94,7 +94,7 @@ type Notification struct {
 	SentAt     *time.Time        `json:"sent_at,omitempty"`
 }
 
-// NotifyRule 通知规则
+// NotifyRule 通知规则.
 type NotifyRule struct {
 	ID          string           `json:"id"`
 	Name        string           `json:"name" binding:"required"`
@@ -110,21 +110,21 @@ type NotifyRule struct {
 	UpdatedAt   time.Time        `json:"updated_at"`
 }
 
-// RuleCondition 规则条件
+// RuleCondition 规则条件.
 type RuleCondition struct {
 	Field    string       `json:"field" binding:"required"`
 	Operator RuleOperator `json:"operator" binding:"required"`
 	Value    string       `json:"value" binding:"required"`
 }
 
-// AggregateConfig 聚合配置
+// AggregateConfig 聚合配置.
 type AggregateConfig struct {
 	Type     AggregateType `json:"type"`
 	Window   time.Duration `json:"window,omitempty"`
 	MaxCount int           `json:"max_count,omitempty"`
 }
 
-// SilenceConfig 免打扰配置
+// SilenceConfig 免打扰配置.
 type SilenceConfig struct {
 	Enabled   bool           `json:"enabled"`
 	StartTime string         `json:"start_time,omitempty"` // HH:MM 格式
@@ -132,7 +132,7 @@ type SilenceConfig struct {
 	Days      []time.Weekday `json:"days,omitempty"`
 }
 
-// EscalationConfig 升级策略配置
+// EscalationConfig 升级策略配置.
 type EscalationConfig struct {
 	Enabled  bool            `json:"enabled"`
 	Timeout  time.Duration   `json:"timeout,omitempty"`
@@ -140,7 +140,7 @@ type EscalationConfig struct {
 	Channels []NotifyChannel `json:"channels,omitempty"`
 }
 
-// NotifyTemplate 通知模板
+// NotifyTemplate 通知模板.
 type NotifyTemplate struct {
 	ID        string        `json:"id"`
 	Name      string        `json:"name" binding:"required"`
@@ -152,7 +152,7 @@ type NotifyTemplate struct {
 	UpdatedAt time.Time     `json:"updated_at"`
 }
 
-// NotifyHistory 通知历史
+// NotifyHistory 通知历史.
 type NotifyHistory struct {
 	ID          string         `json:"id"`
 	NotifyID    string         `json:"notify_id"`
@@ -169,7 +169,7 @@ type NotifyHistory struct {
 	DeliveredAt *time.Time     `json:"delivered_at,omitempty"`
 }
 
-// NotifyStats 通知统计
+// NotifyStats 通知统计.
 type NotifyStats struct {
 	TotalSent     int                   `json:"total_sent"`
 	TotalFailed   int                   `json:"total_failed"`
@@ -179,14 +179,14 @@ type NotifyStats struct {
 	AvgLatency    time.Duration         `json:"avg_latency"`
 }
 
-// ChannelConfig 渠道配置
+// ChannelConfig 渠道配置.
 type ChannelConfig struct {
 	Channel NotifyChannel `json:"channel"`
 	Enabled bool          `json:"enabled"`
 	Config  interface{}   `json:"config,omitempty"`
 }
 
-// SmartNotifyConfig 智能通知配置
+// SmartNotifyConfig 智能通知配置.
 type SmartNotifyConfig struct {
 	Enabled         bool            `json:"enabled"`
 	DefaultChannels []NotifyChannel `json:"default_channels"`
@@ -197,7 +197,7 @@ type SmartNotifyConfig struct {
 	DedupWindow     time.Duration   `json:"dedup_window"`
 }
 
-// DefaultSmartNotifyConfig 默认配置
+// DefaultSmartNotifyConfig 默认配置.
 func DefaultSmartNotifyConfig() *SmartNotifyConfig {
 	return &SmartNotifyConfig{
 		Enabled: true,
@@ -213,7 +213,7 @@ func DefaultSmartNotifyConfig() *SmartNotifyConfig {
 	}
 }
 
-// ValidChannels 获取所有有效渠道
+// ValidChannels 获取所有有效渠道.
 func ValidChannels() []NotifyChannel {
 	return []NotifyChannel{
 		ChannelEmail,
@@ -226,7 +226,7 @@ func ValidChannels() []NotifyChannel {
 	}
 }
 
-// IsValidChannel 检查渠道是否有效
+// IsValidChannel 检查渠道是否有效.
 func IsValidChannel(ch NotifyChannel) bool {
 	for _, c := range ValidChannels() {
 		if c == ch {
@@ -236,7 +236,7 @@ func IsValidChannel(ch NotifyChannel) bool {
 	return false
 }
 
-// ChannelName 获取渠道中文名称
+// ChannelName 获取渠道中文名称.
 func ChannelName(ch NotifyChannel) string {
 	names := map[NotifyChannel]string{
 		ChannelEmail:    "邮件",

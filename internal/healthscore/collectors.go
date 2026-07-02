@@ -6,17 +6,17 @@ import (
 	"time"
 )
 
-// DefaultCollectors provides default health data collectors
+// DefaultCollectors provides default health data collectors.
 type DefaultCollectors struct {
 	hs *HealthScore
 }
 
-// NewDefaultCollectors creates default collectors
+// NewDefaultCollectors creates default collectors.
 func NewDefaultCollectors(hs *HealthScore) *DefaultCollectors {
 	return &DefaultCollectors{hs: hs}
 }
 
-// RegisterDefaultCollectors registers all default collectors
+// RegisterDefaultCollectors registers all default collectors.
 func (dc *DefaultCollectors) RegisterDefaultCollectors() {
 	dc.hs.RegisterCollector(ComponentCPU, dc.collectCPU)
 	dc.hs.RegisterCollector(ComponentMemory, dc.collectMemory)
@@ -27,7 +27,7 @@ func (dc *DefaultCollectors) RegisterDefaultCollectors() {
 	dc.hs.RegisterCollector(ComponentRAID, dc.collectRAID)
 }
 
-// collectCPU collects CPU health data
+// collectCPU collects CPU health data.
 func (dc *DefaultCollectors) collectCPU() (*ComponentScore, error) {
 	// Get CPU info
 	numCPU := runtime.NumCPU()
@@ -63,7 +63,7 @@ func (dc *DefaultCollectors) collectCPU() (*ComponentScore, error) {
 	}, nil
 }
 
-// collectMemory collects memory health data
+// collectMemory collects memory health data.
 func (dc *DefaultCollectors) collectMemory() (*ComponentScore, error) {
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
@@ -100,7 +100,7 @@ func (dc *DefaultCollectors) collectMemory() (*ComponentScore, error) {
 	}, nil
 }
 
-// collectDisk collects disk health data
+// collectDisk collects disk health data.
 func (dc *DefaultCollectors) collectDisk() (*ComponentScore, error) {
 	// Simulate disk metrics (in production, use disk APIs)
 	diskUsagePct := 65.0 // Placeholder
@@ -136,7 +136,7 @@ func (dc *DefaultCollectors) collectDisk() (*ComponentScore, error) {
 	}, nil
 }
 
-// collectNetwork collects network health data
+// collectNetwork collects network health data.
 func (dc *DefaultCollectors) collectNetwork() (*ComponentScore, error) {
 	// Simulate network metrics
 	latencyMs := 5.0  // Placeholder
@@ -169,7 +169,7 @@ func (dc *DefaultCollectors) collectNetwork() (*ComponentScore, error) {
 	}, nil
 }
 
-// collectTemperature collects temperature health data
+// collectTemperature collects temperature health data.
 func (dc *DefaultCollectors) collectTemperature() (*ComponentScore, error) {
 	// Simulate temperature
 	cpuTemp := 45.0  // Placeholder
@@ -211,7 +211,7 @@ func (dc *DefaultCollectors) collectTemperature() (*ComponentScore, error) {
 	}, nil
 }
 
-// collectServices collects service health data
+// collectServices collects service health data.
 func (dc *DefaultCollectors) collectServices() (*ComponentScore, error) {
 	// Simulate service status
 	totalServices := 10
@@ -239,7 +239,7 @@ func (dc *DefaultCollectors) collectServices() (*ComponentScore, error) {
 	}, nil
 }
 
-// collectRAID collects RAID health data
+// collectRAID collects RAID health data.
 func (dc *DefaultCollectors) collectRAID() (*ComponentScore, error) {
 	// Simulate RAID status
 	raidStatus := "healthy" // Placeholder
@@ -255,9 +255,10 @@ func (dc *DefaultCollectors) collectRAID() (*ComponentScore, error) {
 
 	status := dc.hs.GetCalculator().DetermineStatus(score)
 	message := "RAID 状态正常"
-	if raidStatus == "degraded" {
+	switch raidStatus {
+	case "degraded":
 		message = "RAID 降级运行"
-	} else if raidStatus == "failed" {
+	case "failed":
 		message = "RAID 故障"
 	}
 

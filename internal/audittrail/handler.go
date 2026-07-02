@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 审计追踪 API 处理器
+// Handlers 审计追踪 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	audit := r.Group("/audit")
 	{
@@ -50,14 +50,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// listEvents 获取事件列表
+// listEvents 获取事件列表.
 func (h *Handlers) listEvents(c *gin.Context) {
 	filter := &EventFilter{}
 
@@ -91,7 +91,7 @@ func (h *Handlers) listEvents(c *gin.Context) {
 	})
 }
 
-// recordEvent 记录事件
+// recordEvent 记录事件.
 func (h *Handlers) recordEvent(c *gin.Context) {
 	var event AuditEvent
 	if err := c.ShouldBindJSON(&event); err != nil {
@@ -110,7 +110,7 @@ func (h *Handlers) recordEvent(c *gin.Context) {
 	})
 }
 
-// getEvent 获取事件
+// getEvent 获取事件.
 func (h *Handlers) getEvent(c *gin.Context) {
 	id := c.Param("id")
 	event, err := h.manager.GetEvent(id)
@@ -129,7 +129,7 @@ func (h *Handlers) getEvent(c *gin.Context) {
 	})
 }
 
-// listSuspicious 获取可疑行为列表
+// listSuspicious 获取可疑行为列表.
 func (h *Handlers) listSuspicious(c *gin.Context) {
 	filter := &SuspiciousFilter{}
 
@@ -151,7 +151,7 @@ func (h *Handlers) listSuspicious(c *gin.Context) {
 	})
 }
 
-// getSuspicious 获取可疑行为详情
+// getSuspicious 获取可疑行为详情.
 func (h *Handlers) getSuspicious(c *gin.Context) {
 	id := c.Param("id")
 	activities, _ := h.manager.DetectSuspicious(nil)
@@ -172,7 +172,7 @@ func (h *Handlers) getSuspicious(c *gin.Context) {
 	})
 }
 
-// updateSuspicious 更新可疑行为状态
+// updateSuspicious 更新可疑行为状态.
 func (h *Handlers) updateSuspicious(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
@@ -202,7 +202,7 @@ func (h *Handlers) updateSuspicious(c *gin.Context) {
 	})
 }
 
-// generateReport 生成报告
+// generateReport 生成报告.
 func (h *Handlers) generateReport(c *gin.Context) {
 	var req struct {
 		Title       string       `json:"title"`
@@ -247,7 +247,7 @@ func (h *Handlers) generateReport(c *gin.Context) {
 	})
 }
 
-// listReports 获取报告列表
+// listReports 获取报告列表.
 func (h *Handlers) listReports(c *gin.Context) {
 	reportType := c.Query("type")
 	reports := h.manager.ListReports(reportType)
@@ -258,7 +258,7 @@ func (h *Handlers) listReports(c *gin.Context) {
 	})
 }
 
-// getReport 获取报告
+// getReport 获取报告.
 func (h *Handlers) getReport(c *gin.Context) {
 	id := c.Param("id")
 	report, err := h.manager.GetReport(id)
@@ -277,7 +277,7 @@ func (h *Handlers) getReport(c *gin.Context) {
 	})
 }
 
-// setRetention 设置保留策略
+// setRetention 设置保留策略.
 func (h *Handlers) setRetention(c *gin.Context) {
 	var policy RetentionPolicy
 	if err := c.ShouldBindJSON(&policy); err != nil {
@@ -303,7 +303,7 @@ func (h *Handlers) setRetention(c *gin.Context) {
 	})
 }
 
-// listRetentions 获取保留策略列表
+// listRetentions 获取保留策略列表.
 func (h *Handlers) listRetentions(c *gin.Context) {
 	policies := h.manager.ListRetentions()
 	c.JSON(http.StatusOK, response{
@@ -313,7 +313,7 @@ func (h *Handlers) listRetentions(c *gin.Context) {
 	})
 }
 
-// getRetention 获取保留策略
+// getRetention 获取保留策略.
 func (h *Handlers) getRetention(c *gin.Context) {
 	id := c.Param("id")
 	policy, err := h.manager.GetRetention(id)
@@ -332,7 +332,7 @@ func (h *Handlers) getRetention(c *gin.Context) {
 	})
 }
 
-// getRetentionStats 获取保留统计
+// getRetentionStats 获取保留统计.
 func (h *Handlers) getRetentionStats(c *gin.Context) {
 	id := c.Param("id")
 	stats, err := h.manager.GetRetentionStats(id)
@@ -351,7 +351,7 @@ func (h *Handlers) getRetentionStats(c *gin.Context) {
 	})
 }
 
-// exportAudit 导出审计数据
+// exportAudit 导出审计数据.
 func (h *Handlers) exportAudit(c *gin.Context) {
 	var req ExportRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -382,7 +382,7 @@ func (h *Handlers) exportAudit(c *gin.Context) {
 	})
 }
 
-// listExports 获取导出列表
+// listExports 获取导出列表.
 func (h *Handlers) listExports(c *gin.Context) {
 	exports := h.manager.ListExports()
 	c.JSON(http.StatusOK, response{
@@ -392,7 +392,7 @@ func (h *Handlers) listExports(c *gin.Context) {
 	})
 }
 
-// getExport 获取导出状态
+// getExport 获取导出状态.
 func (h *Handlers) getExport(c *gin.Context) {
 	id := c.Param("id")
 	export, err := h.manager.GetExport(id)

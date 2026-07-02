@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// ChangeType 变更类型
+// ChangeType 变更类型.
 type ChangeType int
 
 const (
@@ -23,7 +23,7 @@ const (
 	ChangeDelete
 )
 
-// FileChange 文件变更事件
+// FileChange 文件变更事件.
 type FileChange struct {
 	Path      string
 	OldPath   string // 重命名时的旧路径
@@ -33,7 +33,7 @@ type FileChange struct {
 }
 
 // IncrementalIndexer 增量索引器
-// 监控文件系统变更，实时更新索引
+// 监控文件系统变更，实时更新索引.
 type IncrementalIndexer struct {
 	indexer *Indexer
 	logger  *zap.Logger
@@ -56,7 +56,7 @@ type IncrementalIndexer struct {
 	stats IncrementalStats
 }
 
-// IncrementalStats 增量索引统计
+// IncrementalStats 增量索引统计.
 type IncrementalStats struct {
 	TotalChanges   int64     `json:"totalChanges"`
 	Created        int64     `json:"created"`
@@ -67,7 +67,7 @@ type IncrementalStats struct {
 	AvgBatchTime   float64   `json:"avgBatchTimeMs"`
 }
 
-// NewIncrementalIndexer 创建增量索引器
+// NewIncrementalIndexer 创建增量索引器.
 func NewIncrementalIndexer(indexer *Indexer, config EngineConfig, logger *zap.Logger) *IncrementalIndexer {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -84,7 +84,7 @@ func NewIncrementalIndexer(indexer *Indexer, config EngineConfig, logger *zap.Lo
 	}
 }
 
-// Start 启动增量索引器
+// Start 启动增量索引器.
 func (inc *IncrementalIndexer) Start(ctx context.Context) error {
 	inc.mu.Lock()
 	defer inc.mu.Unlock()
@@ -111,7 +111,7 @@ func (inc *IncrementalIndexer) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止增量索引器
+// Stop 停止增量索引器.
 func (inc *IncrementalIndexer) Stop() {
 	inc.mu.Lock()
 	defer inc.mu.Unlock()
@@ -129,7 +129,7 @@ func (inc *IncrementalIndexer) Stop() {
 	inc.logger.Info("增量索引器已停止")
 }
 
-// NotifyChange 通知文件变更
+// NotifyChange 通知文件变更.
 func (inc *IncrementalIndexer) NotifyChange(change FileChange) {
 	inc.mu.RLock()
 	running := inc.running
@@ -159,7 +159,7 @@ func (inc *IncrementalIndexer) NotifyChange(change FileChange) {
 	}
 }
 
-// NotifyCreate 通知文件创建
+// NotifyCreate 通知文件创建.
 func (inc *IncrementalIndexer) NotifyCreate(path string) {
 	inc.NotifyChange(FileChange{
 		Path:      path,
@@ -168,7 +168,7 @@ func (inc *IncrementalIndexer) NotifyCreate(path string) {
 	})
 }
 
-// NotifyModify 通知文件修改
+// NotifyModify 通知文件修改.
 func (inc *IncrementalIndexer) NotifyModify(path string) {
 	inc.NotifyChange(FileChange{
 		Path:      path,
@@ -177,7 +177,7 @@ func (inc *IncrementalIndexer) NotifyModify(path string) {
 	})
 }
 
-// NotifyDelete 通知文件删除
+// NotifyDelete 通知文件删除.
 func (inc *IncrementalIndexer) NotifyDelete(path string) {
 	inc.NotifyChange(FileChange{
 		Path:      path,
@@ -186,7 +186,7 @@ func (inc *IncrementalIndexer) NotifyDelete(path string) {
 	})
 }
 
-// NotifyRename 通知文件重命名
+// NotifyRename 通知文件重命名.
 func (inc *IncrementalIndexer) NotifyRename(oldPath, newPath string) {
 	// 删除旧路径
 	inc.NotifyChange(FileChange{
@@ -202,7 +202,7 @@ func (inc *IncrementalIndexer) NotifyRename(oldPath, newPath string) {
 	})
 }
 
-// processChanges 处理变更队列
+// processChanges 处理变更队列.
 func (inc *IncrementalIndexer) processChanges() {
 	batch := make([]FileChange, 0, inc.batchSize)
 	timer := time.NewTimer(1 * time.Second)
@@ -238,7 +238,7 @@ func (inc *IncrementalIndexer) processChanges() {
 	}
 }
 
-// processBatch 处理一批变更
+// processBatch 处理一批变更.
 func (inc *IncrementalIndexer) processBatch(changes []FileChange) {
 	startTime := time.Now()
 
@@ -281,7 +281,7 @@ func (inc *IncrementalIndexer) processBatch(changes []FileChange) {
 		zap.Duration("elapsed", elapsed))
 }
 
-// processFileChange 处理文件创建/修改
+// processFileChange 处理文件创建/修改.
 func (inc *IncrementalIndexer) processFileChange(change FileChange) error {
 	// 检查文件是否存在
 	info, err := os.Stat(change.Path)
@@ -322,7 +322,7 @@ func (inc *IncrementalIndexer) processFileChange(change FileChange) error {
 	return nil
 }
 
-// processFileDelete 处理文件删除
+// processFileDelete 处理文件删除.
 func (inc *IncrementalIndexer) processFileDelete(change FileChange) error {
 	if inc.indexer != nil && inc.indexer.index != nil {
 		if err := inc.indexer.RemoveFromIndex(inc.ctx, change.Path); err != nil {
@@ -341,7 +341,7 @@ func (inc *IncrementalIndexer) processFileDelete(change FileChange) error {
 	return nil
 }
 
-// watchFileSystem 监控文件系统
+// watchFileSystem 监控文件系统.
 func (inc *IncrementalIndexer) watchFileSystem() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
@@ -356,7 +356,7 @@ func (inc *IncrementalIndexer) watchFileSystem() {
 	}
 }
 
-// scanForChanges 扫描文件系统变更
+// scanForChanges 扫描文件系统变更.
 func (inc *IncrementalIndexer) scanForChanges() {
 	inc.mu.RLock()
 	paths := inc.config.IndexPaths
@@ -407,7 +407,7 @@ func (inc *IncrementalIndexer) scanForChanges() {
 	}
 }
 
-// shouldSkip 是否应该跳过
+// shouldSkip 是否应该跳过.
 func (inc *IncrementalIndexer) shouldSkip(path string) bool {
 	// 检查隐藏文件/目录
 	parts := strings.Split(path, string(os.PathSeparator))
@@ -427,7 +427,7 @@ func (inc *IncrementalIndexer) shouldSkip(path string) bool {
 	return false
 }
 
-// cleanupLoop 清理过期的删除记录
+// cleanupLoop 清理过期的删除记录.
 func (inc *IncrementalIndexer) cleanupLoop() {
 	ticker := time.NewTicker(1 * time.Hour)
 	defer ticker.Stop()
@@ -442,7 +442,7 @@ func (inc *IncrementalIndexer) cleanupLoop() {
 	}
 }
 
-// cleanupDeletedPaths 清理过期的删除记录
+// cleanupDeletedPaths 清理过期的删除记录.
 func (inc *IncrementalIndexer) cleanupDeletedPaths() {
 	inc.mu.Lock()
 	defer inc.mu.Unlock()
@@ -456,7 +456,7 @@ func (inc *IncrementalIndexer) cleanupDeletedPaths() {
 	}
 }
 
-// flushPendingChanges 处理所有待处理的变更
+// flushPendingChanges 处理所有待处理的变更.
 func (inc *IncrementalIndexer) flushPendingChanges() {
 	batch := make([]FileChange, 0)
 	for {
@@ -472,28 +472,28 @@ func (inc *IncrementalIndexer) flushPendingChanges() {
 	}
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (inc *IncrementalIndexer) GetStats() IncrementalStats {
 	inc.mu.RLock()
 	defer inc.mu.RUnlock()
 	return inc.stats
 }
 
-// GetWatchedCount 获取监控文件数
+// GetWatchedCount 获取监控文件数.
 func (inc *IncrementalIndexer) GetWatchedCount() int {
 	inc.mu.RLock()
 	defer inc.mu.RUnlock()
 	return len(inc.watchedPaths)
 }
 
-// IsRunning 是否在运行
+// IsRunning 是否在运行.
 func (inc *IncrementalIndexer) IsRunning() bool {
 	inc.mu.RLock()
 	defer inc.mu.RUnlock()
 	return inc.running
 }
 
-// ScanNow 立即扫描文件系统变更
+// ScanNow 立即扫描文件系统变更.
 func (inc *IncrementalIndexer) ScanNow() {
 	inc.scanForChanges()
 }

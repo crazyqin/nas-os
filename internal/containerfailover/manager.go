@@ -37,7 +37,7 @@ type Manager struct {
 
 // NewManager 创建故障转移管理器
 // localNodeID 本节点 ID
-// backend 状态同步后端（可为 nil 表示不启用远程同步）
+// backend 状态同步后端（可为 nil 表示不启用远程同步）.
 func NewManager(localNodeID string, backend StateBackend) *Manager {
 	m := &Manager{
 		containers: make(map[string]*Container),
@@ -68,7 +68,7 @@ func NewManager(localNodeID string, backend StateBackend) *Manager {
 
 // ========== 策略管理 ==========
 
-// GetPolicy 获取故障转移策略
+// GetPolicy 获取故障转移策略.
 func (m *Manager) GetPolicy() *FailoverPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -79,7 +79,7 @@ func (m *Manager) GetPolicy() *FailoverPolicy {
 	return &policyCopy
 }
 
-// SetPolicy 设置故障转移策略
+// SetPolicy 设置故障转移策略.
 func (m *Manager) SetPolicy(p *FailoverPolicy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -96,7 +96,7 @@ func (m *Manager) SetPolicy(p *FailoverPolicy) error {
 
 // ========== 节点管理 ==========
 
-// RegisterNode 注册节点到 HA 集群
+// RegisterNode 注册节点到 HA 集群.
 func (m *Manager) RegisterNode(n *ClusterNode) (*ClusterNode, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -128,7 +128,7 @@ func (m *Manager) RegisterNode(n *ClusterNode) (*ClusterNode, error) {
 	return &nodeCopy, nil
 }
 
-// GetNode 获取节点信息
+// GetNode 获取节点信息.
 func (m *Manager) GetNode(nodeID string) (*ClusterNode, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -141,7 +141,7 @@ func (m *Manager) GetNode(nodeID string) (*ClusterNode, error) {
 	return &nodeCopy, nil
 }
 
-// ListNodes 列出所有节点
+// ListNodes 列出所有节点.
 func (m *Manager) ListNodes() []*ClusterNode {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -154,7 +154,7 @@ func (m *Manager) ListNodes() []*ClusterNode {
 	return result
 }
 
-// UpdateNodeStatus 更新节点状态
+// UpdateNodeStatus 更新节点状态.
 func (m *Manager) UpdateNodeStatus(nodeID string, status NodeStatus) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -174,7 +174,7 @@ func (m *Manager) UpdateNodeStatus(nodeID string, status NodeStatus) error {
 
 // ========== 容器管理 ==========
 
-// RegisterContainer 注册容器到 HA 集群
+// RegisterContainer 注册容器到 HA 集群.
 func (m *Manager) RegisterContainer(c *Container) (*Container, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -231,7 +231,7 @@ func (m *Manager) RegisterContainer(c *Container) (*Container, error) {
 	return &containerCopy, nil
 }
 
-// GetContainer 获取容器信息
+// GetContainer 获取容器信息.
 func (m *Manager) GetContainer(containerID string) (*Container, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -244,7 +244,7 @@ func (m *Manager) GetContainer(containerID string) (*Container, error) {
 	return &cCopy, nil
 }
 
-// ListContainers 列出所有容器
+// ListContainers 列出所有容器.
 func (m *Manager) ListContainers() []*Container {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -257,7 +257,7 @@ func (m *Manager) ListContainers() []*Container {
 	return result
 }
 
-// RemoveContainer 从集群中移除容器
+// RemoveContainer 从集群中移除容器.
 func (m *Manager) RemoveContainer(containerID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -292,7 +292,7 @@ func (m *Manager) RemoveContainer(containerID string) error {
 
 // ========== 健康检查 ==========
 
-// StartHealthCheck 启动容器健康检查
+// StartHealthCheck 启动容器健康检查.
 func (m *Manager) StartHealthCheck() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -307,7 +307,7 @@ func (m *Manager) StartHealthCheck() error {
 	return nil
 }
 
-// StopHealthCheck 停止健康检查
+// StopHealthCheck 停止健康检查.
 func (m *Manager) StopHealthCheck() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -320,7 +320,7 @@ func (m *Manager) StopHealthCheck() error {
 	return nil
 }
 
-// runHealthCheck 健康检查循环
+// runHealthCheck 健康检查循环.
 func (m *Manager) runHealthCheck() {
 	interval := m.GetPolicy().HealthCheckInterval
 	ticker := time.NewTicker(time.Duration(interval) * time.Second)
@@ -338,7 +338,7 @@ func (m *Manager) runHealthCheck() {
 	}
 }
 
-// checkAllContainers 检查所有容器健康状态
+// checkAllContainers 检查所有容器健康状态.
 func (m *Manager) checkAllContainers(failCount map[string]int) {
 	m.mu.RLock()
 	containers := make([]*Container, 0, len(m.containers))
@@ -368,7 +368,7 @@ func (m *Manager) checkAllContainers(failCount map[string]int) {
 }
 
 // checkContainerHealth 检查单个容器健康状态
-// 此处使用模拟检查，实际环境可对接容器运行时 API
+// 此处使用模拟检查，实际环境可对接容器运行时 API.
 func (m *Manager) checkContainerHealth(c *Container) bool {
 	if c.Status == ContainerFailed || c.Status == ContainerStopped {
 		return false
@@ -384,7 +384,7 @@ func (m *Manager) checkContainerHealth(c *Container) bool {
 
 // ========== 故障转移 ==========
 
-// ManualFailover 手动触发容器故障转移
+// ManualFailover 手动触发容器故障转移.
 func (m *Manager) ManualFailover(containerID, toNode, reason string) (*FailoverEvent, error) {
 	m.mu.Lock()
 	if m.failoverActive {
@@ -411,7 +411,7 @@ func (m *Manager) ManualFailover(containerID, toNode, reason string) (*FailoverE
 	return event, nil
 }
 
-// triggerAutoFailover 自动触发故障转移
+// triggerAutoFailover 自动触发故障转移.
 func (m *Manager) triggerAutoFailover(containerID, reason string, trigger FailoverTrigger) {
 	m.mu.Lock()
 	if m.failoverActive {
@@ -452,7 +452,7 @@ func (m *Manager) triggerAutoFailover(containerID, reason string, trigger Failov
 	}
 }
 
-// executeFailover 执行故障转移
+// executeFailover 执行故障转移.
 func (m *Manager) executeFailover(containerID, toNode, reason string, trigger FailoverTrigger) (*FailoverEvent, error) {
 	m.mu.Lock()
 
@@ -557,7 +557,7 @@ func (m *Manager) executeFailover(containerID, toNode, reason string, trigger Fa
 	return &event, nil
 }
 
-// selectFailoverTarget 选择故障转移目标节点
+// selectFailoverTarget 选择故障转移目标节点.
 func (m *Manager) selectFailoverTarget(containerID string) string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -583,7 +583,7 @@ func (m *Manager) selectFailoverTarget(containerID string) string {
 	return ""
 }
 
-// GetFailoverHistory 获取故障转移历史
+// GetFailoverHistory 获取故障转移历史.
 func (m *Manager) GetFailoverHistory(limit int) []FailoverEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -599,7 +599,7 @@ func (m *Manager) GetFailoverHistory(limit int) []FailoverEvent {
 
 // ========== 状态查询 ==========
 
-// ClusterStatus 集群状态摘要
+// ClusterStatus 集群状态摘要.
 type ClusterStatus struct {
 	TotalNodes        int            `json:"total_nodes"`
 	OnlineNodes       int            `json:"online_nodes"`
@@ -612,7 +612,7 @@ type ClusterStatus struct {
 	LastFailover      *FailoverEvent `json:"last_failover,omitempty"`
 }
 
-// GetClusterStatus 获取集群状态摘要
+// GetClusterStatus 获取集群状态摘要.
 func (m *Manager) GetClusterStatus() *ClusterStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -654,19 +654,19 @@ func (m *Manager) GetClusterStatus() *ClusterStatus {
 
 // ========== IP 管理接口封装 ==========
 
-// GetIPManager 获取 IP 管理器
+// GetIPManager 获取 IP 管理器.
 func (m *Manager) GetIPManager() *IPManager {
 	return m.ipManager
 }
 
 // ========== 状态同步接口封装 ==========
 
-// GetStateSync 获取状态同步器
+// GetStateSync 获取状态同步器.
 func (m *Manager) GetStateSync() *StateSync {
 	return m.stateSync
 }
 
-// SyncAll 将所有本地状态同步到后端
+// SyncAll 将所有本地状态同步到后端.
 func (m *Manager) SyncAll() error {
 	if m.stateSync == nil {
 		return fmt.Errorf("状态同步未配置")

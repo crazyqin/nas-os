@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Manager NAS Copilot 核心管理器
+// Manager NAS Copilot 核心管理器.
 type Manager struct {
 	conversations map[string]*Conversation
 	messages      map[string][]*Message
@@ -22,7 +22,7 @@ type Manager struct {
 	successCmds   int
 }
 
-// NewManager 创建新的管理器实例
+// NewManager 创建新的管理器实例.
 func NewManager() *Manager {
 	return &Manager{
 		conversations: make(map[string]*Conversation),
@@ -34,7 +34,7 @@ func NewManager() *Manager {
 	}
 }
 
-// CreateConversation 创建新对话
+// CreateConversation 创建新对话.
 func (m *Manager) CreateConversation(userID, title string) *Conversation {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -52,7 +52,7 @@ func (m *Manager) CreateConversation(userID, title string) *Conversation {
 	return conv
 }
 
-// SendMessage 发送消息并获取响应
+// SendMessage 发送消息并获取响应.
 func (m *Manager) SendMessage(conversationID, content, userID string) (*ChatResponse, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -110,14 +110,14 @@ func (m *Manager) SendMessage(conversationID, content, userID string) (*ChatResp
 	}, nil
 }
 
-// ParseIntent 解析用户意图
+// ParseIntent 解析用户意图.
 func (m *Manager) ParseIntent(text string) *Intent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.parseIntent(text)
 }
 
-// parseIntent 内部意图解析（无锁）
+// parseIntent 内部意图解析（无锁）.
 func (m *Manager) parseIntent(text string) *Intent {
 	lower := strings.ToLower(text)
 	intent := &Intent{
@@ -158,7 +158,7 @@ func (m *Manager) parseIntent(text string) *Intent {
 	return intent
 }
 
-// generateResponse 根据意图生成回复
+// generateResponse 根据意图生成回复.
 func (m *Manager) generateResponse(intent *Intent, text string) string {
 	switch intent.Type {
 	case IntentStorage:
@@ -180,7 +180,7 @@ func (m *Manager) generateResponse(intent *Intent, text string) string {
 	}
 }
 
-// parseCommand 解析命令
+// parseCommand 解析命令.
 func (m *Manager) parseCommand(text string) *Command {
 	lower := strings.ToLower(text)
 	cmd := &Command{
@@ -222,7 +222,7 @@ func (m *Manager) parseCommand(text string) *Command {
 	return cmd
 }
 
-// executeCommand 执行命令
+// executeCommand 执行命令.
 func (m *Manager) executeCommand(cmd *Command) ActionResult {
 	m.executedCmds++
 	cmd.Status = CommandStatusRunning
@@ -239,14 +239,14 @@ func (m *Manager) executeCommand(cmd *Command) ActionResult {
 	return result
 }
 
-// ExecuteCommand 公开的命令执行方法
+// ExecuteCommand 公开的命令执行方法.
 func (m *Manager) ExecuteCommand(cmd Command) ActionResult {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	return m.executeCommand(&cmd)
 }
 
-// ListConversations 获取用户对话列表
+// ListConversations 获取用户对话列表.
 func (m *Manager) ListConversations(userID string) []*Conversation {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -260,7 +260,7 @@ func (m *Manager) ListConversations(userID string) []*Conversation {
 	return result
 }
 
-// GetConversation 获取对话详情
+// GetConversation 获取对话详情.
 func (m *Manager) GetConversation(id string) (*Conversation, []*Message, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -272,7 +272,7 @@ func (m *Manager) GetConversation(id string) (*Conversation, []*Message, error) 
 	return conv, m.messages[id], nil
 }
 
-// DeleteConversation 删除对话
+// DeleteConversation 删除对话.
 func (m *Manager) DeleteConversation(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -285,7 +285,7 @@ func (m *Manager) DeleteConversation(id string) error {
 	return nil
 }
 
-// AddKnowledge 添加知识条目
+// AddKnowledge 添加知识条目.
 func (m *Manager) AddKnowledge(entry KnowledgeEntry) *KnowledgeEntry {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -295,7 +295,7 @@ func (m *Manager) AddKnowledge(entry KnowledgeEntry) *KnowledgeEntry {
 	return &entry
 }
 
-// ListKnowledge 列出知识条目
+// ListKnowledge 列出知识条目.
 func (m *Manager) ListKnowledge() []*KnowledgeEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -307,7 +307,7 @@ func (m *Manager) ListKnowledge() []*KnowledgeEntry {
 	return result
 }
 
-// SearchKnowledge 搜索知识库
+// SearchKnowledge 搜索知识库.
 func (m *Manager) SearchKnowledge(query string) []*KnowledgeEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -330,7 +330,7 @@ func (m *Manager) SearchKnowledge(query string) []*KnowledgeEntry {
 	return result
 }
 
-// CreateScheduledTask 创建定时任务
+// CreateScheduledTask 创建定时任务.
 func (m *Manager) CreateScheduledTask(desc, cronExpr, command string, enabled bool) *ScheduledTask {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -347,7 +347,7 @@ func (m *Manager) CreateScheduledTask(desc, cronExpr, command string, enabled bo
 	return task
 }
 
-// ListScheduledTasks 列出定时任务
+// ListScheduledTasks 列出定时任务.
 func (m *Manager) ListScheduledTasks() []*ScheduledTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -359,7 +359,7 @@ func (m *Manager) ListScheduledTasks() []*ScheduledTask {
 	return result
 }
 
-// UpdateScheduledTask 更新定时任务
+// UpdateScheduledTask 更新定时任务.
 func (m *Manager) UpdateScheduledTask(id string, req UpdateTaskRequest) (*ScheduledTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -384,7 +384,7 @@ func (m *Manager) UpdateScheduledTask(id string, req UpdateTaskRequest) (*Schedu
 	return task, nil
 }
 
-// DeleteScheduledTask 删除定时任务
+// DeleteScheduledTask 删除定时任务.
 func (m *Manager) DeleteScheduledTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -396,7 +396,7 @@ func (m *Manager) DeleteScheduledTask(id string) error {
 	return nil
 }
 
-// GetUserPreference 获取用户偏好
+// GetUserPreference 获取用户偏好.
 func (m *Manager) GetUserPreference(userID string) *UserPreference {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -413,7 +413,7 @@ func (m *Manager) GetUserPreference(userID string) *UserPreference {
 	return pref
 }
 
-// UpdateUserPreference 更新用户偏好
+// UpdateUserPreference 更新用户偏好.
 func (m *Manager) UpdateUserPreference(userID string, pref UserPreference) *UserPreference {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -423,7 +423,7 @@ func (m *Manager) UpdateUserPreference(userID string, pref UserPreference) *User
 	return &pref
 }
 
-// GetStats 获取统计数据
+// GetStats 获取统计数据.
 func (m *Manager) GetStats() CopilotStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -447,7 +447,7 @@ func (m *Manager) GetStats() CopilotStats {
 	}
 }
 
-// AddAuditEntry 添加审计日志
+// AddAuditEntry 添加审计日志.
 func (m *Manager) AddAuditEntry(userID, operation, command, result, ip string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -464,7 +464,7 @@ func (m *Manager) AddAuditEntry(userID, operation, command, result, ip string) {
 	m.auditLog = append(m.auditLog, entry)
 }
 
-// ListAuditEntries 获取审计日志
+// ListAuditEntries 获取审计日志.
 func (m *Manager) ListAuditEntries() []*AuditEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -474,7 +474,7 @@ func (m *Manager) ListAuditEntries() []*AuditEntry {
 	return result
 }
 
-// containsAny 检查文本是否包含任意关键词
+// containsAny 检查文本是否包含任意关键词.
 func containsAny(text string, keywords ...string) bool {
 	for _, kw := range keywords {
 		if strings.Contains(text, kw) {

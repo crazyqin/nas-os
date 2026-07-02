@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// AlertManager 告警管理器
+// AlertManager 告警管理器.
 type AlertManager struct {
 	mu            sync.RWMutex
 	logger        *zap.Logger
@@ -21,7 +21,7 @@ type AlertManager struct {
 	notifyEnabled bool
 }
 
-// AlertRule 告警规则
+// AlertRule 告警规则.
 type AlertRule struct {
 	ID          string          `json:"id"`
 	Name        string          `json:"name"`
@@ -37,7 +37,7 @@ type AlertRule struct {
 	LastTrigger time.Time       `json:"last_trigger"`
 }
 
-// NewAlertManager 创建告警管理器
+// NewAlertManager 创建告警管理器.
 func NewAlertManager(logger *zap.Logger, engine *SurveillanceEngine) *AlertManager {
 	am := &AlertManager{
 		logger:        logger,
@@ -51,7 +51,7 @@ func NewAlertManager(logger *zap.Logger, engine *SurveillanceEngine) *AlertManag
 	return am
 }
 
-// initDefaultRules 初始化默认告警规则
+// initDefaultRules 初始化默认告警规则.
 func (am *AlertManager) initDefaultRules() {
 	am.rules = []AlertRule{
 		{
@@ -88,7 +88,7 @@ func (am *AlertManager) initDefaultRules() {
 	}
 }
 
-// CreateAlert 创建告警
+// CreateAlert 创建告警.
 func (am *AlertManager) CreateAlert(alert *Alert) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -108,7 +108,7 @@ func (am *AlertManager) CreateAlert(alert *Alert) error {
 	return nil
 }
 
-// ProcessEvent 处理事件并生成告警
+// ProcessEvent 处理事件并生成告警.
 func (am *AlertManager) ProcessEvent(event *Event) *Alert {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -181,7 +181,7 @@ func (am *AlertManager) ProcessEvent(event *Event) *Alert {
 	return nil
 }
 
-// matchesType 匹配检测类型
+// matchesType 匹配检测类型.
 func (am *AlertManager) matchesType(rule AlertRule, detectType DetectionType) bool {
 	if len(rule.DetectTypes) == 0 {
 		return true
@@ -194,7 +194,7 @@ func (am *AlertManager) matchesType(rule AlertRule, detectType DetectionType) bo
 	return false
 }
 
-// AckAlert 确认告警
+// AckAlert 确认告警.
 func (am *AlertManager) AckAlert(alertID string, ackedBy string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -215,7 +215,7 @@ func (am *AlertManager) AckAlert(alertID string, ackedBy string) error {
 	return nil
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (am *AlertManager) ResolveAlert(alertID string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -233,7 +233,7 @@ func (am *AlertManager) ResolveAlert(alertID string) error {
 	return nil
 }
 
-// DismissAlert 忽略告警
+// DismissAlert 忽略告警.
 func (am *AlertManager) DismissAlert(alertID string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -248,7 +248,7 @@ func (am *AlertManager) DismissAlert(alertID string) error {
 	return nil
 }
 
-// GetAlert 获取告警
+// GetAlert 获取告警.
 func (am *AlertManager) GetAlert(alertID string) (*Alert, error) {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -260,7 +260,7 @@ func (am *AlertManager) GetAlert(alertID string) (*Alert, error) {
 	return alert, nil
 }
 
-// QueryAlerts 查询告警
+// QueryAlerts 查询告警.
 func (am *AlertManager) QueryAlerts(query AlertQuery) []*Alert {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -290,7 +290,7 @@ func (am *AlertManager) QueryAlerts(query AlertQuery) []*Alert {
 	return result[start:end]
 }
 
-// matchAlert 匹配告警
+// matchAlert 匹配告警.
 func matchAlert(alert *Alert, query AlertQuery) bool {
 	if query.CameraID != "" && alert.CameraID != query.CameraID {
 		return false
@@ -328,7 +328,7 @@ func matchAlert(alert *Alert, query AlertQuery) bool {
 	return true
 }
 
-// GetActiveAlerts 获取活跃告警
+// GetActiveAlerts 获取活跃告警.
 func (am *AlertManager) GetActiveAlerts() []*Alert {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -347,7 +347,7 @@ func (am *AlertManager) GetActiveAlerts() []*Alert {
 	return active
 }
 
-// GetAlertStats 获取告警统计
+// GetAlertStats 获取告警统计.
 func (am *AlertManager) GetAlertStats() map[string]interface{} {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -383,7 +383,7 @@ func (am *AlertManager) GetAlertStats() map[string]interface{} {
 	return stats
 }
 
-// AddRule 添加告警规则
+// AddRule 添加告警规则.
 func (am *AlertManager) AddRule(rule AlertRule) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -394,7 +394,7 @@ func (am *AlertManager) AddRule(rule AlertRule) {
 	am.rules = append(am.rules, rule)
 }
 
-// GetRules 获取所有规则
+// GetRules 获取所有规则.
 func (am *AlertManager) GetRules() []AlertRule {
 	am.mu.RLock()
 	defer am.mu.RUnlock()

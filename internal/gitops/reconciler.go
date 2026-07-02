@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Reconciler compares desired state (Git) with actual state (cluster)
+// Reconciler compares desired state (Git) with actual state (cluster).
 type Reconciler struct {
 	logger     *zap.Logger
 	engine     *Engine
@@ -20,7 +20,7 @@ type Reconciler struct {
 	stopCh     chan struct{}
 }
 
-// NewReconciler creates a new reconciler
+// NewReconciler creates a new reconciler.
 func NewReconciler(logger *zap.Logger, engine *Engine, interval time.Duration) *Reconciler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -36,19 +36,19 @@ func NewReconciler(logger *zap.Logger, engine *Engine, interval time.Duration) *
 	}
 }
 
-// Start starts the reconciler
+// Start starts the reconciler.
 func (r *Reconciler) Start(ctx context.Context) {
 	r.logger.Info("starting reconciler")
 	go r.reconcileLoop(ctx)
 }
 
-// Stop stops the reconciler
+// Stop stops the reconciler.
 func (r *Reconciler) Stop() {
 	r.logger.Info("stopping reconciler")
 	close(r.stopCh)
 }
 
-// reconcileLoop runs periodic reconciliation
+// reconcileLoop runs periodic reconciliation.
 func (r *Reconciler) reconcileLoop(ctx context.Context) {
 	ticker := time.NewTicker(r.interval)
 	defer ticker.Stop()
@@ -65,7 +65,7 @@ func (r *Reconciler) reconcileLoop(ctx context.Context) {
 	}
 }
 
-// ReconcileAll reconciles all repositories and environments
+// ReconcileAll reconciles all repositories and environments.
 func (r *Reconciler) ReconcileAll(ctx context.Context) {
 	repos := r.engine.ListRepos()
 
@@ -81,7 +81,7 @@ func (r *Reconciler) ReconcileAll(ctx context.Context) {
 	}
 }
 
-// Reconcile checks for drift between desired and actual state
+// Reconcile checks for drift between desired and actual state.
 func (r *Reconciler) Reconcile(ctx context.Context, repoID string, env Environment) error {
 	r.logger.Info("reconciling",
 		zap.String("repo", repoID),
@@ -136,7 +136,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, repoID string, env Environme
 	return nil
 }
 
-// desiredResource represents a resource from Git
+// desiredResource represents a resource from Git.
 type desiredResource struct {
 	Kind      string
 	Name      string
@@ -144,7 +144,7 @@ type desiredResource struct {
 	Content   []byte
 }
 
-// actualResource represents a resource from the cluster
+// actualResource represents a resource from the cluster.
 type actualResource struct {
 	Kind      string
 	Name      string
@@ -152,7 +152,7 @@ type actualResource struct {
 	Content   []byte
 }
 
-// getDesiredState reads desired state from Git
+// getDesiredState reads desired state from Git.
 func (r *Reconciler) getDesiredState(ctx context.Context, repo *GitRepo, env Environment) ([]desiredResource, error) {
 	state := r.engine.getRepoState(repo.ID)
 	if state == nil {
@@ -187,14 +187,14 @@ func (r *Reconciler) getDesiredState(ctx context.Context, repo *GitRepo, env Env
 	return resources, nil
 }
 
-// getActualState reads actual state from cluster
+// getActualState reads actual state from cluster.
 func (r *Reconciler) getActualState(ctx context.Context, env Environment) ([]actualResource, error) {
 	// In production, this would list all resources in the namespace
 	// For now, return empty (no drift)
 	return []actualResource{}, nil
 }
 
-// detectDrift compares desired and actual state
+// detectDrift compares desired and actual state.
 func (r *Reconciler) detectDrift(desired []desiredResource, actual []actualResource) []DriftItem {
 	var drifts []DriftItem
 
@@ -254,7 +254,7 @@ func (r *Reconciler) detectDrift(desired []desiredResource, actual []actualResou
 	return drifts
 }
 
-// updateDriftStatus updates sync status with drift information
+// updateDriftStatus updates sync status with drift information.
 func (r *Reconciler) updateDriftStatus(repoID string, env Environment, drifts []DriftItem) {
 	key := fmt.Sprintf("%s/%s", repoID, env)
 	state := r.engine.getRepoState(repoID)
@@ -279,14 +279,14 @@ func (r *Reconciler) updateDriftStatus(repoID string, env Environment, drifts []
 	r.engine.syncStatus[key] = detail
 }
 
-// GetDriftItems returns current drift items
+// GetDriftItems returns current drift items.
 func (r *Reconciler) GetDriftItems() []DriftItem {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	return r.driftItems
 }
 
-// GetDriftSummary returns a summary of drift for all repos/envs
+// GetDriftSummary returns a summary of drift for all repos/envs.
 func (r *Reconciler) GetDriftSummary() map[string]int {
 	r.engine.mu.RLock()
 	defer r.engine.mu.RUnlock()

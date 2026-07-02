@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-// Manager 开发者门户管理器
+// Manager 开发者门户管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	apiKeys    map[string]*APIKey
@@ -29,7 +29,7 @@ type Manager struct {
 	dataFile   string
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(dataFile string) *Manager {
 	return &Manager{
 		apiKeys:    make(map[string]*APIKey),
@@ -56,13 +56,13 @@ func NewManager(dataFile string) *Manager {
 	}
 }
 
-// Initialize 初始化
+// Initialize 初始化.
 func (m *Manager) Initialize() error {
 	m.initDefaultAPISpec()
 	return m.load()
 }
 
-// initDefaultAPISpec 初始化默认API文档
+// initDefaultAPISpec 初始化默认API文档.
 func (m *Manager) initDefaultAPISpec() {
 	m.spec = &OpenAPISpec{
 		OpenAPI: "3.0.3",
@@ -151,7 +151,7 @@ func (m *Manager) initDefaultAPISpec() {
 
 // ==================== API密钥管理 ====================
 
-// CreateAPIKey 创建API密钥
+// CreateAPIKey 创建API密钥.
 func (m *Manager) CreateAPIKey(name, ownerID string, scopes []APIScope, rateLimit, dailyQuota int) (*APIKey, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -205,7 +205,7 @@ func (m *Manager) CreateAPIKey(name, ownerID string, scopes []APIScope, rateLimi
 	return apiKey, m.save()
 }
 
-// RevokeAPIKey 吊销API密钥
+// RevokeAPIKey 吊销API密钥.
 func (m *Manager) RevokeAPIKey(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -219,7 +219,7 @@ func (m *Manager) RevokeAPIKey(id string) error {
 	return m.save()
 }
 
-// GetAPIKey 获取API密钥
+// GetAPIKey 获取API密钥.
 func (m *Manager) GetAPIKey(id string) (*APIKey, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -231,7 +231,7 @@ func (m *Manager) GetAPIKey(id string) (*APIKey, error) {
 	return key, nil
 }
 
-// ListAPIKeys 列出API密钥
+// ListAPIKeys 列出API密钥.
 func (m *Manager) ListAPIKeys(ownerID string) []*APIKey {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -246,7 +246,7 @@ func (m *Manager) ListAPIKeys(ownerID string) []*APIKey {
 	return result
 }
 
-// ValidateAPIKey 验证API密钥并记录使用
+// ValidateAPIKey 验证API密钥并记录使用.
 func (m *Manager) ValidateAPIKey(keyStr string) (*APIKey, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -273,7 +273,7 @@ func (m *Manager) ValidateAPIKey(keyStr string) (*APIKey, error) {
 	return nil, ErrAPIKeyNotFound
 }
 
-// ResetDailyUsage 重置每日使用量
+// ResetDailyUsage 重置每日使用量.
 func (m *Manager) ResetDailyUsage() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -284,7 +284,7 @@ func (m *Manager) ResetDailyUsage() {
 
 // ==================== Webhook管理 ====================
 
-// RegisterWebhook 注册Webhook
+// RegisterWebhook 注册Webhook.
 func (m *Manager) RegisterWebhook(name, url, ownerID string, events []WebhookEvent) (*WebhookEndpoint, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -322,7 +322,7 @@ func (m *Manager) RegisterWebhook(name, url, ownerID string, events []WebhookEve
 	return wh, m.save()
 }
 
-// UpdateWebhook 更新Webhook
+// UpdateWebhook 更新Webhook.
 func (m *Manager) UpdateWebhook(id string, name, url string, events []WebhookEvent) (*WebhookEndpoint, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -344,7 +344,7 @@ func (m *Manager) UpdateWebhook(id string, name, url string, events []WebhookEve
 	return wh, m.save()
 }
 
-// DeleteWebhook 删除Webhook
+// DeleteWebhook 删除Webhook.
 func (m *Manager) DeleteWebhook(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -356,7 +356,7 @@ func (m *Manager) DeleteWebhook(id string) error {
 	return m.save()
 }
 
-// GetWebhook 获取Webhook
+// GetWebhook 获取Webhook.
 func (m *Manager) GetWebhook(id string) (*WebhookEndpoint, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -368,7 +368,7 @@ func (m *Manager) GetWebhook(id string) (*WebhookEndpoint, error) {
 	return wh, nil
 }
 
-// ListWebhooks 列出Webhook
+// ListWebhooks 列出Webhook.
 func (m *Manager) ListWebhooks(ownerID string) []*WebhookEndpoint {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -383,7 +383,7 @@ func (m *Manager) ListWebhooks(ownerID string) []*WebhookEndpoint {
 	return result
 }
 
-// TriggerWebhook 触发Webhook事件
+// TriggerWebhook 触发Webhook事件.
 func (m *Manager) TriggerWebhook(event WebhookEvent, payload interface{}) {
 	m.mu.RLock()
 	var targets []*WebhookEndpoint
@@ -405,7 +405,7 @@ func (m *Manager) TriggerWebhook(event WebhookEvent, payload interface{}) {
 	}
 }
 
-// deliverWebhook 投递Webhook
+// deliverWebhook 投递Webhook.
 func (m *Manager) deliverWebhook(wh *WebhookEndpoint, event WebhookEvent, payload interface{}) {
 	body, _ := json.Marshal(map[string]interface{}{
 		"event":     event,
@@ -490,7 +490,7 @@ func (m *Manager) deliverWebhook(wh *WebhookEndpoint, event WebhookEvent, payloa
 	m.mu.Unlock()
 }
 
-// RetryDelivery 重试投递
+// RetryDelivery 重试投递.
 func (m *Manager) RetryDelivery(deliveryID string) error {
 	m.mu.RLock()
 	var delivery *WebhookDelivery
@@ -514,7 +514,7 @@ func (m *Manager) RetryDelivery(deliveryID string) error {
 	return nil
 }
 
-// ListDeliveries 列出投递记录
+// ListDeliveries 列出投递记录.
 func (m *Manager) ListDeliveries(webhookID string, limit int) []*WebhookDelivery {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -537,7 +537,7 @@ func (m *Manager) ListDeliveries(webhookID string, limit int) []*WebhookDelivery
 
 // ==================== 使用量统计 ====================
 
-// RecordUsage 记录API使用量
+// RecordUsage 记录API使用量.
 func (m *Manager) RecordUsage(ownerID string, success bool, latencyMs int64) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -564,7 +564,7 @@ func (m *Manager) RecordUsage(ownerID string, success bool, latencyMs int64) {
 	})
 }
 
-// GetUsageStats 获取使用量统计
+// GetUsageStats 获取使用量统计.
 func (m *Manager) GetUsageStats(ownerID string, days int) []*UsageRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -581,7 +581,7 @@ func (m *Manager) GetUsageStats(ownerID string, days int) []*UsageRecord {
 
 // ==================== 开发者应用 ====================
 
-// RegisterApp 注册开发者应用
+// RegisterApp 注册开发者应用.
 func (m *Manager) RegisterApp(name, ownerID, description string, redirectURIs []string, grantTypes []OAuthGrantType, scopes []APIScope) (*DeveloperApp, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -613,7 +613,7 @@ func (m *Manager) RegisterApp(name, ownerID, description string, redirectURIs []
 	return app, m.save()
 }
 
-// GetApp 获取开发者应用
+// GetApp 获取开发者应用.
 func (m *Manager) GetApp(id string) (*DeveloperApp, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -625,7 +625,7 @@ func (m *Manager) GetApp(id string) (*DeveloperApp, error) {
 	return app, nil
 }
 
-// ListApps 列出开发者应用
+// ListApps 列出开发者应用.
 func (m *Manager) ListApps(ownerID string) []*DeveloperApp {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -640,7 +640,7 @@ func (m *Manager) ListApps(ownerID string) []*DeveloperApp {
 	return result
 }
 
-// DeleteApp 删除开发者应用
+// DeleteApp 删除开发者应用.
 func (m *Manager) DeleteApp(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -652,7 +652,7 @@ func (m *Manager) DeleteApp(id string) error {
 	return m.save()
 }
 
-// IssueToken 签发OAuth2令牌
+// IssueToken 签发OAuth2令牌.
 func (m *Manager) IssueToken(clientID, clientSecret string, grantType OAuthGrantType, scopes []APIScope) (*OAuthToken, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -703,7 +703,7 @@ func (m *Manager) IssueToken(clientID, clientSecret string, grantType OAuthGrant
 	return token, nil
 }
 
-// ValidateToken 验证OAuth2令牌
+// ValidateToken 验证OAuth2令牌.
 func (m *Manager) ValidateToken(accessToken string) (*OAuthToken, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -720,14 +720,14 @@ func (m *Manager) ValidateToken(accessToken string) (*OAuthToken, error) {
 
 // ==================== API文档 ====================
 
-// GetAPISpec 获取OpenAPI规范
+// GetAPISpec 获取OpenAPI规范.
 func (m *Manager) GetAPISpec() *OpenAPISpec {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.spec
 }
 
-// UpdateAPISpec 更新OpenAPI规范
+// UpdateAPISpec 更新OpenAPI规范.
 func (m *Manager) UpdateAPISpec(spec *OpenAPISpec) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -736,7 +736,7 @@ func (m *Manager) UpdateAPISpec(spec *OpenAPISpec) {
 
 // ==================== SDK代码生成 ====================
 
-// GenerateSDK 生成SDK示例代码
+// GenerateSDK 生成SDK示例代码.
 func (m *Manager) GenerateSDK(lang SDKLanguage) (string, error) {
 	switch lang {
 	case SDKPython:
@@ -998,7 +998,7 @@ module.exports = { NasOSClient };
 
 // ==================== 统计 ====================
 
-// GetStats 获取门户统计
+// GetStats 获取门户统计.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

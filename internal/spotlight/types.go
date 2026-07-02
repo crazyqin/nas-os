@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// FileType 文件类型
+// FileType 文件类型.
 type FileType string
 
 const (
@@ -22,7 +22,7 @@ const (
 	FileTypeOther    FileType = "other"
 )
 
-// Document 索引文档
+// Document 索引文档.
 type Document struct {
 	ID        string            `json:"id"`
 	Path      string            `json:"path"`
@@ -39,7 +39,7 @@ type Document struct {
 	IndexedAt time.Time         `json:"indexed_at"`
 }
 
-// SearchRequest 搜索请求
+// SearchRequest 搜索请求.
 type SearchRequest struct {
 	Query      string     `json:"query" form:"q"`
 	Path       string     `json:"path" form:"path"`
@@ -56,7 +56,7 @@ type SearchRequest struct {
 	SortOrder  string     `json:"sort_order" form:"sort_order"` // asc, desc
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	Documents   []ScoredDocument `json:"documents"`
 	Total       int              `json:"total"`
@@ -68,7 +68,7 @@ type SearchResult struct {
 	Suggestions []string         `json:"suggestions,omitempty"`
 }
 
-// ScoredDocument 带评分的文档
+// ScoredDocument 带评分的文档.
 type ScoredDocument struct {
 	Document
 	Score       float64  `json:"score"`
@@ -76,19 +76,19 @@ type ScoredDocument struct {
 	MatchReason string   `json:"match_reason,omitempty"`
 }
 
-// SuggestRequest 搜索建议请求
+// SuggestRequest 搜索建议请求.
 type SuggestRequest struct {
 	Query string `json:"query" form:"q"`
 	Limit int    `json:"limit" form:"limit"`
 }
 
-// SuggestResponse 搜索建议响应
+// SuggestResponse 搜索建议响应.
 type SuggestResponse struct {
 	Suggestions []Suggestion `json:"suggestions"`
 	Query       string       `json:"query"`
 }
 
-// Suggestion 单个搜索建议
+// Suggestion 单个搜索建议.
 type Suggestion struct {
 	Text        string  `json:"text"`
 	Score       float64 `json:"score"`
@@ -96,7 +96,7 @@ type Suggestion struct {
 	Description string  `json:"description,omitempty"`
 }
 
-// IndexStats 索引统计
+// IndexStats 索引统计.
 type IndexStats struct {
 	TotalDocuments  int              `json:"total_documents"`
 	TotalTerms      int              `json:"total_terms"`
@@ -106,7 +106,7 @@ type IndexStats struct {
 	DocumentsByType map[FileType]int `json:"documents_by_type"`
 }
 
-// invertedIndex 倒排索引
+// invertedIndex 倒排索引.
 type invertedIndex struct {
 	mu       sync.RWMutex
 	index    map[string]map[string]positions // term -> docID -> positions
@@ -114,14 +114,14 @@ type invertedIndex struct {
 	trieRoot *trieNode                       // 前缀树根节点
 }
 
-// positions 词项在文档中的位置
+// positions 词项在文档中的位置.
 type positions struct {
 	Fields    []string `json:"fields"`    // 出现的字段 (name, content, tags)
 	Count     int      `json:"count"`     // 出现次数
 	Positions []int    `json:"positions"` // 在content中的位置
 }
 
-// trieNode 前缀树节点
+// trieNode 前缀树节点.
 type trieNode struct {
 	children map[rune]*trieNode
 	isEnd    bool
@@ -129,7 +129,7 @@ type trieNode struct {
 	count    int      // 词频
 }
 
-// Manager 管理器
+// Manager 管理器.
 type Manager struct {
 	logger    *zap.Logger
 	index     *invertedIndex
@@ -138,13 +138,13 @@ type Manager struct {
 	stopCh    chan struct{}
 }
 
-// Handlers HTTP 处理器
+// Handlers HTTP 处理器.
 type Handlers struct {
 	logger *zap.Logger
 	mgr    *Manager
 }
 
-// SpotlightConfig 配置
+// SpotlightConfig 配置.
 type SpotlightConfig struct {
 	MaxIndexSize    int  `json:"max_index_size"`
 	MinTermLength   int  `json:"min_term_length"`
@@ -157,12 +157,12 @@ type SpotlightConfig struct {
 	SuggestionLimit int  `json:"suggestion_limit"`
 }
 
-// tokenizer 分词器
+// tokenizer 分词器.
 type tokenizer struct {
 	stopWords map[string]bool
 }
 
-// newIndex 创建新倒排索引
+// newIndex 创建新倒排索引.
 func newIndex() *invertedIndex {
 	return &invertedIndex{
 		index:    make(map[string]map[string]positions),
@@ -171,14 +171,14 @@ func newIndex() *invertedIndex {
 	}
 }
 
-// newTrieNode 创建新前缀树节点
+// newTrieNode 创建新前缀树节点.
 func newTrieNode() *trieNode {
 	return &trieNode{
 		children: make(map[rune]*trieNode),
 	}
 }
 
-// NewManager 创建新的 Spotlight 管理器
+// NewManager 创建新的 Spotlight 管理器.
 func NewManager(logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -193,12 +193,12 @@ func NewManager(logger *zap.Logger) *Manager {
 	}
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *Manager) Close() {
 	close(m.stopCh)
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *SpotlightConfig {
 	return &SpotlightConfig{
 		MaxIndexSize:    1000000,
@@ -213,14 +213,14 @@ func DefaultConfig() *SpotlightConfig {
 	}
 }
 
-// response 通用响应
+// response 通用响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// IndexDocument 索引单个文档
+// IndexDocument 索引单个文档.
 func (m *Manager) IndexDocument(doc *Document) error {
 	m.index.mu.Lock()
 	defer m.index.mu.Unlock()
@@ -245,7 +245,7 @@ func (m *Manager) IndexDocument(doc *Document) error {
 	return nil
 }
 
-// IndexDocuments 批量索引文档
+// IndexDocuments 批量索引文档.
 func (m *Manager) IndexDocuments(docs []*Document) (int, error) {
 	indexed := 0
 	for _, doc := range docs {
@@ -257,7 +257,7 @@ func (m *Manager) IndexDocuments(docs []*Document) (int, error) {
 	return indexed, nil
 }
 
-// RemoveDocument 删除文档
+// RemoveDocument 删除文档.
 func (m *Manager) RemoveDocument(id string) error {
 	m.index.mu.Lock()
 	defer m.index.mu.Unlock()
@@ -278,7 +278,7 @@ func (m *Manager) RemoveDocument(id string) error {
 	return nil
 }
 
-// GetDocument 获取文档
+// GetDocument 获取文档.
 func (m *Manager) GetDocument(id string) (*Document, bool) {
 	m.index.mu.RLock()
 	defer m.index.mu.RUnlock()
@@ -291,7 +291,7 @@ func (m *Manager) GetDocument(id string) (*Document, bool) {
 	return &result, true
 }
 
-// GetStats 获取索引统计
+// GetStats 获取索引统计.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.index.mu.RLock()
 	defer m.index.mu.RUnlock()
@@ -303,7 +303,7 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 }
 
-// insert 插入词项到前缀树
+// insert 插入词项到前缀树.
 func (t *trieNode) insert(term string) {
 	node := t
 	for _, ch := range term {
@@ -322,7 +322,7 @@ func (t *trieNode) insert(term string) {
 	node.count++
 }
 
-// search 在前缀树中搜索
+// search 在前缀树中搜索.
 func (t *trieNode) search(prefix string, limit int) []Suggestion {
 	results := make([]Suggestion, 0)
 	if t == nil {
@@ -361,7 +361,7 @@ func (t *trieNode) search(prefix string, limit int) []Suggestion {
 	return results
 }
 
-// isCJK 检测是否为 CJK 字符
+// isCJK 检测是否为 CJK 字符.
 func isCJK(r rune) bool {
 	return (r >= 0x4E00 && r <= 0x9FFF) || // CJK Unified Ideographs
 		(r >= 0x3400 && r <= 0x4DBF) || // CJK Extension A
@@ -370,7 +370,7 @@ func isCJK(r rune) bool {
 		(r >= 0x2F800 && r <= 0x2FA1F) // CJK Compatibility Ideographs Supplement
 }
 
-// isPunctuation 检测是否为分隔符（空格/标点）
+// isPunctuation 检测是否为分隔符（空格/标点）.
 func isPunctuation(r rune) bool {
 	switch r {
 	case ' ', '\t', '\n', '\r', ',', '.', ';', '!', '?', ':', '/', '\\', '(', ')', '[', ']', '{', '}', '"', '\'', '-', '_', '@', '#', '$', '%', '^', '&', '*', '+', '=', '<', '>', '|', '~', '`':
@@ -379,7 +379,7 @@ func isPunctuation(r rune) bool {
 	return false
 }
 
-// tokenize 分词
+// tokenize 分词.
 func (t *tokenizer) tokenize(text string) []string {
 	if text == "" {
 		return nil
@@ -432,7 +432,7 @@ func (t *tokenizer) tokenize(text string) []string {
 	return words
 }
 
-// containsTag 检查字符串切片是否包含指定字符串
+// containsTag 检查字符串切片是否包含指定字符串.
 func containsTag(slice []string, item string) bool {
 	for _, s := range slice {
 		if s == item {
@@ -442,7 +442,7 @@ func containsTag(slice []string, item string) bool {
 	return false
 }
 
-// sortSuggestions 排序建议
+// sortSuggestions 排序建议.
 func sortSuggestions(suggestions []Suggestion) {
 	// 按分数降序排序
 	for i := 0; i < len(suggestions)-1; i++ {
@@ -454,7 +454,7 @@ func sortSuggestions(suggestions []Suggestion) {
 	}
 }
 
-// addToIndex 添加到倒排索引（外部调用，加锁版本）
+// addToIndex 添加到倒排索引（外部调用，加锁版本）.
 func (m *Manager) addToIndex(term, docID, field string, position int) {
 	m.index.mu.Lock()
 	defer m.index.mu.Unlock()
@@ -462,7 +462,7 @@ func (m *Manager) addToIndex(term, docID, field string, position int) {
 	m.addToIndexLocked(term, docID, field, position)
 }
 
-// addToIndexLocked 添加到倒排索引（内部调用，不加锁版本，调用方需确保已持有锁）
+// addToIndexLocked 添加到倒排索引（内部调用，不加锁版本，调用方需确保已持有锁）.
 func (m *Manager) addToIndexLocked(term, docID, field string, position int) {
 	if m.index.index[term] == nil {
 		m.index.index[term] = make(map[string]positions)
@@ -480,7 +480,7 @@ func (m *Manager) addToIndexLocked(term, docID, field string, position int) {
 	m.index.index[term][docID] = pos
 }
 
-// containsString 检查字符串切片是否包含指定字符串
+// containsString 检查字符串切片是否包含指定字符串.
 func containsString(slice []string, item string) bool {
 	for _, s := range slice {
 		if s == item {

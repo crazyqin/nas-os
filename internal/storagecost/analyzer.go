@@ -9,15 +9,15 @@ import (
 	"time"
 )
 
-// Analyzer 存储成本分析器
+// Analyzer 存储成本分析器.
 type Analyzer struct {
-	mu       sync.RWMutex
-	config   *Config
-	storage  StorageBackend
-	logger   Logger
+	mu      sync.RWMutex
+	config  *Config
+	storage StorageBackend
+	logger  Logger
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	HotDataThresholdDays  int     // 热数据阈值（天）
 	WarmDataThresholdDays int     // 温数据阈度（天）
@@ -25,23 +25,23 @@ type Config struct {
 	EnableAutoTiering     bool    // 启用自动分层
 }
 
-// StorageBackend 存储后端接口
+// StorageBackend 存储后端接口.
 type StorageBackend interface {
 	GetStorageStats() (*StorageStats, error)
 	GetFileAccessPatterns() ([]*FileAccessPattern, error)
 	MoveToTier(path string, tier StorageTier) error
 }
 
-// StorageStats 存储统计
+// StorageStats 存储统计.
 type StorageStats struct {
-	TotalCapacity   int64
-	UsedCapacity    int64
+	TotalCapacity     int64
+	UsedCapacity      int64
 	AvailableCapacity int64
-	ByTier          map[StorageTier]int64
-	ByType          map[string]int64
+	ByTier            map[StorageTier]int64
+	ByType            map[string]int64
 }
 
-// StorageTier 存储层级
+// StorageTier 存储层级.
 type StorageTier string
 
 const (
@@ -50,34 +50,34 @@ const (
 	TierCold StorageTier = "cold" // 低成本存储
 )
 
-// FileAccessPattern 文件访问模式
+// FileAccessPattern 文件访问模式.
 type FileAccessPattern struct {
-	Path         string
-	Size         int64
-	LastAccess   time.Time
-	AccessCount  int64
-	Tier         StorageTier
+	Path        string
+	Size        int64
+	LastAccess  time.Time
+	AccessCount int64
+	Tier        StorageTier
 }
 
-// CostReport 成本报告
+// CostReport 成本报告.
 type CostReport struct {
-	GeneratedAt       time.Time
-	TotalCost         float64
-	CostByTier        map[StorageTier]float64
-	OptimizationTips  []OptimizationTip
-	SavingsEstimate   float64
-	TierDistribution  map[StorageTier]TierInfo
+	GeneratedAt      time.Time
+	TotalCost        float64
+	CostByTier       map[StorageTier]float64
+	OptimizationTips []OptimizationTip
+	SavingsEstimate  float64
+	TierDistribution map[StorageTier]TierInfo
 }
 
-// TierInfo 层级信息
+// TierInfo 层级信息.
 type TierInfo struct {
-	Count    int
-	TotalSize int64
-	Cost     float64
+	Count      int
+	TotalSize  int64
+	Cost       float64
 	Percentage float64
 }
 
-// OptimizationTip 优化建议
+// OptimizationTip 优化建议.
 type OptimizationTip struct {
 	Priority    string
 	Category    string
@@ -86,13 +86,13 @@ type OptimizationTip struct {
 	Action      string
 }
 
-// Logger 日志接口
+// Logger 日志接口.
 type Logger interface {
 	Info(msg string, args ...interface{})
 	Error(msg string, args ...interface{})
 }
 
-// NewAnalyzer 创建新的存储成本分析器
+// NewAnalyzer 创建新的存储成本分析器.
 func NewAnalyzer(config *Config, storage StorageBackend, logger Logger) *Analyzer {
 	return &Analyzer{
 		config:  config,
@@ -101,7 +101,7 @@ func NewAnalyzer(config *Config, storage StorageBackend, logger Logger) *Analyze
 	}
 }
 
-// Analyze 分析存储成本
+// Analyze 分析存储成本.
 func (a *Analyzer) Analyze() (*CostReport, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -145,7 +145,7 @@ func (a *Analyzer) Analyze() (*CostReport, error) {
 	return report, nil
 }
 
-// generateOptimizationTips 生成优化建议
+// generateOptimizationTips 生成优化建议.
 func (a *Analyzer) generateOptimizationTips(patterns []*FileAccessPattern, stats *StorageStats) []OptimizationTip {
 	var tips []OptimizationTip
 
@@ -194,7 +194,7 @@ func (a *Analyzer) generateOptimizationTips(patterns []*FileAccessPattern, stats
 	return tips
 }
 
-// calculateSavingsEstimate 计算预估节省
+// calculateSavingsEstimate 计算预估节省.
 func (a *Analyzer) calculateSavingsEstimate(patterns []*FileAccessPattern) float64 {
 	var totalSavings float64
 
@@ -212,7 +212,7 @@ func (a *Analyzer) calculateSavingsEstimate(patterns []*FileAccessPattern) float
 	return totalSavings
 }
 
-// GetTierRecommendation 获取分层建议
+// GetTierRecommendation 获取分层建议.
 func (a *Analyzer) GetTierRecommendation(pattern *FileAccessPattern) StorageTier {
 	daysSinceAccess := time.Since(pattern.LastAccess).Hours() / 24
 
@@ -224,7 +224,7 @@ func (a *Analyzer) GetTierRecommendation(pattern *FileAccessPattern) StorageTier
 	return TierCold
 }
 
-// AutoTier 自动分层
+// AutoTier 自动分层.
 func (a *Analyzer) AutoTier(ctx context.Context) (int, error) {
 	if !a.config.EnableAutoTiering {
 		return 0, fmt.Errorf("自动分层未启用")

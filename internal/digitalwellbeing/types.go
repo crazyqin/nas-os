@@ -4,7 +4,7 @@ package digitalwellbeing
 
 import "time"
 
-// ScreenTime 屏幕时间
+// ScreenTime 屏幕时间.
 type ScreenTime struct {
 	ID                string          `json:"id"`
 	UserID            string          `json:"user_id"`
@@ -18,7 +18,7 @@ type ScreenTime struct {
 	NotificationCount int             `json:"notification_count"`
 }
 
-// AppUsage 应用使用情况
+// AppUsage 应用使用情况.
 type AppUsage struct {
 	AppName    string  `json:"app_name"`
 	AppID      string  `json:"app_id"`
@@ -27,14 +27,14 @@ type AppUsage struct {
 	Percentage float64 `json:"percentage"` // 占比
 }
 
-// CategoryUsage 分类使用情况
+// CategoryUsage 分类使用情况.
 type CategoryUsage struct {
 	Category   string  `json:"category"` // social, productivity, entertainment, etc.
 	Minutes    int     `json:"minutes"`
 	Percentage float64 `json:"percentage"`
 }
 
-// UsagePattern 使用模式
+// UsagePattern 使用模式.
 type UsagePattern struct {
 	ID             string     `json:"id"`
 	UserID         string     `json:"user_id"`
@@ -48,14 +48,14 @@ type UsagePattern struct {
 	Insights       []Insight  `json:"insights"`
 }
 
-// Insight 洞察
+// Insight 洞察.
 type Insight struct {
 	Type    string `json:"type"` // tip, warning, achievement
 	Title   string `json:"title"`
 	Message string `json:"message"`
 }
 
-// FocusSession 专注会话
+// FocusSession 专注会话.
 type FocusSession struct {
 	ID          string      `json:"id"`
 	UserID      string      `json:"user_id"`
@@ -70,7 +70,7 @@ type FocusSession struct {
 	AllowNotifs bool        `json:"allow_notifs"`
 }
 
-// FocusStatus 专注状态
+// FocusStatus 专注状态.
 type FocusStatus string
 
 const (
@@ -80,7 +80,7 @@ const (
 	FocusStatusCancelled FocusStatus = "cancelled"
 )
 
-// FamilyMember 家庭成员
+// FamilyMember 家庭成员.
 type FamilyMember struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -91,7 +91,7 @@ type FamilyMember struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// WellbeingReport 健康报告
+// WellbeingReport 健康报告.
 type WellbeingReport struct {
 	ID          string        `json:"id"`
 	UserID      string        `json:"user_id"`
@@ -105,7 +105,7 @@ type WellbeingReport struct {
 	Suggestions []string      `json:"suggestions"`
 }
 
-// ReportSummary 报告摘要
+// ReportSummary 报告摘要.
 type ReportSummary struct {
 	TotalMinutes     int     `json:"total_minutes"`
 	AverageDaily     int     `json:"average_daily"`
@@ -116,7 +116,7 @@ type ReportSummary struct {
 	ComparedToLast   float64 `json:"compared_to_last"` // 与上期对比百分比
 }
 
-// DowntimeSchedule 停机时间计划
+// DowntimeSchedule 停机时间计划.
 type DowntimeSchedule struct {
 	ID        string   `json:"id"`
 	UserID    string   `json:"user_id"`
@@ -127,7 +127,7 @@ type DowntimeSchedule struct {
 	AllowApps []string `json:"allow_apps"` // 允许使用的应用
 }
 
-// AppLimit 应用限制
+// AppLimit 应用限制.
 type AppLimit struct {
 	ID       string `json:"id"`
 	UserID   string `json:"user_id"`

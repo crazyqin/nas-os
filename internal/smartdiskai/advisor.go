@@ -15,7 +15,7 @@ import (
 // MigrationAdvisor - 数据迁移建议引擎
 // ============================================================
 
-// MigrationAdvisor 数据迁移建议引擎
+// MigrationAdvisor 数据迁移建议引擎.
 type MigrationAdvisor struct {
 	mu        sync.RWMutex
 	logger    *zap.Logger
@@ -27,17 +27,17 @@ type MigrationAdvisor struct {
 	targetDevices []TargetDevice
 }
 
-// TargetDevice 目标设备信息
+// TargetDevice 目标设备信息.
 type TargetDevice struct {
-	Device       string `json:"device"`
-	Model        string `json:"model"`
-	Capacity     uint64 `json:"capacity_bytes"`
-	IsSSD        bool   `json:"is_ssd"`
-	HealthScore  float64 `json:"health_score"`
-	Available    bool   `json:"available"`
+	Device      string  `json:"device"`
+	Model       string  `json:"model"`
+	Capacity    uint64  `json:"capacity_bytes"`
+	IsSSD       bool    `json:"is_ssd"`
+	HealthScore float64 `json:"health_score"`
+	Available   bool    `json:"available"`
 }
 
-// NewMigrationAdvisor 创建迁移建议引擎
+// NewMigrationAdvisor 创建迁移建议引擎.
 func NewMigrationAdvisor(logger *zap.Logger, collector *SMARTCollector, scorer *HealthScorer, predictor *FailurePredictor) *MigrationAdvisor {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -51,14 +51,14 @@ func NewMigrationAdvisor(logger *zap.Logger, collector *SMARTCollector, scorer *
 	}
 }
 
-// RegisterTargetDevice 注册可用目标设备
+// RegisterTargetDevice 注册可用目标设备.
 func (m *MigrationAdvisor) RegisterTargetDevice(device TargetDevice) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.targetDevices = append(m.targetDevices, device)
 }
 
-// GetRecommendations 获取所有设备的迁移建议
+// GetRecommendations 获取所有设备的迁移建议.
 func (m *MigrationAdvisor) GetRecommendations() ([]*MigrationRecommendation, error) {
 	devices := m.collector.GetDevices()
 	if len(devices) == 0 {
@@ -90,7 +90,7 @@ func (m *MigrationAdvisor) GetRecommendations() ([]*MigrationRecommendation, err
 	return recommendations, nil
 }
 
-// GetRecommendation 获取单个设备的迁移建议
+// GetRecommendation 获取单个设备的迁移建议.
 func (m *MigrationAdvisor) GetRecommendation(device string) (*MigrationRecommendation, error) {
 	// 获取故障预测
 	prediction, err := m.predictor.Predict(device)
@@ -168,7 +168,7 @@ func (m *MigrationAdvisor) GetRecommendation(device string) (*MigrationRecommend
 	return rec, nil
 }
 
-// findBestTarget 查找最佳目标设备
+// findBestTarget 查找最佳目标设备.
 func (m *MigrationAdvisor) findBestTarget(source *SMARTData) *TargetDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -194,7 +194,7 @@ func (m *MigrationAdvisor) findBestTarget(source *SMARTData) *TargetDevice {
 	return best
 }
 
-// generateMigrationSteps 生成迁移步骤
+// generateMigrationSteps 生成迁移步骤.
 func (m *MigrationAdvisor) generateMigrationSteps(rec *MigrationRecommendation) []string {
 	steps := []string{
 		fmt.Sprintf("1. 备份 %s 上的关键数据到安全位置", rec.SourceDevice),
@@ -218,7 +218,7 @@ func (m *MigrationAdvisor) generateMigrationSteps(rec *MigrationRecommendation) 
 // MaintenanceAdvisor - 维护建议引擎
 // ============================================================
 
-// MaintenanceAdvisor 维护建议引擎
+// MaintenanceAdvisor 维护建议引擎.
 type MaintenanceAdvisor struct {
 	mu        sync.RWMutex
 	logger    *zap.Logger
@@ -230,15 +230,15 @@ type MaintenanceAdvisor struct {
 	rules []MaintenanceRule
 }
 
-// MaintenanceRule 维护规则
+// MaintenanceRule 维护规则.
 type MaintenanceRule struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Category    string         `json:"category"`
-	Check       func(device string, data *SMARTData, score *HealthScore) *MaintenanceAdvice
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Category string `json:"category"`
+	Check    func(device string, data *SMARTData, score *HealthScore) *MaintenanceAdvice
 }
 
-// NewMaintenanceAdvisor 创建维护建议引擎
+// NewMaintenanceAdvisor 创建维护建议引擎.
 func NewMaintenanceAdvisor(logger *zap.Logger, collector *SMARTCollector, scorer *HealthScorer, lifecycle *LifecycleManager) *MaintenanceAdvisor {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -253,7 +253,7 @@ func NewMaintenanceAdvisor(logger *zap.Logger, collector *SMARTCollector, scorer
 	return advisor
 }
 
-// initRules 初始化维护规则
+// initRules 初始化维护规则.
 func (m *MaintenanceAdvisor) initRules() {
 	m.rules = []MaintenanceRule{
 		{
@@ -441,7 +441,7 @@ func (m *MaintenanceAdvisor) initRules() {
 	}
 }
 
-// GetAdvices 获取所有设备的维护建议
+// GetAdvices 获取所有设备的维护建议.
 func (m *MaintenanceAdvisor) GetAdvices() ([]*MaintenanceAdvice, error) {
 	devices := m.collector.GetDevices()
 	if len(devices) == 0 {
@@ -472,7 +472,7 @@ func (m *MaintenanceAdvisor) GetAdvices() ([]*MaintenanceAdvice, error) {
 	return advices, nil
 }
 
-// GetAdvicesForDevice 获取单个设备的维护建议
+// GetAdvicesForDevice 获取单个设备的维护建议.
 func (m *MaintenanceAdvisor) GetAdvicesForDevice(device string) ([]*MaintenanceAdvice, error) {
 	data, err := m.collector.GetLatestData(device)
 	if err != nil {
@@ -504,7 +504,7 @@ func (m *MaintenanceAdvisor) GetAdvicesForDevice(device string) ([]*MaintenanceA
 // DashboardBuilder - 仪表板数据构建器
 // ============================================================
 
-// DashboardBuilder 仪表板数据构建器
+// DashboardBuilder 仪表板数据构建器.
 type DashboardBuilder struct {
 	logger    *zap.Logger
 	collector *SMARTCollector
@@ -514,7 +514,7 @@ type DashboardBuilder struct {
 	migrator  *MigrationAdvisor
 }
 
-// NewDashboardBuilder 创建仪表板构建器
+// NewDashboardBuilder 创建仪表板构建器.
 func NewDashboardBuilder(logger *zap.Logger, collector *SMARTCollector, scorer *HealthScorer, lifecycle *LifecycleManager, advisor *MaintenanceAdvisor, migrator *MigrationAdvisor) *DashboardBuilder {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -529,7 +529,7 @@ func NewDashboardBuilder(logger *zap.Logger, collector *SMARTCollector, scorer *
 	}
 }
 
-// BuildDashboard 构建仪表板数据
+// BuildDashboard 构建仪表板数据.
 func (d *DashboardBuilder) BuildDashboard() (*DashboardData, error) {
 	devices := d.collector.GetDevices()
 	if len(devices) == 0 {
@@ -537,7 +537,7 @@ func (d *DashboardBuilder) BuildDashboard() (*DashboardData, error) {
 	}
 
 	dashboard := &DashboardData{
-		TotalDisks: len(devices),
+		TotalDisks:  len(devices),
 		GeneratedAt: time.Now(),
 	}
 
@@ -601,7 +601,7 @@ func (d *DashboardBuilder) BuildDashboard() (*DashboardData, error) {
 // 辅助函数
 // ============================================================
 
-// min 返回两个整数中的较小值
+// min 返回两个整数中的较小值.
 func min(a, b int) int {
 	if a < b {
 		return a
@@ -609,7 +609,7 @@ func min(a, b int) int {
 	return b
 }
 
-// minFloat64 返回两个浮点数中的较小值
+// minFloat64 返回两个浮点数中的较小值.
 func minFloat64(a, b float64) float64 {
 	return math.Min(a, b)
 }

@@ -9,45 +9,45 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	// ErrShareNotFound 分享链接不存在
+	// ErrShareNotFound 分享链接不存在.
 	ErrShareNotFound = errors.New("分享链接不存在")
-	// ErrShareExpired 分享链接已过期
+	// ErrShareExpired 分享链接已过期.
 	ErrShareExpired = errors.New("分享链接已过期")
-	// ErrShareInactive 分享链接已停用
+	// ErrShareInactive 分享链接已停用.
 	ErrShareInactive = errors.New("分享链接已停用")
-	// ErrPasswordRequired 需要密码
+	// ErrPasswordRequired 需要密码.
 	ErrPasswordRequired = errors.New("需要密码验证")
-	// ErrPasswordWrong 密码错误
+	// ErrPasswordWrong 密码错误.
 	ErrPasswordWrong = errors.New("密码错误")
-	// ErrMaxDownloadsExceeded 已达最大下载次数
+	// ErrMaxDownloadsExceeded 已达最大下载次数.
 	ErrMaxDownloadsExceeded = errors.New("已达最大下载次数")
-	// ErrUploadNotAllowed 不允许上传
+	// ErrUploadNotAllowed 不允许上传.
 	ErrUploadNotAllowed = errors.New("不允许上传")
-	// ErrPreviewNotAllowed 不允许预览
+	// ErrPreviewNotAllowed 不允许预览.
 	ErrPreviewNotAllowed = errors.New("不允许预览")
-	// ErrBrandingNotFound 品牌配置不存在
+	// ErrBrandingNotFound 品牌配置不存在.
 	ErrBrandingNotFound = errors.New("品牌配置不存在")
-	// ErrPortalNotFound 门户不存在
+	// ErrPortalNotFound 门户不存在.
 	ErrPortalNotFound = errors.New("门户不存在")
 )
 
 // ========== 访问动作类型 ==========
 
-// AccessAction 访问动作类型
+// AccessAction 访问动作类型.
 type AccessAction string
 
 const (
-	// ActionView 查看
+	// ActionView 查看.
 	ActionView AccessAction = "view"
-	// ActionDownload 下载
+	// ActionDownload 下载.
 	ActionDownload AccessAction = "download"
-	// ActionUpload 上传
+	// ActionUpload 上传.
 	ActionUpload AccessAction = "upload"
 )
 
 // ========== 核心数据结构 ==========
 
-// ShareLink 分享链接
+// ShareLink 分享链接.
 type ShareLink struct {
 	ID            string     `json:"id"`
 	Name          string     `json:"name"`
@@ -69,7 +69,7 @@ type ShareLink struct {
 	UpdatedAt     time.Time  `json:"updated_at"`
 }
 
-// ShareBranding 分享品牌配置
+// ShareBranding 分享品牌配置.
 type ShareBranding struct {
 	ID             string `json:"id"`
 	Name           string `json:"name"`
@@ -81,7 +81,7 @@ type ShareBranding struct {
 	IsDefault      bool   `json:"is_default"`
 }
 
-// ShareAccess 分享访问记录
+// ShareAccess 分享访问记录.
 type ShareAccess struct {
 	ID               string       `json:"id"`
 	ShareLinkID      string       `json:"share_link_id"`
@@ -93,14 +93,14 @@ type ShareAccess struct {
 	CreatedAt        time.Time    `json:"created_at"`
 }
 
-// FileStat 文件统计
+// FileStat 文件统计.
 type FileStat struct {
 	FileName       string    `json:"file_name"`
 	DownloadCount  int       `json:"download_count"`
 	LastDownloaded time.Time `json:"last_downloaded,omitempty"`
 }
 
-// DailyStat 日统计
+// DailyStat 日统计.
 type DailyStat struct {
 	Date           string `json:"date"`
 	Views          int    `json:"views"`
@@ -108,7 +108,7 @@ type DailyStat struct {
 	UniqueVisitors int    `json:"unique_visitors"`
 }
 
-// ShareStats 分享统计
+// ShareStats 分享统计.
 type ShareStats struct {
 	ShareLinkID    string        `json:"share_link_id"`
 	TotalViews     int           `json:"total_views"`
@@ -119,7 +119,7 @@ type ShareStats struct {
 	RecentAccess   []ShareAccess `json:"recent_access,omitempty"`
 }
 
-// ShareUpload 分享上传记录
+// ShareUpload 分享上传记录.
 type ShareUpload struct {
 	ShareLinkID string `json:"share_link_id"`
 	FileName    string `json:"file_name"`
@@ -128,7 +128,7 @@ type ShareUpload struct {
 	UploadedBy  string `json:"uploaded_by,omitempty"`
 }
 
-// SharePortal 分享门户
+// SharePortal 分享门户.
 type SharePortal struct {
 	ID           string    `json:"id"`
 	Name         string    `json:"name"`

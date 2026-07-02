@@ -8,52 +8,52 @@ import (
 )
 
 // ToolRegistry 工具注册中心，管理系统可用的工具和技能
-// 提供工具注册、发现、执行和生命周期管理能力
+// 提供工具注册、发现、执行和生命周期管理能力.
 type ToolRegistry struct {
-	mu       sync.RWMutex
-	tools    map[string]*RegisteredTool  // 已注册工具
-	categories map[string]*ToolCategory  // 工具分类
+	mu         sync.RWMutex
+	tools      map[string]*RegisteredTool // 已注册工具
+	categories map[string]*ToolCategory   // 工具分类
 }
 
-// RegisteredTool 已注册的工具
+// RegisteredTool 已注册的工具.
 type RegisteredTool struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	Category    string                 `json:"category"`
-	Version     string                 `json:"version"`
-	Author      string                 `json:"author"`
-	Enabled     bool                   `json:"enabled"`
-	Parameters  []ToolParameter        `json:"parameters,omitempty"`
-	Actions     []ToolAction           `json:"actions"`
-	Permissions []string               `json:"permissions,omitempty"` // 所需权限
-	Timeout     time.Duration          `json:"timeout"`
-	RegisteredAt time.Time             `json:"registered_at"`
-	LastUsed    *time.Time             `json:"last_used,omitempty"`
-	ExecCount   int64                  `json:"exec_count"`
-	ErrorCount  int64                  `json:"error_count"`
-	handler     ToolHandler            `json:"-"` // 工具处理函数
+	ID           string          `json:"id"`
+	Name         string          `json:"name"`
+	Description  string          `json:"description"`
+	Category     string          `json:"category"`
+	Version      string          `json:"version"`
+	Author       string          `json:"author"`
+	Enabled      bool            `json:"enabled"`
+	Parameters   []ToolParameter `json:"parameters,omitempty"`
+	Actions      []ToolAction    `json:"actions"`
+	Permissions  []string        `json:"permissions,omitempty"` // 所需权限
+	Timeout      time.Duration   `json:"timeout"`
+	RegisteredAt time.Time       `json:"registered_at"`
+	LastUsed     *time.Time      `json:"last_used,omitempty"`
+	ExecCount    int64           `json:"exec_count"`
+	ErrorCount   int64           `json:"error_count"`
+	handler      ToolHandler     `json:"-"` // 工具处理函数
 }
 
-// ToolParameter 工具参数定义
+// ToolParameter 工具参数定义.
 type ToolParameter struct {
-	Name        string `json:"name"`
-	Type        string `json:"type"` // string, int, bool, float
-	Description string `json:"description"`
-	Required    bool   `json:"required"`
+	Name        string      `json:"name"`
+	Type        string      `json:"type"` // string, int, bool, float
+	Description string      `json:"description"`
+	Required    bool        `json:"required"`
 	Default     interface{} `json:"default,omitempty"`
 }
 
-// ToolAction 工具支持的操作
+// ToolAction 工具支持的操作.
 type ToolAction struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
-// ToolHandler 工具执行处理函数类型
+// ToolHandler 工具执行处理函数类型.
 type ToolHandler func(action string, params map[string]interface{}) error
 
-// ToolCategory 工具分类
+// ToolCategory 工具分类.
 type ToolCategory struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -61,7 +61,7 @@ type ToolCategory struct {
 	Icon        string `json:"icon,omitempty"`
 }
 
-// NewToolRegistry 创建工具注册中心实例
+// NewToolRegistry 创建工具注册中心实例.
 func NewToolRegistry() *ToolRegistry {
 	registry := &ToolRegistry{
 		tools:      make(map[string]*RegisteredTool),
@@ -76,7 +76,7 @@ func NewToolRegistry() *ToolRegistry {
 	return registry
 }
 
-// registerDefaultCategories 注册默认工具分类
+// registerDefaultCategories 注册默认工具分类.
 func (r *ToolRegistry) registerDefaultCategories() {
 	defaultCategories := []*ToolCategory{
 		{ID: "cat_system", Name: "系统管理", Description: "系统级别管理工具"},
@@ -93,7 +93,7 @@ func (r *ToolRegistry) registerDefaultCategories() {
 	}
 }
 
-// registerDefaultTools 注册默认内置工具
+// registerDefaultTools 注册默认内置工具.
 func (r *ToolRegistry) registerDefaultTools() {
 	// CPU 检查工具
 	r.Register(&RegisteredTool{
@@ -240,7 +240,7 @@ func (r *ToolRegistry) registerDefaultTools() {
 	log.Printf("[ToolRegistry] 注册了 %d 个默认工具", len(r.tools))
 }
 
-// Register 注册新工具
+// Register 注册新工具.
 func (r *ToolRegistry) Register(tool *RegisteredTool) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -258,7 +258,7 @@ func (r *ToolRegistry) Register(tool *RegisteredTool) error {
 	return nil
 }
 
-// Unregister 注销工具
+// Unregister 注销工具.
 func (r *ToolRegistry) Unregister(toolID string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -272,7 +272,7 @@ func (r *ToolRegistry) Unregister(toolID string) error {
 	return nil
 }
 
-// GetTool 获取已注册的工具
+// GetTool 获取已注册的工具.
 func (r *ToolRegistry) GetTool(toolID string) (*RegisteredTool, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -284,7 +284,7 @@ func (r *ToolRegistry) GetTool(toolID string) (*RegisteredTool, error) {
 	return tool, nil
 }
 
-// ListTools 列出所有已注册工具
+// ListTools 列出所有已注册工具.
 func (r *ToolRegistry) ListTools(category *string, enabledOnly bool) []*RegisteredTool {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -301,7 +301,7 @@ func (r *ToolRegistry) ListTools(category *string, enabledOnly bool) []*Register
 	return tools
 }
 
-// FindToolByAction 根据动作名查找工具
+// FindToolByAction 根据动作名查找工具.
 func (r *ToolRegistry) FindToolByAction(action string) (*RegisteredTool, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -319,7 +319,7 @@ func (r *ToolRegistry) FindToolByAction(action string) (*RegisteredTool, error) 
 	return nil, fmt.Errorf("未找到支持动作 '%s' 的工具", action)
 }
 
-// ExecuteAction 执行指定动作
+// ExecuteAction 执行指定动作.
 func (r *ToolRegistry) ExecuteAction(action string, params map[string]interface{}) error {
 	r.mu.RLock()
 	tool, err := r.findToolForAction(action)
@@ -360,7 +360,7 @@ func (r *ToolRegistry) ExecuteAction(action string, params map[string]interface{
 	return nil
 }
 
-// findToolForAction 内部查找支持指定动作的工具
+// findToolForAction 内部查找支持指定动作的工具.
 func (r *ToolRegistry) findToolForAction(action string) (*RegisteredTool, error) {
 	for _, tool := range r.tools {
 		if !tool.Enabled {
@@ -375,7 +375,7 @@ func (r *ToolRegistry) findToolForAction(action string) (*RegisteredTool, error)
 	return nil, fmt.Errorf("未找到支持动作 '%s' 的工具", action)
 }
 
-// EnableTool 启用工具
+// EnableTool 启用工具.
 func (r *ToolRegistry) EnableTool(toolID string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -390,7 +390,7 @@ func (r *ToolRegistry) EnableTool(toolID string) error {
 	return nil
 }
 
-// DisableTool 禁用工具
+// DisableTool 禁用工具.
 func (r *ToolRegistry) DisableTool(toolID string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -405,7 +405,7 @@ func (r *ToolRegistry) DisableTool(toolID string) error {
 	return nil
 }
 
-// GetStats 获取工具注册中心统计信息
+// GetStats 获取工具注册中心统计信息.
 func (r *ToolRegistry) GetStats() map[string]interface{} {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -424,15 +424,15 @@ func (r *ToolRegistry) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_tools":    totalTools,
-		"enabled_tools":  enabledTools,
-		"total_execs":    totalExec,
-		"total_errors":   totalErrors,
-		"categories":     len(r.categories),
+		"total_tools":   totalTools,
+		"enabled_tools": enabledTools,
+		"total_execs":   totalExec,
+		"total_errors":  totalErrors,
+		"categories":    len(r.categories),
 	}
 }
 
-// RegisterCategory 注册工具分类
+// RegisterCategory 注册工具分类.
 func (r *ToolRegistry) RegisterCategory(cat *ToolCategory) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -440,7 +440,7 @@ func (r *ToolRegistry) RegisterCategory(cat *ToolCategory) {
 	r.categories[cat.ID] = cat
 }
 
-// ListCategories 列出所有工具分类
+// ListCategories 列出所有工具分类.
 func (r *ToolRegistry) ListCategories() []*ToolCategory {
 	r.mu.RLock()
 	defer r.mu.RUnlock()

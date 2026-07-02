@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// MountProvider defines the interface for cloud storage providers
+// MountProvider defines the interface for cloud storage providers.
 type MountProvider interface {
 	// Name returns the provider name (e.g., "115", "quark", "baidu")
 	Name() string
@@ -23,7 +23,7 @@ type MountProvider interface {
 	Status(ctx context.Context, mountPath string) (*MountStatus, error)
 }
 
-// MountConfig contains configuration for mounting cloud storage
+// MountConfig contains configuration for mounting cloud storage.
 type MountConfig struct {
 	// Provider is the cloud storage provider name
 	Provider string `json:"provider"`
@@ -38,7 +38,7 @@ type MountConfig struct {
 	Options MountOptions `json:"options"`
 }
 
-// MountOptions contains mount behavior options
+// MountOptions contains mount behavior options.
 type MountOptions struct {
 	// ReadOnly mounts the storage as read-only
 	ReadOnly bool `json:"readOnly"`
@@ -53,7 +53,7 @@ type MountOptions struct {
 	RefreshInterval time.Duration `json:"refreshInterval"`
 }
 
-// MountStatus represents the current status of a mount
+// MountStatus represents the current status of a mount.
 type MountStatus struct {
 	// Provider is the cloud storage provider
 	Provider string `json:"provider"`
@@ -77,13 +77,13 @@ type MountStatus struct {
 	Error string `json:"error,omitempty"`
 }
 
-// NativeMountService manages native cloud storage mounting
+// NativeMountService manages native cloud storage mounting.
 type NativeMountService struct {
 	providers map[string]MountProvider
 	mounts    map[string]*MountStatus
 }
 
-// NewNativeMountService creates a new native mount service
+// NewNativeMountService creates a new native mount service.
 func NewNativeMountService() *NativeMountService {
 	return &NativeMountService{
 		providers: make(map[string]MountProvider),
@@ -91,12 +91,12 @@ func NewNativeMountService() *NativeMountService {
 	}
 }
 
-// RegisterProvider registers a cloud storage provider
+// RegisterProvider registers a cloud storage provider.
 func (s *NativeMountService) RegisterProvider(provider MountProvider) {
 	s.providers[provider.Name()] = provider
 }
 
-// Mount mounts a cloud storage
+// Mount mounts a cloud storage.
 func (s *NativeMountService) Mount(ctx context.Context, config *MountConfig) error {
 	provider, ok := s.providers[config.Provider]
 	if !ok {
@@ -117,7 +117,7 @@ func (s *NativeMountService) Mount(ctx context.Context, config *MountConfig) err
 	return nil
 }
 
-// Unmount unmounts a cloud storage
+// Unmount unmounts a cloud storage.
 func (s *NativeMountService) Unmount(ctx context.Context, mountPath string) error {
 	status, ok := s.mounts[mountPath]
 	if !ok {
@@ -137,7 +137,7 @@ func (s *NativeMountService) Unmount(ctx context.Context, mountPath string) erro
 	return nil
 }
 
-// ListMounts returns all current mounts
+// ListMounts returns all current mounts.
 func (s *NativeMountService) ListMounts() []*MountStatus {
 	result := make([]*MountStatus, 0, len(s.mounts))
 	for _, status := range s.mounts {
@@ -146,7 +146,7 @@ func (s *NativeMountService) ListMounts() []*MountStatus {
 	return result
 }
 
-// GetStatus returns the status of a specific mount
+// GetStatus returns the status of a specific mount.
 func (s *NativeMountService) GetStatus(ctx context.Context, mountPath string) (*MountStatus, error) {
 	status, ok := s.mounts[mountPath]
 	if !ok {
@@ -168,7 +168,7 @@ func (s *NativeMountService) GetStatus(ctx context.Context, mountPath string) (*
 	return currentStatus, nil
 }
 
-// SupportedProviders returns list of supported cloud storage providers
+// SupportedProviders returns list of supported cloud storage providers.
 func (s *NativeMountService) SupportedProviders() []string {
 	providers := make([]string, 0, len(s.providers))
 	for name := range s.providers {

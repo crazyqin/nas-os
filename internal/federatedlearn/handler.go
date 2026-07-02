@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler HTTP处理器
+// Handler HTTP处理器.
 type Handler struct {
 	service *Service
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/federated/nodes", h.handleNodes)
 	mux.HandleFunc("/api/v1/federated/node", h.handleNode)
@@ -28,7 +28,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/federated/stats", h.handleStats)
 }
 
-// handleNodes 处理节点列表
+// handleNodes 处理节点列表.
 func (h *Handler) handleNodes(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -60,7 +60,7 @@ func (h *Handler) handleNodes(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleNode 处理单个节点
+// handleNode 处理单个节点.
 func (h *Handler) handleNode(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -83,7 +83,7 @@ func (h *Handler) handleNode(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(node)
 }
 
-// handleModels 处理模型列表
+// handleModels 处理模型列表.
 func (h *Handler) handleModels(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -115,7 +115,7 @@ func (h *Handler) handleModels(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleModel 处理单个模型
+// handleModel 处理单个模型.
 func (h *Handler) handleModel(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -138,7 +138,7 @@ func (h *Handler) handleModel(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(model)
 }
 
-// handleTrain 处理训练请求
+// handleTrain 处理训练请求.
 func (h *Handler) handleTrain(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -177,7 +177,7 @@ func (h *Handler) handleTrain(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(round)
 }
 
-// handleRound 处理训练轮次请求
+// handleRound 处理训练轮次请求.
 func (h *Handler) handleRound(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -200,7 +200,7 @@ func (h *Handler) handleRound(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(round)
 }
 
-// handleRounds 处理训练轮次列表
+// handleRounds 处理训练轮次列表.
 func (h *Handler) handleRounds(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -217,7 +217,7 @@ func (h *Handler) handleRounds(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handlePredict 处理预测请求
+// handlePredict 处理预测请求.
 func (h *Handler) handlePredict(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -243,7 +243,7 @@ func (h *Handler) handlePredict(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-// handleStats 处理统计请求
+// handleStats 处理统计请求.
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

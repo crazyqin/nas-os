@@ -19,7 +19,7 @@ var (
 	ErrMigrationFailed     = errors.New("memory migration failed")
 )
 
-// CXLVersion CXL 协议版本
+// CXLVersion CXL 协议版本.
 type CXLVersion string
 
 const (
@@ -29,7 +29,7 @@ const (
 	CXL31 CXLVersion = "3.1"
 )
 
-// DeviceType CXL 设备类型
+// DeviceType CXL 设备类型.
 type DeviceType string
 
 const (
@@ -41,7 +41,7 @@ const (
 	DeviceTypeType3  DeviceType = "type3"  // Type 3 Memory Device
 )
 
-// MemoryTier 内存层级
+// MemoryTier 内存层级.
 type MemoryTier string
 
 const (
@@ -51,7 +51,7 @@ const (
 	TierArchive MemoryTier = "archive" // 归档层
 )
 
-// DeviceState 设备状态
+// DeviceState 设备状态.
 type DeviceState string
 
 const (
@@ -62,7 +62,7 @@ const (
 	StateError       DeviceState = "error"
 )
 
-// CXLDevice CXL 设备信息
+// CXLDevice CXL 设备信息.
 type CXLDevice struct {
 	ID           string      `json:"id"`
 	Name         string      `json:"name"`
@@ -86,7 +86,7 @@ type CXLDevice struct {
 	UpdatedAt    time.Time   `json:"updated_at"`
 }
 
-// MemoryPool 内存池
+// MemoryPool 内存池.
 type MemoryPool struct {
 	ID          string           `json:"id"`
 	Name        string           `json:"name"`
@@ -100,7 +100,7 @@ type MemoryPool struct {
 	UpdatedAt   time.Time        `json:"updated_at"`
 }
 
-// Allocation 内存分配记录
+// Allocation 内存分配记录.
 type Allocation struct {
 	ID        string     `json:"id"`
 	PoolID    string     `json:"pool_id"`
@@ -113,7 +113,7 @@ type Allocation struct {
 	ExpiresAt *time.Time `json:"expires_at,omitempty"`
 }
 
-// AllocationPolicy 分配策略
+// AllocationPolicy 分配策略.
 type AllocationPolicy string
 
 const (
@@ -125,7 +125,7 @@ const (
 	PolicyBandwidthOpt AllocationPolicy = "bandwidth_optimized"
 )
 
-// Manager CXL 内存池管理器
+// Manager CXL 内存池管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	devices     map[string]*CXLDevice
@@ -136,7 +136,7 @@ type Manager struct {
 	stopCh      chan struct{}
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(policy AllocationPolicy) *Manager {
 	return &Manager{
 		devices:     make(map[string]*CXLDevice),
@@ -147,7 +147,7 @@ func NewManager(policy AllocationPolicy) *Manager {
 	}
 }
 
-// RegisterDevice 注册 CXL 设备
+// RegisterDevice 注册 CXL 设备.
 func (m *Manager) RegisterDevice(dev *CXLDevice) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -164,7 +164,7 @@ func (m *Manager) RegisterDevice(dev *CXLDevice) error {
 	return nil
 }
 
-// RemoveDevice 移除设备
+// RemoveDevice 移除设备.
 func (m *Manager) RemoveDevice(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -175,7 +175,7 @@ func (m *Manager) RemoveDevice(id string) error {
 	return nil
 }
 
-// GetDevice 获取设备信息
+// GetDevice 获取设备信息.
 func (m *Manager) GetDevice(id string) (*CXLDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -186,7 +186,7 @@ func (m *Manager) GetDevice(id string) (*CXLDevice, error) {
 	return dev, nil
 }
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (m *Manager) ListDevices() []*CXLDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -197,7 +197,7 @@ func (m *Manager) ListDevices() []*CXLDevice {
 	return devices
 }
 
-// CreatePool 创建内存池
+// CreatePool 创建内存池.
 func (m *Manager) CreatePool(name string, tier MemoryTier, deviceIDs []string) (*MemoryPool, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -226,7 +226,7 @@ func (m *Manager) CreatePool(name string, tier MemoryTier, deviceIDs []string) (
 	return pool, nil
 }
 
-// Allocate 分配内存
+// Allocate 分配内存.
 func (m *Manager) Allocate(poolID string, size uint64) (*Allocation, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -250,7 +250,7 @@ func (m *Manager) Allocate(poolID string, size uint64) (*Allocation, error) {
 	return alloc, nil
 }
 
-// Free 释放内存
+// Free 释放内存.
 func (m *Manager) Free(allocID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -264,7 +264,7 @@ func (m *Manager) Free(allocID string) error {
 	return nil
 }
 
-// GetPool 获取内存池
+// GetPool 获取内存池.
 func (m *Manager) GetPool(id string) (*MemoryPool, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -275,7 +275,7 @@ func (m *Manager) GetPool(id string) (*MemoryPool, error) {
 	return pool, nil
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *Manager) Close() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

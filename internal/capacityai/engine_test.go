@@ -17,12 +17,12 @@ func TestRegisterPool(t *testing.T) {
 		ID:         "pool-1",
 		Name:       "主存储池",
 		TotalBytes: 1024 * 1024 * 1024 * 1024, // 1TB
-		UsedBytes:  500 * 1024 * 1024 * 1024,   // 500GB
+		UsedBytes:  500 * 1024 * 1024 * 1024,  // 500GB
 		PoolType:   "raidz1",
 		Tier:       "hdd",
 	}
 	ai.RegisterPool(pool)
-	
+
 	pools := ai.GetPools()
 	if len(pools) != 1 {
 		t.Fatalf("expected 1 pool, got %d", len(pools))
@@ -46,7 +46,7 @@ func TestRecordUsage(t *testing.T) {
 		PoolType:   "single",
 		Tier:       "ssd",
 	})
-	
+
 	ai.RecordUsage("pool-1", 200*1024*1024*1024)
 	pools := ai.GetPools()
 	if pools[0].UsedBytes != 200*1024*1024*1024 {

@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// PolicyType 策略类型
+// PolicyType 策略类型.
 type PolicyType string
 
 const (
@@ -16,7 +16,7 @@ const (
 	PolicyTypeMove     PolicyType = "move"     // 迁移策略
 )
 
-// FileStatus 文件生命周期状态
+// FileStatus 文件生命周期状态.
 type FileStatus string
 
 const (
@@ -27,7 +27,7 @@ const (
 	FileStatusExpired  FileStatus = "expired"  // 已过期
 )
 
-// LifecyclePolicy 生命周期策略
+// LifecyclePolicy 生命周期策略.
 type LifecyclePolicy struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
@@ -50,7 +50,7 @@ type LifecyclePolicy struct {
 	LastRunAt *time.Time `json:"lastRunAt,omitempty"`
 }
 
-// FileRecord 文件记录
+// FileRecord 文件记录.
 type FileRecord struct {
 	ID           string     `json:"id"`
 	Path         string     `json:"path"`
@@ -64,7 +64,7 @@ type FileRecord struct {
 	Tags         []string   `json:"tags,omitempty"`
 }
 
-// ScanResult 扫描结果
+// ScanResult 扫描结果.
 type ScanResult struct {
 	ID          string        `json:"id"`
 	ScanTime    time.Time     `json:"scanTime"`
@@ -78,7 +78,7 @@ type ScanResult struct {
 	Duration    time.Duration `json:"duration"`
 }
 
-// ExecutionResult 执行结果
+// ExecutionResult 执行结果.
 type ExecutionResult struct {
 	ID         string    `json:"id"`
 	PolicyID   string    `json:"policyId"`
@@ -92,7 +92,7 @@ type ExecutionResult struct {
 	Errors     []string  `json:"errors,omitempty"`
 }
 
-// LifecycleStats 生命周期统计
+// LifecycleStats 生命周期统计.
 type LifecycleStats struct {
 	TotalPolicies    int            `json:"totalPolicies"`
 	ActivePolicies   int            `json:"activePolicies"`

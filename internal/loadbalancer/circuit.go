@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// CircuitBreaker 熔断器
+// CircuitBreaker 熔断器.
 type CircuitBreaker struct {
 	config CircuitBreakerConfig
 
@@ -29,7 +29,7 @@ type CircuitBreaker struct {
 	mu sync.RWMutex
 }
 
-// NewCircuitBreaker 创建熔断器
+// NewCircuitBreaker 创建熔断器.
 func NewCircuitBreaker(config CircuitBreakerConfig) *CircuitBreaker {
 	return &CircuitBreaker{
 		config: config,
@@ -37,7 +37,7 @@ func NewCircuitBreaker(config CircuitBreakerConfig) *CircuitBreaker {
 	}
 }
 
-// Execute 执行请求
+// Execute 执行请求.
 func (cb *CircuitBreaker) Execute(fn func() error) error {
 	if !cb.config.Enabled {
 		return fn()
@@ -61,7 +61,7 @@ func (cb *CircuitBreaker) Execute(fn func() error) error {
 	return err
 }
 
-// allow 检查是否允许执行
+// allow 检查是否允许执行.
 func (cb *CircuitBreaker) allow() bool {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
@@ -86,7 +86,7 @@ func (cb *CircuitBreaker) allow() bool {
 	}
 }
 
-// recordSuccess 记录成功
+// recordSuccess 记录成功.
 func (cb *CircuitBreaker) recordSuccess() {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
@@ -109,7 +109,7 @@ func (cb *CircuitBreaker) recordSuccess() {
 	}
 }
 
-// recordFailure 记录失败
+// recordFailure 记录失败.
 func (cb *CircuitBreaker) recordFailure() {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
@@ -133,14 +133,14 @@ func (cb *CircuitBreaker) recordFailure() {
 	}
 }
 
-// GetState 获取熔断器状态
+// GetState 获取熔断器状态.
 func (cb *CircuitBreaker) GetState() CircuitState {
 	cb.mu.RLock()
 	defer cb.mu.RUnlock()
 	return cb.state
 }
 
-// GetStats 获取熔断器统计
+// GetStats 获取熔断器统计.
 func (cb *CircuitBreaker) GetStats() CircuitBreakerStats {
 	cb.mu.RLock()
 	defer cb.mu.RUnlock()
@@ -161,7 +161,7 @@ func (cb *CircuitBreaker) GetStats() CircuitBreakerStats {
 	return stats
 }
 
-// Reset 重置熔断器
+// Reset 重置熔断器.
 func (cb *CircuitBreaker) Reset() {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
@@ -176,7 +176,7 @@ func (cb *CircuitBreaker) Reset() {
 	cb.lastSuccess = time.Time{}
 }
 
-// ForceOpen 强制打开熔断器
+// ForceOpen 强制打开熔断器.
 func (cb *CircuitBreaker) ForceOpen() {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
@@ -185,7 +185,7 @@ func (cb *CircuitBreaker) ForceOpen() {
 	cb.openedAt = time.Now()
 }
 
-// ForceClose 强制关闭熔断器
+// ForceClose 强制关闭熔断器.
 func (cb *CircuitBreaker) ForceClose() {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
@@ -199,14 +199,14 @@ func (cb *CircuitBreaker) ForceClose() {
 // 后端熔断器管理
 // ============================================================
 
-// BackendCircuitBreakers 后端熔断器管理
+// BackendCircuitBreakers 后端熔断器管理.
 type BackendCircuitBreakers struct {
 	config   CircuitBreakerConfig
 	breakers map[string]*CircuitBreaker
 	mu       sync.RWMutex
 }
 
-// NewBackendCircuitBreakers 创建后端熔断器管理器
+// NewBackendCircuitBreakers 创建后端熔断器管理器.
 func NewBackendCircuitBreakers(config CircuitBreakerConfig) *BackendCircuitBreakers {
 	return &BackendCircuitBreakers{
 		config:   config,
@@ -214,7 +214,7 @@ func NewBackendCircuitBreakers(config CircuitBreakerConfig) *BackendCircuitBreak
 	}
 }
 
-// Get 获取后端熔断器
+// Get 获取后端熔断器.
 func (bcb *BackendCircuitBreakers) Get(backendID string) *CircuitBreaker {
 	bcb.mu.RLock()
 	breaker, exists := bcb.breakers[backendID]
@@ -238,14 +238,14 @@ func (bcb *BackendCircuitBreakers) Get(backendID string) *CircuitBreaker {
 	return breaker
 }
 
-// Remove 移除后端熔断器
+// Remove 移除后端熔断器.
 func (bcb *BackendCircuitBreakers) Remove(backendID string) {
 	bcb.mu.Lock()
 	defer bcb.mu.Unlock()
 	delete(bcb.breakers, backendID)
 }
 
-// GetAll 获取所有后端熔断器统计
+// GetAll 获取所有后端熔断器统计.
 func (bcb *BackendCircuitBreakers) GetAll() map[string]CircuitBreakerStats {
 	bcb.mu.RLock()
 	defer bcb.mu.RUnlock()
@@ -257,7 +257,7 @@ func (bcb *BackendCircuitBreakers) GetAll() map[string]CircuitBreakerStats {
 	return stats
 }
 
-// ResetAll 重置所有熔断器
+// ResetAll 重置所有熔断器.
 func (bcb *BackendCircuitBreakers) ResetAll() {
 	bcb.mu.RLock()
 	defer bcb.mu.RUnlock()
@@ -271,17 +271,17 @@ func (bcb *BackendCircuitBreakers) ResetAll() {
 // 错误定义
 // ============================================================
 
-// ErrCircuitOpen 熔断器打开错误
+// ErrCircuitOpen 熔断器打开错误.
 var ErrCircuitOpen = &CircuitOpenError{}
 
-// CircuitOpenError 熔断器打开错误类型
+// CircuitOpenError 熔断器打开错误类型.
 type CircuitOpenError struct{}
 
 func (e *CircuitOpenError) Error() string {
 	return "circuit breaker is open"
 }
 
-// IsCircuitOpen 检查是否为熔断器打开错误
+// IsCircuitOpen 检查是否为熔断器打开错误.
 func IsCircuitOpen(err error) bool {
 	_, ok := err.(*CircuitOpenError)
 	return ok

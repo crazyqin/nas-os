@@ -32,7 +32,7 @@ const (
 
 // ========== 类型定义 ==========
 
-// WidgetType 组件类型
+// WidgetType 组件类型.
 type WidgetType string
 
 const (
@@ -55,7 +55,7 @@ const (
 	WidgetTemperature WidgetType = "temperature"
 )
 
-// ChartType 图表类型
+// ChartType 图表类型.
 type ChartType string
 
 const (
@@ -68,7 +68,7 @@ const (
 	ChartRadar   ChartType = "radar"
 )
 
-// Theme 主题
+// Theme 主题.
 type Theme string
 
 const (
@@ -78,7 +78,7 @@ const (
 	ThemeCustom Theme = "custom"
 )
 
-// WidgetPosition 组件位置
+// WidgetPosition 组件位置.
 type WidgetPosition struct {
 	X      int `json:"x"`
 	Y      int `json:"y"`
@@ -86,7 +86,7 @@ type WidgetPosition struct {
 	Height int `json:"height"`
 }
 
-// WidgetConfig 组件配置
+// WidgetConfig 组件配置.
 type WidgetConfig struct {
 	ID          string                 `json:"id"`
 	Type        WidgetType             `json:"type"`
@@ -101,7 +101,7 @@ type WidgetConfig struct {
 	UpdatedAt   time.Time              `json:"updated_at"`
 }
 
-// DataSource 数据源
+// DataSource 数据源.
 type DataSource struct {
 	ID       string                 `json:"id"`
 	Name     string                 `json:"name"`
@@ -113,7 +113,7 @@ type DataSource struct {
 	Enabled  bool                   `json:"enabled"`
 }
 
-// Dashboard 仪表盘
+// Dashboard 仪表盘.
 type Dashboard struct {
 	ID          string          `json:"id"`
 	Name        string          `json:"name"`
@@ -128,7 +128,7 @@ type Dashboard struct {
 	RefreshRate time.Duration   `json:"refresh_rate"`
 }
 
-// DashboardLayout 布局模板
+// DashboardLayout 布局模板.
 type DashboardLayout struct {
 	ID        string           `json:"id"`
 	Name      string           `json:"name"`
@@ -137,7 +137,7 @@ type DashboardLayout struct {
 	Positions []WidgetPosition `json:"positions"`
 }
 
-// WidgetData 组件数据
+// WidgetData 组件数据.
 type WidgetData struct {
 	WidgetID  string                 `json:"widget_id"`
 	Timestamp time.Time              `json:"timestamp"`
@@ -145,7 +145,7 @@ type WidgetData struct {
 	Error     string                 `json:"error,omitempty"`
 }
 
-// DashboardStats 仪表盘统计
+// DashboardStats 仪表盘统计.
 type DashboardStats struct {
 	TotalDashboards  int `json:"total_dashboards"`
 	TotalWidgets     int `json:"total_widgets"`
@@ -155,7 +155,7 @@ type DashboardStats struct {
 
 // ========== 核心引擎 ==========
 
-// Engine 仪表盘引擎
+// Engine 仪表盘引擎.
 type Engine struct {
 	mu            sync.RWMutex
 	dashboards    map[string]*Dashboard
@@ -170,7 +170,7 @@ type Engine struct {
 	dsCounter     int64
 }
 
-// NewEngine 创建引擎
+// NewEngine 创建引擎.
 func NewEngine(dataDir string) (*Engine, error) {
 	if err := os.MkdirAll(dataDir, 0755); err != nil {
 		return nil, fmt.Errorf("创建数据目录失败: %w", err)
@@ -193,7 +193,7 @@ func NewEngine(dataDir string) (*Engine, error) {
 	return e, nil
 }
 
-// initDefaultLayouts 初始化默认布局
+// initDefaultLayouts 初始化默认布局.
 func (e *Engine) initDefaultLayouts() {
 	e.layouts["grid-2x2"] = &DashboardLayout{
 		ID: "grid-2x2", Name: "2x2网格", Columns: 2, Rows: 2,
@@ -216,7 +216,7 @@ func (e *Engine) initDefaultLayouts() {
 	}
 }
 
-// initDefaultDataSources 初始化默认数据源
+// initDefaultDataSources 初始化默认数据源.
 func (e *Engine) initDefaultDataSources() {
 	defaults := []struct {
 		name, dtype, endpoint string
@@ -243,7 +243,7 @@ func (e *Engine) initDefaultDataSources() {
 	}
 }
 
-// createDefaultDashboard 创建默认仪表盘
+// createDefaultDashboard 创建默认仪表盘.
 func (e *Engine) createDefaultDashboard() {
 	e.dashCounter++
 	dash := &Dashboard{
@@ -291,7 +291,7 @@ func (e *Engine) createDefaultDashboard() {
 
 // ========== 仪表盘管理 ==========
 
-// CreateDashboard 创建仪表盘
+// CreateDashboard 创建仪表盘.
 func (e *Engine) CreateDashboard(name, desc string, theme Theme, layout string) (*Dashboard, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -317,7 +317,7 @@ func (e *Engine) CreateDashboard(name, desc string, theme Theme, layout string) 
 	return dash, nil
 }
 
-// GetDashboard 获取仪表盘
+// GetDashboard 获取仪表盘.
 func (e *Engine) GetDashboard(id string) (*Dashboard, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -329,7 +329,7 @@ func (e *Engine) GetDashboard(id string) (*Dashboard, error) {
 	return dash, nil
 }
 
-// DeleteDashboard 删除仪表盘
+// DeleteDashboard 删除仪表盘.
 func (e *Engine) DeleteDashboard(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -345,7 +345,7 @@ func (e *Engine) DeleteDashboard(id string) error {
 	return nil
 }
 
-// ListDashboards 列出所有仪表盘
+// ListDashboards 列出所有仪表盘.
 func (e *Engine) ListDashboards() []*Dashboard {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -360,7 +360,7 @@ func (e *Engine) ListDashboards() []*Dashboard {
 	return result
 }
 
-// UpdateDashboardTheme 更新主题
+// UpdateDashboardTheme 更新主题.
 func (e *Engine) UpdateDashboardTheme(id string, theme Theme) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -376,7 +376,7 @@ func (e *Engine) UpdateDashboardTheme(id string, theme Theme) error {
 
 // ========== 组件管理 ==========
 
-// AddWidget 添加组件
+// AddWidget 添加组件.
 func (e *Engine) AddWidget(dashID string, wtype WidgetType, title, dsID string, pos WidgetPosition) (*WidgetConfig, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -411,7 +411,7 @@ func (e *Engine) AddWidget(dashID string, wtype WidgetType, title, dsID string, 
 	return widget, nil
 }
 
-// RemoveWidget 移除组件
+// RemoveWidget 移除组件.
 func (e *Engine) RemoveWidget(dashID, widgetID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -431,7 +431,7 @@ func (e *Engine) RemoveWidget(dashID, widgetID string) error {
 	return fmt.Errorf("组件不存在: %s", widgetID)
 }
 
-// UpdateWidgetPosition 更新组件位置
+// UpdateWidgetPosition 更新组件位置.
 func (e *Engine) UpdateWidgetPosition(dashID, widgetID string, pos WidgetPosition) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -454,7 +454,7 @@ func (e *Engine) UpdateWidgetPosition(dashID, widgetID string, pos WidgetPositio
 
 // ========== 数据源 ==========
 
-// AddDataSource 添加数据源
+// AddDataSource 添加数据源.
 func (e *Engine) AddDataSource(name, dtype, endpoint string, interval time.Duration) (*DataSource, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -476,7 +476,7 @@ func (e *Engine) AddDataSource(name, dtype, endpoint string, interval time.Durat
 	return ds, nil
 }
 
-// GetDataSources 获取所有数据源
+// GetDataSources 获取所有数据源.
 func (e *Engine) GetDataSources() []*DataSource {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -490,7 +490,7 @@ func (e *Engine) GetDataSources() []*DataSource {
 
 // ========== 持久化 ==========
 
-// SaveDashboard 保存仪表盘到文件
+// SaveDashboard 保存仪表盘到文件.
 func (e *Engine) SaveDashboard(id string) error {
 	e.mu.RLock()
 	dash, ok := e.dashboards[id]
@@ -505,7 +505,7 @@ func (e *Engine) SaveDashboard(id string) error {
 	return os.WriteFile(path, data, 0644)
 }
 
-// LoadDashboard 从文件加载仪表盘
+// LoadDashboard 从文件加载仪表盘.
 func (e *Engine) LoadDashboard(path string) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -525,7 +525,7 @@ func (e *Engine) LoadDashboard(path string) error {
 
 // ========== 统计 ==========
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (e *Engine) GetStats() *DashboardStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -546,7 +546,7 @@ func (e *Engine) GetStats() *DashboardStats {
 	return stats
 }
 
-// GetLayouts 获取所有布局模板
+// GetLayouts 获取所有布局模板.
 func (e *Engine) GetLayouts() []*DashboardLayout {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -558,7 +558,7 @@ func (e *Engine) GetLayouts() []*DashboardLayout {
 	return result
 }
 
-// Close 关闭引擎
+// Close 关闭引擎.
 func (e *Engine) Close() error {
 	e.cancel()
 	return nil

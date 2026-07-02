@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Router 路由管理器
+// Router 路由管理器.
 type Router struct {
 	mu        sync.RWMutex
 	routes    map[string]*RouteRule
@@ -16,7 +16,7 @@ type Router struct {
 	domainApp map[string]string // domain -> appID
 }
 
-// NewRouter 创建路由管理器
+// NewRouter 创建路由管理器.
 func NewRouter() *Router {
 	return &Router{
 		routes:    make(map[string]*RouteRule),
@@ -25,7 +25,7 @@ func NewRouter() *Router {
 	}
 }
 
-// AddRoute 添加路由规则
+// AddRoute 添加路由规则.
 func (r *Router) AddRoute(rule *RouteRule) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -58,7 +58,7 @@ func (r *Router) AddRoute(rule *RouteRule) error {
 	return nil
 }
 
-// RemoveRoute 移除路由规则
+// RemoveRoute 移除路由规则.
 func (r *Router) RemoveRoute(id string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -72,7 +72,7 @@ func (r *Router) RemoveRoute(id string) error {
 	return nil
 }
 
-// UpdateRoute 更新路由规则
+// UpdateRoute 更新路由规则.
 func (r *Router) UpdateRoute(id string, updates *RouteRule) (*RouteRule, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -104,7 +104,7 @@ func (r *Router) UpdateRoute(id string, updates *RouteRule) (*RouteRule, error) 
 	return route, nil
 }
 
-// GetRoute 获取路由规则
+// GetRoute 获取路由规则.
 func (r *Router) GetRoute(id string) (*RouteRule, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -116,7 +116,7 @@ func (r *Router) GetRoute(id string) (*RouteRule, error) {
 	return route, nil
 }
 
-// ListRoutes 列出所有路由规则
+// ListRoutes 列出所有路由规则.
 func (r *Router) ListRoutes() []*RouteRule {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -136,7 +136,7 @@ func (r *Router) ListRoutes() []*RouteRule {
 	return routes
 }
 
-// ListRoutesByApp 列出应用的路由规则
+// ListRoutesByApp 列出应用的路由规则.
 func (r *Router) ListRoutesByApp(appID string) []*RouteRule {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -155,7 +155,7 @@ func (r *Router) ListRoutesByApp(appID string) []*RouteRule {
 	return routes
 }
 
-// MatchRoute 匹配路由
+// MatchRoute 匹配路由.
 func (r *Router) MatchRoute(domain, path string) (*RouteRule, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -180,7 +180,7 @@ func (r *Router) MatchRoute(domain, path string) (*RouteRule, error) {
 	return matches[0], nil
 }
 
-// matchPath 匹配路径
+// matchPath 匹配路径.
 func matchPath(routePath, requestPath string) bool {
 	if routePath == "/" {
 		return true
@@ -195,7 +195,7 @@ func matchPath(routePath, requestPath string) bool {
 	return false
 }
 
-// AddDomain 添加域名配置
+// AddDomain 添加域名配置.
 func (r *Router) AddDomain(config *DomainConfig) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -220,7 +220,7 @@ func (r *Router) AddDomain(config *DomainConfig) error {
 	return nil
 }
 
-// RemoveDomain 移除域名配置
+// RemoveDomain 移除域名配置.
 func (r *Router) RemoveDomain(domain string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -243,7 +243,7 @@ func (r *Router) RemoveDomain(domain string) error {
 	return nil
 }
 
-// UpdateDomain 更新域名配置
+// UpdateDomain 更新域名配置.
 func (r *Router) UpdateDomain(domain string, updates *DomainConfig) (*DomainConfig, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -270,7 +270,7 @@ func (r *Router) UpdateDomain(domain string, updates *DomainConfig) (*DomainConf
 	return config, nil
 }
 
-// GetDomain 获取域名配置
+// GetDomain 获取域名配置.
 func (r *Router) GetDomain(domain string) (*DomainConfig, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -282,7 +282,7 @@ func (r *Router) GetDomain(domain string) (*DomainConfig, error) {
 	return config, nil
 }
 
-// ListDomains 列出所有域名配置
+// ListDomains 列出所有域名配置.
 func (r *Router) ListDomains() []*DomainConfig {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -299,7 +299,7 @@ func (r *Router) ListDomains() []*DomainConfig {
 	return domains
 }
 
-// GetAppByDomain 根据域名获取应用 ID
+// GetAppByDomain 根据域名获取应用 ID.
 func (r *Router) GetAppByDomain(domain string) (string, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -311,7 +311,7 @@ func (r *Router) GetAppByDomain(domain string) (string, error) {
 	return appID, nil
 }
 
-// RemoveAppRoutes 移除应用的所有路由
+// RemoveAppRoutes 移除应用的所有路由.
 func (r *Router) RemoveAppRoutes(appID string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -330,14 +330,14 @@ func (r *Router) RemoveAppRoutes(appID string) {
 	}
 }
 
-// GetRouteCount 获取路由数量
+// GetRouteCount 获取路由数量.
 func (r *Router) GetRouteCount() int {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	return len(r.routes)
 }
 
-// GetDomainCount 获取域名数量
+// GetDomainCount 获取域名数量.
 func (r *Router) GetDomainCount() int {
 	r.mu.RLock()
 	defer r.mu.RUnlock()

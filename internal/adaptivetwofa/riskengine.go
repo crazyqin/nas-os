@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// RiskEngine 风险评估引擎
+// RiskEngine 风险评估引擎.
 type RiskEngine struct {
 	mu           sync.RWMutex
 	config       *AdaptiveConfig
@@ -13,7 +13,7 @@ type RiskEngine struct {
 	loginHistory map[string][]*LoginHistory // userID -> 历史记录
 }
 
-// NewRiskEngine 创建风险评估引擎
+// NewRiskEngine 创建风险评估引擎.
 func NewRiskEngine(config *AdaptiveConfig) *RiskEngine {
 	return &RiskEngine{
 		config:       config,
@@ -22,7 +22,7 @@ func NewRiskEngine(config *AdaptiveConfig) *RiskEngine {
 	}
 }
 
-// EvaluateRisk 评估登录风险
+// EvaluateRisk 评估登录风险.
 func (re *RiskEngine) EvaluateRisk(ctx *LoginContext, trustedDevice *TrustedDevice) *RiskScore {
 	re.mu.RLock()
 	defer re.mu.RUnlock()
@@ -78,7 +78,7 @@ func (re *RiskEngine) EvaluateRisk(ctx *LoginContext, trustedDevice *TrustedDevi
 	}
 }
 
-// evaluateIPRisk 评估IP风险
+// evaluateIPRisk 评估IP风险.
 func (re *RiskEngine) evaluateIPRisk(ctx *LoginContext, stats *UserLoginStats) RiskFactor {
 	factor := RiskFactor{
 		Name:   "ip_risk",
@@ -118,7 +118,7 @@ func (re *RiskEngine) evaluateIPRisk(ctx *LoginContext, stats *UserLoginStats) R
 	return factor
 }
 
-// evaluateDeviceRisk 评估设备风险
+// evaluateDeviceRisk 评估设备风险.
 func (re *RiskEngine) evaluateDeviceRisk(ctx *LoginContext, stats *UserLoginStats, trustedDevice *TrustedDevice) RiskFactor {
 	factor := RiskFactor{
 		Name:   "device_risk",
@@ -160,7 +160,7 @@ func (re *RiskEngine) evaluateDeviceRisk(ctx *LoginContext, stats *UserLoginStat
 	return factor
 }
 
-// evaluateTimeRisk 评估登录时间风险
+// evaluateTimeRisk 评估登录时间风险.
 func (re *RiskEngine) evaluateTimeRisk(ctx *LoginContext, stats *UserLoginStats) RiskFactor {
 	factor := RiskFactor{
 		Name:   "time_risk",
@@ -224,7 +224,7 @@ func (re *RiskEngine) evaluateTimeRisk(ctx *LoginContext, stats *UserLoginStats)
 	return factor
 }
 
-// evaluateGeoRisk 评估地理位置风险
+// evaluateGeoRisk 评估地理位置风险.
 func (re *RiskEngine) evaluateGeoRisk(ctx *LoginContext, stats *UserLoginStats) RiskFactor {
 	factor := RiskFactor{
 		Name:   "geo_risk",
@@ -282,7 +282,7 @@ func (re *RiskEngine) evaluateGeoRisk(ctx *LoginContext, stats *UserLoginStats) 
 	return factor
 }
 
-// evaluateRapidLoginRisk 评估短时间多次登录风险
+// evaluateRapidLoginRisk 评估短时间多次登录风险.
 func (re *RiskEngine) evaluateRapidLoginRisk(ctx *LoginContext, stats *UserLoginStats) RiskFactor {
 	factor := RiskFactor{
 		Name:   "rapid_login_risk",
@@ -320,7 +320,7 @@ func (re *RiskEngine) evaluateRapidLoginRisk(ctx *LoginContext, stats *UserLogin
 	return factor
 }
 
-// getRiskLevel 根据分数确定风险等级
+// getRiskLevel 根据分数确定风险等级.
 func (re *RiskEngine) getRiskLevel(score int) RiskLevel {
 	switch {
 	case score < re.config.LowRiskThreshold:
@@ -334,7 +334,7 @@ func (re *RiskEngine) getRiskLevel(score int) RiskLevel {
 	}
 }
 
-// RecordLogin 记录登录历史
+// RecordLogin 记录登录历史.
 func (re *RiskEngine) RecordLogin(ctx *LoginContext, success bool, riskScore int) {
 	re.mu.Lock()
 	defer re.mu.Unlock()
@@ -409,14 +409,14 @@ func (re *RiskEngine) RecordLogin(ctx *LoginContext, success bool, riskScore int
 	}
 }
 
-// GetUserStats 获取用户统计信息
+// GetUserStats 获取用户统计信息.
 func (re *RiskEngine) GetUserStats(userID string) *UserLoginStats {
 	re.mu.RLock()
 	defer re.mu.RUnlock()
 	return re.userStats[userID]
 }
 
-// GetLoginHistory 获取用户登录历史
+// GetLoginHistory 获取用户登录历史.
 func (re *RiskEngine) GetLoginHistory(userID string, limit int) []*LoginHistory {
 	re.mu.RLock()
 	defer re.mu.RUnlock()
@@ -437,7 +437,7 @@ func (re *RiskEngine) GetLoginHistory(userID string, limit int) []*LoginHistory 
 	return result
 }
 
-// calculateDistance 计算两点之间的距离 (Haversine公式, 单位: km)
+// calculateDistance 计算两点之间的距离 (Haversine公式, 单位: km).
 func calculateDistance(lat1, lon1, lat2, lon2 float64) float64 {
 	const earthRadius = 6371.0 // 地球半径 (km)
 
@@ -456,7 +456,7 @@ func calculateDistance(lat1, lon1, lat2, lon2 float64) float64 {
 	return earthRadius * c
 }
 
-// sin 正弦函数 (使用math包的近似实现，避免依赖)
+// sin 正弦函数 (使用math包的近似实现，避免依赖).
 func sin(x float64) float64 {
 	// Taylor级数展开
 	x = normalizeAngle(x)
@@ -469,12 +469,12 @@ func sin(x float64) float64 {
 	return result
 }
 
-// cos 余弦函数
+// cos 余弦函数.
 func cos(x float64) float64 {
 	return sin(x + 3.141592653589793/2)
 }
 
-// sqrt 平方根 (使用Newton法)
+// sqrt 平方根 (使用Newton法).
 func sqrt(x float64) float64 {
 	if x < 0 {
 		return 0
@@ -490,7 +490,7 @@ func sqrt(x float64) float64 {
 	return z
 }
 
-// atan2 反正切2
+// atan2 反正切2.
 func atan2(y, x float64) float64 {
 	if x > 0 {
 		return atan(y / x)
@@ -510,7 +510,7 @@ func atan2(y, x float64) float64 {
 	return 0
 }
 
-// atan 反正切 (使用Taylor级数)
+// atan 反正切 (使用Taylor级数).
 func atan(x float64) float64 {
 	if x > 1 || x < -1 {
 		return sign(x)*3.141592653589793/2 - atan(1/x)
@@ -525,7 +525,7 @@ func atan(x float64) float64 {
 	return result
 }
 
-// sign 符号函数
+// sign 符号函数.
 func sign(x float64) float64 {
 	if x > 0 {
 		return 1
@@ -536,7 +536,7 @@ func sign(x float64) float64 {
 	return 0
 }
 
-// normalizeAngle 角度归一化到 [-π, π]
+// normalizeAngle 角度归一化到 [-π, π].
 func normalizeAngle(x float64) float64 {
 	pi := 3.141592653589793
 	for x > pi {

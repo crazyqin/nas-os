@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// QuotaType 配额类型
+// QuotaType 配额类型.
 type QuotaType string
 
 const (
@@ -19,7 +19,7 @@ const (
 	QuotaTypeShare QuotaType = "share" // 共享文件夹配额
 )
 
-// QuotaStatus 配额状态
+// QuotaStatus 配额状态.
 type QuotaStatus string
 
 const (
@@ -29,7 +29,7 @@ const (
 	StatusExceeded QuotaStatus = "exceeded" // 超出
 )
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 const (
@@ -38,7 +38,7 @@ const (
 	AlertLevelCritical AlertLevel = "critical"
 )
 
-// Quota 配额定义
+// Quota 配额定义.
 type Quota struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -58,7 +58,7 @@ type Quota struct {
 	TenantID    string      `json:"tenant_id"`
 }
 
-// QuotaAlert 配额告警
+// QuotaAlert 配额告警.
 type QuotaAlert struct {
 	ID        string     `json:"id"`
 	QuotaID   string     `json:"quota_id"`
@@ -72,7 +72,7 @@ type QuotaAlert struct {
 	AckedAt   *time.Time `json:"acked_at,omitempty"`
 }
 
-// QuotaStats 配额统计
+// QuotaStats 配额统计.
 type QuotaStats struct {
 	TotalQuotas   int            `json:"total_quotas"`
 	ActiveQuotas  int            `json:"active_quotas"`
@@ -84,7 +84,7 @@ type QuotaStats struct {
 	ByStatus      map[string]int `json:"by_status"`
 }
 
-// Manager 智能配额管理器
+// Manager 智能配额管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	quotas      map[string]*Quota
@@ -92,7 +92,7 @@ type Manager struct {
 	storagePath string
 }
 
-// NewManager 创建配额管理器
+// NewManager 创建配额管理器.
 func NewManager(storagePath string) *Manager {
 	return &Manager{
 		quotas:      make(map[string]*Quota),
@@ -101,7 +101,7 @@ func NewManager(storagePath string) *Manager {
 	}
 }
 
-// CreateQuota 创建配额
+// CreateQuota 创建配额.
 func (m *Manager) CreateQuota(ctx context.Context, quota Quota) (*Quota, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -124,7 +124,7 @@ func (m *Manager) CreateQuota(ctx context.Context, quota Quota) (*Quota, error) 
 	return &quota, nil
 }
 
-// GetQuota 获取配额
+// GetQuota 获取配额.
 func (m *Manager) GetQuota(ctx context.Context, quotaID string) (*Quota, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -136,7 +136,7 @@ func (m *Manager) GetQuota(ctx context.Context, quotaID string) (*Quota, error) 
 	return quota, nil
 }
 
-// ListQuotas 列出配额
+// ListQuotas 列出配额.
 func (m *Manager) ListQuotas(ctx context.Context, quotaType QuotaType, tenantID string) ([]*Quota, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -154,7 +154,7 @@ func (m *Manager) ListQuotas(ctx context.Context, quotaType QuotaType, tenantID 
 	return result, nil
 }
 
-// UpdateUsage 更新使用量
+// UpdateUsage 更新使用量.
 func (m *Manager) UpdateUsage(ctx context.Context, quotaID string, usedBytes, usedFiles int64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -199,7 +199,7 @@ func (m *Manager) addAlert(quota *Quota, level AlertLevel, message string, perce
 	m.alerts = append(m.alerts, alert)
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (m *Manager) GetAlerts(ctx context.Context, unackedOnly bool) []*QuotaAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -214,7 +214,7 @@ func (m *Manager) GetAlerts(ctx context.Context, unackedOnly bool) []*QuotaAlert
 	return result
 }
 
-// AckAlert 确认告警
+// AckAlert 确认告警.
 func (m *Manager) AckAlert(ctx context.Context, alertID, ackedBy string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -231,7 +231,7 @@ func (m *Manager) AckAlert(ctx context.Context, alertID, ackedBy string) error {
 	return fmt.Errorf("告警不存在: %s", alertID)
 }
 
-// DeleteQuota 删除配额
+// DeleteQuota 删除配额.
 func (m *Manager) DeleteQuota(ctx context.Context, quotaID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -244,7 +244,7 @@ func (m *Manager) DeleteQuota(ctx context.Context, quotaID string) error {
 	return nil
 }
 
-// GetStats 获取配额统计
+// GetStats 获取配额统计.
 func (m *Manager) GetStats(ctx context.Context, tenantID string) (*QuotaStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

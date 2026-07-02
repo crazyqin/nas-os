@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-// TagStats provides tag usage statistics and trend analysis
+// TagStats provides tag usage statistics and trend analysis.
 type TagStats struct {
 	manager *TagManager
 	tagger  *FileTagger
 }
 
-// NewTagStats creates a new TagStats instance
+// NewTagStats creates a new TagStats instance.
 func NewTagStats(manager *TagManager, tagger *FileTagger) *TagStats {
 	s := &TagStats{
 		manager: manager,
@@ -23,7 +23,7 @@ func NewTagStats(manager *TagManager, tagger *FileTagger) *TagStats {
 	return s
 }
 
-// GetTopTags returns the most used tags
+// GetTopTags returns the most used tags.
 func (s *TagStats) GetTopTags(limit int) []*TagStatsResult {
 	tags := s.manager.ListTags("")
 
@@ -55,7 +55,7 @@ func (s *TagStats) GetTopTags(limit int) []*TagStatsResult {
 	return results
 }
 
-// GetCategoryStats returns statistics for each category
+// GetCategoryStats returns statistics for each category.
 func (s *TagStats) GetCategoryStats() map[string]*CategoryStats {
 	categories := s.manager.ListCategories("")
 	result := make(map[string]*CategoryStats)
@@ -82,7 +82,7 @@ func (s *TagStats) GetCategoryStats() map[string]*CategoryStats {
 	return result
 }
 
-// CategoryStats represents statistics for a category
+// CategoryStats represents statistics for a category.
 type CategoryStats struct {
 	CategoryID   string `json:"categoryId"`   // 分类ID
 	CategoryName string `json:"categoryName"` // 分类名称
@@ -92,7 +92,7 @@ type CategoryStats struct {
 	TotalUsage   int64  `json:"totalUsage"`   // 总使用次数
 }
 
-// GetTagTrend returns usage trend data for a tag over a period
+// GetTagTrend returns usage trend data for a tag over a period.
 func (s *TagStats) GetTagTrend(tagID string, days int) []*TagTrendPoint {
 	if days <= 0 {
 		days = 30
@@ -134,7 +134,7 @@ func (s *TagStats) GetTagTrend(tagID string, days int) []*TagTrendPoint {
 	return points
 }
 
-// GetTrendingTags returns tags with increasing usage trends
+// GetTrendingTags returns tags with increasing usage trends.
 func (s *TagStats) GetTrendingTags(days int, limit int) []*TagStatsResult {
 	tags := s.manager.ListTags("")
 	var trending []*TagStatsResult
@@ -171,7 +171,7 @@ func (s *TagStats) GetTrendingTags(days int, limit int) []*TagStatsResult {
 	return trending[:limit]
 }
 
-// GetUnusedTags returns tags that have no associated files
+// GetUnusedTags returns tags that have no associated files.
 func (s *TagStats) GetUnusedTags() []*Tag {
 	tags := s.manager.ListTags("")
 	var unused []*Tag
@@ -185,7 +185,7 @@ func (s *TagStats) GetUnusedTags() []*Tag {
 	return unused
 }
 
-// GetTagSummary returns a summary of all tag statistics
+// GetTagSummary returns a summary of all tag statistics.
 func (s *TagStats) GetTagSummary() *TagSummary {
 	tags := s.manager.ListTags("")
 	categories := s.manager.ListCategories("")
@@ -204,15 +204,15 @@ func (s *TagStats) GetTagSummary() *TagSummary {
 	}
 
 	return &TagSummary{
-		TotalTags:      int64(len(tags)),
-		ActiveTags:     activeTags,
+		TotalTags:       int64(len(tags)),
+		ActiveTags:      activeTags,
 		TotalCategories: int64(len(categories)),
-		TotalFiles:     totalFiles,
-		TotalUsage:     totalUsage,
+		TotalFiles:      totalFiles,
+		TotalUsage:      totalUsage,
 	}
 }
 
-// TagSummary represents overall tag system summary
+// TagSummary represents overall tag system summary.
 type TagSummary struct {
 	TotalTags       int64 `json:"totalTags"`       // 总标签数
 	ActiveTags      int64 `json:"activeTags"`      // 活跃标签数（有关联文件）
@@ -221,7 +221,7 @@ type TagSummary struct {
 	TotalUsage      int64 `json:"totalUsage"`      // 总使用次数
 }
 
-// calculateTrendScore calculates a trend score based on recent activity
+// calculateTrendScore calculates a trend score based on recent activity.
 func (s *TagStats) calculateTrendScore(tag *Tag) float64 {
 	files := s.tagger.GetTagFiles(tag.ID)
 	if len(files) == 0 {
@@ -230,7 +230,7 @@ func (s *TagStats) calculateTrendScore(tag *Tag) float64 {
 
 	now := time.Now()
 	recentWindow := 7 * 24 * time.Hour // 7 days
-	oldWindow := 30 * 24 * time.Hour    // 30 days
+	oldWindow := 30 * 24 * time.Hour   // 30 days
 
 	var recentCount, oldCount int64
 	for _, ft := range files {
@@ -254,7 +254,7 @@ func (s *TagStats) calculateTrendScore(tag *Tag) float64 {
 	return math.Min(score, 100.0)
 }
 
-// GetTagUsageByCategory returns tag usage grouped by category
+// GetTagUsageByCategory returns tag usage grouped by category.
 func (s *TagStats) GetTagUsageByCategory() map[string]int64 {
 	tags := s.manager.ListTags("")
 	result := make(map[string]int64)

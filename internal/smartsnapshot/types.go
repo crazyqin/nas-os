@@ -4,7 +4,7 @@ package smartsnapshot
 
 import "time"
 
-// SnapshotStatus 快照状态
+// SnapshotStatus 快照状态.
 type SnapshotStatus string
 
 const (
@@ -15,7 +15,7 @@ const (
 	StatusError    SnapshotStatus = "error"
 )
 
-// SnapshotType 快照类型
+// SnapshotType 快照类型.
 type SnapshotType string
 
 const (
@@ -24,7 +24,7 @@ const (
 	TypeDifferential SnapshotType = "differential"
 )
 
-// SnapshotPolicyType 策略类型
+// SnapshotPolicyType 策略类型.
 type SnapshotPolicyType string
 
 const (
@@ -33,7 +33,7 @@ const (
 	PolicyEvent    SnapshotPolicyType = "event"
 )
 
-// Snapshot 快照
+// Snapshot 快照.
 type Snapshot struct {
 	ID            string         `json:"id"`
 	Name          string         `json:"name"`
@@ -52,7 +52,7 @@ type Snapshot struct {
 	RetentionDays int            `json:"retentionDays"`
 }
 
-// SnapshotPolicy 快照策略
+// SnapshotPolicy 快照策略.
 type SnapshotPolicy struct {
 	ID           string             `json:"id"`
 	Name         string             `json:"name"`
@@ -69,7 +69,7 @@ type SnapshotPolicy struct {
 	NextRun      time.Time          `json:"nextRun"`
 }
 
-// RetentionPolicy 保留策略
+// RetentionPolicy 保留策略.
 type RetentionPolicy struct {
 	MaxSnapshots int `json:"maxSnapshots"`
 	MaxAgeDays   int `json:"maxAgeDays"`
@@ -79,7 +79,7 @@ type RetentionPolicy struct {
 	KeepYearly   int `json:"keepYearly"`
 }
 
-// CloneInfo 克隆信息
+// CloneInfo 克隆信息.
 type CloneInfo struct {
 	ID        string    `json:"id"`
 	SourceID  string    `json:"sourceId"`
@@ -89,7 +89,7 @@ type CloneInfo struct {
 	SizeBytes int64     `json:"sizeBytes"`
 }
 
-// SnapshotStats 快照统计
+// SnapshotStats 快照统计.
 type SnapshotStats struct {
 	TotalSnapshots   int       `json:"totalSnapshots"`
 	TotalSizeBytes   int64     `json:"totalSizeBytes"`
@@ -100,7 +100,7 @@ type SnapshotStats struct {
 	OldestSnapshot   time.Time `json:"oldestSnapshot"`
 }
 
-// CreateSnapshotRequest 创建快照请求
+// CreateSnapshotRequest 创建快照请求.
 type CreateSnapshotRequest struct {
 	Name        string       `json:"name" binding:"required"`
 	DatasetPath string       `json:"datasetPath" binding:"required"`
@@ -111,13 +111,13 @@ type CreateSnapshotRequest struct {
 	Protected   bool         `json:"protected"`
 }
 
-// RollbackRequest 回滚请求
+// RollbackRequest 回滚请求.
 type RollbackRequest struct {
 	SnapshotID string `json:"snapshotId" binding:"required"`
 	Force      bool   `json:"force"`
 }
 
-// Response API 响应
+// Response API 响应.
 type Response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`

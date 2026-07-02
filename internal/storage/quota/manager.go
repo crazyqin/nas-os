@@ -17,21 +17,21 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	// ErrRuleNotFound 配额规则不存在
+	// ErrRuleNotFound 配额规则不存在.
 	ErrRuleNotFound = errors.New("配额规则不存在")
-	// ErrRuleExists 配额规则已存在
+	// ErrRuleExists 配额规则已存在.
 	ErrRuleExists = errors.New("配额规则已存在")
-	// ErrQuotaExceeded 超出配额限制
+	// ErrQuotaExceeded 超出配额限制.
 	ErrQuotaExceeded = errors.New("超出配额限制")
-	// ErrInvalidTarget 无效目标
+	// ErrInvalidTarget 无效目标.
 	ErrInvalidTarget = errors.New("无效的配额目标")
-	// ErrInvalidMaxBytes 无效容量限制
+	// ErrInvalidMaxBytes 无效容量限制.
 	ErrInvalidMaxBytes = errors.New("无效的容量限制")
 )
 
 // ========== 存储接口 ==========
 
-// StorageProvider 存储信息提供者接口
+// StorageProvider 存储信息提供者接口.
 type StorageProvider interface {
 	// GetVolumeUsage 获取卷使用情况
 	GetVolumeUsage(volumeName string) (total, used, free int64, err error)
@@ -41,20 +41,20 @@ type StorageProvider interface {
 	GetGroupUsage(groupName, volumeName string) (used int64, err error)
 }
 
-// UserProvider 用户信息提供者接口
+// UserProvider 用户信息提供者接口.
 type UserProvider interface {
 	UserExists(username string) bool
 	GroupExists(groupName string) bool
 }
 
-// Notifier 通知发送接口
+// Notifier 通知发送接口.
 type Notifier interface {
 	SendAlert(alert *Alert, config *NotificationConfig) error
 }
 
 // ========== Manager 配额管理器 ==========
 
-// Manager 配额管理器
+// Manager 配额管理器.
 type Manager struct {
 	mu             sync.RWMutex
 	rules          map[string]*QuotaRule // ruleID -> QuotaRule
@@ -71,7 +71,7 @@ type Manager struct {
 	forecastConfig ForecastConfig
 }
 
-// NewManager 创建配额管理器
+// NewManager 创建配额管理器.
 func NewManager(configPath string, storage StorageProvider, user UserProvider) (*Manager, error) {
 	m := &Manager{
 		rules:          make(map[string]*QuotaRule),
@@ -102,14 +102,14 @@ func NewManager(configPath string, storage StorageProvider, user UserProvider) (
 	return m, nil
 }
 
-// SetNotifier 设置通知器
+// SetNotifier 设置通知器.
 func (m *Manager) SetNotifier(n Notifier) {
 	m.mu.Lock()
 	m.notifier = n
 	m.mu.Unlock()
 }
 
-// SetNotifyConfig 设置通知配置
+// SetNotifyConfig 设置通知配置.
 func (m *Manager) SetNotifyConfig(config NotificationConfig) {
 	m.mu.Lock()
 	m.notifyConfig = config
@@ -118,7 +118,7 @@ func (m *Manager) SetNotifyConfig(config NotificationConfig) {
 
 // ========== 配额规则管理 ==========
 
-// CreateRule 创建配额规则
+// CreateRule 创建配额规则.
 func (m *Manager) CreateRule(input QuotaRuleInput) (*QuotaRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -179,7 +179,7 @@ func (m *Manager) CreateRule(input QuotaRuleInput) (*QuotaRule, error) {
 	return rule, nil
 }
 
-// GetRule 获取配额规则
+// GetRule 获取配额规则.
 func (m *Manager) GetRule(id string) (*QuotaRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -191,7 +191,7 @@ func (m *Manager) GetRule(id string) (*QuotaRule, error) {
 	return rule, nil
 }
 
-// ListRules 列出所有配额规则
+// ListRules 列出所有配额规则.
 func (m *Manager) ListRules() []*QuotaRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -203,7 +203,7 @@ func (m *Manager) ListRules() []*QuotaRule {
 	return result
 }
 
-// UpdateRule 更新配额规则
+// UpdateRule 更新配额规则.
 func (m *Manager) UpdateRule(id string, input QuotaRuleInput) (*QuotaRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -232,7 +232,7 @@ func (m *Manager) UpdateRule(id string, input QuotaRuleInput) (*QuotaRule, error
 	return rule, nil
 }
 
-// DeleteRule 删除配额规则
+// DeleteRule 删除配额规则.
 func (m *Manager) DeleteRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -248,7 +248,7 @@ func (m *Manager) DeleteRule(id string) error {
 
 // ========== 配额使用查询 ==========
 
-// GetUsage 获取配额使用情况
+// GetUsage 获取配额使用情况.
 func (m *Manager) GetUsage(ruleID string) (*QuotaUsage, error) {
 	m.mu.RLock()
 	rule, exists := m.rules[ruleID]
@@ -261,7 +261,7 @@ func (m *Manager) GetUsage(ruleID string) (*QuotaUsage, error) {
 	return m.calculateUsage(rule)
 }
 
-// GetAllUsage 获取所有配额使用情况
+// GetAllUsage 获取所有配额使用情况.
 func (m *Manager) GetAllUsage() []*QuotaUsage {
 	m.mu.RLock()
 	rules := make([]*QuotaRule, 0, len(m.rules))
@@ -281,7 +281,7 @@ func (m *Manager) GetAllUsage() []*QuotaUsage {
 	return result
 }
 
-// calculateUsage 计算配额使用情况
+// calculateUsage 计算配额使用情况.
 func (m *Manager) calculateUsage(rule *QuotaRule) (*QuotaUsage, error) {
 	usage := &QuotaUsage{
 		RuleID:   rule.ID,
@@ -313,7 +313,7 @@ func (m *Manager) calculateUsage(rule *QuotaRule) (*QuotaUsage, error) {
 	return usage, nil
 }
 
-// getTargetUsage 获取目标使用量
+// getTargetUsage 获取目标使用量.
 func (m *Manager) getTargetUsage(rule *QuotaRule) (int64, error) {
 	if m.storageProv == nil {
 		return 0, errors.New("存储提供者未设置")
@@ -334,14 +334,14 @@ func (m *Manager) getTargetUsage(rule *QuotaRule) (int64, error) {
 
 // ========== 容量预测 ==========
 
-// GetPredictor 获取预测器
+// GetPredictor 获取预测器.
 func (m *Manager) GetPredictor() *Predictor {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.predictor
 }
 
-// SetForecastConfig 设置预测配置
+// SetForecastConfig 设置预测配置.
 func (m *Manager) SetForecastConfig(config ForecastConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -350,14 +350,14 @@ func (m *Manager) SetForecastConfig(config ForecastConfig) {
 	m.predictor.SetConfig(config)
 }
 
-// GetForecastConfig 获取预测配置
+// GetForecastConfig 获取预测配置.
 func (m *Manager) GetForecastConfig() ForecastConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.forecastConfig
 }
 
-// PredictUsage 预测配额使用趋势
+// PredictUsage 预测配额使用趋势.
 func (m *Manager) PredictUsage(ruleID string) (*PredictionResult, error) {
 	m.mu.RLock()
 	rule, exists := m.rules[ruleID]
@@ -379,7 +379,7 @@ func (m *Manager) PredictUsage(ruleID string) (*PredictionResult, error) {
 	return m.predictor.Predict(rule.ID, rule.TargetID, rule.MaxBytes)
 }
 
-// PredictAllUsage 预测所有配额使用趋势
+// PredictAllUsage 预测所有配额使用趋势.
 func (m *Manager) PredictAllUsage() []*PredictionResult {
 	m.mu.RLock()
 	rules := make([]*QuotaRule, 0, len(m.rules))
@@ -411,21 +411,21 @@ func (m *Manager) PredictAllUsage() []*PredictionResult {
 	return results
 }
 
-// GetUsageHistory 获取使用历史
+// GetUsageHistory 获取使用历史.
 func (m *Manager) GetUsageHistory(targetID string) []UsageHistory {
 	return m.predictor.GetHistory(targetID)
 }
 
 // ========== 告警规则管理 ==========
 
-// GetAlertRuleManager 获取告警规则管理器
+// GetAlertRuleManager 获取告警规则管理器.
 func (m *Manager) GetAlertRuleManager() *AlertRuleManager {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.alertRuleMgr
 }
 
-// CheckAlertRules 检查告警规则
+// CheckAlertRules 检查告警规则.
 func (m *Manager) CheckAlertRules(targetType, targetID string, currentPercent float64) []*AlertRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -439,7 +439,7 @@ func (m *Manager) CheckAlertRules(targetType, targetID string, currentPercent fl
 
 // ========== 告警管理 ==========
 
-// CheckAndAlert 检查并生成告警
+// CheckAndAlert 检查并生成告警.
 func (m *Manager) CheckAndAlert() []*Alert {
 	m.mu.RLock()
 	rules := make([]*QuotaRule, 0, len(m.rules))
@@ -472,7 +472,7 @@ func (m *Manager) CheckAndAlert() []*Alert {
 	return newAlerts
 }
 
-// CheckAndAlertWithRules 使用告警规则进行检查
+// CheckAndAlertWithRules 使用告警规则进行检查.
 func (m *Manager) CheckAndAlertWithRules() []*Alert {
 	m.mu.RLock()
 	rules := make([]*QuotaRule, 0, len(m.rules))
@@ -525,7 +525,7 @@ func (m *Manager) CheckAndAlertWithRules() []*Alert {
 	return newAlerts
 }
 
-// createAlertFromRule 根据告警规则创建告警
+// createAlertFromRule 根据告警规则创建告警.
 func (m *Manager) createAlertFromRule(rule *QuotaRule, usage *QuotaUsage, alertRule *AlertRule) *Alert {
 	// 找到触发的最高阈值
 	triggeredThreshold := 0
@@ -549,7 +549,7 @@ func (m *Manager) createAlertFromRule(rule *QuotaRule, usage *QuotaUsage, alertR
 	}
 }
 
-// evaluateUsage 评估使用情况并生成告警
+// evaluateUsage 评估使用情况并生成告警.
 func (m *Manager) evaluateUsage(rule *QuotaRule, usage *QuotaUsage) *Alert {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -598,7 +598,7 @@ func (m *Manager) evaluateUsage(rule *QuotaRule, usage *QuotaUsage) *Alert {
 	return alert
 }
 
-// addAlert 添加告警
+// addAlert 添加告警.
 func (m *Manager) addAlert(alert *Alert) {
 	m.mu.Lock()
 	m.alerts[alert.ID] = alert
@@ -610,7 +610,7 @@ func (m *Manager) addAlert(alert *Alert) {
 	}
 }
 
-// GetAlerts 获取活跃告警
+// GetAlerts 获取活跃告警.
 func (m *Manager) GetAlerts() []*Alert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -624,7 +624,7 @@ func (m *Manager) GetAlerts() []*Alert {
 	return result
 }
 
-// GetAlertHistory 获取告警历史
+// GetAlertHistory 获取告警历史.
 func (m *Manager) GetAlertHistory(limit int) []*Alert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -638,7 +638,7 @@ func (m *Manager) GetAlertHistory(limit int) []*Alert {
 	return result
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (m *Manager) ResolveAlert(alertID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -658,7 +658,7 @@ func (m *Manager) ResolveAlert(alertID string) error {
 
 // ========== 配额检查 ==========
 
-// CheckQuota 检查是否允许写入
+// CheckQuota 检查是否允许写入.
 func (m *Manager) CheckQuota(targetType, targetID string, additionalBytes int64) error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -778,7 +778,7 @@ func generateID() string {
 	return hex.EncodeToString(b)[:16]
 }
 
-// GetDirSize 获取目录大小（辅助函数）
+// GetDirSize 获取目录大小（辅助函数）.
 func GetDirSize(path string) (int64, error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return 0, nil
@@ -795,7 +795,7 @@ func GetDirSize(path string) (int64, error) {
 	return size, nil
 }
 
-// FormatBytes 格式化字节大小
+// FormatBytes 格式化字节大小.
 func FormatBytes(bytes int64) string {
 	const unit = 1024
 	if bytes < unit {

@@ -413,20 +413,20 @@ func TestGenerateID(t *testing.T) {
 
 func TestShareLink_Fields(t *testing.T) {
 	link := ShareLink{
-		ID:           "test123",
-		Name:         "test.pdf",
-		FilePath:     "/data/test.pdf",
-		FileSize:     1024,
-		FileType:     "pdf",
-		ShareURL:     "https://share.example.com/s/test123",
-		HasPassword:  true,
-		MaxDownloads: 5,
+		ID:            "test123",
+		Name:          "test.pdf",
+		FilePath:      "/data/test.pdf",
+		FileSize:      1024,
+		FileType:      "pdf",
+		ShareURL:      "https://share.example.com/s/test123",
+		HasPassword:   true,
+		MaxDownloads:  5,
 		DownloadCount: 2,
-		ExpiresAt:    time.Now().Add(24 * time.Hour),
-		CreatedAt:    time.Now(),
-		CreatedBy:    "user1",
-		Enabled:      true,
-		Note:         "测试",
+		ExpiresAt:     time.Now().Add(24 * time.Hour),
+		CreatedAt:     time.Now(),
+		CreatedBy:     "user1",
+		Enabled:       true,
+		Note:          "测试",
 	}
 
 	if link.ID != "test123" {

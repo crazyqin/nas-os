@@ -10,17 +10,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 诊断HTTP处理器
+// Handlers 诊断HTTP处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建诊断处理器
+// NewHandlers 创建诊断处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{manager: mgr}
 }
 
-// RegisterRoutes 注册诊断路由
+// RegisterRoutes 注册诊断路由.
 func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
 	diag := apiGroup.Group("/diagnostics")
 	{
@@ -50,7 +50,7 @@ func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
 // @Produce json
 // @Success 200 {object} api.Response{data=DiagnosticReport}
 // @Failure 500 {object} api.Response
-// @Router /diagnostics/run [post]
+// @Router /diagnostics/run [post].
 func (h *Handlers) runDiagnostic(c *gin.Context) {
 	report, err := h.manager.RunDiagnostic()
 	if err != nil {
@@ -67,7 +67,7 @@ func (h *Handlers) runDiagnostic(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} api.Response{data=DiagnosticReport}
 // @Failure 404 {object} api.Response
-// @Router /diagnostics/latest [get]
+// @Router /diagnostics/latest [get].
 func (h *Handlers) getLatestReport(c *gin.Context) {
 	report := h.manager.GetLatestReport()
 	if report == nil {
@@ -84,7 +84,7 @@ func (h *Handlers) getLatestReport(c *gin.Context) {
 // @Produce json
 // @Param limit query int false "返回数量" default(10)
 // @Success 200 {object} api.Response{data=[]DiagnosticReport}
-// @Router /diagnostics/history [get]
+// @Router /diagnostics/history [get].
 func (h *Handlers) getHistory(c *gin.Context) {
 	limit := 10
 	if l, err := strconv.Atoi(c.Query("limit")); err == nil && l > 0 {
@@ -102,7 +102,7 @@ func (h *Handlers) getHistory(c *gin.Context) {
 // @Produce json
 // @Param hours query int false "时间范围(小时)" default(24)
 // @Success 200 {object} api.Response{data=[]TrendPoint}
-// @Router /diagnostics/trend [get]
+// @Router /diagnostics/trend [get].
 func (h *Handlers) getTrend(c *gin.Context) {
 	hours := 24
 	if h, err := strconv.Atoi(c.Query("hours")); err == nil && h > 0 {
@@ -119,7 +119,7 @@ func (h *Handlers) getTrend(c *gin.Context) {
 // @Tags diagnostics
 // @Produce json
 // @Success 200 {object} api.Response{data=CPUDiag}
-// @Router /diagnostics/cpu [get]
+// @Router /diagnostics/cpu [get].
 func (h *Handlers) diagnoseCPU(c *gin.Context) {
 	report, err := h.manager.RunDiagnostic()
 	if err != nil {
@@ -135,7 +135,7 @@ func (h *Handlers) diagnoseCPU(c *gin.Context) {
 // @Tags diagnostics
 // @Produce json
 // @Success 200 {object} api.Response{data=MemoryDiag}
-// @Router /diagnostics/memory [get]
+// @Router /diagnostics/memory [get].
 func (h *Handlers) diagnoseMemory(c *gin.Context) {
 	report, err := h.manager.RunDiagnostic()
 	if err != nil {
@@ -151,7 +151,7 @@ func (h *Handlers) diagnoseMemory(c *gin.Context) {
 // @Tags diagnostics
 // @Produce json
 // @Success 200 {object} api.Response{data=DiskDiag}
-// @Router /diagnostics/disk [get]
+// @Router /diagnostics/disk [get].
 func (h *Handlers) diagnoseDisk(c *gin.Context) {
 	report, err := h.manager.RunDiagnostic()
 	if err != nil {
@@ -167,7 +167,7 @@ func (h *Handlers) diagnoseDisk(c *gin.Context) {
 // @Tags diagnostics
 // @Produce json
 // @Success 200 {object} api.Response{data=NetworkDiag}
-// @Router /diagnostics/network [get]
+// @Router /diagnostics/network [get].
 func (h *Handlers) diagnoseNetwork(c *gin.Context) {
 	report, err := h.manager.RunDiagnostic()
 	if err != nil {
@@ -183,7 +183,7 @@ func (h *Handlers) diagnoseNetwork(c *gin.Context) {
 // @Tags diagnostics
 // @Produce json
 // @Success 200 {object} api.Response
-// @Router /diagnostics/status [get]
+// @Router /diagnostics/status [get].
 func (h *Handlers) getSystemStatus(c *gin.Context) {
 	report := h.manager.GetLatestReport()
 	if report == nil {
@@ -229,14 +229,14 @@ func (h *Handlers) getSystemStatus(c *gin.Context) {
 	api.OK(c, status)
 }
 
-// APIResponse 用于Swagger文档的响应类型
+// APIResponse 用于Swagger文档的响应类型.
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
 }
 
-// HTTPStatusFromCode 根据业务码返回HTTP状态码
+// HTTPStatusFromCode 根据业务码返回HTTP状态码.
 func HTTPStatusFromCode(code int) int {
 	switch code {
 	case http.StatusOK:

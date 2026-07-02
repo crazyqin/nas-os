@@ -11,7 +11,7 @@ import (
 
 // ========== 内网穿透成本类型定义 ==========
 
-// TunnelProvider 穿透服务提供商
+// TunnelProvider 穿透服务提供商.
 type TunnelProvider string
 
 const (
@@ -23,7 +23,7 @@ const (
 	TunnelProviderTailscale  TunnelProvider = "tailscale"   // Tailscale
 )
 
-// TunnelCostModel 穿透成本模型
+// TunnelCostModel 穿透成本模型.
 type TunnelCostModel struct {
 	// 服务提供商
 	Provider TunnelProvider `json:"provider"`
@@ -94,7 +94,7 @@ type TunnelCostModel struct {
 	LastUpdated time.Time `json:"last_updated"`
 }
 
-// TunnelUsageStats 穿透使用统计
+// TunnelUsageStats 穿透使用统计.
 type TunnelUsageStats struct {
 	// 统计时间
 	CollectedAt time.Time `json:"collected_at"`
@@ -136,7 +136,7 @@ type TunnelUsageStats struct {
 	DisconnectCount int `json:"disconnect_count"`
 }
 
-// TunnelCostReport 穿透成本报告
+// TunnelCostReport 穿透成本报告.
 type TunnelCostReport struct {
 	// 报告ID
 	ID string `json:"id"`
@@ -169,7 +169,7 @@ type TunnelCostReport struct {
 	ROIAnalysis TunnelROIAnalysis `json:"roi_analysis"`
 }
 
-// TunnelCostBreakdown 穿透成本明细
+// TunnelCostBreakdown 穿透成本明细.
 type TunnelCostBreakdown struct {
 	// 带宽成本
 	BandwidthCost float64 `json:"bandwidth_cost"`
@@ -199,7 +199,7 @@ type TunnelCostBreakdown struct {
 	EffectiveCost float64 `json:"effective_cost"`
 }
 
-// TunnelCompetitorCost 竞品成本对比
+// TunnelCompetitorCost 竞品成本对比.
 type TunnelCompetitorCost struct {
 	// 提供商名称
 	ProviderName string `json:"provider_name"`
@@ -220,7 +220,7 @@ type TunnelCompetitorCost struct {
 	RecommendationScore int `json:"recommendation_score"`
 }
 
-// TunnelCostSuggestion 成本优化建议
+// TunnelCostSuggestion 成本优化建议.
 type TunnelCostSuggestion struct {
 	// 建议类型
 	Type string `json:"type"` // reduce_bandwidth, optimize_p2p, change_provider, self_host
@@ -238,7 +238,7 @@ type TunnelCostSuggestion struct {
 	Priority int `json:"priority"`
 }
 
-// TunnelROIAnalysis ROI分析
+// TunnelROIAnalysis ROI分析.
 type TunnelROIAnalysis struct {
 	// 自建vs使用第三方服务
 	SelfHostCost5Year float64 `json:"self_host_cost_5_year"`
@@ -258,7 +258,7 @@ type TunnelROIAnalysis struct {
 
 // ========== 内网穿透成本分析器 ==========
 
-// TunnelCostAnalyzer 穿透成本分析器
+// TunnelCostAnalyzer 穿透成本分析器.
 type TunnelCostAnalyzer struct {
 	mu     sync.RWMutex
 	models map[TunnelProvider]*TunnelCostModel
@@ -266,7 +266,7 @@ type TunnelCostAnalyzer struct {
 	config *TunnelCostConfig
 }
 
-// TunnelCostConfig 分析器配置
+// TunnelCostConfig 分析器配置.
 type TunnelCostConfig struct {
 	// 自建服务器成本（元/月）
 	SelfHostServerCost float64 `json:"self_host_server_cost"`
@@ -299,7 +299,7 @@ type TunnelCostConfig struct {
 	DomainCostPerYear float64 `json:"domain_cost_per_year"`
 }
 
-// DefaultTunnelCostConfig 默认配置
+// DefaultTunnelCostConfig 默认配置.
 func DefaultTunnelCostConfig() *TunnelCostConfig {
 	return &TunnelCostConfig{
 		SelfHostServerCost:     200.0, // 云服务器约200元/月
@@ -315,7 +315,7 @@ func DefaultTunnelCostConfig() *TunnelCostConfig {
 	}
 }
 
-// NewTunnelCostAnalyzer 创建穿透成本分析器
+// NewTunnelCostAnalyzer 创建穿透成本分析器.
 func NewTunnelCostAnalyzer(config *TunnelCostConfig) *TunnelCostAnalyzer {
 	if config == nil {
 		config = DefaultTunnelCostConfig()
@@ -333,7 +333,7 @@ func NewTunnelCostAnalyzer(config *TunnelCostConfig) *TunnelCostAnalyzer {
 	return analyzer
 }
 
-// initCompetitorModels 初始化竞品定价模型
+// initCompetitorModels 初始化竞品定价模型.
 func (a *TunnelCostAnalyzer) initCompetitorModels() {
 	// 飞牛FN Connect - 免费
 	a.models[TunnelProviderFNConnect] = &TunnelCostModel{
@@ -419,7 +419,7 @@ func (a *TunnelCostAnalyzer) initCompetitorModels() {
 	}
 }
 
-// AnalyzeTunnelCost 分析穿透成本
+// AnalyzeTunnelCost 分析穿透成本.
 func (a *TunnelCostAnalyzer) AnalyzeTunnelCost(ctx context.Context, deviceID string, usage TunnelUsageStats) (*TunnelCostReport, error) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -453,7 +453,7 @@ func (a *TunnelCostAnalyzer) AnalyzeTunnelCost(ctx context.Context, deviceID str
 	return report, nil
 }
 
-// calculateCostBreakdown 计算成本明细
+// calculateCostBreakdown 计算成本明细.
 func (a *TunnelCostAnalyzer) calculateCostBreakdown(usage TunnelUsageStats) TunnelCostBreakdown {
 	breakdown := TunnelCostBreakdown{}
 
@@ -492,7 +492,7 @@ func (a *TunnelCostAnalyzer) calculateCostBreakdown(usage TunnelUsageStats) Tunn
 	return breakdown
 }
 
-// estimateMonthlyCost 估算月度成本
+// estimateMonthlyCost 估算月度成本.
 func (a *TunnelCostAnalyzer) estimateMonthlyCost(usage TunnelUsageStats) float64 {
 	// 基于使用情况估算月度成本
 	dailyCost := a.calculateCostBreakdown(usage).EffectiveCost
@@ -514,7 +514,7 @@ func (a *TunnelCostAnalyzer) estimateMonthlyCost(usage TunnelUsageStats) float64
 	return monthlyCost
 }
 
-// compareWithCompetitors 与竞品对比
+// compareWithCompetitors 与竞品对比.
 func (a *TunnelCostAnalyzer) compareWithCompetitors(usage TunnelUsageStats) []TunnelCompetitorCost {
 	comparisons := []TunnelCompetitorCost{}
 
@@ -576,7 +576,7 @@ func (a *TunnelCostAnalyzer) compareWithCompetitors(usage TunnelUsageStats) []Tu
 	return comparisons
 }
 
-// generateTunnelSuggestions 生成穿透成本建议
+// generateTunnelSuggestions 生成穿透成本建议.
 func (a *TunnelCostAnalyzer) generateTunnelSuggestions(usage TunnelUsageStats, monthlyCost float64) []TunnelCostSuggestion {
 	suggestions := []TunnelCostSuggestion{}
 
@@ -627,7 +627,7 @@ func (a *TunnelCostAnalyzer) generateTunnelSuggestions(usage TunnelUsageStats, m
 	return suggestions
 }
 
-// analyzeTunnelROI ROI分析
+// analyzeTunnelROI ROI分析.
 func (a *TunnelCostAnalyzer) analyzeTunnelROI(usage TunnelUsageStats) TunnelROIAnalysis {
 	roi := TunnelROIAnalysis{}
 
@@ -672,14 +672,14 @@ func (a *TunnelCostAnalyzer) analyzeTunnelROI(usage TunnelUsageStats) TunnelROIA
 	return roi
 }
 
-// GetProviderModel 获取提供商定价模型
+// GetProviderModel 获取提供商定价模型.
 func (a *TunnelCostAnalyzer) GetProviderModel(provider TunnelProvider) *TunnelCostModel {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	return a.models[provider]
 }
 
-// GetAllProviderModels 获取所有提供商定价模型
+// GetAllProviderModels 获取所有提供商定价模型.
 func (a *TunnelCostAnalyzer) GetAllProviderModels() map[TunnelProvider]*TunnelCostModel {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -691,7 +691,7 @@ func (a *TunnelCostAnalyzer) GetAllProviderModels() map[TunnelProvider]*TunnelCo
 	return result
 }
 
-// CalculateServiceCost 计算服务成本（用于定价参考）
+// CalculateServiceCost 计算服务成本（用于定价参考）.
 func (a *TunnelCostAnalyzer) CalculateServiceCost(userType string, bandwidthMbps float64, trafficGB float64) float64 {
 	// 基础成本
 	baseCost := a.config.CostPerRelayServer * float64(a.config.RelayServerCount) / 100 // 用户分摊
@@ -723,7 +723,7 @@ func (a *TunnelCostAnalyzer) CalculateServiceCost(userType string, bandwidthMbps
 	return totalCost
 }
 
-// Helper function
+// Helper function.
 func generateReportID() string {
 	return "tunnel-" + time.Now().Format("20060102-150405")
 }

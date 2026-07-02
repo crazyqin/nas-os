@@ -17,7 +17,7 @@ var (
 	ErrInvalidPolicy     = errors.New("invalid placement policy")
 )
 
-// DataTemperature 数据温度
+// DataTemperature 数据温度.
 type DataTemperature string
 
 const (
@@ -27,7 +27,7 @@ const (
 	TemperatureFrozen DataTemperature = "frozen" // 冻结数据：归档
 )
 
-// StorageTier 存储层
+// StorageTier 存储层.
 type StorageTier string
 
 const (
@@ -38,7 +38,7 @@ const (
 	TierTape  StorageTier = "tape"  // 磁带归档
 )
 
-// FileRecord 文件记录
+// FileRecord 文件记录.
 type FileRecord struct {
 	FileID       string          `json:"fileId"`
 	FilePath     string          `json:"filePath"`
@@ -53,7 +53,7 @@ type FileRecord struct {
 	AccessScore  float64         `json:"accessScore"`
 }
 
-// PlacementPolicy 放置策略
+// PlacementPolicy 放置策略.
 type PlacementPolicy struct {
 	Name                  string                          `json:"name"`
 	TierMapping           map[DataTemperature]StorageTier `json:"tierMapping"`
@@ -64,7 +64,7 @@ type PlacementPolicy struct {
 	PriorityFileTypes     []string                        `json:"priorityFileTypes"`
 }
 
-// TemperatureThresholds 温度阈值
+// TemperatureThresholds 温度阈值.
 type TemperatureThresholds struct {
 	HotAccessPerDay  float64 `json:"hotAccessPerDay"`  // 每天访问次数 >= 此值为热数据
 	WarmAccessPerDay float64 `json:"warmAccessPerDay"` // 每天访问次数 >= 此值为温数据
@@ -72,7 +72,7 @@ type TemperatureThresholds struct {
 	DaysToFreeze     int     `json:"daysToFreeze"`     // 多少天不访问变为冻结
 }
 
-// MigrationTask 迁移任务
+// MigrationTask 迁移任务.
 type MigrationTask struct {
 	TaskID      string          `json:"taskId"`
 	FileID      string          `json:"fileId"`
@@ -87,7 +87,7 @@ type MigrationTask struct {
 	CompletedAt *time.Time      `json:"completedAt,omitempty"`
 }
 
-// MigrationStatus 迁移状态
+// MigrationStatus 迁移状态.
 type MigrationStatus string
 
 const (
@@ -97,7 +97,7 @@ const (
 	MigrationFailed    MigrationStatus = "failed"
 )
 
-// PlacementReport 放置报告
+// PlacementReport 放置报告.
 type PlacementReport struct {
 	GeneratedAt             time.Time                `json:"generatedAt"`
 	TotalFiles              int                      `json:"totalFiles"`
@@ -109,7 +109,7 @@ type PlacementReport struct {
 	CostSavingsEstimate     float64                  `json:"costSavingsEstimate"`
 }
 
-// TierInfo 层信息
+// TierInfo 层信息.
 type TierInfo struct {
 	FileCount      int     `json:"fileCount"`
 	TotalBytes     int64   `json:"totalBytes"`
@@ -117,7 +117,7 @@ type TierInfo struct {
 	CostPerTBMonth float64 `json:"costPerTbMonth"`
 }
 
-// Manager 智能数据放置管理器
+// Manager 智能数据放置管理器.
 type Manager struct {
 	mu               sync.RWMutex
 	config           *Config
@@ -131,7 +131,7 @@ type Manager struct {
 	nowFunc          func() time.Time
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	Enabled                 bool          `json:"enabled"`
 	AnalysisInterval        time.Duration `json:"analysisInterval"`
@@ -141,7 +141,7 @@ type Config struct {
 	MaxConcurrentMigrations int           `json:"maxConcurrentMigrations"`
 }
 
-// TierConfig 层配置
+// TierConfig 层配置.
 type TierConfig struct {
 	Name           string  `json:"name"`
 	CapacityBytes  int64   `json:"capacityBytes"`
@@ -152,7 +152,7 @@ type TierConfig struct {
 	Durability     string  `json:"durability"`
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(config *Config) *Manager {
 	if config == nil {
 		config = &Config{
@@ -202,7 +202,7 @@ func NewManager(config *Config) *Manager {
 	return m
 }
 
-// RegisterFile 注册文件
+// RegisterFile 注册文件.
 func (m *Manager) RegisterFile(fileID, path string, sizeBytes int64, currentTier StorageTier, fileType string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -225,7 +225,7 @@ func (m *Manager) RegisterFile(fileID, path string, sizeBytes int64, currentTier
 	return nil
 }
 
-// RecordAccess 记录文件访问
+// RecordAccess 记录文件访问.
 func (m *Manager) RecordAccess(fileID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -250,7 +250,7 @@ func (m *Manager) RecordAccess(fileID string) error {
 	return nil
 }
 
-// AnalyzePlacement 分析数据放置
+// AnalyzePlacement 分析数据放置.
 func (m *Manager) AnalyzePlacement() (*PlacementReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -302,7 +302,7 @@ func (m *Manager) AnalyzePlacement() (*PlacementReport, error) {
 	return report, nil
 }
 
-// PlanMigrations 规划迁移
+// PlanMigrations 规划迁移.
 func (m *Manager) PlanMigrations() ([]MigrationTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -340,7 +340,7 @@ func (m *Manager) PlanMigrations() ([]MigrationTask, error) {
 	return result, nil
 }
 
-// CompleteMigration 完成迁移
+// CompleteMigration 完成迁移.
 func (m *Manager) CompleteMigration(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -361,7 +361,7 @@ func (m *Manager) CompleteMigration(taskID string) error {
 	return fmt.Errorf("migration task %s not found", taskID)
 }
 
-// GetFile 获取文件信息
+// GetFile 获取文件信息.
 func (m *Manager) GetFile(fileID string) (*FileRecord, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -374,7 +374,7 @@ func (m *Manager) GetFile(fileID string) (*FileRecord, error) {
 	return &copy, nil
 }
 
-// SetPolicy 设置放置策略
+// SetPolicy 设置放置策略.
 func (m *Manager) SetPolicy(policy *PlacementPolicy) error {
 	if policy == nil {
 		return ErrInvalidPolicy
@@ -385,7 +385,7 @@ func (m *Manager) SetPolicy(policy *PlacementPolicy) error {
 	return nil
 }
 
-// GetMigrations 获取迁移任务
+// GetMigrations 获取迁移任务.
 func (m *Manager) GetMigrations(status MigrationStatus, limit int) []MigrationTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -403,7 +403,7 @@ func (m *Manager) GetMigrations(status MigrationStatus, limit int) []MigrationTa
 	return result
 }
 
-// GetDashboard 获取仪表板
+// GetDashboard 获取仪表板.
 func (m *Manager) GetDashboard() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

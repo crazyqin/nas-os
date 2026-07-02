@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// PowerProfile represents a power management profile
+// PowerProfile represents a power management profile.
 type PowerProfile struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
@@ -21,7 +21,7 @@ type PowerProfile struct {
 	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
-// PowerSettings represents power management settings
+// PowerSettings represents power management settings.
 type PowerSettings struct {
 	HDDSpindown       int    `json:"hdd_spindown_minutes"`
 	LEDControl        bool   `json:"led_control"`
@@ -33,7 +33,7 @@ type PowerSettings struct {
 	IdleThreshold     int    `json:"idle_threshold_minutes"`
 }
 
-// PowerUsage represents current power usage
+// PowerUsage represents current power usage.
 type PowerUsage struct {
 	Timestamp   time.Time `json:"timestamp"`
 	TotalWatts  float64   `json:"total_watts"`
@@ -46,7 +46,7 @@ type PowerUsage struct {
 	DiskTemp    float64   `json:"disk_temp"`
 }
 
-// PowerHistory represents power usage history
+// PowerHistory represents power usage history.
 type PowerHistory struct {
 	Period       string       `json:"period"`
 	DataPoints   []PowerUsage `json:"data_points"`
@@ -57,7 +57,7 @@ type PowerHistory struct {
 	CostEstimate float64      `json:"cost_estimate"`
 }
 
-// DiskSleepConfig represents disk sleep configuration
+// DiskSleepConfig represents disk sleep configuration.
 type DiskSleepConfig struct {
 	DiskID       string    `json:"disk_id"`
 	DiskName     string    `json:"disk_name"`
@@ -66,7 +66,7 @@ type DiskSleepConfig struct {
 	LastActive   time.Time `json:"last_active"`
 }
 
-// FanConfig represents fan configuration
+// FanConfig represents fan configuration.
 type FanConfig struct {
 	FanID       string          `json:"fan_id"`
 	Name        string          `json:"name"`
@@ -77,13 +77,13 @@ type FanConfig struct {
 	Curve       []FanCurvePoint `json:"curve"`
 }
 
-// FanCurvePoint represents a fan curve point
+// FanCurvePoint represents a fan curve point.
 type FanCurvePoint struct {
 	Temperature float64 `json:"temperature"`
 	Percentage  int     `json:"percentage"`
 }
 
-// ScheduleEntry represents a power schedule entry
+// ScheduleEntry represents a power schedule entry.
 type ScheduleEntry struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -94,7 +94,7 @@ type ScheduleEntry struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// EnergyStats represents energy consumption statistics
+// EnergyStats represents energy consumption statistics.
 type EnergyStats struct {
 	TodayKWh     float64        `json:"today_kwh"`
 	WeekKWh      float64        `json:"week_kwh"`
@@ -112,7 +112,7 @@ type EnergyStats struct {
 	History      []PowerHistory `json:"history"`
 }
 
-// TemperatureAlert represents a temperature alert
+// TemperatureAlert represents a temperature alert.
 type TemperatureAlert struct {
 	ID           string    `json:"id"`
 	Component    string    `json:"component"`
@@ -123,7 +123,7 @@ type TemperatureAlert struct {
 	Acknowledged bool      `json:"acknowledged"`
 }
 
-// PowerReading represents a power reading from a source
+// PowerReading represents a power reading from a source.
 type PowerReading struct {
 	Timestamp time.Time `json:"timestamp"`
 	Watts     float64   `json:"watts"`
@@ -132,14 +132,14 @@ type PowerReading struct {
 	Source    string    `json:"source"`
 }
 
-// Power source constants
+// Power source constants.
 const (
 	SourceGrid  = "grid"
 	SourceSolar = "solar"
 	SourceUPS   = "ups"
 )
 
-// Power state constants
+// Power state constants.
 const (
 	PowerNormal  = "normal"
 	PowerStandby = "standby"
@@ -147,7 +147,7 @@ const (
 	PowerOff     = "off"
 )
 
-// CarbonMetrics represents carbon emission metrics
+// CarbonMetrics represents carbon emission metrics.
 type CarbonMetrics struct {
 	GridCarbonFactor float64 `json:"grid_carbon_factor"`
 	DailyCO2Kg       float64 `json:"daily_co2_kg"`
@@ -155,7 +155,7 @@ type CarbonMetrics struct {
 	YearlyCO2Kg      float64 `json:"yearly_co2_kg"`
 }
 
-// PowerBudget represents a power budget estimation
+// PowerBudget represents a power budget estimation.
 type PowerBudget struct {
 	CostPerKWh  float64 `json:"cost_per_kwh"`
 	Currency    string  `json:"currency"`

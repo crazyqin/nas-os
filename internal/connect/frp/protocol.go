@@ -9,37 +9,37 @@ import (
 	"fmt"
 )
 
-// MessageType 消息类型
+// MessageType 消息类型.
 type MessageType uint16
 
 const (
-	// 控制消息
+	// 控制消息.
 	MsgTypeAuth     MessageType = 0
 	MsgTypeAuthResp MessageType = 1
 	MsgTypePing     MessageType = 2
 	MsgTypePong     MessageType = 3
 	MsgTypeClose    MessageType = 4
 
-	// 隧道消息
+	// 隧道消息.
 	MsgTypeNewProxy     MessageType = 10
 	MsgTypeNewProxyResp MessageType = 11
 	MsgTypeCloseProxy   MessageType = 12
 	MsgTypeNewWorkConn  MessageType = 13
 	MsgTypeReqWorkConn  MessageType = 14
 
-	// 数据消息
+	// 数据消息.
 	MsgTypeData      MessageType = 20
 	MsgTypeUDPPacket MessageType = 21
 )
 
-// Message FRP消息结构
+// Message FRP消息结构.
 type Message struct {
 	Type MessageType `json:"type"`
 	Len  uint64      `json:"len"`
 	Data []byte      `json:"data"`
 }
 
-// AuthRequest 认证请求
+// AuthRequest 认证请求.
 type AuthRequest struct {
 	Version   string            `json:"version"`
 	Token     string            `json:"token"`
@@ -48,7 +48,7 @@ type AuthRequest struct {
 	Metas     map[string]string `json:"metas,omitempty"`
 }
 
-// AuthResponse 认证响应
+// AuthResponse 认证响应.
 type AuthResponse struct {
 	Version    string `json:"version"`
 	RunID      string `json:"run_id"`
@@ -56,7 +56,7 @@ type AuthResponse struct {
 	ServerAddr string `json:"server_addr,omitempty"`
 }
 
-// TunnelRequest 隧道请求
+// TunnelRequest 隧道请求.
 type TunnelRequest struct {
 	Name           string            `json:"name"`
 	Type           string            `json:"type"`
@@ -73,7 +73,7 @@ type TunnelRequest struct {
 	Metas          map[string]string `json:"metas,omitempty"`
 }
 
-// TunnelResponse 隧道响应
+// TunnelResponse 隧道响应.
 type TunnelResponse struct {
 	ProxyName  string `json:"proxy_name"`
 	RemoteAddr string `json:"remote_addr,omitempty"`
@@ -81,19 +81,19 @@ type TunnelResponse struct {
 	ProxyType  string `json:"proxy_type"`
 }
 
-// DataMessage 数据消息
+// DataMessage 数据消息.
 type DataMessage struct {
 	ProxyName string `json:"proxy_name"`
 	Data      []byte `json:"data"`
 }
 
-// WorkConnRequest 工作连接请求
+// WorkConnRequest 工作连接请求.
 type WorkConnRequest struct {
 	RunID     string `json:"run_id"`
 	ProxyName string `json:"proxy_name"`
 }
 
-// EncodeMessage 编码消息
+// EncodeMessage 编码消息.
 func EncodeMessage(msgType MessageType, payload interface{}) ([]byte, error) {
 	var body []byte
 	if payload != nil {
@@ -115,7 +115,7 @@ func EncodeMessage(msgType MessageType, payload interface{}) ([]byte, error) {
 	return header, nil
 }
 
-// DecodeMessage 解码消息体
+// DecodeMessage 解码消息体.
 func DecodeMessage(msg *Message) (interface{}, error) {
 	if len(msg.Data) == 0 {
 		return nil, nil
@@ -169,7 +169,7 @@ func DecodeMessage(msg *Message) (interface{}, error) {
 	}
 }
 
-// ParseHeader 解析消息头
+// ParseHeader 解析消息头.
 func ParseHeader(header []byte) (MessageType, uint64, error) {
 	if len(header) < 10 {
 		return 0, 0, errors.New("header too short")

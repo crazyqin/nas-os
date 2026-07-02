@@ -11,40 +11,40 @@ import (
 
 // ========== 核心类型定义 ==========
 
-// TagCategory 标签分类
+// TagCategory 标签分类.
 type TagCategory string
 
 const (
-	CategoryContent  TagCategory = "content"  // 内容类型
-	CategoryObject   TagCategory = "object"   // 物体识别
-	CategoryScene    TagCategory = "scene"    // 场景识别
-	CategoryEmotion  TagCategory = "emotion" // 情感/风格
-	CategoryTopic    TagCategory = "topic"    // 主题/话题
-	CategoryQuality  TagCategory = "quality"  // 质量属性
-	CategoryCustom   TagCategory = "custom"   // 自定义
+	CategoryContent TagCategory = "content" // 内容类型
+	CategoryObject  TagCategory = "object"  // 物体识别
+	CategoryScene   TagCategory = "scene"   // 场景识别
+	CategoryEmotion TagCategory = "emotion" // 情感/风格
+	CategoryTopic   TagCategory = "topic"   // 主题/话题
+	CategoryQuality TagCategory = "quality" // 质量属性
+	CategoryCustom  TagCategory = "custom"  // 自定义
 )
 
-// TagSource 标签来源
+// TagSource 标签来源.
 type TagSource string
 
 const (
-	SourceAI       TagSource = "ai"        // AI 自动生成
-	SourceManual   TagSource = "manual"    // 人工标注
-	SourceRule     TagSource = "rule"      // 规则匹配
-	SourceHybrid   TagSource = "hybrid"    // 混合来源
+	SourceAI     TagSource = "ai"     // AI 自动生成
+	SourceManual TagSource = "manual" // 人工标注
+	SourceRule   TagSource = "rule"   // 规则匹配
+	SourceHybrid TagSource = "hybrid" // 混合来源
 )
 
-// TagStatus 标签状态
+// TagStatus 标签状态.
 type TagStatus string
 
 const (
-	TagStatusActive   TagStatus = "active"    // 活跃
-	TagStatusPending  TagStatus = "pending"   // 待确认
-	TagStatusRejected TagStatus = "rejected"  // 已拒绝
-	TagStatusMerged   TagStatus = "merged"    // 已合并
+	TagStatusActive   TagStatus = "active"   // 活跃
+	TagStatusPending  TagStatus = "pending"  // 待确认
+	TagStatusRejected TagStatus = "rejected" // 已拒绝
+	TagStatusMerged   TagStatus = "merged"   // 已合并
 )
 
-// ConfidenceLevel 置信度等级
+// ConfidenceLevel 置信度等级.
 type ConfidenceLevel string
 
 const (
@@ -53,7 +53,7 @@ const (
 	ConfidenceLow    ConfidenceLevel = "low"    // 低置信度 (<0.7)
 )
 
-// ContentTag AI 内容标签
+// ContentTag AI 内容标签.
 type ContentTag struct {
 	// 标签唯一标识
 	ID string `json:"id"`
@@ -87,7 +87,7 @@ type ContentTag struct {
 	FileCount int `json:"file_count"`
 }
 
-// TagRule 自动标签规则
+// TagRule 自动标签规则.
 type TagRule struct {
 	// 规则唯一标识
 	ID string `json:"id"`
@@ -111,7 +111,7 @@ type TagRule struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// AutoTagConfig AI 自动标签配置
+// AutoTagConfig AI 自动标签配置.
 type AutoTagConfig struct {
 	// 是否启用自动标签
 	Enabled bool `json:"enabled"`
@@ -139,7 +139,7 @@ type AutoTagConfig struct {
 	EnableAudioAnalysis bool `json:"enable_audio_analysis"`
 }
 
-// DefaultConfig 默认 AI 自动标签配置
+// DefaultConfig 默认 AI 自动标签配置.
 func DefaultConfig() *AutoTagConfig {
 	return &AutoTagConfig{
 		Enabled:                   true,
@@ -151,13 +151,13 @@ func DefaultConfig() *AutoTagConfig {
 		BatchSize:                 10,
 		RuleEngineEnabled:         true,
 		MaxTagsPerFile:            20,
-		EnableImageAnalysis:        true,
+		EnableImageAnalysis:       true,
 		EnableTextAnalysis:        true,
-		EnableAudioAnalysis:        false,
+		EnableAudioAnalysis:       false,
 	}
 }
 
-// FileContentTag 文件内容标签关联
+// FileContentTag 文件内容标签关联.
 type FileContentTag struct {
 	// 文件路径
 	FilePath string `json:"file_path"`
@@ -181,7 +181,7 @@ type FileContentTag struct {
 	Confirmed bool `json:"confirmed"`
 }
 
-// ContentAnalysisResult AI 内容分析结果
+// ContentAnalysisResult AI 内容分析结果.
 type ContentAnalysisResult struct {
 	// 文件路径
 	FilePath string `json:"file_path"`
@@ -199,7 +199,7 @@ type ContentAnalysisResult struct {
 	AnalyzedAt time.Time `json:"analyzed_at"`
 }
 
-// TagDetection 标签检测结果
+// TagDetection 标签检测结果.
 type TagDetection struct {
 	// 标签名称
 	Name string `json:"name"`
@@ -211,7 +211,7 @@ type TagDetection struct {
 	MatchedSynonym string `json:"matched_synonym,omitempty"`
 }
 
-// TagStats 标签统计
+// TagStats 标签统计.
 type TagStats struct {
 	TotalTags        int            `json:"total_tags"`
 	TagsByCategory   map[string]int `json:"tags_by_category"`
@@ -221,12 +221,12 @@ type TagStats struct {
 	PendingReview    int            `json:"pending_review"`
 	TotalFiles       int            `json:"total_files"`
 	RuleCount        int            `json:"rule_count"`
-	EnabledRules      int            `json:"enabled_rules"`
+	EnabledRules     int            `json:"enabled_rules"`
 }
 
 // ========== 请求/响应结构 ==========
 
-// CreateTagRequest 创建标签请求
+// CreateTagRequest 创建标签请求.
 type CreateTagRequest struct {
 	Name        string      `json:"name" binding:"required"`
 	Category    TagCategory `json:"category" binding:"required"`
@@ -236,7 +236,7 @@ type CreateTagRequest struct {
 	CreatedBy   string      `json:"created_by" binding:"required"`
 }
 
-// CreateRuleRequest 创建规则请求
+// CreateRuleRequest 创建规则请求.
 type CreateRuleRequest struct {
 	Name          string   `json:"name" binding:"required"`
 	Keywords      []string `json:"keywords" binding:"required"`
@@ -247,18 +247,18 @@ type CreateRuleRequest struct {
 	Enabled       bool     `json:"enabled"`
 }
 
-// AnalyzeRequest AI 分析请求
+// AnalyzeRequest AI 分析请求.
 type AnalyzeRequest struct {
 	FilePath string `json:"file_path" binding:"required"`
 	FileType string `json:"file_type"`
 }
 
-// BatchAnalyzeRequest 批量分析请求
+// BatchAnalyzeRequest 批量分析请求.
 type BatchAnalyzeRequest struct {
 	FilePaths []string `json:"file_paths" binding:"required"`
 }
 
-// BatchAnalyzeResponse 批量分析响应
+// BatchAnalyzeResponse 批量分析响应.
 type BatchAnalyzeResponse struct {
 	Results []ContentAnalysisResult `json:"results"`
 	Total   int                     `json:"total"`
@@ -266,57 +266,57 @@ type BatchAnalyzeResponse struct {
 	Failed  int                     `json:"failed"`
 }
 
-// SearchByTagRequest 按标签搜索请求
+// SearchByTagRequest 按标签搜索请求.
 type SearchByTagRequest struct {
-	TagIDs    []string    `json:"tag_ids"`
-	TagNames  []string    `json:"tag_names"`
-	Category  TagCategory `json:"category"`
-	MinConfidence float64 `json:"min_confidence"`
+	TagIDs        []string    `json:"tag_ids"`
+	TagNames      []string    `json:"tag_names"`
+	Category      TagCategory `json:"category"`
+	MinConfidence float64     `json:"min_confidence"`
 }
 
-// TagSearchResult 标签搜索结果
+// TagSearchResult 标签搜索结果.
 type TagSearchResult struct {
-	Files    []FileContentTag `json:"files"`
-	Total    int               `json:"total"`
+	Files []FileContentTag `json:"files"`
+	Total int              `json:"total"`
 }
 
-// ConfirmTagRequest 确认标签请求
+// ConfirmTagRequest 确认标签请求.
 type ConfirmTagRequest struct {
 	FilePath string `json:"file_path" binding:"required"`
 	TagID    string `json:"tag_id" binding:"required"`
 }
 
-// ManualTagRequest 手动打标签请求
+// ManualTagRequest 手动打标签请求.
 type ManualTagRequest struct {
-	FilePath  string   `json:"file_path" binding:"required"`
-	TagNames  []string `json:"tag_names" binding:"required"`
-	TaggedBy  string   `json:"tagged_by" binding:"required"`
+	FilePath string   `json:"file_path" binding:"required"`
+	TagNames []string `json:"tag_names" binding:"required"`
+	TaggedBy string   `json:"tagged_by" binding:"required"`
 }
 
 // ========== 内部辅助函数 ==========
 
-// newContentTag 创建 ContentTag 实例
+// newContentTag 创建 ContentTag 实例.
 func newContentTag(req *CreateTagRequest) *ContentTag {
 	now := time.Now()
 	tag := &ContentTag{
-		ID:           "tag_" + uuid.New().String()[:12],
-		Name:         req.Name,
-		Category:     req.Category,
-		Source:       SourceManual,
-		Confidence:   1.0,
+		ID:              "tag_" + uuid.New().String()[:12],
+		Name:            req.Name,
+		Category:        req.Category,
+		Source:          SourceManual,
+		Confidence:      1.0,
 		ConfidenceLevel: ConfidenceHigh,
-		Status:       TagStatusActive,
-		Description:  req.Description,
-		Synonyms:     req.Synonyms,
-		Color:        req.Color,
-		CreatedBy:    req.CreatedBy,
-		CreatedAt:    now,
-		UpdatedAt:    now,
+		Status:          TagStatusActive,
+		Description:     req.Description,
+		Synonyms:        req.Synonyms,
+		Color:           req.Color,
+		CreatedBy:       req.CreatedBy,
+		CreatedAt:       now,
+		UpdatedAt:       now,
 	}
 	return tag
 }
 
-// newTagRule 创建 TagRule 实例
+// newTagRule 创建 TagRule 实例.
 func newTagRule(req *CreateRuleRequest) *TagRule {
 	now := time.Now()
 	return &TagRule{
@@ -333,7 +333,7 @@ func newTagRule(req *CreateRuleRequest) *TagRule {
 	}
 }
 
-// confidenceLevel 计算置信度等级
+// confidenceLevel 计算置信度等级.
 func confidenceLevel(conf float64) ConfidenceLevel {
 	if conf >= 0.9 {
 		return ConfidenceHigh
@@ -344,17 +344,17 @@ func confidenceLevel(conf float64) ConfidenceLevel {
 	return ConfidenceLow
 }
 
-// shouldAutoConfirm 判断是否应自动确认标签
+// shouldAutoConfirm 判断是否应自动确认标签.
 func shouldAutoConfirm(conf float64, cfg *AutoTagConfig) bool {
 	return cfg.AutoConfirmHighConfidence && conf >= cfg.AutoConfirmThreshold
 }
 
-// meetsThreshold 判断置信度是否满足阈值
+// meetsThreshold 判断置信度是否满足阈值.
 func meetsThreshold(conf float64, cfg *AutoTagConfig) bool {
 	return conf >= cfg.MinConfidenceThreshold
 }
 
-// isSupportedFileType 判断文件类型是否支持分析
+// isSupportedFileType 判断文件类型是否支持分析.
 func isSupportedFileType(fileType string, cfg *AutoTagConfig) bool {
 	if len(cfg.SupportedFileTypes) == 0 {
 		return true // 未配置则全部支持

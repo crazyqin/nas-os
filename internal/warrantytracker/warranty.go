@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Manager 保修追踪管理器
+// Manager 保修追踪管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	devices     map[string]*Device
@@ -26,14 +26,14 @@ type Manager struct {
 	wg          sync.WaitGroup
 }
 
-// Logger 日志接口
+// Logger 日志接口.
 type Logger interface {
 	Info(msg string, args ...interface{})
 	Error(msg string, args ...interface{})
 	Debug(msg string, args ...interface{})
 }
 
-// NewManager 创建保修追踪管理器
+// NewManager 创建保修追踪管理器.
 func NewManager(logger Logger) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	m := &Manager{
@@ -59,7 +59,7 @@ func NewManager(logger Logger) *Manager {
 	return m
 }
 
-// CreateDevice 创建设备
+// CreateDevice 创建设备.
 func (m *Manager) CreateDevice(device *Device) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -78,7 +78,7 @@ func (m *Manager) CreateDevice(device *Device) error {
 	return nil
 }
 
-// UpdateDevice 更新设备
+// UpdateDevice 更新设备.
 func (m *Manager) UpdateDevice(device *Device) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -95,7 +95,7 @@ func (m *Manager) UpdateDevice(device *Device) error {
 	return nil
 }
 
-// DeleteDevice 删除设备
+// DeleteDevice 删除设备.
 func (m *Manager) DeleteDevice(deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -126,7 +126,7 @@ func (m *Manager) DeleteDevice(deviceID string) error {
 	return nil
 }
 
-// GetDevice 获取设备
+// GetDevice 获取设备.
 func (m *Manager) GetDevice(deviceID string) (*Device, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -138,7 +138,7 @@ func (m *Manager) GetDevice(deviceID string) (*Device, error) {
 	return device, nil
 }
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (m *Manager) ListDevices(category string) []*Device {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -156,7 +156,7 @@ func (m *Manager) ListDevices(category string) []*Device {
 	return devices
 }
 
-// CreateWarranty 创建保修
+// CreateWarranty 创建保修.
 func (m *Manager) CreateWarranty(warranty *Warranty) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -179,7 +179,7 @@ func (m *Manager) CreateWarranty(warranty *Warranty) error {
 	return nil
 }
 
-// UpdateWarranty 更新保修
+// UpdateWarranty 更新保修.
 func (m *Manager) UpdateWarranty(warranty *Warranty) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -196,7 +196,7 @@ func (m *Manager) UpdateWarranty(warranty *Warranty) error {
 	return nil
 }
 
-// GetDeviceWarranties 获取设备的所有保修
+// GetDeviceWarranties 获取设备的所有保修.
 func (m *Manager) GetDeviceWarranties(deviceID string) []*Warranty {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -210,7 +210,7 @@ func (m *Manager) GetDeviceWarranties(deviceID string) []*Warranty {
 	return warranties
 }
 
-// AddExtendedWarranty 添加延保
+// AddExtendedWarranty 添加延保.
 func (m *Manager) AddExtendedWarranty(ew *ExtendedWarranty) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -235,7 +235,7 @@ func (m *Manager) AddExtendedWarranty(ew *ExtendedWarranty) error {
 	return nil
 }
 
-// CreateRepairRecord 创建维修记录
+// CreateRepairRecord 创建维修记录.
 func (m *Manager) CreateRepairRecord(repair *RepairRecord) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -258,7 +258,7 @@ func (m *Manager) CreateRepairRecord(repair *RepairRecord) error {
 	return nil
 }
 
-// UpdateRepairRecord 更新维修记录
+// UpdateRepairRecord 更新维修记录.
 func (m *Manager) UpdateRepairRecord(repair *RepairRecord) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -274,7 +274,7 @@ func (m *Manager) UpdateRepairRecord(repair *RepairRecord) error {
 	return nil
 }
 
-// GetDeviceRepairRecords 获取设备的维修记录
+// GetDeviceRepairRecords 获取设备的维修记录.
 func (m *Manager) GetDeviceRepairRecords(deviceID string) []*RepairRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -292,7 +292,7 @@ func (m *Manager) GetDeviceRepairRecords(deviceID string) []*RepairRecord {
 	return records
 }
 
-// AddAttachment 添加附件
+// AddAttachment 添加附件.
 func (m *Manager) AddAttachment(att *Attachment) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -311,7 +311,7 @@ func (m *Manager) AddAttachment(att *Attachment) error {
 	return nil
 }
 
-// DeleteAttachment 删除附件
+// DeleteAttachment 删除附件.
 func (m *Manager) DeleteAttachment(attID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -324,7 +324,7 @@ func (m *Manager) DeleteAttachment(attID string) error {
 	return nil
 }
 
-// GetDeviceAttachments 获取设备附件
+// GetDeviceAttachments 获取设备附件.
 func (m *Manager) GetDeviceAttachments(deviceID string) []*Attachment {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -338,7 +338,7 @@ func (m *Manager) GetDeviceAttachments(deviceID string) []*Attachment {
 	return attachments
 }
 
-// GetAssetValuation 获取资产估值
+// GetAssetValuation 获取资产估值.
 func (m *Manager) GetAssetValuation(deviceID string) (*AssetValuation, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -380,7 +380,7 @@ func (m *Manager) GetAssetValuation(deviceID string) (*AssetValuation, error) {
 	}, nil
 }
 
-// GetWarrantyStats 获取保修统计
+// GetWarrantyStats 获取保修统计.
 func (m *Manager) GetWarrantyStats() *WarrantyStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -428,7 +428,7 @@ func (m *Manager) GetWarrantyStats() *WarrantyStats {
 	return stats
 }
 
-// GetExpiringWarranties 获取即将到期的保修
+// GetExpiringWarranties 获取即将到期的保修.
 func (m *Manager) GetExpiringWarranties(days int) []*Reminder {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -443,7 +443,7 @@ func (m *Manager) GetExpiringWarranties(days int) []*Reminder {
 
 		daysLeft := int(w.EndDate.Sub(now).Hours() / 24)
 		if daysLeft <= days && daysLeft > 0 {
-			device, _ := m.devices[w.DeviceID]
+			device := m.devices[w.DeviceID]
 			deviceName := ""
 			if device != nil {
 				deviceName = device.Brand + " " + device.Model
@@ -466,7 +466,7 @@ func (m *Manager) GetExpiringWarranties(days int) []*Reminder {
 	return reminders
 }
 
-// GetExpiredWarranties 获取已过期的保修
+// GetExpiredWarranties 获取已过期的保修.
 func (m *Manager) GetExpiredWarranties() []*Reminder {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -476,7 +476,7 @@ func (m *Manager) GetExpiredWarranties() []*Reminder {
 
 	for _, w := range m.warranties {
 		if w.EndDate.Before(now) {
-			device, _ := m.devices[w.DeviceID]
+			device := m.devices[w.DeviceID]
 			deviceName := ""
 			if device != nil {
 				deviceName = device.Brand + " " + device.Model
@@ -496,14 +496,14 @@ func (m *Manager) GetExpiredWarranties() []*Reminder {
 	return reminders
 }
 
-// UpdateDepreciationConfig 更新折旧配置
+// UpdateDepreciationConfig 更新折旧配置.
 func (m *Manager) UpdateDepreciationConfig(config *DepreciationConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.config = config
 }
 
-// calculateWarrantyStatus 计算保修状态
+// calculateWarrantyStatus 计算保修状态.
 func (m *Manager) calculateWarrantyStatus(warranty *Warranty) WarrantyStatus {
 	now := time.Now()
 	if warranty.EndDate.Before(now) {
@@ -517,7 +517,7 @@ func (m *Manager) calculateWarrantyStatus(warranty *Warranty) WarrantyStatus {
 	return WarrantyActive
 }
 
-// calculateCurrentValue 计算设备当前价值
+// calculateCurrentValue 计算设备当前价值.
 func (m *Manager) calculateCurrentValue(device *Device) (float64, error) {
 	years := time.Since(device.PurchaseDate).Hours() / 8760
 	depreciationRate := 1 - math.Pow(1-m.config.ResidualRate, years/float64(m.config.UsefulLifeYears))
@@ -533,7 +533,7 @@ func (m *Manager) calculateCurrentValue(device *Device) (float64, error) {
 	return currentValue, nil
 }
 
-// reminderLoop 定期检查到期提醒
+// reminderLoop 定期检查到期提醒.
 func (m *Manager) reminderLoop() {
 	defer m.wg.Done()
 	ticker := time.NewTicker(time.Hour * 24) // 每天检查一次
@@ -549,7 +549,7 @@ func (m *Manager) reminderLoop() {
 	}
 }
 
-// checkReminders 检查并更新提醒状态
+// checkReminders 检查并更新提醒状态.
 func (m *Manager) checkReminders() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -574,12 +574,12 @@ func (m *Manager) checkReminders() {
 	}
 }
 
-// generateID 生成唯一ID
+// generateID 生成唯一ID.
 func generateID(prefix string) string {
 	return fmt.Sprintf("%s_%d", prefix, time.Now().UnixNano())
 }
 
-// RegisterRoutes 注册 HTTP 路由
+// RegisterRoutes 注册 HTTP 路由.
 func (m *Manager) RegisterRoutes(mux *http.ServeMux) {
 	// 设备管理
 	mux.HandleFunc("/api/warranty/devices", m.handleDevices)
@@ -848,7 +848,7 @@ func writeJSON(w http.ResponseWriter, v interface{}) {
 	json.NewEncoder(w).Encode(v)
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.cancel()
 	m.wg.Wait()

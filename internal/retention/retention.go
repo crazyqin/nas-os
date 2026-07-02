@@ -14,21 +14,21 @@ import (
 	"time"
 )
 
-// ExecutionMode 策略执行模式
+// ExecutionMode 策略执行模式.
 type ExecutionMode string
 
 const (
-	// ModeDelete 自动删除
+	// ModeDelete 自动删除.
 	ModeDelete ExecutionMode = "delete"
-	// ModeArchive 归档到冷存储
+	// ModeArchive 归档到冷存储.
 	ModeArchive ExecutionMode = "archive"
-	// ModeNotify 通知管理员
+	// ModeNotify 通知管理员.
 	ModeNotify ExecutionMode = "notify"
-	// ModeRecycle 移动到回收站
+	// ModeRecycle 移动到回收站.
 	ModeRecycle ExecutionMode = "recycle"
 )
 
-// RetentionPeriod 保留期限
+// RetentionPeriod 保留期限.
 type RetentionPeriod string
 
 const (
@@ -39,7 +39,7 @@ const (
 	PeriodPermanent RetentionPeriod = "permanent"
 )
 
-// ConditionOperator 条件匹配逻辑
+// ConditionOperator 条件匹配逻辑.
 type ConditionOperator string
 
 const (
@@ -47,14 +47,14 @@ const (
 	OpOr  ConditionOperator = "or"
 )
 
-// PolicyCondition 策略条件
+// PolicyCondition 策略条件.
 type PolicyCondition struct {
 	Field    string   `json:"field"`    // fileType, path, size, age, tags
 	Operator string   `json:"operator"` // eq, ne, gt, lt, gte, lte, contains, prefix, matches
 	Values   []string `json:"values"`   // 匹配值
 }
 
-// RetentionPolicy 数据保留策略
+// RetentionPolicy 数据保留策略.
 type RetentionPolicy struct {
 	ID             string            `json:"id"`
 	Name           string            `json:"name"`
@@ -71,7 +71,7 @@ type RetentionPolicy struct {
 	CreatedBy      string            `json:"createdBy"`
 }
 
-// LegalHold 法律保留
+// LegalHold 法律保留.
 type LegalHold struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
@@ -84,7 +84,7 @@ type LegalHold struct {
 	CreatedAt   time.Time  `json:"createdAt"`
 }
 
-// AuditEntry 审计日志条目
+// AuditEntry 审计日志条目.
 type AuditEntry struct {
 	ID        string    `json:"id"`
 	Timestamp time.Time `json:"timestamp"`
@@ -96,7 +96,7 @@ type AuditEntry struct {
 	Success   bool      `json:"success"`
 }
 
-// FileRecord 文件记录（用于策略匹配）
+// FileRecord 文件记录（用于策略匹配）.
 type FileRecord struct {
 	Path     string    `json:"path"`
 	Name     string    `json:"name"`
@@ -107,7 +107,7 @@ type FileRecord struct {
 	IsDir    bool      `json:"isDir"`
 }
 
-// SimulationResult 策略模拟结果
+// SimulationResult 策略模拟结果.
 type SimulationResult struct {
 	PolicyID       string        `json:"policyId"`
 	MatchedFiles   []FileRecord  `json:"matchedFiles"`
@@ -118,7 +118,7 @@ type SimulationResult struct {
 	GeneratedAt    time.Time     `json:"generatedAt"`
 }
 
-// ComplianceReport 合规报告
+// ComplianceReport 合规报告.
 type ComplianceReport struct {
 	GeneratedAt      time.Time    `json:"generatedAt"`
 	TotalPolicies    int          `json:"totalPolicies"`
@@ -131,7 +131,7 @@ type ComplianceReport struct {
 	ActiveLegalHolds int          `json:"activeLegalHolds"`
 }
 
-// RetentionEngine 保留策略引擎
+// RetentionEngine 保留策略引擎.
 type RetentionEngine struct {
 	policies   map[string]*RetentionPolicy
 	legalHolds map[string]*LegalHold
@@ -143,7 +143,7 @@ type RetentionEngine struct {
 	nextID     int64
 }
 
-// NewRetentionEngine 创建保留策略引擎
+// NewRetentionEngine 创建保留策略引擎.
 func NewRetentionEngine() *RetentionEngine {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &RetentionEngine{
@@ -156,13 +156,13 @@ func NewRetentionEngine() *RetentionEngine {
 	}
 }
 
-// generateID 生成唯一ID
+// generateID 生成唯一ID.
 func (e *RetentionEngine) generateID(prefix string) string {
 	e.nextID++
 	return fmt.Sprintf("%s-%d-%d", prefix, time.Now().UnixMilli(), e.nextID)
 }
 
-// periodToDuration 将保留期限转换为时间间隔
+// periodToDuration 将保留期限转换为时间间隔.
 func periodToDuration(p RetentionPeriod) (time.Duration, bool) {
 	switch p {
 	case Period7Days:
@@ -180,7 +180,7 @@ func periodToDuration(p RetentionPeriod) (time.Duration, bool) {
 	}
 }
 
-// CreatePolicy 创建保留策略
+// CreatePolicy 创建保留策略.
 func (e *RetentionEngine) CreatePolicy(p *RetentionPolicy) (*RetentionPolicy, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -205,7 +205,7 @@ func (e *RetentionEngine) CreatePolicy(p *RetentionPolicy) (*RetentionPolicy, er
 	return p, nil
 }
 
-// UpdatePolicy 更新保留策略
+// UpdatePolicy 更新保留策略.
 func (e *RetentionEngine) UpdatePolicy(id string, update *RetentionPolicy) (*RetentionPolicy, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -243,7 +243,7 @@ func (e *RetentionEngine) UpdatePolicy(id string, update *RetentionPolicy) (*Ret
 	return existing, nil
 }
 
-// DeletePolicy 删除保留策略
+// DeletePolicy 删除保留策略.
 func (e *RetentionEngine) DeletePolicy(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -260,7 +260,7 @@ func (e *RetentionEngine) DeletePolicy(id string) error {
 	return nil
 }
 
-// ListPolicies 列出所有策略
+// ListPolicies 列出所有策略.
 func (e *RetentionEngine) ListPolicies() []*RetentionPolicy {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -276,7 +276,7 @@ func (e *RetentionEngine) ListPolicies() []*RetentionPolicy {
 	return result
 }
 
-// GetPolicy 获取单个策略
+// GetPolicy 获取单个策略.
 func (e *RetentionEngine) GetPolicy(id string) (*RetentionPolicy, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -289,7 +289,7 @@ func (e *RetentionEngine) GetPolicy(id string) (*RetentionPolicy, error) {
 	return &cp, nil
 }
 
-// CreateLegalHold 创建法律保留
+// CreateLegalHold 创建法律保留.
 func (e *RetentionEngine) CreateLegalHold(h *LegalHold) (*LegalHold, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -311,7 +311,7 @@ func (e *RetentionEngine) CreateLegalHold(h *LegalHold) (*LegalHold, error) {
 	return h, nil
 }
 
-// ReleaseLegalHold 解除法律保留
+// ReleaseLegalHold 解除法律保留.
 func (e *RetentionEngine) ReleaseLegalHold(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -330,7 +330,7 @@ func (e *RetentionEngine) ReleaseLegalHold(id string) error {
 	return nil
 }
 
-// ListLegalHolds 列出所有法律保留
+// ListLegalHolds 列出所有法律保留.
 func (e *RetentionEngine) ListLegalHolds() []*LegalHold {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -346,7 +346,7 @@ func (e *RetentionEngine) ListLegalHolds() []*LegalHold {
 	return result
 }
 
-// IsFileProtected 检查文件是否被法律保留保护
+// IsFileProtected 检查文件是否被法律保留保护.
 func (e *RetentionEngine) IsFileProtected(filePath string) bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -368,14 +368,14 @@ func (e *RetentionEngine) IsFileProtected(filePath string) bool {
 	return false
 }
 
-// RegisterFile 注册文件到引擎
+// RegisterFile 注册文件到引擎.
 func (e *RetentionEngine) RegisterFile(f *FileRecord) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.files[f.Path] = f
 }
 
-// RegisterFiles 批量注册文件
+// RegisterFiles 批量注册文件.
 func (e *RetentionEngine) RegisterFiles(files []*FileRecord) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -384,7 +384,7 @@ func (e *RetentionEngine) RegisterFiles(files []*FileRecord) {
 	}
 }
 
-// matchPath 路径匹配（支持 * 和 ** 通配符）
+// matchPath 路径匹配（支持 * 和 ** 通配符）.
 func matchPath(pattern, path string) bool {
 	if pattern == path {
 		return true
@@ -407,7 +407,7 @@ func matchPath(pattern, path string) bool {
 	return strings.HasPrefix(path, pattern+"/")
 }
 
-// matchCondition 检查单个条件是否匹配
+// matchCondition 检查单个条件是否匹配.
 func matchCondition(cond PolicyCondition, f *FileRecord) bool {
 	switch cond.Field {
 	case "fileType":
@@ -512,7 +512,7 @@ func matchAgeOperator(op string, age, threshold time.Duration) bool {
 	}
 }
 
-// matchFileToPolicy 检查文件是否匹配策略的所有/任一条件
+// matchFileToPolicy 检查文件是否匹配策略的所有/任一条件.
 func matchFileToPolicy(f *FileRecord, p *RetentionPolicy) bool {
 	if len(p.Conditions) == 0 {
 		return true
@@ -538,7 +538,7 @@ func matchFileToPolicy(f *FileRecord, p *RetentionPolicy) bool {
 	return false
 }
 
-// isExpired 检查文件是否已过保留期
+// isExpired 检查文件是否已过保留期.
 func isExpired(f *FileRecord, p *RetentionPolicy) bool {
 	if p.Period == PeriodPermanent {
 		return false
@@ -550,7 +550,7 @@ func isExpired(f *FileRecord, p *RetentionPolicy) bool {
 	return time.Since(f.ModTime) > dur
 }
 
-// getEffectivePolicies 获取有效策略列表（按优先级排序）
+// getEffectivePolicies 获取有效策略列表（按优先级排序）.
 func (e *RetentionEngine) getEffectivePolicies() []*RetentionPolicy {
 	policies := make([]*RetentionPolicy, 0)
 	for _, p := range e.policies {
@@ -565,7 +565,7 @@ func (e *RetentionEngine) getEffectivePolicies() []*RetentionPolicy {
 	return policies
 }
 
-// ApplyPolicy 应用策略到匹配的文件
+// ApplyPolicy 应用策略到匹配的文件.
 func (e *RetentionEngine) ApplyPolicy(policyID string) (*SimulationResult, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -606,7 +606,7 @@ func (e *RetentionEngine) ApplyPolicy(policyID string) (*SimulationResult, error
 	return result, nil
 }
 
-// Simulate 模拟策略执行效果（不实际执行）
+// Simulate 模拟策略执行效果（不实际执行）.
 func (e *RetentionEngine) Simulate(p *RetentionPolicy) *SimulationResult {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -635,7 +635,7 @@ func (e *RetentionEngine) Simulate(p *RetentionPolicy) *SimulationResult {
 	return result
 }
 
-// isFileProtectedLocked 内部方法，需持有锁
+// isFileProtectedLocked 内部方法，需持有锁.
 func (e *RetentionEngine) isFileProtectedLocked(filePath string) bool {
 	for _, hold := range e.legalHolds {
 		if !hold.Active {
@@ -653,7 +653,7 @@ func (e *RetentionEngine) isFileProtectedLocked(filePath string) bool {
 	return false
 }
 
-// GetExpiringFiles 获取即将过期的文件（默认7天内）
+// GetExpiringFiles 获取即将过期的文件（默认7天内）.
 func (e *RetentionEngine) GetExpiringFiles(withinDays int) []FileRecord {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -706,7 +706,7 @@ func (e *RetentionEngine) GetExpiringFiles(withinDays int) []FileRecord {
 	return result
 }
 
-// GetComplianceReport 生成合规报告
+// GetComplianceReport 生成合规报告.
 func (e *RetentionEngine) GetComplianceReport() *ComplianceReport {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -769,7 +769,7 @@ func (e *RetentionEngine) GetComplianceReport() *ComplianceReport {
 	return report
 }
 
-// getExpiringFilesLocked 获取即将过期文件（内部，需持有读锁）
+// getExpiringFilesLocked 获取即将过期文件（内部，需持有读锁）.
 func (e *RetentionEngine) getExpiringFilesLocked(withinDays int) []FileRecord {
 	threshold := time.Duration(withinDays) * 24 * time.Hour
 	now := time.Now()
@@ -813,7 +813,7 @@ func (e *RetentionEngine) getExpiringFilesLocked(withinDays int) []FileRecord {
 	return result
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (e *RetentionEngine) GetAuditLog(limit int) []AuditEntry {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -832,7 +832,7 @@ func (e *RetentionEngine) GetAuditLog(limit int) []AuditEntry {
 	return result
 }
 
-// addAuditEntry 添加审计日志条目（需已持有写锁）
+// addAuditEntry 添加审计日志条目（需已持有写锁）.
 func (e *RetentionEngine) addAuditEntry(action, policyID, target, details, operator string, success bool) {
 	entry := AuditEntry{
 		ID:        e.generateID("audit"),

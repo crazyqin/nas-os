@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// VaultEntry represents a vault entry
+// VaultEntry represents a vault entry.
 type VaultEntry struct {
 	ID            string     `json:"id"`
 	Name          string     `json:"name"`
@@ -24,7 +24,7 @@ type VaultEntry struct {
 	Tags          []string   `json:"tags,omitempty"`
 }
 
-// VaultConfig defines vault configuration
+// VaultConfig defines vault configuration.
 type VaultConfig struct {
 	MaxEntries      int           `json:"max_entries"`
 	MaxEntrySize    int           `json:"max_entry_size"`
@@ -33,7 +33,7 @@ type VaultConfig struct {
 }
 
 // SecureVault provides encrypted storage for sensitive data
-// Inspired by Synology encrypted shared folders
+// Inspired by Synology encrypted shared folders.
 type SecureVault struct {
 	mu         sync.RWMutex
 	entries    map[string]*VaultEntry
@@ -43,7 +43,7 @@ type SecureVault struct {
 	lastAccess time.Time
 }
 
-// NewSecureVault creates a new SecureVault instance
+// NewSecureVault creates a new SecureVault instance.
 func NewSecureVault(masterPassword string) *SecureVault {
 	key := sha256.Sum256([]byte(masterPassword))
 	return &SecureVault{
@@ -60,14 +60,14 @@ func NewSecureVault(masterPassword string) *SecureVault {
 	}
 }
 
-// Lock locks the vault
+// Lock locks the vault.
 func (sv *SecureVault) Lock() {
 	sv.mu.Lock()
 	defer sv.mu.Unlock()
 	sv.locked = true
 }
 
-// Unlock unlocks the vault with the master password
+// Unlock unlocks the vault with the master password.
 func (sv *SecureVault) Unlock(password string) error {
 	key := sha256.Sum256([]byte(password))
 	for i := range key {
@@ -83,14 +83,14 @@ func (sv *SecureVault) Unlock(password string) error {
 	return nil
 }
 
-// IsLocked returns whether the vault is locked
+// IsLocked returns whether the vault is locked.
 func (sv *SecureVault) IsLocked() bool {
 	sv.mu.RLock()
 	defer sv.mu.RUnlock()
 	return sv.locked
 }
 
-// Store stores an entry in the vault
+// Store stores an entry in the vault.
 func (sv *SecureVault) Store(name, category, data string) (*VaultEntry, error) {
 	sv.mu.Lock()
 	defer sv.mu.Unlock()
@@ -122,7 +122,7 @@ func (sv *SecureVault) Store(name, category, data string) (*VaultEntry, error) {
 	return entry, nil
 }
 
-// Retrieve retrieves an entry from the vault
+// Retrieve retrieves an entry from the vault.
 func (sv *SecureVault) Retrieve(entryID string) (string, error) {
 	sv.mu.RLock()
 	defer sv.mu.RUnlock()
@@ -145,7 +145,7 @@ func (sv *SecureVault) Retrieve(entryID string) (string, error) {
 	return decrypted, nil
 }
 
-// Delete deletes an entry from the vault
+// Delete deletes an entry from the vault.
 func (sv *SecureVault) Delete(entryID string) error {
 	sv.mu.Lock()
 	defer sv.mu.Unlock()
@@ -162,7 +162,7 @@ func (sv *SecureVault) Delete(entryID string) error {
 	return nil
 }
 
-// ListEntries lists all entries (without decrypted data)
+// ListEntries lists all entries (without decrypted data).
 func (sv *SecureVault) ListEntries() []*VaultEntry {
 	sv.mu.RLock()
 	defer sv.mu.RUnlock()
@@ -174,7 +174,7 @@ func (sv *SecureVault) ListEntries() []*VaultEntry {
 	return entries
 }
 
-// SearchByCategory searches entries by category
+// SearchByCategory searches entries by category.
 func (sv *SecureVault) SearchByCategory(category string) []*VaultEntry {
 	sv.mu.RLock()
 	defer sv.mu.RUnlock()
@@ -188,7 +188,7 @@ func (sv *SecureVault) SearchByCategory(category string) []*VaultEntry {
 	return results
 }
 
-// SearchByTag searches entries by tag
+// SearchByTag searches entries by tag.
 func (sv *SecureVault) SearchByTag(tag string) []*VaultEntry {
 	sv.mu.RLock()
 	defer sv.mu.RUnlock()
@@ -205,7 +205,7 @@ func (sv *SecureVault) SearchByTag(tag string) []*VaultEntry {
 	return results
 }
 
-// ChangePassword changes the master password
+// ChangePassword changes the master password.
 func (sv *SecureVault) ChangePassword(oldPassword, newPassword string) error {
 	sv.mu.Lock()
 	defer sv.mu.Unlock()
@@ -240,7 +240,7 @@ func (sv *SecureVault) ChangePassword(oldPassword, newPassword string) error {
 	return nil
 }
 
-// GetStats returns vault statistics
+// GetStats returns vault statistics.
 func (sv *SecureVault) GetStats() map[string]interface{} {
 	sv.mu.RLock()
 	defer sv.mu.RUnlock()

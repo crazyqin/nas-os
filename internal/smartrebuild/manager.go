@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// NewManagerWithLogger 创建带日志的管理器
+// NewManagerWithLogger 创建带日志的管理器.
 func NewManagerWithLogger(cfg RebuildConfig, logger *zap.Logger) *Manager {
 	mgr := NewManager(cfg)
 	// logger 可以在后续扩展中存储
@@ -21,7 +21,7 @@ func NewManagerWithLogger(cfg RebuildConfig, logger *zap.Logger) *Manager {
 
 // ========== 任务管理 ==========
 
-// CreateJob 创建重建任务
+// CreateJob 创建重建任务.
 func (m *Manager) CreateJob(ctx context.Context, poolName string, targetDisk DiskInfo, sourceDisks []DiskInfo) (*RebuildJob, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -51,7 +51,7 @@ func (m *Manager) CreateJob(ctx context.Context, poolName string, targetDisk Dis
 	return job, nil
 }
 
-// StartJob 启动重建任务
+// StartJob 启动重建任务.
 func (m *Manager) StartJob(ctx context.Context, jobID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -75,7 +75,7 @@ func (m *Manager) StartJob(ctx context.Context, jobID string) error {
 	return nil
 }
 
-// PauseJob 暂停重建任务
+// PauseJob 暂停重建任务.
 func (m *Manager) PauseJob(ctx context.Context, jobID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -93,7 +93,7 @@ func (m *Manager) PauseJob(ctx context.Context, jobID string) error {
 	return nil
 }
 
-// CancelJob 取消重建任务
+// CancelJob 取消重建任务.
 func (m *Manager) CancelJob(ctx context.Context, jobID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -113,7 +113,7 @@ func (m *Manager) CancelJob(ctx context.Context, jobID string) error {
 	return nil
 }
 
-// GetJob 获取重建任务
+// GetJob 获取重建任务.
 func (m *Manager) GetJob(ctx context.Context, jobID string) (*RebuildJob, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -125,7 +125,7 @@ func (m *Manager) GetJob(ctx context.Context, jobID string) (*RebuildJob, error)
 	return job, nil
 }
 
-// ListJobs 列出所有重建任务
+// ListJobs 列出所有重建任务.
 func (m *Manager) ListJobs(ctx context.Context) []*RebuildJob {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -139,7 +139,7 @@ func (m *Manager) ListJobs(ctx context.Context) []*RebuildJob {
 
 // ========== 智能优先级 ==========
 
-// PrioritizeSegments 根据热度和重要性对数据段排序
+// PrioritizeSegments 根据热度和重要性对数据段排序.
 func (m *Manager) PrioritizeSegments(segments []DataSegment) []DataSegment {
 	prioritized := make([]DataSegment, len(segments))
 	copy(prioritized, segments)
@@ -169,7 +169,7 @@ func (m *Manager) PrioritizeSegments(segments []DataSegment) []DataSegment {
 	return prioritized
 }
 
-// UpdateHotScore 更新数据段热度
+// UpdateHotScore 更新数据段热度.
 func (m *Manager) UpdateHotScore(segmentID string, score float64) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -184,7 +184,7 @@ func (m *Manager) UpdateHotScore(segmentID string, score float64) {
 
 // ========== 并行调度 ==========
 
-// ScheduleParallel 并行调度多个重建任务
+// ScheduleParallel 并行调度多个重建任务.
 func (m *Manager) ScheduleParallel(ctx context.Context, jobs []*RebuildJob) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -215,7 +215,7 @@ func (m *Manager) ScheduleParallel(ctx context.Context, jobs []*RebuildJob) erro
 	return nil
 }
 
-// GetActiveJobCount 获取活跃任务数
+// GetActiveJobCount 获取活跃任务数.
 func (m *Manager) GetActiveJobCount() int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -224,7 +224,7 @@ func (m *Manager) GetActiveJobCount() int {
 
 // ========== 进度预测 ==========
 
-// EstimateETA 预估剩余时间
+// EstimateETA 预估剩余时间.
 func (m *Manager) EstimateETA(job *RebuildJob) time.Duration {
 	if job.AvgSpeed <= 0 || job.TotalBytes <= 0 {
 		return 0
@@ -239,7 +239,7 @@ func (m *Manager) EstimateETA(job *RebuildJob) time.Duration {
 	return time.Duration(seconds * float64(time.Second))
 }
 
-// UpdateProgress 更新重建进度
+// UpdateProgress 更新重建进度.
 func (m *Manager) UpdateProgress(jobID string, rebuiltBytes int64, currentSpeed int64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -276,7 +276,7 @@ func (m *Manager) UpdateProgress(jobID string, rebuiltBytes int64, currentSpeed 
 	return nil
 }
 
-// GetProgressSnapshot 获取进度快照
+// GetProgressSnapshot 获取进度快照.
 func (m *Manager) GetProgressSnapshot() ProgressSnapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -310,7 +310,7 @@ func (m *Manager) GetProgressSnapshot() ProgressSnapshot {
 
 // ========== 性能保护 ==========
 
-// ThrottleRebuild 限速重建，保证业务IO
+// ThrottleRebuild 限速重建，保证业务IO.
 func (m *Manager) ThrottleRebuild(jobID string, businessIOPS int64) (int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -346,7 +346,7 @@ func (m *Manager) ThrottleRebuild(jobID string, businessIOPS int64) (int64, erro
 	return rebuildBudget, nil
 }
 
-// SetIOMetrics 更新IO指标
+// SetIOMetrics 更新IO指标.
 func (m *Manager) SetIOMetrics(metrics IOMetrics) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -355,7 +355,7 @@ func (m *Manager) SetIOMetrics(metrics IOMetrics) {
 
 // ========== 调度管理 ==========
 
-// CreateSchedule 创建重建调度计划
+// CreateSchedule 创建重建调度计划.
 func (m *Manager) CreateSchedule(ctx context.Context, schedule *RebuildSchedule) (*RebuildSchedule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -378,7 +378,7 @@ func (m *Manager) CreateSchedule(ctx context.Context, schedule *RebuildSchedule)
 	return schedule, nil
 }
 
-// ListSchedules 列出调度计划
+// ListSchedules 列出调度计划.
 func (m *Manager) ListSchedules(ctx context.Context) []*RebuildSchedule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -390,7 +390,7 @@ func (m *Manager) ListSchedules(ctx context.Context) []*RebuildSchedule {
 	return schedules
 }
 
-// GetSchedule 获取调度计划
+// GetSchedule 获取调度计划.
 func (m *Manager) GetSchedule(ctx context.Context, scheduleID string) (*RebuildSchedule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -402,7 +402,7 @@ func (m *Manager) GetSchedule(ctx context.Context, scheduleID string) (*RebuildS
 	return s, nil
 }
 
-// DeleteSchedule 删除调度计划
+// DeleteSchedule 删除调度计划.
 func (m *Manager) DeleteSchedule(ctx context.Context, scheduleID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

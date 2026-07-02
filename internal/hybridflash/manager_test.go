@@ -1193,14 +1193,14 @@ func TestCostAnalyzerEstimateSavings(t *testing.T) {
 	analyzer := NewCostAnalyzer(logger, DefaultCostConfig())
 
 	current := &CostAnalysisResult{
-		Scenario:   "全 HDD",
-		TotalCost:  1000.0,
+		Scenario:    "全 HDD",
+		TotalCost:   1000.0,
 		Performance: &PerformanceEst{AvgLatency: 5.0},
 	}
 
 	optimal := &CostAnalysisResult{
-		Scenario:   "NVMe + HDD 混合",
-		TotalCost:  600.0,
+		Scenario:    "NVMe + HDD 混合",
+		TotalCost:   600.0,
 		Performance: &PerformanceEst{AvgLatency: 1.0},
 	}
 

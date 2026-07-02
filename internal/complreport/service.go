@@ -297,12 +297,12 @@ func (s *Service) collectEvidence(standard Standard) []ControlCheck {
 		severity := determineSeverity(status, evidence)
 
 		control := ControlCheck{
-			ID:        controlID,
-			Category:  category,
-			Title:     fmt.Sprintf("%s - %s 合规检查", category, info.Name),
-			Status:    status,
-			Severity:  severity,
-			Evidence:  evidence,
+			ID:       controlID,
+			Category: category,
+			Title:    fmt.Sprintf("%s - %s 合规检查", category, info.Name),
+			Status:   status,
+			Severity: severity,
+			Evidence: evidence,
 		}
 
 		// 如果不通过，添加整改建议
@@ -458,10 +458,10 @@ func (s *Service) generateSummary(report *Report) string {
 	}
 
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("本次 %s 合规审计共检查 %d 项控制措施。", info.Name, report.TotalChecks))
-	sb.WriteString(fmt.Sprintf("通过 %d 项，不通过 %d 项，警告 %d 项，不适用 %d 项。",
-		report.Passed, report.Failed, report.Warnings, report.NotApplicable))
-	sb.WriteString(fmt.Sprintf("合规评分：%d/100。", report.Score))
+	fmt.Fprintf(&sb, "本次 %s 合规审计共检查 %d 项控制措施。", info.Name, report.TotalChecks)
+	fmt.Fprintf(&sb, "通过 %d 项，不通过 %d 项，警告 %d 项，不适用 %d 项。",
+		report.Passed, report.Failed, report.Warnings, report.NotApplicable)
+	fmt.Fprintf(&sb, "合规评分：%d/100。", report.Score)
 
 	if report.Score >= 90 {
 		sb.WriteString("整体合规状况优秀。")

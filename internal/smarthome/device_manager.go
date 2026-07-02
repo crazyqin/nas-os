@@ -27,7 +27,7 @@ var (
 // 设备管理
 // ============================================================
 
-// AddDevice 添加设备
+// AddDevice 添加设备.
 func (m *Manager) AddDevice(device *Device) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -101,7 +101,7 @@ func (m *Manager) AddDevice(device *Device) error {
 	return nil
 }
 
-// GetDevice 获取设备
+// GetDevice 获取设备.
 func (m *Manager) GetDevice(id string) (*Device, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -113,7 +113,7 @@ func (m *Manager) GetDevice(id string) (*Device, error) {
 	return device, nil
 }
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (m *Manager) ListDevices() []*Device {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -125,7 +125,7 @@ func (m *Manager) ListDevices() []*Device {
 	return devices
 }
 
-// ListDevicesByRoom 按房间列出设备
+// ListDevicesByRoom 按房间列出设备.
 func (m *Manager) ListDevicesByRoom(roomID string) []*Device {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -144,7 +144,7 @@ func (m *Manager) ListDevicesByRoom(roomID string) []*Device {
 	return devices
 }
 
-// ListDevicesByType 按类型列出设备
+// ListDevicesByType 按类型列出设备.
 func (m *Manager) ListDevicesByType(deviceType DeviceType) []*Device {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -158,7 +158,7 @@ func (m *Manager) ListDevicesByType(deviceType DeviceType) []*Device {
 	return devices
 }
 
-// UpdateDevice 更新设备信息
+// UpdateDevice 更新设备信息.
 func (m *Manager) UpdateDevice(id string, update *Device) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -203,7 +203,7 @@ func (m *Manager) UpdateDevice(id string, update *Device) error {
 	return nil
 }
 
-// DeleteDevice 删除设备
+// DeleteDevice 删除设备.
 func (m *Manager) DeleteDevice(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -252,7 +252,7 @@ func (m *Manager) DeleteDevice(id string) error {
 	return nil
 }
 
-// UpdateDeviceState 更新设备状态
+// UpdateDeviceState 更新设备状态.
 func (m *Manager) UpdateDeviceState(id string, state map[string]any) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -279,7 +279,7 @@ func (m *Manager) UpdateDeviceState(id string, state map[string]any) error {
 	return nil
 }
 
-// SetDeviceOnline 设置设备在线状态
+// SetDeviceOnline 设置设备在线状态.
 func (m *Manager) SetDeviceOnline(id string, online bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -305,7 +305,7 @@ func (m *Manager) SetDeviceOnline(id string, online bool) error {
 // 房间管理
 // ============================================================
 
-// AddRoom 添加房间
+// AddRoom 添加房间.
 func (m *Manager) AddRoom(room *Room) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -329,7 +329,7 @@ func (m *Manager) AddRoom(room *Room) error {
 	return nil
 }
 
-// GetRoom 获取房间
+// GetRoom 获取房间.
 func (m *Manager) GetRoom(id string) (*Room, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -341,7 +341,7 @@ func (m *Manager) GetRoom(id string) (*Room, error) {
 	return room, nil
 }
 
-// ListRooms 列出所有房间
+// ListRooms 列出所有房间.
 func (m *Manager) ListRooms() []*Room {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -353,7 +353,7 @@ func (m *Manager) ListRooms() []*Room {
 	return rooms
 }
 
-// UpdateRoom 更新房间
+// UpdateRoom 更新房间.
 func (m *Manager) UpdateRoom(id string, update *Room) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -374,7 +374,7 @@ func (m *Manager) UpdateRoom(id string, update *Room) error {
 	return nil
 }
 
-// DeleteRoom 删除房间
+// DeleteRoom 删除房间.
 func (m *Manager) DeleteRoom(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -400,7 +400,7 @@ func (m *Manager) DeleteRoom(id string) error {
 // 分组管理
 // ============================================================
 
-// AddGroup 添加设备分组
+// AddGroup 添加设备分组.
 func (m *Manager) AddGroup(group *Group) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -424,7 +424,7 @@ func (m *Manager) AddGroup(group *Group) error {
 	return nil
 }
 
-// GetGroup 获取分组
+// GetGroup 获取分组.
 func (m *Manager) GetGroup(id string) (*Group, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -436,7 +436,7 @@ func (m *Manager) GetGroup(id string) (*Group, error) {
 	return group, nil
 }
 
-// ListGroups 列出所有分组
+// ListGroups 列出所有分组.
 func (m *Manager) ListGroups() []*Group {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -448,7 +448,7 @@ func (m *Manager) ListGroups() []*Group {
 	return groups
 }
 
-// UpdateGroup 更新分组
+// UpdateGroup 更新分组.
 func (m *Manager) UpdateGroup(id string, update *Group) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -469,7 +469,7 @@ func (m *Manager) UpdateGroup(id string, update *Group) error {
 	return nil
 }
 
-// DeleteGroup 删除分组
+// DeleteGroup 删除分组.
 func (m *Manager) DeleteGroup(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -496,7 +496,7 @@ func (m *Manager) DeleteGroup(id string) error {
 	return nil
 }
 
-// AddDeviceToGroup 将设备添加到分组
+// AddDeviceToGroup 将设备添加到分组.
 func (m *Manager) AddDeviceToGroup(deviceID, groupID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -527,7 +527,7 @@ func (m *Manager) AddDeviceToGroup(deviceID, groupID string) error {
 	return nil
 }
 
-// RemoveDeviceFromGroup 从分组移除设备
+// RemoveDeviceFromGroup 从分组移除设备.
 func (m *Manager) RemoveDeviceFromGroup(deviceID, groupID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -567,7 +567,7 @@ func (m *Manager) RemoveDeviceFromGroup(deviceID, groupID string) error {
 // 辅助方法
 // ============================================================
 
-// addEvent 添加设备事件（需在锁内调用）
+// addEvent 添加设备事件（需在锁内调用）.
 func (m *Manager) addEvent(event DeviceEvent) {
 	m.events = append(m.events, event)
 	// 超过最大事件数时裁剪
@@ -576,7 +576,7 @@ func (m *Manager) addEvent(event DeviceEvent) {
 	}
 }
 
-// GetEvents 获取最近的设备事件
+// GetEvents 获取最近的设备事件.
 func (m *Manager) GetEvents(limit int) []DeviceEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -591,7 +591,7 @@ func (m *Manager) GetEvents(limit int) []DeviceEvent {
 	return events
 }
 
-// DiscoverDevices 模拟设备发现
+// DiscoverDevices 模拟设备发现.
 func (m *Manager) DiscoverDevices() []*Device {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -614,7 +614,7 @@ func (m *Manager) DiscoverDevices() []*Device {
 	return discovered
 }
 
-// GetDeviceCount 获取设备数量统计
+// GetDeviceCount 获取设备数量统计.
 func (m *Manager) GetDeviceCount() (total, online, offline int) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -631,17 +631,17 @@ func (m *Manager) GetDeviceCount() (total, online, offline int) {
 	return
 }
 
-// String 返回设备类型的字符串表示
+// String 返回设备类型的字符串表示.
 func (dt DeviceType) String() string {
 	return string(dt)
 }
 
-// String 返回协议的字符串表示
+// String 返回协议的字符串表示.
 func (p Protocol) String() string {
 	return string(p)
 }
 
-// Validate 验证设备配置
+// Validate 验证设备配置.
 func (d *Device) Validate() error {
 	if d.Name == "" {
 		return fmt.Errorf("device name is required")

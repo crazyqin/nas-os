@@ -441,7 +441,7 @@ func (m *EnhancedBackupCodeManager) GetStats() map[string]interface{} {
 	}
 }
 
-// hashBackupCodeEnhanced 使用 SHA256 哈希备份码（增强版）
+// hashBackupCodeEnhanced 使用 SHA256 哈希备份码（增强版）.
 func hashBackupCodeEnhanced(code string) string {
 	h := sha256.New()
 	h.Write([]byte(code))

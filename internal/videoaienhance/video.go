@@ -12,7 +12,7 @@ import (
 
 // ========== 核心类型 ==========
 
-// EnhancementType 增强类型
+// EnhancementType 增强类型.
 type EnhancementType string
 
 const (
@@ -24,7 +24,7 @@ const (
 	EnhanceFace            EnhancementType = "face"
 )
 
-// VideoFormat 视频格式
+// VideoFormat 视频格式.
 type VideoFormat string
 
 const (
@@ -34,7 +34,7 @@ const (
 	FormatWebM VideoFormat = "webm"
 )
 
-// QualityPreset 质量预设
+// QualityPreset 质量预设.
 type QualityPreset string
 
 const (
@@ -44,7 +44,7 @@ const (
 	QualityUltra    QualityPreset = "ultra"
 )
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -55,7 +55,7 @@ const (
 	TaskStatusCancelled  TaskStatus = "cancelled"
 )
 
-// VideoInfo 视频信息
+// VideoInfo 视频信息.
 type VideoInfo struct {
 	Path      string        `json:"path"`
 	Name      string        `json:"name"`
@@ -71,7 +71,7 @@ type VideoInfo struct {
 	Thumbnail string        `json:"thumbnail"`
 }
 
-// EnhancementTask 增强任务
+// EnhancementTask 增强任务.
 type EnhancementTask struct {
 	ID          string                 `json:"id"`
 	InputPath   string                 `json:"input_path"`
@@ -89,7 +89,7 @@ type EnhancementTask struct {
 	ProcessTime time.Duration          `json:"process_time"`
 }
 
-// EnhancementResult 增强结果
+// EnhancementResult 增强结果.
 type EnhancementResult struct {
 	TaskID          string        `json:"task_id"`
 	OriginalSize    int64         `json:"original_size"`
@@ -100,7 +100,7 @@ type EnhancementResult struct {
 	FramesProcessed int64         `json:"frames_processed"`
 }
 
-// AIModel AI模型
+// AIModel AI模型.
 type AIModel struct {
 	ID           string          `json:"id"`
 	Name         string          `json:"name"`
@@ -114,7 +114,7 @@ type AIModel struct {
 	Size         int64           `json:"size"`
 }
 
-// BatchJob 批处理任务
+// BatchJob 批处理任务.
 type BatchJob struct {
 	ID        string     `json:"id"`
 	Name      string     `json:"name"`
@@ -127,7 +127,7 @@ type BatchJob struct {
 	CreatedAt time.Time  `json:"created_at"`
 }
 
-// Manager 视频增强管理器
+// Manager 视频增强管理器.
 type Manager struct {
 	mu            sync.RWMutex
 	tasks         map[string]*EnhancementTask
@@ -139,7 +139,7 @@ type Manager struct {
 	tempDir       string
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(outputDir string) *Manager {
 	return &Manager{
 		tasks:         make(map[string]*EnhancementTask),
@@ -188,7 +188,7 @@ func getDefaultModels() map[string]*AIModel {
 	return models
 }
 
-// CreateTask 创建增强任务
+// CreateTask 创建增强任务.
 func (m *Manager) CreateTask(inputPath, outputPath string, enhanceType EnhancementType, preset QualityPreset, params map[string]interface{}) *EnhancementTask {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -207,7 +207,7 @@ func (m *Manager) CreateTask(inputPath, outputPath string, enhanceType Enhanceme
 	return task
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (m *Manager) GetTask(taskID string) (*EnhancementTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -220,7 +220,7 @@ func (m *Manager) GetTask(taskID string) (*EnhancementTask, error) {
 	return task, nil
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (m *Manager) ListTasks(status TaskStatus) []*EnhancementTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -235,7 +235,7 @@ func (m *Manager) ListTasks(status TaskStatus) []*EnhancementTask {
 	return tasks
 }
 
-// GetModels 获取模型列表
+// GetModels 获取模型列表.
 func (m *Manager) GetModels() []*AIModel {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -248,7 +248,7 @@ func (m *Manager) GetModels() []*AIModel {
 	return models
 }
 
-// CreateBatchJob 创建批处理任务
+// CreateBatchJob 创建批处理任务.
 func (m *Manager) CreateBatchJob(name string, taskIDs []string) *BatchJob {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -266,7 +266,7 @@ func (m *Manager) CreateBatchJob(name string, taskIDs []string) *BatchJob {
 	return job
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -299,7 +299,7 @@ func (m *Manager) GetStats() map[string]interface{} {
 	return stats
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *Manager) Close() error {
 	return nil
 }

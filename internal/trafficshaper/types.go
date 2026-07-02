@@ -4,7 +4,7 @@ package trafficshaper
 
 import "time"
 
-// TrafficDirection 流量方向
+// TrafficDirection 流量方向.
 type TrafficDirection string
 
 const (
@@ -13,7 +13,7 @@ const (
 	DirectionBoth     TrafficDirection = "both"
 )
 
-// Protocol 网络协议
+// Protocol 网络协议.
 type Protocol string
 
 const (
@@ -22,7 +22,7 @@ const (
 	ProtocolAny Protocol = "any"
 )
 
-// TrafficAction 流量动作
+// TrafficAction 流量动作.
 type TrafficAction string
 
 const (
@@ -31,7 +31,7 @@ const (
 	ActionAllow TrafficAction = "allow"
 )
 
-// EventType 事件类型
+// EventType 事件类型.
 type EventType string
 
 const (
@@ -41,7 +41,7 @@ const (
 	EventOverflow EventType = "overflow"
 )
 
-// TrafficRule 流量规则
+// TrafficRule 流量规则.
 type TrafficRule struct {
 	ID                  string           `json:"id"`
 	Name                string           `json:"name" binding:"required"`
@@ -59,7 +59,7 @@ type TrafficRule struct {
 	CreatedAt           time.Time        `json:"created_at"`
 }
 
-// TrafficClass 流量类别
+// TrafficClass 流量类别.
 type TrafficClass struct {
 	ID                  string `json:"id"`
 	Name                string `json:"name" binding:"required"`
@@ -71,7 +71,7 @@ type TrafficClass struct {
 	Description         string `json:"description,omitempty"`
 }
 
-// TrafficStats 流量统计
+// TrafficStats 流量统计.
 type TrafficStats struct {
 	RuleID        string    `json:"rule_id"`
 	BytesIn       int64     `json:"bytes_in"`
@@ -86,7 +86,7 @@ type TrafficStats struct {
 	LastReset     time.Time `json:"last_reset"`
 }
 
-// BandwidthAllocation 带宽分配
+// BandwidthAllocation 带宽分配.
 type BandwidthAllocation struct {
 	TotalBandwidth     int64             `json:"total_bandwidth"`
 	AllocatedBandwidth int64             `json:"allocated_bandwidth"`
@@ -94,7 +94,7 @@ type BandwidthAllocation struct {
 	Classes            []ClassAllocation `json:"classes"`
 }
 
-// ClassAllocation 类别带宽分配
+// ClassAllocation 类别带宽分配.
 type ClassAllocation struct {
 	ClassID    string  `json:"class_id"`
 	ClassName  string  `json:"class_name"`
@@ -103,7 +103,7 @@ type ClassAllocation struct {
 	Percentage float64 `json:"percentage"`
 }
 
-// TrafficEvent 流量事件
+// TrafficEvent 流量事件.
 type TrafficEvent struct {
 	ID            string    `json:"id"`
 	RuleID        string    `json:"rule_id"`
@@ -113,7 +113,7 @@ type TrafficEvent struct {
 	Details       string    `json:"details,omitempty"`
 }
 
-// TrafficShaperConfig 流量整形配置
+// TrafficShaperConfig 流量整形配置.
 type TrafficShaperConfig struct {
 	Enabled        bool  `json:"enabled"`
 	TotalBandwidth int64 `json:"total_bandwidth"`
@@ -122,7 +122,7 @@ type TrafficShaperConfig struct {
 	MaxEvents      int   `json:"max_events"`
 }
 
-// DefaultTrafficShaperConfig 默认配置
+// DefaultTrafficShaperConfig 默认配置.
 func DefaultTrafficShaperConfig() *TrafficShaperConfig {
 	return &TrafficShaperConfig{
 		Enabled:        true,
@@ -133,22 +133,22 @@ func DefaultTrafficShaperConfig() *TrafficShaperConfig {
 	}
 }
 
-// IsValidDirection 检查流量方向是否有效
+// IsValidDirection 检查流量方向是否有效.
 func IsValidDirection(d TrafficDirection) bool {
 	return d == DirectionInbound || d == DirectionOutbound || d == DirectionBoth
 }
 
-// IsValidProtocol 检查协议是否有效
+// IsValidProtocol 检查协议是否有效.
 func IsValidProtocol(p Protocol) bool {
 	return p == ProtocolTCP || p == ProtocolUDP || p == ProtocolAny
 }
 
-// IsValidAction 检查流量动作是否有效
+// IsValidAction 检查流量动作是否有效.
 func IsValidAction(a TrafficAction) bool {
 	return a == ActionShape || a == ActionBlock || a == ActionAllow
 }
 
-// IsValidPriority 检查优先级是否有效
+// IsValidPriority 检查优先级是否有效.
 func IsValidPriority(p int) bool {
 	return p >= 1 && p <= 10
 }

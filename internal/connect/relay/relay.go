@@ -17,14 +17,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// 错误定义
+// 错误定义.
 var (
 	ErrRelayNotConnected = errors.New("relay not connected")
 	ErrRelayAuthFailed   = errors.New("relay authentication failed")
 	ErrRelayTimeout      = errors.New("relay connection timeout")
 )
 
-// RelayConfig 中继配置
+// RelayConfig 中继配置.
 type RelayConfig struct {
 	ServerURL    string        `json:"server_url"`
 	Token        string        `json:"token"`
@@ -35,7 +35,7 @@ type RelayConfig struct {
 	PingInterval time.Duration `json:"ping_interval"`
 }
 
-// RelayClient 中继客户端
+// RelayClient 中继客户端.
 type RelayClient struct {
 	config    *RelayConfig
 	conn      *websocket.Conn
@@ -59,7 +59,7 @@ type RelayClient struct {
 	onData       func(TunnelData)
 }
 
-// RelayStats 中继统计
+// RelayStats 中继统计.
 type RelayStats struct {
 	BytesSent     uint64    `json:"bytes_sent"`
 	BytesReceived uint64    `json:"bytes_received"`
@@ -69,19 +69,19 @@ type RelayStats struct {
 	ConnectedAt   time.Time `json:"connected_at"`
 }
 
-// TunnelData 隧道数据
+// TunnelData 隧道数据.
 type TunnelData struct {
 	TunnelID string `json:"tunnel_id"`
 	Data     []byte `json:"data"`
 }
 
-// RelayMessage 中继消息
+// RelayMessage 中继消息.
 type RelayMessage struct {
 	Type    string          `json:"type"` // auth, ping, pong, data, tunnel
 	Payload json.RawMessage `json:"payload"`
 }
 
-// AuthPayload 认证载荷
+// AuthPayload 认证载荷.
 type AuthPayload struct {
 	DeviceID   string `json:"device_id"`
 	DeviceName string `json:"device_name"`
@@ -89,7 +89,7 @@ type AuthPayload struct {
 	Version    string `json:"version"`
 }
 
-// TunnelPayload 隧道载荷
+// TunnelPayload 隧道载荷.
 type TunnelPayload struct {
 	TunnelID  string `json:"tunnel_id"`
 	Name      string `json:"name"`
@@ -98,7 +98,7 @@ type TunnelPayload struct {
 	LocalPort int    `json:"local_port"`
 }
 
-// NewRelayClient 创建中继客户端
+// NewRelayClient 创建中继客户端.
 func NewRelayClient(config *RelayConfig, logger *zap.Logger) (*RelayClient, error) {
 	if config.ServerURL == "" {
 		return nil, errors.New("relay server URL required")
@@ -125,7 +125,7 @@ func NewRelayClient(config *RelayConfig, logger *zap.Logger) (*RelayClient, erro
 	}, nil
 }
 
-// Connect 连接到中继服务器
+// Connect 连接到中继服务器.
 func (r *RelayClient) Connect() error {
 	r.mu.Lock()
 	if r.status == "connected" {
@@ -193,7 +193,7 @@ func (r *RelayClient) Connect() error {
 	return nil
 }
 
-// authenticate 认证
+// authenticate 认证.
 func (r *RelayClient) authenticate() error {
 	auth := RelayMessage{
 		Type: "auth",
@@ -240,7 +240,7 @@ func (r *RelayClient) authenticate() error {
 	return nil
 }
 
-// readLoop 读取循环
+// readLoop 读取循环.
 func (r *RelayClient) readLoop() {
 	defer r.wg.Done()
 	defer r.conn.Close()
@@ -265,7 +265,7 @@ func (r *RelayClient) readLoop() {
 	}
 }
 
-// handleMessage 处理消息
+// handleMessage 处理消息.
 func (r *RelayClient) handleMessage(msg RelayMessage) {
 	r.mu.Lock()
 	r.stats.LastActivity = time.Now()
@@ -317,7 +317,7 @@ func (r *RelayClient) handleMessage(msg RelayMessage) {
 	}
 }
 
-// pingLoop 心跳循环
+// pingLoop 心跳循环.
 func (r *RelayClient) pingLoop() {
 	defer r.wg.Done()
 
@@ -356,7 +356,7 @@ func (r *RelayClient) pingLoop() {
 	}
 }
 
-// handleDisconnect 处理断开
+// handleDisconnect 处理断开.
 func (r *RelayClient) handleDisconnect(err error) {
 	r.mu.Lock()
 	if r.status == "disconnected" {
@@ -377,7 +377,7 @@ func (r *RelayClient) handleDisconnect(err error) {
 	r.logger.Info("Relay disconnected", zap.Error(err))
 }
 
-// SendData 发送数据
+// SendData 发送数据.
 func (r *RelayClient) SendData(data TunnelData) error {
 	r.mu.RLock()
 	conn := r.conn
@@ -404,7 +404,7 @@ func (r *RelayClient) SendData(data TunnelData) error {
 	return nil
 }
 
-// CreateTunnel 创建隧道
+// CreateTunnel 创建隧道.
 func (r *RelayClient) CreateTunnel(tunnel TunnelPayload) error {
 	r.mu.RLock()
 	conn := r.conn
@@ -422,7 +422,7 @@ func (r *RelayClient) CreateTunnel(tunnel TunnelPayload) error {
 	return conn.WriteJSON(msg)
 }
 
-// Disconnect 断开连接
+// Disconnect 断开连接.
 func (r *RelayClient) Disconnect() error {
 	r.cancel()
 	r.wg.Wait()
@@ -440,68 +440,68 @@ func (r *RelayClient) Disconnect() error {
 	return nil
 }
 
-// GetStatus 获取状态
+// GetStatus 获取状态.
 func (r *RelayClient) GetStatus() string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	return r.status
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (r *RelayClient) GetStats() RelayStats {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	return *r.stats
 }
 
-// GetPublicURL 获取公网URL
+// GetPublicURL 获取公网URL.
 func (r *RelayClient) GetPublicURL() string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	return r.publicURL
 }
 
-// GetDeviceID 获取设备ID
+// GetDeviceID 获取设备ID.
 func (r *RelayClient) GetDeviceID() string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	return r.deviceID
 }
 
-// SetOnConnect 设置连接回调
+// SetOnConnect 设置连接回调.
 func (r *RelayClient) SetOnConnect(fn func()) {
 	r.mu.Lock()
 	r.onConnect = fn
 	r.mu.Unlock()
 }
 
-// SetOnDisconnect 设置断开回调
+// SetOnDisconnect 设置断开回调.
 func (r *RelayClient) SetOnDisconnect(fn func(error)) {
 	r.mu.Lock()
 	r.onDisconnect = fn
 	r.mu.Unlock()
 }
 
-// SetOnData 设置数据回调
+// SetOnData 设置数据回调.
 func (r *RelayClient) SetOnData(fn func(TunnelData)) {
 	r.mu.Lock()
 	r.onData = fn
 	r.mu.Unlock()
 }
 
-// mustMarshal 必须成功的序列化
+// mustMarshal 必须成功的序列化.
 func mustMarshal(v interface{}) json.RawMessage {
 	data, _ := json.Marshal(v)
 	return data
 }
 
-// DialLocalService 连接本地服务
+// DialLocalService 连接本地服务.
 func (r *RelayClient) DialLocalService(localIP string, localPort int) (net.Conn, error) {
 	addr := net.JoinHostPort(localIP, strconv.Itoa(localPort))
 	return net.DialTimeout("tcp", addr, 10*time.Second)
 }
 
-// ForwardLocalData 转发数据到本地
+// ForwardLocalData 转发数据到本地.
 func (r *RelayClient) ForwardLocalData(tunnelID, localIP string, localPort int, data []byte) error {
 	conn, err := r.DialLocalService(localIP, localPort)
 	if err != nil {

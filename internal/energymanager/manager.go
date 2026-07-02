@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Manager manages the energy/power system
+// Manager manages the energy/power system.
 type Manager struct {
 	mu           sync.RWMutex
 	profiles     map[string]*PowerProfile
@@ -18,10 +18,10 @@ type Manager struct {
 	powerState   string
 }
 
-// Config is an alias for EnergyConfig
+// Config is an alias for EnergyConfig.
 type Config = EnergyConfig
 
-// EnergyConfig represents energy manager configuration
+// EnergyConfig represents energy manager configuration.
 type EnergyConfig struct {
 	Enabled            bool    `json:"enabled"`
 	MonitoringInterval int     `json:"monitoring_interval"`
@@ -33,7 +33,7 @@ type EnergyConfig struct {
 	AutoPowerSave      bool    `json:"auto_power_save"`
 }
 
-// NewManager creates a new energy manager
+// NewManager creates a new energy manager.
 func NewManager(config *EnergyConfig) *Manager {
 	if config == nil {
 		config = &EnergyConfig{
@@ -51,7 +51,7 @@ func NewManager(config *EnergyConfig) *Manager {
 	}
 }
 
-// CreateProfile creates a new power profile
+// CreateProfile creates a new power profile.
 func (m *Manager) CreateProfile(name, description, profileType string, settings PowerSettings) *PowerProfile {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -70,7 +70,7 @@ func (m *Manager) CreateProfile(name, description, profileType string, settings 
 	return profile
 }
 
-// GetProfile returns a profile by ID
+// GetProfile returns a profile by ID.
 func (m *Manager) GetProfile(id string) (*PowerProfile, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -78,7 +78,7 @@ func (m *Manager) GetProfile(id string) (*PowerProfile, bool) {
 	return profile, ok
 }
 
-// ListProfiles lists all profiles
+// ListProfiles lists all profiles.
 func (m *Manager) ListProfiles() []*PowerProfile {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -90,7 +90,7 @@ func (m *Manager) ListProfiles() []*PowerProfile {
 	return profiles
 }
 
-// SetActiveProfile sets the active profile
+// SetActiveProfile sets the active profile.
 func (m *Manager) SetActiveProfile(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -108,14 +108,14 @@ func (m *Manager) SetActiveProfile(id string) error {
 	return nil
 }
 
-// GetCurrentPowerUsage returns current power usage
+// GetCurrentPowerUsage returns current power usage.
 func (m *Manager) GetCurrentPowerUsage() *PowerUsage {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.currentUsage
 }
 
-// GetPowerHistory returns power usage history
+// GetPowerHistory returns power usage history.
 func (m *Manager) GetPowerHistory(period string) *PowerHistory {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -150,7 +150,7 @@ func (m *Manager) GetPowerHistory(period string) *PowerHistory {
 	return history
 }
 
-// GetEnergyStats returns energy statistics
+// GetEnergyStats returns energy statistics.
 func (m *Manager) GetEnergyStats() *EnergyStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -169,7 +169,7 @@ func (m *Manager) GetEnergyStats() *EnergyStats {
 	return stats
 }
 
-// CreateSchedule creates a power schedule
+// CreateSchedule creates a power schedule.
 func (m *Manager) CreateSchedule(name, scheduleType, timeStr string, days []string) *ScheduleEntry {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -188,7 +188,7 @@ func (m *Manager) CreateSchedule(name, scheduleType, timeStr string, days []stri
 	return schedule
 }
 
-// ListSchedules lists all schedules
+// ListSchedules lists all schedules.
 func (m *Manager) ListSchedules() []*ScheduleEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -200,7 +200,7 @@ func (m *Manager) ListSchedules() []*ScheduleEntry {
 	return schedules
 }
 
-// DeleteSchedule deletes a schedule
+// DeleteSchedule deletes a schedule.
 func (m *Manager) DeleteSchedule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -213,14 +213,14 @@ func (m *Manager) DeleteSchedule(id string) error {
 	return nil
 }
 
-// GetAlerts returns temperature alerts
+// GetAlerts returns temperature alerts.
 func (m *Manager) GetAlerts() []*TemperatureAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.alerts
 }
 
-// AcknowledgeAlert acknowledges a temperature alert
+// AcknowledgeAlert acknowledges a temperature alert.
 func (m *Manager) AcknowledgeAlert(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -235,7 +235,7 @@ func (m *Manager) AcknowledgeAlert(id string) error {
 	return fmt.Errorf("alert not found: %s", id)
 }
 
-// RecordReading records a power reading
+// RecordReading records a power reading.
 func (m *Manager) RecordReading(reading *PowerReading) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -248,7 +248,7 @@ func (m *Manager) RecordReading(reading *PowerReading) {
 	m.currentUsage = &usage
 }
 
-// SetPowerState sets the power state
+// SetPowerState sets the power state.
 func (m *Manager) SetPowerState(state string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -256,7 +256,7 @@ func (m *Manager) SetPowerState(state string) error {
 	return nil
 }
 
-// GetStats returns current stats
+// GetStats returns current stats.
 func (m *Manager) GetStats() *EnergyStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -274,7 +274,7 @@ func (m *Manager) GetStats() *EnergyStats {
 	return stats
 }
 
-// EstimateBill estimates the electricity bill
+// EstimateBill estimates the electricity bill.
 func (m *Manager) EstimateBill(days int) *PowerBudget {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -295,7 +295,7 @@ func (m *Manager) EstimateBill(days int) *PowerBudget {
 	}
 }
 
-// GetCarbonMetrics returns carbon emission metrics
+// GetCarbonMetrics returns carbon emission metrics.
 func (m *Manager) GetCarbonMetrics() *CarbonMetrics {
 	return &CarbonMetrics{
 		GridCarbonFactor: m.config.CarbonFactor,

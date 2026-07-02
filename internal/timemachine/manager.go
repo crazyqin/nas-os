@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager Time Machine 管理器
+// Manager Time Machine 管理器.
 type Manager struct {
 	mu            sync.RWMutex
 	shares        map[string]*TimeMachineShare
@@ -29,7 +29,7 @@ type Manager struct {
 	cleanupTicker *time.Ticker
 }
 
-// NewManager 创建 Time Machine 管理器
+// NewManager 创建 Time Machine 管理器.
 func NewManager(logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -71,7 +71,7 @@ func NewManager(logger *zap.Logger) *Manager {
 	return m
 }
 
-// initDefaults 初始化默认配置
+// initDefaults 初始化默认配置.
 func (m *Manager) initDefaults() {
 	defaultShare := &TimeMachineShare{
 		ID:        "default",
@@ -86,7 +86,7 @@ func (m *Manager) initDefaults() {
 	m.shares["default"] = defaultShare
 }
 
-// Start 启动 Time Machine 服务
+// Start 启动 Time Machine 服务.
 func (m *Manager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -117,7 +117,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止 Time Machine 服务
+// Stop 停止 Time Machine 服务.
 func (m *Manager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -139,7 +139,7 @@ func (m *Manager) Stop() error {
 
 // ========== 共享管理 ==========
 
-// ListShares 列出所有共享
+// ListShares 列出所有共享.
 func (m *Manager) ListShares() []TimeMachineShare {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -151,7 +151,7 @@ func (m *Manager) ListShares() []TimeMachineShare {
 	return shares
 }
 
-// CreateShare 创建共享
+// CreateShare 创建共享.
 func (m *Manager) CreateShare(name, path string, protocol Protocol) (*TimeMachineShare, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -191,7 +191,7 @@ func (m *Manager) CreateShare(name, path string, protocol Protocol) (*TimeMachin
 	return share, nil
 }
 
-// UpdateShare 更新共享
+// UpdateShare 更新共享.
 func (m *Manager) UpdateShare(id, name, path string, protocol Protocol, enabled bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -220,7 +220,7 @@ func (m *Manager) UpdateShare(id, name, path string, protocol Protocol, enabled 
 	return nil
 }
 
-// DeleteShare 删除共享
+// DeleteShare 删除共享.
 func (m *Manager) DeleteShare(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -243,7 +243,7 @@ func (m *Manager) DeleteShare(id string) error {
 
 // ========== 设备管理 ==========
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (m *Manager) ListDevices() []BackupDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -255,7 +255,7 @@ func (m *Manager) ListDevices() []BackupDevice {
 	return devices
 }
 
-// RegisterDevice 注册设备
+// RegisterDevice 注册设备.
 func (m *Manager) RegisterDevice(hostname, macAddress, ipAddress, osVersion string) (*BackupDevice, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -290,7 +290,7 @@ func (m *Manager) RegisterDevice(hostname, macAddress, ipAddress, osVersion stri
 	return device, nil
 }
 
-// ApproveDevice 批准设备
+// ApproveDevice 批准设备.
 func (m *Manager) ApproveDevice(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -311,7 +311,7 @@ func (m *Manager) ApproveDevice(id string) error {
 	return nil
 }
 
-// RemoveDevice 移除设备
+// RemoveDevice 移除设备.
 func (m *Manager) RemoveDevice(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -348,7 +348,7 @@ func (m *Manager) RemoveDevice(id string) error {
 	return nil
 }
 
-// GetDeviceBackups 获取设备备份列表
+// GetDeviceBackups 获取设备备份列表.
 func (m *Manager) GetDeviceBackups(deviceID string) ([]BackupJob, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -369,7 +369,7 @@ func (m *Manager) GetDeviceBackups(deviceID string) ([]BackupJob, error) {
 
 // ========== 备份任务管理 ==========
 
-// ListBackups 列出所有备份任务
+// ListBackups 列出所有备份任务.
 func (m *Manager) ListBackups() []BackupJob {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -381,7 +381,7 @@ func (m *Manager) ListBackups() []BackupJob {
 	return jobs
 }
 
-// GetBackup 获取备份详情
+// GetBackup 获取备份详情.
 func (m *Manager) GetBackup(id string) (*BackupJob, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -393,7 +393,7 @@ func (m *Manager) GetBackup(id string) (*BackupJob, error) {
 	return job, nil
 }
 
-// CreateBackup 创建备份任务
+// CreateBackup 创建备份任务.
 func (m *Manager) CreateBackup(deviceID string) (*BackupJob, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -435,7 +435,7 @@ func (m *Manager) CreateBackup(deviceID string) (*BackupJob, error) {
 	return job, nil
 }
 
-// CompleteBackup 完成备份任务
+// CompleteBackup 完成备份任务.
 func (m *Manager) CompleteBackup(id string, size int64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -482,7 +482,7 @@ func (m *Manager) CompleteBackup(id string, size int64) error {
 	return nil
 }
 
-// FailBackup 标记备份失败
+// FailBackup 标记备份失败.
 func (m *Manager) FailBackup(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -505,7 +505,7 @@ func (m *Manager) FailBackup(id string) error {
 	return nil
 }
 
-// DeleteBackup 删除备份
+// DeleteBackup 删除备份.
 func (m *Manager) DeleteBackup(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -539,7 +539,7 @@ func (m *Manager) DeleteBackup(id string) error {
 
 // ========== 配额管理 ==========
 
-// GetQuota 获取设备配额
+// GetQuota 获取设备配额.
 func (m *Manager) GetQuota(deviceID string) (*BackupQuota, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -562,7 +562,7 @@ func (m *Manager) GetQuota(deviceID string) (*BackupQuota, error) {
 	return quota, nil
 }
 
-// SetQuota 设置设备配额
+// SetQuota 设置设备配额.
 func (m *Manager) SetQuota(deviceID string, quotaBytes int64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -596,14 +596,14 @@ func (m *Manager) SetQuota(deviceID string, quotaBytes int64) error {
 
 // ========== 保留策略 ==========
 
-// GetRetentionPolicy 获取保留策略
+// GetRetentionPolicy 获取保留策略.
 func (m *Manager) GetRetentionPolicy() RetentionPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.retention
 }
 
-// UpdateRetentionPolicy 更新保留策略
+// UpdateRetentionPolicy 更新保留策略.
 func (m *Manager) UpdateRetentionPolicy(policy RetentionPolicy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -650,7 +650,7 @@ func (m *Manager) UpdateRetentionPolicy(policy RetentionPolicy) error {
 	return nil
 }
 
-// CleanupExpiredBackups 手动触发清理
+// CleanupExpiredBackups 手动触发清理.
 func (m *Manager) CleanupExpiredBackups() (int, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -658,7 +658,7 @@ func (m *Manager) CleanupExpiredBackups() (int, error) {
 	return m.cleanupExpired()
 }
 
-// autoCleanup 自动清理过期备份
+// autoCleanup 自动清理过期备份.
 func (m *Manager) autoCleanup() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -674,7 +674,7 @@ func (m *Manager) autoCleanup() {
 	}
 }
 
-// cleanupExpired 清理过期备份（内部调用，需要已加锁）
+// cleanupExpired 清理过期备份（内部调用，需要已加锁）.
 func (m *Manager) cleanupExpired() (int, error) {
 	count := 0
 	cutoff := time.Now().AddDate(0, 0, -m.retention.RetentionDays)
@@ -727,7 +727,7 @@ func (m *Manager) cleanupExpired() (int, error) {
 	return count, nil
 }
 
-// deleteJobInternal 删除备份任务（内部调用，需要已加锁）
+// deleteJobInternal 删除备份任务（内部调用，需要已加锁）.
 func (m *Manager) deleteJobInternal(id string) {
 	job, ok := m.jobs[id]
 	if !ok {
@@ -752,7 +752,7 @@ func (m *Manager) deleteJobInternal(id string) {
 	delete(m.jobs, id)
 }
 
-// sortBackups 按时间排序备份（新的在前）
+// sortBackups 按时间排序备份（新的在前）.
 func sortBackups(backups []*BackupJob) {
 	for i := 1; i < len(backups); i++ {
 		for j := i; j > 0; j-- {
@@ -767,14 +767,14 @@ func sortBackups(backups []*BackupJob) {
 
 // ========== 流量限制 ==========
 
-// GetTrafficLimit 获取流量限制
+// GetTrafficLimit 获取流量限制.
 func (m *Manager) GetTrafficLimit() TrafficLimit {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.traffic
 }
 
-// UpdateTrafficLimit 更新流量限制
+// UpdateTrafficLimit 更新流量限制.
 func (m *Manager) UpdateTrafficLimit(limit TrafficLimit) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -794,14 +794,14 @@ func (m *Manager) UpdateTrafficLimit(limit TrafficLimit) error {
 
 // ========== 广播配置 ==========
 
-// GetBroadcastConfig 获取广播配置
+// GetBroadcastConfig 获取广播配置.
 func (m *Manager) GetBroadcastConfig() BroadcastConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.broadcast
 }
 
-// UpdateBroadcastConfig 更新广播配置
+// UpdateBroadcastConfig 更新广播配置.
 func (m *Manager) UpdateBroadcastConfig(config BroadcastConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -821,14 +821,14 @@ func (m *Manager) UpdateBroadcastConfig(config BroadcastConfig) error {
 
 // ========== 统计 ==========
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() TimeMachineStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.stats
 }
 
-// updateStats 更新统计信息（内部调用，需要已加锁）
+// updateStats 更新统计信息（内部调用，需要已加锁）.
 func (m *Manager) updateStats() {
 	stats := TimeMachineStats{}
 
@@ -853,7 +853,7 @@ func (m *Manager) updateStats() {
 	m.stats = stats
 }
 
-// updateDeviceShareCount 更新设备关联的共享计数
+// updateDeviceShareCount 更新设备关联的共享计数.
 func (m *Manager) updateDeviceShareCount(deviceID string) {
 	// 这里简化处理，直接统计所有设备数
 	// 实际应该统计每个共享关联的设备数
@@ -862,7 +862,7 @@ func (m *Manager) updateDeviceShareCount(deviceID string) {
 	}
 }
 
-// GetServiceStatus 获取服务状态
+// GetServiceStatus 获取服务状态.
 func (m *Manager) GetServiceStatus() ServiceStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

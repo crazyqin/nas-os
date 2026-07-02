@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// TrafficClass 流量类型
+// TrafficClass 流量类型.
 type TrafficClass string
 
 const (
@@ -22,7 +22,7 @@ const (
 	TrafficClassOther        TrafficClass = "other"         // 其他
 )
 
-// QoSPolicy QoS策略
+// QoSPolicy QoS策略.
 type QoSPolicy struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -34,7 +34,7 @@ type QoSPolicy struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// TrafficProfile 流量配置文件
+// TrafficProfile 流量配置文件.
 type TrafficProfile struct {
 	ID           string       `json:"id"`
 	Name         string       `json:"name"`
@@ -48,7 +48,7 @@ type TrafficProfile struct {
 	UpdatedAt    time.Time    `json:"updated_at"`
 }
 
-// BandwidthRule 带宽规则
+// BandwidthRule 带宽规则.
 type BandwidthRule struct {
 	ID           string       `json:"id"`
 	Name         string       `json:"name"`
@@ -66,7 +66,7 @@ type BandwidthRule struct {
 	UpdatedAt    time.Time    `json:"updated_at"`
 }
 
-// BandwidthStats 带宽统计
+// BandwidthStats 带宽统计.
 type BandwidthStats struct {
 	RuleID       string       `json:"rule_id"`
 	TrafficClass TrafficClass `json:"traffic_class"`
@@ -78,7 +78,7 @@ type BandwidthStats struct {
 	LastUpdated  time.Time    `json:"last_updated"`
 }
 
-// SmartBandwidthManager 智能带宽管理器
+// SmartBandwidthManager 智能带宽管理器.
 type SmartBandwidthManager struct {
 	mu           sync.RWMutex
 	rules        map[string]*BandwidthRule
@@ -89,7 +89,7 @@ type SmartBandwidthManager struct {
 	trafficRules map[TrafficClass][]*BandwidthRule // 按流量类型索引的规则
 }
 
-// SmartBandwidthConfig 智能带宽配置
+// SmartBandwidthConfig 智能带宽配置.
 type SmartBandwidthConfig struct {
 	TotalBandwidthMbps int64  `json:"total_bandwidth_mbps"` // 总带宽
 	Enabled            bool   `json:"enabled"`
@@ -97,7 +97,7 @@ type SmartBandwidthConfig struct {
 	AdjustInterval     int    `json:"adjust_interval_sec"` // 动态调整间隔（秒）
 }
 
-// NewSmartBandwidthManager 创建智能带宽管理器
+// NewSmartBandwidthManager 创建智能带宽管理器.
 func NewSmartBandwidthManager(config *SmartBandwidthConfig) *SmartBandwidthManager {
 	if config == nil {
 		config = &SmartBandwidthConfig{
@@ -116,7 +116,7 @@ func NewSmartBandwidthManager(config *SmartBandwidthConfig) *SmartBandwidthManag
 	}
 }
 
-// SetBandwidthLimit 设置带宽限制
+// SetBandwidthLimit 设置带宽限制.
 func (m *SmartBandwidthManager) SetBandwidthLimit(rule *BandwidthRule) (*BandwidthRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -167,7 +167,7 @@ func (m *SmartBandwidthManager) SetBandwidthLimit(rule *BandwidthRule) (*Bandwid
 	return rule, nil
 }
 
-// ClassifyTraffic 分类流量
+// ClassifyTraffic 分类流量.
 func (m *SmartBandwidthManager) ClassifyTraffic(srcIP, dstIP string, srcPort, dstPort int, protocol string) TrafficClass {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -220,7 +220,7 @@ func (m *SmartBandwidthManager) ClassifyTraffic(srcIP, dstIP string, srcPort, ds
 	return TrafficClassOther
 }
 
-// GetBandwidthStats 获取带宽统计
+// GetBandwidthStats 获取带宽统计.
 func (m *SmartBandwidthManager) GetBandwidthStats(ruleID string) (*BandwidthStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -233,7 +233,7 @@ func (m *SmartBandwidthManager) GetBandwidthStats(ruleID string) (*BandwidthStat
 	return stats, nil
 }
 
-// GetAllBandwidthStats 获取所有带宽统计
+// GetAllBandwidthStats 获取所有带宽统计.
 func (m *SmartBandwidthManager) GetAllBandwidthStats() map[string]*BandwidthStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -245,7 +245,7 @@ func (m *SmartBandwidthManager) GetAllBandwidthStats() map[string]*BandwidthStat
 	return result
 }
 
-// GetBandwidthStatsByClass 按流量类型获取带宽统计
+// GetBandwidthStatsByClass 按流量类型获取带宽统计.
 func (m *SmartBandwidthManager) GetBandwidthStatsByClass(class TrafficClass) []*BandwidthStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -259,7 +259,7 @@ func (m *SmartBandwidthManager) GetBandwidthStatsByClass(class TrafficClass) []*
 	return result
 }
 
-// ApplyQoSPolicy 应用QoS策略
+// ApplyQoSPolicy 应用QoS策略.
 func (m *SmartBandwidthManager) ApplyQoSPolicy(policy *QoSPolicy) (*QoSPolicy, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -297,7 +297,7 @@ func (m *SmartBandwidthManager) ApplyQoSPolicy(policy *QoSPolicy) (*QoSPolicy, e
 	return policy, nil
 }
 
-// AdjustDynamic 动态调整带宽分配
+// AdjustDynamic 动态调整带宽分配.
 func (m *SmartBandwidthManager) AdjustDynamic() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -376,7 +376,7 @@ func (m *SmartBandwidthManager) AdjustDynamic() error {
 	return nil
 }
 
-// GetTrafficProfiles 获取流量配置文件列表
+// GetTrafficProfiles 获取流量配置文件列表.
 func (m *SmartBandwidthManager) GetTrafficProfiles() []*TrafficProfile {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -388,7 +388,7 @@ func (m *SmartBandwidthManager) GetTrafficProfiles() []*TrafficProfile {
 	return profiles
 }
 
-// GetTrafficProfile 获取流量配置文件
+// GetTrafficProfile 获取流量配置文件.
 func (m *SmartBandwidthManager) GetTrafficProfile(id string) (*TrafficProfile, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -401,7 +401,7 @@ func (m *SmartBandwidthManager) GetTrafficProfile(id string) (*TrafficProfile, e
 	return profile, nil
 }
 
-// CreateTrafficProfile 创建流量配置文件
+// CreateTrafficProfile 创建流量配置文件.
 func (m *SmartBandwidthManager) CreateTrafficProfile(profile *TrafficProfile) (*TrafficProfile, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -439,7 +439,7 @@ func (m *SmartBandwidthManager) CreateTrafficProfile(profile *TrafficProfile) (*
 	return profile, nil
 }
 
-// DeleteBandwidthRule 删除带宽规则
+// DeleteBandwidthRule 删除带宽规则.
 func (m *SmartBandwidthManager) DeleteBandwidthRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -465,7 +465,7 @@ func (m *SmartBandwidthManager) DeleteBandwidthRule(id string) error {
 	return nil
 }
 
-// GetBandwidthRule 获取带宽规则
+// GetBandwidthRule 获取带宽规则.
 func (m *SmartBandwidthManager) GetBandwidthRule(id string) (*BandwidthRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -478,7 +478,7 @@ func (m *SmartBandwidthManager) GetBandwidthRule(id string) (*BandwidthRule, err
 	return rule, nil
 }
 
-// ListBandwidthRules 列出所有带宽规则
+// ListBandwidthRules 列出所有带宽规则.
 func (m *SmartBandwidthManager) ListBandwidthRules() []*BandwidthRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -490,7 +490,7 @@ func (m *SmartBandwidthManager) ListBandwidthRules() []*BandwidthRule {
 	return rules
 }
 
-// UpdateBandwidthRule 更新带宽规则
+// UpdateBandwidthRule 更新带宽规则.
 func (m *SmartBandwidthManager) UpdateBandwidthRule(id string, update *BandwidthRule) (*BandwidthRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -547,7 +547,7 @@ func (m *SmartBandwidthManager) UpdateBandwidthRule(id string, update *Bandwidth
 	return rule, nil
 }
 
-// EnableBandwidthRule 启用带宽规则
+// EnableBandwidthRule 启用带宽规则.
 func (m *SmartBandwidthManager) EnableBandwidthRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -562,7 +562,7 @@ func (m *SmartBandwidthManager) EnableBandwidthRule(id string) error {
 	return nil
 }
 
-// DisableBandwidthRule 禁用带宽规则
+// DisableBandwidthRule 禁用带宽规则.
 func (m *SmartBandwidthManager) DisableBandwidthRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -577,7 +577,7 @@ func (m *SmartBandwidthManager) DisableBandwidthRule(id string) error {
 	return nil
 }
 
-// GetQoSPolicy 获取QoS策略
+// GetQoSPolicy 获取QoS策略.
 func (m *SmartBandwidthManager) GetQoSPolicy(id string) (*QoSPolicy, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -590,7 +590,7 @@ func (m *SmartBandwidthManager) GetQoSPolicy(id string) (*QoSPolicy, error) {
 	return policy, nil
 }
 
-// ListQoSPolicies 列出所有QoS策略
+// ListQoSPolicies 列出所有QoS策略.
 func (m *SmartBandwidthManager) ListQoSPolicies() []*QoSPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -602,7 +602,7 @@ func (m *SmartBandwidthManager) ListQoSPolicies() []*QoSPolicy {
 	return policies
 }
 
-// DeleteQoSPolicy 删除QoS策略
+// DeleteQoSPolicy 删除QoS策略.
 func (m *SmartBandwidthManager) DeleteQoSPolicy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -615,7 +615,7 @@ func (m *SmartBandwidthManager) DeleteQoSPolicy(id string) error {
 	return nil
 }
 
-// UpdateQoSPolicy 更新QoS策略
+// UpdateQoSPolicy 更新QoS策略.
 func (m *SmartBandwidthManager) UpdateQoSPolicy(id string, update *QoSPolicy) (*QoSPolicy, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

@@ -7,7 +7,7 @@ import "time"
 
 // ==================== 快照相关 ====================
 
-// SnapshotStatus 快照状态
+// SnapshotStatus 快照状态.
 type SnapshotStatus string
 
 const (
@@ -19,7 +19,7 @@ const (
 	SnapshotStatusFailed   SnapshotStatus = "failed"   // 失败
 )
 
-// SnapshotTrigger 触发方式
+// SnapshotTrigger 触发方式.
 type SnapshotTrigger string
 
 const (
@@ -29,7 +29,7 @@ const (
 	TriggerPolicy    SnapshotTrigger = "policy"    // 策略触发
 )
 
-// Snapshot 快照记录
+// Snapshot 快照记录.
 type Snapshot struct {
 	ID          string          `json:"id"`
 	Name        string          `json:"name"`
@@ -45,7 +45,7 @@ type Snapshot struct {
 	ExpiresAt   *time.Time      `json:"expires_at,omitempty"` // 过期时间，nil 表示永不过期
 }
 
-// SnapshotSummary 快照摘要（列表用）
+// SnapshotSummary 快照摘要（列表用）.
 type SnapshotSummary struct {
 	ID         string          `json:"id"`
 	Name       string          `json:"name"`
@@ -59,7 +59,7 @@ type SnapshotSummary struct {
 
 // ==================== 快照策略相关 ====================
 
-// ScheduleUnit 调度单位
+// ScheduleUnit 调度单位.
 type ScheduleUnit string
 
 const (
@@ -70,7 +70,7 @@ const (
 	ScheduleMonthly  ScheduleUnit = "monthly"  // 每月
 )
 
-// RetentionAction 保留策略动作
+// RetentionAction 保留策略动作.
 type RetentionAction string
 
 const (
@@ -79,7 +79,7 @@ const (
 	RetentionKeep    RetentionAction = "keep"    // 保留（忽略过期）
 )
 
-// SnapshotPolicy 自动快照策略
+// SnapshotPolicy 自动快照策略.
 type SnapshotPolicy struct {
 	ID              string          `json:"id"`
 	Name            string          `json:"name" binding:"required"`
@@ -105,7 +105,7 @@ type SnapshotPolicy struct {
 
 // ==================== 文件版本相关 ====================
 
-// FileType 文件类型
+// FileType 文件类型.
 type FileType string
 
 const (
@@ -117,7 +117,7 @@ const (
 	FileTypeLink   FileType = "link"   // 符号链接
 )
 
-// FileVersion 文件版本
+// FileVersion 文件版本.
 type FileVersion struct {
 	ID          string    `json:"id"`
 	SnapshotID  string    `json:"snapshot_id"` // 所属快照
@@ -138,7 +138,7 @@ type FileVersion struct {
 
 // ==================== 差异对比相关 ====================
 
-// DiffType 差异类型
+// DiffType 差异类型.
 type DiffType string
 
 const (
@@ -150,7 +150,7 @@ const (
 	DiffUnchanged DiffType = "unchanged" // 未变更
 )
 
-// DiffHunk 差异片段
+// DiffHunk 差异片段.
 type DiffHunk struct {
 	OldStart int        `json:"old_start"` // 旧文件起始行
 	OldLines int        `json:"old_lines"` // 旧文件行数
@@ -160,7 +160,7 @@ type DiffHunk struct {
 	Lines    []DiffLine `json:"lines"`     // 逐行差异
 }
 
-// DiffLine 差异行
+// DiffLine 差异行.
 type DiffLine struct {
 	Type    DiffType `json:"type"`     // added/deleted/unchanged
 	OldLine int      `json:"old_line"` // 旧文件行号（0 表示新增行）
@@ -168,7 +168,7 @@ type DiffLine struct {
 	Content string   `json:"content"`  // 行内容
 }
 
-// FileDiff 文件差异
+// FileDiff 文件差异.
 type FileDiff struct {
 	FilePath   string     `json:"file_path"`
 	OldPath    string     `json:"old_path,omitempty"` // 重命名时的旧路径
@@ -186,7 +186,7 @@ type FileDiff struct {
 	Deletions  int        `json:"deletions"`            // 删除行数
 }
 
-// ImageDiff 图片差异信息
+// ImageDiff 图片差异信息.
 type ImageDiff struct {
 	OldWidth     int     `json:"old_width"`
 	OldHeight    int     `json:"old_height"`
@@ -198,7 +198,7 @@ type ImageDiff struct {
 	Similarity   float64 `json:"similarity"`               // 相似度（0-1）
 }
 
-// SnapshotDiff 快照间差异
+// SnapshotDiff 快照间差异.
 type SnapshotDiff struct {
 	OldSnapshotID  string     `json:"old_snapshot_id"`
 	NewSnapshotID  string     `json:"new_snapshot_id"`
@@ -216,7 +216,7 @@ type SnapshotDiff struct {
 
 // ==================== 回滚相关 ====================
 
-// RollbackStatus 回滚状态
+// RollbackStatus 回滚状态.
 type RollbackStatus string
 
 const (
@@ -228,7 +228,7 @@ const (
 	RollbackPartial   RollbackStatus = "partial" // 部分成功
 )
 
-// RollbackMode 回滚模式
+// RollbackMode 回滚模式.
 type RollbackMode string
 
 const (
@@ -238,7 +238,7 @@ const (
 	RollbackDryRun    RollbackMode = "dry_run"   // 试运行（不实际修改）
 )
 
-// RollbackRequest 回滚请求
+// RollbackRequest 回滚请求.
 type RollbackRequest struct {
 	SnapshotID  string       `json:"snapshot_id" binding:"required"` // 目标快照
 	TargetPath  string       `json:"target_path"`                    // 恢复目标路径（默认原路径）
@@ -249,7 +249,7 @@ type RollbackRequest struct {
 	Force       bool         `json:"force"`                          // 强制（跳过确认）
 }
 
-// RollbackResult 回滚结果
+// RollbackResult 回滚结果.
 type RollbackResult struct {
 	ID             string          `json:"id"`
 	SnapshotID     string          `json:"snapshot_id"`
@@ -266,7 +266,7 @@ type RollbackResult struct {
 	Duration       time.Duration   `json:"duration"`
 }
 
-// RollbackError 回滚错误
+// RollbackError 回滚错误.
 type RollbackError struct {
 	FilePath string `json:"file_path"`
 	Error    string `json:"error"`
@@ -274,7 +274,7 @@ type RollbackError struct {
 
 // ==================== 回收站相关 ====================
 
-// TrashStatus 回收站状态
+// TrashStatus 回收站状态.
 type TrashStatus string
 
 const (
@@ -283,7 +283,7 @@ const (
 	TrashStatusPurged   TrashStatus = "purged"   // 已彻底删除
 )
 
-// TrashItem 回收站项目
+// TrashItem 回收站项目.
 type TrashItem struct {
 	ID           string      `json:"id"`
 	OriginalPath string      `json:"original_path"` // 原始路径
@@ -303,7 +303,7 @@ type TrashItem struct {
 
 // ==================== 文件锁定相关 ====================
 
-// LockType 锁类型
+// LockType 锁类型.
 type LockType string
 
 const (
@@ -312,7 +312,7 @@ const (
 	LockTypeAuto LockType = "auto" // 自动锁（快照自动锁定重要文件）
 )
 
-// FileLock 文件锁
+// FileLock 文件锁.
 type FileLock struct {
 	ID        string     `json:"id"`
 	FilePath  string     `json:"file_path"`
@@ -325,7 +325,7 @@ type FileLock struct {
 
 // ==================== 存储分析相关 ====================
 
-// StorageTier 存储层级
+// StorageTier 存储层级.
 type StorageTier string
 
 const (
@@ -334,7 +334,7 @@ const (
 	TierCold StorageTier = "cold" // 冷存储（归档）
 )
 
-// StorageUsage 存储使用情况
+// StorageUsage 存储使用情况.
 type StorageUsage struct {
 	TotalSpace     int64                 `json:"total_space"`     // 总空间（字节）
 	UsedSpace      int64                 `json:"used_space"`      // 已用空间
@@ -349,7 +349,7 @@ type StorageUsage struct {
 	UpdatedAt      time.Time             `json:"updated_at"`
 }
 
-// SnapshotStorageInfo 快照存储信息
+// SnapshotStorageInfo 快照存储信息.
 type SnapshotStorageInfo struct {
 	SnapshotID    string      `json:"snapshot_id"`
 	SnapshotName  string      `json:"snapshot_name"`
@@ -364,7 +364,7 @@ type SnapshotStorageInfo struct {
 
 // ==================== 通用请求/响应 ====================
 
-// ListOptions 列表查询选项
+// ListOptions 列表查询选项.
 type ListOptions struct {
 	Page      int    `json:"page" form:"page"`
 	PageSize  int    `json:"page_size" form:"page_size"`
@@ -376,7 +376,7 @@ type ListOptions struct {
 	EndDate   string `json:"end_date" form:"end_date"`
 }
 
-// PageResult 分页结果
+// PageResult 分页结果.
 type PageResult struct {
 	Items      interface{} `json:"items"`
 	Total      int         `json:"total"`
@@ -385,7 +385,7 @@ type PageResult struct {
 	TotalPages int         `json:"total_pages"`
 }
 
-// HealthStatus 健康状态
+// HealthStatus 健康状态.
 type HealthStatus struct {
 	Status          string    `json:"status"` // healthy/degraded/unhealthy
 	ActiveSnapshots int       `json:"active_snapshots"`
@@ -401,7 +401,7 @@ type HealthStatus struct {
 
 // ==================== 配置 ====================
 
-// FileTimeMachineConfig 文件时光机配置
+// FileTimeMachineConfig 文件时光机配置.
 type FileTimeMachineConfig struct {
 	Enabled              bool     `json:"enabled"`
 	StorageRoot          string   `json:"storage_root"`                 // 快照存储根目录
@@ -418,7 +418,7 @@ type FileTimeMachineConfig struct {
 	NotificationEmail    string   `json:"notification_email,omitempty"` // 通知邮箱
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *FileTimeMachineConfig {
 	return &FileTimeMachineConfig{
 		Enabled:              true,

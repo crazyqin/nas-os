@@ -14,7 +14,7 @@ import (
 // SMARTAnalyzer - SMART 数据分析引擎
 // ============================================================
 
-// SMARTAnalyzer SMART 数据分析引擎
+// SMARTAnalyzer SMART 数据分析引擎.
 type SMARTAnalyzer struct {
 	mu            sync.RWMutex
 	history       map[string][]SMARTData
@@ -22,7 +22,7 @@ type SMARTAnalyzer struct {
 	maxHistoryLen int
 }
 
-// NewSMARTAnalyzer 创建 SMART 分析器
+// NewSMARTAnalyzer 创建 SMART 分析器.
 func NewSMARTAnalyzer(maxHistory int) *SMARTAnalyzer {
 	if maxHistory <= 0 {
 		maxHistory = 365
@@ -34,7 +34,7 @@ func NewSMARTAnalyzer(maxHistory int) *SMARTAnalyzer {
 	}
 }
 
-// RecordData 记录 SMART 数据
+// RecordData 记录 SMART 数据.
 func (a *SMARTAnalyzer) RecordData(data SMARTData) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -47,7 +47,7 @@ func (a *SMARTAnalyzer) RecordData(data SMARTData) {
 	delete(a.analysisCache, device)
 }
 
-// GetLatestData 获取设备最新 SMART 数据
+// GetLatestData 获取设备最新 SMART 数据.
 func (a *SMARTAnalyzer) GetLatestData(device string) (*SMARTData, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -60,14 +60,14 @@ func (a *SMARTAnalyzer) GetLatestData(device string) (*SMARTData, error) {
 	return &latest, nil
 }
 
-// GetHistory 获取设备历史数据
+// GetHistory 获取设备历史数据.
 func (a *SMARTAnalyzer) GetHistory(device string) []SMARTData {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	return a.history[device]
 }
 
-// GetDevices 获取所有设备列表
+// GetDevices 获取所有设备列表.
 func (a *SMARTAnalyzer) GetDevices() []string {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -80,7 +80,7 @@ func (a *SMARTAnalyzer) GetDevices() []string {
 	return devices
 }
 
-// Analyze 对设备进行 SMART 分析
+// Analyze 对设备进行 SMART 分析.
 func (a *SMARTAnalyzer) Analyze(device string) (*SMARTAnalysisResult, error) {
 	a.mu.RLock()
 	if cached, ok := a.analysisCache[device]; ok {
@@ -157,7 +157,7 @@ func (a *SMARTAnalyzer) Analyze(device string) (*SMARTAnalysisResult, error) {
 	return result, nil
 }
 
-// extractAttributeHistory 提取属性历史值
+// extractAttributeHistory 提取属性历史值.
 func (a *SMARTAnalyzer) extractAttributeHistory(history []SMARTData, attrID SMARTAttributeID) []uint64 {
 	var values []uint64
 	for _, snapshot := range history {
@@ -171,7 +171,7 @@ func (a *SMARTAnalyzer) extractAttributeHistory(history []SMARTData, attrID SMAR
 	return values
 }
 
-// linearRegression 线性回归分析
+// linearRegression 线性回归分析.
 func (a *SMARTAnalyzer) linearRegression(values []uint64) *LinearRegressionResult {
 	n := float64(len(values))
 	if n < 2 {
@@ -215,7 +215,7 @@ func (a *SMARTAnalyzer) linearRegression(values []uint64) *LinearRegressionResul
 	}
 }
 
-// determineTrend 根据属性类型和斜率确定趋势
+// determineTrend 根据属性类型和斜率确定趋势.
 func (a *SMARTAnalyzer) determineTrend(attrID SMARTAttributeID, slope float64) TrendDirection {
 	lowerIsBetter := map[SMARTAttributeID]bool{
 		SMARTIDReallocatedSectorCt: true, SMARTIDCurrentPendingSector: true,
@@ -248,7 +248,7 @@ func (a *SMARTAnalyzer) determineTrend(attrID SMARTAttributeID, slope float64) T
 	return TrendStable
 }
 
-// zScoreDetection Z-score 异常检测
+// zScoreDetection Z-score 异常检测.
 func (a *SMARTAnalyzer) zScoreDetection(attrID SMARTAttributeID, attrName string, values []uint64) *ZScoreAnomaly {
 	n := float64(len(values))
 	if n < 5 {
@@ -294,7 +294,7 @@ func (a *SMARTAnalyzer) zScoreDetection(attrID SMARTAttributeID, attrName string
 	}
 }
 
-// determineOverallTrend 确定整体趋势
+// determineOverallTrend 确定整体趋势.
 func (a *SMARTAnalyzer) determineOverallTrend(trends []AttributeTrend) TrendDirection {
 	if len(trends) == 0 {
 		return TrendStable
@@ -317,7 +317,7 @@ func (a *SMARTAnalyzer) determineOverallTrend(trends []AttributeTrend) TrendDire
 	return TrendStable
 }
 
-// GetAttributeName 获取属性名称
+// GetAttributeName 获取属性名称.
 func GetAttributeName(id SMARTAttributeID) string {
 	names := map[SMARTAttributeID]string{
 		SMARTIDReallocatedSectorCt: "Reallocated_Sector_Ct", SMARTIDSpinRetryCount: "Spin_Retry_Count",

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Manager 流量整形管理器
+// Manager 流量整形管理器.
 type Manager struct {
 	mu           sync.RWMutex
 	config       *TrafficShaperConfig
@@ -20,7 +20,7 @@ type Manager struct {
 	eventCounter int
 }
 
-// NewManager 创建流量整形管理器
+// NewManager 创建流量整形管理器.
 func NewManager() *Manager {
 	return &Manager{
 		config:  DefaultTrafficShaperConfig(),
@@ -31,7 +31,7 @@ func NewManager() *Manager {
 	}
 }
 
-// CreateRule 创建流量规则
+// CreateRule 创建流量规则.
 func (m *Manager) CreateRule(rule *TrafficRule) (*TrafficRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -70,7 +70,7 @@ func (m *Manager) CreateRule(rule *TrafficRule) (*TrafficRule, error) {
 	return rule, nil
 }
 
-// ListRules 列出所有流量规则
+// ListRules 列出所有流量规则.
 func (m *Manager) ListRules() []*TrafficRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -82,7 +82,7 @@ func (m *Manager) ListRules() []*TrafficRule {
 	return rules
 }
 
-// UpdateRule 更新流量规则
+// UpdateRule 更新流量规则.
 func (m *Manager) UpdateRule(id string, rule *TrafficRule) (*TrafficRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -141,7 +141,7 @@ func (m *Manager) UpdateRule(id string, rule *TrafficRule) (*TrafficRule, error)
 	return existing, nil
 }
 
-// DeleteRule 删除流量规则
+// DeleteRule 删除流量规则.
 func (m *Manager) DeleteRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -155,7 +155,7 @@ func (m *Manager) DeleteRule(id string) error {
 	return nil
 }
 
-// ToggleRule 启用/禁用流量规则
+// ToggleRule 启用/禁用流量规则.
 func (m *Manager) ToggleRule(id string) (*TrafficRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -169,7 +169,7 @@ func (m *Manager) ToggleRule(id string) (*TrafficRule, error) {
 	return rule, nil
 }
 
-// CreateClass 创建流量类别
+// CreateClass 创建流量类别.
 func (m *Manager) CreateClass(class *TrafficClass) (*TrafficClass, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -183,7 +183,7 @@ func (m *Manager) CreateClass(class *TrafficClass) (*TrafficClass, error) {
 	return class, nil
 }
 
-// ListClasses 列出所有流量类别
+// ListClasses 列出所有流量类别.
 func (m *Manager) ListClasses() []*TrafficClass {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -195,7 +195,7 @@ func (m *Manager) ListClasses() []*TrafficClass {
 	return classes
 }
 
-// UpdateClass 更新流量类别
+// UpdateClass 更新流量类别.
 func (m *Manager) UpdateClass(id string, class *TrafficClass) (*TrafficClass, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -224,7 +224,7 @@ func (m *Manager) UpdateClass(id string, class *TrafficClass) (*TrafficClass, er
 	return existing, nil
 }
 
-// DeleteClass 删除流量类别
+// DeleteClass 删除流量类别.
 func (m *Manager) DeleteClass(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -237,7 +237,7 @@ func (m *Manager) DeleteClass(id string) error {
 	return nil
 }
 
-// GetGlobalStats 获取全局流量统计
+// GetGlobalStats 获取全局流量统计.
 func (m *Manager) GetGlobalStats() *TrafficStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -264,7 +264,7 @@ func (m *Manager) GetGlobalStats() *TrafficStats {
 	return global
 }
 
-// GetRuleStats 获取指定规则的流量统计
+// GetRuleStats 获取指定规则的流量统计.
 func (m *Manager) GetRuleStats(ruleID string) (*TrafficStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -277,7 +277,7 @@ func (m *Manager) GetRuleStats(ruleID string) (*TrafficStats, error) {
 	return stat, nil
 }
 
-// GetAllocation 获取带宽分配情况
+// GetAllocation 获取带宽分配情况.
 func (m *Manager) GetAllocation() *BandwidthAllocation {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -317,7 +317,7 @@ func (m *Manager) GetAllocation() *BandwidthAllocation {
 	return allocation
 }
 
-// Rebalance 重新平衡带宽分配
+// Rebalance 重新平衡带宽分配.
 func (m *Manager) Rebalance() *BandwidthAllocation {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -383,7 +383,7 @@ func (m *Manager) Rebalance() *BandwidthAllocation {
 	return allocation
 }
 
-// GetEvents 获取流量事件日志
+// GetEvents 获取流量事件日志.
 func (m *Manager) GetEvents() []*TrafficEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -393,7 +393,7 @@ func (m *Manager) GetEvents() []*TrafficEvent {
 	return events
 }
 
-// SimulateTraffic 模拟流量数据
+// SimulateTraffic 模拟流量数据.
 func (m *Manager) SimulateTraffic() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -489,7 +489,7 @@ func (m *Manager) SimulateTraffic() {
 	}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *TrafficShaperConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -497,7 +497,7 @@ func (m *Manager) GetConfig() *TrafficShaperConfig {
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config *TrafficShaperConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

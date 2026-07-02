@@ -7,17 +7,17 @@ import (
 	"strings"
 )
 
-// Handler 处理 AR/VR 媒体 HTTP 请求
+// Handler 处理 AR/VR 媒体 HTTP 请求.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建新的 AR/VR 媒体处理器
+// NewHandler 创建新的 AR/VR 媒体处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册 HTTP 路由
+// RegisterRoutes 注册 HTTP 路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/arvr/panoramas", HandlePanoramas(h.manager))
 	mux.HandleFunc("/api/v1/arvr/panoramas/", HandlePanoramaByID(h.manager))
@@ -37,7 +37,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/arvr/webxr/manifest", HandleWebXRManifest())
 }
 
-// HandlePanoramas 处理全景媒体列表/创建
+// HandlePanoramas 处理全景媒体列表/创建.
 func HandlePanoramas(m *Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -80,7 +80,7 @@ func HandlePanoramas(m *Manager) http.HandlerFunc {
 	}
 }
 
-// HandlePanoramaByID 处理单个全景媒体操作
+// HandlePanoramaByID 处理单个全景媒体操作.
 func HandlePanoramaByID(m *Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := strings.TrimPrefix(r.URL.Path, "/api/v1/arvr/panoramas/")
@@ -124,7 +124,7 @@ func HandlePanoramaByID(m *Manager) http.HandlerFunc {
 	}
 }
 
-// HandleModels 处理3D模型列表/创建
+// HandleModels 处理3D模型列表/创建.
 func HandleModels(m *Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -167,7 +167,7 @@ func HandleModels(m *Manager) http.HandlerFunc {
 	}
 }
 
-// HandleModelByID 处理单个3D模型操作
+// HandleModelByID 处理单个3D模型操作.
 func HandleModelByID(m *Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := strings.TrimPrefix(r.URL.Path, "/api/v1/arvr/models/")
@@ -198,7 +198,7 @@ func HandleModelByID(m *Manager) http.HandlerFunc {
 	}
 }
 
-// HandleGalleries 处理VR画廊列表/创建
+// HandleGalleries 处理VR画廊列表/创建.
 func HandleGalleries(m *Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -225,7 +225,7 @@ func HandleGalleries(m *Manager) http.HandlerFunc {
 	}
 }
 
-// HandleGalleryByID 处理单个VR画廊操作
+// HandleGalleryByID 处理单个VR画廊操作.
 func HandleGalleryByID(m *Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := strings.TrimPrefix(r.URL.Path, "/api/v1/arvr/galleries/")
@@ -269,7 +269,7 @@ func HandleGalleryByID(m *Manager) http.HandlerFunc {
 	}
 }
 
-// HandleAudioConfigs 处理空间音频配置列表/创建
+// HandleAudioConfigs 处理空间音频配置列表/创建.
 func HandleAudioConfigs(m *Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -296,7 +296,7 @@ func HandleAudioConfigs(m *Manager) http.HandlerFunc {
 	}
 }
 
-// HandleAudioConfigByID 处理单个空间音频配置操作
+// HandleAudioConfigByID 处理单个空间音频配置操作.
 func HandleAudioConfigByID(m *Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := strings.TrimPrefix(r.URL.Path, "/api/v1/arvr/audio-configs/")
@@ -340,7 +340,7 @@ func HandleAudioConfigByID(m *Manager) http.HandlerFunc {
 	}
 }
 
-// HandleTheaters 处理沉浸式影院列表/创建
+// HandleTheaters 处理沉浸式影院列表/创建.
 func HandleTheaters(m *Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -367,7 +367,7 @@ func HandleTheaters(m *Manager) http.HandlerFunc {
 	}
 }
 
-// HandleTheaterByID 处理单个沉浸式影院操作
+// HandleTheaterByID 处理单个沉浸式影院操作.
 func HandleTheaterByID(m *Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := strings.TrimPrefix(r.URL.Path, "/api/v1/arvr/theaters/")
@@ -398,7 +398,7 @@ func HandleTheaterByID(m *Manager) http.HandlerFunc {
 	}
 }
 
-// HandleSessions 处理WebXR会话列表/创建
+// HandleSessions 处理WebXR会话列表/创建.
 func HandleSessions(m *Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -428,7 +428,7 @@ func HandleSessions(m *Manager) http.HandlerFunc {
 	}
 }
 
-// HandleSessionByID 处理单个WebXR会话操作
+// HandleSessionByID 处理单个WebXR会话操作.
 func HandleSessionByID(m *Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := strings.TrimPrefix(r.URL.Path, "/api/v1/arvr/sessions/")
@@ -467,7 +467,7 @@ func HandleSessionByID(m *Manager) http.HandlerFunc {
 	}
 }
 
-// HandleImport 处理媒体导入请求
+// HandleImport 处理媒体导入请求.
 func HandleImport(m *Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -494,7 +494,7 @@ func HandleImport(m *Manager) http.HandlerFunc {
 	}
 }
 
-// HandleImportStatus 处理导入状态查询
+// HandleImportStatus 处理导入状态查询.
 func HandleImportStatus(m *Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
@@ -517,7 +517,7 @@ func HandleImportStatus(m *Manager) http.HandlerFunc {
 	}
 }
 
-// HandleStats 处理统计信息请求
+// HandleStats 处理统计信息请求.
 func HandleStats(m *Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
@@ -530,7 +530,7 @@ func HandleStats(m *Manager) http.HandlerFunc {
 	}
 }
 
-// HandleWebXRManifest 处理WebXR清单请求
+// HandleWebXRManifest 处理WebXR清单请求.
 func HandleWebXRManifest() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {

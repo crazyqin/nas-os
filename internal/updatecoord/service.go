@@ -33,9 +33,9 @@ var (
 
 // Service 系统更新协调服务.
 type Service struct {
-	mu       sync.RWMutex
-	tasks    map[string]*updateTask
-	history  []HistoryEntry
+	mu      sync.RWMutex
+	tasks   map[string]*updateTask
+	history []HistoryEntry
 	// 模拟的可用更新列表
 	availableUpdates []UpdateInfo
 	currentVersion   string

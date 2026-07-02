@@ -957,34 +957,34 @@ func ExplainQuery(q string) string {
 
 	var sb strings.Builder
 	sb.WriteString("查询分析:\n")
-	sb.WriteString(fmt.Sprintf("  原始查询: %s\n", parsed.Raw))
-	sb.WriteString(fmt.Sprintf("  操作符: %s\n", parsed.Operator))
+	fmt.Fprintf(&sb, "  原始查询: %s\n", parsed.Raw)
+	fmt.Fprintf(&sb, "  操作符: %s\n", parsed.Operator)
 
 	if len(parsed.Terms) > 0 {
-		sb.WriteString(fmt.Sprintf("  搜索词: %v\n", parsed.Terms))
+		fmt.Fprintf(&sb, "  搜索词: %v\n", parsed.Terms)
 	}
 	if len(parsed.MustTerms) > 0 {
-		sb.WriteString(fmt.Sprintf("  必须包含: %v\n", parsed.MustTerms))
+		fmt.Fprintf(&sb, "  必须包含: %v\n", parsed.MustTerms)
 	}
 	if len(parsed.NotTerms) > 0 {
-		sb.WriteString(fmt.Sprintf("  排除词: %v\n", parsed.NotTerms))
+		fmt.Fprintf(&sb, "  排除词: %v\n", parsed.NotTerms)
 	}
 	if len(parsed.FileTypes) > 0 {
-		sb.WriteString(fmt.Sprintf("  文件类型: %v\n", parsed.FileTypes))
+		fmt.Fprintf(&sb, "  文件类型: %v\n", parsed.FileTypes)
 	}
 	if len(parsed.Paths) > 0 {
-		sb.WriteString(fmt.Sprintf("  路径过滤: %v\n", parsed.Paths))
+		fmt.Fprintf(&sb, "  路径过滤: %v\n", parsed.Paths)
 	}
 	if parsed.SizeRange != nil {
-		sb.WriteString(fmt.Sprintf("  大小范围: %d - %d\n", parsed.SizeRange.Min, parsed.SizeRange.Max))
+		fmt.Fprintf(&sb, "  大小范围: %d - %d\n", parsed.SizeRange.Min, parsed.SizeRange.Max)
 	}
 	if parsed.DateRange != nil {
-		sb.WriteString(fmt.Sprintf("  时间范围: %s - %s\n",
+		fmt.Fprintf(&sb, "  时间范围: %s - %s\n",
 			parsed.DateRange.From.Format("2006-01-02"),
-			parsed.DateRange.To.Format("2006-01-02")))
+			parsed.DateRange.To.Format("2006-01-02"))
 	}
 	if parsed.IsRegex {
-		sb.WriteString(fmt.Sprintf("  正则表达式: %s\n", parsed.RegexPattern))
+		fmt.Fprintf(&sb, "  正则表达式: %s\n", parsed.RegexPattern)
 	}
 	if parsed.ExactMatch {
 		sb.WriteString("  精确匹配: 是\n")

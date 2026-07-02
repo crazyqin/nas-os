@@ -2,7 +2,7 @@ package dam
 
 import "time"
 
-// AssetType 资产类型
+// AssetType 资产类型.
 type AssetType string
 
 const (
@@ -17,7 +17,7 @@ const (
 	AssetOther    AssetType = "other"
 )
 
-// AssetStatus 资产状态
+// AssetStatus 资产状态.
 type AssetStatus string
 
 const (
@@ -29,7 +29,7 @@ const (
 	StatusDeleted   AssetStatus = "deleted"
 )
 
-// AccessLevel 访问级别
+// AccessLevel 访问级别.
 type AccessLevel string
 
 const (
@@ -39,7 +39,7 @@ const (
 	AccessShared  AccessLevel = "shared"
 )
 
-// DigitalAsset 数字资产
+// DigitalAsset 数字资产.
 type DigitalAsset struct {
 	ID              string                 `json:"id"`
 	Name            string                 `json:"name"`
@@ -86,7 +86,7 @@ type DigitalAsset struct {
 	CustomFields    map[string]interface{} `json:"custom_fields,omitempty"`
 }
 
-// AssetVersion 资产版本
+// AssetVersion 资产版本.
 type AssetVersion struct {
 	ID        string    `json:"id"`
 	Version   string    `json:"version"`
@@ -98,14 +98,14 @@ type AssetVersion struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// AssetRelation 资产关系
+// AssetRelation 资产关系.
 type AssetRelation struct {
 	TargetID   string `json:"target_id"`
 	TargetName string `json:"target_name"`
 	Type       string `json:"type"`
 }
 
-// Collection 资产集合
+// Collection 资产集合.
 type Collection struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -121,7 +121,7 @@ type Collection struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// Folder 文件夹
+// Folder 文件夹.
 type Folder struct {
 	ID         string    `json:"id"`
 	Name       string    `json:"name"`
@@ -134,7 +134,7 @@ type Folder struct {
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
-// AITag AI 标签
+// AITag AI 标签.
 type AITag struct {
 	Name       string  `json:"name"`
 	Category   string  `json:"category"`
@@ -142,7 +142,7 @@ type AITag struct {
 	Source     string  `json:"source"`
 }
 
-// AIAnalysis AI 分析结果
+// AIAnalysis AI 分析结果.
 type AIAnalysis struct {
 	AssetID      string     `json:"asset_id"`
 	Tags         []AITag    `json:"tags"`
@@ -160,14 +160,14 @@ type AIAnalysis struct {
 	CreatedAt    time.Time  `json:"created_at"`
 }
 
-// AIObject AI 检测对象
+// AIObject AI 检测对象.
 type AIObject struct {
 	Name       string  `json:"name"`
 	Confidence float64 `json:"confidence"`
 	BBox       []int   `json:"bbox"`
 }
 
-// AIFace AI 检测人脸
+// AIFace AI 检测人脸.
 type AIFace struct {
 	PersonID   string  `json:"person_id,omitempty"`
 	PersonName string  `json:"person_name,omitempty"`
@@ -178,14 +178,14 @@ type AIFace struct {
 	Emotion    string  `json:"emotion,omitempty"`
 }
 
-// AIColor AI 检测颜色
+// AIColor AI 检测颜色.
 type AIColor struct {
 	Hex        string  `json:"hex"`
 	Name       string  `json:"name"`
 	Percentage float64 `json:"percentage"`
 }
 
-// SearchFilter 搜索过滤器
+// SearchFilter 搜索过滤器.
 type SearchFilter struct {
 	Query       string      `json:"query,omitempty"`
 	Type        AssetType   `json:"type,omitempty"`
@@ -207,7 +207,7 @@ type SearchFilter struct {
 	PageSize    int         `json:"page_size"`
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	Assets     []DigitalAsset `json:"assets"`
 	Total      int            `json:"total"`
@@ -217,7 +217,7 @@ type SearchResult struct {
 	Facets     SearchFacets   `json:"facets"`
 }
 
-// SearchFacets 搜索分面
+// SearchFacets 搜索分面.
 type SearchFacets struct {
 	Types       []FacetItem `json:"types"`
 	Tags        []FacetItem `json:"tags"`
@@ -226,13 +226,13 @@ type SearchFacets struct {
 	Owners      []FacetItem `json:"owners"`
 }
 
-// FacetItem 分面项
+// FacetItem 分面项.
 type FacetItem struct {
 	Value string `json:"value"`
 	Count int    `json:"count"`
 }
 
-// ShareLink 分享链接
+// ShareLink 分享链接.
 type ShareLink struct {
 	ID            string     `json:"id"`
 	AssetID       string     `json:"asset_id"`
@@ -247,7 +247,7 @@ type ShareLink struct {
 	CreatedAt     time.Time  `json:"created_at"`
 }
 
-// Workflow 审批流程
+// Workflow 审批流程.
 type Workflow struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
@@ -257,7 +257,7 @@ type Workflow struct {
 	CreatedAt   time.Time      `json:"created_at"`
 }
 
-// WorkflowStep 流程步骤
+// WorkflowStep 流程步骤.
 type WorkflowStep struct {
 	Name      string   `json:"name"`
 	Type      string   `json:"type"`
@@ -266,7 +266,7 @@ type WorkflowStep struct {
 	Order     int      `json:"order"`
 }
 
-// DAMStats 资产统计
+// DAMStats 资产统计.
 type DAMStats struct {
 	TotalAssets      int64 `json:"total_assets"`
 	TotalSize        int64 `json:"total_size"`
@@ -281,7 +281,7 @@ type DAMStats struct {
 	StorageLimit     int64 `json:"storage_limit"`
 }
 
-// WatermarkConfig 水印配置
+// WatermarkConfig 水印配置.
 type WatermarkConfig struct {
 	Enabled   bool    `json:"enabled"`
 	Text      string  `json:"text,omitempty"`
@@ -291,7 +291,7 @@ type WatermarkConfig struct {
 	Scale     float64 `json:"scale"`
 }
 
-// TransformConfig 转换配置
+// TransformConfig 转换配置.
 type TransformConfig struct {
 	Resize    *ResizeConfig    `json:"resize,omitempty"`
 	Crop      *CropConfig      `json:"crop,omitempty"`
@@ -303,7 +303,7 @@ type TransformConfig struct {
 	Filters   []string         `json:"filters,omitempty"`
 }
 
-// ResizeConfig 调整大小配置
+// ResizeConfig 调整大小配置.
 type ResizeConfig struct {
 	Width              int    `json:"width"`
 	Height             int    `json:"height"`
@@ -311,7 +311,7 @@ type ResizeConfig struct {
 	WithoutEnlargement bool   `json:"without_enlargement"`
 }
 
-// CropConfig 裁剪配置
+// CropConfig 裁剪配置.
 type CropConfig struct {
 	X       int    `json:"x"`
 	Y       int    `json:"y"`

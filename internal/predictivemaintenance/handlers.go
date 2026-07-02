@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	engine *Engine
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(engine *Engine) *Handler {
 	return &Handler{engine: engine}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	group := r.Group("/predictive-maintenance")
 	{
@@ -29,13 +29,13 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// ListComponents 列出组件
+// ListComponents 列出组件.
 func (h *Handler) ListComponents(c *gin.Context) {
 	comps := h.engine.ListComponents()
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": comps})
 }
 
-// GetHealth 获取组件健康
+// GetHealth 获取组件健康.
 func (h *Handler) GetHealth(c *gin.Context) {
 	id := c.Param("id")
 	comp, err := h.engine.GetHealth(id)
@@ -46,7 +46,7 @@ func (h *Handler) GetHealth(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": comp})
 }
 
-// Predict 预测
+// Predict 预测.
 func (h *Handler) Predict(c *gin.Context) {
 	id := c.Param("id")
 	pred, err := h.engine.Predict(c.Request.Context(), id)
@@ -57,19 +57,19 @@ func (h *Handler) Predict(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": pred})
 }
 
-// CheckAll 检查所有
+// CheckAll 检查所有.
 func (h *Handler) CheckAll(c *gin.Context) {
 	results := h.engine.CheckAll(c.Request.Context())
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": results})
 }
 
-// ListSchedules 列出维护计划
+// ListSchedules 列出维护计划.
 func (h *Handler) ListSchedules(c *gin.Context) {
 	schedules := h.engine.ListSchedules()
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": schedules})
 }
 
-// CreateScheduleReq 创建维护计划请求
+// CreateScheduleReq 创建维护计划请求.
 type CreateScheduleReq struct {
 	ComponentID string `json:"componentId" binding:"required"`
 	Type        string `json:"type" binding:"required"`
@@ -78,7 +78,7 @@ type CreateScheduleReq struct {
 	Priority    int    `json:"priority"`
 }
 
-// CreateSchedule 创建维护计划
+// CreateSchedule 创建维护计划.
 func (h *Handler) CreateSchedule(c *gin.Context) {
 	var req CreateScheduleReq
 	if err := c.ShouldBindJSON(&req); err != nil {

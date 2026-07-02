@@ -117,18 +117,18 @@ func TestUpdateVulnerabilityStatus(t *testing.T) {
 
 func TestHardeningSuggestions(t *testing.T) {
 	mgr := NewManager()
-	
+
 	// Get suggestions by category instead (these are always available)
 	authSuggestions := mgr.GetHardeningSuggestionsByCategory(HardeningAuth)
 	if len(authSuggestions) == 0 {
 		t.Error("Expected some auth hardening suggestions")
 	}
-	
+
 	networkSuggestions := mgr.GetHardeningSuggestionsByCategory(HardeningNetwork)
 	if len(networkSuggestions) == 0 {
 		t.Error("Expected some network hardening suggestions")
 	}
-	
+
 	for _, s := range authSuggestions {
 		if s.ID == "" {
 			t.Error("Suggestion ID should not be empty")
@@ -159,7 +159,7 @@ func TestHardeningReport(t *testing.T) {
 
 func TestApplyHardeningSuggestion(t *testing.T) {
 	mgr := NewManager()
-	
+
 	// Get suggestions by category
 	suggestions := mgr.GetHardeningSuggestionsByCategory(HardeningAuth)
 	if len(suggestions) == 0 {

@@ -12,7 +12,7 @@ import (
 // 云存储后端类型
 // ============================================================
 
-// CloudBackend 云存储后端类型
+// CloudBackend 云存储后端类型.
 type CloudBackend string
 
 const (
@@ -22,7 +22,7 @@ const (
 	BackendMinIO      CloudBackend = "minio"       // MinIO
 )
 
-// IsValid 检查后端类型是否有效
+// IsValid 检查后端类型是否有效.
 func (b CloudBackend) IsValid() bool {
 	switch b {
 	case BackendAWSS3, BackendAliyunOSS, BackendTencentCOS, BackendMinIO:
@@ -31,7 +31,7 @@ func (b CloudBackend) IsValid() bool {
 	return false
 }
 
-// BackendName 返回后端显示名称
+// BackendName 返回后端显示名称.
 func (b CloudBackend) BackendName() string {
 	switch b {
 	case BackendAWSS3:
@@ -51,7 +51,7 @@ func (b CloudBackend) BackendName() string {
 // 同步策略
 // ============================================================
 
-// SyncStrategy 同步策略类型
+// SyncStrategy 同步策略类型.
 type SyncStrategy string
 
 const (
@@ -60,7 +60,7 @@ const (
 	SyncManual    SyncStrategy = "manual"    // 手动同步
 )
 
-// IsValid 检查同步策略是否有效
+// IsValid 检查同步策略是否有效.
 func (s SyncStrategy) IsValid() bool {
 	switch s {
 	case SyncRealtime, SyncScheduled, SyncManual:
@@ -73,7 +73,7 @@ func (s SyncStrategy) IsValid() bool {
 // 缓存策略
 // ============================================================
 
-// CachePolicy 缓存策略类型
+// CachePolicy 缓存策略类型.
 type CachePolicy string
 
 const (
@@ -83,7 +83,7 @@ const (
 	CachePolicyTTL  CachePolicy = "ttl"  // 基于过期时间
 )
 
-// IsValid 检查缓存策略是否有效
+// IsValid 检查缓存策略是否有效.
 func (p CachePolicy) IsValid() bool {
 	switch p {
 	case CachePolicyLRU, CachePolicyLFU, CachePolicyFIFO, CachePolicyTTL:
@@ -96,7 +96,7 @@ func (p CachePolicy) IsValid() bool {
 // 文件状态
 // ============================================================
 
-// FileStatus 文件状态
+// FileStatus 文件状态.
 type FileStatus string
 
 const (
@@ -113,7 +113,7 @@ const (
 // 混合共享配置
 // ============================================================
 
-// HybridShareConfig 混合共享配置
+// HybridShareConfig 混合共享配置.
 type HybridShareConfig struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -158,7 +158,7 @@ type HybridShareConfig struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// Validate 验证配置
+// Validate 验证配置.
 func (c *HybridShareConfig) Validate() error {
 	if c.Name == "" {
 		return fmt.Errorf("name is required")
@@ -195,7 +195,7 @@ func (c *HybridShareConfig) Validate() error {
 	return nil
 }
 
-// DefaultHybridShareConfig 返回默认配置
+// DefaultHybridShareConfig 返回默认配置.
 func DefaultHybridShareConfig() HybridShareConfig {
 	return HybridShareConfig{
 		CacheSizeBytes:      10 * 1024 * 1024 * 1024, // 10GB
@@ -215,7 +215,7 @@ func DefaultHybridShareConfig() HybridShareConfig {
 // 文件元数据
 // ============================================================
 
-// FileMetadata 文件元数据
+// FileMetadata 文件元数据.
 type FileMetadata struct {
 	ID           string `json:"id"`
 	ShareID      string `json:"share_id"`      // 关联的混合共享ID
@@ -250,7 +250,7 @@ type FileMetadata struct {
 // 同步任务
 // ============================================================
 
-// SyncTaskStatus 同步任务状态
+// SyncTaskStatus 同步任务状态.
 type SyncTaskStatus string
 
 const (
@@ -261,7 +261,7 @@ const (
 	SyncTaskCancelled SyncTaskStatus = "cancelled"
 )
 
-// SyncDirection 同步方向
+// SyncDirection 同步方向.
 type SyncDirection string
 
 const (
@@ -270,7 +270,7 @@ const (
 	SyncDirectionDelete   SyncDirection = "delete"   // 删除
 )
 
-// SyncTask 同步任务
+// SyncTask 同步任务.
 type SyncTask struct {
 	ID          string         `json:"id"`
 	ShareID     string         `json:"share_id"`
@@ -291,7 +291,7 @@ type SyncTask struct {
 // 容量统计
 // ============================================================
 
-// CapacityStats 容量统计
+// CapacityStats 容量统计.
 type CapacityStats struct {
 	ShareID string `json:"share_id"`
 
@@ -324,7 +324,7 @@ type CapacityStats struct {
 // 带宽统计
 // ============================================================
 
-// BandwidthStats 带宽统计
+// BandwidthStats 带宽统计.
 type BandwidthStats struct {
 	ShareID            string    `json:"share_id"`
 	CurrentUploadBps   int64     `json:"current_upload_bps"`   // 当前上传速度
@@ -340,7 +340,7 @@ type BandwidthStats struct {
 // 同步日志
 // ============================================================
 
-// SyncLogLevel 日志级别
+// SyncLogLevel 日志级别.
 type SyncLogLevel string
 
 const (
@@ -349,7 +349,7 @@ const (
 	LogLevelError SyncLogLevel = "error"
 )
 
-// SyncLog 同步日志
+// SyncLog 同步日志.
 type SyncLog struct {
 	ID        string       `json:"id"`
 	ShareID   string       `json:"share_id"`
@@ -365,7 +365,7 @@ type SyncLog struct {
 // 请求/响应类型
 // ============================================================
 
-// CreateShareRequest 创建混合共享请求
+// CreateShareRequest 创建混合共享请求.
 type CreateShareRequest struct {
 	Name              string       `json:"name" binding:"required"`
 	Description       string       `json:"description,omitempty"`
@@ -387,7 +387,7 @@ type CreateShareRequest struct {
 	UseSSL            bool         `json:"use_ssl,omitempty"`
 }
 
-// UpdateShareRequest 更新混合共享请求
+// UpdateShareRequest 更新混合共享请求.
 type UpdateShareRequest struct {
 	Name              *string       `json:"name,omitempty"`
 	Description       *string       `json:"description,omitempty"`
@@ -409,7 +409,7 @@ type UpdateShareRequest struct {
 	Enabled           *bool         `json:"enabled,omitempty"`
 }
 
-// SyncRequest 同步请求
+// SyncRequest 同步请求.
 type SyncRequest struct {
 	ShareID   string        `json:"share_id" binding:"required"`
 	FilePath  string        `json:"file_path,omitempty"` // 指定文件, 空=全部
@@ -417,7 +417,7 @@ type SyncRequest struct {
 	Force     bool          `json:"force,omitempty"`     // 强制同步
 }
 
-// CacheRequest 缓存操作请求
+// CacheRequest 缓存操作请求.
 type CacheRequest struct {
 	ShareID  string `json:"share_id" binding:"required"`
 	FilePath string `json:"file_path" binding:"required"` // 文件路径
@@ -428,7 +428,7 @@ type CacheRequest struct {
 // 混合共享摘要
 // ============================================================
 
-// ShareSummary 混合共享摘要
+// ShareSummary 混合共享摘要.
 type ShareSummary struct {
 	ID      string       `json:"id"`
 	Name    string       `json:"name"`
@@ -452,7 +452,7 @@ type ShareSummary struct {
 	CreatedAt    time.Time  `json:"created_at"`
 }
 
-// EventLog 事件日志
+// EventLog 事件日志.
 type EventLog struct {
 	ID        string    `json:"id"`
 	ShareID   string    `json:"share_id"`

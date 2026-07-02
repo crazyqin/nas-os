@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// NewSTIGComplianceChecker 创建STIG合规检查器
+// NewSTIGComplianceChecker 创建STIG合规检查器.
 func NewSTIGComplianceChecker(cfg CheckerConfig) *STIGComplianceChecker {
 	checker := &STIGComplianceChecker{
 		rules:  make(map[string]*STIGRule),
@@ -15,7 +15,7 @@ func NewSTIGComplianceChecker(cfg CheckerConfig) *STIGComplianceChecker {
 	return checker
 }
 
-// loadDefaultRules 加载默认STIG规则
+// loadDefaultRules 加载默认STIG规则.
 func (c *STIGComplianceChecker) loadDefaultRules() {
 	defaults := []*STIGRule{
 		{ID: "V-250001", Title: "密码复杂度要求", Description: "系统必须启用密码复杂度策略", Severity: SeverityCat1, Category: "账户管理", Enabled: true},
@@ -34,7 +34,7 @@ func (c *STIGComplianceChecker) loadDefaultRules() {
 	}
 }
 
-// AddRule 添加规则
+// AddRule 添加规则.
 func (c *STIGComplianceChecker) AddRule(rule *STIGRule) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -45,7 +45,7 @@ func (c *STIGComplianceChecker) AddRule(rule *STIGRule) error {
 	return nil
 }
 
-// RemoveRule 移除规则
+// RemoveRule 移除规则.
 func (c *STIGComplianceChecker) RemoveRule(ruleID string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -56,7 +56,7 @@ func (c *STIGComplianceChecker) RemoveRule(ruleID string) error {
 	return nil
 }
 
-// GetRule 获取规则
+// GetRule 获取规则.
 func (c *STIGComplianceChecker) GetRule(ruleID string) (*STIGRule, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -67,7 +67,7 @@ func (c *STIGComplianceChecker) GetRule(ruleID string) (*STIGRule, error) {
 	return rule, nil
 }
 
-// ListRules 列出所有规则
+// ListRules 列出所有规则.
 func (c *STIGComplianceChecker) ListRules() []*STIGRule {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -78,7 +78,7 @@ func (c *STIGComplianceChecker) ListRules() []*STIGRule {
 	return result
 }
 
-// RunAudit 执行审计
+// RunAudit 执行审计.
 func (c *STIGComplianceChecker) RunAudit() *AuditReport {
 	start := time.Now()
 
@@ -97,9 +97,10 @@ func (c *STIGComplianceChecker) RunAudit() *AuditReport {
 	for _, rule := range rules {
 		result := c.checkRule(rule)
 		results = append(results, result)
-		if result.Status == CheckPass {
+		switch result.Status {
+		case CheckPass:
 			passed++
-		} else if result.Status == CheckFail {
+		case CheckFail:
 			failed++
 		}
 	}
@@ -139,7 +140,7 @@ func (c *STIGComplianceChecker) checkRule(rule *STIGRule) CheckResult {
 	}
 }
 
-// GetLatestReport 获取最新报告
+// GetLatestReport 获取最新报告.
 func (c *STIGComplianceChecker) GetLatestReport() *AuditReport {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -149,14 +150,14 @@ func (c *STIGComplianceChecker) GetLatestReport() *AuditReport {
 	return c.reports[len(c.reports)-1]
 }
 
-// GetReportHistory 获取报告历史
+// GetReportHistory 获取报告历史.
 func (c *STIGComplianceChecker) GetReportHistory() []*AuditReport {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.reports
 }
 
-// GetRuleCount 获取规则数量
+// GetRuleCount 获取规则数量.
 func (c *STIGComplianceChecker) GetRuleCount() int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()

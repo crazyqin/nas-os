@@ -220,7 +220,7 @@ func (e *Engine) checkDisks(ctx context.Context) ([]CheckItem, []Alert) {
 					"3. 清理 Docker: docker system prune -a",
 					"4. 考虑扩展存储或迁移数据",
 				},
-				QuickFix: fmt.Sprintf("docker system prune -a && journalctl --vacuum-time=7d"),
+				QuickFix: "docker system prune -a && journalctl --vacuum-time=7d",
 			}
 		} else if usedPercent > 85 {
 			status = StatusDegraded
@@ -577,7 +577,7 @@ func (e *Engine) checkServices(ctx context.Context) ([]CheckItem, []Alert) {
 					fmt.Sprintf("1. 检查服务状态: systemctl status %s", svc),
 					fmt.Sprintf("2. 查看服务日志: journalctl -u %s -n 50", svc),
 					fmt.Sprintf("3. 尝试重启服务: systemctl restart %s", svc),
-					fmt.Sprintf("4. 如果重启失败，检查配置文件"),
+					"4. 如果重启失败，检查配置文件",
 				},
 				QuickFix: fmt.Sprintf("systemctl restart %s", svc),
 			}
@@ -726,9 +726,9 @@ func (e *Engine) checkRAID(ctx context.Context) ([]CheckItem, []Alert) {
 				Title:       "RAID 阵列降级",
 				Description: fmt.Sprintf("RAID 设备 %s 有磁盘故障，需要更换", device),
 				Steps: []string{
-					fmt.Sprintf("1. 查看 RAID 详情: cat /proc/mdstat"),
+					"1. 查看 RAID 详情: cat /proc/mdstat",
 					fmt.Sprintf("2. 检查磁盘状态: mdadm --detail /dev/%s", device),
-					fmt.Sprintf("3. 替换故障磁盘"),
+					"3. 替换故障磁盘",
 					fmt.Sprintf("4. 重建阵列: mdadm --manage /dev/%s --add /dev/sdX", device),
 				},
 				QuickFix: fmt.Sprintf("mdadm --detail /dev/%s", device),

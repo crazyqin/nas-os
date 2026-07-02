@@ -18,7 +18,7 @@ import (
 // STUN/TURN 配置
 // ---------------------------------------------------------------------------
 
-// ICEServer ICE 服务器配置（STUN/TURN）
+// ICEServer ICE 服务器配置（STUN/TURN）.
 type ICEServer struct {
 	URLs       []string `json:"urls"`
 	Username   string   `json:"username,omitempty"`
@@ -27,7 +27,7 @@ type ICEServer struct {
 	Type string `json:"type"` // stun, turn
 }
 
-// WebRTCConfig WebRTC 配置
+// WebRTCConfig WebRTC 配置.
 type WebRTCConfig struct {
 	// ICE 服务器列表
 	ICEServers []ICEServer `json:"iceServers"`
@@ -44,7 +44,7 @@ type WebRTCConfig struct {
 	BufferSize      int           `json:"bufferSize"`      // DataChannel 缓冲区大小
 }
 
-// DefaultWebRTCConfig 返回默认 WebRTC 配置
+// DefaultWebRTCConfig 返回默认 WebRTC 配置.
 func DefaultWebRTCConfig() *WebRTCConfig {
 	return &WebRTCConfig{
 		DefaultSTUN: []string{
@@ -64,7 +64,7 @@ func DefaultWebRTCConfig() *WebRTCConfig {
 // P2P 传输会话
 // ---------------------------------------------------------------------------
 
-// P2PSessionStatus P2P 会话状态
+// P2PSessionStatus P2P 会话状态.
 type P2PSessionStatus string
 
 const (
@@ -76,7 +76,7 @@ const (
 	P2PCancelled  P2PSessionStatus = "cancelled"  // 已取消
 )
 
-// FileTransferInfo 文件传输信息
+// FileTransferInfo 文件传输信息.
 type FileTransferInfo struct {
 	FileName string `json:"fileName"`
 	FileSize int64  `json:"fileSize"`
@@ -85,7 +85,7 @@ type FileTransferInfo struct {
 	SHA256 string `json:"sha256,omitempty"`
 }
 
-// P2PShareSession WebRTC P2P 分享会话
+// P2PShareSession WebRTC P2P 分享会话.
 type P2PShareSession struct {
 	ID string `json:"id"`
 	// 发起方
@@ -120,7 +120,7 @@ type P2PShareSession struct {
 	ConnectionType string `json:"connectionType,omitempty"` // direct, relay
 }
 
-// ICECandidate ICE 候选者
+// ICECandidate ICE 候选者.
 type ICECandidate struct {
 	Candidate     string `json:"candidate"`
 	SDPMid        string `json:"sdpMid,omitempty"`
@@ -131,7 +131,7 @@ type ICECandidate struct {
 // 信令消息
 // ---------------------------------------------------------------------------
 
-// SignalMessageType 信令消息类型
+// SignalMessageType 信令消息类型.
 type SignalMessageType string
 
 const (
@@ -143,7 +143,7 @@ const (
 	SignalError        SignalMessageType = "error"
 )
 
-// SignalMessage 信令消息
+// SignalMessage 信令消息.
 type SignalMessage struct {
 	Type      SignalMessageType `json:"type"`
 	SessionID string            `json:"sessionId"`
@@ -156,7 +156,7 @@ type SignalMessage struct {
 // P2PShareManager P2P 传输管理器
 // ---------------------------------------------------------------------------
 
-// P2PShareManager WebRTC P2P 分享管理器
+// P2PShareManager WebRTC P2P 分享管理器.
 type P2PShareManager struct {
 	mu       sync.RWMutex
 	sessions map[string]*P2PShareSession // id -> session
@@ -166,7 +166,7 @@ type P2PShareManager struct {
 	signalChan map[string]chan SignalMessage
 }
 
-// NewP2PShareManager 创建 P2P 分享管理器
+// NewP2PShareManager 创建 P2P 分享管理器.
 func NewP2PShareManager(config *WebRTCConfig, logger *zap.Logger) *P2PShareManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -191,7 +191,7 @@ func NewP2PShareManager(config *WebRTCConfig, logger *zap.Logger) *P2PShareManag
 	}
 }
 
-// CreateSession 创建 P2P 传输会话
+// CreateSession 创建 P2P 传输会话.
 func (pm *P2PShareManager) CreateSession(initiatorID, initiatorName, password string, files []FileTransferInfo) (*P2PShareSession, error) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -237,7 +237,7 @@ func (pm *P2PShareManager) CreateSession(initiatorID, initiatorName, password st
 	return session, nil
 }
 
-// GetSession 获取会话
+// GetSession 获取会话.
 func (pm *P2PShareManager) GetSession(id string) (*P2PShareSession, bool) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -252,7 +252,7 @@ func (pm *P2PShareManager) GetSession(id string) (*P2PShareSession, bool) {
 	return session, true
 }
 
-// JoinSession 加入 P2P 会话（接收方）
+// JoinSession 加入 P2P 会话（接收方）.
 func (pm *P2PShareManager) JoinSession(sessionID, receiverID, receiverName, password string) (*P2PShareSession, error) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -290,7 +290,7 @@ func (pm *P2PShareManager) JoinSession(sessionID, receiverID, receiverName, pass
 	return session, nil
 }
 
-// SetOfferSDP 设置发起方 SDP Offer
+// SetOfferSDP 设置发起方 SDP Offer.
 func (pm *P2PShareManager) SetOfferSDP(sessionID, sdp string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -313,7 +313,7 @@ func (pm *P2PShareManager) SetOfferSDP(sessionID, sdp string) error {
 	return nil
 }
 
-// SetAnswerSDP 设置接收方 SDP Answer
+// SetAnswerSDP 设置接收方 SDP Answer.
 func (pm *P2PShareManager) SetAnswerSDP(sessionID, sdp string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -340,7 +340,7 @@ func (pm *P2PShareManager) SetAnswerSDP(sessionID, sdp string) error {
 	return nil
 }
 
-// AddICECandidate 添加 ICE 候选者
+// AddICECandidate 添加 ICE 候选者.
 func (pm *P2PShareManager) AddICECandidate(sessionID, senderID string, candidate ICECandidate) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -368,7 +368,7 @@ func (pm *P2PShareManager) AddICECandidate(sessionID, senderID string, candidate
 	return nil
 }
 
-// UpdateTransferProgress 更新传输进度
+// UpdateTransferProgress 更新传输进度.
 func (pm *P2PShareManager) UpdateTransferProgress(sessionID string, bytesTransferred int64, speed int64) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -407,7 +407,7 @@ func (pm *P2PShareManager) UpdateTransferProgress(sessionID string, bytesTransfe
 	return nil
 }
 
-// CompleteSession 完成 P2P 会话
+// CompleteSession 完成 P2P 会话.
 func (pm *P2PShareManager) CompleteSession(sessionID string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -426,7 +426,7 @@ func (pm *P2PShareManager) CompleteSession(sessionID string) error {
 	return nil
 }
 
-// CancelSession 取消 P2P 会话
+// CancelSession 取消 P2P 会话.
 func (pm *P2PShareManager) CancelSession(sessionID string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -449,7 +449,7 @@ func (pm *P2PShareManager) CancelSession(sessionID string) error {
 	return nil
 }
 
-// FailSession 标记会话失败
+// FailSession 标记会话失败.
 func (pm *P2PShareManager) FailSession(sessionID, reason string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -475,7 +475,7 @@ func (pm *P2PShareManager) FailSession(sessionID, reason string) error {
 	return nil
 }
 
-// GetICEServers 获取 ICE 服务器配置（供客户端使用）
+// GetICEServers 获取 ICE 服务器配置（供客户端使用）.
 func (pm *P2PShareManager) GetICEServers() []ICEServer {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -491,14 +491,14 @@ func (pm *P2PShareManager) GetICEServers() []ICEServer {
 	return servers
 }
 
-// GetConfig 获取 WebRTC 配置
+// GetConfig 获取 WebRTC 配置.
 func (pm *P2PShareManager) GetConfig() *WebRTCConfig {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
 	return pm.config
 }
 
-// ListSessions 列出会话
+// ListSessions 列出会话.
 func (pm *P2PShareManager) ListSessions(userID string, status P2PSessionStatus) []*P2PShareSession {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -516,7 +516,7 @@ func (pm *P2PShareManager) ListSessions(userID string, status P2PSessionStatus) 
 	return result
 }
 
-// Cleanup 清理过期/完成/失败的会话
+// Cleanup 清理过期/完成/失败的会话.
 func (pm *P2PShareManager) Cleanup() int {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -550,7 +550,7 @@ func (pm *P2PShareManager) Cleanup() int {
 	return count
 }
 
-// ReceiveSignal 接收信令消息（阻塞式）
+// ReceiveSignal 接收信令消息（阻塞式）.
 func (pm *P2PShareManager) ReceiveSignal(sessionID string) <-chan SignalMessage {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -562,7 +562,7 @@ func (pm *P2PShareManager) ReceiveSignal(sessionID string) <-chan SignalMessage 
 	return ch
 }
 
-// sendSignal 发送信令消息（内部）
+// sendSignal 发送信令消息（内部）.
 func (pm *P2PShareManager) sendSignal(sessionID string, msg SignalMessage) {
 	ch, ok := pm.signalChan[sessionID]
 	if !ok {
@@ -578,7 +578,7 @@ func (pm *P2PShareManager) sendSignal(sessionID string, msg SignalMessage) {
 	}
 }
 
-// GenerateP2PID 生成 P2P 会话 ID
+// GenerateP2PID 生成 P2P 会话 ID.
 func GenerateP2PID() string {
 	b := make([]byte, 12)
 	rand.Read(b)

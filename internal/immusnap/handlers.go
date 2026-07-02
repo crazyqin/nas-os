@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 不可变快照 HTTP API 处理器
+// Handlers 不可变快照 HTTP API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	snap := r.Group("/immutable-snapshots")
 	{
@@ -31,14 +31,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// ListSnapshots GET /api/v1/immutable-snapshots
+// ListSnapshots GET /api/v1/immutable-snapshots.
 func (h *Handlers) ListSnapshots(c *gin.Context) {
 	statusFilter := SnapshotStatus(c.Query("status"))
 	snapshots := h.manager.ListSnapshots(statusFilter)
@@ -50,7 +50,7 @@ func (h *Handlers) ListSnapshots(c *gin.Context) {
 	})
 }
 
-// CreateSnapshot POST /api/v1/immutable-snapshots
+// CreateSnapshot POST /api/v1/immutable-snapshots.
 func (h *Handlers) CreateSnapshot(c *gin.Context) {
 	var req struct {
 		DatasetName    string   `json:"dataset_name" binding:"required"`
@@ -88,7 +88,7 @@ func (h *Handlers) CreateSnapshot(c *gin.Context) {
 	})
 }
 
-// LockSnapshot POST /api/v1/immutable-snapshots/:id/lock
+// LockSnapshot POST /api/v1/immutable-snapshots/:id/lock.
 func (h *Handlers) LockSnapshot(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.Lock(id); err != nil {
@@ -104,7 +104,7 @@ func (h *Handlers) LockSnapshot(c *gin.Context) {
 	})
 }
 
-// GetPolicy GET /api/v1/immutable-snapshots/policies
+// GetPolicy GET /api/v1/immutable-snapshots/policies.
 func (h *Handlers) GetPolicy(c *gin.Context) {
 	policy := h.manager.GetPolicy()
 	c.JSON(http.StatusOK, response{
@@ -114,7 +114,7 @@ func (h *Handlers) GetPolicy(c *gin.Context) {
 	})
 }
 
-// UpdatePolicy PUT /api/v1/immutable-snapshots/policies
+// UpdatePolicy PUT /api/v1/immutable-snapshots/policies.
 func (h *Handlers) UpdatePolicy(c *gin.Context) {
 	var policy RetentionPolicy
 	if err := c.ShouldBindJSON(&policy); err != nil {
@@ -134,7 +134,7 @@ func (h *Handlers) UpdatePolicy(c *gin.Context) {
 	})
 }
 
-// VerifySnapshot POST /api/v1/immutable-snapshots/verify
+// VerifySnapshot POST /api/v1/immutable-snapshots/verify.
 func (h *Handlers) VerifySnapshot(c *gin.Context) {
 	var req struct {
 		SnapshotID string `json:"snapshot_id" binding:"required"`
@@ -163,7 +163,7 @@ func (h *Handlers) VerifySnapshot(c *gin.Context) {
 	})
 }
 
-// GetStats GET /api/v1/immutable-snapshots/stats
+// GetStats GET /api/v1/immutable-snapshots/stats.
 func (h *Handlers) GetStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, response{
@@ -173,7 +173,7 @@ func (h *Handlers) GetStats(c *gin.Context) {
 	})
 }
 
-// ReportThreat POST /api/v1/immutable-snapshots/threat
+// ReportThreat POST /api/v1/immutable-snapshots/threat.
 func (h *Handlers) ReportThreat(c *gin.Context) {
 	var req struct {
 		Level        ThreatLevel `json:"level" binding:"required"`

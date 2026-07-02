@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers API Key 管理 HTTP 处理器
+// Handlers API Key 管理 HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	keys := r.Group("/apikeys")
 	{
@@ -30,7 +30,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
@@ -38,7 +38,7 @@ type response struct {
 }
 
 // createKey 创建 API Key
-// POST /apikeys
+// POST /apikeys.
 func (h *Handlers) createKey(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -62,7 +62,7 @@ func (h *Handlers) createKey(c *gin.Context) {
 }
 
 // listKeys 列出用户的 API Key
-// GET /apikeys
+// GET /apikeys.
 func (h *Handlers) listKeys(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -101,7 +101,7 @@ func (h *Handlers) listKeys(c *gin.Context) {
 }
 
 // getKey 获取单个 API Key 详情
-// GET /apikeys/:id
+// GET /apikeys/:id.
 func (h *Handlers) getKey(c *gin.Context) {
 	userID := c.GetString("user_id")
 	keyID := c.Param("id")
@@ -120,16 +120,17 @@ func (h *Handlers) getKey(c *gin.Context) {
 }
 
 // revokeKey 撤销 API Key
-// DELETE /apikeys/:id
+// DELETE /apikeys/:id.
 func (h *Handlers) revokeKey(c *gin.Context) {
 	userID := c.GetString("user_id")
 	keyID := c.Param("id")
 
 	if err := h.manager.RevokeKey(userID, keyID); err != nil {
 		status := http.StatusBadRequest
-		if err == ErrKeyNotFound {
+		switch err {
+		case ErrKeyNotFound:
 			status = http.StatusNotFound
-		} else if err == ErrPermissionDenied {
+		case ErrPermissionDenied:
 			status = http.StatusForbidden
 		}
 		c.JSON(status, response{Code: status, Message: err.Error()})
@@ -140,7 +141,7 @@ func (h *Handlers) revokeKey(c *gin.Context) {
 }
 
 // rotateKey 轮换 API Key
-// POST /apikeys/:id/rotate
+// POST /apikeys/:id/rotate.
 func (h *Handlers) rotateKey(c *gin.Context) {
 	userID := c.GetString("user_id")
 	keyID := c.Param("id")
@@ -148,9 +149,10 @@ func (h *Handlers) rotateKey(c *gin.Context) {
 	result, err := h.manager.RotateKey(userID, keyID)
 	if err != nil {
 		status := http.StatusBadRequest
-		if err == ErrKeyNotFound {
+		switch err {
+		case ErrKeyNotFound:
 			status = http.StatusNotFound
-		} else if err == ErrPermissionDenied {
+		case ErrPermissionDenied:
 			status = http.StatusForbidden
 		}
 		c.JSON(status, response{Code: status, Message: err.Error()})
@@ -161,7 +163,7 @@ func (h *Handlers) rotateKey(c *gin.Context) {
 }
 
 // validateKey 验证 API Key
-// POST /apikeys/:id/validate
+// POST /apikeys/:id/validate.
 func (h *Handlers) validateKey(c *gin.Context) {
 	var body struct {
 		Key string `json:"key" binding:"required"`

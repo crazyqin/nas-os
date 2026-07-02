@@ -11,7 +11,7 @@ import (
 // 配置类型
 // ============================================================
 
-// VaultConfig 保险库配置
+// VaultConfig 保险库配置.
 type VaultConfig struct {
 	AutoLockTimeout  time.Duration `json:"auto_lock_timeout"`  // 自动锁定超时，默认30分钟
 	MaxRetryAttempts int           `json:"max_retry_attempts"` // 最大重试次数，默认5
@@ -22,7 +22,7 @@ type VaultConfig struct {
 	Parallelism      int           `json:"parallelism"`        // 并行度
 }
 
-// DefaultVaultConfig 默认保险库配置
+// DefaultVaultConfig 默认保险库配置.
 func DefaultVaultConfig() VaultConfig {
 	return VaultConfig{
 		AutoLockTimeout:  30 * time.Minute,
@@ -39,7 +39,7 @@ func DefaultVaultConfig() VaultConfig {
 // 保险库密钥类型
 // ============================================================
 
-// VaultKey 保险库密钥
+// VaultKey 保险库密钥.
 type VaultKey struct {
 	ID          string     `json:"id"`           // 密钥ID
 	Name        string     `json:"name"`         // 密钥名称
@@ -54,7 +54,7 @@ type VaultKey struct {
 	UsageCount  int        `json:"usage_count"`  // 使用次数
 }
 
-// KeyStatus 密钥状态枚举
+// KeyStatus 密钥状态枚举.
 type KeyStatus string
 
 const (
@@ -68,7 +68,7 @@ const (
 // 加密卷类型
 // ============================================================
 
-// EncryptedVolume 加密卷
+// EncryptedVolume 加密卷.
 type EncryptedVolume struct {
 	ID             string     `json:"id"`              // 卷ID
 	Name           string     `json:"name"`            // 卷名称
@@ -87,7 +87,7 @@ type EncryptedVolume struct {
 	UpdatedAt      time.Time  `json:"updated_at"`      // 更新时间
 }
 
-// VolumeStatus 卷状态枚举
+// VolumeStatus 卷状态枚举.
 type VolumeStatus string
 
 const (
@@ -102,13 +102,13 @@ const (
 // 解锁请求/响应类型
 // ============================================================
 
-// UnlockRequest 解锁请求
+// UnlockRequest 解锁请求.
 type UnlockRequest struct {
 	VolumeID string `json:"volume_id"` // 卷ID
 	Password string `json:"password"`  // 保险库密码
 }
 
-// UnlockResponse 解锁响应
+// UnlockResponse 解锁响应.
 type UnlockResponse struct {
 	Success    bool   `json:"success"`     // 是否成功
 	VolumeID   string `json:"volume_id"`   // 卷ID
@@ -116,7 +116,7 @@ type UnlockResponse struct {
 	Message    string `json:"message"`     // 消息
 }
 
-// LockRequest 锁定请求
+// LockRequest 锁定请求.
 type LockRequest struct {
 	VolumeID string `json:"volume_id"` // 卷ID
 	Force    bool   `json:"force"`     // 是否强制锁定（即使有进程在使用）
@@ -126,7 +126,7 @@ type LockRequest struct {
 // 密钥管理类型
 // ============================================================
 
-// CreateKeyRequest 创建密钥请求
+// CreateKeyRequest 创建密钥请求.
 type CreateKeyRequest struct {
 	Name        string `json:"name"`        // 密钥名称
 	Description string `json:"description"` // 描述
@@ -134,7 +134,7 @@ type CreateKeyRequest struct {
 	ExpiresIn   int    `json:"expires_in"`  // 过期时间（天），0表示永不过期
 }
 
-// ChangePasswordRequest 修改密码请求
+// ChangePasswordRequest 修改密码请求.
 type ChangePasswordRequest struct {
 	KeyID       string `json:"key_id"`       // 密钥ID
 	OldPassword string `json:"old_password"` // 旧密码
@@ -145,7 +145,7 @@ type ChangePasswordRequest struct {
 // 统计类型
 // ============================================================
 
-// VaultStats 保险库统计
+// VaultStats 保险库统计.
 type VaultStats struct {
 	TotalKeys       int       `json:"total_keys"`       // 总密钥数
 	ActiveKeys      int       `json:"active_keys"`      // 激活密钥数
@@ -161,7 +161,7 @@ type VaultStats struct {
 // 审计日志类型
 // ============================================================
 
-// AuditAction 审计动作枚举
+// AuditAction 审计动作枚举.
 type AuditAction string
 
 const (
@@ -174,14 +174,14 @@ const (
 	ActionUnmount    AuditAction = "unmount"     // 卸载
 )
 
-// 审计动作别名（兼容 manager.go 中的引用）
+// 审计动作别名（兼容 manager.go 中的引用）.
 const (
 	AuditActionCreateKey  = ActionCreateKey
 	AuditActionDeleteKey  = ActionDeleteKey
 	AuditActionChangePass = ActionChangePass
 )
 
-// AuditLog 审计日志
+// AuditLog 审计日志.
 type AuditLog struct {
 	ID        string      `json:"id"`         // 日志ID
 	Action    AuditAction `json:"action"`     // 动作
@@ -198,49 +198,49 @@ type AuditLog struct {
 // HTTP 请求/响应类型
 // ============================================================
 
-// APIResponse 通用API响应
+// APIResponse 通用API响应.
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// VolumeListResponse 卷列表响应
+// VolumeListResponse 卷列表响应.
 type VolumeListResponse struct {
 	Code    int               `json:"code"`
 	Message string            `json:"message"`
 	Data    []EncryptedVolume `json:"data,omitempty"`
 }
 
-// VolumeResponse 单卷响应
+// VolumeResponse 单卷响应.
 type VolumeResponse struct {
 	Code    int             `json:"code"`
 	Message string          `json:"message"`
 	Data    EncryptedVolume `json:"data"`
 }
 
-// KeyListResponse 密钥列表响应
+// KeyListResponse 密钥列表响应.
 type KeyListResponse struct {
 	Code    int        `json:"code"`
 	Message string     `json:"message"`
 	Data    []VaultKey `json:"data,omitempty"`
 }
 
-// KeyResponse 单密钥响应
+// KeyResponse 单密钥响应.
 type KeyResponse struct {
 	Code    int      `json:"code"`
 	Message string   `json:"message"`
 	Data    VaultKey `json:"data"`
 }
 
-// StatsResponse 统计响应
+// StatsResponse 统计响应.
 type StatsResponse struct {
 	Code    int        `json:"code"`
 	Message string     `json:"message"`
 	Data    VaultStats `json:"data"`
 }
 
-// AuditLogResponse 审计日志响应
+// AuditLogResponse 审计日志响应.
 type AuditLogResponse struct {
 	Code    int        `json:"code"`
 	Message string     `json:"message"`
@@ -251,7 +251,7 @@ type AuditLogResponse struct {
 // 加密配置类型
 // ============================================================
 
-// EncryptionAlgorithm 加密算法
+// EncryptionAlgorithm 加密算法.
 type EncryptionAlgorithm string
 
 const (
@@ -260,7 +260,7 @@ const (
 	AlgoChaCha20  EncryptionAlgorithm = "chacha20"    // ChaCha20-Poly1305
 )
 
-// EncryptionConfig 加密配置
+// EncryptionConfig 加密配置.
 type EncryptionConfig struct {
 	Algorithm   EncryptionAlgorithm `json:"algorithm"`    // 加密算法
 	KeySize     int                 `json:"key_size"`     // 密钥大小（位）

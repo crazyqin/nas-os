@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 语音助手 API 处理器
+// Handlers 语音助手 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	voice := r.Group("/voicehub")
 	{
@@ -70,14 +70,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// processCommand 处理语音命令
+// processCommand 处理语音命令.
 func (h *Handlers) processCommand(c *gin.Context) {
 	var cmd VoiceCommand
 	if err := c.ShouldBindJSON(&cmd); err != nil {
@@ -104,7 +104,7 @@ func (h *Handlers) processCommand(c *gin.Context) {
 	})
 }
 
-// processBatchCommands 批量处理语音命令
+// processBatchCommands 批量处理语音命令.
 func (h *Handlers) processBatchCommands(c *gin.Context) {
 	var cmds []VoiceCommand
 	if err := c.ShouldBindJSON(&cmds); err != nil {
@@ -143,7 +143,7 @@ func (h *Handlers) processBatchCommands(c *gin.Context) {
 	})
 }
 
-// listScenes 列出场景
+// listScenes 列出场景.
 func (h *Handlers) listScenes(c *gin.Context) {
 	scenes := h.manager.ListScenes()
 	c.JSON(http.StatusOK, response{
@@ -153,7 +153,7 @@ func (h *Handlers) listScenes(c *gin.Context) {
 	})
 }
 
-// createScene 创建场景
+// createScene 创建场景.
 func (h *Handlers) createScene(c *gin.Context) {
 	var req SceneRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -180,7 +180,7 @@ func (h *Handlers) createScene(c *gin.Context) {
 	})
 }
 
-// getScene 获取场景
+// getScene 获取场景.
 func (h *Handlers) getScene(c *gin.Context) {
 	id := c.Param("id")
 	scene, err := h.manager.GetScene(id)
@@ -199,7 +199,7 @@ func (h *Handlers) getScene(c *gin.Context) {
 	})
 }
 
-// updateScene 更新场景
+// updateScene 更新场景.
 func (h *Handlers) updateScene(c *gin.Context) {
 	id := c.Param("id")
 	var req SceneRequest
@@ -227,7 +227,7 @@ func (h *Handlers) updateScene(c *gin.Context) {
 	})
 }
 
-// deleteScene 删除场景
+// deleteScene 删除场景.
 func (h *Handlers) deleteScene(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteScene(id); err != nil {
@@ -244,7 +244,7 @@ func (h *Handlers) deleteScene(c *gin.Context) {
 	})
 }
 
-// activateScene 激活场景
+// activateScene 激活场景.
 func (h *Handlers) activateScene(c *gin.Context) {
 	id := c.Param("id")
 	resp, err := h.manager.ActivateScene(c.Request.Context(), id)
@@ -263,7 +263,7 @@ func (h *Handlers) activateScene(c *gin.Context) {
 	})
 }
 
-// listCustomCommands 列出自定义命令
+// listCustomCommands 列出自定义命令.
 func (h *Handlers) listCustomCommands(c *gin.Context) {
 	cmds := h.manager.ListCustomCommands()
 	c.JSON(http.StatusOK, response{
@@ -273,7 +273,7 @@ func (h *Handlers) listCustomCommands(c *gin.Context) {
 	})
 }
 
-// registerCustomCommand 注册自定义命令
+// registerCustomCommand 注册自定义命令.
 func (h *Handlers) registerCustomCommand(c *gin.Context) {
 	var req CustomCommandRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -300,7 +300,7 @@ func (h *Handlers) registerCustomCommand(c *gin.Context) {
 	})
 }
 
-// getCustomCommand 获取自定义命令
+// getCustomCommand 获取自定义命令.
 func (h *Handlers) getCustomCommand(c *gin.Context) {
 	id := c.Param("id")
 	cmd, err := h.manager.GetCustomCommand(id)
@@ -319,7 +319,7 @@ func (h *Handlers) getCustomCommand(c *gin.Context) {
 	})
 }
 
-// updateCustomCommand 更新自定义命令
+// updateCustomCommand 更新自定义命令.
 func (h *Handlers) updateCustomCommand(c *gin.Context) {
 	id := c.Param("id")
 	var req CustomCommandRequest
@@ -347,7 +347,7 @@ func (h *Handlers) updateCustomCommand(c *gin.Context) {
 	})
 }
 
-// deleteCustomCommand 删除自定义命令
+// deleteCustomCommand 删除自定义命令.
 func (h *Handlers) deleteCustomCommand(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteCustomCommand(id); err != nil {
@@ -364,7 +364,7 @@ func (h *Handlers) deleteCustomCommand(c *gin.Context) {
 	})
 }
 
-// listWakeWords 列出唤醒词
+// listWakeWords 列出唤醒词.
 func (h *Handlers) listWakeWords(c *gin.Context) {
 	words := h.manager.ListWakeWords()
 	c.JSON(http.StatusOK, response{
@@ -374,7 +374,7 @@ func (h *Handlers) listWakeWords(c *gin.Context) {
 	})
 }
 
-// registerWakeWord 注册唤醒词
+// registerWakeWord 注册唤醒词.
 func (h *Handlers) registerWakeWord(c *gin.Context) {
 	var config WakeWordConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -393,7 +393,7 @@ func (h *Handlers) registerWakeWord(c *gin.Context) {
 	})
 }
 
-// deleteWakeWord 删除唤醒词
+// deleteWakeWord 删除唤醒词.
 func (h *Handlers) deleteWakeWord(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteWakeWord(id); err != nil {
@@ -410,7 +410,7 @@ func (h *Handlers) deleteWakeWord(c *gin.Context) {
 	})
 }
 
-// listTemplates 列出回复模板
+// listTemplates 列出回复模板.
 func (h *Handlers) listTemplates(c *gin.Context) {
 	tpls := h.manager.ListReplyTemplates()
 	c.JSON(http.StatusOK, response{
@@ -420,7 +420,7 @@ func (h *Handlers) listTemplates(c *gin.Context) {
 	})
 }
 
-// createTemplate 创建回复模板
+// createTemplate 创建回复模板.
 func (h *Handlers) createTemplate(c *gin.Context) {
 	var req ReplyTemplateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -439,7 +439,7 @@ func (h *Handlers) createTemplate(c *gin.Context) {
 	})
 }
 
-// getTemplate 获取回复模板
+// getTemplate 获取回复模板.
 func (h *Handlers) getTemplate(c *gin.Context) {
 	id := c.Param("id")
 	tpl, err := h.manager.GetReplyTemplate(id)
@@ -458,7 +458,7 @@ func (h *Handlers) getTemplate(c *gin.Context) {
 	})
 }
 
-// updateTemplate 更新回复模板
+// updateTemplate 更新回复模板.
 func (h *Handlers) updateTemplate(c *gin.Context) {
 	id := c.Param("id")
 	var req ReplyTemplateRequest
@@ -486,7 +486,7 @@ func (h *Handlers) updateTemplate(c *gin.Context) {
 	})
 }
 
-// deleteTemplate 删除回复模板
+// deleteTemplate 删除回复模板.
 func (h *Handlers) deleteTemplate(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteReplyTemplate(id); err != nil {
@@ -503,7 +503,7 @@ func (h *Handlers) deleteTemplate(c *gin.Context) {
 	})
 }
 
-// renderTemplate 渲染回复模板
+// renderTemplate 渲染回复模板.
 func (h *Handlers) renderTemplate(c *gin.Context) {
 	id := c.Param("id")
 	var vars map[string]string
@@ -531,7 +531,7 @@ func (h *Handlers) renderTemplate(c *gin.Context) {
 	})
 }
 
-// textToSpeech 文本转语音
+// textToSpeech 文本转语音.
 func (h *Handlers) textToSpeech(c *gin.Context) {
 	var req TTSRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -558,7 +558,7 @@ func (h *Handlers) textToSpeech(c *gin.Context) {
 	})
 }
 
-// getHistory 获取命令历史
+// getHistory 获取命令历史.
 func (h *Handlers) getHistory(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "50")
 	limit, err := strconv.Atoi(limitStr)
@@ -574,7 +574,7 @@ func (h *Handlers) getHistory(c *gin.Context) {
 	})
 }
 
-// getConfig 获取配置
+// getConfig 获取配置.
 func (h *Handlers) getConfig(c *gin.Context) {
 	cfg := h.manager.GetConfig()
 	c.JSON(http.StatusOK, response{
@@ -584,7 +584,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 	})
 }
 
-// updateConfig 更新配置
+// updateConfig 更新配置.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var cfg VoiceHubConfig
 	if err := c.ShouldBindJSON(&cfg); err != nil {
@@ -602,7 +602,7 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 	})
 }
 
-// getPlatforms 获取支持的平台
+// getPlatforms 获取支持的平台.
 func (h *Handlers) getPlatforms(c *gin.Context) {
 	platforms := h.manager.GetSupportedPlatforms()
 	c.JSON(http.StatusOK, response{
@@ -612,7 +612,7 @@ func (h *Handlers) getPlatforms(c *gin.Context) {
 	})
 }
 
-// getLanguages 获取支持的语言
+// getLanguages 获取支持的语言.
 func (h *Handlers) getLanguages(c *gin.Context) {
 	languages := h.manager.GetSupportedLanguages()
 	c.JSON(http.StatusOK, response{

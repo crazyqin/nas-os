@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-// EnergyAnalyzer 能耗分析器
+// EnergyAnalyzer 能耗分析器.
 type EnergyAnalyzer struct {
 	configPath string
 	config     EnergyConfig
 }
 
-// EnergyConfig 能耗配置
+// EnergyConfig 能耗配置.
 type EnergyConfig struct {
 	// 磁盘功耗参数（瓦特）
 	ActivePowerWatts float64 `json:"active_power_watts"` // 活跃状态功耗
@@ -28,7 +28,7 @@ type EnergyConfig struct {
 	HoursPerDay  int `json:"hours_per_day"`  // 每天运行小时
 }
 
-// EnergyStats 能耗统计
+// EnergyStats 能耗统计.
 type EnergyStats struct {
 	Device         string  `json:"device"`
 	ActiveHours    float64 `json:"active_hours"`
@@ -42,7 +42,7 @@ type EnergyStats struct {
 	SavingsPercent float64 `json:"savings_percent"` // 节省百分比
 }
 
-// EnergyReport 能耗报告
+// EnergyReport 能耗报告.
 type EnergyReport struct {
 	GeneratedAt      time.Time     `json:"generated_at"`
 	Period           string        `json:"period"` // daily, monthly, yearly
@@ -54,7 +54,7 @@ type EnergyReport struct {
 	Recommendations  []string      `json:"recommendations"`
 }
 
-// NewEnergyAnalyzer 创建能耗分析器
+// NewEnergyAnalyzer 创建能耗分析器.
 func NewEnergyAnalyzer(configPath string) *EnergyAnalyzer {
 	analyzer := &EnergyAnalyzer{
 		configPath: configPath,
@@ -71,7 +71,7 @@ func NewEnergyAnalyzer(configPath string) *EnergyAnalyzer {
 	return analyzer
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (a *EnergyAnalyzer) loadConfig() error {
 	data, err := os.ReadFile(a.configPath)
 	if err != nil {
@@ -80,7 +80,7 @@ func (a *EnergyAnalyzer) loadConfig() error {
 	return json.Unmarshal(data, &a.config)
 }
 
-// SaveConfig 保存配置
+// SaveConfig 保存配置.
 func (a *EnergyAnalyzer) SaveConfig() error {
 	data, err := json.MarshalIndent(a.config, "", "  ")
 	if err != nil {
@@ -89,7 +89,7 @@ func (a *EnergyAnalyzer) SaveConfig() error {
 	return os.WriteFile(a.configPath, data, 0644)
 }
 
-// CalculateIdlePower 计算休眠节能
+// CalculateIdlePower 计算休眠节能.
 func (a *EnergyAnalyzer) CalculateIdlePower(device string, activeHours, sleepHours float64) EnergyStats {
 	// 计算电量 (kWh)
 	activePowerKWh := (activeHours * a.config.ActivePowerWatts) / 1000
@@ -119,7 +119,7 @@ func (a *EnergyAnalyzer) CalculateIdlePower(device string, activeHours, sleepHou
 	}
 }
 
-// CompareCost 对比不同休眠策略的成本
+// CompareCost 对比不同休眠策略的成本.
 func (a *EnergyAnalyzer) CompareCost(device string, scenarios []SleepScenario) []EnergyStats {
 	results := make([]EnergyStats, len(scenarios))
 	for i, scenario := range scenarios {
@@ -128,14 +128,14 @@ func (a *EnergyAnalyzer) CompareCost(device string, scenarios []SleepScenario) [
 	return results
 }
 
-// SleepScenario 休眠场景
+// SleepScenario 休眠场景.
 type SleepScenario struct {
 	Name        string  `json:"name"`
 	ActiveHours float64 `json:"active_hours"`
 	SleepHours  float64 `json:"sleep_hours"`
 }
 
-// GenerateDailyReport 生成每日报告
+// GenerateDailyReport 生成每日报告.
 func (a *EnergyAnalyzer) GenerateDailyReport(stats []EnergyStats) EnergyReport {
 	report := EnergyReport{
 		GeneratedAt:     time.Now(),
@@ -164,7 +164,7 @@ func (a *EnergyAnalyzer) GenerateDailyReport(stats []EnergyStats) EnergyReport {
 	return report
 }
 
-// TotalSavingsPercent 计算总节省百分比
+// TotalSavingsPercent 计算总节省百分比.
 func (r *EnergyReport) TotalSavingsPercent() float64 {
 	if r.TotalPowerKWh+r.TotalSavingsKWh == 0 {
 		return 0
@@ -172,7 +172,7 @@ func (r *EnergyReport) TotalSavingsPercent() float64 {
 	return (r.TotalSavingsKWh / (r.TotalPowerKWh + r.TotalSavingsKWh)) * 100
 }
 
-// GenerateMonthlyReport 生成月度报告
+// GenerateMonthlyReport 生成月度报告.
 func (a *EnergyAnalyzer) GenerateMonthlyReport(stats []EnergyStats) EnergyReport {
 	daily := a.GenerateDailyReport(stats)
 
@@ -197,7 +197,7 @@ func (a *EnergyAnalyzer) GenerateMonthlyReport(stats []EnergyStats) EnergyReport
 	return daily
 }
 
-// GenerateAnnualReport 生成年度报告
+// GenerateAnnualReport 生成年度报告.
 func (a *EnergyAnalyzer) GenerateAnnualReport(stats []EnergyStats) EnergyReport {
 	monthly := a.GenerateMonthlyReport(stats)
 
@@ -221,7 +221,7 @@ func (a *EnergyAnalyzer) GenerateAnnualReport(stats []EnergyStats) EnergyReport 
 	return monthly
 }
 
-// EstimateSavings 估算节能潜力
+// EstimateSavings 估算节能潜力.
 func (a *EnergyAnalyzer) EstimateSavings(diskCount int, avgSleepHoursPerDay float64) EnergyStats {
 	totalActiveHours := float64(a.config.HoursPerDay) - avgSleepHoursPerDay
 	totalSleepHours := avgSleepHoursPerDay
@@ -245,14 +245,14 @@ func (a *EnergyAnalyzer) EstimateSavings(diskCount int, avgSleepHoursPerDay floa
 	}
 }
 
-// SetPowerConfig 设置功耗参数
+// SetPowerConfig 设置功耗参数.
 func (a *EnergyAnalyzer) SetPowerConfig(activeWatts, idleWatts, sleepWatts float64) {
 	a.config.ActivePowerWatts = activeWatts
 	a.config.IdlePowerWatts = idleWatts
 	a.config.SleepPowerWatts = sleepWatts
 }
 
-// SetElectricityRate 设置电费单价
+// SetElectricityRate 设置电费单价.
 func (a *EnergyAnalyzer) SetElectricityRate(rate float64) {
 	a.config.ElectricityRatePerKWh = rate
 }

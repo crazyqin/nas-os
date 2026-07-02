@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// ChannelType 频道类型
+// ChannelType 频道类型.
 type ChannelType string
 
 const (
@@ -17,18 +17,18 @@ const (
 	ChannelTypeCustom ChannelType = "custom" // 自定义源
 )
 
-// StreamProtocol 流媒体协议
+// StreamProtocol 流媒体协议.
 type StreamProtocol string
 
 const (
-	ProtocolHLS  StreamProtocol = "hls"   // HLS
-	ProtocolRTMP StreamProtocol = "rtmp"  // RTMP
-	ProtocolRTSP StreamProtocol = "rtsp"  // RTSP
-	ProtocolUDP  StreamProtocol = "udp"   // UDP/RTP
-	ProtocolHTTP StreamProtocol = "http"  // HTTP-FLV
+	ProtocolHLS  StreamProtocol = "hls"  // HLS
+	ProtocolRTMP StreamProtocol = "rtmp" // RTMP
+	ProtocolRTSP StreamProtocol = "rtsp" // RTSP
+	ProtocolUDP  StreamProtocol = "udp"  // UDP/RTP
+	ProtocolHTTP StreamProtocol = "http" // HTTP-FLV
 )
 
-// ChannelStatus 频道状态
+// ChannelStatus 频道状态.
 type ChannelStatus string
 
 const (
@@ -37,38 +37,38 @@ const (
 	StatusTesting ChannelStatus = "testing"
 )
 
-// Channel 直播频道
+// Channel 直播频道.
 type Channel struct {
-	ID          string          `json:"id"`
-	Name        string          `json:"name"`
-	Logo        string          `json:"logo,omitempty"`
-	Group       string          `json:"group"`
-	Type        ChannelType     `json:"type"`
-	Protocol    StreamProtocol  `json:"protocol"`
-	URL         string          `json:"url"`
-	BackupURLs  []string        `json:"backupUrls,omitempty"`
-	EPGID       string          `json:"epgId,omitempty"`
-	Resolution  string          `json:"resolution,omitempty"`
-	Language    string          `json:"language,omitempty"`
-	Country     string          `json:"country,omitempty"`
-	Tags        []string        `json:"tags,omitempty"`
-	Status      ChannelStatus   `json:"status"`
-	LastCheck   time.Time       `json:"lastCheck,omitempty"`
-	ViewCount   int64           `json:"viewCount"`
-	CreatedAt   time.Time       `json:"createdAt"`
-	UpdatedAt   time.Time       `json:"updatedAt"`
+	ID         string         `json:"id"`
+	Name       string         `json:"name"`
+	Logo       string         `json:"logo,omitempty"`
+	Group      string         `json:"group"`
+	Type       ChannelType    `json:"type"`
+	Protocol   StreamProtocol `json:"protocol"`
+	URL        string         `json:"url"`
+	BackupURLs []string       `json:"backupUrls,omitempty"`
+	EPGID      string         `json:"epgId,omitempty"`
+	Resolution string         `json:"resolution,omitempty"`
+	Language   string         `json:"language,omitempty"`
+	Country    string         `json:"country,omitempty"`
+	Tags       []string       `json:"tags,omitempty"`
+	Status     ChannelStatus  `json:"status"`
+	LastCheck  time.Time      `json:"lastCheck,omitempty"`
+	ViewCount  int64          `json:"viewCount"`
+	CreatedAt  time.Time      `json:"createdAt"`
+	UpdatedAt  time.Time      `json:"updatedAt"`
 }
 
-// ChannelGroup 频道分组
+// ChannelGroup 频道分组.
 type ChannelGroup struct {
-	ID        string     `json:"id"`
-	Name      string     `json:"name"`
-	Icon      string     `json:"icon,omitempty"`
-	Order     int        `json:"order"`
-	Channels  []string   `json:"channels"` // 频道ID列表
+	ID       string   `json:"id"`
+	Name     string   `json:"name"`
+	Icon     string   `json:"icon,omitempty"`
+	Order    int      `json:"order"`
+	Channels []string `json:"channels"` // 频道ID列表
 }
 
-// EPGProgram EPG节目单
+// EPGProgram EPG节目单.
 type EPGProgram struct {
 	ID        string    `json:"id"`
 	ChannelID string    `json:"channelId"`
@@ -79,26 +79,26 @@ type EPGProgram struct {
 	Category  string    `json:"category,omitempty"`
 }
 
-// M3UPlaylist M3U播放列表
+// M3UPlaylist M3U播放列表.
 type M3UPlaylist struct {
-	Name      string    `json:"name"`
-	URL       string    `json:"url"`
-	Channels  int       `json:"channels"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	AutoRefresh bool    `json:"autoRefresh"`
-	RefreshInterval int `json:"refreshInterval"` // 分钟
+	Name            string    `json:"name"`
+	URL             string    `json:"url"`
+	Channels        int       `json:"channels"`
+	UpdatedAt       time.Time `json:"updatedAt"`
+	AutoRefresh     bool      `json:"autoRefresh"`
+	RefreshInterval int       `json:"refreshInterval"` // 分钟
 }
 
-// IPTVService IPTV 服务
+// IPTVService IPTV 服务.
 type IPTVService struct {
-	mu         sync.RWMutex
-	channels   map[string]*Channel
-	groups     map[string]*ChannelGroup
-	playlists  map[string]*M3UPlaylist
-	epgData    map[string][]EPGProgram
+	mu        sync.RWMutex
+	channels  map[string]*Channel
+	groups    map[string]*ChannelGroup
+	playlists map[string]*M3UPlaylist
+	epgData   map[string][]EPGProgram
 }
 
-// NewIPTVService 创建 IPTV 服务
+// NewIPTVService 创建 IPTV 服务.
 func NewIPTVService() *IPTVService {
 	return &IPTVService{
 		channels:  make(map[string]*Channel),
@@ -108,7 +108,7 @@ func NewIPTVService() *IPTVService {
 	}
 }
 
-// AddChannel 添加频道
+// AddChannel 添加频道.
 func (s *IPTVService) AddChannel(ch *Channel) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -131,7 +131,7 @@ func (s *IPTVService) AddChannel(ch *Channel) error {
 	return nil
 }
 
-// UpdateChannel 更新频道
+// UpdateChannel 更新频道.
 func (s *IPTVService) UpdateChannel(id string, update *Channel) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -155,7 +155,7 @@ func (s *IPTVService) UpdateChannel(id string, update *Channel) error {
 	return nil
 }
 
-// DeleteChannel 删除频道
+// DeleteChannel 删除频道.
 func (s *IPTVService) DeleteChannel(id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -168,7 +168,7 @@ func (s *IPTVService) DeleteChannel(id string) error {
 	return nil
 }
 
-// GetChannel 获取频道
+// GetChannel 获取频道.
 func (s *IPTVService) GetChannel(id string) (*Channel, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -181,7 +181,7 @@ func (s *IPTVService) GetChannel(id string) (*Channel, error) {
 	return ch, nil
 }
 
-// ListChannels 列出所有频道
+// ListChannels 列出所有频道.
 func (s *IPTVService) ListChannels(group string) []*Channel {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -195,7 +195,7 @@ func (s *IPTVService) ListChannels(group string) []*Channel {
 	return result
 }
 
-// AddGroup 添加分组
+// AddGroup 添加分组.
 func (s *IPTVService) AddGroup(group *ChannelGroup) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -208,7 +208,7 @@ func (s *IPTVService) AddGroup(group *ChannelGroup) error {
 	return nil
 }
 
-// ListGroups 列出所有分组
+// ListGroups 列出所有分组.
 func (s *IPTVService) ListGroups() []*ChannelGroup {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -220,7 +220,7 @@ func (s *IPTVService) ListGroups() []*ChannelGroup {
 	return result
 }
 
-// ImportM3U 导入 M3U 播放列表
+// ImportM3U 导入 M3U 播放列表.
 func (s *IPTVService) ImportM3U(name, url string) (*M3UPlaylist, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -235,7 +235,7 @@ func (s *IPTVService) ImportM3U(name, url string) (*M3UPlaylist, error) {
 	return playlist, nil
 }
 
-// ListPlaylists 列出播放列表
+// ListPlaylists 列出播放列表.
 func (s *IPTVService) ListPlaylists() []*M3UPlaylist {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -247,7 +247,7 @@ func (s *IPTVService) ListPlaylists() []*M3UPlaylist {
 	return result
 }
 
-// RecordChannel 记录频道观看
+// RecordChannel 记录频道观看.
 func (s *IPTVService) RecordChannel(id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -261,7 +261,7 @@ func (s *IPTVService) RecordChannel(id string) error {
 	return nil
 }
 
-// SearchChannels 搜索频道
+// SearchChannels 搜索频道.
 func (s *IPTVService) SearchChannels(keyword string) []*Channel {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -275,7 +275,7 @@ func (s *IPTVService) SearchChannels(keyword string) []*Channel {
 	return result
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (s *IPTVService) GetStats() map[string]interface{} {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

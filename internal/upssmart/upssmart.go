@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// UPSProtocol 定义 UPS 通信协议类型
+// UPSProtocol 定义 UPS 通信协议类型.
 type UPSProtocol string
 
 const (
@@ -18,7 +18,7 @@ const (
 	ProtocolNUT    UPSProtocol = "nut"    // NUT (Network UPS Tools) 协议
 )
 
-// UPSRole 定义 UPS 角色
+// UPSRole 定义 UPS 角色.
 type UPSRole string
 
 const (
@@ -26,7 +26,7 @@ const (
 	RoleSecondary UPSRole = "secondary" // 从 UPS
 )
 
-// PowerEvent 电源事件类型
+// PowerEvent 电源事件类型.
 type PowerEvent string
 
 const (
@@ -40,7 +40,7 @@ const (
 	EventFault         PowerEvent = "fault"          // 故障
 )
 
-// UPSDevice 表示单个 UPS 设备
+// UPSDevice 表示单个 UPS 设备.
 type UPSDevice struct {
 	ID             string      `json:"id"`               // 设备唯一标识
 	Name           string      `json:"name"`             // 设备名称
@@ -57,7 +57,7 @@ type UPSDevice struct {
 	BatteryAge     int         `json:"battery_age"`      // 电池年龄（月）
 }
 
-// UPSStatus UPS 实时状态
+// UPSStatus UPS 实时状态.
 type UPSStatus struct {
 	BatteryLevel   int           `json:"battery_level"`   // 电池电量 0-100%
 	BatteryVoltage float64       `json:"battery_voltage"` // 电池电压 V
@@ -74,7 +74,7 @@ type UPSStatus struct {
 	LastUpdated    time.Time     `json:"last_updated"`    // 最后更新时间
 }
 
-// PowerEventRecord 电源事件记录
+// PowerEventRecord 电源事件记录.
 type PowerEventRecord struct {
 	ID         string     `json:"id"`
 	UPSID      string     `json:"ups_id"`
@@ -85,7 +85,7 @@ type PowerEventRecord struct {
 	ResovledAt time.Time  `json:"resolved_at,omitempty"`
 }
 
-// UPSManagerConfig UPS 管理器配置
+// UPSManagerConfig UPS 管理器配置.
 type UPSManagerConfig struct {
 	PollInterval     time.Duration `json:"poll_interval"`      // 轮询间隔
 	EventRetention   time.Duration `json:"event_retention"`    // 事件保留时长
@@ -93,7 +93,7 @@ type UPSManagerConfig struct {
 	AutoTestInterval time.Duration `json:"auto_test_interval"` // 自动测试间隔
 }
 
-// DefaultUPSManagerConfig 返回默认配置
+// DefaultUPSManagerConfig 返回默认配置.
 func DefaultUPSManagerConfig() UPSManagerConfig {
 	return UPSManagerConfig{
 		PollInterval:     10 * time.Second,
@@ -103,7 +103,7 @@ func DefaultUPSManagerConfig() UPSManagerConfig {
 	}
 }
 
-// UPSManager UPS 智能管理器
+// UPSManager UPS 智能管理器.
 type UPSManager struct {
 	mu      sync.RWMutex
 	config  UPSManagerConfig
@@ -115,7 +115,7 @@ type UPSManager struct {
 	onEvent func(PowerEventRecord) // 事件回调
 }
 
-// NewUPSManager 创建新的 UPS 管理器
+// NewUPSManager 创建新的 UPS 管理器.
 func NewUPSManager(config UPSManagerConfig) *UPSManager {
 	return &UPSManager{
 		config:  config,
@@ -126,14 +126,14 @@ func NewUPSManager(config UPSManagerConfig) *UPSManager {
 	}
 }
 
-// RegisterEventCallback 注册电源事件回调
+// RegisterEventCallback 注册电源事件回调.
 func (m *UPSManager) RegisterEventCallback(fn func(PowerEventRecord)) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.onEvent = fn
 }
 
-// AddDevice 添加 UPS 设备
+// AddDevice 添加 UPS 设备.
 func (m *UPSManager) AddDevice(device *UPSDevice) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -156,7 +156,7 @@ func (m *UPSManager) AddDevice(device *UPSDevice) error {
 	return nil
 }
 
-// RemoveDevice 移除 UPS 设备
+// RemoveDevice 移除 UPS 设备.
 func (m *UPSManager) RemoveDevice(deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -170,7 +170,7 @@ func (m *UPSManager) RemoveDevice(deviceID string) error {
 	return nil
 }
 
-// GetDevice 获取指定设备
+// GetDevice 获取指定设备.
 func (m *UPSManager) GetDevice(deviceID string) (*UPSDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -183,7 +183,7 @@ func (m *UPSManager) GetDevice(deviceID string) (*UPSDevice, error) {
 	return device, nil
 }
 
-// GetAllDevices 获取所有设备
+// GetAllDevices 获取所有设备.
 func (m *UPSManager) GetAllDevices() []*UPSDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -195,7 +195,7 @@ func (m *UPSManager) GetAllDevices() []*UPSDevice {
 	return devices
 }
 
-// GetPrimaryUPS 获取主 UPS
+// GetPrimaryUPS 获取主 UPS.
 func (m *UPSManager) GetPrimaryUPS() (*UPSDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -209,7 +209,7 @@ func (m *UPSManager) GetPrimaryUPS() (*UPSDevice, error) {
 	return nil, fmt.Errorf("未找到主 UPS 设备")
 }
 
-// GetEvents 获取电源事件历史
+// GetEvents 获取电源事件历史.
 func (m *UPSManager) GetEvents(limit int, eventFilter *PowerEvent) []PowerEventRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -230,7 +230,7 @@ func (m *UPSManager) GetEvents(limit int, eventFilter *PowerEvent) []PowerEventR
 	return events
 }
 
-// Start 启动 UPS 管理器
+// Start 启动 UPS 管理器.
 func (m *UPSManager) Start() {
 	m.mu.Lock()
 	if m.running {
@@ -257,7 +257,7 @@ func (m *UPSManager) Start() {
 	log.Println("✅ UPS 智能管理器已启动")
 }
 
-// Stop 停止 UPS 管理器
+// Stop 停止 UPS 管理器.
 func (m *UPSManager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -271,7 +271,7 @@ func (m *UPSManager) Stop() {
 	log.Println("UPS 智能管理器已停止")
 }
 
-// pollLoop 轮询所有 UPS 设备状态
+// pollLoop 轮询所有 UPS 设备状态.
 func (m *UPSManager) pollLoop() {
 	ticker := time.NewTicker(m.config.PollInterval)
 	defer ticker.Stop()
@@ -286,7 +286,7 @@ func (m *UPSManager) pollLoop() {
 	}
 }
 
-// eventLoop 处理电源事件
+// eventLoop 处理电源事件.
 func (m *UPSManager) eventLoop() {
 	for {
 		select {
@@ -298,7 +298,7 @@ func (m *UPSManager) eventLoop() {
 	}
 }
 
-// autoTestLoop 自动电池测试
+// autoTestLoop 自动电池测试.
 func (m *UPSManager) autoTestLoop() {
 	ticker := time.NewTicker(m.config.AutoTestInterval)
 	defer ticker.Stop()
@@ -313,7 +313,7 @@ func (m *UPSManager) autoTestLoop() {
 	}
 }
 
-// cleanupLoop 清理过期事件
+// cleanupLoop 清理过期事件.
 func (m *UPSManager) cleanupLoop() {
 	ticker := time.NewTicker(24 * time.Hour) // 每天清理一次
 	defer ticker.Stop()
@@ -328,7 +328,7 @@ func (m *UPSManager) cleanupLoop() {
 	}
 }
 
-// pollAllDevices 轮询所有设备状态
+// pollAllDevices 轮询所有设备状态.
 func (m *UPSManager) pollAllDevices() {
 	m.mu.RLock()
 	deviceIDs := make([]string, 0, len(m.devices))
@@ -342,7 +342,7 @@ func (m *UPSManager) pollAllDevices() {
 	}
 }
 
-// pollDevice 轮询单个设备状态（模拟实现）
+// pollDevice 轮询单个设备状态（模拟实现）.
 func (m *UPSManager) pollDevice(deviceID string) {
 	m.mu.Lock()
 	device, exists := m.devices[deviceID]
@@ -373,7 +373,7 @@ func (m *UPSManager) pollDevice(deviceID string) {
 	m.detectEvents(deviceID)
 }
 
-// detectEvents 检测电源事件
+// detectEvents 检测电源事件.
 func (m *UPSManager) detectEvents(deviceID string) {
 	m.mu.RLock()
 	device := m.devices[deviceID]
@@ -413,7 +413,7 @@ func (m *UPSManager) detectEvents(deviceID string) {
 	}
 }
 
-// emitEvent 发送电源事件
+// emitEvent 发送电源事件.
 func (m *UPSManager) emitEvent(upsID string, event PowerEvent, details string) {
 	record := PowerEventRecord{
 		ID:        fmt.Sprintf("%s-%s-%d", upsID, event, time.Now().UnixNano()),
@@ -431,7 +431,7 @@ func (m *UPSManager) emitEvent(upsID string, event PowerEvent, details string) {
 	}
 }
 
-// handleEvent 处理电源事件
+// handleEvent 处理电源事件.
 func (m *UPSManager) handleEvent(record PowerEventRecord) {
 	m.mu.Lock()
 	m.events = append(m.events, record)
@@ -446,7 +446,7 @@ func (m *UPSManager) handleEvent(record PowerEventRecord) {
 	}
 }
 
-// runAutoTest 运行自动电池测试
+// runAutoTest 运行自动电池测试.
 func (m *UPSManager) runAutoTest() {
 	m.mu.RLock()
 	deviceIDs := make([]string, 0, len(m.devices))
@@ -460,7 +460,7 @@ func (m *UPSManager) runAutoTest() {
 	}
 }
 
-// testBattery 测试电池
+// testBattery 测试电池.
 func (m *UPSManager) testBattery(deviceID string) {
 	m.mu.Lock()
 	device, exists := m.devices[deviceID]
@@ -478,7 +478,7 @@ func (m *UPSManager) testBattery(deviceID string) {
 	m.mu.Unlock()
 }
 
-// cleanupEvents 清理过期事件
+// cleanupEvents 清理过期事件.
 func (m *UPSManager) cleanupEvents() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -500,7 +500,7 @@ func (m *UPSManager) cleanupEvents() {
 	}
 }
 
-// TriggerBatteryTest 手动触发电池测试
+// TriggerBatteryTest 手动触发电池测试.
 func (m *UPSManager) TriggerBatteryTest(deviceID string) error {
 	m.mu.RLock()
 	_, exists := m.devices[deviceID]
@@ -514,7 +514,7 @@ func (m *UPSManager) TriggerBatteryTest(deviceID string) error {
 	return nil
 }
 
-// String 返回管理器摘要
+// String 返回管理器摘要.
 func (m *UPSManager) String() string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

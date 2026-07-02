@@ -13,36 +13,36 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	// ErrContainerNotFound 容器不存在
+	// ErrContainerNotFound 容器不存在.
 	ErrContainerNotFound = fmt.Errorf("容器不存在")
-	// ErrNodeNotFound 节点不存在
+	// ErrNodeNotFound 节点不存在.
 	ErrNodeNotFound = fmt.Errorf("HA 节点不存在")
-	// ErrNodeOffline 节点离线
+	// ErrNodeOffline 节点离线.
 	ErrNodeOffline = fmt.Errorf("HA 节点离线")
-	// ErrFailoverInProgress 故障转移进行中
+	// ErrFailoverInProgress 故障转移进行中.
 	ErrFailoverInProgress = fmt.Errorf("故障转移正在进行中")
-	// ErrAlreadyRegistered 容器已注册
+	// ErrAlreadyRegistered 容器已注册.
 	ErrAlreadyRegistered = fmt.Errorf("容器已注册到 HA")
-	// ErrPolicyDisabled 故障转移策略已禁用
+	// ErrPolicyDisabled 故障转移策略已禁用.
 	ErrPolicyDisabled = fmt.Errorf("容器故障转移已禁用")
 )
 
 // ========== Service 定义 ==========
 
-// Service LXC HA 故障转移管理服务
+// Service LXC HA 故障转移管理服务.
 type Service struct {
-	mu            sync.RWMutex
-	config        *Config
-	containers    map[string]*LXCContainer     // 容器 ID -> 容器
-	nodes         map[string]*HANode            // 节点 ID -> 节点
-	policies      map[string]*FailoverPolicy    // 容器 ID -> 故障转移策略
-	failoverStates map[string]*FailoverState    // 容器 ID -> 故障转移状态
-	ipReservations map[string]*IPReservation    // IP -> 预留记录
-	history       []*FailoverHistoryEntry
+	mu             sync.RWMutex
+	config         *Config
+	containers     map[string]*LXCContainer   // 容器 ID -> 容器
+	nodes          map[string]*HANode         // 节点 ID -> 节点
+	policies       map[string]*FailoverPolicy // 容器 ID -> 故障转移策略
+	failoverStates map[string]*FailoverState  // 容器 ID -> 故障转移状态
+	ipReservations map[string]*IPReservation  // IP -> 预留记录
+	history        []*FailoverHistoryEntry
 	nodeHeartbeats map[string]time.Time // 节点 ID -> 最后心跳时间
 }
 
-// NewService 创建 HA 故障转移服务
+// NewService 创建 HA 故障转移服务.
 func NewService(cfg *Config) *Service {
 	if cfg == nil {
 		cfg = DefaultConfig()
@@ -52,15 +52,15 @@ func NewService(cfg *Config) *Service {
 		containers:     make(map[string]*LXCContainer),
 		nodes:          make(map[string]*HANode),
 		policies:       make(map[string]*FailoverPolicy),
-		failoverStates:  make(map[string]*FailoverState),
-		ipReservations:  make(map[string]*IPReservation),
-		nodeHeartbeats:  make(map[string]time.Time),
+		failoverStates: make(map[string]*FailoverState),
+		ipReservations: make(map[string]*IPReservation),
+		nodeHeartbeats: make(map[string]time.Time),
 	}
 }
 
 // ========== 节点管理 ==========
 
-// RegisterNode 注册 HA 节点
+// RegisterNode 注册 HA 节点.
 func (s *Service) RegisterNode(node *HANode) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -81,7 +81,7 @@ func (s *Service) RegisterNode(node *HANode) error {
 	return nil
 }
 
-// RemoveNode 移除 HA 节点
+// RemoveNode 移除 HA 节点.
 func (s *Service) RemoveNode(nodeID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -102,7 +102,7 @@ func (s *Service) RemoveNode(nodeID string) error {
 	return nil
 }
 
-// GetNodes 获取所有 HA 节点列表
+// GetNodes 获取所有 HA 节点列表.
 func (s *Service) GetNodes() []*HANode {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -114,7 +114,7 @@ func (s *Service) GetNodes() []*HANode {
 	return result
 }
 
-// GetNode 获取单个节点信息
+// GetNode 获取单个节点信息.
 func (s *Service) GetNode(nodeID string) (*HANode, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -126,7 +126,7 @@ func (s *Service) GetNode(nodeID string) (*HANode, error) {
 	return node, nil
 }
 
-// UpdateNodeHeartbeat 更新节点心跳
+// UpdateNodeHeartbeat 更新节点心跳.
 func (s *Service) UpdateNodeHeartbeat(nodeID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -143,7 +143,7 @@ func (s *Service) UpdateNodeHeartbeat(nodeID string) error {
 
 // ========== 容器注册与管理 ==========
 
-// RegisterContainer 注册容器到 HA 管理
+// RegisterContainer 注册容器到 HA 管理.
 func (s *Service) RegisterContainer(req *RegisterContainerRequest) (*LXCContainer, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -154,16 +154,16 @@ func (s *Service) RegisterContainer(req *RegisterContainerRequest) (*LXCContaine
 
 	now := time.Now()
 	container := &LXCContainer{
-		ID:         req.ContainerID,
-		Name:       req.ContainerID,
-		State:      StateStopped,
-		NodeID:     s.config.NodeID,
-		IPConfigs:   req.IPConfigs,
-		HAEnabled:   req.Policy != PPolicyNone,
-		Policy:      req.Policy,
-		Priority:    req.Priority,
-		CreatedAt:   now,
-		UpdatedAt:   now,
+		ID:        req.ContainerID,
+		Name:      req.ContainerID,
+		State:     StateStopped,
+		NodeID:    s.config.NodeID,
+		IPConfigs: req.IPConfigs,
+		HAEnabled: req.Policy != PPolicyNone,
+		Policy:    req.Policy,
+		Priority:  req.Priority,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 
 	s.containers[req.ContainerID] = container
@@ -171,7 +171,7 @@ func (s *Service) RegisterContainer(req *RegisterContainerRequest) (*LXCContaine
 	// 创建故障转移策略
 	policy := &FailoverPolicy{
 		ContainerID:    req.ContainerID,
-		Type:          req.Policy,
+		Type:           req.Policy,
 		MaxRetries:     3,
 		HealthCheckInt: s.config.HealthCheckSeconds,
 		FailoverDelay:  5,
@@ -187,7 +187,7 @@ func (s *Service) RegisterContainer(req *RegisterContainerRequest) (*LXCContaine
 	s.failoverStates[req.ContainerID] = &FailoverState{
 		ContainerID: req.ContainerID,
 		State:       FStateHealthy,
-		SourceNode:   s.config.NodeID,
+		SourceNode:  s.config.NodeID,
 	}
 
 	// 预留静态 IP
@@ -196,8 +196,8 @@ func (s *Service) RegisterContainer(req *RegisterContainerRequest) (*LXCContaine
 			s.ipReservations[ipCfg.Address] = &IPReservation{
 				IP:          ipCfg.Address,
 				ContainerID: req.ContainerID,
-				NodeID:       s.config.NodeID,
-				ReservedAt:   now,
+				NodeID:      s.config.NodeID,
+				ReservedAt:  now,
 			}
 		}
 	}
@@ -205,7 +205,7 @@ func (s *Service) RegisterContainer(req *RegisterContainerRequest) (*LXCContaine
 	return container, nil
 }
 
-// UnregisterContainer 取消容器 HA 注册
+// UnregisterContainer 取消容器 HA 注册.
 func (s *Service) UnregisterContainer(containerID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -227,7 +227,7 @@ func (s *Service) UnregisterContainer(containerID string) error {
 	return nil
 }
 
-// GetContainers 获取所有 HA 容器列表
+// GetContainers 获取所有 HA 容器列表.
 func (s *Service) GetContainers() []*LXCContainer {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -239,7 +239,7 @@ func (s *Service) GetContainers() []*LXCContainer {
 	return result
 }
 
-// GetContainer 获取单个容器信息
+// GetContainer 获取单个容器信息.
 func (s *Service) GetContainer(containerID string) (*LXCContainer, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -251,7 +251,7 @@ func (s *Service) GetContainer(containerID string) (*LXCContainer, error) {
 	return c, nil
 }
 
-// UpdateContainerState 更新容器运行状态
+// UpdateContainerState 更新容器运行状态.
 func (s *Service) UpdateContainerState(containerID string, state ContainerState) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -271,7 +271,7 @@ func (s *Service) UpdateContainerState(containerID string, state ContainerState)
 
 // ========== 策略管理 ==========
 
-// GetPolicy 获取容器故障转移策略
+// GetPolicy 获取容器故障转移策略.
 func (s *Service) GetPolicy(containerID string) (*FailoverPolicy, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -283,7 +283,7 @@ func (s *Service) GetPolicy(containerID string) (*FailoverPolicy, error) {
 	return p, nil
 }
 
-// UpdatePolicy 更新故障转移策略
+// UpdatePolicy 更新故障转移策略.
 func (s *Service) UpdatePolicy(req *UpdatePolicyRequest) (*FailoverPolicy, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -321,7 +321,7 @@ func (s *Service) UpdatePolicy(req *UpdatePolicyRequest) (*FailoverPolicy, error
 
 // ========== 容器迁移 ==========
 
-// MigrateContainer 执行容器迁移
+// MigrateContainer 执行容器迁移.
 func (s *Service) MigrateContainer(req *MigrateRequest) (*MigrateResult, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -411,8 +411,8 @@ func (s *Service) MigrateContainer(req *MigrateRequest) (*MigrateResult, error) 
 				s.ipReservations[ipCfg.Address] = &IPReservation{
 					IP:          ipCfg.Address,
 					ContainerID: req.ContainerID,
-					NodeID:       req.TargetNode,
-					ReservedAt:   time.Now(),
+					NodeID:      req.TargetNode,
+					ReservedAt:  time.Now(),
 				}
 			}
 		}
@@ -434,7 +434,7 @@ func (s *Service) MigrateContainer(req *MigrateRequest) (*MigrateResult, error) 
 // ========== 故障检测与自动故障转移 ==========
 
 // CheckNodeHealth 检查节点健康状态
-// 比较节点最后心跳时间与超时阈值，判断是否故障
+// 比较节点最后心跳时间与超时阈值，判断是否故障.
 func (s *Service) CheckNodeHealth() []*HANode {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -456,7 +456,7 @@ func (s *Service) CheckNodeHealth() []*HANode {
 	return failedNodes
 }
 
-// TriggerFailover 手动触发故障转移
+// TriggerFailover 手动触发故障转移.
 func (s *Service) TriggerFailover(req *TriggerFailoverRequest) (*MigrateResult, error) {
 	s.mu.Lock()
 
@@ -556,7 +556,7 @@ func (s *Service) TriggerFailover(req *TriggerFailoverRequest) (*MigrateResult, 
 	return result, err
 }
 
-// AutoFailover 自动故障转移（由健康检查触发）
+// AutoFailover 自动故障转移（由健康检查触发）.
 func (s *Service) AutoFailover(containerID string, failedNodeID string) (*MigrateResult, error) {
 	s.mu.Lock()
 
@@ -650,7 +650,7 @@ func (s *Service) AutoFailover(containerID string, failedNodeID string) (*Migrat
 	return result, err
 }
 
-// selectFailoverNode 选择故障转移目标节点（调用方需持有锁）
+// selectFailoverNode 选择故障转移目标节点（调用方需持有锁）.
 func (s *Service) selectFailoverNode(excludeNodeID string) string {
 	var bestNode *HANode
 	minLoad := 999999.0
@@ -681,7 +681,7 @@ func (s *Service) selectFailoverNode(excludeNodeID string) string {
 
 // ========== IP 管理 ==========
 
-// ReserveIP 预留静态 IP
+// ReserveIP 预留静态 IP.
 func (s *Service) ReserveIP(req *ReserveIPRequest) (*IPReservation, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -700,14 +700,14 @@ func (s *Service) ReserveIP(req *ReserveIPRequest) (*IPReservation, error) {
 	reservation := &IPReservation{
 		IP:          req.IP,
 		ContainerID: req.ContainerID,
-		NodeID:       req.NodeID,
-		ReservedAt:   time.Now(),
+		NodeID:      req.NodeID,
+		ReservedAt:  time.Now(),
 	}
 	s.ipReservations[req.IP] = reservation
 	return reservation, nil
 }
 
-// ReleaseIP 释放 IP 预留
+// ReleaseIP 释放 IP 预留.
 func (s *Service) ReleaseIP(ip string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -719,7 +719,7 @@ func (s *Service) ReleaseIP(ip string) error {
 	return nil
 }
 
-// GetIPReservations 获取所有 IP 预留
+// GetIPReservations 获取所有 IP 预留.
 func (s *Service) GetIPReservations() []*IPReservation {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -731,7 +731,7 @@ func (s *Service) GetIPReservations() []*IPReservation {
 	return result
 }
 
-// CheckIPConflict 检查 IP 冲突
+// CheckIPConflict 检查 IP 冲突.
 func (s *Service) CheckIPConflict(ip, containerID, nodeID string) bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -745,7 +745,7 @@ func (s *Service) CheckIPConflict(ip, containerID, nodeID string) bool {
 
 // ========== 故障转移状态查询 ==========
 
-// GetFailoverState 获取容器故障转移状态
+// GetFailoverState 获取容器故障转移状态.
 func (s *Service) GetFailoverState(containerID string) (*FailoverState, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -757,7 +757,7 @@ func (s *Service) GetFailoverState(containerID string) (*FailoverState, error) {
 	return fs, nil
 }
 
-// GetFailoverEvents 获取故障转移事件列表
+// GetFailoverEvents 获取故障转移事件列表.
 func (s *Service) GetFailoverEvents(containerID string) []*FailoverEvent {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -800,7 +800,7 @@ func (s *Service) GetFailoverEvents(containerID string) []*FailoverEvent {
 	return result
 }
 
-// GetHistory 获取故障转移历史
+// GetHistory 获取故障转移历史.
 func (s *Service) GetHistory() []*FailoverHistoryEntry {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -812,7 +812,7 @@ func (s *Service) GetHistory() []*FailoverHistoryEntry {
 
 // ========== 状态总览 ==========
 
-// GetStatus 获取 HA 集群状态总览
+// GetStatus 获取 HA 集群状态总览.
 func (s *Service) GetStatus() *HAStatus {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

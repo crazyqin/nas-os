@@ -2,7 +2,7 @@ package healthscore
 
 import "time"
 
-// ComponentType defines the type of health component
+// ComponentType defines the type of health component.
 type ComponentType string
 
 const (
@@ -15,7 +15,7 @@ const (
 	ComponentTemperature ComponentType = "temperature"
 )
 
-// HealthStatus represents the overall health status
+// HealthStatus represents the overall health status.
 type HealthStatus string
 
 const (
@@ -26,7 +26,7 @@ const (
 	StatusCritical  HealthStatus = "critical"
 )
 
-// ComponentScore represents the score of a single component
+// ComponentScore represents the score of a single component.
 type ComponentScore struct {
 	Type        ComponentType `json:"type"`
 	Score       float64       `json:"score"`  // 0-100
@@ -37,7 +37,7 @@ type ComponentScore struct {
 	CollectedAt time.Time     `json:"collected_at"`
 }
 
-// HealthReport represents a complete health report
+// HealthReport represents a complete health report.
 type HealthReport struct {
 	OverallScore    float64          `json:"overall_score"`
 	OverallStatus   HealthStatus     `json:"overall_status"`
@@ -47,7 +47,7 @@ type HealthReport struct {
 	GeneratedAt     time.Time        `json:"generated_at"`
 }
 
-// Recommendation represents a health improvement recommendation
+// Recommendation represents a health improvement recommendation.
 type Recommendation struct {
 	Priority    string `json:"priority"` // "low", "medium", "high", "critical"
 	Component   string `json:"component"`
@@ -56,7 +56,7 @@ type Recommendation struct {
 	Action      string `json:"action"`
 }
 
-// ScoreHistory represents historical score data
+// ScoreHistory represents historical score data.
 type ScoreHistory struct {
 	Timestamp       time.Time                 `json:"timestamp"`
 	Score           float64                   `json:"score"`
@@ -64,7 +64,7 @@ type ScoreHistory struct {
 	ComponentScores map[ComponentType]float64 `json:"component_scores"`
 }
 
-// Weights defines default component weights
+// Weights defines default component weights.
 var DefaultWeights = map[ComponentType]float64{
 	ComponentDisk:        0.25,
 	ComponentCPU:         0.15,
@@ -75,5 +75,5 @@ var DefaultWeights = map[ComponentType]float64{
 	ComponentTemperature: 0.10,
 }
 
-// CollectorFunc is a function that collects health data for a component
+// CollectorFunc is a function that collects health data for a component.
 type CollectorFunc func() (*ComponentScore, error)

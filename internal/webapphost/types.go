@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// WebApp Web 应用
+// WebApp Web 应用.
 type WebApp struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -35,21 +35,21 @@ type WebApp struct {
 	StartedAt   *time.Time        `json:"started_at,omitempty"`
 }
 
-// VolumeMount 卷挂载
+// VolumeMount 卷挂载.
 type VolumeMount struct {
 	HostPath      string `json:"host_path"`
 	ContainerPath string `json:"container_path"`
 	ReadOnly      bool   `json:"read_only"`
 }
 
-// PortMapping 端口映射
+// PortMapping 端口映射.
 type PortMapping struct {
 	HostPort      int    `json:"host_port"`
 	ContainerPort int    `json:"container_port"`
 	Protocol      string `json:"protocol"` // tcp, udp
 }
 
-// ResourceLimit 资源限制
+// ResourceLimit 资源限制.
 type ResourceLimit struct {
 	CPUShares  int64 `json:"cpu_shares"`  // CPU 份额
 	MemoryMB   int64 `json:"memory_mb"`   // 内存限制(MB)
@@ -59,7 +59,7 @@ type ResourceLimit struct {
 	IOWeight   int   `json:"io_weight"`   // IO 权重
 }
 
-// AppTemplate 应用模板
+// AppTemplate 应用模板.
 type AppTemplate struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -89,7 +89,7 @@ type AppTemplate struct {
 	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
-// EnvVarDef 环境变量定义
+// EnvVarDef 环境变量定义.
 type EnvVarDef struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
@@ -100,7 +100,7 @@ type EnvVarDef struct {
 	Options     []string `json:"options,omitempty"`
 }
 
-// VolumeDef 卷定义
+// VolumeDef 卷定义.
 type VolumeDef struct {
 	Name          string `json:"name"`
 	ContainerPath string `json:"container_path"`
@@ -110,7 +110,7 @@ type VolumeDef struct {
 	ReadOnly      bool   `json:"read_only"`
 }
 
-// PortDef 端口定义
+// PortDef 端口定义.
 type PortDef struct {
 	Name          string `json:"name"`
 	ContainerPort int    `json:"container_port"`
@@ -119,7 +119,7 @@ type PortDef struct {
 	Required      bool   `json:"required"`
 }
 
-// HealthCheckDef 健康检查定义
+// HealthCheckDef 健康检查定义.
 type HealthCheckDef struct {
 	Type        string        `json:"type"` // http, tcp, cmd
 	Path        string        `json:"path,omitempty"`
@@ -131,7 +131,7 @@ type HealthCheckDef struct {
 	StartPeriod time.Duration `json:"start_period"`
 }
 
-// DeployConfig 部署配置
+// DeployConfig 部署配置.
 type DeployConfig struct {
 	AppName       string            `json:"app_name"`
 	TemplateID    string            `json:"template_id,omitempty"`
@@ -154,7 +154,7 @@ type DeployConfig struct {
 	RestartPolicy string            `json:"restart_policy"` // always, on-failure, unless-stopped, no
 }
 
-// AppMetrics 应用指标
+// AppMetrics 应用指标.
 type AppMetrics struct {
 	AppID        string    `json:"app_id"`
 	CPUUsage     float64   `json:"cpu_usage"`     // CPU 使用率(%)
@@ -170,7 +170,7 @@ type AppMetrics struct {
 	Timestamp    time.Time `json:"timestamp"`
 }
 
-// AlertRule 告警规则
+// AlertRule 告警规则.
 type AlertRule struct {
 	ID          string        `json:"id"`
 	AppID       string        `json:"app_id"`
@@ -184,7 +184,7 @@ type AlertRule struct {
 	CreatedAt   time.Time     `json:"created_at"`
 }
 
-// DomainConfig 域名配置
+// DomainConfig 域名配置.
 type DomainConfig struct {
 	Domain        string            `json:"domain"`
 	AppID         string            `json:"app_id"`
@@ -196,7 +196,7 @@ type DomainConfig struct {
 	UpdatedAt     time.Time         `json:"updated_at"`
 }
 
-// RouteRule 路由规则
+// RouteRule 路由规则.
 type RouteRule struct {
 	ID        string            `json:"id"`
 	Domain    string            `json:"domain"`
@@ -208,7 +208,7 @@ type RouteRule struct {
 	CreatedAt time.Time         `json:"created_at"`
 }
 
-// SSLEntry SSL 证书条目
+// SSLEntry SSL 证书条目.
 type SSLEntry struct {
 	ID        string    `json:"id"`
 	Domain    string    `json:"domain"`
@@ -224,7 +224,7 @@ type SSLEntry struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// MarketApp 市场应用
+// MarketApp 市场应用.
 type MarketApp struct {
 	ID          string   `json:"id"`
 	Name        string   `json:"name"`
@@ -248,7 +248,7 @@ type MarketApp struct {
 	UpdateAvail bool     `json:"update_available"`
 }
 
-// MarketCategory 市场分类
+// MarketCategory 市场分类.
 type MarketCategory struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -257,7 +257,7 @@ type MarketCategory struct {
 	AppCount    int    `json:"app_count"`
 }
 
-// WebAppManager Web 应用管理器
+// WebAppManager Web 应用管理器.
 type WebAppManager struct {
 	mu         sync.RWMutex
 	apps       map[string]*WebApp
@@ -270,7 +270,7 @@ type WebAppManager struct {
 	config     *ManagerConfig
 }
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
 	DataDir         string        `json:"data_dir"`
 	DockerSocket    string        `json:"docker_socket"`
@@ -283,7 +283,7 @@ type ManagerConfig struct {
 	BackupDir       string        `json:"backup_dir"`
 }
 
-// NewWebAppManager 创建 Web 应用管理器
+// NewWebAppManager 创建 Web 应用管理器.
 func NewWebAppManager(config *ManagerConfig) *WebAppManager {
 	if config == nil {
 		config = &ManagerConfig{
@@ -308,7 +308,7 @@ func NewWebAppManager(config *ManagerConfig) *WebAppManager {
 	}
 }
 
-// GenerateID 生成唯一 ID
+// GenerateID 生成唯一 ID.
 func GenerateID(prefix string) string {
 	return fmt.Sprintf("%s_%d", prefix, time.Now().UnixNano())
 }

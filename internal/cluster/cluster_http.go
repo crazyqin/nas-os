@@ -7,17 +7,17 @@ import (
 	"strings"
 )
 
-// HTTPHandler 集群管理器 HTTP 处理器
+// HTTPHandler 集群管理器 HTTP 处理器.
 type HTTPHandler struct {
 	manager *ClusterManager
 }
 
-// NewHTTPHandler 创建 HTTP 处理器
+// NewHTTPHandler 创建 HTTP 处理器.
 func NewHTTPHandler(manager *ClusterManager) *HTTPHandler {
 	return &HTTPHandler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *HTTPHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/cluster/status", h.handleStatus)
 	mux.HandleFunc("/api/cluster/nodes", h.handleNodes)
@@ -27,7 +27,7 @@ func (h *HTTPHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/cluster/primary", h.handlePrimary)
 }
 
-// handleStatus 处理集群状态请求
+// handleStatus 处理集群状态请求.
 func (h *HTTPHandler) handleStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -38,7 +38,7 @@ func (h *HTTPHandler) handleStatus(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(status)
 }
 
-// handleNodes 处理节点列表请求
+// handleNodes 处理节点列表请求.
 func (h *HTTPHandler) handleNodes(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -68,7 +68,7 @@ func (h *HTTPHandler) handleNodes(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleNodeByID 处理单个节点请求
+// handleNodeByID 处理单个节点请求.
 func (h *HTTPHandler) handleNodeByID(w http.ResponseWriter, r *http.Request) {
 	// 提取节点 ID
 	id := strings.TrimPrefix(r.URL.Path, "/api/cluster/nodes/")
@@ -116,8 +116,8 @@ func (h *HTTPHandler) handleNodeByID(w http.ResponseWriter, r *http.Request) {
 
 	case http.MethodPut:
 		var update struct {
-			Status   NodeStatus `json:"status"`
-			UsedGB   int        `json:"used_gb"`
+			Status NodeStatus `json:"status"`
+			UsedGB int        `json:"used_gb"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -145,7 +145,7 @@ func (h *HTTPHandler) handleNodeByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleMetrics 处理指标请求
+// handleMetrics 处理指标请求.
 func (h *HTTPHandler) handleMetrics(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -156,7 +156,7 @@ func (h *HTTPHandler) handleMetrics(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(metrics)
 }
 
-// handleTasks 处理任务请求
+// handleTasks 处理任务请求.
 func (h *HTTPHandler) handleTasks(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -186,7 +186,7 @@ func (h *HTTPHandler) handleTasks(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handlePrimary 处理主节点请求
+// handlePrimary 处理主节点请求.
 func (h *HTTPHandler) handlePrimary(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

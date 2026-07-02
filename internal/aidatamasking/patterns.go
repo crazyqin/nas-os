@@ -2,21 +2,21 @@ package aidatamasking
 
 import "regexp"
 
-// SensitivePattern 敏感数据模式
+// SensitivePattern 敏感数据模式.
 type SensitivePattern struct {
 	DataType SensitiveDataType
 	Pattern  *regexp.Regexp
 	Name     string
 }
 
-// compiledPatterns 编译后的模式列表
+// compiledPatterns 编译后的模式列表.
 var compiledPatterns []*SensitivePattern
 
 func init() {
 	compiledPatterns = compilePatterns()
 }
 
-// compilePatterns 编译所有敏感数据模式
+// compilePatterns 编译所有敏感数据模式.
 func compilePatterns() []*SensitivePattern {
 	patterns := []struct {
 		dataType SensitiveDataType
@@ -82,12 +82,12 @@ func compilePatterns() []*SensitivePattern {
 	return result
 }
 
-// GetDefaultPatterns 获取默认的敏感数据模式
+// GetDefaultPatterns 获取默认的敏感数据模式.
 func GetDefaultPatterns() []*SensitivePattern {
 	return compiledPatterns
 }
 
-// GetPatternsByType 获取指定类型的模式
+// GetPatternsByType 获取指定类型的模式.
 func GetPatternsByType(dataType SensitiveDataType) []*SensitivePattern {
 	var result []*SensitivePattern
 	for _, p := range compiledPatterns {
@@ -98,7 +98,7 @@ func GetPatternsByType(dataType SensitiveDataType) []*SensitivePattern {
 	return result
 }
 
-// AddCustomPattern 添加自定义模式
+// AddCustomPattern 添加自定义模式.
 func AddCustomPattern(dataType SensitiveDataType, pattern string, name string) (*SensitivePattern, error) {
 	compiled, err := regexp.Compile(pattern)
 	if err != nil {
@@ -114,7 +114,7 @@ func AddCustomPattern(dataType SensitiveDataType, pattern string, name string) (
 	return sp, nil
 }
 
-// GetPatternStats 获取模式统计信息
+// GetPatternStats 获取模式统计信息.
 func GetPatternStats() map[SensitiveDataType]int {
 	stats := make(map[SensitiveDataType]int)
 	for _, p := range compiledPatterns {

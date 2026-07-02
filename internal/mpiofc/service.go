@@ -11,19 +11,19 @@ import (
 	"time"
 )
 
-// Service 多路径 I/O 光纤通道管理服务
+// Service 多路径 I/O 光纤通道管理服务.
 type Service struct {
-	mu          sync.RWMutex
-	config      *Config
-	ports       map[string]*HBAPort        // 端口 ID -> HBA 端口
-	paths       map[string]*MPIOPath       // 路径 ID -> 多路径
+	mu     sync.RWMutex
+	config *Config
+	ports  map[string]*HBAPort  // 端口 ID -> HBA 端口
+	paths  map[string]*MPIOPath // 路径 ID -> 多路径
 	// targetPaths 目标 WWPN -> 路径 ID 列表
-	targetPaths map[string][]string
-	stats       map[string]*PathStatistics // 路径 ID -> 统计信息
-	failoverTotal int                      // 总故障切换次数
+	targetPaths   map[string][]string
+	stats         map[string]*PathStatistics // 路径 ID -> 统计信息
+	failoverTotal int                        // 总故障切换次数
 }
 
-// NewService 创建多路径管理服务
+// NewService 创建多路径管理服务.
 func NewService(cfg *Config) *Service {
 	if cfg == nil {
 		cfg = DefaultConfig()
@@ -41,7 +41,7 @@ func NewService(cfg *Config) *Service {
 // ========== HBA 端口检测 ==========
 
 // DetectPorts 扫描系统光纤通道 HBA 端口
-// 读取 /sys/class/fc_host 下的端口信息
+// 读取 /sys/class/fc_host 下的端口信息.
 func (s *Service) DetectPorts() ([]*HBAPort, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -98,7 +98,7 @@ func (s *Service) DetectPorts() ([]*HBAPort, error) {
 	return result, nil
 }
 
-// GetPorts 获取所有 HBA 端口列表
+// GetPorts 获取所有 HBA 端口列表.
 func (s *Service) GetPorts() []*HBAPort {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -110,7 +110,7 @@ func (s *Service) GetPorts() []*HBAPort {
 	return result
 }
 
-// GetPort 根据 ID 获取 HBA 端口
+// GetPort 根据 ID 获取 HBA 端口.
 func (s *Service) GetPort(portID string) (*HBAPort, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -125,7 +125,7 @@ func (s *Service) GetPort(portID string) (*HBAPort, error) {
 // ========== 多路径配置 ==========
 
 // ConfigureMPIO 配置多路径
-// 根据指定策略创建多条路径到目标 WWPN
+// 根据指定策略创建多条路径到目标 WWPN.
 func (s *Service) ConfigureMPIO(req *MPIOConfig) ([]*MPIOPath, error) {
 	if err := ValidateWWPN(req.TargetWWPN); err != nil {
 		return nil, err
@@ -168,17 +168,18 @@ func (s *Service) ConfigureMPIO(req *MPIOConfig) ([]*MPIOPath, error) {
 		// 根据策略确定路径状态
 		pathState := PathStateStandby
 		active := false
-		if policy == PathPolicyRoundRobin || policy == PathPolicyRoundRobin16 {
+		switch policy {
+		case PathPolicyRoundRobin, PathPolicyRoundRobin16:
 			// 轮询模式：所有路径都是活跃的
 			pathState = PathStateActive
 			active = true
-		} else if policy == PathPolicyFailover {
+		case PathPolicyFailover:
 			// 故障转移：仅优先级最高的路径活跃
 			if idx == 0 {
 				pathState = PathStateActive
 				active = true
 			}
-		} else if policy == PathPolicyMinQueue {
+		case PathPolicyMinQueue:
 			// 最小队列：初始全部待机，运行时动态选择
 			pathState = PathStateStandby
 		}
@@ -219,7 +220,7 @@ func (s *Service) ConfigureMPIO(req *MPIOConfig) ([]*MPIOPath, error) {
 
 // ========== 路径状态查询 ==========
 
-// GetStatus 获取多路径状态总览
+// GetStatus 获取多路径状态总览.
 func (s *Service) GetStatus() *MPIOStatus {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -252,7 +253,7 @@ func (s *Service) GetStatus() *MPIOStatus {
 	return status
 }
 
-// GetStatistics 获取所有路径统计信息
+// GetStatistics 获取所有路径统计信息.
 func (s *Service) GetStatistics() []*PathStatistics {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -264,7 +265,7 @@ func (s *Service) GetStatistics() []*PathStatistics {
 	return result
 }
 
-// GetPathsByTarget 获取指定目标 WWPN 的所有路径
+// GetPathsByTarget 获取指定目标 WWPN 的所有路径.
 func (s *Service) GetPathsByTarget(targetWWPN string) []*MPIOPath {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -282,7 +283,7 @@ func (s *Service) GetPathsByTarget(targetWWPN string) []*MPIOPath {
 // ========== 故障切换 ==========
 
 // HandlePathFailure 处理路径故障，自动切换到备用路径
-// 当活跃路径发生故障时，根据策略选择最佳备用路径
+// 当活跃路径发生故障时，根据策略选择最佳备用路径.
 func (s *Service) HandlePathFailure(pathID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -340,7 +341,7 @@ func (s *Service) HandlePathFailure(pathID string) error {
 	return nil
 }
 
-// ReactivatePath 重新激活已恢复的路径
+// ReactivatePath 重新激活已恢复的路径.
 func (s *Service) ReactivatePath(pathID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -370,7 +371,7 @@ func (s *Service) ReactivatePath(pathID string) error {
 
 // ========== 内部辅助方法 ==========
 
-// readSysFile 读取 sysfs 文件内容并返回去空格的字符串
+// readSysFile 读取 sysfs 文件内容并返回去空格的字符串.
 func (s *Service) readSysFile(path string) string {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -379,7 +380,7 @@ func (s *Service) readSysFile(path string) string {
 	return strings.TrimSpace(string(data))
 }
 
-// portStateFromString 从字符串解析端口状态
+// portStateFromString 从字符串解析端口状态.
 func portStateFromString(state string) PathState {
 	state = strings.ToLower(state)
 	switch {
@@ -395,7 +396,7 @@ func portStateFromString(state string) PathState {
 }
 
 // reorderFailoverPaths 在故障转移模式下，根据优先级重新排序路径
-// 确保优先级最高（数值最小）的路径为活跃，其余为待机
+// 确保优先级最高（数值最小）的路径为活跃，其余为待机.
 func (s *Service) reorderFailoverPaths(targetWWPN string) {
 	pathIDs := s.targetPaths[targetWWPN]
 	if len(pathIDs) == 0 {
@@ -431,7 +432,7 @@ func (s *Service) reorderFailoverPaths(targetWWPN string) {
 	}
 }
 
-// UpdatePathStats 更新路径统计信息（内部调用）
+// UpdatePathStats 更新路径统计信息（内部调用）.
 func (s *Service) UpdatePathStats(pathID string, iopsRead, iopsWrite int64, throughputRead, throughputWrite, latencyMs float64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()

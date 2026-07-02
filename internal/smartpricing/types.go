@@ -11,7 +11,7 @@ import (
 // 存储方案类型
 // ============================================================
 
-// StorageProvider 云存储提供商
+// StorageProvider 云存储提供商.
 type StorageProvider string
 
 const (
@@ -21,7 +21,7 @@ const (
 	ProviderMinIO      StorageProvider = "minio"
 )
 
-// StorageTier 存储层级
+// StorageTier 存储层级.
 type StorageTier string
 
 const (
@@ -31,7 +31,7 @@ const (
 	TierCold       StorageTier = "cold"       // 冷存储
 )
 
-// AccessFrequency 访问频率
+// AccessFrequency 访问频率.
 type AccessFrequency string
 
 const (
@@ -41,7 +41,7 @@ const (
 	FreqRare   AccessFrequency = "rare"   // 极少访问
 )
 
-// StoragePlan 存储方案
+// StoragePlan 存储方案.
 type StoragePlan struct {
 	ID              string          `json:"id"`
 	Name            string          `json:"name"`
@@ -61,7 +61,7 @@ type StoragePlan struct {
 // 成本对比类型
 // ============================================================
 
-// CostCompareRequest 成本对比请求
+// CostCompareRequest 成本对比请求.
 type CostCompareRequest struct {
 	StorageGB     float64           `json:"storage_gb"`     // 存储量(GB)
 	MonthlyReads  int64             `json:"monthly_reads"`  // 月读取次数
@@ -72,7 +72,7 @@ type CostCompareRequest struct {
 	Region        string            `json:"region"`         // 区域
 }
 
-// CostCompareResult 成本对比结果
+// CostCompareResult 成本对比结果.
 type CostCompareResult struct {
 	Request     CostCompareRequest `json:"request"`
 	Comparisons []ProviderCost     `json:"comparisons"`
@@ -80,7 +80,7 @@ type CostCompareResult struct {
 	GeneratedAt time.Time          `json:"generated_at"`
 }
 
-// ProviderCost 提供商成本
+// ProviderCost 提供商成本.
 type ProviderCost struct {
 	Provider        StorageProvider `json:"provider"`
 	Tier            StorageTier     `json:"tier"`
@@ -98,7 +98,7 @@ type ProviderCost struct {
 // 优化建议类型
 // ============================================================
 
-// OptimizationType 优化类型
+// OptimizationType 优化类型.
 type OptimizationType string
 
 const (
@@ -109,7 +109,7 @@ const (
 	OptDeduplication  OptimizationType = "deduplication"   // 去重优化
 )
 
-// OptimizationPriority 优化优先级
+// OptimizationPriority 优化优先级.
 type OptimizationPriority string
 
 const (
@@ -118,7 +118,7 @@ const (
 	PriorityLow    OptimizationPriority = "low"
 )
 
-// OptimizationRecommendation 优化建议
+// OptimizationRecommendation 优化建议.
 type OptimizationRecommendation struct {
 	ID          string               `json:"id"`
 	Type        OptimizationType     `json:"type"`
@@ -142,7 +142,7 @@ type OptimizationRecommendation struct {
 	CreatedAt     time.Time `json:"created_at"`
 }
 
-// RecommendationsResponse 优化建议响应
+// RecommendationsResponse 优化建议响应.
 type RecommendationsResponse struct {
 	Recommendations []OptimizationRecommendation `json:"recommendations"`
 	TotalSavings    float64                      `json:"total_savings_monthly"`
@@ -153,7 +153,7 @@ type RecommendationsResponse struct {
 // 成本趋势类型
 // ============================================================
 
-// CostTrendPoint 成本趋势点
+// CostTrendPoint 成本趋势点.
 type CostTrendPoint struct {
 	Date      time.Time `json:"date"`
 	Cost      float64   `json:"cost"`
@@ -162,7 +162,7 @@ type CostTrendPoint struct {
 	Tier      string    `json:"tier"`
 }
 
-// CostTrendRequest 成本趋势请求
+// CostTrendRequest 成本趋势请求.
 type CostTrendRequest struct {
 	Provider  StorageProvider `json:"provider,omitempty"`
 	Tier      StorageTier     `json:"tier,omitempty"`
@@ -171,7 +171,7 @@ type CostTrendRequest struct {
 	Interval  string          `json:"interval"` // "daily", "weekly", "monthly"
 }
 
-// CostTrendResponse 成本趋势响应
+// CostTrendResponse 成本趋势响应.
 type CostTrendResponse struct {
 	Request     CostTrendRequest `json:"request"`
 	Trends      []CostTrendPoint `json:"trends"`
@@ -179,7 +179,7 @@ type CostTrendResponse struct {
 	GeneratedAt time.Time        `json:"generated_at"`
 }
 
-// TrendSummary 趋势摘要
+// TrendSummary 趋势摘要.
 type TrendSummary struct {
 	TotalCost      float64 `json:"total_cost"`
 	AvgMonthlyCost float64 `json:"avg_monthly_cost"`
@@ -193,7 +193,7 @@ type TrendSummary struct {
 // 配置类型
 // ============================================================
 
-// SmartPricingConfig 智能定价分析配置
+// SmartPricingConfig 智能定价分析配置.
 type SmartPricingConfig struct {
 	Enabled          bool    `json:"enabled"`
 	DefaultRegion    string  `json:"default_region"`
@@ -203,7 +203,7 @@ type SmartPricingConfig struct {
 	MaxHistoryDays   int     `json:"max_history_days"`  // 最大历史天数
 }
 
-// DefaultSmartPricingConfig 默认配置
+// DefaultSmartPricingConfig 默认配置.
 func DefaultSmartPricingConfig() SmartPricingConfig {
 	return SmartPricingConfig{
 		Enabled:          true,
@@ -222,7 +222,7 @@ func DefaultSmartPricingConfig() SmartPricingConfig {
 // PricingPlan 本地存储定价方案
 // 用于 Analyzer 模块的本地存储成本分析
 // 与 StoragePlan (云存储) 不同，PricingPlan 专注于本地存储
-// 保留 PricingPlan 用于 Analyzer 模块，避免与云存储 StoragePlan 冲突
+// 保留 PricingPlan 用于 Analyzer 模块，避免与云存储 StoragePlan 冲突.
 type PricingPlan struct {
 	ID             string        `json:"id"`
 	Name           string        `json:"name"`
@@ -240,7 +240,7 @@ type PricingPlan struct {
 	Description    string        `json:"description"`
 }
 
-// ReplicaPolicy 副本策略
+// ReplicaPolicy 副本策略.
 type ReplicaPolicy string
 
 const (
@@ -251,7 +251,7 @@ const (
 	ReplicaTriple ReplicaPolicy = "triple" // 三副本
 )
 
-// WorkloadType 工作负载类型
+// WorkloadType 工作负载类型.
 type WorkloadType string
 
 const (
@@ -261,16 +261,16 @@ const (
 	WorkloadMixed WorkloadType = "mixed" // 混合
 )
 
-// TierSSD SSD 存储层级
+// TierSSD SSD 存储层级.
 const TierSSD StorageTier = "ssd"
 
-// TierHDD HDD 存储层级
+// TierHDD HDD 存储层级.
 const TierHDD StorageTier = "hdd"
 
-// TierHybrid 混合存储层级
+// TierHybrid 混合存储层级.
 const TierHybrid StorageTier = "hybrid"
 
-// GetReplicaOverhead 获取副本开销系数
+// GetReplicaOverhead 获取副本开销系数.
 func GetReplicaOverhead(replica ReplicaPolicy) float64 {
 	switch replica {
 	case ReplicaNone:
@@ -288,7 +288,7 @@ func GetReplicaOverhead(replica ReplicaPolicy) float64 {
 	}
 }
 
-// GetUsableRatio 获取可用容量比例
+// GetUsableRatio 获取可用容量比例.
 func GetUsableRatio(replica ReplicaPolicy) float64 {
 	overhead := GetReplicaOverhead(replica)
 	if overhead > 0 {
@@ -297,7 +297,7 @@ func GetUsableRatio(replica ReplicaPolicy) float64 {
 	return 1.0
 }
 
-// CostBreakdown 成本明细
+// CostBreakdown 成本明细.
 type CostBreakdown struct {
 	StorageCost    float64 `json:"storage_cost"`     // 存储费用
 	ReplicaCost    float64 `json:"replica_cost"`     // 副本费用
@@ -307,7 +307,7 @@ type CostBreakdown struct {
 	EffectivePerGB float64 `json:"effective_per_gb"` // 有效单价(每GB)
 }
 
-// CostAnalysis 成本分析结果
+// CostAnalysis 成本分析结果.
 type CostAnalysis struct {
 	TotalCapacityGB     int64         `json:"total_capacity_gb"`
 	Tier                StorageTier   `json:"tier"`
@@ -326,7 +326,7 @@ type CostAnalysis struct {
 	PlanUsed            string        `json:"plan_used"`
 }
 
-// OptimizeRequest 优化请求
+// OptimizeRequest 优化请求.
 type OptimizeRequest struct {
 	CapacityGB    int64        `json:"capacity_gb" binding:"required,gt=0"`
 	Workload      WorkloadType `json:"workload"`
@@ -336,7 +336,7 @@ type OptimizeRequest struct {
 	PreferredTier StorageTier  `json:"preferred_tier"`
 }
 
-// Validate 验证请求
+// Validate 验证请求.
 func (r OptimizeRequest) Validate() error {
 	if r.CapacityGB <= 0 {
 		return fmt.Errorf("capacity must be positive")
@@ -344,7 +344,7 @@ func (r OptimizeRequest) Validate() error {
 	return nil
 }
 
-// Recommendation 推荐方案
+// Recommendation 推荐方案.
 type Recommendation struct {
 	Plan         PricingPlan   `json:"plan"`
 	Rank         int           `json:"rank"`
@@ -356,7 +356,7 @@ type Recommendation struct {
 	Warnings     []string      `json:"warnings,omitempty"`
 }
 
-// OptimizeResult 优化结果
+// OptimizeResult 优化结果.
 type OptimizeResult struct {
 	Request         OptimizeRequest  `json:"request"`
 	Recommendations []Recommendation `json:"recommendations"`
@@ -368,7 +368,7 @@ type OptimizeResult struct {
 // 报告类型
 // ============================================================
 
-// ReportType 报告类型
+// ReportType 报告类型.
 type ReportType string
 
 const (
@@ -376,7 +376,7 @@ const (
 	ReportAnnual  ReportType = "annual"  // 年度报告
 )
 
-// CostReport 成本报告
+// CostReport 成本报告.
 type CostReport struct {
 	ReportID        string            `json:"report_id"`
 	ReportType      ReportType        `json:"report_type"`
@@ -395,7 +395,7 @@ type CostReport struct {
 	Suggestions     []string          `json:"suggestions"`
 }
 
-// TierCostSummary 层级成本摘要
+// TierCostSummary 层级成本摘要.
 type TierCostSummary struct {
 	Tier       StorageTier `json:"tier"`
 	CapacityGB int64       `json:"capacity_gb"`

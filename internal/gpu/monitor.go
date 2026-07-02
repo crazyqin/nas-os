@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Monitor GPU监控器
+// Monitor GPU监控器.
 type Monitor struct {
 	manager  *Manager
 	interval int // 秒
@@ -20,7 +20,7 @@ type Monitor struct {
 	cancel   context.CancelFunc
 }
 
-// NewMonitor 创建GPU监控器
+// NewMonitor 创建GPU监控器.
 func NewMonitor(manager *Manager, interval int, logger *zap.Logger) *Monitor {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -40,7 +40,7 @@ func NewMonitor(manager *Manager, interval int, logger *zap.Logger) *Monitor {
 	}
 }
 
-// Start 启动监控
+// Start 启动监控.
 func (m *Monitor) Start(ctx context.Context) {
 	m.mu.Lock()
 	m.stopped = false
@@ -65,7 +65,7 @@ func (m *Monitor) Start(ctx context.Context) {
 	}
 }
 
-// collect 收集GPU指标
+// collect 收集GPU指标.
 func (m *Monitor) collect() {
 	m.mu.RLock()
 	if m.stopped {
@@ -78,7 +78,7 @@ func (m *Monitor) collect() {
 	m.manager.checkHealth()
 }
 
-// SetInterval 设置监控间隔
+// SetInterval 设置监控间隔.
 func (m *Monitor) SetInterval(interval int) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -89,7 +89,7 @@ func (m *Monitor) SetInterval(interval int) {
 	m.interval = interval
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (m *Monitor) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -98,7 +98,7 @@ func (m *Monitor) Stop() {
 	m.cancel()
 }
 
-// IsRunning 检查监控器是否运行
+// IsRunning 检查监控器是否运行.
 func (m *Monitor) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

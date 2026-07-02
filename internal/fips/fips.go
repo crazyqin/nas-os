@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-// FIPSLevel FIPS合规级别
+// FIPSLevel FIPS合规级别.
 type FIPSLevel int
 
 const (
@@ -26,7 +26,7 @@ const (
 	FIPSLevel4 FIPSLevel = 4 // 环境故障防护
 )
 
-// CipherSuite 密码套件
+// CipherSuite 密码套件.
 type CipherSuite string
 
 const (
@@ -36,7 +36,7 @@ const (
 	CipherChaCha20  CipherSuite = "ChaCha20-Poly1305"
 )
 
-// HashAlgorithm 哈希算法
+// HashAlgorithm 哈希算法.
 type HashAlgorithm string
 
 const (
@@ -45,7 +45,7 @@ const (
 	HashSHA512 HashAlgorithm = "SHA-512"
 )
 
-// FIPSConfig FIPS配置
+// FIPSConfig FIPS配置.
 type FIPSConfig struct {
 	Enabled         bool          `json:"enabled"`
 	Level           FIPSLevel     `json:"level"`
@@ -56,7 +56,7 @@ type FIPSConfig struct {
 	SelfTestEnabled bool          `json:"self_test_enabled"`
 }
 
-// CryptoKey 加密密钥
+// CryptoKey 加密密钥.
 type CryptoKey struct {
 	ID        string      `json:"id"`
 	Name      string      `json:"name"`
@@ -68,7 +68,7 @@ type CryptoKey struct {
 	IsActive  bool        `json:"is_active"`
 }
 
-// EncryptedData 加密数据
+// EncryptedData 加密数据.
 type EncryptedData struct {
 	Data      []byte `json:"data"`
 	IV        []byte `json:"iv"`
@@ -77,7 +77,7 @@ type EncryptedData struct {
 	Algorithm string `json:"algorithm"`
 }
 
-// ComplianceReport 合规报告
+// ComplianceReport 合规报告.
 type ComplianceReport struct {
 	GeneratedAt     time.Time         `json:"generated_at"`
 	Level           FIPSLevel         `json:"level"`
@@ -87,7 +87,7 @@ type ComplianceReport struct {
 	Recommendations []string          `json:"recommendations,omitempty"`
 }
 
-// ComplianceCheck 合规检查项
+// ComplianceCheck 合规检查项.
 type ComplianceCheck struct {
 	Name        string `json:"name"`
 	Status      string `json:"status"` // pass, fail, warning
@@ -95,7 +95,7 @@ type ComplianceCheck struct {
 	Details     string `json:"details,omitempty"`
 }
 
-// AuditEntry 审计条目
+// AuditEntry 审计条目.
 type AuditEntry struct {
 	ID        string    `json:"id"`
 	Timestamp time.Time `json:"timestamp"`
@@ -105,7 +105,7 @@ type AuditEntry struct {
 	Details   string    `json:"details,omitempty"`
 }
 
-// Service FIPS合规服务
+// Service FIPS合规服务.
 type Service struct {
 	mu        sync.RWMutex
 	config    *FIPSConfig
@@ -114,7 +114,7 @@ type Service struct {
 	selfTests []SelfTestResult
 }
 
-// SelfTestResult 自检结果
+// SelfTestResult 自检结果.
 type SelfTestResult struct {
 	Name      string    `json:"name"`
 	Status    string    `json:"status"` // pass, fail
@@ -123,7 +123,7 @@ type SelfTestResult struct {
 	Error     string    `json:"error,omitempty"`
 }
 
-// NewService 创建FIPS合规服务
+// NewService 创建FIPS合规服务.
 func NewService(config *FIPSConfig) *Service {
 	if config == nil {
 		config = &FIPSConfig{
@@ -151,7 +151,7 @@ func NewService(config *FIPSConfig) *Service {
 	return s
 }
 
-// GenerateKey 生成FIPS合规密钥
+// GenerateKey 生成FIPS合规密钥.
 func (s *Service) GenerateKey(ctx context.Context, name string, keySize int) (*CryptoKey, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -183,7 +183,7 @@ func (s *Service) GenerateKey(ctx context.Context, name string, keySize int) (*C
 	return key, nil
 }
 
-// Encrypt 加密数据
+// Encrypt 加密数据.
 func (s *Service) Encrypt(ctx context.Context, keyID string, plaintext []byte) (*EncryptedData, error) {
 	s.mu.RLock()
 	key, exists := s.keys[keyID]
@@ -205,7 +205,7 @@ func (s *Service) Encrypt(ctx context.Context, keyID string, plaintext []byte) (
 	}
 }
 
-// Decrypt 解密数据
+// Decrypt 解密数据.
 func (s *Service) Decrypt(ctx context.Context, encrypted *EncryptedData) ([]byte, error) {
 	s.mu.RLock()
 	key, exists := s.keys[encrypted.KeyID]
@@ -223,7 +223,7 @@ func (s *Service) Decrypt(ctx context.Context, encrypted *EncryptedData) ([]byte
 	}
 }
 
-// Hash 计算哈希
+// Hash 计算哈希.
 func (s *Service) Hash(ctx context.Context, data []byte) (string, error) {
 	switch s.config.HashAlgorithm {
 	case HashSHA256:
@@ -237,7 +237,7 @@ func (s *Service) Hash(ctx context.Context, data []byte) (string, error) {
 	}
 }
 
-// GetKey 获取密钥信息
+// GetKey 获取密钥信息.
 func (s *Service) GetKey(ctx context.Context, keyID string) (*CryptoKey, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -259,7 +259,7 @@ func (s *Service) GetKey(ctx context.Context, keyID string) (*CryptoKey, error) 
 	}, nil
 }
 
-// ListKeys 列出密钥
+// ListKeys 列出密钥.
 func (s *Service) ListKeys(ctx context.Context) []*CryptoKey {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -280,7 +280,7 @@ func (s *Service) ListKeys(ctx context.Context) []*CryptoKey {
 	return keys
 }
 
-// DeleteKey 删除密钥
+// DeleteKey 删除密钥.
 func (s *Service) DeleteKey(ctx context.Context, keyID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -301,7 +301,7 @@ func (s *Service) DeleteKey(ctx context.Context, keyID string) error {
 	return nil
 }
 
-// RunComplianceCheck 运行合规检查
+// RunComplianceCheck 运行合规检查.
 func (s *Service) RunComplianceCheck(ctx context.Context) (*ComplianceReport, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -379,7 +379,7 @@ func (s *Service) RunComplianceCheck(ctx context.Context) (*ComplianceReport, er
 	return report, nil
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (s *Service) GetAuditLog(ctx context.Context, limit int) []AuditEntry {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

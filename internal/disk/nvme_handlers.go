@@ -881,7 +881,7 @@ func (h *NVMeHandlers) getAlertThresholds(c *gin.Context) {
 	})
 }
 
-// alertThresholdsRequest 预警阈值请求
+// alertThresholdsRequest 预警阈值请求.
 type alertThresholdsRequest struct {
 	TempWarning     uint8 `json:"tempWarning"`
 	TempCritical    uint8 `json:"tempCritical"`

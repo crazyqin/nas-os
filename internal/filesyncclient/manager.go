@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Manager 文件同步管理器
+// Manager 文件同步管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	clients   map[string]*SyncClient
@@ -21,7 +21,7 @@ type Manager struct {
 	totalSize int64
 }
 
-// NewManager 创建文件同步管理器
+// NewManager 创建文件同步管理器.
 func NewManager() *Manager {
 	return &Manager{
 		clients:   make(map[string]*SyncClient),
@@ -32,14 +32,14 @@ func NewManager() *Manager {
 	}
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// RegisterClient 注册客户端
+// RegisterClient 注册客户端.
 func (m *Manager) RegisterClient(req *RegisterClientRequest) (*SyncClient, error) {
 	if !IsValidDeviceType(req.DeviceType) {
 		return nil, fmt.Errorf("invalid device type: %s", req.DeviceType)
@@ -72,7 +72,7 @@ func (m *Manager) RegisterClient(req *RegisterClientRequest) (*SyncClient, error
 	return client, nil
 }
 
-// ListClients 列出所有客户端
+// ListClients 列出所有客户端.
 func (m *Manager) ListClients() []*SyncClient {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -84,7 +84,7 @@ func (m *Manager) ListClients() []*SyncClient {
 	return clients
 }
 
-// RemoveClient 移除客户端
+// RemoveClient 移除客户端.
 func (m *Manager) RemoveClient(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -115,7 +115,7 @@ func (m *Manager) RemoveClient(id string) error {
 	return nil
 }
 
-// CreateSyncFolder 创建同步文件夹
+// CreateSyncFolder 创建同步文件夹.
 func (m *Manager) CreateSyncFolder(req *CreateFolderRequest) (*SyncFolder, error) {
 	if !IsValidSyncMode(req.SyncMode) {
 		req.SyncMode = SyncTwoWay
@@ -160,7 +160,7 @@ func (m *Manager) CreateSyncFolder(req *CreateFolderRequest) (*SyncFolder, error
 	return folder, nil
 }
 
-// ListFolders 列出所有同步文件夹
+// ListFolders 列出所有同步文件夹.
 func (m *Manager) ListFolders() []*SyncFolder {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -172,7 +172,7 @@ func (m *Manager) ListFolders() []*SyncFolder {
 	return folders
 }
 
-// UpdateFolder 更新同步文件夹设置
+// UpdateFolder 更新同步文件夹设置.
 func (m *Manager) UpdateFolder(id string, req *UpdateFolderRequest) (*SyncFolder, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -205,7 +205,7 @@ func (m *Manager) UpdateFolder(id string, req *UpdateFolderRequest) (*SyncFolder
 	return folder, nil
 }
 
-// TriggerSync 触发同步（模拟同步过程）
+// TriggerSync 触发同步（模拟同步过程）.
 func (m *Manager) TriggerSync(folderID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -255,7 +255,7 @@ func (m *Manager) TriggerSync(folderID string) error {
 	return nil
 }
 
-// ListConflicts 列出所有冲突
+// ListConflicts 列出所有冲突.
 func (m *Manager) ListConflicts() []*SyncConflict {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -267,7 +267,7 @@ func (m *Manager) ListConflicts() []*SyncConflict {
 	return conflicts
 }
 
-// ResolveConflict 解决冲突
+// ResolveConflict 解决冲突.
 func (m *Manager) ResolveConflict(conflictID string, req *ResolveConflictRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -293,7 +293,7 @@ func (m *Manager) ResolveConflict(conflictID string, req *ResolveConflictRequest
 	return nil
 }
 
-// GetStats 获取同步统计
+// GetStats 获取同步统计.
 func (m *Manager) GetStats() *SyncStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -324,7 +324,7 @@ func (m *Manager) GetStats() *SyncStats {
 	}
 }
 
-// GetEvents 获取同步事件
+// GetEvents 获取同步事件.
 func (m *Manager) GetEvents(clientID string) []*SyncEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -342,7 +342,7 @@ func (m *Manager) GetEvents(clientID string) []*SyncEvent {
 	return events
 }
 
-// addEvent 添加事件（内部方法，调用时需持有锁）
+// addEvent 添加事件（内部方法，调用时需持有锁）.
 func (m *Manager) addEvent(event *SyncEvent) {
 	m.events = append(m.events, event)
 

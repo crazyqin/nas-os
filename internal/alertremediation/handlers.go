@@ -44,7 +44,7 @@ type apiResponse struct {
 }
 
 // listRemediations 获取所有待处理告警修复建议.
-// GET /api/v1/alerts/remediations
+// GET /api/v1/alerts/remediations.
 func (h *Handlers) listRemediations(c *gin.Context) {
 	plans := h.engine.ListPlans()
 
@@ -59,7 +59,7 @@ func (h *Handlers) listRemediations(c *gin.Context) {
 }
 
 // getRemediation 获取单个告警修复详情.
-// GET /api/v1/alerts/remediations/{id}
+// GET /api/v1/alerts/remediations/{id}.
 func (h *Handlers) getRemediation(c *gin.Context) {
 	id := c.Param("id")
 
@@ -85,7 +85,7 @@ type executeRequest struct {
 }
 
 // executeAction 执行修复操作.
-// POST /api/v1/alerts/remediations/{id}/execute
+// POST /api/v1/alerts/remediations/{id}/execute.
 func (h *Handlers) executeAction(c *gin.Context) {
 	planID := c.Param("id")
 
@@ -154,7 +154,7 @@ type analyzeRequest struct {
 }
 
 // analyzeAlert 手动分析告警.
-// POST /api/v1/alerts/remediations/analyze
+// POST /api/v1/alerts/remediations/analyze.
 func (h *Handlers) analyzeAlert(c *gin.Context) {
 	var req analyzeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -202,7 +202,7 @@ func (h *Handlers) analyzeAlert(c *gin.Context) {
 
 // completeStep 标记排查步骤为已完成.
 // GET /api/v1/alerts/remediations/{id}/steps/{step}/complete
-// 注: 生产环境建议用 POST/PUT，这里简化为 GET 便于浏览器测试
+// 注: 生产环境建议用 POST/PUT，这里简化为 GET 便于浏览器测试.
 func (h *Handlers) completeStep(c *gin.Context) {
 	planID := c.Param("id")
 	stepStr := c.Param("step")

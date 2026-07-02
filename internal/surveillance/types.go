@@ -6,7 +6,7 @@ import "time"
 
 // ========== 摄像头协议和状态 ==========
 
-// CameraProtocol 摄像头协议
+// CameraProtocol 摄像头协议.
 type CameraProtocol string
 
 const (
@@ -14,7 +14,7 @@ const (
 	ProtocolRTSP  CameraProtocol = "RTSP"
 )
 
-// CameraStatus 摄像头状态
+// CameraStatus 摄像头状态.
 type CameraStatus string
 
 const (
@@ -25,7 +25,7 @@ const (
 
 // ========== 录像相关 ==========
 
-// RecordingMode 录像模式
+// RecordingMode 录像模式.
 type RecordingMode string
 
 const (
@@ -37,7 +37,7 @@ const (
 
 // ========== 移动侦测 ==========
 
-// MotionSensitivity 移动侦测灵敏度
+// MotionSensitivity 移动侦测灵敏度.
 type MotionSensitivity string
 
 const (
@@ -48,7 +48,7 @@ const (
 
 // ========== 告警相关 ==========
 
-// EventType 告警事件类型
+// EventType 告警事件类型.
 type EventType string
 
 const (
@@ -59,7 +59,7 @@ const (
 	EventReconnect       EventType = "reconnect"        // 恢复连接
 )
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 const (
@@ -68,7 +68,7 @@ const (
 	AlertLevelCritical AlertLevel = "critical"
 )
 
-// AlertStatus 告警处理状态
+// AlertStatus 告警处理状态.
 type AlertStatus string
 
 const (
@@ -80,7 +80,7 @@ const (
 
 // ========== 联动动作 ==========
 
-// ActionTrigger 联动动作类型
+// ActionTrigger 联动动作类型.
 type ActionTrigger string
 
 const (
@@ -92,7 +92,7 @@ const (
 
 // ========== 摄像头相关 ==========
 
-// Camera 摄像头配置
+// Camera 摄像头配置.
 type Camera struct {
 	ID           string         `json:"id"`
 	Name         string         `json:"name"`
@@ -116,7 +116,7 @@ type Camera struct {
 	UpdatedAt    time.Time      `json:"updatedAt"`
 }
 
-// CameraStream 实时流信息
+// CameraStream 实时流信息.
 type CameraStream struct {
 	CameraID   string    `json:"cameraId"`
 	StreamURL  string    `json:"streamUrl"`
@@ -129,7 +129,7 @@ type CameraStream struct {
 
 // ========== 录像相关 ==========
 
-// Recording 录像记录
+// Recording 录像记录.
 type Recording struct {
 	ID         string        `json:"id"`
 	CameraID   string        `json:"cameraId"`
@@ -146,7 +146,7 @@ type Recording struct {
 	CreatedAt  time.Time     `json:"createdAt"`
 }
 
-// RecordingSchedule 录像计划
+// RecordingSchedule 录像计划.
 type RecordingSchedule struct {
 	ID        string         `json:"id"`
 	CameraID  string         `json:"cameraId"`
@@ -160,7 +160,7 @@ type RecordingSchedule struct {
 	CreatedAt time.Time      `json:"createdAt"`
 }
 
-// ScheduleType 计划类型
+// ScheduleType 计划类型.
 type ScheduleType string
 
 const (
@@ -171,7 +171,7 @@ const (
 
 // ========== 移动侦测和AI检测 ==========
 
-// MotionDetection 移动侦测配置
+// MotionDetection 移动侦测配置.
 type MotionDetection struct {
 	CameraID    string            `json:"cameraId"`
 	Enabled     bool              `json:"enabled"`
@@ -181,7 +181,7 @@ type MotionDetection struct {
 	AIDetection bool              `json:"aiDetection"` // 启用AI人形检测
 }
 
-// MotionRegion 移动侦测区域
+// MotionRegion 移动侦测区域.
 type MotionRegion struct {
 	ID     string `json:"id"`
 	Name   string `json:"name"`
@@ -191,7 +191,7 @@ type MotionRegion struct {
 	Height int    `json:"height"`
 }
 
-// MotionEvent 移动侦测事件
+// MotionEvent 移动侦测事件.
 type MotionEvent struct {
 	ID          string    `json:"id"`
 	CameraID    string    `json:"cameraId"`
@@ -205,7 +205,7 @@ type MotionEvent struct {
 
 // ========== 告警 ==========
 
-// Alert 告警
+// Alert 告警.
 type Alert struct {
 	ID         string      `json:"id"`
 	CameraID   string      `json:"cameraId"`
@@ -220,7 +220,7 @@ type Alert struct {
 	CreatedAt  time.Time   `json:"createdAt"`
 }
 
-// ActionRule 事件联动规则
+// ActionRule 事件联动规则.
 type ActionRule struct {
 	ID        string          `json:"id"`
 	CameraID  string          `json:"cameraId"`
@@ -231,7 +231,7 @@ type ActionRule struct {
 
 // ========== 分组和布局 ==========
 
-// CameraGroup 摄像头分组
+// CameraGroup 摄像头分组.
 type CameraGroup struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -241,7 +241,7 @@ type CameraGroup struct {
 	CreatedAt   time.Time `json:"createdAt"`
 }
 
-// Layout 布局配置
+// Layout 布局配置.
 type Layout struct {
 	Rows    int `json:"rows"`
 	Columns int `json:"columns"`
@@ -249,7 +249,7 @@ type Layout struct {
 
 // ========== 存储管理 ==========
 
-// StorageQuota 存储配额
+// StorageQuota 存储配额.
 type StorageQuota struct {
 	CameraID      string `json:"cameraId"`
 	MaxSizeGB     int    `json:"maxSizeGb"`     // 最大存储 GB
@@ -260,7 +260,7 @@ type StorageQuota struct {
 
 // ========== 快照 ==========
 
-// Snapshot 快照
+// Snapshot 快照.
 type Snapshot struct {
 	ID        string    `json:"id"`
 	CameraID  string    `json:"cameraId"`
@@ -273,7 +273,7 @@ type Snapshot struct {
 
 // ========== 统计 ==========
 
-// SurveillanceStats 监控系统统计
+// SurveillanceStats 监控系统统计.
 type SurveillanceStats struct {
 	TotalCameras    int     `json:"totalCameras"`
 	OnlineCameras   int     `json:"onlineCameras"`

@@ -8,24 +8,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// Handlers SMB Multichannel API 处理器
+// Handlers SMB Multichannel API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	smb := r.Group("/smb/multichannel")
 	{
@@ -68,13 +68,13 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 
 // ========== 配置接口 ==========
 
-// GetConfig 获取 Multichannel 配置
+// GetConfig 获取 Multichannel 配置.
 func (h *Handlers) GetConfig(c *gin.Context) {
 	cfg := h.manager.GetConfig()
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: cfg})
 }
 
-// UpdateConfig 更新 Multichannel 配置
+// UpdateConfig 更新 Multichannel 配置.
 func (h *Handlers) UpdateConfig(c *gin.Context) {
 	var req UpdateConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -93,7 +93,7 @@ func (h *Handlers) UpdateConfig(c *gin.Context) {
 
 // ========== 通道接口 ==========
 
-// ListChannels 列出所有通道
+// ListChannels 列出所有通道.
 func (h *Handlers) ListChannels(c *gin.Context) {
 	channels := h.manager.DetectChannels()
 	c.JSON(http.StatusOK, response{
@@ -106,7 +106,7 @@ func (h *Handlers) ListChannels(c *gin.Context) {
 	})
 }
 
-// EnableChannel 启用通道
+// EnableChannel 启用通道.
 func (h *Handlers) EnableChannel(c *gin.Context) {
 	name := c.Param("name")
 	status, err := h.manager.EnableChannel(name)
@@ -118,7 +118,7 @@ func (h *Handlers) EnableChannel(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "enabled", Data: status})
 }
 
-// DisableChannel 禁用通道
+// DisableChannel 禁用通道.
 func (h *Handlers) DisableChannel(c *gin.Context) {
 	name := c.Param("name")
 	status, err := h.manager.DisableChannel(name)
@@ -132,7 +132,7 @@ func (h *Handlers) DisableChannel(c *gin.Context) {
 
 // ========== 会话接口 ==========
 
-// CreateSession 创建多通道会话
+// CreateSession 创建多通道会话.
 func (h *Handlers) CreateSession(c *gin.Context) {
 	var req struct {
 		ClientIP string `json:"client_ip" binding:"required"`
@@ -152,7 +152,7 @@ func (h *Handlers) CreateSession(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "session created", Data: session})
 }
 
-// CloseSession 关闭会话
+// CloseSession 关闭会话.
 func (h *Handlers) CloseSession(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.CloseSession(id); err != nil {
@@ -163,7 +163,7 @@ func (h *Handlers) CloseSession(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "session closed"})
 }
 
-// ListSessions 列出所有会话
+// ListSessions 列出所有会话.
 func (h *Handlers) ListSessions(c *gin.Context) {
 	sessions := h.manager.ListSessions()
 	c.JSON(http.StatusOK, response{
@@ -176,7 +176,7 @@ func (h *Handlers) ListSessions(c *gin.Context) {
 	})
 }
 
-// GetSession 获取会话详情
+// GetSession 获取会话详情.
 func (h *Handlers) GetSession(c *gin.Context) {
 	id := c.Param("id")
 	session, err := h.manager.GetSession(id)
@@ -188,7 +188,7 @@ func (h *Handlers) GetSession(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: session})
 }
 
-// GetSessionStats 获取会话统计
+// GetSessionStats 获取会话统计.
 func (h *Handlers) GetSessionStats(c *gin.Context) {
 	id := c.Param("id")
 	stats, err := h.manager.GetSessionStats(id)
@@ -202,7 +202,7 @@ func (h *Handlers) GetSessionStats(c *gin.Context) {
 
 // ========== 故障转移接口 ==========
 
-// HandleChannelFailure 处理通道故障
+// HandleChannelFailure 处理通道故障.
 func (h *Handlers) HandleChannelFailure(c *gin.Context) {
 	sessionID := c.Param("id")
 	channelID := c.Param("channel")
@@ -215,7 +215,7 @@ func (h *Handlers) HandleChannelFailure(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "failover handled"})
 }
 
-// RebalanceChannels 重平衡通道
+// RebalanceChannels 重平衡通道.
 func (h *Handlers) RebalanceChannels(c *gin.Context) {
 	result, err := h.manager.RebalanceChannels()
 	if err != nil {
@@ -228,13 +228,13 @@ func (h *Handlers) RebalanceChannels(c *gin.Context) {
 
 // ========== 统计接口 ==========
 
-// GetThroughputStats 获取吞吐量统计
+// GetThroughputStats 获取吞吐量统计.
 func (h *Handlers) GetThroughputStats(c *gin.Context) {
 	stats := h.manager.GetThroughputStats()
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: stats})
 }
 
-// GetBandwidthHistory 获取带宽历史
+// GetBandwidthHistory 获取带宽历史.
 func (h *Handlers) GetBandwidthHistory(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "60")
 	limit, err := strconv.Atoi(limitStr)
@@ -253,13 +253,13 @@ func (h *Handlers) GetBandwidthHistory(c *gin.Context) {
 	})
 }
 
-// GetChannelStats 获取通道统计信息
+// GetChannelStats 获取通道统计信息.
 func (h *Handlers) GetChannelStats(c *gin.Context) {
 	stats := h.manager.GetChannelStats()
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: stats})
 }
 
-// GetChannelHealth 获取通道健康状态
+// GetChannelHealth 获取通道健康状态.
 func (h *Handlers) GetChannelHealth(c *gin.Context) {
 	health := h.manager.GetChannelHealth()
 	c.JSON(http.StatusOK, response{
@@ -272,7 +272,7 @@ func (h *Handlers) GetChannelHealth(c *gin.Context) {
 	})
 }
 
-// GetManagerStats 获取管理器全局统计
+// GetManagerStats 获取管理器全局统计.
 func (h *Handlers) GetManagerStats(c *gin.Context) {
 	stats := h.manager.GetManagerStats()
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: stats})
@@ -280,21 +280,21 @@ func (h *Handlers) GetManagerStats(c *gin.Context) {
 
 // ========== 全局控制接口 ==========
 
-// EnableMultichannel 启用 Multichannel
+// EnableMultichannel 启用 Multichannel.
 func (h *Handlers) EnableMultichannel(c *gin.Context) {
 	clientIP := c.ClientIP()
 	result := h.manager.EnableMultichannel(clientIP)
 	c.JSON(http.StatusOK, response{Code: 0, Message: result.Message, Data: result})
 }
 
-// DisableMultichannel 禁用 Multichannel
+// DisableMultichannel 禁用 Multichannel.
 func (h *Handlers) DisableMultichannel(c *gin.Context) {
 	clientIP := c.ClientIP()
 	result := h.manager.DisableMultichannel(clientIP)
 	c.JSON(http.StatusOK, response{Code: 0, Message: result.Message, Data: result})
 }
 
-// SetLoadBalanceMode 设置负载均衡模式
+// SetLoadBalanceMode 设置负载均衡模式.
 func (h *Handlers) SetLoadBalanceMode(c *gin.Context) {
 	var req SetLoadBalanceModeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -318,7 +318,7 @@ func (h *Handlers) SetLoadBalanceMode(c *gin.Context) {
 
 // ========== 审计接口 ==========
 
-// ListAuditEntries 获取审计日志
+// ListAuditEntries 获取审计日志.
 func (h *Handlers) ListAuditEntries(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "100")
 	limit, err := strconv.Atoi(limitStr)

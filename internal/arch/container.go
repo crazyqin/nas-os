@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Module 模块接口 - 所有模块必须实现
+// Module 模块接口 - 所有模块必须实现.
 type Module interface {
 	// Name 模块名称
 	Name() string
@@ -24,7 +24,7 @@ type Module interface {
 	Dependencies() []string
 }
 
-// Container 依赖注入容器
+// Container 依赖注入容器.
 type Container struct {
 	mu       sync.RWMutex
 	services map[string]interface{}
@@ -32,7 +32,7 @@ type Container struct {
 	logger   *zap.Logger
 }
 
-// NewContainer 创建容器
+// NewContainer 创建容器.
 func NewContainer(logger *zap.Logger) *Container {
 	return &Container{
 		services: make(map[string]interface{}),
@@ -41,7 +41,7 @@ func NewContainer(logger *zap.Logger) *Container {
 	}
 }
 
-// Register 注册服务
+// Register 注册服务.
 func (c *Container) Register(name string, service interface{}) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -49,7 +49,7 @@ func (c *Container) Register(name string, service interface{}) {
 	c.logger.Debug("Registered service", zap.String("name", name))
 }
 
-// Get 获取服务
+// Get 获取服务.
 func (c *Container) Get(name string) (interface{}, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -57,7 +57,7 @@ func (c *Container) Get(name string) (interface{}, bool) {
 	return s, ok
 }
 
-// MustGet 获取服务(必须存在)
+// MustGet 获取服务(必须存在).
 func (c *Container) MustGet(name string) interface{} {
 	s, ok := c.Get(name)
 	if !ok {
@@ -66,7 +66,7 @@ func (c *Container) MustGet(name string) interface{} {
 	return s
 }
 
-// RegisterModule 注册模块
+// RegisterModule 注册模块.
 func (c *Container) RegisterModule(mod Module) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -74,7 +74,7 @@ func (c *Container) RegisterModule(mod Module) {
 	c.logger.Info("Registered module", zap.String("name", mod.Name()))
 }
 
-// InitAll 按依赖顺序初始化所有模块
+// InitAll 按依赖顺序初始化所有模块.
 func (c *Container) InitAll(ctx context.Context) error {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -95,7 +95,7 @@ func (c *Container) InitAll(ctx context.Context) error {
 	return nil
 }
 
-// StartAll 按依赖顺序启动所有模块
+// StartAll 按依赖顺序启动所有模块.
 func (c *Container) StartAll(ctx context.Context) error {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -115,7 +115,7 @@ func (c *Container) StartAll(ctx context.Context) error {
 	return nil
 }
 
-// StopAll 按依赖逆序停止所有模块
+// StopAll 按依赖逆序停止所有模块.
 func (c *Container) StopAll(ctx context.Context) error {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -137,7 +137,7 @@ func (c *Container) StopAll(ctx context.Context) error {
 	return nil
 }
 
-// HealthAll 检查所有模块健康状态
+// HealthAll 检查所有模块健康状态.
 func (c *Container) HealthAll(ctx context.Context) map[string]error {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -149,7 +149,7 @@ func (c *Container) HealthAll(ctx context.Context) map[string]error {
 	return results
 }
 
-// topoSort 拓扑排序
+// topoSort 拓扑排序.
 func (c *Container) topoSort() ([]string, error) {
 	inDegree := make(map[string]int)
 	graph := make(map[string][]string)
@@ -191,16 +191,16 @@ func (c *Container) topoSort() ([]string, error) {
 	return sorted, nil
 }
 
-// BaseModule 基础模块 - 可嵌入以提供默认实现
+// BaseModule 基础模块 - 可嵌入以提供默认实现.
 type BaseModule struct {
 	NameStr string
 	Deps    []string
 	Logger  *zap.Logger
 }
 
-func (b *BaseModule) Name() string                { return b.NameStr }
-func (b *BaseModule) Init(ctx context.Context) error { return nil }
-func (b *BaseModule) Start(ctx context.Context) error { return nil }
-func (b *BaseModule) Stop(ctx context.Context) error  { return nil }
+func (b *BaseModule) Name() string                     { return b.NameStr }
+func (b *BaseModule) Init(ctx context.Context) error   { return nil }
+func (b *BaseModule) Start(ctx context.Context) error  { return nil }
+func (b *BaseModule) Stop(ctx context.Context) error   { return nil }
 func (b *BaseModule) Health(ctx context.Context) error { return nil }
-func (b *BaseModule) Dependencies() []string         { return b.Deps }
+func (b *BaseModule) Dependencies() []string           { return b.Deps }

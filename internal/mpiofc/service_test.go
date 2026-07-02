@@ -120,8 +120,8 @@ func TestNewService(t *testing.T) {
 
 func TestNewServiceWithConfig(t *testing.T) {
 	cfg := &Config{
-		SysFCBase:   "/tmp/fc",
-		DMMPBase:    "/tmp/multipath",
+		SysFCBase:    "/tmp/fc",
+		DMMPBase:     "/tmp/multipath",
 		MultiPathBin: "/tmp/multipath",
 	}
 	svc := NewService(cfg)
@@ -134,8 +134,8 @@ func TestNewServiceWithConfig(t *testing.T) {
 
 func TestDetectPortsNoSysFS(t *testing.T) {
 	cfg := &Config{
-		SysFCBase:   "/nonexistent/path",
-		DMMPBase:    "/tmp/multipath",
+		SysFCBase:    "/nonexistent/path",
+		DMMPBase:     "/tmp/multipath",
 		MultiPathBin: "/sbin/multipath",
 	}
 	svc := NewService(cfg)
@@ -172,7 +172,7 @@ func TestGetPortNotFound(t *testing.T) {
 
 // ========== 多路径配置测试 ==========
 
-// injectPort 向 Service 注入测试端口
+// injectPort 向 Service 注入测试端口.
 func injectPort(svc *Service, portID string) *HBAPort {
 	p := &HBAPort{
 		ID:        portID,
@@ -256,9 +256,10 @@ func TestConfigureMPIOFailoverPolicy(t *testing.T) {
 	activeCount := 0
 	standbyCount := 0
 	for _, p := range paths {
-		if p.PathState == PathStateActive {
+		switch p.PathState {
+		case PathStateActive:
 			activeCount++
-		} else if p.PathState == PathStateStandby {
+		case PathStateStandby:
 			standbyCount++
 		}
 	}
@@ -431,9 +432,10 @@ func TestHandlePathFailureFailover(t *testing.T) {
 	// 找到活跃路径和待机路径
 	var activePath, standbyPath *MPIOPath
 	for _, p := range paths {
-		if p.PathState == PathStateActive {
+		switch p.PathState {
+		case PathStateActive:
 			activePath = p
-		} else if p.PathState == PathStateStandby {
+		case PathStateStandby:
 			standbyPath = p
 		}
 	}

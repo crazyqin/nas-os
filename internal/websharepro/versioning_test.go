@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// mockStorage 模拟版本存储
+// mockStorage 模拟版本存储.
 type mockStorage struct {
 	data map[string][]byte
 }

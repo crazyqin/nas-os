@@ -7,17 +7,17 @@ import (
 	"strings"
 )
 
-// Handlers AIOps API 处理器
+// Handlers AIOps API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册 HTTP 路由
+// RegisterRoutes 注册 HTTP 路由.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	// 诊断
 	mux.HandleFunc("/api/v1/aiops/diagnose", h.handleDiagnose)
@@ -46,26 +46,26 @@ func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/aiops/stats", h.handleStats)
 }
 
-// apiResponse 标准 API 响应
+// apiResponse 标准 API 响应.
 type apiResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// writeJSON 写入 JSON 响应
+// writeJSON 写入 JSON 响应.
 func writeJSON(w http.ResponseWriter, status int, resp apiResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(resp)
 }
 
-// writeError 写入错误响应
+// writeError 写入错误响应.
 func writeError(w http.ResponseWriter, status int, msg string) {
 	writeJSON(w, status, apiResponse{Code: 1, Message: msg})
 }
 
-// handleDiagnose 处理诊断请求
+// handleDiagnose 处理诊断请求.
 func (h *Handlers) handleDiagnose(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -91,7 +91,7 @@ func (h *Handlers) handleDiagnose(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleAlerts 处理告警请求
+// handleAlerts 处理告警请求.
 func (h *Handlers) handleAlerts(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
@@ -121,7 +121,7 @@ func (h *Handlers) handleAlerts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleAlertGroups 列出告警组
+// handleAlertGroups 列出告警组.
 func (h *Handlers) handleAlertGroups(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -136,7 +136,7 @@ func (h *Handlers) handleAlertGroups(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleSuppressAlertGroup 静默告警组
+// handleSuppressAlertGroup 静默告警组.
 func (h *Handlers) handleSuppressAlertGroup(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -162,7 +162,7 @@ func (h *Handlers) handleSuppressAlertGroup(w http.ResponseWriter, r *http.Reque
 	})
 }
 
-// handleRemediate 处理修复请求
+// handleRemediate 处理修复请求.
 func (h *Handlers) handleRemediate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -188,7 +188,7 @@ func (h *Handlers) handleRemediate(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleSLA 处理 SLA 请求
+// handleSLA 处理 SLA 请求.
 func (h *Handlers) handleSLA(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -222,7 +222,7 @@ func (h *Handlers) handleSLA(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleSLAList 列出 SLA 目标
+// handleSLAList 列出 SLA 目标.
 func (h *Handlers) handleSLAList(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -237,7 +237,7 @@ func (h *Handlers) handleSLAList(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleIncidents 处理事件请求
+// handleIncidents 处理事件请求.
 func (h *Handlers) handleIncidents(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -270,7 +270,7 @@ func (h *Handlers) handleIncidents(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleResolveIncident 解决事件
+// handleResolveIncident 解决事件.
 func (h *Handlers) handleResolveIncident(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -296,7 +296,7 @@ func (h *Handlers) handleResolveIncident(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-// handleKnowledge 处理知识库请求
+// handleKnowledge 处理知识库请求.
 func (h *Handlers) handleKnowledge(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -340,7 +340,7 @@ func (h *Handlers) handleKnowledge(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleKnowledgeSearch 搜索知识库
+// handleKnowledgeSearch 搜索知识库.
 func (h *Handlers) handleKnowledgeSearch(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -361,7 +361,7 @@ func (h *Handlers) handleKnowledgeSearch(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-// handleStats 处理统计请求
+// handleStats 处理统计请求.
 func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")

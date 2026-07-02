@@ -402,13 +402,13 @@ func (h *DashboardHandlers) RegisterDashboardRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// GET /api/v1/compliance-dashboard/metrics
+// GET /api/v1/compliance-dashboard/metrics.
 func (h *DashboardHandlers) getMetrics(c *gin.Context) {
 	metrics := h.service.GetMetrics(c.Request.Context())
 	c.JSON(http.StatusOK, APIResponse{Code: 0, Message: "success", Data: metrics})
 }
 
-// GET /api/v1/compliance-dashboard/gdpr
+// GET /api/v1/compliance-dashboard/gdpr.
 func (h *DashboardHandlers) getGDPRReport(c *gin.Context) {
 	h.service.mu.RLock()
 	defer h.service.mu.RUnlock()
@@ -428,7 +428,7 @@ func (h *DashboardHandlers) getGDPRReport(c *gin.Context) {
 	c.JSON(http.StatusOK, okResp(latest))
 }
 
-// POST /api/v1/compliance-dashboard/gdpr/generate
+// POST /api/v1/compliance-dashboard/gdpr/generate.
 func (h *DashboardHandlers) generateGDPRReport(c *gin.Context) {
 	var config GDPRReportConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -441,7 +441,7 @@ func (h *DashboardHandlers) generateGDPRReport(c *gin.Context) {
 	c.JSON(http.StatusOK, okResp(report))
 }
 
-// GET /api/v1/compliance-dashboard/ccpa
+// GET /api/v1/compliance-dashboard/ccpa.
 func (h *DashboardHandlers) getCCPAReport(c *gin.Context) {
 	h.service.mu.RLock()
 	defer h.service.mu.RUnlock()
@@ -461,7 +461,7 @@ func (h *DashboardHandlers) getCCPAReport(c *gin.Context) {
 	c.JSON(http.StatusOK, okResp(latest))
 }
 
-// POST /api/v1/compliance-dashboard/ccpa/generate
+// POST /api/v1/compliance-dashboard/ccpa/generate.
 func (h *DashboardHandlers) generateCCPAReport(c *gin.Context) {
 	var config CCPAReportConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -474,7 +474,7 @@ func (h *DashboardHandlers) generateCCPAReport(c *gin.Context) {
 	c.JSON(http.StatusOK, okResp(report))
 }
 
-// GET /api/v1/compliance-dashboard/breach
+// GET /api/v1/compliance-dashboard/breach.
 func (h *DashboardHandlers) listBreachReports(c *gin.Context) {
 	h.service.mu.RLock()
 	defer h.service.mu.RUnlock()
@@ -487,7 +487,7 @@ func (h *DashboardHandlers) listBreachReports(c *gin.Context) {
 	c.JSON(http.StatusOK, okResp(reports))
 }
 
-// POST /api/v1/compliance-dashboard/breach/generate
+// POST /api/v1/compliance-dashboard/breach/generate.
 func (h *DashboardHandlers) generateBreachReport(c *gin.Context) {
 	var config BreachReportConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -500,7 +500,7 @@ func (h *DashboardHandlers) generateBreachReport(c *gin.Context) {
 	c.JSON(http.StatusOK, okResp(report))
 }
 
-// GET /api/v1/compliance-dashboard/export/json/:type/:id
+// GET /api/v1/compliance-dashboard/export/json/:type/:id.
 func (h *DashboardHandlers) exportJSON(c *gin.Context) {
 	reportType := c.Param("type")
 	reportID := c.Param("id")

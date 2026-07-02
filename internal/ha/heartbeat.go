@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// HeartbeatManager 心跳管理器
+// HeartbeatManager 心跳管理器.
 type HeartbeatManager struct {
 	config   *HAConfig
 	samples  map[string]*HeartbeatSample
@@ -22,7 +22,7 @@ type HeartbeatManager struct {
 	logger   *zap.Logger
 }
 
-// HeartbeatSample 心跳样本
+// HeartbeatSample 心跳样本.
 type HeartbeatSample struct {
 	NodeID        string
 	Intervals     []time.Duration
@@ -33,7 +33,7 @@ type HeartbeatSample struct {
 	TotalSamples  int
 }
 
-// HeartbeatSender 心跳发送器
+// HeartbeatSender 心跳发送器.
 type HeartbeatSender struct {
 	NodeID      string
 	Address     string
@@ -44,7 +44,7 @@ type HeartbeatSender struct {
 }
 
 // PhiAccrualDetector Phi 累积故障检测器
-// 参考: Hayashi, et al. "Phi Accrual Failure Detector"
+// 参考: Hayashi, et al. "Phi Accrual Failure Detector".
 type PhiAccrualDetector struct {
 	threshold    float64
 	minStdDev    time.Duration
@@ -52,7 +52,7 @@ type PhiAccrualDetector struct {
 	sampleWindow int
 }
 
-// NewHeartbeatManager 创建心跳管理器
+// NewHeartbeatManager 创建心跳管理器.
 func NewHeartbeatManager(config *HAConfig, logger *zap.Logger) *HeartbeatManager {
 	return &HeartbeatManager{
 		config:   config,
@@ -63,7 +63,7 @@ func NewHeartbeatManager(config *HAConfig, logger *zap.Logger) *HeartbeatManager
 	}
 }
 
-// NewPhiAccrualDetector 创建 Phi 累积检测器
+// NewPhiAccrualDetector 创建 Phi 累积检测器.
 func NewPhiAccrualDetector(timeout time.Duration, threshold int) *PhiAccrualDetector {
 	return &PhiAccrualDetector{
 		threshold:    float64(threshold),
@@ -73,7 +73,7 @@ func NewPhiAccrualDetector(timeout time.Duration, threshold int) *PhiAccrualDete
 	}
 }
 
-// Start 启动心跳管理
+// Start 启动心跳管理.
 func (hm *HeartbeatManager) Start(ctx context.Context) error {
 	hm.ctx = ctx
 
@@ -100,12 +100,12 @@ func (hm *HeartbeatManager) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止心跳管理
+// Stop 停止心跳管理.
 func (hm *HeartbeatManager) Stop() {
 	hm.logger.Info("Heartbeat manager stopped")
 }
 
-// RecordHeartbeat 记录心跳
+// RecordHeartbeat 记录心跳.
 func (hm *HeartbeatManager) RecordHeartbeat(nodeID string) {
 	hm.mu.Lock()
 	defer hm.mu.Unlock()
@@ -145,7 +145,7 @@ func (hm *HeartbeatManager) RecordHeartbeat(nodeID string) {
 	hm.updateSampleStats(sample)
 }
 
-// updateSampleStats 更新样本统计
+// updateSampleStats 更新样本统计.
 func (hm *HeartbeatManager) updateSampleStats(sample *HeartbeatSample) {
 	if len(sample.Intervals) == 0 {
 		return
@@ -168,7 +168,7 @@ func (hm *HeartbeatManager) updateSampleStats(sample *HeartbeatSample) {
 }
 
 // Phi 计算 Phi 值
-// Phi 表示节点故障的可能性，值越大可能性越高
+// Phi 表示节点故障的可能性，值越大可能性越高.
 func (hm *HeartbeatManager) Phi(nodeID string) float64 {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -182,7 +182,7 @@ func (hm *HeartbeatManager) Phi(nodeID string) float64 {
 	return hm.detector.ComputePhi(sample, elapsed)
 }
 
-// ComputePhi 计算 Phi 值
+// ComputePhi 计算 Phi 值.
 func (pd *PhiAccrualDetector) ComputePhi(sample *HeartbeatSample, elapsed time.Duration) float64 {
 	if len(sample.Intervals) == 0 {
 		return float64(elapsed) / float64(pd.acceptableHB)
@@ -215,18 +215,18 @@ func (pd *PhiAccrualDetector) ComputePhi(sample *HeartbeatSample, elapsed time.D
 	return phi
 }
 
-// normalCDF 正态分布累积函数近似
+// normalCDF 正态分布累积函数近似.
 func normalCDF(x float64) float64 {
 	return 0.5 * math.Erfc(-x/math.Sqrt2)
 }
 
-// IsNodeHealthy 判断节点是否健康
+// IsNodeHealthy 判断节点是否健康.
 func (hm *HeartbeatManager) IsNodeHealthy(nodeID string) bool {
 	phi := hm.Phi(nodeID)
 	return phi < hm.detector.threshold
 }
 
-// GetPhiLevel 获取 Phi 级别
+// GetPhiLevel 获取 Phi 级别.
 func (hm *HeartbeatManager) GetPhiLevel(nodeID string) PhiLevel {
 	phi := hm.Phi(nodeID)
 
@@ -242,7 +242,7 @@ func (hm *HeartbeatManager) GetPhiLevel(nodeID string) PhiLevel {
 	}
 }
 
-// PhiLevel Phi 级别
+// PhiLevel Phi 级别.
 type PhiLevel int
 
 const (
@@ -252,7 +252,7 @@ const (
 	PhiLevelCritical                 // 严重
 )
 
-// GetNodeStats 获取节点统计
+// GetNodeStats 获取节点统计.
 func (hm *HeartbeatManager) GetNodeStats(nodeID string) *HeartbeatStats {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -303,7 +303,7 @@ func (hm *HeartbeatManager) GetNodeStats(nodeID string) *HeartbeatStats {
 	}
 }
 
-// HeartbeatStats 心跳统计
+// HeartbeatStats 心跳统计.
 type HeartbeatStats struct {
 	NodeID        string    `json:"node_id"`
 	Status        string    `json:"status"`
@@ -317,7 +317,7 @@ type HeartbeatStats struct {
 	SuccessRate   float64   `json:"success_rate"`
 }
 
-// RecordMiss 记录心跳丢失
+// RecordMiss 记录心跳丢失.
 func (hm *HeartbeatManager) RecordMiss(nodeID string) {
 	hm.mu.Lock()
 	defer hm.mu.Unlock()
@@ -344,12 +344,12 @@ func (hm *HeartbeatManager) RecordMiss(nodeID string) {
 	}
 }
 
-// GetThreshold 获取阈值
+// GetThreshold 获取阈值.
 func (hm *HeartbeatManager) GetThreshold() float64 {
 	return hm.detector.threshold
 }
 
-// RemoveNode 移除节点
+// RemoveNode 移除节点.
 func (hm *HeartbeatManager) RemoveNode(nodeID string) {
 	hm.mu.Lock()
 	defer hm.mu.Unlock()
@@ -358,7 +358,7 @@ func (hm *HeartbeatManager) RemoveNode(nodeID string) {
 	delete(hm.senders, nodeID)
 }
 
-// ResetNode 重置节点状态
+// ResetNode 重置节点状态.
 func (hm *HeartbeatManager) ResetNode(nodeID string) {
 	hm.mu.Lock()
 	defer hm.mu.Unlock()

@@ -18,7 +18,7 @@ import (
 type AuditOperationType string
 
 const (
-	// 文件操作
+	// 文件操作.
 	OpFileCreate AuditOperationType = "file_create"
 	OpFileDelete AuditOperationType = "file_delete"
 	OpFileModify AuditOperationType = "file_modify"
@@ -26,24 +26,24 @@ const (
 	OpFileRead   AuditOperationType = "file_read"
 	OpFileCopy   AuditOperationType = "file_copy"
 
-	// 目录操作
+	// 目录操作.
 	OpDirCreate AuditOperationType = "dir_create"
 	OpDirDelete AuditOperationType = "dir_delete"
 
-	// 权限操作
+	// 权限操作.
 	OpPermissionChange AuditOperationType = "permission_change"
 	OpPermissionGrant  AuditOperationType = "permission_grant"
 	OpPermissionRevoke AuditOperationType = "permission_revoke"
 
-	// 连接操作
+	// 连接操作.
 	OpConnection    AuditOperationType = "connection"
 	OpDisconnection AuditOperationType = "disconnection"
 
-	// 认证操作
+	// 认证操作.
 	OpAuthSuccess AuditOperationType = "auth_success"
 	OpAuthFailure AuditOperationType = "auth_failure"
 
-	// 通用
+	// 通用.
 	OpAccess AuditOperationType = "access"
 )
 

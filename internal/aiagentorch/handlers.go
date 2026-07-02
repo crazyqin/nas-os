@@ -98,9 +98,10 @@ func (h *Handler) createAgent(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := h.manager.CreateAgent(&agent); err != nil {
 		status := http.StatusInternalServerError
-		if err == ErrAgentNameExists {
+		switch err {
+		case ErrAgentNameExists:
 			status = http.StatusConflict
-		} else if err == ErrInvalidConfig {
+		case ErrInvalidConfig:
 			status = http.StatusBadRequest
 		}
 		http.Error(w, err.Error(), status)
@@ -127,9 +128,10 @@ func (h *Handler) updateAgent(w http.ResponseWriter, r *http.Request, id string)
 	}
 	if err := h.manager.UpdateAgent(id, &update); err != nil {
 		status := http.StatusInternalServerError
-		if err == ErrAgentNotFound {
+		switch err {
+		case ErrAgentNotFound:
 			status = http.StatusNotFound
-		} else if err == ErrAgentNameExists {
+		case ErrAgentNameExists:
 			status = http.StatusConflict
 		}
 		http.Error(w, err.Error(), status)
@@ -162,9 +164,10 @@ func (h *Handler) handleExecuteAgent(w http.ResponseWriter, r *http.Request) {
 	log, err := h.manager.ExecuteAgent(req.AgentID)
 	if err != nil {
 		status := http.StatusInternalServerError
-		if err == ErrAgentNotFound {
+		switch err {
+		case ErrAgentNotFound:
 			status = http.StatusNotFound
-		} else if err == ErrAgentNotActive {
+		case ErrAgentNotActive:
 			status = http.StatusConflict
 		}
 		http.Error(w, err.Error(), status)
@@ -223,9 +226,10 @@ func (h *Handler) createTask(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := h.manager.CreateTask(&task); err != nil {
 		status := http.StatusInternalServerError
-		if err == ErrAgentNotFound {
+		switch err {
+		case ErrAgentNotFound:
 			status = http.StatusNotFound
-		} else if err == ErrInvalidConfig {
+		case ErrInvalidConfig:
 			status = http.StatusBadRequest
 		}
 		http.Error(w, err.Error(), status)
@@ -267,9 +271,10 @@ func (h *Handler) handleExecuteTask(w http.ResponseWriter, r *http.Request) {
 	log, err := h.manager.ExecuteTask(req.TaskID)
 	if err != nil {
 		status := http.StatusInternalServerError
-		if err == ErrTaskNotFound {
+		switch err {
+		case ErrTaskNotFound:
 			status = http.StatusNotFound
-		} else if err == ErrAgentNotActive {
+		case ErrAgentNotActive:
 			status = http.StatusConflict
 		}
 		http.Error(w, err.Error(), status)

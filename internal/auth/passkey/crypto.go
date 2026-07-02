@@ -9,7 +9,7 @@ func init() {
 	}
 }
 
-// sha256HashImpl is overridden in init()
+// sha256HashImpl is overridden in init().
 var sha256HashImpl = func(s string) []byte {
 	return nil
 }

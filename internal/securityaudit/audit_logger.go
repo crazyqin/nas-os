@@ -325,11 +325,11 @@ func (l *AuditLogger) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_events":  total,
-		"by_type":       byType,
-		"by_severity":   bySeverity,
-		"last_event":    lastEvent,
-		"retention":     l.retention.String(),
+		"total_events": total,
+		"by_type":      byType,
+		"by_severity":  bySeverity,
+		"last_event":   lastEvent,
+		"retention":    l.retention.String(),
 	}
 }
 

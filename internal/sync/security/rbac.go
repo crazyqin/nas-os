@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// UserRole represents user privilege level
+// UserRole represents user privilege level.
 type UserRole string
 
 const (
@@ -15,7 +15,7 @@ const (
 	RoleViewer   UserRole = "viewer"
 )
 
-// Permission represents a sync-related permission
+// Permission represents a sync-related permission.
 type Permission string
 
 const (
@@ -26,14 +26,14 @@ const (
 	PermSyncAdmin  Permission = "sync:admin"
 )
 
-// rolePermissions maps roles to their allowed permissions
+// rolePermissions maps roles to their allowed permissions.
 var rolePermissions = map[UserRole][]Permission{
 	RoleAdmin:    {PermSyncCreate, PermSyncDelete, PermSyncRun, PermSyncView, PermSyncAdmin},
 	RoleOperator: {PermSyncCreate, PermSyncRun, PermSyncView},
 	RoleViewer:   {PermSyncView},
 }
 
-// CheckPermission verifies a user has the required permission
+// CheckPermission verifies a user has the required permission.
 func CheckPermission(role UserRole, perm Permission) error {
 	perms, ok := rolePermissions[role]
 	if !ok {
@@ -47,7 +47,7 @@ func CheckPermission(role UserRole, perm Permission) error {
 	return fmt.Errorf("permission denied: role %s lacks %s", role, perm)
 }
 
-// AllowedSyncBasePaths returns directories a user can sync from/to
+// AllowedSyncBasePaths returns directories a user can sync from/to.
 func AllowedSyncBasePaths(role UserRole) []string {
 	homeDir, _ := os.UserHomeDir()
 	sharedBase := "/mnt"
@@ -64,7 +64,7 @@ func AllowedSyncBasePaths(role UserRole) []string {
 	}
 }
 
-// ValidateSyncPaths checks both source and destination paths
+// ValidateSyncPaths checks both source and destination paths.
 func ValidateSyncPaths(src, dst string, role UserRole) error {
 	allowedBases := AllowedSyncBasePaths(role)
 	if len(allowedBases) == 0 {

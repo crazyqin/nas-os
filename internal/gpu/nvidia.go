@@ -14,12 +14,12 @@ import (
 	"go.uber.org/zap"
 )
 
-// NVIDIAProvider NVIDIA GPU提供者
+// NVIDIAProvider NVIDIA GPU提供者.
 type NVIDIAProvider struct {
 	logger *zap.Logger
 }
 
-// NewNVIDIAProvider 创建NVIDIA提供者
+// NewNVIDIAProvider 创建NVIDIA提供者.
 func NewNVIDIAProvider(logger *zap.Logger) (*NVIDIAProvider, error) {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -41,7 +41,7 @@ func NewNVIDIAProvider(logger *zap.Logger) (*NVIDIAProvider, error) {
 	return provider, nil
 }
 
-// CheckDriver 检查NVIDIA驱动状态
+// CheckDriver 检查NVIDIA驱动状态.
 func (p *NVIDIAProvider) CheckDriver() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -54,7 +54,7 @@ func (p *NVIDIAProvider) CheckDriver() error {
 	return nil
 }
 
-// ListDevices 列出所有NVIDIA GPU设备
+// ListDevices 列出所有NVIDIA GPU设备.
 func (p *NVIDIAProvider) ListDevices() ([]*GPUDevice, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -86,7 +86,7 @@ func (p *NVIDIAProvider) ListDevices() ([]*GPUDevice, error) {
 	return devices, nil
 }
 
-// parseGPUInfo 解析nvidia-smi输出
+// parseGPUInfo 解析nvidia-smi输出.
 func (p *NVIDIAProvider) parseGPUInfo(line string) (*GPUDevice, error) {
 	// CSV格式: index,uuid,name,pci.bus_id,memory.total,memory.used,memory.free,utilization.gpu,temperature.gpu,power.draw,power.limit,driver_version
 	fields := strings.Split(line, ",")
@@ -168,7 +168,7 @@ func (p *NVIDIAProvider) parseGPUInfo(line string) (*GPUDevice, error) {
 	return device, nil
 }
 
-// GetGPUByIndex 根据索引获取GPU
+// GetGPUByIndex 根据索引获取GPU.
 func (p *NVIDIAProvider) GetGPUByIndex(index int) (*GPUDevice, error) {
 	devices, err := p.ListDevices()
 	if err != nil {
@@ -184,7 +184,7 @@ func (p *NVIDIAProvider) GetGPUByIndex(index int) (*GPUDevice, error) {
 	return nil, fmt.Errorf("GPU索引 %d 不存在", index)
 }
 
-// GetGPUByUUID 根据UUID获取GPU
+// GetGPUByUUID 根据UUID获取GPU.
 func (p *NVIDIAProvider) GetGPUByUUID(uuid string) (*GPUDevice, error) {
 	devices, err := p.ListDevices()
 	if err != nil {
@@ -200,7 +200,7 @@ func (p *NVIDIAProvider) GetGPUByUUID(uuid string) (*GPUDevice, error) {
 	return nil, fmt.Errorf("GPU UUID %s 不存在", uuid)
 }
 
-// SetPowerLimit 设置GPU功率限制
+// SetPowerLimit 设置GPU功率限制.
 func (p *NVIDIAProvider) SetPowerLimit(index int, limitWatts uint64) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -214,7 +214,7 @@ func (p *NVIDIAProvider) SetPowerLimit(index int, limitWatts uint64) error {
 	return nil
 }
 
-// SetMemoryLimit 设置GPU显存限制（通过LD_PRELOAD或计算限制）
+// SetMemoryLimit 设置GPU显存限制（通过LD_PRELOAD或计算限制）.
 func (p *NVIDIAProvider) SetMemoryLimit(index int, limitMB uint64) error {
 	// 注意: NVIDIA不直接支持显存限制，需要通过应用程序或容器实现
 	p.logger.Info("显存限制需要通过容器运行时实现",
@@ -223,7 +223,7 @@ func (p *NVIDIAProvider) SetMemoryLimit(index int, limitMB uint64) error {
 	return nil
 }
 
-// ResetLimits 重置GPU限制
+// ResetLimits 重置GPU限制.
 func (p *NVIDIAProvider) ResetLimits(index int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -237,7 +237,7 @@ func (p *NVIDIAProvider) ResetLimits(index int) error {
 	return nil
 }
 
-// GetDriverVersion 获取驱动版本
+// GetDriverVersion 获取驱动版本.
 func (p *NVIDIAProvider) GetDriverVersion() (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -251,7 +251,7 @@ func (p *NVIDIAProvider) GetDriverVersion() (string, error) {
 	return strings.TrimSpace(string(output)), nil
 }
 
-// GetNVCCVersion 获取CUDA Toolkit版本
+// GetNVCCVersion 获取CUDA Toolkit版本.
 func (p *NVIDIAProvider) GetNVCCVersion() (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -272,7 +272,7 @@ func (p *NVIDIAProvider) GetNVCCVersion() (string, error) {
 	return "", fmt.Errorf("无法解析CUDA版本")
 }
 
-// GetComputeCapability 获取GPU计算能力
+// GetComputeCapability 获取GPU计算能力.
 func (p *NVIDIAProvider) GetComputeCapability(index int) (major, minor int, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -293,7 +293,7 @@ func (p *NVIDIAProvider) GetComputeCapability(index int) (major, minor int, err 
 	return major, minor, nil
 }
 
-// GetECCMode 获取ECC模式状态
+// GetECCMode 获取ECC模式状态.
 func (p *NVIDIAProvider) GetECCMode(index int) (enabled bool, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -310,7 +310,7 @@ func (p *NVIDIAProvider) GetECCMode(index int) (enabled bool, err error) {
 	return enabled, nil
 }
 
-// GetPersistenceMode 获取持久化模式状态
+// GetPersistenceMode 获取持久化模式状态.
 func (p *NVIDIAProvider) GetPersistenceMode(index int) (enabled bool, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -327,7 +327,7 @@ func (p *NVIDIAProvider) GetPersistenceMode(index int) (enabled bool, err error)
 	return enabled, nil
 }
 
-// SetPersistenceMode 设置持久化模式
+// SetPersistenceMode 设置持久化模式.
 func (p *NVIDIAProvider) SetPersistenceMode(index int, enabled bool) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -346,7 +346,7 @@ func (p *NVIDIAProvider) SetPersistenceMode(index int, enabled bool) error {
 	return nil
 }
 
-// GetAccountingStats 获取GPU accounting统计信息
+// GetAccountingStats 获取GPU accounting统计信息.
 func (p *NVIDIAProvider) GetAccountingStats(index int) (json.RawMessage, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -360,7 +360,7 @@ func (p *NVIDIAProvider) GetAccountingStats(index int) (json.RawMessage, error) 
 	return json.RawMessage(output), nil
 }
 
-// GetSupportedClocks 获取支持的时钟频率
+// GetSupportedClocks 获取支持的时钟频率.
 func (p *NVIDIAProvider) GetSupportedClocks(index int, type_ string) ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -375,7 +375,7 @@ func (p *NVIDIAProvider) GetSupportedClocks(index int, type_ string) ([]string, 
 	return lines, nil
 }
 
-// GetTopology 获取GPU拓扑信息
+// GetTopology 获取GPU拓扑信息.
 func (p *NVIDIAProvider) GetTopology() (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -389,7 +389,7 @@ func (p *NVIDIAProvider) GetTopology() (string, error) {
 	return string(output), nil
 }
 
-// GetNVLinkStatus 获取NVLink状态
+// GetNVLinkStatus 获取NVLink状态.
 func (p *NVIDIAProvider) GetNVLinkStatus() (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -403,7 +403,7 @@ func (p *NVIDIAProvider) GetNVLinkStatus() (string, error) {
 	return string(output), nil
 }
 
-// estimateCUDACores 根据GPU名称估算CUDA核心数
+// estimateCUDACores 根据GPU名称估算CUDA核心数.
 func estimateCUDACores(gpuName string) int {
 	// 简化版估算
 	// 实际CUDA核心数需要通过nvidia-smi或CUDA API获取

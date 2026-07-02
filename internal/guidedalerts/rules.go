@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// AlertRule 告警规则定义
+// AlertRule 告警规则定义.
 type AlertRule struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -38,7 +38,7 @@ type AlertRule struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-// RuleCondition 规则条件
+// RuleCondition 规则条件.
 type RuleCondition struct {
 	Type      ConditionType `json:"type"`      // threshold, range, status, custom
 	Metric    string        `json:"metric"`    // 指标名
@@ -48,7 +48,7 @@ type RuleCondition struct {
 	For       time.Duration `json:"for"`       // 触发前持续满足条件的时间
 }
 
-// ConditionType 条件类型
+// ConditionType 条件类型.
 type ConditionType string
 
 const (
@@ -58,7 +58,7 @@ const (
 	ConditionCustom    ConditionType = "custom"
 )
 
-// EscalationConfig 升级配置
+// EscalationConfig 升级配置.
 type EscalationConfig struct {
 	Enabled  bool               `json:"enabled"`
 	Timeout  time.Duration      `json:"timeout"`
@@ -66,23 +66,23 @@ type EscalationConfig struct {
 	Targets  []EscalationTarget `json:"targets"`
 }
 
-// EscalationTarget 升级目标
+// EscalationTarget 升级目标.
 type EscalationTarget struct {
 	Level  int      `json:"level"`
 	Notify []string `json:"notify"` // 通知目标
 }
 
-// RuleEngine 规则引擎
+// RuleEngine 规则引擎.
 type RuleEngine struct {
 	mu        sync.RWMutex
 	rules     map[string]*AlertRule
 	evalFuncs map[ConditionType]EvalFunc
 }
 
-// EvalFunc 条件评估函数
+// EvalFunc 条件评估函数.
 type EvalFunc func(condition *RuleCondition, metrics map[string]float64) bool
 
-// NewRuleEngine 创建规则引擎
+// NewRuleEngine 创建规则引擎.
 func NewRuleEngine() *RuleEngine {
 	engine := &RuleEngine{
 		rules:     make(map[string]*AlertRule),
@@ -97,14 +97,14 @@ func NewRuleEngine() *RuleEngine {
 	return engine
 }
 
-// RegisterEvalFunc 注册自定义评估函数
+// RegisterEvalFunc 注册自定义评估函数.
 func (re *RuleEngine) RegisterEvalFunc(condType ConditionType, fn EvalFunc) {
 	re.mu.Lock()
 	defer re.mu.Unlock()
 	re.evalFuncs[condType] = fn
 }
 
-// AddRule 添加规则
+// AddRule 添加规则.
 func (re *RuleEngine) AddRule(rule *AlertRule) error {
 	re.mu.Lock()
 	defer re.mu.Unlock()
@@ -126,7 +126,7 @@ func (re *RuleEngine) AddRule(rule *AlertRule) error {
 	return nil
 }
 
-// UpdateRule 更新规则
+// UpdateRule 更新规则.
 func (re *RuleEngine) UpdateRule(rule *AlertRule) error {
 	re.mu.Lock()
 	defer re.mu.Unlock()
@@ -140,7 +140,7 @@ func (re *RuleEngine) UpdateRule(rule *AlertRule) error {
 	return nil
 }
 
-// DeleteRule 删除规则
+// DeleteRule 删除规则.
 func (re *RuleEngine) DeleteRule(id string) error {
 	re.mu.Lock()
 	defer re.mu.Unlock()
@@ -153,7 +153,7 @@ func (re *RuleEngine) DeleteRule(id string) error {
 	return nil
 }
 
-// GetRule 获取规则
+// GetRule 获取规则.
 func (re *RuleEngine) GetRule(id string) (*AlertRule, bool) {
 	re.mu.RLock()
 	defer re.mu.RUnlock()
@@ -161,7 +161,7 @@ func (re *RuleEngine) GetRule(id string) (*AlertRule, bool) {
 	return rule, ok
 }
 
-// ListRules 列出所有规则
+// ListRules 列出所有规则.
 func (re *RuleEngine) ListRules(category AlertCategory, enabledOnly bool) []*AlertRule {
 	re.mu.RLock()
 	defer re.mu.RUnlock()
@@ -179,7 +179,7 @@ func (re *RuleEngine) ListRules(category AlertCategory, enabledOnly bool) []*Ale
 	return result
 }
 
-// Evaluate 评估规则
+// Evaluate 评估规则.
 func (re *RuleEngine) Evaluate(ruleID string, metrics map[string]float64) (bool, error) {
 	re.mu.RLock()
 	defer re.mu.RUnlock()
@@ -200,7 +200,7 @@ func (re *RuleEngine) Evaluate(ruleID string, metrics map[string]float64) (bool,
 	return evalFn(&rule.Condition, metrics), nil
 }
 
-// EvaluateAll 评估所有启用的规则
+// EvaluateAll 评估所有启用的规则.
 func (re *RuleEngine) EvaluateAll(metrics map[string]float64) map[string]bool {
 	re.mu.RLock()
 	defer re.mu.RUnlock()
@@ -267,7 +267,7 @@ func evalStatus(condition *RuleCondition, metrics map[string]float64) bool {
 	return value != 0
 }
 
-// GetBuiltinRules 获取内置规则模板
+// GetBuiltinRules 获取内置规则模板.
 func GetBuiltinRules() []*AlertRule {
 	return []*AlertRule{
 		{

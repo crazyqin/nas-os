@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 联系人管理器
+// Manager 联系人管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	logger   *zap.Logger
@@ -23,7 +23,7 @@ type Manager struct {
 	config   *ContactsConfig
 }
 
-// ContactsConfig 联系人配置
+// ContactsConfig 联系人配置.
 type ContactsConfig struct {
 	MaxContacts    int     `json:"max_contacts"`
 	MaxGroups      int     `json:"max_groups"`
@@ -31,7 +31,7 @@ type ContactsConfig struct {
 	DedupThreshold float64 `json:"dedup_threshold"` // 去重阈值 0-1
 }
 
-// DefaultContactsConfig 默认配置
+// DefaultContactsConfig 默认配置.
 func DefaultContactsConfig() *ContactsConfig {
 	return &ContactsConfig{
 		MaxContacts:    10000,
@@ -41,7 +41,7 @@ func DefaultContactsConfig() *ContactsConfig {
 	}
 }
 
-// NewManager 创建联系人管理器
+// NewManager 创建联系人管理器.
 func NewManager(logger *zap.Logger, config *ContactsConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -59,14 +59,14 @@ func NewManager(logger *zap.Logger, config *ContactsConfig) *Manager {
 	}
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	return fmt.Sprintf("%d", time.Now().UnixNano())
 }
 
 // ========== 联系人 CRUD ==========
 
-// CreateContact 创建联系人
+// CreateContact 创建联系人.
 func (m *Manager) CreateContact(req *ContactCreateRequest) (*Contact, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -111,7 +111,7 @@ func (m *Manager) CreateContact(req *ContactCreateRequest) (*Contact, error) {
 	return contact, nil
 }
 
-// GetContact 获取联系人
+// GetContact 获取联系人.
 func (m *Manager) GetContact(id string) (*Contact, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -123,7 +123,7 @@ func (m *Manager) GetContact(id string) (*Contact, error) {
 	return contact, nil
 }
 
-// UpdateContact 更新联系人
+// UpdateContact 更新联系人.
 func (m *Manager) UpdateContact(id string, req *ContactUpdateRequest) (*Contact, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -171,7 +171,7 @@ func (m *Manager) UpdateContact(id string, req *ContactUpdateRequest) (*Contact,
 	return contact, nil
 }
 
-// DeleteContact 删除联系人
+// DeleteContact 删除联系人.
 func (m *Manager) DeleteContact(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -198,7 +198,7 @@ func (m *Manager) DeleteContact(id string) error {
 	return nil
 }
 
-// ListContacts 列出联系人
+// ListContacts 列出联系人.
 func (m *Manager) ListContacts(limit, offset int) []*Contact {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -227,7 +227,7 @@ func (m *Manager) ListContacts(limit, offset int) []*Contact {
 
 // ========== 分组管理 ==========
 
-// CreateGroup 创建分组
+// CreateGroup 创建分组.
 func (m *Manager) CreateGroup(req *ContactGroupCreateRequest) (*ContactGroup, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -250,7 +250,7 @@ func (m *Manager) CreateGroup(req *ContactGroupCreateRequest) (*ContactGroup, er
 	return group, nil
 }
 
-// GetGroup 获取分组
+// GetGroup 获取分组.
 func (m *Manager) GetGroup(id string) (*ContactGroup, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -262,7 +262,7 @@ func (m *Manager) GetGroup(id string) (*ContactGroup, error) {
 	return group, nil
 }
 
-// UpdateGroup 更新分组
+// UpdateGroup 更新分组.
 func (m *Manager) UpdateGroup(id string, req *ContactGroupUpdateRequest) (*ContactGroup, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -280,7 +280,7 @@ func (m *Manager) UpdateGroup(id string, req *ContactGroupUpdateRequest) (*Conta
 	return group, nil
 }
 
-// DeleteGroup 删除分组
+// DeleteGroup 删除分组.
 func (m *Manager) DeleteGroup(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -306,7 +306,7 @@ func (m *Manager) DeleteGroup(id string) error {
 	return nil
 }
 
-// ListGroups 列出所有分组
+// ListGroups 列出所有分组.
 func (m *Manager) ListGroups() []*ContactGroup {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -318,7 +318,7 @@ func (m *Manager) ListGroups() []*ContactGroup {
 	return groups
 }
 
-// AddContactsToGroup 批量添加联系人到分组
+// AddContactsToGroup 批量添加联系人到分组.
 func (m *Manager) AddContactsToGroup(groupID string, contactIDs []string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -353,7 +353,7 @@ func (m *Manager) AddContactsToGroup(groupID string, contactIDs []string) error 
 	return nil
 }
 
-// RemoveContactsFromGroup 批量移除联系人
+// RemoveContactsFromGroup 批量移除联系人.
 func (m *Manager) RemoveContactsFromGroup(groupID string, contactIDs []string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -390,7 +390,7 @@ func (m *Manager) RemoveContactsFromGroup(groupID string, contactIDs []string) e
 
 // ========== 搜索功能 ==========
 
-// SearchContacts 搜索联系人
+// SearchContacts 搜索联系人.
 func (m *Manager) SearchContacts(req *SearchRequest) []*Contact {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -427,7 +427,7 @@ func (m *Manager) SearchContacts(req *SearchRequest) []*Contact {
 	return results[offset:end]
 }
 
-// matchesSearch 检查联系人是否匹配搜索条件
+// matchesSearch 检查联系人是否匹配搜索条件.
 func (m *Manager) matchesSearch(contact *Contact, req *SearchRequest) bool {
 	query := strings.ToLower(req.Query)
 
@@ -523,7 +523,7 @@ func (m *Manager) matchesSearch(contact *Contact, req *SearchRequest) bool {
 
 // ========== vCard 支持 ==========
 
-// ExportVCard 导出单个联系人为 vCard
+// ExportVCard 导出单个联系人为 vCard.
 func (m *Manager) ExportVCard(id string) (string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -536,7 +536,7 @@ func (m *Manager) ExportVCard(id string) (string, error) {
 	return m.contactToVCard(contact), nil
 }
 
-// ExportVCardBatch 批量导出 vCard
+// ExportVCardBatch 批量导出 vCard.
 func (m *Manager) ExportVCardBatch(ids []string) (string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -554,7 +554,7 @@ func (m *Manager) ExportVCardBatch(ids []string) (string, error) {
 	return sb.String(), nil
 }
 
-// contactToVCard 联系人转 vCard 格式
+// contactToVCard 联系人转 vCard 格式.
 func (m *Manager) contactToVCard(contact *Contact) string {
 	var sb strings.Builder
 
@@ -562,50 +562,50 @@ func (m *Manager) contactToVCard(contact *Contact) string {
 	sb.WriteString("VERSION:3.0\n")
 
 	// N: LastName;FirstName;MiddleName;Prefix;Suffix
-	sb.WriteString(fmt.Sprintf("N:%s;%s;;;\n", contact.LastName, contact.FirstName))
-	sb.WriteString(fmt.Sprintf("FN:%s %s\n", contact.FirstName, contact.LastName))
+	fmt.Fprintf(&sb, "N:%s;%s;;;\n", contact.LastName, contact.FirstName)
+	fmt.Fprintf(&sb, "FN:%s %s\n", contact.FirstName, contact.LastName)
 
 	if contact.NickName != "" {
-		sb.WriteString(fmt.Sprintf("NICKNAME:%s\n", contact.NickName))
+		fmt.Fprintf(&sb, "NICKNAME:%s\n", contact.NickName)
 	}
 	if contact.Company != "" {
-		sb.WriteString(fmt.Sprintf("ORG:%s\n", contact.Company))
+		fmt.Fprintf(&sb, "ORG:%s\n", contact.Company)
 	}
 	if contact.JobTitle != "" {
-		sb.WriteString(fmt.Sprintf("TITLE:%s\n", contact.JobTitle))
+		fmt.Fprintf(&sb, "TITLE:%s\n", contact.JobTitle)
 	}
 
 	// 电话
 	for _, phone := range contact.Phones {
-		sb.WriteString(fmt.Sprintf("TEL;TYPE=%s:%s\n", phone.Type, phone.Number))
+		fmt.Fprintf(&sb, "TEL;TYPE=%s:%s\n", phone.Type, phone.Number)
 	}
 
 	// 邮箱
 	for _, email := range contact.Emails {
-		sb.WriteString(fmt.Sprintf("EMAIL;TYPE=%s:%s\n", email.Type, email.Email))
+		fmt.Fprintf(&sb, "EMAIL;TYPE=%s:%s\n", email.Type, email.Email)
 	}
 
 	// 地址
 	for _, addr := range contact.Addresses {
-		sb.WriteString(fmt.Sprintf("ADR;TYPE=%s:;;%s;%s;%s;%s;%s\n",
-			addr.Type, addr.Street, addr.City, addr.State, addr.PostalCode, addr.Country))
+		fmt.Fprintf(&sb, "ADR;TYPE=%s:;;%s;%s;%s;%s;%s\n",
+			addr.Type, addr.Street, addr.City, addr.State, addr.PostalCode, addr.Country)
 	}
 
 	if contact.Birthday != "" {
-		sb.WriteString(fmt.Sprintf("BDAY:%s\n", contact.Birthday))
+		fmt.Fprintf(&sb, "BDAY:%s\n", contact.Birthday)
 	}
 	if contact.Website != "" {
-		sb.WriteString(fmt.Sprintf("URL:%s\n", contact.Website))
+		fmt.Fprintf(&sb, "URL:%s\n", contact.Website)
 	}
 	if contact.Notes != "" {
-		sb.WriteString(fmt.Sprintf("NOTE:%s\n", contact.Notes))
+		fmt.Fprintf(&sb, "NOTE:%s\n", contact.Notes)
 	}
 
 	sb.WriteString("END:VCARD\n")
 	return sb.String()
 }
 
-// ImportVCard 导入 vCard 数据
+// ImportVCard 导入 vCard 数据.
 func (m *Manager) ImportVCard(content string, groupID string) (*ImportResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -635,7 +635,7 @@ func (m *Manager) ImportVCard(content string, groupID string) (*ImportResult, er
 	return result, nil
 }
 
-// parseVCard 解析 vCard 格式
+// parseVCard 解析 vCard 格式.
 func parseVCard(content string) []*VCard {
 	vcards := make([]*VCard, 0)
 	lines := strings.Split(content, "\n")
@@ -711,7 +711,7 @@ func parseVCard(content string) []*VCard {
 	return vcards
 }
 
-// extractType 从 vCard 字段中提取类型
+// extractType 从 vCard 字段中提取类型.
 func extractType(key string) string {
 	re := regexp.MustCompile(`TYPE=(\w+)`)
 	matches := re.FindStringSubmatch(key)
@@ -721,7 +721,7 @@ func extractType(key string) string {
 	return "other"
 }
 
-// vcardToContact vCard 转联系人
+// vcardToContact vCard 转联系人.
 func (m *Manager) vcardToContact(vc *VCard) *Contact {
 	firstName := vc.FirstName
 	if firstName == "" && vc.FullName != "" {
@@ -758,7 +758,7 @@ func (m *Manager) vcardToContact(vc *VCard) *Contact {
 
 // ========== CSV 导入 ==========
 
-// ImportCSV 导入 CSV 格式
+// ImportCSV 导入 CSV 格式.
 func (m *Manager) ImportCSV(content string, groupID string) (*ImportResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -825,7 +825,7 @@ func (m *Manager) ImportCSV(content string, groupID string) (*ImportResult, erro
 
 // ========== 去重功能 ==========
 
-// FindDuplicates 查找重复联系人
+// FindDuplicates 查找重复联系人.
 func (m *Manager) FindDuplicates() []*DuplicateContact {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -857,7 +857,7 @@ func (m *Manager) FindDuplicates() []*DuplicateContact {
 	return duplicates
 }
 
-// calculateSimilarity 计算两个联系人的相似度
+// calculateSimilarity 计算两个联系人的相似度.
 func (m *Manager) calculateSimilarity(c1, c2 *Contact) (float64, []string) {
 	score := 0.0
 	maxScore := 0.0
@@ -928,7 +928,7 @@ func (m *Manager) calculateSimilarity(c1, c2 *Contact) (float64, []string) {
 	return score / maxScore, reasons
 }
 
-// normalizePhone 标准化电话号码
+// normalizePhone 标准化电话号码.
 func normalizePhone(phone string) string {
 	re := regexp.MustCompile(`[^\d+]`)
 	cleaned := re.ReplaceAllString(phone, "")
@@ -941,7 +941,7 @@ func normalizePhone(phone string) string {
 	return cleaned
 }
 
-// MergeContacts 合并联系人
+// MergeContacts 合并联系人.
 func (m *Manager) MergeContacts(keepID string, mergeIDs []string) (*MergeResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1060,7 +1060,7 @@ func (m *Manager) MergeContacts(keepID string, mergeIDs []string) (*MergeResult,
 
 // ========== 分享功能 ==========
 
-// ShareGroup 分享联系人组
+// ShareGroup 分享联系人组.
 func (m *Manager) ShareGroup(req *ShareRequest) (*ShareInfo, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1094,7 +1094,7 @@ func (m *Manager) ShareGroup(req *ShareRequest) (*ShareInfo, error) {
 	return share, nil
 }
 
-// GetShares 获取分组的分享信息
+// GetShares 获取分组的分享信息.
 func (m *Manager) GetShares(groupID string) []*ShareInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1108,7 +1108,7 @@ func (m *Manager) GetShares(groupID string) []*ShareInfo {
 	return shares
 }
 
-// RevokeShare 撤销分享
+// RevokeShare 撤销分享.
 func (m *Manager) RevokeShare(shareID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1121,7 +1121,7 @@ func (m *Manager) RevokeShare(shareID string) error {
 	return nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

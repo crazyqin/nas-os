@@ -33,7 +33,7 @@ const (
 
 // ========== 类型定义 ==========
 
-// DocumentType 文档类型
+// DocumentType 文档类型.
 type DocumentType string
 
 const (
@@ -50,7 +50,7 @@ const (
 	DocTypeUnknown    DocumentType = "unknown"
 )
 
-// ProcessingStatus 处理状态
+// ProcessingStatus 处理状态.
 type ProcessingStatus string
 
 const (
@@ -60,7 +60,7 @@ const (
 	StatusFailed     ProcessingStatus = "failed"
 )
 
-// Document 文档记录
+// Document 文档记录.
 type Document struct {
 	ID          string           `json:"id"`
 	FilePath    string           `json:"file_path"`
@@ -83,7 +83,7 @@ type Document struct {
 	UpdatedAt   time.Time        `json:"updated_at"`
 }
 
-// OCRResult OCR结果
+// OCRResult OCR结果.
 type OCRResult struct {
 	PageNum     int     `json:"page_num"`
 	Text        string  `json:"text"`
@@ -92,7 +92,7 @@ type OCRResult struct {
 	BoundingBox []int   `json:"bounding_box,omitempty"`
 }
 
-// SearchResult 文档搜索结果
+// SearchResult 文档搜索结果.
 type SearchResult struct {
 	Document  *Document `json:"document"`
 	Score     float64   `json:"score"`
@@ -100,7 +100,7 @@ type SearchResult struct {
 	Highlight string    `json:"highlight"`
 }
 
-// DocStats 文档统计
+// DocStats 文档统计.
 type DocStats struct {
 	TotalDocs      int            `json:"total_docs"`
 	ProcessedDocs  int            `json:"processed_docs"`
@@ -112,7 +112,7 @@ type DocStats struct {
 	ProcessingRate float64        `json:"processing_rate"`
 }
 
-// ConversionTask 转换任务
+// ConversionTask 转换任务.
 type ConversionTask struct {
 	ID          string           `json:"id"`
 	SourcePath  string           `json:"source_path"`
@@ -127,7 +127,7 @@ type ConversionTask struct {
 
 // ========== 核心管理器 ==========
 
-// Manager 文档AI管理器
+// Manager 文档AI管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	documents   map[string]*Document
@@ -139,7 +139,7 @@ type Manager struct {
 	convCounter int64
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(dataDir string) (*Manager, error) {
 	if err := os.MkdirAll(dataDir, 0755); err != nil {
 		return nil, fmt.Errorf("创建数据目录失败: %w", err)
@@ -157,7 +157,7 @@ func NewManager(dataDir string) (*Manager, error) {
 
 // ========== 文档处理 ==========
 
-// ProcessDocument 处理文档
+// ProcessDocument 处理文档.
 func (m *Manager) ProcessDocument(ctx context.Context, filePath string) (*Document, error) {
 	info, err := os.Stat(filePath)
 	if err != nil {
@@ -199,7 +199,7 @@ func (m *Manager) ProcessDocument(ctx context.Context, filePath string) (*Docume
 	return doc, nil
 }
 
-// processDocAsync 异步处理文档
+// processDocAsync 异步处理文档.
 func (m *Manager) processDocAsync(doc *Document) {
 	ctx, cancel := context.WithTimeout(context.Background(), ProcessTimeout)
 	defer cancel()
@@ -241,7 +241,7 @@ func (m *Manager) processDocAsync(doc *Document) {
 	doc.Language = m.detectLanguage(text)
 }
 
-// extractText 提取文本
+// extractText 提取文本.
 func (m *Manager) extractText(ctx context.Context, filePath string, docType DocumentType) (string, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -255,7 +255,7 @@ func (m *Manager) extractText(ctx context.Context, filePath string, docType Docu
 	return text, nil
 }
 
-// generateSummary 生成摘要
+// generateSummary 生成摘要.
 func (m *Manager) generateSummary(text string) string {
 	sentences := strings.Split(text, "。")
 	if len(sentences) == 0 {
@@ -276,7 +276,7 @@ func (m *Manager) generateSummary(text string) string {
 	return strings.TrimSpace(summary)
 }
 
-// extractKeywords 提取关键词
+// extractKeywords 提取关键词.
 func (m *Manager) extractKeywords(text string) []string {
 	words := strings.Fields(text)
 	freq := make(map[string]int)
@@ -320,7 +320,7 @@ func (m *Manager) extractKeywords(text string) []string {
 	return keywords
 }
 
-// classifyDocument 分类文档
+// classifyDocument 分类文档.
 func (m *Manager) classifyDocument(text string, docType DocumentType) []string {
 	categories := make([]string, 0)
 	textLower := strings.ToLower(text)
@@ -343,7 +343,7 @@ func (m *Manager) classifyDocument(text string, docType DocumentType) []string {
 	return categories
 }
 
-// detectLanguage 检测语言
+// detectLanguage 检测语言.
 func (m *Manager) detectLanguage(text string) string {
 	chineseCount := 0
 	englishCount := 0
@@ -360,7 +360,7 @@ func (m *Manager) detectLanguage(text string) string {
 	return "en"
 }
 
-// estimatePages 估算页数
+// estimatePages 估算页数.
 func (m *Manager) estimatePages(text string, docType DocumentType) int {
 	lines := strings.Count(text, "\n") + 1
 	switch docType {
@@ -371,7 +371,7 @@ func (m *Manager) estimatePages(text string, docType DocumentType) int {
 	}
 }
 
-// detectDocType 检测文档类型
+// detectDocType 检测文档类型.
 func (m *Manager) detectDocType(filePath string) DocumentType {
 	ext := strings.ToLower(filepath.Ext(filePath))
 	typeMap := map[string]DocumentType{
@@ -389,7 +389,7 @@ func (m *Manager) detectDocType(filePath string) DocumentType {
 	return DocTypeUnknown
 }
 
-// computeHash 计算文件哈希
+// computeHash 计算文件哈希.
 func (m *Manager) computeHash(filePath string) (string, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -413,7 +413,7 @@ func (m *Manager) computeHash(filePath string) (string, error) {
 
 // ========== 搜索 ==========
 
-// Search 搜索文档
+// Search 搜索文档.
 func (m *Manager) Search(query string, limit int) []SearchResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -483,7 +483,7 @@ func (m *Manager) Search(query string, limit int) []SearchResult {
 	return results
 }
 
-// GetDocument 获取文档
+// GetDocument 获取文档.
 func (m *Manager) GetDocument(id string) (*Document, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -495,7 +495,7 @@ func (m *Manager) GetDocument(id string) (*Document, error) {
 	return doc, nil
 }
 
-// ListDocuments 列出文档
+// ListDocuments 列出文档.
 func (m *Manager) ListDocuments(docType DocumentType, limit int) []*Document {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -517,7 +517,7 @@ func (m *Manager) ListDocuments(docType DocumentType, limit int) []*Document {
 
 // ========== 转换 ==========
 
-// ConvertDocument 转换文档
+// ConvertDocument 转换文档.
 func (m *Manager) ConvertDocument(sourcePath, targetType string) (*ConversionTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -537,7 +537,7 @@ func (m *Manager) ConvertDocument(sourcePath, targetType string) (*ConversionTas
 	return task, nil
 }
 
-// processConversion 处理转换
+// processConversion 处理转换.
 func (m *Manager) processConversion(task *ConversionTask) {
 	m.mu.Lock()
 	task.Status = StatusProcessing
@@ -554,7 +554,7 @@ func (m *Manager) processConversion(task *ConversionTask) {
 	m.mu.Unlock()
 }
 
-// GetConversion 获取转换任务
+// GetConversion 获取转换任务.
 func (m *Manager) GetConversion(id string) (*ConversionTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -568,7 +568,7 @@ func (m *Manager) GetConversion(id string) (*ConversionTask, error) {
 
 // ========== 统计 ==========
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *Manager) GetStats() *DocStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -599,7 +599,7 @@ func (m *Manager) GetStats() *DocStats {
 	return stats
 }
 
-// Close 关闭
+// Close 关闭.
 func (m *Manager) Close() error {
 	m.cancel()
 	return nil

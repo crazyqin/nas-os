@@ -13,7 +13,7 @@ var (
 	ErrUnauthorized  = errors.New("unauthorized")
 )
 
-// NewPortal 创建新的自助门户实例
+// NewPortal 创建新的自助门户实例.
 func NewPortal() *Portal {
 	return &Portal{
 		quotaRequests:   make(map[string]*QuotaRequest),
@@ -46,7 +46,7 @@ func (p *Portal) generateID() string {
 
 // ========== 配额管理 ==========
 
-// SubmitQuotaRequest 提交配额申请
+// SubmitQuotaRequest 提交配额申请.
 func (p *Portal) SubmitQuotaRequest(userID string, currentGB, requestedGB int64, reason string) (*QuotaRequest, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -78,7 +78,7 @@ func (p *Portal) SubmitQuotaRequest(userID string, currentGB, requestedGB int64,
 	return req, nil
 }
 
-// checkAutoApproval 检查是否满足自动审批条件
+// checkAutoApproval 检查是否满足自动审批条件.
 func (p *Portal) checkAutoApproval(currentGB, requestedGB int64) bool {
 	for _, rule := range p.autoApprovalRules {
 		if !rule.Enabled {
@@ -94,7 +94,7 @@ func (p *Portal) checkAutoApproval(currentGB, requestedGB int64) bool {
 	return false
 }
 
-// GetQuotaRequest 获取配额申请详情
+// GetQuotaRequest 获取配额申请详情.
 func (p *Portal) GetQuotaRequest(id string) (*QuotaRequest, error) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -106,7 +106,7 @@ func (p *Portal) GetQuotaRequest(id string) (*QuotaRequest, error) {
 	return req, nil
 }
 
-// ListQuotaRequests 获取用户的配额申请列表
+// ListQuotaRequests 获取用户的配额申请列表.
 func (p *Portal) ListQuotaRequests(userID string) []*QuotaRequest {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -120,7 +120,7 @@ func (p *Portal) ListQuotaRequests(userID string) []*QuotaRequest {
 	return requests
 }
 
-// ApproveQuotaRequest 审批配额申请
+// ApproveQuotaRequest 审批配额申请.
 func (p *Portal) ApproveQuotaRequest(id, approverID, comment string) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -146,7 +146,7 @@ func (p *Portal) ApproveQuotaRequest(id, approverID, comment string) error {
 	return nil
 }
 
-// RejectQuotaRequest 拒绝配额申请
+// RejectQuotaRequest 拒绝配额申请.
 func (p *Portal) RejectQuotaRequest(id, approverID, comment string) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -171,7 +171,7 @@ func (p *Portal) RejectQuotaRequest(id, approverID, comment string) error {
 
 // ========== 权限管理 ==========
 
-// SubmitPermissionRequest 提交权限申请
+// SubmitPermissionRequest 提交权限申请.
 func (p *Portal) SubmitPermissionRequest(userID, sharePath string, permType PermissionType, temporary bool, expiresAt *time.Time, reason string) (*PermissionRequest, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -196,7 +196,7 @@ func (p *Portal) SubmitPermissionRequest(userID, sharePath string, permType Perm
 	return req, nil
 }
 
-// GetPermissionRequest 获取权限申请详情
+// GetPermissionRequest 获取权限申请详情.
 func (p *Portal) GetPermissionRequest(id string) (*PermissionRequest, error) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -208,7 +208,7 @@ func (p *Portal) GetPermissionRequest(id string) (*PermissionRequest, error) {
 	return req, nil
 }
 
-// ListPermissionRequests 获取用户的权限申请列表
+// ListPermissionRequests 获取用户的权限申请列表.
 func (p *Portal) ListPermissionRequests(userID string) []*PermissionRequest {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -222,7 +222,7 @@ func (p *Portal) ListPermissionRequests(userID string) []*PermissionRequest {
 	return requests
 }
 
-// ApprovePermissionRequest 审批权限申请
+// ApprovePermissionRequest 审批权限申请.
 func (p *Portal) ApprovePermissionRequest(id, approverID, comment string) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -245,7 +245,7 @@ func (p *Portal) ApprovePermissionRequest(id, approverID, comment string) error 
 	return nil
 }
 
-// RejectPermissionRequest 拒绝权限申请
+// RejectPermissionRequest 拒绝权限申请.
 func (p *Portal) RejectPermissionRequest(id, approverID, comment string) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -270,7 +270,7 @@ func (p *Portal) RejectPermissionRequest(id, approverID, comment string) error {
 
 // ========== 备份恢复 ==========
 
-// CreateRestorePoint 创建恢复点
+// CreateRestorePoint 创建恢复点.
 func (p *Portal) CreateRestorePoint(userID, filePath string, sizeBytes int64) *RestorePoint {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -290,7 +290,7 @@ func (p *Portal) CreateRestorePoint(userID, filePath string, sizeBytes int64) *R
 	return rp
 }
 
-// ListRestorePoints 获取用户的恢复点列表
+// ListRestorePoints 获取用户的恢复点列表.
 func (p *Portal) ListRestorePoints(userID string) []*RestorePoint {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -298,7 +298,7 @@ func (p *Portal) ListRestorePoints(userID string) []*RestorePoint {
 	return p.restorePoints[userID]
 }
 
-// SubmitRestoreRequest 提交恢复请求
+// SubmitRestoreRequest 提交恢复请求.
 func (p *Portal) SubmitRestoreRequest(userID, restorePointID, targetPath string) (*RestoreRequest, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -332,7 +332,7 @@ func (p *Portal) SubmitRestoreRequest(userID, restorePointID, targetPath string)
 	return req, nil
 }
 
-// ApproveRestoreRequest 审批恢复请求
+// ApproveRestoreRequest 审批恢复请求.
 func (p *Portal) ApproveRestoreRequest(id, approverID, comment string) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -357,7 +357,7 @@ func (p *Portal) ApproveRestoreRequest(id, approverID, comment string) error {
 
 // ========== 问题报告 ==========
 
-// SubmitIssueTicket 提交问题工单
+// SubmitIssueTicket 提交问题工单.
 func (p *Portal) SubmitIssueTicket(userID, subject, description, category, priority string) *IssueTicket {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -381,7 +381,7 @@ func (p *Portal) SubmitIssueTicket(userID, subject, description, category, prior
 	return ticket
 }
 
-// GetIssueTicket 获取问题工单详情
+// GetIssueTicket 获取问题工单详情.
 func (p *Portal) GetIssueTicket(id string) (*IssueTicket, error) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -393,7 +393,7 @@ func (p *Portal) GetIssueTicket(id string) (*IssueTicket, error) {
 	return ticket, nil
 }
 
-// ListIssueTickets 获取用户的问题工单列表
+// ListIssueTickets 获取用户的问题工单列表.
 func (p *Portal) ListIssueTickets(userID string) []*IssueTicket {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -407,7 +407,7 @@ func (p *Portal) ListIssueTickets(userID string) []*IssueTicket {
 	return tickets
 }
 
-// AssignIssueTicket 分配工单
+// AssignIssueTicket 分配工单.
 func (p *Portal) AssignIssueTicket(id, assigneeID string) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -423,7 +423,7 @@ func (p *Portal) AssignIssueTicket(id, assigneeID string) error {
 	return nil
 }
 
-// ResolveIssueTicket 解决工单
+// ResolveIssueTicket 解决工单.
 func (p *Portal) ResolveIssueTicket(id, resolution string) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -449,7 +449,7 @@ func (p *Portal) ResolveIssueTicket(id, resolution string) error {
 
 // ========== 用户统计 ==========
 
-// GetUserStats 获取用户统计信息
+// GetUserStats 获取用户统计信息.
 func (p *Portal) GetUserStats(userID string) *UserStats {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -462,7 +462,7 @@ func (p *Portal) GetUserStats(userID string) *UserStats {
 	return stats
 }
 
-// updateUserStats 更新用户统计(需在写锁内调用)
+// updateUserStats 更新用户统计(需在写锁内调用).
 func (p *Portal) updateUserStats(userID string) {
 	stats, ok := p.userStats[userID]
 	if !ok {
@@ -511,7 +511,7 @@ func (p *Portal) updateUserStats(userID string) {
 	}
 }
 
-// SetUserQuota 设置用户配额
+// SetUserQuota 设置用户配额.
 func (p *Portal) SetUserQuota(userID string, totalGB, usedGB int64) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -531,7 +531,7 @@ func (p *Portal) SetUserQuota(userID string, totalGB, usedGB int64) {
 
 // ========== 通知管理 ==========
 
-// createNotification 创建通知(需在写锁内调用)
+// createNotification 创建通知(需在写锁内调用).
 func (p *Portal) createNotification(userID, title, message string) {
 	notif := &Notification{
 		ID:        p.generateID(),
@@ -544,7 +544,7 @@ func (p *Portal) createNotification(userID, title, message string) {
 	p.notifications[userID] = append(p.notifications[userID], notif)
 }
 
-// ListNotifications 获取用户通知列表
+// ListNotifications 获取用户通知列表.
 func (p *Portal) ListNotifications(userID string) []*Notification {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -552,7 +552,7 @@ func (p *Portal) ListNotifications(userID string) []*Notification {
 	return p.notifications[userID]
 }
 
-// MarkNotificationRead 标记通知已读
+// MarkNotificationRead 标记通知已读.
 func (p *Portal) MarkNotificationRead(userID, notifID string) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -574,7 +574,7 @@ func (p *Portal) MarkNotificationRead(userID, notifID string) error {
 
 // ========== 审批记录 ==========
 
-// addApproval 添加审批记录(需在写锁内调用)
+// addApproval 添加审批记录(需在写锁内调用).
 func (p *Portal) addApproval(ticketID string, ticketType TicketType, approverID string, status ApprovalStatus, comment string) {
 	approval := &Approval{
 		ID:         p.generateID(),
@@ -588,7 +588,7 @@ func (p *Portal) addApproval(ticketID string, ticketType TicketType, approverID 
 	p.approvals[ticketID] = append(p.approvals[ticketID], approval)
 }
 
-// GetApprovals 获取工单的审批记录
+// GetApprovals 获取工单的审批记录.
 func (p *Portal) GetApprovals(ticketID string) []*Approval {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -598,7 +598,7 @@ func (p *Portal) GetApprovals(ticketID string) []*Approval {
 
 // ========== 自动审批规则 ==========
 
-// AddAutoApprovalRule 添加自动审批规则
+// AddAutoApprovalRule 添加自动审批规则.
 func (p *Portal) AddAutoApprovalRule(rule *AutoApprovalRule) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -607,7 +607,7 @@ func (p *Portal) AddAutoApprovalRule(rule *AutoApprovalRule) {
 	p.autoApprovalRules = append(p.autoApprovalRules, rule)
 }
 
-// ListAutoApprovalRules 获取自动审批规则列表
+// ListAutoApprovalRules 获取自动审批规则列表.
 func (p *Portal) ListAutoApprovalRules() []*AutoApprovalRule {
 	p.mu.RLock()
 	defer p.mu.RUnlock()

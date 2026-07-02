@@ -5,19 +5,19 @@ import (
 	"net/http"
 )
 
-// Handler HTTP API 处理器
+// Handler HTTP API 处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建 HTTP API 处理器
+// NewHandler 创建 HTTP API 处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{
 		manager: manager,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/sys/overview", h.handleOverview)
 	mux.HandleFunc("/api/v1/sys/processes", h.handleProcesses)
@@ -29,7 +29,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/sys/history", h.handleHistory)
 }
 
-// handleOverview GET /api/v1/sys/overview - 系统概览
+// handleOverview GET /api/v1/sys/overview - 系统概览.
 func (h *Handler) handleOverview(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -47,7 +47,7 @@ func (h *Handler) handleOverview(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, overview)
 }
 
-// handleProcesses GET /api/v1/sys/processes - 进程列表
+// handleProcesses GET /api/v1/sys/processes - 进程列表.
 func (h *Handler) handleProcesses(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -61,7 +61,7 @@ func (h *Handler) handleProcesses(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleDiskUsage GET /api/v1/sys/diskusage - 磁盘使用
+// handleDiskUsage GET /api/v1/sys/diskusage - 磁盘使用.
 func (h *Handler) handleDiskUsage(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -75,7 +75,7 @@ func (h *Handler) handleDiskUsage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleNetwork GET /api/v1/sys/network - 网络连接
+// handleNetwork GET /api/v1/sys/network - 网络连接.
 func (h *Handler) handleNetwork(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -86,7 +86,7 @@ func (h *Handler) handleNetwork(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, network)
 }
 
-// handleLoad GET /api/v1/sys/load - 系统负载
+// handleLoad GET /api/v1/sys/load - 系统负载.
 func (h *Handler) handleLoad(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -97,7 +97,7 @@ func (h *Handler) handleLoad(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, loadInfo)
 }
 
-// handleUptime GET /api/v1/sys/uptime - 运行时间
+// handleUptime GET /api/v1/sys/uptime - 运行时间.
 func (h *Handler) handleUptime(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -108,7 +108,7 @@ func (h *Handler) handleUptime(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, uptime)
 }
 
-// handleAlerts GET /api/v1/sys/alerts - 当前告警
+// handleAlerts GET /api/v1/sys/alerts - 当前告警.
 func (h *Handler) handleAlerts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -122,7 +122,7 @@ func (h *Handler) handleAlerts(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleHistory GET /api/v1/sys/history - 历史趋势
+// handleHistory GET /api/v1/sys/history - 历史趋势.
 func (h *Handler) handleHistory(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -136,7 +136,7 @@ func (h *Handler) handleHistory(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// writeJSON 写入 JSON 响应
+// writeJSON 写入 JSON 响应.
 func writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)

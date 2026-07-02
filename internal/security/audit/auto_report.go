@@ -268,9 +268,10 @@ func (d *DefaultScoreCalculator) CalculateScore(vulns []VulnItem, configChecks [
 
 	// Deduct for config failures
 	for _, c := range configChecks {
-		if c.Status == "fail" {
+		switch c.Status {
+		case "fail":
 			score -= 5
-		} else if c.Status == "warning" {
+		case "warning":
 			score -= 2
 		}
 	}

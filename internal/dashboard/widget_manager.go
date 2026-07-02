@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// WidgetManager Widget管理器，负责widget的注册、获取和布局管理
+// WidgetManager Widget管理器，负责widget的注册、获取和布局管理.
 type WidgetManager struct {
 	mu          sync.RWMutex
 	registry    *WidgetRegistry
@@ -15,7 +15,7 @@ type WidgetManager struct {
 	definitions map[WidgetType]*WidgetDefinition
 }
 
-// WidgetDefinition Widget定义，包含元数据、默认配置和创建函数
+// WidgetDefinition Widget定义，包含元数据、默认配置和创建函数.
 type WidgetDefinition struct {
 	Type          WidgetType
 	Name          string
@@ -27,23 +27,23 @@ type WidgetDefinition struct {
 	Icon          string
 }
 
-// WidgetCategory Widget分类
+// WidgetCategory Widget分类.
 type WidgetCategory string
 
 const (
-	// CategorySystem 系统监控类
+	// CategorySystem 系统监控类.
 	CategorySystem WidgetCategory = "system"
-	// CategoryStorage 存储监控类
+	// CategoryStorage 存储监控类.
 	CategoryStorage WidgetCategory = "storage"
-	// CategoryNetwork 网络监控类
+	// CategoryNetwork 网络监控类.
 	CategoryNetwork WidgetCategory = "network"
-	// CategoryAlert 告警类
+	// CategoryAlert 告警类.
 	CategoryAlert WidgetCategory = "alert"
-	// CategoryCustom 自定义类
+	// CategoryCustom 自定义类.
 	CategoryCustom WidgetCategory = "custom"
 )
 
-// NewWidgetManager 创建Widget管理器
+// NewWidgetManager 创建Widget管理器.
 func NewWidgetManager() *WidgetManager {
 	mgr := &WidgetManager{
 		registry:    NewWidgetRegistry(),
@@ -57,7 +57,7 @@ func NewWidgetManager() *WidgetManager {
 	return mgr
 }
 
-// registerBuiltinDefinitions 注册内置widget定义
+// registerBuiltinDefinitions 注册内置widget定义.
 func (m *WidgetManager) registerBuiltinDefinitions() {
 	// CPU监控
 	m.RegisterDefinition(&WidgetDefinition{
@@ -220,7 +220,7 @@ func (m *WidgetManager) registerBuiltinDefinitions() {
 	})
 }
 
-// RegisterDefinition 注册Widget定义
+// RegisterDefinition 注册Widget定义.
 func (m *WidgetManager) RegisterDefinition(def *WidgetDefinition) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -233,7 +233,7 @@ func (m *WidgetManager) RegisterDefinition(def *WidgetDefinition) {
 	}
 }
 
-// GetDefinition 获取Widget定义
+// GetDefinition 获取Widget定义.
 func (m *WidgetManager) GetDefinition(widgetType WidgetType) (*WidgetDefinition, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -242,7 +242,7 @@ func (m *WidgetManager) GetDefinition(widgetType WidgetType) (*WidgetDefinition,
 	return def, ok
 }
 
-// GetAllDefinitions 获取所有Widget定义
+// GetAllDefinitions 获取所有Widget定义.
 func (m *WidgetManager) GetAllDefinitions() []*WidgetDefinition {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -254,7 +254,7 @@ func (m *WidgetManager) GetAllDefinitions() []*WidgetDefinition {
 	return defs
 }
 
-// GetDefinitionsByCategory 按分类获取Widget定义
+// GetDefinitionsByCategory 按分类获取Widget定义.
 func (m *WidgetManager) GetDefinitionsByCategory(category WidgetCategory) []*WidgetDefinition {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -268,7 +268,7 @@ func (m *WidgetManager) GetDefinitionsByCategory(category WidgetCategory) []*Wid
 	return defs
 }
 
-// CreateWidget 根据定义创建Widget实例
+// CreateWidget 根据定义创建Widget实例.
 func (m *WidgetManager) CreateWidget(widgetType WidgetType) (*Widget, error) {
 	def, ok := m.GetDefinition(widgetType)
 	if !ok {
@@ -284,37 +284,37 @@ func (m *WidgetManager) CreateWidget(widgetType WidgetType) (*Widget, error) {
 	return widget, nil
 }
 
-// GetLayout 获取用户布局
+// GetLayout 获取用户布局.
 func (m *WidgetManager) GetLayout(userID string) (*UserWidgetLayout, error) {
 	return m.layoutMgr.GetLayout(userID)
 }
 
-// SaveLayout 保存用户布局
+// SaveLayout 保存用户布局.
 func (m *WidgetManager) SaveLayout(userID string, layout *UserWidgetLayout) error {
 	return m.layoutMgr.SaveLayout(userID, layout)
 }
 
-// UpdateWidgetPosition 更新Widget位置
+// UpdateWidgetPosition 更新Widget位置.
 func (m *WidgetManager) UpdateWidgetPosition(userID, dashboardID, widgetID string, pos WidgetPosition) error {
 	return m.layoutMgr.UpdateWidgetPosition(userID, dashboardID, widgetID, pos)
 }
 
-// ReorderWidgets 重排序Widgets
+// ReorderWidgets 重排序Widgets.
 func (m *WidgetManager) ReorderWidgets(userID, dashboardID string, widgetOrder []string) error {
 	return m.layoutMgr.ReorderWidgets(userID, dashboardID, widgetOrder)
 }
 
-// GetRegistry 获取Widget注册表
+// GetRegistry 获取Widget注册表.
 func (m *WidgetManager) GetRegistry() *WidgetRegistry {
 	return m.registry
 }
 
-// GetLayoutManager 获取布局管理器
+// GetLayoutManager 获取布局管理器.
 func (m *WidgetManager) GetLayoutManager() *WidgetLayoutManager {
 	return m.layoutMgr
 }
 
-// definitionProvider 基于定义的Widget提供者
+// definitionProvider 基于定义的Widget提供者.
 type definitionProvider struct {
 	def *WidgetDefinition
 }
@@ -333,7 +333,7 @@ func (p *definitionProvider) GetData(widget *Widget) (*WidgetData, error) {
 	}, nil
 }
 
-// Widget错误定义
+// Widget错误定义.
 var (
 	ErrWidgetTypeNotFound = NewWidgetError("widget_type_not_found", "Widget类型不存在")
 	ErrWidgetNotFound     = NewWidgetError("widget_not_found", "Widget不存在")
@@ -341,7 +341,7 @@ var (
 	ErrInvalidPosition    = NewWidgetError("invalid_position", "无效的位置参数")
 )
 
-// WidgetError Widget错误类型
+// WidgetError Widget错误类型.
 type WidgetError struct {
 	Code    string
 	Message string

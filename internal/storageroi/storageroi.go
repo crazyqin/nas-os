@@ -5,7 +5,7 @@ package storageroi
 
 import "time"
 
-// DiskType 磁盘类型
+// DiskType 磁盘类型.
 type DiskType string
 
 const (
@@ -16,7 +16,7 @@ const (
 	DiskTypeSATAS DiskType = "sata"
 )
 
-// DiskStatus 磁盘状态
+// DiskStatus 磁盘状态.
 type DiskStatus string
 
 const (
@@ -27,7 +27,7 @@ const (
 	DiskStatusRetired  DiskStatus = "retired"
 )
 
-// DiskCostRecord 磁盘采购成本记录
+// DiskCostRecord 磁盘采购成本记录.
 type DiskCostRecord struct {
 	ID            string    `json:"id"`
 	SerialNumber  string    `json:"serial_number"`
@@ -43,7 +43,7 @@ type DiskCostRecord struct {
 	InvoiceNumber string    `json:"invoice_number,omitempty"`
 }
 
-// CapacityUtilization 容量利用率追踪
+// CapacityUtilization 容量利用率追踪.
 type CapacityUtilization struct {
 	DiskID         string    `json:"disk_id"`
 	Timestamp      time.Time `json:"timestamp"`
@@ -54,7 +54,7 @@ type CapacityUtilization struct {
 	ThroughputMBps float64   `json:"throughput_mbps,omitempty"`
 }
 
-// UtilizationPercent 计算利用率百分比
+// UtilizationPercent 计算利用率百分比.
 func (u *CapacityUtilization) UtilizationPercent() float64 {
 	if u.TotalBytes <= 0 {
 		return 0
@@ -62,7 +62,7 @@ func (u *CapacityUtilization) UtilizationPercent() float64 {
 	return float64(u.UsedBytes) / float64(u.TotalBytes) * 100.0
 }
 
-// AvailableBytes 可用字节数
+// AvailableBytes 可用字节数.
 func (u *CapacityUtilization) AvailableBytes() int64 {
 	avail := u.TotalBytes - u.UsedBytes - u.ReservedBytes
 	if avail < 0 {
@@ -71,7 +71,7 @@ func (u *CapacityUtilization) AvailableBytes() int64 {
 	return avail
 }
 
-// LifetimeTracker 磁盘寿命追踪与替换预测
+// LifetimeTracker 磁盘寿命追踪与替换预测.
 type LifetimeTracker struct {
 	DiskID             string     `json:"disk_id"`
 	SerialNumber       string     `json:"serial_number"`
@@ -88,7 +88,7 @@ type LifetimeTracker struct {
 	LastChecked        time.Time  `json:"last_checked"`
 }
 
-// EstimatedRemainingHours 预估剩余寿命（小时）
+// EstimatedRemainingHours 预估剩余寿命（小时）.
 func (l *LifetimeTracker) EstimatedRemainingHours() float64 {
 	if l.EstimatedTBW > 0 && l.ActualTBW >= l.EstimatedTBW {
 		return 0
@@ -108,7 +108,7 @@ func (l *LifetimeTracker) EstimatedRemainingHours() float64 {
 	return 0
 }
 
-// EstimatedReplacementDate 预估替换日期
+// EstimatedReplacementDate 预估替换日期.
 func (l *LifetimeTracker) EstimatedReplacementDate() time.Time {
 	remaining := l.EstimatedRemainingHours()
 	if remaining <= 0 {
@@ -122,7 +122,7 @@ func (l *LifetimeTracker) EstimatedReplacementDate() time.Time {
 	return time.Now().AddDate(0, 0, int(days))
 }
 
-// NeedsReplacement 是否需要替换
+// NeedsReplacement 是否需要替换.
 func (l *LifetimeTracker) NeedsReplacement() bool {
 	if l.Status == DiskStatusFailed {
 		return true
@@ -139,7 +139,7 @@ func (l *LifetimeTracker) NeedsReplacement() bool {
 	return false
 }
 
-// TCOReport 总拥有成本报告
+// TCOReport 总拥有成本报告.
 type TCOReport struct {
 	DiskID          string  `json:"disk_id"`
 	SerialNumber    string  `json:"serial_number"`
@@ -154,7 +154,7 @@ type TCOReport struct {
 	Currency        string  `json:"currency"`
 }
 
-// ROIScore ROI评分
+// ROIScore ROI评分.
 type ROIScore struct {
 	Score             float64          `json:"score"`              // 0-100
 	Grade             string           `json:"grade"`              // A/B/C/D/F
@@ -166,7 +166,7 @@ type ROIScore struct {
 	Recommendations   []Recommendation `json:"recommendations"`
 }
 
-// Recommendation 优化建议
+// Recommendation 优化建议.
 type Recommendation struct {
 	Priority         string  `json:"priority"` // high/medium/low
 	Category         string  `json:"category"` // capacity/cost/health/lifetime
@@ -175,7 +175,7 @@ type Recommendation struct {
 	PotentialSavings float64 `json:"potential_savings,omitempty"` // 潜在节省（元）
 }
 
-// ROICalculator 存储投资回报率计算器
+// ROICalculator 存储投资回报率计算器.
 type ROICalculator struct {
 	// electricityRate 电费单价（元/kWh）
 	electricityRate float64
@@ -185,7 +185,7 @@ type ROICalculator struct {
 	annualMaintenanceRate float64
 }
 
-// NewROICalculator 创建 ROI 计算器
+// NewROICalculator 创建 ROI 计算器.
 func NewROICalculator() *ROICalculator {
 	return &ROICalculator{
 		electricityRate: 0.8, // 默认 0.8 元/kWh
@@ -200,14 +200,14 @@ func NewROICalculator() *ROICalculator {
 	}
 }
 
-// SetElectricityRate 设置电费单价（元/kWh）
+// SetElectricityRate 设置电费单价（元/kWh）.
 func (c *ROICalculator) SetElectricityRate(rate float64) {
 	if rate > 0 {
 		c.electricityRate = rate
 	}
 }
 
-// SetDiskPowerWatts 设置磁盘类型功耗（瓦）
+// SetDiskPowerWatts 设置磁盘类型功耗（瓦）.
 func (c *ROICalculator) SetDiskPowerWatts(diskType DiskType, watts float64) {
 	if c.diskPowerWatts == nil {
 		c.diskPowerWatts = make(map[DiskType]float64)
@@ -215,14 +215,14 @@ func (c *ROICalculator) SetDiskPowerWatts(diskType DiskType, watts float64) {
 	c.diskPowerWatts[diskType] = watts
 }
 
-// SetAnnualMaintenanceRate 设置年维护费率
+// SetAnnualMaintenanceRate 设置年维护费率.
 func (c *ROICalculator) SetAnnualMaintenanceRate(rate float64) {
 	if rate >= 0 {
 		c.annualMaintenanceRate = rate
 	}
 }
 
-// CalculateTCO 计算总拥有成本
+// CalculateTCO 计算总拥有成本.
 func (c *ROICalculator) CalculateTCO(cost *DiskCostRecord, lifetime *LifetimeTracker) *TCOReport {
 	if cost == nil {
 		return &TCOReport{}
@@ -283,7 +283,7 @@ func (c *ROICalculator) CalculateTCO(cost *DiskCostRecord, lifetime *LifetimeTra
 	return report
 }
 
-// CalculateTCOBatch 批量计算 TCO
+// CalculateTCOBatch 批量计算 TCO.
 func (c *ROICalculator) CalculateTCOBatch(costs []*DiskCostRecord, lifetimes map[string]*LifetimeTracker) []*TCOReport {
 	reports := make([]*TCOReport, 0, len(costs))
 	for _, cost := range costs {
@@ -299,7 +299,7 @@ func (c *ROICalculator) CalculateTCOBatch(costs []*DiskCostRecord, lifetimes map
 	return reports
 }
 
-// CalculateROI 计算 ROI 评分
+// CalculateROI 计算 ROI 评分.
 func (c *ROICalculator) CalculateROI(
 	utilizations []*CapacityUtilization,
 	tco *TCOReport,
@@ -414,7 +414,7 @@ func (c *ROICalculator) CalculateROI(
 	return score
 }
 
-// calculateAverageUtilization 计算平均利用率
+// calculateAverageUtilization 计算平均利用率.
 func calculateAverageUtilization(utilizations []*CapacityUtilization) float64 {
 	if len(utilizations) == 0 {
 		return 0
@@ -426,7 +426,7 @@ func calculateAverageUtilization(utilizations []*CapacityUtilization) float64 {
 	return total / float64(len(utilizations))
 }
 
-// generateRecommendations 生成优化建议
+// generateRecommendations 生成优化建议.
 func (c *ROICalculator) generateRecommendations(
 	score *ROIScore,
 	utilizations []*CapacityUtilization,
@@ -536,7 +536,7 @@ func (c *ROICalculator) generateRecommendations(
 	return recs
 }
 
-// scoreToGrade 评分转评级
+// scoreToGrade 评分转评级.
 func scoreToGrade(score float64) string {
 	switch {
 	case score >= 90:

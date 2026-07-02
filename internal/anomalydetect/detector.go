@@ -11,7 +11,7 @@ import (
 
 // ==================== 类型定义 ====================
 
-// MetricType 指标类型枚举
+// MetricType 指标类型枚举.
 type MetricType string
 
 const (
@@ -22,7 +22,7 @@ const (
 	MetricTemp   MetricType = "temperature" // 温度（°C）
 )
 
-// AnomalyType 异常类型枚举
+// AnomalyType 异常类型枚举.
 type AnomalyType string
 
 const (
@@ -32,7 +32,7 @@ const (
 	AnomalyPattern AnomalyType = "pattern" // 模式异常（分布偏移）
 )
 
-// Severity 严重程度枚举
+// Severity 严重程度枚举.
 type Severity string
 
 const (
@@ -41,7 +41,7 @@ const (
 	SeverityInfo     Severity = "info"     // 信息
 )
 
-// MetricDataPoint 指标数据点
+// MetricDataPoint 指标数据点.
 type MetricDataPoint struct {
 	Timestamp time.Time  `json:"timestamp"` // 采样时间
 	Value     float64    `json:"value"`     // 指标值
@@ -49,7 +49,7 @@ type MetricDataPoint struct {
 	Source    string     `json:"source"`    // 数据来源
 }
 
-// AnomalyResult 异常检测结果
+// AnomalyResult 异常检测结果.
 type AnomalyResult struct {
 	Timestamp   time.Time   `json:"timestamp"`    // 检测时间
 	MetricType  MetricType  `json:"metric_type"`  // 指标类型
@@ -61,7 +61,7 @@ type AnomalyResult struct {
 	Message     string      `json:"message"`      // 描述信息
 }
 
-// AdaptiveThreshold 自适应阈值
+// AdaptiveThreshold 自适应阈值.
 type AdaptiveThreshold struct {
 	Mean        float64 `json:"mean"`         // 均值
 	StdDev      float64 `json:"std_dev"`      // 标准差
@@ -72,7 +72,7 @@ type AdaptiveThreshold struct {
 
 // ==================== 滑动窗口 ====================
 
-// SlidingWindow 环形缓冲区滑动窗口
+// SlidingWindow 环形缓冲区滑动窗口.
 type SlidingWindow struct {
 	mu    sync.RWMutex
 	data  []float64 // 环形缓冲区
@@ -81,7 +81,7 @@ type SlidingWindow struct {
 	count int       // 当前数据量
 }
 
-// NewSlidingWindow 创建指定大小的滑动窗口
+// NewSlidingWindow 创建指定大小的滑动窗口.
 func NewSlidingWindow(size int) *SlidingWindow {
 	return &SlidingWindow{
 		data: make([]float64, size),
@@ -89,7 +89,7 @@ func NewSlidingWindow(size int) *SlidingWindow {
 	}
 }
 
-// Add 添加数据点到滑动窗口
+// Add 添加数据点到滑动窗口.
 func (sw *SlidingWindow) Add(value float64) {
 	sw.mu.Lock()
 	defer sw.mu.Unlock()
@@ -100,7 +100,7 @@ func (sw *SlidingWindow) Add(value float64) {
 	}
 }
 
-// GetData 获取窗口内所有数据（按时间顺序从旧到新）
+// GetData 获取窗口内所有数据（按时间顺序从旧到新）.
 func (sw *SlidingWindow) GetData() []float64 {
 	sw.mu.RLock()
 	defer sw.mu.RUnlock()
@@ -120,24 +120,24 @@ func (sw *SlidingWindow) GetData() []float64 {
 	return result
 }
 
-// Count 返回当前数据量
+// Count 返回当前数据量.
 func (sw *SlidingWindow) Count() int {
 	sw.mu.RLock()
 	defer sw.mu.RUnlock()
 	return sw.count
 }
 
-// Mean 计算窗口内数据均值
+// Mean 计算窗口内数据均值.
 func (sw *SlidingWindow) Mean() float64 {
 	return calculateMean(sw.GetData())
 }
 
-// StdDev 计算窗口内数据标准差
+// StdDev 计算窗口内数据标准差.
 func (sw *SlidingWindow) StdDev() float64 {
 	return calculateStdDev(sw.GetData())
 }
 
-// LatestValue 获取最新数据点
+// LatestValue 获取最新数据点.
 func (sw *SlidingWindow) LatestValue() (float64, bool) {
 	sw.mu.RLock()
 	defer sw.mu.RUnlock()
@@ -150,7 +150,7 @@ func (sw *SlidingWindow) LatestValue() (float64, bool) {
 
 // ==================== 异常检测器 ====================
 
-// AnomalyDetector 异常检测器核心结构体
+// AnomalyDetector 异常检测器核心结构体.
 type AnomalyDetector struct {
 	mu              sync.RWMutex
 	windows         map[MetricType]*SlidingWindow     // 各指标的滑动窗口
@@ -162,7 +162,7 @@ type AnomalyDetector struct {
 	windowSize      int                               // 窗口大小
 }
 
-// DetectorConfig 检测器配置
+// DetectorConfig 检测器配置.
 type DetectorConfig struct {
 	WindowSize      int     // 滑动窗口大小
 	MinDataPoints   int     // 最少数据点数
@@ -170,7 +170,7 @@ type DetectorConfig struct {
 	MaxHistory      int     // 历史数据最大长度
 }
 
-// DefaultDetectorConfig 返回默认检测器配置
+// DefaultDetectorConfig 返回默认检测器配置.
 func DefaultDetectorConfig() DetectorConfig {
 	return DetectorConfig{
 		WindowSize:      60,
@@ -180,7 +180,7 @@ func DefaultDetectorConfig() DetectorConfig {
 	}
 }
 
-// NewAnomalyDetector 创建异常检测器实例
+// NewAnomalyDetector 创建异常检测器实例.
 func NewAnomalyDetector(config DetectorConfig) *AnomalyDetector {
 	return &AnomalyDetector{
 		windows:         make(map[MetricType]*SlidingWindow),
@@ -193,7 +193,7 @@ func NewAnomalyDetector(config DetectorConfig) *AnomalyDetector {
 	}
 }
 
-// AddMetric 添加指标数据点并更新自适应阈值
+// AddMetric 添加指标数据点并更新自适应阈值.
 func (d *AnomalyDetector) AddMetric(metricType MetricType, value float64, source string) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -218,7 +218,7 @@ func (d *AnomalyDetector) AddMetric(metricType MetricType, value float64, source
 	d.updateThreshold(metricType)
 }
 
-// updateThreshold 更新指定指标的自适应阈值（内部方法，调用者需持写锁）
+// updateThreshold 更新指定指标的自适应阈值（内部方法，调用者需持写锁）.
 func (d *AnomalyDetector) updateThreshold(metricType MetricType) {
 	hist := d.history[metricType]
 	if len(hist) < d.minDataPoints {
@@ -235,7 +235,7 @@ func (d *AnomalyDetector) updateThreshold(metricType MetricType) {
 	}
 }
 
-// DetectAll 对所有已注册指标执行异常检测
+// DetectAll 对所有已注册指标执行异常检测.
 func (d *AnomalyDetector) DetectAll() []AnomalyResult {
 	d.mu.RLock()
 	metricTypes := make([]MetricType, 0, len(d.windows))
@@ -251,7 +251,7 @@ func (d *AnomalyDetector) DetectAll() []AnomalyResult {
 	return results
 }
 
-// Detect 对指定指标执行异常检测，返回所有类型的异常
+// Detect 对指定指标执行异常检测，返回所有类型的异常.
 func (d *AnomalyDetector) Detect(metricType MetricType) []AnomalyResult {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -315,7 +315,7 @@ func (d *AnomalyDetector) Detect(metricType MetricType) []AnomalyResult {
 	return results
 }
 
-// detectTrend 检测趋势异常（线性回归斜率分析）
+// detectTrend 检测趋势异常（线性回归斜率分析）.
 func (d *AnomalyDetector) detectTrend(metricType MetricType, data []float64) *AnomalyResult {
 	if len(data) < 20 {
 		return nil
@@ -354,7 +354,7 @@ func (d *AnomalyDetector) detectTrend(metricType MetricType, data []float64) *An
 	return nil
 }
 
-// detectPattern 检测模式异常（前后半段均值偏移）
+// detectPattern 检测模式异常（前后半段均值偏移）.
 func (d *AnomalyDetector) detectPattern(metricType MetricType, data []float64) *AnomalyResult {
 	if len(data) < 20 {
 		return nil
@@ -390,14 +390,14 @@ func (d *AnomalyDetector) detectPattern(metricType MetricType, data []float64) *
 	return nil
 }
 
-// GetThreshold 获取指定指标的自适应阈值
+// GetThreshold 获取指定指标的自适应阈值.
 func (d *AnomalyDetector) GetThreshold(metricType MetricType) *AdaptiveThreshold {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
 	return d.thresholds[metricType]
 }
 
-// GetAllThresholds 获取所有指标的自适应阈值
+// GetAllThresholds 获取所有指标的自适应阈值.
 func (d *AnomalyDetector) GetAllThresholds() map[MetricType]*AdaptiveThreshold {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -408,7 +408,7 @@ func (d *AnomalyDetector) GetAllThresholds() map[MetricType]*AdaptiveThreshold {
 	return result
 }
 
-// GetMetricsCount 获取各指标的滑动窗口数据点数量
+// GetMetricsCount 获取各指标的滑动窗口数据点数量.
 func (d *AnomalyDetector) GetMetricsCount() map[MetricType]int {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -421,7 +421,7 @@ func (d *AnomalyDetector) GetMetricsCount() map[MetricType]int {
 
 // ==================== 统计工具函数 ====================
 
-// calculateMean 计算数据切片的算术平均值
+// calculateMean 计算数据切片的算术平均值.
 func calculateMean(data []float64) float64 {
 	if len(data) == 0 {
 		return 0
@@ -433,7 +433,7 @@ func calculateMean(data []float64) float64 {
 	return sum / float64(len(data))
 }
 
-// calculateStdDev 计算数据切片的样本标准差（Bessel 校正）
+// calculateStdDev 计算数据切片的样本标准差（Bessel 校正）.
 func calculateStdDev(data []float64) float64 {
 	n := len(data)
 	if n < 2 {
@@ -449,7 +449,7 @@ func calculateStdDev(data []float64) float64 {
 }
 
 // calculateSlope 计算线性回归斜率（最小二乘法）
-// x 轴为数据索引 0,1,2,..., y 轴为数据值
+// x 轴为数据索引 0,1,2,..., y 轴为数据值.
 func calculateSlope(data []float64) float64 {
 	n := float64(len(data))
 	if n < 2 {

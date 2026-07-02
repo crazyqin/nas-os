@@ -7,13 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers HTTP API 处理器
+// Handlers HTTP API 处理器.
 type Handlers struct {
 	manager  *Manager
 	executor *Executor
 }
 
-// NewHandlers 创建 HTTP 处理器
+// NewHandlers 创建 HTTP 处理器.
 func NewHandlers(manager *Manager, executor *Executor) *Handlers {
 	return &Handlers{
 		manager:  manager,
@@ -21,7 +21,7 @@ func NewHandlers(manager *Manager, executor *Executor) *Handlers {
 	}
 }
 
-// RegisterRoutes 注册 API 路由
+// RegisterRoutes 注册 API 路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	runbooks := r.Group("/runbooks")
 	{
@@ -59,20 +59,20 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // === 运维手册 CRUD ===
 
 type createRunbookRequest struct {
-	Name        string    `json:"name" binding:"required"`
-	Description string    `json:"description"`
-	Category    string    `json:"category"`
-	Severity    Severity  `json:"severity"`
-	Tags        []string  `json:"tags"`
+	Name        string      `json:"name" binding:"required"`
+	Description string      `json:"description"`
+	Category    string      `json:"category"`
+	Severity    Severity    `json:"severity"`
+	Tags        []string    `json:"tags"`
 	Trigger     TriggerType `json:"trigger"`
-	Steps       []*Step   `json:"steps" binding:"required"`
+	Steps       []*Step     `json:"steps" binding:"required"`
 	Variables   []*Variable `json:"variables"`
-	Timeout     string    `json:"timeout"`
-	RollbackOn  string    `json:"rollback_on"`
-	Author      string    `json:"author"`
+	Timeout     string      `json:"timeout"`
+	RollbackOn  string      `json:"rollback_on"`
+	Author      string      `json:"author"`
 }
 
-// ListRunbooks 列出运维手册
+// ListRunbooks 列出运维手册.
 func (h *Handlers) ListRunbooks(c *gin.Context) {
 	var filter RunbookFilter
 	filter.Category = c.Query("category")
@@ -88,7 +88,7 @@ func (h *Handlers) ListRunbooks(c *gin.Context) {
 	})
 }
 
-// CreateRunbook 创建运维手册
+// CreateRunbook 创建运维手册.
 func (h *Handlers) CreateRunbook(c *gin.Context) {
 	var req createRunbookRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -132,7 +132,7 @@ func (h *Handlers) CreateRunbook(c *gin.Context) {
 	c.JSON(http.StatusCreated, rb)
 }
 
-// GetRunbook 获取运维手册详情
+// GetRunbook 获取运维手册详情.
 func (h *Handlers) GetRunbook(c *gin.Context) {
 	id := c.Param("id")
 	rb, err := h.manager.GetRunbook(id)
@@ -143,7 +143,7 @@ func (h *Handlers) GetRunbook(c *gin.Context) {
 	c.JSON(http.StatusOK, rb)
 }
 
-// UpdateRunbook 更新运维手册
+// UpdateRunbook 更新运维手册.
 func (h *Handlers) UpdateRunbook(c *gin.Context) {
 	id := c.Param("id")
 	existing, err := h.manager.GetRunbook(id)
@@ -181,7 +181,7 @@ func (h *Handlers) UpdateRunbook(c *gin.Context) {
 	c.JSON(http.StatusOK, existing)
 }
 
-// DeleteRunbook 删除运维手册
+// DeleteRunbook 删除运维手册.
 func (h *Handlers) DeleteRunbook(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteRunbook(id); err != nil {
@@ -194,11 +194,11 @@ func (h *Handlers) DeleteRunbook(c *gin.Context) {
 // === 执行 ===
 
 type executeRequest struct {
-	Variables  map[string]string `json:"variables"`
-	Operator   string            `json:"operator"`
+	Variables map[string]string `json:"variables"`
+	Operator  string            `json:"operator"`
 }
 
-// ExecuteRunbook 执行运维手册
+// ExecuteRunbook 执行运维手册.
 func (h *Handlers) ExecuteRunbook(c *gin.Context) {
 	id := c.Param("id")
 	var req executeRequest
@@ -228,7 +228,7 @@ func (h *Handlers) ExecuteRunbook(c *gin.Context) {
 	c.JSON(http.StatusOK, execution)
 }
 
-// GetRunbookStats 获取运维手册执行统计
+// GetRunbookStats 获取运维手册执行统计.
 func (h *Handlers) GetRunbookStats(c *gin.Context) {
 	id := c.Param("id")
 	stats, err := h.manager.GetExecutionStats(id)
@@ -239,7 +239,7 @@ func (h *Handlers) GetRunbookStats(c *gin.Context) {
 	c.JSON(http.StatusOK, stats)
 }
 
-// ListRunbookExecutions 列出运维手册的执行记录
+// ListRunbookExecutions 列出运维手册的执行记录.
 func (h *Handlers) ListRunbookExecutions(c *gin.Context) {
 	id := c.Param("id")
 	executions := h.manager.ListExecutions(ExecutionFilter{
@@ -254,7 +254,7 @@ func (h *Handlers) ListRunbookExecutions(c *gin.Context) {
 
 // === 执行记录 ===
 
-// ListExecutions 列出所有执行记录
+// ListExecutions 列出所有执行记录.
 func (h *Handlers) ListExecutions(c *gin.Context) {
 	filter := ExecutionFilter{
 		Status: StepStatus(c.Query("status")),
@@ -266,7 +266,7 @@ func (h *Handlers) ListExecutions(c *gin.Context) {
 	})
 }
 
-// GetExecution 获取执行记录详情
+// GetExecution 获取执行记录详情.
 func (h *Handlers) GetExecution(c *gin.Context) {
 	id := c.Param("id")
 	exec, err := h.manager.GetExecution(id)
@@ -277,7 +277,7 @@ func (h *Handlers) GetExecution(c *gin.Context) {
 	c.JSON(http.StatusOK, exec)
 }
 
-// GetExecutionLogs 获取执行日志
+// GetExecutionLogs 获取执行日志.
 func (h *Handlers) GetExecutionLogs(c *gin.Context) {
 	id := c.Param("id")
 	exec, err := h.manager.GetExecution(id)
@@ -313,7 +313,7 @@ type approvalAction struct {
 	Reason   string `json:"reason"`
 }
 
-// ListPendingApprovals 列出待审批请求
+// ListPendingApprovals 列出待审批请求.
 func (h *Handlers) ListPendingApprovals(c *gin.Context) {
 	h.manager.mu.RLock()
 	defer h.manager.mu.RUnlock()
@@ -331,7 +331,7 @@ func (h *Handlers) ListPendingApprovals(c *gin.Context) {
 	})
 }
 
-// ApproveStep 审批通过
+// ApproveStep 审批通过.
 func (h *Handlers) ApproveStep(c *gin.Context) {
 	id := c.Param("id")
 	var req approvalAction
@@ -348,7 +348,7 @@ func (h *Handlers) ApproveStep(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "approved"})
 }
 
-// RejectStep 审批拒绝
+// RejectStep 审批拒绝.
 func (h *Handlers) RejectStep(c *gin.Context) {
 	id := c.Param("id")
 	var req approvalAction
@@ -367,7 +367,7 @@ func (h *Handlers) RejectStep(c *gin.Context) {
 
 // === 模板 ===
 
-// ListTemplates 列出可用模板
+// ListTemplates 列出可用模板.
 func (h *Handlers) ListTemplates(c *gin.Context) {
 	templates := LoadBuiltInTemplates()
 	c.JSON(http.StatusOK, gin.H{
@@ -376,7 +376,7 @@ func (h *Handlers) ListTemplates(c *gin.Context) {
 	})
 }
 
-// InstantiateTemplate 从模板创建运维手册
+// InstantiateTemplate 从模板创建运维手册.
 func (h *Handlers) InstantiateTemplate(c *gin.Context) {
 	templateID := c.Param("id")
 	templates := LoadBuiltInTemplates()
@@ -395,9 +395,9 @@ func (h *Handlers) InstantiateTemplate(c *gin.Context) {
 	}
 
 	var overrides struct {
-		Name     string   `json:"name"`
-		Tags     []string `json:"tags"`
-		Author   string   `json:"author"`
+		Name   string   `json:"name"`
+		Tags   []string `json:"tags"`
+		Author string   `json:"author"`
 	}
 	c.ShouldBindJSON(&overrides)
 
@@ -422,12 +422,12 @@ func (h *Handlers) InstantiateTemplate(c *gin.Context) {
 	c.JSON(http.StatusCreated, rb)
 }
 
-// generateID 生成唯一ID
+// generateID 生成唯一ID.
 func generateID(prefix string) string {
 	return prefix + "_" + time.Now().Format("20060102150405") + "_" + randomHex(6)
 }
 
-// randomHex 生成随机十六进制字符串
+// randomHex 生成随机十六进制字符串.
 func randomHex(n int) string {
 	const hex = "0123456789abcdef"
 	b := make([]byte, n)

@@ -19,7 +19,7 @@ import (
 // ========== 管理器核心结构 ==========
 
 // Manager SMB Multichannel 统一管理器
-// 整合多通道连接管理、带宽聚合、故障转移、性能监控、配置管理
+// 整合多通道连接管理、带宽聚合、故障转移、性能监控、配置管理.
 type Manager struct {
 	mu sync.RWMutex
 
@@ -50,7 +50,7 @@ type Manager struct {
 	managerStats ManagerStats
 }
 
-// NewManager 创建 SMB Multichannel 管理器
+// NewManager 创建 SMB Multichannel 管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		config: &ChannelConfig{
@@ -81,7 +81,7 @@ func NewManager() *Manager {
 
 // ========== 配置管理 ==========
 
-// GetConfig 获取当前配置（线程安全副本）
+// GetConfig 获取当前配置（线程安全副本）.
 func (m *Manager) GetConfig() *ChannelConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -94,7 +94,7 @@ func (m *Manager) GetConfig() *ChannelConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(req UpdateConfigRequest) (*ChannelConfig, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -145,7 +145,7 @@ func (m *Manager) UpdateConfig(req UpdateConfigRequest) (*ChannelConfig, error) 
 	return &cfg, nil
 }
 
-// SaveConfig 保存配置到文件
+// SaveConfig 保存配置到文件.
 func (m *Manager) SaveConfig(path string) error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -157,7 +157,7 @@ func (m *Manager) SaveConfig(path string) error {
 	return os.WriteFile(path, data, 0640)
 }
 
-// LoadConfig 从文件加载配置
+// LoadConfig 从文件加载配置.
 func (m *Manager) LoadConfig(path string) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -172,7 +172,7 @@ func (m *Manager) LoadConfig(path string) error {
 
 // ========== 通道管理（接口级别） ==========
 
-// DetectChannels 检测可用网络通道
+// DetectChannels 检测可用网络通道.
 func (m *Manager) DetectChannels() []ChannelStatus {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -218,7 +218,7 @@ func (m *Manager) DetectChannels() []ChannelStatus {
 	return result
 }
 
-// EnableChannel 启用指定通道
+// EnableChannel 启用指定通道.
 func (m *Manager) EnableChannel(name string) (*ChannelStatus, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -240,7 +240,7 @@ func (m *Manager) EnableChannel(name string) (*ChannelStatus, error) {
 	return &status, nil
 }
 
-// DisableChannel 禁用指定通道
+// DisableChannel 禁用指定通道.
 func (m *Manager) DisableChannel(name string) (*ChannelStatus, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -258,7 +258,7 @@ func (m *Manager) DisableChannel(name string) (*ChannelStatus, error) {
 	return &status, nil
 }
 
-// GetChannelStatus 获取指定通道状态
+// GetChannelStatus 获取指定通道状态.
 func (m *Manager) GetChannelStatus(name string) (*ChannelStatus, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -275,7 +275,7 @@ func (m *Manager) GetChannelStatus(name string) (*ChannelStatus, error) {
 // ========== 多通道会话管理 ==========
 
 // CreateSession 创建多通道会话
-// 自动选择可用通道，根据负载均衡策略分配
+// 自动选择可用通道，根据负载均衡策略分配.
 func (m *Manager) CreateSession(clientIP, serverIP string) (*MultichannelSession, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -338,7 +338,7 @@ func (m *Manager) CreateSession(clientIP, serverIP string) (*MultichannelSession
 	return session, nil
 }
 
-// CloseSession 关闭多通道会话
+// CloseSession 关闭多通道会话.
 func (m *Manager) CloseSession(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -366,7 +366,7 @@ func (m *Manager) CloseSession(id string) error {
 	return nil
 }
 
-// GetSession 获取指定会话
+// GetSession 获取指定会话.
 func (m *Manager) GetSession(id string) (*MultichannelSession, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -390,7 +390,7 @@ func (m *Manager) GetSession(id string) (*MultichannelSession, error) {
 	return &cp, nil
 }
 
-// ListSessions 列出所有会话
+// ListSessions 列出所有会话.
 func (m *Manager) ListSessions() []*MultichannelSession {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -411,7 +411,7 @@ func (m *Manager) ListSessions() []*MultichannelSession {
 	return sessions
 }
 
-// GetSessionStats 获取会话统计
+// GetSessionStats 获取会话统计.
 func (m *Manager) GetSessionStats(id string) (*SessionStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -447,7 +447,7 @@ func (m *Manager) GetSessionStats(id string) (*SessionStats, error) {
 
 // ========== 负载均衡 ==========
 
-// SelectChannelForSession 为会话选择最佳通道（负载均衡）
+// SelectChannelForSession 为会话选择最佳通道（负载均衡）.
 func (m *Manager) SelectChannelForSession(sessionID string) (*ChannelRef, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -498,13 +498,13 @@ func (m *Manager) SelectChannelForSession(sessionID string) (*ChannelRef, error)
 	return selected, nil
 }
 
-// selectRoundRobin 轮询选择
+// selectRoundRobin 轮询选择.
 func (m *Manager) selectRoundRobin(channels []ChannelRef) *ChannelRef {
 	index := time.Now().UnixNano() % int64(len(channels))
 	return &channels[index]
 }
 
-// selectLeastConn 最少连接选择
+// selectLeastConn 最少连接选择.
 func (m *Manager) selectLeastConn(channels []ChannelRef) *ChannelRef {
 	minConns := int(^uint(0) >> 1)
 	var selected *ChannelRef
@@ -524,7 +524,7 @@ func (m *Manager) selectLeastConn(channels []ChannelRef) *ChannelRef {
 	return selected
 }
 
-// selectByBandwidth 带宽优先选择
+// selectByBandwidth 带宽优先选择.
 func (m *Manager) selectByBandwidth(channels []ChannelRef) *ChannelRef {
 	maxSpeed := 0
 	var selected *ChannelRef
@@ -542,7 +542,7 @@ func (m *Manager) selectByBandwidth(channels []ChannelRef) *ChannelRef {
 	return selected
 }
 
-// selectByLatency 延迟优先选择
+// selectByLatency 延迟优先选择.
 func (m *Manager) selectByLatency(channels []ChannelRef) *ChannelRef {
 	minLatency := int64(^uint64(0) >> 1)
 	var selected *ChannelRef
@@ -562,7 +562,7 @@ func (m *Manager) selectByLatency(channels []ChannelRef) *ChannelRef {
 	return selected
 }
 
-// selectAdaptive 自适应选择（综合带宽、延迟、连接数）
+// selectAdaptive 自适应选择（综合带宽、延迟、连接数）.
 func (m *Manager) selectAdaptive(channels []ChannelRef) *ChannelRef {
 	bestScore := float64(-1)
 	var selected *ChannelRef
@@ -595,7 +595,7 @@ func (m *Manager) selectAdaptive(channels []ChannelRef) *ChannelRef {
 
 // ========== 故障转移 ==========
 
-// HandleChannelFailure 处理通道故障
+// HandleChannelFailure 处理通道故障.
 func (m *Manager) HandleChannelFailure(sessionID, channelID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -657,7 +657,7 @@ func (m *Manager) HandleChannelFailure(sessionID, channelID string) error {
 
 // ========== 自动重平衡 ==========
 
-// RebalanceChannels 重平衡通道负载
+// RebalanceChannels 重平衡通道负载.
 func (m *Manager) RebalanceChannels() (*RebalanceResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -683,7 +683,7 @@ func (m *Manager) RebalanceChannels() (*RebalanceResult, error) {
 	return result, nil
 }
 
-// isSessionImbalanced 检查会话负载是否不均衡
+// isSessionImbalanced 检查会话负载是否不均衡.
 func (m *Manager) isSessionImbalanced(session *MultichannelSession) bool {
 	if len(session.Channels) <= 1 {
 		return false
@@ -715,7 +715,7 @@ func (m *Manager) isSessionImbalanced(session *MultichannelSession) bool {
 
 // ========== 性能监控 ==========
 
-// GetThroughputStats 获取吞吐量统计
+// GetThroughputStats 获取吞吐量统计.
 func (m *Manager) GetThroughputStats() *ThroughputStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -759,7 +759,7 @@ func (m *Manager) GetThroughputStats() *ThroughputStats {
 	}
 }
 
-// GetBandwidthHistory 获取带宽历史
+// GetBandwidthHistory 获取带宽历史.
 func (m *Manager) GetBandwidthHistory(limit int) []BandwidthHistoryItem {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -778,7 +778,7 @@ func (m *Manager) GetBandwidthHistory(limit int) []BandwidthHistoryItem {
 	return result
 }
 
-// RecordBandwidth 记录带宽样本
+// RecordBandwidth 记录带宽样本.
 func (m *Manager) RecordBandwidth(download, upload int64, speed int) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -796,7 +796,7 @@ func (m *Manager) RecordBandwidth(download, upload int64, speed int) {
 	}
 }
 
-// SimulateTraffic 模拟流量（用于测试和演示）
+// SimulateTraffic 模拟流量（用于测试和演示）.
 func (m *Manager) SimulateTraffic() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -833,7 +833,7 @@ func (m *Manager) SimulateTraffic() {
 	}
 }
 
-// GetChannelStats 获取通道统计信息
+// GetChannelStats 获取通道统计信息.
 func (m *Manager) GetChannelStats() *ChannelStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -859,7 +859,7 @@ func (m *Manager) GetChannelStats() *ChannelStats {
 	}
 }
 
-// GetChannelHealth 获取所有通道健康状态
+// GetChannelHealth 获取所有通道健康状态.
 func (m *Manager) GetChannelHealth() []ChannelHealth {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -876,7 +876,7 @@ func (m *Manager) GetChannelHealth() []ChannelHealth {
 	return healthList
 }
 
-// UpdateChannelHealth 更新通道健康状态
+// UpdateChannelHealth 更新通道健康状态.
 func (m *Manager) UpdateChannelHealth(channelID, status string, latency int64, packetLoss float64) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -890,7 +890,7 @@ func (m *Manager) UpdateChannelHealth(channelID, status string, latency int64, p
 	}
 }
 
-// GetManagerStats 获取管理器全局统计
+// GetManagerStats 获取管理器全局统计.
 func (m *Manager) GetManagerStats() ManagerStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -899,7 +899,7 @@ func (m *Manager) GetManagerStats() ManagerStats {
 
 // ========== 全局启用/禁用 ==========
 
-// EnableMultichannel 启用 SMB Multichannel
+// EnableMultichannel 启用 SMB Multichannel.
 func (m *Manager) EnableMultichannel(clientIP string) *EnableDisableResponse {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -920,7 +920,7 @@ func (m *Manager) EnableMultichannel(clientIP string) *EnableDisableResponse {
 	}
 }
 
-// DisableMultichannel 禁用 SMB Multichannel
+// DisableMultichannel 禁用 SMB Multichannel.
 func (m *Manager) DisableMultichannel(clientIP string) *EnableDisableResponse {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -947,7 +947,7 @@ func (m *Manager) DisableMultichannel(clientIP string) *EnableDisableResponse {
 	}
 }
 
-// SetLoadBalanceMode 设置负载均衡模式
+// SetLoadBalanceMode 设置负载均衡模式.
 func (m *Manager) SetLoadBalanceMode(mode string, clientIP string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -963,7 +963,7 @@ func (m *Manager) SetLoadBalanceMode(mode string, clientIP string) error {
 
 // ========== 审计日志 ==========
 
-// ListAuditEntries 获取审计日志
+// ListAuditEntries 获取审计日志.
 func (m *Manager) ListAuditEntries(limit int) []AuditEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -990,7 +990,7 @@ func (m *Manager) ListAuditEntries(limit int) []AuditEntry {
 
 // ========== 网络接口检测 ==========
 
-// DetectNetworkInterfaces 检测系统网络接口
+// DetectNetworkInterfaces 检测系统网络接口.
 func (m *Manager) DetectNetworkInterfaces() ([]NetworkInterface, error) {
 	interfaces, err := net.Interfaces()
 	if err != nil {
@@ -1030,14 +1030,14 @@ func (m *Manager) DetectNetworkInterfaces() ([]NetworkInterface, error) {
 
 // ========== 错误计数 ==========
 
-// IncrementErrorCount 增加错误计数
+// IncrementErrorCount 增加错误计数.
 func (m *Manager) IncrementErrorCount() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.stats.ErrorCount++
 }
 
-// IncrementReconnectCount 增加重连计数
+// IncrementReconnectCount 增加重连计数.
 func (m *Manager) IncrementReconnectCount() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1046,7 +1046,7 @@ func (m *Manager) IncrementReconnectCount() {
 
 // ========== 内部方法 ==========
 
-// addAuditEntry 添加审计日志条目
+// addAuditEntry 添加审计日志条目.
 func (m *Manager) addAuditEntry(user, clientIP, details string) {
 	m.auditLog = append(m.auditLog, AuditEntry{
 		Timestamp: time.Now(),
@@ -1061,7 +1061,7 @@ func (m *Manager) addAuditEntry(user, clientIP, details string) {
 	}
 }
 
-// updateManagerStats 更新管理器级统计
+// updateManagerStats 更新管理器级统计.
 func (m *Manager) updateManagerStats() {
 	m.managerStats.TotalSessions = len(m.sessions)
 	m.managerStats.ActiveSessions = 0

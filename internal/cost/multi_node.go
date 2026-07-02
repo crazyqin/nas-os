@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// NodeInfo 节点信息
+// NodeInfo 节点信息.
 type NodeInfo struct {
 	// 节点ID
 	ID string `json:"id"`
@@ -40,7 +40,7 @@ type NodeInfo struct {
 	Labels map[string]string `json:"labels"`
 }
 
-// NodeCostStats 节点成本统计
+// NodeCostStats 节点成本统计.
 type NodeCostStats struct {
 	// 节点信息
 	Node NodeInfo `json:"node"`
@@ -61,7 +61,7 @@ type NodeCostStats struct {
 	CollectedAt time.Time `json:"collected_at"`
 }
 
-// ResourceCostDetail 资源成本明细
+// ResourceCostDetail 资源成本明细.
 type ResourceCostDetail struct {
 	// 资源名称
 	Name string `json:"name"`
@@ -88,7 +88,7 @@ type ResourceCostDetail struct {
 	Suggestions []string `json:"suggestions"`
 }
 
-// CostBreakdown 成本构成
+// CostBreakdown 成本构成.
 type CostBreakdown struct {
 	StorageCost      float64 `json:"storage_cost"`
 	ElectricityCost  float64 `json:"electricity_cost"`
@@ -97,7 +97,7 @@ type CostBreakdown struct {
 	DepreciationCost float64 `json:"depreciation_cost"`
 }
 
-// NodeUsageStats 节点使用率统计
+// NodeUsageStats 节点使用率统计.
 type NodeUsageStats struct {
 	// CPU使用率（%）
 	CPUUsagePercent float64 `json:"cpu_usage_percent"`
@@ -118,7 +118,7 @@ type NodeUsageStats struct {
 	LatencyMs float64 `json:"latency_ms"`
 }
 
-// ClusterCostReport 集群成本报告
+// ClusterCostReport 集群成本报告.
 type ClusterCostReport struct {
 	// 报告ID
 	ID string `json:"id"`
@@ -151,7 +151,7 @@ type ClusterCostReport struct {
 	Forecast ClusterCostForecast `json:"forecast"`
 }
 
-// ClusterCostSummary 集群成本汇总
+// ClusterCostSummary 集群成本汇总.
 type ClusterCostSummary struct {
 	// 节点数量
 	TotalNodes int `json:"total_nodes"`
@@ -187,7 +187,7 @@ type ClusterCostSummary struct {
 	BudgetStatus BudgetStatus `json:"budget_status"`
 }
 
-// BudgetStatus 预算状态
+// BudgetStatus 预算状态.
 type BudgetStatus struct {
 	// 月度预算
 	MonthlyBudget float64 `json:"monthly_budget"`
@@ -205,7 +205,7 @@ type BudgetStatus struct {
 	Status string `json:"status"`
 }
 
-// ClusterOptimizationSuggestion 集群优化建议
+// ClusterOptimizationSuggestion 集群优化建议.
 type ClusterOptimizationSuggestion struct {
 	// 建议ID
 	ID string `json:"id"`
@@ -235,7 +235,7 @@ type ClusterOptimizationSuggestion struct {
 	ROIScore float64 `json:"roi_score"`
 }
 
-// ClusterCostTrend 集群成本趋势
+// ClusterCostTrend 集群成本趋势.
 type ClusterCostTrend struct {
 	// 趋势方向 (increasing/decreasing/stable)
 	Direction string `json:"direction"`
@@ -256,7 +256,7 @@ type ClusterCostTrend struct {
 	AvgCost float64 `json:"avg_cost"`
 }
 
-// ClusterCostForecast 集群成本预测
+// ClusterCostForecast 集群成本预测.
 type ClusterCostForecast struct {
 	// 下月预测
 	NextMonthCost float64 `json:"next_month_cost"`
@@ -282,7 +282,7 @@ type ClusterCostForecast struct {
 
 // ========== 多节点聚合服务 ==========
 
-// MultiNodeAggregator 多节点成本聚合器
+// MultiNodeAggregator 多节点成本聚合器.
 type MultiNodeAggregator struct {
 	mu        sync.RWMutex
 	nodes     map[string]*NodeCostStats
@@ -291,7 +291,7 @@ type MultiNodeAggregator struct {
 	dashboard *DashboardService
 }
 
-// MultiNodeConfig 多节点配置
+// MultiNodeConfig 多节点配置.
 type MultiNodeConfig struct {
 	// 数据保留天数
 	RetentionDays int `json:"retention_days"`
@@ -318,7 +318,7 @@ type MultiNodeConfig struct {
 	CriticalThreshold float64 `json:"critical_threshold"`
 }
 
-// DefaultMultiNodeConfig 默认配置
+// DefaultMultiNodeConfig 默认配置.
 func DefaultMultiNodeConfig() MultiNodeConfig {
 	return MultiNodeConfig{
 		RetentionDays:       90,
@@ -332,7 +332,7 @@ func DefaultMultiNodeConfig() MultiNodeConfig {
 	}
 }
 
-// NewMultiNodeAggregator 创建多节点聚合器
+// NewMultiNodeAggregator 创建多节点聚合器.
 func NewMultiNodeAggregator(config MultiNodeConfig, dashboard *DashboardService) *MultiNodeAggregator {
 	return &MultiNodeAggregator{
 		nodes:     make(map[string]*NodeCostStats),
@@ -342,7 +342,7 @@ func NewMultiNodeAggregator(config MultiNodeConfig, dashboard *DashboardService)
 	}
 }
 
-// RegisterNode 注册节点
+// RegisterNode 注册节点.
 func (a *MultiNodeAggregator) RegisterNode(node NodeInfo) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -362,7 +362,7 @@ func (a *MultiNodeAggregator) RegisterNode(node NodeInfo) {
 	}
 }
 
-// UnregisterNode 注销节点
+// UnregisterNode 注销节点.
 func (a *MultiNodeAggregator) UnregisterNode(nodeID string) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -371,7 +371,7 @@ func (a *MultiNodeAggregator) UnregisterNode(nodeID string) {
 	delete(a.history, nodeID)
 }
 
-// UpdateNodeStats 更新节点统计
+// UpdateNodeStats 更新节点统计.
 func (a *MultiNodeAggregator) UpdateNodeStats(nodeID string, summary CostSummary, resources []ResourceCostDetail, usage NodeUsageStats) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -412,7 +412,7 @@ func (a *MultiNodeAggregator) UpdateNodeStats(nodeID string, summary CostSummary
 	return nil
 }
 
-// GetNodeStats 获取节点统计
+// GetNodeStats 获取节点统计.
 func (a *MultiNodeAggregator) GetNodeStats(nodeID string) (*NodeCostStats, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -427,7 +427,7 @@ func (a *MultiNodeAggregator) GetNodeStats(nodeID string) (*NodeCostStats, error
 	return &copy, nil
 }
 
-// GetAllNodes 获取所有节点
+// GetAllNodes 获取所有节点.
 func (a *MultiNodeAggregator) GetAllNodes() []NodeInfo {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -439,7 +439,7 @@ func (a *MultiNodeAggregator) GetAllNodes() []NodeInfo {
 	return nodes
 }
 
-// GenerateClusterReport 生成集群成本报告
+// GenerateClusterReport 生成集群成本报告.
 func (a *MultiNodeAggregator) GenerateClusterReport(ctx context.Context, timeRange TimeRange) (*ClusterCostReport, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -496,9 +496,7 @@ func (a *MultiNodeAggregator) GenerateClusterReport(ctx context.Context, timeRan
 		report.NodeDetails = append(report.NodeDetails, *stats)
 
 		// 收集历史趋势
-		for _, point := range a.history[nodeID] {
-			report.CostTrend.DataPoints = append(report.CostTrend.DataPoints, point)
-		}
+		report.CostTrend.DataPoints = append(report.CostTrend.DataPoints, a.history[nodeID]...)
 	}
 
 	// 填充汇总信息
@@ -545,7 +543,7 @@ func (a *MultiNodeAggregator) GenerateClusterReport(ctx context.Context, timeRan
 	return report, nil
 }
 
-// GetClusterSummary 获取集群汇总（快速查询）
+// GetClusterSummary 获取集群汇总（快速查询）.
 func (a *MultiNodeAggregator) GetClusterSummary() ClusterCostSummary {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -595,7 +593,7 @@ func (a *MultiNodeAggregator) GetClusterSummary() ClusterCostSummary {
 	}
 }
 
-// GetNodesByRegion 按区域获取节点
+// GetNodesByRegion 按区域获取节点.
 func (a *MultiNodeAggregator) GetNodesByRegion(region string) []NodeCostStats {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -609,7 +607,7 @@ func (a *MultiNodeAggregator) GetNodesByRegion(region string) []NodeCostStats {
 	return result
 }
 
-// GetTopCostNodes 获取成本最高的节点
+// GetTopCostNodes 获取成本最高的节点.
 func (a *MultiNodeAggregator) GetTopCostNodes(limit int) []NodeCostStats {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -637,7 +635,7 @@ func (a *MultiNodeAggregator) GetTopCostNodes(limit int) []NodeCostStats {
 
 // ========== 私有方法 ==========
 
-// cleanupHistory 清理历史数据
+// cleanupHistory 清理历史数据.
 func (a *MultiNodeAggregator) cleanupHistory(nodeID string) {
 	history := a.history[nodeID]
 	if len(history) == 0 {
@@ -656,7 +654,7 @@ func (a *MultiNodeAggregator) cleanupHistory(nodeID string) {
 	a.history[nodeID] = validHistory
 }
 
-// calculateClusterEfficiency 计算集群效率评分
+// calculateClusterEfficiency 计算集群效率评分.
 func (a *MultiNodeAggregator) calculateClusterEfficiency(report *ClusterCostReport) float64 {
 	score := 100.0
 
@@ -693,7 +691,7 @@ func (a *MultiNodeAggregator) calculateClusterEfficiency(report *ClusterCostRepo
 	return round(score, 1)
 }
 
-// calculatePotentialSavings 计算潜在节省
+// calculatePotentialSavings 计算潜在节省.
 func (a *MultiNodeAggregator) calculatePotentialSavings(report *ClusterCostReport) float64 {
 	var savings float64
 
@@ -714,7 +712,7 @@ func (a *MultiNodeAggregator) calculatePotentialSavings(report *ClusterCostRepor
 	return round(savings, 2)
 }
 
-// getBudgetStatus 获取预算状态
+// getBudgetStatus 获取预算状态.
 func (a *MultiNodeAggregator) getBudgetStatus(used float64) string {
 	usage := used / a.config.MonthlyBudget * 100
 	if usage >= a.config.CriticalThreshold {
@@ -726,7 +724,7 @@ func (a *MultiNodeAggregator) getBudgetStatus(used float64) string {
 	return "normal"
 }
 
-// analyzeClusterTrend 分析集群趋势
+// analyzeClusterTrend 分析集群趋势.
 func (a *MultiNodeAggregator) analyzeClusterTrend(dataPoints []TrendData) ClusterCostTrend {
 	trend := ClusterCostTrend{
 		DataPoints: dataPoints,
@@ -774,7 +772,7 @@ func (a *MultiNodeAggregator) analyzeClusterTrend(dataPoints []TrendData) Cluste
 	return trend
 }
 
-// generateClusterForecast 生成集群预测
+// generateClusterForecast 生成集群预测.
 func (a *MultiNodeAggregator) generateClusterForecast(dataPoints []TrendData, summary ClusterCostSummary) ClusterCostForecast {
 	forecast := ClusterCostForecast{
 		Model: "linear_regression",
@@ -829,7 +827,7 @@ func (a *MultiNodeAggregator) generateClusterForecast(dataPoints []TrendData, su
 	return forecast
 }
 
-// generateForecastPoints 生成预测数据点
+// generateForecastPoints 生成预测数据点.
 func (a *MultiNodeAggregator) generateForecastPoints(dataPoints []TrendData, growthRate float64) []TrendData {
 	if len(dataPoints) == 0 {
 		return nil
@@ -860,7 +858,7 @@ func (a *MultiNodeAggregator) generateForecastPoints(dataPoints []TrendData, gro
 	return forecast
 }
 
-// generateRiskAlerts 生成风险提示
+// generateRiskAlerts 生成风险提示.
 func (a *MultiNodeAggregator) generateRiskAlerts(forecast ClusterCostForecast, summary ClusterCostSummary) []string {
 	alerts := make([]string, 0)
 
@@ -883,7 +881,7 @@ func (a *MultiNodeAggregator) generateRiskAlerts(forecast ClusterCostForecast, s
 	return alerts
 }
 
-// generateOptimizationSuggestions 生成优化建议
+// generateOptimizationSuggestions 生成优化建议.
 func (a *MultiNodeAggregator) generateOptimizationSuggestions(report *ClusterCostReport) []ClusterOptimizationSuggestion {
 	suggestions := make([]ClusterOptimizationSuggestion, 0)
 	idCounter := 1
@@ -960,7 +958,7 @@ func (a *MultiNodeAggregator) generateOptimizationSuggestions(report *ClusterCos
 
 // ========== 跨节点资源统计功能 ==========
 
-// CrossNodeResourceStats 跨节点资源统计
+// CrossNodeResourceStats 跨节点资源统计.
 type CrossNodeResourceStats struct {
 	// 统计ID
 	ID string `json:"id"`
@@ -999,7 +997,7 @@ type CrossNodeResourceStats struct {
 	Recommendations []string `json:"recommendations"`
 }
 
-// ResourceDistribution 资源分布
+// ResourceDistribution 资源分布.
 type ResourceDistribution struct {
 	// 资源类型
 	Type string `json:"type"`
@@ -1020,7 +1018,7 @@ type ResourceDistribution struct {
 	Suggestions []string `json:"suggestions"`
 }
 
-// ResourceHealthStats 资源健康度统计
+// ResourceHealthStats 资源健康度统计.
 type ResourceHealthStats struct {
 	// 健康资源数
 	HealthyCount int `json:"healthy_count"`
@@ -1044,7 +1042,7 @@ type ResourceHealthStats struct {
 	HealthByType map[string]TypeHealthStats `json:"health_by_type"`
 }
 
-// TypeHealthStats 类型健康统计
+// TypeHealthStats 类型健康统计.
 type TypeHealthStats struct {
 	// 总数
 	Total int `json:"total"`
@@ -1062,7 +1060,7 @@ type TypeHealthStats struct {
 	HealthRate float64 `json:"health_rate"`
 }
 
-// CrossNodeCapacityStats 跨节点容量统计
+// CrossNodeCapacityStats 跨节点容量统计.
 type CrossNodeCapacityStats struct {
 	// 总容量（字节）
 	TotalCapacityBytes uint64 `json:"total_capacity_bytes"`
@@ -1098,7 +1096,7 @@ type CrossNodeCapacityStats struct {
 	CapacityColdspots []CapacityColdspot `json:"capacity_coldspots"`
 }
 
-// UsageRange 使用率区间
+// UsageRange 使用率区间.
 type UsageRange struct {
 	// 区间名称
 	Name string `json:"name"`
@@ -1116,7 +1114,7 @@ type UsageRange struct {
 	CapacityPercent float64 `json:"capacity_percent"`
 }
 
-// CapacityHotspot 容量热点
+// CapacityHotspot 容量热点.
 type CapacityHotspot struct {
 	// 节点ID
 	NodeID string `json:"node_id"`
@@ -1143,7 +1141,7 @@ type CapacityHotspot struct {
 	Suggestion string `json:"suggestion"`
 }
 
-// CapacityColdspot 容量冷点
+// CapacityColdspot 容量冷点.
 type CapacityColdspot struct {
 	// 节点ID
 	NodeID string `json:"node_id"`
@@ -1167,7 +1165,7 @@ type CapacityColdspot struct {
 	Suggestion string `json:"suggestion"`
 }
 
-// CostDistributionStats 成本分布统计
+// CostDistributionStats 成本分布统计.
 type CostDistributionStats struct {
 	// 总成本（元/月）
 	TotalCostMonthly float64 `json:"total_cost_monthly"`
@@ -1203,7 +1201,7 @@ type CostDistributionStats struct {
 	CostVariance float64 `json:"cost_variance"`
 }
 
-// AbnormalResource 异常资源
+// AbnormalResource 异常资源.
 type AbnormalResource struct {
 	// 节点ID
 	NodeID string `json:"node_id"`
@@ -1233,7 +1231,7 @@ type AbnormalResource struct {
 	SuggestedAction string `json:"suggested_action"`
 }
 
-// GetCrossNodeResourceStats 获取跨节点资源统计
+// GetCrossNodeResourceStats 获取跨节点资源统计.
 func (a *MultiNodeAggregator) GetCrossNodeResourceStats() *CrossNodeResourceStats {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -1338,7 +1336,7 @@ func (a *MultiNodeAggregator) GetCrossNodeResourceStats() *CrossNodeResourceStat
 	return stats
 }
 
-// analyzeResourceDistribution 分析资源分布均衡度
+// analyzeResourceDistribution 分析资源分布均衡度.
 func (a *MultiNodeAggregator) analyzeResourceDistribution(allResources map[string][]ResourceCostDetail) []ResourceDistribution {
 	distributions := make([]ResourceDistribution, 0)
 
@@ -1386,7 +1384,7 @@ func (a *MultiNodeAggregator) analyzeResourceDistribution(allResources map[strin
 	return distributions
 }
 
-// calculateBalanceScore 计算均衡度评分
+// calculateBalanceScore 计算均衡度评分.
 func (a *MultiNodeAggregator) calculateBalanceScore(distribution map[string]int, totalNodes int) (float64, bool) {
 	if len(distribution) == 0 || totalNodes == 0 {
 		return 0, false
@@ -1427,7 +1425,7 @@ func (a *MultiNodeAggregator) calculateBalanceScore(distribution map[string]int,
 	return round(score, 1), isBalanced
 }
 
-// analyzeResourceHealth 分析资源健康度
+// analyzeResourceHealth 分析资源健康度.
 func (a *MultiNodeAggregator) analyzeResourceHealth(allResources map[string][]ResourceCostDetail) ResourceHealthStats {
 	stats := ResourceHealthStats{
 		HealthByType: make(map[string]TypeHealthStats),
@@ -1466,11 +1464,12 @@ func (a *MultiNodeAggregator) analyzeResourceHealth(allResources map[string][]Re
 			// 按类型统计
 			typeStats := stats.HealthByType[res.Type]
 			typeStats.Total++
-			if healthStatus == "healthy" {
+			switch healthStatus {
+			case "healthy":
 				typeStats.Healthy++
-			} else if healthStatus == "warning" {
+			case "warning":
 				typeStats.Warning++
-			} else if healthStatus == "critical" {
+			case "critical":
 				typeStats.Critical++
 			}
 			if typeStats.Total > 0 {
@@ -1490,7 +1489,7 @@ func (a *MultiNodeAggregator) analyzeResourceHealth(allResources map[string][]Re
 	return stats
 }
 
-// analyzeCapacityUsage 分析容量使用情况
+// analyzeCapacityUsage 分析容量使用情况.
 func (a *MultiNodeAggregator) analyzeCapacityUsage(allResources map[string][]ResourceCostDetail, capacityStats CrossNodeCapacityStats) CrossNodeCapacityStats {
 	maxUsage := 0.0
 	minUsage := 100.0
@@ -1599,7 +1598,7 @@ func (a *MultiNodeAggregator) analyzeCapacityUsage(allResources map[string][]Res
 	return capacityStats
 }
 
-// analyzeCostDistribution 分析成本分布
+// analyzeCostDistribution 分析成本分布.
 func (a *MultiNodeAggregator) analyzeCostDistribution(costStats CostDistributionStats) CostDistributionStats {
 	if len(costStats.CostByNode) == 0 {
 		return costStats
@@ -1646,7 +1645,7 @@ func (a *MultiNodeAggregator) analyzeCostDistribution(costStats CostDistribution
 	return costStats
 }
 
-// identifyAbnormalResources 识别异常资源
+// identifyAbnormalResources 识别异常资源.
 func (a *MultiNodeAggregator) identifyAbnormalResources(allResources map[string][]ResourceCostDetail) []AbnormalResource {
 	abnormal := make([]AbnormalResource, 0)
 	now := time.Now()
@@ -1732,7 +1731,7 @@ func (a *MultiNodeAggregator) identifyAbnormalResources(allResources map[string]
 	return abnormal
 }
 
-// generateCrossNodeRecommendations 生成跨节点建议
+// generateCrossNodeRecommendations 生成跨节点建议.
 func (a *MultiNodeAggregator) generateCrossNodeRecommendations(stats *CrossNodeResourceStats) []string {
 	recommendations := make([]string, 0)
 

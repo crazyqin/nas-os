@@ -10,7 +10,7 @@ import (
 // 温度监控类型
 // ============================================================
 
-// TemperatureReading 单次温度读数
+// TemperatureReading 单次温度读数.
 type TemperatureReading struct {
 	Device       string    `json:"device"`        // 设备路径 e.g. /dev/nvme0n1
 	SubsystemNQN string    `json:"subsystem_nqn"` // 所属子系统
@@ -18,7 +18,7 @@ type TemperatureReading struct {
 	Timestamp    time.Time `json:"timestamp"`
 }
 
-// TemperatureConfig 温度监控配置
+// TemperatureConfig 温度监控配置.
 type TemperatureConfig struct {
 	Enabled           bool    `json:"enabled"`
 	IntervalSec       int     `json:"interval_sec"`       // 采集间隔 (秒), 默认 60
@@ -27,7 +27,7 @@ type TemperatureConfig struct {
 	MaxHistoryLen     int     `json:"max_history_len"`    // 最大历史记录数, 默认 1440 (24h)
 }
 
-// DefaultTemperatureConfig 默认温度监控配置
+// DefaultTemperatureConfig 默认温度监控配置.
 func DefaultTemperatureConfig() TemperatureConfig {
 	return TemperatureConfig{
 		Enabled:           true,
@@ -38,7 +38,7 @@ func DefaultTemperatureConfig() TemperatureConfig {
 	}
 }
 
-// TemperatureAlert 温度告警
+// TemperatureAlert 温度告警.
 type TemperatureAlert struct {
 	Device       string    `json:"device"`
 	SubsystemNQN string    `json:"subsystem_nqn"`
@@ -48,7 +48,7 @@ type TemperatureAlert struct {
 	Timestamp    time.Time `json:"timestamp"`
 }
 
-// DeviceTemperatureStatus 设备温度状态汇总
+// DeviceTemperatureStatus 设备温度状态汇总.
 type DeviceTemperatureStatus struct {
 	Device       string               `json:"device"`
 	SubsystemNQN string               `json:"subsystem_nqn"`
@@ -67,7 +67,7 @@ type DeviceTemperatureStatus struct {
 // 寿命预测类型
 // ============================================================
 
-// LifePredictionConfig 寿命预测配置
+// LifePredictionConfig 寿命预测配置.
 type LifePredictionConfig struct {
 	Enabled               bool    `json:"enabled"`
 	TempDegradationRate   float64 `json:"temp_degradation_rate"`   // 每超过阈值1°C的寿命缩减率, 默认 0.02
@@ -75,7 +75,7 @@ type LifePredictionConfig struct {
 	MaxWriteAmplification float64 `json:"max_write_amplification"` // 最大写放大因子, 默认 3.0
 }
 
-// DefaultLifePredictionConfig 默认寿命预测配置
+// DefaultLifePredictionConfig 默认寿命预测配置.
 func DefaultLifePredictionConfig() LifePredictionConfig {
 	return LifePredictionConfig{
 		Enabled:               true,
@@ -85,7 +85,7 @@ func DefaultLifePredictionConfig() LifePredictionConfig {
 	}
 }
 
-// DeviceLifePrediction 设备寿命预测结果
+// DeviceLifePrediction 设备寿命预测结果.
 type DeviceLifePrediction struct {
 	Device       string `json:"device"`
 	SubsystemNQN string `json:"subsystem_nqn"`
@@ -119,7 +119,7 @@ type DeviceLifePrediction struct {
 	PredictedAt time.Time `json:"predicted_at"`
 }
 
-// WritePattern 写入模式分析
+// WritePattern 写入模式分析.
 type WritePattern struct {
 	Device             string    `json:"device"`
 	SubsystemNQN       string    `json:"subsystem_nqn"`
@@ -137,7 +137,7 @@ type WritePattern struct {
 // 性能基准测试类型
 // ============================================================
 
-// BenchmarkConfig 基准测试配置
+// BenchmarkConfig 基准测试配置.
 type BenchmarkConfig struct {
 	DevicePath   string   `json:"device_path"`
 	SubsystemNQN string   `json:"subsystem_nqn"`
@@ -148,7 +148,7 @@ type BenchmarkConfig struct {
 	TestTypes    []string `json:"test_types"`    // "seq_read", "seq_write", "rand_read", "rand_write"
 }
 
-// DefaultBenchmarkConfig 默认基准测试配置
+// DefaultBenchmarkConfig 默认基准测试配置.
 func DefaultBenchmarkConfig(devicePath, subsystemNQN string) BenchmarkConfig {
 	return BenchmarkConfig{
 		DevicePath:   devicePath,
@@ -161,7 +161,7 @@ func DefaultBenchmarkConfig(devicePath, subsystemNQN string) BenchmarkConfig {
 	}
 }
 
-// BenchmarkResult 基准测试结果
+// BenchmarkResult 基准测试结果.
 type BenchmarkResult struct {
 	ID          string            `json:"id"`
 	Config      BenchmarkConfig   `json:"config"`
@@ -173,7 +173,7 @@ type BenchmarkResult struct {
 	Duration    time.Duration     `json:"duration"`
 }
 
-// BenchmarkMetrics 基准测试指标
+// BenchmarkMetrics 基准测试指标.
 type BenchmarkMetrics struct {
 	// 顺序读
 	SeqReadMBps float64 `json:"seq_read_mbps"`

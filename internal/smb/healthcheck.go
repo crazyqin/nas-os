@@ -12,27 +12,27 @@ import (
 	"time"
 )
 
-// HealthCheckConfig 健康检查配置
+// HealthCheckConfig 健康检查配置.
 type HealthCheckConfig struct {
-	Enabled            bool     `json:"enabled"`
-	CheckIntervalMs    int      `json:"check_interval_ms"`     // 检查间隔(毫秒)
-	TimeoutMs          int      `json:"timeout_ms"`            // 检查超时(毫秒)
-	HealthyThreshold   int      `json:"healthy_threshold"`     // 健康阈值
-	UnhealthyThreshold int      `json:"unhealthy_threshold"`   // 不健康阈值
-	RetryIntervalMs    int      `json:"retry_interval_ms"`     // 重试间隔(毫秒)
-	EnableHTTPCheck    bool     `json:"enable_http_check"`     // 启用HTTP健康检查
-	HTTPEndpoint       string   `json:"http_endpoint"`         // HTTP健康检查端点
-	HTTPPort           int      `json:"http_port"`             // HTTP端口
-	EnableTCPCheck     bool     `json:"enable_tcp_check"`      // 启用TCP连接检查
-	TCPPorts           []int    `json:"tcp_ports"`             // TCP检查端口
-	EnableCustomChecks bool     `json:"enable_custom_checks"`  // 启用自定义检查
-	SMBServiceCheck    bool     `json:"smb_service_check"`     // SMB服务检查
-	DiskSpaceCheck     bool     `json:"disk_space_check"`      // 磁盘空间检查
-	MemoryCheck        bool     `json:"memory_check"`          // 内存检查
-	CPULoadCheck       bool     `json:"cpu_load_check"`        // CPU负载检查
+	Enabled            bool   `json:"enabled"`
+	CheckIntervalMs    int    `json:"check_interval_ms"`    // 检查间隔(毫秒)
+	TimeoutMs          int    `json:"timeout_ms"`           // 检查超时(毫秒)
+	HealthyThreshold   int    `json:"healthy_threshold"`    // 健康阈值
+	UnhealthyThreshold int    `json:"unhealthy_threshold"`  // 不健康阈值
+	RetryIntervalMs    int    `json:"retry_interval_ms"`    // 重试间隔(毫秒)
+	EnableHTTPCheck    bool   `json:"enable_http_check"`    // 启用HTTP健康检查
+	HTTPEndpoint       string `json:"http_endpoint"`        // HTTP健康检查端点
+	HTTPPort           int    `json:"http_port"`            // HTTP端口
+	EnableTCPCheck     bool   `json:"enable_tcp_check"`     // 启用TCP连接检查
+	TCPPorts           []int  `json:"tcp_ports"`            // TCP检查端口
+	EnableCustomChecks bool   `json:"enable_custom_checks"` // 启用自定义检查
+	SMBServiceCheck    bool   `json:"smb_service_check"`    // SMB服务检查
+	DiskSpaceCheck     bool   `json:"disk_space_check"`     // 磁盘空间检查
+	MemoryCheck        bool   `json:"memory_check"`         // 内存检查
+	CPULoadCheck       bool   `json:"cpu_load_check"`       // CPU负载检查
 }
 
-// DefaultHealthCheckConfig 返回默认健康检查配置
+// DefaultHealthCheckConfig 返回默认健康检查配置.
 func DefaultHealthCheckConfig() *HealthCheckConfig {
 	return &HealthCheckConfig{
 		Enabled:            true,
@@ -54,7 +54,7 @@ func DefaultHealthCheckConfig() *HealthCheckConfig {
 	}
 }
 
-// NodeHealthStatus 节点健康状态
+// NodeHealthStatus 节点健康状态.
 type NodeHealthStatus struct {
 	mu              sync.RWMutex
 	NodeID          string        `json:"node_id"`
@@ -73,7 +73,7 @@ type NodeHealthStatus struct {
 	TotalFailures   int64         `json:"total_failures"`
 }
 
-// HealthCheckResult 健康检查结果
+// HealthCheckResult 健康检查结果.
 type HealthCheckResult struct {
 	mu        sync.RWMutex
 	NodeID    string        `json:"node_id"`
@@ -84,7 +84,7 @@ type HealthCheckResult struct {
 	Checks    []CheckDetail `json:"checks"`
 }
 
-// CheckDetail 单项检查详情
+// CheckDetail 单项检查详情.
 type CheckDetail struct {
 	Name    string        `json:"name"`
 	Healthy bool          `json:"healthy"`
@@ -93,10 +93,10 @@ type CheckDetail struct {
 	Error   error         `json:"error,omitempty"`
 }
 
-// HealthCheckFunc 自定义健康检查函数
+// HealthCheckFunc 自定义健康检查函数.
 type HealthCheckFunc func(ctx context.Context, node *NodeHealthStatus) CheckDetail
 
-// HealthCheckResponse HTTP健康检查响应
+// HealthCheckResponse HTTP健康检查响应.
 type HealthCheckResponse struct {
 	Status    string                 `json:"status"`
 	Timestamp time.Time              `json:"timestamp"`
@@ -106,7 +106,7 @@ type HealthCheckResponse struct {
 	Metrics   map[string]interface{} `json:"metrics,omitempty"`
 }
 
-// ClusterHealth 集群健康状态
+// ClusterHealth 集群健康状态.
 type ClusterHealth struct {
 	TotalNodes     int  `json:"total_nodes"`
 	HealthyNodes   int  `json:"healthy_nodes"`
@@ -114,7 +114,7 @@ type ClusterHealth struct {
 	ClusterHealthy bool `json:"cluster_healthy"`
 }
 
-// HealthStats 健康检查统计
+// HealthStats 健康检查统计.
 type HealthStats struct {
 	TotalChecks      int64         `json:"total_checks"`
 	TotalFailures    int64         `json:"total_failures"`
@@ -122,7 +122,7 @@ type HealthStats struct {
 	RegisteredChecks int           `json:"registered_checks"`
 }
 
-// HealthChecker 健康检查器
+// HealthChecker 健康检查器.
 type HealthChecker struct {
 	mu             sync.RWMutex
 	config         *HealthCheckConfig
@@ -136,7 +136,7 @@ type HealthChecker struct {
 	startTime      time.Time
 }
 
-// NewHealthChecker 创建健康检查器
+// NewHealthChecker 创建健康检查器.
 func NewHealthChecker(config *HealthCheckConfig) *HealthChecker {
 	if config == nil {
 		config = DefaultHealthCheckConfig()
@@ -151,14 +151,14 @@ func NewHealthChecker(config *HealthCheckConfig) *HealthChecker {
 	}
 }
 
-// SetLocalNode 设置本地节点ID
+// SetLocalNode 设置本地节点ID.
 func (hc *HealthChecker) SetLocalNode(nodeID string) {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
 	hc.localNodeID = nodeID
 }
 
-// AddNode 添加节点进行健康检查
+// AddNode 添加节点进行健康检查.
 func (hc *HealthChecker) AddNode(nodeID, hostname, address string, port int) {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -176,7 +176,7 @@ func (hc *HealthChecker) AddNode(nodeID, hostname, address string, port int) {
 	logInfo("健康检查节点已添加", "node_id", nodeID, "address", fmt.Sprintf("%s:%d", address, port))
 }
 
-// RemoveNode 移除节点
+// RemoveNode 移除节点.
 func (hc *HealthChecker) RemoveNode(nodeID string) {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -185,7 +185,7 @@ func (hc *HealthChecker) RemoveNode(nodeID string) {
 	logInfo("健康检查节点已移除", "node_id", nodeID)
 }
 
-// RegisterCheck 注册自定义健康检查
+// RegisterCheck 注册自定义健康检查.
 func (hc *HealthChecker) RegisterCheck(name string, checkFunc HealthCheckFunc) {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -193,14 +193,14 @@ func (hc *HealthChecker) RegisterCheck(name string, checkFunc HealthCheckFunc) {
 	logInfo("自定义健康检查已注册", "name", name)
 }
 
-// SetHealthChangeCallback 设置健康状态变化回调
+// SetHealthChangeCallback 设置健康状态变化回调.
 func (hc *HealthChecker) SetHealthChangeCallback(fn func(nodeID string, healthy bool)) {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
 	hc.onHealthChange = fn
 }
 
-// Start 启动健康检查器
+// Start 启动健康检查器.
 func (hc *HealthChecker) Start() error {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -218,7 +218,7 @@ func (hc *HealthChecker) Start() error {
 	return nil
 }
 
-// Stop 停止健康检查器
+// Stop 停止健康检查器.
 func (hc *HealthChecker) Stop() {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -232,7 +232,7 @@ func (hc *HealthChecker) Stop() {
 	logInfo("健康检查器已停止")
 }
 
-// checkLoop 周期性健康检查循环
+// checkLoop 周期性健康检查循环.
 func (hc *HealthChecker) checkLoop() {
 	interval := time.Duration(hc.config.CheckIntervalMs) * time.Millisecond
 	ticker := time.NewTicker(interval)
@@ -248,7 +248,7 @@ func (hc *HealthChecker) checkLoop() {
 	}
 }
 
-// checkAllNodes 检查所有节点健康状态
+// checkAllNodes 检查所有节点健康状态.
 func (hc *HealthChecker) checkAllNodes() {
 	hc.mu.RLock()
 	nodes := make([]*NodeHealthStatus, 0, len(hc.nodes))
@@ -265,7 +265,7 @@ func (hc *HealthChecker) checkAllNodes() {
 	}
 }
 
-// checkNode 对单个节点执行健康检查
+// checkNode 对单个节点执行健康检查.
 func (hc *HealthChecker) checkNode(node *NodeHealthStatus) *HealthCheckResult {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(hc.config.TimeoutMs)*time.Millisecond)
 	defer cancel()
@@ -363,7 +363,7 @@ func (hc *HealthChecker) checkNode(node *NodeHealthStatus) *HealthCheckResult {
 	return result
 }
 
-// checkTCP 检查TCP连接
+// checkTCP 检查TCP连接.
 func (hc *HealthChecker) checkTCP(ctx context.Context, address string, port int) CheckDetail {
 	startTime := time.Now()
 	addr := fmt.Sprintf("%s:%d", address, port)
@@ -402,7 +402,7 @@ func (hc *HealthChecker) checkTCP(ctx context.Context, address string, port int)
 	return detail
 }
 
-// checkHTTP 检查HTTP健康端点
+// checkHTTP 检查HTTP健康端点.
 func (hc *HealthChecker) checkHTTP(ctx context.Context, address string, port int) CheckDetail {
 	startTime := time.Now()
 	url := fmt.Sprintf("http://%s:%d%s", address, port, hc.config.HTTPEndpoint)
@@ -445,7 +445,7 @@ func (hc *HealthChecker) checkHTTP(ctx context.Context, address string, port int
 	return detail
 }
 
-// checkSMBService 检查SMB服务状态
+// checkSMBService 检查SMB服务状态.
 func (hc *HealthChecker) checkSMBService(ctx context.Context) CheckDetail {
 	startTime := time.Now()
 
@@ -469,7 +469,7 @@ func (hc *HealthChecker) checkSMBService(ctx context.Context) CheckDetail {
 	return detail
 }
 
-// checkDiskSpace 检查磁盘空间
+// checkDiskSpace 检查磁盘空间.
 func (hc *HealthChecker) checkDiskSpace(ctx context.Context) CheckDetail {
 	startTime := time.Now()
 
@@ -492,7 +492,7 @@ func (hc *HealthChecker) checkDiskSpace(ctx context.Context) CheckDetail {
 	return detail
 }
 
-// checkMemory 检查内存状态
+// checkMemory 检查内存状态.
 func (hc *HealthChecker) checkMemory(ctx context.Context) CheckDetail {
 	startTime := time.Now()
 
@@ -515,7 +515,7 @@ func (hc *HealthChecker) checkMemory(ctx context.Context) CheckDetail {
 	return detail
 }
 
-// processResult 处理健康检查结果
+// processResult 处理健康检查结果.
 func (hc *HealthChecker) processResult(node *NodeHealthStatus, result *HealthCheckResult) {
 	hc.mu.Lock()
 	node.mu.Lock()
@@ -558,7 +558,7 @@ func (hc *HealthChecker) processResult(node *NodeHealthStatus, result *HealthChe
 	}
 }
 
-// notifyHealthChange 通知健康状态变化
+// notifyHealthChange 通知健康状态变化.
 func (hc *HealthChecker) notifyHealthChange(nodeID string, healthy bool) {
 	hc.mu.RLock()
 	callback := hc.onHealthChange
@@ -569,7 +569,7 @@ func (hc *HealthChecker) notifyHealthChange(nodeID string, healthy bool) {
 	}
 }
 
-// IsNodeHealthy 检查节点是否健康
+// IsNodeHealthy 检查节点是否健康.
 func (hc *HealthChecker) IsNodeHealthy(nodeID string) bool {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
@@ -584,7 +584,7 @@ func (hc *HealthChecker) IsNodeHealthy(nodeID string) bool {
 	return node.Healthy
 }
 
-// GetNodeHealth 返回节点详细健康状态
+// GetNodeHealth 返回节点详细健康状态.
 func (hc *HealthChecker) GetNodeHealth(nodeID string) (*NodeHealthStatus, bool) {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
@@ -615,7 +615,7 @@ func (hc *HealthChecker) GetNodeHealth(nodeID string) (*NodeHealthStatus, bool) 
 	return copy, true
 }
 
-// GetNodeResult 返回节点最新健康检查结果
+// GetNodeResult 返回节点最新健康检查结果.
 func (hc *HealthChecker) GetNodeResult(nodeID string) (*HealthCheckResult, bool) {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
@@ -640,7 +640,7 @@ func (hc *HealthChecker) GetNodeResult(nodeID string) (*HealthCheckResult, bool)
 	return resultCopy, true
 }
 
-// GetAllNodeHealth 返回所有节点健康状态
+// GetAllNodeHealth 返回所有节点健康状态.
 func (hc *HealthChecker) GetAllNodeHealth() map[string]*NodeHealthStatus {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
@@ -670,7 +670,7 @@ func (hc *HealthChecker) GetAllNodeHealth() map[string]*NodeHealthStatus {
 	return result
 }
 
-// GetHealthyNodes 返回健康节点ID列表
+// GetHealthyNodes 返回健康节点ID列表.
 func (hc *HealthChecker) GetHealthyNodes() []string {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
@@ -686,7 +686,7 @@ func (hc *HealthChecker) GetHealthyNodes() []string {
 	return healthy
 }
 
-// GetUnhealthyNodes 返回不健康节点ID列表
+// GetUnhealthyNodes 返回不健康节点ID列表.
 func (hc *HealthChecker) GetUnhealthyNodes() []string {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
@@ -702,7 +702,7 @@ func (hc *HealthChecker) GetUnhealthyNodes() []string {
 	return unhealthy
 }
 
-// GetClusterHealth 返回集群整体健康状态
+// GetClusterHealth 返回集群整体健康状态.
 func (hc *HealthChecker) GetClusterHealth() *ClusterHealth {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
@@ -729,7 +729,7 @@ func (hc *HealthChecker) GetClusterHealth() *ClusterHealth {
 	}
 }
 
-// GetHealthStats 返回健康检查统计信息
+// GetHealthStats 返回健康检查统计信息.
 func (hc *HealthChecker) GetHealthStats() *HealthStats {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
@@ -760,7 +760,7 @@ func (hc *HealthChecker) GetHealthStats() *HealthStats {
 	}
 }
 
-// PerformImmediateCheck 立即执行健康检查
+// PerformImmediateCheck 立即执行健康检查.
 func (hc *HealthChecker) PerformImmediateCheck(ctx context.Context, nodeID string) (*HealthCheckResult, error) {
 	hc.mu.RLock()
 	node, ok := hc.nodes[nodeID]
@@ -776,7 +776,7 @@ func (hc *HealthChecker) PerformImmediateCheck(ctx context.Context, nodeID strin
 	return result, nil
 }
 
-// checkDiskSpaceScore 检查磁盘空间健康分数 (0-100)
+// checkDiskSpaceScore 检查磁盘空间健康分数 (0-100).
 func checkDiskSpaceScore() int {
 	cmd := exec.CommandContext(context.Background(), "df", "-B1", "/")
 	out, err := cmd.Output()
@@ -811,7 +811,7 @@ func checkDiskSpaceScore() int {
 	return 100
 }
 
-// checkMemoryPressureScore 检查内存压力健康分数 (0-100)
+// checkMemoryPressureScore 检查内存压力健康分数 (0-100).
 func checkMemoryPressureScore() int {
 	data, err := os.ReadFile("/proc/meminfo")
 	if err != nil {
@@ -852,7 +852,7 @@ func checkMemoryPressureScore() int {
 	return 100
 }
 
-// HealthCheckHandler 返回健康检查HTTP处理器
+// HealthCheckHandler 返回健康检查HTTP处理器.
 func (hc *HealthChecker) HealthCheckHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		health := hc.GetClusterHealth()
@@ -871,14 +871,14 @@ func (hc *HealthChecker) HealthCheckHandler() http.HandlerFunc {
 	}
 }
 
-// IsRunning 检查健康检查器是否在运行
+// IsRunning 检查健康检查器是否在运行.
 func (hc *HealthChecker) IsRunning() bool {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
 	return hc.running
 }
 
-// GetUptime 返回运行时间
+// GetUptime 返回运行时间.
 func (hc *HealthChecker) GetUptime() time.Duration {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// NodeStatus 节点状态
+// NodeStatus 节点状态.
 type NodeStatus string
 
 const (
@@ -18,7 +18,7 @@ const (
 	NodeAggregating NodeStatus = "aggregating"
 )
 
-// ModelType 模型类型
+// ModelType 模型类型.
 type ModelType string
 
 const (
@@ -28,7 +28,7 @@ const (
 	ModelAnomaly        ModelType = "anomaly_detection"
 )
 
-// AggregationStrategy 聚合策略
+// AggregationStrategy 聚合策略.
 type AggregationStrategy string
 
 const (
@@ -37,7 +37,7 @@ const (
 	StrategyFedNova AggregationStrategy = "fednova" // 新星联邦
 )
 
-// FederatedNode 联邦学习节点
+// FederatedNode 联邦学习节点.
 type FederatedNode struct {
 	ID           string     `json:"id"`
 	Name         string     `json:"name"`
@@ -50,7 +50,7 @@ type FederatedNode struct {
 	Tags         []string   `json:"tags"`
 }
 
-// GlobalModel 全局模型
+// GlobalModel 全局模型.
 type GlobalModel struct {
 	ID        string              `json:"id"`
 	Name      string              `json:"name"`
@@ -63,7 +63,7 @@ type GlobalModel struct {
 	UpdatedAt time.Time           `json:"updated_at"`
 }
 
-// LocalModel 本地模型
+// LocalModel 本地模型.
 type LocalModel struct {
 	ID        string        `json:"id"`
 	NodeID    string        `json:"node_id"`
@@ -76,7 +76,7 @@ type LocalModel struct {
 	CreatedAt time.Time     `json:"created_at"`
 }
 
-// ModelMetrics 模型指标
+// ModelMetrics 模型指标.
 type ModelMetrics struct {
 	Loss      float64 `json:"loss"`
 	Accuracy  float64 `json:"accuracy"`
@@ -87,7 +87,7 @@ type ModelMetrics struct {
 	R2        float64 `json:"r2,omitempty"`
 }
 
-// TrainingTask 训练任务
+// TrainingTask 训练任务.
 type TrainingTask struct {
 	ID           string    `json:"id"`
 	GlobalID     string    `json:"global_id"`
@@ -101,7 +101,7 @@ type TrainingTask struct {
 	Error        string    `json:"error,omitempty"`
 }
 
-// TrainingRound 训练轮次
+// TrainingRound 训练轮次.
 type TrainingRound struct {
 	ID                 string        `json:"id"`
 	GlobalID           string        `json:"global_id"`
@@ -114,7 +114,7 @@ type TrainingRound struct {
 	CompletedAt        time.Time     `json:"completed_at"`
 }
 
-// Service 联邦学习服务
+// Service 联邦学习服务.
 type Service struct {
 	nodes  map[string]*FederatedNode
 	models map[string]*GlobalModel
@@ -124,7 +124,7 @@ type Service struct {
 	mu     sync.RWMutex
 }
 
-// NewService 创建服务
+// NewService 创建服务.
 func NewService() *Service {
 	return &Service{
 		nodes:  make(map[string]*FederatedNode),
@@ -135,7 +135,7 @@ func NewService() *Service {
 	}
 }
 
-// RegisterNode 注册节点
+// RegisterNode 注册节点.
 func (s *Service) RegisterNode(ctx context.Context, node *FederatedNode) (*FederatedNode, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -149,7 +149,7 @@ func (s *Service) RegisterNode(ctx context.Context, node *FederatedNode) (*Feder
 	return node, nil
 }
 
-// GetNode 获取节点
+// GetNode 获取节点.
 func (s *Service) GetNode(id string) (*FederatedNode, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -161,7 +161,7 @@ func (s *Service) GetNode(id string) (*FederatedNode, error) {
 	return node, nil
 }
 
-// ListNodes 列出节点
+// ListNodes 列出节点.
 func (s *Service) ListNodes(status NodeStatus) []*FederatedNode {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -175,7 +175,7 @@ func (s *Service) ListNodes(status NodeStatus) []*FederatedNode {
 	return result
 }
 
-// CreateModel 创建全局模型
+// CreateModel 创建全局模型.
 func (s *Service) CreateModel(ctx context.Context, model *GlobalModel) (*GlobalModel, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -199,7 +199,7 @@ func (s *Service) CreateModel(ctx context.Context, model *GlobalModel) (*GlobalM
 	return model, nil
 }
 
-// GetModel 获取模型
+// GetModel 获取模型.
 func (s *Service) GetModel(id string) (*GlobalModel, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -211,7 +211,7 @@ func (s *Service) GetModel(id string) (*GlobalModel, error) {
 	return model, nil
 }
 
-// ListModels 列出模型
+// ListModels 列出模型.
 func (s *Service) ListModels(modelType ModelType) []*GlobalModel {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -225,7 +225,7 @@ func (s *Service) ListModels(modelType ModelType) []*GlobalModel {
 	return result
 }
 
-// StartTraining 启动训练
+// StartTraining 启动训练.
 func (s *Service) StartTraining(ctx context.Context, globalID string, epochs int, batchSize int, learningRate float64) (*TrainingRound, error) {
 	s.mu.Lock()
 	model, ok := s.models[globalID]
@@ -266,7 +266,7 @@ func (s *Service) StartTraining(ctx context.Context, globalID string, epochs int
 	return round, nil
 }
 
-// executeTrainingRound 执行训练轮次
+// executeTrainingRound 执行训练轮次.
 func (s *Service) executeTrainingRound(round *TrainingRound, epochs int, batchSize int, learningRate float64) {
 	var wg sync.WaitGroup
 	localModels := make(chan LocalModel, len(round.ParticipatingNodes))
@@ -304,7 +304,7 @@ func (s *Service) executeTrainingRound(round *TrainingRound, epochs int, batchSi
 	s.aggregateModels(round)
 }
 
-// trainLocalModel 本地训练
+// trainLocalModel 本地训练.
 func (s *Service) trainLocalModel(nodeID string, globalID string, epochs int, batchSize int, learningRate float64) *LocalModel {
 	s.mu.RLock()
 	node, ok := s.nodes[nodeID]
@@ -347,7 +347,7 @@ func (s *Service) trainLocalModel(nodeID string, globalID string, epochs int, ba
 	return localModel
 }
 
-// aggregateModels 聚合模型
+// aggregateModels 聚合模型.
 func (s *Service) aggregateModels(round *TrainingRound) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -400,7 +400,7 @@ func (s *Service) aggregateModels(round *TrainingRound) {
 	round.CompletedAt = time.Now()
 }
 
-// GetRound 获取训练轮次
+// GetRound 获取训练轮次.
 func (s *Service) GetRound(id string) (*TrainingRound, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -412,7 +412,7 @@ func (s *Service) GetRound(id string) (*TrainingRound, error) {
 	return round, nil
 }
 
-// ListRounds 列出训练轮次
+// ListRounds 列出训练轮次.
 func (s *Service) ListRounds(globalID string) []*TrainingRound {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -426,7 +426,7 @@ func (s *Service) ListRounds(globalID string) []*TrainingRound {
 	return result
 }
 
-// Predict 预测
+// Predict 预测.
 func (s *Service) Predict(ctx context.Context, modelID string, input []float64) (map[string]interface{}, error) {
 	s.mu.RLock()
 	model, ok := s.models[modelID]
@@ -454,7 +454,7 @@ func (s *Service) Predict(ctx context.Context, modelID string, input []float64) 
 	}, nil
 }
 
-// GetStatistics 获取统计信息
+// GetStatistics 获取统计信息.
 func (s *Service) GetStatistics() map[string]interface{} {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

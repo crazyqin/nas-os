@@ -9,24 +9,24 @@ import (
 	"strings"
 )
 
-// response 标准响应结构
+// response 标准响应结构.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// Handlers DNS 管理模块 API 处理器
+// Handlers DNS 管理模块 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由到 http.ServeMux
+// RegisterRoutes 注册路由到 http.ServeMux.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	// DNS 记录管理
 	mux.HandleFunc("/api/dnsmanager/records", h.handleRecords)
@@ -56,14 +56,14 @@ func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/dnsmanager/export", h.handleExport)
 }
 
-// writeJSON 写入 JSON 响应
+// writeJSON 写入 JSON 响应.
 func writeJSON(w http.ResponseWriter, code int, resp response) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(resp)
 }
 
-// parseIDFromPath 从路径中解析 ID
+// parseIDFromPath 从路径中解析 ID.
 func parseIDFromPath(path, prefix string) string {
 	id := strings.TrimPrefix(path, prefix)
 	id = strings.TrimSuffix(id, "/")
@@ -72,7 +72,7 @@ func parseIDFromPath(path, prefix string) string {
 
 // ========== DNS 记录处理 ==========
 
-// handleRecords 处理 /api/dnsmanager/records
+// handleRecords 处理 /api/dnsmanager/records.
 func (h *Handlers) handleRecords(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -84,7 +84,7 @@ func (h *Handlers) handleRecords(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleRecordByID 处理 /api/dnsmanager/records/{id}
+// handleRecordByID 处理 /api/dnsmanager/records/{id}.
 func (h *Handlers) handleRecordByID(w http.ResponseWriter, r *http.Request) {
 	id := parseIDFromPath(r.URL.Path, "/api/dnsmanager/records/")
 	if id == "" {
@@ -170,7 +170,7 @@ func (h *Handlers) deleteRecord(w http.ResponseWriter, r *http.Request, id strin
 
 // ========== DNS 规则处理 ==========
 
-// handleRules 处理 /api/dnsmanager/rules
+// handleRules 处理 /api/dnsmanager/rules.
 func (h *Handlers) handleRules(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -182,7 +182,7 @@ func (h *Handlers) handleRules(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleRuleByID 处理 /api/dnsmanager/rules/{id}
+// handleRuleByID 处理 /api/dnsmanager/rules/{id}.
 func (h *Handlers) handleRuleByID(w http.ResponseWriter, r *http.Request) {
 	id := parseIDFromPath(r.URL.Path, "/api/dnsmanager/rules/")
 	if id == "" {
@@ -276,7 +276,7 @@ func (h *Handlers) toggleRule(w http.ResponseWriter, r *http.Request, id string)
 
 // ========== 上游服务器处理 ==========
 
-// handleUpstreams 处理 /api/dnsmanager/upstreams
+// handleUpstreams 处理 /api/dnsmanager/upstreams.
 func (h *Handlers) handleUpstreams(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -288,7 +288,7 @@ func (h *Handlers) handleUpstreams(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleUpstreamByID 处理 /api/dnsmanager/upstreams/{id}
+// handleUpstreamByID 处理 /api/dnsmanager/upstreams/{id}.
 func (h *Handlers) handleUpstreamByID(w http.ResponseWriter, r *http.Request) {
 	id := parseIDFromPath(r.URL.Path, "/api/dnsmanager/upstreams/")
 	if id == "" {

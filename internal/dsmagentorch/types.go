@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// AgentRole 定义Agent角色
+// AgentRole 定义Agent角色.
 type AgentRole string
 
 const (
@@ -19,7 +19,7 @@ const (
 	RoleBackupAdmin   AgentRole = "backup_admin"
 )
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -30,7 +30,7 @@ const (
 	TaskCancelled TaskStatus = "cancelled"
 )
 
-// WorkflowType 工作流类型
+// WorkflowType 工作流类型.
 type WorkflowType string
 
 const (
@@ -43,7 +43,7 @@ const (
 	WorkflowMCPIntegration  WorkflowType = "mcp_integration"
 )
 
-// MCPTool MCP工具定义
+// MCPTool MCP工具定义.
 type MCPTool struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
@@ -52,7 +52,7 @@ type MCPTool struct {
 	Enabled     bool              `json:"enabled"`
 }
 
-// Task 任务定义
+// Task 任务定义.
 type Task struct {
 	ID          string       `json:"id"`
 	Workflow    WorkflowType `json:"workflow"`
@@ -66,15 +66,15 @@ type Task struct {
 	Error       string       `json:"error,omitempty"`
 }
 
-// TaskResult 任务结果
+// TaskResult 任务结果.
 type TaskResult struct {
-	Success     bool                   `json:"success"`
-	Message     string                 `json:"message"`
-	Details     map[string]interface{} `json:"details,omitempty"`
-	Duration    time.Duration          `json:"duration"`
+	Success  bool                   `json:"success"`
+	Message  string                 `json:"message"`
+	Details  map[string]interface{} `json:"details,omitempty"`
+	Duration time.Duration          `json:"duration"`
 }
 
-// Guardrail 安全护栏
+// Guardrail 安全护栏.
 type Guardrail struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -83,7 +83,7 @@ type Guardrail struct {
 	Action      string `json:"action"` // block, warn, log
 }
 
-// Diagnostic 诊断信息
+// Diagnostic 诊断信息.
 type Diagnostic struct {
 	ID        string                 `json:"id"`
 	Name      string                 `json:"name"`
@@ -93,7 +93,7 @@ type Diagnostic struct {
 	Timestamp time.Time              `json:"timestamp"`
 }
 
-// AgentConfig Agent配置
+// AgentConfig Agent配置.
 type AgentConfig struct {
 	AgentID         string        `json:"agent_id"`
 	Role            AgentRole     `json:"role"`
@@ -105,7 +105,7 @@ type AgentConfig struct {
 	MCPEndpoint     string        `json:"mcp_endpoint"`
 }
 
-// DefaultAgentConfig 返回默认配置
+// DefaultAgentConfig 返回默认配置.
 func DefaultAgentConfig() *AgentConfig {
 	return &AgentConfig{
 		AgentID:         "dsm-agent-001",
@@ -118,7 +118,7 @@ func DefaultAgentConfig() *AgentConfig {
 	}
 }
 
-// Manager Agent编排管理器
+// Manager Agent编排管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	config     *AgentConfig
@@ -130,7 +130,7 @@ type Manager struct {
 	startTime  time.Time
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(config *AgentConfig) *Manager {
 	if config == nil {
 		config = DefaultAgentConfig()
@@ -144,7 +144,7 @@ func NewManager(config *AgentConfig) *Manager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -156,7 +156,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -164,14 +164,14 @@ func (m *Manager) Stop() error {
 	return nil
 }
 
-// IsRunning 检查是否运行中
+// IsRunning 检查是否运行中.
 func (m *Manager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.running
 }
 
-// RegisterTool 注册MCP工具
+// RegisterTool 注册MCP工具.
 func (m *Manager) RegisterTool(tool *MCPTool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -182,7 +182,7 @@ func (m *Manager) RegisterTool(tool *MCPTool) error {
 	return nil
 }
 
-// UnregisterTool 注销MCP工具
+// UnregisterTool 注销MCP工具.
 func (m *Manager) UnregisterTool(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -193,7 +193,7 @@ func (m *Manager) UnregisterTool(name string) error {
 	return nil
 }
 
-// ListTools 列出所有工具
+// ListTools 列出所有工具.
 func (m *Manager) ListTools() []*MCPTool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -204,7 +204,7 @@ func (m *Manager) ListTools() []*MCPTool {
 	return tools
 }
 
-// CreateTask 创建任务
+// CreateTask 创建任务.
 func (m *Manager) CreateTask(workflow WorkflowType, description string, priority int) (*Task, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -223,7 +223,7 @@ func (m *Manager) CreateTask(workflow WorkflowType, description string, priority
 	return task, nil
 }
 
-// CompleteTask 完成任务
+// CompleteTask 完成任务.
 func (m *Manager) CompleteTask(id string, success bool, message string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -239,14 +239,14 @@ func (m *Manager) CompleteTask(id string, success bool, message string) error {
 		task.Status = TaskFailed
 	}
 	task.Result = &TaskResult{
-		Success: success,
-		Message: message,
+		Success:  success,
+		Message:  message,
 		Duration: now.Sub(task.CreatedAt),
 	}
 	return nil
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (m *Manager) GetTask(id string) (*Task, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -257,7 +257,7 @@ func (m *Manager) GetTask(id string) (*Task, error) {
 	return task, nil
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (m *Manager) ListTasks(status TaskStatus) []*Task {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -270,14 +270,14 @@ func (m *Manager) ListTasks(status TaskStatus) []*Task {
 	return tasks
 }
 
-// AddGuardrail 添加安全护栏
+// AddGuardrail 添加安全护栏.
 func (m *Manager) AddGuardrail(g *Guardrail) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.guardrails[g.Name] = g
 }
 
-// RunDiagnostics 运行诊断
+// RunDiagnostics 运行诊断.
 func (m *Manager) RunDiagnostics() []Diagnostic {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -290,27 +290,28 @@ func (m *Manager) RunDiagnostics() []Diagnostic {
 	return diags
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	completed := 0
 	failed := 0
 	for _, t := range m.tasks {
-		if t.Status == TaskCompleted {
+		switch t.Status {
+		case TaskCompleted:
 			completed++
-		} else if t.Status == TaskFailed {
+		case TaskFailed:
 			failed++
 		}
 	}
 	return map[string]interface{}{
-		"running":        m.running,
-		"total_tasks":    len(m.tasks),
-		"completed":      completed,
-		"failed":         failed,
-		"total_tools":    len(m.tools),
+		"running":          m.running,
+		"total_tasks":      len(m.tasks),
+		"completed":        completed,
+		"failed":           failed,
+		"total_tools":      len(m.tools),
 		"total_guardrails": len(m.guardrails),
-		"uptime":         time.Since(m.startTime).String(),
+		"uptime":           time.Since(m.startTime).String(),
 	}
 }
 

@@ -133,9 +133,7 @@ func (fa *FeedAggregator) GetAggregatedFeed(userID string, limit int) []*FeedIte
 
 	allItems := make([]*FeedItem, 0)
 	for _, items := range fa.engine.feedItems {
-		for _, item := range items {
-			allItems = append(allItems, item)
-		}
+		allItems = append(allItems, items...)
 	}
 
 	// 按时间倒序排序

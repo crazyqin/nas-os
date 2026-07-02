@@ -6,17 +6,17 @@ import (
 	"net/http"
 )
 
-// Handlers HTTP处理器
+// Handlers HTTP处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// CreateSandbox 创建沙箱
+// CreateSandbox 创建沙箱.
 func (h *Handlers) CreateSandbox(w http.ResponseWriter, r *http.Request) {
 	var req CreateSandboxRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -35,7 +35,7 @@ func (h *Handlers) CreateSandbox(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(sandbox)
 }
 
-// GetSandbox 获取沙箱
+// GetSandbox 获取沙箱.
 func (h *Handlers) GetSandbox(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -53,7 +53,7 @@ func (h *Handlers) GetSandbox(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(sandbox)
 }
 
-// ListSandbox 列出沙箱
+// ListSandbox 列出沙箱.
 func (h *Handlers) ListSandbox(w http.ResponseWriter, r *http.Request) {
 	sandboxes := h.manager.List()
 
@@ -66,7 +66,7 @@ func (h *Handlers) ListSandbox(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// UpdateSandbox 更新沙箱
+// UpdateSandbox 更新沙箱.
 func (h *Handlers) UpdateSandbox(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -90,7 +90,7 @@ func (h *Handlers) UpdateSandbox(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(sandbox)
 }
 
-// DeleteSandbox 删除沙箱
+// DeleteSandbox 删除沙箱.
 func (h *Handlers) DeleteSandbox(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -107,7 +107,7 @@ func (h *Handlers) DeleteSandbox(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "deleted"})
 }
 
-// StartSandbox 启动沙箱
+// StartSandbox 启动沙箱.
 func (h *Handlers) StartSandbox(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -124,7 +124,7 @@ func (h *Handlers) StartSandbox(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "started"})
 }
 
-// StopSandbox 停止沙箱
+// StopSandbox 停止沙箱.
 func (h *Handlers) StopSandbox(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -141,7 +141,7 @@ func (h *Handlers) StopSandbox(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "stopped"})
 }
 
-// PauseSandbox 暂停沙箱
+// PauseSandbox 暂停沙箱.
 func (h *Handlers) PauseSandbox(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -158,7 +158,7 @@ func (h *Handlers) PauseSandbox(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "paused"})
 }
 
-// ResumeSandbox 恢复沙箱
+// ResumeSandbox 恢复沙箱.
 func (h *Handlers) ResumeSandbox(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -175,7 +175,7 @@ func (h *Handlers) ResumeSandbox(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "resumed"})
 }
 
-// GetResourceUsage 获取资源使用情况
+// GetResourceUsage 获取资源使用情况.
 func (h *Handlers) GetResourceUsage(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -193,7 +193,7 @@ func (h *Handlers) GetResourceUsage(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(usage)
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (h *Handlers) GetStats(w http.ResponseWriter, r *http.Request) {
 	stats := h.manager.GetStats()
 
@@ -201,7 +201,7 @@ func (h *Handlers) GetStats(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(stats)
 }
 
-// CreateSnapshot 创建快照
+// CreateSnapshot 创建快照.
 func (h *Handlers) CreateSnapshot(w http.ResponseWriter, r *http.Request) {
 	sandboxID := r.URL.Query().Get("sandbox_id")
 	if sandboxID == "" {
@@ -232,7 +232,7 @@ func (h *Handlers) CreateSnapshot(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(snapshot)
 }
 
-// GetSnapshot 获取快照
+// GetSnapshot 获取快照.
 func (h *Handlers) GetSnapshot(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -250,7 +250,7 @@ func (h *Handlers) GetSnapshot(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(snapshot)
 }
 
-// ListSnapshot 列出快照
+// ListSnapshot 列出快照.
 func (h *Handlers) ListSnapshot(w http.ResponseWriter, r *http.Request) {
 	sandboxID := r.URL.Query().Get("sandbox_id")
 
@@ -270,7 +270,7 @@ func (h *Handlers) ListSnapshot(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// DeleteSnapshot 删除快照
+// DeleteSnapshot 删除快照.
 func (h *Handlers) DeleteSnapshot(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -287,7 +287,7 @@ func (h *Handlers) DeleteSnapshot(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "deleted"})
 }
 
-// RestoreSnapshot 从快照恢复
+// RestoreSnapshot 从快照恢复.
 func (h *Handlers) RestoreSnapshot(w http.ResponseWriter, r *http.Request) {
 	snapshotID := r.URL.Query().Get("snapshot_id")
 	if snapshotID == "" {

@@ -11,7 +11,7 @@ import (
 
 // ========== 核心类型 ==========
 
-// Permission 权限类型
+// Permission 权限类型.
 type Permission string
 
 const (
@@ -20,7 +20,7 @@ const (
 	PermAdmin Permission = "admin" // 管理
 )
 
-// Document 文档
+// Document 文档.
 type Document struct {
 	ID        string    `json:"id"`
 	Title     string    `json:"title"`
@@ -33,7 +33,7 @@ type Document struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-// DocVersion 文档版本
+// DocVersion 文档版本.
 type DocVersion struct {
 	Version   int       `json:"version"`
 	Content   string    `json:"content"`
@@ -42,7 +42,7 @@ type DocVersion struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// Comment 评论/批注
+// Comment 评论/批注.
 type Comment struct {
 	ID        string    `json:"id"`
 	DocID     string    `json:"docId"`
@@ -52,7 +52,7 @@ type Comment struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-// Template 文档模板
+// Template 文档模板.
 type Template struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -61,21 +61,21 @@ type Template struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-// DocCategory 文档分类
+// DocCategory 文档分类.
 type DocCategory struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
 	ParentID string `json:"parentId,omitempty"`
 }
 
-// Collaborator 协作者
+// Collaborator 协作者.
 type Collaborator struct {
 	UserID     string     `json:"userId"`
 	Permission Permission `json:"permission"`
 	DocID      string     `json:"docId"`
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	DocID     string  `json:"docId"`
 	Title     string  `json:"title"`
@@ -86,7 +86,7 @@ type SearchResult struct {
 
 // ========== Manager ==========
 
-// Manager 文档工作区管理器
+// Manager 文档工作区管理器.
 type Manager struct {
 	mu            sync.RWMutex
 	docs          map[string]*Document
@@ -97,7 +97,7 @@ type Manager struct {
 	categories    map[string]*DocCategory
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		docs:          make(map[string]*Document),
@@ -111,7 +111,7 @@ func NewManager() *Manager {
 	return m
 }
 
-// initDefaults 初始化默认模板和分类
+// initDefaults 初始化默认模板和分类.
 func (m *Manager) initDefaults() {
 	m.templates["tpl-meeting"] = &Template{
 		ID: "tpl-meeting", Name: "会议纪要", Content: "# 会议纪要\n\n## 参会人员\n\n## 议题\n\n## 决议\n\n## 后续事项\n",
@@ -133,7 +133,7 @@ func (m *Manager) initDefaults() {
 
 // ========== 文档 CRUD ==========
 
-// CreateDoc 创建文档
+// CreateDoc 创建文档.
 func (m *Manager) CreateDoc(doc *Document) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -160,7 +160,7 @@ func (m *Manager) CreateDoc(doc *Document) error {
 	return nil
 }
 
-// UpdateDoc 更新文档内容
+// UpdateDoc 更新文档内容.
 func (m *Manager) UpdateDoc(id string, content string, author string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -184,14 +184,14 @@ func (m *Manager) UpdateDoc(id string, content string, author string) error {
 	return nil
 }
 
-// GetDoc 获取文档
+// GetDoc 获取文档.
 func (m *Manager) GetDoc(id string) *Document {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.docs[id]
 }
 
-// DeleteDoc 删除文档
+// DeleteDoc 删除文档.
 func (m *Manager) DeleteDoc(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -207,7 +207,7 @@ func (m *Manager) DeleteDoc(id string) error {
 	return nil
 }
 
-// ListDocs 列出文档（支持分类和标签过滤）
+// ListDocs 列出文档（支持分类和标签过滤）.
 func (m *Manager) ListDocs(category string, tags []string) []Document {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -225,7 +225,7 @@ func (m *Manager) ListDocs(category string, tags []string) []Document {
 	return result
 }
 
-// hasAnyTag 检查文档标签是否包含任一指定标签
+// hasAnyTag 检查文档标签是否包含任一指定标签.
 func hasAnyTag(docTags, filterTags []string) bool {
 	for _, ft := range filterTags {
 		for _, dt := range docTags {
@@ -239,14 +239,14 @@ func hasAnyTag(docTags, filterTags []string) bool {
 
 // ========== 版本管理 ==========
 
-// GetVersions 获取文档版本历史
+// GetVersions 获取文档版本历史.
 func (m *Manager) GetVersions(docID string) []DocVersion {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.versions[docID]
 }
 
-// RevertToVersion 回退到指定版本
+// RevertToVersion 回退到指定版本.
 func (m *Manager) RevertToVersion(docID string, version int, author string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -276,7 +276,7 @@ func (m *Manager) RevertToVersion(docID string, version int, author string) erro
 
 // ========== 评论 ==========
 
-// AddComment 添加评论
+// AddComment 添加评论.
 func (m *Manager) AddComment(comment *Comment) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -291,7 +291,7 @@ func (m *Manager) AddComment(comment *Comment) error {
 	return nil
 }
 
-// GetComments 获取文档评论
+// GetComments 获取文档评论.
 func (m *Manager) GetComments(docID string) []Comment {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -300,7 +300,7 @@ func (m *Manager) GetComments(docID string) []Comment {
 
 // ========== 模板 ==========
 
-// CreateTemplate 创建模板
+// CreateTemplate 创建模板.
 func (m *Manager) CreateTemplate(tmpl *Template) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -313,7 +313,7 @@ func (m *Manager) CreateTemplate(tmpl *Template) error {
 	return nil
 }
 
-// ListTemplates 列出所有模板
+// ListTemplates 列出所有模板.
 func (m *Manager) ListTemplates() []Template {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -327,7 +327,7 @@ func (m *Manager) ListTemplates() []Template {
 
 // ========== 搜索 ==========
 
-// SearchDocs 全文搜索
+// SearchDocs 全文搜索.
 func (m *Manager) SearchDocs(query string) []SearchResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -379,7 +379,7 @@ func (m *Manager) SearchDocs(query string) []SearchResult {
 
 // ========== 权限管理 ==========
 
-// SetPermission 设置协作者权限
+// SetPermission 设置协作者权限.
 func (m *Manager) SetPermission(docID, userID string, perm string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -410,7 +410,7 @@ func (m *Manager) SetPermission(docID, userID string, perm string) error {
 
 // ========== 导出 ==========
 
-// ExportDoc 导出文档
+// ExportDoc 导出文档.
 func (m *Manager) ExportDoc(id string, format string) ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

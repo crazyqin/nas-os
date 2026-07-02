@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 分享链接管理器
+// Manager 分享链接管理器.
 type Manager struct {
 	mu            sync.RWMutex
 	logger        *zap.Logger
@@ -32,7 +32,7 @@ type Manager struct {
 	running       bool
 }
 
-// NewManager 创建分享链接管理器
+// NewManager 创建分享链接管理器.
 func NewManager(logger *zap.Logger, policy *SharePolicy) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -64,7 +64,7 @@ func NewManager(logger *zap.Logger, policy *SharePolicy) *Manager {
 	return m
 }
 
-// Start 启动管理器后台任务
+// Start 启动管理器后台任务.
 func (m *Manager) Start(ctx context.Context) {
 	m.mu.Lock()
 	if m.running {
@@ -79,7 +79,7 @@ func (m *Manager) Start(ctx context.Context) {
 	m.logger.Info("smartshare manager started")
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -93,7 +93,7 @@ func (m *Manager) Stop() {
 	m.logger.Info("smartshare manager stopped")
 }
 
-// cleanupLoop 定期清理过期链接
+// cleanupLoop 定期清理过期链接.
 func (m *Manager) cleanupLoop(ctx context.Context) {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
@@ -110,7 +110,7 @@ func (m *Manager) cleanupLoop(ctx context.Context) {
 	}
 }
 
-// cleanupExpiredLinks 清理过期链接
+// cleanupExpiredLinks 清理过期链接.
 func (m *Manager) cleanupExpiredLinks() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -155,7 +155,7 @@ func (m *Manager) cleanupExpiredLinks() {
 	}
 }
 
-// CreateShareLink 创建分享链接
+// CreateShareLink 创建分享链接.
 func (m *Manager) CreateShareLink(req *CreateShareRequest) (*ShareLink, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -269,7 +269,7 @@ func (m *Manager) CreateShareLink(req *CreateShareRequest) (*ShareLink, error) {
 	return link, nil
 }
 
-// CreateShareRequest 创建分享请求
+// CreateShareRequest 创建分享请求.
 type CreateShareRequest struct {
 	FilePath        string           `json:"file_path" binding:"required"`
 	FileName        string           `json:"file_name" binding:"required"`
@@ -291,7 +291,7 @@ type CreateShareRequest struct {
 	BrandingConfig  *BrandingConfig  `json:"branding_config,omitempty"`
 }
 
-// GetShareLink 根据 ID 获取分享链接
+// GetShareLink 根据 ID 获取分享链接.
 func (m *Manager) GetShareLink(id string) (*ShareLink, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -303,7 +303,7 @@ func (m *Manager) GetShareLink(id string) (*ShareLink, error) {
 	return link, nil
 }
 
-// GetShareLinkByToken 根据 Token 获取分享链接
+// GetShareLinkByToken 根据 Token 获取分享链接.
 func (m *Manager) GetShareLinkByToken(token string) (*ShareLink, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -315,7 +315,7 @@ func (m *Manager) GetShareLinkByToken(token string) (*ShareLink, error) {
 	return link, nil
 }
 
-// ListShareLinks 列出所有分享链接
+// ListShareLinks 列出所有分享链接.
 func (m *Manager) ListShareLinks(filter *ListFilter) []*ShareLink {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -338,14 +338,14 @@ func (m *Manager) ListShareLinks(filter *ListFilter) []*ShareLink {
 	return result
 }
 
-// ListFilter 列表过滤器
+// ListFilter 列表过滤器.
 type ListFilter struct {
 	CreatorID string      `json:"creator_id,omitempty"`
 	Status    ShareStatus `json:"status,omitempty"`
 	Mode      ShareMode   `json:"mode,omitempty"`
 }
 
-// UpdateShareLink 更新分享链接
+// UpdateShareLink 更新分享链接.
 func (m *Manager) UpdateShareLink(id string, req *UpdateShareRequest) (*ShareLink, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -388,7 +388,7 @@ func (m *Manager) UpdateShareLink(id string, req *UpdateShareRequest) (*ShareLin
 	return link, nil
 }
 
-// UpdateShareRequest 更新分享请求
+// UpdateShareRequest 更新分享请求.
 type UpdateShareRequest struct {
 	Password        *string          `json:"password,omitempty"`
 	ExpiresIn       *time.Duration   `json:"expires_in,omitempty"`
@@ -401,7 +401,7 @@ type UpdateShareRequest struct {
 	BrandingConfig  *BrandingConfig  `json:"branding_config,omitempty"`
 }
 
-// RevokeShareLink 撤销分享链接
+// RevokeShareLink 撤销分享链接.
 func (m *Manager) RevokeShareLink(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -418,7 +418,7 @@ func (m *Manager) RevokeShareLink(id string) error {
 	return nil
 }
 
-// DeleteShareLink 删除分享链接
+// DeleteShareLink 删除分享链接.
 func (m *Manager) DeleteShareLink(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -435,7 +435,7 @@ func (m *Manager) DeleteShareLink(id string) error {
 	return nil
 }
 
-// BatchCreateShareLinks 批量创建分享链接
+// BatchCreateShareLinks 批量创建分享链接.
 func (m *Manager) BatchCreateShareLinks(req *BatchShareRequest) *BatchShareResult {
 	result := &BatchShareResult{
 		Total: len(req.FilePaths),
@@ -466,7 +466,7 @@ func (m *Manager) BatchCreateShareLinks(req *BatchShareRequest) *BatchShareResul
 	return result
 }
 
-// GetPolicy 获取分享策略
+// GetPolicy 获取分享策略.
 func (m *Manager) GetPolicy() *SharePolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -474,7 +474,7 @@ func (m *Manager) GetPolicy() *SharePolicy {
 	return &p
 }
 
-// UpdatePolicy 更新分享策略
+// UpdatePolicy 更新分享策略.
 func (m *Manager) UpdatePolicy(policy *SharePolicy) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -482,7 +482,7 @@ func (m *Manager) UpdatePolicy(policy *SharePolicy) {
 	m.policy = policy
 }
 
-// GetNotifyConfig 获取通知配置
+// GetNotifyConfig 获取通知配置.
 func (m *Manager) GetNotifyConfig() *NotifyConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -490,7 +490,7 @@ func (m *Manager) GetNotifyConfig() *NotifyConfig {
 	return &cfg
 }
 
-// UpdateNotifyConfig 更新通知配置
+// UpdateNotifyConfig 更新通知配置.
 func (m *Manager) UpdateNotifyConfig(cfg *NotifyConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -498,7 +498,7 @@ func (m *Manager) UpdateNotifyConfig(cfg *NotifyConfig) {
 	m.notifier.UpdateConfig(cfg)
 }
 
-// GetPreviewConfig 获取预览配置
+// GetPreviewConfig 获取预览配置.
 func (m *Manager) GetPreviewConfig() *PreviewConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -506,7 +506,7 @@ func (m *Manager) GetPreviewConfig() *PreviewConfig {
 	return &cfg
 }
 
-// UpdatePreviewConfig 更新预览配置
+// UpdatePreviewConfig 更新预览配置.
 func (m *Manager) UpdatePreviewConfig(cfg *PreviewConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -514,7 +514,7 @@ func (m *Manager) UpdatePreviewConfig(cfg *PreviewConfig) {
 	m.preview.UpdateConfig(cfg)
 }
 
-// GetNotifyEvents 获取通知事件列表
+// GetNotifyEvents 获取通知事件列表.
 func (m *Manager) GetNotifyEvents(limit int) []*NotifyEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -533,7 +533,7 @@ func (m *Manager) GetNotifyEvents(limit int) []*NotifyEvent {
 	return events
 }
 
-// GetStats 获取总览统计
+// GetStats 获取总览统计.
 func (m *Manager) GetStats() *ManagerStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -564,7 +564,7 @@ func (m *Manager) GetStats() *ManagerStats {
 	return stats
 }
 
-// ManagerStats 管理器统计
+// ManagerStats 管理器统计.
 type ManagerStats struct {
 	TotalLinks      int `json:"total_links"`
 	ActiveLinks     int `json:"active_links"`
@@ -575,7 +575,7 @@ type ManagerStats struct {
 	TotalAccessLogs int `json:"total_access_logs"`
 }
 
-// extractFileName 从路径中提取文件名
+// extractFileName 从路径中提取文件名.
 func extractFileName(path string) string {
 	for i := len(path) - 1; i >= 0; i-- {
 		if path[i] == '/' || path[i] == '\\' {

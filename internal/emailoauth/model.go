@@ -5,7 +5,7 @@ package emailoauth
 
 import "time"
 
-// EmailProvider 邮件提供商
+// EmailProvider 邮件提供商.
 type EmailProvider string
 
 const (
@@ -13,7 +13,7 @@ const (
 	ProviderOutlook EmailProvider = "outlook"
 )
 
-// SendMethod 发送方式
+// SendMethod 发送方式.
 type SendMethod string
 
 const (
@@ -21,7 +21,7 @@ const (
 	SendMethodOAuth2 SendMethod = "oauth2"
 )
 
-// OAuthConfig OAuth2 配置
+// OAuthConfig OAuth2 配置.
 type OAuthConfig struct {
 	// 提供商
 	Provider EmailProvider `json:"provider"`
@@ -45,23 +45,23 @@ type OAuthConfig struct {
 	Method SendMethod `json:"method"`
 }
 
-// MailMessage 邮件消息
+// MailMessage 邮件消息.
 type MailMessage struct {
 	To      []string `json:"to"`
 	Subject string   `json:"subject"`
 	Body    string   `json:"body"`
 }
 
-// MailResult 发送结果
+// MailResult 发送结果.
 type MailResult struct {
-	Success   bool      `json:"success"`
-	Message   string    `json:"message,omitempty"`
-	SentAt    time.Time `json:"sent_at"`
-	Method    SendMethod `json:"method"`
-	Provider  EmailProvider `json:"provider"`
+	Success  bool          `json:"success"`
+	Message  string        `json:"message,omitempty"`
+	SentAt   time.Time     `json:"sent_at"`
+	Method   SendMethod    `json:"method"`
+	Provider EmailProvider `json:"provider"`
 }
 
-// SetConfigRequest 设置配置请求
+// SetConfigRequest 设置配置请求.
 type SetConfigRequest struct {
 	Provider     EmailProvider `json:"provider"`
 	ClientID     string        `json:"client_id"`
@@ -73,7 +73,7 @@ type SetConfigRequest struct {
 	SMTPPort     int           `json:"smtp_port,omitempty"`
 }
 
-// TestMailRequest 测试邮件请求
+// TestMailRequest 测试邮件请求.
 type TestMailRequest struct {
 	To      string `json:"to"`
 	Subject string `json:"subject"`

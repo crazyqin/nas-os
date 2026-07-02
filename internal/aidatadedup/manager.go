@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 数据去重管理器
+// Manager 数据去重管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	logger      *zap.Logger
@@ -26,7 +26,7 @@ type Manager struct {
 	running     bool
 }
 
-// NewManager 创建数据去重管理器
+// NewManager 创建数据去重管理器.
 func NewManager(logger *zap.Logger, config *DedupConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -45,7 +45,7 @@ func NewManager(logger *zap.Logger, config *DedupConfig) *Manager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -70,7 +70,7 @@ func (m *Manager) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -86,27 +86,27 @@ func (m *Manager) Stop() error {
 	return nil
 }
 
-// IsRunning 检查是否运行中
+// IsRunning 检查是否运行中.
 func (m *Manager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.running
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// computeHash 计算文件哈希
+// computeHash 计算文件哈希.
 func computeHash(data []byte) string {
 	h := sha256.Sum256(data)
 	return hex.EncodeToString(h[:])
 }
 
-// runAutoScan 自动扫描协程
+// runAutoScan 自动扫描协程.
 func (m *Manager) runAutoScan(ctx context.Context) {
 	interval := time.Duration(m.config.ScanIntervalMinutes) * time.Minute
 	ticker := time.NewTicker(interval)
@@ -127,7 +127,7 @@ func (m *Manager) runAutoScan(ctx context.Context) {
 	}
 }
 
-// Scan 扫描路径查找重复文件
+// Scan 扫描路径查找重复文件.
 func (m *Manager) Scan(ctx context.Context, req *DedupRequest) (*ScanResult, error) {
 	if !m.IsRunning() {
 		return nil, fmt.Errorf("manager not running")
@@ -177,7 +177,7 @@ func (m *Manager) Scan(ctx context.Context, req *DedupRequest) (*ScanResult, err
 	return result, nil
 }
 
-// GetScanResult 获取扫描结果
+// GetScanResult 获取扫描结果.
 func (m *Manager) GetScanResult(id string) (*ScanResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -189,7 +189,7 @@ func (m *Manager) GetScanResult(id string) (*ScanResult, error) {
 	return result, nil
 }
 
-// ListScanResults 列出所有扫描结果
+// ListScanResults 列出所有扫描结果.
 func (m *Manager) ListScanResults() []*ScanResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -201,7 +201,7 @@ func (m *Manager) ListScanResults() []*ScanResult {
 	return results
 }
 
-// GetDuplicateGroup 获取重复组
+// GetDuplicateGroup 获取重复组.
 func (m *Manager) GetDuplicateGroup(id string) (*DuplicateGroup, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -213,7 +213,7 @@ func (m *Manager) GetDuplicateGroup(id string) (*DuplicateGroup, error) {
 	return group, nil
 }
 
-// ListDuplicateGroups 列出所有重复组
+// ListDuplicateGroups 列出所有重复组.
 func (m *Manager) ListDuplicateGroups() []*DuplicateGroup {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -225,7 +225,7 @@ func (m *Manager) ListDuplicateGroups() []*DuplicateGroup {
 	return groups
 }
 
-// MergeFiles 合并重复文件
+// MergeFiles 合并重复文件.
 func (m *Manager) MergeFiles(ctx context.Context, req *MergeRequest) (*DedupReport, error) {
 	if !m.IsRunning() {
 		return nil, fmt.Errorf("manager not running")
@@ -288,7 +288,7 @@ func (m *Manager) MergeFiles(ctx context.Context, req *MergeRequest) (*DedupRepo
 	return report, nil
 }
 
-// selectBestFile 选择最佳保留文件
+// selectBestFile 选择最佳保留文件.
 func (m *Manager) selectBestFile(files []*FileEntry, strategy MergeStrategy) *FileEntry {
 	if len(files) == 0 {
 		return nil
@@ -318,7 +318,7 @@ func (m *Manager) selectBestFile(files []*FileEntry, strategy MergeStrategy) *Fi
 	return best
 }
 
-// AnalyzeFile 分析文件相似度
+// AnalyzeFile 分析文件相似度.
 func (m *Manager) AnalyzeFile(ctx context.Context, file *FileEntry) (*AIAnalysisResult, error) {
 	if !m.config.EnableAI {
 		return nil, fmt.Errorf("AI analysis is disabled")
@@ -343,7 +343,7 @@ func (m *Manager) AnalyzeFile(ctx context.Context, file *FileEntry) (*AIAnalysis
 	return result, nil
 }
 
-// GetReport 获取去重报告
+// GetReport 获取去重报告.
 func (m *Manager) GetReport(id string) (*DedupReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -356,7 +356,7 @@ func (m *Manager) GetReport(id string) (*DedupReport, error) {
 	return nil, fmt.Errorf("report not found: %s", id)
 }
 
-// ListReports 列出所有报告
+// ListReports 列出所有报告.
 func (m *Manager) ListReports() []*DedupReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -366,7 +366,7 @@ func (m *Manager) ListReports() []*DedupReport {
 	return reports
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *DedupConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -374,7 +374,7 @@ func (m *Manager) GetConfig() *DedupConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(cfg *DedupConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -383,7 +383,7 @@ func (m *Manager) UpdateConfig(cfg *DedupConfig) {
 	}
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -402,7 +402,7 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 }
 
-// AddFileEntry 添加文件条目（用于测试）
+// AddFileEntry 添加文件条目（用于测试）.
 func (m *Manager) AddFileEntry(entry *FileEntry) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -417,14 +417,14 @@ func (m *Manager) AddFileEntry(entry *FileEntry) {
 	}
 }
 
-// AddDuplicateGroup 添加重复组（用于测试）
+// AddDuplicateGroup 添加重复组（用于测试）.
 func (m *Manager) AddDuplicateGroup(group *DuplicateGroup) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.groups[group.ID] = group
 }
 
-// ResolveDuplicateGroup 解决重复组
+// ResolveDuplicateGroup 解决重复组.
 func (m *Manager) ResolveDuplicateGroup(groupID string, keepFileID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -452,5 +452,5 @@ func (m *Manager) ResolveDuplicateGroup(groupID string, keepFileID string) error
 	return nil
 }
 
-// 为避免 unused import 错误
+// 为避免 unused import 错误.
 var _ = filepath.Join

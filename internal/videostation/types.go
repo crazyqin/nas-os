@@ -3,7 +3,7 @@ package videostation
 
 import "time"
 
-// VideoStatus 视频状态
+// VideoStatus 视频状态.
 type VideoStatus string
 
 const (
@@ -12,7 +12,7 @@ const (
 	VideoStatusError    VideoStatus = "error"
 )
 
-// TranscodeStatus 转码状态
+// TranscodeStatus 转码状态.
 type TranscodeStatus string
 
 const (
@@ -23,7 +23,7 @@ const (
 	TranscodeStatusCancelled TranscodeStatus = "cancelled"
 )
 
-// TranscodeFormat 转码输出格式
+// TranscodeFormat 转码输出格式.
 type TranscodeFormat string
 
 const (
@@ -32,7 +32,7 @@ const (
 	FormatMP4  TranscodeFormat = "mp4"
 )
 
-// SubtitleType 字幕类型
+// SubtitleType 字幕类型.
 type SubtitleType string
 
 const (
@@ -40,7 +40,7 @@ const (
 	SubtitleTypeExternal SubtitleType = "external"
 )
 
-// VideoCodec 视频编码格式
+// VideoCodec 视频编码格式.
 type VideoCodec string
 
 const (
@@ -50,7 +50,7 @@ const (
 	CodecAV1  VideoCodec = "av1"
 )
 
-// AudioCodec 音频编码格式
+// AudioCodec 音频编码格式.
 type AudioCodec string
 
 const (
@@ -60,7 +60,7 @@ const (
 	OpusCodec AudioCodec = "opus"
 )
 
-// HardwareAccel 硬件加速类型
+// HardwareAccel 硬件加速类型.
 type HardwareAccel string
 
 const (
@@ -71,7 +71,7 @@ const (
 	HWAccelRKMPP HardwareAccel = "rkmpp"
 )
 
-// Video 视频元数据
+// Video 视频元数据.
 type Video struct {
 	ID          string      `json:"id"`
 	Title       string      `json:"title"`
@@ -102,7 +102,7 @@ type Video struct {
 	IndexedAt   *time.Time  `json:"indexed_at,omitempty"`
 }
 
-// Subtitle 字幕信息
+// Subtitle 字幕信息.
 type Subtitle struct {
 	ID        string       `json:"id"`
 	VideoID   string       `json:"video_id"`
@@ -114,7 +114,7 @@ type Subtitle struct {
 	IsDefault bool         `json:"is_default"`
 }
 
-// TranscodeJob 转码任务
+// TranscodeJob 转码任务.
 type TranscodeJob struct {
 	ID           string          `json:"id"`
 	VideoID      string          `json:"video_id"`
@@ -132,7 +132,7 @@ type TranscodeJob struct {
 	CreatedAt    time.Time       `json:"created_at"`
 }
 
-// PlaySession 播放会话
+// PlaySession 播放会话.
 type PlaySession struct {
 	ID          string    `json:"id"`
 	VideoID     string    `json:"video_id"`
@@ -148,7 +148,7 @@ type PlaySession struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// VideoLibrary 视频库配置
+// VideoLibrary 视频库配置.
 type VideoLibrary struct {
 	ID           string     `json:"id"`
 	Name         string     `json:"name"`
@@ -164,7 +164,7 @@ type VideoLibrary struct {
 	UpdatedAt    time.Time  `json:"updated_at"`
 }
 
-// VideoStats 视频统计
+// VideoStats 视频统计.
 type VideoStats struct {
 	TotalVideos      int            `json:"total_videos"`
 	TotalLibraries   int            `json:"total_libraries"`
@@ -177,7 +177,7 @@ type VideoStats struct {
 	RecentlyPlayed   []Video        `json:"recently_played,omitempty"`
 }
 
-// ScanResult 扫描结果
+// ScanResult 扫描结果.
 type ScanResult struct {
 	LibraryID string    `json:"library_id"`
 	NewVideos int       `json:"new_videos"`
@@ -187,7 +187,7 @@ type ScanResult struct {
 	ScannedAt time.Time `json:"scanned_at"`
 }
 
-// PlayRequest 播放请求
+// PlayRequest 播放请求.
 type PlayRequest struct {
 	Quality    string `json:"quality,omitempty"` // original, 1080p, 720p, 480p
 	Format     string `json:"format,omitempty"`  // hls, dash, direct
@@ -195,7 +195,7 @@ type PlayRequest struct {
 	SubtitleID string `json:"subtitle_id,omitempty"`
 }
 
-// PlayResponse 播放响应
+// PlayResponse 播放响应.
 type PlayResponse struct {
 	VideoID   string  `json:"video_id"`
 	StreamURL string  `json:"stream_url"`
@@ -206,7 +206,7 @@ type PlayResponse struct {
 	SessionID string  `json:"session_id"`
 }
 
-// TranscodeRequest 转码请求
+// TranscodeRequest 转码请求.
 type TranscodeRequest struct {
 	Format       TranscodeFormat `json:"format"`
 	Resolution   string          `json:"resolution"`
@@ -215,7 +215,7 @@ type TranscodeRequest struct {
 	HWAccel      HardwareAccel   `json:"hw_accel,omitempty"`
 }
 
-// UpdateVideoRequest 更新视频请求
+// UpdateVideoRequest 更新视频请求.
 type UpdateVideoRequest struct {
 	Title       string   `json:"title,omitempty"`
 	Description string   `json:"description,omitempty"`
@@ -226,7 +226,7 @@ type UpdateVideoRequest struct {
 	Rating      float64  `json:"rating,omitempty"`
 }
 
-// CreateLibraryRequest 创建视频库请求
+// CreateLibraryRequest 创建视频库请求.
 type CreateLibraryRequest struct {
 	Name         string `json:"name"`
 	Path         string `json:"path"`
@@ -235,7 +235,7 @@ type CreateLibraryRequest struct {
 	ScanInterval int    `json:"scan_interval,omitempty"`
 }
 
-// SessionUpdateRequest 会话更新请求
+// SessionUpdateRequest 会话更新请求.
 type SessionUpdateRequest struct {
 	Position float64 `json:"position"`
 	Duration float64 `json:"duration"`

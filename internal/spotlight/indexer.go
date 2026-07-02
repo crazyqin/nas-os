@@ -18,7 +18,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// IndexStatus 索引状态
+// IndexStatus 索引状态.
 type IndexStatus struct {
 	Status       string    `json:"status"`
 	TotalFiles   int64     `json:"totalFiles"`
@@ -28,7 +28,7 @@ type IndexStatus struct {
 	Progress     float64   `json:"progress"`
 }
 
-// Indexer 内容索引器
+// Indexer 内容索引器.
 type Indexer struct {
 	config     EngineConfig
 	logger     *zap.Logger
@@ -41,7 +41,7 @@ type Indexer struct {
 	stopChan   chan struct{}
 }
 
-// NewIndexer 创建索引器
+// NewIndexer 创建索引器.
 func NewIndexer(config EngineConfig, logger *zap.Logger) (*Indexer, error) {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -84,7 +84,7 @@ func NewIndexer(config EngineConfig, logger *zap.Logger) (*Indexer, error) {
 	return idx, nil
 }
 
-// openOrCreateIndex 打开或创建索引
+// openOrCreateIndex 打开或创建索引.
 func (idx *Indexer) openOrCreateIndex() (bleve.Index, error) {
 	// 尝试打开已有索引
 	index, err := bleve.Open(idx.config.IndexPath)
@@ -104,7 +104,7 @@ func (idx *Indexer) openOrCreateIndex() (bleve.Index, error) {
 	return index, nil
 }
 
-// createIndexMapping 创建索引映射
+// createIndexMapping 创建索引映射.
 func (idx *Indexer) createIndexMapping() mapping.IndexMapping {
 	docMapping := bleve.NewDocumentMapping()
 
@@ -181,7 +181,7 @@ func (idx *Indexer) createIndexMapping() mapping.IndexMapping {
 	return indexMapping
 }
 
-// Start 启动索引器
+// Start 启动索引器.
 func (idx *Indexer) Start(ctx context.Context) error {
 	idx.mu.Lock()
 	idx.status.Status = "ready"
@@ -191,7 +191,7 @@ func (idx *Indexer) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止索引器
+// Stop 停止索引器.
 func (idx *Indexer) Stop() {
 	close(idx.stopChan)
 	if idx.index != nil {
@@ -200,7 +200,7 @@ func (idx *Indexer) Stop() {
 	idx.logger.Info("索引器已停止")
 }
 
-// IndexFile 索引单个文件
+// IndexFile 索引单个文件.
 func (idx *Indexer) IndexFile(ctx context.Context, path string) error {
 	// 检查是否排除
 	if idx.shouldExclude(path) {
@@ -245,7 +245,7 @@ func (idx *Indexer) IndexFile(ctx context.Context, path string) error {
 	return nil
 }
 
-// IndexDirectory 索引目录
+// IndexDirectory 索引目录.
 func (idx *Indexer) IndexDirectory(ctx context.Context, root string) error {
 	idx.mu.Lock()
 	if idx.indexing {
@@ -363,12 +363,12 @@ func (idx *Indexer) IndexDirectory(ctx context.Context, root string) error {
 	return nil
 }
 
-// RemoveFromIndex 从索引中移除
+// RemoveFromIndex 从索引中移除.
 func (idx *Indexer) RemoveFromIndex(ctx context.Context, path string) error {
 	return idx.index.Delete(path)
 }
 
-// Search 执行搜索
+// Search 执行搜索.
 func (idx *Indexer) Search(ctx context.Context, query *ParsedQuery, limit, offset int) ([]IndexEntry, int, error) {
 	// 构建 Bleve 查询
 	bleveQuery := idx.buildBleveQuery(query)
@@ -425,7 +425,7 @@ func (idx *Indexer) Search(ctx context.Context, query *ParsedQuery, limit, offse
 	return entries, int(result.Total), nil
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (idx *Indexer) RebuildIndex(ctx context.Context) error {
 	idx.mu.Lock()
 	defer idx.mu.Unlock()
@@ -457,21 +457,21 @@ func (idx *Indexer) RebuildIndex(ctx context.Context) error {
 	return nil
 }
 
-// GetStatus 获取索引状态
+// GetStatus 获取索引状态.
 func (idx *Indexer) GetStatus() IndexStatus {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()
 	return idx.status
 }
 
-// GetIndexedCount 获取已索引文件数
+// GetIndexedCount 获取已索引文件数.
 func (idx *Indexer) GetIndexedCount() int64 {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()
 	return idx.status.IndexedFiles
 }
 
-// buildBleveQuery 构建 Bleve 查询
+// buildBleveQuery 构建 Bleve 查询.
 func (idx *Indexer) buildBleveQuery(query *ParsedQuery) blevequery.Query {
 	var queries []blevequery.Query
 
@@ -536,7 +536,7 @@ func (idx *Indexer) buildBleveQuery(query *ParsedQuery) blevequery.Query {
 	return bleve.NewMatchAllQuery()
 }
 
-// shouldExclude 是否应该排除
+// shouldExclude 是否应该排除.
 func (idx *Indexer) shouldExclude(path string) bool {
 	// 检查排除路径
 	if idx.excludeMap[path] {
@@ -553,7 +553,7 @@ func (idx *Indexer) shouldExclude(path string) bool {
 	return false
 }
 
-// shouldIndexContent 是否应该索引内容
+// shouldIndexContent 是否应该索引内容.
 func (idx *Indexer) shouldIndexContent(path string, size int64) bool {
 	if !idx.config.EnableContentIndex {
 		return false
@@ -565,7 +565,7 @@ func (idx *Indexer) shouldIndexContent(path string, size int64) bool {
 	return idx.textExts[ext]
 }
 
-// readFileContent 读取文件内容
+// readFileContent 读取文件内容.
 func (idx *Indexer) readFileContent(path string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -582,7 +582,7 @@ func (idx *Indexer) readFileContent(path string) (string, error) {
 	return string(buf[:n]), nil
 }
 
-// getMimeType 获取 MIME 类型
+// getMimeType 获取 MIME 类型.
 func getMimeType(ext string) string {
 	mimeTypes := map[string]string{
 		".txt":  "text/plain",
@@ -618,7 +618,7 @@ func getMimeType(ext string) string {
 	return "application/octet-stream"
 }
 
-// detectProtocol 检测协议类型
+// detectProtocol 检测协议类型.
 func detectProtocol(path string) Protocol {
 	// 基于路径特征检测协议
 	if strings.HasPrefix(path, "smb://") || strings.HasPrefix(path, "\\\\") {
@@ -637,7 +637,7 @@ func detectProtocol(path string) Protocol {
 	return ProtocolSMB
 }
 
-// extractKeywords 提取关键词
+// extractKeywords 提取关键词.
 func extractKeywords(content string) []string {
 	keywords := make([]string, 0)
 	wordCount := make(map[string]int)
@@ -667,7 +667,7 @@ func extractKeywords(content string) []string {
 	return keywords
 }
 
-// getStopWords 获取停用词
+// getStopWords 获取停用词.
 func getStopWords() map[string]bool {
 	stopWords := make(map[string]bool)
 	words := []string{

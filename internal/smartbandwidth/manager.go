@@ -5,19 +5,19 @@ import (
 	"time"
 )
 
-// Manager 带宽管理器封装
+// Manager 带宽管理器封装.
 type Manager struct {
 	*SmartBandwidthManager
 }
 
-// NewManager 创建带宽管理器实例
+// NewManager 创建带宽管理器实例.
 func NewManager(config *SmartBandwidthConfig) *Manager {
 	return &Manager{
 		SmartBandwidthManager: NewSmartBandwidthManager(config),
 	}
 }
 
-// StartDynamicAdjustment 启动动态调整
+// StartDynamicAdjustment 启动动态调整.
 func (m *Manager) StartDynamicAdjustment(stopCh <-chan struct{}) {
 	go func() {
 		ticker := time.NewTicker(time.Duration(m.config.AdjustInterval) * time.Second)
@@ -36,7 +36,7 @@ func (m *Manager) StartDynamicAdjustment(stopCh <-chan struct{}) {
 	}()
 }
 
-// GetClassSummary 获取流量类型汇总
+// GetClassSummary 获取流量类型汇总.
 func (m *Manager) GetClassSummary() map[TrafficClass]*ClassSummary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -69,7 +69,7 @@ func (m *Manager) GetClassSummary() map[TrafficClass]*ClassSummary {
 	return summary
 }
 
-// ClassSummary 流量类型汇总
+// ClassSummary 流量类型汇总.
 type ClassSummary struct {
 	TrafficClass TrafficClass `json:"traffic_class"`
 	RuleCount    int          `json:"rule_count"`
@@ -78,7 +78,7 @@ type ClassSummary struct {
 	TotalPackets int64        `json:"total_packets"`
 }
 
-// GetBandwidthUsage 获取带宽使用情况
+// GetBandwidthUsage 获取带宽使用情况.
 func (m *Manager) GetBandwidthUsage() *BandwidthUsage {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -114,7 +114,7 @@ func (m *Manager) GetBandwidthUsage() *BandwidthUsage {
 	return usage
 }
 
-// BandwidthUsage 带宽使用情况
+// BandwidthUsage 带宽使用情况.
 type BandwidthUsage struct {
 	TotalMbps    float64   `json:"total_mbps"`
 	UsedMbps     float64   `json:"used_mbps"`
@@ -125,7 +125,7 @@ type BandwidthUsage struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
-// ResetStats 重置所有统计
+// ResetStats 重置所有统计.
 func (m *Manager) ResetStats() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -139,7 +139,7 @@ func (m *Manager) ResetStats() {
 	}
 }
 
-// ResetRuleStats 重置指定规则统计
+// ResetRuleStats 重置指定规则统计.
 func (m *Manager) ResetRuleStats(ruleID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -158,7 +158,7 @@ func (m *Manager) ResetRuleStats(ruleID string) error {
 	return nil
 }
 
-// UpdateStats 更新统计数据
+// UpdateStats 更新统计数据.
 func (m *Manager) UpdateStats(ruleID string, currentMbps float64, bytes int64, packets int64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -182,7 +182,7 @@ func (m *Manager) UpdateStats(ruleID string, currentMbps float64, bytes int64, p
 	return nil
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *SmartBandwidthConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -190,7 +190,7 @@ func (m *Manager) GetConfig() *SmartBandwidthConfig {
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config *SmartBandwidthConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

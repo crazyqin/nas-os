@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Manager AIOps 管理器
+// Manager AIOps 管理器.
 type Manager struct {
 	mu             sync.RWMutex
 	incidents      map[string]*Incident
@@ -23,7 +23,7 @@ type Manager struct {
 	totalAlertsOut int
 }
 
-// NewManager 创建 AIOps 管理器
+// NewManager 创建 AIOps 管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		incidents:    make(map[string]*Incident),
@@ -42,12 +42,12 @@ func NewManager() *Manager {
 	return m
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	return fmt.Sprintf("%d-%04x", time.Now().UnixNano(), rand.Intn(0xffff))
 }
 
-// initDefaultSLAs 初始化默认 SLA 目标
+// initDefaultSLAs 初始化默认 SLA 目标.
 func (m *Manager) initDefaultSLAs() {
 	defaults := []SLATarget{
 		{
@@ -81,7 +81,7 @@ func (m *Manager) initDefaultSLAs() {
 	}
 }
 
-// initKnowledgeBase 初始化运维知识库
+// initKnowledgeBase 初始化运维知识库.
 func (m *Manager) initKnowledgeBase() {
 	entries := []KnowledgeEntry{
 		{
@@ -136,7 +136,7 @@ func (m *Manager) initKnowledgeBase() {
 	}
 }
 
-// Diagnose 执行故障诊断
+// Diagnose 执行故障诊断.
 func (m *Manager) Diagnose(req *DiagnoseRequest) (*Incident, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -160,7 +160,7 @@ func (m *Manager) Diagnose(req *DiagnoseRequest) (*Incident, error) {
 	return incident, nil
 }
 
-// collectMetrics 模拟收集系统指标
+// collectMetrics 模拟收集系统指标.
 func (m *Manager) collectMetrics() *SystemMetrics {
 	return &SystemMetrics{
 		CPUUsage:    20 + rand.Float64()*60,
@@ -174,7 +174,7 @@ func (m *Manager) collectMetrics() *SystemMetrics {
 	}
 }
 
-// detectAnomalies 异常检测
+// detectAnomalies 异常检测.
 func (m *Manager) detectAnomalies(metrics *SystemMetrics) []Anomaly {
 	var anomalies []Anomaly
 
@@ -221,13 +221,13 @@ func (m *Manager) detectAnomalies(metrics *SystemMetrics) []Anomaly {
 	return anomalies
 }
 
-// correlateAnomalies 关联异常，推断根因
+// correlateAnomalies 关联异常，推断根因.
 func (m *Manager) correlateAnomalies(anomalies []Anomaly, service string) *Incident {
 	incidentID := generateID()
 
 	// 分析主要异常
 	var rootCause string
-	var severity Severity = SeverityLow
+	var severity = SeverityLow
 	var affectedComponents []string
 	var suggestedActions []string
 
@@ -324,7 +324,7 @@ func (m *Manager) correlateAnomalies(anomalies []Anomaly, service string) *Incid
 	return incident
 }
 
-// matchKnowledge 匹配知识库
+// matchKnowledge 匹配知识库.
 func (m *Manager) matchKnowledge(components []string) string {
 	componentStr := strings.Join(components, " ")
 
@@ -338,7 +338,7 @@ func (m *Manager) matchKnowledge(components []string) string {
 	return ""
 }
 
-// AggregateAlerts 聚合告警
+// AggregateAlerts 聚合告警.
 func (m *Manager) AggregateAlerts(alerts []Alert) []AlertGroup {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -416,7 +416,7 @@ func (m *Manager) AggregateAlerts(alerts []Alert) []AlertGroup {
 	return result
 }
 
-// AutoRemediate 自动修复
+// AutoRemediate 自动修复.
 func (m *Manager) AutoRemediate(incidentID string) (*RemediationAction, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -458,7 +458,7 @@ func (m *Manager) AutoRemediate(incidentID string) (*RemediationAction, error) {
 	return remediation, nil
 }
 
-// findRemediation 根据事件查找修复方案
+// findRemediation 根据事件查找修复方案.
 func (m *Manager) findRemediation(incident *Incident) *RemediationAction {
 	remediationID := generateID()
 	now := time.Now()
@@ -511,7 +511,7 @@ func (m *Manager) findRemediation(incident *Incident) *RemediationAction {
 	}
 }
 
-// GetSLA 获取 SLA 状态
+// GetSLA 获取 SLA 状态.
 func (m *Manager) GetSLA(service string) (*SLATarget, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -532,7 +532,7 @@ func (m *Manager) GetSLA(service string) (*SLATarget, error) {
 	return nil, fmt.Errorf("no SLA targets configured")
 }
 
-// ListSLAs 列出所有 SLA 目标
+// ListSLAs 列出所有 SLA 目标.
 func (m *Manager) ListSLAs() []*SLATarget {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -544,7 +544,7 @@ func (m *Manager) ListSLAs() []*SLATarget {
 	return slas
 }
 
-// UpdateSLA 更新 SLA 目标
+// UpdateSLA 更新 SLA 目标.
 func (m *Manager) UpdateSLA(req *SLATargetRequest) *SLATarget {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -572,7 +572,7 @@ func (m *Manager) UpdateSLA(req *SLATargetRequest) *SLATarget {
 	return sla
 }
 
-// GetStats 获取运维统计
+// GetStats 获取运维统计.
 func (m *Manager) GetStats() *OpsStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -657,7 +657,7 @@ func (m *Manager) GetStats() *OpsStats {
 	return stats
 }
 
-// GetIncident 获取事件
+// GetIncident 获取事件.
 func (m *Manager) GetIncident(id string) (*Incident, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -669,7 +669,7 @@ func (m *Manager) GetIncident(id string) (*Incident, error) {
 	return inc, nil
 }
 
-// ListIncidents 列出事件
+// ListIncidents 列出事件.
 func (m *Manager) ListIncidents(status string) []Incident {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -683,7 +683,7 @@ func (m *Manager) ListIncidents(status string) []Incident {
 	return result
 }
 
-// ResolveIncident 解决事件
+// ResolveIncident 解决事件.
 func (m *Manager) ResolveIncident(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -700,7 +700,7 @@ func (m *Manager) ResolveIncident(id string) error {
 	return nil
 }
 
-// ListAlertGroups 列出告警组
+// ListAlertGroups 列出告警组.
 func (m *Manager) ListAlertGroups() []AlertGroup {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -712,7 +712,7 @@ func (m *Manager) ListAlertGroups() []AlertGroup {
 	return groups
 }
 
-// SuppressAlertGroup 静默告警组
+// SuppressAlertGroup 静默告警组.
 func (m *Manager) SuppressAlertGroup(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -726,7 +726,7 @@ func (m *Manager) SuppressAlertGroup(id string) error {
 	return nil
 }
 
-// GetKnowledge 获取知识条目
+// GetKnowledge 获取知识条目.
 func (m *Manager) GetKnowledge(id string) (*KnowledgeEntry, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -738,7 +738,7 @@ func (m *Manager) GetKnowledge(id string) (*KnowledgeEntry, error) {
 	return entry, nil
 }
 
-// ListKnowledge 列出知识库
+// ListKnowledge 列出知识库.
 func (m *Manager) ListKnowledge() []KnowledgeEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -750,7 +750,7 @@ func (m *Manager) ListKnowledge() []KnowledgeEntry {
 	return entries
 }
 
-// AddKnowledge 添加知识条目
+// AddKnowledge 添加知识条目.
 func (m *Manager) AddKnowledge(entry *KnowledgeEntry) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -763,7 +763,7 @@ func (m *Manager) AddKnowledge(entry *KnowledgeEntry) {
 	m.knowledge[entry.ID] = entry
 }
 
-// SearchKnowledge 搜索知识库
+// SearchKnowledge 搜索知识库.
 func (m *Manager) SearchKnowledge(query string) []KnowledgeEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -788,7 +788,7 @@ func (m *Manager) SearchKnowledge(query string) []KnowledgeEntry {
 	return results
 }
 
-// cleanOldAlerts 清理旧告警
+// cleanOldAlerts 清理旧告警.
 func (m *Manager) cleanOldAlerts(maxAge time.Duration) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -803,7 +803,7 @@ func (m *Manager) cleanOldAlerts(maxAge time.Duration) {
 	m.alerts = filtered
 }
 
-// 数学工具函数
+// 数学工具函数.
 func min(a, b int) int {
 	if a < b {
 		return a

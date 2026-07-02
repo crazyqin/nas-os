@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// 分辨率常量
+// 分辨率常量.
 const (
 	Resolution4K    = "3840x2160"
 	Resolution1080p = "1920x1080"
@@ -19,7 +19,7 @@ const (
 	Resolution480p  = "854x480"
 )
 
-// 视频编码常量
+// 视频编码常量.
 const (
 	CodecH264 = "H264"
 	CodecH265 = "H265"
@@ -27,7 +27,7 @@ const (
 	CodecAV1  = "AV1"
 )
 
-// 音频编码常量
+// 音频编码常量.
 const (
 	AudioCodecAAC  = "AAC"
 	AudioCodecMP3  = "MP3"
@@ -35,7 +35,7 @@ const (
 	AudioCodecFLAC = "FLAC"
 )
 
-// 任务状态
+// 任务状态.
 const (
 	TaskStatusPending    = "pending"
 	TaskStatusProcessing = "processing"
@@ -44,7 +44,7 @@ const (
 	TaskStatusCancelled  = "cancelled"
 )
 
-// 优先级
+// 优先级.
 const (
 	PriorityLow    = 1
 	PriorityNormal = 5
@@ -60,7 +60,7 @@ var (
 	ErrDuplicatePreset    = errors.New("预设名称已存在")
 )
 
-// TranscodeConfig 转码配置
+// TranscodeConfig 转码配置.
 type TranscodeConfig struct {
 	Resolution   string `json:"resolution"`    // 分辨率
 	VideoCodec   string `json:"video_codec"`   // 视频编码
@@ -70,7 +70,7 @@ type TranscodeConfig struct {
 	FPS          int    `json:"fps"`           // 帧率
 }
 
-// TranscodeTask 转码任务
+// TranscodeTask 转码任务.
 type TranscodeTask struct {
 	ID          string          `json:"id"`
 	InputFile   string          `json:"input_file"`
@@ -86,7 +86,7 @@ type TranscodeTask struct {
 	Error       string          `json:"error,omitempty"`
 }
 
-// TranscodePreset 转码预设
+// TranscodePreset 转码预设.
 type TranscodePreset struct {
 	Name        string          `json:"name"`
 	Description string          `json:"description"`
@@ -94,7 +94,7 @@ type TranscodePreset struct {
 	BuiltIn     bool            `json:"built_in"` // 是否内置预设
 }
 
-// TranscodeStats 转码统计
+// TranscodeStats 转码统计.
 type TranscodeStats struct {
 	TotalTasks      int            `json:"total_tasks"`
 	CompletedTasks  int            `json:"completed_tasks"`
@@ -105,7 +105,7 @@ type TranscodeStats struct {
 	FormatDist      map[string]int `json:"format_distribution"` // 格式分布
 }
 
-// ThumbnailInfo 缩略图信息
+// ThumbnailInfo 缩略图信息.
 type ThumbnailInfo struct {
 	TaskID    string    `json:"task_id"`
 	FilePath  string    `json:"file_path"`
@@ -115,7 +115,7 @@ type ThumbnailInfo struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// StreamTranscodeEngine 流媒体转码引擎
+// StreamTranscodeEngine 流媒体转码引擎.
 type StreamTranscodeEngine struct {
 	mu             sync.RWMutex
 	tasks          map[string]*TranscodeTask
@@ -127,7 +127,7 @@ type StreamTranscodeEngine struct {
 	taskOrder      []string // 按优先级排序的任务ID队列
 }
 
-// NewEngine 创建转码引擎
+// NewEngine 创建转码引擎.
 func NewEngine(maxConcurrency, maxQueueSize int) *StreamTranscodeEngine {
 	if maxConcurrency <= 0 {
 		maxConcurrency = 2
@@ -150,7 +150,7 @@ func NewEngine(maxConcurrency, maxQueueSize int) *StreamTranscodeEngine {
 	return engine
 }
 
-// registerBuiltInPresets 注册内置预设
+// registerBuiltInPresets 注册内置预设.
 func (e *StreamTranscodeEngine) registerBuiltInPresets() {
 	builtInPresets := []*TranscodePreset{
 		{
@@ -225,12 +225,12 @@ func (e *StreamTranscodeEngine) registerBuiltInPresets() {
 	}
 }
 
-// 生成任务ID
+// 生成任务ID.
 func generateTaskID() string {
 	return fmt.Sprintf("task_%d", time.Now().UnixNano())
 }
 
-// CreateTask 创建转码任务
+// CreateTask 创建转码任务.
 func (e *StreamTranscodeEngine) CreateTask(inputFile, outputFile string, config TranscodeConfig, priority int) (*TranscodeTask, error) {
 	if err := e.validateConfig(config); err != nil {
 		return nil, err
@@ -274,7 +274,7 @@ func (e *StreamTranscodeEngine) CreateTask(inputFile, outputFile string, config 
 	return task, nil
 }
 
-// CreateTaskFromPreset 使用预设创建转码任务
+// CreateTaskFromPreset 使用预设创建转码任务.
 func (e *StreamTranscodeEngine) CreateTaskFromPreset(inputFile, outputFile, presetName string, priority int) (*TranscodeTask, error) {
 	e.mu.RLock()
 	preset, exists := e.presets[presetName]
@@ -296,7 +296,7 @@ func (e *StreamTranscodeEngine) CreateTaskFromPreset(inputFile, outputFile, pres
 	return task, nil
 }
 
-// insertTaskOrder 按优先级插入任务到队列
+// insertTaskOrder 按优先级插入任务到队列.
 func (e *StreamTranscodeEngine) insertTaskOrder(taskID string, priority int) {
 	// 找到插入位置（优先级高的在前）
 	insertIdx := len(e.taskOrder)
@@ -315,7 +315,7 @@ func (e *StreamTranscodeEngine) insertTaskOrder(taskID string, priority int) {
 	e.taskOrder[insertIdx] = taskID
 }
 
-// GetTask 获取转码任务
+// GetTask 获取转码任务.
 func (e *StreamTranscodeEngine) GetTask(taskID string) (*TranscodeTask, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -330,7 +330,7 @@ func (e *StreamTranscodeEngine) GetTask(taskID string) (*TranscodeTask, error) {
 	return &taskCopy, nil
 }
 
-// CancelTask 取消转码任务
+// CancelTask 取消转码任务.
 func (e *StreamTranscodeEngine) CancelTask(taskID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -353,7 +353,7 @@ func (e *StreamTranscodeEngine) CancelTask(taskID string) error {
 	return nil
 }
 
-// removeFromOrder 从队列中移除任务
+// removeFromOrder 从队列中移除任务.
 func (e *StreamTranscodeEngine) removeFromOrder(taskID string) {
 	for i, id := range e.taskOrder {
 		if id == taskID {
@@ -363,7 +363,7 @@ func (e *StreamTranscodeEngine) removeFromOrder(taskID string) {
 	}
 }
 
-// ListTasks 列出所有转码任务
+// ListTasks 列出所有转码任务.
 func (e *StreamTranscodeEngine) ListTasks(statusFilter string) []*TranscodeTask {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -384,7 +384,7 @@ func (e *StreamTranscodeEngine) ListTasks(statusFilter string) []*TranscodeTask 
 	return result
 }
 
-// GetNextTask 获取下一个待处理任务
+// GetNextTask 获取下一个待处理任务.
 func (e *StreamTranscodeEngine) GetNextTask() *TranscodeTask {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -408,7 +408,7 @@ func (e *StreamTranscodeEngine) GetNextTask() *TranscodeTask {
 	return nil
 }
 
-// UpdateTaskProgress 更新任务进度
+// UpdateTaskProgress 更新任务进度.
 func (e *StreamTranscodeEngine) UpdateTaskProgress(taskID string, progress float64) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -433,7 +433,7 @@ func (e *StreamTranscodeEngine) UpdateTaskProgress(taskID string, progress float
 	return nil
 }
 
-// CompleteTask 完成转码任务
+// CompleteTask 完成转码任务.
 func (e *StreamTranscodeEngine) CompleteTask(taskID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -456,7 +456,7 @@ func (e *StreamTranscodeEngine) CompleteTask(taskID string) error {
 	return nil
 }
 
-// FailTask 标记任务失败
+// FailTask 标记任务失败.
 func (e *StreamTranscodeEngine) FailTask(taskID string, errMsg string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -479,7 +479,7 @@ func (e *StreamTranscodeEngine) FailTask(taskID string, errMsg string) error {
 	return nil
 }
 
-// AddPreset 添加自定义预设
+// AddPreset 添加自定义预设.
 func (e *StreamTranscodeEngine) AddPreset(preset *TranscodePreset) error {
 	if err := e.validateConfig(preset.Config); err != nil {
 		return err
@@ -497,7 +497,7 @@ func (e *StreamTranscodeEngine) AddPreset(preset *TranscodePreset) error {
 	return nil
 }
 
-// GetPreset 获取预设
+// GetPreset 获取预设.
 func (e *StreamTranscodeEngine) GetPreset(name string) (*TranscodePreset, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -511,7 +511,7 @@ func (e *StreamTranscodeEngine) GetPreset(name string) (*TranscodePreset, error)
 	return &presetCopy, nil
 }
 
-// ListPresets 列出所有预设
+// ListPresets 列出所有预设.
 func (e *StreamTranscodeEngine) ListPresets() []*TranscodePreset {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -529,7 +529,7 @@ func (e *StreamTranscodeEngine) ListPresets() []*TranscodePreset {
 	return result
 }
 
-// DeletePreset 删除自定义预设
+// DeletePreset 删除自定义预设.
 func (e *StreamTranscodeEngine) DeletePreset(name string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -547,7 +547,7 @@ func (e *StreamTranscodeEngine) DeletePreset(name string) error {
 	return nil
 }
 
-// GenerateThumbnail 生成缩略图
+// GenerateThumbnail 生成缩略图.
 func (e *StreamTranscodeEngine) GenerateThumbnail(taskID, filePath string, timestamp float64, width, height int) (*ThumbnailInfo, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -584,7 +584,7 @@ func (e *StreamTranscodeEngine) GenerateThumbnail(taskID, filePath string, times
 	return thumbnail, nil
 }
 
-// GetThumbnails 获取任务的所有缩略图
+// GetThumbnails 获取任务的所有缩略图.
 func (e *StreamTranscodeEngine) GetThumbnails(taskID string) ([]*ThumbnailInfo, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -608,7 +608,7 @@ func (e *StreamTranscodeEngine) GetThumbnails(taskID string) ([]*ThumbnailInfo, 
 	return result, nil
 }
 
-// GetStats 获取转码统计
+// GetStats 获取转码统计.
 func (e *StreamTranscodeEngine) GetStats() *TranscodeStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -652,7 +652,7 @@ func (e *StreamTranscodeEngine) GetStats() *TranscodeStats {
 	return stats
 }
 
-// GetStatsJSON 获取统计信息的JSON格式
+// GetStatsJSON 获取统计信息的JSON格式.
 func (e *StreamTranscodeEngine) GetStatsJSON() (string, error) {
 	stats := e.GetStats()
 	data, err := json.MarshalIndent(stats, "", "  ")
@@ -662,7 +662,7 @@ func (e *StreamTranscodeEngine) GetStatsJSON() (string, error) {
 	return string(data), nil
 }
 
-// GetQueueStatus 获取队列状态
+// GetQueueStatus 获取队列状态.
 func (e *StreamTranscodeEngine) GetQueueStatus() map[string]int {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -687,7 +687,7 @@ func (e *StreamTranscodeEngine) GetQueueStatus() map[string]int {
 	return status
 }
 
-// validateConfig 验证转码配置
+// validateConfig 验证转码配置.
 func (e *StreamTranscodeEngine) validateConfig(config TranscodeConfig) error {
 	// 验证分辨率
 	validResolutions := map[string]bool{
@@ -730,7 +730,7 @@ func (e *StreamTranscodeEngine) validateConfig(config TranscodeConfig) error {
 	return nil
 }
 
-// EstimateFileSize 估算输出文件大小（MB）
+// EstimateFileSize 估算输出文件大小（MB）.
 func (e *StreamTranscodeEngine) EstimateFileSize(config TranscodeConfig, durationSeconds float64) float64 {
 	// 视频码率 (kbps) * 时长(s) / 8 / 1024 = MB
 	videoSize := float64(config.VideoBitrate) * durationSeconds / 8.0 / 1024.0
@@ -738,7 +738,7 @@ func (e *StreamTranscodeEngine) EstimateFileSize(config TranscodeConfig, duratio
 	return math.Round((videoSize+audioSize)*100) / 100
 }
 
-// GetResolutionLabel 获取分辨率标签
+// GetResolutionLabel 获取分辨率标签.
 func GetResolutionLabel(resolution string) string {
 	labels := map[string]string{
 		Resolution4K:    "4K (2160p)",
@@ -752,7 +752,7 @@ func GetResolutionLabel(resolution string) string {
 	return resolution
 }
 
-// GetCodecInfo 获取编码信息
+// GetCodecInfo 获取编码信息.
 func GetCodecInfo(codec string) string {
 	info := map[string]string{
 		CodecH264: "H.264/AVC - 通用兼容",
@@ -766,7 +766,7 @@ func GetCodecInfo(codec string) string {
 	return codec
 }
 
-// FormatDuration 格式化时长
+// FormatDuration 格式化时长.
 func FormatDuration(d time.Duration) string {
 	if d < time.Minute {
 		return fmt.Sprintf("%.1f秒", d.Seconds())
@@ -777,7 +777,7 @@ func FormatDuration(d time.Duration) string {
 	return fmt.Sprintf("%.1f小时", d.Hours())
 }
 
-// GetTaskDuration 获取任务耗时
+// GetTaskDuration 获取任务耗时.
 func GetTaskDuration(task *TranscodeTask) time.Duration {
 	if task.StartedAt == nil {
 		return 0
@@ -809,7 +809,7 @@ func (c *TranscodeConfig) String() string {
 		GetResolutionLabel(c.Resolution), c.VideoCodec, c.AudioCodec, c.VideoBitrate)
 }
 
-// ToJSON 序列化为JSON
+// ToJSON 序列化为JSON.
 func (t *TranscodeTask) ToJSON() (string, error) {
 	data, err := json.MarshalIndent(t, "", "  ")
 	if err != nil {
@@ -818,7 +818,7 @@ func (t *TranscodeTask) ToJSON() (string, error) {
 	return string(data), nil
 }
 
-// ToJSON 序列化为JSON
+// ToJSON 序列化为JSON.
 func (p *TranscodePreset) ToJSON() (string, error) {
 	data, err := json.MarshalIndent(p, "", "  ")
 	if err != nil {
@@ -827,7 +827,7 @@ func (p *TranscodePreset) ToJSON() (string, error) {
 	return string(data), nil
 }
 
-// ParseConfigFromJSON 从JSON解析配置
+// ParseConfigFromJSON 从JSON解析配置.
 func ParseConfigFromJSON(jsonStr string) (*TranscodeConfig, error) {
 	var config TranscodeConfig
 	if err := json.Unmarshal([]byte(jsonStr), &config); err != nil {
@@ -836,22 +836,22 @@ func ParseConfigFromJSON(jsonStr string) (*TranscodeConfig, error) {
 	return &config, nil
 }
 
-// GetSupportedResolutions 获取支持的分辨率列表
+// GetSupportedResolutions 获取支持的分辨率列表.
 func GetSupportedResolutions() []string {
 	return []string{Resolution4K, Resolution1080p, Resolution720p, Resolution480p}
 }
 
-// GetSupportedVideoCodecs 获取支持的视频编码列表
+// GetSupportedVideoCodecs 获取支持的视频编码列表.
 func GetSupportedVideoCodecs() []string {
 	return []string{CodecH264, CodecH265, CodecVP9, CodecAV1}
 }
 
-// GetSupportedAudioCodecs 获取支持的音频编码列表
+// GetSupportedAudioCodecs 获取支持的音频编码列表.
 func GetSupportedAudioCodecs() []string {
 	return []string{AudioCodecAAC, AudioCodecMP3, AudioCodecOpus, AudioCodecFLAC}
 }
 
-// MatchPreset 根据配置匹配最佳预设
+// MatchPreset 根据配置匹配最佳预设.
 func (e *StreamTranscodeEngine) MatchPreset(config TranscodeConfig) string {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -866,7 +866,7 @@ func (e *StreamTranscodeEngine) MatchPreset(config TranscodeConfig) string {
 	return ""
 }
 
-// CleanCompletedTasks 清理已完成的任务
+// CleanCompletedTasks 清理已完成的任务.
 func (e *StreamTranscodeEngine) CleanCompletedTasks(before time.Time) int {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -884,13 +884,13 @@ func (e *StreamTranscodeEngine) CleanCompletedTasks(before time.Time) int {
 	return removed
 }
 
-// ValidateConfig 公开的配置验证方法
+// ValidateConfig 公开的配置验证方法.
 func ValidateConfig(config TranscodeConfig) error {
 	engine := &StreamTranscodeEngine{}
 	return engine.validateConfig(config)
 }
 
-// CodecSupported 检查编码是否支持
+// CodecSupported 检查编码是否支持.
 func CodecSupported(codec string) bool {
 	codec = strings.ToUpper(codec)
 	supported := map[string]bool{

@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	svc *DiskHealthService
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(svc *DiskHealthService) *Handler {
 	return &Handler{svc: svc}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	group := router.Group("/diskhealthai2")
 	{
@@ -36,7 +36,7 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 }
 
 // ListDisks 获取磁盘列表及健康状态
-// GET /api/v1/diskhealthai2/disks
+// GET /api/v1/diskhealthai2/disks.
 func (h *Handler) ListDisks(c *gin.Context) {
 	devices := h.svc.Analyzer.GetDevices()
 	var disks []DiskListItem
@@ -73,7 +73,7 @@ func (h *Handler) ListDisks(c *gin.Context) {
 }
 
 // GetSMART 获取 SMART 详情
-// GET /api/v1/diskhealthai2/disks/:id/smart
+// GET /api/v1/diskhealthai2/disks/:id/smart.
 func (h *Handler) GetSMART(c *gin.Context) {
 	id := c.Param("id")
 
@@ -105,7 +105,7 @@ func (h *Handler) GetSMART(c *gin.Context) {
 }
 
 // GetScore 获取健康评分
-// GET /api/v1/diskhealthai2/disks/:id/score
+// GET /api/v1/diskhealthai2/disks/:id/score.
 func (h *Handler) GetScore(c *gin.Context) {
 	id := c.Param("id")
 
@@ -125,7 +125,7 @@ func (h *Handler) GetScore(c *gin.Context) {
 }
 
 // Predict 故障预测
-// GET /api/v1/diskhealthai2/disks/:id/predict
+// GET /api/v1/diskhealthai2/disks/:id/predict.
 func (h *Handler) Predict(c *gin.Context) {
 	id := c.Param("id")
 
@@ -145,7 +145,7 @@ func (h *Handler) Predict(c *gin.Context) {
 }
 
 // GetHistory 获取历史趋势
-// GET /api/v1/diskhealthai2/disks/:id/history
+// GET /api/v1/diskhealthai2/disks/:id/history.
 func (h *Handler) GetHistory(c *gin.Context) {
 	id := c.Param("id")
 
@@ -184,7 +184,7 @@ func (h *Handler) GetHistory(c *gin.Context) {
 }
 
 // ListGroups 获取磁盘组列表
-// GET /api/v1/diskhealthai2/groups
+// GET /api/v1/diskhealthai2/groups.
 func (h *Handler) ListGroups(c *gin.Context) {
 	groups := h.svc.GroupMgr.EvaluateAllGroups()
 
@@ -195,7 +195,7 @@ func (h *Handler) ListGroups(c *gin.Context) {
 }
 
 // GetGroupHealth 获取磁盘组健康状态
-// GET /api/v1/diskhealthai2/groups/:id/health
+// GET /api/v1/diskhealthai2/groups/:id/health.
 func (h *Handler) GetGroupHealth(c *gin.Context) {
 	id := c.Param("id")
 
@@ -215,7 +215,7 @@ func (h *Handler) GetGroupHealth(c *gin.Context) {
 }
 
 // GetAdvice 获取维护建议列表
-// GET /api/v1/diskhealthai2/advice
+// GET /api/v1/diskhealthai2/advice.
 func (h *Handler) GetAdvice(c *gin.Context) {
 	advices, err := h.svc.Advisor.GenerateAdvice()
 	if err != nil {
@@ -233,7 +233,7 @@ func (h *Handler) GetAdvice(c *gin.Context) {
 }
 
 // TriggerScan 触发全盘扫描
-// POST /api/v1/diskhealthai2/scan
+// POST /api/v1/diskhealthai2/scan.
 func (h *Handler) TriggerScan(c *gin.Context) {
 	scanID, startedAt := h.svc.ScanAllDisk()
 
@@ -249,7 +249,7 @@ func (h *Handler) TriggerScan(c *gin.Context) {
 }
 
 // Dashboard 仪表板汇总
-// GET /api/v1/diskhealthai2/dashboard
+// GET /api/v1/diskhealthai2/dashboard.
 func (h *Handler) Dashboard(c *gin.Context) {
 	devices := h.svc.Analyzer.GetDevices()
 

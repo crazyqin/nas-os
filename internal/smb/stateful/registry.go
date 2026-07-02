@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-// SessionStateRegistry 会话状态注册表（支持节点归属查询）
+// SessionStateRegistry 会话状态注册表（支持节点归属查询）.
 type SessionStateRegistry struct {
 	mu       sync.RWMutex
 	sessions map[string]*SessionState
 }
 
-// SessionState SMB会话状态（用于跨节点迁移）
+// SessionState SMB会话状态（用于跨节点迁移）.
 type SessionState struct {
 	SessionID    string            `json:"session_id"`
 	ClientIP     string            `json:"client_ip"`
@@ -35,7 +35,7 @@ type SessionState struct {
 	Metadata     map[string]string `json:"metadata,omitempty"`
 }
 
-// FileLockState 文件锁状态
+// FileLockState 文件锁状态.
 type FileLockState struct {
 	FilePath   string    `json:"file_path"`
 	LockType   string    `json:"lock_type"` // "read" | "write" | "read-write"
@@ -45,35 +45,35 @@ type FileLockState struct {
 	AcquiredAt time.Time `json:"acquired_at"`
 }
 
-// NewSessionStateRegistry 创建会话注册表
+// NewSessionStateRegistry 创建会话注册表.
 func NewSessionStateRegistry() *SessionStateRegistry {
 	return &SessionStateRegistry{
 		sessions: make(map[string]*SessionState),
 	}
 }
 
-// Add 添加会话
+// Add 添加会话.
 func (r *SessionStateRegistry) Add(session *SessionState) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.sessions[session.SessionID] = session
 }
 
-// Remove 移除会话
+// Remove 移除会话.
 func (r *SessionStateRegistry) Remove(sessionID string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	delete(r.sessions, sessionID)
 }
 
-// Get 获取会话
+// Get 获取会话.
 func (r *SessionStateRegistry) Get(sessionID string) *SessionState {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	return r.sessions[sessionID]
 }
 
-// GetByNode 获取指定节点的所有会话
+// GetByNode 获取指定节点的所有会话.
 func (r *SessionStateRegistry) GetByNode(nodeID string) []*SessionState {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -86,7 +86,7 @@ func (r *SessionStateRegistry) GetByNode(nodeID string) []*SessionState {
 	return result
 }
 
-// GetByClient 获取客户端的所有会话
+// GetByClient 获取客户端的所有会话.
 func (r *SessionStateRegistry) GetByClient(clientIP string) []*SessionState {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -99,7 +99,7 @@ func (r *SessionStateRegistry) GetByClient(clientIP string) []*SessionState {
 	return result
 }
 
-// GetByShare 获取共享的所有会话
+// GetByShare 获取共享的所有会话.
 func (r *SessionStateRegistry) GetByShare(shareName string) []*SessionState {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -112,7 +112,7 @@ func (r *SessionStateRegistry) GetByShare(shareName string) []*SessionState {
 	return result
 }
 
-// ListAll 列出所有会话
+// ListAll 列出所有会话.
 func (r *SessionStateRegistry) ListAll() []*SessionState {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -123,14 +123,14 @@ func (r *SessionStateRegistry) ListAll() []*SessionState {
 	return result
 }
 
-// Size 返回会话总数
+// Size 返回会话总数.
 func (r *SessionStateRegistry) Size() int {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	return len(r.sessions)
 }
 
-// CleanupExpired 清理过期会话
+// CleanupExpired 清理过期会话.
 func (r *SessionStateRegistry) CleanupExpired(maxAge time.Duration) int {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -145,14 +145,14 @@ func (r *SessionStateRegistry) CleanupExpired(maxAge time.Duration) int {
 	return count
 }
 
-// MarshalJSON 序列化
+// MarshalJSON 序列化.
 func (r *SessionStateRegistry) MarshalJSON() ([]byte, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	return json.Marshal(r.sessions)
 }
 
-// ValidateSessionState 验证会话状态完整性
+// ValidateSessionState 验证会话状态完整性.
 func ValidateSessionState(s *SessionState) error {
 	if s.SessionID == "" {
 		return fmt.Errorf("SessionID不能为空")

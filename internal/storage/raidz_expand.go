@@ -16,7 +16,7 @@ import (
 
 // ========== 进度监控核心结构 ==========
 
-// RAIDZExpandProgress 扩展进度详情（UI展示）
+// RAIDZExpandProgress 扩展进度详情（UI展示）.
 type RAIDZExpandProgress struct {
 	// 任务标识
 	TaskID   string `json:"taskId"`   // 任务唯一ID
@@ -65,7 +65,7 @@ type RAIDZExpandProgress struct {
 	Warnings []string `json:"warnings"` // 警告列表
 }
 
-// PhaseInfo 阶段信息
+// PhaseInfo 阶段信息.
 type PhaseInfo struct {
 	Name        string  `json:"name"`        // 阶段名称
 	Description string  `json:"description"` // 阶段描述
@@ -74,7 +74,7 @@ type PhaseInfo struct {
 	Duration    int64   `json:"duration"`    // 阶段耗时秒数
 }
 
-// DiskSlot 磁盘槽位信息（UI展示）
+// DiskSlot 磁盘槽位信息（UI展示）.
 type DiskSlot struct {
 	Path      string `json:"path"`      // 磁盘路径
 	Model     string `json:"model"`     // 型号
@@ -86,7 +86,7 @@ type DiskSlot struct {
 
 // ========== 扩展阶段定义 ==========
 
-// ExpansionPhase 扩展阶段常量
+// ExpansionPhase 扩展阶段常量.
 const (
 	PhasePreparing     = "preparing"      // 准备阶段
 	PhaseDataScan      = "data_scan"      // 数据扫描
@@ -96,7 +96,7 @@ const (
 	PhaseCompleted     = "completed"      // 完成
 )
 
-// DefaultPhases 默认阶段列表
+// DefaultPhases 默认阶段列表.
 var DefaultPhases = []PhaseInfo{
 	{Name: PhasePreparing, Description: "准备扩展环境", Status: "pending"},
 	{Name: PhaseDataScan, Description: "扫描数据布局", Status: "pending"},
@@ -108,7 +108,7 @@ var DefaultPhases = []PhaseInfo{
 
 // ========== 扩展进度监控器 ==========
 
-// RAIDZExpandMonitor 扩展进度监控器
+// RAIDZExpandMonitor 扩展进度监控器.
 type RAIDZExpandMonitor struct {
 	mu sync.RWMutex
 
@@ -134,7 +134,7 @@ type RAIDZExpandMonitor struct {
 	stopChan chan struct{}
 }
 
-// NewRAIDZExpandMonitor 创建扩展进度监控器
+// NewRAIDZExpandMonitor 创建扩展进度监控器.
 func NewRAIDZExpandMonitor(configPath string) *RAIDZExpandMonitor {
 	return &RAIDZExpandMonitor{
 		activeProgress:    make(map[string]*RAIDZExpandProgress),
@@ -149,7 +149,7 @@ func NewRAIDZExpandMonitor(configPath string) *RAIDZExpandMonitor {
 
 // ========== 核心进度API ==========
 
-// StartMonitoring 开始监控扩展进度
+// StartMonitoring 开始监控扩展进度.
 func (m *RAIDZExpandMonitor) StartMonitoring(ctx context.Context, task *ExpansionTask) (*RAIDZExpandProgress, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -197,7 +197,7 @@ func (m *RAIDZExpandMonitor) StartMonitoring(ctx context.Context, task *Expansio
 	return progress, nil
 }
 
-// GetProgress 获取当前扩展进度
+// GetProgress 获取当前扩展进度.
 func (m *RAIDZExpandMonitor) GetProgress(poolName string) (*RAIDZExpandProgress, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -223,7 +223,7 @@ func (m *RAIDZExpandMonitor) GetProgress(poolName string) (*RAIDZExpandProgress,
 	return &copy, nil
 }
 
-// GetAllProgress 获取所有活跃扩展进度
+// GetAllProgress 获取所有活跃扩展进度.
 func (m *RAIDZExpandMonitor) GetAllProgress() []*RAIDZExpandProgress {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -241,7 +241,7 @@ func (m *RAIDZExpandMonitor) GetAllProgress() []*RAIDZExpandProgress {
 	return result
 }
 
-// UpdateProgress 更新扩展进度（由服务层调用）
+// UpdateProgress 更新扩展进度（由服务层调用）.
 func (m *RAIDZExpandMonitor) UpdateProgress(poolName string, task *ExpansionTask) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -303,21 +303,21 @@ func (m *RAIDZExpandMonitor) UpdateProgress(poolName string, task *ExpansionTask
 
 // ========== 进度回调API ==========
 
-// RegisterProgressCallback 注册进度回调（用于WebSocket推送）
+// RegisterProgressCallback 注册进度回调（用于WebSocket推送）.
 func (m *RAIDZExpandMonitor) RegisterProgressCallback(poolName string, callback func(*RAIDZExpandProgress)) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.progressCallbacks[poolName] = callback
 }
 
-// RegisterStateCallback 注册状态变更回调
+// RegisterStateCallback 注册状态变更回调.
 func (m *RAIDZExpandMonitor) RegisterStateCallback(callback func(string, string)) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.stateCallbacks = append(m.stateCallbacks, callback)
 }
 
-// UnregisterProgressCallback 移除进度回调
+// UnregisterProgressCallback 移除进度回调.
 func (m *RAIDZExpandMonitor) UnregisterProgressCallback(poolName string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -326,7 +326,7 @@ func (m *RAIDZExpandMonitor) UnregisterProgressCallback(poolName string) {
 
 // ========== 历史记录API ==========
 
-// GetProgressHistory 获取进度历史（UI展示）
+// GetProgressHistory 获取进度历史（UI展示）.
 func (m *RAIDZExpandMonitor) GetProgressHistory(limit int) []RAIDZExpandProgress {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -345,7 +345,7 @@ func (m *RAIDZExpandMonitor) GetProgressHistory(limit int) []RAIDZExpandProgress
 	return result
 }
 
-// GetLatestProgressForPool 获取指定池的最新历史进度
+// GetLatestProgressForPool 获取指定池的最新历史进度.
 func (m *RAIDZExpandMonitor) GetLatestProgressForPool(poolName string) *RAIDZExpandProgress {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -369,7 +369,7 @@ func (m *RAIDZExpandMonitor) GetLatestProgressForPool(poolName string) *RAIDZExp
 
 // ========== 内部方法 ==========
 
-// monitorLoop 监控循环（定期更新）
+// monitorLoop 监控循环（定期更新）.
 func (m *RAIDZExpandMonitor) monitorLoop(ctx context.Context, poolName string) {
 	ticker := time.NewTicker(m.updateInterval)
 	defer ticker.Stop()
@@ -404,7 +404,7 @@ func (m *RAIDZExpandMonitor) monitorLoop(ctx context.Context, poolName string) {
 	}
 }
 
-// calculateETA 计算预估剩余时间
+// calculateETA 计算预估剩余时间.
 func (m *RAIDZExpandMonitor) calculateETA(progress *RAIDZExpandProgress) {
 	if progress.Percent <= 0 || progress.Percent >= 100 {
 		progress.ETASeconds = 0
@@ -426,7 +426,7 @@ func (m *RAIDZExpandMonitor) calculateETA(progress *RAIDZExpandProgress) {
 	}
 }
 
-// updatePhaseProgress 更新阶段进度
+// updatePhaseProgress 更新阶段进度.
 func (m *RAIDZExpandMonitor) updatePhaseProgress(progress *RAIDZExpandProgress) {
 	// 根据总进度分配阶段进度
 	// 假设阶段权重: preparing(5%), scan(10%), migration(70%), verify(10%), finalize(5%)
@@ -480,7 +480,7 @@ func (m *RAIDZExpandMonitor) updatePhaseProgress(progress *RAIDZExpandProgress) 
 	}
 }
 
-// addToHistory 添加到历史
+// addToHistory 添加到历史.
 func (m *RAIDZExpandMonitor) addToHistory(progress RAIDZExpandProgress) {
 	m.progressHistory = append(m.progressHistory, progress)
 
@@ -495,7 +495,7 @@ func (m *RAIDZExpandMonitor) addToHistory(progress RAIDZExpandProgress) {
 	}
 }
 
-// saveHistory 保存历史到文件
+// saveHistory 保存历史到文件.
 func (m *RAIDZExpandMonitor) saveHistory() error {
 	if m.configPath == "" {
 		return nil
@@ -510,7 +510,7 @@ func (m *RAIDZExpandMonitor) saveHistory() error {
 	return os.WriteFile(historyPath, data, 0640)
 }
 
-// loadHistory 加载历史
+// loadHistory 加载历史.
 func (m *RAIDZExpandMonitor) loadHistory() error {
 	if m.configPath == "" {
 		return nil
@@ -530,7 +530,7 @@ func (m *RAIDZExpandMonitor) loadHistory() error {
 
 // ========== 辅助方法 ==========
 
-// statusToText 状态转中文描述
+// statusToText 状态转中文描述.
 func (m *RAIDZExpandMonitor) statusToText(status ExpansionStatus) string {
 	switch status {
 	case StatusIdle:
@@ -552,7 +552,7 @@ func (m *RAIDZExpandMonitor) statusToText(status ExpansionStatus) string {
 	}
 }
 
-// extractVdevName 提取VDEV名称
+// extractVdevName 提取VDEV名称.
 func (m *RAIDZExpandMonitor) extractVdevName(task *ExpansionTask) string {
 	// 从metadata或RAIDZ级别推断
 	if task.Metadata != nil {
@@ -568,7 +568,7 @@ func (m *RAIDZExpandMonitor) extractVdevName(task *ExpansionTask) string {
 	return "raidz-0"
 }
 
-// extractWidthBefore 提取扩展前宽度
+// extractWidthBefore 提取扩展前宽度.
 func (m *RAIDZExpandMonitor) extractWidthBefore(task *ExpansionTask) int {
 	if task.Metadata != nil {
 		if width, ok := task.Metadata["width_before"]; ok {
@@ -591,12 +591,12 @@ func (m *RAIDZExpandMonitor) extractWidthBefore(task *ExpansionTask) int {
 	}
 }
 
-// extractWidthAfter 提取扩展后宽度
+// extractWidthAfter 提取扩展后宽度.
 func (m *RAIDZExpandMonitor) extractWidthAfter(task *ExpansionTask) int {
 	return m.extractWidthBefore(task) + 1
 }
 
-// FormatDuration 格式化时长（导出供其他模块使用）
+// FormatDuration 格式化时长（导出供其他模块使用）.
 func FormatDuration(seconds int64) string {
 	if seconds <= 0 {
 		return "-"
@@ -623,14 +623,14 @@ func FormatDuration(seconds int64) string {
 	return fmt.Sprintf("%ds", secs)
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (m *RAIDZExpandMonitor) Stop() {
 	close(m.stopChan)
 }
 
 // ========== 磁盘槽位构建 ==========
 
-// BuildDiskSlots 构建磁盘槽位信息（UI展示）
+// BuildDiskSlots 构建磁盘槽位信息（UI展示）.
 func BuildDiskSlots(poolName string, originalDisks []string, newDisk string) []DiskSlot {
 	var slots []DiskSlot
 
@@ -672,13 +672,13 @@ func BuildDiskSlots(poolName string, originalDisks []string, newDisk string) []D
 	return slots
 }
 
-// DiskBasicInfo 磁盘基本信息
+// DiskBasicInfo 磁盘基本信息.
 type DiskBasicInfo struct {
 	Model  string
 	SizeGB int
 }
 
-// getDiskBasicInfo 获取磁盘基本信息
+// getDiskBasicInfo 获取磁盘基本信息.
 func getDiskBasicInfo(path string) (*DiskBasicInfo, error) {
 	// 使用系统命令获取（简化实现）
 	// 实际实现应调用 NVMeDetector 或 SMARTMonitor
@@ -690,7 +690,7 @@ func getDiskBasicInfo(path string) (*DiskBasicInfo, error) {
 
 // ========== UI展示专用API ==========
 
-// GetExpandSummary 获取扩展摘要（用于Dashboard卡片）
+// GetExpandSummary 获取扩展摘要（用于Dashboard卡片）.
 func (m *RAIDZExpandMonitor) GetExpandSummary() *ExpandSummary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -715,14 +715,14 @@ func (m *RAIDZExpandMonitor) GetExpandSummary() *ExpandSummary {
 	return summary
 }
 
-// ExpandSummary 扩展摘要（Dashboard展示）
+// ExpandSummary 扩展摘要（Dashboard展示）.
 type ExpandSummary struct {
 	ActiveCount  int                 `json:"activeCount"`  // 活跃任务数
 	TotalHistory int                 `json:"totalHistory"` // 历史总数
 	ActiveTasks  []ExpandTaskSummary `json:"activeTasks"`  // 活跃任务摘要
 }
 
-// ExpandTaskSummary 任务摘要
+// ExpandTaskSummary 任务摘要.
 type ExpandTaskSummary struct {
 	PoolName     string  `json:"poolName"`
 	Percent      float64 `json:"percent"`
@@ -733,7 +733,7 @@ type ExpandTaskSummary struct {
 
 // ========== 容量计算辅助 ==========
 
-// CalculateCapacityGain 计算容量增益（UI展示）
+// CalculateCapacityGain 计算容量增益（UI展示）.
 func CalculateCapacityGain(raidzLevel string, widthBefore int, diskSizeGB float64) float64 {
 	// RAIDZ容量公式: 有效容量 = (N-P) * DiskSize
 	// N=盘数, P=奇偶校验盘数
@@ -758,7 +758,7 @@ func CalculateCapacityGain(raidzLevel string, widthBefore int, diskSizeGB float6
 	return diskSizeGB
 }
 
-// CalculateEfficiency 计算存储效率
+// CalculateEfficiency 计算存储效率.
 func CalculateEfficiency(raidzLevel string, width int) float64 {
 	var parity int
 	switch raidzLevel {

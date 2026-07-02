@@ -16,7 +16,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Indexer 文件索引器
+// Indexer 文件索引器.
 type Indexer struct {
 	engine    *Engine
 	config    *SearchConfig
@@ -30,7 +30,7 @@ type Indexer struct {
 	stats     *IndexerStats
 }
 
-// IndexerStats 索引器统计
+// IndexerStats 索引器统计.
 type IndexerStats struct {
 	TotalFiles    int64         `json:"totalFiles"`
 	IndexedFiles  int64         `json:"indexedFiles"`
@@ -40,7 +40,7 @@ type IndexerStats struct {
 	Duration      time.Duration `json:"duration"`
 }
 
-// NewIndexer 创建索引器
+// NewIndexer 创建索引器.
 func NewIndexer(engine *Engine, config *SearchConfig, extractor ContentExtractor, encoder VectorEncoder) *Indexer {
 	if config == nil {
 		config = DefaultSearchConfig()
@@ -57,7 +57,7 @@ func NewIndexer(engine *Engine, config *SearchConfig, extractor ContentExtractor
 	}
 }
 
-// IndexDirectory 索引目录
+// IndexDirectory 索引目录.
 func (idx *Indexer) IndexDirectory(rootPath string) error {
 	idx.mu.Lock()
 	if idx.running {
@@ -158,7 +158,7 @@ func (idx *Indexer) IndexDirectory(rootPath string) error {
 	return lastErr
 }
 
-// IndexFile 索引单个文件
+// IndexFile 索引单个文件.
 func (idx *Indexer) IndexFile(filePath string) error {
 	info, err := os.Stat(filePath)
 	if err != nil {
@@ -187,7 +187,7 @@ func (idx *Indexer) IndexFile(filePath string) error {
 	return nil
 }
 
-// IncrementalIndex 增量索引
+// IncrementalIndex 增量索引.
 func (idx *Indexer) IncrementalIndex(rootPath string) error {
 	idx.mu.Lock()
 	if idx.running {
@@ -280,13 +280,13 @@ func (idx *Indexer) IncrementalIndex(rootPath string) error {
 	return lastErr
 }
 
-// Stop 停止索引器
+// Stop 停止索引器.
 func (idx *Indexer) Stop() {
 	close(idx.stopCh)
 	idx.wg.Wait()
 }
 
-// GetStats 获取索引统计
+// GetStats 获取索引统计.
 func (idx *Indexer) GetStats() *IndexerStats {
 	idx.mu.Lock()
 	defer idx.mu.Unlock()
@@ -294,7 +294,7 @@ func (idx *Indexer) GetStats() *IndexerStats {
 	return &stats
 }
 
-// worker 工作协程
+// worker 工作协程.
 func (idx *Indexer) worker(ctx context.Context, fileCh <-chan string, errCh chan<- error) {
 	defer idx.wg.Done()
 
@@ -316,7 +316,7 @@ func (idx *Indexer) worker(ctx context.Context, fileCh <-chan string, errCh chan
 	}
 }
 
-// buildIndex 构建索引条目
+// buildIndex 构建索引条目.
 func (idx *Indexer) buildIndex(filePath string, info os.FileInfo) *SearchIndex {
 	ext := strings.ToLower(filepath.Ext(filePath))
 	mimeType := getMimeType(ext)
@@ -359,7 +359,7 @@ func (idx *Indexer) buildIndex(filePath string, info os.FileInfo) *SearchIndex {
 	return doc
 }
 
-// isUpToDate 检查文件是否已索引且未过期
+// isUpToDate 检查文件是否已索引且未过期.
 func (idx *Indexer) isUpToDate(filePath string, info os.FileInfo) bool {
 	idx.engine.mu.RLock()
 	defer idx.engine.mu.RUnlock()
@@ -382,7 +382,7 @@ func (idx *Indexer) isUpToDate(filePath string, info os.FileInfo) bool {
 	return false
 }
 
-// isSupportedType 检查是否支持的文件类型
+// isSupportedType 检查是否支持的文件类型.
 func (idx *Indexer) isSupportedType(ext string) bool {
 	fileType := getFileType(ext)
 	for _, t := range idx.config.SupportedTypes {
@@ -393,7 +393,7 @@ func (idx *Indexer) isSupportedType(ext string) bool {
 	return false
 }
 
-// getFileType 根据扩展名获取文件类型
+// getFileType 根据扩展名获取文件类型.
 func getFileType(ext string) FileType {
 	switch ext {
 	case ".txt", ".md", ".doc", ".docx", ".pdf", ".xls", ".xlsx", ".ppt", ".pptx", ".csv", ".json", ".xml", ".yaml", ".yml":
@@ -413,7 +413,7 @@ func getFileType(ext string) FileType {
 	}
 }
 
-// getMimeType 根据扩展名获取 MIME 类型
+// getMimeType 根据扩展名获取 MIME 类型.
 func getMimeType(ext string) string {
 	mimeTypes := map[string]string{
 		".txt":  "text/plain",
@@ -441,7 +441,7 @@ func getMimeType(ext string) string {
 	return "application/octet-stream"
 }
 
-// hashFile 计算文件哈希
+// hashFile 计算文件哈希.
 func hashFile(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {

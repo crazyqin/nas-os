@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler HTTP处理器
+// Handler HTTP处理器.
 type Handler struct {
 	service *Service
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/quantum/keys", h.handleKeys)
 	mux.HandleFunc("/api/v1/quantum/key", h.handleKey)
@@ -26,7 +26,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/quantum/audit", h.handleAudit)
 }
 
-// handleKeys 处理密钥列表
+// handleKeys 处理密钥列表.
 func (h *Handler) handleKeys(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -64,7 +64,7 @@ func (h *Handler) handleKeys(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleKey 处理单个密钥
+// handleKey 处理单个密钥.
 func (h *Handler) handleKey(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -95,7 +95,7 @@ func (h *Handler) handleKey(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleEncrypt 处理加密请求
+// handleEncrypt 处理加密请求.
 func (h *Handler) handleEncrypt(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -123,7 +123,7 @@ func (h *Handler) handleEncrypt(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(encrypted)
 }
 
-// handleDecrypt 处理解密请求
+// handleDecrypt 处理解密请求.
 func (h *Handler) handleDecrypt(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -148,7 +148,7 @@ func (h *Handler) handleDecrypt(w http.ResponseWriter, r *http.Request) {
 	w.Write(plaintext)
 }
 
-// handleSign 处理签名请求
+// handleSign 处理签名请求.
 func (h *Handler) handleSign(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -175,7 +175,7 @@ func (h *Handler) handleSign(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(signature)
 }
 
-// handleVerify 处理验证请求
+// handleVerify 处理验证请求.
 func (h *Handler) handleVerify(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -200,7 +200,7 @@ func (h *Handler) handleVerify(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]bool{"verified": verified})
 }
 
-// handleAudit 处理审计日志请求
+// handleAudit 处理审计日志请求.
 func (h *Handler) handleAudit(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

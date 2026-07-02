@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// PricingTier 定价层级
+// PricingTier 定价层级.
 type PricingTier struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -23,7 +23,7 @@ type PricingTier struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// UsageMetric 使用量指标
+// UsageMetric 使用量指标.
 type UsageMetric struct {
 	ID           string            `json:"id"`
 	UserID       string            `json:"user_id"`
@@ -34,7 +34,7 @@ type UsageMetric struct {
 	Metadata     map[string]string `json:"metadata,omitempty"`
 }
 
-// BillingPlan 计费方案
+// BillingPlan 计费方案.
 type BillingPlan struct {
 	ID            string         `json:"id"`
 	Name          string         `json:"name"`
@@ -51,7 +51,7 @@ type BillingPlan struct {
 	UpdatedAt     time.Time      `json:"updated_at"`
 }
 
-// DiscountRule 折扣规则
+// DiscountRule 折扣规则.
 type DiscountRule struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -64,7 +64,7 @@ type DiscountRule struct {
 	IsActive  bool      `json:"is_active"`
 }
 
-// PriceRule 价格规则
+// PriceRule 价格规则.
 type PriceRule struct {
 	ID            string          `json:"id"`
 	Name          string          `json:"name"`
@@ -80,7 +80,7 @@ type PriceRule struct {
 	CreatedAt     time.Time       `json:"created_at"`
 }
 
-// PriceTierRule 价格层级规则
+// PriceTierRule 价格层级规则.
 type PriceTierRule struct {
 	MinValue float64 `json:"min_value"`
 	MaxValue float64 `json:"max_value"` // 0=无限制
@@ -88,7 +88,7 @@ type PriceTierRule struct {
 	Unit     string  `json:"unit"`
 }
 
-// Invoice 发票/账单
+// Invoice 发票/账单.
 type Invoice struct {
 	ID            string        `json:"id"`
 	UserID        string        `json:"user_id"`
@@ -109,7 +109,7 @@ type Invoice struct {
 	PaidAt        *time.Time    `json:"paid_at,omitempty"`
 }
 
-// InvoiceItem 发票明细项
+// InvoiceItem 发票明细项.
 type InvoiceItem struct {
 	Description  string  `json:"description"`
 	ResourceType string  `json:"resource_type"`
@@ -119,7 +119,7 @@ type InvoiceItem struct {
 	Amount       float64 `json:"amount"`
 }
 
-// PricingConfig 智能定价配置
+// PricingConfig 智能定价配置.
 type PricingConfig struct {
 	Enabled         bool    `json:"enabled"`
 	DefaultCurrency string  `json:"default_currency"`
@@ -128,7 +128,7 @@ type PricingConfig struct {
 	MaxOverage      float64 `json:"max_overage"`  // 最大超额比例
 }
 
-// DefaultPricingConfig 默认定价配置
+// DefaultPricingConfig 默认定价配置.
 func DefaultPricingConfig() *PricingConfig {
 	return &PricingConfig{
 		Enabled:         true,

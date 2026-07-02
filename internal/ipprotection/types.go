@@ -12,7 +12,7 @@ import (
 
 // ==================== 常量定义 ====================
 
-// ListType 黑白名单类型
+// ListType 黑白名单类型.
 type ListType string
 
 const (
@@ -20,7 +20,7 @@ const (
 	ListTypeDeny  ListType = "deny"  // 黑名单
 )
 
-// BanReason 封禁原因
+// BanReason 封禁原因.
 type BanReason string
 
 const (
@@ -34,7 +34,7 @@ const (
 	BanReasonAbnormalPattern BanReason = "abnormal_pattern" // 异常模式
 )
 
-// ThreatLevel 威胁等级
+// ThreatLevel 威胁等级.
 type ThreatLevel string
 
 const (
@@ -44,7 +44,7 @@ const (
 	ThreatLevelCritical ThreatLevel = "critical"
 )
 
-// DetectionType 检测类型
+// DetectionType 检测类型.
 type DetectionType string
 
 const (
@@ -57,7 +57,7 @@ const (
 
 // ==================== 配置 ====================
 
-// IPProtectionConfig IP 防护配置
+// IPProtectionConfig IP 防护配置.
 type IPProtectionConfig struct {
 	// 登录失败检测
 	LoginFailureThreshold int           `json:"login_failure_threshold" yaml:"login_failure_threshold"` // 失败次数阈值，默认 5
@@ -90,7 +90,7 @@ type IPProtectionConfig struct {
 	BlacklistedIPs []string `json:"blacklisted_ips" yaml:"blacklisted_ips"`
 }
 
-// DefaultIPProtectionConfig 返回默认配置
+// DefaultIPProtectionConfig 返回默认配置.
 func DefaultIPProtectionConfig() *IPProtectionConfig {
 	return &IPProtectionConfig{
 		LoginFailureThreshold:      5,
@@ -117,7 +117,7 @@ func DefaultIPProtectionConfig() *IPProtectionConfig {
 
 // ==================== 核心数据结构 ====================
 
-// IPRecord IP 记录
+// IPRecord IP 记录.
 type IPRecord struct {
 	IP                 net.IP       `json:"ip"`
 	IPString           string       `json:"ip_string"`
@@ -134,7 +134,7 @@ type IPRecord struct {
 	mu                 sync.RWMutex `json:"-"`
 }
 
-// LoginAttempt 登录尝试记录
+// LoginAttempt 登录尝试记录.
 type LoginAttempt struct {
 	IP        string    `json:"ip"`
 	Username  string    `json:"username,omitempty"`
@@ -143,7 +143,7 @@ type LoginAttempt struct {
 	UserAgent string    `json:"user_agent,omitempty"`
 }
 
-// AccessRecord 访问记录（用于端口扫描/暴力破解检测）
+// AccessRecord 访问记录（用于端口扫描/暴力破解检测）.
 type AccessRecord struct {
 	IP        string    `json:"ip"`
 	Port      int       `json:"port"`
@@ -152,7 +152,7 @@ type AccessRecord struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// BanRecord 封禁记录
+// BanRecord 封禁记录.
 type BanRecord struct {
 	ID        string        `json:"id"`
 	IP        string        `json:"ip"`
@@ -165,7 +165,7 @@ type BanRecord struct {
 	Details   string        `json:"details,omitempty"`
 }
 
-// IPStats IP 统计信息
+// IPStats IP 统计信息.
 type IPStats struct {
 	IP              string      `json:"ip"`
 	ReputationScore int         `json:"reputation_score"`
@@ -181,7 +181,7 @@ type IPStats struct {
 	RecentPorts     int         `json:"recent_ports_scanned"`
 }
 
-// GlobalStats 全局统计
+// GlobalStats 全局统计.
 type GlobalStats struct {
 	TotalIPsTracked  int       `json:"total_ips_tracked"`
 	ActiveBans       int       `json:"active_bans"`
@@ -193,7 +193,7 @@ type GlobalStats struct {
 	LastUpdated      time.Time `json:"last_updated"`
 }
 
-// DetectionResult 检测结果
+// DetectionResult 检测结果.
 type DetectionResult struct {
 	Detected    bool          `json:"detected"`
 	Type        DetectionType `json:"type"`
@@ -204,7 +204,7 @@ type DetectionResult struct {
 	Timestamp   time.Time     `json:"timestamp"`
 }
 
-// AllowListEntry 白名单条目
+// AllowListEntry 白名单条目.
 type AllowListEntry struct {
 	IP        string    `json:"ip"`
 	IsIPv6    bool      `json:"is_ipv6"`
@@ -215,7 +215,7 @@ type AllowListEntry struct {
 	IsActive  bool      `json:"is_active"`
 }
 
-// DenyListEntry 黑名单条目
+// DenyListEntry 黑名单条目.
 type DenyListEntry struct {
 	IP        string    `json:"ip"`
 	IsIPv6    bool      `json:"is_ipv6"`

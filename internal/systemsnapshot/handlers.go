@@ -7,17 +7,17 @@ import (
 	"strings"
 )
 
-// Handler HTTP API处理器
+// Handler HTTP API处理器.
 type Handler struct {
 	manager *SnapshotManager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *SnapshotManager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux, prefix string) {
 	mux.HandleFunc(prefix+"/snapshots", h.handleSnapshots)
 	mux.HandleFunc(prefix+"/snapshots/", h.handleSnapshotByID)
@@ -31,7 +31,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux, prefix string) {
 	mux.HandleFunc(prefix+"/snapshots/auto/pre-change", h.handlePreChange)
 }
 
-// handleSnapshots 处理快照列表和创建
+// handleSnapshots 处理快照列表和创建.
 func (h *Handler) handleSnapshots(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -43,7 +43,7 @@ func (h *Handler) handleSnapshots(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleListSnapshots 列出快照
+// handleListSnapshots 列出快照.
 func (h *Handler) handleListSnapshots(w http.ResponseWriter, r *http.Request) {
 	var opts ListOptions
 
@@ -66,7 +66,7 @@ func (h *Handler) handleListSnapshots(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(snapshots)
 }
 
-// handleCreateSnapshot 创建快照
+// handleCreateSnapshot 创建快照.
 func (h *Handler) handleCreateSnapshot(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -110,7 +110,7 @@ func (h *Handler) handleCreateSnapshot(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(snapshot)
 }
 
-// handleSnapshotByID 处理单个快照操作
+// handleSnapshotByID 处理单个快照操作.
 func (h *Handler) handleSnapshotByID(w http.ResponseWriter, r *http.Request) {
 	// 从路径中提取ID
 	path := strings.TrimPrefix(r.URL.Path, "/api/v1/systemsnapshot/snapshots/")
@@ -146,7 +146,7 @@ func (h *Handler) handleSnapshotByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleRollback 处理回滚请求
+// handleRollback 处理回滚请求.
 func (h *Handler) handleRollback(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -169,7 +169,7 @@ func (h *Handler) handleRollback(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-// handleDiff 处理差异对比请求
+// handleDiff 处理差异对比请求.
 func (h *Handler) handleDiff(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -194,7 +194,7 @@ func (h *Handler) handleDiff(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(diff)
 }
 
-// handlePreview 处理预览请求
+// handlePreview 处理预览请求.
 func (h *Handler) handlePreview(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -217,7 +217,7 @@ func (h *Handler) handlePreview(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-// handleStats 处理统计信息请求
+// handleStats 处理统计信息请求.
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -230,7 +230,7 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(stats)
 }
 
-// handleCleanup 处理清理请求
+// handleCleanup 处理清理请求.
 func (h *Handler) handleCleanup(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -250,7 +250,7 @@ func (h *Handler) handleCleanup(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handlePreUpdate 处理更新前自动快照
+// handlePreUpdate 处理更新前自动快照.
 func (h *Handler) handlePreUpdate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -268,7 +268,7 @@ func (h *Handler) handlePreUpdate(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(snapshot)
 }
 
-// handlePreChange 处理配置变更前自动快照
+// handlePreChange 处理配置变更前自动快照.
 func (h *Handler) handlePreChange(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)

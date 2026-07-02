@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// VPNType VPN 类型
+// VPNType VPN 类型.
 type VPNType string
 
 const (
@@ -25,7 +25,7 @@ const (
 	VPNTypeZeroTier  VPNType = "zerotier"
 )
 
-// TunnelStatus 隧道状态
+// TunnelStatus 隧道状态.
 type TunnelStatus string
 
 const (
@@ -36,7 +36,7 @@ const (
 	StatusDisabled   TunnelStatus = "disabled"
 )
 
-// LoadBalanceMode 负载均衡模式
+// LoadBalanceMode 负载均衡模式.
 type LoadBalanceMode string
 
 const (
@@ -45,7 +45,7 @@ const (
 	LoadBalanceFailover   LoadBalanceMode = "failover"
 )
 
-// VPNTunnel VPN 隧道结构体
+// VPNTunnel VPN 隧道结构体.
 type VPNTunnel struct {
 	ID            string        `json:"id"`
 	Name          string        `json:"name"`
@@ -70,7 +70,7 @@ type VPNTunnel struct {
 	UpdatedAt     time.Time     `json:"updated_at"`
 }
 
-// TrafficStats 流量统计
+// TrafficStats 流量统计.
 type TrafficStats struct {
 	UploadBytes   int64     `json:"upload_bytes"`
 	DownloadBytes int64     `json:"download_bytes"`
@@ -80,7 +80,7 @@ type TrafficStats struct {
 	LastUpdated   time.Time `json:"last_updated"`
 }
 
-// PortForward 端口转发规则
+// PortForward 端口转发规则.
 type PortForward struct {
 	ID          string    `json:"id"`
 	TunnelID    string    `json:"tunnel_id"`
@@ -94,13 +94,13 @@ type PortForward struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// WireGuardConfig WireGuard 配置
+// WireGuardConfig WireGuard 配置.
 type WireGuardConfig struct {
 	Interface WireGuardInterface `json:"interface"`
 	Peers     []WireGuardPeer    `json:"peers"`
 }
 
-// WireGuardInterface WireGuard 接口配置
+// WireGuardInterface WireGuard 接口配置.
 type WireGuardInterface struct {
 	Address    []string `json:"address"`
 	PrivateKey string   `json:"private_key"`
@@ -109,7 +109,7 @@ type WireGuardInterface struct {
 	MTU        int      `json:"mtu,omitempty"`
 }
 
-// WireGuardPeer WireGuard 对端配置
+// WireGuardPeer WireGuard 对端配置.
 type WireGuardPeer struct {
 	PublicKey    string   `json:"public_key"`
 	Endpoint     string   `json:"endpoint,omitempty"`
@@ -118,7 +118,7 @@ type WireGuardPeer struct {
 	KeepAlive    int      `json:"persistent_keepalive,omitempty"`
 }
 
-// TunnelCreateRequest 创建隧道请求
+// TunnelCreateRequest 创建隧道请求.
 type TunnelCreateRequest struct {
 	Name          string   `json:"name" binding:"required"`
 	Type          VPNType  `json:"type" binding:"required"`
@@ -134,7 +134,7 @@ type TunnelCreateRequest struct {
 	Description   string   `json:"description"`
 }
 
-// TunnelUpdateRequest 更新隧道请求
+// TunnelUpdateRequest 更新隧道请求.
 type TunnelUpdateRequest struct {
 	Name          *string  `json:"name,omitempty"`
 	Endpoint      *string  `json:"endpoint,omitempty"`
@@ -149,14 +149,14 @@ type TunnelUpdateRequest struct {
 	Description   *string  `json:"description,omitempty"`
 }
 
-// ImportConfigRequest 导入配置请求
+// ImportConfigRequest 导入配置请求.
 type ImportConfigRequest struct {
 	Type   VPNType `json:"type"`
 	Config string  `json:"config" binding:"required"`
 	Name   string  `json:"name"`
 }
 
-// VPNManager VPN 管理器
+// VPNManager VPN 管理器.
 type VPNManager struct {
 	mu           sync.RWMutex
 	tunnels      map[string]*VPNTunnel
@@ -166,7 +166,7 @@ type VPNManager struct {
 	stopHealth   chan struct{}
 }
 
-// NewVPNManager 创建 VPN 管理器
+// NewVPNManager 创建 VPN 管理器.
 func NewVPNManager() *VPNManager {
 	m := &VPNManager{
 		tunnels:      make(map[string]*VPNTunnel),
@@ -181,14 +181,14 @@ func NewVPNManager() *VPNManager {
 	return m
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// CreateTunnel 创建隧道
+// CreateTunnel 创建隧道.
 func (m *VPNManager) CreateTunnel(req *TunnelCreateRequest) (*VPNTunnel, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -251,7 +251,7 @@ func (m *VPNManager) CreateTunnel(req *TunnelCreateRequest) (*VPNTunnel, error) 
 	return tunnel, nil
 }
 
-// DeleteTunnel 删除隧道
+// DeleteTunnel 删除隧道.
 func (m *VPNManager) DeleteTunnel(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -280,7 +280,7 @@ func (m *VPNManager) DeleteTunnel(id string) error {
 	return nil
 }
 
-// GetTunnel 获取隧道详情
+// GetTunnel 获取隧道详情.
 func (m *VPNManager) GetTunnel(id string) (*VPNTunnel, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -292,7 +292,7 @@ func (m *VPNManager) GetTunnel(id string) (*VPNTunnel, error) {
 	return tunnel, nil
 }
 
-// ListTunnels 列出所有隧道
+// ListTunnels 列出所有隧道.
 func (m *VPNManager) ListTunnels() []*VPNTunnel {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -304,7 +304,7 @@ func (m *VPNManager) ListTunnels() []*VPNTunnel {
 	return tunnels
 }
 
-// UpdateTunnel 更新隧道
+// UpdateTunnel 更新隧道.
 func (m *VPNManager) UpdateTunnel(id string, req *TunnelUpdateRequest) (*VPNTunnel, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -352,7 +352,7 @@ func (m *VPNManager) UpdateTunnel(id string, req *TunnelUpdateRequest) (*VPNTunn
 	return tunnel, nil
 }
 
-// StartTunnel 启动隧道
+// StartTunnel 启动隧道.
 func (m *VPNManager) StartTunnel(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -383,7 +383,7 @@ func (m *VPNManager) StartTunnel(id string) error {
 	return nil
 }
 
-// StopTunnel 停止隧道
+// StopTunnel 停止隧道.
 func (m *VPNManager) StopTunnel(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -409,7 +409,7 @@ func (m *VPNManager) StopTunnel(id string) error {
 	return nil
 }
 
-// connectTunnel 连接隧道（模拟实现）
+// connectTunnel 连接隧道（模拟实现）.
 func (m *VPNManager) connectTunnel(tunnel *VPNTunnel, stopChan chan struct{}) {
 	// 模拟连接延迟
 	time.Sleep(2 * time.Second)
@@ -424,7 +424,7 @@ func (m *VPNManager) connectTunnel(tunnel *VPNTunnel, stopChan chan struct{}) {
 	go m.simulateTrafficStats(tunnel.ID, stopChan)
 }
 
-// simulateTrafficStats 模拟流量统计（实际实现中应从系统获取真实数据）
+// simulateTrafficStats 模拟流量统计（实际实现中应从系统获取真实数据）.
 func (m *VPNManager) simulateTrafficStats(tunnelID string, stopChan chan struct{}) {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
@@ -455,7 +455,7 @@ func (m *VPNManager) simulateTrafficStats(tunnelID string, stopChan chan struct{
 	}
 }
 
-// GetTrafficStats 获取隧道流量统计
+// GetTrafficStats 获取隧道流量统计.
 func (m *VPNManager) GetTrafficStats(id string) (*TrafficStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -471,7 +471,7 @@ func (m *VPNManager) GetTrafficStats(id string) (*TrafficStats, error) {
 	return tunnel.TrafficStats, nil
 }
 
-// ImportConfig 导入 VPN 配置
+// ImportConfig 导入 VPN 配置.
 func (m *VPNManager) ImportConfig(req *ImportConfigRequest) (*VPNTunnel, error) {
 	if req.Config == "" {
 		return nil, fmt.Errorf("config is required")
@@ -522,7 +522,7 @@ func (m *VPNManager) ImportConfig(req *ImportConfigRequest) (*VPNTunnel, error) 
 	return m.CreateTunnel(tunnelReq)
 }
 
-// ExportConfig 导出隧道配置
+// ExportConfig 导出隧道配置.
 func (m *VPNManager) ExportConfig(id string) (string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -546,7 +546,7 @@ func (m *VPNManager) ExportConfig(id string) (string, error) {
 	}
 }
 
-// generateWireGuardConfig 生成 WireGuard 配置
+// generateWireGuardConfig 生成 WireGuard 配置.
 func (m *VPNManager) generateWireGuardConfig(tunnel *VPNTunnel) (string, error) {
 	if tunnel.PrivateKey == "" {
 		return "", fmt.Errorf("private key is required for WireGuard config")
@@ -554,36 +554,36 @@ func (m *VPNManager) generateWireGuardConfig(tunnel *VPNTunnel) (string, error) 
 
 	var sb strings.Builder
 	sb.WriteString("[Interface]\n")
-	sb.WriteString(fmt.Sprintf("PrivateKey = %s\n", tunnel.PrivateKey))
+	fmt.Fprintf(&sb, "PrivateKey = %s\n", tunnel.PrivateKey)
 	if tunnel.Port > 0 {
-		sb.WriteString(fmt.Sprintf("ListenPort = %d\n", tunnel.Port))
+		fmt.Fprintf(&sb, "ListenPort = %d\n", tunnel.Port)
 	}
 	if len(tunnel.AllowedIPs) > 0 {
-		sb.WriteString(fmt.Sprintf("Address = %s\n", strings.Join(tunnel.AllowedIPs, ", ")))
+		fmt.Fprintf(&sb, "Address = %s\n", strings.Join(tunnel.AllowedIPs, ", "))
 	}
 	if len(tunnel.DNS) > 0 {
-		sb.WriteString(fmt.Sprintf("DNS = %s\n", strings.Join(tunnel.DNS, ", ")))
+		fmt.Fprintf(&sb, "DNS = %s\n", strings.Join(tunnel.DNS, ", "))
 	}
 	if tunnel.MTU > 0 {
-		sb.WriteString(fmt.Sprintf("MTU = %d\n", tunnel.MTU))
+		fmt.Fprintf(&sb, "MTU = %d\n", tunnel.MTU)
 	}
 
 	sb.WriteString("\n[Peer]\n")
-	sb.WriteString(fmt.Sprintf("PublicKey = %s\n", tunnel.PublicKey))
+	fmt.Fprintf(&sb, "PublicKey = %s\n", tunnel.PublicKey)
 	if tunnel.Endpoint != "" {
-		sb.WriteString(fmt.Sprintf("Endpoint = %s\n", tunnel.Endpoint))
+		fmt.Fprintf(&sb, "Endpoint = %s\n", tunnel.Endpoint)
 	}
 	if len(tunnel.AllowedIPs) > 0 {
-		sb.WriteString(fmt.Sprintf("AllowedIPs = %s\n", strings.Join(tunnel.AllowedIPs, ", ")))
+		fmt.Fprintf(&sb, "AllowedIPs = %s\n", strings.Join(tunnel.AllowedIPs, ", "))
 	}
 	if tunnel.KeepAlive > 0 {
-		sb.WriteString(fmt.Sprintf("PersistentKeepalive = %d\n", tunnel.KeepAlive))
+		fmt.Fprintf(&sb, "PersistentKeepalive = %d\n", tunnel.KeepAlive)
 	}
 
 	return sb.String(), nil
 }
 
-// ParseWireGuardConfig 解析 WireGuard 配置
+// ParseWireGuardConfig 解析 WireGuard 配置.
 func ParseWireGuardConfig(config string) (*WireGuardConfig, error) {
 	result := &WireGuardConfig{
 		Interface: WireGuardInterface{},
@@ -668,12 +668,12 @@ func ParseWireGuardConfig(config string) (*WireGuardConfig, error) {
 	return result, nil
 }
 
-// GenerateWireGuardKeyPair 生成 WireGuard 密钥对
+// GenerateWireGuardKeyPair 生成 WireGuard 密钥对.
 func GenerateWireGuardKeyPair() (publicKey, privateKey string, err error) {
 	return generateWireGuardKeyPair()
 }
 
-// generateWireGuardKeyPair 生成 WireGuard 密钥对
+// generateWireGuardKeyPair 生成 WireGuard 密钥对.
 func generateWireGuardKeyPair() (publicKey, privateKey string, err error) {
 	// 生成 32 字节私钥
 	privKey := make([]byte, 32)
@@ -697,7 +697,7 @@ func generateWireGuardKeyPair() (publicKey, privateKey string, err error) {
 		nil
 }
 
-// detectVPNType 检测 VPN 类型
+// detectVPNType 检测 VPN 类型.
 func detectVPNType(config string) VPNType {
 	configLower := strings.ToLower(config)
 
@@ -714,7 +714,7 @@ func detectVPNType(config string) VPNType {
 	return VPNTypeWireGuard // 默认
 }
 
-// isValidVPNType 检查 VPN 类型是否有效
+// isValidVPNType 检查 VPN 类型是否有效.
 func isValidVPNType(t VPNType) bool {
 	switch t {
 	case VPNTypeWireGuard, VPNTypeOpenVPN, VPNTypeIPSec, VPNTypeTailscale, VPNTypeZeroTier:
@@ -725,7 +725,7 @@ func isValidVPNType(t VPNType) bool {
 
 // --- 端口转发管理 ---
 
-// CreatePortForward 创建端口转发规则
+// CreatePortForward 创建端口转发规则.
 func (m *VPNManager) CreatePortForward(tunnelID string, protocol string, listenPort int, targetAddr string, targetPort int, description string) (*PortForward, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -769,7 +769,7 @@ func (m *VPNManager) CreatePortForward(tunnelID string, protocol string, listenP
 	return fwd, nil
 }
 
-// DeletePortForward 删除端口转发规则
+// DeletePortForward 删除端口转发规则.
 func (m *VPNManager) DeletePortForward(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -782,7 +782,7 @@ func (m *VPNManager) DeletePortForward(id string) error {
 	return nil
 }
 
-// ListPortForwards 列出端口转发规则
+// ListPortForwards 列出端口转发规则.
 func (m *VPNManager) ListPortForwards(tunnelID string) []*PortForward {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -798,7 +798,7 @@ func (m *VPNManager) ListPortForwards(tunnelID string) []*PortForward {
 
 // --- 健康检查 ---
 
-// startHealthCheck 启动健康检查
+// startHealthCheck 启动健康检查.
 func (m *VPNManager) startHealthCheck() {
 	m.healthTicker = time.NewTicker(30 * time.Second)
 
@@ -814,7 +814,7 @@ func (m *VPNManager) startHealthCheck() {
 	}()
 }
 
-// checkTunnelsHealth 检查所有隧道健康状态
+// checkTunnelsHealth 检查所有隧道健康状态.
 func (m *VPNManager) checkTunnelsHealth() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -838,7 +838,7 @@ func (m *VPNManager) checkTunnelsHealth() {
 	}
 }
 
-// reconnectTunnel 重新连接隧道
+// reconnectTunnel 重新连接隧道.
 func (m *VPNManager) reconnectTunnel(id string) {
 	m.mu.Lock()
 	tunnel, ok := m.tunnels[id]
@@ -876,7 +876,7 @@ func (m *VPNManager) reconnectTunnel(id string) {
 
 // --- 多隧道负载均衡 ---
 
-// GetActiveTunnels 获取所有活跃隧道
+// GetActiveTunnels 获取所有活跃隧道.
 func (m *VPNManager) GetActiveTunnels() []*VPNTunnel {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -890,7 +890,7 @@ func (m *VPNManager) GetActiveTunnels() []*VPNTunnel {
 	return active
 }
 
-// SelectTunnelForLoadBalance 选择负载均衡隧道
+// SelectTunnelForLoadBalance 选择负载均衡隧道.
 func (m *VPNManager) SelectTunnelForLoadBalance(mode LoadBalanceMode) (*VPNTunnel, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -952,7 +952,7 @@ func (m *VPNManager) SelectTunnelForLoadBalance(mode LoadBalanceMode) (*VPNTunne
 	}
 }
 
-// DisableTunnel 禁用隧道
+// DisableTunnel 禁用隧道.
 func (m *VPNManager) DisableTunnel(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -975,7 +975,7 @@ func (m *VPNManager) DisableTunnel(id string) error {
 	return nil
 }
 
-// EnableTunnel 启用隧道
+// EnableTunnel 启用隧道.
 func (m *VPNManager) EnableTunnel(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -994,7 +994,7 @@ func (m *VPNManager) EnableTunnel(id string) error {
 	return nil
 }
 
-// ExportAllConfigs 导出所有隧道配置
+// ExportAllConfigs 导出所有隧道配置.
 func (m *VPNManager) ExportAllConfigs() (map[string]string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1009,7 +1009,7 @@ func (m *VPNManager) ExportAllConfigs() (map[string]string, error) {
 	return configs, nil
 }
 
-// MarshalJSON 自定义 JSON 序列化（隐藏私钥）
+// MarshalJSON 自定义 JSON 序列化（隐藏私钥）.
 func (t *VPNTunnel) MarshalJSON() ([]byte, error) {
 	type Alias VPNTunnel
 	return json.Marshal(&struct {
@@ -1021,7 +1021,7 @@ func (t *VPNTunnel) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *VPNManager) Stop() {
 	close(m.stopHealth)
 	m.healthTicker.Stop()
@@ -1040,7 +1040,7 @@ func (m *VPNManager) Stop() {
 	m.stopChans = make(map[string]chan struct{})
 }
 
-// 获取支持的 VPN 类型列表
+// 获取支持的 VPN 类型列表.
 func SupportedVPNTypes() []VPNType {
 	return []VPNType{
 		VPNTypeWireGuard,
@@ -1051,12 +1051,12 @@ func SupportedVPNTypes() []VPNType {
 	}
 }
 
-// IsValidVPNType 检查 VPN 类型是否有效
+// IsValidVPNType 检查 VPN 类型是否有效.
 func IsValidVPNType(t VPNType) bool {
 	return isValidVPNType(t)
 }
 
-// 获取隧道状态列表
+// 获取隧道状态列表.
 func SupportedTunnelStatuses() []TunnelStatus {
 	return []TunnelStatus{
 		StatusActive,
@@ -1067,7 +1067,7 @@ func SupportedTunnelStatuses() []TunnelStatus {
 	}
 }
 
-// IsValidTunnelStatus 检查隧道状态是否有效
+// IsValidTunnelStatus 检查隧道状态是否有效.
 func IsValidTunnelStatus(s TunnelStatus) bool {
 	switch s {
 	case StatusActive, StatusInactive, StatusConnecting, StatusError, StatusDisabled:

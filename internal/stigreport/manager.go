@@ -8,13 +8,13 @@ import (
 	"time"
 )
 
-// 错误定义
+// 错误定义.
 var (
 	ErrRuleNotFound = errors.New("合规规则不存在")
 	ErrInvalidInput = errors.New("无效输入参数")
 )
 
-// Severity 严重程度
+// Severity 严重程度.
 type Severity string
 
 const (
@@ -23,17 +23,17 @@ const (
 	SeverityLow    Severity = "low"    // 低
 )
 
-// ComplianceStatus 合规状态
+// ComplianceStatus 合规状态.
 type ComplianceStatus string
 
 const (
-	StatusCompliant    ComplianceStatus = "compliant"     // 合规
-	StatusNonCompliant ComplianceStatus = "non_compliant" // 不合规
+	StatusCompliant     ComplianceStatus = "compliant"      // 合规
+	StatusNonCompliant  ComplianceStatus = "non_compliant"  // 不合规
 	StatusNotApplicable ComplianceStatus = "not_applicable" // 不适用
-	StatusNotChecked   ComplianceStatus = "not_checked"   // 未检查
+	StatusNotChecked    ComplianceStatus = "not_checked"    // 未检查
 )
 
-// CheckCategory 检查类别
+// CheckCategory 检查类别.
 type CheckCategory string
 
 const (
@@ -47,77 +47,77 @@ const (
 	CategoryPatchManagement CheckCategory = "patch_management" // 补丁管理
 )
 
-// STIGRule STIG规则
+// STIGRule STIG规则.
 type STIGRule struct {
-	ID          string          `json:"id"`
-	Category    CheckCategory   `json:"category"`
-	Title       string          `json:"title"`
-	Description string          `json:"description"`
-	Severity    Severity        `json:"severity"`
-	CheckText   string          `json:"check_text"`
-	FixText     string          `json:"fix_text"`
-	Reference   string          `json:"reference,omitempty"`
-	CreatedAt   time.Time       `json:"created_at"`
-	UpdatedAt   time.Time       `json:"updated_at"`
+	ID          string        `json:"id"`
+	Category    CheckCategory `json:"category"`
+	Title       string        `json:"title"`
+	Description string        `json:"description"`
+	Severity    Severity      `json:"severity"`
+	CheckText   string        `json:"check_text"`
+	FixText     string        `json:"fix_text"`
+	Reference   string        `json:"reference,omitempty"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
-// RuleCheck 规则检查结果
+// RuleCheck 规则检查结果.
 type RuleCheck struct {
-	RuleID      string           `json:"rule_id"`
-	Status      ComplianceStatus `json:"status"`
-	Details     string           `json:"details,omitempty"`
-	CheckedAt   time.Time        `json:"checked_at"`
-	CheckedBy   string           `json:"checked_by,omitempty"`
-	Evidence    []string         `json:"evidence,omitempty"`
+	RuleID    string           `json:"rule_id"`
+	Status    ComplianceStatus `json:"status"`
+	Details   string           `json:"details,omitempty"`
+	CheckedAt time.Time        `json:"checked_at"`
+	CheckedBy string           `json:"checked_by,omitempty"`
+	Evidence  []string         `json:"evidence,omitempty"`
 }
 
-// ComplianceReport 合规报告
+// ComplianceReport 合规报告.
 type ComplianceReport struct {
-	ID              string           `json:"id"`
-	Title           string           `json:"title"`
-	GeneratedAt     time.Time        `json:"generated_at"`
-	Period          string           `json:"period"`
-	TotalRules      int              `json:"total_rules"`
-	CompliantCount  int              `json:"compliant_count"`
+	ID                string         `json:"id"`
+	Title             string         `json:"title"`
+	GeneratedAt       time.Time      `json:"generated_at"`
+	Period            string         `json:"period"`
+	TotalRules        int            `json:"total_rules"`
+	CompliantCount    int            `json:"compliant_count"`
 	NonCompliantCount int            `json:"non_compliant_count"`
-	NotApplicable   int              `json:"not_applicable_count"`
-	ComplianceRate  float64          `json:"compliance_rate"`
-	Checks          []*RuleCheck     `json:"checks"`
-	Summary         *ReportSummary   `json:"summary"`
-	Recommendations []string         `json:"recommendations"`
+	NotApplicable     int            `json:"not_applicable_count"`
+	ComplianceRate    float64        `json:"compliance_rate"`
+	Checks            []*RuleCheck   `json:"checks"`
+	Summary           *ReportSummary `json:"summary"`
+	Recommendations   []string       `json:"recommendations"`
 }
 
-// ReportSummary 报告摘要
+// ReportSummary 报告摘要.
 type ReportSummary struct {
-	HighRiskFindings   int     `json:"high_risk_findings"`
-	MediumRiskFindings int     `json:"medium_risk_findings"`
-	LowRiskFindings    int     `json:"low_risk_findings"`
+	HighRiskFindings   int      `json:"high_risk_findings"`
+	MediumRiskFindings int      `json:"medium_risk_findings"`
+	LowRiskFindings    int      `json:"low_risk_findings"`
 	TopIssues          []string `json:"top_issues"`
-	RemediationPlan    string  `json:"remediation_plan"`
+	RemediationPlan    string   `json:"remediation_plan"`
 }
 
-// ScheduledScan 定时扫描
+// ScheduledScan 定时扫描.
 type ScheduledScan struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Cron      string    `json:"cron"`
-	Enabled   bool      `json:"enabled"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	Cron      string     `json:"cron"`
+	Enabled   bool       `json:"enabled"`
 	LastRun   *time.Time `json:"last_run,omitempty"`
 	NextRun   *time.Time `json:"next_run,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
+	CreatedAt time.Time  `json:"created_at"`
 }
 
-// Manager STIG合规管理器
+// Manager STIG合规管理器.
 type Manager struct {
-	mu         sync.RWMutex
-	rules      map[string]*STIGRule
-	checks     map[string]*RuleCheck
-	reports    []*ComplianceReport
-	schedules  []*ScheduledScan
-	startTime  time.Time
+	mu        sync.RWMutex
+	rules     map[string]*STIGRule
+	checks    map[string]*RuleCheck
+	reports   []*ComplianceReport
+	schedules []*ScheduledScan
+	startTime time.Time
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		rules:     make(map[string]*STIGRule),
@@ -133,7 +133,7 @@ func NewManager() *Manager {
 	return m
 }
 
-// initDefaultRules 初始化默认规则
+// initDefaultRules 初始化默认规则.
 func (m *Manager) initDefaultRules() {
 	defaults := []*STIGRule{
 		{
@@ -185,7 +185,7 @@ func (m *Manager) initDefaultRules() {
 	}
 }
 
-// AddRule 添加规则
+// AddRule 添加规则.
 func (m *Manager) AddRule(rule *STIGRule) error {
 	if rule == nil || rule.ID == "" {
 		return ErrInvalidInput
@@ -201,7 +201,7 @@ func (m *Manager) AddRule(rule *STIGRule) error {
 	return nil
 }
 
-// GetRule 获取规则
+// GetRule 获取规则.
 func (m *Manager) GetRule(ruleID string) (*STIGRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -213,7 +213,7 @@ func (m *Manager) GetRule(ruleID string) (*STIGRule, error) {
 	return rule, nil
 }
 
-// ListRules 列出规则
+// ListRules 列出规则.
 func (m *Manager) ListRules(category *CheckCategory) []*STIGRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -227,7 +227,7 @@ func (m *Manager) ListRules(category *CheckCategory) []*STIGRule {
 	return result
 }
 
-// RunCheck 执行检查
+// RunCheck 执行检查.
 func (m *Manager) RunCheck(ruleID string, status ComplianceStatus, details string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -247,7 +247,7 @@ func (m *Manager) RunCheck(ruleID string, status ComplianceStatus, details strin
 	return nil
 }
 
-// RunAutomatedScan 运行自动扫描
+// RunAutomatedScan 运行自动扫描.
 func (m *Manager) RunAutomatedScan() []*RuleCheck {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -278,7 +278,7 @@ func (m *Manager) RunAutomatedScan() []*RuleCheck {
 	return results
 }
 
-// GenerateReport 生成报告
+// GenerateReport 生成报告.
 func (m *Manager) GenerateReport(title, period string) *ComplianceReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -342,7 +342,7 @@ func (m *Manager) GenerateReport(title, period string) *ComplianceReport {
 	return report
 }
 
-// GetReports 获取报告列表
+// GetReports 获取报告列表.
 func (m *Manager) GetReports(limit int) []*ComplianceReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -359,7 +359,7 @@ func (m *Manager) GetReports(limit int) []*ComplianceReport {
 	return m.reports[start:]
 }
 
-// GetComplianceRate 获取合规率
+// GetComplianceRate 获取合规率.
 func (m *Manager) GetComplianceRate() float64 {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -381,7 +381,7 @@ func (m *Manager) GetComplianceRate() float64 {
 	return float64(compliant) / float64(total) * 100
 }
 
-// GetFindingsBySeverity 按严重程度获取发现
+// GetFindingsBySeverity 按严重程度获取发现.
 func (m *Manager) GetFindingsBySeverity() map[Severity]int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -403,7 +403,7 @@ func (m *Manager) GetFindingsBySeverity() map[Severity]int {
 	return findings
 }
 
-// ScheduleScan 调度扫描
+// ScheduleScan 调度扫描.
 func (m *Manager) ScheduleScan(schedule *ScheduledScan) error {
 	if schedule == nil || schedule.ID == "" || schedule.Cron == "" {
 		return ErrInvalidInput
@@ -418,24 +418,24 @@ func (m *Manager) ScheduleScan(schedule *ScheduledScan) error {
 	return nil
 }
 
-// GetSchedules 获取调度列表
+// GetSchedules 获取调度列表.
 func (m *Manager) GetSchedules() []*ScheduledScan {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.schedules
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	return map[string]interface{}{
-		"total_rules":    len(m.rules),
-		"total_checks":   len(m.checks),
-		"total_reports":  len(m.reports),
+		"total_rules":     len(m.rules),
+		"total_checks":    len(m.checks),
+		"total_reports":   len(m.reports),
 		"total_schedules": len(m.schedules),
 		"compliance_rate": m.GetComplianceRate(),
-		"uptime_seconds": int64(time.Since(m.startTime).Seconds()),
+		"uptime_seconds":  int64(time.Since(m.startTime).Seconds()),
 	}
 }

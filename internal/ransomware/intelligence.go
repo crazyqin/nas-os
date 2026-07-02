@@ -23,7 +23,7 @@ import (
 // 威胁情报管理器
 // ============================================================
 
-// ThreatIntelligence 威胁情报管理器
+// ThreatIntelligence 威胁情报管理器.
 type ThreatIntelligence struct {
 	mu sync.RWMutex
 
@@ -53,7 +53,7 @@ type ThreatIntelligence struct {
 	stopChan chan struct{}
 }
 
-// IOCType IOC 类型
+// IOCType IOC 类型.
 type IOCType string
 
 const (
@@ -67,7 +67,7 @@ const (
 	IOCTypeYARA   IOCType = "yara"   // YARA 规则
 )
 
-// IOC 失陷指标
+// IOC 失陷指标.
 type IOC struct {
 	ID          string      `json:"id"`
 	Type        IOCType     `json:"type"`
@@ -83,7 +83,7 @@ type IOC struct {
 	Active      bool        `json:"active"`
 }
 
-// RansomwareSignature 勒索软件签名
+// RansomwareSignature 勒索软件签名.
 type RansomwareSignature struct {
 	ID         string      `json:"id"`
 	Family     string      `json:"family"` // 勒索软件家族
@@ -98,7 +98,7 @@ type RansomwareSignature struct {
 	UpdatedAt  time.Time   `json:"updated_at"`
 }
 
-// IntelFeed 情报源
+// IntelFeed 情报源.
 type IntelFeed struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -112,7 +112,7 @@ type IntelFeed struct {
 	IOCCount    int       `json:"ioc_count"`
 }
 
-// MatchResult 匹配结果
+// MatchResult 匹配结果.
 type MatchResult struct {
 	Matched     bool                 `json:"matched"`
 	IOC         *IOC                 `json:"ioc,omitempty"`
@@ -122,7 +122,7 @@ type MatchResult struct {
 	MatchedAt   time.Time            `json:"matched_at"`
 }
 
-// IntelStats 情报统计
+// IntelStats 情报统计.
 type IntelStats struct {
 	TotalIOCs      int       `json:"total_iocs"`
 	ActiveIOCs     int       `json:"active_iocs"`
@@ -138,7 +138,7 @@ type IntelStats struct {
 // 构造与生命周期
 // ============================================================
 
-// NewThreatIntelligence 创建威胁情报管理器
+// NewThreatIntelligence 创建威胁情报管理器.
 func NewThreatIntelligence(dataDir string) *ThreatIntelligence {
 	ti := &ThreatIntelligence{
 		iocs:       make(map[IOCType][]IOC),
@@ -154,7 +154,7 @@ func NewThreatIntelligence(dataDir string) *ThreatIntelligence {
 	return ti
 }
 
-// initBuiltinSignatures 初始化内置勒索软件签名
+// initBuiltinSignatures 初始化内置勒索软件签名.
 func (ti *ThreatIntelligence) initBuiltinSignatures() {
 	ti.signatures = map[string]*RansomwareSignature{
 		"wannacry": {
@@ -223,7 +223,7 @@ func (ti *ThreatIntelligence) initBuiltinSignatures() {
 	}
 }
 
-// initDefaultFeeds 初始化默认情报源
+// initDefaultFeeds 初始化默认情报源.
 func (ti *ThreatIntelligence) initDefaultFeeds() {
 	ti.fees = []IntelFeed{
 		{
@@ -243,7 +243,7 @@ func (ti *ThreatIntelligence) initDefaultFeeds() {
 	}
 }
 
-// Start 启动情报管理器
+// Start 启动情报管理器.
 func (ti *ThreatIntelligence) Start() {
 	ti.mu.Lock()
 	if ti.running {
@@ -262,7 +262,7 @@ func (ti *ThreatIntelligence) Start() {
 	log.Println("[Intel] 威胁情报管理器已启动")
 }
 
-// Stop 停止情报管理器
+// Stop 停止情报管理器.
 func (ti *ThreatIntelligence) Stop() {
 	ti.mu.Lock()
 	defer ti.mu.Unlock()
@@ -278,7 +278,7 @@ func (ti *ThreatIntelligence) Stop() {
 // IOC 管理
 // ============================================================
 
-// AddIOC 添加 IOC
+// AddIOC 添加 IOC.
 func (ti *ThreatIntelligence) AddIOC(ioc IOC) {
 	ti.mu.Lock()
 	defer ti.mu.Unlock()
@@ -300,7 +300,7 @@ func (ti *ThreatIntelligence) AddIOC(ioc IOC) {
 	delete(ti.matchCache, ioc.Value)
 }
 
-// RemoveIOC 移除 IOC
+// RemoveIOC 移除 IOC.
 func (ti *ThreatIntelligence) RemoveIOC(id string) {
 	ti.mu.Lock()
 	defer ti.mu.Unlock()
@@ -319,7 +319,7 @@ func (ti *ThreatIntelligence) RemoveIOC(id string) {
 	}
 }
 
-// AddSignature 添加勒索软件签名
+// AddSignature 添加勒索软件签名.
 func (ti *ThreatIntelligence) AddSignature(sig RansomwareSignature) {
 	ti.mu.Lock()
 	defer ti.mu.Unlock()
@@ -332,7 +332,7 @@ func (ti *ThreatIntelligence) AddSignature(sig RansomwareSignature) {
 	ti.stats.Signatures = len(ti.signatures)
 }
 
-// GetIOCs 获取指定类型的 IOC
+// GetIOCs 获取指定类型的 IOC.
 func (ti *ThreatIntelligence) GetIOCs(iocType IOCType) []IOC {
 	ti.mu.RLock()
 	defer ti.mu.RUnlock()
@@ -343,7 +343,7 @@ func (ti *ThreatIntelligence) GetIOCs(iocType IOCType) []IOC {
 	return result
 }
 
-// GetSignatures 获取所有签名
+// GetSignatures 获取所有签名.
 func (ti *ThreatIntelligence) GetSignatures() []RansomwareSignature {
 	ti.mu.RLock()
 	defer ti.mu.RUnlock()
@@ -359,7 +359,7 @@ func (ti *ThreatIntelligence) GetSignatures() []RansomwareSignature {
 // 匹配查询
 // ============================================================
 
-// MatchHash 匹配文件哈希
+// MatchHash 匹配文件哈希.
 func (ti *ThreatIntelligence) MatchHash(hash string) *MatchResult {
 	ti.mu.RLock()
 	if cached, ok := ti.matchCache[hash]; ok {
@@ -419,7 +419,7 @@ func (ti *ThreatIntelligence) MatchHash(hash string) *MatchResult {
 	return result
 }
 
-// MatchExtension 匹配文件扩展名
+// MatchExtension 匹配文件扩展名.
 func (ti *ThreatIntelligence) MatchExtension(ext string) *MatchResult {
 	ti.mu.Lock()
 	defer ti.mu.Unlock()
@@ -446,7 +446,7 @@ func (ti *ThreatIntelligence) MatchExtension(ext string) *MatchResult {
 	return &MatchResult{Matched: false, MatchedAt: time.Now()}
 }
 
-// MatchRansomNote 匹配勒索信
+// MatchRansomNote 匹配勒索信.
 func (ti *ThreatIntelligence) MatchRansomNote(filename string) *MatchResult {
 	ti.mu.Lock()
 	defer ti.mu.Unlock()
@@ -484,7 +484,7 @@ func (ti *ThreatIntelligence) MatchRansomNote(filename string) *MatchResult {
 	return &MatchResult{Matched: false, MatchedAt: time.Now()}
 }
 
-// MatchIP 匹配 IP 地址
+// MatchIP 匹配 IP 地址.
 func (ti *ThreatIntelligence) MatchIP(ip string) *MatchResult {
 	ti.mu.Lock()
 	defer ti.mu.Unlock()
@@ -511,7 +511,7 @@ func (ti *ThreatIntelligence) MatchIP(ip string) *MatchResult {
 	return &MatchResult{Matched: false, MatchedAt: time.Now()}
 }
 
-// MatchDomain 匹配域名
+// MatchDomain 匹配域名.
 func (ti *ThreatIntelligence) MatchDomain(domain string) *MatchResult {
 	ti.mu.Lock()
 	defer ti.mu.Unlock()
@@ -539,7 +539,7 @@ func (ti *ThreatIntelligence) MatchDomain(domain string) *MatchResult {
 	return &MatchResult{Matched: false, MatchedAt: time.Now()}
 }
 
-// ComputeFileHash 计算文件 SHA256
+// ComputeFileHash 计算文件 SHA256.
 func ComputeFileHash(path string) (string, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -553,7 +553,7 @@ func ComputeFileHash(path string) (string, error) {
 // 情报更新
 // ============================================================
 
-// updateLoop 情报更新循环
+// updateLoop 情报更新循环.
 func (ti *ThreatIntelligence) updateLoop() {
 	ticker := time.NewTicker(30 * time.Minute)
 	defer ticker.Stop()
@@ -568,7 +568,7 @@ func (ti *ThreatIntelligence) updateLoop() {
 	}
 }
 
-// updateFeeds 更新所有情报源
+// updateFeeds 更新所有情报源.
 func (ti *ThreatIntelligence) updateFeeds() {
 	ti.mu.RLock()
 	var feeds []IntelFeed
@@ -590,7 +590,7 @@ func (ti *ThreatIntelligence) updateFeeds() {
 	}
 }
 
-// needsUpdate 检查是否需要更新
+// needsUpdate 检查是否需要更新.
 func (f IntelFeed) needsUpdate() bool {
 	if f.IntervalMin <= 0 {
 		return false
@@ -598,7 +598,7 @@ func (f IntelFeed) needsUpdate() bool {
 	return time.Since(f.LastFetch) > time.Duration(f.IntervalMin)*time.Minute
 }
 
-// fetchFeed 获取情报源数据
+// fetchFeed 获取情报源数据.
 func (ti *ThreatIntelligence) fetchFeed(feed IntelFeed) error {
 	if feed.URL == "" {
 		return nil
@@ -640,7 +640,7 @@ func (ti *ThreatIntelligence) fetchFeed(feed IntelFeed) error {
 	return nil
 }
 
-// parseFeedData 解析情报源数据
+// parseFeedData 解析情报源数据.
 func (ti *ThreatIntelligence) parseFeedData(feedType string, data []byte) int {
 	switch feedType {
 	case "abuse_ch":
@@ -651,7 +651,7 @@ func (ti *ThreatIntelligence) parseFeedData(feedType string, data []byte) int {
 	}
 }
 
-// parseAbuseCh 解析 abuse.ch 格式
+// parseAbuseCh 解析 abuse.ch 格式.
 func (ti *ThreatIntelligence) parseAbuseCh(data []byte) int {
 	lines := strings.Split(string(data), "\n")
 	count := 0
@@ -679,7 +679,7 @@ func (ti *ThreatIntelligence) parseAbuseCh(data []byte) int {
 	return count
 }
 
-// parseGenericJSON 解析通用 JSON 格式
+// parseGenericJSON 解析通用 JSON 格式.
 func (ti *ThreatIntelligence) parseGenericJSON(data []byte) int {
 	var iocs []IOC
 	if err := json.Unmarshal(data, &iocs); err != nil {
@@ -700,7 +700,7 @@ func (ti *ThreatIntelligence) parseGenericJSON(data []byte) int {
 // 本地数据持久化
 // ============================================================
 
-// loadLocalData 加载本地数据
+// loadLocalData 加载本地数据.
 func (ti *ThreatIntelligence) loadLocalData() {
 	if ti.dataDir == "" {
 		return
@@ -718,7 +718,7 @@ func (ti *ThreatIntelligence) loadLocalData() {
 	}
 }
 
-// SaveLocalData 保存本地数据
+// SaveLocalData 保存本地数据.
 func (ti *ThreatIntelligence) SaveLocalData() error {
 	if ti.dataDir == "" {
 		return fmt.Errorf("数据目录未设置")
@@ -746,7 +746,7 @@ func (ti *ThreatIntelligence) SaveLocalData() error {
 // 查询接口
 // ============================================================
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (ti *ThreatIntelligence) GetStats() IntelStats {
 	ti.mu.RLock()
 	defer ti.mu.RUnlock()
@@ -776,7 +776,7 @@ func (ti *ThreatIntelligence) GetStats() IntelStats {
 	return stats
 }
 
-// GetFeeds 获取所有情报源
+// GetFeeds 获取所有情报源.
 func (ti *ThreatIntelligence) GetFeeds() []IntelFeed {
 	ti.mu.RLock()
 	defer ti.mu.RUnlock()
@@ -786,7 +786,7 @@ func (ti *ThreatIntelligence) GetFeeds() []IntelFeed {
 	return result
 }
 
-// AddFeed 添加情报源
+// AddFeed 添加情报源.
 func (ti *ThreatIntelligence) AddFeed(feed IntelFeed) {
 	ti.mu.Lock()
 	defer ti.mu.Unlock()
@@ -797,14 +797,14 @@ func (ti *ThreatIntelligence) AddFeed(feed IntelFeed) {
 	ti.fees = append(ti.fees, feed)
 }
 
-// ClearCache 清除匹配缓存
+// ClearCache 清除匹配缓存.
 func (ti *ThreatIntelligence) ClearCache() {
 	ti.mu.Lock()
 	defer ti.mu.Unlock()
 	ti.matchCache = make(map[string]*MatchResult)
 }
 
-// allIOCs 获取所有 IOC 列表
+// allIOCs 获取所有 IOC 列表.
 func allIOCs(iocs map[IOCType][]IOC) []IOC {
 	var result []IOC
 	for _, list := range iocs {
@@ -813,7 +813,7 @@ func allIOCs(iocs map[IOCType][]IOC) []IOC {
 	return result
 }
 
-// containsAny 检查字符串是否包含任一子串
+// containsAny 检查字符串是否包含任一子串.
 func containsAny(s string, subs []string) bool {
 	for _, sub := range subs {
 		if strings.Contains(s, sub) {

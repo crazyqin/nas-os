@@ -34,41 +34,41 @@ type RetentionPolicy struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// MinutelyStrategy 每分钟快照策略（高频场景，如实时写入保护）
+// MinutelyStrategy 每分钟快照策略（高频场景，如实时写入保护）.
 type MinutelyStrategy struct {
 	Retain int `json:"retain"` // 保留份数
 }
 
-// HourlyStrategy 每小时快照策略
+// HourlyStrategy 每小时快照策略.
 type HourlyStrategy struct {
 	Retain int `json:"retain"`
 }
 
-// DailyStrategy 每天快照策略
+// DailyStrategy 每天快照策略.
 type DailyStrategy struct {
 	Retain   int `json:"retain"`
 	KeepHour int `json:"keep_hour"` // 优先保留该小时的快照（0-23）
 }
 
-// WeeklyStrategy 每周快照策略
+// WeeklyStrategy 每周快照策略.
 type WeeklyStrategy struct {
 	Retain      int    `json:"retain"`
 	KeepWeekday string `json:"keep_weekday"` // 优先保留该星期几的快照 (Monday..Sunday)
 }
 
-// MonthlyStrategy 每月快照策略
+// MonthlyStrategy 每月快照策略.
 type MonthlyStrategy struct {
 	RetainDay int `json:"retain_day"` // 优先保留该日期的快照（1-31）
 	Retain    int `json:"retain"`
 }
 
-// YearlyStrategy 每年快照策略
+// YearlyStrategy 每年快照策略.
 type YearlyStrategy struct {
 	RetainMonth int `json:"retain_month"` // 优先保留该月的快照（1-12）
 	Retain      int `json:"retain"`
 }
 
-// classifyPeriod 将快照创建时间归类到时间周期
+// classifyPeriod 将快照创建时间归类到时间周期.
 type periodBucket struct {
 	period    string // "minutely:2006-01-02T15:04" / "hourly:2006-01-02T15" / ...
 	timestamp time.Time
@@ -90,7 +90,7 @@ func isoWeek(t time.Time) int {
 	return w
 }
 
-// PolicyScheduler 根据保留策略自动清理过期快照
+// PolicyScheduler 根据保留策略自动清理过期快照.
 type PolicyScheduler struct {
 	mu      sync.Mutex
 	logger  *zap.Logger
@@ -100,7 +100,7 @@ type PolicyScheduler struct {
 	running bool
 }
 
-// NewPolicyScheduler 创建策略调度器
+// NewPolicyScheduler 创建策略调度器.
 func NewPolicyScheduler(logger *zap.Logger, manager *Manager, policy *RetentionPolicy) *PolicyScheduler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -113,7 +113,7 @@ func NewPolicyScheduler(logger *zap.Logger, manager *Manager, policy *RetentionP
 	}
 }
 
-// Start 启动定时清理（每小时检查一次）
+// Start 启动定时清理（每小时检查一次）.
 func (ps *PolicyScheduler) Start() {
 	ps.mu.Lock()
 	defer ps.mu.Unlock()
@@ -148,7 +148,7 @@ func (ps *PolicyScheduler) Start() {
 	)
 }
 
-// Stop 停止调度器
+// Stop 停止调度器.
 func (ps *PolicyScheduler) Stop() {
 	ps.mu.Lock()
 	defer ps.mu.Unlock()
@@ -160,7 +160,7 @@ func (ps *PolicyScheduler) Stop() {
 	ps.logger.Info("policy scheduler stopped", zap.String("policy_id", ps.policy.ID))
 }
 
-// Enforce 执行一次策略清理
+// Enforce 执行一次策略清理.
 func (ps *PolicyScheduler) Enforce() {
 	ps.logger.Info("enforcing retention policy", zap.String("policy_id", ps.policy.ID))
 
@@ -191,7 +191,7 @@ func (ps *PolicyScheduler) Enforce() {
 	}
 }
 
-// matchScope 判断快照是否在该策略作用范围内
+// matchScope 判断快照是否在该策略作用范围内.
 func (ps *PolicyScheduler) matchScope(s Snapshot) bool {
 	switch ps.policy.TargetScope {
 	case "global":
@@ -265,7 +265,7 @@ func (ps *PolicyScheduler) selectForDeletion(snapshots []Snapshot) []string {
 	return toDelete
 }
 
-// QuotaManager 快照配额管理
+// QuotaManager 快照配额管理.
 type QuotaManager struct {
 	mu         sync.Mutex
 	logger     *zap.Logger
@@ -275,7 +275,7 @@ type QuotaManager struct {
 	manager    *Manager
 }
 
-// NewQuotaManager 创建配额管理器
+// NewQuotaManager 创建配额管理器.
 func NewQuotaManager(logger *zap.Logger, manager *Manager, maxPercent float64, totalBytes int64) *QuotaManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -294,7 +294,7 @@ func NewQuotaManager(logger *zap.Logger, manager *Manager, maxPercent float64, t
 	}
 }
 
-// SetQuota 设置配额百分比
+// SetQuota 设置配额百分比.
 func (qm *QuotaManager) SetQuota(percent float64) {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
@@ -307,14 +307,14 @@ func (qm *QuotaManager) SetQuota(percent float64) {
 	qm.maxPercent = percent
 }
 
-// SetTotalBytes 设置存储总容量
+// SetTotalBytes 设置存储总容量.
 func (qm *QuotaManager) SetTotalBytes(total int64) {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
 	qm.totalBytes = total
 }
 
-// CheckQuota 检查创建新快照是否超出配额，返回是否允许
+// CheckQuota 检查创建新快照是否超出配额，返回是否允许.
 func (qm *QuotaManager) CheckQuota(additionalBytes int64) bool {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
@@ -326,7 +326,7 @@ func (qm *QuotaManager) CheckQuota(additionalBytes int64) bool {
 	return projected <= limit
 }
 
-// RefreshUsage 刷新快照使用量
+// RefreshUsage 刷新快照使用量.
 func (qm *QuotaManager) RefreshUsage() {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
@@ -337,7 +337,7 @@ func (qm *QuotaManager) RefreshUsage() {
 	}
 }
 
-// GetStatus 获取配额状态
+// GetStatus 获取配额状态.
 func (qm *QuotaManager) GetStatus() map[string]interface{} {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
@@ -356,7 +356,7 @@ func (qm *QuotaManager) GetStatus() map[string]interface{} {
 	}
 }
 
-// EnforceQuota 当配额超限时自动删除最老的快照
+// EnforceQuota 当配额超限时自动删除最老的快照.
 func (qm *QuotaManager) EnforceQuota() {
 	qm.RefreshUsage()
 

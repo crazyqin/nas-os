@@ -8,7 +8,7 @@ import (
 
 // ========== AirPlay 设备 ==========
 
-// AirPlayDevice AirPlay 设备
+// AirPlayDevice AirPlay 设备.
 type AirPlayDevice struct {
 	ID           string             `json:"id"`           // 唯一标识
 	Name         string             `json:"name"`         // 设备名称
@@ -20,7 +20,7 @@ type AirPlayDevice struct {
 	LastSeen     time.Time          `json:"lastSeen"`     // 最后发现时间
 }
 
-// DeviceType 设备类型
+// DeviceType 设备类型.
 type DeviceType string
 
 const (
@@ -30,7 +30,7 @@ const (
 	DeviceTypeNAS     DeviceType = "NAS"
 )
 
-// DeviceCapabilities 设备支持的功能
+// DeviceCapabilities 设备支持的功能.
 type DeviceCapabilities struct {
 	Audio  bool `json:"audio"`  // 支持音频
 	Video  bool `json:"video"`  // 支持视频
@@ -39,7 +39,7 @@ type DeviceCapabilities struct {
 
 // ========== AirPlay 接收器 ==========
 
-// AirPlayReceiver AirPlay 接收器配置
+// AirPlayReceiver AirPlay 接收器配置.
 type AirPlayReceiver struct {
 	ID                string          `json:"id"`                 // 唯一标识
 	Name              string          `json:"name"`               // 接收器名称
@@ -52,7 +52,7 @@ type AirPlayReceiver struct {
 
 // ========== AirPlay 发送器 ==========
 
-// AirPlaySender AirPlay 发送器状态
+// AirPlaySender AirPlay 发送器状态.
 type AirPlaySender struct {
 	ID         string       `json:"id"`         // 唯一标识
 	TargetID   string       `json:"targetId"`   // 当前投射目标设备 ID
@@ -61,7 +61,7 @@ type AirPlaySender struct {
 	MediaInfo  *MediaInfo   `json:"mediaInfo"`  // 当前媒体信息
 }
 
-// SenderStatus 发送器状态
+// SenderStatus 发送器状态.
 type SenderStatus string
 
 const (
@@ -72,7 +72,7 @@ const (
 
 // ========== 音频流 ==========
 
-// AudioStream 音频流状态
+// AudioStream 音频流状态.
 type AudioStream struct {
 	ID           string       `json:"id"`           // 唯一标识
 	DeviceID     string       `json:"deviceId"`     // 目标设备 ID
@@ -83,7 +83,7 @@ type AudioStream struct {
 	QueueIndex   int          `json:"queueIndex"`   // 当前播放索引
 }
 
-// StreamStatus 流状态
+// StreamStatus 流状态.
 type StreamStatus string
 
 const (
@@ -94,7 +94,7 @@ const (
 
 // ========== 视频流 ==========
 
-// VideoStream 视频流状态
+// VideoStream 视频流状态.
 type VideoStream struct {
 	ID         string       `json:"id"`         // 唯一标识
 	DeviceID   string       `json:"deviceId"`   // 目标设备 ID
@@ -106,7 +106,7 @@ type VideoStream struct {
 
 // ========== 屏幕镜像 ==========
 
-// ScreenMirror 屏幕镜像状态
+// ScreenMirror 屏幕镜像状态.
 type ScreenMirror struct {
 	ID           string `json:"id"`           // 唯一标识
 	SourceDevice string `json:"sourceDevice"` // 源设备
@@ -119,7 +119,7 @@ type ScreenMirror struct {
 
 // ========== 多房间音频 ==========
 
-// MultiRoomGroup 多房间音频组
+// MultiRoomGroup 多房间音频组.
 type MultiRoomGroup struct {
 	ID         string     `json:"id"`         // 唯一标识
 	Name       string     `json:"name"`       // 组名称
@@ -128,7 +128,7 @@ type MultiRoomGroup struct {
 	SyncStatus SyncStatus `json:"syncStatus"` // 同步状态
 }
 
-// SyncStatus 同步状态
+// SyncStatus 同步状态.
 type SyncStatus string
 
 const (
@@ -139,7 +139,7 @@ const (
 
 // ========== 媒体信息 ==========
 
-// MediaInfo 媒体信息
+// MediaInfo 媒体信息.
 type MediaInfo struct {
 	Title    string `json:"title"`    // 标题
 	Artist   string `json:"artist"`   // 艺术家
@@ -151,7 +151,7 @@ type MediaInfo struct {
 
 // ========== 设备配对 ==========
 
-// PairingRecord 设备配对记录
+// PairingRecord 设备配对记录.
 type PairingRecord struct {
 	DeviceID string    `json:"deviceId"` // 设备 ID
 	Name     string    `json:"name"`     // 设备名称
@@ -161,7 +161,7 @@ type PairingRecord struct {
 
 // ========== 统计数据 ==========
 
-// AirPlayStats AirPlay 统计数据
+// AirPlayStats AirPlay 统计数据.
 type AirPlayStats struct {
 	SenderCount   int   `json:"senderCount"`   // 发送设备数
 	ReceiverCount int   `json:"receiverCount"` // 接收设备数
@@ -171,7 +171,7 @@ type AirPlayStats struct {
 
 // ========== 服务状态 ==========
 
-// ServiceStatus AirPlay 服务状态
+// ServiceStatus AirPlay 服务状态.
 type ServiceStatus struct {
 	Running   bool       `json:"running"`   // 是否运行中
 	StartedAt *time.Time `json:"startedAt"` // 启动时间

@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler 品牌定制引擎 HTTP 处理器
+// Handler 品牌定制引擎 HTTP 处理器.
 type Handler struct {
 	engine *BrandingEngine
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(engine *BrandingEngine) *Handler {
 	return &Handler{engine: engine}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/custombranding/themes", h.handleThemes)
 	mux.HandleFunc("/api/v1/custombranding/config", h.handleConfig)

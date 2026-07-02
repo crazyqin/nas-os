@@ -11,7 +11,7 @@ import (
 
 // ==================== 时间槽与调度 ====================
 
-// TimeSlot 时间槽 - 用于描述周期性的时间窗口
+// TimeSlot 时间槽 - 用于描述周期性的时间窗口.
 type TimeSlot struct {
 	DayOfWeek time.Weekday `json:"day_of_week"` // 星期几 (0=周日)
 	StartHour int          `json:"start_hour"`  // 开始小时 (0-23)
@@ -19,7 +19,7 @@ type TimeSlot struct {
 	Label     string       `json:"label"`       // 标签（如"工作日白天"）
 }
 
-// SleepSchedule 休眠调度表 - 工作日/周末差异化策略
+// SleepSchedule 休眠调度表 - 工作日/周末差异化策略.
 type SleepSchedule struct {
 	WorkdayPolicyID string `json:"workday_policy_id"` // 工作日使用的策略ID
 	WeekendPolicyID string `json:"weekend_policy_id"` // 周末使用的策略ID
@@ -29,14 +29,14 @@ type SleepSchedule struct {
 
 // ==================== 访问模式学习 ====================
 
-// AccessRecord 单次访问记录
+// AccessRecord 单次访问记录.
 type AccessRecord struct {
 	Timestamp time.Time     `json:"timestamp"` // 访问时间
 	Duration  time.Duration `json:"duration"`  // 访问持续时长
 	Type      AccessType    `json:"type"`      // 访问类型
 }
 
-// AccessType 访问类型
+// AccessType 访问类型.
 type AccessType string
 
 const (
@@ -45,7 +45,7 @@ const (
 	AccessService AccessType = "service" // 服务访问
 )
 
-// AccessPattern 访问模式 - 学习磁盘的使用规律
+// AccessPattern 访问模式 - 学习磁盘的使用规律.
 type AccessPattern struct {
 	DiskID            string         `json:"disk_id"`
 	HourlyFrequency   [24]int        `json:"hourly_frequency"`    // 24小时访问频率分布
@@ -59,7 +59,7 @@ type AccessPattern struct {
 	MaxRecords        int            `json:"max_records"`         // 最大记录数
 }
 
-// ServiceDependency 服务依赖
+// ServiceDependency 服务依赖.
 type ServiceDependency struct {
 	Name        string    `json:"name"`         // 服务名（smb/nfs/ftp等）
 	Active      bool      `json:"active"`       // 是否活跃
@@ -69,14 +69,14 @@ type ServiceDependency struct {
 
 // ==================== 温度监控 ====================
 
-// TemperatureThreshold 温度阈值配置
+// TemperatureThreshold 温度阈值配置.
 type TemperatureThreshold struct {
 	WarningTemp  float64 `json:"warning_temp"`  // 警告温度(℃)
 	ThrottleTemp float64 `json:"throttle_temp"` // 降频温度(℃)，提前休眠散热
 	CriticalTemp float64 `json:"critical_temp"` // 临界温度(℃)，强制休眠
 }
 
-// DiskTemperatureInfo 磁盘温度信息
+// DiskTemperatureInfo 磁盘温度信息.
 type DiskTemperatureInfo struct {
 	DiskID        string               `json:"disk_id"`
 	CurrentTemp   float64              `json:"current_temp"`   // 当前温度(℃)
@@ -88,7 +88,7 @@ type DiskTemperatureInfo struct {
 
 // ==================== 智能休眠策略 ====================
 
-// SmartSleepPolicy 智能休眠策略（扩展自基础 SleepPolicy）
+// SmartSleepPolicy 智能休眠策略（扩展自基础 SleepPolicy）.
 type SmartSleepPolicy struct {
 	*SleepPolicy                              // 嵌入基础策略
 	TemperatureThreshold TemperatureThreshold `json:"temperature_threshold"`  // 温度阈值
@@ -100,7 +100,7 @@ type SmartSleepPolicy struct {
 
 // ==================== SmartSleepManager ====================
 
-// SmartSleepManager 智能休眠策略引擎
+// SmartSleepManager 智能休眠策略引擎.
 type SmartSleepManager struct {
 	mu      sync.RWMutex
 	ctx     context.Context
@@ -129,7 +129,7 @@ type SmartSleepManager struct {
 	patternMu   sync.RWMutex
 }
 
-// SmartSleepConfig 智能休眠配置
+// SmartSleepConfig 智能休眠配置.
 type SmartSleepConfig struct {
 	// 访问模式学习
 	LearnInterval      time.Duration `json:"learn_interval"`       // 学习周期
@@ -147,7 +147,7 @@ type SmartSleepConfig struct {
 	ServiceCheckInterval time.Duration `json:"service_check_interval"` // 服务检查间隔
 }
 
-// DefaultSmartSleepConfig 默认智能休眠配置
+// DefaultSmartSleepConfig 默认智能休眠配置.
 func DefaultSmartSleepConfig() SmartSleepConfig {
 	return SmartSleepConfig{
 		LearnInterval:      10 * time.Minute,
@@ -166,7 +166,7 @@ func DefaultSmartSleepConfig() SmartSleepConfig {
 
 // ==================== 构造与生命周期 ====================
 
-// NewSmartSleepManager 创建智能休眠管理器
+// NewSmartSleepManager 创建智能休眠管理器.
 func NewSmartSleepManager(cfg *SmartSleepConfig) *SmartSleepManager {
 	if cfg == nil {
 		defaultCfg := DefaultSmartSleepConfig()
@@ -183,7 +183,7 @@ func NewSmartSleepManager(cfg *SmartSleepConfig) *SmartSleepManager {
 	}
 }
 
-// Start 启动智能休眠管理器
+// Start 启动智能休眠管理器.
 func (m *SmartSleepManager) Start(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -202,7 +202,7 @@ func (m *SmartSleepManager) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止智能休眠管理器
+// Stop 停止智能休眠管理器.
 func (m *SmartSleepManager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -220,7 +220,7 @@ func (m *SmartSleepManager) Stop() {
 	}
 }
 
-// IsRunning 是否在运行
+// IsRunning 是否在运行.
 func (m *SmartSleepManager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -229,7 +229,7 @@ func (m *SmartSleepManager) IsRunning() bool {
 
 // ==================== 访问记录与模式学习 ====================
 
-// RecordAccess 记录磁盘访问事件
+// RecordAccess 记录磁盘访问事件.
 func (m *SmartSleepManager) RecordAccess(diskID string, accessType AccessType, duration time.Duration) {
 	m.patternMu.Lock()
 	defer m.patternMu.Unlock()
@@ -276,7 +276,7 @@ func (m *SmartSleepManager) RecordAccess(diskID string, accessType AccessType, d
 	m.updatePeakQuietHours(pattern)
 }
 
-// UpdateTemperature 更新磁盘温度
+// UpdateTemperature 更新磁盘温度.
 func (m *SmartSleepManager) UpdateTemperature(diskID string, temp float64) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -304,7 +304,7 @@ func (m *SmartSleepManager) UpdateTemperature(diskID string, temp float64) {
 	}
 }
 
-// RegisterServiceDependency 注册服务依赖
+// RegisterServiceDependency 注册服务依赖.
 func (m *SmartSleepManager) RegisterServiceDependency(diskID string, dep ServiceDependency) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -321,7 +321,7 @@ func (m *SmartSleepManager) RegisterServiceDependency(diskID string, dep Service
 	m.dependencies[diskID] = append(deps, dep)
 }
 
-// UpdateServiceStatus 更新服务活跃状态
+// UpdateServiceStatus 更新服务活跃状态.
 func (m *SmartSleepManager) UpdateServiceStatus(diskID, serviceName string, active bool, conns int) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -340,7 +340,7 @@ func (m *SmartSleepManager) UpdateServiceStatus(diskID, serviceName string, acti
 // ==================== 休眠决策 ====================
 
 // ShouldSleep 判断磁盘是否应该休眠
-// 综合考虑：访问模式、温度、服务依赖、调度策略
+// 综合考虑：访问模式、温度、服务依赖、调度策略.
 func (m *SmartSleepManager) ShouldSleep(diskID string) (bool, string) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -377,7 +377,7 @@ func (m *SmartSleepManager) ShouldSleep(diskID string) (bool, string) {
 }
 
 // GetNextWakeTime 获取预测的下次唤醒时间
-// 基于历史访问模式预测下一个活跃时段
+// 基于历史访问模式预测下一个活跃时段.
 func (m *SmartSleepManager) GetNextWakeTime(diskID string) time.Time {
 	m.patternMu.RLock()
 	defer m.patternMu.RUnlock()
@@ -410,7 +410,7 @@ func (m *SmartSleepManager) GetNextWakeTime(diskID string) time.Time {
 
 // ==================== 模式学习 ====================
 
-// LearnPattern 执行一次模式学习，分析历史访问数据
+// LearnPattern 执行一次模式学习，分析历史访问数据.
 func (m *SmartSleepManager) LearnPattern(diskID string) *AccessPattern {
 	m.patternMu.Lock()
 	defer m.patternMu.Unlock()
@@ -448,7 +448,7 @@ func (m *SmartSleepManager) LearnPattern(diskID string) *AccessPattern {
 	return pattern
 }
 
-// GetAccessPattern 获取访问模式（只读）
+// GetAccessPattern 获取访问模式（只读）.
 func (m *SmartSleepManager) GetAccessPattern(diskID string) *AccessPattern {
 	m.patternMu.RLock()
 	defer m.patternMu.RUnlock()
@@ -465,7 +465,7 @@ func (m *SmartSleepManager) GetAccessPattern(diskID string) *AccessPattern {
 
 // ==================== 策略管理 ====================
 
-// UpdatePolicy 更新智能休眠策略
+// UpdatePolicy 更新智能休眠策略.
 func (m *SmartSleepManager) UpdatePolicy(policyID string, policy *SmartSleepPolicy) error {
 	if policy == nil {
 		return fmt.Errorf("策略不能为空")
@@ -478,26 +478,26 @@ func (m *SmartSleepManager) UpdatePolicy(policyID string, policy *SmartSleepPoli
 	return nil
 }
 
-// AddPolicy 添加智能休眠策略
+// AddPolicy 添加智能休眠策略.
 func (m *SmartSleepManager) AddPolicy(policy *SmartSleepPolicy) error {
 	return m.UpdatePolicy(policy.ID, policy)
 }
 
-// GetPolicy 获取智能休眠策略
+// GetPolicy 获取智能休眠策略.
 func (m *SmartSleepManager) GetPolicy(policyID string) *SmartSleepPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.policies[policyID]
 }
 
-// SetDefaultPolicy 设置默认策略
+// SetDefaultPolicy 设置默认策略.
 func (m *SmartSleepManager) SetDefaultPolicy(policy *SmartSleepPolicy) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.defaultPolicy = policy
 }
 
-// SetSchedule 设置磁盘休眠调度表（工作日/周末差异化）
+// SetSchedule 设置磁盘休眠调度表（工作日/周末差异化）.
 func (m *SmartSleepManager) SetSchedule(diskID string, schedule *SleepSchedule) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -506,7 +506,7 @@ func (m *SmartSleepManager) SetSchedule(diskID string, schedule *SleepSchedule) 
 
 // ==================== 内部方法 ====================
 
-// learningLoop 后台学习循环
+// learningLoop 后台学习循环.
 func (m *SmartSleepManager) learningLoop() {
 	for {
 		select {
@@ -518,7 +518,7 @@ func (m *SmartSleepManager) learningLoop() {
 	}
 }
 
-// runLearningCycle 执行一轮学习
+// runLearningCycle 执行一轮学习.
 func (m *SmartSleepManager) runLearningCycle() {
 	m.patternMu.RLock()
 	diskIDs := make([]string, 0, len(m.patterns))
@@ -532,7 +532,7 @@ func (m *SmartSleepManager) runLearningCycle() {
 	}
 }
 
-// updatePeakQuietHours 更新高峰和低谷时段
+// updatePeakQuietHours 更新高峰和低谷时段.
 func (m *SmartSleepManager) updatePeakQuietHours(pattern *AccessPattern) {
 	threshold := m.config.QuietHourThreshold
 
@@ -549,7 +549,7 @@ func (m *SmartSleepManager) updatePeakQuietHours(pattern *AccessPattern) {
 	pattern.QuietHours = quiets
 }
 
-// hasActiveService 检查是否有活跃的服务依赖
+// hasActiveService 检查是否有活跃的服务依赖.
 func (m *SmartSleepManager) hasActiveService(diskID string) bool {
 	deps := m.dependencies[diskID]
 	for _, dep := range deps {
@@ -560,7 +560,7 @@ func (m *SmartSleepManager) hasActiveService(diskID string) bool {
 	return false
 }
 
-// isOverTempThreshold 检查是否超过温度阈值
+// isOverTempThreshold 检查是否超过温度阈值.
 func (m *SmartSleepManager) isOverTempThreshold(diskID string) bool {
 	info := m.temperatures[diskID]
 	if info == nil {
@@ -570,7 +570,7 @@ func (m *SmartSleepManager) isOverTempThreshold(diskID string) bool {
 	return info.CurrentTemp >= info.TempThreshold.ThrottleTemp
 }
 
-// getEffectivePolicy 获取当前生效的策略（考虑调度表）
+// getEffectivePolicy 获取当前生效的策略（考虑调度表）.
 func (m *SmartSleepManager) getEffectivePolicy(diskID string, now time.Time) *SmartSleepPolicy {
 	// 检查是否有调度表
 	schedule := m.schedules[diskID]
@@ -602,7 +602,7 @@ func (m *SmartSleepManager) getEffectivePolicy(diskID string, now time.Time) *Sm
 	return nil
 }
 
-// isQuietPeriod 判断当前是否为低谷时段
+// isQuietPeriod 判断当前是否为低谷时段.
 func (m *SmartSleepManager) isQuietPeriod(diskID string, now time.Time) bool {
 	pattern := m.patterns[diskID]
 	if pattern == nil || pattern.TotalAccessCount == 0 {
@@ -625,7 +625,7 @@ func (m *SmartSleepManager) isQuietPeriod(diskID string, now time.Time) bool {
 	return false
 }
 
-// hasRecentAccess 检查是否有近期访问
+// hasRecentAccess 检查是否有近期访问.
 func (m *SmartSleepManager) hasRecentAccess(diskID string, minIdle time.Duration) bool {
 	pattern := m.patterns[diskID]
 	if pattern == nil {
@@ -635,7 +635,7 @@ func (m *SmartSleepManager) hasRecentAccess(diskID string, minIdle time.Duration
 	return time.Since(pattern.LastAccess) < minIdle
 }
 
-// findNextPeakHour 查找下一个高峰时段
+// findNextPeakHour 查找下一个高峰时段.
 func (m *SmartSleepManager) findNextPeakHour(pattern *AccessPattern, from time.Time) *time.Time {
 	if len(pattern.PeakHours) == 0 {
 		return nil
@@ -669,7 +669,7 @@ func (m *SmartSleepManager) findNextPeakHour(pattern *AccessPattern, from time.T
 
 // ==================== 查询接口 ====================
 
-// GetTemperatureInfo 获取磁盘温度信息
+// GetTemperatureInfo 获取磁盘温度信息.
 func (m *SmartSleepManager) GetTemperatureInfo(diskID string) *DiskTemperatureInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -681,7 +681,7 @@ func (m *SmartSleepManager) GetTemperatureInfo(diskID string) *DiskTemperatureIn
 	return &cp
 }
 
-// GetServiceDependencies 获取磁盘服务依赖
+// GetServiceDependencies 获取磁盘服务依赖.
 func (m *SmartSleepManager) GetServiceDependencies(diskID string) []ServiceDependency {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -691,21 +691,21 @@ func (m *SmartSleepManager) GetServiceDependencies(diskID string) []ServiceDepen
 	return result
 }
 
-// GetSchedule 获取磁盘调度表
+// GetSchedule 获取磁盘调度表.
 func (m *SmartSleepManager) GetSchedule(diskID string) *SleepSchedule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.schedules[diskID]
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *SmartSleepManager) GetConfig() SmartSleepConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// NewSmartSleepPolicy 创建智能休眠策略
+// NewSmartSleepPolicy 创建智能休眠策略.
 func NewSmartSleepPolicy(id, name string, idleThreshold, standbyThreshold, sleepThreshold time.Duration) *SmartSleepPolicy {
 	return &SmartSleepPolicy{
 		SleepPolicy: &SleepPolicy{
@@ -728,7 +728,7 @@ func NewSmartSleepPolicy(id, name string, idleThreshold, standbyThreshold, sleep
 	}
 }
 
-// DefaultSleepSchedule 默认工作日/周末调度表
+// DefaultSleepSchedule 默认工作日/周末调度表.
 func DefaultSleepSchedule(workdayPolicyID, weekendPolicyID string) *SleepSchedule {
 	return &SleepSchedule{
 		WorkdayPolicyID: workdayPolicyID,

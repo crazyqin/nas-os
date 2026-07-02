@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Manager Usenet 下载管理器
+// Manager Usenet 下载管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	servers    map[string]*Server
@@ -21,7 +21,7 @@ type Manager struct {
 	queue      []*QueueItem
 }
 
-// NewManager 创建 Usenet 下载管理器
+// NewManager 创建 Usenet 下载管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		servers:    make(map[string]*Server),
@@ -38,7 +38,7 @@ func NewManager() *Manager {
 	return m
 }
 
-// initDefaultServers 初始化预置服务器
+// initDefaultServers 初始化预置服务器.
 func (m *Manager) initDefaultServers() {
 	for _, s := range DefaultServers {
 		server := s
@@ -46,12 +46,12 @@ func (m *Manager) initDefaultServers() {
 	}
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	return uuid.New().String()
 }
 
-// AddServer 添加 Usenet 服务器
+// AddServer 添加 Usenet 服务器.
 func (m *Manager) AddServer(server *Server) (*Server, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -75,7 +75,7 @@ func (m *Manager) AddServer(server *Server) (*Server, error) {
 	return server, nil
 }
 
-// UpdateServer 更新 Usenet 服务器配置
+// UpdateServer 更新 Usenet 服务器配置.
 func (m *Manager) UpdateServer(id string, server *Server) (*Server, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -110,7 +110,7 @@ func (m *Manager) UpdateServer(id string, server *Server) (*Server, error) {
 	return existing, nil
 }
 
-// DeleteServer 删除 Usenet 服务器
+// DeleteServer 删除 Usenet 服务器.
 func (m *Manager) DeleteServer(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -123,7 +123,7 @@ func (m *Manager) DeleteServer(id string) error {
 	return nil
 }
 
-// TestServer 测试服务器连接
+// TestServer 测试服务器连接.
 func (m *Manager) TestServer(id string) (time.Duration, error) {
 	m.mu.RLock()
 	server, ok := m.servers[id]
@@ -143,7 +143,7 @@ func (m *Manager) TestServer(id string) (time.Duration, error) {
 	return duration, nil
 }
 
-// GetServer 获取服务器配置
+// GetServer 获取服务器配置.
 func (m *Manager) GetServer(id string) (*Server, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -155,7 +155,7 @@ func (m *Manager) GetServer(id string) (*Server, error) {
 	return server, nil
 }
 
-// ListServers 列出所有服务器
+// ListServers 列出所有服务器.
 func (m *Manager) ListServers() []*Server {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -167,7 +167,7 @@ func (m *Manager) ListServers() []*Server {
 	return servers
 }
 
-// AddNZB 添加 NZB
+// AddNZB 添加 NZB.
 func (m *Manager) AddNZB(nzb *NZB) (*NZB, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -186,7 +186,7 @@ func (m *Manager) AddNZB(nzb *NZB) (*NZB, error) {
 	return nzb, nil
 }
 
-// AddNZBFromFile 从文件添加 NZB
+// AddNZBFromFile 从文件添加 NZB.
 func (m *Manager) AddNZBFromFile(path string) (*NZB, error) {
 	// 检查文件是否存在
 	info, err := os.Stat(path)
@@ -211,7 +211,7 @@ func (m *Manager) AddNZBFromFile(path string) (*NZB, error) {
 	return nzb, nil
 }
 
-// GetNZB 获取 NZB 信息
+// GetNZB 获取 NZB 信息.
 func (m *Manager) GetNZB(id string) (*NZB, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -223,7 +223,7 @@ func (m *Manager) GetNZB(id string) (*NZB, error) {
 	return nzb, nil
 }
 
-// ListNZBs 列出 NZB，可按状态过滤
+// ListNZBs 列出 NZB，可按状态过滤.
 func (m *Manager) ListNZBs(status NZBStatus) ([]NZB, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -237,7 +237,7 @@ func (m *Manager) ListNZBs(status NZBStatus) ([]NZB, error) {
 	return result, nil
 }
 
-// DeleteNZB 删除 NZB
+// DeleteNZB 删除 NZB.
 func (m *Manager) DeleteNZB(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -266,7 +266,7 @@ func (m *Manager) DeleteNZB(id string) error {
 	return nil
 }
 
-// StartDownload 启动下载
+// StartDownload 启动下载.
 func (m *Manager) StartDownload(nzbID string) (*Download, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -314,7 +314,7 @@ func (m *Manager) StartDownload(nzbID string) (*Download, error) {
 	return download, nil
 }
 
-// PauseDownload 暂停下载
+// PauseDownload 暂停下载.
 func (m *Manager) PauseDownload(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -338,7 +338,7 @@ func (m *Manager) PauseDownload(id string) error {
 	return nil
 }
 
-// ResumeDownload 恢复下载
+// ResumeDownload 恢复下载.
 func (m *Manager) ResumeDownload(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -362,7 +362,7 @@ func (m *Manager) ResumeDownload(id string) error {
 	return nil
 }
 
-// CancelDownload 取消下载
+// CancelDownload 取消下载.
 func (m *Manager) CancelDownload(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -387,7 +387,7 @@ func (m *Manager) CancelDownload(id string) error {
 	return nil
 }
 
-// GetDownload 获取下载任务信息
+// GetDownload 获取下载任务信息.
 func (m *Manager) GetDownload(id string) (*Download, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -399,7 +399,7 @@ func (m *Manager) GetDownload(id string) (*Download, error) {
 	return dl, nil
 }
 
-// ListDownloads 列出所有下载任务
+// ListDownloads 列出所有下载任务.
 func (m *Manager) ListDownloads() ([]Download, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -411,7 +411,7 @@ func (m *Manager) ListDownloads() ([]Download, error) {
 	return downloads, nil
 }
 
-// GetQueue 获取下载队列
+// GetQueue 获取下载队列.
 func (m *Manager) GetQueue() ([]QueueItem, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -423,7 +423,7 @@ func (m *Manager) GetQueue() ([]QueueItem, error) {
 	return queue, nil
 }
 
-// ReorderQueue 重新排序队列
+// ReorderQueue 重新排序队列.
 func (m *Manager) ReorderQueue(ids []string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -453,7 +453,7 @@ func (m *Manager) ReorderQueue(ids []string) error {
 	return nil
 }
 
-// AddIndexer 添加索引器
+// AddIndexer 添加索引器.
 func (m *Manager) AddIndexer(indexer *Indexer) (*Indexer, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -470,7 +470,7 @@ func (m *Manager) AddIndexer(indexer *Indexer) (*Indexer, error) {
 	return indexer, nil
 }
 
-// SearchIndexer 搜索索引器
+// SearchIndexer 搜索索引器.
 func (m *Manager) SearchIndexer(indexerID, query string) ([]NZB, error) {
 	m.mu.RLock()
 	indexer, ok := m.indexers[indexerID]
@@ -499,7 +499,7 @@ func (m *Manager) SearchIndexer(indexerID, query string) ([]NZB, error) {
 	return results, nil
 }
 
-// ListIndexers 列出所有索引器
+// ListIndexers 列出所有索引器.
 func (m *Manager) ListIndexers() []*Indexer {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -511,7 +511,7 @@ func (m *Manager) ListIndexers() []*Indexer {
 	return indexers
 }
 
-// GetIndexer 获取索引器
+// GetIndexer 获取索引器.
 func (m *Manager) GetIndexer(id string) (*Indexer, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -523,7 +523,7 @@ func (m *Manager) GetIndexer(id string) (*Indexer, error) {
 	return idx, nil
 }
 
-// DeleteIndexer 删除索引器
+// DeleteIndexer 删除索引器.
 func (m *Manager) DeleteIndexer(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -535,7 +535,7 @@ func (m *Manager) DeleteIndexer(id string) error {
 	return nil
 }
 
-// CreateCategory 创建分类
+// CreateCategory 创建分类.
 func (m *Manager) CreateCategory(cat *Category) (*Category, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -552,7 +552,7 @@ func (m *Manager) CreateCategory(cat *Category) (*Category, error) {
 	return cat, nil
 }
 
-// ListCategories 列出所有分类
+// ListCategories 列出所有分类.
 func (m *Manager) ListCategories() ([]Category, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -564,7 +564,7 @@ func (m *Manager) ListCategories() ([]Category, error) {
 	return cats, nil
 }
 
-// GetCategory 获取分类
+// GetCategory 获取分类.
 func (m *Manager) GetCategory(id string) (*Category, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -576,7 +576,7 @@ func (m *Manager) GetCategory(id string) (*Category, error) {
 	return cat, nil
 }
 
-// DeleteCategory 删除分类
+// DeleteCategory 删除分类.
 func (m *Manager) DeleteCategory(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -588,7 +588,7 @@ func (m *Manager) DeleteCategory(id string) error {
 	return nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() (*Stats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -627,7 +627,7 @@ func (m *Manager) GetStats() (*Stats, error) {
 	return stats, nil
 }
 
-// ProcessCompleted 处理已完成的下载
+// ProcessCompleted 处理已完成的下载.
 func (m *Manager) ProcessCompleted(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

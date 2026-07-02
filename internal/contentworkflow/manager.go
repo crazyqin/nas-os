@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// ContentType represents content types
+// ContentType represents content types.
 type ContentType string
 
 const (
@@ -20,7 +20,7 @@ const (
 	TypePost     ContentType = "post"
 )
 
-// WorkflowStatus represents workflow status
+// WorkflowStatus represents workflow status.
 type WorkflowStatus string
 
 const (
@@ -31,7 +31,7 @@ const (
 	StatusArchived  WorkflowStatus = "archived"
 )
 
-// Content represents a content item
+// Content represents a content item.
 type Content struct {
 	ID          string            `json:"id"`
 	Title       string            `json:"title"`
@@ -48,7 +48,7 @@ type Content struct {
 	Metadata    map[string]string `json:"metadata,omitempty"`
 }
 
-// Workflow represents a content workflow
+// Workflow represents a content workflow.
 type Workflow struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -60,7 +60,7 @@ type Workflow struct {
 	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
-// Stage represents a workflow stage
+// Stage represents a workflow stage.
 type Stage struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
@@ -71,13 +71,13 @@ type Stage struct {
 	AutoAdvance bool           `json:"auto_advance"`
 }
 
-// Action represents a stage action
+// Action represents a stage action.
 type Action struct {
 	Type   ActionType             `json:"type"`
 	Config map[string]interface{} `json:"config,omitempty"`
 }
 
-// ActionType represents action types
+// ActionType represents action types.
 type ActionType string
 
 const (
@@ -88,7 +88,7 @@ const (
 	ActionTransform ActionType = "transform"
 )
 
-// Approval represents an approval record
+// Approval represents an approval record.
 type Approval struct {
 	ID        string    `json:"id"`
 	ContentID string    `json:"content_id"`
@@ -99,7 +99,7 @@ type Approval struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// Manager manages content workflows
+// Manager manages content workflows.
 type Manager struct {
 	mu        sync.RWMutex
 	contents  map[string]*Content
@@ -108,7 +108,7 @@ type Manager struct {
 	templates map[string]*Content
 }
 
-// NewManager creates a new content workflow manager
+// NewManager creates a new content workflow manager.
 func NewManager() *Manager {
 	return &Manager{
 		contents:  make(map[string]*Content),
@@ -117,7 +117,7 @@ func NewManager() *Manager {
 	}
 }
 
-// CreateContent creates new content
+// CreateContent creates new content.
 func (m *Manager) CreateContent(content *Content) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -135,7 +135,7 @@ func (m *Manager) CreateContent(content *Content) error {
 	return nil
 }
 
-// UpdateContent updates content
+// UpdateContent updates content.
 func (m *Manager) UpdateContent(content *Content) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -151,7 +151,7 @@ func (m *Manager) UpdateContent(content *Content) error {
 	return nil
 }
 
-// DeleteContent deletes content
+// DeleteContent deletes content.
 func (m *Manager) DeleteContent(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -164,7 +164,7 @@ func (m *Manager) DeleteContent(id string) error {
 	return nil
 }
 
-// GetContent gets content by ID
+// GetContent gets content by ID.
 func (m *Manager) GetContent(id string) (*Content, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -177,7 +177,7 @@ func (m *Manager) GetContent(id string) (*Content, error) {
 	return content, nil
 }
 
-// ListContents lists all contents
+// ListContents lists all contents.
 func (m *Manager) ListContents(contentType ContentType, status WorkflowStatus) []*Content {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -195,7 +195,7 @@ func (m *Manager) ListContents(contentType ContentType, status WorkflowStatus) [
 	return contents
 }
 
-// CreateWorkflow creates a new workflow
+// CreateWorkflow creates a new workflow.
 func (m *Manager) CreateWorkflow(workflow *Workflow) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -211,7 +211,7 @@ func (m *Manager) CreateWorkflow(workflow *Workflow) error {
 	return nil
 }
 
-// GetWorkflow gets workflow by ID
+// GetWorkflow gets workflow by ID.
 func (m *Manager) GetWorkflow(id string) (*Workflow, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -224,7 +224,7 @@ func (m *Manager) GetWorkflow(id string) (*Workflow, error) {
 	return workflow, nil
 }
 
-// ListWorkflows lists all workflows
+// ListWorkflows lists all workflows.
 func (m *Manager) ListWorkflows() []*Workflow {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -236,7 +236,7 @@ func (m *Manager) ListWorkflows() []*Workflow {
 	return workflows
 }
 
-// SubmitForReview submits content for review
+// SubmitForReview submits content for review.
 func (m *Manager) SubmitForReview(contentID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -255,7 +255,7 @@ func (m *Manager) SubmitForReview(contentID string) error {
 	return nil
 }
 
-// ApproveContent approves content
+// ApproveContent approves content.
 func (m *Manager) ApproveContent(contentID, approver, comment string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -285,7 +285,7 @@ func (m *Manager) ApproveContent(contentID, approver, comment string) error {
 	return nil
 }
 
-// PublishContent publishes content
+// PublishContent publishes content.
 func (m *Manager) PublishContent(contentID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -307,7 +307,7 @@ func (m *Manager) PublishContent(contentID string) error {
 	return nil
 }
 
-// ArchiveContent archives content
+// ArchiveContent archives content.
 func (m *Manager) ArchiveContent(contentID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -322,7 +322,7 @@ func (m *Manager) ArchiveContent(contentID string) error {
 	return nil
 }
 
-// SaveTemplate saves content as template
+// SaveTemplate saves content as template.
 func (m *Manager) SaveTemplate(contentID, templateName string) error {
 	m.mu.RLock()
 	content, exists := m.contents[contentID]
@@ -346,7 +346,7 @@ func (m *Manager) SaveTemplate(contentID, templateName string) error {
 	return nil
 }
 
-// CreateFromTemplate creates content from template
+// CreateFromTemplate creates content from template.
 func (m *Manager) CreateFromTemplate(templateName, title string) (*Content, error) {
 	m.mu.RLock()
 	template, exists := m.templates[templateName]
@@ -370,7 +370,7 @@ func (m *Manager) CreateFromTemplate(templateName, title string) (*Content, erro
 	return content, nil
 }
 
-// AIReviewContent uses AI to review content
+// AIReviewContent uses AI to review content.
 func (m *Manager) AIReviewContent(ctx context.Context, contentID string) (map[string]interface{}, error) {
 	m.mu.RLock()
 	content, exists := m.contents[contentID]
@@ -396,7 +396,7 @@ func (m *Manager) AIReviewContent(ctx context.Context, contentID string) (map[st
 	return result, nil
 }
 
-// GetApprovalHistory gets approval history for content
+// GetApprovalHistory gets approval history for content.
 func (m *Manager) GetApprovalHistory(contentID string) []*Approval {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -410,7 +410,7 @@ func (m *Manager) GetApprovalHistory(contentID string) []*Approval {
 	return approvals
 }
 
-// HandleHTTP registers HTTP handlers
+// HandleHTTP registers HTTP handlers.
 func (m *Manager) HandleHTTP(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/content/items", m.handleContents)
 	mux.HandleFunc("/api/v1/content/item/", m.handleContent)

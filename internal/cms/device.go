@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// 错误定义
+// 错误定义.
 var (
 	ErrDeviceNotFound      = errors.New("device not found")
 	ErrDeviceAlreadyExists = errors.New("device already exists")
@@ -20,7 +20,7 @@ var (
 	ErrInvalidDeviceType   = errors.New("invalid device type")
 )
 
-// DeviceType 设备类型
+// DeviceType 设备类型.
 type DeviceType string
 
 const (
@@ -31,7 +31,7 @@ const (
 	DeviceTypeVM      DeviceType = "vm"      // 虚拟机
 )
 
-// DeviceStatus 设备状态
+// DeviceStatus 设备状态.
 type DeviceStatus string
 
 const (
@@ -43,7 +43,7 @@ const (
 	DeviceStatusRegistering DeviceStatus = "registering" // 注册中
 )
 
-// DeviceGroup 设备分组
+// DeviceGroup 设备分组.
 type DeviceGroup struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -54,7 +54,7 @@ type DeviceGroup struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// Device 设备信息
+// Device 设备信息.
 type Device struct {
 	ID              string            `json:"id"`
 	Name            string            `json:"name"`
@@ -99,7 +99,7 @@ type Device struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// DeviceAlert 设备告警
+// DeviceAlert 设备告警.
 type DeviceAlert struct {
 	ID         string     `json:"id"`
 	DeviceID   string     `json:"device_id"`
@@ -113,7 +113,7 @@ type DeviceAlert struct {
 	ResolvedAt *time.Time `json:"resolved_at,omitempty"`
 }
 
-// DeviceRegistry 设备注册器
+// DeviceRegistry 设备注册器.
 type DeviceRegistry struct {
 	mu      sync.RWMutex
 	devices map[string]*Device
@@ -129,14 +129,14 @@ type DeviceRegistry struct {
 	healthCheckInterval time.Duration
 }
 
-// RegistryConfig 注册器配置
+// RegistryConfig 注册器配置.
 type RegistryConfig struct {
 	HeartbeatTimeout    time.Duration `json:"heartbeat_timeout"`
 	HealthCheckInterval time.Duration `json:"health_check_interval"`
 	MaxDevices          int           `json:"max_devices"`
 }
 
-// NewDeviceRegistry 创建设备注册器
+// NewDeviceRegistry 创建设备注册器.
 func NewDeviceRegistry(config *RegistryConfig, logger *zap.Logger) *DeviceRegistry {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -160,19 +160,19 @@ func NewDeviceRegistry(config *RegistryConfig, logger *zap.Logger) *DeviceRegist
 	}
 }
 
-// Start 启动注册器
+// Start 启动注册器.
 func (r *DeviceRegistry) Start() {
 	go r.healthCheckLoop()
 	r.logger.Info("Device registry started")
 }
 
-// Stop 停止注册器
+// Stop 停止注册器.
 func (r *DeviceRegistry) Stop() {
 	r.cancel()
 	r.logger.Info("Device registry stopped")
 }
 
-// RegisterDevice 注册设备
+// RegisterDevice 注册设备.
 func (r *DeviceRegistry) RegisterDevice(deviceType DeviceType, name, ip string, port int, registeredBy string) (*Device, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -213,7 +213,7 @@ func (r *DeviceRegistry) RegisterDevice(deviceType DeviceType, name, ip string, 
 	return device, nil
 }
 
-// ConfirmRegistration 确认设备注册
+// ConfirmRegistration 确认设备注册.
 func (r *DeviceRegistry) ConfirmRegistration(deviceID, token string) (*Device, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -235,7 +235,7 @@ func (r *DeviceRegistry) ConfirmRegistration(deviceID, token string) (*Device, e
 	return device, nil
 }
 
-// UnregisterDevice 注销设备
+// UnregisterDevice 注销设备.
 func (r *DeviceRegistry) UnregisterDevice(deviceID string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -251,7 +251,7 @@ func (r *DeviceRegistry) UnregisterDevice(deviceID string) error {
 	return nil
 }
 
-// GetDevice 获取设备
+// GetDevice 获取设备.
 func (r *DeviceRegistry) GetDevice(deviceID string) (*Device, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -263,7 +263,7 @@ func (r *DeviceRegistry) GetDevice(deviceID string) (*Device, error) {
 	return device, nil
 }
 
-// GetDeviceByIP 通过 IP 获取设备
+// GetDeviceByIP 通过 IP 获取设备.
 func (r *DeviceRegistry) GetDeviceByIP(ip string, port int) (*Device, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -276,7 +276,7 @@ func (r *DeviceRegistry) GetDeviceByIP(ip string, port int) (*Device, error) {
 	return nil, ErrDeviceNotFound
 }
 
-// UpdateDevice 更新设备状态
+// UpdateDevice 更新设备状态.
 func (r *DeviceRegistry) UpdateDevice(deviceID string, updates map[string]interface{}) (*Device, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -331,7 +331,7 @@ func (r *DeviceRegistry) UpdateDevice(deviceID string, updates map[string]interf
 	return device, nil
 }
 
-// UpdateHeartbeat 更新心跳
+// UpdateHeartbeat 更新心跳.
 func (r *DeviceRegistry) UpdateHeartbeat(deviceID string, metrics map[string]interface{}) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -389,7 +389,7 @@ func (r *DeviceRegistry) UpdateHeartbeat(deviceID string, metrics map[string]int
 	return nil
 }
 
-// ListDevices 列出设备
+// ListDevices 列出设备.
 func (r *DeviceRegistry) ListDevices(filter DeviceFilter) []*Device {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -404,7 +404,7 @@ func (r *DeviceRegistry) ListDevices(filter DeviceFilter) []*Device {
 	return result
 }
 
-// DeviceFilter 设备筛选条件
+// DeviceFilter 设备筛选条件.
 type DeviceFilter struct {
 	Type     []DeviceType   `json:"type,omitempty"`
 	Status   []DeviceStatus `json:"status,omitempty"`
@@ -413,7 +413,7 @@ type DeviceFilter struct {
 	Search   string         `json:"search,omitempty"`
 }
 
-// matchesFilter 检查设备是否匹配筛选条件
+// matchesFilter 检查设备是否匹配筛选条件.
 func (r *DeviceRegistry) matchesFilter(device *Device, filter DeviceFilter) bool {
 	if len(filter.Type) > 0 {
 		matched := false
@@ -452,7 +452,7 @@ func (r *DeviceRegistry) matchesFilter(device *Device, filter DeviceFilter) bool
 	return true
 }
 
-// CreateGroup 创建设备分组
+// CreateGroup 创建设备分组.
 func (r *DeviceRegistry) CreateGroup(name, description, parentID string) (*DeviceGroup, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -471,7 +471,7 @@ func (r *DeviceRegistry) CreateGroup(name, description, parentID string) (*Devic
 	return group, nil
 }
 
-// GetGroup 获取分组
+// GetGroup 获取分组.
 func (r *DeviceRegistry) GetGroup(groupID string) (*DeviceGroup, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -483,7 +483,7 @@ func (r *DeviceRegistry) GetGroup(groupID string) (*DeviceGroup, error) {
 	return group, nil
 }
 
-// ListGroups 列出分组
+// ListGroups 列出分组.
 func (r *DeviceRegistry) ListGroups() []*DeviceGroup {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -495,7 +495,7 @@ func (r *DeviceRegistry) ListGroups() []*DeviceGroup {
 	return result
 }
 
-// AssignDeviceToGroup 将设备分配到分组
+// AssignDeviceToGroup 将设备分配到分组.
 func (r *DeviceRegistry) AssignDeviceToGroup(deviceID, groupID string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -516,7 +516,7 @@ func (r *DeviceRegistry) AssignDeviceToGroup(deviceID, groupID string) error {
 	return nil
 }
 
-// healthCheckLoop 健康检查循环
+// healthCheckLoop 健康检查循环.
 func (r *DeviceRegistry) healthCheckLoop() {
 	ticker := time.NewTicker(r.healthCheckInterval)
 	defer ticker.Stop()
@@ -531,7 +531,7 @@ func (r *DeviceRegistry) healthCheckLoop() {
 	}
 }
 
-// checkAllDevices 检查所有设备状态
+// checkAllDevices 检查所有设备状态.
 func (r *DeviceRegistry) checkAllDevices() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -559,7 +559,7 @@ func (r *DeviceRegistry) checkAllDevices() {
 	}
 }
 
-// updateHealthScore 更新健康评分
+// updateHealthScore 更新健康评分.
 func (r *DeviceRegistry) updateHealthScore(device *Device) {
 	score := 100
 
@@ -592,11 +592,12 @@ func (r *DeviceRegistry) updateHealthScore(device *Device) {
 	}
 
 	// 状态影响
-	if device.Status == DeviceStatusOffline {
+	switch device.Status {
+	case DeviceStatusOffline:
 		score = 0
-	} else if device.Status == DeviceStatusWarning {
+	case DeviceStatusWarning:
 		score -= 20
-	} else if device.Status == DeviceStatusError {
+	case DeviceStatusError:
 		score -= 40
 	}
 
@@ -607,7 +608,7 @@ func (r *DeviceRegistry) updateHealthScore(device *Device) {
 	device.HealthScore = score
 }
 
-// checkAlerts 检查告警条件
+// checkAlerts 检查告警条件.
 func (r *DeviceRegistry) checkAlerts(device *Device) {
 	// CPU 高告警
 	if device.CPUUsage > 85 {
@@ -630,7 +631,7 @@ func (r *DeviceRegistry) checkAlerts(device *Device) {
 	}
 }
 
-// addAlert 添加告警
+// addAlert 添加告警.
 func (r *DeviceRegistry) addAlert(deviceID, alertType, severity, message string, value, threshold float64) {
 	alert := &DeviceAlert{
 		ID:        uuid.New().String(),
@@ -652,7 +653,7 @@ func (r *DeviceRegistry) addAlert(deviceID, alertType, severity, message string,
 	}
 }
 
-// GetDeviceAlerts 获取设备告警
+// GetDeviceAlerts 获取设备告警.
 func (r *DeviceRegistry) GetDeviceAlerts(deviceID string, resolved bool) []*DeviceAlert {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -669,7 +670,7 @@ func (r *DeviceRegistry) GetDeviceAlerts(deviceID string, resolved bool) []*Devi
 	return result
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (r *DeviceRegistry) ResolveAlert(alertID string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -700,7 +701,7 @@ func (r *DeviceRegistry) ResolveAlert(alertID string) error {
 	return errors.New("alert not found")
 }
 
-// RegistryStats 注册器统计
+// RegistryStats 注册器统计.
 type RegistryStats struct {
 	TotalDevices     int            `json:"total_devices"`
 	OnlineDevices    int            `json:"online_devices"`
@@ -711,7 +712,7 @@ type RegistryStats struct {
 	UnresolvedAlerts int            `json:"unresolved_alerts"`
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (r *DeviceRegistry) GetStats() RegistryStats {
 	r.mu.RLock()
 	defer r.mu.RUnlock()

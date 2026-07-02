@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// TaskDispatcher 任务调度器
+// TaskDispatcher 任务调度器.
 type TaskDispatcher struct {
 	config    FleetConfig
 	tasks     map[string]*TaskInfo
@@ -25,7 +25,7 @@ type TaskDispatcher struct {
 	dataFile  string
 }
 
-// TaskInfo 任务信息
+// TaskInfo 任务信息.
 type TaskInfo struct {
 	TaskID      string                 `json:"taskId"`
 	DeviceID    string                 `json:"deviceId"`
@@ -44,7 +44,7 @@ type TaskInfo struct {
 	RetryCount  int                    `json:"retryCount"`
 }
 
-// TaskDispatchRequest 任务分发请求
+// TaskDispatchRequest 任务分发请求.
 type TaskDispatchRequest struct {
 	TaskType   string                 `json:"taskType"`
 	DeviceID   string                 `json:"deviceId"` // 可选，空则自动选择
@@ -54,14 +54,14 @@ type TaskDispatchRequest struct {
 	MaxRetries int                    `json:"maxRetries"`
 }
 
-// TaskDispatchResult 任务分发结果
+// TaskDispatchResult 任务分发结果.
 type TaskDispatchResult struct {
 	TaskID  string `json:"taskId"`
 	Status  string `json:"status"`
 	Message string `json:"message"`
 }
 
-// NodeTask 节点任务
+// NodeTask 节点任务.
 type NodeTask struct {
 	TaskID   string                 `json:"taskId"`
 	TaskType string                 `json:"taskType"`
@@ -71,7 +71,7 @@ type NodeTask struct {
 	Error    string                 `json:"error,omitempty"`
 }
 
-// NewTaskDispatcher 创建任务调度器
+// NewTaskDispatcher 创建任务调度器.
 func NewTaskDispatcher(config FleetConfig, logger *zap.Logger) (*TaskDispatcher, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -93,19 +93,19 @@ func NewTaskDispatcher(config FleetConfig, logger *zap.Logger) (*TaskDispatcher,
 	return td, nil
 }
 
-// Start 启动任务调度器
+// Start 启动任务调度器.
 func (td *TaskDispatcher) Start() {
 	td.logger.Info("任务调度器启动")
 }
 
-// Stop 停止任务调度器
+// Stop 停止任务调度器.
 func (td *TaskDispatcher) Stop() {
 	td.cancel()
 	td.saveState()
 	td.logger.Info("任务调度器停止")
 }
 
-// Dispatch 分发任务
+// Dispatch 分发任务.
 func (td *TaskDispatcher) Dispatch(req TaskDispatchRequest) (*TaskDispatchResult, error) {
 	td.mu.Lock()
 	defer td.mu.Unlock()
@@ -143,7 +143,7 @@ func (td *TaskDispatcher) Dispatch(req TaskDispatchRequest) (*TaskDispatchResult
 	}, nil
 }
 
-// GetNodeTasks 获取节点任务列表
+// GetNodeTasks 获取节点任务列表.
 func (td *TaskDispatcher) GetNodeTasks(deviceID string) ([]NodeTask, error) {
 	td.mu.RLock()
 	defer td.mu.RUnlock()
@@ -167,7 +167,7 @@ func (td *TaskDispatcher) GetNodeTasks(deviceID string) ([]NodeTask, error) {
 	return tasks, nil
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (td *TaskDispatcher) CancelTask(taskID string) error {
 	td.mu.Lock()
 	defer td.mu.Unlock()
@@ -185,7 +185,7 @@ func (td *TaskDispatcher) CancelTask(taskID string) error {
 	return nil
 }
 
-// UpdateTaskProgress 更新任务进度
+// UpdateTaskProgress 更新任务进度.
 func (td *TaskDispatcher) UpdateTaskProgress(deviceID string, progress TaskProgress) {
 	td.mu.Lock()
 	defer td.mu.Unlock()
@@ -211,7 +211,7 @@ func (td *TaskDispatcher) UpdateTaskProgress(deviceID string, progress TaskProgr
 		zap.Float64("progress", progress.Progress))
 }
 
-// GetTask 获取任务详情
+// GetTask 获取任务详情.
 func (td *TaskDispatcher) GetTask(taskID string) (*TaskInfo, error) {
 	td.mu.RLock()
 	defer td.mu.RUnlock()
@@ -224,7 +224,7 @@ func (td *TaskDispatcher) GetTask(taskID string) (*TaskInfo, error) {
 	return task, nil
 }
 
-// ListTasks 列出所有任务
+// ListTasks 列出所有任务.
 func (td *TaskDispatcher) ListTasks(filter TaskFilter) []*TaskInfo {
 	td.mu.RLock()
 	defer td.mu.RUnlock()
@@ -238,14 +238,14 @@ func (td *TaskDispatcher) ListTasks(filter TaskFilter) []*TaskInfo {
 	return result
 }
 
-// TaskFilter 任务过滤器
+// TaskFilter 任务过滤器.
 type TaskFilter struct {
 	TaskType string
 	Status   string
 	DeviceID string
 }
 
-// Match 检查是否匹配
+// Match 检查是否匹配.
 func (f TaskFilter) Match(task *TaskInfo) bool {
 	if f.TaskType != "" && task.TaskType != f.TaskType {
 		return false
@@ -259,7 +259,7 @@ func (f TaskFilter) Match(task *TaskInfo) bool {
 	return true
 }
 
-// loadState 加载持久化状态
+// loadState 加载持久化状态.
 func (td *TaskDispatcher) loadState() error {
 	data, err := os.ReadFile(td.dataFile)
 	if err != nil {
@@ -284,7 +284,7 @@ func (td *TaskDispatcher) loadState() error {
 	return nil
 }
 
-// saveState 保存持久化状态
+// saveState 保存持久化状态.
 func (td *TaskDispatcher) saveState() error {
 	td.mu.RLock()
 	defer td.mu.RUnlock()
@@ -305,7 +305,7 @@ func (td *TaskDispatcher) saveState() error {
 	return os.WriteFile(td.dataFile, data, 0640)
 }
 
-// generateTaskID 生成任务ID
+// generateTaskID 生成任务ID.
 func generateTaskID() string {
 	return fmt.Sprintf("task-%d", time.Now().UnixNano())
 }

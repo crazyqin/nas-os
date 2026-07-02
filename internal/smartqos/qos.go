@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// IOPriority IO优先级
+// IOPriority IO优先级.
 type IOPriority int
 
 const (
@@ -20,7 +20,7 @@ const (
 	PriorityBatch    IOPriority = 4 // 批处理
 )
 
-// AppType 应用类型
+// AppType 应用类型.
 type AppType string
 
 const (
@@ -36,65 +36,65 @@ const (
 	AppDefault    AppType = "default"    // 默认
 )
 
-// QoSPolicy QoS策略
+// QoSPolicy QoS策略.
 type QoSPolicy struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	AppType     AppType     `json:"app_type"`
-	Priority    IOPriority  `json:"priority"`
-	MaxIOPS     int64       `json:"max_iops"`     // 最大IOPS
-	MinIOPS     int64       `json:"min_iops"`     // 最小保障IOPS
-	MaxBandwidth int64      `json:"max_bandwidth"` // 最大带宽(MB/s)
-	MinBandwidth int64      `json:"min_bandwidth"` // 最小保障带宽(MB/s)
-	MaxLatency   int64      `json:"max_latency"`   // 最大延迟(ms)
-	BurstIOPS   int64       `json:"burst_iops"`   // 突发IOPS
-	BurstDuration int       `json:"burst_duration"` // 突发持续时间(秒)
-	Enabled     bool        `json:"enabled"`
-	CreatedAt   time.Time   `json:"created_at"`
-	UpdatedAt   time.Time   `json:"updated_at"`
+	ID            string     `json:"id"`
+	Name          string     `json:"name"`
+	AppType       AppType    `json:"app_type"`
+	Priority      IOPriority `json:"priority"`
+	MaxIOPS       int64      `json:"max_iops"`       // 最大IOPS
+	MinIOPS       int64      `json:"min_iops"`       // 最小保障IOPS
+	MaxBandwidth  int64      `json:"max_bandwidth"`  // 最大带宽(MB/s)
+	MinBandwidth  int64      `json:"min_bandwidth"`  // 最小保障带宽(MB/s)
+	MaxLatency    int64      `json:"max_latency"`    // 最大延迟(ms)
+	BurstIOPS     int64      `json:"burst_iops"`     // 突发IOPS
+	BurstDuration int        `json:"burst_duration"` // 突发持续时间(秒)
+	Enabled       bool       `json:"enabled"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at"`
 }
 
-// IOMetric IO指标
+// IOMetric IO指标.
 type IOMetric struct {
 	Timestamp    time.Time `json:"timestamp"`
 	IOPS         int64     `json:"iops"`
 	ReadIOPS     int64     `json:"read_iops"`
 	WriteIOPS    int64     `json:"write_iops"`
-	Bandwidth    int64     `json:"bandwidth"`     // MB/s
+	Bandwidth    int64     `json:"bandwidth"` // MB/s
 	ReadBW       int64     `json:"read_bw"`
 	WriteBW      int64     `json:"write_bw"`
-	Latency      int64     `json:"latency"`       // ms
+	Latency      int64     `json:"latency"` // ms
 	ReadLatency  int64     `json:"read_latency"`
 	WriteLatency int64     `json:"write_latency"`
 	QueueDepth   int       `json:"queue_depth"`
-	Utilization  float64   `json:"utilization"`   // 0-100
+	Utilization  float64   `json:"utilization"` // 0-100
 }
 
-// QoSNode QoS节点(被管理的存储资源)
+// QoSNode QoS节点(被管理的存储资源).
 type QoSNode struct {
-	ID         string     `json:"id"`
-	Name       string     `json:"name"`
-	Type       string     `json:"type"` // disk, pool, volume
-	Path       string     `json:"path"`
-	PolicyID   string     `json:"policy_id"`
-	Metric     *IOMetric  `json:"metric"`
-	Throttled  bool       `json:"throttled"`
-	LastUpdate time.Time  `json:"last_update"`
+	ID         string    `json:"id"`
+	Name       string    `json:"name"`
+	Type       string    `json:"type"` // disk, pool, volume
+	Path       string    `json:"path"`
+	PolicyID   string    `json:"policy_id"`
+	Metric     *IOMetric `json:"metric"`
+	Throttled  bool      `json:"throttled"`
+	LastUpdate time.Time `json:"last_update"`
 }
 
-// Engine QoS引擎
+// Engine QoS引擎.
 type Engine struct {
-	mu          sync.RWMutex
-	policies    map[string]*QoSPolicy
-	nodes       map[string]*QoSNode
-	appDefaults map[AppType]*QoSPolicy
-	metrics     map[string][]*IOMetric // nodeID -> metrics
-	maxMetrics  int
+	mu            sync.RWMutex
+	policies      map[string]*QoSPolicy
+	nodes         map[string]*QoSNode
+	appDefaults   map[AppType]*QoSPolicy
+	metrics       map[string][]*IOMetric // nodeID -> metrics
+	maxMetrics    int
 	totalThrottle int64
 	totalAllow    int64
 }
 
-// NewEngine 创建QoS引擎
+// NewEngine 创建QoS引擎.
 func NewEngine() *Engine {
 	e := &Engine{
 		policies:    make(map[string]*QoSPolicy),
@@ -107,7 +107,7 @@ func NewEngine() *Engine {
 	return e
 }
 
-// registerDefaults 注册默认策略
+// registerDefaults 注册默认策略.
 func (e *Engine) registerDefaults() {
 	defaults := map[AppType]*QoSPolicy{
 		AppDatabase: {
@@ -154,7 +154,7 @@ func (e *Engine) registerDefaults() {
 	}
 }
 
-// CreatePolicy 创建策略
+// CreatePolicy 创建策略.
 func (e *Engine) CreatePolicy(policy *QoSPolicy) error {
 	if policy.ID == "" {
 		return fmt.Errorf("策略ID不能为空")
@@ -173,7 +173,7 @@ func (e *Engine) CreatePolicy(policy *QoSPolicy) error {
 	return nil
 }
 
-// UpdatePolicy 更新策略
+// UpdatePolicy 更新策略.
 func (e *Engine) UpdatePolicy(policy *QoSPolicy) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -189,7 +189,7 @@ func (e *Engine) UpdatePolicy(policy *QoSPolicy) error {
 	return nil
 }
 
-// DeletePolicy 删除策略
+// DeletePolicy 删除策略.
 func (e *Engine) DeletePolicy(policyID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -209,7 +209,7 @@ func (e *Engine) DeletePolicy(policyID string) error {
 	return nil
 }
 
-// GetPolicy 获取策略
+// GetPolicy 获取策略.
 func (e *Engine) GetPolicy(policyID string) (*QoSPolicy, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -227,7 +227,7 @@ func (e *Engine) GetPolicy(policyID string) (*QoSPolicy, error) {
 	return policy, nil
 }
 
-// RegisterNode 注册QoS节点
+// RegisterNode 注册QoS节点.
 func (e *Engine) RegisterNode(node *QoSNode) error {
 	if node.ID == "" {
 		return fmt.Errorf("节点ID不能为空")
@@ -245,7 +245,7 @@ func (e *Engine) RegisterNode(node *QoSNode) error {
 	return nil
 }
 
-// UnregisterNode 注销节点
+// UnregisterNode 注销节点.
 func (e *Engine) UnregisterNode(nodeID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -259,7 +259,7 @@ func (e *Engine) UnregisterNode(nodeID string) error {
 	return nil
 }
 
-// AssignPolicy 分配策略给节点
+// AssignPolicy 分配策略给节点.
 func (e *Engine) AssignPolicy(nodeID, policyID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -290,7 +290,7 @@ func (e *Engine) AssignPolicy(nodeID, policyID string) error {
 	return nil
 }
 
-// ReportMetric 上报指标
+// ReportMetric 上报指标.
 func (e *Engine) ReportMetric(nodeID string, metric *IOMetric) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -313,7 +313,7 @@ func (e *Engine) ReportMetric(nodeID string, metric *IOMetric) error {
 	return nil
 }
 
-// EvaluateQoS 评估QoS - 判断是否需要限流
+// EvaluateQoS 评估QoS - 判断是否需要限流.
 func (e *Engine) EvaluateQoS(nodeID string) (allowed bool, reason string, err error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -363,7 +363,7 @@ func (e *Engine) EvaluateQoS(nodeID string) (allowed bool, reason string, err er
 	return true, "在QoS限制内", nil
 }
 
-// getPolicyForNode 获取节点的策略
+// getPolicyForNode 获取节点的策略.
 func (e *Engine) getPolicyForNode(node *QoSNode) *QoSPolicy {
 	if node.PolicyID != "" {
 		if p, ok := e.policies[node.PolicyID]; ok {
@@ -378,7 +378,7 @@ func (e *Engine) getPolicyForNode(node *QoSNode) *QoSPolicy {
 	return nil
 }
 
-// GetNode 获取节点
+// GetNode 获取节点.
 func (e *Engine) GetNode(nodeID string) (*QoSNode, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -390,7 +390,7 @@ func (e *Engine) GetNode(nodeID string) (*QoSNode, error) {
 	return node, nil
 }
 
-// ListNodes 列出节点
+// ListNodes 列出节点.
 func (e *Engine) ListNodes() []*QoSNode {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -402,7 +402,7 @@ func (e *Engine) ListNodes() []*QoSNode {
 	return nodes
 }
 
-// ListPolicies 列出策略
+// ListPolicies 列出策略.
 func (e *Engine) ListPolicies() []*QoSPolicy {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -418,7 +418,7 @@ func (e *Engine) ListPolicies() []*QoSPolicy {
 	return policies
 }
 
-// GetNodeMetrics 获取节点指标历史
+// GetNodeMetrics 获取节点指标历史.
 func (e *Engine) GetNodeMetrics(nodeID string, limit int) []*IOMetric {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -434,7 +434,7 @@ func (e *Engine) GetNodeMetrics(nodeID string, limit int) []*IOMetric {
 	return metrics
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (e *Engine) GetStats() map[string]interface{} {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -447,15 +447,15 @@ func (e *Engine) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_nodes":      len(e.nodes),
-		"total_policies":   len(e.policies) + len(e.appDefaults),
-		"throttled_nodes":  throttledCount,
-		"total_throttle":   e.totalThrottle,
-		"total_allow":      e.totalAllow,
+		"total_nodes":     len(e.nodes),
+		"total_policies":  len(e.policies) + len(e.appDefaults),
+		"throttled_nodes": throttledCount,
+		"total_throttle":  e.totalThrottle,
+		"total_allow":     e.totalAllow,
 	}
 }
 
-// GetDefaultPolicyForApp 获取应用默认策略
+// GetDefaultPolicyForApp 获取应用默认策略.
 func (e *Engine) GetDefaultPolicyForApp(appType AppType) *QoSPolicy {
 	e.mu.RLock()
 	defer e.mu.RUnlock()

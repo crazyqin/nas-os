@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// QuarantineManager 隔离管理器
+// QuarantineManager 隔离管理器.
 type QuarantineManager struct {
 	mu            sync.RWMutex
 	items         map[string]*QuarantineItem
@@ -19,7 +19,7 @@ type QuarantineManager struct {
 	autoRelease   bool // 是否自动释放低威胁项
 }
 
-// NewQuarantineManager 创建新的隔离管理器
+// NewQuarantineManager 创建新的隔离管理器.
 func NewQuarantineManager(retentionDays, maxItems int, autoRelease bool) *QuarantineManager {
 	return &QuarantineManager{
 		items:         make(map[string]*QuarantineItem),
@@ -29,7 +29,7 @@ func NewQuarantineManager(retentionDays, maxItems int, autoRelease bool) *Quaran
 	}
 }
 
-// QuarantineEmail 隔离邮件
+// QuarantineEmail 隔离邮件.
 func (qm *QuarantineManager) QuarantineEmail(req ScanEmailRequest, result *ScanResult) (*QuarantineItem, error) {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
@@ -72,7 +72,7 @@ func (qm *QuarantineManager) QuarantineEmail(req ScanEmailRequest, result *ScanR
 	return item, nil
 }
 
-// ReviewItem 审批隔离项
+// ReviewItem 审批隔离项.
 func (qm *QuarantineManager) ReviewItem(itemID string, req ReviewQuarantineRequest) error {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
@@ -107,7 +107,7 @@ func (qm *QuarantineManager) ReviewItem(itemID string, req ReviewQuarantineReque
 	return nil
 }
 
-// GetItem 获取隔离项
+// GetItem 获取隔离项.
 func (qm *QuarantineManager) GetItem(itemID string) (*QuarantineItem, error) {
 	qm.mu.RLock()
 	defer qm.mu.RUnlock()
@@ -120,7 +120,7 @@ func (qm *QuarantineManager) GetItem(itemID string) (*QuarantineItem, error) {
 	return item, nil
 }
 
-// ListItems 列出隔离项
+// ListItems 列出隔离项.
 func (qm *QuarantineManager) ListItems(status string, threatLevel string, page, pageSize int) ([]*QuarantineItem, int, error) {
 	qm.mu.RLock()
 	defer qm.mu.RUnlock()
@@ -169,7 +169,7 @@ func (qm *QuarantineManager) ListItems(status string, threatLevel string, page, 
 	return filtered[start:end], total, nil
 }
 
-// DeleteItem 删除隔离项
+// DeleteItem 删除隔离项.
 func (qm *QuarantineManager) DeleteItem(itemID string) error {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
@@ -183,7 +183,7 @@ func (qm *QuarantineManager) DeleteItem(itemID string) error {
 	return nil
 }
 
-// CleanupExpired 清理过期的隔离项
+// CleanupExpired 清理过期的隔离项.
 func (qm *QuarantineManager) CleanupExpired() int {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
@@ -205,7 +205,7 @@ func (qm *QuarantineManager) CleanupExpired() int {
 	return expiredCount
 }
 
-// GetStats 获取隔离统计信息
+// GetStats 获取隔离统计信息.
 func (qm *QuarantineManager) GetStats() map[string]int {
 	qm.mu.RLock()
 	defer qm.mu.RUnlock()
@@ -230,7 +230,7 @@ func (qm *QuarantineManager) GetStats() map[string]int {
 	return stats
 }
 
-// GetPendingCount 获取待审批数量
+// GetPendingCount 获取待审批数量.
 func (qm *QuarantineManager) GetPendingCount() int {
 	qm.mu.RLock()
 	defer qm.mu.RUnlock()
@@ -244,7 +244,7 @@ func (qm *QuarantineManager) GetPendingCount() int {
 	return count
 }
 
-// BatchReview 批量审批
+// BatchReview 批量审批.
 func (qm *QuarantineManager) BatchReview(itemIDs []string, req ReviewQuarantineRequest) (int, error) {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
@@ -281,7 +281,7 @@ func (qm *QuarantineManager) BatchReview(itemIDs []string, req ReviewQuarantineR
 	return successCount, nil
 }
 
-// autoReleaseItem 自动释放低威胁项
+// autoReleaseItem 自动释放低威胁项.
 func (qm *QuarantineManager) autoReleaseItem(itemID string) {
 	// 等待一段时间后自动释放
 	time.Sleep(5 * time.Minute)
@@ -302,7 +302,7 @@ func (qm *QuarantineManager) autoReleaseItem(itemID string) {
 	log.Printf("[隔离管理] 低威胁邮件自动释放: id=%s", itemID)
 }
 
-// determineThreatLevel 根据评分确定威胁等级
+// determineThreatLevel 根据评分确定威胁等级.
 func (qm *QuarantineManager) determineThreatLevel(score int) string {
 	switch {
 	case score >= 80:
@@ -316,7 +316,7 @@ func (qm *QuarantineManager) determineThreatLevel(score int) string {
 	}
 }
 
-// generateQuarantineReason 生成隔离原因
+// generateQuarantineReason 生成隔离原因.
 func (qm *QuarantineManager) generateQuarantineReason(threats []ThreatItem) string {
 	if len(threats) == 0 {
 		return "未知威胁"
@@ -334,7 +334,7 @@ func (qm *QuarantineManager) generateQuarantineReason(threats []ThreatItem) stri
 	return fmt.Sprintf("%v", reasons)
 }
 
-// ExportQuarantineLog 导出隔离日志
+// ExportQuarantineLog 导出隔离日志.
 func (qm *QuarantineManager) ExportQuarantineLog(startTime, endTime time.Time) []QuarantineItem {
 	qm.mu.RLock()
 	defer qm.mu.RUnlock()

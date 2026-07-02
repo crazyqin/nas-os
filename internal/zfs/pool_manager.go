@@ -10,17 +10,17 @@ import (
 	"go.uber.org/zap"
 )
 
-// PoolManager ZFS池管理器 - 完整的ZFS池生命周期管理
+// PoolManager ZFS池管理器 - 完整的ZFS池生命周期管理.
 type PoolManager struct {
 	logger *zap.Logger
 }
 
-// NewPoolManager 创建ZFS池管理器
+// NewPoolManager 创建ZFS池管理器.
 func NewPoolManager(logger *zap.Logger) *PoolManager {
 	return &PoolManager{logger: logger}
 }
 
-// PoolInfo ZFS池信息
+// PoolInfo ZFS池信息.
 type PoolInfo struct {
 	Name      string            `json:"name"`
 	Status    string            `json:"status"` // ONLINE, DEGRADED, FAULTED, OFFLINE
@@ -37,7 +37,7 @@ type PoolInfo struct {
 	ScanInfo  *ScanInfo         `json:"scan,omitempty"`
 }
 
-// VDevInfo 虚拟设备信息
+// VDevInfo 虚拟设备信息.
 type VDevInfo struct {
 	Name     string     `json:"name"`
 	Type     string     `json:"type"` // mirror, raidz1, raidz2, raidz3, disk
@@ -46,16 +46,16 @@ type VDevInfo struct {
 	Devices  []string   `json:"devices,omitempty"`
 }
 
-// ScanInfo 扫描信息
+// ScanInfo 扫描信息.
 type ScanInfo struct {
-	Function string    `json:"function"`
-	State    string    `json:"state"`
+	Function  string    `json:"function"`
+	State     string    `json:"state"`
 	StartTime time.Time `json:"start_time"`
 	EndTime   time.Time `json:"end_time,omitempty"`
 	Errors    int       `json:"errors"`
 }
 
-// DatasetInfo 数据集信息
+// DatasetInfo 数据集信息.
 type DatasetInfo struct {
 	Name        string            `json:"name"`
 	Type        string            `json:"type"` // filesystem, volume, snapshot
@@ -70,7 +70,7 @@ type DatasetInfo struct {
 	Props       map[string]string `json:"props"`
 }
 
-// ZVOLInfo ZVOL信息
+// ZVOLInfo ZVOL信息.
 type ZVOLInfo struct {
 	Name       string `json:"name"`
 	VolSize    uint64 `json:"volsize"`
@@ -81,7 +81,7 @@ type ZVOLInfo struct {
 	Referenced uint64 `json:"referenced"`
 }
 
-// ListPools 列出所有ZFS池
+// ListPools 列出所有ZFS池.
 func (pm *PoolManager) ListPools(ctx context.Context) ([]PoolInfo, error) {
 	cmd := exec.CommandContext(ctx, "zpool", "list", "-H", "-o",
 		"name,size,alloc,free,frag,cap,dedup,health,altroot")
@@ -115,7 +115,7 @@ func (pm *PoolManager) ListPools(ctx context.Context) ([]PoolInfo, error) {
 	return pools, nil
 }
 
-// GetPool 获取池详细信息
+// GetPool 获取池详细信息.
 func (pm *PoolManager) GetPool(ctx context.Context, name string) (*PoolInfo, error) {
 	pool := &PoolInfo{Name: name}
 	pm.enrichPoolInfo(ctx, pool)
@@ -148,7 +148,7 @@ func (pm *PoolManager) enrichPoolInfo(ctx context.Context, pool *PoolInfo) {
 	}
 }
 
-// CreatePool 创建ZFS池
+// CreatePool 创建ZFS池.
 func (pm *PoolManager) CreatePool(ctx context.Context, name, vdevType string, devices []string, opts map[string]string) error {
 	args := []string{"create"}
 
@@ -196,7 +196,7 @@ func (pm *PoolManager) CreatePool(ctx context.Context, name, vdevType string, de
 	return nil
 }
 
-// DestroyPool 销毁ZFS池
+// DestroyPool 销毁ZFS池.
 func (pm *PoolManager) DestroyPool(ctx context.Context, name string, force bool) error {
 	args := []string{"destroy"}
 	if force {
@@ -211,7 +211,7 @@ func (pm *PoolManager) DestroyPool(ctx context.Context, name string, force bool)
 	return nil
 }
 
-// ExportPool 导出ZFS池
+// ExportPool 导出ZFS池.
 func (pm *PoolManager) ExportPool(ctx context.Context, name string, force bool) error {
 	args := []string{"export"}
 	if force {
@@ -226,7 +226,7 @@ func (pm *PoolManager) ExportPool(ctx context.Context, name string, force bool) 
 	return nil
 }
 
-// ImportPool 导入ZFS池
+// ImportPool 导入ZFS池.
 func (pm *PoolManager) ImportPool(ctx context.Context, name string, altroot string) error {
 	args := []string{"import"}
 	if altroot != "" {
@@ -241,7 +241,7 @@ func (pm *PoolManager) ImportPool(ctx context.Context, name string, altroot stri
 	return nil
 }
 
-// ScanPool 扫描池( scrub/resilver )
+// ScanPool 扫描池( scrub/resilver ).
 func (pm *PoolManager) ScanPool(ctx context.Context, name, scanType string) error {
 	args := []string{"scan"}
 	switch scanType {
@@ -261,7 +261,7 @@ func (pm *PoolManager) ScanPool(ctx context.Context, name, scanType string) erro
 	return nil
 }
 
-// GetPoolStatus 获取池状态详情( zpool status )
+// GetPoolStatus 获取池状态详情( zpool status ).
 func (pm *PoolManager) GetPoolStatus(ctx context.Context, name string) (string, error) {
 	cmd := exec.CommandContext(ctx, "zpool", "status", name)
 	out, err := cmd.CombinedOutput()
@@ -271,7 +271,7 @@ func (pm *PoolManager) GetPoolStatus(ctx context.Context, name string) (string, 
 	return string(out), nil
 }
 
-// SetPoolProperty 设置池属性
+// SetPoolProperty 设置池属性.
 func (pm *PoolManager) SetPoolProperty(ctx context.Context, name, prop, value string) error {
 	cmd := exec.CommandContext(ctx, "zpool", "set", prop+"="+value, name)
 	if output, err := cmd.CombinedOutput(); err != nil {
@@ -280,7 +280,7 @@ func (pm *PoolManager) SetPoolProperty(ctx context.Context, name, prop, value st
 	return nil
 }
 
-// AddVDev 向池添加vdev
+// AddVDev 向池添加vdev.
 func (pm *PoolManager) AddVDev(ctx context.Context, poolName, vdevType string, devices []string) error {
 	args := []string{"add"}
 	if vdevType != "" {
@@ -296,7 +296,7 @@ func (pm *PoolManager) AddVDev(ctx context.Context, poolName, vdevType string, d
 	return nil
 }
 
-// AttachDevice 附加设备(镜像)
+// AttachDevice 附加设备(镜像).
 func (pm *PoolManager) AttachDevice(ctx context.Context, poolName, existingDev, newDev string) error {
 	cmd := exec.CommandContext(ctx, "zpool", "attach", poolName, existingDev, newDev)
 	if output, err := cmd.CombinedOutput(); err != nil {
@@ -305,7 +305,7 @@ func (pm *PoolManager) AttachDevice(ctx context.Context, poolName, existingDev, 
 	return nil
 }
 
-// DetachDevice 分离设备
+// DetachDevice 分离设备.
 func (pm *PoolManager) DetachDevice(ctx context.Context, poolName, device string) error {
 	cmd := exec.CommandContext(ctx, "zpool", "detach", poolName, device)
 	if output, err := cmd.CombinedOutput(); err != nil {
@@ -314,7 +314,7 @@ func (pm *PoolManager) DetachDevice(ctx context.Context, poolName, device string
 	return nil
 }
 
-// ReplaceDevice 替换设备
+// ReplaceDevice 替换设备.
 func (pm *PoolManager) ReplaceDevice(ctx context.Context, poolName, oldDev, newDev string) error {
 	cmd := exec.CommandContext(ctx, "zpool", "replace", poolName, oldDev, newDev)
 	if output, err := cmd.CombinedOutput(); err != nil {
@@ -323,7 +323,7 @@ func (pm *PoolManager) ReplaceDevice(ctx context.Context, poolName, oldDev, newD
 	return nil
 }
 
-// OfflineDevice 离线设备
+// OfflineDevice 离线设备.
 func (pm *PoolManager) OfflineDevice(ctx context.Context, poolName, device string, force bool) error {
 	args := []string{"offline"}
 	if force {
@@ -338,7 +338,7 @@ func (pm *PoolManager) OfflineDevice(ctx context.Context, poolName, device strin
 	return nil
 }
 
-// OnlineDevice 上线设备
+// OnlineDevice 上线设备.
 func (pm *PoolManager) OnlineDevice(ctx context.Context, poolName, device string) error {
 	cmd := exec.CommandContext(ctx, "zpool", "online", poolName, device)
 	if output, err := cmd.CombinedOutput(); err != nil {
@@ -347,7 +347,7 @@ func (pm *PoolManager) OnlineDevice(ctx context.Context, poolName, device string
 	return nil
 }
 
-// ClearPool 清除池错误状态
+// ClearPool 清除池错误状态.
 func (pm *PoolManager) ClearPool(ctx context.Context, name string) error {
 	cmd := exec.CommandContext(ctx, "zpool", "clear", name)
 	if output, err := cmd.CombinedOutput(); err != nil {
@@ -356,17 +356,17 @@ func (pm *PoolManager) ClearPool(ctx context.Context, name string) error {
 	return nil
 }
 
-// DatasetManager 数据集管理器
+// DatasetManager 数据集管理器.
 type DatasetManager struct {
 	logger *zap.Logger
 }
 
-// NewDatasetManager 创建数据集管理器
+// NewDatasetManager 创建数据集管理器.
 func NewDatasetManager(logger *zap.Logger) *DatasetManager {
 	return &DatasetManager{logger: logger}
 }
 
-// CreateDataset 创建数据集(文件系统)
+// CreateDataset 创建数据集(文件系统).
 func (dm *DatasetManager) CreateDataset(ctx context.Context, name string, props map[string]string) error {
 	args := []string{"create"}
 	for k, v := range props {
@@ -382,7 +382,7 @@ func (dm *DatasetManager) CreateDataset(ctx context.Context, name string, props 
 	return nil
 }
 
-// DestroyDataset 销毁数据集
+// DestroyDataset 销毁数据集.
 func (dm *DatasetManager) DestroyDataset(ctx context.Context, name string, recursive bool) error {
 	args := []string{"destroy"}
 	if recursive {
@@ -397,7 +397,7 @@ func (dm *DatasetManager) DestroyDataset(ctx context.Context, name string, recur
 	return nil
 }
 
-// RenameDataset 重命名数据集
+// RenameDataset 重命名数据集.
 func (dm *DatasetManager) RenameDataset(ctx context.Context, oldName, newName string) error {
 	cmd := exec.CommandContext(ctx, "zfs", "rename", oldName, newName)
 	if output, err := cmd.CombinedOutput(); err != nil {
@@ -406,7 +406,7 @@ func (dm *DatasetManager) RenameDataset(ctx context.Context, oldName, newName st
 	return nil
 }
 
-// MountDataset 挂载数据集
+// MountDataset 挂载数据集.
 func (dm *DatasetManager) MountDataset(ctx context.Context, name, mountpoint string) error {
 	args := []string{"mount"}
 	if mountpoint != "" {
@@ -421,7 +421,7 @@ func (dm *DatasetManager) MountDataset(ctx context.Context, name, mountpoint str
 	return nil
 }
 
-// UnmountDataset 卸载数据集
+// UnmountDataset 卸载数据集.
 func (dm *DatasetManager) UnmountDataset(ctx context.Context, name string, force bool) error {
 	args := []string{"unmount"}
 	if force {
@@ -436,7 +436,7 @@ func (dm *DatasetManager) UnmountDataset(ctx context.Context, name string, force
 	return nil
 }
 
-// SetDatasetProperty 设置数据集属性
+// SetDatasetProperty 设置数据集属性.
 func (dm *DatasetManager) SetDatasetProperty(ctx context.Context, name, prop, value string) error {
 	cmd := exec.CommandContext(ctx, "zfs", "set", prop+"="+value, name)
 	if output, err := cmd.CombinedOutput(); err != nil {
@@ -445,7 +445,7 @@ func (dm *DatasetManager) SetDatasetProperty(ctx context.Context, name, prop, va
 	return nil
 }
 
-// GetDatasetProperty 获取数据集属性
+// GetDatasetProperty 获取数据集属性.
 func (dm *DatasetManager) GetDatasetProperty(ctx context.Context, name, prop string) (string, error) {
 	cmd := exec.CommandContext(ctx, "zfs", "get", "-H", "-o", "value", prop, name)
 	out, err := cmd.Output()
@@ -455,7 +455,7 @@ func (dm *DatasetManager) GetDatasetProperty(ctx context.Context, name, prop str
 	return strings.TrimSpace(string(out)), nil
 }
 
-// ListDatasets 列出数据集
+// ListDatasets 列出数据集.
 func (dm *DatasetManager) ListDatasets(ctx context.Context, parent string, depth int) ([]DatasetInfo, error) {
 	args := []string{"list", "-H", "-o",
 		"name,type,mountpoint,used,available,referenced,compression,dedup,quota,reservation"}
@@ -495,17 +495,17 @@ func (dm *DatasetManager) ListDatasets(ctx context.Context, parent string, depth
 	return datasets, nil
 }
 
-// SnapshotManager ZFS快照管理器
+// SnapshotManager ZFS快照管理器.
 type ZFSSnapshotManager struct {
 	logger *zap.Logger
 }
 
-// NewZFSSnapshotManager 创建ZFS快照管理器
+// NewZFSSnapshotManager 创建ZFS快照管理器.
 func NewZFSSnapshotManager(logger *zap.Logger) *ZFSSnapshotManager {
 	return &ZFSSnapshotManager{logger: logger}
 }
 
-// CreateSnapshot 创建快照
+// CreateSnapshot 创建快照.
 func (sm *ZFSSnapshotManager) CreateSnapshot(ctx context.Context, dataset, snapName string, recursive bool) error {
 	fullName := dataset + "@" + snapName
 	args := []string{"snapshot"}
@@ -522,7 +522,7 @@ func (sm *ZFSSnapshotManager) CreateSnapshot(ctx context.Context, dataset, snapN
 	return nil
 }
 
-// DestroySnapshot 销毁快照
+// DestroySnapshot 销毁快照.
 func (sm *ZFSSnapshotManager) DestroySnapshot(ctx context.Context, dataset, snapName string, recursive bool) error {
 	fullName := dataset + "@" + snapName
 	args := []string{"destroy"}
@@ -538,7 +538,7 @@ func (sm *ZFSSnapshotManager) DestroySnapshot(ctx context.Context, dataset, snap
 	return nil
 }
 
-// RollbackSnapshot 回滚到快照
+// RollbackSnapshot 回滚到快照.
 func (sm *ZFSSnapshotManager) RollbackSnapshot(ctx context.Context, dataset, snapName string, force bool) error {
 	fullName := dataset + "@" + snapName
 	args := []string{"rollback"}
@@ -554,7 +554,7 @@ func (sm *ZFSSnapshotManager) RollbackSnapshot(ctx context.Context, dataset, sna
 	return nil
 }
 
-// ListSnapshots 列出快照
+// ListSnapshots 列出快照.
 func (sm *ZFSSnapshotManager) ListSnapshots(ctx context.Context, dataset string) ([]string, error) {
 	args := []string{"list", "-H", "-o", "name", "-t", "snapshot"}
 	if dataset != "" {
@@ -576,17 +576,17 @@ func (sm *ZFSSnapshotManager) ListSnapshots(ctx context.Context, dataset string)
 	return snaps, nil
 }
 
-// SendReceiveManager ZFS send/receive管理器 - 块级增量备份
+// SendReceiveManager ZFS send/receive管理器 - 块级增量备份.
 type SendReceiveManager struct {
 	logger *zap.Logger
 }
 
-// NewSendReceiveManager 创建send/receive管理器
+// NewSendReceiveManager 创建send/receive管理器.
 func NewSendReceiveManager(logger *zap.Logger) *SendReceiveManager {
 	return &SendReceiveManager{logger: logger}
 }
 
-// SendSnapshot 发送快照到文件或管道
+// SendSnapshot 发送快照到文件或管道.
 func (srm *SendReceiveManager) SendSnapshot(ctx context.Context, snapshot string, incrementalBase string, output string) error {
 	args := []string{"send"}
 	if incrementalBase != "" {
@@ -612,7 +612,7 @@ func (srm *SendReceiveManager) SendSnapshot(ctx context.Context, snapshot string
 	return nil
 }
 
-// ReceiveSnapshot 接收快照
+// ReceiveSnapshot 接收快照.
 func (srm *SendReceiveManager) ReceiveSnapshot(ctx context.Context, dataset string, input string) error {
 	shellCmd := fmt.Sprintf("cat %s | zfs receive %s", input, dataset)
 	cmd := exec.CommandContext(ctx, "bash", "-c", shellCmd)
@@ -623,7 +623,7 @@ func (srm *SendReceiveManager) ReceiveSnapshot(ctx context.Context, dataset stri
 	return nil
 }
 
-// SendToRemote 通过SSH发送到远程
+// SendToRemote 通过SSH发送到远程.
 func (srm *SendReceiveManager) SendToRemote(ctx context.Context, snapshot, incrementalBase, remoteHost, remoteDataset string) error {
 	args := []string{"send"}
 	if incrementalBase != "" {
@@ -644,17 +644,17 @@ func (srm *SendReceiveManager) SendToRemote(ctx context.Context, snapshot, incre
 	return nil
 }
 
-// ZVolManager ZVOL管理器
+// ZVolManager ZVOL管理器.
 type ZVolManager struct {
 	logger *zap.Logger
 }
 
-// NewZVolManager 创建ZVOL管理器
+// NewZVolManager 创建ZVOL管理器.
 func NewZVolManager(logger *zap.Logger) *ZVolManager {
 	return &ZVolManager{logger: logger}
 }
 
-// CreateZVOL 创建ZVOL
+// CreateZVOL 创建ZVOL.
 func (zm *ZVolManager) CreateZVOL(ctx context.Context, name string, size string, props map[string]string) error {
 	args := []string{"create"}
 	for k, v := range props {
@@ -670,7 +670,7 @@ func (zm *ZVolManager) CreateZVOL(ctx context.Context, name string, size string,
 	return nil
 }
 
-// ResizeZVOL 调整ZVOL大小
+// ResizeZVOL 调整ZVOL大小.
 func (zm *ZVolManager) ResizeZVOL(ctx context.Context, name string, newSize string) error {
 	cmd := exec.CommandContext(ctx, "zfs", "set", "volsize="+newSize, name)
 	if output, err := cmd.CombinedOutput(); err != nil {
@@ -679,7 +679,7 @@ func (zm *ZVolManager) ResizeZVOL(ctx context.Context, name string, newSize stri
 	return nil
 }
 
-// DestroyZVOL 销毁ZVOL
+// DestroyZVOL 销毁ZVOL.
 func (zm *ZVolManager) DestroyZVOL(ctx context.Context, name string) error {
 	cmd := exec.CommandContext(ctx, "zfs", "destroy", name)
 	if output, err := cmd.CombinedOutput(); err != nil {
@@ -688,7 +688,7 @@ func (zm *ZVolManager) DestroyZVOL(ctx context.Context, name string) error {
 	return nil
 }
 
-// ListZVOLs 列出ZVOL
+// ListZVOLs 列出ZVOL.
 func (zm *ZVolManager) ListZVOLs(ctx context.Context, parent string) ([]ZVOLInfo, error) {
 	args := []string{"list", "-H", "-o", "name,volsize,volmode,volblocksize,sync,used,referenced", "-t", "volume"}
 	if parent != "" {

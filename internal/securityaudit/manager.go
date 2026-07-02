@@ -10,15 +10,15 @@ import (
 
 // Manager 安全审计管理器.
 type Manager struct {
-	config         SecurityAuditConfig
-	checker        *SecurityChecker
-	vulnScanner    *VulnerabilityScanner
-	hardening      *HardeningAdvisor
-	scoreEngine    *ScoreEngine
-	auditLogger    *AuditLogger
-	notifyFunc     func(event AuditEvent)
-	mu             sync.RWMutex
-	stopCh         chan struct{}
+	config      SecurityAuditConfig
+	checker     *SecurityChecker
+	vulnScanner *VulnerabilityScanner
+	hardening   *HardeningAdvisor
+	scoreEngine *ScoreEngine
+	auditLogger *AuditLogger
+	notifyFunc  func(event AuditEvent)
+	mu          sync.RWMutex
+	stopCh      chan struct{}
 }
 
 // NewManager 创建安全审计管理器.
@@ -187,8 +187,8 @@ func (m *Manager) GetSecurityScore() SecurityScore {
 			Actor:     "system",
 			Action:    "score_alert",
 			Details: map[string]interface{}{
-				"score":   score.Overall,
-				"grade":   score.Grade,
+				"score":     score.Overall,
+				"grade":     score.Grade,
 				"threshold": m.config.AlertThreshold,
 			},
 			Status:  "warning",
@@ -404,23 +404,23 @@ func (m *Manager) RunFullAudit() map[string]interface{} {
 	duration := time.Since(startTime)
 
 	result := map[string]interface{}{
-		"audit_id":          uuid.New().String(),
-		"timestamp":         startTime,
-		"duration":          duration.String(),
-		"security_score":    score,
-		"check_results":     checkResults,
+		"audit_id":             uuid.New().String(),
+		"timestamp":            startTime,
+		"duration":             duration.String(),
+		"security_score":       score,
+		"check_results":        checkResults,
 		"vulnerability_report": vulnReport,
-		"hardening_report":  hardeningReport,
+		"hardening_report":     hardeningReport,
 		"summary": map[string]interface{}{
-			"total_checks":     len(checkResults),
-			"passed_checks":    countByStatus(checkResults, StatusPass),
-			"failed_checks":    countByStatus(checkResults, StatusFail),
-			"warning_checks":   countByStatus(checkResults, StatusWarning),
-			"total_vulns":      vulnReport.TotalFound,
-			"critical_vulns":   vulnReport.CriticalCount,
-			"hardening_items":  hardeningReport.TotalItems,
-			"overall_score":    score.Overall,
-			"grade":            score.Grade,
+			"total_checks":    len(checkResults),
+			"passed_checks":   countByStatus(checkResults, StatusPass),
+			"failed_checks":   countByStatus(checkResults, StatusFail),
+			"warning_checks":  countByStatus(checkResults, StatusWarning),
+			"total_vulns":     vulnReport.TotalFound,
+			"critical_vulns":  vulnReport.CriticalCount,
+			"hardening_items": hardeningReport.TotalItems,
+			"overall_score":   score.Overall,
+			"grade":           score.Grade,
 		},
 	}
 
@@ -430,9 +430,9 @@ func (m *Manager) RunFullAudit() map[string]interface{} {
 		Actor:     "system",
 		Action:    "full_audit",
 		Details: map[string]interface{}{
-			"duration":       duration.String(),
-			"overall_score":  score.Overall,
-			"grade":          score.Grade,
+			"duration":      duration.String(),
+			"overall_score": score.Overall,
+			"grade":         score.Grade,
 		},
 		Status:  "success",
 		Message: fmt.Sprintf("完整安全审计完成，评分: %d (%s)", score.Overall, score.Grade),
@@ -456,20 +456,20 @@ func (m *Manager) GetDashboard() map[string]interface{} {
 
 	if vulnReport != nil {
 		dashboard["vulnerability_summary"] = map[string]interface{}{
-			"total":    vulnReport.TotalFound,
-			"critical": vulnReport.CriticalCount,
-			"high":     vulnReport.HighCount,
-			"medium":   vulnReport.MediumCount,
-			"low":      vulnReport.LowCount,
+			"total":     vulnReport.TotalFound,
+			"critical":  vulnReport.CriticalCount,
+			"high":      vulnReport.HighCount,
+			"medium":    vulnReport.MediumCount,
+			"low":       vulnReport.LowCount,
 			"last_scan": vulnReport.ScanTime,
 		}
 	}
 
 	dashboard["hardening_summary"] = map[string]interface{}{
-		"total":   hardeningReport.TotalItems,
-		"applied": hardeningReport.AppliedCount,
+		"total":    hardeningReport.TotalItems,
+		"applied":  hardeningReport.AppliedCount,
 		"critical": hardeningReport.CriticalCount,
-		"high":    hardeningReport.HighCount,
+		"high":     hardeningReport.HighCount,
 	}
 
 	return dashboard

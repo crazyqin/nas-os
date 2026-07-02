@@ -122,7 +122,7 @@ func (h *Handlers) RegisterRoutes(authGroup *gin.RouterGroup) {
 // ========== Registration Handlers ==========
 
 // RegisterStart begins the registration ceremony.
-// POST /api/v1/auth/passkey/register-start
+// POST /api/v1/auth/passkey/register-start.
 func (h *Handlers) RegisterStart(c *gin.Context) {
 	var req RegisterStartRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -157,7 +157,7 @@ func (h *Handlers) RegisterStart(c *gin.Context) {
 }
 
 // RegisterFinish completes the registration ceremony.
-// POST /api/v1/auth/passkey/register-finish
+// POST /api/v1/auth/passkey/register-finish.
 func (h *Handlers) RegisterFinish(c *gin.Context) {
 	var req RegisterFinishRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -182,7 +182,7 @@ func (h *Handlers) RegisterFinish(c *gin.Context) {
 // ========== Authentication Handlers ==========
 
 // AuthStart begins the authentication ceremony.
-// POST /api/v1/auth/passkey/auth-start
+// POST /api/v1/auth/passkey/auth-start.
 func (h *Handlers) AuthStart(c *gin.Context) {
 	var req AuthStartRequest
 	// Body is optional; if omitted, auto-fill mode is used
@@ -225,7 +225,7 @@ func (h *Handlers) AuthStart(c *gin.Context) {
 }
 
 // AuthFinish completes the authentication ceremony.
-// POST /api/v1/auth/passkey/auth-finish
+// POST /api/v1/auth/passkey/auth-finish.
 func (h *Handlers) AuthFinish(c *gin.Context) {
 	var req AuthFinishRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -263,7 +263,7 @@ func (h *Handlers) AuthFinish(c *gin.Context) {
 // ========== Credential Management Handlers ==========
 
 // ListCredentials lists all passkeys for the current user.
-// GET /api/v1/auth/passkey/credentials
+// GET /api/v1/auth/passkey/credentials.
 func (h *Handlers) ListCredentials(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -294,7 +294,7 @@ func (h *Handlers) ListCredentials(c *gin.Context) {
 }
 
 // DeleteCredential removes a passkey.
-// DELETE /api/v1/auth/passkey/credentials/:id
+// DELETE /api/v1/auth/passkey/credentials/:id.
 func (h *Handlers) DeleteCredential(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -312,7 +312,7 @@ func (h *Handlers) DeleteCredential(c *gin.Context) {
 }
 
 // RenameCredential updates the friendly name of a passkey.
-// PATCH /api/v1/auth/passkey/credentials/:id
+// PATCH /api/v1/auth/passkey/credentials/:id.
 func (h *Handlers) RenameCredential(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -338,7 +338,7 @@ func (h *Handlers) RenameCredential(c *gin.Context) {
 }
 
 // GetStats returns passkey statistics for the current user.
-// GET /api/v1/auth/passkey/stats
+// GET /api/v1/auth/passkey/stats.
 func (h *Handlers) GetStats(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -365,5 +365,5 @@ func (h *Handlers) RequireAuth(handler gin.HandlerFunc) gin.HandlerFunc {
 	}
 }
 
-// Ensure uuid import is used
+// Ensure uuid import is used.
 var _ = uuid.New

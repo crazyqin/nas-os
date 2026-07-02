@@ -3,7 +3,7 @@ package aiops
 
 import "time"
 
-// Severity 告警严重级别
+// Severity 告警严重级别.
 type Severity string
 
 const (
@@ -14,7 +14,7 @@ const (
 	SeverityInfo     Severity = "info"
 )
 
-// IncidentStatus 事件状态
+// IncidentStatus 事件状态.
 type IncidentStatus string
 
 const (
@@ -25,7 +25,7 @@ const (
 	StatusClosed        IncidentStatus = "closed"
 )
 
-// AlertStatus 告警状态
+// AlertStatus 告警状态.
 type AlertStatus string
 
 const (
@@ -34,7 +34,7 @@ const (
 	AlertStatusSuppressed AlertStatus = "suppressed"
 )
 
-// RemediationStatus 修复状态
+// RemediationStatus 修复状态.
 type RemediationStatus string
 
 const (
@@ -45,7 +45,7 @@ const (
 	RemediationStatusSkipped RemediationStatus = "skipped"
 )
 
-// Alert 原始告警
+// Alert 原始告警.
 type Alert struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -61,7 +61,7 @@ type Alert struct {
 	EndsAt      *time.Time        `json:"ends_at,omitempty"`
 }
 
-// AlertGroup 告警聚合组
+// AlertGroup 告警聚合组.
 type AlertGroup struct {
 	ID         string            `json:"id"`
 	Name       string            `json:"name"`
@@ -76,7 +76,7 @@ type AlertGroup struct {
 	ResolvedAt *time.Time        `json:"resolved_at,omitempty"`
 }
 
-// Incident 事件（故障工单）
+// Incident 事件（故障工单）.
 type Incident struct {
 	ID              string              `json:"id"`
 	Title           string              `json:"title"`
@@ -94,7 +94,7 @@ type Incident struct {
 	ResolvedAt      *time.Time          `json:"resolved_at,omitempty"`
 }
 
-// DiagnosisResult 诊断结果
+// DiagnosisResult 诊断结果.
 type DiagnosisResult struct {
 	ID                 string             `json:"id"`
 	IncidentID         string             `json:"incident_id"`
@@ -107,14 +107,14 @@ type DiagnosisResult struct {
 	CreatedAt          time.Time          `json:"created_at"`
 }
 
-// TimelineEvent 时间线事件
+// TimelineEvent 时间线事件.
 type TimelineEvent struct {
 	Timestamp   time.Time `json:"timestamp"`
 	Description string    `json:"description"`
 	Severity    Severity  `json:"severity"`
 }
 
-// RemediationAction 修复动作
+// RemediationAction 修复动作.
 type RemediationAction struct {
 	ID          string            `json:"id"`
 	IncidentID  string            `json:"incident_id"`
@@ -131,7 +131,7 @@ type RemediationAction struct {
 	CreatedAt   time.Time         `json:"created_at"`
 }
 
-// SLATarget SLA 目标
+// SLATarget SLA 目标.
 type SLATarget struct {
 	ID                string    `json:"id"`
 	Name              string    `json:"name"`
@@ -148,7 +148,7 @@ type SLATarget struct {
 	UpdatedAt         time.Time `json:"updated_at"`
 }
 
-// OpsStats 运维统计
+// OpsStats 运维统计.
 type OpsStats struct {
 	TotalIncidents     int         `json:"total_incidents"`
 	OpenIncidents      int         `json:"open_incidents"`
@@ -165,7 +165,7 @@ type OpsStats struct {
 	RecentIncidents    []Incident  `json:"recent_incidents,omitempty"`
 }
 
-// SystemMetrics 系统指标
+// SystemMetrics 系统指标.
 type SystemMetrics struct {
 	CPUUsage    float64    `json:"cpu_usage"`
 	MemoryUsage float64    `json:"memory_usage"`
@@ -177,7 +177,7 @@ type SystemMetrics struct {
 	Timestamp   time.Time  `json:"timestamp"`
 }
 
-// Anomaly 异常检测结果
+// Anomaly 异常检测结果.
 type Anomaly struct {
 	Metric    string    `json:"metric"`
 	Value     float64   `json:"value"`
@@ -187,7 +187,7 @@ type Anomaly struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// KnowledgeEntry 运维知识条目
+// KnowledgeEntry 运维知识条目.
 type KnowledgeEntry struct {
 	ID          string    `json:"id"`
 	Title       string    `json:"title"`
@@ -201,26 +201,26 @@ type KnowledgeEntry struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// DiagnoseRequest 诊断请求
+// DiagnoseRequest 诊断请求.
 type DiagnoseRequest struct {
 	Service  string         `json:"service,omitempty"`
 	Metrics  *SystemMetrics `json:"metrics,omitempty"`
 	AlertIDs []string       `json:"alert_ids,omitempty"`
 }
 
-// RemediateRequest 修复请求
+// RemediateRequest 修复请求.
 type RemediateRequest struct {
 	IncidentID string `json:"incident_id" binding:"required"`
 	ActionType string `json:"action_type,omitempty"`
 	AutoMode   bool   `json:"auto_mode"`
 }
 
-// AlertIngestRequest 告警接收请求
+// AlertIngestRequest 告警接收请求.
 type AlertIngestRequest struct {
 	Alerts []Alert `json:"alerts" binding:"required"`
 }
 
-// SLATargetRequest SLA 目标请求
+// SLATargetRequest SLA 目标请求.
 type SLATargetRequest struct {
 	Name              string  `json:"name" binding:"required"`
 	Service           string  `json:"service" binding:"required"`

@@ -3,7 +3,7 @@ package themepro
 
 import "time"
 
-// ThemeMode 主题模式
+// ThemeMode 主题模式.
 type ThemeMode string
 
 const (
@@ -13,7 +13,7 @@ const (
 	ModeCustom ThemeMode = "custom"
 )
 
-// ColorScheme 颜色方案
+// ColorScheme 颜色方案.
 type ColorScheme struct {
 	Primary    string `json:"primary" binding:"required"`
 	Secondary  string `json:"secondary"`
@@ -28,7 +28,7 @@ type ColorScheme struct {
 	Info       string `json:"info"`
 }
 
-// FontConfig 字体配置
+// FontConfig 字体配置.
 type FontConfig struct {
 	Family       string  `json:"family" binding:"required"`
 	SizeBase     float64 `json:"size_base"`
@@ -41,7 +41,7 @@ type FontConfig struct {
 	LetterSpace  float64 `json:"letter_spacing"`
 }
 
-// LayoutPreset 布局预设
+// LayoutPreset 布局预设.
 type LayoutPreset string
 
 const (
@@ -51,7 +51,7 @@ const (
 	LayoutCustom   LayoutPreset = "custom"
 )
 
-// SidebarPosition 侧边栏位置
+// SidebarPosition 侧边栏位置.
 type SidebarPosition string
 
 const (
@@ -60,7 +60,7 @@ const (
 	SidebarHidden SidebarPosition = "hidden"
 )
 
-// BorderRadius 圆角配置
+// BorderRadius 圆角配置.
 type BorderRadius struct {
 	Small  string `json:"small"`
 	Medium string `json:"medium"`
@@ -68,7 +68,7 @@ type BorderRadius struct {
 	Full   string `json:"full"`
 }
 
-// LayoutConfig 布局配置
+// LayoutConfig 布局配置.
 type LayoutConfig struct {
 	Preset          LayoutPreset    `json:"preset"`
 	SidebarPosition SidebarPosition `json:"sidebar_position"`
@@ -81,7 +81,7 @@ type LayoutConfig struct {
 	TransitionSpeed string          `json:"transition_speed"`
 }
 
-// Theme 主题
+// Theme 主题.
 type Theme struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name" binding:"required"`
@@ -99,7 +99,7 @@ type Theme struct {
 	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
-// ThemePack 主题包（可导入导出）
+// ThemePack 主题包（可导入导出）.
 type ThemePack struct {
 	Name        string    `json:"name" binding:"required"`
 	Description string    `json:"description,omitempty"`
@@ -110,7 +110,7 @@ type ThemePack struct {
 	Format      string    `json:"format"`
 }
 
-// CreateThemeRequest 创建主题请求
+// CreateThemeRequest 创建主题请求.
 type CreateThemeRequest struct {
 	Name        string       `json:"name" binding:"required"`
 	Description string       `json:"description,omitempty"`
@@ -123,7 +123,7 @@ type CreateThemeRequest struct {
 	Tags        []string     `json:"tags,omitempty"`
 }
 
-// UpdateThemeRequest 更新主题请求
+// UpdateThemeRequest 更新主题请求.
 type UpdateThemeRequest struct {
 	Name        string        `json:"name,omitempty"`
 	Description string        `json:"description,omitempty"`
@@ -134,19 +134,19 @@ type UpdateThemeRequest struct {
 	Tags        []string      `json:"tags,omitempty"`
 }
 
-// ApplyThemeRequest 应用主题请求
+// ApplyThemeRequest 应用主题请求.
 type ApplyThemeRequest struct {
 	ThemeID string `json:"theme_id" binding:"required"`
 }
 
-// ThemePreview 主题预览
+// ThemePreview 主题预览.
 type ThemePreview struct {
 	Theme       Theme  `json:"theme"`
 	PreviewURL  string `json:"preview_url,omitempty"`
 	PreviewData string `json:"preview_data,omitempty"`
 }
 
-// DefaultColorScheme 默认颜色方案
+// DefaultColorScheme 默认颜色方案.
 func DefaultColorScheme() ColorScheme {
 	return ColorScheme{
 		Primary:    "#1976D2",
@@ -163,7 +163,7 @@ func DefaultColorScheme() ColorScheme {
 	}
 }
 
-// DarkColorScheme 暗色颜色方案
+// DarkColorScheme 暗色颜色方案.
 func DarkColorScheme() ColorScheme {
 	return ColorScheme{
 		Primary:    "#90CAF9",
@@ -180,7 +180,7 @@ func DarkColorScheme() ColorScheme {
 	}
 }
 
-// DefaultFontConfig 默认字体配置
+// DefaultFontConfig 默认字体配置.
 func DefaultFontConfig() FontConfig {
 	return FontConfig{
 		Family:       "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
@@ -195,7 +195,7 @@ func DefaultFontConfig() FontConfig {
 	}
 }
 
-// DefaultLayoutConfig 默认布局配置
+// DefaultLayoutConfig 默认布局配置.
 func DefaultLayoutConfig() LayoutConfig {
 	return LayoutConfig{
 		Preset:          LayoutDefault,

@@ -7,13 +7,13 @@ import (
 	"net/http"
 )
 
-// SmartFileCollectModule 智能文件收集模块
+// SmartFileCollectModule 智能文件收集模块.
 type SmartFileCollectModule struct {
 	manager *CollectManager
 	handler *CollectHandler
 }
 
-// NewSmartFileCollectModule 创建智能文件收集模块
+// NewSmartFileCollectModule 创建智能文件收集模块.
 func NewSmartFileCollectModule(config *CollectConfig) *SmartFileCollectModule {
 	manager := NewCollectManager(config)
 	handler := NewCollectHandler(manager)
@@ -24,24 +24,24 @@ func NewSmartFileCollectModule(config *CollectConfig) *SmartFileCollectModule {
 	}
 }
 
-// GetManager 获取管理器
+// GetManager 获取管理器.
 func (m *SmartFileCollectModule) GetManager() *CollectManager {
 	return m.manager
 }
 
-// GetHandler 获取处理器
+// GetHandler 获取处理器.
 func (m *SmartFileCollectModule) GetHandler() *CollectHandler {
 	return m.handler
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (m *SmartFileCollectModule) RegisterRoutes(mux *http.ServeMux) {
 	m.handler.RegisterRoutes(mux)
 }
 
 // 便捷函数
 
-// QuickCreateCollect 快速创建收集请求
+// QuickCreateCollect 快速创建收集请求.
 func QuickCreateCollect(title, description, targetPath string, expireDays int) (*CollectRequest, error) {
 	manager := NewCollectManager(nil)
 	return manager.CreateCollectRequest(&CreateCollectRequest{
@@ -52,7 +52,7 @@ func QuickCreateCollect(title, description, targetPath string, expireDays int) (
 	}, "system", "System")
 }
 
-// ValidateCollectLink 验证收集链接
+// ValidateCollectLink 验证收集链接.
 func ValidateCollectLink(link string) bool {
 	manager := NewCollectManager(nil)
 	_, err := manager.GetCollectRequestByLink(link)

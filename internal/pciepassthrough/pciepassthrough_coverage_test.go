@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// 创建模拟的 sysfs 设备目录结构
+// 创建模拟的 sysfs 设备目录结构.
 func createMockSysfsDevice(t *testing.T, baseDir, pciAddr string, opts ...func(string)) {
 	t.Helper()
 	devPath := filepath.Join(baseDir, pciAddr)
@@ -35,7 +35,7 @@ func createMockSysfsDevice(t *testing.T, baseDir, pciAddr string, opts ...func(s
 	}
 }
 
-// withDriver 设置驱动信息
+// withDriver 设置驱动信息.
 func withDriver(driverName string) func(string) {
 	return func(devPath string) {
 		driverDir := filepath.Join(devPath, "driver")
@@ -49,7 +49,7 @@ func withDriver(driverName string) func(string) {
 	}
 }
 
-// withIOMMUGroup 设置 IOMMU 分组
+// withIOMMUGroup 设置 IOMMU 分组.
 func withIOMMUGroup(group int) func(string) {
 	return func(devPath string) {
 		iommuDir := filepath.Join(devPath, "iommu_group")
@@ -59,7 +59,7 @@ func withIOMMUGroup(group int) func(string) {
 	}
 }
 
-// withNumaNode 设置 NUMA 节点
+// withNumaNode 设置 NUMA 节点.
 func withNumaNode(node int) func(string) {
 	return func(devPath string) {
 		content := []byte("0\n")

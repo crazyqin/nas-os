@@ -39,7 +39,7 @@ const (
 
 // ========== 类型 ==========
 
-// BlockBackupStatus 备份任务状态
+// BlockBackupStatus 备份任务状态.
 type BlockBackupStatus string
 
 const (
@@ -51,7 +51,7 @@ const (
 	BlockStatusCanceled BlockBackupStatus = "canceled"
 )
 
-// BlockBackupJob 块级备份任务
+// BlockBackupJob 块级备份任务.
 type BlockBackupJob struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -70,7 +70,7 @@ type BlockBackupJob struct {
 	NextRunAt     *time.Time        `json:"next_run_at,omitempty"`
 }
 
-// BlockBackupRun 备份执行记录
+// BlockBackupRun 备份执行记录.
 type BlockBackupRun struct {
 	ID          string            `json:"id"`
 	JobID       string            `json:"job_id"`
@@ -89,7 +89,7 @@ type BlockBackupRun struct {
 	EndedAt     *time.Time        `json:"ended_at,omitempty"`
 }
 
-// BlockInfo 块信息
+// BlockInfo 块信息.
 type BlockInfo struct {
 	Hash       string `json:"hash"`
 	Offset     int64  `json:"offset"`
@@ -99,7 +99,7 @@ type BlockInfo struct {
 	RefCount   int    `json:"ref_count"`
 }
 
-// DedupEntry 去重索引条目
+// DedupEntry 去重索引条目.
 type DedupEntry struct {
 	Hash     string `json:"hash"`
 	Size     int    `json:"size"`
@@ -107,7 +107,7 @@ type DedupEntry struct {
 	RefCount int    `json:"ref_count"`
 }
 
-// Manifest 备份清单
+// Manifest 备份清单.
 type Manifest struct {
 	JobID     string       `json:"job_id"`
 	Version   int          `json:"version"`
@@ -118,7 +118,7 @@ type Manifest struct {
 	CreatedAt time.Time    `json:"created_at"`
 }
 
-// FileRecord 文件记录
+// FileRecord 文件记录.
 type FileRecord struct {
 	Path       string    `json:"path"`
 	Size       int64     `json:"size"`
@@ -128,7 +128,7 @@ type FileRecord struct {
 	Checksum   string    `json:"checksum"`
 }
 
-// BlockBackupEngine 块级备份引擎
+// BlockBackupEngine 块级备份引擎.
 type BlockBackupEngine struct {
 	mu          sync.RWMutex
 	jobs        map[string]*BlockBackupJob
@@ -142,7 +142,7 @@ type BlockBackupEngine struct {
 	progressCh  chan ProgressEvent
 }
 
-// ProgressEvent 进度事件
+// ProgressEvent 进度事件.
 type ProgressEvent struct {
 	RunID    string  `json:"run_id"`
 	JobID    string  `json:"job_id"`
@@ -151,7 +151,7 @@ type ProgressEvent struct {
 	Message  string  `json:"message"`
 }
 
-// NewBlockBackupEngine 创建块级备份引擎
+// NewBlockBackupEngine 创建块级备份引擎.
 func NewBlockBackupEngine(baseDir string) (*BlockBackupEngine, error) {
 	blockDir := filepath.Join(baseDir, "blocks")
 	manifestDir := filepath.Join(baseDir, "manifests")
@@ -189,7 +189,7 @@ func NewBlockBackupEngine(baseDir string) (*BlockBackupEngine, error) {
 	return engine, nil
 }
 
-// CreateJob 创建备份任务
+// CreateJob 创建备份任务.
 func (e *BlockBackupEngine) CreateJob(name string, sourcePaths []string, destPath string, opts ...JobOption) (*BlockBackupJob, error) {
 	if name == "" {
 		return nil, fmt.Errorf("任务名不能为空")
@@ -226,7 +226,7 @@ func (e *BlockBackupEngine) CreateJob(name string, sourcePaths []string, destPat
 	return job, nil
 }
 
-// JobOption 任务选项
+// JobOption 任务选项.
 type JobOption func(*BlockBackupJob)
 
 func WithBlockSize(size int) JobOption {
@@ -252,7 +252,7 @@ func WithMaxVersions(n int) JobOption {
 	return func(j *BlockBackupJob) { j.MaxVersions = n }
 }
 
-// RunBackup 执行备份
+// RunBackup 执行备份.
 func (e *BlockBackupEngine) RunBackup(ctx context.Context, jobID string) (*BlockBackupRun, error) {
 	e.mu.Lock()
 	job, ok := e.jobs[jobID]
@@ -286,7 +286,7 @@ func (e *BlockBackupEngine) RunBackup(ctx context.Context, jobID string) (*Block
 	return run, nil
 }
 
-// executeBackup 执行备份逻辑
+// executeBackup 执行备份逻辑.
 func (e *BlockBackupEngine) executeBackup(ctx context.Context, job *BlockBackupJob, run *BlockBackupRun) {
 	defer func() {
 		e.mu.Lock()
@@ -382,7 +382,7 @@ func (e *BlockBackupEngine) executeBackup(ctx context.Context, job *BlockBackupJ
 	e.emitProgress(run, "complete", 1.0, "备份完成")
 }
 
-// processFile 处理单个文件的块级备份
+// processFile 处理单个文件的块级备份.
 func (e *BlockBackupEngine) processFile(filePath string, job *BlockBackupJob, run *BlockBackupRun, manifest *Manifest, versionDir string) (*FileRecord, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -480,7 +480,7 @@ func (e *BlockBackupEngine) processFile(filePath string, job *BlockBackupJob, ru
 	return record, nil
 }
 
-// RestoreVersion 恢复指定版本
+// RestoreVersion 恢复指定版本.
 func (e *BlockBackupEngine) RestoreVersion(ctx context.Context, jobID string, version int, destPath string) error {
 	e.mu.RLock()
 	job, ok := e.jobs[jobID]
@@ -527,7 +527,7 @@ func (e *BlockBackupEngine) RestoreVersion(ctx context.Context, jobID string, ve
 	return nil
 }
 
-// GetJob 获取备份任务
+// GetJob 获取备份任务.
 func (e *BlockBackupEngine) GetJob(jobID string) (*BlockBackupJob, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -538,7 +538,7 @@ func (e *BlockBackupEngine) GetJob(jobID string) (*BlockBackupJob, error) {
 	return job, nil
 }
 
-// ListJobs 列出所有任务
+// ListJobs 列出所有任务.
 func (e *BlockBackupEngine) ListJobs() []*BlockBackupJob {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -552,7 +552,7 @@ func (e *BlockBackupEngine) ListJobs() []*BlockBackupJob {
 	return result
 }
 
-// GetRun 获取运行记录
+// GetRun 获取运行记录.
 func (e *BlockBackupEngine) GetRun(runID string) (*BlockBackupRun, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -563,7 +563,7 @@ func (e *BlockBackupEngine) GetRun(runID string) (*BlockBackupRun, error) {
 	return run, nil
 }
 
-// PauseBackup 暂停备份
+// PauseBackup 暂停备份.
 func (e *BlockBackupEngine) PauseBackup(runID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -575,7 +575,7 @@ func (e *BlockBackupEngine) PauseBackup(runID string) error {
 	return nil
 }
 
-// DeleteJob 删除备份任务
+// DeleteJob 删除备份任务.
 func (e *BlockBackupEngine) DeleteJob(jobID string) error {
 	e.mu.Lock()
 	job, ok := e.jobs[jobID]
@@ -592,7 +592,7 @@ func (e *BlockBackupEngine) DeleteJob(jobID string) error {
 	return e.saveJobs()
 }
 
-// GetStats 获取备份统计
+// GetStats 获取备份统计.
 func (e *BlockBackupEngine) GetStats() map[string]interface{} {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -613,12 +613,12 @@ func (e *BlockBackupEngine) GetStats() map[string]interface{} {
 	}
 }
 
-// ProgressChan 返回进度事件通道
+// ProgressChan 返回进度事件通道.
 func (e *BlockBackupEngine) ProgressChan() <-chan ProgressEvent {
 	return e.progressCh
 }
 
-// Stop 停止引擎
+// Stop 停止引擎.
 func (e *BlockBackupEngine) Stop() {
 	e.runCancel()
 	close(e.progressCh)
@@ -775,7 +775,7 @@ func parsePermission(perm string) os.FileMode {
 	return os.FileMode(mode)
 }
 
-// BlockBackupHandlers 块级备份HTTP处理器
+// BlockBackupHandlers 块级备份HTTP处理器.
 type BlockBackupHandlers struct {
 	engine *BlockBackupEngine
 }

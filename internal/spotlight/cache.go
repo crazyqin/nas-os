@@ -9,7 +9,7 @@ import (
 )
 
 // SearchCache 搜索缓存
-// 提供 LRU 缓存机制，优化重复查询性能
+// 提供 LRU 缓存机制，优化重复查询性能.
 type SearchCache struct {
 	mu       sync.RWMutex
 	entries  map[string]*CacheEntry
@@ -19,7 +19,7 @@ type SearchCache struct {
 	stopChan chan struct{}
 }
 
-// CacheEntry 缓存条目
+// CacheEntry 缓存条目.
 type CacheEntry struct {
 	Key       string          `json:"key"`
 	Response  *SearchResponse `json:"response"`
@@ -28,7 +28,7 @@ type CacheEntry struct {
 	HitCount  int64           `json:"hitCount"`
 }
 
-// CacheStats 缓存统计
+// CacheStats 缓存统计.
 type CacheStats struct {
 	Size      int     `json:"size"`
 	MaxSize   int     `json:"maxSize"`
@@ -37,7 +37,7 @@ type CacheStats struct {
 	HitRate   float64 `json:"hitRate"`
 }
 
-// NewSearchCache 创建搜索缓存
+// NewSearchCache 创建搜索缓存.
 func NewSearchCache(maxSize int, ttl time.Duration) *SearchCache {
 	if maxSize <= 0 {
 		maxSize = 1000
@@ -60,7 +60,7 @@ func NewSearchCache(maxSize int, ttl time.Duration) *SearchCache {
 	return c
 }
 
-// Get 获取缓存
+// Get 获取缓存.
 func (c *SearchCache) Get(key string) (*SearchResponse, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -85,7 +85,7 @@ func (c *SearchCache) Get(key string) (*SearchResponse, bool) {
 	return entry.Response, true
 }
 
-// Set 设置缓存
+// Set 设置缓存.
 func (c *SearchCache) Set(key string, response *SearchResponse) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -117,14 +117,14 @@ func (c *SearchCache) Set(key string, response *SearchResponse) {
 	c.order = append(c.order, key)
 }
 
-// Delete 删除缓存
+// Delete 删除缓存.
 func (c *SearchCache) Delete(key string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.deleteEntry(key)
 }
 
-// Clear 清空缓存
+// Clear 清空缓存.
 func (c *SearchCache) Clear() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -133,7 +133,7 @@ func (c *SearchCache) Clear() {
 	c.order = make([]string, 0, c.maxSize)
 }
 
-// GenerateKey 生成缓存键
+// GenerateKey 生成缓存键.
 func (c *SearchCache) GenerateKey(req interface{}) string {
 	// 将请求序列化为 JSON 并计算哈希
 	data, _ := json.Marshal(req)
@@ -141,7 +141,7 @@ func (c *SearchCache) GenerateKey(req interface{}) string {
 	return fmt.Sprintf("%x", hash[:16])
 }
 
-// GetStats 获取缓存统计
+// GetStats 获取缓存统计.
 func (c *SearchCache) GetStats() CacheStats {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -163,7 +163,7 @@ func (c *SearchCache) GetStats() CacheStats {
 	return stats
 }
 
-// moveToFront 移动到最前面（最近使用）
+// moveToFront 移动到最前面（最近使用）.
 func (c *SearchCache) moveToFront(key string) {
 	// 找到当前位置
 	for i, k := range c.order {
@@ -177,7 +177,7 @@ func (c *SearchCache) moveToFront(key string) {
 	c.order = append([]string{key}, c.order...)
 }
 
-// evictOldest 淘汰最旧的条目
+// evictOldest 淘汰最旧的条目.
 func (c *SearchCache) evictOldest() {
 	if len(c.order) == 0 {
 		return
@@ -188,7 +188,7 @@ func (c *SearchCache) evictOldest() {
 	c.deleteEntry(oldestKey)
 }
 
-// deleteEntry 删除条目
+// deleteEntry 删除条目.
 func (c *SearchCache) deleteEntry(key string) {
 	delete(c.entries, key)
 
@@ -201,7 +201,7 @@ func (c *SearchCache) deleteEntry(key string) {
 	}
 }
 
-// cleanupLoop 定期清理过期条目
+// cleanupLoop 定期清理过期条目.
 func (c *SearchCache) cleanupLoop() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -216,7 +216,7 @@ func (c *SearchCache) cleanupLoop() {
 	}
 }
 
-// cleanup 清理过期条目
+// cleanup 清理过期条目.
 func (c *SearchCache) cleanup() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -235,7 +235,7 @@ func (c *SearchCache) cleanup() {
 	}
 }
 
-// Stop 停止缓存
+// Stop 停止缓存.
 func (c *SearchCache) Stop() {
 	close(c.stopChan)
 }

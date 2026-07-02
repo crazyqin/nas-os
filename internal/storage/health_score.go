@@ -9,70 +9,70 @@ import (
 	"time"
 )
 
-// 各评分维度权重常量
+// 各评分维度权重常量.
 const (
-	// WeightSMART SMART属性评分权重
+	// WeightSMART SMART属性评分权重.
 	WeightSMART float64 = 0.40
-	// WeightUsage 磁盘使用率评分权重
+	// WeightUsage 磁盘使用率评分权重.
 	WeightUsage float64 = 0.15
-	// WeightAge 磁盘年龄评分权重
+	// WeightAge 磁盘年龄评分权重.
 	WeightAge float64 = 0.15
-	// WeightIOError I/O错误率评分权重
+	// WeightIOError I/O错误率评分权重.
 	WeightIOError float64 = 0.15
-	// WeightTemperature 温度评分权重
+	// WeightTemperature 温度评分权重.
 	WeightTemperature float64 = 0.15
 
 	// 健康等级阈值
-	// ThresholdExcellent 优秀等级最低分
+	// ThresholdExcellent 优秀等级最低分.
 	ThresholdExcellent float64 = 90.0
-	// ThresholdGood 良好等级最低分
+	// ThresholdGood 良好等级最低分.
 	ThresholdGood float64 = 70.0
-	// ThresholdFair 一般等级最低分
+	// ThresholdFair 一般等级最低分.
 	ThresholdFair float64 = 50.0
-	// ThresholdPoor 较差等级最低分
+	// ThresholdPoor 较差等级最低分.
 	ThresholdPoor float64 = 30.0
 
 	// 温度阈值
-	// TempOptimal 最佳运行温度上限
+	// TempOptimal 最佳运行温度上限.
 	TempOptimal float64 = 45.0
-	// TempWarning 温度警告阈值
+	// TempWarning 温度警告阈值.
 	TempWarning float64 = 55.0
-	// TempCritical 温度严重阈值
+	// TempCritical 温度严重阈值.
 	TempCritical float64 = 65.0
 
 	// 使用率阈值
-	// UsageWarning 使用率警告阈值（百分比）
+	// UsageWarning 使用率警告阈值（百分比）.
 	UsageWarning float64 = 90.0
-	// UsageCritical 使用率严重阈值（百分比）
+	// UsageCritical 使用率严重阈值（百分比）.
 	UsageCritical float64 = 95.0
 
 	// 年龄阈值（年）
-	// AgeOptimal 最佳使用年限
+	// AgeOptimal 最佳使用年限.
 	AgeOptimal float64 = 3.0
-	// AgeWarning 使用年限警告
+	// AgeWarning 使用年限警告.
 	AgeWarning float64 = 5.0
-	// AgeCritical 使用年限严重
+	// AgeCritical 使用年限严重.
 	AgeCritical float64 = 7.0
 )
 
-// HealthLevel 健康等级类型
+// HealthLevel 健康等级类型.
 type HealthLevel string
 
 const (
-	// HealthLevelExcellent 优秀（90-100分）
+	// HealthLevelExcellent 优秀（90-100分）.
 	HealthLevelExcellent HealthLevel = "Excellent"
-	// HealthLevelGood 良好（70-89分）
+	// HealthLevelGood 良好（70-89分）.
 	HealthLevelGood HealthLevel = "Good"
-	// HealthLevelFair 一般（50-69分）
+	// HealthLevelFair 一般（50-69分）.
 	HealthLevelFair HealthLevel = "Fair"
-	// HealthLevelPoor 较差（30-49分）
+	// HealthLevelPoor 较差（30-49分）.
 	HealthLevelPoor HealthLevel = "Poor"
-	// HealthLevelCritical 严重（<30分）
+	// HealthLevelCritical 严重（<30分）.
 	HealthLevelCritical HealthLevel = "Critical"
 )
 
 // SMARTMetrics SMART属性指标
-// 用于健康评分的SMART数据提取
+// 用于健康评分的SMART数据提取.
 type SMARTMetrics struct {
 	// 重分配扇区数
 	ReallocatedSectors uint64 `json:"reallocatedSectors"`
@@ -102,7 +102,7 @@ type SMARTMetrics struct {
 	NVMePercentageUsed int `json:"nvmePercentageUsed"`
 }
 
-// HealthScoreResult 健康评分结果
+// HealthScoreResult 健康评分结果.
 type HealthScoreResult struct {
 	// 总分（0-100）
 	Total float64 `json:"total"`
@@ -127,7 +127,7 @@ type HealthScoreResult struct {
 }
 
 // HealthTrend 健康趋势数据
-// 用于预测性故障分析
+// 用于预测性故障分析.
 type HealthTrend struct {
 	// 设备标识
 	Device string `json:"device"`
@@ -145,13 +145,13 @@ type HealthTrend struct {
 	Confidence float64 `json:"confidence"`
 }
 
-// TrendPoint 趋势数据点
+// TrendPoint 趋势数据点.
 type TrendPoint struct {
 	Timestamp time.Time `json:"timestamp"`
 	Score     float64   `json:"score"`
 }
 
-// DiskHealthReport 磁盘健康报告
+// DiskHealthReport 磁盘健康报告.
 type DiskHealthReport struct {
 	// 设备标识
 	Device string `json:"device"`
@@ -179,7 +179,7 @@ type DiskHealthReport struct {
 	Recommendations []string `json:"recommendations,omitempty"`
 }
 
-// HealthScoreEngine 健康评分引擎
+// HealthScoreEngine 健康评分引擎.
 type HealthScoreEngine struct {
 	mu sync.RWMutex
 
@@ -193,7 +193,7 @@ type HealthScoreEngine struct {
 	failureThreshold float64
 }
 
-// NewHealthScoreEngine 创建健康评分引擎
+// NewHealthScoreEngine 创建健康评分引擎.
 func NewHealthScoreEngine() *HealthScoreEngine {
 	return &HealthScoreEngine{
 		history:          make(map[string][]TrendPoint),
@@ -205,7 +205,7 @@ func NewHealthScoreEngine() *HealthScoreEngine {
 // CalculateScore 计算磁盘健康评分
 // disk: 磁盘健康信息
 // usagePercent: 磁盘使用率百分比
-// manufactureDate: 磁盘出厂日期（用于计算年龄，可选）
+// manufactureDate: 磁盘出厂日期（用于计算年龄，可选）.
 func (e *HealthScoreEngine) CalculateScore(disk *DiskHealth, usagePercent float64, manufactureDate *time.Time) *HealthScoreResult {
 	if disk == nil {
 		return &HealthScoreResult{
@@ -259,7 +259,7 @@ func (e *HealthScoreEngine) CalculateScore(disk *DiskHealth, usagePercent float6
 	return score
 }
 
-// GetHealthLevel 根据分数获取健康等级
+// GetHealthLevel 根据分数获取健康等级.
 func (e *HealthScoreEngine) GetHealthLevel(score float64) HealthLevel {
 	switch {
 	case score >= ThresholdExcellent:
@@ -276,7 +276,7 @@ func (e *HealthScoreEngine) GetHealthLevel(score float64) HealthLevel {
 }
 
 // PredictFailure 预测磁盘故障概率
-// 基于历史评分趋势进行线性回归预测
+// 基于历史评分趋势进行线性回归预测.
 func (e *HealthScoreEngine) PredictFailure(device string) *HealthTrend {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -355,7 +355,7 @@ func (e *HealthScoreEngine) PredictFailure(device string) *HealthTrend {
 	return trend
 }
 
-// GenerateReport 生成磁盘健康报告
+// GenerateReport 生成磁盘健康报告.
 func (e *HealthScoreEngine) GenerateReport(disk *DiskHealth, usagePercent float64, manufactureDate *time.Time, ioErrorRate float64) *DiskHealthReport {
 	if disk == nil {
 		return &DiskHealthReport{
@@ -396,7 +396,7 @@ func (e *HealthScoreEngine) GenerateReport(disk *DiskHealth, usagePercent float6
 
 // ============ 内部评分计算方法 ============
 
-// calculateSMARTScore 计算SMART属性评分（满分100）
+// calculateSMARTScore 计算SMART属性评分（满分100）.
 func (e *HealthScoreEngine) calculateSMARTScore(m SMARTMetrics) float64 {
 	score := 100.0
 
@@ -453,7 +453,7 @@ func (e *HealthScoreEngine) calculateSMARTScore(m SMARTMetrics) float64 {
 	return clampScore(score)
 }
 
-// calculateUsageScore 计算磁盘使用率评分（满分100）
+// calculateUsageScore 计算磁盘使用率评分（满分100）.
 func (e *HealthScoreEngine) calculateUsageScore(usagePercent float64) float64 {
 	switch {
 	case usagePercent <= 70:
@@ -474,7 +474,7 @@ func (e *HealthScoreEngine) calculateUsageScore(usagePercent float64) float64 {
 	}
 }
 
-// calculateAgeScore 计算磁盘年龄评分（满分100）
+// calculateAgeScore 计算磁盘年龄评分（满分100）.
 func (e *HealthScoreEngine) calculateAgeScore(powerOnHours uint64, manufactureDate *time.Time) float64 {
 	var ageYears float64
 
@@ -500,7 +500,7 @@ func (e *HealthScoreEngine) calculateAgeScore(powerOnHours uint64, manufactureDa
 	}
 }
 
-// calculateIOErrorScore 计算I/O错误率评分（满分100）
+// calculateIOErrorScore 计算I/O错误率评分（满分100）.
 func (e *HealthScoreEngine) calculateIOErrorScore(m SMARTMetrics) float64 {
 	// 综合评估各种错误率
 	totalErrorRate := m.SeekErrorRate + m.ReadErrorRate + m.WriteErrorRate
@@ -523,7 +523,7 @@ func (e *HealthScoreEngine) calculateIOErrorScore(m SMARTMetrics) float64 {
 	}
 }
 
-// calculateTemperatureScore 计算温度评分（满分100）
+// calculateTemperatureScore 计算温度评分（满分100）.
 func (e *HealthScoreEngine) calculateTemperatureScore(tempCelsius float64) float64 {
 	switch {
 	case tempCelsius <= TempOptimal:
@@ -540,7 +540,7 @@ func (e *HealthScoreEngine) calculateTemperatureScore(tempCelsius float64) float
 	}
 }
 
-// calculateFailureProbability 计算故障概率
+// calculateFailureProbability 计算故障概率.
 func (e *HealthScoreEngine) calculateFailureProbability(currentScore, slope, stdDev float64) float64 {
 	// 基于当前分数的权重
 	scoreWeight := 0.0
@@ -573,7 +573,7 @@ func (e *HealthScoreEngine) calculateFailureProbability(currentScore, slope, std
 	return clamp(probability, 0, 1)
 }
 
-// calculateConfidence 计算预测置信度
+// calculateConfidence 计算预测置信度.
 func (e *HealthScoreEngine) calculateConfidence(dataPoints float64, stdDev float64) float64 {
 	// 数据点越多，置信度越高
 	pointConfidence := math.Min(dataPoints/24.0, 1.0) // 24个数据点达到满置信度
@@ -586,7 +586,7 @@ func (e *HealthScoreEngine) calculateConfidence(dataPoints float64, stdDev float
 
 // ============ 辅助方法 ============
 
-// extractSMARTMetrics 从DiskHealth提取SMART指标
+// extractSMARTMetrics 从DiskHealth提取SMART指标.
 func extractSMARTMetrics(disk *DiskHealth) SMARTMetrics {
 	return SMARTMetrics{
 		ReallocatedSectors:   disk.ReallocatedSectors,
@@ -605,7 +605,7 @@ func extractSMARTMetrics(disk *DiskHealth) SMARTMetrics {
 	}
 }
 
-// recordHistory 记录评分历史
+// recordHistory 记录评分历史.
 func (e *HealthScoreEngine) recordHistory(device string, score float64) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -623,7 +623,7 @@ func (e *HealthScoreEngine) recordHistory(device string, score float64) {
 	}
 }
 
-// collectDeductions 收集扣分原因
+// collectDeductions 收集扣分原因.
 func (e *HealthScoreEngine) collectDeductions(m SMARTMetrics, usagePercent float64, powerOnHours uint64, manufactureDate *time.Time) []string {
 	var deductions []string
 
@@ -672,7 +672,7 @@ func (e *HealthScoreEngine) collectDeductions(m SMARTMetrics, usagePercent float
 	return deductions
 }
 
-// collectAlerts 收集告警建议
+// collectAlerts 收集告警建议.
 func (e *HealthScoreEngine) collectAlerts(m SMARTMetrics, usagePercent float64, powerOnHours uint64, manufactureDate *time.Time, totalScore float64) []string {
 	var alerts []string
 
@@ -700,7 +700,7 @@ func (e *HealthScoreEngine) collectAlerts(m SMARTMetrics, usagePercent float64, 
 	return alerts
 }
 
-// generateRecommendations 生成维护建议
+// generateRecommendations 生成维护建议.
 func (e *HealthScoreEngine) generateRecommendations(score *HealthScoreResult, m SMARTMetrics, usagePercent, ageYears, ioErrorRate float64, trend *HealthTrend) []string {
 	var recs []string
 
@@ -757,7 +757,7 @@ func (e *HealthScoreEngine) generateRecommendations(score *HealthScoreResult, m 
 	return recs
 }
 
-// getAgeYears 获取磁盘使用年限
+// getAgeYears 获取磁盘使用年限.
 func (e *HealthScoreEngine) getAgeYears(powerOnHours uint64, manufactureDate *time.Time) float64 {
 	if manufactureDate != nil {
 		return time.Since(*manufactureDate).Hours() / (24 * 365.25)
@@ -765,12 +765,12 @@ func (e *HealthScoreEngine) getAgeYears(powerOnHours uint64, manufactureDate *ti
 	return float64(powerOnHours) / (16 * 365.25) // 假设每天通电16小时
 }
 
-// clampScore 将分数限制在0-100范围内
+// clampScore 将分数限制在0-100范围内.
 func clampScore(score float64) float64 {
 	return clamp(score, 0, 100)
 }
 
-// clamp 将值限制在指定范围内
+// clamp 将值限制在指定范围内.
 func clamp(value, min, max float64) float64 {
 	if value < min {
 		return min
@@ -781,14 +781,14 @@ func clamp(value, min, max float64) float64 {
 	return value
 }
 
-// ClearHistory 清除指定设备的历史记录
+// ClearHistory 清除指定设备的历史记录.
 func (e *HealthScoreEngine) ClearHistory(device string) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	delete(e.history, device)
 }
 
-// GetHistory 获取指定设备的历史记录
+// GetHistory 获取指定设备的历史记录.
 func (e *HealthScoreEngine) GetHistory(device string) []TrendPoint {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -802,7 +802,7 @@ func (e *HealthScoreEngine) GetHistory(device string) []TrendPoint {
 	return result
 }
 
-// SetFailureThreshold 设置故障预测阈值分数
+// SetFailureThreshold 设置故障预测阈值分数.
 func (e *HealthScoreEngine) SetFailureThreshold(threshold float64) {
 	e.mu.Lock()
 	defer e.mu.Unlock()

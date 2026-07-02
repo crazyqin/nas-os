@@ -6,37 +6,37 @@ import (
 	"sync"
 )
 
-// IPv6Config IPv6配置
+// IPv6Config IPv6配置.
 type IPv6Config struct {
-	Enabled        bool
-	AutoConfig     bool
-	DHCPv6         bool
-	PrivacyExt     bool
-	LinkLocal      bool
-	GlobalAddrs    []string
-	Gateway        string
-	DNS            []string
+	Enabled     bool
+	AutoConfig  bool
+	DHCPv6      bool
+	PrivacyExt  bool
+	LinkLocal   bool
+	GlobalAddrs []string
+	Gateway     string
+	DNS         []string
 }
 
-// IPv6Manager IPv6管理器
+// IPv6Manager IPv6管理器.
 type IPv6Manager struct {
-	config    IPv6Config
+	config     IPv6Config
 	interfaces map[string]*InterfaceInfo
 	mu         sync.RWMutex
 }
 
-// InterfaceInfo 网络接口信息
+// InterfaceInfo 网络接口信息.
 type InterfaceInfo struct {
-	Name         string
-	MTU          int
-	LinkLocal    string
-	GlobalAddrs  []string
-	Status       string
-	RxBytes      int64
-	TxBytes      int64
+	Name        string
+	MTU         int
+	LinkLocal   string
+	GlobalAddrs []string
+	Status      string
+	RxBytes     int64
+	TxBytes     int64
 }
 
-// NewIPv6Manager 创建IPv6管理器
+// NewIPv6Manager 创建IPv6管理器.
 func NewIPv6Manager(config IPv6Config) *IPv6Manager {
 	return &IPv6Manager{
 		config:     config,
@@ -44,7 +44,7 @@ func NewIPv6Manager(config IPv6Config) *IPv6Manager {
 	}
 }
 
-// Init 初始化IPv6网络
+// Init 初始化IPv6网络.
 func (m *IPv6Manager) Init() error {
 	if !m.config.Enabled {
 		return nil
@@ -70,19 +70,19 @@ func (m *IPv6Manager) Init() error {
 	return nil
 }
 
-// enableForwarding 启用IPv6转发
+// enableForwarding 启用IPv6转发.
 func (m *IPv6Manager) enableForwarding() error {
 	// 写入/proc/sys/net/ipv6/conf/all/forwarding
 	return nil // 简化实现
 }
 
-// enablePrivacyExtensions 启用隐私扩展
+// enablePrivacyExtensions 启用隐私扩展.
 func (m *IPv6Manager) enablePrivacyExtensions() error {
 	// 写入/proc/sys/net/ipv6/conf/all/use_tempaddr
 	return nil // 简化实现
 }
 
-// detectInterfaces 检测网络接口
+// detectInterfaces 检测网络接口.
 func (m *IPv6Manager) detectInterfaces() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -132,7 +132,7 @@ func (m *IPv6Manager) detectInterfaces() error {
 	return nil
 }
 
-// GetInterfaceInfo 获取接口信息
+// GetInterfaceInfo 获取接口信息.
 func (m *IPv6Manager) GetInterfaceInfo(name string) (*InterfaceInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -145,7 +145,7 @@ func (m *IPv6Manager) GetInterfaceInfo(name string) (*InterfaceInfo, error) {
 	return info, nil
 }
 
-// GetAllInterfaces 获取所有接口
+// GetAllInterfaces 获取所有接口.
 func (m *IPv6Manager) GetAllInterfaces() map[string]*InterfaceInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -158,7 +158,7 @@ func (m *IPv6Manager) GetAllInterfaces() map[string]*InterfaceInfo {
 	return result
 }
 
-// SetAddress 设置IPv6地址
+// SetAddress 设置IPv6地址.
 func (m *IPv6Manager) SetAddress(iface, addr string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -178,7 +178,7 @@ func (m *IPv6Manager) SetAddress(iface, addr string) error {
 	return nil
 }
 
-// RemoveAddress 移除IPv6地址
+// RemoveAddress 移除IPv6地址.
 func (m *IPv6Manager) RemoveAddress(iface, addr string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -198,7 +198,7 @@ func (m *IPv6Manager) RemoveAddress(iface, addr string) error {
 	return fmt.Errorf("address not found: %s", addr)
 }
 
-// EnableDHCPv6 启用DHCPv6
+// EnableDHCPv6 启用DHCPv6.
 func (m *IPv6Manager) EnableDHCPv6(iface string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -211,33 +211,33 @@ func (m *IPv6Manager) EnableDHCPv6(iface string) error {
 	return nil // 简化实现
 }
 
-// GetDNSConfig 获取DNS配置
+// GetDNSConfig 获取DNS配置.
 func (m *IPv6Manager) GetDNSConfig() []string {
 	return m.config.DNS
 }
 
-// SetDNSConfig 设置DNS配置
+// SetDNSConfig 设置DNS配置.
 func (m *IPv6Manager) SetDNSConfig(dns []string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.config.DNS = dns
 }
 
-// IsIPv6Enabled 检查IPv6是否启用
+// IsIPv6Enabled 检查IPv6是否启用.
 func (m *IPv6Manager) IsIPv6Enabled() bool {
 	return m.config.Enabled
 }
 
-// GetStatus 获取IPv6状态
+// GetStatus 获取IPv6状态.
 func (m *IPv6Manager) GetStatus() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	return map[string]interface{}{
-		"enabled":        m.config.Enabled,
-		"auto_config":    m.config.AutoConfig,
-		"dhcpv6":         m.config.DHCPv6,
-		"privacy_ext":    m.config.PrivacyExt,
+		"enabled":         m.config.Enabled,
+		"auto_config":     m.config.AutoConfig,
+		"dhcpv6":          m.config.DHCPv6,
+		"privacy_ext":     m.config.PrivacyExt,
 		"interface_count": len(m.interfaces),
 	}
 }

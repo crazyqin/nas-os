@@ -8,12 +8,12 @@ import (
 	"time"
 )
 
-// Ranker 结果排序器
+// Ranker 结果排序器.
 type Ranker struct {
 	weights *RankWeights
 }
 
-// RankWeights 排序权重配置
+// RankWeights 排序权重配置.
 type RankWeights struct {
 	TextRelevance    float64 `json:"textRelevance"`    // 文本相关性权重
 	VectorSimilarity float64 `json:"vectorSimilarity"` // 语义相似度权重
@@ -24,7 +24,7 @@ type RankWeights struct {
 	TagMatch         float64 `json:"tagMatch"`         // 标签匹配权重
 }
 
-// NewRanker 创建排序器
+// NewRanker 创建排序器.
 func NewRanker(weights *RankWeights) *Ranker {
 	if weights == nil {
 		weights = DefaultRankWeights()
@@ -32,7 +32,7 @@ func NewRanker(weights *RankWeights) *Ranker {
 	return &Ranker{weights: weights}
 }
 
-// DefaultRankWeights 默认排序权重
+// DefaultRankWeights 默认排序权重.
 func DefaultRankWeights() *RankWeights {
 	return &RankWeights{
 		TextRelevance:    0.35,
@@ -45,7 +45,7 @@ func DefaultRankWeights() *RankWeights {
 	}
 }
 
-// Rank 排序结果
+// Rank 排序结果.
 func (r *Ranker) Rank(results []SearchResult, query *SearchQuery) []SearchResult {
 	if len(results) == 0 {
 		return results
@@ -64,7 +64,7 @@ func (r *Ranker) Rank(results []SearchResult, query *SearchQuery) []SearchResult
 	return results
 }
 
-// calculateScore 计算综合得分
+// calculateScore 计算综合得分.
 func (r *Ranker) calculateScore(result SearchResult, query *SearchQuery) float64 {
 	score := 0.0
 
@@ -95,13 +95,13 @@ func (r *Ranker) calculateScore(result SearchResult, query *SearchQuery) float64
 	return score
 }
 
-// normalizeTextScore 归一化文本得分
+// normalizeTextScore 归一化文本得分.
 func (r *Ranker) normalizeTextScore(score float64) float64 {
 	// 使用 sigmoid 函数归一化到 0-1
 	return 1.0 / (1.0 + math.Exp(-score/10))
 }
 
-// calculateRecencyScore 计算时间新鲜度得分
+// calculateRecencyScore 计算时间新鲜度得分.
 func (r *Ranker) calculateRecencyScore(modifiedAt time.Time) float64 {
 	days := time.Since(modifiedAt).Hours() / 24
 
@@ -121,7 +121,7 @@ func (r *Ranker) calculateRecencyScore(modifiedAt time.Time) float64 {
 	return 0.2
 }
 
-// calculateNameMatchScore 计算文件名匹配得分
+// calculateNameMatchScore 计算文件名匹配得分.
 func (r *Ranker) calculateNameMatchScore(fileName, keyword string) float64 {
 	nameLower := strings.ToLower(fileName)
 	keywordLower := strings.ToLower(keyword)
@@ -162,7 +162,7 @@ func (r *Ranker) calculateNameMatchScore(fileName, keyword string) float64 {
 	return 0.0
 }
 
-// calculateTagMatchScore 计算标签匹配得分
+// calculateTagMatchScore 计算标签匹配得分.
 func (r *Ranker) calculateTagMatchScore(tags []string, keyword string) float64 {
 	if len(tags) == 0 {
 		return 0.0
@@ -191,7 +191,7 @@ func (r *Ranker) calculateTagMatchScore(tags []string, keyword string) float64 {
 	return maxScore
 }
 
-// calculateSizeScore 计算文件大小得分 (偏好中等大小文件)
+// calculateSizeScore 计算文件大小得分 (偏好中等大小文件).
 func (r *Ranker) calculateSizeScore(size int64) float64 {
 	// 100KB - 10MB 的文件得分最高
 	const (
@@ -214,7 +214,7 @@ func (r *Ranker) calculateSizeScore(size int64) float64 {
 	return math.Max(0.2, ratio)
 }
 
-// RankByTime 按时间排序
+// RankByTime 按时间排序.
 func (r *Ranker) RankByTime(results []SearchResult, ascending bool) []SearchResult {
 	sort.Slice(results, func(i, j int) bool {
 		if ascending {
@@ -225,7 +225,7 @@ func (r *Ranker) RankByTime(results []SearchResult, ascending bool) []SearchResu
 	return results
 }
 
-// RankBySize 按大小排序
+// RankBySize 按大小排序.
 func (r *Ranker) RankBySize(results []SearchResult, ascending bool) []SearchResult {
 	sort.Slice(results, func(i, j int) bool {
 		if ascending {
@@ -236,7 +236,7 @@ func (r *Ranker) RankBySize(results []SearchResult, ascending bool) []SearchResu
 	return results
 }
 
-// RankByRelevance 按相关性排序
+// RankByRelevance 按相关性排序.
 func (r *Ranker) RankByRelevance(results []SearchResult) []SearchResult {
 	sort.Slice(results, func(i, j int) bool {
 		return results[i].Score > results[j].Score
@@ -244,7 +244,7 @@ func (r *Ranker) RankByRelevance(results []SearchResult) []SearchResult {
 	return results
 }
 
-// RankByFrequency 按使用频率排序
+// RankByFrequency 按使用频率排序.
 func (r *Ranker) RankByFrequency(results []SearchResult, frequencies map[string]int64) []SearchResult {
 	sort.Slice(results, func(i, j int) bool {
 		freqI := frequencies[results[i].ID]
@@ -254,7 +254,7 @@ func (r *Ranker) RankByFrequency(results []SearchResult, frequencies map[string]
 	return results
 }
 
-// Deduplicate 去重
+// Deduplicate 去重.
 func (r *Ranker) Deduplicate(results []SearchResult) []SearchResult {
 	seen := make(map[string]bool)
 	unique := make([]SearchResult, 0, len(results))
@@ -269,7 +269,7 @@ func (r *Ranker) Deduplicate(results []SearchResult) []SearchResult {
 	return unique
 }
 
-// BoostResults 提升特定结果的得分
+// BoostResults 提升特定结果的得分.
 func (r *Ranker) BoostResults(results []SearchResult, boostFunc func(*SearchResult) float64) []SearchResult {
 	for i := range results {
 		boost := boostFunc(&results[i])
@@ -278,7 +278,7 @@ func (r *Ranker) BoostResults(results []SearchResult, boostFunc func(*SearchResu
 	return results
 }
 
-// FilterByScore 按得分过滤
+// FilterByScore 按得分过滤.
 func (r *Ranker) FilterByScore(results []SearchResult, minScore float64) []SearchResult {
 	filtered := make([]SearchResult, 0)
 	for _, result := range results {
@@ -289,7 +289,7 @@ func (r *Ranker) FilterByScore(results []SearchResult, minScore float64) []Searc
 	return filtered
 }
 
-// NormalizeScores 归一化得分到 0-1 范围
+// NormalizeScores 归一化得分到 0-1 范围.
 func (r *Ranker) NormalizeScores(results []SearchResult) []SearchResult {
 	if len(results) == 0 {
 		return results

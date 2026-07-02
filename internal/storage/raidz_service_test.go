@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// TestRAIDZExpansionServiceCreation 测试服务创建
+// TestRAIDZExpansionServiceCreation 测试服务创建.
 func TestRAIDZExpansionServiceCreation(t *testing.T) {
 	service, err := NewRAIDZExpansionService("")
 	if err != nil {
@@ -39,7 +39,7 @@ func TestRAIDZExpansionServiceCreation(t *testing.T) {
 	}
 }
 
-// TestExpansionStatus 测试扩展状态常量
+// TestExpansionStatus 测试扩展状态常量.
 func TestExpansionStatus(t *testing.T) {
 	statuses := []ExpansionStatus{
 		StatusIdle,
@@ -58,7 +58,7 @@ func TestExpansionStatus(t *testing.T) {
 	}
 }
 
-// TestExpansionTask 测试扩展任务结构
+// TestExpansionTask 测试扩展任务结构.
 func TestExpansionTask(t *testing.T) {
 	task := &ExpansionTask{
 		ID:         "test-task-001",
@@ -85,7 +85,7 @@ func TestExpansionTask(t *testing.T) {
 	}
 }
 
-// TestGetExpansionStatus 测试获取扩展状态
+// TestGetExpansionStatus 测试获取扩展状态.
 func TestGetExpansionStatus(t *testing.T) {
 	service, err := NewRAIDZExpansionService("")
 	if err != nil {
@@ -104,7 +104,7 @@ func TestGetExpansionStatus(t *testing.T) {
 	}
 }
 
-// TestGetAllActiveTasks 测试获取所有活跃任务
+// TestGetAllActiveTasks 测试获取所有活跃任务.
 func TestGetAllActiveTasks(t *testing.T) {
 	service, err := NewRAIDZExpansionService("")
 	if err != nil {
@@ -119,7 +119,7 @@ func TestGetAllActiveTasks(t *testing.T) {
 	}
 }
 
-// TestGetTaskHistory 测试获取任务历史
+// TestGetTaskHistory 测试获取任务历史.
 func TestGetTaskHistory(t *testing.T) {
 	service, err := NewRAIDZExpansionService("")
 	if err != nil {
@@ -140,7 +140,7 @@ func TestGetTaskHistory(t *testing.T) {
 	}
 }
 
-// TestPreCheckResult 测试预检查结果
+// TestPreCheckResult 测试预检查结果.
 func TestPreCheckResult(t *testing.T) {
 	check := PreCheckResult{
 		Name:     "pool_health",
@@ -162,7 +162,7 @@ func TestPreCheckResult(t *testing.T) {
 	}
 }
 
-// TestDiskRequirements 测试磁盘要求
+// TestDiskRequirements 测试磁盘要求.
 func TestDiskRequirements(t *testing.T) {
 	req := DiskRequirements{
 		MinSizeGB:     500,
@@ -180,7 +180,7 @@ func TestDiskRequirements(t *testing.T) {
 	}
 }
 
-// TestExpansionProgress 测试扩展进度
+// TestExpansionProgress 测试扩展进度.
 func TestExpansionProgress(t *testing.T) {
 	progress := &ExpansionProgress{
 		TaskID:         "test-001",
@@ -204,7 +204,7 @@ func TestExpansionProgress(t *testing.T) {
 	}
 }
 
-// TestAvailableDiskInfo 测试可用磁盘信息
+// TestAvailableDiskInfo 测试可用磁盘信息.
 func TestAvailableDiskInfo(t *testing.T) {
 	disk := AvailableDiskInfo{
 		Path:      "/dev/sda",
@@ -228,7 +228,7 @@ func TestAvailableDiskInfo(t *testing.T) {
 	}
 }
 
-// TestExpansionEligibilityResult 测试扩展资格结果
+// TestExpansionEligibilityResult 测试扩展资格结果.
 func TestExpansionEligibilityResult(t *testing.T) {
 	result := &ExpansionEligibilityResult{
 		PoolName:        "testpool",
@@ -264,7 +264,7 @@ func TestExpansionEligibilityResult(t *testing.T) {
 	}
 }
 
-// TestRegisterCallbacks 测试回调注册
+// TestRegisterCallbacks 测试回调注册.
 func TestRegisterCallbacks(t *testing.T) {
 	service, err := NewRAIDZExpansionService("")
 	if err != nil {
@@ -295,7 +295,7 @@ func TestRegisterCallbacks(t *testing.T) {
 		service.progressCallbacks != nil, service.stateCallbacks != nil)
 }
 
-// TestIsAvailable 测试可用性检查
+// TestIsAvailable 测试可用性检查.
 func TestIsAvailable(t *testing.T) {
 	service, err := NewRAIDZExpansionService("")
 	if err != nil {
@@ -309,7 +309,7 @@ func TestIsAvailable(t *testing.T) {
 	// 不强制要求 true，因为测试环境可能无 ZFS
 }
 
-// TestCalculateCapacityGain 测试容量增益计算逻辑
+// TestCalculateCapacityGain 测试容量增益计算逻辑.
 func TestCalculateCapacityGainLogic(t *testing.T) {
 	// 模拟 RAIDZ1 4盘配置，每盘 1TB，总容量约 3TB（数据）
 	// 扩展后 5盘，容量增益 = 1TB * 4/5 = 0.8TB
@@ -335,7 +335,7 @@ func TestCalculateCapacityGainLogic(t *testing.T) {
 		expectedGain/(1024*1024*1024))
 }
 
-// TestGenerateTaskID 测试任务 ID 生成
+// TestGenerateTaskID 测试任务 ID 生成.
 func TestGenerateTaskID(t *testing.T) {
 	id1 := generateTaskID("testpool")
 	id2 := generateTaskID("testpool")
@@ -353,7 +353,7 @@ func TestGenerateTaskID(t *testing.T) {
 	t.Logf("Generated task IDs: %s, %s", id1, id2)
 }
 
-// TestContextCancellation 测试上下文取消处理
+// TestContextCancellation 测试上下文取消处理.
 func TestContextCancellation(t *testing.T) {
 	service, err := NewRAIDZExpansionService("")
 	if err != nil {
@@ -375,7 +375,7 @@ func TestContextCancellation(t *testing.T) {
 	t.Logf("Context cancellation handled correctly")
 }
 
-// TestConcurrentAccess 测试并发访问
+// TestConcurrentAccess 测试并发访问.
 func TestConcurrentAccess(t *testing.T) {
 	service, err := NewRAIDZExpansionService("")
 	if err != nil {

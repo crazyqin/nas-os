@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// MemberRole 成员角色
+// MemberRole 成员角色.
 type MemberRole string
 
 const (
@@ -20,7 +20,7 @@ const (
 	RoleGuest  MemberRole = "guest"
 )
 
-// MemberStatus 成员状态
+// MemberStatus 成员状态.
 type MemberStatus string
 
 const (
@@ -29,7 +29,7 @@ const (
 	MemberAway    MemberStatus = "away"
 )
 
-// FamilyMember 家庭成员
+// FamilyMember 家庭成员.
 type FamilyMember struct {
 	ID           string       `json:"id"`
 	Name         string       `json:"name"`
@@ -44,7 +44,7 @@ type FamilyMember struct {
 	LastSeen     time.Time    `json:"last_seen"`
 }
 
-// Chore 家务任务
+// Chore 家务任务.
 type Chore struct {
 	ID          string     `json:"id"`
 	Title       string     `json:"title"`
@@ -57,7 +57,7 @@ type Chore struct {
 	CreatedAt   time.Time  `json:"created_at"`
 }
 
-// Allowance 零花钱记录
+// Allowance 零花钱记录.
 type Allowance struct {
 	ID       string    `json:"id"`
 	MemberID string    `json:"member_id"`
@@ -67,7 +67,7 @@ type Allowance struct {
 	Date     time.Time `json:"date"`
 }
 
-// FamilyNote 家庭便签
+// FamilyNote 家庭便签.
 type FamilyNote struct {
 	ID        string    `json:"id"`
 	AuthorID  string    `json:"author_id"`
@@ -79,7 +79,7 @@ type FamilyNote struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// ScreenTime 屏幕时间
+// ScreenTime 屏幕时间.
 type ScreenTime struct {
 	MemberID string         `json:"member_id"`
 	Date     string         `json:"date"`
@@ -88,14 +88,14 @@ type ScreenTime struct {
 	AppUsage map[string]int `json:"app_usage,omitempty"`
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	FamilyName        string `json:"family_name"`
 	MaxMembers        int    `json:"max_members"`
 	AllowanceCurrency string `json:"allowance_currency"`
 }
 
-// Manager 管理器
+// Manager 管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	members    map[string]*FamilyMember
@@ -115,7 +115,7 @@ var (
 	ErrDuplicateMember = errors.New("member already exists")
 )
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(dataFile string) *Manager {
 	return &Manager{
 		members:    make(map[string]*FamilyMember),
@@ -131,10 +131,10 @@ func NewManager(dataFile string) *Manager {
 	}
 }
 
-// Initialize 初始化
+// Initialize 初始化.
 func (m *Manager) Initialize() error { return m.load() }
 
-// AddMember 添加成员
+// AddMember 添加成员.
 func (m *Manager) AddMember(member *FamilyMember) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -150,7 +150,7 @@ func (m *Manager) AddMember(member *FamilyMember) error {
 	return m.save()
 }
 
-// UpdateMember 更新成员
+// UpdateMember 更新成员.
 func (m *Manager) UpdateMember(member *FamilyMember) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -161,7 +161,7 @@ func (m *Manager) UpdateMember(member *FamilyMember) error {
 	return m.save()
 }
 
-// RemoveMember 移除成员
+// RemoveMember 移除成员.
 func (m *Manager) RemoveMember(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -172,7 +172,7 @@ func (m *Manager) RemoveMember(id string) error {
 	return m.save()
 }
 
-// GetMember 获取成员
+// GetMember 获取成员.
 func (m *Manager) GetMember(id string) (*FamilyMember, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -183,7 +183,7 @@ func (m *Manager) GetMember(id string) (*FamilyMember, error) {
 	return member, nil
 }
 
-// ListMembers 列出成员
+// ListMembers 列出成员.
 func (m *Manager) ListMembers() []*FamilyMember {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -194,7 +194,7 @@ func (m *Manager) ListMembers() []*FamilyMember {
 	return result
 }
 
-// CreateChore 创建家务
+// CreateChore 创建家务.
 func (m *Manager) CreateChore(chore *Chore) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -203,7 +203,7 @@ func (m *Manager) CreateChore(chore *Chore) error {
 	return m.save()
 }
 
-// CompleteChore 完成家务
+// CompleteChore 完成家务.
 func (m *Manager) CompleteChore(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -217,7 +217,7 @@ func (m *Manager) CompleteChore(id string) error {
 	return m.save()
 }
 
-// ListChores 列出家务
+// ListChores 列出家务.
 func (m *Manager) ListChores(assigneeID string, pending bool) []*Chore {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -234,7 +234,7 @@ func (m *Manager) ListChores(assigneeID string, pending bool) []*Chore {
 	return result
 }
 
-// AddAllowance 添加零花钱
+// AddAllowance 添加零花钱.
 func (m *Manager) AddAllowance(a *Allowance) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -243,7 +243,7 @@ func (m *Manager) AddAllowance(a *Allowance) error {
 	return m.save()
 }
 
-// GetAllowance 获取零花钱记录
+// GetAllowance 获取零花钱记录.
 func (m *Manager) GetAllowance(memberID string) []*Allowance {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -256,7 +256,7 @@ func (m *Manager) GetAllowance(memberID string) []*Allowance {
 	return result
 }
 
-// GetBalance 获取余额
+// GetBalance 获取余额.
 func (m *Manager) GetBalance(memberID string) float64 {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -273,7 +273,7 @@ func (m *Manager) GetBalance(memberID string) float64 {
 	return balance
 }
 
-// CreateNote 创建便签
+// CreateNote 创建便签.
 func (m *Manager) CreateNote(note *FamilyNote) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -283,7 +283,7 @@ func (m *Manager) CreateNote(note *FamilyNote) error {
 	return m.save()
 }
 
-// UpdateNote 更新便签
+// UpdateNote 更新便签.
 func (m *Manager) UpdateNote(note *FamilyNote) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -295,7 +295,7 @@ func (m *Manager) UpdateNote(note *FamilyNote) error {
 	return m.save()
 }
 
-// DeleteNote 删除便签
+// DeleteNote 删除便签.
 func (m *Manager) DeleteNote(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -306,7 +306,7 @@ func (m *Manager) DeleteNote(id string) error {
 	return m.save()
 }
 
-// ListNotes 列出便签
+// ListNotes 列出便签.
 func (m *Manager) ListNotes(pinned bool) []*FamilyNote {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -320,7 +320,7 @@ func (m *Manager) ListNotes(pinned bool) []*FamilyNote {
 	return result
 }
 
-// SetScreenTime 设置屏幕时间
+// SetScreenTime 设置屏幕时间.
 func (m *Manager) SetScreenTime(st *ScreenTime) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -329,7 +329,7 @@ func (m *Manager) SetScreenTime(st *ScreenTime) error {
 	return m.save()
 }
 
-// GetScreenTime 获取屏幕时间
+// GetScreenTime 获取屏幕时间.
 func (m *Manager) GetScreenTime(memberID, date string) *ScreenTime {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -337,7 +337,7 @@ func (m *Manager) GetScreenTime(memberID, date string) *ScreenTime {
 	return m.screenTime[key]
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

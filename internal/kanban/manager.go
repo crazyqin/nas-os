@@ -10,14 +10,14 @@ import (
 	"time"
 )
 
-// Manager 看板管理器
+// Manager 看板管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	boards   map[string]*Board
 	activity []*Activity
 }
 
-// NewManager 创建看板管理器
+// NewManager 创建看板管理器.
 func NewManager() *Manager {
 	return &Manager{
 		boards:   make(map[string]*Board),
@@ -43,7 +43,7 @@ func (m *Manager) addActivity(boardID, cardID, userID, action, detail string) {
 	})
 }
 
-// ListBoards 列出所有看板
+// ListBoards 列出所有看板.
 func (m *Manager) ListBoards() []*Board {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -58,7 +58,7 @@ func (m *Manager) ListBoards() []*Board {
 	return boards
 }
 
-// CreateBoard 创建看板
+// CreateBoard 创建看板.
 func (m *Manager) CreateBoard(req *CreateBoardRequest) (*Board, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -96,7 +96,7 @@ func (m *Manager) CreateBoard(req *CreateBoardRequest) (*Board, error) {
 	return board, nil
 }
 
-// GetBoard 获取看板
+// GetBoard 获取看板.
 func (m *Manager) GetBoard(id string) (*Board, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -108,7 +108,7 @@ func (m *Manager) GetBoard(id string) (*Board, error) {
 	return board, nil
 }
 
-// DeleteBoard 删除看板
+// DeleteBoard 删除看板.
 func (m *Manager) DeleteBoard(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -120,7 +120,7 @@ func (m *Manager) DeleteBoard(id string) error {
 	return nil
 }
 
-// AddCard 添加卡片
+// AddCard 添加卡片.
 func (m *Manager) AddCard(boardID string, req *AddCardRequest) (*Card, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -171,7 +171,7 @@ func (m *Manager) AddCard(boardID string, req *AddCardRequest) (*Card, error) {
 	return card, nil
 }
 
-// MoveCard 移动卡片（拖拽）
+// MoveCard 移动卡片（拖拽）.
 func (m *Manager) MoveCard(boardID, cardID string, req *MoveCardRequest) (*Card, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -241,7 +241,7 @@ func (m *Manager) MoveCard(boardID, cardID string, req *MoveCardRequest) (*Card,
 	return card, nil
 }
 
-// AddLabel 添加标签
+// AddLabel 添加标签.
 func (m *Manager) AddLabel(boardID string, req *AddLabelRequest) (*Label, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -266,7 +266,7 @@ func (m *Manager) AddLabel(boardID string, req *AddLabelRequest) (*Label, error)
 	return label, nil
 }
 
-// DeleteLabel 删除标签
+// DeleteLabel 删除标签.
 func (m *Manager) DeleteLabel(boardID, labelID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -286,7 +286,7 @@ func (m *Manager) DeleteLabel(boardID, labelID string) error {
 	return fmt.Errorf("label not found: %s", labelID)
 }
 
-// AssignMember 分配成员
+// AssignMember 分配成员.
 func (m *Manager) AssignMember(boardID string, req *AssignMemberRequest) (*Member, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -323,7 +323,7 @@ func (m *Manager) AssignMember(boardID string, req *AssignMemberRequest) (*Membe
 	return member, nil
 }
 
-// RemoveMember 移除成员
+// RemoveMember 移除成员.
 func (m *Manager) RemoveMember(boardID, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -343,7 +343,7 @@ func (m *Manager) RemoveMember(boardID, userID string) error {
 	return fmt.Errorf("member not found: %s", userID)
 }
 
-// GetActivity 获取活动记录
+// GetActivity 获取活动记录.
 func (m *Manager) GetActivity(boardID string, limit int) []*Activity {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -361,7 +361,7 @@ func (m *Manager) GetActivity(boardID string, limit int) []*Activity {
 	return result
 }
 
-// GetBoardProgress 获取看板进度
+// GetBoardProgress 获取看板进度.
 func (m *Manager) GetBoardProgress(boardID string) (map[string]int, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

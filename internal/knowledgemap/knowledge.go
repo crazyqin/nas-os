@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Manager 知识图谱管理器
+// Manager 知识图谱管理器.
 type Manager struct {
 	mu              sync.RWMutex
 	nodes           map[string]*KnowledgeNode
@@ -19,7 +19,7 @@ type Manager struct {
 	reviewQueue     []string
 }
 
-// NewManager 创建知识图谱管理器
+// NewManager 创建知识图谱管理器.
 func NewManager() *Manager {
 	return &Manager{
 		nodes:           make(map[string]*KnowledgeNode),
@@ -29,17 +29,17 @@ func NewManager() *Manager {
 	}
 }
 
-// Handlers 知识图谱 API 处理器
+// Handlers 知识图谱 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	km := r.Group("/knowledgemap")
 	{

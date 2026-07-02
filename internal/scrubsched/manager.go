@@ -602,7 +602,7 @@ func (m *Manager) GetRecommendations() []ScrubRecommendation {
 		} else if time.Since(*p.LastRun) > 30*24*time.Hour {
 			recs = append(recs, ScrubRecommendation{
 				PoolID:   p.PoolID,
-				Reason:   fmt.Sprintf("距上次Scrub已超过30天，建议执行一次完整Scrub"),
+				Reason:   "距上次Scrub已超过30天，建议执行一次完整Scrub",
 				Priority: "normal",
 			})
 		}

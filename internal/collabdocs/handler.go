@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler handles HTTP requests for collaborative docs
+// Handler handles HTTP requests for collaborative docs.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler creates a new collaborative docs handler
+// NewHandler creates a new collaborative docs handler.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes registers the HTTP routes
+// RegisterRoutes registers the HTTP routes.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/docs", h.handleDocs)
 	mux.HandleFunc("/api/v1/doc", h.handleDoc)
@@ -27,7 +27,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/docs/stats", h.handleStats)
 }
 
-// handleDocs handles document listing and creation
+// handleDocs handles document listing and creation.
 func (h *Handler) handleDocs(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -56,7 +56,7 @@ func (h *Handler) handleDocs(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleDoc handles single document operations
+// handleDoc handles single document operations.
 func (h *Handler) handleDoc(w http.ResponseWriter, r *http.Request) {
 	docID := r.URL.Query().Get("id")
 	if docID == "" {
@@ -99,7 +99,7 @@ func (h *Handler) handleDoc(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleCollaborators handles collaborator management
+// handleCollaborators handles collaborator management.
 func (h *Handler) handleCollaborators(w http.ResponseWriter, r *http.Request) {
 	docID := r.URL.Query().Get("doc_id")
 	if docID == "" {
@@ -137,7 +137,7 @@ func (h *Handler) handleCollaborators(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleComments handles comment management
+// handleComments handles comment management.
 func (h *Handler) handleComments(w http.ResponseWriter, r *http.Request) {
 	docID := r.URL.Query().Get("doc_id")
 	if docID == "" {
@@ -172,7 +172,7 @@ func (h *Handler) handleComments(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleVersions handles version listing
+// handleVersions handles version listing.
 func (h *Handler) handleVersions(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -193,7 +193,7 @@ func (h *Handler) handleVersions(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleSession handles session management
+// handleSession handles session management.
 func (h *Handler) handleSession(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
@@ -222,7 +222,7 @@ func (h *Handler) handleSession(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleTemplates handles template listing
+// handleTemplates handles template listing.
 func (h *Handler) handleTemplates(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -237,7 +237,7 @@ func (h *Handler) handleTemplates(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleStats handles statistics requests
+// handleStats handles statistics requests.
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

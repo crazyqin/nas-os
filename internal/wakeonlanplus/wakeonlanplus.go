@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Device represents a network device
+// Device represents a network device.
 type Device struct {
 	Name       string    `json:"name"`
 	MACAddress string    `json:"mac_address"`
@@ -21,7 +21,7 @@ type Device struct {
 	GroupName  string    `json:"group_name,omitempty"`
 }
 
-// WakePolicy defines wake behavior
+// WakePolicy defines wake behavior.
 type WakePolicy struct {
 	Name         string        `json:"name"`
 	Trigger      string        `json:"trigger"` // manual, schedule, demand
@@ -31,7 +31,7 @@ type WakePolicy struct {
 }
 
 // WakeOnLANPlus provides intelligent device wake management
-// Inspired by fnOS on-demand disk wake
+// Inspired by fnOS on-demand disk wake.
 type WakeOnLANPlus struct {
 	mu       sync.RWMutex
 	devices  map[string]*Device
@@ -40,7 +40,7 @@ type WakeOnLANPlus struct {
 	stopCh   chan struct{}
 }
 
-// NewWakeOnLANPlus creates a new WakeOnLANPlus instance
+// NewWakeOnLANPlus creates a new WakeOnLANPlus instance.
 func NewWakeOnLANPlus() *WakeOnLANPlus {
 	return &WakeOnLANPlus{
 		devices:  make(map[string]*Device),
@@ -49,7 +49,7 @@ func NewWakeOnLANPlus() *WakeOnLANPlus {
 	}
 }
 
-// AddDevice adds a device to manage
+// AddDevice adds a device to manage.
 func (wol *WakeOnLANPlus) AddDevice(device Device) error {
 	wol.mu.Lock()
 	defer wol.mu.Unlock()
@@ -75,14 +75,14 @@ func (wol *WakeOnLANPlus) AddDevice(device Device) error {
 	return nil
 }
 
-// RemoveDevice removes a device
+// RemoveDevice removes a device.
 func (wol *WakeOnLANPlus) RemoveDevice(macAddress string) {
 	wol.mu.Lock()
 	defer wol.mu.Unlock()
 	delete(wol.devices, macAddress)
 }
 
-// WakeDevice sends a wake-on-LAN packet to a device
+// WakeDevice sends a wake-on-LAN packet to a device.
 func (wol *WakeOnLANPlus) WakeDevice(ctx context.Context, macAddress string) error {
 	wol.mu.RLock()
 	device, exists := wol.devices[macAddress]
@@ -120,7 +120,7 @@ func (wol *WakeOnLANPlus) WakeDevice(ctx context.Context, macAddress string) err
 	return nil
 }
 
-// GetDeviceStatus returns the status of a device
+// GetDeviceStatus returns the status of a device.
 func (wol *WakeOnLANPlus) GetDeviceStatus(macAddress string) (string, error) {
 	wol.mu.RLock()
 	defer wol.mu.RUnlock()
@@ -132,7 +132,7 @@ func (wol *WakeOnLANPlus) GetDeviceStatus(macAddress string) (string, error) {
 	return device.Status, nil
 }
 
-// ListDevices returns all managed devices
+// ListDevices returns all managed devices.
 func (wol *WakeOnLANPlus) ListDevices() []*Device {
 	wol.mu.RLock()
 	defer wol.mu.RUnlock()
@@ -144,14 +144,14 @@ func (wol *WakeOnLANPlus) ListDevices() []*Device {
 	return devices
 }
 
-// AddPolicy adds a wake policy
+// AddPolicy adds a wake policy.
 func (wol *WakeOnLANPlus) AddPolicy(policy WakePolicy) {
 	wol.mu.Lock()
 	defer wol.mu.Unlock()
 	wol.policies[policy.Name] = &policy
 }
 
-// Start begins monitoring
+// Start begins monitoring.
 func (wol *WakeOnLANPlus) Start(ctx context.Context) error {
 	wol.mu.Lock()
 	if wol.running {
@@ -165,7 +165,7 @@ func (wol *WakeOnLANPlus) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop stops monitoring
+// Stop stops monitoring.
 func (wol *WakeOnLANPlus) Stop() {
 	wol.mu.Lock()
 	defer wol.mu.Unlock()

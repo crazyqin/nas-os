@@ -16,7 +16,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Client Presto 客户端
+// Client Presto 客户端.
 type Client struct {
 	config     *Config
 	logger     *zap.Logger
@@ -28,7 +28,7 @@ type Client struct {
 	serverAddr string
 }
 
-// NewClient 创建客户端
+// NewClient 创建客户端.
 func NewClient(cfg *Config, logger *zap.Logger) *Client {
 	if cfg == nil {
 		cfg = DefaultConfig()
@@ -43,7 +43,7 @@ func NewClient(cfg *Config, logger *zap.Logger) *Client {
 	}
 }
 
-// Connect 连接到服务端
+// Connect 连接到服务端.
 func (c *Client) Connect(ctx context.Context, serverAddr string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -86,7 +86,7 @@ func (c *Client) Connect(ctx context.Context, serverAddr string) error {
 	return nil
 }
 
-// Disconnect 断开连接
+// Disconnect 断开连接.
 func (c *Client) Disconnect() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -184,7 +184,7 @@ func (c *Client) handshake() error {
 	return nil
 }
 
-// SendFile 发送文件
+// SendFile 发送文件.
 func (c *Client) SendFile(ctx context.Context, filePath string, destPath string) (*Transfer, error) {
 	c.mu.RLock()
 	if !c.connected {
@@ -430,7 +430,7 @@ func (c *Client) sendChunks(ctx context.Context, filePath string, transfer *Tran
 	)
 }
 
-// RequestResume 请求断点续传
+// RequestResume 请求断点续传.
 func (c *Client) RequestResume(ctx context.Context, transferID string, fileName string, fileSize int64, checksum string) (*ResumeResponsePayload, error) {
 	c.mu.RLock()
 	if !c.connected {
@@ -471,7 +471,7 @@ func (c *Client) RequestResume(ctx context.Context, transferID string, fileName 
 	return &respPayload, nil
 }
 
-// SendFileWithResume 发送文件（支持断点续传）
+// SendFileWithResume 发送文件（支持断点续传）.
 func (c *Client) SendFileWithResume(ctx context.Context, filePath string, destPath string, stateDir string) (*Transfer, error) {
 	// 获取文件信息
 	fileInfo, err := os.Stat(filePath)

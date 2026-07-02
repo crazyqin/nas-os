@@ -13,17 +13,17 @@ import (
 )
 
 const (
-	// 配置文件路径
+	// 配置文件路径.
 	configFilePath = "/etc/nas-os/rdmastorageaccel.json"
-	// 默认设备发现命令
+	// 默认设备发现命令.
 	ibvDevInfoCmd = "ibv_devinfo"
-	// 默认性能监控间隔
+	// 默认性能监控间隔.
 	monitorInterval = 10 * time.Second
-	// 最大历史记录数
+	// 最大历史记录数.
 	maxHistorySize = 1000
 )
 
-// Manager RDMA 存储加速管理器
+// Manager RDMA 存储加速管理器.
 type Manager struct {
 	mu            sync.RWMutex
 	config        *RDMAConfig
@@ -40,12 +40,12 @@ type Manager struct {
 	configPath    string
 }
 
-// NewManager 创建新的管理器实例
+// NewManager 创建新的管理器实例.
 func NewManager() *Manager {
 	return NewManagerWithPath("")
 }
 
-// NewManagerWithPath 创建指定配置路径的管理器（空字符串使用默认路径）
+// NewManagerWithPath 创建指定配置路径的管理器（空字符串使用默认路径）.
 func NewManagerWithPath(configPath string) *Manager {
 	if configPath == "" {
 		configPath = configFilePath
@@ -80,7 +80,7 @@ func NewManagerWithPath(configPath string) *Manager {
 	return m
 }
 
-// loadConfig 从文件加载配置
+// loadConfig 从文件加载配置.
 func (m *Manager) loadConfig() error {
 	data, err := os.ReadFile(m.configPath)
 	if err != nil {
@@ -99,7 +99,7 @@ func (m *Manager) loadConfig() error {
 	return nil
 }
 
-// saveConfig 保存配置到文件
+// saveConfig 保存配置到文件.
 func (m *Manager) saveConfig() error {
 	dir := filepath.Dir(m.configPath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
@@ -118,7 +118,7 @@ func (m *Manager) saveConfig() error {
 	return nil
 }
 
-// discoverDevices 发现 RDMA 设备
+// discoverDevices 发现 RDMA 设备.
 func (m *Manager) discoverDevices() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -195,7 +195,7 @@ func (m *Manager) discoverDevices() {
 	log.Printf("发现 %d 个 RDMA 设备", len(m.devices))
 }
 
-// startMonitoring 启动性能监控
+// startMonitoring 启动性能监控.
 func (m *Manager) startMonitoring() {
 	m.monitorTicker = time.NewTicker(monitorInterval)
 	defer m.monitorTicker.Stop()
@@ -210,12 +210,12 @@ func (m *Manager) startMonitoring() {
 	}
 }
 
-// CollectMetrics 手动触发指标收集（导出版本，供测试使用）
+// CollectMetrics 手动触发指标收集（导出版本，供测试使用）.
 func (m *Manager) CollectMetrics() {
 	m.collectMetrics()
 }
 
-// collectMetrics 收集性能指标
+// collectMetrics 收集性能指标.
 func (m *Manager) collectMetrics() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -253,7 +253,7 @@ func (m *Manager) collectMetrics() {
 	}
 }
 
-// GetDevices 获取所有 RDMA 设备
+// GetDevices 获取所有 RDMA 设备.
 func (m *Manager) GetDevices() []*RDMADevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -265,7 +265,7 @@ func (m *Manager) GetDevices() []*RDMADevice {
 	return devices
 }
 
-// GetDevice 获取指定设备
+// GetDevice 获取指定设备.
 func (m *Manager) GetDevice(id string) (*RDMADevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -277,14 +277,14 @@ func (m *Manager) GetDevice(id string) (*RDMADevice, error) {
 	return device, nil
 }
 
-// GetConfig 获取 RDMA 配置
+// GetConfig 获取 RDMA 配置.
 func (m *Manager) GetConfig() *RDMAConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新 RDMA 配置
+// UpdateConfig 更新 RDMA 配置.
 func (m *Manager) UpdateConfig(config *RDMAConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -308,7 +308,7 @@ func (m *Manager) UpdateConfig(config *RDMAConfig) error {
 	return m.saveConfig()
 }
 
-// CreateTarget 创建存储目标
+// CreateTarget 创建存储目标.
 func (m *Manager) CreateTarget(req *StorageTarget) (*StorageTarget, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -372,7 +372,7 @@ func (m *Manager) CreateTarget(req *StorageTarget) (*StorageTarget, error) {
 	return target, nil
 }
 
-// GetTargets 获取所有存储目标
+// GetTargets 获取所有存储目标.
 func (m *Manager) GetTargets() []*StorageTarget {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -384,7 +384,7 @@ func (m *Manager) GetTargets() []*StorageTarget {
 	return targets
 }
 
-// DeleteTarget 删除存储目标
+// DeleteTarget 删除存储目标.
 func (m *Manager) DeleteTarget(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -406,7 +406,7 @@ func (m *Manager) DeleteTarget(id string) error {
 	return nil
 }
 
-// GetMetrics 获取性能指标
+// GetMetrics 获取性能指标.
 func (m *Manager) GetMetrics(deviceID string) *PerfMetrics {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -425,7 +425,7 @@ func (m *Manager) GetMetrics(deviceID string) *PerfMetrics {
 	return nil
 }
 
-// GetMetricsHistory 获取性能指标历史
+// GetMetricsHistory 获取性能指标历史.
 func (m *Manager) GetMetricsHistory(limit int) []PerfMetrics {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -442,7 +442,7 @@ func (m *Manager) GetMetricsHistory(limit int) []PerfMetrics {
 	return m.history[start:]
 }
 
-// RunBenchmark 运行基准测试
+// RunBenchmark 运行基准测试.
 func (m *Manager) RunBenchmark(config *BenchmarkConfig) (*BenchmarkResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -493,14 +493,14 @@ func (m *Manager) RunBenchmark(config *BenchmarkConfig) (*BenchmarkResult, error
 	return result, nil
 }
 
-// GetTuningProfiles 获取调优预设
+// GetTuningProfiles 获取调优预设.
 func (m *Manager) GetTuningProfiles() []TuningProfile {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.profiles
 }
 
-// ApplyTuningProfile 应用调优预设
+// ApplyTuningProfile 应用调优预设.
 func (m *Manager) ApplyTuningProfile(profileID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -529,7 +529,7 @@ func (m *Manager) ApplyTuningProfile(profileID string) error {
 	return m.saveConfig()
 }
 
-// HealthCheck 执行健康检查
+// HealthCheck 执行健康检查.
 func (m *Manager) HealthCheck(deviceID, targetID string) *HealthCheckResult {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -577,7 +577,7 @@ func (m *Manager) HealthCheck(deviceID, targetID string) *HealthCheckResult {
 	return result
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	close(m.stopMonitor)
 	if m.monitorTicker != nil {

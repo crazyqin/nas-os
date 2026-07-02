@@ -9,29 +9,29 @@ import (
 	"time"
 )
 
-// FileTagger manages file-tag associations with batch operations and auto-suggestions
+// FileTagger manages file-tag associations with batch operations and auto-suggestions.
 type FileTagger struct {
-	mu          sync.RWMutex
-	fileTags    map[string][]*FileTag   // filePath -> []*FileTag
-	tagFiles    map[string][]*FileTag   // tagID -> []*FileTag
-	manager     *TagManager
-	autoRules   []*AutoTagRule
-	nextID      int64
+	mu        sync.RWMutex
+	fileTags  map[string][]*FileTag // filePath -> []*FileTag
+	tagFiles  map[string][]*FileTag // tagID -> []*FileTag
+	manager   *TagManager
+	autoRules []*AutoTagRule
+	nextID    int64
 }
 
-// AutoTagRule represents a rule for automatic tagging
+// AutoTagRule represents a rule for automatic tagging.
 type AutoTagRule struct {
-	ID         string   `json:"id"`         // 规则ID
-	Name       string   `json:"name"`       // 规则名称
-	Extensions []string `json:"extensions"` // 文件扩展名匹配
-	PathPattern string  `json:"pathPattern"` // 路径模式匹配
-	Tags       []string `json:"tags"`       // 匹配时添加的标签
-	Enabled    bool     `json:"enabled"`    // 是否启用
-	Owner      string   `json:"owner"`      // 创建者
-	CreatedAt  time.Time `json:"createdAt"` // 创建时间
+	ID          string    `json:"id"`          // 规则ID
+	Name        string    `json:"name"`        // 规则名称
+	Extensions  []string  `json:"extensions"`  // 文件扩展名匹配
+	PathPattern string    `json:"pathPattern"` // 路径模式匹配
+	Tags        []string  `json:"tags"`        // 匹配时添加的标签
+	Enabled     bool      `json:"enabled"`     // 是否启用
+	Owner       string    `json:"owner"`       // 创建者
+	CreatedAt   time.Time `json:"createdAt"`   // 创建时间
 }
 
-// NewFileTagger creates a new FileTagger instance
+// NewFileTagger creates a new FileTagger instance.
 func NewFileTagger(manager *TagManager) *FileTagger {
 	t := &FileTagger{
 		fileTags:  make(map[string][]*FileTag),
@@ -43,7 +43,7 @@ func NewFileTagger(manager *TagManager) *FileTagger {
 	return t
 }
 
-// AddTagToFile adds a tag to a file
+// AddTagToFile adds a tag to a file.
 func (t *FileTagger) AddTagToFile(filePath, tagID, taggedBy string, isAuto bool, confidence float64) (*FileTag, error) {
 	if strings.TrimSpace(filePath) == "" {
 		return nil, &ValidationError{Field: "filePath", Message: "文件路径不能为空"}
@@ -90,7 +90,7 @@ func (t *FileTagger) AddTagToFile(filePath, tagID, taggedBy string, isAuto bool,
 	return fileTag, nil
 }
 
-// RemoveTagFromFile removes a tag from a file
+// RemoveTagFromFile removes a tag from a file.
 func (t *FileTagger) RemoveTagFromFile(filePath, tagID string) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -138,7 +138,7 @@ func (t *FileTagger) RemoveTagFromFile(filePath, tagID string) error {
 	return nil
 }
 
-// GetFileTags returns all tags for a file
+// GetFileTags returns all tags for a file.
 func (t *FileTagger) GetFileTags(filePath string) []*FileTag {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -149,7 +149,7 @@ func (t *FileTagger) GetFileTags(filePath string) []*FileTag {
 	return result
 }
 
-// GetTagFiles returns all files for a tag
+// GetTagFiles returns all files for a tag.
 func (t *FileTagger) GetTagFiles(tagID string) []*FileTag {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -160,7 +160,7 @@ func (t *FileTagger) GetTagFiles(tagID string) []*FileTag {
 	return result
 }
 
-// BatchTagFiles adds multiple tags to multiple files
+// BatchTagFiles adds multiple tags to multiple files.
 func (t *FileTagger) BatchTagFiles(req BatchTagRequest) ([]*FileTag, error) {
 	if err := req.Validate(); err != nil {
 		return nil, err
@@ -187,7 +187,7 @@ func (t *FileTagger) BatchTagFiles(req BatchTagRequest) ([]*FileTag, error) {
 	return results, nil
 }
 
-// RemoveAllTagsFromFile removes all tags from a file
+// RemoveAllTagsFromFile removes all tags from a file.
 func (t *FileTagger) RemoveAllTagsFromFile(filePath string) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -216,7 +216,7 @@ func (t *FileTagger) RemoveAllTagsFromFile(filePath string) error {
 	return nil
 }
 
-// AddAutoTagRule adds an automatic tagging rule
+// AddAutoTagRule adds an automatic tagging rule.
 func (t *FileTagger) AddAutoTagRule(name string, extensions []string, pathPattern string, tags []string, owner string) *AutoTagRule {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -238,7 +238,7 @@ func (t *FileTagger) AddAutoTagRule(name string, extensions []string, pathPatter
 	return rule
 }
 
-// RemoveAutoTagRule removes an auto tag rule by ID
+// RemoveAutoTagRule removes an auto tag rule by ID.
 func (t *FileTagger) RemoveAutoTagRule(ruleID string) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -252,7 +252,7 @@ func (t *FileTagger) RemoveAutoTagRule(ruleID string) error {
 	return &TagError{Code: "RULE_NOT_FOUND", Message: "规则不存在"}
 }
 
-// GetAutoSuggestions returns automatic tag suggestions for a file
+// GetAutoSuggestions returns automatic tag suggestions for a file.
 func (t *FileTagger) GetAutoSuggestions(filePath string) []*AutoTagSuggestion {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -300,7 +300,7 @@ func (t *FileTagger) GetAutoSuggestions(filePath string) []*AutoTagSuggestion {
 	return suggestions
 }
 
-// GetUntaggedFiles returns files that have no tags (from a provided list)
+// GetUntaggedFiles returns files that have no tags (from a provided list).
 func (t *FileTagger) GetUntaggedFiles(filePaths []string) []string {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -314,7 +314,7 @@ func (t *FileTagger) GetUntaggedFiles(filePaths []string) []string {
 	return untagged
 }
 
-// CountFilesWithTag returns the number of files with a specific tag
+// CountFilesWithTag returns the number of files with a specific tag.
 func (t *FileTagger) CountFilesWithTag(tagID string) int64 {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -322,7 +322,7 @@ func (t *FileTagger) CountFilesWithTag(tagID string) int64 {
 	return int64(len(t.tagFiles[tagID]))
 }
 
-// GetAutoRules returns all auto tag rules
+// GetAutoRules returns all auto tag rules.
 func (t *FileTagger) GetAutoRules() []*AutoTagRule {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -332,7 +332,7 @@ func (t *FileTagger) GetAutoRules() []*AutoTagRule {
 	return result
 }
 
-// ApplyAutoTags applies auto tagging to a file based on rules
+// ApplyAutoTags applies auto tagging to a file based on rules.
 func (t *FileTagger) ApplyAutoTags(filePath, taggedBy string) ([]*FileTag, error) {
 	suggestions := t.GetAutoSuggestions(filePath)
 	var results []*FileTag

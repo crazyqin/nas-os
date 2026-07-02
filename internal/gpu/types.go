@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// GPUDevice GPU设备信息
+// GPUDevice GPU设备信息.
 type GPUDevice struct {
 	ID          string    `json:"id"`          // 设备ID (如 nvidia0)
 	UUID        string    `json:"uuid"`        // GPU UUID
@@ -28,7 +28,7 @@ type GPUDevice struct {
 	PCIAddress  string    `json:"pciAddress"`  // PCI地址
 }
 
-// GPUStatus GPU状态
+// GPUStatus GPU状态.
 type GPUStatus string
 
 const (
@@ -39,7 +39,7 @@ const (
 	GPUStatusOffline   GPUStatus = "offline"   // 离线
 )
 
-// GPUAllocation GPU分配请求
+// GPUAllocation GPU分配请求.
 type GPUAllocation struct {
 	RequestID   string             `json:"requestId"`   // 请求ID
 	ContainerID string             `json:"containerId"` // 容器ID
@@ -51,7 +51,7 @@ type GPUAllocation struct {
 	CreatedAt   time.Time          `json:"createdAt"`   // 创建时间
 }
 
-// AllocationPriority 分配优先级
+// AllocationPriority 分配优先级.
 type AllocationPriority string
 
 const (
@@ -61,7 +61,7 @@ const (
 	PriorityCritical AllocationPriority = "critical" // 关键优先级
 )
 
-// GPUAllocationResult GPU分配结果
+// GPUAllocationResult GPU分配结果.
 type GPUAllocationResult struct {
 	Success     bool     `json:"success"`     // 是否成功
 	RequestID   string   `json:"requestId"`   // 请求ID
@@ -72,14 +72,14 @@ type GPUAllocationResult struct {
 	Message     string   `json:"message"`     // 结果消息
 }
 
-// GPUReleaseRequest GPU释放请求
+// GPUReleaseRequest GPU释放请求.
 type GPUReleaseRequest struct {
 	RequestID   string `json:"requestId"`   // 请求ID
 	ContainerID string `json:"containerId"` // 容器ID
 	GPUID       string `json:"gpuId"`       // GPU设备ID (可选)
 }
 
-// GPUStats GPU统计信息
+// GPUStats GPU统计信息.
 type GPUStats struct {
 	TotalGPUs      int             `json:"totalGpus"`      // GPU总数
 	AvailableGPUs  int             `json:"availableGpus"`  // 可用GPU数
@@ -94,7 +94,7 @@ type GPUStats struct {
 	HealthStatus   GPUHealthStatus `json:"healthStatus"`   // 健康状态
 }
 
-// GPUHealthStatus GPU健康状态
+// GPUHealthStatus GPU健康状态.
 type GPUHealthStatus struct {
 	Status    string          `json:"status"`    // 整体状态 (healthy, warning, critical)
 	Warnings  []string        `json:"warnings"`  // 警告信息
@@ -104,7 +104,7 @@ type GPUHealthStatus struct {
 	DevicesOK map[string]bool `json:"devicesOk"` // 各设备状态
 }
 
-// GPUConfig GPU配置
+// GPUConfig GPU配置.
 type GPUConfig struct {
 	GPUEnabled          bool     `json:"gpuEnabled"`          // 是否启用GPU
 	GPUDevices          []string `json:"gpuDevices"`          // GPU设备路径列表
@@ -116,7 +116,7 @@ type GPUConfig struct {
 	MonitorInterval     int      `json:"monitorInterval"`     // 监控间隔(秒)
 }
 
-// DefaultGPUConfig 默认GPU配置
+// DefaultGPUConfig 默认GPU配置.
 func DefaultGPUConfig() *GPUConfig {
 	return &GPUConfig{
 		GPUEnabled:          true,
@@ -130,7 +130,7 @@ func DefaultGPUConfig() *GPUConfig {
 	}
 }
 
-// GPUDeviceFilter GPU设备过滤器
+// GPUDeviceFilter GPU设备过滤器.
 type GPUDeviceFilter struct {
 	Vendor       string    // 厂商过滤
 	Model        string    // 型号过滤
@@ -141,7 +141,7 @@ type GPUDeviceFilter struct {
 	OnlyFree     bool      // 只返回空闲设备
 }
 
-// GPUAllocationPolicy GPU分配策略接口
+// GPUAllocationPolicy GPU分配策略接口.
 type GPUAllocationPolicy interface {
 	// SelectGPU 选择合适的GPU设备
 	SelectGPU(devices []*GPUDevice, req *GPUAllocation) (*GPUDevice, error)

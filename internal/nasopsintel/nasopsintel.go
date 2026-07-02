@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Severity 事件严重程度
+// Severity 事件严重程度.
 type Severity string
 
 const (
@@ -20,7 +20,7 @@ const (
 	SeverityCritical Severity = "critical"
 )
 
-// severityRank 严重程度数值映射，用于正确比较
+// severityRank 严重程度数值映射，用于正确比较.
 func severityRank(s Severity) int {
 	switch s {
 	case SeverityInfo:
@@ -36,12 +36,12 @@ func severityRank(s Severity) int {
 	}
 }
 
-// IsHigherThan 返回 a 是否比 b 更严重
+// IsHigherThan 返回 a 是否比 b 更严重.
 func (s Severity) IsHigherThan(other Severity) bool {
 	return severityRank(s) > severityRank(other)
 }
 
-// EventSource 事件来源
+// EventSource 事件来源.
 type EventSource string
 
 const (
@@ -54,7 +54,7 @@ const (
 	SourceSystem    EventSource = "system"
 )
 
-// IncidentStatus 事件状态
+// IncidentStatus 事件状态.
 type IncidentStatus string
 
 const (
@@ -64,7 +64,7 @@ const (
 	IncidentClosed        IncidentStatus = "closed"
 )
 
-// OpsEvent 运维事件
+// OpsEvent 运维事件.
 type OpsEvent struct {
 	ID          string                 `json:"id"`
 	Source      EventSource            `json:"source"`
@@ -77,7 +77,7 @@ type OpsEvent struct {
 	Service     string                 `json:"service,omitempty"`
 }
 
-// Incident 运维事件（聚合后）
+// Incident 运维事件（聚合后）.
 type Incident struct {
 	ID               string         `json:"id"`
 	Title            string         `json:"title"`
@@ -95,7 +95,7 @@ type Incident struct {
 	Tags             []string       `json:"tags,omitempty"`
 }
 
-// Anomaly 异常检测结果
+// Anomaly 异常检测结果.
 type Anomaly struct {
 	ID          string      `json:"id"`
 	Source      EventSource `json:"source"`
@@ -109,7 +109,7 @@ type Anomaly struct {
 	Window      string      `json:"window"` // 检测窗口
 }
 
-// HealthScore 健康评分
+// HealthScore 健康评分.
 type HealthScore struct {
 	Overall     float64            `json:"overall"` // 0-100
 	Storage     float64            `json:"storage"`
@@ -122,7 +122,7 @@ type HealthScore struct {
 	Suggestions []HealthSuggestion `json:"suggestions"`
 }
 
-// HealthSuggestion 健康建议
+// HealthSuggestion 健康建议.
 type HealthSuggestion struct {
 	Category    string `json:"category"`
 	Priority    int    `json:"priority"` // 1-5
@@ -131,7 +131,7 @@ type HealthSuggestion struct {
 	Action      string `json:"action,omitempty"`
 }
 
-// OpsMetrics 运维指标
+// OpsMetrics 运维指标.
 type OpsMetrics struct {
 	TotalEvents       int64         `json:"total_events"`
 	OpenIncidents     int           `json:"open_incidents"`
@@ -143,7 +143,7 @@ type OpsMetrics struct {
 	LastUpdated       time.Time     `json:"last_updated"`
 }
 
-// Rule 关联规则
+// Rule 关联规则.
 type Rule struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -156,7 +156,7 @@ type Rule struct {
 	CreatedAt   time.Time   `json:"created_at"`
 }
 
-// Manager 运维智能管理器
+// Manager 运维智能管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	events     []OpsEvent
@@ -169,7 +169,7 @@ type Manager struct {
 	cancelFunc context.CancelFunc
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		events:    make([]OpsEvent, 0, 1000),
@@ -182,7 +182,7 @@ func NewManager() *Manager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	m.cancelFunc = cancel
@@ -194,14 +194,14 @@ func (m *Manager) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	if m.cancelFunc != nil {
 		m.cancelFunc()
 	}
 }
 
-// IngestEvent 接收事件
+// IngestEvent 接收事件.
 func (m *Manager) IngestEvent(event OpsEvent) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -223,7 +223,7 @@ func (m *Manager) IngestEvent(event OpsEvent) {
 	m.correlateEvent(event)
 }
 
-// ListEvents 列出事件
+// ListEvents 列出事件.
 func (m *Manager) ListEvents(limit int, source EventSource, severity Severity) []OpsEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -245,7 +245,7 @@ func (m *Manager) ListEvents(limit int, source EventSource, severity Severity) [
 	return result
 }
 
-// GetIncident 获取事件
+// GetIncident 获取事件.
 func (m *Manager) GetIncident(id string) (*Incident, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -256,7 +256,7 @@ func (m *Manager) GetIncident(id string) (*Incident, error) {
 	return inc, nil
 }
 
-// ListIncidents 列出事件
+// ListIncidents 列出事件.
 func (m *Manager) ListIncidents(status IncidentStatus) []*Incident {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -270,7 +270,7 @@ func (m *Manager) ListIncidents(status IncidentStatus) []*Incident {
 	return incidents
 }
 
-// ResolveIncident 解决事件
+// ResolveIncident 解决事件.
 func (m *Manager) ResolveIncident(id, rootCause, remediation string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -287,7 +287,7 @@ func (m *Manager) ResolveIncident(id, rootCause, remediation string) error {
 	return nil
 }
 
-// ListAnomalies 列出异常
+// ListAnomalies 列出异常.
 func (m *Manager) ListAnomalies(limit int) []Anomaly {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -297,14 +297,14 @@ func (m *Manager) ListAnomalies(limit int) []Anomaly {
 	return m.anomalies[len(m.anomalies)-limit:]
 }
 
-// GetHealthScore 获取健康评分
+// GetHealthScore 获取健康评分.
 func (m *Manager) GetHealthScore() *HealthScore {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.health
 }
 
-// GetMetrics 获取运维指标
+// GetMetrics 获取运维指标.
 func (m *Manager) GetMetrics() *OpsMetrics {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -313,7 +313,7 @@ func (m *Manager) GetMetrics() *OpsMetrics {
 	return m.metrics
 }
 
-// AddRule 添加关联规则
+// AddRule 添加关联规则.
 func (m *Manager) AddRule(rule *Rule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -325,7 +325,7 @@ func (m *Manager) AddRule(rule *Rule) error {
 	return nil
 }
 
-// ListRules 列出规则
+// ListRules 列出规则.
 func (m *Manager) ListRules() []*Rule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -336,7 +336,7 @@ func (m *Manager) ListRules() []*Rule {
 	return rules
 }
 
-// correlateEvent 关联事件
+// correlateEvent 关联事件.
 func (m *Manager) correlateEvent(event OpsEvent) {
 	// 检查是否有相关的开放事件
 	for _, inc := range m.incidents {
@@ -378,7 +378,7 @@ func (m *Manager) correlateEvent(event OpsEvent) {
 	}
 }
 
-// checkRules 检查规则
+// checkRules 检查规则.
 func (m *Manager) checkRules(event OpsEvent) {
 	for _, rule := range m.rules {
 		if !rule.Enabled {
@@ -395,7 +395,7 @@ func (m *Manager) checkRules(event OpsEvent) {
 	}
 }
 
-// correlateLoop 关联分析循环
+// correlateLoop 关联分析循环.
 func (m *Manager) correlateLoop(ctx context.Context) {
 	ticker := time.NewTicker(60 * time.Second)
 	defer ticker.Stop()
@@ -409,7 +409,7 @@ func (m *Manager) correlateLoop(ctx context.Context) {
 	}
 }
 
-// anomalyDetectLoop 异常检测循环
+// anomalyDetectLoop 异常检测循环.
 func (m *Manager) anomalyDetectLoop(ctx context.Context) {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
@@ -423,7 +423,7 @@ func (m *Manager) anomalyDetectLoop(ctx context.Context) {
 	}
 }
 
-// healthCalcLoop 健康评分计算循环
+// healthCalcLoop 健康评分计算循环.
 func (m *Manager) healthCalcLoop(ctx context.Context) {
 	ticker := time.NewTicker(60 * time.Second)
 	defer ticker.Stop()
@@ -437,7 +437,7 @@ func (m *Manager) healthCalcLoop(ctx context.Context) {
 	}
 }
 
-// correlateEvents 关联分析
+// correlateEvents 关联分析.
 func (m *Manager) correlateEvents() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -452,7 +452,7 @@ func (m *Manager) correlateEvents() {
 	}
 }
 
-// detectAnomalies 异常检测
+// detectAnomalies 异常检测.
 func (m *Manager) detectAnomalies() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -485,7 +485,7 @@ func (m *Manager) detectAnomalies() {
 	}
 }
 
-// calculateHealth 计算健康评分
+// calculateHealth 计算健康评分.
 func (m *Manager) calculateHealth() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -533,7 +533,7 @@ func (m *Manager) calculateHealth() {
 	m.health.Suggestions = m.generateSuggestions(baseScore)
 }
 
-// generateSuggestions 生成建议
+// generateSuggestions 生成建议.
 func (m *Manager) generateSuggestions(score float64) []HealthSuggestion {
 	suggestions := make([]HealthSuggestion, 0)
 

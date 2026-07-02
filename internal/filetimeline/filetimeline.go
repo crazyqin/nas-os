@@ -8,41 +8,41 @@ import (
 	"time"
 )
 
-// FileVersion represents a point-in-time version of a file
+// FileVersion represents a point-in-time version of a file.
 type FileVersion struct {
-	ID          string            `json:"id"`
-	FilePath    string            `json:"file_path"`
-	Version     int               `json:"version"`
-	Size        int64             `json:"size"`
-	Checksum    string            `json:"checksum"`
-	Timestamp   time.Time         `json:"timestamp"`
-	Author      string            `json:"author"`
-	Message     string            `json:"message"`
-	Tags        []string          `json:"tags,omitempty"`
-	Metadata    map[string]string `json:"metadata,omitempty"`
-	IsSnapshot  bool              `json:"is_snapshot"`
-	SnapshotID  string            `json:"snapshot_id,omitempty"`
+	ID         string            `json:"id"`
+	FilePath   string            `json:"file_path"`
+	Version    int               `json:"version"`
+	Size       int64             `json:"size"`
+	Checksum   string            `json:"checksum"`
+	Timestamp  time.Time         `json:"timestamp"`
+	Author     string            `json:"author"`
+	Message    string            `json:"message"`
+	Tags       []string          `json:"tags,omitempty"`
+	Metadata   map[string]string `json:"metadata,omitempty"`
+	IsSnapshot bool              `json:"is_snapshot"`
+	SnapshotID string            `json:"snapshot_id,omitempty"`
 }
 
-// TimelineEntry represents a node in the file timeline
+// TimelineEntry represents a node in the file timeline.
 type TimelineEntry struct {
-	Version     *FileVersion     `json:"version"`
-	Children    []*TimelineEntry `json:"children,omitempty"`
-	BranchName  string           `json:"branch_name"`
-	IsCurrent   bool             `json:"is_current"`
-	Depth       int              `json:"depth"`
+	Version    *FileVersion     `json:"version"`
+	Children   []*TimelineEntry `json:"children,omitempty"`
+	BranchName string           `json:"branch_name"`
+	IsCurrent  bool             `json:"is_current"`
+	Depth      int              `json:"depth"`
 }
 
-// DiffResult represents differences between two versions
+// DiffResult represents differences between two versions.
 type DiffResult struct {
-	OldVersion  int          `json:"old_version"`
-	NewVersion  int          `json:"new_version"`
-	Changes     []Change     `json:"changes"`
-	Summary     string       `json:"summary"`
-	Timestamp   time.Time    `json:"timestamp"`
+	OldVersion int       `json:"old_version"`
+	NewVersion int       `json:"new_version"`
+	Changes    []Change  `json:"changes"`
+	Summary    string    `json:"summary"`
+	Timestamp  time.Time `json:"timestamp"`
 }
 
-// Change represents a single change between versions
+// Change represents a single change between versions.
 type Change struct {
 	Type     string `json:"type"` // added, removed, modified
 	Path     string `json:"path"`
@@ -51,34 +51,34 @@ type Change struct {
 	Line     int    `json:"line,omitempty"`
 }
 
-// RestoreResult represents the result of a file restore
+// RestoreResult represents the result of a file restore.
 type RestoreResult struct {
-	FilePath    string    `json:"file_path"`
-	Version     int       `json:"version"`
-	RestoredAt  time.Time `json:"restored_at"`
-	Size        int64     `json:"size"`
-	Checksum    string    `json:"checksum"`
+	FilePath   string    `json:"file_path"`
+	Version    int       `json:"version"`
+	RestoredAt time.Time `json:"restored_at"`
+	Size       int64     `json:"size"`
+	Checksum   string    `json:"checksum"`
 }
 
-// TimelineStats aggregates timeline statistics
+// TimelineStats aggregates timeline statistics.
 type TimelineStats struct {
-	TotalVersions   int            `json:"total_versions"`
-	TotalSize       int64          `json:"total_size"`
-	OldestVersion   time.Time      `json:"oldest_version"`
-	NewestVersion   time.Time      `json:"newest_version"`
-	ByAuthor        map[string]int `json:"by_author"`
-	ByTag           map[string]int `json:"by_tag"`
-	SnapshotCount   int            `json:"snapshot_count"`
+	TotalVersions int            `json:"total_versions"`
+	TotalSize     int64          `json:"total_size"`
+	OldestVersion time.Time      `json:"oldest_version"`
+	NewestVersion time.Time      `json:"newest_version"`
+	ByAuthor      map[string]int `json:"by_author"`
+	ByTag         map[string]int `json:"by_tag"`
+	SnapshotCount int            `json:"snapshot_count"`
 }
 
-// FileTimeline manages file version history with visual timeline
+// FileTimeline manages file version history with visual timeline.
 type FileTimeline struct {
 	mu       sync.RWMutex
 	versions map[string][]*FileVersion // path -> versions
 	current  map[string]int            // path -> current version
 }
 
-// NewFileTimeline creates a new file timeline manager
+// NewFileTimeline creates a new file timeline manager.
 func NewFileTimeline() *FileTimeline {
 	return &FileTimeline{
 		versions: make(map[string][]*FileVersion),
@@ -86,7 +86,7 @@ func NewFileTimeline() *FileTimeline {
 	}
 }
 
-// CommitVersion creates a new version of a file
+// CommitVersion creates a new version of a file.
 func (ft *FileTimeline) CommitVersion(ctx context.Context, filePath string, size int64, data []byte, author string, message string) (*FileVersion, error) {
 	ft.mu.Lock()
 	defer ft.mu.Unlock()
@@ -112,7 +112,7 @@ func (ft *FileTimeline) CommitVersion(ctx context.Context, filePath string, size
 	return version, nil
 }
 
-// CreateSnapshot creates a snapshot of the current file state
+// CreateSnapshot creates a snapshot of the current file state.
 func (ft *FileTimeline) CreateSnapshot(ctx context.Context, filePath string, message string) (*FileVersion, error) {
 	ft.mu.Lock()
 	defer ft.mu.Unlock()
@@ -142,7 +142,7 @@ func (ft *FileTimeline) CreateSnapshot(ctx context.Context, filePath string, mes
 	return snapshot, nil
 }
 
-// GetTimeline returns the visual timeline for a file
+// GetTimeline returns the visual timeline for a file.
 func (ft *FileTimeline) GetTimeline(ctx context.Context, filePath string) (*TimelineEntry, error) {
 	ft.mu.RLock()
 	defer ft.mu.RUnlock()
@@ -183,7 +183,7 @@ func (ft *FileTimeline) GetTimeline(ctx context.Context, filePath string) (*Time
 	return root, nil
 }
 
-// DiffVersions compares two versions of a file
+// DiffVersions compares two versions of a file.
 func (ft *FileTimeline) DiffVersions(ctx context.Context, filePath string, oldVersion, newVersion int) (*DiffResult, error) {
 	ft.mu.RLock()
 	defer ft.mu.RUnlock()
@@ -225,7 +225,7 @@ func (ft *FileTimeline) DiffVersions(ctx context.Context, filePath string, oldVe
 	}, nil
 }
 
-// RestoreVersion restores a file to a specific version
+// RestoreVersion restores a file to a specific version.
 func (ft *FileTimeline) RestoreVersion(ctx context.Context, filePath string, version int) (*RestoreResult, error) {
 	ft.mu.Lock()
 	defer ft.mu.Unlock()
@@ -250,14 +250,14 @@ func (ft *FileTimeline) RestoreVersion(ctx context.Context, filePath string, ver
 	// Create a new version for the restore
 	newVersion := ft.current[filePath] + 1
 	restore := &FileVersion{
-		ID:       fmt.Sprintf("ver-%s-%d", filePath, newVersion),
-		FilePath: filePath,
-		Version:  newVersion,
-		Size:     target.Size,
-		Checksum: target.Checksum,
+		ID:        fmt.Sprintf("ver-%s-%d", filePath, newVersion),
+		FilePath:  filePath,
+		Version:   newVersion,
+		Size:      target.Size,
+		Checksum:  target.Checksum,
 		Timestamp: time.Now(),
-		Author:   "system",
-		Message:  fmt.Sprintf("Restored from version %d", version),
+		Author:    "system",
+		Message:   fmt.Sprintf("Restored from version %d", version),
 	}
 
 	ft.versions[filePath] = append(ft.versions[filePath], restore)
@@ -272,7 +272,7 @@ func (ft *FileTimeline) RestoreVersion(ctx context.Context, filePath string, ver
 	}, nil
 }
 
-// GetStats returns timeline statistics
+// GetStats returns timeline statistics.
 func (ft *FileTimeline) GetStats(ctx context.Context, filePath string) (*TimelineStats, error) {
 	ft.mu.RLock()
 	defer ft.mu.RUnlock()
@@ -311,7 +311,7 @@ func (ft *FileTimeline) GetStats(ctx context.Context, filePath string) (*Timelin
 	return stats, nil
 }
 
-// ListVersions returns all versions for a file
+// ListVersions returns all versions for a file.
 func (ft *FileTimeline) ListVersions(ctx context.Context, filePath string) []*FileVersion {
 	ft.mu.RLock()
 	defer ft.mu.RUnlock()

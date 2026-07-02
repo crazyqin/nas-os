@@ -8,7 +8,7 @@ import (
 )
 
 // TaskQueue 任务队列
-// 支持优先级队列，高优先级任务优先处理
+// 支持优先级队列，高优先级任务优先处理.
 type TaskQueue struct {
 	maxSize int
 	queues  map[AllocationPriority]*list.List // 按优先级分组
@@ -16,7 +16,7 @@ type TaskQueue struct {
 	mu      sync.RWMutex
 }
 
-// NewTaskQueue 创建任务队列
+// NewTaskQueue 创建任务队列.
 func NewTaskQueue(maxSize int) *TaskQueue {
 	return &TaskQueue{
 		maxSize: maxSize,
@@ -30,7 +30,7 @@ func NewTaskQueue(maxSize int) *TaskQueue {
 }
 
 // Enqueue 添加任务到队列
-// 按优先级插入对应队列
+// 按优先级插入对应队列.
 func (q *TaskQueue) Enqueue(task *GPUTask) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
@@ -51,7 +51,7 @@ func (q *TaskQueue) Enqueue(task *GPUTask) error {
 }
 
 // Dequeue 从队列取出任务
-// 按优先级顺序：critical -> high -> normal -> low
+// 按优先级顺序：critical -> high -> normal -> low.
 func (q *TaskQueue) Dequeue() (*GPUTask, error) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
@@ -77,7 +77,7 @@ func (q *TaskQueue) Dequeue() (*GPUTask, error) {
 	return nil, NewPoolError("queue_empty", "任务队列空")
 }
 
-// Peek 查看队列头部任务（不移除）
+// Peek 查看队列头部任务（不移除）.
 func (q *TaskQueue) Peek() *GPUTask {
 	q.mu.RLock()
 	defer q.mu.RUnlock()
@@ -99,7 +99,7 @@ func (q *TaskQueue) Peek() *GPUTask {
 	return nil
 }
 
-// Remove 移除指定任务
+// Remove 移除指定任务.
 func (q *TaskQueue) Remove(taskID string) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
@@ -118,14 +118,14 @@ func (q *TaskQueue) Remove(taskID string) error {
 	return ErrTaskNotFound
 }
 
-// Length 获取队列长度
+// Length 获取队列长度.
 func (q *TaskQueue) Length() int {
 	q.mu.RLock()
 	defer q.mu.RUnlock()
 	return q.count
 }
 
-// Clear 清空队列
+// Clear 清空队列.
 func (q *TaskQueue) Clear() {
 	q.mu.Lock()
 	defer q.mu.Unlock()
@@ -136,7 +136,7 @@ func (q *TaskQueue) Clear() {
 	q.count = 0
 }
 
-// GetAllTasks 获取所有任务
+// GetAllTasks 获取所有任务.
 func (q *TaskQueue) GetAllTasks() []*GPUTask {
 	q.mu.RLock()
 	defer q.mu.RUnlock()
@@ -159,14 +159,14 @@ func (q *TaskQueue) GetAllTasks() []*GPUTask {
 	return tasks
 }
 
-// PoolAllocator 资源池分配器
+// PoolAllocator 资源池分配器.
 type PoolAllocator struct {
 	pool     *Pool
 	strategy string
 	mu       sync.RWMutex
 }
 
-// NewPoolAllocator 创建分配器
+// NewPoolAllocator 创建分配器.
 func NewPoolAllocator(pool *Pool, strategy string) *PoolAllocator {
 	if strategy == "" {
 		strategy = "least-loaded"
@@ -177,7 +177,7 @@ func NewPoolAllocator(pool *Pool, strategy string) *PoolAllocator {
 	}
 }
 
-// Allocate 分配GPU设备
+// Allocate 分配GPU设备.
 func (a *PoolAllocator) Allocate(task *GPUTask) (*PoolDevice, error) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -194,7 +194,7 @@ func (a *PoolAllocator) Allocate(task *GPUTask) (*PoolDevice, error) {
 	return device, nil
 }
 
-// getAvailableDevices 获取满足条件的可用设备
+// getAvailableDevices 获取满足条件的可用设备.
 func (a *PoolAllocator) getAvailableDevices(task *GPUTask) []*PoolDevice {
 	var devices []*PoolDevice
 
@@ -221,7 +221,7 @@ func (a *PoolAllocator) getAvailableDevices(task *GPUTask) []*PoolDevice {
 	return devices
 }
 
-// selectDevice 根据策略选择设备
+// selectDevice 根据策略选择设备.
 func (a *PoolAllocator) selectDevice(devices []*PoolDevice, task *GPUTask) *PoolDevice {
 	switch a.strategy {
 	case "round-robin":
@@ -237,7 +237,7 @@ func (a *PoolAllocator) selectDevice(devices []*PoolDevice, task *GPUTask) *Pool
 	}
 }
 
-// selectRoundRobin 轮询选择
+// selectRoundRobin 轮询选择.
 func (a *PoolAllocator) selectRoundRobin(devices []*PoolDevice) *PoolDevice {
 	// 简化：选择第一个可用设备
 	if len(devices) > 0 {
@@ -246,7 +246,7 @@ func (a *PoolAllocator) selectRoundRobin(devices []*PoolDevice) *PoolDevice {
 	return nil
 }
 
-// selectLeastLoaded 选择负载最低的设备
+// selectLeastLoaded 选择负载最低的设备.
 func (a *PoolAllocator) selectLeastLoaded(devices []*PoolDevice) *PoolDevice {
 	if len(devices) == 0 {
 		return nil
@@ -267,7 +267,7 @@ func (a *PoolAllocator) selectLeastLoaded(devices []*PoolDevice) *PoolDevice {
 	return selected
 }
 
-// selectMostMemory 选择可用显存最多的设备
+// selectMostMemory 选择可用显存最多的设备.
 func (a *PoolAllocator) selectMostMemory(devices []*PoolDevice) *PoolDevice {
 	if len(devices) == 0 {
 		return nil
@@ -287,7 +287,7 @@ func (a *PoolAllocator) selectMostMemory(devices []*PoolDevice) *PoolDevice {
 	return selected
 }
 
-// selectPriority 根据任务优先级选择设备
+// selectPriority 根据任务优先级选择设备.
 func (a *PoolAllocator) selectPriority(devices []*PoolDevice, task *GPUTask) *PoolDevice {
 	if len(devices) == 0 {
 		return nil
@@ -324,21 +324,21 @@ func (a *PoolAllocator) selectPriority(devices []*PoolDevice, task *GPUTask) *Po
 	}
 }
 
-// SetStrategy 设置分配策略
+// SetStrategy 设置分配策略.
 func (a *PoolAllocator) SetStrategy(strategy string) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.strategy = strategy
 }
 
-// GetStrategy 获取当前策略
+// GetStrategy 获取当前策略.
 func (a *PoolAllocator) GetStrategy() string {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	return a.strategy
 }
 
-// GetPoolStatus 获取资源池状态
+// GetPoolStatus 获取资源池状态.
 func (p *Pool) GetPoolMetrics() *PoolMetrics {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -380,7 +380,7 @@ func (p *Pool) GetPoolMetrics() *PoolMetrics {
 	return metrics
 }
 
-// PoolMetrics 资源池指标
+// PoolMetrics 资源池指标.
 type PoolMetrics struct {
 	Timestamp     time.Time      `json:"timestamp"`
 	DeviceCount   int            `json:"deviceCount"`
@@ -392,7 +392,7 @@ type PoolMetrics struct {
 	DeviceMetrics []DeviceMetric `json:"deviceMetrics"`
 }
 
-// DeviceMetric 设备指标
+// DeviceMetric 设备指标.
 type DeviceMetric struct {
 	ID          string  `json:"id"`
 	Name        string  `json:"name"`

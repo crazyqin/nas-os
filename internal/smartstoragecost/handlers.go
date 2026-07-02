@@ -9,17 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 智能存储成本分析 HTTP 处理器
+// Handlers 智能存储成本分析 HTTP 处理器.
 type Handlers struct {
 	analyzer *Analyzer
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(analyzer *Analyzer) *Handlers {
 	return &Handlers{analyzer: analyzer}
 }
 
-// RegisterRoutes 注册路由到 /api/smartstoragecost
+// RegisterRoutes 注册路由到 /api/smartstoragecost.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	ssc := r.Group("/smartstoragecost")
 	{
@@ -31,7 +31,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// overview GET /api/smartstoragecost/overview - 成本概览
+// overview GET /api/smartstoragecost/overview - 成本概览.
 func (h *Handlers) overview(c *gin.Context) {
 	tiers := h.analyzer.ListTiers()
 	records := h.analyzer.GetCostRecords()
@@ -61,14 +61,14 @@ func (h *Handlers) overview(c *gin.Context) {
 	})
 }
 
-// report GET /api/smartstoragecost/report - 生成成本报告
+// report GET /api/smartstoragecost/report - 生成成本报告.
 func (h *Handlers) report(c *gin.Context) {
 	label := c.DefaultQuery("label", "当前周期")
 	report := h.analyzer.GenerateReport(label)
 	c.JSON(http.StatusOK, report)
 }
 
-// forecast GET /api/smartstoragecost/forecast - 成本预测
+// forecast GET /api/smartstoragecost/forecast - 成本预测.
 func (h *Handlers) forecast(c *gin.Context) {
 	months, _ := strconv.Atoi(c.DefaultQuery("months", "12"))
 	model := c.DefaultQuery("model", "linear")
@@ -82,13 +82,13 @@ func (h *Handlers) forecast(c *gin.Context) {
 	c.JSON(http.StatusOK, forecast)
 }
 
-// optimization GET /api/smartstoragecost/optimization - 优化建议
+// optimization GET /api/smartstoragecost/optimization - 优化建议.
 func (h *Handlers) optimization(c *gin.Context) {
 	opt := h.analyzer.GenerateOptimization()
 	c.JSON(http.StatusOK, opt)
 }
 
-// compare POST /api/smartstoragecost/compare - 多方案对比
+// compare POST /api/smartstoragecost/compare - 多方案对比.
 func (h *Handlers) compare(c *gin.Context) {
 	var req CompareRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

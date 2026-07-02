@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// UpdateRequest 更新文件请求
+// UpdateRequest 更新文件请求.
 func (s *Service) UpdateRequest(ctx context.Context, id string, title, description string, expiresAt *time.Time) (*FileRequest, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -31,7 +31,7 @@ func (s *Service) UpdateRequest(ctx context.Context, id string, title, descripti
 	return req, nil
 }
 
-// DeleteUpload 删除已上传的文件记录
+// DeleteUpload 删除已上传的文件记录.
 func (s *Service) DeleteUpload(ctx context.Context, requestID, uploadID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -57,7 +57,7 @@ func (s *Service) DeleteUpload(ctx context.Context, requestID, uploadID string) 
 	return fmt.Errorf("上传记录不存在: %s", uploadID)
 }
 
-// CheckExpired 检查并标记过期请求
+// CheckExpired 检查并标记过期请求.
 func (s *Service) CheckExpired(ctx context.Context) int {
 	s.mu.Lock()
 	defer s.mu.Unlock()

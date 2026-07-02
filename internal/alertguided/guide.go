@@ -8,13 +8,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// GuideEngine 引导式修复引擎
+// GuideEngine 引导式修复引擎.
 type GuideEngine struct {
 	kb     *KnowledgeBase
 	logger *zap.Logger
 }
 
-// NewGuideEngine 创建引导引擎
+// NewGuideEngine 创建引导引擎.
 func NewGuideEngine(kb *KnowledgeBase, logger *zap.Logger) *GuideEngine {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -25,7 +25,7 @@ func NewGuideEngine(kb *KnowledgeBase, logger *zap.Logger) *GuideEngine {
 	}
 }
 
-// GetGuide 根据告警获取修复指引
+// GetGuide 根据告警获取修复指引.
 func (ge *GuideEngine) GetGuide(alert *GuidedAlert) *RepairGuide {
 	// 尝试按知识库ID匹配
 	entry, ok := ge.kb.Get(alert.Title)
@@ -44,7 +44,7 @@ func (ge *GuideEngine) GetGuide(alert *GuidedAlert) *RepairGuide {
 	return ge.buildGuideFromEntry(alert, entry)
 }
 
-// GetGuideByKnowledgeID 按知识库ID获取指引
+// GetGuideByKnowledgeID 按知识库ID获取指引.
 func (ge *GuideEngine) GetGuideByKnowledgeID(knowledgeID string) (*RepairGuide, error) {
 	entry, ok := ge.kb.Get(knowledgeID)
 	if !ok {
@@ -53,7 +53,7 @@ func (ge *GuideEngine) GetGuideByKnowledgeID(knowledgeID string) (*RepairGuide, 
 	return ge.buildGuideFromEntry(nil, entry), nil
 }
 
-// SearchGuides 搜索修复指引
+// SearchGuides 搜索修复指引.
 func (ge *GuideEngine) SearchGuides(keyword string) []*RepairGuide {
 	entries := ge.kb.Search(keyword)
 	var guides []*RepairGuide
@@ -114,7 +114,7 @@ func (ge *GuideEngine) buildGenericGuide(alert *GuidedAlert) *RepairGuide {
 	}
 }
 
-// RepairGuide 修复指引
+// RepairGuide 修复指引.
 type RepairGuide struct {
 	AlertID     string      `json:"alertId,omitempty"`
 	KnowledgeID string      `json:"knowledgeId"`
@@ -128,7 +128,7 @@ type RepairGuide struct {
 	References  []string    `json:"references,omitempty"`
 }
 
-// GuideStep 引导步骤
+// GuideStep 引导步骤.
 type GuideStep struct {
 	Order          int        `json:"order"`
 	Title          string     `json:"title"`
@@ -143,7 +143,7 @@ type GuideStep struct {
 	Note           string     `json:"note,omitempty"`
 }
 
-// StepStatus 步骤状态
+// StepStatus 步骤状态.
 type StepStatus string
 
 const (
@@ -154,14 +154,14 @@ const (
 	StepStatusFailed     StepStatus = "FAILED"
 )
 
-// GuideTracker 修复进度追踪器
+// GuideTracker 修复进度追踪器.
 type GuideTracker struct {
 	progress map[string]*RepairProgress // alertID -> progress
 	mu       sync.RWMutex
 	logger   *zap.Logger
 }
 
-// NewGuideTracker 创建追踪器
+// NewGuideTracker 创建追踪器.
 func NewGuideTracker(logger *zap.Logger) *GuideTracker {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -172,7 +172,7 @@ func NewGuideTracker(logger *zap.Logger) *GuideTracker {
 	}
 }
 
-// RepairProgress 修复进度
+// RepairProgress 修复进度.
 type RepairProgress struct {
 	AlertID        string             `json:"alertId"`
 	KnowledgeID    string             `json:"knowledgeId"`
@@ -186,7 +186,7 @@ type RepairProgress struct {
 	UpdatedAt      int64              `json:"updatedAt"`
 }
 
-// StartRepair 开始修复流程
+// StartRepair 开始修复流程.
 func (gt *GuideTracker) StartRepair(alertID, knowledgeID string, totalSteps int) *RepairProgress {
 	gt.mu.Lock()
 	defer gt.mu.Unlock()
@@ -209,7 +209,7 @@ func (gt *GuideTracker) StartRepair(alertID, knowledgeID string, totalSteps int)
 	return progress
 }
 
-// UpdateStep 更新步骤状态
+// UpdateStep 更新步骤状态.
 func (gt *GuideTracker) UpdateStep(alertID string, stepOrder int, status StepStatus, note string) error {
 	gt.mu.Lock()
 	defer gt.mu.Unlock()
@@ -253,7 +253,7 @@ func (gt *GuideTracker) UpdateStep(alertID string, stepOrder int, status StepSta
 	return nil
 }
 
-// GetProgress 获取修复进度
+// GetProgress 获取修复进度.
 func (gt *GuideTracker) GetProgress(alertID string) (*RepairProgress, bool) {
 	gt.mu.RLock()
 	defer gt.mu.RUnlock()
@@ -261,7 +261,7 @@ func (gt *GuideTracker) GetProgress(alertID string) (*RepairProgress, bool) {
 	return p, ok
 }
 
-// IsComplete 判断修复是否完成
+// IsComplete 判断修复是否完成.
 func (gt *GuideTracker) IsComplete(alertID string) bool {
 	gt.mu.RLock()
 	defer gt.mu.RUnlock()
@@ -272,7 +272,7 @@ func (gt *GuideTracker) IsComplete(alertID string) bool {
 	return p.CompletedSteps+p.SkippedSteps >= p.TotalSteps
 }
 
-// GetProgressPercent 获取完成百分比
+// GetProgressPercent 获取完成百分比.
 func (gt *GuideTracker) GetProgressPercent(alertID string) float64 {
 	gt.mu.RLock()
 	defer gt.mu.RUnlock()
@@ -283,7 +283,7 @@ func (gt *GuideTracker) GetProgressPercent(alertID string) float64 {
 	return float64(p.CompletedSteps+p.SkippedSteps) / float64(p.TotalSteps) * 100
 }
 
-// ListActive 列出进行中的修复
+// ListActive 列出进行中的修复.
 func (gt *GuideTracker) ListActive() []*RepairProgress {
 	gt.mu.RLock()
 	defer gt.mu.RUnlock()
@@ -296,7 +296,7 @@ func (gt *GuideTracker) ListActive() []*RepairProgress {
 	return result
 }
 
-// Remove 移除修复记录
+// Remove 移除修复记录.
 func (gt *GuideTracker) Remove(alertID string) {
 	gt.mu.Lock()
 	defer gt.mu.Unlock()

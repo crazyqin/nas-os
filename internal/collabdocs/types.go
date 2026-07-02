@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// DocumentType represents the type of document
+// DocumentType represents the type of document.
 type DocumentType string
 
 const (
@@ -21,7 +21,7 @@ const (
 	DocTypeDiagram  DocumentType = "diagram"
 )
 
-// Permission represents document permission
+// Permission represents document permission.
 type Permission string
 
 const (
@@ -31,7 +31,7 @@ const (
 	PermView    Permission = "view"
 )
 
-// Document represents a collaborative document
+// Document represents a collaborative document.
 type Document struct {
 	ID            string         `json:"id"`
 	Title         string         `json:"title"`
@@ -48,7 +48,7 @@ type Document struct {
 	UpdatedBy     string         `json:"updated_by"`
 }
 
-// Collaborator represents a document collaborator
+// Collaborator represents a document collaborator.
 type Collaborator struct {
 	UserID     string     `json:"user_id"`
 	Permission Permission `json:"permission"`
@@ -56,7 +56,7 @@ type Collaborator struct {
 	AddedBy    string     `json:"added_by"`
 }
 
-// Comment represents a document comment
+// Comment represents a document comment.
 type Comment struct {
 	ID        string    `json:"id"`
 	DocID     string    `json:"doc_id"`
@@ -68,7 +68,7 @@ type Comment struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// Version represents a document version
+// Version represents a document version.
 type Version struct {
 	ID        string    `json:"id"`
 	DocID     string    `json:"doc_id"`
@@ -80,7 +80,7 @@ type Version struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// Change represents a real-time change
+// Change represents a real-time change.
 type Change struct {
 	ID        string    `json:"id"`
 	DocID     string    `json:"doc_id"`
@@ -92,7 +92,7 @@ type Change struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// Cursor represents a user's cursor position
+// Cursor represents a user's cursor position.
 type Cursor struct {
 	UserID    string     `json:"user_id"`
 	DocID     string     `json:"doc_id"`
@@ -101,13 +101,13 @@ type Cursor struct {
 	UpdatedAt time.Time  `json:"updated_at"`
 }
 
-// Selection represents a text selection
+// Selection represents a text selection.
 type Selection struct {
 	Start int `json:"start"`
 	End   int `json:"end"`
 }
 
-// Session represents an editing session
+// Session represents an editing session.
 type Session struct {
 	ID        string    `json:"id"`
 	DocID     string    `json:"doc_id"`
@@ -118,7 +118,7 @@ type Session struct {
 	LastPing  time.Time `json:"last_ping"`
 }
 
-// Template represents a document template
+// Template represents a document template.
 type Template struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -130,7 +130,7 @@ type Template struct {
 	CreatedAt   time.Time    `json:"created_at"`
 }
 
-// Config represents collaborative docs configuration
+// Config represents collaborative docs configuration.
 type Config struct {
 	Enabled              bool `json:"enabled"`
 	MaxDocuments         int  `json:"max_documents"`
@@ -141,7 +141,7 @@ type Config struct {
 	MaxFileSize          int  `json:"max_file_size"` // bytes
 }
 
-// Manager manages collaborative documents
+// Manager manages collaborative documents.
 type Manager struct {
 	config     *Config
 	documents  map[string]*Document
@@ -155,7 +155,7 @@ type Manager struct {
 	changeChan chan *Change
 }
 
-// NewManager creates a new collaborative docs manager
+// NewManager creates a new collaborative docs manager.
 func NewManager(config *Config) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Manager{
@@ -171,7 +171,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// Start starts the collaborative docs manager
+// Start starts the collaborative docs manager.
 func (m *Manager) Start() error {
 	if !m.config.Enabled {
 		return nil
@@ -189,12 +189,12 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop stops the collaborative docs manager
+// Stop stops the collaborative docs manager.
 func (m *Manager) Stop() {
 	m.cancel()
 }
 
-// initDefaultTemplates initializes default templates
+// initDefaultTemplates initializes default templates.
 func (m *Manager) initDefaultTemplates() {
 	m.templates = []*Template{
 		{
@@ -232,7 +232,7 @@ func (m *Manager) initDefaultTemplates() {
 	}
 }
 
-// autoSave auto-saves documents
+// autoSave auto-saves documents.
 func (m *Manager) autoSave() {
 	ticker := time.NewTicker(time.Duration(m.config.AutoSaveInterval) * time.Second)
 	defer ticker.Stop()
@@ -247,12 +247,12 @@ func (m *Manager) autoSave() {
 	}
 }
 
-// saveAllDocuments saves all modified documents
+// saveAllDocuments saves all modified documents.
 func (m *Manager) saveAllDocuments() {
 	// Auto-save implementation
 }
 
-// cleanupSessions cleans up inactive sessions
+// cleanupSessions cleans up inactive sessions.
 func (m *Manager) cleanupSessions() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
@@ -267,7 +267,7 @@ func (m *Manager) cleanupSessions() {
 	}
 }
 
-// removeInactiveSessions removes inactive sessions
+// removeInactiveSessions removes inactive sessions.
 func (m *Manager) removeInactiveSessions() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -280,7 +280,7 @@ func (m *Manager) removeInactiveSessions() {
 	}
 }
 
-// CreateDocument creates a new document
+// CreateDocument creates a new document.
 func (m *Manager) CreateDocument(doc *Document) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -310,7 +310,7 @@ func (m *Manager) CreateDocument(doc *Document) error {
 	return nil
 }
 
-// GetDocument returns a document by ID
+// GetDocument returns a document by ID.
 func (m *Manager) GetDocument(docID string) (*Document, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -322,7 +322,7 @@ func (m *Manager) GetDocument(docID string) (*Document, error) {
 	return doc, nil
 }
 
-// UpdateDocument updates a document
+// UpdateDocument updates a document.
 func (m *Manager) UpdateDocument(docID string, content string, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -354,7 +354,7 @@ func (m *Manager) UpdateDocument(docID string, content string, userID string) er
 	return nil
 }
 
-// DeleteDocument deletes a document
+// DeleteDocument deletes a document.
 func (m *Manager) DeleteDocument(docID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -370,7 +370,7 @@ func (m *Manager) DeleteDocument(docID string) error {
 	return nil
 }
 
-// ListDocuments lists documents for a user
+// ListDocuments lists documents for a user.
 func (m *Manager) ListDocuments(userID string) []*Document {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -391,7 +391,7 @@ func (m *Manager) ListDocuments(userID string) []*Document {
 	return docs
 }
 
-// AddCollaborator adds a collaborator to a document
+// AddCollaborator adds a collaborator to a document.
 func (m *Manager) AddCollaborator(docID string, collab Collaborator) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -407,7 +407,7 @@ func (m *Manager) AddCollaborator(docID string, collab Collaborator) error {
 	return nil
 }
 
-// RemoveCollaborator removes a collaborator
+// RemoveCollaborator removes a collaborator.
 func (m *Manager) RemoveCollaborator(docID string, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -427,7 +427,7 @@ func (m *Manager) RemoveCollaborator(docID string, userID string) error {
 	return nil
 }
 
-// AddComment adds a comment to a document
+// AddComment adds a comment to a document.
 func (m *Manager) AddComment(comment *Comment) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -446,7 +446,7 @@ func (m *Manager) AddComment(comment *Comment) error {
 	return nil
 }
 
-// GetComments returns comments for a document
+// GetComments returns comments for a document.
 func (m *Manager) GetComments(docID string) []*Comment {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -454,7 +454,7 @@ func (m *Manager) GetComments(docID string) []*Comment {
 	return m.comments[docID]
 }
 
-// GetVersions returns versions for a document
+// GetVersions returns versions for a document.
 func (m *Manager) GetVersions(docID string) []*Version {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -462,7 +462,7 @@ func (m *Manager) GetVersions(docID string) []*Version {
 	return m.versions[docID]
 }
 
-// JoinSession joins an editing session
+// JoinSession joins an editing session.
 func (m *Manager) JoinSession(docID string, userID string) *Session {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -480,7 +480,7 @@ func (m *Manager) JoinSession(docID string, userID string) *Session {
 	return session
 }
 
-// LeaveSession leaves an editing session
+// LeaveSession leaves an editing session.
 func (m *Manager) LeaveSession(sessionID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -491,18 +491,18 @@ func (m *Manager) LeaveSession(sessionID string) {
 	}
 }
 
-// ApplyChange applies a real-time change
+// ApplyChange applies a real-time change.
 func (m *Manager) ApplyChange(change *Change) error {
 	m.changeChan <- change
 	return nil
 }
 
-// GetTemplates returns document templates
+// GetTemplates returns document templates.
 func (m *Manager) GetTemplates() []*Template {
 	return m.templates
 }
 
-// GetStats returns document statistics
+// GetStats returns document statistics.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

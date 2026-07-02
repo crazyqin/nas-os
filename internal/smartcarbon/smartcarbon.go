@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// CarbonSource 碳排放来源
+// CarbonSource 碳排放来源.
 type CarbonSource string
 
 const (
@@ -21,7 +21,7 @@ const (
 	SourceIdle    CarbonSource = "idle"
 )
 
-// EnergyType 能源类型
+// EnergyType 能源类型.
 type EnergyType string
 
 const (
@@ -32,7 +32,7 @@ const (
 	EnergyHybrid  EnergyType = "hybrid"
 )
 
-// CarbonIntensity 碳强度级别
+// CarbonIntensity 碳强度级别.
 type CarbonIntensity string
 
 const (
@@ -42,7 +42,7 @@ const (
 	IntensityCritical CarbonIntensity = "critical"
 )
 
-// CarbonRecord 碳排放记录
+// CarbonRecord 碳排放记录.
 type CarbonRecord struct {
 	ID          string            `json:"id"`
 	Timestamp   time.Time         `json:"timestamp"`
@@ -54,7 +54,7 @@ type CarbonRecord struct {
 	Metadata    map[string]string `json:"metadata,omitempty"`
 }
 
-// CarbonBudget 碳预算
+// CarbonBudget 碳预算.
 type CarbonBudget struct {
 	ID               string    `json:"id"`
 	Name             string    `json:"name"`
@@ -69,7 +69,7 @@ type CarbonBudget struct {
 	UpdatedAt        time.Time `json:"updated_at"`
 }
 
-// CarbonFootprint 碳足迹
+// CarbonFootprint 碳足迹.
 type CarbonFootprint struct {
 	TotalKg         float64                  `json:"total_kg"`
 	BySource        map[CarbonSource]float64 `json:"by_source"`
@@ -81,7 +81,7 @@ type CarbonFootprint struct {
 	Intensity       CarbonIntensity          `json:"intensity"`
 }
 
-// CarbonOffset 碳补偿
+// CarbonOffset 碳补偿.
 type CarbonOffset struct {
 	ID          string     `json:"id"`
 	ProjectName string     `json:"project_name"`
@@ -93,7 +93,7 @@ type CarbonOffset struct {
 	VerifiedAt  *time.Time `json:"verified_at,omitempty"`
 }
 
-// GreenOptimization 绿色优化建议
+// GreenOptimization 绿色优化建议.
 type GreenOptimization struct {
 	ID          string  `json:"id"`
 	Category    string  `json:"category"`
@@ -105,7 +105,7 @@ type GreenOptimization struct {
 	Implemented bool    `json:"implemented"`
 }
 
-// CarbonStats 碳管理统计
+// CarbonStats 碳管理统计.
 type CarbonStats struct {
 	TodayKg        float64         `json:"today_kg"`
 	ThisWeekKg     float64         `json:"this_week_kg"`
@@ -120,7 +120,7 @@ type CarbonStats struct {
 	NetEmissions   float64         `json:"net_emissions"`
 }
 
-// CarbonManager 碳管理器
+// CarbonManager 碳管理器.
 type CarbonManager struct {
 	mu             sync.RWMutex
 	records        []CarbonRecord
@@ -131,7 +131,7 @@ type CarbonManager struct {
 	emissionFactor float64 // kg CO2 per kWh
 }
 
-// CarbonConfig 碳管理配置
+// CarbonConfig 碳管理配置.
 type CarbonConfig struct {
 	DefaultRegion    string  `json:"default_region"`
 	EmissionFactor   float64 `json:"emission_factor"`
@@ -142,7 +142,7 @@ type CarbonConfig struct {
 	TrackingInterval int     `json:"tracking_interval_minutes"`
 }
 
-// NewCarbonManager 创建碳管理器
+// NewCarbonManager 创建碳管理器.
 func NewCarbonManager(config *CarbonConfig) *CarbonManager {
 	if config == nil {
 		config = &CarbonConfig{
@@ -164,7 +164,7 @@ func NewCarbonManager(config *CarbonConfig) *CarbonManager {
 	}
 }
 
-// RecordEmission 记录碳排放
+// RecordEmission 记录碳排放.
 func (cm *CarbonManager) RecordEmission(record *CarbonRecord) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -189,7 +189,7 @@ func (cm *CarbonManager) RecordEmission(record *CarbonRecord) error {
 	return nil
 }
 
-// SetBudget 设置碳预算
+// SetBudget 设置碳预算.
 func (cm *CarbonManager) SetBudget(budget *CarbonBudget) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -202,7 +202,7 @@ func (cm *CarbonManager) SetBudget(budget *CarbonBudget) error {
 	return nil
 }
 
-// AddOffset 添加碳补偿
+// AddOffset 添加碳补偿.
 func (cm *CarbonManager) AddOffset(offset *CarbonOffset) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -219,7 +219,7 @@ func (cm *CarbonManager) AddOffset(offset *CarbonOffset) error {
 	return nil
 }
 
-// VerifyOffset 验证碳补偿
+// VerifyOffset 验证碳补偿.
 func (cm *CarbonManager) VerifyOffset(offsetID string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -235,7 +235,7 @@ func (cm *CarbonManager) VerifyOffset(offsetID string) error {
 	return fmt.Errorf("offset %s not found", offsetID)
 }
 
-// GetFootprint 获取碳足迹
+// GetFootprint 获取碳足迹.
 func (cm *CarbonManager) GetFootprint(start, end time.Time) *CarbonFootprint {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -274,7 +274,7 @@ func (cm *CarbonManager) GetFootprint(start, end time.Time) *CarbonFootprint {
 	return footprint
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (cm *CarbonManager) GetStats() *CarbonStats {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -338,7 +338,7 @@ func (cm *CarbonManager) GetStats() *CarbonStats {
 	return stats
 }
 
-// GetOptimizations 获取优化建议
+// GetOptimizations 获取优化建议.
 func (cm *CarbonManager) GetOptimizations() []GreenOptimization {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -385,7 +385,7 @@ func (cm *CarbonManager) GetOptimizations() []GreenOptimization {
 	return optimizations
 }
 
-// MarshalJSON 序列化
+// MarshalJSON 序列化.
 func (cm *CarbonManager) MarshalJSON() ([]byte, error) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -460,7 +460,7 @@ func (cm *CarbonManager) calculateIntensity(dailyKg float64) CarbonIntensity {
 	}
 }
 
-// EstimateCarbonFootprint 估算碳足迹
+// EstimateCarbonFootprint 估算碳足迹.
 func EstimateCarbonFootprint(storageTB float64, computeHours float64, networkGB float64) float64 {
 	// 存储：每 TB 每年约 50 kg CO2
 	storageKg := storageTB * 50.0
@@ -474,7 +474,7 @@ func EstimateCarbonFootprint(storageTB float64, computeHours float64, networkGB 
 	return storageKg + computeKg + networkKg
 }
 
-// ConvertToTrees 将碳排放转换为等效树木
+// ConvertToTrees 将碳排放转换为等效树木.
 func ConvertToTrees(carbonKg float64) float64 {
 	// 一棵树每年吸收约 22 kg CO2
 	return math.Ceil(carbonKg / 22.0)

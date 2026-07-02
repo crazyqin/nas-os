@@ -282,12 +282,12 @@ func TestCheckTransferRestrictedRegion(t *testing.T) {
 
 	// 创建标签，允许 US 但禁止 CN
 	svc.CreateTag(TagRequest{
-		ResourcePath:   "/data/us-only/data.dat",
-		ResourceType:   ResourceFile,
-		Frameworks:     []ComplianceFramework{FrameworkCCPA},
-		AllowedRegions: []DataRegion{RegionUS},
+		ResourcePath:      "/data/us-only/data.dat",
+		ResourceType:      ResourceFile,
+		Frameworks:        []ComplianceFramework{FrameworkCCPA},
+		AllowedRegions:    []DataRegion{RegionUS},
 		RestrictedRegions: []DataRegion{RegionCN},
-		CreatedBy:      "admin",
+		CreatedBy:         "admin",
 	})
 
 	// 传输到 CN 应该被阻止

@@ -11,7 +11,7 @@ import (
 
 // ========== 内置通知器实现 ==========
 
-// EmailNotifier 邮件通知器
+// EmailNotifier 邮件通知器.
 type EmailNotifier struct {
 	SMTPHost     string
 	SMTPPort     int
@@ -20,31 +20,31 @@ type EmailNotifier struct {
 	From         string
 }
 
-// WebhookNotifier Webhook通知器
+// WebhookNotifier Webhook通知器.
 type WebhookNotifier struct {
 	URL     string
 	Timeout time.Duration
 	Headers map[string]string
 }
 
-// CompositeNotifier 组合通知器（支持多种通知渠道）
+// CompositeNotifier 组合通知器（支持多种通知渠道）.
 type CompositeNotifier struct {
 	notifiers map[string]Notifier // channelType -> Notifier
 }
 
-// NewCompositeNotifier 创建组合通知器
+// NewCompositeNotifier 创建组合通知器.
 func NewCompositeNotifier() *CompositeNotifier {
 	return &CompositeNotifier{
 		notifiers: make(map[string]Notifier),
 	}
 }
 
-// AddNotifier 添加通知器
+// AddNotifier 添加通知器.
 func (cn *CompositeNotifier) AddNotifier(channelType string, n Notifier) {
 	cn.notifiers[channelType] = n
 }
 
-// SendAlert 发送告警
+// SendAlert 发送告警.
 func (cn *CompositeNotifier) SendAlert(alert *Alert, config *NotificationConfig) error {
 	for _, channel := range config.Channels {
 		if n, ok := cn.notifiers[channel]; ok {
@@ -57,7 +57,7 @@ func (cn *CompositeNotifier) SendAlert(alert *Alert, config *NotificationConfig)
 	return nil
 }
 
-// SendAlert 发送告警（Webhook）
+// SendAlert 发送告警（Webhook）.
 func (wn *WebhookNotifier) SendAlert(alert *Alert, config *NotificationConfig) error {
 	if wn.URL == "" {
 		return fmt.Errorf("webhook URL 未配置")
@@ -107,7 +107,7 @@ func (wn *WebhookNotifier) SendAlert(alert *Alert, config *NotificationConfig) e
 
 // ========== 告警消息格式化 ==========
 
-// FormatAlertMessage 格式化告警消息
+// FormatAlertMessage 格式化告警消息.
 func FormatAlertMessage(alert *Alert) string {
 	var icon string
 	switch AlertType(alert.Type) {
@@ -123,7 +123,7 @@ func FormatAlertMessage(alert *Alert) string {
 		icon, alert.Target, alert.Percent, alert.Message, alert.CreatedAt.Format(time.RFC3339))
 }
 
-// FormatEmailSubject 格式化邮件主题
+// FormatEmailSubject 格式化邮件主题.
 func FormatEmailSubject(alert *Alert) string {
 	switch AlertType(alert.Type) {
 	case AlertTypeWarning:
@@ -135,7 +135,7 @@ func FormatEmailSubject(alert *Alert) string {
 	}
 }
 
-// FormatSlackPayload 格式化Slack消息
+// FormatSlackPayload 格式化Slack消息.
 func FormatSlackPayload(alert *Alert) map[string]interface{} {
 	var color string
 	switch AlertType(alert.Type) {
@@ -159,7 +159,7 @@ func FormatSlackPayload(alert *Alert) map[string]interface{} {
 	}
 }
 
-// FormatDiscordPayload 格式化Discord消息
+// FormatDiscordPayload 格式化Discord消息.
 func FormatDiscordPayload(alert *Alert) map[string]interface{} {
 	return map[string]interface{}{
 		"content": FormatAlertMessage(alert),

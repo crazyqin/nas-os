@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// ActivityMonitor 活动监控器
+// ActivityMonitor 活动监控器.
 type ActivityMonitor struct {
 	tracker      *ActivityTracker
 	detector     *AnomalyDetector
@@ -18,7 +18,7 @@ type ActivityMonitor struct {
 	mu           sync.RWMutex
 }
 
-// ActivityConfig 活动监控配置
+// ActivityConfig 活动监控配置.
 type ActivityConfig struct {
 	// 监控路径
 	WatchPaths []string `json:"watchPaths"`
@@ -48,7 +48,7 @@ type ActivityConfig struct {
 	EnableNetworkBehavior bool `json:"enableNetworkBehavior"`
 }
 
-// DefaultActivityConfig 默认配置
+// DefaultActivityConfig 默认配置.
 func DefaultActivityConfig() *ActivityConfig {
 	return &ActivityConfig{
 		WatchPaths:   []string{"/"},
@@ -76,7 +76,7 @@ func DefaultActivityConfig() *ActivityConfig {
 	}
 }
 
-// NewActivityMonitor 创建活动监控器
+// NewActivityMonitor 创建活动监控器.
 func NewActivityMonitor(config *ActivityConfig, logger interface{}) *ActivityMonitor {
 	if config == nil {
 		config = DefaultActivityConfig()
@@ -91,7 +91,7 @@ func NewActivityMonitor(config *ActivityConfig, logger interface{}) *ActivityMon
 	}
 }
 
-// FileActivity 文件活动事件
+// FileActivity 文件活动事件.
 type FileActivity struct {
 	ID         string       `json:"id"`
 	Path       string       `json:"path"`
@@ -109,7 +109,7 @@ type FileActivity struct {
 	Tags       []string     `json:"tags"`
 }
 
-// ActivityType 活动类型
+// ActivityType 活动类型.
 type ActivityType string
 
 const (
@@ -126,7 +126,7 @@ const (
 	ActivityMove     ActivityType = "move"
 )
 
-// RecordActivity 记录活动事件
+// RecordActivity 记录活动事件.
 func (am *ActivityMonitor) RecordActivity(activity *FileActivity) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -165,7 +165,7 @@ func (am *ActivityMonitor) RecordActivity(activity *FileActivity) error {
 	return nil
 }
 
-// GetActivityHistory 获取活动历史
+// GetActivityHistory 获取活动历史.
 func (am *ActivityMonitor) GetActivityHistory(filter *ActivityFilter) []*FileActivity {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -173,17 +173,17 @@ func (am *ActivityMonitor) GetActivityHistory(filter *ActivityFilter) []*FileAct
 	return am.tracker.GetHistory(filter)
 }
 
-// GetAnomalyAlerts 获取异常告警
+// GetAnomalyAlerts 获取异常告警.
 func (am *ActivityMonitor) GetAnomalyAlerts(severity string, limit int) []*AnomalyAlert {
 	return am.alertManager.GetAlerts(severity, limit)
 }
 
-// ClearAlert 清除告警
+// ClearAlert 清除告警.
 func (am *ActivityMonitor) ClearAlert(alertID string) error {
 	return am.alertManager.ClearAlert(alertID)
 }
 
-// GetStatistics 获取统计信息
+// GetStatistics 获取统计信息.
 func (am *ActivityMonitor) GetStatistics() *ActivityStatistics {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -197,7 +197,7 @@ func (am *ActivityMonitor) GetStatistics() *ActivityStatistics {
 	return stats
 }
 
-// ActivityFilter 活动过滤条件
+// ActivityFilter 活动过滤条件.
 type ActivityFilter struct {
 	Path         string         `json:"path"`
 	User         string         `json:"user"`
@@ -210,7 +210,7 @@ type ActivityFilter struct {
 	Limit        int            `json:"limit"`
 }
 
-// ActivityStatistics 活动统计
+// ActivityStatistics 活动统计.
 type ActivityStatistics struct {
 	TotalActivities  int64            `json:"totalActivities"`
 	AnomalyCount     int64            `json:"anomalyCount"`
@@ -225,20 +225,20 @@ type ActivityStatistics struct {
 	AvgDailyRate     float64          `json:"avgDailyRate"`
 }
 
-// PathActivity 路径活动统计
+// PathActivity 路径活动统计.
 type PathActivity struct {
 	Path  string `json:"path"`
 	Count int64  `json:"count"`
 }
 
-// UserActivity 用户活动统计
+// UserActivity 用户活动统计.
 type UserActivity struct {
 	User        string  `json:"user"`
 	Count       int64   `json:"count"`
 	AnomalyRate float64 `json:"anomalyRate"`
 }
 
-// ActivityTracker 活动追踪器
+// ActivityTracker 活动追踪器.
 type ActivityTracker struct {
 	records    []*FileActivity
 	maxRecords int
@@ -246,7 +246,7 @@ type ActivityTracker struct {
 	mu         sync.RWMutex
 }
 
-// NewActivityTracker 创建追踪器
+// NewActivityTracker 创建追踪器.
 func NewActivityTracker(maxRecords int) *ActivityTracker {
 	return &ActivityTracker{
 		records:    make([]*FileActivity, 0),
@@ -260,7 +260,7 @@ func NewActivityTracker(maxRecords int) *ActivityTracker {
 	}
 }
 
-// Record 记录活动
+// Record 记录活动.
 func (t *ActivityTracker) Record(activity *FileActivity) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -277,7 +277,7 @@ func (t *ActivityTracker) Record(activity *FileActivity) {
 	t.updateStats(activity)
 }
 
-// updateStats 更新统计信息
+// updateStats 更新统计信息.
 func (t *ActivityTracker) updateStats(activity *FileActivity) {
 	t.stats.TotalActivities++
 
@@ -295,7 +295,7 @@ func (t *ActivityTracker) updateStats(activity *FileActivity) {
 	t.stats.HourlyActivity[hour]++
 }
 
-// GetHistory 获取历史记录
+// GetHistory 获取历史记录.
 func (t *ActivityTracker) GetHistory(filter *ActivityFilter) []*FileActivity {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -317,7 +317,7 @@ func (t *ActivityTracker) GetHistory(filter *ActivityFilter) []*FileActivity {
 	return result
 }
 
-// matchFilter 匹配过滤条件
+// matchFilter 匹配过滤条件.
 func (t *ActivityTracker) matchFilter(activity *FileActivity, filter *ActivityFilter) bool {
 	if filter == nil {
 		return true
@@ -367,7 +367,7 @@ func (t *ActivityTracker) matchFilter(activity *FileActivity, filter *ActivityFi
 	return true
 }
 
-// GetStatistics 获取统计信息
+// GetStatistics 获取统计信息.
 func (t *ActivityTracker) GetStatistics() *ActivityStatistics {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -375,7 +375,7 @@ func (t *ActivityTracker) GetStatistics() *ActivityStatistics {
 	return t.stats
 }
 
-// AnomalyDetector 异常检测器
+// AnomalyDetector 异常检测器.
 type AnomalyDetector struct {
 	config   *ActivityConfig
 	patterns map[string]*BehaviorPattern
@@ -384,7 +384,7 @@ type AnomalyDetector struct {
 	mu       sync.RWMutex
 }
 
-// BehaviorPattern 行为模式
+// BehaviorPattern 行为模式.
 type BehaviorPattern struct {
 	User         string         `json:"user"`
 	Path         string         `json:"path"`
@@ -394,7 +394,7 @@ type BehaviorPattern struct {
 	LastUpdate   time.Time      `json:"lastUpdate"`
 }
 
-// AnomalyRule 异常规则
+// AnomalyRule 异常规则.
 type AnomalyRule struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
@@ -405,7 +405,7 @@ type AnomalyRule struct {
 	Enabled     bool          `json:"enabled"`
 }
 
-// AnomalyType 异常类型
+// AnomalyType 异常类型.
 type AnomalyType string
 
 const (
@@ -420,7 +420,7 @@ const (
 	AnomalyAbnormalPath     AnomalyType = "abnormal_path"     // 异常路径
 )
 
-// AlertSeverity 告警严重性
+// AlertSeverity 告警严重性.
 type AlertSeverity string
 
 const (
@@ -430,7 +430,7 @@ const (
 	SeverityCritical AlertSeverity = "critical"
 )
 
-// NewAnomalyDetector 创建异常检测器
+// NewAnomalyDetector 创建异常检测器.
 func NewAnomalyDetector(config *ActivityConfig) *AnomalyDetector {
 	detector := &AnomalyDetector{
 		config:   config,
@@ -444,7 +444,7 @@ func NewAnomalyDetector(config *ActivityConfig) *AnomalyDetector {
 	return detector
 }
 
-// DefaultAnomalyRules 默认异常规则
+// DefaultAnomalyRules 默认异常规则.
 func DefaultAnomalyRules() []*AnomalyRule {
 	return []*AnomalyRule{
 		{
@@ -504,7 +504,7 @@ func DefaultAnomalyRules() []*AnomalyRule {
 	}
 }
 
-// DetectionStats 检测统计
+// DetectionStats 检测统计.
 type DetectionStats struct {
 	TotalDetected   int64            `json:"totalDetected"`
 	AnomalyCount    int64            `json:"anomalyCount"`
@@ -512,7 +512,7 @@ type DetectionStats struct {
 	LastDetection   time.Time        `json:"lastDetection"`
 }
 
-// AnomalyResult 异常检测结果
+// AnomalyResult 异常检测结果.
 type AnomalyResult struct {
 	IsAnomaly bool          `json:"isAnomaly"`
 	Type      AnomalyType   `json:"type"`
@@ -523,7 +523,7 @@ type AnomalyResult struct {
 	RuleID    string        `json:"ruleId"`
 }
 
-// DetectAnomaly 检测异常行为
+// DetectAnomaly 检测异常行为.
 func (ad *AnomalyDetector) DetectAnomaly(activity *FileActivity) *AnomalyResult {
 	ad.mu.RLock()
 	defer ad.mu.RUnlock()
@@ -598,19 +598,19 @@ func (ad *AnomalyDetector) DetectAnomaly(activity *FileActivity) *AnomalyResult 
 	return result
 }
 
-// checkMassDelete 检查大量删除
+// checkMassDelete 检查大量删除.
 func (ad *AnomalyDetector) checkMassDelete(activity *FileActivity, rule *AnomalyRule) bool {
 	return activity.EventType == ActivityDelete && activity.Size > int64(rule.Threshold)
 }
 
-// checkUnusualTime 检查异常时间
+// checkUnusualTime 检查异常时间.
 func (ad *AnomalyDetector) checkUnusualTime(activity *FileActivity, rule *AnomalyRule) bool {
 	hour := activity.Timestamp.Hour()
 	// 非工作时间定义: 22:00-06:00
 	return (hour >= 22 || hour < 6) && activity.EventType != ActivityAccess
 }
 
-// checkSuspiciousFile 检查可疑文件
+// checkSuspiciousFile 检查可疑文件.
 func (ad *AnomalyDetector) checkSuspiciousFile(activity *FileActivity, rule *AnomalyRule) bool {
 	suspiciousExtensions := []string{
 		".exe", ".bat", ".cmd", ".ps1", ".vbs", ".js",
@@ -626,7 +626,7 @@ func (ad *AnomalyDetector) checkSuspiciousFile(activity *FileActivity, rule *Ano
 	return false
 }
 
-// checkRansomware 检查勒索软件行为
+// checkRansomware 检查勒索软件行为.
 func (ad *AnomalyDetector) checkRansomware(activity *FileActivity, rule *AnomalyRule) bool {
 	// 检测勒索软件特征:
 	// 1. 修改文件后改为加密扩展名
@@ -648,7 +648,7 @@ func (ad *AnomalyDetector) checkRansomware(activity *FileActivity, rule *Anomaly
 	return false
 }
 
-// calculateRiskScore 计算风险评分
+// calculateRiskScore 计算风险评分.
 func (ad *AnomalyDetector) calculateRiskScore(severity AlertSeverity) float64 {
 	switch severity {
 	case SeverityCritical:
@@ -664,28 +664,28 @@ func (ad *AnomalyDetector) calculateRiskScore(severity AlertSeverity) float64 {
 	}
 }
 
-// GetAnomalyCount 获取异常计数
+// GetAnomalyCount 获取异常计数.
 func (ad *AnomalyDetector) GetAnomalyCount() int64 {
 	ad.mu.RLock()
 	defer ad.mu.RUnlock()
 	return ad.stats.AnomalyCount
 }
 
-// GetDetectionStats 获取检测统计
+// GetDetectionStats 获取检测统计.
 func (ad *AnomalyDetector) GetDetectionStats() *DetectionStats {
 	ad.mu.RLock()
 	defer ad.mu.RUnlock()
 	return ad.stats
 }
 
-// AddRule 添加规则
+// AddRule 添加规则.
 func (ad *AnomalyDetector) AddRule(rule *AnomalyRule) {
 	ad.mu.Lock()
 	defer ad.mu.Unlock()
 	ad.rules = append(ad.rules, rule)
 }
 
-// RemoveRule 移除规则
+// RemoveRule 移除规则.
 func (ad *AnomalyDetector) RemoveRule(ruleID string) {
 	ad.mu.Lock()
 	defer ad.mu.Unlock()
@@ -698,14 +698,14 @@ func (ad *AnomalyDetector) RemoveRule(ruleID string) {
 	}
 }
 
-// AlertManager 告警管理器
+// AlertManager 告警管理器.
 type AlertManager struct {
 	alerts    []*AnomalyAlert
 	maxAlerts int
 	mu        sync.RWMutex
 }
 
-// NewAlertManager 创建告警管理器
+// NewAlertManager 创建告警管理器.
 func NewAlertManager() *AlertManager {
 	return &AlertManager{
 		alerts:    make([]*AnomalyAlert, 0),
@@ -713,7 +713,7 @@ func NewAlertManager() *AlertManager {
 	}
 }
 
-// AnomalyAlert 异常告警
+// AnomalyAlert 异常告警.
 type AnomalyAlert struct {
 	ID        string        `json:"id"`
 	Type      AnomalyType   `json:"type"`
@@ -728,7 +728,7 @@ type AnomalyAlert struct {
 	ClearedAt time.Time     `json:"clearedAt"`
 }
 
-// AlertStatus 告警状态
+// AlertStatus 告警状态.
 type AlertStatus string
 
 const (
@@ -737,7 +737,7 @@ const (
 	AlertAcknowledged AlertStatus = "acknowledged"
 )
 
-// CreateAlert 创建告警
+// CreateAlert 创建告警.
 func (am *AlertManager) CreateAlert(alert *AnomalyAlert) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -751,7 +751,7 @@ func (am *AlertManager) CreateAlert(alert *AnomalyAlert) {
 	}
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (am *AlertManager) GetAlerts(severity string, limit int) []*AnomalyAlert {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -773,7 +773,7 @@ func (am *AlertManager) GetAlerts(severity string, limit int) []*AnomalyAlert {
 	return result
 }
 
-// ClearAlert 清除告警
+// ClearAlert 清除告警.
 func (am *AlertManager) ClearAlert(alertID string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -789,7 +789,7 @@ func (am *AlertManager) ClearAlert(alertID string) error {
 	return nil
 }
 
-// GetAlertCount 获取告警计数
+// GetAlertCount 获取告警计数.
 func (am *AlertManager) GetAlertCount() int64 {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -804,7 +804,7 @@ func (am *AlertManager) GetAlertCount() int64 {
 	return int64(count)
 }
 
-// StartMonitoring 启动监控
+// StartMonitoring 启动监控.
 func (am *ActivityMonitor) StartMonitoring(ctx context.Context) error {
 	// 启动实时监控（轻量轮询实现）
 	if am.config.EnableRealtime {
@@ -817,7 +817,7 @@ func (am *ActivityMonitor) StartMonitoring(ctx context.Context) error {
 	return nil
 }
 
-// startCleanup 启动清理任务
+// startCleanup 启动清理任务.
 func (am *ActivityMonitor) startCleanup(ctx context.Context) {
 	ticker := time.NewTicker(time.Hour)
 	defer ticker.Stop()
@@ -832,7 +832,7 @@ func (am *ActivityMonitor) startCleanup(ctx context.Context) {
 	}
 }
 
-// cleanupOldRecords 清理旧记录
+// cleanupOldRecords 清理旧记录.
 func (am *ActivityMonitor) cleanupOldRecords() {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -863,7 +863,7 @@ func (am *ActivityMonitor) cleanupOldRecords() {
 	am.alertManager.alerts = newAlerts
 }
 
-// StopMonitoring 停止监控
+// StopMonitoring 停止监控.
 func (am *ActivityMonitor) StopMonitoring() error {
 	return nil
 }

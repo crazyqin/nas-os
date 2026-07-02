@@ -6,17 +6,17 @@ import (
 	"time"
 )
 
-// Handlers provides HTTP handlers for the health score API
+// Handlers provides HTTP handlers for the health score API.
 type Handlers struct {
 	hs *HealthScore
 }
 
-// NewHandlers creates new HTTP handlers
+// NewHandlers creates new HTTP handlers.
 func NewHandlers(hs *HealthScore) *Handlers {
 	return &Handlers{hs: hs}
 }
 
-// RegisterRoutes registers the HTTP routes
+// RegisterRoutes registers the HTTP routes.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/healthscore/report", h.handleReport)
 	mux.HandleFunc("/api/v1/healthscore/history", h.handleHistory)
@@ -26,7 +26,7 @@ func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/healthscore/weights", h.handleWeights)
 }
 
-// handleReport handles report generation requests
+// handleReport handles report generation requests.
 func (h *Handlers) handleReport(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -43,7 +43,7 @@ func (h *Handlers) handleReport(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(report)
 }
 
-// handleHistory handles history requests
+// handleHistory handles history requests.
 func (h *Handlers) handleHistory(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -57,7 +57,7 @@ func (h *Handlers) handleHistory(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(history)
 }
 
-// handleTrend handles trend analysis requests
+// handleTrend handles trend analysis requests.
 func (h *Handlers) handleTrend(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -71,7 +71,7 @@ func (h *Handlers) handleTrend(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(trend)
 }
 
-// handleWorst handles worst components requests
+// handleWorst handles worst components requests.
 func (h *Handlers) handleWorst(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -85,7 +85,7 @@ func (h *Handlers) handleWorst(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(worst)
 }
 
-// handleDistribution handles distribution requests
+// handleDistribution handles distribution requests.
 func (h *Handlers) handleDistribution(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -98,7 +98,7 @@ func (h *Handlers) handleDistribution(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(distribution)
 }
 
-// handleWeights handles weight configuration requests
+// handleWeights handles weight configuration requests.
 func (h *Handlers) handleWeights(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:

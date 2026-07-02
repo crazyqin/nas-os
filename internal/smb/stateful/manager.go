@@ -13,7 +13,7 @@ import (
 
 // StatefulFailoverManager SMB Stateful Failover Phase2 管理器
 // 对标 TrueNAS 26 CTDB-like stateful failover
-// 核心改进：真正的会话状态序列化/反序列化，跨节点会话迁移
+// 核心改进：真正的会话状态序列化/反序列化，跨节点会话迁移.
 type StatefulFailoverManager struct {
 	mu          sync.RWMutex
 	config      *StatefulFailoverConfig
@@ -27,7 +27,7 @@ type StatefulFailoverManager struct {
 	wg          sync.WaitGroup // 追踪后台goroutine
 }
 
-// StatefulFailoverConfig Stateful Failover配置
+// StatefulFailoverConfig Stateful Failover配置.
 type StatefulFailoverConfig struct {
 	Enabled             bool          `json:"enabled"`
 	ClusterName         string        `json:"cluster_name"`
@@ -42,7 +42,7 @@ type StatefulFailoverConfig struct {
 	RecoveryConcurrency int           `json:"recovery_concurrency"`
 }
 
-// PeerConfig 对等节点配置
+// PeerConfig 对等节点配置.
 type PeerConfig struct {
 	NodeID   string `json:"node_id"`
 	Address  string `json:"address"`
@@ -50,7 +50,7 @@ type PeerConfig struct {
 	Priority int    `json:"priority"`
 }
 
-// FailoverNode 故障转移节点
+// FailoverNode 故障转移节点.
 type FailoverNode struct {
 	NodeID      string     `json:"node_id"`
 	Address     string     `json:"address"`
@@ -63,7 +63,7 @@ type FailoverNode struct {
 	IsLocal     bool       `json:"is_local"`
 }
 
-// NodeStatus 节点状态
+// NodeStatus 节点状态.
 type NodeStatus string
 
 const (
@@ -74,7 +74,7 @@ const (
 	NodeStatusFailing  NodeStatus = "failing"
 )
 
-// NodeRole 节点角色
+// NodeRole 节点角色.
 type NodeRole string
 
 const (
@@ -83,7 +83,7 @@ const (
 	RoleWitness   NodeRole = "witness"
 )
 
-// FailoverEvent 故障转移事件
+// FailoverEvent 故障转移事件.
 type FailoverEvent struct {
 	Type      EventType `json:"type"`
 	Timestamp time.Time `json:"timestamp"`
@@ -93,7 +93,7 @@ type FailoverEvent struct {
 	Message   string    `json:"message"`
 }
 
-// EventType 事件类型
+// EventType 事件类型.
 type EventType string
 
 const (
@@ -106,7 +106,7 @@ const (
 	EventNodeRecovered    EventType = "node_recovered"
 )
 
-// NewStatefulFailoverManager 创建Stateful Failover管理器
+// NewStatefulFailoverManager 创建Stateful Failover管理器.
 func NewStatefulFailoverManager(cfg *StatefulFailoverConfig) (*StatefulFailoverManager, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("配置不能为空")
@@ -163,7 +163,7 @@ func NewStatefulFailoverManager(cfg *StatefulFailoverConfig) (*StatefulFailoverM
 	return mgr, nil
 }
 
-// Start 启动Stateful Failover管理器
+// Start 启动Stateful Failover管理器.
 func (m *StatefulFailoverManager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -189,7 +189,7 @@ func (m *StatefulFailoverManager) Start() error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *StatefulFailoverManager) Stop() error {
 	m.cancel()
 
@@ -204,7 +204,7 @@ func (m *StatefulFailoverManager) Stop() error {
 	return nil
 }
 
-// RegisterSession 注册SMB会话到Stateful跟踪
+// RegisterSession 注册SMB会话到Stateful跟踪.
 func (m *StatefulFailoverManager) RegisterSession(session *SessionState) error {
 	if session == nil {
 		return fmt.Errorf("会话不能为空")
@@ -216,12 +216,12 @@ func (m *StatefulFailoverManager) RegisterSession(session *SessionState) error {
 	return nil
 }
 
-// UnregisterSession 取消注册
+// UnregisterSession 取消注册.
 func (m *StatefulFailoverManager) UnregisterSession(sessionID string) {
 	m.registry.Remove(sessionID)
 }
 
-// TriggerFailover 触发故障转移
+// TriggerFailover 触发故障转移.
 func (m *StatefulFailoverManager) TriggerFailover(failedNodeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -302,7 +302,7 @@ func (m *StatefulFailoverManager) TriggerFailover(failedNodeID string) error {
 	return nil
 }
 
-// findBestTarget 查找最佳目标节点
+// findBestTarget 查找最佳目标节点.
 func (m *StatefulFailoverManager) findBestTarget() *FailoverNode {
 	var best *FailoverNode
 	bestScore := -1
@@ -320,7 +320,7 @@ func (m *StatefulFailoverManager) findBestTarget() *FailoverNode {
 	return best
 }
 
-// migrateSession 迁移会话到目标节点
+// migrateSession 迁移会话到目标节点.
 func (m *StatefulFailoverManager) migrateSession(session *SessionState, target *FailoverNode) error {
 	// 1. 序列化会话状态
 	data, err := json.Marshal(session)
@@ -345,7 +345,7 @@ func (m *StatefulFailoverManager) migrateSession(session *SessionState, target *
 	return nil
 }
 
-// checkClientReachable 检查客户端是否可达
+// checkClientReachable 检查客户端是否可达.
 func (m *StatefulFailoverManager) checkClientReachable(clientIP string) bool {
 	// TCP ping to SMB port 445
 	ctx, cancel := context.WithTimeout(m.ctx, 3*time.Second)
@@ -360,7 +360,7 @@ func (m *StatefulFailoverManager) checkClientReachable(clientIP string) bool {
 	return true
 }
 
-// takeSnapshot 快照当前会话状态
+// takeSnapshot 快照当前会话状态.
 func (m *StatefulFailoverManager) takeSnapshot() error {
 	sessions := m.registry.ListAll()
 	data, err := json.Marshal(Snapshot{
@@ -376,7 +376,7 @@ func (m *StatefulFailoverManager) takeSnapshot() error {
 	return os.WriteFile(snapshotFile, data, 0640)
 }
 
-// loadPersistedState 加载持久化状态
+// loadPersistedState 加载持久化状态.
 func (m *StatefulFailoverManager) loadPersistedState() error {
 	entries, err := os.ReadDir(m.snapshotDir)
 	if err != nil {
@@ -420,7 +420,7 @@ func (m *StatefulFailoverManager) loadPersistedState() error {
 	return nil
 }
 
-// snapshotLoop 定期快照
+// snapshotLoop 定期快照.
 func (m *StatefulFailoverManager) snapshotLoop() {
 	defer m.wg.Done()
 	ticker := time.NewTicker(m.config.SnapshotInterval)
@@ -436,7 +436,7 @@ func (m *StatefulFailoverManager) snapshotLoop() {
 	}
 }
 
-// stateSyncLoop 状态同步循环
+// stateSyncLoop 状态同步循环.
 func (m *StatefulFailoverManager) stateSyncLoop() {
 	defer m.wg.Done()
 	ticker := time.NewTicker(m.config.SyncInterval)
@@ -452,7 +452,7 @@ func (m *StatefulFailoverManager) stateSyncLoop() {
 	}
 }
 
-// syncStateToPeers 同步状态到对等节点
+// syncStateToPeers 同步状态到对等节点.
 func (m *StatefulFailoverManager) syncStateToPeers() {
 	sessions := m.registry.GetByNode(m.localNode.NodeID)
 	data, err := json.Marshal(StateSyncMessage{
@@ -487,7 +487,7 @@ func (m *StatefulFailoverManager) syncStateToPeers() {
 	}
 }
 
-// healthCheckLoop 健康检查循环
+// healthCheckLoop 健康检查循环.
 func (m *StatefulFailoverManager) healthCheckLoop() {
 	defer m.wg.Done()
 	ticker := time.NewTicker(10 * time.Second)
@@ -503,7 +503,7 @@ func (m *StatefulFailoverManager) healthCheckLoop() {
 	}
 }
 
-// checkPeerHealth 检查对等节点健康
+// checkPeerHealth 检查对等节点健康.
 func (m *StatefulFailoverManager) checkPeerHealth() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -534,7 +534,7 @@ func (m *StatefulFailoverManager) checkPeerHealth() {
 	}
 }
 
-// eventProcessor 事件处理器
+// eventProcessor 事件处理器.
 func (m *StatefulFailoverManager) eventProcessor() {
 	defer m.wg.Done()
 	for {
@@ -550,7 +550,7 @@ func (m *StatefulFailoverManager) eventProcessor() {
 	}
 }
 
-// writeEvent 写入事件日志
+// writeEvent 写入事件日志.
 func (m *StatefulFailoverManager) writeEvent(event FailoverEvent) {
 	eventJSON, _ := json.Marshal(event)
 	logFile := filepath.Join(m.config.StateDir, "events.log")
@@ -561,7 +561,7 @@ func (m *StatefulFailoverManager) writeEvent(event FailoverEvent) {
 	}
 }
 
-// GetStatus 获取当前状态
+// GetStatus 获取当前状态.
 func (m *StatefulFailoverManager) GetStatus() *StatefulFailoverStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -582,7 +582,7 @@ func (m *StatefulFailoverManager) GetStatus() *StatefulFailoverStatus {
 	}
 }
 
-// StatefulFailoverStatus 状态查询结果
+// StatefulFailoverStatus 状态查询结果.
 type StatefulFailoverStatus struct {
 	ClusterName    string                `json:"cluster_name"`
 	LocalNodeID    string                `json:"local_node_id"`
@@ -593,14 +593,14 @@ type StatefulFailoverStatus struct {
 	VirtualIP      string                `json:"virtual_ip"`
 }
 
-// Snapshot 状态快照
+// Snapshot 状态快照.
 type Snapshot struct {
 	Timestamp time.Time       `json:"timestamp"`
 	NodeID    string          `json:"node_id"`
 	Sessions  []*SessionState `json:"sessions"`
 }
 
-// StateSyncMessage 状态同步消息
+// StateSyncMessage 状态同步消息.
 type StateSyncMessage struct {
 	SourceNodeID string          `json:"source_node_id"`
 	Timestamp    time.Time       `json:"timestamp"`

@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// StorageTier 存储层级
+// StorageTier 存储层级.
 type StorageTier string
 
 const (
@@ -20,7 +20,7 @@ const (
 	TierGlacier StorageTier = "glacier" // 云归档 - 极低频
 )
 
-// DataCategory 数据分类
+// DataCategory 数据分类.
 type DataCategory string
 
 const (
@@ -31,7 +31,7 @@ const (
 	CategoryTemp     DataCategory = "temp"
 )
 
-// AccessPattern 访问模式
+// AccessPattern 访问模式.
 type AccessPattern struct {
 	LastAccess    time.Time `json:"last_access"`
 	AccessCount   int64     `json:"access_count"`
@@ -39,7 +39,7 @@ type AccessPattern struct {
 	IsPinned      bool      `json:"is_pinned"`       // 钉住不迁移
 }
 
-// LifecycleRule 生命周期规则
+// LifecycleRule 生命周期规则.
 type LifecycleRule struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -63,7 +63,7 @@ type LifecycleRule struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// Stage 生命周期阶段
+// Stage 生命周期阶段.
 type Stage struct {
 	Name       string      `json:"name"`
 	AfterDays  int         `json:"after_days"` // 创建/修改后多少天
@@ -72,7 +72,7 @@ type Stage struct {
 	Notify     bool        `json:"notify,omitempty"`
 }
 
-// StageAction 阶段动作
+// StageAction 阶段动作.
 type StageAction string
 
 const (
@@ -83,7 +83,7 @@ const (
 	ActionNotify   StageAction = "notify"   // 仅通知
 )
 
-// MigrationTask 迁移任务
+// MigrationTask 迁移任务.
 type MigrationTask struct {
 	ID          string      `json:"id"`
 	RuleID      string      `json:"rule_id"`
@@ -100,7 +100,7 @@ type MigrationTask struct {
 	CompletedAt *time.Time  `json:"completed_at,omitempty"`
 }
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -111,7 +111,7 @@ const (
 	TaskCancelled TaskStatus = "cancelled"
 )
 
-// StorageStats 存储统计
+// StorageStats 存储统计.
 type StorageStats struct {
 	Tier      StorageTier `json:"tier"`
 	TotalSize int64       `json:"total_size"`
@@ -120,7 +120,7 @@ type StorageStats struct {
 	CostPerGB float64     `json:"cost_per_gb"` // 每GB每月成本
 }
 
-// CostReport 成本报告
+// CostReport 成本报告.
 type CostReport struct {
 	GeneratedAt      time.Time      `json:"generated_at"`
 	Period           string         `json:"period"` // monthly, quarterly, yearly
@@ -130,7 +130,7 @@ type CostReport struct {
 	Recommendations  []string       `json:"recommendations"`
 }
 
-// Service 生命周期管理服务
+// Service 生命周期管理服务.
 type Service struct {
 	mu     sync.RWMutex
 	rules  map[string]*LifecycleRule
@@ -139,7 +139,7 @@ type Service struct {
 	config *LifecycleConfig
 }
 
-// LifecycleConfig 生命周期配置
+// LifecycleConfig 生命周期配置.
 type LifecycleConfig struct {
 	Enabled          bool    `json:"enabled"`
 	ScanInterval     int     `json:"scan_interval"` // 分钟
@@ -155,7 +155,7 @@ type LifecycleConfig struct {
 	CostPerGBGlacier float64 `json:"cost_per_gb_glacier"`
 }
 
-// NewService 创建生命周期管理服务
+// NewService 创建生命周期管理服务.
 func NewService(config *LifecycleConfig) *Service {
 	if config == nil {
 		config = &LifecycleConfig{
@@ -177,7 +177,7 @@ func NewService(config *LifecycleConfig) *Service {
 	}
 }
 
-// AddRule 添加生命周期规则
+// AddRule 添加生命周期规则.
 func (s *Service) AddRule(ctx context.Context, rule *LifecycleRule) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -192,7 +192,7 @@ func (s *Service) AddRule(ctx context.Context, rule *LifecycleRule) error {
 	return nil
 }
 
-// UpdateRule 更新规则
+// UpdateRule 更新规则.
 func (s *Service) UpdateRule(ctx context.Context, rule *LifecycleRule) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -206,7 +206,7 @@ func (s *Service) UpdateRule(ctx context.Context, rule *LifecycleRule) error {
 	return nil
 }
 
-// DeleteRule 删除规则
+// DeleteRule 删除规则.
 func (s *Service) DeleteRule(ctx context.Context, id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -219,7 +219,7 @@ func (s *Service) DeleteRule(ctx context.Context, id string) error {
 	return nil
 }
 
-// GetRule 获取规则
+// GetRule 获取规则.
 func (s *Service) GetRule(ctx context.Context, id string) (*LifecycleRule, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -231,7 +231,7 @@ func (s *Service) GetRule(ctx context.Context, id string) (*LifecycleRule, error
 	return rule, nil
 }
 
-// ListRules 列出所有规则
+// ListRules 列出所有规则.
 func (s *Service) ListRules(ctx context.Context) []*LifecycleRule {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -243,7 +243,7 @@ func (s *Service) ListRules(ctx context.Context) []*LifecycleRule {
 	return rules
 }
 
-// EvaluateRules 评估规则并生成迁移任务
+// EvaluateRules 评估规则并生成迁移任务.
 func (s *Service) EvaluateRules(ctx context.Context) ([]*MigrationTask, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -264,7 +264,7 @@ func (s *Service) EvaluateRules(ctx context.Context) ([]*MigrationTask, error) {
 	return newTasks, nil
 }
 
-// ExecuteMigration 执行迁移任务
+// ExecuteMigration 执行迁移任务.
 func (s *Service) ExecuteMigration(ctx context.Context, taskID string) error {
 	s.mu.Lock()
 	task, exists := s.tasks[taskID]
@@ -289,7 +289,7 @@ func (s *Service) ExecuteMigration(ctx context.Context, taskID string) error {
 	return nil
 }
 
-// CancelMigration 取消迁移
+// CancelMigration 取消迁移.
 func (s *Service) CancelMigration(ctx context.Context, taskID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -307,7 +307,7 @@ func (s *Service) CancelMigration(ctx context.Context, taskID string) error {
 	return nil
 }
 
-// GetTask 获取任务状态
+// GetTask 获取任务状态.
 func (s *Service) GetTask(ctx context.Context, taskID string) (*MigrationTask, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -319,7 +319,7 @@ func (s *Service) GetTask(ctx context.Context, taskID string) (*MigrationTask, e
 	return task, nil
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (s *Service) ListTasks(ctx context.Context, status TaskStatus) []*MigrationTask {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -333,7 +333,7 @@ func (s *Service) ListTasks(ctx context.Context, status TaskStatus) []*Migration
 	return tasks
 }
 
-// GenerateCostReport 生成成本报告
+// GenerateCostReport 生成成本报告.
 func (s *Service) GenerateCostReport(ctx context.Context, period string) (*CostReport, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -367,7 +367,7 @@ func (s *Service) GenerateCostReport(ctx context.Context, period string) (*CostR
 	return report, nil
 }
 
-// UpdateStorageStats 更新存储统计
+// UpdateStorageStats 更新存储统计.
 func (s *Service) UpdateStorageStats(ctx context.Context, tier StorageTier, stats *StorageStats) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -375,7 +375,7 @@ func (s *Service) UpdateStorageStats(ctx context.Context, tier StorageTier, stat
 	s.stats[tier] = stats
 }
 
-// GetOptimizationSuggestions 获取优化建议
+// GetOptimizationSuggestions 获取优化建议.
 func (s *Service) GetOptimizationSuggestions(ctx context.Context) []string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

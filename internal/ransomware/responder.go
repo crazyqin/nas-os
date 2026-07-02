@@ -19,7 +19,7 @@ import (
 // 自动响应引擎
 // ============================================================
 
-// Responder 自动响应引擎
+// Responder 自动响应引擎.
 type Responder struct {
 	mu sync.RWMutex
 
@@ -57,7 +57,7 @@ type Responder struct {
 	stopChan chan struct{}
 }
 
-// ResponsePolicy 响应策略
+// ResponsePolicy 响应策略.
 type ResponsePolicy struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -68,7 +68,7 @@ type ResponsePolicy struct {
 	Enabled     bool         `json:"enabled"`
 }
 
-// ResponseAction 响应动作记录
+// ResponseAction 响应动作记录.
 type ResponseAction struct {
 	ID         string     `json:"id"`
 	Type       ActionType `json:"type"`
@@ -82,7 +82,7 @@ type ResponseAction struct {
 	DurationMs int64      `json:"duration_ms"`
 }
 
-// BlockedProcess 已阻断的进程
+// BlockedProcess 已阻断的进程.
 type BlockedProcess struct {
 	PID         int        `json:"pid"`
 	Name        string     `json:"name"`
@@ -93,7 +93,7 @@ type BlockedProcess struct {
 	UnblockAt   *time.Time `json:"unblock_at,omitempty"`
 }
 
-// NetworkRule 网络阻断规则
+// NetworkRule 网络阻断规则.
 type NetworkRule struct {
 	ID        string     `json:"id"`
 	Type      string     `json:"type"` // block-ip, block-port, block-process
@@ -103,7 +103,7 @@ type NetworkRule struct {
 	ExpiresAt *time.Time `json:"expires_at,omitempty"`
 }
 
-// ResponseStats 响应统计
+// ResponseStats 响应统计.
 type ResponseStats struct {
 	TotalActions      int64     `json:"total_actions"`
 	SuccessfulActions int64     `json:"successful_actions"`
@@ -120,7 +120,7 @@ type ResponseStats struct {
 // 构造与生命周期
 // ============================================================
 
-// NewResponder 创建自动响应引擎
+// NewResponder 创建自动响应引擎.
 func NewResponder(quarantineDir string) *Responder {
 	r := &Responder{
 		policies:         make(map[ThreatLevel][]ResponsePolicy),
@@ -136,7 +136,7 @@ func NewResponder(quarantineDir string) *Responder {
 	return r
 }
 
-// initDefaultPolicies 初始化默认响应策略
+// initDefaultPolicies 初始化默认响应策略.
 func (r *Responder) initDefaultPolicies() {
 	r.policies[ThreatLevelCritical] = []ResponsePolicy{
 		{
@@ -168,28 +168,28 @@ func (r *Responder) initDefaultPolicies() {
 	}
 }
 
-// SetSnapshotCallback 设置快照回调
+// SetSnapshotCallback 设置快照回调.
 func (r *Responder) SetSnapshotCallback(fn func(path string) (string, error)) {
 	r.mu.Lock()
 	r.onSnapshot = fn
 	r.mu.Unlock()
 }
 
-// SetIsolateCallback 设置进程隔离回调
+// SetIsolateCallback 设置进程隔离回调.
 func (r *Responder) SetIsolateCallback(fn func(pid int) error) {
 	r.mu.Lock()
 	r.onIsolate = fn
 	r.mu.Unlock()
 }
 
-// SetNetworkBlockCallback 设置网络阻断回调
+// SetNetworkBlockCallback 设置网络阻断回调.
 func (r *Responder) SetNetworkBlockCallback(fn func(ip string, port int) error) {
 	r.mu.Lock()
 	r.onNetworkBlock = fn
 	r.mu.Unlock()
 }
 
-// Start 启动响应引擎
+// Start 启动响应引擎.
 func (r *Responder) Start() {
 	r.mu.Lock()
 	if r.running {
@@ -206,7 +206,7 @@ func (r *Responder) Start() {
 	log.Println("[Responder] 自动响应引擎已启动")
 }
 
-// Stop 停止响应引擎
+// Stop 停止响应引擎.
 func (r *Responder) Stop() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -222,7 +222,7 @@ func (r *Responder) Stop() {
 // 响应执行
 // ============================================================
 
-// HandleThreat 处理威胁事件，执行自动响应
+// HandleThreat 处理威胁事件，执行自动响应.
 func (r *Responder) HandleThreat(event ThreatEvent) []ResponseAction {
 	r.mu.RLock()
 	policies := r.policies[event.Level]
@@ -250,7 +250,7 @@ func (r *Responder) HandleThreat(event ThreatEvent) []ResponseAction {
 	return actions
 }
 
-// executeAction 执行单个响应动作
+// executeAction 执行单个响应动作.
 func (r *Responder) executeAction(actionType ActionType, event ThreatEvent) ResponseAction {
 	startTime := time.Now()
 	action := ResponseAction{
@@ -320,7 +320,7 @@ func (r *Responder) executeAction(actionType ActionType, event ThreatEvent) Resp
 // 具体响应动作
 // ============================================================
 
-// executeSnapshot 执行快照
+// executeSnapshot 执行快照.
 func (r *Responder) executeSnapshot(event ThreatEvent) error {
 	dir := filepath.Dir(event.SourcePath)
 
@@ -340,7 +340,7 @@ func (r *Responder) executeSnapshot(event ThreatEvent) error {
 	return nil
 }
 
-// executeKillProcess 执行进程终止
+// executeKillProcess 执行进程终止.
 func (r *Responder) executeKillProcess(event ThreatEvent) error {
 	if event.ProcessID <= 0 {
 		return fmt.Errorf("无效的进程ID: %d", event.ProcessID)
@@ -374,7 +374,7 @@ func (r *Responder) executeKillProcess(event ThreatEvent) error {
 	return nil
 }
 
-// executeQuarantine 执行文件隔离
+// executeQuarantine 执行文件隔离.
 func (r *Responder) executeQuarantine(event ThreatEvent) error {
 	if event.SourcePath == "" {
 		return fmt.Errorf("源路径为空")
@@ -416,7 +416,7 @@ func (r *Responder) executeQuarantine(event ThreatEvent) error {
 	return nil
 }
 
-// copyAndRemove 复制并删除文件（跨分区隔离）
+// copyAndRemove 复制并删除文件（跨分区隔离）.
 func (r *Responder) copyAndRemove(src, dst string) error {
 	srcFile, err := os.Open(src)
 	if err != nil {
@@ -447,7 +447,7 @@ func (r *Responder) copyAndRemove(src, dst string) error {
 	return nil
 }
 
-// executeBlock 执行阻断（进程阻断）
+// executeBlock 执行阻断（进程阻断）.
 func (r *Responder) executeBlock(event ThreatEvent) error {
 	if event.ProcessID <= 0 {
 		return fmt.Errorf("无效的进程ID")
@@ -475,7 +475,7 @@ func (r *Responder) executeBlock(event ThreatEvent) error {
 	return nil
 }
 
-// executeLockdown 执行系统锁定
+// executeLockdown 执行系统锁定.
 func (r *Responder) executeLockdown(event ThreatEvent) error {
 	log.Printf("[Responder] 执行系统锁定: 威胁=%s, 级别=%s", event.ID, event.Level.String())
 
@@ -491,7 +491,7 @@ func (r *Responder) executeLockdown(event ThreatEvent) error {
 	return nil
 }
 
-// executeAlert 执行告警
+// executeAlert 执行告警.
 func (r *Responder) executeAlert(event ThreatEvent) error {
 	log.Printf("[Responder] 告警: 威胁=%s, 级别=%s, 路径=%s, 进程=%s",
 		event.ID, event.Level.String(), event.SourcePath, event.ProcessName)
@@ -502,7 +502,7 @@ func (r *Responder) executeAlert(event ThreatEvent) error {
 // 网络隔离
 // ============================================================
 
-// BlockIP 阻断 IP 地址
+// BlockIP 阻断 IP 地址.
 func (r *Responder) BlockIP(ip string, duration time.Duration) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -533,7 +533,7 @@ func (r *Responder) BlockIP(ip string, duration time.Duration) error {
 	return nil
 }
 
-// UnblockIP 解除 IP 阻断
+// UnblockIP 解除 IP 阻断.
 func (r *Responder) UnblockIP(ip string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -541,7 +541,7 @@ func (r *Responder) UnblockIP(ip string) {
 	log.Printf("[Responder] IP已解除阻断: %s", ip)
 }
 
-// IsIPBlocked 检查 IP 是否被阻断
+// IsIPBlocked 检查 IP 是否被阻断.
 func (r *Responder) IsIPBlocked(ip string) bool {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -553,7 +553,7 @@ func (r *Responder) IsIPBlocked(ip string) bool {
 // 辅助操作
 // ============================================================
 
-// disableNetworkShares 禁用网络共享
+// disableNetworkShares 禁用网络共享.
 func (r *Responder) disableNetworkShares() {
 	// 停止 SMB 服务
 	if err := exec.Command("systemctl", "stop", "smbd").Run(); err != nil {
@@ -566,12 +566,12 @@ func (r *Responder) disableNetworkShares() {
 	log.Println("[Responder] 网络共享已禁用")
 }
 
-// disconnectNonAdminSessions 断开非管理员会话
+// disconnectNonAdminSessions 断开非管理员会话.
 func (r *Responder) disconnectNonAdminSessions() {
 	log.Println("[Responder] 断开非管理员会话（SMB/NFS session integration hook）")
 }
 
-// enableReadOnlyMode 启用只读模式
+// enableReadOnlyMode 启用只读模式.
 func (r *Responder) enableReadOnlyMode(path string) {
 	dir := filepath.Dir(path)
 	// 尝试设置目录只读
@@ -586,7 +586,7 @@ func (r *Responder) enableReadOnlyMode(path string) {
 // 查询接口
 // ============================================================
 
-// GetActionLog 获取动作日志
+// GetActionLog 获取动作日志.
 func (r *Responder) GetActionLog(limit int) []ResponseAction {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -601,7 +601,7 @@ func (r *Responder) GetActionLog(limit int) []ResponseAction {
 	return result
 }
 
-// GetBlockedProcesses 获取已阻断的进程
+// GetBlockedProcesses 获取已阻断的进程.
 func (r *Responder) GetBlockedProcesses() []BlockedProcess {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -613,14 +613,14 @@ func (r *Responder) GetBlockedProcesses() []BlockedProcess {
 	return result
 }
 
-// GetStats 获取响应统计
+// GetStats 获取响应统计.
 func (r *Responder) GetStats() ResponseStats {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	return r.stats
 }
 
-// GetNetworkRules 获取网络规则
+// GetNetworkRules 获取网络规则.
 func (r *Responder) GetNetworkRules() []NetworkRule {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -633,7 +633,7 @@ func (r *Responder) GetNetworkRules() []NetworkRule {
 // 清理循环
 // ============================================================
 
-// cleanupLoop 清理过期的阻断和规则
+// cleanupLoop 清理过期的阻断和规则.
 func (r *Responder) cleanupLoop() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -648,7 +648,7 @@ func (r *Responder) cleanupLoop() {
 	}
 }
 
-// cleanup 清理过期数据
+// cleanup 清理过期数据.
 func (r *Responder) cleanup() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -677,14 +677,14 @@ func (r *Responder) cleanup() {
 	}
 }
 
-// AddPolicy 添加响应策略
+// AddPolicy 添加响应策略.
 func (r *Responder) AddPolicy(policy ResponsePolicy) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.policies[policy.Level] = append(r.policies[policy.Level], policy)
 }
 
-// GetPolicies 获取所有响应策略
+// GetPolicies 获取所有响应策略.
 func (r *Responder) GetPolicies() map[ThreatLevel][]ResponsePolicy {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -698,7 +698,7 @@ func (r *Responder) GetPolicies() map[ThreatLevel][]ResponsePolicy {
 	return result
 }
 
-// containsStr 字符串包含检查
+// containsStr 字符串包含检查.
 func containsStr(slice []string, target string) bool {
 	for _, s := range slice {
 		if strings.EqualFold(s, target) {

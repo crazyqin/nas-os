@@ -267,7 +267,7 @@ func TestComposeOperations(t *testing.T) {
 		t.Errorf("Expected status 200, got %d", w.Code)
 	}
 
-	project, _ := manager.composeProjects[projectID]
+	project := manager.composeProjects[projectID]
 	if project.Status != "stopped" {
 		t.Errorf("Expected status 'stopped', got %s", project.Status)
 	}

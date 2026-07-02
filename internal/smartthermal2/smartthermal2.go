@@ -14,7 +14,7 @@ import (
 
 // ==================== ThermalEngine 温控引擎 ====================
 
-// ThermalEngine 温控引擎核心
+// ThermalEngine 温控引擎核心.
 type ThermalEngine struct {
 	logger     *zap.Logger
 	mu         sync.RWMutex
@@ -25,7 +25,7 @@ type ThermalEngine struct {
 	settings   GlobalSettings
 }
 
-// NewThermalEngine 创建温控引擎
+// NewThermalEngine 创建温控引擎.
 func NewThermalEngine(logger *zap.Logger) *ThermalEngine {
 	e := &ThermalEngine{
 		logger:     logger,
@@ -57,7 +57,7 @@ func NewThermalEngine(logger *zap.Logger) *ThermalEngine {
 	return e
 }
 
-// initMockData 初始化模拟数据
+// initMockData 初始化模拟数据.
 func (e *ThermalEngine) initMockData() {
 	now := time.Now()
 	sensorDefs := []struct {
@@ -105,7 +105,7 @@ func (e *ThermalEngine) initMockData() {
 	}
 }
 
-// calcZoneTemps 计算区域温度
+// calcZoneTemps 计算区域温度.
 func (e *ThermalEngine) calcZoneTemps(sensorIDs []string) (maxT, avgT float64) {
 	var total float64
 	var count int
@@ -124,7 +124,7 @@ func (e *ThermalEngine) calcZoneTemps(sensorIDs []string) (maxT, avgT float64) {
 	return
 }
 
-// Sample 采样温度
+// Sample 采样温度.
 func (e *ThermalEngine) Sample() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -164,7 +164,7 @@ func (e *ThermalEngine) Sample() {
 	}
 }
 
-// classifySensorStatus 分类传感器状态
+// classifySensorStatus 分类传感器状态.
 func (e *ThermalEngine) classifySensorStatus(temp float64) SensorStatus {
 	switch {
 	case temp >= e.settings.AlertSettings.EmergencyTemp:
@@ -178,7 +178,7 @@ func (e *ThermalEngine) classifySensorStatus(temp float64) SensorStatus {
 	}
 }
 
-// GetSensors 获取所有传感器
+// GetSensors 获取所有传感器.
 func (e *ThermalEngine) GetSensors() []Sensor {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -190,7 +190,7 @@ func (e *ThermalEngine) GetSensors() []Sensor {
 	return sensors
 }
 
-// GetSensor 获取单个传感器
+// GetSensor 获取单个传感器.
 func (e *ThermalEngine) GetSensor(id string) (*Sensor, bool) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -202,7 +202,7 @@ func (e *ThermalEngine) GetSensor(id string) (*Sensor, bool) {
 	return &result, true
 }
 
-// GetSensorHistory 获取传感器历史
+// GetSensorHistory 获取传感器历史.
 func (e *ThermalEngine) GetSensorHistory(id string, minutes int) []SensorHistory {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -219,7 +219,7 @@ func (e *ThermalEngine) GetSensorHistory(id string, minutes int) []SensorHistory
 	return result
 }
 
-// GetZones 获取所有温控区域
+// GetZones 获取所有温控区域.
 func (e *ThermalEngine) GetZones() []ThermalZone {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -231,7 +231,7 @@ func (e *ThermalEngine) GetZones() []ThermalZone {
 	return zones
 }
 
-// UpdateSensorTemp 更新传感器温度
+// UpdateSensorTemp 更新传感器温度.
 func (e *ThermalEngine) UpdateSensorTemp(id string, temp float64) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -241,14 +241,14 @@ func (e *ThermalEngine) UpdateSensorTemp(id string, temp float64) {
 	}
 }
 
-// GetSettings 获取全局设置
+// GetSettings 获取全局设置.
 func (e *ThermalEngine) GetSettings() GlobalSettings {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.settings
 }
 
-// UpdateSettings 更新全局设置
+// UpdateSettings 更新全局设置.
 func (e *ThermalEngine) UpdateSettings(s GlobalSettings) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -258,7 +258,7 @@ func (e *ThermalEngine) UpdateSettings(s GlobalSettings) {
 
 // ==================== FanController 风扇控制器 ====================
 
-// FanController 风扇控制器
+// FanController 风扇控制器.
 type FanController struct {
 	logger         *zap.Logger
 	mu             sync.RWMutex
@@ -269,7 +269,7 @@ type FanController struct {
 	transitionRate float64
 }
 
-// NewFanController 创建风扇控制器
+// NewFanController 创建风扇控制器.
 func NewFanController(logger *zap.Logger, engine *ThermalEngine) *FanController {
 	fc := &FanController{
 		logger:         logger,
@@ -284,7 +284,7 @@ func NewFanController(logger *zap.Logger, engine *ThermalEngine) *FanController 
 	return fc
 }
 
-// initDefaultCurves 初始化默认风扇曲线
+// initDefaultCurves 初始化默认风扇曲线.
 func (fc *FanController) initDefaultCurves() {
 	fc.curves[FanProfileSilent] = &FanCurve{
 		Type: FanProfileSilent,
@@ -313,7 +313,7 @@ func (fc *FanController) initDefaultCurves() {
 	}
 }
 
-// initMockFans 初始化模拟风扇
+// initMockFans 初始化模拟风扇.
 func (fc *FanController) initMockFans() {
 	fanDefs := []struct {
 		id, name, zone string
@@ -334,7 +334,7 @@ func (fc *FanController) initMockFans() {
 	}
 }
 
-// InterpolateCurve 分段线性插值计算风扇转速
+// InterpolateCurve 分段线性插值计算风扇转速.
 func (fc *FanController) InterpolateCurve(temp float64, curve *FanCurve) float64 {
 	if curve == nil || len(curve.Points) == 0 {
 		return 30
@@ -356,7 +356,7 @@ func (fc *FanController) InterpolateCurve(temp float64, curve *FanCurve) float64
 	return points[len(points)-1].PWM
 }
 
-// UpdateFans 更新所有风扇转速
+// UpdateFans 更新所有风扇转速.
 func (fc *FanController) UpdateFans() {
 	fc.mu.Lock()
 	defer fc.mu.Unlock()
@@ -386,7 +386,7 @@ func (fc *FanController) UpdateFans() {
 	}
 }
 
-// smoothTransition 平滑过渡
+// smoothTransition 平滑过渡.
 func (fc *FanController) smoothTransition(current, target float64) float64 {
 	diff := target - current
 	if math.Abs(diff) <= fc.transitionRate {
@@ -398,7 +398,7 @@ func (fc *FanController) smoothTransition(current, target float64) float64 {
 	return current - fc.transitionRate
 }
 
-// getZoneMaxTemp 获取区域最高温度
+// getZoneMaxTemp 获取区域最高温度.
 func (fc *FanController) getZoneMaxTemp(zoneID string) float64 {
 	fc.engine.mu.RLock()
 	defer fc.engine.mu.RUnlock()
@@ -411,7 +411,7 @@ func (fc *FanController) getZoneMaxTemp(zoneID string) float64 {
 	return 40
 }
 
-// adaptiveTarget AI自适应目标（EWMA）
+// adaptiveTarget AI自适应目标（EWMA）.
 func (fc *FanController) adaptiveTarget(fanID string, temp float64) float64 {
 	standard := fc.curves[FanProfileStandard]
 	idealPWM := fc.InterpolateCurve(temp, standard)
@@ -424,7 +424,7 @@ func (fc *FanController) adaptiveTarget(fanID string, temp float64) float64 {
 	return ewma.Value
 }
 
-// estimateFanNoise 估算风扇噪音（基于常见风扇噪音曲线）
+// estimateFanNoise 估算风扇噪音（基于常见风扇噪音曲线）.
 func (fc *FanController) estimateFanNoise(rpm, maxRPM int) float64 {
 	if rpm <= 0 {
 		return 0
@@ -437,7 +437,7 @@ func (fc *FanController) estimateFanNoise(rpm, maxRPM int) float64 {
 	return math.Round(noise*10) / 10
 }
 
-// GetFans 获取所有风扇
+// GetFans 获取所有风扇.
 func (fc *FanController) GetFans() []FanInfo {
 	fc.mu.RLock()
 	defer fc.mu.RUnlock()
@@ -449,7 +449,7 @@ func (fc *FanController) GetFans() []FanInfo {
 	return fans
 }
 
-// GetFan 获取单个风扇
+// GetFan 获取单个风扇.
 func (fc *FanController) GetFan(id string) (*FanInfo, bool) {
 	fc.mu.RLock()
 	defer fc.mu.RUnlock()
@@ -461,7 +461,7 @@ func (fc *FanController) GetFan(id string) (*FanInfo, bool) {
 	return &result, true
 }
 
-// UpdateFan 更新风扇设置
+// UpdateFan 更新风扇设置.
 func (fc *FanController) UpdateFan(id string, req FanUpdateRequest) error {
 	fc.mu.Lock()
 	defer fc.mu.Unlock()
@@ -484,7 +484,7 @@ func (fc *FanController) UpdateFan(id string, req FanUpdateRequest) error {
 	return nil
 }
 
-// CheckFanHealth 风扇故障检测
+// CheckFanHealth 风扇故障检测.
 func (fc *FanController) CheckFanHealth() []string {
 	fc.mu.Lock()
 	defer fc.mu.Unlock()
@@ -506,7 +506,7 @@ func (fc *FanController) CheckFanHealth() []string {
 	return issues
 }
 
-// GetCurves 获取所有风扇曲线
+// GetCurves 获取所有风扇曲线.
 func (fc *FanController) GetCurves() map[FanProfileType]*FanCurve {
 	fc.mu.RLock()
 	defer fc.mu.RUnlock()
@@ -519,7 +519,7 @@ func (fc *FanController) GetCurves() map[FanProfileType]*FanCurve {
 
 // ==================== NoiseOptimizer 噪音优化器 ====================
 
-// NoiseOptimizer 噪音优化器
+// NoiseOptimizer 噪音优化器.
 type NoiseOptimizer struct {
 	logger   *zap.Logger
 	mu       sync.RWMutex
@@ -527,7 +527,7 @@ type NoiseOptimizer struct {
 	settings NoiseSettings
 }
 
-// NewNoiseOptimizer 创建噪音优化器
+// NewNoiseOptimizer 创建噪音优化器.
 func NewNoiseOptimizer(logger *zap.Logger, fc *FanController) *NoiseOptimizer {
 	return &NoiseOptimizer{
 		logger: logger, fc: fc,
@@ -538,7 +538,7 @@ func NewNoiseOptimizer(logger *zap.Logger, fc *FanController) *NoiseOptimizer {
 	}
 }
 
-// Assess 评估噪音
+// Assess 评估噪音.
 func (no *NoiseOptimizer) Assess() NoiseAssessment {
 	no.mu.RLock()
 	defer no.mu.RUnlock()
@@ -570,7 +570,7 @@ func (no *NoiseOptimizer) Assess() NoiseAssessment {
 	}
 }
 
-// classifyNoise 分类噪音级别
+// classifyNoise 分类噪音级别.
 func (no *NoiseOptimizer) classifyNoise(dba float64) NoiseLevel {
 	switch {
 	case dba < 25:
@@ -586,7 +586,7 @@ func (no *NoiseOptimizer) classifyNoise(dba float64) NoiseLevel {
 	}
 }
 
-// getCurrentBudget 获取当前噪音预算
+// getCurrentBudget 获取当前噪音预算.
 func (no *NoiseOptimizer) getCurrentBudget() float64 {
 	if !no.settings.ScheduleEnabled {
 		return no.settings.MaxDBA
@@ -598,7 +598,7 @@ func (no *NoiseOptimizer) getCurrentBudget() float64 {
 	return no.settings.NightMaxDBA
 }
 
-// generateRecommendation 生成建议
+// generateRecommendation 生成建议.
 func (no *NoiseOptimizer) generateRecommendation(current, budget float64, fans []FanInfo) string {
 	if current <= budget {
 		return "当前噪音在预算范围内，散热状态良好"
@@ -616,14 +616,14 @@ func (no *NoiseOptimizer) generateRecommendation(current, budget float64, fans [
 	return fmt.Sprintf("噪音超预算 %.1fdBA，最大噪音源 %s，建议降低其转速或切换静音方案", overBudget, loudest.Name)
 }
 
-// UpdateSettings 更新噪音设置
+// UpdateSettings 更新噪音设置.
 func (no *NoiseOptimizer) UpdateSettings(s NoiseSettings) {
 	no.mu.Lock()
 	defer no.mu.Unlock()
 	no.settings = s
 }
 
-// GetSettings 获取噪音设置
+// GetSettings 获取噪音设置.
 func (no *NoiseOptimizer) GetSettings() NoiseSettings {
 	no.mu.RLock()
 	defer no.mu.RUnlock()
@@ -632,7 +632,7 @@ func (no *NoiseOptimizer) GetSettings() NoiseSettings {
 
 // ==================== ThermalPredictor 温度预测器 ====================
 
-// ThermalPredictor 温度预测器
+// ThermalPredictor 温度预测器.
 type ThermalPredictor struct {
 	logger       *zap.Logger
 	mu           sync.RWMutex
@@ -641,7 +641,7 @@ type ThermalPredictor struct {
 	seasonalComp []SeasonalCompensation
 }
 
-// NewThermalPredictor 创建温度预测器
+// NewThermalPredictor 创建温度预测器.
 func NewThermalPredictor(logger *zap.Logger, engine *ThermalEngine) *ThermalPredictor {
 	return &ThermalPredictor{
 		logger: logger, engine: engine, safeMargin: 1.1,
@@ -656,7 +656,7 @@ func NewThermalPredictor(logger *zap.Logger, engine *ThermalEngine) *ThermalPred
 	}
 }
 
-// Predict 预测温度（线性外推 + 安全系数 + 季节补偿）
+// Predict 预测温度（线性外推 + 安全系数 + 季节补偿）.
 func (tp *ThermalPredictor) Predict(sensorID string, futureMinutes int) (*PredictionResult, error) {
 	tp.mu.RLock()
 	defer tp.mu.RUnlock()
@@ -740,7 +740,7 @@ func (tp *ThermalPredictor) Predict(sensorID string, futureMinutes int) (*Predic
 	}, nil
 }
 
-// PredictAll 预测所有传感器
+// PredictAll 预测所有传感器.
 func (tp *ThermalPredictor) PredictAll(futureMinutes int) []PredictionResult {
 	tp.mu.RLock()
 	sensorIDs := make([]string, 0, len(tp.engine.sensors))
@@ -760,7 +760,7 @@ func (tp *ThermalPredictor) PredictAll(futureMinutes int) []PredictionResult {
 
 // ==================== CoolingProfile 散热方案管理 ====================
 
-// ProfileManager 散热方案管理器
+// ProfileManager 散热方案管理器.
 type ProfileManager struct {
 	mu       sync.RWMutex
 	logger   *zap.Logger
@@ -768,7 +768,7 @@ type ProfileManager struct {
 	activeID string
 }
 
-// NewProfileManager 创建散热方案管理器
+// NewProfileManager 创建散热方案管理器.
 func NewProfileManager(logger *zap.Logger) *ProfileManager {
 	pm := &ProfileManager{
 		logger:   logger,
@@ -778,7 +778,7 @@ func NewProfileManager(logger *zap.Logger) *ProfileManager {
 	return pm
 }
 
-// initPresets 初始化预设方案
+// initPresets 初始化预设方案.
 func (pm *ProfileManager) initPresets() {
 	now := time.Now()
 	presets := []CoolingProfile{
@@ -827,7 +827,7 @@ func (pm *ProfileManager) initPresets() {
 	}
 }
 
-// List 列出所有方案
+// List 列出所有方案.
 func (pm *ProfileManager) List() []CoolingProfile {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -839,7 +839,7 @@ func (pm *ProfileManager) List() []CoolingProfile {
 	return list
 }
 
-// Get 获取方案
+// Get 获取方案.
 func (pm *ProfileManager) Get(id string) (*CoolingProfile, bool) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -851,7 +851,7 @@ func (pm *ProfileManager) Get(id string) (*CoolingProfile, bool) {
 	return &result, true
 }
 
-// GetActive 获取当前激活方案
+// GetActive 获取当前激活方案.
 func (pm *ProfileManager) GetActive() *CoolingProfile {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -863,7 +863,7 @@ func (pm *ProfileManager) GetActive() *CoolingProfile {
 	return &result
 }
 
-// Create 创建自定义方案
+// Create 创建自定义方案.
 func (pm *ProfileManager) Create(req ProfileCreateRequest) (*CoolingProfile, error) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -882,7 +882,7 @@ func (pm *ProfileManager) Create(req ProfileCreateRequest) (*CoolingProfile, err
 	return profile, nil
 }
 
-// SetActive 切换活跃方案
+// SetActive 切换活跃方案.
 func (pm *ProfileManager) SetActive(id string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -900,7 +900,7 @@ func (pm *ProfileManager) SetActive(id string) error {
 
 // ==================== AlertManager 告警管理 ====================
 
-// AlertManager 告警管理器
+// AlertManager 告警管理器.
 type AlertManager struct {
 	mu       sync.RWMutex
 	logger   *zap.Logger
@@ -911,7 +911,7 @@ type AlertManager struct {
 	alertSeq int64
 }
 
-// NewAlertManager 创建告警管理器
+// NewAlertManager 创建告警管理器.
 func NewAlertManager(logger *zap.Logger, engine *ThermalEngine, fc *FanController) *AlertManager {
 	return &AlertManager{
 		logger: logger, engine: engine, fc: fc,
@@ -922,7 +922,7 @@ func NewAlertManager(logger *zap.Logger, engine *ThermalEngine, fc *FanControlle
 	}
 }
 
-// Check 检查并生成告警
+// Check 检查并生成告警.
 func (am *AlertManager) Check() {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -959,7 +959,7 @@ func (am *AlertManager) Check() {
 	}
 }
 
-// executeProtection 执行保护动作
+// executeProtection 执行保护动作.
 func (am *AlertManager) executeProtection(level AlertLevel, sensorID string) []string {
 	var actions []string
 	switch level {
@@ -976,7 +976,7 @@ func (am *AlertManager) executeProtection(level AlertLevel, sensorID string) []s
 	return actions
 }
 
-// GetActive 获取活跃告警
+// GetActive 获取活跃告警.
 func (am *AlertManager) GetActive() []ThermalAlert {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -989,7 +989,7 @@ func (am *AlertManager) GetActive() []ThermalAlert {
 	return active
 }
 
-// GetAll 获取所有告警
+// GetAll 获取所有告警.
 func (am *AlertManager) GetAll(limit int) []ThermalAlert {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -1004,7 +1004,7 @@ func (am *AlertManager) GetAll(limit int) []ThermalAlert {
 	return all
 }
 
-// Resolve 解决告警
+// Resolve 解决告警.
 func (am *AlertManager) Resolve(id string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -1018,7 +1018,7 @@ func (am *AlertManager) Resolve(id string) error {
 	return nil
 }
 
-// EmergencyCooling 紧急降温
+// EmergencyCooling 紧急降温.
 func (am *AlertManager) EmergencyCooling() {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -1031,14 +1031,14 @@ func (am *AlertManager) EmergencyCooling() {
 	am.fc.UpdateFans()
 }
 
-// GetSettings 获取告警设置
+// GetSettings 获取告警设置.
 func (am *AlertManager) GetSettings() AlertSettings {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
 	return am.settings
 }
 
-// UpdateSettings 更新告警设置
+// UpdateSettings 更新告警设置.
 func (am *AlertManager) UpdateSettings(s AlertSettings) {
 	am.mu.Lock()
 	defer am.mu.Unlock()

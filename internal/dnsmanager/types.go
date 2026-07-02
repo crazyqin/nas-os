@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// DNSRecordType DNS 记录类型
+// DNSRecordType DNS 记录类型.
 type DNSRecordType string
 
 const (
@@ -18,7 +18,7 @@ const (
 	RecordTypeSRV   DNSRecordType = "SRV"
 )
 
-// RuleAction 规则动作
+// RuleAction 规则动作.
 type RuleAction string
 
 const (
@@ -27,7 +27,7 @@ const (
 	ActionRedirect RuleAction = "redirect" // 重定向
 )
 
-// UpstreamProtocol 上游协议
+// UpstreamProtocol 上游协议.
 type UpstreamProtocol string
 
 const (
@@ -37,7 +37,7 @@ const (
 	ProtocolDoT UpstreamProtocol = "dot"
 )
 
-// DNSRecord DNS 记录
+// DNSRecord DNS 记录.
 type DNSRecord struct {
 	ID        string        `json:"id"`
 	Name      string        `json:"name"`     // 域名
@@ -49,7 +49,7 @@ type DNSRecord struct {
 	Enabled   bool          `json:"enabled"`
 }
 
-// DNSZone DNS 区域
+// DNSZone DNS 区域.
 type DNSZone struct {
 	ID      string                 `json:"id"`
 	Name    string                 `json:"name"`    // 区域名称（如 example.com）
@@ -61,7 +61,7 @@ type DNSZone struct {
 	Minimum int                    `json:"minimum"` // SOA 最小 TTL（秒）
 }
 
-// DNSRule DNS 过滤规则
+// DNSRule DNS 过滤规则.
 type DNSRule struct {
 	ID        string     `json:"id"`
 	Pattern   string     `json:"pattern"` // 域名模式（支持通配符）
@@ -73,7 +73,7 @@ type DNSRule struct {
 	CreatedAt time.Time  `json:"created_at"`
 }
 
-// DNSQuery DNS 查询日志
+// DNSQuery DNS 查询日志.
 type DNSQuery struct {
 	ID           string    `json:"id"`
 	Client       string    `json:"client"`        // 客户端 IP
@@ -84,7 +84,7 @@ type DNSQuery struct {
 	ResponseTime int64     `json:"response_time"` // 响应时间（毫秒）
 }
 
-// DNSStats DNS 统计信息
+// DNSStats DNS 统计信息.
 type DNSStats struct {
 	TotalQueries   int64        `json:"total_queries"`
 	BlockedQueries int64        `json:"blocked_queries"`
@@ -94,19 +94,19 @@ type DNSStats struct {
 	TopBlocked     []DomainStat `json:"top_blocked"`
 }
 
-// DomainStat 域名统计
+// DomainStat 域名统计.
 type DomainStat struct {
 	Domain string `json:"domain"`
 	Count  int64  `json:"count"`
 }
 
-// ClientStat 客户端统计
+// ClientStat 客户端统计.
 type ClientStat struct {
 	Client string `json:"client"`
 	Count  int64  `json:"count"`
 }
 
-// UpstreamServer 上游 DNS 服务器
+// UpstreamServer 上游 DNS 服务器.
 type UpstreamServer struct {
 	ID       string           `json:"id"`
 	Address  string           `json:"address"`  // 如 8.8.8.8
@@ -118,7 +118,7 @@ type UpstreamServer struct {
 
 // ========== 请求/响应结构 ==========
 
-// CreateRecordRequest 创建记录请求
+// CreateRecordRequest 创建记录请求.
 type CreateRecordRequest struct {
 	Zone     string        `json:"zone" binding:"required"`
 	Name     string        `json:"name" binding:"required"`
@@ -128,7 +128,7 @@ type CreateRecordRequest struct {
 	Priority int           `json:"priority"`
 }
 
-// UpdateRecordRequest 更新记录请求
+// UpdateRecordRequest 更新记录请求.
 type UpdateRecordRequest struct {
 	Name     *string        `json:"name,omitempty"`
 	Type     *DNSRecordType `json:"type,omitempty"`
@@ -138,7 +138,7 @@ type UpdateRecordRequest struct {
 	Enabled  *bool          `json:"enabled,omitempty"`
 }
 
-// CreateRuleRequest 创建规则请求
+// CreateRuleRequest 创建规则请求.
 type CreateRuleRequest struct {
 	Pattern  string     `json:"pattern" binding:"required"`
 	Action   RuleAction `json:"action" binding:"required"`
@@ -146,7 +146,7 @@ type CreateRuleRequest struct {
 	Category string     `json:"category"`
 }
 
-// UpdateRuleRequest 更新规则请求
+// UpdateRuleRequest 更新规则请求.
 type UpdateRuleRequest struct {
 	Pattern  *string     `json:"pattern,omitempty"`
 	Action   *RuleAction `json:"action,omitempty"`
@@ -155,38 +155,38 @@ type UpdateRuleRequest struct {
 	Enabled  *bool       `json:"enabled,omitempty"`
 }
 
-// CreateUpstreamRequest 创建上游服务器请求
+// CreateUpstreamRequest 创建上游服务器请求.
 type CreateUpstreamRequest struct {
 	Address  string           `json:"address" binding:"required"`
 	Port     int              `json:"port" binding:"required"`
 	Protocol UpstreamProtocol `json:"protocol" binding:"required"`
 }
 
-// ImportBlockListRequest 导入拦截列表请求
+// ImportBlockListRequest 导入拦截列表请求.
 type ImportBlockListRequest struct {
 	URL string `json:"url" binding:"required"`
 }
 
-// ResolveRequest DNS 解析请求
+// ResolveRequest DNS 解析请求.
 type ResolveRequest struct {
 	Domain string `json:"domain" binding:"required"`
 	Type   string `json:"type"`
 }
 
-// QueryLogRequest 查询日志请求
+// QueryLogRequest 查询日志请求.
 type QueryLogRequest struct {
 	Limit  int `json:"limit"`
 	Offset int `json:"offset"`
 }
 
-// StatsRequest 统计请求
+// StatsRequest 统计请求.
 type StatsRequest struct {
 	Period string `json:"period"` // hour, day, week, month
 }
 
 // ========== 内部结构 ==========
 
-// domainKey 域名缓存键
+// domainKey 域名缓存键.
 type domainKey struct {
 	Domain string
 	Type   string

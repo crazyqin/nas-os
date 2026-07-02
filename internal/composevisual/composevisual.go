@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		projects:  make(map[string]*ComposeProject),
@@ -18,7 +18,7 @@ func NewManager() *Manager {
 	return m
 }
 
-// ListProjects 列出所有项目
+// ListProjects 列出所有项目.
 func (m *Manager) ListProjects() []*ComposeProject {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -32,7 +32,7 @@ func (m *Manager) ListProjects() []*ComposeProject {
 	return projects
 }
 
-// CreateProject 创建项目
+// CreateProject 创建项目.
 func (m *Manager) CreateProject(req *CreateProjectRequest) *ComposeProject {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -63,7 +63,7 @@ func (m *Manager) CreateProject(req *CreateProjectRequest) *ComposeProject {
 	return project
 }
 
-// GetProject 获取项目
+// GetProject 获取项目.
 func (m *Manager) GetProject(id string) (*ComposeProject, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -74,7 +74,7 @@ func (m *Manager) GetProject(id string) (*ComposeProject, error) {
 	return project, nil
 }
 
-// UpdateProject 更新项目
+// UpdateProject 更新项目.
 func (m *Manager) UpdateProject(id string, req *UpdateProjectRequest) (*ComposeProject, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -98,7 +98,7 @@ func (m *Manager) UpdateProject(id string, req *UpdateProjectRequest) (*ComposeP
 	return project, nil
 }
 
-// DeleteProject 删除项目
+// DeleteProject 删除项目.
 func (m *Manager) DeleteProject(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -109,7 +109,7 @@ func (m *Manager) DeleteProject(id string) error {
 	return nil
 }
 
-// AddService 添加服务
+// AddService 添加服务.
 func (m *Manager) AddService(projectID string, req *AddServiceRequest) (*ServiceNode, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -161,7 +161,7 @@ func (m *Manager) AddService(projectID string, req *AddServiceRequest) (*Service
 	return service, nil
 }
 
-// UpdateService 更新服务
+// UpdateService 更新服务.
 func (m *Manager) UpdateService(projectID, serviceName string, req *UpdateServiceRequest) (*ServiceNode, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -216,7 +216,7 @@ func (m *Manager) UpdateService(projectID, serviceName string, req *UpdateServic
 	return service, nil
 }
 
-// DeleteService 删除服务
+// DeleteService 删除服务.
 func (m *Manager) DeleteService(projectID, serviceName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -251,7 +251,7 @@ func (m *Manager) DeleteService(projectID, serviceName string) error {
 	return nil
 }
 
-// ConnectServices 连接服务
+// ConnectServices 连接服务.
 func (m *Manager) ConnectServices(projectID string, req *ConnectServicesRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// TaskManager 任务管理器
+// TaskManager 任务管理器.
 type TaskManager struct {
 	mu       sync.RWMutex
 	tasks    map[string]*Task
@@ -16,7 +16,7 @@ type TaskManager struct {
 	nextID   int
 }
 
-// NewTaskManager 创建任务管理器
+// NewTaskManager 创建任务管理器.
 func NewTaskManager() *TaskManager {
 	return &TaskManager{
 		tasks:    make(map[string]*Task),
@@ -25,7 +25,7 @@ func NewTaskManager() *TaskManager {
 	}
 }
 
-// CreateTask 创建任务
+// CreateTask 创建任务.
 func (m *TaskManager) CreateTask(projectID string, req CreateTaskRequest, reporterID string) (*Task, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -75,7 +75,7 @@ func (m *TaskManager) CreateTask(projectID string, req CreateTaskRequest, report
 	return task, nil
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (m *TaskManager) GetTask(taskID string) (*Task, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -87,7 +87,7 @@ func (m *TaskManager) GetTask(taskID string) (*Task, error) {
 	return task, nil
 }
 
-// UpdateTask 更新任务
+// UpdateTask 更新任务.
 func (m *TaskManager) UpdateTask(taskID string, req UpdateTaskRequest) (*Task, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -140,7 +140,7 @@ func (m *TaskManager) UpdateTask(taskID string, req UpdateTaskRequest) (*Task, e
 	return task, nil
 }
 
-// DeleteTask 删除任务
+// DeleteTask 删除任务.
 func (m *TaskManager) DeleteTask(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -174,7 +174,7 @@ func (m *TaskManager) DeleteTask(taskID string) error {
 	return nil
 }
 
-// MoveTask 移动任务状态
+// MoveTask 移动任务状态.
 func (m *TaskManager) MoveTask(taskID string, req MoveTaskRequest) (*Task, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -195,7 +195,7 @@ func (m *TaskManager) MoveTask(taskID string, req MoveTaskRequest) (*Task, error
 	return task, nil
 }
 
-// ListProjectTasks 列出项目任务
+// ListProjectTasks 列出项目任务.
 func (m *TaskManager) ListProjectTasks(projectID string, opts ListOptions) ([]*Task, int, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -252,7 +252,7 @@ func (m *TaskManager) ListProjectTasks(projectID string, opts ListOptions) ([]*T
 	return tasks[start:end], total, nil
 }
 
-// ListTasksByAssignee 列出分配给某用户的任务
+// ListTasksByAssignee 列出分配给某用户的任务.
 func (m *TaskManager) ListTasksByAssignee(assigneeID string) []*Task {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -266,7 +266,7 @@ func (m *TaskManager) ListTasksByAssignee(assigneeID string) []*Task {
 	return tasks
 }
 
-// GetOverdueTasks 获取过期任务
+// GetOverdueTasks 获取过期任务.
 func (m *TaskManager) GetOverdueTasks(projectID string) []*Task {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -284,7 +284,7 @@ func (m *TaskManager) GetOverdueTasks(projectID string) []*Task {
 	return tasks
 }
 
-// AddComment 添加评论
+// AddComment 添加评论.
 func (m *TaskManager) AddComment(taskID, userID string, req CreateCommentRequest) (*Comment, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -310,7 +310,7 @@ func (m *TaskManager) AddComment(taskID, userID string, req CreateCommentRequest
 	return comment, nil
 }
 
-// GetComments 获取任务评论
+// GetComments 获取任务评论.
 func (m *TaskManager) GetComments(taskID string) ([]*Comment, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -326,7 +326,7 @@ func (m *TaskManager) GetComments(taskID string) ([]*Comment, error) {
 	return comments, nil
 }
 
-// GetSubtasks 获取子任务
+// GetSubtasks 获取子任务.
 func (m *TaskManager) GetSubtasks(taskID string) ([]*Task, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -345,7 +345,7 @@ func (m *TaskManager) GetSubtasks(taskID string) ([]*Task, error) {
 	return subtasks, nil
 }
 
-// GetTaskProgress 计算任务进度（基于子任务完成比例）
+// GetTaskProgress 计算任务进度（基于子任务完成比例）.
 func (m *TaskManager) GetTaskProgress(taskID string) (float64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -372,7 +372,7 @@ func (m *TaskManager) GetTaskProgress(taskID string) (float64, error) {
 	return float64(completed) / float64(len(task.SubtaskIDs)) * 100, nil
 }
 
-// GetDependencyChain 获取任务依赖链
+// GetDependencyChain 获取任务依赖链.
 func (m *TaskManager) GetDependencyChain(taskID string) ([]*Task, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -402,7 +402,7 @@ func (m *TaskManager) GetDependencyChain(taskID string) ([]*Task, error) {
 	return chain, nil
 }
 
-// CheckDependencyBlocked 检查任务是否因依赖阻塞
+// CheckDependencyBlocked 检查任务是否因依赖阻塞.
 func (m *TaskManager) CheckDependencyBlocked(taskID string) (bool, []string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -424,7 +424,7 @@ func (m *TaskManager) CheckDependencyBlocked(taskID string) (bool, []string, err
 	return len(blockedBy) > 0, blockedBy, nil
 }
 
-// GetTasksByTags 按标签筛选任务
+// GetTasksByTags 按标签筛选任务.
 func (m *TaskManager) GetTasksByTags(projectID string, tags []string) []*Task {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -441,7 +441,7 @@ func (m *TaskManager) GetTasksByTags(projectID string, tags []string) []*Task {
 	return result
 }
 
-// BatchUpdateStatus 批量更新任务状态
+// BatchUpdateStatus 批量更新任务状态.
 func (m *TaskManager) BatchUpdateStatus(taskIDs []string, status TaskStatus) (int, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -478,7 +478,7 @@ func priorityOrder(p TaskPriority) int {
 	}
 }
 
-// extractMentions 从文本中提取 @mentions
+// extractMentions 从文本中提取 @mentions.
 func extractMentions(content string) []string {
 	var mentions []string
 	// 分割并处理所有 @ 符号

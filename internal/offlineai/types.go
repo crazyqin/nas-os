@@ -4,7 +4,7 @@ package offlineai
 
 import "time"
 
-// EngineType 推理引擎类型
+// EngineType 推理引擎类型.
 type EngineType string
 
 const (
@@ -13,7 +13,7 @@ const (
 	EngineONNX     EngineType = "onnx"     // ONNX Runtime
 )
 
-// ModelFormat 模型格式
+// ModelFormat 模型格式.
 type ModelFormat string
 
 const (
@@ -22,7 +22,7 @@ const (
 	ModelFormatONNX ModelFormat = "onnx" // ONNX 格式
 )
 
-// QuantType 量化类型
+// QuantType 量化类型.
 type QuantType string
 
 const (
@@ -36,7 +36,7 @@ const (
 	QuantF32  QuantType = "f32"  // 全精度浮点
 )
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -47,7 +47,7 @@ const (
 	TaskStatusCancelled TaskStatus = "cancelled"
 )
 
-// TaskPriority 任务优先级
+// TaskPriority 任务优先级.
 type TaskPriority int
 
 const (
@@ -57,7 +57,7 @@ const (
 	PriorityUrgent TaskPriority = 3
 )
 
-// ModelStatus 模型状态
+// ModelStatus 模型状态.
 type ModelStatus string
 
 const (
@@ -67,7 +67,7 @@ const (
 	ModelStatusError    ModelStatus = "error"
 )
 
-// Role 消息角色
+// Role 消息角色.
 type Role string
 
 const (
@@ -76,7 +76,7 @@ const (
 	RoleAssistant Role = "assistant"
 )
 
-// Config 离线AI引擎配置
+// Config 离线AI引擎配置.
 type Config struct {
 	Enabled          bool       `json:"enabled"`
 	EngineType       EngineType `json:"engine_type"`
@@ -96,7 +96,7 @@ type Config struct {
 	SchedulerWorkers int        `json:"scheduler_workers"` // 调度器工作线程数
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:          true,
@@ -118,7 +118,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// Model 模型信息
+// Model 模型信息.
 type Model struct {
 	Name        string      `json:"name"`
 	Path        string      `json:"path"`
@@ -134,7 +134,7 @@ type Model struct {
 	Description string      `json:"description,omitempty"`
 }
 
-// GPUInfo GPU 信息
+// GPUInfo GPU 信息.
 type GPUInfo struct {
 	Available   bool   `json:"available"`
 	Name        string `json:"name"`
@@ -145,7 +145,7 @@ type GPUInfo struct {
 	CUDAVersion string `json:"cuda_version,omitempty"`
 }
 
-// Message 对话消息
+// Message 对话消息.
 type Message struct {
 	ID        string    `json:"id"`
 	Role      Role      `json:"role"`
@@ -154,7 +154,7 @@ type Message struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// Conversation 对话会话
+// Conversation 对话会话.
 type Conversation struct {
 	ID          string    `json:"id"`
 	Messages    []Message `json:"messages"`
@@ -164,7 +164,7 @@ type Conversation struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// InferRequest 推理请求
+// InferRequest 推理请求.
 type InferRequest struct {
 	Prompt      string   `json:"prompt" binding:"required"`
 	ModelName   string   `json:"model_name,omitempty"`
@@ -176,7 +176,7 @@ type InferRequest struct {
 	StopWords   []string `json:"stop_words,omitempty"` // 停止词
 }
 
-// InferResponse 推理响应
+// InferResponse 推理响应.
 type InferResponse struct {
 	Text       string        `json:"text"`
 	TokensUsed int           `json:"tokens_used"`
@@ -185,7 +185,7 @@ type InferResponse struct {
 	Finished   bool          `json:"finished"`
 }
 
-// Task 任务
+// Task 任务.
 type Task struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -203,7 +203,7 @@ type Task struct {
 	ScheduledAt *time.Time   `json:"scheduled_at,omitempty"` // 定时执行时间
 }
 
-// ChatRequest 对话请求
+// ChatRequest 对话请求.
 type ChatRequest struct {
 	ConversationID string `json:"conversation_id,omitempty"` // 继续已有对话
 	Message        string `json:"message" binding:"required"`
@@ -212,7 +212,7 @@ type ChatRequest struct {
 	Stream         bool   `json:"stream,omitempty"`
 }
 
-// ChatResponse 对话响应
+// ChatResponse 对话响应.
 type ChatResponse struct {
 	ConversationID string        `json:"conversation_id"`
 	Reply          string        `json:"reply"`
@@ -220,7 +220,7 @@ type ChatResponse struct {
 	Duration       time.Duration `json:"duration"`
 }
 
-// StreamChunk 流式输出块
+// StreamChunk 流式输出块.
 type StreamChunk struct {
 	Text    string `json:"text"`
 	Done    bool   `json:"done"`

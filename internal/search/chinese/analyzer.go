@@ -12,15 +12,15 @@ import (
 )
 
 const (
-	// AnalyzerName 中文分析器名称
+	// AnalyzerName 中文分析器名称.
 	AnalyzerName = "chinese"
-	// TokenizerName 中文分词器名称
+	// TokenizerName 中文分词器名称.
 	TokenizerName = "chinese_tokenizer"
-	// LowercaseFilterName 小写过滤器名称
+	// LowercaseFilterName 小写过滤器名称.
 	LowercaseFilterName = "chinese_lowercase"
 )
 
-// init 注册 Bleve 分析器组件
+// init 注册 Bleve 分析器组件.
 func init() {
 	registry.RegisterTokenizer(TokenizerName, tokenizerConstructor)
 	registry.RegisterTokenFilter(LowercaseFilterName, lowercaseFilterConstructor)
@@ -30,17 +30,17 @@ func init() {
 // ================== 中文分词器 ==================
 
 // ChineseTokenizer 中文分词器
-// 实现 analysis.Tokenizer 接口，支持中英文混合分词
+// 实现 analysis.Tokenizer 接口，支持中英文混合分词.
 type ChineseTokenizer struct {
 	segmenter *Segmenter
 }
 
-// tokenizerConstructor 分词器构造函数
+// tokenizerConstructor 分词器构造函数.
 func tokenizerConstructor(config map[string]interface{}, cache *registry.Cache) (analysis.Tokenizer, error) {
 	return NewChineseTokenizer(), nil
 }
 
-// NewChineseTokenizer 创建中文分词器
+// NewChineseTokenizer 创建中文分词器.
 func NewChineseTokenizer() *ChineseTokenizer {
 	return &ChineseTokenizer{
 		segmenter: NewSegmenter(),
@@ -48,7 +48,7 @@ func NewChineseTokenizer() *ChineseTokenizer {
 }
 
 // Tokenize 实现 analysis.Tokenizer 接口
-// 对输入文本进行中英文混合分词
+// 对输入文本进行中英文混合分词.
 func (t *ChineseTokenizer) Tokenize(input []byte) analysis.TokenStream {
 	if len(input) == 0 {
 		return analysis.TokenStream{}
@@ -86,7 +86,7 @@ func (t *ChineseTokenizer) Tokenize(input []byte) analysis.TokenStream {
 	return tokens
 }
 
-// detectTokenType 检测词元类型
+// detectTokenType 检测词元类型.
 func detectTokenType(word string) analysis.TokenType {
 	if word == "" {
 		return analysis.Ideographic
@@ -118,20 +118,20 @@ func detectTokenType(word string) analysis.TokenType {
 // ================== 小写过滤器 ==================
 
 // ChineseLowercaseFilter 中文小写过滤器
-// 对英文词元进行小写转换，中文保持不变
+// 对英文词元进行小写转换，中文保持不变.
 type ChineseLowercaseFilter struct{}
 
-// lowercaseFilterConstructor 过滤器构造函数
+// lowercaseFilterConstructor 过滤器构造函数.
 func lowercaseFilterConstructor(config map[string]interface{}, cache *registry.Cache) (analysis.TokenFilter, error) {
 	return NewChineseLowercaseFilter(), nil
 }
 
-// NewChineseLowercaseFilter 创建小写过滤器
+// NewChineseLowercaseFilter 创建小写过滤器.
 func NewChineseLowercaseFilter() *ChineseLowercaseFilter {
 	return &ChineseLowercaseFilter{}
 }
 
-// Filter 实现 analysis.TokenFilter 接口
+// Filter 实现 analysis.TokenFilter 接口.
 func (f *ChineseLowercaseFilter) Filter(input analysis.TokenStream) analysis.TokenStream {
 	output := make(analysis.TokenStream, 0, len(input))
 
@@ -154,13 +154,13 @@ func (f *ChineseLowercaseFilter) Filter(input analysis.TokenStream) analysis.Tok
 // ================== 中文分析器 ==================
 
 // ChineseAnalyzer 中文分析器
-// 实现 analysis.Analyzer 接口，组合分词器和过滤器
+// 实现 analysis.Analyzer 接口，组合分词器和过滤器.
 type ChineseAnalyzer struct {
 	tokenizer analysis.Tokenizer
 	filters   []analysis.TokenFilter
 }
 
-// analyzerConstructor 分析器构造函数
+// analyzerConstructor 分析器构造函数.
 func analyzerConstructor(config map[string]interface{}, cache *registry.Cache) (analysis.Analyzer, error) {
 	tokenizer, err := cache.DefineTokenizer(TokenizerName, config)
 	if err != nil {
@@ -180,7 +180,7 @@ func analyzerConstructor(config map[string]interface{}, cache *registry.Cache) (
 	}, nil
 }
 
-// NewChineseAnalyzer 创建中文分析器
+// NewChineseAnalyzer 创建中文分析器.
 func NewChineseAnalyzer() *ChineseAnalyzer {
 	return &ChineseAnalyzer{
 		tokenizer: NewChineseTokenizer(),
@@ -191,7 +191,7 @@ func NewChineseAnalyzer() *ChineseAnalyzer {
 }
 
 // Analyze 实现 analysis.Analyzer 接口
-// 先分词，再依次应用过滤器
+// 先分词，再依次应用过滤器.
 func (a *ChineseAnalyzer) Analyze(input []byte) analysis.TokenStream {
 	if len(input) == 0 {
 		return analysis.TokenStream{}
@@ -211,18 +211,18 @@ func (a *ChineseAnalyzer) Analyze(input []byte) analysis.TokenStream {
 // ================== 同义词过滤器 ==================
 
 // SynonymFilter 同义词过滤器
-// 基于分词器的同义词词典扩展词元
+// 基于分词器的同义词词典扩展词元.
 type SynonymFilter struct {
 	segmenter *Segmenter
 }
 
-// NewSynonymFilter 创建同义词过滤器
+// NewSynonymFilter 创建同义词过滤器.
 func NewSynonymFilter(segmenter *Segmenter) *SynonymFilter {
 	return &SynonymFilter{segmenter: segmenter}
 }
 
 // Filter 实现 analysis.TokenFilter 接口
-// 将同义词追加到词元流中
+// 将同义词追加到词元流中.
 func (f *SynonymFilter) Filter(input analysis.TokenStream) analysis.TokenStream {
 	output := make(analysis.TokenStream, 0, len(input)*2)
 	output = append(output, input...)
@@ -248,7 +248,7 @@ func (f *SynonymFilter) Filter(input analysis.TokenStream) analysis.TokenStream 
 // ================== 工厂函数 ==================
 
 // MustNewAnalyzer 创建分析器，失败时 panic
-// 适用于初始化阶段的快速创建
+// 适用于初始化阶段的快速创建.
 func MustNewAnalyzer() *ChineseAnalyzer {
 	return NewChineseAnalyzer()
 }

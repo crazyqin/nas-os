@@ -20,47 +20,47 @@ import (
 	"golang.org/x/crypto/curve25519"
 )
 
-// Noise 协议消息类型
+// Noise 协议消息类型.
 const (
 	NoiseMsgHandshake1 uint8 = 0x01
 	NoiseMsgHandshake2 uint8 = 0x02
 	NoiseMsgTransport  uint8 = 0x03
 )
 
-// SecureTunnelConfig 安全隧道配置
+// SecureTunnelConfig 安全隧道配置.
 type SecureTunnelConfig struct {
-	LocalPeerID   string
-	RemotePeerID  string
-	PrivateKey    []byte // 32 bytes Curve25519 私钥
-	PublicKey     []byte // 32 bytes Curve25519 公钥
-	RemotePubKey  []byte // 远程公钥
-	Conn          net.Conn // 底层连接 (可以是 UDP 打洞连接或 TCP 中继连接)
-	MTU           int
-	KDFInterval   time.Duration // 密钥轮换间隔
+	LocalPeerID  string
+	RemotePeerID string
+	PrivateKey   []byte   // 32 bytes Curve25519 私钥
+	PublicKey    []byte   // 32 bytes Curve25519 公钥
+	RemotePubKey []byte   // 远程公钥
+	Conn         net.Conn // 底层连接 (可以是 UDP 打洞连接或 TCP 中继连接)
+	MTU          int
+	KDFInterval  time.Duration // 密钥轮换间隔
 }
 
-// SecureTunnel 安全隧道
+// SecureTunnel 安全隧道.
 type SecureTunnel struct {
-	mu           sync.RWMutex
-	logger       *zap.Logger
-	config       SecureTunnelConfig
-	conn         net.Conn
-	sendCipher   cipher.AEAD
-	recvCipher   cipher.AEAD
-	sendNonce    uint64 // atomic
-	recvNonce    uint64 // atomic
-	bytesIn      int64  // atomic
-	bytesOut     int64  // atomic
-	handshakeDone int32 // atomic
-	sessionKey   []byte
-	createdAt    time.Time
-	lastRekey    time.Time
-	rekeyCount   int
-	onData       func([]byte)
-	done         chan struct{}
+	mu            sync.RWMutex
+	logger        *zap.Logger
+	config        SecureTunnelConfig
+	conn          net.Conn
+	sendCipher    cipher.AEAD
+	recvCipher    cipher.AEAD
+	sendNonce     uint64 // atomic
+	recvNonce     uint64 // atomic
+	bytesIn       int64  // atomic
+	bytesOut      int64  // atomic
+	handshakeDone int32  // atomic
+	sessionKey    []byte
+	createdAt     time.Time
+	lastRekey     time.Time
+	rekeyCount    int
+	onData        func([]byte)
+	done          chan struct{}
 }
 
-// NewSecureTunnel 创建安全隧道
+// NewSecureTunnel 创建安全隧道.
 func NewSecureTunnel(logger *zap.Logger, config SecureTunnelConfig) (*SecureTunnel, error) {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -91,7 +91,7 @@ func NewSecureTunnel(logger *zap.Logger, config SecureTunnelConfig) (*SecureTunn
 	}, nil
 }
 
-// Handshake 执行 Noise_IK 握手
+// Handshake 执行 Noise_IK 握手.
 func (t *SecureTunnel) Handshake() error {
 	// 发起握手: e, es, s, ss
 	ephPriv, ephPub, err := generateKeyPair()
@@ -203,7 +203,7 @@ func (t *SecureTunnel) Handshake() error {
 	return nil
 }
 
-// Write 加密并写入数据
+// Write 加密并写入数据.
 func (t *SecureTunnel) Write(data []byte) (int, error) {
 	if atomic.LoadInt32(&t.handshakeDone) != 1 {
 		return 0, fmt.Errorf("握手未完成")
@@ -252,7 +252,7 @@ func (t *SecureTunnel) Write(data []byte) (int, error) {
 	return totalWritten, nil
 }
 
-// Read 读取并解密数据
+// Read 读取并解密数据.
 func (t *SecureTunnel) Read(buf []byte) (int, error) {
 	if atomic.LoadInt32(&t.handshakeDone) != 1 {
 		return 0, fmt.Errorf("握手未完成")
@@ -288,13 +288,13 @@ func (t *SecureTunnel) Read(buf []byte) (int, error) {
 	return copied, nil
 }
 
-// SetOnData 设置数据回调 (异步读取模式)
+// SetOnData 设置数据回调 (异步读取模式).
 func (t *SecureTunnel) SetOnData(fn func([]byte)) {
 	t.onData = fn
 	go t.readLoop()
 }
 
-// readLoop 异步读取循环
+// readLoop 异步读取循环.
 func (t *SecureTunnel) readLoop() {
 	buf := make([]byte, 65536)
 	for {
@@ -315,7 +315,7 @@ func (t *SecureTunnel) readLoop() {
 	}
 }
 
-// Close 关闭隧道
+// Close 关闭隧道.
 func (t *SecureTunnel) Close() error {
 	select {
 	case <-t.done:
@@ -326,7 +326,7 @@ func (t *SecureTunnel) Close() error {
 	return t.conn.Close()
 }
 
-// GetStats 获取隧道统计
+// GetStats 获取隧道统计.
 func (t *SecureTunnel) GetStats() map[string]interface{} {
 	return map[string]interface{}{
 		"local_peer":  t.config.LocalPeerID,
@@ -340,7 +340,7 @@ func (t *SecureTunnel) GetStats() map[string]interface{} {
 	}
 }
 
-// rekey 密钥轮换
+// rekey 密钥轮换.
 func (t *SecureTunnel) rekey() {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -364,7 +364,7 @@ func (t *SecureTunnel) rekey() {
 	t.logger.Debug("密钥轮换完成", zap.Int("count", t.rekeyCount))
 }
 
-// generateKeyPair 生成 Curve25519 密钥对
+// generateKeyPair 生成 Curve25519 密钥对.
 func generateKeyPair() (privKey, pubKey []byte, err error) {
 	privKey = make([]byte, 32)
 	if _, err := rand.Read(privKey); err != nil {
@@ -379,7 +379,7 @@ func generateKeyPair() (privKey, pubKey []byte, err error) {
 	return privKey, pubKey, nil
 }
 
-// deriveKeyFromDH 从 DH 结果派生密钥
+// deriveKeyFromDH 从 DH 结果派生密钥.
 func deriveKeyFromDH(ck, dh []byte) []byte {
 	h := sha256.New()
 	h.Write(ck)
@@ -387,7 +387,7 @@ func deriveKeyFromDH(ck, dh []byte) []byte {
 	return h.Sum(nil)
 }
 
-// hmacHash 简化的 HMAC-SHA256
+// hmacHash 简化的 HMAC-SHA256.
 func hmacHash(key, data []byte) []byte {
 	h := sha256.New()
 	h.Write(key)
@@ -395,7 +395,7 @@ func hmacHash(key, data []byte) []byte {
 	return h.Sum(nil)
 }
 
-// encryptWithKey 使用指定密钥和 nonce 加密
+// encryptWithKey 使用指定密钥和 nonce 加密.
 func encryptWithKey(key []byte, plaintext []byte, nonce uint64) []byte {
 	if len(key) < 32 {
 		// Pad key
@@ -419,7 +419,7 @@ func encryptWithKey(key []byte, plaintext []byte, nonce uint64) []byte {
 	return aead.Seal(nil, fullNonce, plaintext, nil)
 }
 
-// KeyManager 密钥管理器
+// KeyManager 密钥管理器.
 type KeyManager struct {
 	mu         sync.RWMutex
 	logger     *zap.Logger
@@ -428,7 +428,7 @@ type KeyManager struct {
 	peers      map[string]*PeerKeyInfo
 }
 
-// PeerKeyInfo 节点密钥信息
+// PeerKeyInfo 节点密钥信息.
 type PeerKeyInfo struct {
 	PeerID    string    `json:"peer_id"`
 	PublicKey string    `json:"public_key"`
@@ -436,7 +436,7 @@ type PeerKeyInfo struct {
 	Trusted   bool      `json:"trusted"`
 }
 
-// NewKeyManager 创建密钥管理器
+// NewKeyManager 创建密钥管理器.
 func NewKeyManager(logger *zap.Logger) (*KeyManager, error) {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -455,17 +455,17 @@ func NewKeyManager(logger *zap.Logger) (*KeyManager, error) {
 	}, nil
 }
 
-// GetPublicKey 获取本机公钥 (base64 编码)
+// GetPublicKey 获取本机公钥 (base64 编码).
 func (km *KeyManager) GetPublicKey() string {
 	return base64.StdEncoding.EncodeToString(km.publicKey)
 }
 
-// GetPrivateKey 获取本机私钥
+// GetPrivateKey 获取本机私钥.
 func (km *KeyManager) GetPrivateKey() []byte {
 	return km.privateKey
 }
 
-// AddTrustedPeer 添加受信任的节点
+// AddTrustedPeer 添加受信任的节点.
 func (km *KeyManager) AddTrustedPeer(peerID, pubKeyBase64 string) error {
 	pubKeyBytes, err := base64.StdEncoding.DecodeString(pubKeyBase64)
 	if err != nil {
@@ -493,7 +493,7 @@ func (km *KeyManager) AddTrustedPeer(peerID, pubKeyBase64 string) error {
 	return nil
 }
 
-// GetPeerPublicKey 获取节点公钥
+// GetPeerPublicKey 获取节点公钥.
 func (km *KeyManager) GetPeerPublicKey(peerID string) ([]byte, error) {
 	km.mu.RLock()
 	defer km.mu.RUnlock()
@@ -509,14 +509,14 @@ func (km *KeyManager) GetPeerPublicKey(peerID string) ([]byte, error) {
 	return base64.StdEncoding.DecodeString(info.PublicKey)
 }
 
-// RemovePeer 移除节点
+// RemovePeer 移除节点.
 func (km *KeyManager) RemovePeer(peerID string) {
 	km.mu.Lock()
 	defer km.mu.Unlock()
 	delete(km.peers, peerID)
 }
 
-// ListPeers 列出所有已知节点
+// ListPeers 列出所有已知节点.
 func (km *KeyManager) ListPeers() []*PeerKeyInfo {
 	km.mu.RLock()
 	defer km.mu.RUnlock()

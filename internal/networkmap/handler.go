@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler handles HTTP requests for network map
+// Handler handles HTTP requests for network map.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler creates a new network map handler
+// NewHandler creates a new network map handler.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes registers the HTTP routes
+// RegisterRoutes registers the HTTP routes.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/network/devices", h.handleDevices)
 	mux.HandleFunc("/api/v1/network/device", h.handleDevice)
@@ -25,7 +25,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/network/alerts", h.handleAlerts)
 }
 
-// handleDevices handles device listing
+// handleDevices handles device listing.
 func (h *Handler) handleDevices(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -36,7 +36,7 @@ func (h *Handler) handleDevices(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(devices)
 }
 
-// handleDevice handles device CRUD operations
+// handleDevice handles device CRUD operations.
 func (h *Handler) handleDevice(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -79,7 +79,7 @@ func (h *Handler) handleDevice(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleTopology returns network topology
+// handleTopology returns network topology.
 func (h *Handler) handleTopology(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -90,7 +90,7 @@ func (h *Handler) handleTopology(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(topology)
 }
 
-// handleScan triggers a subnet scan
+// handleScan triggers a subnet scan.
 func (h *Handler) handleScan(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -111,7 +111,7 @@ func (h *Handler) handleScan(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-// handleStats returns network statistics
+// handleStats returns network statistics.
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -122,7 +122,7 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(stats)
 }
 
-// handleAlerts returns network alerts
+// handleAlerts returns network alerts.
 func (h *Handler) handleAlerts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

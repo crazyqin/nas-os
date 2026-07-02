@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-// ClipType 剪贴板内容类型
+// ClipType 剪贴板内容类型.
 type ClipType string
 
 const (
@@ -27,7 +27,7 @@ const (
 	ClipURL      ClipType = "url"      // URL链接
 )
 
-// ClipItem 剪贴板条目
+// ClipItem 剪贴板条目.
 type ClipItem struct {
 	ID         string    `json:"id"`
 	DeviceID   string    `json:"deviceId"`
@@ -40,7 +40,7 @@ type ClipItem struct {
 	ExpiresAt  time.Time `json:"expiresAt,omitempty"`
 }
 
-// Device 注册设备信息
+// Device 注册设备信息.
 type Device struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -52,7 +52,7 @@ type Device struct {
 	Enabled   bool      `json:"enabled"`
 }
 
-// SyncConfig 同步配置
+// SyncConfig 同步配置.
 type SyncConfig struct {
 	MaxContentSize int64         `json:"maxContentSize"` // 最大内容大小（字节）
 	MaxHistory     int           `json:"maxHistory"`     // 最大历史条数
@@ -62,7 +62,7 @@ type SyncConfig struct {
 	AllowedDevices []string      `json:"allowedDevices"` // 允许的设备列表
 }
 
-// ClipboardManager 剪贴板管理器
+// ClipboardManager 剪贴板管理器.
 type ClipboardManager struct {
 	mu         sync.RWMutex
 	items      []ClipItem
@@ -72,7 +72,7 @@ type ClipboardManager struct {
 	encryptKey []byte
 }
 
-// NewClipboardManager 创建剪贴板管理器
+// NewClipboardManager 创建剪贴板管理器.
 func NewClipboardManager(config SyncConfig) *ClipboardManager {
 	var key []byte
 	if config.EncryptionKey != "" {
@@ -97,7 +97,7 @@ func NewClipboardManager(config SyncConfig) *ClipboardManager {
 	}
 }
 
-// RegisterDevice 注册新设备
+// RegisterDevice 注册新设备.
 func (m *ClipboardManager) RegisterDevice(device Device) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -109,7 +109,7 @@ func (m *ClipboardManager) RegisterDevice(device Device) error {
 	return nil
 }
 
-// RemoveDevice 移除设备
+// RemoveDevice 移除设备.
 func (m *ClipboardManager) RemoveDevice(deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -121,7 +121,7 @@ func (m *ClipboardManager) RemoveDevice(deviceID string) error {
 	return nil
 }
 
-// PushContent 推送剪贴板内容
+// PushContent 推送剪贴板内容.
 func (m *ClipboardManager) PushContent(deviceID string, clipType ClipType, content string) (*ClipItem, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -171,7 +171,7 @@ func (m *ClipboardManager) PushContent(deviceID string, clipType ClipType, conte
 	return &item, nil
 }
 
-// PullLatest 拉取最新剪贴板内容
+// PullLatest 拉取最新剪贴板内容.
 func (m *ClipboardManager) PullLatest(deviceID string) (*ClipItem, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -204,7 +204,7 @@ func (m *ClipboardManager) PullLatest(deviceID string) (*ClipItem, error) {
 	return &item, nil
 }
 
-// GetHistory 获取剪贴板历史
+// GetHistory 获取剪贴板历史.
 func (m *ClipboardManager) GetHistory(deviceID string, limit int) ([]ClipItem, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -233,7 +233,7 @@ func (m *ClipboardManager) GetHistory(deviceID string, limit int) ([]ClipItem, e
 	return result, nil
 }
 
-// ListDevices 列出所有注册设备
+// ListDevices 列出所有注册设备.
 func (m *ClipboardManager) ListDevices() []Device {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -245,7 +245,7 @@ func (m *ClipboardManager) ListDevices() []Device {
 	return devices
 }
 
-// Cleanup 过期内容清理
+// Cleanup 过期内容清理.
 func (m *ClipboardManager) Cleanup() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -265,7 +265,7 @@ func (m *ClipboardManager) Cleanup() int {
 	return removed
 }
 
-// Stats 剪贴板统计
+// Stats 剪贴板统计.
 type Stats struct {
 	TotalItems   int       `json:"totalItems"`
 	TotalDevices int       `json:"totalDevices"`
@@ -274,7 +274,7 @@ type Stats struct {
 	NewestItem   time.Time `json:"newestItem,omitempty"`
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *ClipboardManager) GetStats() Stats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -297,7 +297,7 @@ func (m *ClipboardManager) GetStats() Stats {
 	return stats
 }
 
-// encrypt AES-GCM 加密
+// encrypt AES-GCM 加密.
 func (m *ClipboardManager) encrypt(plaintext []byte) (string, error) {
 	block, err := aes.NewCipher(m.encryptKey)
 	if err != nil {
@@ -315,7 +315,7 @@ func (m *ClipboardManager) encrypt(plaintext []byte) (string, error) {
 	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
-// decrypt AES-GCM 解密
+// decrypt AES-GCM 解密.
 func (m *ClipboardManager) decrypt(encoded string) (string, error) {
 	data, err := base64.StdEncoding.DecodeString(encoded)
 	if err != nil {
@@ -341,7 +341,7 @@ func (m *ClipboardManager) decrypt(encoded string) (string, error) {
 	return string(plaintext), nil
 }
 
-// RegisterRoutes 注册 HTTP 路由
+// RegisterRoutes 注册 HTTP 路由.
 func (m *ClipboardManager) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/clipboard/push", m.handlePush)
 	mux.HandleFunc("/api/v1/clipboard/pull", m.handlePull)

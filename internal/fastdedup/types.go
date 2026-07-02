@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// DedupMode 去重模式
+// DedupMode 去重模式.
 type DedupMode string
 
 const (
@@ -18,7 +18,7 @@ const (
 	ModeInline   DedupMode = "inline"   // 内联去重
 )
 
-// DedupAlgorithm 去重算法
+// DedupAlgorithm 去重算法.
 type DedupAlgorithm string
 
 const (
@@ -27,7 +27,7 @@ const (
 	AlgoHybrid      DedupAlgorithm = "hybrid"      // 混合去重
 )
 
-// StorageTier 存储层
+// StorageTier 存储层.
 type StorageTier string
 
 const (
@@ -36,7 +36,7 @@ const (
 	TierHDD  StorageTier = "hdd"
 )
 
-// DedupStats 去重统计
+// DedupStats 去重统计.
 type DedupStats struct {
 	TotalBlocks     int64     `json:"total_blocks"`
 	UniqueBlocks    int64     `json:"unique_blocks"`
@@ -47,7 +47,7 @@ type DedupStats struct {
 	Duration        int64     `json:"duration_ms"`
 }
 
-// DedupBlock 去重块
+// DedupBlock 去重块.
 type DedupBlock struct {
 	Hash      string      `json:"hash"`
 	Size      int64       `json:"size"`
@@ -56,7 +56,7 @@ type DedupBlock struct {
 	CreatedAt time.Time   `json:"created_at"`
 }
 
-// DedupPolicy 去重策略
+// DedupPolicy 去重策略.
 type DedupPolicy struct {
 	Name         string         `json:"name"`
 	Mode         DedupMode      `json:"mode"`
@@ -67,7 +67,7 @@ type DedupPolicy struct {
 	Enabled      bool           `json:"enabled"`
 }
 
-// DedupResult 去重结果
+// DedupResult 去重结果.
 type DedupResult struct {
 	ScannedBlocks   int64   `json:"scanned_blocks"`
 	DedupedBlocks   int64   `json:"deduped_blocks"`
@@ -76,7 +76,7 @@ type DedupResult struct {
 	DedupRatio      float64 `json:"dedup_ratio"`
 }
 
-// FastDedupEngine NVMe优化快速去重引擎
+// FastDedupEngine NVMe优化快速去重引擎.
 type FastDedupEngine struct {
 	mu         sync.RWMutex
 	config     EngineConfig
@@ -86,7 +86,7 @@ type FastDedupEngine struct {
 	running    bool
 }
 
-// EngineConfig 引擎配置
+// EngineConfig 引擎配置.
 type EngineConfig struct {
 	DefaultMode   DedupMode      `json:"default_mode"`
 	DefaultAlgo   DedupAlgorithm `json:"default_algo"`
@@ -98,7 +98,7 @@ type EngineConfig struct {
 	BatchSizeMB   int            `json:"batch_size_mb"`
 }
 
-// DefaultEngineConfig 默认引擎配置
+// DefaultEngineConfig 默认引擎配置.
 func DefaultEngineConfig() EngineConfig {
 	return EngineConfig{
 		DefaultMode:   ModeRealtime,
@@ -112,7 +112,7 @@ func DefaultEngineConfig() EngineConfig {
 	}
 }
 
-// 预定义错误
+// 预定义错误.
 var (
 	ErrEngineRunning    = errors.New("engine is already running")
 	ErrEngineNotRunning = errors.New("engine is not running")

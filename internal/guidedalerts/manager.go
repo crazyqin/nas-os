@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// AlertManager 告警管理器
+// AlertManager 告警管理器.
 type AlertManager struct {
 	mu           sync.RWMutex
 	alerts       map[string]*Alert
@@ -22,14 +22,14 @@ type AlertManager struct {
 	stopCh           chan struct{}
 }
 
-// AlertListener 告警监听器
+// AlertListener 告警监听器.
 type AlertListener interface {
 	OnAlert(alert *Alert)
 	OnResolve(alert *Alert)
 	OnEscalate(alert *Alert, level int)
 }
 
-// NewAlertManager 创建告警管理器
+// NewAlertManager 创建告警管理器.
 func NewAlertManager() *AlertManager {
 	am := &AlertManager{
 		alerts:       make(map[string]*Alert),
@@ -60,7 +60,7 @@ func NewAlertManager() *AlertManager {
 	return am
 }
 
-// CreateAlert 创建告警
+// CreateAlert 创建告警.
 func (am *AlertManager) CreateAlert(alert *Alert) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -119,7 +119,7 @@ func (am *AlertManager) CreateAlert(alert *Alert) error {
 	return nil
 }
 
-// GetAlert 获取告警
+// GetAlert 获取告警.
 func (am *AlertManager) GetAlert(id string) (*Alert, bool) {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -127,7 +127,7 @@ func (am *AlertManager) GetAlert(id string) (*Alert, bool) {
 	return alert, ok
 }
 
-// ListAlerts 列出告警
+// ListAlerts 列出告警.
 func (am *AlertManager) ListAlerts(opts AlertFilter) []*Alert {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -154,7 +154,7 @@ func (am *AlertManager) ListAlerts(opts AlertFilter) []*Alert {
 	return result
 }
 
-// AlertFilter 告警过滤条件
+// AlertFilter 告警过滤条件.
 type AlertFilter struct {
 	Severity       AlertSeverity
 	Category       AlertCategory
@@ -163,7 +163,7 @@ type AlertFilter struct {
 	UnresolvedOnly bool
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (am *AlertManager) AcknowledgeAlert(id string, user string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -181,7 +181,7 @@ func (am *AlertManager) AcknowledgeAlert(id string, user string) error {
 	return nil
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (am *AlertManager) ResolveAlert(id string, user string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -204,7 +204,7 @@ func (am *AlertManager) ResolveAlert(id string, user string) error {
 	return nil
 }
 
-// SilenceAlert 静默告警
+// SilenceAlert 静默告警.
 func (am *AlertManager) SilenceAlert(id string, duration time.Duration, user string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -220,7 +220,7 @@ func (am *AlertManager) SilenceAlert(id string, duration time.Duration, user str
 	return nil
 }
 
-// GetAlertHistory 获取告警历史
+// GetAlertHistory 获取告警历史.
 func (am *AlertManager) GetAlertHistory(alertID string) []AlertHistory {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -234,7 +234,7 @@ func (am *AlertManager) GetAlertHistory(alertID string) []AlertHistory {
 	return result
 }
 
-// GetStats 获取告警统计
+// GetStats 获取告警统计.
 func (am *AlertManager) GetStats() *AlertStats {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -277,7 +277,7 @@ func (am *AlertManager) GetStats() *AlertStats {
 
 // SilenceRule 管理
 
-// AddSilenceRule 添加静默规则
+// AddSilenceRule 添加静默规则.
 func (am *AlertManager) AddSilenceRule(rule *SilenceRule) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -290,7 +290,7 @@ func (am *AlertManager) AddSilenceRule(rule *SilenceRule) error {
 	return nil
 }
 
-// RemoveSilenceRule 移除静默规则
+// RemoveSilenceRule 移除静默规则.
 func (am *AlertManager) RemoveSilenceRule(id string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -303,7 +303,7 @@ func (am *AlertManager) RemoveSilenceRule(id string) error {
 	return nil
 }
 
-// ListSilenceRules 列出静默规则
+// ListSilenceRules 列出静默规则.
 func (am *AlertManager) ListSilenceRules() []*SilenceRule {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -317,7 +317,7 @@ func (am *AlertManager) ListSilenceRules() []*SilenceRule {
 
 // InhibitionRule 管理
 
-// AddInhibitionRule 添加抑制规则
+// AddInhibitionRule 添加抑制规则.
 func (am *AlertManager) AddInhibitionRule(rule *InhibitionRule) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -330,7 +330,7 @@ func (am *AlertManager) AddInhibitionRule(rule *InhibitionRule) error {
 	return nil
 }
 
-// RemoveInhibitionRule 移除抑制规则
+// RemoveInhibitionRule 移除抑制规则.
 func (am *AlertManager) RemoveInhibitionRule(id string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -343,7 +343,7 @@ func (am *AlertManager) RemoveInhibitionRule(id string) error {
 	return nil
 }
 
-// ListInhibitionRules 列出抑制规则
+// ListInhibitionRules 列出抑制规则.
 func (am *AlertManager) ListInhibitionRules() []*InhibitionRule {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -505,24 +505,24 @@ func (am *AlertManager) checkEscalations() {
 	}
 }
 
-// AddListener 添加监听器
+// AddListener 添加监听器.
 func (am *AlertManager) AddListener(listener AlertListener) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
 	am.listeners = append(am.listeners, listener)
 }
 
-// GetRuleEngine 获取规则引擎
+// GetRuleEngine 获取规则引擎.
 func (am *AlertManager) GetRuleEngine() *RuleEngine {
 	return am.ruleEngine
 }
 
-// GetRouter 获取路由器
+// GetRouter 获取路由器.
 func (am *AlertManager) GetRouter() *AlertRouter {
 	return am.router
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (am *AlertManager) Stop() {
 	close(am.stopCh)
 	if am.escalationTicker != nil {

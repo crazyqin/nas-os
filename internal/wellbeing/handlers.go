@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 数字健康 API 处理器
+// Handlers 数字健康 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	wb := r.Group("/wellbeing")
 	{
@@ -56,14 +56,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// startTracking 开始追踪
+// startTracking 开始追踪.
 func (h *Handlers) startTracking(c *gin.Context) {
 	var req struct {
 		UserID      string      `json:"user_id" binding:"required"`
@@ -94,7 +94,7 @@ func (h *Handlers) startTracking(c *gin.Context) {
 	})
 }
 
-// pauseTracking 暂停追踪
+// pauseTracking 暂停追踪.
 func (h *Handlers) pauseTracking(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.PauseTracking(id); err != nil {
@@ -111,7 +111,7 @@ func (h *Handlers) pauseTracking(c *gin.Context) {
 	})
 }
 
-// resumeTracking 恢复追踪
+// resumeTracking 恢复追踪.
 func (h *Handlers) resumeTracking(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.ResumeTracking(id); err != nil {
@@ -128,7 +128,7 @@ func (h *Handlers) resumeTracking(c *gin.Context) {
 	})
 }
 
-// endTracking 结束追踪
+// endTracking 结束追踪.
 func (h *Handlers) endTracking(c *gin.Context) {
 	id := c.Param("id")
 	session, err := h.manager.EndTracking(id)
@@ -147,7 +147,7 @@ func (h *Handlers) endTracking(c *gin.Context) {
 	})
 }
 
-// getActiveSessions 获取活跃会话
+// getActiveSessions 获取活跃会话.
 func (h *Handlers) getActiveSessions(c *gin.Context) {
 	userID := c.Query("user_id")
 	if userID == "" {
@@ -166,7 +166,7 @@ func (h *Handlers) getActiveSessions(c *gin.Context) {
 	})
 }
 
-// getSessionHistory 获取会话历史
+// getSessionHistory 获取会话历史.
 func (h *Handlers) getSessionHistory(c *gin.Context) {
 	userID := c.Query("user_id")
 	if userID == "" {
@@ -185,7 +185,7 @@ func (h *Handlers) getSessionHistory(c *gin.Context) {
 	})
 }
 
-// listReminders 列出提醒
+// listReminders 列出提醒.
 func (h *Handlers) listReminders(c *gin.Context) {
 	userID := c.Query("user_id")
 	if userID == "" {
@@ -204,7 +204,7 @@ func (h *Handlers) listReminders(c *gin.Context) {
 	})
 }
 
-// createReminder 创建提醒
+// createReminder 创建提醒.
 func (h *Handlers) createReminder(c *gin.Context) {
 	var req struct {
 		UserID string `json:"user_id" binding:"required"`
@@ -234,7 +234,7 @@ func (h *Handlers) createReminder(c *gin.Context) {
 	})
 }
 
-// getReminder 获取提醒
+// getReminder 获取提醒.
 func (h *Handlers) getReminder(c *gin.Context) {
 	id := c.Param("id")
 	reminder, err := h.manager.GetReminder(id)
@@ -253,7 +253,7 @@ func (h *Handlers) getReminder(c *gin.Context) {
 	})
 }
 
-// updateReminder 更新提醒
+// updateReminder 更新提醒.
 func (h *Handlers) updateReminder(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateReminderRequest
@@ -281,7 +281,7 @@ func (h *Handlers) updateReminder(c *gin.Context) {
 	})
 }
 
-// deleteReminder 删除提醒
+// deleteReminder 删除提醒.
 func (h *Handlers) deleteReminder(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteReminder(id); err != nil {
@@ -298,7 +298,7 @@ func (h *Handlers) deleteReminder(c *gin.Context) {
 	})
 }
 
-// triggerReminder 触发提醒
+// triggerReminder 触发提醒.
 func (h *Handlers) triggerReminder(c *gin.Context) {
 	id := c.Param("id")
 	reminder, err := h.manager.TriggerReminder(id)
@@ -317,7 +317,7 @@ func (h *Handlers) triggerReminder(c *gin.Context) {
 	})
 }
 
-// snoozeReminder 贪睡提醒
+// snoozeReminder 贪睡提醒.
 func (h *Handlers) snoozeReminder(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.SnoozeReminder(id); err != nil {
@@ -334,7 +334,7 @@ func (h *Handlers) snoozeReminder(c *gin.Context) {
 	})
 }
 
-// dismissReminder 忽略提醒
+// dismissReminder 忽略提醒.
 func (h *Handlers) dismissReminder(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DismissReminder(id); err != nil {
@@ -351,7 +351,7 @@ func (h *Handlers) dismissReminder(c *gin.Context) {
 	})
 }
 
-// getUsageLimits 获取使用限制
+// getUsageLimits 获取使用限制.
 func (h *Handlers) getUsageLimits(c *gin.Context) {
 	userID := c.Query("user_id")
 	if userID == "" {
@@ -370,7 +370,7 @@ func (h *Handlers) getUsageLimits(c *gin.Context) {
 	})
 }
 
-// setUsageLimit 设置使用限制
+// setUsageLimit 设置使用限制.
 func (h *Handlers) setUsageLimit(c *gin.Context) {
 	var req struct {
 		UserID string `json:"user_id" binding:"required"`
@@ -400,7 +400,7 @@ func (h *Handlers) setUsageLimit(c *gin.Context) {
 	})
 }
 
-// updateUsageLimit 更新使用限制
+// updateUsageLimit 更新使用限制.
 func (h *Handlers) updateUsageLimit(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateUsageLimitRequest
@@ -428,7 +428,7 @@ func (h *Handlers) updateUsageLimit(c *gin.Context) {
 	})
 }
 
-// deleteUsageLimit 删除使用限制
+// deleteUsageLimit 删除使用限制.
 func (h *Handlers) deleteUsageLimit(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteUsageLimit(id); err != nil {
@@ -445,7 +445,7 @@ func (h *Handlers) deleteUsageLimit(c *gin.Context) {
 	})
 }
 
-// checkUsageLimit 检查使用限制
+// checkUsageLimit 检查使用限制.
 func (h *Handlers) checkUsageLimit(c *gin.Context) {
 	userID := c.Query("user_id")
 	appName := c.Query("app_name")
@@ -477,7 +477,7 @@ func (h *Handlers) checkUsageLimit(c *gin.Context) {
 	})
 }
 
-// getScreenTime 获取屏幕时间
+// getScreenTime 获取屏幕时间.
 func (h *Handlers) getScreenTime(c *gin.Context) {
 	userID := c.Query("user_id")
 	date := c.Query("date")
@@ -506,7 +506,7 @@ func (h *Handlers) getScreenTime(c *gin.Context) {
 	})
 }
 
-// generateReport 生成报告
+// generateReport 生成报告.
 func (h *Handlers) generateReport(c *gin.Context) {
 	var req ReportRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -533,7 +533,7 @@ func (h *Handlers) generateReport(c *gin.Context) {
 	})
 }
 
-// getInsights 获取洞察
+// getInsights 获取洞察.
 func (h *Handlers) getInsights(c *gin.Context) {
 	userID := c.Query("user_id")
 	if userID == "" {
@@ -552,7 +552,7 @@ func (h *Handlers) getInsights(c *gin.Context) {
 	})
 }
 
-// markInsightRead 标记洞察已读
+// markInsightRead 标记洞察已读.
 func (h *Handlers) markInsightRead(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.MarkInsightRead(id); err != nil {

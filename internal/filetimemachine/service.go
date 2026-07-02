@@ -18,7 +18,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Service 文件时光机服务
+// Service 文件时光机服务.
 type Service struct {
 	config     *FileTimeMachineConfig
 	snapshots  map[string]*Snapshot
@@ -29,7 +29,7 @@ type Service struct {
 	mu         sync.RWMutex
 }
 
-// NewService 创建服务实例
+// NewService 创建服务实例.
 func NewService(config *FileTimeMachineConfig) *Service {
 	if config == nil {
 		config = DefaultConfig()
@@ -46,7 +46,7 @@ func NewService(config *FileTimeMachineConfig) *Service {
 
 // ==================== 快照管理 ====================
 
-// CreateSnapshot 创建快照
+// CreateSnapshot 创建快照.
 func (s *Service) CreateSnapshot(ctx context.Context, name, description string, trigger SnapshotTrigger, paths []string, tags []string) (*Snapshot, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -83,7 +83,7 @@ func (s *Service) CreateSnapshot(ctx context.Context, name, description string, 
 	return snapshot, nil
 }
 
-// GetSnapshot 获取快照详情
+// GetSnapshot 获取快照详情.
 func (s *Service) GetSnapshot(id string) (*Snapshot, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -95,7 +95,7 @@ func (s *Service) GetSnapshot(id string) (*Snapshot, error) {
 	return snapshot, nil
 }
 
-// ListSnapshots 列出快照
+// ListSnapshots 列出快照.
 func (s *Service) ListSnapshots(opts ListOptions) (*PageResult, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -154,7 +154,7 @@ func (s *Service) ListSnapshots(opts ListOptions) (*PageResult, error) {
 	}, nil
 }
 
-// DeleteSnapshot 删除快照
+// DeleteSnapshot 删除快照.
 func (s *Service) DeleteSnapshot(id string, force bool) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -181,7 +181,7 @@ func (s *Service) DeleteSnapshot(id string, force bool) error {
 
 // ==================== 差异对比 ====================
 
-// CompareSnapshots 比较两个快照
+// CompareSnapshots 比较两个快照.
 func (s *Service) CompareSnapshots(oldID, newID string) (*SnapshotDiff, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -267,7 +267,7 @@ func (s *Service) CompareSnapshots(oldID, newID string) (*SnapshotDiff, error) {
 	return diff, nil
 }
 
-// CompareFileVersions 比较文件的不同版本
+// CompareFileVersions 比较文件的不同版本.
 func (s *Service) CompareFileVersions(filePath, oldVersionID, newVersionID string) (*FileDiff, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -325,7 +325,7 @@ func (s *Service) CompareFileVersions(filePath, oldVersionID, newVersionID strin
 
 // ==================== 文件恢复 ====================
 
-// RestoreFile 恢复文件到指定快照版本
+// RestoreFile 恢复文件到指定快照版本.
 func (s *Service) RestoreFile(ctx context.Context, snapshotID, filePath, targetPath string) (*FileVersion, error) {
 	s.mu.RLock()
 	snapshot, ok := s.snapshots[snapshotID]
@@ -371,7 +371,7 @@ func (s *Service) RestoreFile(ctx context.Context, snapshotID, filePath, targetP
 	return version, nil
 }
 
-// RollbackToSnapshot 回滚到指定快照
+// RollbackToSnapshot 回滚到指定快照.
 func (s *Service) RollbackToSnapshot(ctx context.Context, req RollbackRequest) (*RollbackResult, error) {
 	s.mu.RLock()
 	snapshot, ok := s.snapshots[req.SnapshotID]
@@ -432,7 +432,7 @@ func (s *Service) RollbackToSnapshot(ctx context.Context, req RollbackRequest) (
 
 // ==================== 批量回滚 ====================
 
-// BatchRollback 批量文件回滚
+// BatchRollback 批量文件回滚.
 func (s *Service) BatchRollback(ctx context.Context, snapshotID string, filePaths []string, mode RollbackMode) (*RollbackResult, error) {
 	s.mu.RLock()
 	_, ok := s.snapshots[snapshotID]
@@ -493,7 +493,7 @@ func (s *Service) BatchRollback(ctx context.Context, snapshotID string, filePath
 
 // ==================== 快照策略管理 ====================
 
-// CreatePolicy 创建快照策略
+// CreatePolicy 创建快照策略.
 func (s *Service) CreatePolicy(policy *SnapshotPolicy) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -511,7 +511,7 @@ func (s *Service) CreatePolicy(policy *SnapshotPolicy) error {
 	return nil
 }
 
-// GetPolicy 获取策略
+// GetPolicy 获取策略.
 func (s *Service) GetPolicy(id string) (*SnapshotPolicy, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -523,7 +523,7 @@ func (s *Service) GetPolicy(id string) (*SnapshotPolicy, error) {
 	return policy, nil
 }
 
-// ListPolicies 列出策略
+// ListPolicies 列出策略.
 func (s *Service) ListPolicies() []*SnapshotPolicy {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -535,7 +535,7 @@ func (s *Service) ListPolicies() []*SnapshotPolicy {
 	return policies
 }
 
-// UpdatePolicy 更新策略
+// UpdatePolicy 更新策略.
 func (s *Service) UpdatePolicy(id string, policy *SnapshotPolicy) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -554,7 +554,7 @@ func (s *Service) UpdatePolicy(id string, policy *SnapshotPolicy) error {
 	return nil
 }
 
-// DeletePolicy 删除策略
+// DeletePolicy 删除策略.
 func (s *Service) DeletePolicy(id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -568,7 +568,7 @@ func (s *Service) DeletePolicy(id string) error {
 
 // ==================== 回收站管理 ====================
 
-// MoveToTrash 移动到回收站
+// MoveToTrash 移动到回收站.
 func (s *Service) MoveToTrash(filePath, deletedBy, source string) (*TrashItem, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -604,7 +604,7 @@ func (s *Service) MoveToTrash(filePath, deletedBy, source string) (*TrashItem, e
 	return item, nil
 }
 
-// ListTrashItems 列出回收站项目
+// ListTrashItems 列出回收站项目.
 func (s *Service) ListTrashItems(opts ListOptions) (*PageResult, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -650,7 +650,7 @@ func (s *Service) ListTrashItems(opts ListOptions) (*PageResult, error) {
 	}, nil
 }
 
-// RestoreFromTrash 从回收站恢复
+// RestoreFromTrash 从回收站恢复.
 func (s *Service) RestoreFromTrash(id string, restorePath string) (*TrashItem, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -676,7 +676,7 @@ func (s *Service) RestoreFromTrash(id string, restorePath string) (*TrashItem, e
 	return item, nil
 }
 
-// PurgeTrashItem 彻底删除回收站项目
+// PurgeTrashItem 彻底删除回收站项目.
 func (s *Service) PurgeTrashItem(id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -691,7 +691,7 @@ func (s *Service) PurgeTrashItem(id string) error {
 	return nil
 }
 
-// EmptyTrash 清空回收站
+// EmptyTrash 清空回收站.
 func (s *Service) EmptyTrash() (int, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -710,7 +710,7 @@ func (s *Service) EmptyTrash() (int, error) {
 
 // ==================== 文件锁定 ====================
 
-// LockFile 锁定文件
+// LockFile 锁定文件.
 func (s *Service) LockFile(filePath string, lockType LockType, lockedBy, reason string, expiresAt *time.Time) (*FileLock, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -736,7 +736,7 @@ func (s *Service) LockFile(filePath string, lockType LockType, lockedBy, reason 
 	return lock, nil
 }
 
-// UnlockFile 解锁文件
+// UnlockFile 解锁文件.
 func (s *Service) UnlockFile(filePath string, force bool) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -754,7 +754,7 @@ func (s *Service) UnlockFile(filePath string, force bool) error {
 	return nil
 }
 
-// ListLocks 列出文件锁
+// ListLocks 列出文件锁.
 func (s *Service) ListLocks() []*FileLock {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -766,7 +766,7 @@ func (s *Service) ListLocks() []*FileLock {
 	return locks
 }
 
-// IsFileLocked 检查文件是否被锁定
+// IsFileLocked 检查文件是否被锁定.
 func (s *Service) IsFileLocked(filePath string) (bool, *FileLock) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -787,7 +787,7 @@ func (s *Service) IsFileLocked(filePath string) (bool, *FileLock) {
 
 // ==================== 存储分析 ====================
 
-// GetStorageUsage 获取存储使用情况
+// GetStorageUsage 获取存储使用情况.
 func (s *Service) GetStorageUsage() (*StorageUsage, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -825,7 +825,7 @@ func (s *Service) GetStorageUsage() (*StorageUsage, error) {
 	return usage, nil
 }
 
-// GetSnapshotStorageInfo 获取快照存储详情
+// GetSnapshotStorageInfo 获取快照存储详情.
 func (s *Service) GetSnapshotStorageInfo(snapshotID string) (*SnapshotStorageInfo, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -852,7 +852,7 @@ func (s *Service) GetSnapshotStorageInfo(snapshotID string) (*SnapshotStorageInf
 
 // ==================== 健康检查 ====================
 
-// HealthCheck 健康检查
+// HealthCheck 健康检查.
 func (s *Service) HealthCheck() *HealthStatus {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -904,7 +904,7 @@ func (s *Service) HealthCheck() *HealthStatus {
 
 // ==================== 内部方法 ====================
 
-// scanPaths 扫描路径，统计文件数量和大小
+// scanPaths 扫描路径，统计文件数量和大小.
 func (s *Service) scanPaths(ctx context.Context, paths []string) (int64, int64, error) {
 	var totalFiles int64
 	var totalSize int64
@@ -941,7 +941,7 @@ func (s *Service) scanPaths(ctx context.Context, paths []string) (int64, int64, 
 	return totalFiles, totalSize, nil
 }
 
-// updateVersions 更新文件版本
+// updateVersions 更新文件版本.
 func (s *Service) updateVersions(snapshot *Snapshot, paths []string) {
 	for _, path := range paths {
 		version := &FileVersion{
@@ -961,7 +961,7 @@ func (s *Service) updateVersions(snapshot *Snapshot, paths []string) {
 	}
 }
 
-// generateTextDiff 生成文本差异
+// generateTextDiff 生成文本差异.
 func (s *Service) generateTextDiff(oldVer, newVer *FileVersion) []DiffHunk {
 	// 简化实现：返回模拟差异
 	return []DiffHunk{
@@ -982,7 +982,7 @@ func (s *Service) generateTextDiff(oldVer, newVer *FileVersion) []DiffHunk {
 	}
 }
 
-// calculateNextRun 计算下次执行时间
+// calculateNextRun 计算下次执行时间.
 func (s *Service) calculateNextRun(policy *SnapshotPolicy) *time.Time {
 	now := time.Now()
 	var next time.Time
@@ -1005,14 +1005,14 @@ func (s *Service) calculateNextRun(policy *SnapshotPolicy) *time.Time {
 	return &next
 }
 
-// calculateMD5 计算 MD5
+// calculateMD5 计算 MD5.
 func (s *Service) calculateMD5(data string) string {
 	h := md5.New()
 	io.WriteString(h, data)
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// calculateSHA256 计算 SHA256
+// calculateSHA256 计算 SHA256.
 func (s *Service) calculateSHA256(data string) string {
 	h := sha256.New()
 	io.WriteString(h, data)

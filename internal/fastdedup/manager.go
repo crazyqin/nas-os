@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// NewFastDedupEngine 创建快速去重引擎
+// NewFastDedupEngine 创建快速去重引擎.
 func NewFastDedupEngine(cfg EngineConfig) *FastDedupEngine {
 	return &FastDedupEngine{
 		config:     cfg,
@@ -15,7 +15,7 @@ func NewFastDedupEngine(cfg EngineConfig) *FastDedupEngine {
 	}
 }
 
-// Start 启动引擎
+// Start 启动引擎.
 func (e *FastDedupEngine) Start() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -26,7 +26,7 @@ func (e *FastDedupEngine) Start() error {
 	return nil
 }
 
-// Stop 停止引擎
+// Stop 停止引擎.
 func (e *FastDedupEngine) Stop() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -37,14 +37,14 @@ func (e *FastDedupEngine) Stop() error {
 	return nil
 }
 
-// IsRunning 是否运行中
+// IsRunning 是否运行中.
 func (e *FastDedupEngine) IsRunning() bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.running
 }
 
-// AddPolicy 添加去重策略
+// AddPolicy 添加去重策略.
 func (e *FastDedupEngine) AddPolicy(p *DedupPolicy) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -55,7 +55,7 @@ func (e *FastDedupEngine) AddPolicy(p *DedupPolicy) error {
 	return nil
 }
 
-// RemovePolicy 移除去重策略
+// RemovePolicy 移除去重策略.
 func (e *FastDedupEngine) RemovePolicy(name string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -66,7 +66,7 @@ func (e *FastDedupEngine) RemovePolicy(name string) error {
 	return nil
 }
 
-// GetPolicy 获取去重策略
+// GetPolicy 获取去重策略.
 func (e *FastDedupEngine) GetPolicy(name string) (*DedupPolicy, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -77,7 +77,7 @@ func (e *FastDedupEngine) GetPolicy(name string) (*DedupPolicy, error) {
 	return p, nil
 }
 
-// ListPolicies 列出所有策略
+// ListPolicies 列出所有策略.
 func (e *FastDedupEngine) ListPolicies() []*DedupPolicy {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -88,7 +88,7 @@ func (e *FastDedupEngine) ListPolicies() []*DedupPolicy {
 	return result
 }
 
-// RunDedup 执行去重
+// RunDedup 执行去重.
 func (e *FastDedupEngine) RunDedup(policyName string) (*DedupResult, error) {
 	e.mu.RLock()
 	policy, exists := e.policies[policyName]
@@ -135,21 +135,21 @@ func (e *FastDedupEngine) RunDedup(policyName string) (*DedupResult, error) {
 	}, nil
 }
 
-// GetStats 获取去重统计
+// GetStats 获取去重统计.
 func (e *FastDedupEngine) GetStats() DedupStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.stats
 }
 
-// ResetStats 重置统计
+// ResetStats 重置统计.
 func (e *FastDedupEngine) ResetStats() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.stats = DedupStats{}
 }
 
-// RegisterBlock 注册数据块
+// RegisterBlock 注册数据块.
 func (e *FastDedupEngine) RegisterBlock(hash string, size int64, tier StorageTier) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -168,14 +168,14 @@ func (e *FastDedupEngine) RegisterBlock(hash string, size int64, tier StorageTie
 	return nil
 }
 
-// GetBlockCount 获取块数量
+// GetBlockCount 获取块数量.
 func (e *FastDedupEngine) GetBlockCount() int64 {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return int64(len(e.blockIndex))
 }
 
-// String 字符串表示
+// String 字符串表示.
 func (e *FastDedupEngine) String() string {
 	return fmt.Sprintf("FastDedupEngine{mode=%s, algo=%s, nvme=%v, blocks=%d}",
 		e.config.DefaultMode, e.config.DefaultAlgo, e.config.NVMeOptimized, e.GetBlockCount())

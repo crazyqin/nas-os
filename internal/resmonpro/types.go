@@ -1,6 +1,6 @@
 package resmonpro
 
-// ProcessInfo 进程资源信息
+// ProcessInfo 进程资源信息.
 type ProcessInfo struct {
 	PID        int     `json:"pid"`
 	Name       string  `json:"name"`
@@ -13,7 +13,7 @@ type ProcessInfo struct {
 	Status     string  `json:"status"`
 }
 
-// GPUInfo GPU 信息
+// GPUInfo GPU 信息.
 type GPUInfo struct {
 	ID        int     `json:"id"`
 	Name      string  `json:"name"`
@@ -25,7 +25,7 @@ type GPUInfo struct {
 	FanSpeed  int     `json:"fan_speed_percent"`
 }
 
-// NetworkFlow 网络流量信息
+// NetworkFlow 网络流量信息.
 type NetworkFlow struct {
 	Interface  string `json:"interface"`
 	SrcIP      string `json:"src_ip"`
@@ -37,7 +37,7 @@ type NetworkFlow struct {
 	PacketsOut int64  `json:"packets_out"`
 }
 
-// DiskIOInfo 磁盘 I/O 信息
+// DiskIOInfo 磁盘 I/O 信息.
 type DiskIOInfo struct {
 	Device     string  `json:"device"`
 	ReadIOPS   int64   `json:"read_iops"`
@@ -50,7 +50,7 @@ type DiskIOInfo struct {
 	BusyPerc   float64 `json:"busy_percent"`
 }
 
-// BottleneckDiagnosis 瓶颈诊断
+// BottleneckDiagnosis 瓶颈诊断.
 type BottleneckDiagnosis struct {
 	Component  string `json:"component"`
 	Severity   string `json:"severity"`
@@ -58,7 +58,7 @@ type BottleneckDiagnosis struct {
 	Suggestion string `json:"suggestion"`
 }
 
-// ResmonProResponse 通用响应结构
+// ResmonProResponse 通用响应结构.
 type ResmonProResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`

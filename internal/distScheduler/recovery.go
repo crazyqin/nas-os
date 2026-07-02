@@ -7,14 +7,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// Recovery 故障恢复器
+// Recovery 故障恢复器.
 type Recovery struct {
 	mu     struct{}
 	logger *zap.Logger
 	engine *Engine
 }
 
-// NewRecovery 创建故障恢复器
+// NewRecovery 创建故障恢复器.
 func NewRecovery(logger *zap.Logger, engine *Engine) *Recovery {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -25,7 +25,7 @@ func NewRecovery(logger *zap.Logger, engine *Engine) *Recovery {
 	}
 }
 
-// handleFailure 处理任务失败
+// handleFailure 处理任务失败.
 func (r *Recovery) handleFailure(task *Task) error {
 	if task.Attempts < task.MaxAttempts {
 		// 重试
@@ -65,7 +65,7 @@ func (r *Recovery) handleFailure(task *Task) error {
 	return nil
 }
 
-// handleNodeFailure 处理节点故障
+// handleNodeFailure 处理节点故障.
 func (r *Recovery) handleNodeFailure(nodeID string) {
 	r.logger.Warn("handling node failure", zap.String("node_id", nodeID))
 
@@ -100,7 +100,7 @@ func (r *Recovery) handleNodeFailure(nodeID string) {
 	}
 }
 
-// RecoverNode 恢复节点
+// RecoverNode 恢复节点.
 func (r *Recovery) RecoverNode(nodeID string) error {
 	r.engine.mu.Lock()
 	defer r.engine.mu.Unlock()
@@ -117,7 +117,7 @@ func (r *Recovery) RecoverNode(nodeID string) error {
 	return nil
 }
 
-// GetFailedTasks 获取失败任务列表
+// GetFailedTasks 获取失败任务列表.
 func (r *Recovery) GetFailedTasks() []*Task {
 	r.engine.mu.RLock()
 	defer r.engine.mu.RUnlock()
@@ -131,7 +131,7 @@ func (r *Recovery) GetFailedTasks() []*Task {
 	return result
 }
 
-// GetRetryTasks 获取等待重试的任务列表
+// GetRetryTasks 获取等待重试的任务列表.
 func (r *Recovery) GetRetryTasks() []*Task {
 	r.engine.mu.RLock()
 	defer r.engine.mu.RUnlock()
@@ -145,7 +145,7 @@ func (r *Recovery) GetRetryTasks() []*Task {
 	return result
 }
 
-// RetryFailedTask 手动重试失败任务
+// RetryFailedTask 手动重试失败任务.
 func (r *Recovery) RetryFailedTask(taskID string) error {
 	r.engine.mu.Lock()
 	defer r.engine.mu.Unlock()
@@ -169,7 +169,7 @@ func (r *Recovery) RetryFailedTask(taskID string) error {
 	return nil
 }
 
-// GetRecoveryStats 获取恢复统计
+// GetRecoveryStats 获取恢复统计.
 func (r *Recovery) GetRecoveryStats() map[string]int {
 	r.engine.mu.RLock()
 	defer r.engine.mu.RUnlock()

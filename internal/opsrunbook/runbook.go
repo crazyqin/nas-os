@@ -11,33 +11,33 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 运维手册管理器
+// Manager 运维手册管理器.
 type Manager struct {
-	mu          sync.RWMutex
-	runbooks    map[string]*Runbook
-	executions  map[string]*Execution
-	approvals   map[string]*ApprovalRequest
-	execStats   map[string]*ExecutionStats
-	store       Store
-	executor    *Executor
-	logger      *zap.Logger
-	running     bool
-	ctx         context.Context
-	cancel      context.CancelFunc
-	eventChan   chan *ExecutionEvent
+	mu         sync.RWMutex
+	runbooks   map[string]*Runbook
+	executions map[string]*Execution
+	approvals  map[string]*ApprovalRequest
+	execStats  map[string]*ExecutionStats
+	store      Store
+	executor   *Executor
+	logger     *zap.Logger
+	running    bool
+	ctx        context.Context
+	cancel     context.CancelFunc
+	eventChan  chan *ExecutionEvent
 }
 
-// ExecutionEvent 执行事件
+// ExecutionEvent 执行事件.
 type ExecutionEvent struct {
-	Type        string      `json:"type"` // started, step_completed, completed, failed, rollback
-	ExecutionID string      `json:"execution_id"`
-	StepID      string      `json:"step_id,omitempty"`
-	Status      StepStatus  `json:"status"`
-	Message     string      `json:"message"`
-	Timestamp   time.Time   `json:"timestamp"`
+	Type        string     `json:"type"` // started, step_completed, completed, failed, rollback
+	ExecutionID string     `json:"execution_id"`
+	StepID      string     `json:"step_id,omitempty"`
+	Status      StepStatus `json:"status"`
+	Message     string     `json:"message"`
+	Timestamp   time.Time  `json:"timestamp"`
 }
 
-// Config 管理器配置
+// Config 管理器配置.
 type Config struct {
 	MaxExecutions   int           `json:"max_executions"`
 	ExecutionTTL    time.Duration `json:"execution_ttl"`
@@ -46,7 +46,7 @@ type Config struct {
 	AuditEnabled    bool          `json:"audit_enabled"`
 }
 
-// Store 持久化存储接口
+// Store 持久化存储接口.
 type Store interface {
 	SaveRunbook(rb *Runbook) error
 	LoadRunbook(id string) (*Runbook, error)
@@ -59,7 +59,7 @@ type Store interface {
 	LoadApproval(id string) (*ApprovalRequest, error)
 }
 
-// NewManager 创建运维手册管理器
+// NewManager 创建运维手册管理器.
 func NewManager(store Store, logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -78,7 +78,7 @@ func NewManager(store Store, logger *zap.Logger) *Manager {
 	}
 }
 
-// RegisterRunbook 注册运维手册
+// RegisterRunbook 注册运维手册.
 func (m *Manager) RegisterRunbook(rb *Runbook) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -127,7 +127,7 @@ func (m *Manager) RegisterRunbook(rb *Runbook) error {
 	return nil
 }
 
-// UpdateRunbook 更新运维手册
+// UpdateRunbook 更新运维手册.
 func (m *Manager) UpdateRunbook(rb *Runbook) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -159,7 +159,7 @@ func (m *Manager) UpdateRunbook(rb *Runbook) error {
 	return nil
 }
 
-// DeleteRunbook 删除运维手册
+// DeleteRunbook 删除运维手册.
 func (m *Manager) DeleteRunbook(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -181,7 +181,7 @@ func (m *Manager) DeleteRunbook(id string) error {
 	return nil
 }
 
-// GetRunbook 获取运维手册
+// GetRunbook 获取运维手册.
 func (m *Manager) GetRunbook(id string) (*Runbook, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -193,7 +193,7 @@ func (m *Manager) GetRunbook(id string) (*Runbook, error) {
 	return rb, nil
 }
 
-// ListRunbooks 列出运维手册
+// ListRunbooks 列出运维手册.
 func (m *Manager) ListRunbooks(filter RunbookFilter) []*Runbook {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -212,7 +212,7 @@ func (m *Manager) ListRunbooks(filter RunbookFilter) []*Runbook {
 	return result
 }
 
-// GetExecutionStats 获取执行统计
+// GetExecutionStats 获取执行统计.
 func (m *Manager) GetExecutionStats(runbookID string) (*ExecutionStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -224,7 +224,7 @@ func (m *Manager) GetExecutionStats(runbookID string) (*ExecutionStats, error) {
 	return stats, nil
 }
 
-// GetExecution 获取执行记录
+// GetExecution 获取执行记录.
 func (m *Manager) GetExecution(id string) (*Execution, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -236,7 +236,7 @@ func (m *Manager) GetExecution(id string) (*Execution, error) {
 	return exec, nil
 }
 
-// ListExecutions 列出执行记录
+// ListExecutions 列出执行记录.
 func (m *Manager) ListExecutions(filter ExecutionFilter) []*Execution {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -259,7 +259,7 @@ func (m *Manager) ListExecutions(filter ExecutionFilter) []*Execution {
 	return result
 }
 
-// Approve 审批步骤
+// Approve 审批步骤.
 func (m *Manager) Approve(approvalID, approvedBy, reason string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -282,7 +282,7 @@ func (m *Manager) Approve(approvalID, approvedBy, reason string) error {
 	return nil
 }
 
-// Reject 拒绝审批
+// Reject 拒绝审批.
 func (m *Manager) Reject(approvalID, rejectedBy, reason string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -304,18 +304,18 @@ func (m *Manager) Reject(approvalID, rejectedBy, reason string) error {
 	return nil
 }
 
-// Subscribe 订阅执行事件
+// Subscribe 订阅执行事件.
 func (m *Manager) Subscribe() <-chan *ExecutionEvent {
 	return m.eventChan
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *Manager) Close() {
 	m.cancel()
 	close(m.eventChan)
 }
 
-// validateSteps 验证步骤依赖
+// validateSteps 验证步骤依赖.
 func (m *Manager) validateSteps(steps []*Step) error {
 	stepIDs := make(map[string]bool)
 	for _, s := range steps {
@@ -339,7 +339,7 @@ func (m *Manager) validateSteps(steps []*Step) error {
 	return nil
 }
 
-// matchFilter 匹配运维手册过滤器
+// matchFilter 匹配运维手册过滤器.
 func (m *Manager) matchFilter(rb *Runbook, filter RunbookFilter) bool {
 	if filter.Category != "" && rb.Category != filter.Category {
 		return false
@@ -374,7 +374,7 @@ func (m *Manager) matchFilter(rb *Runbook, filter RunbookFilter) bool {
 	return true
 }
 
-// matchExecFilter 匹配执行记录过滤器
+// matchExecFilter 匹配执行记录过滤器.
 func (m *Manager) matchExecFilter(exec *Execution, filter ExecutionFilter) bool {
 	if filter.RunbookID != "" && exec.RunbookID != filter.RunbookID {
 		return false

@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// NodeStatus 节点状态
+// NodeStatus 节点状态.
 type NodeStatus string
 
 const (
@@ -16,7 +16,7 @@ const (
 	NodeMaintenance NodeStatus = "maintenance"
 )
 
-// Severity 告警级别
+// Severity 告警级别.
 type Severity string
 
 const (
@@ -26,7 +26,7 @@ const (
 	SeverityFatal    Severity = "fatal"
 )
 
-// NASNode NAS节点信息
+// NASNode NAS节点信息.
 type NASNode struct {
 	ID           string     `json:"id"`
 	Hostname     string     `json:"hostname"`
@@ -43,7 +43,7 @@ type NASNode struct {
 	RegisteredAt time.Time  `json:"registered_at"`
 }
 
-// Alert 告警
+// Alert 告警.
 type Alert struct {
 	ID         string     `json:"id"`
 	NodeID     string     `json:"node_id"`
@@ -58,7 +58,7 @@ type Alert struct {
 	ResolvedAt *time.Time `json:"resolved_at,omitempty"`
 }
 
-// HealthCheck 健康检查
+// HealthCheck 健康检查.
 type HealthCheck struct {
 	NodeID    string        `json:"node_id"`
 	Checks    []CheckResult `json:"checks"`
@@ -66,7 +66,7 @@ type HealthCheck struct {
 	CheckedAt time.Time     `json:"checked_at"`
 }
 
-// CheckResult 单项检查结果
+// CheckResult 单项检查结果.
 type CheckResult struct {
 	Name      string  `json:"name"`
 	Status    string  `json:"status"`
@@ -75,7 +75,7 @@ type CheckResult struct {
 	Message   string  `json:"message"`
 }
 
-// Dashboard 运维仪表盘
+// Dashboard 运维仪表盘.
 type Dashboard struct {
 	TotalNodes     int        `json:"total_nodes"`
 	OnlineNodes    int        `json:"online_nodes"`
@@ -90,7 +90,7 @@ type Dashboard struct {
 	RecentAlerts   []*Alert   `json:"recent_alerts"`
 }
 
-// Config 运维中心配置
+// Config 运维中心配置.
 type Config struct {
 	Enabled        bool          `json:"enabled"`
 	HeartbeatSec   int           `json:"heartbeat_sec"`
@@ -99,7 +99,7 @@ type Config struct {
 	AutoHeal       bool          `json:"auto_heal"`
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() Config {
 	return Config{
 		Enabled:        true,

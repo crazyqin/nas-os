@@ -30,10 +30,10 @@ type IndexCache struct {
 
 // cacheEntry 缓存条目。
 type cacheEntry struct {
-	key       string
-	value     []byte
-	size      int
-	hits      int64
+	key        string
+	value      []byte
+	size       int
+	hits       int64
 	lastAccess time.Time
 }
 
@@ -296,8 +296,8 @@ func cloneSearchResponse(resp *SearchResponse) *SearchResponse {
 		return nil
 	}
 	clone := &SearchResponse{
-		Total:  resp.Total,
-		TookMs: resp.TookMs,
+		Total:   resp.Total,
+		TookMs:  resp.TookMs,
 		Results: make([]SearchResult, len(resp.Results)),
 	}
 	copy(clone.Results, resp.Results)
@@ -322,11 +322,11 @@ type PerformanceManager struct {
 // PerformanceConfig 性能配置。
 type PerformanceConfig struct {
 	EnableIndexCache bool   `json:"enableIndexCache"`
-	IndexCacheSize   int    `json:"indexCacheSize"`   // 索引缓存最大条目数
+	IndexCacheSize   int    `json:"indexCacheSize"` // 索引缓存最大条目数
 	EnableQueryCache bool   `json:"enableQueryCache"`
-	QueryCacheSize   int    `json:"queryCacheSize"`   // 查询缓存最大条目数
-	QueryCacheTTL    string `json:"queryCacheTTL"`    // 查询缓存 TTL（如 "5m"）
-	BatchSize        int    `json:"batchSize"`        // 批量索引大小
+	QueryCacheSize   int    `json:"queryCacheSize"` // 查询缓存最大条目数
+	QueryCacheTTL    string `json:"queryCacheTTL"`  // 查询缓存 TTL（如 "5m"）
+	BatchSize        int    `json:"batchSize"`      // 批量索引大小
 }
 
 // DefaultPerformanceConfig 返回默认性能配置。
@@ -815,10 +815,10 @@ func SSDAwareConfig(indexPath string) PerformanceConfig {
 
 // PerformanceStatus 性能状态汇总。
 type PerformanceStatus struct {
-	IndexCache    *CacheStats        `json:"indexCache,omitempty"`
-	QueryCache    *QueryCacheStats   `json:"queryCache,omitempty"`
-	Incremental   IncrementalStats   `json:"incremental"`
-	IsSSD         bool               `json:"isSSD"`
+	IndexCache  *CacheStats      `json:"indexCache,omitempty"`
+	QueryCache  *QueryCacheStats `json:"queryCache,omitempty"`
+	Incremental IncrementalStats `json:"incremental"`
+	IsSSD       bool             `json:"isSSD"`
 }
 
 // GetPerformanceStatus 获取性能状态汇总。
@@ -838,5 +838,5 @@ func (pm *PerformanceManager) GetPerformanceStatus(indexPath string) Performance
 	return status
 }
 
-// ensure bleve import is used
+// ensure bleve import is used.
 var _ bleve.Index

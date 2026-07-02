@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// RegisterRoutes 注册HTTP路由
+// RegisterRoutes 注册HTTP路由.
 func (m *Manager) RegisterRoutes(mux *http.ServeMux) {
 	// 内容管理
 	mux.HandleFunc("/api/signage/contents", m.handleContents)

@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// testApplyDefaults 应用默认值并使用临时目录（用于测试）
+// testApplyDefaults 应用默认值并使用临时目录（用于测试）.
 func testApplyDefaults(t *testing.T, config *HAConfig) *HAConfig {
 	config = ApplyHADefaults(config)
 	config.DataDir = t.TempDir()
@@ -552,7 +552,7 @@ func TestGetQuorumStatus(t *testing.T) {
 	}
 }
 
-// 基准测试
+// 基准测试.
 func BenchmarkGetStatus(b *testing.B) {
 	logger := zap.NewNop()
 

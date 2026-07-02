@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// IPEntry represents an IP address entry
+// IPEntry represents an IP address entry.
 type IPEntry struct {
 	IP        string    `json:"ip"`
 	Type      string    `json:"type"` // whitelist, blacklist, auto_banned
@@ -21,7 +21,7 @@ type IPEntry struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// ProtectionConfig represents IP protection configuration
+// ProtectionConfig represents IP protection configuration.
 type ProtectionConfig struct {
 	Enabled          bool `json:"enabled"`
 	MaxFailAttempts  int  `json:"max_fail_attempts"`
@@ -29,7 +29,7 @@ type ProtectionConfig struct {
 	AutoBanEnabled   bool `json:"auto_ban_enabled"`
 }
 
-// Protection handles IP-based access protection
+// Protection handles IP-based access protection.
 type Protection struct {
 	mu       sync.RWMutex
 	config   ProtectionConfig
@@ -37,7 +37,7 @@ type Protection struct {
 	failures map[string]int
 }
 
-// NewProtection creates a new IP protection handler
+// NewProtection creates a new IP protection handler.
 func NewProtection() *Protection {
 	return &Protection{
 		config: ProtectionConfig{
@@ -51,7 +51,7 @@ func NewProtection() *Protection {
 	}
 }
 
-// AddToWhitelist adds an IP to whitelist
+// AddToWhitelist adds an IP to whitelist.
 func (p *Protection) AddToWhitelist(ip string) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -68,7 +68,7 @@ func (p *Protection) AddToWhitelist(ip string) error {
 	return nil
 }
 
-// AddToBlacklist adds an IP to blacklist
+// AddToBlacklist adds an IP to blacklist.
 func (p *Protection) AddToBlacklist(ip, reason string, durationHours int) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -89,7 +89,7 @@ func (p *Protection) AddToBlacklist(ip, reason string, durationHours int) error 
 	return nil
 }
 
-// RemoveEntry removes an IP entry
+// RemoveEntry removes an IP entry.
 func (p *Protection) RemoveEntry(ip string) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -102,7 +102,7 @@ func (p *Protection) RemoveEntry(ip string) error {
 	return nil
 }
 
-// RecordFailure records a failed attempt for an IP
+// RecordFailure records a failed attempt for an IP.
 func (p *Protection) RecordFailure(ip string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -142,7 +142,7 @@ func (p *Protection) RecordFailure(ip string) {
 	}
 }
 
-// IsAllowed checks if an IP is allowed to access
+// IsAllowed checks if an IP is allowed to access.
 func (p *Protection) IsAllowed(ip string) bool {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -178,7 +178,7 @@ func (p *Protection) IsAllowed(ip string) bool {
 	}
 }
 
-// GetEntries returns all IP entries
+// GetEntries returns all IP entries.
 func (p *Protection) GetEntries() []*IPEntry {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -190,21 +190,21 @@ func (p *Protection) GetEntries() []*IPEntry {
 	return entries
 }
 
-// GetConfig returns the current configuration
+// GetConfig returns the current configuration.
 func (p *Protection) GetConfig() ProtectionConfig {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 	return p.config
 }
 
-// UpdateConfig updates the protection configuration
+// UpdateConfig updates the protection configuration.
 func (p *Protection) UpdateConfig(config ProtectionConfig) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.config = config
 }
 
-// CleanupExpired removes expired entries
+// CleanupExpired removes expired entries.
 func (p *Protection) CleanupExpired() {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -218,7 +218,7 @@ func (p *Protection) CleanupExpired() {
 	}
 }
 
-// RegisterRoutes registers IP protection HTTP routes
+// RegisterRoutes registers IP protection HTTP routes.
 func (p *Protection) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/ip/entries", p.handleEntries)
 	mux.HandleFunc("/api/ip/whitelist/add", p.handleAddWhitelist)

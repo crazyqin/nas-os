@@ -91,7 +91,7 @@ func (h *HardeningAdvisor) registerDefaultSuggestions() {
 				"echo 'auth required pam_tally2.so deny=5 unlock_time=1800' >> /etc/pam.d/common-auth",
 			},
 			References: []string{},
-			CreatedAt: time.Now(),
+			CreatedAt:  time.Now(),
 		},
 		// 网络加固
 		{
@@ -166,7 +166,7 @@ func (h *HardeningAdvisor) registerDefaultSuggestions() {
 				"systemctl disable rsh",
 			},
 			References: []string{},
-			CreatedAt: time.Now(),
+			CreatedAt:  time.Now(),
 		},
 		// 系统加固
 		{
@@ -241,7 +241,7 @@ func (h *HardeningAdvisor) registerDefaultSuggestions() {
 				"chmod 600 /etc/ssh/ssh_host_*_key",
 			},
 			References: []string{},
-			CreatedAt: time.Now(),
+			CreatedAt:  time.Now(),
 		},
 		// 加密加固
 		{
@@ -400,7 +400,7 @@ func (h *HardeningAdvisor) registerDefaultSuggestions() {
 			Steps: []string{
 				"安装容器扫描工具（Trivy/Clair）",
 				"配置 CI/CD 集成扫描",
-			"设置漏洞阈值告警",
+				"设置漏洞阈值告警",
 				"定期扫描本地镜像",
 			},
 			Commands: []string{

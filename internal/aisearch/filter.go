@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Filter 搜索过滤器
+// Filter 搜索过滤器.
 type Filter struct {
 	fileTypes []FileType
 	tags      []string
@@ -17,44 +17,44 @@ type Filter struct {
 	paths     []string
 }
 
-// NewFilter 创建过滤器
+// NewFilter 创建过滤器.
 func NewFilter() *Filter {
 	return &Filter{}
 }
 
-// WithFileTypes 设置文件类型过滤
+// WithFileTypes 设置文件类型过滤.
 func (f *Filter) WithFileTypes(types ...FileType) *Filter {
 	f.fileTypes = types
 	return f
 }
 
-// WithTags 设置标签过滤
+// WithTags 设置标签过滤.
 func (f *Filter) WithTags(tags ...string) *Filter {
 	f.tags = tags
 	return f
 }
 
-// WithDateRange 设置日期范围过滤
+// WithDateRange 设置日期范围过滤.
 func (f *Filter) WithDateRange(from, to time.Time) *Filter {
 	f.dateFrom = &from
 	f.dateTo = &to
 	return f
 }
 
-// WithSizeRange 设置文件大小范围过滤 (bytes)
+// WithSizeRange 设置文件大小范围过滤 (bytes).
 func (f *Filter) WithSizeRange(min, max int64) *Filter {
 	f.sizeMin = &min
 	f.sizeMax = &max
 	return f
 }
 
-// WithPaths 设置路径过滤
+// WithPaths 设置路径过滤.
 func (f *Filter) WithPaths(paths ...string) *Filter {
 	f.paths = paths
 	return f
 }
 
-// Apply 应用过滤器
+// Apply 应用过滤器.
 func (f *Filter) Apply(results []SearchResult) []SearchResult {
 	filtered := make([]SearchResult, 0)
 
@@ -67,7 +67,7 @@ func (f *Filter) Apply(results []SearchResult) []SearchResult {
 	return filtered
 }
 
-// match 检查结果是否匹配过滤条件
+// match 检查结果是否匹配过滤条件.
 func (f *Filter) match(result SearchResult) bool {
 	// 文件类型过滤
 	if len(f.fileTypes) > 0 {
@@ -135,25 +135,25 @@ func (f *Filter) match(result SearchResult) bool {
 	return true
 }
 
-// FilterBuilder 过滤器构建器
+// FilterBuilder 过滤器构建器.
 type FilterBuilder struct {
 	filters []*Filter
 }
 
-// NewFilterBuilder 创建过滤器构建器
+// NewFilterBuilder 创建过滤器构建器.
 func NewFilterBuilder() *FilterBuilder {
 	return &FilterBuilder{
 		filters: make([]*Filter, 0),
 	}
 }
 
-// Add 添加过滤器
+// Add 添加过滤器.
 func (fb *FilterBuilder) Add(filter *Filter) *FilterBuilder {
 	fb.filters = append(fb.filters, filter)
 	return fb
 }
 
-// Apply 应用所有过滤器 (AND 逻辑)
+// Apply 应用所有过滤器 (AND 逻辑).
 func (fb *FilterBuilder) Apply(results []SearchResult) []SearchResult {
 	current := results
 	for _, filter := range fb.filters {
@@ -162,17 +162,17 @@ func (fb *FilterBuilder) Apply(results []SearchResult) []SearchResult {
 	return current
 }
 
-// DateFilter 日期过滤器
+// DateFilter 日期过滤器.
 type DateFilter struct {
 	Preset string // today, yesterday, this_week, this_month, this_year, last_7_days, last_30_days, last_90_days, last_year
 }
 
-// NewDateFilter 创建日期过滤器
+// NewDateFilter 创建日期过滤器.
 func NewDateFilter(preset string) *DateFilter {
 	return &DateFilter{Preset: preset}
 }
 
-// Apply 应用日期过滤器
+// Apply 应用日期过滤器.
 func (df *DateFilter) Apply(results []SearchResult) []SearchResult {
 	now := time.Now()
 	var from, to time.Time
@@ -219,17 +219,17 @@ func (df *DateFilter) Apply(results []SearchResult) []SearchResult {
 	return filter.Apply(results)
 }
 
-// SizeFilter 文件大小过滤器
+// SizeFilter 文件大小过滤器.
 type SizeFilter struct {
 	Preset string // tiny, small, medium, large, huge
 }
 
-// NewSizeFilter 创建文件大小过滤器
+// NewSizeFilter 创建文件大小过滤器.
 func NewSizeFilter(preset string) *SizeFilter {
 	return &SizeFilter{Preset: preset}
 }
 
-// Apply 应用文件大小过滤器
+// Apply 应用文件大小过滤器.
 func (sf *SizeFilter) Apply(results []SearchResult) []SearchResult {
 	var min, max int64
 
@@ -255,17 +255,17 @@ func (sf *SizeFilter) Apply(results []SearchResult) []SearchResult {
 	return filter.Apply(results)
 }
 
-// FileTypeFilter 文件类型过滤器
+// FileTypeFilter 文件类型过滤器.
 type FileTypeFilter struct {
 	Category string // documents, images, videos, audio, archives, code
 }
 
-// NewFileTypeFilter 创建文件类型过滤器
+// NewFileTypeFilter 创建文件类型过滤器.
 func NewFileTypeFilter(category string) *FileTypeFilter {
 	return &FileTypeFilter{Category: category}
 }
 
-// Apply 应用文件类型过滤器
+// Apply 应用文件类型过滤器.
 func (ftf *FileTypeFilter) Apply(results []SearchResult) []SearchResult {
 	var types []FileType
 
@@ -292,13 +292,13 @@ func (ftf *FileTypeFilter) Apply(results []SearchResult) []SearchResult {
 	return filter.Apply(results)
 }
 
-// PathFilter 路径过滤器
+// PathFilter 路径过滤器.
 type PathFilter struct {
 	RootPath  string
 	Recursive bool
 }
 
-// NewPathFilter 创建路径过滤器
+// NewPathFilter 创建路径过滤器.
 func NewPathFilter(rootPath string, recursive bool) *PathFilter {
 	return &PathFilter{
 		RootPath:  rootPath,
@@ -306,7 +306,7 @@ func NewPathFilter(rootPath string, recursive bool) *PathFilter {
 	}
 }
 
-// Apply 应用路径过滤器
+// Apply 应用路径过滤器.
 func (pf *PathFilter) Apply(results []SearchResult) []SearchResult {
 	filtered := make([]SearchResult, 0)
 
@@ -319,7 +319,7 @@ func (pf *PathFilter) Apply(results []SearchResult) []SearchResult {
 	return filtered
 }
 
-// matchPath 检查路径是否匹配
+// matchPath 检查路径是否匹配.
 func (pf *PathFilter) matchPath(filePath string) bool {
 	if pf.Recursive {
 		return strings.HasPrefix(filePath, pf.RootPath)
@@ -330,13 +330,13 @@ func (pf *PathFilter) matchPath(filePath string) bool {
 	return dir == pf.RootPath
 }
 
-// TagFilter 标签过滤器
+// TagFilter 标签过滤器.
 type TagFilter struct {
 	Tags []string
 	Mode string // any, all
 }
 
-// NewTagFilter 创建标签过滤器
+// NewTagFilter 创建标签过滤器.
 func NewTagFilter(tags []string, mode string) *TagFilter {
 	if mode == "" {
 		mode = "any"
@@ -347,7 +347,7 @@ func NewTagFilter(tags []string, mode string) *TagFilter {
 	}
 }
 
-// Apply 应用标签过滤器
+// Apply 应用标签过滤器.
 func (tf *TagFilter) Apply(results []SearchResult) []SearchResult {
 	filtered := make([]SearchResult, 0)
 
@@ -360,7 +360,7 @@ func (tf *TagFilter) Apply(results []SearchResult) []SearchResult {
 	return filtered
 }
 
-// matchTags 检查标签是否匹配
+// matchTags 检查标签是否匹配.
 func (tf *TagFilter) matchTags(resultTags []string) bool {
 	if len(tf.Tags) == 0 {
 		return true
@@ -384,18 +384,18 @@ func (tf *TagFilter) matchTags(resultTags []string) bool {
 	}
 }
 
-// CompositeFilter 组合过滤器
+// CompositeFilter 组合过滤器.
 type CompositeFilter struct {
 	filters []FilterApplier
 	mode    string // and, or
 }
 
-// FilterApplier 过滤器应用接口
+// FilterApplier 过滤器应用接口.
 type FilterApplier interface {
 	Apply(results []SearchResult) []SearchResult
 }
 
-// NewCompositeFilter 创建组合过滤器
+// NewCompositeFilter 创建组合过滤器.
 func NewCompositeFilter(mode string, filters ...FilterApplier) *CompositeFilter {
 	if mode == "" {
 		mode = "and"
@@ -406,7 +406,7 @@ func NewCompositeFilter(mode string, filters ...FilterApplier) *CompositeFilter 
 	}
 }
 
-// Apply 应用组合过滤器
+// Apply 应用组合过滤器.
 func (cf *CompositeFilter) Apply(results []SearchResult) []SearchResult {
 	if len(cf.filters) == 0 {
 		return results
@@ -420,7 +420,7 @@ func (cf *CompositeFilter) Apply(results []SearchResult) []SearchResult {
 	}
 }
 
-// applyAnd 应用 AND 逻辑
+// applyAnd 应用 AND 逻辑.
 func (cf *CompositeFilter) applyAnd(results []SearchResult) []SearchResult {
 	current := results
 	for _, filter := range cf.filters {
@@ -429,7 +429,7 @@ func (cf *CompositeFilter) applyAnd(results []SearchResult) []SearchResult {
 	return current
 }
 
-// applyOr 应用 OR 逻辑
+// applyOr 应用 OR 逻辑.
 func (cf *CompositeFilter) applyOr(results []SearchResult) []SearchResult {
 	seen := make(map[string]bool)
 	merged := make([]SearchResult, 0)

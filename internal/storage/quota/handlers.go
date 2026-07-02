@@ -10,19 +10,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 配额管理 HTTP 处理器
+// Handlers 配额管理 HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{
 		manager: mgr,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	quotaGroup := r.Group("/quota")
 	{
@@ -77,7 +77,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Description 列出所有配额规则
 // @Tags quota
 // @Success 200 {object} api.Response{data=[]QuotaRule}
-// @Router /api/v1/quota/rules [get]
+// @Router /api/v1/quota/rules [get].
 func (h *Handlers) listRules(c *gin.Context) {
 	rules := h.manager.ListRules()
 	api.OK(c, rules)
@@ -91,7 +91,7 @@ func (h *Handlers) listRules(c *gin.Context) {
 // @Param request body QuotaRuleInput true "创建请求"
 // @Success 201 {object} api.Response{data=QuotaRule}
 // @Failure 400 {object} api.Response
-// @Router /api/v1/quota/rules [post]
+// @Router /api/v1/quota/rules [post].
 func (h *Handlers) createRule(c *gin.Context) {
 	var input QuotaRuleInput
 	if err := api.BindAndValidate(c, &input); err != nil {
@@ -129,7 +129,7 @@ func (h *Handlers) createRule(c *gin.Context) {
 // @Param id path string true "规则ID"
 // @Success 200 {object} api.Response{data=QuotaRule}
 // @Failure 404 {object} api.Response
-// @Router /api/v1/quota/rules/{id} [get]
+// @Router /api/v1/quota/rules/{id} [get].
 func (h *Handlers) getRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -151,7 +151,7 @@ func (h *Handlers) getRule(c *gin.Context) {
 // @Param request body QuotaRuleInput true "更新请求"
 // @Success 200 {object} api.Response{data=QuotaRule}
 // @Failure 400,404 {object} api.Response
-// @Router /api/v1/quota/rules/{id} [put]
+// @Router /api/v1/quota/rules/{id} [put].
 func (h *Handlers) updateRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -184,7 +184,7 @@ func (h *Handlers) updateRule(c *gin.Context) {
 // @Param id path string true "规则ID"
 // @Success 204 "删除成功"
 // @Failure 404 {object} api.Response
-// @Router /api/v1/quota/rules/{id} [delete]
+// @Router /api/v1/quota/rules/{id} [delete].
 func (h *Handlers) deleteRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -203,7 +203,7 @@ func (h *Handlers) deleteRule(c *gin.Context) {
 // @Description 获取所有配额规则的使用情况
 // @Tags quota
 // @Success 200 {object} api.Response{data=[]QuotaUsage}
-// @Router /api/v1/quota/usage [get]
+// @Router /api/v1/quota/usage [get].
 func (h *Handlers) getAllUsage(c *gin.Context) {
 	usage := h.manager.GetAllUsage()
 	api.OK(c, usage)
@@ -216,7 +216,7 @@ func (h *Handlers) getAllUsage(c *gin.Context) {
 // @Param id path string true "规则ID"
 // @Success 200 {object} api.Response{data=QuotaUsage}
 // @Failure 404 {object} api.Response
-// @Router /api/v1/quota/usage/{id} [get]
+// @Router /api/v1/quota/usage/{id} [get].
 func (h *Handlers) getUsage(c *gin.Context) {
 	id := c.Param("id")
 
@@ -237,7 +237,7 @@ func (h *Handlers) getUsage(c *gin.Context) {
 // @Tags quota
 // @Param limit query int false "限制数量"
 // @Success 200 {object} api.Response{data=[]Alert}
-// @Router /api/v1/quota/alerts [get]
+// @Router /api/v1/quota/alerts [get].
 func (h *Handlers) getAlerts(c *gin.Context) {
 	alerts := h.manager.GetAlerts()
 	api.OK(c, alerts)
@@ -249,7 +249,7 @@ func (h *Handlers) getAlerts(c *gin.Context) {
 // @Tags quota
 // @Param limit query int false "限制数量"
 // @Success 200 {object} api.Response{data=[]Alert}
-// @Router /api/v1/quota/alerts/history [get]
+// @Router /api/v1/quota/alerts/history [get].
 func (h *Handlers) getAlertHistory(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "50")
 	limit, _ := strconv.Atoi(limitStr)
@@ -265,7 +265,7 @@ func (h *Handlers) getAlertHistory(c *gin.Context) {
 // @Param id path string true "告警ID"
 // @Success 200 {object} api.Response
 // @Failure 404 {object} api.Response
-// @Router /api/v1/quota/alerts/{id}/resolve [post]
+// @Router /api/v1/quota/alerts/{id}/resolve [post].
 func (h *Handlers) resolveAlert(c *gin.Context) {
 	id := c.Param("id")
 
@@ -284,7 +284,7 @@ func (h *Handlers) resolveAlert(c *gin.Context) {
 // @Description 获取配额告警通知配置
 // @Tags quota
 // @Success 200 {object} api.Response{data=NotificationConfig}
-// @Router /api/v1/quota/notify/config [get]
+// @Router /api/v1/quota/notify/config [get].
 func (h *Handlers) getNotifyConfig(c *gin.Context) {
 	config := h.manager.GetForecastConfig()
 	api.OK(c, config)
@@ -297,7 +297,7 @@ func (h *Handlers) getNotifyConfig(c *gin.Context) {
 // @Accept json
 // @Param request body NotificationConfig true "通知配置"
 // @Success 200 {object} api.Response
-// @Router /api/v1/quota/notify/config [put]
+// @Router /api/v1/quota/notify/config [put].
 func (h *Handlers) setNotifyConfig(c *gin.Context) {
 	var config NotificationConfig
 	if err := api.BindAndValidate(c, &config); err != nil {
@@ -311,7 +311,7 @@ func (h *Handlers) setNotifyConfig(c *gin.Context) {
 
 // ========== 配额检查 ==========
 
-// checkQuotaRequest 检查配额请求
+// checkQuotaRequest 检查配额请求.
 type checkQuotaRequest struct {
 	TargetType      string `json:"target_type" binding:"required"`
 	TargetID        string `json:"target_id" binding:"required"`
@@ -326,7 +326,7 @@ type checkQuotaRequest struct {
 // @Param request body checkQuotaRequest true "检查请求"
 // @Success 200 {object} api.Response{data=map[string]bool}
 // @Failure 400 {object} api.Response
-// @Router /api/v1/quota/check [post]
+// @Router /api/v1/quota/check [post].
 func (h *Handlers) checkQuota(c *gin.Context) {
 	var req checkQuotaRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -354,7 +354,7 @@ func (h *Handlers) checkQuota(c *gin.Context) {
 // @Description 预测所有配额规则的使用趋势
 // @Tags quota
 // @Success 200 {object} api.Response{data=[]PredictionResult}
-// @Router /api/v1/quota/predict [get]
+// @Router /api/v1/quota/predict [get].
 func (h *Handlers) predictAllUsage(c *gin.Context) {
 	results := h.manager.PredictAllUsage()
 	api.OK(c, results)
@@ -367,17 +367,18 @@ func (h *Handlers) predictAllUsage(c *gin.Context) {
 // @Param id path string true "规则ID"
 // @Success 200 {object} api.Response{data=PredictionResult}
 // @Failure 404 {object} api.Response
-// @Router /api/v1/quota/predict/{id} [get]
+// @Router /api/v1/quota/predict/{id} [get].
 func (h *Handlers) predictUsage(c *gin.Context) {
 	id := c.Param("id")
 
 	result, err := h.manager.PredictUsage(id)
 	if err != nil {
-		if err == ErrRuleNotFound {
+		switch err {
+		case ErrRuleNotFound:
 			api.NotFound(c, "配额规则不存在")
-		} else if err == ErrInsufficientData {
+		case ErrInsufficientData:
 			api.BadRequest(c, "历史数据不足以进行预测")
-		} else {
+		default:
 			api.InternalError(c, "预测失败: "+err.Error())
 		}
 		return
@@ -392,7 +393,7 @@ func (h *Handlers) predictUsage(c *gin.Context) {
 // @Tags quota
 // @Param target path string true "目标ID"
 // @Success 200 {object} api.Response{data=[]UsageHistory}
-// @Router /api/v1/quota/history/{target} [get]
+// @Router /api/v1/quota/history/{target} [get].
 func (h *Handlers) getUsageHistory(c *gin.Context) {
 	target := c.Param("target")
 
@@ -405,7 +406,7 @@ func (h *Handlers) getUsageHistory(c *gin.Context) {
 // @Description 获取容量预测配置
 // @Tags quota
 // @Success 200 {object} api.Response{data=ForecastConfig}
-// @Router /api/v1/quota/forecast/config [get]
+// @Router /api/v1/quota/forecast/config [get].
 func (h *Handlers) getForecastConfig(c *gin.Context) {
 	config := h.manager.GetForecastConfig()
 	api.OK(c, config)
@@ -418,7 +419,7 @@ func (h *Handlers) getForecastConfig(c *gin.Context) {
 // @Accept json
 // @Param request body ForecastConfig true "预测配置"
 // @Success 200 {object} api.Response
-// @Router /api/v1/quota/forecast/config [put]
+// @Router /api/v1/quota/forecast/config [put].
 func (h *Handlers) setForecastConfig(c *gin.Context) {
 	var config ForecastConfig
 	if err := api.BindAndValidate(c, &config); err != nil {
@@ -447,7 +448,7 @@ func (h *Handlers) setForecastConfig(c *gin.Context) {
 // @Description 列出所有告警规则
 // @Tags quota
 // @Success 200 {object} api.Response{data=[]AlertRule}
-// @Router /api/v1/quota/alert-rules [get]
+// @Router /api/v1/quota/alert-rules [get].
 func (h *Handlers) listAlertRules(c *gin.Context) {
 	mgr := h.manager.GetAlertRuleManager()
 	if mgr == nil {
@@ -467,7 +468,7 @@ func (h *Handlers) listAlertRules(c *gin.Context) {
 // @Param request body AlertRuleInput true "创建请求"
 // @Success 201 {object} api.Response{data=AlertRule}
 // @Failure 400 {object} api.Response
-// @Router /api/v1/quota/alert-rules [post]
+// @Router /api/v1/quota/alert-rules [post].
 func (h *Handlers) createAlertRule(c *gin.Context) {
 	mgr := h.manager.GetAlertRuleManager()
 	if mgr == nil {
@@ -507,7 +508,7 @@ func (h *Handlers) createAlertRule(c *gin.Context) {
 // @Param id path string true "规则ID"
 // @Success 200 {object} api.Response{data=AlertRule}
 // @Failure 404 {object} api.Response
-// @Router /api/v1/quota/alert-rules/{id} [get]
+// @Router /api/v1/quota/alert-rules/{id} [get].
 func (h *Handlers) getAlertRule(c *gin.Context) {
 	mgr := h.manager.GetAlertRuleManager()
 	if mgr == nil {
@@ -535,7 +536,7 @@ func (h *Handlers) getAlertRule(c *gin.Context) {
 // @Param request body AlertRuleInput true "更新请求"
 // @Success 200 {object} api.Response{data=AlertRule}
 // @Failure 400,404 {object} api.Response
-// @Router /api/v1/quota/alert-rules/{id} [put]
+// @Router /api/v1/quota/alert-rules/{id} [put].
 func (h *Handlers) updateAlertRule(c *gin.Context) {
 	mgr := h.manager.GetAlertRuleManager()
 	if mgr == nil {
@@ -574,7 +575,7 @@ func (h *Handlers) updateAlertRule(c *gin.Context) {
 // @Param id path string true "规则ID"
 // @Success 204 "删除成功"
 // @Failure 404 {object} api.Response
-// @Router /api/v1/quota/alert-rules/{id} [delete]
+// @Router /api/v1/quota/alert-rules/{id} [delete].
 func (h *Handlers) deleteAlertRule(c *gin.Context) {
 	mgr := h.manager.GetAlertRuleManager()
 	if mgr == nil {
@@ -597,7 +598,7 @@ func (h *Handlers) deleteAlertRule(c *gin.Context) {
 // @Description 初始化默认的告警规则（60%、80%、90%、95%阈值）
 // @Tags quota
 // @Success 200 {object} api.Response
-// @Router /api/v1/quota/alert-rules/init-default [post]
+// @Router /api/v1/quota/alert-rules/init-default [post].
 func (h *Handlers) initDefaultAlertRules(c *gin.Context) {
 	mgr := h.manager.GetAlertRuleManager()
 	if mgr == nil {
@@ -619,7 +620,7 @@ func (h *Handlers) initDefaultAlertRules(c *gin.Context) {
 // @Description 获取告警规则的统计信息
 // @Tags quota
 // @Success 200 {object} api.Response{data=map[string]interface{}}
-// @Router /api/v1/quota/alert-rules/stats [get]
+// @Router /api/v1/quota/alert-rules/stats [get].
 func (h *Handlers) getAlertRuleStats(c *gin.Context) {
 	mgr := h.manager.GetAlertRuleManager()
 	if mgr == nil {
@@ -638,7 +639,7 @@ func (h *Handlers) getAlertRuleStats(c *gin.Context) {
 // @Description 检查所有配额规则并使用告警规则生成告警
 // @Tags quota
 // @Success 200 {object} api.Response{data=[]Alert}
-// @Router /api/v1/quota/check-and-alert [post]
+// @Router /api/v1/quota/check-and-alert [post].
 func (h *Handlers) checkAndAlertWithRules(c *gin.Context) {
 	alerts := h.manager.CheckAndAlertWithRules()
 	api.OK(c, alerts)

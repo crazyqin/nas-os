@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler handles HTTP requests for container resource monitor
+// Handler handles HTTP requests for container resource monitor.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler creates a new container resource monitor handler
+// NewHandler creates a new container resource monitor handler.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes registers the HTTP routes
+// RegisterRoutes registers the HTTP routes.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/containresmon/containers", h.handleContainers)
 	mux.HandleFunc("/api/v1/containresmon/container/register", h.handleRegister)

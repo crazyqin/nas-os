@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// SeverityLevel 严重程度
+// SeverityLevel 严重程度.
 type SeverityLevel string
 
 const (
@@ -18,7 +18,7 @@ const (
 	SeverityCat3 SeverityLevel = "cat3" // 低
 )
 
-// CheckStatus 检查状态
+// CheckStatus 检查状态.
 type CheckStatus string
 
 const (
@@ -28,7 +28,7 @@ const (
 	CheckNotApplicable CheckStatus = "not_applicable"
 )
 
-// STIGRule STIG规则
+// STIGRule STIG规则.
 type STIGRule struct {
 	ID          string        `json:"id"`
 	Title       string        `json:"title"`
@@ -40,7 +40,7 @@ type STIGRule struct {
 	Enabled     bool          `json:"enabled"`
 }
 
-// CheckResult 检查结果
+// CheckResult 检查结果.
 type CheckResult struct {
 	RuleID      string        `json:"rule_id"`
 	RuleTitle   string        `json:"rule_title"`
@@ -51,7 +51,7 @@ type CheckResult struct {
 	CheckedAt   time.Time     `json:"checked_at"`
 }
 
-// AuditReport 审计报告
+// AuditReport 审计报告.
 type AuditReport struct {
 	ID          string        `json:"id"`
 	TotalRules  int           `json:"total_rules"`
@@ -64,7 +64,7 @@ type AuditReport struct {
 	Duration    int64         `json:"duration_ms"`
 }
 
-// STIGComplianceChecker STIG合规检查器
+// STIGComplianceChecker STIG合规检查器.
 type STIGComplianceChecker struct {
 	mu      sync.RWMutex
 	rules   map[string]*STIGRule
@@ -72,7 +72,7 @@ type STIGComplianceChecker struct {
 	config  CheckerConfig
 }
 
-// CheckerConfig 检查器配置
+// CheckerConfig 检查器配置.
 type CheckerConfig struct {
 	AutoFix       bool     `json:"auto_fix"`
 	FailOnCat1    bool     `json:"fail_on_cat1"`
@@ -81,7 +81,7 @@ type CheckerConfig struct {
 	ReportDir     string   `json:"report_dir"`
 }
 
-// DefaultCheckerConfig 默认配置
+// DefaultCheckerConfig 默认配置.
 func DefaultCheckerConfig() CheckerConfig {
 	return CheckerConfig{
 		AutoFix:    false,
@@ -91,7 +91,7 @@ func DefaultCheckerConfig() CheckerConfig {
 	}
 }
 
-// 预定义错误
+// 预定义错误.
 var (
 	ErrRuleNotFound   = errors.New("STIG rule not found")
 	ErrRuleExists     = errors.New("STIG rule already exists")

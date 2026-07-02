@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// App 应用信息
+// App 应用信息.
 type App struct {
 	ID           string            `json:"id"`
 	Name         string            `json:"name"`
@@ -39,21 +39,21 @@ type App struct {
 	UpdatedAt    time.Time         `json:"updated_at"`
 }
 
-// PortMapping 端口映射
+// PortMapping 端口映射.
 type PortMapping struct {
 	HostPort      int    `json:"host_port"`
 	ContainerPort int    `json:"container_port"`
 	Protocol      string `json:"protocol"` // tcp, udp
 }
 
-// VolumeMount 卷挂载
+// VolumeMount 卷挂载.
 type VolumeMount struct {
 	HostPath      string `json:"host_path"`
 	ContainerPath string `json:"container_path"`
 	ReadOnly      bool   `json:"read_only"`
 }
 
-// AppCategory 应用分类
+// AppCategory 应用分类.
 type AppCategory struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -62,7 +62,7 @@ type AppCategory struct {
 	AppCount    int    `json:"app_count"`
 }
 
-// AppReview 应用评价
+// AppReview 应用评价.
 type AppReview struct {
 	ID        string    `json:"id"`
 	AppID     string    `json:"app_id"`
@@ -73,7 +73,7 @@ type AppReview struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// InstallLog 安装日志
+// InstallLog 安装日志.
 type InstallLog struct {
 	ID        string    `json:"id"`
 	AppID     string    `json:"app_id"`
@@ -84,7 +84,7 @@ type InstallLog struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// AppStore 应用商店管理器
+// AppStore 应用商店管理器.
 type AppStore struct {
 	mu          sync.RWMutex
 	logger      *zap.Logger
@@ -100,7 +100,7 @@ type AppStore struct {
 	repoToken string
 }
 
-// NewAppStore 创建应用商店
+// NewAppStore 创建应用商店.
 func NewAppStore(logger *zap.Logger, storagePath string) *AppStore {
 	store := &AppStore{
 		logger:      logger,
@@ -114,7 +114,7 @@ func NewAppStore(logger *zap.Logger, storagePath string) *AppStore {
 	return store
 }
 
-// initCategories 初始化默认分类
+// initCategories 初始化默认分类.
 func (as *AppStore) initCategories() {
 	categories := []AppCategory{
 		{ID: "media", Name: "影音媒体", Description: "视频、音乐、照片管理", Icon: "🎬"},
@@ -131,7 +131,7 @@ func (as *AppStore) initCategories() {
 	}
 }
 
-// RegisterApp 注册应用
+// RegisterApp 注册应用.
 func (as *AppStore) RegisterApp(ctx context.Context, app *App) error {
 	as.mu.Lock()
 	defer as.mu.Unlock()
@@ -157,7 +157,7 @@ func (as *AppStore) RegisterApp(ctx context.Context, app *App) error {
 	return nil
 }
 
-// UpdateApp 更新应用信息
+// UpdateApp 更新应用信息.
 func (as *AppStore) UpdateApp(ctx context.Context, app *App) error {
 	as.mu.Lock()
 	defer as.mu.Unlock()
@@ -173,7 +173,7 @@ func (as *AppStore) UpdateApp(ctx context.Context, app *App) error {
 	return nil
 }
 
-// RemoveApp 移除应用
+// RemoveApp 移除应用.
 func (as *AppStore) RemoveApp(ctx context.Context, appID string) error {
 	as.mu.Lock()
 	defer as.mu.Unlock()
@@ -198,7 +198,7 @@ func (as *AppStore) RemoveApp(ctx context.Context, appID string) error {
 	return nil
 }
 
-// GetApp 获取应用信息
+// GetApp 获取应用信息.
 func (as *AppStore) GetApp(ctx context.Context, appID string) (*App, error) {
 	as.mu.RLock()
 	defer as.mu.RUnlock()
@@ -210,7 +210,7 @@ func (as *AppStore) GetApp(ctx context.Context, appID string) (*App, error) {
 	return app, nil
 }
 
-// ListApps 列出所有应用
+// ListApps 列出所有应用.
 func (as *AppStore) ListApps(ctx context.Context, category string, installedOnly bool) []*App {
 	as.mu.RLock()
 	defer as.mu.RUnlock()
@@ -228,7 +228,7 @@ func (as *AppStore) ListApps(ctx context.Context, category string, installedOnly
 	return apps
 }
 
-// InstallApp 安装应用
+// InstallApp 安装应用.
 func (as *AppStore) InstallApp(ctx context.Context, appID string) error {
 	as.mu.Lock()
 	defer as.mu.Unlock()
@@ -270,7 +270,7 @@ func (as *AppStore) InstallApp(ctx context.Context, appID string) error {
 	return nil
 }
 
-// UninstallApp 卸载应用
+// UninstallApp 卸载应用.
 func (as *AppStore) UninstallApp(ctx context.Context, appID string) error {
 	as.mu.Lock()
 	defer as.mu.Unlock()
@@ -312,7 +312,7 @@ func (as *AppStore) UninstallApp(ctx context.Context, appID string) error {
 	return nil
 }
 
-// StartApp 启动应用
+// StartApp 启动应用.
 func (as *AppStore) StartApp(ctx context.Context, appID string) error {
 	as.mu.Lock()
 	defer as.mu.Unlock()
@@ -333,7 +333,7 @@ func (as *AppStore) StartApp(ctx context.Context, appID string) error {
 	return nil
 }
 
-// StopApp 停止应用
+// StopApp 停止应用.
 func (as *AppStore) StopApp(ctx context.Context, appID string) error {
 	as.mu.Lock()
 	defer as.mu.Unlock()
@@ -350,7 +350,7 @@ func (as *AppStore) StopApp(ctx context.Context, appID string) error {
 	return nil
 }
 
-// EnableApp 启用应用
+// EnableApp 启用应用.
 func (as *AppStore) EnableApp(ctx context.Context, appID string) error {
 	as.mu.Lock()
 	defer as.mu.Unlock()
@@ -365,7 +365,7 @@ func (as *AppStore) EnableApp(ctx context.Context, appID string) error {
 	return nil
 }
 
-// DisableApp 禁用应用
+// DisableApp 禁用应用.
 func (as *AppStore) DisableApp(ctx context.Context, appID string) error {
 	as.mu.Lock()
 	defer as.mu.Unlock()
@@ -381,7 +381,7 @@ func (as *AppStore) DisableApp(ctx context.Context, appID string) error {
 	return nil
 }
 
-// UpdateAppVersion 更新应用版本
+// UpdateAppVersion 更新应用版本.
 func (as *AppStore) UpdateAppVersion(ctx context.Context, appID, newVersion string) error {
 	as.mu.Lock()
 	defer as.mu.Unlock()
@@ -409,7 +409,7 @@ func (as *AppStore) UpdateAppVersion(ctx context.Context, appID, newVersion stri
 	return nil
 }
 
-// SetAppConfig 设置应用配置
+// SetAppConfig 设置应用配置.
 func (as *AppStore) SetAppConfig(ctx context.Context, appID string, config map[string]string) error {
 	as.mu.Lock()
 	defer as.mu.Unlock()
@@ -429,7 +429,7 @@ func (as *AppStore) SetAppConfig(ctx context.Context, appID string, config map[s
 	return nil
 }
 
-// GetCategories 获取应用分类
+// GetCategories 获取应用分类.
 func (as *AppStore) GetCategories(ctx context.Context) []*AppCategory {
 	as.mu.RLock()
 	defer as.mu.RUnlock()
@@ -441,7 +441,7 @@ func (as *AppStore) GetCategories(ctx context.Context) []*AppCategory {
 	return categories
 }
 
-// AddReview 添加评价
+// AddReview 添加评价.
 func (as *AppStore) AddReview(ctx context.Context, review *AppReview) error {
 	as.mu.Lock()
 	defer as.mu.Unlock()
@@ -468,7 +468,7 @@ func (as *AppStore) AddReview(ctx context.Context, review *AppReview) error {
 	return nil
 }
 
-// GetReviews 获取应用评价
+// GetReviews 获取应用评价.
 func (as *AppStore) GetReviews(ctx context.Context, appID string) []*AppReview {
 	as.mu.RLock()
 	defer as.mu.RUnlock()
@@ -476,7 +476,7 @@ func (as *AppStore) GetReviews(ctx context.Context, appID string) []*AppReview {
 	return as.reviews[appID]
 }
 
-// GetInstallLogs 获取安装日志
+// GetInstallLogs 获取安装日志.
 func (as *AppStore) GetInstallLogs(ctx context.Context, appID string) []*InstallLog {
 	as.mu.RLock()
 	defer as.mu.RUnlock()
@@ -494,7 +494,7 @@ func (as *AppStore) GetInstallLogs(ctx context.Context, appID string) []*Install
 	return logs
 }
 
-// SearchApps 搜索应用
+// SearchApps 搜索应用.
 func (as *AppStore) SearchApps(ctx context.Context, query string) []*App {
 	as.mu.RLock()
 	defer as.mu.RUnlock()
@@ -510,12 +510,12 @@ func (as *AppStore) SearchApps(ctx context.Context, query string) []*App {
 	return results
 }
 
-// GetInstalledApps 获取已安装应用
+// GetInstalledApps 获取已安装应用.
 func (as *AppStore) GetInstalledApps(ctx context.Context) []*App {
 	return as.ListApps(ctx, "", true)
 }
 
-// CheckUpdates 检查更新
+// CheckUpdates 检查更新.
 func (as *AppStore) CheckUpdates(ctx context.Context) []*App {
 	as.mu.RLock()
 	defer as.mu.RUnlock()

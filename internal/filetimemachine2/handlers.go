@@ -9,17 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 时间机器 API 处理器
+// Handlers 时间机器 API 处理器.
 type Handlers struct {
 	engine *TimeMachineEngine
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(engine *TimeMachineEngine) *Handlers {
 	return &Handlers{engine: engine}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	tm := r.Group("/filetimemachine2")
 	{
@@ -58,14 +58,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// successResponse 成功响应
+// successResponse 成功响应.
 func successResponse(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, response{
 		Code:    0,
@@ -74,7 +74,7 @@ func successResponse(c *gin.Context, data interface{}) {
 	})
 }
 
-// errorResponse 错误响应
+// errorResponse 错误响应.
 func errorResponse(c *gin.Context, code int, msg string) {
 	c.JSON(code, response{
 		Code:    -1,
@@ -82,13 +82,13 @@ func errorResponse(c *gin.Context, code int, msg string) {
 	})
 }
 
-// listSnapshots 获取快照列表
+// listSnapshots 获取快照列表.
 func (h *Handlers) listSnapshots(c *gin.Context) {
 	snapshots := h.engine.ListSnapshots()
 	successResponse(c, snapshots)
 }
 
-// createSnapshot 创建快照
+// createSnapshot 创建快照.
 func (h *Handlers) createSnapshot(c *gin.Context) {
 	var req CreateSnapshotRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -105,7 +105,7 @@ func (h *Handlers) createSnapshot(c *gin.Context) {
 	successResponse(c, snapshot)
 }
 
-// getSnapshot 获取快照详情
+// getSnapshot 获取快照详情.
 func (h *Handlers) getSnapshot(c *gin.Context) {
 	id := c.Param("id")
 	snapshot, err := h.engine.GetSnapshot(id)
@@ -116,7 +116,7 @@ func (h *Handlers) getSnapshot(c *gin.Context) {
 	successResponse(c, snapshot)
 }
 
-// deleteSnapshot 删除快照
+// deleteSnapshot 删除快照.
 func (h *Handlers) deleteSnapshot(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.engine.DeleteSnapshot(id); err != nil {
@@ -126,7 +126,7 @@ func (h *Handlers) deleteSnapshot(c *gin.Context) {
 	successResponse(c, gin.H{"deleted": id})
 }
 
-// browseSnapshot 浏览快照内容
+// browseSnapshot 浏览快照内容.
 func (h *Handlers) browseSnapshot(c *gin.Context) {
 	id := c.Param("id")
 	subPath := c.Query("path")
@@ -139,7 +139,7 @@ func (h *Handlers) browseSnapshot(c *gin.Context) {
 	successResponse(c, content)
 }
 
-// getFileContent 获取文件内容
+// getFileContent 获取文件内容.
 func (h *Handlers) getFileContent(c *gin.Context) {
 	id := c.Param("id")
 	filePath := c.Param("path")
@@ -153,7 +153,7 @@ func (h *Handlers) getFileContent(c *gin.Context) {
 	c.Data(http.StatusOK, "application/octet-stream", data)
 }
 
-// restoreSnapshot 恢复快照
+// restoreSnapshot 恢复快照.
 func (h *Handlers) restoreSnapshot(c *gin.Context) {
 	id := c.Param("id")
 	var req RestoreRequest
@@ -171,7 +171,7 @@ func (h *Handlers) restoreSnapshot(c *gin.Context) {
 	successResponse(c, result)
 }
 
-// diffSnapshots 对比两个快照
+// diffSnapshots 对比两个快照.
 func (h *Handlers) diffSnapshots(c *gin.Context) {
 	snapshotA := c.Query("snapshot_a")
 	snapshotB := c.Query("snapshot_b")
@@ -190,7 +190,7 @@ func (h *Handlers) diffSnapshots(c *gin.Context) {
 	successResponse(c, result)
 }
 
-// getTimeline 获取时间线数据
+// getTimeline 获取时间线数据.
 func (h *Handlers) getTimeline(c *gin.Context) {
 	granularity := AggregationGranularity(c.Query("granularity"))
 	startTimeStr := c.Query("start_time")
@@ -213,7 +213,7 @@ func (h *Handlers) getTimeline(c *gin.Context) {
 	successResponse(c, data)
 }
 
-// searchFiles 搜索文件版本
+// searchFiles 搜索文件版本.
 func (h *Handlers) searchFiles(c *gin.Context) {
 	req := SearchRequest{
 		FileName:  c.Query("file_name"),
@@ -241,19 +241,19 @@ func (h *Handlers) searchFiles(c *gin.Context) {
 	successResponse(c, result)
 }
 
-// getStorageStats 获取存储统计
+// getStorageStats 获取存储统计.
 func (h *Handlers) getStorageStats(c *gin.Context) {
 	stats := h.engine.GetStorageStats()
 	successResponse(c, stats)
 }
 
-// getRetentionConfig 获取保留策略配置
+// getRetentionConfig 获取保留策略配置.
 func (h *Handlers) getRetentionConfig(c *gin.Context) {
 	config := h.engine.GetRetentionConfig()
 	successResponse(c, config)
 }
 
-// updateRetentionConfig 更新保留策略配置
+// updateRetentionConfig 更新保留策略配置.
 func (h *Handlers) updateRetentionConfig(c *gin.Context) {
 	var req UpdateRetentionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -265,7 +265,7 @@ func (h *Handlers) updateRetentionConfig(c *gin.Context) {
 	successResponse(c, h.engine.GetRetentionConfig())
 }
 
-// cleanupExpired 清理过期快照
+// cleanupExpired 清理过期快照.
 func (h *Handlers) cleanupExpired(c *gin.Context) {
 	result, err := h.engine.CleanupExpired()
 	if err != nil {
@@ -275,7 +275,7 @@ func (h *Handlers) cleanupExpired(c *gin.Context) {
 	successResponse(c, result)
 }
 
-// addTags 添加标签
+// addTags 添加标签.
 func (h *Handlers) addTags(c *gin.Context) {
 	id := c.Param("id")
 	var req TagRequest

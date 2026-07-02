@@ -15,10 +15,10 @@ import (
 	"unicode/utf8"
 )
 
-// 文本内容提取最大字节数（避免索引大文件时内存溢出）
+// 文本内容提取最大字节数（避免索引大文件时内存溢出）.
 const maxContentExtractSize = 1 << 20 // 1MB
 
-// 可索引文本文件扩展名
+// 可索引文本文件扩展名.
 var indexableTextExts = map[string]bool{
 	".txt": true, ".md": true, ".markdown": true, ".rst": true,
 	".csv": true, ".tsv": true, ".json": true, ".xml": true,
@@ -34,7 +34,7 @@ var indexableTextExts = map[string]bool{
 	".tex": true, ".bib": true,
 }
 
-// NewFileIndexer 创建文件索引器
+// NewFileIndexer 创建文件索引器.
 func NewFileIndexer(engine *SearchEngine, config *IndexerConfig) *FileIndexer {
 	if config == nil {
 		config = DefaultIndexerConfig()
@@ -47,7 +47,7 @@ func NewFileIndexer(engine *SearchEngine, config *IndexerConfig) *FileIndexer {
 	}
 }
 
-// RunFullScan 执行全量扫描索引
+// RunFullScan 执行全量扫描索引.
 func (fi *FileIndexer) RunFullScan(ctx context.Context) error {
 	fi.mu.Lock()
 	if fi.isRunning {
@@ -91,7 +91,7 @@ func (fi *FileIndexer) RunFullScan(ctx context.Context) error {
 	return nil
 }
 
-// RunIncrementalScan 执行增量扫描（仅处理新增和修改的文件）
+// RunIncrementalScan 执行增量扫描（仅处理新增和修改的文件）.
 func (fi *FileIndexer) RunIncrementalScan(ctx context.Context) error {
 	fi.mu.Lock()
 	if fi.isRunning {
@@ -129,26 +129,26 @@ func (fi *FileIndexer) RunIncrementalScan(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止索引器
+// Stop 停止索引器.
 func (fi *FileIndexer) Stop() {
 	close(fi.stopCh)
 }
 
-// IsRunning 检查索引器是否正在运行
+// IsRunning 检查索引器是否正在运行.
 func (fi *FileIndexer) IsRunning() bool {
 	fi.mu.RLock()
 	defer fi.mu.RUnlock()
 	return fi.isRunning
 }
 
-// GetLastIndexedTime 获取最后索引时间
+// GetLastIndexedTime 获取最后索引时间.
 func (fi *FileIndexer) GetLastIndexedTime() time.Time {
 	fi.mu.RLock()
 	defer fi.mu.RUnlock()
 	return fi.lastIndexed
 }
 
-// scanDirectory 全量扫描目录
+// scanDirectory 全量扫描目录.
 func (fi *FileIndexer) scanDirectory(ctx context.Context, root string) error {
 	// 收集所有文件
 	var files []string
@@ -191,7 +191,7 @@ func (fi *FileIndexer) scanDirectory(ctx context.Context, root string) error {
 	return fi.indexFilesConcurrently(ctx, files)
 }
 
-// scanDirectoryIncremental 增量扫描目录
+// scanDirectoryIncremental 增量扫描目录.
 func (fi *FileIndexer) scanDirectoryIncremental(ctx context.Context, root string) error {
 	fi.mu.RLock()
 	lastIndexed := fi.lastIndexed
@@ -234,7 +234,7 @@ func (fi *FileIndexer) scanDirectoryIncremental(ctx context.Context, root string
 	return nil
 }
 
-// indexFilesConcurrently 并发索引文件
+// indexFilesConcurrently 并发索引文件.
 func (fi *FileIndexer) indexFilesConcurrently(ctx context.Context, files []string) error {
 	workerCount := fi.config.WorkerCount
 	if workerCount < 1 {
@@ -289,7 +289,7 @@ func (fi *FileIndexer) indexFilesConcurrently(ctx context.Context, files []strin
 	return nil
 }
 
-// indexFile 索引单个文件
+// indexFile 索引单个文件.
 func (fi *FileIndexer) indexFile(path string) error {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -324,7 +324,7 @@ func (fi *FileIndexer) indexFile(path string) error {
 	return fi.engine.AddDocument(entry)
 }
 
-// isExcluded 检查路径是否被排除
+// isExcluded 检查路径是否被排除.
 func (fi *FileIndexer) isExcluded(path string) bool {
 	base := filepath.Base(path)
 	for _, pattern := range fi.config.ExcludePatterns {
@@ -335,7 +335,7 @@ func (fi *FileIndexer) isExcluded(path string) bool {
 	return false
 }
 
-// classifyFileType 根据扩展名分类文件类型
+// classifyFileType 根据扩展名分类文件类型.
 func classifyFileType(path string) FileType {
 	ext := strings.ToLower(filepath.Ext(path))
 
@@ -359,7 +359,7 @@ func classifyFileType(path string) FileType {
 	}
 }
 
-// detectMimeType 检测文件MIME类型
+// detectMimeType 检测文件MIME类型.
 func detectMimeType(path string) string {
 	ext := filepath.Ext(path)
 	if mimeType := mime.TypeByExtension(ext); mimeType != "" {
@@ -368,12 +368,12 @@ func detectMimeType(path string) string {
 	return "application/octet-stream"
 }
 
-// isTextFile 检查是否为可索引的文本文件
+// isTextFile 检查是否为可索引的文本文件.
 func isTextFile(ext string) bool {
 	return indexableTextExts[ext]
 }
 
-// extractTextContent 提取文件文本内容
+// extractTextContent 提取文件文本内容.
 func extractTextContent(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -406,7 +406,7 @@ func extractTextContent(path string) (string, error) {
 	return content.String(), scanner.Err()
 }
 
-// sizeGroup 文件大小分组（用于元数据索引）
+// sizeGroup 文件大小分组（用于元数据索引）.
 func sizeGroup(size int64) string {
 	switch {
 	case size == 0:

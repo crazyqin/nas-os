@@ -19,7 +19,7 @@ type IPManager struct {
 	containerIPs map[string]string
 }
 
-// NewIPManager 创建 IP 管理器
+// NewIPManager 创建 IP 管理器.
 func NewIPManager() *IPManager {
 	return &IPManager{
 		allocations:  make(map[string]*IPAllocation),
@@ -63,7 +63,7 @@ func (m *IPManager) Allocate(ip, containerID, node, iface string) (*IPAllocation
 	return alloc, nil
 }
 
-// Release 释放容器占用的 IP
+// Release 释放容器占用的 IP.
 func (m *IPManager) Release(containerID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -82,7 +82,7 @@ func (m *IPManager) Release(containerID string) error {
 }
 
 // Migrate 迁移 IP 到目标节点（模拟 ARP 广播更新）
-// 返回新的 IPAllocation 记录
+// 返回新的 IPAllocation 记录.
 func (m *IPManager) Migrate(ip, toNode string) (*IPAllocation, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -110,7 +110,7 @@ func (m *IPManager) Migrate(ip, toNode string) (*IPAllocation, error) {
 	return alloc, nil
 }
 
-// GetAllocation 获取 IP 分配信息
+// GetAllocation 获取 IP 分配信息.
 func (m *IPManager) GetAllocation(ip string) (*IPAllocation, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -123,7 +123,7 @@ func (m *IPManager) GetAllocation(ip string) (*IPAllocation, error) {
 	return &allocCopy, nil
 }
 
-// GetContainerIP 获取容器绑定的 IP
+// GetContainerIP 获取容器绑定的 IP.
 func (m *IPManager) GetContainerIP(containerID string) (string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -135,7 +135,7 @@ func (m *IPManager) GetContainerIP(containerID string) (string, error) {
 	return ip, nil
 }
 
-// ListAllocations 列出所有 IP 分配记录
+// ListAllocations 列出所有 IP 分配记录.
 func (m *IPManager) ListAllocations() []*IPAllocation {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -149,7 +149,7 @@ func (m *IPManager) ListAllocations() []*IPAllocation {
 }
 
 // arpBroadcast 模拟 ARP 广播
-// 在真实环境中会发送 gratuitous ARP 更新交换机的 MAC 地址表
+// 在真实环境中会发送 gratuitous ARP 更新交换机的 MAC 地址表.
 func (m *IPManager) arpBroadcast(ip, node, iface string) error {
 	// 验证 IP 格式
 	parsedIP := net.ParseIP(ip)
@@ -165,7 +165,7 @@ func (m *IPManager) arpBroadcast(ip, node, iface string) error {
 	return nil
 }
 
-// ReleaseAll 释放指定节点上所有容器的 IP（用于节点故障清理）
+// ReleaseAll 释放指定节点上所有容器的 IP（用于节点故障清理）.
 func (m *IPManager) ReleaseAll(node string) int {
 	m.mu.Lock()
 	defer m.mu.Unlock()

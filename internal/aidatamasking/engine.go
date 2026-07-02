@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// sensitiveMatch 内部匹配记录
+// sensitiveMatch 内部匹配记录.
 type sensitiveMatch struct {
 	start    int
 	end      int
@@ -17,14 +17,14 @@ type sensitiveMatch struct {
 	dataType SensitiveDataType
 }
 
-// Engine 脱敏引擎
+// Engine 脱敏引擎.
 type Engine struct {
 	config   *MaskingEngineConfig
 	patterns []*SensitivePattern
 	rules    map[string]*MaskingRule
 }
 
-// NewEngine 创建脱敏引擎
+// NewEngine 创建脱敏引擎.
 func NewEngine(config *MaskingEngineConfig) *Engine {
 	if config == nil {
 		config = DefaultMaskingEngineConfig()
@@ -41,7 +41,7 @@ func NewEngine(config *MaskingEngineConfig) *Engine {
 	return e
 }
 
-// initDefaultRules 初始化默认脱敏规则
+// initDefaultRules 初始化默认脱敏规则.
 func (e *Engine) initDefaultRules() {
 	defaultRules := []*MaskingRule{
 		{
@@ -142,7 +142,7 @@ func (e *Engine) initDefaultRules() {
 	}
 }
 
-// MaskText 对文本进行脱敏处理
+// MaskText 对文本进行脱敏处理.
 func (e *Engine) MaskText(req *MaskingRequest) (*MaskingResponse, error) {
 	if !e.config.Enabled {
 		return nil, fmt.Errorf("masking engine is disabled")
@@ -242,7 +242,7 @@ func (e *Engine) MaskText(req *MaskingRequest) (*MaskingResponse, error) {
 	}, nil
 }
 
-// resolveOverlaps 解决重叠匹配，优先保留较长的匹配
+// resolveOverlaps 解决重叠匹配，优先保留较长的匹配.
 func (e *Engine) resolveOverlaps(matches []sensitiveMatch) []sensitiveMatch {
 	if len(matches) == 0 {
 		return matches
@@ -270,7 +270,7 @@ func (e *Engine) resolveOverlaps(matches []sensitiveMatch) []sensitiveMatch {
 	return result
 }
 
-// findRuleForType 查找指定类型的规则
+// findRuleForType 查找指定类型的规则.
 func (e *Engine) findRuleForType(dataType SensitiveDataType, rules map[string]*MaskingRule) *MaskingRule {
 	for _, rule := range rules {
 		if rule.DataType == dataType {
@@ -280,7 +280,7 @@ func (e *Engine) findRuleForType(dataType SensitiveDataType, rules map[string]*M
 	return nil
 }
 
-// applyMasking 应用脱敏策略
+// applyMasking 应用脱敏策略.
 func (e *Engine) applyMasking(text string, rule *MaskingRule) string {
 	maskChar := rule.MaskChar
 	if maskChar == "" {
@@ -306,7 +306,7 @@ func (e *Engine) applyMasking(text string, rule *MaskingRule) string {
 	}
 }
 
-// applyMaskStrategy 应用掩码策略
+// applyMaskStrategy 应用掩码策略.
 func (e *Engine) applyMaskStrategy(text string, keepPrefix, keepSuffix int, maskChar string) string {
 	runes := []rune(text)
 	length := len(runes)
@@ -327,13 +327,13 @@ func (e *Engine) applyMaskStrategy(text string, keepPrefix, keepSuffix int, mask
 	return prefix + mask + suffix
 }
 
-// applyHashStrategy 应用哈希策略
+// applyHashStrategy 应用哈希策略.
 func (e *Engine) applyHashStrategy(text string) string {
 	hash := sha256.Sum256([]byte(text))
 	return fmt.Sprintf("%x", hash[:8]) // 取前8字节
 }
 
-// applyTruncateStrategy 应用截断策略
+// applyTruncateStrategy 应用截断策略.
 func (e *Engine) applyTruncateStrategy(text string, keepPrefix, keepSuffix int) string {
 	runes := []rune(text)
 	length := len(runes)
@@ -351,7 +351,7 @@ func (e *Engine) applyTruncateStrategy(text string, keepPrefix, keepSuffix int) 
 	return prefix + "..." + suffix
 }
 
-// generateSummary 生成脱敏摘要
+// generateSummary 生成脱敏摘要.
 func (e *Engine) generateSummary(matches []sensitiveMatch) *MaskingSummary {
 	summary := &MaskingSummary{
 		ByType:     make(map[SensitiveDataType]int),
@@ -367,7 +367,7 @@ func (e *Engine) generateSummary(matches []sensitiveMatch) *MaskingSummary {
 	return summary
 }
 
-// AddRule 添加脱敏规则
+// AddRule 添加脱敏规则.
 func (e *Engine) AddRule(rule *MaskingRule) error {
 	if !IsValidDataType(rule.DataType) {
 		return fmt.Errorf("invalid data type: %s", rule.DataType)
@@ -386,7 +386,7 @@ func (e *Engine) AddRule(rule *MaskingRule) error {
 	return nil
 }
 
-// UpdateRule 更新脱敏规则
+// UpdateRule 更新脱敏规则.
 func (e *Engine) UpdateRule(id string, rule *MaskingRule) error {
 	existing, ok := e.rules[id]
 	if !ok {
@@ -400,7 +400,7 @@ func (e *Engine) UpdateRule(id string, rule *MaskingRule) error {
 	return nil
 }
 
-// DeleteRule 删除脱敏规则
+// DeleteRule 删除脱敏规则.
 func (e *Engine) DeleteRule(id string) error {
 	if _, ok := e.rules[id]; !ok {
 		return fmt.Errorf("rule not found: %s", id)
@@ -409,7 +409,7 @@ func (e *Engine) DeleteRule(id string) error {
 	return nil
 }
 
-// GetRule 获取脱敏规则
+// GetRule 获取脱敏规则.
 func (e *Engine) GetRule(id string) (*MaskingRule, error) {
 	rule, ok := e.rules[id]
 	if !ok {
@@ -418,7 +418,7 @@ func (e *Engine) GetRule(id string) (*MaskingRule, error) {
 	return rule, nil
 }
 
-// ListRules 列出所有脱敏规则
+// ListRules 列出所有脱敏规则.
 func (e *Engine) ListRules() []*MaskingRule {
 	rules := make([]*MaskingRule, 0, len(e.rules))
 	for _, r := range e.rules {
@@ -427,7 +427,7 @@ func (e *Engine) ListRules() []*MaskingRule {
 	return rules
 }
 
-// HasSensitiveData 检查文本是否包含敏感数据
+// HasSensitiveData 检查文本是否包含敏感数据.
 func (e *Engine) HasSensitiveData(text string) (bool, []SensitiveDataType) {
 	var detected []SensitiveDataType
 
@@ -440,12 +440,12 @@ func (e *Engine) HasSensitiveData(text string) (bool, []SensitiveDataType) {
 	return len(detected) > 0, detected
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (e *Engine) GetConfig() *MaskingEngineConfig {
 	return e.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (e *Engine) UpdateConfig(config *MaskingEngineConfig) {
 	if config != nil {
 		e.config = config

@@ -12,10 +12,10 @@ import (
 // 聚合所有存储视图：分层计划、容量监控、系统健康，提供统一管理面板。
 // 参考群晖 DSM 7.3 One View for All Storage 设计理念。
 type Dashboard struct {
-	mu         sync.RWMutex
-	logger     *zap.Logger
-	collector  *Collector
-	engine     *TieringEngine
+	mu              sync.RWMutex
+	logger          *zap.Logger
+	collector       *Collector
+	engine          *TieringEngine
 	alertThresholds AlertThresholds
 }
 
@@ -342,7 +342,7 @@ func (d *Dashboard) GetCapacityForecast(currentUsed int64, growthRatePerDay floa
 // CapacityForecast 容量预测。
 type CapacityForecast struct {
 	CurrentUsage  float64   `json:"current_usage"`   // 当前使用量（字节）
-	TotalCapacity  float64   `json:"total_capacity"`  // 总容量（字节）
+	TotalCapacity float64   `json:"total_capacity"`  // 总容量（字节）
 	GrowthRateDay float64   `json:"growth_rate_day"` // 日增长率（字节/天）
 	DaysRemaining int       `json:"days_remaining"`  // 剩余天数
 	EstimatedDate time.Time `json:"estimated_date"`  // 预计满盘日期

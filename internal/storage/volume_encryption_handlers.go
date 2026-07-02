@@ -7,24 +7,24 @@ import (
 	"strings"
 )
 
-// VolumeEncryptionHandlers 全卷加密HTTP处理器
+// VolumeEncryptionHandlers 全卷加密HTTP处理器.
 type VolumeEncryptionHandlers struct {
 	manager *VolumeEncryptionManager
 }
 
-// NewVolumeEncryptionHandlers 创建HTTP处理器
+// NewVolumeEncryptionHandlers 创建HTTP处理器.
 func NewVolumeEncryptionHandlers(manager *VolumeEncryptionManager) *VolumeEncryptionHandlers {
 	return &VolumeEncryptionHandlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *VolumeEncryptionHandlers) RegisterRoutes(mux *http.ServeMux, prefix string) {
 	mux.HandleFunc(prefix+"/volumes", h.handleVolumes)
 	mux.HandleFunc(prefix+"/volumes/", h.handleVolumeByID)
 	mux.HandleFunc(prefix+"/volumes/stats", h.handleStats)
 }
 
-// handleVolumes 处理 /api/v1/encryption/volumes
+// handleVolumes 处理 /api/v1/encryption/volumes.
 func (h *VolumeEncryptionHandlers) handleVolumes(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -36,7 +36,7 @@ func (h *VolumeEncryptionHandlers) handleVolumes(w http.ResponseWriter, r *http.
 	}
 }
 
-// handleVolumeByID 处理 /api/v1/encryption/volumes/{id}
+// handleVolumeByID 处理 /api/v1/encryption/volumes/{id}.
 func (h *VolumeEncryptionHandlers) handleVolumeByID(w http.ResponseWriter, r *http.Request) {
 	// 提取ID
 	parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/v1/encryption/volumes/"), "/")

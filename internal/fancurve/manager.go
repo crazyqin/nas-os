@@ -14,7 +14,7 @@ import (
 
 // ========== 类型定义 ==========
 
-// CurveProfile 曲线方案
+// CurveProfile 曲线方案.
 type CurveProfile struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -25,13 +25,13 @@ type CurveProfile struct {
 	UpdatedAt   time.Time    `json:"updatedAt"`
 }
 
-// CurvePoint 曲线点：温度 → 占空比
+// CurvePoint 曲线点：温度 → 占空比.
 type CurvePoint struct {
 	Temp float64 `json:"temp"` // 温度 (°C)
 	Duty float64 `json:"duty"` // 占空比 (0-100%)
 }
 
-// FanChannel 风扇通道
+// FanChannel 风扇通道.
 type FanChannel struct {
 	ID          string  `json:"id"`
 	Name        string  `json:"name"`
@@ -40,7 +40,7 @@ type FanChannel struct {
 	MaxRPM      int     `json:"maxRpm"`
 }
 
-// TempSource 温度源
+// TempSource 温度源.
 type TempSource struct {
 	ID          string  `json:"id"`
 	Name        string  `json:"name"`
@@ -48,25 +48,25 @@ type TempSource struct {
 	Type        string  `json:"type"` // CPU/主板/HDD/SSD
 }
 
-// HysteresisConfig 滞后配置
+// HysteresisConfig 滞后配置.
 type HysteresisConfig struct {
 	TempDelta     float64 `json:"tempDelta"`     // 温度滞后值 (°C)
 	ResponseDelay float64 `json:"responseDelay"` // 响应延迟 (秒)
 }
 
-// SmoothingConfig 平滑配置
+// SmoothingConfig 平滑配置.
 type SmoothingConfig struct {
 	WindowSize int    `json:"windowSize"` // 平滑窗口大小
 	Algorithm  string `json:"algorithm"`  // 移动平均/指数平滑: moving_avg, exponential
 }
 
-// WeightedSensor 加权传感器
+// WeightedSensor 加权传感器.
 type WeightedSensor struct {
 	SensorID string  `json:"sensorId"`
 	Weight   float64 `json:"weight"` // 权重 (0-1)
 }
 
-// CurveRecord 历史记录
+// CurveRecord 历史记录.
 type CurveRecord struct {
 	Timestamp time.Time `json:"timestamp"`
 	Temp      float64   `json:"temp"`
@@ -76,7 +76,7 @@ type CurveRecord struct {
 
 // ========== Manager ==========
 
-// Manager 风扇曲线管理器
+// Manager 风扇曲线管理器.
 type Manager struct {
 	mu              sync.RWMutex
 	profiles        map[string]*CurveProfile
@@ -92,7 +92,7 @@ type Manager struct {
 	lastChangeTime  map[string]time.Time        // channelID -> last change time
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		profiles:        make(map[string]*CurveProfile),
@@ -117,7 +117,7 @@ func NewManager() *Manager {
 	return m
 }
 
-// initDefaults 初始化默认配置
+// initDefaults 初始化默认配置.
 func (m *Manager) initDefaults() {
 	// 默认温度源
 	m.tempSources["cpu"] = &TempSource{
@@ -185,7 +185,7 @@ func (m *Manager) initDefaults() {
 
 // ========== 方案管理 ==========
 
-// CreateProfile 创建曲线方案
+// CreateProfile 创建曲线方案.
 func (m *Manager) CreateProfile(profile *CurveProfile) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -206,7 +206,7 @@ func (m *Manager) CreateProfile(profile *CurveProfile) error {
 	return nil
 }
 
-// UpdateProfile 更新曲线方案
+// UpdateProfile 更新曲线方案.
 func (m *Manager) UpdateProfile(profile *CurveProfile) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -224,7 +224,7 @@ func (m *Manager) UpdateProfile(profile *CurveProfile) error {
 	return nil
 }
 
-// DeleteProfile 删除曲线方案
+// DeleteProfile 删除曲线方案.
 func (m *Manager) DeleteProfile(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -249,14 +249,14 @@ func (m *Manager) DeleteProfile(id string) error {
 	return nil
 }
 
-// GetProfile 获取曲线方案
+// GetProfile 获取曲线方案.
 func (m *Manager) GetProfile(id string) *CurveProfile {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.profiles[id]
 }
 
-// ListProfiles 列出所有方案
+// ListProfiles 列出所有方案.
 func (m *Manager) ListProfiles() []CurveProfile {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -273,7 +273,7 @@ func (m *Manager) ListProfiles() []CurveProfile {
 
 // ========== 通道与方案关联 ==========
 
-// ApplyProfile 将方案应用到通道
+// ApplyProfile 将方案应用到通道.
 func (m *Manager) ApplyProfile(channelID, profileID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -290,7 +290,7 @@ func (m *Manager) ApplyProfile(channelID, profileID string) error {
 	return nil
 }
 
-// GetActiveProfile 获取通道的当前方案
+// GetActiveProfile 获取通道的当前方案.
 func (m *Manager) GetActiveProfile(channelID string) *CurveProfile {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -304,7 +304,7 @@ func (m *Manager) GetActiveProfile(channelID string) *CurveProfile {
 
 // ========== 通道与传感器 ==========
 
-// ListChannels 列出所有通道
+// ListChannels 列出所有通道.
 func (m *Manager) ListChannels() []FanChannel {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -316,7 +316,7 @@ func (m *Manager) ListChannels() []FanChannel {
 	return channels
 }
 
-// ListTempSources 列出所有温度源
+// ListTempSources 列出所有温度源.
 func (m *Manager) ListTempSources() []TempSource {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -330,7 +330,7 @@ func (m *Manager) ListTempSources() []TempSource {
 
 // ========== 配置 ==========
 
-// SetHysteresis 设置滞后配置
+// SetHysteresis 设置滞后配置.
 func (m *Manager) SetHysteresis(config *HysteresisConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -347,7 +347,7 @@ func (m *Manager) SetHysteresis(config *HysteresisConfig) error {
 	return nil
 }
 
-// SetSmoothing 设置平滑配置
+// SetSmoothing 设置平滑配置.
 func (m *Manager) SetSmoothing(config *SmoothingConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -364,7 +364,7 @@ func (m *Manager) SetSmoothing(config *SmoothingConfig) error {
 	return nil
 }
 
-// SetWeightedSensor 设置通道的加权传感器
+// SetWeightedSensor 设置通道的加权传感器.
 func (m *Manager) SetWeightedSensor(channelID string, sensors []WeightedSensor) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -387,7 +387,7 @@ func (m *Manager) SetWeightedSensor(channelID string, sensors []WeightedSensor) 
 
 // ========== 温度计算 ==========
 
-// UpdateTemperature 更新温度源
+// UpdateTemperature 更新温度源.
 func (m *Manager) UpdateTemperature(sensorID string, temp float64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -445,7 +445,7 @@ func (m *Manager) UpdateTemperature(sensorID string, temp float64) error {
 	return nil
 }
 
-// calculateWeightedTemp 计算加权温度
+// calculateWeightedTemp 计算加权温度.
 func (m *Manager) calculateWeightedTemp(channelID string) float64 {
 	sensors, ok := m.weightedSensors[channelID]
 	if !ok || len(sensors) == 0 {
@@ -471,7 +471,7 @@ func (m *Manager) calculateWeightedTemp(channelID string) float64 {
 	return weightedSum / totalWeight
 }
 
-// smoothTemp 温度平滑
+// smoothTemp 温度平滑.
 func (m *Manager) smoothTemp(channelID string, newTemp float64) float64 {
 	buffer, ok := m.tempBuffer[channelID]
 	if !ok {
@@ -492,7 +492,7 @@ func (m *Manager) smoothTemp(channelID string, newTemp float64) float64 {
 	}
 }
 
-// movingAverage 移动平均
+// movingAverage 移动平均.
 func (m *Manager) movingAverage(buffer []float64) float64 {
 	if len(buffer) == 0 {
 		return 0
@@ -504,7 +504,7 @@ func (m *Manager) movingAverage(buffer []float64) float64 {
 	return sum / float64(len(buffer))
 }
 
-// exponentialSmoothing 指数平滑
+// exponentialSmoothing 指数平滑.
 func (m *Manager) exponentialSmoothing(buffer []float64) float64 {
 	if len(buffer) == 0 {
 		return 0
@@ -517,7 +517,7 @@ func (m *Manager) exponentialSmoothing(buffer []float64) float64 {
 	return result
 }
 
-// checkHysteresis 滞后检查
+// checkHysteresis 滞后检查.
 func (m *Manager) checkHysteresis(channelID string, newTemp float64) bool {
 	// 响应延迟检查
 	if lastChange, ok := m.lastChangeTime[channelID]; ok {
@@ -533,7 +533,7 @@ func (m *Manager) checkHysteresis(channelID string, newTemp float64) bool {
 	return true
 }
 
-// interpolate 曲线插值
+// interpolate 曲线插值.
 func (m *Manager) interpolate(points []CurvePoint, temp float64) float64 {
 	if len(points) == 0 {
 		return 50
@@ -570,7 +570,7 @@ func (m *Manager) interpolate(points []CurvePoint, temp float64) float64 {
 
 // ========== 历史记录 ==========
 
-// GetHistory 获取通道历史记录
+// GetHistory 获取通道历史记录.
 func (m *Manager) GetHistory(channelID string, duration time.Duration) []CurveRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -592,7 +592,7 @@ func (m *Manager) GetHistory(channelID string, duration time.Duration) []CurveRe
 
 // ========== 导入导出 ==========
 
-// ExportProfile 导出方案为 JSON
+// ExportProfile 导出方案为 JSON.
 func (m *Manager) ExportProfile(id string) ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -605,7 +605,7 @@ func (m *Manager) ExportProfile(id string) ([]byte, error) {
 	return json.MarshalIndent(profile, "", "  ")
 }
 
-// ImportProfile 从 JSON 导入方案
+// ImportProfile 从 JSON 导入方案.
 func (m *Manager) ImportProfile(data []byte) (*CurveProfile, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -635,7 +635,7 @@ func (m *Manager) ImportProfile(data []byte) (*CurveProfile, error) {
 
 // ========== 预览 ==========
 
-// GetCurvePreviewData 获取曲线预览数据
+// GetCurvePreviewData 获取曲线预览数据.
 func (m *Manager) GetCurvePreviewData(profileID string) ([]CurvePoint, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

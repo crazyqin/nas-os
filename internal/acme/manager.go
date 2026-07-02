@@ -8,14 +8,14 @@ import (
 	"github.com/google/uuid"
 )
 
-// Manager manages ACME certificates
+// Manager manages ACME certificates.
 type Manager struct {
 	mu     sync.RWMutex
 	certs  map[string]Certificate
 	config ACMEConfig
 }
 
-// NewManager creates a new ACME manager with mock data
+// NewManager creates a new ACME manager with mock data.
 func NewManager() *Manager {
 	m := &Manager{
 		certs: make(map[string]Certificate),
@@ -66,7 +66,7 @@ func (m *Manager) addMockCerts() {
 	}
 }
 
-// RequestCertificate requests a new certificate for a domain
+// RequestCertificate requests a new certificate for a domain.
 func (m *Manager) RequestCertificate(domain string) (*Certificate, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -96,7 +96,7 @@ func (m *Manager) RequestCertificate(domain string) (*Certificate, error) {
 	return &cert, nil
 }
 
-// RenewCertificate renews an existing certificate
+// RenewCertificate renews an existing certificate.
 func (m *Manager) RenewCertificate(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -120,7 +120,7 @@ func (m *Manager) RenewCertificate(id string) error {
 	return nil
 }
 
-// RevokeCertificate revokes a certificate
+// RevokeCertificate revokes a certificate.
 func (m *Manager) RevokeCertificate(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -140,7 +140,7 @@ func (m *Manager) RevokeCertificate(id string) error {
 	return nil
 }
 
-// ListCertificates returns all certificates
+// ListCertificates returns all certificates.
 func (m *Manager) ListCertificates() []Certificate {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -152,7 +152,7 @@ func (m *Manager) ListCertificates() []Certificate {
 	return certs
 }
 
-// GetCertByDomain returns a certificate by domain
+// GetCertByDomain returns a certificate by domain.
 func (m *Manager) GetCertByDomain(domain string) (*Certificate, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -165,7 +165,7 @@ func (m *Manager) GetCertByDomain(domain string) (*Certificate, error) {
 	return nil, fmt.Errorf("certificate not found for domain: %s", domain)
 }
 
-// CheckExpiry returns certificates expiring within 30 days
+// CheckExpiry returns certificates expiring within 30 days.
 func (m *Manager) CheckExpiry() []Certificate {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -181,7 +181,7 @@ func (m *Manager) CheckExpiry() []Certificate {
 	return expiring
 }
 
-// AutoRenew automatically renews certificates that are expiring soon
+// AutoRenew automatically renews certificates that are expiring soon.
 func (m *Manager) AutoRenew() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -201,7 +201,7 @@ func (m *Manager) AutoRenew() error {
 	return nil
 }
 
-// ConfigureDNS configures the DNS provider for ACME challenges
+// ConfigureDNS configures the DNS provider for ACME challenges.
 func (m *Manager) ConfigureDNS(provider, credentials string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -221,7 +221,7 @@ func (m *Manager) ConfigureDNS(provider, credentials string) error {
 	return nil
 }
 
-// GetConfig returns the current ACME configuration
+// GetConfig returns the current ACME configuration.
 func (m *Manager) GetConfig() ACMEConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -229,7 +229,7 @@ func (m *Manager) GetConfig() ACMEConfig {
 	return m.config
 }
 
-// UpdateConfig updates the ACME configuration
+// UpdateConfig updates the ACME configuration.
 func (m *Manager) UpdateConfig(config ACMEConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

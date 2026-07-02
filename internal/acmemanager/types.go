@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// ACMEManager ACME证书管理器
+// ACMEManager ACME证书管理器.
 type ACMEManager struct {
 	mu       sync.RWMutex
 	certs    map[string]*Certificate
@@ -14,7 +14,7 @@ type ACMEManager struct {
 	config   *ACMEConfig
 }
 
-// ACMEConfig ACME配置
+// ACMEConfig ACME配置.
 type ACMEConfig struct {
 	Directory   string `json:"directory"`
 	Email       string `json:"email"`
@@ -23,7 +23,7 @@ type ACMEConfig struct {
 	RenewBefore int    `json:"renew_before_days"`
 }
 
-// Account ACME账户
+// Account ACME账户.
 type Account struct {
 	ID        string    `json:"id"`
 	Email     string    `json:"email"`
@@ -32,7 +32,7 @@ type Account struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// Certificate 证书
+// Certificate 证书.
 type Certificate struct {
 	ID        string    `json:"id"`
 	Domain    string    `json:"domain"`
@@ -49,7 +49,7 @@ type Certificate struct {
 	AutoRenew bool      `json:"auto_renew"`
 }
 
-// NewACMEManager 创建ACME管理器
+// NewACMEManager 创建ACME管理器.
 func NewACMEManager(config *ACMEConfig) *ACMEManager {
 	if config == nil {
 		config = &ACMEConfig{
@@ -65,7 +65,7 @@ func NewACMEManager(config *ACMEConfig) *ACMEManager {
 	}
 }
 
-// CreateAccount 创建账户
+// CreateAccount 创建账户.
 func (m *ACMEManager) CreateAccount(email string) (*Account, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -86,7 +86,7 @@ func (m *ACMEManager) CreateAccount(email string) (*Account, error) {
 	return account, nil
 }
 
-// RequestCertificate 请求证书
+// RequestCertificate 请求证书.
 func (m *ACMEManager) RequestCertificate(domain string) (*Certificate, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -119,7 +119,7 @@ func (m *ACMEManager) RequestCertificate(domain string) (*Certificate, error) {
 	return cert, nil
 }
 
-// GetCertificate 获取证书
+// GetCertificate 获取证书.
 func (m *ACMEManager) GetCertificate(id string) (*Certificate, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -131,7 +131,7 @@ func (m *ACMEManager) GetCertificate(id string) (*Certificate, error) {
 	return cert, nil
 }
 
-// ListCertificates 列出所有证书
+// ListCertificates 列出所有证书.
 func (m *ACMEManager) ListCertificates() []*Certificate {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -143,7 +143,7 @@ func (m *ACMEManager) ListCertificates() []*Certificate {
 	return certs
 }
 
-// RevokeCertificate 吊销证书
+// RevokeCertificate 吊销证书.
 func (m *ACMEManager) RevokeCertificate(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -157,7 +157,7 @@ func (m *ACMEManager) RevokeCertificate(id string) error {
 	return nil
 }
 
-// RenewCertificate 续期证书
+// RenewCertificate 续期证书.
 func (m *ACMEManager) RenewCertificate(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -182,7 +182,7 @@ func (m *ACMEManager) RenewCertificate(id string) error {
 	return nil
 }
 
-// CheckExpiring 检查即将过期的证书
+// CheckExpiring 检查即将过期的证书.
 func (m *ACMEManager) CheckExpiring(days int) []*Certificate {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -199,7 +199,7 @@ func (m *ACMEManager) CheckExpiring(days int) []*Certificate {
 	return expiring
 }
 
-// AutoRenewCertificates 自动续期证书
+// AutoRenewCertificates 自动续期证书.
 func (m *ACMEManager) AutoRenewCertificates() {
 	expiring := m.CheckExpiring(m.config.RenewBefore)
 	for _, cert := range expiring {
@@ -207,7 +207,7 @@ func (m *ACMEManager) AutoRenewCertificates() {
 	}
 }
 
-// GetCertificateByDomain 根据域名获取证书
+// GetCertificateByDomain 根据域名获取证书.
 func (m *ACMEManager) GetCertificateByDomain(domain string) (*Certificate, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -221,7 +221,7 @@ func (m *ACMEManager) GetCertificateByDomain(domain string) (*Certificate, error
 	return nil, fmt.Errorf("no valid certificate found for domain: %s", domain)
 }
 
-// GetAccount 获取账户
+// GetAccount 获取账户.
 func (m *ACMEManager) GetAccount(id string) (*Account, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -233,7 +233,7 @@ func (m *ACMEManager) GetAccount(id string) (*Account, error) {
 	return account, nil
 }
 
-// ListAccounts 列出所有账户
+// ListAccounts 列出所有账户.
 func (m *ACMEManager) ListAccounts() []*Account {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -245,7 +245,7 @@ func (m *ACMEManager) ListAccounts() []*Account {
 	return accounts
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *ACMEManager) GetStats() *ACMEStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -271,7 +271,7 @@ func (m *ACMEManager) GetStats() *ACMEStats {
 	return stats
 }
 
-// ACMEStats ACME统计
+// ACMEStats ACME统计.
 type ACMEStats struct {
 	TotalCerts    int `json:"total_certs"`
 	ValidCerts    int `json:"valid_certs"`

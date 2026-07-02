@@ -15,7 +15,7 @@ import (
 // 服务类型枚举
 // ============================================================
 
-// ServiceType 服务类型
+// ServiceType 服务类型.
 type ServiceType string
 
 const (
@@ -30,7 +30,7 @@ const (
 // 服务状态枚举
 // ============================================================
 
-// ServiceStatus 服务状态
+// ServiceStatus 服务状态.
 type ServiceStatus string
 
 const (
@@ -46,7 +46,7 @@ const (
 // 重启策略
 // ============================================================
 
-// RestartPolicy 重启策略
+// RestartPolicy 重启策略.
 type RestartPolicy string
 
 const (
@@ -59,7 +59,7 @@ const (
 // 健康检查
 // ============================================================
 
-// HealthCheck 健康检查配置
+// HealthCheck 健康检查配置.
 type HealthCheck struct {
 	URL                 string        `json:"url"`                  // 检查 URL
 	Interval            time.Duration `json:"interval"`             // 检查间隔
@@ -74,7 +74,7 @@ type HealthCheck struct {
 // 资源配额
 // ============================================================
 
-// ResourceQuota 资源配额
+// ResourceQuota 资源配额.
 type ResourceQuota struct {
 	MaxCPU       float64 `json:"max_cpu"`       // CPU 上限（百分比）
 	MaxMemory    int64   `json:"max_memory"`    // 内存上限（字节）
@@ -90,7 +90,7 @@ type ResourceQuota struct {
 // 性能指标
 // ============================================================
 
-// MetricPoint 指标数据点
+// MetricPoint 指标数据点.
 type MetricPoint struct {
 	Timestamp time.Time `json:"timestamp"`
 	CPU       float64   `json:"cpu"`     // CPU 使用率
@@ -102,7 +102,7 @@ type MetricPoint struct {
 	Latency   float64   `json:"latency"` // 请求延迟（毫秒）
 }
 
-// ServiceMetrics 服务性能指标
+// ServiceMetrics 服务性能指标.
 type ServiceID string
 
 type ServiceMetrics struct {
@@ -115,7 +115,7 @@ type ServiceMetrics struct {
 // 服务结构体
 // ============================================================
 
-// Service 服务定义
+// Service 服务定义.
 type Service struct {
 	ID            ServiceID         `json:"id"`
 	Name          string            `json:"name"`
@@ -140,7 +140,7 @@ type Service struct {
 // 拓扑结构
 // ============================================================
 
-// TopologyNode 拓扑节点
+// TopologyNode 拓扑节点.
 type TopologyNode struct {
 	ID     string        `json:"id"`
 	Name   string        `json:"name"`
@@ -148,13 +148,13 @@ type TopologyNode struct {
 	Status ServiceStatus `json:"status"`
 }
 
-// TopologyEdge 拓扑边
+// TopologyEdge 拓扑边.
 type TopologyEdge struct {
 	Source ServiceID `json:"source"`
 	Target ServiceID `json:"target"`
 }
 
-// ServiceTopology 服务拓扑
+// ServiceTopology 服务拓扑.
 type ServiceTopology struct {
 	Nodes []TopologyNode `json:"nodes"`
 	Edges []TopologyEdge `json:"edges"`
@@ -164,7 +164,7 @@ type ServiceTopology struct {
 // 系统总览
 // ============================================================
 
-// DashboardOverview 系统总览
+// DashboardOverview 系统总览.
 type DashboardOverview struct {
 	TotalServices     int            `json:"total_services"`
 	RunningServices   int            `json:"running_services"`
@@ -184,7 +184,7 @@ type DashboardOverview struct {
 // 告警
 // ============================================================
 
-// Alert 告警信息
+// Alert 告警信息.
 type Alert struct {
 	ID         string     `json:"id"`
 	ServiceID  ServiceID  `json:"service_id"`
@@ -199,7 +199,7 @@ type Alert struct {
 // ServiceDashboard 服务仪表盘
 // ============================================================
 
-// ServiceDashboard 服务仪表盘
+// ServiceDashboard 服务仪表盘.
 type ServiceDashboard struct {
 	mu       sync.RWMutex
 	services map[ServiceID]*Service
@@ -208,7 +208,7 @@ type ServiceDashboard struct {
 	hcClient *http.Client
 }
 
-// NewServiceDashboard 创建服务仪表盘
+// NewServiceDashboard 创建服务仪表盘.
 func NewServiceDashboard() *ServiceDashboard {
 	return &ServiceDashboard{
 		services: make(map[ServiceID]*Service),
@@ -222,7 +222,7 @@ func NewServiceDashboard() *ServiceDashboard {
 // 服务 CRUD
 // ============================================================
 
-// RegisterService 注册服务
+// RegisterService 注册服务.
 func (d *ServiceDashboard) RegisterService(svc *Service) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -244,7 +244,7 @@ func (d *ServiceDashboard) RegisterService(svc *Service) error {
 	return nil
 }
 
-// UnregisterService 注销服务
+// UnregisterService 注销服务.
 func (d *ServiceDashboard) UnregisterService(id ServiceID) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -258,7 +258,7 @@ func (d *ServiceDashboard) UnregisterService(id ServiceID) error {
 	return nil
 }
 
-// GetService 获取服务
+// GetService 获取服务.
 func (d *ServiceDashboard) GetService(id ServiceID) (*Service, error) {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -271,7 +271,7 @@ func (d *ServiceDashboard) GetService(id ServiceID) (*Service, error) {
 	return &copy, nil
 }
 
-// ListServices 列出服务
+// ListServices 列出服务.
 func (d *ServiceDashboard) ListServices(status ServiceStatus, svcType ServiceType, group string) []*Service {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -297,7 +297,7 @@ func (d *ServiceDashboard) ListServices(status ServiceStatus, svcType ServiceTyp
 	return result
 }
 
-// UpdateService 更新服务信息
+// UpdateService 更新服务信息.
 func (d *ServiceDashboard) UpdateService(id ServiceID, update func(*Service)) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -315,7 +315,7 @@ func (d *ServiceDashboard) UpdateService(id ServiceID, update func(*Service)) er
 // 服务控制：启动 / 停止 / 重启
 // ============================================================
 
-// StartService 启动服务
+// StartService 启动服务.
 func (d *ServiceDashboard) StartService(id ServiceID) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -359,7 +359,7 @@ func (d *ServiceDashboard) StartService(id ServiceID) error {
 	return nil
 }
 
-// StopService 停止服务
+// StopService 停止服务.
 func (d *ServiceDashboard) StopService(id ServiceID) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -379,7 +379,7 @@ func (d *ServiceDashboard) StopService(id ServiceID) error {
 	return nil
 }
 
-// RestartService 重启服务
+// RestartService 重启服务.
 func (d *ServiceDashboard) RestartService(id ServiceID) error {
 	if err := d.StopService(id); err != nil {
 		return err
@@ -391,7 +391,7 @@ func (d *ServiceDashboard) RestartService(id ServiceID) error {
 // 批量操作（服务组）
 // ============================================================
 
-// GroupAction 服务组操作类型
+// GroupAction 服务组操作类型.
 type GroupAction string
 
 const (
@@ -400,14 +400,14 @@ const (
 	ActionRestart GroupAction = "restart"
 )
 
-// GroupActionResult 服务组操作结果
+// GroupActionResult 服务组操作结果.
 type GroupActionResult struct {
 	ServiceID ServiceID `json:"service_id"`
 	Success   bool      `json:"success"`
 	Error     string    `json:"error,omitempty"`
 }
 
-// ExecuteGroupAction 对服务组执行批量操作
+// ExecuteGroupAction 对服务组执行批量操作.
 func (d *ServiceDashboard) ExecuteGroupAction(group string, action GroupAction) []GroupActionResult {
 	d.mu.RLock()
 	// 收集组内服务 ID
@@ -446,7 +446,7 @@ func (d *ServiceDashboard) ExecuteGroupAction(group string, action GroupAction) 
 // 健康检查
 // ============================================================
 
-// RunHealthCheck 执行单个服务的健康检查
+// RunHealthCheck 执行单个服务的健康检查.
 func (d *ServiceDashboard) RunHealthCheck(ctx context.Context, id ServiceID) (*HealthCheck, error) {
 	d.mu.RLock()
 	svc, exists := d.services[id]
@@ -503,7 +503,7 @@ func (d *ServiceDashboard) RunHealthCheck(ctx context.Context, id ServiceID) (*H
 	return hc, nil
 }
 
-// RunAllHealthChecks 执行所有已配置健康检查的服务
+// RunAllHealthChecks 执行所有已配置健康检查的服务.
 func (d *ServiceDashboard) RunAllHealthChecks(ctx context.Context) {
 	d.mu.RLock()
 	ids := make([]ServiceID, 0)
@@ -523,7 +523,7 @@ func (d *ServiceDashboard) RunAllHealthChecks(ctx context.Context) {
 // 告警
 // ============================================================
 
-// raiseAlert 产生告警
+// raiseAlert 产生告警.
 func (d *ServiceDashboard) raiseAlert(svcID ServiceID, level, message string) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -543,7 +543,7 @@ func (d *ServiceDashboard) raiseAlert(svcID ServiceID, level, message string) {
 	}
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (d *ServiceDashboard) GetAlerts(unresolvedOnly bool, limit int) []*Alert {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -561,7 +561,7 @@ func (d *ServiceDashboard) GetAlerts(unresolvedOnly bool, limit int) []*Alert {
 	return result
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (d *ServiceDashboard) ResolveAlert(alertID string) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -581,7 +581,7 @@ func (d *ServiceDashboard) ResolveAlert(alertID string) error {
 // 性能指标
 // ============================================================
 
-// RecordMetrics 记录服务性能指标
+// RecordMetrics 记录服务性能指标.
 func (d *ServiceDashboard) RecordMetrics(svcID ServiceID, point *MetricPoint) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -627,7 +627,7 @@ func (d *ServiceDashboard) RecordMetrics(svcID ServiceID, point *MetricPoint) er
 	return nil
 }
 
-// GetMetrics 获取服务性能指标（最近 24h）
+// GetMetrics 获取服务性能指标（最近 24h）.
 func (d *ServiceDashboard) GetMetrics(svcID ServiceID) (*ServiceMetrics, error) {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -655,7 +655,7 @@ func (d *ServiceDashboard) GetMetrics(svcID ServiceID) (*ServiceMetrics, error) 
 // 依赖拓扑（DAG 拓扑排序）
 // ============================================================
 
-// GetTopology 获取服务依赖拓扑
+// GetTopology 获取服务依赖拓扑.
 func (d *ServiceDashboard) GetTopology() *ServiceTopology {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -686,7 +686,7 @@ func (d *ServiceDashboard) GetTopology() *ServiceTopology {
 	return topo
 }
 
-// TopologicalSort 对服务进行拓扑排序（依赖在前）
+// TopologicalSort 对服务进行拓扑排序（依赖在前）.
 func (d *ServiceDashboard) TopologicalSort() ([]ServiceID, error) {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -748,7 +748,7 @@ func (d *ServiceDashboard) TopologicalSort() ([]ServiceID, error) {
 // 自动故障恢复
 // ============================================================
 
-// AutoRecover 自动故障恢复：检查所有运行中服务的健康状态，对异常服务按策略重启
+// AutoRecover 自动故障恢复：检查所有运行中服务的健康状态，对异常服务按策略重启.
 func (d *ServiceDashboard) AutoRecover(ctx context.Context) []GroupActionResult {
 	d.mu.RLock()
 	candidates := make([]ServiceID, 0)
@@ -777,7 +777,7 @@ func (d *ServiceDashboard) AutoRecover(ctx context.Context) []GroupActionResult 
 // 系统总览
 // ============================================================
 
-// GetOverview 获取系统总览
+// GetOverview 获取系统总览.
 func (d *ServiceDashboard) GetOverview() *DashboardOverview {
 	d.mu.RLock()
 	defer d.mu.RUnlock()

@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler HTTP API处理器
+// Handler HTTP API处理器.
 type Handler struct {
 	manager *DownloadManager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *DownloadManager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux, prefix string) {
 	mux.HandleFunc(prefix+"/download", h.handleDownload)
 	mux.HandleFunc(prefix+"/download/status", h.handleDownloadStatus)
@@ -31,7 +31,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux, prefix string) {
 	mux.HandleFunc(prefix+"/notify", h.handleNotifyConfig)
 }
 
-// handleDownload 处理下载请求
+// handleDownload 处理下载请求.
 func (h *Handler) handleDownload(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -55,7 +55,7 @@ func (h *Handler) handleDownload(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(item)
 }
 
-// handleDownloadStatus 处理下载状态查询
+// handleDownloadStatus 处理下载状态查询.
 func (h *Handler) handleDownloadStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -78,7 +78,7 @@ func (h *Handler) handleDownloadStatus(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(item)
 }
 
-// handlePause 处理暂停请求
+// handlePause 处理暂停请求.
 func (h *Handler) handlePause(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -102,7 +102,7 @@ func (h *Handler) handlePause(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "paused"})
 }
 
-// handleResume 处理恢复请求
+// handleResume 处理恢复请求.
 func (h *Handler) handleResume(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -126,7 +126,7 @@ func (h *Handler) handleResume(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "resumed"})
 }
 
-// handleCancel 处理取消请求
+// handleCancel 处理取消请求.
 func (h *Handler) handleCancel(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -150,7 +150,7 @@ func (h *Handler) handleCancel(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "cancelled"})
 }
 
-// handleDelete 处理删除请求
+// handleDelete 处理删除请求.
 func (h *Handler) handleDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete && r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -174,7 +174,7 @@ func (h *Handler) handleDelete(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "deleted"})
 }
 
-// handleListDownloads 处理下载列表
+// handleListDownloads 处理下载列表.
 func (h *Handler) handleListDownloads(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -187,7 +187,7 @@ func (h *Handler) handleListDownloads(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(downloads)
 }
 
-// handleQueue 处理队列查询
+// handleQueue 处理队列查询.
 func (h *Handler) handleQueue(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -200,7 +200,7 @@ func (h *Handler) handleQueue(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(queue)
 }
 
-// handleHistory 处理历史查询
+// handleHistory 处理历史查询.
 func (h *Handler) handleHistory(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -213,7 +213,7 @@ func (h *Handler) handleHistory(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(history)
 }
 
-// handleStats 处理统计查询
+// handleStats 处理统计查询.
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -226,7 +226,7 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(stats)
 }
 
-// handleSpeedLimit 处理限速配置
+// handleSpeedLimit 处理限速配置.
 func (h *Handler) handleSpeedLimit(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -257,7 +257,7 @@ func (h *Handler) handleSpeedLimit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleNotifyConfig 处理通知配置
+// handleNotifyConfig 处理通知配置.
 func (h *Handler) handleNotifyConfig(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:

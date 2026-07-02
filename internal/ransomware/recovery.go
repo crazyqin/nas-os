@@ -20,7 +20,7 @@ import (
 // 恢复点管理器
 // ============================================================
 
-// RecoveryManager 恢复点管理器
+// RecoveryManager 恢复点管理器.
 type RecoveryManager struct {
 	mu sync.RWMutex
 
@@ -46,7 +46,7 @@ type RecoveryManager struct {
 	stopChan chan struct{}
 }
 
-// SnapshotPolicy 快照策略
+// SnapshotPolicy 快照策略.
 type SnapshotPolicy struct {
 	ID             string        `json:"id"`
 	Name           string        `json:"name"`
@@ -60,7 +60,7 @@ type SnapshotPolicy struct {
 	PreThreat      bool          `json:"pre_threat"` // 威胁前自动快照
 }
 
-// RecoveryConfig 恢复配置
+// RecoveryConfig 恢复配置.
 type RecoveryConfig struct {
 	MaxTotalPoints     int           `json:"max_total_points"`
 	MaxDiskUsageGB     int64         `json:"max_disk_usage_gb"`
@@ -69,7 +69,7 @@ type RecoveryConfig struct {
 	CompressionEnabled bool          `json:"compression_enabled"`
 }
 
-// RecoveryStats 恢复统计
+// RecoveryStats 恢复统计.
 type RecoveryStats struct {
 	TotalCreated    int64     `json:"total_created"`
 	TotalDeleted    int64     `json:"total_deleted"`
@@ -88,7 +88,7 @@ type RecoveryStats struct {
 // 构造与生命周期
 // ============================================================
 
-// NewRecoveryManager 创建恢复点管理器
+// NewRecoveryManager 创建恢复点管理器.
 func NewRecoveryManager(config RecoveryConfig) *RecoveryManager {
 	rm := &RecoveryManager{
 		points:   make(map[string]*RecoveryPoint),
@@ -100,7 +100,7 @@ func NewRecoveryManager(config RecoveryConfig) *RecoveryManager {
 	return rm
 }
 
-// initDefaultPolicies 初始化默认快照策略
+// initDefaultPolicies 初始化默认快照策略.
 func (rm *RecoveryManager) initDefaultPolicies() {
 	rm.policies = []SnapshotPolicy{
 		{
@@ -124,28 +124,28 @@ func (rm *RecoveryManager) initDefaultPolicies() {
 	}
 }
 
-// SetSnapshotFunc 设置快照创建函数
+// SetSnapshotFunc 设置快照创建函数.
 func (rm *RecoveryManager) SetSnapshotFunc(fn func(path string) (string, error)) {
 	rm.mu.Lock()
 	rm.snapshotFunc = fn
 	rm.mu.Unlock()
 }
 
-// SetRestoreFunc 设置快照恢复函数
+// SetRestoreFunc 设置快照恢复函数.
 func (rm *RecoveryManager) SetRestoreFunc(fn func(snapshotID, targetPath string) error) {
 	rm.mu.Lock()
 	rm.restoreFunc = fn
 	rm.mu.Unlock()
 }
 
-// SetDeleteFunc 设置快照删除函数
+// SetDeleteFunc 设置快照删除函数.
 func (rm *RecoveryManager) SetDeleteFunc(fn func(snapshotID string) error) {
 	rm.mu.Lock()
 	rm.deleteFunc = fn
 	rm.mu.Unlock()
 }
 
-// Start 启动恢复点管理器
+// Start 启动恢复点管理器.
 func (rm *RecoveryManager) Start() {
 	rm.mu.Lock()
 	if rm.running {
@@ -161,7 +161,7 @@ func (rm *RecoveryManager) Start() {
 	log.Println("[Recovery] 恢复点管理器已启动")
 }
 
-// Stop 停止恢复点管理器
+// Stop 停止恢复点管理器.
 func (rm *RecoveryManager) Stop() {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -177,7 +177,7 @@ func (rm *RecoveryManager) Stop() {
 // 快照创建
 // ============================================================
 
-// CreateRecoveryPoint 创建恢复点
+// CreateRecoveryPoint 创建恢复点.
 func (rm *RecoveryManager) CreateRecoveryPoint(name, path, description string, rType RecoveryType, threatLevel ThreatLevel) (*RecoveryPoint, error) {
 	startTime := time.Now()
 
@@ -239,7 +239,7 @@ func (rm *RecoveryManager) CreateRecoveryPoint(name, path, description string, r
 	return rp, nil
 }
 
-// CreateAutoRecoveryPoint 创建自动恢复点（威胁触发）
+// CreateAutoRecoveryPoint 创建自动恢复点（威胁触发）.
 func (rm *RecoveryManager) CreateAutoRecoveryPoint(triggerPath, threatID string, level ThreatLevel) (*RecoveryPoint, error) {
 	dir := filepath.Dir(triggerPath)
 	name := fmt.Sprintf("auto-threat-%s-%s", level.String(), time.Now().Format("20060102-150405"))
@@ -248,7 +248,7 @@ func (rm *RecoveryManager) CreateAutoRecoveryPoint(triggerPath, threatID string,
 	return rm.CreateRecoveryPoint(name, dir, desc, RecoveryTypeAuto, level)
 }
 
-// CreateScheduledRecoveryPoint 创建定时恢复点
+// CreateScheduledRecoveryPoint 创建定时恢复点.
 func (rm *RecoveryManager) CreateScheduledRecoveryPoint(path string) (*RecoveryPoint, error) {
 	name := fmt.Sprintf("scheduled-%s", time.Now().Format("20060102-150405"))
 	return rm.CreateRecoveryPoint(name, path, "定时自动快照", RecoveryTypeScheduled, ThreatLevelNone)
@@ -258,7 +258,7 @@ func (rm *RecoveryManager) CreateScheduledRecoveryPoint(path string) (*RecoveryP
 // 快照恢复
 // ============================================================
 
-// Restore 恢复到指定恢复点
+// Restore 恢复到指定恢复点.
 func (rm *RecoveryManager) Restore(recoveryPointID, targetPath string, dryRun bool) (*RestoreResult, error) {
 	startTime := time.Now()
 
@@ -339,7 +339,7 @@ func (rm *RecoveryManager) Restore(recoveryPointID, targetPath string, dryRun bo
 	return result, nil
 }
 
-// RestoreResult 恢复结果
+// RestoreResult 恢复结果.
 type RestoreResult struct {
 	RecoveryPointID string    `json:"recovery_point_id"`
 	TargetPath      string    `json:"target_path"`
@@ -350,7 +350,7 @@ type RestoreResult struct {
 	StartTime       time.Time `json:"start_time"`
 }
 
-// defaultRestore 默认恢复逻辑
+// defaultRestore 默认恢复逻辑.
 func (rm *RecoveryManager) defaultRestore(snapshotID, targetPath string) error {
 	// 检查快照路径是否存在
 	if _, err := os.Stat(snapshotID); os.IsNotExist(err) {
@@ -370,7 +370,7 @@ func (rm *RecoveryManager) defaultRestore(snapshotID, targetPath string) error {
 	return rm.tryRsyncRestore(snapshotID, targetPath)
 }
 
-// tryBtrfsRestore 尝试 Btrfs 快照恢复
+// tryBtrfsRestore 尝试 Btrfs 快照恢复.
 func (rm *RecoveryManager) tryBtrfsRestore(snapshot, target string) error {
 	// btrfs subvolume snapshot <snapshot> <target>
 	cmd := exec.Command("btrfs", "subvolume", "snapshot", snapshot, target)
@@ -381,7 +381,7 @@ func (rm *RecoveryManager) tryBtrfsRestore(snapshot, target string) error {
 	return nil
 }
 
-// tryZfsRestore 尝试 ZFS 快照恢复
+// tryZfsRestore 尝试 ZFS 快照恢复.
 func (rm *RecoveryManager) tryZfsRestore(snapshot, target string) error {
 	// zfs rollback <snapshot>
 	cmd := exec.Command("zfs", "rollback", snapshot)
@@ -392,7 +392,7 @@ func (rm *RecoveryManager) tryZfsRestore(snapshot, target string) error {
 	return nil
 }
 
-// tryRsyncRestore 使用 rsync 恢复
+// tryRsyncRestore 使用 rsync 恢复.
 func (rm *RecoveryManager) tryRsyncRestore(source, target string) error {
 	cmd := exec.Command("rsync", "-av", "--delete", source+"/", target+"/")
 	output, err := cmd.CombinedOutput()
@@ -406,7 +406,7 @@ func (rm *RecoveryManager) tryRsyncRestore(source, target string) error {
 // 验证
 // ============================================================
 
-// verifyRecoveryPoint 验证恢复点完整性
+// verifyRecoveryPoint 验证恢复点完整性.
 func (rm *RecoveryManager) verifyRecoveryPoint(id string) {
 	rm.mu.RLock()
 	rp, ok := rm.points[id]
@@ -434,7 +434,7 @@ func (rm *RecoveryManager) verifyRecoveryPoint(id string) {
 // 查询接口
 // ============================================================
 
-// GetRecoveryPoint 获取恢复点
+// GetRecoveryPoint 获取恢复点.
 func (rm *RecoveryManager) GetRecoveryPoint(id string) (*RecoveryPoint, bool) {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -446,7 +446,7 @@ func (rm *RecoveryManager) GetRecoveryPoint(id string) (*RecoveryPoint, bool) {
 	return &result, true
 }
 
-// ListRecoveryPoints 列出恢复点
+// ListRecoveryPoints 列出恢复点.
 func (rm *RecoveryManager) ListRecoveryPoints(status RecoveryStatus, rType RecoveryType, limit int) []RecoveryPoint {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -474,7 +474,7 @@ func (rm *RecoveryManager) ListRecoveryPoints(status RecoveryStatus, rType Recov
 	return result
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (rm *RecoveryManager) GetStats() RecoveryStats {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -484,7 +484,7 @@ func (rm *RecoveryManager) GetStats() RecoveryStats {
 	return stats
 }
 
-// GetPolicies 获取快照策略
+// GetPolicies 获取快照策略.
 func (rm *RecoveryManager) GetPolicies() []SnapshotPolicy {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -494,7 +494,7 @@ func (rm *RecoveryManager) GetPolicies() []SnapshotPolicy {
 	return result
 }
 
-// AddPolicy 添加快照策略
+// AddPolicy 添加快照策略.
 func (rm *RecoveryManager) AddPolicy(policy SnapshotPolicy) {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -508,7 +508,7 @@ func (rm *RecoveryManager) AddPolicy(policy SnapshotPolicy) {
 // 清理
 // ============================================================
 
-// scheduledSnapshotLoop 定时快照循环
+// scheduledSnapshotLoop 定时快照循环.
 func (rm *RecoveryManager) scheduledSnapshotLoop() {
 	// 使用最短的策略间隔
 	minInterval := time.Hour
@@ -531,7 +531,7 @@ func (rm *RecoveryManager) scheduledSnapshotLoop() {
 	}
 }
 
-// runScheduledSnapshots 执行定时快照
+// runScheduledSnapshots 执行定时快照.
 func (rm *RecoveryManager) runScheduledSnapshots() {
 	rm.mu.RLock()
 	var policies []SnapshotPolicy
@@ -564,7 +564,7 @@ func (rm *RecoveryManager) runScheduledSnapshots() {
 	}
 }
 
-// getLastSnapshotTime 获取策略的最后快照时间
+// getLastSnapshotTime 获取策略的最后快照时间.
 func (rm *RecoveryManager) getLastSnapshotTime(policyID string) time.Time {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -578,7 +578,7 @@ func (rm *RecoveryManager) getLastSnapshotTime(policyID string) time.Time {
 	return latest
 }
 
-// cleanupLoop 清理循环
+// cleanupLoop 清理循环.
 func (rm *RecoveryManager) cleanupLoop() {
 	interval := rm.config.CleanupInterval
 	if interval == 0 {
@@ -598,7 +598,7 @@ func (rm *RecoveryManager) cleanupLoop() {
 	}
 }
 
-// cleanup 清理过期和超额的恢复点
+// cleanup 清理过期和超额的恢复点.
 func (rm *RecoveryManager) cleanup() {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -686,7 +686,7 @@ func (rm *RecoveryManager) cleanup() {
 	rm.stats.LastCleanupTime = now
 }
 
-// DeleteRecoveryPoint 手动删除恢复点
+// DeleteRecoveryPoint 手动删除恢复点.
 func (rm *RecoveryManager) DeleteRecoveryPoint(id string) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()

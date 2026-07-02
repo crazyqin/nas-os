@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// ForecastManager 预算预测管理器
+// ForecastManager 预算预测管理器.
 type ForecastManager struct {
 	mu      sync.RWMutex
 	logger  *zap.Logger
@@ -27,7 +27,7 @@ type ForecastManager struct {
 	alerts  []BudgetAlert
 }
 
-// NewForecastManager 创建预算预测管理器
+// NewForecastManager 创建预算预测管理器.
 func NewForecastManager(logger *zap.Logger, engine *ForecastEngine) *ForecastManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -51,7 +51,7 @@ func NewForecastManager(logger *zap.Logger, engine *ForecastEngine) *ForecastMan
 	return fm
 }
 
-// initDefaultModels 初始化默认预测模型
+// initDefaultModels 初始化默认预测模型.
 func (fm *ForecastManager) initDefaultModels() {
 	fm.models["model-linear"] = &ForecastModel{
 		ID:   "model-linear",
@@ -95,7 +95,7 @@ func (fm *ForecastManager) initDefaultModels() {
 	}
 }
 
-// initDefaultConfigs 初始化默认预算配置
+// initDefaultConfigs 初始化默认预算配置.
 func (fm *ForecastManager) initDefaultConfigs() {
 	fm.configs["config-default"] = &BudgetConfig{
 		ID:            "config-default",
@@ -114,7 +114,7 @@ func (fm *ForecastManager) initDefaultConfigs() {
 	}
 }
 
-// GenerateForecast 生成预测
+// GenerateForecast 生成预测.
 func (fm *ForecastManager) GenerateForecast(months int, modelType string) (*ForecastResult, error) {
 	fm.mu.RLock()
 	defer fm.mu.RUnlock()
@@ -142,7 +142,7 @@ func (fm *ForecastManager) GenerateForecast(months int, modelType string) (*Fore
 	return &result, nil
 }
 
-// applyExponentialSmoothing 应用指数平滑
+// applyExponentialSmoothing 应用指数平滑.
 func (fm *ForecastManager) applyExponentialSmoothing(result ForecastResult, model *ForecastModel) ForecastResult {
 	alpha := model.Parameters["alpha"]
 	beta := model.Parameters["beta"]
@@ -164,7 +164,7 @@ func (fm *ForecastManager) applyExponentialSmoothing(result ForecastResult, mode
 	return result
 }
 
-// SetAlerts 设置预算告警
+// SetAlerts 设置预算告警.
 func (fm *ForecastManager) SetAlerts(configID string, thresholds []AlertThreshold) error {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -187,7 +187,7 @@ func (fm *ForecastManager) SetAlerts(configID string, thresholds []AlertThreshol
 	return nil
 }
 
-// regenerateAlerts 重新生成告警
+// regenerateAlerts 重新生成告警.
 func (fm *ForecastManager) regenerateAlerts(config *BudgetConfig) {
 	fm.alerts = make([]BudgetAlert, 0)
 
@@ -215,7 +215,7 @@ func (fm *ForecastManager) regenerateAlerts(config *BudgetConfig) {
 	}
 }
 
-// GetTrends 获取成本趋势
+// GetTrends 获取成本趋势.
 func (fm *ForecastManager) GetTrends(resourceType string, period string, startDate, endDate time.Time) (*CostTrend, error) {
 	fm.mu.RLock()
 	defer fm.mu.RUnlock()
@@ -247,7 +247,7 @@ func (fm *ForecastManager) GetTrends(resourceType string, period string, startDa
 	return trend, nil
 }
 
-// generateTrendData 生成趋势数据
+// generateTrendData 生成趋势数据.
 func (fm *ForecastManager) generateTrendData(resourceType, period string, startDate, endDate time.Time) *CostTrend {
 	// 使用引擎的历史数据
 	result := fm.engine.Forecast(0)
@@ -310,7 +310,7 @@ func (fm *ForecastManager) generateTrendData(resourceType, period string, startD
 	}
 }
 
-// ExportReport 导出报告
+// ExportReport 导出报告.
 func (fm *ForecastManager) ExportReport(req ExportRequest) (*ExportResponse, error) {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -364,7 +364,7 @@ func (fm *ForecastManager) ExportReport(req ExportRequest) (*ExportResponse, err
 	return export, nil
 }
 
-// exportJSON 导出JSON格式
+// exportJSON 导出JSON格式.
 func (fm *ForecastManager) exportJSON(result ForecastResult, trend *CostTrend, includeForecast bool) ([]byte, error) {
 	data := map[string]interface{}{
 		"forecast_result": result,
@@ -379,7 +379,7 @@ func (fm *ForecastManager) exportJSON(result ForecastResult, trend *CostTrend, i
 	return json.MarshalIndent(data, "", "  ")
 }
 
-// exportCSV 导出CSV格式
+// exportCSV 导出CSV格式.
 func (fm *ForecastManager) exportCSV(result ForecastResult, trend *CostTrend) ([]byte, error) {
 	buf := &bytes.Buffer{}
 	writer := csv.NewWriter(buf)
@@ -413,14 +413,14 @@ func (fm *ForecastManager) exportCSV(result ForecastResult, trend *CostTrend) ([
 	return buf.Bytes(), writer.Error()
 }
 
-// GetAlerts 获取预算告警
+// GetAlerts 获取预算告警.
 func (fm *ForecastManager) GetAlerts() []BudgetAlert {
 	fm.mu.RLock()
 	defer fm.mu.RUnlock()
 	return fm.alerts
 }
 
-// GetModels 获取预测模型列表
+// GetModels 获取预测模型列表.
 func (fm *ForecastManager) GetModels() []*ForecastModel {
 	fm.mu.RLock()
 	defer fm.mu.RUnlock()
@@ -432,7 +432,7 @@ func (fm *ForecastManager) GetModels() []*ForecastModel {
 	return models
 }
 
-// GetConfigs 获取预算配置列表
+// GetConfigs 获取预算配置列表.
 func (fm *ForecastManager) GetConfigs() []*BudgetConfig {
 	fm.mu.RLock()
 	defer fm.mu.RUnlock()
@@ -444,7 +444,7 @@ func (fm *ForecastManager) GetConfigs() []*BudgetConfig {
 	return configs
 }
 
-// UpdateConfig 更新预算配置
+// UpdateConfig 更新预算配置.
 func (fm *ForecastManager) UpdateConfig(configID string, config *BudgetConfig) error {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -466,7 +466,7 @@ func (fm *ForecastManager) UpdateConfig(configID string, config *BudgetConfig) e
 	return nil
 }
 
-// GetExport 获取导出结果
+// GetExport 获取导出结果.
 func (fm *ForecastManager) GetExport(exportID string) (*ExportResponse, error) {
 	fm.mu.RLock()
 	defer fm.mu.RUnlock()

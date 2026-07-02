@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 电源调度管理器
+// Manager 电源调度管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	logger    *zap.Logger
@@ -26,7 +26,7 @@ type Manager struct {
 	running   bool
 }
 
-// NewManager 创建电源调度管理器
+// NewManager 创建电源调度管理器.
 func NewManager(logger *zap.Logger, config *PowerConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -47,7 +47,7 @@ func NewManager(logger *zap.Logger, config *PowerConfig) *Manager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -78,7 +78,7 @@ func (m *Manager) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -94,21 +94,21 @@ func (m *Manager) Stop() error {
 	return nil
 }
 
-// IsRunning 检查是否运行中
+// IsRunning 检查是否运行中.
 func (m *Manager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.running
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// monitorUPS UPS 监控协程
+// monitorUPS UPS 监控协程.
 func (m *Manager) monitorUPS(ctx context.Context) {
 	interval := time.Duration(m.config.UPSMonitorIntervalSec) * time.Second
 	ticker := time.NewTicker(interval)
@@ -126,7 +126,7 @@ func (m *Manager) monitorUPS(ctx context.Context) {
 	}
 }
 
-// checkUPSStatus 检查 UPS 状态
+// checkUPSStatus 检查 UPS 状态.
 func (m *Manager) checkUPSStatus() {
 	m.mu.RLock()
 	upsList := make([]*UPSInfo, 0, len(m.upsList))
@@ -179,7 +179,7 @@ func (m *Manager) checkUPSStatus() {
 	}
 }
 
-// runScheduler 调度执行器
+// runScheduler 调度执行器.
 func (m *Manager) runScheduler(ctx context.Context) {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -196,7 +196,7 @@ func (m *Manager) runScheduler(ctx context.Context) {
 	}
 }
 
-// executeSchedules 执行调度计划
+// executeSchedules 执行调度计划.
 func (m *Manager) executeSchedules() {
 	m.mu.RLock()
 	now := time.Now()
@@ -229,7 +229,7 @@ func (m *Manager) executeSchedules() {
 	}
 }
 
-// getCurrentTOUPeriod 获取当前峰谷时段
+// getCurrentTOUPeriod 获取当前峰谷时段.
 func (m *Manager) getCurrentTOUPeriod(t time.Time) TimeOfUsePeriod {
 	if m.config.TOUConfig == nil || !m.config.TOUConfig.Enabled {
 		return TOUShoulder
@@ -244,7 +244,7 @@ func (m *Manager) getCurrentTOUPeriod(t time.Time) TimeOfUsePeriod {
 	return TOUShoulder
 }
 
-// isScheduleActiveNow 检查调度计划是否在当前时间激活
+// isScheduleActiveNow 检查调度计划是否在当前时间激活.
 func (m *Manager) isScheduleActiveNow(s *PowerSchedule, now time.Time) bool {
 	// 检查星期几
 	if len(s.DaysOfWeek) > 0 {
@@ -266,7 +266,7 @@ func (m *Manager) isScheduleActiveNow(s *PowerSchedule, now time.Time) bool {
 	return currentTime >= s.StartTime && currentTime < s.EndTime
 }
 
-// executeDeviceAction 执行设备动作
+// executeDeviceAction 执行设备动作.
 func (m *Manager) executeDeviceAction(deviceID string, action ScheduleAction) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -289,7 +289,7 @@ func (m *Manager) executeDeviceAction(deviceID string, action ScheduleAction) {
 	device.LastChanged = time.Now()
 }
 
-// addEvent 添加事件
+// addEvent 添加事件.
 func (m *Manager) addEvent(event *PowerEvent) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -306,7 +306,7 @@ func (m *Manager) addEvent(event *PowerEvent) {
 		zap.String("message", event.Message))
 }
 
-// RegisterUPS 注册 UPS
+// RegisterUPS 注册 UPS.
 func (m *Manager) RegisterUPS(ups *UPSInfo) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -320,7 +320,7 @@ func (m *Manager) RegisterUPS(ups *UPSInfo) {
 	m.logger.Info("UPS registered", zap.String("id", ups.ID), zap.String("name", ups.Name))
 }
 
-// GetUPS 获取 UPS 信息
+// GetUPS 获取 UPS 信息.
 func (m *Manager) GetUPS(id string) (*UPSInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -332,7 +332,7 @@ func (m *Manager) GetUPS(id string) (*UPSInfo, error) {
 	return ups, nil
 }
 
-// ListUPS 列出所有 UPS
+// ListUPS 列出所有 UPS.
 func (m *Manager) ListUPS() []*UPSInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -344,7 +344,7 @@ func (m *Manager) ListUPS() []*UPSInfo {
 	return list
 }
 
-// UpdateUPSStatus 更新 UPS 状态
+// UpdateUPSStatus 更新 UPS 状态.
 func (m *Manager) UpdateUPSStatus(id string, status *UPSInfo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -366,7 +366,7 @@ func (m *Manager) UpdateUPSStatus(id string, status *UPSInfo) error {
 	return nil
 }
 
-// RegisterDevice 注册设备
+// RegisterDevice 注册设备.
 func (m *Manager) RegisterDevice(device *DevicePowerState) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -379,7 +379,7 @@ func (m *Manager) RegisterDevice(device *DevicePowerState) {
 	m.devices[device.DeviceID] = device
 }
 
-// GetDevice 获取设备信息
+// GetDevice 获取设备信息.
 func (m *Manager) GetDevice(id string) (*DevicePowerState, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -391,7 +391,7 @@ func (m *Manager) GetDevice(id string) (*DevicePowerState, error) {
 	return device, nil
 }
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (m *Manager) ListDevices() []*DevicePowerState {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -403,7 +403,7 @@ func (m *Manager) ListDevices() []*DevicePowerState {
 	return list
 }
 
-// CreateSchedule 创建调度计划
+// CreateSchedule 创建调度计划.
 func (m *Manager) CreateSchedule(req *PowerScheduleRequest) (*PowerSchedule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -433,7 +433,7 @@ func (m *Manager) CreateSchedule(req *PowerScheduleRequest) (*PowerSchedule, err
 	return schedule, nil
 }
 
-// GetSchedule 获取调度计划
+// GetSchedule 获取调度计划.
 func (m *Manager) GetSchedule(id string) (*PowerSchedule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -445,7 +445,7 @@ func (m *Manager) GetSchedule(id string) (*PowerSchedule, error) {
 	return s, nil
 }
 
-// ListSchedules 列出所有调度计划
+// ListSchedules 列出所有调度计划.
 func (m *Manager) ListSchedules() []*PowerSchedule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -457,7 +457,7 @@ func (m *Manager) ListSchedules() []*PowerSchedule {
 	return list
 }
 
-// UpdateSchedule 更新调度计划
+// UpdateSchedule 更新调度计划.
 func (m *Manager) UpdateSchedule(id string, req *PowerScheduleRequest) (*PowerSchedule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -481,7 +481,7 @@ func (m *Manager) UpdateSchedule(id string, req *PowerScheduleRequest) (*PowerSc
 	return s, nil
 }
 
-// DeleteSchedule 删除调度计划
+// DeleteSchedule 删除调度计划.
 func (m *Manager) DeleteSchedule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -493,7 +493,7 @@ func (m *Manager) DeleteSchedule(id string) error {
 	return nil
 }
 
-// ToggleSchedule 切换调度计划状态
+// ToggleSchedule 切换调度计划状态.
 func (m *Manager) ToggleSchedule(id string) (*PowerSchedule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -509,14 +509,14 @@ func (m *Manager) ToggleSchedule(id string) (*PowerSchedule, error) {
 	return s, nil
 }
 
-// GetCurrentTOUPeriod 获取当前峰谷时段
+// GetCurrentTOUPeriod 获取当前峰谷时段.
 func (m *Manager) GetCurrentTOUPeriod() TimeOfUsePeriod {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.getCurrentTOUPeriod(time.Now())
 }
 
-// GetTOURate 获取当前电价
+// GetTOURate 获取当前电价.
 func (m *Manager) GetTOURate() float64 {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -538,7 +538,7 @@ func (m *Manager) GetTOURate() float64 {
 	}
 }
 
-// GetEvents 获取电源事件
+// GetEvents 获取电源事件.
 func (m *Manager) GetEvents(limit int) []*PowerEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -557,7 +557,7 @@ func (m *Manager) GetEvents(limit int) []*PowerEvent {
 	return events
 }
 
-// GetCostSummary 获取费用汇总
+// GetCostSummary 获取费用汇总.
 func (m *Manager) GetCostSummary(period string) *CostSummary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -583,7 +583,7 @@ func (m *Manager) GetCostSummary(period string) *CostSummary {
 	return summary
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *PowerConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -591,7 +591,7 @@ func (m *Manager) GetConfig() *PowerConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(cfg *PowerConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -600,7 +600,7 @@ func (m *Manager) UpdateConfig(cfg *PowerConfig) {
 	}
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

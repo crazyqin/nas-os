@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// TPMState TPM 状态
+// TPMState TPM 状态.
 type TPMState string
 
 const (
@@ -23,7 +23,7 @@ const (
 	TPMError       TPMState = "error"
 )
 
-// TPMVersion TPM 版本
+// TPMVersion TPM 版本.
 type TPMVersion string
 
 const (
@@ -31,7 +31,7 @@ const (
 	TPM20 TPMVersion = "2.0"
 )
 
-// BootMode 启动模式
+// BootMode 启动模式.
 type BootMode string
 
 const (
@@ -40,7 +40,7 @@ const (
 	BootModeSecure BootMode = "secure"
 )
 
-// SignatureStatus 签名验证状态
+// SignatureStatus 签名验证状态.
 type SignatureStatus string
 
 const (
@@ -51,7 +51,7 @@ const (
 	SigNotChecked SignatureStatus = "not_checked"
 )
 
-// BootPolicy 启动策略
+// BootPolicy 启动策略.
 type BootPolicy string
 
 const (
@@ -60,7 +60,7 @@ const (
 	PolicyDisabled   BootPolicy = "disabled"   // 禁用安全启动
 )
 
-// TPMInfo TPM 信息
+// TPMInfo TPM 信息.
 type TPMInfo struct {
 	State           TPMState        `json:"state"`
 	Version         TPMVersion      `json:"version"`
@@ -72,7 +72,7 @@ type TPMInfo struct {
 	EndorsementKey  string          `json:"endorsementKey"`
 }
 
-// BootEntry 启动项
+// BootEntry 启动项.
 type BootEntry struct {
 	Name            string          `json:"name"`
 	Path            string          `json:"path"`
@@ -83,7 +83,7 @@ type BootEntry struct {
 	LastVerifiedAt  *time.Time      `json:"lastVerifiedAt"`
 }
 
-// SecureBootConfig 安全启动配置
+// SecureBootConfig 安全启动配置.
 type SecureBootConfig struct {
 	Mode          BootPolicy `json:"mode"`
 	TrustedKeys   []KeyInfo  `json:"trustedKeys"`
@@ -94,7 +94,7 @@ type SecureBootConfig struct {
 	AllowFallback bool       `json:"allowFallback"`
 }
 
-// KeyInfo 密钥信息
+// KeyInfo 密钥信息.
 type KeyInfo struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
@@ -106,7 +106,7 @@ type KeyInfo struct {
 	IsRevoked   bool       `json:"isRevoked"`
 }
 
-// VerificationResult 验证结果
+// VerificationResult 验证结果.
 type VerificationResult struct {
 	Component  string          `json:"component"`
 	Status     SignatureStatus `json:"status"`
@@ -115,7 +115,7 @@ type VerificationResult struct {
 	VerifiedAt time.Time       `json:"verifiedAt"`
 }
 
-// SecureBootStatus 安全启动整体状态
+// SecureBootStatus 安全启动整体状态.
 type SecureBootStatus struct {
 	BootMode       BootMode    `json:"bootMode"`
 	Policy         BootPolicy  `json:"policy"`
@@ -126,7 +126,7 @@ type SecureBootStatus struct {
 	Violations     int         `json:"violations"`
 }
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
 	DatabasePath   string `json:"databasePath"`
 	KeyStorePath   string `json:"keyStorePath"`
@@ -135,7 +135,7 @@ type ManagerConfig struct {
 	VerifyInterval int    `json:"verifyInterval"` // seconds
 }
 
-// DefaultManagerConfig 默认管理器配置
+// DefaultManagerConfig 默认管理器配置.
 func DefaultManagerConfig() *ManagerConfig {
 	return &ManagerConfig{
 		DatabasePath:   "/var/lib/nas-os/secureboot",
@@ -146,7 +146,7 @@ func DefaultManagerConfig() *ManagerConfig {
 	}
 }
 
-// Manager 安全启动管理器
+// Manager 安全启动管理器.
 type Manager struct {
 	mu      sync.RWMutex
 	config  *ManagerConfig
@@ -156,7 +156,7 @@ type Manager struct {
 	entries map[string]*BootEntry
 }
 
-// NewManager 创建安全启动管理器
+// NewManager 创建安全启动管理器.
 func NewManager(config *ManagerConfig) *Manager {
 	if config == nil {
 		config = DefaultManagerConfig()
@@ -175,7 +175,7 @@ func NewManager(config *ManagerConfig) *Manager {
 	}
 }
 
-// DetectTPM 检测 TPM 状态
+// DetectTPM 检测 TPM 状态.
 func (m *Manager) DetectTPM(ctx context.Context) (*TPMInfo, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -219,7 +219,7 @@ func (m *Manager) DetectTPM(ctx context.Context) (*TPMInfo, error) {
 	return &m.tpmInfo, nil
 }
 
-// GetTPMInfo 获取 TPM 信息
+// GetTPMInfo 获取 TPM 信息.
 func (m *Manager) GetTPMInfo() *TPMInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -228,7 +228,7 @@ func (m *Manager) GetTPMInfo() *TPMInfo {
 	return &info
 }
 
-// VerifySignature 验证签名
+// VerifySignature 验证签名.
 func (m *Manager) VerifySignature(ctx context.Context, component string, hash string) (*VerificationResult, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -286,7 +286,7 @@ func (m *Manager) VerifySignature(ctx context.Context, component string, hash st
 	return result, nil
 }
 
-// SetBootPolicy 设置启动策略
+// SetBootPolicy 设置启动策略.
 func (m *Manager) SetBootPolicy(policy BootPolicy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -300,14 +300,14 @@ func (m *Manager) SetBootPolicy(policy BootPolicy) error {
 	}
 }
 
-// GetBootPolicy 获取启动策略
+// GetBootPolicy 获取启动策略.
 func (m *Manager) GetBootPolicy() BootPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.policy.Mode
 }
 
-// GetSecureBootConfig 获取安全启动配置
+// GetSecureBootConfig 获取安全启动配置.
 func (m *Manager) GetSecureBootConfig() *SecureBootConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -315,7 +315,7 @@ func (m *Manager) GetSecureBootConfig() *SecureBootConfig {
 	return &cfg
 }
 
-// AddTrustedKey 添加信任密钥
+// AddTrustedKey 添加信任密钥.
 func (m *Manager) AddTrustedKey(key KeyInfo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -329,7 +329,7 @@ func (m *Manager) AddTrustedKey(key KeyInfo) error {
 	return nil
 }
 
-// RemoveTrustedKey 移除信任密钥
+// RemoveTrustedKey 移除信任密钥.
 func (m *Manager) RemoveTrustedKey(fingerprint string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -349,7 +349,7 @@ func (m *Manager) RemoveTrustedKey(fingerprint string) error {
 	return nil
 }
 
-// AddTrustedHash 添加信任哈希
+// AddTrustedHash 添加信任哈希.
 func (m *Manager) AddTrustedHash(hash string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -363,7 +363,7 @@ func (m *Manager) AddTrustedHash(hash string) error {
 	return nil
 }
 
-// RegisterBootEntry 注册启动项
+// RegisterBootEntry 注册启动项.
 func (m *Manager) RegisterBootEntry(entry BootEntry) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -375,7 +375,7 @@ func (m *Manager) RegisterBootEntry(entry BootEntry) error {
 	return nil
 }
 
-// GetBootEntry 获取启动项
+// GetBootEntry 获取启动项.
 func (m *Manager) GetBootEntry(name string) (*BootEntry, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -387,7 +387,7 @@ func (m *Manager) GetBootEntry(name string) (*BootEntry, error) {
 	return entry, nil
 }
 
-// ListBootEntries 列出启动项
+// ListBootEntries 列出启动项.
 func (m *Manager) ListBootEntries() []BootEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -399,7 +399,7 @@ func (m *Manager) ListBootEntries() []BootEntry {
 	return result
 }
 
-// GetStatus 获取整体安全启动状态
+// GetStatus 获取整体安全启动状态.
 func (m *Manager) GetStatus() *SecureBootStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

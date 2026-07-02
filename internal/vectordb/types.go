@@ -21,7 +21,7 @@ var (
 	ErrInvalidMetric      = errors.New("invalid distance metric")
 )
 
-// DistanceMetric 距离度量类型
+// DistanceMetric 距离度量类型.
 type DistanceMetric string
 
 const (
@@ -31,7 +31,7 @@ const (
 	MetricManhattan  DistanceMetric = "manhattan"
 )
 
-// IndexType 索引类型
+// IndexType 索引类型.
 type IndexType string
 
 const (
@@ -40,14 +40,14 @@ const (
 	IndexIVF  IndexType = "ivf"  // Inverted File Index
 )
 
-// Vector 向量记录
+// Vector 向量记录.
 type Vector struct {
 	ID       string                 `json:"id"`
 	Vector   []float32              `json:"vector"`
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	ID       string                 `json:"id"`
 	Score    float32                `json:"score"`
@@ -55,7 +55,7 @@ type SearchResult struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// Collection 向量集合
+// Collection 向量集合.
 type Collection struct {
 	Name      string             `json:"name"`
 	Dimension int                `json:"dimension"`
@@ -68,7 +68,7 @@ type Collection struct {
 	UpdatedAt time.Time          `json:"updated_at"`
 }
 
-// SearchOptions 搜索选项
+// SearchOptions 搜索选项.
 type SearchOptions struct {
 	TopK        int                    `json:"top_k"`
 	Filter      map[string]interface{} `json:"filter,omitempty"`
@@ -77,21 +77,21 @@ type SearchOptions struct {
 	NProbe      int                    `json:"n_probe,omitempty"`   // IVF
 }
 
-// Database 向量数据库
+// Database 向量数据库.
 type Database struct {
 	mu          sync.RWMutex
 	collections map[string]*Collection
 	closed      bool
 }
 
-// NewDatabase 创建数据库
+// NewDatabase 创建数据库.
 func NewDatabase() *Database {
 	return &Database{
 		collections: make(map[string]*Collection),
 	}
 }
 
-// CreateCollection 创建集合
+// CreateCollection 创建集合.
 func (db *Database) CreateCollection(name string, dim int, metric DistanceMetric, idxType IndexType) (*Collection, error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
@@ -117,7 +117,7 @@ func (db *Database) CreateCollection(name string, dim int, metric DistanceMetric
 	return col, nil
 }
 
-// GetCollection 获取集合
+// GetCollection 获取集合.
 func (db *Database) GetCollection(name string) (*Collection, error) {
 	db.mu.RLock()
 	defer db.mu.RUnlock()
@@ -128,7 +128,7 @@ func (db *Database) GetCollection(name string) (*Collection, error) {
 	return col, nil
 }
 
-// DeleteCollection 删除集合
+// DeleteCollection 删除集合.
 func (db *Database) DeleteCollection(name string) error {
 	db.mu.Lock()
 	defer db.mu.Unlock()
@@ -139,7 +139,7 @@ func (db *Database) DeleteCollection(name string) error {
 	return nil
 }
 
-// Insert 插入向量
+// Insert 插入向量.
 func (c *Collection) Insert(v *Vector) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -155,7 +155,7 @@ func (c *Collection) Insert(v *Vector) error {
 	return nil
 }
 
-// BatchInsert 批量插入
+// BatchInsert 批量插入.
 func (c *Collection) BatchInsert(vectors []*Vector) (int, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -172,7 +172,7 @@ func (c *Collection) BatchInsert(vectors []*Vector) (int, error) {
 	return inserted, nil
 }
 
-// Delete 删除向量
+// Delete 删除向量.
 func (c *Collection) Delete(id string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -185,7 +185,7 @@ func (c *Collection) Delete(id string) error {
 	return nil
 }
 
-// Get 获取向量
+// Get 获取向量.
 func (c *Collection) Get(id string) (*Vector, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -196,7 +196,7 @@ func (c *Collection) Get(id string) (*Vector, error) {
 	return v, nil
 }
 
-// Search 搜索最近邻
+// Search 搜索最近邻.
 func (c *Collection) Search(query []float32, opts SearchOptions) ([]SearchResult, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -234,7 +234,7 @@ func (c *Collection) Search(query []float32, opts SearchOptions) ([]SearchResult
 	return results, nil
 }
 
-// Close 关闭数据库
+// Close 关闭数据库.
 func (db *Database) Close() error {
 	db.mu.Lock()
 	defer db.mu.Unlock()

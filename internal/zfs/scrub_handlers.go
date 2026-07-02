@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ScrubHandler ZFS Scrub REST API handler
+// ScrubHandler ZFS Scrub REST API handler.
 type ScrubHandler struct {
 	scheduler *ScrubScheduler
 }
 
-// NewScrubHandler 创建ScrubHandler
+// NewScrubHandler 创建ScrubHandler.
 func NewScrubHandler(scheduler *ScrubScheduler) *ScrubHandler {
 	return &ScrubHandler{scheduler: scheduler}
 }
 
-// RegisterRoutes 注册scrub相关路由
+// RegisterRoutes 注册scrub相关路由.
 func (h *ScrubHandler) RegisterRoutes(rg *gin.RouterGroup) {
 	scrub := rg.Group("/zfs/scrub")
 	{
@@ -36,7 +36,7 @@ func (h *ScrubHandler) RegisterRoutes(rg *gin.RouterGroup) {
 // @Tags ZFS Scrub
 // @Produce json
 // @Success 200 {object} ScrubProgress
-// @Router /api/v1/zfs/scrub/status [get]
+// @Router /api/v1/zfs/scrub/status [get].
 func (h *ScrubHandler) GetStatus(c *gin.Context) {
 	progress := h.scheduler.GetProgress()
 	c.JSON(http.StatusOK, gin.H{
@@ -52,7 +52,7 @@ func (h *ScrubHandler) GetStatus(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]string
 // @Failure 400 {object} map[string]string
-// @Router /api/v1/zfs/scrub/start [post]
+// @Router /api/v1/zfs/scrub/start [post].
 func (h *ScrubHandler) StartScrub(c *gin.Context) {
 	if err := h.scheduler.StartScrub(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -73,7 +73,7 @@ func (h *ScrubHandler) StartScrub(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]string
 // @Failure 400 {object} map[string]string
-// @Router /api/v1/zfs/scrub/pause [post]
+// @Router /api/v1/zfs/scrub/pause [post].
 func (h *ScrubHandler) PauseScrub(c *gin.Context) {
 	if err := h.scheduler.PauseScrub(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -94,7 +94,7 @@ func (h *ScrubHandler) PauseScrub(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]string
 // @Failure 400 {object} map[string]string
-// @Router /api/v1/zfs/scrub/resume [post]
+// @Router /api/v1/zfs/scrub/resume [post].
 func (h *ScrubHandler) ResumeScrub(c *gin.Context) {
 	if err := h.scheduler.ResumeScrub(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -114,7 +114,7 @@ func (h *ScrubHandler) ResumeScrub(c *gin.Context) {
 // @Tags ZFS Scrub
 // @Produce json
 // @Success 200 {array} ScrubResult
-// @Router /api/v1/zfs/scrub/history [get]
+// @Router /api/v1/zfs/scrub/history [get].
 func (h *ScrubHandler) GetHistory(c *gin.Context) {
 	history := h.scheduler.GetHistory()
 	c.JSON(http.StatusOK, gin.H{
@@ -132,7 +132,7 @@ func (h *ScrubHandler) GetHistory(c *gin.Context) {
 // @Param config body ScrubScheduleConfig true "调度配置"
 // @Success 200 {object} map[string]string
 // @Failure 400 {object} map[string]string
-// @Router /api/v1/zfs/scrub/schedule [put]
+// @Router /api/v1/zfs/scrub/schedule [put].
 func (h *ScrubHandler) UpdateSchedule(c *gin.Context) {
 	var config ScrubScheduleConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -154,7 +154,7 @@ func (h *ScrubHandler) UpdateSchedule(c *gin.Context) {
 // @Tags ZFS Scrub
 // @Produce json
 // @Success 200 {object} ScrubScheduleConfig
-// @Router /api/v1/zfs/scrub/schedule [get]
+// @Router /api/v1/zfs/scrub/schedule [get].
 func (h *ScrubHandler) GetSchedule(c *gin.Context) {
 	config := h.scheduler.GetConfig()
 	c.JSON(http.StatusOK, gin.H{
@@ -169,7 +169,7 @@ func (h *ScrubHandler) GetSchedule(c *gin.Context) {
 // @Tags ZFS Scrub
 // @Produce json
 // @Success 200 {object} map[string]int
-// @Router /api/v1/zfs/scrub/io-stats [get]
+// @Router /api/v1/zfs/scrub/io-stats [get].
 func (h *ScrubHandler) GetIOStats(c *gin.Context) {
 	readIOPS, writeIOPS, err := h.scheduler.GetIOStats()
 	if err != nil {

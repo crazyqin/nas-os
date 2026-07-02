@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// TokenCounter tracks API token usage
+// TokenCounter tracks API token usage.
 type TokenCounter struct {
 	usage   map[string]*UserUsage
 	records map[string]*TokenRecord
@@ -16,7 +16,7 @@ type TokenCounter struct {
 	mu      sync.RWMutex
 }
 
-// UserUsage tracks user's token usage
+// UserUsage tracks user's token usage.
 type UserUsage struct {
 	UserID         string    `json:"user_id"`
 	TotalTokens    int64     `json:"total_tokens"`
@@ -29,7 +29,7 @@ type UserUsage struct {
 	QuotaResetDate time.Time `json:"quota_reset_date"`
 }
 
-// TokenRecord represents a single token usage record
+// TokenRecord represents a single token usage record.
 type TokenRecord struct {
 	ID           string    `json:"id"`
 	UserID       string    `json:"user_id"`
@@ -43,14 +43,14 @@ type TokenRecord struct {
 	SessionID    string    `json:"session_id,omitempty"`
 }
 
-// TokenRate defines pricing rates
+// TokenRate defines pricing rates.
 type TokenRate struct {
 	InputRate  float64 `json:"input_rate"`  // per 1K tokens
 	OutputRate float64 `json:"output_rate"` // per 1K tokens
 	Currency   string  `json:"currency"`
 }
 
-// BillingStorage interface for billing persistence
+// BillingStorage interface for billing persistence.
 type BillingStorage interface {
 	SaveUsage(usage *UserUsage) error
 	SaveRecord(record *TokenRecord) error
@@ -58,7 +58,7 @@ type BillingStorage interface {
 	GetRecords(userID string, start, end time.Time) ([]TokenRecord, error)
 }
 
-// NewTokenCounter creates a new token counter
+// NewTokenCounter creates a new token counter.
 func NewTokenCounter(storage BillingStorage, rate TokenRate) *TokenCounter {
 	return &TokenCounter{
 		usage:   make(map[string]*UserUsage),
@@ -68,7 +68,7 @@ func NewTokenCounter(storage BillingStorage, rate TokenRate) *TokenCounter {
 	}
 }
 
-// CountTokens records token usage
+// CountTokens records token usage.
 func (t *TokenCounter) CountTokens(ctx context.Context, userID, model, service string,
 	inputTokens, outputTokens int) (*TokenRecord, error) {
 
@@ -114,26 +114,26 @@ func (t *TokenCounter) CountTokens(ctx context.Context, userID, model, service s
 	return record, nil
 }
 
-// CountChatTokens counts tokens for chat completion
+// CountChatTokens counts tokens for chat completion.
 func (t *TokenCounter) CountChatTokens(ctx context.Context, userID, model string,
 	promptTokens, completionTokens int) (*TokenRecord, error) {
 	return t.CountTokens(ctx, userID, model, "chat", promptTokens, completionTokens)
 }
 
-// CountEmbeddingTokens counts tokens for embedding
+// CountEmbeddingTokens counts tokens for embedding.
 func (t *TokenCounter) CountEmbeddingTokens(ctx context.Context, userID, model string,
 	tokens int) (*TokenRecord, error) {
 	return t.CountTokens(ctx, userID, model, "embedding", tokens, 0)
 }
 
-// calculateCost calculates cost based on rates
+// calculateCost calculates cost based on rates.
 func (t *TokenCounter) calculateCost(inputTokens, outputTokens int) float64 {
 	inputCost := float64(inputTokens) / 1000.0 * t.rate.InputRate
 	outputCost := float64(outputTokens) / 1000.0 * t.rate.OutputRate
 	return inputCost + outputCost
 }
 
-// getOrCreateUsage gets or creates user usage
+// getOrCreateUsage gets or creates user usage.
 func (t *TokenCounter) getOrCreateUsage(userID string) *UserUsage {
 	if usage, exists := t.usage[userID]; exists {
 		return usage
@@ -155,7 +155,7 @@ func (t *TokenCounter) getOrCreateUsage(userID string) *UserUsage {
 	return usage
 }
 
-// GetUserUsage retrieves user's usage
+// GetUserUsage retrieves user's usage.
 func (t *TokenCounter) GetUserUsage(ctx context.Context, userID string) (*UserUsage, error) {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -167,13 +167,13 @@ func (t *TokenCounter) GetUserUsage(ctx context.Context, userID string) (*UserUs
 	return t.storage.GetUsage(userID)
 }
 
-// GetUserRecords retrieves user's usage records
+// GetUserRecords retrieves user's usage records.
 func (t *TokenCounter) GetUserRecords(ctx context.Context, userID string,
 	start, end time.Time) ([]TokenRecord, error) {
 	return t.storage.GetRecords(userID, start, end)
 }
 
-// CheckQuota checks if user has quota available
+// CheckQuota checks if user has quota available.
 func (t *TokenCounter) CheckQuota(ctx context.Context, userID string) (bool, error) {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -187,7 +187,7 @@ func (t *TokenCounter) CheckQuota(ctx context.Context, userID string) (bool, err
 	return usage.CurrentMonth < usage.Quota, nil
 }
 
-// SetUserQuota sets user's token quota
+// SetUserQuota sets user's token quota.
 func (t *TokenCounter) SetUserQuota(ctx context.Context, userID string, quota int64) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -198,7 +198,7 @@ func (t *TokenCounter) SetUserQuota(ctx context.Context, userID string, quota in
 	return t.storage.SaveUsage(usage)
 }
 
-// ResetMonthlyUsage resets monthly usage counters
+// ResetMonthlyUsage resets monthly usage counters.
 func (t *TokenCounter) ResetMonthlyUsage(ctx context.Context) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -216,7 +216,7 @@ func (t *TokenCounter) ResetMonthlyUsage(ctx context.Context) error {
 	return nil
 }
 
-// GetUserCost calculates total cost for user in time range
+// GetUserCost calculates total cost for user in time range.
 func (t *TokenCounter) GetUserCost(ctx context.Context, userID string,
 	start, end time.Time) (UserCostReport, error) {
 
@@ -259,7 +259,7 @@ func (t *TokenCounter) GetUserCost(ctx context.Context, userID string,
 	return report, nil
 }
 
-// UserCostReport holds user cost analysis
+// UserCostReport holds user cost analysis.
 type UserCostReport struct {
 	UserID            string                  `json:"user_id"`
 	StartTime         time.Time               `json:"start_time"`
@@ -272,7 +272,7 @@ type UserCostReport struct {
 	ByService         map[string]ServiceUsage `json:"by_service"`
 }
 
-// ModelUsage aggregates usage by model
+// ModelUsage aggregates usage by model.
 type ModelUsage struct {
 	Cost         float64 `json:"cost"`
 	InputTokens  int     `json:"input_tokens"`
@@ -281,14 +281,14 @@ type ModelUsage struct {
 	Requests     int     `json:"requests"`
 }
 
-// ServiceUsage aggregates usage by service
+// ServiceUsage aggregates usage by service.
 type ServiceUsage struct {
 	Cost        float64 `json:"cost"`
 	TotalTokens int     `json:"total_tokens"`
 	Requests    int     `json:"requests"`
 }
 
-// GetStats returns overall token usage statistics
+// GetStats returns overall token usage statistics.
 func (t *TokenCounter) GetStats(ctx context.Context) TokenStats {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -307,7 +307,7 @@ func (t *TokenCounter) GetStats(ctx context.Context) TokenStats {
 	return stats
 }
 
-// TokenStats holds overall statistics
+// TokenStats holds overall statistics.
 type TokenStats struct {
 	TotalUsers        int       `json:"total_users"`
 	TotalTokens       int64     `json:"total_tokens"`
@@ -316,7 +316,7 @@ type TokenStats struct {
 	Rate              TokenRate `json:"rate"`
 }
 
-// DefaultTokenRates for common models
+// DefaultTokenRates for common models.
 var DefaultTokenRates = map[string]TokenRate{
 	"llama3.2":    {InputRate: 0.01, OutputRate: 0.02, Currency: "USD"},
 	"llama3.1:8b": {InputRate: 0.02, OutputRate: 0.03, Currency: "USD"},
@@ -326,7 +326,7 @@ var DefaultTokenRates = map[string]TokenRate{
 	"embedding":   {InputRate: 0.0001, OutputRate: 0, Currency: "USD"},
 }
 
-// GetTokenRate returns rate for a model
+// GetTokenRate returns rate for a model.
 func (t *TokenCounter) GetTokenRate(model string) TokenRate {
 	if rate, exists := DefaultTokenRates[model]; exists {
 		return rate
@@ -334,12 +334,12 @@ func (t *TokenCounter) GetTokenRate(model string) TokenRate {
 	return t.rate
 }
 
-// Helper
+// Helper.
 func generateRecordID() string {
 	return "rec_" + time.Now().Format("20060102150405")
 }
 
-// Errors
+// Errors.
 var (
 	ErrQuotaExceeded = errors.New("token quota exceeded")
 	ErrUsageNotFound = errors.New("usage record not found")

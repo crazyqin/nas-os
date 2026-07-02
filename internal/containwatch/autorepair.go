@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// RepairAction 修复动作类型
+// RepairAction 修复动作类型.
 type RepairAction string
 
 const (
@@ -19,7 +19,7 @@ const (
 	RepairStop     RepairAction = "stop"     // 停止容器
 )
 
-// RepairStatus 修复状态
+// RepairStatus 修复状态.
 type RepairStatus string
 
 const (
@@ -29,7 +29,7 @@ const (
 	RepairStatusFailed     RepairStatus = "failed"
 )
 
-// ContainerSnapshot 容器快照（用于回滚）
+// ContainerSnapshot 容器快照（用于回滚）.
 type ContainerSnapshot struct {
 	ID          string                 `json:"id"`
 	ContainerID string                 `json:"container_id"`
@@ -40,7 +40,7 @@ type ContainerSnapshot struct {
 	Description string                 `json:"description"`
 }
 
-// RepairRecord 修复记录
+// RepairRecord 修复记录.
 type RepairRecord struct {
 	ID          string       `json:"id"`
 	ContainerID string       `json:"container_id"`
@@ -54,7 +54,7 @@ type RepairRecord struct {
 	CompletedAt *time.Time   `json:"completed_at,omitempty"`
 }
 
-// RestartPolicy 重启策略配置
+// RestartPolicy 重启策略配置.
 type RestartPolicy struct {
 	Enabled        bool          `json:"enabled"`         // 是否启用自动重启
 	MaxRetries     int           `json:"max_retries"`     // 最大重试次数
@@ -63,7 +63,7 @@ type RestartPolicy struct {
 	BackoffFactor  float64       `json:"backoff_factor"`  // 退避因子（指数退避）
 }
 
-// DefaultRestartPolicy 返回默认重启策略
+// DefaultRestartPolicy 返回默认重启策略.
 func DefaultRestartPolicy() RestartPolicy {
 	return RestartPolicy{
 		Enabled:        true,
@@ -74,7 +74,7 @@ func DefaultRestartPolicy() RestartPolicy {
 	}
 }
 
-// ResourceAdjustPolicy 资源调整策略
+// ResourceAdjustPolicy 资源调整策略.
 type ResourceAdjustPolicy struct {
 	Enabled         bool    `json:"enabled"`          // 是否启用自动资源调整
 	MemoryIncrement float64 `json:"memory_increment"` // OOM后内存增量倍数
@@ -83,7 +83,7 @@ type ResourceAdjustPolicy struct {
 	MaxCPUPercent   float64 `json:"max_cpu_percent"`  // 最大CPU限制
 }
 
-// DefaultResourceAdjustPolicy 返回默认资源调整策略
+// DefaultResourceAdjustPolicy 返回默认资源调整策略.
 func DefaultResourceAdjustPolicy() ResourceAdjustPolicy {
 	return ResourceAdjustPolicy{
 		Enabled:         true,
@@ -94,7 +94,7 @@ func DefaultResourceAdjustPolicy() ResourceAdjustPolicy {
 	}
 }
 
-// AutoRepairManager 自动修复管理器
+// AutoRepairManager 自动修复管理器.
 type AutoRepairManager struct {
 	mu               sync.RWMutex
 	restartPolicies  map[string]RestartPolicy        // 容器ID -> 重启策略
@@ -106,14 +106,14 @@ type AutoRepairManager struct {
 	nextID           int64
 }
 
-// retryState 内部重试状态
+// retryState 内部重试状态.
 type retryState struct {
 	CurrentRetry   int
 	LastAttempt    time.Time
 	CurrentBackoff time.Duration
 }
 
-// NewAutoRepairManager 创建自动修复管理器
+// NewAutoRepairManager 创建自动修复管理器.
 func NewAutoRepairManager() *AutoRepairManager {
 	return &AutoRepairManager{
 		restartPolicies:  make(map[string]RestartPolicy),
@@ -125,7 +125,7 @@ func NewAutoRepairManager() *AutoRepairManager {
 	}
 }
 
-// RegisterContainer 注册容器到自动修复
+// RegisterContainer 注册容器到自动修复.
 func (m *AutoRepairManager) RegisterContainer(containerID string, restartPolicy RestartPolicy, resourcePolicy ResourceAdjustPolicy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -144,7 +144,7 @@ func (m *AutoRepairManager) RegisterContainer(containerID string, restartPolicy 
 	return nil
 }
 
-// UnregisterContainer 注销容器自动修复
+// UnregisterContainer 注销容器自动修复.
 func (m *AutoRepairManager) UnregisterContainer(containerID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -162,7 +162,7 @@ func (m *AutoRepairManager) UnregisterContainer(containerID string) error {
 	return nil
 }
 
-// HandleCrash 处理容器崩溃（自动重启 + 指数退避）
+// HandleCrash 处理容器崩溃（自动重启 + 指数退避）.
 func (m *AutoRepairManager) HandleCrash(containerID string, reason string) (*RepairRecord, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -205,7 +205,7 @@ func (m *AutoRepairManager) HandleCrash(containerID string, reason string) (*Rep
 	return &record, nil
 }
 
-// HandleOOM 处理 OOM（自动调整内存限制）
+// HandleOOM 处理 OOM（自动调整内存限制）.
 func (m *AutoRepairManager) HandleOOM(containerID string, currentMemoryLimit float64) (*RepairRecord, float64, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -239,7 +239,7 @@ func (m *AutoRepairManager) HandleOOM(containerID string, currentMemoryLimit flo
 }
 
 // HandleHealthCheckFailure 处理健康检查失败
-// 流程: 重启 -> 回滚 -> 告警
+// 流程: 重启 -> 回滚 -> 告警.
 func (m *AutoRepairManager) HandleHealthCheckFailure(containerID string, consecutiveFailures int) (*RepairRecord, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -280,7 +280,7 @@ func (m *AutoRepairManager) HandleHealthCheckFailure(containerID string, consecu
 	}
 }
 
-// CreateSnapshot 创建容器快照
+// CreateSnapshot 创建容器快照.
 func (m *AutoRepairManager) CreateSnapshot(containerID, image, tag string, config map[string]interface{}, description string) (*ContainerSnapshot, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -311,7 +311,7 @@ func (m *AutoRepairManager) CreateSnapshot(containerID, image, tag string, confi
 	return &snapshot, nil
 }
 
-// RollbackToSnapshot 回滚到指定快照
+// RollbackToSnapshot 回滚到指定快照.
 func (m *AutoRepairManager) RollbackToSnapshot(containerID, snapshotID string) (*RepairRecord, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -342,7 +342,7 @@ func (m *AutoRepairManager) RollbackToSnapshot(containerID, snapshotID string) (
 	return &record, nil
 }
 
-// GetRepairRecords 获取容器修复记录
+// GetRepairRecords 获取容器修复记录.
 func (m *AutoRepairManager) GetRepairRecords(containerID string) []RepairRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -356,7 +356,7 @@ func (m *AutoRepairManager) GetRepairRecords(containerID string) []RepairRecord 
 	return result
 }
 
-// GetSnapshots 获取容器快照列表
+// GetSnapshots 获取容器快照列表.
 func (m *AutoRepairManager) GetSnapshots(containerID string) []ContainerSnapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -371,7 +371,7 @@ func (m *AutoRepairManager) GetSnapshots(containerID string) []ContainerSnapshot
 	return result
 }
 
-// ResetRetryState 重置容器重试状态（修复成功后调用）
+// ResetRetryState 重置容器重试状态（修复成功后调用）.
 func (m *AutoRepairManager) ResetRetryState(containerID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -386,7 +386,7 @@ func (m *AutoRepairManager) ResetRetryState(containerID string) {
 	}
 }
 
-// calculateBackoff 计算指数退避时间
+// calculateBackoff 计算指数退避时间.
 func (m *AutoRepairManager) calculateBackoff(state *retryState, policy RestartPolicy) time.Duration {
 	backoff := float64(policy.InitialBackoff) * math.Pow(policy.BackoffFactor, float64(state.CurrentRetry))
 	if backoff > float64(policy.MaxBackoff) {
@@ -395,7 +395,7 @@ func (m *AutoRepairManager) calculateBackoff(state *retryState, policy RestartPo
 	return time.Duration(backoff)
 }
 
-// newRecord 创建修复记录
+// newRecord 创建修复记录.
 func (m *AutoRepairManager) newRecord(containerID string, action RepairAction, status RepairStatus, reason, detail string, attempts, maxAttempts int) RepairRecord {
 	m.nextID++
 	now := time.Now()
@@ -425,7 +425,7 @@ func (m *AutoRepairManager) newRecord(containerID string, action RepairAction, s
 	return record
 }
 
-// GetRepairOverview 获取修复状态概览
+// GetRepairOverview 获取修复状态概览.
 func (m *AutoRepairManager) GetRepairOverview() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

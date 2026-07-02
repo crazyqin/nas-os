@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// StepStatus 步骤状态
+// StepStatus 步骤状态.
 type StepStatus string
 
 const (
@@ -16,7 +16,7 @@ const (
 	StepStatusSkipped    StepStatus = "skipped"
 )
 
-// StepType 步骤类型
+// StepType 步骤类型.
 type StepType string
 
 const (
@@ -27,7 +27,7 @@ const (
 	StepTypeRecommend    StepType = "recommend"
 )
 
-// TemplateType 配置模板类型
+// TemplateType 配置模板类型.
 type TemplateType string
 
 const (
@@ -36,7 +36,7 @@ const (
 	TemplateTypeDeveloper  TemplateType = "developer"
 )
 
-// Step 引导步骤
+// Step 引导步骤.
 type Step struct {
 	ID          string     `json:"id"`
 	Type        StepType   `json:"type"`
@@ -50,7 +50,7 @@ type Step struct {
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
 }
 
-// Progress 引导进度
+// Progress 引导进度.
 type Progress struct {
 	TotalSteps     int        `json:"total_steps"`
 	CompletedSteps int        `json:"completed_steps"`
@@ -62,7 +62,7 @@ type Progress struct {
 	IsCompleted    bool       `json:"is_completed"`
 }
 
-// Session 引导会话
+// Session 引导会话.
 type Session struct {
 	ID           string         `json:"id"`
 	TemplateType TemplateType   `json:"template_type"`
@@ -75,7 +75,7 @@ type Session struct {
 	CustomData   map[string]any `json:"custom_data,omitempty"`
 }
 
-// NetworkConfig 网络配置数据
+// NetworkConfig 网络配置数据.
 type NetworkConfig struct {
 	Hostname   string   `json:"hostname"`
 	IPAddress  string   `json:"ip_address,omitempty"`
@@ -85,7 +85,7 @@ type NetworkConfig struct {
 	DHCP       bool     `json:"dhcp"`
 }
 
-// StoragePoolConfig 存储池配置数据
+// StoragePoolConfig 存储池配置数据.
 type StoragePoolConfig struct {
 	Name       string   `json:"name"`
 	RAIDType   string   `json:"raid_type"` // single, mirror, raid5, raid6, raid10
@@ -93,7 +93,7 @@ type StoragePoolConfig struct {
 	FileSystem string   `json:"file_system"` // ext4, btrfs, xfs
 }
 
-// UserConfig 用户配置数据
+// UserConfig 用户配置数据.
 type UserConfig struct {
 	Username string `json:"username"`
 	Password string `json:"password,omitempty"`
@@ -102,7 +102,7 @@ type UserConfig struct {
 	IsAdmin  bool   `json:"is_admin"`
 }
 
-// RecommendedApp 推荐应用
+// RecommendedApp 推荐应用.
 type RecommendedApp struct {
 	ID          string   `json:"id"`
 	Name        string   `json:"name"`
@@ -113,7 +113,7 @@ type RecommendedApp struct {
 	Tags        []string `json:"tags,omitempty"`
 }
 
-// Template 配置模板
+// Template 配置模板.
 type Template struct {
 	Type        TemplateType `json:"type"`
 	Name        string       `json:"name"`
@@ -122,29 +122,29 @@ type Template struct {
 	Apps        []string     `json:"recommended_apps"`
 }
 
-// StepConfig 步骤配置
+// StepConfig 步骤配置.
 type StepConfig struct {
 	Type     StepType `json:"type"`
 	Required bool     `json:"required"`
 	Order    int      `json:"order"`
 }
 
-// CreateSessionRequest 创建引导会话请求
+// CreateSessionRequest 创建引导会话请求.
 type CreateSessionRequest struct {
 	TemplateType TemplateType `json:"template_type" binding:"required"`
 }
 
-// CompleteStepRequest 完成步骤请求
+// CompleteStepRequest 完成步骤请求.
 type CompleteStepRequest struct {
 	Data any `json:"data,omitempty"`
 }
 
-// SkipStepRequest 跳过步骤请求
+// SkipStepRequest 跳过步骤请求.
 type SkipStepRequest struct {
 	Reason string `json:"reason,omitempty"`
 }
 
-// GetRecommendationsRequest 获取推荐请求
+// GetRecommendationsRequest 获取推荐请求.
 type GetRecommendationsRequest struct {
 	Scenario string `json:"scenario" binding:"required"` // home, office, development, media, backup
 }

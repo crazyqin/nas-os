@@ -10,18 +10,18 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handlers 温控接口处理器
+// Handlers 温控接口处理器.
 type Handlers struct {
 	logger  *zap.Logger
 	manager *Manager
 }
 
-// NewHandlers 创建温控接口处理器
+// NewHandlers 创建温控接口处理器.
 func NewHandlers(logger *zap.Logger, manager *Manager) *Handlers {
 	return &Handlers{logger: logger, manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	thermal := rg.Group("/thermal")
 	{
@@ -39,25 +39,25 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// getOverview 获取散热总览
+// getOverview 获取散热总览.
 func (h *Handlers) getOverview(c *gin.Context) {
 	overview := h.manager.GetOverview()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": overview})
 }
 
-// getZones 获取温度区域列表
+// getZones 获取温度区域列表.
 func (h *Handlers) getZones(c *gin.Context) {
 	overview := h.manager.GetOverview()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": overview.Zones})
 }
 
-// getFans 获取风扇信息
+// getFans 获取风扇信息.
 func (h *Handlers) getFans(c *gin.Context) {
 	overview := h.manager.GetOverview()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": overview.Fans})
 }
 
-// getAlerts 获取温度告警
+// getAlerts 获取温度告警.
 func (h *Handlers) getAlerts(c *gin.Context) {
 	limit := 50
 	if l, err := strconv.Atoi(c.Query("limit")); err == nil && l > 0 {
@@ -67,7 +67,7 @@ func (h *Handlers) getAlerts(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": alerts})
 }
 
-// getHistory 获取温度历史
+// getHistory 获取温度历史.
 func (h *Handlers) getHistory(c *gin.Context) {
 	minutes := 60
 	if m, err := strconv.Atoi(c.Query("minutes")); err == nil && m > 0 {
@@ -77,13 +77,13 @@ func (h *Handlers) getHistory(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": history})
 }
 
-// getPolicy 获取温控策略
+// getPolicy 获取温控策略.
 func (h *Handlers) getPolicy(c *gin.Context) {
 	policy := h.manager.GetPolicy()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": policy})
 }
 
-// updatePolicy 更新温控策略
+// updatePolicy 更新温控策略.
 func (h *Handlers) updatePolicy(c *gin.Context) {
 	var policy ThermalPolicy
 	if err := c.ShouldBindJSON(&policy); err != nil {
@@ -94,13 +94,13 @@ func (h *Handlers) updatePolicy(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "策略已更新"})
 }
 
-// refresh 刷新温度数据
+// refresh 刷新温度数据.
 func (h *Handlers) refresh(c *gin.Context) {
 	h.manager.Refresh()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "温度数据已刷新", "time": time.Now()})
 }
 
-// setFanMode 设置风扇模式
+// setFanMode 设置风扇模式.
 func (h *Handlers) setFanMode(c *gin.Context) {
 	fanID := c.Param("id")
 	var req struct {
@@ -117,7 +117,7 @@ func (h *Handlers) setFanMode(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "风扇模式已设置"})
 }
 
-// setFanSpeed 手动设置风扇转速
+// setFanSpeed 手动设置风扇转速.
 func (h *Handlers) setFanSpeed(c *gin.Context) {
 	fanID := c.Param("id")
 	var req struct {
@@ -134,7 +134,7 @@ func (h *Handlers) setFanSpeed(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "风扇转速已设置"})
 }
 
-// clearAlerts 清空告警
+// clearAlerts 清空告警.
 func (h *Handlers) clearAlerts(c *gin.Context) {
 	h.manager.ClearAlerts()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "告警已清空"})

@@ -9,7 +9,7 @@ import (
 
 // ========== 基础类型 ==========
 
-// DiskStatus 磁盘状态
+// DiskStatus 磁盘状态.
 type DiskStatus string
 
 const (
@@ -20,7 +20,7 @@ const (
 	DiskStatusSpare      DiskStatus = "SPARE"
 )
 
-// RebuildPriority 重建优先级
+// RebuildPriority 重建优先级.
 type RebuildPriority int
 
 const (
@@ -30,7 +30,7 @@ const (
 	PriorityLow      RebuildPriority = 4 // 低热度数据，可延迟
 )
 
-// RebuildState 重建状态
+// RebuildState 重建状态.
 type RebuildState string
 
 const (
@@ -44,7 +44,7 @@ const (
 
 // ========== 数据结构 ==========
 
-// DiskInfo 磁盘信息
+// DiskInfo 磁盘信息.
 type DiskInfo struct {
 	ID         string     `json:"id"`
 	Path       string     `json:"path"`
@@ -56,7 +56,7 @@ type DiskInfo struct {
 	PoolName   string     `json:"pool_name"`
 }
 
-// DataSegment 数据段
+// DataSegment 数据段.
 type DataSegment struct {
 	ID         string          `json:"id"`
 	Offset     int64           `json:"offset"`
@@ -66,7 +66,7 @@ type DataSegment struct {
 	Priority   RebuildPriority `json:"priority"`
 }
 
-// RebuildJob 重建任务
+// RebuildJob 重建任务.
 type RebuildJob struct {
 	ID           string        `json:"id"`
 	PoolName     string        `json:"pool_name"`
@@ -85,7 +85,7 @@ type RebuildJob struct {
 	ErrorMessage string        `json:"error_message,omitempty"`
 }
 
-// RebuildConfig 重建配置
+// RebuildConfig 重建配置.
 type RebuildConfig struct {
 	MaxParallelJobs  int     `json:"max_parallel_jobs"`   // 最大并行重建数
 	MaxDiskSpeedMBps int     `json:"max_disk_speed_mbps"` // 单盘最大速度限制(MB/s)
@@ -97,7 +97,7 @@ type RebuildConfig struct {
 	PriorityBoost    bool    `json:"priority_boost"`      // 启用优先级加速
 }
 
-// ProgressSnapshot 进度快照
+// ProgressSnapshot 进度快照.
 type ProgressSnapshot struct {
 	Timestamp      time.Time     `json:"timestamp"`
 	Progress       float64       `json:"progress"`
@@ -109,7 +109,7 @@ type ProgressSnapshot struct {
 	BusinessIOMBps int64         `json:"business_io_mbps"`
 }
 
-// IOMetrics IO指标
+// IOMetrics IO指标.
 type IOMetrics struct {
 	ReadIOPS     int64   `json:"read_iops"`
 	WriteIOPS    int64   `json:"write_iops"`
@@ -119,7 +119,7 @@ type IOMetrics struct {
 	AvgQueueSize float64 `json:"avg_queue_size"`
 }
 
-// RebuildSchedule 重建调度计划
+// RebuildSchedule 重建调度计划.
 type RebuildSchedule struct {
 	ID           string    `json:"id"`
 	PoolName     string    `json:"pool_name"`
@@ -134,7 +134,7 @@ type RebuildSchedule struct {
 
 // ========== Manager ==========
 
-// Manager 智能重建管理器
+// Manager 智能重建管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	config      RebuildConfig
@@ -145,7 +145,7 @@ type Manager struct {
 	hotDataMap  map[string]float64 // segment_id -> hot_score
 }
 
-// NewManager 创建新的智能重建管理器
+// NewManager 创建新的智能重建管理器.
 func NewManager(cfg RebuildConfig) *Manager {
 	// 设置默认值
 	if cfg.MaxParallelJobs <= 0 {
@@ -180,7 +180,7 @@ func NewManager(cfg RebuildConfig) *Manager {
 	}
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() RebuildConfig {
 	return RebuildConfig{
 		MaxParallelJobs:  2,

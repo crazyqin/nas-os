@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Manager 能源仪表盘管理器
+// Manager 能源仪表盘管理器.
 type Manager struct {
 	mu            sync.RWMutex
 	settings      *EnergySettings
@@ -19,7 +19,7 @@ type Manager struct {
 	lastReadingID int64
 }
 
-// NewManager 创建能源仪表盘管理器
+// NewManager 创建能源仪表盘管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		settings: DefaultEnergySettings(),
@@ -36,7 +36,7 @@ func NewManager() *Manager {
 	return m
 }
 
-// initMockDevices 初始化模拟设备
+// initMockDevices 初始化模拟设备.
 func (m *Manager) initMockDevices() {
 	mockDevices := []*DevicePower{
 		{
@@ -109,7 +109,7 @@ func (m *Manager) initMockDevices() {
 	}
 }
 
-// initMockHistory 初始化模拟历史数据
+// initMockHistory 初始化模拟历史数据.
 func (m *Manager) initMockHistory() {
 	now := time.Now()
 
@@ -136,13 +136,13 @@ func (m *Manager) initMockHistory() {
 	}
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func (m *Manager) generateID() string {
 	m.lastReadingID++
 	return fmt.Sprintf("pr-%d-%d", time.Now().UnixNano(), m.lastReadingID)
 }
 
-// RecordPowerReading 记录功耗读数
+// RecordPowerReading 记录功耗读数.
 func (m *Manager) RecordPowerReading(source string, wattage, voltage, current float64) *PowerReading {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -166,7 +166,7 @@ func (m *Manager) RecordPowerReading(source string, wattage, voltage, current fl
 	return reading
 }
 
-// GetCurrentPower 获取当前功耗
+// GetCurrentPower 获取当前功耗.
 func (m *Manager) GetCurrentPower() *PowerReading {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -189,7 +189,7 @@ func (m *Manager) GetCurrentPower() *PowerReading {
 	}
 }
 
-// GetHistory 获取历史记录
+// GetHistory 获取历史记录.
 func (m *Manager) GetHistory(period string) []*EnergyRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -218,7 +218,7 @@ func (m *Manager) GetHistory(period string) []*EnergyRecord {
 	return result
 }
 
-// GetDevicePower 获取各设备功耗
+// GetDevicePower 获取各设备功耗.
 func (m *Manager) GetDevicePower() []*DevicePower {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -231,7 +231,7 @@ func (m *Manager) GetDevicePower() []*DevicePower {
 	return devices
 }
 
-// SetBudget 设置预算
+// SetBudget 设置预算.
 func (m *Manager) SetBudget(monthlyLimitKWh, monthlyLimitCost, alertThreshold float64) *EnergyBudget {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -257,7 +257,7 @@ func (m *Manager) SetBudget(monthlyLimitKWh, monthlyLimitCost, alertThreshold fl
 	return m.budget
 }
 
-// GetBudget 获取当前预算
+// GetBudget 获取当前预算.
 func (m *Manager) GetBudget() *EnergyBudget {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -277,7 +277,7 @@ func (m *Manager) GetBudget() *EnergyBudget {
 	return &budget
 }
 
-// calculateCurrentMonthUsage 计算当月已用
+// calculateCurrentMonthUsage 计算当月已用.
 func (m *Manager) calculateCurrentMonthUsage() float64 {
 	now := time.Now()
 	startOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
@@ -291,7 +291,7 @@ func (m *Manager) calculateCurrentMonthUsage() float64 {
 	return total
 }
 
-// projectMonthUsage 预测当月总用量
+// projectMonthUsage 预测当月总用量.
 func (m *Manager) projectMonthUsage(currentUsage float64) float64 {
 	now := time.Now()
 	startOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
@@ -305,7 +305,7 @@ func (m *Manager) projectMonthUsage(currentUsage float64) float64 {
 	return currentUsage / daysElapsed * daysInMonth
 }
 
-// GenerateReport 生成能源报告
+// GenerateReport 生成能源报告.
 func (m *Manager) GenerateReport(period string) *EnergyReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -367,7 +367,7 @@ func (m *Manager) GenerateReport(period string) *EnergyReport {
 	}
 }
 
-// getTopDevices 获取功耗最高的设备
+// getTopDevices 获取功耗最高的设备.
 func (m *Manager) getTopDevices(limit int) []DevicePower {
 	// 按月耗电量排序
 	sorted := make([]*DevicePower, 0, len(m.devices))
@@ -392,7 +392,7 @@ func (m *Manager) getTopDevices(limit int) []DevicePower {
 	return result
 }
 
-// calculateTrend 计算能耗趋势
+// calculateTrend 计算能耗趋势.
 func (m *Manager) calculateTrend(period string) string {
 	if len(m.records) < 2 {
 		return "stable"
@@ -439,7 +439,7 @@ func (m *Manager) calculateTrend(period string) string {
 	return "stable"
 }
 
-// ForecastCost 成本预测
+// ForecastCost 成本预测.
 func (m *Manager) ForecastCost() []*CostForecast {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -493,7 +493,7 @@ func (m *Manager) ForecastCost() []*CostForecast {
 	return forecasts
 }
 
-// GetTips 获取节能建议
+// GetTips 获取节能建议.
 func (m *Manager) GetTips() []EnergyTip {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -574,7 +574,7 @@ func (m *Manager) GetTips() []EnergyTip {
 	return tips
 }
 
-// UpdateSettings 更新能源设置
+// UpdateSettings 更新能源设置.
 func (m *Manager) UpdateSettings(settings *EnergySettings) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -593,7 +593,7 @@ func (m *Manager) UpdateSettings(settings *EnergySettings) {
 	m.settings.UpdatedAt = time.Now()
 }
 
-// GetSettings 获取能源设置
+// GetSettings 获取能源设置.
 func (m *Manager) GetSettings() *EnergySettings {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -601,7 +601,7 @@ func (m *Manager) GetSettings() *EnergySettings {
 	return &settings
 }
 
-// generateSavingsTips 生成节能建议文本
+// generateSavingsTips 生成节能建议文本.
 func (m *Manager) generateSavingsTips() []string {
 	return []string{
 		"关闭不使用的硬盘可节省约 20% 能耗",

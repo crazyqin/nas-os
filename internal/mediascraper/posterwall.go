@@ -6,16 +6,16 @@ import (
 )
 
 // PosterWallBuilder 海报墙构建器
-// 负责将刮削后的媒体项按类型分组、排序，生成海报墙数据结构
+// 负责将刮削后的媒体项按类型分组、排序，生成海报墙数据结构.
 type PosterWallBuilder struct{}
 
-// NewPosterWallBuilder 创建海报墙构建器
+// NewPosterWallBuilder 创建海报墙构建器.
 func NewPosterWallBuilder() *PosterWallBuilder {
 	return &PosterWallBuilder{}
 }
 
 // Build 从一组媒体项构建海报墙
-// 按媒体类型分组，组内按评分降序排列，组间按电影→电视剧排列
+// 按媒体类型分组，组内按评分降序排列，组间按电影→电视剧排列.
 func (b *PosterWallBuilder) Build(items []*MediaItem) *PosterWall {
 	wall := &PosterWall{
 		Groups:    make([]*PosterWallGroup, 0),
@@ -62,7 +62,7 @@ func (b *PosterWallBuilder) Build(items []*MediaItem) *PosterWall {
 	return wall
 }
 
-// BuildFromResults 从刮削结果构建海报墙（仅包含成功刮削的项）
+// BuildFromResults 从刮削结果构建海报墙（仅包含成功刮削的项）.
 func (b *PosterWallBuilder) BuildFromResults(results []*ScraperResult) *PosterWall {
 	items := make([]*MediaItem, 0, len(results))
 	for _, r := range results {
@@ -73,7 +73,7 @@ func (b *PosterWallBuilder) BuildFromResults(results []*ScraperResult) *PosterWa
 	return b.Build(items)
 }
 
-// FilterByGenre 按类型标签过滤海报墙中的媒体项
+// FilterByGenre 按类型标签过滤海报墙中的媒体项.
 func (b *PosterWallBuilder) FilterByGenre(wall *PosterWall, genre string) *PosterWall {
 	filtered := &PosterWall{
 		Groups:    make([]*PosterWallGroup, 0),
@@ -104,7 +104,7 @@ func (b *PosterWallBuilder) FilterByGenre(wall *PosterWall, genre string) *Poste
 	return filtered
 }
 
-// SortByYear 按年份降序重新排列海报墙中各组的媒体项
+// SortByYear 按年份降序重新排列海报墙中各组的媒体项.
 func (b *PosterWallBuilder) SortByYear(wall *PosterWall) {
 	for _, group := range wall.Groups {
 		sort.Slice(group.Items, func(i, j int) bool {
@@ -113,7 +113,7 @@ func (b *PosterWallBuilder) SortByYear(wall *PosterWall) {
 	}
 }
 
-// SortByRating 按评分降序重新排列（默认行为，但提供显式方法）
+// SortByRating 按评分降序重新排列（默认行为，但提供显式方法）.
 func (b *PosterWallBuilder) SortByRating(wall *PosterWall) {
 	for _, group := range wall.Groups {
 		sort.Slice(group.Items, func(i, j int) bool {
@@ -122,7 +122,7 @@ func (b *PosterWallBuilder) SortByRating(wall *PosterWall) {
 	}
 }
 
-// SortByTitle 按标题字母序排列
+// SortByTitle 按标题字母序排列.
 func (b *PosterWallBuilder) SortByTitle(wall *PosterWall) {
 	for _, group := range wall.Groups {
 		sort.Slice(group.Items, func(i, j int) bool {

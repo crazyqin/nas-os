@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// absDiff 返回两个浮点数之差的绝对值
+// absDiff 返回两个浮点数之差的绝对值.
 func absDiff(a, b float64) float64 {
 	return math.Abs(a - b)
 }
@@ -302,8 +302,8 @@ func TestGetTemplates(t *testing.T) {
 
 func TestInferScheme(t *testing.T) {
 	tests := []struct {
-		disks   []DiskSpec
-		expect  StorageScheme
+		disks  []DiskSpec
+		expect StorageScheme
 	}{
 		{
 			disks:  []DiskSpec{{Type: DiskTypeHDD, CapacityTB: 8, Price: 1200, Quantity: 4}},

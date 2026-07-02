@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Suggester 搜索建议器
+// Suggester 搜索建议器.
 type Suggester struct {
 	mu             sync.RWMutex
 	trie           *Trie
@@ -18,7 +18,7 @@ type Suggester struct {
 	maxSuggestions int
 }
 
-// NewSuggester 创建搜索建议器
+// NewSuggester 创建搜索建议器.
 func NewSuggester(maxHistory, maxSuggestions int) *Suggester {
 	return &Suggester{
 		trie:           NewTrie(),
@@ -29,7 +29,7 @@ func NewSuggester(maxHistory, maxSuggestions int) *Suggester {
 	}
 }
 
-// AddDocument 添加文档到建议索引
+// AddDocument 添加文档到建议索引.
 func (s *Suggester) AddDocument(doc *SearchIndex) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -49,7 +49,7 @@ func (s *Suggester) AddDocument(doc *SearchIndex) {
 	}
 }
 
-// RemoveDocument 从建议索引中移除文档
+// RemoveDocument 从建议索引中移除文档.
 func (s *Suggester) RemoveDocument(id string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -57,7 +57,7 @@ func (s *Suggester) RemoveDocument(id string) {
 	s.trie.RemoveByID(id)
 }
 
-// Suggest 获取搜索建议
+// Suggest 获取搜索建议.
 func (s *Suggester) Suggest(prefix string, limit int) []Suggestion {
 	if limit <= 0 {
 		limit = s.maxSuggestions
@@ -120,7 +120,7 @@ func (s *Suggester) Suggest(prefix string, limit int) []Suggestion {
 	return suggestions
 }
 
-// AddHistory 添加搜索历史
+// AddHistory 添加搜索历史.
 func (s *Suggester) AddHistory(history SearchHistory) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -139,7 +139,7 @@ func (s *Suggester) AddHistory(history SearchHistory) {
 	}
 }
 
-// GetHotWords 获取热词
+// GetHotWords 获取热词.
 func (s *Suggester) GetHotWords(limit int) []HotWord {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -163,7 +163,7 @@ func (s *Suggester) GetHotWords(limit int) []HotWord {
 	return hotWords
 }
 
-// ClearHistory 清除搜索历史
+// ClearHistory 清除搜索历史.
 func (s *Suggester) ClearHistory() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -171,12 +171,12 @@ func (s *Suggester) ClearHistory() {
 	s.history = make([]SearchHistory, 0)
 }
 
-// Trie 前缀树
+// Trie 前缀树.
 type Trie struct {
 	root *TrieNode
 }
 
-// TrieNode 前缀树节点
+// TrieNode 前缀树节点.
 type TrieNode struct {
 	children map[rune]*TrieNode
 	ids      map[string]bool
@@ -185,7 +185,7 @@ type TrieNode struct {
 	text     string
 }
 
-// NewTrie 创建前缀树
+// NewTrie 创建前缀树.
 func NewTrie() *Trie {
 	return &Trie{
 		root: &TrieNode{
@@ -195,7 +195,7 @@ func NewTrie() *Trie {
 	}
 }
 
-// Insert 插入词
+// Insert 插入词.
 func (t *Trie) Insert(word string, id string) {
 	node := t.root
 	for _, ch := range strings.ToLower(word) {
@@ -213,7 +213,7 @@ func (t *Trie) Insert(word string, id string) {
 	node.score++
 }
 
-// Search 搜索前缀
+// Search 搜索前缀.
 func (t *Trie) Search(prefix string, limit int) []Suggestion {
 	node := t.root
 	for _, ch := range strings.ToLower(prefix) {
@@ -237,7 +237,7 @@ func (t *Trie) Search(prefix string, limit int) []Suggestion {
 	return results
 }
 
-// collect 收集节点下的所有词
+// collect 收集节点下的所有词.
 func (t *Trie) collect(node *TrieNode, prefix string, results *[]Suggestion, limit int) {
 	if len(*results) >= limit {
 		return
@@ -255,12 +255,12 @@ func (t *Trie) collect(node *TrieNode, prefix string, results *[]Suggestion, lim
 	}
 }
 
-// RemoveByID 根据 ID 移除
+// RemoveByID 根据 ID 移除.
 func (t *Trie) RemoveByID(id string) {
 	t.removeByIDHelper(t.root, id)
 }
 
-// removeByIDHelper 递归移除 ID
+// removeByIDHelper 递归移除 ID.
 func (t *Trie) removeByIDHelper(node *TrieNode, id string) {
 	delete(node.ids, id)
 	if len(node.ids) == 0 {
@@ -272,7 +272,7 @@ func (t *Trie) removeByIDHelper(node *TrieNode, id string) {
 	}
 }
 
-// extractKeywords 提取关键词
+// extractKeywords 提取关键词.
 func extractKeywords(content string) []string {
 	if content == "" {
 		return nil
@@ -341,7 +341,7 @@ func extractKeywords(content string) []string {
 	return unique
 }
 
-// AutoComplete 自动补全
+// AutoComplete 自动补全.
 type AutoComplete struct {
 	suggester *Suggester
 	cache     map[string][]Suggestion
@@ -349,7 +349,7 @@ type AutoComplete struct {
 	mu        sync.RWMutex
 }
 
-// NewAutoComplete 创建自动补全
+// NewAutoComplete 创建自动补全.
 func NewAutoComplete(suggester *Suggester, cacheTTL time.Duration) *AutoComplete {
 	return &AutoComplete{
 		suggester: suggester,
@@ -358,7 +358,7 @@ func NewAutoComplete(suggester *Suggester, cacheTTL time.Duration) *AutoComplete
 	}
 }
 
-// Complete 自动补全
+// Complete 自动补全.
 func (ac *AutoComplete) Complete(prefix string, limit int) []Suggestion {
 	ac.mu.RLock()
 	if cached, ok := ac.cache[prefix]; ok {
@@ -384,7 +384,7 @@ func (ac *AutoComplete) Complete(prefix string, limit int) []Suggestion {
 	return suggestions
 }
 
-// ClearCache 清除缓存
+// ClearCache 清除缓存.
 func (ac *AutoComplete) ClearCache() {
 	ac.mu.Lock()
 	defer ac.mu.Unlock()

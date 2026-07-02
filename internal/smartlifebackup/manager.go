@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// Manager 备份生命周期管理器
+// Manager 备份生命周期管理器.
 type Manager struct {
 	mu sync.RWMutex
 
@@ -41,7 +41,7 @@ type Manager struct {
 	activePolicyID string
 }
 
-// NewManager 创建备份生命周期管理器
+// NewManager 创建备份生命周期管理器.
 func NewManager(configPath, storagePath string) *Manager {
 	return &Manager{
 		configPath:  configPath,
@@ -53,7 +53,7 @@ func NewManager(configPath, storagePath string) *Manager {
 	}
 }
 
-// Initialize 初始化管理器
+// Initialize 初始化管理器.
 func (m *Manager) Initialize() error {
 	// 创建数据目录
 	if err := os.MkdirAll(m.dataPath, 0750); err != nil {
@@ -84,7 +84,7 @@ func (m *Manager) Initialize() error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() error {
 	if m.scheduler != nil {
 		m.scheduler.Stop()
@@ -96,7 +96,7 @@ func (m *Manager) Stop() error {
 // 策略管理
 // ============================================================================
 
-// ListPolicies 列出所有策略
+// ListPolicies 列出所有策略.
 func (m *Manager) ListPolicies() []*BackupPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -108,7 +108,7 @@ func (m *Manager) ListPolicies() []*BackupPolicy {
 	return policies
 }
 
-// GetPolicy 获取策略
+// GetPolicy 获取策略.
 func (m *Manager) GetPolicy(id string) (*BackupPolicy, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -120,7 +120,7 @@ func (m *Manager) GetPolicy(id string) (*BackupPolicy, error) {
 	return policy, nil
 }
 
-// CreatePolicy 创建策略
+// CreatePolicy 创建策略.
 func (m *Manager) CreatePolicy(policy *BackupPolicy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -141,7 +141,7 @@ func (m *Manager) CreatePolicy(policy *BackupPolicy) error {
 	return m.saveData()
 }
 
-// UpdatePolicy 更新策略
+// UpdatePolicy 更新策略.
 func (m *Manager) UpdatePolicy(id string, policy *BackupPolicy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -156,7 +156,7 @@ func (m *Manager) UpdatePolicy(id string, policy *BackupPolicy) error {
 	return m.saveData()
 }
 
-// DeletePolicy 删除策略
+// DeletePolicy 删除策略.
 func (m *Manager) DeletePolicy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -174,7 +174,7 @@ func (m *Manager) DeletePolicy(id string) error {
 	return m.saveData()
 }
 
-// SetActivePolicy 设置活跃策略
+// SetActivePolicy 设置活跃策略.
 func (m *Manager) SetActivePolicy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -187,7 +187,7 @@ func (m *Manager) SetActivePolicy(id string) error {
 	return m.saveData()
 }
 
-// GetActivePolicy 获取当前活跃策略
+// GetActivePolicy 获取当前活跃策略.
 func (m *Manager) GetActivePolicy() (*BackupPolicy, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -207,7 +207,7 @@ func (m *Manager) GetActivePolicy() (*BackupPolicy, error) {
 // 备份项管理
 // ============================================================================
 
-// RegisterBackup 注册备份项
+// RegisterBackup 注册备份项.
 func (m *Manager) RegisterBackup(item *BackupItem) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -231,7 +231,7 @@ func (m *Manager) RegisterBackup(item *BackupItem) error {
 	return m.saveData()
 }
 
-// GetBackup 获取备份项
+// GetBackup 获取备份项.
 func (m *Manager) GetBackup(id string) (*BackupItem, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -243,7 +243,7 @@ func (m *Manager) GetBackup(id string) (*BackupItem, error) {
 	return item, nil
 }
 
-// ListBackups 列出所有备份项
+// ListBackups 列出所有备份项.
 func (m *Manager) ListBackups() []*BackupItem {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -255,7 +255,7 @@ func (m *Manager) ListBackups() []*BackupItem {
 	return backups
 }
 
-// DeleteBackup 删除备份项
+// DeleteBackup 删除备份项.
 func (m *Manager) DeleteBackup(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -272,7 +272,7 @@ func (m *Manager) DeleteBackup(id string) error {
 // 生命周期执行
 // ============================================================================
 
-// ExecuteLifecycle 执行生命周期管理
+// ExecuteLifecycle 执行生命周期管理.
 func (m *Manager) ExecuteLifecycle(ctx context.Context, options *ExecuteOptions) (*LifecycleTask, error) {
 	m.mu.RLock()
 	policy, ok := m.policies[m.activePolicyID]
@@ -303,7 +303,7 @@ func (m *Manager) ExecuteLifecycle(ctx context.Context, options *ExecuteOptions)
 	return task, nil
 }
 
-// executeLifecycleTask 执行生命周期任务
+// executeLifecycleTask 执行生命周期任务.
 func (m *Manager) executeLifecycleTask(ctx context.Context, policy *BackupPolicy, task *LifecycleTask, options *ExecuteOptions) {
 	defer func() {
 		task.EndTime = time.Now()
@@ -335,7 +335,7 @@ func (m *Manager) executeLifecycleTask(ctx context.Context, policy *BackupPolicy
 	m.cleanupExpired(ctx, task, dryRun)
 }
 
-// applyRetentionPolicy 应用保留策略
+// applyRetentionPolicy 应用保留策略.
 func (m *Manager) applyRetentionPolicy(ctx context.Context, policy *BackupPolicy, task *LifecycleTask, dryRun bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -376,7 +376,7 @@ func (m *Manager) applyRetentionPolicy(ctx context.Context, policy *BackupPolicy
 	}
 }
 
-// migrateStorageTiers 迁移存储层级
+// migrateStorageTiers 迁移存储层级.
 func (m *Manager) migrateStorageTiers(ctx context.Context, policy *BackupPolicy, task *LifecycleTask, dryRun bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -409,7 +409,7 @@ func (m *Manager) migrateStorageTiers(ctx context.Context, policy *BackupPolicy,
 	}
 }
 
-// optimizeCompression 优化压缩
+// optimizeCompression 优化压缩.
 func (m *Manager) optimizeCompression(ctx context.Context, policy *BackupPolicy, task *LifecycleTask, dryRun bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -429,7 +429,7 @@ func (m *Manager) optimizeCompression(ctx context.Context, policy *BackupPolicy,
 	}
 }
 
-// deduplicateBackups 去重处理
+// deduplicateBackups 去重处理.
 func (m *Manager) deduplicateBackups(ctx context.Context, task *LifecycleTask, dryRun bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -460,7 +460,7 @@ func (m *Manager) deduplicateBackups(ctx context.Context, task *LifecycleTask, d
 	}
 }
 
-// cleanupExpired 清理过期备份
+// cleanupExpired 清理过期备份.
 func (m *Manager) cleanupExpired(ctx context.Context, task *LifecycleTask, dryRun bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -486,7 +486,7 @@ func (m *Manager) cleanupExpired(ctx context.Context, task *LifecycleTask, dryRu
 	}
 }
 
-// matchesRule 检查备份项是否符合规则
+// matchesRule 检查备份项是否符合规则.
 func (m *Manager) matchesRule(item *BackupItem, rule RetentionRule, now time.Time) bool {
 	age := now.Sub(item.CreatedAt)
 	ageDays := int(age.Hours() / 24)
@@ -498,7 +498,7 @@ func (m *Manager) matchesRule(item *BackupItem, rule RetentionRule, now time.Tim
 // 任务管理
 // ============================================================================
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (m *Manager) GetTask(id string) (*LifecycleTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -510,7 +510,7 @@ func (m *Manager) GetTask(id string) (*LifecycleTask, error) {
 	return task, nil
 }
 
-// ListTasks 列出所有任务
+// ListTasks 列出所有任务.
 func (m *Manager) ListTasks() []*LifecycleTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -522,7 +522,7 @@ func (m *Manager) ListTasks() []*LifecycleTask {
 	return tasks
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (m *Manager) CancelTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -545,7 +545,7 @@ func (m *Manager) CancelTask(id string) error {
 // 统计信息
 // ============================================================================
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() *LifecycleStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -596,7 +596,7 @@ func (m *Manager) GetStats() *LifecycleStats {
 	return stats
 }
 
-// GetCostReport 获取成本报告
+// GetCostReport 获取成本报告.
 func (m *Manager) GetCostReport() *CostReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -608,7 +608,7 @@ func (m *Manager) GetCostReport() *CostReport {
 // 调度管理
 // ============================================================================
 
-// GetScheduleConfig 获取调度配置
+// GetScheduleConfig 获取调度配置.
 func (m *Manager) GetScheduleConfig() *ScheduleConfig {
 	if m.scheduler == nil {
 		return DefaultScheduleConfig()
@@ -616,7 +616,7 @@ func (m *Manager) GetScheduleConfig() *ScheduleConfig {
 	return m.scheduler.GetConfig()
 }
 
-// UpdateScheduleConfig 更新调度配置
+// UpdateScheduleConfig 更新调度配置.
 func (m *Manager) UpdateScheduleConfig(config *ScheduleConfig) error {
 	if m.scheduler == nil {
 		return fmt.Errorf("调度器未初始化")
@@ -624,7 +624,7 @@ func (m *Manager) UpdateScheduleConfig(config *ScheduleConfig) error {
 	return m.scheduler.UpdateConfig(config)
 }
 
-// ScheduleLifecycle 调度生命周期任务
+// ScheduleLifecycle 调度生命周期任务.
 func (m *Manager) ScheduleLifecycle(schedule string) error {
 	if m.scheduler == nil {
 		return fmt.Errorf("调度器未初始化")
@@ -645,7 +645,7 @@ func (m *Manager) ScheduleLifecycle(schedule string) error {
 // 数据持久化
 // ============================================================================
 
-// saveData 保存数据
+// saveData 保存数据.
 func (m *Manager) saveData() error {
 	data := struct {
 		Policies       map[string]*BackupPolicy  `json:"policies"`
@@ -668,7 +668,7 @@ func (m *Manager) saveData() error {
 	return os.WriteFile(filePath, jsonData, 0600)
 }
 
-// loadData 加载数据
+// loadData 加载数据.
 func (m *Manager) loadData() error {
 	filePath := filepath.Join(m.dataPath, "data.json")
 
@@ -711,12 +711,12 @@ func (m *Manager) loadData() error {
 // 辅助函数
 // ============================================================================
 
-// generateID 生成唯一ID
+// generateID 生成唯一ID.
 func generateID() string {
 	return fmt.Sprintf("%d", time.Now().UnixNano())
 }
 
-// humanReadableSize 人类可读的大小
+// humanReadableSize 人类可读的大小.
 func humanReadableSize(size int64) string {
 	const (
 		KB = 1024
@@ -739,7 +739,7 @@ func humanReadableSize(size int64) string {
 	}
 }
 
-// GetHealthCheck 获取健康检查结果
+// GetHealthCheck 获取健康检查结果.
 func (m *Manager) GetHealthCheck() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

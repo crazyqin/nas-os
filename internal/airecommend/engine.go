@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// AddUser 添加用户
+// AddUser 添加用户.
 func (e *Engine) AddUser(userID string) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -20,7 +20,7 @@ func (e *Engine) AddUser(userID string) {
 	}
 }
 
-// AddFile 添加文件
+// AddFile 添加文件.
 func (e *Engine) AddFile(file *FileItem) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -28,7 +28,7 @@ func (e *Engine) AddFile(file *FileItem) {
 	e.files[file.FileID] = file
 }
 
-// AddAccessRecord 添加访问记录
+// AddAccessRecord 添加访问记录.
 func (e *Engine) AddAccessRecord(record *AccessRecord) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -51,7 +51,7 @@ func (e *Engine) AddAccessRecord(record *AccessRecord) {
 	}
 }
 
-// GetRecommendations 获取推荐
+// GetRecommendations 获取推荐.
 func (e *Engine) GetRecommendations(userID string, limit int) []Recommendation {
 	e.mu.RLock()
 
@@ -84,7 +84,7 @@ func (e *Engine) GetRecommendations(userID string, limit int) []Recommendation {
 	return recommendations
 }
 
-// calculateRecommendations 计算推荐
+// calculateRecommendations 计算推荐.
 func (e *Engine) calculateRecommendations(user *UserProfile, limit int) []Recommendation {
 	if limit <= 0 {
 		limit = e.config.MaxResults
@@ -160,7 +160,7 @@ func (e *Engine) calculateRecommendations(user *UserProfile, limit int) []Recomm
 	return result
 }
 
-// calculateTimeScore 计算时间衰减分数
+// calculateTimeScore 计算时间衰减分数.
 func (e *Engine) calculateTimeScore(user *UserProfile, fileID string) float64 {
 	var lastAccess time.Time
 	for i := len(user.AccessHistory) - 1; i >= 0; i-- {
@@ -178,7 +178,7 @@ func (e *Engine) calculateTimeScore(user *UserProfile, fileID string) float64 {
 	return math.Pow(e.config.DecayFactor, hoursAgo/24) // 按天衰减
 }
 
-// calculateFrequencyScore 计算频率分数
+// calculateFrequencyScore 计算频率分数.
 func (e *Engine) calculateFrequencyScore(user *UserProfile, fileID string) float64 {
 	count := 0
 	for _, record := range user.AccessHistory {
@@ -194,7 +194,7 @@ func (e *Engine) calculateFrequencyScore(user *UserProfile, fileID string) float
 	return math.Min(float64(count)/10.0, 1.0) // 最高1.0
 }
 
-// calculateCollaborativeScore 计算协同过滤分数
+// calculateCollaborativeScore 计算协同过滤分数.
 func (e *Engine) calculateCollaborativeScore(userID, fileID string) float64 {
 	// 找到访问过该文件的其他用户
 	var similarUsers []string
@@ -226,7 +226,7 @@ func (e *Engine) calculateCollaborativeScore(userID, fileID string) float64 {
 	return maxScore
 }
 
-// calculateUserSimilarity 计算用户相似度
+// calculateUserSimilarity 计算用户相似度.
 func (e *Engine) calculateUserSimilarity(user1, user2 string) float64 {
 	u1, ok1 := e.users[user1]
 	u2, ok2 := e.users[user2]
@@ -255,7 +255,7 @@ func (e *Engine) calculateUserSimilarity(user1, user2 string) float64 {
 	return float64(common) / float64(total)
 }
 
-// calculateContentScore 计算内容相似度分数
+// calculateContentScore 计算内容相似度分数.
 func (e *Engine) calculateContentScore(user *UserProfile, file *FileItem) float64 {
 	if len(user.Preferences) == 0 {
 		return 0.5 // 默认中等分数
@@ -269,7 +269,7 @@ func (e *Engine) calculateContentScore(user *UserProfile, file *FileItem) float6
 	return 0.3 // 未知类型给较低分
 }
 
-// generateReason 生成推荐理由
+// generateReason 生成推荐理由.
 func generateReason(timeScore, freqScore, collabScore, contentScore float64) string {
 	reasons := []string{}
 
@@ -297,7 +297,7 @@ func generateReason(timeScore, freqScore, collabScore, contentScore float64) str
 	return result
 }
 
-// InvalidateCache 使缓存失效
+// InvalidateCache 使缓存失效.
 func (e *Engine) InvalidateCache(userID string) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -305,7 +305,7 @@ func (e *Engine) InvalidateCache(userID string) {
 	delete(e.cache, userID)
 }
 
-// InvalidateAllCache 使所有缓存失效
+// InvalidateAllCache 使所有缓存失效.
 func (e *Engine) InvalidateAllCache() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -313,7 +313,7 @@ func (e *Engine) InvalidateAllCache() {
 	e.cache = make(map[string]*CacheEntry)
 }
 
-// GetUserProfile 获取用户画像
+// GetUserProfile 获取用户画像.
 func (e *Engine) GetUserProfile(userID string) *UserProfile {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -321,7 +321,7 @@ func (e *Engine) GetUserProfile(userID string) *UserProfile {
 	return e.users[userID]
 }
 
-// GetFile 获取文件信息
+// GetFile 获取文件信息.
 func (e *Engine) GetFile(fileID string) *FileItem {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -329,7 +329,7 @@ func (e *Engine) GetFile(fileID string) *FileItem {
 	return e.files[fileID]
 }
 
-// GetAccessLog 获取访问日志
+// GetAccessLog 获取访问日志.
 func (e *Engine) GetAccessLog(userID string, limit int) []AccessRecord {
 	e.mu.RLock()
 	defer e.mu.RUnlock()

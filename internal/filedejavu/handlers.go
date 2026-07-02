@@ -8,18 +8,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers HTTP API 处理器
+// Handlers HTTP API 处理器.
 type Handlers struct {
 	mu       sync.RWMutex
 	detector *Detector
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers() *Handlers {
 	return &Handlers{}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	fd := r.Group("/filedejavu")
 	{
@@ -42,7 +42,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// startScan 启动扫描
+// startScan 启动扫描.
 func (h *Handlers) startScan(c *gin.Context) {
 	var config ScanConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -90,7 +90,7 @@ func (h *Handlers) startScan(c *gin.Context) {
 	})
 }
 
-// cancelScan 取消扫描
+// cancelScan 取消扫描.
 func (h *Handlers) cancelScan(c *gin.Context) {
 	h.mu.RLock()
 	detector := h.detector
@@ -113,7 +113,7 @@ func (h *Handlers) cancelScan(c *gin.Context) {
 	})
 }
 
-// scanStatus 获取扫描状态
+// scanStatus 获取扫描状态.
 func (h *Handlers) scanStatus(c *gin.Context) {
 	h.mu.RLock()
 	detector := h.detector
@@ -159,7 +159,7 @@ func (h *Handlers) scanStatus(c *gin.Context) {
 	})
 }
 
-// getDuplicates 获取所有重复组
+// getDuplicates 获取所有重复组.
 func (h *Handlers) getDuplicates(c *gin.Context) {
 	h.mu.RLock()
 	detector := h.detector
@@ -190,7 +190,7 @@ func (h *Handlers) getDuplicates(c *gin.Context) {
 	})
 }
 
-// getDuplicateGroup 获取单个重复组详情
+// getDuplicateGroup 获取单个重复组详情.
 func (h *Handlers) getDuplicateGroup(c *gin.Context) {
 	groupID := c.Param("id")
 
@@ -223,7 +223,7 @@ func (h *Handlers) getDuplicateGroup(c *gin.Context) {
 	})
 }
 
-// batchDedup 批量去重
+// batchDedup 批量去重.
 func (h *Handlers) batchDedup(c *gin.Context) {
 	var req BatchDedupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -273,7 +273,7 @@ func (h *Handlers) batchDedup(c *gin.Context) {
 	})
 }
 
-// dryRunDedup 试运行去重
+// dryRunDedup 试运行去重.
 func (h *Handlers) dryRunDedup(c *gin.Context) {
 	var req BatchDedupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -313,7 +313,7 @@ func (h *Handlers) dryRunDedup(c *gin.Context) {
 	})
 }
 
-// getConfig 获取配置
+// getConfig 获取配置.
 func (h *Handlers) getConfig(c *gin.Context) {
 	h.mu.RLock()
 	detector := h.detector
@@ -330,7 +330,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 	})
 }
 
-// updateConfig 更新配置
+// updateConfig 更新配置.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var config ScanConfig
 	if err := c.ShouldBindJSON(&config); err != nil {

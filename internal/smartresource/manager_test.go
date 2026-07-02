@@ -391,7 +391,7 @@ func TestNodeLastSeen(t *testing.T) {
 	m.RegisterNode(&Node{ID: "node-1", Name: "Node 1"})
 	after := time.Now()
 
-	node, _ := m.nodes["node-1"]
+	node := m.nodes["node-1"]
 	if node.LastSeen.Before(before) || node.LastSeen.After(after) {
 		t.Error("last_seen not set correctly")
 	}

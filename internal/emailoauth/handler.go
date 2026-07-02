@@ -6,24 +6,24 @@ import (
 	"net/http"
 )
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	notifier *MailNotifier
 }
 
-// NewHandler 创建 HTTP 处理器
+// NewHandler 创建 HTTP 处理器.
 func NewHandler(notifier *MailNotifier) *Handler {
 	return &Handler{notifier: notifier}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/emailoauth/config", h.Config)
 	mux.HandleFunc("/api/emailoauth/test", h.Test)
 	mux.HandleFunc("/api/emailoauth/status", h.Status)
 }
 
-// Config 处理 POST /api/emailoauth/config
+// Config 处理 POST /api/emailoauth/config.
 func (h *Handler) Config(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, errorResponse("method not allowed"))
@@ -52,14 +52,14 @@ func (h *Handler) Config(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"status":    "configured",
-		"provider":  req.Provider,
-		"method":    cfg.Method,
+		"status":     "configured",
+		"provider":   req.Provider,
+		"method":     cfg.Method,
 		"from_email": req.FromEmail,
 	})
 }
 
-// Test 处理 POST /api/emailoauth/test
+// Test 处理 POST /api/emailoauth/test.
 func (h *Handler) Test(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, errorResponse("method not allowed"))
@@ -85,7 +85,7 @@ func (h *Handler) Test(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, result)
 }
 
-// Status 处理 GET /api/emailoauth/status
+// Status 处理 GET /api/emailoauth/status.
 func (h *Handler) Status(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, errorResponse("method not allowed"))

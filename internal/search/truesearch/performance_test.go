@@ -239,7 +239,7 @@ func TestQueryCache_Stats(t *testing.T) {
 	req := SearchRequest{Query: "test"}
 	qc.Put(req, &SearchResponse{Total: 1})
 
-	qc.Get(req)        // hit
+	qc.Get(req)                          // hit
 	qc.Get(SearchRequest{Query: "miss"}) // miss
 
 	stats := qc.Stats()

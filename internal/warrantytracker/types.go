@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// DeviceCategory 设备分类
+// DeviceCategory 设备分类.
 type DeviceCategory string
 
 const (
@@ -18,7 +18,7 @@ const (
 	CategoryOther     DeviceCategory = "other"     // 其他
 )
 
-// DeviceStatus 设备状态
+// DeviceStatus 设备状态.
 type DeviceStatus string
 
 const (
@@ -29,7 +29,7 @@ const (
 	StatusDisposed  DeviceStatus = "disposed"  // 已处置
 )
 
-// WarrantyStatus 保修状态
+// WarrantyStatus 保修状态.
 type WarrantyStatus string
 
 const (
@@ -39,7 +39,7 @@ const (
 	WarrantyExtended WarrantyStatus = "extended" // 延保中
 )
 
-// DocumentType 文档类型
+// DocumentType 文档类型.
 type DocumentType string
 
 const (
@@ -51,7 +51,7 @@ const (
 	DocOther    DocumentType = "other"    // 其他
 )
 
-// Device 设备信息
+// Device 设备信息.
 type Device struct {
 	ID              string         `json:"id"`
 	Name            string         `json:"name"`
@@ -70,7 +70,7 @@ type Device struct {
 	UpdatedAt       time.Time      `json:"updated_at"`
 }
 
-// Warranty 保修信息
+// Warranty 保修信息.
 type Warranty struct {
 	ID              string         `json:"id"`
 	DeviceID        string         `json:"device_id"`
@@ -87,7 +87,7 @@ type Warranty struct {
 	UpdatedAt       time.Time      `json:"updated_at"`
 }
 
-// ExtendedWarranty 延保信息
+// ExtendedWarranty 延保信息.
 type ExtendedWarranty struct {
 	ID          string    `json:"id"`
 	WarrantyID  string    `json:"warranty_id"`
@@ -99,7 +99,7 @@ type ExtendedWarranty struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// RepairRecord 维修记录
+// RepairRecord 维修记录.
 type RepairRecord struct {
 	ID              string    `json:"id"`
 	DeviceID        string    `json:"device_id"`
@@ -117,7 +117,7 @@ type RepairRecord struct {
 	UpdatedAt       time.Time `json:"updated_at"`
 }
 
-// Attachment 文档附件
+// Attachment 文档附件.
 type Attachment struct {
 	ID          string       `json:"id"`
 	DeviceID    string       `json:"device_id"`
@@ -130,14 +130,14 @@ type Attachment struct {
 	CreatedAt   time.Time    `json:"created_at"`
 }
 
-// DepreciationConfig 折旧配置
+// DepreciationConfig 折旧配置.
 type DepreciationConfig struct {
 	Method          string  `json:"method"`            // straight_line, declining_balance, sum_of_years
 	UsefulLifeYears int     `json:"useful_life_years"` // 使用年限
 	ResidualRate    float64 `json:"residual_rate"`     // 残值率(0-1)
 }
 
-// AssetValuation 资产估值
+// AssetValuation 资产估值.
 type AssetValuation struct {
 	DeviceID          string    `json:"device_id"`
 	PurchasePrice     float64   `json:"purchase_price"`
@@ -148,7 +148,7 @@ type AssetValuation struct {
 	EvaluatedAt       time.Time `json:"evaluated_at"`
 }
 
-// WarrantyStats 保修统计
+// WarrantyStats 保修统计.
 type WarrantyStats struct {
 	TotalDevices     int     `json:"total_devices"`
 	ActiveDevices    int     `json:"active_devices"`
@@ -162,7 +162,7 @@ type WarrantyStats struct {
 	RepairsWarranty  int     `json:"repairs_warranty"`
 }
 
-// Reminder 到期提醒
+// Reminder 到期提醒.
 type Reminder struct {
 	DeviceID   string    `json:"device_id"`
 	DeviceName string    `json:"device_name"`

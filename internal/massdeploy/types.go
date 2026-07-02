@@ -8,50 +8,50 @@ import (
 
 // ==================== 设备发现 ====================
 
-// DeviceStatus 设备状态
+// DeviceStatus 设备状态.
 type DeviceStatus string
 
 const (
-	DeviceStatusOnline     DeviceStatus = "online"     // 在线
-	DeviceStatusOffline    DeviceStatus = "offline"     // 离线
-	DeviceStatusProvision  DeviceStatus = "provisioning" // 部署中
-	DeviceStatusReady      DeviceStatus = "ready"       // 就绪
-	DeviceStatusError      DeviceStatus = "error"       // 错误
-	DeviceStatusMaintenance DeviceStatus = "maintenance" // 维护中
+	DeviceStatusOnline      DeviceStatus = "online"       // 在线
+	DeviceStatusOffline     DeviceStatus = "offline"      // 离线
+	DeviceStatusProvision   DeviceStatus = "provisioning" // 部署中
+	DeviceStatusReady       DeviceStatus = "ready"        // 就绪
+	DeviceStatusError       DeviceStatus = "error"        // 错误
+	DeviceStatusMaintenance DeviceStatus = "maintenance"  // 维护中
 )
 
-// DiscoveredDevice 网络扫描发现的设备
+// DiscoveredDevice 网络扫描发现的设备.
 type DiscoveredDevice struct {
-	ID         string       `json:"id"`
-	IP         string       `json:"ip"`
-	Hostname   string       `json:"hostname"`
-	MACAddress string       `json:"mac_address"`
-	Model      string       `json:"model"`
-	Serial     string       `json:"serial"`
-	Firmware   string       `json:"firmware"`
-	Status     DeviceStatus `json:"status"`
-	DiscoveredAt time.Time  `json:"discovered_at"`
+	ID           string       `json:"id"`
+	IP           string       `json:"ip"`
+	Hostname     string       `json:"hostname"`
+	MACAddress   string       `json:"mac_address"`
+	Model        string       `json:"model"`
+	Serial       string       `json:"serial"`
+	Firmware     string       `json:"firmware"`
+	Status       DeviceStatus `json:"status"`
+	DiscoveredAt time.Time    `json:"discovered_at"`
 }
 
-// ScanRequest 扫描请求
+// ScanRequest 扫描请求.
 type ScanRequest struct {
-	Subnet    string        `json:"subnet"`    // e.g. "192.168.1.0/24"
+	Subnet    string        `json:"subnet"`     // e.g. "192.168.1.0/24"
 	PortRange string        `json:"port_range"` // e.g. "5000-5001"
 	Timeout   time.Duration `json:"timeout"`
 }
 
-// ScanResult 扫描结果
+// ScanResult 扫描结果.
 type ScanResult struct {
-	Subnet     string             `json:"subnet"`
-	Devices    []*DiscoveredDevice `json:"devices"`
-	Total      int                `json:"total"`
-	ScanTime   time.Duration      `json:"scan_time"`
-	ScannedAt  time.Time          `json:"scanned_at"`
+	Subnet    string              `json:"subnet"`
+	Devices   []*DiscoveredDevice `json:"devices"`
+	Total     int                 `json:"total"`
+	ScanTime  time.Duration       `json:"scan_time"`
+	ScannedAt time.Time           `json:"scanned_at"`
 }
 
 // ==================== 资产管理 ====================
 
-// AssetType 资产类型
+// AssetType 资产类型.
 type AssetType string
 
 const (
@@ -61,7 +61,7 @@ const (
 	AssetTypeUPS    AssetType = "ups"
 )
 
-// AssetStatus 资产状态
+// AssetStatus 资产状态.
 type AssetStatus string
 
 const (
@@ -71,7 +71,7 @@ const (
 	AssetStatusMaintenance AssetStatus = "maintenance"
 )
 
-// Asset 资产设备
+// Asset 资产设备.
 type Asset struct {
 	ID              string      `json:"id"`
 	Name            string      `json:"name"`
@@ -85,7 +85,7 @@ type Asset struct {
 	FirmwareVersion string      `json:"firmware_version"`
 	Location        string      `json:"location"`
 	Rack            string      `json:"rack"`
-	RU              int         `json:"ru"`         // 机架位置
+	RU              int         `json:"ru"` // 机架位置
 	CPUCores        int         `json:"cpu_cores"`
 	MemoryGB        int         `json:"memory_gb"`
 	DiskSlots       int         `json:"disk_slots"`
@@ -100,25 +100,25 @@ type Asset struct {
 	UpdatedAt       time.Time   `json:"updated_at"`
 }
 
-// HardwareInfo 硬件详情
+// HardwareInfo 硬件详情.
 type HardwareInfo struct {
-	AssetID        string    `json:"asset_id"`
-	CPUModel       string    `json:"cpu_model"`
-	CPUCores       int       `json:"cpu_cores"`
-	CPUFrequency   float64   `json:"cpu_frequency_ghz"`
-	MemoryTotalGB  float64   `json:"memory_total_gb"`
-	MemoryType     string    `json:"memory_type"`
-	DiskSlots      int       `json:"disk_slots"`
+	AssetID        string     `json:"asset_id"`
+	CPUModel       string     `json:"cpu_model"`
+	CPUCores       int        `json:"cpu_cores"`
+	CPUFrequency   float64    `json:"cpu_frequency_ghz"`
+	MemoryTotalGB  float64    `json:"memory_total_gb"`
+	MemoryType     string     `json:"memory_type"`
+	DiskSlots      int        `json:"disk_slots"`
 	InstalledDisks []DiskInfo `json:"installed_disks"`
-	NetworkPorts   int       `json:"network_ports"`
-	USBB           int       `json:"usb_ports"`
-	PowerSupply    string    `json:"power_supply"`
-	FanCount       int       `json:"fan_count"`
-	Temperature    float64   `json:"temperature"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	NetworkPorts   int        `json:"network_ports"`
+	USBB           int        `json:"usb_ports"`
+	PowerSupply    string     `json:"power_supply"`
+	FanCount       int        `json:"fan_count"`
+	Temperature    float64    `json:"temperature"`
+	UpdatedAt      time.Time  `json:"updated_at"`
 }
 
-// DiskInfo 磁盘信息
+// DiskInfo 磁盘信息.
 type DiskInfo struct {
 	Slot        int    `json:"slot"`
 	Model       string `json:"model"`
@@ -132,24 +132,24 @@ type DiskInfo struct {
 
 // ==================== 部署模板 ====================
 
-// ConfigTemplate 配置模板
+// ConfigTemplate 配置模板.
 type ConfigTemplate struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
 	Version     string            `json:"version"`
-	Config      map[string]string `json:"config"`       // 键值对配置
-	Scripts     []string          `json:"scripts"`      // 部署脚本
-	TargetOS    string            `json:"target_os"`     // 目标系统
-	MinVersion  string            `json:"min_version"`   // 最低固件版本
-	Variables   map[string]string `json:"variables"`     // 模板变量
+	Config      map[string]string `json:"config"`      // 键值对配置
+	Scripts     []string          `json:"scripts"`     // 部署脚本
+	TargetOS    string            `json:"target_os"`   // 目标系统
+	MinVersion  string            `json:"min_version"` // 最低固件版本
+	Variables   map[string]string `json:"variables"`   // 模板变量
 	CreatedAt   time.Time         `json:"created_at"`
 	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
 // ==================== 固件管理 ====================
 
-// FirmwareStatus 固件状态
+// FirmwareStatus 固件状态.
 type FirmwareStatus string
 
 const (
@@ -158,7 +158,7 @@ const (
 	FirmwareStatusCritical FirmwareStatus = "critical" // 安全更新
 )
 
-// FirmwareInfo 固件信息
+// FirmwareInfo 固件信息.
 type FirmwareInfo struct {
 	ID           string         `json:"id"`
 	Version      string         `json:"version"`
@@ -172,23 +172,23 @@ type FirmwareInfo struct {
 	CreatedAt    time.Time      `json:"created_at"`
 }
 
-// FirmwareUpgradeJob 固件升级任务
+// FirmwareUpgradeJob 固件升级任务.
 type FirmwareUpgradeJob struct {
-	ID            string     `json:"id"`
-	Version       string     `json:"version"`
-	TargetDevices []string   `json:"target_devices"`
-	Status        JobStatus  `json:"status"`
-	Progress      int        `json:"progress"` // 0-100
-	Results       map[string]string `json:"results"` // deviceID -> "success"/error
-	RollbackPlan  string     `json:"rollback_plan"`
-	CreatedAt     time.Time  `json:"created_at"`
-	StartedAt     time.Time  `json:"started_at"`
-	CompletedAt   time.Time  `json:"completed_at"`
+	ID            string            `json:"id"`
+	Version       string            `json:"version"`
+	TargetDevices []string          `json:"target_devices"`
+	Status        JobStatus         `json:"status"`
+	Progress      int               `json:"progress"` // 0-100
+	Results       map[string]string `json:"results"`  // deviceID -> "success"/error
+	RollbackPlan  string            `json:"rollback_plan"`
+	CreatedAt     time.Time         `json:"created_at"`
+	StartedAt     time.Time         `json:"started_at"`
+	CompletedAt   time.Time         `json:"completed_at"`
 }
 
 // ==================== 部署任务 ====================
 
-// JobStatus 任务状态
+// JobStatus 任务状态.
 type JobStatus string
 
 const (
@@ -200,51 +200,51 @@ const (
 	JobStatusRetrying  JobStatus = "retrying"
 )
 
-// DeployJob 部署任务
+// DeployJob 部署任务.
 type DeployJob struct {
-	ID            string            `json:"id"`
-	Name          string            `json:"name"`
-	TemplateID    string            `json:"template_id"`
-	TargetDevices []string          `json:"target_devices"`
-	Status        JobStatus         `json:"status"`
-	Progress      int               `json:"progress"` // 0-100
-	TotalDevices  int               `json:"total_devices"`
-	SuccessCount  int               `json:"success_count"`
-	FailCount     int               `json:"fail_count"`
-	RetryCount    int               `json:"retry_count"`
-	MaxRetries    int               `json:"max_retries"`
+	ID            string                   `json:"id"`
+	Name          string                   `json:"name"`
+	TemplateID    string                   `json:"template_id"`
+	TargetDevices []string                 `json:"target_devices"`
+	Status        JobStatus                `json:"status"`
+	Progress      int                      `json:"progress"` // 0-100
+	TotalDevices  int                      `json:"total_devices"`
+	SuccessCount  int                      `json:"success_count"`
+	FailCount     int                      `json:"fail_count"`
+	RetryCount    int                      `json:"retry_count"`
+	MaxRetries    int                      `json:"max_retries"`
 	Results       map[string]*DeployResult `json:"results"`
-	Config        map[string]string `json:"config"`
-	CreatedAt     time.Time         `json:"created_at"`
-	StartedAt     time.Time         `json:"started_at"`
-	CompletedAt   time.Time         `json:"completed_at"`
+	Config        map[string]string        `json:"config"`
+	CreatedAt     time.Time                `json:"created_at"`
+	StartedAt     time.Time                `json:"started_at"`
+	CompletedAt   time.Time                `json:"completed_at"`
 }
 
-// DeployResult 部署结果
+// DeployResult 部署结果.
 type DeployResult struct {
-	DeviceID  string    `json:"device_id"`
-	Success   bool      `json:"success"`
-	Message   string    `json:"message,omitempty"`
-	Error     string    `json:"error,omitempty"`
-	StartedAt time.Time `json:"started_at"`
+	DeviceID  string        `json:"device_id"`
+	Success   bool          `json:"success"`
+	Message   string        `json:"message,omitempty"`
+	Error     string        `json:"error,omitempty"`
+	StartedAt time.Time     `json:"started_at"`
 	Duration  time.Duration `json:"duration"`
-	Retries   int       `json:"retries"`
+	Retries   int           `json:"retries"`
 }
 
 // ==================== 费用统计 ====================
 
-// CostType 费用类型
+// CostType 费用类型.
 type CostType string
 
 const (
-	CostTypePurchase   CostType = "purchase"   // 采购
+	CostTypePurchase    CostType = "purchase"    // 采购
 	CostTypeMaintenance CostType = "maintenance" // 维护
-	CostTypePower      CostType = "power"       // 电费
-	CostTypeNetwork    CostType = "network"     // 网络
-	CostTypeLicense    CostType = "license"     // 许可
+	CostTypePower       CostType = "power"       // 电费
+	CostTypeNetwork     CostType = "network"     // 网络
+	CostTypeLicense     CostType = "license"     // 许可
 )
 
-// CostRecord 费用记录
+// CostRecord 费用记录.
 type CostRecord struct {
 	ID          string    `json:"id"`
 	AssetID     string    `json:"asset_id"`
@@ -256,7 +256,7 @@ type CostRecord struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// DepreciationInfo 折旧信息
+// DepreciationInfo 折旧信息.
 type DepreciationInfo struct {
 	AssetID          string    `json:"asset_id"`
 	PurchaseCost     float64   `json:"purchase_cost"`
@@ -267,7 +267,7 @@ type DepreciationInfo struct {
 	ElapsedYears     float64   `json:"elapsed_years"`
 }
 
-// CostSummary 费用汇总
+// CostSummary 费用汇总.
 type CostSummary struct {
 	TotalPurchase    float64            `json:"total_purchase"`
 	TotalMaintenance float64            `json:"total_maintenance"`
@@ -283,30 +283,30 @@ type CostSummary struct {
 
 // ==================== 报告 ====================
 
-// ReportType 报告类型
+// ReportType 报告类型.
 type ReportType string
 
 const (
-	ReportTypeDeploy  ReportType = "deploy"
-	ReportTypeAsset   ReportType = "asset"
-	ReportTypeCost    ReportType = "cost"
+	ReportTypeDeploy   ReportType = "deploy"
+	ReportTypeAsset    ReportType = "asset"
+	ReportTypeCost     ReportType = "cost"
 	ReportTypeFirmware ReportType = "firmware"
 )
 
-// Report 报告
+// Report 报告.
 type Report struct {
-	ID        string     `json:"id"`
-	Type      ReportType `json:"type"`
-	Title     string     `json:"title"`
-	Content   string     `json:"content"`
-	GeneratedAt time.Time `json:"generated_at"`
-	Period    string     `json:"period"`
-	Summary   string     `json:"summary"`
+	ID          string     `json:"id"`
+	Type        ReportType `json:"type"`
+	Title       string     `json:"title"`
+	Content     string     `json:"content"`
+	GeneratedAt time.Time  `json:"generated_at"`
+	Period      string     `json:"period"`
+	Summary     string     `json:"summary"`
 }
 
 // ==================== 统计信息 ====================
 
-// Stats 批量部署统计
+// Stats 批量部署统计.
 type Stats struct {
 	TotalAssets      int     `json:"total_assets"`
 	ActiveAssets     int     `json:"active_assets"`

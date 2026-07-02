@@ -24,20 +24,20 @@ func NewHandler(service *Service) *Handler {
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	g := rg.Group("/clustermgr")
 	{
-		g.POST("/clusters", h.createCluster)           // 创建集群
-		g.GET("/clusters", h.listClusters)             // 列出集群
-		g.GET("/clusters/:clusterId", h.getCluster)    // 获取集群详情
-		g.POST("/clusters/:clusterId/nodes", h.addNode) // 添加节点
-		g.DELETE("/clusters/:clusterId/nodes/:nodeId", h.removeNode) // 移除节点
-		g.GET("/clusters/:clusterId/nodes", h.getNodes) // 获取节点列表
-		g.POST("/clusters/:clusterId/migrate", h.migrateWorkload) // 工作负载迁移
+		g.POST("/clusters", h.createCluster)                                  // 创建集群
+		g.GET("/clusters", h.listClusters)                                    // 列出集群
+		g.GET("/clusters/:clusterId", h.getCluster)                           // 获取集群详情
+		g.POST("/clusters/:clusterId/nodes", h.addNode)                       // 添加节点
+		g.DELETE("/clusters/:clusterId/nodes/:nodeId", h.removeNode)          // 移除节点
+		g.GET("/clusters/:clusterId/nodes", h.getNodes)                       // 获取节点列表
+		g.POST("/clusters/:clusterId/migrate", h.migrateWorkload)             // 工作负载迁移
 		g.GET("/clusters/:clusterId/migrations/:migrationId", h.getMigration) // 获取迁移状态
-		g.POST("/clusters/:clusterId/qos", h.createQoSRule)       // 创建 QoS 规则
-		g.GET("/clusters/:clusterId/qos", h.getQoSRules)         // 获取 QoS 规则
-		g.DELETE("/clusters/:clusterId/qos/:ruleId", h.deleteQoSRule) // 删除 QoS 规则
-		g.POST("/clusters/:clusterId/protections", h.createProtection) // 创建保护策略
-		g.GET("/clusters/:clusterId/protections", h.getProtections)   // 获取保护策略
-		g.GET("/clusters/:clusterId/health", h.checkHealth)           // 健康检查
+		g.POST("/clusters/:clusterId/qos", h.createQoSRule)                   // 创建 QoS 规则
+		g.GET("/clusters/:clusterId/qos", h.getQoSRules)                      // 获取 QoS 规则
+		g.DELETE("/clusters/:clusterId/qos/:ruleId", h.deleteQoSRule)         // 删除 QoS 规则
+		g.POST("/clusters/:clusterId/protections", h.createProtection)        // 创建保护策略
+		g.GET("/clusters/:clusterId/protections", h.getProtections)           // 获取保护策略
+		g.GET("/clusters/:clusterId/health", h.checkHealth)                   // 健康检查
 	}
 }
 

@@ -13,7 +13,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// VaultEncryptionManager 保险库加密管理器
+// VaultEncryptionManager 保险库加密管理器.
 type VaultEncryptionManager struct {
 	mu           sync.RWMutex
 	config       VaultConfig
@@ -26,7 +26,7 @@ type VaultEncryptionManager struct {
 	lockoutUntil map[string]time.Time        // 锁定截止时间
 }
 
-// NewVaultEncryptionManager 创建管理器
+// NewVaultEncryptionManager 创建管理器.
 func NewVaultEncryptionManager() *VaultEncryptionManager {
 	return &VaultEncryptionManager{
 		config:       DefaultVaultConfig(),
@@ -39,14 +39,14 @@ func NewVaultEncryptionManager() *VaultEncryptionManager {
 	}
 }
 
-// SetConfig 设置配置
+// SetConfig 设置配置.
 func (m *VaultEncryptionManager) SetConfig(config VaultConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.config = config
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *VaultEncryptionManager) GetConfig() VaultConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -57,7 +57,7 @@ func (m *VaultEncryptionManager) GetConfig() VaultConfig {
 // 密钥管理
 // ============================================================
 
-// CreateKey 创建保险库密钥
+// CreateKey 创建保险库密钥.
 func (m *VaultEncryptionManager) CreateKey(req CreateKeyRequest) (*VaultKey, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -112,7 +112,7 @@ func (m *VaultEncryptionManager) CreateKey(req CreateKeyRequest) (*VaultKey, err
 	return key, nil
 }
 
-// DeleteKey 删除密钥
+// DeleteKey 删除密钥.
 func (m *VaultEncryptionManager) DeleteKey(keyID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -137,7 +137,7 @@ func (m *VaultEncryptionManager) DeleteKey(keyID string) error {
 	return nil
 }
 
-// GetKey 获取密钥信息
+// GetKey 获取密钥信息.
 func (m *VaultEncryptionManager) GetKey(keyID string) (*VaultKey, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -150,7 +150,7 @@ func (m *VaultEncryptionManager) GetKey(keyID string) (*VaultKey, error) {
 	return key, nil
 }
 
-// ListKeys 列出所有密钥
+// ListKeys 列出所有密钥.
 func (m *VaultEncryptionManager) ListKeys() []VaultKey {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -162,7 +162,7 @@ func (m *VaultEncryptionManager) ListKeys() []VaultKey {
 	return keys
 }
 
-// ChangePassword 修改密钥密码
+// ChangePassword 修改密钥密码.
 func (m *VaultEncryptionManager) ChangePassword(req ChangePasswordRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -208,7 +208,7 @@ func (m *VaultEncryptionManager) ChangePassword(req ChangePasswordRequest) error
 // 卷管理
 // ============================================================
 
-// RegisterVolume 注册加密卷
+// RegisterVolume 注册加密卷.
 func (m *VaultEncryptionManager) RegisterVolume(vol *EncryptedVolume) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -236,7 +236,7 @@ func (m *VaultEncryptionManager) RegisterVolume(vol *EncryptedVolume) error {
 	return nil
 }
 
-// UnregisterVolume 注销加密卷
+// UnregisterVolume 注销加密卷.
 func (m *VaultEncryptionManager) UnregisterVolume(volumeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -256,7 +256,7 @@ func (m *VaultEncryptionManager) UnregisterVolume(volumeID string) error {
 	return nil
 }
 
-// GetVolume 获取卷信息
+// GetVolume 获取卷信息.
 func (m *VaultEncryptionManager) GetVolume(volumeID string) (*EncryptedVolume, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -269,7 +269,7 @@ func (m *VaultEncryptionManager) GetVolume(volumeID string) (*EncryptedVolume, e
 	return vol, nil
 }
 
-// ListVolumes 列出所有卷
+// ListVolumes 列出所有卷.
 func (m *VaultEncryptionManager) ListVolumes() []EncryptedVolume {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -285,7 +285,7 @@ func (m *VaultEncryptionManager) ListVolumes() []EncryptedVolume {
 // 解锁/锁定逻辑
 // ============================================================
 
-// UnlockVolume 解锁加密卷
+// UnlockVolume 解锁加密卷.
 func (m *VaultEncryptionManager) UnlockVolume(req UnlockRequest) (*UnlockResponse, error) {
 	m.mu.Lock()
 
@@ -399,7 +399,7 @@ func (m *VaultEncryptionManager) UnlockVolume(req UnlockRequest) (*UnlockRespons
 	}, nil
 }
 
-// LockVolume 锁定加密卷
+// LockVolume 锁定加密卷.
 func (m *VaultEncryptionManager) LockVolume(req LockRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -432,7 +432,7 @@ func (m *VaultEncryptionManager) LockVolume(req LockRequest) error {
 	return nil
 }
 
-// AutoLockVolume 自动锁定卷（内部方法）
+// AutoLockVolume 自动锁定卷（内部方法）.
 func (m *VaultEncryptionManager) AutoLockVolume(volumeID string) {
 	m.LockVolume(LockRequest{
 		VolumeID: volumeID,
@@ -444,7 +444,7 @@ func (m *VaultEncryptionManager) AutoLockVolume(volumeID string) {
 // 审计日志
 // ============================================================
 
-// GetAuditLogs 获取审计日志
+// GetAuditLogs 获取审计日志.
 func (m *VaultEncryptionManager) GetAuditLogs(limit int) []AuditLog {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -468,7 +468,7 @@ func (m *VaultEncryptionManager) GetAuditLogs(limit int) []AuditLog {
 // 统计
 // ============================================================
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *VaultEncryptionManager) GetStats() VaultStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -479,7 +479,7 @@ func (m *VaultEncryptionManager) GetStats() VaultStats {
 // 内部方法
 // ============================================================
 
-// deriveKeyHash 派生密钥哈希
+// deriveKeyHash 派生密钥哈希.
 func (m *VaultEncryptionManager) deriveKeyHash(password string, salt []byte) []byte {
 	// 简化版：使用 SHA-256(password + salt)
 	// 实际应使用 argon2.IDKey 或 scrypt.Key
@@ -489,7 +489,7 @@ func (m *VaultEncryptionManager) deriveKeyHash(password string, salt []byte) []b
 	return h.Sum(nil)
 }
 
-// startAutoLockTimer 启动自动锁定定时器
+// startAutoLockTimer 启动自动锁定定时器.
 func (m *VaultEncryptionManager) startAutoLockTimer(volumeID string) {
 	// 停止现有定时器
 	if timer, ok := m.lockTimers[volumeID]; ok {
@@ -502,7 +502,7 @@ func (m *VaultEncryptionManager) startAutoLockTimer(volumeID string) {
 	})
 }
 
-// addAuditLog 添加审计日志
+// addAuditLog 添加审计日志.
 func (m *VaultEncryptionManager) addAuditLog(action AuditAction, volumeID, keyID, userID string, success bool, message, ipAddr string) {
 	log := AuditLog{
 		ID:        uuid.New().String(),
@@ -525,7 +525,7 @@ func (m *VaultEncryptionManager) addAuditLog(action AuditAction, volumeID, keyID
 	}
 }
 
-// updateStats 更新统计信息
+// updateStats 更新统计信息.
 func (m *VaultEncryptionManager) updateStats() {
 	m.stats.TotalKeys = 0
 	m.stats.ActiveKeys = 0

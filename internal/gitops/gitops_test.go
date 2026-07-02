@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// MockGitClient implements GitClient for testing
+// MockGitClient implements GitClient for testing.
 type MockGitClient struct {
 	mock.Mock
 }
@@ -41,7 +41,7 @@ func (m *MockGitClient) ListFiles(ctx context.Context, path, dir, revision strin
 	return args.Get(0).([]string), args.Error(1)
 }
 
-// MockK8sClient implements K8sClient for testing
+// MockK8sClient implements K8sClient for testing.
 type MockK8sClient struct {
 	mock.Mock
 }

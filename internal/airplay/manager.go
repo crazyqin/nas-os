@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager AirPlay 服务管理器
+// Manager AirPlay 服务管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	logger    *zap.Logger
@@ -37,7 +37,7 @@ type Manager struct {
 	stats AirPlayStats
 }
 
-// NewManager 创建 AirPlay 管理器
+// NewManager 创建 AirPlay 管理器.
 func NewManager(logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -72,7 +72,7 @@ func NewManager(logger *zap.Logger) *Manager {
 
 // ========== 服务生命周期 ==========
 
-// Start 启动 AirPlay 服务
+// Start 启动 AirPlay 服务.
 func (m *Manager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -89,7 +89,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止 AirPlay 服务
+// Stop 停止 AirPlay 服务.
 func (m *Manager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -116,7 +116,7 @@ func (m *Manager) Stop() error {
 	return nil
 }
 
-// GetStatus 获取服务状态
+// GetStatus 获取服务状态.
 func (m *Manager) GetStatus() ServiceStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -143,7 +143,7 @@ func (m *Manager) GetStatus() ServiceStatus {
 
 // ========== 设备管理 ==========
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (m *Manager) ListDevices() []AirPlayDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -155,7 +155,7 @@ func (m *Manager) ListDevices() []AirPlayDevice {
 	return devices
 }
 
-// GetDevice 获取设备详情
+// GetDevice 获取设备详情.
 func (m *Manager) GetDevice(id string) (*AirPlayDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -167,7 +167,7 @@ func (m *Manager) GetDevice(id string) (*AirPlayDevice, error) {
 	return device, nil
 }
 
-// RefreshDevices 刷新设备列表 (模拟 mDNS 发现)
+// RefreshDevices 刷新设备列表 (模拟 mDNS 发现).
 func (m *Manager) RefreshDevices() []AirPlayDevice {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -221,14 +221,14 @@ func (m *Manager) RefreshDevices() []AirPlayDevice {
 
 // ========== 接收器管理 ==========
 
-// GetReceiver 获取接收器配置
+// GetReceiver 获取接收器配置.
 func (m *Manager) GetReceiver() *AirPlayReceiver {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.receiver
 }
 
-// UpdateReceiver 更新接收器配置
+// UpdateReceiver 更新接收器配置.
 func (m *Manager) UpdateReceiver(name string, enabled bool, port int, passwordProtected bool, password string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -252,14 +252,14 @@ func (m *Manager) UpdateReceiver(name string, enabled bool, port int, passwordPr
 
 // ========== 发送器管理 ==========
 
-// GetSender 获取发送器状态
+// GetSender 获取发送器状态.
 func (m *Manager) GetSender() *AirPlaySender {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.sender
 }
 
-// Cast 发起投射
+// Cast 发起投射.
 func (m *Manager) Cast(targetID string, media *MediaInfo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -295,7 +295,7 @@ func (m *Manager) Cast(targetID string, media *MediaInfo) error {
 	return nil
 }
 
-// StopCast 停止投射
+// StopCast 停止投射.
 func (m *Manager) StopCast() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -323,7 +323,7 @@ func (m *Manager) StopCast() error {
 
 // ========== 音频流管理 ==========
 
-// GetAudioQueue 获取播放队列
+// GetAudioQueue 获取播放队列.
 func (m *Manager) GetAudioQueue(streamID string) ([]MediaInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -335,7 +335,7 @@ func (m *Manager) GetAudioQueue(streamID string) ([]MediaInfo, error) {
 	return stream.Queue, nil
 }
 
-// AddToQueue 添加到播放队列
+// AddToQueue 添加到播放队列.
 func (m *Manager) AddToQueue(streamID string, media MediaInfo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -350,7 +350,7 @@ func (m *Manager) AddToQueue(streamID string, media MediaInfo) error {
 	return nil
 }
 
-// PlayAudio 播放音频
+// PlayAudio 播放音频.
 func (m *Manager) PlayAudio(streamID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -364,7 +364,7 @@ func (m *Manager) PlayAudio(streamID string) error {
 	return nil
 }
 
-// PauseAudio 暂停音频
+// PauseAudio 暂停音频.
 func (m *Manager) PauseAudio(streamID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -378,7 +378,7 @@ func (m *Manager) PauseAudio(streamID string) error {
 	return nil
 }
 
-// NextTrack 下一曲
+// NextTrack 下一曲.
 func (m *Manager) NextTrack(streamID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -395,7 +395,7 @@ func (m *Manager) NextTrack(streamID string) error {
 	return nil
 }
 
-// PrevTrack 上一曲
+// PrevTrack 上一曲.
 func (m *Manager) PrevTrack(streamID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -412,7 +412,7 @@ func (m *Manager) PrevTrack(streamID string) error {
 	return nil
 }
 
-// SetVolume 设置音量
+// SetVolume 设置音量.
 func (m *Manager) SetVolume(streamID string, volume int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -432,7 +432,7 @@ func (m *Manager) SetVolume(streamID string, volume int) error {
 
 // ========== 视频流管理 ==========
 
-// CastVideo 视频投射
+// CastVideo 视频投射.
 func (m *Manager) CastVideo(targetID string, media *MediaInfo, resolution string, bitrate int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -460,7 +460,7 @@ func (m *Manager) CastVideo(targetID string, media *MediaInfo, resolution string
 	return nil
 }
 
-// StopVideo 停止视频投射
+// StopVideo 停止视频投射.
 func (m *Manager) StopVideo(streamID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -477,7 +477,7 @@ func (m *Manager) StopVideo(streamID string) error {
 
 // ========== 屏幕镜像 ==========
 
-// StartMirror 开始屏幕镜像
+// StartMirror 开始屏幕镜像.
 func (m *Manager) StartMirror(sourceID, targetID, resolution string, frameRate int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -506,7 +506,7 @@ func (m *Manager) StartMirror(sourceID, targetID, resolution string, frameRate i
 	return nil
 }
 
-// StopMirror 停止屏幕镜像
+// StopMirror 停止屏幕镜像.
 func (m *Manager) StopMirror(mirrorID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -523,7 +523,7 @@ func (m *Manager) StopMirror(mirrorID string) error {
 
 // ========== 多房间音频 ==========
 
-// ListGroups 列出多房间组
+// ListGroups 列出多房间组.
 func (m *Manager) ListGroups() []MultiRoomGroup {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -535,7 +535,7 @@ func (m *Manager) ListGroups() []MultiRoomGroup {
 	return groups
 }
 
-// CreateGroup 创建多房间组
+// CreateGroup 创建多房间组.
 func (m *Manager) CreateGroup(name, masterID string, slaveIDs []string) (*MultiRoomGroup, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -567,7 +567,7 @@ func (m *Manager) CreateGroup(name, masterID string, slaveIDs []string) (*MultiR
 	return group, nil
 }
 
-// UpdateGroup 更新多房间组
+// UpdateGroup 更新多房间组.
 func (m *Manager) UpdateGroup(groupID, name string, slaveIDs []string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -594,7 +594,7 @@ func (m *Manager) UpdateGroup(groupID, name string, slaveIDs []string) error {
 	return nil
 }
 
-// DeleteGroup 删除多房间组
+// DeleteGroup 删除多房间组.
 func (m *Manager) DeleteGroup(groupID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -610,14 +610,14 @@ func (m *Manager) DeleteGroup(groupID string) error {
 
 // ========== 设备配对 ==========
 
-// ListPairings 列出配对设备
+// ListPairings 列出配对设备.
 func (m *Manager) ListPairings() []PairingRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.pairings
 }
 
-// TrustDevice 信任设备
+// TrustDevice 信任设备.
 func (m *Manager) TrustDevice(deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -640,7 +640,7 @@ func (m *Manager) TrustDevice(deviceID string) error {
 	return nil
 }
 
-// UnpairDevice 取消配对
+// UnpairDevice 取消配对.
 func (m *Manager) UnpairDevice(deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -658,7 +658,7 @@ func (m *Manager) UnpairDevice(deviceID string) error {
 
 // ========== 统计 ==========
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() AirPlayStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

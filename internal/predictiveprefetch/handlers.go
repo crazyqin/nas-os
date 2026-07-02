@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler predictive prefetch HTTP handler
+// Handler predictive prefetch HTTP handler.
 type Handler struct {
 	prefetch *PredictivePrefetch
 }
 
-// NewHandler creates a new handler
+// NewHandler creates a new handler.
 func NewHandler(prefetch *PredictivePrefetch) *Handler {
 	return &Handler{prefetch: prefetch}
 }
 
-// RegisterRoutes registers routes
+// RegisterRoutes registers routes.
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	prefetchGroup := r.Group("/predictive-prefetch")
 	{
@@ -47,7 +47,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// HandleRecordAccess records a file access
+// HandleRecordAccess records a file access.
 func (h *Handler) HandleRecordAccess(c *gin.Context) {
 	var req struct {
 		UserID   string  `json:"user_id" binding:"required"`
@@ -76,7 +76,7 @@ func (h *Handler) HandleRecordAccess(c *gin.Context) {
 	})
 }
 
-// HandlePredict predicts next files
+// HandlePredict predicts next files.
 func (h *Handler) HandlePredict(c *gin.Context) {
 	var req struct {
 		UserID      string `json:"user_id" binding:"required"`
@@ -98,7 +98,7 @@ func (h *Handler) HandlePredict(c *gin.Context) {
 	})
 }
 
-// HandlePrefetch prefetches files
+// HandlePrefetch prefetches files.
 func (h *Handler) HandlePrefetch(c *gin.Context) {
 	var req struct {
 		Candidates []PrefetchCandidate `json:"candidates" binding:"required"`
@@ -126,7 +126,7 @@ func (h *Handler) HandlePrefetch(c *gin.Context) {
 	})
 }
 
-// HandleGetCached returns cached files
+// HandleGetCached returns cached files.
 func (h *Handler) HandleGetCached(c *gin.Context) {
 	entries := h.prefetch.GetCached()
 	c.JSON(http.StatusOK, gin.H{
@@ -136,7 +136,7 @@ func (h *Handler) HandleGetCached(c *gin.Context) {
 	})
 }
 
-// HandleClearCache clears the cache
+// HandleClearCache clears the cache.
 func (h *Handler) HandleClearCache(c *gin.Context) {
 	h.prefetch.ClearCache()
 	c.JSON(http.StatusOK, gin.H{
@@ -144,18 +144,18 @@ func (h *Handler) HandleClearCache(c *gin.Context) {
 	})
 }
 
-// HandleGetStats returns prefetch statistics
+// HandleGetStats returns prefetch statistics.
 func (h *Handler) HandleGetStats(c *gin.Context) {
 	stats := h.prefetch.GetStats()
 	c.JSON(http.StatusOK, stats)
 }
 
-// HandleGetConfig returns prefetch configuration
+// HandleGetConfig returns prefetch configuration.
 func (h *Handler) HandleGetConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, h.prefetch.config)
 }
 
-// HandleUpdateConfig updates prefetch configuration
+// HandleUpdateConfig updates prefetch configuration.
 func (h *Handler) HandleUpdateConfig(c *gin.Context) {
 	var config PrefetchConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -175,7 +175,7 @@ func (h *Handler) HandleUpdateConfig(c *gin.Context) {
 	})
 }
 
-// HandleEnable enables prefetching
+// HandleEnable enables prefetching.
 func (h *Handler) HandleEnable(c *gin.Context) {
 	h.prefetch.SetEnabled(true)
 	c.JSON(http.StatusOK, gin.H{
@@ -183,7 +183,7 @@ func (h *Handler) HandleEnable(c *gin.Context) {
 	})
 }
 
-// HandleDisable disables prefetching
+// HandleDisable disables prefetching.
 func (h *Handler) HandleDisable(c *gin.Context) {
 	h.prefetch.SetEnabled(false)
 	c.JSON(http.StatusOK, gin.H{

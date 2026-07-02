@@ -17,7 +17,7 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-// OAuthSecurityManager OAuth凭证安全管理器
+// OAuthSecurityManager OAuth凭证安全管理器.
 type OAuthSecurityManager struct {
 	config      OAuthSecurityConfig
 	masterKey   []byte
@@ -26,7 +26,7 @@ type OAuthSecurityManager struct {
 	mu          sync.RWMutex
 }
 
-// OAuthSecurityConfig OAuth安全配置
+// OAuthSecurityConfig OAuth安全配置.
 type OAuthSecurityConfig struct {
 	Enabled           bool          `json:"enabled"`
 	TokenEncrypt      bool          `json:"token_encrypt"`       // Token加密存储
@@ -39,7 +39,7 @@ type OAuthSecurityConfig struct {
 	AuditEnabled      bool          `json:"audit_enabled"`       // 审计日志
 }
 
-// SecureToken 安全存储的Token
+// SecureToken 安全存储的Token.
 type SecureToken struct {
 	ID            string       `json:"id"`
 	ProviderID    string       `json:"provider_id"`
@@ -55,7 +55,7 @@ type SecureToken struct {
 	UsageCount    int64        `json:"usage_count"`
 }
 
-// OAuthToken OAuth Token结构
+// OAuthToken OAuth Token结构.
 type OAuthToken struct {
 	AccessToken  string    `json:"access_token"`
 	RefreshToken string    `json:"refresh_token,omitempty"`
@@ -65,7 +65,7 @@ type OAuthToken struct {
 	Scope        string    `json:"scope,omitempty"`
 }
 
-// APIKeyRecord API密钥记录
+// APIKeyRecord API密钥记录.
 type APIKeyRecord struct {
 	KeyID        string     `json:"key_id"`
 	ProviderID   string     `json:"provider_id"`
@@ -81,7 +81,7 @@ type APIKeyRecord struct {
 	Status       string     `json:"status"` // active, rotated, expired, revoked
 }
 
-// KeyRotationRecord 密钥轮转记录
+// KeyRotationRecord 密钥轮转记录.
 type KeyRotationRecord struct {
 	ID          string    `json:"id"`
 	KeyID       string    `json:"key_id"`
@@ -92,14 +92,14 @@ type KeyRotationRecord struct {
 	InitiatedBy string    `json:"initiated_by"`
 }
 
-// OAuthAuditLogger OAuth审计日志接口
+// OAuthAuditLogger OAuth审计日志接口.
 type OAuthAuditLogger interface {
 	LogTokenOperation(op OAuthAuditOperation, details map[string]interface{})
 	LogKeyRotation(record *KeyRotationRecord)
 	LogSecurityEvent(event string, severity string, details map[string]interface{})
 }
 
-// OAuthAuditOperation OAuth审计操作类型
+// OAuthAuditOperation OAuth审计操作类型.
 type OAuthAuditOperation string
 
 const (
@@ -113,7 +113,7 @@ const (
 	OAuthOpKeyDelete     OAuthAuditOperation = "key_delete"
 )
 
-// DefaultOAuthSecurityConfig 默认OAuth安全配置
+// DefaultOAuthSecurityConfig 默认OAuth安全配置.
 func DefaultOAuthSecurityConfig() OAuthSecurityConfig {
 	return OAuthSecurityConfig{
 		Enabled:           true,
@@ -128,7 +128,7 @@ func DefaultOAuthSecurityConfig() OAuthSecurityConfig {
 	}
 }
 
-// NewOAuthSecurityManager 创建OAuth安全管理器
+// NewOAuthSecurityManager 创建OAuth安全管理器.
 func NewOAuthSecurityManager(config OAuthSecurityConfig, auditLogger OAuthAuditLogger) (*OAuthSecurityManager, error) {
 	// 确保存储目录存在
 	if err := os.MkdirAll(config.SecureStoragePath, 0700); err != nil {
@@ -162,7 +162,7 @@ func NewOAuthSecurityManager(config OAuthSecurityConfig, auditLogger OAuthAuditL
 	return manager, nil
 }
 
-// initMasterKey 初始化主密钥
+// initMasterKey 初始化主密钥.
 func (m *OAuthSecurityManager) initMasterKey() error {
 	keyPath := filepath.Join(m.config.SecureStoragePath, "master.key")
 	saltPath := filepath.Join(m.config.SecureStoragePath, "salt")
@@ -200,7 +200,7 @@ func (m *OAuthSecurityManager) initMasterKey() error {
 	return os.WriteFile(keyPath, encryptedKey, 0600)
 }
 
-// deriveSystemKey 从系统信息派生密钥
+// deriveSystemKey 从系统信息派生密钥.
 func (m *OAuthSecurityManager) deriveSystemKey(salt []byte) []byte {
 	// 使用机器ID等系统信息作为密钥材料
 	systemInfo := fmt.Sprintf("%s-%d", m.config.SecureStoragePath, time.Now().UnixNano())
@@ -214,7 +214,7 @@ func (m *OAuthSecurityManager) deriveSystemKey(salt []byte) []byte {
 	return argon2.IDKey([]byte(systemInfo), salt, timeCost, memory, threads, keyLen)
 }
 
-// loadOrGenerateFile 加载或生成文件
+// loadOrGenerateFile 加载或生成文件.
 func (m *OAuthSecurityManager) loadOrGenerateFile(path string, size int) ([]byte, error) {
 	if data, err := os.ReadFile(path); err == nil {
 		return data, nil
@@ -230,7 +230,7 @@ func (m *OAuthSecurityManager) loadOrGenerateFile(path string, size int) ([]byte
 
 // ==================== Token 存储 ====================
 
-// StoreToken 安全存储OAuth Token
+// StoreToken 安全存储OAuth Token.
 func (m *OAuthSecurityManager) StoreToken(providerID string, providerType ProviderType, token *OAuthToken) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -304,7 +304,7 @@ func (m *OAuthSecurityManager) StoreToken(providerID string, providerType Provid
 	return nil
 }
 
-// RetrieveToken 获取OAuth Token
+// RetrieveToken 获取OAuth Token.
 func (m *OAuthSecurityManager) RetrieveToken(providerID string) (*OAuthToken, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -354,7 +354,7 @@ func (m *OAuthSecurityManager) RetrieveToken(providerID string) (*OAuthToken, er
 	return &token, nil
 }
 
-// RetrieveRefreshToken 获取Refresh Token
+// RetrieveRefreshToken 获取Refresh Token.
 func (m *OAuthSecurityManager) RetrieveRefreshToken(providerID string) (string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -378,7 +378,7 @@ func (m *OAuthSecurityManager) RetrieveRefreshToken(providerID string) (string, 
 	return data["refresh_token"], nil
 }
 
-// DeleteToken 删除Token
+// DeleteToken 删除Token.
 func (m *OAuthSecurityManager) DeleteToken(providerID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -404,7 +404,7 @@ func (m *OAuthSecurityManager) DeleteToken(providerID string) error {
 
 // ==================== API密钥存储 ====================
 
-// StoreAPIKey 安全存储API密钥
+// StoreAPIKey 安全存储API密钥.
 func (m *OAuthSecurityManager) StoreAPIKey(providerID string, keyType string, keyValue string) (*APIKeyRecord, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -447,7 +447,7 @@ func (m *OAuthSecurityManager) StoreAPIKey(providerID string, keyType string, ke
 	return record, nil
 }
 
-// RetrieveAPIKey 获取API密钥
+// RetrieveAPIKey 获取API密钥.
 func (m *OAuthSecurityManager) RetrieveAPIKey(providerID string, keyType string) (string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -481,7 +481,7 @@ func (m *OAuthSecurityManager) RetrieveAPIKey(providerID string, keyType string)
 	return string(decrypted), nil
 }
 
-// RotateAPIKey 轮转API密钥
+// RotateAPIKey 轮转API密钥.
 func (m *OAuthSecurityManager) RotateAPIKey(providerID string, keyType string, newKeyValue string, reason string) (*KeyRotationRecord, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -544,7 +544,7 @@ func (m *OAuthSecurityManager) RotateAPIKey(providerID string, keyType string, n
 
 // ==================== 加密解密 ====================
 
-// encryptWithNonce 使用AES-256-GCM加密并返回nonce
+// encryptWithNonce 使用AES-256-GCM加密并返回nonce.
 func (m *OAuthSecurityManager) encryptWithNonce(plaintext []byte) ([]byte, []byte, error) {
 	block, err := aes.NewCipher(m.masterKey)
 	if err != nil {
@@ -565,7 +565,7 @@ func (m *OAuthSecurityManager) encryptWithNonce(plaintext []byte) ([]byte, []byt
 	return ciphertext, nonce, nil
 }
 
-// decryptWithNonce 使用AES-256-GCM解密
+// decryptWithNonce 使用AES-256-GCM解密.
 func (m *OAuthSecurityManager) decryptWithNonce(ciphertext []byte, nonce []byte) ([]byte, error) {
 	block, err := aes.NewCipher(m.masterKey)
 	if err != nil {
@@ -580,7 +580,7 @@ func (m *OAuthSecurityManager) decryptWithNonce(ciphertext []byte, nonce []byte)
 	return gcm.Open(nil, nonce, ciphertext, nil)
 }
 
-// encryptData 加密数据(无nonce返回)
+// encryptData 加密数据(无nonce返回).
 func (m *OAuthSecurityManager) encryptData(plaintext []byte, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -600,7 +600,7 @@ func (m *OAuthSecurityManager) encryptData(plaintext []byte, key []byte) ([]byte
 	return gcm.Seal(nonce, nonce, plaintext, nil), nil
 }
 
-// decryptData 解密数据
+// decryptData 解密数据.
 func (m *OAuthSecurityManager) decryptData(ciphertext []byte, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -623,7 +623,7 @@ func (m *OAuthSecurityManager) decryptData(ciphertext []byte, key []byte) ([]byt
 
 // ==================== 存储管理 ====================
 
-// loadTokens 加载Token存储
+// loadTokens 加载Token存储.
 func (m *OAuthSecurityManager) loadTokens() error {
 	tokensPath := filepath.Join(m.config.SecureStoragePath, "tokens.json")
 	data, err := os.ReadFile(tokensPath)
@@ -643,7 +643,7 @@ func (m *OAuthSecurityManager) loadTokens() error {
 	return nil
 }
 
-// saveTokensLocked 保存Token(已持锁)
+// saveTokensLocked 保存Token(已持锁).
 func (m *OAuthSecurityManager) saveTokensLocked() error {
 	tokens := make([]*SecureToken, 0, len(m.tokenStore))
 	for _, token := range m.tokenStore {
@@ -659,7 +659,7 @@ func (m *OAuthSecurityManager) saveTokensLocked() error {
 	return os.WriteFile(tokensPath, data, 0600)
 }
 
-// saveAPIKeyRecord 保存API密钥记录
+// saveAPIKeyRecord 保存API密钥记录.
 func (m *OAuthSecurityManager) saveAPIKeyRecord(record *APIKeyRecord) error {
 	keyPath := filepath.Join(m.config.SecureStoragePath, "api_keys", record.KeyID+".json")
 	if err := os.MkdirAll(filepath.Dir(keyPath), 0700); err != nil {
@@ -674,7 +674,7 @@ func (m *OAuthSecurityManager) saveAPIKeyRecord(record *APIKeyRecord) error {
 	return os.WriteFile(keyPath, data, 0600)
 }
 
-// loadAPIKeyRecord 加载API密钥记录
+// loadAPIKeyRecord 加载API密钥记录.
 func (m *OAuthSecurityManager) loadAPIKeyRecord(keyID string) (*APIKeyRecord, error) {
 	keyPath := filepath.Join(m.config.SecureStoragePath, "api_keys", keyID+".json")
 	data, err := os.ReadFile(keyPath)
@@ -690,7 +690,7 @@ func (m *OAuthSecurityManager) loadAPIKeyRecord(keyID string) (*APIKeyRecord, er
 	return &record, nil
 }
 
-// saveRotationRecord 保存轮转记录
+// saveRotationRecord 保存轮转记录.
 func (m *OAuthSecurityManager) saveRotationRecord(record *KeyRotationRecord) error {
 	historyPath := filepath.Join(m.config.SecureStoragePath, "rotation_history.json")
 
@@ -711,7 +711,7 @@ func (m *OAuthSecurityManager) saveRotationRecord(record *KeyRotationRecord) err
 
 // ==================== 自动轮转 ====================
 
-// rotationCheckLoop 定时检查密钥轮转
+// rotationCheckLoop 定时检查密钥轮转.
 func (m *OAuthSecurityManager) rotationCheckLoop() {
 	ticker := time.NewTicker(24 * time.Hour)
 	defer ticker.Stop()
@@ -722,7 +722,7 @@ func (m *OAuthSecurityManager) rotationCheckLoop() {
 	}
 }
 
-// checkKeyRotation 检查需要轮转的密钥
+// checkKeyRotation 检查需要轮转的密钥.
 func (m *OAuthSecurityManager) checkKeyRotation() {
 	keysDir := filepath.Join(m.config.SecureStoragePath, "api_keys")
 	files, err := os.ReadDir(keysDir)
@@ -752,7 +752,7 @@ func (m *OAuthSecurityManager) checkKeyRotation() {
 	}
 }
 
-// checkTokenExpiry 检查即将过期的Token
+// checkTokenExpiry 检查即将过期的Token.
 func (m *OAuthSecurityManager) checkTokenExpiry() {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -784,14 +784,14 @@ func generateKeyID(providerID, keyType string) string {
 	return fmt.Sprintf("%s_%s", providerID, keyType)
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *OAuthSecurityManager) GetConfig() OAuthSecurityConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *OAuthSecurityManager) UpdateConfig(config OAuthSecurityConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -799,14 +799,14 @@ func (m *OAuthSecurityManager) UpdateConfig(config OAuthSecurityConfig) error {
 	return nil
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *OAuthSecurityManager) Close() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	return m.saveTokensLocked()
 }
 
-// GetKeyRotationHistory 获取密钥轮转历史
+// GetKeyRotationHistory 获取密钥轮转历史.
 func (m *OAuthSecurityManager) GetKeyRotationHistory() ([]*KeyRotationRecord, error) {
 	historyPath := filepath.Join(m.config.SecureStoragePath, "rotation_history.json")
 	data, err := os.ReadFile(historyPath)

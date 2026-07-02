@@ -31,7 +31,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 
 // handleActivities 处理活动列表的 GET 和 POST 请求。
 // GET: 查询活动列表，支持多种过滤参数
-// POST: 记录新的活动
+// POST: 记录新的活动.
 func (h *Handler) handleActivities(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:

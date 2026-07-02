@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// AnalyticsEngine 统计分析引擎
+// AnalyticsEngine 统计分析引擎.
 type AnalyticsEngine struct {
 	mu       sync.RWMutex
 	logger   *zap.Logger
@@ -18,7 +18,7 @@ type AnalyticsEngine struct {
 	visitors map[string]map[string]bool // shareID -> {ip -> true} (UV)
 }
 
-// NewAnalyticsEngine 创建统计分析引擎
+// NewAnalyticsEngine 创建统计分析引擎.
 func NewAnalyticsEngine(logger *zap.Logger) *AnalyticsEngine {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -31,7 +31,7 @@ func NewAnalyticsEngine(logger *zap.Logger) *AnalyticsEngine {
 	}
 }
 
-// RecordAccess 记录访问日志
+// RecordAccess 记录访问日志.
 func (ae *AnalyticsEngine) RecordAccess(log *AccessLog) {
 	ae.mu.Lock()
 	defer ae.mu.Unlock()
@@ -45,7 +45,7 @@ func (ae *AnalyticsEngine) RecordAccess(log *AccessLog) {
 	ae.visitors[log.ShareID][log.IPAddress] = true
 }
 
-// GetAnalytics 获取分享链接统计
+// GetAnalytics 获取分享链接统计.
 func (ae *AnalyticsEngine) GetAnalytics(shareID string) *ShareAnalytics {
 	ae.mu.RLock()
 	defer ae.mu.RUnlock()
@@ -170,7 +170,7 @@ func (ae *AnalyticsEngine) GetAnalytics(shareID string) *ShareAnalytics {
 	return analytics
 }
 
-// GetAnalyticsSummary 获取所有分享的统计摘要
+// GetAnalyticsSummary 获取所有分享的统计摘要.
 func (ae *AnalyticsEngine) GetAnalyticsSummary() *AnalyticsSummary {
 	ae.mu.RLock()
 	defer ae.mu.RUnlock()
@@ -207,7 +207,7 @@ func (ae *AnalyticsEngine) GetAnalyticsSummary() *AnalyticsSummary {
 	return summary
 }
 
-// AnalyticsSummary 统计摘要
+// AnalyticsSummary 统计摘要.
 type AnalyticsSummary struct {
 	ShareCount          int       `json:"share_count"`
 	TotalViews          int       `json:"total_views"`
@@ -217,7 +217,7 @@ type AnalyticsSummary struct {
 	GeneratedAt         time.Time `json:"generated_at"`
 }
 
-// DetectUserAgent 检测用户代理信息
+// DetectUserAgent 检测用户代理信息.
 func DetectUserAgent(ua string) (deviceType DeviceType, os, browser string) {
 	uaLower := strings.ToLower(ua)
 
@@ -267,10 +267,10 @@ func DetectUserAgent(ua string) (deviceType DeviceType, os, browser string) {
 		browser = "Unknown"
 	}
 
-	return
+	return deviceType, os, browser
 }
 
-// CleanupLogs 清理过期日志
+// CleanupLogs 清理过期日志.
 func (ae *AnalyticsEngine) CleanupLogs(maxAge time.Duration) int {
 	ae.mu.Lock()
 	defer ae.mu.Unlock()

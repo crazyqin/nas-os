@@ -196,13 +196,13 @@ func buildInjectionRules() []GuardrailRule {
 	rules := make([]GuardrailRule, 0, len(promptInjectionPatterns))
 	for i, pat := range promptInjectionPatterns {
 		rules = append(rules, GuardrailRule{
-			ID:         fmt.Sprintf("injection-%d", i+1),
-			Name:       fmt.Sprintf("Prompt Injection 模式 %d", i+1),
-			Type:       RuleRegex,
-			Pattern:    pat,
-			Severity:   SeverityCritical,
-			Action:     ActionBlock,
-			Enabled:    true,
+			ID:       fmt.Sprintf("injection-%d", i+1),
+			Name:     fmt.Sprintf("Prompt Injection 模式 %d", i+1),
+			Type:     RuleRegex,
+			Pattern:  pat,
+			Severity: SeverityCritical,
+			Action:   ActionBlock,
+			Enabled:  true,
 		})
 	}
 	return rules
@@ -213,13 +213,13 @@ func buildSensitiveRules() []GuardrailRule {
 	rules := make([]GuardrailRule, 0, len(sensitiveKeywords))
 	for i, kw := range sensitiveKeywords {
 		rules = append(rules, GuardrailRule{
-			ID:         fmt.Sprintf("sensitive-%d", i+1),
-			Name:       fmt.Sprintf("敏感关键词: %s", kw),
-			Type:       RuleKeyword,
-			Pattern:    kw,
-			Severity:   SeverityHigh,
-			Action:     ActionWarn,
-			Enabled:    true,
+			ID:       fmt.Sprintf("sensitive-%d", i+1),
+			Name:     fmt.Sprintf("敏感关键词: %s", kw),
+			Type:     RuleKeyword,
+			Pattern:  kw,
+			Severity: SeverityHigh,
+			Action:   ActionWarn,
+			Enabled:  true,
 		})
 	}
 	return rules
@@ -238,17 +238,7 @@ func (s *Service) GetConfig() AIGuardrailConfig {
 func (s *Service) UpdateConfig(req ConfigRequest) AIGuardrailConfig {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.config = AIGuardrailConfig{
-		Enabled:              req.Enabled,
-		MaxInputLength:       req.MaxInputLength,
-		MaxOutputLength:      req.MaxOutputLength,
-		RedactPII:            req.RedactPII,
-		BlockPromptInjection: req.BlockPromptInjection,
-		LogAllRequests:       req.LogAllRequests,
-		RetentionDays:        req.RetentionDays,
-		WhitelistModels:      req.WhitelistModels,
-		BlacklistModels:      req.BlacklistModels,
-	}
+	s.config = AIGuardrailConfig(req)
 	if s.config.MaxInputLength == 0 {
 		s.config.MaxInputLength = 32768
 	}
@@ -595,11 +585,11 @@ func (s *Service) runPoliciesForOutput(text string) ([]DetectionResult, string) 
 // applyRule 应用单条规则.
 func (s *Service) applyRule(text string, policy *GuardrailPolicy, rule GuardrailRule) DetectionResult {
 	result := DetectionResult{
-		Action:      rule.Action,
-		Severity:    rule.Severity,
-		PolicyType:  policy.Type,
-		RuleID:      rule.ID,
-		RuleName:    rule.Name,
+		Action:     rule.Action,
+		Severity:   rule.Severity,
+		PolicyType: policy.Type,
+		RuleID:     rule.ID,
+		RuleName:   rule.Name,
 	}
 
 	switch rule.Type {

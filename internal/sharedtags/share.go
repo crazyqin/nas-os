@@ -8,18 +8,18 @@ import (
 	"time"
 )
 
-// TagShareManager manages tag sharing, permissions, and subscriptions
+// TagShareManager manages tag sharing, permissions, and subscriptions.
 type TagShareManager struct {
-	mu           sync.RWMutex
-	shares       map[string]*TagShare      // shareID -> TagShare
-	tagShares    map[string][]*TagShare    // tagID -> []*TagShare
-	userShares   map[string][]*TagShare    // userID -> []*TagShare
-	subscribers  map[string][]string       // tagID -> []userID (notification subscribers)
-	manager      *TagManager
-	nextID       int64
+	mu          sync.RWMutex
+	shares      map[string]*TagShare   // shareID -> TagShare
+	tagShares   map[string][]*TagShare // tagID -> []*TagShare
+	userShares  map[string][]*TagShare // userID -> []*TagShare
+	subscribers map[string][]string    // tagID -> []userID (notification subscribers)
+	manager     *TagManager
+	nextID      int64
 }
 
-// NewTagShareManager creates a new TagShareManager instance
+// NewTagShareManager creates a new TagShareManager instance.
 func NewTagShareManager(manager *TagManager) *TagShareManager {
 	sm := &TagShareManager{
 		shares:      make(map[string]*TagShare),
@@ -32,7 +32,7 @@ func NewTagShareManager(manager *TagManager) *TagShareManager {
 	return sm
 }
 
-// ShareTag shares a tag with a user or group
+// ShareTag shares a tag with a user or group.
 func (sm *TagShareManager) ShareTag(shareBy string, req ShareTagRequest) (*TagShare, error) {
 	if err := req.Validate(); err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (sm *TagShareManager) ShareTag(shareBy string, req ShareTagRequest) (*TagSh
 	return share, nil
 }
 
-// RevokeShare revokes a tag share
+// RevokeShare revokes a tag share.
 func (sm *TagShareManager) RevokeShare(shareID string) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -134,7 +134,7 @@ func (sm *TagShareManager) RevokeShare(shareID string) error {
 	return nil
 }
 
-// UpdateSharePermission updates the permission of a share
+// UpdateSharePermission updates the permission of a share.
 func (sm *TagShareManager) UpdateSharePermission(shareID string, permission TagSharePermission) (*TagShare, error) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -149,7 +149,7 @@ func (sm *TagShareManager) UpdateSharePermission(shareID string, permission TagS
 	return share, nil
 }
 
-// ToggleSubscription toggles notification subscription for a tag
+// ToggleSubscription toggles notification subscription for a tag.
 func (sm *TagShareManager) ToggleSubscription(tagID, userID string) (bool, error) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -175,7 +175,7 @@ func (sm *TagShareManager) ToggleSubscription(tagID, userID string) (bool, error
 	return true, nil
 }
 
-// GetSubscribers returns all subscribers for a tag
+// GetSubscribers returns all subscribers for a tag.
 func (sm *TagShareManager) GetSubscribers(tagID string) []string {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -186,7 +186,7 @@ func (sm *TagShareManager) GetSubscribers(tagID string) []string {
 	return result
 }
 
-// GetUserSharedTags returns all tags shared with a user
+// GetUserSharedTags returns all tags shared with a user.
 func (sm *TagShareManager) GetUserSharedTags(userID string) []*TagShare {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -210,7 +210,7 @@ func (sm *TagShareManager) GetUserSharedTags(userID string) []*TagShare {
 	return result
 }
 
-// GetTagShares returns all shares for a specific tag
+// GetTagShares returns all shares for a specific tag.
 func (sm *TagShareManager) GetTagShares(tagID string) []*TagShare {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -221,7 +221,7 @@ func (sm *TagShareManager) GetTagShares(tagID string) []*TagShare {
 	return result
 }
 
-// CheckPermission checks if a user has a specific permission on a tag
+// CheckPermission checks if a user has a specific permission on a tag.
 func (sm *TagShareManager) CheckPermission(tagID, userID string, requiredPerm TagSharePermission) bool {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -252,7 +252,7 @@ func (sm *TagShareManager) CheckPermission(tagID, userID string, requiredPerm Ta
 	return false
 }
 
-// permissionLevel returns numeric level for permission comparison
+// permissionLevel returns numeric level for permission comparison.
 func (sm *TagShareManager) permissionLevel(perm TagSharePermission) int {
 	switch perm {
 	case ShareView:
@@ -268,7 +268,7 @@ func (sm *TagShareManager) permissionLevel(perm TagSharePermission) int {
 	}
 }
 
-// addSubscriber adds a subscriber to a tag
+// addSubscriber adds a subscriber to a tag.
 func (sm *TagShareManager) addSubscriber(tagID, userID string) {
 	subs := sm.subscribers[tagID]
 	for _, sub := range subs {
@@ -279,7 +279,7 @@ func (sm *TagShareManager) addSubscriber(tagID, userID string) {
 	sm.subscribers[tagID] = append(sm.subscribers[tagID], userID)
 }
 
-// removeSubscriber removes a subscriber from a tag
+// removeSubscriber removes a subscriber from a tag.
 func (sm *TagShareManager) removeSubscriber(tagID, userID string) {
 	subs := sm.subscribers[tagID]
 	for i, sub := range subs {
@@ -290,7 +290,7 @@ func (sm *TagShareManager) removeSubscriber(tagID, userID string) {
 	}
 }
 
-// updateTagSharedStatus updates the IsShared flag on a tag
+// updateTagSharedStatus updates the IsShared flag on a tag.
 func (sm *TagShareManager) updateTagSharedStatus(tagID string) {
 	shares := sm.tagShares[tagID]
 	if tag, err := sm.manager.GetTag(tagID); err == nil {
@@ -298,16 +298,16 @@ func (sm *TagShareManager) updateTagSharedStatus(tagID string) {
 	}
 }
 
-// GetShareStats returns sharing statistics
+// GetShareStats returns sharing statistics.
 func (sm *TagShareManager) GetShareStats() *ShareStats {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
 
 	stats := &ShareStats{
-		TotalShares:    int64(len(sm.shares)),
-		SharedTags:     int64(len(sm.tagShares)),
-		ActiveUsers:    int64(len(sm.userShares)),
-		Subscriptions:  0,
+		TotalShares:   int64(len(sm.shares)),
+		SharedTags:    int64(len(sm.tagShares)),
+		ActiveUsers:   int64(len(sm.userShares)),
+		Subscriptions: 0,
 	}
 
 	for _, subs := range sm.subscribers {
@@ -317,7 +317,7 @@ func (sm *TagShareManager) GetShareStats() *ShareStats {
 	return stats
 }
 
-// ShareStats represents sharing statistics
+// ShareStats represents sharing statistics.
 type ShareStats struct {
 	TotalShares   int64 `json:"totalShares"`   // 总共享数
 	SharedTags    int64 `json:"sharedTags"`    // 被共享的标签数
@@ -325,7 +325,7 @@ type ShareStats struct {
 	Subscriptions int64 `json:"subscriptions"` // 订阅通知数
 }
 
-// NotifySubscribers sends notification to subscribers (stub for integration)
+// NotifySubscribers sends notification to subscribers (stub for integration).
 func (sm *TagShareManager) NotifySubscribers(tagID, message string) []string {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()

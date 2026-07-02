@@ -17,71 +17,71 @@ import (
 	"time"
 )
 
-// HashAlgorithm 哈希算法类型
+// HashAlgorithm 哈希算法类型.
 type HashAlgorithm string
 
 const (
-	// HashMD5 使用 MD5 哈希算法
+	// HashMD5 使用 MD5 哈希算法.
 	HashMD5 HashAlgorithm = "md5"
-	// HashSHA256 使用 SHA256 哈希算法
+	// HashSHA256 使用 SHA256 哈希算法.
 	HashSHA256 HashAlgorithm = "sha256"
 )
 
-// DedupStrategy 去重策略类型
+// DedupStrategy 去重策略类型.
 type DedupStrategy string
 
 const (
-	// StrategyKeepNewest 保留最新文件
+	// StrategyKeepNewest 保留最新文件.
 	StrategyKeepNewest DedupStrategy = "keep_newest"
-	// StrategyKeepOldest 保留最旧文件
+	// StrategyKeepOldest 保留最旧文件.
 	StrategyKeepOldest DedupStrategy = "keep_oldest"
-	// StrategyKeepShortestPath 保留最短路径的文件
+	// StrategyKeepShortestPath 保留最短路径的文件.
 	StrategyKeepShortestPath DedupStrategy = "keep_shortest_path"
-	// StrategyKeepLongestPath 保留最长路径的文件
+	// StrategyKeepLongestPath 保留最长路径的文件.
 	StrategyKeepLongestPath DedupStrategy = "keep_longest_path"
 )
 
-// ScanMode 扫描模式
+// ScanMode 扫描模式.
 type ScanMode string
 
 const (
-	// ScanModeFull 全量扫描
+	// ScanModeFull 全量扫描.
 	ScanModeFull ScanMode = "full"
-	// ScanModeIncremental 增量扫描（基于上次扫描时间）
+	// ScanModeIncremental 增量扫描（基于上次扫描时间）.
 	ScanModeIncremental ScanMode = "incremental"
 )
 
-// FileStatus 文件状态
+// FileStatus 文件状态.
 type FileStatus string
 
 const (
-	// StatusActive 活跃状态
+	// StatusActive 活跃状态.
 	StatusActive FileStatus = "active"
-	// StatusSoftDeleted 软删除状态
+	// StatusSoftDeleted 软删除状态.
 	StatusSoftDeleted FileStatus = "soft_deleted"
-	// StatusConfirmedDeleted 已确认删除
+	// StatusConfirmedDeleted 已确认删除.
 	StatusConfirmedDeleted FileStatus = "confirmed_deleted"
 )
 
-// ErrNoDuplicates 没有找到重复文件
+// ErrNoDuplicates 没有找到重复文件.
 var ErrNoDuplicates = errors.New("没有找到重复文件")
 
-// ErrFileNotFound 文件未找到
+// ErrFileNotFound 文件未找到.
 var ErrFileNotFound = errors.New("文件未找到")
 
-// ErrInvalidStrategy 无效的去重策略
+// ErrInvalidStrategy 无效的去重策略.
 var ErrInvalidStrategy = errors.New("无效的去重策略")
 
-// ErrInvalidHashAlgorithm 无效的哈希算法
+// ErrInvalidHashAlgorithm 无效的哈希算法.
 var ErrInvalidHashAlgorithm = errors.New("无效的哈希算法")
 
-// ErrTaskRunning 已有任务正在运行
+// ErrTaskRunning 已有任务正在运行.
 var ErrTaskRunning = errors.New("已有任务正在运行")
 
-// ErrNoSoftDeleted 没有软删除的文件可确认
+// ErrNoSoftDeleted 没有软删除的文件可确认.
 var ErrNoSoftDeleted = errors.New("没有软删除的文件可确认")
 
-// ExcludeRule 排除规则
+// ExcludeRule 排除规则.
 type ExcludeRule struct {
 	// Path 路径模式（支持通配符 * 和 ?）
 	Path string `json:"path"`
@@ -95,7 +95,7 @@ type ExcludeRule struct {
 	Description string `json:"description"`
 }
 
-// FileInfo 文件信息
+// FileInfo 文件信息.
 type FileInfo struct {
 	// Path 文件绝对路径
 	Path string `json:"path"`
@@ -111,7 +111,7 @@ type FileInfo struct {
 	ScanTime time.Time `json:"scan_time"`
 }
 
-// DuplicateGroup 重复文件组
+// DuplicateGroup 重复文件组.
 type DuplicateGroup struct {
 	// GroupID 组唯一标识
 	GroupID string `json:"group_id"`
@@ -125,7 +125,7 @@ type DuplicateGroup struct {
 	WastedSpace int64 `json:"wasted_space"`
 }
 
-// DedupTask 去重任务
+// DedupTask 去重任务.
 type DedupTask struct {
 	// TaskID 任务唯一标识
 	TaskID string `json:"task_id"`
@@ -149,7 +149,7 @@ type DedupTask struct {
 	Error string `json:"error,omitempty"`
 }
 
-// DedupReport 去重报告
+// DedupReport 去重报告.
 type DedupReport struct {
 	// TaskID 关联任务ID
 	TaskID string `json:"task_id"`
@@ -179,7 +179,7 @@ type DedupReport struct {
 	Groups []*DuplicateGroup `json:"groups"`
 }
 
-// Manager 文件去重管理器
+// Manager 文件去重管理器.
 type Manager struct {
 	mu sync.RWMutex
 
@@ -211,7 +211,7 @@ type Manager struct {
 	running bool
 }
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
 	// DefaultAlgorithm 默认哈希算法
 	DefaultAlgorithm HashAlgorithm `json:"default_algorithm"`
@@ -225,7 +225,7 @@ type ManagerConfig struct {
 	SoftDeleteDir string `json:"soft_delete_dir"`
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *ManagerConfig {
 	return &ManagerConfig{
 		DefaultAlgorithm: HashSHA256,
@@ -236,7 +236,7 @@ func DefaultConfig() *ManagerConfig {
 	}
 }
 
-// NewManager 创建新的文件去重管理器
+// NewManager 创建新的文件去重管理器.
 func NewManager(config *ManagerConfig) *Manager {
 	if config == nil {
 		config = DefaultConfig()
@@ -251,14 +251,14 @@ func NewManager(config *ManagerConfig) *Manager {
 	}
 }
 
-// AddExcludeRule 添加排除规则
+// AddExcludeRule 添加排除规则.
 func (m *Manager) AddExcludeRule(rule *ExcludeRule) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.excludeRules = append(m.excludeRules, rule)
 }
 
-// RemoveExcludeRule 移除指定索引的排除规则
+// RemoveExcludeRule 移除指定索引的排除规则.
 func (m *Manager) RemoveExcludeRule(index int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -269,7 +269,7 @@ func (m *Manager) RemoveExcludeRule(index int) error {
 	return nil
 }
 
-// GetExcludeRules 获取所有排除规则
+// GetExcludeRules 获取所有排除规则.
 func (m *Manager) GetExcludeRules() []*ExcludeRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -278,7 +278,7 @@ func (m *Manager) GetExcludeRules() []*ExcludeRule {
 	return rules
 }
 
-// shouldExclude 判断文件是否应被排除
+// shouldExclude 判断文件是否应被排除.
 func (m *Manager) shouldExclude(path string, size int64) bool {
 	for _, rule := range m.excludeRules {
 		// 检查大小限制
@@ -338,7 +338,7 @@ func (m *Manager) shouldExclude(path string, size int64) bool {
 	return false
 }
 
-// computeHash 计算文件哈希值
+// computeHash 计算文件哈希值.
 func computeHash(path string, algorithm HashAlgorithm) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -367,7 +367,7 @@ func computeHash(path string, algorithm HashAlgorithm) (string, error) {
 	}
 }
 
-// Scan 执行文件扫描
+// Scan 执行文件扫描.
 func (m *Manager) Scan(paths []string, mode ScanMode, algorithm HashAlgorithm) (*DedupTask, error) {
 	m.mu.Lock()
 
@@ -417,7 +417,7 @@ func (m *Manager) Scan(paths []string, mode ScanMode, algorithm HashAlgorithm) (
 	return task, err
 }
 
-// doScan 执行实际的扫描逻辑
+// doScan 执行实际的扫描逻辑.
 func (m *Manager) doScan(paths []string, mode ScanMode, algorithm HashAlgorithm, task *DedupTask) error {
 	// 收集文件列表
 	var fileList []string
@@ -538,7 +538,7 @@ func (m *Manager) doScan(paths []string, mode ScanMode, algorithm HashAlgorithm,
 	return nil
 }
 
-// GetDuplicateGroups 获取所有重复文件组
+// GetDuplicateGroups 获取所有重复文件组.
 func (m *Manager) GetDuplicateGroups() []*DuplicateGroup {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -547,7 +547,7 @@ func (m *Manager) GetDuplicateGroups() []*DuplicateGroup {
 	return groups
 }
 
-// GetDuplicateGroupByHash 根据哈希值获取重复文件组
+// GetDuplicateGroupByHash 根据哈希值获取重复文件组.
 func (m *Manager) GetDuplicateGroupByHash(hash string) *DuplicateGroup {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -559,7 +559,7 @@ func (m *Manager) GetDuplicateGroupByHash(hash string) *DuplicateGroup {
 	return nil
 }
 
-// Deduplicate 执行去重操作
+// Deduplicate 执行去重操作.
 func (m *Manager) Deduplicate(strategy DedupStrategy, confirmDelete bool) (*DedupReport, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -645,7 +645,7 @@ func (m *Manager) Deduplicate(strategy DedupStrategy, confirmDelete bool) (*Dedu
 	return report, nil
 }
 
-// selectFileToKeep 根据策略选择保留的文件索引
+// selectFileToKeep 根据策略选择保留的文件索引.
 func selectFileToKeep(files []*FileInfo, strategy DedupStrategy) int {
 	if len(files) == 0 {
 		return 0
@@ -679,7 +679,7 @@ func selectFileToKeep(files []*FileInfo, strategy DedupStrategy) int {
 	}
 }
 
-// isValidStrategy 检查策略是否有效
+// isValidStrategy 检查策略是否有效.
 func isValidStrategy(strategy DedupStrategy) bool {
 	switch strategy {
 	case StrategyKeepNewest, StrategyKeepOldest, StrategyKeepShortestPath, StrategyKeepLongestPath:
@@ -689,7 +689,7 @@ func isValidStrategy(strategy DedupStrategy) bool {
 	}
 }
 
-// SoftDeleteFile 软删除指定文件
+// SoftDeleteFile 软删除指定文件.
 func (m *Manager) SoftDeleteFile(path string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -703,7 +703,7 @@ func (m *Manager) SoftDeleteFile(path string) error {
 	return nil
 }
 
-// ConfirmDelete 确认删除所有软删除的文件
+// ConfirmDelete 确认删除所有软删除的文件.
 func (m *Manager) ConfirmDelete() (int64, int64, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -731,7 +731,7 @@ func (m *Manager) ConfirmDelete() (int64, int64, error) {
 	return count, recovered, nil
 }
 
-// GetSoftDeletedFiles 获取所有软删除文件
+// GetSoftDeletedFiles 获取所有软删除文件.
 func (m *Manager) GetSoftDeletedFiles() []*FileInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -745,7 +745,7 @@ func (m *Manager) GetSoftDeletedFiles() []*FileInfo {
 	return result
 }
 
-// RestoreFile 恢复软删除的文件
+// RestoreFile 恢复软删除的文件.
 func (m *Manager) RestoreFile(path string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -763,14 +763,14 @@ func (m *Manager) RestoreFile(path string) error {
 	return nil
 }
 
-// GetTask 获取任务信息
+// GetTask 获取任务信息.
 func (m *Manager) GetTask(taskID string) *DedupTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.tasks[taskID]
 }
 
-// GetTasks 获取所有任务
+// GetTasks 获取所有任务.
 func (m *Manager) GetTasks() []*DedupTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -781,7 +781,7 @@ func (m *Manager) GetTasks() []*DedupTask {
 	return tasks
 }
 
-// GetReports 获取所有报告
+// GetReports 获取所有报告.
 func (m *Manager) GetReports() []*DedupReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -790,7 +790,7 @@ func (m *Manager) GetReports() []*DedupReport {
 	return reports
 }
 
-// GenerateReport 生成当前状态的去重报告
+// GenerateReport 生成当前状态的去重报告.
 func (m *Manager) GenerateReport() *DedupReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -825,7 +825,7 @@ func (m *Manager) GenerateReport() *DedupReport {
 	return report
 }
 
-// GetFileInfo 获取指定文件信息
+// GetFileInfo 获取指定文件信息.
 func (m *Manager) GetFileInfo(path string) (*FileInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -837,7 +837,7 @@ func (m *Manager) GetFileInfo(path string) (*FileInfo, error) {
 	return fi, nil
 }
 
-// GetAllFiles 获取所有文件信息
+// GetAllFiles 获取所有文件信息.
 func (m *Manager) GetAllFiles() map[string]*FileInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -849,21 +849,21 @@ func (m *Manager) GetAllFiles() map[string]*FileInfo {
 	return result
 }
 
-// GetFileCount 获取扫描的文件总数
+// GetFileCount 获取扫描的文件总数.
 func (m *Manager) GetFileCount() int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return len(m.files)
 }
 
-// GetDuplicateCount 获取重复文件组数
+// GetDuplicateCount 获取重复文件组数.
 func (m *Manager) GetDuplicateCount() int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return len(m.duplicateGroups)
 }
 
-// GetWastedSpace 获取浪费的总空间
+// GetWastedSpace 获取浪费的总空间.
 func (m *Manager) GetWastedSpace() int64 {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -874,12 +874,12 @@ func (m *Manager) GetWastedSpace() int64 {
 	return total
 }
 
-// ExportReportAsJSON 导出报告为 JSON 格式
+// ExportReportAsJSON 导出报告为 JSON 格式.
 func (m *Manager) ExportReportAsJSON(report *DedupReport) ([]byte, error) {
 	return json.MarshalIndent(report, "", "  ")
 }
 
-// ImportExcludeRules 从 JSON 导入排除规则
+// ImportExcludeRules 从 JSON 导入排除规则.
 func (m *Manager) ImportExcludeRules(data []byte) error {
 	var rules []*ExcludeRule
 	if err := json.Unmarshal(data, &rules); err != nil {
@@ -891,14 +891,14 @@ func (m *Manager) ImportExcludeRules(data []byte) error {
 	return nil
 }
 
-// ExportExcludeRules 导出排除规则为 JSON
+// ExportExcludeRules 导出排除规则为 JSON.
 func (m *Manager) ExportExcludeRules() ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return json.MarshalIndent(m.excludeRules, "", "  ")
 }
 
-// Clear 清空所有数据
+// Clear 清空所有数据.
 func (m *Manager) Clear() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -910,14 +910,14 @@ func (m *Manager) Clear() {
 	m.lastScanTime = time.Time{}
 }
 
-// GetLastScanTime 获取上次扫描时间
+// GetLastScanTime 获取上次扫描时间.
 func (m *Manager) GetLastScanTime() time.Time {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.lastScanTime
 }
 
-// ScanSingleFile 扫描单个文件并返回哈希值
+// ScanSingleFile 扫描单个文件并返回哈希值.
 func (m *Manager) ScanSingleFile(path string, algorithm HashAlgorithm) (string, error) {
 	if algorithm == "" {
 		algorithm = m.config.DefaultAlgorithm
@@ -957,7 +957,7 @@ func (m *Manager) ScanSingleFile(path string, algorithm HashAlgorithm) (string, 
 	return hash, nil
 }
 
-// FindDuplicatesByHash 根据哈希值查找重复文件
+// FindDuplicatesByHash 根据哈希值查找重复文件.
 func (m *Manager) FindDuplicatesByHash(hash string) []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

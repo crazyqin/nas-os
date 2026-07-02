@@ -12,33 +12,33 @@ import (
 	"time"
 )
 
-// Logger 日志接口
+// Logger 日志接口.
 type Logger interface {
 	Info(msg string, args ...interface{})
 	Error(msg string, args ...interface{})
 	Debug(msg string, args ...interface{})
 }
 
-// Manager 批量部署管理器
+// Manager 批量部署管理器.
 type Manager struct {
-	mu              sync.RWMutex
-	assets          map[string]*Asset
-	templates       map[string]*ConfigTemplate
-	deployJobs      map[string]*DeployJob
-	firmwareInfo    map[string]*FirmwareInfo
-	firmwareJobs    map[string]*FirmwareUpgradeJob
-	costRecords     []*CostRecord
-	reports         []*Report
+	mu                sync.RWMutex
+	assets            map[string]*Asset
+	templates         map[string]*ConfigTemplate
+	deployJobs        map[string]*DeployJob
+	firmwareInfo      map[string]*FirmwareInfo
+	firmwareJobs      map[string]*FirmwareUpgradeJob
+	costRecords       []*CostRecord
+	reports           []*Report
 	discoveredDevices map[string]*DiscoveredDevice
-	events          []Event
-	config          *Config
-	logger          Logger
-	ctx             context.Context
-	cancel          context.CancelFunc
-	wg              sync.WaitGroup
+	events            []Event
+	config            *Config
+	logger            Logger
+	ctx               context.Context
+	cancel            context.CancelFunc
+	wg                sync.WaitGroup
 }
 
-// Event 事件
+// Event 事件.
 type Event struct {
 	ID        string    `json:"id"`
 	Type      string    `json:"type"`
@@ -47,7 +47,7 @@ type Event struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	ScanSubnet       string        `json:"scan_subnet"`
 	ScanPort         int           `json:"scan_port"`
@@ -59,7 +59,7 @@ type Config struct {
 	UsefulLifeYears  int           `json:"useful_life_years"`
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		ScanSubnet:       "192.168.1.0/24",
@@ -73,7 +73,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(logger Logger) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Manager{
@@ -95,7 +95,7 @@ func NewManager(logger Logger) *Manager {
 
 // ==================== 设备发现 ====================
 
-// ScanNetwork 扫描网络发现 NAS 设备
+// ScanNetwork 扫描网络发现 NAS 设备.
 func (m *Manager) ScanNetwork(req *ScanRequest) (*ScanResult, error) {
 	if req == nil {
 		req = &ScanRequest{
@@ -153,7 +153,7 @@ func (m *Manager) ScanNetwork(req *ScanRequest) (*ScanResult, error) {
 	return result, nil
 }
 
-// GetDiscoveredDevice 获取已发现设备
+// GetDiscoveredDevice 获取已发现设备.
 func (m *Manager) GetDiscoveredDevice(deviceID string) (*DiscoveredDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -165,7 +165,7 @@ func (m *Manager) GetDiscoveredDevice(deviceID string) (*DiscoveredDevice, error
 	return device, nil
 }
 
-// ListDiscoveredDevices 列出已发现设备
+// ListDiscoveredDevices 列出已发现设备.
 func (m *Manager) ListDiscoveredDevices() []*DiscoveredDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -182,7 +182,7 @@ func (m *Manager) ListDiscoveredDevices() []*DiscoveredDevice {
 
 // ==================== 资产管理 ====================
 
-// AddAsset 添加资产
+// AddAsset 添加资产.
 func (m *Manager) AddAsset(asset *Asset) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -199,7 +199,7 @@ func (m *Manager) AddAsset(asset *Asset) error {
 	return nil
 }
 
-// UpdateAsset 更新资产
+// UpdateAsset 更新资产.
 func (m *Manager) UpdateAsset(asset *Asset) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -215,7 +215,7 @@ func (m *Manager) UpdateAsset(asset *Asset) error {
 	return nil
 }
 
-// RemoveAsset 删除资产
+// RemoveAsset 删除资产.
 func (m *Manager) RemoveAsset(assetID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -230,7 +230,7 @@ func (m *Manager) RemoveAsset(assetID string) error {
 	return nil
 }
 
-// GetAsset 获取资产
+// GetAsset 获取资产.
 func (m *Manager) GetAsset(assetID string) (*Asset, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -242,7 +242,7 @@ func (m *Manager) GetAsset(assetID string) (*Asset, error) {
 	return asset, nil
 }
 
-// ListAssets 列出资产
+// ListAssets 列出资产.
 func (m *Manager) ListAssets(assetType AssetType, status AssetStatus) []*Asset {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -264,7 +264,7 @@ func (m *Manager) ListAssets(assetType AssetType, status AssetStatus) []*Asset {
 	return assets
 }
 
-// GetHardwareInfo 获取资产硬件信息
+// GetHardwareInfo 获取资产硬件信息.
 func (m *Manager) GetHardwareInfo(assetID string) (*HardwareInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -275,18 +275,18 @@ func (m *Manager) GetHardwareInfo(assetID string) (*HardwareInfo, error) {
 	}
 
 	info := &HardwareInfo{
-		AssetID:      asset.ID,
-		CPUCores:     asset.CPUCores,
+		AssetID:       asset.ID,
+		CPUCores:      asset.CPUCores,
 		MemoryTotalGB: float64(asset.MemoryGB),
-		DiskSlots:    asset.DiskSlots,
-		UpdatedAt:    time.Now(),
+		DiskSlots:     asset.DiskSlots,
+		UpdatedAt:     time.Now(),
 	}
 	return info, nil
 }
 
 // ==================== 部署模板 ====================
 
-// CreateTemplate 创建配置模板
+// CreateTemplate 创建配置模板.
 func (m *Manager) CreateTemplate(tmpl *ConfigTemplate) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -302,7 +302,7 @@ func (m *Manager) CreateTemplate(tmpl *ConfigTemplate) error {
 	return nil
 }
 
-// UpdateTemplate 更新模板
+// UpdateTemplate 更新模板.
 func (m *Manager) UpdateTemplate(tmpl *ConfigTemplate) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -318,7 +318,7 @@ func (m *Manager) UpdateTemplate(tmpl *ConfigTemplate) error {
 	return nil
 }
 
-// DeleteTemplate 删除模板
+// DeleteTemplate 删除模板.
 func (m *Manager) DeleteTemplate(templateID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -331,7 +331,7 @@ func (m *Manager) DeleteTemplate(templateID string) error {
 	return nil
 }
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func (m *Manager) GetTemplate(templateID string) (*ConfigTemplate, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -343,7 +343,7 @@ func (m *Manager) GetTemplate(templateID string) (*ConfigTemplate, error) {
 	return tmpl, nil
 }
 
-// ListTemplates 列出模板
+// ListTemplates 列出模板.
 func (m *Manager) ListTemplates() []*ConfigTemplate {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -360,7 +360,7 @@ func (m *Manager) ListTemplates() []*ConfigTemplate {
 
 // ==================== 部署任务 ====================
 
-// CreateDeployJob 创建部署任务
+// CreateDeployJob 创建部署任务.
 func (m *Manager) CreateDeployJob(job *DeployJob) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -389,7 +389,7 @@ func (m *Manager) CreateDeployJob(job *DeployJob) error {
 	return nil
 }
 
-// executeDeployJob 执行部署任务
+// executeDeployJob 执行部署任务.
 func (m *Manager) executeDeployJob(jobID string) {
 	m.mu.Lock()
 	job, ok := m.deployJobs[jobID]
@@ -460,7 +460,7 @@ func (m *Manager) executeDeployJob(jobID string) {
 	m.mu.Unlock()
 }
 
-// deployToDevice 部署配置到单台设备
+// deployToDevice 部署配置到单台设备.
 func (m *Manager) deployToDevice(deviceID, templateID string, overrides map[string]string) error {
 	// 模拟部署逻辑：验证设备和模板存在
 	m.mu.RLock()
@@ -479,7 +479,7 @@ func (m *Manager) deployToDevice(deviceID, templateID string, overrides map[stri
 	return nil
 }
 
-// GetDeployJob 获取部署任务
+// GetDeployJob 获取部署任务.
 func (m *Manager) GetDeployJob(jobID string) (*DeployJob, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -491,7 +491,7 @@ func (m *Manager) GetDeployJob(jobID string) (*DeployJob, error) {
 	return job, nil
 }
 
-// ListDeployJobs 列出部署任务
+// ListDeployJobs 列出部署任务.
 func (m *Manager) ListDeployJobs(status JobStatus) []*DeployJob {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -510,7 +510,7 @@ func (m *Manager) ListDeployJobs(status JobStatus) []*DeployJob {
 	return jobs
 }
 
-// CancelDeployJob 取消部署任务
+// CancelDeployJob 取消部署任务.
 func (m *Manager) CancelDeployJob(jobID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -529,7 +529,7 @@ func (m *Manager) CancelDeployJob(jobID string) error {
 	return nil
 }
 
-// RetryDeployJob 重试失败的部署任务
+// RetryDeployJob 重试失败的部署任务.
 func (m *Manager) RetryDeployJob(jobID string) error {
 	m.mu.Lock()
 	job, ok := m.deployJobs[jobID]
@@ -566,7 +566,7 @@ func (m *Manager) RetryDeployJob(jobID string) error {
 
 // ==================== 固件管理 ====================
 
-// AddFirmwareInfo 添加固件信息
+// AddFirmwareInfo 添加固件信息.
 func (m *Manager) AddFirmwareInfo(info *FirmwareInfo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -581,7 +581,7 @@ func (m *Manager) AddFirmwareInfo(info *FirmwareInfo) error {
 	return nil
 }
 
-// ListFirmwareInfo 列出固件信息
+// ListFirmwareInfo 列出固件信息.
 func (m *Manager) ListFirmwareInfo(model string) []*FirmwareInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -599,7 +599,7 @@ func (m *Manager) ListFirmwareInfo(model string) []*FirmwareInfo {
 	return infos
 }
 
-// CreateFirmwareUpgradeJob 创建固件升级任务
+// CreateFirmwareUpgradeJob 创建固件升级任务.
 func (m *Manager) CreateFirmwareUpgradeJob(job *FirmwareUpgradeJob) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -616,7 +616,7 @@ func (m *Manager) CreateFirmwareUpgradeJob(job *FirmwareUpgradeJob) error {
 	return nil
 }
 
-// ExecuteFirmwareUpgrade 执行固件升级
+// ExecuteFirmwareUpgrade 执行固件升级.
 func (m *Manager) ExecuteFirmwareUpgrade(jobID string) error {
 	m.mu.Lock()
 	job, ok := m.firmwareJobs[jobID]
@@ -646,7 +646,7 @@ func (m *Manager) ExecuteFirmwareUpgrade(jobID string) error {
 	return nil
 }
 
-// RollbackFirmware 回滚固件
+// RollbackFirmware 回滚固件.
 func (m *Manager) RollbackFirmware(deviceID, targetVersion string) error {
 	m.mu.RLock()
 	_, ok := m.assets[deviceID]
@@ -660,7 +660,7 @@ func (m *Manager) RollbackFirmware(deviceID, targetVersion string) error {
 	return nil
 }
 
-// CheckFirmwareUpdates 检查固件更新
+// CheckFirmwareUpdates 检查固件更新.
 func (m *Manager) CheckFirmwareUpdates() map[string]string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -693,7 +693,7 @@ func (m *Manager) findLatestFirmware(model string) string {
 
 // ==================== 费用统计 ====================
 
-// AddCostRecord 添加费用记录
+// AddCostRecord 添加费用记录.
 func (m *Manager) AddCostRecord(record *CostRecord) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -708,7 +708,7 @@ func (m *Manager) AddCostRecord(record *CostRecord) error {
 	return nil
 }
 
-// GetCostSummary 获取费用汇总
+// GetCostSummary 获取费用汇总.
 func (m *Manager) GetCostSummary(period string) *CostSummary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -744,7 +744,7 @@ func (m *Manager) GetCostSummary(period string) *CostSummary {
 	return summary
 }
 
-// CalculateDepreciation 计算资产折旧
+// CalculateDepreciation 计算资产折旧.
 func (m *Manager) CalculateDepreciation(assetID string) (*DepreciationInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -777,7 +777,7 @@ func (m *Manager) CalculateDepreciation(assetID string) (*DepreciationInfo, erro
 	}, nil
 }
 
-// GetCostRecords 获取费用记录
+// GetCostRecords 获取费用记录.
 func (m *Manager) GetCostRecords(assetID string, costType CostType) []*CostRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -797,7 +797,7 @@ func (m *Manager) GetCostRecords(assetID string, costType CostType) []*CostRecor
 
 // ==================== 报告生成 ====================
 
-// GenerateDeployReport 生成部署报告
+// GenerateDeployReport 生成部署报告.
 func (m *Manager) GenerateDeployReport(period string) *Report {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -832,7 +832,7 @@ func (m *Manager) GenerateDeployReport(period string) *Report {
 	return report
 }
 
-// GenerateAssetReport 生成资产报告
+// GenerateAssetReport 生成资产报告.
 func (m *Manager) GenerateAssetReport(period string) *Report {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -866,7 +866,7 @@ func (m *Manager) GenerateAssetReport(period string) *Report {
 	return report
 }
 
-// GenerateCostReport 生成费用报告
+// GenerateCostReport 生成费用报告.
 func (m *Manager) GenerateCostReport(period string) *Report {
 	summary := m.GetCostSummary(period)
 
@@ -886,7 +886,7 @@ func (m *Manager) GenerateCostReport(period string) *Report {
 	return report
 }
 
-// ListReports 列出报告
+// ListReports 列出报告.
 func (m *Manager) ListReports(reportType ReportType) []*Report {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -903,14 +903,14 @@ func (m *Manager) ListReports(reportType ReportType) []*Report {
 
 // ==================== 统计信息 ====================
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() *Stats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	stats := &Stats{
-		TotalAssets:     len(m.assets),
-		TotalDeployJobs: len(m.deployJobs),
+		TotalAssets:      len(m.assets),
+		TotalDeployJobs:  len(m.deployJobs),
 		TotalFirmwareOps: len(m.firmwareJobs),
 	}
 
@@ -940,7 +940,7 @@ func (m *Manager) GetStats() *Stats {
 	return stats
 }
 
-// getCostSummaryInternal 内部费用汇总（调用者需持锁）
+// getCostSummaryInternal 内部费用汇总（调用者需持锁）.
 func (m *Manager) getCostSummaryInternal() *CostSummary {
 	summary := &CostSummary{
 		ByAsset: make(map[string]float64),
@@ -970,7 +970,7 @@ func (m *Manager) getCostSummaryInternal() *CostSummary {
 
 // ==================== 事件管理 ====================
 
-// GetEvents 获取事件
+// GetEvents 获取事件.
 func (m *Manager) GetEvents(limit int) []Event {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1003,7 +1003,7 @@ func (m *Manager) addEvent(eventType, message, assetID string) {
 
 // ==================== HTTP 路由 ====================
 
-// RegisterRoutes 注册 HTTP 路由
+// RegisterRoutes 注册 HTTP 路由.
 func (m *Manager) RegisterRoutes(mux *http.ServeMux) {
 	// 设备发现
 	mux.HandleFunc("/api/massdeploy/discover", m.handleDiscover)
@@ -1050,7 +1050,7 @@ func (m *Manager) RegisterRoutes(mux *http.ServeMux) {
 
 // ==================== Stop ====================
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.cancel()
 	m.wg.Wait()

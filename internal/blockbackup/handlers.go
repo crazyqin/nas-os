@@ -9,14 +9,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// BackupHandlers 块级备份 HTTP API 处理器
+// BackupHandlers 块级备份 HTTP API 处理器.
 type BackupHandlers struct {
 	engine    *BlockBackupEngine
 	scheduler *BackupScheduler
 	logger    *zap.Logger
 }
 
-// NewBackupHandlers 创建备份处理器
+// NewBackupHandlers 创建备份处理器.
 func NewBackupHandlers(engine *BlockBackupEngine, scheduler *BackupScheduler, logger *zap.Logger) *BackupHandlers {
 	return &BackupHandlers{
 		engine:    engine,
@@ -25,7 +25,7 @@ func NewBackupHandlers(engine *BlockBackupEngine, scheduler *BackupScheduler, lo
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *BackupHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	backup := r.Group("/backup")
 	{
@@ -46,31 +46,31 @@ func (h *BackupHandlers) RegisterRoutes(r *gin.RouterGroup) {
 
 // --- Request/Response structs ---
 
-// FullBackupRequest 全量备份请求
+// FullBackupRequest 全量备份请求.
 type FullBackupRequest struct {
 	Source      string `json:"source"      binding:"required"`
 	Destination string `json:"destination" binding:"required"`
 }
 
-// IncrementalBackupRequest 增量备份请求
+// IncrementalBackupRequest 增量备份请求.
 type IncrementalBackupRequest struct {
 	Source      string `json:"source"      binding:"required"`
 	Destination string `json:"destination" binding:"required"`
 	BaseSnap    string `json:"base_snap"` // 可选，为空时自动查找
 }
 
-// VerifyRequest 验证请求
+// VerifyRequest 验证请求.
 type VerifyRequest struct {
 	BackupPath string `json:"backup_path" binding:"required"`
 }
 
-// RestoreRequest 恢复请求
+// RestoreRequest 恢复请求.
 type RestoreRequest struct {
 	BackupPath string `json:"backup_path" binding:"required"`
 	Dest       string `json:"dest"        binding:"required"`
 }
 
-// APIResponse 统一 API 响应
+// APIResponse 统一 API 响应.
 type APIResponse struct {
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data,omitempty"`
@@ -79,7 +79,7 @@ type APIResponse struct {
 
 // --- Handlers ---
 
-// createFullBackup 创建全量备份
+// createFullBackup 创建全量备份.
 func (h *BackupHandlers) createFullBackup(c *gin.Context) {
 	var req FullBackupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -100,7 +100,7 @@ func (h *BackupHandlers) createFullBackup(c *gin.Context) {
 	c.JSON(http.StatusAccepted, APIResponse{Success: true, Data: job})
 }
 
-// createIncrementalBackup 创建增量备份
+// createIncrementalBackup 创建增量备份.
 func (h *BackupHandlers) createIncrementalBackup(c *gin.Context) {
 	var req IncrementalBackupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -134,7 +134,7 @@ func (h *BackupHandlers) createIncrementalBackup(c *gin.Context) {
 	c.JSON(http.StatusAccepted, APIResponse{Success: true, Data: job})
 }
 
-// createDifferentialBackup 创建差异备份
+// createDifferentialBackup 创建差异备份.
 func (h *BackupHandlers) createDifferentialBackup(c *gin.Context) {
 	var req FullBackupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -155,13 +155,13 @@ func (h *BackupHandlers) createDifferentialBackup(c *gin.Context) {
 	c.JSON(http.StatusAccepted, APIResponse{Success: true, Data: job})
 }
 
-// listJobs 列出备份任务
+// listJobs 列出备份任务.
 func (h *BackupHandlers) listJobs(c *gin.Context) {
 	jobs := h.engine.ListJobs()
 	c.JSON(http.StatusOK, APIResponse{Success: true, Data: jobs})
 }
 
-// getJob 获取任务详情
+// getJob 获取任务详情.
 func (h *BackupHandlers) getJob(c *gin.Context) {
 	id := c.Param("id")
 	job := h.engine.GetJob(id)
@@ -172,7 +172,7 @@ func (h *BackupHandlers) getJob(c *gin.Context) {
 	c.JSON(http.StatusOK, APIResponse{Success: true, Data: job})
 }
 
-// verifyBackup 验证备份
+// verifyBackup 验证备份.
 func (h *BackupHandlers) verifyBackup(c *gin.Context) {
 	var req VerifyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -192,7 +192,7 @@ func (h *BackupHandlers) verifyBackup(c *gin.Context) {
 	c.JSON(http.StatusOK, APIResponse{Success: true, Data: gin.H{"verified": true}})
 }
 
-// restoreBackup 恢复备份
+// restoreBackup 恢复备份.
 func (h *BackupHandlers) restoreBackup(c *gin.Context) {
 	var req RestoreRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -212,19 +212,19 @@ func (h *BackupHandlers) restoreBackup(c *gin.Context) {
 	c.JSON(http.StatusOK, APIResponse{Success: true, Data: gin.H{"restored": true}})
 }
 
-// listSnapshots 列出快照
+// listSnapshots 列出快照.
 func (h *BackupHandlers) listSnapshots(c *gin.Context) {
 	snaps := h.engine.ListSnapshots()
 	c.JSON(http.StatusOK, APIResponse{Success: true, Data: snaps})
 }
 
-// listChains 列出备份链
+// listChains 列出备份链.
 func (h *BackupHandlers) listChains(c *gin.Context) {
 	// BackupChainManager 通过 engine 获取
 	c.JSON(http.StatusOK, APIResponse{Success: true, Data: []interface{}{}})
 }
 
-// listSchedules 列出调度任务
+// listSchedules 列出调度任务.
 func (h *BackupHandlers) listSchedules(c *gin.Context) {
 	if h.scheduler == nil {
 		c.JSON(http.StatusServiceUnavailable, APIResponse{Success: false, Error: "scheduler not configured"})
@@ -234,7 +234,7 @@ func (h *BackupHandlers) listSchedules(c *gin.Context) {
 	c.JSON(http.StatusOK, APIResponse{Success: true, Data: entries})
 }
 
-// addSchedule 添加调度任务
+// addSchedule 添加调度任务.
 func (h *BackupHandlers) addSchedule(c *gin.Context) {
 	if h.scheduler == nil {
 		c.JSON(http.StatusServiceUnavailable, APIResponse{Success: false, Error: "scheduler not configured"})
@@ -255,7 +255,7 @@ func (h *BackupHandlers) addSchedule(c *gin.Context) {
 	c.JSON(http.StatusCreated, APIResponse{Success: true, Data: cfg})
 }
 
-// removeSchedule 移除调度任务
+// removeSchedule 移除调度任务.
 func (h *BackupHandlers) removeSchedule(c *gin.Context) {
 	if h.scheduler == nil {
 		c.JSON(http.StatusServiceUnavailable, APIResponse{Success: false, Error: "scheduler not configured"})

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// EdgeNodeType 边缘节点类型
+// EdgeNodeType 边缘节点类型.
 type EdgeNodeType string
 
 const (
@@ -20,7 +20,7 @@ const (
 	NodeTypeHybrid  EdgeNodeType = "hybrid"
 )
 
-// NodeStatus 节点状态
+// NodeStatus 节点状态.
 type NodeStatus string
 
 const (
@@ -31,7 +31,7 @@ const (
 	StatusError    NodeStatus = "error"
 )
 
-// EdgePolicy 边缘策略
+// EdgePolicy 边缘策略.
 type EdgePolicy string
 
 const (
@@ -42,7 +42,7 @@ const (
 	PolicyLatency     EdgePolicy = "latency"
 )
 
-// EdgeNode 边缘节点
+// EdgeNode 边缘节点.
 type EdgeNode struct {
 	ID           string            `json:"id"`
 	Name         string            `json:"name"`
@@ -64,7 +64,7 @@ type EdgeNode struct {
 	UpdatedAt    time.Time         `json:"updated_at"`
 }
 
-// Location 位置信息
+// Location 位置信息.
 type Location struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
@@ -73,7 +73,7 @@ type Location struct {
 	Region    string  `json:"region"`
 }
 
-// EdgeTask 边缘任务
+// EdgeTask 边缘任务.
 type EdgeTask struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
@@ -92,7 +92,7 @@ type EdgeTask struct {
 	CreatedAt   time.Time     `json:"created_at"`
 }
 
-// EdgeCache 边缘缓存
+// EdgeCache 边缘缓存.
 type EdgeCache struct {
 	mu          sync.RWMutex
 	entries     map[string]*CacheEntry
@@ -102,7 +102,7 @@ type EdgeCache struct {
 	missCount   int64
 }
 
-// CacheEntry 缓存条目
+// CacheEntry 缓存条目.
 type CacheEntry struct {
 	Key        string      `json:"key"`
 	Value      interface{} `json:"value"`
@@ -113,7 +113,7 @@ type CacheEntry struct {
 	LastAccess time.Time   `json:"last_access"`
 }
 
-// EdgeSync 边缘同步
+// EdgeSync 边缘同步.
 type EdgeSync struct {
 	ID          string     `json:"id"`
 	SourceNode  string     `json:"source_node"`
@@ -127,7 +127,7 @@ type EdgeSync struct {
 	Error       string     `json:"error,omitempty"`
 }
 
-// EdgeRoute 边缘路由
+// EdgeRoute 边缘路由.
 type EdgeRoute struct {
 	ID          string     `json:"id"`
 	Source      string     `json:"source"`
@@ -140,7 +140,7 @@ type EdgeRoute struct {
 	UpdatedAt   time.Time  `json:"updated_at"`
 }
 
-// EdgeGatewayStats 边缘网关统计
+// EdgeGatewayStats 边缘网关统计.
 type EdgeGatewayStats struct {
 	TotalNodes     int                  `json:"total_nodes"`
 	OnlineNodes    int                  `json:"online_nodes"`
@@ -158,7 +158,7 @@ type EdgeGatewayStats struct {
 	NodeTypes      map[EdgeNodeType]int `json:"node_types"`
 }
 
-// EdgeGateway 边缘网关
+// EdgeGateway 边缘网关.
 type EdgeGateway struct {
 	mu        sync.RWMutex
 	nodes     map[string]*EdgeNode
@@ -170,7 +170,7 @@ type EdgeGateway struct {
 	taskQueue chan *EdgeTask
 }
 
-// GatewayConfig 网关配置
+// GatewayConfig 网关配置.
 type GatewayConfig struct {
 	DefaultPolicy      EdgePolicy `json:"default_policy"`
 	SyncIntervalSec    int        `json:"sync_interval_sec"`
@@ -183,7 +183,7 @@ type GatewayConfig struct {
 	CompressionEnabled bool       `json:"compression_enabled"`
 }
 
-// NewEdgeGateway 创建边缘网关
+// NewEdgeGateway 创建边缘网关.
 func NewEdgeGateway(config *GatewayConfig) *EdgeGateway {
 	if config == nil {
 		config = &GatewayConfig{
@@ -222,7 +222,7 @@ func NewEdgeGateway(config *GatewayConfig) *EdgeGateway {
 	return gw
 }
 
-// RegisterNode 注册边缘节点
+// RegisterNode 注册边缘节点.
 func (eg *EdgeGateway) RegisterNode(node *EdgeNode) error {
 	eg.mu.Lock()
 	defer eg.mu.Unlock()
@@ -241,7 +241,7 @@ func (eg *EdgeGateway) RegisterNode(node *EdgeNode) error {
 	return nil
 }
 
-// UnregisterNode 注销边缘节点
+// UnregisterNode 注销边缘节点.
 func (eg *EdgeGateway) UnregisterNode(nodeID string) error {
 	eg.mu.Lock()
 	defer eg.mu.Unlock()
@@ -254,7 +254,7 @@ func (eg *EdgeGateway) UnregisterNode(nodeID string) error {
 	return nil
 }
 
-// SubmitTask 提交边缘任务
+// SubmitTask 提交边缘任务.
 func (eg *EdgeGateway) SubmitTask(task *EdgeTask) error {
 	eg.mu.Lock()
 	defer eg.mu.Unlock()
@@ -288,7 +288,7 @@ func (eg *EdgeGateway) SubmitTask(task *EdgeTask) error {
 	return nil
 }
 
-// GetTask 获取任务状态
+// GetTask 获取任务状态.
 func (eg *EdgeGateway) GetTask(taskID string) (*EdgeTask, error) {
 	eg.mu.RLock()
 	defer eg.mu.RUnlock()
@@ -300,7 +300,7 @@ func (eg *EdgeGateway) GetTask(taskID string) (*EdgeTask, error) {
 	return task, nil
 }
 
-// GetNode 获取节点信息
+// GetNode 获取节点信息.
 func (eg *EdgeGateway) GetNode(nodeID string) (*EdgeNode, error) {
 	eg.mu.RLock()
 	defer eg.mu.RUnlock()
@@ -312,7 +312,7 @@ func (eg *EdgeGateway) GetNode(nodeID string) (*EdgeNode, error) {
 	return node, nil
 }
 
-// AddRoute 添加路由
+// AddRoute 添加路由.
 func (eg *EdgeGateway) AddRoute(route *EdgeRoute) error {
 	eg.mu.Lock()
 	defer eg.mu.Unlock()
@@ -329,7 +329,7 @@ func (eg *EdgeGateway) AddRoute(route *EdgeRoute) error {
 	return nil
 }
 
-// RemoveRoute 删除路由
+// RemoveRoute 删除路由.
 func (eg *EdgeGateway) RemoveRoute(routeID string) error {
 	eg.mu.Lock()
 	defer eg.mu.Unlock()
@@ -342,7 +342,7 @@ func (eg *EdgeGateway) RemoveRoute(routeID string) error {
 	return nil
 }
 
-// CacheGet 获取缓存
+// CacheGet 获取缓存.
 func (eg *EdgeGateway) CacheGet(key string) (interface{}, bool) {
 	eg.cache.mu.RLock()
 	defer eg.cache.mu.RUnlock()
@@ -366,7 +366,7 @@ func (eg *EdgeGateway) CacheGet(key string) (interface{}, bool) {
 	return entry.Value, true
 }
 
-// CacheSet 设置缓存
+// CacheSet 设置缓存.
 func (eg *EdgeGateway) CacheSet(key string, value interface{}, ttl time.Duration) error {
 	eg.cache.mu.Lock()
 	defer eg.cache.mu.Unlock()
@@ -393,7 +393,7 @@ func (eg *EdgeGateway) CacheSet(key string, value interface{}, ttl time.Duration
 	return nil
 }
 
-// CacheDelete 删除缓存
+// CacheDelete 删除缓存.
 func (eg *EdgeGateway) CacheDelete(key string) {
 	eg.cache.mu.Lock()
 	defer eg.cache.mu.Unlock()
@@ -404,7 +404,7 @@ func (eg *EdgeGateway) CacheDelete(key string) {
 	}
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (eg *EdgeGateway) GetStats() *EdgeGatewayStats {
 	eg.mu.RLock()
 	defer eg.mu.RUnlock()
@@ -464,7 +464,7 @@ func (eg *EdgeGateway) GetStats() *EdgeGatewayStats {
 	return stats
 }
 
-// SyncNodes 同步节点数据
+// SyncNodes 同步节点数据.
 func (eg *EdgeGateway) SyncNodes(sourceID, targetID string) (*EdgeSync, error) {
 	eg.mu.Lock()
 	defer eg.mu.Unlock()
@@ -506,7 +506,7 @@ func (eg *EdgeGateway) SyncNodes(sourceID, targetID string) (*EdgeSync, error) {
 	return sync, nil
 }
 
-// MarshalJSON 序列化
+// MarshalJSON 序列化.
 func (eg *EdgeGateway) MarshalJSON() ([]byte, error) {
 	eg.mu.RLock()
 	defer eg.mu.RUnlock()
@@ -592,7 +592,7 @@ func (eg *EdgeGateway) performHealthCheck() {
 	}
 }
 
-// SelectNodeForTask 为任务选择最佳节点
+// SelectNodeForTask 为任务选择最佳节点.
 func (eg *EdgeGateway) SelectNodeForTask(taskType string, policy EdgePolicy) (*EdgeNode, error) {
 	eg.mu.RLock()
 	defer eg.mu.RUnlock()
@@ -655,7 +655,7 @@ func (eg *EdgeGateway) selectBalanced(nodes []*EdgeNode) *EdgeNode {
 	return best
 }
 
-// GetOnlineNodes 获取在线节点列表
+// GetOnlineNodes 获取在线节点列表.
 func (eg *EdgeGateway) GetOnlineNodes() []*EdgeNode {
 	eg.mu.RLock()
 	defer eg.mu.RUnlock()
@@ -669,7 +669,7 @@ func (eg *EdgeGateway) GetOnlineNodes() []*EdgeNode {
 	return nodes
 }
 
-// GetNodesByType 按类型获取节点
+// GetNodesByType 按类型获取节点.
 func (eg *EdgeGateway) GetNodesByType(nodeType EdgeNodeType) []*EdgeNode {
 	eg.mu.RLock()
 	defer eg.mu.RUnlock()

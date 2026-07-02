@@ -13,7 +13,7 @@ import (
 // 威胁规则与模式
 // ============================================================
 
-// ThreatLevel 威胁级别
+// ThreatLevel 威胁级别.
 type ThreatLevel int
 
 const (
@@ -24,7 +24,7 @@ const (
 	ThreatLevelCritical ThreatLevel = 4 // 严重威胁
 )
 
-// String 威胁级别字符串
+// String 威胁级别字符串.
 func (l ThreatLevel) String() string {
 	switch l {
 	case ThreatLevelCritical:
@@ -40,7 +40,7 @@ func (l ThreatLevel) String() string {
 	}
 }
 
-// AttackPhase 攻击阶段
+// AttackPhase 攻击阶段.
 type AttackPhase string
 
 const (
@@ -52,7 +52,7 @@ const (
 	AttackPhaseRansom   AttackPhase = "ransom"   // 勒索阶段
 )
 
-// ThreatRule 威胁检测规则
+// ThreatRule 威胁检测规则.
 type ThreatRule struct {
 	ID          string      `json:"id"`          // 规则ID
 	Name        string      `json:"name"`        // 规则名称
@@ -67,7 +67,7 @@ type ThreatRule struct {
 	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
-// Condition 触发条件
+// Condition 触发条件.
 type Condition struct {
 	Type          ConditionType `json:"type"`            // 条件类型
 	Operator      string        `json:"operator"`        // 操作符: gt, lt, eq, gte, lte, regex
@@ -75,7 +75,7 @@ type Condition struct {
 	TimeWindowSec int           `json:"time_window_sec"` // 时间窗口（秒）
 }
 
-// ConditionType 条件类型
+// ConditionType 条件类型.
 type ConditionType string
 
 const (
@@ -90,13 +90,13 @@ const (
 	ConditionNetworkAnomaly ConditionType = "network_anomaly"  // 网络异常
 )
 
-// Action 触发动作
+// Action 触发动作.
 type Action struct {
 	Type   ActionType        `json:"type"`             // 动作类型
 	Params map[string]string `json:"params,omitempty"` // 动作参数
 }
 
-// ActionType 动作类型
+// ActionType 动作类型.
 type ActionType string
 
 const (
@@ -113,7 +113,7 @@ const (
 // 防护策略
 // ============================================================
 
-// ShieldPolicy 防护策略
+// ShieldPolicy 防护策略.
 type ShieldPolicy struct {
 	ID                  string       `json:"id"`                     // 策略ID
 	Name                string       `json:"name"`                   // 策略名称
@@ -136,7 +136,7 @@ type ShieldPolicy struct {
 	UpdatedAt           time.Time    `json:"updated_at"`
 }
 
-// DefaultShieldPolicy 返回默认防护策略
+// DefaultShieldPolicy 返回默认防护策略.
 func DefaultShieldPolicy() ShieldPolicy {
 	return ShieldPolicy{
 		ID:                  "default",
@@ -164,7 +164,7 @@ func DefaultShieldPolicy() ShieldPolicy {
 // 攻击模式
 // ============================================================
 
-// AttackPattern 攻击模式定义
+// AttackPattern 攻击模式定义.
 type AttackPattern struct {
 	ID          string      `json:"id"`          // 模式ID
 	Name        string      `json:"name"`        // 模式名称
@@ -178,7 +178,7 @@ type AttackPattern struct {
 	CreatedAt   time.Time   `json:"created_at"`
 }
 
-// Indicator 攻击指标
+// Indicator 攻击指标.
 type Indicator struct {
 	Type       string  `json:"type"`        // 指标类型
 	Weight     float64 `json:"weight"`      // 权重
@@ -190,7 +190,7 @@ type Indicator struct {
 // 恢复点
 // ============================================================
 
-// RecoveryPoint 恢复点
+// RecoveryPoint 恢复点.
 type RecoveryPoint struct {
 	ID           string         `json:"id"`            // 恢复点ID
 	Name         string         `json:"name"`          // 恢复点名称
@@ -206,7 +206,7 @@ type RecoveryPoint struct {
 	ExpiresAt    *time.Time     `json:"expires_at,omitempty"` // 过期时间
 }
 
-// RecoveryType 恢复点类型
+// RecoveryType 恢复点类型.
 type RecoveryType string
 
 const (
@@ -216,7 +216,7 @@ const (
 	RecoveryTypePreemptive RecoveryType = "preemptive" // 预防性快照
 )
 
-// RecoveryStatus 恢复点状态
+// RecoveryStatus 恢复点状态.
 type RecoveryStatus string
 
 const (
@@ -230,7 +230,7 @@ const (
 // 蜜罐相关
 // ============================================================
 
-// HoneypotFile 蜜罐文件
+// HoneypotFile 蜜罐文件.
 type HoneypotFile struct {
 	ID           string     `json:"id"`                     // 蜜罐ID
 	Path         string     `json:"path"`                   // 文件路径
@@ -244,7 +244,7 @@ type HoneypotFile struct {
 	CreatedAt    time.Time  `json:"created_at"`
 }
 
-// HoneypotConfig 蜜罐配置
+// HoneypotConfig 蜜罐配置.
 type HoneypotConfig struct {
 	Enabled            bool     `json:"enabled"`              // 是否启用
 	BasePaths          []string `json:"base_paths"`           // 蜜罐部署路径
@@ -253,7 +253,7 @@ type HoneypotConfig struct {
 	RefreshIntervalMin int      `json:"refresh_interval_min"` // 刷新间隔（分钟）
 }
 
-// DefaultHoneypotConfig 默认蜜罐配置
+// DefaultHoneypotConfig 默认蜜罐配置.
 func DefaultHoneypotConfig() HoneypotConfig {
 	return HoneypotConfig{
 		Enabled:            true,
@@ -268,7 +268,7 @@ func DefaultHoneypotConfig() HoneypotConfig {
 // 检测结果与统计
 // ============================================================
 
-// ThreatEvent 威胁事件
+// ThreatEvent 威胁事件.
 type ThreatEvent struct {
 	ID          string      `json:"id"`           // 事件ID
 	RuleID      string      `json:"rule_id"`      // 触发规则ID
@@ -287,7 +287,7 @@ type ThreatEvent struct {
 	ResolvedAt  *time.Time  `json:"resolved_at,omitempty"`
 }
 
-// ShieldStatus 防护状态
+// ShieldStatus 防护状态.
 type ShieldStatus struct {
 	Running           bool         `json:"running"`               // 是否运行中
 	Uptime            int64        `json:"uptime"`                // 运行时长（秒）
@@ -302,7 +302,7 @@ type ShieldStatus struct {
 	Stats             ShieldStats  `json:"stats"`                 // 统计信息
 }
 
-// ShieldStats 防护统计
+// ShieldStats 防护统计.
 type ShieldStats struct {
 	TotalScans        int64     `json:"total_scans"`         // 总扫描次数
 	TotalFilesScanned int64     `json:"total_files_scanned"` // 扫描文件总数
@@ -319,7 +319,7 @@ type ShieldStats struct {
 // API 请求/响应
 // ============================================================
 
-// CreatePolicyRequest 创建策略请求
+// CreatePolicyRequest 创建策略请求.
 type CreatePolicyRequest struct {
 	Name                string       `json:"name" binding:"required"`
 	Description         string       `json:"description"`
@@ -337,7 +337,7 @@ type CreatePolicyRequest struct {
 	NotifyChannels      []string     `json:"notify_channels"`
 }
 
-// UpdatePolicyRequest 更新策略请求
+// UpdatePolicyRequest 更新策略请求.
 type UpdatePolicyRequest struct {
 	ID                  string       `json:"id" binding:"required"`
 	Name                string       `json:"name"`
@@ -356,7 +356,7 @@ type UpdatePolicyRequest struct {
 	NotifyChannels      []string     `json:"notify_channels"`
 }
 
-// ThreatListResponse 威胁列表响应
+// ThreatListResponse 威胁列表响应.
 type ThreatListResponse struct {
 	Threats []ThreatEvent `json:"threats"`
 	Total   int           `json:"total"`
@@ -364,13 +364,13 @@ type ThreatListResponse struct {
 	PerPage int           `json:"per_page"`
 }
 
-// RecoveryListResponse 恢复点列表响应
+// RecoveryListResponse 恢复点列表响应.
 type RecoveryListResponse struct {
 	Points []RecoveryPoint `json:"points"`
 	Total  int             `json:"total"`
 }
 
-// RollbackRequest 回滚请求
+// RollbackRequest 回滚请求.
 type RollbackRequest struct {
 	RecoveryPointID string `json:"recovery_point_id" binding:"required"`
 	TargetPath      string `json:"target_path" binding:"required"`

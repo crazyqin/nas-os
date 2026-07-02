@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Manager K3s 集群管理器
+// Manager K3s 集群管理器.
 type Manager struct {
 	cluster     *ClusterInfo
 	nodes       map[string]*NodeInfo
@@ -26,7 +26,7 @@ type Manager struct {
 	mu          sync.RWMutex
 }
 
-// NewManager 创建 K3s 管理器
+// NewManager 创建 K3s 管理器.
 func NewManager() *Manager {
 	return &Manager{
 		cluster: &ClusterInfo{
@@ -55,7 +55,7 @@ func NewManager() *Manager {
 
 // ========== 集群管理 ==========
 
-// GetClusterInfo 获取集群信息
+// GetClusterInfo 获取集群信息.
 func (m *Manager) GetClusterInfo() *ClusterInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -67,7 +67,7 @@ func (m *Manager) GetClusterInfo() *ClusterInfo {
 	return &info
 }
 
-// GetClusterHealth 获取集群健康状态
+// GetClusterHealth 获取集群健康状态.
 func (m *Manager) GetClusterHealth() *ClusterHealth {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -120,7 +120,7 @@ func (m *Manager) GetClusterHealth() *ClusterHealth {
 
 // ========== 节点管理 ==========
 
-// AddNode 添加节点
+// AddNode 添加节点.
 func (m *Manager) AddNode(info *NodeInfo) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -133,7 +133,7 @@ func (m *Manager) AddNode(info *NodeInfo) {
 		fmt.Sprintf("节点 %s 加入集群", info.Name))
 }
 
-// GetNode 获取节点信息
+// GetNode 获取节点信息.
 func (m *Manager) GetNode(name string) (*NodeInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -145,7 +145,7 @@ func (m *Manager) GetNode(name string) (*NodeInfo, error) {
 	return node, nil
 }
 
-// ListNodes 列出所有节点
+// ListNodes 列出所有节点.
 func (m *Manager) ListNodes() []*NodeInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -160,7 +160,7 @@ func (m *Manager) ListNodes() []*NodeInfo {
 	return nodes
 }
 
-// UpdateNodeStatus 更新节点状态
+// UpdateNodeStatus 更新节点状态.
 func (m *Manager) UpdateNodeStatus(name string, status NodeStatus) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -185,7 +185,7 @@ func (m *Manager) UpdateNodeStatus(name string, status NodeStatus) error {
 	return nil
 }
 
-// RemoveNode 移除节点
+// RemoveNode 移除节点.
 func (m *Manager) RemoveNode(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -202,7 +202,7 @@ func (m *Manager) RemoveNode(name string) error {
 
 // ========== Helm Chart 管理 ==========
 
-// DeployChart 部署 Helm Chart
+// DeployChart 部署 Helm Chart.
 func (m *Manager) DeployChart(req DeployChartRequest) (*HelmRelease, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -240,7 +240,7 @@ func (m *Manager) DeployChart(req DeployChartRequest) (*HelmRelease, error) {
 	return release, nil
 }
 
-// GetHelmRelease 获取 Helm Release
+// GetHelmRelease 获取 Helm Release.
 func (m *Manager) GetHelmRelease(namespace, name string) (*HelmRelease, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -253,7 +253,7 @@ func (m *Manager) GetHelmRelease(namespace, name string) (*HelmRelease, error) {
 	return release, nil
 }
 
-// ListHelmReleases 列出所有 Helm Release
+// ListHelmReleases 列出所有 Helm Release.
 func (m *Manager) ListHelmReleases(namespace string) []*HelmRelease {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -270,7 +270,7 @@ func (m *Manager) ListHelmReleases(namespace string) []*HelmRelease {
 	return releases
 }
 
-// UpgradeHelmRelease 升级 Helm Release
+// UpgradeHelmRelease 升级 Helm Release.
 func (m *Manager) UpgradeHelmRelease(namespace, name string, req UpgradeChartRequest) (*HelmRelease, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -305,7 +305,7 @@ func (m *Manager) UpgradeHelmRelease(namespace, name string, req UpgradeChartReq
 	return release, nil
 }
 
-// RollbackHelmRelease 回滚 Helm Release
+// RollbackHelmRelease 回滚 Helm Release.
 func (m *Manager) RollbackHelmRelease(namespace, name string, req RollbackChartRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -331,7 +331,7 @@ func (m *Manager) RollbackHelmRelease(namespace, name string, req RollbackChartR
 	return nil
 }
 
-// UninstallHelmRelease 卸载 Helm Release
+// UninstallHelmRelease 卸载 Helm Release.
 func (m *Manager) UninstallHelmRelease(namespace, name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -351,7 +351,7 @@ func (m *Manager) UninstallHelmRelease(namespace, name string) error {
 
 // ========== 工作负载管理 ==========
 
-// AddDeployment 添加 Deployment 信息
+// AddDeployment 添加 Deployment 信息.
 func (m *Manager) AddDeployment(dep *DeploymentInfo) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -359,7 +359,7 @@ func (m *Manager) AddDeployment(dep *DeploymentInfo) {
 	m.deployments[dep.Namespace+"/"+dep.Name] = dep
 }
 
-// ListDeployments 列出 Deployment
+// ListDeployments 列出 Deployment.
 func (m *Manager) ListDeployments(namespace string) []*DeploymentInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -376,7 +376,7 @@ func (m *Manager) ListDeployments(namespace string) []*DeploymentInfo {
 	return deps
 }
 
-// GetDeployment 获取 Deployment
+// GetDeployment 获取 Deployment.
 func (m *Manager) GetDeployment(namespace, name string) (*DeploymentInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -389,7 +389,7 @@ func (m *Manager) GetDeployment(namespace, name string) (*DeploymentInfo, error)
 	return dep, nil
 }
 
-// AddService 添加 Service 信息
+// AddService 添加 Service 信息.
 func (m *Manager) AddService(svc *ServiceInfo) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -397,7 +397,7 @@ func (m *Manager) AddService(svc *ServiceInfo) {
 	m.services[svc.Namespace+"/"+svc.Name] = svc
 }
 
-// ListServices 列出 Service
+// ListServices 列出 Service.
 func (m *Manager) ListServices(namespace string) []*ServiceInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -414,7 +414,7 @@ func (m *Manager) ListServices(namespace string) []*ServiceInfo {
 	return svcs
 }
 
-// GetService 获取 Service
+// GetService 获取 Service.
 func (m *Manager) GetService(namespace, name string) (*ServiceInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -427,7 +427,7 @@ func (m *Manager) GetService(namespace, name string) (*ServiceInfo, error) {
 	return svc, nil
 }
 
-// AddPod 添加 Pod 信息
+// AddPod 添加 Pod 信息.
 func (m *Manager) AddPod(pod *PodInfo) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -435,7 +435,7 @@ func (m *Manager) AddPod(pod *PodInfo) {
 	m.pods[pod.Namespace+"/"+pod.Name] = pod
 }
 
-// ListPods 列出 Pod
+// ListPods 列出 Pod.
 func (m *Manager) ListPods(namespace string) []*PodInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -452,7 +452,7 @@ func (m *Manager) ListPods(namespace string) []*PodInfo {
 	return pods
 }
 
-// GetPod 获取 Pod
+// GetPod 获取 Pod.
 func (m *Manager) GetPod(namespace, name string) (*PodInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -465,7 +465,7 @@ func (m *Manager) GetPod(namespace, name string) (*PodInfo, error) {
 	return pod, nil
 }
 
-// GetPodLogs 获取 Pod 日志
+// GetPodLogs 获取 Pod 日志.
 func (m *Manager) GetPodLogs(req PodLogRequest) (*PodLogResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -503,7 +503,7 @@ func (m *Manager) GetPodLogs(req PodLogRequest) (*PodLogResult, error) {
 
 // ========== 服务网格管理 ==========
 
-// GetServiceMeshConfig 获取服务网格配置
+// GetServiceMeshConfig 获取服务网格配置.
 func (m *Manager) GetServiceMeshConfig() *ServiceMeshConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -511,7 +511,7 @@ func (m *Manager) GetServiceMeshConfig() *ServiceMeshConfig {
 	return &cfg
 }
 
-// EnableServiceMesh 启用服务网格
+// EnableServiceMesh 启用服务网格.
 func (m *Manager) EnableServiceMesh(meshType ServiceMeshType, namespace string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -527,7 +527,7 @@ func (m *Manager) EnableServiceMesh(meshType ServiceMeshType, namespace string) 
 	return nil
 }
 
-// DisableServiceMesh 禁用服务网格
+// DisableServiceMesh 禁用服务网格.
 func (m *Manager) DisableServiceMesh() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -542,7 +542,7 @@ func (m *Manager) DisableServiceMesh() error {
 	return nil
 }
 
-// UpdateServiceMeshConfig 更新服务网格配置
+// UpdateServiceMeshConfig 更新服务网格配置.
 func (m *Manager) UpdateServiceMeshConfig(cfg ServiceMeshConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -568,7 +568,7 @@ func (m *Manager) UpdateServiceMeshConfig(cfg ServiceMeshConfig) error {
 
 // ========== HPA 自动扩缩容管理 ==========
 
-// CreateHPA 创建 HPA 配置
+// CreateHPA 创建 HPA 配置.
 func (m *Manager) CreateHPA(req CreateHPARequest) *HPAConfig {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -609,7 +609,7 @@ func (m *Manager) CreateHPA(req CreateHPARequest) *HPAConfig {
 	return hpa
 }
 
-// GetHPA 获取 HPA 配置
+// GetHPA 获取 HPA 配置.
 func (m *Manager) GetHPA(namespace, name string) (*HPAConfig, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -622,7 +622,7 @@ func (m *Manager) GetHPA(namespace, name string) (*HPAConfig, error) {
 	return hpa, nil
 }
 
-// ListHPAs 列出 HPA 配置
+// ListHPAs 列出 HPA 配置.
 func (m *Manager) ListHPAs(namespace string) []*HPAConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -639,7 +639,7 @@ func (m *Manager) ListHPAs(namespace string) []*HPAConfig {
 	return hpas
 }
 
-// UpdateHPA 更新 HPA 配置
+// UpdateHPA 更新 HPA 配置.
 func (m *Manager) UpdateHPA(namespace, name string, req UpdateHPARequest) (*HPAConfig, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -667,7 +667,7 @@ func (m *Manager) UpdateHPA(namespace, name string, req UpdateHPARequest) (*HPAC
 	return hpa, nil
 }
 
-// DeleteHPA 删除 HPA 配置
+// DeleteHPA 删除 HPA 配置.
 func (m *Manager) DeleteHPA(namespace, name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -686,7 +686,7 @@ func (m *Manager) DeleteHPA(namespace, name string) error {
 // ========== 应用商店集成 ==========
 
 // DeployFromAppStore 从应用商店部署应用
-// 对接 appstore 模块获取 Chart 信息，然后通过 Helm 部署
+// 对接 appstore 模块获取 Chart 信息，然后通过 Helm 部署.
 func (m *Manager) DeployFromAppStore(req AppStoreDeployRequest) (*HelmRelease, error) {
 	// 查询应用商店获取 Chart 信息
 	app := m.getAppStoreApp(req.AppID)
@@ -712,7 +712,7 @@ func (m *Manager) DeployFromAppStore(req AppStoreDeployRequest) (*HelmRelease, e
 	return m.DeployChart(deployReq)
 }
 
-// ListAppStoreApps 列出可部署的应用商店应用
+// ListAppStoreApps 列出可部署的应用商店应用.
 func (m *Manager) ListAppStoreApps() []*AppStoreApp {
 	// 返回预置的可部署应用列表
 	return []*AppStoreApp{
@@ -725,7 +725,7 @@ func (m *Manager) ListAppStoreApps() []*AppStoreApp {
 	}
 }
 
-// getAppStoreApp 从应用商店获取应用信息
+// getAppStoreApp 从应用商店获取应用信息.
 func (m *Manager) getAppStoreApp(appID string) *AppStoreApp {
 	apps := m.ListAppStoreApps()
 	for _, app := range apps {
@@ -745,7 +745,7 @@ func (m *Manager) getAppStoreApp(appID string) *AppStoreApp {
 
 // ========== 资源配额管理 ==========
 
-// CreateQuota 创建资源配额
+// CreateQuota 创建资源配额.
 func (m *Manager) CreateQuota(req CreateQuotaRequest) *ResourceQuota {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -774,7 +774,7 @@ func (m *Manager) CreateQuota(req CreateQuotaRequest) *ResourceQuota {
 	return quota
 }
 
-// GetQuota 获取资源配额
+// GetQuota 获取资源配额.
 func (m *Manager) GetQuota(namespace, name string) (*ResourceQuota, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -787,7 +787,7 @@ func (m *Manager) GetQuota(namespace, name string) (*ResourceQuota, error) {
 	return quota, nil
 }
 
-// ListQuotas 列出资源配额
+// ListQuotas 列出资源配额.
 func (m *Manager) ListQuotas(namespace string) []*ResourceQuota {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -804,7 +804,7 @@ func (m *Manager) ListQuotas(namespace string) []*ResourceQuota {
 	return quotas
 }
 
-// UpdateQuota 更新资源配额
+// UpdateQuota 更新资源配额.
 func (m *Manager) UpdateQuota(namespace, name string, req UpdateQuotaRequest) (*ResourceQuota, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -821,7 +821,7 @@ func (m *Manager) UpdateQuota(namespace, name string, req UpdateQuotaRequest) (*
 	return quota, nil
 }
 
-// DeleteQuota 删除资源配额
+// DeleteQuota 删除资源配额.
 func (m *Manager) DeleteQuota(namespace, name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -839,7 +839,7 @@ func (m *Manager) DeleteQuota(namespace, name string) error {
 
 // ========== 集群事件监控 ==========
 
-// ListEvents 列出集群事件
+// ListEvents 列出集群事件.
 func (m *Manager) ListEvents(namespace string, limit int) []*ClusterEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -862,7 +862,7 @@ func (m *Manager) ListEvents(namespace string, limit int) []*ClusterEvent {
 	return events
 }
 
-// GetEventsBySeverity 按严重级别过滤事件
+// GetEventsBySeverity 按严重级别过滤事件.
 func (m *Manager) GetEventsBySeverity(severity EventSeverity) []*ClusterEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -880,7 +880,7 @@ func (m *Manager) GetEventsBySeverity(severity EventSeverity) []*ClusterEvent {
 	return events
 }
 
-// ClearEvents 清除事件
+// ClearEvents 清除事件.
 func (m *Manager) ClearEvents(namespace string) int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -901,7 +901,7 @@ func (m *Manager) ClearEvents(namespace string) int {
 	return before - len(filtered)
 }
 
-// addEvent 添加集群事件（内部方法，调用前需持有写锁）
+// addEvent 添加集群事件（内部方法，调用前需持有写锁）.
 func (m *Manager) addEvent(severity, kind, name, namespace, reason, message string) {
 	event := &ClusterEvent{
 		ID:        uuid.New().String(),

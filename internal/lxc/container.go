@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// ContainerStatus 容器状态
+// ContainerStatus 容器状态.
 type ContainerStatus string
 
 const (
@@ -22,7 +22,7 @@ const (
 	StatusMigrating ContainerStatus = "migrating"
 )
 
-// 容器状态转换表
+// 容器状态转换表.
 var containerTransitions = map[ContainerStatus][]ContainerStatus{
 	StatusCreated:   {StatusStarting, StatusStopped},
 	StatusStarting:  {StatusRunning, StatusError},
@@ -34,7 +34,7 @@ var containerTransitions = map[ContainerStatus][]ContainerStatus{
 	StatusMigrating: {StatusRunning, StatusError, StatusStopped},
 }
 
-// ValidTransition 检查状态转换是否合法
+// ValidTransition 检查状态转换是否合法.
 func ValidContainerTransition(from, to ContainerStatus) bool {
 	targets, ok := containerTransitions[from]
 	if !ok {
@@ -48,7 +48,7 @@ func ValidContainerTransition(from, to ContainerStatus) bool {
 	return false
 }
 
-// NetworkMode 网络模式
+// NetworkMode 网络模式.
 type NetworkMode string
 
 const (
@@ -58,7 +58,7 @@ const (
 	NetworkIsolated NetworkMode = "isolated"
 )
 
-// RestartPolicy 重启策略
+// RestartPolicy 重启策略.
 type RestartPolicy string
 
 const (
@@ -67,7 +67,7 @@ const (
 	RestartNever     RestartPolicy = "never"
 )
 
-// ResourceLimit 容器资源限制
+// ResourceLimit 容器资源限制.
 type ResourceLimit struct {
 	CPUCores     int    `json:"cpuCores"`     // CPU 核心数
 	CPUShares    int    `json:"cpuShares"`    // CPU 份额 (10-1024)
@@ -82,7 +82,7 @@ type ResourceLimit struct {
 	OpenFiles    int    `json:"openFiles"`    // 最大打开文件数
 }
 
-// Validate 验证资源限制
+// Validate 验证资源限制.
 func (r ResourceLimit) Validate() error {
 	if r.CPUCores < 0 {
 		return fmt.Errorf("CPU 核心数不能为负")
@@ -105,7 +105,7 @@ func (r ResourceLimit) Validate() error {
 	return nil
 }
 
-// NetworkConfig 容器网络配置
+// NetworkConfig 容器网络配置.
 type NetworkConfig struct {
 	Mode       NetworkMode `json:"mode"`
 	BridgeName string      `json:"bridgeName"` // 桥接网络名
@@ -118,7 +118,7 @@ type NetworkConfig struct {
 	Isolated   bool        `json:"isolated"`   // 网络隔离
 }
 
-// PortMap 端口映射
+// PortMap 端口映射.
 type PortMap struct {
 	HostPort      int    `json:"hostPort"`
 	ContainerPort int    `json:"containerPort"`
@@ -126,7 +126,7 @@ type PortMap struct {
 	HostIP        string `json:"hostIP"`
 }
 
-// VolumeMount 存储卷挂载
+// VolumeMount 存储卷挂载.
 type VolumeMount struct {
 	Source      string `json:"source"`      // 宿主机路径
 	Destination string `json:"destination"` // 容器内路径
@@ -134,7 +134,7 @@ type VolumeMount struct {
 	Driver      string `json:"driver"` // local, zfs, nfs
 }
 
-// Snapshot 容器快照
+// Snapshot 容器快照.
 type Snapshot struct {
 	ID          string    `json:"id"`
 	ContainerID string    `json:"containerId"`
@@ -145,7 +145,7 @@ type Snapshot struct {
 	ParentID    string    `json:"parentId,omitempty"` // 父快照 ID
 }
 
-// HealthCheck 健康检查配置
+// HealthCheck 健康检查配置.
 type HealthCheck struct {
 	Enabled        bool          `json:"enabled"`
 	Command        string        `json:"command"`
@@ -158,7 +158,7 @@ type HealthCheck struct {
 	UnhealthyCount int           `json:"unhealthyCount"`
 }
 
-// HAConfig 高可用配置
+// HAConfig 高可用配置.
 type HAConfig struct {
 	Enabled         bool          `json:"enabled"`
 	FailoverNode    string        `json:"failoverNode"`    // 故障转移目标节点
@@ -170,31 +170,31 @@ type HAConfig struct {
 	StandbyState    string        `json:"standbyState"` // active, standby, syncing
 }
 
-// Container LXC 容器信息
+// Container LXC 容器信息.
 type Container struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Template    string            `json:"template"`
-	Status      ContainerStatus   `json:"status"`
-	Hostname    string            `json:"hostname"`
-	CreatedAt   time.Time         `json:"createdAt"`
-	UpdatedAt   time.Time         `json:"updatedAt"`
-	StartedAt   *time.Time        `json:"startedAt,omitempty"`
-	StoppedAt   *time.Time        `json:"stoppedAt,omitempty"`
-	Resources   ResourceLimit     `json:"resources"`
-	Network     NetworkConfig     `json:"network"`
-	Volumes     []VolumeMount     `json:"volumes"`
-	Snapshots   []Snapshot        `json:"snapshots"`
-	HealthCheck *HealthCheck      `json:"healthCheck,omitempty"`
-	HAConfig    *HAConfig         `json:"haConfig,omitempty"`
-	Tags        map[string]string `json:"tags"`
-	Error       string            `json:"error,omitempty"`
-	PID         int               `json:"pid,omitempty"`
-	IPAddress   string            `json:"ipAddress,omitempty"`
-	RestartCount int              `json:"restartCount"`
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	Template     string            `json:"template"`
+	Status       ContainerStatus   `json:"status"`
+	Hostname     string            `json:"hostname"`
+	CreatedAt    time.Time         `json:"createdAt"`
+	UpdatedAt    time.Time         `json:"updatedAt"`
+	StartedAt    *time.Time        `json:"startedAt,omitempty"`
+	StoppedAt    *time.Time        `json:"stoppedAt,omitempty"`
+	Resources    ResourceLimit     `json:"resources"`
+	Network      NetworkConfig     `json:"network"`
+	Volumes      []VolumeMount     `json:"volumes"`
+	Snapshots    []Snapshot        `json:"snapshots"`
+	HealthCheck  *HealthCheck      `json:"healthCheck,omitempty"`
+	HAConfig     *HAConfig         `json:"haConfig,omitempty"`
+	Tags         map[string]string `json:"tags"`
+	Error        string            `json:"error,omitempty"`
+	PID          int               `json:"pid,omitempty"`
+	IPAddress    string            `json:"ipAddress,omitempty"`
+	RestartCount int               `json:"restartCount"`
 }
 
-// CreateRequest 创建容器请求
+// CreateRequest 创建容器请求.
 type CreateRequest struct {
 	Name        string            `json:"name" binding:"required"`
 	Template    string            `json:"template" binding:"required"`
@@ -207,7 +207,7 @@ type CreateRequest struct {
 	HAConfig    *HAConfig         `json:"haConfig,omitempty"`
 }
 
-// UpdateRequest 更新容器请求
+// UpdateRequest 更新容器请求.
 type UpdateRequest struct {
 	Resources   *ResourceLimit    `json:"resources,omitempty"`
 	Network     *NetworkConfig    `json:"network,omitempty"`
@@ -216,12 +216,12 @@ type UpdateRequest struct {
 	HAConfig    *HAConfig         `json:"haConfig,omitempty"`
 }
 
-// BatchRequest 批量操作请求
+// BatchRequest 批量操作请求.
 type BatchRequest struct {
 	ContainerIDs []string `json:"containerIds" binding:"required"`
 }
 
-// Stats 容器资源统计
+// Stats 容器资源统计.
 type Stats struct {
 	CPUPercent  float64   `json:"cpuPercent"`
 	CPUShares   int       `json:"cpuShares"`
@@ -235,7 +235,7 @@ type Stats struct {
 	Timestamp   time.Time `json:"timestamp"`
 }
 
-// ContainerListResponse 容器列表响应
+// ContainerListResponse 容器列表响应.
 type ContainerListResponse struct {
 	Total      int          `json:"total"`
 	Running    int          `json:"running"`
@@ -244,7 +244,7 @@ type ContainerListResponse struct {
 	Containers []*Container `json:"containers"`
 }
 
-// APIResponse 通用 API 响应
+// APIResponse 通用 API 响应.
 type APIResponse struct {
 	Success bool        `json:"success"`
 	Message string      `json:"message,omitempty"`

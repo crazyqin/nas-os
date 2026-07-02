@@ -14,12 +14,12 @@ import (
 	"time"
 )
 
-// Authenticator WebAuthn 认证器
+// Authenticator WebAuthn 认证器.
 type Authenticator struct {
 	config *Config
 }
 
-// NewAuthenticator 创建认证器
+// NewAuthenticator 创建认证器.
 func NewAuthenticator(config *Config) *Authenticator {
 	if config == nil {
 		config = DefaultConfig()
@@ -27,7 +27,7 @@ func NewAuthenticator(config *Config) *Authenticator {
 	return &Authenticator{config: config}
 }
 
-// GenerateChallenge 生成随机挑战值
+// GenerateChallenge 生成随机挑战值.
 func (a *Authenticator) GenerateChallenge() (string, error) {
 	challenge := make([]byte, a.config.ChallengeLen)
 	if _, err := rand.Read(challenge); err != nil {
@@ -36,7 +36,7 @@ func (a *Authenticator) GenerateChallenge() (string, error) {
 	return base64.URLEncoding.EncodeToString(challenge), nil
 }
 
-// CreateRegistrationChallenge 创建注册挑战
+// CreateRegistrationChallenge 创建注册挑战.
 func (a *Authenticator) CreateRegistrationChallenge(userID, userName, displayName string, existingCreds []Credential) (*RegistrationChallenge, error) {
 	challenge, err := a.GenerateChallenge()
 	if err != nil {
@@ -78,7 +78,7 @@ func (a *Authenticator) CreateRegistrationChallenge(userID, userName, displayNam
 	}, nil
 }
 
-// CreateAuthenticationChallenge 创建认证挑战
+// CreateAuthenticationChallenge 创建认证挑战.
 func (a *Authenticator) CreateAuthenticationChallenge(creds []Credential) (*AuthenticationChallenge, error) {
 	challenge, err := a.GenerateChallenge()
 	if err != nil {
@@ -103,7 +103,7 @@ func (a *Authenticator) CreateAuthenticationChallenge(creds []Credential) (*Auth
 	}, nil
 }
 
-// ParseClientDataJSON 解析客户端数据
+// ParseClientDataJSON 解析客户端数据.
 func (a *Authenticator) ParseClientDataJSON(clientDataJSON string) (*ClientData, error) {
 	data, err := base64.URLEncoding.DecodeString(clientDataJSON)
 	if err != nil {
@@ -118,7 +118,7 @@ func (a *Authenticator) ParseClientDataJSON(clientDataJSON string) (*ClientData,
 	return &clientData, nil
 }
 
-// ValidateClientData 验证客户端数据
+// ValidateClientData 验证客户端数据.
 func (a *Authenticator) ValidateClientData(clientData *ClientData, expectedType, expectedChallenge string) error {
 	// 验证操作类型
 	if clientData.Type != expectedType {
@@ -138,7 +138,7 @@ func (a *Authenticator) ValidateClientData(clientData *ClientData, expectedType,
 	return nil
 }
 
-// ParseAuthenticatorData 解析认证器数据
+// ParseAuthenticatorData 解析认证器数据.
 func (a *Authenticator) ParseAuthenticatorData(authData []byte) (*AuthenticatorData, *AuthenticatorDataFlags, error) {
 	if len(authData) < 37 {
 		return nil, nil, fmt.Errorf("认证器数据长度不足: 需要至少 37 字节, 实际 %d 字节", len(authData))
@@ -150,12 +150,12 @@ func (a *Authenticator) ParseAuthenticatorData(authData []byte) (*AuthenticatorD
 	// 解析标志位
 	flags := authData[32]
 	flagStruct := &AuthenticatorDataFlags{
-		UserPresent:       (flags & 0x01) != 0,
-		UserVerified:      (flags & 0x04) != 0,
-		BackupEligible:    (flags & 0x08) != 0,
-		BackupState:       (flags & 0x10) != 0,
-		AttestedData:      (flags & 0x40) != 0,
-		ExtensionData:     (flags & 0x80) != 0,
+		UserPresent:    (flags & 0x01) != 0,
+		UserVerified:   (flags & 0x04) != 0,
+		BackupEligible: (flags & 0x08) != 0,
+		BackupState:    (flags & 0x10) != 0,
+		AttestedData:   (flags & 0x40) != 0,
+		ExtensionData:  (flags & 0x80) != 0,
 	}
 
 	// 解析签名计数器
@@ -168,7 +168,7 @@ func (a *Authenticator) ParseAuthenticatorData(authData []byte) (*AuthenticatorD
 	}, flagStruct, nil
 }
 
-// ValidateRPIDHash 验证 RP ID 哈希
+// ValidateRPIDHash 验证 RP ID 哈希.
 func (a *Authenticator) ValidateRPIDHash(rpIDHash []byte) error {
 	expectedHash := sha256.Sum256([]byte(a.config.RPID))
 	if !bytesEqual(rpIDHash, expectedHash[:]) {
@@ -177,7 +177,7 @@ func (a *Authenticator) ValidateRPIDHash(rpIDHash []byte) error {
 	return nil
 }
 
-// VerifyRegistration 验证注册响应
+// VerifyRegistration 验证注册响应.
 func (a *Authenticator) VerifyRegistration(
 	resp *RegistrationResponse,
 	challenge string,
@@ -256,14 +256,14 @@ func (a *Authenticator) VerifyRegistration(
 		Transports:      []string{"usb"},
 		Authenticator:   "hardware",
 		CreatedAt:       time.Now(),
-		LastUsedAt:       time.Now(),
+		LastUsedAt:      time.Now(),
 		UsageCount:      1,
 	}
 
 	return cred, nil
 }
 
-// VerifyAuthentication 验证认证响应
+// VerifyAuthentication 验证认证响应.
 func (a *Authenticator) VerifyAuthentication(
 	resp *AuthenticationResponse,
 	cred *Credential,
@@ -329,7 +329,7 @@ func (a *Authenticator) VerifyAuthentication(
 	}, nil
 }
 
-// parseAttestationObject 解析证明对象（简化版）
+// parseAttestationObject 解析证明对象（简化版）.
 func (a *Authenticator) parseAttestationObject(data []byte) (*AttestationObject, error) {
 	// 简化实现：假设数据是 JSON 格式
 	// 实际实现应该使用 CBOR 解码
@@ -369,7 +369,7 @@ func (a *Authenticator) parseAttestationObject(data []byte) (*AttestationObject,
 	}, nil
 }
 
-// extractPublicKey 从认证数据中提取公钥（简化版）
+// extractPublicKey 从认证数据中提取公钥（简化版）.
 func (a *Authenticator) extractPublicKey(authData []byte) ([]byte, error) {
 	// 简化实现：生成一个演示用的 ECDSA 密钥对
 	// 实际实现应该从认证数据中解析 CBOR 编码的公钥
@@ -387,7 +387,7 @@ func (a *Authenticator) extractPublicKey(authData []byte) ([]byte, error) {
 	return publicKeyBytes, nil
 }
 
-// verifySignature 验证签名（简化版）
+// verifySignature 验证签名（简化版）.
 func (a *Authenticator) verifySignature(
 	resp *AuthenticationResponse,
 	authData []byte,
@@ -432,7 +432,7 @@ func (a *Authenticator) verifySignature(
 	return nil
 }
 
-// verifySignatureSimplified 简化的签名验证（演示模式）
+// verifySignatureSimplified 简化的签名验证（演示模式）.
 func (a *Authenticator) verifySignatureSimplified(verifyData, signature []byte) error {
 	// 简化实现：仅检查签名不为空
 	// 实际实现应该进行完整的密码学验证
@@ -442,7 +442,7 @@ func (a *Authenticator) verifySignatureSimplified(verifyData, signature []byte) 
 	return nil
 }
 
-// bytesEqual 比较两个字节切片是否相等
+// bytesEqual 比较两个字节切片是否相等.
 func bytesEqual(a, b []byte) bool {
 	if len(a) != len(b) {
 		return false
@@ -455,7 +455,7 @@ func bytesEqual(a, b []byte) bool {
 	return true
 }
 
-// GenerateRecoveryCode 生成恢复码
+// GenerateRecoveryCode 生成恢复码.
 func (a *Authenticator) GenerateRecoveryCode() (string, string, error) {
 	// 生成随机恢复码
 	codeBytes := make([]byte, a.config.RecoveryCodeLen)
@@ -473,7 +473,7 @@ func (a *Authenticator) GenerateRecoveryCode() (string, string, error) {
 	return code, hashStr, nil
 }
 
-// VerifyRecoveryCode 验证恢复码
+// VerifyRecoveryCode 验证恢复码.
 func (a *Authenticator) VerifyRecoveryCode(inputCode, storedHash string) bool {
 	// 计算输入恢复码的哈希
 	hash := sha256.Sum256([]byte(inputCode))
@@ -483,7 +483,7 @@ func (a *Authenticator) VerifyRecoveryCode(inputCode, storedHash string) bool {
 	return inputHash == storedHash
 }
 
-// formatRecoveryCode 格式化恢复码
+// formatRecoveryCode 格式化恢复码.
 func formatRecoveryCode(data []byte) string {
 	const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 	code := make([]byte, 16)

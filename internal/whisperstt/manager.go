@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager Whisper STT 管理器
+// Manager Whisper STT 管理器.
 type Manager struct {
 	mu             sync.RWMutex
 	logger         *zap.Logger
@@ -30,7 +30,7 @@ type Manager struct {
 	dailyStats          map[string]*DailyStat
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -53,7 +53,7 @@ func NewManager(logger *zap.Logger) *Manager {
 	return m
 }
 
-// initDefaultModels 初始化默认模型
+// initDefaultModels 初始化默认模型.
 func (m *Manager) initDefaultModels() {
 	models := []struct {
 		id        string
@@ -81,7 +81,7 @@ func (m *Manager) initDefaultModels() {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -90,7 +90,7 @@ func (m *Manager) Start() {
 	m.logger.Info("[Whisper STT] 管理器已启动")
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -100,7 +100,7 @@ func (m *Manager) Stop() {
 
 // ========== 模型管理 ==========
 
-// ListModels 列出所有模型
+// ListModels 列出所有模型.
 func (m *Manager) ListModels() []WhisperModel {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -112,7 +112,7 @@ func (m *Manager) ListModels() []WhisperModel {
 	return models
 }
 
-// GetModel 获取模型
+// GetModel 获取模型.
 func (m *Manager) GetModel(id string) (*WhisperModel, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -124,7 +124,7 @@ func (m *Manager) GetModel(id string) (*WhisperModel, error) {
 	return model, nil
 }
 
-// LoadModel 加载模型
+// LoadModel 加载模型.
 func (m *Manager) LoadModel(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -153,7 +153,7 @@ func (m *Manager) LoadModel(id string) error {
 	return nil
 }
 
-// UnloadModel 卸载模型
+// UnloadModel 卸载模型.
 func (m *Manager) UnloadModel(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -176,7 +176,7 @@ func (m *Manager) UnloadModel(id string) error {
 	return nil
 }
 
-// GetCurrentModel 获取当前模型
+// GetCurrentModel 获取当前模型.
 func (m *Manager) GetCurrentModel() *WhisperModel {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -193,7 +193,7 @@ func (m *Manager) GetCurrentModel() *WhisperModel {
 
 // ========== 转录任务 ==========
 
-// CreateJob 创建转录任务
+// CreateJob 创建转录任务.
 func (m *Manager) CreateJob(filePath string, fileName string, options TranscriptionOptions, priority int) *TranscriptionJob {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -215,7 +215,7 @@ func (m *Manager) CreateJob(filePath string, fileName string, options Transcript
 	return job
 }
 
-// GetJob 获取任务
+// GetJob 获取任务.
 func (m *Manager) GetJob(id string) (*TranscriptionJob, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -227,7 +227,7 @@ func (m *Manager) GetJob(id string) (*TranscriptionJob, error) {
 	return job, nil
 }
 
-// ListJobs 列出任务
+// ListJobs 列出任务.
 func (m *Manager) ListJobs(statusFilter string) []TranscriptionJob {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -241,7 +241,7 @@ func (m *Manager) ListJobs(statusFilter string) []TranscriptionJob {
 	return jobs
 }
 
-// CancelJob 取消任务
+// CancelJob 取消任务.
 func (m *Manager) CancelJob(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -260,7 +260,7 @@ func (m *Manager) CancelJob(id string) error {
 	return nil
 }
 
-// UpdateJobStatus 更新任务状态
+// UpdateJobStatus 更新任务状态.
 func (m *Manager) UpdateJobStatus(id string, status JobStatus, progress float64, errMsg string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -287,7 +287,7 @@ func (m *Manager) UpdateJobStatus(id string, status JobStatus, progress float64,
 
 // ========== 转录结果 ==========
 
-// SaveResult 保存转录结果
+// SaveResult 保存转录结果.
 func (m *Manager) SaveResult(result *TranscriptionResult) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -308,7 +308,7 @@ func (m *Manager) SaveResult(result *TranscriptionResult) {
 	m.logger.Info("[Whisper STT] 转录结果已保存", zap.String("resultId", result.ID))
 }
 
-// GetResult 获取结果
+// GetResult 获取结果.
 func (m *Manager) GetResult(id string) (*TranscriptionResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -320,7 +320,7 @@ func (m *Manager) GetResult(id string) (*TranscriptionResult, error) {
 	return result, nil
 }
 
-// ListResults 列出结果
+// ListResults 列出结果.
 func (m *Manager) ListResults() []TranscriptionResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -332,7 +332,7 @@ func (m *Manager) ListResults() []TranscriptionResult {
 	return results
 }
 
-// UpdateResult 更新结果
+// UpdateResult 更新结果.
 func (m *Manager) UpdateResult(id string, req EditResultRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -352,7 +352,7 @@ func (m *Manager) UpdateResult(id string, req EditResultRequest) error {
 	return nil
 }
 
-// DeleteResult 删除结果
+// DeleteResult 删除结果.
 func (m *Manager) DeleteResult(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -367,14 +367,14 @@ func (m *Manager) DeleteResult(id string) error {
 
 // ========== 预处理配置 ==========
 
-// GetPreprocessConfig 获取预处理配置
+// GetPreprocessConfig 获取预处理配置.
 func (m *Manager) GetPreprocessConfig() AudioPreprocessConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.preprocess
 }
 
-// UpdatePreprocessConfig 更新预处理配置
+// UpdatePreprocessConfig 更新预处理配置.
 func (m *Manager) UpdatePreprocessConfig(config AudioPreprocessConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -384,7 +384,7 @@ func (m *Manager) UpdatePreprocessConfig(config AudioPreprocessConfig) {
 
 // ========== 队列管理 ==========
 
-// GetQueueStats 获取队列统计
+// GetQueueStats 获取队列统计.
 func (m *Manager) GetQueueStats() QueueStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -409,7 +409,7 @@ func (m *Manager) GetQueueStats() QueueStats {
 	return stats
 }
 
-// ClearQueue 清空队列
+// ClearQueue 清空队列.
 func (m *Manager) ClearQueue() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -428,7 +428,7 @@ func (m *Manager) ClearQueue() int {
 
 // ========== GPU 状态 ==========
 
-// GetGPUStatus 获取 GPU 状态
+// GetGPUStatus 获取 GPU 状态.
 func (m *Manager) GetGPUStatus() GPUStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -452,7 +452,7 @@ func (m *Manager) GetGPUStatus() GPUStatus {
 
 // ========== 语言检测 ==========
 
-// DetectLanguage 检测音频语言
+// DetectLanguage 检测音频语言.
 func (m *Manager) DetectLanguage(filePath string) ([]LanguageDetect, error) {
 	// 模拟语言检测结果
 	return []LanguageDetect{
@@ -464,7 +464,7 @@ func (m *Manager) DetectLanguage(filePath string) ([]LanguageDetect, error) {
 
 // ========== 服务状态和统计 ==========
 
-// GetStatus 获取服务状态
+// GetStatus 获取服务状态.
 func (m *Manager) GetStatus() ServiceStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -482,7 +482,7 @@ func (m *Manager) GetStatus() ServiceStatus {
 	}
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() ServiceStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -550,7 +550,7 @@ func (m *Manager) getQueueStatsInternal() QueueStats {
 	return stats
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	return fmt.Sprintf("%d", time.Now().UnixNano())
 }

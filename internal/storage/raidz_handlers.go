@@ -13,19 +13,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RAIDZExpansionHandlers RAIDZ扩展API处理器
+// RAIDZExpansionHandlers RAIDZ扩展API处理器.
 type RAIDZExpansionHandlers struct {
 	service *RAIDZExpansionService
 }
 
-// NewRAIDZExpansionHandlers 创建处理器
+// NewRAIDZExpansionHandlers 创建处理器.
 func NewRAIDZExpansionHandlers(service *RAIDZExpansionService) *RAIDZExpansionHandlers {
 	return &RAIDZExpansionHandlers{
 		service: service,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *RAIDZExpansionHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	raidzGroup := r.Group("/storage/raidz-expansion")
 	{
@@ -75,7 +75,7 @@ func (h *RAIDZExpansionHandlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Failure 400 {object} api.Response "池不存在"
 // @Failure 500 {object} api.Response "服务器内部错误"
 // @Router /storage/raidz-expansion/eligibility/{pool} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpansionHandlers) checkEligibility(c *gin.Context) {
 	poolName := c.Param("pool")
 	if poolName == "" {
@@ -104,7 +104,7 @@ func (h *RAIDZExpansionHandlers) checkEligibility(c *gin.Context) {
 // @Param pool path string true "ZFS池名称"
 // @Success 200 {object} api.Response{data=ExpansionTask} "成功"
 // @Router /storage/raidz-expansion/status/{pool} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpansionHandlers) getExpansionStatus(c *gin.Context) {
 	poolName := c.Param("pool")
 	if poolName == "" {
@@ -129,13 +129,13 @@ func (h *RAIDZExpansionHandlers) getExpansionStatus(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} api.Response{data=[]ExpansionTask} "成功"
 // @Router /storage/raidz-expansion/tasks [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpansionHandlers) getAllActiveTasks(c *gin.Context) {
 	tasks := h.service.GetAllActiveTasks()
 	api.OK(c, tasks)
 }
 
-// StartExpansionReq 开始扩展请求（旧版API）
+// StartExpansionReq 开始扩展请求（旧版API）.
 type StartExpansionReq struct {
 	PoolName string `json:"pool_name" binding:"required"` // ZFS池名称
 	NewDisk  string `json:"new_disk" binding:"required"`  // 新磁盘路径
@@ -155,7 +155,7 @@ type StartExpansionReq struct {
 // @Failure 409 {object} api.Response "池已有扩展任务进行中"
 // @Failure 500 {object} api.Response "服务器内部错误"
 // @Router /storage/raidz-expansion/start [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpansionHandlers) startExpansion(c *gin.Context) {
 	var req StartExpansionReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -207,7 +207,7 @@ func (h *RAIDZExpansionHandlers) startExpansion(c *gin.Context) {
 // @Failure 400 {object} api.Response "池名称为空"
 // @Failure 404 {object} api.Response "无正在进行的扩展"
 // @Router /storage/raidz-expansion/pause/{pool} [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpansionHandlers) pauseExpansion(c *gin.Context) {
 	poolName := c.Param("pool")
 	if poolName == "" {
@@ -235,7 +235,7 @@ func (h *RAIDZExpansionHandlers) pauseExpansion(c *gin.Context) {
 // @Failure 400 {object} api.Response "池名称为空"
 // @Failure 404 {object} api.Response "无暂停的扩展"
 // @Router /storage/raidz-expansion/resume/{pool} [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpansionHandlers) resumeExpansion(c *gin.Context) {
 	poolName := c.Param("pool")
 	if poolName == "" {
@@ -263,7 +263,7 @@ func (h *RAIDZExpansionHandlers) resumeExpansion(c *gin.Context) {
 // @Failure 400 {object} api.Response "池名称为空"
 // @Failure 404 {object} api.Response "无正在进行的扩展"
 // @Router /storage/raidz-expansion/cancel/{pool} [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpansionHandlers) cancelExpansion(c *gin.Context) {
 	poolName := c.Param("pool")
 	if poolName == "" {
@@ -291,7 +291,7 @@ func (h *RAIDZExpansionHandlers) cancelExpansion(c *gin.Context) {
 // @Param minSize query int false "最小容量要求(GB)" default(0)
 // @Success 200 {object} api.Response{data=[]AvailableDiskInfo} "成功"
 // @Router /storage/raidz-expansion/available-disks [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpansionHandlers) getAvailableDisks(c *gin.Context) {
 	minSize := 0
 	if m := c.Query("minSize"); m != "" {
@@ -331,7 +331,7 @@ func (h *RAIDZExpansionHandlers) getAvailableDisks(c *gin.Context) {
 // @Param limit query int false "返回数量限制" default(20)
 // @Success 200 {object} api.Response{data=[]ExpansionTask} "成功"
 // @Router /storage/raidz-expansion/history [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpansionHandlers) getExpansionHistory(c *gin.Context) {
 	limit := 20
 	if l := c.Query("limit"); l != "" {
@@ -357,7 +357,7 @@ func (h *RAIDZExpansionHandlers) getExpansionHistory(c *gin.Context) {
 // @Param request body EstimateRequest true "预估请求"
 // @Success 200 {object} api.Response{data=ExpansionEstimateResult} "成功"
 // @Router /storage/raidz-expansion/estimate [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpansionHandlers) estimateExpansion(c *gin.Context) {
 	var req EstimateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -409,7 +409,7 @@ func (h *RAIDZExpansionHandlers) estimateExpansion(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} api.Response "成功"
 // @Router /storage/raidz-expansion/service-status [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpansionHandlers) getServiceStatus(c *gin.Context) {
 	available := h.service.IsAvailable()
 
@@ -422,7 +422,7 @@ func (h *RAIDZExpansionHandlers) getServiceStatus(c *gin.Context) {
 	})
 }
 
-// 辅助函数
+// 辅助函数.
 func countPassedChecks(checks []PreCheckResult) int {
 	count := 0
 	for _, check := range checks {
@@ -445,13 +445,13 @@ func countFailedChecks(checks []PreCheckResult) int {
 
 // 类型定义（补充 handlers 专用类型）
 
-// EstimateRequest 预估请求
+// EstimateRequest 预估请求.
 type EstimateRequest struct {
 	PoolName  string `json:"pool_name" binding:"required"`
 	NewDiskID string `json:"new_disk_id"`
 }
 
-// ExpansionEstimateResult 扩展预估结果
+// ExpansionEstimateResult 扩展预估结果.
 type ExpansionEstimateResult struct {
 	PoolName          string           `json:"pool_name"`
 	CurrentCapacityGB int              `json:"current_capacity_gb"`

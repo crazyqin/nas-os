@@ -29,7 +29,7 @@ func newTestRouter(ix *Indexer) *gin.Engine {
 	return r
 }
 
-// 创建临时测试文件
+// 创建临时测试文件.
 func createTempFile(t *testing.T, dir, name, content string) string {
 	t.Helper()
 	path := filepath.Join(dir, name)

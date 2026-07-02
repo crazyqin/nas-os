@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// GatewayConfig 网关配置
+// GatewayConfig 网关配置.
 type GatewayConfig struct {
 	StorageRoot   string       `json:"storageRoot"`   // 本地存储根目录
 	DefaultPolicy BucketPolicy `json:"defaultPolicy"` // 默认桶策略
@@ -22,7 +22,7 @@ type GatewayConfig struct {
 	Region        string       `json:"region"`        // 默认区域
 }
 
-// Gateway S3兼容对象存储网关
+// Gateway S3兼容对象存储网关.
 type Gateway struct {
 	config    GatewayConfig
 	buckets   map[string]*Bucket            // name -> bucket
@@ -35,7 +35,7 @@ type Gateway struct {
 	cancel    context.CancelFunc
 }
 
-// NewGateway 创建S3网关实例
+// NewGateway 创建S3网关实例.
 func NewGateway(config GatewayConfig) *Gateway {
 	if config.DefaultPolicy == "" {
 		config.DefaultPolicy = PolicyPrivate
@@ -60,7 +60,7 @@ func NewGateway(config GatewayConfig) *Gateway {
 	return gw
 }
 
-// CreateBucket 创建存储桶
+// CreateBucket 创建存储桶.
 func (gw *Gateway) CreateBucket(name, ownerID string, policy BucketPolicy, quota BucketQuota) (*Bucket, error) {
 	gw.mu.Lock()
 	defer gw.mu.Unlock()
@@ -98,7 +98,7 @@ func (gw *Gateway) CreateBucket(name, ownerID string, policy BucketPolicy, quota
 	return bucket, nil
 }
 
-// DeleteBucket 删除存储桶
+// DeleteBucket 删除存储桶.
 func (gw *Gateway) DeleteBucket(name, userID string) error {
 	gw.mu.Lock()
 	defer gw.mu.Unlock()
@@ -127,7 +127,7 @@ func (gw *Gateway) DeleteBucket(name, userID string) error {
 	return nil
 }
 
-// ListBuckets 列出用户的存储桶
+// ListBuckets 列出用户的存储桶.
 func (gw *Gateway) ListBuckets(userID string) []*Bucket {
 	gw.mu.RLock()
 	defer gw.mu.RUnlock()
@@ -143,7 +143,7 @@ func (gw *Gateway) ListBuckets(userID string) []*Bucket {
 	return result
 }
 
-// PutObject 上传对象
+// PutObject 上传对象.
 func (gw *Gateway) PutObject(bucketName, key, userID string, data []byte, contentType string, metadata, tags map[string]string) (*Object, error) {
 	gw.mu.Lock()
 	defer gw.mu.Unlock()
@@ -227,7 +227,7 @@ func (gw *Gateway) PutObject(bucketName, key, userID string, data []byte, conten
 	return obj, nil
 }
 
-// GetObject 下载对象
+// GetObject 下载对象.
 func (gw *Gateway) GetObject(bucketName, key, userID string) (*Object, error) {
 	gw.mu.RLock()
 	defer gw.mu.RUnlock()
@@ -266,7 +266,7 @@ func (gw *Gateway) GetObject(bucketName, key, userID string) (*Object, error) {
 	return &cp, nil
 }
 
-// HeadObject 获取对象元信息
+// HeadObject 获取对象元信息.
 func (gw *Gateway) HeadObject(bucketName, key, userID string) (*Object, error) {
 	gw.mu.RLock()
 	defer gw.mu.RUnlock()
@@ -292,7 +292,7 @@ func (gw *Gateway) HeadObject(bucketName, key, userID string) (*Object, error) {
 	return &cp, nil
 }
 
-// DeleteObject 删除对象
+// DeleteObject 删除对象.
 func (gw *Gateway) DeleteObject(bucketName, key, userID string) error {
 	gw.mu.Lock()
 	defer gw.mu.Unlock()
@@ -330,7 +330,7 @@ func (gw *Gateway) DeleteObject(bucketName, key, userID string) error {
 	return nil
 }
 
-// ListObjects 列出存储桶中的对象
+// ListObjects 列出存储桶中的对象.
 func (gw *Gateway) ListObjects(bucketName, prefix, userID string, maxKeys int) ([]*Object, bool, error) {
 	gw.mu.RLock()
 	defer gw.mu.RUnlock()
@@ -370,7 +370,7 @@ func (gw *Gateway) ListObjects(bucketName, prefix, userID string, maxKeys int) (
 	return result, truncated, nil
 }
 
-// GetStats 获取流量统计
+// GetStats 获取流量统计.
 func (gw *Gateway) GetStats(userID string) *TrafficStats {
 	gw.mu.RLock()
 	defer gw.mu.RUnlock()
@@ -422,14 +422,14 @@ func (gw *Gateway) GetStats(userID string) *TrafficStats {
 	return stats
 }
 
-// GetConfig 获取网关配置
+// GetConfig 获取网关配置.
 func (gw *Gateway) GetConfig() GatewayConfig {
 	gw.mu.RLock()
 	defer gw.mu.RUnlock()
 	return gw.config
 }
 
-// GetAccessLog 获取访问日志
+// GetAccessLog 获取访问日志.
 func (gw *Gateway) GetAccessLog(limit int) []AccessLog {
 	gw.mu.RLock()
 	defer gw.mu.RUnlock()
@@ -443,14 +443,14 @@ func (gw *Gateway) GetAccessLog(limit int) []AccessLog {
 	return result
 }
 
-// AddLifecycleRule 添加生命周期规则
+// AddLifecycleRule 添加生命周期规则.
 func (gw *Gateway) AddLifecycleRule(rule LifecycleRule) {
 	gw.mu.Lock()
 	defer gw.mu.Unlock()
 	gw.lifecycle[rule.Bucket] = append(gw.lifecycle[rule.Bucket], rule)
 }
 
-// RunLifecycle 执行生命周期规则（扫描并处理过期/转换对象）
+// RunLifecycle 执行生命周期规则（扫描并处理过期/转换对象）.
 func (gw *Gateway) RunLifecycle() (expired, transitioned int) {
 	gw.mu.Lock()
 	defer gw.mu.Unlock()
@@ -495,10 +495,10 @@ func (gw *Gateway) RunLifecycle() (expired, transitioned int) {
 	if expired+transitioned > 0 {
 		log.Printf("[S3Gateway] lifecycle run: expired=%d, transitioned=%d", expired, transitioned)
 	}
-	return
+	return expired, transitioned
 }
 
-// getUserStats 获取用户统计（需持有锁）
+// getUserStats 获取用户统计（需持有锁）.
 func (gw *Gateway) getUserStats(userID string) *UserStats {
 	us, ok := gw.stats.ByUser[userID]
 	if !ok {
@@ -508,7 +508,7 @@ func (gw *Gateway) getUserStats(userID string) *UserStats {
 	return us
 }
 
-// getBucketStats 获取桶统计（需持有锁）
+// getBucketStats 获取桶统计（需持有锁）.
 func (gw *Gateway) getBucketStats(bucketName string) *BucketStats {
 	bs, ok := gw.stats.ByBucket[bucketName]
 	if !ok {
@@ -518,7 +518,7 @@ func (gw *Gateway) getBucketStats(bucketName string) *BucketStats {
 	return bs
 }
 
-// getBucketSize 计算桶内所有对象总大小（需持有锁）
+// getBucketSize 计算桶内所有对象总大小（需持有锁）.
 func (gw *Gateway) getBucketSize(bucketName string) int64 {
 	var size int64
 	for _, obj := range gw.objects[bucketName] {
@@ -527,7 +527,7 @@ func (gw *Gateway) getBucketSize(bucketName string) int64 {
 	return size
 }
 
-// recordLog 记录访问日志（需持有锁）
+// recordLog 记录访问日志（需持有锁）.
 func (gw *Gateway) recordLog(userID, bucket, key, operation string, status int, size int64, durationMs int64) {
 	if !gw.config.EnableLogging {
 		return
@@ -544,7 +544,7 @@ func (gw *Gateway) recordLog(userID, bucket, key, operation string, status int, 
 	})
 }
 
-// isValidBucketName 校验桶名称（简化版S3命名规则）
+// isValidBucketName 校验桶名称（简化版S3命名规则）.
 func isValidBucketName(name string) bool {
 	if len(name) < 3 || len(name) > 63 {
 		return false
@@ -560,5 +560,5 @@ func isValidBucketName(name string) bool {
 	return true
 }
 
-// Ensure io.Reader/io.Writer are referenced to avoid import errors
+// Ensure io.Reader/io.Writer are referenced to avoid import errors.
 var _ io.Reader

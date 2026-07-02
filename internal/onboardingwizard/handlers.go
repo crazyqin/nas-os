@@ -8,18 +8,18 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handler 引导模块 HTTP 处理器
+// Handler 引导模块 HTTP 处理器.
 type Handler struct {
 	manager *Manager
 	logger  *zap.Logger
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
 	return &Handler{manager: manager, logger: logger}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	wizard := rg.Group("/onboarding")
 	{
@@ -42,7 +42,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// CreateSession 创建引导会话
+// CreateSession 创建引导会话.
 func (h *Handler) CreateSession(c *gin.Context) {
 	var req CreateSessionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -59,7 +59,7 @@ func (h *Handler) CreateSession(c *gin.Context) {
 	c.JSON(http.StatusCreated, session)
 }
 
-// ListSessions 列出所有会话
+// ListSessions 列出所有会话.
 func (h *Handler) ListSessions(c *gin.Context) {
 	sessions := h.manager.ListSessions()
 	c.JSON(http.StatusOK, gin.H{
@@ -68,7 +68,7 @@ func (h *Handler) ListSessions(c *gin.Context) {
 	})
 }
 
-// GetSession 获取会话详情
+// GetSession 获取会话详情.
 func (h *Handler) GetSession(c *gin.Context) {
 	sessionID := c.Param("id")
 	session, err := h.manager.GetSession(sessionID)
@@ -79,7 +79,7 @@ func (h *Handler) GetSession(c *gin.Context) {
 	c.JSON(http.StatusOK, session)
 }
 
-// GetProgress 获取引导进度
+// GetProgress 获取引导进度.
 func (h *Handler) GetProgress(c *gin.Context) {
 	sessionID := c.Param("id")
 	progress, err := h.manager.GetProgress(sessionID)
@@ -90,7 +90,7 @@ func (h *Handler) GetProgress(c *gin.Context) {
 	c.JSON(http.StatusOK, progress)
 }
 
-// CompleteStep 完成步骤
+// CompleteStep 完成步骤.
 func (h *Handler) CompleteStep(c *gin.Context) {
 	sessionID := c.Param("id")
 	stepID := c.Param("stepId")
@@ -109,7 +109,7 @@ func (h *Handler) CompleteStep(c *gin.Context) {
 	c.JSON(http.StatusOK, session)
 }
 
-// SkipStep 跳过步骤
+// SkipStep 跳过步骤.
 func (h *Handler) SkipStep(c *gin.Context) {
 	sessionID := c.Param("id")
 	stepID := c.Param("stepId")
@@ -123,7 +123,7 @@ func (h *Handler) SkipStep(c *gin.Context) {
 	c.JSON(http.StatusOK, session)
 }
 
-// UnskipStep 取消跳过步骤
+// UnskipStep 取消跳过步骤.
 func (h *Handler) UnskipStep(c *gin.Context) {
 	sessionID := c.Param("id")
 	stepID := c.Param("stepId")
@@ -137,7 +137,7 @@ func (h *Handler) UnskipStep(c *gin.Context) {
 	c.JSON(http.StatusOK, session)
 }
 
-// GetTemplates 获取配置模板
+// GetTemplates 获取配置模板.
 func (h *Handler) GetTemplates(c *gin.Context) {
 	templates := h.manager.GetTemplates()
 	c.JSON(http.StatusOK, gin.H{
@@ -146,7 +146,7 @@ func (h *Handler) GetTemplates(c *gin.Context) {
 	})
 }
 
-// GetRecommendations 获取功能推荐
+// GetRecommendations 获取功能推荐.
 func (h *Handler) GetRecommendations(c *gin.Context) {
 	scenario := c.Query("scenario")
 	if scenario == "" {

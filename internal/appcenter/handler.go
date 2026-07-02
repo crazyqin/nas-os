@@ -7,18 +7,18 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handler 应用商店HTTP处理器
+// Handler 应用商店HTTP处理器.
 type Handler struct {
 	store  *AppStore
 	logger *zap.Logger
 }
 
-// NewHandler 创建应用商店处理器
+// NewHandler 创建应用商店处理器.
 func NewHandler(store *AppStore, logger *zap.Logger) *Handler {
 	return &Handler{store: store, logger: logger}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	apps := r.Group("/appcenter")
 	{

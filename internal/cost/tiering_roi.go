@@ -8,14 +8,14 @@ import (
 	"time"
 )
 
-// TieringROIAnalyzer 分层存储ROI分析器
+// TieringROIAnalyzer 分层存储ROI分析器.
 type TieringROIAnalyzer struct {
 	ssdConfig   TierConfig
 	hddConfig   TierConfig
 	cloudConfig TierConfig
 }
 
-// TierConfig 存储层配置
+// TierConfig 存储层配置.
 type TierConfig struct {
 	MediaType         string  `json:"media_type"`           // SSD/HDD/Cloud
 	CapacityGB        float64 `json:"capacity_gb"`          // 容量(GB)
@@ -27,7 +27,7 @@ type TierConfig struct {
 	EnergyCostPerYear float64 `json:"energy_cost_per_year"` // 年能耗成本($)
 }
 
-// TieringROIResult ROI分析结果
+// TieringROIResult ROI分析结果.
 type TieringROIResult struct {
 	TotalCost           float64   `json:"total_cost"`              // 总成本
 	TotalCostOver5Years float64   `json:"total_cost_over_5_years"` // 5年总成本
@@ -39,7 +39,7 @@ type TieringROIResult struct {
 	Timestamp           time.Time `json:"timestamp"`
 }
 
-// NewTieringROIAnalyzer 创建ROI分析器
+// NewTieringROIAnalyzer 创建ROI分析器.
 func NewTieringROIAnalyzer(ssd, hdd, cloud TierConfig) *TieringROIAnalyzer {
 	return &TieringROIAnalyzer{
 		ssdConfig:   ssd,
@@ -48,7 +48,7 @@ func NewTieringROIAnalyzer(ssd, hdd, cloud TierConfig) *TieringROIAnalyzer {
 	}
 }
 
-// AnalyzeROI 分析分层存储ROI
+// AnalyzeROI 分析分层存储ROI.
 func (t *TieringROIAnalyzer) AnalyzeROI(workload WorkloadProfile) *TieringROIResult {
 	// 计算各层成本
 	ssdTotalCost := t.ssdConfig.CapacityGB * t.ssdConfig.CostPerGB
@@ -93,7 +93,7 @@ func (t *TieringROIAnalyzer) AnalyzeROI(workload WorkloadProfile) *TieringROIRes
 	}
 }
 
-// WorkloadProfile 工作负载特征
+// WorkloadProfile 工作负载特征.
 type WorkloadProfile struct {
 	TotalDataGB       float64 `json:"total_data_gb"`        // 总数据量(GB)
 	HotDataPercent    float64 `json:"hot_data_percent"`     // 热数据占比(%)
@@ -103,7 +103,7 @@ type WorkloadProfile struct {
 	GrowthRatePerYear float64 `json:"growth_rate_per_year"` // 年增长率(%)
 }
 
-// generateRecommendation 生成ROI建议
+// generateRecommendation 生成ROI建议.
 func (t *TieringROIAnalyzer) generateRecommendation(costSavings, perfGain float64, breakEven int) string {
 	if costSavings > 20 && perfGain > 50 && breakEven < 24 {
 		return fmt.Sprintf("强烈推荐: 成本节省%.1f%%，性能提升%.1f%%，%d个月收回投资",
@@ -119,7 +119,7 @@ func (t *TieringROIAnalyzer) generateRecommendation(costSavings, perfGain float6
 	return "不推荐: ROI不足，建议维持现有架构"
 }
 
-// CompareWithCloud 对比云存储方案
+// CompareWithCloud 对比云存储方案.
 func (t *TieringROIAnalyzer) CompareWithCloud(workload WorkloadProfile) *CloudComparisonResult {
 	// 本地分层方案5年成本
 	localCost := t.AnalyzeROI(workload).TotalCostOver5Years
@@ -137,7 +137,7 @@ func (t *TieringROIAnalyzer) CompareWithCloud(workload WorkloadProfile) *CloudCo
 	}
 }
 
-// CloudComparisonResult 云存储对比结果
+// CloudComparisonResult 云存储对比结果.
 type CloudComparisonResult struct {
 	LocalCost5Y    float64 `json:"local_cost_5y"`
 	CloudCost5Y    float64 `json:"cloud_cost_5y"`
@@ -146,7 +146,7 @@ type CloudComparisonResult struct {
 	Recommendation string  `json:"recommendation"`
 }
 
-// compareLocalVsCloud 本地vs云端对比建议
+// compareLocalVsCloud 本地vs云端对比建议.
 func (t *TieringROIAnalyzer) compareLocalVsCloud(local, cloud float64) string {
 	diff := (cloud - local) / local * 100
 	if diff > 30 {

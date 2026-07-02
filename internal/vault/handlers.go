@@ -57,7 +57,7 @@ type apiResponse struct {
 }
 
 // CreateVault 创建保险库。
-// POST /api/v1/vaults
+// POST /api/v1/vaults.
 func (h *Handler) CreateVault(c *gin.Context) {
 	var req createVaultRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -94,7 +94,7 @@ func (h *Handler) CreateVault(c *gin.Context) {
 }
 
 // ListVaults 列出所有保险库。
-// GET /api/v1/vaults
+// GET /api/v1/vaults.
 func (h *Handler) ListVaults(c *gin.Context) {
 	vaults := h.manager.ListVaults()
 	c.JSON(http.StatusOK, apiResponse{
@@ -104,7 +104,7 @@ func (h *Handler) ListVaults(c *gin.Context) {
 }
 
 // GetVault 获取保险库详情。
-// GET /api/v1/vaults/:id
+// GET /api/v1/vaults/:id.
 func (h *Handler) GetVault(c *gin.Context) {
 	id := c.Param("id")
 
@@ -128,7 +128,7 @@ func (h *Handler) GetVault(c *gin.Context) {
 }
 
 // UnlockVault 解锁保险库。
-// POST /api/v1/vaults/:id/unlock
+// POST /api/v1/vaults/:id/unlock.
 func (h *Handler) UnlockVault(c *gin.Context) {
 	id := c.Param("id")
 
@@ -171,7 +171,7 @@ func (h *Handler) UnlockVault(c *gin.Context) {
 }
 
 // LockVault 锁定保险库。
-// POST /api/v1/vaults/:id/lock
+// POST /api/v1/vaults/:id/lock.
 func (h *Handler) LockVault(c *gin.Context) {
 	id := c.Param("id")
 
@@ -201,7 +201,7 @@ func (h *Handler) LockVault(c *gin.Context) {
 }
 
 // DeleteVault 删除保险库。
-// DELETE /api/v1/vaults/:id
+// DELETE /api/v1/vaults/:id.
 func (h *Handler) DeleteVault(c *gin.Context) {
 	id := c.Param("id")
 
@@ -231,7 +231,7 @@ func (h *Handler) DeleteVault(c *gin.Context) {
 }
 
 // GetStats 获取保险库统计信息。
-// GET /api/v1/vaults/stats
+// GET /api/v1/vaults/stats.
 func (h *Handler) GetStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, apiResponse{

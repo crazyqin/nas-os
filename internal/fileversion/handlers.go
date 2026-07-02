@@ -7,19 +7,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 版本控制 API 处理器
+// Handlers 版本控制 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{
 		manager: manager,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	versions := r.Group("/fileversions")
 	{
@@ -43,19 +43,19 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 
 // ========== 请求/响应结构 ==========
 
-// CreateVersionRequest 创建版本请求
+// CreateVersionRequest 创建版本请求.
 type CreateVersionRequest struct {
 	FilePath    string `json:"file_path" binding:"required"`
 	Description string `json:"description"`
 }
 
-// CompareVersionsRequest 对比版本请求
+// CompareVersionsRequest 对比版本请求.
 type CompareVersionsRequest struct {
 	VersionID1 string `json:"version_id1" binding:"required"`
 	VersionID2 string `json:"version_id2" binding:"required"`
 }
 
-// APIResponse 通用API响应
+// APIResponse 通用API响应.
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
@@ -64,7 +64,7 @@ type APIResponse struct {
 
 // ========== 处理函数 ==========
 
-// createVersion 创建文件版本
+// createVersion 创建文件版本.
 func (h *Handlers) createVersion(c *gin.Context) {
 	var req CreateVersionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -91,7 +91,7 @@ func (h *Handlers) createVersion(c *gin.Context) {
 	})
 }
 
-// listAllVersions 列出所有文件的版本
+// listAllVersions 列出所有文件的版本.
 func (h *Handlers) listAllVersions(c *gin.Context) {
 	versions := h.manager.ListAllVersions()
 
@@ -102,7 +102,7 @@ func (h *Handlers) listAllVersions(c *gin.Context) {
 	})
 }
 
-// listVersions 列出指定文件的版本历史
+// listVersions 列出指定文件的版本历史.
 func (h *Handlers) listVersions(c *gin.Context) {
 	filePath := c.Param("path")
 	if filePath == "" {
@@ -133,7 +133,7 @@ func (h *Handlers) listVersions(c *gin.Context) {
 	})
 }
 
-// getVersion 获取指定版本信息
+// getVersion 获取指定版本信息.
 func (h *Handlers) getVersion(c *gin.Context) {
 	versionID := c.Param("id")
 	if versionID == "" {
@@ -160,7 +160,7 @@ func (h *Handlers) getVersion(c *gin.Context) {
 	})
 }
 
-// deleteVersion 删除指定版本
+// deleteVersion 删除指定版本.
 func (h *Handlers) deleteVersion(c *gin.Context) {
 	versionID := c.Param("id")
 	if versionID == "" {
@@ -185,7 +185,7 @@ func (h *Handlers) deleteVersion(c *gin.Context) {
 	})
 }
 
-// restoreVersion 恢复到指定版本
+// restoreVersion 恢复到指定版本.
 func (h *Handlers) restoreVersion(c *gin.Context) {
 	versionID := c.Param("id")
 	if versionID == "" {
@@ -210,7 +210,7 @@ func (h *Handlers) restoreVersion(c *gin.Context) {
 	})
 }
 
-// compareVersions 对比两个版本
+// compareVersions 对比两个版本.
 func (h *Handlers) compareVersions(c *gin.Context) {
 	var req CompareVersionsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -237,7 +237,7 @@ func (h *Handlers) compareVersions(c *gin.Context) {
 	})
 }
 
-// getStats 获取版本统计信息
+// getStats 获取版本统计信息.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 
@@ -248,19 +248,19 @@ func (h *Handlers) getStats(c *gin.Context) {
 	})
 }
 
-// GetVersionsCount 获取版本总数（用于健康检查）
+// GetVersionsCount 获取版本总数（用于健康检查）.
 func (h *Handlers) GetVersionsCount() int {
 	stats := h.manager.GetStats()
 	return stats.TotalVersions
 }
 
-// GetStorageSize 获取存储大小（用于健康检查）
+// GetStorageSize 获取存储大小（用于健康检查）.
 func (h *Handlers) GetStorageSize() int64 {
 	stats := h.manager.GetStats()
 	return stats.TotalSize
 }
 
-// GetVersionsCountParam 获取带参数的版本数量
+// GetVersionsCountParam 获取带参数的版本数量.
 func (h *Handlers) GetVersionsCountParam(filePath string) int {
 	versions, err := h.manager.ListVersions(filePath)
 	if err != nil {
@@ -269,7 +269,7 @@ func (h *Handlers) GetVersionsCountParam(filePath string) int {
 	return len(versions)
 }
 
-// parsePagination 解析分页参数
+// parsePagination 解析分页参数.
 func parsePagination(c *gin.Context) (int, int) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))

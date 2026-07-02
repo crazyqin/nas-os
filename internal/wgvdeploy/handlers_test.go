@@ -23,7 +23,7 @@ func setupTestRouter() (*gin.Engine, *Engine) {
 	return r, engine
 }
 
-// TestGetStatus 测试获取服务状态
+// TestGetStatus 测试获取服务状态.
 func TestGetStatus(t *testing.T) {
 	r, _ := setupTestRouter()
 
@@ -45,7 +45,7 @@ func TestGetStatus(t *testing.T) {
 	}
 }
 
-// TestStartStopService 测试启动和停止服务
+// TestStartStopService 测试启动和停止服务.
 func TestStartStopService(t *testing.T) {
 	r, _ := setupTestRouter()
 
@@ -76,7 +76,7 @@ func TestStartStopService(t *testing.T) {
 	}
 }
 
-// TestAddPeer 测试添加对端
+// TestAddPeer 测试添加对端.
 func TestAddPeer(t *testing.T) {
 	r, _ := setupTestRouter()
 
@@ -119,7 +119,7 @@ func TestAddPeer(t *testing.T) {
 	}
 }
 
-// TestListPeers 测试获取对端列表
+// TestListPeers 测试获取对端列表.
 func TestListPeers(t *testing.T) {
 	r, engine := setupTestRouter()
 
@@ -150,7 +150,7 @@ func TestListPeers(t *testing.T) {
 	}
 }
 
-// TestDeletePeer 测试删除对端
+// TestDeletePeer 测试删除对端.
 func TestDeletePeer(t *testing.T) {
 	r, engine := setupTestRouter()
 
@@ -176,7 +176,7 @@ func TestDeletePeer(t *testing.T) {
 	}
 }
 
-// TestUpdatePeer 测试更新对端
+// TestUpdatePeer 测试更新对端.
 func TestUpdatePeer(t *testing.T) {
 	r, engine := setupTestRouter()
 
@@ -214,7 +214,7 @@ func TestUpdatePeer(t *testing.T) {
 	}
 }
 
-// TestGetPeerConfig 测试获取客户端配置
+// TestGetPeerConfig 测试获取客户端配置.
 func TestGetPeerConfig(t *testing.T) {
 	r, engine := setupTestRouter()
 
@@ -253,7 +253,7 @@ func TestGetPeerConfig(t *testing.T) {
 	}
 }
 
-// TestGetPeerQRCode 测试获取 QR 码
+// TestGetPeerQRCode 测试获取 QR 码.
 func TestGetPeerQRCode(t *testing.T) {
 	r, engine := setupTestRouter()
 
@@ -286,7 +286,7 @@ func TestGetPeerQRCode(t *testing.T) {
 	}
 }
 
-// TestGetTrafficStats 测试获取流量统计
+// TestGetTrafficStats 测试获取流量统计.
 func TestGetTrafficStats(t *testing.T) {
 	r, engine := setupTestRouter()
 
@@ -321,7 +321,7 @@ func TestGetTrafficStats(t *testing.T) {
 	}
 }
 
-// TestGetTrafficHistory 测试获取历史流量
+// TestGetTrafficHistory 测试获取历史流量.
 func TestGetTrafficHistory(t *testing.T) {
 	r, _ := setupTestRouter()
 
@@ -357,7 +357,7 @@ func TestGetTrafficHistory(t *testing.T) {
 	}
 }
 
-// TestGetTemplates 测试获取配置模板
+// TestGetTemplates 测试获取配置模板.
 func TestGetTemplates(t *testing.T) {
 	r, _ := setupTestRouter()
 
@@ -384,7 +384,7 @@ func TestGetTemplates(t *testing.T) {
 	}
 }
 
-// TestDeploy 测试一键部署
+// TestDeploy 测试一键部署.
 func TestDeploy(t *testing.T) {
 	r, _ := setupTestRouter()
 
@@ -433,7 +433,7 @@ func TestDeploy(t *testing.T) {
 	}
 }
 
-// TestGetServerConfig 测试获取服务端配置
+// TestGetServerConfig 测试获取服务端配置.
 func TestGetServerConfig(t *testing.T) {
 	r, _ := setupTestRouter()
 
@@ -466,7 +466,7 @@ func TestGetServerConfig(t *testing.T) {
 	}
 }
 
-// TestIPv6Allocation 测试 IPv6 地址分配
+// TestIPv6Allocation 测试 IPv6 地址分配.
 func TestIPv6Allocation(t *testing.T) {
 	engine := NewEngine()
 
@@ -491,7 +491,7 @@ func TestIPv6Allocation(t *testing.T) {
 	}
 }
 
-// TestKeyPairGeneration 测试密钥对生成
+// TestKeyPairGeneration 测试密钥对生成.
 func TestKeyPairGeneration(t *testing.T) {
 	kp1, err := GenerateKeyPair()
 	if err != nil {
@@ -514,7 +514,7 @@ func TestKeyPairGeneration(t *testing.T) {
 	}
 }
 
-// TestGeneratePresharedKey 测试预共享密钥生成
+// TestGeneratePresharedKey 测试预共享密钥生成.
 func TestGeneratePresharedKey(t *testing.T) {
 	psk1, err := GeneratePresharedKey()
 	if err != nil {
@@ -534,7 +534,7 @@ func TestGeneratePresharedKey(t *testing.T) {
 	}
 }
 
-// TestDisablePeer 测试禁用对端
+// TestDisablePeer 测试禁用对端.
 func TestDisablePeer(t *testing.T) {
 	engine := NewEngine()
 
@@ -557,7 +557,7 @@ func TestDisablePeer(t *testing.T) {
 	}
 }
 
-// TestServerConfGeneration 测试服务端配置生成
+// TestServerConfGeneration 测试服务端配置生成.
 func TestServerConfGeneration(t *testing.T) {
 	engine := NewEngine()
 
@@ -581,7 +581,7 @@ func TestServerConfGeneration(t *testing.T) {
 	}
 }
 
-// contains 检查字符串是否包含子串
+// contains 检查字符串是否包含子串.
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && searchString(s, substr)
 }

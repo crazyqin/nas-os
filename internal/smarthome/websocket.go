@@ -8,14 +8,14 @@ import (
 	"time"
 )
 
-// WebSocketMessage WebSocket 消息
+// WebSocketMessage WebSocket 消息.
 type WebSocketMessage struct {
 	Type    string      `json:"type"`
 	Payload interface{} `json:"payload"`
 	Time    time.Time   `json:"time"`
 }
 
-// WebSocketHub WebSocket 中心
+// WebSocketHub WebSocket 中心.
 type WebSocketHub struct {
 	clients    map[*WebSocketClient]bool
 	broadcast  chan []byte
@@ -24,14 +24,14 @@ type WebSocketHub struct {
 	mu         sync.RWMutex
 }
 
-// WebSocketClient WebSocket 客户端
+// WebSocketClient WebSocket 客户端.
 type WebSocketClient struct {
 	hub  *WebSocketHub
 	send chan []byte
 	id   string
 }
 
-// NewWebSocketHub 创建 WebSocket 中心
+// NewWebSocketHub 创建 WebSocket 中心.
 func NewWebSocketHub() *WebSocketHub {
 	return &WebSocketHub{
 		clients:    make(map[*WebSocketClient]bool),
@@ -41,7 +41,7 @@ func NewWebSocketHub() *WebSocketHub {
 	}
 }
 
-// Run 运行 WebSocket 中心
+// Run 运行 WebSocket 中心.
 func (h *WebSocketHub) Run() {
 	for {
 		select {
@@ -73,7 +73,7 @@ func (h *WebSocketHub) Run() {
 	}
 }
 
-// BroadcastDeviceState 推送设备状态
+// BroadcastDeviceState 推送设备状态.
 func (h *WebSocketHub) BroadcastDeviceState(device *Device) {
 	msg := WebSocketMessage{
 		Type:    "device_state",
@@ -85,7 +85,7 @@ func (h *WebSocketHub) BroadcastDeviceState(device *Device) {
 	h.broadcast <- data
 }
 
-// BroadcastAutomationEvent 推送自动化事件
+// BroadcastAutomationEvent 推送自动化事件.
 func (h *WebSocketHub) BroadcastAutomationEvent(event interface{}) {
 	msg := WebSocketMessage{
 		Type:    "automation_event",
@@ -97,7 +97,7 @@ func (h *WebSocketHub) BroadcastAutomationEvent(event interface{}) {
 	h.broadcast <- data
 }
 
-// BroadcastEnergyUpdate 推送能耗更新
+// BroadcastEnergyUpdate 推送能耗更新.
 func (h *WebSocketHub) BroadcastEnergyUpdate(reading EnergyReading) {
 	msg := WebSocketMessage{
 		Type:    "energy_update",
@@ -109,22 +109,22 @@ func (h *WebSocketHub) BroadcastEnergyUpdate(reading EnergyReading) {
 	h.broadcast <- data
 }
 
-// ClientCount 返回客户端数量
+// ClientCount 返回客户端数量.
 func (h *WebSocketHub) ClientCount() int {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 	return len(h.clients)
 }
 
-// HandleWebSocket 处理 WebSocket 连接
+// HandleWebSocket 处理 WebSocket 连接.
 func (h *WebSocketHub) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	// 简化的 WebSocket 处理（实际实现需要使用 gorilla/websocket 等库）
 	// 这里仅作为接口定义
 }
 
-// MQTTBrokerConfig MQTT Broker 配置
+// MQTTBrokerConfig MQTT Broker 配置.
 type MQTTBrokerConfig struct {
-	Type     string `json:"type"` // mosquitto, emqx
+	Type     string `json:"type"` // mosquito, emqx
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
 	Username string `json:"username"`
@@ -132,7 +132,7 @@ type MQTTBrokerConfig struct {
 	ClientID string `json:"client_id"`
 }
 
-// ZigbeeConfig Zigbee 配置
+// ZigbeeConfig Zigbee 配置.
 type ZigbeeConfig struct {
 	Enabled  bool   `json:"enabled"`
 	Adapter  string `json:"adapter"` // zstack, deconz
@@ -140,14 +140,14 @@ type ZigbeeConfig struct {
 	BaudRate int    `json:"baud_rate"`
 }
 
-// ZWaveConfig Z-Wave 配置
+// ZWaveConfig Z-Wave 配置.
 type ZWaveConfig struct {
 	Enabled    bool   `json:"enabled"`
 	Port       string `json:"port"`
 	NetworkKey string `json:"network_key"`
 }
 
-// DiscoveryConfig 设备发现配置
+// DiscoveryConfig 设备发现配置.
 type DiscoveryConfig struct {
 	Enabled      bool     `json:"enabled"`
 	Interval     int      `json:"interval"` // seconds
@@ -155,7 +155,7 @@ type DiscoveryConfig struct {
 	AutoRegister bool     `json:"auto_register"`
 }
 
-// AutomationRuleConfig 自动化规则配置
+// AutomationRuleConfig 自动化规则配置.
 type AutomationRuleConfig struct {
 	MaxRules         int  `json:"max_rules"`
 	EvaluateInterval int  `json:"evaluate_interval"` // seconds

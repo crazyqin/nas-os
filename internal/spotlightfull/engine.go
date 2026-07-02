@@ -14,7 +14,7 @@ import (
 	"unicode/utf8"
 )
 
-// NewSearchEngine 创建搜索引擎实例
+// NewSearchEngine 创建搜索引擎实例.
 func NewSearchEngine(config *EngineConfig) (*SearchEngine, error) {
 	if config == nil {
 		config = DefaultEngineConfig()
@@ -45,7 +45,7 @@ func NewSearchEngine(config *EngineConfig) (*SearchEngine, error) {
 	return engine, nil
 }
 
-// Search 执行搜索
+// Search 执行搜索.
 func (e *SearchEngine) Search(filter *SearchFilter) (*SearchResponse, error) {
 	start := time.Now()
 
@@ -121,7 +121,7 @@ func (e *SearchEngine) Search(filter *SearchFilter) (*SearchResponse, error) {
 	}, nil
 }
 
-// AddDocument 添加文档到索引
+// AddDocument 添加文档到索引.
 func (e *SearchEngine) AddDocument(entry *IndexEntry) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -140,7 +140,7 @@ func (e *SearchEngine) AddDocument(entry *IndexEntry) error {
 	return nil
 }
 
-// RemoveDocument 从索引中移除文档
+// RemoveDocument 从索引中移除文档.
 func (e *SearchEngine) RemoveDocument(docID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -149,7 +149,7 @@ func (e *SearchEngine) RemoveDocument(docID string) error {
 	return nil
 }
 
-// GetStats 获取索引统计
+// GetStats 获取索引统计.
 func (e *SearchEngine) GetStats() *IndexStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -164,7 +164,7 @@ func (e *SearchEngine) GetStats() *IndexStats {
 	}
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (e *SearchEngine) RebuildIndex() error {
 	e.mu.Lock()
 	if e.isBuilding {
@@ -195,12 +195,12 @@ func (e *SearchEngine) RebuildIndex() error {
 	return nil
 }
 
-// Stop 停止搜索引擎
+// Stop 停止搜索引擎.
 func (e *SearchEngine) Stop() {
 	close(e.stopCh)
 }
 
-// SaveIndex 持久化索引到磁盘
+// SaveIndex 持久化索引到磁盘.
 func (e *SearchEngine) SaveIndex() error {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -226,7 +226,7 @@ func (e *SearchEngine) SaveIndex() error {
 	return os.WriteFile(indexFile, jsonData, 0644)
 }
 
-// loadIndex 从磁盘加载索引
+// loadIndex 从磁盘加载索引.
 func (e *SearchEngine) loadIndex() error {
 	indexFile := filepath.Join(e.config.IndexDir, "index.json")
 	data, err := os.ReadFile(indexFile)
@@ -257,7 +257,7 @@ func (e *SearchEngine) loadIndex() error {
 	return nil
 }
 
-// collectCandidates 收集候选文档并计算评分
+// collectCandidates 收集候选文档并计算评分.
 func (e *SearchEngine) collectCandidates(tokens []string, filter *SearchFilter) []*candidateScore {
 	e.index.mu.RLock()
 	defer e.index.mu.RUnlock()
@@ -320,7 +320,7 @@ func (e *SearchEngine) collectCandidates(tokens []string, filter *SearchFilter) 
 	return candidates
 }
 
-// calculateTokenScore 计算单个词项对文档的评分
+// calculateTokenScore 计算单个词项对文档的评分.
 func (e *SearchEngine) calculateTokenScore(entry *IndexEntry, token string, pos *termPositions) float64 {
 	score := 0.0
 	lowerToken := strings.ToLower(token)
@@ -360,7 +360,7 @@ func (e *SearchEngine) calculateTokenScore(entry *IndexEntry, token string, pos 
 	return score
 }
 
-// determineMatchType 确定匹配类型
+// determineMatchType 确定匹配类型.
 func (e *SearchEngine) determineMatchType(entry *IndexEntry, token string) MatchType {
 	lowerToken := strings.ToLower(token)
 	lowerName := strings.ToLower(entry.Name)
@@ -379,7 +379,7 @@ func (e *SearchEngine) determineMatchType(entry *IndexEntry, token string) Match
 	return MatchFuzzy
 }
 
-// passFilter 检查文档是否通过过滤条件
+// passFilter 检查文档是否通过过滤条件.
 func (e *SearchEngine) passFilter(entry *IndexEntry, filter *SearchFilter) bool {
 	// 文件类型过滤
 	if len(filter.FileTypes) > 0 {
@@ -421,7 +421,7 @@ func (e *SearchEngine) passFilter(entry *IndexEntry, filter *SearchFilter) bool 
 	return true
 }
 
-// fuzzyMatch 模糊匹配（编辑距离归一化）
+// fuzzyMatch 模糊匹配（编辑距离归一化）.
 func (e *SearchEngine) fuzzyMatch(pattern, text string) float64 {
 	if pattern == "" || text == "" {
 		return 0
@@ -449,7 +449,7 @@ func (e *SearchEngine) fuzzyMatch(pattern, text string) float64 {
 	return float64(matches) / float64(len(pRunes))
 }
 
-// buildHighlights 构建高亮片段
+// buildHighlights 构建高亮片段.
 func (e *SearchEngine) buildHighlights(entry *IndexEntry, tokens []string) []string {
 	highlights := make([]string, 0, 3)
 
@@ -484,7 +484,7 @@ func (e *SearchEngine) buildHighlights(entry *IndexEntry, tokens []string) []str
 	return result
 }
 
-// buildThumbnailURL 构建缩略图URL
+// buildThumbnailURL 构建缩略图URL.
 func (e *SearchEngine) buildThumbnailURL(entry *IndexEntry) string {
 	switch entry.FileType {
 	case FileTypeImage, FileTypeVideo:
@@ -494,7 +494,7 @@ func (e *SearchEngine) buildThumbnailURL(entry *IndexEntry) string {
 	}
 }
 
-// getSuggestions 获取搜索建议
+// getSuggestions 获取搜索建议.
 func (e *SearchEngine) getSuggestions(query string) []string {
 	if len(query) < 2 {
 		return nil
@@ -522,7 +522,7 @@ func (e *SearchEngine) getSuggestions(query string) []string {
 	return suggestions
 }
 
-// calculateIndexSize 计算索引占用空间
+// calculateIndexSize 计算索引占用空间.
 func (e *SearchEngine) calculateIndexSize() int64 {
 	size := int64(0)
 	for _, entry := range e.index.docs {
@@ -536,7 +536,7 @@ func (e *SearchEngine) calculateIndexSize() int64 {
 	return size
 }
 
-// sortResults 对搜索结果排序
+// sortResults 对搜索结果排序.
 func (e *SearchEngine) sortResults(candidates []*candidateScore, sortBy, sortOrder string) {
 	sort.Slice(candidates, func(i, j int) bool {
 		var less bool
@@ -557,7 +557,7 @@ func (e *SearchEngine) sortResults(candidates []*candidateScore, sortBy, sortOrd
 	})
 }
 
-// candidateScore 候选文档评分
+// candidateScore 候选文档评分.
 type candidateScore struct {
 	entry     *IndexEntry
 	score     float64
@@ -566,7 +566,7 @@ type candidateScore struct {
 
 // ---- 倒排索引操作 ----
 
-// addDocument 向倒排索引添加文档
+// addDocument 向倒排索引添加文档.
 func (idx *invertedIndex) addDocument(entry *IndexEntry) {
 	idx.mu.Lock()
 	defer idx.mu.Unlock()
@@ -578,7 +578,7 @@ func (idx *invertedIndex) addDocument(entry *IndexEntry) {
 	idx.totalTerms = len(idx.index)
 }
 
-// removeDocument 从倒排索引移除文档
+// removeDocument 从倒排索引移除文档.
 func (idx *invertedIndex) removeDocument(docID string) {
 	idx.mu.Lock()
 	defer idx.mu.Unlock()
@@ -601,7 +601,7 @@ func (idx *invertedIndex) removeDocument(docID string) {
 	}
 }
 
-// addToInvertedIndex 将文档添加到倒排索引
+// addToInvertedIndex 将文档添加到倒排索引.
 func (idx *invertedIndex) addToInvertedIndex(entry *IndexEntry) {
 	// 使用统一的分词函数
 	tokenizeAndIndex := func(text, field string) {
@@ -631,7 +631,7 @@ func (idx *invertedIndex) addToInvertedIndex(entry *IndexEntry) {
 	}
 }
 
-// addPosting 添加倒排索引条目
+// addPosting 添加倒排索引条目.
 func (idx *invertedIndex) addPosting(term, docID, field string, count int) {
 	if idx.index[term] == nil {
 		idx.index[term] = make(map[string]*termPositions)
@@ -656,7 +656,7 @@ func (idx *invertedIndex) addPosting(term, docID, field string, count int) {
 	}
 }
 
-// addToTrie 添加词项到前缀树
+// addToTrie 添加词项到前缀树.
 func (idx *invertedIndex) addToTrie(text string) {
 	tokens := tokenizeText(text)
 	for _, token := range tokens {
@@ -679,7 +679,7 @@ func (idx *invertedIndex) addToTrie(text string) {
 	}
 }
 
-// searchTrie 前缀搜索
+// searchTrie 前缀搜索.
 func (idx *invertedIndex) searchTrie(prefix string, limit int) []string {
 	node := idx.trieRoot
 	for _, r := range prefix {
@@ -694,7 +694,7 @@ func (idx *invertedIndex) searchTrie(prefix string, limit int) []string {
 	return results
 }
 
-// collectTerms 递归收集前缀树中的词项
+// collectTerms 递归收集前缀树中的词项.
 func collectTerms(node *trieNode, results *[]string, limit int) {
 	if len(*results) >= limit {
 		return
@@ -709,7 +709,7 @@ func collectTerms(node *trieNode, results *[]string, limit int) {
 
 // ---- 工具函数 ----
 
-// generateDocID 根据路径生成文档ID
+// generateDocID 根据路径生成文档ID.
 func generateDocID(path string) string {
 	// 简单的路径哈希作为ID
 	h := uint632(0)
@@ -726,7 +726,7 @@ func uint632(n int64) uint64 {
 	return uint64(n)
 }
 
-// tokenizeText 文本分词（统一使用中文分词逻辑）
+// tokenizeText 文本分词（统一使用中文分词逻辑）.
 func tokenizeText(text string) []string {
 	var tokens []string
 	runes := []rune(text)
@@ -767,7 +767,7 @@ func tokenizeText(text string) []string {
 	return tokens
 }
 
-// highlightText 高亮文本中的关键词
+// highlightText 高亮文本中的关键词.
 func highlightText(text, keyword string) string {
 	lowerText := strings.ToLower(text)
 	lowerKeyword := strings.ToLower(keyword)
@@ -779,7 +779,7 @@ func highlightText(text, keyword string) string {
 	return text[:idx] + "【" + text[idx:end] + "】" + text[end:]
 }
 
-// extractSnippets 从内容中提取关键词周围的片段
+// extractSnippets 从内容中提取关键词周围的片段.
 func extractSnippets(content, keyword string, maxSnippets, contextLen int) []string {
 	snippets := make([]string, 0, maxSnippets)
 	lowerContent := strings.ToLower(content)
@@ -818,7 +818,7 @@ func extractSnippets(content, keyword string, maxSnippets, contextLen int) []str
 	return snippets
 }
 
-// newCJKTokenizer 创建中文分词器
+// newCJKTokenizer 创建中文分词器.
 func newCJKTokenizer() *cjkTokenizer {
 	return &cjkTokenizer{
 		dict: make(map[string]bool),
@@ -834,7 +834,7 @@ func newCJKTokenizer() *cjkTokenizer {
 	}
 }
 
-// tokenize 中文分词（简易实现：单字 + bigram）
+// tokenize 中文分词（简易实现：单字 + bigram）.
 func (t *cjkTokenizer) tokenize(text string) []string {
 	var tokens []string
 	runes := []rune(text)
@@ -883,7 +883,7 @@ func (t *cjkTokenizer) tokenize(text string) []string {
 	return tokens
 }
 
-// isASCIILetterOrDigit 检查是否为 ASCII 字母或数字
+// isASCIILetterOrDigit 检查是否为 ASCII 字母或数字.
 func isASCIILetterOrDigit(r rune) bool {
 	return (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9')
 }

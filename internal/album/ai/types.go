@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// PhotoVector represents a photo with its AI-generated feature vector
+// PhotoVector represents a photo with its AI-generated feature vector.
 type PhotoVector struct {
 	PhotoID     string    `json:"photo_id"`
 	ImageVector []float32 `json:"image_vector"` // CLIP image embedding (512-dim)
@@ -16,14 +16,14 @@ type PhotoVector struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// SemanticSearchResult represents a semantic search result
+// SemanticSearchResult represents a semantic search result.
 type SemanticSearchResult struct {
 	PhotoID   string  `json:"photo_id"`
 	Score     float64 `json:"score"`      // Similarity score 0-1
 	MatchType string  `json:"match_type"` // "text", "image", "hybrid"
 }
 
-// SceneRecognitionResult represents scene recognition output
+// SceneRecognitionResult represents scene recognition output.
 type SceneRecognitionResult struct {
 	PhotoID    string       `json:"photo_id"`
 	Primary    SceneInfo    `json:"primary"`
@@ -35,7 +35,7 @@ type SceneRecognitionResult struct {
 	Season     string       `json:"season"`      // "spring", "summer", "autumn", "winter"
 }
 
-// SceneInfo represents a detected scene with confidence
+// SceneInfo represents a detected scene with confidence.
 type SceneInfo struct {
 	Category    string   `json:"category"`               // "beach", "mountain", "city", "forest", etc.
 	SubCategory string   `json:"sub_category,omitempty"` // "sunset_beach", "snow_mountain"
@@ -43,7 +43,7 @@ type SceneInfo struct {
 	Labels      []string `json:"labels,omitempty"`       // Additional labels
 }
 
-// ObjectInfo represents a detected object
+// ObjectInfo represents a detected object.
 type ObjectInfo struct {
 	Label      string       `json:"label"`
 	Confidence float64      `json:"confidence"`
@@ -51,14 +51,14 @@ type ObjectInfo struct {
 	Attributes []string     `json:"attributes,omitempty"` // "red", "large", etc.
 }
 
-// ColorInfo represents a dominant color
+// ColorInfo represents a dominant color.
 type ColorInfo struct {
 	Hex     string  `json:"hex"`
 	Name    string  `json:"name"`
 	Percent float64 `json:"percent"`
 }
 
-// BoundingBox represents an object's location in image
+// BoundingBox represents an object's location in image.
 type BoundingBox struct {
 	X      float64 `json:"x"`
 	Y      float64 `json:"y"`
@@ -66,7 +66,7 @@ type BoundingBox struct {
 	Height float64 `json:"height"`
 }
 
-// LocationCluster represents a geographic cluster of photos
+// LocationCluster represents a geographic cluster of photos.
 type LocationCluster struct {
 	ID         string     `json:"id"`
 	Name       string     `json:"name"` // User-defined or auto-generated name
@@ -80,13 +80,13 @@ type LocationCluster struct {
 	CreatedAt  time.Time  `json:"created_at"`
 }
 
-// DateRange represents a date range
+// DateRange represents a date range.
 type DateRange struct {
 	Start time.Time `json:"start"`
 	End   time.Time `json:"end"`
 }
 
-// PlaceInfo represents location metadata from geocoding
+// PlaceInfo represents location metadata from geocoding.
 type PlaceInfo struct {
 	Country     string `json:"country"`
 	CountryCode string `json:"country_code"`
@@ -97,7 +97,7 @@ type PlaceInfo struct {
 	PlaceID     string `json:"place_id"`
 }
 
-// BabyAlbum represents a baby growth tracking album
+// BabyAlbum represents a baby growth tracking album.
 type BabyAlbum struct {
 	ID           string        `json:"id"`
 	Name         string        `json:"name"`
@@ -110,7 +110,7 @@ type BabyAlbum struct {
 	UpdatedAt    time.Time     `json:"updated_at"`
 }
 
-// Milestone represents a baby milestone
+// Milestone represents a baby milestone.
 type Milestone struct {
 	ID          string    `json:"id"`
 	Type        string    `json:"type"` // "first_smile", "first_step", "first_word", etc.
@@ -120,7 +120,7 @@ type Milestone struct {
 	AgeMonths   int       `json:"age_months"`
 }
 
-// GrowthPhoto represents a photo in the baby growth timeline
+// GrowthPhoto represents a photo in the baby growth timeline.
 type GrowthPhoto struct {
 	PhotoID   string    `json:"photo_id"`
 	Date      time.Time `json:"date"`
@@ -130,14 +130,14 @@ type GrowthPhoto struct {
 	FaceID    string    `json:"face_id"` // Reference to detected face
 }
 
-// FaceGrowthTracker tracks face changes over time for baby album
+// FaceGrowthTracker tracks face changes over time for baby album.
 type FaceGrowthTracker struct {
 	BabyID       string        `json:"baby_id"`
 	FaceHistory  []FaceRecord  `json:"face_history"`
 	GrowthPoints []GrowthPoint `json:"growth_points"`
 }
 
-// FaceRecord represents a face detection at a point in time
+// FaceRecord represents a face detection at a point in time.
 type FaceRecord struct {
 	FaceID      string      `json:"face_id"`
 	PhotoID     string      `json:"photo_id"`
@@ -148,14 +148,14 @@ type FaceRecord struct {
 	Landmarks   []Landmark  `json:"landmarks,omitempty"`
 }
 
-// Landmark represents a facial landmark
+// Landmark represents a facial landmark.
 type Landmark struct {
 	Type string  `json:"type"` // "left_eye", "right_eye", "nose_tip", "mouth_center"
 	X    float64 `json:"x"`
 	Y    float64 `json:"y"`
 }
 
-// GrowthPoint represents a growth measurement point
+// GrowthPoint represents a growth measurement point.
 type GrowthPoint struct {
 	Date      time.Time `json:"date"`
 	AgeMonths int       `json:"age_months"`
@@ -163,7 +163,7 @@ type GrowthPoint struct {
 	Value     float64   `json:"value"`
 }
 
-// ModelConfig holds AI model configuration
+// ModelConfig holds AI model configuration.
 type ModelConfig struct {
 	// CLIP model settings
 	CLIPModelPath string `json:"clip_model_path"`
@@ -195,7 +195,7 @@ type ModelConfig struct {
 	EnableCache     bool `json:"enable_cache"`
 }
 
-// DefaultModelConfig returns default model configuration
+// DefaultModelConfig returns default model configuration.
 func DefaultModelConfig() *ModelConfig {
 	return &ModelConfig{
 		CLIPModelType: "vit-b-32",
@@ -217,7 +217,7 @@ func DefaultModelConfig() *ModelConfig {
 	}
 }
 
-// SearchResult represents unified search result
+// SearchResult represents unified search result.
 type SearchResult struct {
 	PhotoID   string                 `json:"photo_id"`
 	Score     float64                `json:"score"`
@@ -225,7 +225,7 @@ type SearchResult struct {
 	PhotoInfo *PhotoInfo             `json:"photo_info,omitempty"`
 }
 
-// PhotoInfo represents basic photo information for search results
+// PhotoInfo represents basic photo information for search results.
 type PhotoInfo struct {
 	Path     string     `json:"path"`
 	Filename string     `json:"filename"`
@@ -236,7 +236,7 @@ type PhotoInfo struct {
 	Location *PlaceInfo `json:"location,omitempty"`
 }
 
-// SearchQuery represents a unified search query
+// SearchQuery represents a unified search query.
 type SearchQuery struct {
 	// Text search
 	TextQuery string `json:"text_query,omitempty"`
@@ -266,7 +266,7 @@ type SearchQuery struct {
 	SortDesc bool   `json:"sort_desc"`
 }
 
-// VectorIndex interface for vector similarity search
+// VectorIndex interface for vector similarity search.
 type VectorIndex interface {
 	// Add adds a vector to the index
 	Add(id string, vector []float32) error

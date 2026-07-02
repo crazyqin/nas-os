@@ -9,17 +9,17 @@ import (
 
 // ========== ARM 优化引擎 ==========
 
-// Optimizer ARM 优化建议引擎
+// Optimizer ARM 优化建议引擎.
 type Optimizer struct {
 	mu sync.RWMutex
 }
 
-// NewOptimizer 创建优化引擎
+// NewOptimizer 创建优化引擎.
 func NewOptimizer() *Optimizer {
 	return &Optimizer{}
 }
 
-// GenerateProfile 生成优化配置档案
+// GenerateProfile 生成优化配置档案.
 func (o *Optimizer) GenerateProfile(info *ARMHardwareInfo) (*OptProfile, error) {
 	if info == nil {
 		return nil, fmt.Errorf("hardware info is nil")
@@ -62,7 +62,7 @@ func (o *Optimizer) GenerateProfile(info *ARMHardwareInfo) (*OptProfile, error) 
 	return profile, nil
 }
 
-// generateCPUOpts 生成 CPU 调度优化建议
+// generateCPUOpts 生成 CPU 调度优化建议.
 func (o *Optimizer) generateCPUOpts(info *ARMHardwareInfo) []Optimization {
 	var opts []Optimization
 
@@ -125,7 +125,7 @@ func (o *Optimizer) generateCPUOpts(info *ARMHardwareInfo) []Optimization {
 	return opts
 }
 
-// generateMemoryOpts 生成内存优化建议
+// generateMemoryOpts 生成内存优化建议.
 func (o *Optimizer) generateMemoryOpts(info *ARMHardwareInfo) []Optimization {
 	var opts []Optimization
 
@@ -189,7 +189,7 @@ func (o *Optimizer) generateMemoryOpts(info *ARMHardwareInfo) []Optimization {
 	return opts
 }
 
-// generateStorageOpts 生成存储优化建议
+// generateStorageOpts 生成存储优化建议.
 func (o *Optimizer) generateStorageOpts(info *ARMHardwareInfo) []Optimization {
 	var opts []Optimization
 
@@ -274,7 +274,7 @@ func (o *Optimizer) generateStorageOpts(info *ARMHardwareInfo) []Optimization {
 	return opts
 }
 
-// generateNetworkOpts 生成网络优化建议
+// generateNetworkOpts 生成网络优化建议.
 func (o *Optimizer) generateNetworkOpts(info *ARMHardwareInfo) []Optimization {
 	var opts []Optimization
 
@@ -349,7 +349,7 @@ func (o *Optimizer) generateNetworkOpts(info *ARMHardwareInfo) []Optimization {
 	return opts
 }
 
-// generatePowerOpts 生成功耗优化建议
+// generatePowerOpts 生成功耗优化建议.
 func (o *Optimizer) generatePowerOpts(info *ARMHardwareInfo) []Optimization {
 	var opts []Optimization
 
@@ -404,7 +404,7 @@ func (o *Optimizer) generatePowerOpts(info *ARMHardwareInfo) []Optimization {
 	return opts
 }
 
-// generateKernelOpts 生成内核参数优化建议
+// generateKernelOpts 生成内核参数优化建议.
 func (o *Optimizer) generateKernelOpts(info *ARMHardwareInfo) []Optimization {
 	var opts []Optimization
 
@@ -494,7 +494,7 @@ func (o *Optimizer) generateKernelOpts(info *ARMHardwareInfo) []Optimization {
 	return opts
 }
 
-// hasFeature 检查是否具有指定特性
+// hasFeature 检查是否具有指定特性.
 func hasFeature(features []CPUFeature, target CPUFeature) bool {
 	for _, f := range features {
 		if f == target {

@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(logger *zap.Logger, mgr *Manager) *Handlers {
 	return &Handlers{
 		logger: logger,
@@ -18,7 +18,7 @@ func NewHandlers(logger *zap.Logger, mgr *Manager) *Handlers {
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	spotlight := rg.Group("/spotlight")
 	{
@@ -46,7 +46,7 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// Search GET 搜索
+// Search GET 搜索.
 func (h *Handlers) Search(c *gin.Context) {
 	query := c.Query("q")
 	if query == "" {
@@ -77,7 +77,7 @@ func (h *Handlers) Search(c *gin.Context) {
 	})
 }
 
-// SearchPost POST 搜索
+// SearchPost POST 搜索.
 func (h *Handlers) SearchPost(c *gin.Context) {
 	var req SearchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -113,7 +113,7 @@ func (h *Handlers) SearchPost(c *gin.Context) {
 	})
 }
 
-// Suggest 搜索建议
+// Suggest 搜索建议.
 func (h *Handlers) Suggest(c *gin.Context) {
 	query := c.Query("q")
 	if query == "" {
@@ -151,7 +151,7 @@ func (h *Handlers) Suggest(c *gin.Context) {
 	})
 }
 
-// IndexDocument 索引单个文档
+// IndexDocument 索引单个文档.
 func (h *Handlers) IndexDocument(c *gin.Context) {
 	var doc Document
 	if err := c.ShouldBindJSON(&doc); err != nil {
@@ -191,7 +191,7 @@ func (h *Handlers) IndexDocument(c *gin.Context) {
 	})
 }
 
-// IndexBatch 批量索引文档
+// IndexBatch 批量索引文档.
 func (h *Handlers) IndexBatch(c *gin.Context) {
 	var docs []*Document
 	if err := c.ShouldBindJSON(&docs); err != nil {
@@ -237,7 +237,7 @@ func (h *Handlers) IndexBatch(c *gin.Context) {
 	})
 }
 
-// RemoveDocument 删除文档
+// RemoveDocument 删除文档.
 func (h *Handlers) RemoveDocument(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -265,7 +265,7 @@ func (h *Handlers) RemoveDocument(c *gin.Context) {
 	})
 }
 
-// GetDocument 获取文档
+// GetDocument 获取文档.
 func (h *Handlers) GetDocument(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -292,7 +292,7 @@ func (h *Handlers) GetDocument(c *gin.Context) {
 	})
 }
 
-// GetStats 获取索引统计
+// GetStats 获取索引统计.
 func (h *Handlers) GetStats(c *gin.Context) {
 	stats := h.mgr.GetStats()
 
@@ -303,7 +303,7 @@ func (h *Handlers) GetStats(c *gin.Context) {
 	})
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (h *Handlers) RebuildIndex(c *gin.Context) {
 	if err := h.mgr.RebuildIndex(); err != nil {
 		h.logger.Error("rebuild index failed", zap.Error(err))
@@ -322,7 +322,7 @@ func (h *Handlers) RebuildIndex(c *gin.Context) {
 	})
 }
 
-// GetPopularSearches 获取热门搜索
+// GetPopularSearches 获取热门搜索.
 func (h *Handlers) GetPopularSearches(c *gin.Context) {
 	limit := 10
 	if l, err := strconv.Atoi(c.DefaultQuery("limit", "10")); err == nil && l > 0 {
@@ -338,7 +338,7 @@ func (h *Handlers) GetPopularSearches(c *gin.Context) {
 	})
 }
 
-// parseSearchRequest 解析搜索请求参数
+// parseSearchRequest 解析搜索请求参数.
 func (h *Handlers) parseSearchRequest(c *gin.Context) *SearchRequest {
 	req := &SearchRequest{
 		Path:      c.Query("path"),
@@ -386,7 +386,7 @@ func (h *Handlers) parseSearchRequest(c *gin.Context) *SearchRequest {
 	return req
 }
 
-// classifyFileType 根据扩展名分类文件类型
+// classifyFileType 根据扩展名分类文件类型.
 func classifyFileType(ext string) FileType {
 	ext = strings.ToLower(strings.TrimPrefix(ext, "."))
 

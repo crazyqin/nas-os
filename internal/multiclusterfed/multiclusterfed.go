@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// ==================== 错误定义 ====================
+// ==================== 错误定义 ====================.
 var (
 	ErrClusterNotFound      = errors.New("cluster not found")
 	ErrClusterAlreadyExists = errors.New("cluster already exists")
@@ -27,7 +27,7 @@ var (
 
 // ==================== 类型定义 ====================
 
-// ClusterState 集群状态枚举
+// ClusterState 集群状态枚举.
 type ClusterState string
 
 const (
@@ -39,7 +39,7 @@ const (
 	ClusterStateDegraded ClusterState = "degraded"
 )
 
-// HealthStatus 健康状态枚举
+// HealthStatus 健康状态枚举.
 type HealthStatus string
 
 const (
@@ -48,7 +48,7 @@ const (
 	HealthStatusUnknown   HealthStatus = "unknown"
 )
 
-// LoadBalanceStrategy 负载均衡策略枚举
+// LoadBalanceStrategy 负载均衡策略枚举.
 type LoadBalanceStrategy string
 
 const (
@@ -59,7 +59,7 @@ const (
 	LoadBalanceCapacity   LoadBalanceStrategy = "capacity"
 )
 
-// SyncMode 数据同步模式枚举
+// SyncMode 数据同步模式枚举.
 type SyncMode string
 
 const (
@@ -70,7 +70,7 @@ const (
 
 // ==================== 数据结构定义 ====================
 
-// ClusterNode 集群中的单个节点
+// ClusterNode 集群中的单个节点.
 type ClusterNode struct {
 	ID            string       `json:"id"`
 	Hostname      string       `json:"hostname"`
@@ -84,7 +84,7 @@ type ClusterNode struct {
 	Tags          []string     `json:"tags"`
 }
 
-// Cluster 集群信息
+// Cluster 集群信息.
 type Cluster struct {
 	ID               string                  `json:"id"`
 	Name             string                  `json:"name"`
@@ -105,7 +105,7 @@ type Cluster struct {
 	UpdatedAt        time.Time               `json:"updated_at"`
 }
 
-// Namespace 统一命名空间定义
+// Namespace 统一命名空间定义.
 type Namespace struct {
 	Path            string    `json:"path"`
 	PrimaryCluster  string    `json:"primary_cluster"`
@@ -115,7 +115,7 @@ type Namespace struct {
 	CreatedAt       time.Time `json:"created_at"`
 }
 
-// ClusterStatus 集群状态报告
+// ClusterStatus 集群状态报告.
 type ClusterStatus struct {
 	ClusterID         string        `json:"cluster_id"`
 	ClusterName       string        `json:"cluster_name"`
@@ -131,7 +131,7 @@ type ClusterStatus struct {
 	Uptime            time.Duration `json:"uptime"`
 }
 
-// FederationStats 联邦统计信息
+// FederationStats 联邦统计信息.
 type FederationStats struct {
 	TotalClusters     int   `json:"total_clusters"`
 	HealthyClusters   int   `json:"healthy_clusters"`
@@ -143,7 +143,7 @@ type FederationStats struct {
 	FailoverEvents    int64 `json:"failover_events"`
 }
 
-// DiscoveryConfig 集群发现配置
+// DiscoveryConfig 集群发现配置.
 type DiscoveryConfig struct {
 	Enabled           bool          `json:"enabled"`
 	DiscoveryInterval time.Duration `json:"discovery_interval"`
@@ -154,7 +154,7 @@ type DiscoveryConfig struct {
 	SubnetFilter      string        `json:"subnet_filter"`
 }
 
-// HealthCheckConfig 健康检查配置
+// HealthCheckConfig 健康检查配置.
 type HealthCheckConfig struct {
 	Interval          time.Duration `json:"interval"`
 	Timeout           time.Duration `json:"timeout"`
@@ -162,7 +162,7 @@ type HealthCheckConfig struct {
 	RecoveryThreshold int           `json:"recovery_threshold"`
 }
 
-// FailoverConfig 故障转移配置
+// FailoverConfig 故障转移配置.
 type FailoverConfig struct {
 	Enabled             bool          `json:"enabled"`
 	Strategy            string        `json:"strategy"`
@@ -171,7 +171,7 @@ type FailoverConfig struct {
 	MaxFailoverAttempts int           `json:"max_failover_attempts"`
 }
 
-// SyncConfig 数据同步配置
+// SyncConfig 数据同步配置.
 type SyncConfig struct {
 	Mode           SyncMode      `json:"mode"`
 	Workers        int           `json:"workers"`
@@ -181,7 +181,7 @@ type SyncConfig struct {
 	RetryDelay     time.Duration `json:"retry_delay"`
 }
 
-// FederationConfig 联邦配置
+// FederationConfig 联邦配置.
 type FederationConfig struct {
 	ClusterID           string              `json:"cluster_id"`
 	ClusterName         string              `json:"cluster_name"`
@@ -193,7 +193,7 @@ type FederationConfig struct {
 	Sync                SyncConfig          `json:"sync"`
 }
 
-// syncTask 内部同步任务
+// syncTask 内部同步任务.
 type syncTask struct {
 	ID            string
 	SourceCluster string
@@ -206,7 +206,7 @@ type syncTask struct {
 	Error         error
 }
 
-// failoverEvent 内部故障转移事件记录
+// failoverEvent 内部故障转移事件记录.
 type failoverEvent struct {
 	Timestamp     time.Time
 	SourceCluster string
@@ -219,7 +219,7 @@ type failoverEvent struct {
 // ==================== 主管理器结构体 ====================
 
 // ClusterFederationManager 多集群联邦管理器
-// 提供集群发现、统一命名空间、负载均衡、故障转移、数据同步和集中监控
+// 提供集群发现、统一命名空间、负载均衡、故障转移、数据同步和集中监控.
 type ClusterFederationManager struct {
 	mu              sync.RWMutex
 	config          FederationConfig
@@ -237,12 +237,12 @@ type ClusterFederationManager struct {
 
 // ==================== 初始化 ====================
 
-// init 包初始化，注册 multiclusterfed 模块
+// init 包初始化，注册 multiclusterfed 模块.
 func init() {
 	fmt.Println("[multiclusterfed] 多集群联邦管理模块已加载")
 }
 
-// New 创建新的集群联邦管理器实例
+// New 创建新的集群联邦管理器实例.
 func New(config FederationConfig) *ClusterFederationManager {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -302,7 +302,7 @@ func New(config FederationConfig) *ClusterFederationManager {
 
 // ==================== 生命周期管理 ====================
 
-// Start 启动联邦管理器
+// Start 启动联邦管理器.
 func (m *ClusterFederationManager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -333,7 +333,7 @@ func (m *ClusterFederationManager) Start() error {
 	return nil
 }
 
-// Stop 停止联邦管理器
+// Stop 停止联邦管理器.
 func (m *ClusterFederationManager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -349,7 +349,7 @@ func (m *ClusterFederationManager) Stop() error {
 	return nil
 }
 
-// IsRunning 返回管理器是否正在运行
+// IsRunning 返回管理器是否正在运行.
 func (m *ClusterFederationManager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -358,7 +358,7 @@ func (m *ClusterFederationManager) IsRunning() bool {
 
 // ==================== 集群管理 ====================
 
-// AddCluster 添加集群到联邦
+// AddCluster 添加集群到联邦.
 func (m *ClusterFederationManager) AddCluster(cluster *Cluster) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -391,7 +391,7 @@ func (m *ClusterFederationManager) AddCluster(cluster *Cluster) error {
 	return nil
 }
 
-// RemoveCluster 从联邦中移除集群
+// RemoveCluster 从联邦中移除集群.
 func (m *ClusterFederationManager) RemoveCluster(clusterID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -425,14 +425,14 @@ func (m *ClusterFederationManager) RemoveCluster(clusterID string) error {
 	return nil
 }
 
-// GetClusterStatus 获取集群状态
+// GetClusterStatus 获取集群状态.
 func (m *ClusterFederationManager) GetClusterStatus(clusterID string) (*ClusterStatus, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.getClusterStatusUnsafe(clusterID)
 }
 
-// GetAllClusterStatus 获取所有集群状态
+// GetAllClusterStatus 获取所有集群状态.
 func (m *ClusterFederationManager) GetAllClusterStatus() []*ClusterStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -495,7 +495,7 @@ func (m *ClusterFederationManager) getClusterStatusUnsafe(clusterID string) (*Cl
 
 // ==================== 统一命名空间 ====================
 
-// CreateNamespace 创建统一命名空间
+// CreateNamespace 创建统一命名空间.
 func (m *ClusterFederationManager) CreateNamespace(ns *Namespace) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -525,7 +525,7 @@ func (m *ClusterFederationManager) CreateNamespace(ns *Namespace) error {
 	return nil
 }
 
-// DeleteNamespace 删除命名空间
+// DeleteNamespace 删除命名空间.
 func (m *ClusterFederationManager) DeleteNamespace(path string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -538,7 +538,7 @@ func (m *ClusterFederationManager) DeleteNamespace(path string) error {
 	return nil
 }
 
-// GetNamespace 获取命名空间
+// GetNamespace 获取命名空间.
 func (m *ClusterFederationManager) GetNamespace(path string) (*Namespace, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -550,7 +550,7 @@ func (m *ClusterFederationManager) GetNamespace(path string) (*Namespace, error)
 	return ns, nil
 }
 
-// ListNamespaces 列出所有命名空间
+// ListNamespaces 列出所有命名空间.
 func (m *ClusterFederationManager) ListNamespaces() []*Namespace {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -564,7 +564,7 @@ func (m *ClusterFederationManager) ListNamespaces() []*Namespace {
 
 // ==================== 负载均衡 ====================
 
-// SelectCluster 根据负载均衡策略选择目标集群
+// SelectCluster 根据负载均衡策略选择目标集群.
 func (m *ClusterFederationManager) SelectCluster(namespace string) (string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -833,7 +833,7 @@ func (m *ClusterFederationManager) checkClusterHealth(clusterID string) {
 	cluster.LastHealthCheck = time.Now()
 }
 
-// verifyClusterConnectivity 验证集群连通性
+// verifyClusterConnectivity 验证集群连通性.
 func (m *ClusterFederationManager) verifyClusterConnectivity(clusterID string) {
 	m.mu.RLock()
 	cluster, exists := m.clusters[clusterID]
@@ -1117,14 +1117,14 @@ func (m *ClusterFederationManager) updateStats() {
 
 // ==================== 监控接口 ====================
 
-// GetStats 获取联邦统计信息
+// GetStats 获取联邦统计信息.
 func (m *ClusterFederationManager) GetStats() FederationStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.stats
 }
 
-// GetFailoverEvents 获取故障转移事件历史
+// GetFailoverEvents 获取故障转移事件历史.
 func (m *ClusterFederationManager) GetFailoverEvents() []*failoverEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1134,7 +1134,7 @@ func (m *ClusterFederationManager) GetFailoverEvents() []*failoverEvent {
 	return events
 }
 
-// GetSyncTasks 获取同步任务列表
+// GetSyncTasks 获取同步任务列表.
 func (m *ClusterFederationManager) GetSyncTasks() []*syncTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1144,14 +1144,14 @@ func (m *ClusterFederationManager) GetSyncTasks() []*syncTask {
 	return tasks
 }
 
-// GetConfig 获取当前联邦配置
+// GetConfig 获取当前联邦配置.
 func (m *ClusterFederationManager) GetConfig() FederationConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// ListClusters 列出所有已注册集群
+// ListClusters 列出所有已注册集群.
 func (m *ClusterFederationManager) ListClusters() []*Cluster {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1163,7 +1163,7 @@ func (m *ClusterFederationManager) ListClusters() []*Cluster {
 	return clusters
 }
 
-// AddNode 向集群添加节点
+// AddNode 向集群添加节点.
 func (m *ClusterFederationManager) AddNode(clusterID string, node *ClusterNode) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1186,7 +1186,7 @@ func (m *ClusterFederationManager) AddNode(clusterID string, node *ClusterNode) 
 	return nil
 }
 
-// RemoveNode 从集群移除节点
+// RemoveNode 从集群移除节点.
 func (m *ClusterFederationManager) RemoveNode(clusterID, nodeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1207,7 +1207,7 @@ func (m *ClusterFederationManager) RemoveNode(clusterID, nodeID string) error {
 	return nil
 }
 
-// UpdateNodeHeartbeat 更新节点心跳时间
+// UpdateNodeHeartbeat 更新节点心跳时间.
 func (m *ClusterFederationManager) UpdateNodeHeartbeat(clusterID, nodeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1226,7 +1226,7 @@ func (m *ClusterFederationManager) UpdateNodeHeartbeat(clusterID, nodeID string)
 	return nil
 }
 
-// TriggerSync 手动触发同步任务
+// TriggerSync 手动触发同步任务.
 func (m *ClusterFederationManager) TriggerSync(sourceCluster, targetCluster, namespace string) (string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

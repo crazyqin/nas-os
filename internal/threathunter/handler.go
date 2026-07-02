@@ -8,17 +8,17 @@ import (
 	"strings"
 )
 
-// Handlers 威胁猎手 API 处理器
+// Handlers 威胁猎手 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册 HTTP 路由
+// RegisterRoutes 注册 HTTP 路由.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/threathunter/scan", h.handleScan)
 	mux.HandleFunc("/api/v1/threathunter/threats", h.handleThreats)
@@ -44,7 +44,7 @@ func writeError(w http.ResponseWriter, status int, msg string) {
 	writeJSON(w, status, apiResponse{Code: 1, Message: msg})
 }
 
-// handleScan 处理扫描请求
+// handleScan 处理扫描请求.
 func (h *Handlers) handleScan(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -66,7 +66,7 @@ func (h *Handlers) handleScan(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, apiResponse{Code: 0, Message: "scan completed", Data: result})
 }
 
-// handleThreats 处理威胁请求
+// handleThreats 处理威胁请求.
 func (h *Handlers) handleThreats(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -108,7 +108,7 @@ func (h *Handlers) handleThreats(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleScore 处理安全评分请求
+// handleScore 处理安全评分请求.
 func (h *Handlers) handleScore(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -119,7 +119,7 @@ func (h *Handlers) handleScore(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, apiResponse{Code: 0, Message: "success", Data: score})
 }
 
-// handleTrends 处理趋势请求
+// handleTrends 处理趋势请求.
 func (h *Handlers) handleTrends(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -138,7 +138,7 @@ func (h *Handlers) handleTrends(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, apiResponse{Code: 0, Message: "success", Data: trends})
 }
 
-// handleIncidents 处理事件请求
+// handleIncidents 处理事件请求.
 func (h *Handlers) handleIncidents(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -196,7 +196,7 @@ func (h *Handlers) handleIncidents(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleIntel 处理威胁情报请求
+// handleIntel 处理威胁情报请求.
 func (h *Handlers) handleIntel(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")

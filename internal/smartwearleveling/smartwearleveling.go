@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// SSDInfo SSD磁盘信息
+// SSDInfo SSD磁盘信息.
 type SSDInfo struct {
 	ID              string       `json:"id"`
 	Device          string       `json:"device"`
@@ -30,7 +30,7 @@ type SSDInfo struct {
 	Status          WearStatus   `json:"status"`
 }
 
-// SMARTAttr SMART属性
+// SMARTAttr SMART属性.
 type SMARTAttr struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`
@@ -41,7 +41,7 @@ type SMARTAttr struct {
 	Status    string `json:"status"`
 }
 
-// WearStatus 磨损状态
+// WearStatus 磨损状态.
 type WearStatus string
 
 const (
@@ -51,7 +51,7 @@ const (
 	WearCritical WearStatus = "critical"
 )
 
-// MigrationPolicy 迁移策略
+// MigrationPolicy 迁移策略.
 type MigrationPolicy struct {
 	ID              string  `json:"id"`
 	Name            string  `json:"name"`
@@ -61,7 +61,7 @@ type MigrationPolicy struct {
 	AutoMigrate     bool    `json:"auto_migrate"`
 }
 
-// MigrationJob 迁移任务
+// MigrationJob 迁移任务.
 type MigrationJob struct {
 	ID          string     `json:"id"`
 	SourceID    string     `json:"source_id"`
@@ -73,7 +73,7 @@ type MigrationJob struct {
 	Error       string     `json:"error,omitempty"`
 }
 
-// WearPrediction 磨损预测
+// WearPrediction 磨损预测.
 type WearPrediction struct {
 	SSDID             string    `json:"ssd_id"`
 	CurrentLife       float64   `json:"current_life_percent"`
@@ -83,7 +83,7 @@ type WearPrediction struct {
 	RiskLevel         string    `json:"risk_level"`
 }
 
-// AlertConfig 告警配置
+// AlertConfig 告警配置.
 type AlertConfig struct {
 	LifeWarningThreshold  float64 `json:"life_warning_threshold"`
 	LifeCriticalThreshold float64 `json:"life_critical_threshold"`
@@ -92,7 +92,7 @@ type AlertConfig struct {
 	Enabled               bool    `json:"enabled"`
 }
 
-// WearAlert 磨损告警
+// WearAlert 磨损告警.
 type WearAlert struct {
 	ID         string     `json:"id"`
 	SSDID      string     `json:"ssd_id"`
@@ -104,7 +104,7 @@ type WearAlert struct {
 	ResolvedAt *time.Time `json:"resolved_at,omitempty"`
 }
 
-// WearStats 磨损统计
+// WearStats 磨损统计.
 type WearStats struct {
 	TotalSSDs      int     `json:"total_ssds"`
 	HealthySSDs    int     `json:"healthy_ssds"`
@@ -118,7 +118,7 @@ type WearStats struct {
 	ActiveJobs     int     `json:"active_jobs"`
 }
 
-// SmartWearLevelingManager SSD磨损均衡管理器
+// SmartWearLevelingManager SSD磨损均衡管理器.
 type SmartWearLevelingManager struct {
 	mu       sync.RWMutex
 	ssds     map[string]*SSDInfo
@@ -129,7 +129,7 @@ type SmartWearLevelingManager struct {
 	dataPath string
 }
 
-// NewManager 创建磨损均衡管理器
+// NewManager 创建磨损均衡管理器.
 func NewManager(dataPath string) *SmartWearLevelingManager {
 	m := &SmartWearLevelingManager{
 		ssds:     make(map[string]*SSDInfo),
@@ -149,7 +149,7 @@ func NewManager(dataPath string) *SmartWearLevelingManager {
 	return m
 }
 
-// RegisterSSD 注册SSD
+// RegisterSSD 注册SSD.
 func (m *SmartWearLevelingManager) RegisterSSD(ssd *SSDInfo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -166,7 +166,7 @@ func (m *SmartWearLevelingManager) RegisterSSD(ssd *SSDInfo) error {
 	return nil
 }
 
-// UnregisterSSD 注销SSD
+// UnregisterSSD 注销SSD.
 func (m *SmartWearLevelingManager) UnregisterSSD(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -177,7 +177,7 @@ func (m *SmartWearLevelingManager) UnregisterSSD(id string) error {
 	return nil
 }
 
-// GetSSD 获取SSD信息
+// GetSSD 获取SSD信息.
 func (m *SmartWearLevelingManager) GetSSD(id string) (*SSDInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -188,7 +188,7 @@ func (m *SmartWearLevelingManager) GetSSD(id string) (*SSDInfo, error) {
 	return ssd, nil
 }
 
-// ListSSDs 列出所有SSD
+// ListSSDs 列出所有SSD.
 func (m *SmartWearLevelingManager) ListSSDs() []*SSDInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -199,7 +199,7 @@ func (m *SmartWearLevelingManager) ListSSDs() []*SSDInfo {
 	return ssds
 }
 
-// UpdateSSDStats 更新SSD状态
+// UpdateSSDStats 更新SSD状态.
 func (m *SmartWearLevelingManager) UpdateSSDStats(id string, stats *SSDInfo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -230,7 +230,7 @@ func (m *SmartWearLevelingManager) UpdateSSDStats(id string, stats *SSDInfo) err
 	return nil
 }
 
-// PredictWear 磨损预测
+// PredictWear 磨损预测.
 func (m *SmartWearLevelingManager) PredictWear(ssdID string) (*WearPrediction, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -275,7 +275,7 @@ func (m *SmartWearLevelingManager) PredictWear(ssdID string) (*WearPrediction, e
 	return prediction, nil
 }
 
-// EvaluateMigrations 评估迁移需求
+// EvaluateMigrations 评估迁移需求.
 func (m *SmartWearLevelingManager) EvaluateMigrations() []*MigrationJob {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -317,7 +317,7 @@ func (m *SmartWearLevelingManager) EvaluateMigrations() []*MigrationJob {
 	return newJobs
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *SmartWearLevelingManager) GetStats() *WearStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -362,7 +362,7 @@ func (m *SmartWearLevelingManager) GetStats() *WearStats {
 	return stats
 }
 
-// GetAlerts 获取告警
+// GetAlerts 获取告警.
 func (m *SmartWearLevelingManager) GetAlerts(resolved bool) []*WearAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -375,7 +375,7 @@ func (m *SmartWearLevelingManager) GetAlerts(resolved bool) []*WearAlert {
 	return alerts
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (m *SmartWearLevelingManager) ResolveAlert(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -390,35 +390,35 @@ func (m *SmartWearLevelingManager) ResolveAlert(id string) error {
 	return fmt.Errorf("告警不存在或已解决: %s", id)
 }
 
-// GetJobs 获取迁移任务
+// GetJobs 获取迁移任务.
 func (m *SmartWearLevelingManager) GetJobs() []*MigrationJob {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.jobs
 }
 
-// UpdateAlertConfig 更新告警配置
+// UpdateAlertConfig 更新告警配置.
 func (m *SmartWearLevelingManager) UpdateAlertConfig(cfg *AlertConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.alertCfg = cfg
 }
 
-// GetAlertConfig 获取告警配置
+// GetAlertConfig 获取告警配置.
 func (m *SmartWearLevelingManager) GetAlertConfig() *AlertConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.alertCfg
 }
 
-// AddPolicy 添加迁移策略
+// AddPolicy 添加迁移策略.
 func (m *SmartWearLevelingManager) AddPolicy(policy *MigrationPolicy) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.policies = append(m.policies, policy)
 }
 
-// GetPolicies 获取迁移策略
+// GetPolicies 获取迁移策略.
 func (m *SmartWearLevelingManager) GetPolicies() []*MigrationPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

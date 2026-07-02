@@ -16,7 +16,7 @@ import (
 
 // ========== 密钥类型 ==========
 
-// KeyType 密钥类型
+// KeyType 密钥类型.
 type KeyType string
 
 const (
@@ -26,7 +26,7 @@ const (
 	KeyTypeBackup  KeyType = "backup"  // 备份密钥
 )
 
-// KeyStatus 密钥状态
+// KeyStatus 密钥状态.
 type KeyStatus string
 
 const (
@@ -38,7 +38,7 @@ const (
 
 // ========== 密钥记录 ==========
 
-// KeyRecord 密钥记录
+// KeyRecord 密钥记录.
 type KeyRecord struct {
 	ID          string            `json:"id"`
 	Type        KeyType           `json:"type"`
@@ -56,7 +56,7 @@ type KeyRecord struct {
 
 // ========== 审计事件 ==========
 
-// AuditEventType 审计事件类型
+// AuditEventType 审计事件类型.
 type AuditEventType string
 
 const (
@@ -73,7 +73,7 @@ const (
 	EventComplianceChk AuditEventType = "compliance_check"
 )
 
-// AuditEvent 审计事件
+// AuditEvent 审计事件.
 type AuditEvent struct {
 	ID           string         `json:"id"`
 	EventType    AuditEventType `json:"event_type"`
@@ -91,7 +91,7 @@ type AuditEvent struct {
 
 // ========== 加密文件元数据 ==========
 
-// EncryptedFile 加密文件元数据
+// EncryptedFile 加密文件元数据.
 type EncryptedFile struct {
 	ID            string     `json:"id"`
 	Path          string     `json:"path"`
@@ -110,7 +110,7 @@ type EncryptedFile struct {
 
 // ========== 合规报告 ==========
 
-// ComplianceReport 合规报告
+// ComplianceReport 合规报告.
 type ComplianceReport struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -124,7 +124,7 @@ type ComplianceReport struct {
 	ValidUntil  time.Time         `json:"valid_until"`
 }
 
-// ComplianceCheck 合规检查项
+// ComplianceCheck 合规检查项.
 type ComplianceCheck struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -137,7 +137,7 @@ type ComplianceCheck struct {
 
 // ========== 加密审计引擎 ==========
 
-// AuditEngine 加密审计引擎
+// AuditEngine 加密审计引擎.
 type AuditEngine struct {
 	mu       sync.RWMutex
 	keys     map[string]*KeyRecord
@@ -147,10 +147,10 @@ type AuditEngine struct {
 	keyStore []byte // 主密钥存储（实际应用中应使用HSM）
 }
 
-// EngineOption 引擎配置选项
+// EngineOption 引擎配置选项.
 type EngineOption func(*AuditEngine)
 
-// NewAuditEngine 创建加密审计引擎
+// NewAuditEngine 创建加密审计引擎.
 func NewAuditEngine(opts ...EngineOption) *AuditEngine {
 	e := &AuditEngine{
 		keys:     make(map[string]*KeyRecord),
@@ -169,7 +169,7 @@ func NewAuditEngine(opts ...EngineOption) *AuditEngine {
 
 // ========== 密钥管理 ==========
 
-// CreateKey 创建密钥
+// CreateKey 创建密钥.
 func (e *AuditEngine) CreateKey(keyType KeyType, algorithm string) (*KeyRecord, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -197,7 +197,7 @@ func (e *AuditEngine) CreateKey(keyType KeyType, algorithm string) (*KeyRecord, 
 	return key, nil
 }
 
-// RotateKey 轮换密钥
+// RotateKey 轮换密钥.
 func (e *AuditEngine) RotateKey(keyID string) (*KeyRecord, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -231,7 +231,7 @@ func (e *AuditEngine) RotateKey(keyID string) (*KeyRecord, error) {
 	return newKey, nil
 }
 
-// RevokeKey 吊销密钥
+// RevokeKey 吊销密钥.
 func (e *AuditEngine) RevokeKey(keyID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -249,7 +249,7 @@ func (e *AuditEngine) RevokeKey(keyID string) error {
 	return nil
 }
 
-// ListKeys 列出所有密钥
+// ListKeys 列出所有密钥.
 func (e *AuditEngine) ListKeys() []*KeyRecord {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -262,7 +262,7 @@ func (e *AuditEngine) ListKeys() []*KeyRecord {
 
 // ========== 加解密操作 ==========
 
-// EncryptData 加密数据
+// EncryptData 加密数据.
 func (e *AuditEngine) EncryptData(keyID string, plaintext []byte) ([]byte, string, error) {
 	e.mu.RLock()
 	key, ok := e.keys[keyID]
@@ -299,7 +299,7 @@ func (e *AuditEngine) EncryptData(keyID string, plaintext []byte) ([]byte, strin
 	return ciphertext, nonceHex, nil
 }
 
-// DecryptData 解密数据
+// DecryptData 解密数据.
 func (e *AuditEngine) DecryptData(keyID string, ciphertext []byte) ([]byte, error) {
 	e.mu.RLock()
 	key, ok := e.keys[keyID]
@@ -347,7 +347,7 @@ func (e *AuditEngine) DecryptData(keyID string, ciphertext []byte) ([]byte, erro
 
 // ========== 完整性验证 ==========
 
-// VerifyIntegrity 验证文件完整性
+// VerifyIntegrity 验证文件完整性.
 func (e *AuditEngine) VerifyIntegrity(fileID string) (bool, error) {
 	e.mu.RLock()
 	file, ok := e.files[fileID]
@@ -369,7 +369,7 @@ func (e *AuditEngine) VerifyIntegrity(fileID string) (bool, error) {
 	return true, nil
 }
 
-// RegisterEncryptedFile 注册加密文件
+// RegisterEncryptedFile 注册加密文件.
 func (e *AuditEngine) RegisterEncryptedFile(file *EncryptedFile) error {
 	if file.ID == "" {
 		return errors.New("file ID cannot be empty")
@@ -383,7 +383,7 @@ func (e *AuditEngine) RegisterEncryptedFile(file *EncryptedFile) error {
 
 // ========== 审计日志 ==========
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (e *AuditEngine) GetAuditLog(limit int, eventType AuditEventType) []AuditEvent {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -401,7 +401,7 @@ func (e *AuditEngine) GetAuditLog(limit int, eventType AuditEventType) []AuditEv
 	return filtered
 }
 
-// GetAuditStats 获取审计统计
+// GetAuditStats 获取审计统计.
 func (e *AuditEngine) GetAuditStats() map[string]interface{} {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -434,7 +434,7 @@ func (e *AuditEngine) GetAuditStats() map[string]interface{} {
 
 // ========== 合规检查 ==========
 
-// RunComplianceCheck 运行合规检查
+// RunComplianceCheck 运行合规检查.
 func (e *AuditEngine) RunComplianceCheck(standard string) *ComplianceReport {
 	e.mu.Lock()
 	defer e.mu.Unlock()

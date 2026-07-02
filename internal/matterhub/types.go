@@ -12,7 +12,7 @@ import (
 // 设备类型与状态
 // ============================================================
 
-// DeviceType Matter 设备类型
+// DeviceType Matter 设备类型.
 type DeviceType string
 
 const (
@@ -38,7 +38,7 @@ const (
 	DeviceTypeOther             DeviceType = "other"
 )
 
-// DeviceState 设备在线状态
+// DeviceState 设备在线状态.
 type DeviceState string
 
 const (
@@ -48,7 +48,7 @@ const (
 	DeviceStateUnknown       DeviceState = "unknown"
 )
 
-// CommissionStatus 配对状态
+// CommissionStatus 配对状态.
 type CommissionStatus string
 
 const (
@@ -63,7 +63,7 @@ const (
 // 触发器与自动化
 // ============================================================
 
-// TriggerType 触发器类型
+// TriggerType 触发器类型.
 type TriggerType string
 
 const (
@@ -75,7 +75,7 @@ const (
 	TriggerTypeTemperature TriggerType = "temperature"
 )
 
-// ActionType 动作类型
+// ActionType 动作类型.
 type ActionType string
 
 const (
@@ -85,7 +85,7 @@ const (
 	ActionTypeDelay         ActionType = "delay"
 )
 
-// ComparisonOperator 比较运算符
+// ComparisonOperator 比较运算符.
 type ComparisonOperator string
 
 const (
@@ -101,7 +101,7 @@ const (
 // 数据结构
 // ============================================================
 
-// MatterDevice Matter 设备
+// MatterDevice Matter 设备.
 type MatterDevice struct {
 	ID             string            `json:"id"`
 	Name           string            `json:"name"`
@@ -130,7 +130,7 @@ type MatterDevice struct {
 	UpdatedAt      time.Time         `json:"updated_at"`
 }
 
-// ThreadDeviceInfo Thread 设备信息
+// ThreadDeviceInfo Thread 设备信息.
 type ThreadDeviceInfo struct {
 	ExtendedAddress string `json:"extended_address"`
 	Rloc16          uint16 `json:"rloc16"`
@@ -140,7 +140,7 @@ type ThreadDeviceInfo struct {
 	PartitionID     uint32 `json:"partition_id"`
 }
 
-// ThreadBorderRouter Thread 边界路由器
+// ThreadBorderRouter Thread 边界路由器.
 type ThreadBorderRouter struct {
 	ID              string    `json:"id"`
 	Name            string    `json:"name"`
@@ -163,7 +163,7 @@ type ThreadBorderRouter struct {
 	UpdatedAt       time.Time `json:"updated_at"`
 }
 
-// CommissionRequest 配对请求
+// CommissionRequest 配对请求.
 type CommissionRequest struct {
 	SetupCode     string `json:"setup_code"`
 	SetupPIN      uint32 `json:"setup_pin"`
@@ -173,7 +173,7 @@ type CommissionRequest struct {
 	TimeoutSec    int    `json:"timeout_sec,omitempty"`
 }
 
-// CommissionResult 配对结果
+// CommissionResult 配对结果.
 type CommissionResult struct {
 	Status    CommissionStatus `json:"status"`
 	DeviceID  string           `json:"device_id,omitempty"`
@@ -183,7 +183,7 @@ type CommissionResult struct {
 	EndedAt   *time.Time       `json:"ended_at,omitempty"`
 }
 
-// Trigger 自动化触发器
+// Trigger 自动化触发器.
 type Trigger struct {
 	Type     TriggerType `json:"type"`
 	DeviceID string      `json:"device_id,omitempty"`
@@ -192,7 +192,7 @@ type Trigger struct {
 	TimeStr  string      `json:"time_str,omitempty"`
 }
 
-// Condition 自动化条件
+// Condition 自动化条件.
 type Condition struct {
 	DeviceID string             `json:"device_id"`
 	Field    string             `json:"field"`
@@ -200,7 +200,7 @@ type Condition struct {
 	Operator ComparisonOperator `json:"operator"`
 }
 
-// Action 自动化动作
+// Action 自动化动作.
 type Action struct {
 	Type       ActionType     `json:"type"`
 	DeviceID   string         `json:"device_id,omitempty"`
@@ -210,7 +210,7 @@ type Action struct {
 	DelayMs    int64          `json:"delay_ms,omitempty"`
 }
 
-// Scene 场景
+// Scene 场景.
 type Scene struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -225,10 +225,10 @@ type Scene struct {
 	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
-// Automation 自动化规则（场景别名）
+// Automation 自动化规则（场景别名）.
 type Automation = Scene
 
-// DeviceGroup 设备分组
+// DeviceGroup 设备分组.
 type DeviceGroup struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -238,7 +238,7 @@ type DeviceGroup struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// DeviceEvent 设备事件
+// DeviceEvent 设备事件.
 type DeviceEvent struct {
 	DeviceID   string         `json:"device_id"`
 	DeviceName string         `json:"device_name,omitempty"`
@@ -247,7 +247,7 @@ type DeviceEvent struct {
 	Timestamp  time.Time      `json:"timestamp"`
 }
 
-// DashboardSummary 仪表盘摘要
+// DashboardSummary 仪表盘摘要.
 type DashboardSummary struct {
 	TotalDevices   int            `json:"total_devices"`
 	OnlineDevices  int            `json:"online_devices"`
@@ -263,7 +263,7 @@ type DashboardSummary struct {
 	UpdatedAt      time.Time      `json:"updated_at"`
 }
 
-// Config 中枢配置
+// Config 中枢配置.
 type Config struct {
 	Enabled              bool   `json:"enabled"`
 	ListenAddress        string `json:"listen_address"`
@@ -278,7 +278,7 @@ type Config struct {
 	MaxEvents            int    `json:"max_events"`
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() Config {
 	return Config{
 		Enabled:              true,
@@ -295,7 +295,7 @@ func DefaultConfig() Config {
 	}
 }
 
-// Hub Matter/Thread 智能家居中枢
+// Hub Matter/Thread 智能家居中枢.
 type Hub struct {
 	config          *Config
 	devices         map[string]*MatterDevice
@@ -310,7 +310,7 @@ type Hub struct {
 	cancel          context.CancelFunc
 }
 
-// NewHub 创建中枢实例
+// NewHub 创建中枢实例.
 func NewHub(config *Config) *Hub {
 	ctx, cancel := context.WithCancel(context.Background())
 	if config.MaxEvents <= 0 {

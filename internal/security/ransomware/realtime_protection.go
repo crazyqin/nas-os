@@ -13,7 +13,7 @@ import (
 )
 
 // RealtimeProtection 实时防护引擎
-// 集成文件监控、行为分析、威胁检测和自动响应
+// 集成文件监控、行为分析、威胁检测和自动响应.
 type RealtimeProtection struct {
 	config       RealtimeProtectionConfig
 	detector     *Detector
@@ -32,7 +32,7 @@ type RealtimeProtection struct {
 	statsMu   sync.RWMutex
 }
 
-// RealtimeProtectionConfig 实时防护配置
+// RealtimeProtectionConfig 实时防护配置.
 type RealtimeProtectionConfig struct {
 	// Enabled 是否启用
 	Enabled bool `json:"enabled"`
@@ -65,7 +65,7 @@ type RealtimeProtectionConfig struct {
 	Whitelist ProtectionWhitelist `json:"whitelist"`
 }
 
-// ResponseActionConfig 响应动作配置
+// ResponseActionConfig 响应动作配置.
 type ResponseActionConfig struct {
 	// LowRisk 低风险响应
 	LowRisk string `json:"lowRisk"` // log, alert
@@ -80,7 +80,7 @@ type ResponseActionConfig struct {
 	CriticalRisk string `json:"criticalRisk"` // log, alert, quarantine, snapshot, lockdown
 }
 
-// ProtectionWhitelist 保护白名单
+// ProtectionWhitelist 保护白名单.
 type ProtectionWhitelist struct {
 	// Processes 可信进程
 	Processes []string `json:"processes"`
@@ -95,7 +95,7 @@ type ProtectionWhitelist struct {
 	Extensions []string `json:"extensions"`
 }
 
-// AlertChannelConfig 告警通道配置
+// AlertChannelConfig 告警通道配置.
 type AlertChannelConfig struct {
 	Type     string            `json:"type"` // email, webhook, push, sms
 	Enabled  bool              `json:"enabled"`
@@ -103,7 +103,7 @@ type AlertChannelConfig struct {
 	Severity string            `json:"severity"` // low, medium, high, critical
 }
 
-// ProtectionStats 防护统计
+// ProtectionStats 防护统计.
 type ProtectionStats struct {
 	StartTime            time.Time  `json:"startTime"`
 	Uptime               string     `json:"uptime"`
@@ -121,7 +121,7 @@ type ProtectionStats struct {
 	ProtectedByWriteOnce int        `json:"protectedByWriteOnce"`
 }
 
-// DefaultRealtimeProtectionConfig 默认配置
+// DefaultRealtimeProtectionConfig 默认配置.
 func DefaultRealtimeProtectionConfig() RealtimeProtectionConfig {
 	return RealtimeProtectionConfig{
 		Enabled:              true,
@@ -150,7 +150,7 @@ func DefaultRealtimeProtectionConfig() RealtimeProtectionConfig {
 	}
 }
 
-// NewRealtimeProtection 创建实时防护引擎
+// NewRealtimeProtection 创建实时防护引擎.
 func NewRealtimeProtection(config RealtimeProtectionConfig) (*RealtimeProtection, error) {
 	// 创建监控配置
 	monitorConfig := DefaultMonitorConfig()
@@ -221,7 +221,7 @@ func NewRealtimeProtection(config RealtimeProtectionConfig) (*RealtimeProtection
 	return rp, nil
 }
 
-// Start 启动实时防护
+// Start 启动实时防护.
 func (rp *RealtimeProtection) Start(ctx context.Context) error {
 	rp.mu.Lock()
 	if rp.running {
@@ -271,7 +271,7 @@ func (rp *RealtimeProtection) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止实时防护
+// Stop 停止实时防护.
 func (rp *RealtimeProtection) Stop() {
 	rp.mu.Lock()
 	defer rp.mu.Unlock()
@@ -293,7 +293,7 @@ func (rp *RealtimeProtection) Stop() {
 	log.Println("勒索软件实时防护已停止")
 }
 
-// eventLoop 事件处理循环
+// eventLoop 事件处理循环.
 func (rp *RealtimeProtection) eventLoop(eventChan <-chan FileEvent) {
 	for {
 		select {
@@ -308,7 +308,7 @@ func (rp *RealtimeProtection) eventLoop(eventChan <-chan FileEvent) {
 	}
 }
 
-// processEvent 处理文件事件
+// processEvent 处理文件事件.
 func (rp *RealtimeProtection) processEvent(event FileEvent) {
 	// 更新统计
 	rp.statsMu.Lock()
@@ -338,7 +338,7 @@ func (rp *RealtimeProtection) processEvent(event FileEvent) {
 	rp.executeResponse(result)
 }
 
-// isWhitelisted 检查是否在白名单中
+// isWhitelisted 检查是否在白名单中.
 func (rp *RealtimeProtection) isWhitelisted(event FileEvent) bool {
 	// 检查可信进程
 	for _, proc := range rp.config.Whitelist.Processes {
@@ -364,7 +364,7 @@ func (rp *RealtimeProtection) isWhitelisted(event FileEvent) bool {
 	return false
 }
 
-// executeResponse 执行响应动作
+// executeResponse 执行响应动作.
 func (rp *RealtimeProtection) executeResponse(result *DetectionResult) {
 	// 获取响应配置
 	actions := rp.getResponseActions(result.ThreatLevel)
@@ -394,7 +394,7 @@ func (rp *RealtimeProtection) executeResponse(result *DetectionResult) {
 	}
 }
 
-// getResponseActions 获取响应动作
+// getResponseActions 获取响应动作.
 func (rp *RealtimeProtection) getResponseActions(level ThreatLevel) string {
 	switch level {
 	case ThreatLevelLow:
@@ -410,7 +410,7 @@ func (rp *RealtimeProtection) getResponseActions(level ThreatLevel) string {
 	}
 }
 
-// sendAlert 发送告警
+// sendAlert 发送告警.
 func (rp *RealtimeProtection) sendAlert(result *DetectionResult) {
 	alert := rp.alertManager.CreateAlert(result)
 	if alert == nil {
@@ -422,7 +422,7 @@ func (rp *RealtimeProtection) sendAlert(result *DetectionResult) {
 	rp.statsMu.Unlock()
 }
 
-// quarantineFiles 隔离文件
+// quarantineFiles 隔离文件.
 func (rp *RealtimeProtection) quarantineFiles(result *DetectionResult) {
 	if result.FilePath == "" {
 		return
@@ -448,7 +448,7 @@ func (rp *RealtimeProtection) quarantineFiles(result *DetectionResult) {
 	log.Printf("已隔离文件: %s", result.FilePath)
 }
 
-// createSnapshot 创建快照
+// createSnapshot 创建快照.
 func (rp *RealtimeProtection) createSnapshot(result *DetectionResult) {
 	snapshot, err := rp.snapshotMgr.TriggerSnapshot(result)
 	if err != nil {
@@ -463,7 +463,7 @@ func (rp *RealtimeProtection) createSnapshot(result *DetectionResult) {
 	log.Printf("已创建保护快照: %s", snapshot.ID)
 }
 
-// executeLockdown 执行锁定
+// executeLockdown 执行锁定.
 func (rp *RealtimeProtection) executeLockdown(result *DetectionResult) {
 	// 锁定受影响的共享
 	log.Printf("[紧急] 执行锁定: 检测到高级别勒索威胁")
@@ -474,7 +474,7 @@ func (rp *RealtimeProtection) executeLockdown(result *DetectionResult) {
 	rp.statsMu.Unlock()
 }
 
-// errorLoop 错误处理循环
+// errorLoop 错误处理循环.
 func (rp *RealtimeProtection) errorLoop(errChan <-chan error) {
 	for {
 		select {
@@ -489,7 +489,7 @@ func (rp *RealtimeProtection) errorLoop(errChan <-chan error) {
 	}
 }
 
-// statsLoop 统计更新循环
+// statsLoop 统计更新循环.
 func (rp *RealtimeProtection) statsLoop() {
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -504,7 +504,7 @@ func (rp *RealtimeProtection) statsLoop() {
 	}
 }
 
-// updateStats 更新统计
+// updateStats 更新统计.
 func (rp *RealtimeProtection) updateStats() {
 	rp.statsMu.Lock()
 	defer rp.statsMu.Unlock()
@@ -513,7 +513,7 @@ func (rp *RealtimeProtection) updateStats() {
 	rp.stats.MonitoredPaths = len(rp.monitor.GetWatchedPaths())
 }
 
-// cleanupLoop 清理循环
+// cleanupLoop 清理循环.
 func (rp *RealtimeProtection) cleanupLoop() {
 	ticker := time.NewTicker(1 * time.Hour)
 	defer ticker.Stop()
@@ -531,7 +531,7 @@ func (rp *RealtimeProtection) cleanupLoop() {
 	}
 }
 
-// GetStatus 获取状态
+// GetStatus 获取状态.
 func (rp *RealtimeProtection) GetStatus() ProtectionStats {
 	rp.statsMu.RLock()
 	stats := rp.stats
@@ -541,29 +541,29 @@ func (rp *RealtimeProtection) GetStatus() ProtectionStats {
 	return stats
 }
 
-// ScanNow 立即扫描
+// ScanNow 立即扫描.
 func (rp *RealtimeProtection) ScanNow(path string) (*ScanResult, error) {
 	return rp.detector.ScanDirectory(path)
 }
 
-// RestoreFromQuarantine 从隔离恢复文件
+// RestoreFromQuarantine 从隔离恢复文件.
 func (rp *RealtimeProtection) RestoreFromQuarantine(quarantineID string, targetPath string) error {
 	return rp.quarantine.RestoreFile(quarantineID, targetPath)
 }
 
-// RestoreSnapshot 恢复快照
+// RestoreSnapshot 恢复快照.
 func (rp *RealtimeProtection) RestoreSnapshot(snapshotID string, targetPath string) error {
 	return rp.snapshotMgr.RestoreSnapshot(snapshotID, targetPath)
 }
 
-// AddWhitelistPath 添加白名单路径
+// AddWhitelistPath 添加白名单路径.
 func (rp *RealtimeProtection) AddWhitelistPath(path string) {
 	rp.mu.Lock()
 	defer rp.mu.Unlock()
 	rp.config.Whitelist.Paths = append(rp.config.Whitelist.Paths, path)
 }
 
-// RemoveWhitelistPath 移除白名单路径
+// RemoveWhitelistPath 移除白名单路径.
 func (rp *RealtimeProtection) RemoveWhitelistPath(path string) {
 	rp.mu.Lock()
 	defer rp.mu.Unlock()
@@ -577,88 +577,88 @@ func (rp *RealtimeProtection) RemoveWhitelistPath(path string) {
 	rp.config.Whitelist.Paths = newPaths
 }
 
-// SetSensitivity 设置检测灵敏度
+// SetSensitivity 设置检测灵敏度.
 func (rp *RealtimeProtection) SetSensitivity(sensitivity string) {
 	rp.mu.Lock()
 	defer rp.mu.Unlock()
 	rp.config.DetectionSensitivity = sensitivity
 }
 
-// GetThreatHistory 获取威胁历史
+// GetThreatHistory 获取威胁历史.
 func (rp *RealtimeProtection) GetThreatHistory(limit int) []DetectionResult {
 	// 返回空列表，实际实现需要Detector支持
 	return []DetectionResult{}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (rp *RealtimeProtection) GetConfig() RealtimeProtectionConfig {
 	rp.mu.RLock()
 	defer rp.mu.RUnlock()
 	return rp.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (rp *RealtimeProtection) UpdateConfig(config RealtimeProtectionConfig) {
 	rp.mu.Lock()
 	defer rp.mu.Unlock()
 	rp.config = config
 }
 
-// ProtectionAPI 提供REST API接口
+// ProtectionAPI 提供REST API接口.
 type ProtectionAPI struct {
 	protection *RealtimeProtection
 }
 
-// NewProtectionAPI 创建API处理器
+// NewProtectionAPI 创建API处理器.
 func NewProtectionAPI(protection *RealtimeProtection) *ProtectionAPI {
 	return &ProtectionAPI{protection: protection}
 }
 
-// GetStatus 获取防护状态
+// GetStatus 获取防护状态.
 func (api *ProtectionAPI) GetStatus() ProtectionStats {
 	return api.protection.GetStatus()
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (api *ProtectionAPI) GetConfig() RealtimeProtectionConfig {
 	api.protection.mu.RLock()
 	defer api.protection.mu.RUnlock()
 	return api.protection.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (api *ProtectionAPI) UpdateConfig(config RealtimeProtectionConfig) {
 	api.protection.mu.Lock()
 	defer api.protection.mu.Unlock()
 	api.protection.config = config
 }
 
-// ScanDirectory 扫描目录
+// ScanDirectory 扫描目录.
 func (api *ProtectionAPI) ScanDirectory(path string) (*ScanResult, error) {
 	return api.protection.ScanNow(path)
 }
 
-// GetSnapshotList 获取快照列表
+// GetSnapshotList 获取快照列表.
 func (api *ProtectionAPI) GetSnapshotList(limit, offset int) []*ProtectionSnapshot {
 	return api.protection.snapshotMgr.ListSnapshots(limit, offset, nil)
 }
 
-// GetQuarantineList 获取隔离列表
+// GetQuarantineList 获取隔离列表.
 func (api *ProtectionAPI) GetQuarantineList() []*QuarantineEntry {
 	return api.protection.quarantine.ListEntries(100, 0, nil)
 }
 
-// RestoreQuarantineFile 恢复隔离文件
+// RestoreQuarantineFile 恢复隔离文件.
 func (api *ProtectionAPI) RestoreQuarantineFile(id, targetPath string) error {
 	return api.protection.RestoreFromQuarantine(id, targetPath)
 }
 
-// RestoreProtectionSnapshot 恢复保护快照
+// RestoreProtectionSnapshot 恢复保护快照.
 func (api *ProtectionAPI) RestoreProtectionSnapshot(id, targetPath string) error {
 	return api.protection.RestoreSnapshot(id, targetPath)
 }
 
-// QuickScan 快速扫描（检查特定路径）
+// QuickScan 快速扫描（检查特定路径）.
 func (api *ProtectionAPI) QuickScan(path string) (map[string]interface{}, error) {
 	result, err := api.protection.ScanNow(path)
 	if err != nil {
@@ -675,7 +675,7 @@ func (api *ProtectionAPI) QuickScan(path string) (map[string]interface{}, error)
 	}, nil
 }
 
-// InitializeProtection initializes protection with config
+// InitializeProtection initializes protection with config.
 func InitializeProtection(configPath string) (*RealtimeProtection, error) {
 	config := DefaultRealtimeProtectionConfig()
 

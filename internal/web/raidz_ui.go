@@ -17,7 +17,7 @@ import (
 )
 
 // RAIDZUIHandlers RAIDZ扩展WebUI处理器
-// 整合底层storage模块的RAIDZExpandHandlers，提供WebUI专用接口
+// 整合底层storage模块的RAIDZExpandHandlers，提供WebUI专用接口.
 type RAIDZUIHandlers struct {
 	// 核心服务
 	expandService *storage.RAIDZExpansionService
@@ -28,7 +28,7 @@ type RAIDZUIHandlers struct {
 	innerHandlers *storage.RAIDZExpandHandlers
 }
 
-// NewRAIDZUIHandlers 创建RAIDZ扩展WebUI处理器
+// NewRAIDZUIHandlers 创建RAIDZ扩展WebUI处理器.
 func NewRAIDZUIHandlers(expandService *storage.RAIDZExpansionService, monitor *storage.RAIDZExpandMonitor, storageMgr *storage.Manager) *RAIDZUIHandlers {
 	h := &RAIDZUIHandlers{
 		expandService: expandService,
@@ -44,7 +44,7 @@ func NewRAIDZUIHandlers(expandService *storage.RAIDZExpansionService, monitor *s
 	return h
 }
 
-// RegisterRoutes 注册路由到 /api/raidz-expansion 组
+// RegisterRoutes 注册路由到 /api/raidz-expansion 组.
 func (h *RAIDZUIHandlers) RegisterRoutes(rg *gin.RouterGroup) {
 	raidz := rg.Group("/raidz-expansion")
 	{
@@ -86,7 +86,7 @@ func (h *RAIDZUIHandlers) RegisterRoutes(rg *gin.RouterGroup) {
 
 // ========== Dashboard 卡片接口 ==========
 
-// RAIDZDashboardSummary Dashboard展示摘要
+// RAIDZDashboardSummary Dashboard展示摘要.
 type RAIDZDashboardSummary struct {
 	// 活跃任务
 	ActiveCount  int `json:"activeCount"`  // 活跃任务数
@@ -110,7 +110,7 @@ type RAIDZDashboardSummary struct {
 	LastUpdate time.Time `json:"lastUpdate"`
 }
 
-// RAIDZTaskCard 任务卡片（Dashboard展示）
+// RAIDZTaskCard 任务卡片（Dashboard展示）.
 type RAIDZTaskCard struct {
 	PoolName         string    `json:"poolName"`         // 池名称
 	RAIDZLevel       string    `json:"raidzLevel"`       // RAIDZ级别
@@ -128,7 +128,7 @@ type RAIDZTaskCard struct {
 	StartTime        time.Time `json:"startTime"`        // 开始时间
 }
 
-// RAIDZHistoryCard 历史卡片
+// RAIDZHistoryCard 历史卡片.
 type RAIDZHistoryCard struct {
 	PoolName     string    `json:"poolName"`     // 池名称
 	Status       string    `json:"status"`       // 最终状态
@@ -139,7 +139,7 @@ type RAIDZHistoryCard struct {
 	CapacityGain float64   `json:"capacityGain"` // 容量增益GB
 }
 
-// ExpandablePoolCard 可扩展池卡片
+// ExpandablePoolCard 可扩展池卡片.
 type ExpandablePoolCard struct {
 	PoolName      string  `json:"poolName"`      // 池名称
 	RAIDZLevel    string  `json:"raidzLevel"`    // RAIDZ级别
@@ -157,7 +157,7 @@ type ExpandablePoolCard struct {
 // @Produce json
 // @Success 200 {object} api.Response{data=RAIDZDashboardSummary}
 // @Router /raidz-expansion/dashboard [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZUIHandlers) getDashboardSummary(c *gin.Context) {
 	summary := &RAIDZDashboardSummary{
 		LastUpdate: time.Now(),
@@ -238,7 +238,7 @@ func (h *RAIDZUIHandlers) getDashboardSummary(c *gin.Context) {
 
 // ========== 状态和进度接口 ==========
 
-// getGlobalStatus 获取全局扩展状态
+// getGlobalStatus 获取全局扩展状态.
 func (h *RAIDZUIHandlers) getGlobalStatus(c *gin.Context) {
 	if h.innerHandlers != nil {
 		h.innerHandlers.RegisterRoutes(nil) // 调用内层方法
@@ -279,7 +279,7 @@ func (h *RAIDZUIHandlers) getGlobalStatus(c *gin.Context) {
 	api.OK(c, status)
 }
 
-// getAllProgress 获取所有扩展进度
+// getAllProgress 获取所有扩展进度.
 func (h *RAIDZUIHandlers) getAllProgress(c *gin.Context) {
 	if h.expandMonitor == nil {
 		api.OK(c, []storage.RAIDZExpandProgress{})
@@ -290,7 +290,7 @@ func (h *RAIDZUIHandlers) getAllProgress(c *gin.Context) {
 	api.OK(c, progress)
 }
 
-// getPoolProgress 获取指定池的扩展进度
+// getPoolProgress 获取指定池的扩展进度.
 func (h *RAIDZUIHandlers) getPoolProgress(c *gin.Context) {
 	poolName := c.Param("pool")
 	if poolName == "" {
@@ -316,7 +316,7 @@ func (h *RAIDZUIHandlers) getPoolProgress(c *gin.Context) {
 	api.OK(c, progress)
 }
 
-// getHistory 获取扩展历史
+// getHistory 获取扩展历史.
 func (h *RAIDZUIHandlers) getHistory(c *gin.Context) {
 	if h.expandMonitor == nil {
 		api.OK(c, []storage.RAIDZExpandProgress{})
@@ -332,7 +332,7 @@ func (h *RAIDZUIHandlers) getHistory(c *gin.Context) {
 	api.OK(c, history)
 }
 
-// getSummary 获取扩展摘要
+// getSummary 获取扩展摘要.
 func (h *RAIDZUIHandlers) getSummary(c *gin.Context) {
 	if h.expandMonitor == nil {
 		api.OK(c, &storage.ExpandSummary{})
@@ -345,7 +345,7 @@ func (h *RAIDZUIHandlers) getSummary(c *gin.Context) {
 
 // ========== 扩展操作接口 ==========
 
-// StartExpansionUIReq WebUI启动扩展请求
+// StartExpansionUIReq WebUI启动扩展请求.
 type StartExpansionUIReq struct {
 	PoolName  string            `json:"poolName" binding:"required"` // 存储池名称
 	NewDisk   string            `json:"newDisk" binding:"required"`  // 新磁盘路径
@@ -355,7 +355,7 @@ type StartExpansionUIReq struct {
 	Metadata  map[string]string `json:"metadata"`                    // 扩展元数据
 }
 
-// startExpansion 启动RAIDZ扩展
+// startExpansion 启动RAIDZ扩展.
 func (h *RAIDZUIHandlers) startExpansion(c *gin.Context) {
 	var req StartExpansionUIReq
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -413,7 +413,7 @@ func (h *RAIDZUIHandlers) startExpansion(c *gin.Context) {
 	api.Accepted(c, task)
 }
 
-// pauseExpansion 暂停扩展
+// pauseExpansion 暂停扩展.
 func (h *RAIDZUIHandlers) pauseExpansion(c *gin.Context) {
 	poolName := c.Param("pool")
 
@@ -442,7 +442,7 @@ func (h *RAIDZUIHandlers) pauseExpansion(c *gin.Context) {
 	api.OKWithMessage(c, "扩展已暂停", nil)
 }
 
-// resumeExpansion 恢复扩展
+// resumeExpansion 恢复扩展.
 func (h *RAIDZUIHandlers) resumeExpansion(c *gin.Context) {
 	poolName := c.Param("pool")
 
@@ -471,7 +471,7 @@ func (h *RAIDZUIHandlers) resumeExpansion(c *gin.Context) {
 	api.OKWithMessage(c, "扩展已恢复", nil)
 }
 
-// cancelExpansion 取消扩展
+// cancelExpansion 取消扩展.
 func (h *RAIDZUIHandlers) cancelExpansion(c *gin.Context) {
 	poolName := c.Param("pool")
 
@@ -491,7 +491,7 @@ func (h *RAIDZUIHandlers) cancelExpansion(c *gin.Context) {
 
 // ========== 验证和预检接口 ==========
 
-// validateExpansion 验证扩展可行性
+// validateExpansion 验证扩展可行性.
 func (h *RAIDZUIHandlers) validateExpansion(c *gin.Context) {
 	var req storage.ValidateExpansionRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -536,7 +536,7 @@ func (h *RAIDZUIHandlers) validateExpansion(c *gin.Context) {
 	api.OK(c, result)
 }
 
-// estimateExpansion 估算扩展时间和容量
+// estimateExpansion 估算扩展时间和容量.
 func (h *RAIDZUIHandlers) estimateExpansion(c *gin.Context) {
 	var req storage.EstimateExpansionRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -591,7 +591,7 @@ func (h *RAIDZUIHandlers) estimateExpansion(c *gin.Context) {
 	api.OK(c, result)
 }
 
-// checkEligibility 检查池扩展资格
+// checkEligibility 检查池扩展资格.
 func (h *RAIDZUIHandlers) checkEligibility(c *gin.Context) {
 	poolName := c.Param("pool")
 	if poolName == "" {
@@ -616,7 +616,7 @@ func (h *RAIDZUIHandlers) checkEligibility(c *gin.Context) {
 
 // ========== 磁盘信息接口 ==========
 
-// listAvailableDisks 列出可用磁盘
+// listAvailableDisks 列出可用磁盘.
 func (h *RAIDZUIHandlers) listAvailableDisks(c *gin.Context) {
 	if h.expandService == nil {
 		api.OK(c, []storage.AvailableDiskInfo{})
@@ -633,7 +633,7 @@ func (h *RAIDZUIHandlers) listAvailableDisks(c *gin.Context) {
 	api.OK(c, disks)
 }
 
-// getDiskInfo 获取磁盘信息
+// getDiskInfo 获取磁盘信息.
 func (h *RAIDZUIHandlers) getDiskInfo(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -655,7 +655,7 @@ func (h *RAIDZUIHandlers) getDiskInfo(c *gin.Context) {
 
 // ========== 容量计算接口 ==========
 
-// calculateCapacity 计算RAIDZ容量
+// calculateCapacity 计算RAIDZ容量.
 func (h *RAIDZUIHandlers) calculateCapacity(c *gin.Context) {
 	raidzLevel := c.Param("raidz")
 	widthStr := c.Param("width")
@@ -683,7 +683,7 @@ func (h *RAIDZUIHandlers) calculateCapacity(c *gin.Context) {
 
 // ========== 阶段详情接口 ==========
 
-// getPhaseDetails 获取阶段详情
+// getPhaseDetails 获取阶段详情.
 func (h *RAIDZUIHandlers) getPhaseDetails(c *gin.Context) {
 	poolName := c.Param("pool")
 	if poolName == "" {
@@ -707,7 +707,7 @@ func (h *RAIDZUIHandlers) getPhaseDetails(c *gin.Context) {
 
 // ========== WebSocket 实时进度推送 ==========
 
-// websocketProgress WebSocket进度推送
+// websocketProgress WebSocket进度推送.
 func (h *RAIDZUIHandlers) websocketProgress(c *gin.Context) {
 	poolName := c.Param("pool")
 	if poolName == "" {
@@ -725,7 +725,7 @@ func (h *RAIDZUIHandlers) websocketProgress(c *gin.Context) {
 
 // ========== 辅助方法 ==========
 
-// phaseToText 阶段转文本
+// phaseToText 阶段转文本.
 func (h *RAIDZUIHandlers) phaseToText(phase string) string {
 	switch phase {
 	case storage.PhasePreparing:
@@ -745,7 +745,7 @@ func (h *RAIDZUIHandlers) phaseToText(phase string) string {
 	}
 }
 
-// formatDuration 格式化时长
+// formatDuration 格式化时长.
 func (h *RAIDZUIHandlers) formatDuration(seconds int64) string {
 	if seconds <= 0 {
 		return "-"
@@ -763,7 +763,7 @@ func (h *RAIDZUIHandlers) formatDuration(seconds int64) string {
 	return fmt.Sprintf("%dm", minutes)
 }
 
-// getExpandablePools 获取可扩展池列表
+// getExpandablePools 获取可扩展池列表.
 func (h *RAIDZUIHandlers) getExpandablePools(ctx context.Context) []ExpandablePoolCard {
 	pools := []ExpandablePoolCard{}
 
@@ -804,5 +804,5 @@ func (h *RAIDZUIHandlers) getExpandablePools(ctx context.Context) []ExpandablePo
 
 // ========== 响应类型导出 ==========
 
-// FormatDuration 导出格式化函数（供其他模块使用）
+// FormatDuration 导出格式化函数（供其他模块使用）.
 var FormatDuration = storage.FormatDuration

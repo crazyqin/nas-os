@@ -7,20 +7,20 @@ import (
 	"strings"
 )
 
-// Handlers 监控中心 API 处理器
+// Handlers 监控中心 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandler 创建处理器（兼容 web/server.go 调用）
+// NewHandler 创建处理器（兼容 web/server.go 调用）.
 var NewHandler = NewHandlers
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册 HTTP 路由
+// RegisterRoutes 注册 HTTP 路由.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	// 摄像头管理
 	mux.HandleFunc("/api/v1/surveillance/cameras", h.handleCameras)
@@ -46,28 +46,28 @@ func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 
 // ========== 通用响应 ==========
 
-// apiResponse 标准 API 响应
+// apiResponse 标准 API 响应.
 type apiResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// writeJSON 写入 JSON 响应
+// writeJSON 写入 JSON 响应.
 func writeJSON(w http.ResponseWriter, status int, resp apiResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(resp)
 }
 
-// writeError 写入错误响应
+// writeError 写入错误响应.
 func writeError(w http.ResponseWriter, status int, msg string) {
 	writeJSON(w, status, apiResponse{Code: 1, Message: msg})
 }
 
 // ========== 摄像头管理 ==========
 
-// handleCameras 处理 /api/v1/surveillance/cameras
+// handleCameras 处理 /api/v1/surveillance/cameras.
 func (h *Handlers) handleCameras(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -103,7 +103,7 @@ func (h *Handlers) handleCameras(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleCameraRoutes 处理 /api/v1/surveillance/cameras/* 路由
+// handleCameraRoutes 处理 /api/v1/surveillance/cameras/* 路由.
 func (h *Handlers) handleCameraRoutes(w http.ResponseWriter, r *http.Request) {
 	// 解析路径: /api/v1/surveillance/cameras/{id}[/stream|/snapshot]
 	path := strings.TrimPrefix(r.URL.Path, "/api/v1/surveillance/cameras/")
@@ -174,7 +174,7 @@ func (h *Handlers) handleCameraRoutes(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleCameraStream 处理 /api/v1/surveillance/cameras/{id}/stream
+// handleCameraStream 处理 /api/v1/surveillance/cameras/{id}/stream.
 func (h *Handlers) handleCameraStream(w http.ResponseWriter, r *http.Request, cameraID string) {
 	switch r.Method {
 	case http.MethodGet:
@@ -216,7 +216,7 @@ func (h *Handlers) handleCameraStream(w http.ResponseWriter, r *http.Request, ca
 	}
 }
 
-// handleCameraSnapshot 处理 /api/v1/surveillance/cameras/{id}/snapshot
+// handleCameraSnapshot 处理 /api/v1/surveillance/cameras/{id}/snapshot.
 func (h *Handlers) handleCameraSnapshot(w http.ResponseWriter, r *http.Request, cameraID string) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -239,7 +239,7 @@ func (h *Handlers) handleCameraSnapshot(w http.ResponseWriter, r *http.Request, 
 
 // ========== 录像管理 ==========
 
-// handleRecordings 处理 /api/v1/surveillance/recordings
+// handleRecordings 处理 /api/v1/surveillance/recordings.
 func (h *Handlers) handleRecordings(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -280,7 +280,7 @@ func (h *Handlers) handleRecordings(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleRecordingByID 处理 /api/v1/surveillance/recordings/{id}
+// handleRecordingByID 处理 /api/v1/surveillance/recordings/{id}.
 func (h *Handlers) handleRecordingByID(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/api/v1/surveillance/recordings/")
 	if id == "" {
@@ -320,7 +320,7 @@ func (h *Handlers) handleRecordingByID(w http.ResponseWriter, r *http.Request) {
 
 // ========== 移动侦测 ==========
 
-// handleMotions 处理 /api/v1/surveillance/motions
+// handleMotions 处理 /api/v1/surveillance/motions.
 func (h *Handlers) handleMotions(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -362,7 +362,7 @@ func (h *Handlers) handleMotions(w http.ResponseWriter, r *http.Request) {
 
 // ========== 告警管理 ==========
 
-// handleAlerts 处理 /api/v1/surveillance/alerts
+// handleAlerts 处理 /api/v1/surveillance/alerts.
 func (h *Handlers) handleAlerts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -380,7 +380,7 @@ func (h *Handlers) handleAlerts(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleAlertRoutes 处理 /api/v1/surveillance/alerts/* 路由
+// handleAlertRoutes 处理 /api/v1/surveillance/alerts/* 路由.
 func (h *Handlers) handleAlertRoutes(w http.ResponseWriter, r *http.Request) {
 	// 解析路径: /api/v1/surveillance/alerts/{id}/ack
 	path := strings.TrimPrefix(r.URL.Path, "/api/v1/surveillance/alerts/")
@@ -401,7 +401,7 @@ func (h *Handlers) handleAlertRoutes(w http.ResponseWriter, r *http.Request) {
 	writeError(w, http.StatusNotFound, "unknown alert route")
 }
 
-// handleAlertAck 处理 /api/v1/surveillance/alerts/{id}/ack
+// handleAlertAck 处理 /api/v1/surveillance/alerts/{id}/ack.
 func (h *Handlers) handleAlertAck(w http.ResponseWriter, r *http.Request, alertID string) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -433,7 +433,7 @@ func (h *Handlers) handleAlertAck(w http.ResponseWriter, r *http.Request, alertI
 
 // ========== 录像计划 ==========
 
-// handleSchedules 处理 /api/v1/surveillance/schedules
+// handleSchedules 处理 /api/v1/surveillance/schedules.
 func (h *Handlers) handleSchedules(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -472,7 +472,7 @@ func (h *Handlers) handleSchedules(w http.ResponseWriter, r *http.Request) {
 
 // ========== 统计信息 ==========
 
-// handleStats 处理 /api/v1/surveillance/stats
+// handleStats 处理 /api/v1/surveillance/stats.
 func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")

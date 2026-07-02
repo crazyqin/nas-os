@@ -40,10 +40,10 @@ func NewTieringEngine(logger *zap.Logger) *TieringEngine {
 func (e *TieringEngine) registerDefaultRules() {
 	defaults := []TieringRule{
 		{
-			ID:         "default-hot",
-			Name:       "热数据保持规则",
-			Enabled:    true,
-			Priority:   1,
+			ID:       "default-hot",
+			Name:     "热数据保持规则",
+			Enabled:  true,
+			Priority: 1,
 			Conditions: []RuleCondition{
 				{Field: RuleFieldLastAccess, Operator: OpLessEqual, Value: "7"},
 			},
@@ -52,10 +52,10 @@ func (e *TieringEngine) registerDefaultRules() {
 			Description: "7天内被访问的数据保持在热数据层",
 		},
 		{
-			ID:         "default-warm",
-			Name:       "温数据降级规则",
-			Enabled:    true,
-			Priority:   2,
+			ID:       "default-warm",
+			Name:     "温数据降级规则",
+			Enabled:  true,
+			Priority: 2,
 			Conditions: []RuleCondition{
 				{Field: RuleFieldLastAccess, Operator: OpGreaterThan, Value: "7"},
 				{Field: RuleFieldLastAccess, Operator: OpLessEqual, Value: "30"},
@@ -65,10 +65,10 @@ func (e *TieringEngine) registerDefaultRules() {
 			Description: "7-30天未访问的数据迁移到温数据层",
 		},
 		{
-			ID:         "default-cold",
-			Name:       "冷数据降级规则",
-			Enabled:    true,
-			Priority:   3,
+			ID:       "default-cold",
+			Name:     "冷数据降级规则",
+			Enabled:  true,
+			Priority: 3,
 			Conditions: []RuleCondition{
 				{Field: RuleFieldLastAccess, Operator: OpGreaterThan, Value: "30"},
 				{Field: RuleFieldLastAccess, Operator: OpLessEqual, Value: "90"},
@@ -78,10 +78,10 @@ func (e *TieringEngine) registerDefaultRules() {
 			Description: "30-90天未访问的数据迁移到冷数据层",
 		},
 		{
-			ID:         "default-archive",
-			Name:       "归档规则",
-			Enabled:    true,
-			Priority:   4,
+			ID:       "default-archive",
+			Name:     "归档规则",
+			Enabled:  true,
+			Priority: 4,
 			Conditions: []RuleCondition{
 				{Field: RuleFieldLastAccess, Operator: OpGreaterThan, Value: "90"},
 				{Field: RuleFieldAge, Operator: OpGreaterThan, Value: "180"},
@@ -450,13 +450,13 @@ func (e *TieringEngine) GenerateMigrationPlan(patterns []FileAccessPattern) *Mig
 
 // MigrationPlan 迁移计划。
 type MigrationPlan struct {
-	GeneratedAt  time.Time       `json:"generated_at"`
-	Total        int             `json:"total"`          // 文件总数
-	Pending      int             `json:"pending"`        // 待迁移数
-	NoAction     int             `json:"no_action"`      // 无需迁移
-	Skipped      int             `json:"skipped"`        // 跳过（评估失败）
-	MigrateSize  int64           `json:"migrate_size"`   // 迁移总大小（字节）
-	Migrations   []MigrationItem `json:"migrations"`     // 迁移项列表
+	GeneratedAt time.Time       `json:"generated_at"`
+	Total       int             `json:"total"`        // 文件总数
+	Pending     int             `json:"pending"`      // 待迁移数
+	NoAction    int             `json:"no_action"`    // 无需迁移
+	Skipped     int             `json:"skipped"`      // 跳过（评估失败）
+	MigrateSize int64           `json:"migrate_size"` // 迁移总大小（字节）
+	Migrations  []MigrationItem `json:"migrations"`   // 迁移项列表
 }
 
 // MigrationItem 单个迁移项。

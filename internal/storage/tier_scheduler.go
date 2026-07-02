@@ -12,7 +12,7 @@ import (
 )
 
 // TierScheduler 分层存储调度器
-// 负责协调热数据提升和冷数据降级的调度执行
+// 负责协调热数据提升和冷数据降级的调度执行.
 type TierScheduler struct {
 	mu sync.RWMutex
 
@@ -43,7 +43,7 @@ type TierScheduler struct {
 	onTaskComplete func(task *ScheduledTask)
 }
 
-// SchedulerConfig 调度器配置
+// SchedulerConfig 调度器配置.
 type SchedulerConfig struct {
 	// 检查间隔
 	CheckInterval time.Duration `json:"checkInterval"`
@@ -79,24 +79,24 @@ type SchedulerConfig struct {
 	ScheduleStrategy ScheduleStrategy `json:"scheduleStrategy"`
 }
 
-// ScheduleStrategy 调度策略类型
+// ScheduleStrategy 调度策略类型.
 type ScheduleStrategy string
 
 const (
-	// ScheduleStrategyPriority 优先级调度（热数据优先）
+	// ScheduleStrategyPriority 优先级调度（热数据优先）.
 	ScheduleStrategyPriority ScheduleStrategy = "priority"
 
-	// ScheduleStrategyBalance 平衡调度（热冷数据交替）
+	// ScheduleStrategyBalance 平衡调度（热冷数据交替）.
 	ScheduleStrategyBalance ScheduleStrategy = "balance"
 
-	// ScheduleStrategySpace 空间优先（根据空间压力调度）
+	// ScheduleStrategySpace 空间优先（根据空间压力调度）.
 	ScheduleStrategySpace ScheduleStrategy = "space"
 
-	// ScheduleStrategyTime 时间窗口调度（按策略时间执行）
+	// ScheduleStrategyTime 时间窗口调度（按策略时间执行）.
 	ScheduleStrategyTime ScheduleStrategy = "time"
 )
 
-// DefaultSchedulerConfig 默认调度器配置
+// DefaultSchedulerConfig 默认调度器配置.
 func DefaultSchedulerConfig() SchedulerConfig {
 	return SchedulerConfig{
 		CheckInterval:            1 * time.Hour,
@@ -113,7 +113,7 @@ func DefaultSchedulerConfig() SchedulerConfig {
 	}
 }
 
-// ScheduledTask 调度任务
+// ScheduledTask 调度任务.
 type ScheduledTask struct {
 	ID string `json:"id"`
 
@@ -161,24 +161,24 @@ type ScheduledTask struct {
 	PredictionScore float64 `json:"predictionScore"`
 }
 
-// MigrationType 迁移类型
+// MigrationType 迁移类型.
 type MigrationType string
 
 const (
-	// MigrationTypePromote 提升（HDD → SSD）
+	// MigrationTypePromote 提升（HDD → SSD）.
 	MigrationTypePromote MigrationType = "promote"
 
-	// MigrationTypeDemote 降级（SSD → HDD）
+	// MigrationTypeDemote 降级（SSD → HDD）.
 	MigrationTypeDemote MigrationType = "demote"
 
-	// MigrationTypeArchive 归档（HDD → Cloud）
+	// MigrationTypeArchive 归档（HDD → Cloud）.
 	MigrationTypeArchive MigrationType = "archive"
 
-	// MigrationTypePin 固定（锁定到指定层）
+	// MigrationTypePin 固定（锁定到指定层）.
 	MigrationTypePin MigrationType = "pin"
 )
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -192,7 +192,7 @@ const (
 	TaskStatusRetrying  TaskStatus = "retrying"
 )
 
-// MigrationFileInfo 迁移文件信息
+// MigrationFileInfo 迁移文件信息.
 type MigrationFileInfo struct {
 	Path        string    `json:"path"`
 	Size        int64     `json:"size"`
@@ -203,14 +203,14 @@ type MigrationFileInfo struct {
 	Error       string    `json:"error,omitempty"`
 }
 
-// TaskError 任务错误
+// TaskError 任务错误.
 type TaskError struct {
 	Path    string    `json:"path"`
 	Message string    `json:"message"`
 	Time    time.Time `json:"time"`
 }
 
-// SchedulerStats 调度器统计
+// SchedulerStats 调度器统计.
 type SchedulerStats struct {
 	// 任务统计
 	TotalTasks     int64 `json:"totalTasks"`
@@ -235,7 +235,7 @@ type SchedulerStats struct {
 	LastUpdate time.Time `json:"lastUpdate"`
 }
 
-// NewTierScheduler 创建分层存储调度器
+// NewTierScheduler 创建分层存储调度器.
 func NewTierScheduler(config SchedulerConfig) *TierScheduler {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &TierScheduler{
@@ -247,21 +247,21 @@ func NewTierScheduler(config SchedulerConfig) *TierScheduler {
 	}
 }
 
-// SetHotColdManager 设置热冷池管理器
+// SetHotColdManager 设置热冷池管理器.
 func (s *TierScheduler) SetHotColdManager(manager *HotColdManager) {
 	s.mu.Lock()
 	s.hotColdManager = manager
 	s.mu.Unlock()
 }
 
-// SetPolicyManager 设置迁移策略管理器
+// SetPolicyManager 设置迁移策略管理器.
 func (s *TierScheduler) SetPolicyManager(manager *MigrationPolicyManager) {
 	s.mu.Lock()
 	s.policyManager = manager
 	s.mu.Unlock()
 }
 
-// Initialize 初始化调度器
+// Initialize 初始化调度器.
 func (s *TierScheduler) Initialize() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -280,7 +280,7 @@ func (s *TierScheduler) Initialize() error {
 	return nil
 }
 
-// Start 启动调度器
+// Start 启动调度器.
 func (s *TierScheduler) Start() error {
 	s.mu.Lock()
 	s.running = true
@@ -300,7 +300,7 @@ func (s *TierScheduler) Start() error {
 	return nil
 }
 
-// Stop 停止调度器
+// Stop 停止调度器.
 func (s *TierScheduler) Stop() {
 	s.mu.Lock()
 	s.running = false
@@ -314,7 +314,7 @@ func (s *TierScheduler) Stop() {
 	s.logger.Info("分层存储调度器已停止")
 }
 
-// cancelPendingTasks 取消待执行任务
+// cancelPendingTasks 取消待执行任务.
 func (s *TierScheduler) cancelPendingTasks() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -329,7 +329,7 @@ func (s *TierScheduler) cancelPendingTasks() {
 
 // ==================== 调度引擎 ====================
 
-// runSchedulerEngine 运行调度引擎
+// runSchedulerEngine 运行调度引擎.
 func (s *TierScheduler) runSchedulerEngine() {
 	ticker := time.NewTicker(s.config.CheckInterval)
 	defer ticker.Stop()
@@ -344,7 +344,7 @@ func (s *TierScheduler) runSchedulerEngine() {
 	}
 }
 
-// evaluateAndSchedule 评估并调度迁移任务
+// evaluateAndSchedule 评估并调度迁移任务.
 func (s *TierScheduler) evaluateAndSchedule() {
 	s.mu.RLock()
 	hotColdManager := s.hotColdManager
@@ -374,7 +374,7 @@ func (s *TierScheduler) evaluateAndSchedule() {
 	}
 }
 
-// scheduleByPriority 优先级调度
+// scheduleByPriority 优先级调度.
 func (s *TierScheduler) scheduleByPriority(policies []*MigrationPolicy, manager *HotColdManager) {
 	// 先调度热数据提升（高优先级）
 	for _, policy := range policies {
@@ -401,7 +401,7 @@ func (s *TierScheduler) scheduleByPriority(policies []*MigrationPolicy, manager 
 	}
 }
 
-// scheduleByBalance 平衡调度
+// scheduleByBalance 平衡调度.
 func (s *TierScheduler) scheduleByBalance(policies []*MigrationPolicy, manager *HotColdManager) {
 	// 交替创建提升和降级任务
 	promoteTaskCreated := false
@@ -428,7 +428,7 @@ func (s *TierScheduler) scheduleByBalance(policies []*MigrationPolicy, manager *
 	}
 }
 
-// scheduleBySpace 空间优先调度
+// scheduleBySpace 空间优先调度.
 func (s *TierScheduler) scheduleBySpace(policies []*MigrationPolicy, manager *HotColdManager) {
 	// 获取空间状态
 	ssdStats, _ := manager.GetHotPoolStats()
@@ -459,7 +459,7 @@ func (s *TierScheduler) scheduleBySpace(policies []*MigrationPolicy, manager *Ho
 	}
 }
 
-// scheduleByTime 时间窗口调度
+// scheduleByTime 时间窗口调度.
 func (s *TierScheduler) scheduleByTime(policies []*MigrationPolicy, manager *HotColdManager) {
 	now := time.Now()
 
@@ -468,9 +468,10 @@ func (s *TierScheduler) scheduleByTime(policies []*MigrationPolicy, manager *Hot
 			// 检查是否在调度窗口内
 			if policy.NextRunTime.IsZero() || now.After(policy.NextRunTime) || now.Equal(policy.NextRunTime) {
 				var task *ScheduledTask
-				if policy.Type == PolicyTypePromote {
+				switch policy.Type {
+				case PolicyTypePromote:
 					task = s.createPromoteTask(policy, manager)
-				} else if policy.Type == PolicyTypeDemote {
+				case PolicyTypeDemote:
 					task = s.createDemoteTask(policy, manager)
 				}
 
@@ -491,7 +492,7 @@ func (s *TierScheduler) scheduleByTime(policies []*MigrationPolicy, manager *Hot
 	}
 }
 
-// createPromoteTask 创建热数据提升任务
+// createPromoteTask 创建热数据提升任务.
 func (s *TierScheduler) createPromoteTask(policy *MigrationPolicy, manager *HotColdManager) *ScheduledTask {
 	// 获取冷池中的热数据候选
 	hotCandidates := manager.GetHotCandidates(float64(s.config.HotAccessThreshold))
@@ -556,7 +557,7 @@ func (s *TierScheduler) createPromoteTask(policy *MigrationPolicy, manager *HotC
 	return task
 }
 
-// createDemoteTask 创建冷数据降级任务
+// createDemoteTask 创建冷数据降级任务.
 func (s *TierScheduler) createDemoteTask(policy *MigrationPolicy, manager *HotColdManager) *ScheduledTask {
 	// 获取热池中的冷数据候选
 	coldCandidates := manager.GetColdCandidates(s.config.ColdAgeDays)
@@ -601,7 +602,7 @@ func (s *TierScheduler) createDemoteTask(policy *MigrationPolicy, manager *HotCo
 	return task
 }
 
-// addTask 添加任务到队列
+// addTask 添加任务到队列.
 func (s *TierScheduler) addTask(task *ScheduledTask) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -629,7 +630,7 @@ func (s *TierScheduler) addTask(task *ScheduledTask) {
 
 // ==================== 任务执行器 ====================
 
-// runTaskExecutor 运行任务执行器
+// runTaskExecutor 运行任务执行器.
 func (s *TierScheduler) runTaskExecutor() {
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -644,7 +645,7 @@ func (s *TierScheduler) runTaskExecutor() {
 	}
 }
 
-// executeNextTask 执行下一个任务
+// executeNextTask 执行下一个任务.
 func (s *TierScheduler) executeNextTask() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -681,7 +682,7 @@ func (s *TierScheduler) executeNextTask() {
 	go s.executeTask(nextTask)
 }
 
-// executeTask 执行迁移任务
+// executeTask 执行迁移任务.
 func (s *TierScheduler) executeTask(task *ScheduledTask) {
 	ctx, cancel := context.WithTimeout(s.ctx, s.config.TaskTimeout)
 	defer cancel()
@@ -710,7 +711,7 @@ func (s *TierScheduler) executeTask(task *ScheduledTask) {
 	}
 }
 
-// executePromote 执行热数据提升
+// executePromote 执行热数据提升.
 func (s *TierScheduler) executePromote(ctx context.Context, task *ScheduledTask, manager *HotColdManager) error {
 	for i := range task.Files {
 		file := &task.Files[i]
@@ -745,7 +746,7 @@ func (s *TierScheduler) executePromote(ctx context.Context, task *ScheduledTask,
 	return nil
 }
 
-// executeDemote 执行冷数据降级
+// executeDemote 执行冷数据降级.
 func (s *TierScheduler) executeDemote(ctx context.Context, task *ScheduledTask, manager *HotColdManager) error {
 	for i := range task.Files {
 		file := &task.Files[i]
@@ -780,7 +781,7 @@ func (s *TierScheduler) executeDemote(ctx context.Context, task *ScheduledTask, 
 	return nil
 }
 
-// handleTaskError 处理任务错误
+// handleTaskError 处理任务错误.
 func (s *TierScheduler) handleTaskError(task *ScheduledTask, err error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -803,14 +804,14 @@ func (s *TierScheduler) handleTaskError(task *ScheduledTask, err error) {
 	}
 }
 
-// markTaskFailed 标记任务失败
+// markTaskFailed 标记任务失败.
 func (s *TierScheduler) markTaskFailed(task *ScheduledTask, message string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.markTaskFailedLocked(task, message)
 }
 
-// markTaskFailedLocked 标记任务失败（已锁定）
+// markTaskFailedLocked 标记任务失败（已锁定）.
 func (s *TierScheduler) markTaskFailedLocked(task *ScheduledTask, message string) {
 	task.Status = TaskStatusFailed
 	task.CompletedAt = time.Now()
@@ -827,7 +828,7 @@ func (s *TierScheduler) markTaskFailedLocked(task *ScheduledTask, message string
 	)
 }
 
-// markTaskCompleted 标记任务完成
+// markTaskCompleted 标记任务完成.
 func (s *TierScheduler) markTaskCompleted(task *ScheduledTask) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -845,11 +846,12 @@ func (s *TierScheduler) markTaskCompleted(task *ScheduledTask) {
 	s.stats.CompletedTasks++
 
 	// 更新迁移统计
-	if task.Type == MigrationTypePromote {
+	switch task.Type {
+	case MigrationTypePromote:
 		s.stats.PromotedFiles += task.ProcessedFiles
 		s.stats.PromotedBytes += task.ProcessedBytes
 		s.stats.TotalPromoteTime += task.CompletedAt.Sub(task.StartedAt)
-	} else if task.Type == MigrationTypeDemote {
+	case MigrationTypeDemote:
 		s.stats.DemotedFiles += task.ProcessedFiles
 		s.stats.DemotedBytes += task.ProcessedBytes
 		s.stats.TotalDemoteTime += task.CompletedAt.Sub(task.StartedAt)
@@ -871,7 +873,7 @@ func (s *TierScheduler) markTaskCompleted(task *ScheduledTask) {
 
 // ==================== 统计收集器 ====================
 
-// runStatsCollector 运行统计收集器
+// runStatsCollector 运行统计收集器.
 func (s *TierScheduler) runStatsCollector() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
@@ -886,7 +888,7 @@ func (s *TierScheduler) runStatsCollector() {
 	}
 }
 
-// updateStats 更新统计
+// updateStats 更新统计.
 func (s *TierScheduler) updateStats() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -904,7 +906,7 @@ func (s *TierScheduler) updateStats() {
 
 // ==================== 公共API ====================
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (s *TierScheduler) GetTask(id string) (*ScheduledTask, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -918,7 +920,7 @@ func (s *TierScheduler) GetTask(id string) (*ScheduledTask, error) {
 	return nil, ErrTaskNotFound
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (s *TierScheduler) ListTasks(limit int) []*ScheduledTask {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -933,7 +935,7 @@ func (s *TierScheduler) ListTasks(limit int) []*ScheduledTask {
 	return result
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (s *TierScheduler) CancelTask(id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -952,14 +954,14 @@ func (s *TierScheduler) CancelTask(id string) error {
 	return ErrTaskNotFound
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (s *TierScheduler) GetStats() SchedulerStats {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.stats
 }
 
-// GetQueueLength 获取队列长度
+// GetQueueLength 获取队列长度.
 func (s *TierScheduler) GetQueueLength() int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -973,14 +975,14 @@ func (s *TierScheduler) GetQueueLength() int {
 	return count
 }
 
-// SetTaskCompleteCallback 设置任务完成回调
+// SetTaskCompleteCallback 设置任务完成回调.
 func (s *TierScheduler) SetTaskCompleteCallback(callback func(task *ScheduledTask)) {
 	s.mu.Lock()
 	s.onTaskComplete = callback
 	s.mu.Unlock()
 }
 
-// ForceSchedule 强制调度（手动触发）
+// ForceSchedule 强制调度（手动触发）.
 func (s *TierScheduler) ForceSchedule(migrationType MigrationType) (*ScheduledTask, error) {
 	s.mu.RLock()
 	manager := s.hotColdManager
@@ -998,10 +1000,11 @@ func (s *TierScheduler) ForceSchedule(migrationType MigrationType) (*ScheduledTa
 	}
 
 	var task *ScheduledTask
-	if migrationType == MigrationTypePromote {
+	switch migrationType {
+	case MigrationTypePromote:
 		tempPolicy.Type = PolicyTypePromote
 		task = s.createPromoteTask(tempPolicy, manager)
-	} else if migrationType == MigrationTypeDemote {
+	case MigrationTypeDemote:
 		tempPolicy.Type = PolicyTypeDemote
 		task = s.createDemoteTask(tempPolicy, manager)
 	}
@@ -1016,7 +1019,7 @@ func (s *TierScheduler) ForceSchedule(migrationType MigrationType) (*ScheduledTa
 	return task, nil
 }
 
-// 错误定义
+// 错误定义.
 var (
 	ErrTaskNotFound          = &SchedulerError{Message: "任务不存在"}
 	ErrTaskRunning           = &SchedulerError{Message: "任务正在运行，无法取消"}
@@ -1024,7 +1027,7 @@ var (
 	ErrNoCandidates          = &SchedulerError{Message: "没有可迁移的数据"}
 )
 
-// SchedulerError 调度器错误
+// SchedulerError 调度器错误.
 type SchedulerError struct {
 	Message string
 }

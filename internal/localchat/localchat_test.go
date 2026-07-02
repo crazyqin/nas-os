@@ -7,14 +7,14 @@ import (
 
 func TestNewChatService(t *testing.T) {
 	config := ChatConfig{
-		MaxFileSize:         50 * 1024 * 1024,
-		MaxMessageLength:    4096,
-		HistoryRetention:    90 * 24 * time.Hour,
-		EnableEncryption:    true,
-		EnableAI:            true,
-		AIModel:             "local-llm",
-		WebRTCEnabled:       true,
-		MaxMeetingDuration:  4 * time.Hour,
+		MaxFileSize:        50 * 1024 * 1024,
+		MaxMessageLength:   4096,
+		HistoryRetention:   90 * 24 * time.Hour,
+		EnableEncryption:   true,
+		EnableAI:           true,
+		AIModel:            "local-llm",
+		WebRTCEnabled:      true,
+		MaxMeetingDuration: 4 * time.Hour,
 	}
 	svc := NewChatService(config)
 	if svc == nil {
@@ -266,8 +266,8 @@ func TestGetMessagesChannelNotFound(t *testing.T) {
 
 func TestScheduleMeeting(t *testing.T) {
 	svc := NewChatService(ChatConfig{
-		EnableAI:          true,
-		AIModel:           "local-llm",
+		EnableAI:           true,
+		AIModel:            "local-llm",
 		MaxMeetingDuration: 2 * time.Hour,
 	})
 

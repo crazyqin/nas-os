@@ -13,13 +13,13 @@ import (
 
 // ========== 扩展管理器集成 ==========
 
-// RAIDExpansionHandlers RAID扩展处理器
+// RAIDExpansionHandlers RAID扩展处理器.
 type RAIDExpansionHandlers struct {
 	expansionManager *btrfs.RAIDExpansionManager
 	manager          *Manager
 }
 
-// NewRAIDExpansionHandlers 创建RAID扩展处理器
+// NewRAIDExpansionHandlers 创建RAID扩展处理器.
 func NewRAIDExpansionHandlers(expansionManager *btrfs.RAIDExpansionManager, manager *Manager) *RAIDExpansionHandlers {
 	return &RAIDExpansionHandlers{
 		expansionManager: expansionManager,
@@ -27,7 +27,7 @@ func NewRAIDExpansionHandlers(expansionManager *btrfs.RAIDExpansionManager, mana
 	}
 }
 
-// RegisterExpansionRoutes 注册扩展路由
+// RegisterExpansionRoutes 注册扩展路由.
 func (h *Handlers) RegisterExpansionRoutes(r *gin.RouterGroup, expansionManager *btrfs.RAIDExpansionManager) {
 	if expansionManager == nil {
 		return
@@ -81,7 +81,7 @@ func (h *Handlers) RegisterExpansionRoutes(r *gin.RouterGroup, expansionManager 
 // @Tags storage/expansion
 // @Produce json
 // @Success 200 {object} api.Response{data=btrfs.ExpansionStatus}
-// @Router /expansion/status [get]
+// @Router /expansion/status [get].
 func (h *RAIDExpansionHandlers) getExpansionStatus(c *gin.Context) {
 	status := h.expansionManager.GetExpansionStatus()
 	api.OK(c, status)
@@ -93,7 +93,7 @@ func (h *RAIDExpansionHandlers) getExpansionStatus(c *gin.Context) {
 // @Tags storage/expansion
 // @Produce json
 // @Success 200 {object} api.Response{data=[]btrfs.ExpansionStatus}
-// @Router /expansion/history [get]
+// @Router /expansion/history [get].
 func (h *RAIDExpansionHandlers) getExpansionHistory(c *gin.Context) {
 	history := h.expansionManager.GetExpansionHistory()
 	api.OK(c, history)
@@ -105,7 +105,7 @@ func (h *RAIDExpansionHandlers) getExpansionHistory(c *gin.Context) {
 // @Tags storage/expansion
 // @Produce json
 // @Success 200 {object} api.Response{data=[]btrfs.DeviceValidationResult}
-// @Router /expansion/available-disks [get]
+// @Router /expansion/available-disks [get].
 func (h *RAIDExpansionHandlers) listAvailableDisks(c *gin.Context) {
 	ctx := context.Background()
 	disks, err := h.expansionManager.ListAvailableDisks(ctx)
@@ -117,7 +117,7 @@ func (h *RAIDExpansionHandlers) listAvailableDisks(c *gin.Context) {
 	api.OK(c, disks)
 }
 
-// validateDeviceRequest 验证设备请求
+// validateDeviceRequest 验证设备请求.
 type validateDeviceRequest struct {
 	Device string `json:"device" binding:"required"`
 }
@@ -130,7 +130,7 @@ type validateDeviceRequest struct {
 // @Produce json
 // @Param request body validateDeviceRequest true "设备路径"
 // @Success 200 {object} api.Response{data=btrfs.DeviceValidationResult}
-// @Router /expansion/validate/device [post]
+// @Router /expansion/validate/device [post].
 func (h *RAIDExpansionHandlers) validateDevice(c *gin.Context) {
 	var req validateDeviceRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -148,7 +148,7 @@ func (h *RAIDExpansionHandlers) validateDevice(c *gin.Context) {
 	api.OK(c, result)
 }
 
-// validateVolumeRequest 验证卷请求
+// validateVolumeRequest 验证卷请求.
 type validateVolumeRequest struct {
 	MountPoint string `json:"mountPoint" binding:"required"`
 }
@@ -161,7 +161,7 @@ type validateVolumeRequest struct {
 // @Produce json
 // @Param request body validateVolumeRequest true "挂载点"
 // @Success 200 {object} api.Response{data=btrfs.VolumeValidationResult}
-// @Router /expansion/validate/volume [post]
+// @Router /expansion/validate/volume [post].
 func (h *RAIDExpansionHandlers) validateVolume(c *gin.Context) {
 	var req validateVolumeRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -179,7 +179,7 @@ func (h *RAIDExpansionHandlers) validateVolume(c *gin.Context) {
 	api.OK(c, result)
 }
 
-// startExpansionRequest 开始扩展请求
+// startExpansionRequest 开始扩展请求.
 type startExpansionRequest struct {
 	VolumeName    string `json:"volumeName" binding:"required"`
 	MountPoint    string `json:"mountPoint" binding:"required"`
@@ -198,7 +198,7 @@ type startExpansionRequest struct {
 // @Produce json
 // @Param request body startExpansionRequest true "扩展配置"
 // @Success 200 {object} api.Response{data=btrfs.ExpansionStatus}
-// @Router /expansion/start [post]
+// @Router /expansion/start [post].
 func (h *RAIDExpansionHandlers) startExpansion(c *gin.Context) {
 	var req startExpansionRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -218,7 +218,7 @@ func (h *RAIDExpansionHandlers) startExpansion(c *gin.Context) {
 	}
 
 	// 默认启用自动平衡
-	if config.AutoBalance == false && config.TargetProfile == "" {
+	if !config.AutoBalance && config.TargetProfile == "" {
 		config.AutoBalance = true
 	}
 
@@ -236,7 +236,7 @@ func (h *RAIDExpansionHandlers) startExpansion(c *gin.Context) {
 // @Description 暂停正在进行的RAID扩展
 // @Tags storage/expansion
 // @Success 200 {object} api.Response
-// @Router /expansion/pause [post]
+// @Router /expansion/pause [post].
 func (h *RAIDExpansionHandlers) pauseExpansion(c *gin.Context) {
 	if err := h.expansionManager.PauseExpansion(); err != nil {
 		api.BadRequest(c, err.Error())
@@ -246,7 +246,7 @@ func (h *RAIDExpansionHandlers) pauseExpansion(c *gin.Context) {
 	api.OKWithMessage(c, "扩展已暂停", nil)
 }
 
-// resumeExpansionRequest 恢复扩展请求
+// resumeExpansionRequest 恢复扩展请求.
 type resumeExpansionRequest struct {
 	VolumeName    string `json:"volumeName" binding:"required"`
 	MountPoint    string `json:"mountPoint" binding:"required"`
@@ -262,7 +262,7 @@ type resumeExpansionRequest struct {
 // @Produce json
 // @Param request body resumeExpansionRequest true "恢复配置"
 // @Success 200 {object} api.Response{data=btrfs.ExpansionStatus}
-// @Router /expansion/resume [post]
+// @Router /expansion/resume [post].
 func (h *RAIDExpansionHandlers) resumeExpansion(c *gin.Context) {
 	var req resumeExpansionRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -293,7 +293,7 @@ func (h *RAIDExpansionHandlers) resumeExpansion(c *gin.Context) {
 // @Description 取消正在进行的RAID扩展
 // @Tags storage/expansion
 // @Success 200 {object} api.Response
-// @Router /expansion/cancel [post]
+// @Router /expansion/cancel [post].
 func (h *RAIDExpansionHandlers) cancelExpansion(c *gin.Context) {
 	if err := h.expansionManager.CancelExpansion(); err != nil {
 		api.BadRequest(c, err.Error())
@@ -303,7 +303,7 @@ func (h *RAIDExpansionHandlers) cancelExpansion(c *gin.Context) {
 	api.OKWithMessage(c, "扩展已取消", nil)
 }
 
-// estimateTimeRequest 估算时间请求
+// estimateTimeRequest 估算时间请求.
 type estimateTimeRequest struct {
 	MountPoint string `json:"mountPoint" binding:"required"`
 }
@@ -316,7 +316,7 @@ type estimateTimeRequest struct {
 // @Produce json
 // @Param request body estimateTimeRequest true "挂载点"
 // @Success 200 {object} api.Response{data=map[string]string}
-// @Router /expansion/estimate/time [post]
+// @Router /expansion/estimate/time [post].
 func (h *RAIDExpansionHandlers) estimateExpansionTime(c *gin.Context) {
 	var req estimateTimeRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -337,7 +337,7 @@ func (h *RAIDExpansionHandlers) estimateExpansionTime(c *gin.Context) {
 	})
 }
 
-// estimateCapacityRequest 估算容量请求
+// estimateCapacityRequest 估算容量请求.
 type estimateCapacityRequest struct {
 	MountPoint     string `json:"mountPoint" binding:"required"`
 	NewDeviceSize  uint64 `json:"newDeviceSize"`
@@ -352,7 +352,7 @@ type estimateCapacityRequest struct {
 // @Produce json
 // @Param request body estimateCapacityRequest true "估算参数"
 // @Success 200 {object} api.Response{data=btrfs.CapacityEstimate}
-// @Router /expansion/estimate/capacity [post]
+// @Router /expansion/estimate/capacity [post].
 func (h *RAIDExpansionHandlers) estimateCapacityGain(c *gin.Context) {
 	var req estimateCapacityRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -376,12 +376,12 @@ func (h *RAIDExpansionHandlers) estimateCapacityGain(c *gin.Context) {
 // @Tags storage/expansion
 // @Produce json
 // @Success 200 {object} api.Response{data=map[string]btrfs.BtrfsRAIDConfig}
-// @Router /expansion/raid-configs [get]
+// @Router /expansion/raid-configs [get].
 func (h *RAIDExpansionHandlers) getRAIDExpansionConfigs(c *gin.Context) {
 	api.OK(c, btrfs.PredefinedRAIDConfigs)
 }
 
-// expandVolumeRequest 扩展卷请求
+// expandVolumeRequest 扩展卷请求.
 type expandVolumeRequest struct {
 	NewDevice     string `json:"newDevice" binding:"required"`
 	TargetProfile string `json:"targetProfile"`
@@ -399,7 +399,7 @@ type expandVolumeRequest struct {
 // @Param name path string true "卷名称"
 // @Param request body expandVolumeRequest true "扩展配置"
 // @Success 200 {object} api.Response{data=btrfs.ExpansionStatus}
-// @Router /volumes/{name}/expand [post]
+// @Router /volumes/{name}/expand [post].
 func (h *RAIDExpansionHandlers) expandVolume(c *gin.Context) {
 	volumeName := c.Param("name")
 
@@ -433,7 +433,7 @@ func (h *RAIDExpansionHandlers) expandVolume(c *gin.Context) {
 	}
 
 	// 默认启用自动平衡
-	if config.AutoBalance == false && config.TargetProfile == "" {
+	if !config.AutoBalance && config.TargetProfile == "" {
 		config.AutoBalance = true
 	}
 
@@ -453,13 +453,13 @@ func (h *RAIDExpansionHandlers) expandVolume(c *gin.Context) {
 // @Produce json
 // @Param name path string true "卷名称"
 // @Success 200 {object} api.Response{data=btrfs.ExpansionStatus}
-// @Router /volumes/{name}/expand/status [get]
+// @Router /volumes/{name}/expand/status [get].
 func (h *RAIDExpansionHandlers) getVolumeExpansionStatus(c *gin.Context) {
 	status := h.expansionManager.GetExpansionStatus()
 	api.OK(c, status)
 }
 
-// estimateVolumeExpansionRequest 估算卷扩展请求
+// estimateVolumeExpansionRequest 估算卷扩展请求.
 type estimateVolumeExpansionRequest struct {
 	NewDeviceSize uint64 `json:"newDeviceSize"`
 }
@@ -473,7 +473,7 @@ type estimateVolumeExpansionRequest struct {
 // @Param name path string true "卷名称"
 // @Param request body estimateVolumeExpansionRequest true "估算参数"
 // @Success 200 {object} api.Response{data=btrfs.CapacityEstimate}
-// @Router /volumes/{name}/expand/estimate [post]
+// @Router /volumes/{name}/expand/estimate [post].
 func (h *RAIDExpansionHandlers) estimateVolumeExpansion(c *gin.Context) {
 	volumeName := c.Param("name")
 

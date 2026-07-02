@@ -8,18 +8,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler SMB3 Unix 扩展 HTTP 处理器
+// Handler SMB3 Unix 扩展 HTTP 处理器.
 type Handler struct {
 	service *Service
 }
 
-// NewHandler 创建 HTTP 处理器
+// NewHandler 创建 HTTP 处理器.
 func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
 // RegisterRoutes 注册路由
-// 路由组路径建议: /api/v1/smb3-unix-ext
+// 路由组路径建议: /api/v1/smb3-unix-ext.
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	group := r.Group("/smb3-unix-ext")
 	{
@@ -42,7 +42,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -50,7 +50,7 @@ type response struct {
 }
 
 // getSupportStatus 获取全局支持状态
-// GET /api/v1/smb3-unix-ext/support-status
+// GET /api/v1/smb3-unix-ext/support-status.
 func (h *Handler) getSupportStatus(c *gin.Context) {
 	status := h.service.GetSupportStatus()
 	c.JSON(http.StatusOK, response{
@@ -61,7 +61,7 @@ func (h *Handler) getSupportStatus(c *gin.Context) {
 }
 
 // listExtensions 列出所有扩展配置
-// GET /api/v1/smb3-unix-ext/extensions
+// GET /api/v1/smb3-unix-ext/extensions.
 func (h *Handler) listExtensions(c *gin.Context) {
 	configs := h.service.ListExtensions()
 	c.JSON(http.StatusOK, response{
@@ -75,7 +75,7 @@ func (h *Handler) listExtensions(c *gin.Context) {
 }
 
 // getExtension 获取指定共享的扩展状态
-// GET /api/v1/smb3-unix-ext/extensions/:share_name
+// GET /api/v1/smb3-unix-ext/extensions/:share_name.
 func (h *Handler) getExtension(c *gin.Context) {
 	shareName := c.Param("share_name")
 	status, err := h.service.GetExtensionStatus(shareName)
@@ -95,7 +95,7 @@ func (h *Handler) getExtension(c *gin.Context) {
 }
 
 // setExtension 设置（启用/禁用）指定共享的扩展
-// POST /api/v1/smb3-unix-ext/extensions
+// POST /api/v1/smb3-unix-ext/extensions.
 func (h *Handler) setExtension(c *gin.Context) {
 	var req SetExtensionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -123,7 +123,7 @@ func (h *Handler) setExtension(c *gin.Context) {
 }
 
 // removeExtension 移除指定共享的扩展配置
-// DELETE /api/v1/smb3-unix-ext/extensions/:share_name
+// DELETE /api/v1/smb3-unix-ext/extensions/:share_name.
 func (h *Handler) removeExtension(c *gin.Context) {
 	shareName := c.Param("share_name")
 	if err := h.service.RemoveExtension(shareName); err != nil {
@@ -141,7 +141,7 @@ func (h *Handler) removeExtension(c *gin.Context) {
 }
 
 // negotiateCapabilities 客户端能力协商
-// POST /api/v1/smb3-unix-ext/negotiate
+// POST /api/v1/smb3-unix-ext/negotiate.
 func (h *Handler) negotiateCapabilities(c *gin.Context) {
 	var req ClientCapabilityRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -169,7 +169,7 @@ func (h *Handler) negotiateCapabilities(c *gin.Context) {
 }
 
 // enableAll 批量启用所有共享的扩展
-// POST /api/v1/smb3-unix-ext/enable-all
+// POST /api/v1/smb3-unix-ext/enable-all.
 func (h *Handler) enableAll(c *gin.Context) {
 	count := h.service.EnableAll()
 	c.JSON(http.StatusOK, response{
@@ -182,7 +182,7 @@ func (h *Handler) enableAll(c *gin.Context) {
 }
 
 // disableAll 批量禁用所有共享的扩展
-// POST /api/v1/smb3-unix-ext/disable-all
+// POST /api/v1/smb3-unix-ext/disable-all.
 func (h *Handler) disableAll(c *gin.Context) {
 	count := h.service.DisableAll()
 	c.JSON(http.StatusOK, response{

@@ -18,12 +18,12 @@ import (
 // 管理 ZFS 意图日志（ZIL）和独立日志设备（SLOG），
 // 优化同步写入性能，降低写延迟.
 type SLOGManager struct {
-	mu           sync.RWMutex
-	logger       *zap.Logger
-	devices      map[string]*SLOGDevice
-	config       *SLOGConfig
-	writeQueue   chan *SLOGWrite
-	stats        *SLOGStats
+	mu         sync.RWMutex
+	logger     *zap.Logger
+	devices    map[string]*SLOGDevice
+	config     *SLOGConfig
+	writeQueue chan *SLOGWrite
+	stats      *SLOGStats
 }
 
 // SLOGDevice SLOG 设备.
@@ -38,7 +38,7 @@ type SLOGDevice struct {
 	IOPS         int64     `json:"iops"`         // 写 IOPS
 	Health       float64   `json:"health"`       // 健康度 (0-100)
 	Enabled      bool      `json:"enabled"`
-	Role         FlashRole `json:"role"`         // zil 或 slog
+	Role         FlashRole `json:"role"` // zil 或 slog
 	CreatedAt    time.Time `json:"createdAt"`
 	UpdatedAt    time.Time `json:"updatedAt"`
 }
@@ -91,14 +91,14 @@ type SLOGWrite struct {
 
 // SLOGStats SLOG 统计.
 type SLOGStats struct {
-	mu              sync.RWMutex
-	TotalWrites     int64   `json:"totalWrites"`
-	TotalBytes      int64   `json:"totalBytes"`
-	AvgLatency      float64 `json:"avgLatency"`      // μs
-	P99Latency      float64 `json:"p99Latency"`      // μs
-	WriteIOPS       int64   `json:"writeIops"`
-	QueueDepth      int     `json:"queueDepth"`
-	HitRate         float64 `json:"hitRate"`         // SLOG 命中率
+	mu               sync.RWMutex
+	TotalWrites      int64   `json:"totalWrites"`
+	TotalBytes       int64   `json:"totalBytes"`
+	AvgLatency       float64 `json:"avgLatency"` // μs
+	P99Latency       float64 `json:"p99Latency"` // μs
+	WriteIOPS        int64   `json:"writeIops"`
+	QueueDepth       int     `json:"queueDepth"`
+	HitRate          float64 `json:"hitRate"` // SLOG 命中率
 	CompressionRatio float64 `json:"compressionRatio"`
 }
 
@@ -302,12 +302,12 @@ func (s *SLOGManager) CheckHealth() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"status":         status,
-		"totalDevices":   len(s.devices),
-		"healthyDevices": healthyCount,
+		"status":          status,
+		"totalDevices":    len(s.devices),
+		"healthyDevices":  healthyCount,
 		"degradedDevices": degradedCount,
-		"failedDevices":  failedCount,
-		"redundancyOK":   healthyCount >= s.config.MinDevices,
+		"failedDevices":   failedCount,
+		"redundancyOK":    healthyCount >= s.config.MinDevices,
 	}
 }
 
@@ -315,11 +315,11 @@ func (s *SLOGManager) CheckHealth() map[string]interface{} {
 //
 // 优化元数据和小文件的存储位置，优先使用 flash 层.
 type MetadataOptimizer struct {
-	mu           sync.RWMutex
-	logger       *zap.Logger
-	config       *MetadataConfig
+	mu            sync.RWMutex
+	logger        *zap.Logger
+	config        *MetadataConfig
 	metadataCache map[string]*MetadataEntry
-	stats        *MetadataStats
+	stats         *MetadataStats
 }
 
 // MetadataConfig 元数据优化配置.
@@ -521,35 +521,35 @@ type CostConfig struct {
 func DefaultCostConfig() *CostConfig {
 	return &CostConfig{
 		Enabled:         true,
-		NVMeCostPerTB:   100.0,  // $100/TB
-		SSDCostPerTB:    60.0,   // $60/TB
-		HDDCostPerTB:    15.0,   // $15/TB
-		PowerCostPerKWh: 0.12,   // $0.12/kWh
-		NVMePowerWatts:  3.0,    // 3W/TB
-		SSDPowerWatts:   2.0,    // 2W/TB
-		HDDPowerWatts:   8.0,    // 8W/TB
-		AnalysisPeriod:  3.0,    // 3年
+		NVMeCostPerTB:   100.0, // $100/TB
+		SSDCostPerTB:    60.0,  // $60/TB
+		HDDCostPerTB:    15.0,  // $15/TB
+		PowerCostPerKWh: 0.12,  // $0.12/kWh
+		NVMePowerWatts:  3.0,   // 3W/TB
+		SSDPowerWatts:   2.0,   // 2W/TB
+		HDDPowerWatts:   8.0,   // 8W/TB
+		AnalysisPeriod:  3.0,   // 3年
 	}
 }
 
 // CostAnalysisResult 成本分析结果.
 type CostAnalysisResult struct {
-	Scenario         string           `json:"scenario"`
-	TotalCost        float64          `json:"totalCost"`        // 总成本 ($)
-	StorageCost      float64          `json:"storageCost"`      // 存储成本
-	PowerCost        float64          `json:"powerCost"`        // 电力成本
-	CostPerTB        float64          `json:"costPerTB"`        // 每 TB 成本
-	Performance      *PerformanceEst  `json:"performance"`      // 性能估算
-	Recommendations  []string         `json:"recommendations"`
-	Breakdown        []*CostBreakdown `json:"breakdown"`
+	Scenario        string           `json:"scenario"`
+	TotalCost       float64          `json:"totalCost"`   // 总成本 ($)
+	StorageCost     float64          `json:"storageCost"` // 存储成本
+	PowerCost       float64          `json:"powerCost"`   // 电力成本
+	CostPerTB       float64          `json:"costPerTB"`   // 每 TB 成本
+	Performance     *PerformanceEst  `json:"performance"` // 性能估算
+	Recommendations []string         `json:"recommendations"`
+	Breakdown       []*CostBreakdown `json:"breakdown"`
 }
 
 // PerformanceEst 性能估算.
 type PerformanceEst struct {
-	AvgLatency  float64 `json:"avgLatency"`  // ms
-	IOPS        int64   `json:"iops"`
-	Throughput   int64   `json:"throughput"`  // MB/s
-	HitRate     float64 `json:"hitRate"`
+	AvgLatency float64 `json:"avgLatency"` // ms
+	IOPS       int64   `json:"iops"`
+	Throughput int64   `json:"throughput"` // MB/s
+	HitRate    float64 `json:"hitRate"`
 }
 
 // CostBreakdown 成本明细.
@@ -619,7 +619,7 @@ func (a *CostAnalyzer) analyzeAllNVMe(capacityTB float64) *CostAnalysisResult {
 		Performance: &PerformanceEst{
 			AvgLatency: 0.1,
 			IOPS:       1000000,
-			Throughput:  7000,
+			Throughput: 7000,
 			HitRate:    1.0,
 		},
 		Breakdown: []*CostBreakdown{
@@ -644,7 +644,7 @@ func (a *CostAnalyzer) analyzeAllSSD(capacityTB float64) *CostAnalysisResult {
 		Performance: &PerformanceEst{
 			AvgLatency: 0.2,
 			IOPS:       500000,
-			Throughput:  3000,
+			Throughput: 3000,
 			HitRate:    1.0,
 		},
 		Breakdown: []*CostBreakdown{
@@ -669,7 +669,7 @@ func (a *CostAnalyzer) analyzeAllHDD(capacityTB float64) *CostAnalysisResult {
 		Performance: &PerformanceEst{
 			AvgLatency: 5.0,
 			IOPS:       200,
-			Throughput:  200,
+			Throughput: 200,
 			HitRate:    1.0,
 		},
 		Breakdown: []*CostBreakdown{
@@ -704,7 +704,7 @@ func (a *CostAnalyzer) analyzeHybrid(totalTB, hotRatio float64) *CostAnalysisRes
 		Performance: &PerformanceEst{
 			AvgLatency: avgLatency,
 			IOPS:       int64(1000000*hotRatio + 200*(1-hotRatio)),
-			Throughput:  int64(7000*hotRatio + 200*(1-hotRatio)),
+			Throughput: int64(7000*hotRatio + 200*(1-hotRatio)),
 			HitRate:    hitRate,
 		},
 		Breakdown: []*CostBreakdown{
@@ -740,7 +740,7 @@ func (a *CostAnalyzer) analyzeHybridSSD(totalTB, hotRatio float64) *CostAnalysis
 		Performance: &PerformanceEst{
 			AvgLatency: avgLatency,
 			IOPS:       int64(500000*hotRatio + 200*(1-hotRatio)),
-			Throughput:  int64(3000*hotRatio + 200*(1-hotRatio)),
+			Throughput: int64(3000*hotRatio + 200*(1-hotRatio)),
 			HitRate:    hitRate,
 		},
 		Breakdown: []*CostBreakdown{
@@ -801,12 +801,12 @@ func (a *CostAnalyzer) EstimateCostSavings(currentScheme, optimalScheme *CostAna
 	}
 
 	return map[string]interface{}{
-		"currentCost":      currentScheme.TotalCost,
-		"optimalCost":      optimalScheme.TotalCost,
-		"savings":          savings,
-		"savingsPercent":   savingsPercent,
-		"performanceGain":  performanceGain,
-		"currentScenario":  currentScheme.Scenario,
-		"optimalScenario":  optimalScheme.Scenario,
+		"currentCost":     currentScheme.TotalCost,
+		"optimalCost":     optimalScheme.TotalCost,
+		"savings":         savings,
+		"savingsPercent":  savingsPercent,
+		"performanceGain": performanceGain,
+		"currentScenario": currentScheme.Scenario,
+		"optimalScenario": optimalScheme.Scenario,
 	}
 }

@@ -349,9 +349,10 @@ func (dtm *DeviceTrustManager) CheckCompliance(id string) (*ComplianceResult, er
 	if d.Compliance.PasswordStrong {
 		score += 20
 	}
-	if score == 100 {
+	switch score {
+	case 100:
 		d.TrustLevel = ZTTrustLevelHigh
-	} else if score == 0 {
+	case 0:
 		d.TrustLevel = ZTTrustLevelUntrusted
 	}
 	return &ComplianceResult{ComplianceScore: score}, nil

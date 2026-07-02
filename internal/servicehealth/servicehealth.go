@@ -19,7 +19,7 @@ import (
 // 服务状态枚举
 // ============================================================
 
-// ServiceStatus 服务状态
+// ServiceStatus 服务状态.
 type ServiceStatus string
 
 const (
@@ -33,7 +33,7 @@ const (
 // 健康检查类型
 // ============================================================
 
-// CheckType 健康检查类型
+// CheckType 健康检查类型.
 type CheckType string
 
 const (
@@ -47,7 +47,7 @@ const (
 // 配置类型
 // ============================================================
 
-// ServiceConfig 服务配置
+// ServiceConfig 服务配置.
 type ServiceConfig struct {
 	Name         string            `json:"name"`         // 服务名称
 	DisplayName  string            `json:"display_name"` // 显示名称
@@ -65,7 +65,7 @@ type ServiceConfig struct {
 	Dependencies []string          `json:"dependencies"` // 依赖服务列表
 }
 
-// HealthCheckConfig 健康检查全局配置
+// HealthCheckConfig 健康检查全局配置.
 type HealthCheckConfig struct {
 	DefaultInterval time.Duration `json:"default_interval"` // 默认检查间隔，默认 30s
 	DefaultTimeout  time.Duration `json:"default_timeout"`  // 默认超时，5s
@@ -73,7 +73,7 @@ type HealthCheckConfig struct {
 	WorkerCount     int           `json:"worker_count"`     // 并发检查工作线程数，默认 5
 }
 
-// DefaultHealthCheckConfig 默认健康检查配置
+// DefaultHealthCheckConfig 默认健康检查配置.
 func DefaultHealthCheckConfig() HealthCheckConfig {
 	return HealthCheckConfig{
 		DefaultInterval: 30 * time.Second,
@@ -87,7 +87,7 @@ func DefaultHealthCheckConfig() HealthCheckConfig {
 // 健康检查结果
 // ============================================================
 
-// HealthCheckResult 单次健康检查结果
+// HealthCheckResult 单次健康检查结果.
 type HealthCheckResult struct {
 	ServiceName  string        `json:"service_name"`  // 服务名称
 	CheckType    CheckType     `json:"check_type"`    // 检查类型
@@ -102,7 +102,7 @@ type HealthCheckResult struct {
 // 服务健康状态
 // ============================================================
 
-// ServiceHealth 服务健康状态
+// ServiceHealth 服务健康状态.
 type ServiceHealth struct {
 	Config       ServiceConfig       `json:"config"`        // 服务配置
 	Status       ServiceStatus       `json:"status"`        // 当前状态
@@ -120,7 +120,7 @@ type ServiceHealth struct {
 // 服务健康度管理器
 // ============================================================
 
-// ServiceHealthManager 服务健康度管理器
+// ServiceHealthManager 服务健康度管理器.
 type ServiceHealthManager struct {
 	mu sync.RWMutex
 
@@ -141,7 +141,7 @@ type ServiceHealthManager struct {
 	cancel context.CancelFunc
 }
 
-// NewServiceHealthManager 创建服务健康度管理器
+// NewServiceHealthManager 创建服务健康度管理器.
 func NewServiceHealthManager(config HealthCheckConfig, logger *zap.Logger) *ServiceHealthManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -165,7 +165,7 @@ func NewServiceHealthManager(config HealthCheckConfig, logger *zap.Logger) *Serv
 // 服务注册与管理
 // ============================================================
 
-// RegisterService 注册服务
+// RegisterService 注册服务.
 func (m *ServiceHealthManager) RegisterService(cfg ServiceConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -206,7 +206,7 @@ func (m *ServiceHealthManager) RegisterService(cfg ServiceConfig) error {
 	return nil
 }
 
-// UnregisterService 注销服务
+// UnregisterService 注销服务.
 func (m *ServiceHealthManager) UnregisterService(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -220,7 +220,7 @@ func (m *ServiceHealthManager) UnregisterService(name string) error {
 	return nil
 }
 
-// GetService 获取单个服务健康状态
+// GetService 获取单个服务健康状态.
 func (m *ServiceHealthManager) GetService(name string) (*ServiceHealth, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -235,7 +235,7 @@ func (m *ServiceHealthManager) GetService(name string) (*ServiceHealth, error) {
 	return &result, nil
 }
 
-// ListServices 列出所有服务健康状态
+// ListServices 列出所有服务健康状态.
 func (m *ServiceHealthManager) ListServices() []*ServiceHealth {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -253,7 +253,7 @@ func (m *ServiceHealthManager) ListServices() []*ServiceHealth {
 // ============================================================
 
 // DiscoverServices 自动发现运行中的服务
-// 通过扫描常用端口和进程检测本地服务
+// 通过扫描常用端口和进程检测本地服务.
 func (m *ServiceHealthManager) DiscoverServices(ctx context.Context) []ServiceConfig {
 	discovered := make([]ServiceConfig, 0)
 
@@ -331,7 +331,7 @@ func (m *ServiceHealthManager) DiscoverServices(ctx context.Context) []ServiceCo
 // 健康检查执行
 // ============================================================
 
-// RunCheck 执行单次健康检查
+// RunCheck 执行单次健康检查.
 func (m *ServiceHealthManager) RunCheck(ctx context.Context, name string) (*HealthCheckResult, error) {
 	m.mu.RLock()
 	health, exists := m.services[name]
@@ -363,7 +363,7 @@ func (m *ServiceHealthManager) RunCheck(ctx context.Context, name string) (*Heal
 	return result, nil
 }
 
-// RunAllChecks 执行所有服务的健康检查
+// RunAllChecks 执行所有服务的健康检查.
 func (m *ServiceHealthManager) RunAllChecks(ctx context.Context) {
 	m.mu.RLock()
 	names := make([]string, 0, len(m.services))
@@ -412,7 +412,7 @@ func (m *ServiceHealthManager) RunAllChecks(ctx context.Context) {
 	wg.Wait()
 }
 
-// checkHTTP HTTP 健康检查
+// checkHTTP HTTP 健康检查.
 func (m *ServiceHealthManager) checkHTTP(ctx context.Context, cfg ServiceConfig) *HealthCheckResult {
 	result := &HealthCheckResult{
 		ServiceName: cfg.Name,
@@ -471,7 +471,7 @@ func (m *ServiceHealthManager) checkHTTP(ctx context.Context, cfg ServiceConfig)
 	return result
 }
 
-// checkTCP TCP 端口检查
+// checkTCP TCP 端口检查.
 func (m *ServiceHealthManager) checkTCP(ctx context.Context, cfg ServiceConfig) *HealthCheckResult {
 	result := &HealthCheckResult{
 		ServiceName: cfg.Name,
@@ -498,7 +498,7 @@ func (m *ServiceHealthManager) checkTCP(ctx context.Context, cfg ServiceConfig) 
 	return result
 }
 
-// checkProcess 进程存活检查
+// checkProcess 进程存活检查.
 func (m *ServiceHealthManager) checkProcess(ctx context.Context, cfg ServiceConfig) *HealthCheckResult {
 	result := &HealthCheckResult{
 		ServiceName: cfg.Name,
@@ -536,7 +536,7 @@ func (m *ServiceHealthManager) checkProcess(ctx context.Context, cfg ServiceConf
 	return result
 }
 
-// checkScript 自定义脚本检查
+// checkScript 自定义脚本检查.
 func (m *ServiceHealthManager) checkScript(ctx context.Context, cfg ServiceConfig) *HealthCheckResult {
 	result := &HealthCheckResult{
 		ServiceName: cfg.Name,
@@ -572,7 +572,7 @@ func (m *ServiceHealthManager) checkScript(ctx context.Context, cfg ServiceConfi
 	return result
 }
 
-// updateServiceHealth 更新服务健康状态和评分
+// updateServiceHealth 更新服务健康状态和评分.
 func (m *ServiceHealthManager) updateServiceHealth(name string, result *HealthCheckResult) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -616,7 +616,7 @@ func (m *ServiceHealthManager) updateServiceHealth(name string, result *HealthCh
 // ============================================================
 
 // calculateHealthScore 计算健康评分
-// 权重：可用性 40%, 性能 30%, 错误率 20%, 资源消耗 10%
+// 权重：可用性 40%, 性能 30%, 错误率 20%, 资源消耗 10%.
 func (m *ServiceHealthManager) calculateHealthScore(health *ServiceHealth) float64 {
 	if health.TotalChecks == 0 {
 		return 0
@@ -652,7 +652,7 @@ func (m *ServiceHealthManager) calculateHealthScore(health *ServiceHealth) float
 	return math.Round(score*100) / 100
 }
 
-// calculatePerformanceScore 计算性能评分
+// calculatePerformanceScore 计算性能评分.
 func (m *ServiceHealthManager) calculatePerformanceScore(health *ServiceHealth) float64 {
 	if len(health.Checks) == 0 {
 		return 50 // 无数据时给中间分
@@ -695,7 +695,7 @@ func (m *ServiceHealthManager) calculatePerformanceScore(health *ServiceHealth) 
 	}
 }
 
-// calculateResourceScore 计算资源消耗评分
+// calculateResourceScore 计算资源消耗评分.
 func (m *ServiceHealthManager) calculateResourceScore(health *ServiceHealth) float64 {
 	if len(health.Checks) < 2 {
 		return 100 // 数据不足，假设正常
@@ -742,7 +742,7 @@ func (m *ServiceHealthManager) calculateResourceScore(health *ServiceHealth) flo
 // 定时检查调度
 // ============================================================
 
-// StartPeriodicChecks 启动定时健康检查
+// StartPeriodicChecks 启动定时健康检查.
 func (m *ServiceHealthManager) StartPeriodicChecks() {
 	m.logger.Info("启动定时健康检查")
 
@@ -789,7 +789,7 @@ func (m *ServiceHealthManager) StartPeriodicChecks() {
 	}()
 }
 
-// StopPeriodicChecks 停止定时健康检查
+// StopPeriodicChecks 停止定时健康检查.
 func (m *ServiceHealthManager) StopPeriodicChecks() {
 	m.cancel()
 }
@@ -798,7 +798,7 @@ func (m *ServiceHealthManager) StopPeriodicChecks() {
 // 辅助方法
 // ============================================================
 
-// UpdateServiceConfig 更新服务配置
+// UpdateServiceConfig 更新服务配置.
 func (m *ServiceHealthManager) UpdateServiceConfig(name string, cfg ServiceConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -813,7 +813,7 @@ func (m *ServiceHealthManager) UpdateServiceConfig(name string, cfg ServiceConfi
 	return nil
 }
 
-// EnableService 启用服务检查
+// EnableService 启用服务检查.
 func (m *ServiceHealthManager) EnableService(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -828,7 +828,7 @@ func (m *ServiceHealthManager) EnableService(name string) error {
 	return nil
 }
 
-// DisableService 禁用服务检查
+// DisableService 禁用服务检查.
 func (m *ServiceHealthManager) DisableService(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -843,7 +843,7 @@ func (m *ServiceHealthManager) DisableService(name string) error {
 	return nil
 }
 
-// GetServiceChecks 获取服务历史检查记录
+// GetServiceChecks 获取服务历史检查记录.
 func (m *ServiceHealthManager) GetServiceChecks(name string, limit int) ([]HealthCheckResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -863,7 +863,7 @@ func (m *ServiceHealthManager) GetServiceChecks(name string, limit int) ([]Healt
 	return result, nil
 }
 
-// GetServiceStats 获取服务统计信息
+// GetServiceStats 获取服务统计信息.
 func (m *ServiceHealthManager) GetServiceStats(name string) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

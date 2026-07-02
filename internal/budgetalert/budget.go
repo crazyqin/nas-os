@@ -10,7 +10,7 @@ import (
 
 // BudgetAlertManager 预算告警管理器
 // 对标群晖 Storage Analyzer 和 TrueNAS 报表功能
-// 提供存储成本预测、预算管理和超支告警
+// 提供存储成本预测、预算管理和超支告警.
 type BudgetAlertManager struct {
 	mu       sync.RWMutex
 	config   *BudgetConfig
@@ -22,7 +22,7 @@ type BudgetAlertManager struct {
 	wg       sync.WaitGroup
 }
 
-// BudgetConfig 预算配置
+// BudgetConfig 预算配置.
 type BudgetConfig struct {
 	Enabled         bool          `json:"enabled"`
 	CheckInterval   time.Duration `json:"check_interval"`
@@ -30,7 +30,7 @@ type BudgetConfig struct {
 	NotifyChannels  []string      `json:"notify_channels"`
 }
 
-// Budget 预算
+// Budget 预算.
 type Budget struct {
 	ID         string         `json:"id"`
 	Name       string         `json:"name"`
@@ -48,7 +48,7 @@ type Budget struct {
 	UpdatedAt  time.Time      `json:"updated_at"`
 }
 
-// BudgetCategory 预算类别
+// BudgetCategory 预算类别.
 type BudgetCategory string
 
 const (
@@ -60,7 +60,7 @@ const (
 	CategoryCloud  BudgetCategory = "cloud"
 )
 
-// BudgetPeriod 预算周期
+// BudgetPeriod 预算周期.
 type BudgetPeriod string
 
 const (
@@ -70,7 +70,7 @@ const (
 	PeriodYearly  BudgetPeriod = "yearly"
 )
 
-// Alert 告警
+// Alert 告警.
 type Alert struct {
 	ID        string     `json:"id"`
 	BudgetID  string     `json:"budget_id"`
@@ -84,7 +84,7 @@ type Alert struct {
 	Acked     bool       `json:"acked"`
 }
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 const (
@@ -93,7 +93,7 @@ const (
 	LevelExceeded AlertLevel = "exceeded"
 )
 
-// UsageReport 使用报告
+// UsageReport 使用报告.
 type UsageReport struct {
 	BudgetID     string         `json:"budget_id"`
 	BudgetName   string         `json:"budget_name"`
@@ -108,7 +108,7 @@ type UsageReport struct {
 	Trend        TrendDirection `json:"trend"`
 }
 
-// TrendDirection 趋势方向
+// TrendDirection 趋势方向.
 type TrendDirection string
 
 const (
@@ -117,7 +117,7 @@ const (
 	TrendStable TrendDirection = "stable"
 )
 
-// CostSummary 成本汇总
+// CostSummary 成本汇总.
 type CostSummary struct {
 	TotalBudget float64                    `json:"total_budget"`
 	TotalUsed   float64                    `json:"total_used"`
@@ -127,7 +127,7 @@ type CostSummary struct {
 	GeneratedAt time.Time                  `json:"generated_at"`
 }
 
-// NewBudgetAlertManager 创建预算告警管理器
+// NewBudgetAlertManager 创建预算告警管理器.
 func NewBudgetAlertManager(cfg *BudgetConfig) *BudgetAlertManager {
 	if cfg == nil {
 		cfg = &BudgetConfig{
@@ -148,7 +148,7 @@ func NewBudgetAlertManager(cfg *BudgetConfig) *BudgetAlertManager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *BudgetAlertManager) Start() error {
 	if !m.config.Enabled {
 		return nil
@@ -159,7 +159,7 @@ func (m *BudgetAlertManager) Start() error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *BudgetAlertManager) Stop() error {
 	m.cancel()
 	close(m.notifyCh)
@@ -247,7 +247,7 @@ func (m *BudgetAlertManager) checkBudget(budget *Budget) {
 	}
 }
 
-// CreateBudget 创建预算
+// CreateBudget 创建预算.
 func (m *BudgetAlertManager) CreateBudget(name string, category BudgetCategory, limitBytes int64, opts *BudgetOptions) (*Budget, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -289,7 +289,7 @@ func (m *BudgetAlertManager) CreateBudget(name string, category BudgetCategory, 
 	return budget, nil
 }
 
-// BudgetOptions 预算选项
+// BudgetOptions 预算选项.
 type BudgetOptions struct {
 	CostPerGB  float64
 	Currency   string
@@ -299,7 +299,7 @@ type BudgetOptions struct {
 	Owner      string
 }
 
-// UpdateUsage 更新使用量
+// UpdateUsage 更新使用量.
 func (m *BudgetAlertManager) UpdateUsage(budgetID string, usedBytes int64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -312,7 +312,7 @@ func (m *BudgetAlertManager) UpdateUsage(budgetID string, usedBytes int64) error
 	return nil
 }
 
-// GetReport 获取使用报告
+// GetReport 获取使用报告.
 func (m *BudgetAlertManager) GetReport() []*UsageReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -340,7 +340,7 @@ func (m *BudgetAlertManager) GetReport() []*UsageReport {
 	return reports
 }
 
-// GetCostSummary 获取成本汇总
+// GetCostSummary 获取成本汇总.
 func (m *BudgetAlertManager) GetCostSummary() *CostSummary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -365,7 +365,7 @@ func (m *BudgetAlertManager) GetCostSummary() *CostSummary {
 	}
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (m *BudgetAlertManager) GetAlerts(unackedOnly bool) []*Alert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -378,7 +378,7 @@ func (m *BudgetAlertManager) GetAlerts(unackedOnly bool) []*Alert {
 	return result
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (m *BudgetAlertManager) AcknowledgeAlert(alertID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -391,7 +391,7 @@ func (m *BudgetAlertManager) AcknowledgeAlert(alertID string) error {
 	return fmt.Errorf("告警 %s 不存在", alertID)
 }
 
-// DeleteBudget 删除预算
+// DeleteBudget 删除预算.
 func (m *BudgetAlertManager) DeleteBudget(budgetID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -402,7 +402,7 @@ func (m *BudgetAlertManager) DeleteBudget(budgetID string) error {
 	return nil
 }
 
-// ExportReport 导出报告为JSON
+// ExportReport 导出报告为JSON.
 func (m *BudgetAlertManager) ExportReport() ([]byte, error) {
 	report := m.GetReport()
 	return json.MarshalIndent(report, "", "  ")

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Environment represents a deployment environment
+// Environment represents a deployment environment.
 type Environment string
 
 const (
@@ -14,7 +14,7 @@ const (
 	EnvProd    Environment = "prod"
 )
 
-// SyncStatus represents the synchronization state
+// SyncStatus represents the synchronization state.
 type SyncStatus string
 
 const (
@@ -25,7 +25,7 @@ const (
 	SyncStatusSyncing   SyncStatus = "syncing"
 )
 
-// DeploymentStatus represents the state of a deployment
+// DeploymentStatus represents the state of a deployment.
 type DeploymentStatus string
 
 const (
@@ -36,7 +36,7 @@ const (
 	DeploymentStatusRolledBack DeploymentStatus = "rolled_back"
 )
 
-// GitRepo represents a Git repository configuration
+// GitRepo represents a Git repository configuration.
 type GitRepo struct {
 	ID         string     `json:"id"`
 	Name       string     `json:"name"`
@@ -49,7 +49,7 @@ type GitRepo struct {
 	UpdatedAt  time.Time  `json:"updated_at"`
 }
 
-// GitAuth contains authentication credentials for Git
+// GitAuth contains authentication credentials for Git.
 type GitAuth struct {
 	Type     string `json:"type"` // ssh, token, basic
 	Token    string `json:"token,omitempty"`
@@ -58,7 +58,7 @@ type GitAuth struct {
 	SSHKey   string `json:"ssh_key,omitempty"`
 }
 
-// SyncPolicy defines how and when to sync
+// SyncPolicy defines how and when to sync.
 type SyncPolicy struct {
 	AutoSync     bool          `json:"auto_sync"`
 	SyncInterval time.Duration `json:"sync_interval"` // e.g. 5m
@@ -67,7 +67,7 @@ type SyncPolicy struct {
 	RetryLimit   int           `json:"retry_limit"`
 }
 
-// DefaultSyncPolicy returns a sensible default sync policy
+// DefaultSyncPolicy returns a sensible default sync policy.
 func DefaultSyncPolicy() SyncPolicy {
 	return SyncPolicy{
 		AutoSync:     true,
@@ -78,7 +78,7 @@ func DefaultSyncPolicy() SyncPolicy {
 	}
 }
 
-// Deployment represents a deployment to an environment
+// Deployment represents a deployment to an environment.
 type Deployment struct {
 	ID          string           `json:"id"`
 	RepoID      string           `json:"repo_id"`
@@ -93,7 +93,7 @@ type Deployment struct {
 	RollbackID  string           `json:"rollback_id,omitempty"` // ID of deployment to rollback to
 }
 
-// Resource represents a deployed resource
+// Resource represents a deployed resource.
 type Resource struct {
 	Kind      string `json:"kind"` // Deployment, Service, ConfigMap, etc.
 	Name      string `json:"name"`
@@ -102,7 +102,7 @@ type Resource struct {
 	Synced    bool   `json:"synced"`
 }
 
-// SyncStatusDetail contains detailed sync information
+// SyncStatusDetail contains detailed sync information.
 type SyncStatusDetail struct {
 	RepoID        string        `json:"repo_id"`
 	RepoName      string        `json:"repo_name"`
@@ -117,7 +117,7 @@ type SyncStatusDetail struct {
 	Error         string        `json:"error,omitempty"`
 }
 
-// DriftItem represents a detected drift between desired and actual state
+// DriftItem represents a detected drift between desired and actual state.
 type DriftItem struct {
 	ResourceKind string `json:"resource_kind"`
 	ResourceName string `json:"resource_name"`
@@ -127,7 +127,7 @@ type DriftItem struct {
 	Action       string `json:"action"` // create, update, delete
 }
 
-// GitOpsConfig is the main configuration for the GitOps engine
+// GitOpsConfig is the main configuration for the GitOps engine.
 type GitOpsConfig struct {
 	Repos         []GitRepo          `json:"repos"`
 	Environments  []Environment      `json:"environments"`
@@ -136,7 +136,7 @@ type GitOpsConfig struct {
 	Notifications NotificationConfig `json:"notifications"`
 }
 
-// Webhook configuration for Git events
+// Webhook configuration for Git events.
 type Webhook struct {
 	ID      string   `json:"id"`
 	URL     string   `json:"url"`
@@ -145,7 +145,7 @@ type Webhook struct {
 	Enabled bool     `json:"enabled"`
 }
 
-// NotificationConfig defines how to send notifications
+// NotificationConfig defines how to send notifications.
 type NotificationConfig struct {
 	Enabled   bool     `json:"enabled"`
 	Channels  []string `json:"channels"` // slack, email, webhook
@@ -154,13 +154,13 @@ type NotificationConfig struct {
 	OnDrift   bool     `json:"on_drift"`
 }
 
-// RollbackRequest is the API request for rolling back a deployment
+// RollbackRequest is the API request for rolling back a deployment.
 type RollbackRequest struct {
 	DeploymentID string `json:"deployment_id" binding:"required"`
 	Revision     string `json:"revision,omitempty"` // specific revision, empty = previous
 }
 
-// SyncRequest is the API request for triggering a sync
+// SyncRequest is the API request for triggering a sync.
 type SyncRequest struct {
 	RepoID      string      `json:"repo_id" binding:"required"`
 	Environment Environment `json:"environment" binding:"required"`
@@ -170,7 +170,7 @@ type SyncRequest struct {
 
 // ========== GitOps 增强类型 ==========
 
-// DriftDetection 漂移检测结果
+// DriftDetection 漂移检测结果.
 type DriftDetection struct {
 	ID          string      `json:"id"`
 	RepoID      string      `json:"repo_id"`
@@ -181,7 +181,7 @@ type DriftDetection struct {
 	Summary     string      `json:"summary"`
 }
 
-// RollbackRecord 回滚记录
+// RollbackRecord 回滚记录.
 type RollbackRecord struct {
 	ID           string           `json:"id"`
 	DeploymentID string           `json:"deployment_id"`
@@ -195,7 +195,7 @@ type RollbackRecord struct {
 	CompletedAt  *time.Time       `json:"completed_at,omitempty"`
 }
 
-// AddRepoRequest 添加仓库请求
+// AddRepoRequest 添加仓库请求.
 type AddRepoRequest struct {
 	Name   string  `json:"name" binding:"required"`
 	URL    string  `json:"url" binding:"required"`
@@ -204,7 +204,7 @@ type AddRepoRequest struct {
 	Auth   GitAuth `json:"auth,omitempty"`
 }
 
-// DriftDetectionRequest 漂移检测请求
+// DriftDetectionRequest 漂移检测请求.
 type DriftDetectionRequest struct {
 	RepoID      string      `json:"repo_id" binding:"required"`
 	Environment Environment `json:"environment" binding:"required"`

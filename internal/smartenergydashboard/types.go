@@ -4,7 +4,7 @@ package smartenergydashboard
 
 import "time"
 
-// PowerReading 功耗读数
+// PowerReading 功耗读数.
 type PowerReading struct {
 	ID        string    `json:"id"`
 	Timestamp time.Time `json:"timestamp"`
@@ -14,7 +14,7 @@ type PowerReading struct {
 	Source    string    `json:"source"` // system/disk/cpu/fan/psu
 }
 
-// EnergyRecord 能耗记录
+// EnergyRecord 能耗记录.
 type EnergyRecord struct {
 	ID           string    `json:"id"`
 	Date         time.Time `json:"date"`
@@ -26,7 +26,7 @@ type EnergyRecord struct {
 	RuntimeHours float64   `json:"runtime_hours"`
 }
 
-// EnergyBudget 能源预算
+// EnergyBudget 能源预算.
 type EnergyBudget struct {
 	ID               string    `json:"id"`
 	MonthlyLimitKWh  float64   `json:"monthly_limit_kwh"`
@@ -38,7 +38,7 @@ type EnergyBudget struct {
 	UpdatedAt        time.Time `json:"updated_at"`
 }
 
-// DevicePower 设备功耗
+// DevicePower 设备功耗.
 type DevicePower struct {
 	DeviceID    string  `json:"device_id"`
 	DeviceName  string  `json:"device_name"`
@@ -49,7 +49,7 @@ type DevicePower struct {
 	Status      string  `json:"status"` // online/offline/standby
 }
 
-// EnergyReport 能源报告
+// EnergyReport 能源报告.
 type EnergyReport struct {
 	ID          string        `json:"id"`
 	Period      string        `json:"period"` // daily/weekly/monthly
@@ -63,7 +63,7 @@ type EnergyReport struct {
 	SavingsTips []string      `json:"savings_tips"`
 }
 
-// CostForecast 成本预测
+// CostForecast 成本预测.
 type CostForecast struct {
 	Month         string   `json:"month"`
 	ProjectedKWh  float64  `json:"projected_kwh"`
@@ -72,7 +72,7 @@ type CostForecast struct {
 	Factors       []string `json:"factors"`
 }
 
-// EnergySettings 能源设置
+// EnergySettings 能源设置.
 type EnergySettings struct {
 	ElectricityRate   float64   `json:"electricity_rate"` // 元/kWh
 	CarbonFactor      float64   `json:"carbon_factor"`    // kg CO2/kWh
@@ -82,7 +82,7 @@ type EnergySettings struct {
 	UpdatedAt         time.Time `json:"updated_at"`
 }
 
-// DefaultEnergySettings 默认能源设置
+// DefaultEnergySettings 默认能源设置.
 func DefaultEnergySettings() *EnergySettings {
 	return &EnergySettings{
 		ElectricityRate:   0.56,  // 元/kWh
@@ -94,7 +94,7 @@ func DefaultEnergySettings() *EnergySettings {
 	}
 }
 
-// EnergyTip 节能建议
+// EnergyTip 节能建议.
 type EnergyTip struct {
 	ID          string  `json:"id"`
 	Title       string  `json:"title"`

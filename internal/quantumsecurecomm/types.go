@@ -6,37 +6,37 @@ import (
 	"time"
 )
 
-// AlgorithmType 后量子密码算法类型
+// AlgorithmType 后量子密码算法类型.
 type AlgorithmType string
 
 const (
-	// AlgorithmKyber Kyber 密钥封装机制 (NIST 标准)
+	// AlgorithmKyber Kyber 密钥封装机制 (NIST 标准).
 	AlgorithmKyber AlgorithmType = "kyber"
-	// AlgorithmDilithium Dilithium 数字签名算法 (NIST 标准)
+	// AlgorithmDilithium Dilithium 数字签名算法 (NIST 标准).
 	AlgorithmDilithium AlgorithmType = "dilithium"
-	// AlgorithmSPHINCSPlus SPHINCS+ 无状态哈希签名
+	// AlgorithmSPHINCSPlus SPHINCS+ 无状态哈希签名.
 	AlgorithmSPHINCSPlus AlgorithmType = "sphincs_plus"
-	// AlgorithmFalcon Falcon 数字签名算法
+	// AlgorithmFalcon Falcon 数字签名算法.
 	AlgorithmFalcon AlgorithmType = "falcon"
-	// AlgorithmNTRU NTRU 密钥封装机制
+	// AlgorithmNTRU NTRU 密钥封装机制.
 	AlgorithmNTRU AlgorithmType = "ntru"
-	// AlgorithmClassicMcEliece Classic McEliece 密钥封装机制
+	// AlgorithmClassicMcEliece Classic McEliece 密钥封装机制.
 	AlgorithmClassicMcEliece AlgorithmType = "classic_mceliece"
 )
 
-// SecurityLevel 安全等级
+// SecurityLevel 安全等级.
 type SecurityLevel string
 
 const (
-	// SecurityLevel1 NIST Level 1: 等效 AES-128
+	// SecurityLevel1 NIST Level 1: 等效 AES-128.
 	SecurityLevel1 SecurityLevel = "level1"
-	// SecurityLevel3 NIST Level 3: 等效 AES-192
+	// SecurityLevel3 NIST Level 3: 等效 AES-192.
 	SecurityLevel3 SecurityLevel = "level3"
-	// SecurityLevel5 NIST Level 5: 等效 AES-256
+	// SecurityLevel5 NIST Level 5: 等效 AES-256.
 	SecurityLevel5 SecurityLevel = "level5"
 )
 
-// KeyEncapsulation 密钥封装结果
+// KeyEncapsulation 密钥封装结果.
 type KeyEncapsulation struct {
 	PublicKey    []byte        `json:"publicKey"`
 	SharedSecret []byte        `json:"sharedSecret"`
@@ -45,7 +45,7 @@ type KeyEncapsulation struct {
 	CreatedAt    time.Time     `json:"createdAt"`
 }
 
-// DigitalSignature 数字签名
+// DigitalSignature 数字签名.
 type DigitalSignature struct {
 	Signature []byte        `json:"signature"`
 	PublicKey []byte        `json:"publicKey"`
@@ -54,7 +54,7 @@ type DigitalSignature struct {
 	CreatedAt time.Time     `json:"createdAt"`
 }
 
-// KeyPair 密钥对
+// KeyPair 密钥对.
 type KeyPair struct {
 	PublicKey     []byte        `json:"publicKey"`
 	PrivateKey    []byte        `json:"privateKey"`
@@ -64,23 +64,23 @@ type KeyPair struct {
 	ExpiresAt     time.Time     `json:"expiresAt"`
 }
 
-// HandshakeState 握手状态
+// HandshakeState 握手状态.
 type HandshakeState string
 
 const (
-	// HandshakeStateInit 初始化
+	// HandshakeStateInit 初始化.
 	HandshakeStateInit HandshakeState = "init"
-	// HandshakeStateKeyExchange 密钥交换中
+	// HandshakeStateKeyExchange 密钥交换中.
 	HandshakeStateKeyExchange HandshakeState = "key_exchange"
-	// HandshakeStateAuthentication 认证中
+	// HandshakeStateAuthentication 认证中.
 	HandshakeStateAuthentication HandshakeState = "authentication"
-	// HandshakeStateComplete 完成
+	// HandshakeStateComplete 完成.
 	HandshakeStateComplete HandshakeState = "complete"
-	// HandshakeStateFailed 失败
+	// HandshakeStateFailed 失败.
 	HandshakeStateFailed HandshakeState = "failed"
 )
 
-// HandshakeSession 握手会话
+// HandshakeSession 握手会话.
 type HandshakeSession struct {
 	ID            string         `json:"id"`
 	State         HandshakeState `json:"state"`
@@ -94,19 +94,19 @@ type HandshakeSession struct {
 	Error         string         `json:"error,omitempty"`
 }
 
-// ChannelState 通道状态
+// ChannelState 通道状态.
 type ChannelState string
 
 const (
-	// ChannelStateEstablished 已建立
+	// ChannelStateEstablished 已建立.
 	ChannelStateEstablished ChannelState = "established"
-	// ChannelStateRekeying 密钥更新中
+	// ChannelStateRekeying 密钥更新中.
 	ChannelStateRekeying ChannelState = "rekeying"
-	// ChannelStateClosed 已关闭
+	// ChannelStateClosed 已关闭.
 	ChannelStateClosed ChannelState = "closed"
 )
 
-// SecureChannel 安全通道
+// SecureChannel 安全通道.
 type SecureChannel struct {
 	ID            string        `json:"id"`
 	State         ChannelState  `json:"state"`
@@ -121,7 +121,7 @@ type SecureChannel struct {
 	MessageCount  uint64        `json:"messageCount"`
 }
 
-// EncryptedMessage 加密消息
+// EncryptedMessage 加密消息.
 type EncryptedMessage struct {
 	ChannelID  string    `json:"channelId"`
 	Sequence   uint64    `json:"sequence"`
@@ -131,7 +131,7 @@ type EncryptedMessage struct {
 	Timestamp  time.Time `json:"timestamp"`
 }
 
-// AlgorithmInfo 算法信息
+// AlgorithmInfo 算法信息.
 type AlgorithmInfo struct {
 	Type           AlgorithmType   `json:"type"`
 	Name           string          `json:"name"`
@@ -145,7 +145,7 @@ type AlgorithmInfo struct {
 	IsNISTStandard bool            `json:"isNISTStandard"`
 }
 
-// SecurityAudit 安全审计记录
+// SecurityAudit 安全审计记录.
 type SecurityAudit struct {
 	ID        string        `json:"id"`
 	ChannelID string        `json:"channelId"`
@@ -156,7 +156,7 @@ type SecurityAudit struct {
 	Timestamp time.Time     `json:"timestamp"`
 }
 
-// ManagerState 管理器状态
+// ManagerState 管理器状态.
 type ManagerState struct {
 	ActiveChannels   int           `json:"activeChannels"`
 	ActiveHandshakes int           `json:"activeHandshakes"`

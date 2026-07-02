@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// AlertSeverity represents alert severity
+// AlertSeverity represents alert severity.
 type AlertSeverity string
 
 const (
@@ -19,7 +19,7 @@ const (
 	SeverityCritical AlertSeverity = "critical"
 )
 
-// AlertType represents the type of alert
+// AlertType represents the type of alert.
 type AlertType string
 
 const (
@@ -31,7 +31,7 @@ const (
 	AlertUnusualProtocol AlertType = "unusual_protocol"
 )
 
-// TrafficRecord represents a traffic record
+// TrafficRecord represents a traffic record.
 type TrafficRecord struct {
 	ID         string    `json:"id"`
 	SrcIP      string    `json:"src_ip"`
@@ -47,7 +47,7 @@ type TrafficRecord struct {
 	Timestamp  time.Time `json:"timestamp"`
 }
 
-// Alert represents a network alert
+// Alert represents a network alert.
 type Alert struct {
 	ID           string        `json:"id"`
 	Type         AlertType     `json:"type"`
@@ -60,7 +60,7 @@ type Alert struct {
 	Timestamp    time.Time     `json:"timestamp"`
 }
 
-// BandwidthRecord represents bandwidth usage at a point in time
+// BandwidthRecord represents bandwidth usage at a point in time.
 type BandwidthRecord struct {
 	Timestamp  time.Time `json:"timestamp"`
 	Interface  string    `json:"interface"`
@@ -72,7 +72,7 @@ type BandwidthRecord struct {
 	BpsOut     int64     `json:"bps_out"`
 }
 
-// ConnectionInfo represents an active connection
+// ConnectionInfo represents an active connection.
 type ConnectionInfo struct {
 	SrcIP     string    `json:"src_ip"`
 	DstIP     string    `json:"dst_ip"`
@@ -87,7 +87,7 @@ type ConnectionInfo struct {
 	StartTime time.Time `json:"start_time"`
 }
 
-// SentinelStats represents network sentinel statistics
+// SentinelStats represents network sentinel statistics.
 type SentinelStats struct {
 	TotalAlerts       int   `json:"total_alerts"`
 	UnackAlerts       int   `json:"unacknowledged_alerts"`
@@ -98,7 +98,7 @@ type SentinelStats struct {
 	TopTalkers        int   `json:"top_talkers"`
 }
 
-// Config holds network sentinel configuration
+// Config holds network sentinel configuration.
 type Config struct {
 	Enabled              bool  `json:"enabled"`
 	MonitorInterval      int   `json:"monitor_interval_seconds"`
@@ -110,7 +110,7 @@ type Config struct {
 	EnableDeepInspection bool  `json:"enable_deep_inspection"`
 }
 
-// Manager manages network sentinel
+// Manager manages network sentinel.
 type Manager struct {
 	config      *Config
 	traffic     []*TrafficRecord
@@ -122,7 +122,7 @@ type Manager struct {
 	cancel      context.CancelFunc
 }
 
-// NewManager creates a new network sentinel manager
+// NewManager creates a new network sentinel manager.
 func NewManager(config *Config) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Manager{
@@ -136,7 +136,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// Start starts the network sentinel
+// Start starts the network sentinel.
 func (m *Manager) Start() error {
 	if !m.config.Enabled {
 		return fmt.Errorf("network sentinel is disabled")
@@ -144,12 +144,12 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop stops the network sentinel
+// Stop stops the network sentinel.
 func (m *Manager) Stop() {
 	m.cancel()
 }
 
-// RecordTraffic records a traffic entry
+// RecordTraffic records a traffic entry.
 func (m *Manager) RecordTraffic(record *TrafficRecord) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -158,7 +158,7 @@ func (m *Manager) RecordTraffic(record *TrafficRecord) {
 	m.traffic = append(m.traffic, record)
 }
 
-// CreateAlert creates a new alert
+// CreateAlert creates a new alert.
 func (m *Manager) CreateAlert(alertType AlertType, severity AlertSeverity, src, dst, desc string) *Alert {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -176,14 +176,14 @@ func (m *Manager) CreateAlert(alertType AlertType, severity AlertSeverity, src, 
 	return alert
 }
 
-// ListAlerts returns all alerts
+// ListAlerts returns all alerts.
 func (m *Manager) ListAlerts() []*Alert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.alerts
 }
 
-// AcknowledgeAlert acknowledges an alert
+// AcknowledgeAlert acknowledges an alert.
 func (m *Manager) AcknowledgeAlert(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -196,7 +196,7 @@ func (m *Manager) AcknowledgeAlert(id string) error {
 	return fmt.Errorf("alert %s not found", id)
 }
 
-// RecordBandwidth records bandwidth usage
+// RecordBandwidth records bandwidth usage.
 func (m *Manager) RecordBandwidth(record *BandwidthRecord) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -204,14 +204,14 @@ func (m *Manager) RecordBandwidth(record *BandwidthRecord) {
 	m.bandwidth = append(m.bandwidth, record)
 }
 
-// GetConnections returns active connections
+// GetConnections returns active connections.
 func (m *Manager) GetConnections() []*ConnectionInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.connections
 }
 
-// GetStats returns sentinel statistics
+// GetStats returns sentinel statistics.
 func (m *Manager) GetStats() *SentinelStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

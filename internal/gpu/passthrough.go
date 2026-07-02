@@ -10,37 +10,37 @@ import (
 	"go.uber.org/zap"
 )
 
-// PassthroughType 透传类型
+// PassthroughType 透传类型.
 type PassthroughType string
 
 const (
-	// PassthroughDocker Docker容器透传
+	// PassthroughDocker Docker容器透传.
 	PassthroughDocker PassthroughType = "docker"
-	// PassthroughLXC LXC容器透传
+	// PassthroughLXC LXC容器透传.
 	PassthroughLXC PassthroughType = "lxc"
-	// PassthroughVM 虚拟机透传
+	// PassthroughVM 虚拟机透传.
 	PassthroughVM PassthroughType = "vm"
-	// PassthroughKVM KVM虚拟机透传
+	// PassthroughKVM KVM虚拟机透传.
 	PassthroughKVM PassthroughType = "kvm"
 )
 
-// PassthroughMode 透传模式
+// PassthroughMode 透传模式.
 type PassthroughMode string
 
 const (
-	// PassthroughModeFull 完全透传
+	// PassthroughModeFull 完全透传.
 	PassthroughModeFull PassthroughMode = "full"
-	// PassthroughModeShared 共享模式
+	// PassthroughModeShared 共享模式.
 	PassthroughModeShared PassthroughMode = "shared"
-	// PassthroughModeVFIO VFIO透传
+	// PassthroughModeVFIO VFIO透传.
 	PassthroughModeVFIO PassthroughMode = "vfio"
-	// PassthroughModeMIG MIG实例
+	// PassthroughModeMIG MIG实例.
 	PassthroughModeMIG PassthroughMode = "mig"
-	// PassthroughModeVGPU vGPU虚拟化
+	// PassthroughModeVGPU vGPU虚拟化.
 	PassthroughModeVGPU PassthroughMode = "vgpu"
 )
 
-// PassthroughConfig 透传配置
+// PassthroughConfig 透传配置.
 type PassthroughConfig struct {
 	// 目标配置
 	Type       PassthroughType `json:"type"`       // 透传类型
@@ -86,7 +86,7 @@ type PassthroughConfig struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-// PassthroughManager GPU透传管理器
+// PassthroughManager GPU透传管理器.
 type PassthroughManager struct {
 	manager      *Manager
 	logger       *zap.Logger
@@ -99,7 +99,7 @@ type PassthroughManager struct {
 	vmHandler     PassthroughHandler
 }
 
-// PassthroughHandler 透传处理器接口
+// PassthroughHandler 透传处理器接口.
 type PassthroughHandler interface {
 	// Attach GPU附加
 	Attach(ctx context.Context, config *PassthroughConfig) error
@@ -113,7 +113,7 @@ type PassthroughHandler interface {
 	GetType() PassthroughType
 }
 
-// NewPassthroughManager 创建透传管理器
+// NewPassthroughManager 创建透传管理器.
 func NewPassthroughManager(manager *Manager, logger *zap.Logger) *PassthroughManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -133,7 +133,7 @@ func NewPassthroughManager(manager *Manager, logger *zap.Logger) *PassthroughMan
 	return ptm
 }
 
-// AttachGPU GPU附加到目标
+// AttachGPU GPU附加到目标.
 func (ptm *PassthroughManager) AttachGPU(ctx context.Context, config *PassthroughConfig) (string, error) {
 	// 验证配置
 	handler := ptm.getHandler(config.Type)
@@ -192,7 +192,7 @@ func (ptm *PassthroughManager) AttachGPU(ctx context.Context, config *Passthroug
 	return result.RequestID, nil
 }
 
-// DetachGPU GPU分离
+// DetachGPU GPU分离.
 func (ptm *PassthroughManager) DetachGPU(ctx context.Context, requestID string) error {
 	ptm.mu.Lock()
 	config, exists := ptm.passthroughs[requestID]
@@ -234,7 +234,7 @@ func (ptm *PassthroughManager) DetachGPU(ctx context.Context, requestID string) 
 	return nil
 }
 
-// GetPassthroughStatus 获取透传状态
+// GetPassthroughStatus 获取透传状态.
 func (ptm *PassthroughManager) GetPassthroughStatus(ctx context.Context, targetID string, targetType PassthroughType) ([]PassthroughConfig, error) {
 	handler := ptm.getHandler(targetType)
 	if handler == nil {
@@ -244,7 +244,7 @@ func (ptm *PassthroughManager) GetPassthroughStatus(ctx context.Context, targetI
 	return handler.GetStatus(ctx, targetID)
 }
 
-// ListPassthroughs 列出所有透传
+// ListPassthroughs 列出所有透传.
 func (ptm *PassthroughManager) ListPassthroughs(filter *PassthroughFilter) []*PassthroughConfig {
 	ptm.mu.RLock()
 	defer ptm.mu.RUnlock()
@@ -260,7 +260,7 @@ func (ptm *PassthroughManager) ListPassthroughs(filter *PassthroughFilter) []*Pa
 	return result
 }
 
-// PassthroughFilter 透传过滤器
+// PassthroughFilter 透传过滤器.
 type PassthroughFilter struct {
 	Type     PassthroughType
 	GPUID    string
@@ -268,7 +268,7 @@ type PassthroughFilter struct {
 	Mode     PassthroughMode
 }
 
-// matchFilter 匹配过滤器
+// matchFilter 匹配过滤器.
 func (ptm *PassthroughManager) matchFilter(config *PassthroughConfig, filter *PassthroughFilter) bool {
 	if filter.Type != "" && config.Type != filter.Type {
 		return false
@@ -285,7 +285,7 @@ func (ptm *PassthroughManager) matchFilter(config *PassthroughConfig, filter *Pa
 	return true
 }
 
-// getHandler 获取处理器
+// getHandler 获取处理器.
 func (ptm *PassthroughManager) getHandler(type_ PassthroughType) PassthroughHandler {
 	switch type_ {
 	case PassthroughDocker:
@@ -299,7 +299,7 @@ func (ptm *PassthroughManager) getHandler(type_ PassthroughType) PassthroughHand
 	}
 }
 
-// checkGPUAvailability 检查GPU可用性
+// checkGPUAvailability 检查GPU可用性.
 func (ptm *PassthroughManager) checkGPUAvailability(config *PassthroughConfig) error {
 	if config.GPUID == "" && config.GPUUUID != "" {
 		// 通过UUID查找GPU
@@ -333,13 +333,13 @@ func (ptm *PassthroughManager) checkGPUAvailability(config *PassthroughConfig) e
 	return nil
 }
 
-// DockerPassthroughHandler Docker容器透传处理器
+// DockerPassthroughHandler Docker容器透传处理器.
 type DockerPassthroughHandler struct {
 	manager *Manager
 	logger  *zap.Logger
 }
 
-// NewDockerPassthroughHandler 创建Docker透传处理器
+// NewDockerPassthroughHandler 创建Docker透传处理器.
 func NewDockerPassthroughHandler(manager *Manager, logger *zap.Logger) *DockerPassthroughHandler {
 	return &DockerPassthroughHandler{
 		manager: manager,
@@ -347,12 +347,12 @@ func NewDockerPassthroughHandler(manager *Manager, logger *zap.Logger) *DockerPa
 	}
 }
 
-// GetType 获取处理器类型
+// GetType 获取处理器类型.
 func (h *DockerPassthroughHandler) GetType() PassthroughType {
 	return PassthroughDocker
 }
 
-// Validate 验证配置
+// Validate 验证配置.
 func (h *DockerPassthroughHandler) Validate(config *PassthroughConfig) error {
 	if config.TargetID == "" {
 		return fmt.Errorf("容器ID不能为空")
@@ -363,7 +363,7 @@ func (h *DockerPassthroughHandler) Validate(config *PassthroughConfig) error {
 	return nil
 }
 
-// Attach GPU附加
+// Attach GPU附加.
 func (h *DockerPassthroughHandler) Attach(ctx context.Context, config *PassthroughConfig) error {
 	// Docker GPU附加通过ContainerGPUConfig处理
 	// 实际实现需要调用Docker API或CLI
@@ -402,7 +402,7 @@ func (h *DockerPassthroughHandler) Attach(ctx context.Context, config *Passthrou
 	return nil
 }
 
-// Detach GPU分离
+// Detach GPU分离.
 func (h *DockerPassthroughHandler) Detach(ctx context.Context, config *PassthroughConfig) error {
 	h.logger.Info("Docker GPU分离",
 		zap.String("containerId", config.TargetID),
@@ -411,7 +411,7 @@ func (h *DockerPassthroughHandler) Detach(ctx context.Context, config *Passthrou
 	return nil
 }
 
-// GetStatus 获取状态
+// GetStatus 获取状态.
 func (h *DockerPassthroughHandler) GetStatus(ctx context.Context, targetID string) ([]PassthroughConfig, error) {
 	allocations := h.manager.GetContainerGPUAllocations(targetID)
 	var configs []PassthroughConfig
@@ -426,13 +426,13 @@ func (h *DockerPassthroughHandler) GetStatus(ctx context.Context, targetID strin
 	return configs, nil
 }
 
-// LXCPassthroughHandler LXC容器透传处理器
+// LXCPassthroughHandler LXC容器透传处理器.
 type LXCPassthroughHandler struct {
 	manager *Manager
 	logger  *zap.Logger
 }
 
-// NewLXCPassthroughHandler 创建LXC透传处理器
+// NewLXCPassthroughHandler 创建LXC透传处理器.
 func NewLXCPassthroughHandler(manager *Manager, logger *zap.Logger) *LXCPassthroughHandler {
 	return &LXCPassthroughHandler{
 		manager: manager,
@@ -440,12 +440,12 @@ func NewLXCPassthroughHandler(manager *Manager, logger *zap.Logger) *LXCPassthro
 	}
 }
 
-// GetType 获取处理器类型
+// GetType 获取处理器类型.
 func (h *LXCPassthroughHandler) GetType() PassthroughType {
 	return PassthroughLXC
 }
 
-// Validate 验证配置
+// Validate 验证配置.
 func (h *LXCPassthroughHandler) Validate(config *PassthroughConfig) error {
 	if config.TargetID == "" && config.TargetName == "" {
 		return fmt.Errorf("容器名称不能为空")
@@ -456,7 +456,7 @@ func (h *LXCPassthroughHandler) Validate(config *PassthroughConfig) error {
 	return nil
 }
 
-// Attach GPU附加
+// Attach GPU附加.
 func (h *LXCPassthroughHandler) Attach(ctx context.Context, config *PassthroughConfig) error {
 	h.logger.Info("LXC GPU附加",
 		zap.String("containerName", config.TargetName),
@@ -468,7 +468,7 @@ func (h *LXCPassthroughHandler) Attach(ctx context.Context, config *PassthroughC
 	return nil
 }
 
-// Detach GPU分离
+// Detach GPU分离.
 func (h *LXCPassthroughHandler) Detach(ctx context.Context, config *PassthroughConfig) error {
 	h.logger.Info("LXC GPU分离",
 		zap.String("containerName", config.TargetName),
@@ -477,7 +477,7 @@ func (h *LXCPassthroughHandler) Detach(ctx context.Context, config *PassthroughC
 	return nil
 }
 
-// GetStatus 获取状态
+// GetStatus 获取状态.
 func (h *LXCPassthroughHandler) GetStatus(ctx context.Context, targetID string) ([]PassthroughConfig, error) {
 	allocations := h.manager.GetContainerGPUAllocations(targetID)
 	var configs []PassthroughConfig
@@ -492,13 +492,13 @@ func (h *LXCPassthroughHandler) GetStatus(ctx context.Context, targetID string) 
 	return configs, nil
 }
 
-// VMPassthroughHandler 虚拟机透传处理器
+// VMPassthroughHandler 虚拟机透传处理器.
 type VMPassthroughHandler struct {
 	manager *Manager
 	logger  *zap.Logger
 }
 
-// NewVMPassthroughHandler 创建VM透传处理器
+// NewVMPassthroughHandler 创建VM透传处理器.
 func NewVMPassthroughHandler(manager *Manager, logger *zap.Logger) *VMPassthroughHandler {
 	return &VMPassthroughHandler{
 		manager: manager,
@@ -506,12 +506,12 @@ func NewVMPassthroughHandler(manager *Manager, logger *zap.Logger) *VMPassthroug
 	}
 }
 
-// GetType 获取处理器类型
+// GetType 获取处理器类型.
 func (h *VMPassthroughHandler) GetType() PassthroughType {
 	return PassthroughVM
 }
 
-// Validate 验证配置
+// Validate 验证配置.
 func (h *VMPassthroughHandler) Validate(config *PassthroughConfig) error {
 	if config.TargetID == "" && config.TargetName == "" {
 		return fmt.Errorf("虚拟机名称不能为空")
@@ -529,7 +529,7 @@ func (h *VMPassthroughHandler) Validate(config *PassthroughConfig) error {
 	return nil
 }
 
-// Attach GPU附加
+// Attach GPU附加.
 func (h *VMPassthroughHandler) Attach(ctx context.Context, config *PassthroughConfig) error {
 	h.logger.Info("VM GPU附加",
 		zap.String("vmName", config.TargetName),
@@ -549,7 +549,7 @@ func (h *VMPassthroughHandler) Attach(ctx context.Context, config *PassthroughCo
 	return nil
 }
 
-// Detach GPU分离
+// Detach GPU分离.
 func (h *VMPassthroughHandler) Detach(ctx context.Context, config *PassthroughConfig) error {
 	h.logger.Info("VM GPU分离",
 		zap.String("vmName", config.TargetName),
@@ -562,7 +562,7 @@ func (h *VMPassthroughHandler) Detach(ctx context.Context, config *PassthroughCo
 	return nil
 }
 
-// GetStatus 获取状态
+// GetStatus 获取状态.
 func (h *VMPassthroughHandler) GetStatus(ctx context.Context, targetID string) ([]PassthroughConfig, error) {
 	allocations := h.manager.GetContainerGPUAllocations(targetID)
 	var configs []PassthroughConfig
@@ -578,7 +578,7 @@ func (h *VMPassthroughHandler) GetStatus(ctx context.Context, targetID string) (
 	return configs, nil
 }
 
-// GPUResourceManager GPU资源管理器
+// GPUResourceManager GPU资源管理器.
 type GPUResourceManager struct {
 	manager        *Manager
 	passthroughMgr *PassthroughManager
@@ -587,7 +587,7 @@ type GPUResourceManager struct {
 	mu             sync.RWMutex
 }
 
-// GPUResourceQuota GPU资源配额
+// GPUResourceQuota GPU资源配额.
 type GPUResourceQuota struct {
 	TargetID      string             `json:"targetId"`
 	MaxGPUs       int                `json:"maxGpus"`       // 最大GPU数
@@ -599,7 +599,7 @@ type GPUResourceQuota struct {
 	UpdatedAt     time.Time          `json:"updatedAt"`
 }
 
-// NewGPUResourceManager 创建GPU资源管理器
+// NewGPUResourceManager 创建GPU资源管理器.
 func NewGPUResourceManager(manager *Manager, ptm *PassthroughManager, logger *zap.Logger) *GPUResourceManager {
 	return &GPUResourceManager{
 		manager:        manager,
@@ -609,7 +609,7 @@ func NewGPUResourceManager(manager *Manager, ptm *PassthroughManager, logger *za
 	}
 }
 
-// SetQuota 设置资源配额
+// SetQuota 设置资源配额.
 func (grm *GPUResourceManager) SetQuota(targetID string, quota *GPUResourceQuota) error {
 	grm.mu.Lock()
 	defer grm.mu.Unlock()
@@ -628,7 +628,7 @@ func (grm *GPUResourceManager) SetQuota(targetID string, quota *GPUResourceQuota
 	return nil
 }
 
-// GetQuota 获取资源配额
+// GetQuota 获取资源配额.
 func (grm *GPUResourceManager) GetQuota(targetID string) (*GPUResourceQuota, error) {
 	grm.mu.RLock()
 	defer grm.mu.RUnlock()
@@ -641,7 +641,7 @@ func (grm *GPUResourceManager) GetQuota(targetID string) (*GPUResourceQuota, err
 	return quota, nil
 }
 
-// CheckQuota 检查配额
+// CheckQuota 检查配额.
 func (grm *GPUResourceManager) CheckQuota(targetID string, request *PassthroughConfig) error {
 	grm.mu.RLock()
 	defer grm.mu.RUnlock()
@@ -670,7 +670,7 @@ func (grm *GPUResourceManager) CheckQuota(targetID string, request *PassthroughC
 	return nil
 }
 
-// DeleteQuota 删除配额
+// DeleteQuota 删除配额.
 func (grm *GPUResourceManager) DeleteQuota(targetID string) error {
 	grm.mu.Lock()
 	defer grm.mu.Unlock()
@@ -682,7 +682,7 @@ func (grm *GPUResourceManager) DeleteQuota(targetID string) error {
 	return nil
 }
 
-// ListQuotas 列出所有配额
+// ListQuotas 列出所有配额.
 func (grm *GPUResourceManager) ListQuotas() []*GPUResourceQuota {
 	grm.mu.RLock()
 	defer grm.mu.RUnlock()

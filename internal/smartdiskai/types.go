@@ -11,7 +11,7 @@ import (
 // 基础枚举类型
 // ============================================================
 
-// HealthGrade 健康等级
+// HealthGrade 健康等级.
 type HealthGrade string
 
 const (
@@ -22,7 +22,7 @@ const (
 	GradeCritical  HealthGrade = "critical"  // 临界 (0-29)
 )
 
-// DiskStatus 磁盘状态
+// DiskStatus 磁盘状态.
 type DiskStatus string
 
 const (
@@ -32,7 +32,7 @@ const (
 	StatusFailed   DiskStatus = "failed"   // 已失败
 )
 
-// RiskLevel 风险等级
+// RiskLevel 风险等级.
 type RiskLevel string
 
 const (
@@ -42,7 +42,7 @@ const (
 	RiskCritical RiskLevel = "critical" // 临界风险
 )
 
-// TrendDirection 趋势方向
+// TrendDirection 趋势方向.
 type TrendDirection string
 
 const (
@@ -52,7 +52,7 @@ const (
 	TrendCritical  TrendDirection = "critical"  // 临界
 )
 
-// AdvicePriority 建议优先级
+// AdvicePriority 建议优先级.
 type AdvicePriority string
 
 const (
@@ -63,7 +63,7 @@ const (
 	PriorityInfo   AdvicePriority = "info"   // 信息
 )
 
-// MigrationUrgency 迁移紧急程度
+// MigrationUrgency 迁移紧急程度.
 type MigrationUrgency string
 
 const (
@@ -77,7 +77,7 @@ const (
 // SMART 属性 ID 定义
 // ============================================================
 
-// SMARTAttributeID SMART 属性 ID
+// SMARTAttributeID SMART 属性 ID.
 type SMARTAttributeID int
 
 const (
@@ -116,7 +116,7 @@ const (
 // SMART 数据结构
 // ============================================================
 
-// SMARTAttribute 单个 SMART 属性
+// SMARTAttribute 单个 SMART 属性.
 type SMARTAttribute struct {
 	ID          SMARTAttributeID `json:"id"`          // 属性 ID
 	Name        string           `json:"name"`        // 属性名称
@@ -129,7 +129,7 @@ type SMARTAttribute struct {
 	Description string           `json:"description"` // 属性说明
 }
 
-// SMARTData 完整 SMART 数据
+// SMARTData 完整 SMART 数据.
 type SMARTData struct {
 	Device             string           `json:"device"`                // 设备路径
 	Model              string           `json:"model"`                 // 型号
@@ -155,30 +155,30 @@ type SMARTData struct {
 // 线性回归与预测
 // ============================================================
 
-// LinearRegressionResult 线性回归结果
+// LinearRegressionResult 线性回归结果.
 type LinearRegressionResult struct {
-	Slope        float64 `json:"slope"`         // 斜率
-	Intercept    float64 `json:"intercept"`     // 截距
-	RSquared     float64 `json:"r_squared"`     // R² 决定系数
-	Projected90D float64 `json:"projected_90d"` // 90天后预测值
+	Slope         float64 `json:"slope"`          // 斜率
+	Intercept     float64 `json:"intercept"`      // 截距
+	RSquared      float64 `json:"r_squared"`      // R² 决定系数
+	Projected90D  float64 `json:"projected_90d"`  // 90天后预测值
 	Projected180D float64 `json:"projected_180d"` // 180天后预测值
 	Projected365D float64 `json:"projected_365d"` // 365天后预测值
 }
 
-// FailurePrediction 故障预测结果
+// FailurePrediction 故障预测结果.
 type FailurePrediction struct {
-	Device              string     `json:"device"`
-	FailureProbability  float64    `json:"failure_probability"`          // 故障概率 (0-1)
-	RiskLevel           RiskLevel  `json:"risk_level"`                   // 风险等级
-	EstimatedLifeDays   int        `json:"estimated_life_days"`          // 预计剩余寿命（天）
-	FailDateEstimate    *time.Time `json:"fail_date_estimate,omitempty"` // 预计故障日期
-	Confidence          float64    `json:"confidence"`                   // 置信度 (0-1)
-	RiskFactors         []string   `json:"risk_factors"`                 // 风险因素
-	ThresholdViolations []ThresholdViolation `json:"threshold_violations"` // 阈值违规
-	PredictedAt         time.Time  `json:"predicted_at"`
+	Device              string               `json:"device"`
+	FailureProbability  float64              `json:"failure_probability"`          // 故障概率 (0-1)
+	RiskLevel           RiskLevel            `json:"risk_level"`                   // 风险等级
+	EstimatedLifeDays   int                  `json:"estimated_life_days"`          // 预计剩余寿命（天）
+	FailDateEstimate    *time.Time           `json:"fail_date_estimate,omitempty"` // 预计故障日期
+	Confidence          float64              `json:"confidence"`                   // 置信度 (0-1)
+	RiskFactors         []string             `json:"risk_factors"`                 // 风险因素
+	ThresholdViolations []ThresholdViolation `json:"threshold_violations"`         // 阈值违规
+	PredictedAt         time.Time            `json:"predicted_at"`
 }
 
-// ThresholdViolation 阈值违规
+// ThresholdViolation 阈值违规.
 type ThresholdViolation struct {
 	AttributeID   SMARTAttributeID `json:"attribute_id"`
 	AttributeName string           `json:"attribute_name"`
@@ -192,7 +192,7 @@ type ThresholdViolation struct {
 // SMART 分析结果
 // ============================================================
 
-// AttributeTrend 单属性趋势分析
+// AttributeTrend 单属性趋势分析.
 type AttributeTrend struct {
 	AttributeID   SMARTAttributeID        `json:"attribute_id"`
 	AttributeName string                  `json:"attribute_name"`
@@ -201,7 +201,7 @@ type AttributeTrend struct {
 	Regression    *LinearRegressionResult `json:"regression,omitempty"`
 }
 
-// SMARTAnalysisResult SMART 分析综合结果
+// SMARTAnalysisResult SMART 分析综合结果.
 type SMARTAnalysisResult struct {
 	Device       string           `json:"device"`
 	Attributes   []AttributeTrend `json:"attributes"`
@@ -213,7 +213,7 @@ type SMARTAnalysisResult struct {
 // 健康评分系统
 // ============================================================
 
-// AttributeScore 属性评分
+// AttributeScore 属性评分.
 type AttributeScore struct {
 	AttributeID   SMARTAttributeID `json:"attribute_id"`
 	AttributeName string           `json:"attribute_name"`
@@ -223,7 +223,7 @@ type AttributeScore struct {
 	Status        string           `json:"status"`         // normal/warning/critical
 }
 
-// HealthScore 健康评分结果
+// HealthScore 健康评分结果.
 type HealthScore struct {
 	Device          string           `json:"device"`
 	Score           float64          `json:"score"`                    // 综合评分 (0-100)
@@ -240,22 +240,22 @@ type HealthScore struct {
 // 温度趋势分析
 // ============================================================
 
-// TemperatureTrend 温度趋势分析结果
+// TemperatureTrend 温度趋势分析结果.
 type TemperatureTrend struct {
-	Device          string           `json:"device"`
-	CurrentTemp     int              `json:"current_temp"`      // 当前温度
-	AvgTemp         float64          `json:"avg_temp"`          // 平均温度
-	MaxTemp         int              `json:"max_temp"`          // 最高温度
-	MinTemp         int              `json:"min_temp"`          // 最低温度
-	TempStdDev      float64          `json:"temp_std_dev"`      // 温度标准差
-	Trend           TrendDirection   `json:"trend"`             // 温度趋势
-	Regression      *LinearRegressionResult `json:"regression,omitempty"` // 回归分析
-	Alerts          []TemperatureAlert      `json:"alerts"`      // 温度告警
-	PredictedPeak   int              `json:"predicted_peak"`    // 预测峰值温度
-	AnalyzedAt      time.Time        `json:"analyzed_at"`
+	Device        string                  `json:"device"`
+	CurrentTemp   int                     `json:"current_temp"`         // 当前温度
+	AvgTemp       float64                 `json:"avg_temp"`             // 平均温度
+	MaxTemp       int                     `json:"max_temp"`             // 最高温度
+	MinTemp       int                     `json:"min_temp"`             // 最低温度
+	TempStdDev    float64                 `json:"temp_std_dev"`         // 温度标准差
+	Trend         TrendDirection          `json:"trend"`                // 温度趋势
+	Regression    *LinearRegressionResult `json:"regression,omitempty"` // 回归分析
+	Alerts        []TemperatureAlert      `json:"alerts"`               // 温度告警
+	PredictedPeak int                     `json:"predicted_peak"`       // 预测峰值温度
+	AnalyzedAt    time.Time               `json:"analyzed_at"`
 }
 
-// TemperatureAlert 温度告警
+// TemperatureAlert 温度告警.
 type TemperatureAlert struct {
 	Level     string    `json:"level"`     // warning/critical
 	Message   string    `json:"message"`   // 告警消息
@@ -268,29 +268,29 @@ type TemperatureAlert struct {
 // 磁盘生命周期管理
 // ============================================================
 
-// DiskLifecycle 磁盘生命周期信息
+// DiskLifecycle 磁盘生命周期信息.
 type DiskLifecycle struct {
-	Device           string     `json:"device"`
-	Model            string     `json:"model"`
-	Serial           string     `json:"serial"`
-	ManufactureDate  *time.Time `json:"manufacture_date,omitempty"`  // 制造日期
-	WarrantyStart    *time.Time `json:"warranty_start,omitempty"`    // 保修开始
-	WarrantyEnd      *time.Time `json:"warranty_end,omitempty"`      // 保修结束
-	WarrantyYears    int        `json:"warranty_years"`              // 保修年限
-	WarrantyStatus   string     `json:"warranty_status"`             // warranty_status: active/expiring_soon/expired/unknown
-	WarrantyDaysLeft int        `json:"warranty_days_left"`          // 保修剩余天数
-	PowerOnHours     uint64     `json:"power_on_hours"`              // 通电时间
-	AgeDays          int        `json:"age_days"`                    // 使用天数
-	IsSSD            bool       `json:"is_ssd"`
-	WearLevel        *WearLevelInfo `json:"wear_level,omitempty"`  // 磨损均衡信息
-	TotalWrites      uint64     `json:"total_writes_bytes"`          // 总写入量
-	TotalReads       uint64     `json:"total_reads_bytes"`           // 总读取量
-	HealthScore      float64    `json:"health_score"`                // 健康评分
-	RemainingLife    float64    `json:"remaining_life_percent"`      // 剩余寿命百分比
-	UpdatedAt        time.Time  `json:"updated_at"`
+	Device           string         `json:"device"`
+	Model            string         `json:"model"`
+	Serial           string         `json:"serial"`
+	ManufactureDate  *time.Time     `json:"manufacture_date,omitempty"` // 制造日期
+	WarrantyStart    *time.Time     `json:"warranty_start,omitempty"`   // 保修开始
+	WarrantyEnd      *time.Time     `json:"warranty_end,omitempty"`     // 保修结束
+	WarrantyYears    int            `json:"warranty_years"`             // 保修年限
+	WarrantyStatus   string         `json:"warranty_status"`            // warranty_status: active/expiring_soon/expired/unknown
+	WarrantyDaysLeft int            `json:"warranty_days_left"`         // 保修剩余天数
+	PowerOnHours     uint64         `json:"power_on_hours"`             // 通电时间
+	AgeDays          int            `json:"age_days"`                   // 使用天数
+	IsSSD            bool           `json:"is_ssd"`
+	WearLevel        *WearLevelInfo `json:"wear_level,omitempty"`   // 磨损均衡信息
+	TotalWrites      uint64         `json:"total_writes_bytes"`     // 总写入量
+	TotalReads       uint64         `json:"total_reads_bytes"`      // 总读取量
+	HealthScore      float64        `json:"health_score"`           // 健康评分
+	RemainingLife    float64        `json:"remaining_life_percent"` // 剩余寿命百分比
+	UpdatedAt        time.Time      `json:"updated_at"`
 }
 
-// WearLevelInfo 磨损均衡信息
+// WearLevelInfo 磨损均衡信息.
 type WearLevelInfo struct {
 	WearLevelingCount uint64  `json:"wear_leveling_count"` // 磨损均衡计数
 	PercentUsed       float64 `json:"percent_used"`        // 已使用百分比
@@ -304,26 +304,26 @@ type WearLevelInfo struct {
 // 数据迁移建议
 // ============================================================
 
-// MigrationRecommendation 数据迁移建议
+// MigrationRecommendation 数据迁移建议.
 type MigrationRecommendation struct {
-	ID             string           `json:"id"`
-	SourceDevice   string           `json:"source_device"`
-	TargetDevice   string           `json:"target_device,omitempty"`
-	RiskLevel      RiskLevel        `json:"risk_level"`
-	Urgency        MigrationUrgency `json:"urgency"`
-	Reason         string           `json:"reason"`
-	EstimatedSize  uint64           `json:"estimated_size_bytes"`
-	EstimatedTime  string           `json:"estimated_time"`
-	RecommendedFS  string           `json:"recommended_fs"`
-	Steps          []string         `json:"steps"`
-	CreatedAt      time.Time        `json:"created_at"`
+	ID            string           `json:"id"`
+	SourceDevice  string           `json:"source_device"`
+	TargetDevice  string           `json:"target_device,omitempty"`
+	RiskLevel     RiskLevel        `json:"risk_level"`
+	Urgency       MigrationUrgency `json:"urgency"`
+	Reason        string           `json:"reason"`
+	EstimatedSize uint64           `json:"estimated_size_bytes"`
+	EstimatedTime string           `json:"estimated_time"`
+	RecommendedFS string           `json:"recommended_fs"`
+	Steps         []string         `json:"steps"`
+	CreatedAt     time.Time        `json:"created_at"`
 }
 
 // ============================================================
 // 维护建议
 // ============================================================
 
-// MaintenanceAdvice 维护建议
+// MaintenanceAdvice 维护建议.
 type MaintenanceAdvice struct {
 	ID            string         `json:"id"`
 	Device        string         `json:"device"`
@@ -340,7 +340,7 @@ type MaintenanceAdvice struct {
 // API 通用类型
 // ============================================================
 
-// DiskListItem 磁盘列表项
+// DiskListItem 磁盘列表项.
 type DiskListItem struct {
 	Device       string      `json:"device"`
 	Model        string      `json:"model"`
@@ -355,23 +355,23 @@ type DiskListItem struct {
 	RiskLevel    RiskLevel   `json:"risk_level"`
 }
 
-// DashboardData 仪表板数据
+// DashboardData 仪表板数据.
 type DashboardData struct {
-	TotalDisks       int       `json:"total_disks"`
-	HealthyDisks     int       `json:"healthy_disks"`
-	WarningDisks     int       `json:"warning_disks"`
-	CriticalDisks    int       `json:"critical_disks"`
-	FailedDisks      int       `json:"failed_disks"`
-	AverageScore     float64   `json:"average_score"`
-	WorstDisk        string    `json:"worst_disk"`
-	WorstScore       float64   `json:"worst_score"`
-	AdvicesCount     int       `json:"advice_count"`
-	MigrationsCount  int       `json:"migrations_count"`
-	TempAlertsCount  int       `json:"temp_alerts_count"`
-	GeneratedAt      time.Time `json:"generated_at"`
+	TotalDisks      int       `json:"total_disks"`
+	HealthyDisks    int       `json:"healthy_disks"`
+	WarningDisks    int       `json:"warning_disks"`
+	CriticalDisks   int       `json:"critical_disks"`
+	FailedDisks     int       `json:"failed_disks"`
+	AverageScore    float64   `json:"average_score"`
+	WorstDisk       string    `json:"worst_disk"`
+	WorstScore      float64   `json:"worst_score"`
+	AdvicesCount    int       `json:"advice_count"`
+	MigrationsCount int       `json:"migrations_count"`
+	TempAlertsCount int       `json:"temp_alerts_count"`
+	GeneratedAt     time.Time `json:"generated_at"`
 }
 
-// APIResponse 通用 API 响应
+// APIResponse 通用 API 响应.
 type APIResponse struct {
 	Success bool        `json:"success"`
 	Message string      `json:"message,omitempty"`

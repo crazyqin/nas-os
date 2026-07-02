@@ -8,13 +8,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handler 云同步 HTTP handlers
+// Handler 云同步 HTTP handlers.
 type Handler struct {
 	manager *CloudSyncManager
 	logger  *zap.Logger
 }
 
-// NewHandler 创建云同步 HTTP handler
+// NewHandler 创建云同步 HTTP handler.
 func NewHandler(manager *CloudSyncManager, logger *zap.Logger) *Handler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -22,12 +22,12 @@ func NewHandler(manager *CloudSyncManager, logger *zap.Logger) *Handler {
 	return &Handler{manager: manager, logger: logger}
 }
 
-// NewHandlers 创建云同步 HTTP handler（兼容旧接口）
+// NewHandlers 创建云同步 HTTP handler（兼容旧接口）.
 func NewHandlers(manager *Manager) *Handler {
 	return NewHandler(manager, zap.NewNop())
 }
 
-// RegisterRoutes 注册云同步 API 路由
+// RegisterRoutes 注册云同步 API 路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	sync := rg.Group("/cloudsync")
 	{
@@ -77,7 +77,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 // 提供商管理 Handlers
 // ============================================================
 
-// CreateProvider 处理 POST /api/v1/cloudsync/providers
+// CreateProvider 处理 POST /api/v1/cloudsync/providers.
 func (h *Handler) CreateProvider(c *gin.Context) {
 	var config ProviderConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -105,7 +105,7 @@ func (h *Handler) CreateProvider(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": provider})
 }
 
-// GetProvider 处理 GET /api/v1/cloudsync/providers/:id
+// GetProvider 处理 GET /api/v1/cloudsync/providers/:id.
 func (h *Handler) GetProvider(c *gin.Context) {
 	id := c.Param("id")
 	provider, err := h.manager.GetProvider(id)
@@ -116,13 +116,13 @@ func (h *Handler) GetProvider(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": provider})
 }
 
-// ListProviders 处理 GET /api/v1/cloudsync/providers
+// ListProviders 处理 GET /api/v1/cloudsync/providers.
 func (h *Handler) ListProviders(c *gin.Context) {
 	providers := h.manager.ListProviders()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": providers, "total": len(providers)})
 }
 
-// UpdateProvider 处理 PUT /api/v1/cloudsync/providers/:id
+// UpdateProvider 处理 PUT /api/v1/cloudsync/providers/:id.
 func (h *Handler) UpdateProvider(c *gin.Context) {
 	id := c.Param("id")
 	var config ProviderConfig
@@ -140,7 +140,7 @@ func (h *Handler) UpdateProvider(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": provider})
 }
 
-// DeleteProvider 处理 DELETE /api/v1/cloudsync/providers/:id
+// DeleteProvider 处理 DELETE /api/v1/cloudsync/providers/:id.
 func (h *Handler) DeleteProvider(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteProvider(id); err != nil {
@@ -150,7 +150,7 @@ func (h *Handler) DeleteProvider(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "deleted"})
 }
 
-// TestProvider 处理 POST /api/v1/cloudsync/providers/:id/test
+// TestProvider 处理 POST /api/v1/cloudsync/providers/:id/test.
 func (h *Handler) TestProvider(c *gin.Context) {
 	id := c.Param("id")
 	_, err := h.manager.GetProvider(id)
@@ -166,7 +166,7 @@ func (h *Handler) TestProvider(c *gin.Context) {
 // 连接管理 Handlers
 // ============================================================
 
-// CreateConnection 处理 POST /api/v1/cloudsync/connections
+// CreateConnection 处理 POST /api/v1/cloudsync/connections.
 func (h *Handler) CreateConnection(c *gin.Context) {
 	var req CreateConnectionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -183,13 +183,13 @@ func (h *Handler) CreateConnection(c *gin.Context) {
 	c.JSON(http.StatusCreated, conn)
 }
 
-// ListConnections 处理 GET /api/v1/cloudsync/connections
+// ListConnections 处理 GET /api/v1/cloudsync/connections.
 func (h *Handler) ListConnections(c *gin.Context) {
 	conns := h.manager.ListConnections()
 	c.JSON(http.StatusOK, gin.H{"connections": conns, "total": len(conns)})
 }
 
-// GetConnection 处理 GET /api/v1/cloudsync/connections/:id
+// GetConnection 处理 GET /api/v1/cloudsync/connections/:id.
 func (h *Handler) GetConnection(c *gin.Context) {
 	id := c.Param("id")
 	conn, err := h.manager.GetConnection(id)
@@ -200,7 +200,7 @@ func (h *Handler) GetConnection(c *gin.Context) {
 	c.JSON(http.StatusOK, conn)
 }
 
-// UpdateConnection 处理 PUT /api/v1/cloudsync/connections/:id
+// UpdateConnection 处理 PUT /api/v1/cloudsync/connections/:id.
 func (h *Handler) UpdateConnection(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateConnectionRequest
@@ -218,7 +218,7 @@ func (h *Handler) UpdateConnection(c *gin.Context) {
 	c.JSON(http.StatusOK, conn)
 }
 
-// DeleteConnection 处理 DELETE /api/v1/cloudsync/connections/:id
+// DeleteConnection 处理 DELETE /api/v1/cloudsync/connections/:id.
 func (h *Handler) DeleteConnection(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteConnection(id); err != nil {
@@ -232,7 +232,7 @@ func (h *Handler) DeleteConnection(c *gin.Context) {
 // 同步任务管理 Handlers
 // ============================================================
 
-// CreateTask 处理 POST /api/v1/cloudsync/tasks
+// CreateTask 处理 POST /api/v1/cloudsync/tasks.
 func (h *Handler) CreateTask(c *gin.Context) {
 	// 先读取 body 为 map 以支持 camelCase
 	var body map[string]interface{}
@@ -281,13 +281,13 @@ func (h *Handler) CreateTask(c *gin.Context) {
 	c.JSON(http.StatusCreated, task)
 }
 
-// ListTasks 处理 GET /api/v1/cloudsync/tasks
+// ListTasks 处理 GET /api/v1/cloudsync/tasks.
 func (h *Handler) ListTasks(c *gin.Context) {
 	tasks := h.manager.ListTasks()
 	c.JSON(http.StatusOK, gin.H{"tasks": tasks, "total": len(tasks)})
 }
 
-// GetTask 处理 GET /api/v1/cloudsync/tasks/:id
+// GetTask 处理 GET /api/v1/cloudsync/tasks/:id.
 func (h *Handler) GetTask(c *gin.Context) {
 	id := c.Param("id")
 	task, err := h.manager.GetTask(id)
@@ -298,7 +298,7 @@ func (h *Handler) GetTask(c *gin.Context) {
 	c.JSON(http.StatusOK, task)
 }
 
-// UpdateTask 处理 PUT /api/v1/cloudsync/tasks/:id
+// UpdateTask 处理 PUT /api/v1/cloudsync/tasks/:id.
 func (h *Handler) UpdateTask(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateTaskRequest
@@ -316,7 +316,7 @@ func (h *Handler) UpdateTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": task})
 }
 
-// DeleteTask 处理 DELETE /api/v1/cloudsync/tasks/:id
+// DeleteTask 处理 DELETE /api/v1/cloudsync/tasks/:id.
 func (h *Handler) DeleteTask(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteTask(id); err != nil {
@@ -330,7 +330,7 @@ func (h *Handler) DeleteTask(c *gin.Context) {
 // 同步控制 Handlers
 // ============================================================
 
-// StartSync 处理 POST /api/v1/cloudsync/tasks/:id/start
+// StartSync 处理 POST /api/v1/cloudsync/tasks/:id/start.
 func (h *Handler) StartSync(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.StartSync(id); err != nil {
@@ -340,7 +340,7 @@ func (h *Handler) StartSync(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "sync started"})
 }
 
-// PauseSync 处理 POST /api/v1/cloudsync/tasks/:id/pause
+// PauseSync 处理 POST /api/v1/cloudsync/tasks/:id/pause.
 func (h *Handler) PauseSync(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.PauseSync(id); err != nil {
@@ -350,7 +350,7 @@ func (h *Handler) PauseSync(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "sync paused"})
 }
 
-// ResumeSync 处理 POST /api/v1/cloudsync/tasks/:id/resume
+// ResumeSync 处理 POST /api/v1/cloudsync/tasks/:id/resume.
 func (h *Handler) ResumeSync(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.ResumeSync(id); err != nil {
@@ -360,7 +360,7 @@ func (h *Handler) ResumeSync(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "sync resumed"})
 }
 
-// StopSync 处理 POST /api/v1/cloudsync/tasks/:id/stop
+// StopSync 处理 POST /api/v1/cloudsync/tasks/:id/stop.
 func (h *Handler) StopSync(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.StopSync(id); err != nil {
@@ -374,7 +374,7 @@ func (h *Handler) StopSync(c *gin.Context) {
 // 状态和统计 Handlers
 // ============================================================
 
-// GetSyncStatus 处理 GET /api/v1/cloudsync/tasks/:id/status
+// GetSyncStatus 处理 GET /api/v1/cloudsync/tasks/:id/status.
 func (h *Handler) GetSyncStatus(c *gin.Context) {
 	id := c.Param("id")
 	status, err := h.manager.GetSyncStatus(id)
@@ -385,19 +385,19 @@ func (h *Handler) GetSyncStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, status)
 }
 
-// GetAllStatuses 处理 GET /api/v1/cloudsync/statuses
+// GetAllStatuses 处理 GET /api/v1/cloudsync/statuses.
 func (h *Handler) GetAllStatuses(c *gin.Context) {
 	statuses := h.manager.GetAllSyncStatuses()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "statuses": statuses, "total": len(statuses)})
 }
 
-// GetSyncStats 处理 GET /api/v1/cloudsync/stats
+// GetSyncStats 处理 GET /api/v1/cloudsync/stats.
 func (h *Handler) GetSyncStats(c *gin.Context) {
 	stats := h.manager.GetSyncStats()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": stats})
 }
 
-// GetProvidersInfo 处理 GET /api/v1/cloudsync/providers-info
+// GetProvidersInfo 处理 GET /api/v1/cloudsync/providers-info.
 func (h *Handler) GetProvidersInfo(c *gin.Context) {
 	providers := h.manager.ListProviders()
 	allTasks := h.manager.ListTasks()
@@ -427,7 +427,7 @@ func (h *Handler) GetProvidersInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": result})
 }
 
-// GetSyncLogs 处理 GET /api/v1/cloudsync/logs
+// GetSyncLogs 处理 GET /api/v1/cloudsync/logs.
 func (h *Handler) GetSyncLogs(c *gin.Context) {
 	taskID := c.Query("task_id")
 	limitStr := c.DefaultQuery("limit", "100")
@@ -440,7 +440,7 @@ func (h *Handler) GetSyncLogs(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"logs": logs, "total": len(logs)})
 }
 
-// GetStorageUsage 处理 GET /api/v1/cloudsync/connections/:id/usage
+// GetStorageUsage 处理 GET /api/v1/cloudsync/connections/:id/usage.
 func (h *Handler) GetStorageUsage(c *gin.Context) {
 	id := c.Param("id")
 	usage, err := h.manager.GetStorageUsage(id)
@@ -451,7 +451,7 @@ func (h *Handler) GetStorageUsage(c *gin.Context) {
 	c.JSON(http.StatusOK, usage)
 }
 
-// LoadMockData 处理 POST /api/v1/cloudsync/mock
+// LoadMockData 处理 POST /api/v1/cloudsync/mock.
 func (h *Handler) LoadMockData(c *gin.Context) {
 	h.manager.LoadMockData()
 	c.JSON(http.StatusOK, gin.H{"message": "mock data loaded"})

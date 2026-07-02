@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// NewShield 创建新的隐私保护盾实例
+// NewShield 创建新的隐私保护盾实例.
 func NewShield() *Shield {
 	return &Shield{
 		patterns: DefaultPatterns(),
@@ -19,7 +19,7 @@ func NewShield() *Shield {
 	}
 }
 
-// NewShieldWithPatterns 使用自定义模式创建隐私保护盾
+// NewShieldWithPatterns 使用自定义模式创建隐私保护盾.
 func NewShieldWithPatterns(patterns []SensitivePattern, rules map[string]MaskRule) *Shield {
 	if rules == nil {
 		rules = DefaultMaskRules()
@@ -30,21 +30,21 @@ func NewShieldWithPatterns(patterns []SensitivePattern, rules map[string]MaskRul
 	}
 }
 
-// GetPatterns 获取当前所有敏感数据模式
+// GetPatterns 获取当前所有敏感数据模式.
 func (s *Shield) GetPatterns() []SensitivePattern {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.patterns
 }
 
-// AddPattern 添加新的敏感数据模式
+// AddPattern 添加新的敏感数据模式.
 func (s *Shield) AddPattern(pattern SensitivePattern) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.patterns = append(s.patterns, pattern)
 }
 
-// RemovePattern 根据名称移除敏感数据模式
+// RemovePattern 根据名称移除敏感数据模式.
 func (s *Shield) RemovePattern(name string) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -57,7 +57,7 @@ func (s *Shield) RemovePattern(name string) bool {
 	return false
 }
 
-// ScanContent 扫描内容中的敏感数据
+// ScanContent 扫描内容中的敏感数据.
 func (s *Shield) ScanContent(content string, categories ...string) (*ScanResult, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -116,7 +116,7 @@ func (s *Shield) ScanContent(content string, categories ...string) (*ScanResult,
 	return result, nil
 }
 
-// MaskContent 对内容进行脱敏处理
+// MaskContent 对内容进行脱敏处理.
 func (s *Shield) MaskContent(content string, strategy string, options *MaskOptions) (*MaskResponse, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -178,7 +178,7 @@ func (s *Shield) MaskContent(content string, strategy string, options *MaskOptio
 	return response, nil
 }
 
-// applyMaskRule 应用脱敏规则
+// applyMaskRule 应用脱敏规则.
 func (s *Shield) applyMaskRule(value string, rule MaskRule) string {
 	runes := []rune(value)
 	length := len(runes)
@@ -225,7 +225,7 @@ func (s *Shield) applyMaskRule(value string, rule MaskRule) string {
 	}
 }
 
-// GenerateComplianceReport 生成合规检查报告
+// GenerateComplianceReport 生成合规检查报告.
 func (s *Shield) GenerateComplianceReport(content string, framework string) (*ComplianceReport, error) {
 	scanResult, err := s.ScanContent(content)
 	if err != nil {
@@ -274,7 +274,7 @@ func (s *Shield) GenerateComplianceReport(content string, framework string) (*Co
 	return report, nil
 }
 
-// checkGDPRCompliance 检查 GDPR 合规性
+// checkGDPRCompliance 检查 GDPR 合规性.
 func (s *Shield) checkGDPRCompliance(scanResult *ScanResult) []ComplianceIssue {
 	issues := []ComplianceIssue{}
 
@@ -317,7 +317,7 @@ func (s *Shield) checkGDPRCompliance(scanResult *ScanResult) []ComplianceIssue {
 	return issues
 }
 
-// checkPIPLCompliance 检查个人信息保护法合规性
+// checkPIPLCompliance 检查个人信息保护法合规性.
 func (s *Shield) checkPIPLCompliance(scanResult *ScanResult) []ComplianceIssue {
 	issues := []ComplianceIssue{}
 
@@ -357,7 +357,7 @@ func (s *Shield) checkPIPLCompliance(scanResult *ScanResult) []ComplianceIssue {
 	return issues
 }
 
-// getMatchValuesByCategory 获取指定分类的匹配值
+// getMatchValuesByCategory 获取指定分类的匹配值.
 func (s *Shield) getMatchValuesByCategory(scanResult *ScanResult, category string) []string {
 	values := []string{}
 	for _, match := range scanResult.Matches {
@@ -375,7 +375,7 @@ func (s *Shield) getMatchValuesByCategory(scanResult *ScanResult, category strin
 	return values
 }
 
-// calculateScanRiskScore 计算扫描风险分数
+// calculateScanRiskScore 计算扫描风险分数.
 func (s *Shield) calculateScanRiskScore(scanResult *ScanResult) float64 {
 	if len(scanResult.Matches) == 0 {
 		return 0
@@ -401,7 +401,7 @@ func (s *Shield) calculateScanRiskScore(scanResult *ScanResult) float64 {
 	return math.Min(score*100, 100) // 归一化到 0-100
 }
 
-// AssessRisk 进行风险评估
+// AssessRisk 进行风险评估.
 func (s *Shield) AssessRisk(content string, encrypted bool, accessLevel string) (*RiskScore, error) {
 	scanResult, err := s.ScanContent(content)
 	if err != nil {

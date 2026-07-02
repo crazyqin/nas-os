@@ -4,7 +4,7 @@ package printserver
 
 import "time"
 
-// PrinterStatus 打印机状态
+// PrinterStatus 打印机状态.
 type PrinterStatus string
 
 const (
@@ -17,7 +17,7 @@ const (
 	StatusProcessing PrinterStatus = "processing"
 )
 
-// PrinterType 打印机类型
+// PrinterType 打印机类型.
 type PrinterType string
 
 const (
@@ -29,7 +29,7 @@ const (
 	Type3D        PrinterType = "3d"
 )
 
-// ConnectionType 连接类型
+// ConnectionType 连接类型.
 type ConnectionType string
 
 const (
@@ -39,7 +39,7 @@ const (
 	ConnBluetooth ConnectionType = "bluetooth"
 )
 
-// PrintQuality 打印质量
+// PrintQuality 打印质量.
 type PrintQuality string
 
 const (
@@ -49,7 +49,7 @@ const (
 	QualityBest   PrintQuality = "best"
 )
 
-// ColorMode 色彩模式
+// ColorMode 色彩模式.
 type ColorMode string
 
 const (
@@ -58,7 +58,7 @@ const (
 	ColorColor ColorMode = "color"
 )
 
-// PaperSize 纸张大小
+// PaperSize 纸张大小.
 type PaperSize string
 
 const (
@@ -71,7 +71,7 @@ const (
 	PaperCustom PaperSize = "custom"
 )
 
-// DuplexMode 双面模式
+// DuplexMode 双面模式.
 type DuplexMode string
 
 const (
@@ -80,7 +80,7 @@ const (
 	DuplexShortEdge DuplexMode = "short_edge"
 )
 
-// PrintJobStatus 打印任务状态
+// PrintJobStatus 打印任务状态.
 type PrintJobStatus string
 
 const (
@@ -93,7 +93,7 @@ const (
 	JobHeld       PrintJobStatus = "held"
 )
 
-// Printer 打印机配置
+// Printer 打印机配置.
 type Printer struct {
 	ID             string         `json:"id"`
 	Name           string         `json:"name"`
@@ -117,7 +117,7 @@ type Printer struct {
 	UpdatedAt      time.Time      `json:"updated_at"`
 }
 
-// TonerLevel 耗材水平
+// TonerLevel 耗材水平.
 type TonerLevel struct {
 	Color   string  `json:"color"`
 	Current int     `json:"current"`
@@ -126,7 +126,7 @@ type TonerLevel struct {
 	Low     bool    `json:"low"`
 }
 
-// PrinterHealth 打印机健康状态
+// PrinterHealth 打印机健康状态.
 type PrinterHealth struct {
 	PrinterID       string        `json:"printer_id"`
 	Status          PrinterStatus `json:"status"`
@@ -140,7 +140,7 @@ type PrinterHealth struct {
 	Alerts          []string      `json:"alerts,omitempty"`
 }
 
-// PrintJob 打印任务
+// PrintJob 打印任务.
 type PrintJob struct {
 	ID           string         `json:"id"`
 	PrinterID    string         `json:"printer_id"`
@@ -167,7 +167,7 @@ type PrintJob struct {
 	Priority     int            `json:"priority"`
 }
 
-// PrintQueue 打印队列
+// PrintQueue 打印队列.
 type PrintQueue struct {
 	PrinterID   string      `json:"printer_id"`
 	PrinterName string      `json:"printer_name"`
@@ -177,7 +177,7 @@ type PrintQueue struct {
 	PendingJobs int         `json:"pending_jobs"`
 }
 
-// PrintPolicy 打印策略
+// PrintPolicy 打印策略.
 type PrintPolicy struct {
 	ID               string      `json:"id"`
 	Name             string      `json:"name"`
@@ -195,7 +195,7 @@ type PrintPolicy struct {
 	CreatedAt        time.Time   `json:"created_at"`
 }
 
-// PrintStats 打印统计
+// PrintStats 打印统计.
 type PrintStats struct {
 	TotalPrinters  int            `json:"total_printers"`
 	OnlinePrinters int            `json:"online_printers"`
@@ -211,7 +211,7 @@ type PrintStats struct {
 	TopUsers       []UserUsage    `json:"top_users"`
 }
 
-// PrinterUsage 打印机使用统计
+// PrinterUsage 打印机使用统计.
 type PrinterUsage struct {
 	PrinterID   string `json:"printer_id"`
 	PrinterName string `json:"printer_name"`
@@ -219,7 +219,7 @@ type PrinterUsage struct {
 	PageCount   int64  `json:"page_count"`
 }
 
-// UserUsage 用户使用统计
+// UserUsage 用户使用统计.
 type UserUsage struct {
 	UserID    string `json:"user_id"`
 	UserName  string `json:"user_name"`
@@ -227,7 +227,7 @@ type UserUsage struct {
 	PageCount int64  `json:"page_count"`
 }
 
-// PrintTemplate 打印模板
+// PrintTemplate 打印模板.
 type PrintTemplate struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -240,7 +240,7 @@ type PrintTemplate struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// ScheduledPrint 定时打印
+// ScheduledPrint 定时打印.
 type ScheduledPrint struct {
 	ID         string       `json:"id"`
 	PrinterID  string       `json:"printer_id"`
@@ -254,7 +254,7 @@ type ScheduledPrint struct {
 	CreatedAt  time.Time    `json:"created_at"`
 }
 
-// PrintOptions 打印选项
+// PrintOptions 打印选项.
 type PrintOptions struct {
 	Copies      int          `json:"copies"`
 	PaperSize   PaperSize    `json:"paper_size"`
@@ -266,7 +266,7 @@ type PrintOptions struct {
 	Margins     Margins      `json:"margins"`
 }
 
-// Margins 页边距
+// Margins 页边距.
 type Margins struct {
 	Top    float64 `json:"top"`
 	Bottom float64 `json:"bottom"`

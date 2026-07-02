@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler 多集群联邦管理 HTTP 处理器
+// Handler 多集群联邦管理 HTTP 处理器.
 type Handler struct {
 	mgr *ClusterFederationManager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(mgr *ClusterFederationManager) *Handler {
 	return &Handler{mgr: mgr}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/multiclusterfed/status", h.handleStatus)
 	mux.HandleFunc("/api/v1/multiclusterfed/clusters", h.handleClusters)

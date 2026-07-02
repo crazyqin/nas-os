@@ -10,32 +10,32 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	// ErrCameraNotFound 摄像头不存在错误
+	// ErrCameraNotFound 摄像头不存在错误.
 	ErrCameraNotFound = errors.New("摄像头不存在")
-	// ErrCameraExists 摄像头已存在错误
+	// ErrCameraExists 摄像头已存在错误.
 	ErrCameraExists = errors.New("摄像头已存在")
-	// ErrEventNotFound 事件不存在错误
+	// ErrEventNotFound 事件不存在错误.
 	ErrEventNotFound = errors.New("事件不存在")
-	// ErrRecordingNotFound 录像不存在错误
+	// ErrRecordingNotFound 录像不存在错误.
 	ErrRecordingNotFound = errors.New("录像不存在")
-	// ErrAlertNotFound 告警不存在错误
+	// ErrAlertNotFound 告警不存在错误.
 	ErrAlertNotFound = errors.New("告警不存在")
-	// ErrZoneNotFound 区域不存在错误
+	// ErrZoneNotFound 区域不存在错误.
 	ErrZoneNotFound = errors.New("区域不存在")
-	// ErrZoneExists 区域已存在错误
+	// ErrZoneExists 区域已存在错误.
 	ErrZoneExists = errors.New("区域已存在")
-	// ErrModelNotFound AI模型不存在错误
+	// ErrModelNotFound AI模型不存在错误.
 	ErrModelNotFound = errors.New("AI模型不存在")
-	// ErrInvalidConfig 无效配置错误
+	// ErrInvalidConfig 无效配置错误.
 	ErrInvalidConfig = errors.New("无效配置")
 )
 
 // ========== 摄像头状态 ==========
 
-// CameraStatus 摄像头状态
+// CameraStatus 摄像头状态.
 type CameraStatus string
 
-// 摄像头状态常量
+// 摄像头状态常量.
 const (
 	CameraStatusOnline    CameraStatus = "online"    // 在线
 	CameraStatusOffline   CameraStatus = "offline"   // 离线
@@ -46,10 +46,10 @@ const (
 
 // ========== 检测类型 ==========
 
-// DetectionType 检测类型
+// DetectionType 检测类型.
 type DetectionType string
 
-// 检测类型常量
+// 检测类型常量.
 const (
 	DetectionTypeFace      DetectionType = "face"      // 人脸识别
 	DetectionTypeObject    DetectionType = "object"    // 物体检测
@@ -61,10 +61,10 @@ const (
 
 // ========== 告警级别 ==========
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
-// 告警级别常量
+// 告警级别常量.
 const (
 	AlertLevelInfo      AlertLevel = "info"      // 信息
 	AlertLevelWarning   AlertLevel = "warning"   // 警告
@@ -74,10 +74,10 @@ const (
 
 // ========== 告警状态 ==========
 
-// AlertStatus 告警状态
+// AlertStatus 告警状态.
 type AlertStatus string
 
-// 告警状态常量
+// 告警状态常量.
 const (
 	AlertStatusPending   AlertStatus = "pending"   // 待处理
 	AlertStatusActive    AlertStatus = "active"    // 活跃
@@ -88,10 +88,10 @@ const (
 
 // ========== 区域类型 ==========
 
-// ZoneType 区域类型
+// ZoneType 区域类型.
 type ZoneType string
 
-// 区域类型常量
+// 区域类型常量.
 const (
 	ZoneTypePolygon   ZoneType = "polygon"   // 多边形区域
 	ZoneTypeRectangle ZoneType = "rectangle" // 矩形区域
@@ -101,7 +101,7 @@ const (
 
 // ========== 核心数据结构 ==========
 
-// Camera 摄像头
+// Camera 摄像头.
 type Camera struct {
 	ID             string            `json:"id"`
 	Name           string            `json:"name"`
@@ -125,7 +125,7 @@ type Camera struct {
 	UpdatedAt      time.Time         `json:"updated_at"`
 }
 
-// Event 监控事件
+// Event 监控事件.
 type Event struct {
 	ID           string        `json:"id"`
 	CameraID     string        `json:"camera_id"`
@@ -149,7 +149,7 @@ type Event struct {
 	Handled      bool              `json:"handled"`
 }
 
-// Position 位置信息
+// Position 位置信息.
 type Position struct {
 	X      float64 `json:"x"`
 	Y      float64 `json:"y"`
@@ -157,7 +157,7 @@ type Position struct {
 	Height float64 `json:"height,omitempty"`
 }
 
-// Recording 录像记录
+// Recording 录像记录.
 type Recording struct {
 	ID         string    `json:"id"`
 	CameraID   string    `json:"camera_id"`
@@ -173,7 +173,7 @@ type Recording struct {
 	Tags       []string  `json:"tags,omitempty"`
 }
 
-// Alert 智能告警
+// Alert 智能告警.
 type Alert struct {
 	ID          string      `json:"id"`
 	CameraID    string      `json:"camera_id"`
@@ -191,7 +191,7 @@ type Alert struct {
 	Actions     []string    `json:"actions,omitempty"` // 执行的动作
 }
 
-// Zone 监控区域
+// Zone 监控区域.
 type Zone struct {
 	ID             string          `json:"id"`
 	CameraID       string          `json:"camera_id"`
@@ -207,13 +207,13 @@ type Zone struct {
 	UpdatedAt      time.Time       `json:"updated_at"`
 }
 
-// Point 坐标点
+// Point 坐标点.
 type Point struct {
 	X float64 `json:"x"`
 	Y float64 `json:"y"`
 }
 
-// AIModel AI模型
+// AIModel AI模型.
 type AIModel struct {
 	ID         string        `json:"id"`
 	Name       string        `json:"name"`
@@ -228,7 +228,7 @@ type AIModel struct {
 	UpdatedAt  time.Time     `json:"updated_at"`
 }
 
-// AIAnalysisResult AI分析结果
+// AIAnalysisResult AI分析结果.
 type AIAnalysisResult struct {
 	ModelID   string             `json:"model_id"`
 	CameraID  string             `json:"camera_id"`
@@ -241,7 +241,7 @@ type AIAnalysisResult struct {
 	ProcessMs float64            `json:"process_ms"` // 处理耗时
 }
 
-// DetectedObject 检测到的物体
+// DetectedObject 检测到的物体.
 type DetectedObject struct {
 	Label      string   `json:"label"`
 	Confidence float64  `json:"confidence"`
@@ -249,7 +249,7 @@ type DetectedObject struct {
 	Tracking   string   `json:"tracking_id,omitempty"`
 }
 
-// DetectedFace 检测到的人脸
+// DetectedFace 检测到的人脸.
 type DetectedFace struct {
 	Name       string    `json:"name,omitempty"`      // 识别结果
 	PersonID   string    `json:"person_id,omitempty"` // 人员ID
@@ -258,7 +258,7 @@ type DetectedFace struct {
 	Embedding  []float64 `json:"embedding,omitempty"` // 人脸特征向量
 }
 
-// DetectedPlate 检测到的车牌
+// DetectedPlate 检测到的车牌.
 type DetectedPlate struct {
 	Number     string   `json:"number"` // 车牌号
 	Confidence float64  `json:"confidence"`
@@ -266,7 +266,7 @@ type DetectedPlate struct {
 	Color      string   `json:"color,omitempty"`
 }
 
-// DetectedBehavior 检测到的行为
+// DetectedBehavior 检测到的行为.
 type DetectedBehavior struct {
 	Type       string   `json:"type"` // loitering, running, fighting, falling
 	Confidence float64  `json:"confidence"`
@@ -276,7 +276,7 @@ type DetectedBehavior struct {
 
 // ========== 查询参数 ==========
 
-// EventQuery 事件查询参数
+// EventQuery 事件查询参数.
 type EventQuery struct {
 	CameraID  string          `json:"camera_id,omitempty"`
 	Types     []DetectionType `json:"types,omitempty"`
@@ -289,7 +289,7 @@ type EventQuery struct {
 	PageSize  int             `json:"page_size"`
 }
 
-// AlertQuery 告警查询参数
+// AlertQuery 告警查询参数.
 type AlertQuery struct {
 	CameraID  string        `json:"camera_id,omitempty"`
 	Levels    []AlertLevel  `json:"levels,omitempty"`
@@ -300,7 +300,7 @@ type AlertQuery struct {
 	PageSize  int           `json:"page_size"`
 }
 
-// RecordingQuery 录像查询参数
+// RecordingQuery 录像查询参数.
 type RecordingQuery struct {
 	CameraID  string     `json:"camera_id,omitempty"`
 	StartTime *time.Time `json:"start_time,omitempty"`
@@ -312,7 +312,7 @@ type RecordingQuery struct {
 
 // ========== 系统状态 ==========
 
-// SystemStatus 系统状态
+// SystemStatus 系统状态.
 type SystemStatus struct {
 	TotalCameras    int     `json:"total_cameras"`
 	OnlineCameras   int     `json:"online_cameras"`
@@ -325,7 +325,7 @@ type SystemStatus struct {
 	AvgInferenceFPS float64 `json:"avg_inference_fps"`
 }
 
-// TimelineData 时间线数据
+// TimelineData 时间线数据.
 type TimelineData struct {
 	Date       time.Time         `json:"date"`
 	CameraID   string            `json:"camera_id"`
@@ -334,14 +334,14 @@ type TimelineData struct {
 	Events     []TimelineEvent   `json:"events"`
 }
 
-// TimelineSegment 时间线片段
+// TimelineSegment 时间线片段.
 type TimelineSegment struct {
 	StartTime time.Time `json:"start_time"`
 	EndTime   time.Time `json:"end_time"`
 	HasEvents bool      `json:"has_events"`
 }
 
-// TimelineEvent 时间线事件
+// TimelineEvent 时间线事件.
 type TimelineEvent struct {
 	Timestamp  time.Time     `json:"timestamp"`
 	Type       DetectionType `json:"type"`

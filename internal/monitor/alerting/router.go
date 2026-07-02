@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// ChannelType 通知渠道类型
+// ChannelType 通知渠道类型.
 type ChannelType string
 
 const (
@@ -20,7 +20,7 @@ const (
 	ChannelSMS      ChannelType = "sms"
 )
 
-// Channel 通知渠道
+// Channel 通知渠道.
 type Channel struct {
 	ID       string            `json:"id"`
 	Name     string            `json:"name"`
@@ -31,7 +31,7 @@ type Channel struct {
 	Config   map[string]string `json:"config,omitempty"` // 额外配置
 }
 
-// RouteRule 路由规则
+// RouteRule 路由规则.
 type RouteRule struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
@@ -52,13 +52,13 @@ type RouteRule struct {
 	SuppressionWindow time.Duration `json:"suppressionWindow"` // 抑制时间窗口
 }
 
-// suppressionKey 抑制记录的key
+// suppressionKey 抑制记录的key.
 type suppressionKey struct {
 	ruleID  string
 	alertID string
 }
 
-// Router 告警路由器
+// Router 告警路由器.
 type Router struct {
 	mu          sync.RWMutex
 	channels    map[string]*Channel
@@ -67,7 +67,7 @@ type Router struct {
 	engine      *TemplateEngine
 }
 
-// NewRouter 创建告警路由器
+// NewRouter 创建告警路由器.
 func NewRouter(engine *TemplateEngine) *Router {
 	return &Router{
 		channels:    make(map[string]*Channel),
@@ -77,7 +77,7 @@ func NewRouter(engine *TemplateEngine) *Router {
 	}
 }
 
-// AddChannel 添加通知渠道
+// AddChannel 添加通知渠道.
 func (r *Router) AddChannel(ch *Channel) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -96,7 +96,7 @@ func (r *Router) AddChannel(ch *Channel) error {
 	return nil
 }
 
-// RemoveChannel 删除通知渠道
+// RemoveChannel 删除通知渠道.
 func (r *Router) RemoveChannel(id string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -109,7 +109,7 @@ func (r *Router) RemoveChannel(id string) error {
 	return nil
 }
 
-// GetChannel 获取渠道
+// GetChannel 获取渠道.
 func (r *Router) GetChannel(id string) (*Channel, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -118,7 +118,7 @@ func (r *Router) GetChannel(id string) (*Channel, bool) {
 	return ch, ok
 }
 
-// ListChannels 列出所有渠道
+// ListChannels 列出所有渠道.
 func (r *Router) ListChannels() []*Channel {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -130,7 +130,7 @@ func (r *Router) ListChannels() []*Channel {
 	return result
 }
 
-// AddRule 添加路由规则
+// AddRule 添加路由规则.
 func (r *Router) AddRule(rule *RouteRule) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -147,7 +147,7 @@ func (r *Router) AddRule(rule *RouteRule) error {
 	return nil
 }
 
-// UpdateRule 更新路由规则
+// UpdateRule 更新路由规则.
 func (r *Router) UpdateRule(rule *RouteRule) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -163,7 +163,7 @@ func (r *Router) UpdateRule(rule *RouteRule) error {
 	return fmt.Errorf("规则不存在: %s", rule.ID)
 }
 
-// RemoveRule 删除路由规则
+// RemoveRule 删除路由规则.
 func (r *Router) RemoveRule(id string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -178,7 +178,7 @@ func (r *Router) RemoveRule(id string) error {
 	return fmt.Errorf("规则不存在: %s", id)
 }
 
-// GetRules 获取所有规则（按优先级排序）
+// GetRules 获取所有规则（按优先级排序）.
 func (r *Router) GetRules() []*RouteRule {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -188,7 +188,7 @@ func (r *Router) GetRules() []*RouteRule {
 	return result
 }
 
-// sortRules 按优先级排序规则
+// sortRules 按优先级排序规则.
 func (r *Router) sortRules() {
 	// 简单插入排序，规则数量一般不多
 	for i := 1; i < len(r.rules); i++ {
@@ -198,7 +198,7 @@ func (r *Router) sortRules() {
 	}
 }
 
-// Route 路由告警到对应渠道
+// Route 路由告警到对应渠道.
 func (r *Router) Route(ctx context.Context, alertLevel AlertLevel, alertName, serviceType string, hostLabels map[string]string, vars *AlertVars) ([]string, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -247,7 +247,7 @@ func (r *Router) Route(ctx context.Context, alertLevel AlertLevel, alertName, se
 	return sentChannels, nil
 }
 
-// matchRule 检查告警是否匹配规则
+// matchRule 检查告警是否匹配规则.
 func (r *Router) matchRule(rule *RouteRule, level AlertLevel, name, serviceType string, labels map[string]string) bool {
 	// 检查级别
 	if len(rule.Levels) > 0 {
@@ -303,7 +303,7 @@ func (r *Router) matchRule(rule *RouteRule, level AlertLevel, name, serviceType 
 	return true
 }
 
-// matchPattern 简单的模式匹配
+// matchPattern 简单的模式匹配.
 func matchPattern(pattern, name string) bool {
 	if pattern == "*" {
 		return true
@@ -323,7 +323,7 @@ func matchPattern(pattern, name string) bool {
 	return pattern == name
 }
 
-// isSuppressed 检查是否在抑制窗口内
+// isSuppressed 检查是否在抑制窗口内.
 func (r *Router) isSuppressed(ruleID, alertID string, window time.Duration) bool {
 	if window <= 0 {
 		return false
@@ -338,7 +338,7 @@ func (r *Router) isSuppressed(ruleID, alertID string, window time.Duration) bool
 	return time.Since(lastSent) < window
 }
 
-// selectTemplate 选择模板
+// selectTemplate 选择模板.
 func (r *Router) selectTemplate(rule *RouteRule, ch *Channel) string {
 	// 规则级模板优先
 	if rule.Template != "" {
@@ -352,7 +352,7 @@ func (r *Router) selectTemplate(rule *RouteRule, ch *Channel) string {
 	return defaultTemplateForChannel(ch.Type)
 }
 
-// defaultTemplateForChannel 根据渠道类型返回默认模板
+// defaultTemplateForChannel 根据渠道类型返回默认模板.
 func defaultTemplateForChannel(chType ChannelType) string {
 	switch chType {
 	case ChannelEmail:
@@ -372,7 +372,7 @@ func defaultTemplateForChannel(chType ChannelType) string {
 	}
 }
 
-// sendToChannel 发送到指定渠道
+// sendToChannel 发送到指定渠道.
 func (r *Router) sendToChannel(ctx context.Context, ch *Channel, templateID string, vars *AlertVars) error {
 	switch ch.Type {
 	case ChannelEmail:
@@ -411,14 +411,14 @@ func (r *Router) sendToChannel(ctx context.Context, ch *Channel, templateID stri
 	}
 }
 
-// ClearSuppression 清除抑制记录
+// ClearSuppression 清除抑制记录.
 func (r *Router) ClearSuppression() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.suppression = make(map[suppressionKey]time.Time)
 }
 
-// CleanExpiredSuppressions 清理过期的抑制记录
+// CleanExpiredSuppressions 清理过期的抑制记录.
 func (r *Router) CleanExpiredSuppressions() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -438,7 +438,7 @@ func (r *Router) CleanExpiredSuppressions() {
 	}
 }
 
-// GetSuppressionCount 获取当前抑制中的告警数量
+// GetSuppressionCount 获取当前抑制中的告警数量.
 func (r *Router) GetSuppressionCount() int {
 	r.mu.RLock()
 	defer r.mu.RUnlock()

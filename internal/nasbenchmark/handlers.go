@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// RunRequest represents a benchmark run request
+// RunRequest represents a benchmark run request.
 type RunRequest struct {
 	Type      string `json:"type"`
 	Path      string `json:"path"`
@@ -16,19 +16,19 @@ type RunRequest struct {
 	Duration  int    `json:"duration_seconds"`
 }
 
-// SuiteRequest represents a benchmark suite request
+// SuiteRequest represents a benchmark suite request.
 type SuiteRequest struct {
 	Name    string       `json:"name"`
 	Configs []RunRequest `json:"configs"`
 }
 
-// CompareRequest represents a compare request
+// CompareRequest represents a compare request.
 type CompareRequest struct {
 	Result1 string `json:"result1"`
 	Result2 string `json:"result2"`
 }
 
-// handleRunBenchmark handles benchmark run
+// handleRunBenchmark handles benchmark run.
 func (m *Manager) handleRunBenchmark(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -69,7 +69,7 @@ func (m *Manager) handleRunBenchmark(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-// handleRunSuite handles benchmark suite run
+// handleRunSuite handles benchmark suite run.
 func (m *Manager) handleRunSuite(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -113,7 +113,7 @@ func (m *Manager) handleRunSuite(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(suite)
 }
 
-// handleGetResult handles getting a result
+// handleGetResult handles getting a result.
 func (m *Manager) handleGetResult(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -131,7 +131,7 @@ func (m *Manager) handleGetResult(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-// handleListResults handles listing results
+// handleListResults handles listing results.
 func (m *Manager) handleListResults(w http.ResponseWriter, r *http.Request) {
 	results := m.ListResults()
 	w.Header().Set("Content-Type", "application/json")
@@ -141,7 +141,7 @@ func (m *Manager) handleListResults(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleGetSuite handles getting a suite
+// handleGetSuite handles getting a suite.
 func (m *Manager) handleGetSuite(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -159,7 +159,7 @@ func (m *Manager) handleGetSuite(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(suite)
 }
 
-// handleListSuites handles listing suites
+// handleListSuites handles listing suites.
 func (m *Manager) handleListSuites(w http.ResponseWriter, r *http.Request) {
 	suites := m.ListSuites()
 	w.Header().Set("Content-Type", "application/json")
@@ -169,7 +169,7 @@ func (m *Manager) handleListSuites(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleCompare handles comparing results
+// handleCompare handles comparing results.
 func (m *Manager) handleCompare(w http.ResponseWriter, r *http.Request) {
 	var req CompareRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -187,7 +187,7 @@ func (m *Manager) handleCompare(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(comparison)
 }
 
-// RegisterRoutes registers HTTP routes
+// RegisterRoutes registers HTTP routes.
 func (m *Manager) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/benchmark/run", m.handleRunBenchmark)
 	mux.HandleFunc("/api/benchmark/suite", m.handleRunSuite)

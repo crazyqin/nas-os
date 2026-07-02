@@ -14,7 +14,7 @@ func setupTestManager(t *testing.T) *Manager {
 
 func TestTakeSnapshot(t *testing.T) {
 	mgr := setupTestManager(t)
-	snap := mgr.TakeSnapshot(500*1024*1024*1024, 200*1024*1024*1024, map[string]int64{"photos": 50*1024*1024*1024})
+	snap := mgr.TakeSnapshot(500*1024*1024*1024, 200*1024*1024*1024, map[string]int64{"photos": 50 * 1024 * 1024 * 1024})
 	assert.True(t, snap.TotalBytes > 0)
 	assert.True(t, snap.FreeBytes > 0)
 	assert.Equal(t, int64(50*1024*1024*1024), snap.ByCategory["photos"])

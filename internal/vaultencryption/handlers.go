@@ -7,17 +7,17 @@ import (
 	"strconv"
 )
 
-// VaultEncryptionHandler HTTP 处理器
+// VaultEncryptionHandler HTTP 处理器.
 type VaultEncryptionHandler struct {
 	manager *VaultEncryptionManager
 }
 
-// NewVaultEncryptionHandler 创建处理器
+// NewVaultEncryptionHandler 创建处理器.
 func NewVaultEncryptionHandler(manager *VaultEncryptionManager) *VaultEncryptionHandler {
 	return &VaultEncryptionHandler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *VaultEncryptionHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/vault/unlock", h.handleUnlock)
 	mux.HandleFunc("/api/v1/vault/lock", h.handleLock)
@@ -34,7 +34,7 @@ func (h *VaultEncryptionHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/vault/config", h.handleConfig)
 }
 
-// handleUnlock 处理解锁请求
+// handleUnlock 处理解锁请求.
 func (h *VaultEncryptionHandler) handleUnlock(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -83,7 +83,7 @@ func (h *VaultEncryptionHandler) handleUnlock(w http.ResponseWriter, r *http.Req
 	})
 }
 
-// handleLock 处理锁定请求
+// handleLock 处理锁定请求.
 func (h *VaultEncryptionHandler) handleLock(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -122,7 +122,7 @@ func (h *VaultEncryptionHandler) handleLock(w http.ResponseWriter, r *http.Reque
 	})
 }
 
-// handleListVolumes 处理列出卷请求
+// handleListVolumes 处理列出卷请求.
 func (h *VaultEncryptionHandler) handleListVolumes(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -138,7 +138,7 @@ func (h *VaultEncryptionHandler) handleListVolumes(w http.ResponseWriter, r *htt
 	})
 }
 
-// handleGetVolume 处理获取卷请求
+// handleGetVolume 处理获取卷请求.
 func (h *VaultEncryptionHandler) handleGetVolume(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -170,7 +170,7 @@ func (h *VaultEncryptionHandler) handleGetVolume(w http.ResponseWriter, r *http.
 	})
 }
 
-// handleRegisterVolume 处理注册卷请求
+// handleRegisterVolume 处理注册卷请求.
 func (h *VaultEncryptionHandler) handleRegisterVolume(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -201,7 +201,7 @@ func (h *VaultEncryptionHandler) handleRegisterVolume(w http.ResponseWriter, r *
 	})
 }
 
-// handleUnregisterVolume 处理注销卷请求
+// handleUnregisterVolume 处理注销卷请求.
 func (h *VaultEncryptionHandler) handleUnregisterVolume(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -233,7 +233,7 @@ func (h *VaultEncryptionHandler) handleUnregisterVolume(w http.ResponseWriter, r
 	})
 }
 
-// handleListKeys 处理列出密钥请求
+// handleListKeys 处理列出密钥请求.
 func (h *VaultEncryptionHandler) handleListKeys(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -249,7 +249,7 @@ func (h *VaultEncryptionHandler) handleListKeys(w http.ResponseWriter, r *http.R
 	})
 }
 
-// handleCreateKey 处理创建密钥请求
+// handleCreateKey 处理创建密钥请求.
 func (h *VaultEncryptionHandler) handleCreateKey(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -281,7 +281,7 @@ func (h *VaultEncryptionHandler) handleCreateKey(w http.ResponseWriter, r *http.
 	})
 }
 
-// handleDeleteKey 处理删除密钥请求
+// handleDeleteKey 处理删除密钥请求.
 func (h *VaultEncryptionHandler) handleDeleteKey(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -313,7 +313,7 @@ func (h *VaultEncryptionHandler) handleDeleteKey(w http.ResponseWriter, r *http.
 	})
 }
 
-// handleChangePassword 处理修改密码请求
+// handleChangePassword 处理修改密码请求.
 func (h *VaultEncryptionHandler) handleChangePassword(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -343,7 +343,7 @@ func (h *VaultEncryptionHandler) handleChangePassword(w http.ResponseWriter, r *
 	})
 }
 
-// handleStats 处理统计请求
+// handleStats 处理统计请求.
 func (h *VaultEncryptionHandler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -359,7 +359,7 @@ func (h *VaultEncryptionHandler) handleStats(w http.ResponseWriter, r *http.Requ
 	})
 }
 
-// handleAuditLogs 处理审计日志请求
+// handleAuditLogs 处理审计日志请求.
 func (h *VaultEncryptionHandler) handleAuditLogs(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -384,7 +384,7 @@ func (h *VaultEncryptionHandler) handleAuditLogs(w http.ResponseWriter, r *http.
 	})
 }
 
-// handleConfig 处理配置请求
+// handleConfig 处理配置请求.
 func (h *VaultEncryptionHandler) handleConfig(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -413,7 +413,7 @@ func (h *VaultEncryptionHandler) handleConfig(w http.ResponseWriter, r *http.Req
 	}
 }
 
-// writeJSON 写入JSON响应
+// writeJSON 写入JSON响应.
 func writeJSON(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data)

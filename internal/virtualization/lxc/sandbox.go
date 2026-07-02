@@ -16,7 +16,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// SandboxStatus 沙箱运行状态
+// SandboxStatus 沙箱运行状态.
 type SandboxStatus string
 
 const (
@@ -27,7 +27,7 @@ const (
 	SandboxStatusCreating SandboxStatus = "creating"
 )
 
-// SandboxMountPoint 沙箱挂载点配置
+// SandboxMountPoint 沙箱挂载点配置.
 type SandboxMountPoint struct {
 	Source      string `json:"source"`      // 宿主机路径
 	Destination string `json:"destination"` // 沙箱内路径
@@ -35,7 +35,7 @@ type SandboxMountPoint struct {
 	FSType      string `json:"fstype"`      // 文件系统类型（默认 bind）
 }
 
-// SandboxResourceLimits 沙箱资源限制配置
+// SandboxResourceLimits 沙箱资源限制配置.
 type SandboxResourceLimits struct {
 	CPUShares   int   `json:"cpu_shares"`   // CPU 权重（相对值）
 	CPUPeriod   int   `json:"cpu_period"`   // CPU 调度周期（微秒）
@@ -46,7 +46,7 @@ type SandboxResourceLimits struct {
 	IOWeight    int   `json:"io_weight"`    // I/O 权重（10-1000）
 }
 
-// SandboxNetworkConfig 沙箱网络配置
+// SandboxNetworkConfig 沙箱网络配置.
 type SandboxNetworkConfig struct {
 	Mode         string   `json:"mode"`          // bridge, nat, none, host
 	Bridge       string   `json:"bridge"`        // 网桥名称
@@ -62,7 +62,7 @@ type SandboxNetworkConfig struct {
 	EnableIPv6   bool     `json:"enable_ipv6"`   // 是否启用 IPv6
 }
 
-// SandboxConfig 沙箱配置
+// SandboxConfig 沙箱配置.
 type SandboxConfig struct {
 	Name         string                `json:"name"`            // 沙箱名称
 	Hostname     string                `json:"hostname"`        // 主机名
@@ -77,7 +77,7 @@ type SandboxConfig struct {
 	TemplateURL  string                `json:"template_url"`    // 自定义模板 URL
 }
 
-// Sandbox 沙箱实例
+// Sandbox 沙箱实例.
 type Sandbox struct {
 	ID           string                `json:"id"`
 	Name         string                `json:"name"`
@@ -99,7 +99,7 @@ type Sandbox struct {
 	ErrorMsg     string                `json:"error_msg,omitempty"`
 }
 
-// SandboxManagerConfig 沙箱管理器配置
+// SandboxManagerConfig 沙箱管理器配置.
 type SandboxManagerConfig struct {
 	StoragePath  string `json:"storage_path"`  // 沙箱存储根路径
 	TemplatePath string `json:"template_path"` // 模板缓存路径
@@ -108,7 +108,7 @@ type SandboxManagerConfig struct {
 }
 
 // SandboxManager 沙箱管理器
-// 管理 LXC 沙箱的生命周期：创建、启动、停止、删除、资源限制
+// 管理 LXC 沙箱的生命周期：创建、启动、停止、删除、资源限制.
 type SandboxManager struct {
 	mu         sync.RWMutex
 	sandboxes  map[string]*Sandbox
@@ -117,7 +117,7 @@ type SandboxManager struct {
 	configPath string
 }
 
-// NewSandboxManager 创建沙箱管理器
+// NewSandboxManager 创建沙箱管理器.
 func NewSandboxManager(configPath string, logger *zap.Logger) (*SandboxManager, error) {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -144,7 +144,7 @@ func NewSandboxManager(configPath string, logger *zap.Logger) (*SandboxManager, 
 	return m, nil
 }
 
-// Create 创建沙箱
+// Create 创建沙箱.
 func (m *SandboxManager) Create(ctx context.Context, cfg SandboxConfig) (*Sandbox, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -221,7 +221,7 @@ func (m *SandboxManager) Create(ctx context.Context, cfg SandboxConfig) (*Sandbo
 	return sandbox, nil
 }
 
-// Delete 删除沙箱
+// Delete 删除沙箱.
 func (m *SandboxManager) Delete(ctx context.Context, id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -251,7 +251,7 @@ func (m *SandboxManager) Delete(ctx context.Context, id string) error {
 	return m.saveConfig()
 }
 
-// Start 启动沙箱
+// Start 启动沙箱.
 func (m *SandboxManager) Start(ctx context.Context, id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -282,7 +282,7 @@ func (m *SandboxManager) Start(ctx context.Context, id string) error {
 	return m.saveConfig()
 }
 
-// Stop 停止沙箱
+// Stop 停止沙箱.
 func (m *SandboxManager) Stop(ctx context.Context, id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -316,7 +316,7 @@ func (m *SandboxManager) Stop(ctx context.Context, id string) error {
 	return m.saveConfig()
 }
 
-// List 列出所有沙箱
+// List 列出所有沙箱.
 func (m *SandboxManager) List() []*Sandbox {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -328,7 +328,7 @@ func (m *SandboxManager) List() []*Sandbox {
 	return result
 }
 
-// GetInfo 获取沙箱详细信息
+// GetInfo 获取沙箱详细信息.
 func (m *SandboxManager) GetInfo(id string) (*Sandbox, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -341,7 +341,7 @@ func (m *SandboxManager) GetInfo(id string) (*Sandbox, error) {
 	return sandbox, nil
 }
 
-// SetResourceLimits 设置沙箱资源限制
+// SetResourceLimits 设置沙箱资源限制.
 func (m *SandboxManager) SetResourceLimits(ctx context.Context, id string, limits SandboxResourceLimits) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -365,7 +365,7 @@ func (m *SandboxManager) SetResourceLimits(ctx context.Context, id string, limit
 	return m.saveConfig()
 }
 
-// generateLXCConfig 生成 LXC 容器配置文件
+// generateLXCConfig 生成 LXC 容器配置文件.
 func (m *SandboxManager) generateLXCConfig(sandbox *Sandbox, cfg SandboxConfig) error {
 	configDir := filepath.Join(m.config.StoragePath, sandbox.ID)
 	configPath := filepath.Join(configDir, "config")
@@ -434,7 +434,7 @@ func (m *SandboxManager) generateLXCConfig(sandbox *Sandbox, cfg SandboxConfig) 
 	return nil
 }
 
-// applyResourceLimits 动态应用资源限制（通过 cgroup）
+// applyResourceLimits 动态应用资源限制（通过 cgroup）.
 func (m *SandboxManager) applyResourceLimits(id string, limits SandboxResourceLimits) error {
 	m.logger.Debug("应用资源限制",
 		zap.String("sandbox_id", id),
@@ -443,7 +443,7 @@ func (m *SandboxManager) applyResourceLimits(id string, limits SandboxResourceLi
 	return nil
 }
 
-// execLXCCommand 执行 LXC 命令（封装）
+// execLXCCommand 执行 LXC 命令（封装）.
 func (m *SandboxManager) execLXCCommand(ctx context.Context, name string, args ...string) error {
 	m.logger.Debug("执行 LXC 命令",
 		zap.String("command", name),
@@ -451,7 +451,7 @@ func (m *SandboxManager) execLXCCommand(ctx context.Context, name string, args .
 	return nil
 }
 
-// loadConfig 从磁盘加载沙箱配置
+// loadConfig 从磁盘加载沙箱配置.
 func (m *SandboxManager) loadConfig() error {
 	data, err := os.ReadFile(m.configPath)
 	if err != nil {
@@ -478,7 +478,7 @@ func (m *SandboxManager) loadConfig() error {
 	return nil
 }
 
-// saveConfig 保存沙箱配置到磁盘
+// saveConfig 保存沙箱配置到磁盘.
 func (m *SandboxManager) saveConfig() error {
 	cfg := struct {
 		Sandboxes map[string]*Sandbox   `json:"sandboxes"`
@@ -501,7 +501,7 @@ func (m *SandboxManager) saveConfig() error {
 	return os.WriteFile(m.configPath, data, 0644)
 }
 
-// Close 关闭管理器，清理资源
+// Close 关闭管理器，清理资源.
 func (m *SandboxManager) Close() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

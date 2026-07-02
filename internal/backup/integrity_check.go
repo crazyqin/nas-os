@@ -45,13 +45,13 @@ type IntegrityCheckRequest struct {
 type CheckType string
 
 const (
-	// CheckTypeFull 全量校验
+	// CheckTypeFull 全量校验.
 	CheckTypeFull CheckType = "full"
-	// CheckTypeSample 抽样校验
+	// CheckTypeSample 抽样校验.
 	CheckTypeSample CheckType = "sample"
-	// CheckTypeQuick 快速校验（仅校验文件元数据）
+	// CheckTypeQuick 快速校验（仅校验文件元数据）.
 	CheckTypeQuick CheckType = "quick"
-	// CheckTypeMetadata 元数据校验
+	// CheckTypeMetadata 元数据校验.
 	CheckTypeMetadata CheckType = "metadata"
 )
 
@@ -119,15 +119,15 @@ type IntegrityCheckJob struct {
 type CheckStatus string
 
 const (
-	// CheckStatusPending 待执行
+	// CheckStatusPending 待执行.
 	CheckStatusPending CheckStatus = "pending"
-	// CheckStatusRunning 执行中
+	// CheckStatusRunning 执行中.
 	CheckStatusRunning CheckStatus = "running"
-	// CheckStatusCompleted 已完成
+	// CheckStatusCompleted 已完成.
 	CheckStatusCompleted CheckStatus = "completed"
-	// CheckStatusFailed 已失败
+	// CheckStatusFailed 已失败.
 	CheckStatusFailed CheckStatus = "failed"
-	// CheckStatusCancelled 已取消
+	// CheckStatusCancelled 已取消.
 	CheckStatusCancelled CheckStatus = "cancelled"
 )
 
@@ -231,19 +231,19 @@ type CorruptedItem struct {
 type CorruptionType string
 
 const (
-	// CorruptionChecksum 校验和不匹配
+	// CorruptionChecksum 校验和不匹配.
 	CorruptionChecksum CorruptionType = "checksum_mismatch"
-	// CorruptionBlock 数据块损坏
+	// CorruptionBlock 数据块损坏.
 	CorruptionBlock CorruptionType = "block_corruption"
-	// CorruptionMissing 文件缺失
+	// CorruptionMissing 文件缺失.
 	CorruptionMissing CorruptionType = "file_missing"
-	// CorruptionExtra 多余文件
+	// CorruptionExtra 多余文件.
 	CorruptionExtra CorruptionType = "file_extra"
-	// CorruptionMetadata 元数据损坏
+	// CorruptionMetadata 元数据损坏.
 	CorruptionMetadata CorruptionType = "metadata_corruption"
-	// CorruptionTruncated 文件截断
+	// CorruptionTruncated 文件截断.
 	CorruptionTruncated CorruptionType = "file_truncated"
-	// CorruptionModified 文件被修改
+	// CorruptionModified 文件被修改.
 	CorruptionModified CorruptionType = "file_modified"
 )
 
@@ -251,13 +251,13 @@ const (
 type Severity string
 
 const (
-	// SeverityLow 低
+	// SeverityLow 低.
 	SeverityLow Severity = "low"
-	// SeverityMedium 中
+	// SeverityMedium 中.
 	SeverityMedium Severity = "medium"
-	// SeverityHigh 高
+	// SeverityHigh 高.
 	SeverityHigh Severity = "high"
-	// SeverityCritical 严重
+	// SeverityCritical 严重.
 	SeverityCritical Severity = "critical"
 )
 
@@ -283,15 +283,15 @@ type Recommendation struct {
 type IntegrityRecommendationType string
 
 const (
-	// IntegrityRecommendationRestore 建议恢复
+	// IntegrityRecommendationRestore 建议恢复.
 	IntegrityRecommendationRestore IntegrityRecommendationType = "restore"
-	// IntegrityRecommendationRebackup 建议重新备份
+	// IntegrityRecommendationRebackup 建议重新备份.
 	IntegrityRecommendationRebackup IntegrityRecommendationType = "rebackup"
-	// IntegrityRecommendationIgnore 建议忽略
+	// IntegrityRecommendationIgnore 建议忽略.
 	IntegrityRecommendationIgnore IntegrityRecommendationType = "ignore"
-	// IntegrityRecommendationVerify 建议验证
+	// IntegrityRecommendationVerify 建议验证.
 	IntegrityRecommendationVerify IntegrityRecommendationType = "verify"
-	// IntegrityRecommendationRepair 建议修复
+	// IntegrityRecommendationRepair 建议修复.
 	IntegrityRecommendationRepair IntegrityRecommendationType = "repair"
 )
 
@@ -534,11 +534,14 @@ func (m *IntegrityCheckManager) runCheck(ctx context.Context, job *IntegrityChec
 			slog.Error("校验文件失败", "file", file, "error", err)
 			continue
 		}
+		if item == nil {
+			continue
+		}
 
 		checkedFiles++
 		checkedBytes += item.Size
 
-		if item != nil && item.CorruptionType != "" {
+		if item.CorruptionType != "" {
 			corruptedItems = append(corruptedItems, *item)
 			corruptedFiles++
 			corruptedBytes += item.Size
@@ -936,9 +939,10 @@ func (m *IntegrityCheckManager) generateRecommendations(report *IntegrityCheckRe
 	highCount := 0
 
 	for _, item := range report.CorruptedItems {
-		if item.Severity == SeverityCritical {
+		switch item.Severity {
+		case SeverityCritical:
 			criticalCount++
-		} else if item.Severity == SeverityHigh {
+		case SeverityHigh:
 			highCount++
 		}
 	}
@@ -991,7 +995,7 @@ func NewIntegrityCheckHandlers(manager *IntegrityCheckManager) *IntegrityCheckHa
 // RegisterRoutes 注册路由.
 // @Summary 注册完整性校验路由
 // @Description 注册所有完整性校验相关的API路由
-// @Tags backup
+// @Tags backup.
 func (h *IntegrityCheckHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	check := r.Group("/integrity-check")
 	{
@@ -1023,7 +1027,7 @@ func (h *IntegrityCheckHandlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Failure 400 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /api/v1/backup/integrity-check [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *IntegrityCheckHandlers) startCheck(c *gin.Context) {
 	var req IntegrityCheckRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -1055,7 +1059,7 @@ func (h *IntegrityCheckHandlers) startCheck(c *gin.Context) {
 // @Success 200 {object} api.Response{data=IntegrityCheckJob}
 // @Failure 404 {object} api.Response
 // @Router /api/v1/backup/integrity-check/{id} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *IntegrityCheckHandlers) getProgress(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1079,7 +1083,7 @@ func (h *IntegrityCheckHandlers) getProgress(c *gin.Context) {
 // @Failure 400 {object} api.Response
 // @Failure 404 {object} api.Response
 // @Router /api/v1/backup/integrity-check/{id}/report [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *IntegrityCheckHandlers) getReport(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1106,7 +1110,7 @@ func (h *IntegrityCheckHandlers) getReport(c *gin.Context) {
 // @Success 200 {object} api.Response
 // @Failure 400 {object} api.Response
 // @Router /api/v1/backup/integrity-check/{id}/cancel [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *IntegrityCheckHandlers) cancelCheck(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1127,7 +1131,7 @@ func (h *IntegrityCheckHandlers) cancelCheck(c *gin.Context) {
 // @Param backupTaskId query string false "备份任务ID过滤"
 // @Success 200 {object} api.Response{data=[]IntegrityCheckJob}
 // @Router /api/v1/backup/integrity-check/list [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *IntegrityCheckHandlers) listChecks(c *gin.Context) {
 	backupTaskID := c.Query("backupTaskId")
 

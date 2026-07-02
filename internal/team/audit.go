@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// AuditLogger 审计日志记录器
+// AuditLogger 审计日志记录器.
 type AuditLogger struct {
 	mu         sync.RWMutex
 	logs       []*TeamAuditLog
@@ -19,7 +19,7 @@ type AuditLogger struct {
 	stopChan   chan struct{}
 }
 
-// NewAuditLogger 创建审计日志记录器
+// NewAuditLogger 创建审计日志记录器.
 func NewAuditLogger(configPath string) *AuditLogger {
 	al := &AuditLogger{
 		logs:       make([]*TeamAuditLog, 0),
@@ -36,7 +36,7 @@ func NewAuditLogger(configPath string) *AuditLogger {
 	return al
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (al *AuditLogger) loadConfig() error {
 	logPath := filepath.Join(al.configPath, "team_audit.json")
 	if _, err := os.Stat(logPath); os.IsNotExist(err) {
@@ -51,7 +51,7 @@ func (al *AuditLogger) loadConfig() error {
 	return json.Unmarshal(data, &al.logs)
 }
 
-// saveConfig 保存配置
+// saveConfig 保存配置.
 func (al *AuditLogger) saveConfig() error {
 	if al.configPath == "" {
 		return nil
@@ -70,7 +70,7 @@ func (al *AuditLogger) saveConfig() error {
 	return os.WriteFile(logPath, data, 0600)
 }
 
-// Log 记录审计日志
+// Log 记录审计日志.
 func (al *AuditLogger) Log(entry *TeamAuditLog) {
 	if entry == nil {
 		return
@@ -101,7 +101,7 @@ func (al *AuditLogger) Log(entry *TeamAuditLog) {
 	go al.saveConfig()
 }
 
-// Query 查询审计日志
+// Query 查询审计日志.
 func (al *AuditLogger) Query(options AuditQueryOptions) []*TeamAuditLog {
 	al.mu.RLock()
 	defer al.mu.RUnlock()
@@ -146,7 +146,7 @@ func (al *AuditLogger) Query(options AuditQueryOptions) []*TeamAuditLog {
 	return results
 }
 
-// GetTeamLogs 获取团队审计日志
+// GetTeamLogs 获取团队审计日志.
 func (al *AuditLogger) GetTeamLogs(teamID string, limit int) []*TeamAuditLog {
 	return al.Query(AuditQueryOptions{
 		TeamID: teamID,
@@ -154,7 +154,7 @@ func (al *AuditLogger) GetTeamLogs(teamID string, limit int) []*TeamAuditLog {
 	})
 }
 
-// GetUserLogs 获取用户审计日志
+// GetUserLogs 获取用户审计日志.
 func (al *AuditLogger) GetUserLogs(userID string, limit int) []*TeamAuditLog {
 	return al.Query(AuditQueryOptions{
 		UserID: userID,
@@ -162,7 +162,7 @@ func (al *AuditLogger) GetUserLogs(userID string, limit int) []*TeamAuditLog {
 	})
 }
 
-// GetResourceLogs 获取资源审计日志
+// GetResourceLogs 获取资源审计日志.
 func (al *AuditLogger) GetResourceLogs(resourceType, resourceID string, limit int) []*TeamAuditLog {
 	return al.Query(AuditQueryOptions{
 		ResourceType: resourceType,
@@ -171,7 +171,7 @@ func (al *AuditLogger) GetResourceLogs(resourceType, resourceID string, limit in
 	})
 }
 
-// GetStats 获取审计统计
+// GetStats 获取审计统计.
 func (al *AuditLogger) GetStats() map[string]interface{} {
 	al.mu.RLock()
 	defer al.mu.RUnlock()
@@ -213,7 +213,7 @@ func (al *AuditLogger) GetStats() map[string]interface{} {
 	}
 }
 
-// Export 导出审计日志
+// Export 导出审计日志.
 func (al *AuditLogger) Export(options AuditQueryOptions, format string) ([]byte, error) {
 	logs := al.Query(options)
 
@@ -236,7 +236,7 @@ func (al *AuditLogger) Export(options AuditQueryOptions, format string) ([]byte,
 	}
 }
 
-// CleanOldLogs 清理旧日志
+// CleanOldLogs 清理旧日志.
 func (al *AuditLogger) CleanOldLogs(retentionDays int) int {
 	al.mu.Lock()
 	defer al.mu.Unlock()
@@ -259,7 +259,7 @@ func (al *AuditLogger) CleanOldLogs(retentionDays int) int {
 	return removed
 }
 
-// GetActionGroups 按操作分组统计
+// GetActionGroups 按操作分组统计.
 func (al *AuditLogger) GetActionGroups(teamID string, startTime, endTime time.Time) map[string]int {
 	al.mu.RLock()
 	defer al.mu.RUnlock()
@@ -303,7 +303,7 @@ func (al *AuditLogger) GetActionGroups(teamID string, startTime, endTime time.Ti
 	return groups
 }
 
-// GetDailyStats 获取每日统计
+// GetDailyStats 获取每日统计.
 func (al *AuditLogger) GetDailyStats(days int) []map[string]interface{} {
 	al.mu.RLock()
 	defer al.mu.RUnlock()

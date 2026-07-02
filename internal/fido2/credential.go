@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// CredentialStore 凭据存储接口
+// CredentialStore 凭据存储接口.
 type CredentialStore interface {
 	// SaveCredential 保存凭据
 	SaveCredential(cred *Credential) error
@@ -34,20 +34,20 @@ type CredentialStore interface {
 	ListCredentials() ([]*Credential, error)
 }
 
-// MemoryCredentialStore 内存凭据存储（用于测试和演示）
+// MemoryCredentialStore 内存凭据存储（用于测试和演示）.
 type MemoryCredentialStore struct {
-	mu         sync.RWMutex
+	mu          sync.RWMutex
 	credentials map[string]*Credential
 }
 
-// NewMemoryCredentialStore 创建内存凭据存储
+// NewMemoryCredentialStore 创建内存凭据存储.
 func NewMemoryCredentialStore() *MemoryCredentialStore {
 	return &MemoryCredentialStore{
 		credentials: make(map[string]*Credential),
 	}
 }
 
-// SaveCredential 保存凭据
+// SaveCredential 保存凭据.
 func (s *MemoryCredentialStore) SaveCredential(cred *Credential) error {
 	if cred == nil {
 		return fmt.Errorf("凭据不能为空")
@@ -68,7 +68,7 @@ func (s *MemoryCredentialStore) SaveCredential(cred *Credential) error {
 	return nil
 }
 
-// GetCredential 根据 ID 获取凭据
+// GetCredential 根据 ID 获取凭据.
 func (s *MemoryCredentialStore) GetCredential(id string) (*Credential, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -83,7 +83,7 @@ func (s *MemoryCredentialStore) GetCredential(id string) (*Credential, error) {
 	return &credCopy, nil
 }
 
-// GetCredentialByWebAuthnID 根据 WebAuthn 凭据 ID 获取凭据
+// GetCredentialByWebAuthnID 根据 WebAuthn 凭据 ID 获取凭据.
 func (s *MemoryCredentialStore) GetCredentialByWebAuthnID(webauthnID []byte) (*Credential, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -98,7 +98,7 @@ func (s *MemoryCredentialStore) GetCredentialByWebAuthnID(webauthnID []byte) (*C
 	return nil, fmt.Errorf("凭据不存在")
 }
 
-// GetUserCredentials 获取用户的所有凭据
+// GetUserCredentials 获取用户的所有凭据.
 func (s *MemoryCredentialStore) GetUserCredentials(userID string) ([]*Credential, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -119,7 +119,7 @@ func (s *MemoryCredentialStore) GetUserCredentials(userID string) ([]*Credential
 	return creds, nil
 }
 
-// DeleteCredential 删除凭据
+// DeleteCredential 删除凭据.
 func (s *MemoryCredentialStore) DeleteCredential(id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -132,7 +132,7 @@ func (s *MemoryCredentialStore) DeleteCredential(id string) error {
 	return nil
 }
 
-// UpdateCredential 更新凭据
+// UpdateCredential 更新凭据.
 func (s *MemoryCredentialStore) UpdateCredential(cred *Credential) error {
 	if cred == nil {
 		return fmt.Errorf("凭据不能为空")
@@ -152,7 +152,7 @@ func (s *MemoryCredentialStore) UpdateCredential(cred *Credential) error {
 	return nil
 }
 
-// ListCredentials 列出所有凭据
+// ListCredentials 列出所有凭据.
 func (s *MemoryCredentialStore) ListCredentials() ([]*Credential, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -173,14 +173,14 @@ func (s *MemoryCredentialStore) ListCredentials() ([]*Credential, error) {
 
 // ==================== 凭据管理器 ====================
 
-// CredentialManager 凭据管理器
+// CredentialManager 凭据管理器.
 type CredentialManager struct {
-	store        CredentialStore
+	store         CredentialStore
 	authenticator *Authenticator
-	config       *Config
+	config        *Config
 }
 
-// NewCredentialManager 创建凭据管理器
+// NewCredentialManager 创建凭据管理器.
 func NewCredentialManager(store CredentialStore, authenticator *Authenticator, config *Config) *CredentialManager {
 	if store == nil {
 		store = NewMemoryCredentialStore()
@@ -193,13 +193,13 @@ func NewCredentialManager(store CredentialStore, authenticator *Authenticator, c
 	}
 
 	return &CredentialManager{
-		store:        store,
+		store:         store,
 		authenticator: authenticator,
-		config:       config,
+		config:        config,
 	}
 }
 
-// RegisterCredential 注册新凭据
+// RegisterCredential 注册新凭据.
 func (m *CredentialManager) RegisterCredential(
 	userID, name string,
 	resp *RegistrationResponse,
@@ -233,17 +233,17 @@ func (m *CredentialManager) RegisterCredential(
 	return cred, nil
 }
 
-// GetCredential 获取凭据
+// GetCredential 获取凭据.
 func (m *CredentialManager) GetCredential(id string) (*Credential, error) {
 	return m.store.GetCredential(id)
 }
 
-// GetUserCredentials 获取用户的所有凭据
+// GetUserCredentials 获取用户的所有凭据.
 func (m *CredentialManager) GetUserCredentials(userID string) ([]*Credential, error) {
 	return m.store.GetUserCredentials(userID)
 }
 
-// GetUserCredentialInfos 获取用户的凭据简要信息列表
+// GetUserCredentialInfos 获取用户的凭据简要信息列表.
 func (m *CredentialManager) GetUserCredentialInfos(userID string) ([]CredentialInfo, error) {
 	creds, err := m.store.GetUserCredentials(userID)
 	if err != nil {
@@ -267,12 +267,12 @@ func (m *CredentialManager) GetUserCredentialInfos(userID string) ([]CredentialI
 	return infos, nil
 }
 
-// DeleteCredential 删除凭据
+// DeleteCredential 删除凭据.
 func (m *CredentialManager) DeleteCredential(id string) error {
 	return m.store.DeleteCredential(id)
 }
 
-// RenameCredential 重命名凭据
+// RenameCredential 重命名凭据.
 func (m *CredentialManager) RenameCredential(id, newName string) error {
 	cred, err := m.store.GetCredential(id)
 	if err != nil {
@@ -283,7 +283,7 @@ func (m *CredentialManager) RenameCredential(id, newName string) error {
 	return m.store.UpdateCredential(cred)
 }
 
-// RevokeCredential 吊销凭据
+// RevokeCredential 吊销凭据.
 func (m *CredentialManager) RevokeCredential(id string) error {
 	cred, err := m.store.GetCredential(id)
 	if err != nil {
@@ -296,7 +296,7 @@ func (m *CredentialManager) RevokeCredential(id string) error {
 	return m.store.UpdateCredential(cred)
 }
 
-// UpdateCredentialUsage 更新凭据使用信息
+// UpdateCredentialUsage 更新凭据使用信息.
 func (m *CredentialManager) UpdateCredentialUsage(id string, signCount uint32) error {
 	cred, err := m.store.GetCredential(id)
 	if err != nil {
@@ -309,12 +309,12 @@ func (m *CredentialManager) UpdateCredentialUsage(id string, signCount uint32) e
 	return m.store.UpdateCredential(cred)
 }
 
-// FindCredentialByWebAuthnID 根据 WebAuthn 凭据 ID 查找凭据
+// FindCredentialByWebAuthnID 根据 WebAuthn 凭据 ID 查找凭据.
 func (m *CredentialManager) FindCredentialByWebAuthnID(webauthnID []byte) (*Credential, error) {
 	return m.store.GetCredentialByWebAuthnID(webauthnID)
 }
 
-// GetActiveUserCredentials 获取用户的活跃（未吊销）凭据
+// GetActiveUserCredentials 获取用户的活跃（未吊销）凭据.
 func (m *CredentialManager) GetActiveUserCredentials(userID string) ([]*Credential, error) {
 	allCreds, err := m.store.GetUserCredentials(userID)
 	if err != nil {
@@ -333,7 +333,7 @@ func (m *CredentialManager) GetActiveUserCredentials(userID string) ([]*Credenti
 
 // ==================== 恢复码管理 ====================
 
-// RecoveryCodeStore 恢复码存储接口
+// RecoveryCodeStore 恢复码存储接口.
 type RecoveryCodeStore interface {
 	// SaveRecoveryCode 保存恢复码
 	SaveRecoveryCode(code *RecoveryCode) error
@@ -354,20 +354,20 @@ type RecoveryCodeStore interface {
 	DeleteUserRecoveryCodes(userID string) error
 }
 
-// MemoryRecoveryCodeStore 内存恢复码存储
+// MemoryRecoveryCodeStore 内存恢复码存储.
 type MemoryRecoveryCodeStore struct {
 	mu    sync.RWMutex
 	codes map[string]*RecoveryCode
 }
 
-// NewMemoryRecoveryCodeStore 创建内存恢复码存储
+// NewMemoryRecoveryCodeStore 创建内存恢复码存储.
 func NewMemoryRecoveryCodeStore() *MemoryRecoveryCodeStore {
 	return &MemoryRecoveryCodeStore{
 		codes: make(map[string]*RecoveryCode),
 	}
 }
 
-// SaveRecoveryCode 保存恢复码
+// SaveRecoveryCode 保存恢复码.
 func (s *MemoryRecoveryCodeStore) SaveRecoveryCode(code *RecoveryCode) error {
 	if code == nil || code.ID == "" {
 		return fmt.Errorf("恢复码无效")
@@ -380,7 +380,7 @@ func (s *MemoryRecoveryCodeStore) SaveRecoveryCode(code *RecoveryCode) error {
 	return nil
 }
 
-// GetRecoveryCode 根据 ID 获取恢复码
+// GetRecoveryCode 根据 ID 获取恢复码.
 func (s *MemoryRecoveryCodeStore) GetRecoveryCode(id string) (*RecoveryCode, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -394,7 +394,7 @@ func (s *MemoryRecoveryCodeStore) GetRecoveryCode(id string) (*RecoveryCode, err
 	return &codeCopy, nil
 }
 
-// GetUserRecoveryCodes 获取用户的所有恢复码
+// GetUserRecoveryCodes 获取用户的所有恢复码.
 func (s *MemoryRecoveryCodeStore) GetUserRecoveryCodes(userID string) ([]*RecoveryCode, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -410,7 +410,7 @@ func (s *MemoryRecoveryCodeStore) GetUserRecoveryCodes(userID string) ([]*Recove
 	return codes, nil
 }
 
-// GetUnusedUserRecoveryCodes 获取用户的未使用恢复码
+// GetUnusedUserRecoveryCodes 获取用户的未使用恢复码.
 func (s *MemoryRecoveryCodeStore) GetUnusedUserRecoveryCodes(userID string) ([]*RecoveryCode, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -426,7 +426,7 @@ func (s *MemoryRecoveryCodeStore) GetUnusedUserRecoveryCodes(userID string) ([]*
 	return codes, nil
 }
 
-// UpdateRecoveryCode 更新恢复码
+// UpdateRecoveryCode 更新恢复码.
 func (s *MemoryRecoveryCodeStore) UpdateRecoveryCode(code *RecoveryCode) error {
 	if code == nil || code.ID == "" {
 		return fmt.Errorf("恢复码无效")
@@ -443,7 +443,7 @@ func (s *MemoryRecoveryCodeStore) UpdateRecoveryCode(code *RecoveryCode) error {
 	return nil
 }
 
-// DeleteUserRecoveryCodes 删除用户的所有恢复码
+// DeleteUserRecoveryCodes 删除用户的所有恢复码.
 func (s *MemoryRecoveryCodeStore) DeleteUserRecoveryCodes(userID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -457,14 +457,14 @@ func (s *MemoryRecoveryCodeStore) DeleteUserRecoveryCodes(userID string) error {
 	return nil
 }
 
-// RecoveryCodeManager 恢复码管理器
+// RecoveryCodeManager 恢复码管理器.
 type RecoveryCodeManager struct {
 	store         RecoveryCodeStore
 	authenticator *Authenticator
 	config        *Config
 }
 
-// NewRecoveryCodeManager 创建恢复码管理器
+// NewRecoveryCodeManager 创建恢复码管理器.
 func NewRecoveryCodeManager(store RecoveryCodeStore, authenticator *Authenticator, config *Config) *RecoveryCodeManager {
 	if store == nil {
 		store = NewMemoryRecoveryCodeStore()
@@ -483,7 +483,7 @@ func NewRecoveryCodeManager(store RecoveryCodeStore, authenticator *Authenticato
 	}
 }
 
-// GenerateRecoveryCodes 生成恢复码
+// GenerateRecoveryCodes 生成恢复码.
 func (m *RecoveryCodeManager) GenerateRecoveryCodes(userID string, count int) ([]string, error) {
 	if count <= 0 || count > 10 {
 		return nil, fmt.Errorf("恢复码数量必须在 1-10 之间")
@@ -526,7 +526,7 @@ func (m *RecoveryCodeManager) GenerateRecoveryCodes(userID string, count int) ([
 	return codes, nil
 }
 
-// VerifyRecoveryCode 验证恢复码
+// VerifyRecoveryCode 验证恢复码.
 func (m *RecoveryCodeManager) VerifyRecoveryCode(userID, inputCode string) (bool, error) {
 	// 获取用户的所有未使用恢复码
 	codes, err := m.store.GetUnusedUserRecoveryCodes(userID)
@@ -559,7 +559,7 @@ func (m *RecoveryCodeManager) VerifyRecoveryCode(userID, inputCode string) (bool
 	return false, nil
 }
 
-// GetUserRecoveryCodeInfos 获取用户的恢复码信息
+// GetUserRecoveryCodeInfos 获取用户的恢复码信息.
 func (m *RecoveryCodeManager) GetUserRecoveryCodeInfos(userID string) ([]RecoveryCodeInfo, error) {
 	codes, err := m.store.GetUserRecoveryCodes(userID)
 	if err != nil {
@@ -580,7 +580,7 @@ func (m *RecoveryCodeManager) GetUserRecoveryCodeInfos(userID string) ([]Recover
 	return infos, nil
 }
 
-// base64URLEncode Base64 URL 编码
+// base64URLEncode Base64 URL 编码.
 func base64URLEncode(data []byte) string {
 	return base64.URLEncoding.EncodeToString(data)
 }

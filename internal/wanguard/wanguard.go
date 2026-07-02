@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// ThreatType 威胁类型
+// ThreatType 威胁类型.
 type ThreatType string
 
 const (
@@ -18,7 +18,7 @@ const (
 	ThreatTypeBruteForce ThreatType = "brute_force"
 )
 
-// IPStatus IP状态
+// IPStatus IP状态.
 type IPStatus string
 
 const (
@@ -28,7 +28,7 @@ const (
 	IPStatusBanned      IPStatus = "banned"
 )
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	// 检测阈值
 	SYNFloodThreshold   int `json:"syn_flood_threshold"`  // SYN包阈值/秒
@@ -49,7 +49,7 @@ type Config struct {
 	WindowSize time.Duration `json:"window_size"`
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() Config {
 	return Config{
 		SYNFloodThreshold:   1000,
@@ -65,7 +65,7 @@ func DefaultConfig() Config {
 	}
 }
 
-// IPEntry IP条目
+// IPEntry IP条目.
 type IPEntry struct {
 	IP       net.IP     `json:"ip"`
 	Status   IPStatus   `json:"status"`
@@ -76,7 +76,7 @@ type IPEntry struct {
 	LastSeen time.Time  `json:"last_seen"`
 }
 
-// ThreatRecord 威胁记录
+// ThreatRecord 威胁记录.
 type ThreatRecord struct {
 	IP        net.IP     `json:"ip"`
 	Type      ThreatType `json:"type"`
@@ -87,7 +87,7 @@ type ThreatRecord struct {
 	Details   string     `json:"details,omitempty"`
 }
 
-// TrafficStats 流量统计
+// TrafficStats 流量统计.
 type TrafficStats struct {
 	TotalPackets   int64            `json:"total_packets"`
 	TotalBytes     int64            `json:"total_bytes"`
@@ -102,7 +102,7 @@ type TrafficStats struct {
 	WindowEnd      time.Time        `json:"window_end"`
 }
 
-// RateLimitRule 速率限制规则
+// RateLimitRule 速率限制规则.
 type RateLimitRule struct {
 	Name       string        `json:"name"`
 	Protocol   string        `json:"protocol"`
@@ -112,7 +112,7 @@ type RateLimitRule struct {
 	Enabled    bool          `json:"enabled"`
 }
 
-// PacketInfo 数据包信息
+// PacketInfo 数据包信息.
 type PacketInfo struct {
 	SrcIP     net.IP
 	DstIP     net.IP
@@ -126,7 +126,7 @@ type PacketInfo struct {
 	Timestamp time.Time
 }
 
-// Manager 防护管理器
+// Manager 防护管理器.
 type Manager struct {
 	mu              sync.RWMutex
 	config          Config
@@ -141,7 +141,7 @@ type Manager struct {
 	stopChan        chan struct{}
 }
 
-// NewManager 创建防护管理器
+// NewManager 创建防护管理器.
 func NewManager(config Config) *Manager {
 	m := &Manager{
 		config:        config,
@@ -165,7 +165,7 @@ func NewManager(config Config) *Manager {
 	return m
 }
 
-// CheckPacket 检查数据包
+// CheckPacket 检查数据包.
 func (m *Manager) CheckPacket(pkt PacketInfo) (allowed bool, reason string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -232,7 +232,7 @@ func (m *Manager) CheckPacket(pkt PacketInfo) (allowed bool, reason string) {
 	return true, "allowed"
 }
 
-// updateStats 更新流量统计
+// updateStats 更新流量统计.
 func (m *Manager) updateStats(pkt PacketInfo) {
 	m.trafficStats.TotalPackets++
 	m.trafficStats.TotalBytes += int64(pkt.Size)
@@ -256,7 +256,7 @@ func (m *Manager) updateStats(pkt PacketInfo) {
 	m.trafficStats.WindowEnd = pkt.Timestamp
 }
 
-// checkRateLimit 检查速率限制
+// checkRateLimit 检查速率限制.
 func (m *Manager) checkRateLimit(ip string, now time.Time) bool {
 	windowStart := now.Add(-m.config.WindowSize)
 
@@ -279,7 +279,7 @@ func (m *Manager) checkRateLimit(ip string, now time.Time) bool {
 	return true
 }
 
-// detectThreat 检测威胁
+// detectThreat 检测威胁.
 func (m *Manager) detectThreat(pkt PacketInfo) *ThreatRecord {
 	srcIP := pkt.SrcIP.String()
 	now := pkt.Timestamp
@@ -349,7 +349,7 @@ func (m *Manager) detectThreat(pkt PacketInfo) *ThreatRecord {
 	return nil
 }
 
-// countPacketsInWindow 统计窗口内特定类型的包
+// countPacketsInWindow 统计窗口内特定类型的包.
 func (m *Manager) countPacketsInWindow(ip, packetType string, start, end time.Time) int64 {
 	// 简化实现：使用威胁记录来统计
 	key := fmt.Sprintf("%s:%s", ip, packetType)
@@ -365,7 +365,7 @@ func (m *Manager) countPacketsInWindow(ip, packetType string, start, end time.Ti
 	return 0
 }
 
-// addThreatRecord 添加威胁记录
+// addThreatRecord 添加威胁记录.
 func (m *Manager) addThreatRecord(ip net.IP, threatType ThreatType, score int, details string) {
 	key := fmt.Sprintf("%s:%s", ip.String(), threatType)
 	now := time.Now()
@@ -397,7 +397,7 @@ func (m *Manager) addThreatRecord(ip net.IP, threatType ThreatType, score int, d
 	}
 }
 
-// autoBanIfNeeded 自动封禁
+// autoBanIfNeeded 自动封禁.
 func (m *Manager) autoBanIfNeeded(ip string, now time.Time) {
 	// 计算总威胁分数
 	totalScore := m.getTotalThreatScore(ip)
@@ -415,7 +415,7 @@ func (m *Manager) autoBanIfNeeded(ip string, now time.Time) {
 	}
 }
 
-// getTotalThreatScore 获取总威胁分数
+// getTotalThreatScore 获取总威胁分数.
 func (m *Manager) getTotalThreatScore(ip string) int {
 	totalScore := 0
 	for key, records := range m.threatRecords {
@@ -428,7 +428,7 @@ func (m *Manager) getTotalThreatScore(ip string) int {
 	return totalScore
 }
 
-// AddToBlacklist 添加到黑名单
+// AddToBlacklist 添加到黑名单.
 func (m *Manager) AddToBlacklist(ip net.IP, reason string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -453,7 +453,7 @@ func (m *Manager) AddToBlacklist(ip net.IP, reason string) error {
 	return nil
 }
 
-// RemoveFromBlacklist 从黑名单移除
+// RemoveFromBlacklist 从黑名单移除.
 func (m *Manager) RemoveFromBlacklist(ip net.IP) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -467,7 +467,7 @@ func (m *Manager) RemoveFromBlacklist(ip net.IP) error {
 	return nil
 }
 
-// AddToWhitelist 添加到白名单
+// AddToWhitelist 添加到白名单.
 func (m *Manager) AddToWhitelist(ip net.IP, reason string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -492,7 +492,7 @@ func (m *Manager) AddToWhitelist(ip net.IP, reason string) error {
 	return nil
 }
 
-// RemoveFromWhitelist 从白名单移除
+// RemoveFromWhitelist 从白名单移除.
 func (m *Manager) RemoveFromWhitelist(ip net.IP) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -506,7 +506,7 @@ func (m *Manager) RemoveFromWhitelist(ip net.IP) error {
 	return nil
 }
 
-// GetTrafficStats 获取流量统计
+// GetTrafficStats 获取流量统计.
 func (m *Manager) GetTrafficStats() TrafficStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -534,7 +534,7 @@ func (m *Manager) GetTrafficStats() TrafficStats {
 	return stats
 }
 
-// DetectAnomaly 异常检测
+// DetectAnomaly 异常检测.
 func (m *Manager) DetectAnomaly() []ThreatRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -582,7 +582,7 @@ func (m *Manager) DetectAnomaly() []ThreatRecord {
 	return anomalies
 }
 
-// AutoBan 自动封禁检查并执行
+// AutoBan 自动封禁检查并执行.
 func (m *Manager) AutoBan() []string {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -639,7 +639,7 @@ func (m *Manager) AutoBan() []string {
 	return bannedIPs
 }
 
-// splitKey 分割威胁记录的key
+// splitKey 分割威胁记录的key.
 func splitKey(key string) []string {
 	// key格式: "ip:threatType"
 	for i, c := range key {
@@ -650,7 +650,7 @@ func splitKey(key string) []string {
 	return []string{key}
 }
 
-// GetBlacklist 获取黑名单
+// GetBlacklist 获取黑名单.
 func (m *Manager) GetBlacklist() []IPEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -662,7 +662,7 @@ func (m *Manager) GetBlacklist() []IPEntry {
 	return entries
 }
 
-// GetWhitelist 获取白名单
+// GetWhitelist 获取白名单.
 func (m *Manager) GetWhitelist() []IPEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -674,7 +674,7 @@ func (m *Manager) GetWhitelist() []IPEntry {
 	return entries
 }
 
-// GetBannedIPs 获取封禁IP列表
+// GetBannedIPs 获取封禁IP列表.
 func (m *Manager) GetBannedIPs() []IPEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -686,7 +686,7 @@ func (m *Manager) GetBannedIPs() []IPEntry {
 	return entries
 }
 
-// GetThreatRecords 获取威胁记录
+// GetThreatRecords 获取威胁记录.
 func (m *Manager) GetThreatRecords() []*ThreatRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -698,7 +698,7 @@ func (m *Manager) GetThreatRecords() []*ThreatRecord {
 	return records
 }
 
-// GetIPStatus 获取IP状态
+// GetIPStatus 获取IP状态.
 func (m *Manager) GetIPStatus(ip net.IP) IPStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -718,7 +718,7 @@ func (m *Manager) GetIPStatus(ip net.IP) IPStatus {
 	return IPStatusNormal
 }
 
-// IsBlocked 检查IP是否被阻断
+// IsBlocked 检查IP是否被阻断.
 func (m *Manager) IsBlocked(ip net.IP) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -746,7 +746,7 @@ func (m *Manager) IsBlocked(ip net.IP) bool {
 	return false
 }
 
-// cleanupRoutine 清理过期数据
+// cleanupRoutine 清理过期数据.
 func (m *Manager) cleanupRoutine() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -761,7 +761,7 @@ func (m *Manager) cleanupRoutine() {
 	}
 }
 
-// cleanup 清理过期数据
+// cleanup 清理过期数据.
 func (m *Manager) cleanup() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -795,12 +795,12 @@ func (m *Manager) cleanup() {
 	m.connectionCount = make(map[string]int)
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	close(m.stopChan)
 }
 
-// Reset 重置统计
+// Reset 重置统计.
 func (m *Manager) Reset() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -814,21 +814,21 @@ func (m *Manager) Reset() {
 	m.threatRecords = make(map[string][]*ThreatRecord)
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config Config) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.config = config
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// AddRateLimitRule 添加速率限制规则
+// AddRateLimitRule 添加速率限制规则.
 func (m *Manager) AddRateLimitRule(rule RateLimitRule) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -836,14 +836,14 @@ func (m *Manager) AddRateLimitRule(rule RateLimitRule) {
 	// 目前简化实现
 }
 
-// GetConnectionCount 获取连接数
+// GetConnectionCount 获取连接数.
 func (m *Manager) GetConnectionCount(ip net.IP) int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.connectionCount[ip.String()]
 }
 
-// GetActiveThreats 获取活跃威胁
+// GetActiveThreats 获取活跃威胁.
 func (m *Manager) GetActiveThreats() []ThreatRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -863,7 +863,7 @@ func (m *Manager) GetActiveThreats() []ThreatRecord {
 	return active
 }
 
-// String 字符串表示
+// String 字符串表示.
 func (m *Manager) String() string {
 	stats := m.GetTrafficStats()
 	return fmt.Sprintf("WanGuard[packets=%d, blocked=%d, blacklist=%d, whitelist=%d, banned=%d]",

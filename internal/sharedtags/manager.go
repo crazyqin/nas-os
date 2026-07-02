@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// TagManager manages tags and categories
+// TagManager manages tags and categories.
 type TagManager struct {
 	mu         sync.RWMutex
 	tags       map[string]*Tag
@@ -18,7 +18,7 @@ type TagManager struct {
 	nextID     int64
 }
 
-// NewTagManager creates a new TagManager instance
+// NewTagManager creates a new TagManager instance.
 func NewTagManager() *TagManager {
 	m := &TagManager{
 		tags:       make(map[string]*Tag),
@@ -31,7 +31,7 @@ func NewTagManager() *TagManager {
 	return m
 }
 
-// initDefaultCategories creates the built-in category types
+// initDefaultCategories creates the built-in category types.
 func (m *TagManager) initDefaultCategories() {
 	defaults := []struct {
 		name string
@@ -61,7 +61,7 @@ func (m *TagManager) initDefaultCategories() {
 	}
 }
 
-// CreateTag creates a new tag
+// CreateTag creates a new tag.
 func (m *TagManager) CreateTag(req CreateTagRequest) (*Tag, error) {
 	if err := req.Validate(); err != nil {
 		return nil, err
@@ -115,7 +115,7 @@ func (m *TagManager) CreateTag(req CreateTagRequest) (*Tag, error) {
 	return tag, nil
 }
 
-// GetTag retrieves a tag by ID
+// GetTag retrieves a tag by ID.
 func (m *TagManager) GetTag(id string) (*Tag, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -127,7 +127,7 @@ func (m *TagManager) GetTag(id string) (*Tag, error) {
 	return tag, nil
 }
 
-// UpdateTag updates an existing tag
+// UpdateTag updates an existing tag.
 func (m *TagManager) UpdateTag(id string, req UpdateTagRequest) (*Tag, error) {
 	if err := req.Validate(); err != nil {
 		return nil, err
@@ -182,7 +182,7 @@ func (m *TagManager) UpdateTag(id string, req UpdateTagRequest) (*Tag, error) {
 	return tag, nil
 }
 
-// DeleteTag deletes a tag by ID
+// DeleteTag deletes a tag by ID.
 func (m *TagManager) DeleteTag(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -207,7 +207,7 @@ func (m *TagManager) DeleteTag(id string) error {
 	return nil
 }
 
-// ListTags lists all tags with optional category filter
+// ListTags lists all tags with optional category filter.
 func (m *TagManager) ListTags(categoryID string) []*Tag {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -227,7 +227,7 @@ func (m *TagManager) ListTags(categoryID string) []*Tag {
 	return result
 }
 
-// SearchTags searches tags by keyword
+// SearchTags searches tags by keyword.
 func (m *TagManager) SearchTags(keyword string) []*Tag {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -249,7 +249,7 @@ func (m *TagManager) SearchTags(keyword string) []*Tag {
 	return result
 }
 
-// CreateCategory creates a new tag category
+// CreateCategory creates a new tag category.
 func (m *TagManager) CreateCategory(req CreateCategoryRequest) (*TagCategory, error) {
 	if err := req.Validate(); err != nil {
 		return nil, err
@@ -297,7 +297,7 @@ func (m *TagManager) CreateCategory(req CreateCategoryRequest) (*TagCategory, er
 	return cat, nil
 }
 
-// GetCategory retrieves a category by ID
+// GetCategory retrieves a category by ID.
 func (m *TagManager) GetCategory(id string) (*TagCategory, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -309,7 +309,7 @@ func (m *TagManager) GetCategory(id string) (*TagCategory, error) {
 	return cat, nil
 }
 
-// UpdateCategory updates an existing category
+// UpdateCategory updates an existing category.
 func (m *TagManager) UpdateCategory(id string, req UpdateCategoryRequest) (*TagCategory, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -337,7 +337,7 @@ func (m *TagManager) UpdateCategory(id string, req UpdateCategoryRequest) (*TagC
 	return cat, nil
 }
 
-// DeleteCategory deletes a category by ID
+// DeleteCategory deletes a category by ID.
 func (m *TagManager) DeleteCategory(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -362,7 +362,7 @@ func (m *TagManager) DeleteCategory(id string) error {
 	return nil
 }
 
-// ListCategories lists all categories with optional type filter
+// ListCategories lists all categories with optional type filter.
 func (m *TagManager) ListCategories(categoryType TagCategoryType) []*TagCategory {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -384,7 +384,7 @@ func (m *TagManager) ListCategories(categoryType TagCategoryType) []*TagCategory
 	return result
 }
 
-// GetChildCategories returns direct child categories of a parent
+// GetChildCategories returns direct child categories of a parent.
 func (m *TagManager) GetChildCategories(parentID string) []*TagCategory {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -403,7 +403,7 @@ func (m *TagManager) GetChildCategories(parentID string) []*TagCategory {
 	return result
 }
 
-// IncrementUsage increments the usage count of a tag
+// IncrementUsage increments the usage count of a tag.
 func (m *TagManager) IncrementUsage(tagID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -417,7 +417,7 @@ func (m *TagManager) IncrementUsage(tagID string) error {
 	return nil
 }
 
-// GetTagsByIDs returns multiple tags by their IDs
+// GetTagsByIDs returns multiple tags by their IDs.
 func (m *TagManager) GetTagsByIDs(ids []string) []*Tag {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

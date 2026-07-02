@@ -13,7 +13,7 @@ import (
 
 // ========== 常量定义 ==========
 
-// ThreatLevel 威胁等级
+// ThreatLevel 威胁等级.
 type ThreatLevel string
 
 const (
@@ -23,7 +23,7 @@ const (
 	ThreatLevelCritical ThreatLevel = "critical" // 严重
 )
 
-// ThreatStatus 威胁状态
+// ThreatStatus 威胁状态.
 type ThreatStatus string
 
 const (
@@ -32,7 +32,7 @@ const (
 	ThreatStatusResolved  ThreatStatus = "resolved"  // 已解决
 )
 
-// VulnSeverity 漏洞严重程度
+// VulnSeverity 漏洞严重程度.
 type VulnSeverity string
 
 const (
@@ -42,7 +42,7 @@ const (
 	VulnSeverityCritical VulnSeverity = "critical"
 )
 
-// HardeningCategory 加固类别
+// HardeningCategory 加固类别.
 type HardeningCategory string
 
 const (
@@ -65,7 +65,7 @@ var (
 
 // ========== 数据结构 ==========
 
-// Config NAS安全卫士配置
+// Config NAS安全卫士配置.
 type Config struct {
 	ScanInterval       time.Duration `json:"scan_interval"`       // 扫描间隔
 	AlertThreshold     int           `json:"alert_threshold"`     // 告警阈值（每小时最大告警数）
@@ -77,7 +77,7 @@ type Config struct {
 	RealtimeMonitoring bool          `json:"realtime_monitoring"` // 实时监控
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() Config {
 	return Config{
 		ScanInterval:       30 * time.Minute,
@@ -91,7 +91,7 @@ func DefaultConfig() Config {
 	}
 }
 
-// Threat 威胁信息
+// Threat 威胁信息.
 type Threat struct {
 	ID          string       `json:"id"`
 	Type        string       `json:"type"`        // 威胁类型
@@ -104,7 +104,7 @@ type Threat struct {
 	Details     string       `json:"details,omitempty"`
 }
 
-// Vulnerability 漏洞信息
+// Vulnerability 漏洞信息.
 type Vulnerability struct {
 	ID          string       `json:"id"`
 	CVE         string       `json:"cve"`         // CVE编号
@@ -117,7 +117,7 @@ type Vulnerability struct {
 	Fixed       bool         `json:"fixed"`       // 是否已修复
 }
 
-// SecurityScore 安全评分
+// SecurityScore 安全评分.
 type SecurityScore struct {
 	Overall     int       `json:"overall"`      // 总分 0-100
 	Network     int       `json:"network"`      // 网络安全分
@@ -129,7 +129,7 @@ type SecurityScore struct {
 	VulnCount   int       `json:"vuln_count"`   // 未修复漏洞数
 }
 
-// SecurityRule 安全规则
+// SecurityRule 安全规则.
 type SecurityRule struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -142,7 +142,7 @@ type SecurityRule struct {
 	CreatedAt   time.Time         `json:"created_at"`
 }
 
-// HardeningTask 加固任务
+// HardeningTask 加固任务.
 type HardeningTask struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -153,7 +153,7 @@ type HardeningTask struct {
 	Rollback    bool              `json:"rollback"` // 是否可回滚
 }
 
-// BlockedIP 被封锁的IP信息
+// BlockedIP 被封锁的IP信息.
 type BlockedIP struct {
 	IP        string    `json:"ip"`
 	Reason    string    `json:"reason"`
@@ -162,7 +162,7 @@ type BlockedIP struct {
 	HitCount  int       `json:"hit_count"` // 命中次数
 }
 
-// SecurityReport 安全报告
+// SecurityReport 安全报告.
 type SecurityReport struct {
 	GeneratedAt       time.Time       `json:"generated_at"`
 	Score             SecurityScore   `json:"score"`
@@ -178,7 +178,7 @@ type SecurityReport struct {
 
 // ========== NASGuardian 主结构体 ==========
 
-// NASGuardian NAS安全卫士
+// NASGuardian NAS安全卫士.
 type NASGuardian struct {
 	mu      sync.RWMutex
 	config  Config
@@ -200,7 +200,7 @@ type NASGuardian struct {
 	score SecurityScore
 }
 
-// New 创建NAS安全卫士实例
+// New 创建NAS安全卫士实例.
 func New(config Config) *NASGuardian {
 	if config.ScanInterval == 0 {
 		config = DefaultConfig()
@@ -234,7 +234,7 @@ func New(config Config) *NASGuardian {
 	}
 }
 
-// Start 启动NAS安全卫士
+// Start 启动NAS安全卫士.
 func (g *NASGuardian) Start(ctx context.Context) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -254,7 +254,7 @@ func (g *NASGuardian) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止NAS安全卫士
+// Stop 停止NAS安全卫士.
 func (g *NASGuardian) Stop() error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -271,14 +271,14 @@ func (g *NASGuardian) Stop() error {
 	return nil
 }
 
-// IsRunning 是否运行中
+// IsRunning 是否运行中.
 func (g *NASGuardian) IsRunning() bool {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
 	return g.running
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (g *NASGuardian) monitorLoop(ctx context.Context) {
 	ticker := time.NewTicker(g.config.ScanInterval)
 	defer ticker.Stop()
@@ -300,7 +300,7 @@ func (g *NASGuardian) monitorLoop(ctx context.Context) {
 
 // ========== 威胁检测 ==========
 
-// ScanThreats 扫描威胁
+// ScanThreats 扫描威胁.
 func (g *NASGuardian) ScanThreats(ctx context.Context) ([]Threat, error) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -320,7 +320,7 @@ func (g *NASGuardian) ScanThreats(ctx context.Context) ([]Threat, error) {
 	return detected, nil
 }
 
-// AddThreat 添加威胁记录
+// AddThreat 添加威胁记录.
 func (g *NASGuardian) AddThreat(threat Threat) string {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -346,7 +346,7 @@ func (g *NASGuardian) AddThreat(threat Threat) string {
 	return threat.ID
 }
 
-// ResolveThreat 解决威胁
+// ResolveThreat 解决威胁.
 func (g *NASGuardian) ResolveThreat(id string) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -364,7 +364,7 @@ func (g *NASGuardian) ResolveThreat(id string) error {
 	return nil
 }
 
-// GetThreat 获取威胁详情
+// GetThreat 获取威胁详情.
 func (g *NASGuardian) GetThreat(id string) (*Threat, error) {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -376,7 +376,7 @@ func (g *NASGuardian) GetThreat(id string) (*Threat, error) {
 	return threat, nil
 }
 
-// GetThreatHistory 获取威胁历史
+// GetThreatHistory 获取威胁历史.
 func (g *NASGuardian) GetThreatHistory(limit int) []Threat {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -396,7 +396,7 @@ func (g *NASGuardian) GetThreatHistory(limit int) []Threat {
 
 // ========== 漏洞扫描 ==========
 
-// ScanVulnerabilities 扫描漏洞
+// ScanVulnerabilities 扫描漏洞.
 func (g *NASGuardian) ScanVulnerabilities(ctx context.Context) ([]Vulnerability, error) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -411,7 +411,7 @@ func (g *NASGuardian) ScanVulnerabilities(ctx context.Context) ([]Vulnerability,
 	return detected, nil
 }
 
-// AddVulnerability 添加漏洞
+// AddVulnerability 添加漏洞.
 func (g *NASGuardian) AddVulnerability(vuln Vulnerability) string {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -427,7 +427,7 @@ func (g *NASGuardian) AddVulnerability(vuln Vulnerability) string {
 	return vuln.ID
 }
 
-// FixVulnerability 修复漏洞
+// FixVulnerability 修复漏洞.
 func (g *NASGuardian) FixVulnerability(id string) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -442,7 +442,7 @@ func (g *NASGuardian) FixVulnerability(id string) error {
 	return nil
 }
 
-// GetVulnerabilities 获取所有漏洞
+// GetVulnerabilities 获取所有漏洞.
 func (g *NASGuardian) GetVulnerabilities() []Vulnerability {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -456,21 +456,21 @@ func (g *NASGuardian) GetVulnerabilities() []Vulnerability {
 
 // ========== 安全评分 ==========
 
-// GetSecurityScore 获取安全评分
+// GetSecurityScore 获取安全评分.
 func (g *NASGuardian) GetSecurityScore() SecurityScore {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
 	return g.score
 }
 
-// updateScore 更新安全评分（需要外部锁）
+// updateScore 更新安全评分（需要外部锁）.
 func (g *NASGuardian) updateScore() {
 	g.mu.Lock()
 	defer g.mu.Unlock()
 	g.updateScoreUnsafe()
 }
 
-// updateScoreUnsafe 更新安全评分（不加锁，调用者需持锁）
+// updateScoreUnsafe 更新安全评分（不加锁，调用者需持锁）.
 func (g *NASGuardian) updateScoreUnsafe() {
 	activeThreats := 0
 	for _, t := range g.threats {
@@ -515,7 +515,7 @@ func clampScore(score int) int {
 
 // ========== 安全加固 ==========
 
-// ApplyHardening 应用安全加固
+// ApplyHardening 应用安全加固.
 func (g *NASGuardian) ApplyHardening(ctx context.Context, task HardeningTask) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -535,7 +535,7 @@ func (g *NASGuardian) ApplyHardening(ctx context.Context, task HardeningTask) er
 	return nil
 }
 
-// GetHardeningTasks 获取加固任务列表
+// GetHardeningTasks 获取加固任务列表.
 func (g *NASGuardian) GetHardeningTasks() []HardeningTask {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -549,7 +549,7 @@ func (g *NASGuardian) GetHardeningTasks() []HardeningTask {
 
 // ========== 安全规则 ==========
 
-// AddRule 添加安全规则
+// AddRule 添加安全规则.
 func (g *NASGuardian) AddRule(rule SecurityRule) string {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -567,7 +567,7 @@ func (g *NASGuardian) AddRule(rule SecurityRule) string {
 	return rule.ID
 }
 
-// RemoveRule 移除安全规则
+// RemoveRule 移除安全规则.
 func (g *NASGuardian) RemoveRule(id string) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -579,7 +579,7 @@ func (g *NASGuardian) RemoveRule(id string) error {
 	return nil
 }
 
-// GetRules 获取所有安全规则
+// GetRules 获取所有安全规则.
 func (g *NASGuardian) GetRules() []SecurityRule {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -591,7 +591,7 @@ func (g *NASGuardian) GetRules() []SecurityRule {
 	return result
 }
 
-// EvaluateRules 评估安全规则
+// EvaluateRules 评估安全规则.
 func (g *NASGuardian) EvaluateRules(ctx context.Context) ([]SecurityRule, error) {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -614,7 +614,7 @@ func (g *NASGuardian) EvaluateRules(ctx context.Context) ([]SecurityRule, error)
 	return triggered, nil
 }
 
-// evaluateRuleCondition 评估规则条件（内部方法）
+// evaluateRuleCondition 评估规则条件（内部方法）.
 func (g *NASGuardian) evaluateRuleCondition(rule *SecurityRule) bool {
 	// 简化实现：基于规则类别进行基本评估
 	switch rule.Category {
@@ -637,7 +637,7 @@ func (g *NASGuardian) evaluateRuleCondition(rule *SecurityRule) bool {
 
 // ========== IP封锁 ==========
 
-// BlockIP 封锁IP
+// BlockIP 封锁IP.
 func (g *NASGuardian) BlockIP(ctx context.Context, ip string, duration time.Duration) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -671,7 +671,7 @@ func (g *NASGuardian) BlockIP(ctx context.Context, ip string, duration time.Dura
 	return nil
 }
 
-// UnblockIP 解除IP封锁
+// UnblockIP 解除IP封锁.
 func (g *NASGuardian) UnblockIP(ip string) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -683,7 +683,7 @@ func (g *NASGuardian) UnblockIP(ip string) error {
 	return nil
 }
 
-// GetBlockedIPs 获取封锁IP列表
+// GetBlockedIPs 获取封锁IP列表.
 func (g *NASGuardian) GetBlockedIPs() []BlockedIP {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -695,7 +695,7 @@ func (g *NASGuardian) GetBlockedIPs() []BlockedIP {
 	return result
 }
 
-// IsIPBlocked 检查IP是否被封锁
+// IsIPBlocked 检查IP是否被封锁.
 func (g *NASGuardian) IsIPBlocked(ip string) bool {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -713,7 +713,7 @@ func (g *NASGuardian) IsIPBlocked(ip string) bool {
 	return true
 }
 
-// CleanupExpiredBlocks 清理过期的IP封锁
+// CleanupExpiredBlocks 清理过期的IP封锁.
 func (g *NASGuardian) CleanupExpiredBlocks() int {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -731,7 +731,7 @@ func (g *NASGuardian) CleanupExpiredBlocks() int {
 
 // ========== 安全报告 ==========
 
-// GenerateSecurityReport 生成安全报告
+// GenerateSecurityReport 生成安全报告.
 func (g *NASGuardian) GenerateSecurityReport() SecurityReport {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -804,7 +804,7 @@ func (g *NASGuardian) GenerateSecurityReport() SecurityReport {
 	}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (g *NASGuardian) GetConfig() Config {
 	g.mu.RLock()
 	defer g.mu.RUnlock()

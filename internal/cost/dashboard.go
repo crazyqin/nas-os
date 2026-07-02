@@ -11,7 +11,7 @@ import (
 
 // ========== 基础类型定义 ==========
 
-// CostType 成本类型
+// CostType 成本类型.
 type CostType string
 
 const (
@@ -27,7 +27,7 @@ const (
 	CostTypeDepreciation CostType = "depreciation"
 )
 
-// CostItem 单项成本条目
+// CostItem 单项成本条目.
 type CostItem struct {
 	// 成本ID
 	ID string `json:"id"`
@@ -66,7 +66,7 @@ type CostItem struct {
 	Period string `json:"period"`
 }
 
-// CostSummary 成本汇总
+// CostSummary 成本汇总.
 type CostSummary struct {
 	// 汇总ID
 	ID string `json:"id"`
@@ -105,7 +105,7 @@ type CostSummary struct {
 	BudgetRemaining float64 `json:"budget_remaining"`
 }
 
-// TrendData 成本趋势数据点
+// TrendData 成本趋势数据点.
 type TrendData struct {
 	// 时间戳
 	Timestamp time.Time `json:"timestamp"`
@@ -144,7 +144,7 @@ type TrendData struct {
 	ChangeRate float64 `json:"change_rate"`
 }
 
-// TrendAnalysisResult 趋势分析结果
+// TrendAnalysisResult 趋势分析结果.
 type TrendAnalysisResult struct {
 	// 分析ID
 	ID string `json:"id"`
@@ -165,7 +165,7 @@ type TrendAnalysisResult struct {
 	Forecast TrendForecast `json:"forecast"`
 }
 
-// TimeRange 时间范围
+// TimeRange 时间范围.
 type TimeRange struct {
 	// 开始时间
 	StartTime time.Time `json:"start_time"`
@@ -177,7 +177,7 @@ type TimeRange struct {
 	Granularity string `json:"granularity"`
 }
 
-// TrendStatistics 趋势统计
+// TrendStatistics 趋势统计.
 type TrendStatistics struct {
 	// 平均成本
 	AvgCost float64 `json:"avg_cost"`
@@ -204,7 +204,7 @@ type TrendStatistics struct {
 	Confidence float64 `json:"confidence"`
 }
 
-// TrendForecast 趋势预测
+// TrendForecast 趋势预测.
 type TrendForecast struct {
 	// 预测下月成本
 	NextMonthCost float64 `json:"next_month_cost"`
@@ -227,7 +227,7 @@ type TrendForecast struct {
 
 // ========== 配置定义 ==========
 
-// DashboardConfig 成本分析配置
+// DashboardConfig 成本分析配置.
 type DashboardConfig struct {
 	// 存储单价（元/GB/月）
 	StorageCostPerGB float64 `json:"storage_cost_per_gb"`
@@ -266,7 +266,7 @@ type DashboardConfig struct {
 	TrendRetentionDays int `json:"trend_retention_days"`
 }
 
-// ResourceInfo 资源信息
+// ResourceInfo 资源信息.
 type ResourceInfo struct {
 	// 资源名称
 	Name string `json:"name"`
@@ -298,14 +298,14 @@ type ResourceInfo struct {
 
 // ========== 成本分析服务 ==========
 
-// DashboardService 成本分析服务
+// DashboardService 成本分析服务.
 type DashboardService struct {
 	config    DashboardConfig
 	trendData []TrendData
 	mu        sync.RWMutex
 }
 
-// NewDashboardService 创建成本分析服务
+// NewDashboardService 创建成本分析服务.
 func NewDashboardService(config DashboardConfig) *DashboardService {
 	return &DashboardService{
 		config:    config,
@@ -313,7 +313,7 @@ func NewDashboardService(config DashboardConfig) *DashboardService {
 	}
 }
 
-// CalculateStorageCost 计算存储成本（容量 × 单价）
+// CalculateStorageCost 计算存储成本（容量 × 单价）.
 func (s *DashboardService) CalculateStorageCost(resource ResourceInfo) CostItem {
 	now := time.Now()
 
@@ -338,7 +338,7 @@ func (s *DashboardService) CalculateStorageCost(resource ResourceInfo) CostItem 
 	}
 }
 
-// CalculateElectricityCost 计算电费成本（功率 × 时间 × 电价）
+// CalculateElectricityCost 计算电费成本（功率 × 时间 × 电价）.
 func (s *DashboardService) CalculateElectricityCost(resource ResourceInfo) CostItem {
 	now := time.Now()
 
@@ -368,7 +368,7 @@ func (s *DashboardService) CalculateElectricityCost(resource ResourceInfo) CostI
 	}
 }
 
-// CalculateAllCosts 计算所有成本项
+// CalculateAllCosts 计算所有成本项.
 func (s *DashboardService) CalculateAllCosts(resources []ResourceInfo) []CostItem {
 	items := make([]CostItem, 0)
 
@@ -432,7 +432,7 @@ func (s *DashboardService) CalculateAllCosts(resources []ResourceInfo) []CostIte
 	return items
 }
 
-// GenerateCostSummary 生成成本汇总
+// GenerateCostSummary 生成成本汇总.
 func (s *DashboardService) GenerateCostSummary(resources []ResourceInfo) *CostSummary {
 	now := time.Now()
 
@@ -483,7 +483,7 @@ func (s *DashboardService) GenerateCostSummary(resources []ResourceInfo) *CostSu
 	return summary
 }
 
-// AnalyzeTrend 成本趋势分析接口
+// AnalyzeTrend 成本趋势分析接口.
 func (s *DashboardService) AnalyzeTrend(ctx context.Context, resources []ResourceInfo, timeRange TimeRange) (*TrendAnalysisResult, error) {
 	now := time.Now()
 
@@ -514,7 +514,7 @@ func (s *DashboardService) AnalyzeTrend(ctx context.Context, resources []Resourc
 	return result, nil
 }
 
-// RecordTrendPoint 记录趋势数据点
+// RecordTrendPoint 记录趋势数据点.
 func (s *DashboardService) RecordTrendPoint(resources []ResourceInfo) {
 	now := time.Now()
 
@@ -560,7 +560,7 @@ func (s *DashboardService) RecordTrendPoint(resources []ResourceInfo) {
 	s.mu.Unlock()
 }
 
-// GetTrendData 获取趋势数据
+// GetTrendData 获取趋势数据.
 func (s *DashboardService) GetTrendData() []TrendData {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -569,7 +569,7 @@ func (s *DashboardService) GetTrendData() []TrendData {
 
 // ========== 辅助方法 ==========
 
-// getTotalCapacityGB 获取总容量（GB）
+// getTotalCapacityGB 获取总容量（GB）.
 func (s *DashboardService) getTotalCapacityGB(resources []ResourceInfo) float64 {
 	var total float64
 	for _, r := range resources {
@@ -578,7 +578,7 @@ func (s *DashboardService) getTotalCapacityGB(resources []ResourceInfo) float64 
 	return total
 }
 
-// getTotalUsedGB 获取总使用量（GB）
+// getTotalUsedGB 获取总使用量（GB）.
 func (s *DashboardService) getTotalUsedGB(resources []ResourceInfo) float64 {
 	var total float64
 	for _, r := range resources {
@@ -587,7 +587,7 @@ func (s *DashboardService) getTotalUsedGB(resources []ResourceInfo) float64 {
 	return total
 }
 
-// getAvgUsagePercent 获取平均使用率
+// getAvgUsagePercent 获取平均使用率.
 func (s *DashboardService) getAvgUsagePercent(resources []ResourceInfo) float64 {
 	if len(resources) == 0 {
 		return 0
@@ -604,7 +604,7 @@ func (s *DashboardService) getAvgUsagePercent(resources []ResourceInfo) float64 
 	return round(totalUsage/float64(len(resources)), 2)
 }
 
-// calculateEfficiencyScore 计算成本效率评分
+// calculateEfficiencyScore 计算成本效率评分.
 func (s *DashboardService) calculateEfficiencyScore(resources []ResourceInfo, totalCost float64) float64 {
 	score := 100.0
 
@@ -639,7 +639,7 @@ func (s *DashboardService) calculateEfficiencyScore(resources []ResourceInfo, to
 	return round(score, 1)
 }
 
-// calculatePotentialSavings 计算潜在节省空间
+// calculatePotentialSavings 计算潜在节省空间.
 func (s *DashboardService) calculatePotentialSavings(resources []ResourceInfo) float64 {
 	var savings float64
 
@@ -664,7 +664,7 @@ func (s *DashboardService) calculatePotentialSavings(resources []ResourceInfo) f
 	return round(savings, 2)
 }
 
-// getTrendDataInRange 获取指定时间范围内的趋势数据
+// getTrendDataInRange 获取指定时间范围内的趋势数据.
 func (s *DashboardService) getTrendDataInRange(timeRange TimeRange) []TrendData {
 	var result []TrendData
 
@@ -677,14 +677,12 @@ func (s *DashboardService) getTrendDataInRange(timeRange TimeRange) []TrendData 
 	return result
 }
 
-// buildTrendDataPoints 构建趋势数据点
+// buildTrendDataPoints 构建趋势数据点.
 func (s *DashboardService) buildTrendDataPoints(historical []TrendData, current *CostSummary, resources []ResourceInfo) []TrendData {
 	points := make([]TrendData, len(historical)+1)
 
 	// 复制历史数据
-	for i, h := range historical {
-		points[i] = h
-	}
+	copy(points, historical)
 
 	// 添加当前数据点
 	points[len(historical)] = TrendData{
@@ -703,7 +701,7 @@ func (s *DashboardService) buildTrendDataPoints(historical []TrendData, current 
 	return points
 }
 
-// calculateTrendStatistics 计算趋势统计
+// calculateTrendStatistics 计算趋势统计.
 func (s *DashboardService) calculateTrendStatistics(points []TrendData) TrendStatistics {
 	if len(points) == 0 {
 		return TrendStatistics{}
@@ -773,7 +771,7 @@ func (s *DashboardService) calculateTrendStatistics(points []TrendData) TrendSta
 	return stats
 }
 
-// generateForecast 生成趋势预测
+// generateForecast 生成趋势预测.
 func (s *DashboardService) generateForecast(points []TrendData) TrendForecast {
 	forecast := TrendForecast{
 		ModelType: "linear",
@@ -806,7 +804,7 @@ func (s *DashboardService) generateForecast(points []TrendData) TrendForecast {
 	return forecast
 }
 
-// generateForecastPoints 生成预测数据点
+// generateForecastPoints 生成预测数据点.
 func (s *DashboardService) generateForecastPoints(points []TrendData, stats TrendStatistics) []TrendData {
 	if len(points) == 0 {
 		return nil
@@ -851,7 +849,7 @@ func (s *DashboardService) generateForecastPoints(points []TrendData, stats Tren
 	return forecastPoints
 }
 
-// cleanupOldTrendData 清理过期趋势数据
+// cleanupOldTrendData 清理过期趋势数据.
 func (s *DashboardService) cleanupOldTrendData() {
 	if s.config.TrendRetentionDays <= 0 {
 		return
@@ -869,21 +867,21 @@ func (s *DashboardService) cleanupOldTrendData() {
 	s.trendData = validData
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (s *DashboardService) UpdateConfig(config DashboardConfig) {
 	s.mu.Lock()
 	s.config = config
 	s.mu.Unlock()
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (s *DashboardService) GetConfig() DashboardConfig {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.config
 }
 
-// round 辅助函数：四舍五入
+// round 辅助函数：四舍五入.
 func round(val float64, precision int) float64 {
 	multiplier := math.Pow(10, float64(precision))
 	return math.Round(val*multiplier) / multiplier

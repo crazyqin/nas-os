@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// Collector 资源采集器
+// Collector 资源采集器.
 type Collector struct {
 	mu          sync.RWMutex
 	procPath    string
@@ -25,7 +25,7 @@ type Collector struct {
 	lastCollect time.Time
 }
 
-// NetIOCounters 网络 IO 计数器
+// NetIOCounters 网络 IO 计数器.
 type NetIOCounters struct {
 	BytesIn    int64
 	BytesOut   int64
@@ -33,7 +33,7 @@ type NetIOCounters struct {
 	PacketsOut int64
 }
 
-// DiskIOCounters 磁盘 IO 计数器
+// DiskIOCounters 磁盘 IO 计数器.
 type DiskIOCounters struct {
 	ReadSectors  int64
 	WriteSectors int64
@@ -41,7 +41,7 @@ type DiskIOCounters struct {
 	Timestamp    time.Time
 }
 
-// NewCollector 创建采集器
+// NewCollector 创建采集器.
 func NewCollector() *Collector {
 	return &Collector{
 		procPath:   "/proc",
@@ -53,7 +53,7 @@ func NewCollector() *Collector {
 	}
 }
 
-// CollectProcesses 采集进程信息
+// CollectProcesses 采集进程信息.
 func (c *Collector) CollectProcesses() ([]ProcessInfo, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -120,7 +120,7 @@ func (c *Collector) collectProcess(pid int) (ProcessInfo, error) {
 	return info, nil
 }
 
-// CollectGPU 采集 GPU 信息
+// CollectGPU 采集 GPU 信息.
 func (c *Collector) CollectGPU() ([]GPUInfo, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -211,7 +211,7 @@ func (c *Collector) collectAMDGPU() ([]GPUInfo, error) {
 	return gpus, nil
 }
 
-// CollectNetworkFlow 采集网络流量
+// CollectNetworkFlow 采集网络流量.
 func (c *Collector) CollectNetworkFlow() ([]NetworkFlow, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -260,7 +260,7 @@ func (c *Collector) CollectNetworkFlow() ([]NetworkFlow, error) {
 	return flows, nil
 }
 
-// CollectDiskIO 采集磁盘 I/O
+// CollectDiskIO 采集磁盘 I/O.
 func (c *Collector) CollectDiskIO() ([]DiskIOInfo, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -323,7 +323,7 @@ func (c *Collector) CollectDiskIO() ([]DiskIOInfo, error) {
 	return disks, nil
 }
 
-// DiagnoseBottlenecks 瓶颈诊断
+// DiagnoseBottlenecks 瓶颈诊断.
 func (c *Collector) DiagnoseBottlenecks() ([]BottleneckDiagnosis, error) {
 	var diagnoses []BottleneckDiagnosis
 

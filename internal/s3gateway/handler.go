@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler S3网关HTTP处理器
+// Handler S3网关HTTP处理器.
 type Handler struct {
 	gw *Gateway
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(gw *Gateway) *Handler {
 	return &Handler{gw: gw}
 }
 
-// RegisterRoutes 注册路由到 /api/v1/s3
+// RegisterRoutes 注册路由到 /api/v1/s3.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	s3 := rg.Group("/s3")
 	{
@@ -35,14 +35,14 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// CreateBucketRequest 创建桶请求
+// CreateBucketRequest 创建桶请求.
 type CreateBucketRequest struct {
 	Name   string       `json:"name" binding:"required"`
 	Policy BucketPolicy `json:"policy"`
 	Quota  BucketQuota  `json:"quota"`
 }
 
-// ListBuckets GET /buckets
+// ListBuckets GET /buckets.
 func (h *Handler) ListBuckets(c *gin.Context) {
 	userID := c.GetString("userId")
 	if userID == "" {
@@ -55,7 +55,7 @@ func (h *Handler) ListBuckets(c *gin.Context) {
 	})
 }
 
-// CreateBucket POST /buckets
+// CreateBucket POST /buckets.
 func (h *Handler) CreateBucket(c *gin.Context) {
 	var req CreateBucketRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -74,7 +74,7 @@ func (h *Handler) CreateBucket(c *gin.Context) {
 	c.JSON(http.StatusCreated, bucket)
 }
 
-// DeleteBucket DELETE /buckets/:name
+// DeleteBucket DELETE /buckets/:name.
 func (h *Handler) DeleteBucket(c *gin.Context) {
 	name := c.Param("name")
 	userID := c.GetString("userId")
@@ -88,7 +88,7 @@ func (h *Handler) DeleteBucket(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "bucket deleted"})
 }
 
-// ListObjects GET /buckets/:name/objects
+// ListObjects GET /buckets/:name/objects.
 func (h *Handler) ListObjects(c *gin.Context) {
 	bucketName := c.Param("name")
 	userID := c.GetString("userId")
@@ -110,7 +110,7 @@ func (h *Handler) ListObjects(c *gin.Context) {
 	})
 }
 
-// PutObject PUT /buckets/:name/objects/:key
+// PutObject PUT /buckets/:name/objects/:key.
 func (h *Handler) PutObject(c *gin.Context) {
 	bucketName := c.Param("name")
 	key := c.Param("key")
@@ -159,7 +159,7 @@ func (h *Handler) PutObject(c *gin.Context) {
 	})
 }
 
-// GetObject GET /buckets/:name/objects/:key
+// GetObject GET /buckets/:name/objects/:key.
 func (h *Handler) GetObject(c *gin.Context) {
 	bucketName := c.Param("name")
 	key := c.Param("key")
@@ -183,7 +183,7 @@ func (h *Handler) GetObject(c *gin.Context) {
 	c.Data(http.StatusOK, obj.ContentType, obj.Data)
 }
 
-// HeadObject HEAD /buckets/:name/objects/:key
+// HeadObject HEAD /buckets/:name/objects/:key.
 func (h *Handler) HeadObject(c *gin.Context) {
 	bucketName := c.Param("name")
 	key := c.Param("key")
@@ -205,7 +205,7 @@ func (h *Handler) HeadObject(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-// DeleteObject DELETE /buckets/:name/objects/:key
+// DeleteObject DELETE /buckets/:name/objects/:key.
 func (h *Handler) DeleteObject(c *gin.Context) {
 	bucketName := c.Param("name")
 	key := c.Param("key")
@@ -221,14 +221,14 @@ func (h *Handler) DeleteObject(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "object deleted"})
 }
 
-// GetStats GET /stats
+// GetStats GET /stats.
 func (h *Handler) GetStats(c *gin.Context) {
 	userID := c.Query("userId")
 	stats := h.gw.GetStats(userID)
 	c.JSON(http.StatusOK, stats)
 }
 
-// GetConfig GET /config
+// GetConfig GET /config.
 func (h *Handler) GetConfig(c *gin.Context) {
 	config := h.gw.GetConfig()
 	c.JSON(http.StatusOK, config)

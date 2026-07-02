@@ -23,7 +23,7 @@ func NewHandlers(manager *Manager, scheduler *Scheduler) *Handlers {
 }
 
 // RegisterRoutes 注册路由到http.ServeMux.
-// API路由前缀: /api/v1/licensescan/
+// API路由前缀: /api/v1/licensescan/.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	// 扫描管理
 	mux.HandleFunc("/api/v1/licensescan/scan/docker", h.handleDockerScan)
@@ -54,7 +54,7 @@ func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 // ========== 扫描Handler ==========
 
 // handleDockerScan 处理Docker镜像扫描请求.
-// POST /api/v1/licensescan/scan/docker
+// POST /api/v1/licensescan/scan/docker.
 func (h *Handlers) handleDockerScan(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持POST方法")
@@ -81,7 +81,7 @@ func (h *Handlers) handleDockerScan(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleGoModScan 处理Go模块扫描请求.
-// POST /api/v1/licensescan/scan/gomod
+// POST /api/v1/licensescan/scan/gomod.
 func (h *Handlers) handleGoModScan(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持POST方法")
@@ -108,7 +108,7 @@ func (h *Handlers) handleGoModScan(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleListScans 列出所有扫描结果.
-// GET /api/v1/licensescan/scan/results
+// GET /api/v1/licensescan/scan/results.
 func (h *Handlers) handleListScans(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持GET方法")
@@ -123,7 +123,7 @@ func (h *Handlers) handleListScans(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleGetScanResult 获取单个扫描结果.
-// GET /api/v1/licensescan/scan/result/{id}
+// GET /api/v1/licensescan/scan/result/{id}.
 func (h *Handlers) handleGetScanResult(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持GET方法")
@@ -149,7 +149,7 @@ func (h *Handlers) handleGetScanResult(w http.ResponseWriter, r *http.Request) {
 
 // handlePolicies 处理策略列表和创建.
 // GET /api/v1/licensescan/policies - 列出策略
-// POST /api/v1/licensescan/policies - 创建策略
+// POST /api/v1/licensescan/policies - 创建策略.
 func (h *Handlers) handlePolicies(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -177,7 +177,7 @@ func (h *Handlers) handlePolicies(w http.ResponseWriter, r *http.Request) {
 // handlePolicy 处理单个策略的查询、更新、删除.
 // GET /api/v1/licensescan/policy/{id}
 // PUT /api/v1/licensescan/policy/{id}
-// DELETE /api/v1/licensescan/policy/{id}
+// DELETE /api/v1/licensescan/policy/{id}.
 func (h *Handlers) handlePolicy(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/api/v1/licensescan/policy/")
 	if id == "" {
@@ -219,7 +219,7 @@ func (h *Handlers) handlePolicy(w http.ResponseWriter, r *http.Request) {
 // ========== 报告Handler ==========
 
 // handleListReports 列出所有报告.
-// GET /api/v1/licensescan/reports
+// GET /api/v1/licensescan/reports.
 func (h *Handlers) handleListReports(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持GET方法")
@@ -234,7 +234,7 @@ func (h *Handlers) handleListReports(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleGenerateReport 生成扫描报告.
-// POST /api/v1/licensescan/report/generate
+// POST /api/v1/licensescan/report/generate.
 func (h *Handlers) handleGenerateReport(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持POST方法")
@@ -281,7 +281,7 @@ func (h *Handlers) handleGenerateReport(w http.ResponseWriter, r *http.Request) 
 }
 
 // handleGetReport 获取报告.
-// GET /api/v1/licensescan/report/{id}
+// GET /api/v1/licensescan/report/{id}.
 func (h *Handlers) handleGetReport(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持GET方法")
@@ -320,7 +320,7 @@ func (h *Handlers) handleGetReport(w http.ResponseWriter, r *http.Request) {
 // ========== 仪表盘Handler ==========
 
 // handleDashboard 获取合规仪表盘数据.
-// GET /api/v1/licensescan/dashboard
+// GET /api/v1/licensescan/dashboard.
 func (h *Handlers) handleDashboard(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持GET方法")
@@ -334,7 +334,7 @@ func (h *Handlers) handleDashboard(w http.ResponseWriter, r *http.Request) {
 // ========== 告警Handler ==========
 
 // handleAlerts 获取告警列表.
-// GET /api/v1/licensescan/alerts
+// GET /api/v1/licensescan/alerts.
 func (h *Handlers) handleAlerts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持GET方法")
@@ -352,7 +352,7 @@ func (h *Handlers) handleAlerts(w http.ResponseWriter, r *http.Request) {
 
 // handleSchedulerTasks 处理调度器任务列表和创建.
 // GET /api/v1/licensescan/scheduler/tasks
-// POST /api/v1/licensescan/scheduler/tasks
+// POST /api/v1/licensescan/scheduler/tasks.
 func (h *Handlers) handleSchedulerTasks(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -375,7 +375,7 @@ func (h *Handlers) handleSchedulerTasks(w http.ResponseWriter, r *http.Request) 
 }
 
 // handleSchedulerTask 处理单个调度器任务的删除.
-// DELETE /api/v1/licensescan/scheduler/task/{id}
+// DELETE /api/v1/licensescan/scheduler/task/{id}.
 func (h *Handlers) handleSchedulerTask(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持DELETE方法")

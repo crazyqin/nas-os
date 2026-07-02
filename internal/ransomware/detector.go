@@ -21,7 +21,7 @@ import (
 // 高级检测器
 // ============================================================
 
-// Detector AI 驱动的高级勒索软件检测器
+// Detector AI 驱动的高级勒索软件检测器.
 type Detector struct {
 	mu sync.RWMutex
 
@@ -56,7 +56,7 @@ type Detector struct {
 	threatChan chan ThreatEvent
 }
 
-// FileEvent 文件事件（内部使用）
+// FileEvent 文件事件（内部使用）.
 type FileEvent struct {
 	Path        string    `json:"path"`
 	OldPath     string    `json:"old_path,omitempty"`
@@ -68,7 +68,7 @@ type FileEvent struct {
 	Timestamp   time.Time `json:"timestamp"`
 }
 
-// NewDetector 创建高级检测器
+// NewDetector 创建高级检测器.
 func NewDetector() *Detector {
 	d := &Detector{
 		policies:     make(map[string]*ShieldPolicy),
@@ -87,7 +87,7 @@ func NewDetector() *Detector {
 	return d
 }
 
-// Start 启动检测器
+// Start 启动检测器.
 func (d *Detector) Start(ctx context.Context) error {
 	d.mu.Lock()
 	if d.running {
@@ -106,7 +106,7 @@ func (d *Detector) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止检测器
+// Stop 停止检测器.
 func (d *Detector) Stop() {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -118,7 +118,7 @@ func (d *Detector) Stop() {
 	log.Println("[RansomShield] 高级检测器已停止")
 }
 
-// GetStatus 获取防护状态
+// GetStatus 获取防护状态.
 func (d *Detector) GetStatus() ShieldStatus {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -161,7 +161,7 @@ func (d *Detector) GetStatus() ShieldStatus {
 	}
 }
 
-// RecordEvent 记录文件事件
+// RecordEvent 记录文件事件.
 func (d *Detector) RecordEvent(event FileEvent) {
 	select {
 	case d.eventChan <- event:
@@ -170,7 +170,7 @@ func (d *Detector) RecordEvent(event FileEvent) {
 	}
 }
 
-// GetThreatEvents 获取威胁事件列表
+// GetThreatEvents 获取威胁事件列表.
 func (d *Detector) GetThreatEvents(page, perPage int) ([]ThreatEvent, int) {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -190,21 +190,21 @@ func (d *Detector) GetThreatEvents(page, perPage int) ([]ThreatEvent, int) {
 	return result, total
 }
 
-// AddPolicy 添加防护策略
+// AddPolicy 添加防护策略.
 func (d *Detector) AddPolicy(policy *ShieldPolicy) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	d.policies[policy.ID] = policy
 }
 
-// RemovePolicy 移除防护策略
+// RemovePolicy 移除防护策略.
 func (d *Detector) RemovePolicy(id string) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	delete(d.policies, id)
 }
 
-// GetPolicies 获取所有策略
+// GetPolicies 获取所有策略.
 func (d *Detector) GetPolicies() []ShieldPolicy {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -216,7 +216,7 @@ func (d *Detector) GetPolicies() []ShieldPolicy {
 	return policies
 }
 
-// GetPolicy 获取指定策略
+// GetPolicy 获取指定策略.
 func (d *Detector) GetPolicy(id string) (*ShieldPolicy, bool) {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -228,14 +228,14 @@ func (d *Detector) GetPolicy(id string) (*ShieldPolicy, bool) {
 	return &result, true
 }
 
-// AddRule 添加威胁规则
+// AddRule 添加威胁规则.
 func (d *Detector) AddRule(rule *ThreatRule) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	d.rules[rule.ID] = rule
 }
 
-// GetRules 获取所有规则
+// GetRules 获取所有规则.
 func (d *Detector) GetRules() []ThreatRule {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -251,7 +251,7 @@ func (d *Detector) GetRules() []ThreatRule {
 // 事件处理循环
 // ============================================================
 
-// eventLoop 文件事件处理循环
+// eventLoop 文件事件处理循环.
 func (d *Detector) eventLoop(ctx context.Context) {
 	for {
 		select {
@@ -265,7 +265,7 @@ func (d *Detector) eventLoop(ctx context.Context) {
 	}
 }
 
-// processFileEvent 处理单个文件事件
+// processFileEvent 处理单个文件事件.
 func (d *Detector) processFileEvent(event FileEvent) {
 	d.mu.Lock()
 	d.stats.TotalFilesScanned++
@@ -291,7 +291,7 @@ func (d *Detector) processFileEvent(event FileEvent) {
 	}
 }
 
-// threatHandlerLoop 威胁事件处理循环
+// threatHandlerLoop 威胁事件处理循环.
 func (d *Detector) threatHandlerLoop(ctx context.Context) {
 	for {
 		select {
@@ -305,7 +305,7 @@ func (d *Detector) threatHandlerLoop(ctx context.Context) {
 	}
 }
 
-// handleThreat 处理威胁事件
+// handleThreat 处理威胁事件.
 func (d *Detector) handleThreat(threat ThreatEvent) {
 	d.mu.Lock()
 	d.threatEvents = append(d.threatEvents, threat)
@@ -325,7 +325,7 @@ func (d *Detector) handleThreat(threat ThreatEvent) {
 // 熵分析
 // ============================================================
 
-// analyzeEntropy 对文件进行熵分析
+// analyzeEntropy 对文件进行熵分析.
 func (d *Detector) analyzeEntropy(event FileEvent) float64 {
 	// 只对修改和创建事件做熵分析
 	if event.EventType != "modify" && event.EventType != "create" {
@@ -360,7 +360,7 @@ func (d *Detector) analyzeEntropy(event FileEvent) float64 {
 	return entropy
 }
 
-// calculateEntropy 计算字节数据的香农熵
+// calculateEntropy 计算字节数据的香农熵.
 func calculateEntropy(data []byte) float64 {
 	if len(data) == 0 {
 		return 0
@@ -388,7 +388,7 @@ func calculateEntropy(data []byte) float64 {
 // 行为模式匹配
 // ============================================================
 
-// matchPatterns 匹配攻击模式，返回匹配到的威胁事件
+// matchPatterns 匹配攻击模式，返回匹配到的威胁事件.
 func (d *Detector) matchPatterns(event FileEvent, entropy float64) []ThreatEvent {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -422,7 +422,7 @@ func (d *Detector) matchPatterns(event FileEvent, entropy float64) []ThreatEvent
 	return threats
 }
 
-// evaluateRule 评估单个规则
+// evaluateRule 评估单个规则.
 func (d *Detector) evaluateRule(rule *ThreatRule, event FileEvent, entropy float64) (bool, int) {
 	score := 0
 	matched := 0
@@ -443,7 +443,7 @@ func (d *Detector) evaluateRule(rule *ThreatRule, event FileEvent, entropy float
 	return false, 0
 }
 
-// evaluateCondition 评估单个条件
+// evaluateCondition 评估单个条件.
 func (d *Detector) evaluateCondition(cond Condition, event FileEvent, entropy float64) (bool, int) {
 	switch cond.Type {
 	case ConditionEntropy:
@@ -537,7 +537,7 @@ func (d *Detector) evaluateCondition(cond Condition, event FileEvent, entropy fl
 // 分析循环
 // ============================================================
 
-// analysisLoop 定时分析循环
+// analysisLoop 定时分析循环.
 func (d *Detector) analysisLoop(ctx context.Context) {
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -554,7 +554,7 @@ func (d *Detector) analysisLoop(ctx context.Context) {
 	}
 }
 
-// runPeriodicScan 执行周期性扫描
+// runPeriodicScan 执行周期性扫描.
 func (d *Detector) runPeriodicScan() {
 	d.mu.RLock()
 	policies := make([]*ShieldPolicy, 0)
@@ -582,7 +582,7 @@ func (d *Detector) runPeriodicScan() {
 	d.mu.Unlock()
 }
 
-// scanPaths 扫描策略中的路径
+// scanPaths 扫描策略中的路径.
 func (d *Detector) scanPaths(policy *ShieldPolicy) {
 	for _, watchPath := range policy.WatchPaths {
 		err := filepath.Walk(watchPath, func(path string, info os.FileInfo, err error) error {
@@ -634,7 +634,7 @@ func (d *Detector) scanPaths(policy *ShieldPolicy) {
 // 内置规则和模式
 // ============================================================
 
-// loadBuiltinRules 加载内置威胁规则
+// loadBuiltinRules 加载内置威胁规则.
 func (d *Detector) loadBuiltinRules() {
 	d.rules = map[string]*ThreatRule{
 		"rapid-encryption": {
@@ -724,7 +724,7 @@ func (d *Detector) loadBuiltinRules() {
 	}
 }
 
-// loadBuiltinPatterns 加载内置攻击模式
+// loadBuiltinPatterns 加载内置攻击模式.
 func (d *Detector) loadBuiltinPatterns() {
 	d.patterns = map[string]*AttackPattern{
 		"pattern-encrypt-burst": {
@@ -776,7 +776,7 @@ func (d *Detector) loadBuiltinPatterns() {
 // 辅助方法
 // ============================================================
 
-// isMonitored 检查路径是否被监控
+// isMonitored 检查路径是否被监控.
 func (d *Detector) isMonitored(path string) bool {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -809,7 +809,7 @@ func (d *Detector) isMonitored(path string) bool {
 	return false
 }
 
-// isHoneypotPath 检查是否为蜜罐路径
+// isHoneypotPath 检查是否为蜜罐路径.
 func (d *Detector) isHoneypotPath(path string) bool {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -827,7 +827,7 @@ func (d *Detector) isHoneypotPath(path string) bool {
 	return false
 }
 
-// compareFloat 浮点数比较
+// compareFloat 浮点数比较.
 func compareFloat(a, b float64, op string) bool {
 	switch op {
 	case "gt":
@@ -845,7 +845,7 @@ func compareFloat(a, b float64, op string) bool {
 	}
 }
 
-// toFloat64 安全转换为 float64
+// toFloat64 安全转换为 float64.
 func toFloat64(v interface{}) (float64, bool) {
 	switch val := v.(type) {
 	case float64:

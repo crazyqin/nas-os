@@ -14,13 +14,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// ExtendedManager 扩展的 VM 管理器（包含 API 所需的方法）
+// ExtendedManager 扩展的 VM 管理器（包含 API 所需的方法）.
 type ExtendedManager struct {
 	*Manager
 	snapshotManager *SnapshotManager
 }
 
-// NewExtendedManager 创建扩展 VM 管理器
+// NewExtendedManager 创建扩展 VM 管理器.
 func NewExtendedManager(storagePath string, logger *zap.Logger) (*ExtendedManager, error) {
 	mgr, err := NewManager(storagePath, logger)
 	if err != nil {
@@ -38,7 +38,7 @@ func NewExtendedManager(storagePath string, logger *zap.Logger) (*ExtendedManage
 	}, nil
 }
 
-// ListSnapshots 列出 VM 快照
+// ListSnapshots 列出 VM 快照.
 func (m *ExtendedManager) ListSnapshots(vmID string) []*Snapshot {
 	if m.snapshotManager == nil {
 		return nil
@@ -46,7 +46,7 @@ func (m *ExtendedManager) ListSnapshots(vmID string) []*Snapshot {
 	return m.snapshotManager.ListSnapshots(vmID)
 }
 
-// CreateSnapshot 创建快照
+// CreateSnapshot 创建快照.
 func (m *ExtendedManager) CreateSnapshot(ctx context.Context, vmID, name, description string) (*Snapshot, error) {
 	if m.snapshotManager == nil {
 		return nil, fmt.Errorf("快照管理器未初始化")
@@ -54,7 +54,7 @@ func (m *ExtendedManager) CreateSnapshot(ctx context.Context, vmID, name, descri
 	return m.snapshotManager.CreateSnapshot(ctx, vmID, name, description)
 }
 
-// GetSnapshot 获取快照详情
+// GetSnapshot 获取快照详情.
 func (m *ExtendedManager) GetSnapshot(vmID, snapshotID string) (*Snapshot, error) {
 	if m.snapshotManager == nil {
 		return nil, fmt.Errorf("快照管理器未初始化")
@@ -62,7 +62,7 @@ func (m *ExtendedManager) GetSnapshot(vmID, snapshotID string) (*Snapshot, error
 	return m.snapshotManager.GetSnapshot(snapshotID)
 }
 
-// DeleteSnapshot 删除快照
+// DeleteSnapshot 删除快照.
 func (m *ExtendedManager) DeleteSnapshot(ctx context.Context, vmID, snapshotID string) error {
 	if m.snapshotManager == nil {
 		return fmt.Errorf("快照管理器未初始化")
@@ -70,7 +70,7 @@ func (m *ExtendedManager) DeleteSnapshot(ctx context.Context, vmID, snapshotID s
 	return m.snapshotManager.DeleteSnapshot(ctx, snapshotID)
 }
 
-// RestoreSnapshot 恢复快照
+// RestoreSnapshot 恢复快照.
 func (m *ExtendedManager) RestoreSnapshot(ctx context.Context, vmID, snapshotID string) error {
 	if m.snapshotManager == nil {
 		return fmt.Errorf("快照管理器未初始化")
@@ -78,7 +78,7 @@ func (m *ExtendedManager) RestoreSnapshot(ctx context.Context, vmID, snapshotID 
 	return m.snapshotManager.RestoreSnapshot(ctx, snapshotID)
 }
 
-// CreateTemplate 创建自定义模板
+// CreateTemplate 创建自定义模板.
 func (m *Manager) CreateTemplate(name, description string, vmType Type, cpu int, memory, diskSize uint64, network, os string, tags map[string]string) (*Template, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -138,7 +138,7 @@ func (m *Manager) CreateTemplate(name, description string, vmType Type, cpu int,
 	return tpl, nil
 }
 
-// DeleteTemplate 删除模板
+// DeleteTemplate 删除模板.
 func (m *Manager) DeleteTemplate(templateID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -166,7 +166,7 @@ func (m *Manager) DeleteTemplate(templateID string) error {
 	return nil
 }
 
-// saveTemplate 保存模板配置
+// saveTemplate 保存模板配置.
 func (m *Manager) saveTemplate(tpl *Template) error {
 	templateDir := filepath.Join(m.storagePath, "templates")
 	if err := os.MkdirAll(templateDir, 0750); err != nil {
@@ -182,7 +182,7 @@ func (m *Manager) saveTemplate(tpl *Template) error {
 	return os.WriteFile(templatePath, data, 0640)
 }
 
-// ListISOs 列出 ISO 镜像
+// ListISOs 列出 ISO 镜像.
 func (m *Manager) ListISOs() []*ISOImage {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -219,7 +219,7 @@ func (m *Manager) ListISOs() []*ISOImage {
 	return isos
 }
 
-// GetISO 获取 ISO 详情
+// GetISO 获取 ISO 详情.
 func (m *Manager) GetISO(isoID string) (*ISOImage, error) {
 	isos := m.ListISOs()
 	for _, iso := range isos {
@@ -230,7 +230,7 @@ func (m *Manager) GetISO(isoID string) (*ISOImage, error) {
 	return nil, fmt.Errorf("ISO %s 不存在", isoID)
 }
 
-// DownloadISO 从 URL 下载 ISO
+// DownloadISO 从 URL 下载 ISO.
 func (m *Manager) DownloadISO(ctx context.Context, name, url string) (*ISOImage, error) {
 	// 验证名称
 	if !strings.HasSuffix(name, ".iso") {
@@ -269,7 +269,7 @@ func (m *Manager) DownloadISO(ctx context.Context, name, url string) (*ISOImage,
 	return iso, nil
 }
 
-// DeleteISO 删除 ISO
+// DeleteISO 删除 ISO.
 func (m *Manager) DeleteISO(isoID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -295,7 +295,7 @@ func (m *Manager) DeleteISO(isoID string) error {
 	return nil
 }
 
-// GetUploadInfo 获取上传信息
+// GetUploadInfo 获取上传信息.
 func (m *Manager) GetUploadInfo(name string) map[string]interface{} {
 	if !strings.HasSuffix(name, ".iso") {
 		name += ".iso"
@@ -309,7 +309,7 @@ func (m *Manager) GetUploadInfo(name string) map[string]interface{} {
 	}
 }
 
-// detectOSFromISOName 从 ISO 名称检测操作系统
+// detectOSFromISOName 从 ISO 名称检测操作系统.
 func detectOSFromISOName(name string) string {
 	name = strings.ToLower(name)
 
@@ -357,7 +357,7 @@ func detectOSFromISOName(name string) string {
 	return "other"
 }
 
-// CloneVM 从模板克隆 VM
+// CloneVM 从模板克隆 VM.
 func (m *Manager) CloneVM(ctx context.Context, templateID, name string, overrides map[string]interface{}) (*VM, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -431,7 +431,7 @@ func (m *Manager) CloneVM(ctx context.Context, templateID, name string, override
 	return vm, nil
 }
 
-// MigrateVM 迁移 VM 到另一主机（离线迁移）
+// MigrateVM 迁移 VM 到另一主机（离线迁移）.
 func (m *Manager) MigrateVM(ctx context.Context, vmID, targetHost string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -467,7 +467,7 @@ func (m *Manager) MigrateVM(ctx context.Context, vmID, targetHost string) error 
 	return nil
 }
 
-// ExportVM 导出 VM 为模板
+// ExportVM 导出 VM 为模板.
 func (m *Manager) ExportVM(ctx context.Context, vmID, templateName string) (*Template, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -500,7 +500,7 @@ func (m *Manager) ExportVM(ctx context.Context, vmID, templateName string) (*Tem
 	return tpl, nil
 }
 
-// BackupVM 备份 VM
+// BackupVM 备份 VM.
 func (m *Manager) BackupVM(ctx context.Context, vmID string) (string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -532,7 +532,7 @@ func (m *Manager) BackupVM(ctx context.Context, vmID string) (string, error) {
 	return backupPath, nil
 }
 
-// RestoreVMBackup 从备份恢复 VM
+// RestoreVMBackup 从备份恢复 VM.
 func (m *Manager) RestoreVMBackup(ctx context.Context, backupPath string) (*VM, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

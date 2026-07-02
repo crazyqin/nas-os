@@ -9,17 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers DLP引擎 API 处理器
+// Handlers DLP引擎 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	dlp := r.Group("/dlp")
 	{
@@ -56,14 +56,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// scanContent 扫描内容
+// scanContent 扫描内容.
 func (h *Handlers) scanContent(c *gin.Context) {
 	var req ScanRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -90,7 +90,7 @@ func (h *Handlers) scanContent(c *gin.Context) {
 	})
 }
 
-// scanFile 扫描文件
+// scanFile 扫描文件.
 func (h *Handlers) scanFile(c *gin.Context) {
 	file, header, err := c.Request.FormFile("file")
 	if err != nil {
@@ -134,7 +134,7 @@ func (h *Handlers) scanFile(c *gin.Context) {
 	})
 }
 
-// listPolicies 列出策略
+// listPolicies 列出策略.
 func (h *Handlers) listPolicies(c *gin.Context) {
 	policies := h.manager.ListPolicies()
 	c.JSON(http.StatusOK, response{
@@ -144,7 +144,7 @@ func (h *Handlers) listPolicies(c *gin.Context) {
 	})
 }
 
-// createPolicy 创建策略
+// createPolicy 创建策略.
 func (h *Handlers) createPolicy(c *gin.Context) {
 	var req DLPPolicy
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -171,7 +171,7 @@ func (h *Handlers) createPolicy(c *gin.Context) {
 	})
 }
 
-// getPolicy 获取策略
+// getPolicy 获取策略.
 func (h *Handlers) getPolicy(c *gin.Context) {
 	id := c.Param("id")
 	policy, err := h.manager.GetPolicy(id)
@@ -190,7 +190,7 @@ func (h *Handlers) getPolicy(c *gin.Context) {
 	})
 }
 
-// updatePolicy 更新策略
+// updatePolicy 更新策略.
 func (h *Handlers) updatePolicy(c *gin.Context) {
 	id := c.Param("id")
 	var req DLPPolicy
@@ -218,7 +218,7 @@ func (h *Handlers) updatePolicy(c *gin.Context) {
 	})
 }
 
-// deletePolicy 删除策略
+// deletePolicy 删除策略.
 func (h *Handlers) deletePolicy(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeletePolicy(id); err != nil {
@@ -235,7 +235,7 @@ func (h *Handlers) deletePolicy(c *gin.Context) {
 	})
 }
 
-// listPatterns 列出模式
+// listPatterns 列出模式.
 func (h *Handlers) listPatterns(c *gin.Context) {
 	patterns := h.manager.ListPatterns()
 	c.JSON(http.StatusOK, response{
@@ -245,7 +245,7 @@ func (h *Handlers) listPatterns(c *gin.Context) {
 	})
 }
 
-// createPattern 创建模式
+// createPattern 创建模式.
 func (h *Handlers) createPattern(c *gin.Context) {
 	var req SensitivePattern
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -272,7 +272,7 @@ func (h *Handlers) createPattern(c *gin.Context) {
 	})
 }
 
-// getPattern 获取模式
+// getPattern 获取模式.
 func (h *Handlers) getPattern(c *gin.Context) {
 	id := c.Param("id")
 	pattern, err := h.manager.GetPattern(id)
@@ -291,7 +291,7 @@ func (h *Handlers) getPattern(c *gin.Context) {
 	})
 }
 
-// updatePattern 更新模式
+// updatePattern 更新模式.
 func (h *Handlers) updatePattern(c *gin.Context) {
 	id := c.Param("id")
 	var req SensitivePattern
@@ -319,7 +319,7 @@ func (h *Handlers) updatePattern(c *gin.Context) {
 	})
 }
 
-// deletePattern 删除模式
+// deletePattern 删除模式.
 func (h *Handlers) deletePattern(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeletePattern(id); err != nil {
@@ -336,7 +336,7 @@ func (h *Handlers) deletePattern(c *gin.Context) {
 	})
 }
 
-// getViolations 获取违规记录
+// getViolations 获取违规记录.
 func (h *Handlers) getViolations(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "100")
 	limit, err := strconv.Atoi(limitStr)
@@ -355,7 +355,7 @@ func (h *Handlers) getViolations(c *gin.Context) {
 	})
 }
 
-// blockTransfer 阻断传输
+// blockTransfer 阻断传输.
 func (h *Handlers) blockTransfer(c *gin.Context) {
 	var req struct {
 		Resource string `json:"resource" binding:"required"`
@@ -385,7 +385,7 @@ func (h *Handlers) blockTransfer(c *gin.Context) {
 	})
 }
 
-// getStats 获取统计信息
+// getStats 获取统计信息.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, response{
@@ -395,7 +395,7 @@ func (h *Handlers) getStats(c *gin.Context) {
 	})
 }
 
-// getConfig 获取配置
+// getConfig 获取配置.
 func (h *Handlers) getConfig(c *gin.Context) {
 	cfg := h.manager.GetConfig()
 	c.JSON(http.StatusOK, response{
@@ -405,7 +405,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 	})
 }
 
-// updateConfig 更新配置
+// updateConfig 更新配置.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var cfg DLPConfig
 	if err := c.ShouldBindJSON(&cfg); err != nil {

@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// NewManager 创建混沌工程管理器
+// NewManager 创建混沌工程管理器.
 func NewManager(config *Config) *Manager {
 	if config == nil {
 		config = DefaultConfig()
@@ -31,7 +31,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() error {
 	if !m.config.Enabled {
 		return nil
@@ -39,7 +39,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -54,7 +54,7 @@ func (m *Manager) Stop() {
 
 // ==================== 实验管理 ====================
 
-// CreateExperiment 创建实验
+// CreateExperiment 创建实验.
 func (m *Manager) CreateExperiment(exp *Experiment) (*Experiment, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -94,7 +94,7 @@ func (m *Manager) CreateExperiment(exp *Experiment) (*Experiment, error) {
 	return exp, nil
 }
 
-// GetExperiment 获取实验
+// GetExperiment 获取实验.
 func (m *Manager) GetExperiment(id string) (*Experiment, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -106,7 +106,7 @@ func (m *Manager) GetExperiment(id string) (*Experiment, error) {
 	return exp, nil
 }
 
-// ListExperiments 列出所有实验
+// ListExperiments 列出所有实验.
 func (m *Manager) ListExperiments() []*Experiment {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -118,7 +118,7 @@ func (m *Manager) ListExperiments() []*Experiment {
 	return experiments
 }
 
-// UpdateExperiment 更新实验
+// UpdateExperiment 更新实验.
 func (m *Manager) UpdateExperiment(id string, update *Experiment) (*Experiment, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -183,7 +183,7 @@ func (m *Manager) UpdateExperiment(id string, update *Experiment) (*Experiment, 
 	return exp, nil
 }
 
-// DeleteExperiment 删除实验
+// DeleteExperiment 删除实验.
 func (m *Manager) DeleteExperiment(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -204,7 +204,7 @@ func (m *Manager) DeleteExperiment(id string) error {
 
 // ==================== 实验执行 ====================
 
-// StartExperiment 启动实验
+// StartExperiment 启动实验.
 func (m *Manager) StartExperiment(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -243,7 +243,7 @@ func (m *Manager) StartExperiment(id string) error {
 	return nil
 }
 
-// StopExperiment 停止实验
+// StopExperiment 停止实验.
 func (m *Manager) StopExperiment(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -276,7 +276,7 @@ func (m *Manager) StopExperiment(id string) error {
 	return nil
 }
 
-// runExperiment 执行实验
+// runExperiment 执行实验.
 func (m *Manager) runExperiment(ctx context.Context, exp *Experiment) {
 	var err error
 
@@ -328,7 +328,7 @@ func (m *Manager) runExperiment(ctx context.Context, exp *Experiment) {
 
 // ==================== 故障注入方法 ====================
 
-// injectDiskFull 注入磁盘满故障
+// injectDiskFull 注入磁盘满故障.
 func (m *Manager) injectDiskFull(ctx context.Context, exp *Experiment) error {
 	// 磁盘满故障注入实现
 	select {
@@ -341,7 +341,7 @@ func (m *Manager) injectDiskFull(ctx context.Context, exp *Experiment) error {
 	}
 }
 
-// injectNetworkLatency 注入网络延迟故障
+// injectNetworkLatency 注入网络延迟故障.
 func (m *Manager) injectNetworkLatency(ctx context.Context, exp *Experiment) error {
 	select {
 	case <-ctx.Done():
@@ -352,7 +352,7 @@ func (m *Manager) injectNetworkLatency(ctx context.Context, exp *Experiment) err
 	}
 }
 
-// injectNetworkLoss 注入网络丢包故障
+// injectNetworkLoss 注入网络丢包故障.
 func (m *Manager) injectNetworkLoss(ctx context.Context, exp *Experiment) error {
 	select {
 	case <-ctx.Done():
@@ -363,7 +363,7 @@ func (m *Manager) injectNetworkLoss(ctx context.Context, exp *Experiment) error 
 	}
 }
 
-// injectCPUStress 注入 CPU 压力
+// injectCPUStress 注入 CPU 压力.
 func (m *Manager) injectCPUStress(ctx context.Context, exp *Experiment) error {
 	select {
 	case <-ctx.Done():
@@ -374,7 +374,7 @@ func (m *Manager) injectCPUStress(ctx context.Context, exp *Experiment) error {
 	}
 }
 
-// injectMemoryStress 注入内存压力
+// injectMemoryStress 注入内存压力.
 func (m *Manager) injectMemoryStress(ctx context.Context, exp *Experiment) error {
 	select {
 	case <-ctx.Done():
@@ -385,7 +385,7 @@ func (m *Manager) injectMemoryStress(ctx context.Context, exp *Experiment) error
 	}
 }
 
-// injectIOStress 注入 IO 压力
+// injectIOStress 注入 IO 压力.
 func (m *Manager) injectIOStress(ctx context.Context, exp *Experiment) error {
 	select {
 	case <-ctx.Done():
@@ -396,7 +396,7 @@ func (m *Manager) injectIOStress(ctx context.Context, exp *Experiment) error {
 	}
 }
 
-// injectProcessKill 注入进程终止
+// injectProcessKill 注入进程终止.
 func (m *Manager) injectProcessKill(ctx context.Context, exp *Experiment) error {
 	select {
 	case <-ctx.Done():
@@ -406,7 +406,7 @@ func (m *Manager) injectProcessKill(ctx context.Context, exp *Experiment) error 
 	}
 }
 
-// injectDiskIO 注入磁盘IO延迟
+// injectDiskIO 注入磁盘IO延迟.
 func (m *Manager) injectDiskIO(ctx context.Context, exp *Experiment) error {
 	select {
 	case <-ctx.Done():
@@ -419,7 +419,7 @@ func (m *Manager) injectDiskIO(ctx context.Context, exp *Experiment) error {
 
 // ==================== 安全边界 ====================
 
-// checkSafetyBoundaries 检查安全边界
+// checkSafetyBoundaries 检查安全边界.
 func (m *Manager) checkSafetyBoundaries(exp *Experiment) error {
 	safety := exp.Safety
 
@@ -451,7 +451,7 @@ func (m *Manager) checkSafetyBoundaries(exp *Experiment) error {
 
 // ==================== 恢复机制 ====================
 
-// recoverExperiment 恢复实验
+// recoverExperiment 恢复实验.
 func (m *Manager) recoverExperiment(exp *Experiment) {
 	recovery := &RecoveryResult{
 		Status:    RecoveryRunning,
@@ -492,7 +492,7 @@ func (m *Manager) recoverExperiment(exp *Experiment) {
 
 // ==================== 韧性评估 ====================
 
-// calculateResilienceScore 计算韧性评分
+// calculateResilienceScore 计算韧性评分.
 func (m *Manager) calculateResilienceScore(exp *Experiment) *ResilienceScore {
 	score := &ResilienceScore{
 		Breakdown: make(map[string]float64),
@@ -508,9 +508,10 @@ func (m *Manager) calculateResilienceScore(exp *Experiment) *ResilienceScore {
 
 	// 根据恢复结果调整
 	if exp.Recovery != nil {
-		if exp.Recovery.Status == RecoverySuccess {
+		switch exp.Recovery.Status {
+		case RecoverySuccess:
 			score.Recovery = 90.0
-		} else if exp.Recovery.Status == RecoveryFailed {
+		case RecoveryFailed:
 			score.Recovery = 30.0
 			base -= 20
 		}
@@ -545,7 +546,7 @@ func (m *Manager) calculateResilienceScore(exp *Experiment) *ResilienceScore {
 	return score
 }
 
-// GenerateReport 生成韧性评估报告
+// GenerateReport 生成韧性评估报告.
 func (m *Manager) GenerateReport() *ResilienceReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -597,7 +598,7 @@ func (m *Manager) GenerateReport() *ResilienceReport {
 	return report
 }
 
-// ListReports 列出所有报告
+// ListReports 列出所有报告.
 func (m *Manager) ListReports() []*ResilienceReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -609,7 +610,7 @@ func (m *Manager) ListReports() []*ResilienceReport {
 	return reports
 }
 
-// GetReport 获取报告
+// GetReport 获取报告.
 func (m *Manager) GetReport(id string) (*ResilienceReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -623,7 +624,7 @@ func (m *Manager) GetReport(id string) (*ResilienceReport, error) {
 
 // ==================== 仪表盘 ====================
 
-// GetDashboard 获取仪表盘数据
+// GetDashboard 获取仪表盘数据.
 func (m *Manager) GetDashboard() *Dashboard {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

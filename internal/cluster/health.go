@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// HealthLevel 健康级别
+// HealthLevel 健康级别.
 type HealthLevel string
 
 const (
@@ -20,7 +20,7 @@ const (
 	HealthLevelUnknown   HealthLevel = "unknown"   // 未知
 )
 
-// CheckType 检查类型
+// CheckType 检查类型.
 type CheckType string
 
 const (
@@ -33,7 +33,7 @@ const (
 	CheckTypeCustom    CheckType = "custom"    // 自定义检查
 )
 
-// HealthCheck 健康检查项
+// HealthCheck 健康检查项.
 type HealthCheck struct {
 	ID        string        `json:"id"`
 	Name      string        `json:"name"`
@@ -49,7 +49,7 @@ type HealthCheck struct {
 	Threshold float64       `json:"threshold,omitempty"` // 阈值（如 CPU 使用率 80%）
 }
 
-// ClusterHealthStatus 集群健康状态
+// ClusterHealthStatus 集群健康状态.
 type ClusterHealthStatus struct {
 	ClusterName    string         `json:"cluster_name"`
 	OverallLevel   HealthLevel    `json:"overall_level"`
@@ -63,7 +63,7 @@ type ClusterHealthStatus struct {
 	Uptime         time.Duration  `json:"uptime"`
 }
 
-// AlertSeverity 告警级别
+// AlertSeverity 告警级别.
 type AlertSeverity string
 
 const (
@@ -73,7 +73,7 @@ const (
 	AlertSeverityCritical AlertSeverity = "critical"
 )
 
-// Alert 告警
+// Alert 告警.
 type Alert struct {
 	ID         string        `json:"id"`
 	Severity   AlertSeverity `json:"severity"`
@@ -87,7 +87,7 @@ type Alert struct {
 	ResolvedAt *time.Time    `json:"resolved_at,omitempty"`
 }
 
-// AlertRule 告警规则
+// AlertRule 告警规则.
 type AlertRule struct {
 	ID         string        `json:"id"`
 	Name       string        `json:"name"`
@@ -100,7 +100,7 @@ type AlertRule struct {
 	NodeFilter []string      `json:"node_filter,omitempty"` // 为空表示所有节点
 }
 
-// HealthCheckConfig 健康检查配置
+// HealthCheckConfig 健康检查配置.
 type HealthCheckConfig struct {
 	// 检查间隔
 	CheckInterval time.Duration `json:"check_interval"`
@@ -130,7 +130,7 @@ type HealthCheckConfig struct {
 	RecoveryCheckInterval time.Duration `json:"recovery_check_interval"`
 }
 
-// DefaultHealthCheckConfig 默认健康检查配置
+// DefaultHealthCheckConfig 默认健康检查配置.
 func DefaultHealthCheckConfig() *HealthCheckConfig {
 	return &HealthCheckConfig{
 		CheckInterval:           30 * time.Second,
@@ -145,7 +145,7 @@ func DefaultHealthCheckConfig() *HealthCheckConfig {
 	}
 }
 
-// HealthChecker 集群健康检查器
+// HealthChecker 集群健康检查器.
 type HealthChecker struct {
 	mu            sync.RWMutex
 	manager       *Manager
@@ -160,14 +160,14 @@ type HealthChecker struct {
 	startTime     time.Time
 }
 
-// HealthCheckStatus 健康检查状态快照
+// HealthCheckStatus 健康检查状态快照.
 type HealthCheckStatus struct {
 	Timestamp time.Time              `json:"timestamp"`
 	Level     HealthLevel            `json:"level"`
 	Checks    map[string]HealthLevel `json:"checks"`
 }
 
-// NewHealthChecker 创建健康检查器
+// NewHealthChecker 创建健康检查器.
 func NewHealthChecker(manager *Manager, config *HealthCheckConfig) *HealthChecker {
 	if config == nil {
 		config = DefaultHealthCheckConfig()
@@ -184,7 +184,7 @@ func NewHealthChecker(manager *Manager, config *HealthCheckConfig) *HealthChecke
 	}
 }
 
-// Start 启动健康检查器
+// Start 启动健康检查器.
 func (hc *HealthChecker) Start(ctx context.Context) error {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -211,7 +211,7 @@ func (hc *HealthChecker) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止健康检查器
+// Stop 停止健康检查器.
 func (hc *HealthChecker) Stop() {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -224,7 +224,7 @@ func (hc *HealthChecker) Stop() {
 	hc.running = false
 }
 
-// initDefaultChecks 初始化默认检查
+// initDefaultChecks 初始化默认检查.
 func (hc *HealthChecker) initDefaultChecks() {
 	defaultChecks := []*HealthCheck{
 		{
@@ -269,7 +269,7 @@ func (hc *HealthChecker) initDefaultChecks() {
 	}
 }
 
-// initDefaultAlertRules 初始化默认告警规则
+// initDefaultAlertRules 初始化默认告警规则.
 func (hc *HealthChecker) initDefaultAlertRules() {
 	defaultRules := []*AlertRule{
 		{
@@ -319,7 +319,7 @@ func (hc *HealthChecker) initDefaultAlertRules() {
 	}
 }
 
-// AddCheck 添加自定义检查
+// AddCheck 添加自定义检查.
 func (hc *HealthChecker) AddCheck(check *HealthCheck) error {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -336,7 +336,7 @@ func (hc *HealthChecker) AddCheck(check *HealthCheck) error {
 	return nil
 }
 
-// RemoveCheck 移除检查
+// RemoveCheck 移除检查.
 func (hc *HealthChecker) RemoveCheck(checkID string) error {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -349,7 +349,7 @@ func (hc *HealthChecker) RemoveCheck(checkID string) error {
 	return nil
 }
 
-// GetCheck 获取检查项
+// GetCheck 获取检查项.
 func (hc *HealthChecker) GetCheck(checkID string) (*HealthCheck, error) {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
@@ -363,7 +363,7 @@ func (hc *HealthChecker) GetCheck(checkID string) (*HealthCheck, error) {
 	return &checkCopy, nil
 }
 
-// ListChecks 列出所有检查项
+// ListChecks 列出所有检查项.
 func (hc *HealthChecker) ListChecks() []*HealthCheck {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
@@ -376,7 +376,7 @@ func (hc *HealthChecker) ListChecks() []*HealthCheck {
 	return checks
 }
 
-// AddAlertRule 添加告警规则
+// AddAlertRule 添加告警规则.
 func (hc *HealthChecker) AddAlertRule(rule *AlertRule) error {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -393,7 +393,7 @@ func (hc *HealthChecker) AddAlertRule(rule *AlertRule) error {
 	return nil
 }
 
-// RemoveAlertRule 移除告警规则
+// RemoveAlertRule 移除告警规则.
 func (hc *HealthChecker) RemoveAlertRule(ruleID string) error {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -406,7 +406,7 @@ func (hc *HealthChecker) RemoveAlertRule(ruleID string) error {
 	return nil
 }
 
-// ListAlertRules 列出所有告警规则
+// ListAlertRules 列出所有告警规则.
 func (hc *HealthChecker) ListAlertRules() []*AlertRule {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
@@ -419,14 +419,14 @@ func (hc *HealthChecker) ListAlertRules() []*AlertRule {
 	return rules
 }
 
-// OnAlert 注册告警处理器
+// OnAlert 注册告警处理器.
 func (hc *HealthChecker) OnAlert(handler func(alert *Alert)) {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
 	hc.alertHandlers = append(hc.alertHandlers, handler)
 }
 
-// GetClusterHealth 获取集群健康状态
+// GetClusterHealth 获取集群健康状态.
 func (hc *HealthChecker) GetClusterHealth() *ClusterHealthStatus {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
@@ -475,7 +475,7 @@ func (hc *HealthChecker) GetClusterHealth() *ClusterHealthStatus {
 	return status
 }
 
-// GetNodeHealth 获取节点健康状态
+// GetNodeHealth 获取节点健康状态.
 func (hc *HealthChecker) GetNodeHealth(nodeID string) (HealthLevel, error) {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
@@ -502,7 +502,7 @@ func (hc *HealthChecker) GetNodeHealth(nodeID string) (HealthLevel, error) {
 	}
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (hc *HealthChecker) GetAlerts(status string, severity AlertSeverity, limit int) []*Alert {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
@@ -535,7 +535,7 @@ func (hc *HealthChecker) GetAlerts(status string, severity AlertSeverity, limit 
 	return alerts
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (hc *HealthChecker) AcknowledgeAlert(alertID string) error {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -554,7 +554,7 @@ func (hc *HealthChecker) AcknowledgeAlert(alertID string) error {
 	return nil
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (hc *HealthChecker) ResolveAlert(alertID string) error {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -575,7 +575,7 @@ func (hc *HealthChecker) ResolveAlert(alertID string) error {
 	return nil
 }
 
-// GetHistory 获取健康检查历史
+// GetHistory 获取健康检查历史.
 func (hc *HealthChecker) GetHistory(limit int) []*HealthCheckStatus {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
@@ -594,7 +594,7 @@ func (hc *HealthChecker) GetHistory(limit int) []*HealthCheckStatus {
 	return result
 }
 
-// checkLoop 检查循环
+// checkLoop 检查循环.
 func (hc *HealthChecker) checkLoop(ctx context.Context) {
 	ticker := time.NewTicker(hc.config.CheckInterval)
 	defer ticker.Stop()
@@ -611,7 +611,7 @@ func (hc *HealthChecker) checkLoop(ctx context.Context) {
 	}
 }
 
-// runChecks 执行所有检查
+// runChecks 执行所有检查.
 func (hc *HealthChecker) runChecks() {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -649,7 +649,7 @@ func (hc *HealthChecker) runChecks() {
 	}
 }
 
-// executeCheck 执行单个检查
+// executeCheck 执行单个检查.
 func (hc *HealthChecker) executeCheck(check *HealthCheck) HealthLevel {
 	start := time.Now()
 
@@ -674,7 +674,7 @@ func (hc *HealthChecker) executeCheck(check *HealthCheck) HealthLevel {
 	return level
 }
 
-// checkHeartbeat 心跳检查
+// checkHeartbeat 心跳检查.
 func (hc *HealthChecker) checkHeartbeat(check *HealthCheck) HealthLevel {
 	hc.manager.nodesMutex.RLock()
 	defer hc.manager.nodesMutex.RUnlock()
@@ -696,7 +696,7 @@ func (hc *HealthChecker) checkHeartbeat(check *HealthCheck) HealthLevel {
 	return HealthLevelUnhealthy
 }
 
-// checkCPU CPU 检查
+// checkCPU CPU 检查.
 func (hc *HealthChecker) checkCPU(check *HealthCheck) HealthLevel {
 	hc.manager.nodesMutex.RLock()
 	defer hc.manager.nodesMutex.RUnlock()
@@ -716,7 +716,7 @@ func (hc *HealthChecker) checkCPU(check *HealthCheck) HealthLevel {
 	return HealthLevelUnhealthy
 }
 
-// checkMemory 内存检查
+// checkMemory 内存检查.
 func (hc *HealthChecker) checkMemory(check *HealthCheck) HealthLevel {
 	hc.manager.nodesMutex.RLock()
 	defer hc.manager.nodesMutex.RUnlock()
@@ -736,7 +736,7 @@ func (hc *HealthChecker) checkMemory(check *HealthCheck) HealthLevel {
 	return HealthLevelUnhealthy
 }
 
-// checkDisk 磁盘检查
+// checkDisk 磁盘检查.
 func (hc *HealthChecker) checkDisk(check *HealthCheck) HealthLevel {
 	hc.manager.nodesMutex.RLock()
 	defer hc.manager.nodesMutex.RUnlock()
@@ -756,7 +756,7 @@ func (hc *HealthChecker) checkDisk(check *HealthCheck) HealthLevel {
 	return HealthLevelUnhealthy
 }
 
-// checkNetwork 网络检查
+// checkNetwork 网络检查.
 func (hc *HealthChecker) checkNetwork(check *HealthCheck) HealthLevel {
 	// 简化实现：检查节点连接数
 	hc.manager.nodesMutex.RLock()
@@ -766,7 +766,7 @@ func (hc *HealthChecker) checkNetwork(check *HealthCheck) HealthLevel {
 	return HealthLevelHealthy
 }
 
-// alertLoop 告警处理循环
+// alertLoop 告警处理循环.
 func (hc *HealthChecker) alertLoop(ctx context.Context) {
 	ticker := time.NewTicker(hc.config.CheckInterval)
 	defer ticker.Stop()
@@ -783,7 +783,7 @@ func (hc *HealthChecker) alertLoop(ctx context.Context) {
 	}
 }
 
-// evaluateAlertRules 评估告警规则
+// evaluateAlertRules 评估告警规则.
 func (hc *HealthChecker) evaluateAlertRules() {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -841,7 +841,7 @@ func (hc *HealthChecker) evaluateAlertRules() {
 	}
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (hc *HealthChecker) GetStats() map[string]interface{} {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()
@@ -878,13 +878,13 @@ func (hc *HealthChecker) GetStats() map[string]interface{} {
 	return stats
 }
 
-// ToJSON 导出为 JSON
+// ToJSON 导出为 JSON.
 func (hc *HealthChecker) ToJSON() ([]byte, error) {
 	status := hc.GetClusterHealth()
 	return json.MarshalIndent(status, "", "  ")
 }
 
-// IsRunning 检查是否运行中
+// IsRunning 检查是否运行中.
 func (hc *HealthChecker) IsRunning() bool {
 	hc.mu.RLock()
 	defer hc.mu.RUnlock()

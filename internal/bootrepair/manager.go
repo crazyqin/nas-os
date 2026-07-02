@@ -12,7 +12,7 @@ import (
 
 // ========== 核心类型 ==========
 
-// BootloaderType 引导加载器类型
+// BootloaderType 引导加载器类型.
 type BootloaderType string
 
 const (
@@ -22,7 +22,7 @@ const (
 	BootloaderUnknown     BootloaderType = "unknown"      // 未知
 )
 
-// IssueType 问题类型
+// IssueType 问题类型.
 type IssueType string
 
 const (
@@ -36,7 +36,7 @@ const (
 	IssueTypeModuleMissing   IssueType = "module_missing"   // GRUB 模块缺失
 )
 
-// IssueSeverity 问题严重程度
+// IssueSeverity 问题严重程度.
 type IssueSeverity string
 
 const (
@@ -46,7 +46,7 @@ const (
 	SeverityCritical IssueSeverity = "critical" // 严重
 )
 
-// RepairStatus 修复状态
+// RepairStatus 修复状态.
 type RepairStatus string
 
 const (
@@ -56,7 +56,7 @@ const (
 	RepairStatusFailed    RepairStatus = "failed"    // 失败
 )
 
-// LogPhase 日志阶段
+// LogPhase 日志阶段.
 type LogPhase string
 
 const (
@@ -67,7 +67,7 @@ const (
 	PhaseUserspace  LogPhase = "userspace"  // 用户空间阶段
 )
 
-// BootloaderInfo 引导加载器信息
+// BootloaderInfo 引导加载器信息.
 type BootloaderInfo struct {
 	Type        BootloaderType `json:"type"`        // 类型
 	Version     string         `json:"version"`     // 版本
@@ -76,7 +76,7 @@ type BootloaderInfo struct {
 	Detected    bool           `json:"detected"`    // 是否检测到
 }
 
-// BootEntry 启动项
+// BootEntry 启动项.
 type BootEntry struct {
 	ID        string `json:"id"`        // 启动项ID
 	Name      string `json:"name"`      // 名称
@@ -87,7 +87,7 @@ type BootEntry struct {
 	Enabled   bool   `json:"enabled"`   // 是否启用
 }
 
-// BootIssue 启动问题
+// BootIssue 启动问题.
 type BootIssue struct {
 	ID          string        `json:"id"`          // 问题ID
 	Type        IssueType     `json:"type"`        // 问题类型
@@ -98,7 +98,7 @@ type BootIssue struct {
 	DetectedAt  time.Time     `json:"detectedAt"`  // 检测时间
 }
 
-// RepairJob 修复任务
+// RepairJob 修复任务.
 type RepairJob struct {
 	ID        string       `json:"id"`        // 任务ID
 	IssueID   string       `json:"issueId"`   // 关联问题ID
@@ -110,7 +110,7 @@ type RepairJob struct {
 	EndTime   *time.Time   `json:"endTime"`   // 结束时间
 }
 
-// UEFIEntry UEFI 启动项
+// UEFIEntry UEFI 启动项.
 type UEFIEntry struct {
 	ID     string `json:"id"`     // 启动项ID
 	Name   string `json:"name"`   // 名称
@@ -119,7 +119,7 @@ type UEFIEntry struct {
 	Active bool   `json:"active"` // 是否激活
 }
 
-// SecureBootStatus 安全启动状态
+// SecureBootStatus 安全启动状态.
 type SecureBootStatus struct {
 	Enabled     bool   `json:"enabled"`     // 是否启用
 	SetupMode   bool   `json:"setupMode"`   // 是否处于设置模式
@@ -129,7 +129,7 @@ type SecureBootStatus struct {
 	PlatformKey bool   `json:"platformKey"` // 是否有平台密钥
 }
 
-// BootLog 启动日志
+// BootLog 启动日志.
 type BootLog struct {
 	Timestamp time.Time `json:"timestamp"` // 时间戳
 	Phase     LogPhase  `json:"phase"`     // 阶段
@@ -139,7 +139,7 @@ type BootLog struct {
 
 // ========== Manager ==========
 
-// Manager 启动修复管理器
+// Manager 启动修复管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	bootloader  *BootloaderInfo
@@ -156,7 +156,7 @@ type Manager struct {
 	rescueMode  bool
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		entries:     make(map[string]*BootEntry),
@@ -177,7 +177,7 @@ func NewManager() *Manager {
 	return m
 }
 
-// initDefaults 初始化默认配置
+// initDefaults 初始化默认配置.
 func (m *Manager) initDefaults() {
 	// 默认引导加载器信息
 	m.bootloader = &BootloaderInfo{
@@ -233,7 +233,7 @@ func (m *Manager) initDefaults() {
 
 // ========== 引导加载器检测 ==========
 
-// DetectBootloader 检测引导加载器
+// DetectBootloader 检测引导加载器.
 func (m *Manager) DetectBootloader() (*BootloaderInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -247,7 +247,7 @@ func (m *Manager) DetectBootloader() (*BootloaderInfo, error) {
 
 // ========== 启动项管理 ==========
 
-// ListBootEntries 列出所有启动项
+// ListBootEntries 列出所有启动项.
 func (m *Manager) ListBootEntries() ([]BootEntry, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -264,7 +264,7 @@ func (m *Manager) ListBootEntries() ([]BootEntry, error) {
 	return entries, nil
 }
 
-// SetDefaultBoot 设置默认启动项
+// SetDefaultBoot 设置默认启动项.
 func (m *Manager) SetDefaultBoot(entryID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -286,7 +286,7 @@ func (m *Manager) SetDefaultBoot(entryID string) error {
 
 // ========== 分区检查 ==========
 
-// CheckBootPartition 检查引导分区
+// CheckBootPartition 检查引导分区.
 func (m *Manager) CheckBootPartition() ([]BootIssue, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -317,7 +317,7 @@ func (m *Manager) CheckBootPartition() ([]BootIssue, error) {
 
 // ========== 引导修复 ==========
 
-// RepairBootloader 修复引导加载器
+// RepairBootloader 修复引导加载器.
 func (m *Manager) RepairBootloader() (*RepairJob, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -351,7 +351,7 @@ func (m *Manager) RepairBootloader() (*RepairJob, error) {
 
 // ========== UEFI 启动项管理 ==========
 
-// ListUEFIEntries 列出 UEFI 启动项
+// ListUEFIEntries 列出 UEFI 启动项.
 func (m *Manager) ListUEFIEntries() ([]UEFIEntry, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -364,7 +364,7 @@ func (m *Manager) ListUEFIEntries() ([]UEFIEntry, error) {
 	return entries, nil
 }
 
-// AddUEFIEntry 添加 UEFI 启动项
+// AddUEFIEntry 添加 UEFI 启动项.
 func (m *Manager) AddUEFIEntry(entry *UEFIEntry) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -391,7 +391,7 @@ func (m *Manager) AddUEFIEntry(entry *UEFIEntry) error {
 	return nil
 }
 
-// RemoveUEFIEntry 删除 UEFI 启动项
+// RemoveUEFIEntry 删除 UEFI 启动项.
 func (m *Manager) RemoveUEFIEntry(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -408,7 +408,7 @@ func (m *Manager) RemoveUEFIEntry(id string) error {
 
 // ========== 安全启动 ==========
 
-// CheckSecureBoot 检查安全启动状态
+// CheckSecureBoot 检查安全启动状态.
 func (m *Manager) CheckSecureBoot() (*SecureBootStatus, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -416,7 +416,7 @@ func (m *Manager) CheckSecureBoot() (*SecureBootStatus, error) {
 	return m.secureBoot, nil
 }
 
-// SetSecureBoot 设置安全启动
+// SetSecureBoot 设置安全启动.
 func (m *Manager) SetSecureBoot(enable bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -437,7 +437,7 @@ func (m *Manager) SetSecureBoot(enable bool) error {
 
 // ========== 内核回滚 ==========
 
-// RollbackKernel 回滚内核版本
+// RollbackKernel 回滚内核版本.
 func (m *Manager) RollbackKernel(version string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -487,7 +487,7 @@ func (m *Manager) RollbackKernel(version string) error {
 
 // ========== 引导日志 ==========
 
-// GetBootLogs 获取启动日志
+// GetBootLogs 获取启动日志.
 func (m *Manager) GetBootLogs(since time.Time) []BootLog {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -504,7 +504,7 @@ func (m *Manager) GetBootLogs(since time.Time) []BootLog {
 
 // ========== 问题分析与自动修复 ==========
 
-// AnalyzeIssues 分析启动问题
+// AnalyzeIssues 分析启动问题.
 func (m *Manager) AnalyzeIssues() ([]BootIssue, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -563,7 +563,7 @@ func (m *Manager) AnalyzeIssues() ([]BootIssue, error) {
 	return issues, nil
 }
 
-// AutoRepair 自动修复问题
+// AutoRepair 自动修复问题.
 func (m *Manager) AutoRepair(issueID string) (*RepairJob, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -628,7 +628,7 @@ func (m *Manager) AutoRepair(issueID string) (*RepairJob, error) {
 
 // ========== 救援模式 ==========
 
-// EnterRescueMode 进入救援模式
+// EnterRescueMode 进入救援模式.
 func (m *Manager) EnterRescueMode() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -642,7 +642,7 @@ func (m *Manager) EnterRescueMode() error {
 	return nil
 }
 
-// ExitRescueMode 退出救援模式
+// ExitRescueMode 退出救援模式.
 func (m *Manager) ExitRescueMode() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -656,7 +656,7 @@ func (m *Manager) ExitRescueMode() error {
 	return nil
 }
 
-// IsInRescueMode 是否在救援模式
+// IsInRescueMode 是否在救援模式.
 func (m *Manager) IsInRescueMode() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

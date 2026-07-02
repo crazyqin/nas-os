@@ -105,8 +105,8 @@ type testModule struct {
 }
 
 func (t *testModule) Init(ctx context.Context) error  { t.initCalled = true; return nil }
-func (t *testModule) Start(ctx context.Context) error  { t.startCalled = true; return nil }
-func (t *testModule) Stop(ctx context.Context) error   { t.stopCalled = true; return nil }
+func (t *testModule) Start(ctx context.Context) error { t.startCalled = true; return nil }
+func (t *testModule) Stop(ctx context.Context) error  { t.stopCalled = true; return nil }
 
 func TestContainer_InitStartStop(t *testing.T) {
 	logger, _ := zap.NewDevelopment()

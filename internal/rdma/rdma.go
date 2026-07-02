@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// ConnectionState 连接状态
+// ConnectionState 连接状态.
 type ConnectionState string
 
 const (
@@ -25,7 +25,7 @@ const (
 	StateConnecting ConnectionState = "connecting"
 )
 
-// TransportType 传输协议类型
+// TransportType 传输协议类型.
 type TransportType string
 
 const (
@@ -33,7 +33,7 @@ const (
 	TransportTCP  TransportType = "tcp"
 )
 
-// StorageProtocol 存储协议类型
+// StorageProtocol 存储协议类型.
 type StorageProtocol string
 
 const (
@@ -41,7 +41,7 @@ const (
 	ProtocolNFS   StorageProtocol = "nfs"
 )
 
-// RDMADevice RDMA网络设备
+// RDMADevice RDMA网络设备.
 type RDMADevice struct {
 	Name          string        `json:"name"`
 	GUID          string        `json:"guid"`
@@ -57,7 +57,7 @@ type RDMADevice struct {
 	NodeGUID      string        `json:"nodeGUID"`
 }
 
-// RDMAConnection RDMA连接
+// RDMAConnection RDMA连接.
 type RDMAConnection struct {
 	ID             string          `json:"id"`
 	DeviceName     string          `json:"deviceName"`
@@ -87,7 +87,7 @@ type RDMAConnection struct {
 	DegradedAt        *time.Time    `json:"degradedAt,omitempty"`
 }
 
-// MultipathGroup 多路径组
+// MultipathGroup 多路径组.
 type MultipathGroup struct {
 	ID             string     `json:"id"`
 	ConnectionIDs  []string   `json:"connectionIds"`
@@ -99,7 +99,7 @@ type MultipathGroup struct {
 	LastFailoverAt *time.Time `json:"lastFailoverAt,omitempty"`
 }
 
-// RDMAStats RDMA性能统计
+// RDMAStats RDMA性能统计.
 type RDMAStats struct {
 	// IOPS统计
 	ReadIOPS  int64 `json:"readIops"`
@@ -132,7 +132,7 @@ type RDMAStats struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-// RateLimitConfig 速率限制配置
+// RateLimitConfig 速率限制配置.
 type RateLimitConfig struct {
 	Enabled      bool    `json:"enabled"`
 	MaxBandwidth float64 `json:"maxBandwidth"` // Mbps
@@ -140,7 +140,7 @@ type RateLimitConfig struct {
 	BurstSize    int64   `json:"burstSize"` // 字节
 }
 
-// CongestionConfig 拥塞控制配置
+// CongestionConfig 拥塞控制配置.
 type CongestionConfig struct {
 	Enabled          bool    `json:"enabled"`
 	ECNEnabled       bool    `json:"ecnEnabled"`       // 显式拥塞通知
@@ -150,7 +150,7 @@ type CongestionConfig struct {
 	MinRate          float64 `json:"minRate"`          // 最低速率(Mbps)
 }
 
-// FailoverConfig 故障切换配置
+// FailoverConfig 故障切换配置.
 type FailoverConfig struct {
 	Enabled         bool          `json:"enabled"`
 	ProbeInterval   time.Duration `json:"probeInterval"`   // 探测间隔
@@ -160,7 +160,7 @@ type FailoverConfig struct {
 	RecoverInterval time.Duration `json:"recoverInterval"` // 恢复探测间隔
 }
 
-// RDMAConfig RDMA模块配置
+// RDMAConfig RDMA模块配置.
 type RDMAConfig struct {
 	Enabled          bool             `json:"enabled"`
 	DefaultTransport TransportType    `json:"defaultTransport"`
@@ -178,7 +178,7 @@ type RDMAConfig struct {
 	HealthCheckCount int     `json:"healthCheckCount"` // 健康检查失败次数触发降级
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() RDMAConfig {
 	return RDMAConfig{
 		Enabled:          false,
@@ -214,7 +214,7 @@ func DefaultConfig() RDMAConfig {
 	}
 }
 
-// RDMAManager RDMA管理器
+// RDMAManager RDMA管理器.
 type RDMAManager struct {
 	devices       map[string]*RDMADevice
 	conns         map[string]*RDMAConnection
@@ -233,7 +233,7 @@ type RDMAManager struct {
 	failedConns        atomic.Int64
 }
 
-// NewRDMAManager 创建RDMA管理器
+// NewRDMAManager 创建RDMA管理器.
 func NewRDMAManager(config RDMAConfig) *RDMAManager {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &RDMAManager{
@@ -246,7 +246,7 @@ func NewRDMAManager(config RDMAConfig) *RDMAManager {
 	}
 }
 
-// Start 启动RDMA管理器
+// Start 启动RDMA管理器.
 func (m *RDMAManager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -269,7 +269,7 @@ func (m *RDMAManager) Start() error {
 	return nil
 }
 
-// Stop 停止RDMA管理器
+// Stop 停止RDMA管理器.
 func (m *RDMAManager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -286,7 +286,7 @@ func (m *RDMAManager) Stop() {
 	log.Printf("[RDMA] Manager stopped")
 }
 
-// GetStatus 获取RDMA状态
+// GetStatus 获取RDMA状态.
 func (m *RDMAManager) GetStatus() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -301,7 +301,7 @@ func (m *RDMAManager) GetStatus() map[string]interface{} {
 	}
 }
 
-// GetDevices 获取所有RDMA设备
+// GetDevices 获取所有RDMA设备.
 func (m *RDMAManager) GetDevices() []*RDMADevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -313,7 +313,7 @@ func (m *RDMAManager) GetDevices() []*RDMADevice {
 	return result
 }
 
-// GetConnections 获取所有活跃连接
+// GetConnections 获取所有活跃连接.
 func (m *RDMAManager) GetConnections() []*RDMAConnection {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -325,7 +325,7 @@ func (m *RDMAManager) GetConnections() []*RDMAConnection {
 	return result
 }
 
-// GetStats 获取性能统计
+// GetStats 获取性能统计.
 func (m *RDMAManager) GetStats() RDMAStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -352,7 +352,7 @@ func (m *RDMAManager) GetStats() RDMAStats {
 	return stats
 }
 
-// GetMultipathStatus 获取多路径状态
+// GetMultipathStatus 获取多路径状态.
 func (m *RDMAManager) GetMultipathStatus() []*MultipathGroup {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -364,14 +364,14 @@ func (m *RDMAManager) GetMultipathStatus() []*MultipathGroup {
 	return result
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *RDMAManager) UpdateConfig(config RDMAConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.config = config
 }
 
-// EnableRDMA 启用RDMA
+// EnableRDMA 启用RDMA.
 func (m *RDMAManager) EnableRDMA() error {
 	m.mu.Lock()
 	m.config.Enabled = true
@@ -382,7 +382,7 @@ func (m *RDMAManager) EnableRDMA() error {
 	return nil
 }
 
-// DisableRDMA 禁用RDMA
+// DisableRDMA 禁用RDMA.
 func (m *RDMAManager) DisableRDMA() error {
 	m.mu.Lock()
 	m.config.Enabled = false
@@ -393,7 +393,7 @@ func (m *RDMAManager) DisableRDMA() error {
 	return nil
 }
 
-// EstablishConnection 建立RDMA连接
+// EstablishConnection 建立RDMA连接.
 func (m *RDMAManager) EstablishConnection(deviceName, remoteAddr string, protocol StorageProtocol) (*RDMAConnection, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -437,7 +437,7 @@ func (m *RDMAManager) EstablishConnection(deviceName, remoteAddr string, protoco
 	return conn, nil
 }
 
-// CreateMultipathGroup 创建多路径组
+// CreateMultipathGroup 创建多路径组.
 func (m *RDMAManager) CreateMultipathGroup(connIDs []string, policy string) (*MultipathGroup, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -467,7 +467,7 @@ func (m *RDMAManager) CreateMultipathGroup(connIDs []string, policy string) (*Mu
 	return grp, nil
 }
 
-// CloseConnection 关闭连接
+// CloseConnection 关闭连接.
 func (m *RDMAManager) CloseConnection(connID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -481,7 +481,7 @@ func (m *RDMAManager) CloseConnection(connID string) error {
 	return nil
 }
 
-// scanDevices 扫描RDMA设备
+// scanDevices 扫描RDMA设备.
 func (m *RDMAManager) scanDevices() {
 	// 模拟扫描到的RDMA设备
 	// 实际实现中应读取 /sys/class/infiniband/ 或使用 rdma-core 库
@@ -524,7 +524,7 @@ func (m *RDMAManager) scanDevices() {
 	}
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (m *RDMAManager) monitorLoop() {
 	ticker := time.NewTicker(m.config.MonitorInterval)
 	defer ticker.Stop()
@@ -538,7 +538,7 @@ func (m *RDMAManager) monitorLoop() {
 	}
 }
 
-// checkConnectionHealth 检查连接健康状态
+// checkConnectionHealth 检查连接健康状态.
 func (m *RDMAManager) checkConnectionHealth() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -582,7 +582,7 @@ func (m *RDMAManager) checkConnectionHealth() {
 	m.updateGlobalStats()
 }
 
-// fallbackConnection 回退连接到TCP
+// fallbackConnection 回退连接到TCP.
 func (m *RDMAManager) fallbackConnection(conn *RDMAConnection) {
 	now := time.Now()
 	conn.IsFallback = true
@@ -593,7 +593,7 @@ func (m *RDMAManager) fallbackConnection(conn *RDMAConnection) {
 	log.Printf("[RDMA] Connection %s fallback to TCP (was %s)", conn.ID, conn.FallbackTransport)
 }
 
-// updateGlobalStats 更新全局统计
+// updateGlobalStats 更新全局统计.
 func (m *RDMAManager) updateGlobalStats() {
 	var totalReadIOPS, totalWriteIOPS int64
 	var totalReadBW, totalWriteBW float64
@@ -635,7 +635,7 @@ func (m *RDMAManager) updateGlobalStats() {
 	}
 }
 
-// establishFallbackConn 建立TCP回退连接
+// establishFallbackConn 建立TCP回退连接.
 func (m *RDMAManager) establishFallbackConn(remoteAddr string, protocol StorageProtocol) (*RDMAConnection, error) {
 	conn := &RDMAConnection{
 		ID:             fmt.Sprintf("tcp-fb-%d", time.Now().UnixNano()),
@@ -656,7 +656,7 @@ func (m *RDMAManager) establishFallbackConn(remoteAddr string, protocol StorageP
 	return conn, nil
 }
 
-// contains 检查字符串切片是否包含指定值
+// contains 检查字符串切片是否包含指定值.
 func contains(slice []string, item string) bool {
 	for _, s := range slice {
 		if s == item {

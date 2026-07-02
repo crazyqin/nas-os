@@ -10,13 +10,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ProtectionHandlers 勒索防护处理器
+// ProtectionHandlers 勒索防护处理器.
 type ProtectionHandlers struct {
 	protection *RealtimeProtection
 	honeyMgr   *HoneyFileManager
 }
 
-// NewProtectionHandlers 创建勒索防护处理器
+// NewProtectionHandlers 创建勒索防护处理器.
 func NewProtectionHandlers(protection *RealtimeProtection, honeyMgr *HoneyFileManager) *ProtectionHandlers {
 	return &ProtectionHandlers{
 		protection: protection,
@@ -24,7 +24,7 @@ func NewProtectionHandlers(protection *RealtimeProtection, honeyMgr *HoneyFileMa
 	}
 }
 
-// RegisterRoutes 注册勒索防护路由
+// RegisterRoutes 注册勒索防护路由.
 func (h *ProtectionHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	ransomware := r.Group("/ransomware")
 	{
@@ -84,7 +84,7 @@ func (h *ProtectionHandlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/status [get]
+// @Router /ransomware/status [get].
 func (h *ProtectionHandlers) GetStatus(c *gin.Context) {
 	status := h.protection.GetStatus()
 	honeyStats := h.honeyMgr.GetStats()
@@ -120,7 +120,7 @@ func (h *ProtectionHandlers) GetStatus(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/start [post]
+// @Router /ransomware/start [post].
 func (h *ProtectionHandlers) StartProtection(c *gin.Context) {
 	h.protection.Start(c.Request.Context())
 
@@ -137,7 +137,7 @@ func (h *ProtectionHandlers) StartProtection(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/stop [post]
+// @Router /ransomware/stop [post].
 func (h *ProtectionHandlers) StopProtection(c *gin.Context) {
 	h.protection.Stop()
 
@@ -154,7 +154,7 @@ func (h *ProtectionHandlers) StopProtection(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/config [get]
+// @Router /ransomware/config [get].
 func (h *ProtectionHandlers) GetConfig(c *gin.Context) {
 	config := h.protection.GetConfig()
 
@@ -173,7 +173,7 @@ func (h *ProtectionHandlers) GetConfig(c *gin.Context) {
 // @Produce json
 // @Param request body RealtimeProtectionConfig true "配置"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/config [put]
+// @Router /ransomware/config [put].
 func (h *ProtectionHandlers) UpdateConfig(c *gin.Context) {
 	var config RealtimeProtectionConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -200,7 +200,7 @@ func (h *ProtectionHandlers) UpdateConfig(c *gin.Context) {
 // @Produce json
 // @Param path query string false "按路径过滤"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/honeyfile [get]
+// @Router /ransomware/honeyfile [get].
 func (h *ProtectionHandlers) GetHoneyFiles(c *gin.Context) {
 	path := c.Query("path")
 
@@ -228,7 +228,7 @@ func (h *ProtectionHandlers) GetHoneyFiles(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/honeyfile/deploy [post]
+// @Router /ransomware/honeyfile/deploy [post].
 func (h *ProtectionHandlers) DeployHoneyFiles(c *gin.Context) {
 	err := h.honeyMgr.DeployAll()
 	if err != nil {
@@ -259,7 +259,7 @@ func (h *ProtectionHandlers) DeployHoneyFiles(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/honeyfile/redeploy [post]
+// @Router /ransomware/honeyfile/redeploy [post].
 func (h *ProtectionHandlers) RedeployHoneyFiles(c *gin.Context) {
 	err := h.honeyMgr.Redeploy()
 	if err != nil {
@@ -286,7 +286,7 @@ func (h *ProtectionHandlers) RedeployHoneyFiles(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/honeyfile/stats [get]
+// @Router /ransomware/honeyfile/stats [get].
 func (h *ProtectionHandlers) GetHoneyFileStats(c *gin.Context) {
 	stats := h.honeyMgr.GetStats()
 
@@ -305,7 +305,7 @@ func (h *ProtectionHandlers) GetHoneyFileStats(c *gin.Context) {
 // @Produce json
 // @Param limit query int false "返回数量限制" default(100)
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/honeyfile/events [get]
+// @Router /ransomware/honeyfile/events [get].
 func (h *ProtectionHandlers) GetHoneyFileEvents(c *gin.Context) {
 	limit := 100
 	// 解析limit参数
@@ -329,7 +329,7 @@ func (h *ProtectionHandlers) GetHoneyFileEvents(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/honeyfile/config [get]
+// @Router /ransomware/honeyfile/config [get].
 func (h *ProtectionHandlers) GetHoneyFileConfig(c *gin.Context) {
 	// 返回默认配置作为示例
 	config := DefaultHoneyFileConfig()
@@ -341,7 +341,7 @@ func (h *ProtectionHandlers) GetHoneyFileConfig(c *gin.Context) {
 	})
 }
 
-// honeyFileConfigRequest 蜜罐配置请求
+// honeyFileConfigRequest 蜜罐配置请求.
 type honeyFileConfigRequest struct {
 	Enabled       bool     `json:"enabled"`
 	DeployPaths   []string `json:"deployPaths"`
@@ -360,7 +360,7 @@ type honeyFileConfigRequest struct {
 // @Produce json
 // @Param request body honeyFileConfigRequest true "配置"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/honeyfile/config [put]
+// @Router /ransomware/honeyfile/config [put].
 func (h *ProtectionHandlers) UpdateHoneyFileConfig(c *gin.Context) {
 	var req honeyFileConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -386,7 +386,7 @@ func (h *ProtectionHandlers) UpdateHoneyFileConfig(c *gin.Context) {
 // @Produce json
 // @Param request body scanRequest true "扫描请求"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/scan [post]
+// @Router /ransomware/scan [post].
 func (h *ProtectionHandlers) ScanDirectory(c *gin.Context) {
 	var req scanRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -413,7 +413,7 @@ func (h *ProtectionHandlers) ScanDirectory(c *gin.Context) {
 	})
 }
 
-// scanRequest 扫描请求
+// scanRequest 扫描请求.
 type scanRequest struct {
 	Path string `json:"path" binding:"required"`
 }
@@ -426,7 +426,7 @@ type scanRequest struct {
 // @Produce json
 // @Param limit query int false "返回数量限制" default(50)
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/threats/history [get]
+// @Router /ransomware/threats/history [get].
 func (h *ProtectionHandlers) GetThreatHistory(c *gin.Context) {
 	// 获取威胁历史
 	history := h.protection.GetThreatHistory(50)
@@ -448,7 +448,7 @@ func (h *ProtectionHandlers) GetThreatHistory(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/quarantine [get]
+// @Router /ransomware/quarantine [get].
 func (h *ProtectionHandlers) GetQuarantineList(c *gin.Context) {
 	// 获取隔离列表
 	entries := h.protection.quarantine.ListEntries(100, 0, nil)
@@ -463,7 +463,7 @@ func (h *ProtectionHandlers) GetQuarantineList(c *gin.Context) {
 	})
 }
 
-// restoreQuarantineRequest 恢复隔离请求
+// restoreQuarantineRequest 恢复隔离请求.
 type restoreQuarantineRequest struct {
 	TargetPath string `json:"targetPath"`
 }
@@ -477,7 +477,7 @@ type restoreQuarantineRequest struct {
 // @Param id path string true "隔离ID"
 // @Param request body restoreQuarantineRequest true "恢复请求"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/quarantine/{id}/restore [post]
+// @Router /ransomware/quarantine/{id}/restore [post].
 func (h *ProtectionHandlers) RestoreFromQuarantine(c *gin.Context) {
 	id := c.Param("id")
 
@@ -516,7 +516,7 @@ func (h *ProtectionHandlers) RestoreFromQuarantine(c *gin.Context) {
 // @Produce json
 // @Param id path string true "隔离ID"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/quarantine/{id} [delete]
+// @Router /ransomware/quarantine/{id} [delete].
 func (h *ProtectionHandlers) DeleteFromQuarantine(c *gin.Context) {
 	_ = c.Param("id")
 
@@ -535,7 +535,7 @@ func (h *ProtectionHandlers) DeleteFromQuarantine(c *gin.Context) {
 // @Produce json
 // @Param limit query int false "返回数量限制" default(20)
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/snapshots [get]
+// @Router /ransomware/snapshots [get].
 func (h *ProtectionHandlers) GetSnapshots(c *gin.Context) {
 	// 获取快照列表
 	snapshots := h.protection.snapshotMgr.ListSnapshots(20, 0, nil)
@@ -550,7 +550,7 @@ func (h *ProtectionHandlers) GetSnapshots(c *gin.Context) {
 	})
 }
 
-// restoreSnapshotRequest 恢复快照请求
+// restoreSnapshotRequest 恢复快照请求.
 type restoreSnapshotRequest struct {
 	TargetPath string `json:"targetPath"`
 }
@@ -564,7 +564,7 @@ type restoreSnapshotRequest struct {
 // @Param id path string true "快照ID"
 // @Param request body restoreSnapshotRequest true "恢复请求"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/snapshots/{id}/restore [post]
+// @Router /ransomware/snapshots/{id}/restore [post].
 func (h *ProtectionHandlers) RestoreSnapshot(c *gin.Context) {
 	id := c.Param("id")
 
@@ -602,7 +602,7 @@ func (h *ProtectionHandlers) RestoreSnapshot(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/whitelist [get]
+// @Router /ransomware/whitelist [get].
 func (h *ProtectionHandlers) GetWhitelist(c *gin.Context) {
 	config := h.protection.GetConfig()
 
@@ -613,7 +613,7 @@ func (h *ProtectionHandlers) GetWhitelist(c *gin.Context) {
 	})
 }
 
-// whitelistPathRequest 白名单路径请求
+// whitelistPathRequest 白名单路径请求.
 type whitelistPathRequest struct {
 	Path string `json:"path" binding:"required"`
 }
@@ -626,7 +626,7 @@ type whitelistPathRequest struct {
 // @Produce json
 // @Param request body whitelistPathRequest true "路径"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/whitelist/path [post]
+// @Router /ransomware/whitelist/path [post].
 func (h *ProtectionHandlers) AddWhitelistPath(c *gin.Context) {
 	var req whitelistPathRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -653,7 +653,7 @@ func (h *ProtectionHandlers) AddWhitelistPath(c *gin.Context) {
 // @Produce json
 // @Param request body whitelistPathRequest true "路径"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/whitelist/path [delete]
+// @Router /ransomware/whitelist/path [delete].
 func (h *ProtectionHandlers) RemoveWhitelistPath(c *gin.Context) {
 	var req whitelistPathRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -672,7 +672,7 @@ func (h *ProtectionHandlers) RemoveWhitelistPath(c *gin.Context) {
 	})
 }
 
-// whitelistProcessRequest 白名单进程请求
+// whitelistProcessRequest 白名单进程请求.
 type whitelistProcessRequest struct {
 	Process string `json:"process" binding:"required"`
 }
@@ -685,7 +685,7 @@ type whitelistProcessRequest struct {
 // @Produce json
 // @Param request body whitelistProcessRequest true "进程名"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/whitelist/process [post]
+// @Router /ransomware/whitelist/process [post].
 func (h *ProtectionHandlers) AddWhitelistProcess(c *gin.Context) {
 	var req whitelistProcessRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -711,7 +711,7 @@ func (h *ProtectionHandlers) AddWhitelistProcess(c *gin.Context) {
 // @Produce json
 // @Param request body whitelistProcessRequest true "进程名"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/whitelist/process [delete]
+// @Router /ransomware/whitelist/process [delete].
 func (h *ProtectionHandlers) RemoveWhitelistProcess(c *gin.Context) {
 	var req whitelistProcessRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -729,7 +729,7 @@ func (h *ProtectionHandlers) RemoveWhitelistProcess(c *gin.Context) {
 	})
 }
 
-// sensitivityRequest 灵敏度请求
+// sensitivityRequest 灵敏度请求.
 type sensitivityRequest struct {
 	Sensitivity string `json:"sensitivity" binding:"required"` // low/medium/high
 }
@@ -742,7 +742,7 @@ type sensitivityRequest struct {
 // @Produce json
 // @Param request body sensitivityRequest true "灵敏度"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/sensitivity [put]
+// @Router /ransomware/sensitivity [put].
 func (h *ProtectionHandlers) SetSensitivity(c *gin.Context) {
 	var req sensitivityRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -779,7 +779,7 @@ func (h *ProtectionHandlers) SetSensitivity(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/realtime/status [get]
+// @Router /ransomware/realtime/status [get].
 func (h *ProtectionHandlers) GetRealtimeStatus(c *gin.Context) {
 	status := h.protection.GetStatus()
 
@@ -803,7 +803,7 @@ func (h *ProtectionHandlers) GetRealtimeStatus(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/realtime/stats [get]
+// @Router /ransomware/realtime/stats [get].
 func (h *ProtectionHandlers) GetRealtimeStats(c *gin.Context) {
 	status := h.protection.GetStatus()
 
@@ -832,7 +832,7 @@ func (h *ProtectionHandlers) GetRealtimeStats(c *gin.Context) {
 // @Produce json
 // @Param path query string true "扫描路径"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/quick-scan [get]
+// @Router /ransomware/quick-scan [get].
 func (h *ProtectionHandlers) QuickScan(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {
@@ -873,7 +873,7 @@ func (h *ProtectionHandlers) QuickScan(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /ransomware/dashboard [get]
+// @Router /ransomware/dashboard [get].
 func (h *ProtectionHandlers) GetProtectionDashboard(c *gin.Context) {
 	status := h.protection.GetStatus()
 	honeyStats := h.honeyMgr.GetStats()

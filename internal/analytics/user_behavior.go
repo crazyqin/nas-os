@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// UserBehaviorAnalyzer 用户行为分析器
+// UserBehaviorAnalyzer 用户行为分析器.
 type UserBehaviorAnalyzer struct {
 	mu           sync.RWMutex
 	accessLogs   []AccessLog
@@ -16,7 +16,7 @@ type UserBehaviorAnalyzer struct {
 	maxLogs      int
 }
 
-// AccessLog 访问日志
+// AccessLog 访问日志.
 type AccessLog struct {
 	Timestamp    time.Time `json:"timestamp"`
 	UserID       string    `json:"userId"`
@@ -27,7 +27,7 @@ type AccessLog struct {
 	BytesWritten uint64    `json:"bytesWritten,omitempty"`
 }
 
-// NewUserBehaviorAnalyzer 创建用户行为分析器
+// NewUserBehaviorAnalyzer 创建用户行为分析器.
 func NewUserBehaviorAnalyzer(maxLogs int) *UserBehaviorAnalyzer {
 	if maxLogs <= 0 {
 		maxLogs = 10000
@@ -40,7 +40,7 @@ func NewUserBehaviorAnalyzer(maxLogs int) *UserBehaviorAnalyzer {
 	}
 }
 
-// RecordAccess 记录访问
+// RecordAccess 记录访问.
 func (uba *UserBehaviorAnalyzer) RecordAccess(log AccessLog) {
 	uba.mu.Lock()
 	defer uba.mu.Unlock()
@@ -97,7 +97,7 @@ func (uba *UserBehaviorAnalyzer) RecordAccess(log AccessLog) {
 	}
 }
 
-// Analyze 执行用户行为分析
+// Analyze 执行用户行为分析.
 func (uba *UserBehaviorAnalyzer) Analyze() *UserBehavior {
 	uba.mu.RLock()
 	defer uba.mu.RUnlock()
@@ -111,7 +111,7 @@ func (uba *UserBehaviorAnalyzer) Analyze() *UserBehavior {
 	}
 }
 
-// calculateAccessPatterns 计算访问模式
+// calculateAccessPatterns 计算访问模式.
 func (uba *UserBehaviorAnalyzer) calculateAccessPatterns() []AccessPattern {
 	patterns := make(map[string]*AccessPattern)
 
@@ -148,7 +148,7 @@ func (uba *UserBehaviorAnalyzer) calculateAccessPatterns() []AccessPattern {
 	return result
 }
 
-// getTopHotFiles 获取热门文件
+// getTopHotFiles 获取热门文件.
 func (uba *UserBehaviorAnalyzer) getTopHotFiles(limit int) []HotFile {
 	files := make([]HotFile, 0, len(uba.hotFiles))
 	for _, f := range uba.hotFiles {
@@ -166,7 +166,7 @@ func (uba *UserBehaviorAnalyzer) getTopHotFiles(limit int) []HotFile {
 	return files
 }
 
-// calculateUsageTrend 计算使用趋势
+// calculateUsageTrend 计算使用趋势.
 func (uba *UserBehaviorAnalyzer) calculateUsageTrend() []UsageTrendPoint {
 	// 按小时分组
 	hourlyData := make(map[string]*UsageTrendPoint)
@@ -213,7 +213,7 @@ func (uba *UserBehaviorAnalyzer) calculateUsageTrend() []UsageTrendPoint {
 	return result
 }
 
-// getUserActivityList 获取用户活动列表
+// getUserActivityList 获取用户活动列表.
 func (uba *UserBehaviorAnalyzer) getUserActivityList() []UserActivity {
 	result := make([]UserActivity, 0, len(uba.userActivity))
 	for _, activity := range uba.userActivity {
@@ -227,7 +227,7 @@ func (uba *UserBehaviorAnalyzer) getUserActivityList() []UserActivity {
 	return result
 }
 
-// GetUserAccessHistory 获取用户访问历史
+// GetUserAccessHistory 获取用户访问历史.
 func (uba *UserBehaviorAnalyzer) GetUserAccessHistory(userID string, limit int) []AccessLog {
 	uba.mu.RLock()
 	defer uba.mu.RUnlock()
@@ -245,7 +245,7 @@ func (uba *UserBehaviorAnalyzer) GetUserAccessHistory(userID string, limit int) 
 	return result
 }
 
-// GetFileAccessHistory 获取文件访问历史
+// GetFileAccessHistory 获取文件访问历史.
 func (uba *UserBehaviorAnalyzer) GetFileAccessHistory(filePath string, limit int) []AccessLog {
 	uba.mu.RLock()
 	defer uba.mu.RUnlock()
@@ -263,7 +263,7 @@ func (uba *UserBehaviorAnalyzer) GetFileAccessHistory(filePath string, limit int
 	return result
 }
 
-// GetAccessCountByTimeRange 获取指定时间范围内的访问次数
+// GetAccessCountByTimeRange 获取指定时间范围内的访问次数.
 func (uba *UserBehaviorAnalyzer) GetAccessCountByTimeRange(start, end time.Time) int64 {
 	uba.mu.RLock()
 	defer uba.mu.RUnlock()
@@ -277,7 +277,7 @@ func (uba *UserBehaviorAnalyzer) GetAccessCountByTimeRange(start, end time.Time)
 	return count
 }
 
-// GetMostActiveHours 获取最活跃时段
+// GetMostActiveHours 获取最活跃时段.
 func (uba *UserBehaviorAnalyzer) GetMostActiveHours(topN int) []HourActivity {
 	uba.mu.RLock()
 	defer uba.mu.RUnlock()
@@ -307,14 +307,14 @@ func (uba *UserBehaviorAnalyzer) GetMostActiveHours(topN int) []HourActivity {
 	return result
 }
 
-// HourActivity 小时活动
+// HourActivity 小时活动.
 type HourActivity struct {
 	Hour   int    `json:"hour"`
 	Count  int64  `json:"count"`
 	Format string `json:"format"`
 }
 
-// formatHour 格式化小时
+// formatHour 格式化小时.
 func formatHour(hour int) string {
 	if hour == 0 {
 		return "00:00-01:00"
@@ -322,7 +322,7 @@ func formatHour(hour int) string {
 	return fmt.Sprintf("%02d:00-%02d:00", hour, hour+1)
 }
 
-// ClearHistory 清空历史记录
+// ClearHistory 清空历史记录.
 func (uba *UserBehaviorAnalyzer) ClearHistory() {
 	uba.mu.Lock()
 	defer uba.mu.Unlock()
@@ -332,7 +332,7 @@ func (uba *UserBehaviorAnalyzer) ClearHistory() {
 	uba.userActivity = make(map[string]*UserActivity)
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (uba *UserBehaviorAnalyzer) GetStats() map[string]interface{} {
 	uba.mu.RLock()
 	defer uba.mu.RUnlock()

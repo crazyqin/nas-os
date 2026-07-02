@@ -14,7 +14,7 @@ import (
 	"sync"
 )
 
-// SceneRecognizer provides scene recognition for photos
+// SceneRecognizer provides scene recognition for photos.
 type SceneRecognizer struct {
 	config      *ModelConfig
 	initialized bool
@@ -27,7 +27,7 @@ type SceneRecognizer struct {
 	moodColors map[string][]color.RGBA
 }
 
-// NewSceneRecognizer creates a new scene recognizer
+// NewSceneRecognizer creates a new scene recognizer.
 func NewSceneRecognizer(config *ModelConfig) (*SceneRecognizer, error) {
 	if config == nil {
 		config = DefaultModelConfig()
@@ -44,7 +44,7 @@ func NewSceneRecognizer(config *ModelConfig) (*SceneRecognizer, error) {
 	return sr, nil
 }
 
-// initSceneKeywords initializes scene keyword mappings
+// initSceneKeywords initializes scene keyword mappings.
 func (sr *SceneRecognizer) initSceneKeywords() {
 	sr.sceneKeywords = map[string][]string{
 		"beach":    {"sand", "ocean", "sea", "waves", "beach", "shore", "coastline", "tropical"},
@@ -70,7 +70,7 @@ func (sr *SceneRecognizer) initSceneKeywords() {
 	}
 }
 
-// initMoodColors initializes mood color mappings
+// initMoodColors initializes mood color mappings.
 func (sr *SceneRecognizer) initMoodColors() {
 	sr.moodColors = map[string][]color.RGBA{
 		"happy": {
@@ -96,7 +96,7 @@ func (sr *SceneRecognizer) initMoodColors() {
 	}
 }
 
-// RecognizeScene analyzes a photo and returns scene classification
+// RecognizeScene analyzes a photo and returns scene classification.
 func (sr *SceneRecognizer) RecognizeScene(ctx context.Context, img image.Image) (*SceneRecognitionResult, error) {
 	result := &SceneRecognitionResult{
 		PhotoID:    "",
@@ -136,7 +136,7 @@ func (sr *SceneRecognizer) RecognizeScene(ctx context.Context, img image.Image) 
 	return result, nil
 }
 
-// extractColors extracts dominant colors from image
+// extractColors extracts dominant colors from image.
 func (sr *SceneRecognizer) extractColors(img image.Image, numColors int) []ColorInfo {
 	bounds := img.Bounds()
 	colorMap := make(map[color.RGBA]int)
@@ -185,7 +185,7 @@ func (sr *SceneRecognizer) extractColors(img image.Image, numColors int) []Color
 	return result
 }
 
-// colorName returns a human-readable color name
+// colorName returns a human-readable color name.
 func (sr *SceneRecognizer) colorName(c color.RGBA) string {
 	// Convert to HSL for easier naming
 	r, g, b := float64(c.R)/255.0, float64(c.G)/255.0, float64(c.B)/255.0
@@ -252,7 +252,7 @@ func (sr *SceneRecognizer) colorName(c color.RGBA) string {
 	}
 }
 
-// analyzeBrightnessContrast analyzes image brightness and contrast
+// analyzeBrightnessContrast analyzes image brightness and contrast.
 func (sr *SceneRecognizer) analyzeBrightnessContrast(img image.Image) (float64, float64) {
 	bounds := img.Bounds()
 	var sum, sumSq float64
@@ -281,7 +281,7 @@ func (sr *SceneRecognizer) analyzeBrightnessContrast(img image.Image) (float64, 
 	return brightness, contrast
 }
 
-// detectTimeOfDay estimates time of day from image characteristics
+// detectTimeOfDay estimates time of day from image characteristics.
 func (sr *SceneRecognizer) detectTimeOfDay(brightness float64, colors []ColorInfo) string {
 	// Check for golden hour colors (warm oranges and yellows)
 	warmColors := 0.0
@@ -312,7 +312,7 @@ func (sr *SceneRecognizer) detectTimeOfDay(brightness float64, colors []ColorInf
 	return "morning"
 }
 
-// detectSeason estimates season from colors
+// detectSeason estimates season from colors.
 func (sr *SceneRecognizer) detectSeason(colors []ColorInfo, brightness float64) string {
 	// Check for seasonal colors
 	greenPercent := 0.0
@@ -356,7 +356,7 @@ func (sr *SceneRecognizer) detectSeason(colors []ColorInfo, brightness float64) 
 	return "summer" // Default
 }
 
-// analyzeComposition analyzes image composition
+// analyzeComposition analyzes image composition.
 func (sr *SceneRecognizer) analyzeComposition(img image.Image) map[string]float64 {
 	bounds := img.Bounds()
 	width := bounds.Dx()
@@ -411,7 +411,7 @@ func (sr *SceneRecognizer) analyzeComposition(img image.Image) map[string]float6
 	}
 }
 
-// classifyScene classifies the main scene
+// classifyScene classifies the main scene.
 func (sr *SceneRecognizer) classifyScene(img image.Image, colors []ColorInfo, brightness, contrast float64, composition map[string]float64) SceneInfo {
 	bounds := img.Bounds()
 	aspectRatio := float64(bounds.Dx()) / float64(bounds.Dy())
@@ -537,7 +537,7 @@ func (sr *SceneRecognizer) classifyScene(img image.Image, colors []ColorInfo, br
 	return SceneInfo{Category: scene, Confidence: confidence, Labels: labels}
 }
 
-// detectMood detects image mood
+// detectMood detects image mood.
 func (sr *SceneRecognizer) detectMood(colors []ColorInfo, brightness, contrast float64) string {
 	// Calculate color mood scores
 	moodScores := map[string]float64{
@@ -588,7 +588,7 @@ func (sr *SceneRecognizer) detectMood(colors []ColorInfo, brightness, contrast f
 	return maxMood
 }
 
-// detectObjects detects objects in image (simplified)
+// detectObjects detects objects in image (simplified).
 func (sr *SceneRecognizer) detectObjects(img image.Image) []ObjectInfo {
 	// This is a simplified implementation
 	// In production, use YOLO or similar object detection model
@@ -625,7 +625,7 @@ func (sr *SceneRecognizer) detectObjects(img image.Image) []ObjectInfo {
 	return objects
 }
 
-// BatchRecognize recognizes scenes for multiple images
+// BatchRecognize recognizes scenes for multiple images.
 func (sr *SceneRecognizer) BatchRecognize(ctx context.Context, images []image.Image) ([]*SceneRecognitionResult, error) {
 	results := make([]*SceneRecognitionResult, len(images))
 
@@ -657,12 +657,12 @@ func (sr *SceneRecognizer) BatchRecognize(ctx context.Context, images []image.Im
 	return results, nil
 }
 
-// Close releases resources
+// Close releases resources.
 func (sr *SceneRecognizer) Close() error {
 	return nil
 }
 
-// Python scene classifier bridge (for advanced models)
+// Python scene classifier bridge (for advanced models).
 type PythonSceneClassifier struct {
 	pythonPath string
 	scriptPath string

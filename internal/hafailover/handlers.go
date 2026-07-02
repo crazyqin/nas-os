@@ -8,14 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// APIResponse 统一API响应格式
+// APIResponse 统一API响应格式.
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// RegisterRoutes 注册HTTP路由
+// RegisterRoutes 注册HTTP路由.
 func RegisterRoutes(r *gin.RouterGroup, mgr *Manager) {
 	h := &handler{mgr: mgr}
 
@@ -49,7 +49,7 @@ type handler struct {
 	mgr *Manager
 }
 
-// GetConfig 获取HA配置
+// GetConfig 获取HA配置.
 func (h *handler) GetConfig(c *gin.Context) {
 	config := h.mgr.GetConfig()
 	c.JSON(http.StatusOK, APIResponse{
@@ -59,7 +59,7 @@ func (h *handler) GetConfig(c *gin.Context) {
 	})
 }
 
-// UpdateConfig 更新HA配置
+// UpdateConfig 更新HA配置.
 func (h *handler) UpdateConfig(c *gin.Context) {
 	var req HAConfig
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -86,7 +86,7 @@ func (h *handler) UpdateConfig(c *gin.Context) {
 	})
 }
 
-// ListNodes 列出所有节点
+// ListNodes 列出所有节点.
 func (h *handler) ListNodes(c *gin.Context) {
 	nodes := h.mgr.ListNodes()
 	c.JSON(http.StatusOK, APIResponse{
@@ -96,7 +96,7 @@ func (h *handler) ListNodes(c *gin.Context) {
 	})
 }
 
-// GetNode 获取节点信息
+// GetNode 获取节点信息.
 func (h *handler) GetNode(c *gin.Context) {
 	id := c.Param("id")
 
@@ -116,7 +116,7 @@ func (h *handler) GetNode(c *gin.Context) {
 	})
 }
 
-// RegisterNode 注册节点
+// RegisterNode 注册节点.
 func (h *handler) RegisterNode(c *gin.Context) {
 	var req NodeInfo
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -143,7 +143,7 @@ func (h *handler) RegisterNode(c *gin.Context) {
 	})
 }
 
-// GetHAStatus 获取HA集群状态
+// GetHAStatus 获取HA集群状态.
 func (h *handler) GetHAStatus(c *gin.Context) {
 	status := h.mgr.GetHAStatus()
 	c.JSON(http.StatusOK, APIResponse{
@@ -153,7 +153,7 @@ func (h *handler) GetHAStatus(c *gin.Context) {
 	})
 }
 
-// StartHeartbeat 启动心跳检测
+// StartHeartbeat 启动心跳检测.
 func (h *handler) StartHeartbeat(c *gin.Context) {
 	level := HeartbeatLevel(c.Param("level"))
 
@@ -171,7 +171,7 @@ func (h *handler) StartHeartbeat(c *gin.Context) {
 	})
 }
 
-// StopHeartbeat 停止心跳检测
+// StopHeartbeat 停止心跳检测.
 func (h *handler) StopHeartbeat(c *gin.Context) {
 	level := HeartbeatLevel(c.Param("level"))
 
@@ -189,7 +189,7 @@ func (h *handler) StopHeartbeat(c *gin.Context) {
 	})
 }
 
-// GetHeartbeatStatus 获取心跳状态
+// GetHeartbeatStatus 获取心跳状态.
 func (h *handler) GetHeartbeatStatus(c *gin.Context) {
 	status := h.mgr.GetHeartbeatStatus()
 	c.JSON(http.StatusOK, APIResponse{
@@ -199,7 +199,7 @@ func (h *handler) GetHeartbeatStatus(c *gin.Context) {
 	})
 }
 
-// ManualFailover 手动故障切换
+// ManualFailover 手动故障切换.
 func (h *handler) ManualFailover(c *gin.Context) {
 	var req FailoverRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -226,7 +226,7 @@ func (h *handler) ManualFailover(c *gin.Context) {
 	})
 }
 
-// GetFailoverHistory 获取切换历史
+// GetFailoverHistory 获取切换历史.
 func (h *handler) GetFailoverHistory(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "50")
 	limit, err := strconv.Atoi(limitStr)
@@ -242,7 +242,7 @@ func (h *handler) GetFailoverHistory(c *gin.Context) {
 	})
 }
 
-// TriggerSync 触发同步
+// TriggerSync 触发同步.
 func (h *handler) TriggerSync(c *gin.Context) {
 	status, err := h.mgr.TriggerSync()
 	if err != nil {
@@ -260,7 +260,7 @@ func (h *handler) TriggerSync(c *gin.Context) {
 	})
 }
 
-// GetSyncStatus 获取同步状态
+// GetSyncStatus 获取同步状态.
 func (h *handler) GetSyncStatus(c *gin.Context) {
 	status := h.mgr.GetSyncStatus()
 	c.JSON(http.StatusOK, APIResponse{

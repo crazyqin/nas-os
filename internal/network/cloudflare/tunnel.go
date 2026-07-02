@@ -19,7 +19,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// TunnelManager Cloudflare Tunnel管理器
+// TunnelManager Cloudflare Tunnel管理器.
 type TunnelManager struct {
 	config     *TunnelConfig
 	logger     *zap.Logger
@@ -44,7 +44,7 @@ type TunnelManager struct {
 	wg            sync.WaitGroup
 }
 
-// TunnelConfig 配置
+// TunnelConfig 配置.
 type TunnelConfig struct {
 	// 认证配置
 	APIToken    string `json:"api_token"`    // Cloudflare API Token
@@ -71,7 +71,7 @@ type TunnelConfig struct {
 	HealthCheck bool `json:"health_check"` // 健康检查
 }
 
-// TunnelState 状态
+// TunnelState 状态.
 type TunnelState string
 
 const (
@@ -83,7 +83,7 @@ const (
 	TunnelStateStopped      TunnelState = "stopped"
 )
 
-// TunnelEvent 事件
+// TunnelEvent 事件.
 type TunnelEvent struct {
 	Type      string      `json:"type"`
 	State     TunnelState `json:"state,omitempty"`
@@ -94,10 +94,10 @@ type TunnelEvent struct {
 	Timestamp time.Time   `json:"timestamp"`
 }
 
-// TunnelEventHandler 事件处理器
+// TunnelEventHandler 事件处理器.
 type TunnelEventHandler func(event *TunnelEvent)
 
-// TunnelStats 统计信息
+// TunnelStats 统计信息.
 type TunnelStats struct {
 	State         TunnelState   `json:"state"`
 	TunnelID      string        `json:"tunnel_id"`
@@ -111,14 +111,14 @@ type TunnelStats struct {
 	Errors        int           `json:"errors"`
 }
 
-// TunnelRoute 路由配置
+// TunnelRoute 路由配置.
 type TunnelRoute struct {
 	Hostname string `json:"hostname"` // 公网域名
 	Path     string `json:"path"`     // URL路径（可选）
 	Service  string `json:"service"`  // 本地服务地址 (http://localhost:port)
 }
 
-// TunnelInfo Tunnel信息
+// TunnelInfo Tunnel信息.
 type TunnelInfo struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
@@ -128,7 +128,7 @@ type TunnelInfo struct {
 	Routes      []TunnelRoute `json:"routes"`
 }
 
-// Connection 连接信息
+// Connection 连接信息.
 type Connection struct {
 	ID          string    `json:"id"`
 	ColoID      string    `json:"colo_id"`   // 数据中心ID
@@ -148,7 +148,7 @@ var (
 	ErrStartFailed      = errors.New("failed to start tunnel")
 )
 
-// NewTunnelManager 创建Tunnel管理器
+// NewTunnelManager 创建Tunnel管理器.
 func NewTunnelManager(config *TunnelConfig, logger *zap.Logger) (*TunnelManager, error) {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -182,7 +182,7 @@ func NewTunnelManager(config *TunnelConfig, logger *zap.Logger) (*TunnelManager,
 	return mgr, nil
 }
 
-// DefaultTunnelConfig 默认配置
+// DefaultTunnelConfig 默认配置.
 func DefaultTunnelConfig() *TunnelConfig {
 	return &TunnelConfig{
 		AutoStart:    false,
@@ -196,7 +196,7 @@ func DefaultTunnelConfig() *TunnelConfig {
 	}
 }
 
-// checkInstallation 检查cloudflared安装
+// checkInstallation 检查cloudflared安装.
 func (tm *TunnelManager) checkInstallation() error {
 	// 检查常见安装路径
 	paths := []string{
@@ -222,7 +222,7 @@ func (tm *TunnelManager) checkInstallation() error {
 	return ErrNotInstalled
 }
 
-// Install 安装cloudflared
+// Install 安装cloudflared.
 func (tm *TunnelManager) Install(ctx context.Context) error {
 	// 检查是否已安装
 	if tm.cloudflaredPath != "" {
@@ -251,7 +251,7 @@ func (tm *TunnelManager) Install(ctx context.Context) error {
 	return nil
 }
 
-// Authenticate 认证
+// Authenticate 认证.
 func (tm *TunnelManager) Authenticate(ctx context.Context) error {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -289,7 +289,7 @@ func (tm *TunnelManager) Authenticate(ctx context.Context) error {
 	return nil
 }
 
-// CreateTunnel 创建Tunnel
+// CreateTunnel 创建Tunnel.
 func (tm *TunnelManager) CreateTunnel(ctx context.Context, name string) (*TunnelInfo, error) {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -345,7 +345,7 @@ func (tm *TunnelManager) CreateTunnel(ctx context.Context, name string) (*Tunnel
 	}, nil
 }
 
-// createConfigFile 创建配置文件
+// createConfigFile 创建配置文件.
 func (tm *TunnelManager) createConfigFile() error {
 	if tm.tunnelID == "" {
 		return ErrConfigFailed
@@ -392,7 +392,7 @@ func (tm *TunnelManager) createConfigFile() error {
 	return os.WriteFile(configPath, data, 0644)
 }
 
-// yamlMarshal 简单YAML序列化
+// yamlMarshal 简单YAML序列化.
 func yamlMarshal(v interface{}) ([]byte, error) {
 	// 简化实现，实际应使用yaml库
 	data, err := json.MarshalIndent(v, "", "  ")
@@ -403,7 +403,7 @@ func yamlMarshal(v interface{}) ([]byte, error) {
 	return data, nil
 }
 
-// Start 启动Tunnel
+// Start 启动Tunnel.
 func (tm *TunnelManager) Start(ctx context.Context) error {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -425,7 +425,7 @@ func (tm *TunnelManager) Start(ctx context.Context) error {
 	return ErrNotConnected
 }
 
-// startWithToken 使用Token启动
+// startWithToken 使用Token启动.
 func (tm *TunnelManager) startWithToken(ctx context.Context) error {
 	tm.logger.Info("使用Tunnel Token启动")
 
@@ -459,7 +459,7 @@ func (tm *TunnelManager) startWithToken(ctx context.Context) error {
 	}
 }
 
-// startWithTunnelID 使用Tunnel ID启动
+// startWithTunnelID 使用Tunnel ID启动.
 func (tm *TunnelManager) startWithTunnelID(ctx context.Context) error {
 	tm.logger.Info("使用Tunnel ID启动", zap.String("id", tm.tunnelID))
 
@@ -501,7 +501,7 @@ func (tm *TunnelManager) startWithTunnelID(ctx context.Context) error {
 	}
 }
 
-// monitorProcess 监控进程
+// monitorProcess 监控进程.
 func (tm *TunnelManager) monitorProcess() {
 	for {
 		select {
@@ -524,7 +524,7 @@ func (tm *TunnelManager) monitorProcess() {
 	}
 }
 
-// checkConnection 检查连接状态
+// checkConnection 检查连接状态.
 func (tm *TunnelManager) checkConnection() {
 	if tm.config.MetricsPort == 0 {
 		return
@@ -546,7 +546,7 @@ func (tm *TunnelManager) checkConnection() {
 	}
 }
 
-// handleDisconnect 处理断开
+// handleDisconnect 处理断开.
 func (tm *TunnelManager) handleDisconnect() {
 	tm.mu.Lock()
 	tm.state = TunnelStateDisconnected
@@ -564,7 +564,7 @@ func (tm *TunnelManager) handleDisconnect() {
 	}
 }
 
-// reconnect 重连
+// reconnect 重连.
 func (tm *TunnelManager) reconnect() {
 	for retry := 0; retry < tm.config.MaxRetries; retry++ {
 		tm.mu.Lock()
@@ -603,7 +603,7 @@ func (tm *TunnelManager) reconnect() {
 	})
 }
 
-// Stop 停止Tunnel
+// Stop 停止Tunnel.
 func (tm *TunnelManager) Stop() error {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -629,7 +629,7 @@ func (tm *TunnelManager) Stop() error {
 	return nil
 }
 
-// AddRoute 添加路由
+// AddRoute 添加路由.
 func (tm *TunnelManager) AddRoute(hostname, service string) error {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -647,7 +647,7 @@ func (tm *TunnelManager) AddRoute(hostname, service string) error {
 	return nil
 }
 
-// RemoveRoute 移除路由
+// RemoveRoute 移除路由.
 func (tm *TunnelManager) RemoveRoute(hostname string) error {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -661,21 +661,21 @@ func (tm *TunnelManager) RemoveRoute(hostname string) error {
 	return nil
 }
 
-// GetPublicURL 获取公网地址
+// GetPublicURL 获取公网地址.
 func (tm *TunnelManager) GetPublicURL() string {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
 	return tm.publicURL
 }
 
-// GetState 获取状态
+// GetState 获取状态.
 func (tm *TunnelManager) GetState() TunnelState {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
 	return tm.state
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (tm *TunnelManager) GetStats() *TunnelStats {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -687,14 +687,14 @@ func (tm *TunnelManager) GetStats() *TunnelStats {
 	}
 }
 
-// IsConnected 是否已连接
+// IsConnected 是否已连接.
 func (tm *TunnelManager) IsConnected() bool {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
 	return tm.connected
 }
 
-// ListTunnels 列出所有Tunnel
+// ListTunnels 列出所有Tunnel.
 func (tm *TunnelManager) ListTunnels(ctx context.Context) ([]TunnelInfo, error) {
 	args := []string{"tunnel", "list"}
 
@@ -732,7 +732,7 @@ func (tm *TunnelManager) ListTunnels(ctx context.Context) ([]TunnelInfo, error) 
 	return tunnels, nil
 }
 
-// DeleteTunnel 删除Tunnel
+// DeleteTunnel 删除Tunnel.
 func (tm *TunnelManager) DeleteTunnel(ctx context.Context, tunnelID string) error {
 	args := []string{"tunnel", "delete", tunnelID}
 
@@ -744,14 +744,14 @@ func (tm *TunnelManager) DeleteTunnel(ctx context.Context, tunnelID string) erro
 	return cmd.Run()
 }
 
-// OnEvent 注册事件处理器
+// OnEvent 注册事件处理器.
 func (tm *TunnelManager) OnEvent(handler TunnelEventHandler) {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
 	tm.eventHandlers = append(tm.eventHandlers, handler)
 }
 
-// emitEvent 发送事件
+// emitEvent 发送事件.
 func (tm *TunnelManager) emitEvent(event *TunnelEvent) {
 	event.Timestamp = time.Now()
 	for _, handler := range tm.eventHandlers {
@@ -759,7 +759,7 @@ func (tm *TunnelManager) emitEvent(event *TunnelEvent) {
 	}
 }
 
-// tunnelLogWriter 日志写入器
+// tunnelLogWriter 日志写入器.
 type tunnelLogWriter struct {
 	tm     *TunnelManager
 	prefix string

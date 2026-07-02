@@ -13,7 +13,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// NewManager 创建HA管理器
+// NewManager 创建HA管理器.
 func NewManager(configPath string) *Manager {
 	m := &Manager{
 		configPath:    configPath,
@@ -27,7 +27,7 @@ func NewManager(configPath string) *Manager {
 
 // ========== 配置管理 ==========
 
-// GetConfig 获取HA配置
+// GetConfig 获取HA配置.
 func (m *Manager) GetConfig() *HAConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -57,7 +57,7 @@ func (m *Manager) GetConfig() *HAConfig {
 	return &configCopy
 }
 
-// UpdateConfig 更新HA配置
+// UpdateConfig 更新HA配置.
 func (m *Manager) UpdateConfig(req *HAConfig) (*HAConfig, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -92,7 +92,7 @@ func (m *Manager) UpdateConfig(req *HAConfig) (*HAConfig, error) {
 
 // ========== 节点管理 ==========
 
-// ListNodes 列出所有节点
+// ListNodes 列出所有节点.
 func (m *Manager) ListNodes() []*NodeInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -109,7 +109,7 @@ func (m *Manager) ListNodes() []*NodeInfo {
 	return nodes
 }
 
-// GetNode 获取节点信息
+// GetNode 获取节点信息.
 func (m *Manager) GetNode(id string) (*NodeInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -125,7 +125,7 @@ func (m *Manager) GetNode(id string) (*NodeInfo, error) {
 	return nil, fmt.Errorf("节点 %s 不存在", id)
 }
 
-// RegisterNode 注册节点
+// RegisterNode 注册节点.
 func (m *Manager) RegisterNode(req *NodeInfo) (*NodeInfo, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -162,7 +162,7 @@ func (m *Manager) RegisterNode(req *NodeInfo) (*NodeInfo, error) {
 	return node, nil
 }
 
-// GetHAStatus 获取HA集群状态
+// GetHAStatus 获取HA集群状态.
 func (m *Manager) GetHAStatus() *HAStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -214,7 +214,7 @@ func (m *Manager) GetHAStatus() *HAStatus {
 
 // ========== 心跳管理 ==========
 
-// StartHeartbeat 启动心跳检测
+// StartHeartbeat 启动心跳检测.
 func (m *Manager) StartHeartbeat(level HeartbeatLevel) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -234,7 +234,7 @@ func (m *Manager) StartHeartbeat(level HeartbeatLevel) error {
 	return nil
 }
 
-// StopHeartbeat 停止心跳检测
+// StopHeartbeat 停止心跳检测.
 func (m *Manager) StopHeartbeat(level HeartbeatLevel) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -249,7 +249,7 @@ func (m *Manager) StopHeartbeat(level HeartbeatLevel) error {
 	return nil
 }
 
-// GetHeartbeatStatus 获取心跳状态
+// GetHeartbeatStatus 获取心跳状态.
 func (m *Manager) GetHeartbeatStatus() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -364,7 +364,7 @@ func (m *Manager) checkServiceHeartbeat(peerIP string) bool {
 
 // ========== 故障切换 ==========
 
-// ManualFailover 手动故障切换
+// ManualFailover 手动故障切换.
 func (m *Manager) ManualFailover(req *FailoverRequest) (*FailoverEvent, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -410,7 +410,7 @@ func (m *Manager) ManualFailover(req *FailoverRequest) (*FailoverEvent, error) {
 	return &event, nil
 }
 
-// GetFailoverHistory 获取切换历史
+// GetFailoverHistory 获取切换历史.
 func (m *Manager) GetFailoverHistory(limit int) []FailoverEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -531,7 +531,7 @@ func (m *Manager) vipDown() error {
 
 // ========== 数据同步 ==========
 
-// TriggerSync 手动触发同步
+// TriggerSync 手动触发同步.
 func (m *Manager) TriggerSync() (*SyncStatus, error) {
 	m.mu.Lock()
 	if m.syncState == SyncStateSyncing {
@@ -546,7 +546,7 @@ func (m *Manager) TriggerSync() (*SyncStatus, error) {
 	return m.GetSyncStatus(), nil
 }
 
-// GetSyncStatus 获取同步状态
+// GetSyncStatus 获取同步状态.
 func (m *Manager) GetSyncStatus() *SyncStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

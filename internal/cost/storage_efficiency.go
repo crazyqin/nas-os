@@ -14,7 +14,7 @@ import (
 
 // ========== 存储效率类型定义 ==========
 
-// EfficiencyType 效率类型
+// EfficiencyType 效率类型.
 type EfficiencyType string
 
 const (
@@ -25,7 +25,7 @@ const (
 	EfficiencyTypeOverall     EfficiencyType = "overall"     // 综合效率
 )
 
-// StorageEfficiencyStats 存储效率统计（对标群晖）
+// StorageEfficiencyStats 存储效率统计（对标群晖）.
 type StorageEfficiencyStats struct {
 	// 统计时间
 	CollectedAt time.Time `json:"collectedAt"`
@@ -146,7 +146,7 @@ type StorageEfficiencyStats struct {
 	HistoricalData []EfficiencyHistoryPoint `json:"historicalData"`
 }
 
-// EfficiencyHistoryPoint 效率历史数据点
+// EfficiencyHistoryPoint 效率历史数据点.
 type EfficiencyHistoryPoint struct {
 	Timestamp         time.Time `json:"timestamp"`
 	OverallEfficiency float64   `json:"overallEfficiency"`
@@ -157,7 +157,7 @@ type EfficiencyHistoryPoint struct {
 	CostPerGB         float64   `json:"costPerGB"`
 }
 
-// EfficiencyRecommendation 效率优化建议
+// EfficiencyRecommendation 效率优化建议.
 type EfficiencyRecommendation struct {
 	// 建议类型
 	Type EfficiencyType `json:"type"`
@@ -183,7 +183,7 @@ type EfficiencyRecommendation struct {
 
 // ========== 效率监控服务 ==========
 
-// EfficiencyMonitorConfig 监控配置
+// EfficiencyMonitorConfig 监控配置.
 type EfficiencyMonitorConfig struct {
 	// 监控间隔（分钟）
 	MonitorIntervalMinutes int `json:"monitorIntervalMinutes"`
@@ -210,7 +210,7 @@ type EfficiencyMonitorConfig struct {
 	CostPerGBMonthly float64 `json:"costPerGBMonthly"`
 }
 
-// DefaultEfficiencyMonitorConfig 默认配置
+// DefaultEfficiencyMonitorConfig 默认配置.
 var DefaultEfficiencyMonitorConfig = EfficiencyMonitorConfig{
 	MonitorIntervalMinutes:  15,
 	HistoryRetentionDays:    30,
@@ -222,7 +222,7 @@ var DefaultEfficiencyMonitorConfig = EfficiencyMonitorConfig{
 	CostPerGBMonthly:        0.1,
 }
 
-// EfficiencyMonitorService 效率监控服务
+// EfficiencyMonitorService 效率监控服务.
 type EfficiencyMonitorService struct {
 	config     EfficiencyMonitorConfig
 	stats      map[string]*StorageEfficiencyStats
@@ -235,7 +235,7 @@ type EfficiencyMonitorService struct {
 	configPath string
 }
 
-// NewEfficiencyMonitorService 创建效率监控服务
+// NewEfficiencyMonitorService 创建效率监控服务.
 func NewEfficiencyMonitorService(config EfficiencyMonitorConfig) *EfficiencyMonitorService {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -249,7 +249,7 @@ func NewEfficiencyMonitorService(config EfficiencyMonitorConfig) *EfficiencyMoni
 	}
 }
 
-// Start 启动监控服务
+// Start 启动监控服务.
 func (s *EfficiencyMonitorService) Start() error {
 	// 确保数据目录存在
 	_ = os.MkdirAll(s.configPath, 0750)
@@ -268,7 +268,7 @@ func (s *EfficiencyMonitorService) Start() error {
 	return nil
 }
 
-// Stop 停止监控服务
+// Stop 停止监控服务.
 func (s *EfficiencyMonitorService) Stop() {
 	s.cancel()
 	s.wg.Wait()
@@ -277,7 +277,7 @@ func (s *EfficiencyMonitorService) Stop() {
 
 // ========== 核心API ==========
 
-// GetEfficiencyStats 获取效率统计
+// GetEfficiencyStats 获取效率统计.
 func (s *EfficiencyMonitorService) GetEfficiencyStats(resourceName string) (*StorageEfficiencyStats, error) {
 	s.mu.RLock()
 	stats, exists := s.stats[resourceName]
@@ -295,7 +295,7 @@ func (s *EfficiencyMonitorService) GetEfficiencyStats(resourceName string) (*Sto
 	return stats, nil
 }
 
-// GetAllEfficiencyStats 获取所有资源效率统计
+// GetAllEfficiencyStats 获取所有资源效率统计.
 func (s *EfficiencyMonitorService) GetAllEfficiencyStats() map[string]*StorageEfficiencyStats {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -308,7 +308,7 @@ func (s *EfficiencyMonitorService) GetAllEfficiencyStats() map[string]*StorageEf
 	return result
 }
 
-// GetRecommendations 获取优化建议
+// GetRecommendations 获取优化建议.
 func (s *EfficiencyMonitorService) GetRecommendations(resourceName string) []EfficiencyRecommendation {
 	stats, err := s.GetEfficiencyStats(resourceName)
 	if err != nil {
@@ -320,7 +320,7 @@ func (s *EfficiencyMonitorService) GetRecommendations(resourceName string) []Eff
 
 // ========== 内部方法 ==========
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (s *EfficiencyMonitorService) monitorLoop() {
 	defer s.wg.Done()
 
@@ -340,7 +340,7 @@ func (s *EfficiencyMonitorService) monitorLoop() {
 	}
 }
 
-// reportLoop 报告生成循环
+// reportLoop 报告生成循环.
 func (s *EfficiencyMonitorService) reportLoop() {
 	defer s.wg.Done()
 
@@ -357,7 +357,7 @@ func (s *EfficiencyMonitorService) reportLoop() {
 	}
 }
 
-// collectAll 采集所有资源效率
+// collectAll 采集所有资源效率.
 func (s *EfficiencyMonitorService) collectAll() {
 	// 获取存储资源列表（这里简化实现）
 	// 实际应从存储管理器获取
@@ -394,7 +394,7 @@ func (s *EfficiencyMonitorService) collectAll() {
 	}
 }
 
-// collectEfficiency 采集单个资源效率
+// collectEfficiency 采集单个资源效率.
 func (s *EfficiencyMonitorService) collectEfficiency(resourceName string) (*StorageEfficiencyStats, error) {
 	stats := &StorageEfficiencyStats{
 		CollectedAt:            time.Now(),
@@ -447,7 +447,7 @@ func (s *EfficiencyMonitorService) collectEfficiency(resourceName string) (*Stor
 	return stats, nil
 }
 
-// calculateEfficiencyScore 计算效率评分
+// calculateEfficiencyScore 计算效率评分.
 func (s *EfficiencyMonitorService) calculateEfficiencyScore(stats *StorageEfficiencyStats) float64 {
 	// 基于多个指标加权计算
 	score := 100.0
@@ -481,7 +481,7 @@ func (s *EfficiencyMonitorService) calculateEfficiencyScore(stats *StorageEffici
 	return math.Max(0, math.Min(100, score))
 }
 
-// analyzeTrend 分析效率趋势
+// analyzeTrend 分析效率趋势.
 func (s *EfficiencyMonitorService) analyzeTrend(resourceName string) string {
 	s.mu.RLock()
 	history := s.history[resourceName]
@@ -506,7 +506,7 @@ func (s *EfficiencyMonitorService) analyzeTrend(resourceName string) string {
 	return "stable"
 }
 
-// generateRecommendations 生成优化建议
+// generateRecommendations 生成优化建议.
 func (s *EfficiencyMonitorService) generateRecommendations(stats *StorageEfficiencyStats) []EfficiencyRecommendation {
 	recommendations := []EfficiencyRecommendation{}
 
@@ -586,7 +586,7 @@ func (s *EfficiencyMonitorService) generateRecommendations(stats *StorageEfficie
 	return recommendations
 }
 
-// generateReport 生成报告
+// generateReport 生成报告.
 func (s *EfficiencyMonitorService) generateReport() {
 	report := s.generateEfficiencyReport()
 
@@ -596,7 +596,7 @@ func (s *EfficiencyMonitorService) generateReport() {
 	_ = os.WriteFile(reportPath, data, 0644)
 }
 
-// EfficiencyReport 效率报告
+// EfficiencyReport 效率报告.
 type EfficiencyReport struct {
 	GeneratedAt        time.Time                          `json:"generatedAt"`
 	ResourceStats      map[string]*StorageEfficiencyStats `json:"resourceStats"`
@@ -604,7 +604,7 @@ type EfficiencyReport struct {
 	Summary            EfficiencySummary                  `json:"summary"`
 }
 
-// EfficiencySummary 效率汇总
+// EfficiencySummary 效率汇总.
 type EfficiencySummary struct {
 	TotalPhysicalUsedGB     float64 `json:"totalPhysicalUsedGB"`
 	TotalLogicalUsedGB      float64 `json:"totalLogicalUsedGB"`
@@ -617,7 +617,7 @@ type EfficiencySummary struct {
 	DegradingCount          int     `json:"degradingCount"`
 }
 
-// generateEfficiencyReport 生成完整效率报告
+// generateEfficiencyReport 生成完整效率报告.
 func (s *EfficiencyMonitorService) generateEfficiencyReport() *EfficiencyReport {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -643,9 +643,10 @@ func (s *EfficiencyMonitorService) generateEfficiencyReport() *EfficiencyReport 
 		summary.AverageCompressionRatio += stats.CompressionRatio
 		summary.ResourceCount++
 
-		if stats.EfficiencyTrend == "improving" {
+		switch stats.EfficiencyTrend {
+		case "improving":
 			summary.ImprovingCount++
-		} else if stats.EfficiencyTrend == "degrading" {
+		case "degrading":
 			summary.DegradingCount++
 		}
 	}
@@ -661,15 +662,13 @@ func (s *EfficiencyMonitorService) generateEfficiencyReport() *EfficiencyReport 
 
 	// 收集所有建议并按优先级排序
 	for _, stats := range s.stats {
-		for _, rec := range s.generateRecommendations(stats) {
-			report.TopRecommendations = append(report.TopRecommendations, rec)
-		}
+		report.TopRecommendations = append(report.TopRecommendations, s.generateRecommendations(stats)...)
 	}
 
 	return report
 }
 
-// loadHistory 加载历史数据
+// loadHistory 加载历史数据.
 func (s *EfficiencyMonitorService) loadHistory() error {
 	data, err := os.ReadFile(s.configPath + "/history.json")
 	if err != nil {
@@ -679,7 +678,7 @@ func (s *EfficiencyMonitorService) loadHistory() error {
 	return json.Unmarshal(data, &s.history)
 }
 
-// saveHistory 保存历史数据
+// saveHistory 保存历史数据.
 func (s *EfficiencyMonitorService) saveHistory() error {
 	data, err := json.MarshalIndent(s.history, "", "  ")
 	if err != nil {

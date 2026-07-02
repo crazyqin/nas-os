@@ -9,17 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers NVMe-oF 存储池 HTTP 处理器
+// Handlers NVMe-oF 存储池 HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	nvmeGroup := api.Group("/nvme-of")
 	{
@@ -52,7 +52,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// listTargets 列出所有目标端
+// listTargets 列出所有目标端.
 func (h *Handlers) listTargets(c *gin.Context) {
 	targets := h.manager.ListTargets()
 	c.JSON(http.StatusOK, gin.H{
@@ -61,7 +61,7 @@ func (h *Handlers) listTargets(c *gin.Context) {
 	})
 }
 
-// addTargetRequest 添加目标端请求
+// addTargetRequest 添加目标端请求.
 type addTargetRequest struct {
 	ID        string        `json:"id" binding:"required"`
 	Name      string        `json:"name" binding:"required"`
@@ -71,7 +71,7 @@ type addTargetRequest struct {
 	Subsystem string        `json:"subsystem"`
 }
 
-// addTarget 添加目标端
+// addTarget 添加目标端.
 func (h *Handlers) addTarget(c *gin.Context) {
 	var req addTargetRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -99,7 +99,7 @@ func (h *Handlers) addTarget(c *gin.Context) {
 	})
 }
 
-// getTarget 获取目标端
+// getTarget 获取目标端.
 func (h *Handlers) getTarget(c *gin.Context) {
 	targetID := c.Param("id")
 	target, err := h.manager.GetTarget(targetID)
@@ -110,7 +110,7 @@ func (h *Handlers) getTarget(c *gin.Context) {
 	c.JSON(http.StatusOK, target)
 }
 
-// removeTarget 移除目标端
+// removeTarget 移除目标端.
 func (h *Handlers) removeTarget(c *gin.Context) {
 	targetID := c.Param("id")
 	if err := h.manager.RemoveTarget(targetID); err != nil {
@@ -123,7 +123,7 @@ func (h *Handlers) removeTarget(c *gin.Context) {
 	})
 }
 
-// listDevices 列出所有设备
+// listDevices 列出所有设备.
 func (h *Handlers) listDevices(c *gin.Context) {
 	devices := h.manager.ListDevices()
 	c.JSON(http.StatusOK, gin.H{
@@ -132,7 +132,7 @@ func (h *Handlers) listDevices(c *gin.Context) {
 	})
 }
 
-// addDeviceRequest 添加设备请求
+// addDeviceRequest 添加设备请求.
 type addDeviceRequest struct {
 	ID        string `json:"id" binding:"required"`
 	Model     string `json:"model" binding:"required"`
@@ -142,7 +142,7 @@ type addDeviceRequest struct {
 	TargetID  string `json:"targetId" binding:"required"`
 }
 
-// addDevice 添加设备
+// addDevice 添加设备.
 func (h *Handlers) addDevice(c *gin.Context) {
 	var req addDeviceRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -174,7 +174,7 @@ func (h *Handlers) addDevice(c *gin.Context) {
 	})
 }
 
-// getDevice 获取设备
+// getDevice 获取设备.
 func (h *Handlers) getDevice(c *gin.Context) {
 	deviceID := c.Param("id")
 	device, err := h.manager.GetDevice(deviceID)
@@ -185,7 +185,7 @@ func (h *Handlers) getDevice(c *gin.Context) {
 	c.JSON(http.StatusOK, device)
 }
 
-// removeDevice 移除设备
+// removeDevice 移除设备.
 func (h *Handlers) removeDevice(c *gin.Context) {
 	deviceID := c.Param("id")
 	if err := h.manager.RemoveDevice(deviceID); err != nil {
@@ -198,7 +198,7 @@ func (h *Handlers) removeDevice(c *gin.Context) {
 	})
 }
 
-// listPools 列出所有存储池
+// listPools 列出所有存储池.
 func (h *Handlers) listPools(c *gin.Context) {
 	pools := h.manager.ListPools()
 	c.JSON(http.StatusOK, gin.H{
@@ -207,7 +207,7 @@ func (h *Handlers) listPools(c *gin.Context) {
 	})
 }
 
-// createPoolRequest 创建存储池请求
+// createPoolRequest 创建存储池请求.
 type createPoolRequest struct {
 	ID         string   `json:"id" binding:"required"`
 	Name       string   `json:"name" binding:"required"`
@@ -215,7 +215,7 @@ type createPoolRequest struct {
 	Redundancy string   `json:"redundancy"`
 }
 
-// createPool 创建存储池
+// createPool 创建存储池.
 func (h *Handlers) createPool(c *gin.Context) {
 	var req createPoolRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -245,7 +245,7 @@ func (h *Handlers) createPool(c *gin.Context) {
 	})
 }
 
-// getPool 获取存储池
+// getPool 获取存储池.
 func (h *Handlers) getPool(c *gin.Context) {
 	poolID := c.Param("id")
 	pool, err := h.manager.GetPool(poolID)
@@ -256,7 +256,7 @@ func (h *Handlers) getPool(c *gin.Context) {
 	c.JSON(http.StatusOK, pool)
 }
 
-// deletePool 删除存储池
+// deletePool 删除存储池.
 func (h *Handlers) deletePool(c *gin.Context) {
 	poolID := c.Param("id")
 	if err := h.manager.DeletePool(poolID); err != nil {
@@ -269,7 +269,7 @@ func (h *Handlers) deletePool(c *gin.Context) {
 	})
 }
 
-// getPoolPerformance 获取存储池性能
+// getPoolPerformance 获取存储池性能.
 func (h *Handlers) getPoolPerformance(c *gin.Context) {
 	poolID := c.Param("id")
 	perf, err := h.manager.GetPoolPerformance(poolID)
@@ -280,7 +280,7 @@ func (h *Handlers) getPoolPerformance(c *gin.Context) {
 	c.JSON(http.StatusOK, perf)
 }
 
-// getFailoverEvents 获取故障切换事件
+// getFailoverEvents 获取故障切换事件.
 func (h *Handlers) getFailoverEvents(c *gin.Context) {
 	events := h.manager.GetFailoverEvents()
 	c.JSON(http.StatusOK, gin.H{
@@ -289,13 +289,13 @@ func (h *Handlers) getFailoverEvents(c *gin.Context) {
 	})
 }
 
-// discoverTargetsRequest 发现目标请求
+// discoverTargetsRequest 发现目标请求.
 type discoverTargetsRequest struct {
 	Address   string        `json:"address" binding:"required"`
 	Transport TransportType `json:"transport" binding:"required"`
 }
 
-// discoverTargets 发现目标
+// discoverTargets 发现目标.
 func (h *Handlers) discoverTargets(c *gin.Context) {
 	var req discoverTargetsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -315,7 +315,7 @@ func (h *Handlers) discoverTargets(c *gin.Context) {
 	})
 }
 
-// UpdateDeviceStatus 更新设备状态 (供外部调用)
+// UpdateDeviceStatus 更新设备状态 (供外部调用).
 func (m *Manager) UpdateDeviceStatus(deviceID string, status DeviceStatus) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -334,7 +334,7 @@ func (m *Manager) UpdateDeviceStatus(deviceID string, status DeviceStatus) error
 	return nil
 }
 
-// updatePoolStatus 更新存储池状态
+// updatePoolStatus 更新存储池状态.
 func (m *Manager) updatePoolStatus() {
 	for _, pool := range m.pools {
 		var onlineCount int
@@ -357,7 +357,7 @@ func (m *Manager) updatePoolStatus() {
 	}
 }
 
-// UpdatePoolUsage 更新存储池使用量 (供外部调用)
+// UpdatePoolUsage 更新存储池使用量 (供外部调用).
 func (m *Manager) UpdatePoolUsage(poolID string, usedSpace uint64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -374,7 +374,7 @@ func (m *Manager) UpdatePoolUsage(poolID string, usedSpace uint64) error {
 	return nil
 }
 
-// GetPoolUsage 获取存储池使用率 (供外部调用)
+// GetPoolUsage 获取存储池使用率 (供外部调用).
 func (m *Manager) GetPoolUsage(poolID string) (float64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

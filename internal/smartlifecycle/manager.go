@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Manager 生命周期管理器
+// Manager 生命周期管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	policies    map[string]*LifecyclePolicy
@@ -16,7 +16,7 @@ type Manager struct {
 	stats       *LifecycleStats
 }
 
-// NewManager 创建生命周期管理器
+// NewManager 创建生命周期管理器.
 func NewManager() *Manager {
 	return &Manager{
 		policies:    make(map[string]*LifecyclePolicy),
@@ -26,7 +26,7 @@ func NewManager() *Manager {
 	}
 }
 
-// CreatePolicy 创建策略
+// CreatePolicy 创建策略.
 func (m *Manager) CreatePolicy(policy *LifecyclePolicy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -44,7 +44,7 @@ func (m *Manager) CreatePolicy(policy *LifecyclePolicy) error {
 	return nil
 }
 
-// GetPolicy 获取策略
+// GetPolicy 获取策略.
 func (m *Manager) GetPolicy(id string) (*LifecyclePolicy, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -56,7 +56,7 @@ func (m *Manager) GetPolicy(id string) (*LifecyclePolicy, error) {
 	return p, nil
 }
 
-// ListPolicies 列出所有策略
+// ListPolicies 列出所有策略.
 func (m *Manager) ListPolicies() []*LifecyclePolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -68,7 +68,7 @@ func (m *Manager) ListPolicies() []*LifecyclePolicy {
 	return policies
 }
 
-// UpdatePolicy 更新策略
+// UpdatePolicy 更新策略.
 func (m *Manager) UpdatePolicy(policy *LifecyclePolicy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -81,7 +81,7 @@ func (m *Manager) UpdatePolicy(policy *LifecyclePolicy) error {
 	return nil
 }
 
-// DeletePolicy 删除策略
+// DeletePolicy 删除策略.
 func (m *Manager) DeletePolicy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -94,7 +94,7 @@ func (m *Manager) DeletePolicy(id string) error {
 	return nil
 }
 
-// RunScan 运行扫描
+// RunScan 运行扫描.
 func (m *Manager) RunScan() *ScanResult {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -121,7 +121,7 @@ func (m *Manager) RunScan() *ScanResult {
 	return result
 }
 
-// ExecutePolicy 执行策略
+// ExecutePolicy 执行策略.
 func (m *Manager) ExecutePolicy(policyID string) (*ExecutionResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -153,21 +153,21 @@ func (m *Manager) ExecutePolicy(policyID string) (*ExecutionResult, error) {
 	return result, nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() *LifecycleStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.stats
 }
 
-// GetScanResults 获取扫描结果
+// GetScanResults 获取扫描结果.
 func (m *Manager) GetScanResults() []*ScanResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.scanResults
 }
 
-// GetExecutions 获取执行记录
+// GetExecutions 获取执行记录.
 func (m *Manager) GetExecutions() []*ExecutionResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

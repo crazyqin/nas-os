@@ -7,30 +7,30 @@ import (
 	"sync"
 )
 
-// AMDGPUInfo AMD显卡信息
+// AMDGPUInfo AMD显卡信息.
 type AMDGPUInfo struct {
-	Name     string
-	Driver   string
-	Memory   int64
-	Arch     string // GCN5, RDNA1, RDNA2, RDNA3, RDNA4
-	PCIID    string
+	Name   string
+	Driver string
+	Memory int64
+	Arch   string // GCN5, RDNA1, RDNA2, RDNA3, RDNA4
+	PCIID  string
 }
 
-// AMDAccelerator AMD显卡加速器
+// AMDAccelerator AMD显卡加速器.
 type AMDAccelerator struct {
 	gpus   []AMDGPUInfo
 	mu     sync.RWMutex
 	config AcceleratorConfig
 }
 
-// AcceleratorConfig 加速器配置
+// AcceleratorConfig 加速器配置.
 type AcceleratorConfig struct {
 	EnableVideoTranscode bool
 	EnableAIInference    bool
 	MemoryLimit          int64
 }
 
-// NewAMDAccelerator 创建AMD加速器
+// NewAMDAccelerator 创建AMD加速器.
 func NewAMDAccelerator(config AcceleratorConfig) *AMDAccelerator {
 	accel := &AMDAccelerator{
 		config: config,
@@ -39,7 +39,7 @@ func NewAMDAccelerator(config AcceleratorConfig) *AMDAccelerator {
 	return accel
 }
 
-// detectGPUs 检测AMD显卡
+// detectGPUs 检测AMD显卡.
 func (a *AMDAccelerator) detectGPUs() {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -65,7 +65,7 @@ func (a *AMDAccelerator) detectGPUs() {
 	}
 }
 
-// parseGPUName 解析显卡名称
+// parseGPUName 解析显卡名称.
 func parseGPUName(line string) string {
 	// 简化实现
 	if idx := strings.Index(line, "AMD"); idx != -1 {
@@ -74,7 +74,7 @@ func parseGPUName(line string) string {
 	return "AMD GPU"
 }
 
-// detectArchitecture 检测显卡架构
+// detectArchitecture 检测显卡架构.
 func detectArchitecture(line string) string {
 	line = strings.ToLower(line)
 	if strings.Contains(line, "rdna4") || strings.Contains(line, "9000") {
@@ -92,14 +92,14 @@ func detectArchitecture(line string) string {
 	return "GCN5"
 }
 
-// GetGPUCount 获取显卡数量
+// GetGPUCount 获取显卡数量.
 func (a *AMDAccelerator) GetGPUCount() int {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	return len(a.gpus)
 }
 
-// GetGPUInfo 获取显卡信息
+// GetGPUInfo 获取显卡信息.
 func (a *AMDAccelerator) GetGPUInfo(index int) (*AMDGPUInfo, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -110,7 +110,7 @@ func (a *AMDAccelerator) GetGPUInfo(index int) (*AMDGPUInfo, error) {
 	return &a.gpus[index], nil
 }
 
-// TranscodeVideo 视频转码（使用AMD硬件加速）
+// TranscodeVideo 视频转码（使用AMD硬件加速）.
 func (a *AMDAccelerator) TranscodeVideo(input, output string, options TranscodeOptions) error {
 	if !a.config.EnableVideoTranscode {
 		return fmt.Errorf("video transcode disabled")
@@ -134,14 +134,14 @@ func (a *AMDAccelerator) TranscodeVideo(input, output string, options TranscodeO
 	return cmd.Run()
 }
 
-// TranscodeOptions 转码选项
+// TranscodeOptions 转码选项.
 type TranscodeOptions struct {
 	Codec   string
 	Quality int
 	Bitrate string
 }
 
-// IsAvailable 检查加速器是否可用
+// IsAvailable 检查加速器是否可用.
 func (a *AMDAccelerator) IsAvailable() bool {
 	a.mu.RLock()
 	defer a.mu.RUnlock()

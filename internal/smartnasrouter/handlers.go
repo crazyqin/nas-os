@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 智能路由HTTP处理器
+// Handlers 智能路由HTTP处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	router := r.Group("/smart-router")
 	{
@@ -51,7 +51,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// handleAddNode 添加节点
+// handleAddNode 添加节点.
 func (h *Handlers) handleAddNode(c *gin.Context) {
 	var req AddNodeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -68,13 +68,13 @@ func (h *Handlers) handleAddNode(c *gin.Context) {
 	c.JSON(http.StatusCreated, node)
 }
 
-// handleListNodes 列出节点
+// handleListNodes 列出节点.
 func (h *Handlers) handleListNodes(c *gin.Context) {
 	nodes := h.manager.ListNodes()
 	c.JSON(http.StatusOK, gin.H{"nodes": nodes})
 }
 
-// handleGetNode 获取节点
+// handleGetNode 获取节点.
 func (h *Handlers) handleGetNode(c *gin.Context) {
 	id := c.Param("id")
 	node, err := h.manager.GetNode(id)
@@ -85,7 +85,7 @@ func (h *Handlers) handleGetNode(c *gin.Context) {
 	c.JSON(http.StatusOK, node)
 }
 
-// handleUpdateNode 更新节点
+// handleUpdateNode 更新节点.
 func (h *Handlers) handleUpdateNode(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateNodeRequest
@@ -102,7 +102,7 @@ func (h *Handlers) handleUpdateNode(c *gin.Context) {
 	c.JSON(http.StatusOK, node)
 }
 
-// handleDeleteNode 删除节点
+// handleDeleteNode 删除节点.
 func (h *Handlers) handleDeleteNode(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteNode(id); err != nil {
@@ -112,7 +112,7 @@ func (h *Handlers) handleDeleteNode(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "节点已删除"})
 }
 
-// handleUpdateMetrics 更新节点指标
+// handleUpdateMetrics 更新节点指标.
 func (h *Handlers) handleUpdateMetrics(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
@@ -133,7 +133,7 @@ func (h *Handlers) handleUpdateMetrics(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "指标已更新"})
 }
 
-// handleAddRule 添加路由规则
+// handleAddRule 添加路由规则.
 func (h *Handlers) handleAddRule(c *gin.Context) {
 	var rule RouteRule
 	if err := c.ShouldBindJSON(&rule); err != nil {
@@ -145,13 +145,13 @@ func (h *Handlers) handleAddRule(c *gin.Context) {
 	c.JSON(http.StatusCreated, result)
 }
 
-// handleListRules 列出路由规则
+// handleListRules 列出路由规则.
 func (h *Handlers) handleListRules(c *gin.Context) {
 	rules := h.manager.ListRules()
 	c.JSON(http.StatusOK, gin.H{"rules": rules})
 }
 
-// handleDeleteRule 删除路由规则
+// handleDeleteRule 删除路由规则.
 func (h *Handlers) handleDeleteRule(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteRule(id); err != nil {
@@ -161,7 +161,7 @@ func (h *Handlers) handleDeleteRule(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "规则已删除"})
 }
 
-// handleRoute 路由决策
+// handleRoute 路由决策.
 func (h *Handlers) handleRoute(c *gin.Context) {
 	var req RouteRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -177,7 +177,7 @@ func (h *Handlers) handleRoute(c *gin.Context) {
 	c.JSON(http.StatusOK, decision)
 }
 
-// handleProbeNode 探测节点
+// handleProbeNode 探测节点.
 func (h *Handlers) handleProbeNode(c *gin.Context) {
 	id := c.Param("id")
 	result, err := h.manager.ProbeNode(id)
@@ -188,13 +188,13 @@ func (h *Handlers) handleProbeNode(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// handleProbeAll 探测所有节点
+// handleProbeAll 探测所有节点.
 func (h *Handlers) handleProbeAll(c *gin.Context) {
 	results := h.manager.ProbeAll()
 	c.JSON(http.StatusOK, gin.H{"results": results})
 }
 
-// handleFailover 触发故障转移
+// handleFailover 触发故障转移.
 func (h *Handlers) handleFailover(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
@@ -212,7 +212,7 @@ func (h *Handlers) handleFailover(c *gin.Context) {
 	c.JSON(http.StatusOK, event)
 }
 
-// handleRecover 恢复节点
+// handleRecover 恢复节点.
 func (h *Handlers) handleRecover(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.RecoverNode(id); err != nil {
@@ -222,13 +222,13 @@ func (h *Handlers) handleRecover(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "节点已恢复"})
 }
 
-// handleGetStats 获取统计
+// handleGetStats 获取统计.
 func (h *Handlers) handleGetStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, stats)
 }
 
-// handleGetFailoverEvents 获取故障转移事件
+// handleGetFailoverEvents 获取故障转移事件.
 func (h *Handlers) handleGetFailoverEvents(c *gin.Context) {
 	events := h.manager.GetFailoverEvents()
 	c.JSON(http.StatusOK, gin.H{"events": events})

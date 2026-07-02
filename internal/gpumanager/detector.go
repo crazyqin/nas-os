@@ -14,13 +14,13 @@ import (
 	"time"
 )
 
-// Detector 多厂商GPU检测器
+// Detector 多厂商GPU检测器.
 type Detector struct {
 	mu     sync.RWMutex
 	logger *slog.Logger
 }
 
-// NewDetector 创建GPU检测器
+// NewDetector 创建GPU检测器.
 func NewDetector(logger *slog.Logger) *Detector {
 	if logger == nil {
 		logger = slog.Default()
@@ -28,7 +28,7 @@ func NewDetector(logger *slog.Logger) *Detector {
 	return &Detector{logger: logger}
 }
 
-// DetectAll 检测所有GPU设备
+// DetectAll 检测所有GPU设备.
 func (d *Detector) DetectAll(ctx context.Context) ([]*GPUDevice, error) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -65,7 +65,7 @@ func (d *Detector) DetectAll(ctx context.Context) ([]*GPUDevice, error) {
 	return allDevices, nil
 }
 
-// detectNVIDIA 检测NVIDIA GPU (通过nvidia-smi)
+// detectNVIDIA 检测NVIDIA GPU (通过nvidia-smi).
 func (d *Detector) detectNVIDIA(ctx context.Context) ([]*GPUDevice, error) {
 	// 检查nvidia-smi是否可用
 	if _, err := exec.LookPath("nvidia-smi"); err != nil {
@@ -105,17 +105,17 @@ func (d *Detector) detectNVIDIA(ctx context.Context) ([]*GPUDevice, error) {
 		}
 
 		device := &GPUDevice{
-			ID:            fmt.Sprintf("nvidia%s", parts[0]),
-			UUID:          parts[1],
-			Name:          parts[2],
-			FullName:      parts[2],
-			Vendor:        VendorNVIDIA,
-			Driver:        parts[3],
-			DriverOK:      true,
-			PCIAddress:    parts[14],
-			Status:        StatusHealthy,
-			LastUpdated:   time.Now(),
-			Capabilities:  &GPUCapabilities{},
+			ID:           fmt.Sprintf("nvidia%s", parts[0]),
+			UUID:         parts[1],
+			Name:         parts[2],
+			FullName:     parts[2],
+			Vendor:       VendorNVIDIA,
+			Driver:       parts[3],
+			DriverOK:     true,
+			PCIAddress:   parts[14],
+			Status:       StatusHealthy,
+			LastUpdated:  time.Now(),
+			Capabilities: &GPUCapabilities{},
 		}
 
 		// 解析数值
@@ -148,7 +148,7 @@ func (d *Detector) detectNVIDIA(ctx context.Context) ([]*GPUDevice, error) {
 	return devices, nil
 }
 
-// detectNVIDIACapabilities 检测NVIDIA GPU能力
+// detectNVIDIACapabilities 检测NVIDIA GPU能力.
 func (d *Detector) detectNVIDIACapabilities(ctx context.Context, device *GPUDevice) {
 	caps := device.Capabilities
 
@@ -201,7 +201,7 @@ func (d *Detector) detectNVIDIACapabilities(ctx context.Context, device *GPUDevi
 	caps.MaxWorkGroupSize = 1024
 }
 
-// detectAMD 检测AMD GPU (通过ROCm工具或sysfs)
+// detectAMD 检测AMD GPU (通过ROCm工具或sysfs).
 func (d *Detector) detectAMD(ctx context.Context) ([]*GPUDevice, error) {
 	var devices []*GPUDevice
 
@@ -230,7 +230,7 @@ func (d *Detector) detectAMD(ctx context.Context) ([]*GPUDevice, error) {
 	return devices, nil
 }
 
-// detectAMDViaROCm 通过rocm-smi检测AMD GPU
+// detectAMDViaROCm 通过rocm-smi检测AMD GPU.
 func (d *Detector) detectAMDViaROCm(ctx context.Context) ([]*GPUDevice, error) {
 	if _, err := exec.LookPath("rocm-smi"); err != nil {
 		return nil, fmt.Errorf("rocm-smi未安装")
@@ -270,12 +270,12 @@ func (d *Detector) detectAMDViaROCm(ctx context.Context) ([]*GPUDevice, error) {
 
 		deviceID, _ := strconv.Atoi(parts[0])
 		device := &GPUDevice{
-			ID:          fmt.Sprintf("amd%d", deviceID),
-			Vendor:      VendorAMD,
-			Driver:      "amdgpu",
-			DriverOK:    true,
-			Status:      StatusHealthy,
-			LastUpdated: time.Now(),
+			ID:           fmt.Sprintf("amd%d", deviceID),
+			Vendor:       VendorAMD,
+			Driver:       "amdgpu",
+			DriverOK:     true,
+			Status:       StatusHealthy,
+			LastUpdated:  time.Now(),
 			Capabilities: &GPUCapabilities{},
 		}
 
@@ -308,7 +308,7 @@ func (d *Detector) detectAMDViaROCm(ctx context.Context) ([]*GPUDevice, error) {
 	return devices, nil
 }
 
-// detectAMDViaSysfs 通过sysfs检测AMD GPU
+// detectAMDViaSysfs 通过sysfs检测AMD GPU.
 func (d *Detector) detectAMDViaSysfs(ctx context.Context) ([]*GPUDevice, error) {
 	// 检查/sys/class/drm/card*设备
 	cardDirs, err := filepath.Glob("/sys/class/drm/card[0-9]*")
@@ -333,11 +333,11 @@ func (d *Detector) detectAMDViaSysfs(ctx context.Context) ([]*GPUDevice, error) 
 		}
 
 		device := &GPUDevice{
-			Vendor:      VendorAMD,
-			Driver:      "amdgpu",
-			DriverOK:    true,
-			Status:      StatusHealthy,
-			LastUpdated: time.Now(),
+			Vendor:       VendorAMD,
+			Driver:       "amdgpu",
+			DriverOK:     true,
+			Status:       StatusHealthy,
+			LastUpdated:  time.Now(),
 			Capabilities: &GPUCapabilities{},
 		}
 
@@ -396,7 +396,7 @@ func (d *Detector) detectAMDViaSysfs(ctx context.Context) ([]*GPUDevice, error) 
 	return devices, nil
 }
 
-// detectAMDViaLspci 通过lspci检测AMD GPU
+// detectAMDViaLspci 通过lspci检测AMD GPU.
 func (d *Detector) detectAMDViaLspci(ctx context.Context) ([]*GPUDevice, error) {
 	if _, err := exec.LookPath("lspci"); err != nil {
 		return nil, fmt.Errorf("lspci未安装")
@@ -426,12 +426,12 @@ func (d *Detector) detectAMDViaLspci(ctx context.Context) ([]*GPUDevice, error) 
 		}
 
 		device := &GPUDevice{
-			ID:          fmt.Sprintf("amd%d", idx),
-			Vendor:      VendorAMD,
-			Driver:      "amdgpu",
-			DriverOK:    true,
-			Status:      StatusHealthy,
-			LastUpdated: time.Now(),
+			ID:           fmt.Sprintf("amd%d", idx),
+			Vendor:       VendorAMD,
+			Driver:       "amdgpu",
+			DriverOK:     true,
+			Status:       StatusHealthy,
+			LastUpdated:  time.Now(),
 			Capabilities: &GPUCapabilities{},
 		}
 
@@ -467,7 +467,7 @@ func (d *Detector) detectAMDViaLspci(ctx context.Context) ([]*GPUDevice, error) 
 	return devices, nil
 }
 
-// detectAMDCapabilities 检测AMD GPU能力
+// detectAMDCapabilities 检测AMD GPU能力.
 func (d *Detector) detectAMDCapabilities(ctx context.Context, device *GPUDevice) {
 	caps := device.Capabilities
 
@@ -511,7 +511,7 @@ func (d *Detector) detectAMDCapabilities(ctx context.Context, device *GPUDevice)
 	caps.MaxWorkGroupSize = 1024
 }
 
-// detectIntel 检测Intel GPU (通过VA-API或sysfs)
+// detectIntel 检测Intel GPU (通过VA-API或sysfs).
 func (d *Detector) detectIntel(ctx context.Context) ([]*GPUDevice, error) {
 	var devices []*GPUDevice
 
@@ -532,7 +532,7 @@ func (d *Detector) detectIntel(ctx context.Context) ([]*GPUDevice, error) {
 	return devices, nil
 }
 
-// detectIntelViaSysfs 通过sysfs检测Intel GPU
+// detectIntelViaSysfs 通过sysfs检测Intel GPU.
 func (d *Detector) detectIntelViaSysfs(ctx context.Context) ([]*GPUDevice, error) {
 	cardDirs, err := filepath.Glob("/sys/class/drm/card[0-9]*")
 	if err != nil {
@@ -567,11 +567,11 @@ func (d *Detector) detectIntelViaSysfs(ctx context.Context) ([]*GPUDevice, error
 		}
 
 		device := &GPUDevice{
-			Vendor:      VendorIntel,
-			Driver:      "i915",
-			DriverOK:    true,
-			Status:      StatusHealthy,
-			LastUpdated: time.Now(),
+			Vendor:       VendorIntel,
+			Driver:       "i915",
+			DriverOK:     true,
+			Status:       StatusHealthy,
+			LastUpdated:  time.Now(),
 			Capabilities: &GPUCapabilities{},
 		}
 
@@ -608,7 +608,7 @@ func (d *Detector) detectIntelViaSysfs(ctx context.Context) ([]*GPUDevice, error
 	return devices, nil
 }
 
-// detectIntelViaLspci 通过lspci检测Intel GPU
+// detectIntelViaLspci 通过lspci检测Intel GPU.
 func (d *Detector) detectIntelViaLspci(ctx context.Context) ([]*GPUDevice, error) {
 	if _, err := exec.LookPath("lspci"); err != nil {
 		return nil, fmt.Errorf("lspci未安装")
@@ -643,12 +643,12 @@ func (d *Detector) detectIntelViaLspci(ctx context.Context) ([]*GPUDevice, error
 		}
 
 		device := &GPUDevice{
-			ID:          fmt.Sprintf("intel%d", idx),
-			Vendor:      VendorIntel,
-			Driver:      "i915",
-			DriverOK:    true,
-			Status:      StatusHealthy,
-			LastUpdated: time.Now(),
+			ID:           fmt.Sprintf("intel%d", idx),
+			Vendor:       VendorIntel,
+			Driver:       "i915",
+			DriverOK:     true,
+			Status:       StatusHealthy,
+			LastUpdated:  time.Now(),
 			Capabilities: &GPUCapabilities{},
 		}
 
@@ -680,7 +680,7 @@ func (d *Detector) detectIntelViaLspci(ctx context.Context) ([]*GPUDevice, error
 	return devices, nil
 }
 
-// detectIntelCapabilities 检测Intel GPU能力
+// detectIntelCapabilities 检测Intel GPU能力.
 func (d *Detector) detectIntelCapabilities(ctx context.Context, device *GPUDevice) {
 	detectIntelCapabilities(ctx, device)
 }

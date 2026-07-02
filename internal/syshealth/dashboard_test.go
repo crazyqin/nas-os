@@ -539,14 +539,14 @@ func TestDashboardGenerateRecommendations(t *testing.T) {
 	hasTempRec := false
 
 	for _, r := range recommendations {
-		switch {
-		case r.RelatedSubsystem == "cpu":
+		switch r.RelatedSubsystem {
+		case "cpu":
 			hasCPURec = true
-		case r.RelatedSubsystem == "memory":
+		case "memory":
 			hasMemRec = true
-		case r.RelatedSubsystem == "disk":
+		case "disk":
 			hasDiskRec = true
-		case r.RelatedSubsystem == "temperature":
+		case "temperature":
 			hasTempRec = true
 		}
 	}

@@ -13,7 +13,7 @@ import (
 
 // ========== 配置文件类型 ==========
 
-// AppConfigFile 应用配置文件结构
+// AppConfigFile 应用配置文件结构.
 type AppConfigFile struct {
 	Version    string                 `json:"version"`    // 配置文件版本
 	AppID      string                 `json:"appId"`      // 应用ID
@@ -25,7 +25,7 @@ type AppConfigFile struct {
 	Metadata   ConfigMetadata         `json:"metadata"`   // 元数据
 }
 
-// ConfigMetadata 配置元数据
+// ConfigMetadata 配置元数据.
 type ConfigMetadata struct {
 	InstallOptions InstallOptions         `json:"installOptions"` // 安装选项
 	UpgradeHistory []UpgradeRecord        `json:"upgradeHistory"` // 升级历史
@@ -33,7 +33,7 @@ type ConfigMetadata struct {
 	CustomFields   map[string]interface{} `json:"customFields"`   // 自定义字段
 }
 
-// UpgradeRecord 升级记录
+// UpgradeRecord 升级记录.
 type UpgradeRecord struct {
 	FromVersion string    `json:"fromVersion"` // 原版本
 	ToVersion   string    `json:"toVersion"`   // 新版本
@@ -44,12 +44,12 @@ type UpgradeRecord struct {
 
 // ========== 配置管理器 ==========
 
-// ConfigManager 配置管理器
+// ConfigManager 配置管理器.
 type ConfigManager struct {
 	configDir string // 配置文件目录
 }
 
-// NewConfigManager 创建配置管理器
+// NewConfigManager 创建配置管理器.
 func NewConfigManager(configDir string) (*ConfigManager, error) {
 	if err := os.MkdirAll(configDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建配置目录失败: %w", err)
@@ -60,7 +60,7 @@ func NewConfigManager(configDir string) (*ConfigManager, error) {
 	}, nil
 }
 
-// Load 加载应用配置
+// Load 加载应用配置.
 func (m *ConfigManager) Load(appID string) (*AppConfigFile, error) {
 	configPath := filepath.Join(m.configDir, appID+".json")
 
@@ -80,7 +80,7 @@ func (m *ConfigManager) Load(appID string) (*AppConfigFile, error) {
 	return config, nil
 }
 
-// Save 保存应用配置
+// Save 保存应用配置.
 func (m *ConfigManager) Save(config *AppConfigFile) error {
 	config.UpdatedAt = time.Now()
 
@@ -94,21 +94,21 @@ func (m *ConfigManager) Save(config *AppConfigFile) error {
 	return os.WriteFile(configPath, data, 0640) // 配置文件权限更严格
 }
 
-// Delete 删除应用配置
+// Delete 删除应用配置.
 func (m *ConfigManager) Delete(appID string) error {
 	configPath := filepath.Join(m.configDir, appID+".json")
 
 	return os.Remove(configPath)
 }
 
-// Exists 检查配置是否存在
+// Exists 检查配置是否存在.
 func (m *ConfigManager) Exists(appID string) bool {
 	configPath := filepath.Join(m.configDir, appID+".json")
 	_, err := os.Stat(configPath)
 	return err == nil
 }
 
-// Backup 备份配置
+// Backup 备份配置.
 func (m *ConfigManager) Backup(appID string) (string, error) {
 	config, err := m.Load(appID)
 	if err != nil {
@@ -142,7 +142,7 @@ func (m *ConfigManager) Backup(appID string) (string, error) {
 	return backupPath, nil
 }
 
-// Restore 从备份恢复配置
+// Restore 从备份恢复配置.
 func (m *ConfigManager) Restore(appID, backupPath string) error {
 	data, err := os.ReadFile(backupPath)
 	if err != nil {
@@ -157,7 +157,7 @@ func (m *ConfigManager) Restore(appID, backupPath string) error {
 	return m.Save(config)
 }
 
-// ListBackups 列出备份文件
+// ListBackups 列出备份文件.
 func (m *ConfigManager) ListBackups(appID string) ([]string, error) {
 	backupDir := filepath.Join(m.configDir, "backups")
 
@@ -181,15 +181,15 @@ func (m *ConfigManager) ListBackups(appID string) ([]string, error) {
 
 // ========== 配置验证 ==========
 
-// ConfigValidator 配置验证器
+// ConfigValidator 配置验证器.
 type ConfigValidator struct{}
 
-// NewConfigValidator 创建配置验证器
+// NewConfigValidator 创建配置验证器.
 func NewConfigValidator() *ConfigValidator {
 	return &ConfigValidator{}
 }
 
-// ValidateSettings 验证设置值
+// ValidateSettings 验证设置值.
 func (v *ConfigValidator) ValidateSettings(settings map[string]interface{}, schema ConfigSchema) []error {
 	errors := []error{}
 
@@ -213,7 +213,7 @@ func (v *ConfigValidator) ValidateSettings(settings map[string]interface{}, sche
 	return errors
 }
 
-// validateField 验证单个字段
+// validateField 验证单个字段.
 func (v *ConfigValidator) validateField(key string, value interface{}, spec ConfigFieldSpec) error {
 	// 类型验证
 	if spec.Type != "" {
@@ -294,14 +294,14 @@ func (v *ConfigValidator) validateField(key string, value interface{}, spec Conf
 
 // ========== 配置模板 ==========
 
-// ConfigSchema 配置模板定义
+// ConfigSchema 配置模板定义.
 type ConfigSchema struct {
 	Version string                     `json:"version"` // 配置版本
 	Fields  map[string]ConfigFieldSpec `json:"fields"`  // 字段定义
 	Groups  []ConfigGroup              `json:"groups"`  // 字段分组（用于UI显示）
 }
 
-// ConfigFieldSpec 配置字段规格
+// ConfigFieldSpec 配置字段规格.
 type ConfigFieldSpec struct {
 	Type        string        `json:"type"`        // 类型: string/int/bool/array/object
 	Required    bool          `json:"required"`    // 必填
@@ -318,7 +318,7 @@ type ConfigFieldSpec struct {
 	ReadOnly    bool          `json:"readOnly"`    // 只读（安装后不可更改）
 }
 
-// ConfigGroup 配置字段分组
+// ConfigGroup 配置字段分组.
 type ConfigGroup struct {
 	Name   string   `json:"name"`   // 分组名称
 	Label  string   `json:"label"`  // 分组标签
@@ -327,28 +327,28 @@ type ConfigGroup struct {
 
 // ========== 配置迁移 ==========
 
-// ConfigMigrator 配置迁移器
+// ConfigMigrator 配置迁移器.
 type ConfigMigrator struct {
 	managers map[string]MigrationHandler // 版本迁移处理器
 }
 
-// MigrationHandler 迁移处理器
+// MigrationHandler 迁移处理器.
 type MigrationHandler func(old *AppConfigFile) (*AppConfigFile, error)
 
-// NewConfigMigrator 创建配置迁移器
+// NewConfigMigrator 创建配置迁移器.
 func NewConfigMigrator() *ConfigMigrator {
 	return &ConfigMigrator{
 		managers: make(map[string]MigrationHandler),
 	}
 }
 
-// RegisterMigration 注册迁移处理器
+// RegisterMigration 注册迁移处理器.
 func (m *ConfigMigrator) RegisterMigration(fromVersion, toVersion string, handler MigrationHandler) {
 	key := fmt.Sprintf("%s->%s", fromVersion, toVersion)
 	m.managers[key] = handler
 }
 
-// Migrate 执行配置迁移
+// Migrate 执行配置迁移.
 func (m *ConfigMigrator) Migrate(config *AppConfigFile, targetVersion string) (*AppConfigFile, error) {
 	currentVersion := config.Version
 
@@ -370,7 +370,7 @@ func (m *ConfigMigrator) Migrate(config *AppConfigFile, targetVersion string) (*
 
 // ========== 默认配置模板 ==========
 
-// DefaultConfigSchema 默认配置模板
+// DefaultConfigSchema 默认配置模板.
 var DefaultConfigSchema = ConfigSchema{
 	Version: "1.0",
 	Fields: map[string]ConfigFieldSpec{
@@ -455,12 +455,12 @@ var DefaultConfigSchema = ConfigSchema{
 	},
 }
 
-// GetConfigSchema 获取默认配置模板
+// GetConfigSchema 获取默认配置模板.
 func GetConfigSchema() ConfigSchema {
 	return DefaultConfigSchema
 }
 
-// GetConfigSchemaForTemplate 根据应用模板生成配置模板
+// GetConfigSchemaForTemplate 根据应用模板生成配置模板.
 func GetConfigSchemaForTemplate(tmpl *Template) ConfigSchema {
 	schema := ConfigSchema{
 		Version: "1.0",

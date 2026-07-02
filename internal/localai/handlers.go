@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 本地AI推理HTTP处理器
+// Handlers 本地AI推理HTTP处理器.
 type Handlers struct {
 	engine *Engine
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(engine *Engine) *Handlers {
 	return &Handlers{engine: engine}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	localaiGroup := api.Group("/local-ai")
 	{
@@ -42,7 +42,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// registerModel 注册模型
+// registerModel 注册模型.
 func (h *Handlers) registerModel(c *gin.Context) {
 	var model Model
 	if err := c.ShouldBindJSON(&model); err != nil {
@@ -61,7 +61,7 @@ func (h *Handlers) registerModel(c *gin.Context) {
 	})
 }
 
-// listModels 列出模型
+// listModels 列出模型.
 func (h *Handlers) listModels(c *gin.Context) {
 	var modelType *ModelType
 	if mt := c.Query("type"); mt != "" {
@@ -76,7 +76,7 @@ func (h *Handlers) listModels(c *gin.Context) {
 	})
 }
 
-// getModel 获取模型
+// getModel 获取模型.
 func (h *Handlers) getModel(c *gin.Context) {
 	id := c.Param("id")
 	model, err := h.engine.GetModel(id)
@@ -87,7 +87,7 @@ func (h *Handlers) getModel(c *gin.Context) {
 	c.JSON(http.StatusOK, model)
 }
 
-// unregisterModel 注销模型
+// unregisterModel 注销模型.
 func (h *Handlers) unregisterModel(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.engine.UnregisterModel(id); err != nil {
@@ -97,7 +97,7 @@ func (h *Handlers) unregisterModel(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "模型注销成功"})
 }
 
-// loadModel 加载模型
+// loadModel 加载模型.
 func (h *Handlers) loadModel(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.engine.LoadModel(id); err != nil {
@@ -107,7 +107,7 @@ func (h *Handlers) loadModel(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "模型加载成功"})
 }
 
-// unloadModel 卸载模型
+// unloadModel 卸载模型.
 func (h *Handlers) unloadModel(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.engine.UnloadModel(id); err != nil {
@@ -117,7 +117,7 @@ func (h *Handlers) unloadModel(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "模型卸载成功"})
 }
 
-// inference 执行推理
+// inference 执行推理.
 func (h *Handlers) inference(c *gin.Context) {
 	var req InferenceRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -134,7 +134,7 @@ func (h *Handlers) inference(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// embedding 计算嵌入向量
+// embedding 计算嵌入向量.
 func (h *Handlers) embedding(c *gin.Context) {
 	var req EmbeddingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -151,19 +151,19 @@ func (h *Handlers) embedding(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// getResources 获取资源信息
+// getResources 获取资源信息.
 func (h *Handlers) getResources(c *gin.Context) {
 	info := h.engine.GetResourceInfo()
 	c.JSON(http.StatusOK, info)
 }
 
-// getStats 获取引擎统计
+// getStats 获取引擎统计.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.engine.GetStats()
 	c.JSON(http.StatusOK, stats)
 }
 
-// getInferenceHistory 获取推理历史
+// getInferenceHistory 获取推理历史.
 func (h *Handlers) getInferenceHistory(c *gin.Context) {
 	modelID := c.Query("model_id")
 	limit := 50
@@ -174,7 +174,7 @@ func (h *Handlers) getInferenceHistory(c *gin.Context) {
 	})
 }
 
-// getGPUDevices 获取GPU设备
+// getGPUDevices 获取GPU设备.
 func (h *Handlers) getGPUDevices(c *gin.Context) {
 	devices := h.engine.GetGPUDevices()
 	c.JSON(http.StatusOK, gin.H{
@@ -183,7 +183,7 @@ func (h *Handlers) getGPUDevices(c *gin.Context) {
 	})
 }
 
-// PredictStorageDemand 预测存储需求（使用本地AI）
+// PredictStorageDemand 预测存储需求（使用本地AI）.
 func (h *Handlers) PredictStorageDemand(c *gin.Context) {
 	var req struct {
 		HistoricalData []float64 `json:"historical_data" binding:"required"`
@@ -215,16 +215,16 @@ func (h *Handlers) PredictStorageDemand(c *gin.Context) {
 	predicted := currentUsage + avgGrowth*float64(req.DaysAhead)
 
 	c.JSON(http.StatusOK, gin.H{
-		"current_usage_gb":  currentUsage,
-		"avg_daily_growth":  avgGrowth,
-		"predicted_gb":      predicted,
-		"days_ahead":        req.DaysAhead,
-		"prediction_time":   time.Now(),
-		"confidence":        0.85,
+		"current_usage_gb": currentUsage,
+		"avg_daily_growth": avgGrowth,
+		"predicted_gb":     predicted,
+		"days_ahead":       req.DaysAhead,
+		"prediction_time":  time.Now(),
+		"confidence":       0.85,
 	})
 }
 
-// ClassifyFile 文件分类（使用本地AI）
+// ClassifyFile 文件分类（使用本地AI）.
 func (h *Handlers) ClassifyFile(c *gin.Context) {
 	var req struct {
 		FilePath string `json:"file_path" binding:"required"`
@@ -248,9 +248,9 @@ func (h *Handlers) ClassifyFile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"file_path":  req.FilePath,
-		"category":   category,
-		"confidence": confidence,
+		"file_path":     req.FilePath,
+		"category":      category,
+		"confidence":    confidence,
 		"classified_at": time.Now(),
 	})
 }

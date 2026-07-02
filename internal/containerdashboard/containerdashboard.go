@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// ContainerStatus 容器状态
+// ContainerStatus 容器状态.
 type ContainerStatus string
 
 const (
@@ -19,7 +19,7 @@ const (
 	StatusDead       ContainerStatus = "dead"
 )
 
-// HealthStatus 健康状态
+// HealthStatus 健康状态.
 type HealthStatus string
 
 const (
@@ -29,7 +29,7 @@ const (
 	HealthNone      HealthStatus = "none"
 )
 
-// Container 容器信息
+// Container 容器信息.
 type Container struct {
 	ID           string            `json:"id"`
 	Name         string            `json:"name"`
@@ -48,21 +48,21 @@ type Container struct {
 	Labels       map[string]string `json:"labels,omitempty"`
 }
 
-// PortMapping 端口映射
+// PortMapping 端口映射.
 type PortMapping struct {
 	HostPort      int    `json:"host_port"`
 	ContainerPort int    `json:"container_port"`
 	Protocol      string `json:"protocol"`
 }
 
-// VolumeMount 卷挂载
+// VolumeMount 卷挂载.
 type VolumeMount struct {
 	HostPath      string `json:"host_path"`
 	ContainerPath string `json:"container_path"`
 	ReadOnly      bool   `json:"read_only"`
 }
 
-// ResourceUsage 资源使用
+// ResourceUsage 资源使用.
 type ResourceUsage struct {
 	ContainerID   string    `json:"container_id"`
 	Timestamp     time.Time `json:"timestamp"`
@@ -77,7 +77,7 @@ type ResourceUsage struct {
 	PIDs          int       `json:"pids"`
 }
 
-// ResourceTimeSeries 资源时间序列
+// ResourceTimeSeries 资源时间序列.
 type ResourceTimeSeries struct {
 	ContainerID string          `json:"container_id"`
 	Metrics     []ResourceUsage `json:"metrics"`
@@ -86,7 +86,7 @@ type ResourceTimeSeries struct {
 	Interval    time.Duration   `json:"interval"`
 }
 
-// ContainerLog 容器日志
+// ContainerLog 容器日志.
 type ContainerLog struct {
 	ContainerID string    `json:"container_id"`
 	Timestamp   time.Time `json:"timestamp"`
@@ -94,14 +94,14 @@ type ContainerLog struct {
 	Content     string    `json:"content"`
 }
 
-// LogStream 日志流
+// LogStream 日志流.
 type LogStream struct {
 	ContainerID string
 	Logs        chan *ContainerLog
 	Done        chan struct{}
 }
 
-// DeployTemplate 部署模板
+// DeployTemplate 部署模板.
 type DeployTemplate struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -119,14 +119,14 @@ type DeployTemplate struct {
 	HealthCheck *HealthCheck      `json:"health_check,omitempty"`
 }
 
-// ResourceLimits 资源限制
+// ResourceLimits 资源限制.
 type ResourceLimits struct {
 	CPUShares  int   `json:"cpu_shares,omitempty"`
 	Memory     int64 `json:"memory,omitempty"`
 	MemorySwap int64 `json:"memory_swap,omitempty"`
 }
 
-// HealthCheck 健康检查
+// HealthCheck 健康检查.
 type HealthCheck struct {
 	Test        []string      `json:"test"`
 	Interval    time.Duration `json:"interval"`
@@ -135,14 +135,14 @@ type HealthCheck struct {
 	StartPeriod time.Duration `json:"start_period"`
 }
 
-// NetworkTopology 网络拓扑
+// NetworkTopology 网络拓扑.
 type NetworkTopology struct {
 	Networks []NetworkInfo  `json:"networks"`
 	Nodes    []TopologyNode `json:"nodes"`
 	Edges    []TopologyEdge `json:"edges"`
 }
 
-// NetworkInfo 网络信息
+// NetworkInfo 网络信息.
 type NetworkInfo struct {
 	ID         string   `json:"id"`
 	Name       string   `json:"name"`
@@ -152,7 +152,7 @@ type NetworkInfo struct {
 	Containers []string `json:"containers"`
 }
 
-// TopologyNode 拓扑节点
+// TopologyNode 拓扑节点.
 type TopologyNode struct {
 	ID     string `json:"id"`
 	Type   string `json:"type"` // container, network
@@ -160,14 +160,14 @@ type TopologyNode struct {
 	Status string `json:"status"`
 }
 
-// TopologyEdge 拓扑边
+// TopologyEdge 拓扑边.
 type TopologyEdge struct {
 	Source string `json:"source"`
 	Target string `json:"target"`
 	Label  string `json:"label"`
 }
 
-// DashboardStats 仪表盘统计
+// DashboardStats 仪表盘统计.
 type DashboardStats struct {
 	TotalContainers     int            `json:"total_containers"`
 	RunningContainers   int            `json:"running_containers"`
@@ -182,7 +182,7 @@ type DashboardStats struct {
 	MemoryUsageTotal    int64          `json:"memory_usage_total"`
 }
 
-// ContainerDashboard 容器仪表盘
+// ContainerDashboard 容器仪表盘.
 type ContainerDashboard struct {
 	mu         sync.RWMutex
 	containers map[string]*Container
@@ -194,7 +194,7 @@ type ContainerDashboard struct {
 	volumes    map[string]string
 }
 
-// NewContainerDashboard 创建容器仪表盘
+// NewContainerDashboard 创建容器仪表盘.
 func NewContainerDashboard() *ContainerDashboard {
 	return &ContainerDashboard{
 		containers: make(map[string]*Container),
@@ -207,7 +207,7 @@ func NewContainerDashboard() *ContainerDashboard {
 	}
 }
 
-// RegisterContainer 注册容器
+// RegisterContainer 注册容器.
 func (cd *ContainerDashboard) RegisterContainer(container *Container) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
@@ -221,7 +221,7 @@ func (cd *ContainerDashboard) RegisterContainer(container *Container) error {
 	return nil
 }
 
-// UnregisterContainer 注销容器
+// UnregisterContainer 注销容器.
 func (cd *ContainerDashboard) UnregisterContainer(containerID string) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
@@ -236,7 +236,7 @@ func (cd *ContainerDashboard) UnregisterContainer(containerID string) error {
 	return nil
 }
 
-// GetContainer 获取容器
+// GetContainer 获取容器.
 func (cd *ContainerDashboard) GetContainer(containerID string) (*Container, error) {
 	cd.mu.RLock()
 	defer cd.mu.RUnlock()
@@ -248,7 +248,7 @@ func (cd *ContainerDashboard) GetContainer(containerID string) (*Container, erro
 	return container, nil
 }
 
-// ListContainers 列出容器
+// ListContainers 列出容器.
 func (cd *ContainerDashboard) ListContainers(status ContainerStatus) []*Container {
 	cd.mu.RLock()
 	defer cd.mu.RUnlock()
@@ -263,7 +263,7 @@ func (cd *ContainerDashboard) ListContainers(status ContainerStatus) []*Containe
 	return containers
 }
 
-// StartContainer 启动容器
+// StartContainer 启动容器.
 func (cd *ContainerDashboard) StartContainer(containerID string) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
@@ -284,7 +284,7 @@ func (cd *ContainerDashboard) StartContainer(containerID string) error {
 	return nil
 }
 
-// StopContainer 停止容器
+// StopContainer 停止容器.
 func (cd *ContainerDashboard) StopContainer(containerID string) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
@@ -305,7 +305,7 @@ func (cd *ContainerDashboard) StopContainer(containerID string) error {
 	return nil
 }
 
-// RestartContainer 重启容器
+// RestartContainer 重启容器.
 func (cd *ContainerDashboard) RestartContainer(containerID string) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
@@ -326,7 +326,7 @@ func (cd *ContainerDashboard) RestartContainer(containerID string) error {
 	return nil
 }
 
-// DeleteContainer 删除容器
+// DeleteContainer 删除容器.
 func (cd *ContainerDashboard) DeleteContainer(containerID string, force bool) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
@@ -346,7 +346,7 @@ func (cd *ContainerDashboard) DeleteContainer(containerID string, force bool) er
 	return nil
 }
 
-// UpdateResourceUsage 更新资源使用
+// UpdateResourceUsage 更新资源使用.
 func (cd *ContainerDashboard) UpdateResourceUsage(usage *ResourceUsage) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
@@ -365,7 +365,7 @@ func (cd *ContainerDashboard) UpdateResourceUsage(usage *ResourceUsage) error {
 	return nil
 }
 
-// GetResourceUsage 获取资源使用
+// GetResourceUsage 获取资源使用.
 func (cd *ContainerDashboard) GetResourceUsage(containerID string) (*ResourceUsage, error) {
 	cd.mu.RLock()
 	defer cd.mu.RUnlock()
@@ -378,7 +378,7 @@ func (cd *ContainerDashboard) GetResourceUsage(containerID string) (*ResourceUsa
 	return &usages[len(usages)-1], nil
 }
 
-// GetResourceTimeSeries 获取资源时间序列
+// GetResourceTimeSeries 获取资源时间序列.
 func (cd *ContainerDashboard) GetResourceTimeSeries(containerID string, duration time.Duration) (*ResourceTimeSeries, error) {
 	cd.mu.RLock()
 	defer cd.mu.RUnlock()
@@ -415,7 +415,7 @@ func (cd *ContainerDashboard) GetResourceTimeSeries(containerID string, duration
 	}, nil
 }
 
-// AddContainerLog 添加容器日志
+// AddContainerLog 添加容器日志.
 func (cd *ContainerDashboard) AddContainerLog(log *ContainerLog) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
@@ -443,7 +443,7 @@ func (cd *ContainerDashboard) AddContainerLog(log *ContainerLog) error {
 	return nil
 }
 
-// GetContainerLogs 获取容器日志
+// GetContainerLogs 获取容器日志.
 func (cd *ContainerDashboard) GetContainerLogs(containerID string, tail int) ([]*ContainerLog, error) {
 	cd.mu.RLock()
 	defer cd.mu.RUnlock()
@@ -464,7 +464,7 @@ func (cd *ContainerDashboard) GetContainerLogs(containerID string, tail int) ([]
 	return logs[len(logs)-tail:], nil
 }
 
-// StreamLogs 创建日志流
+// StreamLogs 创建日志流.
 func (cd *ContainerDashboard) StreamLogs(containerID string) (*LogStream, error) {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
@@ -487,7 +487,7 @@ func (cd *ContainerDashboard) StreamLogs(containerID string) (*LogStream, error)
 	return stream, nil
 }
 
-// StopLogStream 停止日志流
+// StopLogStream 停止日志流.
 func (cd *ContainerDashboard) StopLogStream(containerID string) {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
@@ -498,7 +498,7 @@ func (cd *ContainerDashboard) StopLogStream(containerID string) {
 	}
 }
 
-// RegisterTemplate 注册部署模板
+// RegisterTemplate 注册部署模板.
 func (cd *ContainerDashboard) RegisterTemplate(template *DeployTemplate) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
@@ -511,7 +511,7 @@ func (cd *ContainerDashboard) RegisterTemplate(template *DeployTemplate) error {
 	return nil
 }
 
-// GetTemplate 获取部署模板
+// GetTemplate 获取部署模板.
 func (cd *ContainerDashboard) GetTemplate(templateID string) (*DeployTemplate, error) {
 	cd.mu.RLock()
 	defer cd.mu.RUnlock()
@@ -523,7 +523,7 @@ func (cd *ContainerDashboard) GetTemplate(templateID string) (*DeployTemplate, e
 	return template, nil
 }
 
-// ListTemplates 列出部署模板
+// ListTemplates 列出部署模板.
 func (cd *ContainerDashboard) ListTemplates(category string) []*DeployTemplate {
 	cd.mu.RLock()
 	defer cd.mu.RUnlock()
@@ -538,7 +538,7 @@ func (cd *ContainerDashboard) ListTemplates(category string) []*DeployTemplate {
 	return templates
 }
 
-// DeployFromTemplate 从模板部署容器
+// DeployFromTemplate 从模板部署容器.
 func (cd *ContainerDashboard) DeployFromTemplate(templateID string, name string, overrides map[string]string) (*Container, error) {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
@@ -576,7 +576,7 @@ func (cd *ContainerDashboard) DeployFromTemplate(templateID string, name string,
 	return container, nil
 }
 
-// CheckContainerHealth 检查容器健康状态
+// CheckContainerHealth 检查容器健康状态.
 func (cd *ContainerDashboard) CheckContainerHealth(containerID string) (*HealthStatus, error) {
 	cd.mu.RLock()
 	defer cd.mu.RUnlock()
@@ -610,7 +610,7 @@ func (cd *ContainerDashboard) CheckContainerHealth(containerID string) (*HealthS
 	return &health, nil
 }
 
-// UpdateContainerHealth 更新容器健康状态
+// UpdateContainerHealth 更新容器健康状态.
 func (cd *ContainerDashboard) UpdateContainerHealth(containerID string, health HealthStatus) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
@@ -624,7 +624,7 @@ func (cd *ContainerDashboard) UpdateContainerHealth(containerID string, health H
 	return nil
 }
 
-// RegisterNetwork 注册网络
+// RegisterNetwork 注册网络.
 func (cd *ContainerDashboard) RegisterNetwork(network *NetworkInfo) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
@@ -637,7 +637,7 @@ func (cd *ContainerDashboard) RegisterNetwork(network *NetworkInfo) error {
 	return nil
 }
 
-// GetNetworkTopology 获取网络拓扑
+// GetNetworkTopology 获取网络拓扑.
 func (cd *ContainerDashboard) GetNetworkTopology() *NetworkTopology {
 	cd.mu.RLock()
 	defer cd.mu.RUnlock()
@@ -678,7 +678,7 @@ func (cd *ContainerDashboard) GetNetworkTopology() *NetworkTopology {
 	return topology
 }
 
-// ConnectContainerToNetwork 连接容器到网络
+// ConnectContainerToNetwork 连接容器到网络.
 func (cd *ContainerDashboard) ConnectContainerToNetwork(containerID, networkID string) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
@@ -705,7 +705,7 @@ func (cd *ContainerDashboard) ConnectContainerToNetwork(containerID, networkID s
 	return nil
 }
 
-// DisconnectContainerFromNetwork 断开容器与网络的连接
+// DisconnectContainerFromNetwork 断开容器与网络的连接.
 func (cd *ContainerDashboard) DisconnectContainerFromNetwork(containerID, networkID string) error {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()
@@ -739,7 +739,7 @@ func (cd *ContainerDashboard) DisconnectContainerFromNetwork(containerID, networ
 	return nil
 }
 
-// GetDashboardStats 获取仪表盘统计
+// GetDashboardStats 获取仪表盘统计.
 func (cd *ContainerDashboard) GetDashboardStats() *DashboardStats {
 	cd.mu.RLock()
 	defer cd.mu.RUnlock()
@@ -781,7 +781,7 @@ func (cd *ContainerDashboard) GetDashboardStats() *DashboardStats {
 	return stats
 }
 
-// GetContainerStats 获取单个容器统计
+// GetContainerStats 获取单个容器统计.
 func (cd *ContainerDashboard) GetContainerStats(containerID string) (map[string]interface{}, error) {
 	cd.mu.RLock()
 	defer cd.mu.RUnlock()
@@ -816,7 +816,7 @@ func (cd *ContainerDashboard) GetContainerStats(containerID string) (map[string]
 	return stats, nil
 }
 
-// PruneStoppedContainers 清理已停止的容器
+// PruneStoppedContainers 清理已停止的容器.
 func (cd *ContainerDashboard) PruneStoppedContainers() int {
 	cd.mu.Lock()
 	defer cd.mu.Unlock()

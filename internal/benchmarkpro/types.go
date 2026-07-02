@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// BenchTestType 基准测试类型
+// BenchTestType 基准测试类型.
 type BenchTestType string
 
 const (
@@ -15,7 +15,7 @@ const (
 	TestTypeComprehensive BenchTestType = "comprehensive"
 )
 
-// BenchStatus 测试状态
+// BenchStatus 测试状态.
 type BenchStatus string
 
 const (
@@ -25,7 +25,7 @@ const (
 	StatusFailed    BenchStatus = "failed"
 )
 
-// SeverityLevel 瓶颈严重程度
+// SeverityLevel 瓶颈严重程度.
 type SeverityLevel string
 
 const (
@@ -34,7 +34,7 @@ const (
 	SeverityCritical SeverityLevel = "critical"
 )
 
-// Config 基准测试配置
+// Config 基准测试配置.
 type Config struct {
 	Enabled       bool   `json:"enabled"`
 	TmpDir        string `json:"tmp_dir"`
@@ -42,7 +42,7 @@ type Config struct {
 	NetworkTarget string `json:"network_target"`
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:       true,
@@ -52,7 +52,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// BenchRequest 基准测试请求
+// BenchRequest 基准测试请求.
 type BenchRequest struct {
 	TestType      BenchTestType `json:"test_type" binding:"required"`
 	TargetPath    string        `json:"target_path,omitempty"`
@@ -63,7 +63,7 @@ type BenchRequest struct {
 	NetworkTarget string        `json:"network_target,omitempty"`
 }
 
-// BenchResult 测试结果
+// BenchResult 测试结果.
 type BenchResult struct {
 	ID          string        `json:"id"`
 	TestType    BenchTestType `json:"test_type"`
@@ -101,7 +101,7 @@ type BenchResult struct {
 	OverallScore float64 `json:"overall_score,omitempty"`
 }
 
-// TrendPoint 趋势数据点
+// TrendPoint 趋势数据点.
 type TrendPoint struct {
 	Timestamp    time.Time `json:"timestamp"`
 	TestType     string    `json:"test_type"`
@@ -113,7 +113,7 @@ type TrendPoint struct {
 	OverallScore float64   `json:"overall_score"`
 }
 
-// TrendAnalysis 趋势分析结果
+// TrendAnalysis 趋势分析结果.
 type TrendAnalysis struct {
 	TestType  string       `json:"test_type"`
 	Points    []TrendPoint `json:"points"`
@@ -124,7 +124,7 @@ type TrendAnalysis struct {
 	MaxScore  float64      `json:"max_score"`
 }
 
-// Bottleneck 性能瓶颈
+// Bottleneck 性能瓶颈.
 type Bottleneck struct {
 	Resource    string        `json:"resource"`
 	Severity    SeverityLevel `json:"severity"`
@@ -134,7 +134,7 @@ type Bottleneck struct {
 	Suggestion  string        `json:"suggestion"`
 }
 
-// OptimizationSuggestion 优化建议
+// OptimizationSuggestion 优化建议.
 type OptimizationSuggestion struct {
 	Category    string `json:"category"`
 	Priority    string `json:"priority"`
@@ -143,7 +143,7 @@ type OptimizationSuggestion struct {
 	Impact      string `json:"impact"`
 }
 
-// CompetitorEntry 竞品数据条目
+// CompetitorEntry 竞品数据条目.
 type CompetitorEntry struct {
 	Name         string  `json:"name"`
 	CPUScore     float64 `json:"cpu_score"`
@@ -153,14 +153,14 @@ type CompetitorEntry struct {
 	OverallScore float64 `json:"overall_score"`
 }
 
-// CompetitorComparison 竞品对比结果
+// CompetitorComparison 竞品对比结果.
 type CompetitorComparison struct {
 	Local      *BenchResult     `json:"local"`
 	Competitor *CompetitorEntry `json:"competitor"`
 	Diff       *CompetitorDiff  `json:"diff"`
 }
 
-// CompetitorDiff 竞品差异
+// CompetitorDiff 竞品差异.
 type CompetitorDiff struct {
 	CPUDiff     float64 `json:"cpu_diff"`
 	MemDiff     float64 `json:"mem_diff"`
@@ -169,7 +169,7 @@ type CompetitorDiff struct {
 	OverallDiff float64 `json:"overall_diff"`
 }
 
-// BenchmarkReport 基准测试报告
+// BenchmarkReport 基准测试报告.
 type BenchmarkReport struct {
 	GeneratedAt    time.Time                 `json:"generated_at"`
 	LatestResult   *BenchResult              `json:"latest_result"`

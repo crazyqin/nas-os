@@ -34,15 +34,15 @@ var (
 // Service BRT 预取加速服务.
 type Service struct {
 	mu         sync.RWMutex
-	brtData    map[string]*BRTMetadata     // poolID -> BRT 元数据
-	cache      map[uint64]*CacheEntry       // blockID -> 缓存条目
-	tasks      map[string]*PrefetchTask     // taskID -> 预取任务
-	config     PrefetchConfig               // 预取配置
-	cacheOrder []uint64                     // 缓存淘汰顺序（用于 LRU/FIFO）
-	hits       uint64                       // 命中计数
-	misses     uint64                       // 未命中计数
-	evictions  uint64                       // 驱逐计数
-	prefetches uint64                       // 预取次数
+	brtData    map[string]*BRTMetadata  // poolID -> BRT 元数据
+	cache      map[uint64]*CacheEntry   // blockID -> 缓存条目
+	tasks      map[string]*PrefetchTask // taskID -> 预取任务
+	config     PrefetchConfig           // 预取配置
+	cacheOrder []uint64                 // 缓存淘汰顺序（用于 LRU/FIFO）
+	hits       uint64                   // 命中计数
+	misses     uint64                   // 未命中计数
+	evictions  uint64                   // 驱逐计数
+	prefetches uint64                   // 预取次数
 }
 
 // NewService 创建 BRT 预取加速服务.
@@ -299,7 +299,7 @@ func (s *Service) Prefetch(req PrefetchRequest) (*PrefetchResponse, error) {
 		PoolID:    req.PoolID,
 		Strategy:  s.config.Strategy,
 		Status:    "running",
-		Blocks:     blocksToPrefetch,
+		Blocks:    blocksToPrefetch,
 		CreatedAt: time.Now(),
 	}
 
@@ -405,8 +405,8 @@ func (s *Service) isValidBlockForPrefetch(brt *BRTMetadata, blockID uint64) bool
 // getAdaptiveCandidates 获取自适应预取候选块.
 func (s *Service) getAdaptiveCandidates(brt *BRTMetadata, requested []uint64) []uint64 {
 	type candidate struct {
-		blockID  uint64
-		refCount int
+		blockID    uint64
+		refCount   int
 		lastAccess time.Time
 	}
 
@@ -420,7 +420,7 @@ func (s *Service) getAdaptiveCandidates(brt *BRTMetadata, requested []uint64) []
 		}
 		candidates = append(candidates, candidate{
 			blockID:    entry.BlockID,
-			refCount:  entry.RefCount,
+			refCount:   entry.RefCount,
 			lastAccess: entry.LastAccessed,
 		})
 	}

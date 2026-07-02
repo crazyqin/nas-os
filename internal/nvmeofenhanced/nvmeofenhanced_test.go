@@ -7,7 +7,7 @@ import (
 func TestNewNVMeOFManager(t *testing.T) {
 	config := DefaultManagerConfig()
 	m := NewNVMeOFManager(config)
-	
+
 	if m == nil {
 		t.Fatal("NewNVMeOFManager returned nil")
 	}
@@ -16,7 +16,7 @@ func TestNewNVMeOFManager(t *testing.T) {
 func TestCreateSubsystem(t *testing.T) {
 	config := DefaultManagerConfig()
 	m := NewNVMeOFManager(config)
-	
+
 	subsystem := &NVMeSubsystem{
 		ID:          "sub1",
 		NQN:         "nqn.2024-01.com.example:sub1",
@@ -26,18 +26,18 @@ func TestCreateSubsystem(t *testing.T) {
 		IPAddress:   "192.168.1.100",
 		Port:        4420,
 	}
-	
+
 	err := m.CreateSubsystem(subsystem)
 	if err != nil {
 		t.Fatalf("CreateSubsystem failed: %v", err)
 	}
-	
+
 	// 验证子系统已创建
 	retrieved, err := m.GetSubsystem("sub1")
 	if err != nil {
 		t.Fatalf("GetSubsystem failed: %v", err)
 	}
-	
+
 	if retrieved.NQN != "nqn.2024-01.com.example:sub1" {
 		t.Errorf("Expected NQN 'nqn.2024-01.com.example:sub1', got '%s'", retrieved.NQN)
 	}
@@ -46,14 +46,14 @@ func TestCreateSubsystem(t *testing.T) {
 func TestCreateDuplicateSubsystem(t *testing.T) {
 	config := DefaultManagerConfig()
 	m := NewNVMeOFManager(config)
-	
+
 	subsystem := &NVMeSubsystem{
 		ID:  "sub1",
 		NQN: "nqn.2024-01.com.example:sub1",
 	}
-	
+
 	m.CreateSubsystem(subsystem)
-	
+
 	err := m.CreateSubsystem(subsystem)
 	if err != ErrSubsystemExists {
 		t.Errorf("Expected ErrSubsystemExists, got %v", err)
@@ -63,14 +63,14 @@ func TestCreateDuplicateSubsystem(t *testing.T) {
 func TestCreateNamespace(t *testing.T) {
 	config := DefaultManagerConfig()
 	m := NewNVMeOFManager(config)
-	
+
 	// 先创建子系统
 	subsystem := &NVMeSubsystem{
 		ID:  "sub1",
 		NQN: "nqn.2024-01.com.example:sub1",
 	}
 	m.CreateSubsystem(subsystem)
-	
+
 	// 创建命名空间
 	namespace := &NVMeNamespace{
 		ID:          "ns1",
@@ -80,18 +80,18 @@ func TestCreateNamespace(t *testing.T) {
 		SizeBytes:   1024 * 1024 * 1024 * 100, // 100GB
 		BlockSize:   4096,
 	}
-	
+
 	err := m.CreateNamespace(namespace)
 	if err != nil {
 		t.Fatalf("CreateNamespace failed: %v", err)
 	}
-	
+
 	// 验证命名空间已创建
 	retrieved, err := m.GetNamespace("ns1")
 	if err != nil {
 		t.Fatalf("GetNamespace failed: %v", err)
 	}
-	
+
 	if retrieved.NSID != 1 {
 		t.Errorf("Expected NSID 1, got %d", retrieved.NSID)
 	}
@@ -100,14 +100,14 @@ func TestCreateNamespace(t *testing.T) {
 func TestConnectController(t *testing.T) {
 	config := DefaultManagerConfig()
 	m := NewNVMeOFManager(config)
-	
+
 	// 先创建子系统
 	subsystem := &NVMeSubsystem{
 		ID:  "sub1",
 		NQN: "nqn.2024-01.com.example:sub1",
 	}
 	m.CreateSubsystem(subsystem)
-	
+
 	// 连接控制器
 	controller := &NVMeController{
 		ID:          "ctrl1",
@@ -119,18 +119,18 @@ func TestConnectController(t *testing.T) {
 		IPAddress:   "192.168.1.101",
 		Port:        4420,
 	}
-	
+
 	err := m.ConnectController(controller)
 	if err != nil {
 		t.Fatalf("ConnectController failed: %v", err)
 	}
-	
+
 	// 验证控制器已连接
 	retrieved, err := m.GetController("ctrl1")
 	if err != nil {
 		t.Fatalf("GetController failed: %v", err)
 	}
-	
+
 	if retrieved.Model != "NVMe Controller" {
 		t.Errorf("Expected model 'NVMe Controller', got '%s'", retrieved.Model)
 	}
@@ -139,7 +139,7 @@ func TestConnectController(t *testing.T) {
 func TestAddNetworkInterface(t *testing.T) {
 	config := DefaultManagerConfig()
 	m := NewNVMeOFManager(config)
-	
+
 	iface := &NetworkInterface{
 		ID:        "eth0",
 		Name:      "eth0",
@@ -151,18 +151,18 @@ func TestAddNetworkInterface(t *testing.T) {
 		IsRDMA:    true,
 		IsOnline:  true,
 	}
-	
+
 	err := m.AddNetworkInterface(iface)
 	if err != nil {
 		t.Fatalf("AddNetworkInterface failed: %v", err)
 	}
-	
+
 	// 验证接口已添加
 	retrieved, err := m.GetNetworkInterface("eth0")
 	if err != nil {
 		t.Fatalf("GetNetworkInterface failed: %v", err)
 	}
-	
+
 	if retrieved.Speed != Speed400G {
 		t.Errorf("Expected speed 400g, got '%s'", retrieved.Speed)
 	}
@@ -171,23 +171,23 @@ func TestAddNetworkInterface(t *testing.T) {
 func TestConfigureRDMA(t *testing.T) {
 	config := DefaultManagerConfig()
 	m := NewNVMeOFManager(config)
-	
+
 	rdmaConfig := RDMAConfig{
-		Enabled:         true,
-		Device:          "mlx5_0",
-		QueuePairCount:  512,
-		MaxInlineData:   512,
-		MaxSendWR:       2048,
-		MaxRecvWR:       2048,
-		MaxSGE:          32,
-		UseGRH:          true,
+		Enabled:        true,
+		Device:         "mlx5_0",
+		QueuePairCount: 512,
+		MaxInlineData:  512,
+		MaxSendWR:      2048,
+		MaxRecvWR:      2048,
+		MaxSGE:         32,
+		UseGRH:         true,
 	}
-	
+
 	err := m.ConfigureRDMA(rdmaConfig)
 	if err != nil {
 		t.Fatalf("ConfigureRDMA failed: %v", err)
 	}
-	
+
 	// 验证配置已更新
 	retrieved := m.GetRDMAConfig()
 	if retrieved.Device != "mlx5_0" {
@@ -198,14 +198,14 @@ func TestConfigureRDMA(t *testing.T) {
 func TestUpdateMetrics(t *testing.T) {
 	config := DefaultManagerConfig()
 	m := NewNVMeOFManager(config)
-	
+
 	// 先创建子系统
 	subsystem := &NVMeSubsystem{
 		ID:  "sub1",
 		NQN: "nqn.2024-01.com.example:sub1",
 	}
 	m.CreateSubsystem(subsystem)
-	
+
 	// 更新指标
 	metrics := &PerformanceMetrics{
 		SubsystemID:         "sub1",
@@ -219,18 +219,18 @@ func TestUpdateMetrics(t *testing.T) {
 		WriteLatencyUs:      100,
 		AvgLatencyUs:        75,
 	}
-	
+
 	err := m.UpdateMetrics("sub1", metrics)
 	if err != nil {
 		t.Fatalf("UpdateMetrics failed: %v", err)
 	}
-	
+
 	// 验证指标已更新
 	retrieved, err := m.GetMetrics("sub1")
 	if err != nil {
 		t.Fatalf("GetMetrics failed: %v", err)
 	}
-	
+
 	if retrieved.ReadIOPS != 100000 {
 		t.Errorf("Expected ReadIOPS 100000, got %d", retrieved.ReadIOPS)
 	}
@@ -239,7 +239,7 @@ func TestUpdateMetrics(t *testing.T) {
 func TestGetSubsystemStats(t *testing.T) {
 	config := DefaultManagerConfig()
 	m := NewNVMeOFManager(config)
-	
+
 	// 创建子系统
 	subsystem := &NVMeSubsystem{
 		ID:        "sub1",
@@ -248,7 +248,7 @@ func TestGetSubsystemStats(t *testing.T) {
 		IsOnline:  true,
 	}
 	m.CreateSubsystem(subsystem)
-	
+
 	// 创建命名空间
 	namespace := &NVMeNamespace{
 		ID:          "ns1",
@@ -256,14 +256,14 @@ func TestGetSubsystemStats(t *testing.T) {
 		NSID:        1,
 	}
 	m.CreateNamespace(namespace)
-	
+
 	// 获取统计
 	stats := m.GetSubsystemStats("sub1")
-	
+
 	if stats["id"] != "sub1" {
 		t.Errorf("Expected id 'sub1', got '%v'", stats["id"])
 	}
-	
+
 	if stats["namespace_count"] != 1 {
 		t.Errorf("Expected namespace_count 1, got %v", stats["namespace_count"])
 	}
@@ -272,18 +272,18 @@ func TestGetSubsystemStats(t *testing.T) {
 func TestGetGlobalStats(t *testing.T) {
 	config := DefaultManagerConfig()
 	m := NewNVMeOFManager(config)
-	
+
 	// 创建一些数据
 	m.CreateSubsystem(&NVMeSubsystem{ID: "sub1", Transport: TransportTCP})
 	m.CreateSubsystem(&NVMeSubsystem{ID: "sub2", Transport: TransportRDMA})
 	m.AddNetworkInterface(&NetworkInterface{ID: "eth0", Speed: Speed400G})
-	
+
 	stats := m.GetGlobalStats()
-	
+
 	if stats["total_subsystems"] != 2 {
 		t.Errorf("Expected total_subsystems 2, got %v", stats["total_subsystems"])
 	}
-	
+
 	if stats["total_interfaces"] != 1 {
 		t.Errorf("Expected total_interfaces 1, got %v", stats["total_interfaces"])
 	}
@@ -292,17 +292,17 @@ func TestGetGlobalStats(t *testing.T) {
 func TestListSubsystems(t *testing.T) {
 	config := DefaultManagerConfig()
 	m := NewNVMeOFManager(config)
-	
+
 	m.CreateSubsystem(&NVMeSubsystem{ID: "sub1", Transport: TransportTCP})
 	m.CreateSubsystem(&NVMeSubsystem{ID: "sub2", Transport: TransportRDMA})
 	m.CreateSubsystem(&NVMeSubsystem{ID: "sub3", Transport: TransportTCP})
-	
+
 	// 列出所有
 	all := m.ListSubsystems("")
 	if len(all) != 3 {
 		t.Errorf("Expected 3 subsystems, got %d", len(all))
 	}
-	
+
 	// 按传输类型筛选
 	tcpOnly := m.ListSubsystems(TransportTCP)
 	if len(tcpOnly) != 2 {
@@ -313,14 +313,14 @@ func TestListSubsystems(t *testing.T) {
 func TestDeleteSubsystem(t *testing.T) {
 	config := DefaultManagerConfig()
 	m := NewNVMeOFManager(config)
-	
+
 	m.CreateSubsystem(&NVMeSubsystem{ID: "sub1", Transport: TransportTCP})
-	
+
 	err := m.DeleteSubsystem("sub1")
 	if err != nil {
 		t.Fatalf("DeleteSubsystem failed: %v", err)
 	}
-	
+
 	_, err = m.GetSubsystem("sub1")
 	if err != ErrSubsystemNotFound {
 		t.Errorf("Expected ErrSubsystemNotFound, got %v", err)
@@ -339,7 +339,7 @@ func TestFormatSpeed(t *testing.T) {
 		{Speed200G, "200 GbE"},
 		{Speed400G, "400 GbE"},
 	}
-	
+
 	for _, test := range tests {
 		result := FormatSpeed(test.speed)
 		if result != test.expected {
@@ -358,7 +358,7 @@ func TestFormatTransport(t *testing.T) {
 		{TransportFC, "NVMe/FC"},
 		{TransportIB, "NVMe/IB"},
 	}
-	
+
 	for _, test := range tests {
 		result := FormatTransport(test.transport)
 		if result != test.expected {

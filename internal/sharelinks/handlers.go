@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler HTTP处理器
+// Handler HTTP处理器.
 type Handler struct {
 	manager *LinkManager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *LinkManager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	group := rg.Group("/sharelinks")
 	{
@@ -52,7 +52,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// CreateLinkRequest 创建链接请求
+// CreateLinkRequest 创建链接请求.
 type CreateLinkRequest struct {
 	Path             string   `json:"path" binding:"required"`
 	Name             string   `json:"name" binding:"required"`
@@ -67,7 +67,7 @@ type CreateLinkRequest struct {
 	BatchPaths       []string `json:"batchPaths"`
 }
 
-// UpdateLinkRequest 更新链接请求
+// UpdateLinkRequest 更新链接请求.
 type UpdateLinkRequest struct {
 	Name             *string  `json:"name"`
 	Description      *string  `json:"description"`
@@ -77,12 +77,12 @@ type UpdateLinkRequest struct {
 	MaxDownloads     *int     `json:"maxDownloads"`
 }
 
-// AccessLinkRequest 访问链接请求
+// AccessLinkRequest 访问链接请求.
 type AccessLinkRequest struct {
 	Password string `json:"password"`
 }
 
-// ListLinks 列出链接
+// ListLinks 列出链接.
 func (h *Handler) ListLinks(c *gin.Context) {
 	createdBy := c.Query("createdBy")
 	activeOnly := c.Query("active") == "true"
@@ -91,7 +91,7 @@ func (h *Handler) ListLinks(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"links": links})
 }
 
-// GetLink 获取链接详情
+// GetLink 获取链接详情.
 func (h *Handler) GetLink(c *gin.Context) {
 	id := c.Param("id")
 	link, ok := h.manager.GetLink(id)
@@ -102,7 +102,7 @@ func (h *Handler) GetLink(c *gin.Context) {
 	c.JSON(http.StatusOK, link)
 }
 
-// CreateLink 创建链接
+// CreateLink 创建链接.
 func (h *Handler) CreateLink(c *gin.Context) {
 	var req CreateLinkRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -147,7 +147,7 @@ func (h *Handler) CreateLink(c *gin.Context) {
 	c.JSON(http.StatusCreated, link)
 }
 
-// UpdateLink 更新链接
+// UpdateLink 更新链接.
 func (h *Handler) UpdateLink(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateLinkRequest
@@ -184,7 +184,7 @@ func (h *Handler) UpdateLink(c *gin.Context) {
 	c.JSON(http.StatusOK, link)
 }
 
-// DeleteLink 删除链接
+// DeleteLink 删除链接.
 func (h *Handler) DeleteLink(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteLink(id); err != nil {
@@ -194,7 +194,7 @@ func (h *Handler) DeleteLink(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "link deleted"})
 }
 
-// DisableLink 禁用链接
+// DisableLink 禁用链接.
 func (h *Handler) DisableLink(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DisableLink(id); err != nil {
@@ -204,7 +204,7 @@ func (h *Handler) DisableLink(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "link disabled"})
 }
 
-// EnableLink 启用链接
+// EnableLink 启用链接.
 func (h *Handler) EnableLink(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.EnableLink(id); err != nil {
@@ -214,7 +214,7 @@ func (h *Handler) EnableLink(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "link enabled"})
 }
 
-// AccessLink 访问链接
+// AccessLink 访问链接.
 func (h *Handler) AccessLink(c *gin.Context) {
 	id := c.Param("id")
 
@@ -255,7 +255,7 @@ func (h *Handler) AccessLink(c *gin.Context) {
 	})
 }
 
-// DownloadFile 下载文件
+// DownloadFile 下载文件.
 func (h *Handler) DownloadFile(c *gin.Context) {
 	id := c.Param("id")
 
@@ -296,7 +296,7 @@ func (h *Handler) DownloadFile(c *gin.Context) {
 	})
 }
 
-// PreviewFile 预览文件
+// PreviewFile 预览文件.
 func (h *Handler) PreviewFile(c *gin.Context) {
 	id := c.Param("id")
 
@@ -336,7 +336,7 @@ func (h *Handler) PreviewFile(c *gin.Context) {
 	})
 }
 
-// GetLinkStats 获取链接统计
+// GetLinkStats 获取链接统计.
 func (h *Handler) GetLinkStats(c *gin.Context) {
 	id := c.Param("id")
 	stats, err := h.manager.GetLinkStats(id)
@@ -347,13 +347,13 @@ func (h *Handler) GetLinkStats(c *gin.Context) {
 	c.JSON(http.StatusOK, stats)
 }
 
-// GetGlobalStats 获取全局统计
+// GetGlobalStats 获取全局统计.
 func (h *Handler) GetGlobalStats(c *gin.Context) {
 	stats := h.manager.GetGlobalStats()
 	c.JSON(http.StatusOK, stats)
 }
 
-// GenerateQRCode 生成二维码
+// GenerateQRCode 生成二维码.
 func (h *Handler) GenerateQRCode(c *gin.Context) {
 	id := c.Param("id")
 	data, err := h.manager.GenerateQRCodeData(id)
@@ -367,7 +367,7 @@ func (h *Handler) GenerateQRCode(c *gin.Context) {
 	})
 }
 
-// AccessByShortCode 通过短码访问
+// AccessByShortCode 通过短码访问.
 func (h *Handler) AccessByShortCode(c *gin.Context) {
 	shortCode := c.Param("shortcode")
 
@@ -413,13 +413,13 @@ func (h *Handler) AccessByShortCode(c *gin.Context) {
 	})
 }
 
-// CleanupExpired 清理过期链接
+// CleanupExpired 清理过期链接.
 func (h *Handler) CleanupExpired(c *gin.Context) {
 	count := h.manager.CleanupExpired()
 	c.JSON(http.StatusOK, gin.H{"cleaned": count})
 }
 
-// getClientIP 获取客户端IP（支持代理）
+// getClientIP 获取客户端IP（支持代理）.
 func getClientIP(c *gin.Context) string {
 	ip := c.GetHeader("X-Forwarded-For")
 	if ip != "" {

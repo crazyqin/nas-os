@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Monitor 资源监控器
+// Monitor 资源监控器.
 type Monitor struct {
 	mu           sync.RWMutex
 	metrics      map[string]*AppMetrics
@@ -18,7 +18,7 @@ type Monitor struct {
 	stopCh       chan struct{}
 }
 
-// MonitorConfig 监控配置
+// MonitorConfig 监控配置.
 type MonitorConfig struct {
 	Enabled          bool          `json:"enabled"`
 	Interval         time.Duration `json:"interval"`
@@ -26,7 +26,7 @@ type MonitorConfig struct {
 	AlertRetention   time.Duration `json:"alert_retention"`
 }
 
-// AlertEvent 告警事件
+// AlertEvent 告警事件.
 type AlertEvent struct {
 	ID        string    `json:"id"`
 	AlertID   string    `json:"alert_id"`
@@ -38,7 +38,7 @@ type AlertEvent struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// NewMonitor 创建监控器
+// NewMonitor 创建监控器.
 func NewMonitor(manager *WebAppManager, config *MonitorConfig) *Monitor {
 	if config == nil {
 		config = &MonitorConfig{
@@ -59,7 +59,7 @@ func NewMonitor(manager *WebAppManager, config *MonitorConfig) *Monitor {
 	}
 }
 
-// Start 启动监控
+// Start 启动监控.
 func (m *Monitor) Start() {
 	if !m.config.Enabled {
 		log.Printf("Monitor is disabled")
@@ -71,13 +71,13 @@ func (m *Monitor) Start() {
 	go m.monitorLoop()
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (m *Monitor) Stop() {
 	log.Printf("Stopping monitor")
 	close(m.stopCh)
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (m *Monitor) monitorLoop() {
 	ticker := time.NewTicker(m.config.Interval)
 	defer ticker.Stop()
@@ -93,7 +93,7 @@ func (m *Monitor) monitorLoop() {
 	}
 }
 
-// collectMetrics 采集指标
+// collectMetrics 采集指标.
 func (m *Monitor) collectMetrics() {
 	apps := m.manager.ListApps(nil)
 
@@ -109,7 +109,7 @@ func (m *Monitor) collectMetrics() {
 	}
 }
 
-// collectAppMetrics 采集单个应用的指标
+// collectAppMetrics 采集单个应用的指标.
 func (m *Monitor) collectAppMetrics(app *WebApp) *AppMetrics {
 	// 模拟指标采集
 	// 实际实现需要调用 Docker API 或系统 API
@@ -135,7 +135,7 @@ func (m *Monitor) collectAppMetrics(app *WebApp) *AppMetrics {
 	}
 }
 
-// GetMetrics 获取应用指标
+// GetMetrics 获取应用指标.
 func (m *Monitor) GetMetrics(appID string) (*AppMetrics, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -147,7 +147,7 @@ func (m *Monitor) GetMetrics(appID string) (*AppMetrics, error) {
 	return metrics, nil
 }
 
-// GetAllMetrics 获取所有应用指标
+// GetAllMetrics 获取所有应用指标.
 func (m *Monitor) GetAllMetrics() map[string]*AppMetrics {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -159,7 +159,7 @@ func (m *Monitor) GetAllMetrics() map[string]*AppMetrics {
 	return result
 }
 
-// AddAlertRule 添加告警规则
+// AddAlertRule 添加告警规则.
 func (m *Monitor) AddAlertRule(rule *AlertRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -188,7 +188,7 @@ func (m *Monitor) AddAlertRule(rule *AlertRule) error {
 	return nil
 }
 
-// RemoveAlertRule 移除告警规则
+// RemoveAlertRule 移除告警规则.
 func (m *Monitor) RemoveAlertRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -202,7 +202,7 @@ func (m *Monitor) RemoveAlertRule(id string) error {
 	return nil
 }
 
-// UpdateAlertRule 更新告警规则
+// UpdateAlertRule 更新告警规则.
 func (m *Monitor) UpdateAlertRule(id string, updates *AlertRule) (*AlertRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -231,7 +231,7 @@ func (m *Monitor) UpdateAlertRule(id string, updates *AlertRule) (*AlertRule, er
 	return rule, nil
 }
 
-// GetAlertRule 获取告警规则
+// GetAlertRule 获取告警规则.
 func (m *Monitor) GetAlertRule(id string) (*AlertRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -243,7 +243,7 @@ func (m *Monitor) GetAlertRule(id string) (*AlertRule, error) {
 	return rule, nil
 }
 
-// ListAlertRules 列出告警规则
+// ListAlertRules 列出告警规则.
 func (m *Monitor) ListAlertRules(appID string) []*AlertRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -257,7 +257,7 @@ func (m *Monitor) ListAlertRules(appID string) []*AlertRule {
 	return rules
 }
 
-// checkAlerts 检查告警
+// checkAlerts 检查告警.
 func (m *Monitor) checkAlerts() {
 	m.mu.RLock()
 	alerts := make([]*AlertRule, 0, len(m.alerts))
@@ -300,7 +300,7 @@ func (m *Monitor) checkAlerts() {
 	}
 }
 
-// triggerAlert 触发告警
+// triggerAlert 触发告警.
 func (m *Monitor) triggerAlert(rule *AlertRule, value float64) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -332,7 +332,7 @@ func (m *Monitor) triggerAlert(rule *AlertRule, value float64) {
 	go m.sendNotifications(rule, event)
 }
 
-// sendNotifications 发送告警通知
+// sendNotifications 发送告警通知.
 func (m *Monitor) sendNotifications(rule *AlertRule, event AlertEvent) {
 	for _, channel := range rule.Notify {
 		switch channel {
@@ -346,7 +346,7 @@ func (m *Monitor) sendNotifications(rule *AlertRule, event AlertEvent) {
 	}
 }
 
-// GetAlertHistory 获取告警历史
+// GetAlertHistory 获取告警历史.
 func (m *Monitor) GetAlertHistory(appID string, limit int) []AlertEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -364,14 +364,14 @@ func (m *Monitor) GetAlertHistory(appID string, limit int) []AlertEvent {
 	return events
 }
 
-// ClearAlertHistory 清除告警历史
+// ClearAlertHistory 清除告警历史.
 func (m *Monitor) ClearAlertHistory() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.alertHistory = make([]AlertEvent, 0)
 }
 
-// GetMonitorStats 获取监控统计
+// GetMonitorStats 获取监控统计.
 func (m *Monitor) GetMonitorStats() *MonitorStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -399,7 +399,7 @@ func (m *Monitor) GetMonitorStats() *MonitorStats {
 	return stats
 }
 
-// MonitorStats 监控统计
+// MonitorStats 监控统计.
 type MonitorStats struct {
 	TotalApps        int     `json:"total_apps"`
 	RunningApps      int     `json:"running_apps"`

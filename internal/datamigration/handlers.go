@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	group := router.Group("/data-migration")
 	{
@@ -34,14 +34,14 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	}
 }
 
-// ListMigrations 获取迁移任务列表
+// ListMigrations 获取迁移任务列表.
 func (h *Handler) ListMigrations(c *gin.Context) {
 	status := c.Query("status")
 	migrations := h.manager.ListMigrations(status)
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": migrations})
 }
 
-// CreateMigration 创建迁移任务
+// CreateMigration 创建迁移任务.
 func (h *Handler) CreateMigration(c *gin.Context) {
 	var req CreateMigrationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -56,7 +56,7 @@ func (h *Handler) CreateMigration(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"success": true, "data": migration})
 }
 
-// GetMigration 获取任务详情
+// GetMigration 获取任务详情.
 func (h *Handler) GetMigration(c *gin.Context) {
 	id := c.Param("id")
 	migration, err := h.manager.GetMigration(id)
@@ -67,7 +67,7 @@ func (h *Handler) GetMigration(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": migration})
 }
 
-// StartMigration 启动迁移
+// StartMigration 启动迁移.
 func (h *Handler) StartMigration(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.StartMigration(id); err != nil {
@@ -77,7 +77,7 @@ func (h *Handler) StartMigration(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "迁移已启动"})
 }
 
-// PauseMigration 暂停迁移
+// PauseMigration 暂停迁移.
 func (h *Handler) PauseMigration(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.PauseMigration(id); err != nil {
@@ -87,7 +87,7 @@ func (h *Handler) PauseMigration(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "迁移已暂停"})
 }
 
-// CancelMigration 取消迁移
+// CancelMigration 取消迁移.
 func (h *Handler) CancelMigration(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.CancelMigration(id); err != nil {
@@ -97,7 +97,7 @@ func (h *Handler) CancelMigration(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "迁移已取消"})
 }
 
-// GetProgress 获取进度
+// GetProgress 获取进度.
 func (h *Handler) GetProgress(c *gin.Context) {
 	id := c.Param("id")
 	migration, err := h.manager.GetMigration(id)
@@ -124,7 +124,7 @@ func (h *Handler) GetProgress(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": progressData})
 }
 
-// ListSources 获取支持的数据源类型
+// ListSources 获取支持的数据源类型.
 func (h *Handler) ListSources(c *gin.Context) {
 	sources := []gin.H{
 		{"type": "local", "name": "本地存储", "description": "本机磁盘/挂载点"},
@@ -138,7 +138,7 @@ func (h *Handler) ListSources(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": sources})
 }
 
-// ListTargets 获取支持的目标类型
+// ListTargets 获取支持的目标类型.
 func (h *Handler) ListTargets(c *gin.Context) {
 	targets := []gin.H{
 		{"type": "local", "name": "本地存储", "description": "本机磁盘/挂载点"},

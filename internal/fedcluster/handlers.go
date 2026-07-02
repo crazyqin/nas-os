@@ -52,7 +52,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// createCluster 创建集群
+// createCluster 创建集群.
 func (h *Handlers) createCluster(c *gin.Context) {
 	var req ClusterCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -69,7 +69,7 @@ func (h *Handlers) createCluster(c *gin.Context) {
 	c.JSON(http.StatusCreated, cluster)
 }
 
-// listClusters 列出集群
+// listClusters 列出集群.
 func (h *Handlers) listClusters(c *gin.Context) {
 	clusters := h.manager.ListClusters()
 
@@ -111,7 +111,7 @@ func (h *Handlers) listClusters(c *gin.Context) {
 	c.JSON(http.StatusOK, infos)
 }
 
-// getCluster 获取集群详情
+// getCluster 获取集群详情.
 func (h *Handlers) getCluster(c *gin.Context) {
 	clusterID := c.Param("id")
 
@@ -124,7 +124,7 @@ func (h *Handlers) getCluster(c *gin.Context) {
 	c.JSON(http.StatusOK, cluster)
 }
 
-// getClusterStats 获取集群统计
+// getClusterStats 获取集群统计.
 func (h *Handlers) getClusterStats(c *gin.Context) {
 	clusterID := c.Param("id")
 
@@ -137,7 +137,7 @@ func (h *Handlers) getClusterStats(c *gin.Context) {
 	c.JSON(http.StatusOK, stats)
 }
 
-// getClusterHealth 获取集群健康状态
+// getClusterHealth 获取集群健康状态.
 func (h *Handlers) getClusterHealth(c *gin.Context) {
 	clusterID := c.Param("id")
 
@@ -177,7 +177,7 @@ func (h *Handlers) getClusterHealth(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// getClusterEvents 获取集群事件
+// getClusterEvents 获取集群事件.
 func (h *Handlers) getClusterEvents(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "100")
 	limit, err := strconv.Atoi(limitStr)
@@ -189,7 +189,7 @@ func (h *Handlers) getClusterEvents(c *gin.Context) {
 	c.JSON(http.StatusOK, events)
 }
 
-// joinNode 节点加入集群
+// joinNode 节点加入集群.
 func (h *Handlers) joinNode(c *gin.Context) {
 	clusterID := c.Param("id")
 
@@ -227,7 +227,7 @@ func (h *Handlers) joinNode(c *gin.Context) {
 	c.JSON(http.StatusCreated, node)
 }
 
-// removeNode 移除节点
+// removeNode 移除节点.
 func (h *Handlers) removeNode(c *gin.Context) {
 	clusterID := c.Param("id")
 	nodeID := c.Param("nodeId")
@@ -240,7 +240,7 @@ func (h *Handlers) removeNode(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "节点已移除"})
 }
 
-// promoteNode 提升节点为master
+// promoteNode 提升节点为master.
 func (h *Handlers) promoteNode(c *gin.Context) {
 	clusterID := c.Param("id")
 	nodeID := c.Param("nodeId")
@@ -253,7 +253,7 @@ func (h *Handlers) promoteNode(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "节点已提升为master"})
 }
 
-// setMaintenance 设置维护模式
+// setMaintenance 设置维护模式.
 func (h *Handlers) setMaintenance(c *gin.Context) {
 	clusterID := c.Param("id")
 	nodeID := c.Param("nodeId")
@@ -274,7 +274,7 @@ func (h *Handlers) setMaintenance(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "维护模式已更新"})
 }
 
-// updateHeartbeat 更新心跳
+// updateHeartbeat 更新心跳.
 func (h *Handlers) updateHeartbeat(c *gin.Context) {
 	clusterID := c.Param("id")
 	nodeID := c.Param("nodeId")
@@ -287,7 +287,7 @@ func (h *Handlers) updateHeartbeat(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "心跳已更新"})
 }
 
-// startSync 启动同步
+// startSync 启动同步.
 func (h *Handlers) startSync(c *gin.Context) {
 	clusterID := c.Param("id")
 
@@ -306,7 +306,7 @@ func (h *Handlers) startSync(c *gin.Context) {
 	c.JSON(http.StatusCreated, job)
 }
 
-// listSyncJobs 列出同步任务
+// listSyncJobs 列出同步任务.
 func (h *Handlers) listSyncJobs(c *gin.Context) {
 	clusterID := c.Param("id")
 
@@ -314,7 +314,7 @@ func (h *Handlers) listSyncJobs(c *gin.Context) {
 	c.JSON(http.StatusOK, jobs)
 }
 
-// getSyncJob 获取同步任务
+// getSyncJob 获取同步任务.
 func (h *Handlers) getSyncJob(c *gin.Context) {
 	jobID := c.Param("jobId")
 
@@ -327,7 +327,7 @@ func (h *Handlers) getSyncJob(c *gin.Context) {
 	c.JSON(http.StatusOK, job)
 }
 
-// selectNode 选择节点
+// selectNode 选择节点.
 func (h *Handlers) selectNode(c *gin.Context) {
 	clusterID := c.Param("id")
 
@@ -340,7 +340,7 @@ func (h *Handlers) selectNode(c *gin.Context) {
 	c.JSON(http.StatusOK, node)
 }
 
-// updateLBConfig 更新负载均衡配置
+// updateLBConfig 更新负载均衡配置.
 func (h *Handlers) updateLBConfig(c *gin.Context) {
 	var req LoadBalancerConfig
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -352,7 +352,7 @@ func (h *Handlers) updateLBConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "负载均衡配置已更新"})
 }
 
-// failover 故障转移
+// failover 故障转移.
 func (h *Handlers) failover(c *gin.Context) {
 	clusterID := c.Param("id")
 
@@ -397,7 +397,7 @@ func (h *Handlers) failover(c *gin.Context) {
 	})
 }
 
-// rebalance 重新平衡
+// rebalance 重新平衡.
 func (h *Handlers) rebalance(c *gin.Context) {
 	clusterID := c.Param("id")
 

@@ -8,17 +8,17 @@ import (
 	"strings"
 )
 
-// APIHandler HTTP API 处理器
+// APIHandler HTTP API 处理器.
 type APIHandler struct {
 	manager *Manager
 }
 
-// NewAPIHandler 创建新的API处理器
+// NewAPIHandler 创建新的API处理器.
 func NewAPIHandler(m *Manager) *APIHandler {
 	return &APIHandler{manager: m}
 }
 
-// RegisterRoutes 注册HTTP路由
+// RegisterRoutes 注册HTTP路由.
 func (h *APIHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/docmanager/documents", h.handleDocuments)
 	mux.HandleFunc("/api/docmanager/documents/", h.handleDocumentByID)
@@ -28,14 +28,14 @@ func (h *APIHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/docmanager/stats", h.handleStats)
 }
 
-// Response 通用响应结构
+// Response 通用响应结构.
 type Response struct {
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data,omitempty"`
 	Error   string      `json:"error,omitempty"`
 }
 
-// handleDocuments 处理 /api/docmanager/documents
+// handleDocuments 处理 /api/docmanager/documents.
 func (h *APIHandler) handleDocuments(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -47,7 +47,7 @@ func (h *APIHandler) handleDocuments(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleDocumentByID 处理 /api/docmanager/documents/{id}
+// handleDocumentByID 处理 /api/docmanager/documents/{id}.
 func (h *APIHandler) handleDocumentByID(w http.ResponseWriter, r *http.Request) {
 	// 提取ID: /api/docmanager/documents/{id} 或 /api/docmanager/documents/{id}/...
 	path := strings.TrimPrefix(r.URL.Path, "/api/docmanager/documents/")

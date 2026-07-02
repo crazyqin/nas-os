@@ -9,43 +9,43 @@ import (
 	"time"
 )
 
-// VLAN 表示一个 VLAN 接口
+// VLAN 表示一个 VLAN 接口.
 type VLAN struct {
-	ID         int    `json:"id"`          // VLAN ID (1-4094)
-	Name       string `json:"name"`        // 接口名称 (如 eth0.100)
-	ParentIface string `json:"parent_iface"` // 父接口 (如 eth0)
-	IPAddr     string `json:"ip_addr"`     // IP 地址
-	Netmask    string `json:"netmask"`     // 子网掩码
-	Gateway    string `json:"gateway"`     // 网关
-	MTU        int    `json:"mtu"`         // MTU (默认 1500)
-	Status     string `json:"status"`      // up/down
-	Tags       []string `json:"tags"`      // 自定义标签
-	CreatedAt  int64  `json:"created_at"`
-	UpdatedAt  int64  `json:"updated_at"`
+	ID          int      `json:"id"`           // VLAN ID (1-4094)
+	Name        string   `json:"name"`         // 接口名称 (如 eth0.100)
+	ParentIface string   `json:"parent_iface"` // 父接口 (如 eth0)
+	IPAddr      string   `json:"ip_addr"`      // IP 地址
+	Netmask     string   `json:"netmask"`      // 子网掩码
+	Gateway     string   `json:"gateway"`      // 网关
+	MTU         int      `json:"mtu"`          // MTU (默认 1500)
+	Status      string   `json:"status"`       // up/down
+	Tags        []string `json:"tags"`         // 自定义标签
+	CreatedAt   int64    `json:"created_at"`
+	UpdatedAt   int64    `json:"updated_at"`
 }
 
-// VLANStats 表示 VLAN 接口统计信息
+// VLANStats 表示 VLAN 接口统计信息.
 type VLANStats struct {
-	VLANID       int   `json:"vlan_id"`
-	RxBytes      int64 `json:"rx_bytes"`
-	TxBytes      int64 `json:"tx_bytes"`
-	RxPackets    int64 `json:"rx_packets"`
-	TxPackets    int64 `json:"tx_packets"`
-	RxErrors     int64 `json:"rx_errors"`
-	TxErrors     int64 `json:"tx_errors"`
-	RxDropped    int64 `json:"rx_dropped"`
-	TxDropped    int64 `json:"tx_dropped"`
-	Collisions   int64 `json:"collisions"`
+	VLANID     int   `json:"vlan_id"`
+	RxBytes    int64 `json:"rx_bytes"`
+	TxBytes    int64 `json:"tx_bytes"`
+	RxPackets  int64 `json:"rx_packets"`
+	TxPackets  int64 `json:"tx_packets"`
+	RxErrors   int64 `json:"rx_errors"`
+	TxErrors   int64 `json:"tx_errors"`
+	RxDropped  int64 `json:"rx_dropped"`
+	TxDropped  int64 `json:"tx_dropped"`
+	Collisions int64 `json:"collisions"`
 }
 
-// Manager 管理所有 VLAN 接口
+// Manager 管理所有 VLAN 接口.
 type Manager struct {
-	mu       sync.RWMutex
-	vlans    map[int]*VLAN // VLAN ID -> VLAN
-	ifaces   map[string]int // 接口名 -> VLAN ID
+	mu     sync.RWMutex
+	vlans  map[int]*VLAN  // VLAN ID -> VLAN
+	ifaces map[string]int // 接口名 -> VLAN ID
 }
 
-// NewManager 创建 VLAN 管理器
+// NewManager 创建 VLAN 管理器.
 func NewManager() *Manager {
 	return &Manager{
 		vlans:  make(map[int]*VLAN),
@@ -53,7 +53,7 @@ func NewManager() *Manager {
 	}
 }
 
-// Create 创建 VLAN 接口
+// Create 创建 VLAN 接口.
 func (m *Manager) Create(parentIface string, vlanID int, ipAddr, netmask, gateway string, mtu int) (*VLAN, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -111,7 +111,7 @@ func (m *Manager) Create(parentIface string, vlanID int, ipAddr, netmask, gatewa
 	return vlan, nil
 }
 
-// Delete 删除 VLAN 接口
+// Delete 删除 VLAN 接口.
 func (m *Manager) Delete(vlanID int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -127,7 +127,7 @@ func (m *Manager) Delete(vlanID int) error {
 	return nil
 }
 
-// Get 获取 VLAN 信息
+// Get 获取 VLAN 信息.
 func (m *Manager) Get(vlanID int) (*VLAN, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -140,7 +140,7 @@ func (m *Manager) Get(vlanID int) (*VLAN, error) {
 	return vlan, nil
 }
 
-// List 列出所有 VLAN
+// List 列出所有 VLAN.
 func (m *Manager) List() []*VLAN {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -152,7 +152,7 @@ func (m *Manager) List() []*VLAN {
 	return result
 }
 
-// Update 更新 VLAN 配置
+// Update 更新 VLAN 配置.
 func (m *Manager) Update(vlanID int, ipAddr, netmask, gateway string, mtu int, tags []string) (*VLAN, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -190,7 +190,7 @@ func (m *Manager) Update(vlanID int, ipAddr, netmask, gateway string, mtu int, t
 	return vlan, nil
 }
 
-// Enable 启用 VLAN 接口
+// Enable 启用 VLAN 接口.
 func (m *Manager) Enable(vlanID int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -206,7 +206,7 @@ func (m *Manager) Enable(vlanID int) error {
 	return nil
 }
 
-// Disable 禁用 VLAN 接口
+// Disable 禁用 VLAN 接口.
 func (m *Manager) Disable(vlanID int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -222,7 +222,7 @@ func (m *Manager) Disable(vlanID int) error {
 	return nil
 }
 
-// GetStats 获取 VLAN 统计信息
+// GetStats 获取 VLAN 统计信息.
 func (m *Manager) GetStats(vlanID int) (*VLANStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -237,7 +237,7 @@ func (m *Manager) GetStats(vlanID int) (*VLANStats, error) {
 	}, nil
 }
 
-// GetByParent 获取指定父接口的所有 VLAN
+// GetByParent 获取指定父接口的所有 VLAN.
 func (m *Manager) GetByParent(parentIface string) []*VLAN {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

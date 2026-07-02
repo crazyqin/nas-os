@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// SearchMode 搜索模式
+// SearchMode 搜索模式.
 type SearchMode string
 
 const (
@@ -16,7 +16,7 @@ const (
 	SearchModeHybrid   SearchMode = "hybrid"   // 混合搜索（全文 + 语义）
 )
 
-// FileType 文件类型
+// FileType 文件类型.
 type FileType string
 
 const (
@@ -29,7 +29,7 @@ const (
 	FileTypeOther    FileType = "other"    // 其他
 )
 
-// IndexStatus 索引状态
+// IndexStatus 索引状态.
 type IndexStatus string
 
 const (
@@ -40,7 +40,7 @@ const (
 	IndexStatusOutdated IndexStatus = "outdated" // 需要更新
 )
 
-// SortOrder 排序方式
+// SortOrder 排序方式.
 type SortOrder string
 
 const (
@@ -52,7 +52,7 @@ const (
 	SortOrderFrequency SortOrder = "frequency" // 使用频率
 )
 
-// SearchQuery 搜索查询
+// SearchQuery 搜索查询.
 type SearchQuery struct {
 	Keyword   string     `json:"keyword"`             // 搜索关键词
 	Mode      SearchMode `json:"mode"`                // 搜索模式
@@ -70,7 +70,7 @@ type SearchQuery struct {
 	Vector    []float64  `json:"vector,omitempty"`    // 语义向量 (由引擎生成)
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	ID          string            `json:"id"`
 	FilePath    string            `json:"filePath"`
@@ -88,13 +88,13 @@ type SearchResult struct {
 	TextScore   float64           `json:"textScore"`   // 全文检索得分
 }
 
-// Highlight 高亮片段
+// Highlight 高亮片段.
 type Highlight struct {
 	Field   string `json:"field"`   // 高亮字段
 	Content string `json:"content"` // 高亮内容
 }
 
-// SearchResponse 搜索响应
+// SearchResponse 搜索响应.
 type SearchResponse struct {
 	Query       string         `json:"query"`
 	Total       int            `json:"total"`
@@ -106,14 +106,14 @@ type SearchResponse struct {
 	QueryTime   time.Duration  `json:"queryTime"`
 }
 
-// SearchFacets 搜索分面统计
+// SearchFacets 搜索分面统计.
 type SearchFacets struct {
 	FileTypes map[FileType]int `json:"fileTypes"` // 按文件类型统计
 	Tags      map[string]int   `json:"tags"`      // 按标签统计
 	Paths     map[string]int   `json:"paths"`     // 按路径统计
 }
 
-// SearchIndex 搜索索引条目
+// SearchIndex 搜索索引条目.
 type SearchIndex struct {
 	ID          string            `json:"id"`
 	FilePath    string            `json:"filePath"`
@@ -132,7 +132,7 @@ type SearchIndex struct {
 	Error       string            `json:"error,omitempty"`
 }
 
-// SearchConfig 搜索引擎配置
+// SearchConfig 搜索引擎配置.
 type SearchConfig struct {
 	IndexDir         string        `json:"indexDir"`         // 索引存储目录
 	MaxResults       int           `json:"maxResults"`       // 最大返回结果数
@@ -148,7 +148,7 @@ type SearchConfig struct {
 	SupportedTypes   []FileType    `json:"supportedTypes"`   // 支持索引的文件类型
 }
 
-// SearchStats 搜索统计
+// SearchStats 搜索统计.
 type SearchStats struct {
 	TotalDocuments   int64     `json:"totalDocuments"`
 	TotalSize        int64     `json:"totalSize"`
@@ -162,13 +162,13 @@ type SearchStats struct {
 	HotWords         []HotWord `json:"hotWords"`
 }
 
-// HotWord 热词
+// HotWord 热词.
 type HotWord struct {
 	Word  string `json:"word"`
 	Count int64  `json:"count"`
 }
 
-// SearchHistory 搜索历史
+// SearchHistory 搜索历史.
 type SearchHistory struct {
 	ID          string     `json:"id"`
 	Keyword     string     `json:"keyword"`
@@ -177,14 +177,14 @@ type SearchHistory struct {
 	SearchedAt  time.Time  `json:"searchedAt"`
 }
 
-// Suggestion 搜索建议
+// Suggestion 搜索建议.
 type Suggestion struct {
 	Text  string  `json:"text"`
 	Score float64 `json:"score"`
 	Count int64   `json:"count"`
 }
 
-// ValidationError 参数校验错误
+// ValidationError 参数校验错误.
 type ValidationError struct {
 	Field   string `json:"field"`
 	Message string `json:"message"`
@@ -194,7 +194,7 @@ func (e *ValidationError) Error() string {
 	return fmt.Sprintf("参数校验失败 [%s]: %s", e.Field, e.Message)
 }
 
-// Validate 校验 SearchQuery
+// Validate 校验 SearchQuery.
 func (q *SearchQuery) Validate() error {
 	if q.Keyword == "" {
 		return &ValidationError{Field: "keyword", Message: "不能为空"}
@@ -221,7 +221,7 @@ func (q *SearchQuery) Validate() error {
 	return nil
 }
 
-// DefaultSearchConfig 默认搜索配置
+// DefaultSearchConfig 默认搜索配置.
 func DefaultSearchConfig() *SearchConfig {
 	return &SearchConfig{
 		IndexDir:         "/var/lib/nas-os/search-index",
@@ -242,7 +242,7 @@ func DefaultSearchConfig() *SearchConfig {
 	}
 }
 
-// SearchEngine 搜索引擎接口
+// SearchEngine 搜索引擎接口.
 type SearchEngine interface {
 	// Search 执行搜索
 	Search(query *SearchQuery) (*SearchResponse, error)
@@ -262,7 +262,7 @@ type SearchEngine interface {
 	Close() error
 }
 
-// FileCrawler 文件爬虫接口
+// FileCrawler 文件爬虫接口.
 type FileCrawler interface {
 	// Crawl 遍历目录
 	Crawl(rootPath string, callback func(*FileInfo) error) error
@@ -272,7 +272,7 @@ type FileCrawler interface {
 	Stop() error
 }
 
-// FileInfo 文件信息
+// FileInfo 文件信息.
 type FileInfo struct {
 	Path       string            `json:"path"`
 	Name       string            `json:"name"`
@@ -285,14 +285,14 @@ type FileInfo struct {
 	Metadata   map[string]string `json:"metadata,omitempty"`
 }
 
-// FileEvent 文件事件
+// FileEvent 文件事件.
 type FileEvent struct {
 	Type     string    `json:"type"` // create, modify, delete
 	FilePath string    `json:"filePath"`
 	FileInfo *FileInfo `json:"fileInfo,omitempty"`
 }
 
-// ContentExtractor 内容提取器接口
+// ContentExtractor 内容提取器接口.
 type ContentExtractor interface {
 	// Extract 提取文件文本内容
 	Extract(filePath string) (string, error)
@@ -300,7 +300,7 @@ type ContentExtractor interface {
 	CanExtract(fileType FileType, mimeType string) bool
 }
 
-// VectorEncoder 向量编码器接口
+// VectorEncoder 向量编码器接口.
 type VectorEncoder interface {
 	// Encode 将文本编码为向量
 	Encode(text string) ([]float64, error)
@@ -310,14 +310,14 @@ type VectorEncoder interface {
 	Dimension() int
 }
 
-// CacheItem 缓存项
+// CacheItem 缓存项.
 type CacheItem struct {
 	Key       string      `json:"key"`
 	Value     interface{} `json:"value"`
 	ExpiresAt time.Time   `json:"expiresAt"`
 }
 
-// SearchCache 搜索缓存
+// SearchCache 搜索缓存.
 type SearchCache struct {
 	mu      sync.RWMutex
 	items   map[string]*CacheItem

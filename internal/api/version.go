@@ -13,7 +13,7 @@ import (
 
 // ========== 版本定义 ==========
 
-// APIVersion API 版本结构
+// APIVersion API 版本结构.
 type APIVersion struct {
 	Version      string     `json:"version"`                // 版本号，如 "v1", "v2"
 	Status       string     `json:"status"`                 // 状态: stable, deprecated, beta, alpha
@@ -24,7 +24,7 @@ type APIVersion struct {
 	MigrationURL string     `json:"migrationUrl,omitempty"` // 迁移指南 URL
 }
 
-// VersionStatus 版本状态常量
+// VersionStatus 版本状态常量.
 const (
 	VersionStatusStable     = "stable"
 	VersionStatusDeprecated = "deprecated"
@@ -34,7 +34,7 @@ const (
 
 // ========== 版本管理器 ==========
 
-// VersionManager API 版本管理器
+// VersionManager API 版本管理器.
 type VersionManager struct {
 	mu                sync.RWMutex
 	versions          map[string]*APIVersion
@@ -43,7 +43,7 @@ type VersionManager struct {
 	deprecatedHeaders map[string]string // 废弃版本响应头模板
 }
 
-// NewVersionManager 创建版本管理器
+// NewVersionManager 创建版本管理器.
 func NewVersionManager() *VersionManager {
 	vm := &VersionManager{
 		versions:          make(map[string]*APIVersion),
@@ -55,7 +55,7 @@ func NewVersionManager() *VersionManager {
 	return vm
 }
 
-// InitializeDefaultVersions 初始化默认版本配置
+// InitializeDefaultVersions 初始化默认版本配置.
 func (vm *VersionManager) InitializeDefaultVersions() {
 	now := time.Now()
 
@@ -93,35 +93,35 @@ func (vm *VersionManager) InitializeDefaultVersions() {
 	vm.SetMinSupported("v0")
 }
 
-// RegisterVersion 注册 API 版本
+// RegisterVersion 注册 API 版本.
 func (vm *VersionManager) RegisterVersion(v *APIVersion) {
 	vm.mu.Lock()
 	defer vm.mu.Unlock()
 	vm.versions[v.Version] = v
 }
 
-// SetCurrent 设置当前版本
+// SetCurrent 设置当前版本.
 func (vm *VersionManager) SetCurrent(version string) {
 	vm.mu.Lock()
 	defer vm.mu.Unlock()
 	vm.current = version
 }
 
-// SetMinSupported 设置最低支持版本
+// SetMinSupported 设置最低支持版本.
 func (vm *VersionManager) SetMinSupported(version string) {
 	vm.mu.Lock()
 	defer vm.mu.Unlock()
 	vm.minSupported = version
 }
 
-// GetCurrent 获取当前版本
+// GetCurrent 获取当前版本.
 func (vm *VersionManager) GetCurrent() string {
 	vm.mu.RLock()
 	defer vm.mu.RUnlock()
 	return vm.current
 }
 
-// GetVersion 获取指定版本信息
+// GetVersion 获取指定版本信息.
 func (vm *VersionManager) GetVersion(version string) (*APIVersion, bool) {
 	vm.mu.RLock()
 	defer vm.mu.RUnlock()
@@ -129,7 +129,7 @@ func (vm *VersionManager) GetVersion(version string) (*APIVersion, bool) {
 	return v, ok
 }
 
-// GetAllVersions 获取所有版本列表
+// GetAllVersions 获取所有版本列表.
 func (vm *VersionManager) GetAllVersions() []*APIVersion {
 	vm.mu.RLock()
 	defer vm.mu.RUnlock()
@@ -141,7 +141,7 @@ func (vm *VersionManager) GetAllVersions() []*APIVersion {
 	return versions
 }
 
-// IsVersionSupported 检查版本是否支持
+// IsVersionSupported 检查版本是否支持.
 func (vm *VersionManager) IsVersionSupported(version string) bool {
 	vm.mu.RLock()
 	defer vm.mu.RUnlock()
@@ -157,7 +157,7 @@ func (vm *VersionManager) IsVersionSupported(version string) bool {
 	return true
 }
 
-// IsVersionDeprecated 检查版本是否已废弃
+// IsVersionDeprecated 检查版本是否已废弃.
 func (vm *VersionManager) IsVersionDeprecated(version string) bool {
 	vm.mu.RLock()
 	defer vm.mu.RUnlock()
@@ -169,7 +169,7 @@ func (vm *VersionManager) IsVersionDeprecated(version string) bool {
 	return v.Deprecated
 }
 
-// GetDeprecationHeaders 获取废弃版本响应头
+// GetDeprecationHeaders 获取废弃版本响应头.
 func (vm *VersionManager) GetDeprecationHeaders(version string) map[string]string {
 	vm.mu.RLock()
 	defer vm.mu.RUnlock()
@@ -198,14 +198,14 @@ func (vm *VersionManager) GetDeprecationHeaders(version string) map[string]strin
 
 // ========== 版本发现响应 ==========
 
-// VersionDiscovery 版本发现响应结构
+// VersionDiscovery 版本发现响应结构.
 type VersionDiscovery struct {
 	Current      string       `json:"current"`
 	MinSupported string       `json:"minSupported"`
 	Versions     []APIVersion `json:"versions"`
 }
 
-// GetVersionDiscovery 获取版本发现信息
+// GetVersionDiscovery 获取版本发现信息.
 func (vm *VersionManager) GetVersionDiscovery() *VersionDiscovery {
 	vm.mu.RLock()
 	defer vm.mu.RUnlock()
@@ -225,7 +225,7 @@ func (vm *VersionManager) GetVersionDiscovery() *VersionDiscovery {
 // ========== 版本解析辅助函数 ==========
 
 // ParseVersion 从路径解析版本号
-// 例如: /api/v1/volumes -> "v1"
+// 例如: /api/v1/volumes -> "v1".
 func ParseVersion(path string) string {
 	parts := strings.Split(path, "/")
 	for i, part := range parts {
@@ -240,7 +240,7 @@ func ParseVersion(path string) string {
 }
 
 // NormalizeVersion 规范化版本号
-// 支持 "1", "v1", "V1" -> "v1"
+// 支持 "1", "v1", "V1" -> "v1".
 func NormalizeVersion(version string) string {
 	if version == "" {
 		return ""
@@ -259,27 +259,27 @@ func NormalizeVersion(version string) string {
 
 // ========== 版本路由辅助 ==========
 
-// VersionedRoute 版本化路由信息
+// VersionedRoute 版本化路由信息.
 type VersionedRoute struct {
 	Version string
 	Path    string
 	Method  string
 }
 
-// VersionedRoutes 版本化路由集合
+// VersionedRoutes 版本化路由集合.
 type VersionedRoutes struct {
 	mu     sync.RWMutex
 	routes map[string][]VersionedRoute // version -> routes
 }
 
-// NewVersionedRoutes 创建版本化路由集合
+// NewVersionedRoutes 创建版本化路由集合.
 func NewVersionedRoutes() *VersionedRoutes {
 	return &VersionedRoutes{
 		routes: make(map[string][]VersionedRoute),
 	}
 }
 
-// AddRoute 添加版本化路由
+// AddRoute 添加版本化路由.
 func (vr *VersionedRoutes) AddRoute(version, path, method string) {
 	vr.mu.Lock()
 	defer vr.mu.Unlock()
@@ -290,7 +290,7 @@ func (vr *VersionedRoutes) AddRoute(version, path, method string) {
 	})
 }
 
-// GetRoutes 获取指定版本的路由
+// GetRoutes 获取指定版本的路由.
 func (vr *VersionedRoutes) GetRoutes(version string) []VersionedRoute {
 	vr.mu.RLock()
 	defer vr.mu.RUnlock()
@@ -304,7 +304,7 @@ var (
 	globalVersionManagerOnce sync.Once
 )
 
-// GetGlobalVersionManager 获取全局版本管理器实例
+// GetGlobalVersionManager 获取全局版本管理器实例.
 func GetGlobalVersionManager() *VersionManager {
 	globalVersionManagerOnce.Do(func() {
 		globalVersionManager = NewVersionManager()
@@ -314,7 +314,7 @@ func GetGlobalVersionManager() *VersionManager {
 
 // ========== 版本错误 ==========
 
-// VersionError 版本相关错误
+// VersionError 版本相关错误.
 type VersionError struct {
 	Code      int
 	Message   string
@@ -327,7 +327,7 @@ func (e *VersionError) Error() string {
 	return e.Message
 }
 
-// NewVersionNotFoundError 创建版本不存在错误
+// NewVersionNotFoundError 创建版本不存在错误.
 func NewVersionNotFoundError(requested string) *VersionError {
 	vm := GetGlobalVersionManager()
 	return &VersionError{
@@ -347,7 +347,7 @@ func NewVersionNotFoundError(requested string) *VersionError {
 	}
 }
 
-// NewVersionDeprecatedError 创建版本已废弃错误
+// NewVersionDeprecatedError 创建版本已废弃错误.
 func NewVersionDeprecatedError(requested string) *VersionError {
 	vm := GetGlobalVersionManager()
 	v, _ := vm.GetVersion(requested)

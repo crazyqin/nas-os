@@ -909,7 +909,7 @@ func TestHandlersListDownloads(t *testing.T) {
 	}
 }
 
-// TestIsValidNZBStatus 测试状态验证函数
+// TestIsValidNZBStatus 测试状态验证函数.
 func TestIsValidNZBStatus(t *testing.T) {
 	tests := []struct {
 		status NZBStatus
@@ -932,7 +932,7 @@ func TestIsValidNZBStatus(t *testing.T) {
 	}
 }
 
-// TestIsValidDownloadStatus 测试下载状态验证函数
+// TestIsValidDownloadStatus 测试下载状态验证函数.
 func TestIsValidDownloadStatus(t *testing.T) {
 	tests := []struct {
 		status DownloadStatus

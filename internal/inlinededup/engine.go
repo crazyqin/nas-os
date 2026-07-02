@@ -14,50 +14,50 @@ import (
 	"time"
 )
 
-// BlockStatus 块状态
+// BlockStatus 块状态.
 type BlockStatus string
 
 const (
-	BlockUnique     BlockStatus = "unique"      // 唯一块
-	BlockDuplicate  BlockStatus = "duplicate"   // 重复块
-	BlockCompressed BlockStatus = "compressed"  // 已压缩的重复块
+	BlockUnique     BlockStatus = "unique"     // 唯一块
+	BlockDuplicate  BlockStatus = "duplicate"  // 重复块
+	BlockCompressed BlockStatus = "compressed" // 已压缩的重复块
 )
 
-// DedupStats 去重统计
+// DedupStats 去重统计.
 type DedupStats struct {
-	TotalBlocks      int64   `json:"total_blocks"`
-	UniqueBlocks     int64   `json:"unique_blocks"`
-	DuplicateBlocks  int64   `json:"duplicate_blocks"`
-	TotalBytesRead   int64   `json:"total_bytes_read"`
-	TotalBytesWritten int64  `json:"total_bytes_written"`
-	SavedBytes       int64   `json:"saved_bytes"`
-	DedupRatio       float64 `json:"dedup_ratio"`
-	SpaceSavedPct    float64 `json:"space_saved_percent"`
-	HashCollisions   int64   `json:"hash_collisions"`
-	IndexSize        int64   `json:"index_size"`
-	LastUpdated      time.Time `json:"last_updated"`
+	TotalBlocks       int64     `json:"total_blocks"`
+	UniqueBlocks      int64     `json:"unique_blocks"`
+	DuplicateBlocks   int64     `json:"duplicate_blocks"`
+	TotalBytesRead    int64     `json:"total_bytes_read"`
+	TotalBytesWritten int64     `json:"total_bytes_written"`
+	SavedBytes        int64     `json:"saved_bytes"`
+	DedupRatio        float64   `json:"dedup_ratio"`
+	SpaceSavedPct     float64   `json:"space_saved_percent"`
+	HashCollisions    int64     `json:"hash_collisions"`
+	IndexSize         int64     `json:"index_size"`
+	LastUpdated       time.Time `json:"last_updated"`
 }
 
-// BlockInfo 块信息
+// BlockInfo 块信息.
 type BlockInfo struct {
-	Hash       string    `json:"hash"`        // SHA-256 哈希
-	Size       int64     `json:"size"`        // 块大小
-	RefCount   int32     `json:"ref_count"`   // 引用计数
-	Compressed bool      `json:"compressed"`  // 是否已压缩
+	Hash       string    `json:"hash"`       // SHA-256 哈希
+	Size       int64     `json:"size"`       // 块大小
+	RefCount   int32     `json:"ref_count"`  // 引用计数
+	Compressed bool      `json:"compressed"` // 是否已压缩
 	FirstSeen  time.Time `json:"first_seen"`
 	LastAccess time.Time `json:"last_access"`
 }
 
-// DedupConfig 去重引擎配置
+// DedupConfig 去重引擎配置.
 type DedupConfig struct {
-	BlockSize       int    `json:"block_size"`        // 块大小（字节），默认 128KB
-	MaxIndexEntries int64  `json:"max_index_entries"`  // 最大索引条目数
-	EnableCompress  bool   `json:"enable_compress"`   // 对重复块启用压缩
-	VerifyContent   bool   `json:"verify_content"`    // 写入前验证内容一致性
-	FlushInterval   int    `json:"flush_interval"`    // 索引刷新间隔（秒）
+	BlockSize       int   `json:"block_size"`        // 块大小（字节），默认 128KB
+	MaxIndexEntries int64 `json:"max_index_entries"` // 最大索引条目数
+	EnableCompress  bool  `json:"enable_compress"`   // 对重复块启用压缩
+	VerifyContent   bool  `json:"verify_content"`    // 写入前验证内容一致性
+	FlushInterval   int   `json:"flush_interval"`    // 索引刷新间隔（秒）
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *DedupConfig {
 	return &DedupConfig{
 		BlockSize:       128 * 1024, // 128KB
@@ -68,18 +68,18 @@ func DefaultConfig() *DedupConfig {
 	}
 }
 
-// DedupEngine 内联去重引擎
+// DedupEngine 内联去重引擎.
 type DedupEngine struct {
-	mu       sync.RWMutex
-	logger   *slog.Logger
-	config   *DedupConfig
-	index    map[string]*BlockInfo // hash -> BlockInfo
-	stats    DedupStats
-	running  bool
-	stopCh   chan struct{}
+	mu      sync.RWMutex
+	logger  *slog.Logger
+	config  *DedupConfig
+	index   map[string]*BlockInfo // hash -> BlockInfo
+	stats   DedupStats
+	running bool
+	stopCh  chan struct{}
 }
 
-// NewEngine 创建去重引擎
+// NewEngine 创建去重引擎.
 func NewEngine(logger *slog.Logger, config *DedupConfig) *DedupEngine {
 	if logger == nil {
 		logger = slog.Default()
@@ -95,7 +95,7 @@ func NewEngine(logger *slog.Logger, config *DedupConfig) *DedupEngine {
 	}
 }
 
-// Start 启动去重引擎
+// Start 启动去重引擎.
 func (e *DedupEngine) Start() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -114,7 +114,7 @@ func (e *DedupEngine) Start() error {
 	return nil
 }
 
-// Stop 停止去重引擎
+// Stop 停止去重引擎.
 func (e *DedupEngine) Stop() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -129,7 +129,7 @@ func (e *DedupEngine) Stop() error {
 	return nil
 }
 
-// ProcessBlock 处理单个数据块，返回是否为重复块
+// ProcessBlock 处理单个数据块，返回是否为重复块.
 func (e *DedupEngine) ProcessBlock(data []byte) (*BlockInfo, BlockStatus, error) {
 	if len(data) == 0 {
 		return nil, BlockUnique, fmt.Errorf("empty block")
@@ -185,7 +185,7 @@ func (e *DedupEngine) ProcessBlock(data []byte) (*BlockInfo, BlockStatus, error)
 	return blockInfo, BlockUnique, nil
 }
 
-// ProcessReader 从 reader 读取数据并进行去重处理
+// ProcessReader 从 reader 读取数据并进行去重处理.
 func (e *DedupEngine) ProcessReader(r io.Reader, writer io.Writer) (*DedupStats, error) {
 	buf := make([]byte, e.config.BlockSize)
 	var totalIn, totalOut int64
@@ -226,14 +226,14 @@ func (e *DedupEngine) ProcessReader(r io.Reader, writer io.Writer) (*DedupStats,
 	return &stats, nil
 }
 
-// GetStats 获取去重统计
+// GetStats 获取去重统计.
 func (e *DedupEngine) GetStats() DedupStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.stats
 }
 
-// GetBlockInfo 获取指定哈希的块信息
+// GetBlockInfo 获取指定哈希的块信息.
 func (e *DedupEngine) GetBlockInfo(hash string) (*BlockInfo, bool) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -241,14 +241,14 @@ func (e *DedupEngine) GetBlockInfo(hash string) (*BlockInfo, bool) {
 	return info, found
 }
 
-// IndexSize 返回索引条目数
+// IndexSize 返回索引条目数.
 func (e *DedupEngine) IndexSize() int {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return len(e.index)
 }
 
-// ResetStats 重置统计信息
+// ResetStats 重置统计信息.
 func (e *DedupEngine) ResetStats() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -257,7 +257,7 @@ func (e *DedupEngine) ResetStats() {
 	}
 }
 
-// updateDedupRatio 更新去重比率
+// updateDedupRatio 更新去重比率.
 func (e *DedupEngine) updateDedupRatio() {
 	total := e.stats.UniqueBlocks + e.stats.DuplicateBlocks
 	if total > 0 {
@@ -270,7 +270,7 @@ func (e *DedupEngine) updateDedupRatio() {
 	e.stats.LastUpdated = time.Now()
 }
 
-// evictOldest 驱逐最旧的索引条目（LRU 策略）
+// evictOldest 驱逐最旧的索引条目（LRU 策略）.
 func (e *DedupEngine) evictOldest() {
 	var oldestKey string
 	var oldestTime time.Time
@@ -287,7 +287,7 @@ func (e *DedupEngine) evictOldest() {
 	}
 }
 
-// statsLoop 定期更新统计信息
+// statsLoop 定期更新统计信息.
 func (e *DedupEngine) statsLoop() {
 	ticker := time.NewTicker(time.Duration(e.config.FlushInterval) * time.Second)
 	defer ticker.Stop()

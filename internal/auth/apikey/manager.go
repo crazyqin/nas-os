@@ -17,7 +17,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// KeyManager API 密钥管理器
+// KeyManager API 密钥管理器.
 type KeyManager struct {
 	mu          sync.RWMutex
 	keys        map[string]*APIKey  // keyID -> APIKey
@@ -29,12 +29,12 @@ type KeyManager struct {
 	auditLogger AuditLogger
 }
 
-// AuditLogger 审计日志接口
+// AuditLogger 审计日志接口.
 type AuditLogger interface {
 	LogAPIKeyEvent(event, keyID, userID, ip, status, reason string, details map[string]interface{})
 }
 
-// NewKeyManager 创建密钥管理器
+// NewKeyManager 创建密钥管理器.
 func NewKeyManager(configPath string, policy APIKeyPolicy) (*KeyManager, error) {
 	m := &KeyManager{
 		keys:       make(map[string]*APIKey),
@@ -53,7 +53,7 @@ func NewKeyManager(configPath string, policy APIKeyPolicy) (*KeyManager, error) 
 	return m, nil
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (m *KeyManager) loadConfig() error {
 	if m.configPath == "" {
 		return nil
@@ -88,7 +88,7 @@ func (m *KeyManager) loadConfig() error {
 	return nil
 }
 
-// saveConfig 保存配置
+// saveConfig 保存配置.
 func (m *KeyManager) saveConfig() error {
 	if m.configPath == "" {
 		return nil
@@ -121,7 +121,7 @@ func (m *KeyManager) saveConfig() error {
 
 // ========== 密钥创建和管理 ==========
 
-// CreateKey 创建 API 密钥
+// CreateKey 创建 API 密钥.
 func (m *KeyManager) CreateKey(userID string, req APIKeyCreateRequest) (*APIKeyCreateResponse, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -210,7 +210,7 @@ func (m *KeyManager) CreateKey(userID string, req APIKeyCreateRequest) (*APIKeyC
 	}, nil
 }
 
-// generateKey 生成安全的 API 密钥
+// generateKey 生成安全的 API 密钥.
 func (m *KeyManager) generateKey() (string, string) {
 	// 生成随机密钥
 	b := make([]byte, m.policy.MinKeyLength)
@@ -225,7 +225,7 @@ func (m *KeyManager) generateKey() (string, string) {
 	return key, prefix
 }
 
-// ValidateKey 验证 API 密钥
+// ValidateKey 验证 API 密钥.
 func (m *KeyManager) ValidateKey(rawKey string, sourceIP string) (*APIKey, error) {
 	// 检查密钥格式
 	if !strings.HasPrefix(rawKey, "nas_") || len(rawKey) < m.policy.MinKeyLength+4 {
@@ -275,7 +275,7 @@ func (m *KeyManager) ValidateKey(rawKey string, sourceIP string) (*APIKey, error
 	return key, nil
 }
 
-// isIPAllowed 检查 IP 是否在允许列表中
+// isIPAllowed 检查 IP 是否在允许列表中.
 func isIPAllowed(ip string, allowedCIDRs []string) bool {
 	// 简化实现：检查 IP 是否在 CIDR 列表中
 	// 完整实现需要使用 net 包进行 CIDR 匹配
@@ -298,7 +298,7 @@ func isIPAllowed(ip string, allowedCIDRs []string) bool {
 
 // ========== 密钥操作 ==========
 
-// GetKey 获取密钥信息（不含敏感数据）
+// GetKey 获取密钥信息（不含敏感数据）.
 func (m *KeyManager) GetKey(keyID string) (*APIKeySummary, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -311,7 +311,7 @@ func (m *KeyManager) GetKey(keyID string) (*APIKeySummary, error) {
 	return m.toSummary(key), nil
 }
 
-// ListKeys 列出用户的所有密钥
+// ListKeys 列出用户的所有密钥.
 func (m *KeyManager) ListKeys(userID string) (*APIKeyListResponse, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -333,7 +333,7 @@ func (m *KeyManager) ListKeys(userID string) (*APIKeyListResponse, error) {
 	}, nil
 }
 
-// UpdateKey 更新密钥
+// UpdateKey 更新密钥.
 func (m *KeyManager) UpdateKey(keyID string, userID string, req APIKeyUpdateRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -399,7 +399,7 @@ func (m *KeyManager) UpdateKey(keyID string, userID string, req APIKeyUpdateRequ
 	return nil
 }
 
-// DeleteKey 删除密钥
+// DeleteKey 删除密钥.
 func (m *KeyManager) DeleteKey(keyID string, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -440,7 +440,7 @@ func (m *KeyManager) DeleteKey(keyID string, userID string) error {
 	return nil
 }
 
-// RecordUsage 记录密钥使用
+// RecordUsage 记录密钥使用.
 func (m *KeyManager) RecordUsage(keyID string, action, resource, sourceIP string, statusCode int, responseMs int) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -468,7 +468,7 @@ func (m *KeyManager) RecordUsage(keyID string, action, resource, sourceIP string
 	}
 }
 
-// CheckPermission 检查密钥权限
+// CheckPermission 检查密钥权限.
 func (m *KeyManager) CheckPermission(key *APIKey, resource, action string) bool {
 	// 检查范围
 	for _, scope := range key.Scopes {
@@ -493,7 +493,7 @@ func (m *KeyManager) CheckPermission(key *APIKey, resource, action string) bool 
 
 // ========== 辅助方法 ==========
 
-// toSummary 转换为摘要
+// toSummary 转换为摘要.
 func (m *KeyManager) toSummary(key *APIKey) *APIKeySummary {
 	isExpired := key.ExpiresAt != nil && time.Now().After(*key.ExpiresAt)
 	return &APIKeySummary{
@@ -511,7 +511,7 @@ func (m *KeyManager) toSummary(key *APIKey) *APIKeySummary {
 	}
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *KeyManager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -539,14 +539,14 @@ func (m *KeyManager) GetStats() map[string]interface{} {
 	return stats
 }
 
-// SetAuditLogger 设置审计日志器
+// SetAuditLogger 设置审计日志器.
 func (m *KeyManager) SetAuditLogger(logger AuditLogger) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.auditLogger = logger
 }
 
-// CleanExpiredKeys 清理过期密钥
+// CleanExpiredKeys 清理过期密钥.
 func (m *KeyManager) CleanExpiredKeys() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()

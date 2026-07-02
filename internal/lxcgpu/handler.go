@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler LXC GPU管理API处理器
+// Handler LXC GPU管理API处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建API处理器
+// NewHandler 创建API处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	api := r.Group("/api/v1/lxcgpu")
 	{
@@ -47,7 +47,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 
 // ========== GPU设备管理 ==========
 
-// listDevices 列出所有GPU设备
+// listDevices 列出所有GPU设备.
 func (h *Handler) listDevices(c *gin.Context) {
 	devices := h.manager.GetDeviceManager().ListDevices()
 	c.JSON(http.StatusOK, APIResponse{
@@ -56,7 +56,7 @@ func (h *Handler) listDevices(c *gin.Context) {
 	})
 }
 
-// getDevice 获取GPU设备详情
+// getDevice 获取GPU设备详情.
 func (h *Handler) getDevice(c *gin.Context) {
 	pciAddr := c.Param("pci")
 
@@ -75,7 +75,7 @@ func (h *Handler) getDevice(c *gin.Context) {
 	})
 }
 
-// refreshDevices 刷新GPU设备列表
+// refreshDevices 刷新GPU设备列表.
 func (h *Handler) refreshDevices(c *gin.Context) {
 	devices, err := h.manager.GetDeviceManager().DiscoverDevices()
 	if err != nil {
@@ -95,7 +95,7 @@ func (h *Handler) refreshDevices(c *gin.Context) {
 
 // ========== GPU分配管理 ==========
 
-// assignGPU 分配GPU给容器
+// assignGPU 分配GPU给容器.
 func (h *Handler) assignGPU(c *gin.Context) {
 	var req AssignGPURequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -122,7 +122,7 @@ func (h *Handler) assignGPU(c *gin.Context) {
 	})
 }
 
-// unassignGPU 取消GPU分配
+// unassignGPU 取消GPU分配.
 func (h *Handler) unassignGPU(c *gin.Context) {
 	var req UnassignGPURequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -147,7 +147,7 @@ func (h *Handler) unassignGPU(c *gin.Context) {
 	})
 }
 
-// updateQuota 更新GPU资源配额
+// updateQuota 更新GPU资源配额.
 func (h *Handler) updateQuota(c *gin.Context) {
 	var req UpdateQuotaRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -172,7 +172,7 @@ func (h *Handler) updateQuota(c *gin.Context) {
 	})
 }
 
-// listAssignments 列出所有分配记录
+// listAssignments 列出所有分配记录.
 func (h *Handler) listAssignments(c *gin.Context) {
 	// 可按容器ID过滤
 	containerID := c.Query("containerId")
@@ -190,7 +190,7 @@ func (h *Handler) listAssignments(c *gin.Context) {
 	})
 }
 
-// getAssignment 获取分配详情
+// getAssignment 获取分配详情.
 func (h *Handler) getAssignment(c *gin.Context) {
 	id := c.Param("id")
 
@@ -209,7 +209,7 @@ func (h *Handler) getAssignment(c *gin.Context) {
 	})
 }
 
-// getContainerGPUs 获取容器的GPU列表
+// getContainerGPUs 获取容器的GPU列表.
 func (h *Handler) getContainerGPUs(c *gin.Context) {
 	containerID := c.Param("id")
 
@@ -230,7 +230,7 @@ func (h *Handler) getContainerGPUs(c *gin.Context) {
 
 // ========== 热插拔 ==========
 
-// hotplugGPU GPU热插拔操作
+// hotplugGPU GPU热插拔操作.
 func (h *Handler) hotplugGPU(c *gin.Context) {
 	var req HotplugRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -273,7 +273,7 @@ func (h *Handler) hotplugGPU(c *gin.Context) {
 
 // ========== 统计与仪表盘 ==========
 
-// getDashboard 获取GPU分配仪表盘
+// getDashboard 获取GPU分配仪表盘.
 func (h *Handler) getDashboard(c *gin.Context) {
 	dashboard := h.manager.GetDashboard()
 
@@ -283,7 +283,7 @@ func (h *Handler) getDashboard(c *gin.Context) {
 	})
 }
 
-// getContainerStats 获取容器GPU统计
+// getContainerStats 获取容器GPU统计.
 func (h *Handler) getContainerStats(c *gin.Context) {
 	containerID := c.Param("id")
 
@@ -304,7 +304,7 @@ func (h *Handler) getContainerStats(c *gin.Context) {
 
 // ========== 批量操作 ==========
 
-// bulkAssign 批量分配GPU给多个容器
+// bulkAssign 批量分配GPU给多个容器.
 func (h *Handler) bulkAssign(c *gin.Context) {
 	var req BulkAssignRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

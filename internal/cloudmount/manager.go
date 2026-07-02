@@ -11,7 +11,7 @@ import (
 
 // ========== 核心类型 ==========
 
-// CloudProvider 云存储提供商
+// CloudProvider 云存储提供商.
 type CloudProvider string
 
 const (
@@ -23,7 +23,7 @@ const (
 	ProviderSFTP        CloudProvider = "sftp"
 )
 
-// MountStatus 挂载状态
+// MountStatus 挂载状态.
 type MountStatus string
 
 const (
@@ -33,7 +33,7 @@ const (
 	StatusSyncing   MountStatus = "syncing"
 )
 
-// CacheStrategy 缓存策略
+// CacheStrategy 缓存策略.
 type CacheStrategy string
 
 const (
@@ -42,7 +42,7 @@ const (
 	CacheAll      CacheStrategy = "all"      // 缓存元数据和文件内容
 )
 
-// MountOptions 挂载选项
+// MountOptions 挂载选项.
 type MountOptions struct {
 	ReadOnly      bool          `json:"readOnly"`      // 只读模式
 	CacheSize     int64         `json:"cacheSize"`     // 缓存大小 (MB)
@@ -52,7 +52,7 @@ type MountOptions struct {
 	OfflineAccess bool          `json:"offlineAccess"` // 离线访问
 }
 
-// MountPoint 挂载点
+// MountPoint 挂载点.
 type MountPoint struct {
 	ID        string        `json:"id"`
 	Name      string        `json:"name"`
@@ -67,7 +67,7 @@ type MountPoint struct {
 	ErrorMsg  string        `json:"errorMsg,omitempty"`
 }
 
-// SyncStatus 同步状态
+// SyncStatus 同步状态.
 type SyncStatus struct {
 	TotalFiles    int       `json:"totalFiles"`
 	SyncedFiles   int       `json:"syncedFiles"`
@@ -77,7 +77,7 @@ type SyncStatus struct {
 	SyncDirection string    `json:"syncDirection"` // up/down/bidirectional
 }
 
-// TransferStats 传输统计
+// TransferStats 传输统计.
 type TransferStats struct {
 	UploadSpeed     int64     `json:"uploadSpeed"`   // KB/s
 	DownloadSpeed   int64     `json:"downloadSpeed"` // KB/s
@@ -87,7 +87,7 @@ type TransferStats struct {
 	UpdatedAt       time.Time `json:"updatedAt"`
 }
 
-// CloudAccount 云账号
+// CloudAccount 云账号.
 type CloudAccount struct {
 	ID        string        `json:"id"`
 	Provider  CloudProvider `json:"provider"`
@@ -99,7 +99,7 @@ type CloudAccount struct {
 	CreatedAt time.Time     `json:"createdAt"`
 }
 
-// AuthConfig 认证配置
+// AuthConfig 认证配置.
 type AuthConfig struct {
 	Type      string `json:"type"` // key/token/oauth
 	AccessKey string `json:"accessKey,omitempty"`
@@ -111,7 +111,7 @@ type AuthConfig struct {
 
 // ========== Manager ==========
 
-// Manager 云存储挂载管理器
+// Manager 云存储挂载管理器.
 type Manager struct {
 	mu            sync.RWMutex
 	accounts      map[string]*CloudAccount
@@ -123,7 +123,7 @@ type Manager struct {
 	nextID        int
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		accounts:      make(map[string]*CloudAccount),
@@ -134,7 +134,7 @@ func NewManager() *Manager {
 	return m
 }
 
-// generateID 生成ID
+// generateID 生成ID.
 func (m *Manager) generateID(prefix string) string {
 	m.nextID++
 	return fmt.Sprintf("%s-%d", prefix, m.nextID)
@@ -142,7 +142,7 @@ func (m *Manager) generateID(prefix string) string {
 
 // ========== 账号管理 ==========
 
-// RegisterAccount 注册账号
+// RegisterAccount 注册账号.
 func (m *Manager) RegisterAccount(account *CloudAccount) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -163,7 +163,7 @@ func (m *Manager) RegisterAccount(account *CloudAccount) error {
 	return nil
 }
 
-// RemoveAccount 移除账号
+// RemoveAccount 移除账号.
 func (m *Manager) RemoveAccount(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -184,7 +184,7 @@ func (m *Manager) RemoveAccount(id string) error {
 	return nil
 }
 
-// ListAccounts 列出所有账号
+// ListAccounts 列出所有账号.
 func (m *Manager) ListAccounts() []CloudAccount {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -198,7 +198,7 @@ func (m *Manager) ListAccounts() []CloudAccount {
 
 // ========== 挂载管理 ==========
 
-// Mount 挂载云存储
+// Mount 挂载云存储.
 func (m *Manager) Mount(point *MountPoint, opts *MountOptions) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -260,7 +260,7 @@ func (m *Manager) Mount(point *MountPoint, opts *MountOptions) error {
 	return nil
 }
 
-// Unmount 卸载云存储
+// Unmount 卸载云存储.
 func (m *Manager) Unmount(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -280,7 +280,7 @@ func (m *Manager) Unmount(id string) error {
 	return nil
 }
 
-// GetMountStatus 获取挂载状态
+// GetMountStatus 获取挂载状态.
 func (m *Manager) GetMountStatus(id string) MountStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -292,7 +292,7 @@ func (m *Manager) GetMountStatus(id string) MountStatus {
 	return mount.Status
 }
 
-// ListMounts 列出所有挂载点
+// ListMounts 列出所有挂载点.
 func (m *Manager) ListMounts() []MountPoint {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -306,7 +306,7 @@ func (m *Manager) ListMounts() []MountPoint {
 
 // ========== 同步管理 ==========
 
-// GetSyncStatus 获取同步状态
+// GetSyncStatus 获取同步状态.
 func (m *Manager) GetSyncStatus(id string) (*SyncStatus, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -325,7 +325,7 @@ func (m *Manager) GetSyncStatus(id string) (*SyncStatus, error) {
 	return status, nil
 }
 
-// GetTransferStats 获取传输统计
+// GetTransferStats 获取传输统计.
 func (m *Manager) GetTransferStats() *TransferStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -345,7 +345,7 @@ func (m *Manager) GetTransferStats() *TransferStats {
 	return &stats
 }
 
-// SetSpeedLimit 设置传输限速
+// SetSpeedLimit 设置传输限速.
 func (m *Manager) SetSpeedLimit(upload, download int64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -360,7 +360,7 @@ func (m *Manager) SetSpeedLimit(upload, download int64) error {
 	return nil
 }
 
-// FlushCache 刷新缓存
+// FlushCache 刷新缓存.
 func (m *Manager) FlushCache(mountID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

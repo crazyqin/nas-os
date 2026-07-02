@@ -11,14 +11,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// InvestmentManager 投资管理器
+// InvestmentManager 投资管理器.
 type InvestmentManager struct {
 	mu          sync.RWMutex
 	logger      *zap.Logger
 	investments map[string]*Investment
 }
 
-// NewInvestmentManager 创建投资管理器
+// NewInvestmentManager 创建投资管理器.
 func NewInvestmentManager(logger *zap.Logger) *InvestmentManager {
 	return &InvestmentManager{
 		logger:      logger,
@@ -26,7 +26,7 @@ func NewInvestmentManager(logger *zap.Logger) *InvestmentManager {
 	}
 }
 
-// AddInvestment 添加投资记录
+// AddInvestment 添加投资记录.
 func (im *InvestmentManager) AddInvestment(investment *Investment) error {
 	im.mu.Lock()
 	defer im.mu.Unlock()
@@ -58,7 +58,7 @@ func (im *InvestmentManager) AddInvestment(investment *Investment) error {
 	return nil
 }
 
-// UpdateInvestment 更新投资记录
+// UpdateInvestment 更新投资记录.
 func (im *InvestmentManager) UpdateInvestment(investment *Investment) error {
 	im.mu.Lock()
 	defer im.mu.Unlock()
@@ -83,7 +83,7 @@ func (im *InvestmentManager) UpdateInvestment(investment *Investment) error {
 	return nil
 }
 
-// DeleteInvestment 删除投资记录
+// DeleteInvestment 删除投资记录.
 func (im *InvestmentManager) DeleteInvestment(investmentID string) error {
 	im.mu.Lock()
 	defer im.mu.Unlock()
@@ -97,7 +97,7 @@ func (im *InvestmentManager) DeleteInvestment(investmentID string) error {
 	return nil
 }
 
-// GetInvestment 获取投资记录
+// GetInvestment 获取投资记录.
 func (im *InvestmentManager) GetInvestment(investmentID string) (*Investment, error) {
 	im.mu.RLock()
 	defer im.mu.RUnlock()
@@ -109,7 +109,7 @@ func (im *InvestmentManager) GetInvestment(investmentID string) (*Investment, er
 	return investment, nil
 }
 
-// ListInvestments 列出所有投资
+// ListInvestments 列出所有投资.
 func (im *InvestmentManager) ListInvestments() []*Investment {
 	im.mu.RLock()
 	defer im.mu.RUnlock()
@@ -121,7 +121,7 @@ func (im *InvestmentManager) ListInvestments() []*Investment {
 	return investments
 }
 
-// UpdatePrice 更新投资价格
+// UpdatePrice 更新投资价格.
 func (im *InvestmentManager) UpdatePrice(investmentID string, newPrice float64) error {
 	im.mu.Lock()
 	defer im.mu.Unlock()
@@ -142,7 +142,7 @@ func (im *InvestmentManager) UpdatePrice(investmentID string, newPrice float64) 
 	return nil
 }
 
-// GetPortfolioSummary 获取投资组合摘要
+// GetPortfolioSummary 获取投资组合摘要.
 func (im *InvestmentManager) GetPortfolioSummary() map[string]interface{} {
 	im.mu.RLock()
 	defer im.mu.RUnlock()
@@ -174,7 +174,7 @@ func (im *InvestmentManager) GetPortfolioSummary() map[string]interface{} {
 	}
 }
 
-// GetInvestmentRanking 获取投资收益排行
+// GetInvestmentRanking 获取投资收益排行.
 func (im *InvestmentManager) GetInvestmentRanking() []*Investment {
 	im.mu.RLock()
 	defer im.mu.RUnlock()
@@ -192,7 +192,7 @@ func (im *InvestmentManager) GetInvestmentRanking() []*Investment {
 	return investments
 }
 
-// GetInvestmentsByType 按类型获取投资
+// GetInvestmentsByType 按类型获取投资.
 func (im *InvestmentManager) GetInvestmentsByType(investType InvestmentType) []*Investment {
 	im.mu.RLock()
 	defer im.mu.RUnlock()
@@ -206,7 +206,7 @@ func (im *InvestmentManager) GetInvestmentsByType(investType InvestmentType) []*
 	return result
 }
 
-// CalculateAnnualizedReturn 计算年化收益率
+// CalculateAnnualizedReturn 计算年化收益率.
 func (im *InvestmentManager) CalculateAnnualizedReturn(investmentID string) (float64, error) {
 	im.mu.RLock()
 	defer im.mu.RUnlock()
@@ -229,7 +229,7 @@ func (im *InvestmentManager) CalculateAnnualizedReturn(investmentID string) (flo
 	return annualized, nil
 }
 
-// pow 计算幂
+// pow 计算幂.
 func pow(base, exp float64) float64 {
 	if exp == 0 {
 		return 1

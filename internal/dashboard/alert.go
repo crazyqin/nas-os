@@ -30,11 +30,11 @@ const (
 type AlertRule struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
-	Metric      string        `json:"metric"`       // cpu/memory/disk/network/process_count
+	Metric      string        `json:"metric"` // cpu/memory/disk/network/process_count
 	Operator    AlertOperator `json:"operator"`
 	Threshold   float64       `json:"threshold"`
 	Severity    AlertSeverity `json:"severity"`
-	Duration    time.Duration `json:"duration"`     // 持续多久才触发
+	Duration    time.Duration `json:"duration"` // 持续多久才触发
 	Enabled     bool          `json:"enabled"`
 	Description string        `json:"description"`
 	CreatedAt   time.Time     `json:"createdAt"`
@@ -43,24 +43,24 @@ type AlertRule struct {
 
 // AlertEvent 告警事件.
 type AlertEvent struct {
-	ID        string        `json:"id"`
-	RuleID    string        `json:"ruleId"`
-	RuleName  string        `json:"ruleName"`
-	Severity  AlertSeverity `json:"severity"`
-	Metric    string        `json:"metric"`
-	Value     float64       `json:"value"`
-	Threshold float64       `json:"threshold"`
-	Message   string        `json:"message"`
-	Timestamp time.Time     `json:"timestamp"`
-	Resolved  bool          `json:"resolved"`
-	ResolvedAt *time.Time   `json:"resolvedAt,omitempty"`
+	ID         string        `json:"id"`
+	RuleID     string        `json:"ruleId"`
+	RuleName   string        `json:"ruleName"`
+	Severity   AlertSeverity `json:"severity"`
+	Metric     string        `json:"metric"`
+	Value      float64       `json:"value"`
+	Threshold  float64       `json:"threshold"`
+	Message    string        `json:"message"`
+	Timestamp  time.Time     `json:"timestamp"`
+	Resolved   bool          `json:"resolved"`
+	ResolvedAt *time.Time    `json:"resolvedAt,omitempty"`
 }
 
 // AlertManager 告警规则管理器.
 type AlertManager struct {
-	mu     sync.RWMutex
-	rules  map[string]*AlertRule
-	events []AlertEvent
+	mu        sync.RWMutex
+	rules     map[string]*AlertRule
+	events    []AlertEvent
 	maxEvents int
 }
 

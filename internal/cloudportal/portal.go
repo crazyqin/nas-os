@@ -13,30 +13,30 @@ import (
 	"time"
 )
 
-// PortalManager 云端门户管理器
+// PortalManager 云端门户管理器.
 type PortalManager struct {
-	mu        sync.RWMutex
-	config    *PortalConfig
-	devices   map[string]*Device
-	sessions  map[string]*Session
-	ctx       context.Context
-	cancel    context.CancelFunc
-	running   bool
+	mu       sync.RWMutex
+	config   *PortalConfig
+	devices  map[string]*Device
+	sessions map[string]*Session
+	ctx      context.Context
+	cancel   context.CancelFunc
+	running  bool
 }
 
-// PortalConfig 门户配置
+// PortalConfig 门户配置.
 type PortalConfig struct {
-	APIEndpoint   string        `json:"api_endpoint"`
-	DeviceID      string        `json:"device_id"`
-	DeviceName    string        `json:"device_name"`
-	EnableRemote  bool          `json:"enable_remote"`
-	EnableSync    bool          `json:"enable_sync"`
-	SyncInterval  time.Duration `json:"sync_interval"`
-	MaxDevices    int           `json:"max_devices"`
-	EnableMFA     bool          `json:"enable_mfa"`
+	APIEndpoint  string        `json:"api_endpoint"`
+	DeviceID     string        `json:"device_id"`
+	DeviceName   string        `json:"device_name"`
+	EnableRemote bool          `json:"enable_remote"`
+	EnableSync   bool          `json:"enable_sync"`
+	SyncInterval time.Duration `json:"sync_interval"`
+	MaxDevices   int           `json:"max_devices"`
+	EnableMFA    bool          `json:"enable_mfa"`
 }
 
-// DefaultPortalConfig 默认配置
+// DefaultPortalConfig 默认配置.
 func DefaultPortalConfig() *PortalConfig {
 	return &PortalConfig{
 		APIEndpoint:  "https://portal.nas-os.com",
@@ -48,23 +48,23 @@ func DefaultPortalConfig() *PortalConfig {
 	}
 }
 
-// Device 管理设备
+// Device 管理设备.
 type Device struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Type        string    `json:"type"` // nas, server, workstation
-	IP          string    `json:"ip"`
-	Status      string    `json:"status"` // online, offline, maintenance
-	LastSeen    time.Time `json:"last_seen"`
-	Version     string    `json:"version"`
-	CPU         float64   `json:"cpu_usage"`
-	Memory      float64   `json:"memory_usage"`
-	Disk        float64   `json:"disk_usage"`
-	Uptime      int64     `json:"uptime_seconds"`
-	Tags        []string  `json:"tags,omitempty"`
+	ID       string    `json:"id"`
+	Name     string    `json:"name"`
+	Type     string    `json:"type"` // nas, server, workstation
+	IP       string    `json:"ip"`
+	Status   string    `json:"status"` // online, offline, maintenance
+	LastSeen time.Time `json:"last_seen"`
+	Version  string    `json:"version"`
+	CPU      float64   `json:"cpu_usage"`
+	Memory   float64   `json:"memory_usage"`
+	Disk     float64   `json:"disk_usage"`
+	Uptime   int64     `json:"uptime_seconds"`
+	Tags     []string  `json:"tags,omitempty"`
 }
 
-// Session 管理会话
+// Session 管理会话.
 type Session struct {
 	ID        string    `json:"id"`
 	DeviceID  string    `json:"device_id"`
@@ -75,7 +75,7 @@ type Session struct {
 	IsActive  bool      `json:"is_active"`
 }
 
-// DeviceStats 设备统计
+// DeviceStats 设备统计.
 type DeviceStats struct {
 	TotalDevices   int     `json:"total_devices"`
 	OnlineDevices  int     `json:"online_devices"`
@@ -86,16 +86,16 @@ type DeviceStats struct {
 	UsedStorage    int64   `json:"used_storage"`
 }
 
-// SyncConfig 同步配置
+// SyncConfig 同步配置.
 type SyncConfig struct {
-	SyncSettings  bool `json:"sync_settings"`
-	SyncUsers     bool `json:"sync_users"`
-	SyncShares    bool `json:"sync_shares"`
-	SyncBackups   bool `json:"sync_backups"`
-	SyncApps      bool `json:"sync_apps"`
+	SyncSettings bool `json:"sync_settings"`
+	SyncUsers    bool `json:"sync_users"`
+	SyncShares   bool `json:"sync_shares"`
+	SyncBackups  bool `json:"sync_backups"`
+	SyncApps     bool `json:"sync_apps"`
 }
 
-// NewPortalManager 创建门户管理器
+// NewPortalManager 创建门户管理器.
 func NewPortalManager(config *PortalConfig) *PortalManager {
 	if config == nil {
 		config = DefaultPortalConfig()
@@ -112,7 +112,7 @@ func NewPortalManager(config *PortalConfig) *PortalManager {
 	}
 }
 
-// Start 启动门户管理器
+// Start 启动门户管理器.
 func (pm *PortalManager) Start() error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -144,7 +144,7 @@ func (pm *PortalManager) Start() error {
 	return nil
 }
 
-// Stop 停止门户管理器
+// Stop 停止门户管理器.
 func (pm *PortalManager) Stop() error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -160,7 +160,7 @@ func (pm *PortalManager) Stop() error {
 	return nil
 }
 
-// RegisterDevice 注册设备
+// RegisterDevice 注册设备.
 func (pm *PortalManager) RegisterDevice(device *Device) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -188,7 +188,7 @@ func (pm *PortalManager) RegisterDevice(device *Device) error {
 	return nil
 }
 
-// RemoveDevice 移除设备
+// RemoveDevice 移除设备.
 func (pm *PortalManager) RemoveDevice(deviceID string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -203,7 +203,7 @@ func (pm *PortalManager) RemoveDevice(deviceID string) error {
 	return nil
 }
 
-// GetDevices 获取所有设备
+// GetDevices 获取所有设备.
 func (pm *PortalManager) GetDevices() []*Device {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -215,7 +215,7 @@ func (pm *PortalManager) GetDevices() []*Device {
 	return result
 }
 
-// GetDevice 获取指定设备
+// GetDevice 获取指定设备.
 func (pm *PortalManager) GetDevice(deviceID string) (*Device, error) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -228,7 +228,7 @@ func (pm *PortalManager) GetDevice(deviceID string) (*Device, error) {
 	return device, nil
 }
 
-// UpdateDeviceStatus 更新设备状态
+// UpdateDeviceStatus 更新设备状态.
 func (pm *PortalManager) UpdateDeviceStatus(deviceID string, status *Device) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -256,7 +256,7 @@ func (pm *PortalManager) UpdateDeviceStatus(deviceID string, status *Device) err
 	return nil
 }
 
-// GetStats 获取设备统计
+// GetStats 获取设备统计.
 func (pm *PortalManager) GetStats() *DeviceStats {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -286,7 +286,7 @@ func (pm *PortalManager) GetStats() *DeviceStats {
 	return stats
 }
 
-// CreateSession 创建管理会话
+// CreateSession 创建管理会话.
 func (pm *PortalManager) CreateSession(deviceID, userID, ip string, duration time.Duration) (*Session, error) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -313,7 +313,7 @@ func (pm *PortalManager) CreateSession(deviceID, userID, ip string, duration tim
 	return session, nil
 }
 
-// ValidateSession 验证会话
+// ValidateSession 验证会话.
 func (pm *PortalManager) ValidateSession(sessionID string) (*Session, error) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -330,7 +330,7 @@ func (pm *PortalManager) ValidateSession(sessionID string) (*Session, error) {
 	return session, nil
 }
 
-// SyncConfig 同步配置到其他设备
+// SyncConfig 同步配置到其他设备.
 func (pm *PortalManager) SyncConfig(targetDeviceID string, config *SyncConfig) error {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -352,7 +352,7 @@ func (pm *PortalManager) SyncConfig(targetDeviceID string, config *SyncConfig) e
 	return nil
 }
 
-// GetRemoteAccessURL 获取远程访问URL
+// GetRemoteAccessURL 获取远程访问URL.
 func (pm *PortalManager) GetRemoteAccessURL(deviceID string) (string, error) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()

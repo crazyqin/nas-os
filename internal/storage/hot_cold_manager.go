@@ -9,7 +9,7 @@ import (
 )
 
 // HotColdManager 热冷数据管理器
-// 负责管理热数据和冷数据池的统计与迁移候选选择
+// 负责管理热数据和冷数据池的统计与迁移候选选择.
 type HotColdManager struct {
 	mu sync.RWMutex
 
@@ -31,7 +31,7 @@ type HotColdManager struct {
 	statsTime time.Time
 }
 
-// HotColdConfig 热冷管理器配置
+// HotColdConfig 热冷管理器配置.
 type HotColdConfig struct {
 	// 热池路径
 	HotPoolPath string `json:"hotPoolPath"`
@@ -52,7 +52,7 @@ type HotColdConfig struct {
 	ColdPoolWarnPercent float64 `json:"coldPoolWarnPercent"`
 }
 
-// HotColdPool 存储池信息
+// HotColdPool 存储池信息.
 type HotColdPool struct {
 	Path       string       `json:"path"`
 	Name       string       `json:"name"`
@@ -63,7 +63,7 @@ type HotColdPool struct {
 	UpdatedAt  time.Time    `json:"updatedAt"`
 }
 
-// TierPoolType 池类型
+// TierPoolType 池类型.
 type TierPoolType string
 
 const (
@@ -71,7 +71,7 @@ const (
 	TierPoolTypeCold TierPoolType = "cold" // 冷池（HDD）
 )
 
-// HotColdPoolStats 池统计信息
+// HotColdPoolStats 池统计信息.
 type HotColdPoolStats struct {
 	Path           string       `json:"path"`
 	Name           string       `json:"name"`
@@ -86,7 +86,7 @@ type HotColdPoolStats struct {
 	UpdatedAt      time.Time    `json:"updatedAt"`
 }
 
-// TierAccessRecord 访问记录
+// TierAccessRecord 访问记录.
 type TierAccessRecord struct {
 	Path        string       `json:"path"`
 	AccessCount int          `json:"accessCount"`
@@ -96,7 +96,7 @@ type TierAccessRecord struct {
 	CurrentTier TierPoolType `json:"currentTier"`
 }
 
-// NewHotColdManager 创建热冷管理器
+// NewHotColdManager 创建热冷管理器.
 func NewHotColdManager(config HotColdConfig) *HotColdManager {
 	return &HotColdManager{
 		config:        config,
@@ -104,7 +104,7 @@ func NewHotColdManager(config HotColdConfig) *HotColdManager {
 	}
 }
 
-// GetHotPoolStats 获取热池统计
+// GetHotPoolStats 获取热池统计.
 func (m *HotColdManager) GetHotPoolStats() (*HotColdPoolStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -134,7 +134,7 @@ func (m *HotColdManager) GetHotPoolStats() (*HotColdPoolStats, error) {
 	return stats, nil
 }
 
-// GetColdPoolStats 获取冷池统计
+// GetColdPoolStats 获取冷池统计.
 func (m *HotColdManager) GetColdPoolStats() (*HotColdPoolStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -164,7 +164,7 @@ func (m *HotColdManager) GetColdPoolStats() (*HotColdPoolStats, error) {
 	return stats, nil
 }
 
-// GetHotCandidates 获取热数据候选（需要从冷池提升的数据）
+// GetHotCandidates 获取热数据候选（需要从冷池提升的数据）.
 func (m *HotColdManager) GetHotCandidates(threshold float64) []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -193,7 +193,7 @@ func (m *HotColdManager) GetHotCandidates(threshold float64) []string {
 	return candidates
 }
 
-// GetColdCandidates 获取冷数据候选（需要从热池降级的数据）
+// GetColdCandidates 获取冷数据候选（需要从热池降级的数据）.
 func (m *HotColdManager) GetColdCandidates(coldAgeDays int) []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -219,7 +219,7 @@ func (m *HotColdManager) GetColdCandidates(coldAgeDays int) []string {
 	return candidates
 }
 
-// UpdateAccessRecord 更新访问记录
+// UpdateAccessRecord 更新访问记录.
 func (m *HotColdManager) UpdateAccessRecord(path string, tier TierPoolType) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -240,14 +240,14 @@ func (m *HotColdManager) UpdateAccessRecord(path string, tier TierPoolType) {
 	}
 }
 
-// GetAccessRecord 获取访问记录
+// GetAccessRecord 获取访问记录.
 func (m *HotColdManager) GetAccessRecord(path string) *TierAccessRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.accessRecords[path]
 }
 
-// SetHotPool 设置热池
+// SetHotPool 设置热池.
 func (m *HotColdManager) SetHotPool(pool *HotColdPool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -255,7 +255,7 @@ func (m *HotColdManager) SetHotPool(pool *HotColdPool) {
 	m.hotStats = nil // 清除缓存
 }
 
-// SetColdPool 设置冷池
+// SetColdPool 设置冷池.
 func (m *HotColdManager) SetColdPool(pool *HotColdPool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -263,7 +263,7 @@ func (m *HotColdManager) SetColdPool(pool *HotColdPool) {
 	m.coldStats = nil // 清除缓存
 }
 
-// PromoteFile 提升文件到热池
+// PromoteFile 提升文件到热池.
 func (m *HotColdManager) PromoteFile(srcPath string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -280,7 +280,7 @@ func (m *HotColdManager) PromoteFile(srcPath string) error {
 	return nil
 }
 
-// DemoteFile 降级文件到冷池
+// DemoteFile 降级文件到冷池.
 func (m *HotColdManager) DemoteFile(srcPath string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

@@ -272,7 +272,8 @@ func (m *Manager) evaluateRecommendations(subsystem SubsystemType, health *Subsy
 	m.recommendations = filtered
 
 	for _, metric := range health.Metrics {
-		if metric.Status == "critical" {
+		switch metric.Status {
+		case "critical":
 			m.recommendations = append(m.recommendations, Recommendation{
 				ID:          string(subsystem) + "-" + metric.Name + "-critical",
 				Subsystem:   subsystem,
@@ -282,7 +283,7 @@ func (m *Manager) evaluateRecommendations(subsystem SubsystemType, health *Subsy
 				Action:      "Immediate attention required for " + metric.Name,
 				CreatedAt:   time.Now(),
 			})
-		} else if metric.Status == "warning" {
+		case "warning":
 			m.recommendations = append(m.recommendations, Recommendation{
 				ID:          string(subsystem) + "-" + metric.Name + "-warning",
 				Subsystem:   subsystem,

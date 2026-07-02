@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// NodeStatus 节点状态
+// NodeStatus 节点状态.
 type NodeStatus string
 
 const (
@@ -21,7 +21,7 @@ const (
 	NodeStatusError   NodeStatus = "error"
 )
 
-// NodeType 节点类型
+// NodeType 节点类型.
 type NodeType string
 
 const (
@@ -30,29 +30,29 @@ const (
 	NodeTypeWorker    NodeType = "worker"
 )
 
-// ClusterNode 集群节点
+// ClusterNode 集群节点.
 type ClusterNode struct {
-	ID          string     `json:"id"`
-	Name        string     `json:"name"`
-	Hostname    string     `json:"hostname"`
-	IP          string     `json:"ip"`
-	Port        int        `json:"port"`
-	Type        NodeType   `json:"type"`
-	Status      NodeStatus `json:"status"`
-	CPUCores    int        `json:"cpu_cores"`
-	MemoryGB    int        `json:"memory_gb"`
-	StorageGB   int        `json:"storage_gb"`
-	UsedGB      int        `json:"used_gb"`
-	Version     string     `json:"version"`
-	LastSeen    time.Time  `json:"last_seen"`
-	JoinedAt    time.Time  `json:"joined_at"`
-	Tags        []string   `json:"tags,omitempty"`
-	Metadata    map[string]string `json:"metadata,omitempty"`
+	ID        string            `json:"id"`
+	Name      string            `json:"name"`
+	Hostname  string            `json:"hostname"`
+	IP        string            `json:"ip"`
+	Port      int               `json:"port"`
+	Type      NodeType          `json:"type"`
+	Status    NodeStatus        `json:"status"`
+	CPUCores  int               `json:"cpu_cores"`
+	MemoryGB  int               `json:"memory_gb"`
+	StorageGB int               `json:"storage_gb"`
+	UsedGB    int               `json:"used_gb"`
+	Version   string            `json:"version"`
+	LastSeen  time.Time         `json:"last_seen"`
+	JoinedAt  time.Time         `json:"joined_at"`
+	Tags      []string          `json:"tags,omitempty"`
+	Metadata  map[string]string `json:"metadata,omitempty"`
 }
 
-// ClusterConfig 集群配置
+// ClusterConfig 集群配置.
 type ClusterConfig struct {
-	ClusterName     string        `json:"cluster_name"`
+	ClusterName       string        `json:"cluster_name"`
 	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
 	HeartbeatTimeout  time.Duration `json:"heartbeat_timeout"`
 	MaxNodes          int           `json:"max_nodes"`
@@ -63,7 +63,7 @@ type ClusterConfig struct {
 	EnableHA          bool          `json:"enable_ha"` // 高可用
 }
 
-// DefaultClusterConfig 默认集群配置
+// DefaultClusterConfig 默认集群配置.
 func DefaultClusterConfig() *ClusterConfig {
 	return &ClusterConfig{
 		ClusterName:       "nas-os-cluster",
@@ -78,7 +78,7 @@ func DefaultClusterConfig() *ClusterConfig {
 	}
 }
 
-// ClusterManager 集群管理器
+// ClusterManager 集群管理器.
 type ClusterManager struct {
 	mu            sync.RWMutex
 	config        *ClusterConfig
@@ -92,22 +92,22 @@ type ClusterManager struct {
 	metrics       *ClusterMetrics
 }
 
-// ClusterMetrics 集群指标
+// ClusterMetrics 集群指标.
 type ClusterMetrics struct {
-	TotalNodes      int       `json:"total_nodes"`
-	OnlineNodes     int       `json:"online_nodes"`
-	OfflineNodes    int       `json:"offline_nodes"`
-	TotalCPU        int       `json:"total_cpu"`
-	TotalMemoryGB   int       `json:"total_memory_gb"`
-	TotalStorageGB  int       `json:"total_storage_gb"`
-	UsedStorageGB   int       `json:"used_storage_gb"`
-	LastUpdated     time.Time `json:"last_updated"`
+	TotalNodes     int       `json:"total_nodes"`
+	OnlineNodes    int       `json:"online_nodes"`
+	OfflineNodes   int       `json:"offline_nodes"`
+	TotalCPU       int       `json:"total_cpu"`
+	TotalMemoryGB  int       `json:"total_memory_gb"`
+	TotalStorageGB int       `json:"total_storage_gb"`
+	UsedStorageGB  int       `json:"used_storage_gb"`
+	LastUpdated    time.Time `json:"last_updated"`
 }
 
-// EventHandler 事件处理器
+// EventHandler 事件处理器.
 type EventHandler func(event ClusterEvent)
 
-// ClusterEvent 集群事件
+// ClusterEvent 集群事件.
 type ClusterEvent struct {
 	Type      string      `json:"type"`
 	NodeID    string      `json:"node_id"`
@@ -115,27 +115,27 @@ type ClusterEvent struct {
 	Data      interface{} `json:"data,omitempty"`
 }
 
-// TaskQueue 任务队列
+// TaskQueue 任务队列.
 type TaskQueue struct {
 	mu       sync.Mutex
 	tasks    []ClusterTask
 	priority map[string]int
 }
 
-// ClusterTask 集群任务
+// ClusterTask 集群任务.
 type ClusterTask struct {
-	ID        string    `json:"id"`
-	Type      string    `json:"type"`
-	TargetNode string   `json:"target_node"`
-	Payload   interface{} `json:"payload"`
-	Status    string    `json:"status"`
-	CreatedAt time.Time `json:"created_at"`
-	StartedAt *time.Time `json:"started_at,omitempty"`
-	CompletedAt *time.Time `json:"completed_at,omitempty"`
-	Error     string    `json:"error,omitempty"`
+	ID          string      `json:"id"`
+	Type        string      `json:"type"`
+	TargetNode  string      `json:"target_node"`
+	Payload     interface{} `json:"payload"`
+	Status      string      `json:"status"`
+	CreatedAt   time.Time   `json:"created_at"`
+	StartedAt   *time.Time  `json:"started_at,omitempty"`
+	CompletedAt *time.Time  `json:"completed_at,omitempty"`
+	Error       string      `json:"error,omitempty"`
 }
 
-// NewClusterManager 创建集群管理器
+// NewClusterManager 创建集群管理器.
 func NewClusterManager(config *ClusterConfig) *ClusterManager {
 	if config == nil {
 		config = DefaultClusterConfig()
@@ -153,7 +153,7 @@ func NewClusterManager(config *ClusterConfig) *ClusterManager {
 	}
 }
 
-// Start 启动集群管理器
+// Start 启动集群管理器.
 func (cm *ClusterManager) Start() error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -177,7 +177,7 @@ func (cm *ClusterManager) Start() error {
 	return nil
 }
 
-// Stop 停止集群管理器
+// Stop 停止集群管理器.
 func (cm *ClusterManager) Stop() {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -191,7 +191,7 @@ func (cm *ClusterManager) Stop() {
 	log.Printf("集群管理器已停止")
 }
 
-// AddNode 添加节点
+// AddNode 添加节点.
 func (cm *ClusterManager) AddNode(node *ClusterNode) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -227,7 +227,7 @@ func (cm *ClusterManager) AddNode(node *ClusterNode) error {
 	return nil
 }
 
-// RemoveNode 移除节点
+// RemoveNode 移除节点.
 func (cm *ClusterManager) RemoveNode(nodeID string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -259,7 +259,7 @@ func (cm *ClusterManager) RemoveNode(nodeID string) error {
 	return nil
 }
 
-// GetNode 获取节点
+// GetNode 获取节点.
 func (cm *ClusterManager) GetNode(nodeID string) (*ClusterNode, error) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -272,7 +272,7 @@ func (cm *ClusterManager) GetNode(nodeID string) (*ClusterNode, error) {
 	return node, nil
 }
 
-// ListNodes 列出所有节点
+// ListNodes 列出所有节点.
 func (cm *ClusterManager) ListNodes() []*ClusterNode {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -284,7 +284,7 @@ func (cm *ClusterManager) ListNodes() []*ClusterNode {
 	return nodes
 }
 
-// GetOnlineNodes 获取在线节点
+// GetOnlineNodes 获取在线节点.
 func (cm *ClusterManager) GetOnlineNodes() []*ClusterNode {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -298,7 +298,7 @@ func (cm *ClusterManager) GetOnlineNodes() []*ClusterNode {
 	return online
 }
 
-// GetPrimaryNode 获取主节点
+// GetPrimaryNode 获取主节点.
 func (cm *ClusterManager) GetPrimaryNode() *ClusterNode {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -306,7 +306,7 @@ func (cm *ClusterManager) GetPrimaryNode() *ClusterNode {
 	return cm.primaryNode
 }
 
-// PromoteNode 提升节点为主节点
+// PromoteNode 提升节点为主节点.
 func (cm *ClusterManager) PromoteNode(nodeID string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -339,7 +339,7 @@ func (cm *ClusterManager) PromoteNode(nodeID string) error {
 	return nil
 }
 
-// SelectNodeForTask 为任务选择最佳节点
+// SelectNodeForTask 为任务选择最佳节点.
 func (cm *ClusterManager) SelectNodeForTask(requirements *TaskRequirements) (*ClusterNode, error) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -370,7 +370,7 @@ func (cm *ClusterManager) SelectNodeForTask(requirements *TaskRequirements) (*Cl
 	return cm.selectByPolicy(candidates), nil
 }
 
-// selectByPolicy 根据策略选择节点
+// selectByPolicy 根据策略选择节点.
 func (cm *ClusterManager) selectByPolicy(candidates []*ClusterNode) *ClusterNode {
 	switch cm.config.LoadBalancePolicy {
 	case "round-robin":
@@ -384,14 +384,14 @@ func (cm *ClusterManager) selectByPolicy(candidates []*ClusterNode) *ClusterNode
 	}
 }
 
-// selectRoundRobin 轮询选择
+// selectRoundRobin 轮询选择.
 func (cm *ClusterManager) selectRoundRobin(candidates []*ClusterNode) *ClusterNode {
 	// 简单轮询
 	idx := time.Now().UnixNano() % int64(len(candidates))
 	return candidates[idx]
 }
 
-// selectLeastConnections 最少连接选择
+// selectLeastConnections 最少连接选择.
 func (cm *ClusterManager) selectLeastConnections(candidates []*ClusterNode) *ClusterNode {
 	// 选择使用率最低的节点
 	var best *ClusterNode
@@ -411,7 +411,7 @@ func (cm *ClusterManager) selectLeastConnections(candidates []*ClusterNode) *Clu
 	return best
 }
 
-// selectResourceBased 基于资源选择
+// selectResourceBased 基于资源选择.
 func (cm *ClusterManager) selectResourceBased(candidates []*ClusterNode) *ClusterNode {
 	// 综合考虑CPU、内存、存储使用率
 	var best *ClusterNode
@@ -437,7 +437,7 @@ func (cm *ClusterManager) selectResourceBased(candidates []*ClusterNode) *Cluste
 	return best
 }
 
-// SubmitTask 提交任务
+// SubmitTask 提交任务.
 func (cm *ClusterManager) SubmitTask(task ClusterTask) error {
 	cm.taskQueue.mu.Lock()
 	defer cm.taskQueue.mu.Unlock()
@@ -457,7 +457,7 @@ func (cm *ClusterManager) SubmitTask(task ClusterTask) error {
 	return nil
 }
 
-// GetTasks 获取任务列表
+// GetTasks 获取任务列表.
 func (cm *ClusterManager) GetTasks() []ClusterTask {
 	cm.taskQueue.mu.Lock()
 	defer cm.taskQueue.mu.Unlock()
@@ -467,7 +467,7 @@ func (cm *ClusterManager) GetTasks() []ClusterTask {
 	return tasks
 }
 
-// GetMetrics 获取集群指标
+// GetMetrics 获取集群指标.
 func (cm *ClusterManager) GetMetrics() *ClusterMetrics {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -475,7 +475,7 @@ func (cm *ClusterManager) GetMetrics() *ClusterMetrics {
 	return cm.metrics
 }
 
-// AddEventHandler 添加事件处理器
+// AddEventHandler 添加事件处理器.
 func (cm *ClusterManager) AddEventHandler(handler EventHandler) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -483,7 +483,7 @@ func (cm *ClusterManager) AddEventHandler(handler EventHandler) {
 	cm.eventHandlers = append(cm.eventHandlers, handler)
 }
 
-// heartbeatLoop 心跳检测循环
+// heartbeatLoop 心跳检测循环.
 func (cm *ClusterManager) heartbeatLoop() {
 	ticker := time.NewTicker(cm.config.HeartbeatInterval)
 	defer ticker.Stop()
@@ -498,7 +498,7 @@ func (cm *ClusterManager) heartbeatLoop() {
 	}
 }
 
-// checkNodesHealth 检查节点健康状态
+// checkNodesHealth 检查节点健康状态.
 func (cm *ClusterManager) checkNodesHealth() {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -526,7 +526,7 @@ func (cm *ClusterManager) checkNodesHealth() {
 	}
 }
 
-// electNewPrimary 选举新主节点
+// electNewPrimary 选举新主节点.
 func (cm *ClusterManager) electNewPrimary() {
 	var bestCandidate *ClusterNode
 
@@ -552,7 +552,7 @@ func (cm *ClusterManager) electNewPrimary() {
 	}
 }
 
-// metricsCollector 指标收集器
+// metricsCollector 指标收集器.
 func (cm *ClusterManager) metricsCollector() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
@@ -567,7 +567,7 @@ func (cm *ClusterManager) metricsCollector() {
 	}
 }
 
-// updateMetrics 更新集群指标
+// updateMetrics 更新集群指标.
 func (cm *ClusterManager) updateMetrics() {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -593,7 +593,7 @@ func (cm *ClusterManager) updateMetrics() {
 	cm.metrics = metrics
 }
 
-// taskScheduler 任务调度器
+// taskScheduler 任务调度器.
 func (cm *ClusterManager) taskScheduler() {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
@@ -608,7 +608,7 @@ func (cm *ClusterManager) taskScheduler() {
 	}
 }
 
-// processTasks 处理任务队列
+// processTasks 处理任务队列.
 func (cm *ClusterManager) processTasks() {
 	cm.taskQueue.mu.Lock()
 	defer cm.taskQueue.mu.Unlock()
@@ -637,7 +637,7 @@ func (cm *ClusterManager) processTasks() {
 	}
 }
 
-// executeTask 执行任务
+// executeTask 执行任务.
 func (cm *ClusterManager) executeTask(task *ClusterTask) {
 	// 模拟任务执行
 	time.Sleep(1 * time.Second)
@@ -654,31 +654,31 @@ func (cm *ClusterManager) executeTask(task *ClusterTask) {
 	})
 }
 
-// emitEvent 发送事件
+// emitEvent 发送事件.
 func (cm *ClusterManager) emitEvent(event ClusterEvent) {
 	for _, handler := range cm.eventHandlers {
 		go handler(event)
 	}
 }
 
-// GetClusterStatus 获取集群状态
+// GetClusterStatus 获取集群状态.
 func (cm *ClusterManager) GetClusterStatus() map[string]interface{} {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 
 	return map[string]interface{}{
-		"cluster_name":    cm.config.ClusterName,
-		"is_running":      cm.isRunning,
-		"total_nodes":     len(cm.nodes),
-		"primary_node":    cm.primaryNode,
-		"load_balance":    cm.config.LoadBalancePolicy,
-		"ha_enabled":      cm.config.EnableHA,
-		"auto_failover":   cm.config.AutoFailover,
-		"metrics":         cm.metrics,
+		"cluster_name":  cm.config.ClusterName,
+		"is_running":    cm.isRunning,
+		"total_nodes":   len(cm.nodes),
+		"primary_node":  cm.primaryNode,
+		"load_balance":  cm.config.LoadBalancePolicy,
+		"ha_enabled":    cm.config.EnableHA,
+		"auto_failover": cm.config.AutoFailover,
+		"metrics":       cm.metrics,
 	}
 }
 
-// UpdateNodeStatus 更新节点状态
+// UpdateNodeStatus 更新节点状态.
 func (cm *ClusterManager) UpdateNodeStatus(nodeID string, status NodeStatus) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -704,7 +704,7 @@ func (cm *ClusterManager) UpdateNodeStatus(nodeID string, status NodeStatus) err
 	return nil
 }
 
-// UpdateNodeMetrics 更新节点指标
+// UpdateNodeMetrics 更新节点指标.
 func (cm *ClusterManager) UpdateNodeMetrics(nodeID string, usedGB int) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()

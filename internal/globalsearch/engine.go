@@ -11,60 +11,60 @@ import (
 	"time"
 )
 
-// Engine 搜索引擎
+// Engine 搜索引擎.
 type Engine struct {
-	mu           sync.RWMutex
-	config       *Config
-	index        *SearchIndex
-	history      *SearchHistory
-	suggestions  *SuggestionEngine
-	providers    map[string]SearchProvider
-	logger       Logger
+	mu          sync.RWMutex
+	config      *Config
+	index       *SearchIndex
+	history     *SearchHistory
+	suggestions *SuggestionEngine
+	providers   map[string]SearchProvider
+	logger      Logger
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
-	MaxResults        int
-	EnableHistory     bool
-	EnableSuggestions bool
+	MaxResults          int
+	EnableHistory       bool
+	EnableSuggestions   bool
 	IndexUpdateInterval time.Duration
 }
 
-// SearchIndex 搜索索引
+// SearchIndex 搜索索引.
 type SearchIndex struct {
 	mu       sync.RWMutex
 	entries  map[string]*IndexEntry
 	inverted map[string][]string // 词条 -> 条目ID列表
 }
 
-// IndexEntry 索引条目
+// IndexEntry 索引条目.
 type IndexEntry struct {
-	ID         string
-	Type       string // file, service, setting, user, etc.
-	Title      string
-	Content    string
-	Path       string
-	Module     string
-	Tags       []string
-	Score      float64
-	UpdatedAt  time.Time
+	ID        string
+	Type      string // file, service, setting, user, etc.
+	Title     string
+	Content   string
+	Path      string
+	Module    string
+	Tags      []string
+	Score     float64
+	UpdatedAt time.Time
 }
 
-// SearchHistory 搜索历史
+// SearchHistory 搜索历史.
 type SearchHistory struct {
-	mu       sync.RWMutex
-	queries  []HistoryEntry
-	maxSize  int
+	mu      sync.RWMutex
+	queries []HistoryEntry
+	maxSize int
 }
 
-// HistoryEntry 历史条目
+// HistoryEntry 历史条目.
 type HistoryEntry struct {
-	Query     string
-	Timestamp time.Time
+	Query       string
+	Timestamp   time.Time
 	ResultCount int
 }
 
-// SuggestionEngine 建议引擎
+// SuggestionEngine 建议引擎.
 type SuggestionEngine struct {
 	mu          sync.RWMutex
 	popular     []string
@@ -72,16 +72,16 @@ type SuggestionEngine struct {
 	completions map[string][]string
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
-	Items      []*SearchItem
-	Total      int
-	Query      string
-	Duration   time.Duration
+	Items       []*SearchItem
+	Total       int
+	Query       string
+	Duration    time.Duration
 	Suggestions []string
 }
 
-// SearchItem 搜索项
+// SearchItem 搜索项.
 type SearchItem struct {
 	ID          string
 	Type        string
@@ -94,21 +94,21 @@ type SearchItem struct {
 	Icon        string
 }
 
-// SearchProvider 搜索提供者接口
+// SearchProvider 搜索提供者接口.
 type SearchProvider interface {
 	Name() string
 	Search(ctx context.Context, query string, limit int) ([]*SearchItem, error)
 	GetSuggestions(query string) []string
 }
 
-// Logger 日志接口
+// Logger 日志接口.
 type Logger interface {
 	Info(msg string, args ...interface{})
 	Error(msg string, args ...interface{})
 	Debug(msg string, args ...interface{})
 }
 
-// NewEngine 创建新的搜索引擎
+// NewEngine 创建新的搜索引擎.
 func NewEngine(config *Config, logger Logger) *Engine {
 	return &Engine{
 		config: config,
@@ -130,7 +130,7 @@ func NewEngine(config *Config, logger Logger) *Engine {
 	}
 }
 
-// Init 初始化搜索引擎
+// Init 初始化搜索引擎.
 func (e *Engine) Init(ctx context.Context) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -142,7 +142,7 @@ func (e *Engine) Init(ctx context.Context) error {
 	return nil
 }
 
-// RegisterProvider 注册搜索提供者
+// RegisterProvider 注册搜索提供者.
 func (e *Engine) RegisterProvider(provider SearchProvider) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -151,7 +151,7 @@ func (e *Engine) RegisterProvider(provider SearchProvider) {
 	e.logger.Info("搜索提供者已注册: %s", provider.Name())
 }
 
-// Search 执行搜索
+// Search 执行搜索.
 func (e *Engine) Search(ctx context.Context, query string) (*SearchResult, error) {
 	start := time.Now()
 
@@ -209,7 +209,7 @@ func (e *Engine) Search(ctx context.Context, query string) (*SearchResult, error
 	}, nil
 }
 
-// searchIndex 搜索本地索引
+// searchIndex 搜索本地索引.
 func (e *Engine) searchIndex(query string) []*SearchItem {
 	e.index.mu.RLock()
 	defer e.index.mu.RUnlock()
@@ -235,7 +235,7 @@ func (e *Engine) searchIndex(query string) []*SearchItem {
 	return items
 }
 
-// calculateScore 计算相关性得分
+// calculateScore 计算相关性得分.
 func (e *Engine) calculateScore(entry *IndexEntry, query string) float64 {
 	score := 0.0
 
@@ -264,7 +264,7 @@ func (e *Engine) calculateScore(entry *IndexEntry, query string) float64 {
 	return score
 }
 
-// rankAndDeduplicate 排序和去重
+// rankAndDeduplicate 排序和去重.
 func (e *Engine) rankAndDeduplicate(items []*SearchItem) []*SearchItem {
 	// 去重
 	seen := make(map[string]bool)
@@ -286,7 +286,7 @@ func (e *Engine) rankAndDeduplicate(items []*SearchItem) []*SearchItem {
 	return unique
 }
 
-// IndexEntry 添加索引条目
+// IndexEntry 添加索引条目.
 func (e *Engine) IndexEntry(entry *IndexEntry) {
 	e.index.mu.Lock()
 	defer e.index.mu.Unlock()
@@ -300,7 +300,7 @@ func (e *Engine) IndexEntry(entry *IndexEntry) {
 	}
 }
 
-// GetSuggestions 获取搜索建议
+// GetSuggestions 获取搜索建议.
 func (e *Engine) GetSuggestions(query string) []string {
 	e.suggestions.mu.RLock()
 	defer e.suggestions.mu.RUnlock()
@@ -331,7 +331,7 @@ func (e *Engine) GetSuggestions(query string) []string {
 	return suggestions
 }
 
-// GetHistory 获取搜索历史
+// GetHistory 获取搜索历史.
 func (e *Engine) GetHistory(limit int) []HistoryEntry {
 	e.history.mu.RLock()
 	defer e.history.mu.RUnlock()
@@ -345,7 +345,7 @@ func (e *Engine) GetHistory(limit int) []HistoryEntry {
 	return e.history.queries[start:]
 }
 
-// addHistory 添加搜索历史
+// addHistory 添加搜索历史.
 func (e *Engine) addHistory(query string) {
 	e.history.mu.Lock()
 	defer e.history.mu.Unlock()
@@ -366,7 +366,7 @@ func (e *Engine) addHistory(query string) {
 	e.updatePopular(query)
 }
 
-// updatePopular 更新热门搜索
+// updatePopular 更新热门搜索.
 func (e *Engine) updatePopular(query string) {
 	e.suggestions.mu.Lock()
 	defer e.suggestions.mu.Unlock()
@@ -386,7 +386,7 @@ func (e *Engine) updatePopular(query string) {
 	}
 }
 
-// indexUpdater 索引更新器
+// indexUpdater 索引更新器.
 func (e *Engine) indexUpdater(ctx context.Context) {
 	ticker := time.NewTicker(e.config.IndexUpdateInterval)
 	defer ticker.Stop()
@@ -401,20 +401,20 @@ func (e *Engine) indexUpdater(ctx context.Context) {
 	}
 }
 
-// updateIndex 更新索引
+// updateIndex 更新索引.
 func (e *Engine) updateIndex() {
 	// 从各模块更新索引
 	e.logger.Debug("更新搜索索引")
 }
 
-// tokenize 分词
+// tokenize 分词.
 func tokenize(text string) []string {
 	// 简单的分词实现
 	words := strings.Fields(strings.ToLower(text))
 	return words
 }
 
-// uniqueStrings 字符串去重
+// uniqueStrings 字符串去重.
 func uniqueStrings(slice []string) []string {
 	keys := make(map[string]bool)
 	var result []string

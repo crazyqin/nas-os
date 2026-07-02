@@ -328,27 +328,27 @@ func generateOpenVPNConfig(config *OpenVPNConfig) string {
 	var sb strings.Builder
 
 	sb.WriteString("client\n")
-	sb.WriteString(fmt.Sprintf("dev %s\n", config.DevType))
-	sb.WriteString(fmt.Sprintf("proto %s\n", config.Protocol))
-	sb.WriteString(fmt.Sprintf("remote %s %d\n", config.RemoteAddr, config.RemotePort))
+	fmt.Fprintf(&sb, "dev %s\n", config.DevType)
+	fmt.Fprintf(&sb, "proto %s\n", config.Protocol)
+	fmt.Fprintf(&sb, "remote %s %d\n", config.RemoteAddr, config.RemotePort)
 	sb.WriteString("resolv-retry infinite\n")
 	sb.WriteString("nobind\n")
 	sb.WriteString("persist-key\n")
 	sb.WriteString("persist-tun\n")
-	sb.WriteString(fmt.Sprintf("cipher %s\n", config.Cipher))
-	sb.WriteString(fmt.Sprintf("auth %s\n", config.AuthDigest))
-	sb.WriteString(fmt.Sprintf("verb %d\n", config.Verb))
+	fmt.Fprintf(&sb, "cipher %s\n", config.Cipher)
+	fmt.Fprintf(&sb, "auth %s\n", config.AuthDigest)
+	fmt.Fprintf(&sb, "verb %d\n", config.Verb)
 
 	if config.CompLZO {
 		sb.WriteString("comp-lzo\n")
 	}
 
 	if config.KeepAlive != "" {
-		sb.WriteString(fmt.Sprintf("keepalive %s\n", config.KeepAlive))
+		fmt.Fprintf(&sb, "keepalive %s\n", config.KeepAlive)
 	}
 
 	for _, opt := range config.ExtraOptions {
-		sb.WriteString(fmt.Sprintf("%s\n", opt))
+		fmt.Fprintf(&sb, "%s\n", opt)
 	}
 
 	if config.CAContent != "" {

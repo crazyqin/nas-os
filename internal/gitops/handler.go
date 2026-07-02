@@ -8,14 +8,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handler provides HTTP handlers for GitOps
+// Handler provides HTTP handlers for GitOps.
 type Handler struct {
 	engine     *Engine
 	reconciler *Reconciler
 	logger     *zap.Logger
 }
 
-// NewHandler creates a new GitOps HTTP handler
+// NewHandler creates a new GitOps HTTP handler.
 func NewHandler(engine *Engine, reconciler *Reconciler, logger *zap.Logger) *Handler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -27,7 +27,7 @@ func NewHandler(engine *Engine, reconciler *Reconciler, logger *zap.Logger) *Han
 	}
 }
 
-// RegisterRoutes registers GitOps API routes
+// RegisterRoutes registers GitOps API routes.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	gitops := rg.Group("/gitops")
 	{
@@ -55,13 +55,13 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// ListRepos handles GET /api/v1/gitops/repos
+// ListRepos handles GET /api/v1/gitops/repos.
 func (h *Handler) ListRepos(c *gin.Context) {
 	repos := h.engine.ListRepos()
 	c.JSON(http.StatusOK, gin.H{"repos": repos})
 }
 
-// GetRepo handles GET /api/v1/gitops/repos/:id
+// GetRepo handles GET /api/v1/gitops/repos/:id.
 func (h *Handler) GetRepo(c *gin.Context) {
 	id := c.Param("id")
 	repo := h.engine.GetRepo(id)
@@ -72,7 +72,7 @@ func (h *Handler) GetRepo(c *gin.Context) {
 	c.JSON(http.StatusOK, repo)
 }
 
-// TriggerSync handles POST /api/v1/gitops/sync
+// TriggerSync handles POST /api/v1/gitops/sync.
 func (h *Handler) TriggerSync(c *gin.Context) {
 	var req SyncRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -94,7 +94,7 @@ func (h *Handler) TriggerSync(c *gin.Context) {
 	})
 }
 
-// GetSyncStatus handles GET /api/v1/gitops/sync/:repo_id/:env
+// GetSyncStatus handles GET /api/v1/gitops/sync/:repo_id/:env.
 func (h *Handler) GetSyncStatus(c *gin.Context) {
 	repoID := c.Param("repo_id")
 	env := Environment(c.Param("env"))
@@ -108,7 +108,7 @@ func (h *Handler) GetSyncStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, status)
 }
 
-// ListDeployments handles GET /api/v1/gitops/deployments
+// ListDeployments handles GET /api/v1/gitops/deployments.
 func (h *Handler) ListDeployments(c *gin.Context) {
 	repoID := c.Query("repo_id")
 	env := Environment(c.Query("env"))
@@ -122,7 +122,7 @@ func (h *Handler) ListDeployments(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"deployments": deployments})
 }
 
-// GetDeployment handles GET /api/v1/gitops/deployments/:id
+// GetDeployment handles GET /api/v1/gitops/deployments/:id.
 func (h *Handler) GetDeployment(c *gin.Context) {
 	id := c.Param("id")
 	deployment := h.engine.GetDeployment(id)
@@ -133,7 +133,7 @@ func (h *Handler) GetDeployment(c *gin.Context) {
 	c.JSON(http.StatusOK, deployment)
 }
 
-// Rollback handles POST /api/v1/gitops/rollback
+// Rollback handles POST /api/v1/gitops/rollback.
 func (h *Handler) Rollback(c *gin.Context) {
 	var req RollbackRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -150,13 +150,13 @@ func (h *Handler) Rollback(c *gin.Context) {
 	c.JSON(http.StatusOK, deployment)
 }
 
-// GetDriftSummary handles GET /api/v1/gitops/drift
+// GetDriftSummary handles GET /api/v1/gitops/drift.
 func (h *Handler) GetDriftSummary(c *gin.Context) {
 	summary := h.reconciler.GetDriftSummary()
 	c.JSON(http.StatusOK, gin.H{"drift_summary": summary})
 }
 
-// GetDriftDetails handles GET /api/v1/gitops/drift/:repo_id/:env
+// GetDriftDetails handles GET /api/v1/gitops/drift/:repo_id/:env.
 func (h *Handler) GetDriftDetails(c *gin.Context) {
 	repoID := c.Param("repo_id")
 	env := Environment(c.Param("env"))
@@ -176,7 +176,7 @@ func (h *Handler) GetDriftDetails(c *gin.Context) {
 	})
 }
 
-// TriggerReconcile handles POST /api/v1/gitops/reconcile
+// TriggerReconcile handles POST /api/v1/gitops/reconcile.
 func (h *Handler) TriggerReconcile(c *gin.Context) {
 	go func() {
 		h.reconciler.ReconcileAll(c.Request.Context())
@@ -185,7 +185,7 @@ func (h *Handler) TriggerReconcile(c *gin.Context) {
 	c.JSON(http.StatusAccepted, gin.H{"message": "reconciliation triggered"})
 }
 
-// AddRepo handles POST /api/v1/gitops/repos
+// AddRepo handles POST /api/v1/gitops/repos.
 func (h *Handler) AddRepo(c *gin.Context) {
 	var req AddRepoRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -202,7 +202,7 @@ func (h *Handler) AddRepo(c *gin.Context) {
 	c.JSON(http.StatusCreated, repo)
 }
 
-// DetectDrift handles POST /api/v1/gitops/drift/detect
+// DetectDrift handles POST /api/v1/gitops/drift/detect.
 func (h *Handler) DetectDrift(c *gin.Context) {
 	var req DriftDetectionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

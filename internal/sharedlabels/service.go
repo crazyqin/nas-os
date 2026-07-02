@@ -10,7 +10,7 @@ import (
 // ServiceOps 服务操作扩展（辅助方法）
 // 提供标签生命周期管理和查询辅助方法
 
-// DeleteLabelByID 按ID删除标签（带存在性检查）
+// DeleteLabelByID 按ID删除标签（带存在性检查）.
 func (s *Service) DeleteLabelByID(ctx context.Context, labelID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -35,7 +35,7 @@ func (s *Service) DeleteLabelByID(ctx context.Context, labelID string) error {
 	return nil
 }
 
-// UpdateLabel 更新标签
+// UpdateLabel 更新标签.
 func (s *Service) UpdateLabel(ctx context.Context, labelID string, name, description string, color LabelColor) (*Label, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -59,7 +59,7 @@ func (s *Service) UpdateLabel(ctx context.Context, labelID string, name, descrip
 	return label, nil
 }
 
-// GetLabelFiles 获取标签下的所有文件
+// GetLabelFiles 获取标签下的所有文件.
 func (s *Service) GetLabelFiles(ctx context.Context, labelID string) ([]*FileLabel, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

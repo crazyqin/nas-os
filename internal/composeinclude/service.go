@@ -12,20 +12,20 @@ import (
 	"time"
 )
 
-// IncludeManager Compose Include 管理器
+// IncludeManager Compose Include 管理器.
 type IncludeManager struct {
 	mu      sync.RWMutex
 	results map[string]*ParseResult
 }
 
-// NewIncludeManager 创建 Compose Include 管理器
+// NewIncludeManager 创建 Compose Include 管理器.
 func NewIncludeManager() *IncludeManager {
 	return &IncludeManager{
 		results: make(map[string]*ParseResult),
 	}
 }
 
-// Parse 解析 Compose 文件并合并 include 引用
+// Parse 解析 Compose 文件并合并 include 引用.
 func (m *IncludeManager) Parse(req *ParseRequest) (*ParseResult, error) {
 	if req == nil {
 		return nil, fmt.Errorf("request is nil")
@@ -110,7 +110,7 @@ func (m *IncludeManager) Parse(req *ParseRequest) (*ParseResult, error) {
 	return result, nil
 }
 
-// GetResult 获取解析结果
+// GetResult 获取解析结果.
 func (m *IncludeManager) GetResult(id string) (*ParseResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -121,7 +121,7 @@ func (m *IncludeManager) GetResult(id string) (*ParseResult, error) {
 	return result, nil
 }
 
-// ListResults 列出所有解析结果
+// ListResults 列出所有解析结果.
 func (m *IncludeManager) ListResults() []*ParseResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -132,14 +132,14 @@ func (m *IncludeManager) ListResults() []*ParseResult {
 	return results
 }
 
-// RemoveResult 移除解析结果
+// RemoveResult 移除解析结果.
 func (m *IncludeManager) RemoveResult(id string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	delete(m.results, id)
 }
 
-// ValidateIncludePaths 验证 include 引用的文件是否存在
+// ValidateIncludePaths 验证 include 引用的文件是否存在.
 func (m *IncludeManager) ValidateIncludePaths(paths []string, baseDir string) ([]string, []string) {
 	var existing []string
 	var missing []string
@@ -158,7 +158,7 @@ func (m *IncludeManager) ValidateIncludePaths(paths []string, baseDir string) ([
 	return existing, missing
 }
 
-// MergeServices 合并两个服务定义映射，后者覆盖前者
+// MergeServices 合并两个服务定义映射，后者覆盖前者.
 func (m *IncludeManager) MergeServices(base, overlay map[string]ServiceDefinition) map[string]ServiceDefinition {
 	merged := make(map[string]ServiceDefinition)
 	for name, svc := range base {
@@ -170,7 +170,7 @@ func (m *IncludeManager) MergeServices(base, overlay map[string]ServiceDefinitio
 	return merged
 }
 
-// parseExternalCompose 解析外部 Compose 文件
+// parseExternalCompose 解析外部 Compose 文件.
 func parseExternalCompose(path string) (*ComposeFile, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -183,7 +183,7 @@ func parseExternalCompose(path string) (*ComposeFile, error) {
 	return &composeFile, nil
 }
 
-// generateID 生成唯一标识
+// generateID 生成唯一标识.
 func generateID() string {
 	b := make([]byte, 8)
 	rand.Read(b)

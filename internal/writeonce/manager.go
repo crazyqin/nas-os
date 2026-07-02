@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Manager manages WriteOnce immutable folders
+// Manager manages WriteOnce immutable folders.
 type Manager struct {
 	mu      sync.RWMutex
 	folders map[string]*WriteOnceFolder
@@ -15,7 +15,7 @@ type Manager struct {
 	config  WriteOnceConfig
 }
 
-// NewManager creates a new WriteOnce manager
+// NewManager creates a new WriteOnce manager.
 func NewManager(config WriteOnceConfig) *Manager {
 	return &Manager{
 		folders: make(map[string]*WriteOnceFolder),
@@ -25,7 +25,7 @@ func NewManager(config WriteOnceConfig) *Manager {
 	}
 }
 
-// CreateFolder creates a new WriteOnce folder
+// CreateFolder creates a new WriteOnce folder.
 func (m *Manager) CreateFolder(req CreateFolderRequest) (*WriteOnceFolder, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -102,7 +102,7 @@ func (m *Manager) CreateFolder(req CreateFolderRequest) (*WriteOnceFolder, error
 	return folder, nil
 }
 
-// LockFolder locks a folder, making it immutable
+// LockFolder locks a folder, making it immutable.
 func (m *Manager) LockFolder(folderID string, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -136,7 +136,7 @@ func (m *Manager) LockFolder(folderID string, userID string) error {
 	return nil
 }
 
-// AddFile adds a file to an open folder
+// AddFile adds a file to an open folder.
 func (m *Manager) AddFile(req AddFileRequest) (*WriteOnceFile, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -183,7 +183,7 @@ func (m *Manager) AddFile(req AddFileRequest) (*WriteOnceFile, error) {
 	return file, nil
 }
 
-// PreventDelete prevents deletion of a file in a locked folder (WORM enforcement)
+// PreventDelete prevents deletion of a file in a locked folder (WORM enforcement).
 func (m *Manager) PreventDelete(folderID string, fileName string, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -211,7 +211,7 @@ func (m *Manager) PreventDelete(folderID string, fileName string, userID string)
 	return nil
 }
 
-// PreventModify prevents modification of a file in a locked folder (WORM enforcement)
+// PreventModify prevents modification of a file in a locked folder (WORM enforcement).
 func (m *Manager) PreventModify(folderID string, fileName string, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -239,7 +239,7 @@ func (m *Manager) PreventModify(folderID string, fileName string, userID string)
 	return nil
 }
 
-// GetFolder returns a folder by ID
+// GetFolder returns a folder by ID.
 func (m *Manager) GetFolder(folderID string) (*WriteOnceFolder, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -252,7 +252,7 @@ func (m *Manager) GetFolder(folderID string) (*WriteOnceFolder, error) {
 	return folder, nil
 }
 
-// ListFolders lists all WriteOnce folders
+// ListFolders lists all WriteOnce folders.
 func (m *Manager) ListFolders() []*WriteOnceFolder {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -265,7 +265,7 @@ func (m *Manager) ListFolders() []*WriteOnceFolder {
 	return folders
 }
 
-// GetFiles returns all files in a folder
+// GetFiles returns all files in a folder.
 func (m *Manager) GetFiles(folderID string) ([]*WriteOnceFile, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -282,7 +282,7 @@ func (m *Manager) GetFiles(folderID string) ([]*WriteOnceFile, error) {
 	return files, nil
 }
 
-// GetAuditLog returns audit log entries for a folder
+// GetAuditLog returns audit log entries for a folder.
 func (m *Manager) GetAuditLog(folderID string) []*AuditEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -297,7 +297,7 @@ func (m *Manager) GetAuditLog(folderID string) []*AuditEntry {
 	return entries
 }
 
-// GetAllAuditLog returns all audit log entries
+// GetAllAuditLog returns all audit log entries.
 func (m *Manager) GetAllAuditLog() []*AuditEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -305,7 +305,7 @@ func (m *Manager) GetAllAuditLog() []*AuditEntry {
 	return m.audit
 }
 
-// CheckExpiry checks and updates expired folders
+// CheckExpiry checks and updates expired folders.
 func (m *Manager) CheckExpiry() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -326,7 +326,7 @@ func (m *Manager) CheckExpiry() int {
 	return expired
 }
 
-// UpdateConfig updates the WriteOnce configuration
+// UpdateConfig updates the WriteOnce configuration.
 func (m *Manager) UpdateConfig(config WriteOnceConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -335,7 +335,7 @@ func (m *Manager) UpdateConfig(config WriteOnceConfig) error {
 	return nil
 }
 
-// GetConfig returns the current configuration
+// GetConfig returns the current configuration.
 func (m *Manager) GetConfig() WriteOnceConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -343,7 +343,7 @@ func (m *Manager) GetConfig() WriteOnceConfig {
 	return m.config
 }
 
-// GetStats returns statistics about WriteOnce folders
+// GetStats returns statistics about WriteOnce folders.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -379,7 +379,7 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 }
 
-// addAuditEntry adds an entry to the audit log (caller must hold lock)
+// addAuditEntry adds an entry to the audit log (caller must hold lock).
 func (m *Manager) addAuditEntry(folderID, action, details, userID string, success bool, errorMsg string) {
 	if !m.config.AuditLogEnabled {
 		return

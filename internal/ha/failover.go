@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// FailoverController 故障转移控制器
+// FailoverController 故障转移控制器.
 type FailoverController struct {
 	manager    *HAManager
 	config     *HAConfig
@@ -26,7 +26,7 @@ type FailoverController struct {
 	logger     *zap.Logger
 }
 
-// FailoverState 故障转移状态
+// FailoverState 故障转移状态.
 type FailoverState struct {
 	InProgress     bool             `json:"in_progress"`
 	StartTime      time.Time        `json:"start_time"`
@@ -39,7 +39,7 @@ type FailoverState struct {
 	History        []FailoverRecord `json:"history"`
 }
 
-// FailoverPhase 故障转移阶段
+// FailoverPhase 故障转移阶段.
 type FailoverPhase string
 
 const (
@@ -54,7 +54,7 @@ const (
 	PhaseFailed       FailoverPhase = "failed"       // 失败
 )
 
-// FailoverRecord 故障转移记录
+// FailoverRecord 故障转移记录.
 type FailoverRecord struct {
 	ID           string        `json:"id"`
 	Timestamp    time.Time     `json:"timestamp"`
@@ -67,7 +67,7 @@ type FailoverRecord struct {
 	ErrorMessage string        `json:"error_message,omitempty"`
 }
 
-// PhaseRecord 阶段记录
+// PhaseRecord 阶段记录.
 type PhaseRecord struct {
 	Phase     FailoverPhase `json:"phase"`
 	StartTime time.Time     `json:"start_time"`
@@ -77,7 +77,7 @@ type PhaseRecord struct {
 	Message   string        `json:"message,omitempty"`
 }
 
-// FailoverStrategy 故障转移策略接口
+// FailoverStrategy 故障转移策略接口.
 type FailoverStrategy interface {
 	Name() string
 	SelectTarget(nodes []*NodeHAInfo, failedNode *NodeHAInfo) (*NodeHAInfo, error)
@@ -86,7 +86,7 @@ type FailoverStrategy interface {
 	PostFailover(newPrimary *NodeHAInfo) error
 }
 
-// FailoverHook 故障转移钩子接口
+// FailoverHook 故障转移钩子接口.
 type FailoverHook interface {
 	OnFailoverStart(failedNode, targetNode *NodeHAInfo)
 	OnPhaseStart(phase FailoverPhase)
@@ -96,13 +96,13 @@ type FailoverHook interface {
 }
 
 // SMBFailoverStrategy SMB故障转移策略
-// 参考 TrueNAS SMB Stateful Failover 实现
+// 参考 TrueNAS SMB Stateful Failover 实现.
 type SMBFailoverStrategy struct {
 	policy string
 	logger *zap.Logger
 }
 
-// NewSMBFailoverStrategy 创建 SMB 故障转移策略
+// NewSMBFailoverStrategy 创建 SMB 故障转移策略.
 func NewSMBFailoverStrategy(policy string, logger *zap.Logger) *SMBFailoverStrategy {
 	return &SMBFailoverStrategy{
 		policy: policy,
@@ -110,12 +110,12 @@ func NewSMBFailoverStrategy(policy string, logger *zap.Logger) *SMBFailoverStrat
 	}
 }
 
-// Name 策略名称
+// Name 策略名称.
 func (s *SMBFailoverStrategy) Name() string {
 	return "smb_stateful"
 }
 
-// SelectTarget 选择目标节点
+// SelectTarget 选择目标节点.
 func (s *SMBFailoverStrategy) SelectTarget(nodes []*NodeHAInfo, failedNode *NodeHAInfo) (*NodeHAInfo, error) {
 	var candidates []*NodeHAInfo
 
@@ -160,7 +160,7 @@ func (s *SMBFailoverStrategy) SelectTarget(nodes []*NodeHAInfo, failedNode *Node
 	}
 }
 
-// ValidateTarget 验证目标节点
+// ValidateTarget 验证目标节点.
 func (s *SMBFailoverStrategy) ValidateTarget(target *NodeHAInfo) error {
 	if target == nil {
 		return errors.New("target node is nil")
@@ -177,7 +177,7 @@ func (s *SMBFailoverStrategy) ValidateTarget(target *NodeHAInfo) error {
 	return nil
 }
 
-// PreFailover 故障转移前准备
+// PreFailover 故障转移前准备.
 func (s *SMBFailoverStrategy) PreFailover(failedNode *NodeHAInfo) error {
 	s.logger.Info("Pre-failover preparation",
 		zap.String("failed_node", failedNode.ID),
@@ -191,7 +191,7 @@ func (s *SMBFailoverStrategy) PreFailover(failedNode *NodeHAInfo) error {
 	return nil
 }
 
-// PostFailover 故障转移后处理
+// PostFailover 故障转移后处理.
 func (s *SMBFailoverStrategy) PostFailover(newPrimary *NodeHAInfo) error {
 	s.logger.Info("Post-failover cleanup",
 		zap.String("new_primary", newPrimary.ID),
@@ -205,7 +205,7 @@ func (s *SMBFailoverStrategy) PostFailover(newPrimary *NodeHAInfo) error {
 	return nil
 }
 
-// NewFailoverController 创建故障转移控制器
+// NewFailoverController 创建故障转移控制器.
 func NewFailoverController(manager *HAManager, config *HAConfig, logger *zap.Logger) *FailoverController {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -227,7 +227,7 @@ func NewFailoverController(manager *HAManager, config *HAConfig, logger *zap.Log
 	return fc
 }
 
-// Start 启动故障转移控制器
+// Start 启动故障转移控制器.
 func (fc *FailoverController) Start(ctx context.Context) error {
 	fc.ctx = ctx
 
@@ -242,14 +242,14 @@ func (fc *FailoverController) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止故障转移控制器
+// Stop 停止故障转移控制器.
 func (fc *FailoverController) Stop() {
 	fc.cancel()
 	fc.wg.Wait()
 	fc.logger.Info("Failover controller stopped")
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (fc *FailoverController) monitorLoop() {
 	defer fc.wg.Done()
 
@@ -266,7 +266,7 @@ func (fc *FailoverController) monitorLoop() {
 	}
 }
 
-// checkForFailover 检查是否需要故障转移
+// checkForFailover 检查是否需要故障转移.
 func (fc *FailoverController) checkForFailover() {
 	if !fc.config.FailoverEnabled {
 		return
@@ -297,7 +297,7 @@ func (fc *FailoverController) checkForFailover() {
 	}
 }
 
-// TriggerFailover 触发故障转移
+// TriggerFailover 触发故障转移.
 func (fc *FailoverController) TriggerFailover(failedNode *NodeHAInfo) error {
 	fc.mu.Lock()
 
@@ -321,7 +321,7 @@ func (fc *FailoverController) TriggerFailover(failedNode *NodeHAInfo) error {
 	return nil
 }
 
-// ExecuteManualFailover 执行手动故障转移
+// ExecuteManualFailover 执行手动故障转移.
 func (fc *FailoverController) ExecuteManualFailover(target *NodeHAInfo) error {
 	fc.mu.Lock()
 
@@ -349,7 +349,7 @@ func (fc *FailoverController) ExecuteManualFailover(target *NodeHAInfo) error {
 	return fc.executeFailover(primary, "manual")
 }
 
-// executeFailover 执行故障转移
+// executeFailover 执行故障转移.
 func (fc *FailoverController) executeFailover(failedNode *NodeHAInfo, failoverType string) error {
 	record := &FailoverRecord{
 		ID:           fmt.Sprintf("failover-%d", time.Now().UnixNano()),
@@ -491,7 +491,7 @@ func (fc *FailoverController) executeFailover(failedNode *NodeHAInfo, failoverTy
 }
 
 // smbStateSync SMB状态同步
-// 参考 TrueNAS SMB Stateful Failover 实现
+// 参考 TrueNAS SMB Stateful Failover 实现.
 func (fc *FailoverController) smbStateSync(failedNode, targetNode *NodeHAInfo) {
 	fc.logger.Info("SMB state synchronization",
 		zap.String("from", failedNode.ID),
@@ -509,7 +509,7 @@ func (fc *FailoverController) smbStateSync(failedNode, targetNode *NodeHAInfo) {
 	time.Sleep(1 * time.Second)
 }
 
-// promoteNode 提升节点为主节点
+// promoteNode 提升节点为主节点.
 func (fc *FailoverController) promoteNode(node *NodeHAInfo) error {
 	// 更新节点角色
 	node.Role = HARolePrimary
@@ -536,7 +536,7 @@ func (fc *FailoverController) promoteNode(node *NodeHAInfo) error {
 	return nil
 }
 
-// verifyTakeover 验证接管
+// verifyTakeover 验证接管.
 func (fc *FailoverController) verifyTakeover(node *NodeHAInfo) error {
 	// 检查节点状态
 	if node.State != HAStateActive {
@@ -555,7 +555,7 @@ func (fc *FailoverController) verifyTakeover(node *NodeHAInfo) error {
 	return nil
 }
 
-// handleFailoverFailed 处理故障转移失败
+// handleFailoverFailed 处理故障转移失败.
 func (fc *FailoverController) handleFailoverFailed(record *FailoverRecord, err error) {
 	record.Success = false
 	record.ErrorMessage = err.Error()
@@ -575,7 +575,7 @@ func (fc *FailoverController) handleFailoverFailed(record *FailoverRecord, err e
 	)
 }
 
-// cancelFailover 取消故障转移
+// cancelFailover 取消故障转移.
 func (fc *FailoverController) cancelFailover() {
 	fc.mu.Lock()
 	fc.state.InProgress = false
@@ -587,14 +587,14 @@ func (fc *FailoverController) cancelFailover() {
 	fc.logger.Info("Failover canceled")
 }
 
-// setCurrentPhase 设置当前阶段
+// setCurrentPhase 设置当前阶段.
 func (fc *FailoverController) setCurrentPhase(phase FailoverPhase) {
 	fc.mu.Lock()
 	fc.state.CurrentPhase = phase
 	fc.mu.Unlock()
 }
 
-// recordPhase 记录阶段
+// recordPhase 记录阶段.
 func (fc *FailoverController) recordPhase(record *FailoverRecord, phase FailoverPhase, start time.Time, err error) {
 	now := time.Now()
 	pr := PhaseRecord{
@@ -615,7 +615,7 @@ func (fc *FailoverController) recordPhase(record *FailoverRecord, phase Failover
 	fc.callHooksPhaseComplete(phase, pr.Duration, err)
 }
 
-// 钩子调用
+// 钩子调用.
 func (fc *FailoverController) callHooksStart(failedNode, targetNode *NodeHAInfo) {
 	for _, hook := range fc.hooks {
 		go hook.OnFailoverStart(failedNode, targetNode)
@@ -646,42 +646,42 @@ func (fc *FailoverController) callHooksFailed(record *FailoverRecord) {
 	}
 }
 
-// RegisterStrategy 注册策略
+// RegisterStrategy 注册策略.
 func (fc *FailoverController) RegisterStrategy(name string, strategy FailoverStrategy) {
 	fc.mu.Lock()
 	defer fc.mu.Unlock()
 	fc.strategies[name] = strategy
 }
 
-// RegisterHook 注册钩子
+// RegisterHook 注册钩子.
 func (fc *FailoverController) RegisterHook(hook FailoverHook) {
 	fc.mu.Lock()
 	defer fc.mu.Unlock()
 	fc.hooks = append(fc.hooks, hook)
 }
 
-// GetState 获取故障转移状态
+// GetState 获取故障转移状态.
 func (fc *FailoverController) GetState() *FailoverState {
 	fc.mu.RLock()
 	defer fc.mu.RUnlock()
 	return fc.state
 }
 
-// LastFailover 最后故障转移时间
+// LastFailover 最后故障转移时间.
 func (fc *FailoverController) LastFailover() time.Time {
 	fc.mu.RLock()
 	defer fc.mu.RUnlock()
 	return fc.state.LastFailover
 }
 
-// FailoverCount 故障转移次数
+// FailoverCount 故障转移次数.
 func (fc *FailoverController) FailoverCount() int {
 	fc.mu.RLock()
 	defer fc.mu.RUnlock()
 	return fc.state.TotalFailovers
 }
 
-// GetHistory 获取故障转移历史
+// GetHistory 获取故障转移历史.
 func (fc *FailoverController) GetHistory(limit int) []FailoverRecord {
 	fc.mu.RLock()
 	defer fc.mu.RUnlock()

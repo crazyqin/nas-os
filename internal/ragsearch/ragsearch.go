@@ -11,7 +11,7 @@ import (
 	"unicode"
 )
 
-// Manager manages RAG-enhanced search
+// Manager manages RAG-enhanced search.
 type Manager struct {
 	config      *Config
 	index       map[string]*IndexEntry
@@ -26,7 +26,7 @@ type Manager struct {
 	historyMu   sync.RWMutex
 }
 
-// NewManager creates a new RAG search manager
+// NewManager creates a new RAG search manager.
 func NewManager(config *Config) *Manager {
 	if config == nil {
 		config = DefaultConfig()
@@ -48,7 +48,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// AddDocument adds a document to the index
+// AddDocument adds a document to the index.
 func (m *Manager) AddDocument(doc *Document) error {
 	if doc == nil {
 		return fmt.Errorf("document cannot be nil")
@@ -86,12 +86,12 @@ func (m *Manager) AddDocument(doc *Document) error {
 	return nil
 }
 
-// UpdateDocument updates an existing document
+// UpdateDocument updates an existing document.
 func (m *Manager) UpdateDocument(doc *Document) error {
 	return m.AddDocument(doc)
 }
 
-// RemoveDocument removes a document from the index
+// RemoveDocument removes a document from the index.
 func (m *Manager) RemoveDocument(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -108,7 +108,7 @@ func (m *Manager) RemoveDocument(id string) error {
 	return nil
 }
 
-// GetDocument returns a document by ID
+// GetDocument returns a document by ID.
 func (m *Manager) GetDocument(id string) (*IndexEntry, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -120,7 +120,7 @@ func (m *Manager) GetDocument(id string) (*IndexEntry, error) {
 	return entry, nil
 }
 
-// Search performs a search based on the query mode
+// Search performs a search based on the query mode.
 func (m *Manager) Search(query *SearchQuery) (*SearchResponse, error) {
 	if query == nil {
 		return nil, fmt.Errorf("query cannot be nil")
@@ -204,7 +204,7 @@ func (m *Manager) Search(query *SearchQuery) (*SearchResponse, error) {
 	}, nil
 }
 
-// fullTextSearch performs BM25-based full text search
+// fullTextSearch performs BM25-based full text search.
 func (m *Manager) fullTextSearch(query *SearchQuery) []*SearchResult {
 	queryTokens := tokenize(query.Query)
 	if len(queryTokens) == 0 {
@@ -254,7 +254,7 @@ func (m *Manager) fullTextSearch(query *SearchQuery) []*SearchResult {
 	return results
 }
 
-// semanticSearch performs vector-based semantic search
+// semanticSearch performs vector-based semantic search.
 func (m *Manager) semanticSearch(query *SearchQuery) []*SearchResult {
 	queryEmbedding := generateEmbedding(query.Query, m.config.VectorDimension)
 
@@ -291,7 +291,7 @@ func (m *Manager) semanticSearch(query *SearchQuery) []*SearchResult {
 	return results
 }
 
-// hybridSearch performs combined BM25 + semantic search with RRF fusion
+// hybridSearch performs combined BM25 + semantic search with RRF fusion.
 func (m *Manager) hybridSearch(query *SearchQuery) []*SearchResult {
 	queryTokens := tokenize(query.Query)
 	queryEmbedding := generateEmbedding(query.Query, m.config.VectorDimension)
@@ -389,7 +389,7 @@ func (m *Manager) hybridSearch(query *SearchQuery) []*SearchResult {
 	return results
 }
 
-// calculateBM25 computes BM25 score for a document
+// calculateBM25 computes BM25 score for a document.
 func (m *Manager) calculateBM25(entry *IndexEntry, queryTokens []string, numDocs int, avgDocLen float64) float64 {
 	k1 := m.config.BM25K1
 	b := m.config.BM25B
@@ -419,7 +419,7 @@ func (m *Manager) calculateBM25(entry *IndexEntry, queryTokens []string, numDocs
 	return score
 }
 
-// calculateFreshness computes freshness score based on modification time
+// calculateFreshness computes freshness score based on modification time.
 func (m *Manager) calculateFreshness(entry *IndexEntry) float64 {
 	hours := time.Since(entry.ModifiedAt).Hours()
 	if hours < 0 {
@@ -429,7 +429,7 @@ func (m *Manager) calculateFreshness(entry *IndexEntry) float64 {
 	return math.Exp(-hours / 720.0)
 }
 
-// applyFilters applies search filters to results
+// applyFilters applies search filters to results.
 func (m *Manager) applyFilters(results []*SearchResult, filters *SearchFilter) []*SearchResult {
 	if filters == nil {
 		return results
@@ -445,7 +445,7 @@ func (m *Manager) applyFilters(results []*SearchResult, filters *SearchFilter) [
 	return filtered
 }
 
-// matchesFilter checks if a result matches the given filter
+// matchesFilter checks if a result matches the given filter.
 func matchesFilter(r *SearchResult, f *SearchFilter) bool {
 	// Doc type filter
 	if len(f.DocTypes) > 0 {
@@ -523,7 +523,7 @@ func matchesFilter(r *SearchResult, f *SearchFilter) bool {
 	return true
 }
 
-// sortResults sorts results by the specified order
+// sortResults sorts results by the specified order.
 func (m *Manager) sortResults(results []*SearchResult, order SortOrder) []*SearchResult {
 	if len(results) == 0 {
 		return results
@@ -558,7 +558,7 @@ func (m *Manager) sortResults(results []*SearchResult, order SortOrder) []*Searc
 	return sorted
 }
 
-// GetSuggestions returns search suggestions based on prefix
+// GetSuggestions returns search suggestions based on prefix.
 func (m *Manager) GetSuggestions(req *SuggestionRequest) (*SuggestionResponse, error) {
 	if req == nil {
 		return nil, fmt.Errorf("request cannot be nil")
@@ -670,7 +670,7 @@ func (m *Manager) GetSuggestions(req *SuggestionRequest) (*SuggestionResponse, e
 	}, nil
 }
 
-// GetSearchHistory returns search history
+// GetSearchHistory returns search history.
 func (m *Manager) GetSearchHistory(limit int) []*SearchHistory {
 	m.historyMu.RLock()
 	defer m.historyMu.RUnlock()
@@ -687,7 +687,7 @@ func (m *Manager) GetSearchHistory(limit int) []*SearchHistory {
 	return result
 }
 
-// GetHotQueries returns popular/trending queries
+// GetHotQueries returns popular/trending queries.
 func (m *Manager) GetHotQueries(limit int) []*HotQuery {
 	m.historyMu.RLock()
 	defer m.historyMu.RUnlock()
@@ -728,14 +728,14 @@ func (m *Manager) GetHotQueries(limit int) []*HotQuery {
 	return hotQueries
 }
 
-// GetStats returns index statistics
+// GetStats returns index statistics.
 func (m *Manager) GetStats() *IndexStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.stats
 }
 
-// RebuildIndex rebuilds the entire search index
+// RebuildIndex rebuilds the entire search index.
 func (m *Manager) RebuildIndex() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -748,12 +748,12 @@ func (m *Manager) RebuildIndex() error {
 	return nil
 }
 
-// Stop stops the search manager
+// Stop stops the search manager.
 func (m *Manager) Stop() {
 	m.cancel()
 }
 
-// addToInvertedIndex adds term frequencies to the inverted index
+// addToInvertedIndex adds term frequencies to the inverted index.
 func (m *Manager) addToInvertedIndex(docID string, termFreq map[string]int) {
 	for term, freq := range termFreq {
 		if m.invertedIdx[term] == nil {
@@ -764,7 +764,7 @@ func (m *Manager) addToInvertedIndex(docID string, termFreq map[string]int) {
 	}
 }
 
-// removeFromInvertedIndex removes a document from the inverted index
+// removeFromInvertedIndex removes a document from the inverted index.
 func (m *Manager) removeFromInvertedIndex(docID string, termFreq map[string]int) {
 	for term := range termFreq {
 		if postings, exists := m.invertedIdx[term]; exists {
@@ -779,7 +779,7 @@ func (m *Manager) removeFromInvertedIndex(docID string, termFreq map[string]int)
 	}
 }
 
-// updateStats updates index statistics
+// updateStats updates index statistics.
 func (m *Manager) updateStats() {
 	m.stats.TotalEntries = int64(len(m.index))
 	m.stats.EntriesByType = make(map[string]int64)
@@ -789,7 +789,7 @@ func (m *Manager) updateStats() {
 	m.stats.LastIndexed = time.Now()
 }
 
-// recordHistory records a search query in history
+// recordHistory records a search query in history.
 func (m *Manager) recordHistory(query string, hitCount int) {
 	m.historyMu.Lock()
 	defer m.historyMu.Unlock()
@@ -806,7 +806,7 @@ func (m *Manager) recordHistory(query string, hitCount int) {
 	}
 }
 
-// updateHistoryHitCount updates the hit count for the most recent matching query
+// updateHistoryHitCount updates the hit count for the most recent matching query.
 func (m *Manager) updateHistoryHitCount(query string, hitCount int) {
 	m.historyMu.Lock()
 	defer m.historyMu.Unlock()
@@ -819,7 +819,7 @@ func (m *Manager) updateHistoryHitCount(query string, hitCount int) {
 	}
 }
 
-// generateSuggestions generates query suggestions based on query terms
+// generateSuggestions generates query suggestions based on query terms.
 func (m *Manager) generateSuggestions(query string) []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -851,7 +851,7 @@ func (m *Manager) generateSuggestions(query string) []string {
 	return suggestions
 }
 
-// generateFacets generates facet counts by doc type
+// generateFacets generates facet counts by doc type.
 func (m *Manager) generateFacets(results []*SearchResult) map[string]int {
 	facets := make(map[string]int)
 	for _, r := range results {
@@ -860,7 +860,7 @@ func (m *Manager) generateFacets(results []*SearchResult) map[string]int {
 	return facets
 }
 
-// tokenize splits text into lowercase tokens
+// tokenize splits text into lowercase tokens.
 func tokenize(text string) []string {
 	if text == "" {
 		return nil
@@ -894,7 +894,7 @@ func tokenize(text string) []string {
 	return tokens
 }
 
-// computeTermFreq computes term frequency map from tokens
+// computeTermFreq computes term frequency map from tokens.
 func computeTermFreq(tokens []string) map[string]int {
 	tf := make(map[string]int)
 	for _, t := range tokens {
@@ -903,7 +903,7 @@ func computeTermFreq(tokens []string) map[string]int {
 	return tf
 }
 
-// generateEmbedding generates a deterministic embedding vector from text
+// generateEmbedding generates a deterministic embedding vector from text.
 func generateEmbedding(text string, dimension int) []float64 {
 	if dimension <= 0 {
 		dimension = 128
@@ -940,7 +940,7 @@ func generateEmbedding(text string, dimension int) []float64 {
 	return embedding
 }
 
-// simpleHash computes a simple hash of a string
+// simpleHash computes a simple hash of a string.
 func simpleHash(s string) uint32 {
 	var h uint32
 	for _, c := range s {
@@ -949,7 +949,7 @@ func simpleHash(s string) uint32 {
 	return h
 }
 
-// cosineSimilarity computes cosine similarity between two vectors
+// cosineSimilarity computes cosine similarity between two vectors.
 func cosineSimilarity(a, b []float64) float64 {
 	if len(a) != len(b) || len(a) == 0 {
 		return 0
@@ -969,7 +969,7 @@ func cosineSimilarity(a, b []float64) float64 {
 	return dotProduct / (math.Sqrt(normA) * math.Sqrt(normB))
 }
 
-// rankByScore ranks document IDs by their scores (descending)
+// rankByScore ranks document IDs by their scores (descending).
 func rankByScore(scores map[string]float64) []string {
 	type docScore struct {
 		id    string
@@ -993,7 +993,7 @@ func rankByScore(scores map[string]float64) []string {
 	return result
 }
 
-// generateHighlight generates highlighted text snippet
+// generateHighlight generates highlighted text snippet.
 func generateHighlight(content string, queryTokens []string) string {
 	if len(queryTokens) == 0 || content == "" {
 		return ""

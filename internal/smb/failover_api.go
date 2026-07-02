@@ -11,14 +11,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// FailoverHandlers 故障转移API处理器
+// FailoverHandlers 故障转移API处理器.
 type FailoverHandlers struct {
-	failover    *FailoverState
-	sync        *StateSynchronizer
-	health      *HealthChecker
+	failover *FailoverState
+	sync     *StateSynchronizer
+	health   *HealthChecker
 }
 
-// NewFailoverHandlers 创建故障转移API处理器
+// NewFailoverHandlers 创建故障转移API处理器.
 func NewFailoverHandlers(failover *FailoverState, sync *StateSynchronizer, health *HealthChecker) *FailoverHandlers {
 	return &FailoverHandlers{
 		failover: failover,
@@ -27,7 +27,7 @@ func NewFailoverHandlers(failover *FailoverState, sync *StateSynchronizer, healt
 	}
 }
 
-// RegisterRoutes 注册故障转移API路由
+// RegisterRoutes 注册故障转移API路由.
 func (h *FailoverHandlers) RegisterRoutes(api *gin.RouterGroup) {
 	fo := api.Group("/smb/failover")
 	{
@@ -63,7 +63,7 @@ func (h *FailoverHandlers) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// getStatus 获取故障转移状态
+// getStatus 获取故障转移状态.
 func (h *FailoverHandlers) getStatus(c *gin.Context) {
 	if h.failover == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "故障转移未初始化"))
@@ -74,7 +74,7 @@ func (h *FailoverHandlers) getStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(status))
 }
 
-// listNodes 列出所有集群节点
+// listNodes 列出所有集群节点.
 func (h *FailoverHandlers) listNodes(c *gin.Context) {
 	if h.failover == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "故障转移未初始化"))
@@ -85,7 +85,7 @@ func (h *FailoverHandlers) listNodes(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(status.ClusterNodes))
 }
 
-// registerNode 注册新集群节点
+// registerNode 注册新集群节点.
 func (h *FailoverHandlers) registerNode(c *gin.Context) {
 	if h.failover == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "故障转移未初始化"))
@@ -103,7 +103,7 @@ func (h *FailoverHandlers) registerNode(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(gin.H{"message": "节点已注册", "node_id": node.NodeID}))
 }
 
-// initiateFailover 手动触发故障转移
+// initiateFailover 手动触发故障转移.
 func (h *FailoverHandlers) initiateFailover(c *gin.Context) {
 	if h.failover == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "故障转移未初始化"))
@@ -128,13 +128,13 @@ func (h *FailoverHandlers) initiateFailover(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(gin.H{"message": "故障转移已触发", "target_node": req.TargetNode}))
 }
 
-// getEvents 获取故障转移事件
+// getEvents 获取故障转移事件.
 func (h *FailoverHandlers) getEvents(c *gin.Context) {
 	// 返回故障转移事件列表
 	c.JSON(http.StatusOK, Success([]FailoverEvent{}))
 }
 
-// listSessions 列出所有SMB会话
+// listSessions 列出所有SMB会话.
 func (h *FailoverHandlers) listSessions(c *gin.Context) {
 	if h.failover == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "故障转移未初始化"))
@@ -145,7 +145,7 @@ func (h *FailoverHandlers) listSessions(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(gin.H{"sessions": sessions, "total": len(sessions)}))
 }
 
-// getSession 获取单个会话
+// getSession 获取单个会话.
 func (h *FailoverHandlers) getSession(c *gin.Context) {
 	if h.failover == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "故障转移未初始化"))
@@ -162,7 +162,7 @@ func (h *FailoverHandlers) getSession(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(session))
 }
 
-// getSessionsByClient 按客户端IP获取会话
+// getSessionsByClient 按客户端IP获取会话.
 func (h *FailoverHandlers) getSessionsByClient(c *gin.Context) {
 	if h.failover == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "故障转移未初始化"))
@@ -174,7 +174,7 @@ func (h *FailoverHandlers) getSessionsByClient(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(gin.H{"sessions": sessions, "total": len(sessions)}))
 }
 
-// getSessionsByUser 按用户名获取会话
+// getSessionsByUser 按用户名获取会话.
 func (h *FailoverHandlers) getSessionsByUser(c *gin.Context) {
 	if h.failover == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "故障转移未初始化"))
@@ -186,7 +186,7 @@ func (h *FailoverHandlers) getSessionsByUser(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(gin.H{"sessions": sessions, "total": len(sessions)}))
 }
 
-// getSessionsByShare 按共享名获取会话
+// getSessionsByShare 按共享名获取会话.
 func (h *FailoverHandlers) getSessionsByShare(c *gin.Context) {
 	if h.failover == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "故障转移未初始化"))
@@ -198,7 +198,7 @@ func (h *FailoverHandlers) getSessionsByShare(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(gin.H{"sessions": sessions, "total": len(sessions)}))
 }
 
-// getSyncStatus 获取同步状态
+// getSyncStatus 获取同步状态.
 func (h *FailoverHandlers) getSyncStatus(c *gin.Context) {
 	if h.sync == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "状态同步器未初始化"))
@@ -214,7 +214,7 @@ func (h *FailoverHandlers) getSyncStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(status))
 }
 
-// getSyncMetrics 获取同步指标
+// getSyncMetrics 获取同步指标.
 func (h *FailoverHandlers) getSyncMetrics(c *gin.Context) {
 	if h.sync == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "状态同步器未初始化"))
@@ -225,7 +225,7 @@ func (h *FailoverHandlers) getSyncMetrics(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(metrics))
 }
 
-// getActiveSyncs 获取活跃同步操作
+// getActiveSyncs 获取活跃同步操作.
 func (h *FailoverHandlers) getActiveSyncs(c *gin.Context) {
 	if h.sync == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "状态同步器未初始化"))
@@ -236,7 +236,7 @@ func (h *FailoverHandlers) getActiveSyncs(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(syncs))
 }
 
-// getSyncNodeStatus 获取节点同步状态
+// getSyncNodeStatus 获取节点同步状态.
 func (h *FailoverHandlers) getSyncNodeStatus(c *gin.Context) {
 	if h.sync == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "状态同步器未初始化"))
@@ -247,7 +247,7 @@ func (h *FailoverHandlers) getSyncNodeStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(nodes))
 }
 
-// handleSyncRequest 处理同步请求
+// handleSyncRequest 处理同步请求.
 func (h *FailoverHandlers) handleSyncRequest(c *gin.Context) {
 	if h.sync == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "状态同步器未初始化"))
@@ -269,7 +269,7 @@ func (h *FailoverHandlers) handleSyncRequest(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(response))
 }
 
-// triggerSync 手动触发同步
+// triggerSync 手动触发同步.
 func (h *FailoverHandlers) triggerSync(c *gin.Context) {
 	if h.sync == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "状态同步器未初始化"))
@@ -309,7 +309,7 @@ func (h *FailoverHandlers) triggerSync(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(gin.H{"message": "同步已触发", "target_node": req.TargetNode, "sessions": len(sessionData)}))
 }
 
-// getClusterHealth 获取集群健康状态
+// getClusterHealth 获取集群健康状态.
 func (h *FailoverHandlers) getClusterHealth(c *gin.Context) {
 	if h.health == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "健康检查器未初始化"))
@@ -320,7 +320,7 @@ func (h *FailoverHandlers) getClusterHealth(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(health))
 }
 
-// getAllNodeHealth 获取所有节点健康状态
+// getAllNodeHealth 获取所有节点健康状态.
 func (h *FailoverHandlers) getAllNodeHealth(c *gin.Context) {
 	if h.health == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "健康检查器未初始化"))
@@ -331,7 +331,7 @@ func (h *FailoverHandlers) getAllNodeHealth(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(nodes))
 }
 
-// getNodeHealth 获取单个节点健康状态
+// getNodeHealth 获取单个节点健康状态.
 func (h *FailoverHandlers) getNodeHealth(c *gin.Context) {
 	if h.health == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "健康检查器未初始化"))
@@ -348,7 +348,7 @@ func (h *FailoverHandlers) getNodeHealth(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(node))
 }
 
-// getHealthStats 获取健康检查统计
+// getHealthStats 获取健康检查统计.
 func (h *FailoverHandlers) getHealthStats(c *gin.Context) {
 	if h.health == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "健康检查器未初始化"))
@@ -359,7 +359,7 @@ func (h *FailoverHandlers) getHealthStats(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(stats))
 }
 
-// performHealthCheck 执行即时健康检查
+// performHealthCheck 执行即时健康检查.
 func (h *FailoverHandlers) performHealthCheck(c *gin.Context) {
 	if h.health == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "健康检查器未初始化"))
@@ -380,7 +380,7 @@ func (h *FailoverHandlers) performHealthCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(result))
 }
 
-// getVIPStatus 获取VIP状态
+// getVIPStatus 获取VIP状态.
 func (h *FailoverHandlers) getVIPStatus(c *gin.Context) {
 	if h.failover == nil {
 		c.JSON(http.StatusServiceUnavailable, Error(503, "故障转移未初始化"))
@@ -395,7 +395,7 @@ func (h *FailoverHandlers) getVIPStatus(c *gin.Context) {
 	}))
 }
 
-// registerFailoverMetrics 注册故障转移监控指标
+// registerFailoverMetrics 注册故障转移监控指标.
 func (h *FailoverHandlers) registerFailoverMetrics(api *gin.RouterGroup) {
 	api.GET("/smb/failover/metrics", func(c *gin.Context) {
 		metrics := gin.H{
@@ -431,12 +431,12 @@ func (h *FailoverHandlers) registerFailoverMetrics(api *gin.RouterGroup) {
 			healthStats := h.health.GetHealthStats()
 			clusterHealth := h.health.GetClusterHealth()
 			metrics["health"] = gin.H{
-				"total_checks":      healthStats.TotalChecks,
-				"total_failures":    healthStats.TotalFailures,
-				"average_latency":   healthStats.AverageLatency.String(),
-				"cluster_healthy":   clusterHealth.ClusterHealthy,
-				"healthy_nodes":     clusterHealth.HealthyNodes,
-				"unhealthy_nodes":   clusterHealth.UnhealthyNodes,
+				"total_checks":    healthStats.TotalChecks,
+				"total_failures":  healthStats.TotalFailures,
+				"average_latency": healthStats.AverageLatency.String(),
+				"cluster_healthy": clusterHealth.ClusterHealthy,
+				"healthy_nodes":   clusterHealth.HealthyNodes,
+				"unhealthy_nodes": clusterHealth.UnhealthyNodes,
 			}
 		}
 
@@ -444,7 +444,7 @@ func (h *FailoverHandlers) registerFailoverMetrics(api *gin.RouterGroup) {
 	})
 }
 
-// parseIntParam 解析整数参数
+// parseIntParam 解析整数参数.
 func parseIntParam(c *gin.Context, name string, defaultVal int) int {
 	if val := c.Query(name); val != "" {
 		if intVal, err := strconv.Atoi(val); err == nil {

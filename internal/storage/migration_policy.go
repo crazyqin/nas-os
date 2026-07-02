@@ -8,7 +8,7 @@ import (
 )
 
 // MigrationPolicyManager 迁移策略管理器
-// 管理所有迁移策略的创建、更新、删除和查询
+// 管理所有迁移策略的创建、更新、删除和查询.
 type MigrationPolicyManager struct {
 	mu sync.RWMutex
 
@@ -20,7 +20,7 @@ type MigrationPolicyManager struct {
 	inactivePolicies map[string]*MigrationPolicy
 }
 
-// MigrationPolicy 迁移策略
+// MigrationPolicy 迁移策略.
 type MigrationPolicy struct {
 	// 基本信息
 	ID          string     `json:"id"`
@@ -60,7 +60,7 @@ type MigrationPolicy struct {
 	CreatedBy string    `json:"createdBy"`
 }
 
-// PolicyType 策略类型
+// PolicyType 策略类型.
 type PolicyType string
 
 const (
@@ -69,7 +69,7 @@ const (
 	PolicyTypeBalance PolicyType = "balance" // 负载均衡
 )
 
-// PolicyMode 策略模式
+// PolicyMode 策略模式.
 type PolicyMode string
 
 const (
@@ -78,7 +78,7 @@ const (
 	PolicyModeSchedule PolicyMode = "schedule" // 定时调度
 )
 
-// ScheduleConfig 调度配置
+// ScheduleConfig 调度配置.
 type ScheduleConfig struct {
 	Cron      string    `json:"cron"`      // Cron表达式
 	Interval  Duration  `json:"interval"`  // 间隔时间
@@ -86,10 +86,10 @@ type ScheduleConfig struct {
 	EndTime   time.Time `json:"endTime"`   // 结束时间（可选）
 }
 
-// Duration 自定义Duration类型用于JSON序列化
+// Duration 自定义Duration类型用于JSON序列化.
 type Duration time.Duration
 
-// MigrationConditions 迁移条件
+// MigrationConditions 迁移条件.
 type MigrationConditions struct {
 	// 访问频率条件
 	MinAccessCount  int     `json:"minAccessCount"`  // 最小访问次数
@@ -117,14 +117,14 @@ type MigrationConditions struct {
 	TargetPoolMaxUsedPercent float64 `json:"targetPoolMaxUsedPercent"` // 目标池最大使用百分比
 }
 
-// TimeWindow 执行时间窗口
+// TimeWindow 执行时间窗口.
 type TimeWindow struct {
 	StartHour int   `json:"startHour"` // 开始小时（0-23）
 	EndHour   int   `json:"endHour"`   // 结束小时（0-23）
 	Days      []int `json:"days"`      // 执行的星期几（0=周日，1-6=周一到周六）
 }
 
-// MigrationStats 迁移统计
+// MigrationStats 迁移统计.
 type MigrationStats struct {
 	TotalRuns          int64    `json:"totalRuns"`
 	SuccessRuns        int64    `json:"successRuns"`
@@ -135,7 +135,7 @@ type MigrationStats struct {
 	AverageRunDuration Duration `json:"averageRunDuration"`
 }
 
-// NewMigrationPolicyManager 创建迁移策略管理器
+// NewMigrationPolicyManager 创建迁移策略管理器.
 func NewMigrationPolicyManager() *MigrationPolicyManager {
 	return &MigrationPolicyManager{
 		policies:         make(map[string]*MigrationPolicy),
@@ -144,7 +144,7 @@ func NewMigrationPolicyManager() *MigrationPolicyManager {
 	}
 }
 
-// GetActivePolicies 获取所有活跃策略
+// GetActivePolicies 获取所有活跃策略.
 func (m *MigrationPolicyManager) GetActivePolicies() []*MigrationPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -156,7 +156,7 @@ func (m *MigrationPolicyManager) GetActivePolicies() []*MigrationPolicy {
 	return policies
 }
 
-// GetAllPolicies 获取所有策略
+// GetAllPolicies 获取所有策略.
 func (m *MigrationPolicyManager) GetAllPolicies() []*MigrationPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -168,14 +168,14 @@ func (m *MigrationPolicyManager) GetAllPolicies() []*MigrationPolicy {
 	return policies
 }
 
-// GetPolicy 获取指定策略
+// GetPolicy 获取指定策略.
 func (m *MigrationPolicyManager) GetPolicy(id string) *MigrationPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.policies[id]
 }
 
-// CreatePolicy 创建策略
+// CreatePolicy 创建策略.
 func (m *MigrationPolicyManager) CreatePolicy(policy *MigrationPolicy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -197,7 +197,7 @@ func (m *MigrationPolicyManager) CreatePolicy(policy *MigrationPolicy) error {
 	return nil
 }
 
-// UpdatePolicy 更新策略
+// UpdatePolicy 更新策略.
 func (m *MigrationPolicyManager) UpdatePolicy(policy *MigrationPolicy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -222,7 +222,7 @@ func (m *MigrationPolicyManager) UpdatePolicy(policy *MigrationPolicy) error {
 	return nil
 }
 
-// UpdatePolicyNextRun 更新策略下次运行时间
+// UpdatePolicyNextRun 更新策略下次运行时间.
 func (m *MigrationPolicyManager) UpdatePolicyNextRun(id string, nextRun time.Time) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -237,7 +237,7 @@ func (m *MigrationPolicyManager) UpdatePolicyNextRun(id string, nextRun time.Tim
 	return nil
 }
 
-// DeletePolicy 删除策略
+// DeletePolicy 删除策略.
 func (m *MigrationPolicyManager) DeletePolicy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -253,7 +253,7 @@ func (m *MigrationPolicyManager) DeletePolicy(id string) error {
 	return nil
 }
 
-// EnablePolicy 启用策略
+// EnablePolicy 启用策略.
 func (m *MigrationPolicyManager) EnablePolicy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -271,7 +271,7 @@ func (m *MigrationPolicyManager) EnablePolicy(id string) error {
 	return nil
 }
 
-// DisablePolicy 禁用策略
+// DisablePolicy 禁用策略.
 func (m *MigrationPolicyManager) DisablePolicy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -289,10 +289,10 @@ func (m *MigrationPolicyManager) DisablePolicy(id string) error {
 	return nil
 }
 
-// 错误定义
+// 错误定义.
 var ErrPolicyNotFound = &SchedulerError{Message: "策略不存在"}
 
-// generatePolicyID 生成策略ID
+// generatePolicyID 生成策略ID.
 func generatePolicyID() string {
 	return "policy_" + time.Now().Format("20060102150405")
 }

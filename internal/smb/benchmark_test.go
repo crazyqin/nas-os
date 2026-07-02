@@ -18,7 +18,7 @@ import (
 // 输出指标：吞吐量(MB/s)、IOPS、延迟(ms)
 // ============================================================================
 
-// 缓冲区大小常量（优化值）
+// 缓冲区大小常量（优化值）.
 const (
 	smallBufferSize  = 64 * 1024   // 64KB - 小文件场景
 	mediumBufferSize = 256 * 1024  // 256KB - 中等文件
@@ -29,7 +29,7 @@ const (
 // 1. 模拟 SMB Multi-Channel 传输基准测试
 // ==============================================================================
 
-// mockChannel 模拟SMB通道
+// mockChannel 模拟SMB通道.
 type mockChannel struct {
 	id            int
 	ip            string
@@ -38,7 +38,7 @@ type mockChannel struct {
 	latencyMs     int64
 }
 
-// newMockChannels 创建模拟通道
+// newMockChannels 创建模拟通道.
 func newMockChannels(count int) []*mockChannel {
 	channels := make([]*mockChannel, count)
 	for i := 0; i < count; i++ {
@@ -53,12 +53,12 @@ func newMockChannels(count int) []*mockChannel {
 	return channels
 }
 
-// toMB 转换bytes到MB
+// toMB 转换bytes到MB.
 func toMB(bytes int64) float64 {
 	return float64(bytes) / float64(1024*1024)
 }
 
-// BenchmarkMultiChannel_SingleConnection 单连接基准测试（基线）
+// BenchmarkMultiChannel_SingleConnection 单连接基准测试（基线）.
 func BenchmarkMultiChannel_SingleConnection(b *testing.B) {
 	channels := newMockChannels(1)
 	totalBytes := int64(largeBufferSize * 100)
@@ -82,7 +82,7 @@ func BenchmarkMultiChannel_SingleConnection(b *testing.B) {
 	b.ReportMetric(elapsed*1000/float64(b.N), "ms_single")
 }
 
-// BenchmarkMultiChannel_TwoChannels 2通道基准测试
+// BenchmarkMultiChannel_TwoChannels 2通道基准测试.
 func BenchmarkMultiChannel_TwoChannels(b *testing.B) {
 	channels := newMockChannels(2)
 	totalBytes := int64(largeBufferSize * 100)
@@ -113,7 +113,7 @@ func BenchmarkMultiChannel_TwoChannels(b *testing.B) {
 	b.ReportMetric(float64(transferred/int64(largeBufferSize))/elapsed, "IOPS_2ch")
 }
 
-// BenchmarkMultiChannel_FourChannels 4通道基准测试
+// BenchmarkMultiChannel_FourChannels 4通道基准测试.
 func BenchmarkMultiChannel_FourChannels(b *testing.B) {
 	channels := newMockChannels(4)
 	totalBytes := int64(largeBufferSize * 100)
@@ -144,7 +144,7 @@ func BenchmarkMultiChannel_FourChannels(b *testing.B) {
 	b.ReportMetric(float64(transferred/int64(largeBufferSize))/elapsed, "IOPS_4ch")
 }
 
-// BenchmarkMultiChannel_SmallFile 小文件(64KB)多通道测试
+// BenchmarkMultiChannel_SmallFile 小文件(64KB)多通道测试.
 func BenchmarkMultiChannel_SmallFile(b *testing.B) {
 	channels := newMockChannels(4)
 	var transferred int64
@@ -174,7 +174,7 @@ func BenchmarkMultiChannel_SmallFile(b *testing.B) {
 	b.ReportMetric(elapsed*1000/float64(b.N*4), "ms_latency_small")
 }
 
-// BenchmarkMultiChannel_LargeFile 大文件(1MB)多通道测试
+// BenchmarkMultiChannel_LargeFile 大文件(1MB)多通道测试.
 func BenchmarkMultiChannel_LargeFile(b *testing.B) {
 	channels := newMockChannels(4)
 	totalBytes := int64(largeBufferSize * 100)
@@ -205,7 +205,7 @@ func BenchmarkMultiChannel_LargeFile(b *testing.B) {
 	b.ReportMetric(elapsed*1000/float64(b.N), "ms_latency_large")
 }
 
-// BenchmarkMultiChannel_ConcurrentWrites 并发写入测试
+// BenchmarkMultiChannel_ConcurrentWrites 并发写入测试.
 func BenchmarkMultiChannel_ConcurrentWrites(b *testing.B) {
 	channels := newMockChannels(4)
 	numWorkers := 8
@@ -237,7 +237,7 @@ func BenchmarkMultiChannel_ConcurrentWrites(b *testing.B) {
 	b.ReportMetric(float64(transferred/int64(mediumBufferSize))/elapsed, "IOPS_concurrent")
 }
 
-// BenchmarkMultiChannel_ConcurrentReads 并发读取测试
+// BenchmarkMultiChannel_ConcurrentReads 并发读取测试.
 func BenchmarkMultiChannel_ConcurrentReads(b *testing.B) {
 	channels := newMockChannels(4)
 	numWorkers := 16
@@ -268,7 +268,7 @@ func BenchmarkMultiChannel_ConcurrentReads(b *testing.B) {
 	b.ReportMetric(toMB(transferred)/elapsed, "MB/s_read_concurrent")
 }
 
-// BenchmarkMultiChannel_RoundRobin 轮询负载均衡测试
+// BenchmarkMultiChannel_RoundRobin 轮询负载均衡测试.
 func BenchmarkMultiChannel_RoundRobin(b *testing.B) {
 	channels := newMockChannels(4)
 	counter := int64(0)
@@ -283,7 +283,7 @@ func BenchmarkMultiChannel_RoundRobin(b *testing.B) {
 	b.ReportMetric(float64(b.N)/b.Elapsed().Seconds(), "selections/sec")
 }
 
-// BenchmarkMultiChannel_HealthCheck 健康检查性能测试
+// BenchmarkMultiChannel_HealthCheck 健康检查性能测试.
 func BenchmarkMultiChannel_HealthCheck(b *testing.B) {
 	channels := newMockChannels(4)
 
@@ -298,7 +298,7 @@ func BenchmarkMultiChannel_HealthCheck(b *testing.B) {
 	b.ReportMetric(float64(b.N*len(channels))/b.Elapsed().Seconds(), "checks/sec")
 }
 
-// BenchmarkMultiChannel_ChannelSwitch 通道切换测试（故障恢复）
+// BenchmarkMultiChannel_ChannelSwitch 通道切换测试（故障恢复）.
 func BenchmarkMultiChannel_ChannelSwitch(b *testing.B) {
 	channels := newMockChannels(4)
 
@@ -324,7 +324,7 @@ func BenchmarkMultiChannel_ChannelSwitch(b *testing.B) {
 	b.ReportMetric(float64(b.N)/b.Elapsed().Seconds(), "switches/sec")
 }
 
-// simulateChannelTransfer 模拟通道传输
+// simulateChannelTransfer 模拟通道传输.
 func simulateChannelTransfer(ch *mockChannel, buf []byte, iterations int64) int64 {
 	var transferred int64
 	for i := int64(0); i < iterations; i++ {
@@ -335,7 +335,7 @@ func simulateChannelTransfer(ch *mockChannel, buf []byte, iterations int64) int6
 	return transferred
 }
 
-// simulateChannelRead 模拟通道读取
+// simulateChannelRead 模拟通道读取.
 func simulateChannelRead(ch *mockChannel, buf []byte, iterations int64) int64 {
 	var transferred int64
 	for i := int64(0); i < iterations; i++ {
@@ -345,7 +345,7 @@ func simulateChannelRead(ch *mockChannel, buf []byte, iterations int64) int64 {
 	return transferred
 }
 
-// checkChannelHealth 检查通道健康
+// checkChannelHealth 检查通道健康.
 func checkChannelHealth(ch *mockChannel) int {
 	if !ch.connected {
 		return 0
@@ -364,7 +364,7 @@ func checkChannelHealth(ch *mockChannel) int {
 // 2. 网络接口发现基准测试
 // ==============================================================================
 
-// BenchmarkInterfaceDiscovery 接口发现性能测试
+// BenchmarkInterfaceDiscovery 接口发现性能测试.
 func BenchmarkInterfaceDiscovery(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -375,7 +375,7 @@ func BenchmarkInterfaceDiscovery(b *testing.B) {
 	b.ReportMetric(float64(b.N)/b.Elapsed().Seconds(), "discoveries/sec")
 }
 
-// BenchmarkInterfaceInfoCollection 接口信息收集测试
+// BenchmarkInterfaceInfoCollection 接口信息收集测试.
 func BenchmarkInterfaceInfoCollection(b *testing.B) {
 	ifaces, _ := net.Interfaces()
 
@@ -391,7 +391,7 @@ func BenchmarkInterfaceInfoCollection(b *testing.B) {
 	b.ReportMetric(float64(b.N*len(ifaces))/b.Elapsed().Seconds(), "info_collections/sec")
 }
 
-// BenchmarkInterfaceSpeedDetection 接口速度检测测试
+// BenchmarkInterfaceSpeedDetection 接口速度检测测试.
 func BenchmarkInterfaceSpeedDetection(b *testing.B) {
 	ifaces, _ := net.Interfaces()
 	if len(ifaces) == 0 {
@@ -412,7 +412,7 @@ func BenchmarkInterfaceSpeedDetection(b *testing.B) {
 // 3. MultichannelManager 基准测试
 // ==============================================================================
 
-// BenchmarkMultichannelManager_New 创建管理器测试
+// BenchmarkMultichannelManager_New 创建管理器测试.
 func BenchmarkMultichannelManager_New(b *testing.B) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = false
@@ -424,7 +424,7 @@ func BenchmarkMultichannelManager_New(b *testing.B) {
 	}
 }
 
-// BenchmarkMultichannelManager_GetStatus 获取状态测试
+// BenchmarkMultichannelManager_GetStatus 获取状态测试.
 func BenchmarkMultichannelManager_GetStatus(b *testing.B) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = false
@@ -436,7 +436,7 @@ func BenchmarkMultichannelManager_GetStatus(b *testing.B) {
 	}
 }
 
-// BenchmarkMultichannelManager_GetMetrics 获取指标测试
+// BenchmarkMultichannelManager_GetMetrics 获取指标测试.
 func BenchmarkMultichannelManager_GetMetrics(b *testing.B) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = false
@@ -448,7 +448,7 @@ func BenchmarkMultichannelManager_GetMetrics(b *testing.B) {
 	}
 }
 
-// BenchmarkMultichannelManager_RoundRobinSelection 轮询选择测试
+// BenchmarkMultichannelManager_RoundRobinSelection 轮询选择测试.
 func BenchmarkMultichannelManager_RoundRobinSelection(b *testing.B) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = false
@@ -461,7 +461,7 @@ func BenchmarkMultichannelManager_RoundRobinSelection(b *testing.B) {
 	}
 }
 
-// BenchmarkMultichannelManager_ChannelUpdate 通道更新测试
+// BenchmarkMultichannelManager_ChannelUpdate 通道更新测试.
 func BenchmarkMultichannelManager_ChannelUpdate(b *testing.B) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = false
@@ -478,7 +478,7 @@ func BenchmarkMultichannelManager_ChannelUpdate(b *testing.B) {
 // 4. 配置生成基准测试
 // ==============================================================================
 
-// BenchmarkGenerateMultichannelConfig 生成多通道配置测试
+// BenchmarkGenerateMultichannelConfig 生成多通道配置测试.
 func BenchmarkGenerateMultichannelConfig(b *testing.B) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = true
@@ -498,7 +498,7 @@ func BenchmarkGenerateMultichannelConfig(b *testing.B) {
 	}
 }
 
-// BenchmarkMultichannelConfigValidation 配置验证测试
+// BenchmarkMultichannelConfigValidation 配置验证测试.
 func BenchmarkMultichannelConfigValidation(b *testing.B) {
 	config := DefaultMultichannelConfig()
 
@@ -512,7 +512,7 @@ func BenchmarkMultichannelConfigValidation(b *testing.B) {
 // 5. 端到端集成基准测试
 // ==============================================================================
 
-// BenchmarkEndToEnd_SingleToMultiChannel 单通道到多通道性能对比
+// BenchmarkEndToEnd_SingleToMultiChannel 单通道到多通道性能对比.
 func BenchmarkEndToEnd_SingleToMultiChannel(b *testing.B) {
 	// 单通道基准
 	b.Run("Single", func(b *testing.B) {
@@ -561,7 +561,7 @@ func BenchmarkEndToEnd_SingleToMultiChannel(b *testing.B) {
 	})
 }
 
-// BenchmarkEndToEnd_RealisticFileTransfer 真实文件传输模拟
+// BenchmarkEndToEnd_RealisticFileTransfer 真实文件传输模拟.
 func BenchmarkEndToEnd_RealisticFileTransfer(b *testing.B) {
 	channels := newMockChannels(4)
 
@@ -593,7 +593,7 @@ func BenchmarkEndToEnd_RealisticFileTransfer(b *testing.B) {
 // 6. 内存和并发压力测试
 // ==============================================================================
 
-// BenchmarkMemory_ChannelStateMemory 通道状态内存占用
+// BenchmarkMemory_ChannelStateMemory 通道状态内存占用.
 func BenchmarkMemory_ChannelStateMemory(b *testing.B) {
 	b.ReportAllocs()
 
@@ -614,7 +614,7 @@ func BenchmarkMemory_ChannelStateMemory(b *testing.B) {
 	}
 }
 
-// BenchmarkConcurrency_ConnectionPool 连接池性能
+// BenchmarkConcurrency_ConnectionPool 连接池性能.
 func BenchmarkConcurrency_ConnectionPool(b *testing.B) {
 	channels := newMockChannels(4)
 	pool := sync.Pool{
@@ -645,7 +645,7 @@ func BenchmarkConcurrency_ConnectionPool(b *testing.B) {
 // 7. Buffer大小优化测试
 // ==============================================================================
 
-// BenchmarkBufferOptimization 缓冲区大小优化测试
+// BenchmarkBufferOptimization 缓冲区大小优化测试.
 func BenchmarkBufferOptimization(b *testing.B) {
 	b.Run("64KB", func(b *testing.B) {
 		channels := newMockChannels(4)
@@ -703,7 +703,7 @@ func BenchmarkBufferOptimization(b *testing.B) {
 // 保留原有 Manager 操作基准测试
 // ==============================================================================
 
-// BenchmarkNewManager 创建Manager基准测试
+// BenchmarkNewManager 创建Manager基准测试.
 func BenchmarkNewManager(b *testing.B) {
 	tmpDir := b.TempDir()
 	configPath := fmt.Sprintf("%s/smb.json", tmpDir)
@@ -714,7 +714,7 @@ func BenchmarkNewManager(b *testing.B) {
 	}
 }
 
-// BenchmarkCreateShare 创建共享基准测试
+// BenchmarkCreateShare 创建共享基准测试.
 func BenchmarkCreateShare(b *testing.B) {
 	tmpDir := b.TempDir()
 	configPath := fmt.Sprintf("%s/smb.json", tmpDir)
@@ -730,7 +730,7 @@ func BenchmarkCreateShare(b *testing.B) {
 	}
 }
 
-// BenchmarkGetShare 获取共享基准测试
+// BenchmarkGetShare 获取共享基准测试.
 func BenchmarkGetShare(b *testing.B) {
 	tmpDir := b.TempDir()
 	configPath := fmt.Sprintf("%s/smb.json", tmpDir)
@@ -748,7 +748,7 @@ func BenchmarkGetShare(b *testing.B) {
 	}
 }
 
-// BenchmarkListShares 列出共享基准测试
+// BenchmarkListShares 列出共享基准测试.
 func BenchmarkListShares(b *testing.B) {
 	tmpDir := b.TempDir()
 	configPath := fmt.Sprintf("%s/smb.json", tmpDir)
@@ -767,7 +767,7 @@ func BenchmarkListShares(b *testing.B) {
 	}
 }
 
-// BenchmarkUpdateShare 更新共享基准测试
+// BenchmarkUpdateShare 更新共享基准测试.
 func BenchmarkUpdateShare(b *testing.B) {
 	tmpDir := b.TempDir()
 	configPath := fmt.Sprintf("%s/smb.json", tmpDir)
@@ -787,7 +787,7 @@ func BenchmarkUpdateShare(b *testing.B) {
 	}
 }
 
-// BenchmarkSaveConfig 保存配置基准测试
+// BenchmarkSaveConfig 保存配置基准测试.
 func BenchmarkSaveConfig(b *testing.B) {
 	tmpDir := b.TempDir()
 	configPath := fmt.Sprintf("%s/smb.json", tmpDir)
@@ -806,7 +806,7 @@ func BenchmarkSaveConfig(b *testing.B) {
 	}
 }
 
-// BenchmarkConcurrentRead 并发读取基准测试
+// BenchmarkConcurrentRead 并发读取基准测试.
 func BenchmarkConcurrentRead(b *testing.B) {
 	tmpDir := b.TempDir()
 	configPath := fmt.Sprintf("%s/smb.json", tmpDir)
@@ -828,7 +828,7 @@ func BenchmarkConcurrentRead(b *testing.B) {
 	})
 }
 
-// BenchmarkConcurrentWrite 并发写入基准测试
+// BenchmarkConcurrentWrite 并发写入基准测试.
 func BenchmarkConcurrentWrite(b *testing.B) {
 	tmpDir := b.TempDir()
 	configPath := fmt.Sprintf("%s/smb.json", tmpDir)
@@ -849,7 +849,7 @@ func BenchmarkConcurrentWrite(b *testing.B) {
 	})
 }
 
-// BenchmarkValidateShareConfig 验证共享配置基准测试
+// BenchmarkValidateShareConfig 验证共享配置基准测试.
 func BenchmarkValidateShareConfig(b *testing.B) {
 	share := &Share{
 		Name:          "bench-validate",
@@ -864,7 +864,7 @@ func BenchmarkValidateShareConfig(b *testing.B) {
 	}
 }
 
-// BenchmarkValidateConfig 验证配置基准测试
+// BenchmarkValidateConfig 验证配置基准测试.
 func BenchmarkValidateConfig(b *testing.B) {
 	config := &Config{
 		Workgroup:    "WORKGROUP",
@@ -879,7 +879,7 @@ func BenchmarkValidateConfig(b *testing.B) {
 	}
 }
 
-// BenchmarkListShares_Alloc 列出共享内存分配基准测试
+// BenchmarkListShares_Alloc 列出共享内存分配基准测试.
 func BenchmarkListShares_Alloc(b *testing.B) {
 	tmpDir := b.TempDir()
 	configPath := fmt.Sprintf("%s/smb.json", tmpDir)

@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// ComponentType 组件类型
+// ComponentType 组件类型.
 type ComponentType string
 
 const (
@@ -25,7 +25,7 @@ const (
 	ComponentPool    ComponentType = "pool"
 )
 
-// HealthLevel 健康等级
+// HealthLevel 健康等级.
 type HealthLevel string
 
 const (
@@ -36,7 +36,7 @@ const (
 	HealthCritical  HealthLevel = "critical"
 )
 
-// FailureRisk 故障风险等级
+// FailureRisk 故障风险等级.
 type FailureRisk string
 
 const (
@@ -46,7 +46,7 @@ const (
 	RiskCritical FailureRisk = "critical"
 )
 
-// TrendDirection 趋势方向
+// TrendDirection 趋势方向.
 type TrendDirection string
 
 const (
@@ -55,7 +55,7 @@ const (
 	TrendDegrading TrendDirection = "degrading"
 )
 
-// Component 组件信息
+// Component 组件信息.
 type Component struct {
 	ID           string            `json:"id"`
 	Type         ComponentType     `json:"type"`
@@ -72,7 +72,7 @@ type Component struct {
 	Metadata     map[string]string `json:"metadata,omitempty"`
 }
 
-// Metric 指标数据点
+// Metric 指标数据点.
 type Metric struct {
 	Name      string    `json:"name"`
 	Value     float64   `json:"value"`
@@ -80,7 +80,7 @@ type Metric struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// Prediction 预测结果
+// Prediction 预测结果.
 type Prediction struct {
 	ID          string        `json:"id"`
 	ComponentID string        `json:"component_id"`
@@ -93,7 +93,7 @@ type Prediction struct {
 	Actions     []string      `json:"actions"`
 }
 
-// CapacityForecast 容量预测
+// CapacityForecast 容量预测.
 type CapacityForecast struct {
 	ComponentID   string    `json:"component_id"`
 	ComponentName string    `json:"component_name"`
@@ -106,7 +106,7 @@ type CapacityForecast struct {
 	Confidence    float64   `json:"confidence"`
 }
 
-// PerformanceTrend 性能趋势
+// PerformanceTrend 性能趋势.
 type PerformanceTrend struct {
 	ComponentID string         `json:"component_id"`
 	MetricName  string         `json:"metric_name"`
@@ -119,7 +119,7 @@ type PerformanceTrend struct {
 	Period      string         `json:"period"`      // 分析周期
 }
 
-// PrognosticsReport 预后报告
+// PrognosticsReport 预后报告.
 type PrognosticsReport struct {
 	ID              string             `json:"id"`
 	GeneratedAt     time.Time          `json:"generated_at"`
@@ -133,7 +133,7 @@ type PrognosticsReport struct {
 	Summary         string             `json:"summary"`
 }
 
-// Recommendation 建议
+// Recommendation 建议.
 type Recommendation struct {
 	ID          string `json:"id"`
 	Priority    int    `json:"priority"` // 1-5
@@ -144,7 +144,7 @@ type Recommendation struct {
 	Impact      string `json:"impact"`
 }
 
-// Manager 预后管理器
+// Manager 预后管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	components  map[string]*Component
@@ -154,7 +154,7 @@ type Manager struct {
 	cancelFunc  context.CancelFunc
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		components:  make(map[string]*Component),
@@ -164,7 +164,7 @@ func NewManager() *Manager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	m.cancelFunc = cancel
@@ -175,14 +175,14 @@ func (m *Manager) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	if m.cancelFunc != nil {
 		m.cancelFunc()
 	}
 }
 
-// RegisterComponent 注册组件
+// RegisterComponent 注册组件.
 func (m *Manager) RegisterComponent(comp *Component) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -190,7 +190,7 @@ func (m *Manager) RegisterComponent(comp *Component) {
 	m.components[comp.ID] = comp
 }
 
-// GetComponent 获取组件
+// GetComponent 获取组件.
 func (m *Manager) GetComponent(id string) (*Component, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -201,7 +201,7 @@ func (m *Manager) GetComponent(id string) (*Component, error) {
 	return comp, nil
 }
 
-// ListComponents 列出组件
+// ListComponents 列出组件.
 func (m *Manager) ListComponents(compType ComponentType) []*Component {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -215,7 +215,7 @@ func (m *Manager) ListComponents(compType ComponentType) []*Component {
 	return comps
 }
 
-// RecordMetric 记录指标
+// RecordMetric 记录指标.
 func (m *Manager) RecordMetric(componentID string, metric Metric) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -249,7 +249,7 @@ func (m *Manager) RecordMetric(componentID string, metric Metric) {
 	}
 }
 
-// GetPredictions 获取预测
+// GetPredictions 获取预测.
 func (m *Manager) GetPredictions(componentID string) []Prediction {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -264,7 +264,7 @@ func (m *Manager) GetPredictions(componentID string) []Prediction {
 	return preds
 }
 
-// ForecastCapacity 容量预测
+// ForecastCapacity 容量预测.
 func (m *Manager) ForecastCapacity(componentID string) (*CapacityForecast, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -319,7 +319,7 @@ func (m *Manager) ForecastCapacity(componentID string) (*CapacityForecast, error
 	return forecast, nil
 }
 
-// AnalyzeTrend 分析趋势
+// AnalyzeTrend 分析趋势.
 func (m *Manager) AnalyzeTrend(componentID, metricName string, period time.Duration) (*PerformanceTrend, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -382,7 +382,7 @@ func (m *Manager) AnalyzeTrend(componentID, metricName string, period time.Durat
 	}, nil
 }
 
-// GenerateReport 生成预后报告
+// GenerateReport 生成预后报告.
 func (m *Manager) GenerateReport() *PrognosticsReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -427,7 +427,7 @@ func (m *Manager) GenerateReport() *PrognosticsReport {
 	return report
 }
 
-// ListReports 列出报告
+// ListReports 列出报告.
 func (m *Manager) ListReports(limit int) []*PrognosticsReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -443,7 +443,7 @@ func (m *Manager) ListReports(limit int) []*PrognosticsReport {
 	return m.reports[start:]
 }
 
-// GetReport 获取报告
+// GetReport 获取报告.
 func (m *Manager) GetReport(id string) (*PrognosticsReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -456,7 +456,7 @@ func (m *Manager) GetReport(id string) (*PrognosticsReport, error) {
 	return nil, fmt.Errorf("report %s not found", id)
 }
 
-// calculateGrowthRate 计算增长率
+// calculateGrowthRate 计算增长率.
 func (m *Manager) calculateGrowthRate(componentID, metricName string) float64 {
 	key := componentID + ":" + metricName
 	metrics, ok := m.history[key]
@@ -467,7 +467,7 @@ func (m *Manager) calculateGrowthRate(componentID, metricName string) float64 {
 	return calculateSlope(metrics) * 86400 // 每天
 }
 
-// calculateSlope 计算线性回归斜率
+// calculateSlope 计算线性回归斜率.
 func calculateSlope(metrics []Metric) float64 {
 	n := float64(len(metrics))
 	if n < 2 {
@@ -494,7 +494,7 @@ func calculateSlope(metrics []Metric) float64 {
 	return (n*sumXY - sumX*sumY) / denom
 }
 
-// scoreToLevel 评分转等级
+// scoreToLevel 评分转等级.
 func scoreToLevel(score float64) HealthLevel {
 	switch {
 	case score >= 90:
@@ -510,7 +510,7 @@ func scoreToLevel(score float64) HealthLevel {
 	}
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (m *Manager) generateRecommendations(report *PrognosticsReport) []Recommendation {
 	recs := make([]Recommendation, 0)
 	priority := 1
@@ -566,7 +566,7 @@ func (m *Manager) generateRecommendations(report *PrognosticsReport) []Recommend
 	return recs
 }
 
-// generateSummary 生成摘要
+// generateSummary 生成摘要.
 func (m *Manager) generateSummary(report *PrognosticsReport) string {
 	summary := fmt.Sprintf("系统整体健康状态: %s (%.0f/100)\n", report.OverallHealth, report.OverallScore)
 	summary += fmt.Sprintf("监控组件数: %d\n", len(report.Components))
@@ -582,7 +582,7 @@ func (m *Manager) generateSummary(report *PrognosticsReport) string {
 	return summary
 }
 
-// collectLoop 数据采集循环
+// collectLoop 数据采集循环.
 func (m *Manager) collectLoop(ctx context.Context) {
 	ticker := time.NewTicker(60 * time.Second)
 	defer ticker.Stop()
@@ -596,7 +596,7 @@ func (m *Manager) collectLoop(ctx context.Context) {
 	}
 }
 
-// predictLoop 预测循环
+// predictLoop 预测循环.
 func (m *Manager) predictLoop(ctx context.Context) {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
@@ -610,7 +610,7 @@ func (m *Manager) predictLoop(ctx context.Context) {
 	}
 }
 
-// collectMetrics 采集指标
+// collectMetrics 采集指标.
 func (m *Manager) collectMetrics() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -620,7 +620,7 @@ func (m *Manager) collectMetrics() {
 	}
 }
 
-// runPredictions 运行预测
+// runPredictions 运行预测.
 func (m *Manager) runPredictions() {
 	m.mu.Lock()
 	defer m.mu.Unlock()

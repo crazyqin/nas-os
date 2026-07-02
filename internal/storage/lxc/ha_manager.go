@@ -19,25 +19,25 @@ import (
 // ========== 核心错误定义 ==========
 
 var (
-	// ErrContainerNotFound 容器未找到
+	// ErrContainerNotFound 容器未找到.
 	ErrContainerNotFound = errors.New("container not found")
-	// ErrHANotEnabled HA 未启用
+	// ErrHANotEnabled HA 未启用.
 	ErrHANotEnabled = errors.New("HA not enabled for this container")
-	// ErrNodeNotFound 节点未找到
+	// ErrNodeNotFound 节点未找到.
 	ErrNodeNotFound = errors.New("node not found")
-	// ErrMigrationInProgress 迁移进行中
+	// ErrMigrationInProgress 迁移进行中.
 	ErrMigrationInProgress = errors.New("migration already in progress")
-	// ErrPrimaryNodePrimaryAlreadySet 主节点已设置
+	// ErrPrimaryNodePrimaryAlreadySet 主节点已设置.
 	ErrPrimaryNodePrimaryAlreadySet = errors.New("primary node already set")
-	// ErrFailoverFailed 故障转移失败
+	// ErrFailoverFailed 故障转移失败.
 	ErrFailoverFailed = errors.New("failover failed")
-	// ErrStorageNotAvailable 存储不可用
+	// ErrStorageNotAvailable 存储不可用.
 	ErrStorageNotAvailable = errors.New("storage not available on target node")
 )
 
 // ========== HA 状态定义 ==========
 
-// HAState HA 状态
+// HAState HA 状态.
 type HAState string
 
 const (
@@ -48,7 +48,7 @@ const (
 	HAStateRecovering HAState = "recovering" // 恢复中
 )
 
-// HAMode HA 模式
+// HAMode HA 模式.
 type HAMode string
 
 const (
@@ -56,7 +56,7 @@ const (
 	HAModeActiveActive  HAMode = "active-active"  // 双活模式
 )
 
-// FailoverPolicy 故障转移策略
+// FailoverPolicy 故障转移策略.
 type FailoverPolicy string
 
 const (
@@ -67,7 +67,7 @@ const (
 
 // ========== 数据结构定义 ==========
 
-// HAManager HA 管理器
+// HAManager HA 管理器.
 type HAManager struct {
 	mu            sync.RWMutex
 	configPath    string
@@ -79,7 +79,7 @@ type HAManager struct {
 	lxcManager    LXCManagerInterface
 }
 
-// HAContainer HA 容器配置
+// HAContainer HA 容器配置.
 type HAContainer struct {
 	ID             string             `json:"id"`
 	Name           string             `json:"name"`
@@ -98,7 +98,7 @@ type HAContainer struct {
 	UpdatedAt      time.Time          `json:"updatedAt"`
 }
 
-// HANode HA 节点信息
+// HANode HA 节点信息.
 type HANode struct {
 	ID            string       `json:"id"`
 	Name          string       `json:"name"`
@@ -112,7 +112,7 @@ type HANode struct {
 	Online        bool         `json:"online"`        // 是否在线
 }
 
-// NodeCapacity 节点容量
+// NodeCapacity 节点容量.
 type NodeCapacity struct {
 	CPUCount   int    `json:"cpuCount"`
 	MemoryMB   uint64 `json:"memoryMB"`
@@ -120,7 +120,7 @@ type NodeCapacity struct {
 	Containers int    `json:"containers"` // 运行的容器数
 }
 
-// HealthCheckConfig 健康检查配置
+// HealthCheckConfig 健康检查配置.
 type HealthCheckConfig struct {
 	Enabled       bool          `json:"enabled"`
 	Interval      time.Duration `json:"interval"`      // 检查间隔
@@ -131,7 +131,7 @@ type HealthCheckConfig struct {
 	CheckHTTPPath string        `json:"checkHTTPPath"` // HTTP 检查路径
 }
 
-// StorageVolumeRef 存储卷引用
+// StorageVolumeRef 存储卷引用.
 type StorageVolumeRef struct {
 	PoolName   string `json:"poolName"`
 	VolumeName string `json:"volumeName"`
@@ -140,7 +140,7 @@ type StorageVolumeRef struct {
 	Shared     bool   `json:"shared"`    // 是否共享存储
 }
 
-// ClusterConfig 集群配置
+// ClusterConfig 集群配置.
 type ClusterConfig struct {
 	Name               string        `json:"name"`
 	QuorumNodes        int           `json:"quorumNodes"`        // 仲裁节点数
@@ -149,7 +149,7 @@ type ClusterConfig struct {
 	EnableAutoFailover bool          `json:"enableAutoFailover"` // 启用自动故障转移
 }
 
-// HAEvent HA 事件
+// HAEvent HA 事件.
 type HAEvent struct {
 	Type      HAEventType `json:"type"`
 	Container string      `json:"container"`
@@ -159,7 +159,7 @@ type HAEvent struct {
 	Data      interface{} `json:"data,omitempty"`
 }
 
-// HAEventType 事件类型
+// HAEventType 事件类型.
 type HAEventType string
 
 const (
@@ -175,7 +175,7 @@ const (
 	EventStorageUnavailable HAEventType = "storage_unavailable"
 )
 
-// FailoverResult 故障转移结果
+// FailoverResult 故障转移结果.
 type FailoverResult struct {
 	Success      bool          `json:"success"`
 	OldPrimary   string        `json:"oldPrimary"`
@@ -185,7 +185,7 @@ type FailoverResult struct {
 	MigratedAt   time.Time     `json:"migratedAt"`
 }
 
-// MigrationProgress 迁移进度
+// MigrationProgress 迁移进度.
 type MigrationProgress struct {
 	ContainerID      string    `json:"containerId"`
 	SourceNode       string    `json:"sourceNode"`
@@ -197,7 +197,7 @@ type MigrationProgress struct {
 	ETA              time.Time `json:"eta,omitempty"`
 }
 
-// LXCManagerInterface LXC 管理器接口（用于解耦）
+// LXCManagerInterface LXC 管理器接口（用于解耦）.
 type LXCManagerInterface interface {
 	MigrateContainer(ctx context.Context, containerID, targetNode string) error
 	StartContainer(ctx context.Context, containerID string) error
@@ -208,7 +208,7 @@ type LXCManagerInterface interface {
 
 // ========== HA 管理器实现 ==========
 
-// NewHAManager 创建 HA 管理器
+// NewHAManager 创建 HA 管理器.
 func NewHAManager(configPath string, lxcManager LXCManagerInterface) (*HAManager, error) {
 	m := &HAManager{
 		configPath: configPath,
@@ -233,7 +233,7 @@ func NewHAManager(configPath string, lxcManager LXCManagerInterface) (*HAManager
 	return m, nil
 }
 
-// DefaultClusterConfig 默认集群配置
+// DefaultClusterConfig 默认集群配置.
 func DefaultClusterConfig() *ClusterConfig {
 	return &ClusterConfig{
 		Name:               "nas-os-cluster",
@@ -244,7 +244,7 @@ func DefaultClusterConfig() *ClusterConfig {
 	}
 }
 
-// loadState 加载状态
+// loadState 加载状态.
 func (m *HAManager) loadState() error {
 	data, err := m.stateStore.Load()
 	if err != nil {
@@ -260,7 +260,7 @@ func (m *HAManager) loadState() error {
 	return nil
 }
 
-// saveState 保存状态
+// saveState 保存状态.
 func (m *HAManager) saveState() error {
 	data := &StateData{
 		Containers:    m.containers,
@@ -274,7 +274,7 @@ func (m *HAManager) saveState() error {
 
 // ========== 容器 HA 操作 ==========
 
-// EnableHA 为容器启用 HA
+// EnableHA 为容器启用 HA.
 func (m *HAManager) EnableHA(ctx context.Context, containerID string, config *HAContainerConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -333,7 +333,7 @@ func (m *HAManager) EnableHA(ctx context.Context, containerID string, config *HA
 	return m.saveState()
 }
 
-// DisableHA 禁用容器 HA
+// DisableHA 禁用容器 HA.
 func (m *HAManager) DisableHA(ctx context.Context, containerID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -357,7 +357,7 @@ func (m *HAManager) DisableHA(ctx context.Context, containerID string) error {
 	return m.saveState()
 }
 
-// GetHAContainer 获取容器 HA 配置
+// GetHAContainer 获取容器 HA 配置.
 func (m *HAManager) GetHAContainer(containerID string) (*HAContainer, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -370,7 +370,7 @@ func (m *HAManager) GetHAContainer(containerID string) (*HAContainer, error) {
 	return container, nil
 }
 
-// ListHAContainers 列出所有 HA 容器
+// ListHAContainers 列出所有 HA 容器.
 func (m *HAManager) ListHAContainers() []*HAContainer {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -385,7 +385,7 @@ func (m *HAManager) ListHAContainers() []*HAContainer {
 
 // ========== 故障转移操作 ==========
 
-// Failover 执行故障转移
+// Failover 执行故障转移.
 func (m *HAManager) Failover(ctx context.Context, containerID string, targetNode string, force bool) (*FailoverResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -486,7 +486,7 @@ func (m *HAManager) Failover(ctx context.Context, containerID string, targetNode
 			Container: containerID,
 			Node:      targetNode,
 			Timestamp: time.Now(),
-			Message:   fmt.Sprintf("Failover completed successfully"),
+			Message:   "Failover completed successfully",
 			Data:      result,
 		})
 	}
@@ -497,7 +497,7 @@ func (m *HAManager) Failover(ctx context.Context, containerID string, targetNode
 	return result, err
 }
 
-// AutoFailover 自动故障转移（当主节点故障时）
+// AutoFailover 自动故障转移（当主节点故障时）.
 func (m *HAManager) AutoFailover(ctx context.Context, failedNode string) ([]*FailoverResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -563,7 +563,7 @@ func (m *HAManager) AutoFailover(ctx context.Context, failedNode string) ([]*Fai
 	return results, nil
 }
 
-// executeFailover 执行实际的故障转移操作
+// executeFailover 执行实际的故障转移操作.
 func (m *HAManager) executeFailover(ctx context.Context, container *HAContainer, sourceNode, targetNode string) error {
 	// 停止源节点上的容器（如果可能）
 	if m.lxcManager != nil {
@@ -586,7 +586,7 @@ func (m *HAManager) executeFailover(ctx context.Context, container *HAContainer,
 
 // ========== 辅助方法 ==========
 
-// hasStoragePool 检查节点是否有指定存储池
+// hasStoragePool 检查节点是否有指定存储池.
 func (m *HAManager) hasStoragePool(node *HANode, poolName string) bool {
 	for _, pool := range node.StoragePools {
 		if pool == poolName {
@@ -596,7 +596,7 @@ func (m *HAManager) hasStoragePool(node *HANode, poolName string) bool {
 	return false
 }
 
-// findBestStandbyNode 找最佳备用节点
+// findBestStandbyNode 找最佳备用节点.
 func (m *HAManager) findBestStandbyNode(container *HAContainer) string {
 	var bestNode string
 	bestPriority := -1
@@ -634,7 +634,7 @@ func (m *HAManager) findBestStandbyNode(container *HAContainer) string {
 	return bestNode
 }
 
-// updateStandbyNodes 更新备用节点列表
+// updateStandbyNodes 更新备用节点列表.
 func (m *HAManager) updateStandbyNodes(current []string, removeNode, addNode string) []string {
 	result := make([]string, 0, len(current))
 
@@ -656,7 +656,7 @@ func (m *HAManager) updateStandbyNodes(current []string, removeNode, addNode str
 	return result
 }
 
-// emitEvent 发送事件
+// emitEvent 发送事件.
 func (m *HAManager) emitEvent(event HAEvent) {
 	select {
 	case m.eventChan <- event:
@@ -667,7 +667,7 @@ func (m *HAManager) emitEvent(event HAEvent) {
 
 // ========== 节点管理 ==========
 
-// RegisterNode 注册节点
+// RegisterNode 注册节点.
 func (m *HAManager) RegisterNode(node *HANode) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -686,7 +686,7 @@ func (m *HAManager) RegisterNode(node *HANode) error {
 	return m.saveState()
 }
 
-// UnregisterNode 注销节点
+// UnregisterNode 注销节点.
 func (m *HAManager) UnregisterNode(nodeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -709,7 +709,7 @@ func (m *HAManager) UnregisterNode(nodeID string) error {
 	return m.saveState()
 }
 
-// UpdateHeartbeat 更新心跳
+// UpdateHeartbeat 更新心跳.
 func (m *HAManager) UpdateHeartbeat(nodeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -725,7 +725,7 @@ func (m *HAManager) UpdateHeartbeat(nodeID string) error {
 	return m.saveState()
 }
 
-// CheckNodeHealth 检查节点健康状态
+// CheckNodeHealth 检查节点健康状态.
 func (m *HAManager) CheckNodeHealth() map[string]bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -754,7 +754,7 @@ func (m *HAManager) CheckNodeHealth() map[string]bool {
 	return result
 }
 
-// GetNode 获取节点信息
+// GetNode 获取节点信息.
 func (m *HAManager) GetNode(nodeID string) (*HANode, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -767,7 +767,7 @@ func (m *HAManager) GetNode(nodeID string) (*HANode, error) {
 	return node, nil
 }
 
-// ListNodes 列出所有节点
+// ListNodes 列出所有节点.
 func (m *HAManager) ListNodes() []*HANode {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -782,7 +782,7 @@ func (m *HAManager) ListNodes() []*HANode {
 
 // ========== 健康检查 ==========
 
-// RunHealthCheck 执行健康检查
+// RunHealthCheck 执行健康检查.
 func (m *HAManager) RunHealthCheck(ctx context.Context, containerID string) error {
 	m.mu.RLock()
 	container, exists := m.containers[containerID]
@@ -820,7 +820,7 @@ func (m *HAManager) RunHealthCheck(ctx context.Context, containerID string) erro
 	return nil
 }
 
-// checkContainerHealth 检查容器健康
+// checkContainerHealth 检查容器健康.
 func (m *HAManager) checkContainerHealth(ctx context.Context, container *HAContainer) bool {
 	if m.lxcManager == nil {
 		return true
@@ -887,12 +887,12 @@ func (m *HAManager) checkContainerHealth(ctx context.Context, container *HAConta
 
 // ========== 事件订阅 ==========
 
-// SubscribeEvents 订阅 HA 事件
+// SubscribeEvents 订阅 HA 事件.
 func (m *HAManager) SubscribeEvents() <-chan HAEvent {
 	return m.eventChan
 }
 
-// GetEvents 获取历史事件
+// GetEvents 获取历史事件.
 func (m *HAManager) GetEvents(limit int) []HAEvent {
 	// 从状态存储获取历史事件
 	return m.stateStore.GetEvents(limit)
@@ -900,12 +900,12 @@ func (m *HAManager) GetEvents(limit int) []HAEvent {
 
 // ========== 状态存储 ==========
 
-// StateStore 状态存储
+// StateStore 状态存储.
 type StateStore struct {
 	path string
 }
 
-// StateData 灾备数据
+// StateData 灾备数据.
 type StateData struct {
 	Containers    map[string]*HAContainer `json:"containers"`
 	Nodes         map[string]*HANode      `json:"nodes"`
@@ -914,12 +914,12 @@ type StateData struct {
 	UpdatedAt     time.Time               `json:"updatedAt"`
 }
 
-// NewStateStore 创建状态存储
+// NewStateStore 创建状态存储.
 func NewStateStore(path string) *StateStore {
 	return &StateStore{path: path}
 }
 
-// Load 加载状态
+// Load 加载状态.
 func (s *StateStore) Load() (*StateData, error) {
 	filePath := filepath.Join(s.path, "ha_state.json")
 	data, err := os.ReadFile(filePath)
@@ -938,7 +938,7 @@ func (s *StateStore) Load() (*StateData, error) {
 	return &state, nil
 }
 
-// Save 保存状态
+// Save 保存状态.
 func (s *StateStore) Save(data *StateData) error {
 	// 确保目录存在
 	if err := os.MkdirAll(s.path, 0755); err != nil {
@@ -954,7 +954,7 @@ func (s *StateStore) Save(data *StateData) error {
 	return os.WriteFile(filePath, jsonData, 0644)
 }
 
-// GetEvents 获取历史事件
+// GetEvents 获取历史事件.
 func (s *StateStore) GetEvents(limit int) []HAEvent {
 	data, err := s.Load()
 	if err != nil || data == nil {
@@ -970,7 +970,7 @@ func (s *StateStore) GetEvents(limit int) []HAEvent {
 
 // ========== 配置结构 ==========
 
-// HAContainerConfig 容器 HA 配置
+// HAContainerConfig 容器 HA 配置.
 type HAContainerConfig struct {
 	Name           string             `json:"name"`
 	PrimaryNode    string             `json:"primaryNode"`
@@ -982,7 +982,7 @@ type HAContainerConfig struct {
 	StorageVolumes []StorageVolumeRef `json:"storageVolumes"`
 }
 
-// Validate 验证配置
+// Validate 验证配置.
 func (c *HAContainerConfig) Validate() error {
 	if c.PrimaryNode == "" {
 		return fmt.Errorf("primary node is required")

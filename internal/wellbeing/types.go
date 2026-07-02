@@ -3,7 +3,7 @@ package wellbeing
 
 import "time"
 
-// SessionType 使用会话类型
+// SessionType 使用会话类型.
 type SessionType string
 
 const (
@@ -13,7 +13,7 @@ const (
 	SessionTypeNetwork SessionType = "network"
 )
 
-// SessionStatus 会话状态
+// SessionStatus 会话状态.
 type SessionStatus string
 
 const (
@@ -23,7 +23,7 @@ const (
 	StatusBlocked SessionStatus = "blocked"
 )
 
-// ReminderType 提醒类型
+// ReminderType 提醒类型.
 type ReminderType string
 
 const (
@@ -35,7 +35,7 @@ const (
 	ReminderCustom    ReminderType = "custom"
 )
 
-// ReminderStatus 提醒状态
+// ReminderStatus 提醒状态.
 type ReminderStatus string
 
 const (
@@ -46,7 +46,7 @@ const (
 	ReminderCompleted ReminderStatus = "completed"
 )
 
-// InsightType 洞察类型
+// InsightType 洞察类型.
 type InsightType string
 
 const (
@@ -57,7 +57,7 @@ const (
 	InsightAchievement   InsightType = "achievement"
 )
 
-// UsageSession 使用会话
+// UsageSession 使用会话.
 type UsageSession struct {
 	ID          string        `json:"id"`
 	UserID      string        `json:"user_id"`
@@ -73,7 +73,7 @@ type UsageSession struct {
 	CreatedAt   time.Time     `json:"created_at"`
 }
 
-// BreakReminder 休息提醒
+// BreakReminder 休息提醒.
 type BreakReminder struct {
 	ID              string         `json:"id"`
 	UserID          string         `json:"user_id"`
@@ -92,7 +92,7 @@ type BreakReminder struct {
 	UpdatedAt       time.Time      `json:"updated_at"`
 }
 
-// ScreenTime 屏幕时间统计
+// ScreenTime 屏幕时间统计.
 type ScreenTime struct {
 	UserID       string        `json:"user_id"`
 	Date         string        `json:"date"`
@@ -105,7 +105,7 @@ type ScreenTime struct {
 	LastActive   time.Time     `json:"last_active"`
 }
 
-// AppUsage 应用使用统计
+// AppUsage 应用使用统计.
 type AppUsage struct {
 	AppName     string  `json:"app_name"`
 	Minutes     int     `json:"minutes"`
@@ -113,13 +113,13 @@ type AppUsage struct {
 	LaunchCount int     `json:"launch_count"`
 }
 
-// HourlyUsage 每小时使用统计
+// HourlyUsage 每小时使用统计.
 type HourlyUsage struct {
 	Hour    int `json:"hour"`
 	Minutes int `json:"minutes"`
 }
 
-// WellnessInsight 健康洞察
+// WellnessInsight 健康洞察.
 type WellnessInsight struct {
 	ID        string      `json:"id"`
 	UserID    string      `json:"user_id"`
@@ -132,7 +132,7 @@ type WellnessInsight struct {
 	CreatedAt time.Time   `json:"created_at"`
 }
 
-// WellnessReport 健康报告
+// WellnessReport 健康报告.
 type WellnessReport struct {
 	ID              string            `json:"id"`
 	UserID          string            `json:"user_id"`
@@ -149,7 +149,7 @@ type WellnessReport struct {
 	CreatedAt       time.Time         `json:"created_at"`
 }
 
-// DailyBreakdown 每日明细
+// DailyBreakdown 每日明细.
 type DailyBreakdown struct {
 	Date    string `json:"date"`
 	Minutes int    `json:"minutes"`
@@ -157,7 +157,7 @@ type DailyBreakdown struct {
 	Score   int    `json:"score"`
 }
 
-// Comparison 对比数据
+// Comparison 对比数据.
 type Comparison struct {
 	ScreenTimeChange float64 `json:"screen_time_change"`
 	BreakChange      float64 `json:"break_change"`
@@ -165,7 +165,7 @@ type Comparison struct {
 	Trend            string  `json:"trend"`
 }
 
-// UsageLimit 使用限制
+// UsageLimit 使用限制.
 type UsageLimit struct {
 	ID           string    `json:"id"`
 	UserID       string    `json:"user_id"`
@@ -179,7 +179,7 @@ type UsageLimit struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
-// CreateReminderRequest 创建提醒请求
+// CreateReminderRequest 创建提醒请求.
 type CreateReminderRequest struct {
 	Type            ReminderType `json:"type" binding:"required"`
 	Title           string       `json:"title" binding:"required"`
@@ -190,7 +190,7 @@ type CreateReminderRequest struct {
 	Sound           string       `json:"sound,omitempty"`
 }
 
-// UpdateReminderRequest 更新提醒请求
+// UpdateReminderRequest 更新提醒请求.
 type UpdateReminderRequest struct {
 	Title           string `json:"title,omitempty"`
 	Message         string `json:"message,omitempty"`
@@ -201,7 +201,7 @@ type UpdateReminderRequest struct {
 	Sound           string `json:"sound,omitempty"`
 }
 
-// CreateUsageLimitRequest 创建使用限制请求
+// CreateUsageLimitRequest 创建使用限制请求.
 type CreateUsageLimitRequest struct {
 	AppName      string `json:"app_name" binding:"required"`
 	DailyLimit   int    `json:"daily_limit_minutes" binding:"required,min=1"`
@@ -209,7 +209,7 @@ type CreateUsageLimitRequest struct {
 	BlockAtLimit bool   `json:"block_at_limit"`
 }
 
-// UpdateUsageLimitRequest 更新使用限制请求
+// UpdateUsageLimitRequest 更新使用限制请求.
 type UpdateUsageLimitRequest struct {
 	DailyLimit   *int  `json:"daily_limit_minutes,omitempty"`
 	Enabled      *bool `json:"enabled,omitempty"`
@@ -217,7 +217,7 @@ type UpdateUsageLimitRequest struct {
 	BlockAtLimit *bool `json:"block_at_limit,omitempty"`
 }
 
-// ReportRequest 报告请求
+// ReportRequest 报告请求.
 type ReportRequest struct {
 	UserID   string `json:"user_id" binding:"required"`
 	Period   string `json:"period" binding:"required,oneof=daily weekly monthly"`
@@ -225,7 +225,7 @@ type ReportRequest struct {
 	ToDate   string `json:"to_date,omitempty"`
 }
 
-// DefaultBreakReminder 默认休息提醒配置
+// DefaultBreakReminder 默认休息提醒配置.
 func DefaultBreakReminder() *CreateReminderRequest {
 	return &CreateReminderRequest{
 		Type:            ReminderBreak,
@@ -237,7 +237,7 @@ func DefaultBreakReminder() *CreateReminderRequest {
 	}
 }
 
-// EyeRestReminder 眼睛休息提醒
+// EyeRestReminder 眼睛休息提醒.
 func EyeRestReminder() *CreateReminderRequest {
 	return &CreateReminderRequest{
 		Type:            ReminderEyeRest,
@@ -249,7 +249,7 @@ func EyeRestReminder() *CreateReminderRequest {
 	}
 }
 
-// HydrationReminder 饮水提醒
+// HydrationReminder 饮水提醒.
 func HydrationReminder() *CreateReminderRequest {
 	return &CreateReminderRequest{
 		Type:            ReminderHydration,

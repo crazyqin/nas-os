@@ -18,13 +18,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RAIDZExpandHandlers RAIDZ扩展处理器
+// RAIDZExpandHandlers RAIDZ扩展处理器.
 type RAIDZExpandHandlers struct {
 	monitor *RAIDZExpandMonitor
 	manager *Manager
 }
 
-// NewRAIDZExpandHandlers 创建RAIDZ扩展处理器
+// NewRAIDZExpandHandlers 创建RAIDZ扩展处理器.
 func NewRAIDZExpandHandlers(monitor *RAIDZExpandMonitor, manager *Manager) *RAIDZExpandHandlers {
 	return &RAIDZExpandHandlers{
 		monitor: monitor,
@@ -32,7 +32,7 @@ func NewRAIDZExpandHandlers(monitor *RAIDZExpandMonitor, manager *Manager) *RAID
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *RAIDZExpandHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	raidz := r.Group("/raidz-expand")
 	{
@@ -74,7 +74,7 @@ func (h *RAIDZExpandHandlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Produce json
 // @Success 200 {object} api.Response{data=RAIDZExpandGlobalStatus}
 // @Router /raidz-expand/status [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpandHandlers) getGlobalStatus(c *gin.Context) {
 	progress := h.monitor.GetAllProgress()
 
@@ -107,7 +107,7 @@ func (h *RAIDZExpandHandlers) getGlobalStatus(c *gin.Context) {
 	api.OK(c, status)
 }
 
-// RAIDZExpandGlobalStatus 全局扩展状态
+// RAIDZExpandGlobalStatus 全局扩展状态.
 type RAIDZExpandGlobalStatus struct {
 	ActiveCount    int            `json:"activeCount"`    // 活跃任务数
 	RunningCount   int            `json:"runningCount"`   // 运行中
@@ -125,7 +125,7 @@ type RAIDZExpandGlobalStatus struct {
 // @Produce json
 // @Success 200 {object} api.Response{data=[]RAIDZExpandProgress}
 // @Router /raidz-expand/progress [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpandHandlers) getAllProgress(c *gin.Context) {
 	progress := h.monitor.GetAllProgress()
 	api.OK(c, progress)
@@ -140,7 +140,7 @@ func (h *RAIDZExpandHandlers) getAllProgress(c *gin.Context) {
 // @Success 200 {object} api.Response{data=RAIDZExpandProgress}
 // @Failure 404 {object} api.Response "池不存在"
 // @Router /raidz-expand/progress/{pool} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpandHandlers) getPoolProgress(c *gin.Context) {
 	poolName := c.Param("pool")
 	if poolName == "" {
@@ -165,7 +165,7 @@ func (h *RAIDZExpandHandlers) getPoolProgress(c *gin.Context) {
 // @Param limit query int false "返回数量限制" default(20)
 // @Success 200 {object} api.Response{data=[]RAIDZExpandProgress}
 // @Router /raidz-expand/history [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpandHandlers) getHistory(c *gin.Context) {
 	limit := 20
 	if l := c.Query("limit"); l != "" {
@@ -185,7 +185,7 @@ func (h *RAIDZExpandHandlers) getHistory(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} api.Response{data=ExpandSummary}
 // @Router /raidz-expand/summary [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpandHandlers) getSummary(c *gin.Context) {
 	summary := h.monitor.GetExpandSummary()
 	api.OK(c, summary)
@@ -193,7 +193,7 @@ func (h *RAIDZExpandHandlers) getSummary(c *gin.Context) {
 
 // ========== 扩展操作API ==========
 
-// StartExpansionReqV2 开始扩展请求（V2 API）
+// StartExpansionReqV2 开始扩展请求（V2 API）.
 type StartExpansionReqV2 struct {
 	PoolName   string            `json:"poolName" binding:"required"` // 存储池名称
 	VdevName   string            `json:"vdevName"`                    // VDEV名称（可选）
@@ -215,7 +215,7 @@ type StartExpansionReqV2 struct {
 // @Failure 400 {object} api.Response "参数错误"
 // @Failure 409 {object} api.Response "已有扩展任务运行中"
 // @Router /raidz-expand/start [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpandHandlers) startExpansion(c *gin.Context) {
 	var req StartExpansionReqV2
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -268,7 +268,7 @@ func (h *RAIDZExpandHandlers) startExpansion(c *gin.Context) {
 // @Failure 400 {object} api.Response "任务不可暂停"
 // @Failure 404 {object} api.Response "任务不存在"
 // @Router /raidz-expand/pause/{pool} [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpandHandlers) pauseExpansion(c *gin.Context) {
 	poolName := c.Param("pool")
 
@@ -302,7 +302,7 @@ func (h *RAIDZExpandHandlers) pauseExpansion(c *gin.Context) {
 // @Failure 400 {object} api.Response "任务不可恢复"
 // @Failure 404 {object} api.Response "任务不存在"
 // @Router /raidz-expand/resume/{pool} [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpandHandlers) resumeExpansion(c *gin.Context) {
 	poolName := c.Param("pool")
 
@@ -336,7 +336,7 @@ func (h *RAIDZExpandHandlers) resumeExpansion(c *gin.Context) {
 // @Failure 400 {object} api.Response "任务不可取消"
 // @Failure 404 {object} api.Response "任务不存在"
 // @Router /raidz-expand/cancel/{pool} [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpandHandlers) cancelExpansion(c *gin.Context) {
 	poolName := c.Param("pool")
 
@@ -360,14 +360,14 @@ func (h *RAIDZExpandHandlers) cancelExpansion(c *gin.Context) {
 
 // ========== 验证和估算API ==========
 
-// ValidateExpansionRequest 验证扩展请求
+// ValidateExpansionRequest 验证扩展请求.
 type ValidateExpansionRequest struct {
 	PoolName   string `json:"poolName" binding:"required"` // 存储池名称
 	NewDisk    string `json:"newDisk" binding:"required"`  // 新磁盘路径
 	RAIDZLevel string `json:"raidzLevel"`                  // RAIDZ级别
 }
 
-// ValidateExpansionResult 验证结果
+// ValidateExpansionResult 验证结果.
 type ValidateExpansionResult struct {
 	Valid     bool          `json:"valid"`     // 是否有效
 	CanExpand bool          `json:"canExpand"` // 是否可扩展
@@ -378,7 +378,7 @@ type ValidateExpansionResult struct {
 	PoolInfo  *PoolInfo     `json:"poolInfo"`  // 池信息
 }
 
-// CheckDetail 检查详情
+// CheckDetail 检查详情.
 type CheckDetail struct {
 	Name        string `json:"name"`        // 检查项名称
 	Description string `json:"description"` // 检查项描述
@@ -386,7 +386,7 @@ type CheckDetail struct {
 	Message     string `json:"message"`     // 检查结果消息
 }
 
-// PoolInfo 池信息
+// PoolInfo 池信息.
 type PoolInfo struct {
 	Name        string  `json:"name"`
 	RAIDZLevel  string  `json:"raidzLevel"`
@@ -407,7 +407,7 @@ type PoolInfo struct {
 // @Success 200 {object} api.Response{data=ValidateExpansionResult}
 // @Failure 400 {object} api.Response "参数错误"
 // @Router /raidz-expand/validate [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpandHandlers) validateExpansion(c *gin.Context) {
 	var req ValidateExpansionRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -494,7 +494,7 @@ func (h *RAIDZExpandHandlers) validateExpansion(c *gin.Context) {
 	api.OK(c, result)
 }
 
-// EstimateExpansionRequest 估算扩展请求
+// EstimateExpansionRequest 估算扩展请求.
 type EstimateExpansionRequest struct {
 	PoolName      string  `json:"poolName" binding:"required"` // 存储池名称
 	RAIDZLevel    string  `json:"raidzLevel"`                  // RAIDZ级别
@@ -503,7 +503,7 @@ type EstimateExpansionRequest struct {
 	UsedBytes     uint64  `json:"usedBytes"`                   // 已用字节
 }
 
-// EstimateExpansionResult 估算结果
+// EstimateExpansionResult 估算结果.
 type EstimateExpansionResult struct {
 	CapacityBeforeGB    float64 `json:"capacityBeforeGB"`    // 扩展前容量GB
 	CapacityAfterGB     float64 `json:"capacityAfterGB"`     // 扩展后容量GB
@@ -527,7 +527,7 @@ type EstimateExpansionResult struct {
 // @Success 200 {object} api.Response{data=EstimateExpansionResult}
 // @Failure 400 {object} api.Response "参数错误"
 // @Router /raidz-expand/estimate [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpandHandlers) estimateExpansion(c *gin.Context) {
 	var req EstimateExpansionRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -600,7 +600,7 @@ func (h *RAIDZExpandHandlers) estimateExpansion(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} api.Response{data=[]DiskSlot}
 // @Router /raidz-expand/available-disks [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpandHandlers) listAvailableDisks(c *gin.Context) {
 	disks := scanAvailableDiskSlots()
 	api.OK(c, disks)
@@ -641,7 +641,7 @@ func scanAvailableDiskSlots() []DiskSlot {
 // @Success 200 {object} api.Response{data=DiskSlot}
 // @Failure 404 {object} api.Response "磁盘不存在"
 // @Router /raidz-expand/disk-info/{device} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpandHandlers) getDiskInfo(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -674,7 +674,7 @@ func (h *RAIDZExpandHandlers) getDiskInfo(c *gin.Context) {
 // @Param diskSizeGB query number false "单盘容量GB" default(1000)
 // @Success 200 {object} api.Response{data=RAIDZCapacityInfo}
 // @Router /raidz-expand/capacity/{raidz}/{width} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpandHandlers) calculateCapacity(c *gin.Context) {
 	raidzLevel := c.Param("raidz")
 	widthStr := c.Param("width")
@@ -735,7 +735,7 @@ func (h *RAIDZExpandHandlers) calculateCapacity(c *gin.Context) {
 	api.OK(c, info)
 }
 
-// RAIDZCapacityInfo RAIDZ容量信息
+// RAIDZCapacityInfo RAIDZ容量信息.
 type RAIDZCapacityInfo struct {
 	RAIDZLevel       string                  `json:"raidzLevel"`       // RAIDZ级别
 	Width            int                     `json:"width"`            // VDEV宽度
@@ -748,7 +748,7 @@ type RAIDZCapacityInfo struct {
 	ExpandAfter      RAIDZCapacityExpandInfo `json:"expandAfter"`      // 扩展后信息
 }
 
-// RAIDZCapacityExpandInfo 扩展后容量信息
+// RAIDZCapacityExpandInfo 扩展后容量信息.
 type RAIDZCapacityExpandInfo struct {
 	Width            int     `json:"width"`            // 扩展后宽度
 	DataDisks        int     `json:"dataDisks"`        // 扩展后数据盘数
@@ -768,7 +768,7 @@ type RAIDZCapacityExpandInfo struct {
 // @Success 200 {object} api.Response{data=[]PhaseInfo}
 // @Failure 404 {object} api.Response "池不存在"
 // @Router /raidz-expand/phases/{pool} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *RAIDZExpandHandlers) getPhaseDetails(c *gin.Context) {
 	poolName := c.Param("pool")
 	if poolName == "" {
@@ -791,7 +791,7 @@ func (h *RAIDZExpandHandlers) getPhaseDetails(c *gin.Context) {
 	api.OK(c, phases)
 }
 
-// getParityCount 获取奇偶校验盘数
+// getParityCount 获取奇偶校验盘数.
 func getParityCount(raidzLevel string) int {
 	switch raidzLevel {
 	case "raidz1":
@@ -807,7 +807,7 @@ func getParityCount(raidzLevel string) int {
 
 // ExpansionTask 和 ExpansionStatus 定义在 raidz_service.go
 
-// formatDuration 格式化时长（秒 → 可读字符串）
+// formatDuration 格式化时长（秒 → 可读字符串）.
 func formatDuration(seconds int64) string {
 	if seconds < 60 {
 		return fmt.Sprintf("%ds", seconds)

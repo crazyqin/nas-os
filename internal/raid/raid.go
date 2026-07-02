@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// RAID 级别枚举
+// RAID 级别枚举.
 const (
 	RAID0  = "RAID0"
 	RAID1  = "RAID1"
@@ -22,7 +22,7 @@ const (
 	DRAID3 = "DRAID3"
 )
 
-// validLevels 存储所有合法的 RAID 级别
+// validLevels 存储所有合法的 RAID 级别.
 var validLevels = map[string]bool{
 	RAID0:  true,
 	RAID1:  true,
@@ -37,7 +37,7 @@ var validLevels = map[string]bool{
 	DRAID3: true,
 }
 
-// RAIDArray 表示一个 RAID 阵列
+// RAIDArray 表示一个 RAID 阵列.
 type RAIDArray struct {
 	Name         string    `json:"name"`
 	Level        string    `json:"level"`
@@ -50,20 +50,20 @@ type RAIDArray struct {
 	CreatedAt    time.Time `json:"created_at"`
 }
 
-// Manager 管理 RAID 阵列
+// Manager 管理 RAID 阵列.
 type Manager struct {
 	mu     sync.RWMutex
 	arrays map[string]*RAIDArray
 }
 
-// NewManager 创建新的 RAID 管理器
+// NewManager 创建新的 RAID 管理器.
 func NewManager() *Manager {
 	return &Manager{
 		arrays: make(map[string]*RAIDArray),
 	}
 }
 
-// CreateArray 创建新的 RAID 阵列
+// CreateArray 创建新的 RAID 阵列.
 func (m *Manager) CreateArray(name, level string, devices []string, spareDevices []string, chunkSize string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -97,7 +97,7 @@ func (m *Manager) CreateArray(name, level string, devices []string, spareDevices
 	return nil
 }
 
-// DeleteArray 删除 RAID 阵列
+// DeleteArray 删除 RAID 阵列.
 func (m *Manager) DeleteArray(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -110,7 +110,7 @@ func (m *Manager) DeleteArray(name string) error {
 	return nil
 }
 
-// GetArray 获取指定 RAID 阵列信息
+// GetArray 获取指定 RAID 阵列信息.
 func (m *Manager) GetArray(name string) (*RAIDArray, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -122,7 +122,7 @@ func (m *Manager) GetArray(name string) (*RAIDArray, error) {
 	return arr, nil
 }
 
-// ListArrays 列出所有 RAID 阵列
+// ListArrays 列出所有 RAID 阵列.
 func (m *Manager) ListArrays() []RAIDArray {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -134,7 +134,7 @@ func (m *Manager) ListArrays() []RAIDArray {
 	return result
 }
 
-// AddSpare 向阵列添加备用设备
+// AddSpare 向阵列添加备用设备.
 func (m *Manager) AddSpare(name, device string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -160,7 +160,7 @@ func (m *Manager) AddSpare(name, device string) error {
 	return nil
 }
 
-// RemoveSpare 从阵列移除备用设备
+// RemoveSpare 从阵列移除备用设备.
 func (m *Manager) RemoveSpare(name, device string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -180,7 +180,7 @@ func (m *Manager) RemoveSpare(name, device string) error {
 	return fmt.Errorf("设备不在备用列表中: %s", device)
 }
 
-// RebuildArray 重建 RAID 阵列
+// RebuildArray 重建 RAID 阵列.
 func (m *Manager) RebuildArray(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -195,7 +195,7 @@ func (m *Manager) RebuildArray(name string) error {
 	return nil
 }
 
-// ExpandArray 扩展 RAID 阵列
+// ExpandArray 扩展 RAID 阵列.
 func (m *Manager) ExpandArray(name string, newDevices []string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -222,7 +222,7 @@ func (m *Manager) ExpandArray(name string, newDevices []string) error {
 	return nil
 }
 
-// GetArrayStatus 获取 RAID 阵列状态
+// GetArrayStatus 获取 RAID 阵列状态.
 func (m *Manager) GetArrayStatus(name string) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

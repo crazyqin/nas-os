@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// syncCmd 返回云同步命令组
+// syncCmd 返回云同步命令组.
 func syncCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "sync",
@@ -784,7 +784,7 @@ func runSyncCancel(cmd *cobra.Command, args []string) {
 
 // ==================== 辅助函数 ====================
 
-// pollSyncStatus 轮询同步状态直到完成
+// pollSyncStatus 轮询同步状态直到完成.
 func pollSyncStatus(taskID string, timeout int) {
 	deadline := time.Time{}
 	if timeout > 0 {
@@ -827,7 +827,7 @@ func pollSyncStatus(taskID string, timeout int) {
 	}
 }
 
-// API 辅助函数
+// API 辅助函数.
 func apiGet(path string) (*http.Response, error) {
 	url := apiBaseURL + path
 	req, err := http.NewRequest("GET", url, nil)
@@ -876,7 +876,7 @@ func addAuthHeader(req *http.Request) {
 	}
 }
 
-// 格式化辅助函数
+// 格式化辅助函数.
 func formatStatus(status string) string {
 	icons := map[string]string{
 		"idle":      "⏸  空闲",

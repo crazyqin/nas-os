@@ -126,9 +126,9 @@ type MetricSample struct {
 
 // MetricQueryResult 指标查询结果.
 type MetricQueryResult struct {
-	Name    string          `json:"name"`
+	Name    string            `json:"name"`
 	Labels  map[string]string `json:"labels,omitempty"`
-	Samples []*MetricSample `json:"samples"`
+	Samples []*MetricSample   `json:"samples"`
 }
 
 // ========== 追踪类型 ==========
@@ -171,25 +171,25 @@ type SpanEvent struct {
 
 // Trace 完整追踪链.
 type Trace struct {
-	TraceID   string  `json:"trace_id"`
-	RootSpan  *Span   `json:"root_span,omitempty"`
-	Spans     []*Span `json:"spans"`
+	TraceID   string        `json:"trace_id"`
+	RootSpan  *Span         `json:"root_span,omitempty"`
+	Spans     []*Span       `json:"spans"`
 	Duration  time.Duration `json:"duration"`
-	Services  []string `json:"services"`
-	SpanCount int      `json:"span_count"`
+	Services  []string      `json:"services"`
+	SpanCount int           `json:"span_count"`
 }
 
 // TraceQuery 追踪查询请求.
 type TraceQuery struct {
-	TraceID   string    `json:"trace_id,omitempty"`
-	Service   string    `json:"service,omitempty"`
-	Operation string    `json:"operation,omitempty"`
-	StartTime time.Time `json:"start_time"`
-	EndTime   time.Time `json:"end_time"`
+	TraceID     string        `json:"trace_id,omitempty"`
+	Service     string        `json:"service,omitempty"`
+	Operation   string        `json:"operation,omitempty"`
+	StartTime   time.Time     `json:"start_time"`
+	EndTime     time.Time     `json:"end_time"`
 	MinDuration time.Duration `json:"min_duration,omitempty"`
 	MaxDuration time.Duration `json:"max_duration,omitempty"`
-	Limit     int       `json:"limit"`
-	Offset    int       `json:"offset"`
+	Limit       int           `json:"limit"`
+	Offset      int           `json:"offset"`
 }
 
 // ========== 告警类型 ==========
@@ -296,18 +296,18 @@ type NotifyChannel struct {
 
 // AlertInstance 告警实例（已触发的告警）.
 type AlertInstance struct {
-	ID          string        `json:"id"`
-	RuleID      string        `json:"rule_id"`
-	RuleName    string        `json:"rule_name"`
-	Severity    AlertSeverity `json:"severity"`
-	Message     string        `json:"message"`
+	ID          string            `json:"id"`
+	RuleID      string            `json:"rule_id"`
+	RuleName    string            `json:"rule_name"`
+	Severity    AlertSeverity     `json:"severity"`
+	Message     string            `json:"message"`
 	Labels      map[string]string `json:"labels,omitempty"`
-	Value       float64       `json:"value"`
-	Threshold   float64       `json:"threshold,omitempty"`
-	Status      AlertStatus   `json:"status"`
-	StartsAt    time.Time     `json:"starts_at"`
-	EndsAt      *time.Time    `json:"ends_at,omitempty"`
-	ResolvedAt  *time.Time    `json:"resolved_at,omitempty"`
+	Value       float64           `json:"value"`
+	Threshold   float64           `json:"threshold,omitempty"`
+	Status      AlertStatus       `json:"status"`
+	StartsAt    time.Time         `json:"starts_at"`
+	EndsAt      *time.Time        `json:"ends_at,omitempty"`
+	ResolvedAt  *time.Time        `json:"resolved_at,omitempty"`
 	Annotations map[string]string `json:"annotations,omitempty"`
 }
 
@@ -341,13 +341,13 @@ const (
 
 // ExportConfig 导出配置.
 type ExportConfig struct {
-	ID        string       `json:"id"`
-	Target    ExportTarget `json:"target"`
-	Endpoint  string       `json:"endpoint"`
-	Enabled   bool         `json:"enabled"`
-	AuthType  string       `json:"auth_type,omitempty"` // basic, bearer, api_key
-	AuthToken string       `json:"auth_token,omitempty"`
-	BatchSize int          `json:"batch_size"`
+	ID            string        `json:"id"`
+	Target        ExportTarget  `json:"target"`
+	Endpoint      string        `json:"endpoint"`
+	Enabled       bool          `json:"enabled"`
+	AuthType      string        `json:"auth_type,omitempty"` // basic, bearer, api_key
+	AuthToken     string        `json:"auth_token,omitempty"`
+	BatchSize     int           `json:"batch_size"`
 	FlushInterval time.Duration `json:"flush_interval"`
 }
 
@@ -369,9 +369,9 @@ type Config struct {
 
 // LogConfig 日志配置.
 type LogConfig struct {
-	RetentionDays int    `json:"retention_days"`
-	MaxEntries    int    `json:"max_entries"`
-	BatchSize     int    `json:"batch_size"`
+	RetentionDays int           `json:"retention_days"`
+	MaxEntries    int           `json:"max_entries"`
+	BatchSize     int           `json:"batch_size"`
 	FlushInterval time.Duration `json:"flush_interval"`
 }
 
@@ -384,9 +384,9 @@ type MetricConfig struct {
 
 // TraceConfig 追踪配置.
 type TraceConfig struct {
-	SampleRate   float64       `json:"sample_rate"`   // 采样率 (0-1)
-	MaxSpans     int           `json:"max_spans"`
-	RetentionDays int          `json:"retention_days"`
+	SampleRate    float64 `json:"sample_rate"` // 采样率 (0-1)
+	MaxSpans      int     `json:"max_spans"`
+	RetentionDays int     `json:"retention_days"`
 }
 
 // AlertConfig 告警配置.

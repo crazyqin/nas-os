@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Service WebShare 服务
+// Service WebShare 服务.
 type Service struct {
 	mu       sync.RWMutex
 	config   *WebShareConfig
@@ -17,7 +17,7 @@ type Service struct {
 	tokenIdx map[string]string          // token -> shareID（快速查找）
 }
 
-// NewService 创建 WebShare 服务
+// NewService 创建 WebShare 服务.
 func NewService(cfg *WebShareConfig) *Service {
 	if cfg == nil {
 		cfg = DefaultConfig()
@@ -32,7 +32,7 @@ func NewService(cfg *WebShareConfig) *Service {
 
 // ========== 分享管理 ==========
 
-// CreateShare 创建 Web 分享
+// CreateShare 创建 Web 分享.
 func (s *Service) CreateShare(ctx context.Context, req *CreateShareRequest) (*WebShare, error) {
 	if !s.config.Enabled {
 		return nil, fmt.Errorf("WebShare 功能未启用")
@@ -60,7 +60,7 @@ func (s *Service) CreateShare(ctx context.Context, req *CreateShareRequest) (*We
 	return share, nil
 }
 
-// GetShare 获取分享详情
+// GetShare 获取分享详情.
 func (s *Service) GetShare(ctx context.Context, shareID string) (*WebShare, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -72,7 +72,7 @@ func (s *Service) GetShare(ctx context.Context, shareID string) (*WebShare, erro
 	return share, nil
 }
 
-// GetShareByToken 通过令牌获取分享
+// GetShareByToken 通过令牌获取分享.
 func (s *Service) GetShareByToken(ctx context.Context, token string) (*WebShare, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -89,7 +89,7 @@ func (s *Service) GetShareByToken(ctx context.Context, token string) (*WebShare,
 	return share, nil
 }
 
-// ListShares 列出所有分享
+// ListShares 列出所有分享.
 func (s *Service) ListShares(ctx context.Context, status ShareStatus) ([]*WebShare, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -103,7 +103,7 @@ func (s *Service) ListShares(ctx context.Context, status ShareStatus) ([]*WebSha
 	return result, nil
 }
 
-// RevokeShare 撤销分享
+// RevokeShare 撤销分享.
 func (s *Service) RevokeShare(ctx context.Context, shareID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -126,7 +126,7 @@ func (s *Service) RevokeShare(ctx context.Context, shareID string) error {
 	return nil
 }
 
-// DeleteShare 删除分享
+// DeleteShare 删除分享.
 func (s *Service) DeleteShare(ctx context.Context, shareID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -150,7 +150,7 @@ func (s *Service) DeleteShare(ctx context.Context, shareID string) error {
 	return nil
 }
 
-// UpdateSharePermission 更新分享权限
+// UpdateSharePermission 更新分享权限.
 func (s *Service) UpdateSharePermission(ctx context.Context, shareID string, perm *SharePermission) (*WebShare, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -167,7 +167,7 @@ func (s *Service) UpdateSharePermission(ctx context.Context, shareID string, per
 
 // ========== 会话管理 ==========
 
-// CreateSession 创建浏览器访问会话
+// CreateSession 创建浏览器访问会话.
 func (s *Service) CreateSession(ctx context.Context, shareToken, clientIP, userAgent, password string) (*BrowserSession, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -220,7 +220,7 @@ func (s *Service) CreateSession(ctx context.Context, shareToken, clientIP, userA
 	return sess, nil
 }
 
-// GetSession 获取会话
+// GetSession 获取会话.
 func (s *Service) GetSession(ctx context.Context, sessionID string) (*BrowserSession, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -239,7 +239,7 @@ func (s *Service) GetSession(ctx context.Context, sessionID string) (*BrowserSes
 	return sess, nil
 }
 
-// ValidateSession 验证会话并更新活动时间
+// ValidateSession 验证会话并更新活动时间.
 func (s *Service) ValidateSession(ctx context.Context, sessionID string) (*BrowserSession, *WebShare, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -275,7 +275,7 @@ func (s *Service) ValidateSession(ctx context.Context, sessionID string) (*Brows
 	return sess, share, nil
 }
 
-// DestroySession 销毁会话
+// DestroySession 销毁会话.
 func (s *Service) DestroySession(ctx context.Context, sessionID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -295,7 +295,7 @@ func (s *Service) DestroySession(ctx context.Context, sessionID string) error {
 	return nil
 }
 
-// CleanupExpiredSessions 清理过期会话
+// CleanupExpiredSessions 清理过期会话.
 func (s *Service) CleanupExpiredSessions() int {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -316,7 +316,7 @@ func (s *Service) CleanupExpiredSessions() int {
 
 // ========== 文件操作 ==========
 
-// ListFiles 浏覽文件目录
+// ListFiles 浏覽文件目录.
 func (s *Service) ListFiles(ctx context.Context, sessionID, path string) ([]FileEntry, error) {
 	sess, share, err := s.ValidateSession(ctx, sessionID)
 	if err != nil {
@@ -337,7 +337,7 @@ func (s *Service) ListFiles(ctx context.Context, sessionID, path string) ([]File
 	return entries, nil
 }
 
-// CreateFolder 创建文件夹
+// CreateFolder 创建文件夹.
 func (s *Service) CreateFolder(ctx context.Context, sessionID, path string) error {
 	sess, share, err := s.ValidateSession(ctx, sessionID)
 	if err != nil {
@@ -356,7 +356,7 @@ func (s *Service) CreateFolder(ctx context.Context, sessionID, path string) erro
 	return nil
 }
 
-// UploadFile 上传文件
+// UploadFile 上传文件.
 func (s *Service) UploadFile(ctx context.Context, sessionID, path string, fileSize int64) error {
 	_, share, err := s.ValidateSession(ctx, sessionID)
 	if err != nil {
@@ -376,7 +376,7 @@ func (s *Service) UploadFile(ctx context.Context, sessionID, path string, fileSi
 	return nil
 }
 
-// DownloadFile 下载文件
+// DownloadFile 下载文件.
 func (s *Service) DownloadFile(ctx context.Context, sessionID, path string) error {
 	_, share, err := s.ValidateSession(ctx, sessionID)
 	if err != nil {
@@ -391,7 +391,7 @@ func (s *Service) DownloadFile(ctx context.Context, sessionID, path string) erro
 	return nil
 }
 
-// DeleteFile 删除文件
+// DeleteFile 删除文件.
 func (s *Service) DeleteFile(ctx context.Context, sessionID, path string) error {
 	_, share, err := s.ValidateSession(ctx, sessionID)
 	if err != nil {
@@ -405,7 +405,7 @@ func (s *Service) DeleteFile(ctx context.Context, sessionID, path string) error 
 	return nil
 }
 
-// RenameFile 重命名文件
+// RenameFile 重命名文件.
 func (s *Service) RenameFile(ctx context.Context, sessionID, oldPath, newPath string) error {
 	_, share, err := s.ValidateSession(ctx, sessionID)
 	if err != nil {
@@ -421,7 +421,7 @@ func (s *Service) RenameFile(ctx context.Context, sessionID, oldPath, newPath st
 
 // ========== 分享链接 ==========
 
-// GenerateShareLink 生成可分享链接
+// GenerateShareLink 生成可分享链接.
 func (s *Service) GenerateShareLink(ctx context.Context, shareID, baseURL string) (*ShareLinkResponse, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -444,7 +444,7 @@ func (s *Service) GenerateShareLink(ctx context.Context, shareID, baseURL string
 
 // ========== FIPS 加密 ==========
 
-// EnableFIPS 启用 FIPS 加密传输
+// EnableFIPS 启用 FIPS 加密传输.
 func (s *Service) EnableFIPS(ctx context.Context, shareID string) (*WebShare, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -459,7 +459,7 @@ func (s *Service) EnableFIPS(ctx context.Context, shareID string) (*WebShare, er
 	return share, nil
 }
 
-// DisableFIPS 禁用 FIPS 加密传输
+// DisableFIPS 禁用 FIPS 加密传输.
 func (s *Service) DisableFIPS(ctx context.Context, shareID string) (*WebShare, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -476,7 +476,7 @@ func (s *Service) DisableFIPS(ctx context.Context, shareID string) (*WebShare, e
 
 // ========== 统计 ==========
 
-// GetStats 获取分享统计
+// GetStats 获取分享统计.
 func (s *Service) GetStats(ctx context.Context) (*ShareStats, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -512,7 +512,7 @@ func (s *Service) GetStats(ctx context.Context) (*ShareStats, error) {
 
 // ========== 配置管理 ==========
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (s *Service) GetConfig() *WebShareConfig {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -520,7 +520,7 @@ func (s *Service) GetConfig() *WebShareConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (s *Service) UpdateConfig(cfg *WebShareConfig) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -529,7 +529,7 @@ func (s *Service) UpdateConfig(cfg *WebShareConfig) {
 
 // ========== 密码管理 ==========
 
-// SetPassword 设置分享密码
+// SetPassword 设置分享密码.
 func (s *Service) SetPassword(ctx context.Context, shareID, password string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -550,7 +550,7 @@ func (s *Service) SetPassword(ctx context.Context, shareID, password string) err
 	return nil
 }
 
-// VerifyPassword 验证分享密码
+// VerifyPassword 验证分享密码.
 func (s *Service) VerifyPassword(ctx context.Context, shareID, password string) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

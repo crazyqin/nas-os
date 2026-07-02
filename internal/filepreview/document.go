@@ -474,13 +474,13 @@ func (p *DocumentPreviewer) csvToHTML(csvContent string) string {
 		if i == 0 {
 			buf.WriteString("<thead><tr>")
 			for _, field := range fields {
-				buf.WriteString(fmt.Sprintf("<th>%s</th>", stdhtml.EscapeString(strings.TrimSpace(field))))
+				fmt.Fprintf(&buf, "<th>%s</th>", stdhtml.EscapeString(strings.TrimSpace(field)))
 			}
 			buf.WriteString("</tr></thead>\n<tbody>\n")
 		} else {
 			buf.WriteString("<tr>")
 			for _, field := range fields {
-				buf.WriteString(fmt.Sprintf("<td>%s</td>", stdhtml.EscapeString(strings.TrimSpace(field))))
+				fmt.Fprintf(&buf, "<td>%s</td>", stdhtml.EscapeString(strings.TrimSpace(field)))
 			}
 			buf.WriteString("</tr>\n")
 		}

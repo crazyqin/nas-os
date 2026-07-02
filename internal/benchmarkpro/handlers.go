@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 基准测试 HTTP 处理器
+// Handlers 基准测试 HTTP 处理器.
 type Handlers struct {
 	mgr *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{mgr: mgr}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	bench := api.Group("/benchmarkpro")
 	{
@@ -34,7 +34,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// RunTest 启动基准测试
+// RunTest 启动基准测试.
 func (h *Handlers) RunTest(c *gin.Context) {
 	var req BenchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -51,12 +51,12 @@ func (h *Handlers) RunTest(c *gin.Context) {
 	c.JSON(http.StatusAccepted, result)
 }
 
-// ListResults 列出所有测试结果
+// ListResults 列出所有测试结果.
 func (h *Handlers) ListResults(c *gin.Context) {
 	c.JSON(http.StatusOK, h.mgr.ListResults())
 }
 
-// GetResult 获取单个测试结果
+// GetResult 获取单个测试结果.
 func (h *Handlers) GetResult(c *gin.Context) {
 	id := c.Param("id")
 	result, err := h.mgr.GetResult(id)
@@ -67,7 +67,7 @@ func (h *Handlers) GetResult(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// GetBottlenecks 获取性能瓶颈诊断
+// GetBottlenecks 获取性能瓶颈诊断.
 func (h *Handlers) GetBottlenecks(c *gin.Context) {
 	id := c.Param("id")
 	result, err := h.mgr.GetResult(id)
@@ -84,7 +84,7 @@ func (h *Handlers) GetBottlenecks(c *gin.Context) {
 	})
 }
 
-// GetSuggestions 获取优化建议
+// GetSuggestions 获取优化建议.
 func (h *Handlers) GetSuggestions(c *gin.Context) {
 	id := c.Param("id")
 	result, err := h.mgr.GetResult(id)
@@ -102,7 +102,7 @@ func (h *Handlers) GetSuggestions(c *gin.Context) {
 	})
 }
 
-// GetReport 获取测试报告
+// GetReport 获取测试报告.
 func (h *Handlers) GetReport(c *gin.Context) {
 	id := c.Param("id")
 	report, err := h.mgr.GenerateReport(id)
@@ -113,7 +113,7 @@ func (h *Handlers) GetReport(c *gin.Context) {
 	c.JSON(http.StatusOK, report)
 }
 
-// ExportReport 导出测试报告
+// ExportReport 导出测试报告.
 func (h *Handlers) ExportReport(c *gin.Context) {
 	id := c.Param("id")
 	data, err := h.mgr.ExportReportJSON(id)
@@ -127,14 +127,14 @@ func (h *Handlers) ExportReport(c *gin.Context) {
 	c.Data(http.StatusOK, "application/json", data)
 }
 
-// GetTrend 获取趋势分析
+// GetTrend 获取趋势分析.
 func (h *Handlers) GetTrend(c *gin.Context) {
 	testType := c.Query("type")
 	analysis := h.mgr.AnalyzeTrend(testType)
 	c.JSON(http.StatusOK, analysis)
 }
 
-// AddCompetitor 添加竞品数据
+// AddCompetitor 添加竞品数据.
 func (h *Handlers) AddCompetitor(c *gin.Context) {
 	var entry CompetitorEntry
 	if err := c.ShouldBindJSON(&entry); err != nil {
@@ -151,12 +151,12 @@ func (h *Handlers) AddCompetitor(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "竞品数据已添加", "name": entry.Name})
 }
 
-// ListCompetitors 列出竞品数据
+// ListCompetitors 列出竞品数据.
 func (h *Handlers) ListCompetitors(c *gin.Context) {
 	c.JSON(http.StatusOK, h.mgr.ListCompetitors())
 }
 
-// CompareCompetitor 竞品对比
+// CompareCompetitor 竞品对比.
 func (h *Handlers) CompareCompetitor(c *gin.Context) {
 	id := c.Param("id")
 	name := c.Param("name")

@@ -223,7 +223,7 @@ func TestGetStats(t *testing.T) {
 	assert.Greater(t, stats.TopDistro["alpine"], 0)
 }
 
-// helper function
+// helper function.
 func templateIDs(templates []Template) []string {
 	ids := make([]string, len(templates))
 	for i, t := range templates {

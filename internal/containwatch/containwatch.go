@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// AnomalyType 异常类型
+// AnomalyType 异常类型.
 type AnomalyType string
 
 const (
@@ -21,7 +21,7 @@ const (
 	AnomalyEscape     AnomalyType = "container_escape"     // 容器逃逸
 )
 
-// Severity 严重程度
+// Severity 严重程度.
 type Severity string
 
 const (
@@ -31,7 +31,7 @@ const (
 	SeverityCritical Severity = "critical"
 )
 
-// AnomalyEvent 异常事件
+// AnomalyEvent 异常事件.
 type AnomalyEvent struct {
 	ID          string                 `json:"id"`
 	ContainerID string                 `json:"container_id"`
@@ -44,7 +44,7 @@ type AnomalyEvent struct {
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// ResourceBaseline 资源使用基线
+// ResourceBaseline 资源使用基线.
 type ResourceBaseline struct {
 	CPUAvg      float64   `json:"cpu_avg"`      // 平均CPU使用率 (%)
 	CPUPeak     float64   `json:"cpu_peak"`     // CPU峰值 (%)
@@ -58,7 +58,7 @@ type ResourceBaseline struct {
 	LastUpdated time.Time `json:"last_updated"`
 }
 
-// ContainerMetrics 容器实时指标
+// ContainerMetrics 容器实时指标.
 type ContainerMetrics struct {
 	ContainerID  string              `json:"container_id"`
 	CPUPercent   float64             `json:"cpu_percent"`
@@ -72,7 +72,7 @@ type ContainerMetrics struct {
 	Timestamp    time.Time           `json:"timestamp"`
 }
 
-// NetworkConnection 网络连接信息
+// NetworkConnection 网络连接信息.
 type NetworkConnection struct {
 	LocalAddr  string `json:"local_addr"`
 	RemoteAddr string `json:"remote_addr"`
@@ -80,7 +80,7 @@ type NetworkConnection struct {
 	State      string `json:"state"`
 }
 
-// WatchConfig 监控配置
+// WatchConfig 监控配置.
 type WatchConfig struct {
 	BaselineWindow    time.Duration `json:"baseline_window"`     // 基线建立窗口期
 	AnomalyThreshold  float64       `json:"anomaly_threshold"`   // 异常阈值倍数 (默认 3.0)
@@ -90,7 +90,7 @@ type WatchConfig struct {
 	TrustedNetworks   []string      `json:"trusted_networks"`    // 可信网络CIDR列表
 }
 
-// DefaultWatchConfig 返回默认监控配置
+// DefaultWatchConfig 返回默认监控配置.
 func DefaultWatchConfig() WatchConfig {
 	return WatchConfig{
 		BaselineWindow:    24 * time.Hour,
@@ -102,7 +102,7 @@ func DefaultWatchConfig() WatchConfig {
 	}
 }
 
-// ContainerWatcher 容器安全监控器
+// ContainerWatcher 容器安全监控器.
 type ContainerWatcher struct {
 	mu        sync.RWMutex
 	config    WatchConfig
@@ -114,7 +114,7 @@ type ContainerWatcher struct {
 	nextID    int64
 }
 
-// NewContainerWatcher 创建容器安全监控器
+// NewContainerWatcher 创建容器安全监控器.
 func NewContainerWatcher(config WatchConfig) *ContainerWatcher {
 	return &ContainerWatcher{
 		config:    config,
@@ -126,7 +126,7 @@ func NewContainerWatcher(config WatchConfig) *ContainerWatcher {
 	}
 }
 
-// StartContainerWatch 开始监控指定容器
+// StartContainerWatch 开始监控指定容器.
 func (w *ContainerWatcher) StartContainerWatch(containerID string) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -144,7 +144,7 @@ func (w *ContainerWatcher) StartContainerWatch(containerID string) error {
 	return nil
 }
 
-// StopContainerWatch 停止监控指定容器
+// StopContainerWatch 停止监控指定容器.
 func (w *ContainerWatcher) StopContainerWatch(containerID string) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -158,7 +158,7 @@ func (w *ContainerWatcher) StopContainerWatch(containerID string) error {
 	return nil
 }
 
-// RecordMetrics 记录容器指标（用于基线建立和异常检测）
+// RecordMetrics 记录容器指标（用于基线建立和异常检测）.
 func (w *ContainerWatcher) RecordMetrics(metrics ContainerMetrics) []AnomalyEvent {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -198,7 +198,7 @@ func (w *ContainerWatcher) RecordMetrics(metrics ContainerMetrics) []AnomalyEven
 	return anomalies
 }
 
-// updateBaseline 更新容器资源使用基线（指数移动平均）
+// updateBaseline 更新容器资源使用基线（指数移动平均）.
 func (w *ContainerWatcher) updateBaseline(containerID string) {
 	history := w.metrics[containerID]
 	baseline := w.baselines[containerID]
@@ -238,7 +238,7 @@ func (w *ContainerWatcher) updateBaseline(containerID string) {
 	baseline.LastUpdated = time.Now()
 }
 
-// detectAnomalies 检测异常行为
+// detectAnomalies 检测异常行为.
 func (w *ContainerWatcher) detectAnomalies(containerID string, metrics ContainerMetrics) []AnomalyEvent {
 	var anomalies []AnomalyEvent
 	baseline := w.baselines[containerID]
@@ -294,7 +294,7 @@ func (w *ContainerWatcher) detectAnomalies(containerID string, metrics Container
 	return anomalies
 }
 
-// checkSuspiciousConnection 检查可疑网络连接
+// checkSuspiciousConnection 检查可疑网络连接.
 func (w *ContainerWatcher) checkSuspiciousConnection(conn NetworkConnection) *AnomalyEvent {
 	host, portStr, err := net.SplitHostPort(conn.RemoteAddr)
 	if err != nil {
@@ -355,7 +355,7 @@ func (w *ContainerWatcher) checkSuspiciousConnection(conn NetworkConnection) *An
 	}
 }
 
-// CheckPrivilegeEscalation 检测特权提升
+// CheckPrivilegeEscalation 检测特权提升.
 func (w *ContainerWatcher) CheckPrivilegeEscalation(containerID string, hasCapSysAdmin, hasCapSysPtrace bool, isPrivileged bool) []AnomalyEvent {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -380,14 +380,12 @@ func (w *ContainerWatcher) CheckPrivilegeEscalation(containerID string, hasCapSy
 			map[string]interface{}{"capability": "SYS_PTRACE"}))
 	}
 
-	for _, a := range anomalies {
-		w.anomalies[containerID] = append(w.anomalies[containerID], a)
-	}
+	w.anomalies[containerID] = append(w.anomalies[containerID], anomalies...)
 
 	return anomalies
 }
 
-// CheckContainerEscape 检测容器逃逸尝试
+// CheckContainerEscape 检测容器逃逸尝试.
 func (w *ContainerWatcher) CheckContainerEscape(containerID string, mounts []string, pidNamespace, networkNamespace bool) []AnomalyEvent {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -420,14 +418,12 @@ func (w *ContainerWatcher) CheckContainerEscape(containerID string, mounts []str
 			map[string]interface{}{"shared_network_namespace": true}))
 	}
 
-	for _, a := range anomalies {
-		w.anomalies[containerID] = append(w.anomalies[containerID], a)
-	}
+	w.anomalies[containerID] = append(w.anomalies[containerID], anomalies...)
 
 	return anomalies
 }
 
-// newAnomaly 创建新的异常事件
+// newAnomaly 创建新的异常事件.
 func (w *ContainerWatcher) newAnomaly(containerID string, atype AnomalyType, severity Severity, desc string, meta map[string]interface{}) AnomalyEvent {
 	w.nextID++
 	return AnomalyEvent{
@@ -442,7 +438,7 @@ func (w *ContainerWatcher) newAnomaly(containerID string, atype AnomalyType, sev
 	}
 }
 
-// GetAnomalies 获取容器异常事件列表
+// GetAnomalies 获取容器异常事件列表.
 func (w *ContainerWatcher) GetAnomalies(containerID string, resolved *bool) []AnomalyEvent {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
@@ -467,7 +463,7 @@ func (w *ContainerWatcher) GetAnomalies(containerID string, resolved *bool) []An
 	return filtered
 }
 
-// ResolveAnomaly 标记异常为已解决
+// ResolveAnomaly 标记异常为已解决.
 func (w *ContainerWatcher) ResolveAnomaly(containerID, anomalyID string) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -488,7 +484,7 @@ func (w *ContainerWatcher) ResolveAnomaly(containerID, anomalyID string) error {
 	return fmt.Errorf("异常事件 %s 未找到", anomalyID)
 }
 
-// GetBaseline 获取容器资源基线
+// GetBaseline 获取容器资源基线.
 func (w *ContainerWatcher) GetBaseline(containerID string) (*ResourceBaseline, error) {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
@@ -502,14 +498,14 @@ func (w *ContainerWatcher) GetBaseline(containerID string) (*ResourceBaseline, e
 	return &result, nil
 }
 
-// IsMonitoring 检查容器是否正在被监控
+// IsMonitoring 检查容器是否正在被监控.
 func (w *ContainerWatcher) IsMonitoring(containerID string) bool {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
 	return w.monitored[containerID]
 }
 
-// ListMonitored 列出所有正在监控的容器ID
+// ListMonitored 列出所有正在监控的容器ID.
 func (w *ContainerWatcher) ListMonitored() []string {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
@@ -521,7 +517,7 @@ func (w *ContainerWatcher) ListMonitored() []string {
 	return ids
 }
 
-// GetWatchOverview 获取监控状态概览
+// GetWatchOverview 获取监控状态概览.
 func (w *ContainerWatcher) GetWatchOverview() map[string]interface{} {
 	w.mu.RLock()
 	defer w.mu.RUnlock()

@@ -23,7 +23,7 @@ import (
 
 // ================== 数据结构定义 ==================
 
-// SharePermission 分享权限
+// SharePermission 分享权限.
 type SharePermission string
 
 const (
@@ -33,7 +33,7 @@ const (
 	PermissionEdit     SharePermission = "edit"     // 编辑
 )
 
-// ShareStatus 分享状态
+// ShareStatus 分享状态.
 type ShareStatus string
 
 const (
@@ -43,7 +43,7 @@ const (
 	StatusLimitReached ShareStatus = "limit_reached" // 达到下载限制
 )
 
-// ShareLink 分享链接
+// ShareLink 分享链接.
 type ShareLink struct {
 	ID             string            `json:"id"`
 	Path           string            `json:"path"`
@@ -66,7 +66,7 @@ type ShareLink struct {
 	AccessLog      []AccessLogEntry  `json:"accessLog,omitempty"`
 }
 
-// AccessLogEntry 访问日志
+// AccessLogEntry 访问日志.
 type AccessLogEntry struct {
 	Timestamp time.Time `json:"timestamp"`
 	IP        string    `json:"ip"`
@@ -74,7 +74,7 @@ type AccessLogEntry struct {
 	Action    string    `json:"action"` // view, download, upload
 }
 
-// ShareStats 分享统计
+// ShareStats 分享统计.
 type ShareStats struct {
 	TotalLinks       int         `json:"totalLinks"`
 	ActiveLinks      int         `json:"activeLinks"`
@@ -87,7 +87,7 @@ type ShareStats struct {
 	TopLinks         []ShareLink `json:"topLinks,omitempty"`
 }
 
-// PreviewInfo 预览信息
+// PreviewInfo 预览信息.
 type PreviewInfo struct {
 	FilePath    string    `json:"filePath"`
 	FileName    string    `json:"fileName"`
@@ -99,7 +99,7 @@ type PreviewInfo struct {
 	ModTime     time.Time `json:"modTime"`
 }
 
-// UploadItem 上传项
+// UploadItem 上传项.
 type UploadItem struct {
 	FileName   string    `json:"fileName"`
 	Size       int64     `json:"size"`
@@ -108,7 +108,7 @@ type UploadItem struct {
 	UploadedBy string    `json:"uploadedBy,omitempty"`
 }
 
-// FileSharingManager 文件分享管理器
+// FileSharingManager 文件分享管理器.
 type FileSharingManager struct {
 	mu          sync.RWMutex
 	links       map[string]*ShareLink // token -> ShareLink
@@ -119,7 +119,7 @@ type FileSharingManager struct {
 	maxFileSize int64
 }
 
-// NewFileSharingManager 创建文件分享管理器
+// NewFileSharingManager 创建文件分享管理器.
 func NewFileSharingManager(baseURL, dataDir string, maxFileSize int64) *FileSharingManager {
 	if maxFileSize == 0 {
 		maxFileSize = 10 * 1024 * 1024 * 1024 // 10GB
@@ -145,7 +145,7 @@ func NewFileSharingManager(baseURL, dataDir string, maxFileSize int64) *FileShar
 	return m
 }
 
-// loadLinks 加载分享链接
+// loadLinks 加载分享链接.
 func (m *FileSharingManager) loadLinks() {
 	linkFile := filepath.Join(m.dataDir, "share_links.json")
 	data, err := os.ReadFile(linkFile)
@@ -170,7 +170,7 @@ func (m *FileSharingManager) loadLinks() {
 	m.mu.Unlock()
 }
 
-// saveLinks 保存分享链接
+// saveLinks 保存分享链接.
 func (m *FileSharingManager) saveLinks() {
 	m.mu.RLock()
 	links := make([]*ShareLink, 0, len(m.links))
@@ -193,7 +193,7 @@ func (m *FileSharingManager) saveLinks() {
 
 // ================== 分享链接管理 ==================
 
-// CreateShareLink 创建分享链接
+// CreateShareLink 创建分享链接.
 func (m *FileSharingManager) CreateShareLink(path, password, createdBy string, permissions []SharePermission, expireHours, maxDownloads int, allowUpload bool, customSlug, description string) (*ShareLink, error) {
 	// 验证路径存在
 	if _, err := os.Stat(path); err != nil {
@@ -283,7 +283,7 @@ func (m *FileSharingManager) CreateShareLink(path, password, createdBy string, p
 	return link, nil
 }
 
-// GetShareLink 获取分享链接
+// GetShareLink 获取分享链接.
 func (m *FileSharingManager) GetShareLink(tokenOrSlug string) (*ShareLink, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -306,7 +306,7 @@ func (m *FileSharingManager) GetShareLink(tokenOrSlug string) (*ShareLink, error
 	return link, nil
 }
 
-// GetShareLinkByID 通过 ID 获取分享链接
+// GetShareLinkByID 通过 ID 获取分享链接.
 func (m *FileSharingManager) GetShareLinkByID(id string) (*ShareLink, error) {
 	m.mu.RLock()
 	link, ok := m.linksByID[id]
@@ -319,7 +319,7 @@ func (m *FileSharingManager) GetShareLinkByID(id string) (*ShareLink, error) {
 	return link, nil
 }
 
-// UpdateShareLink 更新分享链接
+// UpdateShareLink 更新分享链接.
 func (m *FileSharingManager) UpdateShareLink(id string, updates map[string]interface{}) (*ShareLink, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -390,7 +390,7 @@ func (m *FileSharingManager) UpdateShareLink(id string, updates map[string]inter
 	return link, nil
 }
 
-// RevokeShareLink 撤销分享链接
+// RevokeShareLink 撤销分享链接.
 func (m *FileSharingManager) RevokeShareLink(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -408,7 +408,7 @@ func (m *FileSharingManager) RevokeShareLink(id string) error {
 	return nil
 }
 
-// DeleteShareLink 删除分享链接
+// DeleteShareLink 删除分享链接.
 func (m *FileSharingManager) DeleteShareLink(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -429,7 +429,7 @@ func (m *FileSharingManager) DeleteShareLink(id string) error {
 	return nil
 }
 
-// ListShareLinks 列出分享链接
+// ListShareLinks 列出分享链接.
 func (m *FileSharingManager) ListShareLinks(createdBy string, status ShareStatus, limit, offset int) ([]*ShareLink, int) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -462,7 +462,7 @@ func (m *FileSharingManager) ListShareLinks(createdBy string, status ShareStatus
 	return links[offset:end], total
 }
 
-// checkLinkStatus 检查链接状态
+// checkLinkStatus 检查链接状态.
 func (m *FileSharingManager) checkLinkStatus(link *ShareLink) error {
 	// 检查是否已撤销
 	if link.Status == StatusRevoked {
@@ -486,7 +486,7 @@ func (m *FileSharingManager) checkLinkStatus(link *ShareLink) error {
 	return nil
 }
 
-// VerifyPassword 验证密码
+// VerifyPassword 验证密码.
 func (m *FileSharingManager) VerifyPassword(link *ShareLink, password string) bool {
 	if link.Password == "" {
 		return true
@@ -495,7 +495,7 @@ func (m *FileSharingManager) VerifyPassword(link *ShareLink, password string) bo
 	return hex.EncodeToString(hash[:]) == link.Password
 }
 
-// HasPermission 检查权限
+// HasPermission 检查权限.
 func (m *FileSharingManager) HasPermission(link *ShareLink, permission SharePermission) bool {
 	for _, p := range link.Permissions {
 		if p == permission {
@@ -505,7 +505,7 @@ func (m *FileSharingManager) HasPermission(link *ShareLink, permission SharePerm
 	return false
 }
 
-// RecordAccess 记录访问
+// RecordAccess 记录访问.
 func (m *FileSharingManager) RecordAccess(token, ip, userAgent, action string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -542,7 +542,7 @@ func (m *FileSharingManager) RecordAccess(token, ip, userAgent, action string) {
 	m.saveLinks()
 }
 
-// IncrementUploadCount 增加上传计数
+// IncrementUploadCount 增加上传计数.
 func (m *FileSharingManager) IncrementUploadCount(token string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -563,7 +563,7 @@ func (m *FileSharingManager) IncrementUploadCount(token string) {
 
 // ================== 短链接生成 ==================
 
-// GenerateShortLink 生成短链接
+// GenerateShortLink 生成短链接.
 func (m *FileSharingManager) GenerateShortLink(token string) (string, error) {
 	m.mu.RLock()
 	link, ok := m.links[token]
@@ -584,7 +584,7 @@ func (m *FileSharingManager) GenerateShortLink(token string) (string, error) {
 
 // ================== 二维码生成 ==================
 
-// GenerateQRCode 生成二维码数据（返回 base64 编码的 PNG）
+// GenerateQRCode 生成二维码数据（返回 base64 编码的 PNG）.
 func (m *FileSharingManager) GenerateQRCode(token string, size int) (string, error) {
 	m.mu.RLock()
 	link, ok := m.links[token]
@@ -608,7 +608,7 @@ func (m *FileSharingManager) GenerateQRCode(token string, size int) (string, err
 
 // ================== 文件预览 ==================
 
-// GetPreviewInfo 获取文件预览信息
+// GetPreviewInfo 获取文件预览信息.
 func (m *FileSharingManager) GetPreviewInfo(filePath string) (*PreviewInfo, error) {
 	info, err := os.Stat(filePath)
 	if err != nil {
@@ -640,7 +640,7 @@ func (m *FileSharingManager) GetPreviewInfo(filePath string) (*PreviewInfo, erro
 	return preview, nil
 }
 
-// getMimeType 获取 MIME 类型
+// getMimeType 获取 MIME 类型.
 func getMimeType(filePath string) string {
 	ext := strings.ToLower(filepath.Ext(filePath))
 	mimeTypes := map[string]string{
@@ -682,7 +682,7 @@ func getMimeType(filePath string) string {
 	return "application/octet-stream"
 }
 
-// getPreviewType 获取预览类型
+// getPreviewType 获取预览类型.
 func getPreviewType(mimeType string) string {
 	switch {
 	case strings.HasPrefix(mimeType, "image/"):
@@ -703,7 +703,7 @@ func getPreviewType(mimeType string) string {
 
 // ================== 批量打包下载 ==================
 
-// CreateZipArchive 创建 ZIP 压缩包
+// CreateZipArchive 创建 ZIP 压缩包.
 func (m *FileSharingManager) CreateZipArchive(paths []string, writer io.Writer) error {
 	zipWriter := zip.NewWriter(writer)
 	defer zipWriter.Close()
@@ -759,7 +759,7 @@ func (m *FileSharingManager) CreateZipArchive(paths []string, writer io.Writer) 
 	return nil
 }
 
-// CreateTarArchive 创建 TAR 压缩包
+// CreateTarArchive 创建 TAR 压缩包.
 func (m *FileSharingManager) CreateTarArchive(paths []string, writer io.Writer, useGzip bool) error {
 	var tarWriter *tar.Writer
 
@@ -822,7 +822,7 @@ func (m *FileSharingManager) CreateTarArchive(paths []string, writer io.Writer, 
 
 // ================== 统计分析 ==================
 
-// GetStats 获取分享统计
+// GetStats 获取分享统计.
 func (m *FileSharingManager) GetStats(createdBy string) *ShareStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -874,7 +874,7 @@ func (m *FileSharingManager) GetStats(createdBy string) *ShareStats {
 	return stats
 }
 
-// sortLinksByDownloads 按下载次数排序
+// sortLinksByDownloads 按下载次数排序.
 func sortLinksByDownloads(links []ShareLink) {
 	for i := 0; i < len(links)-1; i++ {
 		for j := i + 1; j < len(links); j++ {
@@ -885,7 +885,7 @@ func sortLinksByDownloads(links []ShareLink) {
 	}
 }
 
-// GetLinkStats 获取单个链接统计
+// GetLinkStats 获取单个链接统计.
 func (m *FileSharingManager) GetLinkStats(id string) (map[string]interface{}, error) {
 	m.mu.RLock()
 	link, ok := m.linksByID[id]
@@ -932,7 +932,7 @@ func (m *FileSharingManager) GetLinkStats(id string) (map[string]interface{}, er
 
 // ================== 工具函数 ==================
 
-// generateToken 生成随机令牌
+// generateToken 生成随机令牌.
 func generateToken(length int) (string, error) {
 	bytes := make([]byte, length)
 	if _, err := rand.Read(bytes); err != nil {
@@ -941,7 +941,7 @@ func generateToken(length int) (string, error) {
 	return base64.URLEncoding.EncodeToString(bytes), nil
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() (string, error) {
 	bytes := make([]byte, 16)
 	if _, err := rand.Read(bytes); err != nil {
@@ -952,7 +952,7 @@ func generateID() (string, error) {
 
 // ================== 清理过期链接 ==================
 
-// CleanupExpiredLinks 清理过期链接
+// CleanupExpiredLinks 清理过期链接.
 func (m *FileSharingManager) CleanupExpiredLinks() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()

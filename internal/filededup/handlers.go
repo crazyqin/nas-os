@@ -7,19 +7,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers HTTP API 处理器
+// Handlers HTTP API 处理器.
 type Handlers struct {
 	manager *ExtendedManager
 }
 
-// NewHandlers 创建处理器实例
+// NewHandlers 创建处理器实例.
 func NewHandlers(manager *ExtendedManager) *Handlers {
 	return &Handlers{
 		manager: manager,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	dedup := r.Group("/dedup")
 	{
@@ -42,7 +42,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Success 200 {object} ScanResult "扫描完成"
 // @Failure 400 {object} map[string]string "请求参数错误"
 // @Failure 500 {object} map[string]string "服务器内部错误"
-// @Router /dedup/scans [post]
+// @Router /dedup/scans [post].
 func (h *Handlers) startScan(c *gin.Context) {
 	var config ScanConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -65,7 +65,7 @@ func (h *Handlers) startScan(c *gin.Context) {
 // @Tags dedup
 // @Produce json
 // @Success 200 {array} ScanResult "扫描任务列表"
-// @Router /dedup/scans [get]
+// @Router /dedup/scans [get].
 func (h *Handlers) listScans(c *gin.Context) {
 	scans := h.manager.ListScans()
 	c.JSON(http.StatusOK, scans)
@@ -79,7 +79,7 @@ func (h *Handlers) listScans(c *gin.Context) {
 // @Param id path string true "扫描任务ID"
 // @Success 200 {object} ScanResult "扫描结果"
 // @Failure 404 {object} map[string]string "未找到"
-// @Router /dedup/scans/{id} [get]
+// @Router /dedup/scans/{id} [get].
 func (h *Handlers) getScanResult(c *gin.Context) {
 	id := c.Param("id")
 	result, err := h.manager.GetScanResult(id)
@@ -98,7 +98,7 @@ func (h *Handlers) getScanResult(c *gin.Context) {
 // @Param id path string true "扫描任务ID"
 // @Success 200 {array} DuplicateGroup "重复文件组列表"
 // @Failure 404 {object} map[string]string "未找到"
-// @Router /dedup/scans/{id}/groups [get]
+// @Router /dedup/scans/{id}/groups [get].
 func (h *Handlers) getScanGroups(c *gin.Context) {
 	id := c.Param("id")
 	result, err := h.manager.GetScanResult(id)
@@ -119,7 +119,7 @@ func (h *Handlers) getScanGroups(c *gin.Context) {
 // @Success 200 {object} map[string]string "删除成功"
 // @Failure 400 {object} map[string]string "参数错误"
 // @Failure 500 {object} map[string]string "服务器内部错误"
-// @Router /dedup/files [delete]
+// @Router /dedup/files [delete].
 func (h *Handlers) deleteDuplicate(c *gin.Context) {
 	groupID := c.Query("groupId")
 	if groupID == "" {
@@ -143,7 +143,7 @@ func (h *Handlers) deleteDuplicate(c *gin.Context) {
 // @Tags dedup
 // @Produce json
 // @Success 200 {array} Recommendation "清理建议列表"
-// @Router /dedup/recommendations [get]
+// @Router /dedup/recommendations [get].
 func (h *Handlers) getRecommendations(c *gin.Context) {
 	recommendations := h.manager.GetRecommendations()
 	c.JSON(http.StatusOK, recommendations)

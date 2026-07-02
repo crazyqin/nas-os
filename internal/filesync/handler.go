@@ -11,17 +11,17 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handlers 文件同步 API 处理器
+// Handlers 文件同步 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册 HTTP 路由
+// RegisterRoutes 注册 HTTP 路由.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	// 同步控制
 	mux.HandleFunc("/api/v1/filesync/sync/status", h.handleSyncStatus)
@@ -65,26 +65,26 @@ func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/filesync/stats", h.handleStats)
 }
 
-// apiResponse 标准 API 响应
+// apiResponse 标准 API 响应.
 type apiResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// writeJSON 写入 JSON 响应
+// writeJSON 写入 JSON 响应.
 func writeJSON(w http.ResponseWriter, status int, resp apiResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(resp)
 }
 
-// writeError 写入错误响应
+// writeError 写入错误响应.
 func writeError(w http.ResponseWriter, status int, msg string) {
 	writeJSON(w, status, apiResponse{Code: 1, Message: msg})
 }
 
-// handleSyncStatus 获取同步状态
+// handleSyncStatus 获取同步状态.
 func (h *Handlers) handleSyncStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -97,7 +97,7 @@ func (h *Handlers) handleSyncStatus(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleSyncStart 启动同步
+// handleSyncStart 启动同步.
 func (h *Handlers) handleSyncStart(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -121,7 +121,7 @@ func (h *Handlers) handleSyncStart(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleSyncStop 停止同步
+// handleSyncStop 停止同步.
 func (h *Handlers) handleSyncStop(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -145,7 +145,7 @@ func (h *Handlers) handleSyncStop(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleConflicts 获取冲突列表
+// handleConflicts 获取冲突列表.
 func (h *Handlers) handleConflicts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -159,7 +159,7 @@ func (h *Handlers) handleConflicts(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleResolveConflict 解决冲突
+// handleResolveConflict 解决冲突.
 func (h *Handlers) handleResolveConflict(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -183,7 +183,7 @@ func (h *Handlers) handleResolveConflict(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-// handleHistory 获取同步历史
+// handleHistory 获取同步历史.
 func (h *Handlers) handleHistory(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -213,7 +213,7 @@ func (h *Handlers) handleHistory(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleRestoreVersion 恢复文件版本
+// handleRestoreVersion 恢复文件版本.
 func (h *Handlers) handleRestoreVersion(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -239,7 +239,7 @@ func (h *Handlers) handleRestoreVersion(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-// handleTasks 获取同步任务
+// handleTasks 获取同步任务.
 func (h *Handlers) handleTasks(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -255,7 +255,7 @@ func (h *Handlers) handleTasks(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleTransferInfo 获取断点续传信息
+// handleTransferInfo 获取断点续传信息.
 func (h *Handlers) handleTransferInfo(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -279,7 +279,7 @@ func (h *Handlers) handleTransferInfo(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleResumeTransfer 断点续传
+// handleResumeTransfer 断点续传.
 func (h *Handlers) handleResumeTransfer(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -305,7 +305,7 @@ func (h *Handlers) handleResumeTransfer(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-// handleDevices 列出设备
+// handleDevices 列出设备.
 func (h *Handlers) handleDevices(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -331,7 +331,7 @@ func (h *Handlers) handleDevices(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleDeviceRegister 注册设备
+// handleDeviceRegister 注册设备.
 func (h *Handlers) handleDeviceRegister(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -350,7 +350,7 @@ func (h *Handlers) handleDeviceRegister(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-// handleDeviceRemove 移除设备
+// handleDeviceRemove 移除设备.
 func (h *Handlers) handleDeviceRemove(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -375,7 +375,7 @@ func (h *Handlers) handleDeviceRemove(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleFolders 列出同步文件夹
+// handleFolders 列出同步文件夹.
 func (h *Handlers) handleFolders(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -401,7 +401,7 @@ func (h *Handlers) handleFolders(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleFolderCreate 创建同步文件夹
+// handleFolderCreate 创建同步文件夹.
 func (h *Handlers) handleFolderCreate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -420,7 +420,7 @@ func (h *Handlers) handleFolderCreate(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleFolderDelete 删除同步文件夹
+// handleFolderDelete 删除同步文件夹.
 func (h *Handlers) handleFolderDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -445,7 +445,7 @@ func (h *Handlers) handleFolderDelete(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleBandwidth 获取带宽限制
+// handleBandwidth 获取带宽限制.
 func (h *Handlers) handleBandwidth(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -458,7 +458,7 @@ func (h *Handlers) handleBandwidth(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleBandwidthUpdate 更新带宽限制
+// handleBandwidthUpdate 更新带宽限制.
 func (h *Handlers) handleBandwidthUpdate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -488,7 +488,7 @@ func (h *Handlers) handleBandwidthUpdate(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-// handleBandwidthToggle 启用/禁用带宽限制
+// handleBandwidthToggle 启用/禁用带宽限制.
 func (h *Handlers) handleBandwidthToggle(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -515,7 +515,7 @@ func (h *Handlers) handleBandwidthToggle(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-// handleSelectiveSync 列出选择性同步规则
+// handleSelectiveSync 列出选择性同步规则.
 func (h *Handlers) handleSelectiveSync(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -531,7 +531,7 @@ func (h *Handlers) handleSelectiveSync(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleSelectiveSyncCreate 创建选择性同步规则
+// handleSelectiveSyncCreate 创建选择性同步规则.
 func (h *Handlers) handleSelectiveSyncCreate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -561,7 +561,7 @@ func (h *Handlers) handleSelectiveSyncCreate(w http.ResponseWriter, r *http.Requ
 	})
 }
 
-// handleSelectiveSyncDelete 删除选择性同步规则
+// handleSelectiveSyncDelete 删除选择性同步规则.
 func (h *Handlers) handleSelectiveSyncDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -586,7 +586,7 @@ func (h *Handlers) handleSelectiveSyncDelete(w http.ResponseWriter, r *http.Requ
 	})
 }
 
-// handleStats 获取同步统计
+// handleStats 获取同步统计.
 func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -599,18 +599,18 @@ func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GinHandler gin 兼容处理器
+// GinHandler gin 兼容处理器.
 type GinHandler struct {
 	manager *Manager
 	logger  *zap.Logger
 }
 
-// NewHandler 创建 gin 兼容处理器
+// NewHandler 创建 gin 兼容处理器.
 func NewHandler(syncMgr *SyncManager, logger *zap.Logger) *GinHandler {
 	return &GinHandler{manager: syncMgr.Manager, logger: logger}
 }
 
-// RegisterRoutes 注册 gin 路由
+// RegisterRoutes 注册 gin 路由.
 func (gh *GinHandler) RegisterRoutes(rg *gin.RouterGroup) {
 	sync := rg.Group("/filesync")
 	{

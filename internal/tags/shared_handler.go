@@ -477,5 +477,5 @@ func (h *SharedHandlers) getLabelStats(c *gin.Context) {
 	})
 }
 
-// ensure compile-time check that SharedHandlers satisfies handler interface
+// ensure compile-time check that SharedHandlers satisfies handler interface.
 var _ http.Handler = nil //nolint:unused

@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// FirewallRule 防火墙规则
+// FirewallRule 防火墙规则.
 type FirewallRule struct {
 	Direction  string `json:"direction"`   // in / out
 	Action     string `json:"action"`      // accept / drop / reject
@@ -23,7 +23,7 @@ type FirewallRule struct {
 	Comment    string `json:"comment"`     // 规则注释
 }
 
-// SandboxBridgeConfig 沙箱网桥配置（避免与 types.go 中的 Network 冲突）
+// SandboxBridgeConfig 沙箱网桥配置（避免与 types.go 中的 Network 冲突）.
 type SandboxBridgeConfig struct {
 	Name       string   `json:"name"`       // 网桥名称
 	IPAddress  string   `json:"ip_address"` // 网桥 IP 地址
@@ -33,7 +33,7 @@ type SandboxBridgeConfig struct {
 	Interfaces []string `json:"interfaces"` // 绑定的物理接口
 }
 
-// SandboxVethPair 虚拟以太网对
+// SandboxVethPair 虚拟以太网对.
 type SandboxVethPair struct {
 	HostSide  string `json:"host_side"`  // 宿主机端接口名
 	GuestSide string `json:"guest_side"` // 沙箱端接口名
@@ -42,7 +42,7 @@ type SandboxVethPair struct {
 	MAC       string `json:"mac"`        // MAC 地址
 }
 
-// SandboxNetworkManager 沙箱网络管理器
+// SandboxNetworkManager 沙箱网络管理器.
 type SandboxNetworkManager struct {
 	mu        sync.RWMutex
 	bridges   map[string]*SandboxBridgeConfig
@@ -52,7 +52,7 @@ type SandboxNetworkManager struct {
 	logger    *zap.Logger
 }
 
-// SandboxNetManagerConfig 网络管理器配置
+// SandboxNetManagerConfig 网络管理器配置.
 type SandboxNetManagerConfig struct {
 	DefaultBridge  string `json:"default_bridge"`  // 默认网桥
 	SubnetPool     string `json:"subnet_pool"`     // 子网池（如 10.0.3.0/24）
@@ -60,7 +60,7 @@ type SandboxNetManagerConfig struct {
 	EnableFirewall bool   `json:"enable_firewall"` // 是否启用内置防火墙
 }
 
-// NewSandboxNetworkManager 创建沙箱网络管理器
+// NewSandboxNetworkManager 创建沙箱网络管理器.
 func NewSandboxNetworkManager(logger *zap.Logger) *SandboxNetworkManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -81,7 +81,7 @@ func NewSandboxNetworkManager(logger *zap.Logger) *SandboxNetworkManager {
 }
 
 // SetupVethPair 创建虚拟以太网对
-// 在宿主机和沙箱之间建立点对点网络连接
+// 在宿主机和沙箱之间建立点对点网络连接.
 func (nm *SandboxNetworkManager) SetupVethPair(ctx context.Context, sandboxID string, cfg SandboxNetworkConfig) (*SandboxVethPair, error) {
 	nm.mu.Lock()
 	defer nm.mu.Unlock()
@@ -136,7 +136,7 @@ func (nm *SandboxNetworkManager) SetupVethPair(ctx context.Context, sandboxID st
 }
 
 // ConfigureBridge 配置网桥
-// 创建或更新 Linux 网桥，用于沙箱间通信和外部访问
+// 创建或更新 Linux 网桥，用于沙箱间通信和外部访问.
 func (nm *SandboxNetworkManager) ConfigureBridge(ctx context.Context, cfg SandboxBridgeConfig) error {
 	nm.mu.Lock()
 	defer nm.mu.Unlock()
@@ -173,7 +173,7 @@ func (nm *SandboxNetworkManager) ConfigureBridge(ctx context.Context, cfg Sandbo
 }
 
 // SetupFirewall 为沙箱设置防火墙规则
-// 使用 iptables/nftables 实现网络访问控制
+// 使用 iptables/nftables 实现网络访问控制.
 func (nm *SandboxNetworkManager) SetupFirewall(ctx context.Context, sandboxID string, rules []FirewallRule) error {
 	nm.mu.Lock()
 	defer nm.mu.Unlock()
@@ -205,7 +205,7 @@ func (nm *SandboxNetworkManager) SetupFirewall(ctx context.Context, sandboxID st
 }
 
 // IsolateNetwork 实现沙箱网络隔离
-// 配置网络命名空间隔离，确保沙箱间互不可见
+// 配置网络命名空间隔离，确保沙箱间互不可见.
 func (nm *SandboxNetworkManager) IsolateNetwork(ctx context.Context, sandboxID string, cfg SandboxNetworkConfig) error {
 	nm.mu.Lock()
 	defer nm.mu.Unlock()
@@ -278,7 +278,7 @@ func (nm *SandboxNetworkManager) IsolateNetwork(ctx context.Context, sandboxID s
 	return nil
 }
 
-// RemoveNetwork 移除沙箱网络配置
+// RemoveNetwork 移除沙箱网络配置.
 func (nm *SandboxNetworkManager) RemoveNetwork(ctx context.Context, sandboxID string) error {
 	nm.mu.Lock()
 	defer nm.mu.Unlock()
@@ -299,7 +299,7 @@ func (nm *SandboxNetworkManager) RemoveNetwork(ctx context.Context, sandboxID st
 	return nil
 }
 
-// GetNetworkInfo 获取沙箱网络信息
+// GetNetworkInfo 获取沙箱网络信息.
 func (nm *SandboxNetworkManager) GetNetworkInfo(sandboxID string) (*SandboxVethPair, []FirewallRule) {
 	nm.mu.RLock()
 	defer nm.mu.RUnlock()
@@ -309,7 +309,7 @@ func (nm *SandboxNetworkManager) GetNetworkInfo(sandboxID string) (*SandboxVethP
 	return pair, rules
 }
 
-// generateSandboxMAC 生成随机 MAC 地址（本地管理地址）
+// generateSandboxMAC 生成随机 MAC 地址（本地管理地址）.
 func generateSandboxMAC() string {
 	mac := make(net.HardwareAddr, 6)
 	mac[0] = 0x02 // 本地管理地址标志

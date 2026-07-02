@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// MediaType 媒体类型
+// MediaType 媒体类型.
 type MediaType string
 
 const (
@@ -15,7 +15,7 @@ const (
 	MediaTypeOther  MediaType = "other"
 )
 
-// MediaStatus 媒体状态
+// MediaStatus 媒体状态.
 type MediaStatus string
 
 const (
@@ -25,7 +25,7 @@ const (
 	MediaStatusError     MediaStatus = "error"
 )
 
-// MediaItem 媒体项
+// MediaItem 媒体项.
 type MediaItem struct {
 	ID         string        `json:"id"`
 	Title      string        `json:"title"`
@@ -42,7 +42,7 @@ type MediaItem struct {
 	UpdatedAt  time.Time     `json:"updatedAt"`
 }
 
-// MediaMetadata 媒体元数据
+// MediaMetadata 媒体元数据.
 type MediaMetadata struct {
 	Title       string   `json:"title"`
 	Artist      string   `json:"artist,omitempty"`
@@ -53,7 +53,7 @@ type MediaMetadata struct {
 	Tags        []string `json:"tags,omitempty"`
 }
 
-// Session 播放会话
+// Session 播放会话.
 type Session struct {
 	ID        string    `json:"id"`
 	MediaID   string    `json:"mediaId"`

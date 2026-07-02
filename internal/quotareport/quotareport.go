@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// QuotaType 配额类型
+// QuotaType 配额类型.
 type QuotaType string
 
 const (
@@ -18,7 +18,7 @@ const (
 	QuotaTypeShare QuotaType = "share"
 )
 
-// QuotaStatus 配额状态
+// QuotaStatus 配额状态.
 type QuotaStatus string
 
 const (
@@ -28,7 +28,7 @@ const (
 	QuotaStatusDisabled QuotaStatus = "disabled"
 )
 
-// QuotaUnit 配额单位
+// QuotaUnit 配额单位.
 type QuotaUnit string
 
 const (
@@ -40,7 +40,7 @@ const (
 	UnitFiles QuotaUnit = "files"
 )
 
-// QuotaEntry 配额条目
+// QuotaEntry 配额条目.
 type QuotaEntry struct {
 	ID       string    `json:"id"`
 	Type     QuotaType `json:"type"`
@@ -65,7 +65,7 @@ type QuotaEntry struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// QuotaReport 配额报告
+// QuotaReport 配额报告.
 type QuotaReport struct {
 	ID          string       `json:"id"`
 	GeneratedAt time.Time    `json:"generated_at"`
@@ -91,14 +91,14 @@ type QuotaReport struct {
 	TrendData []*TrendPoint `json:"trend_data"`
 }
 
-// ReportPeriod 报告周期
+// ReportPeriod 报告周期.
 type ReportPeriod struct {
 	Start time.Time `json:"start"`
 	End   time.Time `json:"end"`
 	Type  string    `json:"type"` // daily, weekly, monthly
 }
 
-// UsageRank 使用排名
+// UsageRank 使用排名.
 type UsageRank struct {
 	Name       string  `json:"name"`
 	Usage      int64   `json:"usage"`
@@ -107,7 +107,7 @@ type UsageRank struct {
 	GrowthRate float64 `json:"growth_rate"` // 增长率
 }
 
-// TrendPoint 趋势点
+// TrendPoint 趋势点.
 type TrendPoint struct {
 	Timestamp  time.Time `json:"timestamp"`
 	TotalUsage int64     `json:"total_usage"`
@@ -115,7 +115,7 @@ type TrendPoint struct {
 	UserCount  int       `json:"user_count"`
 }
 
-// QuotaAlert 配额告警
+// QuotaAlert 配额告警.
 type QuotaAlert struct {
 	ID           string        `json:"id"`
 	QuotaID      string        `json:"quota_id"`
@@ -128,7 +128,7 @@ type QuotaAlert struct {
 	Acknowledged bool          `json:"acknowledged"`
 }
 
-// AlertType 告警类型
+// AlertType 告警类型.
 type AlertType string
 
 const (
@@ -137,7 +137,7 @@ const (
 	AlertTypeCritical AlertType = "critical"
 )
 
-// AlertSeverity 告警严重级别
+// AlertSeverity 告警严重级别.
 type AlertSeverity string
 
 const (
@@ -147,7 +147,7 @@ const (
 	AlertSeverityCritical AlertSeverity = "critical"
 )
 
-// QuotaManager 配额管理器
+// QuotaManager 配额管理器.
 type QuotaManager struct {
 	mu      sync.RWMutex
 	quotas  map[string]*QuotaEntry  // id -> entry
@@ -156,7 +156,7 @@ type QuotaManager struct {
 	config  *QuotaConfig
 }
 
-// QuotaConfig 配额配置
+// QuotaConfig 配额配置.
 type QuotaConfig struct {
 	Enabled            bool     `json:"enabled"`
 	WarningThreshold   float64  `json:"warning_threshold"`    // 80%
@@ -169,7 +169,7 @@ type QuotaConfig struct {
 	AlertEmails        []string `json:"alert_emails,omitempty"`
 }
 
-// DefaultQuotaConfig 默认配置
+// DefaultQuotaConfig 默认配置.
 func DefaultQuotaConfig() *QuotaConfig {
 	return &QuotaConfig{
 		Enabled:            true,
@@ -183,7 +183,7 @@ func DefaultQuotaConfig() *QuotaConfig {
 	}
 }
 
-// NewQuotaManager 创建配额管理器
+// NewQuotaManager 创建配额管理器.
 func NewQuotaManager(config *QuotaConfig) *QuotaManager {
 	if config == nil {
 		config = DefaultQuotaConfig()
@@ -197,7 +197,7 @@ func NewQuotaManager(config *QuotaConfig) *QuotaManager {
 	}
 }
 
-// AddQuota 添加配额
+// AddQuota 添加配额.
 func (m *QuotaManager) AddQuota(quota *QuotaEntry) error {
 	if quota == nil {
 		return nil
@@ -227,7 +227,7 @@ func (m *QuotaManager) AddQuota(quota *QuotaEntry) error {
 	return nil
 }
 
-// GetQuota 获取配额
+// GetQuota 获取配额.
 func (m *QuotaManager) GetQuota(id string) (*QuotaEntry, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -236,7 +236,7 @@ func (m *QuotaManager) GetQuota(id string) (*QuotaEntry, bool) {
 	return quota, exists
 }
 
-// UpdateQuota 更新配额
+// UpdateQuota 更新配额.
 func (m *QuotaManager) UpdateQuota(id string, update func(*QuotaEntry)) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -255,7 +255,7 @@ func (m *QuotaManager) UpdateQuota(id string, update func(*QuotaEntry)) error {
 	return nil
 }
 
-// DeleteQuota 删除配额
+// DeleteQuota 删除配额.
 func (m *QuotaManager) DeleteQuota(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -264,7 +264,7 @@ func (m *QuotaManager) DeleteQuota(id string) error {
 	return nil
 }
 
-// ListQuotas 列出配额
+// ListQuotas 列出配额.
 func (m *QuotaManager) ListQuotas(quotaType *QuotaType) []*QuotaEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -281,7 +281,7 @@ func (m *QuotaManager) ListQuotas(quotaType *QuotaType) []*QuotaEntry {
 	return quotas
 }
 
-// UpdateUsage 更新使用量
+// UpdateUsage 更新使用量.
 func (m *QuotaManager) UpdateUsage(id string, usage int64, fileCount int64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -302,7 +302,7 @@ func (m *QuotaManager) UpdateUsage(id string, usage int64, fileCount int64) erro
 	return nil
 }
 
-// updateQuotaStatus 更新配额状态
+// updateQuotaStatus 更新配额状态.
 func (m *QuotaManager) updateQuotaStatus(quota *QuotaEntry) {
 	if quota.HardLimit == 0 {
 		quota.Status = QuotaStatusDisabled
@@ -324,7 +324,7 @@ func (m *QuotaManager) updateQuotaStatus(quota *QuotaEntry) {
 	m.checkAlert(quota, percent)
 }
 
-// checkAlert 检查告警
+// checkAlert 检查告警.
 func (m *QuotaManager) checkAlert(quota *QuotaEntry, percent float64) {
 	if !m.config.EnableAlerts {
 		return
@@ -365,7 +365,7 @@ func (m *QuotaManager) checkAlert(quota *QuotaEntry, percent float64) {
 	m.alerts = append(m.alerts, alert)
 }
 
-// GenerateReport 生成报告
+// GenerateReport 生成报告.
 func (m *QuotaManager) GenerateReport(period ReportPeriod) *QuotaReport {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -412,7 +412,7 @@ func (m *QuotaManager) GenerateReport(period ReportPeriod) *QuotaReport {
 	return report
 }
 
-// cleanupReports 清理旧报告
+// cleanupReports 清理旧报告.
 func (m *QuotaManager) cleanupReports() {
 	if len(m.reports) <= m.config.MaxReports {
 		return
@@ -434,7 +434,7 @@ func (m *QuotaManager) cleanupReports() {
 	}
 }
 
-// GetReport 获取报告
+// GetReport 获取报告.
 func (m *QuotaManager) GetReport(id string) (*QuotaReport, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -443,7 +443,7 @@ func (m *QuotaManager) GetReport(id string) (*QuotaReport, bool) {
 	return report, exists
 }
 
-// ListReports 列出报告
+// ListReports 列出报告.
 func (m *QuotaManager) ListReports(limit int) []*QuotaReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -469,7 +469,7 @@ func (m *QuotaManager) ListReports(limit int) []*QuotaReport {
 	return reports
 }
 
-// GetAlerts 获取告警
+// GetAlerts 获取告警.
 func (m *QuotaManager) GetAlerts(limit int) []*QuotaAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -487,7 +487,7 @@ func (m *QuotaManager) GetAlerts(limit int) []*QuotaAlert {
 	return m.alerts[start:]
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (m *QuotaManager) AcknowledgeAlert(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -502,7 +502,7 @@ func (m *QuotaManager) AcknowledgeAlert(id string) error {
 	return nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *QuotaManager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -526,7 +526,7 @@ func (m *QuotaManager) GetStats() map[string]interface{} {
 	return stats
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *QuotaManager) GetConfig() *QuotaConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -534,7 +534,7 @@ func (m *QuotaManager) GetConfig() *QuotaConfig {
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *QuotaManager) UpdateConfig(config *QuotaConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -542,7 +542,7 @@ func (m *QuotaManager) UpdateConfig(config *QuotaConfig) {
 	m.config = config
 }
 
-// ExportJSON 导出为JSON
+// ExportJSON 导出为JSON.
 func (m *QuotaManager) ExportJSON() ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -555,17 +555,17 @@ func (m *QuotaManager) ExportJSON() ([]byte, error) {
 	return json.Marshal(quotas)
 }
 
-// generateReportID 生成报告ID
+// generateReportID 生成报告ID.
 func generateReportID() string {
 	return "report-" + time.Now().Format("20060102150405")
 }
 
-// generateAlertID 生成告警ID
+// generateAlertID 生成告警ID.
 func generateAlertID() string {
 	return "alert-" + time.Now().Format("20060102150405") + "-" + randomHex(4)
 }
 
-// randomHex 生成随机十六进制字符串
+// randomHex 生成随机十六进制字符串.
 func randomHex(n int) string {
 	const hexChars = "0123456789abcdef"
 	result := make([]byte, n)

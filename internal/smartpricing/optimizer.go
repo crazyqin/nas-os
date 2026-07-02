@@ -149,11 +149,12 @@ func (o *Optimizer) calculateScore(plan PricingPlan, req OptimizeRequest, totalC
 		}
 	} else {
 		// 无预算限制，按性价比评分
-		if plan.Tier == TierHDD {
+		switch plan.Tier {
+		case TierHDD:
 			costScore = 40.0
-		} else if plan.Tier == TierHybrid {
+		case TierHybrid:
 			costScore = 35.0
-		} else {
+		default:
 			costScore = 25.0
 		}
 	}

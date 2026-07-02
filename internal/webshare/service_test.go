@@ -110,10 +110,10 @@ func TestCreateShare_WithPassword(t *testing.T) {
 	ctx := context.Background()
 
 	req := &CreateShareRequest{
-		Name:     "加密分享",
-		RootPath: "/secure",
+		Name:      "加密分享",
+		RootPath:  "/secure",
 		CreatedBy: "admin",
-		Password: "secret123",
+		Password:  "secret123",
 	}
 
 	share, err := svc.CreateShare(ctx, req)
@@ -296,8 +296,8 @@ func TestUpdateSharePermission(t *testing.T) {
 		CanUpload:   true,
 		CanMkdir:    true,
 		CanDelete:   true,
-		CanRename:    true,
-		CanShare:     false,
+		CanRename:   true,
+		CanShare:    false,
 	}
 
 	updated, err := svc.UpdateSharePermission(ctx, share.ID, newPerm)
@@ -340,10 +340,10 @@ func TestCreateSession_PasswordProtected(t *testing.T) {
 	ctx := context.Background()
 
 	share, _ := svc.CreateShare(ctx, &CreateShareRequest{
-		Name:     "protected",
-		RootPath: "/secure",
+		Name:      "protected",
+		RootPath:  "/secure",
 		CreatedBy: "admin",
-		Password: "mypassword",
+		Password:  "mypassword",
 	})
 
 	// 错误密码
@@ -645,10 +645,10 @@ func TestVerifyPassword(t *testing.T) {
 	ctx := context.Background()
 
 	share, _ := svc.CreateShare(ctx, &CreateShareRequest{
-		Name:     "verify-pwd",
-		RootPath: "/test",
+		Name:      "verify-pwd",
+		RootPath:  "/test",
 		CreatedBy: "admin",
-		Password: "test123",
+		Password:  "test123",
 	})
 
 	// 正确密码

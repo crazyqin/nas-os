@@ -28,7 +28,7 @@ type BloomFilter struct {
 
 // NewBloomFilter 创建布隆过滤器。
 // expectedItems: 预期元素数量
-// fpRate: 期望误报率（如 0.01 表示 1%）
+// fpRate: 期望误报率（如 0.01 表示 1%）.
 func NewBloomFilter(expectedItems int, fpRate float64) *BloomFilter {
 	if expectedItems <= 0 {
 		expectedItems = 10000
@@ -109,7 +109,7 @@ func (bf *BloomFilter) Count() int64 {
 // hashValue 使用 FNV-1a 计算带种子的哈希值。
 func (bf *BloomFilter) hashValue(data string, seed uint64) uint64 {
 	h := fnv.New64a()
-	_, _ = h.Write([]byte(fmt.Sprintf("%d:%s", seed, data)))
+	_, _ = fmt.Fprintf(h, "%d:%s", seed, data)
 	return h.Sum64()
 }
 

@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 快照管理器
+// Manager 快照管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	logger      *zap.Logger
@@ -24,7 +24,7 @@ type Manager struct {
 	snapshots   map[string]*Snapshot
 }
 
-// NewManager 创建快照管理器
+// NewManager 创建快照管理器.
 func NewManager(logger *zap.Logger, config *SnapshotConfig, snapshotDir string) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -55,7 +55,7 @@ func NewManager(logger *zap.Logger, config *SnapshotConfig, snapshotDir string) 
 	return m
 }
 
-// generateID 生成 16 字节 hex ID
+// generateID 生成 16 字节 hex ID.
 func generateID() (string, error) {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {
@@ -64,7 +64,7 @@ func generateID() (string, error) {
 	return hex.EncodeToString(b), nil
 }
 
-// CreateSnapshot 创建快照
+// CreateSnapshot 创建快照.
 func (m *Manager) CreateSnapshot(name, description, source string, items []SnapshotItem) (*Snapshot, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -119,7 +119,7 @@ func (m *Manager) CreateSnapshot(name, description, source string, items []Snaps
 	return snap, nil
 }
 
-// ListSnapshots 列出所有快照
+// ListSnapshots 列出所有快照.
 func (m *Manager) ListSnapshots() []Snapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -138,7 +138,7 @@ func (m *Manager) ListSnapshots() []Snapshot {
 	return result
 }
 
-// GetSnapshot 获取快照详情
+// GetSnapshot 获取快照详情.
 func (m *Manager) GetSnapshot(id string) (*Snapshot, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -155,7 +155,7 @@ func (m *Manager) GetSnapshot(id string) (*Snapshot, error) {
 	return &result, nil
 }
 
-// DeleteSnapshot 删除快照
+// DeleteSnapshot 删除快照.
 func (m *Manager) DeleteSnapshot(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -180,7 +180,7 @@ func (m *Manager) DeleteSnapshot(id string) error {
 	return nil
 }
 
-// RestoreSnapshot 回滚快照，返回需要恢复的配置项
+// RestoreSnapshot 回滚快照，返回需要恢复的配置项.
 func (m *Manager) RestoreSnapshot(id string) ([]SnapshotItem, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -217,7 +217,7 @@ func (m *Manager) RestoreSnapshot(id string) ([]SnapshotItem, error) {
 	return items, nil
 }
 
-// CleanupOld 清理过期快照
+// CleanupOld 清理过期快照.
 func (m *Manager) CleanupOld() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -238,7 +238,7 @@ func (m *Manager) CleanupOld() {
 	}
 }
 
-// GetStats 获取快照统计信息
+// GetStats 获取快照统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -267,7 +267,7 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 }
 
-// saveSnapshot 保存快照到磁盘（元数据 + 配置文件副本）
+// saveSnapshot 保存快照到磁盘（元数据 + 配置文件副本）.
 func (m *Manager) saveSnapshot(snap *Snapshot) error {
 	snapDir := filepath.Join(m.snapshotDir, snap.ID)
 	if err := os.MkdirAll(snapDir, 0755); err != nil {
@@ -277,7 +277,7 @@ func (m *Manager) saveSnapshot(snap *Snapshot) error {
 	return m.saveSnapshotMeta(snap)
 }
 
-// saveSnapshotMeta 保存快照元数据
+// saveSnapshotMeta 保存快照元数据.
 func (m *Manager) saveSnapshotMeta(snap *Snapshot) error {
 	snapDir := filepath.Join(m.snapshotDir, snap.ID)
 	if err := os.MkdirAll(snapDir, 0755); err != nil {
@@ -292,7 +292,7 @@ func (m *Manager) saveSnapshotMeta(snap *Snapshot) error {
 	return os.WriteFile(metaPath, data, 0644)
 }
 
-// loadFromDisk 从磁盘加载快照
+// loadFromDisk 从磁盘加载快照.
 func (m *Manager) loadFromDisk() {
 	entries, err := os.ReadDir(m.snapshotDir)
 	if err != nil {
@@ -325,7 +325,7 @@ func (m *Manager) loadFromDisk() {
 	}
 }
 
-// calculateChecksum 计算文件 SHA256 校验和
+// calculateChecksum 计算文件 SHA256 校验和.
 func calculateChecksum(data []byte) string {
 	h := sha256.Sum256(data)
 	return hex.EncodeToString(h[:])

@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// SharePermission 共享权限
+// SharePermission 共享权限.
 type SharePermission string
 
 const (
@@ -23,7 +23,7 @@ const (
 	PermAdmin     SharePermission = "admin"
 )
 
-// ShareLink 共享链接
+// ShareLink 共享链接.
 type ShareLink struct {
 	ID            string          `json:"id"`
 	Path          string          `json:"path"`
@@ -40,7 +40,7 @@ type ShareLink struct {
 	AccessLog     []AccessEntry   `json:"accessLog"`
 }
 
-// AccessEntry 访问记录
+// AccessEntry 访问记录.
 type AccessEntry struct {
 	IP        string    `json:"ip"`
 	UserAgent string    `json:"userAgent"`
@@ -48,7 +48,7 @@ type AccessEntry struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// ShareStats 共享统计
+// ShareStats 共享统计.
 type ShareStats struct {
 	TotalLinks     int   `json:"totalLinks"`
 	ActiveLinks    int   `json:"activeLinks"`
@@ -57,14 +57,14 @@ type ShareStats struct {
 	TotalViews     int64 `json:"totalViews"`
 }
 
-// WebShareManager WebShare管理器
+// WebShareManager WebShare管理器.
 type WebShareManager struct {
 	mu     sync.RWMutex
 	links  map[string]*ShareLink
 	config *WebShareConfig
 }
 
-// WebShareConfig WebShare配置
+// WebShareConfig WebShare配置.
 type WebShareConfig struct {
 	DefaultExpiryHours int    `json:"defaultExpiryHours"` // 默认过期时间
 	MaxFileSize        int64  `json:"maxFileSize"`        // 最大文件大小
@@ -73,7 +73,7 @@ type WebShareConfig struct {
 	BaseURL            string `json:"baseUrl"`            // 基础URL
 }
 
-// NewWebShareManager 创建管理器
+// NewWebShareManager 创建管理器.
 func NewWebShareManager(config *WebShareConfig) *WebShareManager {
 	if config == nil {
 		config = &WebShareConfig{
@@ -89,7 +89,7 @@ func NewWebShareManager(config *WebShareConfig) *WebShareManager {
 	}
 }
 
-// CreateShareLink 创建共享链接
+// CreateShareLink 创建共享链接.
 func (m *WebShareManager) CreateShareLink(path, name, createdBy string, perm SharePermission, expiryHours int, password string) (*ShareLink, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -124,7 +124,7 @@ func (m *WebShareManager) CreateShareLink(path, name, createdBy string, perm Sha
 	return link, nil
 }
 
-// GetShareLink 获取共享链接
+// GetShareLink 获取共享链接.
 func (m *WebShareManager) GetShareLink(id string) (*ShareLink, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -132,7 +132,7 @@ func (m *WebShareManager) GetShareLink(id string) (*ShareLink, bool) {
 	return link, ok
 }
 
-// GetShareLinkByToken 通过Token获取共享链接
+// GetShareLinkByToken 通过Token获取共享链接.
 func (m *WebShareManager) GetShareLinkByToken(token string) (*ShareLink, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -147,7 +147,7 @@ func (m *WebShareManager) GetShareLinkByToken(token string) (*ShareLink, bool) {
 	return nil, false
 }
 
-// ListShareLinks 列出共享链接
+// ListShareLinks 列出共享链接.
 func (m *WebShareManager) ListShareLinks(createdBy string, activeOnly bool) []*ShareLink {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -165,7 +165,7 @@ func (m *WebShareManager) ListShareLinks(createdBy string, activeOnly bool) []*S
 	return result
 }
 
-// DeleteShareLink 删除共享链接
+// DeleteShareLink 删除共享链接.
 func (m *WebShareManager) DeleteShareLink(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -178,7 +178,7 @@ func (m *WebShareManager) DeleteShareLink(id string) error {
 	return nil
 }
 
-// RecordAccess 记录访问
+// RecordAccess 记录访问.
 func (m *WebShareManager) RecordAccess(id, ip, userAgent, action string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -201,7 +201,7 @@ func (m *WebShareManager) RecordAccess(id, ip, userAgent, action string) {
 	}
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *WebShareManager) GetStats() *ShareStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -222,7 +222,7 @@ func (m *WebShareManager) GetStats() *ShareStats {
 	return stats
 }
 
-// CleanupExpired 清理过期链接
+// CleanupExpired 清理过期链接.
 func (m *WebShareManager) CleanupExpired() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -237,7 +237,7 @@ func (m *WebShareManager) CleanupExpired() int {
 	return count
 }
 
-// 工具函数
+// 工具函数.
 func generateID() string {
 	b := make([]byte, 8)
 	rand.Read(b)
@@ -250,7 +250,7 @@ func generateToken() string {
 	return hex.EncodeToString(b)
 }
 
-// 错误定义
+// 错误定义.
 var ErrLinkNotFound = &ShareError{"share link not found"}
 
 type ShareError struct {

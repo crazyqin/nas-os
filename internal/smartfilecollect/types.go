@@ -11,7 +11,7 @@ import (
 // 配置类型
 // ============================================================
 
-// CollectConfig 收集模块配置
+// CollectConfig 收集模块配置.
 type CollectConfig struct {
 	// 基础配置
 	MaxFileSize    int64    `json:"max_file_size"`   // 最大文件大小 (字节), 默认 1GB
@@ -36,7 +36,7 @@ type CollectConfig struct {
 	MaxExpireDays     int `json:"max_expire_days"`     // 最大过期天数, 默认 30
 }
 
-// DefaultCollectConfig 默认收集配置
+// DefaultCollectConfig 默认收集配置.
 func DefaultCollectConfig() CollectConfig {
 	return CollectConfig{
 		MaxFileSize:       1 << 30,  // 1GB
@@ -60,7 +60,7 @@ func DefaultCollectConfig() CollectConfig {
 // 收集请求状态
 // ============================================================
 
-// CollectStatus 收集请求状态
+// CollectStatus 收集请求状态.
 type CollectStatus string
 
 const (
@@ -75,7 +75,7 @@ const (
 // 提交状态
 // ============================================================
 
-// SubmissionStatus 提交状态
+// SubmissionStatus 提交状态.
 type SubmissionStatus string
 
 const (
@@ -92,7 +92,7 @@ const (
 // 文件分类
 // ============================================================
 
-// FileCategory 文件分类
+// FileCategory 文件分类.
 type FileCategory string
 
 const (
@@ -109,7 +109,7 @@ const (
 // 核心数据类型
 // ============================================================
 
-// CollectRequest 收集请求
+// CollectRequest 收集请求.
 type CollectRequest struct {
 	ID              string        `json:"id"`               // 请求ID
 	Title           string        `json:"title"`            // 标题
@@ -128,7 +128,7 @@ type CollectRequest struct {
 	UpdatedAt       time.Time     `json:"updated_at"`       // 更新时间
 }
 
-// CollectPolicy 收集策略
+// CollectPolicy 收集策略.
 type CollectPolicy struct {
 	MaxFileSize     int64    `json:"max_file_size"`     // 最大文件大小
 	MaxTotalSize    int64    `json:"max_total_size"`    // 最大总量
@@ -143,7 +143,7 @@ type CollectPolicy struct {
 	NotifyOnSubmit  bool     `json:"notify_on_submit"`  // 提交时通知
 }
 
-// FileSubmission 文件提交
+// FileSubmission 文件提交.
 type FileSubmission struct {
 	ID              string           `json:"id"`                // 提交ID
 	CollectID       string           `json:"collect_id"`        // 所属收集请求ID
@@ -164,7 +164,7 @@ type FileSubmission struct {
 	ProcessedAt     *time.Time       `json:"processed_at"`      // 处理时间
 }
 
-// VirusScanResult 病毒扫描结果
+// VirusScanResult 病毒扫描结果.
 type VirusScanResult struct {
 	Clean      bool      `json:"clean"`       // 是否干净
 	Engine     string    `json:"engine"`      // 扫描引擎
@@ -176,7 +176,7 @@ type VirusScanResult struct {
 // HTTP 请求/响应类型
 // ============================================================
 
-// CreateCollectRequest 创建收集请求
+// CreateCollectRequest 创建收集请求.
 type CreateCollectRequest struct {
 	Title       string        `json:"title"`       // 标题
 	Description string        `json:"description"` // 描述
@@ -185,34 +185,34 @@ type CreateCollectRequest struct {
 	Policy      CollectPolicy `json:"policy"`      // 收集策略
 }
 
-// SubmitFileRequest 提交文件请求
+// SubmitFileRequest 提交文件请求.
 type SubmitFileRequest struct {
 	SubmitterName  string `json:"submitter_name"`  // 提交者名称
 	SubmitterEmail string `json:"submitter_email"` // 提交者邮箱
 }
 
-// CollectResponse 收集响应
+// CollectResponse 收集响应.
 type CollectResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// CollectListResponse 收集列表响应
+// CollectListResponse 收集列表响应.
 type CollectListResponse struct {
 	Code    int              `json:"code"`
 	Message string           `json:"message"`
 	Data    []CollectRequest `json:"data,omitempty"`
 }
 
-// SubmissionListResponse 提交列表响应
+// SubmissionListResponse 提交列表响应.
 type SubmissionListResponse struct {
 	Code    int              `json:"code"`
 	Message string           `json:"message"`
 	Data    []FileSubmission `json:"data,omitempty"`
 }
 
-// CollectStats 收集统计
+// CollectStats 收集统计.
 type CollectStats struct {
 	TotalRequests    int   `json:"total_requests"`    // 总请求数
 	ActiveRequests   int   `json:"active_requests"`   // 活跃请求数
@@ -223,7 +223,7 @@ type CollectStats struct {
 	DuplicateFiles   int   `json:"duplicate_files"`   // 重复文件数
 }
 
-// StatsResponse 统计响应
+// StatsResponse 统计响应.
 type StatsResponse struct {
 	Code    int           `json:"code"`
 	Message string        `json:"message"`

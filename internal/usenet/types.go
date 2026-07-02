@@ -4,7 +4,7 @@ package usenet
 
 import "time"
 
-// NZBStatus NZB 状态
+// NZBStatus NZB 状态.
 type NZBStatus string
 
 const (
@@ -15,7 +15,7 @@ const (
 	NZBStatusPaused      NZBStatus = "paused"
 )
 
-// DownloadStatus 下载状态
+// DownloadStatus 下载状态.
 type DownloadStatus string
 
 const (
@@ -27,7 +27,7 @@ const (
 	DownloadStatusCancelled DownloadStatus = "cancelled"
 )
 
-// NZB NZB 文件信息
+// NZB NZB 文件信息.
 type NZB struct {
 	ID       string    `json:"id"`
 	Name     string    `json:"name"`
@@ -42,7 +42,7 @@ type NZB struct {
 	FilePath string    `json:"file_path,omitempty"`
 }
 
-// Download 下载任务信息
+// Download 下载任务信息.
 type Download struct {
 	ID          string         `json:"id"`
 	NZBID       string         `json:"nzb_id"`
@@ -59,7 +59,7 @@ type Download struct {
 	Error       string         `json:"error,omitempty"`
 }
 
-// Server Usenet 服务器配置
+// Server Usenet 服务器配置.
 type Server struct {
 	ID            string `json:"id"`
 	Host          string `json:"host" binding:"required"`
@@ -73,7 +73,7 @@ type Server struct {
 	RetentionDays int    `json:"retention_days"`
 }
 
-// Category 下载分类
+// Category 下载分类.
 type Category struct {
 	ID         string   `json:"id"`
 	Name       string   `json:"name" binding:"required"`
@@ -82,7 +82,7 @@ type Category struct {
 	Extensions []string `json:"extensions,omitempty"`
 }
 
-// Indexer Usenet 索引器
+// Indexer Usenet 索引器.
 type Indexer struct {
 	ID         string   `json:"id"`
 	Name       string   `json:"name" binding:"required"`
@@ -92,7 +92,7 @@ type Indexer struct {
 	Categories []string `json:"categories,omitempty"`
 }
 
-// QueueItem 下载队列项
+// QueueItem 下载队列项.
 type QueueItem struct {
 	ID       string    `json:"id"`
 	NZBID    string    `json:"nzb_id"`
@@ -101,7 +101,7 @@ type QueueItem struct {
 	Position int       `json:"position"`
 }
 
-// Stats 下载统计信息
+// Stats 下载统计信息.
 type Stats struct {
 	TotalDownloaded int64         `json:"total_downloaded"`
 	TotalSize       int64         `json:"total_size"`
@@ -111,7 +111,7 @@ type Stats struct {
 	ServerStats     []ServerStats `json:"server_stats"`
 }
 
-// ServerStats 单个服务器的统计信息
+// ServerStats 单个服务器的统计信息.
 type ServerStats struct {
 	ServerID        string `json:"server_id"`
 	ServerHost      string `json:"server_host"`
@@ -120,7 +120,7 @@ type ServerStats struct {
 	TotalDownloaded int64  `json:"total_downloaded"`
 }
 
-// DefaultServers 预置的免费 Usenet 服务器
+// DefaultServers 预置的免费 Usenet 服务器.
 var DefaultServers = []Server{
 	{
 		ID:            "server-free-001",
@@ -154,7 +154,7 @@ var DefaultServers = []Server{
 	},
 }
 
-// IsValidNZBStatus 检查 NZB 状态是否有效
+// IsValidNZBStatus 检查 NZB 状态是否有效.
 func IsValidNZBStatus(status NZBStatus) bool {
 	switch status {
 	case NZBStatusPending, NZBStatusDownloading, NZBStatusCompleted, NZBStatusFailed, NZBStatusPaused:
@@ -164,7 +164,7 @@ func IsValidNZBStatus(status NZBStatus) bool {
 	}
 }
 
-// IsValidDownloadStatus 检查下载状态是否有效
+// IsValidDownloadStatus 检查下载状态是否有效.
 func IsValidDownloadStatus(status DownloadStatus) bool {
 	switch status {
 	case DownloadStatusPending, DownloadStatusActive, DownloadStatusPaused, DownloadStatusCompleted, DownloadStatusFailed, DownloadStatusCancelled:

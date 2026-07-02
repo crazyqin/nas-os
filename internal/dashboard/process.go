@@ -15,7 +15,7 @@ type ProcessInfo struct {
 	CPUPercent float64   `json:"cpuPercent"`
 	MemPercent float64   `json:"memPercent"`
 	MemRSS     uint64    `json:"memRss"`
-	Status     string    `json:"status"`     // running/sleeping/stopped/zombie
+	Status     string    `json:"status"` // running/sleeping/stopped/zombie
 	CreateTime time.Time `json:"createTime"`
 	CmdLine    string    `json:"cmdLine"`
 	NumThreads int       `json:"numThreads"`
@@ -24,7 +24,7 @@ type ProcessInfo struct {
 
 // ProcessManager 进程监控管理器.
 type ProcessManager struct {
-	mu       sync.RWMutex
+	mu        sync.RWMutex
 	processes map[int]*ProcessInfo
 }
 

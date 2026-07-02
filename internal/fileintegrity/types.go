@@ -4,7 +4,7 @@ package fileintegrity
 
 import "time"
 
-// HashAlgorithm 哈希算法
+// HashAlgorithm 哈希算法.
 type HashAlgorithm string
 
 const (
@@ -13,7 +13,7 @@ const (
 	HashBLAKE3 HashAlgorithm = "blake3"
 )
 
-// ChangeType 变更类型
+// ChangeType 变更类型.
 type ChangeType string
 
 const (
@@ -25,7 +25,7 @@ const (
 	ChangeRenamed    ChangeType = "renamed"
 )
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 const (
@@ -34,7 +34,7 @@ const (
 	AlertCritical AlertLevel = "critical"
 )
 
-// ScanMode 扫描模式
+// ScanMode 扫描模式.
 type ScanMode string
 
 const (
@@ -42,7 +42,7 @@ const (
 	ScanModeIncremental ScanMode = "incremental"
 )
 
-// AlertChannel 告警通道
+// AlertChannel 告警通道.
 type AlertChannel string
 
 const (
@@ -51,7 +51,7 @@ const (
 	AlertChannelNotify  AlertChannel = "notify"
 )
 
-// MonitorStatus 监控状态
+// MonitorStatus 监控状态.
 type MonitorStatus string
 
 const (
@@ -61,7 +61,7 @@ const (
 	MonitorStatusError    MonitorStatus = "error"
 )
 
-// FileEntry 基线中的文件条目
+// FileEntry 基线中的文件条目.
 type FileEntry struct {
 	Path          string        `json:"path"`
 	Hash          string        `json:"hash"`
@@ -75,7 +75,7 @@ type FileEntry struct {
 	ScannedAt     time.Time     `json:"scanned_at"`
 }
 
-// Baseline 完整性基线
+// Baseline 完整性基线.
 type Baseline struct {
 	ID            string                `json:"id"`
 	Name          string                `json:"name"`
@@ -89,7 +89,7 @@ type Baseline struct {
 	Metadata      map[string]string     `json:"metadata,omitempty"`
 }
 
-// FileChange 文件变更事件
+// FileChange 文件变更事件.
 type FileChange struct {
 	ID           string     `json:"id"`
 	Path         string     `json:"path"`
@@ -109,7 +109,7 @@ type FileChange struct {
 	Notes        string     `json:"notes,omitempty"`
 }
 
-// MonitorRule 监控规则
+// MonitorRule 监控规则.
 type MonitorRule struct {
 	ID              string         `json:"id"`
 	Name            string         `json:"name"`
@@ -131,7 +131,7 @@ type MonitorRule struct {
 	UpdatedAt       time.Time      `json:"updated_at"`
 }
 
-// Alert 告警信息
+// Alert 告警信息.
 type Alert struct {
 	ID        string       `json:"id"`
 	RuleID    string       `json:"rule_id"`
@@ -145,7 +145,7 @@ type Alert struct {
 	Error     string       `json:"error,omitempty"`
 }
 
-// ScanRequest 扫描请求
+// ScanRequest 扫描请求.
 type ScanRequest struct {
 	RuleIDs     []string `json:"rule_ids,omitempty"`
 	Mode        ScanMode `json:"mode"`
@@ -153,7 +153,7 @@ type ScanRequest struct {
 	ForceRehash bool     `json:"force_rehash"`
 }
 
-// ScanResult 扫描结果
+// ScanResult 扫描结果.
 type ScanResult struct {
 	ID           string        `json:"id"`
 	Mode         ScanMode      `json:"mode"`
@@ -167,7 +167,7 @@ type ScanResult struct {
 	Duration     time.Duration `json:"duration"`
 }
 
-// IntegrityReport 完整性校验报告
+// IntegrityReport 完整性校验报告.
 type IntegrityReport struct {
 	ID                string        `json:"id"`
 	BaselineID        string        `json:"baseline_id"`
@@ -184,7 +184,7 @@ type IntegrityReport struct {
 	Duration          time.Duration `json:"duration"`
 }
 
-// AuditLogEntry 审计日志条目
+// AuditLogEntry 审计日志条目.
 type AuditLogEntry struct {
 	ID        string    `json:"id"`
 	Timestamp time.Time `json:"timestamp"`
@@ -195,7 +195,7 @@ type AuditLogEntry struct {
 	Source    string    `json:"source"`
 }
 
-// RepairSuggestion 修复建议
+// RepairSuggestion 修复建议.
 type RepairSuggestion struct {
 	ID          string     `json:"id"`
 	ChangeID    string     `json:"change_id"`
@@ -209,7 +209,7 @@ type RepairSuggestion struct {
 	RestoreHash string     `json:"restore_hash,omitempty"`
 }
 
-// MonitorConfig 监控配置
+// MonitorConfig 监控配置.
 type MonitorConfig struct {
 	Enabled          bool          `json:"enabled"`
 	DefaultAlgorithm HashAlgorithm `json:"default_algorithm"`
@@ -222,7 +222,7 @@ type MonitorConfig struct {
 	LogRetentionDays int           `json:"log_retention_days"`
 }
 
-// DefaultMonitorConfig 默认监控配置
+// DefaultMonitorConfig 默认监控配置.
 func DefaultMonitorConfig() *MonitorConfig {
 	return &MonitorConfig{
 		Enabled:          true,
@@ -237,13 +237,13 @@ func DefaultMonitorConfig() *MonitorConfig {
 	}
 }
 
-// ListBaselinesRequest 基线列表请求
+// ListBaselinesRequest 基线列表请求.
 type ListBaselinesRequest struct {
 	Page     int `json:"page"`
 	PageSize int `json:"page_size"`
 }
 
-// ListChangesRequest 变更列表请求
+// ListChangesRequest 变更列表请求.
 type ListChangesRequest struct {
 	RuleID   string     `json:"rule_id,omitempty"`
 	Level    AlertLevel `json:"level,omitempty"`
@@ -254,7 +254,7 @@ type ListChangesRequest struct {
 	PageSize int        `json:"page_size"`
 }
 
-// ExportAuditLogRequest 审计日志导出请求
+// ExportAuditLogRequest 审计日志导出请求.
 type ExportAuditLogRequest struct {
 	Since  *time.Time `json:"since,omitempty"`
 	Until  *time.Time `json:"until,omitempty"`
@@ -262,7 +262,7 @@ type ExportAuditLogRequest struct {
 	Action string     `json:"action,omitempty"`
 }
 
-// PaginatedResult 分页结果
+// PaginatedResult 分页结果.
 type PaginatedResult struct {
 	Total    int         `json:"total"`
 	Page     int         `json:"page"`

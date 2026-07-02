@@ -8,46 +8,46 @@ import (
 	"time"
 )
 
-// ModelType represents the type of AI model
+// ModelType represents the type of AI model.
 type ModelType string
 
 const (
-	ModelTypeTextGeneration   ModelType = "text_generation"
-	ModelTypeImageRecognition ModelType = "image_recognition"
+	ModelTypeTextGeneration    ModelType = "text_generation"
+	ModelTypeImageRecognition  ModelType = "image_recognition"
 	ModelTypeSpeechRecognition ModelType = "speech_recognition"
-	ModelTypeEmbedding        ModelType = "embedding"
+	ModelTypeEmbedding         ModelType = "embedding"
 )
 
-// ModelStatus represents the status of a model
+// ModelStatus represents the status of a model.
 type ModelStatus string
 
 const (
-	ModelStatusUnloaded ModelStatus = "unloaded"
-	ModelStatusLoading  ModelStatus = "loading"
-	ModelStatusReady    ModelStatus = "ready"
-	ModelStatusError    ModelStatus = "error"
+	ModelStatusUnloaded  ModelStatus = "unloaded"
+	ModelStatusLoading   ModelStatus = "loading"
+	ModelStatusReady     ModelStatus = "ready"
+	ModelStatusError     ModelStatus = "error"
 	ModelStatusUnloading ModelStatus = "unloading"
 )
 
-// Model represents a local AI model
+// Model represents a local AI model.
 type Model struct {
-	Name          string            `json:"name"`
-	Type          ModelType         `json:"type"`
-	Path          string            `json:"path"`
-	Size          int64             `json:"size"`
-	Parameters    string            `json:"parameters"`
-	Quantization  string            `json:"quantization"`
-	Backend       string            `json:"backend"`
-	Status        ModelStatus       `json:"status"`
-	GPURequired   bool              `json:"gpu_required"`
-	GPUMemoryMB   int               `json:"gpu_memory_mb"`
-	MaxBatchSize  int               `json:"max_batch_size"`
-	LoadedAt      *time.Time        `json:"loaded_at,omitempty"`
-	LastError     string            `json:"last_error,omitempty"`
-	Metadata      map[string]string `json:"metadata,omitempty"`
+	Name         string            `json:"name"`
+	Type         ModelType         `json:"type"`
+	Path         string            `json:"path"`
+	Size         int64             `json:"size"`
+	Parameters   string            `json:"parameters"`
+	Quantization string            `json:"quantization"`
+	Backend      string            `json:"backend"`
+	Status       ModelStatus       `json:"status"`
+	GPURequired  bool              `json:"gpu_required"`
+	GPUMemoryMB  int               `json:"gpu_memory_mb"`
+	MaxBatchSize int               `json:"max_batch_size"`
+	LoadedAt     *time.Time        `json:"loaded_at,omitempty"`
+	LastError    string            `json:"last_error,omitempty"`
+	Metadata     map[string]string `json:"metadata,omitempty"`
 }
 
-// ModelInfo represents model information
+// ModelInfo represents model information.
 type ModelInfo struct {
 	Name         string            `json:"name"`
 	Type         ModelType         `json:"type"`
@@ -60,7 +60,7 @@ type ModelInfo struct {
 	Metadata     map[string]string `json:"metadata,omitempty"`
 }
 
-// InferenceRequest represents a generic inference request
+// InferenceRequest represents a generic inference request.
 type InferenceRequest struct {
 	ModelName string            `json:"model_name"`
 	RequestID string            `json:"request_id"`
@@ -69,18 +69,18 @@ type InferenceRequest struct {
 	Metadata  map[string]string `json:"metadata,omitempty"`
 }
 
-// InferenceOptions holds inference options
+// InferenceOptions holds inference options.
 type InferenceOptions struct {
-	MaxTokens     int     `json:"max_tokens,omitempty"`
-	Temperature   float64 `json:"temperature,omitempty"`
-	TopP          float64 `json:"top_p,omitempty"`
-	TopK          int     `json:"top_k,omitempty"`
+	MaxTokens     int      `json:"max_tokens,omitempty"`
+	Temperature   float64  `json:"temperature,omitempty"`
+	TopP          float64  `json:"top_p,omitempty"`
+	TopK          int      `json:"top_k,omitempty"`
 	StopSequences []string `json:"stop_sequences,omitempty"`
-	Stream        bool    `json:"stream,omitempty"`
-	BatchSize     int     `json:"batch_size,omitempty"`
+	Stream        bool     `json:"stream,omitempty"`
+	BatchSize     int      `json:"batch_size,omitempty"`
 }
 
-// InferenceResponse represents a generic inference response
+// InferenceResponse represents a generic inference response.
 type InferenceResponse struct {
 	RequestID  string            `json:"request_id"`
 	ModelName  string            `json:"model_name"`
@@ -90,61 +90,61 @@ type InferenceResponse struct {
 	Metadata   map[string]string `json:"metadata,omitempty"`
 }
 
-// TokenUsage represents token usage statistics
+// TokenUsage represents token usage statistics.
 type TokenUsage struct {
 	PromptTokens     int `json:"prompt_tokens"`
 	CompletionTokens int `json:"completion_tokens"`
 	TotalTokens      int `json:"total_tokens"`
 }
 
-// TextGenerationInput represents text generation input
+// TextGenerationInput represents text generation input.
 type TextGenerationInput struct {
-	Prompt      string `json:"prompt"`
-	System      string `json:"system,omitempty"`
-	Context     []Message `json:"context,omitempty"`
+	Prompt  string    `json:"prompt"`
+	System  string    `json:"system,omitempty"`
+	Context []Message `json:"context,omitempty"`
 }
 
-// Message represents a conversation message
+// Message represents a conversation message.
 type Message struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
 }
 
-// TextGenerationOutput represents text generation output
+// TextGenerationOutput represents text generation output.
 type TextGenerationOutput struct {
 	Text         string `json:"text"`
 	FinishReason string `json:"finish_reason"`
 }
 
-// ImageRecognitionInput represents image recognition input
+// ImageRecognitionInput represents image recognition input.
 type ImageRecognitionInput struct {
-	ImageData []byte `json:"image_data"`
-	ImageURL  string `json:"image_url,omitempty"`
-	Prompt    string `json:"prompt,omitempty"`
+	ImageData []byte   `json:"image_data"`
+	ImageURL  string   `json:"image_url,omitempty"`
+	Prompt    string   `json:"prompt,omitempty"`
 	Labels    []string `json:"labels,omitempty"`
 }
 
-// ImageRecognitionOutput represents image recognition output
+// ImageRecognitionOutput represents image recognition output.
 type ImageRecognitionOutput struct {
-	Description string              `json:"description"`
-	Labels      []LabelPrediction   `json:"labels,omitempty"`
-	Objects     []ObjectDetection   `json:"objects,omitempty"`
+	Description string            `json:"description"`
+	Labels      []LabelPrediction `json:"labels,omitempty"`
+	Objects     []ObjectDetection `json:"objects,omitempty"`
 }
 
-// LabelPrediction represents a label prediction
+// LabelPrediction represents a label prediction.
 type LabelPrediction struct {
 	Name       string  `json:"name"`
 	Confidence float64 `json:"confidence"`
 }
 
-// ObjectDetection represents an object detection result
+// ObjectDetection represents an object detection result.
 type ObjectDetection struct {
-	Name       string    `json:"name"`
-	Confidence float64   `json:"confidence"`
+	Name       string      `json:"name"`
+	Confidence float64     `json:"confidence"`
 	BBox       BoundingBox `json:"bbox"`
 }
 
-// BoundingBox represents a bounding box
+// BoundingBox represents a bounding box.
 type BoundingBox struct {
 	X      float64 `json:"x"`
 	Y      float64 `json:"y"`
@@ -152,7 +152,7 @@ type BoundingBox struct {
 	Height float64 `json:"height"`
 }
 
-// SpeechRecognitionInput represents speech recognition input
+// SpeechRecognitionInput represents speech recognition input.
 type SpeechRecognitionInput struct {
 	AudioData  []byte `json:"audio_data"`
 	AudioURL   string `json:"audio_url,omitempty"`
@@ -160,37 +160,37 @@ type SpeechRecognitionInput struct {
 	SampleRate int    `json:"sample_rate,omitempty"`
 }
 
-// SpeechRecognitionOutput represents speech recognition output
+// SpeechRecognitionOutput represents speech recognition output.
 type SpeechRecognitionOutput struct {
-	Text       string       `json:"text"`
-	Language   string       `json:"language"`
-	Confidence float64      `json:"confidence"`
-	Segments   []Segment    `json:"segments,omitempty"`
+	Text       string    `json:"text"`
+	Language   string    `json:"language"`
+	Confidence float64   `json:"confidence"`
+	Segments   []Segment `json:"segments,omitempty"`
 }
 
-// Segment represents a speech segment
+// Segment represents a speech segment.
 type Segment struct {
-	Text      string  `json:"text"`
-	Start     float64 `json:"start"`
-	End       float64 `json:"end"`
+	Text       string  `json:"text"`
+	Start      float64 `json:"start"`
+	End        float64 `json:"end"`
 	Confidence float64 `json:"confidence"`
 }
 
-// BatchRequest represents a batch inference request
+// BatchRequest represents a batch inference request.
 type BatchRequest struct {
 	BatchID  string             `json:"batch_id"`
 	Requests []InferenceRequest `json:"requests"`
 	Options  BatchOptions       `json:"options"`
 }
 
-// BatchOptions holds batch options
+// BatchOptions holds batch options.
 type BatchOptions struct {
 	MaxConcurrency int           `json:"max_concurrency,omitempty"`
 	Timeout        time.Duration `json:"timeout,omitempty"`
 	FailOnFirst    bool          `json:"fail_on_first,omitempty"`
 }
 
-// BatchResponse represents a batch inference response
+// BatchResponse represents a batch inference response.
 type BatchResponse struct {
 	BatchID   string              `json:"batch_id"`
 	Responses []InferenceResponse `json:"responses"`
@@ -198,14 +198,14 @@ type BatchResponse struct {
 	TotalMS   int64               `json:"total_ms"`
 }
 
-// BatchError represents an error in a batch request
+// BatchError represents an error in a batch request.
 type BatchError struct {
 	Index     int    `json:"index"`
 	RequestID string `json:"request_id"`
 	Error     string `json:"error"`
 }
 
-// GPUInfo represents GPU information
+// GPUInfo represents GPU information.
 type GPUInfo struct {
 	Available    bool   `json:"available"`
 	Type         string `json:"type"`
@@ -216,7 +216,7 @@ type GPUInfo struct {
 	CUDAVersion  string `json:"cuda_version,omitempty"`
 }
 
-// PerformanceMetrics represents performance metrics
+// PerformanceMetrics represents performance metrics.
 type PerformanceMetrics struct {
 	TotalRequests      int64         `json:"total_requests"`
 	SuccessfulRequests int64         `json:"successful_requests"`
@@ -233,7 +233,7 @@ type PerformanceMetrics struct {
 	Uptime             time.Duration `json:"uptime"`
 }
 
-// InferenceEngineConfig holds configuration for the inference engine
+// InferenceEngineConfig holds configuration for the inference engine.
 type InferenceEngineConfig struct {
 	ModelDir       string        `json:"model_dir"`
 	MaxModels      int           `json:"max_models"`
@@ -246,7 +246,7 @@ type InferenceEngineConfig struct {
 	EnableMetrics  bool          `json:"enable_metrics"`
 }
 
-// DefaultConfig returns default configuration
+// DefaultConfig returns default configuration.
 func DefaultConfig() *InferenceEngineConfig {
 	return &InferenceEngineConfig{
 		ModelDir:       "/var/lib/nas-os/ai/models",
@@ -261,7 +261,7 @@ func DefaultConfig() *InferenceEngineConfig {
 	}
 }
 
-// InferenceEngine is the main interface for local inference
+// InferenceEngine is the main interface for local inference.
 type InferenceEngine interface {
 	// LoadModel loads a model into memory
 	LoadModel(ctx context.Context, modelName string) error
@@ -291,7 +291,7 @@ type InferenceEngine interface {
 	Close() error
 }
 
-// LRUCache implements a LRU cache for models
+// LRUCache implements a LRU cache for models.
 type LRUCache struct {
 	capacity int
 	items    map[string]*CacheItem
@@ -299,7 +299,7 @@ type LRUCache struct {
 	mu       sync.RWMutex
 }
 
-// CacheItem represents a cached item
+// CacheItem represents a cached item.
 type CacheItem struct {
 	Key       string
 	Value     interface{}
@@ -309,29 +309,29 @@ type CacheItem struct {
 	Element   *ListNode
 }
 
-// DoublyLinkedList represents a doubly linked list
+// DoublyLinkedList represents a doubly linked list.
 type DoublyLinkedList struct {
 	head *ListNode
 	tail *ListNode
 	size int
 }
 
-// ListNode represents a node in the doubly linked list
+// ListNode represents a node in the doubly linked list.
 type ListNode struct {
 	key  string
 	prev *ListNode
 	next *ListNode
 }
 
-// ModelCache manages model caching
+// ModelCache manages model caching.
 type ModelCache struct {
-	cache      *LRUCache
-	totalSize  int64
-	maxSize    int64
-	mu         sync.RWMutex
+	cache     *LRUCache
+	totalSize int64
+	maxSize   int64
+	mu        sync.RWMutex
 }
 
-// MetricsCollector collects and reports metrics
+// MetricsCollector collects and reports metrics.
 type MetricsCollector struct {
 	requests      []LatencyRecord
 	totalRequests int64
@@ -342,7 +342,7 @@ type MetricsCollector struct {
 	mu            sync.RWMutex
 }
 
-// LatencyRecord records latency for a request
+// LatencyRecord records latency for a request.
 type LatencyRecord struct {
 	LatencyMS int64
 	Timestamp time.Time

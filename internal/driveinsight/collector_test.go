@@ -477,10 +477,10 @@ func TestTieringEngine_AddRule(t *testing.T) {
 	engine := NewTieringEngine(testLogger())
 
 	rule := TieringRule{
-		ID:        "custom-1",
-		Name:      "自定义规则1",
-		Enabled:   true,
-		Priority:  5,
+		ID:       "custom-1",
+		Name:     "自定义规则1",
+		Enabled:  true,
+		Priority: 5,
 		Conditions: []RuleCondition{
 			{Field: RuleFieldAge, Operator: OpGreaterThan, Value: "365"},
 		},
@@ -500,10 +500,10 @@ func TestTieringEngine_AddRule_Duplicate(t *testing.T) {
 	engine := NewTieringEngine(testLogger())
 
 	rule := TieringRule{
-		ID:        "test-dup",
-		Name:      "测试",
-		Enabled:   true,
-		Priority:  10,
+		ID:       "test-dup",
+		Name:     "测试",
+		Enabled:  true,
+		Priority: 10,
 		Conditions: []RuleCondition{
 			{Field: RuleFieldAge, Operator: OpGreaterThan, Value: "30"},
 		},
@@ -545,10 +545,10 @@ func TestTieringEngine_RemoveRule(t *testing.T) {
 	engine := NewTieringEngine(testLogger())
 
 	rule := TieringRule{
-		ID:        "removable",
-		Name:      "可删除",
-		Enabled:   true,
-		Priority:  10,
+		ID:         "removable",
+		Name:       "可删除",
+		Enabled:    true,
+		Priority:   10,
 		Conditions: []RuleCondition{{Field: RuleFieldAge, Operator: OpGreaterThan, Value: "30"}},
 		TargetTier: TierIDCold,
 		Action:     ActionMigrate,
@@ -572,10 +572,10 @@ func TestTieringEngine_UpdateRule(t *testing.T) {
 	engine := NewTieringEngine(testLogger())
 
 	rule := TieringRule{
-		ID:        "updatable",
-		Name:      "原名称",
-		Enabled:   true,
-		Priority:  10,
+		ID:         "updatable",
+		Name:       "原名称",
+		Enabled:    true,
+		Priority:   10,
 		Conditions: []RuleCondition{{Field: RuleFieldAge, Operator: OpGreaterThan, Value: "30"}},
 		TargetTier: TierIDCold,
 		Action:     ActionMigrate,
@@ -770,7 +770,7 @@ func TestTieringEngine_GenerateMigrationPlan(t *testing.T) {
 	plan := engine.GenerateMigrationPlan(patterns)
 
 	assert.Equal(t, 3, plan.Total)
-	assert.Equal(t, 2, plan.Pending) // 2个需要迁移
+	assert.Equal(t, 2, plan.Pending)  // 2个需要迁移
 	assert.Equal(t, 1, plan.NoAction) // hot.txt 不需要
 	assert.Greater(t, plan.MigrateSize, int64(0))
 	assert.Len(t, plan.Migrations, 2)
@@ -1174,10 +1174,10 @@ func TestCalculateTempTrend(t *testing.T) {
 func TestCompareNumeric(t *testing.T) {
 	tests := []struct {
 		actual   float64
-		op      RuleOperator
-		value   string
+		op       RuleOperator
+		value    string
 		expected bool
-		hasErr  bool
+		hasErr   bool
 	}{
 		{10, OpGreaterThan, "5", true, false},
 		{5, OpGreaterThan, "10", false, false},

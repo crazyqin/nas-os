@@ -10,7 +10,7 @@ import (
 
 // ========== 常量定义 ==========
 
-// ScanType 扫描类型
+// ScanType 扫描类型.
 type ScanType string
 
 const (
@@ -19,7 +19,7 @@ const (
 	ScanTypeCustom ScanType = "custom" // 自定义路径扫描
 )
 
-// ScanStatus 扫描状态
+// ScanStatus 扫描状态.
 type ScanStatus string
 
 const (
@@ -31,7 +31,7 @@ const (
 	ScanStatusCanceled ScanStatus = "canceled" // 已取消
 )
 
-// ThreatAction 对感染文件的处理方式
+// ThreatAction 对感染文件的处理方式.
 type ThreatAction string
 
 const (
@@ -40,7 +40,7 @@ const (
 	ThreatActionIgnore     ThreatAction = "ignore"     // 忽略
 )
 
-// ClamAV 连接方式
+// ClamAV 连接方式.
 type ClamAVTransport string
 
 const (
@@ -61,7 +61,7 @@ var (
 
 // ========== ClamAV 配置 ==========
 
-// ClamAVConfig ClamAV 连接配置
+// ClamAVConfig ClamAV 连接配置.
 type ClamAVConfig struct {
 	Transport ClamAVTransport `json:"transport"`        // socket 或 tcp
 	Socket    string          `json:"socket,omitempty"` // Unix socket 路径
@@ -71,7 +71,7 @@ type ClamAVConfig struct {
 	MaxStream int             `json:"max_stream_size"`  // 最大流大小（字节）
 }
 
-// DefaultClamAVConfig 默认 ClamAV 配置
+// DefaultClamAVConfig 默认 ClamAV 配置.
 func DefaultClamAVConfig() ClamAVConfig {
 	return ClamAVConfig{
 		Transport: TransportSocket,
@@ -83,7 +83,7 @@ func DefaultClamAVConfig() ClamAVConfig {
 	}
 }
 
-// ClamAVVersion ClamAV 版本信息
+// ClamAVVersion ClamAV 版本信息.
 type ClamAVVersion struct {
 	Version   string    `json:"version"`         // clamd 版本
 	DBVersion string    `json:"db_version"`      // 病毒库版本
@@ -92,7 +92,7 @@ type ClamAVVersion struct {
 	Engine    string    `json:"engine"`          // 引擎版本
 }
 
-// VirusDBUpdateStatus 病毒库更新状态
+// VirusDBUpdateStatus 病毒库更新状态.
 type VirusDBUpdateStatus struct {
 	Status     string    `json:"status"`      // idle, updating, success, failed
 	LastCheck  time.Time `json:"last_check"`  // 上次检查时间
@@ -103,7 +103,7 @@ type VirusDBUpdateStatus struct {
 
 // ========== 扫描任务 ==========
 
-// ScanTask 扫描任务
+// ScanTask 扫描任务.
 type ScanTask struct {
 	mu sync.RWMutex `json:"-"`
 
@@ -135,7 +135,7 @@ type ScanTask struct {
 	Error string `json:"error,omitempty"`
 }
 
-// ScanResult 单个文件扫描结果
+// ScanResult 单个文件扫描结果.
 type ScanResult struct {
 	FilePath       string       `json:"file_path"`
 	FileSize       int64        `json:"file_size"`
@@ -147,7 +147,7 @@ type ScanResult struct {
 	ScannedAt      time.Time    `json:"scanned_at"`
 }
 
-// SetProgress 更新进度（线程安全）
+// SetProgress 更新进度（线程安全）.
 func (t *ScanTask) SetProgress(scanned, total int64, currentPath string) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -156,14 +156,14 @@ func (t *ScanTask) SetProgress(scanned, total int64, currentPath string) {
 	t.CurrentPath = currentPath
 }
 
-// SetStatus 设置状态（线程安全）
+// SetStatus 设置状态（线程安全）.
 func (t *ScanTask) SetStatus(status ScanStatus) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	t.Status = status
 }
 
-// AddResult 添加扫描结果（线程安全）
+// AddResult 添加扫描结果（线程安全）.
 func (t *ScanTask) AddResult(r ScanResult) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -173,7 +173,7 @@ func (t *ScanTask) AddResult(r ScanResult) {
 	}
 }
 
-// GetProgress 获取当前进度快照（线程安全）
+// GetProgress 获取当前进度快照（线程安全）.
 func (t *ScanTask) GetProgress() (scanned, total, infected int64, current string) {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -182,7 +182,7 @@ func (t *ScanTask) GetProgress() (scanned, total, infected int64, current string
 
 // ========== 扫描策略（定时任务） ==========
 
-// ScanSchedule 定时扫描策略
+// ScanSchedule 定时扫描策略.
 type ScanSchedule struct {
 	ID               string       `json:"id"`
 	Name             string       `json:"name"`
@@ -199,7 +199,7 @@ type ScanSchedule struct {
 	UpdatedAt        time.Time    `json:"updated_at"`
 }
 
-// FileFilter 文件过滤规则
+// FileFilter 文件过滤规则.
 type FileFilter struct {
 	IncludeExtensions []string `json:"include_extensions,omitempty"` // 仅扫描这些扩展名，为空则全部
 	ExcludeExtensions []string `json:"exclude_extensions,omitempty"` // 排除的扩展名
@@ -209,7 +209,7 @@ type FileFilter struct {
 
 // ========== 隔离区 ==========
 
-// QuarantineEntry 隔离区条目
+// QuarantineEntry 隔离区条目.
 type QuarantineEntry struct {
 	ID             string     `json:"id"`
 	OriginalPath   string     `json:"original_path"`   // 原始路径
@@ -227,7 +227,7 @@ type QuarantineEntry struct {
 
 // ========== 白名单 ==========
 
-// WhitelistEntry 白名单条目
+// WhitelistEntry 白名单条目.
 type WhitelistEntry struct {
 	ID        string    `json:"id"`
 	Path      string    `json:"path"`   // 路径（支持通配符）
@@ -239,7 +239,7 @@ type WhitelistEntry struct {
 
 // ========== 实时监控 ==========
 
-// RealtimeMonitorConfig 实时监控配置
+// RealtimeMonitorConfig 实时监控配置.
 type RealtimeMonitorConfig struct {
 	Enabled      bool         `json:"enabled"`
 	WatchPaths   []string     `json:"watch_paths"`   // 监控路径
@@ -250,7 +250,7 @@ type RealtimeMonitorConfig struct {
 
 // ========== 扫描报告 ==========
 
-// ScanReport 扫描报告
+// ScanReport 扫描报告.
 type ScanReport struct {
 	TaskID        string         `json:"task_id"`
 	TaskName      string         `json:"task_name"`
@@ -268,7 +268,7 @@ type ScanReport struct {
 	ThreatSummary map[string]int `json:"threat_summary"` // 威胁类型统计
 }
 
-// ScanStats 总体扫描统计
+// ScanStats 总体扫描统计.
 type ScanStats struct {
 	TotalScans      int        `json:"total_scans"`
 	TotalFiles      int64      `json:"total_files_scanned"`
@@ -281,7 +281,7 @@ type ScanStats struct {
 
 // ========== API 请求体 ==========
 
-// CreateScanRequest 创建扫描请求
+// CreateScanRequest 创建扫描请求.
 type CreateScanRequest struct {
 	Name         string       `json:"name"`
 	Type         ScanType     `json:"type" binding:"required"`
@@ -291,7 +291,7 @@ type CreateScanRequest struct {
 	ThreatAction ThreatAction `json:"threat_action"`
 }
 
-// UpdateScheduleRequest 更新定时扫描请求
+// UpdateScheduleRequest 更新定时扫描请求.
 type UpdateScheduleRequest struct {
 	Name             *string       `json:"name,omitempty"`
 	Enabled          *bool         `json:"enabled,omitempty"`
@@ -303,14 +303,14 @@ type UpdateScheduleRequest struct {
 	NotifyOnComplete *bool         `json:"notify_on_complete,omitempty"`
 }
 
-// WhitelistAddRequest 添加白名单请求
+// WhitelistAddRequest 添加白名单请求.
 type WhitelistAddRequest struct {
 	Path   string `json:"path" binding:"required"`
 	Hash   string `json:"hash"`
 	Reason string `json:"reason"`
 }
 
-// UpdateMonitorConfigRequest 更新实时监控配置请求
+// UpdateMonitorConfigRequest 更新实时监控配置请求.
 type UpdateMonitorConfigRequest struct {
 	Enabled      *bool         `json:"enabled,omitempty"`
 	WatchPaths   []string      `json:"watch_paths,omitempty"`

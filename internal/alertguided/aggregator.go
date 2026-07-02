@@ -9,7 +9,7 @@ import (
 )
 
 // Aggregator 告警聚合器
-// 将相同类型告警合并，避免告警风暴
+// 将相同类型告警合并，避免告警风暴.
 type Aggregator struct {
 	groups   map[string]*AlertGroup // aggregationKey -> group
 	mu       sync.RWMutex
@@ -17,7 +17,7 @@ type Aggregator struct {
 	dedupTTL time.Duration // 去重窗口
 }
 
-// NewAggregator 创建聚合器
+// NewAggregator 创建聚合器.
 func NewAggregator(logger *zap.Logger, dedupTTL time.Duration) *Aggregator {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -32,7 +32,7 @@ func NewAggregator(logger *zap.Logger, dedupTTL time.Duration) *Aggregator {
 	}
 }
 
-// AlertGroup 告警分组
+// AlertGroup 告警分组.
 type AlertGroup struct {
 	Key         string    `json:"key"`
 	Category    Category  `json:"category"`
@@ -49,7 +49,7 @@ type AlertGroup struct {
 // Aggregate 聚合告警
 // 返回: (group, isNew)
 // 如果是同组已有未解决告警，追加到该组并返回 false
-// 否则创建新组返回 true
+// 否则创建新组返回 true.
 func (a *Aggregator) Aggregate(alert *GuidedAlert) (*AlertGroup, bool) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -92,7 +92,7 @@ func (a *Aggregator) Aggregate(alert *GuidedAlert) (*AlertGroup, bool) {
 	return group, true
 }
 
-// Resolve 分组解决，清除聚合
+// Resolve 分组解决，清除聚合.
 func (a *Aggregator) Resolve(key string) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -100,7 +100,7 @@ func (a *Aggregator) Resolve(key string) {
 	a.logger.Info("alert group resolved", zap.String("key", key))
 }
 
-// ResolveByAlertID 通过告警ID解决分组
+// ResolveByAlertID 通过告警ID解决分组.
 func (a *Aggregator) ResolveByAlertID(alertID string) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -118,7 +118,7 @@ func (a *Aggregator) ResolveByAlertID(alertID string) {
 	}
 }
 
-// GetGroup 获取分组
+// GetGroup 获取分组.
 func (a *Aggregator) GetGroup(key string) (*AlertGroup, bool) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -126,7 +126,7 @@ func (a *Aggregator) GetGroup(key string) (*AlertGroup, bool) {
 	return g, ok
 }
 
-// ListGroups 列出所有活跃分组
+// ListGroups 列出所有活跃分组.
 func (a *Aggregator) ListGroups() []*AlertGroup {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -139,7 +139,7 @@ func (a *Aggregator) ListGroups() []*AlertGroup {
 	return result
 }
 
-// SilenceGroup 静音分组
+// SilenceGroup 静音分组.
 func (a *Aggregator) SilenceGroup(key string) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -148,7 +148,7 @@ func (a *Aggregator) SilenceGroup(key string) {
 	}
 }
 
-// Cleanup 清理过期分组
+// Cleanup 清理过期分组.
 func (a *Aggregator) Cleanup() int {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -165,7 +165,7 @@ func (a *Aggregator) Cleanup() int {
 	return count
 }
 
-// Summary 聚合汇总
+// Summary 聚合汇总.
 func (a *Aggregator) Summary() *AggregationSummary {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -193,7 +193,7 @@ func (a *Aggregator) isExpired(g *AlertGroup) bool {
 	return time.Since(g.LastSeen) > a.dedupTTL
 }
 
-// AggregationSummary 聚合汇总
+// AggregationSummary 聚合汇总.
 type AggregationSummary struct {
 	ActiveGroups int              `json:"activeGroups"`
 	TotalAlerts  int              `json:"totalAlerts"`

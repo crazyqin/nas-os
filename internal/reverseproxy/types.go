@@ -9,21 +9,21 @@ import (
 	"time"
 )
 
-// ReverseProxyManager 反向代理管理器
+// ReverseProxyManager 反向代理管理器.
 type ReverseProxyManager struct {
 	mu      sync.RWMutex
 	proxies map[string]*ProxyRule
 	config  *ProxyConfig
 }
 
-// ProxyConfig 代理配置
+// ProxyConfig 代理配置.
 type ProxyConfig struct {
 	MaxProxies     int           `json:"max_proxies"`
 	DefaultTimeout time.Duration `json:"default_timeout"`
 	EnableHTTPS    bool          `json:"enable_https"`
 }
 
-// ProxyRule 代理规则
+// ProxyRule 代理规则.
 type ProxyRule struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -43,7 +43,7 @@ type ProxyRule struct {
 	LastAccess    time.Time         `json:"last_access,omitempty"`
 }
 
-// ProxyStats 代理统计
+// ProxyStats 代理统计.
 type ProxyStats struct {
 	TotalRequests   int64   `json:"total_requests"`
 	ActiveProxies   int     `json:"active_proxies"`
@@ -52,7 +52,7 @@ type ProxyStats struct {
 	ErrorRate       float64 `json:"error_rate"`
 }
 
-// ReverseProxy 反向代理实体
+// ReverseProxy 反向代理实体.
 type ReverseProxy struct {
 	ID         string            `json:"id"`
 	Name       string            `json:"name"`
@@ -66,7 +66,7 @@ type ReverseProxy struct {
 	UpdatedAt  time.Time         `json:"updated_at"`
 }
 
-// CreateProxyRequest 创建代理请求
+// CreateProxyRequest 创建代理请求.
 type CreateProxyRequest struct {
 	Name       string            `json:"name"`
 	Domain     string            `json:"domain"`
@@ -76,7 +76,7 @@ type CreateProxyRequest struct {
 	Headers    map[string]string `json:"headers,omitempty"`
 }
 
-// UpdateProxyRequest 更新代理请求
+// UpdateProxyRequest 更新代理请求.
 type UpdateProxyRequest struct {
 	Name       *string            `json:"name,omitempty"`
 	Domain     *string            `json:"domain,omitempty"`
@@ -87,7 +87,7 @@ type UpdateProxyRequest struct {
 	Status     *string            `json:"status,omitempty"`
 }
 
-// AddRuleRequest 添加规则请求
+// AddRuleRequest 添加规则请求.
 type AddRuleRequest struct {
 	Path          string `json:"path"`
 	TargetURL     string `json:"target_url"`
@@ -95,13 +95,13 @@ type AddRuleRequest struct {
 	RateLimit     int    `json:"rate_limit,omitempty"`
 }
 
-// SuccessResponse 成功响应
+// SuccessResponse 成功响应.
 type SuccessResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message,omitempty"`
 }
 
-// NewReverseProxyManager 创建反向代理管理器
+// NewReverseProxyManager 创建反向代理管理器.
 func NewReverseProxyManager(config *ProxyConfig) *ReverseProxyManager {
 	if config == nil {
 		config = &ProxyConfig{
@@ -116,7 +116,7 @@ func NewReverseProxyManager(config *ProxyConfig) *ReverseProxyManager {
 	}
 }
 
-// AddProxy 添加代理规则
+// AddProxy 添加代理规则.
 func (m *ReverseProxyManager) AddProxy(rule *ProxyRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -148,7 +148,7 @@ func (m *ReverseProxyManager) AddProxy(rule *ProxyRule) error {
 	return nil
 }
 
-// RemoveProxy 移除代理规则
+// RemoveProxy 移除代理规则.
 func (m *ReverseProxyManager) RemoveProxy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -161,7 +161,7 @@ func (m *ReverseProxyManager) RemoveProxy(id string) error {
 	return nil
 }
 
-// UpdateProxy 更新代理规则
+// UpdateProxy 更新代理规则.
 func (m *ReverseProxyManager) UpdateProxy(id string, rule *ProxyRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -191,7 +191,7 @@ func (m *ReverseProxyManager) UpdateProxy(id string, rule *ProxyRule) error {
 	return nil
 }
 
-// GetProxy 获取代理规则
+// GetProxy 获取代理规则.
 func (m *ReverseProxyManager) GetProxy(id string) (*ProxyRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -203,7 +203,7 @@ func (m *ReverseProxyManager) GetProxy(id string) (*ProxyRule, error) {
 	return proxy, nil
 }
 
-// ListProxies 列出所有代理规则
+// ListProxies 列出所有代理规则.
 func (m *ReverseProxyManager) ListProxies() []*ProxyRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -215,7 +215,7 @@ func (m *ReverseProxyManager) ListProxies() []*ProxyRule {
 	return proxies
 }
 
-// EnableProxy 启用代理
+// EnableProxy 启用代理.
 func (m *ReverseProxyManager) EnableProxy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -230,7 +230,7 @@ func (m *ReverseProxyManager) EnableProxy(id string) error {
 	return nil
 }
 
-// DisableProxy 禁用代理
+// DisableProxy 禁用代理.
 func (m *ReverseProxyManager) DisableProxy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -245,7 +245,7 @@ func (m *ReverseProxyManager) DisableProxy(id string) error {
 	return nil
 }
 
-// CreateReverseProxy 创建反向代理
+// CreateReverseProxy 创建反向代理.
 func (m *ReverseProxyManager) CreateReverseProxy(rule *ProxyRule) (*httputil.ReverseProxy, error) {
 	target, err := url.Parse(rule.TargetURL)
 	if err != nil {
@@ -275,7 +275,7 @@ func (m *ReverseProxyManager) CreateReverseProxy(rule *ProxyRule) (*httputil.Rev
 	return proxy, nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *ReverseProxyManager) GetStats() *ProxyStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -294,7 +294,7 @@ func (m *ReverseProxyManager) GetStats() *ProxyStats {
 	return stats
 }
 
-// FindProxyByDomain 根据域名查找代理
+// FindProxyByDomain 根据域名查找代理.
 func (m *ReverseProxyManager) FindProxyByDomain(domain string) (*ProxyRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -308,7 +308,7 @@ func (m *ReverseProxyManager) FindProxyByDomain(domain string) (*ProxyRule, erro
 	return nil, fmt.Errorf("no proxy found for domain: %s", domain)
 }
 
-// UpdateRequestCount 更新请求计数
+// UpdateRequestCount 更新请求计数.
 func (m *ReverseProxyManager) UpdateRequestCount(id string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

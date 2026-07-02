@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Manager 容器管理器
+// Manager 容器管理器.
 type Manager struct {
 	mu              sync.RWMutex
 	containers      map[string]*Container
@@ -17,7 +17,7 @@ type Manager struct {
 	config          *ContainerProConfig
 }
 
-// NewManager 创建新的容器管理器
+// NewManager 创建新的容器管理器.
 func NewManager(config *ContainerProConfig) *Manager {
 	return &Manager{
 		containers:      make(map[string]*Container),
@@ -28,7 +28,7 @@ func NewManager(config *ContainerProConfig) *Manager {
 	}
 }
 
-// ListContainers 列出所有容器
+// ListContainers 列出所有容器.
 func (m *Manager) ListContainers(all bool) ([]Container, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -43,7 +43,7 @@ func (m *Manager) ListContainers(all bool) ([]Container, error) {
 	return containers, nil
 }
 
-// GetContainer 获取容器详情
+// GetContainer 获取容器详情.
 func (m *Manager) GetContainer(id string) (*Container, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -55,7 +55,7 @@ func (m *Manager) GetContainer(id string) (*Container, error) {
 	return container, nil
 }
 
-// StartContainer 启动容器
+// StartContainer 启动容器.
 func (m *Manager) StartContainer(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -72,7 +72,7 @@ func (m *Manager) StartContainer(id string) error {
 	return nil
 }
 
-// StopContainer 停止容器
+// StopContainer 停止容器.
 func (m *Manager) StopContainer(id string, timeout int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -88,7 +88,7 @@ func (m *Manager) StopContainer(id string, timeout int) error {
 	return nil
 }
 
-// RestartContainer 重启容器
+// RestartContainer 重启容器.
 func (m *Manager) RestartContainer(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -106,7 +106,7 @@ func (m *Manager) RestartContainer(id string) error {
 	return nil
 }
 
-// RemoveContainer 删除容器
+// RemoveContainer 删除容器.
 func (m *Manager) RemoveContainer(id string, force bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -124,7 +124,7 @@ func (m *Manager) RemoveContainer(id string, force bool) error {
 	return nil
 }
 
-// GetContainerStats 获取容器统计信息
+// GetContainerStats 获取容器统计信息.
 func (m *Manager) GetContainerStats(id string) (*ContainerStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -157,7 +157,7 @@ func (m *Manager) GetContainerStats(id string) (*ContainerStats, error) {
 	return stats, nil
 }
 
-// DeployComposeProject 部署 Compose 项目
+// DeployComposeProject 部署 Compose 项目.
 func (m *Manager) DeployComposeProject(path string) (*ComposeProject, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -176,7 +176,7 @@ func (m *Manager) DeployComposeProject(path string) (*ComposeProject, error) {
 	return project, nil
 }
 
-// ListComposeProjects 列出所有 Compose 项目
+// ListComposeProjects 列出所有 Compose 项目.
 func (m *Manager) ListComposeProjects() ([]ComposeProject, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -188,7 +188,7 @@ func (m *Manager) ListComposeProjects() ([]ComposeProject, error) {
 	return projects, nil
 }
 
-// StopComposeProject 停止 Compose 项目
+// StopComposeProject 停止 Compose 项目.
 func (m *Manager) StopComposeProject(projectID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -203,7 +203,7 @@ func (m *Manager) StopComposeProject(projectID string) error {
 	return nil
 }
 
-// PullImage 拉取镜像
+// PullImage 拉取镜像.
 func (m *Manager) PullImage(image string, registryID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -228,7 +228,7 @@ func (m *Manager) PullImage(image string, registryID string) error {
 	return nil
 }
 
-// ListImages 列出所有镜像
+// ListImages 列出所有镜像.
 func (m *Manager) ListImages() ([]ImageInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -240,7 +240,7 @@ func (m *Manager) ListImages() ([]ImageInfo, error) {
 	return images, nil
 }
 
-// AddRegistry 添加镜像仓库
+// AddRegistry 添加镜像仓库.
 func (m *Manager) AddRegistry(registry Registry) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -253,7 +253,7 @@ func (m *Manager) AddRegistry(registry Registry) error {
 	return nil
 }
 
-// ListRegistries 列出所有镜像仓库
+// ListRegistries 列出所有镜像仓库.
 func (m *Manager) ListRegistries() ([]Registry, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

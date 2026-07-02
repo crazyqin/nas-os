@@ -22,7 +22,7 @@ import (
 // 防护引擎
 // ============================================================
 
-// Protector 勒索软件防护引擎
+// Protector 勒索软件防护引擎.
 type Protector struct {
 	mu sync.RWMutex
 
@@ -58,7 +58,7 @@ type Protector struct {
 	stopChan chan struct{}
 }
 
-// NewProtector 创建防护引擎
+// NewProtector 创建防护引擎.
 func NewProtector(detector *Detector, honeypotConfig HoneypotConfig) *Protector {
 	return &Protector{
 		detector:         detector,
@@ -70,21 +70,21 @@ func NewProtector(detector *Detector, honeypotConfig HoneypotConfig) *Protector 
 	}
 }
 
-// SetSnapshotCallback 设置快照创建回调
+// SetSnapshotCallback 设置快照创建回调.
 func (p *Protector) SetSnapshotCallback(fn func(path string) (string, error)) {
 	p.mu.Lock()
 	p.snapshotCallback = fn
 	p.mu.Unlock()
 }
 
-// SetProcessBlockCallback 设置进程阻断回调
+// SetProcessBlockCallback 设置进程阻断回调.
 func (p *Protector) SetProcessBlockCallback(fn func(pid int, name string) error) {
 	p.mu.Lock()
 	p.processBlockCallback = fn
 	p.mu.Unlock()
 }
 
-// Start 启动防护引擎
+// Start 启动防护引擎.
 func (p *Protector) Start(ctx context.Context) error {
 	p.mu.Lock()
 	if p.running {
@@ -114,7 +114,7 @@ func (p *Protector) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止防护引擎
+// Stop 停止防护引擎.
 func (p *Protector) Stop() {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -130,7 +130,7 @@ func (p *Protector) Stop() {
 // 防护循环
 // ============================================================
 
-// protectionLoop 主防护循环
+// protectionLoop 主防护循环.
 func (p *Protector) protectionLoop(ctx context.Context) {
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
@@ -147,7 +147,7 @@ func (p *Protector) protectionLoop(ctx context.Context) {
 	}
 }
 
-// checkThreats 检查并处理威胁
+// checkThreats 检查并处理威胁.
 func (p *Protector) checkThreats() {
 	events, _ := p.detector.GetThreatEvents(1, 10)
 	if len(events) == 0 {
@@ -173,7 +173,7 @@ func (p *Protector) checkThreats() {
 	}
 }
 
-// handleCriticalThreat 处理严重威胁
+// handleCriticalThreat 处理严重威胁.
 func (p *Protector) handleCriticalThreat(event ThreatEvent) {
 	log.Printf("[RansomShield] 处理严重威胁: %s", event.ID)
 
@@ -191,7 +191,7 @@ func (p *Protector) handleCriticalThreat(event ThreatEvent) {
 	p.quarantineFile(event.SourcePath)
 }
 
-// handleHighThreat 处理高威胁
+// handleHighThreat 处理高威胁.
 func (p *Protector) handleHighThreat(event ThreatEvent) {
 	log.Printf("[RansomShield] 处理高威胁: %s", event.ID)
 
@@ -204,7 +204,7 @@ func (p *Protector) handleHighThreat(event ThreatEvent) {
 	}
 }
 
-// handleMediumThreat 处理中等威胁
+// handleMediumThreat 处理中等威胁.
 func (p *Protector) handleMediumThreat(event ThreatEvent) {
 	log.Printf("[RansomShield] 处理中等威胁: %s", event.ID)
 
@@ -212,7 +212,7 @@ func (p *Protector) handleMediumThreat(event ThreatEvent) {
 	p.createAutoSnapshot(event.SourcePath, event.ID, ThreatLevelMedium)
 }
 
-// handleLowThreat 处理低威胁
+// handleLowThreat 处理低威胁.
 func (p *Protector) handleLowThreat(event ThreatEvent) {
 	log.Printf("[RansomShield] 低威胁告警: %s", event.ID)
 	// 仅记录，不执行阻断
@@ -222,7 +222,7 @@ func (p *Protector) handleLowThreat(event ThreatEvent) {
 // 快照管理
 // ============================================================
 
-// createAutoSnapshot 创建自动快照
+// createAutoSnapshot 创建自动快照.
 func (p *Protector) createAutoSnapshot(triggerPath, triggerEventID string, level ThreatLevel) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -260,7 +260,7 @@ func (p *Protector) createAutoSnapshot(triggerPath, triggerEventID string, level
 	log.Printf("[RansomShield] 自动快照已创建: %s (路径: %s)", rp.ID, dir)
 }
 
-// CreateRecoveryPoint 手动创建恢复点
+// CreateRecoveryPoint 手动创建恢复点.
 func (p *Protector) CreateRecoveryPoint(name, path, description string) (*RecoveryPoint, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -291,7 +291,7 @@ func (p *Protector) CreateRecoveryPoint(name, path, description string) (*Recove
 	return rp, nil
 }
 
-// GetRecoveryPoints 获取所有恢复点
+// GetRecoveryPoints 获取所有恢复点.
 func (p *Protector) GetRecoveryPoints() []RecoveryPoint {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -303,7 +303,7 @@ func (p *Protector) GetRecoveryPoints() []RecoveryPoint {
 	return points
 }
 
-// RollbackToRecoveryPoint 回滚到指定恢复点
+// RollbackToRecoveryPoint 回滚到指定恢复点.
 func (p *Protector) RollbackToRecoveryPoint(recoveryPointID, targetPath string) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -339,7 +339,7 @@ func (p *Protector) RollbackToRecoveryPoint(recoveryPointID, targetPath string) 
 // 进程阻断
 // ============================================================
 
-// blockProcess 阻断可疑进程
+// blockProcess 阻断可疑进程.
 func (p *Protector) blockProcess(pid int, name string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -364,7 +364,7 @@ func (p *Protector) blockProcess(pid int, name string) {
 	log.Printf("[RansomShield] 进程已阻断: PID=%d, Name=%s", pid, name)
 }
 
-// UnblockProcess 解除进程阻断
+// UnblockProcess 解除进程阻断.
 func (p *Protector) UnblockProcess(pid int, name string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -375,7 +375,7 @@ func (p *Protector) UnblockProcess(pid int, name string) {
 	log.Printf("[RansomShield] 进程已解除阻断: PID=%d, Name=%s", pid, name)
 }
 
-// GetBlockedProcesses 获取已阻断的进程
+// GetBlockedProcesses 获取已阻断的进程.
 func (p *Protector) GetBlockedProcesses() map[string]time.Time {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -391,7 +391,7 @@ func (p *Protector) GetBlockedProcesses() map[string]time.Time {
 // 文件隔离
 // ============================================================
 
-// quarantineFile 隔离可疑文件
+// quarantineFile 隔离可疑文件.
 func (p *Protector) quarantineFile(path string) {
 	quarantineDir := filepath.Join(filepath.Dir(path), ".ransomshield-quarantine")
 	if err := os.MkdirAll(quarantineDir, 0700); err != nil {
@@ -414,7 +414,7 @@ func (p *Protector) quarantineFile(path string) {
 // 蜜罐管理
 // ============================================================
 
-// deployHoneypots 部署蜜罐文件
+// deployHoneypots 部署蜜罐文件.
 func (p *Protector) deployHoneypots() error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -439,7 +439,7 @@ func (p *Protector) deployHoneypots() error {
 	return nil
 }
 
-// createHoneypotFile 创建单个蜜罐文件
+// createHoneypotFile 创建单个蜜罐文件.
 func (p *Protector) createHoneypotFile(dir string, index int) error {
 	// 随机选择扩展名
 	ext := p.honeypotConfig.FileExtensions[index%len(p.honeypotConfig.FileExtensions)]
@@ -481,7 +481,7 @@ func (p *Protector) createHoneypotFile(dir string, index int) error {
 	return nil
 }
 
-// honeypotRefreshLoop 蜜罐刷新循环
+// honeypotRefreshLoop 蜜罐刷新循环.
 func (p *Protector) honeypotRefreshLoop(ctx context.Context) {
 	interval := time.Duration(p.honeypotConfig.RefreshIntervalMin) * time.Minute
 	ticker := time.NewTicker(interval)
@@ -499,7 +499,7 @@ func (p *Protector) honeypotRefreshLoop(ctx context.Context) {
 	}
 }
 
-// refreshHoneypots 刷新蜜罐文件
+// refreshHoneypots 刷新蜜罐文件.
 func (p *Protector) refreshHoneypots() {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -525,7 +525,7 @@ func (p *Protector) refreshHoneypots() {
 	log.Println("[RansomShield] 蜜罐文件已刷新")
 }
 
-// GetHoneypots 获取所有蜜罐文件
+// GetHoneypots 获取所有蜜罐文件.
 func (p *Protector) GetHoneypots() []HoneypotFile {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -537,7 +537,7 @@ func (p *Protector) GetHoneypots() []HoneypotFile {
 	return hps
 }
 
-// CheckHoneypot 检查文件是否为蜜罐
+// CheckHoneypot 检查文件是否为蜜罐.
 func (p *Protector) CheckHoneypot(path string) *HoneypotFile {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -550,7 +550,7 @@ func (p *Protector) CheckHoneypot(path string) *HoneypotFile {
 	return nil
 }
 
-// TriggerHoneypot 触发蜜罐
+// TriggerHoneypot 触发蜜罐.
 func (p *Protector) TriggerHoneypot(honeypotID string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -573,7 +573,7 @@ func (p *Protector) TriggerHoneypot(honeypotID string) {
 // 恢复点清理
 // ============================================================
 
-// recoveryCleanupLoop 恢复点清理循环
+// recoveryCleanupLoop 恢复点清理循环.
 func (p *Protector) recoveryCleanupLoop(ctx context.Context) {
 	ticker := time.NewTicker(1 * time.Hour)
 	defer ticker.Stop()
@@ -590,7 +590,7 @@ func (p *Protector) recoveryCleanupLoop(ctx context.Context) {
 	}
 }
 
-// cleanupExpiredRecoveryPoints 清理过期的恢复点
+// cleanupExpiredRecoveryPoints 清理过期的恢复点.
 func (p *Protector) cleanupExpiredRecoveryPoints() {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -608,7 +608,7 @@ func (p *Protector) cleanupExpiredRecoveryPoints() {
 // 统计信息
 // ============================================================
 
-// GetProtectorStats 获取防护引擎统计
+// GetProtectorStats 获取防护引擎统计.
 func (p *Protector) GetProtectorStats() ProtectorStats {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -625,7 +625,7 @@ func (p *Protector) GetProtectorStats() ProtectorStats {
 	}
 }
 
-// ProtectorStats 防护引擎统计
+// ProtectorStats 防护引擎统计.
 type ProtectorStats struct {
 	HoneypotsDeployed  int   `json:"honeypots_deployed"`
 	HoneypotsTriggered int   `json:"honeypots_triggered"`
@@ -637,7 +637,7 @@ type ProtectorStats struct {
 	BlocksTriggered    int64 `json:"blocks_triggered"`
 }
 
-// countTriggeredHoneypots 统计已触发的蜜罐数
+// countTriggeredHoneypots 统计已触发的蜜罐数.
 func (p *Protector) countTriggeredHoneypots() int {
 	count := 0
 	for _, hp := range p.honeypots {

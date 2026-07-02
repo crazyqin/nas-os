@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// SplitBrainGuard 脑裂防护器
+// SplitBrainGuard 脑裂防护器.
 type SplitBrainGuard struct {
 	config      *HAConfig
 	quorum      *QuorumManager
@@ -22,7 +22,7 @@ type SplitBrainGuard struct {
 	logger      *zap.Logger
 }
 
-// QuorumManager 法定人数管理器
+// QuorumManager 法定人数管理器.
 type QuorumManager struct {
 	quorumSize   int
 	voteCount    map[string]int
@@ -31,7 +31,7 @@ type QuorumManager struct {
 	mu           sync.RWMutex
 }
 
-// VoteRecord 投票记录
+// VoteRecord 投票记录.
 type VoteRecord struct {
 	Timestamp time.Time `json:"timestamp"`
 	VoterID   string    `json:"voter_id"`
@@ -40,7 +40,7 @@ type VoteRecord struct {
 	Result    bool      `json:"result"`
 }
 
-// VoteType 投票类型
+// VoteType 投票类型.
 type VoteType string
 
 const (
@@ -50,7 +50,7 @@ const (
 	VoteTypeResume     VoteType = "resume"     // 恢复投票
 )
 
-// SplitBrainResolution 脑裂解决策略
+// SplitBrainResolution 脑裂解决策略.
 type SplitBrainResolution string
 
 const (
@@ -60,7 +60,7 @@ const (
 	ResolutionShutdownBoth    SplitBrainResolution = "shutdown_both"    // 关闭双方
 )
 
-// NewSplitBrainGuard 创建脑裂防护器
+// NewSplitBrainGuard 创建脑裂防护器.
 func NewSplitBrainGuard(config *HAConfig, logger *zap.Logger) *SplitBrainGuard {
 	return &SplitBrainGuard{
 		config: config,
@@ -69,7 +69,7 @@ func NewSplitBrainGuard(config *HAConfig, logger *zap.Logger) *SplitBrainGuard {
 	}
 }
 
-// NewQuorumManager 创建法定人数管理器
+// NewQuorumManager 创建法定人数管理器.
 func NewQuorumManager(quorumSize int) *QuorumManager {
 	return &QuorumManager{
 		quorumSize:  quorumSize,
@@ -78,7 +78,7 @@ func NewQuorumManager(quorumSize int) *QuorumManager {
 	}
 }
 
-// CheckSplitBrain 检查脑裂
+// CheckSplitBrain 检查脑裂.
 func (sb *SplitBrainGuard) CheckSplitBrain(nodes map[string]*NodeHAInfo) *SplitBrainResult {
 	sb.resolveLock.Lock()
 	defer sb.resolveLock.Unlock()
@@ -138,7 +138,7 @@ func (sb *SplitBrainGuard) CheckSplitBrain(nodes map[string]*NodeHAInfo) *SplitB
 	return result
 }
 
-// HandleSplitBrain 处理脑裂
+// HandleSplitBrain 处理脑裂.
 func (sb *SplitBrainGuard) HandleSplitBrain(nodes map[string]*NodeHAInfo) error {
 	sb.resolveLock.Lock()
 	defer sb.resolveLock.Unlock()
@@ -183,7 +183,7 @@ func (sb *SplitBrainGuard) HandleSplitBrain(nodes map[string]*NodeHAInfo) error 
 	}
 }
 
-// selectResolutionStrategy 选择解决策略
+// selectResolutionStrategy 选择解决策略.
 func (sb *SplitBrainGuard) selectResolutionStrategy() SplitBrainResolution {
 	// 默认使用优先级策略
 	// 在实际实现中可以根据配置或自动检测选择
@@ -191,7 +191,7 @@ func (sb *SplitBrainGuard) selectResolutionStrategy() SplitBrainResolution {
 	return ResolutionHighestPriority
 }
 
-// resolveByPriority 通过优先级解决
+// resolveByPriority 通过优先级解决.
 func (sb *SplitBrainGuard) resolveByPriority(nodes []*NodeHAInfo) error {
 	if len(nodes) == 0 {
 		return nil
@@ -225,7 +225,7 @@ func (sb *SplitBrainGuard) resolveByPriority(nodes []*NodeHAInfo) error {
 	return nil
 }
 
-// resolveByLatest 通过最新主节点解决
+// resolveByLatest 通过最新主节点解决.
 func (sb *SplitBrainGuard) resolveByLatest(nodes []*NodeHAInfo) error {
 	// 选择最后心跳时间最新的
 	var latest *NodeHAInfo
@@ -251,7 +251,7 @@ func (sb *SplitBrainGuard) resolveByLatest(nodes []*NodeHAInfo) error {
 	return nil
 }
 
-// resolveByShutdown 通过关闭解决
+// resolveByShutdown 通过关闭解决.
 func (sb *SplitBrainGuard) resolveByShutdown(nodes []*NodeHAInfo) error {
 	sb.logger.Error("Split brain unresolved - requiring manual intervention")
 
@@ -264,7 +264,7 @@ func (sb *SplitBrainGuard) resolveByShutdown(nodes []*NodeHAInfo) error {
 	return errors.New("split brain requires manual resolution")
 }
 
-// IsQuorumMet 检查法定人数是否满足
+// IsQuorumMet 检查法定人数是否满足.
 func (sb *SplitBrainGuard) IsQuorumMet(nodes map[string]*NodeHAInfo) bool {
 	activeCount := 0
 	for _, node := range nodes {
@@ -276,7 +276,7 @@ func (sb *SplitBrainGuard) IsQuorumMet(nodes map[string]*NodeHAInfo) bool {
 	return activeCount >= sb.config.QuorumRequired
 }
 
-// RequestVote 请求投票
+// RequestVote 请求投票.
 func (qm *QuorumManager) RequestVote(voterID, targetID string, voteType VoteType) bool {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
@@ -304,7 +304,7 @@ func (qm *QuorumManager) RequestVote(voterID, targetID string, voteType VoteType
 	return vote.Result
 }
 
-// ClearVotes 清除投票
+// ClearVotes 清除投票.
 func (qm *QuorumManager) ClearVotes(voteType VoteType) {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
@@ -316,7 +316,7 @@ func (qm *QuorumManager) ClearVotes(voteType VoteType) {
 	}
 }
 
-// GetVoteStatus 获取投票状态
+// GetVoteStatus 获取投票状态.
 func (qm *QuorumManager) GetVoteStatus(targetID string, voteType VoteType) VoteStatus {
 	qm.mu.RLock()
 	defer qm.mu.RUnlock()
@@ -331,14 +331,14 @@ func (qm *QuorumManager) GetVoteStatus(targetID string, voteType VoteType) VoteS
 	}
 }
 
-// VoteStatus 投票状态
+// VoteStatus 投票状态.
 type VoteStatus struct {
 	VotesReceived int  `json:"votes_received"`
 	VotesRequired int  `json:"votes_required"`
 	VoteMet       bool `json:"vote_met"`
 }
 
-// SplitBrainResult 脑裂检测结果
+// SplitBrainResult 脑裂检测结果.
 type SplitBrainResult struct {
 	Timestamp          time.Time     `json:"timestamp"`
 	SplitBrainDetected bool          `json:"split_brain_detected"`
@@ -351,14 +351,14 @@ type SplitBrainResult struct {
 	IsolatedNodeID     string        `json:"isolated_node_id,omitempty"`
 }
 
-// IsSplitBrainDetected 是否检测到脑裂
+// IsSplitBrainDetected 是否检测到脑裂.
 func (sb *SplitBrainGuard) IsSplitBrainDetected() bool {
 	sb.resolveLock.Lock()
 	defer sb.resolveLock.Unlock()
 	return sb.detected
 }
 
-// GetLastCheckTime 获取最后检查时间
+// GetLastCheckTime 获取最后检查时间.
 func (sb *SplitBrainGuard) GetLastCheckTime() time.Time {
 	sb.resolveLock.Lock()
 	defer sb.resolveLock.Unlock()
@@ -366,7 +366,7 @@ func (sb *SplitBrainGuard) GetLastCheckTime() time.Time {
 }
 
 // FenceNode 防护节点（STONITH机制）
-// 参考 Synology 的节点防护机制
+// 参考 Synology 的节点防护机制.
 func (sb *SplitBrainGuard) FenceNode(nodeID string) error {
 	sb.logger.Warn("Fencing node",
 		zap.String("node_id", nodeID),
@@ -383,7 +383,7 @@ func (sb *SplitBrainGuard) FenceNode(nodeID string) error {
 	return nil
 }
 
-// NodeFencing 节点防护操作
+// NodeFencing 节点防护操作.
 type NodeFencing struct {
 	NodeID         string        `json:"node_id"`
 	Method         FencingMethod `json:"method"`
@@ -393,7 +393,7 @@ type NodeFencing struct {
 	RecoveryAction string        `json:"recovery_action,omitempty"`
 }
 
-// FencingMethod 防护方法
+// FencingMethod 防护方法.
 type FencingMethod string
 
 const (
@@ -403,7 +403,7 @@ const (
 	FencingManual  FencingMethod = "manual"  // 手动干预
 )
 
-// extractNodeIDs 提取节点ID列表
+// extractNodeIDs 提取节点ID列表.
 func extractNodeIDs(nodes []*NodeHAInfo) []string {
 	ids := make([]string, len(nodes))
 	for i, node := range nodes {

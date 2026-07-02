@@ -16,7 +16,7 @@ import (
 
 // ========== 常量和类型定义 ==========
 
-// RuleGroup 规则分组
+// RuleGroup 规则分组.
 type RuleGroup string
 
 const (
@@ -26,7 +26,7 @@ const (
 	GroupSecurity RuleGroup = "security" // 安全相关（入侵、异常访问）
 )
 
-// MetricType 指标类型
+// MetricType 指标类型.
 type MetricType string
 
 const (
@@ -43,7 +43,7 @@ const (
 	MetricServiceStatus  MetricType = "service_status"
 )
 
-// Operator 比较操作符
+// Operator 比较操作符.
 type Operator string
 
 const (
@@ -67,7 +67,7 @@ var (
 
 // ========== 自定义告警规则 ==========
 
-// CustomAlertRule 自定义告警规则（用户可配置）
+// CustomAlertRule 自定义告警规则（用户可配置）.
 type CustomAlertRule struct {
 	// 基础信息
 	ID          string    `json:"id"`
@@ -115,7 +115,7 @@ type CustomAlertRule struct {
 	mu            sync.RWMutex
 }
 
-// RuleScope 规则作用范围
+// RuleScope 规则作用范围.
 type RuleScope struct {
 	Devices    []string `json:"devices,omitempty"`    // 设备范围
 	Services   []string `json:"services,omitempty"`   // 服务范围
@@ -124,7 +124,7 @@ type RuleScope struct {
 	Containers []string `json:"containers,omitempty"` // 容器范围
 }
 
-// AlertAction 告警动作
+// AlertAction 告警动作.
 type AlertAction struct {
 	Type           string            `json:"type"` // notify, webhook, script, email
 	Target         string            `json:"target,omitempty"`
@@ -135,7 +135,7 @@ type AlertAction struct {
 	RepeatInterval int               `json:"repeat_interval,omitempty"` // 重复间隔（秒）
 }
 
-// NewCustomAlertRule 创建新规则
+// NewCustomAlertRule 创建新规则.
 func NewCustomAlertRule(name string, group RuleGroup, metric MetricType) *CustomAlertRule {
 	return &CustomAlertRule{
 		ID:          generateRuleID(),
@@ -153,7 +153,7 @@ func NewCustomAlertRule(name string, group RuleGroup, metric MetricType) *Custom
 	}
 }
 
-// Evaluate 评估规则（检查阈值是否触发）
+// Evaluate 评估规则（检查阈值是否触发）.
 func (r *CustomAlertRule) Evaluate(value float64) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -189,7 +189,7 @@ func (r *CustomAlertRule) Evaluate(value float64) bool {
 	return false
 }
 
-// evaluateThreshold 评估阈值
+// evaluateThreshold 评估阈值.
 func (r *CustomAlertRule) evaluateThreshold(value float64) bool {
 	switch r.Operator {
 	case OpGreaterThan:
@@ -209,7 +209,7 @@ func (r *CustomAlertRule) evaluateThreshold(value float64) bool {
 	}
 }
 
-// ResetPending 重置pending状态
+// ResetPending 重置pending状态.
 func (r *CustomAlertRule) ResetPending() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -217,7 +217,7 @@ func (r *CustomAlertRule) ResetPending() {
 	r.fireCount = 0
 }
 
-// GetState 获取规则状态
+// GetState 获取规则状态.
 func (r *CustomAlertRule) GetState() RuleState {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -233,7 +233,7 @@ func (r *CustomAlertRule) GetState() RuleState {
 	}
 }
 
-// Update 更新规则配置
+// Update 更新规则配置.
 func (r *CustomAlertRule) Update(updates RuleUpdate) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -291,7 +291,7 @@ func (r *CustomAlertRule) Update(updates RuleUpdate) error {
 	return nil
 }
 
-// RuleUpdate 规则更新请求
+// RuleUpdate 规则更新请求.
 type RuleUpdate struct {
 	Name        *string           `json:"name,omitempty"`
 	Description *string           `json:"description,omitempty"`
@@ -309,7 +309,7 @@ type RuleUpdate struct {
 	Exclude     []string          `json:"exclude,omitempty"`
 }
 
-// RuleState 规则运行状态
+// RuleState 规则运行状态.
 type RuleState struct {
 	ID            string    `json:"id"`
 	Name          string    `json:"name"`
@@ -322,7 +322,7 @@ type RuleState struct {
 
 // ========== 自定义规则管理器 ==========
 
-// CustomRuleManager 自定义规则管理器
+// CustomRuleManager 自定义规则管理器.
 type CustomRuleManager struct {
 	logger *zap.Logger
 	mu     sync.RWMutex
@@ -344,14 +344,14 @@ type CustomRuleManager struct {
 	config RuleManagerConfig
 }
 
-// RuleManagerConfig 规则管理器配置
+// RuleManagerConfig 规则管理器配置.
 type RuleManagerConfig struct {
 	MaxRules        int           `json:"max_rules"`        // 最大规则数量
 	CheckInterval   time.Duration `json:"check_interval"`   // 检查间隔
 	DefaultDuration int           `json:"default_duration"` // 默认持续时间（秒）
 }
 
-// DefaultRuleManagerConfig 默认配置
+// DefaultRuleManagerConfig 默认配置.
 func DefaultRuleManagerConfig() RuleManagerConfig {
 	return RuleManagerConfig{
 		MaxRules:        100,
@@ -360,12 +360,12 @@ func DefaultRuleManagerConfig() RuleManagerConfig {
 	}
 }
 
-// MetricCollector 指标采集器接口
+// MetricCollector 指标采集器接口.
 type MetricCollector interface {
 	Collect(ctx context.Context) (map[string]float64, error)
 }
 
-// DatabaseStore 数据库存储接口
+// DatabaseStore 数据库存储接口.
 type DatabaseStore interface {
 	SaveRule(rule *CustomAlertRule) error
 	LoadRules() ([]*CustomAlertRule, error)
@@ -373,7 +373,7 @@ type DatabaseStore interface {
 	UpdateRule(rule *CustomAlertRule) error
 }
 
-// NewCustomRuleManager 创建自定义规则管理器
+// NewCustomRuleManager 创建自定义规则管理器.
 func NewCustomRuleManager(logger *zap.Logger, db DatabaseStore) *CustomRuleManager {
 	mgr := &CustomRuleManager{
 		logger:     logger,
@@ -396,7 +396,7 @@ func NewCustomRuleManager(logger *zap.Logger, db DatabaseStore) *CustomRuleManag
 	return mgr
 }
 
-// loadFromDatabase 从数据库加载规则
+// loadFromDatabase 从数据库加载规则.
 func (mgr *CustomRuleManager) loadFromDatabase() {
 	if mgr.db == nil {
 		return
@@ -417,7 +417,7 @@ func (mgr *CustomRuleManager) loadFromDatabase() {
 	mgr.logger.Info("从数据库加载规则", zap.Int("count", len(rules)))
 }
 
-// addDefaultTemplates 添加默认规则模板
+// addDefaultTemplates 添加默认规则模板.
 func (mgr *CustomRuleManager) addDefaultTemplates() {
 	// 这些是模板，不会被持久化，用户可以基于模板创建自定义规则
 	defaultTemplates := []*CustomAlertRule{
@@ -523,21 +523,21 @@ func (mgr *CustomRuleManager) addDefaultTemplates() {
 	}
 }
 
-// RegisterCollector 注册指标采集器
+// RegisterCollector 注册指标采集器.
 func (mgr *CustomRuleManager) RegisterCollector(metric MetricType, collector MetricCollector) {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
 	mgr.collectors[metric] = collector
 }
 
-// SetOnAlert 设置告警回调
+// SetOnAlert 设置告警回调.
 func (mgr *CustomRuleManager) SetOnAlert(callback func(alert *CustomAlert)) {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
 	mgr.onAlert = callback
 }
 
-// AddRule 添加自定义规则
+// AddRule 添加自定义规则.
 func (mgr *CustomRuleManager) AddRule(rule *CustomAlertRule) error {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
@@ -583,7 +583,7 @@ func (mgr *CustomRuleManager) AddRule(rule *CustomAlertRule) error {
 	return nil
 }
 
-// UpdateRule 更新规则
+// UpdateRule 更新规则.
 func (mgr *CustomRuleManager) UpdateRule(id string, updates RuleUpdate) error {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
@@ -618,7 +618,7 @@ func (mgr *CustomRuleManager) UpdateRule(id string, updates RuleUpdate) error {
 	return nil
 }
 
-// DeleteRule 删除规则
+// DeleteRule 删除规则.
 func (mgr *CustomRuleManager) DeleteRule(id string) error {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
@@ -658,7 +658,7 @@ func (mgr *CustomRuleManager) DeleteRule(id string) error {
 	return nil
 }
 
-// GetRule 获取规则
+// GetRule 获取规则.
 func (mgr *CustomRuleManager) GetRule(id string) (*CustomAlertRule, error) {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
@@ -670,7 +670,7 @@ func (mgr *CustomRuleManager) GetRule(id string) (*CustomAlertRule, error) {
 	return rule, nil
 }
 
-// GetRules 获取所有规则
+// GetRules 获取所有规则.
 func (mgr *CustomRuleManager) GetRules() []*CustomAlertRule {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
@@ -680,7 +680,7 @@ func (mgr *CustomRuleManager) GetRules() []*CustomAlertRule {
 	return result
 }
 
-// GetRulesByGroup 按分组获取规则
+// GetRulesByGroup 按分组获取规则.
 func (mgr *CustomRuleManager) GetRulesByGroup(group RuleGroup) []*CustomAlertRule {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
@@ -691,7 +691,7 @@ func (mgr *CustomRuleManager) GetRulesByGroup(group RuleGroup) []*CustomAlertRul
 	return result
 }
 
-// GetEnabledRules 获取启用的规则
+// GetEnabledRules 获取启用的规则.
 func (mgr *CustomRuleManager) GetEnabledRules() []*CustomAlertRule {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
@@ -705,7 +705,7 @@ func (mgr *CustomRuleManager) GetEnabledRules() []*CustomAlertRule {
 	return result
 }
 
-// GetTemplates 获取模板规则
+// GetTemplates 获取模板规则.
 func (mgr *CustomRuleManager) GetTemplates() []*CustomAlertRule {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
@@ -719,7 +719,7 @@ func (mgr *CustomRuleManager) GetTemplates() []*CustomAlertRule {
 	return result
 }
 
-// CreateFromTemplate 从模板创建规则
+// CreateFromTemplate 从模板创建规则.
 func (mgr *CustomRuleManager) CreateFromTemplate(templateID string, name string, customizations RuleUpdate) (*CustomAlertRule, error) {
 	mgr.mu.RLock()
 	tmpl, ok := mgr.rules[templateID]
@@ -759,7 +759,7 @@ func (mgr *CustomRuleManager) CreateFromTemplate(templateID string, name string,
 	return newRule, nil
 }
 
-// EvaluateAll 评估所有规则
+// EvaluateAll 评估所有规则.
 func (mgr *CustomRuleManager) EvaluateAll(ctx context.Context) ([]*CustomAlert, error) {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
@@ -807,7 +807,7 @@ func (mgr *CustomRuleManager) EvaluateAll(ctx context.Context) ([]*CustomAlert, 
 	return alerts, nil
 }
 
-// createAlert 创建告警
+// createAlert 创建告警.
 func (mgr *CustomRuleManager) createAlert(rule *CustomAlertRule, value float64, target string) *CustomAlert {
 	return &CustomAlert{
 		ID:           generateAlertID(),
@@ -829,7 +829,7 @@ func (mgr *CustomRuleManager) createAlert(rule *CustomAlertRule, value float64, 
 	}
 }
 
-// Start 启动规则检查循环
+// Start 启动规则检查循环.
 func (mgr *CustomRuleManager) Start(ctx context.Context) {
 	ticker := time.NewTicker(mgr.config.CheckInterval)
 	go func() {
@@ -860,7 +860,7 @@ func (mgr *CustomRuleManager) Start(ctx context.Context) {
 	)
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (mgr *CustomRuleManager) GetStats() RuleManagerStats {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
@@ -889,7 +889,7 @@ func (mgr *CustomRuleManager) GetStats() RuleManagerStats {
 	return stats
 }
 
-// RuleManagerStats 规则管理器统计
+// RuleManagerStats 规则管理器统计.
 type RuleManagerStats struct {
 	TotalRules   int                `json:"total_rules"`
 	EnabledRules int                `json:"enabled_rules"`
@@ -901,7 +901,7 @@ type RuleManagerStats struct {
 
 // ========== 告警对象 ==========
 
-// CustomAlert 自定义告警
+// CustomAlert 自定义告警.
 type CustomAlert struct {
 	ID           string            `json:"id"`
 	RuleID       string            `json:"rule_id"`
@@ -930,7 +930,7 @@ type CustomAlert struct {
 	SilenceID      string    `json:"silence_id,omitempty"`
 }
 
-// AlertStatus 告警状态
+// AlertStatus 告警状态.
 type AlertStatus string
 
 const (

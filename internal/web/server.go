@@ -75,7 +75,7 @@ import (
 	"nas-os/internal/wol"
 	"nas-os/internal/zfs"
 
-	// v2.498.0 新增模块
+	// v2.498.0 新增模块.
 	"nas-os/internal/appcenter"
 	"nas-os/internal/backupverify"
 	"nas-os/internal/collabdocs"
@@ -101,7 +101,7 @@ import (
 	"nas-os/internal/vmmanager"
 	"nas-os/internal/zfspool"
 
-	// v2.513.0 新增模块
+	// v2.513.0 新增模块.
 	"nas-os/internal/airecommend"
 	"nas-os/internal/alertguided"
 	"nas-os/internal/audittrail"
@@ -115,7 +115,7 @@ import (
 	"nas-os/internal/smartlink"
 	"nas-os/internal/spotlight"
 
-	// v2.542.0 新增模块
+	// v2.542.0 新增模块.
 	"nas-os/internal/apikey"
 	"nas-os/internal/containerimagecache"
 	"nas-os/internal/custombranding"

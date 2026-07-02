@@ -9,56 +9,56 @@ import (
 )
 
 // WorkflowEngine 工作流引擎，支持多步骤自动化任务编排
-// 提供动态工作流创建、条件分支、并行执行等高级能力
+// 提供动态工作流创建、条件分支、并行执行等高级能力.
 type WorkflowEngine struct {
 	mu        sync.RWMutex
 	templates map[string]*WorkflowTemplate // 工作流模板库
 	instances map[string]*WorkflowInstance // 运行中的工作流实例
-	registry  *ToolRegistry               // 工具注册中心引用
+	registry  *ToolRegistry                // 工具注册中心引用
 	guard     *Guardrails                  // 安全护栏引用
 }
 
-// WorkflowTemplate 工作流模板，定义可复用的工作流蓝图
+// WorkflowTemplate 工作流模板，定义可复用的工作流蓝图.
 type WorkflowTemplate struct {
-	ID          string              `json:"id"`
-	Name        string              `json:"name"`
-	Description string              `json:"description"`
-	Category    WorkflowCategory    `json:"category"`
-	Steps       []StepDefinition    `json:"steps"`
-	Variables   map[string]string   `json:"variables,omitempty"` // 模板变量定义
-	RequiredRole AgentRole          `json:"required_role"`
-	Version     string              `json:"version"`
-	Enabled     bool                `json:"enabled"`
-	CreatedAt   time.Time           `json:"created_at"`
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	Description  string            `json:"description"`
+	Category     WorkflowCategory  `json:"category"`
+	Steps        []StepDefinition  `json:"steps"`
+	Variables    map[string]string `json:"variables,omitempty"` // 模板变量定义
+	RequiredRole AgentRole         `json:"required_role"`
+	Version      string            `json:"version"`
+	Enabled      bool              `json:"enabled"`
+	CreatedAt    time.Time         `json:"created_at"`
 }
 
-// WorkflowCategory 工作流分类
+// WorkflowCategory 工作流分类.
 type WorkflowCategory string
 
 const (
 	CategoryMaintenance WorkflowCategory = "maintenance" // 系统维护
-	CategorySecurity    WorkflowCategory = "security"     // 安全运维
-	CategoryBackup      WorkflowCategory = "backup"       // 备份恢复
-	CategoryMonitor     WorkflowCategory = "monitor"      // 监控告警
-	CategoryOptimize    WorkflowCategory = "optimize"      // 性能优化
+	CategorySecurity    WorkflowCategory = "security"    // 安全运维
+	CategoryBackup      WorkflowCategory = "backup"      // 备份恢复
+	CategoryMonitor     WorkflowCategory = "monitor"     // 监控告警
+	CategoryOptimize    WorkflowCategory = "optimize"    // 性能优化
 )
 
-// StepDefinition 步骤定义，支持条件和依赖
+// StepDefinition 步骤定义，支持条件和依赖.
 type StepDefinition struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Action      string                 `json:"action"`
-	Parameters  map[string]interface{} `json:"parameters,omitempty"`
-	DependsOn   []string               `json:"depends_on,omitempty"`   // 依赖的前置步骤ID
-	Condition   string                 `json:"condition,omitempty"`    // 执行条件表达式
-	Parallel    bool                   `json:"parallel,omitempty"`     // 是否可并行执行
-	Timeout     time.Duration          `json:"timeout"`
-	RetryCount  int                    `json:"retry_count"`
-	Critical    bool                   `json:"critical,omitempty"`     // 是否为关键步骤（失败则终止）
-	Rollback    string                 `json:"rollback,omitempty"`     // 回滚动作
+	ID         string                 `json:"id"`
+	Name       string                 `json:"name"`
+	Action     string                 `json:"action"`
+	Parameters map[string]interface{} `json:"parameters,omitempty"`
+	DependsOn  []string               `json:"depends_on,omitempty"` // 依赖的前置步骤ID
+	Condition  string                 `json:"condition,omitempty"`  // 执行条件表达式
+	Parallel   bool                   `json:"parallel,omitempty"`   // 是否可并行执行
+	Timeout    time.Duration          `json:"timeout"`
+	RetryCount int                    `json:"retry_count"`
+	Critical   bool                   `json:"critical,omitempty"` // 是否为关键步骤（失败则终止）
+	Rollback   string                 `json:"rollback,omitempty"` // 回滚动作
 }
 
-// WorkflowInstance 工作流运行实例
+// WorkflowInstance 工作流运行实例.
 type WorkflowInstance struct {
 	ID          string                 `json:"id"`
 	TemplateID  string                 `json:"template_id"`
@@ -72,20 +72,20 @@ type WorkflowInstance struct {
 	cancel      context.CancelFunc
 }
 
-// WorkflowStatus 工作流状态
+// WorkflowStatus 工作流状态.
 type WorkflowStatus string
 
 const (
-	WfStatusPending   WorkflowStatus = "pending"
-	WfStatusRunning   WorkflowStatus = "running"
-	WfStatusPaused    WorkflowStatus = "paused"
-	WfStatusCompleted WorkflowStatus = "completed"
-	WfStatusFailed    WorkflowStatus = "failed"
-	WfStatusCancelled WorkflowStatus = "cancelled"
+	WfStatusPending     WorkflowStatus = "pending"
+	WfStatusRunning     WorkflowStatus = "running"
+	WfStatusPaused      WorkflowStatus = "paused"
+	WfStatusCompleted   WorkflowStatus = "completed"
+	WfStatusFailed      WorkflowStatus = "failed"
+	WfStatusCancelled   WorkflowStatus = "cancelled"
 	WfStatusRollingBack WorkflowStatus = "rolling_back"
 )
 
-// StepResult 步骤执行结果
+// StepResult 步骤执行结果.
 type StepResult struct {
 	StepID    string                 `json:"step_id"`
 	Status    TaskStatus             `json:"status"`
@@ -96,7 +96,7 @@ type StepResult struct {
 	Retries   int                    `json:"retries"`
 }
 
-// NewWorkflowEngine 创建工作流引擎实例
+// NewWorkflowEngine 创建工作流引擎实例.
 func NewWorkflowEngine(registry *ToolRegistry, guard *Guardrails) *WorkflowEngine {
 	engine := &WorkflowEngine{
 		templates: make(map[string]*WorkflowTemplate),
@@ -111,18 +111,18 @@ func NewWorkflowEngine(registry *ToolRegistry, guard *Guardrails) *WorkflowEngin
 	return engine
 }
 
-// registerDefaultTemplates 注册内置工作流模板
+// registerDefaultTemplates 注册内置工作流模板.
 func (e *WorkflowEngine) registerDefaultTemplates() {
 	// 系统健康巡检模板
 	e.RegisterTemplate(&WorkflowTemplate{
-		ID:          "tpl_health_patrol",
-		Name:        "系统健康巡检",
-		Description: "全面检查系统CPU、内存、磁盘、网络、温度等指标，生成健康报告",
-		Category:    CategoryMonitor,
+		ID:           "tpl_health_patrol",
+		Name:         "系统健康巡检",
+		Description:  "全面检查系统CPU、内存、磁盘、网络、温度等指标，生成健康报告",
+		Category:     CategoryMonitor,
 		RequiredRole: RoleSystemAdmin,
-		Version:     "1.0",
-		Enabled:     true,
-		CreatedAt:   time.Now(),
+		Version:      "1.0",
+		Enabled:      true,
+		CreatedAt:    time.Now(),
 		Steps: []StepDefinition{
 			{ID: "step_cpu", Name: "检查CPU", Action: "check_cpu", Timeout: 10 * time.Second},
 			{ID: "step_mem", Name: "检查内存", Action: "check_memory", Timeout: 10 * time.Second},
@@ -135,14 +135,14 @@ func (e *WorkflowEngine) registerDefaultTemplates() {
 
 	// 安全加固模板
 	e.RegisterTemplate(&WorkflowTemplate{
-		ID:          "tpl_security_hardening",
-		Name:        "安全加固检查",
-		Description: "扫描系统安全漏洞，检查权限配置，加固系统安全",
-		Category:    CategorySecurity,
+		ID:           "tpl_security_hardening",
+		Name:         "安全加固检查",
+		Description:  "扫描系统安全漏洞，检查权限配置，加固系统安全",
+		Category:     CategorySecurity,
 		RequiredRole: RoleSecurityAdmin,
-		Version:     "1.0",
-		Enabled:     true,
-		CreatedAt:   time.Now(),
+		Version:      "1.0",
+		Enabled:      true,
+		CreatedAt:    time.Now(),
 		Steps: []StepDefinition{
 			{ID: "step_port_scan", Name: "端口扫描", Action: "port_scan", Timeout: 120 * time.Second},
 			{ID: "step_perm_check", Name: "权限检查", Action: "check_permissions", Timeout: 60 * time.Second, Parallel: true},
@@ -154,14 +154,14 @@ func (e *WorkflowEngine) registerDefaultTemplates() {
 
 	// 备份验证模板
 	e.RegisterTemplate(&WorkflowTemplate{
-		ID:          "tpl_backup_verify",
-		Name:        "备份完整性验证",
-		Description: "验证最近备份的完整性和可恢复性，确保数据安全",
-		Category:    CategoryBackup,
+		ID:           "tpl_backup_verify",
+		Name:         "备份完整性验证",
+		Description:  "验证最近备份的完整性和可恢复性，确保数据安全",
+		Category:     CategoryBackup,
 		RequiredRole: RoleBackupAdmin,
-		Version:     "1.0",
-		Enabled:     true,
-		CreatedAt:   time.Now(),
+		Version:      "1.0",
+		Enabled:      true,
+		CreatedAt:    time.Now(),
 		Steps: []StepDefinition{
 			{ID: "step_list", Name: "列出备份", Action: "list_backups", Timeout: 60 * time.Second},
 			{ID: "step_checksum", Name: "校验和验证", Action: "verify_checksums", Timeout: 300 * time.Second, DependsOn: []string{"step_list"}},
@@ -171,14 +171,14 @@ func (e *WorkflowEngine) registerDefaultTemplates() {
 
 	// 存储优化模板
 	e.RegisterTemplate(&WorkflowTemplate{
-		ID:          "tpl_storage_optimize",
-		Name:        "存储空间优化",
-		Description: "分析存储使用情况，清理冗余数据，优化存储结构",
-		Category:    CategoryOptimize,
+		ID:           "tpl_storage_optimize",
+		Name:         "存储空间优化",
+		Description:  "分析存储使用情况，清理冗余数据，优化存储结构",
+		Category:     CategoryOptimize,
 		RequiredRole: RoleStorageAdmin,
-		Version:     "1.0",
-		Enabled:     true,
-		CreatedAt:   time.Now(),
+		Version:      "1.0",
+		Enabled:      true,
+		CreatedAt:    time.Now(),
 		Steps: []StepDefinition{
 			{ID: "step_analyze", Name: "存储分析", Action: "analyze_storage", Timeout: 300 * time.Second},
 			{ID: "step_duplicates", Name: "查找重复", Action: "find_duplicates", Timeout: 600 * time.Second, DependsOn: []string{"step_analyze"}},
@@ -188,7 +188,7 @@ func (e *WorkflowEngine) registerDefaultTemplates() {
 	})
 }
 
-// RegisterTemplate 注册工作流模板
+// RegisterTemplate 注册工作流模板.
 func (e *WorkflowEngine) RegisterTemplate(tmpl *WorkflowTemplate) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -205,7 +205,7 @@ func (e *WorkflowEngine) RegisterTemplate(tmpl *WorkflowTemplate) error {
 	return nil
 }
 
-// UnregisterTemplate 注销工作流模板
+// UnregisterTemplate 注销工作流模板.
 func (e *WorkflowEngine) UnregisterTemplate(templateID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -219,7 +219,7 @@ func (e *WorkflowEngine) UnregisterTemplate(templateID string) error {
 	return nil
 }
 
-// GetTemplate 获取工作流模板
+// GetTemplate 获取工作流模板.
 func (e *WorkflowEngine) GetTemplate(templateID string) (*WorkflowTemplate, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -231,7 +231,7 @@ func (e *WorkflowEngine) GetTemplate(templateID string) (*WorkflowTemplate, erro
 	return tmpl, nil
 }
 
-// ListTemplates 列出所有工作流模板
+// ListTemplates 列出所有工作流模板.
 func (e *WorkflowEngine) ListTemplates(category *WorkflowCategory) []*WorkflowTemplate {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -245,7 +245,7 @@ func (e *WorkflowEngine) ListTemplates(category *WorkflowCategory) []*WorkflowTe
 	return templates
 }
 
-// Execute 启动执行工作流实例
+// Execute 启动执行工作流实例.
 func (e *WorkflowEngine) Execute(templateID string, variables map[string]interface{}) (*WorkflowInstance, error) {
 	e.mu.RLock()
 	tmpl, exists := e.templates[templateID]
@@ -290,7 +290,7 @@ func (e *WorkflowEngine) Execute(templateID string, variables map[string]interfa
 	return instance, nil
 }
 
-// runInstance 执行工作流实例
+// runInstance 执行工作流实例.
 func (e *WorkflowEngine) runInstance(instance *WorkflowInstance, tmpl *WorkflowTemplate) {
 	// 构建步骤依赖图
 	stepMap := make(map[string]*StepDefinition)
@@ -363,7 +363,7 @@ func (e *WorkflowEngine) runInstance(instance *WorkflowInstance, tmpl *WorkflowT
 	log.Printf("[WorkflowEngine] 工作流实例完成: %s (状态: %s)", instance.ID, instance.Status)
 }
 
-// dependenciesMet 检查步骤依赖是否满足
+// dependenciesMet 检查步骤依赖是否满足.
 func (e *WorkflowEngine) dependenciesMet(step StepDefinition, completed map[string]bool) bool {
 	for _, dep := range step.DependsOn {
 		if !completed[dep] {
@@ -373,7 +373,7 @@ func (e *WorkflowEngine) dependenciesMet(step StepDefinition, completed map[stri
 	return true
 }
 
-// evaluateCondition 评估条件表达式
+// evaluateCondition 评估条件表达式.
 func (e *WorkflowEngine) evaluateCondition(condition string, variables map[string]interface{}) bool {
 	// 简化实现：检查变量是否存在且非空
 	// 实际实现应支持更复杂的表达式解析
@@ -383,7 +383,7 @@ func (e *WorkflowEngine) evaluateCondition(condition string, variables map[strin
 	return false
 }
 
-// executeStep 执行单个工作流步骤
+// executeStep 执行单个工作流步骤.
 func (e *WorkflowEngine) executeStep(instance *WorkflowInstance, step *StepDefinition) *StepResult {
 	result := &StepResult{
 		StepID:    step.ID,
@@ -425,7 +425,7 @@ func (e *WorkflowEngine) executeStep(instance *WorkflowInstance, step *StepDefin
 	return result
 }
 
-// rollback 回滚已执行的步骤
+// rollback 回滚已执行的步骤.
 func (e *WorkflowEngine) rollback(instance *WorkflowInstance, tmpl *WorkflowTemplate, failedStepID string) {
 	instance.Status = WfStatusRollingBack
 	log.Printf("[WorkflowEngine] 开始回滚工作流实例: %s", instance.ID)
@@ -447,7 +447,7 @@ func (e *WorkflowEngine) rollback(instance *WorkflowInstance, tmpl *WorkflowTemp
 	instance.Status = WfStatusFailed
 }
 
-// GetInstance 获取工作流实例状态
+// GetInstance 获取工作流实例状态.
 func (e *WorkflowEngine) GetInstance(instanceID string) (*WorkflowInstance, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -459,7 +459,7 @@ func (e *WorkflowEngine) GetInstance(instanceID string) (*WorkflowInstance, erro
 	return instance, nil
 }
 
-// CancelInstance 取消正在运行的工作流实例
+// CancelInstance 取消正在运行的工作流实例.
 func (e *WorkflowEngine) CancelInstance(instanceID string) error {
 	e.mu.RLock()
 	instance, exists := e.instances[instanceID]
@@ -482,7 +482,7 @@ func (e *WorkflowEngine) CancelInstance(instanceID string) error {
 	return nil
 }
 
-// ListInstances 列出工作流实例
+// ListInstances 列出工作流实例.
 func (e *WorkflowEngine) ListInstances(status *WorkflowStatus) []*WorkflowInstance {
 	e.mu.RLock()
 	defer e.mu.RUnlock()

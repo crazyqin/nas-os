@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// DirectoryStatus 目录服务状态
+// DirectoryStatus 目录服务状态.
 type DirectoryStatus string
 
 const (
@@ -20,29 +20,29 @@ const (
 	StatusSyncing      DirectoryStatus = "syncing"
 )
 
-// DirectoryConfig FreeIPA 目录服务配置
+// DirectoryConfig FreeIPA 目录服务配置.
 type DirectoryConfig struct {
-	ID              string          `json:"id"`
-	Name            string          `json:"name"`
-	Host            string          `json:"host"`
-	Port            int             `json:"port"`
-	BaseDN          string          `json:"base_dn"`
-	BindDN          string          `json:"bind_dn"`
-	BindPassword    string          `json:"bind_password"`
-	UserBaseDN      string          `json:"user_base_dn"`
-	GroupBaseDN     string          `json:"group_base_dn"`
-	UseTLS          bool            `json:"use_tls"`
-	SkipVerify      bool            `json:"skip_verify"`
-	EnableSync      bool            `json:"enable_sync"`
-	SyncInterval    time.Duration   `json:"sync_interval"`
-	Status          DirectoryStatus `json:"status"`
-	LastSyncTime    time.Time       `json:"last_sync_time,omitempty"`
-	LastError       string          `json:"last_error,omitempty"`
-	CreatedAt       time.Time       `json:"created_at"`
-	UpdatedAt       time.Time       `json:"updated_at"`
+	ID           string          `json:"id"`
+	Name         string          `json:"name"`
+	Host         string          `json:"host"`
+	Port         int             `json:"port"`
+	BaseDN       string          `json:"base_dn"`
+	BindDN       string          `json:"bind_dn"`
+	BindPassword string          `json:"bind_password"`
+	UserBaseDN   string          `json:"user_base_dn"`
+	GroupBaseDN  string          `json:"group_base_dn"`
+	UseTLS       bool            `json:"use_tls"`
+	SkipVerify   bool            `json:"skip_verify"`
+	EnableSync   bool            `json:"enable_sync"`
+	SyncInterval time.Duration   `json:"sync_interval"`
+	Status       DirectoryStatus `json:"status"`
+	LastSyncTime time.Time       `json:"last_sync_time,omitempty"`
+	LastError    string          `json:"last_error,omitempty"`
+	CreatedAt    time.Time       `json:"created_at"`
+	UpdatedAt    time.Time       `json:"updated_at"`
 }
 
-// DefaultDirectoryConfig 默认 FreeIPA 配置
+// DefaultDirectoryConfig 默认 FreeIPA 配置.
 func DefaultDirectoryConfig() DirectoryConfig {
 	return DirectoryConfig{
 		Port:         389,
@@ -59,7 +59,7 @@ func DefaultDirectoryConfig() DirectoryConfig {
 	}
 }
 
-// LDAPUser LDAP 用户条目
+// LDAPUser LDAP 用户条目.
 type LDAPUser struct {
 	UID           string    `json:"uid"`
 	Username      string    `json:"username"`
@@ -77,16 +77,16 @@ type LDAPUser struct {
 	SyncedAt      time.Time `json:"synced_at"`
 }
 
-// LDAPGroup LDAP 组条目
+// LDAPGroup LDAP 组条目.
 type LDAPGroup struct {
-	CN          string   `json:"cn"`
-	GIDNumber   int      `json:"gid_number"`
-	Description string   `json:"description"`
-	Members     []string `json:"members"`
+	CN          string    `json:"cn"`
+	GIDNumber   int       `json:"gid_number"`
+	Description string    `json:"description"`
+	Members     []string  `json:"members"`
 	SyncedAt    time.Time `json:"synced_at"`
 }
 
-// SyncResult 同步结果
+// SyncResult 同步结果.
 type SyncResult struct {
 	UsersSynced   int       `json:"users_synced"`
 	GroupsSynced  int       `json:"groups_synced"`
@@ -101,7 +101,7 @@ type SyncResult struct {
 	SyncedAt      time.Time `json:"synced_at"`
 }
 
-// AuthResult 认证结果
+// AuthResult 认证结果.
 type AuthResult struct {
 	Success  bool      `json:"success"`
 	User     *LDAPUser `json:"user,omitempty"`
@@ -109,53 +109,53 @@ type AuthResult struct {
 	AuthTime string    `json:"auth_time"`
 }
 
-// DirectoryStats 目录服务统计
+// DirectoryStats 目录服务统计.
 type DirectoryStats struct {
-	TotalUsers      int       `json:"total_users"`
-	TotalGroups     int       `json:"total_groups"`
-	ActiveUsers     int       `json:"active_users"`
-	DisabledUsers   int       `json:"disabled_users"`
-	LastSyncTime    time.Time `json:"last_sync_time,omitempty"`
-	SyncErrorCount  int       `json:"sync_error_count"`
-	Status          DirectoryStatus `json:"status"`
-	Uptime          string    `json:"uptime"`
+	TotalUsers     int             `json:"total_users"`
+	TotalGroups    int             `json:"total_groups"`
+	ActiveUsers    int             `json:"active_users"`
+	DisabledUsers  int             `json:"disabled_users"`
+	LastSyncTime   time.Time       `json:"last_sync_time,omitempty"`
+	SyncErrorCount int             `json:"sync_error_count"`
+	Status         DirectoryStatus `json:"status"`
+	Uptime         string          `json:"uptime"`
 }
 
-// UserSearchFilter 用户搜索过滤器
+// UserSearchFilter 用户搜索过滤器.
 type UserSearchFilter struct {
-	Username    string `json:"username,omitempty"`
-	Email       string `json:"email,omitempty"`
-	Group       string `json:"group,omitempty"`
-	Enabled     *bool  `json:"enabled,omitempty"`
-	UIDMin      int    `json:"uid_min,omitempty"`
-	UIDMax      int    `json:"uid_max,omitempty"`
-	Limit       int    `json:"limit,omitempty"`
-	Offset      int    `json:"offset,omitempty"`
+	Username string `json:"username,omitempty"`
+	Email    string `json:"email,omitempty"`
+	Group    string `json:"group,omitempty"`
+	Enabled  *bool  `json:"enabled,omitempty"`
+	UIDMin   int    `json:"uid_min,omitempty"`
+	UIDMax   int    `json:"uid_max,omitempty"`
+	Limit    int    `json:"limit,omitempty"`
+	Offset   int    `json:"offset,omitempty"`
 }
 
-// GroupSearchFilter 组搜索过滤器
+// GroupSearchFilter 组搜索过滤器.
 type GroupSearchFilter struct {
-	Name        string `json:"name,omitempty"`
-	GIDMin      int    `json:"gid_min,omitempty"`
-	GIDMax      int    `json:"gid_max,omitempty"`
-	HasMembers  *bool  `json:"has_members,omitempty"`
-	Limit       int    `json:"limit,omitempty"`
-	Offset      int    `json:"offset,omitempty"`
+	Name       string `json:"name,omitempty"`
+	GIDMin     int    `json:"gid_min,omitempty"`
+	GIDMax     int    `json:"gid_max,omitempty"`
+	HasMembers *bool  `json:"has_members,omitempty"`
+	Limit      int    `json:"limit,omitempty"`
+	Offset     int    `json:"offset,omitempty"`
 }
 
-// SyncSchedule 同步调度配置
+// SyncSchedule 同步调度配置.
 type SyncSchedule struct {
-	Enabled    bool          `json:"enabled"`
-	Interval   time.Duration `json:"interval"`
-	LastRun    time.Time     `json:"last_run,omitempty"`
-	NextRun    time.Time     `json:"next_run,omitempty"`
-	SyncUsers  bool          `json:"sync_users"`
-	SyncGroups bool          `json:"sync_groups"`
-	AutoCreate bool          `json:"auto_create"` // 自动创建本地用户映射
-	ConflictStrategy string `json:"conflict_strategy"` // "remote_wins" | "local_wins" | "manual"
+	Enabled          bool          `json:"enabled"`
+	Interval         time.Duration `json:"interval"`
+	LastRun          time.Time     `json:"last_run,omitempty"`
+	NextRun          time.Time     `json:"next_run,omitempty"`
+	SyncUsers        bool          `json:"sync_users"`
+	SyncGroups       bool          `json:"sync_groups"`
+	AutoCreate       bool          `json:"auto_create"`       // 自动创建本地用户映射
+	ConflictStrategy string        `json:"conflict_strategy"` // "remote_wins" | "local_wins" | "manual"
 }
 
-// DefaultSyncSchedule 默认同步调度
+// DefaultSyncSchedule 默认同步调度.
 func DefaultSyncSchedule() SyncSchedule {
 	return SyncSchedule{
 		Enabled:          true,

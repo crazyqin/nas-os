@@ -11,7 +11,7 @@ import (
 
 // ========== 核心类型 ==========
 
-// MonitorReport 综合监控报告
+// MonitorReport 综合监控报告.
 type MonitorReport struct {
 	Timestamp time.Time      `json:"timestamp"`
 	CPU       *CPUInfo       `json:"cpu"`
@@ -21,7 +21,7 @@ type MonitorReport struct {
 	Voltages  []VoltageInfo  `json:"voltages"`
 }
 
-// CPUInfo CPU 信息
+// CPUInfo CPU 信息.
 type CPUInfo struct {
 	Model     string    `json:"model"` // 型号
 	Cores     int       `json:"cores"` // 核心数
@@ -30,7 +30,7 @@ type CPUInfo struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-// MemoryInfo 内存信息
+// MemoryInfo 内存信息.
 type MemoryInfo struct {
 	Total     uint64    `json:"total"`     // 总量 (字节)
 	Used      uint64    `json:"used"`      // 已用
@@ -41,7 +41,7 @@ type MemoryInfo struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-// DiskTempInfo 磁盘温度信息
+// DiskTempInfo 磁盘温度信息.
 type DiskTempInfo struct {
 	Device    string    `json:"device"` // 设备名 (/dev/sda)
 	Temp      float64   `json:"temp"`   // 温度 (°C)
@@ -50,7 +50,7 @@ type DiskTempInfo struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-// NetIOInfo 网络流量信息
+// NetIOInfo 网络流量信息.
 type NetIOInfo struct {
 	Interface string `json:"interface"` // 接口名
 	RxBytes   uint64 `json:"rxBytes"`   // 接收字节
@@ -61,7 +61,7 @@ type NetIOInfo struct {
 	TxErrors  uint64 `json:"txErrors"`  // 发送错误
 }
 
-// VoltageInfo 主板电压信息
+// VoltageInfo 主板电压信息.
 type VoltageInfo struct {
 	Name  string  `json:"name"`  // 电压名 (vcore, +3.3V, +5V, +12V)
 	Value float64 `json:"value"` // 当前值 (V)
@@ -69,13 +69,13 @@ type VoltageInfo struct {
 	Max   float64 `json:"max"`   // 最大值
 }
 
-// AlertThreshold 告警阈值
+// AlertThreshold 告警阈值.
 type AlertThreshold struct {
 	Metric string  `json:"metric"` // 指标名 (cpu_temp, mem_usage, disk_temp)
 	Value  float64 `json:"value"`  // 阈值
 }
 
-// HistoryRecord 历史记录
+// HistoryRecord 历史记录.
 type HistoryRecord struct {
 	Timestamp time.Time      `json:"timestamp"`
 	Report    *MonitorReport `json:"report"`
@@ -83,7 +83,7 @@ type HistoryRecord struct {
 
 // ========== Manager ==========
 
-// Manager 硬件监控管理器
+// Manager 硬件监控管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	cpu        *CPUInfo
@@ -98,7 +98,7 @@ type Manager struct {
 	running    bool
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		thresholds: map[string]float64{
@@ -111,7 +111,7 @@ func NewManager() *Manager {
 	}
 }
 
-// GetReport 获取综合报告
+// GetReport 获取综合报告.
 func (m *Manager) GetReport() (*MonitorReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -131,7 +131,7 @@ func (m *Manager) GetReport() (*MonitorReport, error) {
 	return report, nil
 }
 
-// GetCPU 获取 CPU 信息
+// GetCPU 获取 CPU 信息.
 func (m *Manager) GetCPU() (*CPUInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -142,7 +142,7 @@ func (m *Manager) GetCPU() (*CPUInfo, error) {
 	return m.cpu, nil
 }
 
-// GetMemory 获取内存信息
+// GetMemory 获取内存信息.
 func (m *Manager) GetMemory() (*MemoryInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -153,7 +153,7 @@ func (m *Manager) GetMemory() (*MemoryInfo, error) {
 	return m.memory, nil
 }
 
-// GetDiskTemps 获取磁盘温度
+// GetDiskTemps 获取磁盘温度.
 func (m *Manager) GetDiskTemps() ([]DiskTempInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -161,7 +161,7 @@ func (m *Manager) GetDiskTemps() ([]DiskTempInfo, error) {
 	return m.disks, nil
 }
 
-// GetNetIO 获取网络流量
+// GetNetIO 获取网络流量.
 func (m *Manager) GetNetIO() ([]NetIOInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -169,7 +169,7 @@ func (m *Manager) GetNetIO() ([]NetIOInfo, error) {
 	return m.network, nil
 }
 
-// GetVoltages 获取电压信息
+// GetVoltages 获取电压信息.
 func (m *Manager) GetVoltages() ([]VoltageInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -177,7 +177,7 @@ func (m *Manager) GetVoltages() ([]VoltageInfo, error) {
 	return m.voltages, nil
 }
 
-// SetThreshold 设置告警阈值
+// SetThreshold 设置告警阈值.
 func (m *Manager) SetThreshold(metric string, value float64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -197,7 +197,7 @@ func (m *Manager) SetThreshold(metric string, value float64) error {
 	return nil
 }
 
-// GetHistory 获取历史记录
+// GetHistory 获取历史记录.
 func (m *Manager) GetHistory(duration time.Duration) []HistoryRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -212,7 +212,7 @@ func (m *Manager) GetHistory(duration time.Duration) []HistoryRecord {
 	return result
 }
 
-// collect 采集一次硬件数据
+// collect 采集一次硬件数据.
 func (m *Manager) collect() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -300,7 +300,7 @@ func (m *Manager) collect() {
 	m.checkAlerts()
 }
 
-// checkAlerts 检查告警
+// checkAlerts 检查告警.
 func (m *Manager) checkAlerts() {
 	if m.cpu != nil {
 		if threshold, ok := m.thresholds["cpu_temp"]; ok && m.cpu.Temp >= threshold {
@@ -320,7 +320,7 @@ func (m *Manager) checkAlerts() {
 	}
 }
 
-// Start 启动定时采集
+// Start 启动定时采集.
 func (m *Manager) Start(interval time.Duration) {
 	m.mu.Lock()
 	if m.running {
@@ -351,7 +351,7 @@ func (m *Manager) Start(interval time.Duration) {
 	log.Printf("[硬件监控] 启动定时采集，间隔 %v", interval)
 }
 
-// Stop 停止定时采集
+// Stop 停止定时采集.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()

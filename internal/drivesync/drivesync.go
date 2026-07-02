@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// SyncFile 同步文件记录
+// SyncFile 同步文件记录.
 type SyncFile struct {
 	ID           string         `json:"id"`
 	TaskID       string         `json:"task_id"`
@@ -29,7 +29,7 @@ type SyncFile struct {
 	IsFolder     bool           `json:"is_folder,omitempty"` // 是否为文件夹
 }
 
-// DriveSyncManager Drive同步管理器
+// DriveSyncManager Drive同步管理器.
 type DriveSyncManager struct {
 	mu       sync.RWMutex
 	tasks    map[string]*SyncTask
@@ -38,7 +38,7 @@ type DriveSyncManager struct {
 	config   *DriveSyncConfig
 }
 
-// DriveSyncConfig Drive同步配置
+// DriveSyncConfig Drive同步配置.
 type DriveSyncConfig struct {
 	MaxVersions       int      `json:"max_versions"`
 	AutoSync          bool     `json:"auto_sync"`
@@ -50,7 +50,7 @@ type DriveSyncConfig struct {
 	BandwidthLimit    int      `json:"bandwidth_limit"` // KB/s, 0=无限
 }
 
-// DefaultDriveSyncConfig 默认配置
+// DefaultDriveSyncConfig 默认配置.
 func DefaultDriveSyncConfig() *DriveSyncConfig {
 	return &DriveSyncConfig{
 		MaxVersions:       32,
@@ -63,7 +63,7 @@ func DefaultDriveSyncConfig() *DriveSyncConfig {
 	}
 }
 
-// NewDriveSyncManager 创建Drive同步管理器
+// NewDriveSyncManager 创建Drive同步管理器.
 func NewDriveSyncManager(config *DriveSyncConfig) *DriveSyncManager {
 	if config == nil {
 		config = DefaultDriveSyncConfig()
@@ -77,7 +77,7 @@ func NewDriveSyncManager(config *DriveSyncConfig) *DriveSyncManager {
 	}
 }
 
-// CreateTask 创建同步任务
+// CreateTask 创建同步任务.
 func (m *DriveSyncManager) CreateTask(task *SyncTask) error {
 	if task == nil {
 		return errors.New("task is nil")
@@ -118,7 +118,7 @@ func (m *DriveSyncManager) CreateTask(task *SyncTask) error {
 	return nil
 }
 
-// GetTask 获取同步任务
+// GetTask 获取同步任务.
 func (m *DriveSyncManager) GetTask(id string) (*SyncTask, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -127,7 +127,7 @@ func (m *DriveSyncManager) GetTask(id string) (*SyncTask, bool) {
 	return task, exists
 }
 
-// UpdateTask 更新同步任务
+// UpdateTask 更新同步任务.
 func (m *DriveSyncManager) UpdateTask(id string, update func(*SyncTask)) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -143,7 +143,7 @@ func (m *DriveSyncManager) UpdateTask(id string, update func(*SyncTask)) error {
 	return nil
 }
 
-// DeleteTask 删除同步任务
+// DeleteTask 删除同步任务.
 func (m *DriveSyncManager) DeleteTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -158,7 +158,7 @@ func (m *DriveSyncManager) DeleteTask(id string) error {
 	return nil
 }
 
-// ListTasks 列出同步任务
+// ListTasks 列出同步任务.
 func (m *DriveSyncManager) ListTasks() []*SyncTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -171,7 +171,7 @@ func (m *DriveSyncManager) ListTasks() []*SyncTask {
 	return tasks
 }
 
-// StartSync 开始同步
+// StartSync 开始同步.
 func (m *DriveSyncManager) StartSync(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -187,7 +187,7 @@ func (m *DriveSyncManager) StartSync(taskID string) error {
 	return nil
 }
 
-// CompleteSync 完成同步
+// CompleteSync 完成同步.
 func (m *DriveSyncManager) CompleteSync(taskID string, syncedCount, conflictCount int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -207,7 +207,7 @@ func (m *DriveSyncManager) CompleteSync(taskID string, syncedCount, conflictCoun
 	return nil
 }
 
-// PauseSync 暂停同步
+// PauseSync 暂停同步.
 func (m *DriveSyncManager) PauseSync(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -223,7 +223,7 @@ func (m *DriveSyncManager) PauseSync(taskID string) error {
 	return nil
 }
 
-// ResumeSync 恢复同步
+// ResumeSync 恢复同步.
 func (m *DriveSyncManager) ResumeSync(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -239,7 +239,7 @@ func (m *DriveSyncManager) ResumeSync(taskID string) error {
 	return nil
 }
 
-// SetSyncError 设置同步错误
+// SetSyncError 设置同步错误.
 func (m *DriveSyncManager) SetSyncError(taskID string, err string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -256,7 +256,7 @@ func (m *DriveSyncManager) SetSyncError(taskID string, err string) error {
 	return nil
 }
 
-// AddSyncFile 添加同步文件记录
+// AddSyncFile 添加同步文件记录.
 func (m *DriveSyncManager) AddSyncFile(taskID string, file *SyncFile) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -271,7 +271,7 @@ func (m *DriveSyncManager) AddSyncFile(taskID string, file *SyncFile) error {
 	return nil
 }
 
-// GetSyncFiles 获取同步文件列表
+// GetSyncFiles 获取同步文件列表.
 func (m *DriveSyncManager) GetSyncFiles(taskID string) []*SyncFile {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -279,7 +279,7 @@ func (m *DriveSyncManager) GetSyncFiles(taskID string) []*SyncFile {
 	return m.files[taskID]
 }
 
-// AddFileVersion 添加文件版本
+// AddFileVersion 添加文件版本.
 func (m *DriveSyncManager) AddFileVersion(filePath string, version *FileVersion) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -305,7 +305,7 @@ func (m *DriveSyncManager) AddFileVersion(filePath string, version *FileVersion)
 	return nil
 }
 
-// GetFileVersions 获取文件版本列表
+// GetFileVersions 获取文件版本列表.
 func (m *DriveSyncManager) GetFileVersions(filePath string) []*FileVersion {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -313,13 +313,13 @@ func (m *DriveSyncManager) GetFileVersions(filePath string) []*FileVersion {
 	return m.versions[filePath]
 }
 
-// CalculateChecksum 计算文件校验和
+// CalculateChecksum 计算文件校验和.
 func CalculateChecksum(data []byte) string {
 	hash := sha256.Sum256(data)
 	return hex.EncodeToString(hash[:])
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *DriveSyncManager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -358,7 +358,7 @@ func (m *DriveSyncManager) GetStats() map[string]interface{} {
 	return stats
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *DriveSyncManager) GetConfig() *DriveSyncConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -366,7 +366,7 @@ func (m *DriveSyncManager) GetConfig() *DriveSyncConfig {
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *DriveSyncManager) UpdateConfig(config *DriveSyncConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

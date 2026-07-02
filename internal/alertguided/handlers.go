@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handlers 引导式告警HTTP处理器
+// Handlers 引导式告警HTTP处理器.
 type Handlers struct {
 	logger     *zap.Logger
 	manager    *Manager
@@ -17,7 +17,7 @@ type Handlers struct {
 	aggregator *Aggregator
 }
 
-// NewHandlers 创建处理器（使用默认知识库和组件）
+// NewHandlers 创建处理器（使用默认知识库和组件）.
 func NewHandlers(logger *zap.Logger, mgr *Manager) *Handlers {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -32,7 +32,7 @@ func NewHandlers(logger *zap.Logger, mgr *Manager) *Handlers {
 	}
 }
 
-// NewHandlersFull 创建完整处理器（可注入依赖）
+// NewHandlersFull 创建完整处理器（可注入依赖）.
 func NewHandlersFull(logger *zap.Logger, mgr *Manager, guide *GuideEngine, tracker *RepairTracker, agg *Aggregator) *Handlers {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -46,7 +46,7 @@ func NewHandlersFull(logger *zap.Logger, mgr *Manager, guide *GuideEngine, track
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	guided := rg.Group("/alerts/guided")
 	{
@@ -77,7 +77,7 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// List GET /api/v1/alerts/guided
+// List GET /api/v1/alerts/guided.
 func (h *Handlers) List(c *gin.Context) {
 	alerts := h.manager.List()
 	c.JSON(http.StatusOK, gin.H{
@@ -86,7 +86,7 @@ func (h *Handlers) List(c *gin.Context) {
 	})
 }
 
-// Get GET /api/v1/alerts/guided/:id
+// Get GET /api/v1/alerts/guided/:id.
 func (h *Handlers) Get(c *gin.Context) {
 	id := c.Param("id")
 	alert, ok := h.manager.Get(id)
@@ -97,7 +97,7 @@ func (h *Handlers) Get(c *gin.Context) {
 	c.JSON(http.StatusOK, alert)
 }
 
-// ListBySeverity GET /api/v1/alerts/guided/severity/:severity
+// ListBySeverity GET /api/v1/alerts/guided/severity/:severity.
 func (h *Handlers) ListBySeverity(c *gin.Context) {
 	severity := Severity(c.Param("severity"))
 	alerts := h.manager.ListBySeverity(severity)
@@ -108,7 +108,7 @@ func (h *Handlers) ListBySeverity(c *gin.Context) {
 	})
 }
 
-// ListByStatus GET /api/v1/alerts/guided/status/:status
+// ListByStatus GET /api/v1/alerts/guided/status/:status.
 func (h *Handlers) ListByStatus(c *gin.Context) {
 	status := AlertStatus(c.Param("status"))
 	alerts := h.manager.ListByStatus(status)
@@ -119,13 +119,13 @@ func (h *Handlers) ListByStatus(c *gin.Context) {
 	})
 }
 
-// Summary GET /api/v1/alerts/guided/summary
+// Summary GET /api/v1/alerts/guided/summary.
 func (h *Handlers) Summary(c *gin.Context) {
 	summary := h.manager.Summary()
 	c.JSON(http.StatusOK, summary)
 }
 
-// Acknowledge POST /api/v1/alerts/guided/:id/acknowledge
+// Acknowledge POST /api/v1/alerts/guided/:id/acknowledge.
 func (h *Handlers) Acknowledge(c *gin.Context) {
 	id := c.Param("id")
 
@@ -139,7 +139,7 @@ func (h *Handlers) Acknowledge(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "acknowledged"})
 }
 
-// Silence POST /api/v1/alerts/guided/:id/silence
+// Silence POST /api/v1/alerts/guided/:id/silence.
 func (h *Handlers) Silence(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.Silence(id); err != nil {
@@ -149,7 +149,7 @@ func (h *Handlers) Silence(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "silenced"})
 }
 
-// UpdateStatus POST /api/v1/alerts/guided/:id/status
+// UpdateStatus POST /api/v1/alerts/guided/:id/status.
 func (h *Handlers) UpdateStatus(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateStatusRequest
@@ -165,7 +165,7 @@ func (h *Handlers) UpdateStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "status updated"})
 }
 
-// GetGuide GET /api/v1/alerts/guided/:id/guide
+// GetGuide GET /api/v1/alerts/guided/:id/guide.
 func (h *Handlers) GetGuide(c *gin.Context) {
 	id := c.Param("id")
 	alert, ok := h.manager.Get(id)
@@ -179,7 +179,7 @@ func (h *Handlers) GetGuide(c *gin.Context) {
 }
 
 // Resolve POST /api/v1/alerts/guided/:id/resolve
-// 标记告警已解决
+// 标记告警已解决.
 func (h *Handlers) Resolve(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
@@ -198,7 +198,7 @@ func (h *Handlers) Resolve(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "resolved"})
 }
 
-// ListAggregations GET /api/v1/alerts/guided/aggregations
+// ListAggregations GET /api/v1/alerts/guided/aggregations.
 func (h *Handlers) ListAggregations(c *gin.Context) {
 	groups := h.aggregator.ListGroups()
 	summary := h.aggregator.Summary()
@@ -208,7 +208,7 @@ func (h *Handlers) ListAggregations(c *gin.Context) {
 	})
 }
 
-// ListRepairs GET /api/v1/alerts/guided/repairs
+// ListRepairs GET /api/v1/alerts/guided/repairs.
 func (h *Handlers) ListRepairs(c *gin.Context) {
 	repairs := h.tracker.ListAll()
 	c.JSON(http.StatusOK, gin.H{
@@ -217,7 +217,7 @@ func (h *Handlers) ListRepairs(c *gin.Context) {
 	})
 }
 
-// GetRepair GET /api/v1/alerts/guided/repairs/:id
+// GetRepair GET /api/v1/alerts/guided/repairs/:id.
 func (h *Handlers) GetRepair(c *gin.Context) {
 	id := c.Param("id")
 	record, ok := h.tracker.Get(id)
@@ -228,7 +228,7 @@ func (h *Handlers) GetRepair(c *gin.Context) {
 	c.JSON(http.StatusOK, record)
 }
 
-// ListRules GET /api/v1/alerts/guided/rules
+// ListRules GET /api/v1/alerts/guided/rules.
 func (h *Handlers) ListRules(c *gin.Context) {
 	rules := h.manager.GetRules()
 	c.JSON(http.StatusOK, gin.H{
@@ -237,7 +237,7 @@ func (h *Handlers) ListRules(c *gin.Context) {
 	})
 }
 
-// CreateRule POST /api/v1/alerts/guided/rules
+// CreateRule POST /api/v1/alerts/guided/rules.
 func (h *Handlers) CreateRule(c *gin.Context) {
 	var req CreateRuleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

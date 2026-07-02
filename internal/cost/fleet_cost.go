@@ -10,7 +10,7 @@ import (
 
 // ========== Fleet成本配置 ==========
 
-// FleetCostConfig Fleet成本配置
+// FleetCostConfig Fleet成本配置.
 type FleetCostConfig struct {
 	// 节点数量
 	NodeCount int `json:"node_count"`
@@ -49,7 +49,7 @@ type FleetCostConfig struct {
 	AvgNodeBandwidthCost float64 `json:"avg_node_bandwidth_cost"`
 }
 
-// DefaultFleetCostConfig 默认Fleet成本配置
+// DefaultFleetCostConfig 默认Fleet成本配置.
 func DefaultFleetCostConfig() FleetCostConfig {
 	return FleetCostConfig{
 		NodeCount:                5,
@@ -67,7 +67,7 @@ func DefaultFleetCostConfig() FleetCostConfig {
 	}
 }
 
-// FleetCostAnalysis Fleet成本分析结果
+// FleetCostAnalysis Fleet成本分析结果.
 type FleetCostAnalysis struct {
 	// 分析ID
 	ID string `json:"id"`
@@ -183,7 +183,7 @@ type FleetCostAnalysis struct {
 	CostBreakdown map[string]float64 `json:"cost_breakdown"`
 }
 
-// FleetCostOptimization Fleet成本优化建议
+// FleetCostOptimization Fleet成本优化建议.
 type FleetCostOptimization struct {
 	// 建议ID
 	ID string `json:"id"`
@@ -213,7 +213,7 @@ type FleetCostOptimization struct {
 	ROIScore float64 `json:"roi_score"`
 }
 
-// FleetScenarioAnalysis Fleet场景分析
+// FleetScenarioAnalysis Fleet场景分析.
 type FleetScenarioAnalysis struct {
 	// 场景名称
 	Scenario string `json:"scenario"`
@@ -240,7 +240,7 @@ type FleetScenarioAnalysis struct {
 	Recommendation string `json:"recommendation"`
 }
 
-// FleetCostBenefitCurve Fleet成本效益曲线
+// FleetCostBenefitCurve Fleet成本效益曲线.
 type FleetCostBenefitCurve struct {
 	// 数据点
 	DataPoints []FleetCostCurvePoint `json:"data_points"`
@@ -255,7 +255,7 @@ type FleetCostBenefitCurve struct {
 	BreakpointNodeCount int `json:"breakpoint_node_count"`
 }
 
-// FleetCostCurvePoint Fleet成本曲线数据点
+// FleetCostCurvePoint Fleet成本曲线数据点.
 type FleetCostCurvePoint struct {
 	// 节点数
 	NodeCount int `json:"node_count"`
@@ -275,17 +275,17 @@ type FleetCostCurvePoint struct {
 
 // ========== Fleet成本计算器 ==========
 
-// FleetCostCalculator Fleet成本计算器
+// FleetCostCalculator Fleet成本计算器.
 type FleetCostCalculator struct {
 	config FleetCostConfig
 }
 
-// NewFleetCostCalculator 创建Fleet成本计算器
+// NewFleetCostCalculator 创建Fleet成本计算器.
 func NewFleetCostCalculator(config FleetCostConfig) *FleetCostCalculator {
 	return &FleetCostCalculator{config: config}
 }
 
-// Analyze 执行Fleet成本分析
+// Analyze 执行Fleet成本分析.
 func (c *FleetCostCalculator) Analyze() *FleetCostAnalysis {
 	now := time.Now()
 	analysis := &FleetCostAnalysis{
@@ -425,7 +425,7 @@ func (c *FleetCostCalculator) Analyze() *FleetCostAnalysis {
 	return analysis
 }
 
-// AnalyzeScenario 分析特定场景
+// AnalyzeScenario 分析特定场景.
 func (c *FleetCostCalculator) AnalyzeScenario(nodeCount int) *FleetScenarioAnalysis {
 	// 临时调整节点数
 	originalCount := c.config.NodeCount
@@ -463,7 +463,7 @@ func (c *FleetCostCalculator) AnalyzeScenario(nodeCount int) *FleetScenarioAnaly
 	return result
 }
 
-// AnalyzeCostCurve 分析成本效益曲线
+// AnalyzeCostCurve 分析成本效益曲线.
 func (c *FleetCostCalculator) AnalyzeCostCurve() *FleetCostBenefitCurve {
 	curve := &FleetCostBenefitCurve{
 		DataPoints: make([]FleetCostCurvePoint, 0),
@@ -512,7 +512,7 @@ func (c *FleetCostCalculator) AnalyzeCostCurve() *FleetCostBenefitCurve {
 
 // ========== 私有方法 ==========
 
-// calculateCostBenefitScore 计算成本效益评分
+// calculateCostBenefitScore 计算成本效益评分.
 func (c *FleetCostCalculator) calculateCostBenefitScore(analysis *FleetCostAnalysis) float64 {
 	score := 50.0 // 基础分
 
@@ -556,7 +556,7 @@ func (c *FleetCostCalculator) calculateCostBenefitScore(analysis *FleetCostAnaly
 	return fleetCostRound(math.Max(0, math.Min(100, score)), 1)
 }
 
-// generateOptimizations 生成优化建议
+// generateOptimizations 生成优化建议.
 func (c *FleetCostCalculator) generateOptimizations(analysis *FleetCostAnalysis) []FleetCostOptimization {
 	opts := make([]FleetCostOptimization, 0)
 	idCounter := 1
@@ -660,7 +660,7 @@ func (c *FleetCostCalculator) generateOptimizations(analysis *FleetCostAnalysis)
 	return opts
 }
 
-// generateRisks 生成风险提示
+// generateRisks 生成风险提示.
 func (c *FleetCostCalculator) generateRisks(analysis *FleetCostAnalysis) []string {
 	risks := make([]string, 0)
 
@@ -693,7 +693,7 @@ func (c *FleetCostCalculator) generateRisks(analysis *FleetCostAnalysis) []strin
 	return risks
 }
 
-// findBreakpoint 找成本效益拐点
+// findBreakpoint 找成本效益拐点.
 func (c *FleetCostCalculator) findBreakpoint(curve *FleetCostBenefitCurve) int {
 	for _, point := range curve.DataPoints {
 		// Fleet成本效益开始优于单节点的节点数
@@ -710,7 +710,7 @@ func (c *FleetCostCalculator) findBreakpoint(curve *FleetCostBenefitCurve) int {
 
 // ========== 工具方法 ==========
 
-// QuickFleetCostCheck 快速Fleet成本检查
+// QuickFleetCostCheck 快速Fleet成本检查.
 func QuickFleetCostCheck(nodeCount int, avgStorageTB float64) string {
 	config := DefaultFleetCostConfig()
 	config.NodeCount = nodeCount
@@ -723,7 +723,7 @@ func QuickFleetCostCheck(nodeCount int, avgStorageTB float64) string {
 		nodeCount, analysis.TotalMonthlyCost, analysis.AvgCostPerNode, analysis.FleetROI)
 }
 
-// CompareFleetVsStandalone 对比Fleet与单节点管理
+// CompareFleetVsStandalone 对比Fleet与单节点管理.
 func CompareFleetVsStandalone(nodeCount int) string {
 	config := DefaultFleetCostConfig()
 	config.NodeCount = nodeCount
@@ -744,7 +744,7 @@ ROI | %.2f%% | - | -
 	return result
 }
 
-// EstimateFleetCost 估算Fleet成本
+// EstimateFleetCost 估算Fleet成本.
 func EstimateFleetCost(nodeCount int, avgStorageTB float64) float64 {
 	config := DefaultFleetCostConfig()
 	config.NodeCount = nodeCount
@@ -756,7 +756,7 @@ func EstimateFleetCost(nodeCount int, avgStorageTB float64) float64 {
 	return analysis.TotalMonthlyCost
 }
 
-// GenerateFleetCostReport 生成Fleet成本报告
+// GenerateFleetCostReport 生成Fleet成本报告.
 func GenerateFleetCostReport(config FleetCostConfig) string {
 	calc := NewFleetCostCalculator(config)
 	analysis := calc.Analyze()

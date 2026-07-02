@@ -5,7 +5,7 @@ package smbunixext
 
 import "time"
 
-// ExtensionStatus 扩展启用状态
+// ExtensionStatus 扩展启用状态.
 type ExtensionStatus string
 
 const (
@@ -13,17 +13,17 @@ const (
 	ExtensionStatusDisabled ExtensionStatus = "disabled"
 )
 
-// ShareProtocol 共享协议类型
+// ShareProtocol 共享协议类型.
 type ShareProtocol string
 
 const (
-	ProtocolSMB    ShareProtocol = "smb"
-	ProtocolNFS    ShareProtocol = "nfs"
+	ProtocolSMB   ShareProtocol = "smb"
+	ProtocolNFS   ShareProtocol = "nfs"
 	ProtocolAFP   ShareProtocol = "afp"
 	ProtocolMulti ShareProtocol = "multi" // 多协议
 )
 
-// UnixExtensionConfig SMB3 Unix Extensions 配置
+// UnixExtensionConfig SMB3 Unix Extensions 配置.
 type UnixExtensionConfig struct {
 	// 共享名称
 	ShareName string `json:"share_name"`
@@ -39,13 +39,13 @@ type UnixExtensionConfig struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// SetExtensionRequest 设置 Unix Extensions 请求
+// SetExtensionRequest 设置 Unix Extensions 请求.
 type SetExtensionRequest struct {
 	ShareName string `json:"share_name"`
 	Enabled   bool   `json:"enabled"`
 }
 
-// ExtensionStatusResponse 扩展状态响应
+// ExtensionStatusResponse 扩展状态响应.
 type ExtensionStatusResponse struct {
 	ShareName       string          `json:"share_name"`
 	Enabled         bool            `json:"enabled"`
@@ -55,7 +55,7 @@ type ExtensionStatusResponse struct {
 	Capabilities    []string        `json:"capabilities,omitempty"`
 }
 
-// CapabilityDefaults 默认支持的 POSIX 扩展能力
+// CapabilityDefaults 默认支持的 POSIX 扩展能力.
 var CapabilityDefaults = []string{
 	"posix_path_operations",
 	"posix_symlink_operations",

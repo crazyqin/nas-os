@@ -9,17 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	tc *TaskCenter
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(tc *TaskCenter) *Handler {
 	return &Handler{tc: tc}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	group := router.Group("/task-center")
 	{
@@ -36,7 +36,7 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	}
 }
 
-// ListTasks 获取任务列表
+// ListTasks 获取任务列表.
 func (h *Handler) ListTasks(c *gin.Context) {
 	taskType := TaskType(c.Query("type"))
 	status := TaskStatus(c.Query("status"))
@@ -44,7 +44,7 @@ func (h *Handler) ListTasks(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": tasks})
 }
 
-// CreateTask 创建任务
+// CreateTask 创建任务.
 func (h *Handler) CreateTask(c *gin.Context) {
 	var task Task
 	if err := c.ShouldBindJSON(&task); err != nil {
@@ -58,7 +58,7 @@ func (h *Handler) CreateTask(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"success": true, "data": task})
 }
 
-// GetTask 获取任务详情
+// GetTask 获取任务详情.
 func (h *Handler) GetTask(c *gin.Context) {
 	id := c.Param("id")
 	task, err := h.tc.GetTask(id)
@@ -69,7 +69,7 @@ func (h *Handler) GetTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": task})
 }
 
-// UpdateTask 更新任务
+// UpdateTask 更新任务.
 func (h *Handler) UpdateTask(c *gin.Context) {
 	id := c.Param("id")
 	var task Task
@@ -85,7 +85,7 @@ func (h *Handler) UpdateTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": task})
 }
 
-// DeleteTask 删除任务
+// DeleteTask 删除任务.
 func (h *Handler) DeleteTask(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.tc.DeleteTask(id); err != nil {
@@ -95,7 +95,7 @@ func (h *Handler) DeleteTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "任务已删除"})
 }
 
-// StartTask 启动任务
+// StartTask 启动任务.
 func (h *Handler) StartTask(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.tc.ExecuteTask(id); err != nil {
@@ -105,7 +105,7 @@ func (h *Handler) StartTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "任务已启动"})
 }
 
-// PauseTask 暂停任务
+// PauseTask 暂停任务.
 func (h *Handler) PauseTask(c *gin.Context) {
 	id := c.Param("id")
 	task, err := h.tc.GetTask(id)
@@ -122,7 +122,7 @@ func (h *Handler) PauseTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "任务已暂停"})
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (h *Handler) CancelTask(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.tc.CancelTask(id); err != nil {
@@ -132,7 +132,7 @@ func (h *Handler) CancelTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "任务已取消"})
 }
 
-// GetTaskLogs 获取任务日志
+// GetTaskLogs 获取任务日志.
 func (h *Handler) GetTaskLogs(c *gin.Context) {
 	id := c.Param("id")
 	limitStr := c.DefaultQuery("limit", "100")
@@ -144,7 +144,7 @@ func (h *Handler) GetTaskLogs(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": logs})
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (h *Handler) GetStats(c *gin.Context) {
 	tasks := h.tc.ListTasks("", "")
 	stats := map[string]int{

@@ -4,7 +4,7 @@ package distScheduler
 
 import "time"
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -17,7 +17,7 @@ const (
 	TaskStatusCancelled TaskStatus = "cancelled"
 )
 
-// NodeStatus 节点状态
+// NodeStatus 节点状态.
 type NodeStatus string
 
 const (
@@ -27,7 +27,7 @@ const (
 	NodeStatusDrain   NodeStatus = "drain" // 排空模式，不接受新任务
 )
 
-// Strategy 调度策略
+// Strategy 调度策略.
 type Strategy string
 
 const (
@@ -38,7 +38,7 @@ const (
 	StrategyRandom     Strategy = "random"      // 随机
 )
 
-// ResourceType 资源类型
+// ResourceType 资源类型.
 type ResourceType string
 
 const (
@@ -49,7 +49,7 @@ const (
 	ResourceIO     ResourceType = "io"
 )
 
-// Config 分布式调度器配置
+// Config 分布式调度器配置.
 type Config struct {
 	Enabled          bool     `json:"enabled"`
 	Strategy         Strategy `json:"strategy"`
@@ -61,7 +61,7 @@ type Config struct {
 	SchedulerWorkers int      `json:"scheduler_workers"` // 调度器工作线程
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:          true,
@@ -75,7 +75,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// Node 调度节点
+// Node 调度节点.
 type Node struct {
 	ID         string            `json:"id"`
 	Name       string            `json:"name"`
@@ -89,7 +89,7 @@ type Node struct {
 	CreatedAt  time.Time         `json:"created_at"`
 }
 
-// NodeResources 节点资源
+// NodeResources 节点资源.
 type NodeResources struct {
 	CPU    ResourceInfo `json:"cpu"`
 	Memory ResourceInfo `json:"memory"`
@@ -97,7 +97,7 @@ type NodeResources struct {
 	Disk   ResourceInfo `json:"disk"`
 }
 
-// ResourceInfo 资源信息
+// ResourceInfo 资源信息.
 type ResourceInfo struct {
 	Total     float64 `json:"total"`     // 总量
 	Used      float64 `json:"used"`      // 已用量
@@ -105,7 +105,7 @@ type ResourceInfo struct {
 	Unit      string  `json:"unit"`      // 单位
 }
 
-// Task 调度任务
+// Task 调度任务.
 type Task struct {
 	ID           string            `json:"id"`
 	Name         string            `json:"name"`
@@ -129,7 +129,7 @@ type Task struct {
 	Timeout      int               `json:"timeout"`                // 任务超时（秒）
 }
 
-// ResourceReq 资源需求
+// ResourceReq 资源需求.
 type ResourceReq struct {
 	CPU    float64 `json:"cpu"`    // CPU 核数
 	Memory int64   `json:"memory"` // 内存（MB）
@@ -137,7 +137,7 @@ type ResourceReq struct {
 	Disk   int64   `json:"disk"`   // 磁盘（MB）
 }
 
-// ScheduleResult 调度结果
+// ScheduleResult 调度结果.
 type ScheduleResult struct {
 	TaskID  string `json:"task_id"`
 	NodeID  string `json:"node_id"`
@@ -145,7 +145,7 @@ type ScheduleResult struct {
 	Error   string `json:"error,omitempty"`
 }
 
-// CronEntry Cron 调度项
+// CronEntry Cron 调度项.
 type CronEntry struct {
 	TaskID   string     `json:"task_id"`
 	CronExpr string     `json:"cron_expr"`
@@ -154,7 +154,7 @@ type CronEntry struct {
 	Enabled  bool       `json:"enabled"`
 }
 
-// TaskGraph 任务依赖图
+// TaskGraph 任务依赖图.
 type TaskGraph struct {
 	Tasks map[string]*Task    `json:"tasks"` // taskID -> Task
 	Edges map[string][]string `json:"edges"` // taskID -> 依赖的 taskID 列表

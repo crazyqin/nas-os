@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 容器管理 API 处理器
+// Handlers 容器管理 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	v1 := r.Group("/v1")
 	{
@@ -46,7 +46,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// listContainers 列出容器
+// listContainers 列出容器.
 func (h *Handlers) listContainers(c *gin.Context) {
 	all, _ := strconv.ParseBool(c.DefaultQuery("all", "false"))
 
@@ -59,7 +59,7 @@ func (h *Handlers) listContainers(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": containers})
 }
 
-// getContainer 获取容器详情
+// getContainer 获取容器详情.
 func (h *Handlers) getContainer(c *gin.Context) {
 	id := c.Param("id")
 
@@ -72,7 +72,7 @@ func (h *Handlers) getContainer(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": container})
 }
 
-// startContainer 启动容器
+// startContainer 启动容器.
 func (h *Handlers) startContainer(c *gin.Context) {
 	id := c.Param("id")
 
@@ -84,7 +84,7 @@ func (h *Handlers) startContainer(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "container started"})
 }
 
-// stopContainer 停止容器
+// stopContainer 停止容器.
 func (h *Handlers) stopContainer(c *gin.Context) {
 	id := c.Param("id")
 	timeout, _ := strconv.Atoi(c.DefaultQuery("timeout", "10"))
@@ -97,7 +97,7 @@ func (h *Handlers) stopContainer(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "container stopped"})
 }
 
-// restartContainer 重启容器
+// restartContainer 重启容器.
 func (h *Handlers) restartContainer(c *gin.Context) {
 	id := c.Param("id")
 
@@ -109,7 +109,7 @@ func (h *Handlers) restartContainer(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "container restarted"})
 }
 
-// removeContainer 删除容器
+// removeContainer 删除容器.
 func (h *Handlers) removeContainer(c *gin.Context) {
 	id := c.Param("id")
 	force, _ := strconv.ParseBool(c.DefaultQuery("force", "false"))
@@ -122,7 +122,7 @@ func (h *Handlers) removeContainer(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "container removed"})
 }
 
-// getContainerStats 获取容器统计
+// getContainerStats 获取容器统计.
 func (h *Handlers) getContainerStats(c *gin.Context) {
 	id := c.Param("id")
 
@@ -135,7 +135,7 @@ func (h *Handlers) getContainerStats(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": stats})
 }
 
-// deployComposeProject 部署 Compose 项目
+// deployComposeProject 部署 Compose 项目.
 func (h *Handlers) deployComposeProject(c *gin.Context) {
 	var req struct {
 		Path string `json:"path" binding:"required"`
@@ -155,7 +155,7 @@ func (h *Handlers) deployComposeProject(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"data": project})
 }
 
-// listComposeProjects 列出 Compose 项目
+// listComposeProjects 列出 Compose 项目.
 func (h *Handlers) listComposeProjects(c *gin.Context) {
 	projects, err := h.manager.ListComposeProjects()
 	if err != nil {
@@ -166,7 +166,7 @@ func (h *Handlers) listComposeProjects(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": projects})
 }
 
-// stopComposeProject 停止 Compose 项目
+// stopComposeProject 停止 Compose 项目.
 func (h *Handlers) stopComposeProject(c *gin.Context) {
 	id := c.Param("id")
 
@@ -178,7 +178,7 @@ func (h *Handlers) stopComposeProject(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "compose project stopped"})
 }
 
-// pullImage 拉取镜像
+// pullImage 拉取镜像.
 func (h *Handlers) pullImage(c *gin.Context) {
 	var req struct {
 		Image      string `json:"image" binding:"required"`
@@ -198,7 +198,7 @@ func (h *Handlers) pullImage(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "image pulled successfully"})
 }
 
-// listImages 列出镜像
+// listImages 列出镜像.
 func (h *Handlers) listImages(c *gin.Context) {
 	images, err := h.manager.ListImages()
 	if err != nil {
@@ -209,7 +209,7 @@ func (h *Handlers) listImages(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": images})
 }
 
-// addRegistry 添加仓库
+// addRegistry 添加仓库.
 func (h *Handlers) addRegistry(c *gin.Context) {
 	var registry Registry
 
@@ -226,7 +226,7 @@ func (h *Handlers) addRegistry(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "registry added"})
 }
 
-// listRegistries 列出仓库
+// listRegistries 列出仓库.
 func (h *Handlers) listRegistries(c *gin.Context) {
 	registries, err := h.manager.ListRegistries()
 	if err != nil {

@@ -8,27 +8,27 @@ import (
 
 // BlockInfo 存储块信息。
 type BlockInfo struct {
-	Hash      string `json:"hash"`
-	Size      int64  `json:"size"`
-	RefCount  int    `json:"ref_count"`
+	Hash      string   `json:"hash"`
+	Size      int64    `json:"size"`
+	RefCount  int      `json:"ref_count"`
 	FilePaths []string `json:"file_paths"`
 }
 
 // Engine 块级去重2.0引擎，支持BRT(Block Reference Table)。
 type Engine struct {
-	mu       sync.RWMutex
-	blocks   map[string]*BlockInfo
-	brt      map[string][]string // Block Reference Table
-	stats    Stats
+	mu     sync.RWMutex
+	blocks map[string]*BlockInfo
+	brt    map[string][]string // Block Reference Table
+	stats  Stats
 }
 
 // Stats 去重统计。
 type Stats struct {
-	TotalBlocks    int64  `json:"total_blocks"`
-	UniqueBlocks   int64  `json:"unique_blocks"`
+	TotalBlocks     int64 `json:"total_blocks"`
+	UniqueBlocks    int64 `json:"unique_blocks"`
 	DuplicateBlocks int64 `json:"duplicate_blocks"`
-	SavedBytes     int64  `json:"saved_bytes"`
-	ScanDuration   int64  `json:"scan_duration_ms"`
+	SavedBytes      int64 `json:"saved_bytes"`
+	ScanDuration    int64 `json:"scan_duration_ms"`
 }
 
 // NewEngine 创建新的去重引擎。
@@ -65,7 +65,7 @@ func (e *Engine) AddBlock(hash string, size int64, filePath string) {
 		e.stats.UniqueBlocks++
 	}
 	e.stats.TotalBlocks++
-	
+
 	// 更新BRT
 	e.brt[hash] = append(e.brt[hash], filePath)
 }
@@ -100,7 +100,7 @@ func (e *Engine) GetBRT() map[string][]string {
 func (e *Engine) Deduplicate() []BlockInfo {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	
+
 	result := make([]BlockInfo, 0, len(e.blocks))
 	for _, block := range e.blocks {
 		result = append(result, *block)

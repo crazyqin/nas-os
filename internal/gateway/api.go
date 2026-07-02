@@ -9,15 +9,15 @@ import (
 	"time"
 )
 
-// Gateway represents the unified gateway
+// Gateway represents the unified gateway.
 type Gateway struct {
-	proxy   *ReverseProxy
-	router  *Router
-	config  *GatewayConfig
-	server  *http.Server
+	proxy  *ReverseProxy
+	router *Router
+	config *GatewayConfig
+	server *http.Server
 }
 
-// GatewayConfig holds gateway configuration
+// GatewayConfig holds gateway configuration.
 type GatewayConfig struct {
 	ListenAddr     string           `json:"listenAddr"`
 	TLSCertFile    string           `json:"tlsCertFile"`
@@ -32,7 +32,7 @@ type GatewayConfig struct {
 	RBAC           *RBACConfig      `json:"rbac"`
 }
 
-// DefaultGatewayConfig returns default gateway configuration
+// DefaultGatewayConfig returns default gateway configuration.
 func DefaultGatewayConfig() *GatewayConfig {
 	return &GatewayConfig{
 		ListenAddr:     ":8080",
@@ -47,7 +47,7 @@ func DefaultGatewayConfig() *GatewayConfig {
 	}
 }
 
-// NewGateway creates a new gateway
+// NewGateway creates a new gateway.
 func NewGateway(config *GatewayConfig) *Gateway {
 	if config == nil {
 		config = DefaultGatewayConfig()
@@ -62,17 +62,17 @@ func NewGateway(config *GatewayConfig) *Gateway {
 	return gw
 }
 
-// GetProxy returns the reverse proxy
+// GetProxy returns the reverse proxy.
 func (gw *Gateway) GetProxy() *ReverseProxy {
 	return gw.proxy
 }
 
-// GetRouter returns the router
+// GetRouter returns the router.
 func (gw *Gateway) GetRouter() *Router {
 	return gw.router
 }
 
-// ServeHTTP implements http.Handler
+// ServeHTTP implements http.Handler.
 func (gw *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Match route
 	route := gw.router.MatchRoute(r)
@@ -93,7 +93,7 @@ func (gw *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Start starts the gateway server
+// Start starts the gateway server.
 func (gw *Gateway) Start() error {
 	// Build middleware chain
 	chain := NewChain(
@@ -152,7 +152,7 @@ func (gw *Gateway) Start() error {
 	return gw.server.ListenAndServe()
 }
 
-// Stop stops the gateway server
+// Stop stops the gateway server.
 func (gw *Gateway) Stop(ctx context.Context) error {
 	if gw.server != nil {
 		return gw.server.Shutdown(ctx)
@@ -162,7 +162,7 @@ func (gw *Gateway) Stop(ctx context.Context) error {
 
 // API response structures
 
-// APIResponse represents a generic API response
+// APIResponse represents a generic API response.
 type APIResponse struct {
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data,omitempty"`
@@ -170,7 +170,7 @@ type APIResponse struct {
 	Message string      `json:"message,omitempty"`
 }
 
-// RouteRequest represents a route creation/update request
+// RouteRequest represents a route creation/update request.
 type RouteRequest struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -183,14 +183,14 @@ type RouteRequest struct {
 	Headers     map[string]string `json:"headers"`
 }
 
-// BackendRequest represents a backend creation request
+// BackendRequest represents a backend creation request.
 type BackendRequest struct {
 	ID     string `json:"id"`
 	URL    string `json:"url"`
 	Weight int    `json:"weight"`
 }
 
-// handleRoutes handles /api/v1/routes
+// handleRoutes handles /api/v1/routes.
 func (gw *Gateway) handleRoutes(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -240,7 +240,7 @@ func (gw *Gateway) handleRoutes(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleRouteByID handles /api/v1/routes/{id}
+// handleRouteByID handles /api/v1/routes/{id}.
 func (gw *Gateway) handleRouteByID(w http.ResponseWriter, r *http.Request) {
 	// Extract ID from path
 	id := strings.TrimPrefix(r.URL.Path, "/api/v1/routes/")
@@ -308,7 +308,7 @@ func (gw *Gateway) handleRouteByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleBackends handles /api/v1/backends
+// handleBackends handles /api/v1/backends.
 func (gw *Gateway) handleBackends(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -345,7 +345,7 @@ func (gw *Gateway) handleBackends(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleBackendByID handles /api/v1/backends/{id}
+// handleBackendByID handles /api/v1/backends/{id}.
 func (gw *Gateway) handleBackendByID(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/api/v1/backends/")
 	if id == "" {
@@ -370,7 +370,7 @@ func (gw *Gateway) handleBackendByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleStatus handles /api/v1/status
+// handleStatus handles /api/v1/status.
 func (gw *Gateway) handleStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		gw.sendError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -384,7 +384,7 @@ func (gw *Gateway) handleStatus(w http.ResponseWriter, r *http.Request) {
 			"listenAddr": gw.config.ListenAddr,
 			"tlsEnabled": gw.config.TLSCertFile != "",
 		},
-		"routes":  len(gw.router.GetRoutes()),
+		"routes":   len(gw.router.GetRoutes()),
 		"backends": len(gw.proxy.GetBackends()),
 	}
 
@@ -394,7 +394,7 @@ func (gw *Gateway) handleStatus(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleHealth handles /api/v1/health
+// handleHealth handles /api/v1/health.
 func (gw *Gateway) handleHealth(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		gw.sendError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -413,7 +413,7 @@ func (gw *Gateway) handleHealth(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleMetrics handles /api/v1/metrics
+// handleMetrics handles /api/v1/metrics.
 func (gw *Gateway) handleMetrics(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		gw.sendError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -428,7 +428,7 @@ func (gw *Gateway) handleMetrics(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// checkServices checks the health of all backend services
+// checkServices checks the health of all backend services.
 func (gw *Gateway) checkServices() map[string]string {
 	backends := gw.proxy.GetBackends()
 	services := make(map[string]string)
@@ -444,14 +444,14 @@ func (gw *Gateway) checkServices() map[string]string {
 	return services
 }
 
-// sendJSON sends a JSON response
+// sendJSON sends a JSON response.
 func (gw *Gateway) sendJSON(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(data)
 }
 
-// sendError sends an error response
+// sendError sends an error response.
 func (gw *Gateway) sendError(w http.ResponseWriter, statusCode int, message string) {
 	gw.sendJSON(w, statusCode, APIResponse{
 		Success: false,
@@ -459,42 +459,42 @@ func (gw *Gateway) sendError(w http.ResponseWriter, statusCode int, message stri
 	})
 }
 
-// EnableRoute enables a route
+// EnableRoute enables a route.
 func (gw *Gateway) EnableRoute(id string) error {
 	return gw.router.EnableRoute(id)
 }
 
-// DisableRoute disables a route
+// DisableRoute disables a route.
 func (gw *Gateway) DisableRoute(id string) error {
 	return gw.router.DisableRoute(id)
 }
 
-// GetRoute returns a route by ID
+// GetRoute returns a route by ID.
 func (gw *Gateway) GetRoute(id string) (*Route, error) {
 	return gw.router.GetRoute(id)
 }
 
-// AddRoute adds a new route
+// AddRoute adds a new route.
 func (gw *Gateway) AddRoute(route *Route) error {
 	return gw.router.AddRoute(route)
 }
 
-// RemoveRoute removes a route
+// RemoveRoute removes a route.
 func (gw *Gateway) RemoveRoute(id string) bool {
 	return gw.router.RemoveRoute(id)
 }
 
-// AddBackend adds a new backend
+// AddBackend adds a new backend.
 func (gw *Gateway) AddBackend(backend *Backend) {
 	gw.proxy.AddBackend(backend)
 }
 
-// RemoveBackend removes a backend
+// RemoveBackend removes a backend.
 func (gw *Gateway) RemoveBackend(id string) bool {
 	return gw.proxy.RemoveBackend(id)
 }
 
-// GetStatus returns gateway status
+// GetStatus returns gateway status.
 func (gw *Gateway) GetStatus() map[string]interface{} {
 	return map[string]interface{}{
 		"status":    "running",
@@ -504,40 +504,40 @@ func (gw *Gateway) GetStatus() map[string]interface{} {
 	}
 }
 
-// MatchRoute finds the matching route for a request
+// MatchRoute finds the matching route for a request.
 func (gw *Gateway) MatchRoute(req *http.Request) *Route {
 	return gw.router.MatchRoute(req)
 }
 
-// GatewayManager manages multiple gateways
+// GatewayManager manages multiple gateways.
 type GatewayManager struct {
 	gateways map[string]*Gateway
 }
 
-// NewGatewayManager creates a new gateway manager
+// NewGatewayManager creates a new gateway manager.
 func NewGatewayManager() *GatewayManager {
 	return &GatewayManager{
 		gateways: make(map[string]*Gateway),
 	}
 }
 
-// AddGateway adds a gateway
+// AddGateway adds a gateway.
 func (gm *GatewayManager) AddGateway(name string, gw *Gateway) {
 	gm.gateways[name] = gw
 }
 
-// RemoveGateway removes a gateway
+// RemoveGateway removes a gateway.
 func (gm *GatewayManager) RemoveGateway(name string) {
 	delete(gm.gateways, name)
 }
 
-// GetGateway returns a gateway by name
+// GetGateway returns a gateway by name.
 func (gm *GatewayManager) GetGateway(name string) (*Gateway, bool) {
 	gw, ok := gm.gateways[name]
 	return gw, ok
 }
 
-// StartAll starts all gateways
+// StartAll starts all gateways.
 func (gm *GatewayManager) StartAll() error {
 	for name, gw := range gm.gateways {
 		go func(n string, g *Gateway) {
@@ -549,7 +549,7 @@ func (gm *GatewayManager) StartAll() error {
 	return nil
 }
 
-// StopAll stops all gateways
+// StopAll stops all gateways.
 func (gm *GatewayManager) StopAll(ctx context.Context) error {
 	for _, gw := range gm.gateways {
 		if err := gw.Stop(ctx); err != nil {
@@ -559,7 +559,7 @@ func (gm *GatewayManager) StopAll(ctx context.Context) error {
 	return nil
 }
 
-// GetStatusAll returns status of all gateways
+// GetStatusAll returns status of all gateways.
 func (gm *GatewayManager) GetStatusAll() map[string]interface{} {
 	status := make(map[string]interface{})
 	for name, gw := range gm.gateways {
@@ -568,9 +568,9 @@ func (gm *GatewayManager) GetStatusAll() map[string]interface{} {
 	return status
 }
 
-// LoadBalancerConfig holds load balancer configuration
+// LoadBalancerConfig holds load balancer configuration.
 type LoadBalancerConfig struct {
-	Algorithm string `json:"algorithm"` // round-robin, least-connections, ip-hash
+	Algorithm   string `json:"algorithm"` // round-robin, least-connections, ip-hash
 	HealthCheck struct {
 		Enabled  bool          `json:"enabled"`
 		Path     string        `json:"path"`
@@ -579,7 +579,7 @@ type LoadBalancerConfig struct {
 	} `json:"healthCheck"`
 }
 
-// NewLoadBalancer creates a load balancer based on configuration
+// NewLoadBalancer creates a load balancer based on configuration.
 func NewLoadBalancer(config *LoadBalancerConfig, backends []*Backend) *ReverseProxy {
 	proxy := NewReverseProxy(nil)
 
@@ -590,16 +590,16 @@ func NewLoadBalancer(config *LoadBalancerConfig, backends []*Backend) *ReversePr
 	return proxy
 }
 
-// WebSocketConfig holds WebSocket configuration
+// WebSocketConfig holds WebSocket configuration.
 type WebSocketConfig struct {
-	Enabled           bool          `json:"enabled"`
-	ReadBufferSize    int           `json:"readBufferSize"`
-	WriteBufferSize   int           `json:"writeBufferSize"`
-	HandshakeTimeout  time.Duration `json:"handshakeTimeout"`
-	CheckOrigin       bool          `json:"checkOrigin"`
+	Enabled          bool          `json:"enabled"`
+	ReadBufferSize   int           `json:"readBufferSize"`
+	WriteBufferSize  int           `json:"writeBufferSize"`
+	HandshakeTimeout time.Duration `json:"handshakeTimeout"`
+	CheckOrigin      bool          `json:"checkOrigin"`
 }
 
-// DefaultWebSocketConfig returns default WebSocket configuration
+// DefaultWebSocketConfig returns default WebSocket configuration.
 func DefaultWebSocketConfig() *WebSocketConfig {
 	return &WebSocketConfig{
 		Enabled:          true,
@@ -610,7 +610,7 @@ func DefaultWebSocketConfig() *WebSocketConfig {
 	}
 }
 
-// WebSocketMiddleware handles WebSocket upgrades
+// WebSocketMiddleware handles WebSocket upgrades.
 func WebSocketMiddleware(config *WebSocketConfig) Middleware {
 	if config == nil {
 		config = DefaultWebSocketConfig()
@@ -635,48 +635,48 @@ func WebSocketMiddleware(config *WebSocketConfig) Middleware {
 	}
 }
 
-// SSLConfig holds SSL/TLS configuration
+// SSLConfig holds SSL/TLS configuration.
 type SSLConfig struct {
-	Enabled  bool   `json:"enabled"`
-	CertFile string `json:"certFile"`
-	KeyFile  string `json:"keyFile"`
-	AutoCert bool   `json:"autoCert"` // automatic certificate management
+	Enabled  bool     `json:"enabled"`
+	CertFile string   `json:"certFile"`
+	KeyFile  string   `json:"keyFile"`
+	AutoCert bool     `json:"autoCert"` // automatic certificate management
 	Domains  []string `json:"domains"`
 }
 
-// SSLManager manages SSL certificates
+// SSLManager manages SSL certificates.
 type SSLManager struct {
 	config *SSLConfig
 }
 
-// NewSSLManager creates a new SSL manager
+// NewSSLManager creates a new SSL manager.
 func NewSSLManager(config *SSLConfig) *SSLManager {
 	return &SSLManager{
 		config: config,
 	}
 }
 
-// IsEnabled returns whether SSL is enabled
+// IsEnabled returns whether SSL is enabled.
 func (sm *SSLManager) IsEnabled() bool {
 	return sm.config.Enabled
 }
 
-// GetCertFile returns the certificate file path
+// GetCertFile returns the certificate file path.
 func (sm *SSLManager) GetCertFile() string {
 	return sm.config.CertFile
 }
 
-// GetKeyFile returns the key file path
+// GetKeyFile returns the key file path.
 func (sm *SSLManager) GetKeyFile() string {
 	return sm.config.KeyFile
 }
 
-// GetDomains returns the configured domains
+// GetDomains returns the configured domains.
 func (sm *SSLManager) GetDomains() []string {
 	return sm.config.Domains
 }
 
-// Certificate represents an SSL certificate
+// Certificate represents an SSL certificate.
 type Certificate struct {
 	Domain    string    `json:"domain"`
 	CertFile  string    `json:"certFile"`
@@ -685,35 +685,35 @@ type Certificate struct {
 	Issuer    string    `json:"issuer"`
 }
 
-// CertificateManager manages SSL certificates
+// CertificateManager manages SSL certificates.
 type CertificateManager struct {
 	certificates map[string]*Certificate
 }
 
-// NewCertificateManager creates a new certificate manager
+// NewCertificateManager creates a new certificate manager.
 func NewCertificateManager() *CertificateManager {
 	return &CertificateManager{
 		certificates: make(map[string]*Certificate),
 	}
 }
 
-// AddCertificate adds a certificate
+// AddCertificate adds a certificate.
 func (cm *CertificateManager) AddCertificate(cert *Certificate) {
 	cm.certificates[cert.Domain] = cert
 }
 
-// GetCertificate returns a certificate for a domain
+// GetCertificate returns a certificate for a domain.
 func (cm *CertificateManager) GetCertificate(domain string) (*Certificate, bool) {
 	cert, ok := cm.certificates[domain]
 	return cert, ok
 }
 
-// RemoveCertificate removes a certificate
+// RemoveCertificate removes a certificate.
 func (cm *CertificateManager) RemoveCertificate(domain string) {
 	delete(cm.certificates, domain)
 }
 
-// ListCertificates returns all certificates
+// ListCertificates returns all certificates.
 func (cm *CertificateManager) ListCertificates() []*Certificate {
 	certs := make([]*Certificate, 0, len(cm.certificates))
 	for _, cert := range cm.certificates {
@@ -722,41 +722,41 @@ func (cm *CertificateManager) ListCertificates() []*Certificate {
 	return certs
 }
 
-// AccessLogEntry represents an access log entry
+// AccessLogEntry represents an access log entry.
 type AccessLogEntry struct {
-	Timestamp   time.Time `json:"timestamp"`
-	RemoteAddr  string    `json:"remoteAddr"`
-	Method      string    `json:"method"`
-	Path        string    `json:"path"`
-	StatusCode  int       `json:"statusCode"`
-	Duration    time.Duration `json:"duration"`
-	UserAgent   string    `json:"userAgent"`
-	RequestID   string    `json:"requestId"`
+	Timestamp  time.Time     `json:"timestamp"`
+	RemoteAddr string        `json:"remoteAddr"`
+	Method     string        `json:"method"`
+	Path       string        `json:"path"`
+	StatusCode int           `json:"statusCode"`
+	Duration   time.Duration `json:"duration"`
+	UserAgent  string        `json:"userAgent"`
+	RequestID  string        `json:"requestId"`
 }
 
-// AccessLogger logs access requests
+// AccessLogger logs access requests.
 type AccessLogger struct {
 	entries []AccessLogEntry
 }
 
-// NewAccessLogger creates a new access logger
+// NewAccessLogger creates a new access logger.
 func NewAccessLogger() *AccessLogger {
 	return &AccessLogger{
 		entries: make([]AccessLogEntry, 0),
 	}
 }
 
-// Log logs an access entry
+// Log logs an access entry.
 func (al *AccessLogger) Log(entry AccessLogEntry) {
 	al.entries = append(al.entries, entry)
 }
 
-// GetEntries returns all logged entries
+// GetEntries returns all logged entries.
 func (al *AccessLogger) GetEntries() []AccessLogEntry {
 	return al.entries
 }
 
-// FilterEntries filters entries by criteria
+// FilterEntries filters entries by criteria.
 func (al *AccessLogger) FilterEntries(method string, path string, statusCode int) []AccessLogEntry {
 	var filtered []AccessLogEntry
 	for _, entry := range al.entries {
@@ -774,12 +774,12 @@ func (al *AccessLogger) FilterEntries(method string, path string, statusCode int
 	return filtered
 }
 
-// ClearEntries clears all logged entries
+// ClearEntries clears all logged entries.
 func (al *AccessLogger) ClearEntries() {
 	al.entries = make([]AccessLogEntry, 0)
 }
 
-// AccessLogMiddleware logs access requests
+// AccessLogMiddleware logs access requests.
 func AccessLogMiddleware(logger *AccessLogger) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

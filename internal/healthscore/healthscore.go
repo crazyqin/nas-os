@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// HealthScore manages the health scoring system
+// HealthScore manages the health scoring system.
 type HealthScore struct {
 	mu            sync.RWMutex
 	weights       map[ComponentType]float64
@@ -17,7 +17,7 @@ type HealthScore struct {
 	analyzer      *Analyzer
 }
 
-// NewHealthScoreManager creates a new HealthScore manager
+// NewHealthScoreManager creates a new HealthScore manager.
 func NewHealthScoreManager() *HealthScore {
 	hs := &HealthScore{
 		weights:    make(map[ComponentType]float64),
@@ -35,14 +35,14 @@ func NewHealthScoreManager() *HealthScore {
 	return hs
 }
 
-// RegisterCollector registers a collector for a component type
+// RegisterCollector registers a collector for a component type.
 func (hs *HealthScore) RegisterCollector(compType ComponentType, collector CollectorFunc) {
 	hs.mu.Lock()
 	defer hs.mu.Unlock()
 	hs.collectors[compType] = collector
 }
 
-// SetWeights sets custom weights for components
+// SetWeights sets custom weights for components.
 func (hs *HealthScore) SetWeights(weights map[ComponentType]float64) {
 	hs.mu.Lock()
 	defer hs.mu.Unlock()
@@ -51,17 +51,17 @@ func (hs *HealthScore) SetWeights(weights map[ComponentType]float64) {
 	}
 }
 
-// GetCalculator returns the score calculator
+// GetCalculator returns the score calculator.
 func (hs *HealthScore) GetCalculator() *ScoreCalculator {
 	return hs.calculator
 }
 
-// GetAnalyzer returns the analyzer
+// GetAnalyzer returns the analyzer.
 func (hs *HealthScore) GetAnalyzer() *Analyzer {
 	return hs.analyzer
 }
 
-// GenerateReport generates a complete health report
+// GenerateReport generates a complete health report.
 func (hs *HealthScore) GenerateReport() (*HealthReport, error) {
 	hs.mu.Lock()
 	defer hs.mu.Unlock()
@@ -128,7 +128,7 @@ func (hs *HealthScore) GenerateReport() (*HealthReport, error) {
 	return report, nil
 }
 
-// GetHistory returns score history
+// GetHistory returns score history.
 func (hs *HealthScore) GetHistory(limit int) []ScoreHistory {
 	hs.mu.RLock()
 	defer hs.mu.RUnlock()
@@ -142,7 +142,7 @@ func (hs *HealthScore) GetHistory(limit int) []ScoreHistory {
 	return result
 }
 
-// GetCurrentReport returns the current health report
+// GetCurrentReport returns the current health report.
 func (hs *HealthScore) GetCurrentReport() *HealthReport {
 	hs.mu.RLock()
 	defer hs.mu.RUnlock()

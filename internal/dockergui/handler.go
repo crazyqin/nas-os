@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// ContainerState 容器状态
+// ContainerState 容器状态.
 type ContainerState string
 
 const (
@@ -17,7 +17,7 @@ const (
 	StateError    ContainerState = "error"
 )
 
-// Container Docker容器
+// Container Docker容器.
 type Container struct {
 	ID         string         `json:"id"`
 	Name       string         `json:"name"`
@@ -36,7 +36,7 @@ type Container struct {
 	Health     string         `json:"health"`
 }
 
-// PortMapping 端口映射
+// PortMapping 端口映射.
 type PortMapping struct {
 	HostPort      int    `json:"hostPort"`
 	ContainerPort int    `json:"containerPort"`
@@ -44,7 +44,7 @@ type PortMapping struct {
 	HostIP        string `json:"hostIp"`
 }
 
-// ComposeProject Docker Compose项目
+// ComposeProject Docker Compose项目.
 type ComposeProject struct {
 	Name       string           `json:"name"`
 	Services   []ComposeService `json:"services"`
@@ -55,7 +55,7 @@ type ComposeProject struct {
 	CreatedAt  time.Time        `json:"createdAt"`
 }
 
-// ComposeService Compose服务
+// ComposeService Compose服务.
 type ComposeService struct {
 	Name      string         `json:"name"`
 	Image     string         `json:"image"`
@@ -67,7 +67,7 @@ type ComposeService struct {
 	DependsOn []string       `json:"dependsOn"`
 }
 
-// Image Docker镜像
+// Image Docker镜像.
 type Image struct {
 	ID         string    `json:"id"`
 	Repository string    `json:"repository"`
@@ -76,7 +76,7 @@ type Image struct {
 	CreatedAt  time.Time `json:"createdAt"`
 }
 
-// Network Docker网络
+// Network Docker网络.
 type Network struct {
 	Name     string `json:"name"`
 	Driver   string `json:"driver"`
@@ -86,7 +86,7 @@ type Network struct {
 	Internal bool   `json:"internal"`
 }
 
-// Manager Docker管理器
+// Manager Docker管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	containers map[string]*Container
@@ -95,7 +95,7 @@ type Manager struct {
 	networks   map[string]*Network
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		containers: make(map[string]*Container),
@@ -105,7 +105,7 @@ func NewManager() *Manager {
 	}
 }
 
-// ListContainers 列出容器
+// ListContainers 列出容器.
 func (m *Manager) ListContainers(all bool) []*Container {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -119,7 +119,7 @@ func (m *Manager) ListContainers(all bool) []*Container {
 	return containers
 }
 
-// GetContainer 获取容器详情
+// GetContainer 获取容器详情.
 func (m *Manager) GetContainer(id string) (*Container, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -130,7 +130,7 @@ func (m *Manager) GetContainer(id string) (*Container, error) {
 	return c, nil
 }
 
-// StartContainer 启动容器
+// StartContainer 启动容器.
 func (m *Manager) StartContainer(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -143,7 +143,7 @@ func (m *Manager) StartContainer(id string) error {
 	return nil
 }
 
-// StopContainer 停止容器
+// StopContainer 停止容器.
 func (m *Manager) StopContainer(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -155,7 +155,7 @@ func (m *Manager) StopContainer(id string) error {
 	return nil
 }
 
-// RestartContainer 重启容器
+// RestartContainer 重启容器.
 func (m *Manager) RestartContainer(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -169,7 +169,7 @@ func (m *Manager) RestartContainer(id string) error {
 	return nil
 }
 
-// RemoveContainer 删除容器
+// RemoveContainer 删除容器.
 func (m *Manager) RemoveContainer(id string, force bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -180,7 +180,7 @@ func (m *Manager) RemoveContainer(id string, force bool) error {
 	return nil
 }
 
-// GetContainerLogs 获取容器日志
+// GetContainerLogs 获取容器日志.
 func (m *Manager) GetContainerLogs(id string, tail int) ([]string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -190,7 +190,7 @@ func (m *Manager) GetContainerLogs(id string, tail int) ([]string, error) {
 	return []string{}, nil
 }
 
-// GetContainerStats 获取容器资源使用
+// GetContainerStats 获取容器资源使用.
 func (m *Manager) GetContainerStats(id string) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -205,7 +205,7 @@ func (m *Manager) GetContainerStats(id string) (map[string]interface{}, error) {
 	}, nil
 }
 
-// ListComposeProjects 列出Compose项目
+// ListComposeProjects 列出Compose项目.
 func (m *Manager) ListComposeProjects() []*ComposeProject {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -216,7 +216,7 @@ func (m *Manager) ListComposeProjects() []*ComposeProject {
 	return projects
 }
 
-// GetComposeProject 获取Compose项目
+// GetComposeProject 获取Compose项目.
 func (m *Manager) GetComposeProject(name string) (*ComposeProject, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -227,7 +227,7 @@ func (m *Manager) GetComposeProject(name string) (*ComposeProject, error) {
 	return p, nil
 }
 
-// DeployCompose 部署Compose项目
+// DeployCompose 部署Compose项目.
 func (m *Manager) DeployCompose(name, config string) (*ComposeProject, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -243,7 +243,7 @@ func (m *Manager) DeployCompose(name, config string) (*ComposeProject, error) {
 	return project, nil
 }
 
-// StopCompose 停止Compose项目
+// StopCompose 停止Compose项目.
 func (m *Manager) StopCompose(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -255,7 +255,7 @@ func (m *Manager) StopCompose(name string) error {
 	return nil
 }
 
-// RemoveCompose 删除Compose项目
+// RemoveCompose 删除Compose项目.
 func (m *Manager) RemoveCompose(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -266,7 +266,7 @@ func (m *Manager) RemoveCompose(name string) error {
 	return nil
 }
 
-// ListImages 列出镜像
+// ListImages 列出镜像.
 func (m *Manager) ListImages() []*Image {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -277,7 +277,7 @@ func (m *Manager) ListImages() []*Image {
 	return images
 }
 
-// PullImage 拉取镜像
+// PullImage 拉取镜像.
 func (m *Manager) PullImage(repository, tag string) (*Image, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -291,7 +291,7 @@ func (m *Manager) PullImage(repository, tag string) (*Image, error) {
 	return img, nil
 }
 
-// RemoveImage 删除镜像
+// RemoveImage 删除镜像.
 func (m *Manager) RemoveImage(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -302,7 +302,7 @@ func (m *Manager) RemoveImage(id string) error {
 	return nil
 }
 
-// ListNetworks 列出网络
+// ListNetworks 列出网络.
 func (m *Manager) ListNetworks() []*Network {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -313,7 +313,7 @@ func (m *Manager) ListNetworks() []*Network {
 	return networks
 }
 
-// CreateNetwork 创建网络
+// CreateNetwork 创建网络.
 func (m *Manager) CreateNetwork(name, driver, subnet string) (*Network, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

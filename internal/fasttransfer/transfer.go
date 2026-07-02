@@ -7,14 +7,14 @@ import (
 )
 
 // TransferManager 高速传输管理器
-// 对标群晖 Presto File Server / Synology High-Speed Transfer
+// 对标群晖 Presto File Server / Synology High-Speed Transfer.
 type TransferManager struct {
 	mu        sync.RWMutex
 	config    *Config
 	transfers map[string]*Transfer
 }
 
-// Config 传输配置
+// Config 传输配置.
 type Config struct {
 	MaxConcurrent int  `json:"max_concurrent"`
 	CompressLevel int  `json:"compress_level"` // 0-9, 0=不压缩
@@ -23,7 +23,7 @@ type Config struct {
 	BandwidthMBps int  `json:"bandwidth_mbps"` // 0=不限速
 }
 
-// Transfer 传输任务
+// Transfer 传输任务.
 type Transfer struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
@@ -41,7 +41,7 @@ type Transfer struct {
 	ErrorMsg    string        `json:"error_msg,omitempty"`
 }
 
-// NewTransferManager 创建管理器
+// NewTransferManager 创建管理器.
 func NewTransferManager(cfg *Config) *TransferManager {
 	if cfg == nil {
 		cfg = &Config{
@@ -57,7 +57,7 @@ func NewTransferManager(cfg *Config) *TransferManager {
 	}
 }
 
-// CreateTransfer 创建传输任务
+// CreateTransfer 创建传输任务.
 func (m *TransferManager) CreateTransfer(name, src, dst string) (*Transfer, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -88,7 +88,7 @@ func (m *TransferManager) CreateTransfer(name, src, dst string) (*Transfer, erro
 	return t, nil
 }
 
-// GetTransfer 获取传输详情
+// GetTransfer 获取传输详情.
 func (m *TransferManager) GetTransfer(id string) (*Transfer, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -99,7 +99,7 @@ func (m *TransferManager) GetTransfer(id string) (*Transfer, error) {
 	return t, nil
 }
 
-// ListTransfers 列出所有传输
+// ListTransfers 列出所有传输.
 func (m *TransferManager) ListTransfers() []*Transfer {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -110,7 +110,7 @@ func (m *TransferManager) ListTransfers() []*Transfer {
 	return result
 }
 
-// CancelTransfer 取消传输
+// CancelTransfer 取消传输.
 func (m *TransferManager) CancelTransfer(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -125,7 +125,7 @@ func (m *TransferManager) CancelTransfer(id string) error {
 	return nil
 }
 
-// GetStats 获取传输统计
+// GetStats 获取传输统计.
 func (m *TransferManager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

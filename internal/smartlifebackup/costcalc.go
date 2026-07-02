@@ -6,12 +6,12 @@ import (
 	"time"
 )
 
-// CostCalculator 存储成本计算器
+// CostCalculator 存储成本计算器.
 type CostCalculator struct {
 	costConfig *StorageCost
 }
 
-// NewCostCalculator 创建成本计算器
+// NewCostCalculator 创建成本计算器.
 func NewCostCalculator(config *StorageCost) *CostCalculator {
 	if config == nil {
 		config = DefaultStorageCost()
@@ -21,7 +21,7 @@ func NewCostCalculator(config *StorageCost) *CostCalculator {
 	}
 }
 
-// CalculateCost 计算存储成本
+// CalculateCost 计算存储成本.
 func (c *CostCalculator) CalculateCost(tier StorageTier, sizeGB float64) float64 {
 	var costPerGB float64
 
@@ -41,17 +41,17 @@ func (c *CostCalculator) CalculateCost(tier StorageTier, sizeGB float64) float64
 	return costPerGB * sizeGB
 }
 
-// CalculateTransferCost 计算传输成本
+// CalculateTransferCost 计算传输成本.
 func (c *CostCalculator) CalculateTransferCost(sizeGB float64) float64 {
 	return c.costConfig.TransferCostPerGB * sizeGB
 }
 
-// CalculateRequestCost 计算请求成本
+// CalculateRequestCost 计算请求成本.
 func (c *CostCalculator) CalculateRequestCost(requests int) float64 {
 	return c.costConfig.RequestCostPer1000 * float64(requests) / 1000
 }
 
-// CalculateTotalCost 计算总成本
+// CalculateTotalCost 计算总成本.
 func (c *CostCalculator) CalculateTotalCost(item *BackupItem) float64 {
 	sizeGB := float64(item.Size) / (1024 * 1024 * 1024)
 
@@ -61,7 +61,7 @@ func (c *CostCalculator) CalculateTotalCost(item *BackupItem) float64 {
 	return storageCost
 }
 
-// EstimateSavings 估算迁移到其他层级的节省
+// EstimateSavings 估算迁移到其他层级的节省.
 func (c *CostCalculator) EstimateSavings(item *BackupItem, targetTier StorageTier) float64 {
 	sizeGB := float64(item.Size) / (1024 * 1024 * 1024)
 
@@ -71,7 +71,7 @@ func (c *CostCalculator) EstimateSavings(item *BackupItem, targetTier StorageTie
 	return currentCost - targetCost
 }
 
-// targetTierCost 计算目标层级成本
+// targetTierCost 计算目标层级成本.
 func targetTierCost(sizeGB float64, tier StorageTier, config *StorageCost) float64 {
 	var costPerGB float64
 
@@ -91,7 +91,7 @@ func targetTierCost(sizeGB float64, tier StorageTier, config *StorageCost) float
 	return costPerGB * sizeGB
 }
 
-// GenerateReport 生成成本报告
+// GenerateReport 生成成本报告.
 func (c *CostCalculator) GenerateReport(backups map[string]*BackupItem) *CostReport {
 	report := &CostReport{
 		GeneratedAt:   time.Now(),
@@ -133,7 +133,7 @@ func (c *CostCalculator) GenerateReport(backups map[string]*BackupItem) *CostRep
 	return report
 }
 
-// generateSuggestions 生成优化建议
+// generateSuggestions 生成优化建议.
 func (c *CostCalculator) generateSuggestions(backups map[string]*BackupItem, tierStats map[StorageTier]*TierCost) []CostSuggestion {
 	var suggestions []CostSuggestion
 	now := time.Now()
@@ -231,7 +231,7 @@ func (c *CostCalculator) generateSuggestions(backups map[string]*BackupItem, tie
 	return suggestions
 }
 
-// GetCostBreakdown 获取成本分解
+// GetCostBreakdown 获取成本分解.
 func (c *CostCalculator) GetCostBreakdown(backups map[string]*BackupItem) map[string]interface{} {
 	result := map[string]interface{}{
 		"tiers": make(map[string]interface{}),
@@ -263,7 +263,7 @@ func (c *CostCalculator) GetCostBreakdown(backups map[string]*BackupItem) map[st
 	return result
 }
 
-// CompareStrategies 比较不同策略的成本
+// CompareStrategies 比较不同策略的成本.
 func (c *CostCalculator) CompareStrategies(backups map[string]*BackupItem, strategies []BackupPolicy) []map[string]interface{} {
 	var results []map[string]interface{}
 
@@ -301,7 +301,7 @@ func (c *CostCalculator) CompareStrategies(backups map[string]*BackupItem, strat
 	return results
 }
 
-// FormatCost 格式化成本显示
+// FormatCost 格式化成本显示.
 func FormatCost(cost float64) string {
 	if cost < 0.01 {
 		return fmt.Sprintf("$%.4f", cost)
@@ -314,7 +314,7 @@ func FormatCost(cost float64) string {
 	}
 }
 
-// CalculateROI 计算投资回报率
+// CalculateROI 计算投资回报率.
 func CalculateROI(savings float64, investmentCost float64) float64 {
 	if investmentCost == 0 {
 		return 0
@@ -322,7 +322,7 @@ func CalculateROI(savings float64, investmentCost float64) float64 {
 	return (savings - investmentCost) / investmentCost * 100
 }
 
-// EstimateYearlyCost 估算年成本
+// EstimateYearlyCost 估算年成本.
 func (c *CostCalculator) EstimateYearlyCost(backups map[string]*BackupItem) float64 {
 	monthlyReport := c.GenerateReport(backups)
 	return monthlyReport.TotalCost * 12

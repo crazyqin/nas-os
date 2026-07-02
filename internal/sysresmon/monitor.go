@@ -15,7 +15,7 @@ import (
 	"github.com/shirou/gopsutil/v3/net"
 )
 
-// ResourceMonitor 资源监控器
+// ResourceMonitor 资源监控器.
 type ResourceMonitor struct {
 	mu      sync.RWMutex
 	config  *Config
@@ -24,7 +24,7 @@ type ResourceMonitor struct {
 	stopped chan struct{}
 }
 
-// Config 监控配置
+// Config 监控配置.
 type Config struct {
 	// 采集间隔（秒），默认 30
 	Interval int `json:"interval"`
@@ -32,7 +32,7 @@ type Config struct {
 	BufferSize int `json:"bufferSize"`
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Interval:   30,
@@ -40,7 +40,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// CPUInfo CPU 信息
+// CPUInfo CPU 信息.
 type CPUInfo struct {
 	// 总体使用率（百分比）
 	UsagePercent float64 `json:"usagePercent"`
@@ -58,7 +58,7 @@ type CPUInfo struct {
 	Cores int `json:"cores"`
 }
 
-// MemoryInfo 内存信息
+// MemoryInfo 内存信息.
 type MemoryInfo struct {
 	// 总内存（字节）
 	Total uint64 `json:"total"`
@@ -78,7 +78,7 @@ type MemoryInfo struct {
 	Pressure float64 `json:"pressure"`
 }
 
-// DiskIOInfo 磁盘 I/O 信息
+// DiskIOInfo 磁盘 I/O 信息.
 type DiskIOInfo struct {
 	// 读取速率（字节/秒）
 	ReadBytesPerSec uint64 `json:"readBytesPerSec"`
@@ -96,7 +96,7 @@ type DiskIOInfo struct {
 	Partitions []DiskPartition `json:"partitions"`
 }
 
-// DiskPartition 磁盘分区信息
+// DiskPartition 磁盘分区信息.
 type DiskPartition struct {
 	// 挂载点
 	Mountpoint string `json:"mountpoint"`
@@ -110,7 +110,7 @@ type DiskPartition struct {
 	UsagePercent float64 `json:"usagePercent"`
 }
 
-// NetworkInfo 网络流量信息
+// NetworkInfo 网络流量信息.
 type NetworkInfo struct {
 	// 上行速率（字节/秒）
 	UploadPerSec uint64 `json:"uploadPerSec"`
@@ -124,7 +124,7 @@ type NetworkInfo struct {
 	Interfaces []NetInterface `json:"interfaces"`
 }
 
-// NetInterface 网卡统计
+// NetInterface 网卡统计.
 type NetInterface struct {
 	// 网卡名称
 	Name string `json:"name"`
@@ -136,7 +136,7 @@ type NetInterface struct {
 	IsPhysical bool `json:"isPhysical"`
 }
 
-// GPUInfo GPU 信息（如不可用则返回空）
+// GPUInfo GPU 信息（如不可用则返回空）.
 type GPUInfo struct {
 	// GPU 是否存在
 	Available bool `json:"available"`
@@ -152,7 +152,7 @@ type GPUInfo struct {
 	MemoryUsagePercent float64 `json:"memoryUsagePercent"`
 }
 
-// ResourceSnapshot 资源快照
+// ResourceSnapshot 资源快照.
 type ResourceSnapshot struct {
 	// 采集时间
 	Timestamp time.Time `json:"timestamp"`
@@ -170,7 +170,7 @@ type ResourceSnapshot struct {
 	Uptime uint64 `json:"uptime"`
 }
 
-// NewResourceMonitor 创建资源监控器
+// NewResourceMonitor 创建资源监控器.
 func NewResourceMonitor(cfg *Config) *ResourceMonitor {
 	if cfg == nil {
 		cfg = DefaultConfig()
@@ -189,7 +189,7 @@ func NewResourceMonitor(cfg *Config) *ResourceMonitor {
 	}
 }
 
-// Start 启动监控采集
+// Start 启动监控采集.
 func (rm *ResourceMonitor) Start(ctx context.Context) error {
 	rm.mu.Lock()
 	if rm.cancel != nil {
@@ -213,7 +213,7 @@ func (rm *ResourceMonitor) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (rm *ResourceMonitor) Stop() {
 	rm.mu.Lock()
 	if rm.cancel != nil {
@@ -226,7 +226,7 @@ func (rm *ResourceMonitor) Stop() {
 	<-rm.stopped
 }
 
-// GetLatest 获取最新快照
+// GetLatest 获取最新快照.
 func (rm *ResourceMonitor) GetLatest() *ResourceSnapshot {
 	if snap := rm.history.Latest(); snap != nil {
 		return snap
@@ -239,20 +239,20 @@ func (rm *ResourceMonitor) GetLatest() *ResourceSnapshot {
 	return &snapshot
 }
 
-// GetHistory 获取历史数据
+// GetHistory 获取历史数据.
 func (rm *ResourceMonitor) GetHistory(duration time.Duration) []ResourceSnapshot {
 	since := time.Now().Add(-duration)
 	return rm.history.Since(since)
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (rm *ResourceMonitor) GetConfig() *Config {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
 	return rm.config
 }
 
-// loop 采集循环
+// loop 采集循环.
 func (rm *ResourceMonitor) loop(ctx context.Context) {
 	defer func() {
 		rm.mu.Lock()
@@ -278,7 +278,7 @@ func (rm *ResourceMonitor) loop(ctx context.Context) {
 	}
 }
 
-// collect 采集一次系统资源数据
+// collect 采集一次系统资源数据.
 func (rm *ResourceMonitor) collect() (ResourceSnapshot, error) {
 	snap := ResourceSnapshot{
 		Timestamp: time.Now(),
@@ -328,7 +328,7 @@ func (rm *ResourceMonitor) collect() (ResourceSnapshot, error) {
 	return snap, nil
 }
 
-// collectCPU 采集 CPU 信息
+// collectCPU 采集 CPU 信息.
 func (rm *ResourceMonitor) collectCPU() (CPUInfo, error) {
 	info := CPUInfo{}
 
@@ -367,7 +367,7 @@ func (rm *ResourceMonitor) collectCPU() (CPUInfo, error) {
 	return info, nil
 }
 
-// getCPUTemperature 获取 CPU 温度
+// getCPUTemperature 获取 CPU 温度.
 func (rm *ResourceMonitor) getCPUTemperature() float64 {
 	// 使用 host.SensorsTemperatures() 获取温度
 	temps, err := host.SensorsTemperatures()
@@ -384,7 +384,7 @@ func (rm *ResourceMonitor) getCPUTemperature() float64 {
 	return 0
 }
 
-// collectMemory 采集内存信息
+// collectMemory 采集内存信息.
 func (rm *ResourceMonitor) collectMemory() (MemoryInfo, error) {
 	info := MemoryInfo{}
 
@@ -414,7 +414,7 @@ func (rm *ResourceMonitor) collectMemory() (MemoryInfo, error) {
 	return info, nil
 }
 
-// collectDiskIO 采集磁盘 I/O 信息
+// collectDiskIO 采集磁盘 I/O 信息.
 func (rm *ResourceMonitor) collectDiskIO() (DiskIOInfo, error) {
 	info := DiskIOInfo{}
 
@@ -477,7 +477,7 @@ func (rm *ResourceMonitor) collectDiskIO() (DiskIOInfo, error) {
 	return info, nil
 }
 
-// collectNetwork 采集网络流量信息
+// collectNetwork 采集网络流量信息.
 func (rm *ResourceMonitor) collectNetwork() (NetworkInfo, error) {
 	info := NetworkInfo{}
 
@@ -529,7 +529,7 @@ func (rm *ResourceMonitor) collectNetwork() (NetworkInfo, error) {
 	return info, nil
 }
 
-// collectGPU 采集 GPU 信息（尝试 nvidia-smi）
+// collectGPU 采集 GPU 信息（尝试 nvidia-smi）.
 func (rm *ResourceMonitor) collectGPU() GPUInfo {
 	info := GPUInfo{Available: false}
 

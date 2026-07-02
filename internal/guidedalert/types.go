@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Severity 告警严重程度
+// Severity 告警严重程度.
 type Severity string
 
 const (
@@ -15,7 +15,7 @@ const (
 	SeverityNotice   Severity = "notice"
 )
 
-// Category 告警类别
+// Category 告警类别.
 type Category string
 
 const (
@@ -29,7 +29,7 @@ const (
 	CategorySystem      Category = "system"
 )
 
-// GuidedAlert 引导式告警
+// GuidedAlert 引导式告警.
 type GuidedAlert struct {
 	ID                   string                `json:"id"`
 	Title                string                `json:"title"`
@@ -49,7 +49,7 @@ type GuidedAlert struct {
 	ResolvedAt           *time.Time            `json:"resolvedAt,omitempty"`
 }
 
-// AlertRule 告警规则
+// AlertRule 告警规则.
 type AlertRule struct {
 	Name                 string                `json:"name"`
 	Condition            string                `json:"condition"`
@@ -59,14 +59,14 @@ type AlertRule struct {
 	TroubleshootingGuide *TroubleshootingGuide `json:"troubleshootingGuide,omitempty"`
 }
 
-// AlertSummary 告警汇总
+// AlertSummary 告警汇总.
 type AlertSummary struct {
 	Total      int              `json:"total"`
 	ByCategory map[Category]int `json:"byCategory"`
 	BySeverity map[Severity]int `json:"bySeverity"`
 }
 
-// TroubleshootingGuide 故障排查指南
+// TroubleshootingGuide 故障排查指南.
 type TroubleshootingGuide struct {
 	Title       string                `json:"title"`
 	Description string                `json:"description"`
@@ -74,7 +74,7 @@ type TroubleshootingGuide struct {
 	DocsURL     string                `json:"docsUrl,omitempty"`
 }
 
-// TroubleshootingStep 故障排查步骤
+// TroubleshootingStep 故障排查步骤.
 type TroubleshootingStep struct {
 	Order          int    `json:"order"`
 	Description    string `json:"description"`

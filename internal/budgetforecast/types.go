@@ -4,7 +4,7 @@ package budgetforecast
 
 import "time"
 
-// UsageSnapshot 使用快照
+// UsageSnapshot 使用快照.
 type UsageSnapshot struct {
 	Date       time.Time `json:"date"`
 	UsedBytes  int64     `json:"used_bytes"`
@@ -12,7 +12,7 @@ type UsageSnapshot struct {
 	CostPerTB  float64   `json:"cost_per_tb"` // 每TB月成本（元）
 }
 
-// ForecastPoint 预测数据点
+// ForecastPoint 预测数据点.
 type ForecastPoint struct {
 	Date          time.Time `json:"date"`
 	PredictedGB   float64   `json:"predicted_gb"`
@@ -20,14 +20,14 @@ type ForecastPoint struct {
 	Confidence    float64   `json:"confidence"`     // 置信度 0~1
 }
 
-// BudgetAlert 预算告警
+// BudgetAlert 预算告警.
 type BudgetAlert struct {
 	Threshold     float64   `json:"threshold"`      // 阈值（元/月）
 	PredictedDate time.Time `json:"predicted_date"` // 预计触发日期
 	Severity      string    `json:"severity"`       // info / warning / critical
 }
 
-// ForecastResult 预测结果
+// ForecastResult 预测结果.
 type ForecastResult struct {
 	GeneratedAt   time.Time       `json:"generated_at"`
 	HistoryDays   int             `json:"history_days"`

@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler HTTP API handler
+// Handler HTTP API handler.
 type Handler struct {
 	manager *ClipboardManager
 }
 
-// NewHandler 创建 handler
+// NewHandler 创建 handler.
 func NewHandler(manager *ClipboardManager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/clipboard/push", h.handlePush)
 	mux.HandleFunc("/api/v1/clipboard/pull", h.handlePull)

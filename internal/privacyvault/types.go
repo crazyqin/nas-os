@@ -12,15 +12,15 @@ import (
 // 加密算法常量
 // ============================================================
 
-// EncryptionAlgorithm 加密算法类型
+// EncryptionAlgorithm 加密算法类型.
 type EncryptionAlgorithm string
 
 const (
-	// AlgoAES256GCM AES-256-GCM 认证加密算法
+	// AlgoAES256GCM AES-256-GCM 认证加密算法.
 	AlgoAES256GCM EncryptionAlgorithm = "aes-256-gcm"
-	// AlgoAES256XTS AES-256-XTS 磁盘加密算法
+	// AlgoAES256XTS AES-256-XTS 磁盘加密算法.
 	AlgoAES256XTS EncryptionAlgorithm = "aes-256-xts"
-	// AlgoChaCha20Poly1305 ChaCha20-Poly1305 认证加密算法
+	// AlgoChaCha20Poly1305 ChaCha20-Poly1305 认证加密算法.
 	AlgoChaCha20Poly1305 EncryptionAlgorithm = "chacha20-poly1305"
 )
 
@@ -28,7 +28,7 @@ const (
 // 保险库状态常量
 // ============================================================
 
-// VaultStatus 保险库状态
+// VaultStatus 保险库状态.
 type VaultStatus string
 
 const (
@@ -41,7 +41,7 @@ const (
 // 访问策略类型
 // ============================================================
 
-// AccessLevel 访问级别
+// AccessLevel 访问级别.
 type AccessLevel string
 
 const (
@@ -51,7 +51,7 @@ const (
 	AccessOwner     AccessLevel = "owner"
 )
 
-// SharePermission 分享权限
+// SharePermission 分享权限.
 type SharePermission string
 
 const (
@@ -64,7 +64,7 @@ const (
 // 数据结构定义
 // ============================================================
 
-// Vault 隐私保险库实例
+// Vault 隐私保险库实例.
 type Vault struct {
 	// ID 保险库唯一标识符
 	ID string `json:"id"`
@@ -100,7 +100,7 @@ type Vault struct {
 	AccessedAt time.Time `json:"accessed_at"`
 }
 
-// Secret 保险库中的加密条目
+// Secret 保险库中的加密条目.
 type Secret struct {
 	// ID 条目唯一标识符
 	ID string `json:"id"`
@@ -124,7 +124,7 @@ type Secret struct {
 	ModifiedAt time.Time `json:"modified_at"`
 }
 
-// AccessPolicy 访问控制策略
+// AccessPolicy 访问控制策略.
 type AccessPolicy struct {
 	// ID 策略唯一标识符
 	ID string `json:"id"`
@@ -146,7 +146,7 @@ type AccessPolicy struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// AuditLog 审计日志条目
+// AuditLog 审计日志条目.
 type AuditLog struct {
 	// ID 日志唯一标识符
 	ID string `json:"id"`
@@ -170,7 +170,7 @@ type AuditLog struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// VaultItem 保险库中的存储条目（文件或文件夹）
+// VaultItem 保险库中的存储条目（文件或文件夹）.
 type VaultItem struct {
 	// ID 条目唯一标识符
 	ID string `json:"id"`
@@ -194,7 +194,7 @@ type VaultItem struct {
 	ModifiedAt time.Time `json:"modified_at"`
 }
 
-// ShareLink 安全分享链接
+// ShareLink 安全分享链接.
 type ShareLink struct {
 	// ID 链接唯一标识符
 	ID string `json:"id"`
@@ -220,7 +220,7 @@ type ShareLink struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// KeyShare 密钥分片
+// KeyShare 密钥分片.
 type KeyShare struct {
 	// ID 分片唯一标识符
 	ID string `json:"id"`
@@ -244,7 +244,7 @@ type KeyShare struct {
 // 配置与统计
 // ============================================================
 
-// PrivacyVaultConfig 隐私保险箱全局配置
+// PrivacyVaultConfig 隐私保险箱全局配置.
 type PrivacyVaultConfig struct {
 	// Enabled 是否启用隐私保险箱
 	Enabled bool `json:"enabled"`
@@ -266,7 +266,7 @@ type PrivacyVaultConfig struct {
 	MaxFailedAttempts int `json:"max_failed_attempts"`
 }
 
-// VaultStats 保险库统计信息
+// VaultStats 保险库统计信息.
 type VaultStats struct {
 	// TotalVaults 保险库总数
 	TotalVaults int `json:"total_vaults"`
@@ -292,7 +292,7 @@ type VaultStats struct {
 // 错误类型
 // ============================================================
 
-// PrivacyVaultError 保险库操作错误
+// PrivacyVaultError 保险库操作错误.
 type PrivacyVaultError struct {
 	// Code 错误码
 	Code string `json:"code"`
@@ -302,7 +302,7 @@ type PrivacyVaultError struct {
 	Err error `json:"-"`
 }
 
-// Error 实现 error 接口
+// Error 实现 error 接口.
 func (e *PrivacyVaultError) Error() string {
 	if e.Err != nil {
 		return fmt.Sprintf("[%s] %s: %v", e.Code, e.Message, e.Err)
@@ -310,12 +310,12 @@ func (e *PrivacyVaultError) Error() string {
 	return fmt.Sprintf("[%s] %s", e.Code, e.Message)
 }
 
-// Unwrap 返回内部错误
+// Unwrap 返回内部错误.
 func (e *PrivacyVaultError) Unwrap() error {
 	return e.Err
 }
 
-// 预定义错误
+// 预定义错误.
 var (
 	ErrVaultNotFound      = &PrivacyVaultError{Code: "VAULT_NOT_FOUND", Message: "保险库不存在"}
 	ErrVaultAlreadyExists = &PrivacyVaultError{Code: "VAULT_ALREADY_EXISTS", Message: "保险库已存在"}
@@ -331,12 +331,12 @@ var (
 	ErrKeyShareInvalid    = &PrivacyVaultError{Code: "KEY_SHARE_INVALID", Message: "密钥分片无效"}
 )
 
-// NewPrivacyVaultError 创建包含内部错误的 PrivacyVaultError
+// NewPrivacyVaultError 创建包含内部错误的 PrivacyVaultError.
 func NewPrivacyVaultError(code, message string, err error) *PrivacyVaultError {
 	return &PrivacyVaultError{Code: code, Message: message, Err: err}
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *PrivacyVaultConfig {
 	return &PrivacyVaultConfig{
 		Enabled:             true,

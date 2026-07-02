@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// SceneType 场景类型
+// SceneType 场景类型.
 type SceneType string
 
 const (
@@ -21,7 +21,7 @@ const (
 	SceneTypeTrigger   SceneType = "trigger"   // 触发场景
 )
 
-// SceneStatus 场景状态
+// SceneStatus 场景状态.
 type SceneStatus string
 
 const (
@@ -30,7 +30,7 @@ const (
 	SceneStatusRunning  SceneStatus = "running"
 )
 
-// Action 动作定义
+// Action 动作定义.
 type Action struct {
 	DeviceID  string                 `json:"device_id"`
 	Command   string                 `json:"command"`
@@ -39,7 +39,7 @@ type Action struct {
 	Condition *Condition             `json:"condition,omitempty"`
 }
 
-// Condition 触发条件
+// Condition 触发条件.
 type Condition struct {
 	Type      string      `json:"type"`     // time, device, sensor, expression
 	Operator  string      `json:"operator"` // eq, neq, gt, lt, gte, lte, between
@@ -51,7 +51,7 @@ type Condition struct {
 	Days      []int       `json:"days,omitempty"` // 0=Sunday, 1=Monday, ...
 }
 
-// Trigger 触发器
+// Trigger 触发器.
 type Trigger struct {
 	Type      string     `json:"type"` // manual, time, device, sensor, webhook
 	Condition *Condition `json:"condition,omitempty"`
@@ -59,7 +59,7 @@ type Trigger struct {
 	WebhookID string     `json:"webhook_id,omitempty"`
 }
 
-// Scene 智能场景定义
+// Scene 智能场景定义.
 type Scene struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -76,7 +76,7 @@ type Scene struct {
 	Tags        []string    `json:"tags,omitempty"`
 }
 
-// SceneExecution 场景执行记录
+// SceneExecution 场景执行记录.
 type SceneExecution struct {
 	ID        string            `json:"id"`
 	SceneID   string            `json:"scene_id"`
@@ -87,7 +87,7 @@ type SceneExecution struct {
 	Actions   []ActionExecution `json:"actions"`
 }
 
-// ActionExecution 动作执行记录
+// ActionExecution 动作执行记录.
 type ActionExecution struct {
 	DeviceID  string    `json:"device_id"`
 	Command   string    `json:"command"`
@@ -97,7 +97,7 @@ type ActionExecution struct {
 	EndedAt   time.Time `json:"ended_at,omitempty"`
 }
 
-// Manager 场景管理器
+// Manager 场景管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	scenes     map[string]*Scene
@@ -110,26 +110,26 @@ type Manager struct {
 	wg         sync.WaitGroup
 }
 
-// DeviceManager 设备管理器接口
+// DeviceManager 设备管理器接口.
 type DeviceManager interface {
 	SendCommand(ctx context.Context, deviceID, command string, params map[string]interface{}) error
 	GetDeviceStatus(ctx context.Context, deviceID string) (map[string]interface{}, error)
 }
 
-// SensorManager 传感器管理器接口
+// SensorManager 传感器管理器接口.
 type SensorManager interface {
 	GetSensorValue(ctx context.Context, sensorID string) (interface{}, error)
 	Subscribe(ctx context.Context, sensorID string, callback func(interface{})) error
 }
 
-// Logger 日志接口
+// Logger 日志接口.
 type Logger interface {
 	Info(msg string, args ...interface{})
 	Error(msg string, args ...interface{})
 	Debug(msg string, args ...interface{})
 }
 
-// NewManager 创建场景管理器
+// NewManager 创建场景管理器.
 func NewManager(deviceMgr DeviceManager, sensorMgr SensorManager, logger Logger) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	m := &Manager{
@@ -149,7 +149,7 @@ func NewManager(deviceMgr DeviceManager, sensorMgr SensorManager, logger Logger)
 	return m
 }
 
-// CreateScene 创建场景
+// CreateScene 创建场景.
 func (m *Manager) CreateScene(scene *Scene) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -166,7 +166,7 @@ func (m *Manager) CreateScene(scene *Scene) error {
 	return nil
 }
 
-// UpdateScene 更新场景
+// UpdateScene 更新场景.
 func (m *Manager) UpdateScene(scene *Scene) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -183,7 +183,7 @@ func (m *Manager) UpdateScene(scene *Scene) error {
 	return nil
 }
 
-// DeleteScene 删除场景
+// DeleteScene 删除场景.
 func (m *Manager) DeleteScene(sceneID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -198,7 +198,7 @@ func (m *Manager) DeleteScene(sceneID string) error {
 	return nil
 }
 
-// GetScene 获取场景
+// GetScene 获取场景.
 func (m *Manager) GetScene(sceneID string) (*Scene, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -210,7 +210,7 @@ func (m *Manager) GetScene(sceneID string) (*Scene, error) {
 	return scene, nil
 }
 
-// ListScenes 列出所有场景
+// ListScenes 列出所有场景.
 func (m *Manager) ListScenes() []*Scene {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -222,7 +222,7 @@ func (m *Manager) ListScenes() []*Scene {
 	return scenes
 }
 
-// ExecuteScene 执行场景
+// ExecuteScene 执行场景.
 func (m *Manager) ExecuteScene(ctx context.Context, sceneID string) (*SceneExecution, error) {
 	m.mu.RLock()
 	scene, ok := m.scenes[sceneID]
@@ -271,7 +271,7 @@ func (m *Manager) ExecuteScene(ctx context.Context, sceneID string) (*SceneExecu
 	return execution, nil
 }
 
-// executeAction 执行单个动作
+// executeAction 执行单个动作.
 func (m *Manager) executeAction(ctx context.Context, action Action) ActionExecution {
 	exec := ActionExecution{
 		DeviceID:  action.DeviceID,
@@ -320,7 +320,7 @@ func (m *Manager) executeAction(ctx context.Context, action Action) ActionExecut
 	return exec
 }
 
-// evaluateCondition 评估条件
+// evaluateCondition 评估条件.
 func (m *Manager) evaluateCondition(ctx context.Context, cond *Condition) (bool, error) {
 	switch cond.Type {
 	case "time":
@@ -334,7 +334,7 @@ func (m *Manager) evaluateCondition(ctx context.Context, cond *Condition) (bool,
 	}
 }
 
-// evaluateTimeCondition 评估时间条件
+// evaluateTimeCondition 评估时间条件.
 func (m *Manager) evaluateTimeCondition(cond *Condition) bool {
 	now := time.Now()
 
@@ -369,7 +369,7 @@ func (m *Manager) evaluateTimeCondition(cond *Condition) bool {
 	return true
 }
 
-// evaluateDeviceCondition 评估设备条件
+// evaluateDeviceCondition 评估设备条件.
 func (m *Manager) evaluateDeviceCondition(ctx context.Context, cond *Condition) (bool, error) {
 	status, err := m.deviceMgr.GetDeviceStatus(ctx, cond.DeviceID)
 	if err != nil {
@@ -384,7 +384,7 @@ func (m *Manager) evaluateDeviceCondition(ctx context.Context, cond *Condition) 
 	return compareValues(value, cond.Value, cond.Operator), nil
 }
 
-// evaluateSensorCondition 评估传感器条件
+// evaluateSensorCondition 评估传感器条件.
 func (m *Manager) evaluateSensorCondition(ctx context.Context, cond *Condition) (bool, error) {
 	value, err := m.sensorMgr.GetSensorValue(ctx, cond.SensorID)
 	if err != nil {
@@ -394,7 +394,7 @@ func (m *Manager) evaluateSensorCondition(ctx context.Context, cond *Condition) 
 	return compareValues(value, cond.Value, cond.Operator), nil
 }
 
-// compareValues 比较值
+// compareValues 比较值.
 func compareValues(actual, expected interface{}, operator string) bool {
 	switch operator {
 	case "eq":
@@ -406,7 +406,7 @@ func compareValues(actual, expected interface{}, operator string) bool {
 	}
 }
 
-// scheduleLoop 定时调度循环
+// scheduleLoop 定时调度循环.
 func (m *Manager) scheduleLoop() {
 	defer m.wg.Done()
 	ticker := time.NewTicker(time.Minute)
@@ -422,7 +422,7 @@ func (m *Manager) scheduleLoop() {
 	}
 }
 
-// checkScheduledScenes 检查定时场景
+// checkScheduledScenes 检查定时场景.
 func (m *Manager) checkScheduledScenes() {
 	m.mu.RLock()
 	scenes := make([]*Scene, 0)
@@ -445,21 +445,21 @@ func (m *Manager) checkScheduledScenes() {
 	}
 }
 
-// shouldExecuteSchedule 检查是否应该执行定时任务
+// shouldExecuteSchedule 检查是否应该执行定时任务.
 func (m *Manager) shouldExecuteSchedule(schedule string) bool {
 	// 简化实现：每分钟检查一次
 	// 实际应该解析 cron 表达式
 	return true
 }
 
-// GetSceneExecutions 获取场景执行记录
+// GetSceneExecutions 获取场景执行记录.
 func (m *Manager) GetSceneExecutions(sceneID string) []*SceneExecution {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.executions[sceneID]
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.cancel()
 	m.wg.Wait()
@@ -469,7 +469,7 @@ func generateID() string {
 	return fmt.Sprintf("scene_%d", time.Now().UnixNano())
 }
 
-// RegisterHandlers 注册 HTTP 处理器
+// RegisterHandlers 注册 HTTP 处理器.
 func (m *Manager) RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/api/scenes", m.handleScenes)
 	mux.HandleFunc("/api/scenes/execute", m.handleExecuteScene)

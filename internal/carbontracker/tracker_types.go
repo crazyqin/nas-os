@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// CarbonFootprint 碳足迹
+// CarbonFootprint 碳足迹.
 type CarbonFootprint struct {
 	ID              string            `json:"id"`
 	DeviceID        string            `json:"device_id"`
@@ -21,7 +21,7 @@ type CarbonFootprint struct {
 	Details         *FootprintDetails `json:"details,omitempty"`
 }
 
-// FootprintDetails 碳足迹详情
+// FootprintDetails 碳足迹详情.
 type FootprintDetails struct {
 	CPUWatts     float64 `json:"cpu_watts"`
 	DiskWatts    float64 `json:"disk_watts"`
@@ -35,7 +35,7 @@ type FootprintDetails struct {
 	RuntimeHours float64 `json:"runtime_hours"`
 }
 
-// EnergySource 能源来源
+// EnergySource 能源来源.
 type EnergySource struct {
 	ID              string       `json:"id"`
 	Name            string       `json:"name"`
@@ -51,7 +51,7 @@ type EnergySource struct {
 	UpdatedAt       time.Time    `json:"updated_at"`
 }
 
-// EmissionRecord 排放记录
+// EmissionRecord 排放记录.
 type EmissionRecord struct {
 	ID              string            `json:"id"`
 	Timestamp       time.Time         `json:"timestamp"`
@@ -65,7 +65,7 @@ type EmissionRecord struct {
 	Metadata        map[string]string `json:"metadata,omitempty"`
 }
 
-// GreenScore 绿色评分
+// GreenScore 绿色评分.
 type GreenScore struct {
 	Overall          float64               `json:"overall"`           // 0-100
 	Grade            string                `json:"grade"`             // A+, A, B, C, D, E
@@ -77,7 +77,7 @@ type GreenScore struct {
 	UpdatedAt        time.Time             `json:"updated_at"`
 }
 
-// DeviceGreenScore 设备绿色评分
+// DeviceGreenScore 设备绿色评分.
 type DeviceGreenScore struct {
 	DeviceID    string  `json:"device_id"`
 	DeviceName  string  `json:"device_name"`
@@ -88,7 +88,7 @@ type DeviceGreenScore struct {
 	IdlePercent float64 `json:"idle_percent"` // 空闲时间占比
 }
 
-// GreenRecommendation 绿色建议
+// GreenRecommendation 绿色建议.
 type GreenRecommendation struct {
 	ID            string  `json:"id"`
 	Title         string  `json:"title"`
@@ -99,7 +99,7 @@ type GreenRecommendation struct {
 	IsImplemented bool    `json:"is_implemented"`
 }
 
-// CarbonTrackerManager 碳足迹管理器配置
+// CarbonTrackerManager 碳足迹管理器配置.
 type CarbonTrackerManagerConfig struct {
 	Enabled           bool    `json:"enabled"`
 	DefaultRegion     string  `json:"default_region"`
@@ -110,7 +110,7 @@ type CarbonTrackerManagerConfig struct {
 	EnableSuggestions bool    `json:"enable_suggestions"`
 }
 
-// DefaultCarbonTrackerManagerConfig 默认管理器配置
+// DefaultCarbonTrackerManagerConfig 默认管理器配置.
 func DefaultCarbonTrackerManagerConfig() *CarbonTrackerManagerConfig {
 	return &CarbonTrackerManagerConfig{
 		Enabled:           true,

@@ -299,9 +299,7 @@ func (h *Handlers) searchNotes(c *gin.Context) {
 
 	var tags []string
 	if t := c.Query("tags"); t != "" {
-		for _, tag := range splitAndTrim(t, ",") {
-			tags = append(tags, tag)
-		}
+		tags = append(tags, splitAndTrim(t, ",")...)
 	}
 
 	var pinned *bool

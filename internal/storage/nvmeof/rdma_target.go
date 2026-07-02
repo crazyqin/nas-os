@@ -21,22 +21,22 @@ import (
 // ========== RDMA 常量定义 ==========
 
 const (
-	// RDMAConfigPath RDMA configfs 路径
+	// RDMAConfigPath RDMA configfs 路径.
 	RDMAConfigPath = "/sys/kernel/config/nvmet/ports"
 
-	// RDMADefaultPort RDMA 默认服务端口
+	// RDMADefaultPort RDMA 默认服务端口.
 	RDMADefaultPort = 4420
 
-	// RDMADefaultMTU RDMA 默认 MTU
+	// RDMADefaultMTU RDMA 默认 MTU.
 	RDMADefaultMTU = 9000
 
-	// RDMADefaultQueueDepth RDMA 默认队列深度
+	// RDMADefaultQueueDepth RDMA 默认队列深度.
 	RDMADefaultQueueDepth = 128
 )
 
 // ========== RDMA Target 系统管理器 ==========
 
-// RDMATargetSysManager RDMA Target 系统管理器
+// RDMATargetSysManager RDMA Target 系统管理器.
 type RDMATargetSysManager struct {
 	mu sync.RWMutex
 
@@ -57,7 +57,7 @@ type RDMATargetSysManager struct {
 	running bool
 }
 
-// NewRDMATargetSysManager 创建 RDMA Target 系统管理器
+// NewRDMATargetSysManager 创建 RDMA Target 系统管理器.
 func NewRDMATargetSysManager(rdmaConfig *pkgnvmeof.RDMAConfig, targetManager *pkgnvmeof.TargetManager) (*RDMATargetSysManager, error) {
 	if rdmaConfig == nil {
 		rdmaConfig = pkgnvmeof.DefaultRDMAConfig()
@@ -87,7 +87,7 @@ func NewRDMATargetSysManager(rdmaConfig *pkgnvmeof.RDMAConfig, targetManager *pk
 	return m, nil
 }
 
-// checkRDMAAvailable 检查 RDMA 模块是否可用
+// checkRDMAAvailable 检查 RDMA 模块是否可用.
 func (m *RDMATargetSysManager) checkRDMAAvailable() error {
 	// 检查 configfs 是否挂载
 	if _, err := os.Stat("/sys/kernel/config"); err != nil {
@@ -116,7 +116,7 @@ func (m *RDMATargetSysManager) checkRDMAAvailable() error {
 	return nil
 }
 
-// loadModule 加载内核模块
+// loadModule 加载内核模块.
 func (m *RDMATargetSysManager) loadModule(module string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -129,7 +129,7 @@ func (m *RDMATargetSysManager) loadModule(module string) error {
 	return nil
 }
 
-// loadExistingConfig 加载现有配置
+// loadExistingConfig 加载现有配置.
 func (m *RDMATargetSysManager) loadExistingConfig() {
 	// 读取已存在的端口
 	portsDir, err := os.ReadDir(RDMAConfigPath)
@@ -156,7 +156,7 @@ func (m *RDMATargetSysManager) loadExistingConfig() {
 	}
 }
 
-// loadRDMAPortConfig 加载 RDMA 端口配置
+// loadRDMAPortConfig 加载 RDMA 端口配置.
 func (m *RDMATargetSysManager) loadRDMAPortConfig(portID int) {
 	portPath := filepath.Join(RDMAConfigPath, strconv.Itoa(portID))
 
@@ -176,7 +176,7 @@ func (m *RDMATargetSysManager) loadRDMAPortConfig(portID int) {
 
 // ========== RDMA Target 端口管理 ==========
 
-// CreateRDMAPort 创建 RDMA Target 端口
+// CreateRDMAPort 创建 RDMA Target 端口.
 func (m *RDMATargetSysManager) CreateRDMAPort(ctx context.Context, req *CreateRDMAPortRequest) (*RDMAPort, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -237,7 +237,7 @@ func (m *RDMATargetSysManager) CreateRDMAPort(ctx context.Context, req *CreateRD
 	return port, nil
 }
 
-// DeleteRDMAPort 删除 RDMA Target 端口
+// DeleteRDMAPort 删除 RDMA Target 端口.
 func (m *RDMATargetSysManager) DeleteRDMAPort(ctx context.Context, portID int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -269,7 +269,7 @@ func (m *RDMATargetSysManager) DeleteRDMAPort(ctx context.Context, portID int) e
 	return nil
 }
 
-// LinkSubsystemToRDMAPort 将子系统链接到 RDMA 端口
+// LinkSubsystemToRDMAPort 将子系统链接到 RDMA 端口.
 func (m *RDMATargetSysManager) LinkSubsystemToRDMAPort(ctx context.Context, portID int, subsysNQN string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -290,7 +290,7 @@ func (m *RDMATargetSysManager) LinkSubsystemToRDMAPort(ctx context.Context, port
 	return nil
 }
 
-// UnlinkSubsystemFromRDMAPort 将子系统从 RDMA 端口解链
+// UnlinkSubsystemFromRDMAPort 将子系统从 RDMA 端口解链.
 func (m *RDMATargetSysManager) UnlinkSubsystemFromRDMAPort(ctx context.Context, portID int, subsysNQN string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -306,7 +306,7 @@ func (m *RDMATargetSysManager) UnlinkSubsystemFromRDMAPort(ctx context.Context, 
 	return nil
 }
 
-// allocatePortID 分配端口 ID
+// allocatePortID 分配端口 ID.
 func (m *RDMATargetSysManager) allocatePortID() int {
 	for {
 		if !m.portIDs[m.nextPortID] {
@@ -319,12 +319,12 @@ func (m *RDMATargetSysManager) allocatePortID() int {
 	}
 }
 
-// releasePortID 释放端口 ID
+// releasePortID 释放端口 ID.
 func (m *RDMATargetSysManager) releasePortID(portID int) {
 	delete(m.portIDs, portID)
 }
 
-// ListRDMAPorts 列出 RDMA 端口
+// ListRDMAPorts 列出 RDMA 端口.
 func (m *RDMATargetSysManager) ListRDMAPorts() ([]*RDMAPort, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -384,7 +384,7 @@ func (m *RDMATargetSysManager) ListRDMAPorts() ([]*RDMAPort, error) {
 	return ports, nil
 }
 
-// GetRDMAPort 获取 RDMA 端口详情
+// GetRDMAPort 获取 RDMA 端口详情.
 func (m *RDMATargetSysManager) GetRDMAPort(portID int) (*RDMAPort, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -430,7 +430,7 @@ func (m *RDMATargetSysManager) GetRDMAPort(portID int) (*RDMAPort, error) {
 
 // ========== RDMA 服务管理 ==========
 
-// Start 启动 RDMA Target 服务
+// Start 启动 RDMA Target 服务.
 func (m *RDMATargetSysManager) Start(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -462,7 +462,7 @@ func (m *RDMATargetSysManager) Start(ctx context.Context) error {
 	return m.pkgRdmaManager.Start(ctx)
 }
 
-// Stop 停止 RDMA Target 服务
+// Stop 停止 RDMA Target 服务.
 func (m *RDMATargetSysManager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -475,7 +475,7 @@ func (m *RDMATargetSysManager) Stop() error {
 	return m.pkgRdmaManager.Stop()
 }
 
-// IsRunning 检查是否运行中
+// IsRunning 检查是否运行中.
 func (m *RDMATargetSysManager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -484,19 +484,19 @@ func (m *RDMATargetSysManager) IsRunning() bool {
 
 // ========== RDMA 设备管理 ==========
 
-// GetRDMADevices 获取 RDMA 设备列表
+// GetRDMADevices 获取 RDMA 设备列表.
 func (m *RDMATargetSysManager) GetRDMADevices() []*pkgnvmeof.RDMADevice {
 	return m.pkgRdmaManager.GetDevices()
 }
 
-// GetRDMADevice 获取指定 RDMA 设备
+// GetRDMADevice 获取指定 RDMA 设备.
 func (m *RDMATargetSysManager) GetRDMADevice(name string) (*pkgnvmeof.RDMADevice, error) {
 	return m.pkgRdmaManager.GetDevice(name)
 }
 
 // ========== RDMA 统计 ==========
 
-// GetRDMAStats 获取 RDMA 统计信息
+// GetRDMAStats 获取 RDMA 统计信息.
 func (m *RDMATargetSysManager) GetRDMAStats() *RDMATargetStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -525,7 +525,7 @@ func (m *RDMATargetSysManager) GetRDMAStats() *RDMATargetStats {
 
 // ========== RDMA 端口对象 ==========
 
-// RDMAPort RDMA 端口
+// RDMAPort RDMA 端口.
 type RDMAPort struct {
 	// 端口 ID
 	ID int `json:"id"`
@@ -558,19 +558,19 @@ type RDMAPort struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-// RDMAPortState RDMA 端口状态
+// RDMAPortState RDMA 端口状态.
 type RDMAPortState string
 
 const (
-	// RDMAPortStateUp 端口在线
+	// RDMAPortStateUp 端口在线.
 	RDMAPortStateUp RDMAPortState = "up"
-	// RDMAPortStateDown 端口离线
+	// RDMAPortStateDown 端口离线.
 	RDMAPortStateDown RDMAPortState = "down"
-	// RDMAPortStateError 端口错误
+	// RDMAPortStateError 端口错误.
 	RDMAPortStateError RDMAPortState = "error"
 )
 
-// RDMATargetStats RDMA Target 统计
+// RDMATargetStats RDMA Target 统计.
 type RDMATargetStats struct {
 	// 可用性
 	Available bool `json:"available"`
@@ -600,7 +600,7 @@ type RDMATargetStats struct {
 
 // ========== RDMA 端口请求 ==========
 
-// CreateRDMAPortRequest 创建 RDMA 端口请求
+// CreateRDMAPortRequest 创建 RDMA 端口请求.
 type CreateRDMAPortRequest struct {
 	// IP 地址
 	Address string `json:"address"`
@@ -621,7 +621,7 @@ type CreateRDMAPortRequest struct {
 	SubsystemNQN string `json:"subsystemNqn,omitempty"`
 }
 
-// Validate 验证请求
+// Validate 验证请求.
 func (r *CreateRDMAPortRequest) Validate() error {
 	if r.Address == "" {
 		return fmt.Errorf("address is required")

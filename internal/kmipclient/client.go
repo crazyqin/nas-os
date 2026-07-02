@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// KMIPVersion represents the KMIP protocol version
+// KMIPVersion represents the KMIP protocol version.
 type KMIPVersion string
 
 const (
@@ -26,7 +26,7 @@ const (
 	KMIP21 KMIPVersion = "2.1"
 )
 
-// KeyState represents the state of a managed key
+// KeyState represents the state of a managed key.
 type KeyState string
 
 const (
@@ -37,7 +37,7 @@ const (
 	KeyStateDestroyed   KeyState = "Destroyed"
 )
 
-// KeyType represents the type of cryptographic key
+// KeyType represents the type of cryptographic key.
 type KeyType string
 
 const (
@@ -47,7 +47,7 @@ const (
 	KeyTypeHMAC KeyType = "HMAC"
 )
 
-// KMIPKey represents a managed cryptographic key
+// KMIPKey represents a managed cryptographic key.
 type KMIPKey struct {
 	ID               string            `json:"id"`
 	Name             string            `json:"name"`
@@ -66,7 +66,7 @@ type KMIPKey struct {
 	UpdatedAt        time.Time         `json:"updated_at"`
 }
 
-// KMIPConfig configures the KMIP client
+// KMIPConfig configures the KMIP client.
 type KMIPConfig struct {
 	Endpoint   string        `json:"endpoint"` // KMIP server endpoint
 	Port       int           `json:"port"`     // Default: 5696
@@ -79,7 +79,7 @@ type KMIPConfig struct {
 	AutoRotate bool          `json:"auto_rotate"` // Auto-rotate expired keys
 }
 
-// TLSConfig configures TLS for KMIP connection
+// TLSConfig configures TLS for KMIP connection.
 type TLSConfig struct {
 	CertFile   string `json:"cert_file"`
 	KeyFile    string `json:"key_file"`
@@ -88,7 +88,7 @@ type TLSConfig struct {
 	MinVersion uint16 `json:"min_version"`
 }
 
-// DefaultKMIPConfig returns sensible defaults
+// DefaultKMIPConfig returns sensible defaults.
 func DefaultKMIPConfig() KMIPConfig {
 	return KMIPConfig{
 		Port:       5696,
@@ -101,7 +101,7 @@ func DefaultKMIPConfig() KMIPConfig {
 	}
 }
 
-// Client is the KMIP client
+// Client is the KMIP client.
 type Client struct {
 	mu         sync.RWMutex
 	config     KMIPConfig
@@ -119,7 +119,7 @@ type cacheEntry struct {
 	expiresAt time.Time
 }
 
-// NewClient creates a new KMIP client
+// NewClient creates a new KMIP client.
 func NewClient(config KMIPConfig, logger *zap.Logger) (*Client, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -149,7 +149,7 @@ func NewClient(config KMIPConfig, logger *zap.Logger) (*Client, error) {
 	return c, nil
 }
 
-// Start begins background key management tasks
+// Start begins background key management tasks.
 func (c *Client) Start() {
 	if c.config.AutoRotate {
 		c.wg.Add(1)
@@ -160,14 +160,14 @@ func (c *Client) Start() {
 	c.logger.Info("KMIP client started")
 }
 
-// Stop gracefully stops the client
+// Stop gracefully stops the client.
 func (c *Client) Stop() {
 	c.cancel()
 	c.wg.Wait()
 	c.logger.Info("KMIP client stopped")
 }
 
-// CreateKey creates a new cryptographic key on the KMIP server
+// CreateKey creates a new cryptographic key on the KMIP server.
 func (c *Client) CreateKey(ctx context.Context, name string, keyType KeyType, keySize int) (*KMIPKey, error) {
 	key := &KMIPKey{
 		ID:        fmt.Sprintf("key-%d", time.Now().UnixNano()),
@@ -192,7 +192,7 @@ func (c *Client) CreateKey(ctx context.Context, name string, keyType KeyType, ke
 	return key, nil
 }
 
-// GetKey retrieves a key by ID
+// GetKey retrieves a key by ID.
 func (c *Client) GetKey(ctx context.Context, keyID string) (*KMIPKey, error) {
 	// Check cache first
 	c.mu.RLock()
@@ -220,7 +220,7 @@ func (c *Client) GetKey(ctx context.Context, keyID string) (*KMIPKey, error) {
 	return key, nil
 }
 
-// ActivateKey transitions a key to Active state
+// ActivateKey transitions a key to Active state.
 func (c *Client) ActivateKey(ctx context.Context, keyID string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -242,7 +242,7 @@ func (c *Client) ActivateKey(ctx context.Context, keyID string) error {
 	return nil
 }
 
-// RevokeKey deactivates a key
+// RevokeKey deactivates a key.
 func (c *Client) RevokeKey(ctx context.Context, keyID, reason string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -262,7 +262,7 @@ func (c *Client) RevokeKey(ctx context.Context, keyID, reason string) error {
 	return nil
 }
 
-// DestroyKey permanently destroys a key
+// DestroyKey permanently destroys a key.
 func (c *Client) DestroyKey(ctx context.Context, keyID string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -282,7 +282,7 @@ func (c *Client) DestroyKey(ctx context.Context, keyID string) error {
 	return nil
 }
 
-// RotateKey creates a new version of an existing key
+// RotateKey creates a new version of an existing key.
 func (c *Client) RotateKey(ctx context.Context, keyID string) (*KMIPKey, error) {
 	c.mu.RLock()
 	oldKey, ok := c.keys[keyID]
@@ -308,7 +308,7 @@ func (c *Client) RotateKey(ctx context.Context, keyID string) (*KMIPKey, error) 
 	return newKey, nil
 }
 
-// ListKeys lists all managed keys
+// ListKeys lists all managed keys.
 func (c *Client) ListKeys(ctx context.Context) []*KMIPKey {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -320,7 +320,7 @@ func (c *Client) ListKeys(ctx context.Context) []*KMIPKey {
 	return keys
 }
 
-// GetStats returns KMIP client statistics
+// GetStats returns KMIP client statistics.
 func (c *Client) GetStats() map[string]interface{} {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -442,7 +442,7 @@ func mustOpen(path string) io.ReadCloser {
 	return io.NopCloser(nil)
 }
 
-// MarshalJSON implements json.Marshaler for KMIPKey
+// MarshalJSON implements json.Marshaler for KMIPKey.
 func (k *KMIPKey) MarshalJSON() ([]byte, error) {
 	type Alias KMIPKey
 	return json.Marshal(&struct {

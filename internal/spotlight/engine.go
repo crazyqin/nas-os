@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// EngineStatus 引擎状态
+// EngineStatus 引擎状态.
 type EngineStatus string
 
 const (
@@ -22,7 +22,7 @@ const (
 	StatusError    EngineStatus = "error"
 )
 
-// Protocol 传输协议类型
+// Protocol 传输协议类型.
 type Protocol string
 
 const (
@@ -32,7 +32,7 @@ const (
 	ProtocolHTTP Protocol = "http"
 )
 
-// IndexEntry 索引条目
+// IndexEntry 索引条目.
 type IndexEntry struct {
 	Path       string            `json:"path"`
 	Name       string            `json:"name"`
@@ -67,7 +67,7 @@ type EngineSearchRequest struct {
 	Offset     int               `json:"offset,omitempty"`
 }
 
-// SearchResponse 搜索响应
+// SearchResponse 搜索响应.
 type SearchResponse struct {
 	Query       string       `json:"query"`
 	Results     []IndexEntry `json:"results"`
@@ -76,7 +76,7 @@ type SearchResponse struct {
 	Suggestions []string     `json:"suggestions,omitempty"`
 }
 
-// EngineConfig 引擎配置
+// EngineConfig 引擎配置.
 type EngineConfig struct {
 	// 索引路径
 	IndexPath string `json:"indexPath"`
@@ -112,7 +112,7 @@ type EngineConfig struct {
 	EnabledProtocols []Protocol `json:"enabledProtocols"`
 }
 
-// DefaultEngineConfig 默认配置
+// DefaultEngineConfig 默认配置.
 func DefaultEngineConfig() EngineConfig {
 	return EngineConfig{
 		IndexPath:           "/var/lib/nas-os/spotlight/index.bleve",
@@ -136,7 +136,7 @@ func DefaultEngineConfig() EngineConfig {
 	}
 }
 
-// Engine Spotlight 搜索引擎核心
+// Engine Spotlight 搜索引擎核心.
 type Engine struct {
 	config    EngineConfig
 	logger    *zap.Logger
@@ -152,7 +152,7 @@ type Engine struct {
 	stats  EngineStats
 }
 
-// EngineStats 引擎统计
+// EngineStats 引擎统计.
 type EngineStats struct {
 	TotalIndexed   int64         `json:"totalIndexed"`
 	TotalSearched  int64         `json:"totalSearched"`
@@ -163,7 +163,7 @@ type EngineStats struct {
 	startTime      time.Time
 }
 
-// NewEngine 创建 Spotlight 搜索引擎
+// NewEngine 创建 Spotlight 搜索引擎.
 func NewEngine(config EngineConfig, logger *zap.Logger) (*Engine, error) {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -202,7 +202,7 @@ func NewEngine(config EngineConfig, logger *zap.Logger) (*Engine, error) {
 	return e, nil
 }
 
-// Start 启动引擎
+// Start 启动引擎.
 func (e *Engine) Start(ctx context.Context) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -235,7 +235,7 @@ func (e *Engine) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止引擎
+// Stop 停止引擎.
 func (e *Engine) Stop() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -254,7 +254,7 @@ func (e *Engine) Stop() {
 	e.logger.Info("Spotlight 搜索引擎已停止")
 }
 
-// Search 执行搜索
+// Search 执行搜索.
 func (e *Engine) Search(ctx context.Context, req EngineSearchRequest) (*SearchResponse, error) {
 	startTime := time.Now()
 
@@ -328,35 +328,35 @@ func (e *Engine) Search(ctx context.Context, req EngineSearchRequest) (*SearchRe
 	return response, nil
 }
 
-// IndexDirectory 索引目录
+// IndexDirectory 索引目录.
 func (e *Engine) IndexDirectory(ctx context.Context, path string) error {
 	return e.indexer.IndexDirectory(ctx, path)
 }
 
-// IndexFile 索引单个文件
+// IndexFile 索引单个文件.
 func (e *Engine) IndexFile(ctx context.Context, path string) error {
 	return e.indexer.IndexFile(ctx, path)
 }
 
-// RemoveFromIndex 从索引中移除
+// RemoveFromIndex 从索引中移除.
 func (e *Engine) RemoveFromIndex(ctx context.Context, path string) error {
 	return e.indexer.RemoveFromIndex(ctx, path)
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (e *Engine) RebuildIndex(ctx context.Context) error {
 	e.logger.Info("开始重建索引")
 	return e.indexer.RebuildIndex(ctx)
 }
 
-// GetStatus 获取引擎状态
+// GetStatus 获取引擎状态.
 func (e *Engine) GetStatus() EngineStatus {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.status
 }
 
-// GetStats 获取引擎统计
+// GetStats 获取引擎统计.
 func (e *Engine) GetStats() EngineStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -366,12 +366,12 @@ func (e *Engine) GetStats() EngineStats {
 	return stats
 }
 
-// GetIndexStatus 获取索引状态
+// GetIndexStatus 获取索引状态.
 func (e *Engine) GetIndexStatus() IndexStatus {
 	return e.indexer.GetStatus()
 }
 
-// runIndexUpdater 后台索引更新
+// runIndexUpdater 后台索引更新.
 func (e *Engine) runIndexUpdater(ctx context.Context) {
 	ticker := time.NewTicker(time.Duration(e.config.UpdateInterval) * time.Second)
 	defer ticker.Stop()
@@ -386,7 +386,7 @@ func (e *Engine) runIndexUpdater(ctx context.Context) {
 	}
 }
 
-// refreshIndexes 刷新所有索引
+// refreshIndexes 刷新所有索引.
 func (e *Engine) refreshIndexes(ctx context.Context) {
 	e.mu.RLock()
 	paths := e.config.IndexPaths
@@ -405,7 +405,7 @@ func (e *Engine) refreshIndexes(ctx context.Context) {
 	e.mu.Unlock()
 }
 
-// generateSuggestions 生成搜索建议
+// generateSuggestions 生成搜索建议.
 func (e *Engine) generateSuggestions(query string) []string {
 	suggestions := []string{}
 
@@ -434,7 +434,7 @@ func (e *Engine) generateSuggestions(query string) []string {
 	return suggestions
 }
 
-// updateStats 更新统计信息
+// updateStats 更新统计信息.
 func (e *Engine) updateStats(queryTime time.Duration) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -450,7 +450,7 @@ func (e *Engine) updateStats(queryTime time.Duration) {
 	}
 }
 
-// contains 检查字符串是否包含子串（忽略大小写）
+// contains 检查字符串是否包含子串（忽略大小写）.
 func contains(s, substr string) bool {
 	return strings.Contains(strings.ToLower(s), strings.ToLower(substr))
 }

@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler HTTP API处理器
+// Handler HTTP API处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建Handler
+// NewHandler 创建Handler.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	ft := rg.Group("/filetag")
 	{
@@ -50,7 +50,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// CreateTag 创建标签
+// CreateTag 创建标签.
 func (h *Handler) CreateTag(c *gin.Context) {
 	var req struct {
 		Name        string `json:"name" binding:"required"`
@@ -82,7 +82,7 @@ func (h *Handler) CreateTag(c *gin.Context) {
 	})
 }
 
-// GetTag 获取标签
+// GetTag 获取标签.
 func (h *Handler) GetTag(c *gin.Context) {
 	tagID := c.Param("id")
 	tag, err := h.manager.GetTag(tagID)
@@ -100,7 +100,7 @@ func (h *Handler) GetTag(c *gin.Context) {
 	})
 }
 
-// ListTags 列出标签
+// ListTags 列出标签.
 func (h *Handler) ListTags(c *gin.Context) {
 	category := c.Query("category")
 	tags := h.manager.ListTags(category)
@@ -111,7 +111,7 @@ func (h *Handler) ListTags(c *gin.Context) {
 	})
 }
 
-// UpdateTag 更新标签
+// UpdateTag 更新标签.
 func (h *Handler) UpdateTag(c *gin.Context) {
 	tagID := c.Param("id")
 	var req struct {
@@ -143,7 +143,7 @@ func (h *Handler) UpdateTag(c *gin.Context) {
 	})
 }
 
-// DeleteTag 删除标签
+// DeleteTag 删除标签.
 func (h *Handler) DeleteTag(c *gin.Context) {
 	tagID := c.Param("id")
 	if err := h.manager.DeleteTag(tagID); err != nil {
@@ -160,7 +160,7 @@ func (h *Handler) DeleteTag(c *gin.Context) {
 	})
 }
 
-// TagFile 为文件添加标签
+// TagFile 为文件添加标签.
 func (h *Handler) TagFile(c *gin.Context) {
 	filePath := c.Param("file")
 	var req struct {
@@ -191,7 +191,7 @@ func (h *Handler) TagFile(c *gin.Context) {
 	})
 }
 
-// UntagFile 移除文件标签
+// UntagFile 移除文件标签.
 func (h *Handler) UntagFile(c *gin.Context) {
 	filePath := c.Param("file")
 	tagID := c.Param("tagId")
@@ -210,7 +210,7 @@ func (h *Handler) UntagFile(c *gin.Context) {
 	})
 }
 
-// GetFileTags 获取文件的所有标签
+// GetFileTags 获取文件的所有标签.
 func (h *Handler) GetFileTags(c *gin.Context) {
 	filePath := c.Param("file")
 	tags := h.manager.GetFileTags(filePath)
@@ -221,7 +221,7 @@ func (h *Handler) GetFileTags(c *gin.Context) {
 	})
 }
 
-// GetTagFiles 获取标签关联的所有文件
+// GetTagFiles 获取标签关联的所有文件.
 func (h *Handler) GetTagFiles(c *gin.Context) {
 	tagID := c.Param("id")
 	files := h.manager.GetTagFiles(tagID)
@@ -232,7 +232,7 @@ func (h *Handler) GetTagFiles(c *gin.Context) {
 	})
 }
 
-// SearchFiles 搜索文件
+// SearchFiles 搜索文件.
 func (h *Handler) SearchFiles(c *gin.Context) {
 	var req SearchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -259,7 +259,7 @@ func (h *Handler) SearchFiles(c *gin.Context) {
 	})
 }
 
-// BatchTag 批量打标签
+// BatchTag 批量打标签.
 func (h *Handler) BatchTag(c *gin.Context) {
 	var req BatchTagRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -286,7 +286,7 @@ func (h *Handler) BatchTag(c *gin.Context) {
 	})
 }
 
-// BatchUntag 批量移除标签
+// BatchUntag 批量移除标签.
 func (h *Handler) BatchUntag(c *gin.Context) {
 	var req BatchUntagRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -311,7 +311,7 @@ func (h *Handler) BatchUntag(c *gin.Context) {
 	})
 }
 
-// GetAllStats 获取所有标签统计
+// GetAllStats 获取所有标签统计.
 func (h *Handler) GetAllStats(c *gin.Context) {
 	stats := h.manager.GetAllStats()
 
@@ -321,7 +321,7 @@ func (h *Handler) GetAllStats(c *gin.Context) {
 	})
 }
 
-// GetTagStats 获取标签统计
+// GetTagStats 获取标签统计.
 func (h *Handler) GetTagStats(c *gin.Context) {
 	tagID := c.Param("id")
 	stat, err := h.manager.GetTagStats(tagID)
@@ -339,7 +339,7 @@ func (h *Handler) GetTagStats(c *gin.Context) {
 	})
 }
 
-// GetCategories 获取所有分类
+// GetCategories 获取所有分类.
 func (h *Handler) GetCategories(c *gin.Context) {
 	categories := h.manager.GetCategories()
 
@@ -349,7 +349,7 @@ func (h *Handler) GetCategories(c *gin.Context) {
 	})
 }
 
-// ParsePagination 解析分页参数
+// ParsePagination 解析分页参数.
 func ParsePagination(c *gin.Context) (page, pageSize int) {
 	page, _ = strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ = strconv.Atoi(c.DefaultQuery("page_size", "20"))

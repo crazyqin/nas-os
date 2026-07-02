@@ -8,7 +8,7 @@ import (
 
 // ========== Whisper 模型 ==========
 
-// WhisperModel Whisper 模型
+// WhisperModel Whisper 模型.
 type WhisperModel struct {
 	ID           string    `json:"id"`           // 唯一标识
 	Name         string    `json:"name"`         // 模型名称 (tiny/base/small/medium/large)
@@ -22,7 +22,7 @@ type WhisperModel struct {
 	LastUsed     time.Time `json:"lastUsed"`     // 最后使用时间
 }
 
-// ModelSize 模型大小枚举
+// ModelSize 模型大小枚举.
 type ModelSize string
 
 const (
@@ -35,7 +35,7 @@ const (
 
 // ========== 转录任务 ==========
 
-// TranscriptionJob 转录任务
+// TranscriptionJob 转录任务.
 type TranscriptionJob struct {
 	ID          string               `json:"id"`          // 唯一标识
 	FilePath    string               `json:"filePath"`    // 文件路径
@@ -50,7 +50,7 @@ type TranscriptionJob struct {
 	CompletedAt *time.Time           `json:"completedAt"` // 完成时间
 }
 
-// JobStatus 任务状态
+// JobStatus 任务状态.
 type JobStatus string
 
 const (
@@ -61,7 +61,7 @@ const (
 	JobStatusCancelled  JobStatus = "cancelled"  // 已取消
 )
 
-// TranscriptionOptions 转录选项
+// TranscriptionOptions 转录选项.
 type TranscriptionOptions struct {
 	Language       string  `json:"language"`       // 语言代码 (空表示自动检测)
 	Task           string  `json:"task"`           // 任务类型 (transcribe/translate)
@@ -76,7 +76,7 @@ type TranscriptionOptions struct {
 
 // ========== 转录结果 ==========
 
-// TranscriptionResult 转录结果
+// TranscriptionResult 转录结果.
 type TranscriptionResult struct {
 	ID          string          `json:"id"`          // 唯一标识
 	JobID       string          `json:"jobId"`       // 关联任务 ID
@@ -89,7 +89,7 @@ type TranscriptionResult struct {
 	ProcessedAt time.Time       `json:"processedAt"` // 处理时间
 }
 
-// WordTimestamp 词级时间戳
+// WordTimestamp 词级时间戳.
 type WordTimestamp struct {
 	Word       string  `json:"word"`       // 单词
 	Start      float64 `json:"start"`      // 开始时间 (秒)
@@ -97,7 +97,7 @@ type WordTimestamp struct {
 	Confidence float64 `json:"confidence"` // 置信度
 }
 
-// Segment 段落
+// Segment 段落.
 type Segment struct {
 	ID      int             `json:"id"`      // 段落 ID
 	Start   float64         `json:"start"`   // 开始时间 (秒)
@@ -109,14 +109,14 @@ type Segment struct {
 
 // ========== 字幕格式 ==========
 
-// SubtitleFormat 字幕格式
+// SubtitleFormat 字幕格式.
 type SubtitleFormat struct {
 	Type     SubtitleType `json:"type"`     // 字幕类型
 	Content  string       `json:"content"`  // 字幕内容
 	FilePath string       `json:"filePath"` // 文件路径
 }
 
-// SubtitleType 字幕类型
+// SubtitleType 字幕类型.
 type SubtitleType string
 
 const (
@@ -127,7 +127,7 @@ const (
 
 // ========== 音频预处理 ==========
 
-// AudioPreprocessConfig 音频预处理配置
+// AudioPreprocessConfig 音频预处理配置.
 type AudioPreprocessConfig struct {
 	DenoiseEnabled bool    `json:"denoiseEnabled"` // 是否启用降噪
 	VADEnabled     bool    `json:"vadEnabled"`     // 是否启用 VAD 语音活动检测
@@ -137,7 +137,7 @@ type AudioPreprocessConfig struct {
 	VADThreshold   float64 `json:"vadThreshold"`   // VAD 阈值 (0-1)
 }
 
-// DefaultPreprocessConfig 默认预处理配置
+// DefaultPreprocessConfig 默认预处理配置.
 func DefaultPreprocessConfig() AudioPreprocessConfig {
 	return AudioPreprocessConfig{
 		DenoiseEnabled: true,
@@ -151,7 +151,7 @@ func DefaultPreprocessConfig() AudioPreprocessConfig {
 
 // ========== 队列统计 ==========
 
-// QueueStats 队列统计
+// QueueStats 队列统计.
 type QueueStats struct {
 	QueueLength      int           `json:"queueLength"`      // 队列长度
 	Processing       int           `json:"processing"`       // 处理中数
@@ -164,7 +164,7 @@ type QueueStats struct {
 
 // ========== GPU 状态 ==========
 
-// GPUMemory GPU 显存信息
+// GPUMemory GPU 显存信息.
 type GPUMemory struct {
 	Total       int64     `json:"total"`       // 总显存 (字节)
 	Used        int64     `json:"used"`        // 已用显存 (字节)
@@ -173,7 +173,7 @@ type GPUMemory struct {
 	LastUpdated time.Time `json:"lastUpdated"` // 最后更新时间
 }
 
-// GPUStatus GPU 状态
+// GPUStatus GPU 状态.
 type GPUStatus struct {
 	Available   bool      `json:"available"`   // 是否可用
 	DeviceName  string    `json:"deviceName"`  // 设备名称
@@ -185,7 +185,7 @@ type GPUStatus struct {
 
 // ========== 语言检测 ==========
 
-// LanguageDetect 语言检测结果
+// LanguageDetect 语言检测结果.
 type LanguageDetect struct {
 	Code       string  `json:"code"`       // 语言代码
 	Name       string  `json:"name"`       // 语言名称
@@ -194,7 +194,7 @@ type LanguageDetect struct {
 
 // ========== 服务状态 ==========
 
-// ServiceStatus 服务状态
+// ServiceStatus 服务状态.
 type ServiceStatus struct {
 	Status       string        `json:"status"`       // 服务状态
 	Uptime       time.Duration `json:"uptime"`       // 运行时间
@@ -209,7 +209,7 @@ type ServiceStatus struct {
 
 // ========== 统计信息 ==========
 
-// ServiceStats 服务统计信息
+// ServiceStats 服务统计信息.
 type ServiceStats struct {
 	TotalTranscriptions  int            `json:"totalTranscriptions"`  // 总转录次数
 	TotalAudioDuration   time.Duration  `json:"totalAudioDuration"`   // 总音频时长
@@ -221,7 +221,7 @@ type ServiceStats struct {
 	DailyStats           []DailyStat    `json:"dailyStats"`           // 每日统计
 }
 
-// DailyStat 每日统计
+// DailyStat 每日统计.
 type DailyStat struct {
 	Date           string        `json:"date"`           // 日期 (YYYY-MM-DD)
 	Transcriptions int           `json:"transcriptions"` // 转录次数
@@ -231,7 +231,7 @@ type DailyStat struct {
 
 // ========== 请求/响应类型 ==========
 
-// TranscribeRequest 转录请求
+// TranscribeRequest 转录请求.
 type TranscribeRequest struct {
 	Language       string `form:"language"`       // 语言代码
 	Task           string `form:"task"`           // 任务类型
@@ -241,20 +241,20 @@ type TranscribeRequest struct {
 	InitialPrompt  string `form:"initialPrompt"`  // 初始提示词
 }
 
-// BatchTranscribeRequest 批量转录请求
+// BatchTranscribeRequest 批量转录请求.
 type BatchTranscribeRequest struct {
 	Files    []string             `json:"files" binding:"required"` // 文件路径列表
 	Options  TranscriptionOptions `json:"options"`                  // 转录选项
 	Priority int                  `json:"priority"`                 // 优先级
 }
 
-// ExportRequest 导出请求
+// ExportRequest 导出请求.
 type ExportRequest struct {
 	Format   SubtitleType `json:"format" binding:"required"` // 字幕格式
 	FilePath string       `json:"filePath"`                  // 保存路径 (可选)
 }
 
-// EditResultRequest 编辑结果请求
+// EditResultRequest 编辑结果请求.
 type EditResultRequest struct {
 	Text     string    `json:"text"`     // 修改后的文本
 	Segments []Segment `json:"segments"` // 修改后的段落

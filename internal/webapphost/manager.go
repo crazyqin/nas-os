@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// CreateApp 创建 Web 应用
+// CreateApp 创建 Web 应用.
 func (m *WebAppManager) CreateApp(config *DeployConfig) (*WebApp, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -93,7 +93,7 @@ func (m *WebAppManager) CreateApp(config *DeployConfig) (*WebApp, error) {
 	return app, nil
 }
 
-// GetApp 获取应用
+// GetApp 获取应用.
 func (m *WebAppManager) GetApp(id string) (*WebApp, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -105,7 +105,7 @@ func (m *WebAppManager) GetApp(id string) (*WebApp, error) {
 	return app, nil
 }
 
-// GetAppByName 根据名称获取应用
+// GetAppByName 根据名称获取应用.
 func (m *WebAppManager) GetAppByName(name string) (*WebApp, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -118,7 +118,7 @@ func (m *WebAppManager) GetAppByName(name string) (*WebApp, error) {
 	return nil, fmt.Errorf("app not found: %s", name)
 }
 
-// ListApps 列出所有应用
+// ListApps 列出所有应用.
 func (m *WebAppManager) ListApps(opts *ListOptions) []*WebApp {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -155,7 +155,7 @@ func (m *WebAppManager) ListApps(opts *ListOptions) []*WebApp {
 	return apps
 }
 
-// ListOptions 列表选项
+// ListOptions 列表选项.
 type ListOptions struct {
 	Status   string `json:"status,omitempty"`
 	Type     string `json:"type,omitempty"`
@@ -165,7 +165,7 @@ type ListOptions struct {
 	Offset   int    `json:"offset,omitempty"`
 }
 
-// sortApps 排序应用列表
+// sortApps 排序应用列表.
 func sortApps(apps []*WebApp, sortBy string, desc bool) {
 	sort.Slice(apps, func(i, j int) bool {
 		switch sortBy {
@@ -190,7 +190,7 @@ func sortApps(apps []*WebApp, sortBy string, desc bool) {
 	})
 }
 
-// UpdateApp 更新应用
+// UpdateApp 更新应用.
 func (m *WebAppManager) UpdateApp(id string, updates *UpdateAppRequest) (*WebApp, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -241,7 +241,7 @@ func (m *WebAppManager) UpdateApp(id string, updates *UpdateAppRequest) (*WebApp
 	return app, nil
 }
 
-// UpdateAppRequest 更新应用请求
+// UpdateAppRequest 更新应用请求.
 type UpdateAppRequest struct {
 	DisplayName *string           `json:"display_name,omitempty"`
 	Description *string           `json:"description,omitempty"`
@@ -257,7 +257,7 @@ type UpdateAppRequest struct {
 	Tags        []string          `json:"tags,omitempty"`
 }
 
-// DeleteApp 删除应用
+// DeleteApp 删除应用.
 func (m *WebAppManager) DeleteApp(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -299,7 +299,7 @@ func (m *WebAppManager) DeleteApp(id string) error {
 	return nil
 }
 
-// StartApp 启动应用
+// StartApp 启动应用.
 func (m *WebAppManager) StartApp(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -330,7 +330,7 @@ func (m *WebAppManager) StartApp(id string) error {
 	}
 }
 
-// startDockerApp 启动 Docker 应用
+// startDockerApp 启动 Docker 应用.
 func (m *WebAppManager) startDockerApp(app *WebApp) error {
 	// 模拟 Docker 容器启动
 	log.Printf("Starting Docker app: %s (image: %s)", app.Name, app.Image)
@@ -340,7 +340,7 @@ func (m *WebAppManager) startDockerApp(app *WebApp) error {
 	return nil
 }
 
-// startStaticApp 启动静态应用
+// startStaticApp 启动静态应用.
 func (m *WebAppManager) startStaticApp(app *WebApp) error {
 	log.Printf("Starting static app: %s", app.Name)
 	app.Status = "running"
@@ -349,7 +349,7 @@ func (m *WebAppManager) startStaticApp(app *WebApp) error {
 	return nil
 }
 
-// startProxyApp 启动代理应用
+// startProxyApp 启动代理应用.
 func (m *WebAppManager) startProxyApp(app *WebApp) error {
 	log.Printf("Starting proxy app: %s", app.Name)
 	app.Status = "running"
@@ -358,7 +358,7 @@ func (m *WebAppManager) startProxyApp(app *WebApp) error {
 	return nil
 }
 
-// StopApp 停止应用
+// StopApp 停止应用.
 func (m *WebAppManager) StopApp(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -381,7 +381,7 @@ func (m *WebAppManager) StopApp(id string) error {
 	return nil
 }
 
-// RestartApp 重启应用
+// RestartApp 重启应用.
 func (m *WebAppManager) RestartApp(id string) error {
 	if err := m.StopApp(id); err != nil && err.Error() != "app is already stopped" {
 		return err
@@ -389,7 +389,7 @@ func (m *WebAppManager) RestartApp(id string) error {
 	return m.StartApp(id)
 }
 
-// GetAppStatus 获取应用状态
+// GetAppStatus 获取应用状态.
 func (m *WebAppManager) GetAppStatus(id string) (string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -401,14 +401,14 @@ func (m *WebAppManager) GetAppStatus(id string) (string, error) {
 	return app.Status, nil
 }
 
-// GetAppCount 获取应用数量
+// GetAppCount 获取应用数量.
 func (m *WebAppManager) GetAppCount() int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return len(m.apps)
 }
 
-// GetRunningAppCount 获取运行中应用数量
+// GetRunningAppCount 获取运行中应用数量.
 func (m *WebAppManager) GetRunningAppCount() int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -422,7 +422,7 @@ func (m *WebAppManager) GetRunningAppCount() int {
 	return count
 }
 
-// validateDeployConfig 验证部署配置
+// validateDeployConfig 验证部署配置.
 func validateDeployConfig(config *DeployConfig) error {
 	if config.AppName == "" {
 		return fmt.Errorf("app name is required")

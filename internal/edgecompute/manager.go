@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Invocation 调用结果
+// Invocation 调用结果.
 type Invocation struct {
 	ID         string        `json:"id"`
 	FunctionID string        `json:"function_id"`
@@ -18,14 +18,14 @@ type Invocation struct {
 	Timestamp  time.Time     `json:"timestamp"`
 }
 
-// LocalNode 本地节点
+// LocalNode 本地节点.
 type LocalNode struct {
 	ID        string    `json:"id"`
 	Status    string    `json:"status"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// Manager 边缘计算管理器
+// Manager 边缘计算管理器.
 type Manager struct {
 	config    *Config
 	functions map[string]*Function
@@ -35,7 +35,7 @@ type Manager struct {
 	running   bool
 }
 
-// NewManager 创建边缘计算管理器
+// NewManager 创建边缘计算管理器.
 func NewManager(config *Config) *Manager {
 	return &Manager{
 		config:    config,
@@ -45,7 +45,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -59,14 +59,14 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.running = false
 }
 
-// registerLocalNode 注册本地节点
+// registerLocalNode 注册本地节点.
 func (m *Manager) registerLocalNode() {
 	m.nodes["local"] = &LocalNode{
 		ID:        "local",
@@ -75,7 +75,7 @@ func (m *Manager) registerLocalNode() {
 	}
 }
 
-// DeployFunction 部署函数
+// DeployFunction 部署函数.
 func (m *Manager) DeployFunction(fn *Function) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -97,7 +97,7 @@ func (m *Manager) DeployFunction(fn *Function) error {
 	return nil
 }
 
-// InvokeFunction 调用函数
+// InvokeFunction 调用函数.
 func (m *Manager) InvokeFunction(ctx context.Context, functionID string, params map[string]string) (*Invocation, error) {
 	m.mu.RLock()
 	fn, ok := m.functions[functionID]
@@ -126,7 +126,7 @@ func (m *Manager) InvokeFunction(ctx context.Context, functionID string, params 
 	return invocation, nil
 }
 
-// DeleteFunction 删除函数
+// DeleteFunction 删除函数.
 func (m *Manager) DeleteFunction(functionID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -139,7 +139,7 @@ func (m *Manager) DeleteFunction(functionID string) error {
 	return nil
 }
 
-// GetFunction 获取函数
+// GetFunction 获取函数.
 func (m *Manager) GetFunction(functionID string) (*Function, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -152,7 +152,7 @@ func (m *Manager) GetFunction(functionID string) (*Function, error) {
 	return fn, nil
 }
 
-// ListFunctions 列出所有函数
+// ListFunctions 列出所有函数.
 func (m *Manager) ListFunctions() []*Function {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -164,7 +164,7 @@ func (m *Manager) ListFunctions() []*Function {
 	return functions
 }
 
-// SubmitWorkload 提交工作负载
+// SubmitWorkload 提交工作负载.
 func (m *Manager) SubmitWorkload(wl *Workload) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -181,7 +181,7 @@ func (m *Manager) SubmitWorkload(wl *Workload) error {
 	return nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

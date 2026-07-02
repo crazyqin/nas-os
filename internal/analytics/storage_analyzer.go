@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// StorageAnalyzer 存储分析器
+// StorageAnalyzer 存储分析器.
 type StorageAnalyzer struct {
 	mu          sync.RWMutex
 	basePath    string
@@ -20,7 +20,7 @@ type StorageAnalyzer struct {
 	scanResults *StorageAnalytics
 }
 
-// NewStorageAnalyzer 创建存储分析器
+// NewStorageAnalyzer 创建存储分析器.
 func NewStorageAnalyzer(basePath string, maxHistory int) *StorageAnalyzer {
 	if maxHistory <= 0 {
 		maxHistory = 1000
@@ -32,7 +32,7 @@ func NewStorageAnalyzer(basePath string, maxHistory int) *StorageAnalyzer {
 	}
 }
 
-// Analyze 执行存储分析
+// Analyze 执行存储分析.
 func (sa *StorageAnalyzer) Analyze() (*StorageAnalytics, error) {
 	sa.mu.Lock()
 	defer sa.mu.Unlock()
@@ -81,14 +81,14 @@ func (sa *StorageAnalyzer) Analyze() (*StorageAnalytics, error) {
 	return result, nil
 }
 
-// GetLatest 获取最新分析结果
+// GetLatest 获取最新分析结果.
 func (sa *StorageAnalyzer) GetLatest() *StorageAnalytics {
 	sa.mu.RLock()
 	defer sa.mu.RUnlock()
 	return sa.scanResults
 }
 
-// GetHistory 获取增长历史
+// GetHistory 获取增长历史.
 func (sa *StorageAnalyzer) GetHistory() []StorageGrowthPoint {
 	sa.mu.RLock()
 	defer sa.mu.RUnlock()
@@ -98,7 +98,7 @@ func (sa *StorageAnalyzer) GetHistory() []StorageGrowthPoint {
 	return result
 }
 
-// getDiskUsage 获取磁盘使用情况
+// getDiskUsage 获取磁盘使用情况.
 func (sa *StorageAnalyzer) getDiskUsage() (total, used uint64, err error) {
 	var stat syscallStatfs
 	err = statfs(sa.basePath, &stat)
@@ -113,7 +113,7 @@ func (sa *StorageAnalyzer) getDiskUsage() (total, used uint64, err error) {
 	return total, used, nil
 }
 
-// scanFileTypeDistribution 扫描文件类型分布
+// scanFileTypeDistribution 扫描文件类型分布.
 func (sa *StorageAnalyzer) scanFileTypeDistribution() ([]FileTypeDistribution, error) {
 	dist := make(map[string]*FileTypeDistribution)
 
@@ -167,7 +167,7 @@ func (sa *StorageAnalyzer) scanFileTypeDistribution() ([]FileTypeDistribution, e
 	return result, nil
 }
 
-// scanTopDirectories 扫描热门目录
+// scanTopDirectories 扫描热门目录.
 func (sa *StorageAnalyzer) scanTopDirectories(limit int) ([]DirectoryUsage, error) {
 	dirs := make(map[string]*DirectoryUsage)
 
@@ -221,7 +221,7 @@ func (sa *StorageAnalyzer) scanTopDirectories(limit int) ([]DirectoryUsage, erro
 	return result, nil
 }
 
-// recordGrowthPoint 记录增长点
+// recordGrowthPoint 记录增长点.
 func (sa *StorageAnalyzer) recordGrowthPoint(timestamp time.Time, total, used uint64) {
 	// 计算文件数
 	fileCount := sa.countFiles(sa.basePath)
@@ -239,7 +239,7 @@ func (sa *StorageAnalyzer) recordGrowthPoint(timestamp time.Time, total, used ui
 	sa.history = append(sa.history, point)
 }
 
-// countFiles 统计文件数
+// countFiles 统计文件数.
 func (sa *StorageAnalyzer) countFiles(path string) int64 {
 	var count int64
 
@@ -256,7 +256,7 @@ func (sa *StorageAnalyzer) countFiles(path string) int64 {
 	return count
 }
 
-// calculateGrowthPrediction 计算增长预测
+// calculateGrowthPrediction 计算增长预测.
 func (sa *StorageAnalyzer) calculateGrowthPrediction() *GrowthPrediction {
 	if len(sa.history) < 2 {
 		return nil
@@ -315,7 +315,7 @@ func (sa *StorageAnalyzer) calculateGrowthPrediction() *GrowthPrediction {
 	}
 }
 
-// categorizeFile 文件分类
+// categorizeFile 文件分类.
 func categorizeFile(filename string) string {
 	ext := strings.ToLower(filepath.Ext(filename))
 
@@ -343,7 +343,7 @@ func categorizeFile(filename string) string {
 	return "其他"
 }
 
-// getDirSize 获取目录大小
+// getDirSize 获取目录大小.
 func getDirSize(path string) (size uint64, count int64, err error) {
 	err = filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -358,7 +358,7 @@ func getDirSize(path string) (size uint64, count int64, err error) {
 	return
 }
 
-// FormatBytes 格式化字节数
+// FormatBytes 格式化字节数.
 func FormatBytes(bytes uint64) string {
 	const (
 		KB = 1024
@@ -381,14 +381,14 @@ func FormatBytes(bytes uint64) string {
 	}
 }
 
-// syscallStatfs 系统调用结构体
+// syscallStatfs 系统调用结构体.
 type syscallStatfs struct {
 	Blocks uint64
 	Bsize  int64
 	Bavail uint64
 }
 
-// statfs 系统调用封装
+// statfs 系统调用封装.
 func statfs(path string, stat *syscallStatfs) error {
 	// 这里应该使用真实的系统调用
 	// 为简化实现，使用 os.Stat 获取磁盘空间

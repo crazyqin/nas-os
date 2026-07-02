@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// TunnelType defines tunnel connection types
+// TunnelType defines tunnel connection types.
 type TunnelType string
 
 const (
@@ -18,7 +18,7 @@ const (
 	TypeCustom     TunnelType = "custom"     // 自建服务
 )
 
-// TunnelStatus defines tunnel status
+// TunnelStatus defines tunnel status.
 type TunnelStatus string
 
 const (
@@ -28,7 +28,7 @@ const (
 	StatusError        TunnelStatus = "error"
 )
 
-// TunnelConfig defines tunnel configuration
+// TunnelConfig defines tunnel configuration.
 type TunnelConfig struct {
 	ID            string     `json:"id"`
 	Type          TunnelType `json:"type"`
@@ -42,7 +42,7 @@ type TunnelConfig struct {
 	Timeout       int        `json:"timeout"`        // 超时秒数
 }
 
-// TunnelConnection represents an active tunnel
+// TunnelConnection represents an active tunnel.
 type TunnelConnection struct {
 	Config      *TunnelConfig
 	Status      TunnelStatus
@@ -54,7 +54,7 @@ type TunnelConnection struct {
 	ConnectedAt time.Time     `json:"connected_at"`
 }
 
-// Service manages tunnel connections
+// Service manages tunnel connections.
 type Service struct {
 	mu        sync.RWMutex
 	tunnels   map[string]*TunnelConnection
@@ -63,14 +63,14 @@ type Service struct {
 	wgClient  *WireGuardClient
 }
 
-// NewService creates a new tunnel service
+// NewService creates a new tunnel service.
 func NewService() *Service {
 	return &Service{
 		tunnels: make(map[string]*TunnelConnection),
 	}
 }
 
-// CreateTunnel creates a new tunnel
+// CreateTunnel creates a new tunnel.
 func (s *Service) CreateTunnel(ctx context.Context, config *TunnelConfig) (*TunnelConnection, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -97,7 +97,7 @@ func (s *Service) CreateTunnel(ctx context.Context, config *TunnelConfig) (*Tunn
 	return conn, nil
 }
 
-// GetTunnel retrieves a tunnel by ID
+// GetTunnel retrieves a tunnel by ID.
 func (s *Service) GetTunnel(id string) (*TunnelConnection, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -109,7 +109,7 @@ func (s *Service) GetTunnel(id string) (*TunnelConnection, error) {
 	return conn, nil
 }
 
-// Connect establishes tunnel connection
+// Connect establishes tunnel connection.
 func (s *Service) Connect(ctx context.Context, id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -124,7 +124,7 @@ func (s *Service) Connect(ctx context.Context, id string) error {
 	return nil
 }
 
-// Disconnect closes tunnel connection
+// Disconnect closes tunnel connection.
 func (s *Service) Disconnect(ctx context.Context, id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -138,7 +138,7 @@ func (s *Service) Disconnect(ctx context.Context, id string) error {
 	return nil
 }
 
-// ListTunnels returns all tunnels
+// ListTunnels returns all tunnels.
 func (s *Service) ListTunnels() []*TunnelConnection {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -150,11 +150,11 @@ func (s *Service) ListTunnels() []*TunnelConnection {
 	return result
 }
 
-// FRPClient for FRP protocol
+// FRPClient for FRP protocol.
 type FRPClient struct{}
 
-// CloudflareClient for Cloudflare Tunnel
+// CloudflareClient for Cloudflare Tunnel.
 type CloudflareClient struct{}
 
-// WireGuardClient for WireGuard VPN
+// WireGuardClient for WireGuard VPN.
 type WireGuardClient struct{}

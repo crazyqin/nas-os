@@ -61,7 +61,7 @@ type BaselineScanRequest struct {
 	Categories []BaselineCategory       `json:"categories,omitempty"`
 }
 
-// GET /api/v1/compliance/baseline
+// GET /api/v1/compliance/baseline.
 func (h *ComplianceDashboardHandlers) getBaselineCheck(c *gin.Context) {
 	standard := c.DefaultQuery("standard", "cis")
 	category := c.Query("category")
@@ -84,7 +84,7 @@ func (h *ComplianceDashboardHandlers) getBaselineCheck(c *gin.Context) {
 	})
 }
 
-// POST /api/v1/compliance/baseline/scan
+// POST /api/v1/compliance/baseline/scan.
 func (h *ComplianceDashboardHandlers) triggerBaselineScan(c *gin.Context) {
 	var req BaselineScanRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -108,7 +108,7 @@ func (h *ComplianceDashboardHandlers) triggerBaselineScan(c *gin.Context) {
 	})
 }
 
-// POST /api/v1/compliance/audit
+// POST /api/v1/compliance/audit.
 func (h *ComplianceDashboardHandlers) triggerAudit(c *gin.Context) {
 	if h.auditEngine == nil {
 		c.JSON(http.StatusServiceUnavailable, APIResponse{
@@ -127,7 +127,7 @@ func (h *ComplianceDashboardHandlers) triggerAudit(c *gin.Context) {
 	})
 }
 
-// GET /api/v1/compliance/audit/status
+// GET /api/v1/compliance/audit/status.
 func (h *ComplianceDashboardHandlers) getAuditStatus(c *gin.Context) {
 	if h.auditEngine == nil {
 		c.JSON(http.StatusOK, APIResponse{
@@ -150,7 +150,7 @@ func (h *ComplianceDashboardHandlers) getAuditStatus(c *gin.Context) {
 	})
 }
 
-// GET /api/v1/compliance/audit/results
+// GET /api/v1/compliance/audit/results.
 func (h *ComplianceDashboardHandlers) getAuditResults(c *gin.Context) {
 	if h.auditEngine == nil {
 		c.JSON(http.StatusOK, APIResponse{
@@ -170,7 +170,7 @@ func (h *ComplianceDashboardHandlers) getAuditResults(c *gin.Context) {
 	})
 }
 
-// GET /api/v1/compliance/audit/results/:id
+// GET /api/v1/compliance/audit/results/:id.
 func (h *ComplianceDashboardHandlers) getAuditResultByID(c *gin.Context) {
 	if h.auditEngine == nil {
 		c.JSON(http.StatusServiceUnavailable, APIResponse{
@@ -197,7 +197,7 @@ func (h *ComplianceDashboardHandlers) getAuditResultByID(c *gin.Context) {
 	})
 }
 
-// GET /api/v1/compliance/audit/alerts
+// GET /api/v1/compliance/audit/alerts.
 func (h *ComplianceDashboardHandlers) getAuditAlerts(c *gin.Context) {
 	if h.auditEngine == nil {
 		c.JSON(http.StatusOK, APIResponse{
@@ -217,7 +217,7 @@ func (h *ComplianceDashboardHandlers) getAuditAlerts(c *gin.Context) {
 	})
 }
 
-// PUT /api/v1/compliance/audit/config
+// PUT /api/v1/compliance/audit/config.
 func (h *ComplianceDashboardHandlers) updateAuditConfig(c *gin.Context) {
 	if h.auditEngine == nil {
 		c.JSON(http.StatusServiceUnavailable, APIResponse{
@@ -245,7 +245,7 @@ func (h *ComplianceDashboardHandlers) updateAuditConfig(c *gin.Context) {
 	})
 }
 
-// GET /api/v1/compliance/audit/config
+// GET /api/v1/compliance/audit/config.
 func (h *ComplianceDashboardHandlers) getAuditConfig(c *gin.Context) {
 	if h.auditEngine == nil {
 		c.JSON(http.StatusOK, APIResponse{
@@ -301,7 +301,7 @@ type BaselineStatusItem struct {
 	Failed   int    `json:"failed"`
 }
 
-// GET /api/v1/compliance/dashboard
+// GET /api/v1/compliance/dashboard.
 func (h *ComplianceDashboardHandlers) getDashboard(c *gin.Context) {
 	dashboard := h.buildDashboard()
 
@@ -312,7 +312,7 @@ func (h *ComplianceDashboardHandlers) getDashboard(c *gin.Context) {
 	})
 }
 
-// GET /api/v1/compliance/dashboard/overview
+// GET /api/v1/compliance/dashboard/overview.
 func (h *ComplianceDashboardHandlers) getDashboardOverview(c *gin.Context) {
 	dashboard := h.buildDashboard()
 
@@ -332,7 +332,7 @@ func (h *ComplianceDashboardHandlers) getDashboardOverview(c *gin.Context) {
 	})
 }
 
-// GET /api/v1/compliance/dashboard/trends
+// GET /api/v1/compliance/dashboard/trends.
 func (h *ComplianceDashboardHandlers) getDashboardTrends(c *gin.Context) {
 	dashboard := h.buildDashboard()
 

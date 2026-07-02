@@ -176,7 +176,7 @@ func TestGetGenres(t *testing.T) {
 	}
 }
 
-// 辅助函数
+// 辅助函数.
 func fmt_Sprintf(format string, a ...interface{}) string {
 	return fmt.Sprintf(format, a...)
 }

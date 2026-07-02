@@ -12,16 +12,16 @@ import (
 	"time"
 )
 
-// Handlers HTTP API 处理器
+// Handlers HTTP API 处理器.
 type Handlers struct {
 	engine  *SearchEngine
 	indexer *FileIndexer
 	mu      sync.RWMutex
-	taskSeq int                       // 异步任务序号
-	tasks   map[string]*RebuildTask   // 异步任务表
+	taskSeq int                     // 异步任务序号
+	tasks   map[string]*RebuildTask // 异步任务表
 }
 
-// RebuildTask 异步重建任务
+// RebuildTask 异步重建任务.
 type RebuildTask struct {
 	ID        string    `json:"id"`
 	Status    string    `json:"status"` // pending, running, completed, failed
@@ -30,7 +30,7 @@ type RebuildTask struct {
 	EndedAt   time.Time `json:"ended_at,omitempty"`
 }
 
-// NewHandlers 创建 API 处理器
+// NewHandlers 创建 API 处理器.
 func NewHandlers(engine *SearchEngine, indexer *FileIndexer) *Handlers {
 	return &Handlers{
 		engine:  engine,
@@ -39,7 +39,7 @@ func NewHandlers(engine *SearchEngine, indexer *FileIndexer) *Handlers {
 	}
 }
 
-// RegisterRoutes 注册 HTTP 路由到标准库 ServeMux
+// RegisterRoutes 注册 HTTP 路由到标准库 ServeMux.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/search", h.handleSearch)
 	mux.HandleFunc("/index/rebuild", h.handleRebuild)
@@ -50,7 +50,7 @@ func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 }
 
 // handleSearch GET /api/v1/search?q=xxx&type=xxx
-// 统一搜索接口，支持文件名、内容、元数据搜索
+// 统一搜索接口，支持文件名、内容、元数据搜索.
 func (h *Handlers) handleSearch(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet && r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 GET 和 POST 方法")
@@ -114,7 +114,7 @@ func (h *Handlers) handleSearch(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleRebuild POST /index/rebuild
-// 重建索引，支持同步和异步模式
+// 重建索引，支持同步和异步模式.
 func (h *Handlers) handleRebuild(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 POST 方法")
@@ -173,7 +173,7 @@ func (h *Handlers) handleRebuild(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleStats GET /index/stats
-// 获取索引统计信息
+// 获取索引统计信息.
 func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 GET 方法")
@@ -190,7 +190,7 @@ func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleTaskStatus GET /index/task/{taskId}
-// 查询异步任务状态
+// 查询异步任务状态.
 func (h *Handlers) handleTaskStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 GET 方法")
@@ -220,7 +220,7 @@ func (h *Handlers) handleTaskStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleSuggest GET /api/v1/suggest?q=xxx
-// 搜索建议/自动补全
+// 搜索建议/自动补全.
 func (h *Handlers) handleSuggest(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 GET 方法")
@@ -261,7 +261,7 @@ func (h *Handlers) handleSuggest(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleDocument GET /api/v1/document?id=xxx
-// 获取单个文档详情
+// 获取单个文档详情.
 func (h *Handlers) handleDocument(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 GET 方法")
@@ -293,7 +293,7 @@ func (h *Handlers) handleDocument(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// runRebuildTask 执行异步重建任务
+// runRebuildTask 执行异步重建任务.
 func (h *Handlers) runRebuildTask(task *RebuildTask) {
 	h.mu.Lock()
 	task.Status = "running"
@@ -316,7 +316,7 @@ func (h *Handlers) runRebuildTask(task *RebuildTask) {
 
 // ---- 解析辅助函数 ----
 
-// parseFileTypes 解析文件类型参数（逗号分隔）
+// parseFileTypes 解析文件类型参数（逗号分隔）.
 func parseFileTypes(s string) []FileType {
 	if s == "" {
 		return nil
@@ -344,7 +344,7 @@ func parseFileTypes(s string) []FileType {
 	return types
 }
 
-// parseInt64Ptr 解析 int64 指针参数
+// parseInt64Ptr 解析 int64 指针参数.
 func parseInt64Ptr(s string) *int64 {
 	if s == "" {
 		return nil
@@ -356,7 +356,7 @@ func parseInt64Ptr(s string) *int64 {
 	return &v
 }
 
-// parseTimePtr 解析时间指针参数（RFC3339 或日期格式）
+// parseTimePtr 解析时间指针参数（RFC3339 或日期格式）.
 func parseTimePtr(s string) *time.Time {
 	if s == "" {
 		return nil
@@ -372,7 +372,7 @@ func parseTimePtr(s string) *time.Time {
 	return nil
 }
 
-// parseIntDefault 解析整数，失败时返回默认值
+// parseIntDefault 解析整数，失败时返回默认值.
 func parseIntDefault(s string, def int) int {
 	if s == "" {
 		return def
@@ -384,14 +384,14 @@ func parseIntDefault(s string, def int) int {
 	return v
 }
 
-// writeJSON 写入 JSON 响应
+// writeJSON 写入 JSON 响应.
 func writeJSON(w http.ResponseWriter, code int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(data)
 }
 
-// writeError 写入错误响应
+// writeError 写入错误响应.
 func writeError(w http.ResponseWriter, code int, message string) {
 	writeJSON(w, code, APIResponse{
 		Code:    code,

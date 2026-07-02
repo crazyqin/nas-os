@@ -4,7 +4,7 @@ package gameserver
 
 import "time"
 
-// GameType 游戏类型
+// GameType 游戏类型.
 type GameType string
 
 const (
@@ -28,7 +28,7 @@ const (
 	GameCustom         GameType = "custom"
 )
 
-// ServerStatus 服务器状态
+// ServerStatus 服务器状态.
 type ServerStatus string
 
 const (
@@ -42,7 +42,7 @@ const (
 	StatusError     ServerStatus = "error"
 )
 
-// ModSource 模组来源
+// ModSource 模组来源.
 type ModSource string
 
 const (
@@ -52,7 +52,7 @@ const (
 	ModSourceCustom     ModSource = "custom"
 )
 
-// GameServer 游戏服务器配置
+// GameServer 游戏服务器配置.
 type GameServer struct {
 	ID             string            `json:"id"`
 	Name           string            `json:"name"`
@@ -88,7 +88,7 @@ type GameServer struct {
 	Uptime         int64             `json:"uptime"`
 }
 
-// ResourceLimits 资源限制
+// ResourceLimits 资源限制.
 type ResourceLimits struct {
 	MaxMemoryMB    int `json:"max_memory_mb"`
 	MaxCPU         int `json:"max_cpu"`
@@ -96,7 +96,7 @@ type ResourceLimits struct {
 	MaxBandwidthMB int `json:"max_bandwidth_mb"`
 }
 
-// Player 玩家信息
+// Player 玩家信息.
 type Player struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -111,7 +111,7 @@ type Player struct {
 	Notes       string    `json:"notes,omitempty"`
 }
 
-// Mod 模组信息
+// Mod 模组信息.
 type Mod struct {
 	ID           string    `json:"id"`
 	Name         string    `json:"name"`
@@ -127,7 +127,7 @@ type Mod struct {
 	Dependencies []string  `json:"dependencies,omitempty"`
 }
 
-// WorldSave 世界存档
+// WorldSave 世界存档.
 type WorldSave struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -138,7 +138,7 @@ type WorldSave struct {
 	Checksum    string    `json:"checksum"`
 }
 
-// ServerSchedule 定时任务
+// ServerSchedule 定时任务.
 type ServerSchedule struct {
 	ID       string     `json:"id"`
 	Name     string     `json:"name"`
@@ -150,7 +150,7 @@ type ServerSchedule struct {
 	NextRun  *time.Time `json:"next_run,omitempty"`
 }
 
-// ServerMetrics 服务器指标
+// ServerMetrics 服务器指标.
 type ServerMetrics struct {
 	ServerID    string    `json:"server_id"`
 	Timestamp   time.Time `json:"timestamp"`
@@ -164,7 +164,7 @@ type ServerMetrics struct {
 	WorldSize   int64     `json:"world_size"`
 }
 
-// ServerAlert 服务器告警
+// ServerAlert 服务器告警.
 type ServerAlert struct {
 	ID        string    `json:"id"`
 	ServerID  string    `json:"server_id"`
@@ -175,7 +175,7 @@ type ServerAlert struct {
 	Resolved  bool      `json:"resolved"`
 }
 
-// ServerTemplate 服务器模板
+// ServerTemplate 服务器模板.
 type ServerTemplate struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -189,7 +189,7 @@ type ServerTemplate struct {
 	MinDisk     int               `json:"min_disk"`
 }
 
-// ServerStats 服务器统计
+// ServerStats 服务器统计.
 type ServerStats struct {
 	TotalServers   int     `json:"total_servers"`
 	RunningServers int     `json:"running_servers"`
@@ -203,7 +203,7 @@ type ServerStats struct {
 	TotalWorldSize int64   `json:"total_world_size"`
 }
 
-// ConsoleLog 控制台日志
+// ConsoleLog 控制台日志.
 type ConsoleLog struct {
 	Timestamp time.Time `json:"timestamp"`
 	Level     string    `json:"level"`
@@ -211,14 +211,14 @@ type ConsoleLog struct {
 	Source    string    `json:"source"`
 }
 
-// RCONCommand RCON 命令
+// RCONCommand RCON 命令.
 type RCONCommand struct {
 	Command   string    `json:"command"`
 	Response  string    `json:"response"`
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// BanEntry 封禁记录
+// BanEntry 封禁记录.
 type BanEntry struct {
 	PlayerID   string     `json:"player_id"`
 	PlayerName string     `json:"player_name"`
@@ -229,7 +229,7 @@ type BanEntry struct {
 	Permanent  bool       `json:"permanent"`
 }
 
-// ServerEvent 服务器事件
+// ServerEvent 服务器事件.
 type ServerEvent struct {
 	ID        string                 `json:"id"`
 	ServerID  string                 `json:"server_id"`

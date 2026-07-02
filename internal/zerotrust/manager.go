@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 零信任安全管理器
+// Manager 零信任安全管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	logger      *zap.Logger
@@ -21,7 +21,7 @@ type Manager struct {
 	trustScores map[string]*TrustScore
 }
 
-// NewManager 创建零信任安全管理器
+// NewManager 创建零信任安全管理器.
 func NewManager(logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -42,7 +42,7 @@ func NewManager(logger *zap.Logger) *Manager {
 	return m
 }
 
-// initDefaultPolicies 初始化默认访问策略
+// initDefaultPolicies 初始化默认访问策略.
 func (m *Manager) initDefaultPolicies() {
 	defaultPolicies := []*AccessPolicy{
 		{
@@ -83,7 +83,7 @@ func (m *Manager) initDefaultPolicies() {
 	}
 }
 
-// RegisterDevice 注册设备
+// RegisterDevice 注册设备.
 func (m *Manager) RegisterDevice(device *DeviceTrust) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -110,7 +110,7 @@ func (m *Manager) RegisterDevice(device *DeviceTrust) error {
 	return nil
 }
 
-// calculateInitialTrustScore 计算初始信任评分
+// calculateInitialTrustScore 计算初始信任评分.
 func (m *Manager) calculateInitialTrustScore(device *DeviceTrust) TrustScore {
 	// 基础信任分
 	deviceScore := 50.0
@@ -152,7 +152,7 @@ func (m *Manager) calculateInitialTrustScore(device *DeviceTrust) TrustScore {
 	}
 }
 
-// EvaluateTrust 评估信任
+// EvaluateTrust 评估信任.
 func (m *Manager) EvaluateTrust(deviceID string) (*TrustScore, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -194,7 +194,7 @@ func (m *Manager) EvaluateTrust(deviceID string) (*TrustScore, error) {
 	return &score, nil
 }
 
-// calculateTrustScore 计算信任评分
+// calculateTrustScore 计算信任评分.
 func (m *Manager) calculateTrustScore(device *DeviceTrust) TrustScore {
 	deviceScore := 50.0
 	identityScore := 50.0
@@ -247,7 +247,7 @@ func (m *Manager) calculateTrustScore(device *DeviceTrust) TrustScore {
 	}
 }
 
-// GetDeviceTrust 获取设备信任信息
+// GetDeviceTrust 获取设备信任信息.
 func (m *Manager) GetDeviceTrust(id string) (*DeviceTrust, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -259,7 +259,7 @@ func (m *Manager) GetDeviceTrust(id string) (*DeviceTrust, error) {
 	return device, nil
 }
 
-// ListDevices 获取设备列表
+// ListDevices 获取设备列表.
 func (m *Manager) ListDevices(filter *DeviceFilter) []*DeviceTrust {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -273,7 +273,7 @@ func (m *Manager) ListDevices(filter *DeviceFilter) []*DeviceTrust {
 	return devices
 }
 
-// matchesDeviceFilter 检查设备是否匹配过滤器
+// matchesDeviceFilter 检查设备是否匹配过滤器.
 func (m *Manager) matchesDeviceFilter(device *DeviceTrust, filter *DeviceFilter) bool {
 	if filter == nil {
 		return true
@@ -293,7 +293,7 @@ func (m *Manager) matchesDeviceFilter(device *DeviceTrust, filter *DeviceFilter)
 	return true
 }
 
-// SetPolicy 设置访问策略
+// SetPolicy 设置访问策略.
 func (m *Manager) SetPolicy(policy *AccessPolicy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -315,7 +315,7 @@ func (m *Manager) SetPolicy(policy *AccessPolicy) error {
 	return nil
 }
 
-// GetPolicy 获取访问策略
+// GetPolicy 获取访问策略.
 func (m *Manager) GetPolicy(id string) (*AccessPolicy, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -327,7 +327,7 @@ func (m *Manager) GetPolicy(id string) (*AccessPolicy, error) {
 	return policy, nil
 }
 
-// ListPolicies 获取策略列表
+// ListPolicies 获取策略列表.
 func (m *Manager) ListPolicies() []*AccessPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -339,7 +339,7 @@ func (m *Manager) ListPolicies() []*AccessPolicy {
 	return policies
 }
 
-// DeletePolicy 删除策略
+// DeletePolicy 删除策略.
 func (m *Manager) DeletePolicy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -353,7 +353,7 @@ func (m *Manager) DeletePolicy(id string) error {
 	return nil
 }
 
-// CheckAccess 检查访问权限
+// CheckAccess 检查访问权限.
 func (m *Manager) CheckAccess(subjectType, subjectID, resourceType, resourceID string) (bool, string) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -378,7 +378,7 @@ func (m *Manager) CheckAccess(subjectType, subjectID, resourceType, resourceID s
 	return matchedPolicy.Action == "allow" || matchedPolicy.Action == "require-mfa", matchedPolicy.Action
 }
 
-// matchesPolicy 检查策略是否匹配
+// matchesPolicy 检查策略是否匹配.
 func (m *Manager) matchesPolicy(policy *AccessPolicy, subjectType, subjectID, resourceType, resourceID string) bool {
 	// 检查主体
 	if policy.Subject.Type != "*" && policy.Subject.Type != subjectType {
@@ -417,7 +417,7 @@ func (m *Manager) matchesPolicy(policy *AccessPolicy, subjectType, subjectID, re
 	return true
 }
 
-// CreateSession 创建认证会话
+// CreateSession 创建认证会话.
 func (m *Manager) CreateSession(session *AuthSession) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -437,7 +437,7 @@ func (m *Manager) CreateSession(session *AuthSession) error {
 	return nil
 }
 
-// GetSession 获取会话
+// GetSession 获取会话.
 func (m *Manager) GetSession(id string) (*AuthSession, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -449,7 +449,7 @@ func (m *Manager) GetSession(id string) (*AuthSession, error) {
 	return session, nil
 }
 
-// ListSessions 获取会话列表
+// ListSessions 获取会话列表.
 func (m *Manager) ListSessions(filter *SessionFilter) []*AuthSession {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -463,7 +463,7 @@ func (m *Manager) ListSessions(filter *SessionFilter) []*AuthSession {
 	return sessions
 }
 
-// matchesSessionFilter 检查会话是否匹配过滤器
+// matchesSessionFilter 检查会话是否匹配过滤器.
 func (m *Manager) matchesSessionFilter(session *AuthSession, filter *SessionFilter) bool {
 	if filter == nil {
 		return true
@@ -480,7 +480,7 @@ func (m *Manager) matchesSessionFilter(session *AuthSession, filter *SessionFilt
 	return true
 }
 
-// RevokeSession 撤销会话
+// RevokeSession 撤销会话.
 func (m *Manager) RevokeSession(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -495,7 +495,7 @@ func (m *Manager) RevokeSession(id string) error {
 	return nil
 }
 
-// BlockThreat 阻断威胁
+// BlockThreat 阻断威胁.
 func (m *Manager) BlockThreat(threat *ThreatEvent) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -520,7 +520,7 @@ func (m *Manager) BlockThreat(threat *ThreatEvent) error {
 	return nil
 }
 
-// mitigateThreat 缓解威胁
+// mitigateThreat 缓解威胁.
 func (m *Manager) mitigateThreat(threat *ThreatEvent) {
 	// 根据威胁类型采取不同措施
 	switch threat.Type {
@@ -553,7 +553,7 @@ func (m *Manager) mitigateThreat(threat *ThreatEvent) {
 	)
 }
 
-// GetThreat 获取威胁事件
+// GetThreat 获取威胁事件.
 func (m *Manager) GetThreat(id string) (*ThreatEvent, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -565,7 +565,7 @@ func (m *Manager) GetThreat(id string) (*ThreatEvent, error) {
 	return threat, nil
 }
 
-// ListThreats 获取威胁列表
+// ListThreats 获取威胁列表.
 func (m *Manager) ListThreats(filter *ThreatFilter) []*ThreatEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -579,7 +579,7 @@ func (m *Manager) ListThreats(filter *ThreatFilter) []*ThreatEvent {
 	return threats
 }
 
-// matchesThreatFilter 检查威胁是否匹配过滤器
+// matchesThreatFilter 检查威胁是否匹配过滤器.
 func (m *Manager) matchesThreatFilter(threat *ThreatEvent, filter *ThreatFilter) bool {
 	if filter == nil {
 		return true
@@ -629,7 +629,7 @@ func (m *Manager) matchesThreatFilter(threat *ThreatEvent, filter *ThreatFilter)
 	return true
 }
 
-// ResolveThreat 解决威胁
+// ResolveThreat 解决威胁.
 func (m *Manager) ResolveThreat(id, notes string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -647,7 +647,7 @@ func (m *Manager) ResolveThreat(id, notes string) error {
 	return nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() *TrustStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// BenchmarkManager 磁盘性能测试管理器
+// BenchmarkManager 磁盘性能测试管理器.
 type BenchmarkManager struct {
 	mu      sync.RWMutex
 	results []*BenchResult
@@ -17,7 +17,7 @@ type BenchmarkManager struct {
 	tmpDir  string
 }
 
-// BenchResult 测试结果
+// BenchResult 测试结果.
 type BenchResult struct {
 	ID              string        `json:"id"`
 	TargetPath      string        `json:"target_path"`
@@ -44,7 +44,7 @@ const (
 	StatusFailed    BenchStatus = "failed"
 )
 
-// NewBenchmarkManager 创建管理器
+// NewBenchmarkManager 创建管理器.
 func NewBenchmarkManager(tmpDir string) *BenchmarkManager {
 	if tmpDir == "" {
 		tmpDir = "/tmp/nas-bench"
@@ -57,7 +57,7 @@ func NewBenchmarkManager(tmpDir string) *BenchmarkManager {
 	}
 }
 
-// RunBenchmark 启动性能测试
+// RunBenchmark 启动性能测试.
 func (m *BenchmarkManager) RunBenchmark(targetPath string, fileSizeMB int) (*BenchResult, error) {
 	if fileSizeMB <= 0 {
 		fileSizeMB = 256
@@ -259,10 +259,10 @@ func (m *BenchmarkManager) benchRandomIO(path string) (readIOPS, writeIOPS float
 		latP99 = sorted[p99Idx]
 	}
 
-	return
+	return readIOPS, writeIOPS, latAvg, latP99
 }
 
-// GetResult 获取测试结果
+// GetResult 获取测试结果.
 func (m *BenchmarkManager) GetResult(id string) (*BenchResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -278,7 +278,7 @@ func (m *BenchmarkManager) GetResult(id string) (*BenchResult, error) {
 	return nil, fmt.Errorf("测试结果 %s 不存在", id)
 }
 
-// ListResults 列出所有结果
+// ListResults 列出所有结果.
 func (m *BenchmarkManager) ListResults() []*BenchResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

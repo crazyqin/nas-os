@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-// DeviceType 设备类型枚举
+// DeviceType 设备类型枚举.
 type DeviceType int
 
 const (
@@ -38,7 +38,7 @@ func (d DeviceType) String() string {
 	}
 }
 
-// DeviceInfo 设备信息
+// DeviceInfo 设备信息.
 type DeviceInfo struct {
 	// 基本信息
 	Name   string     `json:"name"`   // 设备名称，如 /dev/nvme0n1
@@ -72,7 +72,7 @@ type DeviceInfo struct {
 	RecommendedRole DeviceRole `json:"recommendedRole"` // 推荐角色
 }
 
-// DeviceRole 设备角色
+// DeviceRole 设备角色.
 type DeviceRole int
 
 const (
@@ -101,7 +101,7 @@ func (r DeviceRole) String() string {
 	}
 }
 
-// NVMeDetector NVMe/SSD 检测器
+// NVMeDetector NVMe/SSD 检测器.
 type NVMeDetector struct {
 	devices      map[string]*DeviceInfo
 	mu           sync.RWMutex
@@ -109,7 +109,7 @@ type NVMeDetector struct {
 	scanInterval time.Duration
 }
 
-// NewNVMeDetector 创建检测器
+// NewNVMeDetector 创建检测器.
 func NewNVMeDetector() *NVMeDetector {
 	return &NVMeDetector{
 		devices:      make(map[string]*DeviceInfo),
@@ -117,7 +117,7 @@ func NewNVMeDetector() *NVMeDetector {
 	}
 }
 
-// ScanDevices 扫描所有块设备
+// ScanDevices 扫描所有块设备.
 func (d *NVMeDetector) ScanDevices() ([]*DeviceInfo, error) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -159,7 +159,7 @@ func (d *NVMeDetector) ScanDevices() ([]*DeviceInfo, error) {
 	return result, nil
 }
 
-// scanNVMeDevices 扫描 NVMe 设备
+// scanNVMeDevices 扫描 NVMe 设备.
 func (d *NVMeDetector) scanNVMeDevices() ([]*DeviceInfo, error) {
 	// 列出所有 NVMe 控制器
 	controllers, err := filepath.Glob("/sys/class/nvme/nvme*")
@@ -249,7 +249,7 @@ func (d *NVMeDetector) scanNVMeDevices() ([]*DeviceInfo, error) {
 	return devices, nil
 }
 
-// scanSATADevices 扫描 SATA/SAS 设备
+// scanSATADevices 扫描 SATA/SAS 设备.
 func (d *NVMeDetector) scanSATADevices() ([]*DeviceInfo, error) {
 	// 列出所有块设备
 	blockDevices, err := filepath.Glob("/sys/block/sd*")
@@ -318,15 +318,16 @@ func (d *NVMeDetector) scanSATADevices() ([]*DeviceInfo, error) {
 	return devices, nil
 }
 
-// detectSSDOrHDD 检测是 SSD 还是 HDD
+// detectSSDOrHDD 检测是 SSD 还是 HDD.
 func (d *NVMeDetector) detectSSDOrHDD(devName, model string) DeviceType {
 	// 方法 1：检查 rotational 属性（最可靠）
 	rotPath := filepath.Join("/sys/block", devName, "queue/rotational")
 	if data, err := os.ReadFile(rotPath); err == nil {
 		rotational := strings.TrimSpace(string(data))
-		if rotational == "0" {
+		switch rotational {
+		case "0":
 			return DeviceTypeSSD
-		} else if rotational == "1" {
+		case "1":
 			return DeviceTypeHDD
 		}
 	}
@@ -347,7 +348,7 @@ func (d *NVMeDetector) detectSSDOrHDD(devName, model string) DeviceType {
 	return DeviceTypeHDD
 }
 
-// estimateNVMeReadSpeed 估算 NVMe 读取速度
+// estimateNVMeReadSpeed 估算 NVMe 读取速度.
 func (d *NVMeDetector) estimateNVMeReadSpeed(model string) uint64 {
 	modelLower := strings.ToLower(model)
 
@@ -371,14 +372,14 @@ func (d *NVMeDetector) estimateNVMeReadSpeed(model string) uint64 {
 	return 2000
 }
 
-// estimateNVMeWriteSpeed 估算 NVMe 写入速度
+// estimateNVMeWriteSpeed 估算 NVMe 写入速度.
 func (d *NVMeDetector) estimateNVMeWriteSpeed(model string) uint64 {
 	// 通常写入速度略低于读取速度
 	readSpeed := d.estimateNVMeReadSpeed(model)
 	return readSpeed * 80 / 100 // 约 80% 的读取速度
 }
 
-// estimateNVMeIOPS 估算 NVMe IOPS
+// estimateNVMeIOPS 估算 NVMe IOPS.
 func (d *NVMeDetector) estimateNVMeIOPS(model string) uint64 {
 	modelLower := strings.ToLower(model)
 
@@ -394,7 +395,7 @@ func (d *NVMeDetector) estimateNVMeIOPS(model string) uint64 {
 	return 300000
 }
 
-// estimateSSDReadSpeed 估算 SSD 读取速度
+// estimateSSDReadSpeed 估算 SSD 读取速度.
 func (d *NVMeDetector) estimateSSDReadSpeed(model string) uint64 {
 	modelLower := strings.ToLower(model)
 
@@ -410,13 +411,13 @@ func (d *NVMeDetector) estimateSSDReadSpeed(model string) uint64 {
 	return 500
 }
 
-// estimateSSDWriteSpeed 估算 SSD 写入速度
+// estimateSSDWriteSpeed 估算 SSD 写入速度.
 func (d *NVMeDetector) estimateSSDWriteSpeed(model string) uint64 {
 	readSpeed := d.estimateSSDReadSpeed(model)
 	return readSpeed * 90 / 100
 }
 
-// estimateSSDIOPS 估算 SSD IOPS
+// estimateSSDIOPS 估算 SSD IOPS.
 func (d *NVMeDetector) estimateSSDIOPS(model string) uint64 {
 	modelLower := strings.ToLower(model)
 
@@ -429,7 +430,7 @@ func (d *NVMeDetector) estimateSSDIOPS(model string) uint64 {
 	return 50000
 }
 
-// estimateHDDReadSpeed 估算 HDD 读取速度
+// estimateHDDReadSpeed 估算 HDD 读取速度.
 func (d *NVMeDetector) estimateHDDReadSpeed(model string) uint64 {
 	modelLower := strings.ToLower(model)
 
@@ -443,12 +444,12 @@ func (d *NVMeDetector) estimateHDDReadSpeed(model string) uint64 {
 	return 150
 }
 
-// estimateHDDWriteSpeed 估算 HDD 写入速度
+// estimateHDDWriteSpeed 估算 HDD 写入速度.
 func (d *NVMeDetector) estimateHDDWriteSpeed(model string) uint64 {
 	return d.estimateHDDReadSpeed(model)
 }
 
-// estimateHDDIOPS 估算 HDD IOPS
+// estimateHDDIOPS 估算 HDD IOPS.
 func (d *NVMeDetector) estimateHDDIOPS(model string) uint64 {
 	modelLower := strings.ToLower(model)
 
@@ -461,7 +462,7 @@ func (d *NVMeDetector) estimateHDDIOPS(model string) uint64 {
 	return 80
 }
 
-// getNVMeSmartInfo 获取 NVMe SMART 信息
+// getNVMeSmartInfo 获取 NVMe SMART 信息.
 func (d *NVMeDetector) getNVMeSmartInfo(info *DeviceInfo) {
 	// 使用 nvme-cli 工具
 	cmd := exec.Command("nvme", "smart-log", info.Name)
@@ -507,7 +508,7 @@ func (d *NVMeDetector) getNVMeSmartInfo(info *DeviceInfo) {
 	}
 }
 
-// getSmartInfo 获取 SATA SMART 信息
+// getSmartInfo 获取 SATA SMART 信息.
 func (d *NVMeDetector) getSmartInfo(info *DeviceInfo) {
 	// 使用 smartctl 工具
 	cmd := exec.Command("smartctl", "-A", "-i", info.Name)
@@ -544,7 +545,7 @@ func (d *NVMeDetector) getSmartInfo(info *DeviceInfo) {
 	}
 }
 
-// GetNVMeDevices 获取所有 NVMe 设备
+// GetNVMeDevices 获取所有 NVMe 设备.
 func (d *NVMeDetector) GetNVMeDevices() ([]*DeviceInfo, error) {
 	devices, err := d.ScanDevices()
 	if err != nil {
@@ -560,7 +561,7 @@ func (d *NVMeDetector) GetNVMeDevices() ([]*DeviceInfo, error) {
 	return nvmeDevices, nil
 }
 
-// GetSSDDevices 获取所有 SSD 设备
+// GetSSDDevices 获取所有 SSD 设备.
 func (d *NVMeDetector) GetSSDDevices() ([]*DeviceInfo, error) {
 	devices, err := d.ScanDevices()
 	if err != nil {
@@ -576,7 +577,7 @@ func (d *NVMeDetector) GetSSDDevices() ([]*DeviceInfo, error) {
 	return ssdDevices, nil
 }
 
-// GetHDDDevices 获取所有 HDD 设备
+// GetHDDDevices 获取所有 HDD 设备.
 func (d *NVMeDetector) GetHDDDevices() ([]*DeviceInfo, error) {
 	devices, err := d.ScanDevices()
 	if err != nil {
@@ -592,7 +593,7 @@ func (d *NVMeDetector) GetHDDDevices() ([]*DeviceInfo, error) {
 	return hddDevices, nil
 }
 
-// GetDevice 获取指定设备信息
+// GetDevice 获取指定设备信息.
 func (d *NVMeDetector) GetDevice(name string) (*DeviceInfo, error) {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -616,7 +617,7 @@ func (d *NVMeDetector) GetDevice(name string) (*DeviceInfo, error) {
 	return nil, fmt.Errorf("设备 %s 不存在", name)
 }
 
-// RecommendFusionPoolConfig 推荐融合池配置
+// RecommendFusionPoolConfig 推荐融合池配置.
 func (d *NVMeDetector) RecommendFusionPoolConfig() (*FusionPoolRecommendation, error) {
 	devices, err := d.ScanDevices()
 	if err != nil {
@@ -663,7 +664,7 @@ func (d *NVMeDetector) RecommendFusionPoolConfig() (*FusionPoolRecommendation, e
 	return rec, nil
 }
 
-// FusionPoolRecommendation 融合池推荐配置
+// FusionPoolRecommendation 融合池推荐配置.
 type FusionPoolRecommendation struct {
 	MetadataCandidates  []string `json:"metadataCandidates"`  // 适合元数据存储的设备
 	CacheCandidates     []string `json:"cacheCandidates"`     // 适合缓存的设备
@@ -675,12 +676,12 @@ type FusionPoolRecommendation struct {
 	Suggestions         []string `json:"suggestions"`         // 详细建议
 }
 
-// IsNVMeDevice 检查设备是否为 NVMe
+// IsNVMeDevice 检查设备是否为 NVMe.
 func (d *NVMeDetector) IsNVMeDevice(name string) bool {
 	return strings.HasPrefix(name, "/dev/nvme")
 }
 
-// IsSSDDevice 检查设备是否为 SSD（包括 NVMe）
+// IsSSDDevice 检查设备是否为 SSD（包括 NVMe）.
 func (d *NVMeDetector) IsSSDDevice(name string) bool {
 	dev, err := d.GetDevice(name)
 	if err != nil {
@@ -689,7 +690,7 @@ func (d *NVMeDetector) IsSSDDevice(name string) bool {
 	return dev.Type == DeviceTypeNVMe || dev.Type == DeviceTypeSSD
 }
 
-// GetBestMetadataDevice 获取最佳元数据设备
+// GetBestMetadataDevice 获取最佳元数据设备.
 func (d *NVMeDetector) GetBestMetadataDevice() (*DeviceInfo, error) {
 	nvmeDevices, err := d.GetNVMeDevices()
 	if err != nil {

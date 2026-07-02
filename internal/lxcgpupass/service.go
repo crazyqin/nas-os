@@ -11,17 +11,17 @@ import (
 	"time"
 )
 
-// Service GPU 直通管理服务
+// Service GPU 直通管理服务.
 type Service struct {
 	mu          sync.RWMutex
 	config      *Config
-	devices     map[string]*GPUDevice       // PCI 地址 -> GPU 设备
-	assignments map[string]*GPUAssignment   // 分配 ID -> 分配记录
+	devices     map[string]*GPUDevice     // PCI 地址 -> GPU 设备
+	assignments map[string]*GPUAssignment // 分配 ID -> 分配记录
 	// containerGPU 容器 ID -> GPU PCI 地址列表
 	containerGPU map[string][]string
 }
 
-// NewService 创建 GPU 直通管理服务
+// NewService 创建 GPU 直通管理服务.
 func NewService(cfg *Config) *Service {
 	if cfg == nil {
 		cfg = DefaultConfig()
@@ -37,7 +37,7 @@ func NewService(cfg *Config) *Service {
 // ========== 设备检测 ==========
 
 // DetectDevices 扫描系统 GPU 设备
-// 读取 /sys/bus/pci/devices 下的设备信息，识别 NVIDIA/AMD/Intel GPU
+// 读取 /sys/bus/pci/devices 下的设备信息，识别 NVIDIA/AMD/Intel GPU.
 func (s *Service) DetectDevices() ([]*GPUDevice, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -108,7 +108,7 @@ func (s *Service) DetectDevices() ([]*GPUDevice, error) {
 	return result, nil
 }
 
-// GetDevices 获取所有 GPU 设备列表
+// GetDevices 获取所有 GPU 设备列表.
 func (s *Service) GetDevices() []*GPUDevice {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -120,7 +120,7 @@ func (s *Service) GetDevices() []*GPUDevice {
 	return result
 }
 
-// GetDevice 根据 PCI 地址获取 GPU 设备
+// GetDevice 根据 PCI 地址获取 GPU 设备.
 func (s *Service) GetDevice(pciAddr string) (*GPUDevice, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -135,7 +135,7 @@ func (s *Service) GetDevice(pciAddr string) (*GPUDevice, error) {
 // ========== GPU 分配 ==========
 
 // AssignGPU 将 GPU 设备分配给 LXC 容器
-// 修改 LXC 配置文件和 cgroup 设备白名单以实现直通
+// 修改 LXC 配置文件和 cgroup 设备白名单以实现直通.
 func (s *Service) AssignGPU(req *AssignRequest) (*GPUAssignment, error) {
 	if err := ValidatePCIAddr(req.GPUPCIAddr); err != nil {
 		return nil, err
@@ -189,7 +189,7 @@ func (s *Service) AssignGPU(req *AssignRequest) (*GPUAssignment, error) {
 	return assignment, nil
 }
 
-// RemoveGPU 从容器移除 GPU 分配
+// RemoveGPU 从容器移除 GPU 分配.
 func (s *Service) RemoveGPU(req *RemoveRequest) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -264,7 +264,7 @@ func (s *Service) RemoveGPU(req *RemoveRequest) error {
 
 // ========== 状态查询 ==========
 
-// GetStatus 获取 GPU 分配状态总览
+// GetStatus 获取 GPU 分配状态总览.
 func (s *Service) GetStatus() *GPUStatus {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -289,7 +289,7 @@ func (s *Service) GetStatus() *GPUStatus {
 	return status
 }
 
-// GetContainerGPUs 获取容器已分配的 GPU 列表
+// GetContainerGPUs 获取容器已分配的 GPU 列表.
 func (s *Service) GetContainerGPUs(containerID string) []*GPUDevice {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -306,7 +306,7 @@ func (s *Service) GetContainerGPUs(containerID string) []*GPUDevice {
 
 // ========== 内部辅助方法 ==========
 
-// readPCIID 读取 PCI 设备的厂商 ID 和设备 ID
+// readPCIID 读取 PCI 设备的厂商 ID 和设备 ID.
 func (s *Service) readPCIID(pciAddr string) (vendorID, deviceID string, err error) {
 	vendorPath := filepath.Join(s.config.SysPCIBase, pciAddr, "vendor")
 	data, err := os.ReadFile(vendorPath)
@@ -324,7 +324,7 @@ func (s *Service) readPCIID(pciAddr string) (vendorID, deviceID string, err erro
 	return vendorID, deviceID, nil
 }
 
-// readDeviceModel 读取设备型号名称
+// readDeviceModel 读取设备型号名称.
 func (s *Service) readDeviceModel(pciAddr string, vendor GPUVendor) string {
 	// 尝试读取 PCI 设备 class（0x030000/0x030200 为显示设备）
 	classPath := filepath.Join(s.config.SysPCIBase, pciAddr, "class")
@@ -351,7 +351,7 @@ func (s *Service) readDeviceModel(pciAddr string, vendor GPUVendor) string {
 	}
 }
 
-// readVRAM 读取 GPU 显存大小（MB）
+// readVRAM 读取 GPU 显存大小（MB）.
 func (s *Service) readVRAM(pciAddr string, vendor GPUVendor) uint64 {
 	// NVIDIA: 通过 /proc/driver/nvidia/gpus/0000:xx:xx.x/information 读取
 	// AMD: 通过 /sys/class/drm/cardN/device/mem_info_vram_total 读取
@@ -359,7 +359,7 @@ func (s *Service) readVRAM(pciAddr string, vendor GPUVendor) uint64 {
 	return 0
 }
 
-// readNUMANode 读取 NUMA 节点编号
+// readNUMANode 读取 NUMA 节点编号.
 func (s *Service) readNUMANode(pciAddr string) int {
 	numaPath := filepath.Join(s.config.SysPCIBase, pciAddr, "numa_node")
 	data, err := os.ReadFile(numaPath)
@@ -371,7 +371,7 @@ func (s *Service) readNUMANode(pciAddr string) int {
 	return node
 }
 
-// readIOMMUGroup 读取 IOMMU 分组编号
+// readIOMMUGroup 读取 IOMMU 分组编号.
 func (s *Service) readIOMMUGroup(pciAddr string) int {
 	groupPath := filepath.Join(s.config.SysPCIBase, pciAddr, "iommu_group")
 	info, err := os.Stat(groupPath)
@@ -384,7 +384,7 @@ func (s *Service) readIOMMUGroup(pciAddr string) int {
 	return 0
 }
 
-// readDriver 取设备当前使用的驱动
+// readDriver 取设备当前使用的驱动.
 func (s *Service) readDriver(pciAddr string) string {
 	driverPath := filepath.Join(s.config.SysPCIBase, pciAddr, "driver")
 	info, err := os.Stat(driverPath)
@@ -396,7 +396,7 @@ func (s *Service) readDriver(pciAddr string) string {
 	return "unknown"
 }
 
-// getDevicePath 获取 GPU 设备文件路径
+// getDevicePath 获取 GPU 设备文件路径.
 func (s *Service) getDevicePath(pciAddr string, vendor GPUVendor) string {
 	switch vendor {
 	case GPUVendorNVIDIA:
@@ -410,7 +410,7 @@ func (s *Service) getDevicePath(pciAddr string, vendor GPUVendor) string {
 	}
 }
 
-// writeLXCGPUConfig 写入 LXC 容器 GPU 直通配置
+// writeLXCGPUConfig 写入 LXC 容器 GPU 直通配置.
 func (s *Service) writeLXCGPUConfig(containerID string, device *GPUDevice) error {
 	configPath := filepath.Join(s.config.LXCBase, containerID, "config")
 	// 确保目录存在
@@ -441,7 +441,7 @@ func (s *Service) writeLXCGPUConfig(containerID string, device *GPUDevice) error
 	return os.WriteFile(configPath, []byte(existing+gpuConfig), 0644)
 }
 
-// removeLXCGPUConfig 从 LXC 配置移除 GPU 直通配置
+// removeLXCGPUConfig 从 LXC 配置移除 GPU 直通配置.
 func (s *Service) removeLXCGPUConfig(containerID, pciAddr string) error {
 	configPath := filepath.Join(s.config.LXCBase, containerID, "config")
 	data, err := os.ReadFile(configPath)
@@ -472,7 +472,7 @@ func (s *Service) removeLXCGPUConfig(containerID, pciAddr string) error {
 	return os.WriteFile(configPath, []byte(strings.Join(newLines, "\n")), 0644)
 }
 
-// identifyVendor 根据厂商 ID 识别 GPU 厂商
+// identifyVendor 根据厂商 ID 识别 GPU 厂商.
 func identifyVendor(vendorID string) GPUVendor {
 	switch strings.ToLower(strings.TrimPrefix(vendorID, "0x")) {
 	case "10de":

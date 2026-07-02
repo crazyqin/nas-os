@@ -9,17 +9,17 @@ import (
 	"strings"
 )
 
-// CollectHandler HTTP 处理器
+// CollectHandler HTTP 处理器.
 type CollectHandler struct {
 	manager *CollectManager
 }
 
-// NewCollectHandler 创建处理器
+// NewCollectHandler 创建处理器.
 func NewCollectHandler(manager *CollectManager) *CollectHandler {
 	return &CollectHandler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *CollectHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/collect/create", h.handleCreate)
 	mux.HandleFunc("/api/v1/collect/list", h.handleList)
@@ -36,7 +36,7 @@ func (h *CollectHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/collect/submission/status", h.handleUpdateSubmissionStatus)
 }
 
-// handleCreate 处理创建收集请求
+// handleCreate 处理创建收集请求.
 func (h *CollectHandler) handleCreate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -72,7 +72,7 @@ func (h *CollectHandler) handleCreate(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleList 处理列出收集请求
+// handleList 处理列出收集请求.
 func (h *CollectHandler) handleList(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -89,7 +89,7 @@ func (h *CollectHandler) handleList(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleGet 处理获取收集请求
+// handleGet 处理获取收集请求.
 func (h *CollectHandler) handleGet(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -121,7 +121,7 @@ func (h *CollectHandler) handleGet(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleUpdate 处理更新收集请求
+// handleUpdate 处理更新收集请求.
 func (h *CollectHandler) handleUpdate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -162,7 +162,7 @@ func (h *CollectHandler) handleUpdate(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleDelete 处理删除收集请求
+// handleDelete 处理删除收集请求.
 func (h *CollectHandler) handleDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost && r.Method != http.MethodDelete {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -208,7 +208,7 @@ func (h *CollectHandler) handleDelete(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handlePause 处理暂停收集请求
+// handlePause 处理暂停收集请求.
 func (h *CollectHandler) handlePause(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -240,7 +240,7 @@ func (h *CollectHandler) handlePause(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleResume 处理恢复收集请求
+// handleResume 处理恢复收集请求.
 func (h *CollectHandler) handleResume(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -272,7 +272,7 @@ func (h *CollectHandler) handleResume(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleClose 处理关闭收集请求
+// handleClose 处理关闭收集请求.
 func (h *CollectHandler) handleClose(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -304,7 +304,7 @@ func (h *CollectHandler) handleClose(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleStats 处理获取统计信息
+// handleStats 处理获取统计信息.
 func (h *CollectHandler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -321,7 +321,7 @@ func (h *CollectHandler) handleStats(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleSubmit 处理文件提交
+// handleSubmit 处理文件提交.
 func (h *CollectHandler) handleSubmit(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -388,7 +388,7 @@ func (h *CollectHandler) handleSubmit(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleGetSubmission 处理获取提交
+// handleGetSubmission 处理获取提交.
 func (h *CollectHandler) handleGetSubmission(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -422,7 +422,7 @@ func (h *CollectHandler) handleGetSubmission(w http.ResponseWriter, r *http.Requ
 	})
 }
 
-// handleListSubmissions 处理列出提交
+// handleListSubmissions 处理列出提交.
 func (h *CollectHandler) handleListSubmissions(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -454,7 +454,7 @@ func (h *CollectHandler) handleListSubmissions(w http.ResponseWriter, r *http.Re
 	})
 }
 
-// handleUpdateSubmissionStatus 处理更新提交状态
+// handleUpdateSubmissionStatus 处理更新提交状态.
 func (h *CollectHandler) handleUpdateSubmissionStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -497,7 +497,7 @@ func (h *CollectHandler) handleUpdateSubmissionStatus(w http.ResponseWriter, r *
 	})
 }
 
-// writeJSON 写入JSON响应
+// writeJSON 写入JSON响应.
 func writeJSON(w http.ResponseWriter, v interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(v); err != nil {

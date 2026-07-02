@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// PricingManager 智能定价管理器
+// PricingManager 智能定价管理器.
 type PricingManager struct {
 	mu           sync.RWMutex
 	logger       *zap.Logger
@@ -22,7 +22,7 @@ type PricingManager struct {
 	invoices     map[string]*Invoice
 }
 
-// NewPricingManager 创建智能定价管理器
+// NewPricingManager 创建智能定价管理器.
 func NewPricingManager(logger *zap.Logger, config *PricingConfig) *PricingManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -51,7 +51,7 @@ func NewPricingManager(logger *zap.Logger, config *PricingConfig) *PricingManage
 	return pm
 }
 
-// initDefaultTiers 初始化默认定价层级
+// initDefaultTiers 初始化默认定价层级.
 func (pm *PricingManager) initDefaultTiers() {
 	pm.tiers["tier-basic"] = &PricingTier{
 		ID:          "tier-basic",
@@ -102,7 +102,7 @@ func (pm *PricingManager) initDefaultTiers() {
 	}
 }
 
-// initDefaultPlans 初始化默认计费方案
+// initDefaultPlans 初始化默认计费方案.
 func (pm *PricingManager) initDefaultPlans() {
 	pm.plans["plan-monthly-basic"] = &BillingPlan{
 		ID:            "plan-monthly-basic",
@@ -153,7 +153,7 @@ func (pm *PricingManager) initDefaultPlans() {
 	}
 }
 
-// initDefaultPriceRules 初始化默认价格规则
+// initDefaultPriceRules 初始化默认价格规则.
 func (pm *PricingManager) initDefaultPriceRules() {
 	pm.priceRules["rule-storage"] = &PriceRule{
 		ID:           "rule-storage",
@@ -205,7 +205,7 @@ func (pm *PricingManager) initDefaultPriceRules() {
 	}
 }
 
-// CalculatePrice 计算价格
+// CalculatePrice 计算价格.
 func (pm *PricingManager) CalculatePrice(userID string, resourceType string, usage float64) (*PriceCalculation, error) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -264,7 +264,7 @@ func (pm *PricingManager) CalculatePrice(userID string, resourceType string, usa
 	}, nil
 }
 
-// PriceCalculation 价格计算结果
+// PriceCalculation 价格计算结果.
 type PriceCalculation struct {
 	UserID       string    `json:"user_id"`
 	ResourceType string    `json:"resource_type"`
@@ -278,7 +278,7 @@ type PriceCalculation struct {
 	CalculatedAt time.Time `json:"calculated_at"`
 }
 
-// calculateTieredPrice 计算阶梯价格
+// calculateTieredPrice 计算阶梯价格.
 func (pm *PricingManager) calculateTieredPrice(rule *PriceRule, usage float64) float64 {
 	if len(rule.Tiers) == 0 {
 		return usage * rule.BaseRate
@@ -314,7 +314,7 @@ func (pm *PricingManager) calculateTieredPrice(rule *PriceRule, usage float64) f
 	return total
 }
 
-// calculateDiscount 计算折扣
+// calculateDiscount 计算折扣.
 func (pm *PricingManager) calculateDiscount(plan *BillingPlan, usage, usageFee float64) float64 {
 	discount := 0.0
 
@@ -340,7 +340,7 @@ func (pm *PricingManager) calculateDiscount(plan *BillingPlan, usage, usageFee f
 	return discount
 }
 
-// getUserPlan 获取用户计费方案
+// getUserPlan 获取用户计费方案.
 func (pm *PricingManager) getUserPlan(userID string) (*BillingPlan, error) {
 	// 默认返回标准月付方案
 	plan, ok := pm.plans["plan-monthly-standard"]
@@ -350,7 +350,7 @@ func (pm *PricingManager) getUserPlan(userID string) (*BillingPlan, error) {
 	return plan, nil
 }
 
-// GetUsageMetrics 获取使用量指标
+// GetUsageMetrics 获取使用量指标.
 func (pm *PricingManager) GetUsageMetrics(userID string, resourceType string, startTime, endTime time.Time) ([]*UsageMetric, error) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -377,7 +377,7 @@ func (pm *PricingManager) GetUsageMetrics(userID string, resourceType string, st
 	return result, nil
 }
 
-// ApplyDiscount 应用折扣
+// ApplyDiscount 应用折扣.
 func (pm *PricingManager) ApplyDiscount(userID string, discountType string, value float64) (*DiscountApplication, error) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -435,7 +435,7 @@ func (pm *PricingManager) ApplyDiscount(userID string, discountType string, valu
 	}, nil
 }
 
-// DiscountApplication 折扣应用结果
+// DiscountApplication 折扣应用结果.
 type DiscountApplication struct {
 	DiscountID string    `json:"discount_id"`
 	UserID     string    `json:"user_id"`
@@ -446,7 +446,7 @@ type DiscountApplication struct {
 	AppliedAt  time.Time `json:"applied_at"`
 }
 
-// GenerateInvoice 生成发票
+// GenerateInvoice 生成发票.
 func (pm *PricingManager) GenerateInvoice(userID string, periodStart, periodEnd time.Time) (*Invoice, error) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -491,7 +491,7 @@ func (pm *PricingManager) GenerateInvoice(userID string, periodStart, periodEnd 
 	}
 
 	// 获取层级
-	tier, _ := pm.tiers[plan.TierID]
+	tier := pm.tiers[plan.TierID]
 
 	// 计算总费用
 	baseFee := plan.BaseFee
@@ -532,7 +532,7 @@ func (pm *PricingManager) GenerateInvoice(userID string, periodStart, periodEnd 
 	return invoice, nil
 }
 
-// calculatePriceInternal 内部价格计算
+// calculatePriceInternal 内部价格计算.
 func (pm *PricingManager) calculatePriceInternal(plan *BillingPlan, resourceType string, usage float64) (*PriceCalculation, error) {
 	rule, ok := pm.priceRules[fmt.Sprintf("rule-%s", resourceType)]
 	if !ok {
@@ -552,7 +552,7 @@ func (pm *PricingManager) calculatePriceInternal(plan *BillingPlan, resourceType
 	}, nil
 }
 
-// GetTiers 获取所有定价层级
+// GetTiers 获取所有定价层级.
 func (pm *PricingManager) GetTiers() []*PricingTier {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -564,7 +564,7 @@ func (pm *PricingManager) GetTiers() []*PricingTier {
 	return tiers
 }
 
-// GetPlans 获取所有计费方案
+// GetPlans 获取所有计费方案.
 func (pm *PricingManager) GetPlans() []*BillingPlan {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -576,7 +576,7 @@ func (pm *PricingManager) GetPlans() []*BillingPlan {
 	return plans
 }
 
-// GetPriceRules 获取所有价格规则
+// GetPriceRules 获取所有价格规则.
 func (pm *PricingManager) GetPriceRules() []*PriceRule {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -588,7 +588,7 @@ func (pm *PricingManager) GetPriceRules() []*PriceRule {
 	return rules
 }
 
-// GetInvoice 获取发票
+// GetInvoice 获取发票.
 func (pm *PricingManager) GetInvoice(invoiceID string) (*Invoice, error) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -600,7 +600,7 @@ func (pm *PricingManager) GetInvoice(invoiceID string) (*Invoice, error) {
 	return invoice, nil
 }
 
-// GetUserInvoices 获取用户发票列表
+// GetUserInvoices 获取用户发票列表.
 func (pm *PricingManager) GetUserInvoices(userID string) []*Invoice {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()

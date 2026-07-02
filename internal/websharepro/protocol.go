@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// ProtocolType 协议类型
+// ProtocolType 协议类型.
 type ProtocolType string
 
 const (
@@ -23,7 +23,7 @@ const (
 	ProtocolS3     ProtocolType = "s3"
 )
 
-// ProtocolStatus 协议状态
+// ProtocolStatus 协议状态.
 type ProtocolStatus string
 
 const (
@@ -33,7 +33,7 @@ const (
 	StatusConnecting ProtocolStatus = "connecting"
 )
 
-// FileInfo 文件信息（协议无关）
+// FileInfo 文件信息（协议无关）.
 type FileInfo struct {
 	Path        string         `json:"path"`
 	Name        string         `json:"name"`
@@ -50,7 +50,7 @@ type FileInfo struct {
 	Attributes  map[string]any `json:"attributes,omitempty"`
 }
 
-// ProtocolConfig 协议配置
+// ProtocolConfig 协议配置.
 type ProtocolConfig struct {
 	Type     ProtocolType      `json:"type"`
 	Endpoint string            `json:"endpoint"`
@@ -62,7 +62,7 @@ type ProtocolConfig struct {
 	MaxConns int               `json:"maxConns"`
 }
 
-// ProtocolConnection 协议连接
+// ProtocolConnection 协议连接.
 type ProtocolConnection struct {
 	Config      *ProtocolConfig `json:"config"`
 	Status      ProtocolStatus  `json:"status"`
@@ -72,7 +72,7 @@ type ProtocolConnection struct {
 	connID      string
 }
 
-// ProtocolAdapter 协议适配器接口
+// ProtocolAdapter 协议适配器接口.
 type ProtocolAdapter interface {
 	Connect(ctx context.Context, config *ProtocolConfig) error
 	Disconnect() error
@@ -87,7 +87,7 @@ type ProtocolAdapter interface {
 	GetStatus() ProtocolStatus
 }
 
-// UnifiedFileSystem 统一文件系统
+// UnifiedFileSystem 统一文件系统.
 type UnifiedFileSystem struct {
 	mu          sync.RWMutex
 	adapters    map[ProtocolType]ProtocolAdapter
@@ -97,7 +97,7 @@ type UnifiedFileSystem struct {
 	rateLimiter *RateLimiter
 }
 
-// MountPoint 挂载点
+// MountPoint 挂载点.
 type MountPoint struct {
 	Path       string          `json:"path"`
 	Protocol   ProtocolType    `json:"protocol"`
@@ -109,7 +109,7 @@ type MountPoint struct {
 	IsActive   bool            `json:"isActive"`
 }
 
-// TransferTask 传输任务
+// TransferTask 传输任务.
 type TransferTask struct {
 	ID          string       `json:"id"`
 	SrcPath     string       `json:"srcPath"`
@@ -125,7 +125,7 @@ type TransferTask struct {
 	Speed       int64        `json:"speed"` // bytes/sec
 }
 
-// RateLimiter 速率限制器
+// RateLimiter 速率限制器.
 type RateLimiter struct {
 	mu       sync.Mutex
 	limiters map[ProtocolType]*tokenBucket
@@ -138,7 +138,7 @@ type tokenBucket struct {
 	lastTime time.Time
 }
 
-// NewUnifiedFileSystem 创建统一文件系统
+// NewUnifiedFileSystem 创建统一文件系统.
 func NewUnifiedFileSystem() *UnifiedFileSystem {
 	fs := &UnifiedFileSystem{
 		adapters:    make(map[ProtocolType]ProtocolAdapter),
@@ -160,14 +160,14 @@ func NewUnifiedFileSystem() *UnifiedFileSystem {
 	return fs
 }
 
-// RegisterAdapter 注册协议适配器
+// RegisterAdapter 注册协议适配器.
 func (fs *UnifiedFileSystem) RegisterAdapter(protocol ProtocolType, adapter ProtocolAdapter) {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 	fs.adapters[protocol] = adapter
 }
 
-// Mount 挂载远程路径
+// Mount 挂载远程路径.
 func (fs *UnifiedFileSystem) Mount(mountPoint string, config *ProtocolConfig) error {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
@@ -205,7 +205,7 @@ func (fs *UnifiedFileSystem) Mount(mountPoint string, config *ProtocolConfig) er
 	return nil
 }
 
-// Unmount 卸载路径
+// Unmount 卸载路径.
 func (fs *UnifiedFileSystem) Unmount(mountPoint string) error {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
@@ -225,7 +225,7 @@ func (fs *UnifiedFileSystem) Unmount(mountPoint string) error {
 	return nil
 }
 
-// Stat 获取文件信息
+// Stat 获取文件信息.
 func (fs *UnifiedFileSystem) Stat(ctx context.Context, path string) (*FileInfo, error) {
 	fs.mu.RLock()
 	adapter, mountPath, protocol := fs.resolvePath(path)
@@ -244,7 +244,7 @@ func (fs *UnifiedFileSystem) Stat(ctx context.Context, path string) (*FileInfo, 
 	return info, nil
 }
 
-// ReadDir 读取目录
+// ReadDir 读取目录.
 func (fs *UnifiedFileSystem) ReadDir(ctx context.Context, path string) ([]*FileInfo, error) {
 	fs.mu.RLock()
 	adapter, mountPath, protocol := fs.resolvePath(path)
@@ -265,7 +265,7 @@ func (fs *UnifiedFileSystem) ReadDir(ctx context.Context, path string) ([]*FileI
 	return entries, nil
 }
 
-// ReadFile 读取文件
+// ReadFile 读取文件.
 func (fs *UnifiedFileSystem) ReadFile(ctx context.Context, path string) (io.ReadCloser, error) {
 	fs.mu.RLock()
 	adapter, mountPath, _ := fs.resolvePath(path)
@@ -278,7 +278,7 @@ func (fs *UnifiedFileSystem) ReadFile(ctx context.Context, path string) (io.Read
 	return adapter.Read(ctx, mountPath)
 }
 
-// WriteFile 写入文件
+// WriteFile 写入文件.
 func (fs *UnifiedFileSystem) WriteFile(ctx context.Context, path string, reader io.Reader, size int64) error {
 	fs.mu.RLock()
 	adapter, mountPath, _ := fs.resolvePath(path)
@@ -291,7 +291,7 @@ func (fs *UnifiedFileSystem) WriteFile(ctx context.Context, path string, reader 
 	return adapter.Write(ctx, mountPath, reader, size)
 }
 
-// Delete 删除文件
+// Delete 删除文件.
 func (fs *UnifiedFileSystem) Delete(ctx context.Context, path string) error {
 	fs.mu.RLock()
 	adapter, mountPath, _ := fs.resolvePath(path)
@@ -304,7 +304,7 @@ func (fs *UnifiedFileSystem) Delete(ctx context.Context, path string) error {
 	return adapter.Delete(ctx, mountPath)
 }
 
-// Mkdir 创建目录
+// Mkdir 创建目录.
 func (fs *UnifiedFileSystem) Mkdir(ctx context.Context, path string) error {
 	fs.mu.RLock()
 	adapter, mountPath, _ := fs.resolvePath(path)
@@ -317,7 +317,7 @@ func (fs *UnifiedFileSystem) Mkdir(ctx context.Context, path string) error {
 	return adapter.Mkdir(ctx, mountPath)
 }
 
-// Rename 重命名
+// Rename 重命名.
 func (fs *UnifiedFileSystem) Rename(ctx context.Context, oldPath, newPath string) error {
 	fs.mu.RLock()
 	adapterOld, mountOld, _ := fs.resolvePath(oldPath)
@@ -331,7 +331,7 @@ func (fs *UnifiedFileSystem) Rename(ctx context.Context, oldPath, newPath string
 	return adapterOld.Rename(ctx, mountOld, mountNew)
 }
 
-// Copy 跨协议复制
+// Copy 跨协议复制.
 func (fs *UnifiedFileSystem) Copy(ctx context.Context, srcPath, dstPath string) (*TransferTask, error) {
 	fs.mu.RLock()
 	srcAdapter, srcMount, srcProtocol := fs.resolvePath(srcPath)
@@ -409,7 +409,7 @@ func (fs *UnifiedFileSystem) Copy(ctx context.Context, srcPath, dstPath string) 
 	return task, nil
 }
 
-// GetTransfer 获取传输任务状态
+// GetTransfer 获取传输任务状态.
 func (fs *UnifiedFileSystem) GetTransfer(taskID string) (*TransferTask, bool) {
 	fs.mu.RLock()
 	defer fs.mu.RUnlock()
@@ -418,7 +418,7 @@ func (fs *UnifiedFileSystem) GetTransfer(taskID string) (*TransferTask, bool) {
 	return task, exists
 }
 
-// ListMounts 列出挂载点
+// ListMounts 列出挂载点.
 func (fs *UnifiedFileSystem) ListMounts() []*MountPoint {
 	fs.mu.RLock()
 	defer fs.mu.RUnlock()
@@ -430,7 +430,7 @@ func (fs *UnifiedFileSystem) ListMounts() []*MountPoint {
 	return mounts
 }
 
-// GetSupportedProtocols 获取支持的协议列表
+// GetSupportedProtocols 获取支持的协议列表.
 func (fs *UnifiedFileSystem) GetSupportedProtocols() []ProtocolType {
 	fs.mu.RLock()
 	defer fs.mu.RUnlock()
@@ -442,7 +442,7 @@ func (fs *UnifiedFileSystem) GetSupportedProtocols() []ProtocolType {
 	return protocols
 }
 
-// resolvePath 解析路径到协议适配器
+// resolvePath 解析路径到协议适配器.
 func (fs *UnifiedFileSystem) resolvePath(path string) (ProtocolAdapter, string, ProtocolType) {
 	// 匹配最长前缀
 	var bestMatch *MountPoint
@@ -480,7 +480,7 @@ func (fs *UnifiedFileSystem) resolvePath(path string) (ProtocolAdapter, string, 
 	return adapter, remotePath, bestMatch.Protocol
 }
 
-// progressReader 带进度回调的 reader
+// progressReader 带进度回调的 reader.
 type progressReader struct {
 	reader io.Reader
 	onRead func(int)
@@ -496,7 +496,7 @@ func (pr *progressReader) Read(p []byte) (int, error) {
 
 // ---- 协议适配器实现 ----
 
-// LocalAdapter 本地文件系统适配器
+// LocalAdapter 本地文件系统适配器.
 type LocalAdapter struct {
 	connected bool
 }
@@ -550,7 +550,7 @@ func (a *LocalAdapter) GetStatus() ProtocolStatus {
 	return StatusInactive
 }
 
-// SMBAdapter SMB 协议适配器（桩实现）
+// SMBAdapter SMB 协议适配器（桩实现）.
 type SMBAdapter struct{ connected bool }
 
 func (a *SMBAdapter) Connect(_ context.Context, _ *ProtocolConfig) error {
@@ -589,7 +589,7 @@ func (a *SMBAdapter) GetStatus() ProtocolStatus {
 	return StatusInactive
 }
 
-// NFSAdapter NFS 协议适配器（桩实现）
+// NFSAdapter NFS 协议适配器（桩实现）.
 type NFSAdapter struct{ connected bool }
 
 func (a *NFSAdapter) Connect(_ context.Context, _ *ProtocolConfig) error {
@@ -628,7 +628,7 @@ func (a *NFSAdapter) GetStatus() ProtocolStatus {
 	return StatusInactive
 }
 
-// WebDAVAdapter WebDAV 协议适配器（桩实现）
+// WebDAVAdapter WebDAV 协议适配器（桩实现）.
 type WebDAVAdapter struct{ connected bool }
 
 func (a *WebDAVAdapter) Connect(_ context.Context, _ *ProtocolConfig) error {
@@ -667,7 +667,7 @@ func (a *WebDAVAdapter) GetStatus() ProtocolStatus {
 	return StatusInactive
 }
 
-// S3Adapter S3 协议适配器（桩实现）
+// S3Adapter S3 协议适配器（桩实现）.
 type S3Adapter struct{ connected bool }
 
 func (a *S3Adapter) Connect(_ context.Context, _ *ProtocolConfig) error {

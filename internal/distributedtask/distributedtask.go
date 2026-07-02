@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -24,7 +24,7 @@ const (
 	TaskTimeout   TaskStatus = "timeout"
 )
 
-// TaskPriority 任务优先级
+// TaskPriority 任务优先级.
 type TaskPriority int
 
 const (
@@ -34,7 +34,7 @@ const (
 	PriorityUrgent TaskPriority = 10
 )
 
-// TaskType 任务类型
+// TaskType 任务类型.
 type TaskType string
 
 const (
@@ -51,7 +51,7 @@ const (
 	TaskTypeCustom    TaskType = "custom"
 )
 
-// NodeStatus 节点状态
+// NodeStatus 节点状态.
 type NodeStatus string
 
 const (
@@ -61,7 +61,7 @@ const (
 	NodeDraining NodeStatus = "draining"
 )
 
-// WorkerNode 工作节点
+// WorkerNode 工作节点.
 type WorkerNode struct {
 	ID             string            `json:"id"`
 	Name           string            `json:"name"`
@@ -79,7 +79,7 @@ type WorkerNode struct {
 	FailedTasks    int64             `json:"failedTasks"`
 }
 
-// Task 任务定义
+// Task 任务定义.
 type Task struct {
 	ID           string                 `json:"id"`
 	Name         string                 `json:"name"`
@@ -102,7 +102,7 @@ type Task struct {
 	Tags         map[string]string      `json:"tags,omitempty"`
 }
 
-// TaskResult 任务结果
+// TaskResult 任务结果.
 type TaskResult struct {
 	TaskID    string      `json:"taskId"`
 	Status    TaskStatus  `json:"status"`
@@ -113,7 +113,7 @@ type TaskResult struct {
 	Timestamp time.Time   `json:"timestamp"`
 }
 
-// Scheduler 调度器
+// Scheduler 调度器.
 type Scheduler struct {
 	mu        sync.RWMutex
 	tasks     map[string]*Task
@@ -125,7 +125,7 @@ type Scheduler struct {
 	quit      chan struct{}
 }
 
-// ScheduleStrategy 调度策略
+// ScheduleStrategy 调度策略.
 type ScheduleStrategy string
 
 const (
@@ -135,7 +135,7 @@ const (
 	StrategyAffinity   ScheduleStrategy = "affinity" // 基于标签亲和
 )
 
-// NewScheduler 创建调度器
+// NewScheduler 创建调度器.
 func NewScheduler(strategy ScheduleStrategy) *Scheduler {
 	if strategy == "" {
 		strategy = StrategyLeastLoad
@@ -150,7 +150,7 @@ func NewScheduler(strategy ScheduleStrategy) *Scheduler {
 	}
 }
 
-// RegisterNode 注册工作节点
+// RegisterNode 注册工作节点.
 func (s *Scheduler) RegisterNode(node WorkerNode) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -165,7 +165,7 @@ func (s *Scheduler) RegisterNode(node WorkerNode) error {
 	return nil
 }
 
-// RemoveNode 移除工作节点
+// RemoveNode 移除工作节点.
 func (s *Scheduler) RemoveNode(nodeID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -177,7 +177,7 @@ func (s *Scheduler) RemoveNode(nodeID string) error {
 	return nil
 }
 
-// Heartbeat 节点心跳
+// Heartbeat 节点心跳.
 func (s *Scheduler) Heartbeat(nodeID string, runningTasks int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -196,7 +196,7 @@ func (s *Scheduler) Heartbeat(nodeID string, runningTasks int) error {
 	return nil
 }
 
-// SubmitTask 提交任务
+// SubmitTask 提交任务.
 func (s *Scheduler) SubmitTask(task Task) (*Task, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -227,7 +227,7 @@ func (s *Scheduler) SubmitTask(task Task) (*Task, error) {
 	return &task, nil
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (s *Scheduler) CancelTask(taskID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -243,7 +243,7 @@ func (s *Scheduler) CancelTask(taskID string) error {
 	return nil
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (s *Scheduler) GetTask(taskID string) (*Task, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -255,7 +255,7 @@ func (s *Scheduler) GetTask(taskID string) (*Task, error) {
 	return task, nil
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (s *Scheduler) ListTasks(status TaskStatus, limit int) []Task {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -272,7 +272,7 @@ func (s *Scheduler) ListTasks(status TaskStatus, limit int) []Task {
 	return tasks
 }
 
-// ListNodes 列出节点
+// ListNodes 列出节点.
 func (s *Scheduler) ListNodes() []WorkerNode {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -284,7 +284,7 @@ func (s *Scheduler) ListNodes() []WorkerNode {
 	return nodes
 }
 
-// selectNode 选择节点
+// selectNode 选择节点.
 func (s *Scheduler) selectNode(task *Task) *WorkerNode {
 	switch s.strategy {
 	case StrategyRoundRobin:
@@ -346,7 +346,7 @@ func (s *Scheduler) selectByAffinity(task *Task) *WorkerNode {
 	return s.selectLeastLoad()
 }
 
-// CompleteTask 完成任务
+// CompleteTask 完成任务.
 func (s *Scheduler) CompleteTask(taskID string, result interface{}) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -380,7 +380,7 @@ func (s *Scheduler) CompleteTask(taskID string, result interface{}) error {
 	return nil
 }
 
-// FailTask 标记任务失败
+// FailTask 标记任务失败.
 func (s *Scheduler) FailTask(taskID string, errMsg string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -415,7 +415,7 @@ func (s *Scheduler) FailTask(taskID string, errMsg string) error {
 	return nil
 }
 
-// GetStats 获取调度器统计
+// GetStats 获取调度器统计.
 type SchedulerStats struct {
 	TotalTasks     int              `json:"totalTasks"`
 	QueuedTasks    int              `json:"queuedTasks"`
@@ -458,7 +458,7 @@ func (s *Scheduler) GetStats() SchedulerStats {
 	return stats
 }
 
-// RegisterRoutes 注册 HTTP 路由
+// RegisterRoutes 注册 HTTP 路由.
 func (s *Scheduler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/tasks", s.handleTasks)
 	mux.HandleFunc("/api/v1/tasks/submit", s.handleSubmit)

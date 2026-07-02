@@ -14,7 +14,7 @@ import (
 
 // ========== 核心类型 ==========
 
-// AssetType 资产类型
+// AssetType 资产类型.
 type AssetType string
 
 const (
@@ -29,7 +29,7 @@ const (
 	AssetTypeOther       AssetType = "other"
 )
 
-// SecurityLevel 安全级别
+// SecurityLevel 安全级别.
 type SecurityLevel string
 
 const (
@@ -39,7 +39,7 @@ const (
 	SecurityTopSecret SecurityLevel = "top_secret"
 )
 
-// AssetStatus 资产状态
+// AssetStatus 资产状态.
 type AssetStatus string
 
 const (
@@ -49,7 +49,7 @@ const (
 	AssetStatusRevoked  AssetStatus = "revoked"
 )
 
-// AccessLevel 访问级别
+// AccessLevel 访问级别.
 type AccessLevel string
 
 const (
@@ -60,7 +60,7 @@ const (
 	AccessOwner AccessLevel = "owner"
 )
 
-// DigitalAsset 数字资产
+// DigitalAsset 数字资产.
 type DigitalAsset struct {
 	ID               string            `json:"id"`
 	Name             string            `json:"name"`
@@ -85,7 +85,7 @@ type DigitalAsset struct {
 	PreviousVersions []string          `json:"previous_versions,omitempty"`
 }
 
-// DRMInfo 数字版权信息
+// DRMInfo 数字版权信息.
 type DRMInfo struct {
 	LicenseType    string     `json:"license_type"`
 	LicenseHolder  string     `json:"license_holder"`
@@ -96,7 +96,7 @@ type DRMInfo struct {
 	IsRevocable    bool       `json:"is_revocable"`
 }
 
-// AccessPolicy 访问策略
+// AccessPolicy 访问策略.
 type AccessPolicy struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -111,14 +111,14 @@ type AccessPolicy struct {
 	TimeWindow  *TimeWindow `json:"time_window,omitempty"`
 }
 
-// Condition 访问条件
+// Condition 访问条件.
 type Condition struct {
 	Type     string `json:"type"`
 	Operator string `json:"operator"`
 	Value    string `json:"value"`
 }
 
-// TimeWindow 时间窗口
+// TimeWindow 时间窗口.
 type TimeWindow struct {
 	Start    string   `json:"start"` // HH:MM
 	End      string   `json:"end"`   // HH:MM
@@ -126,7 +126,7 @@ type TimeWindow struct {
 	Days     []string `json:"days"` // mon, tue, wed, thu, fri, sat, sun
 }
 
-// AuditLog 审计日志
+// AuditLog 审计日志.
 type AuditLog struct {
 	ID        string    `json:"id"`
 	AssetID   string    `json:"asset_id"`
@@ -139,7 +139,7 @@ type AuditLog struct {
 	Success   bool      `json:"success"`
 }
 
-// BackupJob 备份任务
+// BackupJob 备份任务.
 type BackupJob struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
@@ -153,7 +153,7 @@ type BackupJob struct {
 	Size        int64      `json:"size"`
 }
 
-// Manager 数字资产管理器
+// Manager 数字资产管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	assets    map[string]*DigitalAsset
@@ -165,7 +165,7 @@ type Manager struct {
 	retention time.Duration
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(masterKeyHex string) (*Manager, error) {
 	masterKey, err := hex.DecodeString(masterKeyHex)
 	if err != nil {
@@ -183,7 +183,7 @@ func NewManager(masterKeyHex string) (*Manager, error) {
 	}, nil
 }
 
-// StoreAsset 存储资产
+// StoreAsset 存储资产.
 func (m *Manager) StoreAsset(asset *DigitalAsset) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -216,7 +216,7 @@ func (m *Manager) StoreAsset(asset *DigitalAsset) error {
 	return nil
 }
 
-// GetAsset 获取资产
+// GetAsset 获取资产.
 func (m *Manager) GetAsset(assetID string, userID string) (*DigitalAsset, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -241,7 +241,7 @@ func (m *Manager) GetAsset(assetID string, userID string) (*DigitalAsset, error)
 	return asset, nil
 }
 
-// SetAccessPolicy 设置访问策略
+// SetAccessPolicy 设置访问策略.
 func (m *Manager) SetAccessPolicy(policy *AccessPolicy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -250,7 +250,7 @@ func (m *Manager) SetAccessPolicy(policy *AccessPolicy) error {
 	return nil
 }
 
-// ArchiveAsset 归档资产
+// ArchiveAsset 归档资产.
 func (m *Manager) ArchiveAsset(assetID string, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -272,7 +272,7 @@ func (m *Manager) ArchiveAsset(assetID string, userID string) error {
 	return nil
 }
 
-// CreateBackup 创建备份
+// CreateBackup 创建备份.
 func (m *Manager) CreateBackup(job *BackupJob) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -282,7 +282,7 @@ func (m *Manager) CreateBackup(job *BackupJob) error {
 	return nil
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (m *Manager) GetAuditLog(assetID string, limit int) []AuditLog {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -297,7 +297,7 @@ func (m *Manager) GetAuditLog(assetID string, limit int) []AuditLog {
 	return logs
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -314,9 +314,10 @@ func (m *Manager) GetStats() map[string]interface{} {
 
 	levels := stats["security_levels"].(map[string]int)
 	for _, a := range m.assets {
-		if a.Status == AssetStatusActive {
+		switch a.Status {
+		case AssetStatusActive:
 			stats["active_assets"] = stats["active_assets"].(int) + 1
-		} else if a.Status == AssetStatusArchived {
+		case AssetStatusArchived:
 			stats["archived_assets"] = stats["archived_assets"].(int) + 1
 		}
 		levels[string(a.SecurityLevel)]++
@@ -362,7 +363,7 @@ func (m *Manager) addAuditLog(assetID string, userID string, action string, deta
 	})
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *Manager) Close() error {
 	return nil
 }

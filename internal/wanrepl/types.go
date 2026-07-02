@@ -11,7 +11,7 @@ import (
 // 配置类型
 // ============================================================
 
-// ReplConfig 复制引擎配置
+// ReplConfig 复制引擎配置.
 type ReplConfig struct {
 	DataDir         string        `json:"data_dir"`          // 数据目录
 	MaxConcurrent   int           `json:"max_concurrent"`    // 最大并发任务数，默认 4
@@ -23,7 +23,7 @@ type ReplConfig struct {
 	LogLevel        string        `json:"log_level"`
 }
 
-// DefaultReplConfig 默认配置
+// DefaultReplConfig 默认配置.
 func DefaultReplConfig() ReplConfig {
 	return ReplConfig{
 		DataDir:         "/var/lib/nas-os/wanrepl",
@@ -41,7 +41,7 @@ func DefaultReplConfig() ReplConfig {
 // 站点类型
 // ============================================================
 
-// SiteStatus 远程站点状态
+// SiteStatus 远程站点状态.
 type SiteStatus string
 
 const (
@@ -51,7 +51,7 @@ const (
 	SiteStatusUnknown  SiteStatus = "unknown"
 )
 
-// RemoteSite 远程站点
+// RemoteSite 远程站点.
 type RemoteSite struct {
 	ID        string     `json:"id"`        // 站点唯一标识
 	Name      string     `json:"name"`      // 站点名称
@@ -69,7 +69,7 @@ type RemoteSite struct {
 // 复制任务类型
 // ============================================================
 
-// SyncStrategy 同步策略
+// SyncStrategy 同步策略.
 type SyncStrategy string
 
 const (
@@ -78,7 +78,7 @@ const (
 	StrategyMirror      SyncStrategy = "mirror"      // 镜像同步
 )
 
-// JobStatus 任务状态
+// JobStatus 任务状态.
 type JobStatus string
 
 const (
@@ -90,7 +90,7 @@ const (
 	JobStatusCancelled JobStatus = "cancelled"
 )
 
-// CompressionType 压缩类型
+// CompressionType 压缩类型.
 type CompressionType string
 
 const (
@@ -100,7 +100,7 @@ const (
 	CompressionGzip CompressionType = "gzip"
 )
 
-// EncryptionType 加密类型
+// EncryptionType 加密类型.
 type EncryptionType string
 
 const (
@@ -108,7 +108,7 @@ const (
 	EncryptionTLS  EncryptionType = "tls" // TLS 1.3
 )
 
-// ReplicationJob 复制任务
+// ReplicationJob 复制任务.
 type ReplicationJob struct {
 	ID              string          `json:"id"`                         // 任务唯一标识
 	Source          string          `json:"source"`                     // 源路径
@@ -131,7 +131,7 @@ type ReplicationJob struct {
 // 同步状态类型
 // ============================================================
 
-// SyncState 同步状态
+// SyncState 同步状态.
 type SyncState struct {
 	JobID            string        `json:"job_id"`
 	Progress         float64       `json:"progress"`          // 0.0 - 1.0
@@ -153,7 +153,7 @@ type SyncState struct {
 // 冲突记录类型
 // ============================================================
 
-// ConflictResolution 冲突解决策略
+// ConflictResolution 冲突解决策略.
 type ConflictResolution string
 
 const (
@@ -164,7 +164,7 @@ const (
 	ConflictRename     ConflictResolution = "rename" // 重命名保留两者
 )
 
-// ConflictRecord 冲突记录
+// ConflictRecord 冲突记录.
 type ConflictRecord struct {
 	ID            string             `json:"id"`
 	JobID         string             `json:"job_id"`
@@ -183,7 +183,7 @@ type ConflictRecord struct {
 // 传输统计类型
 // ============================================================
 
-// TransferStats 传输统计
+// TransferStats 传输统计.
 type TransferStats struct {
 	JobID             string        `json:"job_id"`
 	TotalBytes        int64         `json:"total_bytes"`        // 总传输字节
@@ -206,7 +206,7 @@ type TransferStats struct {
 // 块级变更追踪类型
 // ============================================================
 
-// BlockChange 块级变更记录
+// BlockChange 块级变更记录.
 type BlockChange struct {
 	File     string    `json:"file"`     // 文件路径
 	Offset   int64     `json:"offset"`   // 块偏移
@@ -215,7 +215,7 @@ type BlockChange struct {
 	ModTime  time.Time `json:"mod_time"` // 修改时间
 }
 
-// ChangeSet 变更集
+// ChangeSet 变更集.
 type ChangeSet struct {
 	JobID    string        `json:"job_id"`
 	Changes  []BlockChange `json:"changes"`
@@ -227,7 +227,7 @@ type ChangeSet struct {
 // 内部引擎结构
 // ============================================================
 
-// replicationJobState 内部任务运行状态
+// replicationJobState 内部任务运行状态.
 type replicationJobState struct {
 	mu        sync.Mutex
 	state     SyncState
@@ -237,7 +237,7 @@ type replicationJobState struct {
 	conflicts []ConflictRecord
 }
 
-// ReplicationEngine 复制引擎
+// ReplicationEngine 复制引擎.
 type ReplicationEngine struct {
 	mu      sync.RWMutex
 	config  ReplConfig

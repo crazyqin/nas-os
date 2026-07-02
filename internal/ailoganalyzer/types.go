@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// 日志级别常量
+// 日志级别常量.
 const (
 	LevelDebug = "debug"
 	LevelInfo  = "info"
@@ -15,7 +15,7 @@ const (
 	LevelFatal = "fatal"
 )
 
-// 告警级别常量
+// 告警级别常量.
 const (
 	AlertLevelLow      = "low"
 	AlertLevelMedium   = "medium"
@@ -23,7 +23,7 @@ const (
 	AlertLevelCritical = "critical"
 )
 
-// 告警状态常量
+// 告警状态常量.
 const (
 	AlertStatusActive    = "active"
 	AlertStatusResolved  = "resolved"
@@ -31,19 +31,19 @@ const (
 	AlertStatusEscalated = "escalated"
 )
 
-// 错误定义
+// 错误定义.
 var (
-	// ErrLogNotFound 日志不存在
+	// ErrLogNotFound 日志不存在.
 	ErrLogNotFound = errors.New("log not found")
-	// ErrRuleNotFound 规则不存在
+	// ErrRuleNotFound 规则不存在.
 	ErrRuleNotFound = errors.New("rule not found")
-	// ErrAlertNotFound 告警不存在
+	// ErrAlertNotFound 告警不存在.
 	ErrAlertNotFound = errors.New("alert not found")
-	// ErrStreamNotFound 流不存在
+	// ErrStreamNotFound 流不存在.
 	ErrStreamNotFound = errors.New("stream not found")
-	// ErrInvalidQuery 无效查询
+	// ErrInvalidQuery 无效查询.
 	ErrInvalidQuery = errors.New("invalid query")
-	// ErrStreamAlreadyRunning 流已在运行
+	// ErrStreamAlreadyRunning 流已在运行.
 	ErrStreamAlreadyRunning = errors.New("stream already running")
 )
 

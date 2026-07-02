@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-// WakePriority 唤醒优先级
+// WakePriority 唤醒优先级.
 type WakePriority int
 
 const (
@@ -17,13 +17,13 @@ const (
 
 // Note: WakeRequest is defined in disk_wake_trigger.go
 
-// WakePriorityQueue 唤醒优先级队列
+// WakePriorityQueue 唤醒优先级队列.
 type WakePriorityQueue struct {
 	items []*WakeRequest
 	mu    sync.Mutex
 }
 
-// NewWakePriorityQueue 创建新的唤醒优先级队列
+// NewWakePriorityQueue 创建新的唤醒优先级队列.
 func NewWakePriorityQueue() *WakePriorityQueue {
 	pq := &WakePriorityQueue{
 		items: make([]*WakeRequest, 0),
@@ -32,14 +32,14 @@ func NewWakePriorityQueue() *WakePriorityQueue {
 	return pq
 }
 
-// Push 添加唤醒请求到队列
+// Push 添加唤醒请求到队列.
 func (pq *WakePriorityQueue) AddRequest(req *WakeRequest) {
 	pq.mu.Lock()
 	defer pq.mu.Unlock()
 	heap.Push(pq, req)
 }
 
-// Pop 从队列取出最高优先级请求
+// Pop 从队列取出最高优先级请求.
 func (pq *WakePriorityQueue) PopRequest() *WakeRequest {
 	pq.mu.Lock()
 	defer pq.mu.Unlock()
@@ -49,7 +49,7 @@ func (pq *WakePriorityQueue) PopRequest() *WakeRequest {
 	return heap.Pop(pq).(*WakeRequest)
 }
 
-// Peek 查看队首元素但不移除
+// Peek 查看队首元素但不移除.
 func (pq *WakePriorityQueue) Peek() *WakeRequest {
 	pq.mu.Lock()
 	defer pq.mu.Unlock()
@@ -59,19 +59,19 @@ func (pq *WakePriorityQueue) Peek() *WakeRequest {
 	return pq.items[0]
 }
 
-// Len 返回队列长度
+// Len 返回队列长度.
 func (pq *WakePriorityQueue) Len() int {
 	return len(pq.items)
 }
 
-// Clear 清空队列
+// Clear 清空队列.
 func (pq *WakePriorityQueue) Clear() {
 	pq.mu.Lock()
 	defer pq.mu.Unlock()
 	pq.items = make([]*WakeRequest, 0)
 }
 
-// RemoveByID 根据ID移除请求
+// RemoveByID 根据ID移除请求.
 func (pq *WakePriorityQueue) RemoveByID(id string) bool {
 	pq.mu.Lock()
 	defer pq.mu.Unlock()
@@ -84,7 +84,7 @@ func (pq *WakePriorityQueue) RemoveByID(id string) bool {
 	return false
 }
 
-// GetByDiskPath 获取指定磁盘的请求列表
+// GetByDiskPath 获取指定磁盘的请求列表.
 func (pq *WakePriorityQueue) GetByDiskPath(diskPath string) []*WakeRequest {
 	pq.mu.Lock()
 	defer pq.mu.Unlock()
@@ -99,26 +99,26 @@ func (pq *WakePriorityQueue) GetByDiskPath(diskPath string) []*WakeRequest {
 
 // ============== heap.Interface 实现 ==============
 
-// Len 实现 heap.Interface
+// Len 实现 heap.Interface.
 func (pq *WakePriorityQueue) Less(i, j int) bool {
 	return pq.items[i].Priority > pq.items[j].Priority
 }
 
-// Swap 实现 heap.Interface
+// Swap 实现 heap.Interface.
 func (pq *WakePriorityQueue) Swap(i, j int) {
 	pq.items[i], pq.items[j] = pq.items[j], pq.items[i]
 	pq.items[i].index = i
 	pq.items[j].index = j
 }
 
-// Push 实现 heap.Interface (接收any类型)
+// Push 实现 heap.Interface (接收any类型).
 func (pq *WakePriorityQueue) Push(x any) {
 	item := x.(*WakeRequest)
 	item.index = len(pq.items)
 	pq.items = append(pq.items, item)
 }
 
-// Pop 实现 heap.Interface (返回any类型)
+// Pop 实现 heap.Interface (返回any类型).
 func (pq *WakePriorityQueue) Pop() any {
 	old := pq.items
 	n := len(old)

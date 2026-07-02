@@ -6,7 +6,7 @@ import (
 	"sync/atomic"
 )
 
-// StrategyType 负载均衡策略类型
+// StrategyType 负载均衡策略类型.
 type StrategyType string
 
 const (
@@ -15,14 +15,14 @@ const (
 	StrategyIPHash     StrategyType = "iphash"     // IP哈希
 )
 
-// NodeWeight 节点权重配置
+// NodeWeight 节点权重配置.
 type NodeWeight struct {
 	NodeID string
 	Weight int // 1-100，默认50
 }
 
 // SMBClientLoadBalancer SMB客户端负载均衡器
-// Phase3: 与StatefulFailoverManager集成，提供多策略节点选择
+// Phase3: 与StatefulFailoverManager集成，提供多策略节点选择.
 type SMBClientLoadBalancer struct {
 	manager  *StatefulFailoverManager
 	strategy StrategyType
@@ -33,7 +33,7 @@ type SMBClientLoadBalancer struct {
 	rrIndex  uint64            // round-robin atomic counter
 }
 
-// NewSMBClientLoadBalancer 创建负载均衡器
+// NewSMBClientLoadBalancer 创建负载均衡器.
 func NewSMBClientLoadBalancer(manager *StatefulFailoverManager, strategy StrategyType) *SMBClientLoadBalancer {
 	lb := &SMBClientLoadBalancer{
 		manager:  manager,
@@ -51,7 +51,7 @@ func NewSMBClientLoadBalancer(manager *StatefulFailoverManager, strategy Strateg
 	return lb
 }
 
-// ensureNode 确保节点在权重表和计数器中存在
+// ensureNode 确保节点在权重表和计数器中存在.
 func (lb *SMBClientLoadBalancer) ensureNode(nodeID string) {
 	if _, ok := lb.weights[nodeID]; !ok {
 		lb.weights[nodeID] = 50 // 默认权重
@@ -61,7 +61,7 @@ func (lb *SMBClientLoadBalancer) ensureNode(nodeID string) {
 	}
 }
 
-// SetWeight 设置节点权重
+// SetWeight 设置节点权重.
 func (lb *SMBClientLoadBalancer) SetWeight(nodeID string, weight int) {
 	lb.mu.Lock()
 	defer lb.mu.Unlock()
@@ -74,7 +74,7 @@ func (lb *SMBClientLoadBalancer) SetWeight(nodeID string, weight int) {
 	lb.weights[nodeID] = weight
 }
 
-// GetWeight 获取节点权重
+// GetWeight 获取节点权重.
 func (lb *SMBClientLoadBalancer) GetWeight(nodeID string) int {
 	lb.mu.RLock()
 	defer lb.mu.RUnlock()
@@ -84,14 +84,14 @@ func (lb *SMBClientLoadBalancer) GetWeight(nodeID string) int {
 	return 50
 }
 
-// SetStrategy 切换负载均衡策略
+// SetStrategy 切换负载均衡策略.
 func (lb *SMBClientLoadBalancer) SetStrategy(strategy StrategyType) {
 	lb.mu.Lock()
 	defer lb.mu.Unlock()
 	lb.strategy = strategy
 }
 
-// GetStrategy 获取当前策略
+// GetStrategy 获取当前策略.
 func (lb *SMBClientLoadBalancer) GetStrategy() StrategyType {
 	lb.mu.RLock()
 	defer lb.mu.RUnlock()
@@ -99,7 +99,7 @@ func (lb *SMBClientLoadBalancer) GetStrategy() StrategyType {
 }
 
 // SelectNode 根据策略选择最佳节点
-// clientIP用于iphash策略，可以为空（其他策略不使用）
+// clientIP用于iphash策略，可以为空（其他策略不使用）.
 func (lb *SMBClientLoadBalancer) SelectNode(clientIP string) *FailoverNode {
 	lb.mu.RLock()
 	strategy := lb.strategy
@@ -125,7 +125,7 @@ func (lb *SMBClientLoadBalancer) SelectNode(clientIP string) *FailoverNode {
 	}
 }
 
-// selectRoundRobin 加权轮询选择
+// selectRoundRobin 加权轮询选择.
 func (lb *SMBClientLoadBalancer) selectRoundRobin(nodes []*FailoverNode) *FailoverNode {
 	lb.mu.RLock()
 	defer lb.mu.RUnlock()
@@ -149,7 +149,7 @@ func (lb *SMBClientLoadBalancer) selectRoundRobin(nodes []*FailoverNode) *Failov
 	return weighted[idx%uint64(len(weighted))]
 }
 
-// selectLeastConn 最少连接选择
+// selectLeastConn 最少连接选择.
 func (lb *SMBClientLoadBalancer) selectLeastConn(nodes []*FailoverNode) *FailoverNode {
 	lb.mu.RLock()
 	defer lb.mu.RUnlock()
@@ -177,7 +177,7 @@ func (lb *SMBClientLoadBalancer) selectLeastConn(nodes []*FailoverNode) *Failove
 	return best
 }
 
-// selectIPHash IP哈希选择（会话亲和性）
+// selectIPHash IP哈希选择（会话亲和性）.
 func (lb *SMBClientLoadBalancer) selectIPHash(nodes []*FailoverNode, clientIP string) *FailoverNode {
 	if clientIP == "" {
 		// 无IP时退化为轮询
@@ -209,7 +209,7 @@ func (lb *SMBClientLoadBalancer) selectIPHash(nodes []*FailoverNode, clientIP st
 	return weighted[hashVal%uint32(len(weighted))]
 }
 
-// getHealthyNodes 获取所有健康节点（包括本地节点）
+// getHealthyNodes 获取所有健康节点（包括本地节点）.
 func (lb *SMBClientLoadBalancer) getHealthyNodes() []*FailoverNode {
 	lb.manager.mu.RLock()
 	defer lb.manager.mu.RUnlock()
@@ -234,7 +234,7 @@ func (lb *SMBClientLoadBalancer) getHealthyNodes() []*FailoverNode {
 	return nodes
 }
 
-// IncrConn 增加节点连接计数
+// IncrConn 增加节点连接计数.
 func (lb *SMBClientLoadBalancer) IncrConn(nodeID string) {
 	lb.mu.RLock()
 	counter, ok := lb.counters[nodeID]
@@ -244,7 +244,7 @@ func (lb *SMBClientLoadBalancer) IncrConn(nodeID string) {
 	}
 }
 
-// DecrConn 减少节点连接计数
+// DecrConn 减少节点连接计数.
 func (lb *SMBClientLoadBalancer) DecrConn(nodeID string) {
 	lb.mu.RLock()
 	counter, ok := lb.counters[nodeID]
@@ -254,7 +254,7 @@ func (lb *SMBClientLoadBalancer) DecrConn(nodeID string) {
 	}
 }
 
-// GetConnCount 获取节点当前连接数
+// GetConnCount 获取节点当前连接数.
 func (lb *SMBClientLoadBalancer) GetConnCount(nodeID string) int64 {
 	lb.mu.RLock()
 	counter, ok := lb.counters[nodeID]
@@ -265,7 +265,7 @@ func (lb *SMBClientLoadBalancer) GetConnCount(nodeID string) int64 {
 	return atomic.LoadInt64(counter)
 }
 
-// DistributionStats 会话分布统计
+// DistributionStats 会话分布统计.
 type DistributionStats struct {
 	NodeID      string     `json:"node_id"`
 	Weight      int        `json:"weight"`
@@ -274,7 +274,7 @@ type DistributionStats struct {
 	Status      NodeStatus `json:"status"`
 }
 
-// GetDistributionStats 获取会话分布统计
+// GetDistributionStats 获取会话分布统计.
 func (lb *SMBClientLoadBalancer) GetDistributionStats() []DistributionStats {
 	lb.mu.RLock()
 	defer lb.mu.RUnlock()

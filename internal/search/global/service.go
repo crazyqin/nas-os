@@ -10,7 +10,7 @@ import (
 // Searcher 全局搜索服务
 // 对标: TrueNAS Electric Eel全局搜索、群晖Universal Search
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	Type    string    // 结果类型 (page/setting/file/log)
 	Title   string    // 标题
@@ -21,7 +21,7 @@ type SearchResult struct {
 	LastMod time.Time // 最后修改时间
 }
 
-// IndexItem 索引项
+// IndexItem 索引项.
 type IndexItem struct {
 	ID       string
 	Type     string
@@ -33,14 +33,14 @@ type IndexItem struct {
 }
 
 // GlobalSearchService 全局搜索服务
-// 使用Bleve索引引擎，需添加依赖: go get github.com/blevesearch/bleve/v2
+// 使用Bleve索引引擎，需添加依赖: go get github.com/blevesearch/bleve/v2.
 type GlobalSearchService struct {
 	indices   map[string]*IndexItem // 内存索引 (开发阶段)
 	mu        sync.RWMutex
 	indexPath string
 }
 
-// NewGlobalSearchService 创建全局搜索服务
+// NewGlobalSearchService 创建全局搜索服务.
 func NewGlobalSearchService(indexPath string) (*GlobalSearchService, error) {
 	// 开发阶段使用内存索引
 	// 生产环境集成Bleve
@@ -51,7 +51,7 @@ func NewGlobalSearchService(indexPath string) (*GlobalSearchService, error) {
 	}, nil
 }
 
-// Search 全局搜索
+// Search 全局搜索.
 func (s *GlobalSearchService) Search(ctx context.Context, query string, limit int) ([]SearchResult, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -83,7 +83,7 @@ func (s *GlobalSearchService) Search(ctx context.Context, query string, limit in
 	return results, nil
 }
 
-// SearchByType 按类型搜索
+// SearchByType 按类型搜索.
 func (s *GlobalSearchService) SearchByType(ctx context.Context, query string, types []string, limit int) ([]SearchResult, error) {
 	allResults, err := s.Search(ctx, query, limit*2)
 	if err != nil {
@@ -105,12 +105,12 @@ func (s *GlobalSearchService) SearchByType(ctx context.Context, query string, ty
 	return filtered, nil
 }
 
-// QuickSearch 快速搜索 (返回前10个匹配)
+// QuickSearch 快速搜索 (返回前10个匹配).
 func (s *GlobalSearchService) QuickSearch(ctx context.Context, query string) ([]SearchResult, error) {
 	return s.Search(ctx, query, 10)
 }
 
-// IndexPage 索引页面
+// IndexPage 索引页面.
 func (s *GlobalSearchService) IndexPage(ctx context.Context, id, title, path, content string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -127,7 +127,7 @@ func (s *GlobalSearchService) IndexPage(ctx context.Context, id, title, path, co
 	return nil
 }
 
-// IndexSetting 索索设置项
+// IndexSetting 索索设置项.
 func (s *GlobalSearchService) IndexSetting(ctx context.Context, id, title, path, description string, keywords []string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -145,7 +145,7 @@ func (s *GlobalSearchService) IndexSetting(ctx context.Context, id, title, path,
 	return nil
 }
 
-// IndexFile 索引文件
+// IndexFile 索引文件.
 func (s *GlobalSearchService) IndexFile(ctx context.Context, path, content string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -162,7 +162,7 @@ func (s *GlobalSearchService) IndexFile(ctx context.Context, path, content strin
 	return nil
 }
 
-// IndexLog 索引日志
+// IndexLog 索引日志.
 func (s *GlobalSearchService) IndexLog(ctx context.Context, id, content string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -179,7 +179,7 @@ func (s *GlobalSearchService) IndexLog(ctx context.Context, id, content string) 
 	return nil
 }
 
-// Delete 删除索引项
+// Delete 删除索引项.
 func (s *GlobalSearchService) Delete(ctx context.Context, id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -187,7 +187,7 @@ func (s *GlobalSearchService) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-// BatchIndex 批量索引
+// BatchIndex 批量索引.
 func (s *GlobalSearchService) BatchIndex(ctx context.Context, items []IndexItem) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -197,19 +197,19 @@ func (s *GlobalSearchService) BatchIndex(ctx context.Context, items []IndexItem)
 	return nil
 }
 
-// Stats 索索统计
+// Stats 索索统计.
 func (s *GlobalSearchService) Stats() (uint64, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return uint64(len(s.indices)), nil
 }
 
-// Close 关闭索引
+// Close 关闭索引.
 func (s *GlobalSearchService) Close() error {
 	return nil
 }
 
-// Suggestions 搜索建议 (自动补全)
+// Suggestions 搜索建议 (自动补全).
 func (s *GlobalSearchService) Suggestions(ctx context.Context, prefix string) []string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -250,14 +250,14 @@ func contains(list []string, item string) bool {
 	return false
 }
 
-// KeyboardShortcut 快捷键配置
+// KeyboardShortcut 快捷键配置.
 type KeyboardShortcut struct {
 	Key     string // Cmd/Ctrl + K
 	Action  string // open_search
 	Enabled bool
 }
 
-// DefaultShortcut 默认快捷键
+// DefaultShortcut 默认快捷键.
 func DefaultShortcut() KeyboardShortcut {
 	return KeyboardShortcut{
 		Key:     "Cmd/Ctrl+K",
@@ -266,7 +266,7 @@ func DefaultShortcut() KeyboardShortcut {
 	}
 }
 
-// SearchScope 搜索范围配置
+// SearchScope 搜索范围配置.
 type SearchScope struct {
 	Pages    bool
 	Settings bool
@@ -274,7 +274,7 @@ type SearchScope struct {
 	Logs     bool
 }
 
-// DefaultScope 默认搜索范围
+// DefaultScope 默认搜索范围.
 func DefaultScope() SearchScope {
 	return SearchScope{
 		Pages:    true,

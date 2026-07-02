@@ -15,7 +15,7 @@ import (
 
 // ========== 核心类型 ==========
 
-// DiagnosticReport 诊断报告
+// DiagnosticReport 诊断报告.
 type DiagnosticReport struct {
 	ID          string        `json:"id"`
 	Timestamp   time.Time     `json:"timestamp"`
@@ -31,7 +31,7 @@ type DiagnosticReport struct {
 	Summary     string        `json:"summary"`
 }
 
-// CPUDiag CPU诊断信息
+// CPUDiag CPU诊断信息.
 type CPUDiag struct {
 	Usage       float64 `json:"usage"`       // 使用率 (%)
 	LoadAvg1    float64 `json:"loadAvg1"`    // 1分钟负载
@@ -43,7 +43,7 @@ type CPUDiag struct {
 	Status      string  `json:"status"`
 }
 
-// MemoryDiag 内存诊断信息
+// MemoryDiag 内存诊断信息.
 type MemoryDiag struct {
 	Total       uint64  `json:"total"`       // 总量 (字节)
 	Used        uint64  `json:"used"`        // 已用
@@ -55,7 +55,7 @@ type MemoryDiag struct {
 	Status      string  `json:"status"`
 }
 
-// DiskDiag 磁盘诊断信息
+// DiskDiag 磁盘诊断信息.
 type DiskDiag struct {
 	Partitions  []PartitionInfo `json:"partitions"`
 	TotalSpace  uint64          `json:"totalSpace"`  // 总空间
@@ -65,7 +65,7 @@ type DiskDiag struct {
 	Status      string          `json:"status"`
 }
 
-// PartitionInfo 分区信息
+// PartitionInfo 分区信息.
 type PartitionInfo struct {
 	MountPoint  string  `json:"mountPoint"`
 	Device      string  `json:"device"`
@@ -76,7 +76,7 @@ type PartitionInfo struct {
 	UsedPercent float64 `json:"usedPercent"`
 }
 
-// NetworkDiag 网络诊断信息
+// NetworkDiag 网络诊断信息.
 type NetworkDiag struct {
 	Interfaces   []InterfaceInfo `json:"interfaces"`
 	Connectivity bool            `json:"connectivity"`
@@ -85,7 +85,7 @@ type NetworkDiag struct {
 	Status       string          `json:"status"`
 }
 
-// InterfaceInfo 网络接口信息
+// InterfaceInfo 网络接口信息.
 type InterfaceInfo struct {
 	Name     string `json:"name"`
 	IP       string `json:"ip"`
@@ -96,7 +96,7 @@ type InterfaceInfo struct {
 	TxErrors uint64 `json:"txErrors"`
 }
 
-// Problem 检测到的问题
+// Problem 检测到的问题.
 type Problem struct {
 	ID          string `json:"id"`
 	Severity    string `json:"severity"` // critical/warning/info
@@ -107,7 +107,7 @@ type Problem struct {
 	Threshold   string `json:"threshold,omitempty"`
 }
 
-// Suggestion 优化建议
+// Suggestion 优化建议.
 type Suggestion struct {
 	ID          string `json:"id"`
 	Priority    string `json:"priority"` // high/medium/low
@@ -117,7 +117,7 @@ type Suggestion struct {
 	Action      string `json:"action,omitempty"`
 }
 
-// DiagConfig 诊断配置
+// DiagConfig 诊断配置.
 type DiagConfig struct {
 	MaxHistory      int           `json:"maxHistory"`      // 最大历史记录数
 	HistoryInterval time.Duration `json:"historyInterval"` // 历史记录间隔
@@ -126,7 +126,7 @@ type DiagConfig struct {
 	DiskThreshold   float64       `json:"diskThreshold"`   // 磁盘告警阈值
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() DiagConfig {
 	return DiagConfig{
 		MaxHistory:      100,
@@ -139,7 +139,7 @@ func DefaultConfig() DiagConfig {
 
 // ========== Manager ==========
 
-// Manager 诊断管理器
+// Manager 诊断管理器.
 type Manager struct {
 	config  DiagConfig
 	history []DiagnosticReport
@@ -147,7 +147,7 @@ type Manager struct {
 	stopCh  chan struct{}
 }
 
-// NewManager 创建诊断管理器
+// NewManager 创建诊断管理器.
 func NewManager(cfg DiagConfig) *Manager {
 	return &Manager{
 		config:  cfg,
@@ -156,14 +156,14 @@ func NewManager(cfg DiagConfig) *Manager {
 	}
 }
 
-// Start 启动诊断管理器
+// Start 启动诊断管理器.
 func (m *Manager) Start() {
 	log.Println("[diagnostics] 管理器启动")
 	// 启动后台历史清理
 	go m.cleanupLoop()
 }
 
-// Stop 停止诊断管理器
+// Stop 停止诊断管理器.
 func (m *Manager) Stop() {
 	close(m.stopCh)
 	log.Println("[diagnostics] 管理器停止")
@@ -192,7 +192,7 @@ func (m *Manager) cleanupHistory() {
 
 // ========== 核心诊断方法 ==========
 
-// RunDiagnostic 执行一键诊断
+// RunDiagnostic 执行一键诊断.
 func (m *Manager) RunDiagnostic() (*DiagnosticReport, error) {
 	start := time.Now()
 
@@ -234,7 +234,7 @@ func (m *Manager) RunDiagnostic() (*DiagnosticReport, error) {
 	return report, nil
 }
 
-// diagnoseCPU 诊断CPU
+// diagnoseCPU 诊断CPU.
 func (m *Manager) diagnoseCPU() *CPUDiag {
 	diag := &CPUDiag{
 		Cores: runtime.NumCPU(),
@@ -262,7 +262,7 @@ func (m *Manager) diagnoseCPU() *CPUDiag {
 	return diag
 }
 
-// diagnoseMemory 诊断内存
+// diagnoseMemory 诊断内存.
 func (m *Manager) diagnoseMemory() *MemoryDiag {
 	diag := &MemoryDiag{}
 
@@ -281,7 +281,7 @@ func (m *Manager) diagnoseMemory() *MemoryDiag {
 	return diag
 }
 
-// diagnoseDisk 诊断磁盘
+// diagnoseDisk 诊断磁盘.
 func (m *Manager) diagnoseDisk() *DiskDiag {
 	diag := &DiskDiag{
 		Partitions: make([]PartitionInfo, 0),
@@ -319,7 +319,7 @@ func (m *Manager) diagnoseDisk() *DiskDiag {
 	return diag
 }
 
-// diagnoseNetwork 诊断网络
+// diagnoseNetwork 诊断网络.
 func (m *Manager) diagnoseNetwork() *NetworkDiag {
 	diag := &NetworkDiag{
 		Interfaces: make([]InterfaceInfo, 0),
@@ -725,7 +725,7 @@ func (m *Manager) addToHistory(report DiagnosticReport) {
 	}
 }
 
-// GetHistory 获取历史记录
+// GetHistory 获取历史记录.
 func (m *Manager) GetHistory(limit int) []DiagnosticReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -740,7 +740,7 @@ func (m *Manager) GetHistory(limit int) []DiagnosticReport {
 	return result
 }
 
-// GetLatestReport 获取最新报告
+// GetLatestReport 获取最新报告.
 func (m *Manager) GetLatestReport() *DiagnosticReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -753,7 +753,7 @@ func (m *Manager) GetLatestReport() *DiagnosticReport {
 	return &report
 }
 
-// GetTrend 获取趋势数据
+// GetTrend 获取趋势数据.
 func (m *Manager) GetTrend(hours int) []TrendPoint {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -776,7 +776,7 @@ func (m *Manager) GetTrend(hours int) []TrendPoint {
 	return points
 }
 
-// TrendPoint 趋势数据点
+// TrendPoint 趋势数据点.
 type TrendPoint struct {
 	Timestamp time.Time `json:"timestamp"`
 	Score     int       `json:"score"`
@@ -821,7 +821,7 @@ type diskUsage struct {
 	UsedPercent float64
 }
 
-// 以下函数可以被测试替身覆盖
+// 以下函数可以被测试替身覆盖.
 var (
 	readLoadAvg = func() ([3]float64, error) {
 		data, err := os.ReadFile("/proc/loadavg")
@@ -965,7 +965,7 @@ var (
 	}
 )
 
-// syscallStatfs 系统调用结构
+// syscallStatfs 系统调用结构.
 type syscallStatfs struct {
 	Type    int64
 	Bsize   int64

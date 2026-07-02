@@ -11,16 +11,16 @@ import (
 // ========== 智能路由管理器 ==========
 
 // Router 智能路由管理器
-// 根据模型名路由到对应 provider，支持负载均衡、故障转移、本地模型优先
+// 根据模型名路由到对应 provider，支持负载均衡、故障转移、本地模型优先.
 type Router struct {
 	mu        sync.RWMutex
-	providers map[string]*AIProvider  // providerID -> provider
+	providers map[string]*AIProvider     // providerID -> provider
 	health    map[string]*ProviderHealth // providerID -> health
-	modelMap  map[string][]string      // modelName -> providerID 列表（按优先级排序）
-	rrCounter uint64                   // 轮询计数器
+	modelMap  map[string][]string        // modelName -> providerID 列表（按优先级排序）
+	rrCounter uint64                     // 轮询计数器
 }
 
-// NewRouter 创建路由管理器
+// NewRouter 创建路由管理器.
 func NewRouter() *Router {
 	return &Router{
 		providers: make(map[string]*AIProvider),
@@ -29,7 +29,7 @@ func NewRouter() *Router {
 	}
 }
 
-// RegisterProvider 注册一个 AI provider
+// RegisterProvider 注册一个 AI provider.
 func (r *Router) RegisterProvider(p *AIProvider) error {
 	if p == nil {
 		return fmt.Errorf("provider 不能为空")
@@ -70,7 +70,7 @@ func (r *Router) RegisterProvider(p *AIProvider) error {
 	return nil
 }
 
-// UnregisterProvider 注销 provider
+// UnregisterProvider 注销 provider.
 func (r *Router) UnregisterProvider(providerID string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -101,7 +101,7 @@ func (r *Router) UnregisterProvider(providerID string) error {
 }
 
 // Route 根据模型名路由到合适的 provider
-// 策略：本地模型优先 → 按优先级 → 负载均衡（轮询）→ 故障转移
+// 策略：本地模型优先 → 按优先级 → 负载均衡（轮询）→ 故障转移.
 func (r *Router) Route(model string) (*AIProvider, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -154,7 +154,7 @@ func (r *Router) Route(model string) (*AIProvider, error) {
 }
 
 // RouteWithFallback 带故障转移的路由
-// 如果首选 provider 请求失败，自动切换到下一个可用 provider
+// 如果首选 provider 请求失败，自动切换到下一个可用 provider.
 func (r *Router) RouteWithFallback(model string, excludeIDs ...string) (*AIProvider, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -207,7 +207,7 @@ func (r *Router) RouteWithFallback(model string, excludeIDs ...string) (*AIProvi
 	return r.selectByRoundRobin(remoteFirst), nil
 }
 
-// selectByRoundRobin 轮询选择（线程安全）
+// selectByRoundRobin 轮询选择（线程安全）.
 func (r *Router) selectByRoundRobin(candidates []*AIProvider) *AIProvider {
 	if len(candidates) == 1 {
 		return candidates[0]
@@ -216,7 +216,7 @@ func (r *Router) selectByRoundRobin(candidates []*AIProvider) *AIProvider {
 	return candidates[idx%uint64(len(candidates))]
 }
 
-// MarkProviderHealth 更新 provider 健康状态
+// MarkProviderHealth 更新 provider 健康状态.
 func (r *Router) MarkProviderHealth(providerID string, healthy bool, errMsg string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -238,7 +238,7 @@ func (r *Router) MarkProviderHealth(providerID string, healthy bool, errMsg stri
 	}
 }
 
-// GetProvider 获取 provider 信息
+// GetProvider 获取 provider 信息.
 func (r *Router) GetProvider(providerID string) (*AIProvider, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -246,7 +246,7 @@ func (r *Router) GetProvider(providerID string) (*AIProvider, bool) {
 	return p, ok
 }
 
-// ListProviders 列出所有 provider
+// ListProviders 列出所有 provider.
 func (r *Router) ListProviders() []*AIProvider {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -257,7 +257,7 @@ func (r *Router) ListProviders() []*AIProvider {
 	return result
 }
 
-// GetProviderHealth 获取 provider 健康状态
+// GetProviderHealth 获取 provider 健康状态.
 func (r *Router) GetProviderHealth(providerID string) (*ProviderHealth, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -265,7 +265,7 @@ func (r *Router) GetProviderHealth(providerID string) (*ProviderHealth, bool) {
 	return h, ok
 }
 
-// ListModels 列出所有可用模型
+// ListModels 列出所有可用模型.
 func (r *Router) ListModels() []string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -276,7 +276,7 @@ func (r *Router) ListModels() []string {
 	return models
 }
 
-// sortModelProviders 按优先级排序每个模型的 provider 列表
+// sortModelProviders 按优先级排序每个模型的 provider 列表.
 func (r *Router) sortModelProviders() {
 	for model, ids := range r.modelMap {
 		// 简单冒泡排序，按 priority 升序
@@ -284,8 +284,8 @@ func (r *Router) sortModelProviders() {
 		copy(sorted, ids)
 		for i := 0; i < len(sorted); i++ {
 			for j := i + 1; j < len(sorted); j++ {
-				pi, _ := r.providers[sorted[i]]
-				pj, _ := r.providers[sorted[j]]
+				pi := r.providers[sorted[i]]
+				pj := r.providers[sorted[j]]
 				if pi != nil && pj != nil && pi.Priority > pj.Priority {
 					sorted[i], sorted[j] = sorted[j], sorted[i]
 				}
@@ -295,7 +295,7 @@ func (r *Router) sortModelProviders() {
 	}
 }
 
-// ResetHealth 重置所有 provider 健康状态为健康
+// ResetHealth 重置所有 provider 健康状态为健康.
 func (r *Router) ResetHealth() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -307,12 +307,12 @@ func (r *Router) ResetHealth() {
 	}
 }
 
-// SetSeed 设置随机种子（测试用）
+// SetSeed 设置随机种子（测试用）.
 func (r *Router) SetSeed(seed int64) {
 	atomic.StoreUint64(&r.rrCounter, uint64(seed))
 }
 
-// randIntn 辅助函数（避免引入 math/rand 全局状态）
+// randIntn 辅助函数（避免引入 math/rand 全局状态）.
 var randIntn = func(n int) int {
 	return rand.Intn(n)
 }

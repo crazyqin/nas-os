@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// BlockAction 封锁动作类型
+// BlockAction 封锁动作类型.
 type BlockAction string
 
 const (
@@ -20,7 +20,7 @@ const (
 	BlockActionNone BlockAction = "none" // 仅告警
 )
 
-// AlertSeverity 告警严重程度
+// AlertSeverity 告警严重程度.
 type AlertSeverity string
 
 const (
@@ -29,7 +29,7 @@ const (
 	AlertSeverityCritical AlertSeverity = "critical"
 )
 
-// ConnectionState 连接状态
+// ConnectionState 连接状态.
 type ConnectionState string
 
 const (
@@ -39,7 +39,7 @@ const (
 	StateExpired ConnectionState = "expired"
 )
 
-// SMBConnection SMB 连接记录
+// SMBConnection SMB 连接记录.
 type SMBConnection struct {
 	ID             string          `json:"id"`
 	ClientIP       net.IP          `json:"client_ip"`
@@ -55,7 +55,7 @@ type SMBConnection struct {
 	BytesOut       int64           `json:"bytes_out"`
 }
 
-// BlockPolicy 自动封锁策略
+// BlockPolicy 自动封锁策略.
 type BlockPolicy struct {
 	ID                string      `json:"id"`
 	Name              string      `json:"name"`
@@ -71,7 +71,7 @@ type BlockPolicy struct {
 	UpdatedAt         time.Time   `json:"updated_at"`
 }
 
-// IPListType IP 列表类型
+// IPListType IP 列表类型.
 type IPListType string
 
 const (
@@ -79,7 +79,7 @@ const (
 	ListTypeBlacklist IPListType = "blacklist"
 )
 
-// IPListEntry IP 列表条目
+// IPListEntry IP 列表条目.
 type IPListEntry struct {
 	ID        string     `json:"id"`
 	IP        string     `json:"ip"`
@@ -90,7 +90,7 @@ type IPListEntry struct {
 	ExpiresAt *time.Time `json:"expires_at,omitempty"`
 }
 
-// BlockedIP 被封锁的 IP
+// BlockedIP 被封锁的 IP.
 type BlockedIP struct {
 	IP             string      `json:"ip"`
 	Reason         string      `json:"reason"`
@@ -103,7 +103,7 @@ type BlockedIP struct {
 	AutoBlocked    bool        `json:"auto_blocked"`
 }
 
-// Alert 告警
+// Alert 告警.
 type Alert struct {
 	ID           string        `json:"id"`
 	ClientIP     string        `json:"client_ip"`
@@ -116,7 +116,7 @@ type Alert struct {
 	Acknowledged bool          `json:"acknowledged"`
 }
 
-// GuardConfig 防护引擎配置
+// GuardConfig 防护引擎配置.
 type GuardConfig struct {
 	MaxConnections    int  `json:"max_connections"`
 	MaxFailedAttempts int  `json:"max_failed_attempts"`
@@ -127,7 +127,7 @@ type GuardConfig struct {
 	LogAllConnections bool `json:"log_all_connections"`
 }
 
-// DefaultGuardConfig 默认配置
+// DefaultGuardConfig 默认配置.
 func DefaultGuardConfig() GuardConfig {
 	return GuardConfig{
 		MaxConnections:    1000,
@@ -140,7 +140,7 @@ func DefaultGuardConfig() GuardConfig {
 	}
 }
 
-// 预定义错误
+// 预定义错误.
 var (
 	ErrPolicyNotFound  = errors.New("block policy not found")
 	ErrPolicyExists    = errors.New("block policy already exists")
@@ -151,7 +151,7 @@ var (
 	ErrIPBlocked       = errors.New("IP is blocked")
 )
 
-// Engine SMB 暴力破解防护引擎
+// Engine SMB 暴力破解防护引擎.
 type Engine struct {
 	mu            sync.RWMutex
 	config        GuardConfig
@@ -166,7 +166,7 @@ type Engine struct {
 	alertCounter  int64
 }
 
-// NewEngine 创建 SMB 防护引擎
+// NewEngine 创建 SMB 防护引擎.
 func NewEngine(config GuardConfig) *Engine {
 	if config.MaxFailedAttempts <= 0 {
 		config = DefaultGuardConfig()
@@ -185,7 +185,7 @@ func NewEngine(config GuardConfig) *Engine {
 
 // --- 连接监控 ---
 
-// OnConnect 处理 SMB 连接事件
+// OnConnect 处理 SMB 连接事件.
 func (e *Engine) OnConnect(clientIP net.IP, port int, username string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -227,7 +227,7 @@ func (e *Engine) OnConnect(clientIP net.IP, port int, username string) error {
 	return nil
 }
 
-// OnAuthFailure 处理认证失败事件
+// OnAuthFailure 处理认证失败事件.
 func (e *Engine) OnAuthFailure(clientIP net.IP, username string) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -262,7 +262,7 @@ func (e *Engine) OnAuthFailure(clientIP net.IP, username string) {
 	}
 }
 
-// OnAuthSuccess 处理认证成功事件
+// OnAuthSuccess 处理认证成功事件.
 func (e *Engine) OnAuthSuccess(clientIP net.IP, username string) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -276,7 +276,7 @@ func (e *Engine) OnAuthSuccess(clientIP net.IP, username string) {
 	}
 }
 
-// OnDisconnect 处理断开连接事件
+// OnDisconnect 处理断开连接事件.
 func (e *Engine) OnDisconnect(clientIP net.IP) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -284,7 +284,7 @@ func (e *Engine) OnDisconnect(clientIP net.IP) {
 	delete(e.connections, clientIP.String())
 }
 
-// GetConnection 获取连接信息
+// GetConnection 获取连接信息.
 func (e *Engine) GetConnection(clientIP net.IP) *SMBConnection {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -292,7 +292,7 @@ func (e *Engine) GetConnection(clientIP net.IP) *SMBConnection {
 	return e.connections[clientIP.String()]
 }
 
-// ListConnections 列出所有活动连接
+// ListConnections 列出所有活动连接.
 func (e *Engine) ListConnections() []*SMBConnection {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -306,7 +306,7 @@ func (e *Engine) ListConnections() []*SMBConnection {
 
 // --- 自动封锁策略 ---
 
-// CreatePolicy 创建封锁策略
+// CreatePolicy 创建封锁策略.
 func (e *Engine) CreatePolicy(p *BlockPolicy) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -324,7 +324,7 @@ func (e *Engine) CreatePolicy(p *BlockPolicy) error {
 	return nil
 }
 
-// UpdatePolicy 更新封锁策略
+// UpdatePolicy 更新封锁策略.
 func (e *Engine) UpdatePolicy(policyID string, updated *BlockPolicy) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -339,7 +339,7 @@ func (e *Engine) UpdatePolicy(policyID string, updated *BlockPolicy) error {
 	return nil
 }
 
-// DeletePolicy 删除封锁策略
+// DeletePolicy 删除封锁策略.
 func (e *Engine) DeletePolicy(policyID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -351,7 +351,7 @@ func (e *Engine) DeletePolicy(policyID string) error {
 	return nil
 }
 
-// GetPolicy 获取策略
+// GetPolicy 获取策略.
 func (e *Engine) GetPolicy(policyID string) (*BlockPolicy, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -363,7 +363,7 @@ func (e *Engine) GetPolicy(policyID string) (*BlockPolicy, error) {
 	return p, nil
 }
 
-// ListPolicies 列出所有策略
+// ListPolicies 列出所有策略.
 func (e *Engine) ListPolicies() []*BlockPolicy {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -375,7 +375,7 @@ func (e *Engine) ListPolicies() []*BlockPolicy {
 	return result
 }
 
-// evaluateBlockPolicies 评估封锁策略（需持有写锁）
+// evaluateBlockPolicies 评估封锁策略（需持有写锁）.
 func (e *Engine) evaluateBlockPolicies(ipStr string, conn *SMBConnection) {
 	// 先用默认策略
 	maxFails := e.config.MaxFailedAttempts
@@ -437,7 +437,7 @@ func (e *Engine) evaluateBlockPolicies(ipStr string, conn *SMBConnection) {
 
 // --- IP 白/黑名单 ---
 
-// AddToWhitelist 添加 IP 到白名单
+// AddToWhitelist 添加 IP 到白名单.
 func (e *Engine) AddToWhitelist(ipStr string, reason string, addedBy string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -463,7 +463,7 @@ func (e *Engine) AddToWhitelist(ipStr string, reason string, addedBy string) err
 	return nil
 }
 
-// RemoveFromWhitelist 从白名单移除 IP
+// RemoveFromWhitelist 从白名单移除 IP.
 func (e *Engine) RemoveFromWhitelist(ipStr string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -477,7 +477,7 @@ func (e *Engine) RemoveFromWhitelist(ipStr string) error {
 	return nil
 }
 
-// AddToBlacklist 添加 IP 到黑名单
+// AddToBlacklist 添加 IP 到黑名单.
 func (e *Engine) AddToBlacklist(ipStr string, reason string, addedBy string, durationSeconds int) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -515,7 +515,7 @@ func (e *Engine) AddToBlacklist(ipStr string, reason string, addedBy string, dur
 	return nil
 }
 
-// RemoveFromBlacklist 从黑名单移除 IP
+// RemoveFromBlacklist 从黑名单移除 IP.
 func (e *Engine) RemoveFromBlacklist(ipStr string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -530,21 +530,21 @@ func (e *Engine) RemoveFromBlacklist(ipStr string) error {
 	return nil
 }
 
-// IsWhitelisted 检查 IP 是否在白名单
+// IsWhitelisted 检查 IP 是否在白名单.
 func (e *Engine) IsWhitelisted(ipStr string) bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.whitelist[ipStr]
 }
 
-// IsBlacklisted 检查 IP 是否在黑名单
+// IsBlacklisted 检查 IP 是否在黑名单.
 func (e *Engine) IsBlacklisted(ipStr string) bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.blacklist[ipStr]
 }
 
-// ListWhitelist 列出白名单
+// ListWhitelist 列出白名单.
 func (e *Engine) ListWhitelist() []*IPListEntry {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -558,7 +558,7 @@ func (e *Engine) ListWhitelist() []*IPListEntry {
 	return result
 }
 
-// ListBlacklist 列出黑名单
+// ListBlacklist 列出黑名单.
 func (e *Engine) ListBlacklist() []*IPListEntry {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -574,7 +574,7 @@ func (e *Engine) ListBlacklist() []*IPListEntry {
 
 // --- 封锁管理 ---
 
-// doBlockIP 封锁 IP（需持有写锁）
+// doBlockIP 封锁 IP（需持有写锁）.
 func (e *Engine) doBlockIP(ipStr string, blocked *BlockedIP, durationSeconds int) {
 	if durationSeconds > 0 {
 		exp := blocked.BlockedAt.Add(time.Duration(durationSeconds) * time.Second)
@@ -583,7 +583,7 @@ func (e *Engine) doBlockIP(ipStr string, blocked *BlockedIP, durationSeconds int
 	e.blockedIPs[ipStr] = blocked
 }
 
-// UnblockIP 手动解除封锁
+// UnblockIP 手动解除封锁.
 func (e *Engine) UnblockIP(ipStr string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -605,7 +605,7 @@ func (e *Engine) UnblockIP(ipStr string) error {
 	return nil
 }
 
-// GetBlockedIPs 获取所有被封锁的 IP
+// GetBlockedIPs 获取所有被封锁的 IP.
 func (e *Engine) GetBlockedIPs() []*BlockedIP {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -617,7 +617,7 @@ func (e *Engine) GetBlockedIPs() []*BlockedIP {
 	return result
 }
 
-// IsIPBlocked 检查 IP 是否被封锁
+// IsIPBlocked 检查 IP 是否被封锁.
 func (e *Engine) IsIPBlocked(ipStr string) bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -634,7 +634,7 @@ func (e *Engine) IsIPBlocked(ipStr string) bool {
 
 // --- 告警通知 ---
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (e *Engine) GetAlerts(limit int, unacknowledgedOnly bool) []Alert {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -653,7 +653,7 @@ func (e *Engine) GetAlerts(limit int, unacknowledgedOnly bool) []Alert {
 	return result
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (e *Engine) AcknowledgeAlert(alertID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -667,7 +667,7 @@ func (e *Engine) AcknowledgeAlert(alertID string) error {
 	return errors.New("alert not found")
 }
 
-// addAlert 添加告警（需持有写锁）
+// addAlert 添加告警（需持有写锁）.
 func (e *Engine) addAlert(alert *Alert) {
 	e.alertCounter++
 	if alert.ID == "" {

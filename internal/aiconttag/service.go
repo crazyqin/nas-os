@@ -10,17 +10,17 @@ import (
 	"time"
 )
 
-// Service AI 内容自动标签服务
+// Service AI 内容自动标签服务.
 type Service struct {
-	mu          sync.RWMutex
-	config      *AutoTagConfig
-	tags        map[string]*ContentTag          // tagID -> ContentTag
-	rules       map[string]*TagRule             // ruleID -> TagRule
-	fileTags    map[string][]*FileContentTag    // filePath -> []*FileContentTag
-	tagFiles    map[string][]*FileContentTag     // tagID -> []*FileContentTag
+	mu       sync.RWMutex
+	config   *AutoTagConfig
+	tags     map[string]*ContentTag       // tagID -> ContentTag
+	rules    map[string]*TagRule          // ruleID -> TagRule
+	fileTags map[string][]*FileContentTag // filePath -> []*FileContentTag
+	tagFiles map[string][]*FileContentTag // tagID -> []*FileContentTag
 }
 
-// NewService 创建 AI 内容自动标签服务
+// NewService 创建 AI 内容自动标签服务.
 func NewService(cfg *AutoTagConfig) *Service {
 	if cfg == nil {
 		cfg = DefaultConfig()
@@ -36,7 +36,7 @@ func NewService(cfg *AutoTagConfig) *Service {
 
 // ========== 标签管理 ==========
 
-// CreateTag 创建标签
+// CreateTag 创建标签.
 func (s *Service) CreateTag(ctx context.Context, req *CreateTagRequest) (*ContentTag, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -53,7 +53,7 @@ func (s *Service) CreateTag(ctx context.Context, req *CreateTagRequest) (*Conten
 	return tag, nil
 }
 
-// GetTag 获取标签详情
+// GetTag 获取标签详情.
 func (s *Service) GetTag(ctx context.Context, tagID string) (*ContentTag, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -65,7 +65,7 @@ func (s *Service) GetTag(ctx context.Context, tagID string) (*ContentTag, error)
 	return tag, nil
 }
 
-// ListTags 列出标签
+// ListTags 列出标签.
 func (s *Service) ListTags(ctx context.Context, category TagCategory, source TagSource) ([]*ContentTag, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -88,7 +88,7 @@ func (s *Service) ListTags(ctx context.Context, category TagCategory, source Tag
 	return result, nil
 }
 
-// UpdateTag 更新标签
+// UpdateTag 更新标签.
 func (s *Service) UpdateTag(ctx context.Context, tagID, name, description, color string, synonyms []string) (*ContentTag, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -121,7 +121,7 @@ func (s *Service) UpdateTag(ctx context.Context, tagID, name, description, color
 	return tag, nil
 }
 
-// DeleteTag 删除标签
+// DeleteTag 删除标签.
 func (s *Service) DeleteTag(ctx context.Context, tagID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -146,7 +146,7 @@ func (s *Service) DeleteTag(ctx context.Context, tagID string) error {
 	return nil
 }
 
-// MergeTags 合并标签
+// MergeTags 合并标签.
 func (s *Service) MergeTags(ctx context.Context, sourceTagID, targetTagID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -185,7 +185,7 @@ func (s *Service) MergeTags(ctx context.Context, sourceTagID, targetTagID string
 
 // ========== 规则管理 ==========
 
-// CreateRule 创建标签规则
+// CreateRule 创建标签规则.
 func (s *Service) CreateRule(ctx context.Context, req *CreateRuleRequest) (*TagRule, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -209,7 +209,7 @@ func (s *Service) CreateRule(ctx context.Context, req *CreateRuleRequest) (*TagR
 	return rule, nil
 }
 
-// GetRule 获取规则
+// GetRule 获取规则.
 func (s *Service) GetRule(ctx context.Context, ruleID string) (*TagRule, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -221,7 +221,7 @@ func (s *Service) GetRule(ctx context.Context, ruleID string) (*TagRule, error) 
 	return rule, nil
 }
 
-// ListRules 列出规则
+// ListRules 列出规则.
 func (s *Service) ListRules(ctx context.Context) ([]*TagRule, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -237,7 +237,7 @@ func (s *Service) ListRules(ctx context.Context) ([]*TagRule, error) {
 	return result, nil
 }
 
-// DeleteRule 删除规则
+// DeleteRule 删除规则.
 func (s *Service) DeleteRule(ctx context.Context, ruleID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -249,7 +249,7 @@ func (s *Service) DeleteRule(ctx context.Context, ruleID string) error {
 	return nil
 }
 
-// UpdateRule 更新规则
+// UpdateRule 更新规则.
 func (s *Service) UpdateRule(ctx context.Context, ruleID string, req *CreateRuleRequest) (*TagRule, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -277,7 +277,7 @@ func (s *Service) UpdateRule(ctx context.Context, ruleID string, req *CreateRule
 
 // ========== AI 分析 ==========
 
-// AnalyzeContent 分析文件内容并生成标签（模拟 AI 分析）
+// AnalyzeContent 分析文件内容并生成标签（模拟 AI 分析）.
 func (s *Service) AnalyzeContent(ctx context.Context, req *AnalyzeRequest) (*ContentAnalysisResult, error) {
 	if !s.config.Enabled {
 		return nil, fmt.Errorf("AI 自动标签功能未启用")
@@ -295,11 +295,11 @@ func (s *Service) AnalyzeContent(ctx context.Context, req *AnalyzeRequest) (*Con
 	// 模拟 AI 分析
 	now := time.Now()
 	result := &ContentAnalysisResult{
-		FilePath:      req.FilePath,
-		FileType:      fileType,
-		Tags:          s.simulateAnalysis(req.FilePath, fileType),
-		ModelName:     s.config.ModelName,
-		AnalyzedAt:    now,
+		FilePath:   req.FilePath,
+		FileType:   fileType,
+		Tags:       s.simulateAnalysis(req.FilePath, fileType),
+		ModelName:  s.config.ModelName,
+		AnalyzedAt: now,
 	}
 	result.AnalysisTimeMs = time.Since(now).Milliseconds()
 
@@ -312,7 +312,7 @@ func (s *Service) AnalyzeContent(ctx context.Context, req *AnalyzeRequest) (*Con
 	return result, nil
 }
 
-// BatchAnalyzeContent 批量分析内容
+// BatchAnalyzeContent 批量分析内容.
 func (s *Service) BatchAnalyzeContent(ctx context.Context, filePaths []string) (*BatchAnalyzeResponse, error) {
 	if !s.config.Enabled {
 		return nil, fmt.Errorf("AI 自动标签功能未启用")
@@ -336,7 +336,7 @@ func (s *Service) BatchAnalyzeContent(ctx context.Context, filePaths []string) (
 	return response, nil
 }
 
-// simulateAnalysis 模拟 AI 内容分析（实际应调用 AI 模型）
+// simulateAnalysis 模拟 AI 内容分析（实际应调用 AI 模型）.
 func (s *Service) simulateAnalysis(filePath string, fileType string) []TagDetection {
 	// 根据文件类型生成不同标签检测
 	var detections []TagDetection
@@ -405,7 +405,7 @@ func (s *Service) simulateAnalysis(filePath string, fileType string) []TagDetect
 	return detections
 }
 
-// applyDetectedTags 将检测到的标签应用到文件
+// applyDetectedTags 将检测到的标签应用到文件.
 func (s *Service) applyDetectedTags(ctx context.Context, filePath string, detections []TagDetection) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -438,13 +438,13 @@ func (s *Service) applyDetectedTags(ctx context.Context, filePath string, detect
 		fct := &FileContentTag{
 			FilePath:    filePath,
 			TagID:       tag.ID,
-			TagName:      tag.Name,
-			TagCategory:  tag.Category,
-			Confidence:   det.Confidence,
-			Source:       SourceAI,
-			AnalyzedAt:   now,
-			ModelName:    s.config.ModelName,
-			Confirmed:    autoConfirm,
+			TagName:     tag.Name,
+			TagCategory: tag.Category,
+			Confidence:  det.Confidence,
+			Source:      SourceAI,
+			AnalyzedAt:  now,
+			ModelName:   s.config.ModelName,
+			Confirmed:   autoConfirm,
 		}
 
 		s.fileTags[filePath] = append(s.fileTags[filePath], fct)
@@ -462,7 +462,7 @@ func (s *Service) applyDetectedTags(ctx context.Context, filePath string, detect
 	return nil
 }
 
-// findOrCreateTagByName 查找或创建标签（必须在持锁状态下调用）
+// findOrCreateTagByName 查找或创建标签（必须在持锁状态下调用）.
 func (s *Service) findOrCreateTagByName(name string, category TagCategory, confidence float64) *ContentTag {
 	// 检查同名同分类标签
 	for _, t := range s.tags {
@@ -490,7 +490,7 @@ func (s *Service) findOrCreateTagByName(name string, category TagCategory, confi
 	return tag
 }
 
-// min 返回较小值
+// min 返回较小值.
 func min(a, b int) int {
 	if a < b {
 		return a
@@ -498,7 +498,7 @@ func min(a, b int) int {
 	return b
 }
 
-// applyRules 应用规则引擎匹配
+// applyRules 应用规则引擎匹配.
 func (s *Service) applyRules(filePath string) []TagDetection {
 	var detections []TagDetection
 
@@ -544,7 +544,7 @@ func (s *Service) applyRules(filePath string) []TagDetection {
 
 // ========== 手动标签操作 ==========
 
-// ManualTag 手动为文件打标签
+// ManualTag 手动为文件打标签.
 func (s *Service) ManualTag(ctx context.Context, req *ManualTagRequest) ([]*FileContentTag, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -573,12 +573,12 @@ func (s *Service) ManualTag(ctx context.Context, req *ManualTagRequest) ([]*File
 		fct := &FileContentTag{
 			FilePath:    req.FilePath,
 			TagID:       tag.ID,
-			TagName:      tag.Name,
-			TagCategory:  tag.Category,
-			Confidence:   1.0,
-			Source:       SourceManual,
-			AnalyzedAt:   now,
-			Confirmed:    true,
+			TagName:     tag.Name,
+			TagCategory: tag.Category,
+			Confidence:  1.0,
+			Source:      SourceManual,
+			AnalyzedAt:  now,
+			Confirmed:   true,
 		}
 
 		s.fileTags[req.FilePath] = append(s.fileTags[req.FilePath], fct)
@@ -591,7 +591,7 @@ func (s *Service) ManualTag(ctx context.Context, req *ManualTagRequest) ([]*File
 	return result, nil
 }
 
-// ConfirmTag 确认 AI 生成的标签
+// ConfirmTag 确认 AI 生成的标签.
 func (s *Service) ConfirmTag(ctx context.Context, req *ConfirmTagRequest) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -609,7 +609,7 @@ func (s *Service) ConfirmTag(ctx context.Context, req *ConfirmTagRequest) error 
 	return fmt.Errorf("未找到文件 %s 上的标签 %s", req.FilePath, req.TagID)
 }
 
-// RejectTag 拒绝 AI 生成的标签
+// RejectTag 拒绝 AI 生成的标签.
 func (s *Service) RejectTag(ctx context.Context, filePath, tagID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -643,7 +643,7 @@ func (s *Service) RejectTag(ctx context.Context, filePath, tagID string) error {
 	return nil
 }
 
-// GetFileTags 获取文件的所有标签
+// GetFileTags 获取文件的所有标签.
 func (s *Service) GetFileTags(ctx context.Context, filePath string) ([]*FileContentTag, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -651,7 +651,7 @@ func (s *Service) GetFileTags(ctx context.Context, filePath string) ([]*FileCont
 	return s.fileTags[filePath], nil
 }
 
-// GetTagFiles 获取标签关联的所有文件
+// GetTagFiles 获取标签关联的所有文件.
 func (s *Service) GetTagFiles(ctx context.Context, tagID string) ([]*FileContentTag, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -664,7 +664,7 @@ func (s *Service) GetTagFiles(ctx context.Context, tagID string) ([]*FileContent
 
 // ========== 搜索 ==========
 
-// SearchByTags 按标签搜索文件
+// SearchByTags 按标签搜索文件.
 func (s *Service) SearchByTags(ctx context.Context, req *SearchByTagRequest) (*TagSearchResult, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -725,7 +725,7 @@ func (s *Service) SearchByTags(ctx context.Context, req *SearchByTagRequest) (*T
 
 // ========== 统计 ==========
 
-// GetStats 获取标签统计
+// GetStats 获取标签统计.
 func (s *Service) GetStats(ctx context.Context) (*TagStats, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -769,7 +769,7 @@ func (s *Service) GetStats(ctx context.Context) (*TagStats, error) {
 
 // ========== 配置管理 ==========
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (s *Service) GetConfig() *AutoTagConfig {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -777,7 +777,7 @@ func (s *Service) GetConfig() *AutoTagConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (s *Service) UpdateConfig(cfg *AutoTagConfig) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -786,7 +786,7 @@ func (s *Service) UpdateConfig(cfg *AutoTagConfig) {
 
 // ========== 文件类型检测辅助 ==========
 
-// detectFileType 从文件路径推断文件类型
+// detectFileType 从文件路径推断文件类型.
 func detectFileType(filePath string) string {
 	idx := strings.LastIndex(filePath, ".")
 	if idx < 0 {

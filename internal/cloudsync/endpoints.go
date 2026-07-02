@@ -109,7 +109,7 @@ func RecordSyncError() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 // MetricsHandler 处理 Prometheus metrics 请求.
-// 暴露指标: sync_tasks_total, sync_bytes_transferred, sync_errors_total
+// 暴露指标: sync_tasks_total, sync_bytes_transferred, sync_errors_total.
 func MetricsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)

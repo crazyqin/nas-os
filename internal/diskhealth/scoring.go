@@ -13,7 +13,7 @@ import (
 // HealthScoreSystem - 健康评分系统
 // ============================================================
 
-// HealthScoreSystem 健康评分系统
+// HealthScoreSystem 健康评分系统.
 type HealthScoreSystem struct {
 	mu           sync.RWMutex
 	analyzer     *SMARTAnalyzer
@@ -21,7 +21,7 @@ type HealthScoreSystem struct {
 	weights      map[SMARTAttributeID]float64
 }
 
-// NewHealthScoreSystem 创建健康评分系统
+// NewHealthScoreSystem 创建健康评分系统.
 func NewHealthScoreSystem(analyzer *SMARTAnalyzer) *HealthScoreSystem {
 	weights := map[SMARTAttributeID]float64{
 		SMARTIDReallocatedSectorCt:  0.15,
@@ -48,7 +48,7 @@ func NewHealthScoreSystem(analyzer *SMARTAnalyzer) *HealthScoreSystem {
 	}
 }
 
-// Calculate 计算设备健康评分
+// Calculate 计算设备健康评分.
 func (h *HealthScoreSystem) Calculate(device string) (*HealthScore, error) {
 	data, err := h.analyzer.GetLatestData(device)
 	if err != nil {
@@ -136,14 +136,14 @@ func (h *HealthScoreSystem) Calculate(device string) (*HealthScore, error) {
 	return score, nil
 }
 
-// GetHistory 获取评分历史
+// GetHistory 获取评分历史.
 func (h *HealthScoreSystem) GetHistory(device string) []float64 {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 	return h.scoreHistory[device]
 }
 
-// scoreAttribute 为单个属性评分
+// scoreAttribute 为单个属性评分.
 func (h *HealthScoreSystem) scoreAttribute(attrID SMARTAttributeID, value uint64, data *SMARTData) float64 {
 	switch attrID {
 	case SMARTIDReallocatedSectorCt:
@@ -220,7 +220,7 @@ func (h *HealthScoreSystem) scoreAttribute(attrID SMARTAttributeID, value uint64
 	}
 }
 
-// getAttributeValue 从 SMART 数据中获取属性值
+// getAttributeValue 从 SMART 数据中获取属性值.
 func getAttributeValue(data *SMARTData, attrID SMARTAttributeID) uint64 {
 	for _, attr := range data.Attributes {
 		if attr.ID == attrID {
@@ -230,7 +230,7 @@ func getAttributeValue(data *SMARTData, attrID SMARTAttributeID) uint64 {
 	return 0
 }
 
-// calculateCorrelationPenalties 计算属性关联惩罚
+// calculateCorrelationPenalties 计算属性关联惩罚.
 func (h *HealthScoreSystem) calculateCorrelationPenalties(data *SMARTData) []CorrelationPenalty {
 	var penalties []CorrelationPenalty
 
@@ -279,7 +279,7 @@ func (h *HealthScoreSystem) calculateCorrelationPenalties(data *SMARTData) []Cor
 	return penalties
 }
 
-// scoreToGrade 评分转等级
+// scoreToGrade 评分转等级.
 func scoreToGrade(score float64) HealthGrade {
 	switch {
 	case score >= 90:
@@ -295,7 +295,7 @@ func scoreToGrade(score float64) HealthGrade {
 	}
 }
 
-// scoreToStatus 评分转状态
+// scoreToStatus 评分转状态.
 func scoreToStatus(score float64) DiskStatus {
 	switch {
 	case score >= 70:
@@ -313,7 +313,7 @@ func scoreToStatus(score float64) DiskStatus {
 // FailurePredictor - 贝叶斯故障预测器
 // ============================================================
 
-// FailurePredictor 贝叶斯故障预测器
+// FailurePredictor 贝叶斯故障预测器.
 type FailurePredictor struct {
 	mu               sync.RWMutex
 	analyzer         *SMARTAnalyzer
@@ -321,7 +321,7 @@ type FailurePredictor struct {
 	priorFailureRate float64
 }
 
-// NewFailurePredictor 创建故障预测器
+// NewFailurePredictor 创建故障预测器.
 func NewFailurePredictor(analyzer *SMARTAnalyzer, scoreSys *HealthScoreSystem) *FailurePredictor {
 	return &FailurePredictor{
 		analyzer:         analyzer,
@@ -330,7 +330,7 @@ func NewFailurePredictor(analyzer *SMARTAnalyzer, scoreSys *HealthScoreSystem) *
 	}
 }
 
-// Predict 对设备进行贝叶斯故障预测
+// Predict 对设备进行贝叶斯故障预测.
 func (f *FailurePredictor) Predict(device string) (*BayesianPrediction, error) {
 	healthScore, err := f.scoreSys.Calculate(device)
 	if err != nil {
@@ -381,7 +381,7 @@ func (f *FailurePredictor) Predict(device string) (*BayesianPrediction, error) {
 	return prediction, nil
 }
 
-// calculatePrior 计算先验概率（浴盆曲线模型）
+// calculatePrior 计算先验概率（浴盆曲线模型）.
 func (f *FailurePredictor) calculatePrior(data *SMARTData) float64 {
 	ageYears := float64(data.PowerOnHours) / 8760.0
 
@@ -397,7 +397,7 @@ func (f *FailurePredictor) calculatePrior(data *SMARTData) float64 {
 	}
 }
 
-// calculateLikelihood 计算似然
+// calculateLikelihood 计算似然.
 func (f *FailurePredictor) calculateLikelihood(score *HealthScore, analysis *SMARTAnalysisResult) float64 {
 	likelihood := 0.0
 
@@ -425,7 +425,7 @@ func (f *FailurePredictor) calculateLikelihood(score *HealthScore, analysis *SMA
 	return math.Min(1.0, math.Max(0.0, likelihood))
 }
 
-// estimateRemainingLife 估算剩余寿命
+// estimateRemainingLife 估算剩余寿命.
 func (f *FailurePredictor) estimateRemainingLife(data *SMARTData, score float64) int {
 	days := int(score * 18.25)
 
@@ -460,7 +460,7 @@ func (f *FailurePredictor) estimateRemainingLife(data *SMARTData, score float64)
 	return days
 }
 
-// calculateConfidence 计算置信度
+// calculateConfidence 计算置信度.
 func (f *FailurePredictor) calculateConfidence(analysis *SMARTAnalysisResult) float64 {
 	confidence := 0.5
 
@@ -491,7 +491,7 @@ func (f *FailurePredictor) calculateConfidence(analysis *SMARTAnalysisResult) fl
 	return math.Min(1.0, confidence)
 }
 
-// identifyRiskFactors 识别风险因素
+// identifyRiskFactors 识别风险因素.
 func (f *FailurePredictor) identifyRiskFactors(data *SMARTData, score *HealthScore) []string {
 	var factors []string
 

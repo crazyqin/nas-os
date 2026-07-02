@@ -11,63 +11,63 @@ import (
 	"time"
 )
 
-// MigrationStatus 迁移状态
+// MigrationStatus 迁移状态.
 type MigrationStatus string
 
 const (
-	// MigrationStatusPending 待迁移
+	// MigrationStatusPending 待迁移.
 	MigrationStatusPending MigrationStatus = "pending"
-	// MigrationStatusPreparing 准备中（验证源池、目标池）
+	// MigrationStatusPreparing 准备中（验证源池、目标池）.
 	MigrationStatusPreparing MigrationStatus = "preparing"
-	// MigrationStatusMigrating 迁移中
+	// MigrationStatusMigrating 迁移中.
 	MigrationStatusMigrating MigrationStatus = "migrating"
-	// MigrationStatusVerifying 验证中
+	// MigrationStatusVerifying 验证中.
 	MigrationStatusVerifying MigrationStatus = "verifying"
-	// MigrationStatusCompleted 已完成
+	// MigrationStatusCompleted 已完成.
 	MigrationStatusCompleted MigrationStatus = "completed"
-	// MigrationStatusFailed 失败
+	// MigrationStatusFailed 失败.
 	MigrationStatusFailed MigrationStatus = "failed"
-	// MigrationStatusRollingBack 回滚中
+	// MigrationStatusRollingBack 回滚中.
 	MigrationStatusRollingBack MigrationStatus = "rolling_back"
-	// MigrationStatusRolledBack 已回滚
+	// MigrationStatusRolledBack 已回滚.
 	MigrationStatusRolledBack MigrationStatus = "rolled_back"
 )
 
-// MigrationPhase 迁移阶段
+// MigrationPhase 迁移阶段.
 type MigrationPhase string
 
 const (
-	// MigrationPhaseInit 初始化阶段
+	// MigrationPhaseInit 初始化阶段.
 	MigrationPhaseInit MigrationPhase = "init"
-	// MigrationPhaseValidate 验证阶段
+	// MigrationPhaseValidate 验证阶段.
 	MigrationPhaseValidate MigrationPhase = "validate"
-	// MigrationPhaseStopApps 停止应用阶段
+	// MigrationPhaseStopApps 停止应用阶段.
 	MigrationPhaseStopApps MigrationPhase = "stop_apps"
-	// MigrationPhaseTransferData 数据传输阶段
+	// MigrationPhaseTransferData 数据传输阶段.
 	MigrationPhaseTransferData MigrationPhase = "transfer_data"
-	// MigrationPhaseUpdateConfig 更新配置阶段
+	// MigrationPhaseUpdateConfig 更新配置阶段.
 	MigrationPhaseUpdateConfig MigrationPhase = "update_config"
-	// MigrationPhaseStartApps 启动应用阶段
+	// MigrationPhaseStartApps 启动应用阶段.
 	MigrationPhaseStartApps MigrationPhase = "start_apps"
-	// MigrationPhaseVerify 验证阶段
+	// MigrationPhaseVerify 验证阶段.
 	MigrationPhaseVerify MigrationPhase = "verify"
-	// MigrationPhaseCleanup 清理阶段
+	// MigrationPhaseCleanup 清理阶段.
 	MigrationPhaseCleanup MigrationPhase = "cleanup"
 )
 
-// MigrationType 迁移类型
+// MigrationType 迁移类型.
 type MigrationType string
 
 const (
-	// MigrationTypeOnline 在线迁移（应用保持运行，最小停机时间）
+	// MigrationTypeOnline 在线迁移（应用保持运行，最小停机时间）.
 	MigrationTypeOnline MigrationType = "online"
-	// MigrationTypeOffline 离线迁移（应用停止，完整数据复制）
+	// MigrationTypeOffline 离线迁移（应用停止，完整数据复制）.
 	MigrationTypeOffline MigrationType = "offline"
-	// MigrationTypeLive 实时迁移（零停机，适用于支持的应用）
+	// MigrationTypeLive 实时迁移（零停机，适用于支持的应用）.
 	MigrationTypeLive MigrationType = "live"
 )
 
-// MigrationError 迁移错误类型
+// MigrationError 迁移错误类型.
 var (
 	ErrMigrationInProgress    = errors.New("migration already in progress")
 	ErrInvalidSourcePool      = errors.New("invalid source pool")
@@ -81,7 +81,7 @@ var (
 	ErrAppRunningDependencies = errors.New("app has running dependencies")
 )
 
-// MigrationProgress 迁移进度
+// MigrationProgress 迁移进度.
 type MigrationProgress struct {
 	// 整体进度 (0-100)
 	Percent float64 `json:"percent"`
@@ -117,7 +117,7 @@ type MigrationProgress struct {
 	Warnings []string `json:"warnings,omitempty"`
 }
 
-// MigrationErrorInfo 迁移错误详情
+// MigrationErrorInfo 迁移错误详情.
 type MigrationErrorInfo struct {
 	Time    time.Time `json:"time"`
 	AppID   string    `json:"appId,omitempty"`
@@ -125,7 +125,7 @@ type MigrationErrorInfo struct {
 	Code    string    `json:"code"`
 }
 
-// MigrationCheckpoint 迁移检查点（用于恢复和回滚）
+// MigrationCheckpoint 迁移检查点（用于恢复和回滚）.
 type MigrationCheckpoint struct {
 	ID           string                 `json:"id"`
 	MigrationID  string                 `json:"migrationId"`
@@ -137,7 +137,7 @@ type MigrationCheckpoint struct {
 	Data         map[string]interface{} `json:"data,omitempty"`
 }
 
-// AppState 应用状态快照
+// AppState 应用状态快照.
 type AppState struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
@@ -145,7 +145,7 @@ type AppState struct {
 	PoolPath string `json:"poolPath"`
 }
 
-// VolumeState 卷状态快照
+// VolumeState 卷状态快照.
 type VolumeState struct {
 	Name      string `json:"name"`
 	PoolPath  string `json:"poolPath"`
@@ -153,7 +153,7 @@ type VolumeState struct {
 	BindMount bool   `json:"bindMount"`
 }
 
-// MigrationConfig 迁移配置
+// MigrationConfig 迁移配置.
 type MigrationConfig struct {
 	// 源存储池ID
 	SourcePoolID string `json:"sourcePoolId"`
@@ -192,7 +192,7 @@ type MigrationConfig struct {
 	BandwidthLimit int `json:"bandwidthLimit"`
 }
 
-// MigrationRecord 迁移记录
+// MigrationRecord 迁移记录.
 type MigrationRecord struct {
 	ID           string                `json:"id"`
 	Config       MigrationConfig       `json:"config"`
@@ -206,7 +206,7 @@ type MigrationRecord struct {
 	CancelReason string                `json:"cancelReason,omitempty"`
 }
 
-// PoolMigrationManager 应用池迁移管理器
+// PoolMigrationManager 应用池迁移管理器.
 type PoolMigrationManager struct {
 	mu              sync.RWMutex
 	activeMigration *MigrationRecord
@@ -217,7 +217,7 @@ type PoolMigrationManager struct {
 	storage         MigrationStorage
 }
 
-// MigrationEventHandler 迁移事件处理器
+// MigrationEventHandler 迁移事件处理器.
 type MigrationEventHandler interface {
 	OnMigrationStart(record *MigrationRecord)
 	OnMigrationProgress(record *MigrationRecord, progress *MigrationProgress)
@@ -227,7 +227,7 @@ type MigrationEventHandler interface {
 	OnRollbackComplete(record *MigrationRecord)
 }
 
-// MigrationLogger 迁移日志接口
+// MigrationLogger 迁移日志接口.
 type MigrationLogger interface {
 	Info(msg string, fields ...interface{})
 	Warn(msg string, fields ...interface{})
@@ -235,7 +235,7 @@ type MigrationLogger interface {
 	Debug(msg string, fields ...interface{})
 }
 
-// MigrationStorage 迁移存储接口
+// MigrationStorage 迁移存储接口.
 type MigrationStorage interface {
 	SaveCheckpoint(checkpoint *MigrationCheckpoint) error
 	LoadCheckpoint(migrationID string) (*MigrationCheckpoint, error)
@@ -245,7 +245,7 @@ type MigrationStorage interface {
 	ListMigrationRecords(limit int) ([]*MigrationRecord, error)
 }
 
-// NewPoolMigrationManager 创建应用池迁移管理器
+// NewPoolMigrationManager 创建应用池迁移管理器.
 func NewPoolMigrationManager(logger MigrationLogger, storage MigrationStorage) *PoolMigrationManager {
 	return &PoolMigrationManager{
 		checkpoints:   make(map[string]*MigrationCheckpoint),
@@ -255,14 +255,14 @@ func NewPoolMigrationManager(logger MigrationLogger, storage MigrationStorage) *
 	}
 }
 
-// RegisterEventHandler 注册事件处理器
+// RegisterEventHandler 注册事件处理器.
 func (m *PoolMigrationManager) RegisterEventHandler(handler MigrationEventHandler) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.eventHandlers = append(m.eventHandlers, handler)
 }
 
-// StartMigration 启动迁移任务
+// StartMigration 启动迁移任务.
 func (m *PoolMigrationManager) StartMigration(ctx context.Context, config *MigrationConfig, initiatedBy string) (*MigrationRecord, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -310,7 +310,7 @@ func (m *PoolMigrationManager) StartMigration(ctx context.Context, config *Migra
 	return record, nil
 }
 
-// GetMigrationStatus 获取迁移状态
+// GetMigrationStatus 获取迁移状态.
 func (m *PoolMigrationManager) GetMigrationStatus(id string) (*MigrationRecord, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -324,14 +324,14 @@ func (m *PoolMigrationManager) GetMigrationStatus(id string) (*MigrationRecord, 
 	return m.storage.LoadMigrationRecord(id)
 }
 
-// GetActiveMigration 获取当前活跃迁移
+// GetActiveMigration 获取当前活跃迁移.
 func (m *PoolMigrationManager) GetActiveMigration() *MigrationRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.activeMigration
 }
 
-// CancelMigration 取消迁移
+// CancelMigration 取消迁移.
 func (m *PoolMigrationManager) CancelMigration(ctx context.Context, id string, rollback bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -358,7 +358,7 @@ func (m *PoolMigrationManager) CancelMigration(ctx context.Context, id string, r
 	return nil
 }
 
-// RollbackMigration 回滚迁移
+// RollbackMigration 回滚迁移.
 func (m *PoolMigrationManager) RollbackMigration(ctx context.Context, id string) error {
 	m.mu.Lock()
 
@@ -373,7 +373,7 @@ func (m *PoolMigrationManager) RollbackMigration(ctx context.Context, id string)
 	return m.performRollback(m.activeMigration)
 }
 
-// ListMigrationHistory 列出迁移历史
+// ListMigrationHistory 列出迁移历史.
 func (m *PoolMigrationManager) ListMigrationHistory(limit int) ([]*MigrationRecord, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -387,7 +387,7 @@ func (m *PoolMigrationManager) ListMigrationHistory(limit int) ([]*MigrationReco
 
 // ========== 内部方法 ==========
 
-// validateConfig 验证迁移配置
+// validateConfig 验证迁移配置.
 func (m *PoolMigrationManager) validateConfig(config *MigrationConfig) error {
 	if config.SourcePoolID == "" {
 		return ErrInvalidSourcePool
@@ -407,7 +407,7 @@ func (m *PoolMigrationManager) validateConfig(config *MigrationConfig) error {
 	return nil
 }
 
-// createCheckpoint 创建检查点
+// createCheckpoint 创建检查点.
 func (m *PoolMigrationManager) createCheckpoint(record *MigrationRecord, phase MigrationPhase) *MigrationCheckpoint {
 	return &MigrationCheckpoint{
 		ID:           generateCheckpointID(),
@@ -419,7 +419,7 @@ func (m *PoolMigrationManager) createCheckpoint(record *MigrationRecord, phase M
 	}
 }
 
-// saveCheckpoint 保存检查点
+// saveCheckpoint 保存检查点.
 func (m *PoolMigrationManager) saveCheckpoint(checkpoint *MigrationCheckpoint) error {
 	m.mu.Lock()
 	m.checkpoints[checkpoint.MigrationID] = checkpoint
@@ -427,7 +427,7 @@ func (m *PoolMigrationManager) saveCheckpoint(checkpoint *MigrationCheckpoint) e
 	return m.storage.SaveCheckpoint(checkpoint)
 }
 
-// executeMigration 执行迁移流程
+// executeMigration 执行迁移流程.
 func (m *PoolMigrationManager) executeMigration(config *MigrationConfig, record *MigrationRecord) {
 	defer func() {
 		m.mu.Lock()
@@ -490,7 +490,7 @@ func (m *PoolMigrationManager) executeMigration(config *MigrationConfig, record 
 	m.emitMigrationComplete(record)
 }
 
-// phasePrepareAndValidate 准备和验证阶段
+// phasePrepareAndValidate 准备和验证阶段.
 func (m *PoolMigrationManager) phasePrepareAndValidate(config *MigrationConfig, record *MigrationRecord) error {
 	m.updateProgress(record, MigrationPhaseValidate, 0)
 
@@ -527,7 +527,7 @@ func (m *PoolMigrationManager) phasePrepareAndValidate(config *MigrationConfig, 
 	return nil
 }
 
-// phaseStopApps 停止应用阶段
+// phaseStopApps 停止应用阶段.
 func (m *PoolMigrationManager) phaseStopApps(config *MigrationConfig, record *MigrationRecord) error {
 	m.updateProgress(record, MigrationPhaseStopApps, 10)
 
@@ -543,7 +543,7 @@ func (m *PoolMigrationManager) phaseStopApps(config *MigrationConfig, record *Mi
 	return nil
 }
 
-// phaseTransferData 数据传输阶段
+// phaseTransferData 数据传输阶段.
 func (m *PoolMigrationManager) phaseTransferData(config *MigrationConfig, record *MigrationRecord) error {
 	m.updateProgress(record, MigrationPhaseTransferData, 20)
 
@@ -565,7 +565,7 @@ func (m *PoolMigrationManager) phaseTransferData(config *MigrationConfig, record
 	return nil
 }
 
-// phaseUpdateConfig 更新配置阶段
+// phaseUpdateConfig 更新配置阶段.
 func (m *PoolMigrationManager) phaseUpdateConfig(config *MigrationConfig, record *MigrationRecord) error {
 	m.updateProgress(record, MigrationPhaseUpdateConfig, 85)
 
@@ -580,7 +580,7 @@ func (m *PoolMigrationManager) phaseUpdateConfig(config *MigrationConfig, record
 	return nil
 }
 
-// phaseStartApps 启动应用阶段
+// phaseStartApps 启动应用阶段.
 func (m *PoolMigrationManager) phaseStartApps(config *MigrationConfig, record *MigrationRecord) error {
 	m.updateProgress(record, MigrationPhaseStartApps, 90)
 
@@ -592,7 +592,7 @@ func (m *PoolMigrationManager) phaseStartApps(config *MigrationConfig, record *M
 	return nil
 }
 
-// phaseVerify 验证阶段
+// phaseVerify 验证阶段.
 func (m *PoolMigrationManager) phaseVerify(config *MigrationConfig, record *MigrationRecord) error {
 	m.updateProgress(record, MigrationPhaseVerify, 95)
 
@@ -605,7 +605,7 @@ func (m *PoolMigrationManager) phaseVerify(config *MigrationConfig, record *Migr
 	return nil
 }
 
-// phaseCleanup 清理阶段
+// phaseCleanup 清理阶段.
 func (m *PoolMigrationManager) phaseCleanup(config *MigrationConfig, record *MigrationRecord) {
 	m.updateProgress(record, MigrationPhaseCleanup, 98)
 	checkpoint := m.createCheckpoint(record, MigrationPhaseCleanup)
@@ -613,7 +613,7 @@ func (m *PoolMigrationManager) phaseCleanup(config *MigrationConfig, record *Mig
 	_ = m.saveCheckpoint(checkpoint)
 }
 
-// performRollback 执行回滚
+// performRollback 执行回滚.
 func (m *PoolMigrationManager) performRollback(record *MigrationRecord) error {
 	m.emitRollbackStart(record)
 
@@ -650,7 +650,7 @@ func (m *PoolMigrationManager) performRollback(record *MigrationRecord) error {
 	return nil
 }
 
-// handleMigrationFailure 处理迁移失败
+// handleMigrationFailure 处理迁移失败.
 func (m *PoolMigrationManager) handleMigrationFailure(record *MigrationRecord, err error, autoRollback bool) {
 	m.mu.Lock()
 	record.Status = MigrationStatusFailed
@@ -669,56 +669,56 @@ func (m *PoolMigrationManager) handleMigrationFailure(record *MigrationRecord, e
 
 // ========== 辅助函数 ==========
 
-// emitMigrationStart 发射迁移开始事件
+// emitMigrationStart 发射迁移开始事件.
 func (m *PoolMigrationManager) emitMigrationStart(record *MigrationRecord) {
 	for _, h := range m.eventHandlers {
 		h.OnMigrationStart(record)
 	}
 }
 
-// emitMigrationComplete 发射迁移完成事件
+// emitMigrationComplete 发射迁移完成事件.
 func (m *PoolMigrationManager) emitMigrationComplete(record *MigrationRecord) {
 	for _, h := range m.eventHandlers {
 		h.OnMigrationComplete(record)
 	}
 }
 
-// emitRollbackComplete 发射回滚完成事件
+// emitRollbackComplete 发射回滚完成事件.
 func (m *PoolMigrationManager) emitRollbackComplete(record *MigrationRecord) {
 	for _, h := range m.eventHandlers {
 		h.OnRollbackComplete(record)
 	}
 }
 
-// emitMigrationProgress 发射迁移进度事件
+// emitMigrationProgress 发射迁移进度事件.
 func (m *PoolMigrationManager) emitMigrationProgress(record *MigrationRecord, progress *MigrationProgress) {
 	for _, h := range m.eventHandlers {
 		h.OnMigrationProgress(record, progress)
 	}
 }
 
-// emitMigrationFailed 发射迁移失败事件
+// emitMigrationFailed 发射迁移失败事件.
 func (m *PoolMigrationManager) emitMigrationFailed(record *MigrationRecord, err error) {
 	for _, h := range m.eventHandlers {
 		h.OnMigrationFailed(record, err)
 	}
 }
 
-// emitRollbackStart 发射回滚开始事件
+// emitRollbackStart 发射回滚开始事件.
 func (m *PoolMigrationManager) emitRollbackStart(record *MigrationRecord) {
 	for _, h := range m.eventHandlers {
 		h.OnRollbackStart(record)
 	}
 }
 
-// saveMigrationRecord 保存迁移记录
+// saveMigrationRecord 保存迁移记录.
 func (m *PoolMigrationManager) saveMigrationRecord(record *MigrationRecord) {
 	if m.storage != nil {
 		m.storage.SaveMigrationRecord(record)
 	}
 }
 
-// updateProgress 更新进度
+// updateProgress 更新进度.
 func (m *PoolMigrationManager) updateProgress(record *MigrationRecord, phase MigrationPhase, percent float64) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -734,12 +734,12 @@ func maxInt(a, b int) int {
 	return b
 }
 
-// generateMigrationID 生成迁移ID
+// generateMigrationID 生成迁移ID.
 func generateMigrationID() string {
 	return fmt.Sprintf("migration-%d", time.Now().UnixNano())
 }
 
-// generateCheckpointID 生成检查点ID
+// generateCheckpointID 生成检查点ID.
 func generateCheckpointID() string {
 	return fmt.Sprintf("checkpoint-%d", time.Now().UnixNano())
 }

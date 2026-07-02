@@ -2,7 +2,7 @@ package edgecompute
 
 import "time"
 
-// WorkloadType 工作负载类型
+// WorkloadType 工作负载类型.
 type WorkloadType string
 
 const (
@@ -15,7 +15,7 @@ const (
 	WorkloadCron      WorkloadType = "cron"
 )
 
-// WorkloadStatus 工作负载状态
+// WorkloadStatus 工作负载状态.
 type WorkloadStatus string
 
 const (
@@ -29,7 +29,7 @@ const (
 	StatusUpdating  WorkloadStatus = "updating"
 )
 
-// FunctionRuntime 函数运行时
+// FunctionRuntime 函数运行时.
 type FunctionRuntime string
 
 const (
@@ -44,7 +44,7 @@ const (
 	RuntimeContainer FunctionRuntime = "container"
 )
 
-// AIModelType AI 模型类型
+// AIModelType AI 模型类型.
 type AIModelType string
 
 const (
@@ -56,7 +56,7 @@ const (
 	ModelCustom    AIModelType = "custom"
 )
 
-// NodeStatus 节点状态
+// NodeStatus 节点状态.
 type NodeStatus string
 
 const (
@@ -67,7 +67,7 @@ const (
 	NodeUnknown  NodeStatus = "unknown"
 )
 
-// EdgeNode 边缘节点
+// EdgeNode 边缘节点.
 type EdgeNode struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -91,7 +91,7 @@ type EdgeNode struct {
 	UpdatedAt     time.Time         `json:"updated_at"`
 }
 
-// NodeResources 节点资源
+// NodeResources 节点资源.
 type NodeResources struct {
 	CPUUsed       float64 `json:"cpu_used"`
 	CPUTotal      float64 `json:"cpu_total"`
@@ -105,7 +105,7 @@ type NodeResources struct {
 	MaxPods       int     `json:"max_pods"`
 }
 
-// Workload 工作负载
+// Workload 工作负载.
 type Workload struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -142,7 +142,7 @@ type Workload struct {
 	DeploymentID  string            `json:"deployment_id"`
 }
 
-// PortMapping 端口映射
+// PortMapping 端口映射.
 type PortMapping struct {
 	Name          string `json:"name"`
 	ContainerPort int    `json:"container_port"`
@@ -150,7 +150,7 @@ type PortMapping struct {
 	Protocol      string `json:"protocol"`
 }
 
-// VolumeMount 卷挂载
+// VolumeMount 卷挂载.
 type VolumeMount struct {
 	Name      string `json:"name"`
 	MountPath string `json:"mount_path"`
@@ -159,7 +159,7 @@ type VolumeMount struct {
 	Type      string `json:"type"`
 }
 
-// HealthCheck 健康检查
+// HealthCheck 健康检查.
 type HealthCheck struct {
 	Type                string `json:"type"`
 	Path                string `json:"path,omitempty"`
@@ -172,7 +172,7 @@ type HealthCheck struct {
 	InitialDelaySeconds int    `json:"initial_delay_seconds"`
 }
 
-// Trigger 触发器
+// Trigger 触发器.
 type Trigger struct {
 	Type       string            `json:"type"`
 	Cron       string            `json:"cron,omitempty"`
@@ -181,7 +181,7 @@ type Trigger struct {
 	Conditions map[string]string `json:"conditions,omitempty"`
 }
 
-// ResourceRequest 资源请求
+// ResourceRequest 资源请求.
 type ResourceRequest struct {
 	CPUCores    float64 `json:"cpu_cores"`
 	CPU         float64 `json:"cpu"`
@@ -192,7 +192,7 @@ type ResourceRequest struct {
 	BandwidthMB int     `json:"bandwidth_mb"`
 }
 
-// Toleration 容忍
+// Toleration 容忍.
 type Toleration struct {
 	Key      string `json:"key"`
 	Operator string `json:"operator"`
@@ -200,64 +200,64 @@ type Toleration struct {
 	Effect   string `json:"effect"`
 }
 
-// Affinity 亲和性
+// Affinity 亲和性.
 type Affinity struct {
 	NodeAffinity    *NodeAffinity    `json:"node_affinity,omitempty"`
 	PodAffinity     *PodAffinity     `json:"pod_affinity,omitempty"`
 	PodAntiAffinity *PodAntiAffinity `json:"pod_anti_affinity,omitempty"`
 }
 
-// NodeAffinity 节点亲和性
+// NodeAffinity 节点亲和性.
 type NodeAffinity struct {
 	Required  []NodeSelector  `json:"required,omitempty"`
 	Preferred []PreferredTerm `json:"preferred,omitempty"`
 }
 
-// PodAffinity Pod 亲和性
+// PodAffinity Pod 亲和性.
 type PodAffinity struct {
 	Required  []PodSelectorTerm `json:"required,omitempty"`
 	Preferred []WeightedPodTerm `json:"preferred,omitempty"`
 }
 
-// PodAntiAffinity Pod 反亲和性
+// PodAntiAffinity Pod 反亲和性.
 type PodAntiAffinity struct {
 	Required  []PodSelectorTerm `json:"required,omitempty"`
 	Preferred []WeightedPodTerm `json:"preferred,omitempty"`
 }
 
-// NodeSelector 节点选择器
+// NodeSelector 节点选择器.
 type NodeSelector struct {
 	MatchLabels      map[string]string `json:"match_labels,omitempty"`
 	MatchExpressions []SelectorExpr    `json:"match_expressions,omitempty"`
 }
 
-// SelectorExpr 选择器表达式
+// SelectorExpr 选择器表达式.
 type SelectorExpr struct {
 	Key      string   `json:"key"`
 	Operator string   `json:"operator"`
 	Values   []string `json:"values,omitempty"`
 }
 
-// PreferredTerm 首选项
+// PreferredTerm 首选项.
 type PreferredTerm struct {
 	Weight     int          `json:"weight"`
 	Preference NodeSelector `json:"preference"`
 }
 
-// PodSelectorTerm Pod 选择器项
+// PodSelectorTerm Pod 选择器项.
 type PodSelectorTerm struct {
 	MatchLabels      map[string]string `json:"match_labels,omitempty"`
 	MatchExpressions []SelectorExpr    `json:"match_expressions,omitempty"`
 }
 
-// WeightedPodTerm 加权 Pod 项
+// WeightedPodTerm 加权 Pod 项.
 type WeightedPodTerm struct {
 	Weight     int             `json:"weight"`
 	Preference PodSelectorTerm `json:"preference"`
 }
 
 // FunctionState 函数状态
-// FunctionState 函数状态
+// FunctionState 函数状态.
 type FunctionState string
 
 const (
@@ -267,14 +267,14 @@ const (
 	StateDeploying FunctionState = "deploying"
 )
 
-// FunctionConfig 函数配置
+// FunctionConfig 函数配置.
 type FunctionConfig struct {
 	Timeout    int `json:"timeout"`
 	Memory     int `json:"memory"`
 	MaxRetries int `json:"max_retries"`
 }
 
-// Config 边缘计算配置
+// Config 边缘计算配置.
 type Config struct {
 	Enabled        bool `json:"enabled"`
 	MaxFunctions   int  `json:"max_functions"`
@@ -285,7 +285,7 @@ type Config struct {
 	AutoScaling    bool `json:"auto_scaling"`
 }
 
-// Function 函数计算
+// Function 函数计算.
 type Function struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -309,7 +309,7 @@ type Function struct {
 	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
-// AIInferenceTask AI 推理任务
+// AIInferenceTask AI 推理任务.
 type AIInferenceTask struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -328,7 +328,7 @@ type AIInferenceTask struct {
 	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
-// DeploymentRecord 部署记录
+// DeploymentRecord 部署记录.
 type DeploymentRecord struct {
 	ID           string     `json:"id"`
 	WorkloadID   string     `json:"workload_id"`
@@ -343,7 +343,7 @@ type DeploymentRecord struct {
 	RollbackID   string     `json:"rollback_id,omitempty"`
 }
 
-// EdgeCluster 边缘集群
+// EdgeCluster 边缘集群.
 type EdgeCluster struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
@@ -358,7 +358,7 @@ type EdgeCluster struct {
 	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
-// NetworkConfig 网络配置
+// NetworkConfig 网络配置.
 type NetworkConfig struct {
 	PodCIDR     string `json:"pod_cidr"`
 	ServiceCIDR string `json:"service_cidr"`
@@ -367,13 +367,13 @@ type NetworkConfig struct {
 	MTU         int    `json:"mtu"`
 }
 
-// StorageConfig 存储配置
+// StorageConfig 存储配置.
 type StorageConfig struct {
 	DefaultClass string         `json:"default_class"`
 	Classes      []StorageClass `json:"classes"`
 }
 
-// StorageClass 存储类
+// StorageClass 存储类.
 type StorageClass struct {
 	Name          string            `json:"name"`
 	Provisioner   string            `json:"provisioner"`
@@ -381,7 +381,7 @@ type StorageClass struct {
 	ReclaimPolicy string            `json:"reclaim_policy"`
 }
 
-// WorkloadMetrics 工作负载指标
+// WorkloadMetrics 工作负载指标.
 type WorkloadMetrics struct {
 	WorkloadID  string    `json:"workload_id"`
 	Timestamp   time.Time `json:"timestamp"`
@@ -395,7 +395,7 @@ type WorkloadMetrics struct {
 	Restarts    int       `json:"restarts"`
 }
 
-// ClusterStats 集群统计
+// ClusterStats 集群统计.
 type ClusterStats struct {
 	TotalNodes       int     `json:"total_nodes"`
 	ReadyNodes       int     `json:"ready_nodes"`
@@ -412,7 +412,7 @@ type ClusterStats struct {
 	Deployments      int     `json:"deployments"`
 }
 
-// EdgeEvent 边缘事件
+// EdgeEvent 边缘事件.
 type EdgeEvent struct {
 	ID         string    `json:"id"`
 	Type       string    `json:"type"`

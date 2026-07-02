@@ -15,7 +15,7 @@ import (
 // Monitor NVMe健康监控服务
 // 对标: TrueNAS NVMe S.M.A.R.T.监控、群晖SSD健康监控
 
-// HealthStatus NVMe健康状态
+// HealthStatus NVMe健康状态.
 type HealthStatus struct {
 	Device          string    // 设备路径 (/dev/nvme0n1)
 	Model           string    // 型号
@@ -34,7 +34,7 @@ type HealthStatus struct {
 	LastChecked     time.Time // 最后检查时间
 }
 
-// AlertConfig 告警配置
+// AlertConfig 告警配置.
 type AlertConfig struct {
 	TemperatureThreshold    int      // 温度阈值 (摄氏度)
 	PercentUsedThreshold    float64  // 寿命阈值 (百分比)
@@ -42,7 +42,7 @@ type AlertConfig struct {
 	NotifyChannels          []string // 通知渠道 (email/webhook)
 }
 
-// DefaultAlertConfig 默认告警配置
+// DefaultAlertConfig 默认告警配置.
 func DefaultAlertConfig() AlertConfig {
 	return AlertConfig{
 		TemperatureThreshold:    70, // 70度告警
@@ -52,7 +52,7 @@ func DefaultAlertConfig() AlertConfig {
 	}
 }
 
-// NVMeMonitor NVMe监控器
+// NVMeMonitor NVMe监控器.
 type NVMeMonitor struct {
 	config    AlertConfig
 	devices   map[string]*HealthStatus
@@ -60,7 +60,7 @@ type NVMeMonitor struct {
 	mu        sync.RWMutex
 }
 
-// Alert 告警消息
+// Alert 告警消息.
 type Alert struct {
 	Device    string
 	Type      string // temperature/lifespan/spare/media_error
@@ -69,7 +69,7 @@ type Alert struct {
 	Timestamp time.Time
 }
 
-// NewNVMeMonitor 创建NVMe监控器
+// NewNVMeMonitor 创建NVMe监控器.
 func NewNVMeMonitor(cfg AlertConfig) *NVMeMonitor {
 	return &NVMeMonitor{
 		config:    cfg,
@@ -78,7 +78,7 @@ func NewNVMeMonitor(cfg AlertConfig) *NVMeMonitor {
 	}
 }
 
-// DiscoverDevices 发现所有NVMe设备
+// DiscoverDevices 发现所有NVMe设备.
 func (m *NVMeMonitor) DiscoverDevices(ctx context.Context) ([]string, error) {
 	cmd := exec.CommandContext(ctx, "nvme", "list")
 	output, err := cmd.Output()
@@ -104,7 +104,7 @@ func (m *NVMeMonitor) DiscoverDevices(ctx context.Context) ([]string, error) {
 	return devices, nil
 }
 
-// CheckHealth 检查单个设备健康状态
+// CheckHealth 检查单个设备健康状态.
 func (m *NVMeMonitor) CheckHealth(ctx context.Context, device string) (*HealthStatus, error) {
 	// 使用nvme-cli获取SMART数据
 	cmd := exec.CommandContext(ctx, "nvme", "smart-log", device)
@@ -132,7 +132,7 @@ func (m *NVMeMonitor) CheckHealth(ctx context.Context, device string) (*HealthSt
 	return status, nil
 }
 
-// CheckAllHealth 检查所有设备健康状态
+// CheckAllHealth 检查所有设备健康状态.
 func (m *NVMeMonitor) CheckAllHealth(ctx context.Context) ([]HealthStatus, error) {
 	devices, err := m.DiscoverDevices(ctx)
 	if err != nil {
@@ -156,7 +156,7 @@ func (m *NVMeMonitor) CheckAllHealth(ctx context.Context) ([]HealthStatus, error
 	return results, nil
 }
 
-// checkAlerts 检查告警条件
+// checkAlerts 检查告警条件.
 func (m *NVMeMonitor) checkAlerts(status *HealthStatus) {
 	// 温度告警
 	if status.Temperature >= m.config.TemperatureThreshold {
@@ -223,19 +223,19 @@ func (m *NVMeMonitor) checkAlerts(status *HealthStatus) {
 	}
 }
 
-// Alerts 获取告警通道
+// Alerts 获取告警通道.
 func (m *NVMeMonitor) Alerts() <-chan Alert {
 	return m.alertChan
 }
 
-// GetAllStatus 获取所有设备状态
+// GetAllStatus 获取所有设备状态.
 func (m *NVMeMonitor) GetAllStatus() map[string]*HealthStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.devices
 }
 
-// StartMonitoring 启动后台监控
+// StartMonitoring 启动后台监控.
 func (m *NVMeMonitor) StartMonitoring(ctx context.Context, interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
@@ -250,7 +250,7 @@ func (m *NVMeMonitor) StartMonitoring(ctx context.Context, interval time.Duratio
 	}
 }
 
-// ExportMetrics 导出监控指标 (Prometheus格式)
+// ExportMetrics 导出监控指标 (Prometheus格式).
 func (m *NVMeMonitor) ExportMetrics() string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -263,18 +263,18 @@ func (m *NVMeMonitor) ExportMetrics() string {
 
 		deviceLabel := strings.ReplaceAll(dev, "/", "_")
 
-		metrics.WriteString(fmt.Sprintf("nvme_temperature{device=\"%s\"} %d\n", deviceLabel, status.Temperature))
-		metrics.WriteString(fmt.Sprintf("nvme_percent_used{device=\"%s\"} %.1f\n", deviceLabel, status.PercentUsed))
-		metrics.WriteString(fmt.Sprintf("nvme_available_spare{device=\"%s\"} %.1f\n", deviceLabel, status.AvailableSpare))
-		metrics.WriteString(fmt.Sprintf("nvme_power_cycles{device=\"%s\"} %d\n", deviceLabel, status.PowerCycles))
-		metrics.WriteString(fmt.Sprintf("nvme_power_on_hours{device=\"%s\"} %d\n", deviceLabel, status.PowerOnHours))
-		metrics.WriteString(fmt.Sprintf("nvme_media_errors{device=\"%s\"} %d\n", deviceLabel, status.MediaErrors))
+		fmt.Fprintf(&metrics, "nvme_temperature{device=\"%s\"} %d\n", deviceLabel, status.Temperature)
+		fmt.Fprintf(&metrics, "nvme_percent_used{device=\"%s\"} %.1f\n", deviceLabel, status.PercentUsed)
+		fmt.Fprintf(&metrics, "nvme_available_spare{device=\"%s\"} %.1f\n", deviceLabel, status.AvailableSpare)
+		fmt.Fprintf(&metrics, "nvme_power_cycles{device=\"%s\"} %d\n", deviceLabel, status.PowerCycles)
+		fmt.Fprintf(&metrics, "nvme_power_on_hours{device=\"%s\"} %d\n", deviceLabel, status.PowerOnHours)
+		fmt.Fprintf(&metrics, "nvme_media_errors{device=\"%s\"} %d\n", deviceLabel, status.MediaErrors)
 	}
 
 	return metrics.String()
 }
 
-// parseNVMeList 解析nvme list输出
+// parseNVMeList 解析nvme list输出.
 func parseNVMeList(output string) []string {
 	devices := []string{}
 	lines := strings.Split(output, "\n")
@@ -293,7 +293,7 @@ func parseNVMeList(output string) []string {
 	return devices
 }
 
-// parseSmartLog 解析SMART日志
+// parseSmartLog 解析SMART日志.
 func parseSmartLog(device, output string) *HealthStatus {
 	status := &HealthStatus{
 		Device: device,
@@ -345,7 +345,7 @@ func parseSmartLog(device, output string) *HealthStatus {
 	return status
 }
 
-// DashboardData 存储安全看板数据
+// DashboardData 存储安全看板数据.
 type DashboardData struct {
 	Devices       []HealthStatus
 	CriticalCount int
@@ -354,7 +354,7 @@ type DashboardData struct {
 	LastUpdate    time.Time
 }
 
-// GetDashboard 获取看板数据
+// GetDashboard 获取看板数据.
 func (m *NVMeMonitor) GetDashboard() DashboardData {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -382,7 +382,7 @@ func (m *NVMeMonitor) GetDashboard() DashboardData {
 	return data
 }
 
-// ToJSON 导出为JSON
+// ToJSON 导出为JSON.
 func (s *HealthStatus) ToJSON() string {
 	data, _ := json.MarshalIndent(s, "", "  ")
 	return string(data)

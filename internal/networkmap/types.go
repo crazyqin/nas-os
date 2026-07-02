@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// DeviceType represents network device type
+// DeviceType represents network device type.
 type DeviceType string
 
 const (
@@ -30,7 +30,7 @@ const (
 	DeviceUnknown DeviceType = "unknown"
 )
 
-// ConnectionType represents connection type
+// ConnectionType represents connection type.
 type ConnectionType string
 
 const (
@@ -41,7 +41,7 @@ const (
 	ConnVPN       ConnectionType = "vpn"
 )
 
-// DeviceStatus represents device status
+// DeviceStatus represents device status.
 type DeviceStatus string
 
 const (
@@ -50,7 +50,7 @@ const (
 	StatusWarning DeviceStatus = "warning"
 )
 
-// NetworkDevice represents a discovered network device
+// NetworkDevice represents a discovered network device.
 type NetworkDevice struct {
 	ID           string            `json:"id"`
 	Name         string            `json:"name"`
@@ -71,7 +71,7 @@ type NetworkDevice struct {
 	Metadata     map[string]string `json:"metadata"`
 }
 
-// PortInfo represents a network port
+// PortInfo represents a network port.
 type PortInfo struct {
 	Port     int    `json:"port"`
 	Protocol string `json:"protocol"`
@@ -79,7 +79,7 @@ type PortInfo struct {
 	State    string `json:"state"`
 }
 
-// BandwidthInfo represents bandwidth usage
+// BandwidthInfo represents bandwidth usage.
 type BandwidthInfo struct {
 	InboundBPS  int64     `json:"inbound_bps"`
 	OutboundBPS int64     `json:"outbound_bps"`
@@ -87,7 +87,7 @@ type BandwidthInfo struct {
 	Timestamp   time.Time `json:"timestamp"`
 }
 
-// NetworkLink represents a connection between devices
+// NetworkLink represents a connection between devices.
 type NetworkLink struct {
 	ID        string         `json:"id"`
 	SourceID  string         `json:"source_id"`
@@ -99,7 +99,7 @@ type NetworkLink struct {
 	IsActive  bool           `json:"is_active"`
 }
 
-// NetworkTopology represents the full network topology
+// NetworkTopology represents the full network topology.
 type NetworkTopology struct {
 	Devices   []*NetworkDevice `json:"devices"`
 	Links     []*NetworkLink   `json:"links"`
@@ -107,7 +107,7 @@ type NetworkTopology struct {
 	UpdatedAt time.Time        `json:"updated_at"`
 }
 
-// SubnetInfo represents network subnet information
+// SubnetInfo represents network subnet information.
 type SubnetInfo struct {
 	CIDR        string `json:"cidr"`
 	Gateway     string `json:"gateway"`
@@ -116,7 +116,7 @@ type SubnetInfo struct {
 	DeviceCount int    `json:"device_count"`
 }
 
-// ScanResult represents a network scan result
+// ScanResult represents a network scan result.
 type ScanResult struct {
 	ScanID       string           `json:"scan_id"`
 	StartTime    time.Time        `json:"start_time"`
@@ -127,7 +127,7 @@ type ScanResult struct {
 	Devices      []*NetworkDevice `json:"devices"`
 }
 
-// NetworkStats represents network statistics
+// NetworkStats represents network statistics.
 type NetworkStats struct {
 	TotalDevices   int              `json:"total_devices"`
 	OnlineDevices  int              `json:"online_devices"`
@@ -139,7 +139,7 @@ type NetworkStats struct {
 	LastScan       time.Time        `json:"last_scan"`
 }
 
-// AlertType represents network alert types
+// AlertType represents network alert types.
 type AlertType string
 
 const (
@@ -150,7 +150,7 @@ const (
 	AlertUnusualTraffic AlertType = "unusual_traffic"
 )
 
-// NetworkAlert represents a network alert
+// NetworkAlert represents a network alert.
 type NetworkAlert struct {
 	ID        string    `json:"id"`
 	Type      AlertType `json:"type"`
@@ -161,7 +161,7 @@ type NetworkAlert struct {
 	Acked     bool      `json:"acked"`
 }
 
-// Config holds network map configuration
+// Config holds network map configuration.
 type Config struct {
 	Enabled          bool     `json:"enabled"`
 	ScanInterval     int      `json:"scan_interval_minutes"`
@@ -174,7 +174,7 @@ type Config struct {
 	CommonPorts      []int    `json:"common_ports"`
 }
 
-// Manager manages network topology
+// Manager manages network topology.
 type Manager struct {
 	config   *Config
 	devices  map[string]*NetworkDevice
@@ -187,7 +187,7 @@ type Manager struct {
 	cancel   context.CancelFunc
 }
 
-// NewManager creates a new network map manager
+// NewManager creates a new network map manager.
 func NewManager(config *Config) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Manager{
@@ -210,7 +210,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// AddDevice adds or updates a network device
+// AddDevice adds or updates a network device.
 func (m *Manager) AddDevice(device *NetworkDevice) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -241,7 +241,7 @@ func (m *Manager) AddDevice(device *NetworkDevice) error {
 	return nil
 }
 
-// RemoveDevice removes a device
+// RemoveDevice removes a device.
 func (m *Manager) RemoveDevice(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -258,7 +258,7 @@ func (m *Manager) RemoveDevice(id string) error {
 	return nil
 }
 
-// AddLink adds a network link
+// AddLink adds a network link.
 func (m *Manager) AddLink(link *NetworkLink) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -267,7 +267,7 @@ func (m *Manager) AddLink(link *NetworkLink) error {
 	return nil
 }
 
-// ScanSubnet scans a subnet for devices
+// ScanSubnet scans a subnet for devices.
 func (m *Manager) ScanSubnet(cidr string) (*ScanResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -301,7 +301,7 @@ func (m *Manager) ScanSubnet(cidr string) (*ScanResult, error) {
 	return result, nil
 }
 
-// GetTopology returns the full network topology
+// GetTopology returns the full network topology.
 func (m *Manager) GetTopology() *NetworkTopology {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -323,7 +323,7 @@ func (m *Manager) GetTopology() *NetworkTopology {
 	return topo
 }
 
-// GetDevice returns a device by ID
+// GetDevice returns a device by ID.
 func (m *Manager) GetDevice(id string) (*NetworkDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -334,7 +334,7 @@ func (m *Manager) GetDevice(id string) (*NetworkDevice, error) {
 	return device, nil
 }
 
-// ListDevices returns all devices
+// ListDevices returns all devices.
 func (m *Manager) ListDevices() []*NetworkDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -345,7 +345,7 @@ func (m *Manager) ListDevices() []*NetworkDevice {
 	return devices
 }
 
-// GetStats returns network statistics
+// GetStats returns network statistics.
 func (m *Manager) GetStats() *NetworkStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -361,7 +361,7 @@ func (m *Manager) GetStats() *NetworkStats {
 	return m.stats
 }
 
-// GetAlerts returns network alerts
+// GetAlerts returns network alerts.
 func (m *Manager) GetAlerts(unackedOnly bool) []*NetworkAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -397,7 +397,7 @@ func inc(ip net.IP) {
 	}
 }
 
-// Stop stops the network map manager
+// Stop stops the network map manager.
 func (m *Manager) Stop() {
 	m.cancel()
 }

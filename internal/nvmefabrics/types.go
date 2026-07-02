@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// TransportType 传输类型
+// TransportType 传输类型.
 type TransportType string
 
 const (
@@ -15,7 +15,7 @@ const (
 	TransportRoCEv2 TransportType = "rocev2"
 )
 
-// TargetState 目标状态
+// TargetState 目标状态.
 type TargetState string
 
 const (
@@ -24,7 +24,7 @@ const (
 	TargetStateError    TargetState = "error"
 )
 
-// SubsystemState 子系统状态
+// SubsystemState 子系统状态.
 type SubsystemState string
 
 const (
@@ -33,7 +33,7 @@ const (
 	SubsystemStateError   SubsystemState = "error"
 )
 
-// NVMfTarget NVMe over Fabrics 目标
+// NVMfTarget NVMe over Fabrics 目标.
 type NVMfTarget struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -48,7 +48,7 @@ type NVMfTarget struct {
 	UpdatedAt     time.Time         `json:"updated_at"`
 }
 
-// NVMfSubsystem NVMe 子系统
+// NVMfSubsystem NVMe 子系统.
 type NVMfSubsystem struct {
 	NQN           string           `json:"nqn"` // NVMe Qualified Name
 	TargetID      string           `json:"target_id"`
@@ -61,7 +61,7 @@ type NVMfSubsystem struct {
 	CreatedAt     time.Time        `json:"created_at"`
 }
 
-// NVMfNamespace NVMe 命名空间
+// NVMfNamespace NVMe 命名空间.
 type NVMfNamespace struct {
 	ID           int    `json:"id"`
 	SubsystemNQN string `json:"subsystem_nqn"`
@@ -72,7 +72,7 @@ type NVMfNamespace struct {
 	NGUID        string `json:"nguid,omitempty"`
 }
 
-// NVMfController NVMe 控制器
+// NVMfController NVMe 控制器.
 type NVMfController struct {
 	ID           string        `json:"id"`
 	SubsystemNQN string        `json:"subsystem_nqn"`
@@ -85,7 +85,7 @@ type NVMfController struct {
 	QueueDepth   int           `json:"queue_depth"`
 }
 
-// NVMfTransport NVMe 传输配置
+// NVMfTransport NVMe 传输配置.
 type NVMfTransport struct {
 	Type      TransportType `json:"type"`
 	IP        net.IP        `json:"ip"`
@@ -95,7 +95,7 @@ type NVMfTransport struct {
 	Interface string        `json:"interface"` // Network interface
 }
 
-// ControllerStats 控制器统计
+// ControllerStats 控制器统计.
 type ControllerStats struct {
 	ControllerID   string  `json:"controller_id"`
 	IOPS           int64   `json:"iops"`
@@ -110,7 +110,7 @@ type ControllerStats struct {
 	Commands       int64   `json:"commands"`
 }
 
-// TargetStats 目标统计
+// TargetStats 目标统计.
 type TargetStats struct {
 	TotalTargets     int `json:"total_targets"`
 	ActiveTargets    int `json:"active_targets"`
@@ -121,7 +121,7 @@ type TargetStats struct {
 	TotalControllers int `json:"total_controllers"`
 }
 
-// CreateTargetRequest 创建目标请求
+// CreateTargetRequest 创建目标请求.
 type CreateTargetRequest struct {
 	Name          string        `json:"name" binding:"required"`
 	Transport     TransportType `json:"transport" binding:"required"`
@@ -130,21 +130,21 @@ type CreateTargetRequest struct {
 	MaxNamespaces int           `json:"max_namespaces"`
 }
 
-// CreateSubsystemRequest 创建子系统请求
+// CreateSubsystemRequest 创建子系统请求.
 type CreateSubsystemRequest struct {
 	NQN           string `json:"nqn" binding:"required"`
 	AllowAnyHost  bool   `json:"allow_any_host"`
 	MaxNamespaces int    `json:"max_namespaces"`
 }
 
-// AddNamespaceRequest 添加命名空间请求
+// AddNamespaceRequest 添加命名空间请求.
 type AddNamespaceRequest struct {
 	DevicePath string `json:"device_path" binding:"required"`
 	SizeBytes  int64  `json:"size_bytes" binding:"required"`
 	BlockSize  int    `json:"block_size"`
 }
 
-// ConnectHostRequest 连接主机请求
+// ConnectHostRequest 连接主机请求.
 type ConnectHostRequest struct {
 	HostNQN     string `json:"host_nqn" binding:"required"`
 	HostAddress string `json:"host_address" binding:"required"`

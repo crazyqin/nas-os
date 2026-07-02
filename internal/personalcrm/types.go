@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// ContactGroup 联系人分组类型
+// ContactGroup 联系人分组类型.
 type ContactGroup string
 
 const (
@@ -17,7 +17,7 @@ const (
 	GroupOther     ContactGroup = "other"     // 其他
 )
 
-// InteractionType 互动类型
+// InteractionType 互动类型.
 type InteractionType string
 
 const (
@@ -29,7 +29,7 @@ const (
 	InteractionOther  InteractionType = "other"  // 其他
 )
 
-// RelationType 关系类型
+// RelationType 关系类型.
 type RelationType string
 
 const (
@@ -44,7 +44,7 @@ const (
 	RelationOther     RelationType = "other"     // 其他
 )
 
-// Contact 联系人
+// Contact 联系人.
 type Contact struct {
 	ID        string         `json:"id"`
 	Name      string         `json:"name"`               // 姓名
@@ -60,7 +60,7 @@ type Contact struct {
 	UpdatedAt time.Time      `json:"updated_at"`
 }
 
-// Anniversary 纪念日
+// Anniversary 纪念日.
 type Anniversary struct {
 	ID         string    `json:"id"`
 	ContactID  string    `json:"contact_id"`  // 关联联系人ID
@@ -72,7 +72,7 @@ type Anniversary struct {
 	CreatedAt  time.Time `json:"created_at"`
 }
 
-// Interaction 互动记录
+// Interaction 互动记录.
 type Interaction struct {
 	ID        string          `json:"id"`
 	ContactID string          `json:"contact_id"` // 关联联系人ID
@@ -82,7 +82,7 @@ type Interaction struct {
 	CreatedAt time.Time       `json:"created_at"`
 }
 
-// Relationship 联系人之间的关系
+// Relationship 联系人之间的关系.
 type Relationship struct {
 	ID         string       `json:"id"`
 	ContactID1 string       `json:"contact_id_1"` // 联系人1 ID
@@ -92,7 +92,7 @@ type Relationship struct {
 	CreatedAt  time.Time    `json:"created_at"`
 }
 
-// Reminder 提醒记录
+// Reminder 提醒记录.
 type Reminder struct {
 	ID        string    `json:"id"`
 	ContactID string    `json:"contact_id"` // 关联联系人ID
@@ -104,7 +104,7 @@ type Reminder struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// ContactStats 联系人统计
+// ContactStats 联系人统计.
 type ContactStats struct {
 	ContactID         string     `json:"contact_id"`
 	TotalInteractions int        `json:"total_interactions"`   // 总互动次数
@@ -114,7 +114,7 @@ type ContactStats struct {
 	DaysSinceLastMeet int        `json:"days_since_last_meet"` // 距上次见面天数
 }
 
-// SystemStats 系统统计
+// SystemStats 系统统计.
 type SystemStats struct {
 	TotalContacts      int     `json:"total_contacts"`      // 总联系人数
 	TotalInteractions  int     `json:"total_interactions"`  // 总互动次数

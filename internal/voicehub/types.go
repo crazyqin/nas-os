@@ -4,7 +4,7 @@ package voicehub
 
 import "time"
 
-// VoicePlatform 语音助手平台
+// VoicePlatform 语音助手平台.
 type VoicePlatform string
 
 const (
@@ -15,7 +15,7 @@ const (
 	PlatformLocal  VoicePlatform = "local"
 )
 
-// VoiceLanguage 语音语言
+// VoiceLanguage 语音语言.
 type VoiceLanguage string
 
 const (
@@ -24,7 +24,7 @@ const (
 	LangJapanese VoiceLanguage = "ja-JP"
 )
 
-// CommandType 设备控制命令类型
+// CommandType 设备控制命令类型.
 type CommandType string
 
 const (
@@ -42,7 +42,7 @@ const (
 	CmdUnmute     CommandType = "unmute"
 )
 
-// SceneType 语音场景类型
+// SceneType 语音场景类型.
 type SceneType string
 
 const (
@@ -56,7 +56,7 @@ const (
 	SceneCustom       SceneType = "custom"
 )
 
-// CommandStatus 命令执行状态
+// CommandStatus 命令执行状态.
 type CommandStatus string
 
 const (
@@ -67,7 +67,7 @@ const (
 	CommandStatusTimeout    CommandStatus = "timeout"
 )
 
-// VoiceCommand 语音命令请求
+// VoiceCommand 语音命令请求.
 type VoiceCommand struct {
 	ID         string        `json:"id"`
 	Platform   VoicePlatform `json:"platform"`
@@ -78,7 +78,7 @@ type VoiceCommand struct {
 	Timestamp  time.Time     `json:"timestamp"`
 }
 
-// DeviceInfo 设备信息
+// DeviceInfo 设备信息.
 type DeviceInfo struct {
 	DeviceID   string `json:"device_id"`
 	DeviceName string `json:"device_name"`
@@ -87,7 +87,7 @@ type DeviceInfo struct {
 	Zone       string `json:"zone,omitempty"`
 }
 
-// VoiceResponse 语音命令响应
+// VoiceResponse 语音命令响应.
 type VoiceResponse struct {
 	ID          string         `json:"id"`
 	CommandID   string         `json:"command_id"`
@@ -102,7 +102,7 @@ type VoiceResponse struct {
 	CreatedAt   time.Time      `json:"created_at"`
 }
 
-// DeviceAction 设备动作
+// DeviceAction 设备动作.
 type DeviceAction struct {
 	DeviceID    string                 `json:"device_id"`
 	DeviceName  string                 `json:"device_name,omitempty"`
@@ -112,7 +112,7 @@ type DeviceAction struct {
 	Error       string                 `json:"error,omitempty"`
 }
 
-// SceneInfo 场景信息
+// SceneInfo 场景信息.
 type SceneInfo struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
@@ -124,7 +124,7 @@ type SceneInfo struct {
 	UpdatedAt   time.Time      `json:"updated_at"`
 }
 
-// SceneRequest 场景请求
+// SceneRequest 场景请求.
 type SceneRequest struct {
 	Name        string         `json:"name" binding:"required"`
 	Type        SceneType      `json:"type" binding:"required"`
@@ -132,7 +132,7 @@ type SceneRequest struct {
 	Devices     []DeviceAction `json:"devices" binding:"required,min=1"`
 }
 
-// TTSRequest 文本转语音请求
+// TTSRequest 文本转语音请求.
 type TTSRequest struct {
 	Text     string        `json:"text" binding:"required"`
 	Language VoiceLanguage `json:"language,omitempty"`
@@ -143,7 +143,7 @@ type TTSRequest struct {
 	Format   string        `json:"format,omitempty"`
 }
 
-// TTSResponse 文本转语音响应
+// TTSResponse 文本转语音响应.
 type TTSResponse struct {
 	ID        string        `json:"id"`
 	AudioURL  string        `json:"audio_url"`
@@ -153,7 +153,7 @@ type TTSResponse struct {
 	CreatedAt time.Time     `json:"created_at"`
 }
 
-// WakeWordConfig 唤醒词配置
+// WakeWordConfig 唤醒词配置.
 type WakeWordConfig struct {
 	ID          string        `json:"id"`
 	WakeWord    string        `json:"wake_word" binding:"required"`
@@ -164,7 +164,7 @@ type WakeWordConfig struct {
 	CreatedAt   time.Time     `json:"created_at"`
 }
 
-// CustomCommand 自定义语音命令
+// CustomCommand 自定义语音命令.
 type CustomCommand struct {
 	ID        string         `json:"id"`
 	Name      string         `json:"name" binding:"required"`
@@ -177,7 +177,7 @@ type CustomCommand struct {
 	UpdatedAt time.Time      `json:"updated_at"`
 }
 
-// CustomCommandRequest 自定义命令请求
+// CustomCommandRequest 自定义命令请求.
 type CustomCommandRequest struct {
 	Name     string         `json:"name" binding:"required"`
 	Pattern  string         `json:"pattern" binding:"required"`
@@ -186,7 +186,7 @@ type CustomCommandRequest struct {
 	Actions  []DeviceAction `json:"actions,omitempty"`
 }
 
-// ReplyTemplate 语音回复模板
+// ReplyTemplate 语音回复模板.
 type ReplyTemplate struct {
 	ID        string        `json:"id"`
 	Name      string        `json:"name" binding:"required"`
@@ -198,7 +198,7 @@ type ReplyTemplate struct {
 	UpdatedAt time.Time     `json:"updated_at"`
 }
 
-// ReplyTemplateRequest 回复模板请求
+// ReplyTemplateRequest 回复模板请求.
 type ReplyTemplateRequest struct {
 	Name     string        `json:"name" binding:"required"`
 	Language VoiceLanguage `json:"language,omitempty"`
@@ -206,7 +206,7 @@ type ReplyTemplateRequest struct {
 	Category string        `json:"category,omitempty"`
 }
 
-// CommandHistory 命令历史记录
+// CommandHistory 命令历史记录.
 type CommandHistory struct {
 	ID        string         `json:"id"`
 	Command   VoiceCommand   `json:"command"`
@@ -216,7 +216,7 @@ type CommandHistory struct {
 	CreatedAt time.Time      `json:"created_at"`
 }
 
-// VoiceHubConfig 语音助手配置
+// VoiceHubConfig 语音助手配置.
 type VoiceHubConfig struct {
 	Enabled            bool             `json:"enabled"`
 	DefaultPlatform    VoicePlatform    `json:"default_platform"`
@@ -232,7 +232,7 @@ type VoiceHubConfig struct {
 	SupportedPlatforms []VoicePlatform  `json:"supported_platforms,omitempty"`
 }
 
-// DefaultVoiceHubConfig 默认配置
+// DefaultVoiceHubConfig 默认配置.
 func DefaultVoiceHubConfig() *VoiceHubConfig {
 	return &VoiceHubConfig{
 		Enabled:         true,
@@ -265,7 +265,7 @@ func DefaultVoiceHubConfig() *VoiceHubConfig {
 	}
 }
 
-// PlatformConfig 平台配置
+// PlatformConfig 平台配置.
 type PlatformConfig struct {
 	Platform VoicePlatform     `json:"platform"`
 	Enabled  bool              `json:"enabled"`
@@ -275,17 +275,17 @@ type PlatformConfig struct {
 	Extra    map[string]string `json:"extra,omitempty"`
 }
 
-// SupportedLanguages 获取支持的语言列表
+// SupportedLanguages 获取支持的语言列表.
 func SupportedLanguages() []VoiceLanguage {
 	return []VoiceLanguage{LangChinese, LangEnglish, LangJapanese}
 }
 
-// SupportedPlatforms 获取支持的平台列表
+// SupportedPlatforms 获取支持的平台列表.
 func SupportedPlatforms() []VoicePlatform {
 	return []VoicePlatform{PlatformAlexa, PlatformGoogle, PlatformSiri, PlatformXiaoAi, PlatformLocal}
 }
 
-// IsValidLanguage 检查语言是否有效
+// IsValidLanguage 检查语言是否有效.
 func IsValidLanguage(lang VoiceLanguage) bool {
 	for _, l := range SupportedLanguages() {
 		if l == lang {
@@ -295,7 +295,7 @@ func IsValidLanguage(lang VoiceLanguage) bool {
 	return false
 }
 
-// IsValidPlatform 检查平台是否有效
+// IsValidPlatform 检查平台是否有效.
 func IsValidPlatform(p VoicePlatform) bool {
 	for _, platform := range SupportedPlatforms() {
 		if platform == p {

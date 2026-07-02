@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager GPU管理器
+// Manager GPU管理器.
 type Manager struct {
 	config      *GPUConfig
 	logger      *zap.Logger
@@ -30,7 +30,7 @@ type Manager struct {
 	cancel      context.CancelFunc
 }
 
-// NewManager 创建GPU管理器
+// NewManager 创建GPU管理器.
 func NewManager(config *GPUConfig, logger *zap.Logger) (*Manager, error) {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -78,7 +78,7 @@ func NewManager(config *GPUConfig, logger *zap.Logger) (*Manager, error) {
 	return mgr, nil
 }
 
-// Initialize 初始化GPU管理器
+// Initialize 初始化GPU管理器.
 func (m *Manager) Initialize() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -110,7 +110,7 @@ func (m *Manager) Initialize() error {
 	return nil
 }
 
-// detectDevices 检测GPU设备
+// detectDevices 检测GPU设备.
 func (m *Manager) detectDevices() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -154,7 +154,7 @@ func (m *Manager) detectDevices() error {
 	return nil
 }
 
-// ListGPUs 列出所有GPU设备
+// ListGPUs 列出所有GPU设备.
 func (m *Manager) ListGPUs(filter *GPUDeviceFilter) []*GPUDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -170,7 +170,7 @@ func (m *Manager) ListGPUs(filter *GPUDeviceFilter) []*GPUDevice {
 	return result
 }
 
-// matchFilter 匹配设备过滤器
+// matchFilter 匹配设备过滤器.
 func (m *Manager) matchFilter(device *GPUDevice, filter *GPUDeviceFilter) bool {
 	if filter.Vendor != "" && device.Vendor != filter.Vendor {
 		return false
@@ -198,7 +198,7 @@ func (m *Manager) matchFilter(device *GPUDevice, filter *GPUDeviceFilter) bool {
 	return true
 }
 
-// GetGPU 获取GPU设备详情
+// GetGPU 获取GPU设备详情.
 func (m *Manager) GetGPU(id string) (*GPUDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -212,7 +212,7 @@ func (m *Manager) GetGPU(id string) (*GPUDevice, error) {
 }
 
 // getAvailableGPUsInternal 内部方法获取可用GPU列表（不获取锁，用于调度器）
-// 注意：调用者必须已持有m.mu锁
+// 注意：调用者必须已持有m.mu锁.
 func (m *Manager) getAvailableGPUsInternal() []*GPUDevice {
 	var result []*GPUDevice
 	for _, device := range m.devices {
@@ -223,7 +223,7 @@ func (m *Manager) getAvailableGPUsInternal() []*GPUDevice {
 	return result
 }
 
-// AllocateGPU 分配GPU给容器/VM
+// AllocateGPU 分配GPU给容器/VM.
 func (m *Manager) AllocateGPU(req *GPUAllocation) (*GPUAllocationResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -295,7 +295,7 @@ func (m *Manager) AllocateGPU(req *GPUAllocation) (*GPUAllocationResult, error) 
 	}, nil
 }
 
-// ReleaseGPU 释放GPU
+// ReleaseGPU 释放GPU.
 func (m *Manager) ReleaseGPU(req *GPUReleaseRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -343,7 +343,7 @@ func (m *Manager) ReleaseGPU(req *GPUReleaseRequest) error {
 	return nil
 }
 
-// GetGPUStats 获取GPU统计信息
+// GetGPUStats 获取GPU统计信息.
 func (m *Manager) GetGPUStats() (*GPUStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -394,7 +394,7 @@ func (m *Manager) GetGPUStats() (*GPUStats, error) {
 	return stats, nil
 }
 
-// getHealthStatus 获取健康状态
+// getHealthStatus 获取健康状态.
 func (m *Manager) getHealthStatus() GPUHealthStatus {
 	status := GPUHealthStatus{
 		Status:    "healthy",
@@ -446,7 +446,7 @@ func (m *Manager) getHealthStatus() GPUHealthStatus {
 	return status
 }
 
-// buildDevicePaths 构建设备路径列表
+// buildDevicePaths 构建设备路径列表.
 func (m *Manager) buildDevicePaths(device *GPUDevice) []string {
 	paths := []string{device.DevicePath}
 
@@ -474,7 +474,7 @@ func (m *Manager) buildDevicePaths(device *GPUDevice) []string {
 	return paths
 }
 
-// startHealthCheck 启动健康检查
+// startHealthCheck 启动健康检查.
 func (m *Manager) startHealthCheck(ctx context.Context) {
 	if m.config.HealthCheckInterval <= 0 {
 		m.config.HealthCheckInterval = 30
@@ -493,7 +493,7 @@ func (m *Manager) startHealthCheck(ctx context.Context) {
 	}
 }
 
-// checkHealth 检查GPU健康状态
+// checkHealth 检查GPU健康状态.
 func (m *Manager) checkHealth() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -519,7 +519,7 @@ func (m *Manager) checkHealth() {
 	}
 }
 
-// GetContainerGPUAllocations 获取容器/VM的GPU分配
+// GetContainerGPUAllocations 获取容器/VM的GPU分配.
 func (m *Manager) GetContainerGPUAllocations(containerID string) []*GPUAllocation {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -534,7 +534,7 @@ func (m *Manager) GetContainerGPUAllocations(containerID string) []*GPUAllocatio
 	return allocations
 }
 
-// Close 关闭GPU管理器
+// Close 关闭GPU管理器.
 func (m *Manager) Close() error {
 	m.cancel()
 
@@ -555,17 +555,17 @@ func (m *Manager) Close() error {
 	return nil
 }
 
-// RefreshDevices 刷新GPU设备列表
+// RefreshDevices 刷新GPU设备列表.
 func (m *Manager) RefreshDevices() error {
 	return m.detectDevices()
 }
 
-// generateRequestID 生成请求ID
+// generateRequestID 生成请求ID.
 func generateRequestID() string {
 	return fmt.Sprintf("gpu-req-%d", time.Now().UnixNano())
 }
 
-// parseMemoryLimit 解析内存限制字符串
+// parseMemoryLimit 解析内存限制字符串.
 func parseMemoryLimit(limit string) uint64 {
 	limit = strings.TrimSpace(strings.ToLower(limit))
 
@@ -588,7 +588,7 @@ func parseMemoryLimit(limit string) uint64 {
 	}
 }
 
-// IsGPUAvailable 检查GPU是否可用
+// IsGPUAvailable 检查GPU是否可用.
 func (m *Manager) IsGPUAvailable() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -596,12 +596,12 @@ func (m *Manager) IsGPUAvailable() bool {
 	return len(m.devices) > 0
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *GPUConfig {
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config *GPUConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -613,7 +613,7 @@ func (m *Manager) UpdateConfig(config *GPUConfig) error {
 	return nil
 }
 
-// ExportConfig 导出配置为JSON
+// ExportConfig 导出配置为JSON.
 func (m *Manager) ExportConfig() ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -621,7 +621,7 @@ func (m *Manager) ExportConfig() ([]byte, error) {
 	return json.MarshalIndent(m.config, "", "  ")
 }
 
-// ImportConfig 从JSON导入配置
+// ImportConfig 从JSON导入配置.
 func (m *Manager) ImportConfig(data []byte) error {
 	var config GPUConfig
 	if err := json.Unmarshal(data, &config); err != nil {
@@ -631,7 +631,7 @@ func (m *Manager) ImportConfig(data []byte) error {
 	return m.UpdateConfig(&config)
 }
 
-// CheckNVidiaDriver 检查NVIDIA驱动状态
+// CheckNVidiaDriver 检查NVIDIA驱动状态.
 func (m *Manager) CheckNVidiaDriver() error {
 	if m.nvidia == nil {
 		return fmt.Errorf("NVIDIA提供者未初始化")
@@ -639,7 +639,7 @@ func (m *Manager) CheckNVidiaDriver() error {
 	return m.nvidia.CheckDriver()
 }
 
-// GetNvidiaSMIOutput 获取nvidia-smi原始输出
+// GetNvidiaSMIOutput 获取nvidia-smi原始输出.
 func (m *Manager) GetNvidiaSMIOutput() (string, error) {
 	if m.nvidia == nil {
 		return "", fmt.Errorf("NVIDIA提供者未初始化")

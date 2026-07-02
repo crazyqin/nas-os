@@ -6,17 +6,17 @@ import (
 	"strings"
 )
 
-// Handlers 提供 Docker Compose HTTP API
+// Handlers 提供 Docker Compose HTTP API.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建 Compose API 处理器
+// NewHandlers 创建 Compose API 处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/compose/projects", h.handleProjects)
 	mux.HandleFunc("/api/v1/compose/projects/", h.handleProjectByName)

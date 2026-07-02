@@ -7,40 +7,40 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers provides HTTP handlers for ACL management
+// Handlers provides HTTP handlers for ACL management.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers creates new ACL handlers
+// NewHandlers creates new ACL handlers.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes registers ACL API routes
+// RegisterRoutes registers ACL API routes.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	acl := rg.Group("/acl")
 	{
 		// ACL Management
 		acl.GET("", h.listACLs)
 		acl.POST("", h.createACL)
-		
+
 		// Access Control
 		acl.POST("/check", h.checkAccess)
 		acl.GET("/effective", h.effectivePermissions)
-		
+
 		// Permission Groups
 		acl.GET("/groups", h.getPermissionGroups)
-		
+
 		// Audit
 		acl.GET("/audit", h.getAuditLog)
-		
+
 		// Backward compatibility
 		acl.GET("/rules", h.listRules)
 		acl.POST("/rules", h.addRule)
 		acl.PUT("/rules/:id", h.updateRule)
 		acl.DELETE("/rules/:id", h.removeRule)
-		
+
 		// ACL Operations by path (use specific sub-paths)
 		acl.POST("/ace", h.addACEByPath)
 		acl.PUT("/ace", h.updateACEByPath)
@@ -48,7 +48,7 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 		acl.POST("/propagate", h.propagateByPath)
 		acl.PUT("/owner", h.setOwnerByPath)
 		acl.PUT("/group", h.setGroupByPath)
-		
+
 		// ACL by path - use specific path patterns
 		acl.GET("/path/*path", h.getACLByPath)
 		acl.PUT("/path/*path", h.updateACLByPath)
@@ -56,17 +56,17 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// listACLs returns all ACLs
+// listACLs returns all ACLs.
 func (h *Handlers) listACLs(c *gin.Context) {
 	acls := h.manager.ListACLs()
 	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"data":    acls,
-		"total":   len(acls),
+		"code":  0,
+		"data":  acls,
+		"total": len(acls),
 	})
 }
 
-// createACL creates a new ACL
+// createACL creates a new ACL.
 func (h *Handlers) createACL(c *gin.Context) {
 	var req CreateACLRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -94,7 +94,7 @@ func (h *Handlers) createACL(c *gin.Context) {
 	})
 }
 
-// getACLByPath returns the ACL for a path
+// getACLByPath returns the ACL for a path.
 func (h *Handlers) getACLByPath(c *gin.Context) {
 	path := c.Param("path")
 	if path == "" {
@@ -116,7 +116,7 @@ func (h *Handlers) getACLByPath(c *gin.Context) {
 	})
 }
 
-// updateACLByPath updates an existing ACL
+// updateACLByPath updates an existing ACL.
 func (h *Handlers) updateACLByPath(c *gin.Context) {
 	path := c.Param("path")
 	if path == "" {
@@ -149,7 +149,7 @@ func (h *Handlers) updateACLByPath(c *gin.Context) {
 	})
 }
 
-// deleteACLByPath deletes an ACL
+// deleteACLByPath deletes an ACL.
 func (h *Handlers) deleteACLByPath(c *gin.Context) {
 	path := c.Param("path")
 	if path == "" {
@@ -174,7 +174,7 @@ func (h *Handlers) deleteACLByPath(c *gin.Context) {
 	})
 }
 
-// addACEByPath adds an ACE to an ACL by path in query
+// addACEByPath adds an ACE to an ACL by path in query.
 func (h *Handlers) addACEByPath(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {
@@ -207,7 +207,7 @@ func (h *Handlers) addACEByPath(c *gin.Context) {
 	})
 }
 
-// updateACEByPath updates an ACE
+// updateACEByPath updates an ACE.
 func (h *Handlers) updateACEByPath(c *gin.Context) {
 	path := c.Query("path")
 	aceID := c.Query("aceId")
@@ -238,7 +238,7 @@ func (h *Handlers) updateACEByPath(c *gin.Context) {
 	})
 }
 
-// removeACEByPath removes an ACE
+// removeACEByPath removes an ACE.
 func (h *Handlers) removeACEByPath(c *gin.Context) {
 	path := c.Query("path")
 	aceID := c.Query("aceId")
@@ -257,7 +257,7 @@ func (h *Handlers) removeACEByPath(c *gin.Context) {
 	})
 }
 
-// checkAccess checks if a subject has a specific permission on a path
+// checkAccess checks if a subject has a specific permission on a path.
 func (h *Handlers) checkAccess(c *gin.Context) {
 	var req CheckAccessRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -283,7 +283,7 @@ func (h *Handlers) checkAccess(c *gin.Context) {
 	})
 }
 
-// effectivePermissions returns all effective permissions for a subject on a path
+// effectivePermissions returns all effective permissions for a subject on a path.
 func (h *Handlers) effectivePermissions(c *gin.Context) {
 	subject := c.Query("subject")
 	path := c.Query("path")
@@ -302,7 +302,7 @@ func (h *Handlers) effectivePermissions(c *gin.Context) {
 	})
 }
 
-// propagateByPath propagates inheritance to child paths
+// propagateByPath propagates inheritance to child paths.
 func (h *Handlers) propagateByPath(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {
@@ -323,7 +323,7 @@ func (h *Handlers) propagateByPath(c *gin.Context) {
 	})
 }
 
-// setOwnerByPath sets the owner of an ACL
+// setOwnerByPath sets the owner of an ACL.
 func (h *Handlers) setOwnerByPath(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {
@@ -356,7 +356,7 @@ func (h *Handlers) setOwnerByPath(c *gin.Context) {
 	})
 }
 
-// setGroupByPath sets the group of an ACL
+// setGroupByPath sets the group of an ACL.
 func (h *Handlers) setGroupByPath(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {
@@ -389,7 +389,7 @@ func (h *Handlers) setGroupByPath(c *gin.Context) {
 	})
 }
 
-// getPermissionGroups returns predefined permission groups
+// getPermissionGroups returns predefined permission groups.
 func (h *Handlers) getPermissionGroups(c *gin.Context) {
 	groups := GetPermissionGroups()
 	c.JSON(http.StatusOK, gin.H{
@@ -398,7 +398,7 @@ func (h *Handlers) getPermissionGroups(c *gin.Context) {
 	})
 }
 
-// getAuditLog returns the audit log
+// getAuditLog returns the audit log.
 func (h *Handlers) getAuditLog(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "100")
 	limit, err := strconv.Atoi(limitStr)
@@ -416,13 +416,13 @@ func (h *Handlers) getAuditLog(c *gin.Context) {
 
 // Backward compatibility handlers
 
-// listRules returns all ACL rules
+// listRules returns all ACL rules.
 func (h *Handlers) listRules(c *gin.Context) {
 	rules := h.manager.ListRules()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": rules})
 }
 
-// addRule adds an ACL rule
+// addRule adds an ACL rule.
 func (h *Handlers) addRule(c *gin.Context) {
 	var rule ACLRule
 	if err := c.ShouldBindJSON(&rule); err != nil {
@@ -433,7 +433,7 @@ func (h *Handlers) addRule(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "规则已添加"})
 }
 
-// updateRule updates an ACL rule
+// updateRule updates an ACL rule.
 func (h *Handlers) updateRule(c *gin.Context) {
 	var rule ACLRule
 	if err := c.ShouldBindJSON(&rule); err != nil {
@@ -448,7 +448,7 @@ func (h *Handlers) updateRule(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "规则已更新"})
 }
 
-// removeRule removes an ACL rule
+// removeRule removes an ACL rule.
 func (h *Handlers) removeRule(c *gin.Context) {
 	id := c.Param("id")
 	h.manager.RemoveRule(id)

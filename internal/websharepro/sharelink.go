@@ -21,7 +21,7 @@ import (
 // 增强版 ShareLink
 // ---------------------------------------------------------------------------
 
-// LinkStatus 链接状态
+// LinkStatus 链接状态.
 type LinkStatus string
 
 const (
@@ -31,7 +31,7 @@ const (
 	LinkExhausted LinkStatus = "exhausted" // 下载/访问次数耗尽
 )
 
-// ShareLinkV2 增强版共享链接
+// ShareLinkV2 增强版共享链接.
 type ShareLinkV2 struct {
 	ID string `json:"id"`
 	// 文件/目录路径
@@ -67,7 +67,7 @@ type ShareLinkV2 struct {
 	RecentAccess []AccessEntryV2 `json:"recentAccess,omitempty"`
 }
 
-// AccessEntryV2 增强版访问记录
+// AccessEntryV2 增强版访问记录.
 type AccessEntryV2 struct {
 	IP        string    `json:"ip"`
 	Country   string    `json:"country,omitempty"` // 国家
@@ -78,7 +78,7 @@ type AccessEntryV2 struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// ShareAnalytics 访问统计
+// ShareAnalytics 访问统计.
 type ShareAnalytics struct {
 	LinkID         string `json:"linkId"`
 	TotalViews     int64  `json:"totalViews"`
@@ -96,13 +96,13 @@ type ShareAnalytics struct {
 	PeakHour int `json:"peakHour"` // 0-23
 }
 
-// DailyCount 每日统计
+// DailyCount 每日统计.
 type DailyCount struct {
 	Date  string `json:"date"` // YYYY-MM-DD
 	Views int64  `json:"views"`
 }
 
-// BatchShareLinkRequest 批量分享请求
+// BatchShareLinkRequest 批量分享请求.
 type BatchShareLinkRequest struct {
 	// 要分享的路径列表
 	Paths []string `json:"paths" binding:"required"`
@@ -117,7 +117,7 @@ type BatchShareLinkRequest struct {
 	CustomSlugPrefix string          `json:"customSlugPrefix,omitempty"` // 批量 slug 前缀
 }
 
-// BatchShareLinkResult 批量分享结果
+// BatchShareLinkResult 批量分享结果.
 type BatchShareLinkResult struct {
 	Total   int               `json:"total"`
 	Success int               `json:"success"`
@@ -126,13 +126,13 @@ type BatchShareLinkResult struct {
 	Errors  []BatchShareError `json:"errors,omitempty"`
 }
 
-// BatchShareError 批量分享错误
+// BatchShareError 批量分享错误.
 type BatchShareError struct {
 	Path  string `json:"path"`
 	Error string `json:"error"`
 }
 
-// ShareLinkConfig 创建链接的可选配置
+// ShareLinkConfig 创建链接的可选配置.
 type ShareLinkConfig struct {
 	Password       string `json:"password,omitempty"`
 	ExpiryHours    int    `json:"expiryHours"`
@@ -141,7 +141,7 @@ type ShareLinkConfig struct {
 	CustomSlug     string `json:"customSlug,omitempty"`
 }
 
-// ShareLinkManager 增强版分享链接管理器
+// ShareLinkManager 增强版分享链接管理器.
 type ShareLinkManager struct {
 	mu        sync.RWMutex
 	links     map[string]*ShareLinkV2    // id -> link
@@ -152,7 +152,7 @@ type ShareLinkManager struct {
 	logger    *zap.Logger
 }
 
-// NewShareLinkManager 创建增强版链接管理器
+// NewShareLinkManager 创建增强版链接管理器.
 func NewShareLinkManager(config *WebShareConfig, logger *zap.Logger) *ShareLinkManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -167,7 +167,7 @@ func NewShareLinkManager(config *WebShareConfig, logger *zap.Logger) *ShareLinkM
 	}
 }
 
-// CreateLink 创建增强版分享链接
+// CreateLink 创建增强版分享链接.
 func (m *ShareLinkManager) CreateLink(path, name, createdBy string, perm SharePermission, cfg *ShareLinkConfig) (*ShareLinkV2, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -241,7 +241,7 @@ func (m *ShareLinkManager) CreateLink(path, name, createdBy string, perm SharePe
 	return link, nil
 }
 
-// GetLink 获取链接
+// GetLink 获取链接.
 func (m *ShareLinkManager) GetLink(id string) (*ShareLinkV2, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -256,7 +256,7 @@ func (m *ShareLinkManager) GetLink(id string) (*ShareLinkV2, bool) {
 	return link, true
 }
 
-// GetLinkByToken 通过 Token 获取链接
+// GetLinkByToken 通过 Token 获取链接.
 func (m *ShareLinkManager) GetLinkByToken(token string) (*ShareLinkV2, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -276,7 +276,7 @@ func (m *ShareLinkManager) GetLinkByToken(token string) (*ShareLinkV2, bool) {
 	return link, true
 }
 
-// GetLinkBySlug 通过自定义 Slug 获取链接
+// GetLinkBySlug 通过自定义 Slug 获取链接.
 func (m *ShareLinkManager) GetLinkBySlug(slug string) (*ShareLinkV2, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -295,7 +295,7 @@ func (m *ShareLinkManager) GetLinkBySlug(slug string) (*ShareLinkV2, bool) {
 	return link, true
 }
 
-// ValidateAccess 验证访问（密码、下载/访问限制等）
+// ValidateAccess 验证访问（密码、下载/访问限制等）.
 func (m *ShareLinkManager) ValidateAccess(id, password string) (*ShareLinkV2, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -333,7 +333,7 @@ func (m *ShareLinkManager) ValidateAccess(id, password string) (*ShareLinkV2, er
 	return link, nil
 }
 
-// RecordDownload 记录下载
+// RecordDownload 记录下载.
 func (m *ShareLinkManager) RecordDownload(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -356,7 +356,7 @@ func (m *ShareLinkManager) RecordDownload(id string) error {
 	return nil
 }
 
-// RecordAccessV2 记录增强版访问
+// RecordAccessV2 记录增强版访问.
 func (m *ShareLinkManager) RecordAccessV2(id string, entry AccessEntryV2) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -388,7 +388,7 @@ func (m *ShareLinkManager) RecordAccessV2(id string, entry AccessEntryV2) {
 	}
 }
 
-// RevokeLink 撤销链接
+// RevokeLink 撤销链接.
 func (m *ShareLinkManager) RevokeLink(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -402,7 +402,7 @@ func (m *ShareLinkManager) RevokeLink(id string) error {
 	return nil
 }
 
-// DeleteLink 删除链接
+// DeleteLink 删除链接.
 func (m *ShareLinkManager) DeleteLink(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -424,7 +424,7 @@ func (m *ShareLinkManager) DeleteLink(id string) error {
 	return nil
 }
 
-// ListLinks 列出链接
+// ListLinks 列出链接.
 func (m *ShareLinkManager) ListLinks(createdBy string, status LinkStatus) []*ShareLinkV2 {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -442,7 +442,7 @@ func (m *ShareLinkManager) ListLinks(createdBy string, status LinkStatus) []*Sha
 	return result
 }
 
-// GetAnalytics 获取链接访问统计
+// GetAnalytics 获取链接访问统计.
 func (m *ShareLinkManager) GetAnalytics(id string) (*ShareAnalytics, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -450,7 +450,7 @@ func (m *ShareLinkManager) GetAnalytics(id string) (*ShareAnalytics, bool) {
 	return a, ok
 }
 
-// BatchCreateLinks 批量创建分享链接
+// BatchCreateLinks 批量创建分享链接.
 func (m *ShareLinkManager) BatchCreateLinks(req *BatchShareLinkRequest) *BatchShareLinkResult {
 	result := &BatchShareLinkResult{
 		Total:  len(req.Paths),
@@ -494,7 +494,7 @@ func (m *ShareLinkManager) BatchCreateLinks(req *BatchShareLinkRequest) *BatchSh
 	return result
 }
 
-// CleanupExpired 清理过期链接
+// CleanupExpired 清理过期链接.
 func (m *ShareLinkManager) CleanupExpired() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -514,7 +514,7 @@ func (m *ShareLinkManager) CleanupExpired() int {
 // 内部辅助方法
 // ---------------------------------------------------------------------------
 
-// isLinkAccessible 检查链接是否可访问
+// isLinkAccessible 检查链接是否可访问.
 func (m *ShareLinkManager) isLinkAccessible(link *ShareLinkV2) bool {
 	if link.Status != LinkActive {
 		return false
@@ -534,7 +534,7 @@ func (m *ShareLinkManager) isLinkAccessible(link *ShareLinkV2) bool {
 	return true
 }
 
-// buildPublicURL 构建公开访问 URL
+// buildPublicURL 构建公开访问 URL.
 func (m *ShareLinkManager) buildPublicURL(link *ShareLinkV2) string {
 	base := m.config.BaseURL
 	if base == "" {
@@ -548,7 +548,7 @@ func (m *ShareLinkManager) buildPublicURL(link *ShareLinkV2) string {
 	return base + "/s/" + link.Token
 }
 
-// generateShareID 生成分享 ID
+// generateShareID 生成分享 ID.
 func generateShareID() string {
 	b := make([]byte, 12)
 	rand.Read(b)

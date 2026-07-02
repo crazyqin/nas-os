@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 分享门户 HTTP 处理器
+// Handlers 分享门户 HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	sp := api.Group("/shareportal")
 	{
@@ -45,7 +45,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// CreateShare 创建分享
+// CreateShare 创建分享.
 func (h *Handlers) CreateShare(c *gin.Context) {
 	var link ShareLink
 	if err := c.ShouldBindJSON(&link); err != nil {
@@ -62,7 +62,7 @@ func (h *Handlers) CreateShare(c *gin.Context) {
 	c.JSON(http.StatusCreated, result)
 }
 
-// GetShare 获取分享
+// GetShare 获取分享.
 func (h *Handlers) GetShare(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -83,7 +83,7 @@ func (h *Handlers) GetShare(c *gin.Context) {
 	c.JSON(http.StatusOK, link)
 }
 
-// UpdateShare 更新分享
+// UpdateShare 更新分享.
 func (h *Handlers) UpdateShare(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -110,7 +110,7 @@ func (h *Handlers) UpdateShare(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// DeleteShare 删除分享
+// DeleteShare 删除分享.
 func (h *Handlers) DeleteShare(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -131,7 +131,7 @@ func (h *Handlers) DeleteShare(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "删除成功"})
 }
 
-// ShortURLAccess 短链访问
+// ShortURLAccess 短链访问.
 func (h *Handlers) ShortURLAccess(c *gin.Context) {
 	shortURL := c.Param("shortURL")
 	if shortURL == "" {
@@ -160,7 +160,7 @@ func (h *Handlers) ShortURLAccess(c *gin.Context) {
 	c.JSON(http.StatusOK, link)
 }
 
-// ValidateAccess 验证密码
+// ValidateAccess 验证密码.
 func (h *Handlers) ValidateAccess(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -200,7 +200,7 @@ func (h *Handlers) ValidateAccess(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"valid": valid})
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (h *Handlers) GetStats(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -221,7 +221,7 @@ func (h *Handlers) GetStats(c *gin.Context) {
 	c.JSON(http.StatusOK, stats)
 }
 
-// SetBranding 设置品牌
+// SetBranding 设置品牌.
 func (h *Handlers) SetBranding(c *gin.Context) {
 	var branding ShareBranding
 	if err := c.ShouldBindJSON(&branding); err != nil {
@@ -238,7 +238,7 @@ func (h *Handlers) SetBranding(c *gin.Context) {
 	c.JSON(http.StatusCreated, result)
 }
 
-// GetBranding 获取品牌
+// GetBranding 获取品牌.
 func (h *Handlers) GetBranding(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -259,7 +259,7 @@ func (h *Handlers) GetBranding(c *gin.Context) {
 	c.JSON(http.StatusOK, branding)
 }
 
-// CreatePortal 创建门户
+// CreatePortal 创建门户.
 func (h *Handlers) CreatePortal(c *gin.Context) {
 	var portal SharePortal
 	if err := c.ShouldBindJSON(&portal); err != nil {

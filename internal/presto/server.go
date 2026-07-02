@@ -24,7 +24,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Server Presto 服务端
+// Server Presto 服务端.
 type Server struct {
 	config    *Config
 	manager   *Manager
@@ -35,7 +35,7 @@ type Server struct {
 	startTime time.Time
 }
 
-// ClientConnection 客户端连接
+// ClientConnection 客户端连接.
 type ClientConnection struct {
 	conn      *quic.Conn
 	stream    *quic.Stream
@@ -45,7 +45,7 @@ type ClientConnection struct {
 	lastPing  time.Time
 }
 
-// NewServer 创建服务端
+// NewServer 创建服务端.
 func NewServer(cfg *Config, manager *Manager, logger *zap.Logger) (*Server, error) {
 	if cfg == nil {
 		cfg = DefaultConfig()
@@ -66,7 +66,7 @@ func NewServer(cfg *Config, manager *Manager, logger *zap.Logger) (*Server, erro
 	return s, nil
 }
 
-// Start 启动服务端
+// Start 启动服务端.
 func (s *Server) Start(ctx context.Context) error {
 	if s.running.Load() {
 		return fmt.Errorf("服务端已在运行")
@@ -109,7 +109,7 @@ func (s *Server) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止服务端
+// Stop 停止服务端.
 func (s *Server) Stop() error {
 	if !s.running.Load() {
 		return nil
@@ -641,7 +641,7 @@ func (s *Server) sendError(stream *quic.Stream, code int, message string) {
 	})
 }
 
-// generateSelfSignedCert 生成自签名证书
+// generateSelfSignedCert 生成自签名证书.
 func generateSelfSignedCert() (*tls.Certificate, error) {
 	// 生成 RSA 私钥
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)

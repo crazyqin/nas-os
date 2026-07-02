@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Protocol represents the remote desktop protocol
+// Protocol represents the remote desktop protocol.
 type Protocol string
 
 const (
@@ -19,7 +19,7 @@ const (
 	ProtocolSSH Protocol = "ssh"
 )
 
-// SessionStatus represents session status
+// SessionStatus represents session status.
 type SessionStatus string
 
 const (
@@ -29,7 +29,7 @@ const (
 	StatusError        SessionStatus = "error"
 )
 
-// Session represents a remote desktop session
+// Session represents a remote desktop session.
 type Session struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
@@ -48,7 +48,7 @@ type Session struct {
 	Tags        []string      `json:"tags"`
 }
 
-// Host represents a remote host configuration
+// Host represents a remote host configuration.
 type Host struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -63,7 +63,7 @@ type Host struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// Recording represents a session recording
+// Recording represents a session recording.
 type Recording struct {
 	ID        string    `json:"id"`
 	SessionID string    `json:"session_id"`
@@ -77,7 +77,7 @@ type Recording struct {
 	EndedAt   time.Time `json:"ended_at"`
 }
 
-// ClipboardEntry represents a clipboard sync entry
+// ClipboardEntry represents a clipboard sync entry.
 type ClipboardEntry struct {
 	SessionID string    `json:"session_id"`
 	Content   string    `json:"content"`
@@ -85,7 +85,7 @@ type ClipboardEntry struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// SessionStats represents session statistics
+// SessionStats represents session statistics.
 type SessionStats struct {
 	TotalSessions   int   `json:"total_sessions"`
 	ActiveSessions  int   `json:"active_sessions"`
@@ -95,7 +95,7 @@ type SessionStats struct {
 	AvgLatency      int   `json:"avg_latency_ms"`
 }
 
-// Config holds remote desktop configuration
+// Config holds remote desktop configuration.
 type Config struct {
 	Enabled          bool `json:"enabled"`
 	WebSocketPort    int  `json:"websocket_port"`
@@ -108,7 +108,7 @@ type Config struct {
 	SessionTimeout   int  `json:"session_timeout_minutes"`
 }
 
-// Manager manages remote desktop sessions
+// Manager manages remote desktop sessions.
 type Manager struct {
 	config     *Config
 	sessions   map[string]*Session
@@ -120,7 +120,7 @@ type Manager struct {
 	cancel     context.CancelFunc
 }
 
-// NewManager creates a new remote desktop manager
+// NewManager creates a new remote desktop manager.
 func NewManager(config *Config) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Manager{
@@ -134,7 +134,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// Start starts the remote desktop manager
+// Start starts the remote desktop manager.
 func (m *Manager) Start() error {
 	if !m.config.Enabled {
 		return fmt.Errorf("remote desktop is disabled")
@@ -142,12 +142,12 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop stops the remote desktop manager
+// Stop stops the remote desktop manager.
 func (m *Manager) Stop() {
 	m.cancel()
 }
 
-// CreateSession creates a new remote desktop session
+// CreateSession creates a new remote desktop session.
 func (m *Manager) CreateSession(hostID string, userID string) (*Session, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -187,7 +187,7 @@ func (m *Manager) CreateSession(hostID string, userID string) (*Session, error) 
 	return session, nil
 }
 
-// GetSession returns a session by ID
+// GetSession returns a session by ID.
 func (m *Manager) GetSession(id string) (*Session, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -199,7 +199,7 @@ func (m *Manager) GetSession(id string) (*Session, error) {
 	return session, nil
 }
 
-// ListSessions returns all sessions
+// ListSessions returns all sessions.
 func (m *Manager) ListSessions() []*Session {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -211,7 +211,7 @@ func (m *Manager) ListSessions() []*Session {
 	return sessions
 }
 
-// EndSession ends a remote desktop session
+// EndSession ends a remote desktop session.
 func (m *Manager) EndSession(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -225,7 +225,7 @@ func (m *Manager) EndSession(id string) error {
 	return nil
 }
 
-// AddHost adds a new remote host
+// AddHost adds a new remote host.
 func (m *Manager) AddHost(host *Host) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -236,7 +236,7 @@ func (m *Manager) AddHost(host *Host) error {
 	return nil
 }
 
-// ListHosts returns all configured hosts
+// ListHosts returns all configured hosts.
 func (m *Manager) ListHosts() []*Host {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -248,7 +248,7 @@ func (m *Manager) ListHosts() []*Host {
 	return hosts
 }
 
-// DeleteHost deletes a remote host
+// DeleteHost deletes a remote host.
 func (m *Manager) DeleteHost(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -260,7 +260,7 @@ func (m *Manager) DeleteHost(id string) error {
 	return nil
 }
 
-// GetStats returns remote desktop statistics
+// GetStats returns remote desktop statistics.
 func (m *Manager) GetStats() *SessionStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

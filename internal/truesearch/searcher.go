@@ -11,14 +11,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// Searcher 搜索引擎
+// Searcher 搜索引擎.
 type Searcher struct {
 	logger *zap.Logger
 	config *TrueSearchConfig
 	idx    *Indexer
 }
 
-// NewSearcher 创建搜索引擎
+// NewSearcher 创建搜索引擎.
 func NewSearcher(logger *zap.Logger, config *TrueSearchConfig, indexer *Indexer) *Searcher {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -34,7 +34,7 @@ func NewSearcher(logger *zap.Logger, config *TrueSearchConfig, indexer *Indexer)
 	}
 }
 
-// Search 执行搜索
+// Search 执行搜索.
 func (s *Searcher) Search(query *SearchQuery) (*SearchResponse, error) {
 	if query == nil || query.Query == "" {
 		return nil, fmt.Errorf("query cannot be empty")
@@ -109,7 +109,7 @@ func (s *Searcher) Search(query *SearchQuery) (*SearchResponse, error) {
 	}, nil
 }
 
-// searchFilename 搜索文件名
+// searchFilename 搜索文件名.
 func (s *Searcher) searchFilename(tokens []string, query *SearchQuery) []SearchResult {
 	resultMap := make(map[string]*SearchResult)
 
@@ -186,7 +186,7 @@ func (s *Searcher) searchFilename(tokens []string, query *SearchQuery) []SearchR
 	return results
 }
 
-// searchContent 搜索文件内容
+// searchContent 搜索文件内容.
 func (s *Searcher) searchContent(tokens []string, query *SearchQuery) []SearchResult {
 	resultMap := make(map[string]*SearchResult)
 
@@ -251,7 +251,7 @@ func (s *Searcher) searchContent(tokens []string, query *SearchQuery) []SearchRe
 	return results
 }
 
-// mergeResults 合并文件名和内容搜索结果
+// mergeResults 合并文件名和内容搜索结果.
 func (s *Searcher) mergeResults(filenameResults, contentResults []SearchResult) []SearchResult {
 	resultMap := make(map[string]*SearchResult)
 
@@ -282,7 +282,7 @@ func (s *Searcher) mergeResults(filenameResults, contentResults []SearchResult) 
 	return results
 }
 
-// applyFilters 应用过滤条件
+// applyFilters 应用过滤条件.
 func (s *Searcher) applyFilters(results []SearchResult, query *SearchQuery) []SearchResult {
 	if len(results) == 0 {
 		return results
@@ -334,7 +334,7 @@ func (s *Searcher) applyFilters(results []SearchResult, query *SearchQuery) []Se
 	return filtered
 }
 
-// highlightResult 高亮搜索结果
+// highlightResult 高亮搜索结果.
 func (s *Searcher) highlightResult(result SearchResult, tokens []string) SearchResult {
 	highlightStart := fmt.Sprintf("<%s>", s.config.HighlightTag)
 	highlightEnd := fmt.Sprintf("</%s>", s.config.HighlightTag)
@@ -390,7 +390,7 @@ func (s *Searcher) highlightResult(result SearchResult, tokens []string) SearchR
 	return result
 }
 
-// generateSnippet 生成内容摘要
+// generateSnippet 生成内容摘要.
 func (s *Searcher) generateSnippet(content string, tokens []string, maxLen int) string {
 	contentLower := strings.ToLower(content)
 
@@ -463,7 +463,7 @@ func (s *Searcher) generateSnippet(content string, tokens []string, maxLen int) 
 	return snippet
 }
 
-// calculateBM25 计算 BM25 分数
+// calculateBM25 计算 BM25 分数.
 func (s *Searcher) calculateBM25(tf int, docLen int, avgDocLen float64, docFreq int, totalDocs int) float64 {
 	k1 := 1.2
 	b := 0.75
@@ -481,7 +481,7 @@ func (s *Searcher) calculateBM25(tf int, docLen int, avgDocLen float64, docFreq 
 	return idf * tfNorm
 }
 
-// AutoComplete 自动补全建议
+// AutoComplete 自动补全建议.
 func (s *Searcher) AutoComplete(prefix string, limit int) []string {
 	if limit <= 0 {
 		limit = 10

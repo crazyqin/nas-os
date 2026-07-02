@@ -3,7 +3,7 @@ package aidatadedup
 
 import "time"
 
-// DedupStrategy 去重策略
+// DedupStrategy 去重策略.
 type DedupStrategy string
 
 const (
@@ -13,7 +13,7 @@ const (
 	StrategyAuto         DedupStrategy = "auto"          // 自动选择最优策略
 )
 
-// FileType 文件类型
+// FileType 文件类型.
 type FileType string
 
 const (
@@ -26,7 +26,7 @@ const (
 	FileTypeOther    FileType = "other"
 )
 
-// DuplicateStatus 去重状态
+// DuplicateStatus 去重状态.
 type DuplicateStatus string
 
 const (
@@ -38,7 +38,7 @@ const (
 	StatusDeleted   DuplicateStatus = "deleted"
 )
 
-// MergeStrategy 合并策略
+// MergeStrategy 合并策略.
 type MergeStrategy string
 
 const (
@@ -49,7 +49,7 @@ const (
 	MergeManual      MergeStrategy = "manual"       // 手动选择
 )
 
-// FileEntry 文件条目
+// FileEntry 文件条目.
 type FileEntry struct {
 	ID          string    `json:"id"`
 	Path        string    `json:"path"`
@@ -66,7 +66,7 @@ type FileEntry struct {
 	GroupID     string    `json:"group_id,omitempty"`
 }
 
-// DuplicateGroup 重复文件组
+// DuplicateGroup 重复文件组.
 type DuplicateGroup struct {
 	ID           string          `json:"id"`
 	Files        []*FileEntry    `json:"files"`
@@ -80,7 +80,7 @@ type DuplicateGroup struct {
 	UpdatedAt    time.Time       `json:"updated_at"`
 }
 
-// ScanResult 扫描结果
+// ScanResult 扫描结果.
 type ScanResult struct {
 	ID                  string            `json:"id"`
 	ScanPath            string            `json:"scan_path"`
@@ -97,7 +97,7 @@ type ScanResult struct {
 	Status              DuplicateStatus   `json:"status"`
 }
 
-// DedupRequest 去重请求
+// DedupRequest 去重请求.
 type DedupRequest struct {
 	Paths               []string      `json:"paths" binding:"required"`
 	Strategy            DedupStrategy `json:"strategy,omitempty"`
@@ -110,7 +110,7 @@ type DedupRequest struct {
 	DryRun              bool          `json:"dry_run"`
 }
 
-// MergeRequest 合并请求
+// MergeRequest 合并请求.
 type MergeRequest struct {
 	GroupID      string        `json:"group_id" binding:"required"`
 	KeepFileID   string        `json:"keep_file_id,omitempty"`
@@ -119,7 +119,7 @@ type MergeRequest struct {
 	CreateBackup bool          `json:"create_backup"`
 }
 
-// DedupReport 去重报告
+// DedupReport 去重报告.
 type DedupReport struct {
 	ID              string        `json:"id"`
 	ScanResultID    string        `json:"scan_result_id"`
@@ -135,7 +135,7 @@ type DedupReport struct {
 	Errors          []string      `json:"errors,omitempty"`
 }
 
-// AIAnalysisResult AI 分析结果
+// AIAnalysisResult AI 分析结果.
 type AIAnalysisResult struct {
 	FileID      string             `json:"file_id"`
 	Similarity  float64            `json:"similarity"`
@@ -147,7 +147,7 @@ type AIAnalysisResult struct {
 	AnalyzedAt  time.Time          `json:"analyzed_at"`
 }
 
-// DedupConfig 去重配置
+// DedupConfig 去重配置.
 type DedupConfig struct {
 	Enabled               bool          `json:"enabled"`
 	DefaultStrategy       DedupStrategy `json:"default_strategy"`
@@ -165,7 +165,7 @@ type DedupConfig struct {
 	AIConfidenceThreshold float64       `json:"ai_confidence_threshold"`
 }
 
-// DefaultDedupConfig 默认去重配置
+// DefaultDedupConfig 默认去重配置.
 func DefaultDedupConfig() *DedupConfig {
 	return &DedupConfig{
 		Enabled:               true,
@@ -184,7 +184,7 @@ func DefaultDedupConfig() *DedupConfig {
 	}
 }
 
-// ScanStatus 扫描状态
+// ScanStatus 扫描状态.
 type ScanStatus string
 
 const (

@@ -6,69 +6,69 @@ import (
 	"time"
 )
 
-// NodeRole 节点角色
+// NodeRole 节点角色.
 type NodeRole string
 
 const (
-	// RoleActive 活动节点
+	// RoleActive 活动节点.
 	RoleActive NodeRole = "active"
-	// RoleStandby 备用节点
+	// RoleStandby 备用节点.
 	RoleStandby NodeRole = "standby"
 )
 
-// NodeStatus 节点状态
+// NodeStatus 节点状态.
 type NodeStatus string
 
 const (
-	// StatusOnline 在线
+	// StatusOnline 在线.
 	StatusOnline NodeStatus = "online"
-	// StatusOffline 离线
+	// StatusOffline 离线.
 	StatusOffline NodeStatus = "offline"
-	// StatusDegraded 降级（部分服务异常）
+	// StatusDegraded 降级（部分服务异常）.
 	StatusDegraded NodeStatus = "degraded"
-	// StatusSyncing 同步中
+	// StatusSyncing 同步中.
 	StatusSyncing NodeStatus = "syncing"
-	// StatusFailed 故障
+	// StatusFailed 故障.
 	StatusFailed NodeStatus = "failed"
 )
 
-// HeartbeatLevel 心跳级别
+// HeartbeatLevel 心跳级别.
 type HeartbeatLevel string
 
 const (
-	// HeartbeatNetwork 网络心跳
+	// HeartbeatNetwork 网络心跳.
 	HeartbeatNetwork HeartbeatLevel = "network"
-	// HeartbeatStorage 存储心跳
+	// HeartbeatStorage 存储心跳.
 	HeartbeatStorage HeartbeatLevel = "storage"
-	// HeartbeatService 服务心跳
+	// HeartbeatService 服务心跳.
 	HeartbeatService HeartbeatLevel = "service"
 )
 
-// SyncState 同步状态
+// SyncState 同步状态.
 type SyncState string
 
 const (
-	// SyncStateIdle 空闲
+	// SyncStateIdle 空闲.
 	SyncStateIdle SyncState = "idle"
-	// SyncStateSyncing 同步中
+	// SyncStateSyncing 同步中.
 	SyncStateSyncing SyncState = "syncing"
-	// SyncStateCompleted 同步完成
+	// SyncStateCompleted 同步完成.
 	SyncStateCompleted SyncState = "completed"
-	// SyncStateFailed 同步失败
+	// SyncStateFailed 同步失败.
 	SyncStateFailed SyncState = "failed"
 )
 
-// FailoverTrigger 触发方式
+// FailoverTrigger 触发方式.
 type FailoverTrigger string
 
 const (
-	// TriggerAuto 自动触发
+	// TriggerAuto 自动触发.
 	TriggerAuto FailoverTrigger = "auto"
-	// TriggerManual 手动触发
+	// TriggerManual 手动触发.
 	TriggerManual FailoverTrigger = "manual"
 )
 
-// FailoverEvent 切换事件记录
+// FailoverEvent 切换事件记录.
 type FailoverEvent struct {
 	// ID 事件唯一标识
 	ID string `json:"id"`
@@ -92,7 +92,7 @@ type FailoverEvent struct {
 	Duration int64 `json:"duration"`
 }
 
-// HeartbeatConfig 心跳配置
+// HeartbeatConfig 心跳配置.
 type HeartbeatConfig struct {
 	// Interval 心跳间隔（秒）
 	Interval int `json:"interval"`
@@ -102,7 +102,7 @@ type HeartbeatConfig struct {
 	MaxRetries int `json:"max_retries"`
 }
 
-// VIPConfig 虚拟IP配置
+// VIPConfig 虚拟IP配置.
 type VIPConfig struct {
 	// Enabled 是否启用VIP漂移
 	Enabled bool `json:"enabled"`
@@ -114,7 +114,7 @@ type VIPConfig struct {
 	Netmask string `json:"netmask"`
 }
 
-// SyncConfig 数据同步配置
+// SyncConfig 数据同步配置.
 type SyncConfig struct {
 	// StorageSync 存储配置同步
 	StorageSync bool `json:"storage_sync"`
@@ -126,7 +126,7 @@ type SyncConfig struct {
 	SyncPaths []string `json:"sync_paths,omitempty"`
 }
 
-// NodeInfo 节点信息
+// NodeInfo 节点信息.
 type NodeInfo struct {
 	// ID 节点唯一标识
 	ID string `json:"id"`
@@ -154,7 +154,7 @@ type NodeInfo struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// SystemInfo 系统资源信息
+// SystemInfo 系统资源信息.
 type SystemInfo struct {
 	// CPUPercent CPU使用率
 	CPUPercent float64 `json:"cpu_percent"`
@@ -166,7 +166,7 @@ type SystemInfo struct {
 	Uptime int64 `json:"uptime"`
 }
 
-// HAConfig 高可用集群配置
+// HAConfig 高可用集群配置.
 type HAConfig struct {
 	// ClusterName 集群名称
 	ClusterName string `json:"cluster_name"`
@@ -186,7 +186,7 @@ type HAConfig struct {
 	Sync SyncConfig `json:"sync"`
 }
 
-// HAStatus HA集群整体状态
+// HAStatus HA集群整体状态.
 type HAStatus struct {
 	// ClusterName 集群名称
 	ClusterName string `json:"cluster_name"`
@@ -212,7 +212,7 @@ type HAStatus struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// SyncStatus 同步状态详情
+// SyncStatus 同步状态详情.
 type SyncStatus struct {
 	// State 同步状态
 	State SyncState `json:"state"`
@@ -228,7 +228,7 @@ type SyncStatus struct {
 	Error string `json:"error,omitempty"`
 }
 
-// FailoverRequest 手动切换请求
+// FailoverRequest 手动切换请求.
 type FailoverRequest struct {
 	// Reason 切换原因
 	Reason string `json:"reason"`
@@ -236,7 +236,7 @@ type FailoverRequest struct {
 	Force bool `json:"force"`
 }
 
-// Manager HA故障转移管理器
+// Manager HA故障转移管理器.
 type Manager struct {
 	mu             sync.RWMutex
 	config         *HAConfig

@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler 知识库 API 处理器
+// Handler 知识库 API 处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	wiki := r.Group("/wiki")
 	{
@@ -232,7 +232,7 @@ func (h *Handler) removePermission(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "permission removed"})
 }
 
-// 解析分页参数
+// 解析分页参数.
 func parsePagination(c *gin.Context) (int, int) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	size, _ := strconv.Atoi(c.DefaultQuery("size", "20"))

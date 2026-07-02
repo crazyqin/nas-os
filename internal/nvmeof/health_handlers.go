@@ -9,13 +9,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// HealthHandler NVMe健康监控HTTP处理器
+// HealthHandler NVMe健康监控HTTP处理器.
 type HealthHandler struct {
 	healthManager *HealthManager
 	logger        *zap.Logger
 }
 
-// NewHealthHandler 创建健康监控处理器
+// NewHealthHandler 创建健康监控处理器.
 func NewHealthHandler(healthManager *HealthManager, logger *zap.Logger) *HealthHandler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -26,7 +26,7 @@ func NewHealthHandler(healthManager *HealthManager, logger *zap.Logger) *HealthH
 	}
 }
 
-// RegisterRoutes 注册健康监控路由
+// RegisterRoutes 注册健康监控路由.
 func (h *HealthHandler) RegisterRoutes(rg *gin.RouterGroup) {
 	health := rg.Group("/nvmeof/health")
 	{
@@ -58,14 +58,14 @@ func (h *HealthHandler) RegisterRoutes(rg *gin.RouterGroup) {
 // 温度监控接口
 // ============================================================
 
-// recordTemperatureReq 记录温度请求
+// recordTemperatureReq 记录温度请求.
 type recordTemperatureReq struct {
 	Device       string  `json:"device" binding:"required"`
 	SubsystemNQN string  `json:"subsystem_nqn"`
 	Temperature  float64 `json:"temperature" binding:"required"`
 }
 
-// recordTemperature 记录设备温度
+// recordTemperature 记录设备温度.
 func (h *HealthHandler) recordTemperature(c *gin.Context) {
 	var req recordTemperatureReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -81,7 +81,7 @@ func (h *HealthHandler) recordTemperature(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "temperature recorded"})
 }
 
-// getDeviceTemperatureStatus 获取设备温度状态
+// getDeviceTemperatureStatus 获取设备温度状态.
 func (h *HealthHandler) getDeviceTemperatureStatus(c *gin.Context) {
 	device := c.Param("device")
 
@@ -94,7 +94,7 @@ func (h *HealthHandler) getDeviceTemperatureStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, status)
 }
 
-// getAllDeviceTemperatureStatuses 获取所有设备温度状态
+// getAllDeviceTemperatureStatuses 获取所有设备温度状态.
 func (h *HealthHandler) getAllDeviceTemperatureStatuses(c *gin.Context) {
 	statuses := h.healthManager.GetAllDeviceStatuses()
 	c.JSON(http.StatusOK, gin.H{
@@ -103,12 +103,12 @@ func (h *HealthHandler) getAllDeviceTemperatureStatuses(c *gin.Context) {
 	})
 }
 
-// getTemperatureHistoryReq 温度历史查询参数
+// getTemperatureHistoryReq 温度历史查询参数.
 type getTemperatureHistoryReq struct {
 	Limit int `form:"limit"`
 }
 
-// getTemperatureHistory 获取设备温度历史
+// getTemperatureHistory 获取设备温度历史.
 func (h *HealthHandler) getTemperatureHistory(c *gin.Context) {
 	device := c.Param("device")
 
@@ -130,7 +130,7 @@ func (h *HealthHandler) getTemperatureHistory(c *gin.Context) {
 	})
 }
 
-// getRecentAlerts 获取最近温度告警
+// getRecentAlerts 获取最近温度告警.
 func (h *HealthHandler) getRecentAlerts(c *gin.Context) {
 	var req struct {
 		Limit int `form:"limit"`
@@ -150,13 +150,13 @@ func (h *HealthHandler) getRecentAlerts(c *gin.Context) {
 	})
 }
 
-// getTemperatureConfig 获取温度监控配置
+// getTemperatureConfig 获取温度监控配置.
 func (h *HealthHandler) getTemperatureConfig(c *gin.Context) {
 	cfg := h.healthManager.GetTemperatureConfig()
 	c.JSON(http.StatusOK, cfg)
 }
 
-// updateTemperatureConfig 更新温度监控配置
+// updateTemperatureConfig 更新温度监控配置.
 func (h *HealthHandler) updateTemperatureConfig(c *gin.Context) {
 	var cfg TemperatureConfig
 	if err := c.ShouldBindJSON(&cfg); err != nil {
@@ -172,7 +172,7 @@ func (h *HealthHandler) updateTemperatureConfig(c *gin.Context) {
 // 寿命预测接口
 // ============================================================
 
-// predictDeviceLifeReq 设备寿命预测请求
+// predictDeviceLifeReq 设备寿命预测请求.
 type predictDeviceLifeReq struct {
 	SubsystemNQN         string  `json:"subsystem_nqn"`
 	Model                string  `json:"model"`
@@ -186,7 +186,7 @@ type predictDeviceLifeReq struct {
 	MediaErrors          uint64  `json:"media_errors"`
 }
 
-// predictDeviceLife 预测设备寿命
+// predictDeviceLife 预测设备寿命.
 func (h *HealthHandler) predictDeviceLife(c *gin.Context) {
 	device := c.Param("device")
 
@@ -218,7 +218,7 @@ func (h *HealthHandler) predictDeviceLife(c *gin.Context) {
 	c.JSON(http.StatusOK, prediction)
 }
 
-// getLifePrediction 获取设备寿命预测
+// getLifePrediction 获取设备寿命预测.
 func (h *HealthHandler) getLifePrediction(c *gin.Context) {
 	device := c.Param("device")
 
@@ -231,7 +231,7 @@ func (h *HealthHandler) getLifePrediction(c *gin.Context) {
 	c.JSON(http.StatusOK, prediction)
 }
 
-// getAllLifePredictions 获取所有设备寿命预测
+// getAllLifePredictions 获取所有设备寿命预测.
 func (h *HealthHandler) getAllLifePredictions(c *gin.Context) {
 	predictions := h.healthManager.GetAllLifePredictions()
 	c.JSON(http.StatusOK, gin.H{
@@ -240,7 +240,7 @@ func (h *HealthHandler) getAllLifePredictions(c *gin.Context) {
 	})
 }
 
-// updateWritePatternReq 更新写入模式请求
+// updateWritePatternReq 更新写入模式请求.
 type updateWritePatternReq struct {
 	SubsystemNQN       string  `json:"subsystem_nqn"`
 	TotalWriteTB       float64 `json:"total_write_tb"`
@@ -252,7 +252,7 @@ type updateWritePatternReq struct {
 	SamplePeriodDays   int     `json:"sample_period_days"`
 }
 
-// updateWritePattern 更新设备写入模式
+// updateWritePattern 更新设备写入模式.
 func (h *HealthHandler) updateWritePattern(c *gin.Context) {
 	device := c.Param("device")
 
@@ -281,7 +281,7 @@ func (h *HealthHandler) updateWritePattern(c *gin.Context) {
 // 性能基准测试接口
 // ============================================================
 
-// startBenchmarkReq 启动基准测试请求
+// startBenchmarkReq 启动基准测试请求.
 type startBenchmarkReq struct {
 	DevicePath   string   `json:"device_path" binding:"required"`
 	SubsystemNQN string   `json:"subsystem_nqn"`
@@ -292,7 +292,7 @@ type startBenchmarkReq struct {
 	TestTypes    []string `json:"test_types"`
 }
 
-// startBenchmark 启动性能基准测试
+// startBenchmark 启动性能基准测试.
 func (h *HealthHandler) startBenchmark(c *gin.Context) {
 	var req startBenchmarkReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -300,15 +300,7 @@ func (h *HealthHandler) startBenchmark(c *gin.Context) {
 		return
 	}
 
-	cfg := BenchmarkConfig{
-		DevicePath:   req.DevicePath,
-		SubsystemNQN: req.SubsystemNQN,
-		BlockSizeKB:  req.BlockSizeKB,
-		FileSizeMB:   req.FileSizeMB,
-		DurationSec:  req.DurationSec,
-		NumThreads:   req.NumThreads,
-		TestTypes:    req.TestTypes,
-	}
+	cfg := BenchmarkConfig(req)
 
 	result, err := h.healthManager.StartBenchmark(c.Request.Context(), cfg)
 	if err != nil {
@@ -319,7 +311,7 @@ func (h *HealthHandler) startBenchmark(c *gin.Context) {
 	c.JSON(http.StatusAccepted, result)
 }
 
-// getBenchmarkResult 获取基准测试结果
+// getBenchmarkResult 获取基准测试结果.
 func (h *HealthHandler) getBenchmarkResult(c *gin.Context) {
 	id := c.Param("id")
 
@@ -332,7 +324,7 @@ func (h *HealthHandler) getBenchmarkResult(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// listBenchmarkResults 列出所有基准测试结果
+// listBenchmarkResults 列出所有基准测试结果.
 func (h *HealthHandler) listBenchmarkResults(c *gin.Context) {
 	results := h.healthManager.ListBenchmarkResults()
 	c.JSON(http.StatusOK, gin.H{

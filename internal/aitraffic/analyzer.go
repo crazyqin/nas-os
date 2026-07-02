@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// FlowRecord 流量记录
+// FlowRecord 流量记录.
 type FlowRecord struct {
 	Timestamp   time.Time `json:"timestamp"`
 	SrcIP       string    `json:"src_ip"`
@@ -25,7 +25,7 @@ type FlowRecord struct {
 	Application string    `json:"application,omitempty"`
 }
 
-// TrafficStats 流量统计
+// TrafficStats 流量统计.
 type TrafficStats struct {
 	TotalBytesIn   int64            `json:"total_bytes_in"`
 	TotalBytesOut  int64            `json:"total_bytes_out"`
@@ -39,7 +39,7 @@ type TrafficStats struct {
 	TrendPct       float64          `json:"trend_pct"`
 }
 
-// AppTraffic 应用流量
+// AppTraffic 应用流量.
 type AppTraffic struct {
 	App      string  `json:"app"`
 	BytesIn  int64   `json:"bytes_in"`
@@ -48,7 +48,7 @@ type AppTraffic struct {
 	Pct      float64 `json:"pct"`
 }
 
-// ConnTraffic 连接流量
+// ConnTraffic 连接流量.
 type ConnTraffic struct {
 	SrcIP    string `json:"src_ip"`
 	DstIP    string `json:"dst_ip"`
@@ -56,7 +56,7 @@ type ConnTraffic struct {
 	Duration int    `json:"duration_ms"`
 }
 
-// Anomaly 异常
+// Anomaly 异常.
 type Anomaly struct {
 	Timestamp     time.Time `json:"timestamp"`
 	Type          string    `json:"type"`     // spike/ddos/portscan/exfiltration
@@ -68,7 +68,7 @@ type Anomaly struct {
 	BytesAffected int64     `json:"bytes_affected"`
 }
 
-// AnalyzerConfig 分析器配置
+// AnalyzerConfig 分析器配置.
 type AnalyzerConfig struct {
 	WindowSize     time.Duration `json:"window_size"`
 	BaselineWindow time.Duration `json:"baseline_window"`
@@ -79,7 +79,7 @@ type AnalyzerConfig struct {
 	MaxFlows       int           `json:"max_flows"`
 }
 
-// DefaultAnalyzerConfig 默认配置
+// DefaultAnalyzerConfig 默认配置.
 func DefaultAnalyzerConfig() *AnalyzerConfig {
 	return &AnalyzerConfig{
 		WindowSize:     5 * time.Minute,
@@ -92,7 +92,7 @@ func DefaultAnalyzerConfig() *AnalyzerConfig {
 	}
 }
 
-// Analyzer 分析器
+// Analyzer 分析器.
 type Analyzer struct {
 	config    *AnalyzerConfig
 	flows     []FlowRecord
@@ -103,7 +103,7 @@ type Analyzer struct {
 	anomalyCh chan Anomaly
 }
 
-// NewAnalyzer 创建分析器
+// NewAnalyzer 创建分析器.
 func NewAnalyzer(config *AnalyzerConfig) *Analyzer {
 	if config == nil {
 		config = DefaultAnalyzerConfig()
@@ -118,18 +118,18 @@ func NewAnalyzer(config *AnalyzerConfig) *Analyzer {
 	}
 }
 
-// Start 启动分析器
+// Start 启动分析器.
 func (a *Analyzer) Start() {
 	go a.analysisLoop()
 }
 
-// Stop 停止分析器
+// Stop 停止分析器.
 func (a *Analyzer) Stop() {
 	a.cancel()
 	close(a.anomalyCh)
 }
 
-// IngestFlow 导入流量记录
+// IngestFlow 导入流量记录.
 func (a *Analyzer) IngestFlow(record FlowRecord) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -143,7 +143,7 @@ func (a *Analyzer) IngestFlow(record FlowRecord) {
 	a.detectAnomaly(record)
 }
 
-// GetStats 获取流量统计
+// GetStats 获取流量统计.
 func (a *Analyzer) GetStats() *TrafficStats {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -208,7 +208,7 @@ func (a *Analyzer) GetStats() *TrafficStats {
 	return stats
 }
 
-// GetAnomalies 获取异常列表
+// GetAnomalies 获取异常列表.
 func (a *Analyzer) GetAnomalies() []Anomaly {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -225,7 +225,7 @@ func (a *Analyzer) GetAnomalies() []Anomaly {
 	}
 }
 
-// detectAnomaly 实时异常检测
+// detectAnomaly 实时异常检测.
 func (a *Analyzer) detectAnomaly(f FlowRecord) {
 	// DDoS 检测
 	if f.PacketsIn > a.config.DDoSThreshold {
@@ -273,7 +273,7 @@ func (a *Analyzer) detectAnomaly(f FlowRecord) {
 	}
 }
 
-// calculateTrend 计算流量趋势
+// calculateTrend 计算流量趋势.
 func (a *Analyzer) calculateTrend() (string, float64) {
 	if len(a.flows) < 2 {
 		return "stable", 0
@@ -306,7 +306,7 @@ func (a *Analyzer) calculateTrend() (string, float64) {
 	return "stable", math.Abs(change)
 }
 
-// analysisLoop 分析循环
+// analysisLoop 分析循环.
 func (a *Analyzer) analysisLoop() {
 	ticker := time.NewTicker(a.config.WindowSize)
 	defer ticker.Stop()
@@ -321,7 +321,7 @@ func (a *Analyzer) analysisLoop() {
 	}
 }
 
-// updateBaseline 更新基线
+// updateBaseline 更新基线.
 func (a *Analyzer) updateBaseline() {
 	a.mu.Lock()
 	defer a.mu.Unlock()

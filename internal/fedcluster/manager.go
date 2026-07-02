@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// NodeStatus 节点状态
+// NodeStatus 节点状态.
 type NodeStatus string
 
 const (
@@ -21,7 +21,7 @@ const (
 	NodeDegraded    NodeStatus = "degraded"
 )
 
-// ClusterRole 集群角色
+// ClusterRole 集群角色.
 type ClusterRole string
 
 const (
@@ -30,7 +30,7 @@ const (
 	RoleWitness ClusterRole = "witness"
 )
 
-// SyncPolicy 同步策略
+// SyncPolicy 同步策略.
 type SyncPolicy string
 
 const (
@@ -40,7 +40,7 @@ const (
 	SyncDisabled  SyncPolicy = "disabled"
 )
 
-// ClusterNode 集群节点
+// ClusterNode 集群节点.
 type ClusterNode struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -60,7 +60,7 @@ type ClusterNode struct {
 	Metadata      map[string]string `json:"metadata"`
 }
 
-// Cluster 集群配置
+// Cluster 集群配置.
 type Cluster struct {
 	ID            string                  `json:"id"`
 	Name          string                  `json:"name"`
@@ -76,7 +76,7 @@ type Cluster struct {
 	Domain        string                  `json:"domain,omitempty"`
 }
 
-// SyncJob 同步任务
+// SyncJob 同步任务.
 type SyncJob struct {
 	ID          string     `json:"id"`
 	SourceNode  string     `json:"source_node"`
@@ -92,7 +92,7 @@ type SyncJob struct {
 	Error       string     `json:"error,omitempty"`
 }
 
-// LoadBalancerConfig 负载均衡配置
+// LoadBalancerConfig 负载均衡配置.
 type LoadBalancerConfig struct {
 	Strategy      string         `json:"strategy"` // round_robin, least_connections, weighted, latency_based
 	HealthCheck   bool           `json:"health_check"`
@@ -103,7 +103,7 @@ type LoadBalancerConfig struct {
 	Weights       map[string]int `json:"weights,omitempty"`
 }
 
-// Manager 集群管理器
+// Manager 集群管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	clusters    map[string]*Cluster
@@ -113,7 +113,7 @@ type Manager struct {
 	nodeMetrics map[string]*NodeMetrics
 }
 
-// ClusterEvent 集群事件
+// ClusterEvent 集群事件.
 type ClusterEvent struct {
 	ID        string    `json:"id"`
 	Type      string    `json:"type"`
@@ -123,7 +123,7 @@ type ClusterEvent struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// NodeMetrics 节点指标
+// NodeMetrics 节点指标.
 type NodeMetrics struct {
 	CPUUsage     float64   `json:"cpu_usage"`
 	MemoryUsage  float64   `json:"memory_usage"`
@@ -135,7 +135,7 @@ type NodeMetrics struct {
 	Timestamp    time.Time `json:"timestamp"`
 }
 
-// NewManager 创建新的集群管理器
+// NewManager 创建新的集群管理器.
 func NewManager() *Manager {
 	return &Manager{
 		clusters:    make(map[string]*Cluster),
@@ -152,7 +152,7 @@ func NewManager() *Manager {
 	}
 }
 
-// CreateCluster 创建集群
+// CreateCluster 创建集群.
 func (m *Manager) CreateCluster(name, description string, syncPolicy SyncPolicy) (*Cluster, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -182,7 +182,7 @@ func (m *Manager) CreateCluster(name, description string, syncPolicy SyncPolicy)
 	return cluster, nil
 }
 
-// JoinNode 节点加入集群
+// JoinNode 节点加入集群.
 func (m *Manager) JoinNode(clusterID string, node *ClusterNode) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -212,7 +212,7 @@ func (m *Manager) JoinNode(clusterID string, node *ClusterNode) error {
 	return nil
 }
 
-// RemoveNode 移除节点
+// RemoveNode 移除节点.
 func (m *Manager) RemoveNode(clusterID, nodeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -240,7 +240,7 @@ func (m *Manager) RemoveNode(clusterID, nodeID string) error {
 	return nil
 }
 
-// PromoteNode 提升节点为master
+// PromoteNode 提升节点为master.
 func (m *Manager) PromoteNode(clusterID, nodeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -271,7 +271,7 @@ func (m *Manager) PromoteNode(clusterID, nodeID string) error {
 	return nil
 }
 
-// StartSync 启动数据同步
+// StartSync 启动数据同步.
 func (m *Manager) StartSync(clusterID, sourceNode, targetNode, sourcePath, targetPath string) (*SyncJob, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -305,7 +305,7 @@ func (m *Manager) StartSync(clusterID, sourceNode, targetNode, sourcePath, targe
 	return job, nil
 }
 
-// UpdateSyncProgress 更新同步进度
+// UpdateSyncProgress 更新同步进度.
 func (m *Manager) UpdateSyncProgress(jobID string, progress float64, bytesSynced int64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -329,7 +329,7 @@ func (m *Manager) UpdateSyncProgress(jobID string, progress float64, bytesSynced
 	return nil
 }
 
-// GetCluster 获取集群信息
+// GetCluster 获取集群信息.
 func (m *Manager) GetCluster(clusterID string) (*Cluster, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -342,7 +342,7 @@ func (m *Manager) GetCluster(clusterID string) (*Cluster, error) {
 	return cluster, nil
 }
 
-// ListClusters 列出所有集群
+// ListClusters 列出所有集群.
 func (m *Manager) ListClusters() []*Cluster {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -354,7 +354,7 @@ func (m *Manager) ListClusters() []*Cluster {
 	return clusters
 }
 
-// GetSyncJob 获取同步任务
+// GetSyncJob 获取同步任务.
 func (m *Manager) GetSyncJob(jobID string) (*SyncJob, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -367,7 +367,7 @@ func (m *Manager) GetSyncJob(jobID string) (*SyncJob, error) {
 	return job, nil
 }
 
-// ListSyncJobs 列出所有同步任务
+// ListSyncJobs 列出所有同步任务.
 func (m *Manager) ListSyncJobs(clusterID string) []*SyncJob {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -385,7 +385,7 @@ func (m *Manager) ListSyncJobs(clusterID string) []*SyncJob {
 	return jobs
 }
 
-// UpdateNodeMetrics 更新节点指标
+// UpdateNodeMetrics 更新节点指标.
 func (m *Manager) UpdateNodeMetrics(nodeID string, metrics *NodeMetrics) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -394,7 +394,7 @@ func (m *Manager) UpdateNodeMetrics(nodeID string, metrics *NodeMetrics) {
 	m.nodeMetrics[nodeID] = metrics
 }
 
-// GetNodeMetrics 获取节点指标
+// GetNodeMetrics 获取节点指标.
 func (m *Manager) GetNodeMetrics(nodeID string) *NodeMetrics {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -402,7 +402,7 @@ func (m *Manager) GetNodeMetrics(nodeID string) *NodeMetrics {
 	return m.nodeMetrics[nodeID]
 }
 
-// SelectNodeForRequest 根据负载均衡策略选择节点
+// SelectNodeForRequest 根据负载均衡策略选择节点.
 func (m *Manager) SelectNodeForRequest(clusterID string) (*ClusterNode, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -437,7 +437,7 @@ func (m *Manager) SelectNodeForRequest(clusterID string) (*ClusterNode, error) {
 	}
 }
 
-// selectRoundRobin 轮询选择
+// selectRoundRobin 轮询选择.
 func (m *Manager) selectRoundRobin(nodes []*ClusterNode) *ClusterNode {
 	// 简化实现，实际应该维护一个计数器
 	if len(nodes) == 0 {
@@ -446,7 +446,7 @@ func (m *Manager) selectRoundRobin(nodes []*ClusterNode) *ClusterNode {
 	return nodes[0]
 }
 
-// selectLeastConnections 最少连接选择
+// selectLeastConnections 最少连接选择.
 func (m *Manager) selectLeastConnections(nodes []*ClusterNode) *ClusterNode {
 	if len(nodes) == 0 {
 		return nil
@@ -467,7 +467,7 @@ func (m *Manager) selectLeastConnections(nodes []*ClusterNode) *ClusterNode {
 	return bestNode
 }
 
-// selectWeighted 加权选择
+// selectWeighted 加权选择.
 func (m *Manager) selectWeighted(nodes []*ClusterNode) *ClusterNode {
 	if len(nodes) == 0 {
 		return nil
@@ -493,7 +493,7 @@ func (m *Manager) selectWeighted(nodes []*ClusterNode) *ClusterNode {
 	return bestNode
 }
 
-// selectLatencyBased 基于延迟选择
+// selectLatencyBased 基于延迟选择.
 func (m *Manager) selectLatencyBased(nodes []*ClusterNode) *ClusterNode {
 	if len(nodes) == 0 {
 		return nil
@@ -513,7 +513,7 @@ func (m *Manager) selectLatencyBased(nodes []*ClusterNode) *ClusterNode {
 	return bestNode
 }
 
-// GetClusterStats 获取集群统计
+// GetClusterStats 获取集群统计.
 func (m *Manager) GetClusterStats(clusterID string) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -550,7 +550,7 @@ func (m *Manager) GetClusterStats(clusterID string) (map[string]interface{}, err
 	return stats, nil
 }
 
-// GetEventLog 获取事件日志
+// GetEventLog 获取事件日志.
 func (m *Manager) GetEventLog(limit int) []*ClusterEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -568,7 +568,7 @@ func (m *Manager) GetEventLog(limit int) []*ClusterEvent {
 	return m.eventLog[start:]
 }
 
-// addEvent 添加事件
+// addEvent 添加事件.
 func (m *Manager) addEvent(eventType, nodeID, message, severity string) {
 	event := &ClusterEvent{
 		ID:        uuid.New().String(),
@@ -586,7 +586,7 @@ func (m *Manager) addEvent(eventType, nodeID, message, severity string) {
 	}
 }
 
-// HealthCheck 节点健康检查
+// HealthCheck 节点健康检查.
 func (m *Manager) HealthCheck(clusterID string) map[string]bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -610,7 +610,7 @@ func (m *Manager) HealthCheck(clusterID string) map[string]bool {
 	return results
 }
 
-// UpdateNodeHeartbeat 更新节点心跳
+// UpdateNodeHeartbeat 更新节点心跳.
 func (m *Manager) UpdateNodeHeartbeat(clusterID, nodeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -634,7 +634,7 @@ func (m *Manager) UpdateNodeHeartbeat(clusterID, nodeID string) error {
 	return nil
 }
 
-// SetMaintenanceMode 设置维护模式
+// SetMaintenanceMode 设置维护模式.
 func (m *Manager) SetMaintenanceMode(clusterID, nodeID string, enable bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

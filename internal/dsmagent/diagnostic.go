@@ -8,18 +8,18 @@ import (
 )
 
 // DiagnosticAgent 智能诊断代理
-// 提供系统状态智能诊断、异常检测、根因分析和预测性告警
+// 提供系统状态智能诊断、异常检测、根因分析和预测性告警.
 type DiagnosticAgent struct {
 	mu              sync.RWMutex
 	health          *SystemHealth
-	diagnoses       []*DiagnosisResult     // 诊断结果历史
-	predictions     []*Prediction          // 预测性告警
+	diagnoses       []*DiagnosisResult      // 诊断结果历史
+	predictions     []*Prediction           // 预测性告警
 	correlations    map[string]*Correlation // 指标关联分析
-	alertRules      []*AlertRule           // 告警规则
-	anomalyBaseline *AnomalyBaseline       // 异常检测基线
+	alertRules      []*AlertRule            // 告警规则
+	anomalyBaseline *AnomalyBaseline        // 异常检测基线
 }
 
-// DiagnosisResult 诊断结果
+// DiagnosisResult 诊断结果.
 type DiagnosisResult struct {
 	ID          string                 `json:"id"`
 	Timestamp   time.Time              `json:"timestamp"`
@@ -27,14 +27,14 @@ type DiagnosisResult struct {
 	Category    string                 `json:"category"` // cpu, memory, disk, network, service
 	Title       string                 `json:"title"`
 	Description string                 `json:"description"`
-	RootCause   string                 `json:"root_cause,omitempty"`  // 根因分析
-	Evidence    []Evidence             `json:"evidence"`              // 证据
-	Suggestions []Suggestion           `json:"suggestions"`           // 修复建议
-	AutoFixed   bool                   `json:"auto_fixed"`            // 是否已自动修复
+	RootCause   string                 `json:"root_cause,omitempty"` // 根因分析
+	Evidence    []Evidence             `json:"evidence"`             // 证据
+	Suggestions []Suggestion           `json:"suggestions"`          // 修复建议
+	AutoFixed   bool                   `json:"auto_fixed"`           // 是否已自动修复
 	Details     map[string]interface{} `json:"details,omitempty"`
 }
 
-// Severity 严重程度
+// Severity 严重程度.
 type Severity string
 
 const (
@@ -44,7 +44,7 @@ const (
 	SeverityCritical Severity = "critical"
 )
 
-// Evidence 诊断证据
+// Evidence 诊断证据.
 type Evidence struct {
 	Type     string      `json:"type"`     // metric, log, event
 	Source   string      `json:"source"`   // 来源组件
@@ -53,7 +53,7 @@ type Evidence struct {
 	Message  string      `json:"message"`
 }
 
-// Suggestion 修复建议
+// Suggestion 修复建议.
 type Suggestion struct {
 	Action      string `json:"action"`      // 建议动作
 	Description string `json:"description"` // 详细说明
@@ -62,18 +62,18 @@ type Suggestion struct {
 	Risk        string `json:"risk"`        // 风险等级: low, medium, high
 }
 
-// Prediction 预测性告警
+// Prediction 预测性告警.
 type Prediction struct {
-	ID          string    `json:"id"`
-	Timestamp   time.Time `json:"timestamp"`
-	Category    string    `json:"category"`
-	Prediction  string    `json:"prediction"`  // 预测内容
-	Confidence  float64   `json:"confidence"`  // 置信度 0-1
-	ETA         string    `json:"eta"`         // 预计发生时间
-	Prevention  []string  `json:"prevention"`  // 预防措施
+	ID         string    `json:"id"`
+	Timestamp  time.Time `json:"timestamp"`
+	Category   string    `json:"category"`
+	Prediction string    `json:"prediction"` // 预测内容
+	Confidence float64   `json:"confidence"` // 置信度 0-1
+	ETA        string    `json:"eta"`        // 预计发生时间
+	Prevention []string  `json:"prevention"` // 预防措施
 }
 
-// Correlation 指标关联分析
+// Correlation 指标关联分析.
 type Correlation struct {
 	MetricA     string    `json:"metric_a"`
 	MetricB     string    `json:"metric_b"`
@@ -82,21 +82,21 @@ type Correlation struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// AlertRule 告警规则
+// AlertRule 告警规则.
 type AlertRule struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Enabled     bool                   `json:"enabled"`
-	Metric      string                 `json:"metric"`       // 监控指标
-	Condition   string                 `json:"condition"`    // 条件: gt, lt, eq, between
-	Threshold   float64                `json:"threshold"`    // 阈值
-	Duration    time.Duration          `json:"duration"`     // 持续时间
-	Severity    Severity               `json:"severity"`
-	Message     string                 `json:"message"`
-	Actions     []string               `json:"actions"`      // 触发的动作
+	ID        string        `json:"id"`
+	Name      string        `json:"name"`
+	Enabled   bool          `json:"enabled"`
+	Metric    string        `json:"metric"`    // 监控指标
+	Condition string        `json:"condition"` // 条件: gt, lt, eq, between
+	Threshold float64       `json:"threshold"` // 阈值
+	Duration  time.Duration `json:"duration"`  // 持续时间
+	Severity  Severity      `json:"severity"`
+	Message   string        `json:"message"`
+	Actions   []string      `json:"actions"` // 触发的动作
 }
 
-// AnomalyBaseline 异常检测基线
+// AnomalyBaseline 异常检测基线.
 type AnomalyBaseline struct {
 	CPUMean     float64   `json:"cpu_mean"`
 	CPUStdDev   float64   `json:"cpu_stddev"`
@@ -110,26 +110,26 @@ type AnomalyBaseline struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// DiagnosticSummary 诊断摘要
+// DiagnosticSummary 诊断摘要.
 type DiagnosticSummary struct {
-	OverallHealth   string            `json:"overall_health"`   // good, warning, critical
-	Score           int               `json:"score"`            // 健康评分 0-100
-	Issues          int               `json:"issues"`           // 发现的问题数
-	Warnings        int               `json:"warnings"`         // 警告数
-	Predictions     int               `json:"predictions"`      // 预测告警数
-	Uptime          string            `json:"uptime"`
-	LastDiagnosis   time.Time         `json:"last_diagnosis"`
-	TopIssues       []string          `json:"top_issues"`
-	Recommendations []string          `json:"recommendations"`
+	OverallHealth   string    `json:"overall_health"` // good, warning, critical
+	Score           int       `json:"score"`          // 健康评分 0-100
+	Issues          int       `json:"issues"`         // 发现的问题数
+	Warnings        int       `json:"warnings"`       // 警告数
+	Predictions     int       `json:"predictions"`    // 预测告警数
+	Uptime          string    `json:"uptime"`
+	LastDiagnosis   time.Time `json:"last_diagnosis"`
+	TopIssues       []string  `json:"top_issues"`
+	Recommendations []string  `json:"recommendations"`
 }
 
-// NewDiagnosticAgent 创建智能诊断代理实例
+// NewDiagnosticAgent 创建智能诊断代理实例.
 func NewDiagnosticAgent() *DiagnosticAgent {
 	agent := &DiagnosticAgent{
-		diagnoses:    make([]*DiagnosisResult, 0),
-		predictions:  make([]*Prediction, 0),
-		correlations: make(map[string]*Correlation),
-		alertRules:   make([]*AlertRule, 0),
+		diagnoses:       make([]*DiagnosisResult, 0),
+		predictions:     make([]*Prediction, 0),
+		correlations:    make(map[string]*Correlation),
+		alertRules:      make([]*AlertRule, 0),
 		anomalyBaseline: &AnomalyBaseline{},
 	}
 
@@ -140,7 +140,7 @@ func NewDiagnosticAgent() *DiagnosticAgent {
 	return agent
 }
 
-// initDefaultAlertRules 初始化默认告警规则
+// initDefaultAlertRules 初始化默认告警规则.
 func (d *DiagnosticAgent) initDefaultAlertRules() {
 	d.alertRules = []*AlertRule{
 		{
@@ -190,7 +190,7 @@ func (d *DiagnosticAgent) initDefaultAlertRules() {
 	log.Printf("[DiagnosticAgent] 初始化了 %d 条默认告警规则", len(d.alertRules))
 }
 
-// RunDiagnosis 执行完整系统诊断
+// RunDiagnosis 执行完整系统诊断.
 func (d *DiagnosticAgent) RunDiagnosis(health *SystemHealth) *DiagnosticSummary {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -207,10 +207,11 @@ func (d *DiagnosticAgent) RunDiagnosis(health *SystemHealth) *DiagnosticSummary 
 	// CPU诊断
 	if result := d.diagnoseCPU(health); result != nil {
 		d.diagnoses = append(d.diagnoses, result)
-		if result.Severity == SeverityCritical || result.Severity == SeverityError {
+		switch result.Severity {
+		case SeverityCritical, SeverityError:
 			issues++
 			topIssues = append(topIssues, result.Title)
-		} else if result.Severity == SeverityWarning {
+		case SeverityWarning:
 			warnings++
 		}
 		recommendations = append(recommendations, d.getRecommendations(result)...)
@@ -219,10 +220,11 @@ func (d *DiagnosticAgent) RunDiagnosis(health *SystemHealth) *DiagnosticSummary 
 	// 内存诊断
 	if result := d.diagnoseMemory(health); result != nil {
 		d.diagnoses = append(d.diagnoses, result)
-		if result.Severity == SeverityCritical || result.Severity == SeverityError {
+		switch result.Severity {
+		case SeverityCritical, SeverityError:
 			issues++
 			topIssues = append(topIssues, result.Title)
-		} else if result.Severity == SeverityWarning {
+		case SeverityWarning:
 			warnings++
 		}
 		recommendations = append(recommendations, d.getRecommendations(result)...)
@@ -231,10 +233,11 @@ func (d *DiagnosticAgent) RunDiagnosis(health *SystemHealth) *DiagnosticSummary 
 	// 磁盘诊断
 	if result := d.diagnoseDisk(health); result != nil {
 		d.diagnoses = append(d.diagnoses, result)
-		if result.Severity == SeverityCritical || result.Severity == SeverityError {
+		switch result.Severity {
+		case SeverityCritical, SeverityError:
 			issues++
 			topIssues = append(topIssues, result.Title)
-		} else if result.Severity == SeverityWarning {
+		case SeverityWarning:
 			warnings++
 		}
 		recommendations = append(recommendations, d.getRecommendations(result)...)
@@ -243,10 +246,11 @@ func (d *DiagnosticAgent) RunDiagnosis(health *SystemHealth) *DiagnosticSummary 
 	// 温度诊断
 	if result := d.diagnoseTemperature(health); result != nil {
 		d.diagnoses = append(d.diagnoses, result)
-		if result.Severity == SeverityCritical || result.Severity == SeverityError {
+		switch result.Severity {
+		case SeverityCritical, SeverityError:
 			issues++
 			topIssues = append(topIssues, result.Title)
-		} else if result.Severity == SeverityWarning {
+		case SeverityWarning:
 			warnings++
 		}
 		recommendations = append(recommendations, d.getRecommendations(result)...)
@@ -287,7 +291,7 @@ func (d *DiagnosticAgent) RunDiagnosis(health *SystemHealth) *DiagnosticSummary 
 	return summary
 }
 
-// diagnoseCPU 诊断CPU状态
+// diagnoseCPU 诊断CPU状态.
 func (d *DiagnosticAgent) diagnoseCPU(health *SystemHealth) *DiagnosisResult {
 	if health.CPUUsage < 80 {
 		return nil
@@ -318,7 +322,7 @@ func (d *DiagnosticAgent) diagnoseCPU(health *SystemHealth) *DiagnosisResult {
 	}
 }
 
-// diagnoseMemory 诊断内存状态
+// diagnoseMemory 诊断内存状态.
 func (d *DiagnosticAgent) diagnoseMemory(health *SystemHealth) *DiagnosisResult {
 	if health.MemoryUsage < 80 {
 		return nil
@@ -349,7 +353,7 @@ func (d *DiagnosticAgent) diagnoseMemory(health *SystemHealth) *DiagnosisResult 
 	}
 }
 
-// diagnoseDisk 诊断磁盘状态
+// diagnoseDisk 诊断磁盘状态.
 func (d *DiagnosticAgent) diagnoseDisk(health *SystemHealth) *DiagnosisResult {
 	if health.DiskUsage < 85 {
 		return nil
@@ -382,7 +386,7 @@ func (d *DiagnosticAgent) diagnoseDisk(health *SystemHealth) *DiagnosisResult {
 	}
 }
 
-// diagnoseTemperature 诊断温度状态
+// diagnoseTemperature 诊断温度状态.
 func (d *DiagnosticAgent) diagnoseTemperature(health *SystemHealth) *DiagnosisResult {
 	if health.Temperature < 70 {
 		return nil
@@ -414,7 +418,7 @@ func (d *DiagnosticAgent) diagnoseTemperature(health *SystemHealth) *DiagnosisRe
 	}
 }
 
-// detectAnomalies 异常检测
+// detectAnomalies 异常检测.
 func (d *DiagnosticAgent) detectAnomalies(health *SystemHealth) {
 	baseline := d.anomalyBaseline
 	if baseline.SampleCount < 10 {
@@ -430,13 +434,13 @@ func (d *DiagnosticAgent) detectAnomalies(health *SystemHealth) {
 
 	if cpuZScore > 3 || memZScore > 3 || tempZScore > 3 {
 		diagnosis := &DiagnosisResult{
-			ID:        fmt.Sprintf("diag_anomaly_%d", time.Now().UnixNano()),
-			Timestamp: time.Now(),
-			Severity:  SeverityWarning,
-			Category:  "anomaly",
-			Title:     "检测到系统异常",
+			ID:          fmt.Sprintf("diag_anomaly_%d", time.Now().UnixNano()),
+			Timestamp:   time.Now(),
+			Severity:    SeverityWarning,
+			Category:    "anomaly",
+			Title:       "检测到系统异常",
 			Description: "系统指标偏离正常基线，可能存在异常情况",
-			RootCause: "指标偏离历史基线超过3个标准差",
+			RootCause:   "指标偏离历史基线超过3个标准差",
 		}
 
 		if cpuZScore > 3 {
@@ -454,7 +458,7 @@ func (d *DiagnosticAgent) detectAnomalies(health *SystemHealth) {
 	d.updateBaseline(health)
 }
 
-// updateBaseline 更新异常检测基线（增量平均）
+// updateBaseline 更新异常检测基线（增量平均）.
 func (d *DiagnosticAgent) updateBaseline(health *SystemHealth) {
 	b := d.anomalyBaseline
 	n := float64(b.SampleCount)
@@ -472,7 +476,7 @@ func (d *DiagnosticAgent) updateBaseline(health *SystemHealth) {
 	b.UpdatedAt = time.Now()
 }
 
-// runPredictions 运行预测分析
+// runPredictions 运行预测分析.
 func (d *DiagnosticAgent) runPredictions(health *SystemHealth) {
 	// 磁盘空间预测
 	if health.DiskUsage > 70 {
@@ -492,7 +496,7 @@ func (d *DiagnosticAgent) runPredictions(health *SystemHealth) {
 	}
 }
 
-// calculateHealthScore 计算健康评分
+// calculateHealthScore 计算健康评分.
 func (d *DiagnosticAgent) calculateHealthScore(health *SystemHealth, issues, warnings int) int {
 	score := 100
 
@@ -531,7 +535,7 @@ func (d *DiagnosticAgent) calculateHealthScore(health *SystemHealth, issues, war
 	return score
 }
 
-// getRecommendations 从诊断结果中提取建议
+// getRecommendations 从诊断结果中提取建议.
 func (d *DiagnosticAgent) getRecommendations(result *DiagnosisResult) []string {
 	var recs []string
 	for _, s := range result.Suggestions {
@@ -542,7 +546,7 @@ func (d *DiagnosticAgent) getRecommendations(result *DiagnosisResult) []string {
 	return recs
 }
 
-// GetDiagnoses 获取诊断历史
+// GetDiagnoses 获取诊断历史.
 func (d *DiagnosticAgent) GetDiagnoses(limit int) []*DiagnosisResult {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -557,14 +561,14 @@ func (d *DiagnosticAgent) GetDiagnoses(limit int) []*DiagnosisResult {
 	return d.diagnoses[start:]
 }
 
-// GetPredictions 获取预测告警
+// GetPredictions 获取预测告警.
 func (d *DiagnosticAgent) GetPredictions() []*Prediction {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
 	return d.predictions
 }
 
-// AddAlertRule 添加自定义告警规则
+// AddAlertRule 添加自定义告警规则.
 func (d *DiagnosticAgent) AddAlertRule(rule *AlertRule) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -572,14 +576,14 @@ func (d *DiagnosticAgent) AddAlertRule(rule *AlertRule) {
 	log.Printf("[DiagnosticAgent] 添加告警规则: %s", rule.Name)
 }
 
-// ListAlertRules 列出所有告警规则
+// ListAlertRules 列出所有告警规则.
 func (d *DiagnosticAgent) ListAlertRules() []*AlertRule {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
 	return d.alertRules
 }
 
-// max 返回两个float64中较大的一个
+// max 返回两个float64中较大的一个.
 func max(a, b float64) float64 {
 	if a > b {
 		return a

@@ -12,14 +12,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handler provides HTTP handlers for container scan operations
+// Handler provides HTTP handlers for container scan operations.
 type Handler struct {
 	manager *Manager
 	scanner *Scanner
 	logger  *zap.Logger
 }
 
-// NewHandler creates a new container scan HTTP handler
+// NewHandler creates a new container scan HTTP handler.
 func NewHandler(manager *Manager, scanner *Scanner, logger *zap.Logger) *Handler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -31,7 +31,7 @@ func NewHandler(manager *Manager, scanner *Scanner, logger *zap.Logger) *Handler
 	}
 }
 
-// RegisterRoutes registers container scan API routes
+// RegisterRoutes registers container scan API routes.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/containerscan/scan", h.handleScan)
 	mux.HandleFunc("/api/v1/containerscan/scan/", h.handleScanResult)
@@ -46,7 +46,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/containerscan/reports/", h.handleReportByID)
 }
 
-// handleScan handles scan requests
+// handleScan handles scan requests.
 func (h *Handler) handleScan(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
@@ -56,7 +56,7 @@ func (h *Handler) handleScan(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleScanResult handles scan result requests
+// handleScanResult handles scan result requests.
 func (h *Handler) handleScanResult(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -79,7 +79,7 @@ func (h *Handler) handleScanResult(w http.ResponseWriter, r *http.Request) {
 	h.writeJSON(w, http.StatusOK, result)
 }
 
-// handleCache handles cache operations
+// handleCache handles cache operations.
 func (h *Handler) handleCache(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -93,7 +93,7 @@ func (h *Handler) handleCache(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleSchedules handles schedule list/create requests
+// handleSchedules handles schedule list/create requests.
 func (h *Handler) handleSchedules(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -106,7 +106,7 @@ func (h *Handler) handleSchedules(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleScheduleByID handles schedule get/update/delete by ID
+// handleScheduleByID handles schedule get/update/delete by ID.
 func (h *Handler) handleScheduleByID(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/api/v1/containerscan/schedules/")
 	if id == "" {
@@ -135,7 +135,7 @@ func (h *Handler) handleScheduleByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleWhitelist handles whitelist list/add requests
+// handleWhitelist handles whitelist list/add requests.
 func (h *Handler) handleWhitelist(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -148,7 +148,7 @@ func (h *Handler) handleWhitelist(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleWhitelistEntry handles whitelist entry removal
+// handleWhitelistEntry handles whitelist entry removal.
 func (h *Handler) handleWhitelistEntry(w http.ResponseWriter, r *http.Request) {
 	image := strings.TrimPrefix(r.URL.Path, "/api/v1/containerscan/whitelist/")
 	if image == "" {
@@ -174,7 +174,7 @@ func (h *Handler) handleWhitelistEntry(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleBlacklist handles blacklist list/add requests
+// handleBlacklist handles blacklist list/add requests.
 func (h *Handler) handleBlacklist(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -187,7 +187,7 @@ func (h *Handler) handleBlacklist(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleBlacklistEntry handles blacklist entry removal
+// handleBlacklistEntry handles blacklist entry removal.
 func (h *Handler) handleBlacklistEntry(w http.ResponseWriter, r *http.Request) {
 	image := strings.TrimPrefix(r.URL.Path, "/api/v1/containerscan/blacklist/")
 	if image == "" {
@@ -213,7 +213,7 @@ func (h *Handler) handleBlacklistEntry(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleReports handles report list requests
+// handleReports handles report list requests.
 func (h *Handler) handleReports(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -224,7 +224,7 @@ func (h *Handler) handleReports(w http.ResponseWriter, r *http.Request) {
 	h.writeJSON(w, http.StatusOK, map[string]interface{}{"reports": reports})
 }
 
-// handleReportByID handles report get/delete by ID
+// handleReportByID handles report get/delete by ID.
 func (h *Handler) handleReportByID(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/api/v1/containerscan/reports/")
 	if id == "" {
@@ -251,7 +251,7 @@ func (h *Handler) handleReportByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// startScan initiates a new scan
+// startScan initiates a new scan.
 func (h *Handler) startScan(w http.ResponseWriter, r *http.Request) {
 	var req ScanRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -296,7 +296,7 @@ func (h *Handler) startScan(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// createSchedule creates a new scan schedule
+// createSchedule creates a new scan schedule.
 func (h *Handler) createSchedule(w http.ResponseWriter, r *http.Request) {
 	var schedule ScanSchedule
 	if err := json.NewDecoder(r.Body).Decode(&schedule); err != nil {
@@ -312,7 +312,7 @@ func (h *Handler) createSchedule(w http.ResponseWriter, r *http.Request) {
 	h.writeJSON(w, http.StatusCreated, schedule)
 }
 
-// updateSchedule updates an existing schedule
+// updateSchedule updates an existing schedule.
 func (h *Handler) updateSchedule(w http.ResponseWriter, r *http.Request, id string) {
 	var schedule ScanSchedule
 	if err := json.NewDecoder(r.Body).Decode(&schedule); err != nil {
@@ -328,7 +328,7 @@ func (h *Handler) updateSchedule(w http.ResponseWriter, r *http.Request, id stri
 	h.writeJSON(w, http.StatusOK, map[string]string{"message": "schedule updated"})
 }
 
-// addToList adds an image to whitelist or blacklist
+// addToList adds an image to whitelist or blacklist.
 func (h *Handler) addToList(w http.ResponseWriter, r *http.Request, listType ListType) {
 	var entry ImageListEntry
 	if err := json.NewDecoder(r.Body).Decode(&entry); err != nil {
@@ -351,7 +351,7 @@ func (h *Handler) addToList(w http.ResponseWriter, r *http.Request, listType Lis
 	h.writeJSON(w, http.StatusCreated, entry)
 }
 
-// writeJSON writes a JSON response
+// writeJSON writes a JSON response.
 func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -360,12 +360,12 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 	}
 }
 
-// generateScanID creates a unique scan ID
+// generateScanID creates a unique scan ID.
 func generateScanID() string {
 	return fmt.Sprintf("scan-%s-%s", time.Now().Format("20060102-150405"), randomHex(4))
 }
 
-// randomHex generates a random hex string
+// randomHex generates a random hex string.
 func randomHex(n int) string {
 	const hex = "0123456789abcdef"
 	b := make([]byte, n)

@@ -48,7 +48,6 @@ func setupTestEnv(t *testing.T) (string, *BackupManager, *Engine, *RestoreManage
 	return tmpDir, mgr, engine, restore, dashboard
 }
 
-
 func setupTestEngine(t *testing.T) *Engine {
 	t.Helper()
 	tmp := setupTestEnvFull(t)
@@ -110,7 +109,6 @@ func setupTestFull(t *testing.T) (*BackupManager, *Engine, *RestoreManager, *Das
 	_, mgr, engine, restore, dashboard := setupTestEnv(t)
 	return mgr, engine, restore, dashboard
 }
-
 
 // ==================== Engine 测试 ====================
 

@@ -15,14 +15,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// NVMeHandlers NVMe硬件监控处理器
+// NVMeHandlers NVMe硬件监控处理器.
 type NVMeHandlers struct {
 	monitor  *nvme.NVMeMonitor
 	alerts   []nvme.Alert
 	alertsMu sync.RWMutex
 }
 
-// NewNVMeHandlers 创建NVMe处理器
+// NewNVMeHandlers 创建NVMe处理器.
 func NewNVMeHandlers() *NVMeHandlers {
 	cfg := nvme.DefaultAlertConfig()
 	monitor := nvme.NewNVMeMonitor(cfg)
@@ -38,7 +38,7 @@ func NewNVMeHandlers() *NVMeHandlers {
 	return h
 }
 
-// collectAlerts 收集告警
+// collectAlerts 收集告警.
 func (h *NVMeHandlers) collectAlerts() {
 	for alert := range h.monitor.Alerts() {
 		h.alertsMu.Lock()
@@ -51,7 +51,7 @@ func (h *NVMeHandlers) collectAlerts() {
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *NVMeHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	nvmeGroup := r.Group("/hardware/nvme")
 	{
@@ -87,7 +87,7 @@ func (h *NVMeHandlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Success 200 {object} api.Response "成功"
 // @Failure 500 {object} api.Response "服务器内部错误"
 // @Router /hardware/nvme [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) getDashboard(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
 	defer cancel()
@@ -114,7 +114,7 @@ func (h *NVMeHandlers) getDashboard(c *gin.Context) {
 // @Failure 400 {object} api.Response "设备参数错误"
 // @Failure 500 {object} api.Response "服务器内部错误"
 // @Router /hardware/nvme/{device} [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) getDeviceHealth(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -147,7 +147,7 @@ func (h *NVMeHandlers) getDeviceHealth(c *gin.Context) {
 // @Param severity query string false "严重级别过滤 (warning/critical)"
 // @Success 200 {object} api.Response "成功"
 // @Router /hardware/nvme/alerts [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) getAlerts(c *gin.Context) {
 	limit := 50
 	if l := c.Query("limit"); l != "" {
@@ -182,7 +182,7 @@ func (h *NVMeHandlers) getAlerts(c *gin.Context) {
 // @Success 200 {object} api.Response "成功"
 // @Failure 500 {object} api.Response "服务器内部错误"
 // @Router /hardware/nvme/refresh [post]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) refreshData(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 30*time.Second)
 	defer cancel()
@@ -209,7 +209,7 @@ func (h *NVMeHandlers) refreshData(c *gin.Context) {
 // @Success 200 {object} api.Response "成功"
 // @Failure 400 {object} api.Response "配置参数错误"
 // @Router /hardware/nvme/config [put]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) updateConfig(c *gin.Context) {
 	var config nvme.AlertConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -244,7 +244,7 @@ func (h *NVMeHandlers) updateConfig(c *gin.Context) {
 // @Accept json
 // @Produce text/plain
 // @Success 200 {string} string "Prometheus指标"
-// @Router /hardware/nvme/metrics [get]
+// @Router /hardware/nvme/metrics [get].
 func (h *NVMeHandlers) getMetrics(c *gin.Context) {
 	metrics := h.monitor.ExportMetrics()
 
@@ -260,7 +260,7 @@ func (h *NVMeHandlers) getMetrics(c *gin.Context) {
 // @Param duration query string false "时间范围 (如 24h, 7d)" default(24h)
 // @Success 200 {object} api.Response "成功"
 // @Router /hardware/nvme/history [get]
-// @Security BearerAuth
+// @Security BearerAuth.
 func (h *NVMeHandlers) getHistory(c *gin.Context) {
 	duration := c.DefaultQuery("duration", "24h")
 

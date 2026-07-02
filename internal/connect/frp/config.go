@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// TunnelType 隧道类型
+// TunnelType 隧道类型.
 type TunnelType string
 
 const (
@@ -22,7 +22,7 @@ const (
 	TunnelTypeXTCP  TunnelType = "xtcp" // P2P TCP
 )
 
-// ClientConfig FRP客户端配置
+// ClientConfig FRP客户端配置.
 type ClientConfig struct {
 	// 基础配置
 	Common CommonConfig `json:"common" yaml:"common"`
@@ -34,7 +34,7 @@ type ClientConfig struct {
 	ConfigPath string `json:"-" yaml:"-"`
 }
 
-// CommonConfig FRP通用配置
+// CommonConfig FRP通用配置.
 type CommonConfig struct {
 	// 服务器地址
 	ServerAddr string `json:"server_addr" yaml:"server_addr"`
@@ -104,7 +104,7 @@ type CommonConfig struct {
 	Start []string `json:"start" yaml:"start"`
 }
 
-// TunnelConfig 隧道配置
+// TunnelConfig 隧道配置.
 type TunnelConfig struct {
 	// 隧道ID
 	ID string `json:"id" yaml:"id"`
@@ -179,7 +179,7 @@ type TunnelConfig struct {
 	UpdatedAt time.Time `json:"updated_at" yaml:"updated_at"`
 }
 
-// TunnelStatus 隧道状态
+// TunnelStatus 隧道状态.
 type TunnelStatus struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
@@ -195,7 +195,7 @@ type TunnelStatus struct {
 	Error       string     `json:"error,omitempty"`
 }
 
-// ServerInfo 服务器信息
+// ServerInfo 服务器信息.
 type ServerInfo struct {
 	Version      string `json:"version"`
 	ServerAddr   string `json:"server_addr"`
@@ -203,7 +203,7 @@ type ServerInfo struct {
 	TotalTraffic uint64 `json:"total_traffic"`
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *ClientConfig {
 	return &ClientConfig{
 		Common: CommonConfig{
@@ -225,7 +225,7 @@ func DefaultConfig() *ClientConfig {
 	}
 }
 
-// LoadConfig 从文件加载配置
+// LoadConfig 从文件加载配置.
 func LoadConfig(path string) (*ClientConfig, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -241,7 +241,7 @@ func LoadConfig(path string) (*ClientConfig, error) {
 	return &config, nil
 }
 
-// SaveConfig 保存配置到文件
+// SaveConfig 保存配置到文件.
 func (c *ClientConfig) SaveConfig() error {
 	if c.ConfigPath == "" {
 		return fmt.Errorf("config path not set")
@@ -259,7 +259,7 @@ func (c *ClientConfig) SaveConfig() error {
 	return os.WriteFile(c.ConfigPath, data, 0600)
 }
 
-// AddTunnel 添加隧道
+// AddTunnel 添加隧道.
 func (c *ClientConfig) AddTunnel(tunnel TunnelConfig) {
 	tunnel.CreatedAt = time.Now()
 	tunnel.UpdatedAt = time.Now()
@@ -269,7 +269,7 @@ func (c *ClientConfig) AddTunnel(tunnel TunnelConfig) {
 	c.Tunnels = append(c.Tunnels, tunnel)
 }
 
-// RemoveTunnel 移除隧道
+// RemoveTunnel 移除隧道.
 func (c *ClientConfig) RemoveTunnel(id string) bool {
 	for i, t := range c.Tunnels {
 		if t.ID == id {
@@ -280,7 +280,7 @@ func (c *ClientConfig) RemoveTunnel(id string) bool {
 	return false
 }
 
-// GetTunnel 获取隧道
+// GetTunnel 获取隧道.
 func (c *ClientConfig) GetTunnel(id string) *TunnelConfig {
 	for i := range c.Tunnels {
 		if c.Tunnels[i].ID == id {
@@ -290,7 +290,7 @@ func (c *ClientConfig) GetTunnel(id string) *TunnelConfig {
 	return nil
 }
 
-// UpdateTunnel 更新隧道
+// UpdateTunnel 更新隧道.
 func (c *ClientConfig) UpdateTunnel(tunnel TunnelConfig) bool {
 	for i := range c.Tunnels {
 		if c.Tunnels[i].ID == tunnel.ID {
@@ -303,7 +303,7 @@ func (c *ClientConfig) UpdateTunnel(tunnel TunnelConfig) bool {
 	return false
 }
 
-// generateTunnelID 生成隧道ID
+// generateTunnelID 生成隧道ID.
 func generateTunnelID() string {
 	return fmt.Sprintf("tunnel_%d", time.Now().UnixNano())
 }

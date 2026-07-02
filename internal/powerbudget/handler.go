@@ -9,17 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 功率预算 API 处理器
+// Handlers 功率预算 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	power := r.Group("/power")
 	{
@@ -39,14 +39,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// getReadings 获取功率读数
+// getReadings 获取功率读数.
 func (h *Handlers) getReadings(c *gin.Context) {
 	deviceID := c.Query("device_id")
 	limitStr := c.DefaultQuery("limit", "100")
@@ -71,7 +71,7 @@ func (h *Handlers) getReadings(c *gin.Context) {
 	})
 }
 
-// setBudget 设置功率预算
+// setBudget 设置功率预算.
 func (h *Handlers) setBudget(c *gin.Context) {
 	var budget PowerBudget
 	if err := c.ShouldBindJSON(&budget); err != nil {
@@ -98,7 +98,7 @@ func (h *Handlers) setBudget(c *gin.Context) {
 	})
 }
 
-// listBudgets 列出预算
+// listBudgets 列出预算.
 func (h *Handlers) listBudgets(c *gin.Context) {
 	budgets := h.manager.ListBudgets()
 	c.JSON(http.StatusOK, response{
@@ -108,7 +108,7 @@ func (h *Handlers) listBudgets(c *gin.Context) {
 	})
 }
 
-// getBudget 获取预算
+// getBudget 获取预算.
 func (h *Handlers) getBudget(c *gin.Context) {
 	id := c.Param("id")
 	budget, err := h.manager.GetBudget(id)
@@ -127,7 +127,7 @@ func (h *Handlers) getBudget(c *gin.Context) {
 	})
 }
 
-// deleteBudget 删除预算
+// deleteBudget 删除预算.
 func (h *Handlers) deleteBudget(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteBudget(id); err != nil {
@@ -144,7 +144,7 @@ func (h *Handlers) deleteBudget(c *gin.Context) {
 	})
 }
 
-// calculateCost 计算能源成本
+// calculateCost 计算能源成本.
 func (h *Handlers) calculateCost(c *gin.Context) {
 	var req struct {
 		PeriodStart string `json:"period_start" binding:"required"`
@@ -193,7 +193,7 @@ func (h *Handlers) calculateCost(c *gin.Context) {
 	})
 }
 
-// createSavingsPlan 创建节能计划
+// createSavingsPlan 创建节能计划.
 func (h *Handlers) createSavingsPlan(c *gin.Context) {
 	var plan SavingsPlan
 	if err := c.ShouldBindJSON(&plan); err != nil {
@@ -220,7 +220,7 @@ func (h *Handlers) createSavingsPlan(c *gin.Context) {
 	})
 }
 
-// listPlans 列出节能计划
+// listPlans 列出节能计划.
 func (h *Handlers) listPlans(c *gin.Context) {
 	plans := h.manager.ListPlans()
 	c.JSON(http.StatusOK, response{
@@ -230,7 +230,7 @@ func (h *Handlers) listPlans(c *gin.Context) {
 	})
 }
 
-// getPlan 获取节能计划
+// getPlan 获取节能计划.
 func (h *Handlers) getPlan(c *gin.Context) {
 	id := c.Param("id")
 	plan, err := h.manager.GetPlan(id)
@@ -249,7 +249,7 @@ func (h *Handlers) getPlan(c *gin.Context) {
 	})
 }
 
-// deletePlan 删除节能计划
+// deletePlan 删除节能计划.
 func (h *Handlers) deletePlan(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeletePlan(id); err != nil {
@@ -266,7 +266,7 @@ func (h *Handlers) deletePlan(c *gin.Context) {
 	})
 }
 
-// getAlerts 获取告警
+// getAlerts 获取告警.
 func (h *Handlers) getAlerts(c *gin.Context) {
 	level := AlertLevel(c.Query("level"))
 	limitStr := c.DefaultQuery("limit", "50")
@@ -291,7 +291,7 @@ func (h *Handlers) getAlerts(c *gin.Context) {
 	})
 }
 
-// getConfig 获取配置
+// getConfig 获取配置.
 func (h *Handlers) getConfig(c *gin.Context) {
 	cfg := h.manager.GetConfig()
 	c.JSON(http.StatusOK, response{
@@ -301,7 +301,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 	})
 }
 
-// updateConfig 更新配置
+// updateConfig 更新配置.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var cfg PowerBudgetConfig
 	if err := c.ShouldBindJSON(&cfg); err != nil {

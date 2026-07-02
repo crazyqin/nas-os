@@ -206,20 +206,20 @@ func TestCompatibilityCheckerCheck(t *testing.T) {
 		{
 			name: "high-end ARM64 device",
 			info: &ARMHardwareInfo{
-				ArchType:   ArchARM64,
-				Bits:       64,
-				SoC:        SoCRockchip,
-				SoCModel:   "RK3588",
-				CPUCores:   8,
-				BigCores:   4,
+				ArchType:    ArchARM64,
+				Bits:        64,
+				SoC:         SoCRockchip,
+				SoCModel:    "RK3588",
+				CPUCores:    8,
+				BigCores:    4,
 				LittleCores: 4,
-				MemoryMB:   8192,
-				HasUSB3:    true,
-				HasPCIe:    true,
-				HasSATA:    true,
-				HasGbE:     true,
-				Has2_5GbE:  true,
-				Features:   []CPUFeature{FeatureNEON, FeatureAES, FeatureCRC32, FeatureLSE},
+				MemoryMB:    8192,
+				HasUSB3:     true,
+				HasPCIe:     true,
+				HasSATA:     true,
+				HasGbE:      true,
+				Has2_5GbE:   true,
+				Features:    []CPUFeature{FeatureNEON, FeatureAES, FeatureCRC32, FeatureLSE},
 			},
 			wantOverallMin: CompatFull,
 			wantScoreMin:   80,
@@ -227,15 +227,15 @@ func TestCompatibilityCheckerCheck(t *testing.T) {
 		{
 			name: "mid-range ARM64 device",
 			info: &ARMHardwareInfo{
-				ArchType:   ArchARM64,
-				Bits:       64,
-				SoC:        SoCAllwinner,
-				SoCModel:   "H618",
-				CPUCores:   4,
-				MemoryMB:   1024,
-				HasUSB3:    true,
-				HasGbE:     true,
-				Features:   []CPUFeature{FeatureNEON},
+				ArchType: ArchARM64,
+				Bits:     64,
+				SoC:      SoCAllwinner,
+				SoCModel: "H618",
+				CPUCores: 4,
+				MemoryMB: 1024,
+				HasUSB3:  true,
+				HasGbE:   true,
+				Features: []CPUFeature{FeatureNEON},
 			},
 			wantOverallMin: CompatPartial,
 			wantScoreMin:   50,
@@ -489,13 +489,13 @@ func TestOptimizerLowMemoryOptimizations(t *testing.T) {
 	o := NewOptimizer()
 
 	info := &ARMHardwareInfo{
-		ArchType:   ArchARM64,
-		SoC:        SoCAllwinner,
-		SoCModel:   "H618",
-		CPUCores:   4,
-		MemoryMB:   512,
-		HasGbE:     true,
-		Features:   []CPUFeature{FeatureNEON},
+		ArchType: ArchARM64,
+		SoC:      SoCAllwinner,
+		SoCModel: "H618",
+		CPUCores: 4,
+		MemoryMB: 512,
+		HasGbE:   true,
+		Features: []CPUFeature{FeatureNEON},
 	}
 
 	profile, err := o.GenerateProfile(info)
@@ -527,14 +527,14 @@ func TestOptimizerNVMeOptimizations(t *testing.T) {
 	o := NewOptimizer()
 
 	info := &ARMHardwareInfo{
-		ArchType:   ArchARM64,
-		SoC:        SoCRockchip,
-		SoCModel:   "RK3588",
-		CPUCores:   8,
-		MemoryMB:   4096,
-		HasPCIe:    true,
-		HasGbE:     true,
-		Features:   []CPUFeature{FeatureNEON, FeatureAES, FeatureCRC32},
+		ArchType: ArchARM64,
+		SoC:      SoCRockchip,
+		SoCModel: "RK3588",
+		CPUCores: 8,
+		MemoryMB: 4096,
+		HasPCIe:  true,
+		HasGbE:   true,
+		Features: []CPUFeature{FeatureNEON, FeatureAES, FeatureCRC32},
 	}
 
 	profile, err := o.GenerateProfile(info)
@@ -558,15 +558,15 @@ func TestOptimizer25GbEOptimizations(t *testing.T) {
 	o := NewOptimizer()
 
 	info := &ARMHardwareInfo{
-		ArchType:   ArchARM64,
-		SoC:        SoCRockchip,
-		SoCModel:   "RK3588",
-		CPUCores:   8,
-		MemoryMB:   8192,
-		HasPCIe:    true,
-		HasGbE:     true,
-		Has2_5GbE:  true,
-		Features:   []CPUFeature{FeatureNEON, FeatureAES},
+		ArchType:  ArchARM64,
+		SoC:       SoCRockchip,
+		SoCModel:  "RK3588",
+		CPUCores:  8,
+		MemoryMB:  8192,
+		HasPCIe:   true,
+		HasGbE:    true,
+		Has2_5GbE: true,
+		Features:  []CPUFeature{FeatureNEON, FeatureAES},
 	}
 
 	profile, err := o.GenerateProfile(info)
@@ -590,14 +590,14 @@ func TestOptimizerCRC32Optimizations(t *testing.T) {
 	o := NewOptimizer()
 
 	info := &ARMHardwareInfo{
-		ArchType:   ArchARM64,
-		SoC:        SoCRockchip,
-		SoCModel:   "RK3588",
-		CPUCores:   8,
-		MemoryMB:   8192,
-		HasPCIe:    true,
-		HasGbE:     true,
-		Features:   []CPUFeature{FeatureNEON, FeatureAES, FeatureCRC32},
+		ArchType: ArchARM64,
+		SoC:      SoCRockchip,
+		SoCModel: "RK3588",
+		CPUCores: 8,
+		MemoryMB: 8192,
+		HasPCIe:  true,
+		HasGbE:   true,
+		Features: []CPUFeature{FeatureNEON, FeatureAES, FeatureCRC32},
 	}
 
 	profile, err := o.GenerateProfile(info)
@@ -920,20 +920,20 @@ func BenchmarkDetectorDetect(b *testing.B) {
 func BenchmarkCompatibilityCheckerCheck(b *testing.B) {
 	c := NewCompatibilityChecker()
 	info := &ARMHardwareInfo{
-		ArchType:   ArchARM64,
-		Bits:       64,
-		SoC:        SoCRockchip,
-		SoCModel:   "RK3588",
-		CPUCores:   8,
-		BigCores:   4,
+		ArchType:    ArchARM64,
+		Bits:        64,
+		SoC:         SoCRockchip,
+		SoCModel:    "RK3588",
+		CPUCores:    8,
+		BigCores:    4,
 		LittleCores: 4,
-		MemoryMB:   8192,
-		HasUSB3:    true,
-		HasPCIe:    true,
-		HasSATA:    true,
-		HasGbE:     true,
-		Has2_5GbE:  true,
-		Features:   []CPUFeature{FeatureNEON, FeatureAES, FeatureCRC32, FeatureLSE},
+		MemoryMB:    8192,
+		HasUSB3:     true,
+		HasPCIe:     true,
+		HasSATA:     true,
+		HasGbE:      true,
+		Has2_5GbE:   true,
+		Features:    []CPUFeature{FeatureNEON, FeatureAES, FeatureCRC32, FeatureLSE},
 	}
 
 	b.ResetTimer()
@@ -945,18 +945,18 @@ func BenchmarkCompatibilityCheckerCheck(b *testing.B) {
 func BenchmarkOptimizerGenerateProfile(b *testing.B) {
 	o := NewOptimizer()
 	info := &ARMHardwareInfo{
-		ArchType:   ArchARM64,
-		SoC:        SoCRockchip,
-		SoCModel:   "RK3588",
-		CPUCores:   8,
-		BigCores:   4,
+		ArchType:    ArchARM64,
+		SoC:         SoCRockchip,
+		SoCModel:    "RK3588",
+		CPUCores:    8,
+		BigCores:    4,
 		LittleCores: 4,
-		MaxFreqMHz: 2400,
-		MemoryMB:   8192,
-		HasPCIe:    true,
-		HasGbE:     true,
-		Has2_5GbE:  true,
-		Features:   []CPUFeature{FeatureNEON, FeatureAES, FeatureCRC32},
+		MaxFreqMHz:  2400,
+		MemoryMB:    8192,
+		HasPCIe:     true,
+		HasGbE:      true,
+		Has2_5GbE:   true,
+		Features:    []CPUFeature{FeatureNEON, FeatureAES, FeatureCRC32},
 	}
 
 	b.ResetTimer()
@@ -1063,7 +1063,7 @@ func TestOptimizerEdgeCases(t *testing.T) {
 	})
 }
 
-// ARM64OrV7 返回当前运行架构
+// ARM64OrV7 返回当前运行架构.
 func ARM64OrV7() ArchType {
 	if isARM64() {
 		return ArchARM64

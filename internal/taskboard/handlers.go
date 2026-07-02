@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 任务看板 HTTP 处理器
+// Handlers 任务看板 HTTP 处理器.
 type Handlers struct {
 	mgr *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{mgr: mgr}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	g := rg.Group("/taskboard")
 	{
@@ -46,7 +46,7 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// CreateBoard 创建看板
+// CreateBoard 创建看板.
 func (h *Handlers) CreateBoard(c *gin.Context) {
 	var req CreateBoardRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -64,7 +64,7 @@ func (h *Handlers) CreateBoard(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"code": 0, "data": board})
 }
 
-// GetBoard 获取看板
+// GetBoard 获取看板.
 func (h *Handlers) GetBoard(c *gin.Context) {
 	id := c.Param("id")
 	board, err := h.mgr.GetBoard(id)
@@ -75,7 +75,7 @@ func (h *Handlers) GetBoard(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": board})
 }
 
-// DeleteBoard 删除看板
+// DeleteBoard 删除看板.
 func (h *Handlers) DeleteBoard(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.mgr.DeleteBoard(id); err != nil {
@@ -85,14 +85,14 @@ func (h *Handlers) DeleteBoard(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "看板已删除"})
 }
 
-// ListBoards 列出看板
+// ListBoards 列出看板.
 func (h *Handlers) ListBoards(c *gin.Context) {
 	ownerID := c.Query("owner_id")
 	boards := h.mgr.ListBoards(ownerID)
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": boards})
 }
 
-// CreateTask 创建任务
+// CreateTask 创建任务.
 func (h *Handlers) CreateTask(c *gin.Context) {
 	boardID := c.Param("boardId")
 	var req CreateTaskRequest
@@ -122,7 +122,7 @@ func (h *Handlers) CreateTask(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"code": 0, "data": task})
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (h *Handlers) GetTask(c *gin.Context) {
 	id := c.Param("id")
 	task, err := h.mgr.GetTask(id)
@@ -133,7 +133,7 @@ func (h *Handlers) GetTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": task})
 }
 
-// UpdateTask 更新任务
+// UpdateTask 更新任务.
 func (h *Handlers) UpdateTask(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateTaskRequest
@@ -171,7 +171,7 @@ func (h *Handlers) UpdateTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": task})
 }
 
-// DeleteTask 删除任务
+// DeleteTask 删除任务.
 func (h *Handlers) DeleteTask(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.mgr.DeleteTask(id); err != nil {
@@ -181,7 +181,7 @@ func (h *Handlers) DeleteTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "任务已删除"})
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (h *Handlers) ListTasks(c *gin.Context) {
 	boardID := c.Param("boardId")
 
@@ -216,7 +216,7 @@ func (h *Handlers) ListTasks(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": tasks})
 }
 
-// MoveTask 移动任务状态
+// MoveTask 移动任务状态.
 func (h *Handlers) MoveTask(c *gin.Context) {
 	id := c.Param("id")
 	var req MoveTaskRequest
@@ -234,7 +234,7 @@ func (h *Handlers) MoveTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": task})
 }
 
-// UpdateProgress 更新任务进度
+// UpdateProgress 更新任务进度.
 func (h *Handlers) UpdateProgress(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateProgressRequest
@@ -251,7 +251,7 @@ func (h *Handlers) UpdateProgress(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "进度已更新"})
 }
 
-// GetBoardStats 获取看板统计
+// GetBoardStats 获取看板统计.
 func (h *Handlers) GetBoardStats(c *gin.Context) {
 	boardID := c.Param("id")
 	stats, err := h.mgr.GetBoardStats(boardID)
@@ -262,7 +262,7 @@ func (h *Handlers) GetBoardStats(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": stats})
 }
 
-// CreateLabel 创建标签
+// CreateLabel 创建标签.
 func (h *Handlers) CreateLabel(c *gin.Context) {
 	boardID := c.Param("boardId")
 	var req CreateLabelRequest
@@ -280,14 +280,14 @@ func (h *Handlers) CreateLabel(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"code": 0, "data": label})
 }
 
-// ListLabels 列出标签
+// ListLabels 列出标签.
 func (h *Handlers) ListLabels(c *gin.Context) {
 	boardID := c.Param("boardId")
 	labels := h.mgr.ListLabels(boardID)
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": labels})
 }
 
-// DeleteLabel 删除标签
+// DeleteLabel 删除标签.
 func (h *Handlers) DeleteLabel(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.mgr.DeleteLabel(id); err != nil {
@@ -297,7 +297,7 @@ func (h *Handlers) DeleteLabel(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "标签已删除"})
 }
 
-// AddLabelToTask 给任务添加标签
+// AddLabelToTask 给任务添加标签.
 func (h *Handlers) AddLabelToTask(c *gin.Context) {
 	taskID := c.Param("taskId")
 	labelID := c.Param("labelId")
@@ -310,7 +310,7 @@ func (h *Handlers) AddLabelToTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "标签已添加"})
 }
 
-// RemoveLabelFromTask 从任务移除标签
+// RemoveLabelFromTask 从任务移除标签.
 func (h *Handlers) RemoveLabelFromTask(c *gin.Context) {
 	taskID := c.Param("taskId")
 	labelID := c.Param("labelId")

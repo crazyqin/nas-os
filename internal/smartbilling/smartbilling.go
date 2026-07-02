@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// ResourceType 资源类型
+// ResourceType 资源类型.
 type ResourceType string
 
 const (
@@ -21,27 +21,27 @@ const (
 	ResourceMemory    ResourceType = "memory"    // 内存资源
 )
 
-// TierConfig 阶梯定价配置
+// TierConfig 阶梯定价配置.
 type TierConfig struct {
 	Limit float64 // 阶梯上限（不含此值）
 	Price float64 // 单位价格
 }
 
-// PricingStrategy 定价策略
+// PricingStrategy 定价策略.
 type PricingStrategy struct {
 	ResourceType ResourceType // 资源类型
 	Unit         string       // 计量单位（如 GB、MB/s、核、GB）
 	Tiers        []TierConfig // 阶梯定价配置
 }
 
-// BudgetConfig 预算配置
+// BudgetConfig 预算配置.
 type BudgetConfig struct {
 	Limit   float64 // 预算上限
 	Period  string  // 预算周期（monthly、weekly、daily）
 	Enabled bool    // 是否启用预算管理
 }
 
-// Account 用户账户
+// Account 用户账户.
 type Account struct {
 	ID          string       // 用户ID
 	Name        string       // 用户名
@@ -52,7 +52,7 @@ type Account struct {
 	UpdatedAt   time.Time    // 更新时间
 }
 
-// UsageRecord 使用记录
+// UsageRecord 使用记录.
 type UsageRecord struct {
 	ID           string       // 记录ID
 	AccountID    string       // 用户ID
@@ -62,7 +62,7 @@ type UsageRecord struct {
 	Timestamp    time.Time    // 时间戳
 }
 
-// Invoice 账单
+// Invoice 账单.
 type Invoice struct {
 	ID        string        // 账单ID
 	AccountID string        // 用户ID
@@ -72,7 +72,7 @@ type Invoice struct {
 	CreatedAt time.Time     // 生成时间
 }
 
-// InvoiceItem 账单明细项
+// InvoiceItem 账单明细项.
 type InvoiceItem struct {
 	ResourceType ResourceType // 资源类型
 	Usage        float64      // 使用量
@@ -80,7 +80,7 @@ type InvoiceItem struct {
 	Cost         float64      // 费用
 }
 
-// BillingStats 计费统计信息
+// BillingStats 计费统计信息.
 type BillingStats struct {
 	TotalRevenue   float64                  // 总收入
 	AccountCount   int                      // 账户数量
@@ -90,7 +90,7 @@ type BillingStats struct {
 	AvgCostPerUser float64                  // 平均每用户费用
 }
 
-// SmartBilling 智能计费系统主结构体
+// SmartBilling 智能计费系统主结构体.
 type SmartBilling struct {
 	mu              sync.RWMutex
 	accounts        map[string]*Account
@@ -100,7 +100,7 @@ type SmartBilling struct {
 	nextInvoiceID   int
 }
 
-// NewSmartBilling 创建新的智能计费系统实例
+// NewSmartBilling 创建新的智能计费系统实例.
 func NewSmartBilling() *SmartBilling {
 	return &SmartBilling{
 		accounts:        make(map[string]*Account),
@@ -111,13 +111,13 @@ func NewSmartBilling() *SmartBilling {
 	}
 }
 
-// roundTo2 四舍五入保留2位小数
+// roundTo2 四舍五入保留2位小数.
 func roundTo2(v float64) float64 {
 	return math.Round(v*100) / 100
 }
 
 // AddAccount 添加用户账户
-// 如果账户ID已存在，返回错误
+// 如果账户ID已存在，返回错误.
 func (sb *SmartBilling) AddAccount(id, name string, budget BudgetConfig) (*Account, error) {
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
@@ -144,7 +144,7 @@ func (sb *SmartBilling) AddAccount(id, name string, budget BudgetConfig) (*Accou
 }
 
 // GetAccount 获取用户账户信息
-// 如果账户不存在，返回错误
+// 如果账户不存在，返回错误.
 func (sb *SmartBilling) GetAccount(id string) (*Account, error) {
 	sb.mu.RLock()
 	defer sb.mu.RUnlock()
@@ -159,7 +159,7 @@ func (sb *SmartBilling) GetAccount(id string) (*Account, error) {
 }
 
 // ListAccounts 列出所有用户账户
-// 返回账户列表的副本
+// 返回账户列表的副本.
 func (sb *SmartBilling) ListAccounts() []*Account {
 	sb.mu.RLock()
 	defer sb.mu.RUnlock()
@@ -176,7 +176,7 @@ func (sb *SmartBilling) ListAccounts() []*Account {
 	return accounts
 }
 
-// SetPricingStrategy 设置定价策略
+// SetPricingStrategy 设置定价策略.
 func (sb *SmartBilling) SetPricingStrategy(strategy *PricingStrategy) {
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
@@ -184,7 +184,7 @@ func (sb *SmartBilling) SetPricingStrategy(strategy *PricingStrategy) {
 	sb.pricingStrategy[strategy.ResourceType] = strategy
 }
 
-// GetPricingStrategy 获取定价策略
+// GetPricingStrategy 获取定价策略.
 func (sb *SmartBilling) GetPricingStrategy(resourceType ResourceType) (*PricingStrategy, error) {
 	sb.mu.RLock()
 	defer sb.mu.RUnlock()
@@ -199,7 +199,7 @@ func (sb *SmartBilling) GetPricingStrategy(resourceType ResourceType) (*PricingS
 }
 
 // RecordUsage 记录资源使用
-// 如果账户暂停或不存在，返回错误
+// 如果账户暂停或不存在，返回错误.
 func (sb *SmartBilling) RecordUsage(accountID string, resourceType ResourceType, amount float64) (*UsageRecord, error) {
 	if amount < 0 {
 		return nil, fmt.Errorf("使用量不能为负数")
@@ -245,7 +245,7 @@ func (sb *SmartBilling) RecordUsage(accountID string, resourceType ResourceType,
 	return &record, nil
 }
 
-// calculateCost 内部费用计算方法（使用阶梯定价）
+// calculateCost 内部费用计算方法（使用阶梯定价）.
 func (sb *SmartBilling) calculateCost(strategy *PricingStrategy, amount float64) float64 {
 	if len(strategy.Tiers) == 0 {
 		return 0
@@ -280,7 +280,7 @@ func (sb *SmartBilling) calculateCost(strategy *PricingStrategy, amount float64)
 }
 
 // CalculateBill 计算指定账户在指定时间段的费用
-// 返回各项资源的使用量和费用明细
+// 返回各项资源的使用量和费用明细.
 func (sb *SmartBilling) CalculateBill(accountID string, start, end time.Time) (map[ResourceType]InvoiceItem, float64, error) {
 	sb.mu.RLock()
 	defer sb.mu.RUnlock()
@@ -323,7 +323,7 @@ func (sb *SmartBilling) CalculateBill(accountID string, start, end time.Time) (m
 	return items, totalCost, nil
 }
 
-// SetBudget 设置用户预算
+// SetBudget 设置用户预算.
 func (sb *SmartBilling) SetBudget(accountID string, budget BudgetConfig) error {
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
@@ -339,7 +339,7 @@ func (sb *SmartBilling) SetBudget(accountID string, budget BudgetConfig) error {
 }
 
 // CheckBudget 检查用户预算
-// 返回：是否在预算内，已用金额，预算上限，是否超额
+// 返回：是否在预算内，已用金额，预算上限，是否超额.
 func (sb *SmartBilling) CheckBudget(accountID string) (withinBudget bool, used float64, limit float64, exceeded bool, err error) {
 	sb.mu.RLock()
 	defer sb.mu.RUnlock()
@@ -362,7 +362,7 @@ func (sb *SmartBilling) CheckBudget(accountID string) (withinBudget bool, used f
 }
 
 // GenerateInvoice 生成账单
-// 根据指定时间段生成用户账单
+// 根据指定时间段生成用户账单.
 func (sb *SmartBilling) GenerateInvoice(accountID, period string, start, end time.Time) (*Invoice, error) {
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
@@ -427,7 +427,7 @@ func (sb *SmartBilling) GenerateInvoice(accountID, period string, start, end tim
 	return invoice, nil
 }
 
-// GetStats 获取计费统计信息
+// GetStats 获取计费统计信息.
 func (sb *SmartBilling) GetStats() *BillingStats {
 	sb.mu.RLock()
 	defer sb.mu.RUnlock()
@@ -462,7 +462,7 @@ func (sb *SmartBilling) GetStats() *BillingStats {
 	return stats
 }
 
-// SuspendAccount 暂停用户账户
+// SuspendAccount 暂停用户账户.
 func (sb *SmartBilling) SuspendAccount(accountID string) error {
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
@@ -477,7 +477,7 @@ func (sb *SmartBilling) SuspendAccount(accountID string) error {
 	return nil
 }
 
-// ActivateAccount 激活用户账户
+// ActivateAccount 激活用户账户.
 func (sb *SmartBilling) ActivateAccount(accountID string) error {
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
@@ -492,7 +492,7 @@ func (sb *SmartBilling) ActivateAccount(accountID string) error {
 	return nil
 }
 
-// GetUsageRecords 获取指定账户的使用记录
+// GetUsageRecords 获取指定账户的使用记录.
 func (sb *SmartBilling) GetUsageRecords(accountID string, start, end time.Time) []UsageRecord {
 	sb.mu.RLock()
 	defer sb.mu.RUnlock()

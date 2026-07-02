@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// WakeRequest 唤醒请求
+// WakeRequest 唤醒请求.
 type WakeRequest struct {
 	ID        string
 	DiskPath  string
@@ -17,7 +17,7 @@ type WakeRequest struct {
 	index     int // heap index
 }
 
-// WakeRequestType 唤醒请求类型
+// WakeRequestType 唤醒请求类型.
 type WakeRequestType int
 
 const (
@@ -26,7 +26,7 @@ const (
 	WakeRequestScheduled WakeRequestType = 2 // 定时唤醒
 )
 
-// WakeTrigger 磁盘唤醒触发器
+// WakeTrigger 磁盘唤醒触发器.
 type WakeTrigger struct {
 	sleepManager *DiskSleepManager
 	monitors     map[string]*ActivityMonitor
@@ -35,7 +35,7 @@ type WakeTrigger struct {
 	cancel       context.CancelFunc
 }
 
-// ActivityMonitor 磁盘活动监控器
+// ActivityMonitor 磁盘活动监控器.
 type ActivityMonitor struct {
 	Device     string
 	LastRead   time.Time
@@ -45,7 +45,7 @@ type ActivityMonitor struct {
 	IdleTimer  *IdleTimer
 }
 
-// IdleTimer 空闲计时器
+// IdleTimer 空闲计时器.
 type IdleTimer struct {
 	Device      string
 	StartTime   time.Time
@@ -54,7 +54,7 @@ type IdleTimer struct {
 	OnThreshold func(device string)
 }
 
-// NewWakeTrigger 创建唤醒触发器
+// NewWakeTrigger 创建唤醒触发器.
 func NewWakeTrigger(sleepManager *DiskSleepManager) *WakeTrigger {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &WakeTrigger{
@@ -65,38 +65,38 @@ func NewWakeTrigger(sleepManager *DiskSleepManager) *WakeTrigger {
 	}
 }
 
-// Start 启动唤醒触发器
+// Start 启动唤醒触发器.
 func (t *WakeTrigger) Start() error {
 	go t.monitorLoop()
 	return nil
 }
 
-// Stop 停止唤醒触发器
+// Stop 停止唤醒触发器.
 func (t *WakeTrigger) Stop() {
 	t.cancel()
 }
 
-// OnSMBAccess SMB访问时唤醒磁盘
+// OnSMBAccess SMB访问时唤醒磁盘.
 func (t *WakeTrigger) OnSMBAccess(device string) {
 	t.wakeIfNeeded(device, "smb_access")
 }
 
-// OnNFSAccess NFS访问时唤醒磁盘
+// OnNFSAccess NFS访问时唤醒磁盘.
 func (t *WakeTrigger) OnNFSAccess(device string) {
 	t.wakeIfNeeded(device, "nfs_access")
 }
 
-// OnScheduledTask 定时任务唤醒
+// OnScheduledTask 定时任务唤醒.
 func (t *WakeTrigger) OnScheduledTask(device string) {
 	t.wakeIfNeeded(device, "scheduled_task")
 }
 
-// OnWebAccess Web界面访问唤醒
+// OnWebAccess Web界面访问唤醒.
 func (t *WakeTrigger) OnWebAccess(device string) {
 	t.wakeIfNeeded(device, "web_access")
 }
 
-// wakeIfNeeded 检查并唤醒磁盘
+// wakeIfNeeded 检查并唤醒磁盘.
 func (t *WakeTrigger) wakeIfNeeded(device, reason string) {
 	status := t.sleepManager.GetDiskSleepStatus(device)
 	if status != nil && status.State == "sleeping" {
@@ -116,7 +116,7 @@ func (t *WakeTrigger) wakeIfNeeded(device, reason string) {
 	t.UpdateMonitor(device, true, false)
 }
 
-// UpdateMonitor 更新活动监控器
+// UpdateMonitor 更新活动监控器.
 func (t *WakeTrigger) UpdateMonitor(device string, isRead, isWrite bool) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -145,7 +145,7 @@ func (t *WakeTrigger) UpdateMonitor(device string, isRead, isWrite bool) {
 	monitor.IdleTimer.IdleMinutes = 0
 }
 
-// MonitorDiskActivity 监控磁盘活动（从系统统计读取）
+// MonitorDiskActivity 监控磁盘活动（从系统统计读取）.
 func (t *WakeTrigger) MonitorDiskActivity() map[string]*ActivityMonitor {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -157,7 +157,7 @@ func (t *WakeTrigger) MonitorDiskActivity() map[string]*ActivityMonitor {
 	return result
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (t *WakeTrigger) monitorLoop() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
@@ -172,7 +172,7 @@ func (t *WakeTrigger) monitorLoop() {
 	}
 }
 
-// checkIdleStatus 检查空闲状态
+// checkIdleStatus 检查空闲状态.
 func (t *WakeTrigger) checkIdleStatus() {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -200,7 +200,7 @@ func (t *WakeTrigger) checkIdleStatus() {
 	}
 }
 
-// GetIdleTime 获取磁盘空闲时间
+// GetIdleTime 获取磁盘空闲时间.
 func (t *WakeTrigger) GetIdleTime(device string) int {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -211,12 +211,12 @@ func (t *WakeTrigger) GetIdleTime(device string) int {
 	return 0
 }
 
-// IsIdle 检查磁盘是否空闲
+// IsIdle 检查磁盘是否空闲.
 func (t *WakeTrigger) IsIdle(device string, thresholdMinutes int) bool {
 	return t.GetIdleTime(device) >= thresholdMinutes
 }
 
-// GetActivityStats 获取活动统计
+// GetActivityStats 获取活动统计.
 func (t *WakeTrigger) GetActivityStats(device string) (readCount, writeCount int64, lastActivity time.Time) {
 	t.mu.RLock()
 	defer t.mu.RUnlock()

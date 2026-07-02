@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// setupTest 创建测试环境
+// setupTest 创建测试环境.
 func setupTest(t *testing.T) (*Manager, *Handlers, *gin.Engine) {
 	t.Helper()
 	gin.SetMode(gin.TestMode)

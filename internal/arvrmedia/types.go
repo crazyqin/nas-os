@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// MediaType 媒体类型
+// MediaType 媒体类型.
 type MediaType string
 
 const (
@@ -15,7 +15,7 @@ const (
 	MediaTypeImmersive MediaType = "immersive" // 沉浸式影院媒体
 )
 
-// ModelFormat 3D模型格式
+// ModelFormat 3D模型格式.
 type ModelFormat string
 
 const (
@@ -24,7 +24,7 @@ const (
 	ModelFormatSTL  ModelFormat = "stl"
 )
 
-// ProjectionType 投影类型
+// ProjectionType 投影类型.
 type ProjectionType string
 
 const (
@@ -33,7 +33,7 @@ const (
 	ProjectionFisheye         ProjectionType = "fisheye"         // 鱼眼投影
 )
 
-// AudioMode 空间音频模式
+// AudioMode 空间音频模式.
 type AudioMode string
 
 const (
@@ -42,7 +42,7 @@ const (
 	AudioModeSpatialized AudioMode = "spatialized" // 空间化音频
 )
 
-// XRMode WebXR模式
+// XRMode WebXR模式.
 type XRMode string
 
 const (
@@ -51,7 +51,7 @@ const (
 	XRModeMR XRMode = "mr" // 混合现实
 )
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -61,7 +61,7 @@ const (
 	TaskStatusFailed     TaskStatus = "failed"     // 失败
 )
 
-// PanoramaMedia 360°全景媒体
+// PanoramaMedia 360°全景媒体.
 type PanoramaMedia struct {
 	ID            string         `json:"id"`
 	Name          string         `json:"name"`
@@ -81,7 +81,7 @@ type PanoramaMedia struct {
 	UpdatedAt     time.Time      `json:"updated_at"`
 }
 
-// PanoramaMeta 全景媒体元数据
+// PanoramaMeta 全景媒体元数据.
 type PanoramaMeta struct {
 	FOV                float64 `json:"fov"`                 // 视场角
 	Is3D               bool    `json:"is_3d"`               // 是否立体3D
@@ -92,7 +92,7 @@ type PanoramaMeta struct {
 	MaxFOV             float64 `json:"max_fov"`             // 最大视场角
 }
 
-// Model3D 3D模型
+// Model3D 3D模型.
 type Model3D struct {
 	ID            string       `json:"id"`
 	Name          string       `json:"name"`
@@ -112,7 +112,7 @@ type Model3D struct {
 	UpdatedAt     time.Time    `json:"updated_at"`
 }
 
-// BoundingBox 包围盒
+// BoundingBox 包围盒.
 type BoundingBox struct {
 	MinX float64 `json:"min_x"`
 	MinY float64 `json:"min_y"`
@@ -122,7 +122,7 @@ type BoundingBox struct {
 	MaxZ float64 `json:"max_z"`
 }
 
-// VREntry VR画廊条目
+// VREntry VR画廊条目.
 type VREntry struct {
 	ID            string    `json:"id"`
 	Name          string    `json:"name"`
@@ -137,7 +137,7 @@ type VREntry struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 
-// SpatialAudioConfig 空间音频配置
+// SpatialAudioConfig 空间音频配置.
 type SpatialAudioConfig struct {
 	ID               string    `json:"id"`
 	Name             string    `json:"name"`
@@ -155,14 +155,14 @@ type SpatialAudioConfig struct {
 	CreatedAt        time.Time `json:"created_at"`
 }
 
-// Vector3 三维向量
+// Vector3 三维向量.
 type Vector3 struct {
 	X float64 `json:"x"`
 	Y float64 `json:"y"`
 	Z float64 `json:"z"`
 }
 
-// ImmersiveTheater 沉浸式影院配置
+// ImmersiveTheater 沉浸式影院配置.
 type ImmersiveTheater struct {
 	ID           string              `json:"id"`
 	Name         string              `json:"name"`
@@ -179,7 +179,7 @@ type ImmersiveTheater struct {
 	UpdatedAt    time.Time           `json:"updated_at"`
 }
 
-// WebXRSession WebXR会话
+// WebXRSession WebXR会话.
 type WebXRSession struct {
 	ID           string      `json:"id"`
 	Mode         XRMode      `json:"mode"`
@@ -192,13 +192,13 @@ type WebXRSession struct {
 	Resolution   *Resolution `json:"resolution"`
 }
 
-// Resolution 分辨率
+// Resolution 分辨率.
 type Resolution struct {
 	Width  int `json:"width"`
 	Height int `json:"height"`
 }
 
-// ImportTask 媒体导入任务
+// ImportTask 媒体导入任务.
 type ImportTask struct {
 	ID          string     `json:"id"`
 	Status      TaskStatus `json:"status"`
@@ -212,7 +212,7 @@ type ImportTask struct {
 	Errors      []string   `json:"errors"`
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	Panoramas []PanoramaMedia `json:"panoramas,omitempty"`
 	Models    []Model3D       `json:"models,omitempty"`
@@ -223,7 +223,7 @@ type SearchResult struct {
 	HasMore   bool            `json:"has_more"`
 }
 
-// ARVRStats AR/VR 媒体统计
+// ARVRStats AR/VR 媒体统计.
 type ARVRStats struct {
 	TotalPanoramas int   `json:"total_panoramas"`
 	TotalVideos360 int   `json:"total_videos_360"`

@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-// IndexFieldType 索引字段类型
+// IndexFieldType 索引字段类型.
 type IndexFieldType int
 
 const (
@@ -26,7 +26,7 @@ const (
 	FieldBoolean                       // 布尔
 )
 
-// IndexField 索引字段定义
+// IndexField 索引字段定义.
 type IndexField struct {
 	Name    string         `json:"name"`
 	Type    IndexFieldType `json:"type"`
@@ -35,7 +35,7 @@ type IndexField struct {
 	Boost   float64        `json:"boost"`   // 权重提升
 }
 
-// IndexDocument 索引文档
+// IndexDocument 索引文档.
 type IndexDocument struct {
 	ID         string         `json:"id"`
 	Path       string         `json:"path"`
@@ -51,14 +51,14 @@ type IndexDocument struct {
 	UpdatedAt  time.Time      `json:"updatedAt"`
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	Document   *IndexDocument `json:"document"`
 	Score      float64        `json:"score"`
 	Highlights []string       `json:"highlights,omitempty"`
 }
 
-// SearchQuery 搜索查询
+// SearchQuery 搜索查询.
 type SearchQuery struct {
 	Query     string            `json:"query"`
 	Filters   map[string]string `json:"filters,omitempty"`
@@ -69,7 +69,7 @@ type SearchQuery struct {
 	Highlight bool              `json:"highlight"`
 }
 
-// IndexStats 索引统计
+// IndexStats 索引统计.
 type IndexStats struct {
 	TotalDocuments int64         `json:"totalDocuments"`
 	IndexSize      int64         `json:"indexSize"`
@@ -79,7 +79,7 @@ type IndexStats struct {
 	QueryCount     int64         `json:"queryCount"`
 }
 
-// SpotlightEngine Spotlight 搜索引擎
+// SpotlightEngine Spotlight 搜索引擎.
 type SpotlightEngine struct {
 	mu         sync.RWMutex
 	documents  map[string]*IndexDocument
@@ -94,7 +94,7 @@ type SpotlightEngine struct {
 	cancel     context.CancelFunc
 }
 
-// NewSpotlightEngine 创建搜索引擎
+// NewSpotlightEngine 创建搜索引擎.
 func NewSpotlightEngine(maxResults int) *SpotlightEngine {
 	if maxResults <= 0 {
 		maxResults = 100
@@ -121,7 +121,7 @@ func NewSpotlightEngine(maxResults int) *SpotlightEngine {
 	return engine
 }
 
-// IndexDocument 添加/更新文档索引
+// IndexDocument 添加/更新文档索引.
 func (e *SpotlightEngine) IndexDocument(doc *IndexDocument) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -150,7 +150,7 @@ func (e *SpotlightEngine) IndexDocument(doc *IndexDocument) error {
 	return nil
 }
 
-// RemoveDocument 删除文档索引
+// RemoveDocument 删除文档索引.
 func (e *SpotlightEngine) RemoveDocument(path string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -170,7 +170,7 @@ func (e *SpotlightEngine) RemoveDocument(path string) error {
 	return nil
 }
 
-// Search 执行搜索
+// Search 执行搜索.
 func (e *SpotlightEngine) Search(query *SearchQuery) ([]*SearchResult, int, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -266,7 +266,7 @@ func (e *SpotlightEngine) Search(query *SearchQuery) ([]*SearchResult, int, erro
 	return results, total, nil
 }
 
-// GetDocument 获取文档
+// GetDocument 获取文档.
 func (e *SpotlightEngine) GetDocument(path string) (*IndexDocument, bool) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -276,7 +276,7 @@ func (e *SpotlightEngine) GetDocument(path string) (*IndexDocument, bool) {
 	return doc, ok
 }
 
-// GetStats 获取索引统计
+// GetStats 获取索引统计.
 func (e *SpotlightEngine) GetStats() *IndexStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -295,7 +295,7 @@ func (e *SpotlightEngine) GetStats() *IndexStats {
 	return &stats
 }
 
-// ListDocuments 列出文档
+// ListDocuments 列出文档.
 func (e *SpotlightEngine) ListDocuments(prefix string, limit int) []*IndexDocument {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -313,7 +313,7 @@ func (e *SpotlightEngine) ListDocuments(prefix string, limit int) []*IndexDocume
 	return result
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (e *SpotlightEngine) RebuildIndex() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -331,7 +331,7 @@ func (e *SpotlightEngine) RebuildIndex() {
 	e.stats.LastUpdated = time.Now()
 }
 
-// addToIndex 添加文档到索引
+// addToIndex 添加文档到索引.
 func (e *SpotlightEngine) addToIndex(doc *IndexDocument) {
 	// 索引文件名
 	nameTokens := tokenize(doc.Name)
@@ -385,7 +385,7 @@ func (e *SpotlightEngine) addToIndex(doc *IndexDocument) {
 	}
 }
 
-// removeFromIndex 从索引移除文档
+// removeFromIndex 从索引移除文档.
 func (e *SpotlightEngine) removeFromIndex(doc *IndexDocument) {
 	for token, docScores := range e.index {
 		delete(docScores, doc.ID)
@@ -417,7 +417,7 @@ func (e *SpotlightEngine) removeFromIndex(doc *IndexDocument) {
 	}
 }
 
-// matchFilters 匹配过滤器
+// matchFilters 匹配过滤器.
 func (e *SpotlightEngine) matchFilters(doc *IndexDocument, filters map[string]string) bool {
 	for key, value := range filters {
 		switch key {
@@ -449,7 +449,7 @@ func (e *SpotlightEngine) matchFilters(doc *IndexDocument, filters map[string]st
 	return true
 }
 
-// highlight 生成高亮片段
+// highlight 生成高亮片段.
 func (e *SpotlightEngine) highlight(doc *IndexDocument, tokens []string) []string {
 	var highlights []string
 
@@ -485,7 +485,7 @@ func (e *SpotlightEngine) highlight(doc *IndexDocument, tokens []string) []strin
 	return highlights
 }
 
-// sortResults 排序结果
+// sortResults 排序结果.
 func (e *SpotlightEngine) sortResults(results []*SearchResult, sortBy string, desc bool) {
 	sort.Slice(results, func(i, j int) bool {
 		var less bool
@@ -508,14 +508,14 @@ func (e *SpotlightEngine) sortResults(results []*SearchResult, sortBy string, de
 	})
 }
 
-// generateDocID 生成文档 ID
+// generateDocID 生成文档 ID.
 func (e *SpotlightEngine) generateDocID(path string) string {
 	h := fnv.New64a()
 	h.Write([]byte(path))
 	return fmt.Sprintf("doc-%x", h.Sum64())
 }
 
-// backgroundWorker 后台工作协程
+// backgroundWorker 后台工作协程.
 func (e *SpotlightEngine) backgroundWorker() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
@@ -537,13 +537,13 @@ func (e *SpotlightEngine) backgroundWorker() {
 	}
 }
 
-// Close 关闭搜索引擎
+// Close 关闭搜索引擎.
 func (e *SpotlightEngine) Close() {
 	e.cancel()
 	close(e.stopCh)
 }
 
-// tokenize 分词
+// tokenize 分词.
 func tokenize(text string) []string {
 	if text == "" {
 		return nil
@@ -563,7 +563,7 @@ func tokenize(text string) []string {
 	return result
 }
 
-// defaultStopWords 默认停用词
+// defaultStopWords 默认停用词.
 func defaultStopWords() map[string]bool {
 	words := []string{
 		"the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for",
@@ -581,7 +581,7 @@ func defaultStopWords() map[string]bool {
 	return stop
 }
 
-// IsIndexed 检查文件是否已索引
+// IsIndexed 检查文件是否已索引.
 func (e *SpotlightEngine) IsIndexed(path string) bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -591,7 +591,7 @@ func (e *SpotlightEngine) IsIndexed(path string) bool {
 	return exists
 }
 
-// GetIndexedExtensions 获取已索引的扩展名列表
+// GetIndexedExtensions 获取已索引的扩展名列表.
 func (e *SpotlightEngine) GetIndexedExtensions() []string {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -604,7 +604,7 @@ func (e *SpotlightEngine) GetIndexedExtensions() []string {
 	return exts
 }
 
-// SearchByTag 按标签搜索
+// SearchByTag 按标签搜索.
 func (e *SpotlightEngine) SearchByTag(tag string) []*IndexDocument {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -624,14 +624,14 @@ func (e *SpotlightEngine) SearchByTag(tag string) []*IndexDocument {
 	return results
 }
 
-// GetDocumentCount 获取文档数量
+// GetDocumentCount 获取文档数量.
 func (e *SpotlightEngine) GetDocumentCount() int {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return len(e.documents)
 }
 
-// FilePath 扩展名提取
+// FilePath 扩展名提取.
 func FilePath(name string) string {
 	return filepath.Ext(name)
 }

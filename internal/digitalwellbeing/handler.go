@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 数字健康 API 处理器
+// Handlers 数字健康 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	wellbeing := r.Group("/wellbeing")
 	{
@@ -53,14 +53,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// getScreenTime 获取屏幕时间
+// getScreenTime 获取屏幕时间.
 func (h *Handlers) getScreenTime(c *gin.Context) {
 	userID := c.Query("user_id")
 	date := c.Query("date")
@@ -82,7 +82,7 @@ func (h *Handlers) getScreenTime(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: st})
 }
 
-// getScreenTimeRange 获取时间段内的屏幕时间
+// getScreenTimeRange 获取时间段内的屏幕时间.
 func (h *Handlers) getScreenTimeRange(c *gin.Context) {
 	userID := c.Query("user_id")
 	startDate := c.Query("start_date")
@@ -105,7 +105,7 @@ func (h *Handlers) getScreenTimeRange(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: times})
 }
 
-// getPatterns 获取使用模式分析
+// getPatterns 获取使用模式分析.
 func (h *Handlers) getPatterns(c *gin.Context) {
 	userID := c.Query("user_id")
 	period := c.DefaultQuery("period", "weekly")
@@ -127,7 +127,7 @@ func (h *Handlers) getPatterns(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: pattern})
 }
 
-// startFocus 开始专注会话
+// startFocus 开始专注会话.
 func (h *Handlers) startFocus(c *gin.Context) {
 	var req struct {
 		UserID      string   `json:"user_id" binding:"required"`
@@ -149,7 +149,7 @@ func (h *Handlers) startFocus(c *gin.Context) {
 	c.JSON(http.StatusCreated, response{Code: 0, Message: "focus session started", Data: session})
 }
 
-// listFocusSessions 获取专注会话列表
+// listFocusSessions 获取专注会话列表.
 func (h *Handlers) listFocusSessions(c *gin.Context) {
 	userID := c.Query("user_id")
 	if userID == "" {
@@ -164,7 +164,7 @@ func (h *Handlers) listFocusSessions(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: sessions})
 }
 
-// getFocusSession 获取专注会话详情
+// getFocusSession 获取专注会话详情.
 func (h *Handlers) getFocusSession(c *gin.Context) {
 	id := c.Param("id")
 	session, err := h.manager.GetFocusSession(id)
@@ -175,7 +175,7 @@ func (h *Handlers) getFocusSession(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: session})
 }
 
-// stopFocus 停止专注会话
+// stopFocus 停止专注会话.
 func (h *Handlers) stopFocus(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.StopFocus(id); err != nil {
@@ -185,13 +185,13 @@ func (h *Handlers) stopFocus(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "focus session stopped"})
 }
 
-// listMembers 获取家庭成员列表
+// listMembers 获取家庭成员列表.
 func (h *Handlers) listMembers(c *gin.Context) {
 	members := h.manager.ListMembers()
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: members})
 }
 
-// addMember 添加家庭成员
+// addMember 添加家庭成员.
 func (h *Handlers) addMember(c *gin.Context) {
 	var req struct {
 		Name     string `json:"name" binding:"required"`
@@ -207,7 +207,7 @@ func (h *Handlers) addMember(c *gin.Context) {
 	c.JSON(http.StatusCreated, response{Code: 0, Message: "member added", Data: member})
 }
 
-// updateMember 更新家庭成员
+// updateMember 更新家庭成员.
 func (h *Handlers) updateMember(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
@@ -226,7 +226,7 @@ func (h *Handlers) updateMember(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "member updated"})
 }
 
-// removeMember 移除家庭成员
+// removeMember 移除家庭成员.
 func (h *Handlers) removeMember(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.RemoveMember(id); err != nil {
@@ -236,7 +236,7 @@ func (h *Handlers) removeMember(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "member removed"})
 }
 
-// getReport 获取健康报告
+// getReport 获取健康报告.
 func (h *Handlers) getReport(c *gin.Context) {
 	userID := c.Query("user_id")
 	period := c.DefaultQuery("period", "weekly")
@@ -260,7 +260,7 @@ func (h *Handlers) getReport(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: report})
 }
 
-// getDowntime 获取停机时间计划
+// getDowntime 获取停机时间计划.
 func (h *Handlers) getDowntime(c *gin.Context) {
 	userID := c.Query("user_id")
 	if userID == "" {
@@ -275,7 +275,7 @@ func (h *Handlers) getDowntime(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: schedule})
 }
 
-// setDowntime 设置停机时间计划
+// setDowntime 设置停机时间计划.
 func (h *Handlers) setDowntime(c *gin.Context) {
 	var req struct {
 		UserID    string   `json:"user_id" binding:"required"`
@@ -302,7 +302,7 @@ func (h *Handlers) setDowntime(c *gin.Context) {
 	c.JSON(http.StatusCreated, response{Code: 0, Message: "downtime schedule set", Data: schedule})
 }
 
-// getAppLimits 获取应用限制
+// getAppLimits 获取应用限制.
 func (h *Handlers) getAppLimits(c *gin.Context) {
 	userID := c.Query("user_id")
 	if userID == "" {
@@ -317,7 +317,7 @@ func (h *Handlers) getAppLimits(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: limits})
 }
 
-// setAppLimit 设置应用限制
+// setAppLimit 设置应用限制.
 func (h *Handlers) setAppLimit(c *gin.Context) {
 	var req struct {
 		UserID   string `json:"user_id" binding:"required"`

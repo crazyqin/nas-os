@@ -39,15 +39,15 @@ const (
 type ConditionOperator string
 
 const (
-	OpEquals    ConditionOperator = "eq"     // 等于
-	OpNotEquals ConditionOperator = "ne"     // 不等于
-	OpGreaterThan ConditionOperator = "gt"    // 大于
-	OpLessThan   ConditionOperator = "lt"    // 小于
-	OpGreaterEq  ConditionOperator = "gte"   // 大于等于
-	OpLessEq     ConditionOperator = "lte"   // 小于等于
-	OpContains   ConditionOperator = "contains" // 包含
-	OpIn         ConditionOperator = "in"    // 在列表中
-	OpNotIn      ConditionOperator = "notIn" // 不在列表中
+	OpEquals      ConditionOperator = "eq"       // 等于
+	OpNotEquals   ConditionOperator = "ne"       // 不等于
+	OpGreaterThan ConditionOperator = "gt"       // 大于
+	OpLessThan    ConditionOperator = "lt"       // 小于
+	OpGreaterEq   ConditionOperator = "gte"      // 大于等于
+	OpLessEq      ConditionOperator = "lte"      // 小于等于
+	OpContains    ConditionOperator = "contains" // 包含
+	OpIn          ConditionOperator = "in"       // 在列表中
+	OpNotIn       ConditionOperator = "notIn"    // 不在列表中
 )
 
 // ========== 工作流类型 ==========
@@ -67,19 +67,19 @@ const (
 
 // AgentTask AI 代理任务.
 type AgentTask struct {
-	ID          string            `json:"id"`
-	NLInput     string            `json:"nlInput"`     // 自然语言输入
-	ParsedIntent string           `json:"parsedIntent"` // 解析出的意图
-	WorkflowID  string            `json:"workflowId,omitempty"`
-	Status      TaskStatus        `json:"status"`
-	Progress    float64           `json:"progress"`    // 0-100
-	Priority    int               `json:"priority"`    // 1-10
-	CreatedAt   time.Time         `json:"createdAt"`
-	StartedAt   time.Time         `json:"startedAt,omitempty"`
-	FinishedAt  time.Time         `json:"finishedAt,omitempty"`
-	Error       string            `json:"error,omitempty"`
-	Result      map[string]any    `json:"result,omitempty"`
-	Tags        []string          `json:"tags,omitempty"`
+	ID           string         `json:"id"`
+	NLInput      string         `json:"nlInput"`      // 自然语言输入
+	ParsedIntent string         `json:"parsedIntent"` // 解析出的意图
+	WorkflowID   string         `json:"workflowId,omitempty"`
+	Status       TaskStatus     `json:"status"`
+	Progress     float64        `json:"progress"` // 0-100
+	Priority     int            `json:"priority"` // 1-10
+	CreatedAt    time.Time      `json:"createdAt"`
+	StartedAt    time.Time      `json:"startedAt,omitempty"`
+	FinishedAt   time.Time      `json:"finishedAt,omitempty"`
+	Error        string         `json:"error,omitempty"`
+	Result       map[string]any `json:"result,omitempty"`
+	Tags         []string       `json:"tags,omitempty"`
 }
 
 // Workflow 工作流定义.
@@ -102,12 +102,12 @@ type WorkflowStep struct {
 	Order       int            `json:"order"`
 	Name        string         `json:"name"`
 	Description string         `json:"description,omitempty"`
-	Service     string         `json:"service"`        // 目标服务名
-	Action      string         `json:"action"`         // 服务动作
+	Service     string         `json:"service"` // 目标服务名
+	Action      string         `json:"action"`  // 服务动作
 	Parameters  map[string]any `json:"parameters,omitempty"`
 	Condition   *TaskCondition `json:"condition,omitempty"` // 执行前提条件
-	OnSuccess   string         `json:"onSuccess,omitempty"`  // 成功后跳转的步骤 ID
-	OnFailure   string         `json:"onFailure,omitempty"`  // 失败后跳转的步骤 ID
+	OnSuccess   string         `json:"onSuccess,omitempty"` // 成功后跳转的步骤 ID
+	OnFailure   string         `json:"onFailure,omitempty"` // 失败后跳转的步骤 ID
 	Status      StepStatus     `json:"status"`
 	StartedAt   time.Time      `json:"startedAt,omitempty"`
 	FinishedAt  time.Time      `json:"finishedAt,omitempty"`
@@ -117,19 +117,19 @@ type WorkflowStep struct {
 
 // TaskCondition 任务条件.
 type TaskCondition struct {
-	Field    string            `json:"field"`    // 检查的字段（来自前序步骤输出）
+	Field    string            `json:"field"` // 检查的字段（来自前序步骤输出）
 	Operator ConditionOperator `json:"operator"`
-	Value    any               `json:"value"`    // 比较值
+	Value    any               `json:"value"` // 比较值
 }
 
 // ExecutionContext 执行上下文 - 在工作流步骤间传递数据.
 type ExecutionContext struct {
-	TaskID     string            `json:"taskId"`
-	WorkflowID string            `json:"workflowId"`
-	Variables  map[string]any    `json:"variables"`  // 上下文变量
-	StepOutput map[string]map[string]any `json:"stepOutput"` // 各步骤的输出
-	StartedAt  time.Time         `json:"startedAt"`
-	CurrentStep int               `json:"currentStep"`
+	TaskID      string                    `json:"taskId"`
+	WorkflowID  string                    `json:"workflowId"`
+	Variables   map[string]any            `json:"variables"`  // 上下文变量
+	StepOutput  map[string]map[string]any `json:"stepOutput"` // 各步骤的输出
+	StartedAt   time.Time                 `json:"startedAt"`
+	CurrentStep int                       `json:"currentStep"`
 }
 
 // WorkflowTemplate 工作流模板.
@@ -146,26 +146,26 @@ type WorkflowTemplate struct {
 
 // ParseTaskRequest 自然语言任务解析请求.
 type ParseTaskRequest struct {
-	Input    string `json:"input" binding:"required"`
-	Priority int    `json:"priority,omitempty"`
+	Input    string   `json:"input" binding:"required"`
+	Priority int      `json:"priority,omitempty"`
 	Tags     []string `json:"tags,omitempty"`
 }
 
 // ParseTaskResult 任务解析结果.
 type ParseTaskResult struct {
-	TaskID       string         `json:"taskId"`
-	NLInput      string         `json:"nlInput"`
-	ParsedIntent string         `json:"parsedIntent"`
-	Workflow     *Workflow      `json:"workflow,omitempty"`
-	Confidence   float64        `json:"confidence"` // 0-1
-	Warnings     []string       `json:"warnings,omitempty"`
+	TaskID       string    `json:"taskId"`
+	NLInput      string    `json:"nlInput"`
+	ParsedIntent string    `json:"parsedIntent"`
+	Workflow     *Workflow `json:"workflow,omitempty"`
+	Confidence   float64   `json:"confidence"` // 0-1
+	Warnings     []string  `json:"warnings,omitempty"`
 }
 
 // ExecuteWorkflowRequest 执行工作流请求.
 type ExecuteWorkflowRequest struct {
-	TaskID     string         `json:"taskId" binding:"required"`
-	DryRun     bool           `json:"dryRun"`
-	Variables  map[string]any `json:"variables,omitempty"`
+	TaskID    string         `json:"taskId" binding:"required"`
+	DryRun    bool           `json:"dryRun"`
+	Variables map[string]any `json:"variables,omitempty"`
 }
 
 // ExecuteWorkflowResult 工作流执行结果.
@@ -188,13 +188,13 @@ type CancelTaskRequest struct {
 
 // TaskStatusResponse 任务状态响应.
 type TaskStatusResponse struct {
-	TaskID    string         `json:"taskId"`
-	Status    TaskStatus     `json:"status"`
-	Progress  float64        `json:"progress"`
-	Workflow  *Workflow      `json:"workflow,omitempty"`
-	Error     string         `json:"error,omitempty"`
-	CreatedAt time.Time      `json:"createdAt"`
-	UpdatedAt time.Time      `json:"updatedAt"`
+	TaskID    string     `json:"taskId"`
+	Status    TaskStatus `json:"status"`
+	Progress  float64    `json:"progress"`
+	Workflow  *Workflow  `json:"workflow,omitempty"`
+	Error     string     `json:"error,omitempty"`
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt"`
 }
 
 // ========== 内部模型 ==========
@@ -222,8 +222,8 @@ type taskState struct {
 
 // IntentRule 意图规则.
 type IntentRule struct {
-	Keywords  []string      `json:"keywords"`
-	Intent    string        `json:"intent"`
-	WorkflowType WorkflowType `json:"workflowType"`
-	Steps     []WorkflowStep `json:"steps"`
+	Keywords     []string       `json:"keywords"`
+	Intent       string         `json:"intent"`
+	WorkflowType WorkflowType   `json:"workflowType"`
+	Steps        []WorkflowStep `json:"steps"`
 }

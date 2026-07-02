@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// MediaCenter 智能媒体中心
+// MediaCenter 智能媒体中心.
 type MediaCenter struct {
 	mu        sync.RWMutex
 	movies    map[string]*Movie
@@ -19,7 +19,7 @@ type MediaCenter struct {
 	config    *Config
 }
 
-// Movie 电影信息
+// Movie 电影信息.
 type Movie struct {
 	ID         string    `json:"id"`
 	Title      string    `json:"title"`
@@ -39,7 +39,7 @@ type Movie struct {
 	AddedAt    time.Time `json:"added_at"`
 }
 
-// Photo 照片信息
+// Photo 照片信息.
 type Photo struct {
 	ID          string    `json:"id"`
 	Filename    string    `json:"filename"`
@@ -58,7 +58,7 @@ type Photo struct {
 	IsLivePhoto bool      `json:"is_live_photo"`
 }
 
-// ExifData EXIF信息
+// ExifData EXIF信息.
 type ExifData struct {
 	Camera       string   `json:"camera"`
 	Lens         string   `json:"lens"`
@@ -69,14 +69,14 @@ type ExifData struct {
 	GPS          *GPSData `json:"gps"`
 }
 
-// GPSData GPS信息
+// GPSData GPS信息.
 type GPSData struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
 	Altitude  float64 `json:"altitude"`
 }
 
-// Face 人脸信息
+// Face 人脸信息.
 type Face struct {
 	ID         string  `json:"id"`
 	PersonID   string  `json:"person_id"`
@@ -85,7 +85,7 @@ type Face struct {
 	Confidence float64 `json:"confidence"`
 }
 
-// Bounds 边界框
+// Bounds 边界框.
 type Bounds struct {
 	X      int `json:"x"`
 	Y      int `json:"y"`
@@ -93,7 +93,7 @@ type Bounds struct {
 	Height int `json:"height"`
 }
 
-// Playlist 播放列表
+// Playlist 播放列表.
 type Playlist struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -102,7 +102,7 @@ type Playlist struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// Library 媒体库
+// Library 媒体库.
 type Library struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -112,7 +112,7 @@ type Library struct {
 	ItemCount int       `json:"item_count"`
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	ScanInterval     time.Duration `json:"scan_interval"`
 	AutoScan         bool          `json:"auto_scan"`
@@ -123,7 +123,7 @@ type Config struct {
 	MaxBitrate       int           `json:"max_bitrate"`
 }
 
-// NewMediaCenter 创建媒体中心
+// NewMediaCenter 创建媒体中心.
 func NewMediaCenter(config *Config) *MediaCenter {
 	return &MediaCenter{
 		movies:    make(map[string]*Movie),
@@ -136,7 +136,7 @@ func NewMediaCenter(config *Config) *MediaCenter {
 	}
 }
 
-// AddItem 添加媒体项
+// AddItem 添加媒体项.
 func (mc *MediaCenter) AddItem(item MediaItem) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
@@ -149,7 +149,7 @@ func (mc *MediaCenter) AddItem(item MediaItem) error {
 	return nil
 }
 
-// GetItem 获取媒体项
+// GetItem 获取媒体项.
 func (mc *MediaCenter) GetItem(id string) (*MediaItem, error) {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -161,7 +161,7 @@ func (mc *MediaCenter) GetItem(id string) (*MediaItem, error) {
 	return item, nil
 }
 
-// ListItems 列出媒体项
+// ListItems 列出媒体项.
 func (mc *MediaCenter) ListItems(query string, mediaType MediaType) []*MediaItem {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -179,12 +179,12 @@ func (mc *MediaCenter) ListItems(query string, mediaType MediaType) []*MediaItem
 	return items
 }
 
-// SearchItems 搜索媒体项
+// SearchItems 搜索媒体项.
 func (mc *MediaCenter) SearchItems(query string) []*MediaItem {
 	return mc.ListItems(query, "")
 }
 
-// RemoveItem 删除媒体项
+// RemoveItem 删除媒体项.
 func (mc *MediaCenter) RemoveItem(id string) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
@@ -197,7 +197,7 @@ func (mc *MediaCenter) RemoveItem(id string) error {
 	return nil
 }
 
-// ListLibraries 列出媒体库
+// ListLibraries 列出媒体库.
 func (mc *MediaCenter) ListLibraries() []*Library {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -209,7 +209,7 @@ func (mc *MediaCenter) ListLibraries() []*Library {
 	return libs
 }
 
-// GetLibrary 获取媒体库
+// GetLibrary 获取媒体库.
 func (mc *MediaCenter) GetLibrary(id string) (*Library, error) {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -221,7 +221,7 @@ func (mc *MediaCenter) GetLibrary(id string) (*Library, error) {
 	return lib, nil
 }
 
-// ListSessions 列出会话
+// ListSessions 列出会话.
 func (mc *MediaCenter) ListSessions(userID string) []*Session {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -236,7 +236,7 @@ func (mc *MediaCenter) ListSessions(userID string) []*Session {
 	return sessions
 }
 
-// AddMovie 添加电影
+// AddMovie 添加电影.
 func (mc *MediaCenter) AddMovie(ctx context.Context, movie *Movie) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
@@ -246,7 +246,7 @@ func (mc *MediaCenter) AddMovie(ctx context.Context, movie *Movie) error {
 	return nil
 }
 
-// GetMovie 获取电影
+// GetMovie 获取电影.
 func (mc *MediaCenter) GetMovie(ctx context.Context, id string) (*Movie, error) {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -258,7 +258,7 @@ func (mc *MediaCenter) GetMovie(ctx context.Context, id string) (*Movie, error) 
 	return movie, nil
 }
 
-// SearchMovies 搜索电影
+// SearchMovies 搜索电影.
 func (mc *MediaCenter) SearchMovies(ctx context.Context, query string) ([]*Movie, error) {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -272,7 +272,7 @@ func (mc *MediaCenter) SearchMovies(ctx context.Context, query string) ([]*Movie
 	return results, nil
 }
 
-// AddPhoto 添加照片
+// AddPhoto 添加照片.
 func (mc *MediaCenter) AddPhoto(ctx context.Context, photo *Photo) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
@@ -282,7 +282,7 @@ func (mc *MediaCenter) AddPhoto(ctx context.Context, photo *Photo) error {
 	return nil
 }
 
-// GetPhoto 获取照片
+// GetPhoto 获取照片.
 func (mc *MediaCenter) GetPhoto(ctx context.Context, id string) (*Photo, error) {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -294,7 +294,7 @@ func (mc *MediaCenter) GetPhoto(ctx context.Context, id string) (*Photo, error) 
 	return photo, nil
 }
 
-// SearchPhotosByText 以文搜图
+// SearchPhotosByText 以文搜图.
 func (mc *MediaCenter) SearchPhotosByText(ctx context.Context, query string) ([]*Photo, error) {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -308,7 +308,7 @@ func (mc *MediaCenter) SearchPhotosByText(ctx context.Context, query string) ([]
 	return results, nil
 }
 
-// SearchPhotosByFace 按人脸搜索照片
+// SearchPhotosByFace 按人脸搜索照片.
 func (mc *MediaCenter) SearchPhotosByFace(ctx context.Context, personID string) ([]*Photo, error) {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -325,7 +325,7 @@ func (mc *MediaCenter) SearchPhotosByFace(ctx context.Context, personID string) 
 	return results, nil
 }
 
-// CreatePlaylist 创建播放列表
+// CreatePlaylist 创建播放列表.
 func (mc *MediaCenter) CreatePlaylist(ctx context.Context, playlist *Playlist) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
@@ -336,7 +336,7 @@ func (mc *MediaCenter) CreatePlaylist(ctx context.Context, playlist *Playlist) e
 	return nil
 }
 
-// AddToPlaylist 添加到播放列表
+// AddToPlaylist 添加到播放列表.
 func (mc *MediaCenter) AddToPlaylist(ctx context.Context, playlistID, itemID string) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
@@ -351,7 +351,7 @@ func (mc *MediaCenter) AddToPlaylist(ctx context.Context, playlistID, itemID str
 	return nil
 }
 
-// ScanLibrary 扫描媒体库
+// ScanLibrary 扫描媒体库.
 func (mc *MediaCenter) ScanLibrary(ctx context.Context, libraryID string) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
@@ -365,7 +365,7 @@ func (mc *MediaCenter) ScanLibrary(ctx context.Context, libraryID string) error 
 	return nil
 }
 
-// CreateLibrary 创建媒体库
+// CreateLibrary 创建媒体库.
 func (mc *MediaCenter) CreateLibrary(ctx context.Context, library *Library) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
@@ -375,7 +375,7 @@ func (mc *MediaCenter) CreateLibrary(ctx context.Context, library *Library) erro
 	return nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (mc *MediaCenter) GetStats(ctx context.Context) map[string]interface{} {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -388,7 +388,7 @@ func (mc *MediaCenter) GetStats(ctx context.Context) map[string]interface{} {
 	}
 }
 
-// UpdateWatchProgress 更新观看进度
+// UpdateWatchProgress 更新观看进度.
 func (mc *MediaCenter) UpdateWatchProgress(ctx context.Context, movieID string, progress float64) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
@@ -402,7 +402,7 @@ func (mc *MediaCenter) UpdateWatchProgress(ctx context.Context, movieID string, 
 	return nil
 }
 
-// ToggleFavorite 切换收藏状态
+// ToggleFavorite 切换收藏状态.
 func (mc *MediaCenter) ToggleFavorite(ctx context.Context, photoID string) error {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
@@ -416,7 +416,7 @@ func (mc *MediaCenter) ToggleFavorite(ctx context.Context, photoID string) error
 	return nil
 }
 
-// GetRecentMovies 获取最近观看的电影
+// GetRecentMovies 获取最近观看的电影.
 func (mc *MediaCenter) GetRecentMovies(ctx context.Context, limit int) []*Movie {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -435,7 +435,7 @@ func (mc *MediaCenter) GetRecentMovies(ctx context.Context, limit int) []*Movie 
 	return movies
 }
 
-// GetRecentPhotos 获取最近添加的照片
+// GetRecentPhotos 获取最近添加的照片.
 func (mc *MediaCenter) GetRecentPhotos(ctx context.Context, limit int) []*Photo {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -454,7 +454,7 @@ func (mc *MediaCenter) GetRecentPhotos(ctx context.Context, limit int) []*Photo 
 	return photos
 }
 
-// 辅助函数
+// 辅助函数.
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && (s == substr || len(s) > 0 && len(substr) > 0 && containsIgnoreCase(s, substr))
 }

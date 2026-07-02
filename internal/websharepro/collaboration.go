@@ -17,7 +17,7 @@ import (
 // FileRequest - 文件收集请求
 // ---------------------------------------------------------------------------
 
-// FileRequestStatus 文件收集请求状态
+// FileRequestStatus 文件收集请求状态.
 type FileRequestStatus string
 
 const (
@@ -27,7 +27,7 @@ const (
 	RequestExpired FileRequestStatus = "expired"
 )
 
-// UploadConstraint 上传约束
+// UploadConstraint 上传约束.
 type UploadConstraint struct {
 	MaxFileSize     int64    `json:"maxFileSize"`     // 单文件最大字节数，0=无限制
 	MaxTotalSize    int64    `json:"maxTotalSize"`    // 总大小上限
@@ -35,7 +35,7 @@ type UploadConstraint struct {
 	MaxFilesPerUser int      `json:"maxFilesPerUser"` // 每用户最大文件数，0=无限制
 }
 
-// FileRequest 文件收集请求
+// FileRequest 文件收集请求.
 type FileRequest struct {
 	ID          string `json:"id"`
 	Token       string `json:"token"`
@@ -68,7 +68,7 @@ type FileRequest struct {
 	PublicURL  string `json:"publicUrl,omitempty"`
 }
 
-// UploadRecord 上传记录
+// UploadRecord 上传记录.
 type UploadRecord struct {
 	ID         string    `json:"id"`
 	FileName   string    `json:"fileName"`
@@ -84,7 +84,7 @@ type UploadRecord struct {
 // SharedLabel - 共享标签
 // ---------------------------------------------------------------------------
 
-// LabelColor 标签颜色
+// LabelColor 标签颜色.
 type LabelColor string
 
 const (
@@ -97,7 +97,7 @@ const (
 	LabelGray   LabelColor = "gray"
 )
 
-// SharedLabel 共享标签
+// SharedLabel 共享标签.
 type SharedLabel struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
@@ -116,7 +116,7 @@ type SharedLabel struct {
 // FileComment - 文件评论
 // ---------------------------------------------------------------------------
 
-// FileComment 文件评论/备注
+// FileComment 文件评论/备注.
 type FileComment struct {
 	ID        string    `json:"id"`
 	FilePath  string    `json:"filePath"`
@@ -133,7 +133,7 @@ type FileComment struct {
 	Replies []*FileComment `json:"replies,omitempty"`
 }
 
-// CommentPosition 评论位置标注
+// CommentPosition 评论位置标注.
 type CommentPosition struct {
 	Page   int     `json:"page,omitempty"`   // PDF/文档页码
 	X      float64 `json:"x,omitempty"`      // X 坐标
@@ -146,7 +146,7 @@ type CommentPosition struct {
 // CollaborationManager 协作管理器
 // ---------------------------------------------------------------------------
 
-// CollaborationManager 协作功能管理器
+// CollaborationManager 协作功能管理器.
 type CollaborationManager struct {
 	mu          sync.RWMutex
 	requests    map[string]*FileRequest   // id -> request
@@ -158,7 +158,7 @@ type CollaborationManager struct {
 	logger      *zap.Logger
 }
 
-// CollaborationConfig 协作配置
+// CollaborationConfig 协作配置.
 type CollaborationConfig struct {
 	DefaultFileRequestExpiryHours int    `json:"defaultFileRequestExpiryHours"`
 	MaxUploadSize                 int64  `json:"maxUploadSize"`
@@ -166,7 +166,7 @@ type CollaborationConfig struct {
 	BaseURL                       string `json:"baseUrl"`
 }
 
-// NewCollaborationManager 创建协作管理器
+// NewCollaborationManager 创建协作管理器.
 func NewCollaborationManager(config *CollaborationConfig, logger *zap.Logger) *CollaborationManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -193,7 +193,7 @@ func NewCollaborationManager(config *CollaborationConfig, logger *zap.Logger) *C
 // FileRequest 操作
 // ---------------------------------------------------------------------------
 
-// CreateFileRequest 创建文件收集请求
+// CreateFileRequest 创建文件收集请求.
 func (cm *CollaborationManager) CreateFileRequest(title, targetDir, createdBy string, constraints UploadConstraint, password string, expiryHours int, customSlug string) (*FileRequest, error) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -247,7 +247,7 @@ func (cm *CollaborationManager) CreateFileRequest(title, targetDir, createdBy st
 	return req, nil
 }
 
-// GetFileRequest 获取文件收集请求
+// GetFileRequest 获取文件收集请求.
 func (cm *CollaborationManager) GetFileRequest(id string) (*FileRequest, bool) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -262,7 +262,7 @@ func (cm *CollaborationManager) GetFileRequest(id string) (*FileRequest, bool) {
 	return req, true
 }
 
-// GetFileRequestByToken 通过 Token 获取请求
+// GetFileRequestByToken 通过 Token 获取请求.
 func (cm *CollaborationManager) GetFileRequestByToken(token string) (*FileRequest, bool) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -285,7 +285,7 @@ func (cm *CollaborationManager) GetFileRequestByToken(token string) (*FileReques
 	return req, true
 }
 
-// ValidateFileRequestUpload 验证上传请求
+// ValidateFileRequestUpload 验证上传请求.
 func (cm *CollaborationManager) ValidateFileRequestUpload(reqID, password string, fileSize int64, mimeType string) error {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -331,7 +331,7 @@ func (cm *CollaborationManager) ValidateFileRequestUpload(reqID, password string
 	return nil
 }
 
-// RecordFileUpload 记录文件上传
+// RecordFileUpload 记录文件上传.
 func (cm *CollaborationManager) RecordFileUpload(reqID, fileName string, fileSize int64, mimeType, uploadedBy, remoteIP string) (*UploadRecord, error) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -363,7 +363,7 @@ func (cm *CollaborationManager) RecordFileUpload(reqID, fileName string, fileSiz
 	return &record, nil
 }
 
-// CloseFileRequest 关闭文件收集请求
+// CloseFileRequest 关闭文件收集请求.
 func (cm *CollaborationManager) CloseFileRequest(id string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -377,7 +377,7 @@ func (cm *CollaborationManager) CloseFileRequest(id string) error {
 	return nil
 }
 
-// ListFileRequests 列出文件收集请求
+// ListFileRequests 列出文件收集请求.
 func (cm *CollaborationManager) ListFileRequests(createdBy string, status FileRequestStatus) []*FileRequest {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -399,7 +399,7 @@ func (cm *CollaborationManager) ListFileRequests(createdBy string, status FileRe
 // SharedLabel 操作
 // ---------------------------------------------------------------------------
 
-// CreateLabel 创建共享标签
+// CreateLabel 创建共享标签.
 func (cm *CollaborationManager) CreateLabel(name string, color LabelColor, description, createdBy string, filePaths []string, visibility string) (*SharedLabel, error) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -433,7 +433,7 @@ func (cm *CollaborationManager) CreateLabel(name string, color LabelColor, descr
 	return label, nil
 }
 
-// GetLabel 获取标签
+// GetLabel 获取标签.
 func (cm *CollaborationManager) GetLabel(id string) (*SharedLabel, bool) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -441,7 +441,7 @@ func (cm *CollaborationManager) GetLabel(id string) (*SharedLabel, bool) {
 	return label, ok
 }
 
-// AddFilesToLabel 向标签添加文件
+// AddFilesToLabel 向标签添加文件.
 func (cm *CollaborationManager) AddFilesToLabel(id string, paths []string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -466,7 +466,7 @@ func (cm *CollaborationManager) AddFilesToLabel(id string, paths []string) error
 	return nil
 }
 
-// RemoveFilesFromLabel 从标签移除文件
+// RemoveFilesFromLabel 从标签移除文件.
 func (cm *CollaborationManager) RemoveFilesFromLabel(id string, paths []string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -491,7 +491,7 @@ func (cm *CollaborationManager) RemoveFilesFromLabel(id string, paths []string) 
 	return nil
 }
 
-// DeleteLabel 删除标签
+// DeleteLabel 删除标签.
 func (cm *CollaborationManager) DeleteLabel(id string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -504,7 +504,7 @@ func (cm *CollaborationManager) DeleteLabel(id string) error {
 	return nil
 }
 
-// ListLabels 列出标签
+// ListLabels 列出标签.
 func (cm *CollaborationManager) ListLabels(createdBy, visibility string) []*SharedLabel {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -522,7 +522,7 @@ func (cm *CollaborationManager) ListLabels(createdBy, visibility string) []*Shar
 	return result
 }
 
-// GetLabelsForFile 获取文件关联的所有标签
+// GetLabelsForFile 获取文件关联的所有标签.
 func (cm *CollaborationManager) GetLabelsForFile(filePath string) []*SharedLabel {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -543,7 +543,7 @@ func (cm *CollaborationManager) GetLabelsForFile(filePath string) []*SharedLabel
 // FileComment 操作
 // ---------------------------------------------------------------------------
 
-// CreateComment 创建文件评论
+// CreateComment 创建文件评论.
 func (cm *CollaborationManager) CreateComment(filePath, author, content, parentID string, position *CommentPosition) (*FileComment, error) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -591,7 +591,7 @@ func (cm *CollaborationManager) CreateComment(filePath, author, content, parentI
 	return comment, nil
 }
 
-// GetComment 获取评论
+// GetComment 获取评论.
 func (cm *CollaborationManager) GetComment(id string) (*FileComment, bool) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -599,7 +599,7 @@ func (cm *CollaborationManager) GetComment(id string) (*FileComment, bool) {
 	return c, ok
 }
 
-// UpdateComment 更新评论内容
+// UpdateComment 更新评论内容.
 func (cm *CollaborationManager) UpdateComment(id, content string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -613,7 +613,7 @@ func (cm *CollaborationManager) UpdateComment(id, content string) error {
 	return nil
 }
 
-// ResolveComment 标记评论为已解决
+// ResolveComment 标记评论为已解决.
 func (cm *CollaborationManager) ResolveComment(id string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -627,7 +627,7 @@ func (cm *CollaborationManager) ResolveComment(id string) error {
 	return nil
 }
 
-// PinComment 置顶评论
+// PinComment 置顶评论.
 func (cm *CollaborationManager) PinComment(id string, pinned bool) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -641,7 +641,7 @@ func (cm *CollaborationManager) PinComment(id string, pinned bool) error {
 	return nil
 }
 
-// DeleteComment 删除评论
+// DeleteComment 删除评论.
 func (cm *CollaborationManager) DeleteComment(id string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -672,7 +672,7 @@ func (cm *CollaborationManager) DeleteComment(id string) error {
 	return nil
 }
 
-// ListComments 列出文件的评论
+// ListComments 列出文件的评论.
 func (cm *CollaborationManager) ListComments(filePath string, includeResolved bool) []*FileComment {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -689,7 +689,7 @@ func (cm *CollaborationManager) ListComments(filePath string, includeResolved bo
 	return result
 }
 
-// GetCommentCount 获取文件的评论数量
+// GetCommentCount 获取文件的评论数量.
 func (cm *CollaborationManager) GetCommentCount(filePath string) int {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -700,7 +700,7 @@ func (cm *CollaborationManager) GetCommentCount(filePath string) int {
 // 内部辅助
 // ---------------------------------------------------------------------------
 
-// buildRequestURL 构建文件收集链接 URL
+// buildRequestURL 构建文件收集链接 URL.
 func (cm *CollaborationManager) buildRequestURL(req *FileRequest) string {
 	base := cm.config.BaseURL
 	if base == "" {

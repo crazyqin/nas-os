@@ -164,12 +164,13 @@ func (e *Executor) runMigration(state *executionState) {
 		catResult := e.executeCategory(state, mapping, i, startItem)
 		result.CategoryResults = append(result.CategoryResults, catResult)
 
-		if catResult.Status == "success" {
+		switch catResult.Status {
+		case "success":
 			result.TotalMigrated += catResult.Migrated
-		} else if catResult.Status == "partial" {
+		case "partial":
 			result.TotalMigrated += catResult.Migrated
 			result.TotalFailed += catResult.Failed
-		} else {
+		default:
 			result.TotalFailed += catResult.Failed
 		}
 		result.TotalSkipped += catResult.Skipped

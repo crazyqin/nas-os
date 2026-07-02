@@ -14,7 +14,7 @@ import (
 // 扫描配置
 // ============================================================
 
-// ScanConfig 扫描配置
+// ScanConfig 扫描配置.
 type ScanConfig struct {
 	// Target 扫描目标（IP 或 CIDR）
 	Target string `json:"target"`
@@ -32,7 +32,7 @@ type ScanConfig struct {
 	VulnScan bool `json:"vuln_scan"`
 }
 
-// DefaultScanConfig 默认扫描配置
+// DefaultScanConfig 默认扫描配置.
 func DefaultScanConfig() *ScanConfig {
 	return &ScanConfig{
 		ScanType:         "quick",
@@ -43,14 +43,14 @@ func DefaultScanConfig() *ScanConfig {
 	}
 }
 
-// CommonPorts 常用端口列表
+// CommonPorts 常用端口列表.
 var CommonPorts = []int{
 	21, 22, 23, 25, 53, 80, 110, 143, 443, 445,
 	993, 995, 1433, 1521, 3306, 3389, 5432, 5900, 6379, 8080,
 	8443, 8888, 9090, 27017,
 }
 
-// TopPortsTop100 前 100 常用端口
+// TopPortsTop100 前 100 常用端口.
 var TopPortsTop100 = []int{
 	1, 3, 7, 9, 13, 17, 19, 21, 22, 23, 25, 26, 37, 53, 79, 80, 81, 88,
 	106, 110, 111, 113, 119, 135, 139, 143, 144, 179, 199, 389, 427, 443,
@@ -67,7 +67,7 @@ var TopPortsTop100 = []int{
 // 服务指纹
 // ============================================================
 
-// ServiceFingerprint 服务指纹
+// ServiceFingerprint 服务指纹.
 type ServiceFingerprint struct {
 	Port     int    `json:"port"`
 	Banner   string `json:"banner"`
@@ -76,7 +76,7 @@ type ServiceFingerprint struct {
 	Protocol string `json:"protocol"`
 }
 
-// wellKnownServices 常见端口-服务映射
+// wellKnownServices 常见端口-服务映射.
 var wellKnownServices = map[int]ServiceFingerprint{
 	21:    {Port: 21, Service: "ftp", Protocol: "tcp"},
 	22:    {Port: 22, Service: "ssh", Protocol: "tcp"},
@@ -101,7 +101,7 @@ var wellKnownServices = map[int]ServiceFingerprint{
 	27017: {Port: 27017, Service: "mongodb", Protocol: "tcp"},
 }
 
-// Scanner 端口扫描器
+// Scanner 端口扫描器.
 type Scanner struct {
 	config  *ScanConfig
 	engine  *Engine
@@ -109,7 +109,7 @@ type Scanner struct {
 	results []PortScanResult
 }
 
-// PortScanResult 端口扫描结果
+// PortScanResult 端口扫描结果.
 type PortScanResult struct {
 	Port    int    `json:"port"`
 	State   string `json:"state"` // "open", "closed", "filtered"
@@ -118,7 +118,7 @@ type PortScanResult struct {
 	Banner  string `json:"banner"`
 }
 
-// NewScanner 创建端口扫描器
+// NewScanner 创建端口扫描器.
 func NewScanner(config *ScanConfig, engine *Engine) *Scanner {
 	if config == nil {
 		config = DefaultScanConfig()
@@ -130,7 +130,7 @@ func NewScanner(config *ScanConfig, engine *Engine) *Scanner {
 	}
 }
 
-// ScanPorts 扫描端口
+// ScanPorts 扫描端口.
 func (s *Scanner) ScanPorts(target string, ports []int) (*ScanResult, error) {
 	if !s.engine.scanMgr.TryStartScan() {
 		return nil, ErrScanInProgress
@@ -192,12 +192,12 @@ func (s *Scanner) ScanPorts(target string, ports []int) (*ScanResult, error) {
 	return result, nil
 }
 
-// ScanCommonPorts 扫描常用端口
+// ScanCommonPorts 扫描常用端口.
 func (s *Scanner) ScanCommonPorts(target string) (*ScanResult, error) {
 	return s.ScanPorts(target, CommonPorts)
 }
 
-// scanPort 扫描单个端口
+// scanPort 扫描单个端口.
 func (s *Scanner) scanPort(target string, port int) PortScanResult {
 	// 扫描端口
 	addr := net.JoinHostPort(target, fmt.Sprintf("%d", port))
@@ -235,7 +235,7 @@ func (s *Scanner) scanPort(target string, port int) PortScanResult {
 	return result
 }
 
-// readBanner 读取服务 Banner
+// readBanner 读取服务 Banner.
 func (s *Scanner) readBanner(conn net.Conn) string {
 	conn.SetReadDeadline(time.Now().Add(2 * time.Second))
 	buf := make([]byte, 1024)
@@ -246,7 +246,7 @@ func (s *Scanner) readBanner(conn net.Conn) string {
 	return strings.TrimSpace(string(buf[:n]))
 }
 
-// detectVersion 从 Banner 检测服务版本
+// detectVersion 从 Banner 检测服务版本.
 func (s *Scanner) detectVersion(banner, service string) string {
 	banner = strings.ToLower(banner)
 
@@ -267,7 +267,7 @@ func (s *Scanner) detectVersion(banner, service string) string {
 	return ""
 }
 
-// calculateRiskScore 计算扫描风险评分
+// calculateRiskScore 计算扫描风险评分.
 func (s *Scanner) calculateRiskScore(result *ScanResult) int {
 	riskScore := 0
 
@@ -316,7 +316,7 @@ func (s *Scanner) calculateRiskScore(result *ScanResult) int {
 	return riskScore
 }
 
-// MatchVulnerabilities 匹配已知漏洞
+// MatchVulnerabilities 匹配已知漏洞.
 func (s *Scanner) MatchVulnerabilities(services []ServiceInfo) []Vulnerability {
 	var vulns []Vulnerability
 
@@ -372,7 +372,7 @@ func (s *Scanner) MatchVulnerabilities(services []ServiceInfo) []Vulnerability {
 	return vulns
 }
 
-// QuickScan 快速扫描（仅常用端口，无漏洞检测）
+// QuickScan 快速扫描（仅常用端口，无漏洞检测）.
 func (s *Scanner) QuickScan(target string) (*ScanResult, error) {
 	origDetection := s.config.ServiceDetection
 	origVuln := s.config.VulnScan
@@ -386,7 +386,7 @@ func (s *Scanner) QuickScan(target string) (*ScanResult, error) {
 	return s.ScanPorts(target, CommonPorts)
 }
 
-// FullScan 全面扫描（Top 100 端口 + 服务识别 + 漏洞匹配）
+// FullScan 全面扫描（Top 100 端口 + 服务识别 + 漏洞匹配）.
 func (s *Scanner) FullScan(target string) (*ScanResult, error) {
 	origDetection := s.config.ServiceDetection
 	origVuln := s.config.VulnScan

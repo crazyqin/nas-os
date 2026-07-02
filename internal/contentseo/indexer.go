@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Indexer 内容索引器
+// Indexer 内容索引器.
 type Indexer struct {
 	engine    *Engine
 	config    *Config
@@ -24,13 +24,13 @@ type Indexer struct {
 	running   bool
 }
 
-// QueryLog 查询日志
+// QueryLog 查询日志.
 type QueryLog struct {
 	Keyword   string    `json:"keyword"`
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// NewIndexer 创建索引器
+// NewIndexer 创建索引器.
 func NewIndexer(engine *Engine, config *Config) *Indexer {
 	return &Indexer{
 		engine:    engine,
@@ -43,7 +43,7 @@ func NewIndexer(engine *Engine, config *Config) *Indexer {
 	}
 }
 
-// Search 执行搜索
+// Search 执行搜索.
 func (idx *Indexer) Search(query SearchQuery) ([]ContentIndex, int, error) {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()
@@ -112,7 +112,7 @@ func (idx *Indexer) Search(query SearchQuery) ([]ContentIndex, int, error) {
 	return results[start:end], total, nil
 }
 
-// IndexDocument 索引文档
+// IndexDocument 索引文档.
 func (idx *Indexer) IndexDocument(path, title, content string, tags []string, language string) string {
 	idx.mu.Lock()
 	defer idx.mu.Unlock()
@@ -153,7 +153,7 @@ func (idx *Indexer) IndexDocument(path, title, content string, tags []string, la
 	return fileID
 }
 
-// RemoveDocument 移除文档
+// RemoveDocument 移除文档.
 func (idx *Indexer) RemoveDocument(path string) {
 	idx.mu.Lock()
 	defer idx.mu.Unlock()
@@ -182,7 +182,7 @@ func (idx *Indexer) RemoveDocument(path string) {
 	delete(idx.indexPath, path)
 }
 
-// Rebuild 重建索引
+// Rebuild 重建索引.
 func (idx *Indexer) Rebuild(fullRebuild bool) error {
 	idx.mu.Lock()
 	if idx.running {
@@ -212,7 +212,7 @@ func (idx *Indexer) Rebuild(fullRebuild bool) error {
 	return nil
 }
 
-// Stop 停止索引器
+// Stop 停止索引器.
 func (idx *Indexer) Stop() {
 	select {
 	case <-idx.stopCh:
@@ -222,14 +222,14 @@ func (idx *Indexer) Stop() {
 	}
 }
 
-// GetIndexedCount 获取已索引数量
+// GetIndexedCount 获取已索引数量.
 func (idx *Indexer) GetIndexedCount() int {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()
 	return len(idx.index)
 }
 
-// reindexTokens 重建token索引
+// reindexTokens 重建token索引.
 func (idx *Indexer) reindexTokens(fileID, title, content string, tags []string) {
 	// 移除旧的token引用
 	for token, fileIDs := range idx.tokens {
@@ -259,7 +259,7 @@ func (idx *Indexer) reindexTokens(fileID, title, content string, tags []string) 
 	}
 }
 
-// tokenize 中英文分词
+// tokenize 中英文分词.
 func tokenize(text string) []string {
 	var tokens []string
 	var current strings.Builder
@@ -293,7 +293,7 @@ func tokenize(text string) []string {
 	return tokens
 }
 
-// applyFilters 应用过滤条件
+// applyFilters 应用过滤条件.
 func applyFilters(item *ContentIndex, filters []Filter) bool {
 	for _, filter := range filters {
 		switch filter.Field {
@@ -321,7 +321,7 @@ func applyFilters(item *ContentIndex, filters []Filter) bool {
 	return true
 }
 
-// matchFilter 匹配过滤条件
+// matchFilter 匹配过滤条件.
 func matchFilter(value string, filter Filter) bool {
 	filterValue, ok := filter.Value.(string)
 	if !ok {
@@ -340,7 +340,7 @@ func matchFilter(value string, filter Filter) bool {
 	}
 }
 
-// sortResults 排序结果
+// sortResults 排序结果.
 func sortResults(results []ContentIndex, sortBy SortBy) {
 	// 简单的插入排序
 	for i := 1; i < len(results); i++ {
@@ -355,7 +355,7 @@ func sortResults(results []ContentIndex, sortBy SortBy) {
 	}
 }
 
-// shouldSwap 判断是否需要交换
+// shouldSwap 判断是否需要交换.
 func shouldSwap(a, b ContentIndex, sortBy SortBy) bool {
 	switch sortBy {
 	case SortByTimeDesc:

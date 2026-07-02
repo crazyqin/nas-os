@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// Algorithm 后量子算法
+// Algorithm 后量子算法.
 type Algorithm string
 
 const (
@@ -25,7 +25,7 @@ const (
 	AlgorithmSPHINCSPlus Algorithm = "sphincs+"
 )
 
-// EncryptionMode 加密模式
+// EncryptionMode 加密模式.
 type EncryptionMode string
 
 const (
@@ -34,7 +34,7 @@ const (
 	ModeClassical   EncryptionMode = "classical"
 )
 
-// KeyType 密钥类型
+// KeyType 密钥类型.
 type KeyType string
 
 const (
@@ -42,7 +42,7 @@ const (
 	KeyTypeSigning    KeyType = "signing"
 )
 
-// KeyStatus 密钥状态
+// KeyStatus 密钥状态.
 type KeyStatus string
 
 const (
@@ -52,7 +52,7 @@ const (
 	KeyStatusRevoked    KeyStatus = "revoked"
 )
 
-// Key 密钥
+// Key 密钥.
 type Key struct {
 	ID         string            `json:"id"`
 	Name       string            `json:"name"`
@@ -67,7 +67,7 @@ type Key struct {
 	Metadata   map[string]string `json:"metadata"`
 }
 
-// EncryptedData 加密数据
+// EncryptedData 加密数据.
 type EncryptedData struct {
 	ID         string         `json:"id"`
 	KeyID      string         `json:"key_id"`
@@ -79,7 +79,7 @@ type EncryptedData struct {
 	CreatedAt  time.Time      `json:"created_at"`
 }
 
-// Signature 数字签名
+// Signature 数字签名.
 type Signature struct {
 	ID        string    `json:"id"`
 	KeyID     string    `json:"key_id"`
@@ -90,7 +90,7 @@ type Signature struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// KeyRotationPolicy 密钥轮换策略
+// KeyRotationPolicy 密钥轮换策略.
 type KeyRotationPolicy struct {
 	ID               string        `json:"id"`
 	Name             string        `json:"name"`
@@ -101,7 +101,7 @@ type KeyRotationPolicy struct {
 	NotifyBefore     time.Duration `json:"notify_before"`
 }
 
-// AuditLog 审计日志
+// AuditLog 审计日志.
 type AuditLog struct {
 	ID        string    `json:"id"`
 	Action    string    `json:"action"`
@@ -113,7 +113,7 @@ type AuditLog struct {
 	UserID    string    `json:"user_id,omitempty"`
 }
 
-// PerformanceBenchmark 性能基准
+// PerformanceBenchmark 性能基准.
 type PerformanceBenchmark struct {
 	Algorithm   Algorithm     `json:"algorithm"`
 	Operation   string        `json:"operation"` // keygen, encrypt, decrypt, sign, verify
@@ -125,7 +125,7 @@ type PerformanceBenchmark struct {
 	Timestamp   time.Time     `json:"timestamp"`
 }
 
-// QuantumCryptoConfig 后量子加密配置
+// QuantumCryptoConfig 后量子加密配置.
 type QuantumCryptoConfig struct {
 	Enabled            bool           `json:"enabled"`
 	DefaultAlgorithm   Algorithm      `json:"default_algorithm"`
@@ -137,7 +137,7 @@ type QuantumCryptoConfig struct {
 	BenchmarkEnabled   bool           `json:"benchmark_enabled"`
 }
 
-// Manager 后量子加密管理器
+// Manager 后量子加密管理器.
 type Manager struct {
 	config     *QuantumCryptoConfig
 	keys       map[string]*Key
@@ -148,7 +148,7 @@ type Manager struct {
 	stopCh     chan struct{}
 }
 
-// NewManager 创建后量子加密管理器
+// NewManager 创建后量子加密管理器.
 func NewManager(config *QuantumCryptoConfig) *Manager {
 	return &Manager{
 		config:   config,
@@ -158,7 +158,7 @@ func NewManager(config *QuantumCryptoConfig) *Manager {
 	}
 }
 
-// Start 启动后量子加密
+// Start 启动后量子加密.
 func (m *Manager) Start() error {
 	if !m.config.Enabled {
 		return nil
@@ -171,12 +171,12 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止后量子加密
+// Stop 停止后量子加密.
 func (m *Manager) Stop() {
 	close(m.stopCh)
 }
 
-// runKeyRotation 运行密钥轮换
+// runKeyRotation 运行密钥轮换.
 func (m *Manager) runKeyRotation() {
 	ticker := time.NewTicker(1 * time.Hour)
 	defer ticker.Stop()
@@ -191,7 +191,7 @@ func (m *Manager) runKeyRotation() {
 	}
 }
 
-// checkAndRotateKeys 检查并轮换密钥
+// checkAndRotateKeys 检查并轮换密钥.
 func (m *Manager) checkAndRotateKeys() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -203,7 +203,7 @@ func (m *Manager) checkAndRotateKeys() {
 	}
 }
 
-// rotateKey 轮换密钥
+// rotateKey 轮换密钥.
 func (m *Manager) rotateKey(key *Key) {
 	key.Status = KeyStatusDeprecated
 	now := time.Now()
@@ -229,7 +229,7 @@ func (m *Manager) rotateKey(key *Key) {
 	m.addAuditLog("key_rotation", newKey.ID, newKey.Algorithm, "Key rotated successfully", true)
 }
 
-// GenerateKey 生成密钥
+// GenerateKey 生成密钥.
 func (m *Manager) GenerateKey(name string, algorithm Algorithm, keyType KeyType) (*Key, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -259,7 +259,7 @@ func (m *Manager) GenerateKey(name string, algorithm Algorithm, keyType KeyType)
 	return key, nil
 }
 
-// generateKeyPair 生成密钥对
+// generateKeyPair 生成密钥对.
 func (m *Manager) generateKeyPair(key *Key) {
 	// 模拟后量子密钥生成
 	publicKey := make([]byte, 32)
@@ -271,7 +271,7 @@ func (m *Manager) generateKeyPair(key *Key) {
 	key.PrivateKey = hex.EncodeToString(privateKey)
 }
 
-// GetKey 获取密钥
+// GetKey 获取密钥.
 func (m *Manager) GetKey(keyID string) (*Key, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -284,7 +284,7 @@ func (m *Manager) GetKey(keyID string) (*Key, error) {
 	return key, nil
 }
 
-// ListKeys 列出密钥
+// ListKeys 列出密钥.
 func (m *Manager) ListKeys(status KeyStatus) []*Key {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -299,7 +299,7 @@ func (m *Manager) ListKeys(status KeyStatus) []*Key {
 	return keys
 }
 
-// RevokeKey 吊销密钥
+// RevokeKey 吊销密钥.
 func (m *Manager) RevokeKey(keyID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -315,7 +315,7 @@ func (m *Manager) RevokeKey(keyID string) error {
 	return nil
 }
 
-// Encrypt 加密数据
+// Encrypt 加密数据.
 func (m *Manager) Encrypt(keyID string, plaintext []byte) (*EncryptedData, error) {
 	m.mu.RLock()
 	key, ok := m.keys[keyID]
@@ -352,7 +352,7 @@ func (m *Manager) Encrypt(keyID string, plaintext []byte) (*EncryptedData, error
 	return encrypted, nil
 }
 
-// Decrypt 解密数据
+// Decrypt 解密数据.
 func (m *Manager) Decrypt(keyID string, encrypted *EncryptedData) ([]byte, error) {
 	m.mu.RLock()
 	key, ok := m.keys[keyID]
@@ -374,7 +374,7 @@ func (m *Manager) Decrypt(keyID string, encrypted *EncryptedData) ([]byte, error
 	return plaintext, nil
 }
 
-// Sign 签名
+// Sign 签名.
 func (m *Manager) Sign(keyID string, message []byte) (*Signature, error) {
 	m.mu.RLock()
 	key, ok := m.keys[keyID]
@@ -407,7 +407,7 @@ func (m *Manager) Sign(keyID string, message []byte) (*Signature, error) {
 	return signature, nil
 }
 
-// Verify 验证签名
+// Verify 验证签名.
 func (m *Manager) Verify(keyID string, signature *Signature) (bool, error) {
 	m.mu.RLock()
 	key, ok := m.keys[keyID]
@@ -423,7 +423,7 @@ func (m *Manager) Verify(keyID string, signature *Signature) (bool, error) {
 	return true, nil
 }
 
-// CreateRotationPolicy 创建轮换策略
+// CreateRotationPolicy 创建轮换策略.
 func (m *Manager) CreateRotationPolicy(name string, algorithm Algorithm, interval, maxAge time.Duration) *KeyRotationPolicy {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -442,7 +442,7 @@ func (m *Manager) CreateRotationPolicy(name string, algorithm Algorithm, interva
 	return policy
 }
 
-// RunBenchmark 运行性能基准
+// RunBenchmark 运行性能基准.
 func (m *Manager) RunBenchmark(algorithm Algorithm, iterations int) *PerformanceBenchmark {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -474,7 +474,7 @@ func (m *Manager) RunBenchmark(algorithm Algorithm, iterations int) *Performance
 	return benchmark
 }
 
-// GetAuditLogs 获取审计日志
+// GetAuditLogs 获取审计日志.
 func (m *Manager) GetAuditLogs() []AuditLog {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -482,7 +482,7 @@ func (m *Manager) GetAuditLogs() []AuditLog {
 	return m.auditLogs
 }
 
-// GetBenchmarks 获取性能基准
+// GetBenchmarks 获取性能基准.
 func (m *Manager) GetBenchmarks() []*PerformanceBenchmark {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -490,7 +490,7 @@ func (m *Manager) GetBenchmarks() []*PerformanceBenchmark {
 	return m.benchmarks
 }
 
-// addAuditLog 添加审计日志
+// addAuditLog 添加审计日志.
 func (m *Manager) addAuditLog(action, keyID string, algorithm Algorithm, details string, success bool) {
 	if !m.config.AuditEnabled {
 		return
@@ -509,7 +509,7 @@ func (m *Manager) addAuditLog(action, keyID string, algorithm Algorithm, details
 	m.auditLogs = append(m.auditLogs, log)
 }
 
-// GetDashboard 获取仪表盘数据
+// GetDashboard 获取仪表盘数据.
 func (m *Manager) GetDashboard() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -533,7 +533,7 @@ func (m *Manager) GetDashboard() map[string]interface{} {
 	}
 }
 
-// MarshalJSON 序列化
+// MarshalJSON 序列化.
 func (m *Manager) MarshalJSON() ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-// Handler FreeIPA HTTP API 处理器
+// Handler FreeIPA HTTP API 处理器.
 type Handler struct {
 	client *Client
 	logger *slog.Logger
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(client *Client, logger *slog.Logger) *Handler {
 	if logger == nil {
 		logger = slog.Default()
@@ -24,7 +24,7 @@ func NewHandler(client *Client, logger *slog.Logger) *Handler {
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/freeipa/status", h.handleStatus)
 	mux.HandleFunc("/api/v1/freeipa/config", h.handleConfig)
@@ -37,14 +37,14 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/freeipa/stats", h.handleStats)
 }
 
-// APIResponse 通用 API 响应
+// APIResponse 通用 API 响应.
 type APIResponse struct {
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data,omitempty"`
 	Error   string      `json:"error,omitempty"`
 }
 
-// handleStatus 获取目录服务状态
+// handleStatus 获取目录服务状态.
 func (h *Handler) handleStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 GET 方法")
@@ -55,7 +55,7 @@ func (h *Handler) handleStatus(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, APIResponse{Success: true, Data: stats})
 }
 
-// handleConfig 获取/更新配置
+// handleConfig 获取/更新配置.
 func (h *Handler) handleConfig(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -96,7 +96,7 @@ func (h *Handler) handleConfig(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleConnect 连接到 FreeIPA
+// handleConnect 连接到 FreeIPA.
 func (h *Handler) handleConnect(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 POST 方法")
@@ -118,7 +118,7 @@ func (h *Handler) handleConnect(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, APIResponse{Success: true, Data: "连接成功"})
 }
 
-// handleDisconnect 断开连接
+// handleDisconnect 断开连接.
 func (h *Handler) handleDisconnect(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 POST 方法")
@@ -133,7 +133,7 @@ func (h *Handler) handleDisconnect(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, APIResponse{Success: true, Data: "已断开连接"})
 }
 
-// handleAuth 用户认证
+// handleAuth 用户认证.
 func (h *Handler) handleAuth(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 POST 方法")
@@ -163,7 +163,7 @@ func (h *Handler) handleAuth(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, APIResponse{Success: result.Success, Data: result})
 }
 
-// handleUsers 用户管理
+// handleUsers 用户管理.
 func (h *Handler) handleUsers(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 GET 方法")
@@ -191,7 +191,7 @@ func (h *Handler) handleUsers(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleGroups 组管理
+// handleGroups 组管理.
 func (h *Handler) handleGroups(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 GET 方法")
@@ -217,7 +217,7 @@ func (h *Handler) handleGroups(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleSync 触发同步
+// handleSync 触发同步.
 func (h *Handler) handleSync(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 POST 方法")
@@ -243,7 +243,7 @@ func (h *Handler) handleSync(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, APIResponse{Success: true, Data: result})
 }
 
-// handleStats 获取统计信息
+// handleStats 获取统计信息.
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 GET 方法")
@@ -254,14 +254,14 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, APIResponse{Success: true, Data: stats})
 }
 
-// writeJSON 写入 JSON 响应
+// writeJSON 写入 JSON 响应.
 func writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(data)
 }
 
-// writeError 写入错误响应
+// writeError 写入错误响应.
 func writeError(w http.ResponseWriter, status int, message string) {
 	writeJSON(w, status, APIResponse{Success: false, Error: message})
 }

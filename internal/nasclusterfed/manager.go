@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Manager 联邦集群管理器
+// Manager 联邦集群管理器.
 type Manager struct {
 	mu              sync.RWMutex
 	clusters        map[string]*Cluster
@@ -27,7 +27,7 @@ type Manager struct {
 	discoveryMethod DiscoveryMethod
 }
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
 	DataDir         string
 	SyncInterval    time.Duration
@@ -35,7 +35,7 @@ type ManagerConfig struct {
 	LoadBalancer    *LoadBalancerConfig
 }
 
-// NewManager 创建联邦集群管理器
+// NewManager 创建联邦集群管理器.
 func NewManager(cfg *ManagerConfig) (*Manager, error) {
 	if cfg.SyncInterval == 0 {
 		cfg.SyncInterval = 30 * time.Second
@@ -81,7 +81,7 @@ func NewManager(cfg *ManagerConfig) (*Manager, error) {
 	return m, nil
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() {
 	m.mu.Lock()
 	if m.running {
@@ -96,7 +96,7 @@ func (m *Manager) Start() {
 	go m.metricsLoop()
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -108,7 +108,7 @@ func (m *Manager) Stop() {
 	}
 }
 
-// RegisterCluster 注册集群
+// RegisterCluster 注册集群.
 func (m *Manager) RegisterCluster(cluster *Cluster) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -132,7 +132,7 @@ func (m *Manager) RegisterCluster(cluster *Cluster) error {
 	return nil
 }
 
-// UnregisterCluster 注销集群
+// UnregisterCluster 注销集群.
 func (m *Manager) UnregisterCluster(clusterID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -147,7 +147,7 @@ func (m *Manager) UnregisterCluster(clusterID string) error {
 	return nil
 }
 
-// GetCluster 获取集群信息
+// GetCluster 获取集群信息.
 func (m *Manager) GetCluster(clusterID string) (*Cluster, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -160,7 +160,7 @@ func (m *Manager) GetCluster(clusterID string) (*Cluster, error) {
 	return cluster, nil
 }
 
-// ListClusters 列出所有集群
+// ListClusters 列出所有集群.
 func (m *Manager) ListClusters() []*Cluster {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -172,7 +172,7 @@ func (m *Manager) ListClusters() []*Cluster {
 	return clusters
 }
 
-// AddNodeToCluster 添加节点到集群
+// AddNodeToCluster 添加节点到集群.
 func (m *Manager) AddNodeToCluster(clusterID string, node *ClusterNode) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -196,7 +196,7 @@ func (m *Manager) AddNodeToCluster(clusterID string, node *ClusterNode) error {
 	return nil
 }
 
-// RemoveNodeFromCluster 从集群移除节点
+// RemoveNodeFromCluster 从集群移除节点.
 func (m *Manager) RemoveNodeFromCluster(clusterID, nodeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -218,7 +218,7 @@ func (m *Manager) RemoveNodeFromCluster(clusterID, nodeID string) error {
 	return fmt.Errorf("节点不存在: %s", nodeID)
 }
 
-// CreateSyncTask 创建同步任务
+// CreateSyncTask 创建同步任务.
 func (m *Manager) CreateSyncTask(sourceID, targetID string, mode SyncMode) (*SyncTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -245,7 +245,7 @@ func (m *Manager) CreateSyncTask(sourceID, targetID string, mode SyncMode) (*Syn
 	return task, nil
 }
 
-// GetSyncTask 获取同步任务状态
+// GetSyncTask 获取同步任务状态.
 func (m *Manager) GetSyncTask(taskID string) (*SyncTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -258,7 +258,7 @@ func (m *Manager) GetSyncTask(taskID string) (*SyncTask, error) {
 	return task, nil
 }
 
-// ListSyncTasks 列出所有同步任务
+// ListSyncTasks 列出所有同步任务.
 func (m *Manager) ListSyncTasks() []*SyncTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -270,7 +270,7 @@ func (m *Manager) ListSyncTasks() []*SyncTask {
 	return tasks
 }
 
-// GetClusterMetrics 获取集群指标
+// GetClusterMetrics 获取集群指标.
 func (m *Manager) GetClusterMetrics(clusterID string) (*ClusterMetrics, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -283,7 +283,7 @@ func (m *Manager) GetClusterMetrics(clusterID string) (*ClusterMetrics, error) {
 	return metrics, nil
 }
 
-// GetFederationStatus 获取联邦状态概览
+// GetFederationStatus 获取联邦状态概览.
 func (m *Manager) GetFederationStatus() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -308,7 +308,7 @@ func (m *Manager) GetFederationStatus() map[string]interface{} {
 	}
 }
 
-// GetEvents 获取联邦事件
+// GetEvents 获取联邦事件.
 func (m *Manager) GetEvents(limit int) []FederationEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -325,7 +325,7 @@ func (m *Manager) GetEvents(limit int) []FederationEvent {
 	return m.events[start:]
 }
 
-// Subscribe 订阅联邦事件
+// Subscribe 订阅联邦事件.
 func (m *Manager) Subscribe() <-chan *FederationEvent {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -335,7 +335,7 @@ func (m *Manager) Subscribe() <-chan *FederationEvent {
 	return ch
 }
 
-// syncLoop 同步循环
+// syncLoop 同步循环.
 func (m *Manager) syncLoop() {
 	ticker := time.NewTicker(m.syncInterval)
 	defer ticker.Stop()
@@ -350,7 +350,7 @@ func (m *Manager) syncLoop() {
 	}
 }
 
-// discoveryLoop 集群发现循环
+// discoveryLoop 集群发现循环.
 func (m *Manager) discoveryLoop() {
 	ticker := time.NewTicker(60 * time.Second)
 	defer ticker.Stop()
@@ -365,7 +365,7 @@ func (m *Manager) discoveryLoop() {
 	}
 }
 
-// metricsLoop 指标收集循环
+// metricsLoop 指标收集循环.
 func (m *Manager) metricsLoop() {
 	ticker := time.NewTicker(15 * time.Second)
 	defer ticker.Stop()
@@ -380,7 +380,7 @@ func (m *Manager) metricsLoop() {
 	}
 }
 
-// processSyncTasks 处理同步任务
+// processSyncTasks 处理同步任务.
 func (m *Manager) processSyncTasks() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -393,7 +393,7 @@ func (m *Manager) processSyncTasks() {
 	}
 }
 
-// discoverClusters 发现集群
+// discoverClusters 发现集群.
 func (m *Manager) discoverClusters() {
 	// 实现集群发现逻辑
 	switch m.discoveryMethod {
@@ -408,7 +408,7 @@ func (m *Manager) discoverClusters() {
 	}
 }
 
-// collectMetrics 收集指标
+// collectMetrics 收集指标.
 func (m *Manager) collectMetrics() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -436,7 +436,7 @@ func (m *Manager) collectMetrics() {
 	}
 }
 
-// addEvent 添加事件
+// addEvent 添加事件.
 func (m *Manager) addEvent(eventType, clusterID, message, severity string) {
 	event := FederationEvent{
 		ID:        fmt.Sprintf("evt-%d", time.Now().UnixNano()),
@@ -464,7 +464,7 @@ func (m *Manager) addEvent(eventType, clusterID, message, severity string) {
 	}
 }
 
-// saveConfig 保存配置
+// saveConfig 保存配置.
 func (m *Manager) saveConfig() error {
 	if m.dataDir == "" {
 		return nil
@@ -484,7 +484,7 @@ func (m *Manager) saveConfig() error {
 	return os.WriteFile(configPath, jsonData, 0640)
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (m *Manager) loadConfig() error {
 	if m.dataDir == "" {
 		return nil

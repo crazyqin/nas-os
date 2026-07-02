@@ -7,12 +7,12 @@ import (
 	"time"
 )
 
-// roundTo2ForTest 测试用的四舍五入辅助函数
+// roundTo2ForTest 测试用的四舍五入辅助函数.
 func roundTo2ForTest(v float64) float64 {
 	return math.Round(v*100) / 100
 }
 
-// setupBilling 创建测试用的计费系统实例
+// setupBilling 创建测试用的计费系统实例.
 func setupBilling() *SmartBilling {
 	sb := NewSmartBilling()
 

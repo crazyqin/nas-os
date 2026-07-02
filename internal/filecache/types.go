@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// CacheLevel 缓存层级
+// CacheLevel 缓存层级.
 type CacheLevel int
 
 const (
@@ -15,7 +15,7 @@ const (
 	LevelHDD                      // HDD 缓存（最慢但容量大）
 )
 
-// String 返回层级名称
+// String 返回层级名称.
 func (l CacheLevel) String() string {
 	switch l {
 	case LevelMemory:
@@ -29,7 +29,7 @@ func (l CacheLevel) String() string {
 	}
 }
 
-// EvictionPolicy 淘汰策略
+// EvictionPolicy 淘汰策略.
 type EvictionPolicy string
 
 const (
@@ -38,7 +38,7 @@ const (
 	PolicyHybrid EvictionPolicy = "hybrid" // LRU/LFU 混合策略
 )
 
-// CacheEntry 缓存条目
+// CacheEntry 缓存条目.
 type CacheEntry struct {
 	Key        string     `json:"key"`         // 缓存键（通常是文件路径或 hash）
 	Path       string     `json:"path"`        // 原始文件路径
@@ -54,7 +54,7 @@ type CacheEntry struct {
 	score      float64    // 混合评分（内部使用）
 }
 
-// CacheStats 缓存统计
+// CacheStats 缓存统计.
 type CacheStats struct {
 	// 总体统计
 	TotalEntries int64   `json:"total_entries"`
@@ -77,7 +77,7 @@ type CacheStats struct {
 	StartedAt    time.Time  `json:"started_at"`
 }
 
-// LevelStats 层级统计
+// LevelStats 层级统计.
 type LevelStats struct {
 	Level     CacheLevel `json:"level"`
 	Entries   int64      `json:"entries"`
@@ -90,7 +90,7 @@ type LevelStats struct {
 	Usage     float64    `json:"usage"` // 使用率 0-1
 }
 
-// CacheConfig 缓存配置
+// CacheConfig 缓存配置.
 type CacheConfig struct {
 	// 基础配置
 	Enabled bool           `json:"enabled"`
@@ -130,7 +130,7 @@ type CacheConfig struct {
 	ExpiredCheck    bool          `json:"expired_check"`    // 是否检查过期
 }
 
-// DefaultCacheConfig 默认缓存配置
+// DefaultCacheConfig 默认缓存配置.
 func DefaultCacheConfig() *CacheConfig {
 	return &CacheConfig{
 		Enabled:          true,
@@ -157,7 +157,7 @@ func DefaultCacheConfig() *CacheConfig {
 	}
 }
 
-// WarmupRequest 预热请求
+// WarmupRequest 预热请求.
 type WarmupRequest struct {
 	Paths    []string `json:"paths" binding:"required"`
 	MaxFiles int      `json:"max_files,omitempty"`
@@ -165,7 +165,7 @@ type WarmupRequest struct {
 	Level    string   `json:"level,omitempty"` // 目标层级
 }
 
-// WarmupResult 预热结果
+// WarmupResult 预热结果.
 type WarmupResult struct {
 	TotalFiles  int           `json:"total_files"`
 	CachedFiles int           `json:"cached_files"`
@@ -176,7 +176,7 @@ type WarmupResult struct {
 	Errors      []string      `json:"errors,omitempty"`
 }
 
-// EvictionRequest 淘汰请求
+// EvictionRequest 淘汰请求.
 type EvictionRequest struct {
 	Level      string `json:"level,omitempty"`       // 目标层级
 	TargetSize int64  `json:"target_size,omitempty"` // 目标大小
@@ -184,7 +184,7 @@ type EvictionRequest struct {
 	DryRun     bool   `json:"dry_run"`
 }
 
-// EvictionResult 淘汰结果
+// EvictionResult 淘汰结果.
 type EvictionResult struct {
 	EvictedCount int           `json:"evicted_count"`
 	FreedSize    int64         `json:"freed_size"`
@@ -193,12 +193,12 @@ type EvictionResult struct {
 	Duration     time.Duration `json:"duration"`
 }
 
-// GetRequest 获取缓存请求
+// GetRequest 获取缓存请求.
 type GetRequest struct {
 	Key string `json:"key" binding:"required"`
 }
 
-// PutRequest 放入缓存请求
+// PutRequest 放入缓存请求.
 type PutRequest struct {
 	Key      string `json:"key" binding:"required"`
 	Path     string `json:"path" binding:"required"`
@@ -209,20 +209,20 @@ type PutRequest struct {
 	Level    string `json:"level,omitempty"` // 目标层级
 }
 
-// DeleteRequest 删除缓存请求
+// DeleteRequest 删除缓存请求.
 type DeleteRequest struct {
 	Key   string `json:"key" binding:"required"`
 	Level string `json:"level,omitempty"` // 目标层级，空表示所有层级
 }
 
-// CacheInfoResponse 缓存信息响应
+// CacheInfoResponse 缓存信息响应.
 type CacheInfoResponse struct {
 	Exists  bool          `json:"exists"`
 	Entry   *CacheEntry   `json:"entry,omitempty"`
 	Content *CacheContent `json:"content,omitempty"`
 }
 
-// CacheContent 缓存内容（用于文件数据）
+// CacheContent 缓存内容（用于文件数据）.
 type CacheContent struct {
 	Data     []byte `json:"data,omitempty"`      // 内存中的数据
 	FilePath string `json:"file_path,omitempty"` // 磁盘上的路径
@@ -230,7 +230,7 @@ type CacheContent struct {
 	Size     int64  `json:"size"`
 }
 
-// ListRequest 列表请求
+// ListRequest 列表请求.
 type ListRequest struct {
 	Level  string `json:"level,omitempty"`  // 过滤层级
 	Prefix string `json:"prefix,omitempty"` // 键前缀
@@ -238,7 +238,7 @@ type ListRequest struct {
 	Offset int    `json:"offset,omitempty"` // 偏移量
 }
 
-// ListResponse 列表响应
+// ListResponse 列表响应.
 type ListResponse struct {
 	Entries []*CacheEntry `json:"entries"`
 	Total   int           `json:"total"`

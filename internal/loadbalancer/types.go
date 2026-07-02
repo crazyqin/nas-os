@@ -12,17 +12,17 @@ import (
 // 负载均衡算法类型
 // ============================================================
 
-// Algorithm 负载均衡算法
+// Algorithm 负载均衡算法.
 type Algorithm string
 
 const (
-	// AlgorithmRoundRobin 轮询
+	// AlgorithmRoundRobin 轮询.
 	AlgorithmRoundRobin Algorithm = "round_robin"
-	// AlgorithmWeightedRoundRobin 加权轮询
+	// AlgorithmWeightedRoundRobin 加权轮询.
 	AlgorithmWeightedRoundRobin Algorithm = "weighted_round_robin"
-	// AlgorithmLeastConn 最少连接
+	// AlgorithmLeastConn 最少连接.
 	AlgorithmLeastConn Algorithm = "least_conn"
-	// AlgorithmIPHash IP哈希
+	// AlgorithmIPHash IP哈希.
 	AlgorithmIPHash Algorithm = "ip_hash"
 )
 
@@ -30,7 +30,7 @@ const (
 // 后端服务类型
 // ============================================================
 
-// Backend 后端服务节点
+// Backend 后端服务节点.
 type Backend struct {
 	ID       string            `json:"id"`        // 唯一标识
 	Name     string            `json:"name"`      // 服务名称
@@ -53,7 +53,7 @@ type Backend struct {
 	mu sync.RWMutex
 }
 
-// IncrConns 增加活跃连接数
+// IncrConns 增加活跃连接数.
 func (b *Backend) IncrConns() {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -62,7 +62,7 @@ func (b *Backend) IncrConns() {
 	b.LastActive = time.Now()
 }
 
-// DecrConns 减少活跃连接数
+// DecrConns 减少活跃连接数.
 func (b *Backend) DecrConns() {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -71,21 +71,21 @@ func (b *Backend) DecrConns() {
 	}
 }
 
-// IncrReqs 增加请求数
+// IncrReqs 增加请求数.
 func (b *Backend) IncrReqs() {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	b.TotalReqs++
 }
 
-// IncrErrors 增加错误数
+// IncrErrors 增加错误数.
 func (b *Backend) IncrErrors() {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	b.TotalErrors++
 }
 
-// SetHealthy 设置健康状态
+// SetHealthy 设置健康状态.
 func (b *Backend) SetHealthy(healthy bool) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -93,7 +93,7 @@ func (b *Backend) SetHealthy(healthy bool) {
 	b.LastCheck = time.Now()
 }
 
-// GetStats 获取后端统计信息 (线程安全)
+// GetStats 获取后端统计信息 (线程安全).
 func (b *Backend) GetStats() BackendStats {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -112,7 +112,7 @@ func (b *Backend) GetStats() BackendStats {
 	}
 }
 
-// BackendStats 后端统计信息快照
+// BackendStats 后端统计信息快照.
 type BackendStats struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -131,7 +131,7 @@ type BackendStats struct {
 // 负载均衡配置
 // ============================================================
 
-// LBConfig 负载均衡器配置
+// LBConfig 负载均衡器配置.
 type LBConfig struct {
 	// 基础配置
 	ListenAddr string          `json:"listen_addr"` // 监听地址, e.g. ":8080"
@@ -154,7 +154,7 @@ type LBConfig struct {
 	Middleware MiddlewareConfig `json:"middleware"`
 }
 
-// BackendConfig 后端配置
+// BackendConfig 后端配置.
 type BackendConfig struct {
 	ID       string            `json:"id"`
 	Name     string            `json:"name"`
@@ -164,7 +164,7 @@ type BackendConfig struct {
 	Tags     map[string]string `json:"tags"`
 }
 
-// DefaultLBConfig 默认负载均衡配置
+// DefaultLBConfig 默认负载均衡配置.
 func DefaultLBConfig() LBConfig {
 	return LBConfig{
 		ListenAddr:     ":8080",
@@ -181,19 +181,19 @@ func DefaultLBConfig() LBConfig {
 // 健康检查配置
 // ============================================================
 
-// HealthCheckType 健康检查类型
+// HealthCheckType 健康检查类型.
 type HealthCheckType string
 
 const (
-	// HealthCheckHTTP HTTP健康检查
+	// HealthCheckHTTP HTTP健康检查.
 	HealthCheckHTTP HealthCheckType = "http"
-	// HealthCheckTCP TCP健康检查
+	// HealthCheckTCP TCP健康检查.
 	HealthCheckTCP HealthCheckType = "tcp"
-	// HealthCheckCustom 自定义探针
+	// HealthCheckCustom 自定义探针.
 	HealthCheckCustom HealthCheckType = "custom"
 )
 
-// HealthCheckConfig 健康检查配置
+// HealthCheckConfig 健康检查配置.
 type HealthCheckConfig struct {
 	Enabled            bool              `json:"enabled"`
 	Type               HealthCheckType   `json:"type"`                // 检查类型
@@ -206,7 +206,7 @@ type HealthCheckConfig struct {
 	Headers            map[string]string `json:"headers"`             // 自定义请求头
 }
 
-// DefaultHealthCheckConfig 默认健康检查配置
+// DefaultHealthCheckConfig 默认健康检查配置.
 func DefaultHealthCheckConfig() HealthCheckConfig {
 	return HealthCheckConfig{
 		Enabled:            true,
@@ -220,7 +220,7 @@ func DefaultHealthCheckConfig() HealthCheckConfig {
 	}
 }
 
-// HealthCheckResult 健康检查结果
+// HealthCheckResult 健康检查结果.
 type HealthCheckResult struct {
 	BackendID string        `json:"backend_id"`
 	Healthy   bool          `json:"healthy"`
@@ -233,19 +233,19 @@ type HealthCheckResult struct {
 // 熔断器配置
 // ============================================================
 
-// CircuitState 熔断器状态
+// CircuitState 熔断器状态.
 type CircuitState string
 
 const (
-	// CircuitClosed 关闭状态 (正常)
+	// CircuitClosed 关闭状态 (正常).
 	CircuitClosed CircuitState = "closed"
-	// CircuitOpen 打开状态 (熔断)
+	// CircuitOpen 打开状态 (熔断).
 	CircuitOpen CircuitState = "open"
-	// CircuitHalfOpen 半开状态 (探测)
+	// CircuitHalfOpen 半开状态 (探测).
 	CircuitHalfOpen CircuitState = "half_open"
 )
 
-// CircuitBreakerConfig 熔断器配置
+// CircuitBreakerConfig 熔断器配置.
 type CircuitBreakerConfig struct {
 	Enabled          bool          `json:"enabled"`
 	FailureThreshold int           `json:"failure_threshold"` // 失败次数阈值, 默认 5
@@ -255,7 +255,7 @@ type CircuitBreakerConfig struct {
 	MaxRequests      int           `json:"max_requests"`      // 半开状态最大请求数, 默认 1
 }
 
-// DefaultCircuitBreakerConfig 默认熔断器配置
+// DefaultCircuitBreakerConfig 默认熔断器配置.
 func DefaultCircuitBreakerConfig() CircuitBreakerConfig {
 	return CircuitBreakerConfig{
 		Enabled:          true,
@@ -267,7 +267,7 @@ func DefaultCircuitBreakerConfig() CircuitBreakerConfig {
 	}
 }
 
-// CircuitBreakerStats 熔断器统计
+// CircuitBreakerStats 熔断器统计.
 type CircuitBreakerStats struct {
 	BackendID     string       `json:"backend_id"`
 	State         CircuitState `json:"state"`
@@ -283,17 +283,17 @@ type CircuitBreakerStats struct {
 // 限流配置
 // ============================================================
 
-// RateLimitAlgorithm 限流算法
+// RateLimitAlgorithm 限流算法.
 type RateLimitAlgorithm string
 
 const (
-	// RateLimitTokenBucket 令牌桶
+	// RateLimitTokenBucket 令牌桶.
 	RateLimitTokenBucket RateLimitAlgorithm = "token_bucket"
-	// RateLimitSlidingWindow 滑动窗口
+	// RateLimitSlidingWindow 滑动窗口.
 	RateLimitSlidingWindow RateLimitAlgorithm = "sliding_window"
 )
 
-// RateLimitConfig 限流配置
+// RateLimitConfig 限流配置.
 type RateLimitConfig struct {
 	Enabled   bool               `json:"enabled"`
 	Algorithm RateLimitAlgorithm `json:"algorithm"` // 限流算法
@@ -302,7 +302,7 @@ type RateLimitConfig struct {
 	ByIP      bool               `json:"by_ip"`     // 按IP限流
 }
 
-// DefaultRateLimitConfig 默认限流配置
+// DefaultRateLimitConfig 默认限流配置.
 func DefaultRateLimitConfig() RateLimitConfig {
 	return RateLimitConfig{
 		Enabled:   true,
@@ -313,7 +313,7 @@ func DefaultRateLimitConfig() RateLimitConfig {
 	}
 }
 
-// RateLimitResult 限流结果
+// RateLimitResult 限流结果.
 type RateLimitResult struct {
 	Allowed    bool  `json:"allowed"`
 	Remaining  int   `json:"remaining"`
@@ -324,7 +324,7 @@ type RateLimitResult struct {
 // 代理配置
 // ============================================================
 
-// ProxyConfig 反向代理配置
+// ProxyConfig 反向代理配置.
 type ProxyConfig struct {
 	// 超时配置
 	DialTimeout     time.Duration `json:"dial_timeout"`     // 连接超时, 默认 5s
@@ -347,7 +347,7 @@ type ProxyConfig struct {
 	XRealIP        bool     `json:"x_real_ip"`        // 添加X-Real-IP
 }
 
-// DefaultProxyConfig 默认代理配置
+// DefaultProxyConfig 默认代理配置.
 func DefaultProxyConfig() ProxyConfig {
 	return ProxyConfig{
 		DialTimeout:         5 * time.Second,
@@ -368,7 +368,7 @@ func DefaultProxyConfig() ProxyConfig {
 // 中间件配置
 // ============================================================
 
-// MiddlewareConfig 中间件配置
+// MiddlewareConfig 中间件配置.
 type MiddlewareConfig struct {
 	// 日志配置
 	Logging LoggingConfig `json:"logging"`
@@ -383,7 +383,7 @@ type MiddlewareConfig struct {
 	Cache CacheConfig `json:"cache"`
 }
 
-// LoggingConfig 日志配置
+// LoggingConfig 日志配置.
 type LoggingConfig struct {
 	Enabled   bool   `json:"enabled"`
 	Format    string `json:"format"`     // "json", "text"
@@ -392,7 +392,7 @@ type LoggingConfig struct {
 	ErrorLog  bool   `json:"error_log"`  // 错误日志
 }
 
-// CORSConfig CORS配置
+// CORSConfig CORS配置.
 type CORSConfig struct {
 	Enabled          bool     `json:"enabled"`
 	AllowedOrigins   []string `json:"allowed_origins"`
@@ -403,7 +403,7 @@ type CORSConfig struct {
 	AllowCredentials bool     `json:"allow_credentials"`
 }
 
-// CompressionConfig 压缩配置
+// CompressionConfig 压缩配置.
 type CompressionConfig struct {
 	Enabled bool     `json:"enabled"`
 	MinSize int      `json:"min_size"` // 最小压缩大小 (bytes), 默认 1024
@@ -411,7 +411,7 @@ type CompressionConfig struct {
 	Level   int      `json:"level"`    // 压缩级别 1-9, 默认 6
 }
 
-// CacheConfig 缓存配置
+// CacheConfig 缓存配置.
 type CacheConfig struct {
 	Enabled     bool          `json:"enabled"`
 	TTL         time.Duration `json:"ttl"`          // 缓存过期时间, 默认 60s
@@ -420,7 +420,7 @@ type CacheConfig struct {
 	StatusCodes []int         `json:"status_codes"` // 缓存的状态码
 }
 
-// DefaultMiddlewareConfig 默认中间件配置
+// DefaultMiddlewareConfig 默认中间件配置.
 func DefaultMiddlewareConfig() MiddlewareConfig {
 	return MiddlewareConfig{
 		Logging: LoggingConfig{
@@ -457,7 +457,7 @@ func DefaultMiddlewareConfig() MiddlewareConfig {
 // 负载均衡器统计
 // ============================================================
 
-// LBStats 负载均衡器统计信息
+// LBStats 负载均衡器统计信息.
 type LBStats struct {
 	// 全局统计
 	TotalRequests   int64         `json:"total_requests"`
@@ -479,7 +479,7 @@ type LBStats struct {
 	mu sync.RWMutex
 }
 
-// IncrRequests 增加请求计数
+// IncrRequests 增加请求计数.
 func (s *LBStats) IncrRequests() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -487,14 +487,14 @@ func (s *LBStats) IncrRequests() {
 	s.LastRequestAt = time.Now()
 }
 
-// IncrErrors 增加错误计数
+// IncrErrors 增加错误计数.
 func (s *LBStats) IncrErrors() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.TotalErrors++
 }
 
-// AddBytes 增加字节计数
+// AddBytes 增加字节计数.
 func (s *LBStats) AddBytes(sent, recv int64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -502,14 +502,14 @@ func (s *LBStats) AddBytes(sent, recv int64) {
 	s.TotalBytesRecv += recv
 }
 
-// SetActiveConns 设置活跃连接数
+// SetActiveConns 设置活跃连接数.
 func (s *LBStats) SetActiveConns(n int64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.ActiveConns = n
 }
 
-// GetSnapshot 获取统计快照
+// GetSnapshot 获取统计快照.
 func (s *LBStats) GetSnapshot() LBStatsSnapshot {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -526,7 +526,7 @@ func (s *LBStats) GetSnapshot() LBStatsSnapshot {
 	}
 }
 
-// LBStatsSnapshot 统计信息快照
+// LBStatsSnapshot 统计信息快照.
 type LBStatsSnapshot struct {
 	TotalRequests   int64         `json:"total_requests"`
 	TotalErrors     int64         `json:"total_errors"`
@@ -543,7 +543,7 @@ type LBStatsSnapshot struct {
 // 流量监控
 // ============================================================
 
-// TrafficMetrics 流量指标
+// TrafficMetrics 流量指标.
 type TrafficMetrics struct {
 	Timestamp      time.Time `json:"timestamp"`
 	RequestsPerSec float64   `json:"requests_per_sec"`
@@ -555,7 +555,7 @@ type TrafficMetrics struct {
 	P99LatencyMs   float64   `json:"p99_latency_ms"`
 }
 
-// TrafficWindow 流量监控窗口
+// TrafficWindow 流量监控窗口.
 type TrafficWindow struct {
 	Duration  time.Duration   `json:"duration"`
 	StartTime time.Time       `json:"start_time"`

@@ -4,7 +4,7 @@ package trafficclassifier
 
 import "time"
 
-// TrafficType 流量类型
+// TrafficType 流量类型.
 type TrafficType string
 
 const (
@@ -17,7 +17,7 @@ const (
 	TrafficTypeUnknown  TrafficType = "unknown"  // 未知流量
 )
 
-// AnomalyType 异常类型
+// AnomalyType 异常类型.
 type AnomalyType string
 
 const (
@@ -29,7 +29,7 @@ const (
 	AnomalyTypeSuspicious AnomalyType = "suspicious" // 可疑行为
 )
 
-// AlertSeverity 告警严重程度
+// AlertSeverity 告警严重程度.
 type AlertSeverity string
 
 const (
@@ -39,7 +39,7 @@ const (
 	AlertSeverityCritical AlertSeverity = "critical"
 )
 
-// AnalysisStatus 分析状态
+// AnalysisStatus 分析状态.
 type AnalysisStatus string
 
 const (
@@ -49,7 +49,7 @@ const (
 	AnalysisStatusFailed    AnalysisStatus = "failed"
 )
 
-// TrafficFlow 流量流记录
+// TrafficFlow 流量流记录.
 type TrafficFlow struct {
 	ID          string      `json:"id"`
 	SrcIP       string      `json:"src_ip"`
@@ -71,7 +71,7 @@ type TrafficFlow struct {
 	Labels      []string    `json:"labels,omitempty"`
 }
 
-// TrafficStats 流量统计
+// TrafficStats 流量统计.
 type TrafficStats struct {
 	TotalBytes        int64                 `json:"total_bytes"`
 	TotalPackets      int64                 `json:"total_packets"`
@@ -84,7 +84,7 @@ type TrafficStats struct {
 	Timestamp         time.Time             `json:"timestamp"`
 }
 
-// EndpointStats 端点统计
+// EndpointStats 端点统计.
 type EndpointStats struct {
 	IP        string `json:"ip"`
 	BytesIn   int64  `json:"bytes_in"`
@@ -92,7 +92,7 @@ type EndpointStats struct {
 	FlowCount int    `json:"flow_count"`
 }
 
-// TrafficFeature 流量特征
+// TrafficFeature 流量特征.
 type TrafficFeature struct {
 	AvgPacketSize   float64 `json:"avg_packet_size"`
 	StdPacketSize   float64 `json:"std_packet_size"`
@@ -108,7 +108,7 @@ type TrafficFeature struct {
 	InterArrivalStd float64 `json:"inter_arrival_std"` // 包间隔标准差(ms)
 }
 
-// ClassificationResult 分类结果
+// ClassificationResult 分类结果.
 type ClassificationResult struct {
 	FlowID      string          `json:"flow_id"`
 	TrafficType TrafficType     `json:"traffic_type"`
@@ -119,7 +119,7 @@ type ClassificationResult struct {
 	Timestamp   time.Time       `json:"timestamp"`
 }
 
-// AnomalyAlert 异常告警
+// AnomalyAlert 异常告警.
 type AnomalyAlert struct {
 	ID          string        `json:"id"`
 	AnomalyType AnomalyType   `json:"anomaly_type"`
@@ -135,7 +135,7 @@ type AnomalyAlert struct {
 	ResolvedAt  *time.Time    `json:"resolved_at,omitempty"`
 }
 
-// BandwidthPolicy 带宽分配策略
+// BandwidthPolicy 带宽分配策略.
 type BandwidthPolicy struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -148,7 +148,7 @@ type BandwidthPolicy struct {
 	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
-// ClassificationRule 自定义分类规则
+// ClassificationRule 自定义分类规则.
 type ClassificationRule struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -169,7 +169,7 @@ type ClassificationRule struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// MirrorConfig 流量镜像配置
+// MirrorConfig 流量镜像配置.
 type MirrorConfig struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -181,7 +181,7 @@ type MirrorConfig struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// QoSRule QoS 规则
+// QoSRule QoS 规则.
 type QoSRule struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -196,7 +196,7 @@ type QoSRule struct {
 	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
-// TrafficReport 流量报告
+// TrafficReport 流量报告.
 type TrafficReport struct {
 	ID             string                  `json:"id"`
 	Title          string                  `json:"title"`
@@ -209,14 +209,14 @@ type TrafficReport struct {
 	GeneratedAt    time.Time               `json:"generated_at"`
 }
 
-// AnalyzeRequest 分析请求
+// AnalyzeRequest 分析请求.
 type AnalyzeRequest struct {
 	Flows    []TrafficFlow `json:"flows" binding:"required,dive"`
 	RealTime bool          `json:"real_time"`
 	WithDPI  bool          `json:"with_dpi"` // 是否深度包检测
 }
 
-// AnalyzeResponse 分析响应
+// AnalyzeResponse 分析响应.
 type AnalyzeResponse struct {
 	Results   []ClassificationResult `json:"results"`
 	Stats     *TrafficStats          `json:"stats"`
@@ -225,14 +225,14 @@ type AnalyzeResponse struct {
 	ProcessMs int64                  `json:"process_ms"`
 }
 
-// ReportRequest 报告请求
+// ReportRequest 报告请求.
 type ReportRequest struct {
 	StartTime time.Time `json:"start_time" binding:"required"`
 	EndTime   time.Time `json:"end_time" binding:"required"`
 	Title     string    `json:"title,omitempty"`
 }
 
-// ClassifierConfig 分类器配置
+// ClassifierConfig 分类器配置.
 type ClassifierConfig struct {
 	Enabled          bool    `json:"enabled"`
 	MaxFlows         int     `json:"max_flows"`          // 最大追踪流数
@@ -246,7 +246,7 @@ type ClassifierConfig struct {
 	ReportRetention  int     `json:"report_retention"` // 报告保留天数
 }
 
-// DefaultClassifierConfig 默认配置
+// DefaultClassifierConfig 默认配置.
 func DefaultClassifierConfig() *ClassifierConfig {
 	return &ClassifierConfig{
 		Enabled:          true,
@@ -262,7 +262,7 @@ func DefaultClassifierConfig() *ClassifierConfig {
 	}
 }
 
-// DPISignature DPI 签名
+// DPISignature DPI 签名.
 type DPISignature struct {
 	Name        string      `json:"name"`
 	Pattern     string      `json:"pattern"`

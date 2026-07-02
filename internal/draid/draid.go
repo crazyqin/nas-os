@@ -11,14 +11,14 @@ import (
 	"time"
 )
 
-// DRAID 级别常量
+// DRAID 级别常量.
 const (
 	DRAID1 = "DRAID1" // 单重校验，等效 RAID5 的分布式版本
 	DRAID2 = "DRAID2" // 双重校验，等效 RAID6 的分布式版本
 	DRAID3 = "DRAID3" // 三重校验，最高冗余级别
 )
 
-// 阵列状态常量
+// 阵列状态常量.
 const (
 	StatusActive     = "active"     // 正常运行
 	StatusDegraded   = "degraded"   // 降级运行（有磁盘故障）
@@ -28,21 +28,21 @@ const (
 	StatusCreating   = "creating"   // 创建中
 )
 
-// draidLevels 存储合法的 DRAID 级别
+// draidLevels 存储合法的 DRAID 级别.
 var draidLevels = map[string]bool{
 	DRAID1: true,
 	DRAID2: true,
 	DRAID3: true,
 }
 
-// levelParityMap 映射 DRAID 级别到校验磁盘数量
+// levelParityMap 映射 DRAID 级别到校验磁盘数量.
 var levelParityMap = map[string]int{
 	DRAID1: 1,
 	DRAID2: 2,
 	DRAID3: 3,
 }
 
-// PerformanceMetrics 性能监控指标
+// PerformanceMetrics 性能监控指标.
 type PerformanceMetrics struct {
 	IOPSRead        int64     `json:"iops_read"`        // 每秒读操作数
 	IOPSWrite       int64     `json:"iops_write"`       // 每秒写操作数
@@ -53,7 +53,7 @@ type PerformanceMetrics struct {
 	Timestamp       time.Time `json:"timestamp"`        // 采集时间
 }
 
-// DistributedSpare 分布式热备信息
+// DistributedSpare 分布式热备信息.
 type DistributedSpare struct {
 	Device      string    `json:"device"`       // 设备路径
 	Status      string    `json:"status"`       // 状态: active/inactive/replacing
@@ -61,7 +61,7 @@ type DistributedSpare struct {
 	ActivatedAt time.Time `json:"activated_at"` // 激活时间
 }
 
-// DRAIDArray 表示一个 DRAID 阵列
+// DRAIDArray 表示一个 DRAID 阵列.
 type DRAIDArray struct {
 	Name              string              `json:"name"`               // 阵列名称
 	Level             string              `json:"level"`              // DRAID 级别 (DRAID1/DRAID2/DRAID3)
@@ -82,20 +82,20 @@ type DRAIDArray struct {
 	UpdatedAt         time.Time           `json:"updated_at"`         // 更新时间
 }
 
-// Manager 管理 DRAID 阵列
+// Manager 管理 DRAID 阵列.
 type Manager struct {
 	mu     sync.RWMutex
 	arrays map[string]*DRAIDArray
 }
 
-// NewManager 创建新的 DRAID 管理器
+// NewManager 创建新的 DRAID 管理器.
 func NewManager() *Manager {
 	return &Manager{
 		arrays: make(map[string]*DRAIDArray),
 	}
 }
 
-// validateDRAIDParams 验证 DRAID 创建参数
+// validateDRAIDParams 验证 DRAID 创建参数.
 func validateDRAIDParams(name, level string, devices []string, groupSize, dataDisks int) error {
 	if name == "" {
 		return fmt.Errorf("阵列名称不能为空")
@@ -119,7 +119,7 @@ func validateDRAIDParams(name, level string, devices []string, groupSize, dataDi
 	return nil
 }
 
-// CreateArray 创建新的 DRAID 阵列
+// CreateArray 创建新的 DRAID 阵列.
 func (m *Manager) CreateArray(name, level string, devices []string, spareDevices []string, groupSize, dataDisks int, chunkSize string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -186,7 +186,7 @@ func (m *Manager) CreateArray(name, level string, devices []string, spareDevices
 	return nil
 }
 
-// DeleteArray 删除 DRAID 阵列
+// DeleteArray 删除 DRAID 阵列.
 func (m *Manager) DeleteArray(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -204,7 +204,7 @@ func (m *Manager) DeleteArray(name string) error {
 	return nil
 }
 
-// GetArray 获取指定 DRAID 阵列信息
+// GetArray 获取指定 DRAID 阵列信息.
 func (m *Manager) GetArray(name string) (*DRAIDArray, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -216,7 +216,7 @@ func (m *Manager) GetArray(name string) (*DRAIDArray, error) {
 	return arr, nil
 }
 
-// ListArrays 列出所有 DRAID 阵列
+// ListArrays 列出所有 DRAID 阵列.
 func (m *Manager) ListArrays() []DRAIDArray {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -228,7 +228,7 @@ func (m *Manager) ListArrays() []DRAIDArray {
 	return result
 }
 
-// AddDistributedSpare 添加分布式热备
+// AddDistributedSpare 添加分布式热备.
 func (m *Manager) AddDistributedSpare(name, device string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -260,7 +260,7 @@ func (m *Manager) AddDistributedSpare(name, device string) error {
 	return nil
 }
 
-// RemoveDistributedSpare 移除分布式热备
+// RemoveDistributedSpare 移除分布式热备.
 func (m *Manager) RemoveDistributedSpare(name, device string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -284,7 +284,7 @@ func (m *Manager) RemoveDistributedSpare(name, device string) error {
 	return fmt.Errorf("设备不在分布式热备列表中: %s", device)
 }
 
-// ListDistributedSpares 列出所有分布式热备
+// ListDistributedSpares 列出所有分布式热备.
 func (m *Manager) ListDistributedSpares(name string) ([]*DistributedSpare, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -299,7 +299,7 @@ func (m *Manager) ListDistributedSpares(name string) ([]*DistributedSpare, error
 	return result, nil
 }
 
-// ReportDeviceFailure 报告设备故障，自动触发分布式热备替换
+// ReportDeviceFailure 报告设备故障，自动触发分布式热备替换.
 func (m *Manager) ReportDeviceFailure(name, device string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -360,7 +360,7 @@ func (m *Manager) ReportDeviceFailure(name, device string) error {
 	return nil
 }
 
-// RebuildArray 触发阵列重建（使用分布式热备）
+// RebuildArray 触发阵列重建（使用分布式热备）.
 func (m *Manager) RebuildArray(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -394,7 +394,7 @@ func (m *Manager) RebuildArray(name string) error {
 	return nil
 }
 
-// UpdateRebuildProgress 更新重建进度
+// UpdateRebuildProgress 更新重建进度.
 func (m *Manager) UpdateRebuildProgress(name string, progress float64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -430,7 +430,7 @@ func (m *Manager) UpdateRebuildProgress(name string, progress float64) error {
 	return nil
 }
 
-// ReshareData 重分布数据（当添加新设备后重新分配数据）
+// ReshareData 重分布数据（当添加新设备后重新分配数据）.
 func (m *Manager) ReshareData(name string, newDevices []string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -465,7 +465,7 @@ func (m *Manager) ReshareData(name string, newDevices []string) error {
 	return nil
 }
 
-// UpdateReshareProgress 更新数据重分布进度
+// UpdateReshareProgress 更新数据重分布进度.
 func (m *Manager) UpdateReshareProgress(name string, progress float64, newDevices []string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -496,7 +496,7 @@ func (m *Manager) UpdateReshareProgress(name string, progress float64, newDevice
 	return nil
 }
 
-// UpdateMetrics 更新性能指标
+// UpdateMetrics 更新性能指标.
 func (m *Manager) UpdateMetrics(name string, metrics *PerformanceMetrics) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -512,7 +512,7 @@ func (m *Manager) UpdateMetrics(name string, metrics *PerformanceMetrics) error 
 	return nil
 }
 
-// GetMetrics 获取性能指标
+// GetMetrics 获取性能指标.
 func (m *Manager) GetMetrics(name string) (*PerformanceMetrics, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -524,7 +524,7 @@ func (m *Manager) GetMetrics(name string) (*PerformanceMetrics, error) {
 	return arr.Metrics, nil
 }
 
-// GetArrayStatus 获取 DRAID 阵列详细状态
+// GetArrayStatus 获取 DRAID 阵列详细状态.
 func (m *Manager) GetArrayStatus(name string) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

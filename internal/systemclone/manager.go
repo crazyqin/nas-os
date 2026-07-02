@@ -10,28 +10,28 @@ import (
 	"time"
 )
 
-// Manager 系统克隆管理器
+// Manager 系统克隆管理器.
 type Manager struct {
-	mu              sync.RWMutex
-	tasks           map[string]*DiskCloneTask
-	images          map[string]*BackupImage
-	restores        map[string]*RestoreTask
-	pxe             map[string]*PXEDeployConfig
-	stats           *CloneStats
+	mu       sync.RWMutex
+	tasks    map[string]*DiskCloneTask
+	images   map[string]*BackupImage
+	restores map[string]*RestoreTask
+	pxe      map[string]*PXEDeployConfig
+	stats    *CloneStats
 
 	// 新增：系统盘镜像
-	mirrors         map[string]*SystemMirror
-	diskHealth      map[string]*DiskHealthInfo
-	healthConfig    HealthMonitorConfig
-	failoverEvents  map[string]*FailoverEvent
-	migrationTasks  map[string]*MigrationTask
-	expandTasks     map[string]*ExpandTask
-	mirrorStats     *MirrorStats
-	healthStopCh    chan struct{}
-	healthRunning   bool
+	mirrors        map[string]*SystemMirror
+	diskHealth     map[string]*DiskHealthInfo
+	healthConfig   HealthMonitorConfig
+	failoverEvents map[string]*FailoverEvent
+	migrationTasks map[string]*MigrationTask
+	expandTasks    map[string]*ExpandTask
+	mirrorStats    *MirrorStats
+	healthStopCh   chan struct{}
+	healthRunning  bool
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		tasks:          make(map[string]*DiskCloneTask),
@@ -62,7 +62,7 @@ func NewManager() *Manager {
 // 原有功能
 // ============================================================
 
-// CreateCloneTask 创建克隆任务
+// CreateCloneTask 创建克隆任务.
 func (m *Manager) CreateCloneTask(task *DiskCloneTask) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -77,7 +77,7 @@ func (m *Manager) CreateCloneTask(task *DiskCloneTask) error {
 	return nil
 }
 
-// StartClone 启动克隆任务
+// StartClone 启动克隆任务.
 func (m *Manager) StartClone(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -106,7 +106,7 @@ func (m *Manager) StartClone(taskID string) error {
 	return nil
 }
 
-// GetCloneTask 获取克隆任务
+// GetCloneTask 获取克隆任务.
 func (m *Manager) GetCloneTask(id string) (*DiskCloneTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -118,7 +118,7 @@ func (m *Manager) GetCloneTask(id string) (*DiskCloneTask, error) {
 	return task, nil
 }
 
-// ListCloneTasks 列出克隆任务
+// ListCloneTasks 列出克隆任务.
 func (m *Manager) ListCloneTasks() []*DiskCloneTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -130,7 +130,7 @@ func (m *Manager) ListCloneTasks() []*DiskCloneTask {
 	return tasks
 }
 
-// CreateImage 创建备份镜像
+// CreateImage 创建备份镜像.
 func (m *Manager) CreateImage(image *BackupImage) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -145,7 +145,7 @@ func (m *Manager) CreateImage(image *BackupImage) error {
 	return nil
 }
 
-// ListImages 列出镜像
+// ListImages 列出镜像.
 func (m *Manager) ListImages() []*BackupImage {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -157,7 +157,7 @@ func (m *Manager) ListImages() []*BackupImage {
 	return images
 }
 
-// RestoreFromImage 从镜像恢复
+// RestoreFromImage 从镜像恢复.
 func (m *Manager) RestoreFromImage(imageID, targetDisk string) (*RestoreTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -190,7 +190,7 @@ func (m *Manager) RestoreFromImage(imageID, targetDisk string) (*RestoreTask, er
 	return task, nil
 }
 
-// ConfigurePXE 配置 PXE 部署
+// ConfigurePXE 配置 PXE 部署.
 func (m *Manager) ConfigurePXE(config *PXEDeployConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -202,7 +202,7 @@ func (m *Manager) ConfigurePXE(config *PXEDeployConfig) error {
 	return nil
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *Manager) GetStats() *CloneStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -213,7 +213,7 @@ func (m *Manager) GetStats() *CloneStats {
 // 新增功能 - RAID1 系统盘镜像
 // ============================================================
 
-// CreateMirror 创建系统盘 RAID1 镜像
+// CreateMirror 创建系统盘 RAID1 镜像.
 func (m *Manager) CreateMirror(primaryDisk, secondaryDisk string, spareDisks []string) (*SystemMirror, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -259,7 +259,7 @@ func (m *Manager) CreateMirror(primaryDisk, secondaryDisk string, spareDisks []s
 	return mirror, nil
 }
 
-// simulateMirrorSync 模拟镜像同步过程
+// simulateMirrorSync 模拟镜像同步过程.
 func (m *Manager) simulateMirrorSync(mirrorID string) {
 	for i := 0; i <= 100; i += 5 {
 		time.Sleep(500 * time.Millisecond)
@@ -289,7 +289,7 @@ func (m *Manager) simulateMirrorSync(mirrorID string) {
 	log.Printf("[systemclone] RAID1 镜像 %s 同步完成，状态: healthy", mirrorID)
 }
 
-// GetMirror 获取镜像信息
+// GetMirror 获取镜像信息.
 func (m *Manager) GetMirror(id string) (*SystemMirror, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -301,7 +301,7 @@ func (m *Manager) GetMirror(id string) (*SystemMirror, error) {
 	return mirror, nil
 }
 
-// ListMirrors 列出所有镜像
+// ListMirrors 列出所有镜像.
 func (m *Manager) ListMirrors() []*SystemMirror {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -313,7 +313,7 @@ func (m *Manager) ListMirrors() []*SystemMirror {
 	return mirrors
 }
 
-// DeleteMirror 删除镜像
+// DeleteMirror 删除镜像.
 func (m *Manager) DeleteMirror(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -328,9 +328,10 @@ func (m *Manager) DeleteMirror(id string) error {
 
 	delete(m.mirrors, id)
 	m.mirrorStats.TotalMirrors--
-	if mirror.Status == MirrorStatusHealthy {
+	switch mirror.Status {
+	case MirrorStatusHealthy:
 		m.mirrorStats.HealthyMirrors--
-	} else if mirror.Status == MirrorStatusDegraded {
+	case MirrorStatusDegraded:
 		m.mirrorStats.DegradedMirrors--
 	}
 
@@ -342,7 +343,7 @@ func (m *Manager) DeleteMirror(id string) error {
 // 新增功能 - 健康监控
 // ============================================================
 
-// StartHealthMonitor 启动健康监控
+// StartHealthMonitor 启动健康监控.
 func (m *Manager) StartHealthMonitor() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -360,7 +361,7 @@ func (m *Manager) StartHealthMonitor() error {
 	return nil
 }
 
-// StopHealthMonitor 停止健康监控
+// StopHealthMonitor 停止健康监控.
 func (m *Manager) StopHealthMonitor() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -374,7 +375,7 @@ func (m *Manager) StopHealthMonitor() {
 	log.Println("[systemclone] 健康监控已停止")
 }
 
-// healthMonitorLoop 健康监控循环
+// healthMonitorLoop 健康监控循环.
 func (m *Manager) healthMonitorLoop() {
 	interval := time.Duration(m.healthConfig.CheckIntervalSec) * time.Second
 	if interval < 10*time.Second {
@@ -394,7 +395,7 @@ func (m *Manager) healthMonitorLoop() {
 	}
 }
 
-// performHealthCheck 执行健康检查
+// performHealthCheck 执行健康检查.
 func (m *Manager) performHealthCheck() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -429,7 +430,7 @@ func (m *Manager) performHealthCheck() {
 	}
 }
 
-// checkDiskHealth 检查单个磁盘健康（模拟 SMART 数据读取）
+// checkDiskHealth 检查单个磁盘健康（模拟 SMART 数据读取）.
 func (m *Manager) checkDiskHealth(device string, role DiskRole) *DiskHealthInfo {
 	health, exists := m.diskHealth[device]
 	if exists {
@@ -464,7 +465,7 @@ func (m *Manager) checkDiskHealth(device string, role DiskRole) *DiskHealthInfo 
 	}
 }
 
-// scoreToStatus 健康评分转状态
+// scoreToStatus 健康评分转状态.
 func (m *Manager) scoreToStatus(score float64) HealthStatus {
 	switch {
 	case score >= 80:
@@ -478,7 +479,7 @@ func (m *Manager) scoreToStatus(score float64) HealthStatus {
 	}
 }
 
-// updateMirrorStatus 更新镜像状态
+// updateMirrorStatus 更新镜像状态.
 func (m *Manager) updateMirrorStatus(mirror *SystemMirror, primary, secondary *DiskHealthInfo) {
 	oldStatus := mirror.Status
 
@@ -497,7 +498,7 @@ func (m *Manager) updateMirrorStatus(mirror *SystemMirror, primary, secondary *D
 	}
 }
 
-// checkAutoFailover 检查自动故障转移
+// checkAutoFailover 检查自动故障转移.
 func (m *Manager) checkAutoFailover(mirror *SystemMirror, primary, secondary *DiskHealthInfo) {
 	// 主盘故障，自动切换到镜像盘
 	if primary.HealthStatus == HealthStatusFailed && secondary.HealthStatus != HealthStatusFailed {
@@ -522,7 +523,7 @@ func (m *Manager) checkAutoFailover(mirror *SystemMirror, primary, secondary *Di
 	}
 }
 
-// executeFailover 执行故障转移
+// executeFailover 执行故障转移.
 func (m *Manager) executeFailover(eventID, mirrorID, newBootDisk string) {
 	// 模拟故障转移延迟
 	delay := time.Duration(m.healthConfig.FailoverDelaySec) * time.Second
@@ -557,7 +558,7 @@ func (m *Manager) executeFailover(eventID, mirrorID, newBootDisk string) {
 	log.Printf("[systemclone] 故障转移完成: %s -> %s", event.FailedDisk, newBootDisk)
 }
 
-// ManualFailover 手动故障转移
+// ManualFailover 手动故障转移.
 func (m *Manager) ManualFailover(mirrorID, targetDisk string) (*FailoverEvent, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -615,7 +616,7 @@ func (m *Manager) ManualFailover(mirrorID, targetDisk string) (*FailoverEvent, e
 // 新增功能 - 在线扩容和迁移
 // ============================================================
 
-// StartMigration 启动在线磁盘迁移
+// StartMigration 启动在线磁盘迁移.
 func (m *Manager) StartMigration(mirrorID, sourceDisk, targetDisk string) (*MigrationTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -664,7 +665,7 @@ func (m *Manager) StartMigration(mirrorID, sourceDisk, targetDisk string) (*Migr
 	return task, nil
 }
 
-// simulateMigration 模拟迁移过程
+// simulateMigration 模拟迁移过程.
 func (m *Manager) simulateMigration(taskID, mirrorID, sourceDisk, targetDisk string) {
 	// Phase 1: 同步
 	for i := 0; i <= 100; i += 10 {
@@ -726,7 +727,7 @@ func (m *Manager) simulateMigration(taskID, mirrorID, sourceDisk, targetDisk str
 	log.Printf("[systemclone] 磁盘迁移完成: %s -> %s", sourceDisk, targetDisk)
 }
 
-// GetMigrationTask 获取迁移任务
+// GetMigrationTask 获取迁移任务.
 func (m *Manager) GetMigrationTask(id string) (*MigrationTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -738,7 +739,7 @@ func (m *Manager) GetMigrationTask(id string) (*MigrationTask, error) {
 	return task, nil
 }
 
-// ListMigrationTasks 列出迁移任务
+// ListMigrationTasks 列出迁移任务.
 func (m *Manager) ListMigrationTasks() []*MigrationTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -750,7 +751,7 @@ func (m *Manager) ListMigrationTasks() []*MigrationTask {
 	return tasks
 }
 
-// StartExpand 启动在线扩容（替换为更大容量的磁盘）
+// StartExpand 启动在线扩容（替换为更大容量的磁盘）.
 func (m *Manager) StartExpand(mirrorID, oldDisk, newDisk string) (*ExpandTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -770,13 +771,13 @@ func (m *Manager) StartExpand(mirrorID, oldDisk, newDisk string) (*ExpandTask, e
 
 	now := time.Now()
 	task := &ExpandTask{
-		ID:       fmt.Sprintf("expand-%d", now.UnixNano()),
-		MirrorID: mirrorID,
-		NewDisk:  newDisk,
-		OldDisk:  oldDisk,
-		Phase:    "add",
-		Status:   MigrationStatusRunning,
-		Progress: 0,
+		ID:        fmt.Sprintf("expand-%d", now.UnixNano()),
+		MirrorID:  mirrorID,
+		NewDisk:   newDisk,
+		OldDisk:   oldDisk,
+		Phase:     "add",
+		Status:    MigrationStatusRunning,
+		Progress:  0,
 		CreatedAt: now,
 	}
 	m.expandTasks[task.ID] = task
@@ -793,7 +794,7 @@ func (m *Manager) StartExpand(mirrorID, oldDisk, newDisk string) (*ExpandTask, e
 	return task, nil
 }
 
-// simulateExpand 模拟扩容过程
+// simulateExpand 模拟扩容过程.
 func (m *Manager) simulateExpand(taskID, mirrorID, oldDisk, newDisk string) {
 	phases := []string{"add", "sync", "verify", "replace"}
 
@@ -854,7 +855,7 @@ func (m *Manager) simulateExpand(taskID, mirrorID, oldDisk, newDisk string) {
 	log.Printf("[systemclone] 在线扩容完成: %s -> %s", oldDisk, newDisk)
 }
 
-// GetExpandTask 获取扩容任务
+// GetExpandTask 获取扩容任务.
 func (m *Manager) GetExpandTask(id string) (*ExpandTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -866,7 +867,7 @@ func (m *Manager) GetExpandTask(id string) (*ExpandTask, error) {
 	return task, nil
 }
 
-// ListExpandTasks 列出扩容任务
+// ListExpandTasks 列出扩容任务.
 func (m *Manager) ListExpandTasks() []*ExpandTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -882,7 +883,7 @@ func (m *Manager) ListExpandTasks() []*ExpandTask {
 // 辅助功能
 // ============================================================
 
-// GetDiskHealth 获取磁盘健康信息
+// GetDiskHealth 获取磁盘健康信息.
 func (m *Manager) GetDiskHealth(device string) (*DiskHealthInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -894,7 +895,7 @@ func (m *Manager) GetDiskHealth(device string) (*DiskHealthInfo, error) {
 	return health, nil
 }
 
-// ListDiskHealth 列出所有磁盘健康信息
+// ListDiskHealth 列出所有磁盘健康信息.
 func (m *Manager) ListDiskHealth() []*DiskHealthInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -906,21 +907,21 @@ func (m *Manager) ListDiskHealth() []*DiskHealthInfo {
 	return healthList
 }
 
-// GetHealthConfig 获取健康监控配置
+// GetHealthConfig 获取健康监控配置.
 func (m *Manager) GetHealthConfig() HealthMonitorConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.healthConfig
 }
 
-// UpdateHealthConfig 更新健康监控配置
+// UpdateHealthConfig 更新健康监控配置.
 func (m *Manager) UpdateHealthConfig(config HealthMonitorConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.healthConfig = config
 }
 
-// ListFailoverEvents 列出故障转移事件
+// ListFailoverEvents 列出故障转移事件.
 func (m *Manager) ListFailoverEvents() []*FailoverEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -932,7 +933,7 @@ func (m *Manager) ListFailoverEvents() []*FailoverEvent {
 	return events
 }
 
-// GetMirrorStats 获取镜像统计
+// GetMirrorStats 获取镜像统计.
 func (m *Manager) GetMirrorStats() *MirrorStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

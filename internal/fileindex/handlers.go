@@ -9,18 +9,18 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handlers 文件索引接口处理器
+// Handlers 文件索引接口处理器.
 type Handlers struct {
 	logger  *zap.Logger
 	indexer *Indexer
 }
 
-// NewHandlers 创建文件索引接口处理器
+// NewHandlers 创建文件索引接口处理器.
 func NewHandlers(logger *zap.Logger, indexer *Indexer) *Handlers {
 	return &Handlers{logger: logger, indexer: indexer}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	idx := rg.Group("/fileindex")
 	{
@@ -33,7 +33,7 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// buildIndex 构建索引
+// buildIndex 构建索引.
 func (h *Handlers) buildIndex(c *gin.Context) {
 	stats, err := h.indexer.Build()
 	if err != nil {
@@ -43,7 +43,7 @@ func (h *Handlers) buildIndex(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": stats})
 }
 
-// search 搜索文件
+// search 搜索文件.
 func (h *Handlers) search(c *gin.Context) {
 	var query SearchQuery
 	if err := c.ShouldBindJSON(&query); err != nil {
@@ -62,13 +62,13 @@ func (h *Handlers) search(c *gin.Context) {
 	})
 }
 
-// stats 获取索引统计
+// stats 获取索引统计.
 func (h *Handlers) stats(c *gin.Context) {
 	stats := h.indexer.Stats()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": stats})
 }
 
-// recent 最近修改的文件
+// recent 最近修改的文件.
 func (h *Handlers) recent(c *gin.Context) {
 	limit := 20
 	if l, err := strconv.Atoi(c.Query("limit")); err == nil && l > 0 {
@@ -78,7 +78,7 @@ func (h *Handlers) recent(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": files})
 }
 
-// largest 最大的文件
+// largest 最大的文件.
 func (h *Handlers) largest(c *gin.Context) {
 	limit := 20
 	if l, err := strconv.Atoi(c.Query("limit")); err == nil && l > 0 {
@@ -88,7 +88,7 @@ func (h *Handlers) largest(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": files})
 }
 
-// getEntry 获取单个文件信息
+// getEntry 获取单个文件信息.
 func (h *Handlers) getEntry(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {

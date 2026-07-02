@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// RestoreSource 恢复来源
+// RestoreSource 恢复来源.
 type RestoreSource string
 
 const (
@@ -17,7 +17,7 @@ const (
 	SourceBackup   RestoreSource = "backup"   // 从备份恢复
 )
 
-// RestoreStatus 恢复状态
+// RestoreStatus 恢复状态.
 type RestoreStatus string
 
 const (
@@ -28,7 +28,7 @@ const (
 	StatusCancelled RestoreStatus = "cancelled"
 )
 
-// RestorePoint 恢复点
+// RestorePoint 恢复点.
 type RestorePoint struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
@@ -44,7 +44,7 @@ type RestorePoint struct {
 	ExpiresAt   *time.Time    `json:"expires_at,omitempty"` // 过期时间
 }
 
-// FileDiff 文件差异
+// FileDiff 文件差异.
 type FileDiff struct {
 	Path        string    `json:"path"`
 	CurrentSize int64     `json:"current_size"`
@@ -55,7 +55,7 @@ type FileDiff struct {
 	HasConflict bool      `json:"has_conflict"`
 }
 
-// RestorePreview 恢复预览
+// RestorePreview 恢复预览.
 type RestorePreview struct {
 	PointID       string     `json:"point_id"`
 	TargetPath    string     `json:"target_path"`
@@ -69,7 +69,7 @@ type RestorePreview struct {
 	EstimatedTime int        `json:"estimated_time_seconds"`
 }
 
-// RestoreRequest 恢复请求
+// RestoreRequest 恢复请求.
 type RestoreRequest struct {
 	PointID    string   `json:"point_id" binding:"required"`
 	TargetPath string   `json:"target_path" binding:"required"`
@@ -78,12 +78,12 @@ type RestoreRequest struct {
 	DryRun     bool     `json:"dry_run"`         // 试运行
 }
 
-// BatchRestoreRequest 批量恢复请求
+// BatchRestoreRequest 批量恢复请求.
 type BatchRestoreRequest struct {
 	Requests []RestoreRequest `json:"requests" binding:"required,min=1"`
 }
 
-// RestoreTask 恢复任务
+// RestoreTask 恢复任务.
 type RestoreTask struct {
 	ID            string        `json:"id"`
 	PointID       string        `json:"point_id"`
@@ -101,7 +101,7 @@ type RestoreTask struct {
 	CreatedAt     time.Time     `json:"created_at"`
 }
 
-// RestoreHistory 恢复历史记录
+// RestoreHistory 恢复历史记录.
 type RestoreHistory struct {
 	ID         string        `json:"id"`
 	TaskID     string        `json:"task_id"`
@@ -117,7 +117,7 @@ type RestoreHistory struct {
 	CreatedAt  time.Time     `json:"created_at"`
 }
 
-// CreatePointRequest 创建恢复点请求
+// CreatePointRequest 创建恢复点请求.
 type CreatePointRequest struct {
 	Name        string        `json:"name" binding:"required"`
 	Description string        `json:"description"`
@@ -127,7 +127,7 @@ type CreatePointRequest struct {
 	ExpiresIn   int           `json:"expires_in_days,omitempty"` // 过期天数
 }
 
-// Manager 快速恢复管理器
+// Manager 快速恢复管理器.
 type Manager struct {
 	mu      sync.RWMutex
 	points  map[string]*RestorePoint
@@ -136,7 +136,7 @@ type Manager struct {
 	stopCh  chan struct{}
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		points:  make(map[string]*RestorePoint),
@@ -146,7 +146,7 @@ func NewManager() *Manager {
 	}
 }
 
-// CreatePoint 创建恢复点
+// CreatePoint 创建恢复点.
 func (m *Manager) CreatePoint(req *CreatePointRequest) (*RestorePoint, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -181,7 +181,7 @@ func (m *Manager) CreatePoint(req *CreatePointRequest) (*RestorePoint, error) {
 	return point, nil
 }
 
-// ListPoints 列出所有恢复点
+// ListPoints 列出所有恢复点.
 func (m *Manager) ListPoints() []RestorePoint {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -193,7 +193,7 @@ func (m *Manager) ListPoints() []RestorePoint {
 	return result
 }
 
-// GetPoint 获取恢复点
+// GetPoint 获取恢复点.
 func (m *Manager) GetPoint(id string) (*RestorePoint, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -205,7 +205,7 @@ func (m *Manager) GetPoint(id string) (*RestorePoint, error) {
 	return point, nil
 }
 
-// DeletePoint 删除恢复点
+// DeletePoint 删除恢复点.
 func (m *Manager) DeletePoint(id string) bool {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -217,7 +217,7 @@ func (m *Manager) DeletePoint(id string) bool {
 	return true
 }
 
-// PreviewRestore 恢复预览
+// PreviewRestore 恢复预览.
 func (m *Manager) PreviewRestore(pointID, targetPath string, files []string) (*RestorePreview, error) {
 	m.mu.RLock()
 	point, exists := m.points[pointID]
@@ -248,7 +248,7 @@ func (m *Manager) PreviewRestore(pointID, targetPath string, files []string) (*R
 	return preview, nil
 }
 
-// ExecuteRestore 执行恢复
+// ExecuteRestore 执行恢复.
 func (m *Manager) ExecuteRestore(req *RestoreRequest) (*RestoreTask, error) {
 	m.mu.RLock()
 	point, exists := m.points[req.PointID]
@@ -328,7 +328,7 @@ func (m *Manager) executeRestore(task *RestoreTask, point *RestorePoint, req *Re
 	m.mu.Unlock()
 }
 
-// BatchRestore 批量恢复
+// BatchRestore 批量恢复.
 func (m *Manager) BatchRestore(requests []RestoreRequest) ([]*RestoreTask, error) {
 	if len(requests) == 0 {
 		return nil, fmt.Errorf("恢复请求列表不能为空")
@@ -346,7 +346,7 @@ func (m *Manager) BatchRestore(requests []RestoreRequest) ([]*RestoreTask, error
 	return tasks, nil
 }
 
-// GetTask 获取恢复任务
+// GetTask 获取恢复任务.
 func (m *Manager) GetTask(id string) (*RestoreTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -358,7 +358,7 @@ func (m *Manager) GetTask(id string) (*RestoreTask, error) {
 	return task, nil
 }
 
-// ListTasks 列出所有任务
+// ListTasks 列出所有任务.
 func (m *Manager) ListTasks() []RestoreTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -370,7 +370,7 @@ func (m *Manager) ListTasks() []RestoreTask {
 	return result
 }
 
-// GetHistory 获取恢复历史
+// GetHistory 获取恢复历史.
 func (m *Manager) GetHistory() []RestoreHistory {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

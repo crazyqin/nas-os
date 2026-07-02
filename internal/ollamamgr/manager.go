@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// ModelStatus represents the status of a local LLM model
+// ModelStatus represents the status of a local LLM model.
 type ModelStatus string
 
 const (
@@ -18,49 +18,49 @@ const (
 	ModelStatusError       ModelStatus = "error"
 )
 
-// LLMModel represents a local LLM model
+// LLMModel represents a local LLM model.
 type LLMModel struct {
-	ID           string      `json:"id"`
-	Name         string      `json:"name"`
-	Family       string      `json:"family"`
-	ParameterSize string    `json:"parameter_size"`
-	Quantization string      `json:"quantization"`
-	SizeBytes    int64       `json:"size_bytes"`
-	Status       ModelStatus `json:"status"`
-	DownloadPct  float64     `json:"download_pct"`
-	LoadedAt     *time.Time  `json:"loaded_at,omitempty"`
-	LastUsedAt   *time.Time  `json:"last_used_at,omitempty"`
-	RequestCount int64       `json:"request_count"`
-	AvgLatencyMs float64     `json:"avg_latency_ms"`
-	VRAMUsageMB  int64       `json:"vram_usage_mb"`
-	CreatedAt    time.Time   `json:"created_at"`
-	UpdatedAt    time.Time   `json:"updated_at"`
+	ID            string      `json:"id"`
+	Name          string      `json:"name"`
+	Family        string      `json:"family"`
+	ParameterSize string      `json:"parameter_size"`
+	Quantization  string      `json:"quantization"`
+	SizeBytes     int64       `json:"size_bytes"`
+	Status        ModelStatus `json:"status"`
+	DownloadPct   float64     `json:"download_pct"`
+	LoadedAt      *time.Time  `json:"loaded_at,omitempty"`
+	LastUsedAt    *time.Time  `json:"last_used_at,omitempty"`
+	RequestCount  int64       `json:"request_count"`
+	AvgLatencyMs  float64     `json:"avg_latency_ms"`
+	VRAMUsageMB   int64       `json:"vram_usage_mb"`
+	CreatedAt     time.Time   `json:"created_at"`
+	UpdatedAt     time.Time   `json:"updated_at"`
 }
 
-// InferenceRequest represents an inference request
+// InferenceRequest represents an inference request.
 type InferenceRequest struct {
-	ModelID  string            `json:"model_id"`
-	Prompt   string            `json:"prompt"`
-	Stream   bool              `json:"stream"`
-	Options  map[string]interface{} `json:"options,omitempty"`
+	ModelID string                 `json:"model_id"`
+	Prompt  string                 `json:"prompt"`
+	Stream  bool                   `json:"stream"`
+	Options map[string]interface{} `json:"options,omitempty"`
 }
 
-// InferenceResponse represents an inference response
+// InferenceResponse represents an inference response.
 type InferenceResponse struct {
-	ModelID       string  `json:"model_id"`
-	Response      string  `json:"response"`
-	TokensTotal   int     `json:"tokens_total"`
-	TokensPerSec  float64 `json:"tokens_per_sec"`
-	LatencyMs     float64 `json:"latency_ms"`
-	Done          bool    `json:"done"`
+	ModelID      string  `json:"model_id"`
+	Response     string  `json:"response"`
+	TokensTotal  int     `json:"tokens_total"`
+	TokensPerSec float64 `json:"tokens_per_sec"`
+	LatencyMs    float64 `json:"latency_ms"`
+	Done         bool    `json:"done"`
 }
 
-// GPUDetector detects available GPU/NPU hardware
+// GPUDetector detects available GPU/NPU hardware.
 type GPUDetector struct {
 	Devices []GPUDevice `json:"devices"`
 }
 
-// GPUDevice represents a GPU/NPU device
+// GPUDevice represents a GPU/NPU device.
 type GPUDevice struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -71,20 +71,20 @@ type GPUDevice struct {
 	Supported   bool   `json:"supported"`
 }
 
-// OllamaManager manages local LLM inference on NAS
+// OllamaManager manages local LLM inference on NAS.
 type OllamaManager struct {
-	mu           sync.RWMutex
-	models       map[string]*LLMModel
-	ollamaURL    string
-	gpuDevices   []GPUDevice
-	defaultModel string
+	mu            sync.RWMutex
+	models        map[string]*LLMModel
+	ollamaURL     string
+	gpuDevices    []GPUDevice
+	defaultModel  string
 	maxConcurrent int
-	activeReqs   int
-	totalReqs    int64
-	totalTokens  int64
+	activeReqs    int
+	totalReqs     int64
+	totalTokens   int64
 }
 
-// NewOllamaManager creates a new Ollama manager
+// NewOllamaManager creates a new Ollama manager.
 func NewOllamaManager(ollamaURL string) *OllamaManager {
 	return &OllamaManager{
 		models:        make(map[string]*LLMModel),
@@ -93,7 +93,7 @@ func NewOllamaManager(ollamaURL string) *OllamaManager {
 	}
 }
 
-// ListModels returns all available models
+// ListModels returns all available models.
 func (m *OllamaManager) ListModels() []*LLMModel {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -105,7 +105,7 @@ func (m *OllamaManager) ListModels() []*LLMModel {
 	return models
 }
 
-// PullModel downloads a model from Ollama registry
+// PullModel downloads a model from Ollama registry.
 func (m *OllamaManager) PullModel(name string) (*LLMModel, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -148,7 +148,7 @@ func (m *OllamaManager) doPullModel(id, name string) {
 	m.mu.Unlock()
 }
 
-// LoadModel loads a model into memory
+// LoadModel loads a model into memory.
 func (m *OllamaManager) LoadModel(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -168,7 +168,7 @@ func (m *OllamaManager) LoadModel(id string) error {
 	return nil
 }
 
-// UnloadModel unloads a model from memory
+// UnloadModel unloads a model from memory.
 func (m *OllamaManager) UnloadModel(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -184,7 +184,7 @@ func (m *OllamaManager) UnloadModel(id string) error {
 	return nil
 }
 
-// Inference runs inference on a loaded model
+// Inference runs inference on a loaded model.
 func (m *OllamaManager) Inference(req InferenceRequest) (*InferenceResponse, error) {
 	m.mu.Lock()
 	if m.activeReqs >= m.maxConcurrent {
@@ -234,7 +234,7 @@ func (m *OllamaManager) Inference(req InferenceRequest) (*InferenceResponse, err
 	return resp, nil
 }
 
-// DeleteModel removes a model
+// DeleteModel removes a model.
 func (m *OllamaManager) DeleteModel(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -251,22 +251,22 @@ func (m *OllamaManager) DeleteModel(id string) error {
 	return nil
 }
 
-// GetStats returns manager statistics
+// GetStats returns manager statistics.
 func (m *OllamaManager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	return map[string]interface{}{
-		"total_models":     len(m.models),
-		"active_requests":  m.activeReqs,
-		"total_requests":   m.totalReqs,
-		"total_tokens":     m.totalTokens,
-		"max_concurrent":   m.maxConcurrent,
-		"gpu_devices":      len(m.gpuDevices),
+		"total_models":    len(m.models),
+		"active_requests": m.activeReqs,
+		"total_requests":  m.totalReqs,
+		"total_tokens":    m.totalTokens,
+		"max_concurrent":  m.maxConcurrent,
+		"gpu_devices":     len(m.gpuDevices),
 	}
 }
 
-// RegisterRoutes registers HTTP routes
+// RegisterRoutes registers HTTP routes.
 func (m *OllamaManager) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/ollama/models", m.handleListModels)
 	mux.HandleFunc("/api/ollama/models/pull", m.handlePullModel)

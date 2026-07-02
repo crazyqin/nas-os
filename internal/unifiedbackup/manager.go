@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Manager 统一备份管理器
+// Manager 统一备份管理器.
 type Manager struct {
 	mu            sync.RWMutex
 	tasks         map[string]*BackupTask
@@ -15,14 +15,14 @@ type Manager struct {
 	config        *ManagerConfig
 }
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
 	DefaultStoragePath string `json:"default_storage_path"`
 	MaxConcurrentTasks int    `json:"max_concurrent_tasks"`
 	RetentionDays      int    `json:"retention_days"`
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(config *ManagerConfig) *Manager {
 	if config == nil {
 		config = &ManagerConfig{
@@ -39,7 +39,7 @@ func NewManager(config *ManagerConfig) *Manager {
 	}
 }
 
-// CreateTask 创建备份任务
+// CreateTask 创建备份任务.
 func (m *Manager) CreateTask(req *CreateTaskRequest) (*BackupTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -76,7 +76,7 @@ func (m *Manager) CreateTask(req *CreateTaskRequest) (*BackupTask, error) {
 	return task, nil
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (m *Manager) GetTask(id string) (*BackupTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -88,7 +88,7 @@ func (m *Manager) GetTask(id string) (*BackupTask, error) {
 	return task, nil
 }
 
-// ListTasks 列出所有任务
+// ListTasks 列出所有任务.
 func (m *Manager) ListTasks() []*BackupTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -100,7 +100,7 @@ func (m *Manager) ListTasks() []*BackupTask {
 	return tasks
 }
 
-// UpdateTask 更新任务
+// UpdateTask 更新任务.
 func (m *Manager) UpdateTask(id string, req *UpdateTaskRequest) (*BackupTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -136,7 +136,7 @@ func (m *Manager) UpdateTask(id string, req *UpdateTaskRequest) (*BackupTask, er
 	return task, nil
 }
 
-// DeleteTask 删除任务
+// DeleteTask 删除任务.
 func (m *Manager) DeleteTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -155,7 +155,7 @@ func (m *Manager) DeleteTask(id string) error {
 	return nil
 }
 
-// RunTask 执行备份任务
+// RunTask 执行备份任务.
 func (m *Manager) RunTask(id string) error {
 	m.mu.Lock()
 	task, exists := m.tasks[id]
@@ -175,7 +175,7 @@ func (m *Manager) RunTask(id string) error {
 	return nil
 }
 
-// executeBackup 执行备份
+// executeBackup 执行备份.
 func (m *Manager) executeBackup(task *BackupTask) {
 	startTime := time.Now()
 
@@ -219,7 +219,7 @@ func (m *Manager) executeBackup(task *BackupTask) {
 	_ = time.Since(startTime)
 }
 
-// PauseTask 暂停任务
+// PauseTask 暂停任务.
 func (m *Manager) PauseTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -236,7 +236,7 @@ func (m *Manager) PauseTask(id string) error {
 	return nil
 }
 
-// ResumeTask 恢复任务
+// ResumeTask 恢复任务.
 func (m *Manager) ResumeTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -253,7 +253,7 @@ func (m *Manager) ResumeTask(id string) error {
 	return nil
 }
 
-// GetRestorePoints 获取恢复点
+// GetRestorePoints 获取恢复点.
 func (m *Manager) GetRestorePoints(taskID string) ([]*RestorePoint, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -265,7 +265,7 @@ func (m *Manager) GetRestorePoints(taskID string) ([]*RestorePoint, error) {
 	return m.restorePoints[taskID], nil
 }
 
-// Restore 执行恢复
+// Restore 执行恢复.
 func (m *Manager) Restore(req *RestoreRequest) (*RestoreJob, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -301,7 +301,7 @@ func (m *Manager) Restore(req *RestoreRequest) (*RestoreJob, error) {
 	return job, nil
 }
 
-// executeRestore 执行恢复
+// executeRestore 执行恢复.
 func (m *Manager) executeRestore(job *RestoreJob, point *RestorePoint) {
 	// 模拟恢复过程
 	for i := 0; i <= 100; i += 20 {
@@ -321,7 +321,7 @@ func (m *Manager) executeRestore(job *RestoreJob, point *RestorePoint) {
 	m.mu.Unlock()
 }
 
-// GetRestoreJob 获取恢复任务
+// GetRestoreJob 获取恢复任务.
 func (m *Manager) GetRestoreJob(id string) (*RestoreJob, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -333,7 +333,7 @@ func (m *Manager) GetRestoreJob(id string) (*RestoreJob, error) {
 	return job, nil
 }
 
-// GetStorageStats 获取存储统计
+// GetStorageStats 获取存储统计.
 func (m *Manager) GetStorageStats() *StorageStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

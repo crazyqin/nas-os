@@ -19,19 +19,19 @@ import (
 // ========== 常量 ==========
 
 const (
-	// LockDefaultTTL 默认锁过期时间
+	// LockDefaultTTL 默认锁过期时间.
 	LockDefaultTTL = 30 * time.Minute
-	// LockMaxTTL 最大锁持有时间
+	// LockMaxTTL 最大锁持有时间.
 	LockMaxTTL = 24 * time.Hour
-	// LockRenewInterval 锁续期间隔
+	// LockRenewInterval 锁续期间隔.
 	LockRenewInterval = 10 * time.Minute
-	// ConflictDetectionWindow 冲突检测窗口
+	// ConflictDetectionWindow 冲突检测窗口.
 	ConflictDetectionWindow = 5 * time.Minute
 )
 
 // ========== 类型 ==========
 
-// LockState 锁状态
+// LockState 锁状态.
 type LockState string
 
 const (
@@ -41,7 +41,7 @@ const (
 	LockStateConflict LockState = "conflict"
 )
 
-// LockType 锁类型
+// LockType 锁类型.
 type LockType string
 
 const (
@@ -49,7 +49,7 @@ const (
 	LockTypeShared    LockType = "shared"    // 共享锁（读锁）
 )
 
-// ConflictResolution 冲突解决策略
+// ConflictResolution 冲突解决策略.
 type ConflictResolution string
 
 const (
@@ -59,7 +59,7 @@ const (
 	ConflictAutoRename      ConflictResolution = "auto_rename"
 )
 
-// FileLock 文件锁定义
+// FileLock 文件锁定义.
 type FileLock struct {
 	ID          string            `json:"id"`
 	FilePath    string            `json:"file_path"`
@@ -76,7 +76,7 @@ type FileLock struct {
 	Metadata    map[string]string `json:"metadata,omitempty"`
 }
 
-// ConflictRecord 冲突记录
+// ConflictRecord 冲突记录.
 type ConflictRecord struct {
 	ID           string             `json:"id"`
 	FilePath     string             `json:"file_path"`
@@ -90,7 +90,7 @@ type ConflictRecord struct {
 	Description  string             `json:"description"`
 }
 
-// LockRequest 锁请求
+// LockRequest 锁请求.
 type LockRequest struct {
 	FilePath string            `json:"file_path"`
 	NodeID   string            `json:"node_id"`
@@ -100,7 +100,7 @@ type LockRequest struct {
 	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
-// NodeInfo 节点信息
+// NodeInfo 节点信息.
 type NodeInfo struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -110,7 +110,7 @@ type NodeInfo struct {
 	LockCount int       `json:"lock_count"`
 }
 
-// GlobalFileLockManager 全局文件锁管理器
+// GlobalFileLockManager 全局文件锁管理器.
 type GlobalFileLockManager struct {
 	mu               sync.RWMutex
 	locks            map[string]*FileLock // lockID -> FileLock
@@ -123,7 +123,7 @@ type GlobalFileLockManager struct {
 	stopCh           chan struct{}
 }
 
-// NewGlobalFileLockManager 创建全局文件锁管理器
+// NewGlobalFileLockManager 创建全局文件锁管理器.
 func NewGlobalFileLockManager(baseDir string, conflictStrategy ConflictResolution) (*GlobalFileLockManager, error) {
 	if err := os.MkdirAll(baseDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建锁目录失败: %w", err)
@@ -155,7 +155,7 @@ func NewGlobalFileLockManager(baseDir string, conflictStrategy ConflictResolutio
 	return mgr, nil
 }
 
-// AcquireLock 获取文件锁
+// AcquireLock 获取文件锁.
 func (m *GlobalFileLockManager) AcquireLock(req LockRequest) (*FileLock, error) {
 	if req.FilePath == "" {
 		return nil, fmt.Errorf("文件路径不能为空")
@@ -261,7 +261,7 @@ func (m *GlobalFileLockManager) AcquireLock(req LockRequest) (*FileLock, error) 
 	return lock, nil
 }
 
-// ReleaseLock 释放文件锁
+// ReleaseLock 释放文件锁.
 func (m *GlobalFileLockManager) ReleaseLock(lockID, token string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -293,7 +293,7 @@ func (m *GlobalFileLockManager) ReleaseLock(lockID, token string) error {
 	return nil
 }
 
-// RenewLock 续期文件锁
+// RenewLock 续期文件锁.
 func (m *GlobalFileLockManager) RenewLock(lockID, token string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -316,7 +316,7 @@ func (m *GlobalFileLockManager) RenewLock(lockID, token string) error {
 	return nil
 }
 
-// GetFileLocks 获取文件的所有锁
+// GetFileLocks 获取文件的所有锁.
 func (m *GlobalFileLockManager) GetFileLocks(filePath string) []*FileLock {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -330,7 +330,7 @@ func (m *GlobalFileLockManager) GetFileLocks(filePath string) []*FileLock {
 	return result
 }
 
-// GetNodeLocks 获取节点的所有锁
+// GetNodeLocks 获取节点的所有锁.
 func (m *GlobalFileLockManager) GetNodeLocks(nodeID string) []*FileLock {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -344,7 +344,7 @@ func (m *GlobalFileLockManager) GetNodeLocks(nodeID string) []*FileLock {
 	return result
 }
 
-// ListConflicts 列出所有冲突
+// ListConflicts 列出所有冲突.
 func (m *GlobalFileLockManager) ListConflicts() []*ConflictRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -356,7 +356,7 @@ func (m *GlobalFileLockManager) ListConflicts() []*ConflictRecord {
 	return result
 }
 
-// ResolveConflict 手动解决冲突
+// ResolveConflict 手动解决冲突.
 func (m *GlobalFileLockManager) ResolveConflict(conflictID, resolvedBy string, keepLockID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -387,7 +387,7 @@ func (m *GlobalFileLockManager) ResolveConflict(conflictID, resolvedBy string, k
 	return nil
 }
 
-// RegisterNode 注册节点
+// RegisterNode 注册节点.
 func (m *GlobalFileLockManager) RegisterNode(id, name, address string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -401,7 +401,7 @@ func (m *GlobalFileLockManager) RegisterNode(id, name, address string) {
 	}
 }
 
-// GetNodes 获取所有节点
+// GetNodes 获取所有节点.
 func (m *GlobalFileLockManager) GetNodes() []*NodeInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -413,7 +413,7 @@ func (m *GlobalFileLockManager) GetNodes() []*NodeInfo {
 	return result
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *GlobalFileLockManager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -449,7 +449,7 @@ func (m *GlobalFileLockManager) GetStats() map[string]interface{} {
 	}
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *GlobalFileLockManager) Stop() {
 	close(m.stopCh)
 }
@@ -564,7 +564,7 @@ func (m *GlobalFileLockManager) loadState() error {
 
 // ========== HTTP Handlers ==========
 
-// GlobalFileLockHandlers 全局文件锁HTTP处理器
+// GlobalFileLockHandlers 全局文件锁HTTP处理器.
 type GlobalFileLockHandlers struct {
 	manager *GlobalFileLockManager
 }

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// PoolType defines NVMe pool types
+// PoolType defines NVMe pool types.
 type PoolType string
 
 const (
@@ -16,7 +16,7 @@ const (
 	PoolTypeFusion   PoolType = "fusion"    // 元数据在NVMe
 )
 
-// PoolConfig defines NVMe pool configuration
+// PoolConfig defines NVMe pool configuration.
 type PoolConfig struct {
 	Name          string   `json:"name"`
 	Type          PoolType `json:"type"`
@@ -28,7 +28,7 @@ type PoolConfig struct {
 	Deduplication bool     `json:"deduplication"` // 去重启用
 }
 
-// NVMePool represents an NVMe-optimized storage pool
+// NVMePool represents an NVMe-optimized storage pool.
 type NVMePool struct {
 	config      *PoolConfig
 	nvmeDevices []*NVMeDevice
@@ -36,7 +36,7 @@ type NVMePool struct {
 	createdAt   time.Time
 }
 
-// NVMeDevice represents an NVMe SSD
+// NVMeDevice represents an NVMe SSD.
 type NVMeDevice struct {
 	Path        string `json:"path"`
 	Model       string `json:"model"`
@@ -47,7 +47,7 @@ type NVMeDevice struct {
 	ReadLevel   int    `json:"read_level"`  // 读取百分比
 }
 
-// PoolStatus represents pool health status
+// PoolStatus represents pool health status.
 type PoolStatus struct {
 	State       string    `json:"state"` // healthy/degraded/faulted
 	TotalSize   int64     `json:"total_size"`
@@ -59,19 +59,19 @@ type PoolStatus struct {
 	LastUpdated time.Time `json:"last_updated"`
 }
 
-// Manager manages NVMe pools
+// Manager manages NVMe pools.
 type Manager struct {
 	pools map[string]*NVMePool
 }
 
-// NewManager creates a new NVMe pool manager
+// NewManager creates a new NVMe pool manager.
 func NewManager() *Manager {
 	return &Manager{
 		pools: make(map[string]*NVMePool),
 	}
 }
 
-// CreatePool creates a new NVMe pool
+// CreatePool creates a new NVMe pool.
 func (m *Manager) CreatePool(ctx context.Context, config *PoolConfig) (*NVMePool, error) {
 	if config.Name == "" {
 		return nil, fmt.Errorf("pool name required")
@@ -93,7 +93,7 @@ func (m *Manager) CreatePool(ctx context.Context, config *PoolConfig) (*NVMePool
 	return pool, nil
 }
 
-// GetPool retrieves a pool by name
+// GetPool retrieves a pool by name.
 func (m *Manager) GetPool(name string) (*NVMePool, error) {
 	pool, exists := m.pools[name]
 	if !exists {
@@ -102,12 +102,12 @@ func (m *Manager) GetPool(name string) (*NVMePool, error) {
 	return pool, nil
 }
 
-// GetStatus returns pool status
+// GetStatus returns pool status.
 func (p *NVMePool) GetStatus() PoolStatus {
 	return p.status
 }
 
-// OptimizeForWorkload adjusts pool settings for workload type
+// OptimizeForWorkload adjusts pool settings for workload type.
 func (p *NVMePool) OptimizeForWorkload(workload string) error {
 	switch workload {
 	case "database":

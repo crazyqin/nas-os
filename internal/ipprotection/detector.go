@@ -10,7 +10,7 @@ import (
 
 // ==================== 异常行为检测器 ====================
 
-// Detector 异常行为检测器
+// Detector 异常行为检测器.
 type Detector struct {
 	mu            sync.RWMutex
 	logger        *zap.Logger
@@ -20,7 +20,7 @@ type Detector struct {
 	portAccess    map[string]map[int]time.Time // IP -> port -> 首次访问时间
 }
 
-// NewDetector 创建异常行为检测器
+// NewDetector 创建异常行为检测器.
 func NewDetector(logger *zap.Logger, config *IPProtectionConfig) *Detector {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -38,7 +38,7 @@ func NewDetector(logger *zap.Logger, config *IPProtectionConfig) *Detector {
 	}
 }
 
-// RecordLoginAttempt 记录登录尝试
+// RecordLoginAttempt 记录登录尝试.
 func (d *Detector) RecordLoginAttempt(attempt *LoginAttempt) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -50,7 +50,7 @@ func (d *Detector) RecordLoginAttempt(attempt *LoginAttempt) {
 	d.cleanLoginAttempts(ip)
 }
 
-// RecordAccess 记录访问
+// RecordAccess 记录访问.
 func (d *Detector) RecordAccess(record *AccessRecord) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -73,7 +73,7 @@ func (d *Detector) RecordAccess(record *AccessRecord) {
 }
 
 // DetectLoginFailure 检测登录失败是否触发阈值
-// 返回：是否触发、当前失败次数、阈值
+// 返回：是否触发、当前失败次数、阈值.
 func (d *Detector) DetectLoginFailure(ip string) (bool, int, int) {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -96,7 +96,7 @@ func (d *Detector) DetectLoginFailure(ip string) (bool, int, int) {
 	return count >= threshold, count, threshold
 }
 
-// DetectPortScan 检测端口扫描行为
+// DetectPortScan 检测端口扫描行为.
 func (d *Detector) DetectPortScan(ip string) *DetectionResult {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -138,7 +138,7 @@ func (d *Detector) DetectPortScan(ip string) *DetectionResult {
 	return result
 }
 
-// DetectBruteForce 检测暴力破解行为
+// DetectBruteForce 检测暴力破解行为.
 func (d *Detector) DetectBruteForce(ip string) *DetectionResult {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -194,7 +194,7 @@ func (d *Detector) DetectBruteForce(ip string) *DetectionResult {
 	return result
 }
 
-// DetectSuspiciousUserAgent 检测可疑 User-Agent
+// DetectSuspiciousUserAgent 检测可疑 User-Agent.
 func (d *Detector) DetectSuspiciousUserAgent(ip, userAgent string) *DetectionResult {
 	result := &DetectionResult{
 		Detected:  false,
@@ -231,7 +231,7 @@ func (d *Detector) DetectSuspiciousUserAgent(ip, userAgent string) *DetectionRes
 	return result
 }
 
-// DetectBotPattern 检测爬虫/机器人模式
+// DetectBotPattern 检测爬虫/机器人模式.
 func (d *Detector) DetectBotPattern(ip, userAgent string) *DetectionResult {
 	result := &DetectionResult{
 		Detected:  false,
@@ -260,7 +260,7 @@ func (d *Detector) DetectBotPattern(ip, userAgent string) *DetectionResult {
 	return result
 }
 
-// GetRecentLoginFailures 获取 IP 最近的登录失败次数
+// GetRecentLoginFailures 获取 IP 最近的登录失败次数.
 func (d *Detector) GetRecentLoginFailures(ip string) int {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -281,7 +281,7 @@ func (d *Detector) GetRecentLoginFailures(ip string) int {
 	return count
 }
 
-// GetRecentPortCount 获取 IP 最近扫描的端口数
+// GetRecentPortCount 获取 IP 最近扫描的端口数.
 func (d *Detector) GetRecentPortCount(ip string) int {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -303,7 +303,7 @@ func (d *Detector) GetRecentPortCount(ip string) int {
 	return count
 }
 
-// cleanLoginAttempts 清理过期的登录记录
+// cleanLoginAttempts 清理过期的登录记录.
 func (d *Detector) cleanLoginAttempts(ip string) {
 	attempts := d.loginAttempts[ip]
 	if len(attempts) == 0 {
@@ -333,7 +333,7 @@ func (d *Detector) cleanLoginAttempts(ip string) {
 	}
 }
 
-// cleanAccessRecords 清理过期的访问记录
+// cleanAccessRecords 清理过期的访问记录.
 func (d *Detector) cleanAccessRecords(ip string) {
 	records := d.accessRecords[ip]
 	if len(records) == 0 {
@@ -372,7 +372,7 @@ func (d *Detector) cleanAccessRecords(ip string) {
 	}
 }
 
-// uniqueStrings 去重
+// uniqueStrings 去重.
 func uniqueStrings(s []string) []string {
 	seen := make(map[string]struct{})
 	result := make([]string, 0, len(s))
@@ -385,7 +385,7 @@ func uniqueStrings(s []string) []string {
 	return result
 }
 
-// minFloat64 返回两个 float64 的较小值
+// minFloat64 返回两个 float64 的较小值.
 func minFloat64(a, b float64) float64 {
 	if a < b {
 		return a

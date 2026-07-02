@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// DNSRecord DNS 记录类型
+// DNSRecord DNS 记录类型.
 type DNSRecordType string
 
 const (
@@ -15,7 +15,7 @@ const (
 	RecordTypeCNAME DNSRecordType = "CNAME"
 )
 
-// FilterAction 过滤动作
+// FilterAction 过滤动作.
 type FilterAction string
 
 const (
@@ -24,7 +24,7 @@ const (
 	ActionDrop  FilterAction = "drop"  // 丢弃（不响应）
 )
 
-// FilterListType 规则列表类型
+// FilterListType 规则列表类型.
 type FilterListType string
 
 const (

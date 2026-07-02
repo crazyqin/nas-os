@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Manager 高可用管理器
+// Manager 高可用管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	config      *HAConfig
@@ -22,7 +22,7 @@ type Manager struct {
 	stopChan    chan struct{}
 }
 
-// NewManager 创建高可用管理器
+// NewManager 创建高可用管理器.
 func NewManager(localNodeID string, config *HAConfig, logger *slog.Logger) *Manager {
 	if config == nil {
 		config = DefaultHAConfig()
@@ -48,7 +48,7 @@ func NewManager(localNodeID string, config *HAConfig, logger *slog.Logger) *Mana
 	}
 }
 
-// Start 启动高可用管理器
+// Start 启动高可用管理器.
 func (m *Manager) Start(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -88,7 +88,7 @@ func (m *Manager) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止高可用管理器
+// Stop 停止高可用管理器.
 func (m *Manager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -107,14 +107,14 @@ func (m *Manager) Stop() error {
 	return nil
 }
 
-// IsRunning 检查管理器是否运行中
+// IsRunning 检查管理器是否运行中.
 func (m *Manager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.running
 }
 
-// AddNode 添加集群节点
+// AddNode 添加集群节点.
 func (m *Manager) AddNode(node *ClusterNode) error {
 	if node == nil {
 		return fmt.Errorf("node cannot be nil")
@@ -142,7 +142,7 @@ func (m *Manager) AddNode(node *ClusterNode) error {
 	return nil
 }
 
-// RemoveNode 移除集群节点
+// RemoveNode 移除集群节点.
 func (m *Manager) RemoveNode(nodeID string) error {
 	if nodeID == m.localNodeID {
 		return fmt.Errorf("cannot remove local node")
@@ -170,7 +170,7 @@ func (m *Manager) RemoveNode(nodeID string) error {
 	return nil
 }
 
-// GetNode 获取节点信息
+// GetNode 获取节点信息.
 func (m *Manager) GetNode(nodeID string) (*ClusterNode, error) {
 	m.state.mu.RLock()
 	defer m.state.mu.RUnlock()
@@ -185,7 +185,7 @@ func (m *Manager) GetNode(nodeID string) (*ClusterNode, error) {
 	return &nodeCopy, nil
 }
 
-// GetLocalNode 获取本地节点信息
+// GetLocalNode 获取本地节点信息.
 func (m *Manager) GetLocalNode() *ClusterNode {
 	m.state.mu.RLock()
 	defer m.state.mu.RUnlock()
@@ -197,7 +197,7 @@ func (m *Manager) GetLocalNode() *ClusterNode {
 	return &nodeCopy
 }
 
-// GetNodes 获取所有节点
+// GetNodes 获取所有节点.
 func (m *Manager) GetNodes() []*ClusterNode {
 	m.state.mu.RLock()
 	defer m.state.mu.RUnlock()
@@ -210,7 +210,7 @@ func (m *Manager) GetNodes() []*ClusterNode {
 	return nodes
 }
 
-// GetActiveNode 获取当前活跃节点
+// GetActiveNode 获取当前活跃节点.
 func (m *Manager) GetActiveNode() *ClusterNode {
 	m.state.mu.RLock()
 	defer m.state.mu.RUnlock()
@@ -224,7 +224,7 @@ func (m *Manager) GetActiveNode() *ClusterNode {
 	return nil
 }
 
-// GetEvents 获取故障切换事件历史
+// GetEvents 获取故障切换事件历史.
 func (m *Manager) GetEvents(limit int) []FailoverEvent {
 	m.state.mu.RLock()
 	defer m.state.mu.RUnlock()
@@ -239,7 +239,7 @@ func (m *Manager) GetEvents(limit int) []FailoverEvent {
 	return result
 }
 
-// ManualSwitchover 手动切换活跃节点
+// ManualSwitchover 手动切换活跃节点.
 func (m *Manager) ManualSwitchover(targetNodeID string) error {
 	m.state.mu.Lock()
 	defer m.state.mu.Unlock()
@@ -305,12 +305,12 @@ func (m *Manager) ManualSwitchover(targetNodeID string) error {
 	return nil
 }
 
-// EventChannel 返回事件通道（只读）
+// EventChannel 返回事件通道（只读）.
 func (m *Manager) EventChannel() <-chan FailoverEvent {
 	return m.eventChan
 }
 
-// heartbeatSender 心跳发送协程
+// heartbeatSender 心跳发送协程.
 func (m *Manager) heartbeatSender() {
 	ticker := time.NewTicker(m.config.HeartbeatInterval)
 	defer ticker.Stop()
@@ -327,7 +327,7 @@ func (m *Manager) heartbeatSender() {
 	}
 }
 
-// sendHeartbeat 发送心跳
+// sendHeartbeat 发送心跳.
 func (m *Manager) sendHeartbeat() {
 	m.state.mu.Lock()
 	if m.state.localNode != nil {
@@ -339,7 +339,7 @@ func (m *Manager) sendHeartbeat() {
 	m.logger.Debug("heartbeat sent", "node_id", m.localNodeID)
 }
 
-// healthChecker 健康检查协程
+// healthChecker 健康检查协程.
 func (m *Manager) healthChecker() {
 	ticker := time.NewTicker(m.config.HeartbeatInterval)
 	defer ticker.Stop()
@@ -356,7 +356,7 @@ func (m *Manager) healthChecker() {
 	}
 }
 
-// checkNodeHealth 检查所有节点健康状态
+// checkNodeHealth 检查所有节点健康状态.
 func (m *Manager) checkNodeHealth() {
 	m.state.mu.Lock()
 	defer m.state.mu.Unlock()
@@ -399,7 +399,7 @@ func (m *Manager) checkNodeHealth() {
 	}
 }
 
-// initiateFailover 发起故障切换
+// initiateFailover 发起故障切换.
 func (m *Manager) initiateFailover(failedNode *ClusterNode) {
 	startTime := time.Now()
 
@@ -474,7 +474,7 @@ func (m *Manager) initiateFailover(failedNode *ClusterNode) {
 	}
 }
 
-// findBestStandby 找到最佳备用节点
+// findBestStandby 找到最佳备用节点.
 func (m *Manager) findBestStandby() *ClusterNode {
 	var best *ClusterNode
 
@@ -497,7 +497,7 @@ func (m *Manager) findBestStandby() *ClusterNode {
 	return best
 }
 
-// acquireLock 获取资源锁（防脑裂）
+// acquireLock 获取资源锁（防脑裂）.
 func (m *Manager) acquireLock(holderID string) error {
 	now := time.Now()
 
@@ -517,7 +517,7 @@ func (m *Manager) acquireLock(holderID string) error {
 	return nil
 }
 
-// releaseLock 释放资源锁
+// releaseLock 释放资源锁.
 func (m *Manager) releaseLock(holderID string) error {
 	if m.state.lock == nil {
 		return fmt.Errorf("no lock held")
@@ -533,7 +533,7 @@ func (m *Manager) releaseLock(holderID string) error {
 	return nil
 }
 
-// GetLockInfo 获取当前锁信息
+// GetLockInfo 获取当前锁信息.
 func (m *Manager) GetLockInfo() *LockInfo {
 	m.state.mu.RLock()
 	defer m.state.mu.RUnlock()
@@ -546,7 +546,7 @@ func (m *Manager) GetLockInfo() *LockInfo {
 	return &lockCopy
 }
 
-// moveVIP 移动 VIP 到指定节点
+// moveVIP 移动 VIP 到指定节点.
 func (m *Manager) moveVIP(targetNodeID string) error {
 	if m.config.VIP == "" {
 		return nil // VIP 未配置
@@ -563,7 +563,7 @@ func (m *Manager) moveVIP(targetNodeID string) error {
 	return nil
 }
 
-// eventProcessor 事件处理协程
+// eventProcessor 事件处理协程.
 func (m *Manager) eventProcessor() {
 	for {
 		select {
@@ -577,7 +577,7 @@ func (m *Manager) eventProcessor() {
 	}
 }
 
-// processEvent 处理事件
+// processEvent 处理事件.
 func (m *Manager) processEvent(event FailoverEvent) {
 	m.logger.Info("processing event",
 		"type", event.Type,
@@ -589,7 +589,7 @@ func (m *Manager) processEvent(event FailoverEvent) {
 	// 可以在这里添加事件处理逻辑，如通知、日志记录等
 }
 
-// emitEvent 发送事件
+// emitEvent 发送事件.
 func (m *Manager) emitEvent(event FailoverEvent) {
 	m.state.events = append(m.state.events, event)
 
@@ -600,7 +600,7 @@ func (m *Manager) emitEvent(event FailoverEvent) {
 	}
 }
 
-// generateEventID 生成事件 ID
+// generateEventID 生成事件 ID.
 func generateEventID() string {
 	return fmt.Sprintf("evt_%d", time.Now().UnixNano())
 }

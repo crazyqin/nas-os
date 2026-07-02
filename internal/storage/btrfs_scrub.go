@@ -17,7 +17,7 @@ import (
 
 // ========== Btrfs Scrub 类型定义 ==========
 
-// ScrubStatus scrub状态
+// ScrubStatus scrub状态.
 type ScrubStatus string
 
 const (
@@ -29,19 +29,19 @@ const (
 	ScrubStatusError     ScrubStatus = "error"     // 错误
 )
 
-// ScrubMode scrub模式（对标群晖）
+// ScrubMode scrub模式（对标群晖）.
 type ScrubMode string
 
 const (
-	// ScrubModeFull 全量清洗（校验所有数据块）
+	// ScrubModeFull 全量清洗（校验所有数据块）.
 	ScrubModeFull ScrubMode = "full"
-	// ScrubModeIncremental 增量清洗（只校验使用扇区）
+	// ScrubModeIncremental 增量清洗（只校验使用扇区）.
 	ScrubModeIncremental ScrubMode = "incremental"
-	// ScrubModeQuick 快速清洗（只校验元数据）
+	// ScrubModeQuick 快速清洗（只校验元数据）.
 	ScrubModeQuick ScrubMode = "quick"
 )
 
-// ScrubProgress scrub进度
+// ScrubProgress scrub进度.
 type ScrubProgress struct {
 	// 卷名称
 	VolumeName string `json:"volumeName"`
@@ -83,7 +83,7 @@ type ScrubProgress struct {
 	DurationSeconds uint64 `json:"durationSeconds"`
 }
 
-// ScrubConfig scrub配置
+// ScrubConfig scrub配置.
 type ScrubConfig struct {
 	// 卷名称
 	VolumeName string `json:"volumeName"`
@@ -119,7 +119,7 @@ type ScrubConfig struct {
 	NotifyOnError bool `json:"notifyOnError"`
 }
 
-// ScrubReport scrub报告（对标群晖详细报告）
+// ScrubReport scrub报告（对标群晖详细报告）.
 type ScrubReport struct {
 	// 报告ID
 	ID string `json:"id"`
@@ -164,7 +164,7 @@ type ScrubReport struct {
 	GeneratedAt time.Time `json:"generatedAt"`
 }
 
-// ScrubErrorDetail 错误详情
+// ScrubErrorDetail 错误详情.
 type ScrubErrorDetail struct {
 	// 错误类型
 	Type string `json:"type"` // checksum, metadata, data, etc.
@@ -185,7 +185,7 @@ type ScrubErrorDetail struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// ScrubErrorSummary 错误统计
+// ScrubErrorSummary 错误统计.
 type ScrubErrorSummary struct {
 	// 校验和错误
 	ChecksumErrors uint64 `json:"checksumErrors"`
@@ -200,7 +200,7 @@ type ScrubErrorSummary struct {
 	TotalErrors uint64 `json:"totalErrors"`
 }
 
-// ScrubRepairSummary 修复统计
+// ScrubRepairSummary 修复统计.
 type ScrubRepairSummary struct {
 	// 已修复数
 	Fixed uint64 `json:"fixed"`
@@ -220,7 +220,7 @@ type ScrubRepairSummary struct {
 
 // ========== Btrfs Scrub Manager ==========
 
-// BtrfsScrubManager btrfs scrub管理器
+// BtrfsScrubManager btrfs scrub管理器.
 type BtrfsScrubManager struct {
 	mu sync.RWMutex
 
@@ -243,7 +243,7 @@ type BtrfsScrubManager struct {
 	callbacks ScrubCallbacks
 }
 
-// ScrubCallbacks scrub事件回调
+// ScrubCallbacks scrub事件回调.
 type ScrubCallbacks struct {
 	// 进度更新回调
 	OnProgress func(volumeName string, progress ScrubProgress)
@@ -255,7 +255,7 @@ type ScrubCallbacks struct {
 	OnComplete func(volumeName string, report ScrubReport)
 }
 
-// NewBtrfsScrubManager 创建scrub管理器
+// NewBtrfsScrubManager 创建scrub管理器.
 func NewBtrfsScrubManager(logger *zap.Logger) *BtrfsScrubManager {
 	return &BtrfsScrubManager{
 		progress:    make(map[string]*ScrubProgress),
@@ -266,14 +266,14 @@ func NewBtrfsScrubManager(logger *zap.Logger) *BtrfsScrubManager {
 	}
 }
 
-// SetCallbacks 设置回调
+// SetCallbacks 设置回调.
 func (m *BtrfsScrubManager) SetCallbacks(callbacks ScrubCallbacks) {
 	m.callbacks = callbacks
 }
 
 // ========== 核心API（对标群晖DSM scrub功能） ==========
 
-// StartScrub 启动scrub任务
+// StartScrub 启动scrub任务.
 func (m *BtrfsScrubManager) StartScrub(config ScrubConfig) (*ScrubProgress, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -312,7 +312,7 @@ func (m *BtrfsScrubManager) StartScrub(config ScrubConfig) (*ScrubProgress, erro
 	return progress, nil
 }
 
-// runScrub 执行scrub
+// runScrub 执行scrub.
 func (m *BtrfsScrubManager) runScrub(ctx context.Context, config ScrubConfig) {
 	// 执行btrfs scrub命令
 	// 根据模式选择不同参数
@@ -373,7 +373,7 @@ func (m *BtrfsScrubManager) runScrub(ctx context.Context, config ScrubConfig) {
 	}
 }
 
-// PauseScrub 暂停scrub（对标群晖暂停恢复功能）
+// PauseScrub 暂停scrub（对标群晖暂停恢复功能）.
 func (m *BtrfsScrubManager) PauseScrub(volumeName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -396,7 +396,7 @@ func (m *BtrfsScrubManager) PauseScrub(volumeName string) error {
 	return nil
 }
 
-// ResumeScrub 恢复scrub
+// ResumeScrub 恢复scrub.
 func (m *BtrfsScrubManager) ResumeScrub(volumeName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -419,7 +419,7 @@ func (m *BtrfsScrubManager) ResumeScrub(volumeName string) error {
 	return nil
 }
 
-// CancelScrub 取消scrub
+// CancelScrub 取消scrub.
 func (m *BtrfsScrubManager) CancelScrub(volumeName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -446,7 +446,7 @@ func (m *BtrfsScrubManager) CancelScrub(volumeName string) error {
 	return nil
 }
 
-// GetProgress 获取scrub进度
+// GetProgress 获取scrub进度.
 func (m *BtrfsScrubManager) GetProgress(volumeName string) (*ScrubProgress, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -464,7 +464,7 @@ func (m *BtrfsScrubManager) GetProgress(volumeName string) (*ScrubProgress, erro
 	return progress, nil
 }
 
-// GetReport 获取scrub报告
+// GetReport 获取scrub报告.
 func (m *BtrfsScrubManager) GetReport(volumeName string, reportID string) (*ScrubReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -483,7 +483,7 @@ func (m *BtrfsScrubManager) GetReport(volumeName string, reportID string) (*Scru
 	return nil, fmt.Errorf("报告 %s 不存在", reportID)
 }
 
-// GetReportHistory 获取报告历史
+// GetReportHistory 获取报告历史.
 func (m *BtrfsScrubManager) GetReportHistory(volumeName string, limit int) []*ScrubReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -502,7 +502,7 @@ func (m *BtrfsScrubManager) GetReportHistory(volumeName string, limit int) []*Sc
 
 // ========== 辅助方法 ==========
 
-// findMountPoint 查找卷挂载点
+// findMountPoint 查找卷挂载点.
 func (m *BtrfsScrubManager) findMountPoint(volumeName string) string {
 	// 从/proc/mounts或mount命令解析
 	cmd := exec.Command("mount", "-t", "btrfs")
@@ -525,7 +525,7 @@ func (m *BtrfsScrubManager) findMountPoint(volumeName string) string {
 	return ""
 }
 
-// parseScrubStatus 解析scrub状态输出
+// parseScrubStatus 解析scrub状态输出.
 func (m *BtrfsScrubManager) parseScrubStatus(volumeName string, output string) {
 	progress, exists := m.progress[volumeName]
 	if !exists {
@@ -570,7 +570,7 @@ func (m *BtrfsScrubManager) parseScrubStatus(volumeName string, output string) {
 	}
 }
 
-// updateProgressFromSystem 从系统获取实时进度
+// updateProgressFromSystem 从系统获取实时进度.
 func (m *BtrfsScrubManager) updateProgressFromSystem(volumeName string, progress *ScrubProgress) {
 	mountPoint := m.findMountPoint(volumeName)
 	if mountPoint == "" {
@@ -586,7 +586,7 @@ func (m *BtrfsScrubManager) updateProgressFromSystem(volumeName string, progress
 	m.parseScrubStatus(volumeName, string(output))
 }
 
-// generateReport 生成scrub报告
+// generateReport 生成scrub报告.
 func (m *BtrfsScrubManager) generateReport(volumeName string) *ScrubReport {
 	progress, exists := m.progress[volumeName]
 	if !exists {
@@ -626,7 +626,7 @@ func (m *BtrfsScrubManager) generateReport(volumeName string) *ScrubReport {
 	return report
 }
 
-// SaveConfig 保存配置到文件
+// SaveConfig 保存配置到文件.
 func (m *BtrfsScrubManager) SaveConfig(configPath string) error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -639,7 +639,7 @@ func (m *BtrfsScrubManager) SaveConfig(configPath string) error {
 	return os.WriteFile(configPath, data, 0644)
 }
 
-// LoadConfig 从文件加载配置
+// LoadConfig 从文件加载配置.
 func (m *BtrfsScrubManager) LoadConfig(configPath string) error {
 	data, err := os.ReadFile(configPath)
 	if err != nil {

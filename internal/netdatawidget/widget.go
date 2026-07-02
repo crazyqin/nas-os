@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// MetricType 指标类型
+// MetricType 指标类型.
 type MetricType string
 
 const (
@@ -21,7 +21,7 @@ const (
 	MetricCustom  MetricType = "CUSTOM"
 )
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 const (
@@ -30,7 +30,7 @@ const (
 	AlertCritical AlertLevel = "CRITICAL"
 )
 
-// TimeRange 时间范围
+// TimeRange 时间范围.
 type TimeRange string
 
 const (
@@ -41,14 +41,14 @@ const (
 	Range30D TimeRange = "30D"
 )
 
-// MetricPoint 指标点
+// MetricPoint 指标点.
 type MetricPoint struct {
 	Timestamp time.Time         `json:"timestamp"`
 	Value     float64           `json:"value"`
 	Labels    map[string]string `json:"labels,omitempty"`
 }
 
-// MetricSeries 指标序列
+// MetricSeries 指标序列.
 type MetricSeries struct {
 	Name    string        `json:"name"`
 	Type    MetricType    `json:"type"`
@@ -60,7 +60,7 @@ type MetricSeries struct {
 	Current float64       `json:"current"`
 }
 
-// DashboardWidget 仪表盘组件
+// DashboardWidget 仪表盘组件.
 type DashboardWidget struct {
 	ID          string      `json:"id"`
 	Title       string      `json:"title"`
@@ -88,7 +88,7 @@ type Threshold struct {
 	Color string     `json:"color"`
 }
 
-// SystemAlert 系统告警
+// SystemAlert 系统告警.
 type SystemAlert struct {
 	ID        string     `json:"id"`
 	Level     AlertLevel `json:"level"`
@@ -100,7 +100,7 @@ type SystemAlert struct {
 	Acked     bool       `json:"acked"`
 }
 
-// NetdataWidget Netdata集成组件
+// NetdataWidget Netdata集成组件.
 type NetdataWidget struct {
 	metrics   map[string]*MetricSeries
 	widgets   map[string]*DashboardWidget
@@ -110,7 +110,7 @@ type NetdataWidget struct {
 	maxPoints int
 }
 
-// NewNetdataWidget 创建Netdata组件
+// NewNetdataWidget 创建Netdata组件.
 func NewNetdataWidget(dataPath string, maxPoints int) *NetdataWidget {
 	os.MkdirAll(dataPath, 0755)
 	if maxPoints == 0 {
@@ -127,7 +127,7 @@ func NewNetdataWidget(dataPath string, maxPoints int) *NetdataWidget {
 	return w
 }
 
-// RecordMetric 记录指标
+// RecordMetric 记录指标.
 func (w *NetdataWidget) RecordMetric(name string, mType MetricType, unit string, value float64, labels map[string]string) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -166,7 +166,7 @@ func (w *NetdataWidget) RecordMetric(name string, mType MetricType, unit string,
 	w.checkThresholds(name, value)
 }
 
-// GetMetric 获取指标
+// GetMetric 获取指标.
 func (w *NetdataWidget) GetMetric(name string) (*MetricSeries, bool) {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
@@ -174,7 +174,7 @@ func (w *NetdataWidget) GetMetric(name string) (*MetricSeries, bool) {
 	return m, ok
 }
 
-// GetMetrics 获取所有指标
+// GetMetrics 获取所有指标.
 func (w *NetdataWidget) GetMetrics(mType *MetricType) []*MetricSeries {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
@@ -188,7 +188,7 @@ func (w *NetdataWidget) GetMetrics(mType *MetricType) []*MetricSeries {
 	return result
 }
 
-// AddWidget 添加组件
+// AddWidget 添加组件.
 func (w *NetdataWidget) AddWidget(widget *DashboardWidget) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -196,7 +196,7 @@ func (w *NetdataWidget) AddWidget(widget *DashboardWidget) {
 	w.saveState()
 }
 
-// RemoveWidget 移除组件
+// RemoveWidget 移除组件.
 func (w *NetdataWidget) RemoveWidget(id string) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -204,7 +204,7 @@ func (w *NetdataWidget) RemoveWidget(id string) {
 	w.saveState()
 }
 
-// GetWidgets 获取所有组件
+// GetWidgets 获取所有组件.
 func (w *NetdataWidget) GetWidgets() []*DashboardWidget {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
@@ -215,7 +215,7 @@ func (w *NetdataWidget) GetWidgets() []*DashboardWidget {
 	return result
 }
 
-// GetAlerts 获取告警
+// GetAlerts 获取告警.
 func (w *NetdataWidget) GetAlerts(unackedOnly bool) []*SystemAlert {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
@@ -229,7 +229,7 @@ func (w *NetdataWidget) GetAlerts(unackedOnly bool) []*SystemAlert {
 	return result
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (w *NetdataWidget) AcknowledgeAlert(id string) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -241,7 +241,7 @@ func (w *NetdataWidget) AcknowledgeAlert(id string) {
 	}
 }
 
-// GetSystemOverview 系统概览
+// GetSystemOverview 系统概览.
 func (w *NetdataWidget) GetSystemOverview() map[string]interface{} {
 	w.mu.RLock()
 	defer w.mu.RUnlock()

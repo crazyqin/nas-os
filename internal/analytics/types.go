@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// TimeRange 时间范围
+// TimeRange 时间范围.
 type TimeRange string
 
 const (
@@ -17,7 +17,7 @@ const (
 	TimeRangeYear  TimeRange = "1y"
 )
 
-// MetricType 指标类型
+// MetricType 指标类型.
 type MetricType string
 
 const (
@@ -29,7 +29,7 @@ const (
 	MetricTypeLatency MetricType = "latency"
 )
 
-// SystemMetrics 系统指标
+// SystemMetrics 系统指标.
 type SystemMetrics struct {
 	Timestamp time.Time      `json:"timestamp"`
 	CPU       CPUMetrics     `json:"cpu"`
@@ -38,7 +38,7 @@ type SystemMetrics struct {
 	Network   NetworkMetrics `json:"network"`
 }
 
-// CPUMetrics CPU指标
+// CPUMetrics CPU指标.
 type CPUMetrics struct {
 	UsagePercent float64   `json:"usagePercent"`
 	PerCore      []float64 `json:"perCore,omitempty"`
@@ -49,7 +49,7 @@ type CPUMetrics struct {
 	ProcessCount int       `json:"processCount"`
 }
 
-// MemoryMetrics 内存指标
+// MemoryMetrics 内存指标.
 type MemoryMetrics struct {
 	TotalBytes     uint64  `json:"totalBytes"`
 	UsedBytes      uint64  `json:"usedBytes"`
@@ -63,13 +63,13 @@ type MemoryMetrics struct {
 	BuffersBytes   uint64  `json:"buffersBytes,omitempty"`
 }
 
-// DiskMetrics 磁盘指标
+// DiskMetrics 磁盘指标.
 type DiskMetrics struct {
 	Devices []DiskDeviceMetrics `json:"devices"`
 	Total   DiskSummaryMetrics  `json:"total"`
 }
 
-// DiskDeviceMetrics 磁盘设备指标
+// DiskDeviceMetrics 磁盘设备指标.
 type DiskDeviceMetrics struct {
 	Device       string  `json:"device"`
 	MountPoint   string  `json:"mountPoint"`
@@ -82,7 +82,7 @@ type DiskDeviceMetrics struct {
 	WriteBytesPS uint64  `json:"writeBytesPerSec,omitempty"`
 }
 
-// DiskSummaryMetrics 磁盘汇总指标
+// DiskSummaryMetrics 磁盘汇总指标.
 type DiskSummaryMetrics struct {
 	TotalBytes   uint64  `json:"totalBytes"`
 	UsedBytes    uint64  `json:"usedBytes"`
@@ -90,13 +90,13 @@ type DiskSummaryMetrics struct {
 	UsagePercent float64 `json:"usagePercent"`
 }
 
-// NetworkMetrics 网络指标
+// NetworkMetrics 网络指标.
 type NetworkMetrics struct {
 	Interfaces []NetworkInterfaceMetrics `json:"interfaces"`
 	Total      NetworkSummaryMetrics     `json:"total"`
 }
 
-// NetworkInterfaceMetrics 网络接口指标
+// NetworkInterfaceMetrics 网络接口指标.
 type NetworkInterfaceMetrics struct {
 	Name        string `json:"name"`
 	RXBytesPS   uint64 `json:"rxBytesPerSec"`
@@ -108,7 +108,7 @@ type NetworkInterfaceMetrics struct {
 	Speed       uint64 `json:"speed,omitempty"`
 }
 
-// NetworkSummaryMetrics 网络汇总指标
+// NetworkSummaryMetrics 网络汇总指标.
 type NetworkSummaryMetrics struct {
 	TotalRXBytesPS uint64 `json:"totalRxBytesPerSec"`
 	TotalTXBytesPS uint64 `json:"totalTxBytesPerSec"`
@@ -116,7 +116,7 @@ type NetworkSummaryMetrics struct {
 	TotalTXPackets uint64 `json:"totalTxPackets"`
 }
 
-// StorageAnalytics 存储分析
+// StorageAnalytics 存储分析.
 type StorageAnalytics struct {
 	Timestamp         time.Time              `json:"timestamp"`
 	TotalCapacity     uint64                 `json:"totalCapacity"`
@@ -129,7 +129,7 @@ type StorageAnalytics struct {
 	TopDirectories    []DirectoryUsage       `json:"topDirectories,omitempty"`
 }
 
-// FileTypeDistribution 文件类型分布
+// FileTypeDistribution 文件类型分布.
 type FileTypeDistribution struct {
 	Category   string   `json:"category"`
 	Extensions []string `json:"extensions,omitempty"`
@@ -138,7 +138,7 @@ type FileTypeDistribution struct {
 	Percent    float64  `json:"percent"`
 }
 
-// StorageGrowthPoint 存储增长点
+// StorageGrowthPoint 存储增长点.
 type StorageGrowthPoint struct {
 	Timestamp  time.Time `json:"timestamp"`
 	TotalBytes uint64    `json:"totalBytes"`
@@ -146,7 +146,7 @@ type StorageGrowthPoint struct {
 	FileCount  int64     `json:"fileCount"`
 }
 
-// GrowthPrediction 增长预测
+// GrowthPrediction 增长预测.
 type GrowthPrediction struct {
 	DaysToFull        int       `json:"daysToFull"`
 	PredictedFullDate time.Time `json:"predictedFullDate"`
@@ -155,7 +155,7 @@ type GrowthPrediction struct {
 	Methodology       string    `json:"methodology"`
 }
 
-// DirectoryUsage 目录使用情况
+// DirectoryUsage 目录使用情况.
 type DirectoryUsage struct {
 	Path       string  `json:"path"`
 	TotalBytes uint64  `json:"totalBytes"`
@@ -163,7 +163,7 @@ type DirectoryUsage struct {
 	Percent    float64 `json:"percent"`
 }
 
-// UserBehavior 用户行为分析
+// UserBehavior 用户行为分析.
 type UserBehavior struct {
 	Timestamp      time.Time         `json:"timestamp"`
 	AccessPatterns []AccessPattern   `json:"accessPatterns"`
@@ -172,7 +172,7 @@ type UserBehavior struct {
 	UserActivity   []UserActivity    `json:"userActivity"`
 }
 
-// AccessPattern 访问模式
+// AccessPattern 访问模式.
 type AccessPattern struct {
 	Hour         int    `json:"hour"`
 	DayOfWeek    int    `json:"dayOfWeek"`
@@ -181,7 +181,7 @@ type AccessPattern struct {
 	BytesWritten uint64 `json:"bytesWritten"`
 }
 
-// HotFile 热门文件
+// HotFile 热门文件.
 type HotFile struct {
 	Path         string    `json:"path"`
 	AccessCount  int64     `json:"accessCount"`
@@ -190,7 +190,7 @@ type HotFile struct {
 	Users        []string  `json:"users,omitempty"`
 }
 
-// UsageTrendPoint 使用趋势点
+// UsageTrendPoint 使用趋势点.
 type UsageTrendPoint struct {
 	Timestamp    time.Time `json:"timestamp"`
 	ActiveUsers  int       `json:"activeUsers"`
@@ -198,7 +198,7 @@ type UsageTrendPoint struct {
 	DataTransfer uint64    `json:"dataTransfer"`
 }
 
-// UserActivity 用户活动
+// UserActivity 用户活动.
 type UserActivity struct {
 	UserID       string    `json:"userId"`
 	Username     string    `json:"username"`
@@ -209,7 +209,7 @@ type UserActivity struct {
 	TopFiles     []string  `json:"topFiles,omitempty"`
 }
 
-// PerformanceMetrics 性能指标
+// PerformanceMetrics 性能指标.
 type PerformanceMetrics struct {
 	Timestamp  time.Time         `json:"timestamp"`
 	IOPS       IOPSMetrics       `json:"iops"`
@@ -217,7 +217,7 @@ type PerformanceMetrics struct {
 	Throughput ThroughputMetrics `json:"throughput"`
 }
 
-// IOPSMetrics IOPS指标
+// IOPSMetrics IOPS指标.
 type IOPSMetrics struct {
 	ReadIOPS  float64     `json:"readIOPS"`
 	WriteIOPS float64     `json:"writeIOPS"`
@@ -225,14 +225,14 @@ type IOPSMetrics struct {
 	Trend     []IOPSPoint `json:"trend,omitempty"`
 }
 
-// IOPSPoint IOPS趋势点
+// IOPSPoint IOPS趋势点.
 type IOPSPoint struct {
 	Timestamp time.Time `json:"timestamp"`
 	ReadIOPS  float64   `json:"readIOPS"`
 	WriteIOPS float64   `json:"writeIOPS"`
 }
 
-// LatencyMetrics 延迟指标
+// LatencyMetrics 延迟指标.
 type LatencyMetrics struct {
 	ReadLatencyAvg  float64        `json:"readLatencyAvgMs"`
 	ReadLatencyP50  float64        `json:"readLatencyP50Ms"`
@@ -243,14 +243,14 @@ type LatencyMetrics struct {
 	Trend           []LatencyPoint `json:"trend,omitempty"`
 }
 
-// LatencyPoint 延迟趋势点
+// LatencyPoint 延迟趋势点.
 type LatencyPoint struct {
 	Timestamp       time.Time `json:"timestamp"`
 	ReadLatencyAvg  float64   `json:"readLatencyAvgMs"`
 	WriteLatencyAvg float64   `json:"writeLatencyAvgMs"`
 }
 
-// ThroughputMetrics 吞吐量指标
+// ThroughputMetrics 吞吐量指标.
 type ThroughputMetrics struct {
 	ReadBytesPS  uint64            `json:"readBytesPerSec"`
 	WriteBytesPS uint64            `json:"writeBytesPerSec"`
@@ -258,14 +258,14 @@ type ThroughputMetrics struct {
 	Trend        []ThroughputPoint `json:"trend,omitempty"`
 }
 
-// ThroughputPoint 吞吐量趋势点
+// ThroughputPoint 吞吐量趋势点.
 type ThroughputPoint struct {
 	Timestamp    time.Time `json:"timestamp"`
 	ReadBytesPS  uint64    `json:"readBytesPerSec"`
 	WriteBytesPS uint64    `json:"writeBytesPerSec"`
 }
 
-// AnalyticsSummary 分析摘要
+// AnalyticsSummary 分析摘要.
 type AnalyticsSummary struct {
 	Timestamp     time.Time         `json:"timestamp"`
 	SystemHealth  HealthStatus      `json:"systemHealth"`
@@ -274,7 +274,7 @@ type AnalyticsSummary struct {
 	Alerts        []AnalyticsAlert  `json:"alerts,omitempty"`
 }
 
-// HealthStatus 健康状态
+// HealthStatus 健康状态.
 type HealthStatus struct {
 	Status    string  `json:"status"`
 	Score     float64 `json:"score"`
@@ -283,7 +283,7 @@ type HealthStatus struct {
 	DiskUsage float64 `json:"diskUsage"`
 }
 
-// StorageStatus 存储状态
+// StorageStatus 存储状态.
 type StorageStatus struct {
 	Status        string  `json:"status"`
 	TotalCapacity uint64  `json:"totalCapacity"`
@@ -292,7 +292,7 @@ type StorageStatus struct {
 	DaysUntilFull int     `json:"daysUntilFull,omitempty"`
 }
 
-// PerformanceStatus 性能状态
+// PerformanceStatus 性能状态.
 type PerformanceStatus struct {
 	Status       string  `json:"status"`
 	TotalIOPS    float64 `json:"totalIOPS"`
@@ -300,7 +300,7 @@ type PerformanceStatus struct {
 	ThroughputMB float64 `json:"throughputMBps"`
 }
 
-// AnalyticsAlert 分析告警
+// AnalyticsAlert 分析告警.
 type AnalyticsAlert struct {
 	ID        string    `json:"id"`
 	Type      string    `json:"type"`
@@ -311,7 +311,7 @@ type AnalyticsAlert struct {
 	Threshold float64   `json:"threshold,omitempty"`
 }
 
-// MetricsHistory 指标历史
+// MetricsHistory 指标历史.
 type MetricsHistory struct {
 	Type      MetricType    `json:"type"`
 	Range     TimeRange     `json:"range"`
@@ -320,7 +320,7 @@ type MetricsHistory struct {
 	Points    []interface{} `json:"points"`
 }
 
-// CollectorConfig 采集器配置
+// CollectorConfig 采集器配置.
 type CollectorConfig struct {
 	Interval      time.Duration `json:"interval"`
 	HistorySize   int           `json:"historySize"`
@@ -330,7 +330,7 @@ type CollectorConfig struct {
 	EnableNetwork bool          `json:"enableNetwork"`
 }
 
-// DefaultCollectorConfig 默认采集器配置
+// DefaultCollectorConfig 默认采集器配置.
 func DefaultCollectorConfig() CollectorConfig {
 	return CollectorConfig{
 		Interval:      30 * time.Second,

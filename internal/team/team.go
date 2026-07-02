@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// Manager 团队管理器
+// Manager 团队管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	teams      map[string]*Team                  // teamID -> Team
@@ -26,7 +26,7 @@ type Manager struct {
 	notifier   *Notifier
 }
 
-// NewManager 创建团队管理器
+// NewManager 创建团队管理器.
 func NewManager(configPath, dataDir string) (*Manager, error) {
 	m := &Manager{
 		teams:      make(map[string]*Team),
@@ -53,7 +53,7 @@ func NewManager(configPath, dataDir string) (*Manager, error) {
 	return m, nil
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (m *Manager) loadConfig() error {
 	if _, err := os.Stat(m.configPath); os.IsNotExist(err) {
 		return nil
@@ -91,7 +91,7 @@ func (m *Manager) loadConfig() error {
 	return nil
 }
 
-// saveConfig 保存配置
+// saveConfig 保存配置.
 func (m *Manager) saveConfig() error {
 	if m.configPath == "" {
 		return nil
@@ -122,7 +122,7 @@ func (m *Manager) saveConfig() error {
 	return os.WriteFile(m.configPath, data, 0600)
 }
 
-// generateID 生成唯一ID
+// generateID 生成唯一ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
@@ -131,7 +131,7 @@ func generateID() string {
 
 // ========== 团队管理 ==========
 
-// CreateTeam 创建团队
+// CreateTeam 创建团队.
 func (m *Manager) CreateTeam(input TeamInput, ownerID, username string) (*Team, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -213,7 +213,7 @@ func (m *Manager) CreateTeam(input TeamInput, ownerID, username string) (*Team, 
 	return team, nil
 }
 
-// GetTeam 获取团队
+// GetTeam 获取团队.
 func (m *Manager) GetTeam(teamID string) (*Team, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -225,7 +225,7 @@ func (m *Manager) GetTeam(teamID string) (*Team, error) {
 	return team, nil
 }
 
-// ListTeams 列出所有团队
+// ListTeams 列出所有团队.
 func (m *Manager) ListTeams() []*Team {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -237,7 +237,7 @@ func (m *Manager) ListTeams() []*Team {
 	return teams
 }
 
-// ListUserTeams 列出用户所属团队
+// ListUserTeams 列出用户所属团队.
 func (m *Manager) ListUserTeams(userID string) []*Team {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -251,7 +251,7 @@ func (m *Manager) ListUserTeams(userID string) []*Team {
 	return teams
 }
 
-// UpdateTeam 更新团队
+// UpdateTeam 更新团队.
 func (m *Manager) UpdateTeam(teamID string, input TeamInput, userID string) (*Team, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -286,7 +286,7 @@ func (m *Manager) UpdateTeam(teamID string, input TeamInput, userID string) (*Te
 	return team, nil
 }
 
-// DeleteTeam 删除团队
+// DeleteTeam 删除团队.
 func (m *Manager) DeleteTeam(teamID, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -328,7 +328,7 @@ func (m *Manager) DeleteTeam(teamID, userID string) error {
 
 // ========== 成员管理 ==========
 
-// AddMember 添加成员
+// AddMember 添加成员.
 func (m *Manager) AddMember(teamID string, input MemberInput, inviterID, inviterName string) (*TeamMember, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -396,7 +396,7 @@ func (m *Manager) AddMember(teamID string, input MemberInput, inviterID, inviter
 	return member, nil
 }
 
-// RemoveMember 移除成员
+// RemoveMember 移除成员.
 func (m *Manager) RemoveMember(teamID, memberID, operatorID, operatorName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -435,7 +435,7 @@ func (m *Manager) RemoveMember(teamID, memberID, operatorID, operatorName string
 	return nil
 }
 
-// UpdateMemberRole 更新成员角色
+// UpdateMemberRole 更新成员角色.
 func (m *Manager) UpdateMemberRole(teamID, memberID string, role MemberRole, operatorID, operatorName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -474,7 +474,7 @@ func (m *Manager) UpdateMemberRole(teamID, memberID string, role MemberRole, ope
 	return nil
 }
 
-// GetMembers 获取团队成员列表
+// GetMembers 获取团队成员列表.
 func (m *Manager) GetMembers(teamID string) ([]*TeamMember, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -490,7 +490,7 @@ func (m *Manager) GetMembers(teamID string) ([]*TeamMember, error) {
 	return members, nil
 }
 
-// GetMemberRole 获取成员角色
+// GetMemberRole 获取成员角色.
 func (m *Manager) GetMemberRole(teamID, userID string) (MemberRole, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -502,7 +502,7 @@ func (m *Manager) GetMemberRole(teamID, userID string) (MemberRole, error) {
 	return member.Role, nil
 }
 
-// hasPermission 检查权限
+// hasPermission 检查权限.
 func (m *Manager) hasPermission(teamID, userID string, requiredRole MemberRole) bool {
 	member, ok := m.members[teamID][userID]
 	if !ok {
@@ -525,7 +525,7 @@ func (m *Manager) hasPermission(teamID, userID string, requiredRole MemberRole) 
 
 // ========== 文件夹管理 ==========
 
-// CreateFolder 创建团队文件夹
+// CreateFolder 创建团队文件夹.
 func (m *Manager) CreateFolder(teamID string, input FolderInput, userID, username string) (*TeamFolder, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -587,7 +587,7 @@ func (m *Manager) CreateFolder(teamID string, input FolderInput, userID, usernam
 	return folder, nil
 }
 
-// GetFolder 获取团队文件夹
+// GetFolder 获取团队文件夹.
 func (m *Manager) GetFolder(teamID, folderID string) (*TeamFolder, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -604,7 +604,7 @@ func (m *Manager) GetFolder(teamID, folderID string) (*TeamFolder, error) {
 	return folder, nil
 }
 
-// ListFolders 列出团队文件夹
+// ListFolders 列出团队文件夹.
 func (m *Manager) ListFolders(teamID string) ([]*TeamFolder, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -621,7 +621,7 @@ func (m *Manager) ListFolders(teamID string) ([]*TeamFolder, error) {
 	return result, nil
 }
 
-// UpdateFolder 更新文件夹
+// UpdateFolder 更新文件夹.
 func (m *Manager) UpdateFolder(teamID, folderID string, input FolderInput, userID, username string) (*TeamFolder, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -659,7 +659,7 @@ func (m *Manager) UpdateFolder(teamID, folderID string, input FolderInput, userI
 	return folder, nil
 }
 
-// DeleteFolder 删除文件夹
+// DeleteFolder 删除文件夹.
 func (m *Manager) DeleteFolder(teamID, folderID, userID, username string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -691,7 +691,7 @@ func (m *Manager) DeleteFolder(teamID, folderID, userID, username string) error 
 	return nil
 }
 
-// GetTeamStats 获取团队统计
+// GetTeamStats 获取团队统计.
 func (m *Manager) GetTeamStats(teamID string) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

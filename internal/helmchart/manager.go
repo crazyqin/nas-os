@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Repository 表示 Helm Chart 仓库
+// Repository 表示 Helm Chart 仓库.
 type Repository struct {
 	Name        string `json:"name"`         // 仓库名称
 	URL         string `json:"url"`          // 仓库 URL
@@ -20,42 +20,42 @@ type Repository struct {
 	CreatedAt   int64  `json:"created_at"`
 }
 
-// Chart 表示一个 Helm Chart
+// Chart 表示一个 Helm Chart.
 type Chart struct {
-	Name        string   `json:"name"`         // Chart 名称
-	Version     string   `json:"version"`      // 版本
-	AppVersion  string   `json:"app_version"`  // 应用版本
-	Repository  string   `json:"repository"`   // 所属仓库
-	Description string   `json:"description"`  // 描述
-	Keywords    []string `json:"keywords"`     // 关键词
-	Home        string   `json:"home"`         // 主页
-	Icon        string   `json:"icon"`         // 图标 URL
-	Deprecated  bool     `json:"deprecated"`   // 是否已弃用
+	Name        string   `json:"name"`        // Chart 名称
+	Version     string   `json:"version"`     // 版本
+	AppVersion  string   `json:"app_version"` // 应用版本
+	Repository  string   `json:"repository"`  // 所属仓库
+	Description string   `json:"description"` // 描述
+	Keywords    []string `json:"keywords"`    // 关键词
+	Home        string   `json:"home"`        // 主页
+	Icon        string   `json:"icon"`        // 图标 URL
+	Deprecated  bool     `json:"deprecated"`  // 是否已弃用
 	CreatedAt   int64    `json:"created_at"`
 }
 
-// InstalledChart 表示已安装的 Chart
+// InstalledChart 表示已安装的 Chart.
 type InstalledChart struct {
-	Name        string            `json:"name"`         // 安装名称
-	Chart       string            `json:"chart"`        // Chart 名称
-	Version     string            `json:"version"`      // 安装的版本
-	Namespace   string            `json:"namespace"`    // K8s 命名空间
-	Status      string            `json:"status"`       // deployed/failed/pending
-	Values      map[string]string `json:"values"`       // 自定义值
-	Notes       string            `json:"notes"`        // 安装说明
+	Name        string            `json:"name"`      // 安装名称
+	Chart       string            `json:"chart"`     // Chart 名称
+	Version     string            `json:"version"`   // 安装的版本
+	Namespace   string            `json:"namespace"` // K8s 命名空间
+	Status      string            `json:"status"`    // deployed/failed/pending
+	Values      map[string]string `json:"values"`    // 自定义值
+	Notes       string            `json:"notes"`     // 安装说明
 	InstalledAt int64             `json:"installed_at"`
 	UpdatedAt   int64             `json:"updated_at"`
 }
 
-// Manager 管理 Helm Chart 应用商店
+// Manager 管理 Helm Chart 应用商店.
 type Manager struct {
-	mu          sync.RWMutex
-	repos       map[string]*Repository
-	charts      map[string]*Chart       // key: repo/name:version
-	installed   map[string]*InstalledChart
+	mu        sync.RWMutex
+	repos     map[string]*Repository
+	charts    map[string]*Chart // key: repo/name:version
+	installed map[string]*InstalledChart
 }
 
-// NewManager 创建 Helm Chart 管理器
+// NewManager 创建 Helm Chart 管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		repos:     make(map[string]*Repository),
@@ -89,7 +89,7 @@ func (m *Manager) addBuiltinRepos() {
 	}
 }
 
-// AddRepo 添加 Chart 仓库
+// AddRepo 添加 Chart 仓库.
 func (m *Manager) AddRepo(name, url, description string) (*Repository, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -119,7 +119,7 @@ func (m *Manager) AddRepo(name, url, description string) (*Repository, error) {
 	return repo, nil
 }
 
-// RemoveRepo 删除仓库
+// RemoveRepo 删除仓库.
 func (m *Manager) RemoveRepo(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -145,7 +145,7 @@ func (m *Manager) RemoveRepo(name string) error {
 	return nil
 }
 
-// ListRepos 列出所有仓库
+// ListRepos 列出所有仓库.
 func (m *Manager) ListRepos() []*Repository {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -157,7 +157,7 @@ func (m *Manager) ListRepos() []*Repository {
 	return result
 }
 
-// SearchChart 搜索 Chart
+// SearchChart 搜索 Chart.
 func (m *Manager) SearchChart(keyword string) []*Chart {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -200,7 +200,7 @@ func contains(s, substr string) bool {
 	return len(s) >= len(substr) && (s == substr || len(substr) == 0)
 }
 
-// InstallChart 安装 Chart
+// InstallChart 安装 Chart.
 func (m *Manager) InstallChart(name, chart, version, namespace string, values map[string]string) (*InstalledChart, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -237,7 +237,7 @@ func (m *Manager) InstallChart(name, chart, version, namespace string, values ma
 	return installed, nil
 }
 
-// UninstallChart 卸载 Chart
+// UninstallChart 卸载 Chart.
 func (m *Manager) UninstallChart(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -251,7 +251,7 @@ func (m *Manager) UninstallChart(name string) error {
 	return nil
 }
 
-// ListInstalled 列出已安装的 Chart
+// ListInstalled 列出已安装的 Chart.
 func (m *Manager) ListInstalled() []*InstalledChart {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -263,7 +263,7 @@ func (m *Manager) ListInstalled() []*InstalledChart {
 	return result
 }
 
-// GetInstalled 获取已安装的 Chart 详情
+// GetInstalled 获取已安装的 Chart 详情.
 func (m *Manager) GetInstalled(name string) (*InstalledChart, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -276,7 +276,7 @@ func (m *Manager) GetInstalled(name string) (*InstalledChart, error) {
 	return chart, nil
 }
 
-// UpgradeChart 升级已安装的 Chart
+// UpgradeChart 升级已安装的 Chart.
 func (m *Manager) UpgradeChart(name, newVersion string, values map[string]string) (*InstalledChart, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -299,7 +299,7 @@ func (m *Manager) UpgradeChart(name, newVersion string, values map[string]string
 	return chart, nil
 }
 
-// SyncRepo 同步仓库
+// SyncRepo 同步仓库.
 func (m *Manager) SyncRepo(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -324,7 +324,7 @@ func (m *Manager) SyncRepo(name string) error {
 	return nil
 }
 
-// GetStats 获取应用商店统计信息
+// GetStats 获取应用商店统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

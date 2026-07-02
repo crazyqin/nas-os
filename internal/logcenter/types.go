@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// LogLevel 日志级别
+// LogLevel 日志级别.
 type LogLevel string
 
 const (
@@ -17,7 +17,7 @@ const (
 	LogLevelFatal LogLevel = "fatal"
 )
 
-// LogSource 日志来源
+// LogSource 日志来源.
 type LogSource string
 
 const (
@@ -31,7 +31,7 @@ const (
 	SourceApp     LogSource = "app"
 )
 
-// LogEntry 日志条目
+// LogEntry 日志条目.
 type LogEntry struct {
 	ID        string    `json:"id"`
 	Timestamp time.Time `json:"timestamp"`
@@ -46,7 +46,7 @@ type LogEntry struct {
 	ClientIP  string    `json:"client_ip,omitempty"`
 }
 
-// LogQuery 日志查询条件
+// LogQuery 日志查询条件.
 type LogQuery struct {
 	Keywords  string    `form:"keywords"`
 	Level     LogLevel  `form:"level"`
@@ -62,7 +62,7 @@ type LogQuery struct {
 	SortDesc  bool      `form:"sort_desc,default=true"`
 }
 
-// LogQueryResult 日志查询结果
+// LogQueryResult 日志查询结果.
 type LogQueryResult struct {
 	Logs       []LogEntry `json:"logs"`
 	Total      int        `json:"total"`
@@ -71,7 +71,7 @@ type LogQueryResult struct {
 	TotalPages int        `json:"total_pages"`
 }
 
-// LogStats 日志统计
+// LogStats 日志统计.
 type LogStats struct {
 	TotalCount   int            `json:"total_count"`
 	LevelCounts  map[string]int `json:"level_counts"`
@@ -83,7 +83,7 @@ type LogStats struct {
 	ErrorRate24h float64        `json:"error_rate_24h"`
 }
 
-// LogConfig 日志配置
+// LogConfig 日志配置.
 type LogConfig struct {
 	MaxEntries    int  `json:"max_entries"`    // 最大日志条数
 	RetentionDays int  `json:"retention_days"` // 保留天数
@@ -93,7 +93,7 @@ type LogConfig struct {
 	StreamEnabled bool `json:"stream_enabled"` // 启用实时流
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *LogConfig {
 	return &LogConfig{
 		MaxEntries:    100000,
@@ -105,7 +105,7 @@ func DefaultConfig() *LogConfig {
 	}
 }
 
-// LogStreamMessage 实时流消息
+// LogStreamMessage 实时流消息.
 type LogStreamMessage struct {
 	Type  string    `json:"type"` // "log", "stats", "error"
 	Log   *LogEntry `json:"log,omitempty"`

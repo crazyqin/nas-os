@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Scheduler 任务调度器
+// Scheduler 任务调度器.
 type Scheduler struct {
 	mu      sync.RWMutex
 	logger  *zap.Logger
@@ -26,10 +26,10 @@ type Scheduler struct {
 	handler TaskHandler
 }
 
-// TaskHandler 任务处理函数
+// TaskHandler 任务处理函数.
 type TaskHandler func(ctx context.Context, task *Task) (interface{}, error)
 
-// taskHeap 优先级队列（最小堆，priority 值越大优先级越高）
+// taskHeap 优先级队列（最小堆，priority 值越大优先级越高）.
 type taskHeap []*Task
 
 func (h taskHeap) Len() int { return len(h) }
@@ -56,7 +56,7 @@ func (h *taskHeap) Pop() interface{} {
 	return item
 }
 
-// NewScheduler 创建任务调度器
+// NewScheduler 创建任务调度器.
 func NewScheduler(logger *zap.Logger, workers int, handler TaskHandler) *Scheduler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -79,7 +79,7 @@ func NewScheduler(logger *zap.Logger, workers int, handler TaskHandler) *Schedul
 	}
 }
 
-// Start 启动调度器
+// Start 启动调度器.
 func (s *Scheduler) Start(ctx context.Context) error {
 	s.mu.Lock()
 	if s.running {
@@ -102,7 +102,7 @@ func (s *Scheduler) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止调度器
+// Stop 停止调度器.
 func (s *Scheduler) Stop() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -116,7 +116,7 @@ func (s *Scheduler) Stop() {
 	s.logger.Info("task scheduler stopped")
 }
 
-// Submit 提交任务
+// Submit 提交任务.
 func (s *Scheduler) Submit(task *Task) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -156,7 +156,7 @@ func (s *Scheduler) Submit(task *Task) error {
 	return nil
 }
 
-// Cancel 取消任务
+// Cancel 取消任务.
 func (s *Scheduler) Cancel(taskID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -177,7 +177,7 @@ func (s *Scheduler) Cancel(taskID string) error {
 	return nil
 }
 
-// GetTask 获取任务信息
+// GetTask 获取任务信息.
 func (s *Scheduler) GetTask(taskID string) (*Task, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -189,7 +189,7 @@ func (s *Scheduler) GetTask(taskID string) (*Task, error) {
 	return task, nil
 }
 
-// ListTasks 列出所有任务
+// ListTasks 列出所有任务.
 func (s *Scheduler) ListTasks(status TaskStatus) []*Task {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -203,7 +203,7 @@ func (s *Scheduler) ListTasks(status TaskStatus) []*Task {
 	return result
 }
 
-// worker 工作线程
+// worker 工作线程.
 func (s *Scheduler) worker(ctx context.Context, id int) {
 	s.logger.Debug("worker started", zap.Int("worker_id", id))
 
@@ -219,7 +219,7 @@ func (s *Scheduler) worker(ctx context.Context, id int) {
 	}
 }
 
-// processNext 处理队列中的下一个任务
+// processNext 处理队列中的下一个任务.
 func (s *Scheduler) processNext(ctx context.Context, workerID int) {
 	s.mu.Lock()
 	if s.queue.Len() == 0 {
@@ -282,7 +282,7 @@ func (s *Scheduler) processNext(ctx context.Context, workerID int) {
 	s.mu.Unlock()
 }
 
-// scheduleChecker 定时任务检查
+// scheduleChecker 定时任务检查.
 func (s *Scheduler) scheduleChecker(ctx context.Context) {
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
@@ -299,7 +299,7 @@ func (s *Scheduler) scheduleChecker(ctx context.Context) {
 	}
 }
 
-// checkScheduledTasks 检查定时任务
+// checkScheduledTasks 检查定时任务.
 func (s *Scheduler) checkScheduledTasks() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -320,7 +320,7 @@ func (s *Scheduler) checkScheduledTasks() {
 	}
 }
 
-// GetStats 获取调度器统计
+// GetStats 获取调度器统计.
 func (s *Scheduler) GetStats() map[string]int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -353,7 +353,7 @@ func (s *Scheduler) GetStats() map[string]int {
 	return stats
 }
 
-// generateTaskID 生成任务 ID
+// generateTaskID 生成任务 ID.
 func generateTaskID() string {
 	b := make([]byte, 8)
 	rand.Read(b)

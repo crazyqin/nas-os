@@ -30,9 +30,9 @@ func setupCluster(t *testing.T, mgr *Manager) {
 func createTestContainer(id, name, image, ip, node string) *Container {
 	return &Container{
 		ID: id, Name: name, Image: image, IP: ip, Node: node, Status: ContainerRunning,
-		Ports: []PortMapping{{HostPort: 8080, ContainerPort: 80, Protocol: "tcp"}},
+		Ports:   []PortMapping{{HostPort: 8080, ContainerPort: 80, Protocol: "tcp"}},
 		Volumes: []VolumeMount{{HostPath: "/data/app", ContainerPath: "/app", ReadOnly: false}},
-		Labels: map[string]string{"app": "web"}, CreatedAt: time.Now(), UpdatedAt: time.Now(),
+		Labels:  map[string]string{"app": "web"}, CreatedAt: time.Now(), UpdatedAt: time.Now(),
 	}
 }
 

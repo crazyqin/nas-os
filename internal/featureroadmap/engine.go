@@ -11,7 +11,7 @@ import (
 
 var featureCounter int64
 
-// Feature 功能特性
+// Feature 功能特性.
 type Feature struct {
 	ID          string    `json:"id"`
 	Title       string    `json:"title"`
@@ -27,19 +27,19 @@ type Feature struct {
 	Tags        []string  `json:"tags"`
 }
 
-// Milestone 里程碑
+// Milestone 里程碑.
 type Milestone struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
 	Version     string    `json:"version"`
 	Description string    `json:"description"`
 	TargetDate  time.Time `json:"targetDate"`
-	Status      string    `json:"status"` // upcoming, active, completed
+	Status      string    `json:"status"`   // upcoming, active, completed
 	Features    []string  `json:"features"` // feature IDs
 	Progress    int       `json:"progress"`
 }
 
-// RoadmapStats 路线图统计
+// RoadmapStats 路线图统计.
 type RoadmapStats struct {
 	TotalFeatures   int            `json:"totalFeatures"`
 	ByStatus        map[string]int `json:"byStatus"`
@@ -48,7 +48,7 @@ type RoadmapStats struct {
 	OverallProgress float64        `json:"overallProgress"`
 }
 
-// FeatureRoadmap 功能路线图管理
+// FeatureRoadmap 功能路线图管理.
 type FeatureRoadmap struct {
 	mu         sync.RWMutex
 	features   map[string]*Feature
@@ -57,7 +57,7 @@ type FeatureRoadmap struct {
 	running    bool
 }
 
-// NewFeatureRoadmap 创建路线图
+// NewFeatureRoadmap 创建路线图.
 func NewFeatureRoadmap() *FeatureRoadmap {
 	return &FeatureRoadmap{
 		features:   make(map[string]*Feature),
@@ -66,7 +66,7 @@ func NewFeatureRoadmap() *FeatureRoadmap {
 	}
 }
 
-// Start 启动
+// Start 启动.
 func (f *FeatureRoadmap) Start() {
 	f.mu.Lock()
 	if f.running {
@@ -78,7 +78,7 @@ func (f *FeatureRoadmap) Start() {
 	log.Println("[FeatureRoadmap] 功能路线图已启动")
 }
 
-// Stop 停止
+// Stop 停止.
 func (f *FeatureRoadmap) Stop() {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -89,7 +89,7 @@ func (f *FeatureRoadmap) Stop() {
 	f.running = false
 }
 
-// AddFeature 添加功能
+// AddFeature 添加功能.
 func (f *FeatureRoadmap) AddFeature(feature Feature) *Feature {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -103,7 +103,7 @@ func (f *FeatureRoadmap) AddFeature(feature Feature) *Feature {
 	return &feature
 }
 
-// UpdateFeature 更新功能
+// UpdateFeature 更新功能.
 func (f *FeatureRoadmap) UpdateFeature(id string, updates map[string]interface{}) bool {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -127,7 +127,7 @@ func (f *FeatureRoadmap) UpdateFeature(id string, updates map[string]interface{}
 	return true
 }
 
-// AddMilestone 添加里程碑
+// AddMilestone 添加里程碑.
 func (f *FeatureRoadmap) AddMilestone(ms Milestone) *Milestone {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -139,7 +139,7 @@ func (f *FeatureRoadmap) AddMilestone(ms Milestone) *Milestone {
 	return &ms
 }
 
-// GetFeatures 获取功能列表
+// GetFeatures 获取功能列表.
 func (f *FeatureRoadmap) GetFeatures() []Feature {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
@@ -153,7 +153,7 @@ func (f *FeatureRoadmap) GetFeatures() []Feature {
 	return result
 }
 
-// GetMilestones 获取里程碑列表
+// GetMilestones 获取里程碑列表.
 func (f *FeatureRoadmap) GetMilestones() []Milestone {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
@@ -164,7 +164,7 @@ func (f *FeatureRoadmap) GetMilestones() []Milestone {
 	return result
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (f *FeatureRoadmap) GetStats() RoadmapStats {
 	f.mu.RLock()
 	defer f.mu.RUnlock()

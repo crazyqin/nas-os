@@ -13,17 +13,17 @@ import (
 	"strings"
 )
 
-// Handler 文件分享 HTTP Handler
+// Handler 文件分享 HTTP Handler.
 type Handler struct {
 	manager *FileSharingManager
 }
 
-// NewHandler 创建 Handler
+// NewHandler 创建 Handler.
 func NewHandler(manager *FileSharingManager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/sharing/links", h.handleLinks)
 	mux.HandleFunc("/api/sharing/links/", h.handleLinkByID)
@@ -31,7 +31,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/sharing/stats", h.handleStats)
 }
 
-// handleLinks 处理分享链接列表和创建
+// handleLinks 处理分享链接列表和创建.
 func (h *Handler) handleLinks(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -43,7 +43,7 @@ func (h *Handler) handleLinks(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleLinkByID 处理单个链接操作
+// handleLinkByID 处理单个链接操作.
 func (h *Handler) handleLinkByID(w http.ResponseWriter, r *http.Request) {
 	// 解析 ID
 	parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/sharing/links/"), "/")
@@ -72,7 +72,7 @@ func (h *Handler) handleLinkByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handlePublicAccess 处理公开访问
+// handlePublicAccess 处理公开访问.
 func (h *Handler) handlePublicAccess(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/sharing/s/"), "/")
 	if len(parts) == 0 || parts[0] == "" {
@@ -99,7 +99,7 @@ func (h *Handler) handlePublicAccess(w http.ResponseWriter, r *http.Request) {
 	h.handleView(w, r, tokenOrSlug)
 }
 
-// handleStats 处理统计请求
+// handleStats 处理统计请求.
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -114,7 +114,7 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 
 // ================== 链接操作 ==================
 
-// createLink 创建分享链接
+// createLink 创建分享链接.
 func (h *Handler) createLink(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Path         string            `json:"path"`
@@ -174,7 +174,7 @@ func (h *Handler) createLink(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// listLinks 列出分享链接
+// listLinks 列出分享链接.
 func (h *Handler) listLinks(w http.ResponseWriter, r *http.Request) {
 	createdBy := r.URL.Query().Get("createdBy")
 	status := ShareStatus(r.URL.Query().Get("status"))
@@ -204,7 +204,7 @@ func (h *Handler) listLinks(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// getLink 获取链接详情
+// getLink 获取链接详情.
 func (h *Handler) getLink(w http.ResponseWriter, r *http.Request, id string) {
 	link, err := h.manager.GetShareLinkByID(id)
 	if err != nil {
@@ -221,7 +221,7 @@ func (h *Handler) getLink(w http.ResponseWriter, r *http.Request, id string) {
 	})
 }
 
-// updateLink 更新链接
+// updateLink 更新链接.
 func (h *Handler) updateLink(w http.ResponseWriter, r *http.Request, id string) {
 	var updates map[string]interface{}
 	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
@@ -238,7 +238,7 @@ func (h *Handler) updateLink(w http.ResponseWriter, r *http.Request, id string) 
 	writeJSON(w, http.StatusOK, link)
 }
 
-// deleteLink 删除链接
+// deleteLink 删除链接.
 func (h *Handler) deleteLink(w http.ResponseWriter, r *http.Request, id string) {
 	// 支持撤销（软删除）和彻底删除
 	action := r.URL.Query().Get("action")
@@ -260,7 +260,7 @@ func (h *Handler) deleteLink(w http.ResponseWriter, r *http.Request, id string) 
 
 // ================== 公开访问 ==================
 
-// handleView 处理查看请求
+// handleView 处理查看请求.
 func (h *Handler) handleView(w http.ResponseWriter, r *http.Request, tokenOrSlug string) {
 	link, err := h.manager.GetShareLink(tokenOrSlug)
 	if err != nil {
@@ -352,7 +352,7 @@ func (h *Handler) handleView(w http.ResponseWriter, r *http.Request, tokenOrSlug
 	}
 }
 
-// handleDownload 处理下载请求
+// handleDownload 处理下载请求.
 func (h *Handler) handleDownload(w http.ResponseWriter, r *http.Request, tokenOrSlug string) {
 	link, err := h.manager.GetShareLink(tokenOrSlug)
 	if err != nil {
@@ -448,7 +448,7 @@ func (h *Handler) handleDownload(w http.ResponseWriter, r *http.Request, tokenOr
 	}
 }
 
-// handleUpload 处理上传请求
+// handleUpload 处理上传请求.
 func (h *Handler) handleUpload(w http.ResponseWriter, r *http.Request, tokenOrSlug string) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -547,7 +547,7 @@ func (h *Handler) handleUpload(w http.ResponseWriter, r *http.Request, tokenOrSl
 	})
 }
 
-// generateQRCode 生成二维码
+// generateQRCode 生成二维码.
 func (h *Handler) generateQRCode(w http.ResponseWriter, r *http.Request, id string) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -583,7 +583,7 @@ func (h *Handler) generateQRCode(w http.ResponseWriter, r *http.Request, id stri
 
 // ================== 工具函数 ==================
 
-// writeJSON 写入 JSON 响应
+// writeJSON 写入 JSON 响应.
 func writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

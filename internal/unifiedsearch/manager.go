@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 统一搜索管理器
+// Manager 统一搜索管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	engine      *SearchEngine
@@ -31,7 +31,7 @@ type Manager struct {
 	running     bool
 }
 
-// SearchConfig 搜索配置
+// SearchConfig 搜索配置.
 type SearchConfig struct {
 	IndexDir        string  `json:"index_dir"`
 	MaxHistory      int     `json:"max_history"`
@@ -44,7 +44,7 @@ type SearchConfig struct {
 	DefaultPageSize int     `json:"default_page_size"`
 }
 
-// DefaultSearchConfig 默认搜索配置
+// DefaultSearchConfig 默认搜索配置.
 func DefaultSearchConfig() *SearchConfig {
 	return &SearchConfig{
 		IndexDir:        "/var/lib/nas-os/search-index",
@@ -59,7 +59,7 @@ func DefaultSearchConfig() *SearchConfig {
 	}
 }
 
-// NewManager 创建搜索管理器
+// NewManager 创建搜索管理器.
 func NewManager(config *SearchConfig, logger *zap.Logger) (*Manager, error) {
 	if config == nil {
 		config = DefaultSearchConfig()
@@ -88,7 +88,7 @@ func NewManager(config *SearchConfig, logger *zap.Logger) (*Manager, error) {
 	}, nil
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -106,7 +106,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -126,7 +126,7 @@ func (m *Manager) Stop() error {
 	return nil
 }
 
-// Search 执行搜索
+// Search 执行搜索.
 func (m *Manager) Search(query *SearchQuery) (*SearchResponse, error) {
 	if query == nil || query.Query == "" {
 		return nil, fmt.Errorf("query is required")
@@ -148,7 +148,7 @@ func (m *Manager) Search(query *SearchQuery) (*SearchResponse, error) {
 	return resp, nil
 }
 
-// recordSearch 记录搜索历史和热门搜索
+// recordSearch 记录搜索历史和热门搜索.
 func (m *Manager) recordSearch(query string, resultCount int) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -184,7 +184,7 @@ func (m *Manager) recordSearch(query string, resultCount int) {
 	}
 }
 
-// AddDocument 添加文档到索引
+// AddDocument 添加文档到索引.
 func (m *Manager) AddDocument(idx *SearchIndex) error {
 	if idx == nil || idx.Path == "" {
 		return fmt.Errorf("invalid document: path is required")
@@ -228,7 +228,7 @@ func (m *Manager) AddDocument(idx *SearchIndex) error {
 	return nil
 }
 
-// RemoveDocument 从索引中移除文档
+// RemoveDocument 从索引中移除文档.
 func (m *Manager) RemoveDocument(path string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -251,7 +251,7 @@ func (m *Manager) RemoveDocument(path string) error {
 	return nil
 }
 
-// removeFromIndexes 从辅助索引中移除
+// removeFromIndexes 从辅助索引中移除.
 func (m *Manager) removeFromIndexes(idx *SearchIndex) {
 	// 从标签索引移除
 	for _, tag := range idx.Tags {
@@ -275,7 +275,7 @@ func (m *Manager) removeFromIndexes(idx *SearchIndex) {
 	}
 }
 
-// UpdateDocument 更新文档
+// UpdateDocument 更新文档.
 func (m *Manager) UpdateDocument(req *UpdateIndexRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -320,7 +320,7 @@ func (m *Manager) UpdateDocument(req *UpdateIndexRequest) error {
 	return nil
 }
 
-// BuildIndex 构建索引
+// BuildIndex 构建索引.
 func (m *Manager) BuildIndex(path string) (*IndexTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -341,7 +341,7 @@ func (m *Manager) BuildIndex(path string) (*IndexTask, error) {
 	return task, nil
 }
 
-// IncrementalUpdate 增量更新索引
+// IncrementalUpdate 增量更新索引.
 func (m *Manager) IncrementalUpdate(path string) (*IndexTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -361,7 +361,7 @@ func (m *Manager) IncrementalUpdate(path string) (*IndexTask, error) {
 	return task, nil
 }
 
-// executeIndexTask 执行索引任务
+// executeIndexTask 执行索引任务.
 func (m *Manager) executeIndexTask(task *IndexTask) {
 	m.mu.Lock()
 	now := time.Now()
@@ -387,29 +387,29 @@ func (m *Manager) executeIndexTask(task *IndexTask) {
 	m.logger.Info("index task completed", zap.String("id", task.ID))
 }
 
-// PauseIndex 暂停索引
+// PauseIndex 暂停索引.
 func (m *Manager) PauseIndex() error {
 	// 简化实现
 	return nil
 }
 
-// ResumeIndex 恢复索引
+// ResumeIndex 恢复索引.
 func (m *Manager) ResumeIndex() error {
 	// 简化实现
 	return nil
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (m *Manager) RebuildIndex() error {
 	return m.engine.RebuildIndex()
 }
 
-// GetIndexStats 获取索引统计
+// GetIndexStats 获取索引统计.
 func (m *Manager) GetIndexStats() *IndexStats {
 	return m.engine.GetStats()
 }
 
-// GetTask 获取索引任务
+// GetTask 获取索引任务.
 func (m *Manager) GetTask(id string) (*IndexTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -421,7 +421,7 @@ func (m *Manager) GetTask(id string) (*IndexTask, error) {
 	return task, nil
 }
 
-// ListTasks 列出索引任务
+// ListTasks 列出索引任务.
 func (m *Manager) ListTasks() []*IndexTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -438,7 +438,7 @@ func (m *Manager) ListTasks() []*IndexTask {
 	return tasks
 }
 
-// GetSearchHistory 获取搜索历史
+// GetSearchHistory 获取搜索历史.
 func (m *Manager) GetSearchHistory(limit int) []*SearchHistory {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -464,14 +464,14 @@ func (m *Manager) GetSearchHistory(limit int) []*SearchHistory {
 	return result
 }
 
-// ClearSearchHistory 清空搜索历史
+// ClearSearchHistory 清空搜索历史.
 func (m *Manager) ClearSearchHistory() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.history = make([]*SearchHistory, 0)
 }
 
-// GetHotSearches 获取热门搜索
+// GetHotSearches 获取热门搜索.
 func (m *Manager) GetHotSearches(limit int) []*HotSearch {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -492,7 +492,7 @@ func (m *Manager) GetHotSearches(limit int) []*HotSearch {
 	return hot
 }
 
-// GetSuggestions 获取搜索建议
+// GetSuggestions 获取搜索建议.
 func (m *Manager) GetSuggestions(query string, limit int) []string {
 	suggestions, err := m.engine.GetSuggestions(query, limit)
 	if err != nil {
@@ -502,7 +502,7 @@ func (m *Manager) GetSuggestions(query string, limit int) []string {
 	return suggestions
 }
 
-// addSearchHistory 添加搜索历史
+// addSearchHistory 添加搜索历史.
 func (m *Manager) addSearchHistory(query string, resultCount int) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -523,7 +523,7 @@ func (m *Manager) addSearchHistory(query string, resultCount int) {
 	}
 }
 
-// GetDocument 获取文档
+// GetDocument 获取文档.
 func (m *Manager) GetDocument(id string) (*SearchIndex, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -535,7 +535,7 @@ func (m *Manager) GetDocument(id string) (*SearchIndex, error) {
 	return idx, nil
 }
 
-// ListDocuments 列出文档
+// ListDocuments 列出文档.
 func (m *Manager) ListDocuments(contentType ContentType, limit int) []*SearchIndex {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -566,7 +566,7 @@ func (m *Manager) ListDocuments(contentType ContentType, limit int) []*SearchInd
 	return docs
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config *SearchConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -575,7 +575,7 @@ func (m *Manager) UpdateConfig(config *SearchConfig) {
 	}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *SearchConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -583,7 +583,7 @@ func (m *Manager) GetConfig() *SearchConfig {
 	return &cfg
 }
 
-// fuzzyMatch 模糊匹配（编辑距离）
+// fuzzyMatch 模糊匹配（编辑距离）.
 func (m *Manager) fuzzyMatch(term, name, content string) float64 {
 	bestScore := 0.0
 
@@ -612,7 +612,7 @@ func (m *Manager) fuzzyMatch(term, name, content string) float64 {
 	return bestScore
 }
 
-// similarity 计算两个字符串的相似度（基于编辑距离）
+// similarity 计算两个字符串的相似度（基于编辑距离）.
 func similarity(a, b string) float64 {
 	if a == b {
 		return 1.0
@@ -635,7 +635,7 @@ func similarity(a, b string) float64 {
 	return float64(common) / float64(max(lenA, lenB))
 }
 
-// tokenize 分词
+// tokenize 分词.
 func tokenize(text string) []string {
 	text = strings.ToLower(text)
 	words := strings.FieldsFunc(text, func(r rune) bool {
@@ -644,7 +644,7 @@ func tokenize(text string) []string {
 	return words
 }
 
-// max 返回两个整数中较大的一个
+// max 返回两个整数中较大的一个.
 func max(a, b int) int {
 	if a > b {
 		return a
@@ -652,7 +652,7 @@ func max(a, b int) int {
 	return b
 }
 
-// min 返回两个整数中较小的一个
+// min 返回两个整数中较小的一个.
 func min(a, b int) int {
 	if a < b {
 		return a
@@ -660,7 +660,7 @@ func min(a, b int) int {
 	return b
 }
 
-// ContainsRegex 检查字符串是否匹配正则表达式
+// ContainsRegex 检查字符串是否匹配正则表达式.
 func ContainsRegex(text, pattern string) bool {
 	re, err := regexp.Compile(pattern)
 	if err != nil {

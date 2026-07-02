@@ -11,21 +11,21 @@ import (
 	"time"
 )
 
-// ThreatLevel 威胁等级
+// ThreatLevel 威胁等级.
 type ThreatLevel int
 
 const (
-	// ThreatLow 低威胁
+	// ThreatLow 低威胁.
 	ThreatLow ThreatLevel = iota
-	// ThreatMedium 中威胁
+	// ThreatMedium 中威胁.
 	ThreatMedium
-	// ThreatHigh 高威胁
+	// ThreatHigh 高威胁.
 	ThreatHigh
-	// ThreatCritical 严重威胁
+	// ThreatCritical 严重威胁.
 	ThreatCritical
 )
 
-// IPRecord IP访问记录
+// IPRecord IP访问记录.
 type IPRecord struct {
 	IP           net.IP      `json:"ip"`
 	FirstSeen    time.Time   `json:"first_seen"`
@@ -41,7 +41,7 @@ type IPRecord struct {
 	Tags         []string    `json:"tags,omitempty"`
 }
 
-// Rule 防护规则
+// Rule 防护规则.
 type Rule struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -54,7 +54,7 @@ type Rule struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// Condition 规则条件
+// Condition 规则条件.
 type Condition struct {
 	MaxRequests     int      `json:"max_requests,omitempty"`
 	WindowSeconds   int      `json:"window_seconds,omitempty"`
@@ -65,7 +65,7 @@ type Condition struct {
 	Paths           []string `json:"paths,omitempty"`
 }
 
-// Action 规则动作
+// Action 规则动作.
 type Action struct {
 	Type     string `json:"type"` // block, challenge, throttle, log, alert
 	Duration int    `json:"duration_seconds,omitempty"`
@@ -73,7 +73,7 @@ type Action struct {
 	Message  string `json:"message,omitempty"`
 }
 
-// Alert 告警记录
+// Alert 告警记录.
 type Alert struct {
 	ID        string      `json:"id"`
 	IP        net.IP      `json:"ip"`
@@ -85,7 +85,7 @@ type Alert struct {
 	Details   interface{} `json:"details,omitempty"`
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	MaxFailedLogins int  `json:"max_failed_logins"`
 	LockoutDuration int  `json:"lockout_duration_seconds"`
@@ -94,7 +94,7 @@ type Config struct {
 	MaxAlerts       int  `json:"max_alerts"`
 }
 
-// Manager IP防护管理器
+// Manager IP防护管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	config    *Config
@@ -105,7 +105,7 @@ type Manager struct {
 	alerts    []*Alert
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		config: &Config{
@@ -123,7 +123,7 @@ func NewManager() *Manager {
 	}
 }
 
-// CheckIP 检查IP是否允许访问
+// CheckIP 检查IP是否允许访问.
 func (m *Manager) CheckIP(ip net.IP) (bool, string) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -157,7 +157,7 @@ func (m *Manager) CheckIP(ip net.IP) (bool, string) {
 	return true, ""
 }
 
-// RecordRequest 记录请求
+// RecordRequest 记录请求.
 func (m *Manager) RecordRequest(ip net.IP, path string, method string, statusCode int) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -187,7 +187,7 @@ func (m *Manager) RecordRequest(ip net.IP, path string, method string, statusCod
 	}
 }
 
-// RecordFailedLogin 记录失败登录
+// RecordFailedLogin 记录失败登录.
 func (m *Manager) RecordFailedLogin(ip net.IP, username string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -222,7 +222,7 @@ func (m *Manager) RecordFailedLogin(ip net.IP, username string) {
 	}
 }
 
-// BlockIP 手动封禁IP
+// BlockIP 手动封禁IP.
 func (m *Manager) BlockIP(ip net.IP, reason string, durationSeconds int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -242,7 +242,7 @@ func (m *Manager) BlockIP(ip net.IP, reason string, durationSeconds int) error {
 	return nil
 }
 
-// UnblockIP 解封IP
+// UnblockIP 解封IP.
 func (m *Manager) UnblockIP(ip net.IP) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -259,7 +259,7 @@ func (m *Manager) UnblockIP(ip net.IP) error {
 	return nil
 }
 
-// AddRule 添加规则
+// AddRule 添加规则.
 func (m *Manager) AddRule(rule *Rule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -270,7 +270,7 @@ func (m *Manager) AddRule(rule *Rule) error {
 	return nil
 }
 
-// RemoveRule 删除规则
+// RemoveRule 删除规则.
 func (m *Manager) RemoveRule(ruleID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -279,7 +279,7 @@ func (m *Manager) RemoveRule(ruleID string) error {
 	return nil
 }
 
-// GetRules 获取所有规则
+// GetRules 获取所有规则.
 func (m *Manager) GetRules() []*Rule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -291,7 +291,7 @@ func (m *Manager) GetRules() []*Rule {
 	return rules
 }
 
-// GetBlockedIPs 获取封禁列表
+// GetBlockedIPs 获取封禁列表.
 func (m *Manager) GetBlockedIPs() []*IPRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -305,7 +305,7 @@ func (m *Manager) GetBlockedIPs() []*IPRecord {
 	return result
 }
 
-// GetAlerts 获取告警
+// GetAlerts 获取告警.
 func (m *Manager) GetAlerts(limit int) []*Alert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -322,7 +322,7 @@ func (m *Manager) GetAlerts(limit int) []*Alert {
 	return m.alerts[start:]
 }
 
-// GetIPRecord 获取IP记录
+// GetIPRecord 获取IP记录.
 func (m *Manager) GetIPRecord(ip net.IP) *IPRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -330,7 +330,7 @@ func (m *Manager) GetIPRecord(ip net.IP) *IPRecord {
 	return m.records[ip.String()]
 }
 
-// matchRule 匹配规则
+// matchRule 匹配规则.
 func (m *Manager) matchRule(record *IPRecord, rule *Rule, path, method string, statusCode int) bool {
 	switch rule.Type {
 	case "rate_limit":
@@ -350,7 +350,7 @@ func (m *Manager) matchRule(record *IPRecord, rule *Rule, path, method string, s
 	return false
 }
 
-// applyAction 应用动作
+// applyAction 应用动作.
 func (m *Manager) applyAction(record *IPRecord, rule *Rule) {
 	switch rule.Action.Type {
 	case "block":
@@ -369,7 +369,7 @@ func (m *Manager) applyAction(record *IPRecord, rule *Rule) {
 	}
 }
 
-// blockIP 封禁IP
+// blockIP 封禁IP.
 func (m *Manager) blockIP(record *IPRecord, reason string, durationSeconds int) {
 	now := time.Now()
 	record.IsBlocked = true
@@ -385,7 +385,7 @@ func (m *Manager) blockIP(record *IPRecord, reason string, durationSeconds int) 
 	}
 }
 
-// addAlert 添加告警
+// addAlert 添加告警.
 func (m *Manager) addAlert(alert *Alert) {
 	m.alerts = append(m.alerts, alert)
 	if len(m.alerts) > m.config.MaxAlerts {
@@ -393,7 +393,7 @@ func (m *Manager) addAlert(alert *Alert) {
 	}
 }
 
-// RegisterRoutes 注册HTTP路由
+// RegisterRoutes 注册HTTP路由.
 func (m *Manager) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/ipguard/blocked", m.handleGetBlockedIPs)
 	mux.HandleFunc("/api/ipguard/block", m.handleBlockIP)
@@ -418,9 +418,9 @@ func (m *Manager) handleBlockIP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		IP      string `json:"ip"`
-		Reason  string `json:"reason"`
-		Duration int   `json:"duration_seconds"`
+		IP       string `json:"ip"`
+		Reason   string `json:"reason"`
+		Duration int    `json:"duration_seconds"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)

@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 看板管理器
+// Manager 看板管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	logger   *zap.Logger
@@ -24,7 +24,7 @@ type Manager struct {
 	running  bool
 }
 
-// NewManager 创建看板管理器
+// NewManager 创建看板管理器.
 func NewManager(logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -39,14 +39,14 @@ func NewManager(logger *zap.Logger) *Manager {
 	}
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// CreateBoard 创建看板
+// CreateBoard 创建看板.
 func (m *Manager) CreateBoard(req *CreateBoardRequest) (*Board, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -80,7 +80,7 @@ func (m *Manager) CreateBoard(req *CreateBoardRequest) (*Board, error) {
 	return board, nil
 }
 
-// GetBoard 获取看板
+// GetBoard 获取看板.
 func (m *Manager) GetBoard(id string) (*Board, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -92,7 +92,7 @@ func (m *Manager) GetBoard(id string) (*Board, error) {
 	return board, nil
 }
 
-// ListBoards 列出所有看板
+// ListBoards 列出所有看板.
 func (m *Manager) ListBoards() []*Board {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -104,7 +104,7 @@ func (m *Manager) ListBoards() []*Board {
 	return boards
 }
 
-// DeleteBoard 删除看板
+// DeleteBoard 删除看板.
 func (m *Manager) DeleteBoard(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -129,7 +129,7 @@ func (m *Manager) DeleteBoard(id string) error {
 	return nil
 }
 
-// CreateSprint 创建 Sprint
+// CreateSprint 创建 Sprint.
 func (m *Manager) CreateSprint(req *CreateSprintRequest) (*Sprint, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -165,7 +165,7 @@ func (m *Manager) CreateSprint(req *CreateSprintRequest) (*Sprint, error) {
 	return sprint, nil
 }
 
-// GetSprint 获取 Sprint
+// GetSprint 获取 Sprint.
 func (m *Manager) GetSprint(id string) (*Sprint, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -177,7 +177,7 @@ func (m *Manager) GetSprint(id string) (*Sprint, error) {
 	return sprint, nil
 }
 
-// ListSprints 列出看板的所有 Sprint
+// ListSprints 列出看板的所有 Sprint.
 func (m *Manager) ListSprints(boardID string) []*Sprint {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -196,7 +196,7 @@ func (m *Manager) ListSprints(boardID string) []*Sprint {
 	return sprints
 }
 
-// StartSprint 启动 Sprint
+// StartSprint 启动 Sprint.
 func (m *Manager) StartSprint(id string) (*Sprint, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -232,7 +232,7 @@ func (m *Manager) StartSprint(id string) (*Sprint, error) {
 	return sprint, nil
 }
 
-// CompleteSprint 完成 Sprint
+// CompleteSprint 完成 Sprint.
 func (m *Manager) CompleteSprint(id string) (*Sprint, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -262,7 +262,7 @@ func (m *Manager) CompleteSprint(id string) (*Sprint, error) {
 	return sprint, nil
 }
 
-// AddTask 添加任务
+// AddTask 添加任务.
 func (m *Manager) AddTask(req *CreateTaskRequest) (*Task, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -325,7 +325,7 @@ func (m *Manager) AddTask(req *CreateTaskRequest) (*Task, error) {
 	return task, nil
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (m *Manager) GetTask(id string) (*Task, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -337,7 +337,7 @@ func (m *Manager) GetTask(id string) (*Task, error) {
 	return task, nil
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (m *Manager) ListTasks(boardID, sprintID string) []*Task {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -360,7 +360,7 @@ func (m *Manager) ListTasks(boardID, sprintID string) []*Task {
 	return tasks
 }
 
-// MoveTask 移动任务到新状态
+// MoveTask 移动任务到新状态.
 func (m *Manager) MoveTask(taskID string, req *MoveTaskRequest) (*Task, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -397,7 +397,7 @@ func (m *Manager) MoveTask(taskID string, req *MoveTaskRequest) (*Task, error) {
 	return task, nil
 }
 
-// UpdateTask 更新任务
+// UpdateTask 更新任务.
 func (m *Manager) UpdateTask(id string, req *CreateTaskRequest) (*Task, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -445,7 +445,7 @@ func (m *Manager) UpdateTask(id string, req *CreateTaskRequest) (*Task, error) {
 	return task, nil
 }
 
-// DeleteTask 删除任务
+// DeleteTask 删除任务.
 func (m *Manager) DeleteTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -471,7 +471,7 @@ func (m *Manager) DeleteTask(id string) error {
 	return nil
 }
 
-// GetMetrics 获取 Sprint 指标
+// GetMetrics 获取 Sprint 指标.
 func (m *Manager) GetMetrics(sprintID string) (*SprintMetrics, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -560,7 +560,7 @@ func (m *Manager) GetMetrics(sprintID string) (*SprintMetrics, error) {
 	}, nil
 }
 
-// GenerateBurndown 生成燃尽图数据
+// GenerateBurndown 生成燃尽图数据.
 func (m *Manager) GenerateBurndown(sprintID string) ([]BurndownDay, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -636,7 +636,7 @@ func (m *Manager) GenerateBurndown(sprintID string) ([]BurndownDay, error) {
 	return burndown, nil
 }
 
-// AddSwimLane 添加泳道
+// AddSwimLane 添加泳道.
 func (m *Manager) AddSwimLane(boardID string, req *CreateSwimLaneRequest) (*SwimLane, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -661,7 +661,7 @@ func (m *Manager) AddSwimLane(boardID string, req *CreateSwimLaneRequest) (*Swim
 	return lane, nil
 }
 
-// RemoveSwimLane 移除泳道
+// RemoveSwimLane 移除泳道.
 func (m *Manager) RemoveSwimLane(boardID, laneID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

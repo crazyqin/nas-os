@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-// ResourceType 资源类型
+// ResourceType 资源类型.
 type ResourceType string
 
 const (
@@ -25,7 +25,7 @@ const (
 	ResourceCPU    ResourceType = "cpu"
 )
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 const (
@@ -34,7 +34,7 @@ const (
 	AlertCritical AlertLevel = "critical"
 )
 
-// ThresholdConfig 阈值配置
+// ThresholdConfig 阈值配置.
 type ThresholdConfig struct {
 	DiskWarning  float64 `json:"diskWarning"`  // 磁盘使用率警告阈值（百分比）
 	DiskCritical float64 `json:"diskCritical"` // 磁盘使用率危险阈值
@@ -44,7 +44,7 @@ type ThresholdConfig struct {
 	CPUCritical  float64 `json:"cpuCritical"`  // CPU使用率危险阈值
 }
 
-// DefaultThresholds 默认阈值
+// DefaultThresholds 默认阈值.
 func DefaultThresholds() ThresholdConfig {
 	return ThresholdConfig{
 		DiskWarning:  75.0,
@@ -56,7 +56,7 @@ func DefaultThresholds() ThresholdConfig {
 	}
 }
 
-// ResourceStatus 资源状态
+// ResourceStatus 资源状态.
 type ResourceStatus struct {
 	Type      ResourceType `json:"type"`
 	Used      float64      `json:"used"`
@@ -66,7 +66,7 @@ type ResourceStatus struct {
 	Timestamp time.Time    `json:"timestamp"`
 }
 
-// CleanupResult 清理结果
+// CleanupResult 清理结果.
 type CleanupResult struct {
 	FilesDeleted int           `json:"filesDeleted"`
 	BytesFreed   int64         `json:"bytesFreed"`
@@ -75,7 +75,7 @@ type CleanupResult struct {
 	Timestamp    time.Time     `json:"timestamp"`
 }
 
-// ResourceTrend 资源趋势
+// ResourceTrend 资源趋势.
 type ResourceTrend struct {
 	Type         ResourceType `json:"type"`
 	CurrentUsage float64      `json:"currentUsage"`
@@ -84,7 +84,7 @@ type ResourceTrend struct {
 	Trend        string       `json:"trend"` // rising, stable, falling
 }
 
-// Alert 告警记录
+// Alert 告警记录.
 type Alert struct {
 	ID        string       `json:"id"`
 	Resource  ResourceType `json:"resource"`
@@ -96,7 +96,7 @@ type Alert struct {
 	Resolved  bool         `json:"resolved"`
 }
 
-// Guard 守护引擎
+// Guard 守护引擎.
 type Guard struct {
 	mu         sync.RWMutex
 	thresholds ThresholdConfig
@@ -109,7 +109,7 @@ type Guard struct {
 	maxHistory int
 }
 
-// NewGuard 创建守护引擎
+// NewGuard 创建守护引擎.
 func NewGuard(thresholds ThresholdConfig) *Guard {
 	return &Guard{
 		thresholds: thresholds,
@@ -123,14 +123,14 @@ func NewGuard(thresholds ThresholdConfig) *Guard {
 	}
 }
 
-// SetCleanPaths 设置清理路径
+// SetCleanPaths 设置清理路径.
 func (g *Guard) SetCleanPaths(paths []string) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
 	g.cleanPaths = paths
 }
 
-// CheckResources 检查所有资源状态
+// CheckResources 检查所有资源状态.
 func (g *Guard) CheckResources(ctx context.Context) []ResourceStatus {
 	var statuses []ResourceStatus
 
@@ -267,7 +267,7 @@ func (g *Guard) getThreshold(resType ResourceType, critical bool) float64 {
 	return 0
 }
 
-// AutoCleanup 自动清理临时文件
+// AutoCleanup 自动清理临时文件.
 func (g *Guard) AutoCleanup(ctx context.Context, maxAge time.Duration) (*CleanupResult, error) {
 	start := time.Now()
 	result := &CleanupResult{
@@ -325,7 +325,7 @@ func (g *Guard) cleanDirectory(ctx context.Context, basePath string, maxAge time
 	})
 }
 
-// ForceGC 强制垃圾回收
+// ForceGC 强制垃圾回收.
 func (g *Guard) ForceGC() {
 	before := new(runtime.MemStats)
 	runtime.ReadMemStats(before)
@@ -339,7 +339,7 @@ func (g *Guard) ForceGC() {
 	log.Printf("[SysResGuard] GC完成, 释放 %.2f MB", float64(freed)/1024/1024)
 }
 
-// PredictUsage 预测资源使用趋势
+// PredictUsage 预测资源使用趋势.
 func (g *Guard) PredictUsage(resType ResourceType) *ResourceTrend {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -410,7 +410,7 @@ func (g *Guard) PredictUsage(resType ResourceType) *ResourceTrend {
 	}
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (g *Guard) GetAlerts(level AlertLevel, limit int) []Alert {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -432,7 +432,7 @@ func (g *Guard) GetAlerts(level AlertLevel, limit int) []Alert {
 	return filtered
 }
 
-// GetCleanupHistory 获取清理历史
+// GetCleanupHistory 获取清理历史.
 func (g *Guard) GetCleanupHistory(limit int) []CleanupResult {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -446,7 +446,7 @@ func (g *Guard) GetCleanupHistory(limit int) []CleanupResult {
 	return result
 }
 
-// GetStatusSummary 获取状态摘要
+// GetStatusSummary 获取状态摘要.
 func (g *Guard) GetStatusSummary() map[string]interface{} {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -480,7 +480,7 @@ func (g *Guard) GetStatusSummary() map[string]interface{} {
 	return summary
 }
 
-// syscallStatfs 磁盘统计结构
+// syscallStatfs 磁盘统计结构.
 type syscallStatfs struct {
 	Blocks uint64
 	Bsize  uint64
@@ -507,7 +507,7 @@ func getDiskStat(path string, stat *syscallStatfs) error {
 	return nil
 }
 
-// String 返回资源类型字符串
+// String 返回资源类型字符串.
 func (r ResourceType) String() string {
 	switch r {
 	case ResourceDisk:
@@ -520,7 +520,7 @@ func (r ResourceType) String() string {
 	return string(r)
 }
 
-// String 返回告警级别字符串
+// String 返回告警级别字符串.
 func (a AlertLevel) String() string {
 	switch a {
 	case AlertInfo:

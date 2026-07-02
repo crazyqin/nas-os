@@ -8,7 +8,7 @@ import (
 )
 
 // SearchService 全局搜索服务接口
-// 提供统一的搜索入口，支持多种数据源搜索
+// 提供统一的搜索入口，支持多种数据源搜索.
 type SearchService interface {
 	// GlobalSearch 执行全局搜索
 	// 返回多种类型的结果：文件、设置、应用、容器、元数据、API、文档、日志
@@ -67,7 +67,7 @@ type SearchService interface {
 }
 
 // Indexer 索引器接口
-// 用于自定义数据源的内容索引
+// 用于自定义数据源的内容索引.
 type Indexer interface {
 	// Name 返回索引器名称
 	Name() string
@@ -86,7 +86,7 @@ type Indexer interface {
 	Stats() IndexStats
 }
 
-// FileSearchService 文件搜索服务接口
+// FileSearchService 文件搜索服务接口.
 type FileSearchService interface {
 	// Search 搜索文件
 	Search(ctx context.Context, req FileSearchRequest) (*FileSearchResponse, error)
@@ -105,7 +105,7 @@ type FileSearchService interface {
 	WatchChanges(ctx context.Context) (<-chan FileChangeEvent, error)
 }
 
-// SettingsSearchService 设置搜索服务接口
+// SettingsSearchService 设置搜索服务接口.
 type SettingsSearchService interface {
 	// Search 搜索设置项
 	Search(query string, limit int) []SearchResult
@@ -126,7 +126,7 @@ type SettingsSearchService interface {
 	GetAll() []SettingItem
 }
 
-// AppSearchService 应用搜索服务接口
+// AppSearchService 应用搜索服务接口.
 type AppSearchService interface {
 	// Search 搜索应用
 	Search(query string, limit int) []SearchResult
@@ -147,7 +147,7 @@ type AppSearchService interface {
 	GetInstalled() []AppItem
 }
 
-// APISearchService API搜索服务接口
+// APISearchService API搜索服务接口.
 type APISearchService interface {
 	// Search 搜索API端点
 	Search(query string, limit int) []SearchResult
@@ -171,7 +171,7 @@ type APISearchService interface {
 	GetAll() []APIEndpoint
 }
 
-// DocSearchService 文档搜索服务接口
+// DocSearchService 文档搜索服务接口.
 type DocSearchService interface {
 	// Search 搜索文档
 	Search(query string, limit int) []SearchResult
@@ -195,7 +195,7 @@ type DocSearchService interface {
 	GetAll() []DocumentItem
 }
 
-// LogSearchService 日志搜索服务接口
+// LogSearchService 日志搜索服务接口.
 type LogSearchService interface {
 	// Search 搜索日志
 	Search(ctx context.Context, req LogSearchRequest) (*LogSearchResponse, error)
@@ -215,7 +215,7 @@ type LogSearchService interface {
 
 // --- 数据结构定义 ---
 
-// SearchRequest 基础搜索请求
+// SearchRequest 基础搜索请求.
 type SearchRequest struct {
 	Query      string       `json:"query"`      // 搜索查询
 	Types      []ResultType `json:"types"`      // 结果类型过滤
@@ -229,7 +229,7 @@ type SearchRequest struct {
 	SortDesc   bool         `json:"sortDesc"`   // 降序排序
 }
 
-// SearchResponse 基础搜索响应
+// SearchResponse 基础搜索响应.
 type SearchResponse struct {
 	Query       string         `json:"query"`
 	Took        time.Duration  `json:"took"`
@@ -240,7 +240,7 @@ type SearchResponse struct {
 	Errors      []SearchError  `json:"errors,omitempty"`
 }
 
-// SearchResult 搜索结果项
+// SearchResult 搜索结果项.
 type SearchResult struct {
 	Type        ResultType     `json:"type"`
 	Score       float64        `json:"score"`
@@ -255,7 +255,7 @@ type SearchResult struct {
 	Metadata    map[string]any `json:"metadata,omitempty"`
 }
 
-// FileSearchRequest 文件搜索请求
+// FileSearchRequest 文件搜索请求.
 type FileSearchRequest struct {
 	Query      string     `json:"query"`
 	Paths      []string   `json:"paths"`      // 搜索路径限制
@@ -271,7 +271,7 @@ type FileSearchRequest struct {
 	SortDesc   bool       `json:"sortDesc"`
 }
 
-// FileSearchResponse 文件搜索响应
+// FileSearchResponse 文件搜索响应.
 type FileSearchResponse struct {
 	Query     string        `json:"query"`
 	Took      time.Duration `json:"took"`
@@ -280,7 +280,7 @@ type FileSearchResponse struct {
 	Truncated bool          `json:"truncated"`
 }
 
-// FileResult 文件搜索结果
+// FileResult 文件搜索结果.
 type FileResult struct {
 	Path       string      `json:"path"`
 	Name       string      `json:"name"`
@@ -292,7 +292,7 @@ type FileResult struct {
 	Highlights []Highlight `json:"highlights,omitempty"`
 }
 
-// LogFilter 日志过滤条件
+// LogFilter 日志过滤条件.
 type LogFilter struct {
 	Sources    []string   `json:"sources"`
 	Levels     []string   `json:"levels"`
@@ -302,7 +302,7 @@ type LogFilter struct {
 	Query      string     `json:"query"`
 }
 
-// LogSource 日志源定义
+// LogSource 日志源定义.
 type LogSource struct {
 	ID          string   `json:"id"`
 	Name        string   `json:"name"`
@@ -313,14 +313,14 @@ type LogSource struct {
 	Description string   `json:"description"`
 }
 
-// FileChangeEvent 文件变化事件
+// FileChangeEvent 文件变化事件.
 type FileChangeEvent struct {
 	Path      string    `json:"path"`
 	Type      string    `json:"type"` // create, modify, delete
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// SearchError 搜索错误
+// SearchError 搜索错误.
 type SearchError struct {
 	Type    ResultType `json:"type"`
 	Message string     `json:"message"`

@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Severity levels for vulnerabilities
+// Severity levels for vulnerabilities.
 const (
 	SeverityCritical = "CRITICAL"
 	SeverityHigh     = "HIGH"
@@ -15,7 +15,7 @@ const (
 	SeverityInfo     = "INFO"
 )
 
-// ReportFormat defines output format for scan reports
+// ReportFormat defines output format for scan reports.
 type ReportFormat string
 
 const (
@@ -23,7 +23,7 @@ const (
 	ReportFormatPDF  ReportFormat = "pdf"
 )
 
-// ScanStatus represents the status of a scan job
+// ScanStatus represents the status of a scan job.
 type ScanStatus string
 
 const (
@@ -33,7 +33,7 @@ const (
 	StatusFailed    ScanStatus = "failed"
 )
 
-// CVE represents a Common Vulnerabilities and Exposures entry
+// CVE represents a Common Vulnerabilities and Exposures entry.
 type CVE struct {
 	ID          string    `json:"id"`
 	Severity    string    `json:"severity"`
@@ -46,7 +46,7 @@ type CVE struct {
 	PublishedAt time.Time `json:"published_at"`
 }
 
-// Vulnerability represents a vulnerability found in an image
+// Vulnerability represents a vulnerability found in an image.
 type Vulnerability struct {
 	CVE
 	Layer        string `json:"layer"`
@@ -54,7 +54,7 @@ type Vulnerability struct {
 	Path         string `json:"path"`
 }
 
-// FixSuggestion provides auto-fix recommendation for a vulnerability
+// FixSuggestion provides auto-fix recommendation for a vulnerability.
 type FixSuggestion struct {
 	VulnID      string `json:"vuln_id"`
 	Package     string `json:"package"`
@@ -64,7 +64,7 @@ type FixSuggestion struct {
 	Description string `json:"description"`
 }
 
-// ImageLayer represents a single layer in a container image
+// ImageLayer represents a single layer in a container image.
 type ImageLayer struct {
 	Digest    string    `json:"digest"`
 	Size      int64     `json:"size"`
@@ -73,7 +73,7 @@ type ImageLayer struct {
 	Vulns     int       `json:"vulns"`
 }
 
-// VulnSummary provides vulnerability count by severity
+// VulnSummary provides vulnerability count by severity.
 type VulnSummary struct {
 	Total    int `json:"total"`
 	Critical int `json:"critical"`
@@ -83,7 +83,7 @@ type VulnSummary struct {
 	Info     int `json:"info"`
 }
 
-// ScanResult represents the result of scanning an image
+// ScanResult represents the result of scanning an image.
 type ScanResult struct {
 	Image          string          `json:"image"`
 	Registry       string          `json:"registry"`
@@ -97,14 +97,14 @@ type ScanResult struct {
 	Compliant      bool            `json:"compliant"`
 }
 
-// ScanRequest is the API request for scanning an image
+// ScanRequest is the API request for scanning an image.
 type ScanRequest struct {
 	Image       string `json:"image"`
 	Registry    string `json:"registry"`
 	ForceRescan bool   `json:"force_rescan"`
 }
 
-// ScanResponse is the API response for a scan
+// ScanResponse is the API response for a scan.
 type ScanResponse struct {
 	ScanID string      `json:"scan_id"`
 	Image  string      `json:"image"`
@@ -112,7 +112,7 @@ type ScanResponse struct {
 	Result *ScanResult `json:"result,omitempty"`
 }
 
-// ScanSchedule defines a scheduled scan configuration
+// ScanSchedule defines a scheduled scan configuration.
 type ScanSchedule struct {
 	ID        string        `json:"id"`
 	Image     string        `json:"image"`
@@ -123,7 +123,7 @@ type ScanSchedule struct {
 	CreatedAt time.Time     `json:"created_at"`
 }
 
-// ImageListEntry represents an image in the whitelist/blacklist
+// ImageListEntry represents an image in the whitelist/blacklist.
 type ImageListEntry struct {
 	Image   string    `json:"image"`
 	Reason  string    `json:"reason"`
@@ -131,7 +131,7 @@ type ImageListEntry struct {
 	AddedBy string    `json:"added_by"`
 }
 
-// ScanReport represents a generated scan report
+// ScanReport represents a generated scan report.
 type ScanReport struct {
 	ID          string       `json:"id"`
 	Image       string       `json:"image"`
@@ -141,7 +141,7 @@ type ScanReport struct {
 	Content     []byte       `json:"content,omitempty"`
 }
 
-// ListType defines whitelist or blacklist
+// ListType defines whitelist or blacklist.
 type ListType string
 
 const (

@@ -14,23 +14,23 @@ import (
 	"time"
 )
 
-// ScrubStatus scrub任务状态
+// ScrubStatus scrub任务状态.
 type ScrubStatus string
 
 const (
-	// ScrubStatusIdle 空闲
+	// ScrubStatusIdle 空闲.
 	ScrubStatusIdle ScrubStatus = "idle"
-	// ScrubStatusRunning 运行中
+	// ScrubStatusRunning 运行中.
 	ScrubStatusRunning ScrubStatus = "running"
-	// ScrubStatusPaused 暂停
+	// ScrubStatusPaused 暂停.
 	ScrubStatusPaused ScrubStatus = "paused"
-	// ScrubStatusCompleted 已完成
+	// ScrubStatusCompleted 已完成.
 	ScrubStatusCompleted ScrubStatus = "completed"
-	// ScrubStatusFailed 失败
+	// ScrubStatusFailed 失败.
 	ScrubStatusFailed ScrubStatus = "failed"
 )
 
-// ScrubResult scrub执行结果
+// ScrubResult scrub执行结果.
 type ScrubResult struct {
 	ID           string      `json:"id"`
 	PoolName     string      `json:"pool_name"`
@@ -46,7 +46,7 @@ type ScrubResult struct {
 	ErrorMsg     string      `json:"error_msg,omitempty"`
 }
 
-// ScrubScheduleConfig scrub调度配置
+// ScrubScheduleConfig scrub调度配置.
 type ScrubScheduleConfig struct {
 	Enabled         bool `json:"enabled"`
 	IntervalDays    int  `json:"interval_days"`      // scrub间隔天数
@@ -56,7 +56,7 @@ type ScrubScheduleConfig struct {
 	MaxErrorCount   int  `json:"max_error_count"`    // 最大允许错误数，超过则告警
 }
 
-// DefaultScrubScheduleConfig 默认调度配置
+// DefaultScrubScheduleConfig 默认调度配置.
 func DefaultScrubScheduleConfig() ScrubScheduleConfig {
 	return ScrubScheduleConfig{
 		Enabled:         true,
@@ -68,7 +68,7 @@ func DefaultScrubScheduleConfig() ScrubScheduleConfig {
 	}
 }
 
-// ScrubProgress scrub实时进度
+// ScrubProgress scrub实时进度.
 type ScrubProgress struct {
 	PoolName     string      `json:"pool_name"`
 	Status       ScrubStatus `json:"status"`
@@ -82,7 +82,7 @@ type ScrubProgress struct {
 	StartTime    time.Time   `json:"start_time"`
 }
 
-// ScrubScheduler ZFS智能Scrub调度器
+// ScrubScheduler ZFS智能Scrub调度器.
 type ScrubScheduler struct {
 	poolName  string
 	config    ScrubScheduleConfig
@@ -95,7 +95,7 @@ type ScrubScheduler struct {
 	lastScrub time.Time
 }
 
-// NewScrubScheduler 创建Scrub调度器
+// NewScrubScheduler 创建Scrub调度器.
 func NewScrubScheduler(poolName string, config ScrubScheduleConfig) *ScrubScheduler {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &ScrubScheduler{
@@ -107,21 +107,21 @@ func NewScrubScheduler(poolName string, config ScrubScheduleConfig) *ScrubSchedu
 	}
 }
 
-// UpdateConfig 更新调度配置
+// UpdateConfig 更新调度配置.
 func (s *ScrubScheduler) UpdateConfig(config ScrubScheduleConfig) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.config = config
 }
 
-// GetConfig 获取当前配置
+// GetConfig 获取当前配置.
 func (s *ScrubScheduler) GetConfig() ScrubScheduleConfig {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.config
 }
 
-// Start 启动调度器后台循环
+// Start 启动调度器后台循环.
 func (s *ScrubScheduler) Start() {
 	s.mu.Lock()
 	if s.running {
@@ -134,7 +134,7 @@ func (s *ScrubScheduler) Start() {
 	go s.scheduleLoop()
 }
 
-// Stop 停止调度器
+// Stop 停止调度器.
 func (s *ScrubScheduler) Stop() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -144,7 +144,7 @@ func (s *ScrubScheduler) Stop() {
 	}
 }
 
-// StartScrub 手动启动scrub
+// StartScrub 手动启动scrub.
 func (s *ScrubScheduler) StartScrub() error {
 	s.mu.RLock()
 	poolName := s.poolName
@@ -153,7 +153,7 @@ func (s *ScrubScheduler) StartScrub() error {
 	return s.executeScrub(poolName)
 }
 
-// PauseScrub 暂停scrub（通过发送SIGSTOP给zpool进程不现实，使用-I参数取消当前scrub）
+// PauseScrub 暂停scrub（通过发送SIGSTOP给zpool进程不现实，使用-I参数取消当前scrub）.
 func (s *ScrubScheduler) PauseScrub() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -173,7 +173,7 @@ func (s *ScrubScheduler) PauseScrub() error {
 	return nil
 }
 
-// ResumeScrub 恢复scrub
+// ResumeScrub 恢复scrub.
 func (s *ScrubScheduler) ResumeScrub() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -185,7 +185,7 @@ func (s *ScrubScheduler) ResumeScrub() error {
 	return s.executeScrub(s.poolName)
 }
 
-// GetProgress 获取scrub实时进度
+// GetProgress 获取scrub实时进度.
 func (s *ScrubScheduler) GetProgress() *ScrubProgress {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -206,7 +206,7 @@ func (s *ScrubScheduler) GetProgress() *ScrubProgress {
 	return s.current
 }
 
-// GetHistory 获取scrub历史记录
+// GetHistory 获取scrub历史记录.
 func (s *ScrubScheduler) GetHistory() []ScrubResult {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -215,14 +215,14 @@ func (s *ScrubScheduler) GetHistory() []ScrubResult {
 	return result
 }
 
-// IsRunning 调度器是否运行中
+// IsRunning 调度器是否运行中.
 func (s *ScrubScheduler) IsRunning() bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.running
 }
 
-// GetIOStats 获取当前磁盘IO负载（IOPS）
+// GetIOStats 获取当前磁盘IO负载（IOPS）.
 func (s *ScrubScheduler) GetIOStats() (readIOPS int, writeIOPS int, err error) {
 	return s.getDiskIOStats()
 }
@@ -369,7 +369,7 @@ func (s *ScrubScheduler) parseScrubStatus() *ScrubProgress {
 	return parseZpoolScrubOutput(string(output), s.poolName)
 }
 
-// parseZpoolScrubOutput 解析zpool status输出中的scrub信息
+// parseZpoolScrubOutput 解析zpool status输出中的scrub信息.
 func parseZpoolScrubOutput(output, poolName string) *ScrubProgress {
 	progress := &ScrubProgress{
 		PoolName: poolName,

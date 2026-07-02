@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// SensitivityLevel represents how sensitive a file is
+// SensitivityLevel represents how sensitive a file is.
 type SensitivityLevel int
 
 const (
@@ -18,7 +18,7 @@ const (
 	LevelBlocked
 )
 
-// sensitivePatterns defines files that should be flagged or blocked from sync
+// sensitivePatterns defines files that should be flagged or blocked from sync.
 var sensitivePatterns = []struct {
 	Pattern string
 	Level   SensitivityLevel
@@ -42,7 +42,7 @@ var sensitivePatterns = []struct {
 	{"*.jks", LevelBlocked},
 }
 
-// blockedPaths defines system paths that must never be synced
+// blockedPaths defines system paths that must never be synced.
 var blockedPaths = []string{
 	"/etc/passwd",
 	"/etc/shadow",
@@ -55,7 +55,7 @@ var blockedPaths = []string{
 	"/dev",
 }
 
-// CheckPathTraversal validates that a sync path doesn't escape allowed boundaries
+// CheckPathTraversal validates that a sync path doesn't escape allowed boundaries.
 func CheckPathTraversal(syncPath, allowedBase string) error {
 	absPath, err := filepath.Abs(syncPath)
 	if err != nil {
@@ -73,7 +73,7 @@ func CheckPathTraversal(syncPath, allowedBase string) error {
 	return nil
 }
 
-// IsBlockedPath checks if a path is in the blocked system paths list
+// IsBlockedPath checks if a path is in the blocked system paths list.
 func IsBlockedPath(path string) bool {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
@@ -87,7 +87,7 @@ func IsBlockedPath(path string) bool {
 	return false
 }
 
-// CheckFileSensitivity evaluates whether a file should be synced
+// CheckFileSensitivity evaluates whether a file should be synced.
 func CheckFileSensitivity(filename string) (SensitivityLevel, string) {
 	base := filepath.Base(filename)
 	for _, sp := range sensitivePatterns {
@@ -114,7 +114,7 @@ func CheckFileSensitivity(filename string) (SensitivityLevel, string) {
 	return LevelNormal, ""
 }
 
-// ComputeFileChecksum computes SHA256 of a file
+// ComputeFileChecksum computes SHA256 of a file.
 func ComputeFileChecksum(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -136,7 +136,7 @@ func ComputeFileChecksum(path string) (string, error) {
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
-// VerifyIntegrity checks that a file matches its expected checksum
+// VerifyIntegrity checks that a file matches its expected checksum.
 func VerifyIntegrity(path, expectedChecksum string) (bool, error) {
 	actual, err := ComputeFileChecksum(path)
 	if err != nil {
@@ -145,7 +145,7 @@ func VerifyIntegrity(path, expectedChecksum string) (bool, error) {
 	return actual == expectedChecksum, nil
 }
 
-// FilterSensitiveFiles returns files that should be excluded from sync
+// FilterSensitiveFiles returns files that should be excluded from sync.
 func FilterSensitiveFiles(files []string) (allowed []string, blocked []string) {
 	for _, f := range files {
 		level, reason := CheckFileSensitivity(f)

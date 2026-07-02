@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 家庭仪表板 API 处理器
+// Handlers 家庭仪表板 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	family := r.Group("/family")
 	{
@@ -53,14 +53,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// listMembers 列出成员
+// listMembers 列出成员.
 func (h *Handlers) listMembers(c *gin.Context) {
 	members := h.manager.ListMembers()
 	c.JSON(http.StatusOK, response{
@@ -70,7 +70,7 @@ func (h *Handlers) listMembers(c *gin.Context) {
 	})
 }
 
-// createMember 创建成员
+// createMember 创建成员.
 func (h *Handlers) createMember(c *gin.Context) {
 	var req CreateMemberRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -97,7 +97,7 @@ func (h *Handlers) createMember(c *gin.Context) {
 	})
 }
 
-// getMember 获取成员
+// getMember 获取成员.
 func (h *Handlers) getMember(c *gin.Context) {
 	id := c.Param("id")
 	member, err := h.manager.GetMember(id)
@@ -116,7 +116,7 @@ func (h *Handlers) getMember(c *gin.Context) {
 	})
 }
 
-// updateMember 更新成员
+// updateMember 更新成员.
 func (h *Handlers) updateMember(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateMemberRequest
@@ -144,7 +144,7 @@ func (h *Handlers) updateMember(c *gin.Context) {
 	})
 }
 
-// deleteMember 删除成员
+// deleteMember 删除成员.
 func (h *Handlers) deleteMember(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteMember(id); err != nil {
@@ -161,7 +161,7 @@ func (h *Handlers) deleteMember(c *gin.Context) {
 	})
 }
 
-// getOnlineMembers 获取在线成员
+// getOnlineMembers 获取在线成员.
 func (h *Handlers) getOnlineMembers(c *gin.Context) {
 	members := h.manager.GetOnlineMembers()
 	c.JSON(http.StatusOK, response{
@@ -171,7 +171,7 @@ func (h *Handlers) getOnlineMembers(c *gin.Context) {
 	})
 }
 
-// getChildMembers 获取子成员
+// getChildMembers 获取子成员.
 func (h *Handlers) getChildMembers(c *gin.Context) {
 	members := h.manager.GetChildMembers()
 	c.JSON(http.StatusOK, response{
@@ -181,7 +181,7 @@ func (h *Handlers) getChildMembers(c *gin.Context) {
 	})
 }
 
-// updateStatus 更新状态
+// updateStatus 更新状态.
 func (h *Handlers) updateStatus(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
@@ -209,7 +209,7 @@ func (h *Handlers) updateStatus(c *gin.Context) {
 	})
 }
 
-// getProfile 获取个人资料
+// getProfile 获取个人资料.
 func (h *Handlers) getProfile(c *gin.Context) {
 	id := c.Param("id")
 	profile, err := h.manager.GetProfile(id)
@@ -228,7 +228,7 @@ func (h *Handlers) getProfile(c *gin.Context) {
 	})
 }
 
-// updateProfile 更新个人资料
+// updateProfile 更新个人资料.
 func (h *Handlers) updateProfile(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateProfileRequest
@@ -256,7 +256,7 @@ func (h *Handlers) updateProfile(c *gin.Context) {
 	})
 }
 
-// addFavorite 添加收藏
+// addFavorite 添加收藏.
 func (h *Handlers) addFavorite(c *gin.Context) {
 	id := c.Param("id")
 	var req AddFavoriteRequest
@@ -282,7 +282,7 @@ func (h *Handlers) addFavorite(c *gin.Context) {
 	})
 }
 
-// removeFavorite 移除收藏
+// removeFavorite 移除收藏.
 func (h *Handlers) removeFavorite(c *gin.Context) {
 	id := c.Param("id")
 	favID := c.Param("fav_id")
@@ -301,7 +301,7 @@ func (h *Handlers) removeFavorite(c *gin.Context) {
 	})
 }
 
-// getPermissions 获取权限
+// getPermissions 获取权限.
 func (h *Handlers) getPermissions(c *gin.Context) {
 	id := c.Param("id")
 	perms, err := h.manager.GetPermissions(id)
@@ -320,7 +320,7 @@ func (h *Handlers) getPermissions(c *gin.Context) {
 	})
 }
 
-// setPermissions 设置权限
+// setPermissions 设置权限.
 func (h *Handlers) setPermissions(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdatePermissionsRequest
@@ -348,7 +348,7 @@ func (h *Handlers) setPermissions(c *gin.Context) {
 	})
 }
 
-// checkPermission 检查权限
+// checkPermission 检查权限.
 func (h *Handlers) checkPermission(c *gin.Context) {
 	id := c.Param("id")
 	action := c.Query("action")
@@ -373,7 +373,7 @@ func (h *Handlers) checkPermission(c *gin.Context) {
 	})
 }
 
-// getActivity 获取活动记录
+// getActivity 获取活动记录.
 func (h *Handlers) getActivity(c *gin.Context) {
 	query := &ActivityQuery{
 		MemberID: c.Query("member_id"),
@@ -391,7 +391,7 @@ func (h *Handlers) getActivity(c *gin.Context) {
 	})
 }
 
-// getActivitySummary 获取活动摘要
+// getActivitySummary 获取活动摘要.
 func (h *Handlers) getActivitySummary(c *gin.Context) {
 	id := c.Param("id")
 	period := c.DefaultQuery("period", "weekly")
@@ -404,7 +404,7 @@ func (h *Handlers) getActivitySummary(c *gin.Context) {
 	})
 }
 
-// getStats 获取统计
+// getStats 获取统计.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GenerateStats()
 	c.JSON(http.StatusOK, response{

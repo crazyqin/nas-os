@@ -50,14 +50,14 @@ const (
 type MigrationCategory string
 
 const (
-	CategoryData       MigrationCategory = "data"       // 用户数据
-	CategoryConfig     MigrationCategory = "config"     // 系统配置
-	CategoryUsers      MigrationCategory = "users"      // 用户和权限
-	CategoryServices   MigrationCategory = "services"   // 服务和应用
-	CategoryNetwork    MigrationCategory = "network"    // 网络配置
-	CategoryShared     MigrationCategory = "shared"     // 共享文件夹
-	CategoryCert       MigrationCategory = "certificates" // 证书
-	CategorySchedule   MigrationCategory = "schedule"   // 计划任务
+	CategoryData     MigrationCategory = "data"         // 用户数据
+	CategoryConfig   MigrationCategory = "config"       // 系统配置
+	CategoryUsers    MigrationCategory = "users"        // 用户和权限
+	CategoryServices MigrationCategory = "services"     // 服务和应用
+	CategoryNetwork  MigrationCategory = "network"      // 网络配置
+	CategoryShared   MigrationCategory = "shared"       // 共享文件夹
+	CategoryCert     MigrationCategory = "certificates" // 证书
+	CategorySchedule MigrationCategory = "schedule"     // 计划任务
 )
 
 // ========== 核心请求/响应类型 ==========
@@ -74,14 +74,14 @@ type AssessRequest struct {
 
 // AssessResult 迁移评估结果.
 type AssessResult struct {
-	TaskID            string             `json:"taskId"`
-	Compatible        bool               `json:"compatible"`
-	SourceInfo        *SourceSystemInfo  `json:"sourceInfo"`
-	Warnings          []string           `json:"warnings,omitempty"`
-	Blockers          []string           `json:"blockers,omitempty"`
-	EstimatedDuration string             `json:"estimatedDuration"`
-	EstimatedDataSize int64              `json:"estimatedDataSize"` // 字节
-	AssessedAt        time.Time          `json:"assessedAt"`
+	TaskID            string            `json:"taskId"`
+	Compatible        bool              `json:"compatible"`
+	SourceInfo        *SourceSystemInfo `json:"sourceInfo"`
+	Warnings          []string          `json:"warnings,omitempty"`
+	Blockers          []string          `json:"blockers,omitempty"`
+	EstimatedDuration string            `json:"estimatedDuration"`
+	EstimatedDataSize int64             `json:"estimatedDataSize"` // 字节
+	AssessedAt        time.Time         `json:"assessedAt"`
 }
 
 // SourceSystemInfo 源系统信息.
@@ -98,87 +98,87 @@ type SourceSystemInfo struct {
 
 // PlanRequest 迁移计划请求.
 type PlanRequest struct {
-	TaskID     string             `json:"taskId" binding:"required"`
+	TaskID     string              `json:"taskId" binding:"required"`
 	Categories []MigrationCategory `json:"categories" binding:"required,min=1"`
 }
 
 // PlanResult 迁移计划结果.
 type PlanResult struct {
-	TaskID      string           `json:"taskId"`
-	Steps       []MigrationStep  `json:"steps"`
-	Timeline    string           `json:"timeline"`    // 预计时间线描述
-	TotalSteps  int              `json:"totalSteps"`
-	CreatedAt   time.Time        `json:"createdAt"`
+	TaskID     string          `json:"taskId"`
+	Steps      []MigrationStep `json:"steps"`
+	Timeline   string          `json:"timeline"` // 预计时间线描述
+	TotalSteps int             `json:"totalSteps"`
+	CreatedAt  time.Time       `json:"createdAt"`
 }
 
 // MigrationStep 迁移步骤.
 type MigrationStep struct {
-	ID         string             `json:"id"`
-	Order      int                `json:"order"`
-	Category   MigrationCategory  `json:"category"`
-	Name       string             `json:"name"`
+	ID         string              `json:"id"`
+	Order      int                 `json:"order"`
+	Category   MigrationCategory   `json:"category"`
+	Name       string              `json:"name"`
 	Status     MigrationStepStatus `json:"status"`
-	StartedAt  time.Time          `json:"startedAt,omitempty"`
-	FinishedAt time.Time          `json:"finishedAt,omitempty"`
-	Error      string             `json:"error,omitempty"`
+	StartedAt  time.Time           `json:"startedAt,omitempty"`
+	FinishedAt time.Time           `json:"finishedAt,omitempty"`
+	Error      string              `json:"error,omitempty"`
 }
 
 // ExecuteRequest 迁移执行请求.
 type ExecuteRequest struct {
-	TaskID    string `json:"taskId" binding:"required"`
-	DryRun    bool   `json:"dryRun"`
+	TaskID    string   `json:"taskId" binding:"required"`
+	DryRun    bool     `json:"dryRun"`
 	SkipSteps []string `json:"skipSteps,omitempty"`
 }
 
 // ExecuteResult 迁移执行结果.
 type ExecuteResult struct {
-	TaskID     string            `json:"taskId"`
-	Phase      MigrationPhase    `json:"phase"`
-	Progress   float64           `json:"progress"` // 0-100
-	Steps      []MigrationStep   `json:"steps"`
-	StartedAt  time.Time         `json:"startedAt"`
-	FinishedAt time.Time         `json:"finishedAt,omitempty"`
-	Error      string            `json:"error,omitempty"`
+	TaskID     string          `json:"taskId"`
+	Phase      MigrationPhase  `json:"phase"`
+	Progress   float64         `json:"progress"` // 0-100
+	Steps      []MigrationStep `json:"steps"`
+	StartedAt  time.Time       `json:"startedAt"`
+	FinishedAt time.Time       `json:"finishedAt,omitempty"`
+	Error      string          `json:"error,omitempty"`
 }
 
 // RollbackRequest 回滚请求.
 type RollbackRequest struct {
-	TaskID   string `json:"taskId" binding:"required"`
-	StepID   string `json:"stepId"` // 回滚到指定步骤，为空则全部回滚
+	TaskID string `json:"taskId" binding:"required"`
+	StepID string `json:"stepId"` // 回滚到指定步骤，为空则全部回滚
 }
 
 // RollbackResult 回滚结果.
 type RollbackResult struct {
-	TaskID     string         `json:"taskId"`
-	Success    bool           `json:"success"`
-	Steps      []MigrationStep `json:"steps"`
-	Message    string         `json:"message"`
-	RolledAt   time.Time      `json:"rolledAt"`
+	TaskID   string          `json:"taskId"`
+	Success  bool            `json:"success"`
+	Steps    []MigrationStep `json:"steps"`
+	Message  string          `json:"message"`
+	RolledAt time.Time       `json:"rolledAt"`
 }
 
 // MigrationStatus 迁移整体状态.
 type MigrationStatus struct {
-	TaskID       string          `json:"taskId"`
-	Phase        MigrationPhase  `json:"phase"`
-	Progress     float64        `json:"progress"`
-	CurrentStep  *MigrationStep `json:"currentStep,omitempty"`
-	Steps        []MigrationStep `json:"steps"`
-	CreatedAt    time.Time       `json:"createdAt"`
-	UpdatedAt    time.Time       `json:"updatedAt"`
-	Error        string          `json:"error,omitempty"`
+	TaskID      string          `json:"taskId"`
+	Phase       MigrationPhase  `json:"phase"`
+	Progress    float64         `json:"progress"`
+	CurrentStep *MigrationStep  `json:"currentStep,omitempty"`
+	Steps       []MigrationStep `json:"steps"`
+	CreatedAt   time.Time       `json:"createdAt"`
+	UpdatedAt   time.Time       `json:"updatedAt"`
+	Error       string          `json:"error,omitempty"`
 }
 
 // ========== 内部任务模型 ==========
 
 // migrationTask 内部迁移任务状态.
 type migrationTask struct {
-	id          string
-	phase       MigrationPhase
-	sourceInfo  *SourceSystemInfo
-	steps       []MigrationStep
-	currentIdx  int
-	createdAt   time.Time
-	updatedAt   time.Time
-	backupPath  string
-	error       string
+	id         string
+	phase      MigrationPhase
+	sourceInfo *SourceSystemInfo
+	steps      []MigrationStep
+	currentIdx int
+	createdAt  time.Time
+	updatedAt  time.Time
+	backupPath string
+	error      string
 }

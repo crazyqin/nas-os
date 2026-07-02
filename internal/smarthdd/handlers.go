@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// SmartHDDHandler HTTP处理器
+// SmartHDDHandler HTTP处理器.
 type SmartHDDHandler struct {
 	manager *SmartHDDManager
 }
 
-// NewSmartHDDHandler 创建处理器
+// NewSmartHDDHandler 创建处理器.
 func NewSmartHDDHandler(manager *SmartHDDManager) *SmartHDDHandler {
 	return &SmartHDDHandler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *SmartHDDHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/smarthdd/disks", h.handleListDisks)
 	mux.HandleFunc("/api/smarthdd/disk/get", h.handleGetDisk)

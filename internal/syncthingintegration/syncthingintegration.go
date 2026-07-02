@@ -12,7 +12,7 @@ import (
 
 // ========== Syncthing 设备管理 ==========
 
-// SyncthingDevice Syncthing 设备
+// SyncthingDevice Syncthing 设备.
 type SyncthingDevice struct {
 	ID                       string            `json:"id"`
 	Name                     string            `json:"name"`
@@ -31,7 +31,7 @@ type SyncthingDevice struct {
 	CreatedAt                time.Time         `json:"created_at"`
 }
 
-// CompressionMode 压缩模式
+// CompressionMode 压缩模式.
 type CompressionMode string
 
 const (
@@ -40,7 +40,7 @@ const (
 	CompressionMetadata CompressionMode = "metadata"
 )
 
-// DeviceStats 设备统计
+// DeviceStats 设备统计.
 type DeviceStats struct {
 	BytesSent       int64     `json:"bytes_sent"`
 	BytesReceived   int64     `json:"bytes_received"`
@@ -55,7 +55,7 @@ type DeviceStats struct {
 
 // ========== 同步文件夹管理 ==========
 
-// SyncFolder 同步文件夹
+// SyncFolder 同步文件夹.
 type SyncFolder struct {
 	ID                    string            `json:"id"`
 	Label                 string            `json:"label"`
@@ -86,7 +86,7 @@ type SyncFolder struct {
 	UpdatedAt             time.Time         `json:"updated_at"`
 }
 
-// FolderType 文件夹类型
+// FolderType 文件夹类型.
 type FolderType string
 
 const (
@@ -95,7 +95,7 @@ const (
 	FolderTypeReceiveOnly FolderType = "receiveonly"
 )
 
-// PullOrder 拉取顺序
+// PullOrder 拉取顺序.
 type PullOrder string
 
 const (
@@ -107,7 +107,7 @@ const (
 	PullOrderNewest     PullOrder = "newestFirst"
 )
 
-// FolderDevice 文件夹关联设备
+// FolderDevice 文件夹关联设备.
 type FolderDevice struct {
 	DeviceID                 string `json:"device_id"`
 	IntroducedBy             string `json:"introduced_by"`
@@ -115,20 +115,20 @@ type FolderDevice struct {
 	SkipIntroductionRemovals bool   `json:"skip_introduction_removals"`
 }
 
-// FolderMinDiskFree 文件夹最小磁盘空间
+// FolderMinDiskFree 文件夹最小磁盘空间.
 type FolderMinDiskFree struct {
 	Value float64 `json:"value"`
 	Unit  string  `json:"unit"` // %, kB, MB, GB, TB
 }
 
-// FolderVersioning 文件夹版本控制
+// FolderVersioning 文件夹版本控制.
 type FolderVersioning struct {
 	Type             string            `json:"type"` // simple, staggered, external, trashcan
 	Params           map[string]string `json:"params"`
 	CleanupIntervalS int               `json:"cleanup_interval_s"`
 }
 
-// FolderStats 文件夹统计
+// FolderStats 文件夹统计.
 type FolderStats struct {
 	Files             int       `json:"files"`
 	Directories       int       `json:"directories"`
@@ -144,7 +144,7 @@ type FolderStats struct {
 
 // ========== 同步管理器 ==========
 
-// SyncthingManager Syncthing 管理器
+// SyncthingManager Syncthing 管理器.
 type SyncthingManager struct {
 	mu        sync.RWMutex
 	devices   map[string]*SyncthingDevice
@@ -154,7 +154,7 @@ type SyncthingManager struct {
 	apiClient *APIClient
 }
 
-// SyncthingConfig Syncthing 配置
+// SyncthingConfig Syncthing 配置.
 type SyncthingConfig struct {
 	APIKey                  string   `json:"api_key"`
 	APIURL                  string   `json:"api_url"`
@@ -176,7 +176,7 @@ type SyncthingConfig struct {
 	TempIndexMinMessageSize int      `json:"temp_index_min_message"`
 }
 
-// ManagerStats 管理器统计
+// ManagerStats 管理器统计.
 type ManagerStats struct {
 	TotalDevices   int       `json:"total_devices"`
 	OnlineDevices  int       `json:"online_devices"`
@@ -190,13 +190,13 @@ type ManagerStats struct {
 	Connections    int       `json:"connections"`
 }
 
-// APIClient API 客户端
+// APIClient API 客户端.
 type APIClient struct {
 	baseURL string
 	apiKey  string
 }
 
-// NewSyncthingManager 创建 Syncthing 管理器
+// NewSyncthingManager 创建 Syncthing 管理器.
 func NewSyncthingManager(config SyncthingConfig) *SyncthingManager {
 	// 设置默认值
 	if config.GUIAddress == "" {
@@ -237,7 +237,7 @@ func NewSyncthingManager(config SyncthingConfig) *SyncthingManager {
 
 // ========== 设备管理 ==========
 
-// AddDevice 添加设备
+// AddDevice 添加设备.
 func (m *SyncthingManager) AddDevice(device SyncthingDevice) (*SyncthingDevice, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -259,7 +259,7 @@ func (m *SyncthingManager) AddDevice(device SyncthingDevice) (*SyncthingDevice, 
 	return &device, nil
 }
 
-// RemoveDevice 移除设备
+// RemoveDevice 移除设备.
 func (m *SyncthingManager) RemoveDevice(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -285,7 +285,7 @@ func (m *SyncthingManager) RemoveDevice(id string) error {
 	return nil
 }
 
-// GetDevice 获取设备
+// GetDevice 获取设备.
 func (m *SyncthingManager) GetDevice(id string) (*SyncthingDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -298,7 +298,7 @@ func (m *SyncthingManager) GetDevice(id string) (*SyncthingDevice, error) {
 	return device, nil
 }
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (m *SyncthingManager) ListDevices() []*SyncthingDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -313,7 +313,7 @@ func (m *SyncthingManager) ListDevices() []*SyncthingDevice {
 
 // ========== 文件夹管理 ==========
 
-// CreateFolder 创建同步文件夹
+// CreateFolder 创建同步文件夹.
 func (m *SyncthingManager) CreateFolder(folder SyncFolder) (*SyncFolder, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -365,7 +365,7 @@ func (m *SyncthingManager) CreateFolder(folder SyncFolder) (*SyncFolder, error) 
 	return &folder, nil
 }
 
-// UpdateFolder 更新文件夹
+// UpdateFolder 更新文件夹.
 func (m *SyncthingManager) UpdateFolder(id string, folder SyncFolder) (*SyncFolder, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -384,7 +384,7 @@ func (m *SyncthingManager) UpdateFolder(id string, folder SyncFolder) (*SyncFold
 	return &folder, nil
 }
 
-// DeleteFolder 删除文件夹
+// DeleteFolder 删除文件夹.
 func (m *SyncthingManager) DeleteFolder(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -399,7 +399,7 @@ func (m *SyncthingManager) DeleteFolder(id string) error {
 	return nil
 }
 
-// GetFolder 获取文件夹
+// GetFolder 获取文件夹.
 func (m *SyncthingManager) GetFolder(id string) (*SyncFolder, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -412,7 +412,7 @@ func (m *SyncthingManager) GetFolder(id string) (*SyncFolder, error) {
 	return folder, nil
 }
 
-// ListFolders 列出所有文件夹
+// ListFolders 列出所有文件夹.
 func (m *SyncthingManager) ListFolders() []*SyncFolder {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -427,7 +427,7 @@ func (m *SyncthingManager) ListFolders() []*SyncFolder {
 
 // ========== 同步操作 ==========
 
-// ScanFolder 扫描文件夹
+// ScanFolder 扫描文件夹.
 func (m *SyncthingManager) ScanFolder(folderID string) (*ScanResult, error) {
 	m.mu.RLock()
 	folder, exists := m.folders[folderID]
@@ -464,7 +464,7 @@ func (m *SyncthingManager) ScanFolder(folderID string) (*ScanResult, error) {
 	return result, nil
 }
 
-// ScanResult 扫描结果
+// ScanResult 扫描结果.
 type ScanResult struct {
 	FolderID  string    `json:"folder_id"`
 	Path      string    `json:"path"`
@@ -475,7 +475,7 @@ type ScanResult struct {
 	Errors    []string  `json:"errors,omitempty"`
 }
 
-// ScanStats 扫描统计
+// ScanStats 扫描统计.
 type ScanStats struct {
 	Files       int   `json:"files"`
 	Directories int   `json:"directories"`
@@ -483,7 +483,7 @@ type ScanStats struct {
 	Bytes       int64 `json:"bytes"`
 }
 
-// PauseFolder 暂停文件夹
+// PauseFolder 暂停文件夹.
 func (m *SyncthingManager) PauseFolder(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -499,7 +499,7 @@ func (m *SyncthingManager) PauseFolder(id string) error {
 	return nil
 }
 
-// ResumeFolder 恢复文件夹
+// ResumeFolder 恢复文件夹.
 func (m *SyncthingManager) ResumeFolder(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -517,7 +517,7 @@ func (m *SyncthingManager) ResumeFolder(id string) error {
 
 // ========== 版本控制 ==========
 
-// SetupVersioning 设置版本控制
+// SetupVersioning 设置版本控制.
 func (m *SyncthingManager) SetupVersioning(folderID string, versioning FolderVersioning) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -537,7 +537,7 @@ func (m *SyncthingManager) SetupVersioning(folderID string, versioning FolderVer
 	return nil
 }
 
-// GetVersions 获取文件版本
+// GetVersions 获取文件版本.
 func (m *SyncthingManager) GetVersions(folderID, filePath string) ([]FileVersion, error) {
 	m.mu.RLock()
 	_, exists := m.folders[folderID]
@@ -560,7 +560,7 @@ func (m *SyncthingManager) GetVersions(folderID, filePath string) ([]FileVersion
 	return versions, nil
 }
 
-// FileVersion 文件版本
+// FileVersion 文件版本.
 type FileVersion struct {
 	Version  int       `json:"version"`
 	Modified time.Time `json:"modified"`
@@ -568,7 +568,7 @@ type FileVersion struct {
 	Path     string    `json:"path"`
 }
 
-// RestoreVersion 恢复版本
+// RestoreVersion 恢复版本.
 func (m *SyncthingManager) RestoreVersion(folderID, filePath string, version int) error {
 	m.mu.RLock()
 	_, exists := m.folders[folderID]
@@ -584,7 +584,7 @@ func (m *SyncthingManager) RestoreVersion(folderID, filePath string, version int
 
 // ========== 辅助方法 ==========
 
-// updateStats 更新统计
+// updateStats 更新统计.
 func (m *SyncthingManager) updateStats() {
 	m.stats.TotalDevices = len(m.devices)
 	m.stats.OnlineDevices = 0
@@ -612,14 +612,14 @@ func (m *SyncthingManager) updateStats() {
 	}
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *SyncthingManager) GetStats() ManagerStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.stats
 }
 
-// SaveConfig 保存配置
+// SaveConfig 保存配置.
 func (m *SyncthingManager) SaveConfig(path string) error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -632,7 +632,7 @@ func (m *SyncthingManager) SaveConfig(path string) error {
 	return os.WriteFile(path, data, 0640)
 }
 
-// LoadConfig 加载配置
+// LoadConfig 加载配置.
 func (m *SyncthingManager) LoadConfig(path string) error {
 	data, err := os.ReadFile(path)
 	if err != nil {

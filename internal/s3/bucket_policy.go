@@ -387,14 +387,14 @@ func FormatPolicyForDisplay(policy *BucketPolicy) string {
 	}
 
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("Version: %s\n", policy.Version))
-	sb.WriteString(fmt.Sprintf("Statements: %d\n", len(policy.Statement)))
+	fmt.Fprintf(&sb, "Version: %s\n", policy.Version)
+	fmt.Fprintf(&sb, "Statements: %d\n", len(policy.Statement))
 	for i, stmt := range policy.Statement {
 		sid := stmt.SID
 		if sid == "" {
 			sid = fmt.Sprintf("(unnamed %d)", i+1)
 		}
-		sb.WriteString(fmt.Sprintf("  [%s] %s: %v\n", sid, stmt.Effect, stmt.Action))
+		fmt.Fprintf(&sb, "  [%s] %s: %v\n", sid, stmt.Effect, stmt.Action)
 	}
 	return sb.String()
 }

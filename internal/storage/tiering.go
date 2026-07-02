@@ -15,7 +15,7 @@ import (
 // ========== 存储数据分层管理器 ==========
 
 // TieringManager 存储分层管理器
-// 扩展 SmartRAIDManager 的层级功能，添加自动迁移策略
+// 扩展 SmartRAIDManager 的层级功能，添加自动迁移策略.
 type TieringManager struct {
 	mu          sync.RWMutex
 	config      *TieringConfig
@@ -26,7 +26,7 @@ type TieringManager struct {
 	cancel      context.CancelFunc
 }
 
-// TieringConfig 分层配置
+// TieringConfig 分层配置.
 type TieringConfig struct {
 	Enabled           bool          `json:"enabled"`           // 启用分层
 	MonitorInterval   time.Duration `json:"monitorInterval"`   // 监控间隔
@@ -38,7 +38,7 @@ type TieringConfig struct {
 	AutoBalance       bool          `json:"autoBalance"`       // 自动负载均衡
 }
 
-// DefaultTieringConfig 默认配置
+// DefaultTieringConfig 默认配置.
 func DefaultTieringConfig() *TieringConfig {
 	return &TieringConfig{
 		Enabled:           true,
@@ -52,48 +52,48 @@ func DefaultTieringConfig() *TieringConfig {
 	}
 }
 
-// TieringStatistics 分层统计
+// TieringStatistics 分层统计.
 type TieringStatistics struct {
-	TotalFiles       int64                        `json:"totalFiles"`
-	TotalSize        uint64                       `json:"totalSize"`
-	ByTier           map[int]*TieringTierStats    `json:"byTier"`
-	RecentMigrations []*MigrationRecord           `json:"recentMigrations"`
-	LastUpdated      time.Time                    `json:"lastUpdated"`
+	TotalFiles       int64                     `json:"totalFiles"`
+	TotalSize        uint64                    `json:"totalSize"`
+	ByTier           map[int]*TieringTierStats `json:"byTier"`
+	RecentMigrations []*MigrationRecord        `json:"recentMigrations"`
+	LastUpdated      time.Time                 `json:"lastUpdated"`
 }
 
-// TieringTierStats 层级统计
+// TieringTierStats 层级统计.
 type TieringTierStats struct {
-	TierID       int     `json:"tierId"`
-	TierName     string  `json:"tierName"`
-	FileCount    int64   `json:"fileCount"`
-	TotalSize    uint64  `json:"totalSize"`
-	AvgFileSize  uint64  `json:"avgFileSize"`
-	UsedPercent  float64 `json:"usedPercent"`
+	TierID      int     `json:"tierId"`
+	TierName    string  `json:"tierName"`
+	FileCount   int64   `json:"fileCount"`
+	TotalSize   uint64  `json:"totalSize"`
+	AvgFileSize uint64  `json:"avgFileSize"`
+	UsedPercent float64 `json:"usedPercent"`
 }
 
-// MigrationRecord 迁移记录
+// MigrationRecord 迁移记录.
 type MigrationRecord struct {
-	ID          string    `json:"id"`
-	FilePath    string    `json:"filePath"`
-	FileSize    uint64    `json:"fileSize"`
-	SourceTier  int       `json:"sourceTier"`
-	TargetTier  int       `json:"targetTier"`
-	Reason      string    `json:"reason"`
-	Status      string    `json:"status"`      // pending, running, completed, failed
-	StartTime   time.Time `json:"startTime"`
-	EndTime     time.Time `json:"endTime"`
-	Duration    int64     `json:"duration"`    // 毫秒
-	Error       string    `json:"error,omitempty"`
+	ID         string    `json:"id"`
+	FilePath   string    `json:"filePath"`
+	FileSize   uint64    `json:"fileSize"`
+	SourceTier int       `json:"sourceTier"`
+	TargetTier int       `json:"targetTier"`
+	Reason     string    `json:"reason"`
+	Status     string    `json:"status"` // pending, running, completed, failed
+	StartTime  time.Time `json:"startTime"`
+	EndTime    time.Time `json:"endTime"`
+	Duration   int64     `json:"duration"` // 毫秒
+	Error      string    `json:"error,omitempty"`
 }
 
-// NewTieringManager 创建分层管理器
+// NewTieringManager 创建分层管理器.
 func NewTieringManager(config *TieringConfig, raidManager *SmartRAIDManager) *TieringManager {
 	if config == nil {
 		config = DefaultTieringConfig()
 	}
-	
+
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	return &TieringManager{
 		config:      config,
 		raidManager: raidManager,
@@ -106,7 +106,7 @@ func NewTieringManager(config *TieringConfig, raidManager *SmartRAIDManager) *Ti
 	}
 }
 
-// Start 启动分层管理器
+// Start 启动分层管理器.
 func (tm *TieringManager) Start() error {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -120,7 +120,7 @@ func (tm *TieringManager) Start() error {
 
 	// 启动监控协程
 	go tm.monitorLoop()
-	
+
 	// 启动扫描协程
 	go tm.scanLoop()
 
@@ -128,13 +128,13 @@ func (tm *TieringManager) Start() error {
 	return nil
 }
 
-// Stop 停止分层管理器
+// Stop 停止分层管理器.
 func (tm *TieringManager) Stop() {
 	tm.cancel()
 	log.Println("存储分层管理器已停止")
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (tm *TieringManager) monitorLoop() {
 	ticker := time.NewTicker(tm.config.MonitorInterval)
 	defer ticker.Stop()
@@ -149,7 +149,7 @@ func (tm *TieringManager) monitorLoop() {
 	}
 }
 
-// scanLoop 扫描循环
+// scanLoop 扫描循环.
 func (tm *TieringManager) scanLoop() {
 	ticker := time.NewTicker(tm.config.ScanInterval)
 	defer ticker.Stop()
@@ -164,14 +164,14 @@ func (tm *TieringManager) scanLoop() {
 	}
 }
 
-// updateStatistics 更新统计信息
+// updateStatistics 更新统计信息.
 func (tm *TieringManager) updateStatistics() {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
 
 	// 获取 RAID 管理器中的所有池
 	pools := tm.raidManager.ListPools()
-	
+
 	for _, pool := range pools {
 		for _, tier := range pool.Tiers {
 			stats := &TieringTierStats{
@@ -186,28 +186,28 @@ func (tm *TieringManager) updateStatistics() {
 	tm.statistics.LastUpdated = time.Now()
 }
 
-// scanAndMigrate 扫描并迁移
+// scanAndMigrate 扫描并迁移.
 func (tm *TieringManager) scanAndMigrate() {
 	tm.mu.RLock()
-	
+
 	// 获取 RAID 管理器中的所有池
 	pools := tm.raidManager.ListPools()
-	
+
 	for _, pool := range pools {
 		for _, tier := range pool.Tiers {
 			usagePercent := float64(tier.UsedCapacity) / float64(tier.RawCapacity) * 100
-			
+
 			if usagePercent > 90 {
 				log.Printf("警告: 层级 %s 使用率过高 (%.1f%%)", tier.Name, usagePercent)
 				// 可以触发迁移逻辑
 			}
 		}
 	}
-	
+
 	tm.mu.RUnlock()
 }
 
-// GetStatistics 获取统计信息
+// GetStatistics 获取统计信息.
 func (tm *TieringManager) GetStatistics() *TieringStatistics {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -215,7 +215,7 @@ func (tm *TieringManager) GetStatistics() *TieringStatistics {
 	return tm.statistics
 }
 
-// GetMigrations 获取迁移记录
+// GetMigrations 获取迁移记录.
 func (tm *TieringManager) GetMigrations() []*MigrationRecord {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -223,7 +223,7 @@ func (tm *TieringManager) GetMigrations() []*MigrationRecord {
 	return tm.migrations
 }
 
-// BalanceTiers 负载均衡
+// BalanceTiers 负载均衡.
 func (tm *TieringManager) BalanceTiers() error {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -238,7 +238,7 @@ func (tm *TieringManager) BalanceTiers() error {
 	for _, pool := range pools {
 		for _, tier := range pool.Tiers {
 			usagePercent := float64(tier.UsedCapacity) / float64(tier.RawCapacity) * 100
-			
+
 			if usagePercent > 90 {
 				log.Printf("警告: 层级 %s 使用率过高 (%.1f%%)", tier.Name, usagePercent)
 			}
@@ -248,7 +248,7 @@ func (tm *TieringManager) BalanceTiers() error {
 	return nil
 }
 
-// GetTierHealth 获取层级健康状态
+// GetTierHealth 获取层级健康状态.
 func (tm *TieringManager) GetTierHealth(tierID int) (*TierHealthStatus, error) {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -279,7 +279,7 @@ func (tm *TieringManager) GetTierHealth(tierID int) (*TierHealthStatus, error) {
 	return health, nil
 }
 
-// TierHealthStatus 层级健康状态
+// TierHealthStatus 层级健康状态.
 type TierHealthStatus struct {
 	TierID      int       `json:"tierId"`
 	TierName    string    `json:"tierName"`
@@ -289,7 +289,7 @@ type TierHealthStatus struct {
 	CheckedAt   time.Time `json:"checkedAt"`
 }
 
-// RecommendTier 推荐存储层级
+// RecommendTier 推荐存储层级.
 func (tm *TieringManager) RecommendTier(fileSize uint64, accessFrequency string) int {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()

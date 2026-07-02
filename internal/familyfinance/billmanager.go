@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// BillManager 账单管理器
+// BillManager 账单管理器.
 type BillManager struct {
 	mu     sync.RWMutex
 	logger *zap.Logger
@@ -19,7 +19,7 @@ type BillManager struct {
 	bills  map[string]*Bill
 }
 
-// NewBillManager 创建账单管理器
+// NewBillManager 创建账单管理器.
 func NewBillManager(logger *zap.Logger, engine *FinanceEngine) *BillManager {
 	return &BillManager{
 		logger: logger,
@@ -28,7 +28,7 @@ func NewBillManager(logger *zap.Logger, engine *FinanceEngine) *BillManager {
 	}
 }
 
-// CreateBill 创建账单
+// CreateBill 创建账单.
 func (bm *BillManager) CreateBill(bill *Bill) error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -63,7 +63,7 @@ func (bm *BillManager) CreateBill(bill *Bill) error {
 	return nil
 }
 
-// UpdateBill 更新账单
+// UpdateBill 更新账单.
 func (bm *BillManager) UpdateBill(bill *Bill) error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -82,7 +82,7 @@ func (bm *BillManager) UpdateBill(bill *Bill) error {
 	return nil
 }
 
-// DeleteBill 删除账单
+// DeleteBill 删除账单.
 func (bm *BillManager) DeleteBill(billID string) error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -96,7 +96,7 @@ func (bm *BillManager) DeleteBill(billID string) error {
 	return nil
 }
 
-// GetBill 获取账单
+// GetBill 获取账单.
 func (bm *BillManager) GetBill(billID string) (*Bill, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -108,7 +108,7 @@ func (bm *BillManager) GetBill(billID string) (*Bill, error) {
 	return bill, nil
 }
 
-// ListBills 列出所有账单
+// ListBills 列出所有账单.
 func (bm *BillManager) ListBills() []*Bill {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -120,7 +120,7 @@ func (bm *BillManager) ListBills() []*Bill {
 	return bills
 }
 
-// PayBill 支付账单
+// PayBill 支付账单.
 func (bm *BillManager) PayBill(billID string, accountID string) error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -155,7 +155,7 @@ func (bm *BillManager) PayBill(billID string, accountID string) error {
 	return nil
 }
 
-// GetUpcomingBills 获取即将到期的账单
+// GetUpcomingBills 获取即将到期的账单.
 func (bm *BillManager) GetUpcomingBills(days int) []*Bill {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -176,7 +176,7 @@ func (bm *BillManager) GetUpcomingBills(days int) []*Bill {
 	return upcoming
 }
 
-// GetOverdueBills 获取逾期账单
+// GetOverdueBills 获取逾期账单.
 func (bm *BillManager) GetOverdueBills() []*Bill {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -198,7 +198,7 @@ func (bm *BillManager) GetOverdueBills() []*Bill {
 	return overdue
 }
 
-// GetBillReminders 获取需要提醒的账单
+// GetBillReminders 获取需要提醒的账单.
 func (bm *BillManager) GetBillReminders() []*Bill {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -220,7 +220,7 @@ func (bm *BillManager) GetBillReminders() []*Bill {
 	return reminders
 }
 
-// GetBillSummary 获取账单汇总
+// GetBillSummary 获取账单汇总.
 func (bm *BillManager) GetBillSummary() map[string]interface{} {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -270,7 +270,7 @@ func (bm *BillManager) GetBillSummary() map[string]interface{} {
 	}
 }
 
-// calculateNextDueDate 计算下次到期日
+// calculateNextDueDate 计算下次到期日.
 func (bm *BillManager) calculateNextDueDate(bill *Bill) time.Time {
 	now := time.Now()
 
@@ -299,7 +299,7 @@ func (bm *BillManager) calculateNextDueDate(bill *Bill) time.Time {
 	}
 }
 
-// CheckOverdue 检查并更新逾期状态
+// CheckOverdue 检查并更新逾期状态.
 func (bm *BillManager) CheckOverdue() {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()

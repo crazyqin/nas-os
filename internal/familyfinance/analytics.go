@@ -12,14 +12,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// AnalyticsEngine 分析引擎
+// AnalyticsEngine 分析引擎.
 type AnalyticsEngine struct {
 	mu     sync.RWMutex
 	logger *zap.Logger
 	engine *FinanceEngine
 }
 
-// NewAnalyticsEngine 创建分析引擎
+// NewAnalyticsEngine 创建分析引擎.
 func NewAnalyticsEngine(logger *zap.Logger, engine *FinanceEngine) *AnalyticsEngine {
 	return &AnalyticsEngine{
 		logger: logger,
@@ -27,7 +27,7 @@ func NewAnalyticsEngine(logger *zap.Logger, engine *FinanceEngine) *AnalyticsEng
 	}
 }
 
-// GetFinancialSummary 获取财务摘要
+// GetFinancialSummary 获取财务摘要.
 func (ae *AnalyticsEngine) GetFinancialSummary(startDate, endDate time.Time) *FinancialSummary {
 	ae.mu.RLock()
 	defer ae.mu.RUnlock()
@@ -76,9 +76,10 @@ func (ae *AnalyticsEngine) GetFinancialSummary(startDate, endDate time.Time) *Fi
 
 		// 账户统计
 		if acc, ok := accountMap[tx.AccountID]; ok {
-			if tx.Type == TransactionTypeIncome {
+			switch tx.Type {
+			case TransactionTypeIncome:
 				acc.Income += tx.Amount
-			} else if tx.Type == TransactionTypeExpense {
+			case TransactionTypeExpense:
 				acc.Expense += tx.Amount
 			}
 		} else {
@@ -93,9 +94,10 @@ func (ae *AnalyticsEngine) GetFinancialSummary(startDate, endDate time.Time) *Fi
 				Income:      0,
 				Expense:     0,
 			}
-			if tx.Type == TransactionTypeIncome {
+			switch tx.Type {
+			case TransactionTypeIncome:
 				accountMap[tx.AccountID].Income = tx.Amount
-			} else if tx.Type == TransactionTypeExpense {
+			case TransactionTypeExpense:
 				accountMap[tx.AccountID].Expense = tx.Amount
 			}
 		}
@@ -124,7 +126,7 @@ func (ae *AnalyticsEngine) GetFinancialSummary(startDate, endDate time.Time) *Fi
 	return summary
 }
 
-// getAccountBalance 获取账户余额
+// getAccountBalance 获取账户余额.
 func (ae *AnalyticsEngine) getAccountBalance(accountID string) (float64, error) {
 	account, err := ae.engine.GetAccount(accountID)
 	if err != nil {
@@ -133,7 +135,7 @@ func (ae *AnalyticsEngine) getAccountBalance(accountID string) (float64, error) 
 	return account.Balance, nil
 }
 
-// GetIncomeExpenseTrend 获取收支趋势
+// GetIncomeExpenseTrend 获取收支趋势.
 func (ae *AnalyticsEngine) GetIncomeExpenseTrend(startDate, endDate time.Time, interval string) []TrendPoint {
 	ae.mu.RLock()
 	defer ae.mu.RUnlock()
@@ -164,9 +166,10 @@ func (ae *AnalyticsEngine) GetIncomeExpenseTrend(startDate, endDate time.Time, i
 		}
 
 		if point, ok := trendMap[key]; ok {
-			if tx.Type == TransactionTypeIncome {
+			switch tx.Type {
+			case TransactionTypeIncome:
 				point.Income += tx.Amount
-			} else if tx.Type == TransactionTypeExpense {
+			case TransactionTypeExpense:
 				point.Expense += tx.Amount
 			}
 		} else {
@@ -175,9 +178,10 @@ func (ae *AnalyticsEngine) GetIncomeExpenseTrend(startDate, endDate time.Time, i
 				Income:  0,
 				Expense: 0,
 			}
-			if tx.Type == TransactionTypeIncome {
+			switch tx.Type {
+			case TransactionTypeIncome:
 				trendMap[key].Income = tx.Amount
-			} else if tx.Type == TransactionTypeExpense {
+			case TransactionTypeExpense:
 				trendMap[key].Expense = tx.Amount
 			}
 		}
@@ -196,7 +200,7 @@ func (ae *AnalyticsEngine) GetIncomeExpenseTrend(startDate, endDate time.Time, i
 	return trend
 }
 
-// PredictCashFlow 现金流预测
+// PredictCashFlow 现金流预测.
 func (ae *AnalyticsEngine) PredictCashFlow(months int) *CashFlowForecast {
 	ae.mu.RLock()
 	defer ae.mu.RUnlock()
@@ -218,9 +222,10 @@ func (ae *AnalyticsEngine) PredictCashFlow(months int) *CashFlowForecast {
 
 	for _, tx := range transactions {
 		month := tx.Date.Format("2006-01")
-		if tx.Type == TransactionTypeIncome {
+		switch tx.Type {
+		case TransactionTypeIncome:
 			monthlyIncome[month] += tx.Amount
-		} else if tx.Type == TransactionTypeExpense {
+		case TransactionTypeExpense:
 			monthlyExpense[month] += tx.Amount
 		}
 	}
@@ -272,7 +277,7 @@ func (ae *AnalyticsEngine) PredictCashFlow(months int) *CashFlowForecast {
 	}
 }
 
-// GetSpendingByCategory 获取分类消费统计
+// GetSpendingByCategory 获取分类消费统计.
 func (ae *AnalyticsEngine) GetSpendingByCategory(startDate, endDate time.Time) []CategorySummary {
 	ae.mu.RLock()
 	defer ae.mu.RUnlock()
@@ -319,7 +324,7 @@ func (ae *AnalyticsEngine) GetSpendingByCategory(startDate, endDate time.Time) [
 	return result
 }
 
-// fmt.Sprintf needs fmt import
+// fmt.Sprintf needs fmt import.
 func init() {
 	// ensure fmt is used
 	_ = fmt.Sprintf

@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// SearchType 搜索类型
+// SearchType 搜索类型.
 type SearchType string
 
 const (
@@ -22,7 +22,7 @@ const (
 	SearchTypeMetadata SearchType = "metadata" // 元数据搜索
 )
 
-// FileType 文件类型
+// FileType 文件类型.
 type FileType string
 
 const (
@@ -35,7 +35,7 @@ const (
 	FileTypeOther    FileType = "other"
 )
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	FileID      string    `json:"file_id"`
 	FilePath    string    `json:"file_path"`
@@ -50,7 +50,7 @@ type SearchResult struct {
 	Labels      []string  `json:"labels,omitempty"`
 }
 
-// SearchRequest 搜索请求
+// SearchRequest 搜索请求.
 type SearchRequest struct {
 	Query     string     `json:"query"`
 	Type      SearchType `json:"type"`
@@ -69,7 +69,7 @@ type SearchRequest struct {
 	TenantID  string     `json:"tenant_id,omitempty"`
 }
 
-// SearchResponse 搜索响应
+// SearchResponse 搜索响应.
 type SearchResponse struct {
 	Query       string         `json:"query"`
 	Total       int            `json:"total"`
@@ -81,7 +81,7 @@ type SearchResponse struct {
 	Took        time.Duration  `json:"took"` // 搜索耗时
 }
 
-// SearchFacets 搜索分面（用于过滤）
+// SearchFacets 搜索分面（用于过滤）.
 type SearchFacets struct {
 	FileTypes  map[string]int `json:"file_types"`
 	Tags       map[string]int `json:"tags"`
@@ -89,13 +89,13 @@ type SearchFacets struct {
 	DateRanges []DateRange    `json:"date_ranges"`
 }
 
-// DateRange 日期范围
+// DateRange 日期范围.
 type DateRange struct {
 	Label string `json:"label"`
 	Count int    `json:"count"`
 }
 
-// IndexEntry 索引条目
+// IndexEntry 索引条目.
 type IndexEntry struct {
 	FileID    string    `json:"file_id"`
 	FilePath  string    `json:"file_path"`
@@ -110,14 +110,14 @@ type IndexEntry struct {
 	IndexedAt time.Time `json:"indexed_at"`
 }
 
-// Manager 智能搜索管理器
+// Manager 智能搜索管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	index       map[string]*IndexEntry // fileID -> entry
 	storagePath string
 }
 
-// NewManager 创建搜索管理器
+// NewManager 创建搜索管理器.
 func NewManager(storagePath string) *Manager {
 	return &Manager{
 		index:       make(map[string]*IndexEntry),
@@ -125,7 +125,7 @@ func NewManager(storagePath string) *Manager {
 	}
 }
 
-// IndexFile 索引文件
+// IndexFile 索引文件.
 func (m *Manager) IndexFile(ctx context.Context, entry IndexEntry) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -137,7 +137,7 @@ func (m *Manager) IndexFile(ctx context.Context, entry IndexEntry) error {
 	return nil
 }
 
-// RemoveFromIndex 从索引中移除
+// RemoveFromIndex 从索引中移除.
 func (m *Manager) RemoveFromIndex(ctx context.Context, fileID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -146,7 +146,7 @@ func (m *Manager) RemoveFromIndex(ctx context.Context, fileID string) error {
 	return nil
 }
 
-// Search 执行搜索
+// Search 执行搜索.
 func (m *Manager) Search(ctx context.Context, req SearchRequest) (*SearchResponse, error) {
 	start := time.Now()
 
@@ -255,7 +255,7 @@ func (m *Manager) Search(ctx context.Context, req SearchRequest) (*SearchRespons
 	}, nil
 }
 
-// GetIndexStats 获取索引统计
+// GetIndexStats 获取索引统计.
 func (m *Manager) GetIndexStats(ctx context.Context) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -273,7 +273,7 @@ func (m *Manager) GetIndexStats(ctx context.Context) (map[string]interface{}, er
 	return stats, nil
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (m *Manager) RebuildIndex(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

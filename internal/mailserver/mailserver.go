@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// MailServer 邮件服务器
+// MailServer 邮件服务器.
 type MailServer struct {
 	mu         sync.RWMutex
 	domains    map[string]*Domain
@@ -23,7 +23,7 @@ type MailServer struct {
 	cancel     context.CancelFunc
 }
 
-// Config 邮件服务器配置
+// Config 邮件服务器配置.
 type Config struct {
 	SMTPHost       string `json:"smtp_host"`
 	SMTPPort       int    `json:"smtp_port"`
@@ -36,7 +36,7 @@ type Config struct {
 	KeyFile        string `json:"key_file"`
 }
 
-// Domain 邮件域名
+// Domain 邮件域名.
 type Domain struct {
 	Name      string    `json:"name"`
 	Enabled   bool      `json:"enabled"`
@@ -46,7 +46,7 @@ type Domain struct {
 	Aliases   []string  `json:"aliases"`
 }
 
-// MailUser 邮件用户
+// MailUser 邮件用户.
 type MailUser struct {
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
@@ -61,7 +61,7 @@ type MailUser struct {
 	ForwardTo []string  `json:"forward_to"`
 }
 
-// Message 邮件消息
+// Message 邮件消息.
 type Message struct {
 	ID          string       `json:"id"`
 	From        string       `json:"from"`
@@ -80,7 +80,7 @@ type Message struct {
 	Folder      string       `json:"folder"`
 }
 
-// Attachment 附件
+// Attachment 附件.
 type Attachment struct {
 	Name     string `json:"name"`
 	MimeType string `json:"mime_type"`
@@ -88,7 +88,7 @@ type Attachment struct {
 	Content  []byte `json:"-"`
 }
 
-// SMTPServer SMTP 服务器
+// SMTPServer SMTP 服务器.
 type SMTPServer struct {
 	host      string
 	port      int
@@ -97,7 +97,7 @@ type SMTPServer struct {
 	keyFile   string
 }
 
-// IMAPServer IMAP 服务器
+// IMAPServer IMAP 服务器.
 type IMAPServer struct {
 	host      string
 	port      int
@@ -106,7 +106,7 @@ type IMAPServer struct {
 	keyFile   string
 }
 
-// NewMailServer 创建邮件服务器
+// NewMailServer 创建邮件服务器.
 func NewMailServer(config *Config) *MailServer {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &MailServer{
@@ -133,7 +133,7 @@ func NewMailServer(config *Config) *MailServer {
 	}
 }
 
-// Start 启动邮件服务器
+// Start 启动邮件服务器.
 func (ms *MailServer) Start() error {
 	ms.mu.Lock()
 	defer ms.mu.Unlock()
@@ -152,7 +152,7 @@ func (ms *MailServer) Start() error {
 	return nil
 }
 
-// Stop 停止邮件服务器
+// Stop 停止邮件服务器.
 func (ms *MailServer) Stop() error {
 	ms.mu.Lock()
 	defer ms.mu.Unlock()
@@ -166,7 +166,7 @@ func (ms *MailServer) Stop() error {
 	return nil
 }
 
-// AddDomain 添加域名
+// AddDomain 添加域名.
 func (ms *MailServer) AddDomain(name string) error {
 	ms.mu.Lock()
 	defer ms.mu.Unlock()
@@ -184,7 +184,7 @@ func (ms *MailServer) AddDomain(name string) error {
 	return nil
 }
 
-// RemoveDomain 删除域名
+// RemoveDomain 删除域名.
 func (ms *MailServer) RemoveDomain(name string) error {
 	ms.mu.Lock()
 	defer ms.mu.Unlock()
@@ -202,7 +202,7 @@ func (ms *MailServer) RemoveDomain(name string) error {
 	return nil
 }
 
-// AddUser 添加邮件用户
+// AddUser 添加邮件用户.
 func (ms *MailServer) AddUser(username, domain, password string, quota int64) error {
 	ms.mu.Lock()
 	defer ms.mu.Unlock()
@@ -231,7 +231,7 @@ func (ms *MailServer) AddUser(username, domain, password string, quota int64) er
 	return nil
 }
 
-// RemoveUser 删除邮件用户
+// RemoveUser 删除邮件用户.
 func (ms *MailServer) RemoveUser(email string) error {
 	ms.mu.Lock()
 	defer ms.mu.Unlock()
@@ -250,7 +250,7 @@ func (ms *MailServer) RemoveUser(email string) error {
 	return nil
 }
 
-// SendMessage 发送邮件
+// SendMessage 发送邮件.
 func (ms *MailServer) SendMessage(from string, to []string, subject, body, html string, attachments []Attachment) (*Message, error) {
 	ms.mu.Lock()
 	defer ms.mu.Unlock()
@@ -297,7 +297,7 @@ func (ms *MailServer) SendMessage(from string, to []string, subject, body, html 
 	return msg, nil
 }
 
-// GetMessages 获取用户邮件
+// GetMessages 获取用户邮件.
 func (ms *MailServer) GetMessages(email, folder string, page, pageSize int) ([]*Message, int, error) {
 	ms.mu.RLock()
 	defer ms.mu.RUnlock()
@@ -332,7 +332,7 @@ func (ms *MailServer) GetMessages(email, folder string, page, pageSize int) ([]*
 	return messages[start:end], total, nil
 }
 
-// GetStats 获取服务器统计
+// GetStats 获取服务器统计.
 func (ms *MailServer) GetStats() map[string]interface{} {
 	ms.mu.RLock()
 	defer ms.mu.RUnlock()
@@ -348,7 +348,7 @@ func (ms *MailServer) GetStats() map[string]interface{} {
 	}
 }
 
-// GetDomains 获取域名列表
+// GetDomains 获取域名列表.
 func (ms *MailServer) GetDomains() []*Domain {
 	ms.mu.RLock()
 	defer ms.mu.RUnlock()
@@ -360,7 +360,7 @@ func (ms *MailServer) GetDomains() []*Domain {
 	return domains
 }
 
-// GetUsers 获取用户列表
+// GetUsers 获取用户列表.
 func (ms *MailServer) GetUsers(domain string) []*MailUser {
 	ms.mu.RLock()
 	defer ms.mu.RUnlock()
@@ -374,19 +374,19 @@ func (ms *MailServer) GetUsers(domain string) []*MailUser {
 	return users
 }
 
-// startSMTPServer 启动 SMTP 服务器
+// startSMTPServer 启动 SMTP 服务器.
 func (ms *MailServer) startSMTPServer() {
 	// SMTP 服务器实现
 	// 实际实现需要处理 SMTP 协议
 }
 
-// startIMAPServer 启动 IMAP 服务器
+// startIMAPServer 启动 IMAP 服务器.
 func (ms *MailServer) startIMAPServer() {
 	// IMAP 服务器实现
 	// 实际实现需要处理 IMAP 协议
 }
 
-// SendSMTP 通过 SMTP 发送邮件
+// SendSMTP 通过 SMTP 发送邮件.
 func (ms *MailServer) SendSMTP(from string, to []string, msg []byte) error {
 	addr := fmt.Sprintf("%s:%d", ms.smtpServer.host, ms.smtpServer.port)
 	auth := smtp.PlainAuth("", from, "", ms.smtpServer.host)

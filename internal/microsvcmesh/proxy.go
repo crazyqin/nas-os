@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Proxy 代理层
+// Proxy 代理层.
 type Proxy struct {
 	mu         sync.RWMutex
 	logger     *zap.Logger
@@ -20,7 +20,7 @@ type Proxy struct {
 	rrCounters map[string]*int64 // service -> round-robin counter
 }
 
-// NewProxy 创建代理层
+// NewProxy 创建代理层.
 func NewProxy(logger *zap.Logger, engine *Engine) *Proxy {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -32,7 +32,7 @@ func NewProxy(logger *zap.Logger, engine *Engine) *Proxy {
 	}
 }
 
-// HandleRequest 处理代理请求
+// HandleRequest 处理代理请求.
 func (p *Proxy) HandleRequest(ctx context.Context, req *ProxyRequest) (*ProxyResponse, error) {
 	start := time.Now()
 
@@ -112,7 +112,7 @@ func (p *Proxy) HandleRequest(ctx context.Context, req *ProxyRequest) (*ProxyRes
 	return response, nil
 }
 
-// selectEndpoint 选择端点
+// selectEndpoint 选择端点.
 func (p *Proxy) selectEndpoint(svc *Service, req *ProxyRequest) (*Endpoint, RouteStrategy) {
 	// 查找匹配的路由
 	route := p.findRoute(svc, req)
@@ -152,7 +152,7 @@ func (p *Proxy) selectEndpoint(svc *Service, req *ProxyRequest) (*Endpoint, Rout
 	}
 }
 
-// roundRobin 轮询选择
+// roundRobin 轮询选择.
 func (p *Proxy) roundRobin(serviceName string, endpoints []*Endpoint) *Endpoint {
 	p.mu.Lock()
 	counter, exists := p.rrCounters[serviceName]
@@ -167,7 +167,7 @@ func (p *Proxy) roundRobin(serviceName string, endpoints []*Endpoint) *Endpoint 
 	return endpoints[int(idx)%len(endpoints)]
 }
 
-// weightedSelect 权重选择
+// weightedSelect 权重选择.
 func (p *Proxy) weightedSelect(endpoints []*Endpoint) *Endpoint {
 	totalWeight := 0
 	for _, ep := range endpoints {
@@ -187,7 +187,7 @@ func (p *Proxy) weightedSelect(endpoints []*Endpoint) *Endpoint {
 	return endpoints[0]
 }
 
-// findRoute 查找匹配的路由
+// findRoute 查找匹配的路由.
 func (p *Proxy) findRoute(svc *Service, req *ProxyRequest) *Route {
 	for _, route := range svc.Routes {
 		if route.Prefix != "" && !matchPrefix(req.Path, route.Prefix) {
@@ -201,7 +201,7 @@ func (p *Proxy) findRoute(svc *Service, req *ProxyRequest) *Route {
 	return nil
 }
 
-// matchPrefix 前缀匹配
+// matchPrefix 前缀匹配.
 func matchPrefix(path, prefix string) bool {
 	if len(path) < len(prefix) {
 		return false
@@ -209,7 +209,7 @@ func matchPrefix(path, prefix string) bool {
 	return path[:len(prefix)] == prefix
 }
 
-// contains 检查切片是否包含元素
+// contains 检查切片是否包含元素.
 func contains(slice []string, item string) bool {
 	for _, s := range slice {
 		if s == item {
@@ -219,7 +219,7 @@ func contains(slice []string, item string) bool {
 	return false
 }
 
-// hashString 字符串哈希
+// hashString 字符串哈希.
 func hashString(s string) int {
 	h := 0
 	for _, c := range s {

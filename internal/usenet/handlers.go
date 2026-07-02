@@ -8,24 +8,24 @@ import (
 	"strings"
 )
 
-// Handlers Usenet API 处理器
+// Handlers Usenet API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/usenet/servers", h.handleServers)
 	mux.HandleFunc("/api/usenet/servers/", h.handleServerByID)
@@ -41,24 +41,24 @@ func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/usenet/stats", h.handleStats)
 }
 
-// writeJSON 写入 JSON 响应
+// writeJSON 写入 JSON 响应.
 func writeJSON(w http.ResponseWriter, code int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(data)
 }
 
-// writeError 写入错误响应
+// writeError 写入错误响应.
 func writeError(w http.ResponseWriter, code int, message string) {
 	writeJSON(w, code, response{Code: 1, Message: message})
 }
 
-// writeSuccess 写入成功响应
+// writeSuccess 写入成功响应.
 func writeSuccess(w http.ResponseWriter, data interface{}) {
 	writeJSON(w, http.StatusOK, response{Code: 0, Message: "success", Data: data})
 }
 
-// handleServers 处理 /api/usenet/servers
+// handleServers 处理 /api/usenet/servers.
 func (h *Handlers) handleServers(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -81,7 +81,7 @@ func (h *Handlers) handleServers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleServerByID 处理 /api/usenet/servers/{id}
+// handleServerByID 处理 /api/usenet/servers/{id}.
 func (h *Handlers) handleServerByID(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/api/usenet/servers/")
 	if id == "" {
@@ -120,7 +120,7 @@ func (h *Handlers) handleServerByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleNZBs 处理 /api/usenet/nzbs
+// handleNZBs 处理 /api/usenet/nzbs.
 func (h *Handlers) handleNZBs(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -148,7 +148,7 @@ func (h *Handlers) handleNZBs(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleNZBByID 处理 /api/usenet/nzbs/{id}
+// handleNZBByID 处理 /api/usenet/nzbs/{id}.
 func (h *Handlers) handleNZBByID(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/api/usenet/nzbs/")
 	if id == "" {
@@ -175,7 +175,7 @@ func (h *Handlers) handleNZBByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleDownloads 处理 /api/usenet/downloads
+// handleDownloads 处理 /api/usenet/downloads.
 func (h *Handlers) handleDownloads(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "不支持的请求方法")
@@ -190,7 +190,7 @@ func (h *Handlers) handleDownloads(w http.ResponseWriter, r *http.Request) {
 	writeSuccess(w, downloads)
 }
 
-// handleDownloadByID 处理 /api/usenet/downloads/{id}
+// handleDownloadByID 处理 /api/usenet/downloads/{id}.
 func (h *Handlers) handleDownloadByID(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/api/usenet/downloads/")
 	if id == "" {
@@ -235,7 +235,7 @@ func (h *Handlers) handleDownloadByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleQueue 处理 /api/usenet/queue
+// handleQueue 处理 /api/usenet/queue.
 func (h *Handlers) handleQueue(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -261,7 +261,7 @@ func (h *Handlers) handleQueue(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleIndexers 处理 /api/usenet/indexers
+// handleIndexers 处理 /api/usenet/indexers.
 func (h *Handlers) handleIndexers(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -284,7 +284,7 @@ func (h *Handlers) handleIndexers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleIndexerByID 处理 /api/usenet/indexers/{id}
+// handleIndexerByID 处理 /api/usenet/indexers/{id}.
 func (h *Handlers) handleIndexerByID(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/api/usenet/indexers/")
 	if id == "" {
@@ -311,7 +311,7 @@ func (h *Handlers) handleIndexerByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleCategories 处理 /api/usenet/categories
+// handleCategories 处理 /api/usenet/categories.
 func (h *Handlers) handleCategories(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -338,7 +338,7 @@ func (h *Handlers) handleCategories(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleCategoryByID 处理 /api/usenet/categories/{id}
+// handleCategoryByID 处理 /api/usenet/categories/{id}.
 func (h *Handlers) handleCategoryByID(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/api/usenet/categories/")
 	if id == "" {
@@ -365,7 +365,7 @@ func (h *Handlers) handleCategoryByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleStats 处理 /api/usenet/stats
+// handleStats 处理 /api/usenet/stats.
 func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "不支持的请求方法")

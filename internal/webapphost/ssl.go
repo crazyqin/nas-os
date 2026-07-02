@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// SSLManager SSL 证书管理器
+// SSLManager SSL 证书管理器.
 type SSLManager struct {
 	mu       sync.RWMutex
 	certs    map[string]*SSLEntry
@@ -23,7 +23,7 @@ type SSLManager struct {
 	email    string
 }
 
-// NewSSLManager 创建 SSL 管理器
+// NewSSLManager 创建 SSL 管理器.
 func NewSSLManager(certDir string, provider string) *SSLManager {
 	if certDir == "" {
 		certDir = "/etc/nas-os/ssl"
@@ -39,14 +39,14 @@ func NewSSLManager(certDir string, provider string) *SSLManager {
 	}
 }
 
-// SetEmail 设置邮箱（用于 Let's Encrypt）
+// SetEmail 设置邮箱（用于 Let's Encrypt）.
 func (sm *SSLManager) SetEmail(email string) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
 	sm.email = email
 }
 
-// RequestCertificate 申请证书
+// RequestCertificate 申请证书.
 func (sm *SSLManager) RequestCertificate(domain string) (*SSLEntry, error) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -79,7 +79,7 @@ func (sm *SSLManager) RequestCertificate(domain string) (*SSLEntry, error) {
 	return entry, nil
 }
 
-// requestLetsEncrypt 申请 Let's Encrypt 证书
+// requestLetsEncrypt 申请 Let's Encrypt 证书.
 func (sm *SSLManager) requestLetsEncrypt(domain string) (*SSLEntry, error) {
 	// 模拟 Let's Encrypt 证书申请
 	// 实际实现需要使用 ACME 协议
@@ -104,7 +104,7 @@ func (sm *SSLManager) requestLetsEncrypt(domain string) (*SSLEntry, error) {
 	return entry, nil
 }
 
-// createSelfSigned 创建自签名证书
+// createSelfSigned 创建自签名证书.
 func (sm *SSLManager) createSelfSigned(domain string) (*SSLEntry, error) {
 	log.Printf("Creating self-signed certificate for: %s", domain)
 
@@ -178,7 +178,7 @@ func (sm *SSLManager) createSelfSigned(domain string) (*SSLEntry, error) {
 	return entry, nil
 }
 
-// GetCertificate 获取证书
+// GetCertificate 获取证书.
 func (sm *SSLManager) GetCertificate(domain string) (*SSLEntry, error) {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -190,7 +190,7 @@ func (sm *SSLManager) GetCertificate(domain string) (*SSLEntry, error) {
 	return entry, nil
 }
 
-// ListCertificates 列出所有证书
+// ListCertificates 列出所有证书.
 func (sm *SSLManager) ListCertificates() []*SSLEntry {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -202,7 +202,7 @@ func (sm *SSLManager) ListCertificates() []*SSLEntry {
 	return certs
 }
 
-// RevokeCertificate 吊销证书
+// RevokeCertificate 吊销证书.
 func (sm *SSLManager) RevokeCertificate(domain string) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -219,7 +219,7 @@ func (sm *SSLManager) RevokeCertificate(domain string) error {
 	return nil
 }
 
-// DeleteCertificate 删除证书
+// DeleteCertificate 删除证书.
 func (sm *SSLManager) DeleteCertificate(domain string) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -233,7 +233,7 @@ func (sm *SSLManager) DeleteCertificate(domain string) error {
 	return nil
 }
 
-// RenewCertificate 续期证书
+// RenewCertificate 续期证书.
 func (sm *SSLManager) RenewCertificate(domain string) (*SSLEntry, error) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -269,7 +269,7 @@ func (sm *SSLManager) RenewCertificate(domain string) (*SSLEntry, error) {
 	return newEntry, nil
 }
 
-// CheckExpiring 检查即将过期的证书
+// CheckExpiring 检查即将过期的证书.
 func (sm *SSLManager) CheckExpiring(days int) []*SSLEntry {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -286,7 +286,7 @@ func (sm *SSLManager) CheckExpiring(days int) []*SSLEntry {
 	return expiring
 }
 
-// AutoRenew 自动续期证书
+// AutoRenew 自动续期证书.
 func (sm *SSLManager) AutoRenew() {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -323,14 +323,14 @@ func (sm *SSLManager) AutoRenew() {
 	}
 }
 
-// GetCertCount 获取证书数量
+// GetCertCount 获取证书数量.
 func (sm *SSLManager) GetCertCount() int {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
 	return len(sm.certs)
 }
 
-// IsSSLEnabled 检查域名是否启用 SSL
+// IsSSLEnabled 检查域名是否启用 SSL.
 func (sm *SSLManager) IsSSLEnabled(domain string) bool {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -339,7 +339,7 @@ func (sm *SSLManager) IsSSLEnabled(domain string) bool {
 	return exists && entry.Status == "active" && entry.NotAfter.After(time.Now())
 }
 
-// ExportCertificate 导出证书（PEM 格式）
+// ExportCertificate 导出证书（PEM 格式）.
 func (sm *SSLManager) ExportCertificate(domain string) (certPEM, keyPEM string, err error) {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()

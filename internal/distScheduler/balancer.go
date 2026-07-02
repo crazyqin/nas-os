@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Balancer 负载均衡器
+// Balancer 负载均衡器.
 type Balancer struct {
 	mu      sync.RWMutex
 	logger  *zap.Logger
@@ -19,7 +19,7 @@ type Balancer struct {
 	rrIndex int64 // round-robin 计数器
 }
 
-// NewBalancer 创建负载均衡器
+// NewBalancer 创建负载均衡器.
 func NewBalancer(logger *zap.Logger, config *Config) *Balancer {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -33,7 +33,7 @@ func NewBalancer(logger *zap.Logger, config *Config) *Balancer {
 	}
 }
 
-// SelectNode 根据策略选择节点
+// SelectNode 根据策略选择节点.
 func (b *Balancer) SelectNode(nodes map[string]*Node, task *Task, strategy Strategy) (string, error) {
 	// 过滤可用节点
 	available := make([]*Node, 0)
@@ -63,13 +63,13 @@ func (b *Balancer) SelectNode(nodes map[string]*Node, task *Task, strategy Strat
 	}
 }
 
-// roundRobin 轮询策略
+// roundRobin 轮询策略.
 func (b *Balancer) roundRobin(nodes []*Node) string {
 	idx := atomic.AddInt64(&b.rrIndex, 1)
 	return nodes[int(idx)%len(nodes)].ID
 }
 
-// leastLoad 最小负载策略
+// leastLoad 最小负载策略.
 func (b *Balancer) leastLoad(nodes []*Node) string {
 	sort.Slice(nodes, func(i, j int) bool {
 		return nodes[i].TaskCount < nodes[j].TaskCount
@@ -77,7 +77,7 @@ func (b *Balancer) leastLoad(nodes []*Node) string {
 	return nodes[0].ID
 }
 
-// resourceAware 资源感知策略
+// resourceAware 资源感知策略.
 func (b *Balancer) resourceAware(nodes []*Node, task *Task) string {
 	best := nodes[0]
 	bestScore := b.computeResourceScore(best)
@@ -93,7 +93,7 @@ func (b *Balancer) resourceAware(nodes []*Node, task *Task) string {
 	return best.ID
 }
 
-// computeResourceScore 计算节点资源评分
+// computeResourceScore 计算节点资源评分.
 func (b *Balancer) computeResourceScore(node *Node) float64 {
 	if node.Resources == nil {
 		return 0.5
@@ -118,7 +118,7 @@ func (b *Balancer) computeResourceScore(node *Node) float64 {
 	return 0.5
 }
 
-// affinity 亲和性策略（优先选择相同标签的节点）
+// affinity 亲和性策略（优先选择相同标签的节点）.
 func (b *Balancer) affinity(nodes []*Node, task *Task) string {
 	if task.Tags == nil || len(task.Tags) == 0 {
 		return b.leastLoad(nodes)
@@ -146,12 +146,12 @@ func (b *Balancer) affinity(nodes []*Node, task *Task) string {
 	return best.ID
 }
 
-// randomPick 随机选择
+// randomPick 随机选择.
 func (b *Balancer) randomPick(nodes []*Node) string {
 	return nodes[rand.Intn(len(nodes))].ID
 }
 
-// GetLoadDistribution 获取负载分布
+// GetLoadDistribution 获取负载分布.
 func (b *Balancer) GetLoadDistribution(nodes map[string]*Node) map[string]int {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -163,7 +163,7 @@ func (b *Balancer) GetLoadDistribution(nodes map[string]*Node) map[string]int {
 	return dist
 }
 
-// IsBalanced 检查是否负载均衡
+// IsBalanced 检查是否负载均衡.
 func (b *Balancer) IsBalanced(nodes map[string]*Node, threshold float64) bool {
 	b.mu.RLock()
 	defer b.mu.RUnlock()

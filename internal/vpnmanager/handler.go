@@ -8,24 +8,24 @@ import (
 	"strings"
 )
 
-// Handler VPN API 处理器
+// Handler VPN API 处理器.
 type Handler struct {
 	manager *VPNManager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *VPNManager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/vpn/tunnels", h.handleTunnels)
 	mux.HandleFunc("/api/vpn/tunnels/", h.handleTunnelByID)
@@ -33,7 +33,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/vpn/export/", h.handleExport)
 }
 
-// handleTunnels 处理 /api/vpn/tunnels 路由
+// handleTunnels 处理 /api/vpn/tunnels 路由.
 func (h *Handler) handleTunnels(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -45,7 +45,7 @@ func (h *Handler) handleTunnels(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleTunnelByID 处理 /api/vpn/tunnels/:id 路由
+// handleTunnelByID 处理 /api/vpn/tunnels/:id 路由.
 func (h *Handler) handleTunnelByID(w http.ResponseWriter, r *http.Request) {
 	// 提取 ID 和子路由
 	path := strings.TrimPrefix(r.URL.Path, "/api/vpn/tunnels/")
@@ -87,7 +87,7 @@ func (h *Handler) handleTunnelByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// listTunnels 列出隧道
+// listTunnels 列出隧道.
 func (h *Handler) listTunnels(w http.ResponseWriter, r *http.Request) {
 	tunnels := h.manager.ListTunnels()
 	writeJSON(w, http.StatusOK, response{
@@ -97,7 +97,7 @@ func (h *Handler) listTunnels(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// createTunnel 创建隧道
+// createTunnel 创建隧道.
 func (h *Handler) createTunnel(w http.ResponseWriter, r *http.Request) {
 	var req TunnelCreateRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -118,7 +118,7 @@ func (h *Handler) createTunnel(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// getTunnel 获取隧道详情
+// getTunnel 获取隧道详情.
 func (h *Handler) getTunnel(w http.ResponseWriter, r *http.Request, id string) {
 	tunnel, err := h.manager.GetTunnel(id)
 	if err != nil {
@@ -133,7 +133,7 @@ func (h *Handler) getTunnel(w http.ResponseWriter, r *http.Request, id string) {
 	})
 }
 
-// updateTunnel 更新隧道
+// updateTunnel 更新隧道.
 func (h *Handler) updateTunnel(w http.ResponseWriter, r *http.Request, id string) {
 	var req TunnelUpdateRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -154,7 +154,7 @@ func (h *Handler) updateTunnel(w http.ResponseWriter, r *http.Request, id string
 	})
 }
 
-// deleteTunnel 删除隧道
+// deleteTunnel 删除隧道.
 func (h *Handler) deleteTunnel(w http.ResponseWriter, r *http.Request, id string) {
 	if err := h.manager.DeleteTunnel(id); err != nil {
 		writeError(w, http.StatusNotFound, err.Error())
@@ -167,7 +167,7 @@ func (h *Handler) deleteTunnel(w http.ResponseWriter, r *http.Request, id string
 	})
 }
 
-// startTunnel 启动隧道
+// startTunnel 启动隧道.
 func (h *Handler) startTunnel(w http.ResponseWriter, r *http.Request, id string) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -185,7 +185,7 @@ func (h *Handler) startTunnel(w http.ResponseWriter, r *http.Request, id string)
 	})
 }
 
-// stopTunnel 停止隧道
+// stopTunnel 停止隧道.
 func (h *Handler) stopTunnel(w http.ResponseWriter, r *http.Request, id string) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -203,7 +203,7 @@ func (h *Handler) stopTunnel(w http.ResponseWriter, r *http.Request, id string) 
 	})
 }
 
-// getTrafficStats 获取流量统计
+// getTrafficStats 获取流量统计.
 func (h *Handler) getTrafficStats(w http.ResponseWriter, r *http.Request, id string) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -223,7 +223,7 @@ func (h *Handler) getTrafficStats(w http.ResponseWriter, r *http.Request, id str
 	})
 }
 
-// handleImport 处理导入配置
+// handleImport 处理导入配置.
 func (h *Handler) handleImport(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -249,7 +249,7 @@ func (h *Handler) handleImport(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleExport 处理导出配置
+// handleExport 处理导出配置.
 func (h *Handler) handleExport(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -278,14 +278,14 @@ func (h *Handler) handleExport(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// writeJSON 写入 JSON 响应
+// writeJSON 写入 JSON 响应.
 func writeJSON(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(data)
 }
 
-// writeError 写入错误响应
+// writeError 写入错误响应.
 func writeError(w http.ResponseWriter, statusCode int, message string) {
 	writeJSON(w, statusCode, response{
 		Code:    1,
@@ -293,7 +293,7 @@ func writeError(w http.ResponseWriter, statusCode int, message string) {
 	})
 }
 
-// SetupHTTPHandler 设置 HTTP 处理器（便捷函数）
+// SetupHTTPHandler 设置 HTTP 处理器（便捷函数）.
 func SetupHTTPHandler(manager *VPNManager) http.Handler {
 	mux := http.NewServeMux()
 	handler := NewHandler(manager)
@@ -301,7 +301,7 @@ func SetupHTTPHandler(manager *VPNManager) http.Handler {
 	return mux
 }
 
-// StartHTTPServer 启动 HTTP 服务器（便捷函数）
+// StartHTTPServer 启动 HTTP 服务器（便捷函数）.
 func StartHTTPServer(manager *VPNManager, addr string) error {
 	handler := SetupHTTPHandler(manager)
 	fmt.Printf("VPN Manager HTTP server starting on %s\n", addr)

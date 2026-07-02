@@ -11,13 +11,13 @@ import (
 	"time"
 )
 
-// MCPProtocol MCP协议处理器
+// MCPProtocol MCP协议处理器.
 type MCPProtocol struct {
 	agent  *MCPAgent
 	logger *slog.Logger
 }
 
-// NewMCPProtocol 创建MCP协议处理器
+// NewMCPProtocol 创建MCP协议处理器.
 func NewMCPProtocol(agent *MCPAgent) *MCPProtocol {
 	return &MCPProtocol{
 		agent:  agent,
@@ -25,7 +25,7 @@ func NewMCPProtocol(agent *MCPAgent) *MCPProtocol {
 	}
 }
 
-// MCPRequest MCP请求
+// MCPRequest MCP请求.
 type MCPRequest struct {
 	JSONRPC string          `json:"jsonrpc"`
 	ID      interface{}     `json:"id"`
@@ -33,7 +33,7 @@ type MCPRequest struct {
 	Params  json.RawMessage `json:"params,omitempty"`
 }
 
-// MCPResponse MCP响应
+// MCPResponse MCP响应.
 type MCPResponse struct {
 	JSONRPC string      `json:"jsonrpc"`
 	ID      interface{} `json:"id"`
@@ -41,14 +41,14 @@ type MCPResponse struct {
 	Error   *MCPError   `json:"error,omitempty"`
 }
 
-// MCPError MCP错误
+// MCPError MCP错误.
 type MCPError struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// MCP标准错误码
+// MCP标准错误码.
 const (
 	MCPErrorParse          = -32700
 	MCPErrorInvalidRequest = -32600
@@ -60,53 +60,53 @@ const (
 	MCPErrorSchemaInvalid  = -32002
 )
 
-// ToolsListParams tools/list请求参数
+// ToolsListParams tools/list请求参数.
 type ToolsListParams struct {
 	Cursor string `json:"cursor,omitempty"` // 分页游标
 }
 
-// ToolsListResult tools/list响应结果
+// ToolsListResult tools/list响应结果.
 type ToolsListResult struct {
 	Tools      []MCPToolInfo `json:"tools"`
 	NextCursor string        `json:"nextCursor,omitempty"`
 }
 
-// MCPToolInfo MCP工具信息
+// MCPToolInfo MCP工具信息.
 type MCPToolInfo struct {
 	Name        string          `json:"name"`
 	Description string          `json:"description"`
 	InputSchema json.RawMessage `json:"inputSchema"`
 }
 
-// ToolsGetParams tools/get请求参数
+// ToolsGetParams tools/get请求参数.
 type ToolsGetParams struct {
 	Name string `json:"name"`
 }
 
-// ToolsGetResult tools/get响应结果
+// ToolsGetResult tools/get响应结果.
 type ToolsGetResult struct {
 	Tool MCPToolInfo `json:"tool"`
 }
 
-// ToolsCallParams tools/call请求参数
+// ToolsCallParams tools/call请求参数.
 type ToolsCallParams struct {
 	Name      string                 `json:"name"`
 	Arguments map[string]interface{} `json:"arguments,omitempty"`
 }
 
-// ToolsCallResult tools/call响应结果
+// ToolsCallResult tools/call响应结果.
 type ToolsCallResult struct {
 	Content []MCPContent `json:"content"`
 	IsError bool         `json:"isError,omitempty"`
 }
 
-// MCPContent MCP内容块
+// MCPContent MCP内容块.
 type MCPContent struct {
 	Type string `json:"type"` // text, image, resource
 	Text string `json:"text,omitempty"`
 }
 
-// HandleRequest 处理MCP请求
+// HandleRequest 处理MCP请求.
 func (p *MCPProtocol) HandleRequest(ctx context.Context, rawRequest []byte) ([]byte, error) {
 	var request MCPRequest
 	if err := json.Unmarshal(rawRequest, &request); err != nil {
@@ -132,7 +132,7 @@ func (p *MCPProtocol) HandleRequest(ctx context.Context, rawRequest []byte) ([]b
 	}
 }
 
-// handleToolsList 处理tools/list请求
+// handleToolsList 处理tools/list请求.
 func (p *MCPProtocol) handleToolsList(ctx context.Context, id interface{}, params json.RawMessage) ([]byte, error) {
 	var listParams ToolsListParams
 	if params != nil {
@@ -171,7 +171,7 @@ func (p *MCPProtocol) handleToolsList(ctx context.Context, id interface{}, param
 	return p.createSuccessResponse(id, result)
 }
 
-// handleToolsGet 处理tools/get请求
+// handleToolsGet 处理tools/get请求.
 func (p *MCPProtocol) handleToolsGet(ctx context.Context, id interface{}, params json.RawMessage) ([]byte, error) {
 	var getParams ToolsGetParams
 	if err := json.Unmarshal(params, &getParams); err != nil {
@@ -205,7 +205,7 @@ func (p *MCPProtocol) handleToolsGet(ctx context.Context, id interface{}, params
 	return p.createSuccessResponse(id, result)
 }
 
-// handleToolsCall 处理tools/call请求
+// handleToolsCall 处理tools/call请求.
 func (p *MCPProtocol) handleToolsCall(ctx context.Context, id interface{}, params json.RawMessage) ([]byte, error) {
 	var callParams ToolsCallParams
 	if err := json.Unmarshal(params, &callParams); err != nil {
@@ -260,7 +260,7 @@ func (p *MCPProtocol) handleToolsCall(ctx context.Context, id interface{}, param
 	})
 }
 
-// validateInputSchema 验证输入参数是否符合schema
+// validateInputSchema 验证输入参数是否符合schema.
 func (p *MCPProtocol) validateInputSchema(tool *NASTool, args map[string]interface{}) error {
 	if tool.InputSchema == nil {
 		return nil
@@ -330,7 +330,7 @@ func (p *MCPProtocol) validateInputSchema(tool *NASTool, args map[string]interfa
 	return nil
 }
 
-// checkType 检查值是否匹配预期类型
+// checkType 检查值是否匹配预期类型.
 func (p *MCPProtocol) checkType(value interface{}, expectedType string) bool {
 	if value == nil {
 		return true // null值通常被允许
@@ -371,7 +371,7 @@ func (p *MCPProtocol) checkType(value interface{}, expectedType string) bool {
 	}
 }
 
-// convertToolResult 转换工具结果为MCP内容格式
+// convertToolResult 转换工具结果为MCP内容格式.
 func (p *MCPProtocol) convertToolResult(result *ToolResult) []MCPContent {
 	var contents []MCPContent
 
@@ -428,7 +428,7 @@ func (p *MCPProtocol) convertToolResult(result *ToolResult) []MCPContent {
 	return contents
 }
 
-// createSuccessResponse 创建成功响应
+// createSuccessResponse 创建成功响应.
 func (p *MCPProtocol) createSuccessResponse(id interface{}, result interface{}) ([]byte, error) {
 	response := MCPResponse{
 		JSONRPC: "2.0",
@@ -438,7 +438,7 @@ func (p *MCPProtocol) createSuccessResponse(id interface{}, result interface{}) 
 	return json.Marshal(response)
 }
 
-// createErrorResponse 创建错误响应
+// createErrorResponse 创建错误响应.
 func (p *MCPProtocol) createErrorResponse(id interface{}, code int, message string, data interface{}) ([]byte, error) {
 	response := MCPResponse{
 		JSONRPC: "2.0",
@@ -452,7 +452,7 @@ func (p *MCPProtocol) createErrorResponse(id interface{}, code int, message stri
 	return json.Marshal(response)
 }
 
-// RegisterMCPTool 注册MCP工具 (带schema验证)
+// RegisterMCPTool 注册MCP工具 (带schema验证).
 func (a *MCPAgent) RegisterMCPTool(name, description string, category ToolCategory,
 	inputSchema map[string]interface{}, handler ToolHandler, permission PermissionLevel) error {
 
@@ -475,7 +475,7 @@ func (a *MCPAgent) RegisterMCPTool(name, description string, category ToolCatego
 	return nil
 }
 
-// validateToolSchema 验证工具schema格式
+// validateToolSchema 验证工具schema格式.
 func validateToolSchema(schema map[string]interface{}) error {
 	if schema == nil {
 		return nil
@@ -525,7 +525,7 @@ func validateToolSchema(schema map[string]interface{}) error {
 	return nil
 }
 
-// GetMCPProtocol 获取MCP协议处理器
+// GetMCPProtocol 获取MCP协议处理器.
 func (a *MCPAgent) GetMCPProtocol() *MCPProtocol {
 	return NewMCPProtocol(a)
 }

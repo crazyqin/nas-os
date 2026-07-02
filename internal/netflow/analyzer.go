@@ -14,7 +14,7 @@ import (
 )
 
 // Analyzer 流量分析器
-// 负责异常检测、TopN统计、协议深度分析
+// 负责异常检测、TopN统计、协议深度分析.
 type Analyzer struct {
 	mu          sync.RWMutex
 	collector   *Collector
@@ -34,7 +34,7 @@ type Analyzer struct {
 	windowSizeSec int
 }
 
-// NewAnalyzer 创建流量分析器
+// NewAnalyzer 创建流量分析器.
 func NewAnalyzer(collector *Collector, logger *zap.Logger) *Analyzer {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -54,7 +54,7 @@ func NewAnalyzer(collector *Collector, logger *zap.Logger) *Analyzer {
 	}
 }
 
-// Analyze 执行一轮完整分析
+// Analyze 执行一轮完整分析.
 func (a *Analyzer) Analyze() []AnomalyAlert {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -101,7 +101,7 @@ func (a *Analyzer) Analyze() []AnomalyAlert {
 	return newAlerts
 }
 
-// detectTrafficSpike 检测流量突增
+// detectTrafficSpike 检测流量突增.
 func (a *Analyzer) detectTrafficSpike(records []FlowRecord) *AnomalyAlert {
 	now := time.Now()
 	windowStart := now.Add(-time.Duration(a.windowSizeSec) * time.Second)
@@ -137,7 +137,7 @@ func (a *Analyzer) detectTrafficSpike(records []FlowRecord) *AnomalyAlert {
 	return nil
 }
 
-// detectPortScan 检测端口扫描
+// detectPortScan 检测端口扫描.
 func (a *Analyzer) detectPortScan(records []FlowRecord) *AnomalyAlert {
 	now := time.Now()
 	windowStart := now.Add(-time.Duration(a.windowSizeSec) * time.Second)
@@ -173,7 +173,7 @@ func (a *Analyzer) detectPortScan(records []FlowRecord) *AnomalyAlert {
 	return nil
 }
 
-// detectDNSFlood 检测DNS洪泛
+// detectDNSFlood 检测DNS洪泛.
 func (a *Analyzer) detectDNSFlood(records []FlowRecord) *AnomalyAlert {
 	now := time.Now()
 	windowStart := now.Add(-time.Duration(a.windowSizeSec) * time.Second)
@@ -203,7 +203,7 @@ func (a *Analyzer) detectDNSFlood(records []FlowRecord) *AnomalyAlert {
 	return nil
 }
 
-// detectHighConnectionRate 检测高连接速率
+// detectHighConnectionRate 检测高连接速率.
 func (a *Analyzer) detectHighConnectionRate(records []FlowRecord) *AnomalyAlert {
 	now := time.Now()
 	windowStart := now.Add(-time.Duration(a.windowSizeSec) * time.Second)
@@ -230,7 +230,7 @@ func (a *Analyzer) detectHighConnectionRate(records []FlowRecord) *AnomalyAlert 
 	return nil
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (a *Analyzer) GetAlerts(limit int, severity string, anomalyType string) []AnomalyAlert {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -254,7 +254,7 @@ func (a *Analyzer) GetAlerts(limit int, severity string, anomalyType string) []A
 	return filtered
 }
 
-// GetAlertStats 获取告警统计
+// GetAlertStats 获取告警统计.
 func (a *Analyzer) GetAlertStats() map[string]interface{} {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -272,7 +272,7 @@ func (a *Analyzer) GetAlertStats() map[string]interface{} {
 	return stats
 }
 
-// ResolveAlert 标记告警为已解决
+// ResolveAlert 标记告警为已解决.
 func (a *Analyzer) ResolveAlert(id string) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -290,7 +290,7 @@ func (a *Analyzer) ResolveAlert(id string) error {
 // TopN分析
 // ============================================================
 
-// TopHosts Top N 主机分析
+// TopHosts Top N 主机分析.
 func (a *Analyzer) TopHosts(n int) TopNResult {
 	hosts := a.collector.GetTopHosts(n)
 
@@ -311,7 +311,7 @@ func (a *Analyzer) TopHosts(n int) TopNResult {
 	}
 }
 
-// TopProtocols Top N 协议分析
+// TopProtocols Top N 协议分析.
 func (a *Analyzer) TopProtocols(n int) TopNResult {
 	protocols := a.collector.GetProtocolStats()
 
@@ -342,7 +342,7 @@ func (a *Analyzer) TopProtocols(n int) TopNResult {
 }
 
 // TopConversations Top N 会话分析
-// 基于最近记录分析(src, dst)对的流量
+// 基于最近记录分析(src, dst)对的流量.
 func (a *Analyzer) TopConversations(n int) TopNResult {
 	records := a.collector.GetRecentRecords(10000)
 
@@ -394,28 +394,28 @@ func (a *Analyzer) TopConversations(n int) TopNResult {
 	}
 }
 
-// SetSpikeThreshold 设置流量突增阈值
+// SetSpikeThreshold 设置流量突增阈值.
 func (a *Analyzer) SetSpikeThreshold(mbps float64) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.spikeThresholdMBPS = mbps
 }
 
-// SetPortScanThreshold 设置端口扫描阈值
+// SetPortScanThreshold 设置端口扫描阈值.
 func (a *Analyzer) SetPortScanThreshold(ports int) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.portScanThreshold = ports
 }
 
-// SetDNSFloodThreshold 设置DNS洪泛阈值
+// SetDNSFloodThreshold 设置DNS洪泛阈值.
 func (a *Analyzer) SetDNSFloodThreshold(perSec int) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.dnsFloodThreshold = perSec
 }
 
-// SetHighConnRateThreshold 设置高连接速率阈值
+// SetHighConnRateThreshold 设置高连接速率阈值.
 func (a *Analyzer) SetHighConnRateThreshold(perSec int) {
 	a.mu.Lock()
 	defer a.mu.Unlock()

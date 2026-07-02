@@ -10,32 +10,32 @@ import (
 	"go.uber.org/zap"
 )
 
-// MultipathManager NVMe-oF多路径管理器
+// MultipathManager NVMe-oF多路径管理器.
 type MultipathManager struct {
-	logger    *zap.Logger
-	paths     map[string][]PathInfo
-	mu        sync.RWMutex
-	failover  *FailoverManager
+	logger   *zap.Logger
+	paths    map[string][]PathInfo
+	mu       sync.RWMutex
+	failover *FailoverManager
 }
 
-// PathInfo 路径信息
+// PathInfo 路径信息.
 type PathInfo struct {
-	ID         string    `json:"id"`
-	HostNQN    string    `json:"host_nqn"`
-	Subsystem  string    `json:"subsystem"`
-	TrAddr     string    `json:"traddr"`
-	TrSvcID    string    `json:"trsvcid"`
-	Transport  string    `json:"transport"` // rdma, tcp, fc
-	State      string    `json:"state"`     // live, connecting, faulty, deleted
-	Priority   int       `json:"priority"`
-	Latency    time.Duration `json:"latency"`
-	IOPS       int64     `json:"iops"`
-	Bandwidth  int64     `json:"bandwidth"`
-	Errors     int64     `json:"errors"`
-	LastCheck  time.Time `json:"last_check"`
+	ID        string        `json:"id"`
+	HostNQN   string        `json:"host_nqn"`
+	Subsystem string        `json:"subsystem"`
+	TrAddr    string        `json:"traddr"`
+	TrSvcID   string        `json:"trsvcid"`
+	Transport string        `json:"transport"` // rdma, tcp, fc
+	State     string        `json:"state"`     // live, connecting, faulty, deleted
+	Priority  int           `json:"priority"`
+	Latency   time.Duration `json:"latency"`
+	IOPS      int64         `json:"iops"`
+	Bandwidth int64         `json:"bandwidth"`
+	Errors    int64         `json:"errors"`
+	LastCheck time.Time     `json:"last_check"`
 }
 
-// FailoverManager 故障切换管理器
+// FailoverManager 故障切换管理器.
 type FailoverManager struct {
 	logger       *zap.Logger
 	config       FailoverConfig
@@ -44,7 +44,7 @@ type FailoverManager struct {
 	failoverChan chan FailoverEvent
 }
 
-// FailoverConfig 故障切换配置
+// FailoverConfig 故障切换配置.
 type FailoverConfig struct {
 	HealthCheckInterval time.Duration `json:"health_check_interval"`
 	FailoverThreshold   int           `json:"failover_threshold"`
@@ -54,18 +54,18 @@ type FailoverConfig struct {
 	NotifyOnFailover    bool          `json:"notify_on_failover"`
 }
 
-// FailoverEvent 故障切换事件
+// FailoverEvent 故障切换事件.
 type FailoverEvent struct {
-	Timestamp    time.Time `json:"timestamp"`
-	Subsystem    string    `json:"subsystem"`
-	FromPath     string    `json:"from_path"`
-	ToPath       string    `json:"to_path"`
-	Reason       string    `json:"reason"`
-	Success      bool      `json:"success"`
-	Duration     time.Duration `json:"duration"`
+	Timestamp time.Time     `json:"timestamp"`
+	Subsystem string        `json:"subsystem"`
+	FromPath  string        `json:"from_path"`
+	ToPath    string        `json:"to_path"`
+	Reason    string        `json:"reason"`
+	Success   bool          `json:"success"`
+	Duration  time.Duration `json:"duration"`
 }
 
-// DefaultFailoverConfig 默认故障切换配置
+// DefaultFailoverConfig 默认故障切换配置.
 func DefaultFailoverConfig() FailoverConfig {
 	return FailoverConfig{
 		HealthCheckInterval: 5 * time.Second,
@@ -77,7 +77,7 @@ func DefaultFailoverConfig() FailoverConfig {
 	}
 }
 
-// NewMultipathManager 创建多路径管理器
+// NewMultipathManager 创建多路径管理器.
 func NewMultipathManager(logger *zap.Logger, config FailoverConfig) *MultipathManager {
 	mm := &MultipathManager{
 		logger:   logger,
@@ -87,7 +87,7 @@ func NewMultipathManager(logger *zap.Logger, config FailoverConfig) *MultipathMa
 	return mm
 }
 
-// NewFailoverManager 创建故障切换管理器
+// NewFailoverManager 创建故障切换管理器.
 func NewFailoverManager(logger *zap.Logger, config FailoverConfig) *FailoverManager {
 	return &FailoverManager{
 		logger:       logger,
@@ -97,7 +97,7 @@ func NewFailoverManager(logger *zap.Logger, config FailoverConfig) *FailoverMana
 	}
 }
 
-// AddPath 添加路径
+// AddPath 添加路径.
 func (mm *MultipathManager) AddPath(ctx context.Context, subsystem string, path PathInfo) error {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()
@@ -115,7 +115,7 @@ func (mm *MultipathManager) AddPath(ctx context.Context, subsystem string, path 
 	return nil
 }
 
-// RemovePath 移除路径
+// RemovePath 移除路径.
 func (mm *MultipathManager) RemovePath(ctx context.Context, subsystem, pathID string) error {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()
@@ -131,14 +131,14 @@ func (mm *MultipathManager) RemovePath(ctx context.Context, subsystem, pathID st
 	return fmt.Errorf("path %s not found", pathID)
 }
 
-// GetPaths 获取子系统的所有路径
+// GetPaths 获取子系统的所有路径.
 func (mm *MultipathManager) GetPaths(subsystem string) []PathInfo {
 	mm.mu.RLock()
 	defer mm.mu.RUnlock()
 	return mm.paths[subsystem]
 }
 
-// GetActivePath 获取活跃路径
+// GetActivePath 获取活跃路径.
 func (mm *MultipathManager) GetActivePath(subsystem string) *PathInfo {
 	mm.mu.RLock()
 	defer mm.mu.RUnlock()
@@ -161,7 +161,7 @@ func (mm *MultipathManager) GetActivePath(subsystem string) *PathInfo {
 	return nil
 }
 
-// CheckPathHealth 检查路径健康状态
+// CheckPathHealth 检查路径健康状态.
 func (mm *MultipathManager) CheckPathHealth(ctx context.Context, subsystem, pathID string) (*PathInfo, error) {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()
@@ -195,7 +195,7 @@ func (mm *MultipathManager) checkPathState(ctx context.Context, path PathInfo) s
 	return "live"
 }
 
-// StartHealthMonitor 启动健康监控
+// StartHealthMonitor 启动健康监控.
 func (mm *MultipathManager) StartHealthMonitor(ctx context.Context, interval time.Duration) {
 	go func() {
 		ticker := time.NewTicker(interval)
@@ -232,7 +232,7 @@ func (mm *MultipathManager) checkAllPaths(ctx context.Context) {
 	}
 }
 
-// TriggerFailover 触发故障切换
+// TriggerFailover 触发故障切换.
 func (fm *FailoverManager) TriggerFailover(subsystem, fromPath, reason string) {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -256,7 +256,7 @@ func (fm *FailoverManager) TriggerFailover(subsystem, fromPath, reason string) {
 	}
 }
 
-// GetFailoverEvents 获取故障切换事件
+// GetFailoverEvents 获取故障切换事件.
 func (fm *FailoverManager) GetFailoverEvents() []FailoverEvent {
 	var events []FailoverEvent
 	for {
@@ -269,15 +269,15 @@ func (fm *FailoverManager) GetFailoverEvents() []FailoverEvent {
 	}
 }
 
-// RDMAConfig RDMA配置
+// RDMAConfig RDMA配置.
 type RDMAConfig struct {
-	GIDIndex    int    `json:"gid_index"`
-	MTU         int    `json:"mtu"`
-	QueueSize   int    `json:"queue_size"`
-	MaxSegments int    `json:"max_segments"`
+	GIDIndex    int `json:"gid_index"`
+	MTU         int `json:"mtu"`
+	QueueSize   int `json:"queue_size"`
+	MaxSegments int `json:"max_segments"`
 }
 
-// ConnectRDMA 通过RDMA连接NVMe-oF
+// ConnectRDMA 通过RDMA连接NVMe-oF.
 func (mm *MultipathManager) ConnectRDMA(ctx context.Context, subsystem, addr, port string, config RDMAConfig) error {
 	args := []string{"connect",
 		"-t", "rdma",
@@ -300,7 +300,7 @@ func (mm *MultipathManager) ConnectRDMA(ctx context.Context, subsystem, addr, po
 	return nil
 }
 
-// ConnectTCP 通过TCP连接NVMe-oF
+// ConnectTCP 通过TCP连接NVMe-oF.
 func (mm *MultipathManager) ConnectTCP(ctx context.Context, subsystem, addr, port string) error {
 	args := []string{"connect",
 		"-t", "tcp",
@@ -321,7 +321,7 @@ func (mm *MultipathManager) ConnectTCP(ctx context.Context, subsystem, addr, por
 	return nil
 }
 
-// Disconnect 断开NVMe-oF连接
+// Disconnect 断开NVMe-oF连接.
 func (mm *MultipathManager) Disconnect(ctx context.Context, subsystemNQN string) error {
 	cmd := exec.CommandContext(ctx, "nvme", "disconnect", "-n", subsystemNQN)
 	if output, err := cmd.CombinedOutput(); err != nil {
@@ -330,7 +330,7 @@ func (mm *MultipathManager) Disconnect(ctx context.Context, subsystemNQN string)
 	return nil
 }
 
-// GetSubsystemIOStats 获取子系统IO统计
+// GetSubsystemIOStats 获取子系统IO统计.
 func (mm *MultipathManager) GetSubsystemIOStats(ctx context.Context, subsystem string) (map[string]interface{}, error) {
 	cmd := exec.CommandContext(ctx, "nvme", "id-ctrl", subsystem, "-o", "json")
 	out, err := cmd.Output()

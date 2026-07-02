@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// ChatEngine 对话引擎
+// ChatEngine 对话引擎.
 type ChatEngine struct {
 	mu            sync.RWMutex
 	logger        *zap.Logger
@@ -22,7 +22,7 @@ type ChatEngine struct {
 	maxHistory    int
 }
 
-// NewChatEngine 创建对话引擎
+// NewChatEngine 创建对话引擎.
 func NewChatEngine(logger *zap.Logger, engine *Engine, maxHistory int) *ChatEngine {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -38,14 +38,14 @@ func NewChatEngine(logger *zap.Logger, engine *Engine, maxHistory int) *ChatEngi
 	}
 }
 
-// generateMsgID 生成消息 ID
+// generateMsgID 生成消息 ID.
 func generateMsgID() string {
 	b := make([]byte, 8)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// CreateConversation 创建新对话
+// CreateConversation 创建新对话.
 func (ce *ChatEngine) CreateConversation(modelName string) *Conversation {
 	ce.mu.Lock()
 	defer ce.mu.Unlock()
@@ -63,7 +63,7 @@ func (ce *ChatEngine) CreateConversation(modelName string) *Conversation {
 	return conv
 }
 
-// GetConversation 获取对话
+// GetConversation 获取对话.
 func (ce *ChatEngine) GetConversation(id string) (*Conversation, error) {
 	ce.mu.RLock()
 	defer ce.mu.RUnlock()
@@ -75,7 +75,7 @@ func (ce *ChatEngine) GetConversation(id string) (*Conversation, error) {
 	return conv, nil
 }
 
-// DeleteConversation 删除对话
+// DeleteConversation 删除对话.
 func (ce *ChatEngine) DeleteConversation(id string) error {
 	ce.mu.Lock()
 	defer ce.mu.Unlock()
@@ -87,7 +87,7 @@ func (ce *ChatEngine) DeleteConversation(id string) error {
 	return nil
 }
 
-// ListConversations 列出所有对话
+// ListConversations 列出所有对话.
 func (ce *ChatEngine) ListConversations() []*Conversation {
 	ce.mu.RLock()
 	defer ce.mu.RUnlock()
@@ -99,7 +99,7 @@ func (ce *ChatEngine) ListConversations() []*Conversation {
 	return result
 }
 
-// SendMessage 发送消息并获取回复
+// SendMessage 发送消息并获取回复.
 func (ce *ChatEngine) SendMessage(ctx context.Context, req *ChatRequest) (*ChatResponse, error) {
 	start := time.Now()
 
@@ -173,7 +173,7 @@ func (ce *ChatEngine) SendMessage(ctx context.Context, req *ChatRequest) (*ChatR
 	}, nil
 }
 
-// buildPrompt 构建包含历史的推理提示
+// buildPrompt 构建包含历史的推理提示.
 func (ce *ChatEngine) buildPrompt(conv *Conversation) string {
 	var sb strings.Builder
 
@@ -184,11 +184,11 @@ func (ce *ChatEngine) buildPrompt(conv *Conversation) string {
 	for _, msg := range conv.Messages {
 		switch msg.Role {
 		case RoleSystem:
-			sb.WriteString(fmt.Sprintf("System: %s\n", msg.Content))
+			fmt.Fprintf(&sb, "System: %s\n", msg.Content)
 		case RoleUser:
-			sb.WriteString(fmt.Sprintf("User: %s\n", msg.Content))
+			fmt.Fprintf(&sb, "User: %s\n", msg.Content)
 		case RoleAssistant:
-			sb.WriteString(fmt.Sprintf("Assistant: %s\n", msg.Content))
+			fmt.Fprintf(&sb, "Assistant: %s\n", msg.Content)
 		}
 	}
 
@@ -196,14 +196,14 @@ func (ce *ChatEngine) buildPrompt(conv *Conversation) string {
 	return sb.String()
 }
 
-// trimHistory 裁剪对话历史，保留最新消息
+// trimHistory 裁剪对话历史，保留最新消息.
 func (ce *ChatEngine) trimHistory(conv *Conversation) {
 	if len(conv.Messages) > ce.maxHistory*2 {
 		conv.Messages = conv.Messages[len(conv.Messages)-ce.maxHistory*2:]
 	}
 }
 
-// StreamChat 流式对话（返回 channel）
+// StreamChat 流式对话（返回 channel）.
 func (ce *ChatEngine) StreamChat(ctx context.Context, req *ChatRequest) (<-chan *StreamChunk, error) {
 	req.Stream = true
 

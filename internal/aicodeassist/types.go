@@ -4,7 +4,7 @@ package aicodeassist
 
 import "time"
 
-// ProgrammingLanguage 支持的编程语言
+// ProgrammingLanguage 支持的编程语言.
 type ProgrammingLanguage string
 
 const (
@@ -15,7 +15,7 @@ const (
 	LangJava   ProgrammingLanguage = "java"
 )
 
-// ReviewCategory 代码审查类别
+// ReviewCategory 代码审查类别.
 type ReviewCategory string
 
 const (
@@ -24,7 +24,7 @@ const (
 	ReviewStyle    ReviewCategory = "style"
 )
 
-// ReviewSeverity 审查问题严重程度
+// ReviewSeverity 审查问题严重程度.
 type ReviewSeverity string
 
 const (
@@ -34,7 +34,7 @@ const (
 	SeverityCritical ReviewSeverity = "critical"
 )
 
-// RefactorType 重构类型
+// RefactorType 重构类型.
 type RefactorType string
 
 const (
@@ -45,7 +45,7 @@ const (
 	RefactorErrorHandle RefactorType = "error_handling"
 )
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -55,7 +55,7 @@ const (
 	TaskStatusFailed     TaskStatus = "failed"
 )
 
-// CompletionRequest 代码补全请求
+// CompletionRequest 代码补全请求.
 type CompletionRequest struct {
 	Language  ProgrammingLanguage `json:"language" binding:"required"`
 	Code      string              `json:"code" binding:"required"`
@@ -64,7 +64,7 @@ type CompletionRequest struct {
 	MaxTokens int                 `json:"max_tokens,omitempty"`
 }
 
-// CompletionResponse 代码补全响应
+// CompletionResponse 代码补全响应.
 type CompletionResponse struct {
 	ID          string           `json:"id"`
 	Suggestions []CodeSuggestion `json:"suggestions"`
@@ -72,21 +72,21 @@ type CompletionResponse struct {
 	CreatedAt   time.Time        `json:"created_at"`
 }
 
-// CodeSuggestion 代码建议
+// CodeSuggestion 代码建议.
 type CodeSuggestion struct {
 	Code        string  `json:"code"`
 	Description string  `json:"description,omitempty"`
 	Confidence  float64 `json:"confidence"`
 }
 
-// ReviewRequest 代码审查请求
+// ReviewRequest 代码审查请求.
 type ReviewRequest struct {
 	Language   ProgrammingLanguage `json:"language" binding:"required"`
 	Code       string              `json:"code" binding:"required"`
 	Categories []ReviewCategory    `json:"categories,omitempty"`
 }
 
-// ReviewResponse 代码审查响应
+// ReviewResponse 代码审查响应.
 type ReviewResponse struct {
 	ID        string        `json:"id"`
 	Issues    []ReviewIssue `json:"issues"`
@@ -96,7 +96,7 @@ type ReviewResponse struct {
 	CreatedAt time.Time     `json:"created_at"`
 }
 
-// ReviewIssue 审查发现的问题
+// ReviewIssue 审查发现的问题.
 type ReviewIssue struct {
 	Line       int            `json:"line"`
 	Column     int            `json:"column,omitempty"`
@@ -106,7 +106,7 @@ type ReviewIssue struct {
 	Suggestion string         `json:"suggestion,omitempty"`
 }
 
-// RefactorRequest 代码重构请求
+// RefactorRequest 代码重构请求.
 type RefactorRequest struct {
 	Language ProgrammingLanguage `json:"language" binding:"required"`
 	Code     string              `json:"code" binding:"required"`
@@ -114,7 +114,7 @@ type RefactorRequest struct {
 	Target   string              `json:"target,omitempty"`
 }
 
-// RefactorResponse 代码重构响应
+// RefactorResponse 代码重构响应.
 type RefactorResponse struct {
 	ID          string        `json:"id"`
 	Original    string        `json:"original"`
@@ -125,7 +125,7 @@ type RefactorResponse struct {
 	CreatedAt   time.Time     `json:"created_at"`
 }
 
-// Change 代码变更
+// Change 代码变更.
 type Change struct {
 	Type        string `json:"type"`
 	Description string `json:"description"`
@@ -133,7 +133,7 @@ type Change struct {
 	NewCode     string `json:"new_code,omitempty"`
 }
 
-// TestGenRequest 测试用例生成请求
+// TestGenRequest 测试用例生成请求.
 type TestGenRequest struct {
 	Language  ProgrammingLanguage `json:"language" binding:"required"`
 	Code      string              `json:"code" binding:"required"`
@@ -141,7 +141,7 @@ type TestGenRequest struct {
 	Coverage  bool                `json:"coverage"`
 }
 
-// TestGenResponse 测试用例生成响应
+// TestGenResponse 测试用例生成响应.
 type TestGenResponse struct {
 	ID        string        `json:"id"`
 	TestCode  string        `json:"test_code"`
@@ -151,7 +151,7 @@ type TestGenResponse struct {
 	CreatedAt time.Time     `json:"created_at"`
 }
 
-// TestCase 测试用例
+// TestCase 测试用例.
 type TestCase struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -159,14 +159,14 @@ type TestCase struct {
 	Expected    string `json:"expected,omitempty"`
 }
 
-// ExplainRequest 代码解释请求
+// ExplainRequest 代码解释请求.
 type ExplainRequest struct {
 	Language ProgrammingLanguage `json:"language" binding:"required"`
 	Code     string              `json:"code" binding:"required"`
 	Detail   string              `json:"detail,omitempty"` // brief, normal, detailed
 }
 
-// ExplainResponse 代码解释响应
+// ExplainResponse 代码解释响应.
 type ExplainResponse struct {
 	ID          string        `json:"id"`
 	Explanation string        `json:"explanation"`
@@ -176,13 +176,13 @@ type ExplainResponse struct {
 	CreatedAt   time.Time     `json:"created_at"`
 }
 
-// GitDiffRequest Git diff 分析请求
+// GitDiffRequest Git diff 分析请求.
 type GitDiffRequest struct {
 	Diff     string `json:"diff" binding:"required"`
 	Language string `json:"language,omitempty"`
 }
 
-// GitDiffResponse Git diff 分析响应
+// GitDiffResponse Git diff 分析响应.
 type GitDiffResponse struct {
 	ID        string        `json:"id"`
 	Summary   string        `json:"summary"`
@@ -192,21 +192,21 @@ type GitDiffResponse struct {
 	CreatedAt time.Time     `json:"created_at"`
 }
 
-// DiffChange diff 变更条目
+// DiffChange diff 变更条目.
 type DiffChange struct {
 	File    string `json:"file"`
 	Type    string `json:"type"` // added, modified, deleted
 	Summary string `json:"summary"`
 }
 
-// CommitMsgRequest commit message 生成请求
+// CommitMsgRequest commit message 生成请求.
 type CommitMsgRequest struct {
 	Diff     string `json:"diff" binding:"required"`
 	Language string `json:"language,omitempty"` // zh or en
 	Style    string `json:"style,omitempty"`    // conventional, simple
 }
 
-// CommitMsgResponse commit message 生成响应
+// CommitMsgResponse commit message 生成响应.
 type CommitMsgResponse struct {
 	ID           string    `json:"id"`
 	Message      string    `json:"message"`
@@ -216,7 +216,7 @@ type CommitMsgResponse struct {
 	CreatedAt    time.Time `json:"created_at"`
 }
 
-// TaskInfo 通用任务信息
+// TaskInfo 通用任务信息.
 type TaskInfo struct {
 	ID        string     `json:"id"`
 	Type      string     `json:"type"`
@@ -226,7 +226,7 @@ type TaskInfo struct {
 	UpdatedAt time.Time  `json:"updated_at"`
 }
 
-// AIAssistConfig AI 代码助手配置
+// AIAssistConfig AI 代码助手配置.
 type AIAssistConfig struct {
 	Enabled         bool                  `json:"enabled"`
 	DefaultLanguage string                `json:"default_language"`
@@ -235,7 +235,7 @@ type AIAssistConfig struct {
 	SupportedLangs  []ProgrammingLanguage `json:"supported_langs"`
 }
 
-// DefaultAIAssistConfig 返回默认配置
+// DefaultAIAssistConfig 返回默认配置.
 func DefaultAIAssistConfig() *AIAssistConfig {
 	return &AIAssistConfig{
 		Enabled:         true,
@@ -248,12 +248,12 @@ func DefaultAIAssistConfig() *AIAssistConfig {
 	}
 }
 
-// SupportedLanguages 返回支持的编程语言列表
+// SupportedLanguages 返回支持的编程语言列表.
 func SupportedLanguages() []ProgrammingLanguage {
 	return []ProgrammingLanguage{LangGo, LangPython, LangJS, LangRust, LangJava}
 }
 
-// IsValidLanguage 检查语言是否受支持
+// IsValidLanguage 检查语言是否受支持.
 func IsValidLanguage(lang ProgrammingLanguage) bool {
 	for _, l := range SupportedLanguages() {
 		if l == lang {

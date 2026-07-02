@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// Manager 基准测试管理器
+// Manager 基准测试管理器.
 type Manager struct {
 	mu           sync.RWMutex
 	config       *Config
@@ -24,7 +24,7 @@ type Manager struct {
 	stopChan     chan struct{}
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(cfg *Config) *Manager {
 	if cfg == nil {
 		cfg = DefaultConfig()
@@ -41,12 +41,12 @@ func NewManager(cfg *Config) *Manager {
 	}
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	close(m.stopChan)
 }
 
-// RunTest 启动基准测试
+// RunTest 启动基准测试.
 func (m *Manager) RunTest(req *BenchRequest) (*BenchResult, error) {
 	if req == nil {
 		return nil, fmt.Errorf("请求不能为空")
@@ -84,7 +84,7 @@ func (m *Manager) RunTest(req *BenchRequest) (*BenchResult, error) {
 	return result, nil
 }
 
-// executeTest 执行测试
+// executeTest 执行测试.
 func (m *Manager) executeTest(result *BenchResult, req *BenchRequest) {
 	result.Status = StatusRunning
 
@@ -120,7 +120,7 @@ func (m *Manager) executeTest(result *BenchResult, req *BenchRequest) {
 	m.finishTest(result)
 }
 
-// runCPUTest CPU 基准测试
+// runCPUTest CPU 基准测试.
 func (m *Manager) runCPUTest(result *BenchResult, req *BenchRequest) error {
 	// 单核计算密集型测试（素数计算）
 	iterations := req.DurationSec * 100000
@@ -174,7 +174,7 @@ func (m *Manager) runCPUTest(result *BenchResult, req *BenchRequest) error {
 	return nil
 }
 
-// runMemoryTest 内存基准测试
+// runMemoryTest 内存基准测试.
 func (m *Manager) runMemoryTest(result *BenchResult, req *BenchRequest) error {
 	sizeMB := req.FileSizeMB
 	if sizeMB <= 0 {
@@ -245,7 +245,7 @@ func (m *Manager) runMemoryTest(result *BenchResult, req *BenchRequest) error {
 	return nil
 }
 
-// runDiskIOTest 磁盘 IO 基准测试
+// runDiskIOTest 磁盘 IO 基准测试.
 func (m *Manager) runDiskIOTest(result *BenchResult, req *BenchRequest) error {
 	targetPath := req.TargetPath
 	if targetPath == "" {
@@ -295,7 +295,7 @@ func (m *Manager) runDiskIOTest(result *BenchResult, req *BenchRequest) error {
 	return nil
 }
 
-// runNetworkTest 网络基准测试
+// runNetworkTest 网络基准测试.
 func (m *Manager) runNetworkTest(result *BenchResult, req *BenchRequest) error {
 	// 由于网络测试需要实际目标，这里模拟测试结果
 	// 实际部署时应使用 iperf3 或类似工具
@@ -321,7 +321,7 @@ func (m *Manager) runNetworkTest(result *BenchResult, req *BenchRequest) error {
 	return nil
 }
 
-// runComprehensiveTest 综合测试
+// runComprehensiveTest 综合测试.
 func (m *Manager) runComprehensiveTest(result *BenchResult, req *BenchRequest) error {
 	// CPU 测试
 	cpuResult := &BenchResult{ID: result.ID + "-cpu", TestType: TestTypeCPU, StartedAt: time.Now()}
@@ -370,7 +370,7 @@ func (m *Manager) runComprehensiveTest(result *BenchResult, req *BenchRequest) e
 	return nil
 }
 
-// calculateOverallScore 计算综合评分
+// calculateOverallScore 计算综合评分.
 func (m *Manager) calculateOverallScore(result *BenchResult) float64 {
 	score := 0.0
 	count := 0
@@ -404,7 +404,7 @@ func (m *Manager) calculateOverallScore(result *BenchResult) float64 {
 	return score / float64(count)
 }
 
-// finishTest 完成测试
+// finishTest 完成测试.
 func (m *Manager) finishTest(result *BenchResult) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -426,7 +426,7 @@ func (m *Manager) finishTest(result *BenchResult) {
 	}
 }
 
-// GetResult 获取测试结果
+// GetResult 获取测试结果.
 func (m *Manager) GetResult(id string) (*BenchResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -442,7 +442,7 @@ func (m *Manager) GetResult(id string) (*BenchResult, error) {
 	return nil, fmt.Errorf("测试结果 %s 不存在", id)
 }
 
-// ListResults 列出所有结果
+// ListResults 列出所有结果.
 func (m *Manager) ListResults() []*BenchResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -455,7 +455,7 @@ func (m *Manager) ListResults() []*BenchResult {
 	return all
 }
 
-// AnalyzeTrend 趋势分析
+// AnalyzeTrend 趋势分析.
 func (m *Manager) AnalyzeTrend(testType string) *TrendAnalysis {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -526,7 +526,7 @@ func (m *Manager) AnalyzeTrend(testType string) *TrendAnalysis {
 	}
 }
 
-// DiagnoseBottlenecks 诊断性能瓶颈
+// DiagnoseBottlenecks 诊断性能瓶颈.
 func (m *Manager) DiagnoseBottlenecks(result *BenchResult) []*Bottleneck {
 	var bottlenecks []*Bottleneck
 
@@ -605,7 +605,7 @@ func (m *Manager) DiagnoseBottlenecks(result *BenchResult) []*Bottleneck {
 	return bottlenecks
 }
 
-// GenerateSuggestions 生成优化建议
+// GenerateSuggestions 生成优化建议.
 func (m *Manager) GenerateSuggestions(result *BenchResult, bottlenecks []*Bottleneck) []*OptimizationSuggestion {
 	var suggestions []*OptimizationSuggestion
 
@@ -671,14 +671,14 @@ func (m *Manager) GenerateSuggestions(result *BenchResult, bottlenecks []*Bottle
 	return suggestions
 }
 
-// AddCompetitor 添加竞品数据
+// AddCompetitor 添加竞品数据.
 func (m *Manager) AddCompetitor(entry *CompetitorEntry) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.competitors[entry.Name] = entry
 }
 
-// CompareWithCompetitor 竞品对比
+// CompareWithCompetitor 竞品对比.
 func (m *Manager) CompareWithCompetitor(resultID, competitorName string) (*CompetitorComparison, error) {
 	result, err := m.GetResult(resultID)
 	if err != nil {
@@ -708,7 +708,7 @@ func (m *Manager) CompareWithCompetitor(resultID, competitorName string) (*Compe
 	}, nil
 }
 
-// ListCompetitors 列出竞品数据
+// ListCompetitors 列出竞品数据.
 func (m *Manager) ListCompetitors() []*CompetitorEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -723,7 +723,7 @@ func (m *Manager) ListCompetitors() []*CompetitorEntry {
 	return entries
 }
 
-// GenerateReport 生成测试报告
+// GenerateReport 生成测试报告.
 func (m *Manager) GenerateReport(resultID string) (*BenchmarkReport, error) {
 	result, err := m.GetResult(resultID)
 	if err != nil {
@@ -749,7 +749,7 @@ func (m *Manager) GenerateReport(resultID string) (*BenchmarkReport, error) {
 	return report, nil
 }
 
-// ExportReportJSON 导出报告为 JSON
+// ExportReportJSON 导出报告为 JSON.
 func (m *Manager) ExportReportJSON(resultID string) ([]byte, error) {
 	report, err := m.GenerateReport(resultID)
 	if err != nil {
@@ -758,7 +758,7 @@ func (m *Manager) ExportReportJSON(resultID string) ([]byte, error) {
 	return json.MarshalIndent(report, "", "  ")
 }
 
-// benchSequentialWrite 顺序写测试
+// benchSequentialWrite 顺序写测试.
 func (m *Manager) benchSequentialWrite(path string, sizeMB, blockKB int) (float64, error) {
 	f, err := os.Create(path)
 	if err != nil {
@@ -792,7 +792,7 @@ func (m *Manager) benchSequentialWrite(path string, sizeMB, blockKB int) (float6
 	return float64(written) / 1024 / 1024 / elapsed, nil
 }
 
-// benchSequentialRead 顺序读测试
+// benchSequentialRead 顺序读测试.
 func (m *Manager) benchSequentialRead(path string, blockKB int) (float64, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -821,7 +821,7 @@ func (m *Manager) benchSequentialRead(path string, blockKB int) (float64, error)
 	return float64(totalRead) / 1024 / 1024 / elapsed, nil
 }
 
-// benchRandomIO 随机 IO 测试
+// benchRandomIO 随机 IO 测试.
 func (m *Manager) benchRandomIO(path string) (readIOPS, writeIOPS float64, latAvg, latP99 time.Duration) {
 	f, err := os.OpenFile(path, os.O_RDWR, 0644)
 	if err != nil {
@@ -886,5 +886,5 @@ func (m *Manager) benchRandomIO(path string) (readIOPS, writeIOPS float64, latAv
 		latP99 = sorted[p99Idx]
 	}
 
-	return
+	return readIOPS, writeIOPS, latAvg, latP99
 }

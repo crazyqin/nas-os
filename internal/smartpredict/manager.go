@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// SMARTAttribute SMART 属性
+// SMARTAttribute SMART 属性.
 type SMARTAttribute struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`
@@ -22,7 +22,7 @@ type SMARTAttribute struct {
 	Critical  bool   `json:"critical"`
 }
 
-// DiskHealth 磁盘健康状态
+// DiskHealth 磁盘健康状态.
 type DiskHealth struct {
 	Device       string           `json:"device"`
 	Model        string           `json:"model"`
@@ -37,7 +37,7 @@ type DiskHealth struct {
 	Prediction   *Prediction      `json:"prediction,omitempty"`
 }
 
-// Prediction 预测结果
+// Prediction 预测结果.
 type Prediction struct {
 	EstimatedFailDate *time.Time `json:"estimated_fail_date,omitempty"`
 	Confidence        float64    `json:"confidence"` // 0-1
@@ -47,7 +47,7 @@ type Prediction struct {
 	RemainingLifeDays int        `json:"remaining_life_days"`
 }
 
-// PredictConfig 预测配置
+// PredictConfig 预测配置.
 type PredictConfig struct {
 	CheckInterval     time.Duration `json:"check_interval"`
 	TemperatureWarn   int           `json:"temperature_warn"`
@@ -58,7 +58,7 @@ type PredictConfig struct {
 	TBWWarningPct     float64       `json:"tbw_warning_pct"` // TBW 使用百分比警告
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *PredictConfig {
 	return &PredictConfig{
 		CheckInterval:     1 * time.Hour,
@@ -71,7 +71,7 @@ func DefaultConfig() *PredictConfig {
 	}
 }
 
-// Manager 管理器
+// Manager 管理器.
 type Manager struct {
 	config    *PredictConfig
 	disks     map[string]*DiskHealth
@@ -81,7 +81,7 @@ type Manager struct {
 	alertFunc func(device string, prediction *Prediction)
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(config *PredictConfig) *Manager {
 	if config == nil {
 		config = DefaultConfig()
@@ -95,22 +95,22 @@ func NewManager(config *PredictConfig) *Manager {
 	}
 }
 
-// SetAlertFunc 设置告警回调
+// SetAlertFunc 设置告警回调.
 func (m *Manager) SetAlertFunc(fn func(device string, prediction *Prediction)) {
 	m.alertFunc = fn
 }
 
-// Start 启动监控
+// Start 启动监控.
 func (m *Manager) Start() {
 	go m.monitorLoop()
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (m *Manager) Stop() {
 	m.cancel()
 }
 
-// UpdateDisk 更新磁盘健康数据
+// UpdateDisk 更新磁盘健康数据.
 func (m *Manager) UpdateDisk(health *DiskHealth) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -125,7 +125,7 @@ func (m *Manager) UpdateDisk(health *DiskHealth) {
 	}
 }
 
-// GetDisk 获取磁盘健康信息
+// GetDisk 获取磁盘健康信息.
 func (m *Manager) GetDisk(device string) (*DiskHealth, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -133,7 +133,7 @@ func (m *Manager) GetDisk(device string) (*DiskHealth, bool) {
 	return d, ok
 }
 
-// GetAllDisks 获取所有磁盘
+// GetAllDisks 获取所有磁盘.
 func (m *Manager) GetAllDisks() map[string]*DiskHealth {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -144,7 +144,7 @@ func (m *Manager) GetAllDisks() map[string]*DiskHealth {
 	return result
 }
 
-// calculateHealthScore 计算健康评分 (0-100)
+// calculateHealthScore 计算健康评分 (0-100).
 func (m *Manager) calculateHealthScore(h *DiskHealth) float64 {
 	score := 100.0
 
@@ -208,7 +208,7 @@ func (m *Manager) calculateHealthScore(h *DiskHealth) float64 {
 	return math.Round(score*10) / 10
 }
 
-// calculateFailProb 计算故障概率
+// calculateFailProb 计算故障概率.
 func (m *Manager) calculateFailProb(h *DiskHealth) float64 {
 	prob := 0.0
 
@@ -245,7 +245,7 @@ func (m *Manager) calculateFailProb(h *DiskHealth) float64 {
 	return math.Round(prob*1000) / 1000
 }
 
-// predict 生成预测
+// predict 生成预测.
 func (m *Manager) predict(h *DiskHealth) *Prediction {
 	if h.HealthScore > 80 && h.FailProb < 0.1 {
 		return &Prediction{
@@ -289,7 +289,7 @@ func (m *Manager) predict(h *DiskHealth) *Prediction {
 	return pred
 }
 
-// collectFactors 收集风险因素
+// collectFactors 收集风险因素.
 func (m *Manager) collectFactors(h *DiskHealth) []string {
 	var factors []string
 
@@ -327,7 +327,7 @@ func (m *Manager) collectFactors(h *DiskHealth) []string {
 	return factors
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (m *Manager) generateRecommendations(h *DiskHealth, riskLevel string) []string {
 	var recs []string
 
@@ -355,7 +355,7 @@ func (m *Manager) generateRecommendations(h *DiskHealth, riskLevel string) []str
 	return recs
 }
 
-// estimateRemainingDays 估算剩余寿命（天）
+// estimateRemainingDays 估算剩余寿命（天）.
 func (m *Manager) estimateRemainingDays(h *DiskHealth) int {
 	days := 365 * 5 // 默认 5 年
 
@@ -389,7 +389,7 @@ func (m *Manager) estimateRemainingDays(h *DiskHealth) int {
 	return days
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (m *Manager) monitorLoop() {
 	ticker := time.NewTicker(m.config.CheckInterval)
 	defer ticker.Stop()
@@ -404,7 +404,7 @@ func (m *Manager) monitorLoop() {
 	}
 }
 
-// checkAll 检查所有磁盘
+// checkAll 检查所有磁盘.
 func (m *Manager) checkAll() {
 	m.mu.RLock()
 	disks := make(map[string]*DiskHealth, len(m.disks))
@@ -420,7 +420,7 @@ func (m *Manager) checkAll() {
 	}
 }
 
-// GetRiskSummary 获取风险摘要
+// GetRiskSummary 获取风险摘要.
 func (m *Manager) GetRiskSummary() map[string]int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

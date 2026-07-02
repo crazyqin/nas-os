@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// LegacyStatus 遗产计划状态
+// LegacyStatus 遗产计划状态.
 type LegacyStatus string
 
 const (
@@ -16,7 +16,7 @@ const (
 	LegacyStatusRevoked   LegacyStatus = "revoked"   // 已撤销
 )
 
-// TriggerType 触发类型
+// TriggerType 触发类型.
 type TriggerType string
 
 const (
@@ -27,7 +27,7 @@ const (
 	TriggerScheduled  TriggerType = "scheduled"  // 定时触发
 )
 
-// AssetType 数字资产类型
+// AssetType 数字资产类型.
 type AssetType string
 
 const (
@@ -41,7 +41,7 @@ const (
 	AssetTypeOther    AssetType = "other"    // 其他
 )
 
-// ContactRole 联系人角色
+// ContactRole 联系人角色.
 type ContactRole string
 
 const (
@@ -51,7 +51,7 @@ const (
 	RoleEmergency   ContactRole = "emergency"   // 紧急联系人
 )
 
-// VerificationMethod 验证方式
+// VerificationMethod 验证方式.
 type VerificationMethod string
 
 const (
@@ -62,7 +62,7 @@ const (
 	VerifyNotary    VerificationMethod = "notary"     // 公证处验证
 )
 
-// AccessLevel 访问级别
+// AccessLevel 访问级别.
 type AccessLevel string
 
 const (
@@ -72,7 +72,7 @@ const (
 	AccessNone    AccessLevel = "none"    // 无访问
 )
 
-// HeartbeatStatus 心跳状态
+// HeartbeatStatus 心跳状态.
 type HeartbeatStatus string
 
 const (
@@ -81,7 +81,7 @@ const (
 	HeartbeatConfirmed HeartbeatStatus = "confirmed" // 已确认死亡
 )
 
-// VerificationLevel 验证级别
+// VerificationLevel 验证级别.
 type VerificationLevel int
 
 const (
@@ -90,7 +90,7 @@ const (
 	VerifyLevelTertiary  VerificationLevel = 3 // 第三方验证（如公证处）
 )
 
-// LegacyPlan 遗产计划
+// LegacyPlan 遗产计划.
 type LegacyPlan struct {
 	ID                string              `json:"id"`
 	Name              string              `json:"name"`
@@ -112,7 +112,7 @@ type LegacyPlan struct {
 	CompletedAt       *time.Time          `json:"completed_at,omitempty"`
 }
 
-// TriggerConditions 触发条件
+// TriggerConditions 触发条件.
 type TriggerConditions struct {
 	InactivityDays        int        `json:"inactivity_days,omitempty"`
 	LastActiveAt          *time.Time `json:"last_active_at,omitempty"`
@@ -123,7 +123,7 @@ type TriggerConditions struct {
 	GracePeriodDays       int        `json:"grace_period_days,omitempty"`
 }
 
-// TimeLock 时间锁
+// TimeLock 时间锁.
 type TimeLock struct {
 	ID            string     `json:"id"`
 	PlanID        string     `json:"plan_id"`
@@ -134,7 +134,7 @@ type TimeLock struct {
 	CreatedAt     time.Time  `json:"created_at"`
 }
 
-// Beneficiary 受益人
+// Beneficiary 受益人.
 type Beneficiary struct {
 	ID                string      `json:"id"`
 	PlanID            string      `json:"plan_id"`
@@ -152,7 +152,7 @@ type Beneficiary struct {
 	UpdatedAt         time.Time   `json:"updated_at"`
 }
 
-// DigitalAsset 数字资产
+// DigitalAsset 数字资产.
 type DigitalAsset struct {
 	ID            string    `json:"id"`
 	PlanID        string    `json:"plan_id"`
@@ -172,7 +172,7 @@ type DigitalAsset struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 
-// EmergencyContact 紧急联系人
+// EmergencyContact 紧急联系人.
 type EmergencyContact struct {
 	ID              string      `json:"id"`
 	PlanID          string      `json:"plan_id"`
@@ -191,7 +191,7 @@ type EmergencyContact struct {
 	UpdatedAt       time.Time   `json:"updated_at"`
 }
 
-// WillDocument 遗嘱文档
+// WillDocument 遗嘱文档.
 type WillDocument struct {
 	ID               string     `json:"id"`
 	PlanID           string     `json:"plan_id"`
@@ -207,7 +207,7 @@ type WillDocument struct {
 	UpdatedAt        time.Time  `json:"updated_at"`
 }
 
-// TrustContact 信任联系人
+// TrustContact 信任联系人.
 type TrustContact struct {
 	ID                 string             `json:"id"`
 	OwnerID            string             `json:"owner_id"`
@@ -224,7 +224,7 @@ type TrustContact struct {
 	UpdatedAt          time.Time          `json:"updated_at"`
 }
 
-// VerificationRequest 验证请求
+// VerificationRequest 验证请求.
 type VerificationRequest struct {
 	ID         string             `json:"id"`
 	PlanID     string             `json:"plan_id"`
@@ -238,7 +238,7 @@ type VerificationRequest struct {
 	CreatedAt  time.Time          `json:"created_at"`
 }
 
-// AccessGrant 访问授权
+// AccessGrant 访问授权.
 type AccessGrant struct {
 	ID            string      `json:"id"`
 	PlanID        string      `json:"plan_id"`
@@ -251,7 +251,7 @@ type AccessGrant struct {
 	IsActive      bool        `json:"is_active"`
 }
 
-// AuditLog 审计日志
+// AuditLog 审计日志.
 type AuditLog struct {
 	ID        string    `json:"id"`
 	PlanID    string    `json:"plan_id,omitempty"`
@@ -264,7 +264,7 @@ type AuditLog struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// InactivityCheck 不活跃检测记录
+// InactivityCheck 不活跃检测记录.
 type InactivityCheck struct {
 	ID           string    `json:"id"`
 	PlanID       string    `json:"plan_id"`
@@ -275,7 +275,7 @@ type InactivityCheck struct {
 	CheckedAt    time.Time `json:"checked_at"`
 }
 
-// HeartbeatRecord 心跳记录
+// HeartbeatRecord 心跳记录.
 type HeartbeatRecord struct {
 	ID        string          `json:"id"`
 	OwnerID   string          `json:"owner_id"`
@@ -285,7 +285,7 @@ type HeartbeatRecord struct {
 	Note      string          `json:"note,omitempty"`
 }
 
-// DeathVerification 死亡验证记录
+// DeathVerification 死亡验证记录.
 type DeathVerification struct {
 	ID                string             `json:"id"`
 	PlanID            string             `json:"plan_id"`
@@ -304,7 +304,7 @@ type DeathVerification struct {
 	UpdatedAt         time.Time          `json:"updated_at"`
 }
 
-// LegacyPlanRequest 遗产计划请求
+// LegacyPlanRequest 遗产计划请求.
 type LegacyPlanRequest struct {
 	Name              string             `json:"name"`
 	Description       string             `json:"description,omitempty"`
@@ -313,7 +313,7 @@ type LegacyPlanRequest struct {
 	IsEncrypted       bool               `json:"is_encrypted"`
 }
 
-// BeneficiaryRequest 受益人请求
+// BeneficiaryRequest 受益人请求.
 type BeneficiaryRequest struct {
 	Name              string      `json:"name"`
 	Email             string      `json:"email,omitempty"`
@@ -324,7 +324,7 @@ type BeneficiaryRequest struct {
 	AccessLevel       AccessLevel `json:"access_level"`
 }
 
-// AssetRequest 资产请求
+// AssetRequest 资产请求.
 type AssetRequest struct {
 	Name        string    `json:"name"`
 	Type        AssetType `json:"type"`
@@ -335,7 +335,7 @@ type AssetRequest struct {
 	AssignedTo  []string  `json:"assigned_to,omitempty"`
 }
 
-// EmergencyContactRequest 紧急联系人请求
+// EmergencyContactRequest 紧急联系人请求.
 type EmergencyContactRequest struct {
 	Name            string      `json:"name"`
 	Email           string      `json:"email,omitempty"`
@@ -348,26 +348,26 @@ type EmergencyContactRequest struct {
 	NotifyOnTrigger bool        `json:"notify_on_trigger"`
 }
 
-// WillDocumentRequest 遗嘱文档请求
+// WillDocumentRequest 遗嘱文档请求.
 type WillDocumentRequest struct {
 	Title   string `json:"title"`
 	Content string `json:"content"`
 }
 
-// TriggerRequest 触发请求
+// TriggerRequest 触发请求.
 type TriggerRequest struct {
 	PlanID           string `json:"plan_id"`
 	EmergencyCode    string `json:"emergency_code,omitempty"`
 	VerificationCode string `json:"verification_code,omitempty"`
 }
 
-// TimeLockRequest 时间锁请求
+// TimeLockRequest 时间锁请求.
 type TimeLockRequest struct {
 	UnlockAt      time.Time `json:"unlock_at"`
 	RequiredLevel int       `json:"required_level"`
 }
 
-// DeathVerificationRequest 死亡验证请求
+// DeathVerificationRequest 死亡验证请求.
 type DeathVerificationRequest struct {
 	ConfirmerID       string             `json:"confirmer_id"`
 	ConfirmerName     string             `json:"confirmer_name"`
@@ -377,7 +377,7 @@ type DeathVerificationRequest struct {
 	Notes             string             `json:"notes,omitempty"`
 }
 
-// DefaultLegacyConfig 默认配置
+// DefaultLegacyConfig 默认配置.
 type DefaultLegacyConfig struct {
 	InactivityDays      int  `json:"inactivity_days"`
 	GracePeriodDays     int  `json:"grace_period_days"`
@@ -391,7 +391,7 @@ type DefaultLegacyConfig struct {
 	HeartbeatTimeout    int  `json:"heartbeat_timeout_hours"`
 }
 
-// GetDefaultConfig 获取默认配置
+// GetDefaultConfig 获取默认配置.
 func GetDefaultConfig() *DefaultLegacyConfig {
 	return &DefaultLegacyConfig{
 		InactivityDays:      365,
@@ -407,7 +407,7 @@ func GetDefaultConfig() *DefaultLegacyConfig {
 	}
 }
 
-// IsValidTriggerType 检查触发类型是否有效
+// IsValidTriggerType 检查触发类型是否有效.
 func IsValidTriggerType(t TriggerType) bool {
 	switch t {
 	case TriggerManual, TriggerInactivity, TriggerDeathCert, TriggerEmergency, TriggerScheduled:
@@ -417,7 +417,7 @@ func IsValidTriggerType(t TriggerType) bool {
 	}
 }
 
-// IsValidAssetType 检查资产类型是否有效
+// IsValidAssetType 检查资产类型是否有效.
 func IsValidAssetType(t AssetType) bool {
 	switch t {
 	case AssetTypeAccount, AssetTypeFile, AssetTypePassword, AssetTypeCrypto,
@@ -428,7 +428,7 @@ func IsValidAssetType(t AssetType) bool {
 	}
 }
 
-// IsValidContactRole 检查联系人角色是否有效
+// IsValidContactRole 检查联系人角色是否有效.
 func IsValidContactRole(r ContactRole) bool {
 	switch r {
 	case RoleBeneficiary, RoleWitness, RoleExecutor, RoleEmergency:
@@ -438,7 +438,7 @@ func IsValidContactRole(r ContactRole) bool {
 	}
 }
 
-// IsValidAccessLevel 检查访问级别是否有效
+// IsValidAccessLevel 检查访问级别是否有效.
 func IsValidAccessLevel(l AccessLevel) bool {
 	switch l {
 	case AccessFull, AccessRead, AccessLimited, AccessNone:
@@ -448,7 +448,7 @@ func IsValidAccessLevel(l AccessLevel) bool {
 	}
 }
 
-// IsValidVerificationMethod 检查验证方式是否有效
+// IsValidVerificationMethod 检查验证方式是否有效.
 func IsValidVerificationMethod(m VerificationMethod) bool {
 	switch m {
 	case VerifyEmail, VerifyPhone, VerifyIDCard, VerifyDeathCert, VerifyNotary:
@@ -458,7 +458,7 @@ func IsValidVerificationMethod(m VerificationMethod) bool {
 	}
 }
 
-// IsValidVerificationLevel 检查验证级别是否有效
+// IsValidVerificationLevel 检查验证级别是否有效.
 func IsValidVerificationLevel(l VerificationLevel) bool {
 	switch l {
 	case VerifyLevelPrimary, VerifyLevelSecondary, VerifyLevelTertiary:

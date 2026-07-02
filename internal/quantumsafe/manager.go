@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 量子安全加密管理器
+// Manager 量子安全加密管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	logger     *zap.Logger
@@ -26,7 +26,7 @@ type Manager struct {
 	stats      *CryptoStats
 }
 
-// NewManager 创建量子安全加密管理器
+// NewManager 创建量子安全加密管理器.
 func NewManager(logger *zap.Logger, config *QuantumSafeConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -49,14 +49,14 @@ func NewManager(logger *zap.Logger, config *QuantumSafeConfig) *Manager {
 	}
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// GenerateKey 生成量子安全密钥
+// GenerateKey 生成量子安全密钥.
 func (m *Manager) GenerateKey(name string, algo Algorithm, level SecurityLevel) (*QuantumKey, error) {
 	if !m.config.Enabled {
 		return nil, fmt.Errorf("quantum safe module is disabled")
@@ -140,7 +140,7 @@ func (m *Manager) GenerateKey(name string, algo Algorithm, level SecurityLevel) 
 	return key, nil
 }
 
-// EncryptHybrid 混合加密
+// EncryptHybrid 混合加密.
 func (m *Manager) EncryptHybrid(req *EncryptRequest) (*EncryptResponse, error) {
 	if !m.config.Enabled {
 		return nil, fmt.Errorf("quantum safe module is disabled")
@@ -239,7 +239,7 @@ func (m *Manager) EncryptHybrid(req *EncryptRequest) (*EncryptResponse, error) {
 	}, nil
 }
 
-// MigrateKeys 迁移密钥
+// MigrateKeys 迁移密钥.
 func (m *Manager) MigrateKeys(sourceKeyID string, targetAlgorithm Algorithm) (*MigrationPlan, error) {
 	if !m.config.MigrationEnabled {
 		return nil, fmt.Errorf("migration is disabled")
@@ -331,7 +331,7 @@ func (m *Manager) MigrateKeys(sourceKeyID string, targetAlgorithm Algorithm) (*M
 	return plan, nil
 }
 
-// AuditCrypto 加密审计
+// AuditCrypto 加密审计.
 func (m *Manager) AuditCrypto(action AuditAction, keyID string, details map[string]interface{}) *CryptoAudit {
 	m.mu.RLock()
 	key, ok := m.keys[keyID]
@@ -356,7 +356,7 @@ func (m *Manager) AuditCrypto(action AuditAction, keyID string, details map[stri
 	return audit
 }
 
-// encryptData 执行加密（使用 AES-GCM 作为模拟）
+// encryptData 执行加密（使用 AES-GCM 作为模拟）.
 func (m *Manager) encryptData(key *QuantumKey, plaintext, iv, aad []byte) ([]byte, []byte, error) {
 	// 使用 SHA-256 哈希密钥的前32字节作为 AES 密钥
 	hash := sha256.Sum256(key.PrivateKey[:32])
@@ -387,7 +387,7 @@ func (m *Manager) encryptData(key *QuantumKey, plaintext, iv, aad []byte) ([]byt
 	return ciphertext, tag, nil
 }
 
-// addAudit 添加审计日志
+// addAudit 添加审计日志.
 func (m *Manager) addAudit(audit *CryptoAudit) {
 	if !m.config.AuditEnabled {
 		return
@@ -404,7 +404,7 @@ func (m *Manager) addAudit(audit *CryptoAudit) {
 	}
 }
 
-// CreateCipher 创建混合加密器
+// CreateCipher 创建混合加密器.
 func (m *Manager) CreateCipher(req *HybridCipher) (*HybridCipher, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -425,7 +425,7 @@ func (m *Manager) CreateCipher(req *HybridCipher) (*HybridCipher, error) {
 	return req, nil
 }
 
-// GetCipher 获取加密器
+// GetCipher 获取加密器.
 func (m *Manager) GetCipher(id string) (*HybridCipher, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -437,7 +437,7 @@ func (m *Manager) GetCipher(id string) (*HybridCipher, error) {
 	return c, nil
 }
 
-// ListCiphers 列出所有加密器
+// ListCiphers 列出所有加密器.
 func (m *Manager) ListCiphers() []*HybridCipher {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -449,7 +449,7 @@ func (m *Manager) ListCiphers() []*HybridCipher {
 	return ciphers
 }
 
-// RotateKey 轮换密钥
+// RotateKey 轮换密钥.
 func (m *Manager) RotateKey(req *KeyRotationRequest) (*QuantumKey, error) {
 	m.mu.RLock()
 	oldKey, ok := m.keys[req.KeyID]
@@ -496,7 +496,7 @@ func (m *Manager) RotateKey(req *KeyRotationRequest) (*QuantumKey, error) {
 	return newKey, nil
 }
 
-// GetKey 获取密钥
+// GetKey 获取密钥.
 func (m *Manager) GetKey(id string) (*QuantumKey, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -508,7 +508,7 @@ func (m *Manager) GetKey(id string) (*QuantumKey, error) {
 	return key, nil
 }
 
-// ListKeys 列出所有密钥
+// ListKeys 列出所有密钥.
 func (m *Manager) ListKeys() []*QuantumKey {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -520,7 +520,7 @@ func (m *Manager) ListKeys() []*QuantumKey {
 	return keys
 }
 
-// RevokeKey 吊销密钥
+// RevokeKey 吊销密钥.
 func (m *Manager) RevokeKey(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -547,7 +547,7 @@ func (m *Manager) RevokeKey(id string) error {
 	return nil
 }
 
-// GetMigration 获取迁移计划
+// GetMigration 获取迁移计划.
 func (m *Manager) GetMigration(id string) (*MigrationPlan, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -559,7 +559,7 @@ func (m *Manager) GetMigration(id string) (*MigrationPlan, error) {
 	return plan, nil
 }
 
-// ListMigrations 列出所有迁移计划
+// ListMigrations 列出所有迁移计划.
 func (m *Manager) ListMigrations() []*MigrationPlan {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -571,7 +571,7 @@ func (m *Manager) ListMigrations() []*MigrationPlan {
 	return plans
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (m *Manager) GetAuditLog(limit int) []*CryptoAudit {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -590,7 +590,7 @@ func (m *Manager) GetAuditLog(limit int) []*CryptoAudit {
 	return result
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() *CryptoStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -608,7 +608,7 @@ func (m *Manager) GetStats() *CryptoStats {
 	return &stats
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *QuantumSafeConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -616,7 +616,7 @@ func (m *Manager) GetConfig() *QuantumSafeConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(cfg *QuantumSafeConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -625,12 +625,12 @@ func (m *Manager) UpdateConfig(cfg *QuantumSafeConfig) {
 	}
 }
 
-// GetAlgorithmInfo 获取算法信息
+// GetAlgorithmInfo 获取算法信息.
 func (m *Manager) GetAlgorithmInfo(algo Algorithm) *AlgorithmInfo {
 	return GetAlgorithmInfo(algo)
 }
 
-// ListAlgorithms 列出支持的算法
+// ListAlgorithms 列出支持的算法.
 func (m *Manager) ListAlgorithms() []AlgorithmInfo {
 	algos := SupportedAlgorithms()
 	result := make([]AlgorithmInfo, 0, len(algos))

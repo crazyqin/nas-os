@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Severity 告警严重级别
+// Severity 告警严重级别.
 type Severity string
 
 const (
@@ -16,7 +16,7 @@ const (
 	SeverityEmergency Severity = "EMERGENCY"
 )
 
-// AlertStatus 告警处置状态
+// AlertStatus 告警处置状态.
 type AlertStatus string
 
 const (
@@ -26,7 +26,7 @@ const (
 	StatusDismissed  AlertStatus = "DISMISSED"
 )
 
-// Category 告警分类
+// Category 告警分类.
 type Category string
 
 const (
@@ -38,7 +38,7 @@ const (
 	CategorySystem      Category = "system"
 )
 
-// AutoFixAction 自动修复动作
+// AutoFixAction 自动修复动作.
 type AutoFixAction struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -48,7 +48,7 @@ type AutoFixAction struct {
 	RequiresAck bool   `json:"requiresAck"`
 }
 
-// TroubleshootingStep 排查步骤
+// TroubleshootingStep 排查步骤.
 type TroubleshootingStep struct {
 	Order          int    `json:"order"`
 	Description    string `json:"description"`
@@ -57,7 +57,7 @@ type TroubleshootingStep struct {
 	IsOptional     bool   `json:"isOptional,omitempty"`
 }
 
-// TroubleshootingGuide 排查指南
+// TroubleshootingGuide 排查指南.
 type TroubleshootingGuide struct {
 	Title       string                `json:"title"`
 	Description string                `json:"description"`
@@ -65,7 +65,7 @@ type TroubleshootingGuide struct {
 	DocsURL     string                `json:"docsUrl,omitempty"`
 }
 
-// ContextInfo 上下文信息
+// ContextInfo 上下文信息.
 type ContextInfo struct {
 	SystemLoad    float64  `json:"systemLoad,omitempty"`
 	DiskUsage     float64  `json:"diskUsage,omitempty"`
@@ -75,7 +75,7 @@ type ContextInfo struct {
 	RelatedItems  []string `json:"relatedItems,omitempty"`
 }
 
-// StatusChange 状态变更记录
+// StatusChange 状态变更记录.
 type StatusChange struct {
 	From      AlertStatus `json:"from"`
 	To        AlertStatus `json:"to"`
@@ -84,7 +84,7 @@ type StatusChange struct {
 	Reason    string      `json:"reason,omitempty"`
 }
 
-// GuidedAlert 引导式告警
+// GuidedAlert 引导式告警.
 type GuidedAlert struct {
 	ID                   string                `json:"id"`
 	Title                string                `json:"title"`
@@ -106,7 +106,7 @@ type GuidedAlert struct {
 	Tags                 []string              `json:"tags,omitempty"`
 }
 
-// AlertRule 告警规则
+// AlertRule 告警规则.
 type AlertRule struct {
 	Name                 string                `json:"name"`
 	Condition            string                `json:"condition"`
@@ -118,7 +118,7 @@ type AlertRule struct {
 	Tags                 []string              `json:"tags,omitempty"`
 }
 
-// AlertSummary 告警汇总
+// AlertSummary 告警汇总.
 type AlertSummary struct {
 	Total        int                 `json:"total"`
 	ByCategory   map[Category]int    `json:"byCategory"`
@@ -129,7 +129,7 @@ type AlertSummary struct {
 	Aggregated   int                 `json:"aggregated"`
 }
 
-// CreateRuleRequest 创建规则请求
+// CreateRuleRequest 创建规则请求.
 type CreateRuleRequest struct {
 	Name           string   `json:"name" binding:"required"`
 	Condition      string   `json:"condition" binding:"required"`
@@ -139,13 +139,13 @@ type CreateRuleRequest struct {
 	Tags           []string `json:"tags,omitempty"`
 }
 
-// UpdateStatusRequest 更新状态请求
+// UpdateStatusRequest 更新状态请求.
 type UpdateStatusRequest struct {
 	Status AlertStatus `json:"status" binding:"required"`
 	Reason string      `json:"reason,omitempty"`
 }
 
-// AcknowledgeRequest 确认告警请求
+// AcknowledgeRequest 确认告警请求.
 type AcknowledgeRequest struct {
 	Reason string `json:"reason,omitempty"`
 }

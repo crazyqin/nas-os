@@ -6,17 +6,17 @@ import (
 	"net/http"
 )
 
-// Handler handles HTTP requests for edge compute
+// Handler handles HTTP requests for edge compute.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler creates a new edge compute handler
+// NewHandler creates a new edge compute handler.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes registers the HTTP routes
+// RegisterRoutes registers the HTTP routes.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/edge/functions", h.handleFunctions)
 	mux.HandleFunc("/api/v1/edge/function", h.handleFunction)
@@ -26,7 +26,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/edge/stats", h.handleStats)
 }
 
-// handleFunctions handles function listing and deployment
+// handleFunctions handles function listing and deployment.
 func (h *Handler) handleFunctions(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -54,7 +54,7 @@ func (h *Handler) handleFunctions(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleFunction handles single function operations
+// handleFunction handles single function operations.
 func (h *Handler) handleFunction(w http.ResponseWriter, r *http.Request) {
 	functionID := r.URL.Query().Get("id")
 	if functionID == "" {
@@ -82,7 +82,7 @@ func (h *Handler) handleFunction(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleInvoke handles function invocation
+// handleInvoke handles function invocation.
 func (h *Handler) handleInvoke(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -117,7 +117,7 @@ func (h *Handler) handleInvoke(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(invocation)
 }
 
-// handleWorkloads handles workload listing and submission
+// handleWorkloads handles workload listing and submission.
 func (h *Handler) handleWorkloads(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -151,7 +151,7 @@ func (h *Handler) handleWorkloads(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleNodes handles node listing
+// handleNodes handles node listing.
 func (h *Handler) handleNodes(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -172,7 +172,7 @@ func (h *Handler) handleNodes(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleStats handles statistics requests
+// handleStats handles statistics requests.
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

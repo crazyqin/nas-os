@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// APIHandler LXC 容器 REST API 处理器
+// APIHandler LXC 容器 REST API 处理器.
 type APIHandler struct {
 	manager *Manager
 }
 
-// NewAPIHandler 创建 API 处理器
+// NewAPIHandler 创建 API 处理器.
 func NewAPIHandler(manager *Manager) *APIHandler {
 	return &APIHandler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *APIHandler) RegisterRoutes(r *gin.RouterGroup) {
 	api := r.Group("/api/v1/lxc")
 	{

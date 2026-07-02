@@ -3,7 +3,7 @@ package smartpowerschedule
 
 import "time"
 
-// PowerSource 电源类型
+// PowerSource 电源类型.
 type PowerSource string
 
 const (
@@ -13,7 +13,7 @@ const (
 	PowerSourceBattery PowerSource = "battery" // 电池
 )
 
-// PowerStatus 电源状态
+// PowerStatus 电源状态.
 type PowerStatus string
 
 const (
@@ -23,7 +23,7 @@ const (
 	PowerStatusOffline  PowerStatus = "offline"  // 离线
 )
 
-// BatteryStatus 电池状态
+// BatteryStatus 电池状态.
 type BatteryStatus string
 
 const (
@@ -35,7 +35,7 @@ const (
 	BatteryError       BatteryStatus = "error"
 )
 
-// TimeOfUsePeriod 峰谷时段
+// TimeOfUsePeriod 峰谷时段.
 type TimeOfUsePeriod string
 
 const (
@@ -45,7 +45,7 @@ const (
 	TOUSuperOff TimeOfUsePeriod = "super_off" // 超级低谷
 )
 
-// ScheduleAction 调度动作
+// ScheduleAction 调度动作.
 type ScheduleAction string
 
 const (
@@ -58,7 +58,7 @@ const (
 	ActionNotify           ScheduleAction = "notify"
 )
 
-// DevicePowerState 设备电源状态
+// DevicePowerState 设备电源状态.
 type DevicePowerState struct {
 	DeviceID    string      `json:"device_id"`
 	DeviceName  string      `json:"device_name"`
@@ -69,7 +69,7 @@ type DevicePowerState struct {
 	LastChanged time.Time   `json:"last_changed"`
 }
 
-// UPSInfo UPS 信息
+// UPSInfo UPS 信息.
 type UPSInfo struct {
 	ID                  string        `json:"id"`
 	Name                string        `json:"name"`
@@ -92,7 +92,7 @@ type UPSInfo struct {
 	LastUpdated         time.Time     `json:"last_updated"`
 }
 
-// PowerUsageRecord 用电记录
+// PowerUsageRecord 用电记录.
 type PowerUsageRecord struct {
 	ID          string          `json:"id"`
 	DeviceID    string          `json:"device_id"`
@@ -105,7 +105,7 @@ type PowerUsageRecord struct {
 	RecordedAt  time.Time       `json:"recorded_at"`
 }
 
-// PowerSchedule 电源调度计划
+// PowerSchedule 电源调度计划.
 type PowerSchedule struct {
 	ID          string          `json:"id"`
 	Name        string          `json:"name"`
@@ -122,7 +122,7 @@ type PowerSchedule struct {
 	UpdatedAt   time.Time       `json:"updated_at"`
 }
 
-// PowerScheduleRequest 调度计划请求
+// PowerScheduleRequest 调度计划请求.
 type PowerScheduleRequest struct {
 	Name        string          `json:"name" binding:"required"`
 	Description string          `json:"description,omitempty"`
@@ -135,7 +135,7 @@ type PowerScheduleRequest struct {
 	Priority    int             `json:"priority,omitempty"`
 }
 
-// TOUConfig 峰谷电价配置
+// TOUConfig 峰谷电价配置.
 type TOUConfig struct {
 	Enabled      bool              `json:"enabled"`
 	Currency     string            `json:"currency"`
@@ -146,7 +146,7 @@ type TOUConfig struct {
 	Periods      []TOUPeriodConfig `json:"periods"`
 }
 
-// TOUPeriodConfig 峰谷时段配置
+// TOUPeriodConfig 峰谷时段配置.
 type TOUPeriodConfig struct {
 	Period    TimeOfUsePeriod `json:"period"`
 	StartTime string          `json:"start_time"` // HH:MM
@@ -154,7 +154,7 @@ type TOUPeriodConfig struct {
 	Rate      float64         `json:"rate"`
 }
 
-// PowerConfig 电源调度配置
+// PowerConfig 电源调度配置.
 type PowerConfig struct {
 	Enabled                  bool       `json:"enabled"`
 	UPSMonitorEnabled        bool       `json:"ups_monitor_enabled"`
@@ -170,7 +170,7 @@ type PowerConfig struct {
 	PeakShavingTargetW       float64    `json:"peak_shaving_target_w"`
 }
 
-// DefaultPowerConfig 默认电源配置
+// DefaultPowerConfig 默认电源配置.
 func DefaultPowerConfig() *PowerConfig {
 	return &PowerConfig{
 		Enabled:                  true,
@@ -202,7 +202,7 @@ func DefaultPowerConfig() *PowerConfig {
 	}
 }
 
-// PowerEvent 电源事件
+// PowerEvent 电源事件.
 type PowerEvent struct {
 	ID           string      `json:"id"`
 	EventType    string      `json:"event_type"` // power_outage, power_restore, battery_low, ups_switch, etc.
@@ -213,7 +213,7 @@ type PowerEvent struct {
 	Timestamp    time.Time   `json:"timestamp"`
 }
 
-// LoadPrediction 负载预测
+// LoadPrediction 负载预测.
 type LoadPrediction struct {
 	ID             string        `json:"id"`
 	PredictedLoadW float64       `json:"predicted_load_w"`
@@ -223,7 +223,7 @@ type LoadPrediction struct {
 	ValidUntil     time.Time     `json:"valid_until"`
 }
 
-// CostSummary 费用汇总
+// CostSummary 费用汇总.
 type CostSummary struct {
 	Period         string                      `json:"period"`
 	TotalEnergyKWh float64                     `json:"total_energy_kwh"`

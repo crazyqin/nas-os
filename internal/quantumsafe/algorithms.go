@@ -491,7 +491,7 @@ func hkdfDerive(secret, salt, info []byte, length int) ([]byte, error) {
 }
 
 // encodeComposite encodes two byte slices into a single composite slice.
-// Format: [len_a (2 bytes, big-endian)] [a] [b]
+// Format: [len_a (2 bytes, big-endian)] [a] [b].
 func encodeComposite(a, b []byte) []byte {
 	composite := make([]byte, 2+len(a)+len(b))
 	composite[0] = byte(len(a) >> 8)

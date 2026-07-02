@@ -11,7 +11,7 @@ import (
 
 // ==================== IP 防护管理器 ====================
 
-// Manager IP 防护管理器
+// Manager IP 防护管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	logger      *zap.Logger
@@ -26,7 +26,7 @@ type Manager struct {
 	running     bool
 }
 
-// NewManager 创建 IP 防护管理器
+// NewManager 创建 IP 防护管理器.
 func NewManager(logger *zap.Logger, config *IPProtectionConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -53,7 +53,7 @@ func NewManager(logger *zap.Logger, config *IPProtectionConfig) *Manager {
 	return m
 }
 
-// initLists 初始化黑白名单
+// initLists 初始化黑白名单.
 func (m *Manager) initLists() {
 	now := time.Now()
 	for _, ip := range m.config.WhitelistedIPs {
@@ -77,7 +77,7 @@ func (m *Manager) initLists() {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() {
 	m.mu.Lock()
 	if m.running {
@@ -93,7 +93,7 @@ func (m *Manager) Start() {
 	m.logger.Info("IP 防护管理器已启动")
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -111,7 +111,7 @@ func (m *Manager) Stop() {
 // ==================== 核心检查方法 ====================
 
 // CheckRequest 检查请求是否允许
-// 返回：是否允许、拒绝原因
+// 返回：是否允许、拒绝原因.
 func (m *Manager) CheckRequest(ip string) (bool, BanReason) {
 	// 1. 检查白名单
 	if m.isWhitelisted(ip) {
@@ -150,7 +150,7 @@ func (m *Manager) CheckRequest(ip string) (bool, BanReason) {
 	return true, ""
 }
 
-// ProcessLoginAttempt 处理登录尝试
+// ProcessLoginAttempt 处理登录尝试.
 func (m *Manager) ProcessLoginAttempt(attempt *LoginAttempt) {
 	// 白名单 IP 不处理
 	if m.isWhitelisted(attempt.IP) {
@@ -169,7 +169,7 @@ func (m *Manager) ProcessLoginAttempt(attempt *LoginAttempt) {
 	m.onLoginFailure(attempt.IP, attempt)
 }
 
-// RecordPortAccess 记录端口访问
+// RecordPortAccess 记录端口访问.
 func (m *Manager) RecordPortAccess(ip string, port int) {
 	if m.isWhitelisted(ip) {
 		return
@@ -188,7 +188,7 @@ func (m *Manager) RecordPortAccess(ip string, port int) {
 	}
 }
 
-// RecordHTTPAccess 记录 HTTP 访问
+// RecordHTTPAccess 记录 HTTP 访问.
 func (m *Manager) RecordHTTPAccess(ip, path, userAgent string) {
 	if m.isWhitelisted(ip) {
 		return
@@ -216,7 +216,7 @@ func (m *Manager) RecordHTTPAccess(ip, path, userAgent string) {
 
 // ==================== 黑白名单管理 ====================
 
-// AddToAllowList 添加到白名单
+// AddToAllowList 添加到白名单.
 func (m *Manager) AddToAllowList(ip, comment string, duration time.Duration) error {
 	if err := validateIP(ip); err != nil {
 		return fmt.Errorf("无效的 IP 地址: %w", err)
@@ -252,7 +252,7 @@ func (m *Manager) AddToAllowList(ip, comment string, duration time.Duration) err
 	return nil
 }
 
-// RemoveFromAllowList 从白名单移除
+// RemoveFromAllowList 从白名单移除.
 func (m *Manager) RemoveFromAllowList(ip string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -261,7 +261,7 @@ func (m *Manager) RemoveFromAllowList(ip string) {
 	m.logger.Info("IP 已从白名单移除", zap.String("ip", ip))
 }
 
-// AddToDenyList 添加到黑名单
+// AddToDenyList 添加到黑名单.
 func (m *Manager) AddToDenyList(ip string, reason BanReason, comment string, duration time.Duration) error {
 	if err := validateIP(ip); err != nil {
 		return fmt.Errorf("无效的 IP 地址: %w", err)
@@ -303,7 +303,7 @@ func (m *Manager) AddToDenyList(ip string, reason BanReason, comment string, dur
 	return nil
 }
 
-// RemoveFromDenyList 从黑名单移除
+// RemoveFromDenyList 从黑名单移除.
 func (m *Manager) RemoveFromDenyList(ip string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -314,7 +314,7 @@ func (m *Manager) RemoveFromDenyList(ip string) {
 	m.logger.Info("IP 已从黑名单移除", zap.String("ip", ip))
 }
 
-// GetAllowList 获取白名单
+// GetAllowList 获取白名单.
 func (m *Manager) GetAllowList() []*AllowListEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -326,7 +326,7 @@ func (m *Manager) GetAllowList() []*AllowListEntry {
 	return result
 }
 
-// GetDenyList 获取黑名单
+// GetDenyList 获取黑名单.
 func (m *Manager) GetDenyList() []*DenyListEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -340,7 +340,7 @@ func (m *Manager) GetDenyList() []*DenyListEntry {
 
 // ==================== IP 统计与查询 ====================
 
-// GetIPStats 获取 IP 统计信息
+// GetIPStats 获取 IP 统计信息.
 func (m *Manager) GetIPStats(ip string) *IPStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -370,7 +370,7 @@ func (m *Manager) GetIPStats(ip string) *IPStats {
 	}
 }
 
-// GetGlobalStats 获取全局统计
+// GetGlobalStats 获取全局统计.
 func (m *Manager) GetGlobalStats() *GlobalStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -401,7 +401,7 @@ func (m *Manager) GetGlobalStats() *GlobalStats {
 	return stats
 }
 
-// GetBanLog 获取封禁日志
+// GetBanLog 获取封禁日志.
 func (m *Manager) GetBanLog(limit int) []*BanRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -419,7 +419,7 @@ func (m *Manager) GetBanLog(limit int) []*BanRecord {
 
 // ==================== 内部方法 ====================
 
-// onLoginFailure 处理登录失败
+// onLoginFailure 处理登录失败.
 func (m *Manager) onLoginFailure(ip string, attempt *LoginAttempt) {
 	// 扣除信誉分
 	m.adjustReputation(ip, -m.config.LoginFailurePenalty)
@@ -432,13 +432,13 @@ func (m *Manager) onLoginFailure(ip string, attempt *LoginAttempt) {
 	}
 }
 
-// onLoginSuccess 处理登录成功
+// onLoginSuccess 处理登录成功.
 func (m *Manager) onLoginSuccess(ip string) {
 	// 恢复少量信誉分
 	m.adjustReputation(ip, 1)
 }
 
-// onRateLimitExceeded 处理频率超限
+// onRateLimitExceeded 处理频率超限.
 func (m *Manager) onRateLimitExceeded(ip string) {
 	m.adjustReputation(ip, -m.config.RateLimitPenalty)
 
@@ -446,7 +446,7 @@ func (m *Manager) onRateLimitExceeded(ip string) {
 	record.TotalRequests++
 }
 
-// onPortScanDetected 处理端口扫描检测
+// onPortScanDetected 处理端口扫描检测.
 func (m *Manager) onPortScanDetected(ip string, result *DetectionResult) {
 	m.adjustReputation(ip, -m.config.ScanPenalty)
 
@@ -459,12 +459,12 @@ func (m *Manager) onPortScanDetected(ip string, result *DetectionResult) {
 	}
 }
 
-// onBruteForceDetected 处理暴力破解检测
+// onBruteForceDetected 处理暴力破解检测.
 func (m *Manager) onBruteForceDetected(ip string, result *DetectionResult) {
 	m.banIP(ip, BanReasonBruteForce, m.config.AutoBanDuration*3, result.Details)
 }
 
-// onSuspiciousActivity 处理可疑活动
+// onSuspiciousActivity 处理可疑活动.
 func (m *Manager) onSuspiciousActivity(ip string, result *DetectionResult) {
 	m.adjustReputation(ip, -20)
 
@@ -474,7 +474,7 @@ func (m *Manager) onSuspiciousActivity(ip string, result *DetectionResult) {
 	}
 }
 
-// banIP 封禁 IP
+// banIP 封禁 IP.
 func (m *Manager) banIP(ip string, reason BanReason, duration time.Duration, details string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -512,14 +512,14 @@ func (m *Manager) banIP(ip string, reason BanReason, duration time.Duration, det
 	)
 }
 
-// unbanIP 解除封禁（需要持锁）
+// unbanIP 解除封禁（需要持锁）.
 func (m *Manager) unbanIP(ip string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.unbanIPUnsafe(ip)
 }
 
-// unbanIPUnsafe 解除封禁（不加锁，调用方需持锁）
+// unbanIPUnsafe 解除封禁（不加锁，调用方需持锁）.
 func (m *Manager) unbanIPUnsafe(ip string) {
 	if record, exists := m.records[ip]; exists {
 		record.IsBanned = false
@@ -535,7 +535,7 @@ func (m *Manager) unbanIPUnsafe(ip string) {
 	}
 }
 
-// adjustReputation 调整信誉分
+// adjustReputation 调整信誉分.
 func (m *Manager) adjustReputation(ip string, delta int) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -552,7 +552,7 @@ func (m *Manager) adjustReputation(ip string, delta int) {
 	}
 }
 
-// touchRecord 更新 IP 记录
+// touchRecord 更新 IP 记录.
 func (m *Manager) touchRecord(ip string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -562,7 +562,7 @@ func (m *Manager) touchRecord(ip string) {
 	record.TotalRequests++
 }
 
-// getOrCreateRecord 获取或创建 IP 记录（调用方需持锁）
+// getOrCreateRecord 获取或创建 IP 记录（调用方需持锁）.
 func (m *Manager) getOrCreateRecord(ip string) *IPRecord {
 	record, exists := m.records[ip]
 	if !exists {
@@ -580,7 +580,7 @@ func (m *Manager) getOrCreateRecord(ip string) *IPRecord {
 	return record
 }
 
-// isWhitelisted 检查是否在白名单
+// isWhitelisted 检查是否在白名单.
 func (m *Manager) isWhitelisted(ip string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -609,7 +609,7 @@ func (m *Manager) isWhitelisted(ip string) bool {
 	return false
 }
 
-// isBlacklisted 检查是否在黑名单
+// isBlacklisted 检查是否在黑名单.
 func (m *Manager) isBlacklisted(ip string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -638,7 +638,7 @@ func (m *Manager) isBlacklisted(ip string) bool {
 	return false
 }
 
-// calcThreatLevel 计算威胁等级
+// calcThreatLevel 计算威胁等级.
 func (m *Manager) calcThreatLevel(score int) ThreatLevel {
 	if score >= 80 {
 		return ThreatLevelLow
@@ -650,7 +650,7 @@ func (m *Manager) calcThreatLevel(score int) ThreatLevel {
 	return ThreatLevelCritical
 }
 
-// reputationRecoveryLoop 信誉恢复循环
+// reputationRecoveryLoop 信誉恢复循环.
 func (m *Manager) reputationRecoveryLoop() {
 	ticker := time.NewTicker(1 * time.Hour)
 	defer ticker.Stop()
@@ -665,7 +665,7 @@ func (m *Manager) reputationRecoveryLoop() {
 	}
 }
 
-// recoverReputation 恢复信誉分
+// recoverReputation 恢复信誉分.
 func (m *Manager) recoverReputation() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -682,7 +682,7 @@ func (m *Manager) recoverReputation() {
 
 // ==================== 工具函数 ====================
 
-// isIPv6 判断是否为 IPv6
+// isIPv6 判断是否为 IPv6.
 func isIPv6(ip string) bool {
 	parsed := net.ParseIP(ip)
 	if parsed == nil {
@@ -691,7 +691,7 @@ func isIPv6(ip string) bool {
 	return parsed.To4() == nil
 }
 
-// validateIP 验证 IP 地址
+// validateIP 验证 IP 地址.
 func validateIP(ip string) error {
 	if net.ParseIP(ip) == nil {
 		return fmt.Errorf("invalid IP address: %s", ip)
@@ -699,7 +699,7 @@ func validateIP(ip string) error {
 	return nil
 }
 
-// generateBanID 生成封禁 ID
+// generateBanID 生成封禁 ID.
 func generateBanID() string {
 	return fmt.Sprintf("ban-%d", time.Now().UnixNano())
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Manager manages the SystemCopilot business logic
+// Manager manages the SystemCopilot business logic.
 type Manager struct {
 	mu         sync.RWMutex
 	commands   map[string]*Command
@@ -19,7 +19,7 @@ type Manager struct {
 	ruleEngine *RuleEngine
 }
 
-// RuleEngine handles keyword matching and command parsing
+// RuleEngine handles keyword matching and command parsing.
 type RuleEngine struct {
 	patterns []commandPattern
 }
@@ -32,7 +32,7 @@ type commandPattern struct {
 	needsConfirm bool
 }
 
-// NewManager creates a new SystemCopilot manager
+// NewManager creates a new SystemCopilot manager.
 func NewManager() *Manager {
 	return &Manager{
 		commands:   make(map[string]*Command),
@@ -82,7 +82,7 @@ func newRuleEngine() *RuleEngine {
 	}
 }
 
-// ProcessCommand parses user input and creates a command
+// ProcessCommand parses user input and creates a command.
 func (m *Manager) ProcessCommand(input string, sessionID string) (*Command, *CommandResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -130,7 +130,7 @@ func (m *Manager) ProcessCommand(input string, sessionID string) (*Command, *Com
 	return cmd, result, nil
 }
 
-// ConfirmCommand confirms and executes a previously pending command
+// ConfirmCommand confirms and executes a previously pending command.
 func (m *Manager) ConfirmCommand(commandID string) (*CommandResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -151,7 +151,7 @@ func (m *Manager) ConfirmCommand(commandID string) (*CommandResult, error) {
 	return result, nil
 }
 
-// GetSuggestions generates suggestions based on system state
+// GetSuggestions generates suggestions based on system state.
 func (m *Manager) GetSuggestions() []*Suggestion {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -201,7 +201,7 @@ func (m *Manager) GetSuggestions() []*Suggestion {
 	return suggestions
 }
 
-// GetHistory returns command history with pagination
+// GetHistory returns command history with pagination.
 func (m *Manager) GetHistory(page, pageSize int) ([]*Command, []*CommandResult, int) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -242,7 +242,7 @@ func (m *Manager) GetHistory(page, pageSize int) ([]*Command, []*CommandResult, 
 	return pagedCommands, results, total
 }
 
-// GetStats returns copilot usage statistics
+// GetStats returns copilot usage statistics.
 func (m *Manager) GetStats() *CopilotStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -288,7 +288,7 @@ func (m *Manager) GetStats() *CopilotStats {
 	return stats
 }
 
-// GetSession returns a copilot session by ID
+// GetSession returns a copilot session by ID.
 func (m *Manager) GetSession(sessionID string) (*CopilotSession, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -301,7 +301,7 @@ func (m *Manager) GetSession(sessionID string) (*CopilotSession, error) {
 	return session, nil
 }
 
-// ParseInput parses natural language input into a command
+// ParseInput parses natural language input into a command.
 func (re *RuleEngine) ParseInput(input string) *Command {
 	inputLower := strings.ToLower(input)
 
@@ -365,7 +365,7 @@ func isStopWord(word string) bool {
 	return false
 }
 
-// executeCommand simulates command execution
+// executeCommand simulates command execution.
 func (m *Manager) executeCommand(cmd *Command) *CommandResult {
 	start := time.Now()
 
@@ -377,16 +377,17 @@ func (m *Manager) executeCommand(cmd *Command) *CommandResult {
 	// Simulate execution based on command type
 	switch cmd.Type {
 	case CommandTypeSystem:
-		if cmd.Action == "info" {
+		switch cmd.Action {
+		case "info":
 			result.Status = StatusSuccess
 			result.Output = "系统运行正常\nCPU: 45%\n内存: 6.2GB/16GB\n磁盘: 234GB/500GB\n运行时间: 15天"
-		} else if cmd.Action == "reboot" {
+		case "reboot":
 			result.Status = StatusSuccess
 			result.Output = "系统重启命令已发送"
-		} else if cmd.Action == "logs" {
+		case "logs":
 			result.Status = StatusSuccess
 			result.Output = "最近日志:\n[INFO] 系统正常运行\n[INFO] 服务启动完成"
-		} else {
+		default:
 			result.Status = StatusSuccess
 			result.Output = fmt.Sprintf("系统操作 %s 已执行", cmd.Action)
 		}

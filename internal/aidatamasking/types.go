@@ -4,7 +4,7 @@ package aidatamasking
 
 import "time"
 
-// SensitiveDataType 敏感数据类型
+// SensitiveDataType 敏感数据类型.
 type SensitiveDataType string
 
 const (
@@ -20,7 +20,7 @@ const (
 	DataTypeSSN          SensitiveDataType = "ssn"           // 社会保障号
 )
 
-// MaskingStrategy 脱敏策略
+// MaskingStrategy 脱敏策略.
 type MaskingStrategy string
 
 const (
@@ -31,7 +31,7 @@ const (
 	StrategyRedact   MaskingStrategy = "redact"   // 删除：完全移除
 )
 
-// MaskingRule 脱敏规则
+// MaskingRule 脱敏规则.
 type MaskingRule struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -48,7 +48,7 @@ type MaskingRule struct {
 	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
-// MaskingResult 脱敏结果
+// MaskingResult 脱敏结果.
 type MaskingResult struct {
 	Original string            `json:"original"`
 	Masked   string            `json:"masked"`
@@ -59,14 +59,14 @@ type MaskingResult struct {
 	RuleID   string            `json:"rule_id"`
 }
 
-// MaskingRequest 脱敏请求
+// MaskingRequest 脱敏请求.
 type MaskingRequest struct {
 	Text     string         `json:"text" binding:"required"`
 	Rules    []*MaskingRule `json:"rules,omitempty"`     // 自定义规则，为空则使用默认规则
 	TestMode bool           `json:"test_mode,omitempty"` // 测试模式，返回对比结果
 }
 
-// MaskingResponse 脱敏响应
+// MaskingResponse 脱敏响应.
 type MaskingResponse struct {
 	MaskedText string           `json:"masked_text"`
 	Results    []*MaskingResult `json:"results,omitempty"` // 测试模式下返回详细结果
@@ -75,21 +75,21 @@ type MaskingResponse struct {
 	Duration   time.Duration    `json:"duration"`
 }
 
-// MaskingSummary 脱敏摘要
+// MaskingSummary 脱敏摘要.
 type MaskingSummary struct {
 	TotalMatches int                       `json:"total_matches"`
 	ByType       map[SensitiveDataType]int `json:"by_type"`
 	ByStrategy   map[MaskingStrategy]int   `json:"by_strategy"`
 }
 
-// BatchMaskingRequest 批量脱敏请求
+// BatchMaskingRequest 批量脱敏请求.
 type BatchMaskingRequest struct {
 	Texts    []string       `json:"texts" binding:"required,min=1"`
 	Rules    []*MaskingRule `json:"rules,omitempty"`
 	TestMode bool           `json:"test_mode,omitempty"`
 }
 
-// BatchMaskingResponse 批量脱敏响应
+// BatchMaskingResponse 批量脱敏响应.
 type BatchMaskingResponse struct {
 	Results     []*MaskingResponse `json:"results"`
 	TotalTexts  int                `json:"total_texts"`
@@ -97,7 +97,7 @@ type BatchMaskingResponse struct {
 	Duration    time.Duration      `json:"duration"`
 }
 
-// MaskingLog 脱敏日志
+// MaskingLog 脱敏日志.
 type MaskingLog struct {
 	ID        string            `json:"id"`
 	DataType  SensitiveDataType `json:"data_type"`
@@ -110,7 +110,7 @@ type MaskingLog struct {
 	Metadata  map[string]string `json:"metadata,omitempty"`
 }
 
-// AuditLog 审计日志
+// AuditLog 审计日志.
 type AuditLog struct {
 	ID        string    `json:"id"`
 	Action    string    `json:"action"` // mask, unmask, rule_create, rule_update, rule_delete
@@ -120,7 +120,7 @@ type AuditLog struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// AIIntegrationConfig AI集成配置
+// AIIntegrationConfig AI集成配置.
 type AIIntegrationConfig struct {
 	Enabled         bool `json:"enabled"`
 	PreProcess      bool `json:"pre_process"`  // 在发送给AI前脱敏
@@ -129,14 +129,14 @@ type AIIntegrationConfig struct {
 	MaxPromptLength int  `json:"max_prompt_length"`
 }
 
-// AIPromptRequest AI提示词请求
+// AIPromptRequest AI提示词请求.
 type AIPromptRequest struct {
 	Prompt    string               `json:"prompt" binding:"required"`
 	Config    *AIIntegrationConfig `json:"config,omitempty"`
 	SessionID string               `json:"session_id,omitempty"`
 }
 
-// AIPromptResponse AI提示词响应
+// AIPromptResponse AI提示词响应.
 type AIPromptResponse struct {
 	OriginalPrompt   string `json:"original_prompt"`
 	MaskedPrompt     string `json:"masked_prompt"`
@@ -144,7 +144,7 @@ type AIPromptResponse struct {
 	MaskingApplied   bool   `json:"masking_applied"`
 }
 
-// MaskingEngineConfig 脱敏引擎配置
+// MaskingEngineConfig 脱敏引擎配置.
 type MaskingEngineConfig struct {
 	Enabled         bool                 `json:"enabled"`
 	DefaultStrategy MaskingStrategy      `json:"default_strategy"`
@@ -156,7 +156,7 @@ type MaskingEngineConfig struct {
 	AIIntegration   *AIIntegrationConfig `json:"ai_integration,omitempty"`
 }
 
-// DefaultMaskingEngineConfig 默认引擎配置
+// DefaultMaskingEngineConfig 默认引擎配置.
 func DefaultMaskingEngineConfig() *MaskingEngineConfig {
 	return &MaskingEngineConfig{
 		Enabled:         true,
@@ -176,7 +176,7 @@ func DefaultMaskingEngineConfig() *MaskingEngineConfig {
 	}
 }
 
-// ValidDataTypes 有效的数据类型列表
+// ValidDataTypes 有效的数据类型列表.
 func ValidDataTypes() []SensitiveDataType {
 	return []SensitiveDataType{
 		DataTypeIDCard,
@@ -192,7 +192,7 @@ func ValidDataTypes() []SensitiveDataType {
 	}
 }
 
-// ValidStrategies 有效的脱敏策略列表
+// ValidStrategies 有效的脱敏策略列表.
 func ValidStrategies() []MaskingStrategy {
 	return []MaskingStrategy{
 		StrategyMask,
@@ -203,7 +203,7 @@ func ValidStrategies() []MaskingStrategy {
 	}
 }
 
-// IsValidDataType 检查数据类型是否有效
+// IsValidDataType 检查数据类型是否有效.
 func IsValidDataType(dt SensitiveDataType) bool {
 	for _, v := range ValidDataTypes() {
 		if v == dt {
@@ -213,7 +213,7 @@ func IsValidDataType(dt SensitiveDataType) bool {
 	return false
 }
 
-// IsValidStrategy 检查脱敏策略是否有效
+// IsValidStrategy 检查脱敏策略是否有效.
 func IsValidStrategy(s MaskingStrategy) bool {
 	for _, v := range ValidStrategies() {
 		if v == s {

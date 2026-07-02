@@ -60,17 +60,17 @@ const (
 
 // SovereigntyTag 数据主权标签，标记数据的合规框架和地理约束.
 type SovereigntyTag struct {
-	ID           string              `json:"id"`            // 标签唯一标识
-	ResourcePath string              `json:"resource_path"` // 资源路径
-	ResourceType ResourceType       `json:"resource_type"` // 资源类型
-	Frameworks   []ComplianceFramework `json:"frameworks"` // 适用的合规框架
-	AllowedRegions []DataRegion     `json:"allowed_regions"` // 允许存储的区域
-	RestrictedRegions []DataRegion  `json:"restricted_regions,omitempty"` // 禁止存储的区域
-	DataSubject  string              `json:"data_subject,omitempty"` // 数据主体（如个人信息涉及的对象）
-	Description  string              `json:"description,omitempty"`  // 标签描述
-	CreatedAt    time.Time           `json:"created_at"`             // 创建时间
-	UpdatedAt    time.Time           `json:"updated_at"`             // 更新时间
-	CreatedBy    string              `json:"created_by"`             // 创建者
+	ID                string                `json:"id"`                           // 标签唯一标识
+	ResourcePath      string                `json:"resource_path"`                // 资源路径
+	ResourceType      ResourceType          `json:"resource_type"`                // 资源类型
+	Frameworks        []ComplianceFramework `json:"frameworks"`                   // 适用的合规框架
+	AllowedRegions    []DataRegion          `json:"allowed_regions"`              // 允许存储的区域
+	RestrictedRegions []DataRegion          `json:"restricted_regions,omitempty"` // 禁止存储的区域
+	DataSubject       string                `json:"data_subject,omitempty"`       // 数据主体（如个人信息涉及的对象）
+	Description       string                `json:"description,omitempty"`        // 标签描述
+	CreatedAt         time.Time             `json:"created_at"`                   // 创建时间
+	UpdatedAt         time.Time             `json:"updated_at"`                   // 更新时间
+	CreatedBy         string                `json:"created_by"`                   // 创建者
 }
 
 // TransferAction 数据传输动作类型.
@@ -109,32 +109,32 @@ const (
 
 // AuditEntry 数据跨域操作审计日志.
 type AuditEntry struct {
-	ID            string          `json:"id"`              // 日志唯一标识
-	Timestamp     time.Time       `json:"timestamp"`       // 操作时间
-	ResourcePath  string          `json:"resource_path"`   // 资源路径
-	ResourceType  ResourceType    `json:"resource_type"`   // 资源类型
-	Action        TransferAction  `json:"action"`          // 传输动作
-	SourceRegion  DataRegion      `json:"source_region"`   // 源区域
-	TargetRegion  DataRegion      `json:"target_region"`   // 目标区域
-	Status        TransferStatus  `json:"status"`          // 合规状态
-	User          string          `json:"user"`            // 操作用户
-	ClientIP      string          `json:"client_ip,omitempty"` // 客户端 IP
-	Reason        string          `json:"reason,omitempty"`    // 阻止/警告原因
-	TagID         string          `json:"tag_id,omitempty"`    // 关联标签 ID
+	ID           string         `json:"id"`                  // 日志唯一标识
+	Timestamp    time.Time      `json:"timestamp"`           // 操作时间
+	ResourcePath string         `json:"resource_path"`       // 资源路径
+	ResourceType ResourceType   `json:"resource_type"`       // 资源类型
+	Action       TransferAction `json:"action"`              // 传输动作
+	SourceRegion DataRegion     `json:"source_region"`       // 源区域
+	TargetRegion DataRegion     `json:"target_region"`       // 目标区域
+	Status       TransferStatus `json:"status"`              // 合规状态
+	User         string         `json:"user"`                // 操作用户
+	ClientIP     string         `json:"client_ip,omitempty"` // 客户端 IP
+	Reason       string         `json:"reason,omitempty"`    // 阻止/警告原因
+	TagID        string         `json:"tag_id,omitempty"`    // 关联标签 ID
 }
 
 // ========== 请求/响应类型 ==========
 
 // TagRequest 创建/更新数据主权标签请求.
 type TagRequest struct {
-	ResourcePath      string                `json:"resource_path" binding:"required"` // 资源路径
-	ResourceType      ResourceType         `json:"resource_type" binding:"required"` // 资源类型
-	Frameworks        []ComplianceFramework `json:"frameworks" binding:"required,min=1"` // 合规框架
-	AllowedRegions    []DataRegion         `json:"allowed_regions" binding:"required,min=1"` // 允许区域
-	RestrictedRegions []DataRegion         `json:"restricted_regions,omitempty"` // 禁止区域
-	DataSubject       string               `json:"data_subject,omitempty"`       // 数据主体
-	Description       string               `json:"description,omitempty"`        // 描述
-	CreatedBy         string               `json:"created_by" binding:"required"` // 创建者
+	ResourcePath      string                `json:"resource_path" binding:"required"`         // 资源路径
+	ResourceType      ResourceType          `json:"resource_type" binding:"required"`         // 资源类型
+	Frameworks        []ComplianceFramework `json:"frameworks" binding:"required,min=1"`      // 合规框架
+	AllowedRegions    []DataRegion          `json:"allowed_regions" binding:"required,min=1"` // 允许区域
+	RestrictedRegions []DataRegion          `json:"restricted_regions,omitempty"`             // 禁止区域
+	DataSubject       string                `json:"data_subject,omitempty"`                   // 数据主体
+	Description       string                `json:"description,omitempty"`                    // 描述
+	CreatedBy         string                `json:"created_by" binding:"required"`            // 创建者
 }
 
 // CheckRequest 合规检查请求.
@@ -148,20 +148,20 @@ type CheckRequest struct {
 
 // CheckResponse 合规检查响应.
 type CheckResponse struct {
-	Allowed  bool            `json:"allowed"`          // 是否允许
-	Status   TransferStatus  `json:"status"`           // 合规状态
-	Tag      *SovereigntyTag `json:"tag,omitempty"`    // 关联标签
-	Reason   string          `json:"reason,omitempty"` // 原因
-	EntryID  string          `json:"entry_id,omitempty"` // 审计日志 ID
+	Allowed bool            `json:"allowed"`            // 是否允许
+	Status  TransferStatus  `json:"status"`             // 合规状态
+	Tag     *SovereigntyTag `json:"tag,omitempty"`      // 关联标签
+	Reason  string          `json:"reason,omitempty"`   // 原因
+	EntryID string          `json:"entry_id,omitempty"` // 审计日志 ID
 }
 
 // AuditQuery 审计日志查询条件.
 type AuditQuery struct {
-	ResourcePath string            `json:"resource_path,omitempty"` // 按资源路径过滤
-	Action       TransferAction    `json:"action,omitempty"`        // 按动作过滤
-	Status       TransferStatus    `json:"status,omitempty"`        // 按状态过滤
-	User         string            `json:"user,omitempty"`          // 按用户过滤
-	StartTime    *time.Time        `json:"start_time,omitempty"`    // 起始时间
-	EndTime      *time.Time        `json:"end_time,omitempty"`      // 结束时间
-	Limit        int               `json:"limit,omitempty"`         // 返回条数上限
+	ResourcePath string         `json:"resource_path,omitempty"` // 按资源路径过滤
+	Action       TransferAction `json:"action,omitempty"`        // 按动作过滤
+	Status       TransferStatus `json:"status,omitempty"`        // 按状态过滤
+	User         string         `json:"user,omitempty"`          // 按用户过滤
+	StartTime    *time.Time     `json:"start_time,omitempty"`    // 起始时间
+	EndTime      *time.Time     `json:"end_time,omitempty"`      // 结束时间
+	Limit        int            `json:"limit,omitempty"`         // 返回条数上限
 }

@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// Manager CRM管理器
+// Manager CRM管理器.
 type Manager struct {
 	mu            sync.RWMutex
 	contacts      map[string]*Contact
@@ -26,14 +26,14 @@ type Manager struct {
 	wg            sync.WaitGroup
 }
 
-// Logger 日志接口
+// Logger 日志接口.
 type Logger interface {
 	Info(msg string, args ...interface{})
 	Error(msg string, args ...interface{})
 	Debug(msg string, args ...interface{})
 }
 
-// NewManager 创建CRM管理器
+// NewManager 创建CRM管理器.
 func NewManager(logger Logger) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	m := &Manager{
@@ -56,7 +56,7 @@ func NewManager(logger Logger) *Manager {
 
 // ========== 联系人管理 ==========
 
-// CreateContact 创建联系人
+// CreateContact 创建联系人.
 func (m *Manager) CreateContact(contact *Contact) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -83,7 +83,7 @@ func (m *Manager) CreateContact(contact *Contact) error {
 	return nil
 }
 
-// UpdateContact 更新联系人
+// UpdateContact 更新联系人.
 func (m *Manager) UpdateContact(contact *Contact) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -100,7 +100,7 @@ func (m *Manager) UpdateContact(contact *Contact) error {
 	return nil
 }
 
-// DeleteContact 删除联系人
+// DeleteContact 删除联系人.
 func (m *Manager) DeleteContact(contactID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -131,7 +131,7 @@ func (m *Manager) DeleteContact(contactID string) error {
 	return nil
 }
 
-// GetContact 获取联系人
+// GetContact 获取联系人.
 func (m *Manager) GetContact(contactID string) (*Contact, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -143,7 +143,7 @@ func (m *Manager) GetContact(contactID string) (*Contact, error) {
 	return contact, nil
 }
 
-// ListContacts 列出所有联系人
+// ListContacts 列出所有联系人.
 func (m *Manager) ListContacts(group ContactGroup, tag string) []*Contact {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -189,7 +189,7 @@ func (m *Manager) ListContacts(group ContactGroup, tag string) []*Contact {
 	return contacts
 }
 
-// SearchContacts 搜索联系人
+// SearchContacts 搜索联系人.
 func (m *Manager) SearchContacts(keyword string) []*Contact {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -215,7 +215,7 @@ func (m *Manager) SearchContacts(keyword string) []*Contact {
 
 // ========== 互动记录管理 ==========
 
-// AddInteraction 添加互动记录
+// AddInteraction 添加互动记录.
 func (m *Manager) AddInteraction(interaction *Interaction) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -234,7 +234,7 @@ func (m *Manager) AddInteraction(interaction *Interaction) error {
 	return nil
 }
 
-// GetInteractions 获取联系人的互动记录
+// GetInteractions 获取联系人的互动记录.
 func (m *Manager) GetInteractions(contactID string, limit int) []*Interaction {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -250,7 +250,7 @@ func (m *Manager) GetInteractions(contactID string, limit int) []*Interaction {
 
 // ========== 关系管理 ==========
 
-// AddRelationship 添加关系
+// AddRelationship 添加关系.
 func (m *Manager) AddRelationship(rel *Relationship) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -272,7 +272,7 @@ func (m *Manager) AddRelationship(rel *Relationship) error {
 	return nil
 }
 
-// DeleteRelationship 删除关系
+// DeleteRelationship 删除关系.
 func (m *Manager) DeleteRelationship(relID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -286,7 +286,7 @@ func (m *Manager) DeleteRelationship(relID string) error {
 	return nil
 }
 
-// GetRelationships 获取联系人的所有关系
+// GetRelationships 获取联系人的所有关系.
 func (m *Manager) GetRelationships(contactID string) []*Relationship {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -302,7 +302,7 @@ func (m *Manager) GetRelationships(contactID string) []*Relationship {
 
 // ========== 纪念日管理 ==========
 
-// AddAnniversary 添加纪念日
+// AddAnniversary 添加纪念日.
 func (m *Manager) AddAnniversary(ann *Anniversary) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -325,7 +325,7 @@ func (m *Manager) AddAnniversary(ann *Anniversary) error {
 	return nil
 }
 
-// GetAnniversaries 获取联系人的纪念日
+// GetAnniversaries 获取联系人的纪念日.
 func (m *Manager) GetAnniversaries(contactID string) []*Anniversary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -341,7 +341,7 @@ func (m *Manager) GetAnniversaries(contactID string) []*Anniversary {
 
 // ========== 提醒管理 ==========
 
-// createReminder 创建提醒（内部方法，需在锁内调用）
+// createReminder 创建提醒（内部方法，需在锁内调用）.
 func (m *Manager) createReminder(contactID, reminderType, title string, eventDate time.Time, remindDays int) {
 	now := time.Now()
 	remindAt := eventDate.AddDate(0, 0, -remindDays)
@@ -364,7 +364,7 @@ func (m *Manager) createReminder(contactID, reminderType, title string, eventDat
 	m.reminders = append(m.reminders, reminder)
 }
 
-// GetUpcomingReminders 获取即将到来的提醒
+// GetUpcomingReminders 获取即将到来的提醒.
 func (m *Manager) GetUpcomingReminders(days int) []*Reminder {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -386,7 +386,7 @@ func (m *Manager) GetUpcomingReminders(days int) []*Reminder {
 	return reminders
 }
 
-// reminderCheckLoop 提醒检查循环
+// reminderCheckLoop 提醒检查循环.
 func (m *Manager) reminderCheckLoop() {
 	defer m.wg.Done()
 	ticker := time.NewTicker(time.Hour)
@@ -402,7 +402,7 @@ func (m *Manager) reminderCheckLoop() {
 	}
 }
 
-// checkReminders 检查提醒
+// checkReminders 检查提醒.
 func (m *Manager) checkReminders() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -418,7 +418,7 @@ func (m *Manager) checkReminders() {
 
 // ========== 统计分析 ==========
 
-// GetContactStats 获取联系人统计
+// GetContactStats 获取联系人统计.
 func (m *Manager) GetContactStats(contactID string) (*ContactStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -457,7 +457,7 @@ func (m *Manager) GetContactStats(contactID string) (*ContactStats, error) {
 	return stats, nil
 }
 
-// calculateClosenessScore 计算亲密度评分
+// calculateClosenessScore 计算亲密度评分.
 func (m *Manager) calculateClosenessScore(contactID string, interactions []*Interaction) float64 {
 	if len(interactions) == 0 {
 		return 0
@@ -520,7 +520,7 @@ func (m *Manager) calculateClosenessScore(contactID string, interactions []*Inte
 	return score
 }
 
-// GetSystemStats 获取系统统计
+// GetSystemStats 获取系统统计.
 func (m *Manager) GetSystemStats() *SystemStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -562,7 +562,7 @@ func (m *Manager) GetSystemStats() *SystemStats {
 
 // ========== HTTP API ==========
 
-// RegisterRoutes 注册HTTP路由
+// RegisterRoutes 注册HTTP路由.
 func (m *Manager) RegisterRoutes(mux *http.ServeMux) {
 	// 联系人API
 	mux.HandleFunc("/api/crm/contacts", m.handleContacts)
@@ -794,7 +794,7 @@ func (m *Manager) handleSystemStats(w http.ResponseWriter, r *http.Request) {
 
 // ========== 工具函数 ==========
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.cancel()
 	m.wg.Wait()

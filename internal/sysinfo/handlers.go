@@ -49,7 +49,7 @@ type Response struct {
 // @Tags sysinfo
 // @Produce json
 // @Success 200 {object} Response{data=SystemInfo}
-// @Router /api/v1/sysinfo [get]
+// @Router /api/v1/sysinfo [get].
 func (h *Handlers) getSysInfo(c *gin.Context) {
 	info := h.collector.Collect()
 	c.JSON(http.StatusOK, Response{
@@ -65,7 +65,7 @@ func (h *Handlers) getSysInfo(c *gin.Context) {
 // @Tags sysinfo
 // @Produce json
 // @Success 200 {object} Response{data=CPUInfo}
-// @Router /api/v1/sysinfo/cpu [get]
+// @Router /api/v1/sysinfo/cpu [get].
 func (h *Handlers) getCPU(c *gin.Context) {
 	info := h.collector.CollectCPU()
 	c.JSON(http.StatusOK, Response{
@@ -81,7 +81,7 @@ func (h *Handlers) getCPU(c *gin.Context) {
 // @Tags sysinfo
 // @Produce json
 // @Success 200 {object} Response{data=MemInfo}
-// @Router /api/v1/sysinfo/memory [get]
+// @Router /api/v1/sysinfo/memory [get].
 func (h *Handlers) getMemory(c *gin.Context) {
 	info := h.collector.CollectMemory()
 	c.JSON(http.StatusOK, Response{
@@ -97,7 +97,7 @@ func (h *Handlers) getMemory(c *gin.Context) {
 // @Tags sysinfo
 // @Produce json
 // @Success 200 {object} Response{data=[]DiskInfo}
-// @Router /api/v1/sysinfo/disks [get]
+// @Router /api/v1/sysinfo/disks [get].
 func (h *Handlers) getDisks(c *gin.Context) {
 	info := h.collector.CollectDisks()
 	c.JSON(http.StatusOK, Response{
@@ -113,7 +113,7 @@ func (h *Handlers) getDisks(c *gin.Context) {
 // @Tags sysinfo
 // @Produce json
 // @Success 200 {object} Response{data=[]NetInfo}
-// @Router /api/v1/sysinfo/network [get]
+// @Router /api/v1/sysinfo/network [get].
 func (h *Handlers) getNetwork(c *gin.Context) {
 	info := h.collector.CollectNetwork()
 	c.JSON(http.StatusOK, Response{

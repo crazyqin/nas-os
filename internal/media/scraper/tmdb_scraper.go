@@ -334,11 +334,7 @@ func (s *TMDBScraper) parseMovieDetail(movie tmdbMovieDetail) *MediaMetadata {
 	director := ""
 	if movie.Credits != nil {
 		for _, c := range movie.Credits.Cast {
-			cast = append(cast, CastMember{
-				Name:      c.Name,
-				Character: c.Character,
-				Order:     c.Order,
-			})
+			cast = append(cast, CastMember(c))
 		}
 		for _, c := range movie.Credits.Crew {
 			if c.Job == "Director" {
@@ -387,11 +383,7 @@ func (s *TMDBScraper) parseTVDetail(tv tmdbTVDetail) *MediaMetadata {
 	cast := make([]CastMember, 0)
 	if tv.Credits != nil {
 		for _, c := range tv.Credits.Cast {
-			cast = append(cast, CastMember{
-				Name:      c.Name,
-				Character: c.Character,
-				Order:     c.Order,
-			})
+			cast = append(cast, CastMember(c))
 		}
 	}
 

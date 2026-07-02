@@ -6,13 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers HTTP处理器
+// Handlers HTTP处理器.
 type Handlers struct{ mgr *Manager }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *Manager) *Handlers { return &Handlers{mgr: mgr} }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	g := rg.Group("/ai-writer")
 	{
@@ -25,7 +25,7 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// Generate 生成文本
+// Generate 生成文本.
 func (h *Handlers) Generate(c *gin.Context) {
 	var req WriteRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -42,7 +42,7 @@ func (h *Handlers) Generate(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": result})
 }
 
-// FillTemplate 填充模板
+// FillTemplate 填充模板.
 func (h *Handlers) FillTemplate(c *gin.Context) {
 	var req TemplateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -59,12 +59,12 @@ func (h *Handlers) FillTemplate(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": result})
 }
 
-// ListTemplates 列出模板
+// ListTemplates 列出模板.
 func (h *Handlers) ListTemplates(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": h.mgr.ListTemplates()})
 }
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func (h *Handlers) GetTemplate(c *gin.Context) {
 	tmpl, err := h.mgr.GetTemplate(c.Param("id"))
 	if err != nil {
@@ -74,12 +74,12 @@ func (h *Handlers) GetTemplate(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": tmpl})
 }
 
-// GetHistory 获取历史记录
+// GetHistory 获取历史记录.
 func (h *Handlers) GetHistory(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": h.mgr.GetHistory()})
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (h *Handlers) GetStats(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": h.mgr.GetStats()})
 }

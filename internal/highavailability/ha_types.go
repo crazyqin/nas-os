@@ -7,43 +7,43 @@ import (
 	"time"
 )
 
-// HAMode 高可用集群模式
+// HAMode 高可用集群模式.
 type HAMode string
 
 const (
-	// ModeActivePassive 主备模式，一个活跃节点一个备用节点
+	// ModeActivePassive 主备模式，一个活跃节点一个备用节点.
 	ModeActivePassive HAMode = "active_passive"
-	// ModeActiveActive 双活模式，两个节点同时提供服务
+	// ModeActiveActive 双活模式，两个节点同时提供服务.
 	ModeActiveActive HAMode = "active_active"
 )
 
-// NodeRole 节点角色
+// NodeRole 节点角色.
 type NodeRole string
 
 const (
-	// RoleActive 活跃节点
+	// RoleActive 活跃节点.
 	RoleActive NodeRole = "active"
-	// RoleStandby 备用节点
+	// RoleStandby 备用节点.
 	RoleStandby NodeRole = "standby"
-	// RoleUnknown 未知状态
+	// RoleUnknown 未知状态.
 	RoleUnknown NodeRole = "unknown"
 )
 
-// NodeStatus 节点状态
+// NodeStatus 节点状态.
 type NodeStatus string
 
 const (
-	// StatusOnline 在线
+	// StatusOnline 在线.
 	StatusOnline NodeStatus = "online"
-	// StatusOffline 离线
+	// StatusOffline 离线.
 	StatusOffline NodeStatus = "offline"
-	// StatusDegraded 降级（部分功能不可用）
+	// StatusDegraded 降级（部分功能不可用）.
 	StatusDegraded NodeStatus = "degraded"
-	// StatusFailed 故障
+	// StatusFailed 故障.
 	StatusFailed NodeStatus = "failed"
 )
 
-// ClusterNode 集群节点
+// ClusterNode 集群节点.
 type ClusterNode struct {
 	// ID 节点唯一标识
 	ID string `json:"id"`
@@ -59,7 +59,7 @@ type ClusterNode struct {
 	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
-// HAConfig 高可用配置
+// HAConfig 高可用配置.
 type HAConfig struct {
 	// Mode 集群模式
 	Mode HAMode `json:"mode"`
@@ -81,7 +81,7 @@ type HAConfig struct {
 	MaxRetries int `json:"max_retries"`
 }
 
-// DefaultHAConfig 返回默认高可用配置
+// DefaultHAConfig 返回默认高可用配置.
 func DefaultHAConfig() *HAConfig {
 	return &HAConfig{
 		Mode:              ModeActivePassive,
@@ -96,7 +96,7 @@ func DefaultHAConfig() *HAConfig {
 	}
 }
 
-// FailoverEvent 故障切换事件
+// FailoverEvent 故障切换事件.
 type FailoverEvent struct {
 	// ID 事件唯一标识
 	ID string `json:"id"`
@@ -114,23 +114,23 @@ type FailoverEvent struct {
 	Duration time.Duration `json:"duration"`
 }
 
-// FailoverEventType 故障切换事件类型
+// FailoverEventType 故障切换事件类型.
 type FailoverEventType string
 
 const (
-	// EventFailover 故障切换
+	// EventFailover 故障切换.
 	EventFailover FailoverEventType = "failover"
-	// EventFailback 故障恢复（原主节点恢复）
+	// EventFailback 故障恢复（原主节点恢复）.
 	EventFailback FailoverEventType = "failback"
-	// EventManualSwitchover 手动切换
+	// EventManualSwitchover 手动切换.
 	EventManualSwitchover FailoverEventType = "manual_switchover"
-	// EventNodeJoined 节点加入
+	// EventNodeJoined 节点加入.
 	EventNodeJoined FailoverEventType = "node_joined"
-	// EventNodeLeft 节点离开
+	// EventNodeLeft 节点离开.
 	EventNodeLeft FailoverEventType = "node_left"
 )
 
-// LockInfo 资源锁信息
+// LockInfo 资源锁信息.
 type LockInfo struct {
 	// HolderID 持有锁的节点 ID
 	HolderID string `json:"holder_id"`
@@ -142,7 +142,7 @@ type LockInfo struct {
 	Version int64 `json:"version"`
 }
 
-// clusterState 集群内部状态（非导出）
+// clusterState 集群内部状态（非导出）.
 type clusterState struct {
 	mu         sync.RWMutex
 	nodes      map[string]*ClusterNode

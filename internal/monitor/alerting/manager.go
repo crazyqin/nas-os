@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Manager 告警增强管理器 - 整合模板、路由、聚合
+// Manager 告警增强管理器 - 整合模板、路由、聚合.
 type Manager struct {
 	engine     *TemplateEngine
 	router     *Router
@@ -26,7 +26,7 @@ type Manager struct {
 	stopCh chan struct{}
 }
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
 	EnableAggregation bool          `json:"enableAggregation"`
 	AggregationWindow time.Duration `json:"aggregationWindow"`
@@ -34,7 +34,7 @@ type ManagerConfig struct {
 	EnableTemplates   bool          `json:"enableTemplates"`
 }
 
-// DefaultManagerConfig 默认配置
+// DefaultManagerConfig 默认配置.
 func DefaultManagerConfig() ManagerConfig {
 	return ManagerConfig{
 		EnableAggregation: true,
@@ -44,7 +44,7 @@ func DefaultManagerConfig() ManagerConfig {
 	}
 }
 
-// NewManager 创建增强告警管理器
+// NewManager 创建增强告警管理器.
 func NewManager(config ManagerConfig) *Manager {
 	// 创建组件
 	engine := NewTemplateEngine()
@@ -63,7 +63,7 @@ func NewManager(config ManagerConfig) *Manager {
 	return m
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() error {
 	if m.config.EnableAggregation {
 		m.aggregator.SetFlushCallback(func(aggregated []*AggregatedAlert) {
@@ -74,27 +74,27 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	close(m.stopCh)
 }
 
-// GetEngine 获取模板引擎
+// GetEngine 获取模板引擎.
 func (m *Manager) GetEngine() *TemplateEngine {
 	return m.engine
 }
 
-// GetRouter 获取路由器
+// GetRouter 获取路由器.
 func (m *Manager) GetRouter() *Router {
 	return m.router
 }
 
-// GetAggregator 获取聚合器
+// GetAggregator 获取聚合器.
 func (m *Manager) GetAggregator() *Aggregator {
 	return m.aggregator
 }
 
-// ProcessAlert 处理单条告警
+// ProcessAlert 处理单条告警.
 func (m *Manager) ProcessAlert(ctx context.Context, vars *AlertVars) error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -123,7 +123,7 @@ func (m *Manager) ProcessAlert(ctx context.Context, vars *AlertVars) error {
 	return nil
 }
 
-// ProcessAggregatedAlert 处理聚合告警
+// ProcessAggregatedAlert 处理聚合告警.
 func (m *Manager) ProcessAggregatedAlert(ctx context.Context, aggregated *AggregatedAlert) error {
 	// 构建聚合告警的变量
 	vars := &AlertVars{
@@ -154,7 +154,7 @@ func (m *Manager) ProcessAggregatedAlert(ctx context.Context, aggregated *Aggreg
 	return nil
 }
 
-// handleAggregatedAlerts 处理聚合后的告警
+// handleAggregatedAlerts 处理聚合后的告警.
 func (m *Manager) handleAggregatedAlerts(aggregated []*AggregatedAlert) {
 	if m.onAggregate != nil {
 		m.onAggregate(aggregated)
@@ -185,21 +185,21 @@ func (m *Manager) handleAggregatedAlerts(aggregated []*AggregatedAlert) {
 	}
 }
 
-// SetOnSend 设置发送回调
+// SetOnSend 设置发送回调.
 func (m *Manager) SetOnSend(fn func(channelID string, alert *AlertVars) error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.onSend = fn
 }
 
-// SetOnAggregate 设置聚合回调
+// SetOnAggregate 设置聚合回调.
 func (m *Manager) SetOnAggregate(fn func(aggregated []*AggregatedAlert)) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.onAggregate = fn
 }
 
-// GetStatus 获取状态
+// GetStatus 获取状态.
 func (m *Manager) GetStatus() map[string]interface{} {
 	return map[string]interface{}{
 		"config":     m.config,
@@ -211,7 +211,7 @@ func (m *Manager) GetStatus() map[string]interface{} {
 	}
 }
 
-// QuickSend 快速发送告警（直接渲染并发送）
+// QuickSend 快速发送告警（直接渲染并发送）.
 func (m *Manager) QuickSend(ctx context.Context, chType ChannelType, target, templateID string, vars *AlertVars) error {
 	_ = &Channel{
 		ID:       fmt.Sprintf("quick-%d", time.Now().UnixNano()),

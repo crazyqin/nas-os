@@ -7,7 +7,7 @@ import (
 
 // ==================== 规则引擎 ====================
 
-// RulePriority 规则优先级
+// RulePriority 规则优先级.
 type RulePriority string
 
 const (
@@ -16,7 +16,7 @@ const (
 	PriorityInfo     RulePriority = "info"     // 信息
 )
 
-// LogicalOp 逻辑运算符
+// LogicalOp 逻辑运算符.
 type LogicalOp string
 
 const (
@@ -24,7 +24,7 @@ const (
 	LogicalOR  LogicalOp = "OR"  // 或
 )
 
-// ComparisonOp 比较运算符
+// ComparisonOp 比较运算符.
 type ComparisonOp string
 
 const (
@@ -36,14 +36,14 @@ const (
 	OpNEQ ComparisonOp = "!=" // 不等于
 )
 
-// RuleCondition 单个规则条件
+// RuleCondition 单个规则条件.
 type RuleCondition struct {
 	MetricType MetricType   `json:"metric_type"` // 指标类型
 	Operator   ComparisonOp `json:"operator"`    // 比较运算符
 	Threshold  float64      `json:"threshold"`   // 阈值
 }
 
-// Rule 自定义检测规则
+// Rule 自定义检测规则.
 type Rule struct {
 	ID          string          `json:"id"`          // 规则 ID
 	Name        string          `json:"name"`        // 规则名称
@@ -55,20 +55,20 @@ type Rule struct {
 	Message     string          `json:"message"`     // 告警消息模板
 }
 
-// RuleMatchResult 规则匹配结果
+// RuleMatchResult 规则匹配结果.
 type RuleMatchResult struct {
 	Rule      *Rule  `json:"rule"`      // 匹配的规则
 	Triggered bool   `json:"triggered"` // 是否触发
 	Message   string `json:"message"`   // 描述
 }
 
-// RuleEngine 规则引擎
+// RuleEngine 规则引擎.
 type RuleEngine struct {
 	mu    sync.RWMutex
 	rules map[string]*Rule // 规则集（ID -> Rule）
 }
 
-// NewRuleEngine 创建规则引擎并加载默认规则
+// NewRuleEngine 创建规则引擎并加载默认规则.
 func NewRuleEngine() *RuleEngine {
 	engine := &RuleEngine{
 		rules: make(map[string]*Rule),
@@ -80,7 +80,7 @@ func NewRuleEngine() *RuleEngine {
 	return engine
 }
 
-// DefaultRules 返回 NAS 系统预定义的检测规则集
+// DefaultRules 返回 NAS 系统预定义的检测规则集.
 func DefaultRules() []*Rule {
 	return []*Rule{
 		{
@@ -184,7 +184,7 @@ func DefaultRules() []*Rule {
 	}
 }
 
-// AddRule 添加自定义规则
+// AddRule 添加自定义规则.
 func (re *RuleEngine) AddRule(rule *Rule) error {
 	if rule.ID == "" {
 		return fmt.Errorf("规则 ID 不能为空")
@@ -203,7 +203,7 @@ func (re *RuleEngine) AddRule(rule *Rule) error {
 	return nil
 }
 
-// UpdateRule 更新规则
+// UpdateRule 更新规则.
 func (re *RuleEngine) UpdateRule(rule *Rule) error {
 	if rule.ID == "" {
 		return fmt.Errorf("规则 ID 不能为空")
@@ -219,7 +219,7 @@ func (re *RuleEngine) UpdateRule(rule *Rule) error {
 	return nil
 }
 
-// DeleteRule 删除规则
+// DeleteRule 删除规则.
 func (re *RuleEngine) DeleteRule(ruleID string) error {
 	re.mu.Lock()
 	defer re.mu.Unlock()
@@ -231,14 +231,14 @@ func (re *RuleEngine) DeleteRule(ruleID string) error {
 	return nil
 }
 
-// GetRule 获取指定规则
+// GetRule 获取指定规则.
 func (re *RuleEngine) GetRule(ruleID string) *Rule {
 	re.mu.RLock()
 	defer re.mu.RUnlock()
 	return re.rules[ruleID]
 }
 
-// GetAllRules 获取所有规则
+// GetAllRules 获取所有规则.
 func (re *RuleEngine) GetAllRules() []*Rule {
 	re.mu.RLock()
 	defer re.mu.RUnlock()
@@ -251,7 +251,7 @@ func (re *RuleEngine) GetAllRules() []*Rule {
 
 // Evaluate 使用最新指标值评估所有启用的规则
 // metrics: 当前各指标最新值
-// 返回所有匹配结果
+// 返回所有匹配结果.
 func (re *RuleEngine) Evaluate(metrics map[MetricType]float64) []RuleMatchResult {
 	re.mu.RLock()
 	defer re.mu.RUnlock()
@@ -271,7 +271,7 @@ func (re *RuleEngine) Evaluate(metrics map[MetricType]float64) []RuleMatchResult
 	return results
 }
 
-// evaluateRule 评估单个规则（内部方法，调用者需持读锁）
+// evaluateRule 评估单个规则（内部方法，调用者需持读锁）.
 func (re *RuleEngine) evaluateRule(rule *Rule, metrics map[MetricType]float64) *RuleMatchResult {
 	if len(rule.Conditions) == 0 {
 		return nil
@@ -331,7 +331,7 @@ func (re *RuleEngine) evaluateRule(rule *Rule, metrics map[MetricType]float64) *
 	}
 }
 
-// evaluateCondition 评估单个比较条件
+// evaluateCondition 评估单个比较条件.
 func evaluateCondition(value float64, op ComparisonOp, threshold float64) bool {
 	switch op {
 	case OpGT:

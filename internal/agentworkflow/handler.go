@@ -24,12 +24,12 @@ func NewHandler(service *Service) *Handler {
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	g := rg.Group("/agentworkflow")
 	{
-		g.POST("/parse", h.parseTask)              // 解析自然语言任务
-		g.POST("/execute", h.executeWorkflow)      // 执行工作流
-		g.POST("/cancel", h.cancelTask)            // 取消任务
-		g.GET("/tasks", h.listTasks)               // 列出任务
-		g.GET("/tasks/:taskId", h.getTaskStatus)   // 获取任务状态
-		g.GET("/templates", h.getTemplates)         // 获取工作流模板
+		g.POST("/parse", h.parseTask)                                       // 解析自然语言任务
+		g.POST("/execute", h.executeWorkflow)                               // 执行工作流
+		g.POST("/cancel", h.cancelTask)                                     // 取消任务
+		g.GET("/tasks", h.listTasks)                                        // 列出任务
+		g.GET("/tasks/:taskId", h.getTaskStatus)                            // 获取任务状态
+		g.GET("/templates", h.getTemplates)                                 // 获取工作流模板
 		g.POST("/templates/:templateId/instantiate", h.instantiateTemplate) // 从模板创建工作流
 	}
 }

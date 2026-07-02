@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-// handleCreateFolder handles creating a WriteOnce folder
+// handleCreateFolder handles creating a WriteOnce folder.
 func (m *Manager) handleCreateFolder(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -29,7 +29,7 @@ func (m *Manager) handleCreateFolder(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(folder)
 }
 
-// handleLockFolder handles locking a folder
+// handleLockFolder handles locking a folder.
 func (m *Manager) handleLockFolder(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -51,7 +51,7 @@ func (m *Manager) handleLockFolder(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "locked"})
 }
 
-// handleAddFile handles adding a file to a folder
+// handleAddFile handles adding a file to a folder.
 func (m *Manager) handleAddFile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -75,7 +75,7 @@ func (m *Manager) handleAddFile(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(file)
 }
 
-// handleGetFolder handles getting a folder
+// handleGetFolder handles getting a folder.
 func (m *Manager) handleGetFolder(w http.ResponseWriter, r *http.Request) {
 	folderID := r.URL.Query().Get("id")
 	if folderID == "" {
@@ -93,7 +93,7 @@ func (m *Manager) handleGetFolder(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(folder)
 }
 
-// handleListFolders handles listing all folders
+// handleListFolders handles listing all folders.
 func (m *Manager) handleListFolders(w http.ResponseWriter, r *http.Request) {
 	folders := m.ListFolders()
 	w.Header().Set("Content-Type", "application/json")
@@ -103,7 +103,7 @@ func (m *Manager) handleListFolders(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleGetFiles handles getting files in a folder
+// handleGetFiles handles getting files in a folder.
 func (m *Manager) handleGetFiles(w http.ResponseWriter, r *http.Request) {
 	folderID := r.URL.Query().Get("folder_id")
 	if folderID == "" {
@@ -124,7 +124,7 @@ func (m *Manager) handleGetFiles(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handlePreventDelete handles delete prevention check
+// handlePreventDelete handles delete prevention check.
 func (m *Manager) handlePreventDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -154,7 +154,7 @@ func (m *Manager) handlePreventDelete(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "allowed"})
 }
 
-// handlePreventModify handles modify prevention check
+// handlePreventModify handles modify prevention check.
 func (m *Manager) handlePreventModify(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -184,7 +184,7 @@ func (m *Manager) handlePreventModify(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "allowed"})
 }
 
-// handleGetAuditLog handles getting audit log for a folder
+// handleGetAuditLog handles getting audit log for a folder.
 func (m *Manager) handleGetAuditLog(w http.ResponseWriter, r *http.Request) {
 	folderID := r.URL.Query().Get("folder_id")
 	if folderID == "" {
@@ -200,7 +200,7 @@ func (m *Manager) handleGetAuditLog(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleGetAllAuditLog handles getting all audit log entries
+// handleGetAllAuditLog handles getting all audit log entries.
 func (m *Manager) handleGetAllAuditLog(w http.ResponseWriter, r *http.Request) {
 	entries := m.GetAllAuditLog()
 	w.Header().Set("Content-Type", "application/json")
@@ -210,7 +210,7 @@ func (m *Manager) handleGetAllAuditLog(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleCheckExpiry handles checking and updating expired folders
+// handleCheckExpiry handles checking and updating expired folders.
 func (m *Manager) handleCheckExpiry(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -224,21 +224,21 @@ func (m *Manager) handleCheckExpiry(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleGetStats handles getting statistics
+// handleGetStats handles getting statistics.
 func (m *Manager) handleGetStats(w http.ResponseWriter, r *http.Request) {
 	stats := m.GetStats()
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(stats)
 }
 
-// handleGetConfig handles getting config
+// handleGetConfig handles getting config.
 func (m *Manager) handleGetConfig(w http.ResponseWriter, r *http.Request) {
 	config := m.GetConfig()
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(config)
 }
 
-// handleUpdateConfig handles updating config
+// handleUpdateConfig handles updating config.
 func (m *Manager) handleUpdateConfig(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost && r.Method != http.MethodPut {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -260,7 +260,7 @@ func (m *Manager) handleUpdateConfig(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "updated"})
 }
 
-// RegisterRoutes registers HTTP routes for WriteOnce
+// RegisterRoutes registers HTTP routes for WriteOnce.
 func (m *Manager) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/writeonce/folder", m.handleGetFolder)
 	mux.HandleFunc("/api/writeonce/folders", m.handleListFolders)

@@ -16,7 +16,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// ThermalZone 温度区域
+// ThermalZone 温度区域.
 type ThermalZone struct {
 	ID        string     `json:"id"`
 	Name      string     `json:"name"`
@@ -28,7 +28,7 @@ type ThermalZone struct {
 	UpdatedAt time.Time  `json:"updatedAt"`
 }
 
-// ZoneStatus 温度区域状态
+// ZoneStatus 温度区域状态.
 type ZoneStatus string
 
 const (
@@ -38,7 +38,7 @@ const (
 	StatusCritical ZoneStatus = "critical"
 )
 
-// FanInfo 风扇信息
+// FanInfo 风扇信息.
 type FanInfo struct {
 	ID       string  `json:"id"`
 	Name     string  `json:"name"`
@@ -48,7 +48,7 @@ type FanInfo struct {
 	Mode     FanMode `json:"mode"`
 }
 
-// FanMode 风扇模式
+// FanMode 风扇模式.
 type FanMode string
 
 const (
@@ -58,7 +58,7 @@ const (
 	FanTurbo  FanMode = "turbo"
 )
 
-// ThermalPolicy 温控策略
+// ThermalPolicy 温控策略.
 type ThermalPolicy struct {
 	Name          string        `json:"name"`
 	WarmThresh    float64       `json:"warmThresh"`  // 升温阈值
@@ -69,13 +69,13 @@ type ThermalPolicy struct {
 	CheckInterval time.Duration `json:"checkInterval"`
 }
 
-// FanPoint 风扇曲线控制点
+// FanPoint 风扇曲线控制点.
 type FanPoint struct {
 	Temp   float64 `json:"temp"`
 	Target float64 `json:"target"` // 风扇百分比
 }
 
-// ThermalOverview 散热总览
+// ThermalOverview 散热总览.
 type ThermalOverview struct {
 	CPUTemp       float64        `json:"cpuTemp"`
 	GPUTemp       float64        `json:"gpuTemp,omitempty"`
@@ -90,13 +90,13 @@ type ThermalOverview struct {
 	UpdatedAt     time.Time      `json:"updatedAt"`
 }
 
-// TempTrend 温度趋势
+// TempTrend 温度趋势.
 type TempTrend struct {
 	Direction string  `json:"direction"` // rising, falling, stable
 	Rate      float64 `json:"rate"`      // 每分钟变化率
 }
 
-// ThermalAlert 温度告警
+// ThermalAlert 温度告警.
 type ThermalAlert struct {
 	Zone      string    `json:"zone"`
 	Temp      float64   `json:"temp"`
@@ -106,7 +106,7 @@ type ThermalAlert struct {
 	Time      time.Time `json:"time"`
 }
 
-// Manager 温控管理器
+// Manager 温控管理器.
 type Manager struct {
 	logger   *zap.Logger
 	mu       sync.RWMutex
@@ -119,7 +119,7 @@ type Manager struct {
 	maxHist  int
 }
 
-// TempHistory 温度历史记录
+// TempHistory 温度历史记录.
 type TempHistory struct {
 	Timestamp time.Time          `json:"timestamp"`
 	Temps     map[string]float64 `json:"temps"`
@@ -130,7 +130,7 @@ var (
 	ErrFanNotFound  = fmt.Errorf("风扇未找到")
 )
 
-// NewManager 创建温控管理器
+// NewManager 创建温控管理器.
 func NewManager(logger *zap.Logger) *Manager {
 	m := &Manager{
 		logger:   logger,
@@ -155,7 +155,7 @@ func NewManager(logger *zap.Logger) *Manager {
 	return m
 }
 
-// LoadZones 从 sysfs 加载温度区域
+// LoadZones 从 sysfs 加载温度区域.
 func (m *Manager) LoadZones() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -190,7 +190,7 @@ func (m *Manager) LoadZones() error {
 	return nil
 }
 
-// readZone 从 sysfs 读取单个温度区域
+// readZone 从 sysfs 读取单个温度区域.
 func (m *Manager) readZone(path, id string) *ThermalZone {
 	tempFile := filepath.Join(path, "temp")
 	typeFile := filepath.Join(path, "type")
@@ -226,7 +226,7 @@ func (m *Manager) readZone(path, id string) *ThermalZone {
 	}
 }
 
-// loadMockZones 加载模拟温度数据
+// loadMockZones 加载模拟温度数据.
 func (m *Manager) loadMockZones() {
 	m.zones = []ThermalZone{
 		{ID: "zone0", Name: "CPU", Type: "x86_pkg_temp", Temp: 45, MaxTemp: 75, CritTemp: 90, Status: StatusNormal, UpdatedAt: time.Now()},
@@ -240,7 +240,7 @@ func (m *Manager) loadMockZones() {
 	}
 }
 
-// classifyTemp 根据温度分类状态
+// classifyTemp 根据温度分类状态.
 func (m *Manager) classifyTemp(temp float64) ZoneStatus {
 	switch {
 	case temp >= m.policy.CritThresh:
@@ -254,7 +254,7 @@ func (m *Manager) classifyTemp(temp float64) ZoneStatus {
 	}
 }
 
-// GetOverview 获取散热总览
+// GetOverview 获取散热总览.
 func (m *Manager) GetOverview() ThermalOverview {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -283,11 +283,12 @@ func (m *Manager) GetOverview() ThermalOverview {
 		} else if z.Status == StatusWarm && overall == StatusNormal {
 			overall = StatusWarm
 		}
-		if z.Name == "CPU" {
+		switch z.Name {
+		case "CPU":
 			overview.CPUTemp = z.Temp
-		} else if z.Name == "GPU" {
+		case "GPU":
 			overview.GPUTemp = z.Temp
-		} else if z.Name == "Ambient" {
+		case "Ambient":
 			overview.AmbientTemp = z.Temp
 		}
 	}
@@ -299,7 +300,7 @@ func (m *Manager) GetOverview() ThermalOverview {
 	return overview
 }
 
-// calcTrend 计算温度趋势
+// calcTrend 计算温度趋势.
 func (m *Manager) calcTrend() TempTrend {
 	if len(m.history) < 2 {
 		return TempTrend{Direction: "stable", Rate: 0}
@@ -328,7 +329,7 @@ func (m *Manager) calcTrend() TempTrend {
 	}
 }
 
-// Refresh 刷新温度数据
+// Refresh 刷新温度数据.
 func (m *Manager) Refresh() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -357,7 +358,7 @@ func (m *Manager) Refresh() {
 		zap.Int("alerts", len(m.alerts)))
 }
 
-// checkAlerts 检查温度告警
+// checkAlerts 检查温度告警.
 func (m *Manager) checkAlerts() {
 	for _, z := range m.zones {
 		var level, msg string
@@ -397,7 +398,7 @@ func (m *Manager) checkAlerts() {
 	}
 }
 
-// applyFanPolicy 根据温度策略调整风扇
+// applyFanPolicy 根据温度策略调整风扇.
 func (m *Manager) applyFanPolicy() {
 	for i, fan := range m.fans {
 		if fan.Mode != FanAuto {
@@ -418,7 +419,7 @@ func (m *Manager) applyFanPolicy() {
 	}
 }
 
-// interpolateFanCurve 根据温度插值计算风扇转速
+// interpolateFanCurve 根据温度插值计算风扇转速.
 func (m *Manager) interpolateFanCurve(temp float64) float64 {
 	curve := m.policy.FanCurve
 	if len(curve) == 0 {
@@ -443,7 +444,7 @@ func (m *Manager) interpolateFanCurve(temp float64) float64 {
 	return curve[len(curve)-1].Target
 }
 
-// SetFanMode 设置风扇模式
+// SetFanMode 设置风扇模式.
 func (m *Manager) SetFanMode(fanID string, mode FanMode) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -458,7 +459,7 @@ func (m *Manager) SetFanMode(fanID string, mode FanMode) error {
 	return ErrFanNotFound
 }
 
-// SetFanSpeed 手动设置风扇转速
+// SetFanSpeed 手动设置风扇转速.
 func (m *Manager) SetFanSpeed(fanID string, percent float64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -481,7 +482,7 @@ func (m *Manager) SetFanSpeed(fanID string, percent float64) error {
 	return ErrFanNotFound
 }
 
-// GetHistory 获取温度历史
+// GetHistory 获取温度历史.
 func (m *Manager) GetHistory(minutes int) []TempHistory {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -500,7 +501,7 @@ func (m *Manager) GetHistory(minutes int) []TempHistory {
 	return result
 }
 
-// UpdatePolicy 更新温控策略
+// UpdatePolicy 更新温控策略.
 func (m *Manager) UpdatePolicy(policy ThermalPolicy) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -508,14 +509,14 @@ func (m *Manager) UpdatePolicy(policy ThermalPolicy) {
 	m.logger.Info("更新温控策略", zap.String("name", policy.Name))
 }
 
-// GetPolicy 获取当前温控策略
+// GetPolicy 获取当前温控策略.
 func (m *Manager) GetPolicy() ThermalPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.policy
 }
 
-// GetAlerts 获取最近告警
+// GetAlerts 获取最近告警.
 func (m *Manager) GetAlerts(limit int) []ThermalAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -526,14 +527,14 @@ func (m *Manager) GetAlerts(limit int) []ThermalAlert {
 	return m.alerts[len(m.alerts)-limit:]
 }
 
-// ClearAlerts 清空告警
+// ClearAlerts 清空告警.
 func (m *Manager) ClearAlerts() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.alerts = nil
 }
 
-// readFanFromSysfs 从 sysfs 读取风扇信息
+// readFanFromSysfs 从 sysfs 读取风扇信息.
 func readFanFromSysfs(hwmonPath string) *FanInfo {
 	nameFile := filepath.Join(hwmonPath, "fan1_label")
 	if _, err := os.Stat(nameFile); err != nil {
@@ -571,7 +572,7 @@ func readFanFromSysfs(hwmonPath string) *FanInfo {
 	return fan
 }
 
-// ParseSensorsOutput 解析 lm-sensors 输出
+// ParseSensorsOutput 解析 lm-sensors 输出.
 func ParseSensorsOutput(output string) []ThermalZone {
 	var zones []ThermalZone
 	scanner := bufio.NewScanner(strings.NewReader(output))
@@ -628,7 +629,7 @@ func ParseSensorsOutput(output string) []ThermalZone {
 	return zones
 }
 
-// SortZonesByTemp 按温度降序排列区域
+// SortZonesByTemp 按温度降序排列区域.
 func SortZonesByTemp(zones []ThermalZone) []ThermalZone {
 	sorted := make([]ThermalZone, len(zones))
 	copy(sorted, zones)

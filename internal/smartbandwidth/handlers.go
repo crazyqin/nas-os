@@ -6,17 +6,17 @@ import (
 	"strings"
 )
 
-// Handler 智能带宽HTTP处理器
+// Handler 智能带宽HTTP处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/bandwidth/stats", h.handleGetStats)
 	mux.HandleFunc("/api/bandwidth/rules", h.handleRules)
@@ -27,7 +27,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/bandwidth/adjust", h.handleAdjust)
 }
 
-// handleGetStats GET /api/bandwidth/stats
+// handleGetStats GET /api/bandwidth/stats.
 func (h *Handler) handleGetStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -73,7 +73,7 @@ func (h *Handler) handleGetStats(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleRules POST /api/bandwidth/rules, PUT /api/bandwidth/rules/:id
+// handleRules POST /api/bandwidth/rules, PUT /api/bandwidth/rules/:id.
 func (h *Handler) handleRules(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -89,7 +89,7 @@ func (h *Handler) handleRules(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleListRules 列出所有规则
+// handleListRules 列出所有规则.
 func (h *Handler) handleListRules(w http.ResponseWriter, r *http.Request) {
 	rules := h.manager.ListBandwidthRules()
 	writeJSON(w, map[string]interface{}{
@@ -99,7 +99,7 @@ func (h *Handler) handleListRules(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleCreateRule 创建规则
+// handleCreateRule 创建规则.
 func (h *Handler) handleCreateRule(w http.ResponseWriter, r *http.Request) {
 	var rule BandwidthRule
 	if err := json.NewDecoder(r.Body).Decode(&rule); err != nil {
@@ -126,7 +126,7 @@ func (h *Handler) handleCreateRule(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleUpdateRule 更新规则
+// handleUpdateRule 更新规则.
 func (h *Handler) handleUpdateRule(w http.ResponseWriter, r *http.Request) {
 	// 从URL路径中提取ID
 	path := r.URL.Path
@@ -165,7 +165,7 @@ func (h *Handler) handleUpdateRule(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleDeleteRule 删除规则
+// handleDeleteRule 删除规则.
 func (h *Handler) handleDeleteRule(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		ID string `json:"id"`
@@ -192,7 +192,7 @@ func (h *Handler) handleDeleteRule(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleGetClasses GET /api/bandwidth/classes
+// handleGetClasses GET /api/bandwidth/classes.
 func (h *Handler) handleGetClasses(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -207,7 +207,7 @@ func (h *Handler) handleGetClasses(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleGetUsage GET /api/bandwidth/usage
+// handleGetUsage GET /api/bandwidth/usage.
 func (h *Handler) handleGetUsage(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -222,7 +222,7 @@ func (h *Handler) handleGetUsage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleQoS QoS策略管理
+// handleQoS QoS策略管理.
 func (h *Handler) handleQoS(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -238,7 +238,7 @@ func (h *Handler) handleQoS(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleListQoSPolicies 列出QoS策略
+// handleListQoSPolicies 列出QoS策略.
 func (h *Handler) handleListQoSPolicies(w http.ResponseWriter, r *http.Request) {
 	policies := h.manager.ListQoSPolicies()
 	writeJSON(w, map[string]interface{}{
@@ -248,7 +248,7 @@ func (h *Handler) handleListQoSPolicies(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-// handleCreateQoSPolicy 创建QoS策略
+// handleCreateQoSPolicy 创建QoS策略.
 func (h *Handler) handleCreateQoSPolicy(w http.ResponseWriter, r *http.Request) {
 	var policy QoSPolicy
 	if err := json.NewDecoder(r.Body).Decode(&policy); err != nil {
@@ -275,7 +275,7 @@ func (h *Handler) handleCreateQoSPolicy(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-// handleUpdateQoSPolicy 更新QoS策略
+// handleUpdateQoSPolicy 更新QoS策略.
 func (h *Handler) handleUpdateQoSPolicy(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		ID     string    `json:"id"`
@@ -305,7 +305,7 @@ func (h *Handler) handleUpdateQoSPolicy(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-// handleDeleteQoSPolicy 删除QoS策略
+// handleDeleteQoSPolicy 删除QoS策略.
 func (h *Handler) handleDeleteQoSPolicy(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		ID string `json:"id"`
@@ -332,7 +332,7 @@ func (h *Handler) handleDeleteQoSPolicy(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-// handleProfiles 流量配置文件管理
+// handleProfiles 流量配置文件管理.
 func (h *Handler) handleProfiles(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -344,7 +344,7 @@ func (h *Handler) handleProfiles(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleListProfiles 列出流量配置文件
+// handleListProfiles 列出流量配置文件.
 func (h *Handler) handleListProfiles(w http.ResponseWriter, r *http.Request) {
 	profiles := h.manager.GetTrafficProfiles()
 	writeJSON(w, map[string]interface{}{
@@ -354,7 +354,7 @@ func (h *Handler) handleListProfiles(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleCreateProfile 创建流量配置文件
+// handleCreateProfile 创建流量配置文件.
 func (h *Handler) handleCreateProfile(w http.ResponseWriter, r *http.Request) {
 	var profile TrafficProfile
 	if err := json.NewDecoder(r.Body).Decode(&profile); err != nil {
@@ -381,7 +381,7 @@ func (h *Handler) handleCreateProfile(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleAdjust POST /api/bandwidth/adjust
+// handleAdjust POST /api/bandwidth/adjust.
 func (h *Handler) handleAdjust(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -402,7 +402,7 @@ func (h *Handler) handleAdjust(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// writeJSON 写入JSON响应
+// writeJSON 写入JSON响应.
 func writeJSON(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data)

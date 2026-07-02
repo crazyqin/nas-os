@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 是 scrub 调度器的 HTTP API 处理器
+// Handlers 是 scrub 调度器的 HTTP API 处理器.
 type Handlers struct {
 	scheduler *ScrubScheduler
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(scheduler *ScrubScheduler) *Handlers {
 	return &Handlers{scheduler: scheduler}
 }
 
-// RegisterRoutes 注册路由到指定的路由组
+// RegisterRoutes 注册路由到指定的路由组.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	scrub := r.Group("/scrub")
 	{
@@ -36,14 +36,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// apiResponse 标准 API 响应
+// apiResponse 标准 API 响应.
 type apiResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// listSchedules 获取所有调度
+// listSchedules 获取所有调度.
 func (h *Handlers) listSchedules(c *gin.Context) {
 	schedules := h.scheduler.ListSchedules()
 	c.JSON(http.StatusOK, apiResponse{
@@ -53,7 +53,7 @@ func (h *Handlers) listSchedules(c *gin.Context) {
 	})
 }
 
-// createSchedule 创建调度
+// createSchedule 创建调度.
 func (h *Handlers) createSchedule(c *gin.Context) {
 	var req CreateScheduleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -104,7 +104,7 @@ func (h *Handlers) createSchedule(c *gin.Context) {
 	})
 }
 
-// updateSchedule 更新调度
+// updateSchedule 更新调度.
 func (h *Handlers) updateSchedule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -133,7 +133,7 @@ func (h *Handlers) updateSchedule(c *gin.Context) {
 	})
 }
 
-// deleteSchedule 删除调度
+// deleteSchedule 删除调度.
 func (h *Handlers) deleteSchedule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -151,7 +151,7 @@ func (h *Handlers) deleteSchedule(c *gin.Context) {
 	})
 }
 
-// startScrub 手动触发 scrub
+// startScrub 手动触发 scrub.
 func (h *Handlers) startScrub(c *gin.Context) {
 	pool := c.Param("pool")
 
@@ -172,7 +172,7 @@ func (h *Handlers) startScrub(c *gin.Context) {
 	})
 }
 
-// getPoolStatus 获取池的 scrub 状态
+// getPoolStatus 获取池的 scrub 状态.
 func (h *Handlers) getPoolStatus(c *gin.Context) {
 	pool := c.Param("pool")
 
@@ -192,7 +192,7 @@ func (h *Handlers) getPoolStatus(c *gin.Context) {
 	})
 }
 
-// getHistory 获取历史记录
+// getHistory 获取历史记录.
 func (h *Handlers) getHistory(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "50")
 	limit, err := strconv.Atoi(limitStr)

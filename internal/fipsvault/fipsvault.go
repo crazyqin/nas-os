@@ -22,7 +22,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// FIPSLevel FIPS 合规级别
+// FIPSLevel FIPS 合规级别.
 type FIPSLevel string
 
 const (
@@ -30,7 +30,7 @@ const (
 	FIPSLevel140_3 FIPSLevel = "140-3"
 )
 
-// CipherSuite 加密套件
+// CipherSuite 加密套件.
 type CipherSuite string
 
 const (
@@ -40,7 +40,7 @@ const (
 	CipherAES128GCM CipherSuite = "AES-128-GCM"
 )
 
-// Protocol 传输协议
+// Protocol 传输协议.
 type Protocol string
 
 const (
@@ -51,7 +51,7 @@ const (
 	ProtocolWebDAV Protocol = "webdav"
 )
 
-// KeyStatus 密钥状态
+// KeyStatus 密钥状态.
 type KeyStatus string
 
 const (
@@ -61,7 +61,7 @@ const (
 	KeyStatusCompromised KeyStatus = "compromised"
 )
 
-// EncryptionKey 加密密钥
+// EncryptionKey 加密密钥.
 type EncryptionKey struct {
 	ID         string      `json:"id"`
 	Name       string      `json:"name"`
@@ -76,7 +76,7 @@ type EncryptionKey struct {
 	Version    int         `json:"version"`
 }
 
-// EncryptedShare 加密共享
+// EncryptedShare 加密共享.
 type EncryptedShare struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -92,7 +92,7 @@ type EncryptedShare struct {
 	AuditLog    bool        `json:"auditLog"` // 是否记录审计日志
 }
 
-// AuditEntry 审计条目
+// AuditEntry 审计条目.
 type AuditEntry struct {
 	ID        string    `json:"id"`
 	Timestamp time.Time `json:"timestamp"`
@@ -106,7 +106,7 @@ type AuditEntry struct {
 	Details   string    `json:"details"`
 }
 
-// ComplianceReport 合规报告
+// ComplianceReport 合规报告.
 type ComplianceReport struct {
 	GeneratedAt     time.Time                 `json:"generatedAt"`
 	FIPSLevel       FIPSLevel                 `json:"fipsLevel"`
@@ -119,7 +119,7 @@ type ComplianceReport struct {
 	Protocols       map[string]ProtocolStatus `json:"protocols"`
 }
 
-// ComplianceIssue 合规问题
+// ComplianceIssue 合规问题.
 type ComplianceIssue struct {
 	Severity string `json:"severity"` // critical, high, medium, low
 	Share    string `json:"share"`
@@ -127,7 +127,7 @@ type ComplianceIssue struct {
 	Action   string `json:"action"`
 }
 
-// ProtocolStatus 协议状态
+// ProtocolStatus 协议状态.
 type ProtocolStatus struct {
 	Name       string `json:"name"`
 	Encrypted  bool   `json:"encrypted"`
@@ -136,7 +136,7 @@ type ProtocolStatus struct {
 	Compliant  bool   `json:"compliant"`
 }
 
-// Manager FIPS 管理器
+// Manager FIPS 管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	config   *Config
@@ -145,7 +145,7 @@ type Manager struct {
 	auditLog []*AuditEntry
 }
 
-// Config 管理器配置
+// Config 管理器配置.
 type Config struct {
 	Enabled         bool        `json:"enabled"`
 	FIPSLevel       FIPSLevel   `json:"fipsLevel"`
@@ -156,7 +156,7 @@ type Config struct {
 	MaxAuditEntries int         `json:"maxAuditEntries"`
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(config *Config) *Manager {
 	if config.DefaultCipher == "" {
 		config.DefaultCipher = CipherAES256GCM
@@ -178,7 +178,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// GenerateKey 生成加密密钥
+// GenerateKey 生成加密密钥.
 func (m *Manager) GenerateKey(name string, cipher CipherSuite, keySize int) (*EncryptionKey, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -208,7 +208,7 @@ func (m *Manager) GenerateKey(name string, cipher CipherSuite, keySize int) (*En
 	return key, nil
 }
 
-// RotateKey 轮换密钥
+// RotateKey 轮换密钥.
 func (m *Manager) RotateKey(keyID string) (*EncryptionKey, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -245,7 +245,7 @@ func (m *Manager) RotateKey(keyID string) (*EncryptionKey, error) {
 	return newKey, nil
 }
 
-// CreateEncryptedShare 创建加密共享
+// CreateEncryptedShare 创建加密共享.
 func (m *Manager) CreateEncryptedShare(share *EncryptedShare) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -273,7 +273,7 @@ func (m *Manager) CreateEncryptedShare(share *EncryptedShare) error {
 	return nil
 }
 
-// EncryptData 加密数据
+// EncryptData 加密数据.
 func (m *Manager) EncryptData(keyID string, plaintext []byte) ([]byte, error) {
 	m.mu.RLock()
 	key, ok := m.keys[keyID]
@@ -313,7 +313,7 @@ func (m *Manager) EncryptData(keyID string, plaintext []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
-// DecryptData 解密数据
+// DecryptData 解密数据.
 func (m *Manager) DecryptData(keyID string, ciphertext []byte) ([]byte, error) {
 	m.mu.RLock()
 	_, ok := m.keys[keyID]
@@ -350,7 +350,7 @@ func (m *Manager) DecryptData(keyID string, ciphertext []byte) ([]byte, error) {
 	return plaintext, nil
 }
 
-// GenerateShareLink 生成加密共享链接
+// GenerateShareLink 生成加密共享链接.
 func (m *Manager) GenerateShareLink(shareID, userID string, expiresIn time.Duration) (string, error) {
 	m.mu.RLock()
 	share, ok := m.shares[shareID]
@@ -371,7 +371,7 @@ func (m *Manager) GenerateShareLink(shareID, userID string, expiresIn time.Durat
 	return link, nil
 }
 
-// RunComplianceCheck 运行合规检查
+// RunComplianceCheck 运行合规检查.
 func (m *Manager) RunComplianceCheck() *ComplianceReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -459,7 +459,7 @@ func (m *Manager) RunComplianceCheck() *ComplianceReport {
 	return report
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (m *Manager) GetAuditLog(limit int) []*AuditEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -479,7 +479,7 @@ func (m *Manager) GetAuditLog(limit int) []*AuditEntry {
 	return result
 }
 
-// ListKeys 列出所有密钥
+// ListKeys 列出所有密钥.
 func (m *Manager) ListKeys() []*EncryptionKey {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -491,7 +491,7 @@ func (m *Manager) ListKeys() []*EncryptionKey {
 	return result
 }
 
-// ListShares 列出所有共享
+// ListShares 列出所有共享.
 func (m *Manager) ListShares() []*EncryptedShare {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -529,7 +529,7 @@ func (m *Manager) addAudit(eventType, shareID, keyID, userID, sourceIP string, p
 	}
 }
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	manager *Manager
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// MockLXCManager 模拟 LXC 管理器
+// MockLXCManager 模拟 LXC 管理器.
 type MockLXCManager struct {
 	containers map[string]string // containerID -> status
 	migrations []MigrationRecord

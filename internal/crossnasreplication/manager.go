@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// ReplicationState 复制状态
+// ReplicationState 复制状态.
 type ReplicationState string
 
 const (
@@ -21,7 +21,7 @@ const (
 	StateCancelled ReplicationState = "cancelled"
 )
 
-// RemoteNode 远程节点
+// RemoteNode 远程节点.
 type RemoteNode struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -34,7 +34,7 @@ type RemoteNode struct {
 	LastSeen    time.Time `json:"last_seen"`
 }
 
-// ReplicationTask 复制任务
+// ReplicationTask 复制任务.
 type ReplicationTask struct {
 	ID          string           `json:"id"`
 	Name        string           `json:"name"`
@@ -59,7 +59,7 @@ type ReplicationTask struct {
 	UpdatedAt   time.Time        `json:"updated_at"`
 }
 
-// SyncResult 同步结果
+// SyncResult 同步结果.
 type SyncResult struct {
 	TaskID      string           `json:"task_id"`
 	State       ReplicationState `json:"state"`
@@ -70,7 +70,7 @@ type SyncResult struct {
 	Errors      []string         `json:"errors,omitempty"`
 }
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
 	MaxConcurrent    int           `json:"max_concurrent"`
 	RetryAttempts    int           `json:"retry_attempts"`
@@ -80,7 +80,7 @@ type ManagerConfig struct {
 	CompressionLevel int           `json:"compression_level"`
 }
 
-// DefaultManagerConfig 默认配置
+// DefaultManagerConfig 默认配置.
 func DefaultManagerConfig() *ManagerConfig {
 	return &ManagerConfig{
 		MaxConcurrent:    3,
@@ -92,7 +92,7 @@ func DefaultManagerConfig() *ManagerConfig {
 	}
 }
 
-// Manager 管理器
+// Manager 管理器.
 type Manager struct {
 	config  *ManagerConfig
 	nodes   map[string]*RemoteNode
@@ -103,7 +103,7 @@ type Manager struct {
 	cancel  context.CancelFunc
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(config *ManagerConfig) *Manager {
 	if config == nil {
 		config = DefaultManagerConfig()
@@ -119,24 +119,24 @@ func NewManager(config *ManagerConfig) *Manager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() {
 	go m.scheduleLoop()
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.cancel()
 }
 
-// RegisterNode 注册远程节点
+// RegisterNode 注册远程节点.
 func (m *Manager) RegisterNode(node *RemoteNode) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.nodes[node.ID] = node
 }
 
-// RemoveNode 移除节点
+// RemoveNode 移除节点.
 func (m *Manager) RemoveNode(id string) bool {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -147,7 +147,7 @@ func (m *Manager) RemoveNode(id string) bool {
 	return false
 }
 
-// GetNodes 获取所有节点
+// GetNodes 获取所有节点.
 func (m *Manager) GetNodes() []RemoteNode {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -158,7 +158,7 @@ func (m *Manager) GetNodes() []RemoteNode {
 	return nodes
 }
 
-// CreateTask 创建复制任务
+// CreateTask 创建复制任务.
 func (m *Manager) CreateTask(task *ReplicationTask) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -177,7 +177,7 @@ func (m *Manager) CreateTask(task *ReplicationTask) error {
 	return nil
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (m *Manager) GetTask(id string) (*ReplicationTask, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -185,7 +185,7 @@ func (m *Manager) GetTask(id string) (*ReplicationTask, bool) {
 	return t, ok
 }
 
-// GetTasks 获取所有任务
+// GetTasks 获取所有任务.
 func (m *Manager) GetTasks() []ReplicationTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -196,7 +196,7 @@ func (m *Manager) GetTasks() []ReplicationTask {
 	return tasks
 }
 
-// DeleteTask 删除任务
+// DeleteTask 删除任务.
 func (m *Manager) DeleteTask(id string) bool {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -208,7 +208,7 @@ func (m *Manager) DeleteTask(id string) bool {
 	return false
 }
 
-// StartSync 启动同步
+// StartSync 启动同步.
 func (m *Manager) StartSync(taskID string) (*SyncResult, error) {
 	m.mu.Lock()
 	task, ok := m.tasks[taskID]
@@ -254,7 +254,7 @@ func (m *Manager) StartSync(taskID string) (*SyncResult, error) {
 	return result, nil
 }
 
-// GetTaskResults 获取任务同步历史
+// GetTaskResults 获取任务同步历史.
 func (m *Manager) GetTaskResults(taskID string) []SyncResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -264,7 +264,7 @@ func (m *Manager) GetTaskResults(taskID string) []SyncResult {
 	return out
 }
 
-// GetReplicationStats 获取复制统计
+// GetReplicationStats 获取复制统计.
 func (m *Manager) GetReplicationStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -294,7 +294,7 @@ func (m *Manager) GetReplicationStats() map[string]interface{} {
 	}
 }
 
-// scheduleLoop 调度循环
+// scheduleLoop 调度循环.
 func (m *Manager) scheduleLoop() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()

@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-// Vendor 动态照片厂商类型
+// Vendor 动态照片厂商类型.
 type Vendor string
 
 const (
@@ -28,7 +28,7 @@ const (
 	VendorUnknown Vendor = "unknown"
 )
 
-// MotionPhoto 表示一个动态照片（含静态帧 + 内嵌视频）
+// MotionPhoto 表示一个动态照片（含静态帧 + 内嵌视频）.
 type MotionPhoto struct {
 	ID          string            // 唯一标识
 	FilePath    string            // 源文件路径
@@ -47,7 +47,7 @@ type MotionPhoto struct {
 	Metadata    map[string]string // 厂商特定元数据
 }
 
-// ExtractResult 提取结果
+// ExtractResult 提取结果.
 type ExtractResult struct {
 	PhotoPath string        // 提取出的静态帧文件路径
 	VideoPath string        // 提取出的视频文件路径
@@ -58,7 +58,7 @@ type ExtractResult struct {
 	Duration  time.Duration // 提取耗时
 }
 
-// WebPConfig WebP 转换配置
+// WebPConfig WebP 转换配置.
 type WebPConfig struct {
 	Quality   float64 // 质量 0-100
 	Lossless  bool    // 无损模式
@@ -67,7 +67,7 @@ type WebPConfig struct {
 	StripMeta bool    // 去除元数据
 }
 
-// ParserConfig 解析器配置
+// ParserConfig 解析器配置.
 type ParserConfig struct {
 	MaxFileSize  int64       // 最大文件大小限制
 	OutputDir    string      // 提取输出目录
@@ -76,14 +76,14 @@ type ParserConfig struct {
 	KeepOriginal bool        // 是否保留原始文件
 }
 
-// Parser 动态照片解析器
+// Parser 动态照片解析器.
 type Parser struct {
 	mu     sync.RWMutex
 	config *ParserConfig
 	parsed map[string]*MotionPhoto // 已解析的动态照片缓存
 }
 
-// NewParser 创建动态照片解析器
+// NewParser 创建动态照片解析器.
 func NewParser(config *ParserConfig) *Parser {
 	if config == nil {
 		config = &ParserConfig{
@@ -107,7 +107,7 @@ func NewParser(config *ParserConfig) *Parser {
 	}
 }
 
-// DetectVendor 检测文件的动态照片厂商类型
+// DetectVendor 检测文件的动态照片厂商类型.
 func DetectVendor(filePath string) (Vendor, error) {
 	ext := strings.ToLower(filepath.Ext(filePath))
 
@@ -142,7 +142,7 @@ func DetectVendor(filePath string) (Vendor, error) {
 	return VendorUnknown, nil
 }
 
-// Parse 解析动态照片文件，返回元信息
+// Parse 解析动态照片文件，返回元信息.
 func (p *Parser) Parse(ctx context.Context, filePath string) (*MotionPhoto, error) {
 	p.mu.RLock()
 	if mp, ok := p.parsed[filePath]; ok {
@@ -185,7 +185,7 @@ func (p *Parser) Parse(ctx context.Context, filePath string) (*MotionPhoto, erro
 	return mp, nil
 }
 
-// Extract 提取静态帧和视频
+// Extract 提取静态帧和视频.
 func (p *Parser) Extract(ctx context.Context, mp *MotionPhoto) (*ExtractResult, error) {
 	start := time.Now()
 
@@ -220,7 +220,7 @@ func (p *Parser) Extract(ctx context.Context, mp *MotionPhoto) (*ExtractResult, 
 	return result, nil
 }
 
-// ParseAndExtract 解析并提取（便捷方法）
+// ParseAndExtract 解析并提取（便捷方法）.
 func (p *Parser) ParseAndExtract(ctx context.Context, filePath string) (*MotionPhoto, *ExtractResult, error) {
 	mp, err := p.Parse(ctx, filePath)
 	if err != nil {
@@ -233,7 +233,7 @@ func (p *Parser) ParseAndExtract(ctx context.Context, filePath string) (*MotionP
 	return mp, result, nil
 }
 
-// ConvertToWebP 将静态帧转换为 WebP 格式
+// ConvertToWebP 将静态帧转换为 WebP 格式.
 func (p *Parser) ConvertToWebP(ctx context.Context, photoPath string, config *WebPConfig) (string, error) {
 	if config == nil {
 		config = p.config.WebP

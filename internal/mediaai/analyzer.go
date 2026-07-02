@@ -12,146 +12,146 @@ import (
 
 // ========== AI 媒体分析器 ==========
 
-// MediaAnalyzer AI媒体分析器
+// MediaAnalyzer AI媒体分析器.
 type MediaAnalyzer struct {
-	mu          sync.RWMutex
-	config      *AnalyzerConfig
-	models      map[string]AIModel  // AI模型
-	mediaStore  MediaStore          // 媒体存储
-	tagStore    TagStore            // 标签存储
-	faceStore   FaceStore           // 人脸存储
-	ctx         context.Context
-	cancel      context.CancelFunc
+	mu         sync.RWMutex
+	config     *AnalyzerConfig
+	models     map[string]AIModel // AI模型
+	mediaStore MediaStore         // 媒体存储
+	tagStore   TagStore           // 标签存储
+	faceStore  FaceStore          // 人脸存储
+	ctx        context.Context
+	cancel     context.CancelFunc
 }
 
-// AnalyzerConfig 分析器配置
+// AnalyzerConfig 分析器配置.
 type AnalyzerConfig struct {
-	Enabled           bool          `json:"enabled"`
-	MaxConcurrent     int           `json:"maxConcurrent"`     // 最大并发分析数
-	BatchSize         int           `json:"batchSize"`         // 批处理大小
-	SupportedFormats  []string      `json:"supportedFormats"`  // 支持的格式
-	EnableFaceDetect  bool          `json:"enableFaceDetect"`  // 启用人脸检测
-	EnableOCR         bool          `json:"enableOcr"`         // 启用OCR
-	EnableNSFWDetect  bool          `json:"enableNsfwDetect"`  // 启用NSFW检测
-	MinConfidence     float64       `json:"minConfidence"`     // 最小置信度
-	CacheResults      bool          `json:"cacheResults"`      // 缓存结果
-	CacheTTL          time.Duration `json:"cacheTtl"`          // 缓存TTL
+	Enabled          bool          `json:"enabled"`
+	MaxConcurrent    int           `json:"maxConcurrent"`    // 最大并发分析数
+	BatchSize        int           `json:"batchSize"`        // 批处理大小
+	SupportedFormats []string      `json:"supportedFormats"` // 支持的格式
+	EnableFaceDetect bool          `json:"enableFaceDetect"` // 启用人脸检测
+	EnableOCR        bool          `json:"enableOcr"`        // 启用OCR
+	EnableNSFWDetect bool          `json:"enableNsfwDetect"` // 启用NSFW检测
+	MinConfidence    float64       `json:"minConfidence"`    // 最小置信度
+	CacheResults     bool          `json:"cacheResults"`     // 缓存结果
+	CacheTTL         time.Duration `json:"cacheTtl"`         // 缓存TTL
 }
 
-// DefaultAnalyzerConfig 默认配置
+// DefaultAnalyzerConfig 默认配置.
 func DefaultAnalyzerConfig() *AnalyzerConfig {
 	return &AnalyzerConfig{
-		Enabled:           true,
-		MaxConcurrent:     4,
-		BatchSize:         10,
-		SupportedFormats:  []string{"jpg", "jpeg", "png", "gif", "webp", "mp4", "mov", "avi"},
-		EnableFaceDetect:  true,
-		EnableOCR:         true,
-		EnableNSFWDetect:  true,
-		MinConfidence:     0.7,
-		CacheResults:      true,
-		CacheTTL:          24 * time.Hour,
+		Enabled:          true,
+		MaxConcurrent:    4,
+		BatchSize:        10,
+		SupportedFormats: []string{"jpg", "jpeg", "png", "gif", "webp", "mp4", "mov", "avi"},
+		EnableFaceDetect: true,
+		EnableOCR:        true,
+		EnableNSFWDetect: true,
+		MinConfidence:    0.7,
+		CacheResults:     true,
+		CacheTTL:         24 * time.Hour,
 	}
 }
 
-// AIModel AI模型接口
+// AIModel AI模型接口.
 type AIModel interface {
 	Name() string
 	Type() string
 	Analyze(ctx context.Context, input interface{}) (interface{}, error)
 }
 
-// MediaStore 媒体存储接口
+// MediaStore 媒体存储接口.
 type MediaStore interface {
 	GetMedia(ctx context.Context, mediaID string) (*MediaItem, error)
 	ListMedia(ctx context.Context, filter *MediaFilter) ([]*MediaItem, error)
 	UpdateMedia(ctx context.Context, media *MediaItem) error
 }
 
-// TagStore 标签存储接口
+// TagStore 标签存储接口.
 type TagStore interface {
 	SaveTags(ctx context.Context, mediaID string, tags []AITag) error
 	GetTags(ctx context.Context, mediaID string) ([]AITag, error)
 	SearchByTag(ctx context.Context, tag string) ([]string, error)
 }
 
-// FaceStore 人脸存储接口
+// FaceStore 人脸存储接口.
 type FaceStore interface {
 	SaveFaces(ctx context.Context, mediaID string, faces []*FaceDetection) error
 	GetFaces(ctx context.Context, mediaID string) ([]*FaceDetection, error)
 	SearchPerson(ctx context.Context, personID string) ([]string, error)
 }
 
-// MediaItem 媒体项
+// MediaItem 媒体项.
 type MediaItem struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Path        string    `json:"path"`
-	Type        string    `json:"type"`        // image, video, audio
-	Size        int64     `json:"size"`
-	Width       int       `json:"width,omitempty"`
-	Height      int       `json:"height,omitempty"`
-	Duration    float64   `json:"duration,omitempty"` // 秒
-	Format      string    `json:"format"`
-	Checksum    string    `json:"checksum"`
-	CreatedAt   time.Time `json:"createdAt"`
-	ModifiedAt  time.Time `json:"modifiedAt"`
-	AnalyzedAt  time.Time `json:"analyzedAt,omitempty"`
-	Tags        []AITag   `json:"tags,omitempty"`
-	Faces       []*FaceDetection `json:"faces,omitempty"`
+	ID         string           `json:"id"`
+	Name       string           `json:"name"`
+	Path       string           `json:"path"`
+	Type       string           `json:"type"` // image, video, audio
+	Size       int64            `json:"size"`
+	Width      int              `json:"width,omitempty"`
+	Height     int              `json:"height,omitempty"`
+	Duration   float64          `json:"duration,omitempty"` // 秒
+	Format     string           `json:"format"`
+	Checksum   string           `json:"checksum"`
+	CreatedAt  time.Time        `json:"createdAt"`
+	ModifiedAt time.Time        `json:"modifiedAt"`
+	AnalyzedAt time.Time        `json:"analyzedAt,omitempty"`
+	Tags       []AITag          `json:"tags,omitempty"`
+	Faces      []*FaceDetection `json:"faces,omitempty"`
 }
 
-// MediaFilter 媒体过滤器
+// MediaFilter 媒体过滤器.
 type MediaFilter struct {
-	Type        string    `json:"type,omitempty"`
-	Format      string    `json:"format,omitempty"`
-	MinSize     int64     `json:"minSize,omitempty"`
-	MaxSize     int64     `json:"maxSize,omitempty"`
-	StartDate   time.Time `json:"startDate,omitempty"`
-	EndDate     time.Time `json:"endDate,omitempty"`
-	Tags        []string  `json:"tags,omitempty"`
-	Analyzed    *bool     `json:"analyzed,omitempty"`
+	Type      string    `json:"type,omitempty"`
+	Format    string    `json:"format,omitempty"`
+	MinSize   int64     `json:"minSize,omitempty"`
+	MaxSize   int64     `json:"maxSize,omitempty"`
+	StartDate time.Time `json:"startDate,omitempty"`
+	EndDate   time.Time `json:"endDate,omitempty"`
+	Tags      []string  `json:"tags,omitempty"`
+	Analyzed  *bool     `json:"analyzed,omitempty"`
 }
 
-// FaceDetection 人脸检测结果
+// FaceDetection 人脸检测结果.
 type FaceDetection struct {
-	ID          string    `json:"id"`
-	PersonID    string    `json:"personId,omitempty"`    // 人物ID
-	PersonName  string    `json:"personName,omitempty"`  // 人物姓名
-	Confidence  float64   `json:"confidence"`
-	Box         BBox      `json:"box"`
-	Age         int       `json:"age,omitempty"`
-	Gender      string    `json:"gender,omitempty"`      // male, female
-	Emotion     string    `json:"emotion,omitempty"`     // happy, sad, neutral, surprise
-	Embedding   []float64 `json:"embedding,omitempty"`   // 人脸特征向量
+	ID         string    `json:"id"`
+	PersonID   string    `json:"personId,omitempty"`   // 人物ID
+	PersonName string    `json:"personName,omitempty"` // 人物姓名
+	Confidence float64   `json:"confidence"`
+	Box        BBox      `json:"box"`
+	Age        int       `json:"age,omitempty"`
+	Gender     string    `json:"gender,omitempty"`    // male, female
+	Emotion    string    `json:"emotion,omitempty"`   // happy, sad, neutral, surprise
+	Embedding  []float64 `json:"embedding,omitempty"` // 人脸特征向量
 }
 
-// NewMediaAnalyzer 创建媒体分析器
+// NewMediaAnalyzer 创建媒体分析器.
 func NewMediaAnalyzer(config *AnalyzerConfig) *MediaAnalyzer {
 	if config == nil {
 		config = DefaultAnalyzerConfig()
 	}
-	
+
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	return &MediaAnalyzer{
-		config:  config,
-		models:  make(map[string]AIModel),
-		ctx:     ctx,
-		cancel:  cancel,
+		config: config,
+		models: make(map[string]AIModel),
+		ctx:    ctx,
+		cancel: cancel,
 	}
 }
 
-// RegisterModel 注册AI模型
+// RegisterModel 注册AI模型.
 func (ma *MediaAnalyzer) RegisterModel(model AIModel) {
 	ma.mu.Lock()
 	defer ma.mu.Unlock()
-	
+
 	ma.models[model.Name()] = model
 	log.Printf("注册AI模型: %s (%s)", model.Name(), model.Type())
 }
 
-// AnalyzeMedia 分析媒体
+// AnalyzeMedia 分析媒体.
 func (ma *MediaAnalyzer) AnalyzeMedia(ctx context.Context, mediaID string) (*ClassificationResult, error) {
 	ma.mu.RLock()
 	defer ma.mu.RUnlock()
@@ -249,10 +249,10 @@ func (ma *MediaAnalyzer) AnalyzeMedia(ctx context.Context, mediaID string) (*Cla
 	return result, nil
 }
 
-// AnalyzeBatch 批量分析媒体
+// AnalyzeBatch 批量分析媒体.
 func (ma *MediaAnalyzer) AnalyzeBatch(ctx context.Context, mediaIDs []string) ([]*ClassificationResult, error) {
 	results := make([]*ClassificationResult, 0, len(mediaIDs))
-	
+
 	// 使用信号量控制并发
 	sem := make(chan struct{}, ma.config.MaxConcurrent)
 	var mu sync.Mutex
@@ -262,7 +262,7 @@ func (ma *MediaAnalyzer) AnalyzeBatch(ctx context.Context, mediaIDs []string) ([
 		wg.Add(1)
 		go func(id string) {
 			defer wg.Done()
-			
+
 			sem <- struct{}{}
 			defer func() { <-sem }()
 
@@ -282,7 +282,7 @@ func (ma *MediaAnalyzer) AnalyzeBatch(ctx context.Context, mediaIDs []string) ([
 	return results, nil
 }
 
-// SearchByScene 按场景搜索
+// SearchByScene 按场景搜索.
 func (ma *MediaAnalyzer) SearchByScene(ctx context.Context, scene SceneCategory) ([]*MediaItem, error) {
 	// 先通过标签搜索
 	mediaIDs, err := ma.tagStore.SearchByTag(ctx, string(scene))
@@ -303,7 +303,7 @@ func (ma *MediaAnalyzer) SearchByScene(ctx context.Context, scene SceneCategory)
 	return mediaItems, nil
 }
 
-// SearchByPerson 按人物搜索
+// SearchByPerson 按人物搜索.
 func (ma *MediaAnalyzer) SearchByPerson(ctx context.Context, personID string) ([]*MediaItem, error) {
 	// 通过人脸搜索
 	mediaIDs, err := ma.faceStore.SearchPerson(ctx, personID)
@@ -324,7 +324,7 @@ func (ma *MediaAnalyzer) SearchByPerson(ctx context.Context, personID string) ([
 	return mediaItems, nil
 }
 
-// GetSimilarMedia 获取相似媒体
+// GetSimilarMedia 获取相似媒体.
 func (ma *MediaAnalyzer) GetSimilarMedia(ctx context.Context, mediaID string, limit int) ([]*MediaItem, error) {
 	// 获取媒体标签
 	tags, err := ma.tagStore.GetTags(ctx, mediaID)
@@ -359,7 +359,7 @@ func (ma *MediaAnalyzer) GetSimilarMedia(ctx context.Context, mediaID string, li
 	return mediaItems, nil
 }
 
-// isSupportedFormat 检查格式是否支持
+// isSupportedFormat 检查格式是否支持.
 func (ma *MediaAnalyzer) isSupportedFormat(format string) bool {
 	for _, f := range ma.config.SupportedFormats {
 		if f == format {
@@ -369,7 +369,7 @@ func (ma *MediaAnalyzer) isSupportedFormat(format string) bool {
 	return false
 }
 
-// generateAutoTags 生成自动标签
+// generateAutoTags 生成自动标签.
 func (ma *MediaAnalyzer) generateAutoTags(result *ClassificationResult) []AITag {
 	tags := make([]AITag, 0)
 
@@ -410,32 +410,32 @@ func (ma *MediaAnalyzer) generateAutoTags(result *ClassificationResult) []AITag 
 	return tags
 }
 
-// QualityAssessment 质量评估结果
+// QualityAssessment 质量评估结果.
 type QualityAssessment struct {
-	Rating    ContentRating `json:"rating"`
-	Score     float64       `json:"score"`      // 0-100
-	IsBlurry  bool          `json:"isBlurry"`
-	IsDark    bool          `json:"isDark"`
-	IsNoisy   bool          `json:"isNoisy"`
-	Sharpness float64       `json:"sharpness"`
-	Brightness float64      `json:"brightness"`
-	Contrast  float64       `json:"contrast"`
+	Rating     ContentRating `json:"rating"`
+	Score      float64       `json:"score"` // 0-100
+	IsBlurry   bool          `json:"isBlurry"`
+	IsDark     bool          `json:"isDark"`
+	IsNoisy    bool          `json:"isNoisy"`
+	Sharpness  float64       `json:"sharpness"`
+	Brightness float64       `json:"brightness"`
+	Contrast   float64       `json:"contrast"`
 }
 
-// GetAnalysisStats 获取分析统计
+// GetAnalysisStats 获取分析统计.
 func (ma *MediaAnalyzer) GetAnalysisStats() *AnalysisStats {
 	ma.mu.RLock()
 	defer ma.mu.RUnlock()
 
 	return &AnalysisStats{
-		TotalAnalyzed:   0,  // 需要从存储中获取
-		ModelsLoaded:    len(ma.models),
+		TotalAnalyzed:    0, // 需要从存储中获取
+		ModelsLoaded:     len(ma.models),
 		SupportedFormats: ma.config.SupportedFormats,
-		LastUpdated:     time.Now(),
+		LastUpdated:      time.Now(),
 	}
 }
 
-// AnalysisStats 分析统计
+// AnalysisStats 分析统计.
 type AnalysisStats struct {
 	TotalAnalyzed    int       `json:"totalAnalyzed"`
 	ModelsLoaded     int       `json:"modelsLoaded"`
@@ -443,7 +443,7 @@ type AnalysisStats struct {
 	LastUpdated      time.Time `json:"lastUpdated"`
 }
 
-// Stop 停止分析器
+// Stop 停止分析器.
 func (ma *MediaAnalyzer) Stop() {
 	ma.cancel()
 	log.Println("AI媒体分析器已停止")

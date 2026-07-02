@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	engine *Engine
 }
 
-// NewHandler 创建 HTTP 处理器
+// NewHandler 创建 HTTP 处理器.
 func NewHandler(engine *Engine) *Handler {
 	return &Handler{engine: engine}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	recommend := rg.Group("/airecommend")
 	{
@@ -33,7 +33,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// GetRecommendations 获取推荐
+// GetRecommendations 获取推荐.
 func (h *Handler) GetRecommendations(c *gin.Context) {
 	userID := c.Param("user_id")
 	if userID == "" {
@@ -60,7 +60,7 @@ func (h *Handler) GetRecommendations(c *gin.Context) {
 	})
 }
 
-// AddAccessRecord 添加访问记录
+// AddAccessRecord 添加访问记录.
 func (h *Handler) AddAccessRecord(c *gin.Context) {
 	var req AddAccessRecordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -78,7 +78,7 @@ func (h *Handler) AddAccessRecord(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
-// AddFile 添加文件
+// AddFile 添加文件.
 func (h *Handler) AddFile(c *gin.Context) {
 	var req AddFileRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -100,7 +100,7 @@ func (h *Handler) AddFile(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
-// AddUser 添加用户
+// AddUser 添加用户.
 func (h *Handler) AddUser(c *gin.Context) {
 	var req AddUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -112,7 +112,7 @@ func (h *Handler) AddUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
-// GetUserProfile 获取用户画像
+// GetUserProfile 获取用户画像.
 func (h *Handler) GetUserProfile(c *gin.Context) {
 	userID := c.Param("user_id")
 	if userID == "" {
@@ -129,7 +129,7 @@ func (h *Handler) GetUserProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, profile)
 }
 
-// GetAccessHistory 获取访问历史
+// GetAccessHistory 获取访问历史.
 func (h *Handler) GetAccessHistory(c *gin.Context) {
 	userID := c.Param("user_id")
 	if userID == "" {
@@ -151,7 +151,7 @@ func (h *Handler) GetAccessHistory(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"user_id": userID, "history": history})
 }
 
-// InvalidateCache 使用户缓存失效
+// InvalidateCache 使用户缓存失效.
 func (h *Handler) InvalidateCache(c *gin.Context) {
 	userID := c.Param("user_id")
 	if userID == "" {
@@ -163,7 +163,7 @@ func (h *Handler) InvalidateCache(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
-// InvalidateAllCache 使所有缓存失效
+// InvalidateAllCache 使所有缓存失效.
 func (h *Handler) InvalidateAllCache(c *gin.Context) {
 	h.engine.InvalidateAllCache()
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})

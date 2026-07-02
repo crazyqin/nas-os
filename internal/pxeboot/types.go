@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// PXEBootManager PXE启动管理器
+// PXEBootManager PXE启动管理器.
 type PXEBootManager struct {
 	mu      sync.RWMutex
 	clients map[string]*PXEClient
@@ -15,7 +15,7 @@ type PXEBootManager struct {
 	config  *PXEConfig
 }
 
-// PXEConfig PXE配置
+// PXEConfig PXE配置.
 type PXEConfig struct {
 	Enabled    bool   `json:"enabled"`
 	TFTPServer string `json:"tftp_server"`
@@ -25,7 +25,7 @@ type PXEConfig struct {
 	RootPath   string `json:"root_path"`
 }
 
-// PXEClient PXE客户端
+// PXEClient PXE客户端.
 type PXEClient struct {
 	ID        string    `json:"id"`
 	MAC       string    `json:"mac"`
@@ -37,7 +37,7 @@ type PXEClient struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// BootImage 启动镜像
+// BootImage 启动镜像.
 type BootImage struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -50,7 +50,7 @@ type BootImage struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// NewPXEBootManager 创建PXE启动管理器
+// NewPXEBootManager 创建PXE启动管理器.
 func NewPXEBootManager(config *PXEConfig) *PXEBootManager {
 	if config == nil {
 		config = &PXEConfig{
@@ -68,7 +68,7 @@ func NewPXEBootManager(config *PXEConfig) *PXEBootManager {
 	}
 }
 
-// RegisterClient 注册客户端
+// RegisterClient 注册客户端.
 func (m *PXEBootManager) RegisterClient(mac, hostname string) (*PXEClient, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -102,7 +102,7 @@ func (m *PXEBootManager) RegisterClient(mac, hostname string) (*PXEClient, error
 	return client, nil
 }
 
-// UnregisterClient 注销客户端
+// UnregisterClient 注销客户端.
 func (m *PXEBootManager) UnregisterClient(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -115,7 +115,7 @@ func (m *PXEBootManager) UnregisterClient(id string) error {
 	return nil
 }
 
-// GetClient 获取客户端
+// GetClient 获取客户端.
 func (m *PXEBootManager) GetClient(id string) (*PXEClient, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -127,7 +127,7 @@ func (m *PXEBootManager) GetClient(id string) (*PXEClient, error) {
 	return client, nil
 }
 
-// ListClients 列出所有客户端
+// ListClients 列出所有客户端.
 func (m *PXEBootManager) ListClients() []*PXEClient {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -139,7 +139,7 @@ func (m *PXEBootManager) ListClients() []*PXEClient {
 	return clients
 }
 
-// AddBootImage 添加启动镜像
+// AddBootImage 添加启动镜像.
 func (m *PXEBootManager) AddBootImage(image *BootImage) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -163,7 +163,7 @@ func (m *PXEBootManager) AddBootImage(image *BootImage) error {
 	return nil
 }
 
-// RemoveBootImage 移除启动镜像
+// RemoveBootImage 移除启动镜像.
 func (m *PXEBootManager) RemoveBootImage(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -176,7 +176,7 @@ func (m *PXEBootManager) RemoveBootImage(id string) error {
 	return nil
 }
 
-// GetBootImage 获取启动镜像
+// GetBootImage 获取启动镜像.
 func (m *PXEBootManager) GetBootImage(id string) (*BootImage, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -188,7 +188,7 @@ func (m *PXEBootManager) GetBootImage(id string) (*BootImage, error) {
 	return image, nil
 }
 
-// ListBootImages 列出所有启动镜像
+// ListBootImages 列出所有启动镜像.
 func (m *PXEBootManager) ListBootImages() []*BootImage {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -200,7 +200,7 @@ func (m *PXEBootManager) ListBootImages() []*BootImage {
 	return images
 }
 
-// SetClientBootImage 设置客户端启动镜像
+// SetClientBootImage 设置客户端启动镜像.
 func (m *PXEBootManager) SetClientBootImage(clientID, imageID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -223,7 +223,7 @@ func (m *PXEBootManager) SetClientBootImage(clientID, imageID string) error {
 	return nil
 }
 
-// BootClient 启动客户端
+// BootClient 启动客户端.
 func (m *PXEBootManager) BootClient(clientID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -251,7 +251,7 @@ func (m *PXEBootManager) BootClient(clientID string) error {
 	return nil
 }
 
-// GetClientByMAC 根据MAC地址获取客户端
+// GetClientByMAC 根据MAC地址获取客户端.
 func (m *PXEBootManager) GetClientByMAC(mac string) (*PXEClient, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -265,7 +265,7 @@ func (m *PXEBootManager) GetClientByMAC(mac string) (*PXEClient, error) {
 	return nil, fmt.Errorf("client not found with MAC: %s", mac)
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *PXEBootManager) GetStats() *PXEStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -295,7 +295,7 @@ func (m *PXEBootManager) GetStats() *PXEStats {
 	return stats
 }
 
-// PXEStats PXE统计
+// PXEStats PXE统计.
 type PXEStats struct {
 	TotalClients      int `json:"total_clients"`
 	RunningClients    int `json:"running_clients"`

@@ -15,7 +15,7 @@ import (
 
 // ========== 多级告警系统 ==========
 
-// MultiLevelAlertSystem 多级告警系统
+// MultiLevelAlertSystem 多级告警系统.
 type MultiLevelAlertSystem struct {
 	config    *MultiLevelAlertConfig
 	storage   AlertStorage
@@ -31,7 +31,7 @@ type MultiLevelAlertSystem struct {
 	wg         sync.WaitGroup
 }
 
-// MultiLevelAlertConfig 多级告警配置
+// MultiLevelAlertConfig 多级告警配置.
 type MultiLevelAlertConfig struct {
 	Enabled           bool              `json:"enabled"`
 	CheckInterval     time.Duration     `json:"check_interval"`     // 检查间隔
@@ -68,7 +68,7 @@ type MultiLevelAlertConfig struct {
 	PersistInterval time.Duration `json:"persist_interval"` // 持久化间隔
 }
 
-// AlertThreshold 告警阈值
+// AlertThreshold 告警阈值.
 type AlertThreshold struct {
 	Name       string        `json:"name"`        // 阈值名称
 	Level      AlertSeverity `json:"level"`       // 告警级别
@@ -78,7 +78,7 @@ type AlertThreshold struct {
 	AutoAction string        `json:"auto_action"` // 自动动作（可选）
 }
 
-// MultiAlertLevelConfig 多级告警级别配置
+// MultiAlertLevelConfig 多级告警级别配置.
 type MultiAlertLevelConfig struct {
 	Name           string        `json:"name"`            // 级别名称
 	Severity       AlertSeverity `json:"severity"`        // 严重程度
@@ -91,7 +91,7 @@ type MultiAlertLevelConfig struct {
 	EscalateAfter  time.Duration `json:"escalate_after"`  // 升级时间
 }
 
-// ActiveAlert 活动告警
+// ActiveAlert 活动告警.
 type ActiveAlert struct {
 	ID              string        `json:"id"`
 	QuotaID         string        `json:"quota_id"`
@@ -116,7 +116,7 @@ type ActiveAlert struct {
 	History         []AlertEvent  `json:"history"` // 告警历史事件
 }
 
-// AlertEvent 告警事件
+// AlertEvent 告警事件.
 type AlertEvent struct {
 	Timestamp time.Time     `json:"timestamp"`
 	Type      string        `json:"type"` // triggered, escalated, notified, silenced, resolved
@@ -125,7 +125,7 @@ type AlertEvent struct {
 	By        string        `json:"by,omitempty"` // 操作人
 }
 
-// MultiAlertNotification 多级告警通知
+// MultiAlertNotification 多级告警通知.
 type MultiAlertNotification struct {
 	AlertID      string        `json:"alert_id"`
 	Level        AlertSeverity `json:"level"`
@@ -137,7 +137,7 @@ type MultiAlertNotification struct {
 	Channels     []string      `json:"channels"` // 通知渠道
 }
 
-// MultiAlertSummary 多级告警汇总
+// MultiAlertSummary 多级告警汇总.
 type MultiAlertSummary struct {
 	TotalAlerts       int            `json:"total_alerts"`
 	ActiveAlerts      int            `json:"active_alerts"`
@@ -150,7 +150,7 @@ type MultiAlertSummary struct {
 	PendingActions    int            `json:"pending_actions"`
 }
 
-// AlertStorage 告警存储接口
+// AlertStorage 告警存储接口.
 type AlertStorage interface {
 	Save(alert *ActiveAlert) error
 	Load(alertID string) (*ActiveAlert, error)
@@ -158,7 +158,7 @@ type AlertStorage interface {
 	Delete(alertID string) error
 }
 
-// AlertNotifier 告警通知接口
+// AlertNotifier 告警通知接口.
 type AlertNotifier interface {
 	SendEmail(recipients []string, notification *MultiAlertNotification) error
 	SendWebhook(url string, notification *MultiAlertNotification) error
@@ -166,13 +166,13 @@ type AlertNotifier interface {
 	SendSMS(phone string, notification *MultiAlertNotification) error
 }
 
-// AlertEscalator 告警升级器接口
+// AlertEscalator 告警升级器接口.
 type AlertEscalator interface {
 	Escalate(alert *ActiveAlert) error
 	ShouldEscalate(alert *ActiveAlert, now time.Time) bool
 }
 
-// AlertFilter 告警过滤条件
+// AlertFilter 告警过滤条件.
 type AlertFilter struct {
 	QuotaID   string        `json:"quota_id,omitempty"`
 	Level     AlertSeverity `json:"level,omitempty"`
@@ -183,7 +183,7 @@ type AlertFilter struct {
 	MaxUsage  float64       `json:"max_usage,omitempty"`
 }
 
-// DefaultMultiLevelAlertConfig 默认配置
+// DefaultMultiLevelAlertConfig 默认配置.
 func DefaultMultiLevelAlertConfig() *MultiLevelAlertConfig {
 	return &MultiLevelAlertConfig{
 		Enabled:               true,
@@ -220,7 +220,7 @@ func DefaultMultiLevelAlertConfig() *MultiLevelAlertConfig {
 	}
 }
 
-// NewMultiLevelAlertSystem 创建多级告警系统
+// NewMultiLevelAlertSystem 创建多级告警系统.
 func NewMultiLevelAlertSystem(config *MultiLevelAlertConfig) (*MultiLevelAlertSystem, error) {
 	if config == nil {
 		config = DefaultMultiLevelAlertConfig()
@@ -264,7 +264,7 @@ func NewMultiLevelAlertSystem(config *MultiLevelAlertConfig) (*MultiLevelAlertSy
 	return system, nil
 }
 
-// checkLoop 检查循环
+// checkLoop 检查循环.
 func (s *MultiLevelAlertSystem) checkLoop() {
 	defer s.wg.Done()
 
@@ -281,13 +281,13 @@ func (s *MultiLevelAlertSystem) checkLoop() {
 	}
 }
 
-// checkAllQuotas 检查所有配额
+// checkAllQuotas 检查所有配额.
 func (s *MultiLevelAlertSystem) checkAllQuotas() {
 	// 获取所有配额使用情况（通过存储接口）
 	// 这里简化实现，实际应从quota manager获取
 }
 
-// CheckQuota 检查单个配额
+// CheckQuota 检查单个配额.
 func (s *MultiLevelAlertSystem) CheckQuota(quotaID, quotaName string, usedBytes, limitBytes uint64) (*ActiveAlert, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -342,7 +342,7 @@ func (s *MultiLevelAlertSystem) CheckQuota(quotaID, quotaName string, usedBytes,
 	return alert, true
 }
 
-// createAlert 创建告警
+// createAlert 创建告警.
 func (s *MultiLevelAlertSystem) createAlert(quotaID, quotaName string, usagePercent float64, usedBytes, limitBytes uint64, threshold *AlertThreshold) *ActiveAlert {
 	alertID := generateAlertID(quotaID)
 	message := fmt.Sprintf(threshold.Message, usagePercent)
@@ -369,7 +369,7 @@ func (s *MultiLevelAlertSystem) createAlert(quotaID, quotaName string, usagePerc
 	return alert
 }
 
-// escalateAlert 升级告警
+// escalateAlert 升级告警.
 func (s *MultiLevelAlertSystem) escalateAlert(alert *ActiveAlert, newLevel AlertSeverity) {
 	now := time.Now()
 	alert.CurrentLevel = newLevel
@@ -392,7 +392,7 @@ func (s *MultiLevelAlertSystem) escalateAlert(alert *ActiveAlert, newLevel Alert
 	s.notifyAlert(alert)
 }
 
-// resolveAlert 解决告警
+// resolveAlert 解决告警.
 func (s *MultiLevelAlertSystem) resolveAlert(alert *ActiveAlert, reason string) {
 	now := time.Now()
 	alert.Status = AlertStatusResolved
@@ -421,7 +421,7 @@ func (s *MultiLevelAlertSystem) resolveAlert(alert *ActiveAlert, reason string) 
 	delete(s.alerts, alert.QuotaID)
 }
 
-// silenceAlert 静默告警
+// silenceAlert 静默告警.
 func (s *MultiLevelAlertSystem) silenceAlert(alertID, user string, duration time.Duration) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -447,7 +447,7 @@ func (s *MultiLevelAlertSystem) silenceAlert(alertID, user string, duration time
 	return errors.New("告警不存在")
 }
 
-// notifyAlert 发送告警通知
+// notifyAlert 发送告警通知.
 func (s *MultiLevelAlertSystem) notifyAlert(alert *ActiveAlert) {
 	if s.notifier == nil {
 		return
@@ -476,7 +476,7 @@ func (s *MultiLevelAlertSystem) notifyAlert(alert *ActiveAlert) {
 	})
 }
 
-// notifyChannels 通过渠道发送通知
+// notifyChannels 通过渠道发送通知.
 func (s *MultiLevelAlertSystem) notifyChannels(alert *ActiveAlert, notification *MultiAlertNotification) {
 	levelConfig := s.getLevelConfig(alert.CurrentLevel)
 	if levelConfig == nil {
@@ -507,7 +507,7 @@ func (s *MultiLevelAlertSystem) notifyChannels(alert *ActiveAlert, notification 
 	}
 }
 
-// escalationLoop 升级检查循环
+// escalationLoop 升级检查循环.
 func (s *MultiLevelAlertSystem) escalationLoop() {
 	defer s.wg.Done()
 
@@ -524,7 +524,7 @@ func (s *MultiLevelAlertSystem) escalationLoop() {
 	}
 }
 
-// checkEscalations 检查需要升级的告警
+// checkEscalations 检查需要升级的告警.
 func (s *MultiLevelAlertSystem) checkEscalations() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -566,7 +566,7 @@ func (s *MultiLevelAlertSystem) checkEscalations() {
 	}
 }
 
-// getLevelConfig 获取级别配置
+// getLevelConfig 获取级别配置.
 func (s *MultiLevelAlertSystem) getLevelConfig(level AlertSeverity) *MultiAlertLevelConfig {
 	for _, lc := range s.config.Levels {
 		if lc.Severity == level {
@@ -576,7 +576,7 @@ func (s *MultiLevelAlertSystem) getLevelConfig(level AlertSeverity) *MultiAlertL
 	return nil
 }
 
-// getLevelPriority 获取级别优先级
+// getLevelPriority 获取级别优先级.
 func (s *MultiLevelAlertSystem) getLevelPriority(level AlertSeverity) int {
 	lc := s.getLevelConfig(level)
 	if lc != nil {
@@ -585,7 +585,7 @@ func (s *MultiLevelAlertSystem) getLevelPriority(level AlertSeverity) int {
 	return 0
 }
 
-// getNextLevel 获取下一级别
+// getNextLevel 获取下一级别.
 func (s *MultiLevelAlertSystem) getNextLevel(current AlertSeverity) AlertSeverity {
 	priorities := []AlertSeverity{
 		AlertSeverityInfo,
@@ -603,7 +603,7 @@ func (s *MultiLevelAlertSystem) getNextLevel(current AlertSeverity) AlertSeverit
 	return ""
 }
 
-// persistLoop 持久化循环
+// persistLoop 持久化循环.
 func (s *MultiLevelAlertSystem) persistLoop() {
 	defer s.wg.Done()
 
@@ -621,7 +621,7 @@ func (s *MultiLevelAlertSystem) persistLoop() {
 	}
 }
 
-// persist 持久化告警
+// persist 持久化告警.
 func (s *MultiLevelAlertSystem) persist() error {
 	if !s.config.PersistEnabled || s.config.PersistPath == "" {
 		return nil
@@ -647,7 +647,7 @@ func (s *MultiLevelAlertSystem) persist() error {
 	return os.WriteFile(s.config.PersistPath, data, 0644)
 }
 
-// loadPersistedAlerts 加载持久化告警
+// loadPersistedAlerts 加载持久化告警.
 func (s *MultiLevelAlertSystem) loadPersistedAlerts() error {
 	if s.config.PersistPath == "" {
 		return nil
@@ -678,7 +678,7 @@ func (s *MultiLevelAlertSystem) loadPersistedAlerts() error {
 	return nil
 }
 
-// GetAlerts 获取所有告警
+// GetAlerts 获取所有告警.
 func (s *MultiLevelAlertSystem) GetAlerts(filter AlertFilter) []*ActiveAlert {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -692,7 +692,7 @@ func (s *MultiLevelAlertSystem) GetAlerts(filter AlertFilter) []*ActiveAlert {
 	return result
 }
 
-// GetSummary 获取告警汇总
+// GetSummary 获取告警汇总.
 func (s *MultiLevelAlertSystem) GetSummary() *MultiAlertSummary {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -725,7 +725,7 @@ func (s *MultiLevelAlertSystem) GetSummary() *MultiAlertSummary {
 	return summary
 }
 
-// matchesFilter 匹配过滤条件
+// matchesFilter 匹配过滤条件.
 func (s *MultiLevelAlertSystem) matchesFilter(alert *ActiveAlert, filter AlertFilter) bool {
 	if filter.QuotaID != "" && alert.QuotaID != filter.QuotaID {
 		return false
@@ -751,7 +751,7 @@ func (s *MultiLevelAlertSystem) matchesFilter(alert *ActiveAlert, filter AlertFi
 	return true
 }
 
-// Close 关闭系统
+// Close 关闭系统.
 func (s *MultiLevelAlertSystem) Close() error {
 	s.cancel()
 	s.wg.Wait()
@@ -764,21 +764,21 @@ func (s *MultiLevelAlertSystem) Close() error {
 	return nil
 }
 
-// SetNotifier 设置通知器
+// SetNotifier 设置通知器.
 func (s *MultiLevelAlertSystem) SetNotifier(notifier AlertNotifier) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.notifier = notifier
 }
 
-// SetStorage 设置存储
+// SetStorage 设置存储.
 func (s *MultiLevelAlertSystem) SetStorage(storage AlertStorage) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.storage = storage
 }
 
-// AddThreshold 添加阈值
+// AddThreshold 添加阈值.
 func (s *MultiLevelAlertSystem) AddThreshold(threshold AlertThreshold) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -787,7 +787,7 @@ func (s *MultiLevelAlertSystem) AddThreshold(threshold AlertThreshold) {
 	s.sortThresholds()
 }
 
-// sortThresholds 排序阈值
+// sortThresholds 排序阈值.
 func (s *MultiLevelAlertSystem) sortThresholds() {
 	for i := 0; i < len(s.thresholds)-1; i++ {
 		for j := i + 1; j < len(s.thresholds); j++ {
@@ -798,7 +798,7 @@ func (s *MultiLevelAlertSystem) sortThresholds() {
 	}
 }
 
-// generateAlertID 生成告警ID
+// generateAlertID 生成告警ID.
 func generateAlertID(quotaID string) string {
 	return fmt.Sprintf("alert-%s-%d", quotaID, time.Now().UnixNano())
 }

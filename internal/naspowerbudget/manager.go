@@ -16,7 +16,7 @@ var (
 	ErrInsufficientData = errors.New("insufficient data")
 )
 
-// DeviceType 设备类型
+// DeviceType 设备类型.
 type DeviceType string
 
 const (
@@ -30,7 +30,7 @@ const (
 	DeviceOther   DeviceType = "other"
 )
 
-// PowerState 功率状态
+// PowerState 功率状态.
 type PowerState string
 
 const (
@@ -41,7 +41,7 @@ const (
 	PowerStateOff     PowerState = "off"
 )
 
-// PowerReading 功率读数
+// PowerReading 功率读数.
 type PowerReading struct {
 	Timestamp   time.Time  `json:"timestamp"`
 	DeviceID    string     `json:"deviceId"`
@@ -53,7 +53,7 @@ type PowerReading struct {
 	State       PowerState `json:"state"`
 }
 
-// DeviceProfile 设备功率画像
+// DeviceProfile 设备功率画像.
 type DeviceProfile struct {
 	DeviceID      string         `json:"deviceId"`
 	DeviceName    string         `json:"deviceName"`
@@ -68,7 +68,7 @@ type DeviceProfile struct {
 	LastUpdated   time.Time      `json:"lastUpdated"`
 }
 
-// PowerBudget 功率预算
+// PowerBudget 功率预算.
 type PowerBudget struct {
 	BudgetID       string   `json:"budgetId"`
 	Name           string   `json:"name"`
@@ -83,7 +83,7 @@ type PowerBudget struct {
 	Devices        []string `json:"devices"`
 }
 
-// EnergyReport 能耗报告
+// EnergyReport 能耗报告.
 type EnergyReport struct {
 	GeneratedAt     time.Time              `json:"generatedAt"`
 	Period          string                 `json:"period"`
@@ -97,7 +97,7 @@ type EnergyReport struct {
 	Suggestions     []PowerSuggestion      `json:"suggestions"`
 }
 
-// PowerSuggestion 节能建议
+// PowerSuggestion 节能建议.
 type PowerSuggestion struct {
 	ID          string  `json:"id"`
 	Title       string  `json:"title"`
@@ -108,7 +108,7 @@ type PowerSuggestion struct {
 	Category    string  `json:"category"`
 }
 
-// ScheduleRule 调度规则
+// ScheduleRule 调度规则.
 type ScheduleRule struct {
 	RuleID      string     `json:"ruleId"`
 	Name        string     `json:"name"`
@@ -120,7 +120,7 @@ type ScheduleRule struct {
 	Enabled     bool       `json:"enabled"`
 }
 
-// Manager 功率预算管理器
+// Manager 功率预算管理器.
 type Manager struct {
 	mu           sync.RWMutex
 	config       *Config
@@ -134,7 +134,7 @@ type Manager struct {
 	readingCount int64
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	Enabled           bool          `json:"enabled"`
 	ElectricityRate   float64       `json:"electricityRate"` // 电价（元/kWh）
@@ -145,7 +145,7 @@ type Config struct {
 	CriticalThreshold float64       `json:"criticalThreshold"`
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(config *Config) *Manager {
 	if config == nil {
 		config = &Config{
@@ -169,7 +169,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// RegisterDevice 注册设备
+// RegisterDevice 注册设备.
 func (m *Manager) RegisterDevice(id, name string, deviceType DeviceType, maxWatts, typicalWatts, idleWatts, standbyWatts float64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -194,7 +194,7 @@ func (m *Manager) RegisterDevice(id, name string, deviceType DeviceType, maxWatt
 	return nil
 }
 
-// RecordReading 记录功率读数
+// RecordReading 记录功率读数.
 func (m *Manager) RecordReading(reading PowerReading) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -229,7 +229,7 @@ func (m *Manager) RecordReading(reading PowerReading) error {
 	return nil
 }
 
-// CreateBudget 创建功率预算
+// CreateBudget 创建功率预算.
 func (m *Manager) CreateBudget(id, name string, maxWatts float64, deviceIDs []string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -250,7 +250,7 @@ func (m *Manager) CreateBudget(id, name string, maxWatts float64, deviceIDs []st
 	return nil
 }
 
-// GetBudgetStatus 获取预算状态
+// GetBudgetStatus 获取预算状态.
 func (m *Manager) GetBudgetStatus(budgetID string) (*PowerBudget, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -280,7 +280,7 @@ func (m *Manager) GetBudgetStatus(budgetID string) (*PowerBudget, error) {
 	return &result, nil
 }
 
-// GenerateReport 生成能耗报告
+// GenerateReport 生成能耗报告.
 func (m *Manager) GenerateReport(period string) (*EnergyReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -343,7 +343,7 @@ func (m *Manager) GenerateReport(period string) (*EnergyReport, error) {
 	return report, nil
 }
 
-// AddSchedule 添加调度规则
+// AddSchedule 添加调度规则.
 func (m *Manager) AddSchedule(rule ScheduleRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -356,7 +356,7 @@ func (m *Manager) AddSchedule(rule ScheduleRule) error {
 	return nil
 }
 
-// GetScheduleStatus 获取调度状态
+// GetScheduleStatus 获取调度状态.
 func (m *Manager) GetScheduleStatus() []ScheduleRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -366,7 +366,7 @@ func (m *Manager) GetScheduleStatus() []ScheduleRule {
 	return result
 }
 
-// GetDevice 获取设备信息
+// GetDevice 获取设备信息.
 func (m *Manager) GetDevice(deviceID string) (*DeviceProfile, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -381,7 +381,7 @@ func (m *Manager) GetDevice(deviceID string) (*DeviceProfile, error) {
 	return &copy, nil
 }
 
-// GetAllDevices 获取所有设备
+// GetAllDevices 获取所有设备.
 func (m *Manager) GetAllDevices() []*DeviceProfile {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -395,7 +395,7 @@ func (m *Manager) GetAllDevices() []*DeviceProfile {
 	return result
 }
 
-// GetDashboard 获取仪表板
+// GetDashboard 获取仪表板.
 func (m *Manager) GetDashboard() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -429,7 +429,7 @@ func (m *Manager) GetDashboard() map[string]interface{} {
 	}
 }
 
-// EstimateSavings 估算节能效果
+// EstimateSavings 估算节能效果.
 func (m *Manager) EstimateSavings(deviceID string, targetState PowerState) (float64, float64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

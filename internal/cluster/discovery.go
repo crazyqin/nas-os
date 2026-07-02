@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// NodeState 节点状态
+// NodeState 节点状态.
 type NodeState string
 
 const (
@@ -27,7 +27,7 @@ const (
 	NodeStateSuspect  NodeState = "suspect"  // 疑似故障
 )
 
-// NodeRole 节点角色
+// NodeRole 节点角色.
 type NodeRole string
 
 const (
@@ -36,7 +36,7 @@ const (
 	NodeRoleObserver NodeRole = "observer" // 观察者
 )
 
-// Node 集群节点
+// Node 集群节点.
 type Node struct {
 	ID       string    `json:"id"`
 	Name     string    `json:"name"`
@@ -49,7 +49,7 @@ type Node struct {
 	JoinTime time.Time `json:"join_time"`
 }
 
-// DiscoveryConfig 节点发现配置
+// DiscoveryConfig 节点发现配置.
 type DiscoveryConfig struct {
 	// 服务发现模式: mdns, static, api
 	Mode string `json:"mode"`
@@ -87,7 +87,7 @@ type DiscoveryConfig struct {
 	DataDir string `json:"data_dir"`
 }
 
-// NodeEndpoint 节点端点配置
+// NodeEndpoint 节点端点配置.
 type NodeEndpoint struct {
 	ID      string `json:"id"`
 	Name    string `json:"name"`
@@ -96,7 +96,7 @@ type NodeEndpoint struct {
 	Token   string `json:"token,omitempty"` // 注册令牌
 }
 
-// NodeInfo 注册节点信息
+// NodeInfo 注册节点信息.
 type NodeInfo struct {
 	// 基本信息
 	ID      string `json:"id"`
@@ -131,7 +131,7 @@ type NodeInfo struct {
 	Services []ServiceInfo `json:"services,omitempty"`
 }
 
-// DiscoveryService 节点发现与注册服务
+// DiscoveryService 节点发现与注册服务.
 type DiscoveryService struct {
 	config    DiscoveryConfig
 	localNode *NodeInfo
@@ -156,7 +156,7 @@ type DiscoveryService struct {
 	logger *zap.Logger
 }
 
-// DiscoveryCallbacks 发现事件回调
+// DiscoveryCallbacks 发现事件回调.
 type DiscoveryCallbacks struct {
 	// 节点发现
 	OnNodeDiscovered func(node *NodeInfo)
@@ -174,7 +174,7 @@ type DiscoveryCallbacks struct {
 	OnNodeRemoved func(nodeID string)
 }
 
-// NewDiscoveryService 创建发现服务
+// NewDiscoveryService 创建发现服务.
 func NewDiscoveryService(config DiscoveryConfig, logger *zap.Logger) (*DiscoveryService, error) {
 	// 设置默认值
 	if config.Mode == "" {
@@ -230,7 +230,7 @@ func NewDiscoveryService(config DiscoveryConfig, logger *zap.Logger) (*Discovery
 	return ds, nil
 }
 
-// Initialize 初始化发现服务
+// Initialize 初始化发现服务.
 func (ds *DiscoveryService) Initialize(localNode *NodeInfo) error {
 	ds.localNode = localNode
 	ds.localNode.Status = NodeStateActive
@@ -273,7 +273,7 @@ func (ds *DiscoveryService) Initialize(localNode *NodeInfo) error {
 	return nil
 }
 
-// startMDNS 启动 mDNS 发现
+// startMDNS 启动 mDNS 发现.
 func (ds *DiscoveryService) startMDNS() error {
 	// 启动 mDNS 服务器（广播本节点）
 	ds.mdnsServer = NewMDNSServer(ds.config.ServiceName, ds.config.DiscoveryPort, ds.localNode, ds.logger)
@@ -293,7 +293,7 @@ func (ds *DiscoveryService) startMDNS() error {
 	return nil
 }
 
-// loadStaticNodes 加载静态节点
+// loadStaticNodes 加载静态节点.
 func (ds *DiscoveryService) loadStaticNodes() {
 	for _, endpoint := range ds.config.StaticNodes {
 		// 尝试注册静态节点
@@ -301,13 +301,13 @@ func (ds *DiscoveryService) loadStaticNodes() {
 	}
 }
 
-// startAPIDiscovery 启动 API 发现
+// startAPIDiscovery 启动 API 发现.
 func (ds *DiscoveryService) startAPIDiscovery() {
 	ds.wg.Add(1)
 	go ds.apiDiscoveryLoop()
 }
 
-// apiDiscoveryLoop API 发现循环
+// apiDiscoveryLoop API 发现循环.
 func (ds *DiscoveryService) apiDiscoveryLoop() {
 	defer ds.wg.Done()
 
@@ -327,7 +327,7 @@ func (ds *DiscoveryService) apiDiscoveryLoop() {
 	}
 }
 
-// discoverFromAPI 从 API 发现节点
+// discoverFromAPI 从 API 发现节点.
 func (ds *DiscoveryService) discoverFromAPI() {
 	if ds.config.APIEndpoint == "" {
 		return
@@ -363,7 +363,7 @@ func (ds *DiscoveryService) discoverFromAPI() {
 	}
 }
 
-// handleDiscoveredNode 处理发现的节点
+// handleDiscoveredNode 处理发现的节点.
 func (ds *DiscoveryService) handleDiscoveredNode(node *NodeInfo) {
 	ds.nodeMutex.Lock()
 	defer ds.nodeMutex.Unlock()
@@ -413,7 +413,7 @@ func (ds *DiscoveryService) handleDiscoveredNode(node *NodeInfo) {
 	_ = ds.saveState()
 }
 
-// registerNode 注册到远程节点
+// registerNode 注册到远程节点.
 func (ds *DiscoveryService) registerNode(endpoint NodeEndpoint) {
 	ctx, cancel := context.WithTimeout(ds.ctx, ds.config.RegisterTimeout)
 	defer cancel()
@@ -462,7 +462,7 @@ func (ds *DiscoveryService) registerNode(endpoint NodeEndpoint) {
 	}
 }
 
-// heartbeatLoop 心跳循环
+// heartbeatLoop 心跳循环.
 func (ds *DiscoveryService) heartbeatLoop() {
 	defer ds.wg.Done()
 
@@ -479,7 +479,7 @@ func (ds *DiscoveryService) heartbeatLoop() {
 	}
 }
 
-// sendHeartbeats 发送心跳到所有节点
+// sendHeartbeats 发送心跳到所有节点.
 func (ds *DiscoveryService) sendHeartbeats() {
 	ds.nodeMutex.RLock()
 	nodes := make([]*NodeInfo, 0, len(ds.nodes))
@@ -495,7 +495,7 @@ func (ds *DiscoveryService) sendHeartbeats() {
 	}
 }
 
-// sendHeartbeat 发送心跳到指定节点
+// sendHeartbeat 发送心跳到指定节点.
 func (ds *DiscoveryService) sendHeartbeat(node *NodeInfo) {
 	ctx, cancel := context.WithTimeout(ds.ctx, 5*time.Second)
 	defer cancel()
@@ -540,7 +540,7 @@ func (ds *DiscoveryService) sendHeartbeat(node *NodeInfo) {
 	}
 }
 
-// nodeMonitorLoop 节点监控循环
+// nodeMonitorLoop 节点监控循环.
 func (ds *DiscoveryService) nodeMonitorLoop() {
 	defer ds.wg.Done()
 
@@ -557,7 +557,7 @@ func (ds *DiscoveryService) nodeMonitorLoop() {
 	}
 }
 
-// checkNodeStatus 检查节点状态
+// checkNodeStatus 检查节点状态.
 func (ds *DiscoveryService) checkNodeStatus() {
 	ds.nodeMutex.Lock()
 	defer ds.nodeMutex.Unlock()
@@ -598,7 +598,7 @@ func (ds *DiscoveryService) checkNodeStatus() {
 	_ = ds.saveState()
 }
 
-// statusUpdateLoop 状态更新循环（定期收集本地资源使用）
+// statusUpdateLoop 状态更新循环（定期收集本地资源使用）.
 func (ds *DiscoveryService) statusUpdateLoop() {
 	defer ds.wg.Done()
 
@@ -615,7 +615,7 @@ func (ds *DiscoveryService) statusUpdateLoop() {
 	}
 }
 
-// updateLocalStatus 更新本地节点状态
+// updateLocalStatus 更新本地节点状态.
 func (ds *DiscoveryService) updateLocalStatus() {
 	// 收集系统指标
 	cpuUsage, memUsage, diskUsage := ds.collectSystemMetrics()
@@ -633,14 +633,14 @@ func (ds *DiscoveryService) updateLocalStatus() {
 	}
 }
 
-// collectSystemMetrics 收集系统指标
+// collectSystemMetrics 收集系统指标.
 func (ds *DiscoveryService) collectSystemMetrics() (cpu, mem, disk float64) {
 	// 简化实现：返回模拟值
 	// 实际实现应读取 /proc/stat, /proc/meminfo 等
 	return 0.0, 0.0, 0.0
 }
 
-// GetNodes 获取所有节点
+// GetNodes 获取所有节点.
 func (ds *DiscoveryService) GetNodes() []*NodeInfo {
 	ds.nodeMutex.RLock()
 	defer ds.nodeMutex.RUnlock()
@@ -652,7 +652,7 @@ func (ds *DiscoveryService) GetNodes() []*NodeInfo {
 	return nodes
 }
 
-// GetNode 获取指定节点
+// GetNode 获取指定节点.
 func (ds *DiscoveryService) GetNode(nodeID string) (*NodeInfo, bool) {
 	ds.nodeMutex.RLock()
 	defer ds.nodeMutex.RUnlock()
@@ -661,7 +661,7 @@ func (ds *DiscoveryService) GetNode(nodeID string) (*NodeInfo, bool) {
 	return node, exists
 }
 
-// GetOnlineNodes 获取在线节点
+// GetOnlineNodes 获取在线节点.
 func (ds *DiscoveryService) GetOnlineNodes() []*NodeInfo {
 	ds.nodeMutex.RLock()
 	defer ds.nodeMutex.RUnlock()
@@ -675,7 +675,7 @@ func (ds *DiscoveryService) GetOnlineNodes() []*NodeInfo {
 	return nodes
 }
 
-// RemoveNode 移除节点
+// RemoveNode 移除节点.
 func (ds *DiscoveryService) RemoveNode(nodeID string) error {
 	ds.nodeMutex.Lock()
 	defer ds.nodeMutex.Unlock()
@@ -696,12 +696,12 @@ func (ds *DiscoveryService) RemoveNode(nodeID string) error {
 	return nil
 }
 
-// SetCallbacks 设置回调
+// SetCallbacks 设置回调.
 func (ds *DiscoveryService) SetCallbacks(callbacks DiscoveryCallbacks) {
 	ds.callbacks = callbacks
 }
 
-// Shutdown 关闭发现服务
+// Shutdown 关闭发现服务.
 func (ds *DiscoveryService) Shutdown() error {
 	ds.cancel()
 	ds.wg.Wait()
@@ -718,7 +718,7 @@ func (ds *DiscoveryService) Shutdown() error {
 	return nil
 }
 
-// saveState 持久化状态
+// saveState 持久化状态.
 func (ds *DiscoveryService) saveState() error {
 	ds.nodeMutex.RLock()
 	defer ds.nodeMutex.RUnlock()
@@ -737,7 +737,7 @@ func (ds *DiscoveryService) saveState() error {
 	return os.WriteFile(stateFile, data, 0640)
 }
 
-// loadState 加载状态
+// loadState 加载状态.
 func (ds *DiscoveryService) loadState() error {
 	stateFile := fmt.Sprintf("%s/discovery_state.json", ds.config.DataDir)
 
@@ -769,7 +769,7 @@ func (ds *DiscoveryService) loadState() error {
 	return nil
 }
 
-// GetLocalIP 获取本地 IP
+// GetLocalIP 获取本地 IP.
 func getLocalIP() (string, error) {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {

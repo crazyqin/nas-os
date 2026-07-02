@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// LinkType 链接类型
+// LinkType 链接类型.
 type LinkType string
 
 const (
@@ -18,7 +18,7 @@ const (
 	LinkTypeEncrypted LinkType = "encrypted" // 加密链接（需密码）
 )
 
-// PreviewType 预览类型
+// PreviewType 预览类型.
 type PreviewType string
 
 const (
@@ -29,7 +29,7 @@ const (
 	PreviewTypeNone     PreviewType = "none"
 )
 
-// ShareLink 共享链接
+// ShareLink 共享链接.
 type ShareLink struct {
 	ID               string      `json:"id"`
 	ShortCode        string      `json:"shortCode"`                  // Base62短码
@@ -60,7 +60,7 @@ type ShareLink struct {
 	LastAccessedAt *time.Time    `json:"lastAccessedAt"` // 最后访问时间
 }
 
-// AccessEntry 访问记录
+// AccessEntry 访问记录.
 type AccessEntry struct {
 	IP        string    `json:"ip"`
 	UserAgent string    `json:"userAgent"`
@@ -69,7 +69,7 @@ type AccessEntry struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// ShareStats 共享统计
+// ShareStats 共享统计.
 type ShareStats struct {
 	TotalLinks     int   `json:"totalLinks"`
 	ActiveLinks    int   `json:"activeLinks"`
@@ -80,7 +80,7 @@ type ShareStats struct {
 	TotalPreviews  int64 `json:"totalPreviews"`
 }
 
-// LinkConfig 链接配置
+// LinkConfig 链接配置.
 type LinkConfig struct {
 	DefaultExpiryHours int    `json:"defaultExpiryHours"` // 默认过期时间（小时）
 	MaxFileSize        int64  `json:"maxFileSize"`        // 最大文件大小
@@ -92,7 +92,7 @@ type LinkConfig struct {
 	MaxBatchSize       int    `json:"maxBatchSize"`       // 最大批量数
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *LinkConfig {
 	return &LinkConfig{
 		DefaultExpiryHours: 72,
@@ -105,7 +105,7 @@ func DefaultConfig() *LinkConfig {
 	}
 }
 
-// 错误定义
+// 错误定义.
 var (
 	ErrLinkNotFound      = errors.New("share link not found")
 	ErrLinkExpired       = errors.New("share link has expired")

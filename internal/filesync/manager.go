@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Manager 文件同步管理器
+// Manager 文件同步管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	engine     *SyncEngine
@@ -28,7 +28,7 @@ type Manager struct {
 	totalSize  int64
 }
 
-// NewManager 创建文件同步管理器
+// NewManager 创建文件同步管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		devices:   make(map[string]*Device),
@@ -53,18 +53,18 @@ func NewManager() *Manager {
 	return m
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	return fmt.Sprintf("%d-%04x", time.Now().UnixNano(), rand.Intn(0xffff))
 }
 
-// checksum 计算文件校验和
+// checksum 计算文件校验和.
 func checksum(data string) string {
 	h := sha256.Sum256([]byte(data))
 	return fmt.Sprintf("%x", h[:8])
 }
 
-// initDefaultBandwidth 初始化默认带宽限制
+// initDefaultBandwidth 初始化默认带宽限制.
 func (m *Manager) initDefaultBandwidth() {
 	defaults := []BandwidthLimit{
 		{
@@ -86,7 +86,7 @@ func (m *Manager) initDefaultBandwidth() {
 	}
 }
 
-// initSampleData 初始化示例数据
+// initSampleData 初始化示例数据.
 func (m *Manager) initSampleData() {
 	// 注册本地设备
 	localDevice := &Device{
@@ -152,7 +152,7 @@ func (m *Manager) initSampleData() {
 	}
 }
 
-// GetSyncStatus 获取同步引擎状态
+// GetSyncStatus 获取同步引擎状态.
 func (m *Manager) GetSyncStatus() *SyncEngine {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -161,7 +161,7 @@ func (m *Manager) GetSyncStatus() *SyncEngine {
 	return m.engine
 }
 
-// StartSync 启动同步
+// StartSync 启动同步.
 func (m *Manager) StartSync(req *SyncStartRequest) (*SyncEngine, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -226,7 +226,7 @@ func (m *Manager) StartSync(req *SyncStartRequest) (*SyncEngine, error) {
 	return m.engine, nil
 }
 
-// StopSync 停止同步
+// StopSync 停止同步.
 func (m *Manager) StopSync(req *SyncStopRequest) (*SyncEngine, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -258,7 +258,7 @@ func (m *Manager) StopSync(req *SyncStopRequest) (*SyncEngine, error) {
 	return m.engine, nil
 }
 
-// GetConflicts 获取冲突列表
+// GetConflicts 获取冲突列表.
 func (m *Manager) GetConflicts(folderID string) []SyncConflict {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -273,7 +273,7 @@ func (m *Manager) GetConflicts(folderID string) []SyncConflict {
 	return result
 }
 
-// ResolveConflict 解决冲突
+// ResolveConflict 解决冲突.
 func (m *Manager) ResolveConflict(req *ConflictResolveRequest) (*SyncConflict, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -328,7 +328,7 @@ func (m *Manager) ResolveConflict(req *ConflictResolveRequest) (*SyncConflict, e
 	return conflict, nil
 }
 
-// addHistory 添加文件历史记录
+// addHistory 添加文件历史记录.
 func (m *Manager) addHistory(folderID, filePath string, size int64, action FileAction, deviceID, message string) {
 	m.history = append(m.history, FileHistory{
 		ID: generateID(), FolderID: folderID,
@@ -339,7 +339,7 @@ func (m *Manager) addHistory(folderID, filePath string, size int64, action FileA
 	})
 }
 
-// GetSyncHistory 获取同步历史
+// GetSyncHistory 获取同步历史.
 func (m *Manager) GetSyncHistory(req *HistoryRequest) []FileHistory {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -371,7 +371,7 @@ func (m *Manager) GetSyncHistory(req *HistoryRequest) []FileHistory {
 	return result[offset : offset+limit]
 }
 
-// RestoreVersion 恢复文件版本
+// RestoreVersion 恢复文件版本.
 func (m *Manager) RestoreVersion(historyID string) (*FileHistory, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -387,7 +387,7 @@ func (m *Manager) RestoreVersion(historyID string) (*FileHistory, error) {
 	return nil, fmt.Errorf("history entry not found: %s", historyID)
 }
 
-// ListDevices 列出设备
+// ListDevices 列出设备.
 func (m *Manager) ListDevices() []Device {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -399,7 +399,7 @@ func (m *Manager) ListDevices() []Device {
 	return result
 }
 
-// GetDevice 获取设备信息
+// GetDevice 获取设备信息.
 func (m *Manager) GetDevice(id string) (*Device, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -411,7 +411,7 @@ func (m *Manager) GetDevice(id string) (*Device, error) {
 	return device, nil
 }
 
-// RegisterDevice 注册设备
+// RegisterDevice 注册设备.
 func (m *Manager) RegisterDevice(req *DeviceRegisterRequest) *Device {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -425,7 +425,7 @@ func (m *Manager) RegisterDevice(req *DeviceRegisterRequest) *Device {
 	return device
 }
 
-// RemoveDevice 移除设备
+// RemoveDevice 移除设备.
 func (m *Manager) RemoveDevice(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -444,7 +444,7 @@ func (m *Manager) RemoveDevice(id string) error {
 	return nil
 }
 
-// ListFolders 列出同步文件夹
+// ListFolders 列出同步文件夹.
 func (m *Manager) ListFolders() []SyncFolder {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -456,7 +456,7 @@ func (m *Manager) ListFolders() []SyncFolder {
 	return result
 }
 
-// GetFolder 获取同步文件夹
+// GetFolder 获取同步文件夹.
 func (m *Manager) GetFolder(id string) (*SyncFolder, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -468,7 +468,7 @@ func (m *Manager) GetFolder(id string) (*SyncFolder, error) {
 	return folder, nil
 }
 
-// CreateFolder 创建同步文件夹
+// CreateFolder 创建同步文件夹.
 func (m *Manager) CreateFolder(req *FolderCreateRequest) *SyncFolder {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -494,7 +494,7 @@ func (m *Manager) CreateFolder(req *FolderCreateRequest) *SyncFolder {
 	return folder
 }
 
-// DeleteFolder 删除同步文件夹
+// DeleteFolder 删除同步文件夹.
 func (m *Manager) DeleteFolder(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -513,7 +513,7 @@ func (m *Manager) DeleteFolder(id string) error {
 	return nil
 }
 
-// GetSyncTasks 获取同步任务列表
+// GetSyncTasks 获取同步任务列表.
 func (m *Manager) GetSyncTasks(folderID, deviceID string) []SyncTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -531,7 +531,7 @@ func (m *Manager) GetSyncTasks(folderID, deviceID string) []SyncTask {
 	return result
 }
 
-// GetTransferInfo 获取断点续传信息
+// GetTransferInfo 获取断点续传信息.
 func (m *Manager) GetTransferInfo(taskID string) (*TransferInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -558,7 +558,7 @@ func (m *Manager) GetTransferInfo(taskID string) (*TransferInfo, error) {
 	}, nil
 }
 
-// ResumeTransfer 断点续传
+// ResumeTransfer 断点续传.
 func (m *Manager) ResumeTransfer(taskID string) (*SyncTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -580,7 +580,7 @@ func (m *Manager) ResumeTransfer(taskID string) (*SyncTask, error) {
 	return task, nil
 }
 
-// GetBandwidthLimits 获取带宽限制
+// GetBandwidthLimits 获取带宽限制.
 func (m *Manager) GetBandwidthLimits() []BandwidthLimit {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -592,7 +592,7 @@ func (m *Manager) GetBandwidthLimits() []BandwidthLimit {
 	return result
 }
 
-// UpdateBandwidthLimit 更新带宽限制
+// UpdateBandwidthLimit 更新带宽限制.
 func (m *Manager) UpdateBandwidthLimit(id string, upload, download int64, scheduleStart, scheduleEnd string) (*BandwidthLimit, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -611,7 +611,7 @@ func (m *Manager) UpdateBandwidthLimit(id string, upload, download int64, schedu
 	return bw, nil
 }
 
-// SetBandwidthEnabled 启用/禁用带宽限制
+// SetBandwidthEnabled 启用/禁用带宽限制.
 func (m *Manager) SetBandwidthEnabled(id string, enabled bool) (*BandwidthLimit, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -626,7 +626,7 @@ func (m *Manager) SetBandwidthEnabled(id string, enabled bool) (*BandwidthLimit,
 	return bw, nil
 }
 
-// ListSelectiveSyncRules 列出选择性同步规则
+// ListSelectiveSyncRules 列出选择性同步规则.
 func (m *Manager) ListSelectiveSyncRules(folderID, deviceID string) []SelectiveSyncRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -644,7 +644,7 @@ func (m *Manager) ListSelectiveSyncRules(folderID, deviceID string) []SelectiveS
 	return result
 }
 
-// CreateSelectiveSyncRule 创建选择性同步规则
+// CreateSelectiveSyncRule 创建选择性同步规则.
 func (m *Manager) CreateSelectiveSyncRule(folderID, deviceID, pattern, ruleType string, priority int) *SelectiveSyncRule {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -662,7 +662,7 @@ func (m *Manager) CreateSelectiveSyncRule(folderID, deviceID, pattern, ruleType 
 	return rule
 }
 
-// DeleteSelectiveSyncRule 删除选择性同步规则
+// DeleteSelectiveSyncRule 删除选择性同步规则.
 func (m *Manager) DeleteSelectiveSyncRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -674,7 +674,7 @@ func (m *Manager) DeleteSelectiveSyncRule(id string) error {
 	return nil
 }
 
-// GetSyncStats 获取同步统计
+// GetSyncStats 获取同步统计.
 func (m *Manager) GetSyncStats() *SyncStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -731,7 +731,7 @@ func (m *Manager) GetSyncStats() *SyncStats {
 	return stats
 }
 
-// SimulateSync 模拟同步进度推进
+// SimulateSync 模拟同步进度推进.
 func (m *Manager) SimulateSync() {
 	m.mu.Lock()
 	defer m.mu.Unlock()

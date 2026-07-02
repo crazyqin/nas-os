@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler handles HTTP requests for data classification
+// Handler handles HTTP requests for data classification.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler creates a new data classification handler
+// NewHandler creates a new data classification handler.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes registers the HTTP routes
+// RegisterRoutes registers the HTTP routes.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/classify/file", h.handleFile)
 	mux.HandleFunc("/api/v1/classify/stats", h.handleStats)
@@ -24,7 +24,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/classify/pii", h.handlePII)
 }
 
-// handleFile handles file classification operations
+// handleFile handles file classification operations.
 func (h *Handler) handleFile(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -56,7 +56,7 @@ func (h *Handler) handleFile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleStats returns classification statistics
+// handleStats returns classification statistics.
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -67,7 +67,7 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(stats)
 }
 
-// handleSearch searches classified files
+// handleSearch searches classified files.
 func (h *Handler) handleSearch(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -91,7 +91,7 @@ func (h *Handler) handleSearch(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(results)
 }
 
-// handleRules handles classification rules
+// handleRules handles classification rules.
 func (h *Handler) handleRules(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
@@ -111,7 +111,7 @@ func (h *Handler) handleRules(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handlePII returns files containing PII
+// handlePII returns files containing PII.
 func (h *Handler) handlePII(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

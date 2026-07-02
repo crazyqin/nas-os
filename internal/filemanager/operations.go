@@ -16,7 +16,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Operations 文件操作管理器
+// Operations 文件操作管理器.
 type Operations struct {
 	mu         sync.RWMutex
 	rootPath   string
@@ -25,7 +25,7 @@ type Operations struct {
 	logger     *zap.Logger
 }
 
-// NewOperations 创建文件操作管理器
+// NewOperations 创建文件操作管理器.
 func NewOperations(rootPath, tempDir string, logger *zap.Logger) *Operations {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -42,7 +42,7 @@ func NewOperations(rootPath, tempDir string, logger *zap.Logger) *Operations {
 	}
 }
 
-// Copy 复制文件或目录
+// Copy 复制文件或目录.
 func (ops *Operations) Copy(sources []string, destination string, overwrite bool, userID string) (*FileOperation, error) {
 	// 验证路径
 	if err := ops.validatePaths(sources, destination); err != nil {
@@ -58,7 +58,7 @@ func (ops *Operations) Copy(sources []string, destination string, overwrite bool
 	return op, nil
 }
 
-// Move 移动文件或目录
+// Move 移动文件或目录.
 func (ops *Operations) Move(sources []string, destination string, overwrite bool, userID string) (*FileOperation, error) {
 	if err := ops.validatePaths(sources, destination); err != nil {
 		return nil, err
@@ -70,7 +70,7 @@ func (ops *Operations) Move(sources []string, destination string, overwrite bool
 	return op, nil
 }
 
-// Delete 删除文件或目录
+// Delete 删除文件或目录.
 func (ops *Operations) Delete(sources []string, userID string) (*FileOperation, error) {
 	for _, src := range sources {
 		cleanPath, err := ops.validatePath(src)
@@ -88,7 +88,7 @@ func (ops *Operations) Delete(sources []string, userID string) (*FileOperation, 
 	return op, nil
 }
 
-// Rename 重命名文件或目录
+// Rename 重命名文件或目录.
 func (ops *Operations) Rename(oldPath, newName string, userID string) (*FileOperation, error) {
 	cleanPath, err := ops.validatePath(oldPath)
 	if err != nil {
@@ -117,7 +117,7 @@ func (ops *Operations) Rename(oldPath, newName string, userID string) (*FileOper
 	return op, nil
 }
 
-// Compress 压缩文件
+// Compress 压缩文件.
 func (ops *Operations) Compress(opts CompressOptions, userID string) (*FileOperation, error) {
 	// 验证源路径
 	for _, src := range opts.Sources {
@@ -139,7 +139,7 @@ func (ops *Operations) Compress(opts CompressOptions, userID string) (*FileOpera
 	return op, nil
 }
 
-// Extract 解压文件
+// Extract 解压文件.
 func (ops *Operations) Extract(opts ExtractOptions, userID string) (*FileOperation, error) {
 	sourcePath, err := ops.validatePath(opts.Source)
 	if err != nil {
@@ -157,7 +157,7 @@ func (ops *Operations) Extract(opts ExtractOptions, userID string) (*FileOperati
 	return op, nil
 }
 
-// GetOperation 获取操作状态
+// GetOperation 获取操作状态.
 func (ops *Operations) GetOperation(id string) (*FileOperation, error) {
 	ops.mu.RLock()
 	defer ops.mu.RUnlock()
@@ -169,7 +169,7 @@ func (ops *Operations) GetOperation(id string) (*FileOperation, error) {
 	return op, nil
 }
 
-// ListOperations 列出所有操作
+// ListOperations 列出所有操作.
 func (ops *Operations) ListOperations() []*FileOperation {
 	ops.mu.RLock()
 	defer ops.mu.RUnlock()
@@ -181,7 +181,7 @@ func (ops *Operations) ListOperations() []*FileOperation {
 	return result
 }
 
-// CancelOperation 取消操作
+// CancelOperation 取消操作.
 func (ops *Operations) CancelOperation(id string) error {
 	ops.mu.Lock()
 	defer ops.mu.Unlock()
@@ -202,7 +202,7 @@ func (ops *Operations) CancelOperation(id string) error {
 	return nil
 }
 
-// BatchOperation 批量操作
+// BatchOperation 批量操作.
 func (ops *Operations) BatchOperation(req BatchOperation, userID string) (*FileOperation, error) {
 	switch req.Operation {
 	case OpCopy:
@@ -216,7 +216,7 @@ func (ops *Operations) BatchOperation(req BatchOperation, userID string) (*FileO
 	}
 }
 
-// DragDrop 拖拽操作
+// DragDrop 拖拽操作.
 func (ops *Operations) DragDrop(req DragDropRequest, userID string) (*FileOperation, error) {
 	if req.Action == "copy" {
 		return ops.Copy(req.Sources, req.Destination, false, userID)
@@ -228,7 +228,7 @@ func (ops *Operations) DragDrop(req DragDropRequest, userID string) (*FileOperat
 // 内部实现
 // ============================================================
 
-// createOperation 创建操作记录
+// createOperation 创建操作记录.
 func (ops *Operations) createOperation(opType OperationType, sources []string, dest, userID string) *FileOperation {
 	op := &FileOperation{
 		ID:          uuid.New().String(),
@@ -247,7 +247,7 @@ func (ops *Operations) createOperation(opType OperationType, sources []string, d
 	return op
 }
 
-// executeCopy 执行复制操作
+// executeCopy 执行复制操作.
 func (ops *Operations) executeCopy(op *FileOperation, overwrite bool) {
 	ops.updateStatus(op, StatusRunning)
 
@@ -293,7 +293,7 @@ func (ops *Operations) executeCopy(op *FileOperation, overwrite bool) {
 	ops.completeOperation(op)
 }
 
-// executeMove 执行移动操作
+// executeMove 执行移动操作.
 func (ops *Operations) executeMove(op *FileOperation, overwrite bool) {
 	ops.updateStatus(op, StatusRunning)
 
@@ -342,7 +342,7 @@ func (ops *Operations) executeMove(op *FileOperation, overwrite bool) {
 	ops.completeOperation(op)
 }
 
-// executeDelete 执行删除操作
+// executeDelete 执行删除操作.
 func (ops *Operations) executeDelete(op *FileOperation) {
 	ops.updateStatus(op, StatusRunning)
 
@@ -369,7 +369,7 @@ func (ops *Operations) executeDelete(op *FileOperation) {
 	ops.completeOperation(op)
 }
 
-// executeRename 执行重命名操作
+// executeRename 执行重命名操作.
 func (ops *Operations) executeRename(op *FileOperation, newName string) {
 	ops.updateStatus(op, StatusRunning)
 
@@ -386,7 +386,7 @@ func (ops *Operations) executeRename(op *FileOperation, newName string) {
 	ops.completeOperation(op)
 }
 
-// executeCompress 执行压缩操作
+// executeCompress 执行压缩操作.
 func (ops *Operations) executeCompress(op *FileOperation, opts CompressOptions) {
 	ops.updateStatus(op, StatusRunning)
 
@@ -414,20 +414,20 @@ func (ops *Operations) executeCompress(op *FileOperation, opts CompressOptions) 
 	ops.completeOperation(op)
 }
 
-// executeExtract 执行解压操作
+// executeExtract 执行解压操作.
 func (ops *Operations) executeExtract(op *FileOperation, opts ExtractOptions) {
 	ops.updateStatus(op, StatusRunning)
 
 	// 检测压缩格式
 	ext := strings.ToLower(filepath.Ext(opts.Source))
 
-	switch {
-	case ext == ".zip":
+	switch ext {
+	case ".zip":
 		if err := ops.extractZip(op, opts); err != nil {
 			ops.setError(op, err.Error())
 			return
 		}
-	case ext == ".gz" || ext == ".tgz":
+	case ".gz", ".tgz":
 		if err := ops.extractTarGz(op, opts); err != nil {
 			ops.setError(op, err.Error())
 			return
@@ -440,7 +440,7 @@ func (ops *Operations) executeExtract(op *FileOperation, opts ExtractOptions) {
 	ops.completeOperation(op)
 }
 
-// copyFile 复制单个文件
+// copyFile 复制单个文件.
 func (ops *Operations) copyFile(src, dest string, overwrite bool) error {
 	if !overwrite {
 		if _, err := os.Stat(dest); err == nil {
@@ -473,7 +473,7 @@ func (ops *Operations) copyFile(src, dest string, overwrite bool) error {
 	return os.Chmod(dest, srcInfo.Mode())
 }
 
-// copyDirectory 复制目录
+// copyDirectory 复制目录.
 func (ops *Operations) copyDirectory(src, dest string, overwrite bool, op *FileOperation) (int, int64, error) {
 	var fileCount int
 	var totalSize int64
@@ -522,7 +522,7 @@ func (ops *Operations) copyDirectory(src, dest string, overwrite bool, op *FileO
 	return fileCount, totalSize, nil
 }
 
-// compressZip ZIP压缩
+// compressZip ZIP压缩.
 func (ops *Operations) compressZip(op *FileOperation, opts CompressOptions) error {
 	zipFile, err := os.Create(opts.Target)
 	if err != nil {
@@ -542,7 +542,7 @@ func (ops *Operations) compressZip(op *FileOperation, opts CompressOptions) erro
 	return nil
 }
 
-// addToZip 添加文件到ZIP
+// addToZip 添加文件到ZIP.
 func (ops *Operations) addToZip(writer *zip.Writer, path, baseInZip string) error {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -582,7 +582,7 @@ func (ops *Operations) addToZip(writer *zip.Writer, path, baseInZip string) erro
 	return err
 }
 
-// compressTarGz TAR.GZ压缩
+// compressTarGz TAR.GZ压缩.
 func (ops *Operations) compressTarGz(op *FileOperation, opts CompressOptions) error {
 	file, err := os.Create(opts.Target)
 	if err != nil {
@@ -605,7 +605,7 @@ func (ops *Operations) compressTarGz(op *FileOperation, opts CompressOptions) er
 	return nil
 }
 
-// addToTar 添加文件到TAR
+// addToTar 添加文件到TAR.
 func (ops *Operations) addToTar(tw *tar.Writer, path, baseInTar string) error {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -649,7 +649,7 @@ func (ops *Operations) addToTar(tw *tar.Writer, path, baseInTar string) error {
 	return err
 }
 
-// extractZip 解压ZIP
+// extractZip 解压ZIP.
 func (ops *Operations) extractZip(op *FileOperation, opts ExtractOptions) error {
 	r, err := zip.OpenReader(opts.Source)
 	if err != nil {
@@ -705,7 +705,7 @@ func (ops *Operations) extractZip(op *FileOperation, opts ExtractOptions) error 
 	return nil
 }
 
-// extractTarGz 解压TAR.GZ
+// extractTarGz 解压TAR.GZ.
 func (ops *Operations) extractTarGz(op *FileOperation, opts ExtractOptions) error {
 	file, err := os.Open(opts.Source)
 	if err != nil {
@@ -762,7 +762,7 @@ func (ops *Operations) extractTarGz(op *FileOperation, opts ExtractOptions) erro
 	return nil
 }
 
-// countFiles 统计文件数
+// countFiles 统计文件数.
 func (ops *Operations) countFiles(path string) int {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -790,7 +790,7 @@ func (ops *Operations) countFiles(path string) int {
 	return count
 }
 
-// validatePath 验证路径
+// validatePath 验证路径.
 func (ops *Operations) validatePath(path string) (string, error) {
 	if path == "" {
 		return "", fmt.Errorf("路径不能为空")
@@ -811,7 +811,7 @@ func (ops *Operations) validatePath(path string) (string, error) {
 	return cleanPath, nil
 }
 
-// validatePaths 验证多个路径
+// validatePaths 验证多个路径.
 func (ops *Operations) validatePaths(sources []string, destination string) error {
 	if len(sources) == 0 {
 		return fmt.Errorf("源路径列表不能为空")
@@ -832,7 +832,7 @@ func (ops *Operations) validatePaths(sources []string, destination string) error
 	return nil
 }
 
-// updateStatus 更新操作状态
+// updateStatus 更新操作状态.
 func (ops *Operations) updateStatus(op *FileOperation, status OperationStatus) {
 	ops.mu.Lock()
 	defer ops.mu.Unlock()
@@ -840,7 +840,7 @@ func (ops *Operations) updateStatus(op *FileOperation, status OperationStatus) {
 	op.Status = status
 }
 
-// setError 设置操作错误
+// setError 设置操作错误.
 func (ops *Operations) setError(op *FileOperation, errMsg string) {
 	ops.mu.Lock()
 	defer ops.mu.Unlock()
@@ -856,7 +856,7 @@ func (ops *Operations) setError(op *FileOperation, errMsg string) {
 		zap.String("error", errMsg))
 }
 
-// completeOperation 完成操作
+// completeOperation 完成操作.
 func (ops *Operations) completeOperation(op *FileOperation) {
 	ops.mu.Lock()
 	defer ops.mu.Unlock()
@@ -872,7 +872,7 @@ func (ops *Operations) completeOperation(op *FileOperation) {
 		zap.Int("files", op.TotalFiles))
 }
 
-// isCancelled 检查操作是否已取消
+// isCancelled 检查操作是否已取消.
 func (ops *Operations) isCancelled(op *FileOperation) bool {
 	ops.mu.RLock()
 	defer ops.mu.RUnlock()

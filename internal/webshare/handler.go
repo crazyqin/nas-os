@@ -7,49 +7,49 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	svc *Service
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(svc *Service) *Handler {
 	return &Handler{svc: svc}
 }
 
 // RegisterRoutes 注册路由到 gin 路由组
-// 路由前缀: /api/v1/webshare
+// 路由前缀: /api/v1/webshare.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	g := rg.Group("/webshare")
 	{
 		// 分享管理
-		g.POST("/shares", h.createShare)               // 创建分享
-		g.GET("/shares", h.listShares)                  // 列出分享
-		g.GET("/shares/:id", h.getShare)               // 获取分享详情
-		g.DELETE("/shares/:id", h.deleteShare)          // 删除分享
-		g.POST("/shares/:id/revoke", h.revokeShare)     // 撤销分享
-		g.PUT("/shares/:id/permission", h.updatePerm)  // 更新权限
-		g.PUT("/shares/:id/password", h.setPassword)   // 设置密码
-		g.PUT("/shares/:id/fips", h.toggleFIPS)        // 切换 FIPS
+		g.POST("/shares", h.createShare)              // 创建分享
+		g.GET("/shares", h.listShares)                // 列出分享
+		g.GET("/shares/:id", h.getShare)              // 获取分享详情
+		g.DELETE("/shares/:id", h.deleteShare)        // 删除分享
+		g.POST("/shares/:id/revoke", h.revokeShare)   // 撤销分享
+		g.PUT("/shares/:id/permission", h.updatePerm) // 更新权限
+		g.PUT("/shares/:id/password", h.setPassword)  // 设置密码
+		g.PUT("/shares/:id/fips", h.toggleFIPS)       // 切换 FIPS
 
 		// 分享链接
-		g.GET("/shares/:id/link", h.generateLink)      // 生成分享链接
+		g.GET("/shares/:id/link", h.generateLink) // 生成分享链接
 
 		// 会话管理
-		g.POST("/sessions", h.createSession)           // 创建会话（需要令牌+密码）
-		g.DELETE("/sessions/:id", h.destroySession)    // 销毁会话
-		g.GET("/sessions/:id", h.getSession)           // 获取会话
+		g.POST("/sessions", h.createSession)        // 创建会话（需要令牌+密码）
+		g.DELETE("/sessions/:id", h.destroySession) // 销毁会话
+		g.GET("/sessions/:id", h.getSession)        // 获取会话
 
 		// 文件操作（通过会话）
-		g.GET("/sessions/:id/files", h.listFiles)      // 浏览文件
-		g.POST("/sessions/:id/folder", h.createFolder) // 创建文件夹
-		g.POST("/sessions/:id/upload", h.uploadFile)   // 上传文件
+		g.GET("/sessions/:id/files", h.listFiles)       // 浏览文件
+		g.POST("/sessions/:id/folder", h.createFolder)  // 创建文件夹
+		g.POST("/sessions/:id/upload", h.uploadFile)    // 上传文件
 		g.GET("/sessions/:id/download", h.downloadFile) // 下载文件
 		g.DELETE("/sessions/:id/files", h.deleteFile)   // 删除文件
-		g.PUT("/sessions/:id/rename", h.renameFile)    // 重命名文件
+		g.PUT("/sessions/:id/rename", h.renameFile)     // 重命名文件
 
 		// 统计
-		g.GET("/stats", h.getStats)                    // 分享统计
+		g.GET("/stats", h.getStats) // 分享统计
 
 		// 配置
 		g.GET("/config", h.getConfig)
@@ -58,7 +58,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 }
 
 // createShare 创建 Web 分享
-// POST /api/v1/webshare/shares
+// POST /api/v1/webshare/shares.
 func (h *Handler) createShare(c *gin.Context) {
 	var req CreateShareRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -76,7 +76,7 @@ func (h *Handler) createShare(c *gin.Context) {
 }
 
 // listShares 列出分享
-// GET /api/v1/webshare/shares?status=active
+// GET /api/v1/webshare/shares?status=active.
 func (h *Handler) listShares(c *gin.Context) {
 	status := ShareStatus(c.Query("status"))
 
@@ -90,7 +90,7 @@ func (h *Handler) listShares(c *gin.Context) {
 }
 
 // getShare 获取分享详情
-// GET /api/v1/webshare/shares/:id
+// GET /api/v1/webshare/shares/:id.
 func (h *Handler) getShare(c *gin.Context) {
 	shareID := c.Param("id")
 
@@ -104,7 +104,7 @@ func (h *Handler) getShare(c *gin.Context) {
 }
 
 // deleteShare 删除分享
-// DELETE /api/v1/webshare/shares/:id
+// DELETE /api/v1/webshare/shares/:id.
 func (h *Handler) deleteShare(c *gin.Context) {
 	shareID := c.Param("id")
 
@@ -117,7 +117,7 @@ func (h *Handler) deleteShare(c *gin.Context) {
 }
 
 // revokeShare 撤销分享
-// POST /api/v1/webshare/shares/:id/revoke
+// POST /api/v1/webshare/shares/:id/revoke.
 func (h *Handler) revokeShare(c *gin.Context) {
 	shareID := c.Param("id")
 
@@ -130,7 +130,7 @@ func (h *Handler) revokeShare(c *gin.Context) {
 }
 
 // updatePerm 更新分享权限
-// PUT /api/v1/webshare/shares/:id/permission
+// PUT /api/v1/webshare/shares/:id/permission.
 func (h *Handler) updatePerm(c *gin.Context) {
 	shareID := c.Param("id")
 
@@ -150,7 +150,7 @@ func (h *Handler) updatePerm(c *gin.Context) {
 }
 
 // setPassword 设置分享密码
-// PUT /api/v1/webshare/shares/:id/password
+// PUT /api/v1/webshare/shares/:id/password.
 func (h *Handler) setPassword(c *gin.Context) {
 	shareID := c.Param("id")
 
@@ -171,7 +171,7 @@ func (h *Handler) setPassword(c *gin.Context) {
 }
 
 // toggleFIPS 切换 FIPS 加密
-// PUT /api/v1/webshare/shares/:id/fips
+// PUT /api/v1/webshare/shares/:id/fips.
 func (h *Handler) toggleFIPS(c *gin.Context) {
 	shareID := c.Param("id")
 
@@ -219,11 +219,11 @@ func (h *Handler) generateLink(c *gin.Context) {
 }
 
 // createSession 创建会话
-// POST /api/v1/webshare/sessions
+// POST /api/v1/webshare/sessions.
 func (h *Handler) createSession(c *gin.Context) {
 	var req struct {
-		Token     string `json:"token" binding:"required"`
-		Password  string `json:"password"`
+		Token    string `json:"token" binding:"required"`
+		Password string `json:"password"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		api.BadRequest(c, "请求参数错误: "+err.Error())
@@ -246,7 +246,7 @@ func (h *Handler) createSession(c *gin.Context) {
 }
 
 // destroySession 销毁会话
-// DELETE /api/v1/webshare/sessions/:id
+// DELETE /api/v1/webshare/sessions/:id.
 func (h *Handler) destroySession(c *gin.Context) {
 	sessionID := c.Param("id")
 
@@ -259,7 +259,7 @@ func (h *Handler) destroySession(c *gin.Context) {
 }
 
 // getSession 获取会话
-// GET /api/v1/webshare/sessions/:id
+// GET /api/v1/webshare/sessions/:id.
 func (h *Handler) getSession(c *gin.Context) {
 	sessionID := c.Param("id")
 
@@ -273,7 +273,7 @@ func (h *Handler) getSession(c *gin.Context) {
 }
 
 // listFiles 浏览文件
-// GET /api/v1/webshare/sessions/:id/files?path=/
+// GET /api/v1/webshare/sessions/:id/files?path=/.
 func (h *Handler) listFiles(c *gin.Context) {
 	sessionID := c.Param("id")
 	path := c.Query("path")
@@ -292,7 +292,7 @@ func (h *Handler) listFiles(c *gin.Context) {
 }
 
 // createFolder 创建文件夹
-// POST /api/v1/webshare/sessions/:id/folder
+// POST /api/v1/webshare/sessions/:id/folder.
 func (h *Handler) createFolder(c *gin.Context) {
 	sessionID := c.Param("id")
 
@@ -313,7 +313,7 @@ func (h *Handler) createFolder(c *gin.Context) {
 }
 
 // uploadFile 上传文件
-// POST /api/v1/webshare/sessions/:id/upload
+// POST /api/v1/webshare/sessions/:id/upload.
 func (h *Handler) uploadFile(c *gin.Context) {
 	sessionID := c.Param("id")
 	path := c.PostForm("path")
@@ -344,7 +344,7 @@ func (h *Handler) uploadFile(c *gin.Context) {
 }
 
 // downloadFile 下载文件
-// GET /api/v1/webshare/sessions/:id/download?path=/file.txt
+// GET /api/v1/webshare/sessions/:id/download?path=/file.txt.
 func (h *Handler) downloadFile(c *gin.Context) {
 	sessionID := c.Param("id")
 	path := c.Query("path")
@@ -363,7 +363,7 @@ func (h *Handler) downloadFile(c *gin.Context) {
 }
 
 // deleteFile 删除文件
-// DELETE /api/v1/webshare/sessions/:id/files?path=/file.txt
+// DELETE /api/v1/webshare/sessions/:id/files?path=/file.txt.
 func (h *Handler) deleteFile(c *gin.Context) {
 	sessionID := c.Param("id")
 	path := c.Query("path")
@@ -381,7 +381,7 @@ func (h *Handler) deleteFile(c *gin.Context) {
 }
 
 // renameFile 重命名文件
-// PUT /api/v1/webshare/sessions/:id/rename
+// PUT /api/v1/webshare/sessions/:id/rename.
 func (h *Handler) renameFile(c *gin.Context) {
 	sessionID := c.Param("id")
 
@@ -403,7 +403,7 @@ func (h *Handler) renameFile(c *gin.Context) {
 }
 
 // getStats 获取分享统计
-// GET /api/v1/webshare/stats
+// GET /api/v1/webshare/stats.
 func (h *Handler) getStats(c *gin.Context) {
 	stats, err := h.svc.GetStats(c.Request.Context())
 	if err != nil {
@@ -415,14 +415,14 @@ func (h *Handler) getStats(c *gin.Context) {
 }
 
 // getConfig 获取配置
-// GET /api/v1/webshare/config
+// GET /api/v1/webshare/config.
 func (h *Handler) getConfig(c *gin.Context) {
 	cfg := h.svc.GetConfig()
 	api.OK(c, cfg)
 }
 
 // updateConfig 更新配置
-// PUT /api/v1/webshare/config
+// PUT /api/v1/webshare/config.
 func (h *Handler) updateConfig(c *gin.Context) {
 	var cfg WebShareConfig
 	if err := c.ShouldBindJSON(&cfg); err != nil {

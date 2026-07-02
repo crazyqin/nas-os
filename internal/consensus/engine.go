@@ -17,17 +17,17 @@ import (
 	"time"
 )
 
-// NodeState 节点状态
+// NodeState 节点状态.
 type NodeState int
 
 const (
-	// StateFollower 跟随者状态
+	// StateFollower 跟随者状态.
 	StateFollower NodeState = iota
-	// StateCandidate 候选人状态
+	// StateCandidate 候选人状态.
 	StateCandidate
-	// StateLeader 领导者状态
+	// StateLeader 领导者状态.
 	StateLeader
-	// StateObserver 观察者状态（不参与投票）
+	// StateObserver 观察者状态（不参与投票）.
 	StateObserver
 )
 
@@ -46,7 +46,7 @@ func (s NodeState) String() string {
 	}
 }
 
-// LogEntry 日志条目
+// LogEntry 日志条目.
 type LogEntry struct {
 	// Index 日志索引
 	Index uint64 `json:"index"`
@@ -60,7 +60,7 @@ type LogEntry struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// ClusterMember 集群成员
+// ClusterMember 集群成员.
 type ClusterMember struct {
 	// ID 成员唯一标识
 	ID string `json:"id"`
@@ -78,7 +78,7 @@ type ClusterMember struct {
 	NextIndex uint64 `json:"next_index"`
 }
 
-// ClusterConfig 集群配置
+// ClusterConfig 集群配置.
 type ClusterConfig struct {
 	// NodeID 本节点ID
 	NodeID string `json:"node_id"`
@@ -96,7 +96,7 @@ type ClusterConfig struct {
 	SnapshotInterval int `json:"snapshot_interval"`
 }
 
-// DefaultClusterConfig 默认集群配置
+// DefaultClusterConfig 默认集群配置.
 func DefaultClusterConfig() *ClusterConfig {
 	return &ClusterConfig{
 		HeartbeatTimeout:            150,
@@ -106,7 +106,7 @@ func DefaultClusterConfig() *ClusterConfig {
 	}
 }
 
-// ApplyResult 应用结果
+// ApplyResult 应用结果.
 type ApplyResult struct {
 	// Success 是否成功
 	Success bool `json:"success"`
@@ -116,7 +116,7 @@ type ApplyResult struct {
 	Error string `json:"error,omitempty"`
 }
 
-// StateMachine 状态机接口
+// StateMachine 状态机接口.
 type StateMachine interface {
 	// Apply 应用日志条目到状态机
 	Apply(entry *LogEntry) error
@@ -126,7 +126,7 @@ type StateMachine interface {
 	Restored(data []byte) error
 }
 
-// Transport 网络传输接口
+// Transport 网络传输接口.
 type Transport interface {
 	// SendAppendEntries 发送追加日志请求
 	SendAppendEntries(target string, req *AppendEntriesRequest) (*AppendEntriesResponse, error)
@@ -136,7 +136,7 @@ type Transport interface {
 	SendInstallSnapshot(target string, req *InstallSnapshotRequest) (*InstallSnapshotResponse, error)
 }
 
-// AppendEntriesRequest 追加日志请求
+// AppendEntriesRequest 追加日志请求.
 type AppendEntriesRequest struct {
 	Term         uint64      `json:"term"`
 	LeaderID     string      `json:"leader_id"`
@@ -146,7 +146,7 @@ type AppendEntriesRequest struct {
 	LeaderCommit uint64      `json:"leader_commit"`
 }
 
-// AppendEntriesResponse 追加日志响应
+// AppendEntriesResponse 追加日志响应.
 type AppendEntriesResponse struct {
 	Term          uint64 `json:"term"`
 	Success       bool   `json:"success"`
@@ -154,7 +154,7 @@ type AppendEntriesResponse struct {
 	ConflictTerm  uint64 `json:"conflict_term"`
 }
 
-// RequestVoteRequest 投票请求
+// RequestVoteRequest 投票请求.
 type RequestVoteRequest struct {
 	Term         uint64 `json:"term"`
 	CandidateID  string `json:"candidate_id"`
@@ -162,13 +162,13 @@ type RequestVoteRequest struct {
 	LastLogTerm  uint64 `json:"last_log_term"`
 }
 
-// RequestVoteResponse 投票响应
+// RequestVoteResponse 投票响应.
 type RequestVoteResponse struct {
 	Term        uint64 `json:"term"`
 	VoteGranted bool   `json:"vote_granted"`
 }
 
-// InstallSnapshotRequest 安装快照请求
+// InstallSnapshotRequest 安装快照请求.
 type InstallSnapshotRequest struct {
 	Term              uint64 `json:"term"`
 	LeaderID          string `json:"leader_id"`
@@ -177,12 +177,12 @@ type InstallSnapshotRequest struct {
 	Data              []byte `json:"data"`
 }
 
-// InstallSnapshotResponse 安装快照响应
+// InstallSnapshotResponse 安装快照响应.
 type InstallSnapshotResponse struct {
 	Term uint64 `json:"term"`
 }
 
-// ConsensusEngine 分布式共识引擎
+// ConsensusEngine 分布式共识引擎.
 type ConsensusEngine struct {
 	mu sync.RWMutex
 
@@ -202,30 +202,30 @@ type ConsensusEngine struct {
 	lastApplied uint64
 
 	// 领导者状态
-	leaderID    string
-	members     map[string]*ClusterMember
+	leaderID string
+	members  map[string]*ClusterMember
 
 	// 组件
 	stateMachine StateMachine
 	transport    Transport
 
 	// 控制
-	running    bool
-	stopCh     chan struct{}
-	applyCh    chan *applyRequest
-	notifyCh   chan struct{}
+	running  bool
+	stopCh   chan struct{}
+	applyCh  chan *applyRequest
+	notifyCh chan struct{}
 
 	// 统计
 	stats *ConsensusStats
 }
 
-// applyRequest 应用请求
+// applyRequest 应用请求.
 type applyRequest struct {
 	entry  *LogEntry
 	result chan *ApplyResult
 }
 
-// ConsensusStats 共识统计
+// ConsensusStats 共识统计.
 type ConsensusStats struct {
 	// CurrentTerm 当前任期
 	CurrentTerm uint64 `json:"current_term"`
@@ -251,7 +251,7 @@ type ConsensusStats struct {
 	StartTime *time.Time `json:"start_time,omitempty"`
 }
 
-// NewConsensusEngine 创建共识引擎
+// NewConsensusEngine 创建共识引擎.
 func NewConsensusEngine(config *ClusterConfig, sm StateMachine, transport Transport, logger *slog.Logger) *ConsensusEngine {
 	if config == nil {
 		config = DefaultClusterConfig()
@@ -284,7 +284,7 @@ func NewConsensusEngine(config *ClusterConfig, sm StateMachine, transport Transp
 	return e
 }
 
-// Start 启动共识引擎
+// Start 启动共识引擎.
 func (e *ConsensusEngine) Start() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -316,7 +316,7 @@ func (e *ConsensusEngine) Start() error {
 	return nil
 }
 
-// Stop 停止共识引擎
+// Stop 停止共识引擎.
 func (e *ConsensusEngine) Stop() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -330,7 +330,7 @@ func (e *ConsensusEngine) Stop() {
 	e.logger.Info("共识引擎已停止", "node_id", e.nodeID)
 }
 
-// Propose 提议一个日志条目
+// Propose 提议一个日志条目.
 func (e *ConsensusEngine) Propose(data []byte) (*ApplyResult, error) {
 	e.mu.RLock()
 	if !e.running {
@@ -365,7 +365,7 @@ func (e *ConsensusEngine) Propose(data []byte) (*ApplyResult, error) {
 	}
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (e *ConsensusEngine) GetStats() *ConsensusStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -386,7 +386,7 @@ func (e *ConsensusEngine) GetStats() *ConsensusStats {
 	return &stats
 }
 
-// GetMembers 获取集群成员列表
+// GetMembers 获取集群成员列表.
 func (e *ConsensusEngine) GetMembers() []*ClusterMember {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -399,7 +399,7 @@ func (e *ConsensusEngine) GetMembers() []*ClusterMember {
 	return members
 }
 
-// AddMember 添加集群成员
+// AddMember 添加集群成员.
 func (e *ConsensusEngine) AddMember(member *ClusterMember) error {
 	if member == nil || member.ID == "" {
 		return fmt.Errorf("成员信息无效")
@@ -426,7 +426,7 @@ func (e *ConsensusEngine) AddMember(member *ClusterMember) error {
 	return nil
 }
 
-// RemoveMember 移除集群成员
+// RemoveMember 移除集群成员.
 func (e *ConsensusEngine) RemoveMember(nodeID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -448,21 +448,21 @@ func (e *ConsensusEngine) RemoveMember(nodeID string) error {
 	return nil
 }
 
-// IsLeader 是否是领导者
+// IsLeader 是否是领导者.
 func (e *ConsensusEngine) IsLeader() bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.state == StateLeader
 }
 
-// LeaderID 获取领导者ID
+// LeaderID 获取领导者ID.
 func (e *ConsensusEngine) LeaderID() string {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.leaderID
 }
 
-// mainLoop 主循环
+// mainLoop 主循环.
 func (e *ConsensusEngine) mainLoop() {
 	electionTimer := time.NewTimer(e.randomElectionTimeout())
 	defer electionTimer.Stop()
@@ -499,7 +499,7 @@ func (e *ConsensusEngine) mainLoop() {
 	}
 }
 
-// applyLoop 应用日志循环
+// applyLoop 应用日志循环.
 func (e *ConsensusEngine) applyLoop() {
 	for {
 		select {
@@ -518,7 +518,7 @@ func (e *ConsensusEngine) applyLoop() {
 	}
 }
 
-// startElection 开始选举
+// startElection 开始选举.
 func (e *ConsensusEngine) startElection() {
 	e.mu.Lock()
 	e.currentTerm++
@@ -567,7 +567,7 @@ func (e *ConsensusEngine) startElection() {
 
 			if resp.VoteGranted && e.state == StateCandidate && e.currentTerm == term {
 				votedCount++
-				majority := (len(e.members)/2) + 1
+				majority := (len(e.members) / 2) + 1
 				if votedCount >= majority {
 					e.becomeLeader()
 				}
@@ -576,7 +576,7 @@ func (e *ConsensusEngine) startElection() {
 	}
 }
 
-// becomeLeader 成为领导者
+// becomeLeader 成为领导者.
 func (e *ConsensusEngine) becomeLeader() {
 	e.state = StateLeader
 	e.leaderID = e.nodeID
@@ -592,7 +592,7 @@ func (e *ConsensusEngine) becomeLeader() {
 	e.logger.Info("成为领导者", "term", e.currentTerm)
 }
 
-// sendHeartbeats 发送心跳
+// sendHeartbeats 发送心跳.
 func (e *ConsensusEngine) sendHeartbeats() {
 	e.mu.RLock()
 	if e.state != StateLeader {
@@ -609,7 +609,7 @@ func (e *ConsensusEngine) sendHeartbeats() {
 	}
 }
 
-// sendAppendEntriesTo 发送追加日志到指定节点
+// sendAppendEntriesTo 发送追加日志到指定节点.
 func (e *ConsensusEngine) sendAppendEntriesTo(target string, member *ClusterMember) {
 	e.mu.RLock()
 	req := &AppendEntriesRequest{
@@ -652,7 +652,7 @@ func (e *ConsensusEngine) sendAppendEntriesTo(target string, member *ClusterMemb
 	}
 }
 
-// replicateToFollowers 复制日志到跟随者
+// replicateToFollowers 复制日志到跟随者.
 func (e *ConsensusEngine) replicateToFollowers(req *applyRequest) {
 	// 简化实现：同步等待多数派确认
 	e.mu.RLock()
@@ -660,7 +660,7 @@ func (e *ConsensusEngine) replicateToFollowers(req *applyRequest) {
 	e.mu.RUnlock()
 
 	_ = (memberCount / 2) + 1 // majority
-	_ = 1                      // confirmed: 自己已确认
+	_ = 1                     // confirmed: 自己已确认
 
 	for id, member := range e.members {
 		if id == e.nodeID {
@@ -695,7 +695,7 @@ func (e *ConsensusEngine) replicateToFollowers(req *applyRequest) {
 	req.result <- &ApplyResult{Success: true, Index: req.entry.Index}
 }
 
-// advanceCommitIndex 推进提交索引
+// advanceCommitIndex 推进提交索引.
 func (e *ConsensusEngine) advanceCommitIndex() {
 	if e.state != StateLeader {
 		return
@@ -709,7 +709,7 @@ func (e *ConsensusEngine) advanceCommitIndex() {
 					count++
 				}
 			}
-			majority := (len(e.members)/2) + 1
+			majority := (len(e.members) / 2) + 1
 			if count >= majority {
 				e.commitIndex = i
 			}
@@ -717,7 +717,7 @@ func (e *ConsensusEngine) advanceCommitIndex() {
 	}
 }
 
-// lastLogIndex 获取最后日志索引
+// lastLogIndex 获取最后日志索引.
 func (e *ConsensusEngine) lastLogIndex() uint64 {
 	if len(e.log) == 0 {
 		return 0
@@ -725,7 +725,7 @@ func (e *ConsensusEngine) lastLogIndex() uint64 {
 	return e.log[len(e.log)-1].Index
 }
 
-// lastLogTerm 获取最后日志任期
+// lastLogTerm 获取最后日志任期.
 func (e *ConsensusEngine) lastLogTerm() uint64 {
 	if len(e.log) == 0 {
 		return 0
@@ -733,10 +733,10 @@ func (e *ConsensusEngine) lastLogTerm() uint64 {
 	return e.log[len(e.log)-1].Term
 }
 
-// randomElectionTimeout 随机选举超时
+// randomElectionTimeout 随机选举超时.
 func (e *ConsensusEngine) randomElectionTimeout() time.Duration {
 	base := time.Duration(e.config.ElectionTimeout) * time.Millisecond
 	// 简单随机化：在 base 到 2*base 之间
-	jitter := time.Duration(time.Now().UnixNano()%int64(base))
+	jitter := time.Duration(time.Now().UnixNano() % int64(base))
 	return base + jitter
 }

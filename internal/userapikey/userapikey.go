@@ -16,7 +16,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// 常见错误
+// 常见错误.
 var (
 	ErrKeyNotFound      = errors.New("api key not found")
 	ErrKeyRevoked       = errors.New("api key already revoked")
@@ -25,7 +25,7 @@ var (
 	ErrInvalidInput     = errors.New("invalid input")
 )
 
-// KeyStatus API Key 状态
+// KeyStatus API Key 状态.
 type KeyStatus string
 
 const (
@@ -34,13 +34,13 @@ const (
 	KeyStatusExpired KeyStatus = "expired"
 )
 
-// Permission API Key 权限
+// Permission API Key 权限.
 type Permission struct {
 	Resource string   `json:"resource"` // 资源标识，如 "storage:pool0" 或 "system:*"
 	Actions  []string `json:"actions"`  // 允许的操作，如 ["read", "write", "delete"]
 }
 
-// APIKey 用户关联的 API Key
+// APIKey 用户关联的 API Key.
 type APIKey struct {
 	ID          string       `json:"id"`
 	UserID      string       `json:"user_id"`
@@ -56,7 +56,7 @@ type APIKey struct {
 	Description string       `json:"description,omitempty"`
 }
 
-// CreateKeyRequest 创建 API Key 请求
+// CreateKeyRequest 创建 API Key 请求.
 type CreateKeyRequest struct {
 	Name        string       `json:"name" binding:"required"`
 	Description string       `json:"description,omitempty"`
@@ -64,34 +64,34 @@ type CreateKeyRequest struct {
 	ExpiresAt   *time.Time   `json:"expires_at,omitempty"`
 }
 
-// RotateKeyResult 轮换 API Key 结果
+// RotateKeyResult 轮换 API Key 结果.
 type RotateKeyResult struct {
 	ID     string `json:"id"`
 	NewKey string `json:"new_key"` // 仅在创建/轮换时返回完整 Key
 	Prefix string `json:"prefix"`
 }
 
-// ListKeysOptions 列出 API Key 的查询选项
+// ListKeysOptions 列出 API Key 的查询选项.
 type ListKeysOptions struct {
 	Status *KeyStatus `json:"status,omitempty"`
 	Offset int        `json:"offset,omitempty"`
 	Limit  int        `json:"limit,omitempty"`
 }
 
-// Manager API Key 管理器
+// Manager API Key 管理器.
 type Manager struct {
 	mu   sync.RWMutex
 	keys map[string]*APIKey // id -> key; persistence can be layered by snapshotting this map.
 }
 
-// NewManager 创建 API Key 管理器
+// NewManager 创建 API Key 管理器.
 func NewManager() *Manager {
 	return &Manager{
 		keys: make(map[string]*APIKey),
 	}
 }
 
-// generateKey 生成随机 API Key，返回 (rawKey, hash, prefix, error)
+// generateKey 生成随机 API Key，返回 (rawKey, hash, prefix, error).
 func generateKey() (string, string, string, error) {
 	raw := make([]byte, 32)
 	if _, err := rand.Read(raw); err != nil {
@@ -105,7 +105,7 @@ func generateKey() (string, string, string, error) {
 	return encoded, hash, prefix, nil
 }
 
-// CreateKey 为用户创建 API Key，返回原始 Key（仅此一次可见）
+// CreateKey 为用户创建 API Key，返回原始 Key（仅此一次可见）.
 func (m *Manager) CreateKey(userID string, req *CreateKeyRequest) (*RotateKeyResult, error) {
 	if userID == "" || req.Name == "" {
 		return nil, ErrInvalidInput
@@ -144,7 +144,7 @@ func (m *Manager) CreateKey(userID string, req *CreateKeyRequest) (*RotateKeyRes
 	}, nil
 }
 
-// RevokeKey 撤销 API Key
+// RevokeKey 撤销 API Key.
 func (m *Manager) RevokeKey(userID, keyID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -166,7 +166,7 @@ func (m *Manager) RevokeKey(userID, keyID string) error {
 	return nil
 }
 
-// RotateKey 轮换 API Key（撤销旧 Key，创建新 Key）
+// RotateKey 轮换 API Key（撤销旧 Key，创建新 Key）.
 func (m *Manager) RotateKey(userID, keyID string) (*RotateKeyResult, error) {
 	if err := m.RevokeKey(userID, keyID); err != nil {
 		return nil, err
@@ -183,7 +183,7 @@ func (m *Manager) RotateKey(userID, keyID string) (*RotateKeyResult, error) {
 	return m.CreateKey(userID, req)
 }
 
-// ValidateKey 验证 API Key，返回关联的 APIKey 信息
+// ValidateKey 验证 API Key，返回关联的 APIKey 信息.
 func (m *Manager) ValidateKey(rawKey string) (*APIKey, error) {
 	sum := sha256.Sum256([]byte(rawKey))
 	hash := hex.EncodeToString(sum[:])
@@ -206,7 +206,7 @@ func (m *Manager) ValidateKey(rawKey string) (*APIKey, error) {
 	return nil, ErrKeyNotFound
 }
 
-// ListKeys 列出用户的 API Key
+// ListKeys 列出用户的 API Key.
 func (m *Manager) ListKeys(userID string, opts *ListKeysOptions) []*APIKey {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -238,7 +238,7 @@ func (m *Manager) ListKeys(userID string, opts *ListKeysOptions) []*APIKey {
 	return result
 }
 
-// GetKey 获取单个 API Key 详情
+// GetKey 获取单个 API Key 详情.
 func (m *Manager) GetKey(userID, keyID string) (*APIKey, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

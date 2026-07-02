@@ -12,7 +12,7 @@ import (
 // MaintenanceAdvisor - 维护建议引擎
 // ============================================================
 
-// MaintenanceAdvisor 维护建议引擎
+// MaintenanceAdvisor 维护建议引擎.
 type MaintenanceAdvisor struct {
 	mu        sync.RWMutex
 	analyzer  *SMARTAnalyzer
@@ -21,7 +21,7 @@ type MaintenanceAdvisor struct {
 	groups    *DiskGroupManager
 }
 
-// NewMaintenanceAdvisor 创建维护建议引擎
+// NewMaintenanceAdvisor 创建维护建议引擎.
 func NewMaintenanceAdvisor(analyzer *SMARTAnalyzer, scoreSys *HealthScoreSystem, predictor *FailurePredictor, groups *DiskGroupManager) *MaintenanceAdvisor {
 	return &MaintenanceAdvisor{
 		analyzer:  analyzer,
@@ -31,7 +31,7 @@ func NewMaintenanceAdvisor(analyzer *SMARTAnalyzer, scoreSys *HealthScoreSystem,
 	}
 }
 
-// GenerateAdvice 生成维护建议
+// GenerateAdvice 生成维护建议.
 func (m *MaintenanceAdvisor) GenerateAdvice() ([]MaintenanceAdvice, error) {
 	devices := m.analyzer.GetDevices()
 	if len(devices) == 0 {
@@ -162,7 +162,7 @@ func (m *MaintenanceAdvisor) GenerateAdvice() ([]MaintenanceAdvice, error) {
 	return advices, nil
 }
 
-// GetAdviceForDevice 获取单设备建议
+// GetAdviceForDevice 获取单设备建议.
 func (m *MaintenanceAdvisor) GetAdviceForDevice(device string) ([]MaintenanceAdvice, error) {
 	allAdvices, err := m.GenerateAdvice()
 	if err != nil {
@@ -178,7 +178,7 @@ func (m *MaintenanceAdvisor) GetAdviceForDevice(device string) ([]MaintenanceAdv
 	return deviceAdvices, nil
 }
 
-// estimateReplacementCost 估算更换成本
+// estimateReplacementCost 估算更换成本.
 func estimateReplacementCost(data *SMARTData) float64 {
 	capacityTB := float64(data.CapacityBytes) / 1e12
 
@@ -195,7 +195,7 @@ func estimateReplacementCost(data *SMARTData) float64 {
 // DiskGroupManager - 磁盘组管理
 // ============================================================
 
-// DiskGroupManager 磁盘组管理
+// DiskGroupManager 磁盘组管理.
 type DiskGroupManager struct {
 	mu       sync.RWMutex
 	analyzer *SMARTAnalyzer
@@ -203,7 +203,7 @@ type DiskGroupManager struct {
 	groups   map[string]*DiskGroup
 }
 
-// NewDiskGroupManager 创建磁盘组管理器
+// NewDiskGroupManager 创建磁盘组管理器.
 func NewDiskGroupManager(analyzer *SMARTAnalyzer, scoreSys *HealthScoreSystem) *DiskGroupManager {
 	return &DiskGroupManager{
 		analyzer: analyzer,
@@ -212,7 +212,7 @@ func NewDiskGroupManager(analyzer *SMARTAnalyzer, scoreSys *HealthScoreSystem) *
 	}
 }
 
-// CreateGroup 创建磁盘组
+// CreateGroup 创建磁盘组.
 func (g *DiskGroupManager) CreateGroup(id, name, groupType string, disks []string) *DiskGroup {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -228,7 +228,7 @@ func (g *DiskGroupManager) CreateGroup(id, name, groupType string, disks []strin
 	return group
 }
 
-// GetGroup 获取磁盘组
+// GetGroup 获取磁盘组.
 func (g *DiskGroupManager) GetGroup(id string) (*DiskGroup, error) {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -240,7 +240,7 @@ func (g *DiskGroupManager) GetGroup(id string) (*DiskGroup, error) {
 	return group, nil
 }
 
-// ListGroups 列出所有磁盘组
+// ListGroups 列出所有磁盘组.
 func (g *DiskGroupManager) ListGroups() []*DiskGroup {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -252,7 +252,7 @@ func (g *DiskGroupManager) ListGroups() []*DiskGroup {
 	return groups
 }
 
-// EvaluateGroup 评估磁盘组健康状态
+// EvaluateGroup 评估磁盘组健康状态.
 func (g *DiskGroupManager) EvaluateGroup(id string) (*DiskGroup, error) {
 	group, err := g.GetGroup(id)
 	if err != nil {
@@ -292,7 +292,7 @@ func (g *DiskGroupManager) EvaluateGroup(id string) (*DiskGroup, error) {
 	return group, nil
 }
 
-// EvaluateAllGroups 评估所有磁盘组
+// EvaluateAllGroups 评估所有磁盘组.
 func (g *DiskGroupManager) EvaluateAllGroups() []*DiskGroup {
 	groups := g.ListGroups()
 
@@ -312,7 +312,7 @@ func (g *DiskGroupManager) EvaluateAllGroups() []*DiskGroup {
 	return results
 }
 
-// RemoveGroup 删除磁盘组
+// RemoveGroup 删除磁盘组.
 func (g *DiskGroupManager) RemoveGroup(id string) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -328,7 +328,7 @@ func (g *DiskGroupManager) RemoveGroup(id string) error {
 // DiskHealthService - 统一服务接口
 // ============================================================
 
-// DiskHealthService 磁盘健康分析统一服务
+// DiskHealthService 磁盘健康分析统一服务.
 type DiskHealthService struct {
 	Analyzer  *SMARTAnalyzer
 	ScoreSys  *HealthScoreSystem
@@ -337,7 +337,7 @@ type DiskHealthService struct {
 	GroupMgr  *DiskGroupManager
 }
 
-// NewDiskHealthService 创建统一服务
+// NewDiskHealthService 创建统一服务.
 func NewDiskHealthService(maxHistory int) *DiskHealthService {
 	analyzer := NewSMARTAnalyzer(maxHistory)
 	scoreSys := NewHealthScoreSystem(analyzer)
@@ -354,7 +354,7 @@ func NewDiskHealthService(maxHistory int) *DiskHealthService {
 	}
 }
 
-// ScanAllDisk 扫描所有磁盘（触发扫描）
+// ScanAllDisk 扫描所有磁盘（触发扫描）.
 func (s *DiskHealthService) ScanAllDisk() (string, time.Time) {
 	scanID := fmt.Sprintf("SCAN-%d", time.Now().Unix())
 	return scanID, time.Now()

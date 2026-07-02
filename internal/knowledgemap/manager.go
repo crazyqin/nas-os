@@ -11,7 +11,7 @@ import (
 
 // ==================== 节点管理 ====================
 
-// ListNodes 列出节点
+// ListNodes 列出节点.
 func (m *Manager) ListNodes(nodeType, tag string) []*KnowledgeNode {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -33,7 +33,7 @@ func (m *Manager) ListNodes(nodeType, tag string) []*KnowledgeNode {
 	return nodes
 }
 
-// CreateNode 创建节点
+// CreateNode 创建节点.
 func (m *Manager) CreateNode(req *NodeCreateRequest) (*KnowledgeNode, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -63,7 +63,7 @@ func (m *Manager) CreateNode(req *NodeCreateRequest) (*KnowledgeNode, error) {
 	return node, nil
 }
 
-// GetNode 获取节点
+// GetNode 获取节点.
 func (m *Manager) GetNode(id string) (*KnowledgeNode, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -75,7 +75,7 @@ func (m *Manager) GetNode(id string) (*KnowledgeNode, error) {
 	return node, nil
 }
 
-// UpdateNode 更新节点
+// UpdateNode 更新节点.
 func (m *Manager) UpdateNode(id string, req *NodeUpdateRequest) (*KnowledgeNode, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -113,7 +113,7 @@ func (m *Manager) UpdateNode(id string, req *NodeUpdateRequest) (*KnowledgeNode,
 	return node, nil
 }
 
-// DeleteNode 删除节点
+// DeleteNode 删除节点.
 func (m *Manager) DeleteNode(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -141,7 +141,7 @@ func (m *Manager) DeleteNode(id string) error {
 	return nil
 }
 
-// ReviewNode 记录复习
+// ReviewNode 记录复习.
 func (m *Manager) ReviewNode(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -169,7 +169,7 @@ func (m *Manager) ReviewNode(id string) error {
 
 // ==================== 关联关系 ====================
 
-// ListRelations 列出关系
+// ListRelations 列出关系.
 func (m *Manager) ListRelations(relType string) []*NodeRelation {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -184,7 +184,7 @@ func (m *Manager) ListRelations(relType string) []*NodeRelation {
 	return relations
 }
 
-// CreateRelation 创建关系
+// CreateRelation 创建关系.
 func (m *Manager) CreateRelation(req *RelationCreateRequest) (*NodeRelation, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -222,7 +222,7 @@ func (m *Manager) CreateRelation(req *RelationCreateRequest) (*NodeRelation, err
 	return rel, nil
 }
 
-// DeleteRelation 删除关系
+// DeleteRelation 删除关系.
 func (m *Manager) DeleteRelation(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -234,7 +234,7 @@ func (m *Manager) DeleteRelation(id string) error {
 	return nil
 }
 
-// GetNodeRelated 获取节点关联
+// GetNodeRelated 获取节点关联.
 func (m *Manager) GetNodeRelated(nodeID, relType string) []*KnowledgeNode {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -267,7 +267,7 @@ func (m *Manager) GetNodeRelated(nodeID, relType string) []*KnowledgeNode {
 
 // ==================== 智能检索 ====================
 
-// SearchNodes 搜索节点
+// SearchNodes 搜索节点.
 func (m *Manager) SearchNodes(query *SearchQuery) *SearchResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -342,7 +342,7 @@ func (m *Manager) SearchNodes(query *SearchQuery) *SearchResult {
 	}
 }
 
-// SearchByTags 按标签搜索
+// SearchByTags 按标签搜索.
 func (m *Manager) SearchByTags(tags []string) []*KnowledgeNode {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -365,7 +365,7 @@ func (m *Manager) SearchByTags(tags []string) []*KnowledgeNode {
 
 // ==================== 分类管理 ====================
 
-// ListClassifications 列出分类
+// ListClassifications 列出分类.
 func (m *Manager) ListClassifications(dimension string) []*Classification {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -380,7 +380,7 @@ func (m *Manager) ListClassifications(dimension string) []*Classification {
 	return classifications
 }
 
-// CreateClassification 创建分类
+// CreateClassification 创建分类.
 func (m *Manager) CreateClassification(req *ClassificationCreateRequest) (*Classification, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -404,7 +404,7 @@ func (m *Manager) CreateClassification(req *ClassificationCreateRequest) (*Class
 	return class, nil
 }
 
-// GetClassification 获取分类
+// GetClassification 获取分类.
 func (m *Manager) GetClassification(id string) (*Classification, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -416,7 +416,7 @@ func (m *Manager) GetClassification(id string) (*Classification, error) {
 	return class, nil
 }
 
-// DeleteClassification 删除分类
+// DeleteClassification 删除分类.
 func (m *Manager) DeleteClassification(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -428,7 +428,7 @@ func (m *Manager) DeleteClassification(id string) error {
 	return nil
 }
 
-// AddNodeToClassification 添加节点到分类
+// AddNodeToClassification 添加节点到分类.
 func (m *Manager) AddNodeToClassification(classID, nodeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -451,7 +451,7 @@ func (m *Manager) AddNodeToClassification(classID, nodeID string) error {
 	return nil
 }
 
-// RemoveNodeFromClassification 从分类移除节点
+// RemoveNodeFromClassification 从分类移除节点.
 func (m *Manager) RemoveNodeFromClassification(classID, nodeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -466,7 +466,7 @@ func (m *Manager) RemoveNodeFromClassification(classID, nodeID string) error {
 
 // ==================== 图谱可视化 ====================
 
-// GetGraph 获取图谱数据
+// GetGraph 获取图谱数据.
 func (m *Manager) GetGraph(maxNodes int) *GraphData {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -515,7 +515,7 @@ func (m *Manager) GetGraph(maxNodes int) *GraphData {
 	return &GraphData{Nodes: graphNodes, Edges: graphEdges}
 }
 
-// GetSubgraph 获取节点子图
+// GetSubgraph 获取节点子图.
 func (m *Manager) GetSubgraph(nodeID string, depth int) (*GraphData, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -578,7 +578,7 @@ func (m *Manager) GetSubgraph(nodeID string, depth int) (*GraphData, error) {
 
 // ==================== 导入导出 ====================
 
-// ImportData 导入数据
+// ImportData 导入数据.
 func (m *Manager) ImportData(req *ImportData) (int, error) {
 	switch req.Format {
 	case "json":
@@ -679,7 +679,7 @@ func (m *Manager) importMarkdown(content string, overwrite bool) (int, error) {
 	return count, nil
 }
 
-// ExportData 导出数据
+// ExportData 导出数据.
 func (m *Manager) ExportData(req *ExportData) (interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -712,13 +712,13 @@ func exportToMarkdown(nodes []*KnowledgeNode) *MarkdownExport {
 	sb.WriteString("# Knowledge Map Export\n\n")
 
 	for _, node := range nodes {
-		sb.WriteString(fmt.Sprintf("## %s\n\n", node.Title))
-		sb.WriteString(fmt.Sprintf("type: %s\n", node.Type))
+		fmt.Fprintf(&sb, "## %s\n\n", node.Title)
+		fmt.Fprintf(&sb, "type: %s\n", node.Type)
 		if len(node.Tags) > 0 {
-			sb.WriteString(fmt.Sprintf("tags: %s\n", strings.Join(node.Tags, ", ")))
+			fmt.Fprintf(&sb, "tags: %s\n", strings.Join(node.Tags, ", "))
 		}
 		if node.Source != "" {
-			sb.WriteString(fmt.Sprintf("source: %s\n", node.Source))
+			fmt.Fprintf(&sb, "source: %s\n", node.Source)
 		}
 		sb.WriteString("\n")
 		if node.Content != "" {
@@ -735,7 +735,7 @@ func exportToMarkdown(nodes []*KnowledgeNode) *MarkdownExport {
 
 // ==================== 学习追踪 ====================
 
-// GetStats 获取学习统计
+// GetStats 获取学习统计.
 func (m *Manager) GetStats() *LearningStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -776,7 +776,7 @@ func (m *Manager) GetStats() *LearningStats {
 	return stats
 }
 
-// GetGrowthTrend 获取增长趋势
+// GetGrowthTrend 获取增长趋势.
 func (m *Manager) GetGrowthTrend(days int) []DailyGrowth {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -803,7 +803,7 @@ func (m *Manager) GetGrowthTrend(days int) []DailyGrowth {
 	return trend
 }
 
-// GetPendingReviews 获取待复习节点
+// GetPendingReviews 获取待复习节点.
 func (m *Manager) GetPendingReviews() []*KnowledgeNode {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Alert 告警
+// Alert 告警.
 type Alert struct {
 	ID         string            `json:"id"`
 	Type       string            `json:"type"`     // info, warning, error, critical
@@ -31,7 +31,7 @@ type Alert struct {
 	ResolvedBy string            `json:"resolved_by,omitempty"`
 }
 
-// Threshold 阈值
+// Threshold 阈值.
 type Threshold struct {
 	Metric   string  `json:"metric"`
 	Operator string  `json:"operator"` // gt, lt, eq, gte, lte
@@ -39,7 +39,7 @@ type Threshold struct {
 	Duration int     `json:"duration"` // 秒
 }
 
-// AutoAction 自动动作
+// AutoAction 自动动作.
 type AutoAction struct {
 	Type       string            `json:"type"` // restart, scale, notify, script, cleanup
 	Params     map[string]string `json:"params,omitempty"`
@@ -48,7 +48,7 @@ type AutoAction struct {
 	Result     string            `json:"result,omitempty"`
 }
 
-// Rule 监控规则
+// Rule 监控规则.
 type Rule struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -65,13 +65,13 @@ type Rule struct {
 	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
-// Condition 条件
+// Condition 条件.
 type Condition struct {
 	Operator string  `json:"operator"`
 	Value    float64 `json:"value"`
 }
 
-// Metric 指标
+// Metric 指标.
 type Metric struct {
 	Name      string            `json:"name"`
 	Value     float64           `json:"value"`
@@ -80,7 +80,7 @@ type Metric struct {
 	Timestamp time.Time         `json:"timestamp"`
 }
 
-// HealthCheck 健康检查
+// HealthCheck 健康检查.
 type HealthCheck struct {
 	ID        string     `json:"id"`
 	Name      string     `json:"name"`
@@ -94,7 +94,7 @@ type HealthCheck struct {
 	Message   string     `json:"message,omitempty"`
 }
 
-// CreateRuleRequest 创建规则请求
+// CreateRuleRequest 创建规则请求.
 type CreateRuleRequest struct {
 	Name        string      `json:"name"`
 	Description string      `json:"description,omitempty"`
@@ -107,14 +107,14 @@ type CreateRuleRequest struct {
 	Channels    []string    `json:"channels,omitempty"`
 }
 
-// AcknowledgeAlertRequest 确认告警请求
+// AcknowledgeAlertRequest 确认告警请求.
 type AcknowledgeAlertRequest struct {
 	AlertID string `json:"alert_id"`
 	User    string `json:"user"`
 	Comment string `json:"comment,omitempty"`
 }
 
-// Manager 管理器
+// Manager 管理器.
 type Manager struct {
 	mu           sync.RWMutex
 	alerts       map[string]*Alert
@@ -125,7 +125,7 @@ type Manager struct {
 	dataFile     string
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	MaxAlerts       int  `json:"max_alerts"`
 	MaxRules        int  `json:"max_rules"`
@@ -135,7 +135,7 @@ type Config struct {
 	AlertCooldown   int  `json:"alert_cooldown"` // 秒
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(dataFile string) *Manager {
 	return &Manager{
 		alerts:       make(map[string]*Alert),
@@ -154,7 +154,7 @@ func NewManager(dataFile string) *Manager {
 	}
 }
 
-// Initialize 初始化
+// Initialize 初始化.
 func (m *Manager) Initialize() error {
 	m.loadDefaultRules()
 	return m.load()
@@ -176,7 +176,7 @@ func (m *Manager) loadDefaultRules() {
 	}
 }
 
-// CreateRule 创建规则
+// CreateRule 创建规则.
 func (m *Manager) CreateRule(req CreateRuleRequest) (*Rule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -206,7 +206,7 @@ func (m *Manager) CreateRule(req CreateRuleRequest) (*Rule, error) {
 	return rule, m.save()
 }
 
-// GetRule 获取规则
+// GetRule 获取规则.
 func (m *Manager) GetRule(id string) (*Rule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -218,7 +218,7 @@ func (m *Manager) GetRule(id string) (*Rule, error) {
 	return rule, nil
 }
 
-// ListRules 列出规则
+// ListRules 列出规则.
 func (m *Manager) ListRules(category string) []*Rule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -232,7 +232,7 @@ func (m *Manager) ListRules(category string) []*Rule {
 	return result
 }
 
-// DeleteRule 删除规则
+// DeleteRule 删除规则.
 func (m *Manager) DeleteRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -245,7 +245,7 @@ func (m *Manager) DeleteRule(id string) error {
 	return m.save()
 }
 
-// ReportMetric 上报指标
+// ReportMetric 上报指标.
 func (m *Manager) ReportMetric(metric Metric) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -254,7 +254,7 @@ func (m *Manager) ReportMetric(metric Metric) {
 	m.evaluateRules(metric)
 }
 
-// evaluateRules 评估规则
+// evaluateRules 评估规则.
 func (m *Manager) evaluateRules(metric Metric) {
 	for _, rule := range m.rules {
 		if !rule.Enabled || rule.Metric != metric.Name {
@@ -281,7 +281,7 @@ func (m *Manager) evaluateRules(metric Metric) {
 	}
 }
 
-// createAlert 创建告警
+// createAlert 创建告警.
 func (m *Manager) createAlert(rule *Rule, metric Metric) {
 	alertID := fmt.Sprintf("alert_%s_%d", rule.ID, time.Now().UnixNano())
 
@@ -338,7 +338,7 @@ func severityToType(severity int) string {
 	}
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (m *Manager) AcknowledgeAlert(req AcknowledgeAlertRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -352,7 +352,7 @@ func (m *Manager) AcknowledgeAlert(req AcknowledgeAlertRequest) error {
 	return m.save()
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (m *Manager) ResolveAlert(alertID, user string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -370,7 +370,7 @@ func (m *Manager) ResolveAlert(alertID, user string) error {
 	return m.save()
 }
 
-// ListAlerts 列出告警
+// ListAlerts 列出告警.
 func (m *Manager) ListAlerts(status, category string) []*Alert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -385,7 +385,7 @@ func (m *Manager) ListAlerts(status, category string) []*Alert {
 	return result
 }
 
-// GetAlert 获取告警
+// GetAlert 获取告警.
 func (m *Manager) GetAlert(id string) (*Alert, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -397,7 +397,7 @@ func (m *Manager) GetAlert(id string) (*Alert, error) {
 	return alert, nil
 }
 
-// AddHealthCheck 添加健康检查
+// AddHealthCheck 添加健康检查.
 func (m *Manager) AddHealthCheck(check HealthCheck) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -414,7 +414,7 @@ func (m *Manager) AddHealthCheck(check HealthCheck) error {
 	return m.save()
 }
 
-// UpdateHealthCheckStatus 更新健康检查状态
+// UpdateHealthCheckStatus 更新健康检查状态.
 func (m *Manager) UpdateHealthCheckStatus(id, status string, latency int, message string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -431,7 +431,7 @@ func (m *Manager) UpdateHealthCheckStatus(id, status string, latency int, messag
 	check.Message = message
 }
 
-// GetHealthChecks 获取健康检查列表
+// GetHealthChecks 获取健康检查列表.
 func (m *Manager) GetHealthChecks() []*HealthCheck {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -443,7 +443,7 @@ func (m *Manager) GetHealthChecks() []*HealthCheck {
 	return result
 }
 
-// GetAlertStats 获取告警统计
+// GetAlertStats 获取告警统计.
 func (m *Manager) GetAlertStats() map[string]int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -476,7 +476,7 @@ func (m *Manager) save() error {
 	return nil
 }
 
-// RegisterHandlers 注册HTTP处理器
+// RegisterHandlers 注册HTTP处理器.
 func (m *Manager) RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/monitor/alerts", m.handleAlerts)
 	mux.HandleFunc("/api/v1/monitor/alerts/", m.handleAlertByID)

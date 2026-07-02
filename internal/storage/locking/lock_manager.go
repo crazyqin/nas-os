@@ -14,7 +14,7 @@ import (
 
 // ========== 锁类型和状态 ==========
 
-// LockType 锁类型
+// LockType 锁类型.
 type LockType int
 
 const (
@@ -33,7 +33,7 @@ func (lt LockType) String() string {
 	}
 }
 
-// LockStatus 锁状态
+// LockStatus 锁状态.
 type LockStatus int
 
 const (
@@ -60,7 +60,7 @@ func (ls LockStatus) String() string {
 
 // ========== 锁定结构 ==========
 
-// FileLock 文件锁
+// FileLock 文件锁.
 type FileLock struct {
 	ID            string            `json:"id"`
 	FilePath      string            `json:"filePath"`
@@ -86,21 +86,21 @@ type FileLock struct {
 	mu sync.RWMutex
 }
 
-// IsExpired 检查是否过期
+// IsExpired 检查是否过期.
 func (fl *FileLock) IsExpired() bool {
 	fl.mu.RLock()
 	defer fl.mu.RUnlock()
 	return time.Now().After(fl.ExpiresAt)
 }
 
-// IsOwnedBy 检查是否由指定用户持有
+// IsOwnedBy 检查是否由指定用户持有.
 func (fl *FileLock) IsOwnedBy(owner string) bool {
 	fl.mu.RLock()
 	defer fl.mu.RUnlock()
 	return fl.Owner == owner
 }
 
-// Refresh 刷新访问时间
+// Refresh 刷新访问时间.
 func (fl *FileLock) Refresh() {
 	fl.mu.Lock()
 	defer fl.mu.Unlock()
@@ -108,7 +108,7 @@ func (fl *FileLock) Refresh() {
 	fl.LastHeartbeat = time.Now()
 }
 
-// Extend 延长有效期
+// Extend 延长有效期.
 func (fl *FileLock) Extend(duration time.Duration) {
 	fl.mu.Lock()
 	defer fl.mu.Unlock()
@@ -117,7 +117,7 @@ func (fl *FileLock) Extend(duration time.Duration) {
 	fl.Version++
 }
 
-// Release 释放锁
+// Release 释放锁.
 func (fl *FileLock) Release() {
 	fl.mu.Lock()
 	defer fl.mu.Unlock()
@@ -126,7 +126,7 @@ func (fl *FileLock) Release() {
 
 // ========== 锁请求和响应 ==========
 
-// LockRequest 锁请求
+// LockRequest 锁请求.
 type LockRequest struct {
 	FilePath    string            `json:"filePath" binding:"required"`
 	LockType    LockType          `json:"lockType"`
@@ -142,14 +142,14 @@ type LockRequest struct {
 	WaitTimeout int               `json:"waitTimeout"` // 等待超时秒数
 }
 
-// LockConflict 锁冲突信息
+// LockConflict 锁冲突信息.
 type LockConflict struct {
 	ExistingLock *LockInfo `json:"existingLock"`
 	Message      string    `json:"message"`
 	CanWait      bool      `json:"canWait"` // 是否可以等待
 }
 
-// LockInfo 锁信息（API响应）
+// LockInfo 锁信息（API响应）.
 type LockInfo struct {
 	ID            string            `json:"id"`
 	FilePath      string            `json:"filePath"`
@@ -170,7 +170,7 @@ type LockInfo struct {
 	SharedWith    []string          `json:"sharedWith,omitempty"`
 }
 
-// ToInfo 转换为LockInfo
+// ToInfo 转换为LockInfo.
 func (fl *FileLock) ToInfo() *LockInfo {
 	fl.mu.RLock()
 	defer fl.mu.RUnlock()
@@ -204,7 +204,7 @@ func (fl *FileLock) ToInfo() *LockInfo {
 
 // ========== 锁管理器配置 ==========
 
-// LockConfig 锁配置
+// LockConfig 锁配置.
 type LockConfig struct {
 	DefaultTimeout      time.Duration `json:"defaultTimeout"`
 	MaxTimeout          time.Duration `json:"maxTimeout"`
@@ -218,7 +218,7 @@ type LockConfig struct {
 	NotifyOnLockChange  bool          `json:"notifyOnLockChange"`  // 锁变更通知
 }
 
-// DefaultLockConfig 默认配置
+// DefaultLockConfig 默认配置.
 func DefaultLockConfig() LockConfig {
 	return LockConfig{
 		DefaultTimeout:      30 * time.Minute,
@@ -236,7 +236,7 @@ func DefaultLockConfig() LockConfig {
 
 // ========== 锁管理器 ==========
 
-// LockManager 锁管理器
+// LockManager 锁管理器.
 type LockManager struct {
 	config LockConfig
 
@@ -269,7 +269,7 @@ type LockManager struct {
 	wg     sync.WaitGroup
 }
 
-// LockWaiter 锁等待者
+// LockWaiter 锁等待者.
 type LockWaiter struct {
 	Request    *LockRequest
 	NotifyChan chan *FileLock
@@ -277,12 +277,12 @@ type LockWaiter struct {
 	Timeout    time.Duration
 }
 
-// LockNotifier 锁事件通知器接口
+// LockNotifier 锁事件通知器接口.
 type LockNotifier interface {
 	OnLockEvent(event LockEvent)
 }
 
-// LockEvent 锁事件
+// LockEvent 锁事件.
 type LockEvent struct {
 	Type      EventType `json:"type"` // acquired/released/conflict/expired/heartbeat/wait
 	LockID    string    `json:"lockId"`
@@ -295,7 +295,7 @@ type LockEvent struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// EventType 事件类型
+// EventType 事件类型.
 type EventType int
 
 const (
@@ -307,7 +307,7 @@ const (
 	EventLockWait
 )
 
-// NewLockManager 创建锁管理器
+// NewLockManager 创建锁管理器.
 func NewLockManager(config LockConfig) *LockManager {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -334,7 +334,7 @@ func NewLockManager(config LockConfig) *LockManager {
 
 // ========== 核心锁定操作 ==========
 
-// Lock 获取锁
+// Lock 获取锁.
 func (m *LockManager) Lock(ctx context.Context, req *LockRequest) (*FileLock, *LockConflict, error) {
 	if req == nil {
 		return nil, nil, errors.New("invalid request")
@@ -422,7 +422,7 @@ func (m *LockManager) Lock(ctx context.Context, req *LockRequest) (*FileLock, *L
 	return lock, nil, nil
 }
 
-// waitForLock 等待锁释放
+// waitForLock 等待锁释放.
 func (m *LockManager) waitForLock(ctx context.Context, req *LockRequest, existing *FileLock, conflict *LockConflict) (*FileLock, *LockConflict, error) {
 	waitTimeout := time.Duration(req.WaitTimeout) * time.Second
 	if waitTimeout <= 0 {
@@ -469,7 +469,7 @@ func (m *LockManager) waitForLock(ctx context.Context, req *LockRequest, existin
 	}
 }
 
-// Unlock 释放锁
+// Unlock 释放锁.
 func (m *LockManager) Unlock(lockID string, owner string) error {
 	raw, ok := m.locksByID.Load(lockID)
 	if !ok {
@@ -506,7 +506,7 @@ func (m *LockManager) Unlock(lockID string, owner string) error {
 	return nil
 }
 
-// Heartbeat 锁心跳（保持活跃状态）
+// Heartbeat 锁心跳（保持活跃状态）.
 func (m *LockManager) Heartbeat(lockID string, owner string) error {
 	raw, ok := m.locksByID.Load(lockID)
 	if !ok {
@@ -538,7 +538,7 @@ func (m *LockManager) Heartbeat(lockID string, owner string) error {
 
 // ========== 查询操作 ==========
 
-// GetLock 获取锁信息
+// GetLock 获取锁信息.
 func (m *LockManager) GetLock(lockID string) (*LockInfo, error) {
 	raw, ok := m.locksByID.Load(lockID)
 	if !ok {
@@ -558,7 +558,7 @@ func (m *LockManager) GetLock(lockID string) (*LockInfo, error) {
 	return lock.ToInfo(), nil
 }
 
-// GetLockByPath 通过路径获取锁
+// GetLockByPath 通过路径获取锁.
 func (m *LockManager) GetLockByPath(filePath string) (*LockInfo, error) {
 	raw, ok := m.locks.Load(filePath)
 	if !ok {
@@ -578,7 +578,7 @@ func (m *LockManager) GetLockByPath(filePath string) (*LockInfo, error) {
 	return lock.ToInfo(), nil
 }
 
-// IsLocked 检查是否锁定
+// IsLocked 检查是否锁定.
 func (m *LockManager) IsLocked(filePath string) bool {
 	raw, ok := m.locks.Load(filePath)
 	if !ok {
@@ -598,7 +598,7 @@ func (m *LockManager) IsLocked(filePath string) bool {
 	return lock.Status == LockStatusActive
 }
 
-// ListLocks 列出所有锁
+// ListLocks 列出所有锁.
 func (m *LockManager) ListLocks(filter *LockFilter) []*LockInfo {
 	var result []*LockInfo
 
@@ -627,7 +627,7 @@ func (m *LockManager) ListLocks(filter *LockFilter) []*LockInfo {
 	return result
 }
 
-// ListLocksBySession 列出会话的所有锁（协作功能）
+// ListLocksBySession 列出会话的所有锁（协作功能）.
 func (m *LockManager) ListLocksBySession(sessionID string) []*LockInfo {
 	raw, ok := m.sessionLocks.Load(sessionID)
 	if !ok {
@@ -652,7 +652,7 @@ func (m *LockManager) ListLocksBySession(sessionID string) []*LockInfo {
 	return result
 }
 
-// LockFilter 锁过滤器
+// LockFilter 锁过滤器.
 type LockFilter struct {
 	Owner    string
 	LockType LockType
@@ -661,7 +661,7 @@ type LockFilter struct {
 
 // ========== 协作功能 ==========
 
-// ShareLock 共享锁给其他用户
+// ShareLock 共享锁给其他用户.
 func (m *LockManager) ShareLock(lockID string, owner string, users []string) error {
 	raw, ok := m.locksByID.Load(lockID)
 	if !ok {
@@ -831,7 +831,7 @@ func (m *LockManager) emitEvent(event LockEvent) {
 	}
 }
 
-// AddNotifier 添加通知器
+// AddNotifier 添加通知器.
 func (m *LockManager) AddNotifier(notifier LockNotifier) {
 	m.notifiersMu.Lock()
 	m.notifiers = append(m.notifiers, notifier)
@@ -981,13 +981,13 @@ func (m *LockManager) checkHeartbeats() {
 	}
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *LockManager) Close() {
 	m.cancel()
 	m.wg.Wait()
 }
 
-// Stats 获取统计
+// Stats 获取统计.
 func (m *LockManager) Stats() LockStats {
 	m.stats.mu.RLock()
 	defer m.stats.mu.RUnlock()
@@ -1013,7 +1013,7 @@ func (m *LockManager) Stats() LockStats {
 	}
 }
 
-// LockStats 锁统计
+// LockStats 锁统计.
 type LockStats struct {
 	TotalLocks    int64 `json:"totalLocks"`
 	ActiveLocks   int64 `json:"activeLocks"`
@@ -1024,7 +1024,7 @@ type LockStats struct {
 
 // ========== 协议适配器 ==========
 
-// SMBLockAdapter SMB协议锁适配器
+// SMBLockAdapter SMB协议锁适配器.
 type SMBLockAdapter struct {
 	manager *LockManager
 }
@@ -1066,7 +1066,7 @@ func (a *SMBLockAdapter) GetLockOwner(filePath string) (string, error) {
 	return info.Owner, nil
 }
 
-// NFSLockAdapter NFS协议锁适配器
+// NFSLockAdapter NFS协议锁适配器.
 type NFSLockAdapter struct {
 	manager *LockManager
 }
@@ -1108,7 +1108,7 @@ func (a *NFSLockAdapter) GetLockOwner(filePath string) (string, error) {
 	return info.Owner, nil
 }
 
-// DriveLockAdapter 群晖Drive协议锁适配器
+// DriveLockAdapter 群晖Drive协议锁适配器.
 type DriveLockAdapter struct {
 	manager *LockManager
 }
@@ -1156,7 +1156,7 @@ func (a *DriveLockAdapter) ShareLock(lockID, owner string, users []string) error
 	return a.manager.ShareLock(lockID, owner, users)
 }
 
-// WebDAVLockAdapter WebDAV协议锁适配器
+// WebDAVLockAdapter WebDAV协议锁适配器.
 type WebDAVLockAdapter struct {
 	manager *LockManager
 }
@@ -1186,7 +1186,7 @@ func (a *WebDAVLockAdapter) Unlock(filePath, owner string) error {
 	return a.manager.UnlockByPath(filePath, owner)
 }
 
-// UnlockByPath 通过路径释放锁
+// UnlockByPath 通过路径释放锁.
 func (m *LockManager) UnlockByPath(filePath string, owner string) error {
 	raw, ok := m.locks.Load(filePath)
 	if !ok {

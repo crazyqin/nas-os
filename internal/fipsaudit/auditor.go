@@ -11,33 +11,33 @@ import (
 	"time"
 )
 
-// Auditor 安全审计器
+// Auditor 安全审计器.
 type Auditor struct {
-	mu           sync.RWMutex
-	config       *Config
-	checker      *ComplianceChecker
-	auditLog     *AuditLog
-	reportGen    *ReportGenerator
-	logger       Logger
+	mu        sync.RWMutex
+	config    *Config
+	checker   *ComplianceChecker
+	auditLog  *AuditLog
+	reportGen *ReportGenerator
+	logger    Logger
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
-	FIPSLevel            string // FIPS 140-3 级别
-	EnableAutoCheck      bool
-	CheckInterval        time.Duration
-	RetentionDays        int
-	AlertThreshold       int
+	FIPSLevel       string // FIPS 140-3 级别
+	EnableAutoCheck bool
+	CheckInterval   time.Duration
+	RetentionDays   int
+	AlertThreshold  int
 }
 
-// ComplianceChecker 合规检查器
+// ComplianceChecker 合规检查器.
 type ComplianceChecker struct {
-	mu       sync.RWMutex
-	checks   []ComplianceCheck
-	results  map[string]*CheckResult
+	mu      sync.RWMutex
+	checks  []ComplianceCheck
+	results map[string]*CheckResult
 }
 
-// ComplianceCheck 合规检查项
+// ComplianceCheck 合规检查项.
 type ComplianceCheck struct {
 	ID          string
 	Name        string
@@ -47,7 +47,7 @@ type ComplianceCheck struct {
 	CheckFunc   func() *CheckResult
 }
 
-// CheckSeverity 检查严重级别
+// CheckSeverity 检查严重级别.
 type CheckSeverity string
 
 const (
@@ -57,24 +57,24 @@ const (
 	SeverityCritical CheckSeverity = "critical"
 )
 
-// CheckResult 检查结果
+// CheckResult 检查结果.
 type CheckResult struct {
-	CheckID   string
-	Passed    bool
-	Message   string
-	Details   map[string]interface{}
-	Timestamp time.Time
+	CheckID     string
+	Passed      bool
+	Message     string
+	Details     map[string]interface{}
+	Timestamp   time.Time
 	Remediation string
 }
 
-// AuditLog 审计日志
+// AuditLog 审计日志.
 type AuditLog struct {
-	mu       sync.RWMutex
-	entries  []AuditEntry
-	maxSize  int
+	mu      sync.RWMutex
+	entries []AuditEntry
+	maxSize int
 }
 
-// AuditEntry 审计条目
+// AuditEntry 审计条目.
 type AuditEntry struct {
 	ID        string
 	Timestamp time.Time
@@ -87,27 +87,27 @@ type AuditEntry struct {
 	UserAgent string
 }
 
-// AuditReport 审计报告
+// AuditReport 审计报告.
 type AuditReport struct {
-	GeneratedAt     time.Time
-	Period          string
-	Summary         *ReportSummary
+	GeneratedAt      time.Time
+	Period           string
+	Summary          *ReportSummary
 	ComplianceChecks []*CheckResult
-	AuditEntries    []AuditEntry
-	Recommendations []Recommendation
+	AuditEntries     []AuditEntry
+	Recommendations  []Recommendation
 }
 
-// ReportSummary 报告摘要
+// ReportSummary 报告摘要.
 type ReportSummary struct {
-	TotalChecks    int
-	PassedChecks   int
-	FailedChecks   int
-	ComplianceRate float64
+	TotalChecks       int
+	PassedChecks      int
+	FailedChecks      int
+	ComplianceRate    float64
 	TotalAuditEntries int
-	CriticalIssues int
+	CriticalIssues    int
 }
 
-// Recommendation 建议
+// Recommendation 建议.
 type Recommendation struct {
 	Priority    string
 	Category    string
@@ -117,12 +117,12 @@ type Recommendation struct {
 	Remediation string
 }
 
-// ReportGenerator 报告生成器
+// ReportGenerator 报告生成器.
 type ReportGenerator struct {
 	mu sync.RWMutex
 }
 
-// Logger 日志接口
+// Logger 日志接口.
 type Logger interface {
 	Info(msg string, args ...interface{})
 	Error(msg string, args ...interface{})
@@ -130,7 +130,7 @@ type Logger interface {
 	Debug(msg string, args ...interface{})
 }
 
-// NewAuditor 创建新的安全审计器
+// NewAuditor 创建新的安全审计器.
 func NewAuditor(config *Config, logger Logger) *Auditor {
 	return &Auditor{
 		config: config,
@@ -147,7 +147,7 @@ func NewAuditor(config *Config, logger Logger) *Auditor {
 	}
 }
 
-// Init 初始化审计器
+// Init 初始化审计器.
 func (a *Auditor) Init(ctx context.Context) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -164,7 +164,7 @@ func (a *Auditor) Init(ctx context.Context) error {
 	return nil
 }
 
-// RunComplianceCheck 运行合规检查
+// RunComplianceCheck 运行合规检查.
 func (a *Auditor) RunComplianceCheck(ctx context.Context) ([]*CheckResult, error) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -184,7 +184,7 @@ func (a *Auditor) RunComplianceCheck(ctx context.Context) ([]*CheckResult, error
 	return results, nil
 }
 
-// LogAudit 记录审计日志
+// LogAudit 记录审计日志.
 func (a *Auditor) LogAudit(entry *AuditEntry) {
 	a.auditLog.mu.Lock()
 	defer a.auditLog.mu.Unlock()
@@ -200,7 +200,7 @@ func (a *Auditor) LogAudit(entry *AuditEntry) {
 	a.logger.Debug("审计日志: %s - %s - %s", entry.User, entry.Action, entry.Resource)
 }
 
-// GenerateReport 生成审计报告
+// GenerateReport 生成审计报告.
 func (a *Auditor) GenerateReport(ctx context.Context, period string) (*AuditReport, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -242,7 +242,7 @@ func (a *Auditor) GenerateReport(ctx context.Context, period string) (*AuditRepo
 	return report, nil
 }
 
-// registerBuiltinChecks 注册内置检查项
+// registerBuiltinChecks 注册内置检查项.
 func (a *Auditor) registerBuiltinChecks() {
 	checks := []ComplianceCheck{
 		{
@@ -290,7 +290,7 @@ func (a *Auditor) registerBuiltinChecks() {
 	a.checker.checks = append(a.checker.checks, checks...)
 }
 
-// checkCryptoCompliance 检查加密合规
+// checkCryptoCompliance 检查加密合规.
 func (a *Auditor) checkCryptoCompliance() *CheckResult {
 	// 检查SHA-256/SHA-512支持
 	_ = sha256.New()
@@ -308,7 +308,7 @@ func (a *Auditor) checkCryptoCompliance() *CheckResult {
 	}
 }
 
-// checkAuthMechanism 检查身份验证机制
+// checkAuthMechanism 检查身份验证机制.
 func (a *Auditor) checkAuthMechanism() *CheckResult {
 	return &CheckResult{
 		CheckID:   "fips-auth-001",
@@ -316,13 +316,13 @@ func (a *Auditor) checkAuthMechanism() *CheckResult {
 		Message:   "身份验证机制安全",
 		Timestamp: time.Now(),
 		Details: map[string]interface{}{
-			"methods": []string{"password", "2fa", "certificate"},
+			"methods":  []string{"password", "2fa", "certificate"},
 			"severity": "high",
 		},
 	}
 }
 
-// checkAccessControl 检查访问控制
+// checkAccessControl 检查访问控制.
 func (a *Auditor) checkAccessControl() *CheckResult {
 	return &CheckResult{
 		CheckID:   "fips-access-001",
@@ -331,12 +331,12 @@ func (a *Auditor) checkAccessControl() *CheckResult {
 		Timestamp: time.Now(),
 		Details: map[string]interface{}{
 			"rbac_enabled": true,
-			"severity":    "high",
+			"severity":     "high",
 		},
 	}
 }
 
-// checkAuditLogIntegrity 检查审计日志完整性
+// checkAuditLogIntegrity 检查审计日志完整性.
 func (a *Auditor) checkAuditLogIntegrity() *CheckResult {
 	return &CheckResult{
 		CheckID:   "fips-audit-001",
@@ -344,13 +344,13 @@ func (a *Auditor) checkAuditLogIntegrity() *CheckResult {
 		Message:   "审计日志完整且不可篡改",
 		Timestamp: time.Now(),
 		Details: map[string]interface{}{
-			"log_count":   len(a.auditLog.entries),
-			"severity":    "high",
+			"log_count": len(a.auditLog.entries),
+			"severity":  "high",
 		},
 	}
 }
 
-// checkKeyManagement 检查密钥管理
+// checkKeyManagement 检查密钥管理.
 func (a *Auditor) checkKeyManagement() *CheckResult {
 	return &CheckResult{
 		CheckID:   "fips-key-001",
@@ -359,12 +359,12 @@ func (a *Auditor) checkKeyManagement() *CheckResult {
 		Timestamp: time.Now(),
 		Details: map[string]interface{}{
 			"key_rotation": true,
-			"severity":    "critical",
+			"severity":     "critical",
 		},
 	}
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (a *Auditor) generateRecommendations(report *AuditReport) []Recommendation {
 	var recommendations []Recommendation
 
@@ -393,7 +393,7 @@ func (a *Auditor) generateRecommendations(report *AuditReport) []Recommendation 
 	return recommendations
 }
 
-// autoCheckLoop 自动检查循环
+// autoCheckLoop 自动检查循环.
 func (a *Auditor) autoCheckLoop(ctx context.Context) {
 	ticker := time.NewTicker(a.config.CheckInterval)
 	defer ticker.Stop()
@@ -411,7 +411,7 @@ func (a *Auditor) autoCheckLoop(ctx context.Context) {
 	}
 }
 
-// GetCheckResults 获取检查结果
+// GetCheckResults 获取检查结果.
 func (a *Auditor) GetCheckResults() map[string]*CheckResult {
 	a.checker.mu.RLock()
 	defer a.checker.mu.RUnlock()
@@ -423,7 +423,7 @@ func (a *Auditor) GetCheckResults() map[string]*CheckResult {
 	return results
 }
 
-// GetAuditEntries 获取审计日志
+// GetAuditEntries 获取审计日志.
 func (a *Auditor) GetAuditEntries(limit int) []AuditEntry {
 	a.auditLog.mu.RLock()
 	defer a.auditLog.mu.RUnlock()

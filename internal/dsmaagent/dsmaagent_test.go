@@ -50,7 +50,7 @@ func TestRegisterAction(t *testing.T) {
 
 	t.Run("register duplicate action", func(t *testing.T) {
 		action := &AgentAction{
-			Name:    "test.action",
+			Name: "test.action",
 			Handler: func(ctx context.Context, params map[string]interface{}) (map[string]interface{}, error) {
 				return nil, nil
 			},

@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 看板 API 处理器
+// Handlers 看板 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	board := r.Group("/sprintboard")
 	{
@@ -52,14 +52,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// createBoard 创建看板
+// createBoard 创建看板.
 func (h *Handlers) createBoard(c *gin.Context) {
 	var req CreateBoardRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -86,7 +86,7 @@ func (h *Handlers) createBoard(c *gin.Context) {
 	})
 }
 
-// listBoards 列出看板
+// listBoards 列出看板.
 func (h *Handlers) listBoards(c *gin.Context) {
 	boards := h.manager.ListBoards()
 	c.JSON(http.StatusOK, response{
@@ -96,7 +96,7 @@ func (h *Handlers) listBoards(c *gin.Context) {
 	})
 }
 
-// getBoard 获取看板
+// getBoard 获取看板.
 func (h *Handlers) getBoard(c *gin.Context) {
 	id := c.Param("id")
 	board, err := h.manager.GetBoard(id)
@@ -115,7 +115,7 @@ func (h *Handlers) getBoard(c *gin.Context) {
 	})
 }
 
-// deleteBoard 删除看板
+// deleteBoard 删除看板.
 func (h *Handlers) deleteBoard(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteBoard(id); err != nil {
@@ -132,7 +132,7 @@ func (h *Handlers) deleteBoard(c *gin.Context) {
 	})
 }
 
-// addSwimLane 添加泳道
+// addSwimLane 添加泳道.
 func (h *Handlers) addSwimLane(c *gin.Context) {
 	boardID := c.Param("id")
 	var req CreateSwimLaneRequest
@@ -160,7 +160,7 @@ func (h *Handlers) addSwimLane(c *gin.Context) {
 	})
 }
 
-// removeSwimLane 移除泳道
+// removeSwimLane 移除泳道.
 func (h *Handlers) removeSwimLane(c *gin.Context) {
 	boardID := c.Param("id")
 	laneID := c.Param("lane_id")
@@ -179,7 +179,7 @@ func (h *Handlers) removeSwimLane(c *gin.Context) {
 	})
 }
 
-// createSprint 创建 Sprint
+// createSprint 创建 Sprint.
 func (h *Handlers) createSprint(c *gin.Context) {
 	var req CreateSprintRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -206,7 +206,7 @@ func (h *Handlers) createSprint(c *gin.Context) {
 	})
 }
 
-// listSprints 列出 Sprint
+// listSprints 列出 Sprint.
 func (h *Handlers) listSprints(c *gin.Context) {
 	boardID := c.Query("board_id")
 	sprints := h.manager.ListSprints(boardID)
@@ -217,7 +217,7 @@ func (h *Handlers) listSprints(c *gin.Context) {
 	})
 }
 
-// getSprint 获取 Sprint
+// getSprint 获取 Sprint.
 func (h *Handlers) getSprint(c *gin.Context) {
 	id := c.Param("id")
 	sprint, err := h.manager.GetSprint(id)
@@ -236,7 +236,7 @@ func (h *Handlers) getSprint(c *gin.Context) {
 	})
 }
 
-// startSprint 启动 Sprint
+// startSprint 启动 Sprint.
 func (h *Handlers) startSprint(c *gin.Context) {
 	id := c.Param("id")
 	sprint, err := h.manager.StartSprint(id)
@@ -255,7 +255,7 @@ func (h *Handlers) startSprint(c *gin.Context) {
 	})
 }
 
-// completeSprint 完成 Sprint
+// completeSprint 完成 Sprint.
 func (h *Handlers) completeSprint(c *gin.Context) {
 	id := c.Param("id")
 	sprint, err := h.manager.CompleteSprint(id)
@@ -274,7 +274,7 @@ func (h *Handlers) completeSprint(c *gin.Context) {
 	})
 }
 
-// addTask 添加任务
+// addTask 添加任务.
 func (h *Handlers) addTask(c *gin.Context) {
 	var req CreateTaskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -301,7 +301,7 @@ func (h *Handlers) addTask(c *gin.Context) {
 	})
 }
 
-// listTasks 列出任务
+// listTasks 列出任务.
 func (h *Handlers) listTasks(c *gin.Context) {
 	boardID := c.Query("board_id")
 	sprintID := c.Query("sprint_id")
@@ -313,7 +313,7 @@ func (h *Handlers) listTasks(c *gin.Context) {
 	})
 }
 
-// getTask 获取任务
+// getTask 获取任务.
 func (h *Handlers) getTask(c *gin.Context) {
 	id := c.Param("id")
 	task, err := h.manager.GetTask(id)
@@ -332,7 +332,7 @@ func (h *Handlers) getTask(c *gin.Context) {
 	})
 }
 
-// updateTask 更新任务
+// updateTask 更新任务.
 func (h *Handlers) updateTask(c *gin.Context) {
 	id := c.Param("id")
 	var req CreateTaskRequest
@@ -360,7 +360,7 @@ func (h *Handlers) updateTask(c *gin.Context) {
 	})
 }
 
-// deleteTask 删除任务
+// deleteTask 删除任务.
 func (h *Handlers) deleteTask(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteTask(id); err != nil {
@@ -377,7 +377,7 @@ func (h *Handlers) deleteTask(c *gin.Context) {
 	})
 }
 
-// moveTask 移动任务
+// moveTask 移动任务.
 func (h *Handlers) moveTask(c *gin.Context) {
 	id := c.Param("id")
 	var req MoveTaskRequest
@@ -405,7 +405,7 @@ func (h *Handlers) moveTask(c *gin.Context) {
 	})
 }
 
-// getMetrics 获取 Sprint 指标
+// getMetrics 获取 Sprint 指标.
 func (h *Handlers) getMetrics(c *gin.Context) {
 	id := c.Param("id")
 	metrics, err := h.manager.GetMetrics(id)
@@ -424,7 +424,7 @@ func (h *Handlers) getMetrics(c *gin.Context) {
 	})
 }
 
-// getBurndown 获取燃尽图数据
+// getBurndown 获取燃尽图数据.
 func (h *Handlers) getBurndown(c *gin.Context) {
 	id := c.Param("id")
 	burndown, err := h.manager.GenerateBurndown(id)

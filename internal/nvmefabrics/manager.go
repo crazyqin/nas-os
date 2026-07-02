@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Manager NVMe over Fabrics 管理器
+// Manager NVMe over Fabrics 管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	targets     map[string]*NVMfTarget
@@ -16,7 +16,7 @@ type Manager struct {
 	controllers map[string]*NVMfController
 }
 
-// NewManager 创建 NVMe over Fabrics 管理器
+// NewManager 创建 NVMe over Fabrics 管理器.
 func NewManager() *Manager {
 	return &Manager{
 		targets:     make(map[string]*NVMfTarget),
@@ -25,7 +25,7 @@ func NewManager() *Manager {
 	}
 }
 
-// CreateTarget 创建 NVMe 目标
+// CreateTarget 创建 NVMe 目标.
 func (m *Manager) CreateTarget(req CreateTargetRequest) (*NVMfTarget, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -78,7 +78,7 @@ func (m *Manager) CreateTarget(req CreateTargetRequest) (*NVMfTarget, error) {
 	return target, nil
 }
 
-// DeleteTarget 删除 NVMe 目标
+// DeleteTarget 删除 NVMe 目标.
 func (m *Manager) DeleteTarget(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -101,7 +101,7 @@ func (m *Manager) DeleteTarget(id string) error {
 	return nil
 }
 
-// GetTarget 获取目标详情
+// GetTarget 获取目标详情.
 func (m *Manager) GetTarget(id string) (*NVMfTarget, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -113,7 +113,7 @@ func (m *Manager) GetTarget(id string) (*NVMfTarget, error) {
 	return target, nil
 }
 
-// ListTargets 列出所有目标
+// ListTargets 列出所有目标.
 func (m *Manager) ListTargets(transport TransportType) []NVMfTarget {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -127,7 +127,7 @@ func (m *Manager) ListTargets(transport TransportType) []NVMfTarget {
 	return targets
 }
 
-// CreateSubsystem 创建子系统
+// CreateSubsystem 创建子系统.
 func (m *Manager) CreateSubsystem(targetID string, req CreateSubsystemRequest) (*NVMfSubsystem, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -166,7 +166,7 @@ func (m *Manager) CreateSubsystem(targetID string, req CreateSubsystemRequest) (
 	return subsystem, nil
 }
 
-// GetSubsystem 获取子系统详情
+// GetSubsystem 获取子系统详情.
 func (m *Manager) GetSubsystem(nqn string) (*NVMfSubsystem, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -178,7 +178,7 @@ func (m *Manager) GetSubsystem(nqn string) (*NVMfSubsystem, error) {
 	return subsystem, nil
 }
 
-// ListSubsystems 列出子系统
+// ListSubsystems 列出子系统.
 func (m *Manager) ListSubsystems(targetID string) []NVMfSubsystem {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -192,7 +192,7 @@ func (m *Manager) ListSubsystems(targetID string) []NVMfSubsystem {
 	return subsystems
 }
 
-// DeleteSubsystem 删除子系统
+// DeleteSubsystem 删除子系统.
 func (m *Manager) DeleteSubsystem(nqn string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -223,7 +223,7 @@ func (m *Manager) DeleteSubsystem(nqn string) error {
 	return nil
 }
 
-// AddNamespace 添加命名空间
+// AddNamespace 添加命名空间.
 func (m *Manager) AddSubsystemNamespace(nqn string, req AddNamespaceRequest) (*NVMfNamespace, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -258,7 +258,7 @@ func (m *Manager) AddSubsystemNamespace(nqn string, req AddNamespaceRequest) (*N
 	return &ns, nil
 }
 
-// AddHost 添加允许的主机
+// AddHost 添加允许的主机.
 func (m *Manager) AddHost(nqn, hostNQN string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -279,7 +279,7 @@ func (m *Manager) AddHost(nqn, hostNQN string) error {
 	return nil
 }
 
-// RemoveHost 移除允许的主机
+// RemoveHost 移除允许的主机.
 func (m *Manager) RemoveHost(nqn, hostNQN string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -299,7 +299,7 @@ func (m *Manager) RemoveHost(nqn, hostNQN string) error {
 	return fmt.Errorf("host %s not found in allowed list", hostNQN)
 }
 
-// ConnectController 连接控制器
+// ConnectController 连接控制器.
 func (m *Manager) ConnectController(nqn string, req ConnectHostRequest) (*NVMfController, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -322,7 +322,7 @@ func (m *Manager) ConnectController(nqn string, req ConnectHostRequest) (*NVMfCo
 		}
 	}
 
-	target, _ := m.targets[subsystem.TargetID]
+	target := m.targets[subsystem.TargetID]
 	transport := TransportTCP
 	if target != nil {
 		transport = target.Transport
@@ -346,7 +346,7 @@ func (m *Manager) ConnectController(nqn string, req ConnectHostRequest) (*NVMfCo
 	return controller, nil
 }
 
-// DisconnectController 断开控制器
+// DisconnectController 断开控制器.
 func (m *Manager) DisconnectController(controllerID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -370,7 +370,7 @@ func (m *Manager) DisconnectController(controllerID string) error {
 	return nil
 }
 
-// ListControllers 列出控制器
+// ListControllers 列出控制器.
 func (m *Manager) ListControllers(nqn string) []NVMfController {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -384,7 +384,7 @@ func (m *Manager) ListControllers(nqn string) []NVMfController {
 	return controllers
 }
 
-// GetControllerStats 获取控制器统计
+// GetControllerStats 获取控制器统计.
 func (m *Manager) GetControllerStats(controllerID string) (*ControllerStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -417,7 +417,7 @@ func (m *Manager) GetControllerStats(controllerID string) (*ControllerStats, err
 	return stats, nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() TargetStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

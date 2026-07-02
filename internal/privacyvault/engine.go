@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Engine 隐私保险箱引擎
+// Engine 隐私保险箱引擎.
 type Engine struct {
 	config     *PrivacyVaultConfig
 	crypto     *CryptoEngine
@@ -26,7 +26,7 @@ type Engine struct {
 	cancel     context.CancelFunc
 }
 
-// NewEngine 创建隐私保险箱引擎
+// NewEngine 创建隐私保险箱引擎.
 func NewEngine(config *PrivacyVaultConfig) *Engine {
 	if config == nil {
 		config = DefaultConfig()
@@ -49,7 +49,7 @@ func NewEngine(config *PrivacyVaultConfig) *Engine {
 	return e
 }
 
-// CreateVault 创建新的加密保险库
+// CreateVault 创建新的加密保险库.
 func (e *Engine) CreateVault(vault *Vault, passphrase string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -95,7 +95,7 @@ func (e *Engine) CreateVault(vault *Vault, passphrase string) error {
 	return nil
 }
 
-// Unlock 解锁保险库
+// Unlock 解锁保险库.
 func (e *Engine) Unlock(vaultID, passphrase string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -134,7 +134,7 @@ func (e *Engine) Unlock(vaultID, passphrase string) error {
 	return nil
 }
 
-// Lock 锁定保险库
+// Lock 锁定保险库.
 func (e *Engine) Lock(vaultID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -156,7 +156,7 @@ func (e *Engine) Lock(vaultID string) error {
 	return nil
 }
 
-// Destroy 销毁保险库（安全擦除所有数据）
+// Destroy 销毁保险库（安全擦除所有数据）.
 func (e *Engine) Destroy(vaultID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -189,7 +189,7 @@ func (e *Engine) Destroy(vaultID string) error {
 	return nil
 }
 
-// AddSecret 向保险库添加加密条目
+// AddSecret 向保险库添加加密条目.
 func (e *Engine) AddSecret(vaultID string, secret *Secret) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -216,7 +216,7 @@ func (e *Engine) AddSecret(vaultID string, secret *Secret) error {
 	return nil
 }
 
-// GetSecret 获取加密条目
+// GetSecret 获取加密条目.
 func (e *Engine) GetSecret(vaultID, secretID string) (*Secret, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -239,7 +239,7 @@ func (e *Engine) GetSecret(vaultID, secretID string) (*Secret, error) {
 	return nil, ErrSecretNotFound
 }
 
-// ListSecrets 列出保险库中的所有加密条目
+// ListSecrets 列出保险库中的所有加密条目.
 func (e *Engine) ListSecrets(vaultID string) ([]*Secret, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -256,7 +256,7 @@ func (e *Engine) ListSecrets(vaultID string) ([]*Secret, error) {
 	return secrets, nil
 }
 
-// CreateShareLink 创建安全分享链接
+// CreateShareLink 创建安全分享链接.
 func (e *Engine) CreateShareLink(vaultID, secretID, createdBy string, perm SharePermission, duration time.Duration) (*ShareLink, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -303,7 +303,7 @@ func (e *Engine) CreateShareLink(vaultID, secretID, createdBy string, perm Share
 	return link, nil
 }
 
-// AccessShareLink 通过分享链接访问条目
+// AccessShareLink 通过分享链接访问条目.
 func (e *Engine) AccessShareLink(token string) (*ShareLink, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -324,7 +324,7 @@ func (e *Engine) AccessShareLink(token string) (*ShareLink, error) {
 	return nil, ErrSecretNotFound
 }
 
-// SetAccessPolicy 设置访问控制策略
+// SetAccessPolicy 设置访问控制策略.
 func (e *Engine) SetAccessPolicy(vaultID string, policy *AccessPolicy) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -353,7 +353,7 @@ func (e *Engine) SetAccessPolicy(vaultID string, policy *AccessPolicy) error {
 	return nil
 }
 
-// CheckAccess 检查用户是否有权访问保险库
+// CheckAccess 检查用户是否有权访问保险库.
 func (e *Engine) CheckAccess(vaultID, userID, clientIP string) (bool, AccessLevel) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -399,7 +399,7 @@ func (e *Engine) CheckAccess(vaultID, userID, clientIP string) (bool, AccessLeve
 	return false, ""
 }
 
-// AddKeyShare 添加密钥分片
+// AddKeyShare 添加密钥分片.
 func (e *Engine) AddKeyShare(vaultID string, share *KeyShare) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -417,7 +417,7 @@ func (e *Engine) AddKeyShare(vaultID string, share *KeyShare) error {
 	return nil
 }
 
-// GetKeyShares 获取保险库的密钥分片列表
+// GetKeyShares 获取保险库的密钥分片列表.
 func (e *Engine) GetKeyShares(vaultID string) ([]*KeyShare, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -434,7 +434,7 @@ func (e *Engine) GetKeyShares(vaultID string) ([]*KeyShare, error) {
 	return shares, nil
 }
 
-// GetVault 获取保险库信息
+// GetVault 获取保险库信息.
 func (e *Engine) GetVault(vaultID string) (*Vault, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -447,7 +447,7 @@ func (e *Engine) GetVault(vaultID string) (*Vault, error) {
 	return vault, nil
 }
 
-// ListVaults 列出所有保险库
+// ListVaults 列出所有保险库.
 func (e *Engine) ListVaults() []*Vault {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -459,7 +459,7 @@ func (e *Engine) ListVaults() []*Vault {
 	return vaults
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (e *Engine) GetStats() *VaultStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -496,7 +496,7 @@ func (e *Engine) GetStats() *VaultStats {
 	return stats
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (e *Engine) GetAuditLog(vaultID string, limit int) []*AuditLog {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -513,7 +513,7 @@ func (e *Engine) GetAuditLog(vaultID string, limit int) []*AuditLog {
 	return entries
 }
 
-// AutoLockCheck 检查并自动锁定超时的保险库
+// AutoLockCheck 检查并自动锁定超时的保险库.
 func (e *Engine) AutoLockCheck() int {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -533,7 +533,7 @@ func (e *Engine) AutoLockCheck() int {
 	return locked
 }
 
-// Stop 停止引擎
+// Stop 停止引擎.
 func (e *Engine) Stop() {
 	e.cancel()
 	// 清除所有内存中的密钥

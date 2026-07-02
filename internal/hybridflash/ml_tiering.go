@@ -14,14 +14,14 @@ import (
 // 使用时间序列特征（访问频率、访问间隔、IO模式）训练简单的线性回归模型,
 // 预测数据块未来热度，实现更智能的分层决策.
 type MLTieringEngine struct {
-	mu              sync.RWMutex
-	config          *MLTieringConfig
-	model           *HeatPredictorModel
-	featureStore    *FeatureStore
-	historyWindow   time.Duration
-	trainingData    []*TrainingSample
-	modelVersion    int
-	lastTrainedAt   time.Time
+	mu            sync.RWMutex
+	config        *MLTieringConfig
+	model         *HeatPredictorModel
+	featureStore  *FeatureStore
+	historyWindow time.Duration
+	trainingData  []*TrainingSample
+	modelVersion  int
+	lastTrainedAt time.Time
 }
 
 // MLTieringConfig ML 分层配置.
@@ -49,15 +49,15 @@ type MLTieringConfig struct {
 // DefaultMLTieringConfig 默认 ML 分层配置.
 func DefaultMLTieringConfig() *MLTieringConfig {
 	return &MLTieringConfig{
-		Enabled:               true,
-		HistoryWindow:         24 * time.Hour,
-		TrainingInterval:      1 * time.Hour,
-		PredictionHorizon:     1 * time.Hour,
-		MinSamplesForTraining: 100,
-		LearningRate:          0.01,
-		DecayFactor:           0.95,
+		Enabled:                true,
+		HistoryWindow:          24 * time.Hour,
+		TrainingInterval:       1 * time.Hour,
+		PredictionHorizon:      1 * time.Hour,
+		MinSamplesForTraining:  100,
+		LearningRate:           0.01,
+		DecayFactor:            0.95,
 		HotPredictionThreshold: 0.7,
-		EnableIOClustering:    true,
+		EnableIOClustering:     true,
 	}
 }
 
@@ -68,16 +68,16 @@ func DefaultMLTieringConfig() *MLTieringConfig {
 // - 最近访问时间 (recency)
 // - IO 模式 (ioPattern)
 // - 访问间隔 (interArrivalTime)
-// - 数据大小 (dataSize)
+// - 数据大小 (dataSize).
 type HeatPredictorModel struct {
 	mu         sync.RWMutex
-	Weights    []float64           `json:"weights"`    // 特征权重
-	Bias       float64             `json:"bias"`       // 偏置
-	FeatureMin []float64           `json:"featureMin"` // 特征最小值（归一化用）
-	FeatureMax []float64           `json:"featureMax"` // 特征最大值（归一化用）
-	Version    int                 `json:"version"`
-	TrainedAt  time.Time           `json:"trainedAt"`
-	Accuracy   float64             `json:"accuracy"`   // 模型精度
+	Weights    []float64 `json:"weights"`    // 特征权重
+	Bias       float64   `json:"bias"`       // 偏置
+	FeatureMin []float64 `json:"featureMin"` // 特征最小值（归一化用）
+	FeatureMax []float64 `json:"featureMax"` // 特征最大值（归一化用）
+	Version    int       `json:"version"`
+	TrainedAt  time.Time `json:"trainedAt"`
+	Accuracy   float64   `json:"accuracy"` // 模型精度
 }
 
 // FeatureStore 特征存储.
@@ -88,25 +88,25 @@ type FeatureStore struct {
 
 // BlockFeatures 块特征向量.
 type BlockFeatures struct {
-	BlockID          string    `json:"blockId"`
-	AccessFrequency  float64   `json:"accessFrequency"`  // 访问频率 (次/小时)
-	Recency          float64   `json:"recency"`          // 最近访问时间 (小时前)
-	IOEntropy        float64   `json:"ioEntropy"`        // IO 熵 (衡量随机性)
-	InterArrivalMean float64   `json:"interArrivalMean"` // 平均到达间隔
-	InterArrivalStd  float64   `json:"interArrivalStd"`  // 到达间隔标准差
-	DataSize         float64   `json:"dataSize"`         // 数据大小 (log scale)
-	ReadWriteRatio   float64   `json:"readWriteRatio"`   // 读写比
-	Burstiness       float64   `json:"burstiness"`       // 突发性指标
-	LastUpdated      time.Time `json:"lastUpdated"`
-	AccessTimestamps  []time.Time `json:"-"` // 原始访问时间戳（不序列化）
+	BlockID          string      `json:"blockId"`
+	AccessFrequency  float64     `json:"accessFrequency"`  // 访问频率 (次/小时)
+	Recency          float64     `json:"recency"`          // 最近访问时间 (小时前)
+	IOEntropy        float64     `json:"ioEntropy"`        // IO 熵 (衡量随机性)
+	InterArrivalMean float64     `json:"interArrivalMean"` // 平均到达间隔
+	InterArrivalStd  float64     `json:"interArrivalStd"`  // 到达间隔标准差
+	DataSize         float64     `json:"dataSize"`         // 数据大小 (log scale)
+	ReadWriteRatio   float64     `json:"readWriteRatio"`   // 读写比
+	Burstiness       float64     `json:"burstiness"`       // 突发性指标
+	LastUpdated      time.Time   `json:"lastUpdated"`
+	AccessTimestamps []time.Time `json:"-"` // 原始访问时间戳（不序列化）
 }
 
 // TrainingSample 训练样本.
 type TrainingSample struct {
-	Features    []float64   `json:"features"`
-	Label       float64     `json:"label"`  // 1.0=热, 0.0=冷
-	Timestamp   time.Time   `json:"timestamp"`
-	BlockID     string      `json:"blockId"`
+	Features  []float64 `json:"features"`
+	Label     float64   `json:"label"` // 1.0=热, 0.0=冷
+	Timestamp time.Time `json:"timestamp"`
+	BlockID   string    `json:"blockId"`
 }
 
 // PredictionResult 预测结果.
@@ -154,8 +154,8 @@ func (e *MLTieringEngine) UpdateFeatures(blockID string, accessTime time.Time, s
 	features, exists := e.featureStore.features[blockID]
 	if !exists {
 		features = &BlockFeatures{
-			BlockID:         blockID,
-			DataSize:        math.Log1p(float64(size)),
+			BlockID:          blockID,
+			DataSize:         math.Log1p(float64(size)),
 			AccessTimestamps: make([]time.Time, 0, 100),
 		}
 		e.featureStore.features[blockID] = features
@@ -280,7 +280,7 @@ func (e *MLTieringEngine) Predict(blockID string) *PredictionResult {
 
 	if !exists {
 		return &PredictionResult{
-			BlockID:       blockID,
+			BlockID:        blockID,
 			HotProbability: 0.0,
 			PredictedTier:  FlashTypeHDD,
 			Confidence:     0.0,
@@ -553,11 +553,11 @@ func (e *MLTieringEngine) GetModel() *HeatPredictorModel {
 	defer e.model.mu.RUnlock()
 
 	return &HeatPredictorModel{
-		Weights:    append([]float64{}, e.model.Weights...),
-		Bias:       e.model.Bias,
-		Version:    e.model.Version,
-		TrainedAt:  e.model.TrainedAt,
-		Accuracy:   e.model.Accuracy,
+		Weights:   append([]float64{}, e.model.Weights...),
+		Bias:      e.model.Bias,
+		Version:   e.model.Version,
+		TrainedAt: e.model.TrainedAt,
+		Accuracy:  e.model.Accuracy,
 	}
 }
 
@@ -629,12 +629,12 @@ func (e *MLTieringEngine) GetStats() map[string]interface{} {
 	e.model.mu.RUnlock()
 
 	return map[string]interface{}{
-		"enabled":           e.config.Enabled,
-		"modelVersion":      modelVersion,
-		"modelAccuracy":     modelAccuracy,
-		"trackedBlocks":     featureCount,
-		"trainingSamples":   len(e.trainingData),
-		"lastTrainedAt":     e.lastTrainedAt,
+		"enabled":             e.config.Enabled,
+		"modelVersion":        modelVersion,
+		"modelAccuracy":       modelAccuracy,
+		"trackedBlocks":       featureCount,
+		"trainingSamples":     len(e.trainingData),
+		"lastTrainedAt":       e.lastTrainedAt,
 		"predictionThreshold": e.config.HotPredictionThreshold,
 	}
 }

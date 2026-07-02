@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// APIHandler HTTP API处理器
+// APIHandler HTTP API处理器.
 type APIHandler struct {
 	manager *BlockCloneManager
 }
 
-// NewAPIHandler 创建API处理器
+// NewAPIHandler 创建API处理器.
 func NewAPIHandler(manager *BlockCloneManager) *APIHandler {
 	return &APIHandler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *APIHandler) RegisterRoutes(mux *http.ServeMux, prefix string) {
 	mux.HandleFunc(prefix+"/blockclone/luns", h.handleLUNs)
 	mux.HandleFunc(prefix+"/blockclone/clone", h.handleClone)

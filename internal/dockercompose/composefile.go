@@ -7,7 +7,7 @@ import (
 
 // ComposeFile 表示解析后的 docker-compose.yml 内容.
 type ComposeFile struct {
-	Version  string                `yaml:"version"  json:"version"`
+	Version  string                 `yaml:"version"  json:"version"`
 	Services map[string]CompService `yaml:"services" json:"services"`
 	Networks map[string]CompNetwork `yaml:"networks" json:"networks"`
 	Volumes  map[string]CompVolume  `yaml:"volumes"  json:"volumes"`
@@ -46,8 +46,8 @@ type CompDeploy struct {
 
 // CompResSpec 资源规格.
 type CompResSpec struct {
-	Limits   *CompRes `yaml:"limits"   json:"limits"`
-	Reserve  *CompRes `yaml:"reservations" json:"reservations"`
+	Limits  *CompRes `yaml:"limits"   json:"limits"`
+	Reserve *CompRes `yaml:"reservations" json:"reservations"`
 }
 
 // CompRes 资源.
@@ -58,10 +58,10 @@ type CompRes struct {
 
 // CompNetwork Compose 文件中的网络.
 type CompNetwork struct {
-	Driver     string            `yaml:"driver"     json:"driver"`
-	External   bool              `yaml:"external"   json:"external"`
-	Labels     map[string]string `yaml:"labels"     json:"labels"`
-	IPAM       *CompIPAM         `yaml:"ipam"       json:"ipam"`
+	Driver   string            `yaml:"driver"     json:"driver"`
+	External bool              `yaml:"external"   json:"external"`
+	Labels   map[string]string `yaml:"labels"     json:"labels"`
+	IPAM     *CompIPAM         `yaml:"ipam"       json:"ipam"`
 }
 
 // CompIPAM IP 地址管理.
@@ -77,9 +77,9 @@ type CompSubnet struct {
 
 // CompVolume Compose 文件中的卷.
 type CompVolume struct {
-	Driver     string            `yaml:"driver"     json:"driver"`
-	External   bool              `yaml:"external"   json:"external"`
-	Labels     map[string]string `yaml:"labels"     json:"labels"`
+	Driver   string            `yaml:"driver"     json:"driver"`
+	External bool              `yaml:"external"   json:"external"`
+	Labels   map[string]string `yaml:"labels"     json:"labels"`
 }
 
 // ValidationResult 验证结果.

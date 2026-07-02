@@ -914,7 +914,7 @@ func TestWatermarkPositions(t *testing.T) {
 	}
 }
 
-// Helper function
+// Helper function.
 func timePtr(t time.Time) *time.Time {
 	return &t
 }

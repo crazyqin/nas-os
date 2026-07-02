@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// TestType defines SMART test types
+// TestType defines SMART test types.
 type TestType string
 
 const (
@@ -23,7 +23,7 @@ const (
 	TestOffline TestType = "offline"
 )
 
-// ScheduleConfig defines SMART test schedule
+// ScheduleConfig defines SMART test schedule.
 type ScheduleConfig struct {
 	TestType TestType
 	Schedule string // cron expression
@@ -31,7 +31,7 @@ type ScheduleConfig struct {
 	Enabled  bool
 }
 
-// HealthStatus defines disk health status
+// HealthStatus defines disk health status.
 type HealthStatus struct {
 	Device       string
 	Model        string
@@ -44,14 +44,14 @@ type HealthStatus struct {
 	LastTest     time.Time
 }
 
-// MonitorService provides flexible SMART monitoring
+// MonitorService provides flexible SMART monitoring.
 type MonitorService struct {
 	schedules map[string]*ScheduleConfig
 	health    map[string]*HealthStatus
 	mu        sync.RWMutex
 }
 
-// NewMonitorService creates a new SMART monitor service
+// NewMonitorService creates a new SMART monitor service.
 func NewMonitorService() *MonitorService {
 	return &MonitorService{
 		schedules: make(map[string]*ScheduleConfig),
@@ -59,7 +59,7 @@ func NewMonitorService() *MonitorService {
 	}
 }
 
-// CreateSchedule creates a SMART test schedule (cron-based)
+// CreateSchedule creates a SMART test schedule (cron-based).
 func (m *MonitorService) CreateSchedule(ctx context.Context, name string, cfg *ScheduleConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -96,7 +96,7 @@ func (m *MonitorService) CreateSchedule(ctx context.Context, name string, cfg *S
 	return nil
 }
 
-// DeleteSchedule removes a SMART test schedule
+// DeleteSchedule removes a SMART test schedule.
 func (m *MonitorService) DeleteSchedule(ctx context.Context, name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -109,7 +109,7 @@ func (m *MonitorService) DeleteSchedule(ctx context.Context, name string) error 
 	return nil
 }
 
-// GetHealth returns disk health status
+// GetHealth returns disk health status.
 func (m *MonitorService) GetHealth(ctx context.Context, device string) (*HealthStatus, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -126,7 +126,7 @@ func (m *MonitorService) GetHealth(ctx context.Context, device string) (*HealthS
 	return status, nil
 }
 
-// GetAllHealth returns all disk health statuses
+// GetAllHealth returns all disk health statuses.
 func (m *MonitorService) GetAllHealth(ctx context.Context) ([]*HealthStatus, error) {
 	// List all disks
 	cmd := exec.CommandContext(ctx, "lsblk", "-d", "-n", "-o", "NAME")
@@ -150,7 +150,7 @@ func (m *MonitorService) GetAllHealth(ctx context.Context) ([]*HealthStatus, err
 	return result, nil
 }
 
-// parseSmartOutput parses smartctl output
+// parseSmartOutput parses smartctl output.
 func parseSmartOutput(device string, output []byte) *HealthStatus {
 	status := &HealthStatus{
 		Device: device,
@@ -200,7 +200,7 @@ func parseSmartOutput(device string, output []byte) *HealthStatus {
 	return status
 }
 
-// parseDiskList parses lsblk output
+// parseDiskList parses lsblk output.
 func parseDiskList(output []byte) []string {
 	lines := splitLines(string(output))
 	devices := make([]string, 0, len(lines))
@@ -212,7 +212,7 @@ func parseDiskList(output []byte) []string {
 	return devices
 }
 
-// splitLines splits text into lines
+// splitLines splits text into lines.
 func splitLines(text string) []string {
 	lines := strings.Split(strings.ReplaceAll(text, "\r\n", "\n"), "\n")
 	result := make([]string, 0, len(lines))
@@ -235,13 +235,13 @@ func startsWith(s, prefix string) bool {
 	return strings.HasPrefix(s, prefix)
 }
 
-// RunTest runs an immediate SMART test
+// RunTest runs an immediate SMART test.
 func (m *MonitorService) RunTest(ctx context.Context, device string, testType TestType) error {
 	cmd := exec.CommandContext(ctx, "smartctl", "-t", string(testType), device)
 	return cmd.Run()
 }
 
-// GetTestProgress returns test progress
+// GetTestProgress returns test progress.
 func (m *MonitorService) GetTestProgress(ctx context.Context, device string) (int, error) {
 	cmd := exec.CommandContext(ctx, "smartctl", "-c", device)
 	output, err := cmd.Output()

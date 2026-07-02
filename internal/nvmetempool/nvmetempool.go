@@ -12,7 +12,7 @@ import (
 
 // ========== 核心类型 ==========
 
-// TransportType 传输类型
+// TransportType 传输类型.
 type TransportType string
 
 const (
@@ -21,7 +21,7 @@ const (
 	TransportFC   TransportType = "fc"   // Fibre Channel
 )
 
-// DeviceStatus 设备状态
+// DeviceStatus 设备状态.
 type DeviceStatus string
 
 const (
@@ -31,7 +31,7 @@ const (
 	DeviceStatusFault    DeviceStatus = "fault"    // 故障
 )
 
-// PoolStatus 存储池状态
+// PoolStatus 存储池状态.
 type PoolStatus string
 
 const (
@@ -41,7 +41,7 @@ const (
 	PoolStatusOffline  PoolStatus = "offline"  // 离线
 )
 
-// NvmeTarget NVMe-oF 目标端
+// NvmeTarget NVMe-oF 目标端.
 type NvmeTarget struct {
 	ID          string        `json:"id"`          // 目标ID
 	Name        string        `json:"name"`        // 目标名称
@@ -54,7 +54,7 @@ type NvmeTarget struct {
 	UpdatedAt   time.Time     `json:"updatedAt"`
 }
 
-// NvmeDevice NVMe 设备信息
+// NvmeDevice NVMe 设备信息.
 type NvmeDevice struct {
 	ID        string       `json:"id"`        // 设备ID
 	Model     string       `json:"model"`     // 型号
@@ -67,7 +67,7 @@ type NvmeDevice struct {
 	UpdatedAt time.Time    `json:"updatedAt"`
 }
 
-// NvmePool NVMe-oF 存储池
+// NvmePool NVMe-oF 存储池.
 type NvmePool struct {
 	ID         string     `json:"id"`         // 存储池ID
 	Name       string     `json:"name"`       // 存储池名称
@@ -81,7 +81,7 @@ type NvmePool struct {
 	UpdatedAt  time.Time  `json:"updatedAt"`
 }
 
-// PerformanceMetrics 性能指标
+// PerformanceMetrics 性能指标.
 type PerformanceMetrics struct {
 	IOPS      float64   `json:"iops"`      // IOPS
 	ReadIOPS  float64   `json:"readIops"`  // 读IOPS
@@ -95,7 +95,7 @@ type PerformanceMetrics struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// PoolPerformance 存储池性能
+// PoolPerformance 存储池性能.
 type PoolPerformance struct {
 	PoolID    string              `json:"poolId"`
 	PoolName  string              `json:"poolName"`
@@ -103,7 +103,7 @@ type PoolPerformance struct {
 	Timestamp time.Time           `json:"timestamp"`
 }
 
-// FailoverEvent 故障切换事件
+// FailoverEvent 故障切换事件.
 type FailoverEvent struct {
 	ID        string    `json:"id"`        // 事件ID
 	SourceID  string    `json:"sourceId"`  // 源设备ID
@@ -115,7 +115,7 @@ type FailoverEvent struct {
 
 // ========== Manager ==========
 
-// Manager NVMe-oF 存储池管理器
+// Manager NVMe-oF 存储池管理器.
 type Manager struct {
 	mu           sync.RWMutex
 	targets      map[string]*NvmeTarget
@@ -128,7 +128,7 @@ type Manager struct {
 	running      bool
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		targets:      make(map[string]*NvmeTarget),
@@ -140,7 +140,7 @@ func NewManager() *Manager {
 	}
 }
 
-// AddTarget 添加 NVMe-oF 目标端
+// AddTarget 添加 NVMe-oF 目标端.
 func (m *Manager) AddTarget(target *NvmeTarget) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -162,7 +162,7 @@ func (m *Manager) AddTarget(target *NvmeTarget) error {
 	return nil
 }
 
-// RemoveTarget 移除目标端
+// RemoveTarget 移除目标端.
 func (m *Manager) RemoveTarget(targetID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -183,7 +183,7 @@ func (m *Manager) RemoveTarget(targetID string) error {
 	return nil
 }
 
-// GetTarget 获取目标端
+// GetTarget 获取目标端.
 func (m *Manager) GetTarget(targetID string) (*NvmeTarget, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -195,7 +195,7 @@ func (m *Manager) GetTarget(targetID string) (*NvmeTarget, error) {
 	return target, nil
 }
 
-// ListTargets 列出所有目标端
+// ListTargets 列出所有目标端.
 func (m *Manager) ListTargets() []*NvmeTarget {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -207,7 +207,7 @@ func (m *Manager) ListTargets() []*NvmeTarget {
 	return targets
 }
 
-// AddDevice 添加设备
+// AddDevice 添加设备.
 func (m *Manager) AddDevice(device *NvmeDevice) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -233,7 +233,7 @@ func (m *Manager) AddDevice(device *NvmeDevice) error {
 	return nil
 }
 
-// RemoveDevice 移除设备
+// RemoveDevice 移除设备.
 func (m *Manager) RemoveDevice(deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -256,7 +256,7 @@ func (m *Manager) RemoveDevice(deviceID string) error {
 	return nil
 }
 
-// GetDevice 获取设备
+// GetDevice 获取设备.
 func (m *Manager) GetDevice(deviceID string) (*NvmeDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -268,7 +268,7 @@ func (m *Manager) GetDevice(deviceID string) (*NvmeDevice, error) {
 	return device, nil
 }
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (m *Manager) ListDevices() []*NvmeDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -280,7 +280,7 @@ func (m *Manager) ListDevices() []*NvmeDevice {
 	return devices
 }
 
-// CreatePool 创建存储池
+// CreatePool 创建存储池.
 func (m *Manager) CreatePool(pool *NvmePool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -314,7 +314,7 @@ func (m *Manager) CreatePool(pool *NvmePool) error {
 	return nil
 }
 
-// DeletePool 删除存储池
+// DeletePool 删除存储池.
 func (m *Manager) DeletePool(poolID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -328,7 +328,7 @@ func (m *Manager) DeletePool(poolID string) error {
 	return nil
 }
 
-// GetPool 获取存储池
+// GetPool 获取存储池.
 func (m *Manager) GetPool(poolID string) (*NvmePool, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -340,7 +340,7 @@ func (m *Manager) GetPool(poolID string) (*NvmePool, error) {
 	return pool, nil
 }
 
-// ListPools 列出所有存储池
+// ListPools 列出所有存储池.
 func (m *Manager) ListPools() []*NvmePool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -352,7 +352,7 @@ func (m *Manager) ListPools() []*NvmePool {
 	return pools
 }
 
-// GetPoolPerformance 获取存储池性能
+// GetPoolPerformance 获取存储池性能.
 func (m *Manager) GetPoolPerformance(poolID string) (*PoolPerformance, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -378,7 +378,7 @@ func (m *Manager) GetPoolPerformance(poolID string) (*PoolPerformance, error) {
 	}, nil
 }
 
-// GetFailoverEvents 获取故障切换事件
+// GetFailoverEvents 获取故障切换事件.
 func (m *Manager) GetFailoverEvents() []FailoverEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -388,7 +388,7 @@ func (m *Manager) GetFailoverEvents() []FailoverEvent {
 	return events
 }
 
-// collect 采集一次性能数据
+// collect 采集一次性能数据.
 func (m *Manager) collect() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -420,7 +420,7 @@ func (m *Manager) collect() {
 	m.checkDeviceHealth()
 }
 
-// checkDeviceHealth 检查设备健康状态
+// checkDeviceHealth 检查设备健康状态.
 func (m *Manager) checkDeviceHealth() {
 	for _, device := range m.devices {
 		// 模拟故障检测
@@ -431,7 +431,7 @@ func (m *Manager) checkDeviceHealth() {
 	}
 }
 
-// triggerFailover 触发故障切换
+// triggerFailover 触发故障切换.
 func (m *Manager) triggerFailover(sourceID, reason string) {
 	event := FailoverEvent{
 		ID:        fmt.Sprintf("failover-%d", time.Now().UnixNano()),
@@ -448,7 +448,7 @@ func (m *Manager) triggerFailover(sourceID, reason string) {
 	log.Printf("[NVMe-oF] 故障切换事件: %s -> %s", sourceID, reason)
 }
 
-// Start 启动定时采集
+// Start 启动定时采集.
 func (m *Manager) Start(interval time.Duration) {
 	m.mu.Lock()
 	if m.running {
@@ -479,7 +479,7 @@ func (m *Manager) Start(interval time.Duration) {
 	log.Printf("[NVMe-oF] 启动定时采集，间隔 %v", interval)
 }
 
-// Stop 停止定时采集
+// Stop 停止定时采集.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -493,7 +493,7 @@ func (m *Manager) Stop() {
 	log.Println("[NVMe-oF] 停止定时采集")
 }
 
-// DiscoverTargets 发现远程 NVMe 设备
+// DiscoverTargets 发现远程 NVMe 设备.
 func (m *Manager) DiscoverTargets(address string, transport TransportType) ([]*NvmeTarget, error) {
 	// 模拟发现过程
 	log.Printf("[NVMe-oF] 发现目标: %s (传输: %s)", address, transport)

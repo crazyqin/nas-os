@@ -23,7 +23,7 @@ const (
 	PowerStateSleep   PowerState = "sleep"   // 磁盘休眠
 )
 
-// BusinessPeriod 业务时段定义 - 用于智能调度避开业务高峰
+// BusinessPeriod 业务时段定义 - 用于智能调度避开业务高峰.
 type BusinessPeriod struct {
 	StartHour int `json:"start_hour"` // 开始时间(小时, 0-23)
 	EndHour   int `json:"end_hour"`   // 结束时间(小时, 0-23)
@@ -46,7 +46,7 @@ type SleepPolicy struct {
 	MaxWakePerHour   int              `json:"max_wake_per_hour"`          // 每小时最大唤醒次数限制
 }
 
-// WakeRequest 按需唤醒请求
+// WakeRequest 按需唤醒请求.
 type WakeRequest struct {
 	DiskID      string    `json:"disk_id"`
 	Reason      string    `json:"reason"`   // 唤醒原因
@@ -95,7 +95,7 @@ type PowerManager struct {
 	executorMu sync.RWMutex
 }
 
-// DiskPowerExecutor 磁盘电源状态转换命令执行接口
+// DiskPowerExecutor 磁盘电源状态转换命令执行接口.
 type DiskPowerExecutor interface {
 	// Standby 让磁盘进入待机状态 (轻度休眠，快速唤醒)
 	Standby(diskID string) error
@@ -107,15 +107,15 @@ type DiskPowerExecutor interface {
 	CheckPowerState(diskID string) (PowerState, error)
 }
 
-// HdparmExecutor 使用hdparm实现磁盘电源管理（适用于ATA/SATA磁盘）
+// HdparmExecutor 使用hdparm实现磁盘电源管理（适用于ATA/SATA磁盘）.
 type HdparmExecutor struct{}
 
-// NewHdparmExecutor 创建hdparm执行器
+// NewHdparmExecutor 创建hdparm执行器.
 func NewHdparmExecutor() *HdparmExecutor {
 	return &HdparmExecutor{}
 }
 
-// Standby 执行hdparm -y让磁盘进入待机状态
+// Standby 执行hdparm -y让磁盘进入待机状态.
 func (e *HdparmExecutor) Standby(diskID string) error {
 	// hdparm -y: 立即将磁盘进入待机模式
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -129,7 +129,7 @@ func (e *HdparmExecutor) Standby(diskID string) error {
 	return nil
 }
 
-// Sleep 执行hdparm -Y让磁盘进入深度休眠
+// Sleep 执行hdparm -Y让磁盘进入深度休眠.
 func (e *HdparmExecutor) Sleep(diskID string) error {
 	// hdparm -Y: 立即将磁盘进入睡眠模式（完全停止）
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -143,7 +143,7 @@ func (e *HdparmExecutor) Sleep(diskID string) error {
 	return nil
 }
 
-// Wake 唤醒磁盘 - 读取磁盘状态即可唤醒
+// Wake 唤醒磁盘 - 读取磁盘状态即可唤醒.
 func (e *HdparmExecutor) Wake(diskID string) error {
 	// 通过读取磁盘状态唤醒（hdparm -C会触发唤醒）
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -161,7 +161,7 @@ func (e *HdparmExecutor) Wake(diskID string) error {
 	return nil
 }
 
-// CheckPowerState 使用hdparm -C检查磁盘电源状态
+// CheckPowerState 使用hdparm -C检查磁盘电源状态.
 func (e *HdparmExecutor) CheckPowerState(diskID string) (PowerState, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -189,18 +189,18 @@ func (e *HdparmExecutor) CheckPowerState(diskID string) (PowerState, error) {
 	return PowerStateUnknown, nil
 }
 
-// PowerStateUnknown 未知状态
+// PowerStateUnknown 未知状态.
 const PowerStateUnknown PowerState = "unknown"
 
-// ScsiExecutor 使用sg_start实现SCSI/SAS磁盘电源管理
+// ScsiExecutor 使用sg_start实现SCSI/SAS磁盘电源管理.
 type ScsiExecutor struct{}
 
-// NewScsiExecutor 创建SCSI执行器
+// NewScsiExecutor 创建SCSI执行器.
 func NewScsiExecutor() *ScsiExecutor {
 	return &ScsiExecutor{}
 }
 
-// Standby SCSI磁盘待机
+// Standby SCSI磁盘待机.
 func (e *ScsiExecutor) Standby(diskID string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -214,7 +214,7 @@ func (e *ScsiExecutor) Standby(diskID string) error {
 	return nil
 }
 
-// Sleep SCSI磁盘深度休眠
+// Sleep SCSI磁盘深度休眠.
 func (e *ScsiExecutor) Sleep(diskID string) error {
 	// SCSI使用相同的stop命令，但可以设置更长的power condition
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -228,7 +228,7 @@ func (e *ScsiExecutor) Sleep(diskID string) error {
 	return nil
 }
 
-// Wake SCSI磁盘唤醒
+// Wake SCSI磁盘唤醒.
 func (e *ScsiExecutor) Wake(diskID string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -242,19 +242,19 @@ func (e *ScsiExecutor) Wake(diskID string) error {
 	return nil
 }
 
-// CheckPowerState SCSI磁盘电源状态检查
+// CheckPowerState SCSI磁盘电源状态检查.
 func (e *ScsiExecutor) CheckPowerState(diskID string) (PowerState, error) {
 	// SCSI磁盘状态检查较复杂，简化处理
 	return PowerStateUnknown, nil
 }
 
-// MultiExecutor 组合执行器，根据磁盘类型选择合适的工具
+// MultiExecutor 组合执行器，根据磁盘类型选择合适的工具.
 type MultiExecutor struct {
 	hdparm *HdparmExecutor
 	scsi   *ScsiExecutor
 }
 
-// NewMultiExecutor 创建组合执行器
+// NewMultiExecutor 创建组合执行器.
 func NewMultiExecutor() *MultiExecutor {
 	return &MultiExecutor{
 		hdparm: NewHdparmExecutor(),
@@ -262,7 +262,7 @@ func NewMultiExecutor() *MultiExecutor {
 	}
 }
 
-// detectDiskType 检测磁盘类型
+// detectDiskType 检测磁盘类型.
 func detectDiskType(diskID string) string {
 	// 栓查磁盘类型：ATA/SATA vs SCSI/SAS
 	// 规则：/dev/sd* 通常使用hdparm，/dev/sg* 或 SCSI设备使用sg_start
@@ -283,7 +283,7 @@ func detectDiskType(diskID string) string {
 	return "ata"
 }
 
-// Standby 根据磁盘类型选择执行器
+// Standby 根据磁盘类型选择执行器.
 func (e *MultiExecutor) Standby(diskID string) error {
 	diskType := detectDiskType(diskID)
 	if diskType == "scsi" {
@@ -292,7 +292,7 @@ func (e *MultiExecutor) Standby(diskID string) error {
 	return e.hdparm.Standby(diskID)
 }
 
-// Sleep 根据磁盘类型选择执行器
+// Sleep 根据磁盘类型选择执行器.
 func (e *MultiExecutor) Sleep(diskID string) error {
 	diskType := detectDiskType(diskID)
 	if diskType == "scsi" {
@@ -301,7 +301,7 @@ func (e *MultiExecutor) Sleep(diskID string) error {
 	return e.hdparm.Sleep(diskID)
 }
 
-// Wake 根据磁盘类型选择执行器
+// Wake 根据磁盘类型选择执行器.
 func (e *MultiExecutor) Wake(diskID string) error {
 	diskType := detectDiskType(diskID)
 	if diskType == "scsi" {
@@ -310,7 +310,7 @@ func (e *MultiExecutor) Wake(diskID string) error {
 	return e.hdparm.Wake(diskID)
 }
 
-// CheckPowerState 根据磁盘类型选择执行器
+// CheckPowerState 根据磁盘类型选择执行器.
 func (e *MultiExecutor) CheckPowerState(diskID string) (PowerState, error) {
 	diskType := detectDiskType(diskID)
 	if diskType == "scsi" {
@@ -334,7 +334,7 @@ type PowerConfig struct {
 	WakeDurationSeconds    float64       `json:"wake_duration_seconds"`    // 唤醒持续时间(s)
 }
 
-// EnergyStatistics 能耗统计数据
+// EnergyStatistics 能耗统计数据.
 type EnergyStatistics struct {
 	mu               sync.RWMutex
 	StartTime        time.Time                  `json:"start_time"`
@@ -346,7 +346,7 @@ type EnergyStatistics struct {
 	HourlyStats      []HourlyEnergyStat         `json:"hourly_stats"`
 }
 
-// DiskEnergyStat 单磁盘能耗统计
+// DiskEnergyStat 单磁盘能耗统计.
 type DiskEnergyStat struct {
 	DiskID          string    `json:"disk_id"`
 	ActiveHours     float64   `json:"active_hours"`    // 活跃时长(小时)
@@ -357,7 +357,7 @@ type DiskEnergyStat struct {
 	LastStateChange time.Time `json:"last_state_change"`
 }
 
-// HourlyEnergyStat 小时级能耗统计
+// HourlyEnergyStat 小时级能耗统计.
 type HourlyEnergyStat struct {
 	Hour          int       `json:"hour"`           // 0-23
 	Date          time.Time `json:"date"`           // 日期
@@ -756,7 +756,7 @@ func DefaultSleepPolicy() *SleepPolicy {
 
 // ==================== v2.388.0 API扩展方法 ====================
 
-// GetAllPolicies 获取所有策略
+// GetAllPolicies 获取所有策略.
 func (pm *PowerManager) GetAllPolicies() map[string]*SleepPolicy {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -768,7 +768,7 @@ func (pm *PowerManager) GetAllPolicies() map[string]*SleepPolicy {
 	return result
 }
 
-// DeletePolicy 删除策略
+// DeletePolicy 删除策略.
 func (pm *PowerManager) DeletePolicy(policyID string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -785,7 +785,7 @@ func (pm *PowerManager) DeletePolicy(policyID string) error {
 	return nil
 }
 
-// ForceSleep 强制休眠磁盘
+// ForceSleep 强制休眠磁盘.
 func (pm *PowerManager) ForceSleep(diskID string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -801,7 +801,7 @@ func (pm *PowerManager) ForceSleep(diskID string) error {
 	return nil
 }
 
-// ForceStandby 强制待机磁盘
+// ForceStandby 强制待机磁盘.
 func (pm *PowerManager) ForceStandby(diskID string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -817,7 +817,7 @@ func (pm *PowerManager) ForceStandby(diskID string) error {
 	return nil
 }
 
-// GetWakeQueue 获取唤醒队列
+// GetWakeQueue 获取唤醒队列.
 func (pm *PowerManager) GetWakeQueue() map[string][]WakeRequest {
 	pm.wakeQueueMu.Lock()
 	defer pm.wakeQueueMu.Unlock()
@@ -829,7 +829,7 @@ func (pm *PowerManager) GetWakeQueue() map[string][]WakeRequest {
 	return result
 }
 
-// AddWakeRequest 添加唤醒请求
+// AddWakeRequest 添加唤醒请求.
 func (pm *PowerManager) AddWakeRequest(req WakeRequest) error {
 	pm.wakeQueueMu.Lock()
 	defer pm.wakeQueueMu.Unlock()
@@ -844,7 +844,7 @@ func (pm *PowerManager) AddWakeRequest(req WakeRequest) error {
 	return nil
 }
 
-// ClearWakeQueue 清除唤醒队列
+// ClearWakeQueue 清除唤醒队列.
 func (pm *PowerManager) ClearWakeQueue(diskID string) {
 	pm.wakeQueueMu.Lock()
 	defer pm.wakeQueueMu.Unlock()
@@ -856,7 +856,7 @@ func (pm *PowerManager) ClearWakeQueue(diskID string) {
 	}
 }
 
-// GetEnergyStatistics 获取能耗统计数据
+// GetEnergyStatistics 获取能耗统计数据.
 func (pm *PowerManager) GetEnergyStatistics() *EnergyStatistics {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -864,7 +864,7 @@ func (pm *PowerManager) GetEnergyStatistics() *EnergyStatistics {
 	return pm.energyStats
 }
 
-// GetHourlyEnergyStats 获取小时级能耗统计
+// GetHourlyEnergyStats 获取小时级能耗统计.
 func (pm *PowerManager) GetHourlyEnergyStats(limit int) []HourlyEnergyStat {
 	pm.energyStats.mu.RLock()
 	defer pm.energyStats.mu.RUnlock()
@@ -884,7 +884,7 @@ func (pm *PowerManager) GetHourlyEnergyStats(limit int) []HourlyEnergyStat {
 	return result
 }
 
-// GetDiskEnergyStat 获取单磁盘能耗统计
+// GetDiskEnergyStat 获取单磁盘能耗统计.
 func (pm *PowerManager) GetDiskEnergyStat(diskID string) *DiskEnergyStat {
 	pm.energyStats.mu.RLock()
 	defer pm.energyStats.mu.RUnlock()
@@ -892,7 +892,7 @@ func (pm *PowerManager) GetDiskEnergyStat(diskID string) *DiskEnergyStat {
 	return pm.energyStats.DiskStats[diskID]
 }
 
-// GetBusinessHours 获取业务时段配置
+// GetBusinessHours 获取业务时段配置.
 func (pm *PowerManager) GetBusinessHours() []BusinessPeriod {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -900,7 +900,7 @@ func (pm *PowerManager) GetBusinessHours() []BusinessPeriod {
 	return pm.businessHours
 }
 
-// SetBusinessHours 设置业务时段配置
+// SetBusinessHours 设置业务时段配置.
 func (pm *PowerManager) SetBusinessHours(periods []BusinessPeriod) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -908,7 +908,7 @@ func (pm *PowerManager) SetBusinessHours(periods []BusinessPeriod) {
 	pm.businessHours = periods
 }
 
-// SmartScheduleConfig 智能调度配置返回结构
+// SmartScheduleConfig 智能调度配置返回结构.
 type SmartScheduleConfig struct {
 	EnableWakeOnDemand    bool    `json:"enableWakeOnDemand"`
 	EnableSmartScheduling bool    `json:"enableSmartScheduling"`
@@ -917,7 +917,7 @@ type SmartScheduleConfig struct {
 	WakeDurationSeconds   float64 `json:"wakeDurationSeconds"`
 }
 
-// GetSmartScheduleConfig 获取智能调度配置
+// GetSmartScheduleConfig 获取智能调度配置.
 func (pm *PowerManager) GetSmartScheduleConfig() SmartScheduleConfig {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -931,7 +931,7 @@ func (pm *PowerManager) GetSmartScheduleConfig() SmartScheduleConfig {
 	}
 }
 
-// UpdateSmartScheduleConfig 更新智能调度配置
+// UpdateSmartScheduleConfig 更新智能调度配置.
 func (pm *PowerManager) UpdateSmartScheduleConfig(enableWakeOnDemand, enableSmartScheduling bool,
 	defaultDiskPowerWatts, wakePowerSpikeWatts, wakeDurationSeconds float64) {
 	pm.mu.Lock()
@@ -944,7 +944,7 @@ func (pm *PowerManager) UpdateSmartScheduleConfig(enableWakeOnDemand, enableSmar
 	pm.config.WakeDurationSeconds = wakeDurationSeconds
 }
 
-// GetConfig 获取电源管理配置
+// GetConfig 获取电源管理配置.
 func (pm *PowerManager) GetConfig() PowerConfig {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -952,7 +952,7 @@ func (pm *PowerManager) GetConfig() PowerConfig {
 	return *pm.config
 }
 
-// UpdateConfig 更新电源管理配置
+// UpdateConfig 更新电源管理配置.
 func (pm *PowerManager) UpdateConfig(cfg *PowerConfig) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -977,7 +977,7 @@ func (pm *PowerManager) UpdateConfig(cfg *PowerConfig) {
 	}
 }
 
-// UnregisterDisk 取消磁盘注册
+// UnregisterDisk 取消磁盘注册.
 func (pm *PowerManager) UnregisterDisk(diskID string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -994,7 +994,7 @@ func (pm *PowerManager) UnregisterDisk(diskID string) error {
 	return nil
 }
 
-// GetPredictionStats 获取预测统计（用于预测下次唤醒）
+// GetPredictionStats 获取预测统计（用于预测下次唤醒）.
 func (pm *PowerManager) GetPredictionStats() map[string]time.Time {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()

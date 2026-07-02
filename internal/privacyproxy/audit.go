@@ -16,16 +16,16 @@ import (
 // 功能：记录每次脱敏操作，支持查询、导出和合规报告生成
 // =========================================================================
 
-// Auditor 审计日志管理器（线程安全的环形缓冲）
+// Auditor 审计日志管理器（线程安全的环形缓冲）.
 type Auditor struct {
-	mu        sync.RWMutex
-	entries   []AuditEntry    // 环形缓冲
-	capacity  int             // 最大容量
-	head      int             // 下一个写入位置
-	count     int             // 当前条数
+	mu       sync.RWMutex
+	entries  []AuditEntry // 环形缓冲
+	capacity int          // 最大容量
+	head     int          // 下一个写入位置
+	count    int          // 当前条数
 }
 
-// NewAuditor 创建审计日志管理器
+// NewAuditor 创建审计日志管理器.
 func NewAuditor(capacity int) *Auditor {
 	if capacity <= 0 {
 		capacity = 10000
@@ -36,7 +36,7 @@ func NewAuditor(capacity int) *Auditor {
 	}
 }
 
-// Log 记录一条审计日志
+// Log 记录一条审计日志.
 func (a *Auditor) Log(entry AuditEntry) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -55,7 +55,7 @@ func (a *Auditor) Log(entry AuditEntry) {
 	}
 }
 
-// Query 查询审计日志
+// Query 查询审计日志.
 func (a *Auditor) Query(q AuditQuery) ([]AuditEntry, int) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -86,7 +86,7 @@ func (a *Auditor) Query(q AuditQuery) ([]AuditEntry, int) {
 	return all[offset : offset+limit], total
 }
 
-// matchQuery 检查条目是否匹配查询条件
+// matchQuery 检查条目是否匹配查询条件.
 func (a *Auditor) matchQuery(entry *AuditEntry, q *AuditQuery) bool {
 	if q == nil {
 		return true
@@ -109,7 +109,7 @@ func (a *Auditor) matchQuery(entry *AuditEntry, q *AuditQuery) bool {
 	return true
 }
 
-// GetByID 按 ID 获取审计条目
+// GetByID 按 ID 获取审计条目.
 func (a *Auditor) GetByID(id string) (*AuditEntry, bool) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -124,7 +124,7 @@ func (a *Auditor) GetByID(id string) (*AuditEntry, bool) {
 	return nil, false
 }
 
-// ExportJSON 导出为 JSON 格式
+// ExportJSON 导出为 JSON 格式.
 func (a *Auditor) ExportJSON(w io.Writer, q AuditQuery) error {
 	entries, total := a.Query(q)
 	result := map[string]interface{}{
@@ -136,7 +136,7 @@ func (a *Auditor) ExportJSON(w io.Writer, q AuditQuery) error {
 	return encoder.Encode(result)
 }
 
-// ExportCSV 导出为 CSV 格式
+// ExportCSV 导出为 CSV 格式.
 func (a *Auditor) ExportCSV(w io.Writer, q AuditQuery) error {
 	entries, _ := a.Query(q)
 
@@ -172,18 +172,18 @@ func (a *Auditor) ExportCSV(w io.Writer, q AuditQuery) error {
 	return nil
 }
 
-// GenerateReport 生成合规报告
+// GenerateReport 生成合规报告.
 func (a *Auditor) GenerateReport(start, end time.Time) *ComplianceReport {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 
 	report := &ComplianceReport{
-		GeneratedAt: time.Now(),
-		PeriodStart: start,
-		PeriodEnd:   end,
-		TopRules:    []RuleUsageStat{},
-		TopTargetAPIs: []APIUsageStat{},
-		ByAction:    make(map[MaskAction]int),
+		GeneratedAt:    time.Now(),
+		PeriodStart:    start,
+		PeriodEnd:      end,
+		TopRules:       []RuleUsageStat{},
+		TopTargetAPIs:  []APIUsageStat{},
+		ByAction:       make(map[MaskAction]int),
 		MaskedExamples: []AuditEntry{},
 	}
 
@@ -255,14 +255,14 @@ func (a *Auditor) GenerateReport(start, end time.Time) *ComplianceReport {
 	return report
 }
 
-// Stats 返回基本统计信息
+// Stats 返回基本统计信息.
 func (a *Auditor) Stats() (total, capacity int) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	return a.count, a.capacity
 }
 
-// Clear 清空审计日志
+// Clear 清空审计日志.
 func (a *Auditor) Clear() {
 	a.mu.Lock()
 	defer a.mu.Unlock()

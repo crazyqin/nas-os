@@ -10,7 +10,7 @@ import (
 	"sync"
 )
 
-// DiskFormat defines VM disk format types
+// DiskFormat defines VM disk format types.
 type DiskFormat string
 
 const (
@@ -22,7 +22,7 @@ const (
 	FormatVMDK  DiskFormat = "vmdk"
 )
 
-// ImportConfig defines VM import configuration
+// ImportConfig defines VM import configuration.
 type ImportConfig struct {
 	Name       string
 	Format     DiskFormat
@@ -31,7 +31,7 @@ type ImportConfig struct {
 	UEFI       bool
 }
 
-// ImportResult defines VM import result
+// ImportResult defines VM import result.
 type ImportResult struct {
 	Name       string
 	TargetPath string
@@ -39,20 +39,20 @@ type ImportResult struct {
 	Duration   float64
 }
 
-// ImportService manages VM import operations
+// ImportService manages VM import operations.
 type ImportService struct {
 	imports map[string]*ImportResult
 	mu      sync.RWMutex
 }
 
-// NewImportService creates a new import service
+// NewImportService creates a new import service.
 func NewImportService() *ImportService {
 	return &ImportService{
 		imports: make(map[string]*ImportResult),
 	}
 }
 
-// ImportVM imports a VM from various disk formats
+// ImportVM imports a VM from various disk formats.
 func (s *ImportService) ImportVM(ctx context.Context, cfg *ImportConfig) (*ImportResult, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -93,7 +93,7 @@ func (s *ImportService) ImportVM(ctx context.Context, cfg *ImportConfig) (*Impor
 	return result, nil
 }
 
-// ExportVM exports a VM to specified format
+// ExportVM exports a VM to specified format.
 func (s *ImportService) ExportVM(ctx context.Context, name string, format DiskFormat) (string, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -119,7 +119,7 @@ func (s *ImportService) ExportVM(ctx context.Context, name string, format DiskFo
 	return exportPath, nil
 }
 
-// isValidFormat checks if format is supported
+// isValidFormat checks if format is supported.
 func isValidFormat(format DiskFormat) bool {
 	switch format {
 	case FormatQCOW2, FormatQED, FormatRAW, FormatVDI, FormatVHDX, FormatVMDK:
@@ -129,7 +129,7 @@ func isValidFormat(format DiskFormat) bool {
 	}
 }
 
-// GetImportProgress returns import progress
+// GetImportProgress returns import progress.
 func (s *ImportService) GetImportProgress(name string) (*ImportResult, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

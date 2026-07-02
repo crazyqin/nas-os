@@ -11,25 +11,25 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	// ErrUPSNotFound UPS 设备未找到
+	// ErrUPSNotFound UPS 设备未找到.
 	ErrUPSNotFound = errors.New("UPS 设备未找到")
-	// ErrUPSAlreadyConnected UPS 已连接
+	// ErrUPSAlreadyConnected UPS 已连接.
 	ErrUPSAlreadyConnected = errors.New("UPS 设备已连接")
-	// ErrNoPrimaryUPS 没有主 UPS
+	// ErrNoPrimaryUPS 没有主 UPS.
 	ErrNoPrimaryUPS = errors.New("没有主 UPS 设备")
-	// ErrProtocolNotSupported 协议不支持
+	// ErrProtocolNotSupported 协议不支持.
 	ErrProtocolNotSupported = errors.New("协议不支持")
-	// ErrConnectionFailed 连接失败
+	// ErrConnectionFailed 连接失败.
 	ErrConnectionFailed = errors.New("UPS 连接失败")
-	// ErrShutdownPolicyNotFound 关机策略未找到
+	// ErrShutdownPolicyNotFound 关机策略未找到.
 	ErrShutdownPolicyNotFound = errors.New("关机策略未找到")
-	// ErrEventNotFound 事件未找到
+	// ErrEventNotFound 事件未找到.
 	ErrEventNotFound = errors.New("事件未找到")
 )
 
 // ========== 管理器 ==========
 
-// Manager UPS 电源管理核心
+// Manager UPS 电源管理核心.
 type Manager struct {
 	mu       sync.RWMutex
 	config   Config
@@ -49,7 +49,7 @@ type Manager struct {
 	alertCallback func(event PowerEvent)
 }
 
-// NewManager 创建 UPS 管理器
+// NewManager 创建 UPS 管理器.
 func NewManager(cfg Config) *Manager {
 	return &Manager{
 		config:   cfg,
@@ -62,7 +62,7 @@ func NewManager(cfg Config) *Manager {
 	}
 }
 
-// SetAlertCallback 设置告警回调函数
+// SetAlertCallback 设置告警回调函数.
 func (m *Manager) SetAlertCallback(cb func(event PowerEvent)) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -71,7 +71,7 @@ func (m *Manager) SetAlertCallback(cb func(event PowerEvent)) {
 
 // ========== UPS 设备发现与连接 ==========
 
-// Discover 发现 UPS 设备
+// Discover 发现 UPS 设备.
 func (m *Manager) Discover(req DiscoverRequest) ([]*UPSDevice, error) {
 	switch req.Protocol {
 	case ProtocolUSBHID:
@@ -85,7 +85,7 @@ func (m *Manager) Discover(req DiscoverRequest) ([]*UPSDevice, error) {
 	}
 }
 
-// Connect 连接 UPS 设备
+// Connect 连接 UPS 设备.
 func (m *Manager) Connect(req ConnectRequest) (*UPSDevice, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -175,7 +175,7 @@ func (m *Manager) Connect(req ConnectRequest) (*UPSDevice, error) {
 	return device, nil
 }
 
-// Disconnect 断开 UPS 设备
+// Disconnect 断开 UPS 设备.
 func (m *Manager) Disconnect(upsID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -197,7 +197,7 @@ func (m *Manager) Disconnect(upsID string) error {
 	return nil
 }
 
-// ListDevices 列出所有 UPS 设备
+// ListDevices 列出所有 UPS 设备.
 func (m *Manager) ListDevices() []*UPSDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -209,7 +209,7 @@ func (m *Manager) ListDevices() []*UPSDevice {
 	return devices
 }
 
-// GetDevice 获取 UPS 设备信息
+// GetDevice 获取 UPS 设备信息.
 func (m *Manager) GetDevice(upsID string) (*UPSDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -223,7 +223,7 @@ func (m *Manager) GetDevice(upsID string) (*UPSDevice, error) {
 
 // ========== 电源状态监控 ==========
 
-// GetPowerStatus 获取电源状态
+// GetPowerStatus 获取电源状态.
 func (m *Manager) GetPowerStatus(upsID string) (*PowerStatus, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -239,7 +239,7 @@ func (m *Manager) GetPowerStatus(upsID string) (*PowerStatus, error) {
 	return status, nil
 }
 
-// GetAllPowerStatus 获取所有 UPS 电源状态
+// GetAllPowerStatus 获取所有 UPS 电源状态.
 func (m *Manager) GetAllPowerStatus() map[string]*PowerStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -251,7 +251,7 @@ func (m *Manager) GetAllPowerStatus() map[string]*PowerStatus {
 	return result
 }
 
-// GetPrimaryPowerStatus 获取主 UPS 电源状态
+// GetPrimaryPowerStatus 获取主 UPS 电源状态.
 func (m *Manager) GetPrimaryPowerStatus() (*PowerStatus, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -270,7 +270,7 @@ func (m *Manager) GetPrimaryPowerStatus() (*PowerStatus, error) {
 
 // ========== 硬件健康监控 ==========
 
-// GetHardwareHealth 获取硬件健康信息
+// GetHardwareHealth 获取硬件健康信息.
 func (m *Manager) GetHardwareHealth(upsID string) (*HardwareHealth, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -288,7 +288,7 @@ func (m *Manager) GetHardwareHealth(upsID string) (*HardwareHealth, error) {
 
 // ========== 关机策略 ==========
 
-// CreateShutdownPolicy 创建关机策略
+// CreateShutdownPolicy 创建关机策略.
 func (m *Manager) CreateShutdownPolicy(req SetShutdownPolicyRequest) (*ShutdownPolicy, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -311,7 +311,7 @@ func (m *Manager) CreateShutdownPolicy(req SetShutdownPolicyRequest) (*ShutdownP
 	return policy, nil
 }
 
-// GetShutdownPolicy 获取关机策略
+// GetShutdownPolicy 获取关机策略.
 func (m *Manager) GetShutdownPolicy(policyID string) (*ShutdownPolicy, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -323,7 +323,7 @@ func (m *Manager) GetShutdownPolicy(policyID string) (*ShutdownPolicy, error) {
 	return policy, nil
 }
 
-// ListShutdownPolicies 列出所有关机策略
+// ListShutdownPolicies 列出所有关机策略.
 func (m *Manager) ListShutdownPolicies() []*ShutdownPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -335,7 +335,7 @@ func (m *Manager) ListShutdownPolicies() []*ShutdownPolicy {
 	return policies
 }
 
-// UpdateShutdownPolicy 更新关机策略
+// UpdateShutdownPolicy 更新关机策略.
 func (m *Manager) UpdateShutdownPolicy(policyID string, req SetShutdownPolicyRequest) (*ShutdownPolicy, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -357,7 +357,7 @@ func (m *Manager) UpdateShutdownPolicy(policyID string, req SetShutdownPolicyReq
 	return policy, nil
 }
 
-// DeleteShutdownPolicy 删除关机策略
+// DeleteShutdownPolicy 删除关机策略.
 func (m *Manager) DeleteShutdownPolicy(policyID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -372,7 +372,7 @@ func (m *Manager) DeleteShutdownPolicy(policyID string) error {
 
 // ========== 电源事件 ==========
 
-// GetEvents 获取电源事件
+// GetEvents 获取电源事件.
 func (m *Manager) GetEvents(params EventQueryParams) []PowerEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -408,7 +408,7 @@ func (m *Manager) GetEvents(params EventQueryParams) []PowerEvent {
 	return result[start:end]
 }
 
-// GetEventCount 获取事件总数
+// GetEventCount 获取事件总数.
 func (m *Manager) GetEventCount(upsID string) int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -427,7 +427,7 @@ func (m *Manager) GetEventCount(upsID string) int {
 
 // ========== 电源统计 ==========
 
-// GetPowerStats 获取电源统计
+// GetPowerStats 获取电源统计.
 func (m *Manager) GetPowerStats(upsID string) (*PowerStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -445,14 +445,14 @@ func (m *Manager) GetPowerStats(upsID string) (*PowerStats, error) {
 
 // ========== 配置管理 ==========
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(req UpdateConfigRequest) Config {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -473,7 +473,7 @@ func (m *Manager) UpdateConfig(req UpdateConfigRequest) Config {
 
 // ========== 运行控制 ==========
 
-// Start 启动定时轮询
+// Start 启动定时轮询.
 func (m *Manager) Start() {
 	m.mu.Lock()
 	if m.running {
@@ -492,7 +492,7 @@ func (m *Manager) Start() {
 	log.Printf("[UPS管理] 启动定时轮询，间隔 %v", interval)
 }
 
-// Stop 停止定时轮询
+// Stop 停止定时轮询.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -509,7 +509,7 @@ func (m *Manager) Stop() {
 	log.Println("[UPS管理] 停止定时轮询")
 }
 
-// IsRunning 是否运行中
+// IsRunning 是否运行中.
 func (m *Manager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -518,7 +518,7 @@ func (m *Manager) IsRunning() bool {
 
 // ========== 内部方法 ==========
 
-// pollLoop 轮询循环
+// pollLoop 轮询循环.
 func (m *Manager) pollLoop() {
 	// 立即采集一次
 	m.poll()
@@ -533,7 +533,7 @@ func (m *Manager) pollLoop() {
 	}
 }
 
-// poll 执行一次轮询
+// poll 执行一次轮询.
 func (m *Manager) poll() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -558,7 +558,7 @@ func (m *Manager) poll() {
 	}
 }
 
-// simulatePowerStatus 模拟电源状态变化（实际应从 UPS 读取）
+// simulatePowerStatus 模拟电源状态变化（实际应从 UPS 读取）.
 func (m *Manager) simulatePowerStatus(upsID string) {
 	status, ok := m.power[upsID]
 	if !ok {
@@ -594,7 +594,7 @@ func (m *Manager) simulatePowerStatus(upsID string) {
 	status.UpdatedAt = time.Now()
 }
 
-// updateHardwareHealth 更新硬件健康信息
+// updateHardwareHealth 更新硬件健康信息.
 func (m *Manager) updateHardwareHealth(upsID string) {
 	health, ok := m.health[upsID]
 	if !ok {
@@ -628,7 +628,7 @@ func (m *Manager) updateHardwareHealth(upsID string) {
 	}
 }
 
-// checkShutdownPolicies 检查关机策略
+// checkShutdownPolicies 检查关机策略.
 func (m *Manager) checkShutdownPolicies(upsID string) {
 	status, ok := m.power[upsID]
 	if !ok || status.Status != UPSStatusOnBattery {
@@ -671,7 +671,7 @@ func (m *Manager) checkShutdownPolicies(upsID string) {
 	}
 }
 
-// checkFailover 检查主备切换
+// checkFailover 检查主备切换.
 func (m *Manager) checkFailover(failedUPS string) {
 	failedDevice, ok := m.devices[failedUPS]
 	if !ok || !failedDevice.IsPrimary {
@@ -709,7 +709,7 @@ func (m *Manager) checkFailover(failedUPS string) {
 	}
 }
 
-// recordEvent 记录电源事件
+// recordEvent 记录电源事件.
 func (m *Manager) recordEvent(upsID string, eventType PowerEventType, message, severity string) PowerEvent {
 	event := PowerEvent{
 		ID:        fmt.Sprintf("evt-%d", len(m.events)+1),
@@ -740,7 +740,7 @@ func (m *Manager) recordEvent(upsID string, eventType PowerEventType, message, s
 	return event
 }
 
-// updateStats 更新统计数据
+// updateStats 更新统计数据.
 func (m *Manager) updateStats(upsID string, event PowerEvent) {
 	stats, ok := m.stats[upsID]
 	if !ok {
@@ -764,7 +764,7 @@ func (m *Manager) updateStats(upsID string, event PowerEvent) {
 	}
 }
 
-// discoverUSB 发现 USB HID UPS 设备
+// discoverUSB 发现 USB HID UPS 设备.
 func (m *Manager) discoverUSB() ([]*UPSDevice, error) {
 	// 模拟 USB HID 设备发现
 	// 实际实现应扫描 /dev/usb/hiddev* 或使用 libusb
@@ -785,7 +785,7 @@ func (m *Manager) discoverUSB() ([]*UPSDevice, error) {
 	return devices, nil
 }
 
-// discoverSNMP 发现 SNMP UPS 设备
+// discoverSNMP 发现 SNMP UPS 设备.
 func (m *Manager) discoverSNMP(address string, port int) ([]*UPSDevice, error) {
 	if address == "" {
 		address = "192.168.1.0/24"
@@ -811,7 +811,7 @@ func (m *Manager) discoverSNMP(address string, port int) ([]*UPSDevice, error) {
 	return devices, nil
 }
 
-// discoverNUT 发现 NUT UPS 设备
+// discoverNUT 发现 NUT UPS 设备.
 func (m *Manager) discoverNUT(address string, port int) ([]*UPSDevice, error) {
 	if address == "" {
 		address = "localhost"
@@ -837,7 +837,7 @@ func (m *Manager) discoverNUT(address string, port int) ([]*UPSDevice, error) {
 	return devices, nil
 }
 
-// SetUPSStatus 手动设置 UPS 状态（用于测试）
+// SetUPSStatus 手动设置 UPS 状态（用于测试）.
 func (m *Manager) SetUPSStatus(upsID string, status UPSStatus) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -874,7 +874,7 @@ func (m *Manager) SetUPSStatus(upsID string, status UPSStatus) error {
 	return nil
 }
 
-// GetStatusSummary 获取所有 UPS 状态摘要
+// GetStatusSummary 获取所有 UPS 状态摘要.
 func (m *Manager) GetStatusSummary() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

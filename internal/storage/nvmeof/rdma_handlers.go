@@ -13,13 +13,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RDMAHandlers RDMA API 处理器
+// RDMAHandlers RDMA API 处理器.
 type RDMAHandlers struct {
 	rdmaTargetManager    *RDMATargetSysManager
 	rdmaInitiatorManager *RDMAInitiatorSysManager
 }
 
-// NewRDMAHandlers 创建 RDMA API 处理器
+// NewRDMAHandlers 创建 RDMA API 处理器.
 func NewRDMAHandlers(rdmaTargetManager *RDMATargetSysManager, rdmaInitiatorManager *RDMAInitiatorSysManager) *RDMAHandlers {
 	return &RDMAHandlers{
 		rdmaTargetManager:    rdmaTargetManager,
@@ -27,7 +27,7 @@ func NewRDMAHandlers(rdmaTargetManager *RDMATargetSysManager, rdmaInitiatorManag
 	}
 }
 
-// RegisterRoutes 注册 RDMA API 路由
+// RegisterRoutes 注册 RDMA API 路由.
 func (h *RDMAHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	rdma := r.Group("/nvmeof/rdma")
 	{

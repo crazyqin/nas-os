@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// AccessController 访问控制器
+// AccessController 访问控制器.
 type AccessController struct {
 	mu              sync.RWMutex
 	logger          *zap.Logger
@@ -21,14 +21,14 @@ type AccessController struct {
 	lockoutDuration time.Duration
 }
 
-// RateLimitEntry 速率限制条目
+// RateLimitEntry 速率限制条目.
 type RateLimitEntry struct {
 	Attempts    int        `json:"attempts"`
 	LastTry     time.Time  `json:"last_try"`
 	LockedUntil *time.Time `json:"locked_until,omitempty"`
 }
 
-// NewAccessController 创建访问控制器
+// NewAccessController 创建访问控制器.
 func NewAccessController(logger *zap.Logger) *AccessController {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -42,7 +42,7 @@ func NewAccessController(logger *zap.Logger) *AccessController {
 	}
 }
 
-// AccessRequest 访问请求
+// AccessRequest 访问请求.
 type AccessRequest struct {
 	ShareID   string `json:"share_id"`
 	Token     string `json:"token"`
@@ -52,7 +52,7 @@ type AccessRequest struct {
 	Action    string `json:"action"` // view, download, preview
 }
 
-// AccessResult 访问结果
+// AccessResult 访问结果.
 type AccessResult struct {
 	Allowed    bool          `json:"allowed"`
 	Reason     string        `json:"reason,omitempty"`
@@ -61,7 +61,7 @@ type AccessResult struct {
 	RetryAfter time.Duration `json:"retry_after,omitempty"`
 }
 
-// CheckAccess 检查访问权限
+// CheckAccess 检查访问权限.
 func (ac *AccessController) CheckAccess(req *AccessRequest, link *ShareLink) *AccessResult {
 	result := &AccessResult{
 		Link: link,
@@ -131,7 +131,7 @@ func (ac *AccessController) CheckAccess(req *AccessRequest, link *ShareLink) *Ac
 	return result
 }
 
-// checkIPWhitelist 检查 IP 白名单
+// checkIPWhitelist 检查 IP 白名单.
 func (ac *AccessController) checkIPWhitelist(ipAddress string, whitelist []string) bool {
 	if len(whitelist) == 0 {
 		return true // 没有白名单限制
@@ -163,7 +163,7 @@ func (ac *AccessController) checkIPWhitelist(ipAddress string, whitelist []strin
 	return false
 }
 
-// checkRateLimit 检查速率限制
+// checkRateLimit 检查速率限制.
 func (ac *AccessController) checkRateLimit(ipAddress string) time.Duration {
 	ac.mu.Lock()
 	defer ac.mu.Unlock()
@@ -188,7 +188,7 @@ func (ac *AccessController) checkRateLimit(ipAddress string) time.Duration {
 	return 0
 }
 
-// recordFailedAttempt 记录失败尝试
+// recordFailedAttempt 记录失败尝试.
 func (ac *AccessController) recordFailedAttempt(ipAddress string) {
 	ac.mu.Lock()
 	defer ac.mu.Unlock()
@@ -213,12 +213,12 @@ func (ac *AccessController) recordFailedAttempt(ipAddress string) {
 	}
 }
 
-// verifyPassword 验证密码（常量时间比较，防止时序攻击）
+// verifyPassword 验证密码（常量时间比较，防止时序攻击）.
 func (ac *AccessController) verifyPassword(input, expected string) bool {
 	return subtle.ConstantTimeCompare([]byte(input), []byte(expected)) == 1
 }
 
-// CleanupRateLimits 清理过期的速率限制条目
+// CleanupRateLimits 清理过期的速率限制条目.
 func (ac *AccessController) CleanupRateLimits() {
 	ac.mu.Lock()
 	defer ac.mu.Unlock()
@@ -233,14 +233,14 @@ func (ac *AccessController) CleanupRateLimits() {
 	}
 }
 
-// SetMaxAttempts 设置最大尝试次数
+// SetMaxAttempts 设置最大尝试次数.
 func (ac *AccessController) SetMaxAttempts(attempts int) {
 	ac.mu.Lock()
 	defer ac.mu.Unlock()
 	ac.maxAttempts = attempts
 }
 
-// SetLockoutDuration 设置锁定时长
+// SetLockoutDuration 设置锁定时长.
 func (ac *AccessController) SetLockoutDuration(duration time.Duration) {
 	ac.mu.Lock()
 	defer ac.mu.Unlock()

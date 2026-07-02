@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 跨平台同步管理器
+// Manager 跨平台同步管理器.
 type Manager struct {
 	mu sync.RWMutex
 
@@ -26,7 +26,7 @@ type Manager struct {
 	logger     *zap.Logger
 }
 
-// NewManager 创建跨平台同步管理器
+// NewManager 创建跨平台同步管理器.
 func NewManager(configPath string, logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -43,7 +43,7 @@ func NewManager(configPath string, logger *zap.Logger) *Manager {
 	}
 }
 
-// Initialize 初始化管理器
+// Initialize 初始化管理器.
 func (m *Manager) Initialize() error {
 	if m.configPath != "" {
 		if err := m.loadConfig(); err != nil && !os.IsNotExist(err) {
@@ -58,7 +58,7 @@ func (m *Manager) Initialize() error {
 // 设备管理
 // ============================================================
 
-// CreateDevice 创建 NAS 设备
+// CreateDevice 创建 NAS 设备.
 func (m *Manager) CreateDevice(req CreateDeviceRequest) (*NASDevice, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -86,7 +86,7 @@ func (m *Manager) CreateDevice(req CreateDeviceRequest) (*NASDevice, error) {
 	return device, nil
 }
 
-// GetDevice 获取设备
+// GetDevice 获取设备.
 func (m *Manager) GetDevice(id string) (*NASDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -97,7 +97,7 @@ func (m *Manager) GetDevice(id string) (*NASDevice, error) {
 	return device, nil
 }
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (m *Manager) ListDevices() []*NASDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -108,7 +108,7 @@ func (m *Manager) ListDevices() []*NASDevice {
 	return devices
 }
 
-// UpdateDevice 更新设备
+// UpdateDevice 更新设备.
 func (m *Manager) UpdateDevice(id string, req UpdateDeviceRequest) (*NASDevice, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -136,7 +136,7 @@ func (m *Manager) UpdateDevice(id string, req UpdateDeviceRequest) (*NASDevice, 
 	return device, nil
 }
 
-// DeleteDevice 删除设备
+// DeleteDevice 删除设备.
 func (m *Manager) DeleteDevice(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -153,7 +153,7 @@ func (m *Manager) DeleteDevice(id string) error {
 	return nil
 }
 
-// TestDeviceConnection 测试设备连接
+// TestDeviceConnection 测试设备连接.
 func (m *Manager) TestDeviceConnection(id string) (*ConnectionTestResult, error) {
 	m.mu.RLock()
 	_, exists := m.devices[id]
@@ -176,7 +176,7 @@ func (m *Manager) TestDeviceConnection(id string) (*ConnectionTestResult, error)
 	return &ConnectionTestResult{Success: true, Latency: latency, Version: "1.0.0"}, nil
 }
 
-// UpdateDeviceStatus 更新设备状态
+// UpdateDeviceStatus 更新设备状态.
 func (m *Manager) UpdateDeviceStatus(id string, status DeviceStatus) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -195,7 +195,7 @@ func (m *Manager) UpdateDeviceStatus(id string, status DeviceStatus) error {
 // 同步任务管理
 // ============================================================
 
-// CreateSyncTask 创建同步任务
+// CreateSyncTask 创建同步任务.
 func (m *Manager) CreateSyncTask(req CreateSyncTaskRequest) (*SyncTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -285,7 +285,7 @@ func (m *Manager) CreateSyncTask(req CreateSyncTaskRequest) (*SyncTask, error) {
 	return task, nil
 }
 
-// GetSyncTask 获取同步任务
+// GetSyncTask 获取同步任务.
 func (m *Manager) GetSyncTask(id string) (*SyncTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -296,7 +296,7 @@ func (m *Manager) GetSyncTask(id string) (*SyncTask, error) {
 	return task, nil
 }
 
-// ListSyncTasks 列出所有同步任务
+// ListSyncTasks 列出所有同步任务.
 func (m *Manager) ListSyncTasks() []*SyncTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -307,7 +307,7 @@ func (m *Manager) ListSyncTasks() []*SyncTask {
 	return tasks
 }
 
-// UpdateSyncTask 更新同步任务
+// UpdateSyncTask 更新同步任务.
 func (m *Manager) UpdateSyncTask(id string, req UpdateSyncTaskRequest) (*SyncTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -386,7 +386,7 @@ func (m *Manager) UpdateSyncTask(id string, req UpdateSyncTaskRequest) (*SyncTas
 	return task, nil
 }
 
-// DeleteSyncTask 删除同步任务
+// DeleteSyncTask 删除同步任务.
 func (m *Manager) DeleteSyncTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -409,7 +409,7 @@ func (m *Manager) DeleteSyncTask(id string) error {
 // 同步控制
 // ============================================================
 
-// StartSync 启动同步
+// StartSync 启动同步.
 func (m *Manager) StartSync(taskID string) error {
 	m.mu.Lock()
 	task, exists := m.tasks[taskID]
@@ -448,7 +448,7 @@ func (m *Manager) StartSync(taskID string) error {
 	return nil
 }
 
-// PauseSync 暂停同步
+// PauseSync 暂停同步.
 func (m *Manager) PauseSync(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -472,7 +472,7 @@ func (m *Manager) PauseSync(taskID string) error {
 	return nil
 }
 
-// ResumeSync 恢复同步
+// ResumeSync 恢复同步.
 func (m *Manager) ResumeSync(taskID string) error {
 	m.mu.Lock()
 	task, exists := m.tasks[taskID]
@@ -496,7 +496,7 @@ func (m *Manager) ResumeSync(taskID string) error {
 	return nil
 }
 
-// StopSync 停止同步
+// StopSync 停止同步.
 func (m *Manager) StopSync(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -524,14 +524,14 @@ func (m *Manager) StopSync(taskID string) error {
 // 冲突管理
 // ============================================================
 
-// GetConflicts 获取任务的冲突列表
+// GetConflicts 获取任务的冲突列表.
 func (m *Manager) GetConflicts(taskID string) []*FileConflict {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.conflicts[taskID]
 }
 
-// ResolveConflict 解决单个冲突
+// ResolveConflict 解决单个冲突.
 func (m *Manager) ResolveConflict(taskID, conflictID string, resolution ConflictStrategy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -555,7 +555,7 @@ func (m *Manager) ResolveConflict(taskID, conflictID string, resolution Conflict
 	return fmt.Errorf("conflict %s not found", conflictID)
 }
 
-// ResolveAllConflicts 解决任务的所有冲突
+// ResolveAllConflicts 解决任务的所有冲突.
 func (m *Manager) ResolveAllConflicts(taskID string, resolution ConflictStrategy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -584,7 +584,7 @@ func (m *Manager) ResolveAllConflicts(taskID string, resolution ConflictStrategy
 // 状态和统计
 // ============================================================
 
-// GetSyncStatus 获取同步状态
+// GetSyncStatus 获取同步状态.
 func (m *Manager) GetSyncStatus(taskID string) (*SyncStatus, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -595,7 +595,7 @@ func (m *Manager) GetSyncStatus(taskID string) (*SyncStatus, error) {
 	return status, nil
 }
 
-// GetAllSyncStatuses 获取所有同步状态
+// GetAllSyncStatuses 获取所有同步状态.
 func (m *Manager) GetAllSyncStatuses() map[string]*SyncStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -606,7 +606,7 @@ func (m *Manager) GetAllSyncStatuses() map[string]*SyncStatus {
 	return result
 }
 
-// GetSyncStats 获取同步统计
+// GetSyncStats 获取同步统计.
 func (m *Manager) GetSyncStats() SyncStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -640,7 +640,7 @@ func (m *Manager) GetSyncStats() SyncStats {
 	return stats
 }
 
-// GetSyncLogs 获取同步日志
+// GetSyncLogs 获取同步日志.
 func (m *Manager) GetSyncLogs(taskID string, limit int) []SyncLog {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -762,7 +762,7 @@ func (m *Manager) executeSync(task *SyncTask, cancel chan struct{}) {
 // Mock 数据
 // ============================================================
 
-// LoadMockData 加载演示数据
+// LoadMockData 加载演示数据.
 func (m *Manager) LoadMockData() {
 	m.mu.Lock()
 	defer m.mu.Unlock()

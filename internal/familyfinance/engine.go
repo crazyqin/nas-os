@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// FinanceEngine 财务引擎
+// FinanceEngine 财务引擎.
 type FinanceEngine struct {
 	mu           sync.RWMutex
 	logger       *zap.Logger
@@ -20,7 +20,7 @@ type FinanceEngine struct {
 	categories   map[string]*Category
 }
 
-// NewFinanceEngine 创建财务引擎
+// NewFinanceEngine 创建财务引擎.
 func NewFinanceEngine(logger *zap.Logger) *FinanceEngine {
 	engine := &FinanceEngine{
 		logger:     logger,
@@ -39,7 +39,7 @@ func NewFinanceEngine(logger *zap.Logger) *FinanceEngine {
 
 // ========== 账户管理 ==========
 
-// CreateAccount 创建账户
+// CreateAccount 创建账户.
 func (e *FinanceEngine) CreateAccount(account *Account) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -63,7 +63,7 @@ func (e *FinanceEngine) CreateAccount(account *Account) error {
 	return nil
 }
 
-// UpdateAccount 更新账户
+// UpdateAccount 更新账户.
 func (e *FinanceEngine) UpdateAccount(account *Account) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -80,7 +80,7 @@ func (e *FinanceEngine) UpdateAccount(account *Account) error {
 	return nil
 }
 
-// DeleteAccount 删除账户
+// DeleteAccount 删除账户.
 func (e *FinanceEngine) DeleteAccount(accountID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -101,7 +101,7 @@ func (e *FinanceEngine) DeleteAccount(accountID string) error {
 	return nil
 }
 
-// GetAccount 获取账户
+// GetAccount 获取账户.
 func (e *FinanceEngine) GetAccount(accountID string) (*Account, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -113,7 +113,7 @@ func (e *FinanceEngine) GetAccount(accountID string) (*Account, error) {
 	return account, nil
 }
 
-// ListAccounts 列出所有账户
+// ListAccounts 列出所有账户.
 func (e *FinanceEngine) ListAccounts() []*Account {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -125,7 +125,7 @@ func (e *FinanceEngine) ListAccounts() []*Account {
 	return accounts
 }
 
-// GetTotalBalance 获取所有账户总余额
+// GetTotalBalance 获取所有账户总余额.
 func (e *FinanceEngine) GetTotalBalance() float64 {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -139,7 +139,7 @@ func (e *FinanceEngine) GetTotalBalance() float64 {
 
 // ========== 交易管理 ==========
 
-// AddTransaction 添加交易记录
+// AddTransaction 添加交易记录.
 func (e *FinanceEngine) AddTransaction(tx *Transaction) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -202,7 +202,7 @@ func (e *FinanceEngine) AddTransaction(tx *Transaction) error {
 	return nil
 }
 
-// GetTransaction 获取交易记录
+// GetTransaction 获取交易记录.
 func (e *FinanceEngine) GetTransaction(txID string) (*Transaction, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -215,7 +215,7 @@ func (e *FinanceEngine) GetTransaction(txID string) (*Transaction, error) {
 	return nil, ErrTransactionNotFound
 }
 
-// QueryTransactions 查询交易记录
+// QueryTransactions 查询交易记录.
 func (e *FinanceEngine) QueryTransactions(query TransactionQuery) []*Transaction {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -240,7 +240,7 @@ func (e *FinanceEngine) QueryTransactions(query TransactionQuery) []*Transaction
 	return result[start:end]
 }
 
-// matchTransaction 匹配交易记录
+// matchTransaction 匹配交易记录.
 func matchTransaction(tx *Transaction, query TransactionQuery) bool {
 	if query.AccountID != "" && tx.AccountID != query.AccountID {
 		return false
@@ -268,7 +268,7 @@ func matchTransaction(tx *Transaction, query TransactionQuery) bool {
 
 // ========== 分类管理 ==========
 
-// GetCategories 获取所有分类
+// GetCategories 获取所有分类.
 func (e *FinanceEngine) GetCategories() []*Category {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -280,7 +280,7 @@ func (e *FinanceEngine) GetCategories() []*Category {
 	return categories
 }
 
-// AddCategory 添加自定义分类
+// AddCategory 添加自定义分类.
 func (e *FinanceEngine) AddCategory(category *Category) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
