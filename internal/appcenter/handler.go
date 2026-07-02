@@ -37,6 +37,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 		apps.POST("/apps/:id/enable", h.EnableApp)
 		apps.POST("/apps/:id/disable", h.DisableApp)
 		apps.POST("/apps/:id/update", h.UpdateAppVersion)
+		apps.GET("/apps/:id/lifecycle-plan", h.GetLifecyclePlan)
 
 		// 配置
 		apps.PUT("/apps/:id/config", h.SetAppConfig)
@@ -184,6 +185,17 @@ func (h *Handler) UpdateAppVersion(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "app updated"})
+}
+
+func (h *Handler) GetLifecyclePlan(c *gin.Context) {
+	id := c.Param("id")
+	action := LifecycleAction(c.DefaultQuery("action", string(LifecycleActionInstall)))
+	plan, err := h.store.PlanLifecycle(c.Request.Context(), id, action)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, plan)
 }
 
 func (h *Handler) SetAppConfig(c *gin.Context) {

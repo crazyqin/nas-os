@@ -517,6 +517,66 @@ func TestDashboardStats(t *testing.T) {
 	}
 }
 
+func TestOperationsSummaryPrioritizesContainerRisks(t *testing.T) {
+	cd := NewContainerDashboard()
+
+	cd.RegisterContainer(&Container{ID: "c1", Name: "api", Image: "api:latest", Status: StatusRunning, Health: HealthHealthy})
+	cd.RegisterContainer(&Container{ID: "c2", Name: "worker", Image: "worker:latest", Status: StatusRunning, Health: HealthHealthy, RestartCount: 4})
+	cd.RegisterContainer(&Container{ID: "c3", Name: "db", Image: "postgres:latest", Status: StatusRunning, Health: HealthUnhealthy})
+	cd.RegisterContainer(&Container{ID: "c4", Name: "cache", Image: "redis:latest", Status: StatusExited, Health: HealthNone})
+
+	cd.UpdateResourceUsage(&ResourceUsage{ContainerID: "c1", CPUPercent: 25, MemoryPercent: 30})
+	cd.UpdateResourceUsage(&ResourceUsage{ContainerID: "c2", CPUPercent: 70, MemoryPercent: 50})
+	cd.UpdateResourceUsage(&ResourceUsage{ContainerID: "c3", CPUPercent: 96, MemoryPercent: 85})
+
+	summary := cd.GetOperationsSummary(OperationsThresholds{})
+	if summary.Total != 4 {
+		t.Fatalf("expected 4 insights, got %d", summary.Total)
+	}
+	if summary.Critical != 1 {
+		t.Errorf("expected 1 critical insight, got %d", summary.Critical)
+	}
+	if summary.Warnings != 2 {
+		t.Errorf("expected 2 warning insights, got %d", summary.Warnings)
+	}
+	if summary.Healthy != 1 {
+		t.Errorf("expected 1 healthy insight, got %d", summary.Healthy)
+	}
+	if summary.Insights[0].ContainerID != "c3" || summary.Insights[0].Severity != OperationsSeverityCritical {
+		t.Fatalf("expected unhealthy db first, got %#v", summary.Insights[0])
+	}
+
+	byID := map[string]*ContainerOpsInsight{}
+	for _, insight := range summary.Insights {
+		byID[insight.ContainerID] = insight
+	}
+
+	if byID["c1"].Severity != OperationsSeverityOK {
+		t.Errorf("expected api ok, got %s", byID["c1"].Severity)
+	}
+	if byID["c2"].Severity != OperationsSeverityWarning || byID["c2"].Reason != "容器近期重启次数偏高" {
+		t.Errorf("expected worker restart warning, got %#v", byID["c2"])
+	}
+	if byID["c4"].Severity != OperationsSeverityWarning || byID["c4"].Reason != "容器未处于运行状态" {
+		t.Errorf("expected cache stopped warning, got %#v", byID["c4"])
+	}
+}
+
+func TestOperationsSummaryCustomThresholds(t *testing.T) {
+	cd := NewContainerDashboard()
+
+	cd.RegisterContainer(&Container{ID: "c1", Name: "media", Image: "media:latest", Status: StatusRunning, Health: HealthHealthy})
+	cd.UpdateResourceUsage(&ResourceUsage{ContainerID: "c1", CPUPercent: 61, MemoryPercent: 40})
+
+	summary := cd.GetOperationsSummary(OperationsThresholds{CPUWarning: 60, CPUCritical: 90})
+	if summary.Warnings != 1 {
+		t.Fatalf("expected custom CPU threshold warning, got %+v", summary)
+	}
+	if summary.Insights[0].Reason != "CPU 使用率接近容量上限" {
+		t.Errorf("unexpected reason: %s", summary.Insights[0].Reason)
+	}
+}
+
 func TestContainerStats(t *testing.T) {
 	cd := NewContainerDashboard()
 

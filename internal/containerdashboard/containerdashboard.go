@@ -2,6 +2,7 @@ package containerdashboard
 
 import (
 	"fmt"
+	"sort"
 	"sync"
 	"time"
 )
@@ -180,6 +181,52 @@ type DashboardStats struct {
 	ResourcesByStatus   map[string]int `json:"resources_by_status"`
 	CPUUsageTotal       float64        `json:"cpu_usage_total"`
 	MemoryUsageTotal    int64          `json:"memory_usage_total"`
+}
+
+// OperationsSeverity 运维洞察严重级别.
+type OperationsSeverity string
+
+const (
+	// OperationsSeverityOK 正常.
+	OperationsSeverityOK OperationsSeverity = "ok"
+	// OperationsSeverityWarning 需要关注.
+	OperationsSeverityWarning OperationsSeverity = "warning"
+	// OperationsSeverityCritical 需要立即处理.
+	OperationsSeverityCritical OperationsSeverity = "critical"
+)
+
+// OperationsThresholds 容器运维洞察阈值.
+type OperationsThresholds struct {
+	CPUWarning      float64 `json:"cpu_warning"`
+	CPUCritical     float64 `json:"cpu_critical"`
+	MemoryWarning   float64 `json:"memory_warning"`
+	MemoryCritical  float64 `json:"memory_critical"`
+	RestartWarning  int     `json:"restart_warning"`
+	RestartCritical int     `json:"restart_critical"`
+}
+
+// ContainerOpsInsight 单个容器的运维洞察.
+type ContainerOpsInsight struct {
+	ContainerID    string             `json:"container_id"`
+	Name           string             `json:"name"`
+	Severity       OperationsSeverity `json:"severity"`
+	Reason         string             `json:"reason"`
+	Recommendation string             `json:"recommendation"`
+	Status         ContainerStatus    `json:"status"`
+	Health         HealthStatus       `json:"health"`
+	CPUPercent     float64            `json:"cpu_percent"`
+	MemoryPercent  float64            `json:"memory_percent"`
+	RestartCount   int                `json:"restart_count"`
+}
+
+// OperationsSummary 容器运维总览.
+type OperationsSummary struct {
+	GeneratedAt time.Time              `json:"generated_at"`
+	Total       int                    `json:"total"`
+	Healthy     int                    `json:"healthy"`
+	Warnings    int                    `json:"warnings"`
+	Critical    int                    `json:"critical"`
+	Insights    []*ContainerOpsInsight `json:"insights"`
 }
 
 // ContainerDashboard 容器仪表盘.
@@ -779,6 +826,135 @@ func (cd *ContainerDashboard) GetDashboardStats() *DashboardStats {
 	}
 
 	return stats
+}
+
+// GetOperationsSummary 生成容器运维洞察总览.
+//
+// 参考 TrueNAS/群晖 DSM 的总览式运维体验：把容器状态、健康检查、资源峰值和重启次数
+// 汇总为可排序的行动清单，便于管理员优先处理故障和容量风险。
+func (cd *ContainerDashboard) GetOperationsSummary(thresholds OperationsThresholds) *OperationsSummary {
+	cd.mu.RLock()
+	defer cd.mu.RUnlock()
+
+	thresholds = normalizeOperationsThresholds(thresholds)
+	summary := &OperationsSummary{
+		GeneratedAt: time.Now(),
+		Insights:    make([]*ContainerOpsInsight, 0, len(cd.containers)),
+	}
+
+	for _, container := range cd.containers {
+		insight := &ContainerOpsInsight{
+			ContainerID:  container.ID,
+			Name:         container.Name,
+			Severity:     OperationsSeverityOK,
+			Reason:       "容器运行状态正常",
+			Status:       container.Status,
+			Health:       container.Health,
+			RestartCount: container.RestartCount,
+		}
+
+		if usages := cd.resources[container.ID]; len(usages) > 0 {
+			latest := usages[len(usages)-1]
+			insight.CPUPercent = latest.CPUPercent
+			insight.MemoryPercent = latest.MemoryPercent
+		}
+
+		applyContainerOpsSignals(insight, thresholds)
+		summary.Insights = append(summary.Insights, insight)
+	}
+
+	sort.SliceStable(summary.Insights, func(i, j int) bool {
+		left := operationsSeverityRank(summary.Insights[i].Severity)
+		right := operationsSeverityRank(summary.Insights[j].Severity)
+		if left != right {
+			return left > right
+		}
+		return summary.Insights[i].Name < summary.Insights[j].Name
+	})
+
+	summary.Total = len(summary.Insights)
+	for _, insight := range summary.Insights {
+		switch insight.Severity {
+		case OperationsSeverityCritical:
+			summary.Critical++
+		case OperationsSeverityWarning:
+			summary.Warnings++
+		default:
+			summary.Healthy++
+		}
+	}
+
+	return summary
+}
+
+func normalizeOperationsThresholds(thresholds OperationsThresholds) OperationsThresholds {
+	if thresholds.CPUWarning <= 0 {
+		thresholds.CPUWarning = 80
+	}
+	if thresholds.CPUCritical <= 0 {
+		thresholds.CPUCritical = 95
+	}
+	if thresholds.MemoryWarning <= 0 {
+		thresholds.MemoryWarning = 80
+	}
+	if thresholds.MemoryCritical <= 0 {
+		thresholds.MemoryCritical = 95
+	}
+	if thresholds.RestartWarning <= 0 {
+		thresholds.RestartWarning = 3
+	}
+	if thresholds.RestartCritical <= 0 {
+		thresholds.RestartCritical = 10
+	}
+	return thresholds
+}
+
+func applyContainerOpsSignals(insight *ContainerOpsInsight, thresholds OperationsThresholds) {
+	switch {
+	case insight.Status == StatusDead || insight.Health == HealthUnhealthy:
+		insight.Severity = OperationsSeverityCritical
+		insight.Reason = "容器已死亡或健康检查失败"
+		insight.Recommendation = "查看容器日志、最近变更和健康检查配置，必要时重启或回滚镜像"
+	case insight.Status != StatusRunning:
+		insight.Severity = OperationsSeverityWarning
+		insight.Reason = "容器未处于运行状态"
+		insight.Recommendation = "确认该容器是否应自动启动，并检查退出码与依赖服务"
+	case insight.CPUPercent >= thresholds.CPUCritical:
+		insight.Severity = OperationsSeverityCritical
+		insight.Reason = "CPU 使用率超过严重阈值"
+		insight.Recommendation = "检查进程热点、扩容 CPU 配额或调整服务负载"
+	case insight.MemoryPercent >= thresholds.MemoryCritical:
+		insight.Severity = OperationsSeverityCritical
+		insight.Reason = "内存使用率超过严重阈值"
+		insight.Recommendation = "检查内存泄漏、提高内存限制或拆分工作负载"
+	case insight.RestartCount >= thresholds.RestartCritical:
+		insight.Severity = OperationsSeverityCritical
+		insight.Reason = "容器重启次数过高"
+		insight.Recommendation = "排查崩溃循环、启动探针和依赖服务可用性"
+	case insight.CPUPercent >= thresholds.CPUWarning:
+		insight.Severity = OperationsSeverityWarning
+		insight.Reason = "CPU 使用率接近容量上限"
+		insight.Recommendation = "观察趋势并考虑限流、调度迁移或扩容"
+	case insight.MemoryPercent >= thresholds.MemoryWarning:
+		insight.Severity = OperationsSeverityWarning
+		insight.Reason = "内存使用率接近容量上限"
+		insight.Recommendation = "观察趋势并预留更多内存余量"
+	case insight.RestartCount >= thresholds.RestartWarning:
+		insight.Severity = OperationsSeverityWarning
+		insight.Reason = "容器近期重启次数偏高"
+		insight.Recommendation = "检查日志中的错误峰值和宿主机资源压力"
+	}
+}
+
+func operationsSeverityRank(severity OperationsSeverity) int {
+	switch severity {
+	case OperationsSeverityCritical:
+		return 3
+	case OperationsSeverityWarning:
+		return 2
+	default:
+		return 1
+	}
 }
 
 // GetContainerStats 获取单个容器统计.

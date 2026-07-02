@@ -37,9 +37,10 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 		sco.POST("/costs", h.recordCost)
 		sco.GET("/costs", h.listCosts)
 
-		// 成本汇总与趋势
+		// 成本汇总、趋势与预算容量
 		sco.GET("/summary", h.getCostSummary)
 		sco.GET("/trend", h.analyzeTrend)
+		sco.POST("/budget-capacity", h.analyzeBudgetCapacity)
 
 		// 优化建议
 		sco.GET("/optimizations", h.getOptimizations)
@@ -118,6 +119,14 @@ type trendRequest struct {
 type summaryRequest struct {
 	PeriodStart string `form:"period_start"`
 	PeriodEnd   string `form:"period_end"`
+}
+
+type budgetCapacityRequest struct {
+	MonthlyBudget      float64 `json:"monthly_budget"`
+	MonthlyGrowthGB    float64 `json:"monthly_growth_gb"`
+	PlanningMonths     int     `json:"planning_months"`
+	TargetUtilization  float64 `json:"target_utilization_pct"`
+	ExpansionCostPerGB float64 `json:"expansion_cost_per_gb"`
 }
 
 // ============================================================
@@ -275,6 +284,28 @@ func (h *Handlers) analyzeTrend(c *gin.Context) {
 
 	trend := h.manager.AnalyzeTrend(granularity, months)
 	c.JSON(http.StatusOK, apiResponse{Code: 0, Message: "success", Data: trend})
+}
+
+func (h *Handlers) analyzeBudgetCapacity(c *gin.Context) {
+	var req budgetCapacityRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, apiResponse{Code: 1, Message: "invalid request: " + err.Error()})
+		return
+	}
+
+	report, err := h.manager.AnalyzeBudgetCapacity(&BudgetCapacityInput{
+		MonthlyBudget:      req.MonthlyBudget,
+		MonthlyGrowthGB:    req.MonthlyGrowthGB,
+		PlanningMonths:     req.PlanningMonths,
+		TargetUtilization:  req.TargetUtilization,
+		ExpansionCostPerGB: req.ExpansionCostPerGB,
+	})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, apiResponse{Code: 1, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, apiResponse{Code: 0, Message: "success", Data: report})
 }
 
 // ============================================================
