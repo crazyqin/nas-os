@@ -1,5 +1,21 @@
 # NAS-OS 变更日志
 
+## v3.8.0 (2026-07-02) - 智能运维与本地 AI 治理
+
+### 新功能
+- 网络 FEC 管理：新增 FEC 模式推荐、配置意图与网络变更审计记录，提升 25G/100G 高速链路可靠性。
+- 重启原因历史：新增重启事件记录与原因分类，覆盖用户触发、内核异常、计划更新、电源异常等场景。
+- 本地 AI 语义搜索治理：新增 local-only governed search，支持查询用途审计与脱敏返回。
+- LXC 迁移计划：新增冷/热/在线迁移计划生成，包含预检、快照、同步、验证、切换和回滚步骤。
+
+### 验证
+- `go test ./internal/network ./internal/logcenter ./internal/semanticsearch ./internal/lxc ./internal/version` 通过。
+
+### 竞品对标
+- TrueNAS 26: FEC、重启原因、LXC、WebShare/TrueSearch、本地化数据服务。
+- Synology DSM 7.4/Computex 2026: DSM Agent、本地 AI、Cluster Manager、Log Center。
+- 飞牛 fnOS: 易用媒体与远程访问体验。
+
 ## v3.7.0 (2026-07-02) - 存储与应用生态增强
 
 ### 新功能（5个新模块）

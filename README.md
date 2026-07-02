@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.7.0 Stable (2026-07-02)
+> **最新版本**: v3.8.0 Stable (2026-07-02)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -35,6 +35,15 @@
 ## 特性
 
 
+
+### 🚀 v3.8.0 智能运维与本地 AI 治理 ✅
+
+| 模块 | 说明 | 状态 |
+|------|------|------|
+| 🌐 网络 FEC 管理 | 25G/100G 链路 FEC 模式推荐、配置意图与审计记录 | ✅ v3.8.0 新增 |
+| 📋 重启原因历史 | 记录用户、内核、计划更新、电源异常等重启原因 | ✅ v3.8.0 新增 |
+| 🔎 本地 AI 语义搜索治理 | local-only 查询、脱敏返回、请求人/用途审计 | ✅ v3.8.0 新增 |
+| 🐧 LXC 迁移计划 | 冷/热/在线迁移步骤生成，含预检、快照、同步、回滚 | ✅ v3.8.0 新增 |
 
 ### 🚀 v3.7.0 存储与应用生态增强 ✅
 
