@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// SystemInfo 系统信息总览
+// SystemInfo 系统信息总览.
 type SystemInfo struct {
 	CollectedAt time.Time  `json:"collected_at"`
 	Hostname    string     `json:"hostname"`
@@ -23,7 +23,7 @@ type SystemInfo struct {
 	LoadAvg     LoadAvg    `json:"load_avg"`
 }
 
-// CPUInfo CPU 信息
+// CPUInfo CPU 信息.
 type CPUInfo struct {
 	Model       string    `json:"model"`
 	Cores       int       `json:"cores"`
@@ -32,7 +32,7 @@ type CPUInfo struct {
 	Frequencies []float64 `json:"frequencies_mhz"`
 }
 
-// MemInfo 内存信息
+// MemInfo 内存信息.
 type MemInfo struct {
 	TotalBytes     int64   `json:"total_bytes"`
 	UsedBytes      int64   `json:"used_bytes"`
@@ -43,7 +43,7 @@ type MemInfo struct {
 	UsagePercent   float64 `json:"usage_percent"`
 }
 
-// DiskInfo 磁盘信息
+// DiskInfo 磁盘信息.
 type DiskInfo struct {
 	Device       string  `json:"device"`
 	MountPoint   string  `json:"mount_point"`
@@ -59,7 +59,7 @@ type DiskInfo struct {
 	TempCelsius float64 `json:"temp_celsius"`
 }
 
-// NetInfo 网络接口信息
+// NetInfo 网络接口信息.
 type NetInfo struct {
 	Name      string `json:"name"`
 	IP        string `json:"ip"`
@@ -72,7 +72,7 @@ type NetInfo struct {
 	IsUp      bool   `json:"is_up"`
 }
 
-// LoadAvg 系统负载
+// LoadAvg 系统负载.
 type LoadAvg struct {
 	Load1  float64 `json:"load1"`
 	Load5  float64 `json:"load5"`

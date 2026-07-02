@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler 存储成本预测 HTTP 处理器
+// Handler 存储成本预测 HTTP 处理器.
 type Handler struct {
 	engine *CostForecastEngine
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(engine *CostForecastEngine) *Handler {
 	return &Handler{engine: engine}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/storagecostforecast/forecast", h.handleForecast)
 	mux.HandleFunc("/api/v1/storagecostforecast/records", h.handleRecords)

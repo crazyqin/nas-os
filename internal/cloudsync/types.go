@@ -14,7 +14,7 @@ import (
 // ============================================================
 
 // FileInfo 云存储文件信息
-// 用于 Provider 接口的 List 和 Stat 返回值
+// 用于 Provider 接口的 List 和 Stat 返回值.
 type FileInfo struct {
 	Path    string    `json:"path"`
 	Size    int64     `json:"size"`
@@ -28,7 +28,7 @@ type FileInfo struct {
 // Provider 类型
 // ============================================================
 
-// ProviderType 云存储提供商类型
+// ProviderType 云存储提供商类型.
 type ProviderType string
 
 const (
@@ -49,7 +49,7 @@ const (
 	ProviderAliyunPan    ProviderType = "aliyun_pan"
 )
 
-// ProviderConfig 云存储提供商配置
+// ProviderConfig 云存储提供商配置.
 type ProviderConfig struct {
 	ID           string       `json:"id,omitempty"`   // 配置 ID
 	Name         string       `json:"name,omitempty"` // 配置名称
@@ -74,7 +74,7 @@ type ProviderConfig struct {
 	Enabled      bool         `json:"enabled,omitempty"`        // 是否启用
 }
 
-// SyncOpType 同步操作类型
+// SyncOpType 同步操作类型.
 type SyncOpType string
 
 const (
@@ -87,7 +87,7 @@ const (
 	SyncOpDeleteRemote SyncOpType = "delete_remote"
 )
 
-// SyncOperation 同步操作
+// SyncOperation 同步操作.
 type SyncOperation struct {
 	Type       SyncOpType `json:"type"`
 	LocalPath  string     `json:"local_path"`
@@ -97,7 +97,7 @@ type SyncOperation struct {
 	Hash       string     `json:"hash,omitempty"`
 }
 
-// ConflictStrategy 冲突解决策略
+// ConflictStrategy 冲突解决策略.
 type ConflictStrategy string
 
 const (
@@ -109,7 +109,7 @@ const (
 	ConflictStrategyAsk    ConflictStrategy = "ask"
 )
 
-// ConflictInfo 冲突信息
+// ConflictInfo 冲突信息.
 type ConflictInfo struct {
 	Path          string    `json:"path"`
 	LocalModTime  time.Time `json:"local_mod_time"`
@@ -124,7 +124,7 @@ type ConflictInfo struct {
 // 云存储后端类型
 // ============================================================
 
-// CloudBackend 云存储后端类型
+// CloudBackend 云存储后端类型.
 type CloudBackend string
 
 const (
@@ -135,7 +135,7 @@ const (
 	BackendMinIO CloudBackend = "minio"
 )
 
-// IsValid 检查后端类型是否有效
+// IsValid 检查后端类型是否有效.
 func (b CloudBackend) IsValid() bool {
 	switch b {
 	case BackendS3, BackendAzure, BackendGCS, BackendOSS, BackendMinIO:
@@ -148,7 +148,7 @@ func (b CloudBackend) IsValid() bool {
 // 同步方向常量（兼容 sync_engine.go）
 // ============================================================
 
-// SyncDirection 同步方向
+// SyncDirection 同步方向.
 type SyncDirection = SyncMode
 
 const (
@@ -161,7 +161,7 @@ const (
 // 同步模式
 // ============================================================
 
-// SyncMode 同步模式
+// SyncMode 同步模式.
 type SyncMode string
 
 const (
@@ -171,7 +171,7 @@ const (
 	SyncModeSync          SyncMode = "sync"     // 同步（兼容旧接口）
 )
 
-// IsValid 检查同步模式是否有效
+// IsValid 检查同步模式是否有效.
 func (m SyncMode) IsValid() bool {
 	switch m {
 	case SyncModeBidirectional, SyncModeUploadOnly, SyncModeDownloadOnly:
@@ -184,7 +184,7 @@ func (m SyncMode) IsValid() bool {
 // 冲突处理策略
 // ============================================================
 
-// ConflictPolicy 冲突处理策略
+// ConflictPolicy 冲突处理策略.
 type ConflictPolicy string
 
 const (
@@ -193,7 +193,7 @@ const (
 	ConflictKeepBoth    ConflictPolicy = "keep_both"    // 保留两者
 )
 
-// IsValid 检查冲突策略是否有效
+// IsValid 检查冲突策略是否有效.
 func (p ConflictPolicy) IsValid() bool {
 	switch p {
 	case ConflictLocalFirst, ConflictRemoteFirst, ConflictKeepBoth:
@@ -206,7 +206,7 @@ func (p ConflictPolicy) IsValid() bool {
 // 同步任务状态
 // ============================================================
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -219,7 +219,7 @@ const (
 	StatusCancelled TaskStatus = "cancelled"
 	StatusFailed    TaskStatus = "failed"
 
-	// 兼容 sync_engine.go 使用的常量
+	// 兼容 sync_engine.go 使用的常量.
 	TaskStatusIdle      = StatusIdle
 	TaskStatusRunning   = StatusSyncing
 	TaskStatusPaused    = StatusPaused
@@ -232,7 +232,7 @@ const (
 // 同步调度类型
 // ============================================================
 
-// ScheduleType 调度类型
+// ScheduleType 调度类型.
 type ScheduleType string
 
 const (
@@ -240,7 +240,7 @@ const (
 	ScheduleCron     ScheduleType = "cron"     // 定时同步
 	ScheduleRealtime ScheduleType = "realtime" // 实时同步
 
-	// 兼容旧接口
+	// 兼容旧接口.
 	ScheduleTypeManual   = ScheduleManual
 	ScheduleTypeCron     = ScheduleCron
 	ScheduleTypeRealtime = ScheduleRealtime
@@ -250,7 +250,7 @@ const (
 // 云存储连接配置
 // ============================================================
 
-// ConnectionConfig 云存储连接配置
+// ConnectionConfig 云存储连接配置.
 type ConnectionConfig struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -268,7 +268,7 @@ type ConnectionConfig struct {
 	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
-// Validate 验证连接配置
+// Validate 验证连接配置.
 func (c *ConnectionConfig) Validate() error {
 	if c.Name == "" {
 		return fmt.Errorf("connection name is required")
@@ -309,7 +309,7 @@ func (c *ConnectionConfig) Validate() error {
 // 文件过滤规则
 // ============================================================
 
-// FileFilter 文件过滤规则
+// FileFilter 文件过滤规则.
 type FileFilter struct {
 	// 按扩展名过滤（白名单）
 	IncludeExtensions []string `json:"include_extensions,omitempty"`
@@ -329,7 +329,7 @@ type FileFilter struct {
 // 同步调度配置
 // ============================================================
 
-// SyncSchedule 同步调度配置
+// SyncSchedule 同步调度配置.
 type SyncSchedule struct {
 	Type     ScheduleType `json:"type"`
 	CronExpr string       `json:"cron_expr,omitempty"` // cron 表达式, 仅 Type=cron 时有效
@@ -340,7 +340,7 @@ type SyncSchedule struct {
 // 传输配置
 // ============================================================
 
-// TransferConfig 传输配置
+// TransferConfig 传输配置.
 type TransferConfig struct {
 	// 带宽限制 (KB/s), 0=不限制
 	BandwidthLimit int `json:"bandwidth_limit,omitempty"`
@@ -356,7 +356,7 @@ type TransferConfig struct {
 	RetryDelaySec int `json:"retry_delay_sec,omitempty"`
 }
 
-// DefaultTransferConfig 默认传输配置
+// DefaultTransferConfig 默认传输配置.
 func DefaultTransferConfig() TransferConfig {
 	return TransferConfig{
 		BandwidthLimit:      0,
@@ -372,7 +372,7 @@ func DefaultTransferConfig() TransferConfig {
 // 同步任务
 // ============================================================
 
-// SyncTask 同步任务
+// SyncTask 同步任务.
 type SyncTask struct {
 	ID               string           `json:"id"`
 	Name             string           `json:"name"`
@@ -416,7 +416,7 @@ type SyncTask struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// Validate 验证同步任务
+// Validate 验证同步任务.
 func (t *SyncTask) Validate() error {
 	if t.Name == "" {
 		return fmt.Errorf("task name is required")
@@ -446,7 +446,7 @@ func (t *SyncTask) Validate() error {
 // 同步状态和统计
 // ============================================================
 
-// SyncStatus 同步状态详情
+// SyncStatus 同步状态详情.
 type SyncStatus struct {
 	TaskID           string         `json:"task_id"`
 	TaskName         string         `json:"task_name"`
@@ -476,7 +476,7 @@ type SyncStatus struct {
 	Errors           []SyncError    `json:"errors,omitempty"`
 }
 
-// SyncError 同步错误
+// SyncError 同步错误.
 type SyncError struct {
 	Path      string    `json:"path"`
 	Action    string    `json:"action"` // upload/download/delete_remote/delete_local
@@ -485,7 +485,7 @@ type SyncError struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// ProviderInfo 提供商信息
+// ProviderInfo 提供商信息.
 type ProviderInfo struct {
 	Type        ProviderType `json:"type"`
 	Name        string       `json:"name"`
@@ -493,7 +493,7 @@ type ProviderInfo struct {
 	Features    []string     `json:"features"`
 }
 
-// ProviderItem 已配置的提供商实例
+// ProviderItem 已配置的提供商实例.
 type ProviderItem struct {
 	ID        string         `json:"id"`
 	Name      string         `json:"name"`
@@ -505,7 +505,7 @@ type ProviderItem struct {
 	UpdatedAt time.Time      `json:"updated_at"`
 }
 
-// SupportedProviders 返回支持的云存储提供商列表
+// SupportedProviders 返回支持的云存储提供商列表.
 func SupportedProviders() []ProviderInfo {
 	return []ProviderInfo{
 		{Type: ProviderS3, Name: "S3", Description: "Amazon S3 / S3 兼容存储", Features: []string{"upload", "download", "sync", "multipart"}},
@@ -524,7 +524,7 @@ func SupportedProviders() []ProviderInfo {
 	}
 }
 
-// SyncLog 同步日志条目
+// SyncLog 同步日志条目.
 type SyncLog struct {
 	TaskID    string    `json:"task_id"`
 	Timestamp time.Time `json:"timestamp"`
@@ -534,7 +534,7 @@ type SyncLog struct {
 	Error     string    `json:"error,omitempty"`
 }
 
-// StorageUsage 存储空间用量
+// StorageUsage 存储空间用量.
 type StorageUsage struct {
 	ConnectionID string       `json:"connection_id"`
 	Backend      CloudBackend `json:"backend"`
@@ -546,7 +546,7 @@ type StorageUsage struct {
 	QuotaBytes   int64        `json:"quota_bytes,omitempty"` // 配额, 0=无限
 }
 
-// SyncStats 同步统计汇总
+// SyncStats 同步统计汇总.
 type SyncStats struct {
 	TotalProviders  int64     `json:"total_providers"`
 	TotalTasks      int64     `json:"total_tasks"`
@@ -568,7 +568,7 @@ type SyncStats struct {
 // 创建/更新请求
 // ============================================================
 
-// CreateConnectionRequest 创建连接请求
+// CreateConnectionRequest 创建连接请求.
 type CreateConnectionRequest struct {
 	Name        string       `json:"name" binding:"required"`
 	Backend     CloudBackend `json:"backend" binding:"required"`
@@ -583,7 +583,7 @@ type CreateConnectionRequest struct {
 	UseSSL      bool         `json:"use_ssl"`
 }
 
-// UpdateConnectionRequest 更新连接请求
+// UpdateConnectionRequest 更新连接请求.
 type UpdateConnectionRequest struct {
 	Name        string `json:"name,omitempty"`
 	Endpoint    string `json:"endpoint,omitempty"`
@@ -597,7 +597,7 @@ type UpdateConnectionRequest struct {
 	UseSSL      *bool  `json:"use_ssl,omitempty"`
 }
 
-// CreateTaskRequest 创建同步任务请求
+// CreateTaskRequest 创建同步任务请求.
 type CreateTaskRequest struct {
 	Name           string          `json:"name" binding:"required"`
 	ConnectionID   string          `json:"connection_id" binding:"required"`
@@ -610,7 +610,7 @@ type CreateTaskRequest struct {
 	Transfer       *TransferConfig `json:"transfer,omitempty"`
 }
 
-// UpdateTaskRequest 更新同步任务请求
+// UpdateTaskRequest 更新同步任务请求.
 type UpdateTaskRequest struct {
 	Name           string          `json:"name,omitempty"`
 	LocalPath      string          `json:"local_path,omitempty"`

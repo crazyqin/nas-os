@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 语音助手管理器
+// Manager 语音助手管理器.
 type Manager struct {
 	mu              sync.RWMutex
 	logger          *zap.Logger
@@ -29,7 +29,7 @@ type Manager struct {
 	running         bool
 }
 
-// SessionContext 会话上下文
+// SessionContext 会话上下文.
 type SessionContext struct {
 	SessionID  string                 `json:"session_id"`
 	Platform   VoicePlatform          `json:"platform"`
@@ -38,7 +38,7 @@ type SessionContext struct {
 	Context    map[string]interface{} `json:"context,omitempty"`
 }
 
-// NewManager 创建语音助手管理器
+// NewManager 创建语音助手管理器.
 func NewManager(logger *zap.Logger, config *VoiceHubConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -69,14 +69,14 @@ func NewManager(logger *zap.Logger, config *VoiceHubConfig) *Manager {
 	return m
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// initDefaultScenes 初始化默认场景
+// initDefaultScenes 初始化默认场景.
 func (m *Manager) initDefaultScenes() {
 	defaultScenes := []*SceneInfo{
 		{
@@ -156,7 +156,7 @@ func (m *Manager) initDefaultScenes() {
 	}
 }
 
-// initDefaultTemplates 初始化默认回复模板
+// initDefaultTemplates 初始化默认回复模板.
 func (m *Manager) initDefaultTemplates() {
 	defaultTemplates := []*ReplyTemplate{
 		{
@@ -223,14 +223,14 @@ func (m *Manager) initDefaultTemplates() {
 	}
 }
 
-// initWakeWords 初始化唤醒词
+// initWakeWords 初始化唤醒词.
 func (m *Manager) initWakeWords() {
 	for _, w := range m.config.WakeWords {
 		m.wakeWords[w.ID] = &w
 	}
 }
 
-// ProcessVoiceCommand 处理语音命令
+// ProcessVoiceCommand 处理语音命令.
 func (m *Manager) ProcessVoiceCommand(ctx context.Context, cmd *VoiceCommand) (*VoiceResponse, error) {
 	if !m.config.Enabled {
 		return nil, fmt.Errorf("voice assistant is disabled")
@@ -310,7 +310,7 @@ func (m *Manager) ProcessVoiceCommand(ctx context.Context, cmd *VoiceCommand) (*
 	return response, nil
 }
 
-// Intent 意图解析结果
+// Intent 意图解析结果.
 type Intent struct {
 	Type     string                 `json:"type"`
 	Action   string                 `json:"action"`
@@ -319,7 +319,7 @@ type Intent struct {
 	Original string                 `json:"original"`
 }
 
-// parseIntent 解析语音命令意图
+// parseIntent 解析语音命令意图.
 func (m *Manager) parseIntent(query string, lang VoiceLanguage) *Intent {
 	query = strings.TrimSpace(query)
 	queryLower := strings.ToLower(query)
@@ -410,7 +410,7 @@ func (m *Manager) parseIntent(query string, lang VoiceLanguage) *Intent {
 	return intent
 }
 
-// extractDeviceName 提取设备名称
+// extractDeviceName 提取设备名称.
 func (m *Manager) extractDeviceName(query, command string) string {
 	// 移除命令关键词，提取设备名
 	queryClean := strings.ReplaceAll(query, command, "")
@@ -430,7 +430,7 @@ func (m *Manager) extractDeviceName(query, command string) string {
 	return "default"
 }
 
-// handleSceneCommand 处理场景命令
+// handleSceneCommand 处理场景命令.
 func (m *Manager) handleSceneCommand(ctx context.Context, intent *Intent, resp *VoiceResponse) error {
 	m.mu.RLock()
 	scene, ok := m.scenes[intent.Target]
@@ -463,7 +463,7 @@ func (m *Manager) handleSceneCommand(ctx context.Context, intent *Intent, resp *
 	return nil
 }
 
-// handleDeviceCommand 处理设备控制命令
+// handleDeviceCommand 处理设备控制命令.
 func (m *Manager) handleDeviceCommand(ctx context.Context, intent *Intent, resp *VoiceResponse) error {
 	action := DeviceAction{
 		DeviceID:    fmt.Sprintf("device-%s", intent.Target),
@@ -479,7 +479,7 @@ func (m *Manager) handleDeviceCommand(ctx context.Context, intent *Intent, resp 
 	return nil
 }
 
-// handleTTSCommand 处理 TTS 命令
+// handleTTSCommand 处理 TTS 命令.
 func (m *Manager) handleTTSCommand(ctx context.Context, intent *Intent, resp *VoiceResponse) error {
 	if !m.config.TTSEnabled {
 		resp.TextReply = intent.Target
@@ -499,7 +499,7 @@ func (m *Manager) handleTTSCommand(ctx context.Context, intent *Intent, resp *Vo
 	return nil
 }
 
-// handleCustomCommand 处理自定义命令
+// handleCustomCommand 处理自定义命令.
 func (m *Manager) handleCustomCommand(ctx context.Context, intent *Intent, cmd *VoiceCommand, resp *VoiceResponse) error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -528,7 +528,7 @@ func (m *Manager) handleCustomCommand(ctx context.Context, intent *Intent, cmd *
 	return m.handleGeneralCommand(ctx, intent, cmd, resp)
 }
 
-// handleGeneralCommand 处理通用命令
+// handleGeneralCommand 处理通用命令.
 func (m *Manager) handleGeneralCommand(ctx context.Context, intent *Intent, cmd *VoiceCommand, resp *VoiceResponse) error {
 	// 根据语言返回通用回复
 	switch cmd.Language {
@@ -548,7 +548,7 @@ func (m *Manager) handleGeneralCommand(ctx context.Context, intent *Intent, cmd 
 	return nil
 }
 
-// getCommandName 获取命令名称
+// getCommandName 获取命令名称.
 func (m *Manager) getCommandName(cmd CommandType) string {
 	names := map[CommandType]string{
 		CmdPowerOn:    "开机",
@@ -571,7 +571,7 @@ func (m *Manager) getCommandName(cmd CommandType) string {
 	return string(cmd)
 }
 
-// getLocalizedError 获取本地化错误消息
+// getLocalizedError 获取本地化错误消息.
 func (m *Manager) getLocalizedError(err string, lang VoiceLanguage) string {
 	switch lang {
 	case LangEnglish:
@@ -583,7 +583,7 @@ func (m *Manager) getLocalizedError(err string, lang VoiceLanguage) string {
 	}
 }
 
-// updateSessionContext 更新会话上下文
+// updateSessionContext 更新会话上下文.
 func (m *Manager) updateSessionContext(cmd *VoiceCommand) {
 	if cmd.SessionID == "" {
 		return
@@ -608,7 +608,7 @@ func (m *Manager) updateSessionContext(cmd *VoiceCommand) {
 	ctx.Language = cmd.Language
 }
 
-// addHistory 添加历史记录
+// addHistory 添加历史记录.
 func (m *Manager) addHistory(h *CommandHistory) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -621,7 +621,7 @@ func (m *Manager) addHistory(h *CommandHistory) {
 	}
 }
 
-// GetCommandHistory 获取命令历史
+// GetCommandHistory 获取命令历史.
 func (m *Manager) GetCommandHistory(limit int) []*CommandHistory {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -640,7 +640,7 @@ func (m *Manager) GetCommandHistory(limit int) []*CommandHistory {
 	return result
 }
 
-// CreateScene 创建场景
+// CreateScene 创建场景.
 func (m *Manager) CreateScene(req *SceneRequest) (*SceneInfo, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -660,7 +660,7 @@ func (m *Manager) CreateScene(req *SceneRequest) (*SceneInfo, error) {
 	return scene, nil
 }
 
-// GetScene 获取场景
+// GetScene 获取场景.
 func (m *Manager) GetScene(id string) (*SceneInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -672,7 +672,7 @@ func (m *Manager) GetScene(id string) (*SceneInfo, error) {
 	return scene, nil
 }
 
-// ListScenes 列出所有场景
+// ListScenes 列出所有场景.
 func (m *Manager) ListScenes() []*SceneInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -684,7 +684,7 @@ func (m *Manager) ListScenes() []*SceneInfo {
 	return scenes
 }
 
-// UpdateScene 更新场景
+// UpdateScene 更新场景.
 func (m *Manager) UpdateScene(id string, req *SceneRequest) (*SceneInfo, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -703,7 +703,7 @@ func (m *Manager) UpdateScene(id string, req *SceneRequest) (*SceneInfo, error) 
 	return scene, nil
 }
 
-// DeleteScene 删除场景
+// DeleteScene 删除场景.
 func (m *Manager) DeleteScene(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -715,7 +715,7 @@ func (m *Manager) DeleteScene(id string) error {
 	return nil
 }
 
-// ActivateScene 激活场景
+// ActivateScene 激活场景.
 func (m *Manager) ActivateScene(ctx context.Context, id string) (*VoiceResponse, error) {
 	scene, err := m.GetScene(id)
 	if err != nil {
@@ -746,7 +746,7 @@ func (m *Manager) ActivateScene(ctx context.Context, id string) (*VoiceResponse,
 	return resp, nil
 }
 
-// RegisterCustomCommand 注册自定义命令
+// RegisterCustomCommand 注册自定义命令.
 func (m *Manager) RegisterCustomCommand(req *CustomCommandRequest) (*CustomCommand, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -776,7 +776,7 @@ func (m *Manager) RegisterCustomCommand(req *CustomCommandRequest) (*CustomComma
 	return cmd, nil
 }
 
-// GetCustomCommand 获取自定义命令
+// GetCustomCommand 获取自定义命令.
 func (m *Manager) GetCustomCommand(id string) (*CustomCommand, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -788,7 +788,7 @@ func (m *Manager) GetCustomCommand(id string) (*CustomCommand, error) {
 	return cmd, nil
 }
 
-// ListCustomCommands 列出所有自定义命令
+// ListCustomCommands 列出所有自定义命令.
 func (m *Manager) ListCustomCommands() []*CustomCommand {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -800,7 +800,7 @@ func (m *Manager) ListCustomCommands() []*CustomCommand {
 	return cmds
 }
 
-// UpdateCustomCommand 更新自定义命令
+// UpdateCustomCommand 更新自定义命令.
 func (m *Manager) UpdateCustomCommand(id string, req *CustomCommandRequest) (*CustomCommand, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -823,7 +823,7 @@ func (m *Manager) UpdateCustomCommand(id string, req *CustomCommandRequest) (*Cu
 	return cmd, nil
 }
 
-// DeleteCustomCommand 删除自定义命令
+// DeleteCustomCommand 删除自定义命令.
 func (m *Manager) DeleteCustomCommand(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -835,7 +835,7 @@ func (m *Manager) DeleteCustomCommand(id string) error {
 	return nil
 }
 
-// RegisterWakeWord 注册唤醒词
+// RegisterWakeWord 注册唤醒词.
 func (m *Manager) RegisterWakeWord(config *WakeWordConfig) *WakeWordConfig {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -850,7 +850,7 @@ func (m *Manager) RegisterWakeWord(config *WakeWordConfig) *WakeWordConfig {
 	return config
 }
 
-// ListWakeWords 列出所有唤醒词
+// ListWakeWords 列出所有唤醒词.
 func (m *Manager) ListWakeWords() []*WakeWordConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -862,7 +862,7 @@ func (m *Manager) ListWakeWords() []*WakeWordConfig {
 	return words
 }
 
-// DeleteWakeWord 删除唤醒词
+// DeleteWakeWord 删除唤醒词.
 func (m *Manager) DeleteWakeWord(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -874,7 +874,7 @@ func (m *Manager) DeleteWakeWord(id string) error {
 	return nil
 }
 
-// CreateReplyTemplate 创建回复模板
+// CreateReplyTemplate 创建回复模板.
 func (m *Manager) CreateReplyTemplate(req *ReplyTemplateRequest) *ReplyTemplate {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -901,7 +901,7 @@ func (m *Manager) CreateReplyTemplate(req *ReplyTemplateRequest) *ReplyTemplate 
 	return tpl
 }
 
-// extractVariables 从模板中提取变量
+// extractVariables 从模板中提取变量.
 func (m *Manager) extractVariables(template string) []string {
 	re := regexp.MustCompile(`\{\{(\w+)\}\}`)
 	matches := re.FindAllStringSubmatch(template, -1)
@@ -917,7 +917,7 @@ func (m *Manager) extractVariables(template string) []string {
 	return vars
 }
 
-// GetReplyTemplate 获取回复模板
+// GetReplyTemplate 获取回复模板.
 func (m *Manager) GetReplyTemplate(id string) (*ReplyTemplate, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -929,7 +929,7 @@ func (m *Manager) GetReplyTemplate(id string) (*ReplyTemplate, error) {
 	return tpl, nil
 }
 
-// ListReplyTemplates 列出所有回复模板
+// ListReplyTemplates 列出所有回复模板.
 func (m *Manager) ListReplyTemplates() []*ReplyTemplate {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -941,7 +941,7 @@ func (m *Manager) ListReplyTemplates() []*ReplyTemplate {
 	return tpls
 }
 
-// UpdateReplyTemplate 更新回复模板
+// UpdateReplyTemplate 更新回复模板.
 func (m *Manager) UpdateReplyTemplate(id string, req *ReplyTemplateRequest) (*ReplyTemplate, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -961,7 +961,7 @@ func (m *Manager) UpdateReplyTemplate(id string, req *ReplyTemplateRequest) (*Re
 	return tpl, nil
 }
 
-// DeleteReplyTemplate 删除回复模板
+// DeleteReplyTemplate 删除回复模板.
 func (m *Manager) DeleteReplyTemplate(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -973,7 +973,7 @@ func (m *Manager) DeleteReplyTemplate(id string) error {
 	return nil
 }
 
-// RenderTemplate 渲染回复模板
+// RenderTemplate 渲染回复模板.
 func (m *Manager) RenderTemplate(id string, vars map[string]string) (string, error) {
 	tpl, err := m.GetReplyTemplate(id)
 	if err != nil {
@@ -988,7 +988,7 @@ func (m *Manager) RenderTemplate(id string, vars map[string]string) (string, err
 	return result, nil
 }
 
-// ConvertTTS 文本转语音
+// ConvertTTS 文本转语音.
 func (m *Manager) ConvertTTS(req *TTSRequest) (*TTSResponse, error) {
 	if !m.config.TTSEnabled {
 		return nil, fmt.Errorf("TTS is disabled")
@@ -1028,7 +1028,7 @@ func (m *Manager) ConvertTTS(req *TTSRequest) (*TTSResponse, error) {
 	}, nil
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *VoiceHubConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1036,7 +1036,7 @@ func (m *Manager) GetConfig() *VoiceHubConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(cfg *VoiceHubConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1045,12 +1045,12 @@ func (m *Manager) UpdateConfig(cfg *VoiceHubConfig) {
 	}
 }
 
-// GetSupportedPlatforms 获取支持的平台列表
+// GetSupportedPlatforms 获取支持的平台列表.
 func (m *Manager) GetSupportedPlatforms() []VoicePlatform {
 	return SupportedPlatforms()
 }
 
-// GetSupportedLanguages 获取支持的语言列表
+// GetSupportedLanguages 获取支持的语言列表.
 func (m *Manager) GetSupportedLanguages() []VoiceLanguage {
 	return SupportedLanguages()
 }

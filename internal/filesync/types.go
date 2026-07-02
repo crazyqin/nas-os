@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// SyncStatus 同步状态
+// SyncStatus 同步状态.
 type SyncStatus string
 
 const (
@@ -18,7 +18,7 @@ const (
 	SyncStatusConflict SyncStatus = "conflict"
 )
 
-// SyncDirection 同步方向
+// SyncDirection 同步方向.
 type SyncDirection string
 
 const (
@@ -27,7 +27,7 @@ const (
 	DirectionBoth     SyncDirection = "bidirectional"
 )
 
-// ConflictResolution 冲突解决策略
+// ConflictResolution 冲突解决策略.
 type ConflictResolution string
 
 const (
@@ -38,7 +38,7 @@ const (
 	ConflictNewerWins     ConflictResolution = "newer_wins"
 )
 
-// DeviceStatus 设备状态
+// DeviceStatus 设备状态.
 type DeviceStatus string
 
 const (
@@ -47,7 +47,7 @@ const (
 	DeviceSyncing DeviceStatus = "syncing"
 )
 
-// FileAction 文件操作类型
+// FileAction 文件操作类型.
 type FileAction string
 
 const (
@@ -58,7 +58,7 @@ const (
 	ActionRename FileAction = "rename"
 )
 
-// TransferStatus 传输状态
+// TransferStatus 传输状态.
 type TransferStatus string
 
 const (
@@ -69,7 +69,7 @@ const (
 	TransferFailed    TransferStatus = "failed"
 )
 
-// Device 同步设备
+// Device 同步设备.
 type Device struct {
 	ID         string       `json:"id"`
 	Name       string       `json:"name"`
@@ -86,7 +86,7 @@ type Device struct {
 	UpdatedAt  time.Time    `json:"updated_at"`
 }
 
-// SyncFolder 同步文件夹配置
+// SyncFolder 同步文件夹配置.
 type SyncFolder struct {
 	ID              string             `json:"id"`
 	Name            string             `json:"name"`
@@ -106,7 +106,7 @@ type SyncFolder struct {
 	UpdatedAt       time.Time          `json:"updated_at"`
 }
 
-// SyncTask 同步任务
+// SyncTask 同步任务.
 type SyncTask struct {
 	ID          string         `json:"id"`
 	FolderID    string         `json:"folder_id"`
@@ -123,7 +123,7 @@ type SyncTask struct {
 	CreatedAt   time.Time      `json:"created_at"`
 }
 
-// SyncConflict 同步冲突
+// SyncConflict 同步冲突.
 type SyncConflict struct {
 	ID            string             `json:"id"`
 	FolderID      string             `json:"folder_id"`
@@ -138,7 +138,7 @@ type SyncConflict struct {
 	CreatedAt     time.Time          `json:"created_at"`
 }
 
-// FileVersion 文件版本
+// FileVersion 文件版本.
 type FileVersion struct {
 	Version  int        `json:"version"`
 	Size     int64      `json:"size"`
@@ -148,7 +148,7 @@ type FileVersion struct {
 	Action   FileAction `json:"action"`
 }
 
-// FileHistory 文件历史版本
+// FileHistory 文件历史版本.
 type FileHistory struct {
 	ID        string     `json:"id"`
 	FolderID  string     `json:"folder_id"`
@@ -163,7 +163,7 @@ type FileHistory struct {
 	CreatedAt time.Time  `json:"created_at"`
 }
 
-// SyncEngine 同步引擎状态
+// SyncEngine 同步引擎状态.
 type SyncEngine struct {
 	Status        SyncStatus `json:"status"`
 	ActiveTasks   int        `json:"active_tasks"`
@@ -175,7 +175,7 @@ type SyncEngine struct {
 	Uptime        int64      `json:"uptime"` // seconds
 }
 
-// TransferInfo 断点续传信息
+// TransferInfo 断点续传信息.
 type TransferInfo struct {
 	TaskID      string `json:"task_id"`
 	FilePath    string `json:"file_path"`
@@ -188,7 +188,7 @@ type TransferInfo struct {
 	ETag        string `json:"etag,omitempty"`
 }
 
-// BandwidthLimit 带宽限制配置
+// BandwidthLimit 带宽限制配置.
 type BandwidthLimit struct {
 	ID            string    `json:"id"`
 	Name          string    `json:"name"`
@@ -201,7 +201,7 @@ type BandwidthLimit struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 
-// SyncStats 同步统计
+// SyncStats 同步统计.
 type SyncStats struct {
 	TotalFolders        int            `json:"total_folders"`
 	TotalDevices        int            `json:"total_devices"`
@@ -220,7 +220,7 @@ type SyncStats struct {
 	RecentHistory       []FileHistory  `json:"recent_history,omitempty"`
 }
 
-// SelectiveSyncRule 选择性同步规则
+// SelectiveSyncRule 选择性同步规则.
 type SelectiveSyncRule struct {
 	ID          string    `json:"id"`
 	FolderID    string    `json:"folder_id"`
@@ -233,26 +233,26 @@ type SelectiveSyncRule struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// SyncStartRequest 启动同步请求
+// SyncStartRequest 启动同步请求.
 type SyncStartRequest struct {
 	FolderID string `json:"folder_id,omitempty"`
 	DeviceID string `json:"device_id,omitempty"`
 	Force    bool   `json:"force"`
 }
 
-// SyncStopRequest 停止同步请求
+// SyncStopRequest 停止同步请求.
 type SyncStopRequest struct {
 	FolderID string `json:"folder_id,omitempty"`
 	DeviceID string `json:"device_id,omitempty"`
 }
 
-// ConflictResolveRequest 冲突解决请求
+// ConflictResolveRequest 冲突解决请求.
 type ConflictResolveRequest struct {
 	ConflictID string             `json:"conflict_id" binding:"required"`
 	Resolution ConflictResolution `json:"resolution" binding:"required"`
 }
 
-// DeviceRegisterRequest 设备注册请求
+// DeviceRegisterRequest 设备注册请求.
 type DeviceRegisterRequest struct {
 	Name     string `json:"name" binding:"required"`
 	Platform string `json:"platform" binding:"required"`
@@ -260,7 +260,7 @@ type DeviceRegisterRequest struct {
 	Version  string `json:"version,omitempty"`
 }
 
-// FolderCreateRequest 创建同步文件夹请求
+// FolderCreateRequest 创建同步文件夹请求.
 type FolderCreateRequest struct {
 	Name            string             `json:"name" binding:"required"`
 	LocalPath       string             `json:"local_path" binding:"required"`
@@ -272,13 +272,13 @@ type FolderCreateRequest struct {
 	DeviceIDs       []string           `json:"device_ids,omitempty"`
 }
 
-// SyncManager 文件同步管理器（兼容 web/server.go 调用）
+// SyncManager 文件同步管理器（兼容 web/server.go 调用）.
 type SyncManager struct {
 	*Manager
 	path string
 }
 
-// NewSyncManager 创建文件同步管理器
+// NewSyncManager 创建文件同步管理器.
 func NewSyncManager(_ *zap.Logger, path string) *SyncManager {
 	return &SyncManager{
 		Manager: NewManager(),
@@ -286,7 +286,7 @@ func NewSyncManager(_ *zap.Logger, path string) *SyncManager {
 	}
 }
 
-// HistoryRequest 历史查询请求
+// HistoryRequest 历史查询请求.
 type HistoryRequest struct {
 	FolderID string `json:"folder_id,omitempty"`
 	FilePath string `json:"file_path,omitempty"`

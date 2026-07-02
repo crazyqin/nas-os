@@ -16,7 +16,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager AI 助手管理器
+// Manager AI 助手管理器.
 type Manager struct {
 	mu            sync.RWMutex
 	logger        *zap.Logger
@@ -28,7 +28,7 @@ type Manager struct {
 	running       bool
 }
 
-// NewManager 创建 AI 助手管理器
+// NewManager 创建 AI 助手管理器.
 func NewManager(logger *zap.Logger, config *AIConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -46,14 +46,14 @@ func NewManager(logger *zap.Logger, config *AIConfig) *Manager {
 	}
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// ProcessQuery 处理自然语言查询
+// ProcessQuery 处理自然语言查询.
 func (m *Manager) ProcessQuery(ctx context.Context, req *QueryRequest) (*QueryResponse, error) {
 	if !m.config.Enabled {
 		return nil, fmt.Errorf("AI assistant is disabled")
@@ -131,7 +131,7 @@ func (m *Manager) ProcessQuery(ctx context.Context, req *QueryRequest) (*QueryRe
 	return response, nil
 }
 
-// detectQueryType 自动检测查询类型
+// detectQueryType 自动检测查询类型.
 func (m *Manager) detectQueryType(query string) QueryType {
 	query = strings.ToLower(query)
 
@@ -186,7 +186,7 @@ func (m *Manager) detectQueryType(query string) QueryType {
 	return QueryTypeGeneral
 }
 
-// handleSystemQuery 处理系统状态查询
+// handleSystemQuery 处理系统状态查询.
 func (m *Manager) handleSystemQuery(ctx context.Context, query string, resp *QueryResponse) error {
 	// 获取系统状态（简化实现，实际应从系统获取）
 	status := m.getSystemStatus()
@@ -220,8 +220,8 @@ func (m *Manager) handleSystemQuery(ctx context.Context, query string, resp *Que
 		var diskInfo strings.Builder
 		diskInfo.WriteString("磁盘状态:\n")
 		for _, disk := range status.Disks {
-			diskInfo.WriteString(fmt.Sprintf("- %s (%s): %.1f%% 已用, 剩余 %.2f GB\n",
-				disk.Device, disk.MountPoint, disk.Usage, float64(disk.Available)/1073741824))
+			fmt.Fprintf(&diskInfo, "- %s (%s): %.1f%% 已用, 剩余 %.2f GB\n",
+				disk.Device, disk.MountPoint, disk.Usage, float64(disk.Available)/1073741824)
 		}
 		resp.Answer = diskInfo.String()
 		resp.Data = status.Disks
@@ -240,7 +240,7 @@ func (m *Manager) handleSystemQuery(ctx context.Context, query string, resp *Que
 	return nil
 }
 
-// handleFileQuery 处理文件搜索查询
+// handleFileQuery 处理文件搜索查询.
 func (m *Manager) handleFileQuery(ctx context.Context, query string, resp *QueryResponse) error {
 	// 从查询中提取搜索关键词
 	searchTerm := m.extractSearchTerm(query)
@@ -274,7 +274,7 @@ func (m *Manager) handleFileQuery(ctx context.Context, query string, resp *Query
 	return nil
 }
 
-// handleDiagnosisQuery 处理故障诊断查询
+// handleDiagnosisQuery 处理故障诊断查询.
 func (m *Manager) handleDiagnosisQuery(ctx context.Context, query string, resp *QueryResponse) error {
 	// 分析问题并生成诊断结果
 	diagnosis := m.analyzeProblem(query)
@@ -304,7 +304,7 @@ func (m *Manager) handleDiagnosisQuery(ctx context.Context, query string, resp *
 	return nil
 }
 
-// handleGeneralQuery 处理通用查询
+// handleGeneralQuery 处理通用查询.
 func (m *Manager) handleGeneralQuery(ctx context.Context, query string, resp *QueryResponse) error {
 	// 通用回复
 	resp.Answer = fmt.Sprintf("我可以帮助您:\n- 查询系统状态（CPU、内存、磁盘）\n- 搜索文件\n- 诊断系统问题\n\n您的问题: %s\n\n请尝试更具体的查询，例如：\n- '查看磁盘使用情况'\n- '搜索文件 report.pdf'\n- '系统运行缓慢怎么办'", query)
@@ -317,7 +317,7 @@ func (m *Manager) handleGeneralQuery(ctx context.Context, query string, resp *Qu
 	return nil
 }
 
-// getSystemStatus 获取系统状态（简化实现）
+// getSystemStatus 获取系统状态（简化实现）.
 func (m *Manager) getSystemStatus() *SystemStatus {
 	hostname, _ := os.Hostname()
 	return &SystemStatus{
@@ -367,7 +367,7 @@ func (m *Manager) getSystemStatus() *SystemStatus {
 	}
 }
 
-// searchFiles 搜索文件
+// searchFiles 搜索文件.
 func (m *Manager) searchFiles(query string) (*FileSearchResult, error) {
 	start := time.Now()
 	result := &FileSearchResult{
@@ -419,7 +419,7 @@ func (m *Manager) searchFiles(query string) (*FileSearchResult, error) {
 	return result, nil
 }
 
-// analyzeProblem 分析问题并生成诊断结果
+// analyzeProblem 分析问题并生成诊断结果.
 func (m *Manager) analyzeProblem(problem string) *DiagnosisResult {
 	problem = strings.ToLower(problem)
 
@@ -525,7 +525,7 @@ func (m *Manager) analyzeProblem(problem string) *DiagnosisResult {
 	return diagnosis
 }
 
-// extractSearchTerm 从查询中提取搜索关键词
+// extractSearchTerm 从查询中提取搜索关键词.
 func (m *Manager) extractSearchTerm(query string) string {
 	// 尝试提取引号中的内容
 	re := regexp.MustCompile(`[""「」](.+?)[""「」]`)
@@ -557,7 +557,7 @@ func (m *Manager) extractSearchTerm(query string) string {
 	return query
 }
 
-// calculateRelevance 计算相关度
+// calculateRelevance 计算相关度.
 func calculateRelevance(filename, query string) float64 {
 	if filename == query {
 		return 1.0
@@ -571,12 +571,12 @@ func calculateRelevance(filename, query string) float64 {
 	return 0.5
 }
 
-// getCacheKey 生成缓存键
+// getCacheKey 生成缓存键.
 func (m *Manager) getCacheKey(req *QueryRequest) string {
 	return fmt.Sprintf("%s:%s", req.QueryType, req.Query)
 }
 
-// GetQueryHistory 获取查询历史
+// GetQueryHistory 获取查询历史.
 func (m *Manager) GetQueryHistory(limit int) []*QueryResponse {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -596,7 +596,7 @@ func (m *Manager) GetQueryHistory(limit int) []*QueryResponse {
 	return result
 }
 
-// GetConversation 获取对话
+// GetConversation 获取对话.
 func (m *Manager) GetConversation(id string) (*Conversation, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -608,7 +608,7 @@ func (m *Manager) GetConversation(id string) (*Conversation, error) {
 	return conv, nil
 }
 
-// CreateConversation 创建新对话
+// CreateConversation 创建新对话.
 func (m *Manager) CreateConversation() *Conversation {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -624,7 +624,7 @@ func (m *Manager) CreateConversation() *Conversation {
 	return conv
 }
 
-// AddMessage 添加消息到对话
+// AddMessage 添加消息到对话.
 func (m *Manager) AddMessage(convID, role, content string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -649,7 +649,7 @@ func (m *Manager) AddMessage(convID, role, content string) error {
 	return nil
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *AIConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -658,7 +658,7 @@ func (m *Manager) GetConfig() *AIConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(cfg *AIConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -667,14 +667,14 @@ func (m *Manager) UpdateConfig(cfg *AIConfig) {
 	}
 }
 
-// ClearCache 清除缓存
+// ClearCache 清除缓存.
 func (m *Manager) ClearCache() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.queryCache = make(map[string]*QueryResponse)
 }
 
-// formatDuration 格式化时间
+// formatDuration 格式化时间.
 func formatDuration(d time.Duration) string {
 	days := int(d.Hours()) / 24
 	hours := int(d.Hours()) % 24
@@ -689,7 +689,7 @@ func formatDuration(d time.Duration) string {
 	return fmt.Sprintf("%d分钟", minutes)
 }
 
-// formatSize 格式化文件大小
+// formatSize 格式化文件大小.
 func formatSize(bytes int64) string {
 	const unit = 1024
 	if bytes < unit {

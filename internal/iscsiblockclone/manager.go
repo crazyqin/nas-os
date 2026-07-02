@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// NewBlockCloneManager 创建块克隆管理器
+// NewBlockCloneManager 创建块克隆管理器.
 func NewBlockCloneManager(cfg ManagerConfig) *BlockCloneManager {
 	return &BlockCloneManager{
 		config: cfg,
@@ -14,7 +14,7 @@ func NewBlockCloneManager(cfg ManagerConfig) *BlockCloneManager {
 	}
 }
 
-// RegisterLUN 注册LUN
+// RegisterLUN 注册LUN.
 func (m *BlockCloneManager) RegisterLUN(lun *LUNInfo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -25,7 +25,7 @@ func (m *BlockCloneManager) RegisterLUN(lun *LUNInfo) error {
 	return nil
 }
 
-// UnregisterLUN 注销LUN
+// UnregisterLUN 注销LUN.
 func (m *BlockCloneManager) UnregisterLUN(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -36,7 +36,7 @@ func (m *BlockCloneManager) UnregisterLUN(id string) error {
 	return nil
 }
 
-// GetLUN 获取LUN信息
+// GetLUN 获取LUN信息.
 func (m *BlockCloneManager) GetLUN(id string) (*LUNInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -47,7 +47,7 @@ func (m *BlockCloneManager) GetLUN(id string) (*LUNInfo, error) {
 	return lun, nil
 }
 
-// ListLUNs 列出所有LUN
+// ListLUNs 列出所有LUN.
 func (m *BlockCloneManager) ListLUNs() []*LUNInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -58,7 +58,7 @@ func (m *BlockCloneManager) ListLUNs() []*LUNInfo {
 	return result
 }
 
-// CloneLUN 克隆LUN
+// CloneLUN 克隆LUN.
 func (m *BlockCloneManager) CloneLUN(sourceID, targetName string, cloneType CloneType) (*BlockCloneTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -126,7 +126,7 @@ func (m *BlockCloneManager) executeClone(task *BlockCloneTask) {
 	m.mu.Unlock()
 }
 
-// GetTask 获取克隆任务
+// GetTask 获取克隆任务.
 func (m *BlockCloneManager) GetTask(taskID string) (*BlockCloneTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -137,7 +137,7 @@ func (m *BlockCloneManager) GetTask(taskID string) (*BlockCloneTask, error) {
 	return task, nil
 }
 
-// ListTasks 列出所有任务
+// ListTasks 列出所有任务.
 func (m *BlockCloneManager) ListTasks() []*BlockCloneTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -148,7 +148,7 @@ func (m *BlockCloneManager) ListTasks() []*BlockCloneTask {
 	return result
 }
 
-// GetStats 获取克隆统计
+// GetStats 获取克隆统计.
 func (m *BlockCloneManager) GetStats() CloneStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler HTTP处理器
+// Handler HTTP处理器.
 type Handler struct {
 	manager *SmartWearLevelingManager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *SmartWearLevelingManager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/smartwearleveling/ssds", h.handleListSSDs)
 	mux.HandleFunc("/api/smartwearleveling/ssd/get", h.handleGetSSD)

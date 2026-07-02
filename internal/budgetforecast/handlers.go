@@ -34,7 +34,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 }
 
 // getForecast 获取预测。
-// GET /api/v1/budget/forecast?months=6
+// GET /api/v1/budget/forecast?months=6.
 func (h *Handlers) getForecast(c *gin.Context) {
 	months := 6
 	if m := c.Query("months"); m != "" {
@@ -56,7 +56,7 @@ func (h *Handlers) getForecast(c *gin.Context) {
 }
 
 // addSnapshot 添加使用快照。
-// POST /api/v1/budget/snapshot
+// POST /api/v1/budget/snapshot.
 func (h *Handlers) addSnapshot(c *gin.Context) {
 	var snapshot UsageSnapshot
 	if err := c.ShouldBindJSON(&snapshot); err != nil {
@@ -81,7 +81,7 @@ func (h *Handlers) addSnapshot(c *gin.Context) {
 }
 
 // getAlerts 获取预算告警。
-// GET /api/v1/budget/alerts
+// GET /api/v1/budget/alerts.
 func (h *Handlers) getAlerts(c *gin.Context) {
 	result := h.engine.Forecast(6) // 默认预测6个月来生成告警
 	h.logger.Info("获取预算告警",

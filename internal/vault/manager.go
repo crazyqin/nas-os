@@ -376,7 +376,7 @@ func (m *Manager) decryptData(key []byte, algorithm string, ciphertext []byte) (
 }
 
 // encryptAES256GCM 使用 AES-256-GCM 加密数据。
-// 返回格式：nonce (12 bytes) + ciphertext + tag (16 bytes)
+// 返回格式：nonce (12 bytes) + ciphertext + tag (16 bytes).
 func encryptAES256GCM(key, plaintext []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {

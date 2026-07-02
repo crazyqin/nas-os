@@ -12,20 +12,20 @@ import (
 
 func setupTestRouter() (*gin.Engine, *Manager) {
 	gin.SetMode(gin.TestMode)
-	
+
 	manager := NewManager()
 	handlers := NewHandlers(manager)
-	
+
 	router := gin.New()
 	api := router.Group("/api/v1")
 	handlers.RegisterRoutes(api)
-	
+
 	return router, manager
 }
 
 func TestHandlerListACLs(t *testing.T) {
 	router, manager := setupTestRouter()
-	
+
 	// Create some ACLs
 	manager.CreateACL(CreateACLRequest{
 		Path:      "/test1",
@@ -48,7 +48,7 @@ func TestHandlerListACLs(t *testing.T) {
 
 	var response map[string]interface{}
 	json.Unmarshal(w.Body.Bytes(), &response)
-	
+
 	data := response["data"].([]interface{})
 	if len(data) != 2 {
 		t.Errorf("Expected 2 ACLs, got %d", len(data))
@@ -88,7 +88,7 @@ func TestHandlerCreateACL(t *testing.T) {
 			body, _ := json.Marshal(tt.req)
 			req, _ := http.NewRequest("POST", "/api/v1/acl", bytes.NewBuffer(body))
 			req.Header.Set("Content-Type", "application/json")
-			
+
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 
@@ -166,7 +166,7 @@ func TestHandlerUpdateACL(t *testing.T) {
 			body, _ := json.Marshal(tt.req)
 			req, _ := http.NewRequest("PUT", "/api/v1/acl/path"+tt.path, bytes.NewBuffer(body))
 			req.Header.Set("Content-Type", "application/json")
-			
+
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 
@@ -254,7 +254,7 @@ func TestHandlerAddACE(t *testing.T) {
 			body, _ := json.Marshal(tt.req)
 			req, _ := http.NewRequest("POST", "/api/v1/acl/ace?path="+tt.path, bytes.NewBuffer(body))
 			req.Header.Set("Content-Type", "application/json")
-			
+
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 
@@ -315,7 +315,7 @@ func TestHandlerCheckAccess(t *testing.T) {
 			body, _ := json.Marshal(tt.req)
 			req, _ := http.NewRequest("POST", "/api/v1/acl/check", bytes.NewBuffer(body))
 			req.Header.Set("Content-Type", "application/json")
-			
+
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 
@@ -325,7 +325,7 @@ func TestHandlerCheckAccess(t *testing.T) {
 
 			var response map[string]interface{}
 			json.Unmarshal(w.Body.Bytes(), &response)
-			
+
 			data := response["data"].(map[string]interface{})
 			if data["allowed"].(bool) != tt.allowed {
 				t.Errorf("Expected allowed=%v, got %v", tt.allowed, data["allowed"])
@@ -361,7 +361,7 @@ func TestHandlerEffectivePermissions(t *testing.T) {
 
 	var response map[string]interface{}
 	json.Unmarshal(w.Body.Bytes(), &response)
-	
+
 	data := response["data"].(map[string]interface{})
 	permissions := data["permissions"].([]interface{})
 	if len(permissions) != 2 {
@@ -374,25 +374,25 @@ func TestHandlerPropagateInheritance(t *testing.T) {
 
 	// Create parent ACL with ACE
 	manager.CreateACL(CreateACLRequest{
-		Path:          "/parent",
-		EntryType:     EntryDirectory,
-		Owner:         "admin",
+		Path:           "/parent",
+		EntryType:      EntryDirectory,
+		Owner:          "admin",
 		InheritEnabled: true,
 	})
 
 	manager.AddACE("/parent", AddACERequest{
-		Subject:     "user1",
-		SubjectType: SubjectUser,
-		Permissions: []Permission{PermRead},
-		Allowed:     true,
+		Subject:      "user1",
+		SubjectType:  SubjectUser,
+		Permissions:  []Permission{PermRead},
+		Allowed:      true,
 		InheritFlags: []InheritanceType{InheritFull},
 	})
 
 	// Create child ACL
 	manager.CreateACL(CreateACLRequest{
-		Path:          "/parent/child",
-		EntryType:     EntryDirectory,
-		Owner:         "admin",
+		Path:           "/parent/child",
+		EntryType:      EntryDirectory,
+		Owner:          "admin",
 		InheritEnabled: true,
 	})
 
@@ -430,7 +430,7 @@ func TestHandlerSetOwner(t *testing.T) {
 			body, _ := json.Marshal(map[string]string{"owner": tt.owner})
 			req, _ := http.NewRequest("PUT", "/api/v1/acl/owner?path="+tt.path, bytes.NewBuffer(body))
 			req.Header.Set("Content-Type", "application/json")
-			
+
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 
@@ -466,7 +466,7 @@ func TestHandlerSetGroup(t *testing.T) {
 			body, _ := json.Marshal(map[string]string{"group": tt.group})
 			req, _ := http.NewRequest("PUT", "/api/v1/acl/group?path="+tt.path, bytes.NewBuffer(body))
 			req.Header.Set("Content-Type", "application/json")
-			
+
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 
@@ -490,7 +490,7 @@ func TestHandlerGetPermissionGroups(t *testing.T) {
 
 	var response map[string]interface{}
 	json.Unmarshal(w.Body.Bytes(), &response)
-	
+
 	data := response["data"].([]interface{})
 	if len(data) != 4 {
 		t.Errorf("Expected 4 permission groups, got %d", len(data))
@@ -523,7 +523,7 @@ func TestHandlerGetAuditLog(t *testing.T) {
 
 	var response map[string]interface{}
 	json.Unmarshal(w.Body.Bytes(), &response)
-	
+
 	data := response["data"].([]interface{})
 	if len(data) < 2 {
 		t.Errorf("Expected at least 2 audit entries, got %d", len(data))

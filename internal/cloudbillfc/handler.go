@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler 云存储成本预测HTTP处理器
+// Handler 云存储成本预测HTTP处理器.
 type Handler struct {
 	service *Service
 }
 
-// NewHandler 创建HTTP处理器
+// NewHandler 创建HTTP处理器.
 func NewHandler(svc *Service) *Handler {
 	return &Handler{service: svc}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	g := rg.Group("/cloudbillfc")
 	{
@@ -28,7 +28,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 }
 
 // Forecast 预测云存储成本
-// POST /api/v1/cloudbillfc/forecast
+// POST /api/v1/cloudbillfc/forecast.
 func (h *Handler) Forecast(c *gin.Context) {
 	var config ForecastConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -46,13 +46,13 @@ func (h *Handler) Forecast(c *gin.Context) {
 }
 
 // Providers 获取云服务商定价列表
-// GET /api/v1/cloudbillfc/providers
+// GET /api/v1/cloudbillfc/providers.
 func (h *Handler) Providers(c *gin.Context) {
 	providers := h.service.GetProviders()
 	c.JSON(http.StatusOK, gin.H{"data": providers})
 }
 
-// CompareRequest 对比请求
+// CompareRequest 对比请求.
 type CompareRequest struct {
 	StorageGB       float64 `json:"storage_gb"`
 	MonthlyEgressGB float64 `json:"monthly_egress_gb"`
@@ -60,7 +60,7 @@ type CompareRequest struct {
 }
 
 // Compare 对比多个云服务商
-// POST /api/v1/cloudbillfc/compare
+// POST /api/v1/cloudbillfc/compare.
 func (h *Handler) Compare(c *gin.Context) {
 	var req CompareRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

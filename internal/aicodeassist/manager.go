@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager AI 代码助手管理器
+// Manager AI 代码助手管理器.
 type Manager struct {
 	mu     sync.RWMutex
 	logger *zap.Logger
@@ -21,7 +21,7 @@ type Manager struct {
 	tasks  map[string]*TaskInfo
 }
 
-// NewManager 创建 AI 代码助手管理器
+// NewManager 创建 AI 代码助手管理器.
 func NewManager(logger *zap.Logger, config *AIAssistConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -42,7 +42,7 @@ func generateID() string {
 	return hex.EncodeToString(b)
 }
 
-// CodeCompletion 代码补全
+// CodeCompletion 代码补全.
 func (m *Manager) CodeCompletion(ctx context.Context, req *CompletionRequest) (*CompletionResponse, error) {
 	if !m.config.Enabled {
 		return nil, fmt.Errorf("AI code assistant is disabled")
@@ -163,7 +163,7 @@ func javaCompletions(trimmed string) []CodeSuggestion {
 	return []CodeSuggestion{{Code: "// implement", Description: "待实现", Confidence: 0.5}}
 }
 
-// ReviewCode 代码审查
+// ReviewCode 代码审查.
 func (m *Manager) ReviewCode(ctx context.Context, req *ReviewRequest) (*ReviewResponse, error) {
 	if !m.config.Enabled {
 		return nil, fmt.Errorf("AI code assistant is disabled")
@@ -321,7 +321,7 @@ func (m *Manager) buildReviewSummary(issues []ReviewIssue, score int) string {
 		score, critical, errCount, warning, info)
 }
 
-// RefactorCode 代码重构建议
+// RefactorCode 代码重构建议.
 func (m *Manager) RefactorCode(ctx context.Context, req *RefactorRequest) (*RefactorResponse, error) {
 	if !m.config.Enabled {
 		return nil, fmt.Errorf("AI code assistant is disabled")
@@ -467,7 +467,7 @@ func (m *Manager) errorHandleRefactor(req *RefactorRequest) refactoringResult {
 	return refactoringResult{Code: req.Code, Explanation: "错误处理改进建议", Changes: changes}
 }
 
-// GenerateTests 测试用例生成
+// GenerateTests 测试用例生成.
 func (m *Manager) GenerateTests(ctx context.Context, req *TestGenRequest) (*TestGenResponse, error) {
 	if !m.config.Enabled {
 		return nil, fmt.Errorf("AI code assistant is disabled")
@@ -513,8 +513,8 @@ func (m *Manager) generateTestCode(code string, lang ProgrammingLanguage, framew
 	for _, name := range funcNames {
 		testName := "Test" + strings.Title(name)
 		errorTestName := testName + "_Error"
-		sb.WriteString(fmt.Sprintf("// %s - %s\nfunc %s(t *testing.T) {\n\t// arrange, act, assert\n}\n\n", name, framework, testName))
-		sb.WriteString(fmt.Sprintf("func %s(t *testing.T) {\n\t// arrange error case, act, assert\n}\n\n", errorTestName))
+		fmt.Fprintf(&sb, "// %s - %s\nfunc %s(t *testing.T) {\n\t// arrange, act, assert\n}\n\n", name, framework, testName)
+		fmt.Fprintf(&sb, "func %s(t *testing.T) {\n\t// arrange error case, act, assert\n}\n\n", errorTestName)
 		testCases = append(testCases,
 			TestCase{Name: testName, Description: fmt.Sprintf("测试 %s", name)},
 			TestCase{Name: errorTestName, Description: fmt.Sprintf("测试 %s 错误处理", name)},
@@ -571,7 +571,7 @@ func extractFunctionNames(code string, lang ProgrammingLanguage) []string {
 	return names
 }
 
-// ExplainCode 代码解释
+// ExplainCode 代码解释.
 func (m *Manager) ExplainCode(ctx context.Context, req *ExplainRequest) (*ExplainResponse, error) {
 	if !m.config.Enabled {
 		return nil, fmt.Errorf("AI code assistant is disabled")
@@ -605,7 +605,7 @@ func (m *Manager) ExplainCode(ctx context.Context, req *ExplainRequest) (*Explai
 	}, nil
 }
 
-// AnalyzeGitDiff Git diff 分析
+// AnalyzeGitDiff Git diff 分析.
 func (m *Manager) AnalyzeGitDiff(ctx context.Context, req *GitDiffRequest) (*GitDiffResponse, error) {
 	if !m.config.Enabled {
 		return nil, fmt.Errorf("AI code assistant is disabled")
@@ -648,7 +648,7 @@ func (m *Manager) AnalyzeGitDiff(ctx context.Context, req *GitDiffRequest) (*Git
 	}, nil
 }
 
-// GenerateCommitMessage 生成 commit message
+// GenerateCommitMessage 生成 commit message.
 func (m *Manager) GenerateCommitMessage(ctx context.Context, req *CommitMsgRequest) (*CommitMsgResponse, error) {
 	if !m.config.Enabled {
 		return nil, fmt.Errorf("AI code assistant is disabled")

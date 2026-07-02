@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// ShareManager 分享管理器
+// ShareManager 分享管理器.
 type ShareManager struct {
 	mu         sync.RWMutex
 	shares     map[string]*ShareLink     // shareID -> ShareLink
@@ -22,7 +22,7 @@ type ShareManager struct {
 	manager    *Manager
 }
 
-// NewShareManager 创建分享管理器
+// NewShareManager 创建分享管理器.
 func NewShareManager(configPath string, manager *Manager) *ShareManager {
 	sm := &ShareManager{
 		shares:     make(map[string]*ShareLink),
@@ -40,7 +40,7 @@ func NewShareManager(configPath string, manager *Manager) *ShareManager {
 	return sm
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (sm *ShareManager) loadConfig() error {
 	if _, err := os.Stat(sm.configPath); os.IsNotExist(err) {
 		return nil
@@ -71,7 +71,7 @@ func (sm *ShareManager) loadConfig() error {
 	return nil
 }
 
-// saveConfig 保存配置
+// saveConfig 保存配置.
 func (sm *ShareManager) saveConfig() error {
 	if sm.configPath == "" {
 		return nil
@@ -99,14 +99,14 @@ func (sm *ShareManager) saveConfig() error {
 	return os.WriteFile(sm.configPath, data, 0600)
 }
 
-// generateShareToken 生成分享Token
+// generateShareToken 生成分享Token.
 func generateShareToken() string {
 	b := make([]byte, 32)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// hashPassword 哈希密码
+// hashPassword 哈希密码.
 func hashPassword(password string) string {
 	if password == "" {
 		return ""
@@ -115,7 +115,7 @@ func hashPassword(password string) string {
 	return hex.EncodeToString(h[:])
 }
 
-// CreateShare 创建分享链接
+// CreateShare 创建分享链接.
 func (sm *ShareManager) CreateShare(input ShareInput, userID, username string) (*ShareLink, error) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -171,7 +171,7 @@ func (sm *ShareManager) CreateShare(input ShareInput, userID, username string) (
 	return share, nil
 }
 
-// GetShareByToken 通过Token获取分享
+// GetShareByToken 通过Token获取分享.
 func (sm *ShareManager) GetShareByToken(token string) (*ShareLink, error) {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -189,7 +189,7 @@ func (sm *ShareManager) GetShareByToken(token string) (*ShareLink, error) {
 	return share, nil
 }
 
-// AccessShare 访问分享
+// AccessShare 访问分享.
 func (sm *ShareManager) AccessShare(token, password, userID, ip, userAgent string) (*ShareLink, error) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -259,7 +259,7 @@ func (sm *ShareManager) AccessShare(token, password, userID, ip, userAgent strin
 	return share, nil
 }
 
-// RevokeShare 撤销分享
+// RevokeShare 撤销分享.
 func (sm *ShareManager) RevokeShare(shareID, userID, username string) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -297,7 +297,7 @@ func (sm *ShareManager) RevokeShare(shareID, userID, username string) error {
 	return nil
 }
 
-// DeleteShare 删除分享
+// DeleteShare 删除分享.
 func (sm *ShareManager) DeleteShare(shareID, userID string) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -322,7 +322,7 @@ func (sm *ShareManager) DeleteShare(shareID, userID string) error {
 	return nil
 }
 
-// ListUserShares 列出用户创建的分享
+// ListUserShares 列出用户创建的分享.
 func (sm *ShareManager) ListUserShares(userID string) []*ShareLink {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -336,7 +336,7 @@ func (sm *ShareManager) ListUserShares(userID string) []*ShareLink {
 	return shares
 }
 
-// ListResourceShares 列出资源的分享
+// ListResourceShares 列出资源的分享.
 func (sm *ShareManager) ListResourceShares(resourceType ResourceType, resourceID string) []*ShareLink {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -350,7 +350,7 @@ func (sm *ShareManager) ListResourceShares(resourceType ResourceType, resourceID
 	return shares
 }
 
-// GetShareAccessLog 获取分享访问日志
+// GetShareAccessLog 获取分享访问日志.
 func (sm *ShareManager) GetShareAccessLog(shareID string) ([]*ShareAccess, error) {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -367,7 +367,7 @@ func (sm *ShareManager) GetShareAccessLog(shareID string) ([]*ShareAccess, error
 	return accesses, nil
 }
 
-// UpdateShare 更新分享
+// UpdateShare 更新分享.
 func (sm *ShareManager) UpdateShare(shareID string, input ShareInput, userID, username string) (*ShareLink, error) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -407,7 +407,7 @@ func (sm *ShareManager) UpdateShare(shareID string, input ShareInput, userID, us
 	return share, nil
 }
 
-// CleanExpiredShares 清理过期分享
+// CleanExpiredShares 清理过期分享.
 func (sm *ShareManager) CleanExpiredShares() int {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -430,7 +430,7 @@ func (sm *ShareManager) CleanExpiredShares() int {
 	return count
 }
 
-// GetShareStats 获取分享统计
+// GetShareStats 获取分享统计.
 func (sm *ShareManager) GetShareStats() map[string]interface{} {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -460,7 +460,7 @@ func (sm *ShareManager) GetShareStats() map[string]interface{} {
 	}
 }
 
-// 辅助方法：检查用户是否有权限
+// 辅助方法：检查用户是否有权限.
 func (m *Manager) hasPermissionForUser(userID string, requiredRole MemberRole) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

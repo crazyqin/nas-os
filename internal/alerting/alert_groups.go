@@ -12,7 +12,7 @@ import (
 
 // ========== 告警分组定义 ==========
 
-// AlertGroup 告警分组
+// AlertGroup 告警分组.
 type AlertGroup struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -26,28 +26,28 @@ type AlertGroup struct {
 	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
-// AlertCategory 告警分类（对标群晖 Active Insight）
+// AlertCategory 告警分类（对标群晖 Active Insight）.
 type AlertCategory string
 
 const (
-	// CategoryStorage 存储类告警：磁盘空间、磁盘健康、RAID状态、IOPS异常
+	// CategoryStorage 存储类告警：磁盘空间、磁盘健康、RAID状态、IOPS异常.
 	CategoryStorage AlertCategory = "storage"
-	// CategoryNetwork 网络类告警：网络连接、带宽异常、丢包、延迟
+	// CategoryNetwork 网络类告警：网络连接、带宽异常、丢包、延迟.
 	CategoryNetwork AlertCategory = "network"
-	// CategorySystem 系统类告警：CPU、内存、进程、服务状态
+	// CategorySystem 系统类告警：CPU、内存、进程、服务状态.
 	CategorySystem AlertCategory = "system"
-	// CategorySecurity 安全类告警：入侵检测、异常登录、权限变更
+	// CategorySecurity 安全类告警：入侵检测、异常登录、权限变更.
 	CategorySecurity AlertCategory = "security"
 )
 
-// AlertGroupManager 告警分组管理器
+// AlertGroupManager 告警分组管理器.
 type AlertGroupManager struct {
 	mu     sync.RWMutex
 	groups map[string]*AlertGroup
 	stats  map[AlertCategory]*GroupStats
 }
 
-// GroupStats 分组统计
+// GroupStats 分组统计.
 type GroupStats struct {
 	Category        AlertCategory `json:"category"`
 	TotalAlerts     int           `json:"total_alerts"`
@@ -59,7 +59,7 @@ type GroupStats struct {
 	AcknowledgedPct float64       `json:"acknowledged_pct"` // 确认率
 }
 
-// NewAlertGroupManager 创建告警分组管理器
+// NewAlertGroupManager 创建告警分组管理器.
 func NewAlertGroupManager() *AlertGroupManager {
 	mgr := &AlertGroupManager{
 		groups: make(map[string]*AlertGroup),
@@ -77,7 +77,7 @@ func NewAlertGroupManager() *AlertGroupManager {
 	return mgr
 }
 
-// initDefaultGroups 初始化默认告警分组
+// initDefaultGroups 初始化默认告警分组.
 func (m *AlertGroupManager) initDefaultGroups() {
 	defaultGroups := []*AlertGroup{
 		// 存储类分组
@@ -262,7 +262,7 @@ func (m *AlertGroupManager) initDefaultGroups() {
 
 // ========== 分组管理方法 ==========
 
-// CreateGroup 创建告警分组
+// CreateGroup 创建告警分组.
 func (m *AlertGroupManager) CreateGroup(group AlertGroup) (*AlertGroup, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -282,7 +282,7 @@ func (m *AlertGroupManager) CreateGroup(group AlertGroup) (*AlertGroup, error) {
 	return &group, nil
 }
 
-// GetGroup 获取告警分组
+// GetGroup 获取告警分组.
 func (m *AlertGroupManager) GetGroup(id string) (*AlertGroup, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -295,7 +295,7 @@ func (m *AlertGroupManager) GetGroup(id string) (*AlertGroup, error) {
 	return group, nil
 }
 
-// UpdateGroup 更新告警分组
+// UpdateGroup 更新告警分组.
 func (m *AlertGroupManager) UpdateGroup(id string, group AlertGroup) (*AlertGroup, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -313,7 +313,7 @@ func (m *AlertGroupManager) UpdateGroup(id string, group AlertGroup) (*AlertGrou
 	return &group, nil
 }
 
-// DeleteGroup 删除告警分组
+// DeleteGroup 删除告警分组.
 func (m *AlertGroupManager) DeleteGroup(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -326,7 +326,7 @@ func (m *AlertGroupManager) DeleteGroup(id string) error {
 	return nil
 }
 
-// ListGroups 列出所有告警分组
+// ListGroups 列出所有告警分组.
 func (m *AlertGroupManager) ListGroups() []*AlertGroup {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -342,7 +342,7 @@ func (m *AlertGroupManager) ListGroups() []*AlertGroup {
 	return result
 }
 
-// ListGroupsByCategory 按分类列出分组
+// ListGroupsByCategory 按分类列出分组.
 func (m *AlertGroupManager) ListGroupsByCategory(category AlertCategory) []*AlertGroup {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -358,7 +358,7 @@ func (m *AlertGroupManager) ListGroupsByCategory(category AlertCategory) []*Aler
 	return result
 }
 
-// EnableGroup 启用分组
+// EnableGroup 启用分组.
 func (m *AlertGroupManager) EnableGroup(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -374,7 +374,7 @@ func (m *AlertGroupManager) EnableGroup(id string) error {
 	return nil
 }
 
-// DisableGroup 禁用分组
+// DisableGroup 禁用分组.
 func (m *AlertGroupManager) DisableGroup(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -390,7 +390,7 @@ func (m *AlertGroupManager) DisableGroup(id string) error {
 	return nil
 }
 
-// AddRuleToGroup 向分组添加规则
+// AddRuleToGroup 向分组添加规则.
 func (m *AlertGroupManager) AddRuleToGroup(groupID, ruleID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -413,7 +413,7 @@ func (m *AlertGroupManager) AddRuleToGroup(groupID, ruleID string) error {
 	return nil
 }
 
-// RemoveRuleFromGroup 从分组移除规则
+// RemoveRuleFromGroup 从分组移除规则.
 func (m *AlertGroupManager) RemoveRuleFromGroup(groupID, ruleID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -434,7 +434,7 @@ func (m *AlertGroupManager) RemoveRuleFromGroup(groupID, ruleID string) error {
 	return fmt.Errorf("规则不在分组中: %s", ruleID)
 }
 
-// GetGroupsByRuleID 获取包含指定规则的分组
+// GetGroupsByRuleID 获取包含指定规则的分组.
 func (m *AlertGroupManager) GetGroupsByRuleID(ruleID string) []*AlertGroup {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -454,7 +454,7 @@ func (m *AlertGroupManager) GetGroupsByRuleID(ruleID string) []*AlertGroup {
 
 // ========== 统计方法 ==========
 
-// UpdateStats 更新分组统计
+// UpdateStats 更新分组统计.
 func (m *AlertGroupManager) UpdateStats(category AlertCategory, alerts []GroupAlertInfo) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -499,7 +499,7 @@ func (m *AlertGroupManager) UpdateStats(category AlertCategory, alerts []GroupAl
 	}
 }
 
-// GetStats 获取分组统计
+// GetStats 获取分组统计.
 func (m *AlertGroupManager) GetStats(category AlertCategory) *GroupStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -507,7 +507,7 @@ func (m *AlertGroupManager) GetStats(category AlertCategory) *GroupStats {
 	return m.stats[category]
 }
 
-// GetAllStats 获取所有分组统计
+// GetAllStats 获取所有分组统计.
 func (m *AlertGroupManager) GetAllStats() map[AlertCategory]*GroupStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -520,7 +520,7 @@ func (m *AlertGroupManager) GetAllStats() map[AlertCategory]*GroupStats {
 	return result
 }
 
-// GetCategorySummary 获取分类概览（对标群晖 Active Insight Dashboard）
+// GetCategorySummary 获取分类概览（对标群晖 Active Insight Dashboard）.
 func (m *AlertGroupManager) GetCategorySummary() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -584,7 +584,7 @@ func (m *AlertGroupManager) GetCategorySummary() map[string]interface{} {
 
 // ========== 持久化 ==========
 
-// SaveGroups 保存分组配置
+// SaveGroups 保存分组配置.
 func (m *AlertGroupManager) SaveGroups(path string) error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -607,7 +607,7 @@ func (m *AlertGroupManager) SaveGroups(path string) error {
 	return os.WriteFile(path, jsonData, 0640)
 }
 
-// LoadGroups 加载分组配置
+// LoadGroups 加载分组配置.
 func (m *AlertGroupManager) LoadGroups(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return nil
@@ -638,7 +638,7 @@ func (m *AlertGroupManager) LoadGroups(path string) error {
 
 // ========== 辅助类型和方法 ==========
 
-// GroupAlertInfo 分组告警信息（用于统计）
+// GroupAlertInfo 分组告警信息（用于统计）.
 type GroupAlertInfo struct {
 	ID           string     `json:"id"`
 	Level        AlertLevel `json:"level"`
@@ -647,21 +647,21 @@ type GroupAlertInfo struct {
 	Timestamp    *time.Time `json:"timestamp,omitempty"`
 }
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 const (
-	// AlertLevelCritical 严重级别：需要立即处理
+	// AlertLevelCritical 严重级别：需要立即处理.
 	AlertLevelCritical AlertLevel = "critical"
-	// AlertLevelWarning 警告级别：需要关注
+	// AlertLevelWarning 警告级别：需要关注.
 	AlertLevelWarning AlertLevel = "warning"
-	// AlertLevelInfo 信息级别：仅供参考
+	// AlertLevelInfo 信息级别：仅供参考.
 	AlertLevelInfo AlertLevel = "info"
-	// AlertLevelEmergency 紧急级别：最高优先级
+	// AlertLevelEmergency 紧急级别：最高优先级.
 	AlertLevelEmergency AlertLevel = "emergency"
 )
 
-// AlertLevelPriority 告警级别优先级映射
+// AlertLevelPriority 告警级别优先级映射.
 var AlertLevelPriority = map[AlertLevel]int{
 	AlertLevelEmergency: 4,
 	AlertLevelCritical:  3,
@@ -669,12 +669,12 @@ var AlertLevelPriority = map[AlertLevel]int{
 	AlertLevelInfo:      1,
 }
 
-// generateGroupID 生成分组ID
+// generateGroupID 生成分组ID.
 func generateGroupID(category AlertCategory) string {
 	return fmt.Sprintf("group-%s-%d", category, time.Now().UnixNano())
 }
 
-// sortGroupsByPriority 按优先级排序分组
+// sortGroupsByPriority 按优先级排序分组.
 func sortGroupsByPriority(groups []*AlertGroup) {
 	for i := 0; i < len(groups)-1; i++ {
 		for j := i + 1; j < len(groups); j++ {
@@ -685,7 +685,7 @@ func sortGroupsByPriority(groups []*AlertGroup) {
 	}
 }
 
-// getCategoryName 获取分类名称
+// getCategoryName 获取分类名称.
 func getCategoryName(category AlertCategory) string {
 	names := map[AlertCategory]string{
 		CategoryStorage:  "存储",
@@ -696,7 +696,7 @@ func getCategoryName(category AlertCategory) string {
 	return names[category]
 }
 
-// getCategoryIcon 获取分类图标
+// getCategoryIcon 获取分类图标.
 func getCategoryIcon(category AlertCategory) string {
 	icons := map[AlertCategory]string{
 		CategoryStorage:  "storage",
@@ -707,7 +707,7 @@ func getCategoryIcon(category AlertCategory) string {
 	return icons[category]
 }
 
-// getHealthStatus 获取健康状态
+// getHealthStatus 获取健康状态.
 func getHealthStatus(stats *GroupStats) string {
 	if stats.CriticalCount > 0 {
 		return "critical"

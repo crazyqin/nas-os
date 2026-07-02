@@ -14,36 +14,36 @@ import (
 	"go.uber.org/zap"
 )
 
-// STUN 消息类型
+// STUN 消息类型.
 const (
 	STUNBindingRequest  uint16 = 0x0001
 	STUNBindingResponse uint16 = 0x0101
 	STUNBindingError    uint16 = 0x0111
 )
 
-// STUN 属性类型
+// STUN 属性类型.
 const (
-	STUNAttrMappedAddress     uint16 = 0x0001
-	STUNAttrResponseAddress   uint16 = 0x0002
-	STUNAttrChangeRequest     uint16 = 0x0003
-	STUNAttrSourceAddress     uint16 = 0x0004
-	STUNAttrChangedAddress    uint16 = 0x0005
-	STUNAttrXORMappedAddress  uint16 = 0x0020
-	STUNAttrSoftware          uint16 = 0x8022
-	STUNAttrFingerprint       uint16 = 0x8028
+	STUNAttrMappedAddress    uint16 = 0x0001
+	STUNAttrResponseAddress  uint16 = 0x0002
+	STUNAttrChangeRequest    uint16 = 0x0003
+	STUNAttrSourceAddress    uint16 = 0x0004
+	STUNAttrChangedAddress   uint16 = 0x0005
+	STUNAttrXORMappedAddress uint16 = 0x0020
+	STUNAttrSoftware         uint16 = 0x8022
+	STUNAttrFingerprint      uint16 = 0x8028
 )
 
-// STUNMagicCookie STUN 魔术字 (RFC 5389)
+// STUNMagicCookie STUN 魔术字 (RFC 5389).
 const STUNMagicCookie uint32 = 0x2112A442
 
-// STUNClient STUN 客户端
+// STUNClient STUN 客户端.
 type STUNClient struct {
 	logger    *zap.Logger
 	timeout   time.Duration
 	localAddr string
 }
 
-// NewSTUNClient 创建 STUN 客户端
+// NewSTUNClient 创建 STUN 客户端.
 func NewSTUNClient(logger *zap.Logger) *STUNClient {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -54,16 +54,16 @@ func NewSTUNClient(logger *zap.Logger) *STUNClient {
 	}
 }
 
-// STUNResult STUN 查询结果
+// STUNResult STUN 查询结果.
 type STUNResult struct {
-	MappedIP    net.IP
-	MappedPort  int
-	ServerAddr  string
-	RTT         time.Duration
-	Success     bool
+	MappedIP   net.IP
+	MappedPort int
+	ServerAddr string
+	RTT        time.Duration
+	Success    bool
 }
 
-// Query 发送 STUN Binding Request 并获取映射地址
+// Query 发送 STUN Binding Request 并获取映射地址.
 func (c *STUNClient) Query(ctx context.Context, serverAddr string) (*STUNResult, error) {
 	// 解析服务器地址
 	udpAddr, err := net.ResolveUDPAddr("udp", serverAddr)
@@ -127,7 +127,7 @@ func (c *STUNClient) Query(ctx context.Context, serverAddr string) (*STUNResult,
 	return result, nil
 }
 
-// QueryWithRetry 带重试的 STUN 查询
+// QueryWithRetry 带重试的 STUN 查询.
 func (c *STUNClient) QueryWithRetry(ctx context.Context, serverAddr string, maxRetries int) (*STUNResult, error) {
 	var lastErr error
 	for i := 0; i < maxRetries; i++ {
@@ -146,7 +146,7 @@ func (c *STUNClient) QueryWithRetry(ctx context.Context, serverAddr string, maxR
 	return nil, fmt.Errorf("STUN 查询重试 %d 次后失败: %w", maxRetries, lastErr)
 }
 
-// DetectNATType 检测 NAT 类型 (RFC 3489 简化版)
+// DetectNATType 检测 NAT 类型 (RFC 3489 简化版).
 func (c *STUNClient) DetectNATType(ctx context.Context, servers []STUNServer) (*NATDetectionResult, error) {
 	if len(servers) < 2 {
 		return nil, fmt.Errorf("至少需要 2 个 STUN 服务器")
@@ -239,7 +239,7 @@ func (c *STUNClient) DetectNATType(ctx context.Context, servers []STUNServer) (*
 	return detection, nil
 }
 
-// buildSTUNBindingRequest 构建 STUN Binding Request 消息
+// buildSTUNBindingRequest 构建 STUN Binding Request 消息.
 func buildSTUNBindingRequest() []byte {
 	// 生成随机事务 ID
 	transactionID := make([]byte, 12)
@@ -262,7 +262,7 @@ func buildSTUNBindingRequest() []byte {
 	return msg
 }
 
-// parseSTUNResponse 解析 STUN Binding Response
+// parseSTUNResponse 解析 STUN Binding Response.
 func parseSTUNResponse(data []byte) (*STUNResult, error) {
 	if len(data) < 20 {
 		return nil, fmt.Errorf("STUN 响应太短: %d bytes", len(data))
@@ -326,7 +326,7 @@ func parseSTUNResponse(data []byte) (*STUNResult, error) {
 	return result, nil
 }
 
-// parseMappedAddress 解析 MAPPED-ADDRESS 或 XOR-MAPPED-ADDRESS 属性
+// parseMappedAddress 解析 MAPPED-ADDRESS 或 XOR-MAPPED-ADDRESS 属性.
 func parseMappedAddress(data []byte, xor bool) (net.IP, int, error) {
 	if len(data) < 8 {
 		return nil, 0, fmt.Errorf("映射地址属性太短")
@@ -379,16 +379,16 @@ func parseMappedAddress(data []byte, xor bool) (net.IP, int, error) {
 	return ip, int(port), nil
 }
 
-// STUNServerPool STUN 服务器池，支持并发查询和结果聚合
+// STUNServerPool STUN 服务器池，支持并发查询和结果聚合.
 type STUNServerPool struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
-	servers  []STUNServer
-	client   *STUNClient
-	bestIdx  int
+	mu      sync.RWMutex
+	logger  *zap.Logger
+	servers []STUNServer
+	client  *STUNClient
+	bestIdx int
 }
 
-// NewSTUNServerPool 创建 STUN 服务器池
+// NewSTUNServerPool 创建 STUN 服务器池.
 func NewSTUNServerPool(logger *zap.Logger) *STUNServerPool {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -400,14 +400,14 @@ func NewSTUNServerPool(logger *zap.Logger) *STUNServerPool {
 	}
 }
 
-// AddServer 添加 STUN 服务器
+// AddServer 添加 STUN 服务器.
 func (p *STUNServerPool) AddServer(server STUNServer) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.servers = append(p.servers, server)
 }
 
-// QueryBest 使用最佳服务器查询
+// QueryBest 使用最佳服务器查询.
 func (p *STUNServerPool) QueryBest(ctx context.Context) (*STUNResult, error) {
 	p.mu.RLock()
 	servers := make([]STUNServer, len(p.servers))

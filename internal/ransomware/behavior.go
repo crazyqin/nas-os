@@ -14,7 +14,7 @@ import (
 // 行为分析引擎
 // ============================================================
 
-// BehaviorAnalyzer 行为分析引擎
+// BehaviorAnalyzer 行为分析引擎.
 type BehaviorAnalyzer struct {
 	mu sync.RWMutex
 
@@ -41,7 +41,7 @@ type BehaviorAnalyzer struct {
 	stopChan chan struct{}
 }
 
-// ProcessProfile 进程行为画像
+// ProcessProfile 进程行为画像.
 type ProcessProfile struct {
 	PID          int             `json:"pid"`
 	Name         string          `json:"name"`
@@ -62,7 +62,7 @@ type ProcessProfile struct {
 	WindowStats  *WindowStats    `json:"window_stats,omitempty"`
 }
 
-// WindowStats 滑动窗口统计
+// WindowStats 滑动窗口统计.
 type WindowStats struct {
 	WindowDuration time.Duration `json:"window_duration"`
 	WriteRate      float64       `json:"write_rate"`      // 写入/秒
@@ -73,7 +73,7 @@ type WindowStats struct {
 	FileDiversity  float64       `json:"file_diversity"`  // 文件类型多样性
 }
 
-// FileOpRecord 文件操作记录
+// FileOpRecord 文件操作记录.
 type FileOpRecord struct {
 	Path        string    `json:"path"`
 	OldPath     string    `json:"old_path,omitempty"`
@@ -85,7 +85,7 @@ type FileOpRecord struct {
 	Timestamp   time.Time `json:"timestamp"`
 }
 
-// AnomalyEvent 异常事件
+// AnomalyEvent 异常事件.
 type AnomalyEvent struct {
 	ID          string      `json:"id"`
 	ProcessID   int         `json:"process_id"`
@@ -98,13 +98,13 @@ type AnomalyEvent struct {
 	Timestamp   time.Time   `json:"timestamp"`
 }
 
-// PatternDetector 行为模式检测器接口
+// PatternDetector 行为模式检测器接口.
 type PatternDetector interface {
 	Name() string
 	Detect(profile *ProcessProfile, recentOps []FileOpRecord) *AnomalyEvent
 }
 
-// BehaviorBaseline 行为基线
+// BehaviorBaseline 行为基线.
 type BehaviorBaseline struct {
 	AvgWriteRate  float64   `json:"avg_write_rate"`
 	AvgDeleteRate float64   `json:"avg_delete_rate"`
@@ -116,7 +116,7 @@ type BehaviorBaseline struct {
 	LastUpdated   time.Time `json:"last_updated"`
 }
 
-// BehaviorStats 行为分析统计
+// BehaviorStats 行为分析统计.
 type BehaviorStats struct {
 	EventsProcessed  int64     `json:"events_processed"`
 	AnomaliesFound   int64     `json:"anomalies_found"`
@@ -129,7 +129,7 @@ type BehaviorStats struct {
 // 构造与生命周期
 // ============================================================
 
-// NewBehaviorAnalyzer 创建行为分析引擎
+// NewBehaviorAnalyzer 创建行为分析引擎.
 func NewBehaviorAnalyzer() *BehaviorAnalyzer {
 	ba := &BehaviorAnalyzer{
 		profiles: make(map[int]*ProcessProfile),
@@ -159,14 +159,14 @@ func NewBehaviorAnalyzer() *BehaviorAnalyzer {
 	return ba
 }
 
-// SetAnomalyCallback 设置异常回调
+// SetAnomalyCallback 设置异常回调.
 func (ba *BehaviorAnalyzer) SetAnomalyCallback(fn func(event AnomalyEvent)) {
 	ba.mu.Lock()
 	ba.onAnomaly = fn
 	ba.mu.Unlock()
 }
 
-// Start 启动行为分析引擎
+// Start 启动行为分析引擎.
 func (ba *BehaviorAnalyzer) Start() {
 	ba.mu.Lock()
 	if ba.running {
@@ -182,7 +182,7 @@ func (ba *BehaviorAnalyzer) Start() {
 	log.Println("[BehaviorAnalyzer] 行为分析引擎已启动")
 }
 
-// Stop 停止行为分析引擎
+// Stop 停止行为分析引擎.
 func (ba *BehaviorAnalyzer) Stop() {
 	ba.mu.Lock()
 	defer ba.mu.Unlock()
@@ -198,7 +198,7 @@ func (ba *BehaviorAnalyzer) Stop() {
 // 事件摄入
 // ============================================================
 
-// RecordFileOp 记录文件操作
+// RecordFileOp 记录文件操作.
 func (ba *BehaviorAnalyzer) RecordFileOp(op FileOpRecord) {
 	ba.mu.Lock()
 	defer ba.mu.Unlock()
@@ -218,7 +218,7 @@ func (ba *BehaviorAnalyzer) RecordFileOp(op FileOpRecord) {
 	ba.stats.EventsProcessed++
 }
 
-// updateProfile 更新进程画像
+// updateProfile 更新进程画像.
 func (ba *BehaviorAnalyzer) updateProfile(op FileOpRecord) {
 	profile, exists := ba.profiles[op.ProcessID]
 	if !exists {
@@ -269,7 +269,7 @@ func (ba *BehaviorAnalyzer) updateProfile(op FileOpRecord) {
 // 分析循环
 // ============================================================
 
-// analysisLoop 定时分析
+// analysisLoop 定时分析.
 func (ba *BehaviorAnalyzer) analysisLoop() {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
@@ -284,7 +284,7 @@ func (ba *BehaviorAnalyzer) analysisLoop() {
 	}
 }
 
-// runAnalysis 执行行为分析
+// runAnalysis 执行行为分析.
 func (ba *BehaviorAnalyzer) runAnalysis() {
 	ba.mu.Lock()
 	profiles := make(map[int]*ProcessProfile)
@@ -318,7 +318,7 @@ func (ba *BehaviorAnalyzer) runAnalysis() {
 	ba.mu.Unlock()
 }
 
-// computeWindowStats 计算滑动窗口统计
+// computeWindowStats 计算滑动窗口统计.
 func (ba *BehaviorAnalyzer) computeWindowStats(profile *ProcessProfile) {
 	window := 60 * time.Second // 1分钟窗口
 	now := time.Now()
@@ -372,7 +372,7 @@ func (ba *BehaviorAnalyzer) computeWindowStats(profile *ProcessProfile) {
 	profile.AnomalyScore = ba.calculateAnomalyScore(profile)
 }
 
-// calculateAnomalyScore 计算进程异常分数 (0-100)
+// calculateAnomalyScore 计算进程异常分数 (0-100).
 func (ba *BehaviorAnalyzer) calculateAnomalyScore(profile *ProcessProfile) float64 {
 	score := 0.0
 	ws := profile.WindowStats
@@ -420,7 +420,7 @@ func (ba *BehaviorAnalyzer) calculateAnomalyScore(profile *ProcessProfile) float
 	return math.Min(score, 100)
 }
 
-// handleAnomaly 处理异常事件
+// handleAnomaly 处理异常事件.
 func (ba *BehaviorAnalyzer) handleAnomaly(event *AnomalyEvent) {
 	ba.mu.Lock()
 	ba.stats.AnomaliesFound++
@@ -434,7 +434,7 @@ func (ba *BehaviorAnalyzer) handleAnomaly(event *AnomalyEvent) {
 	}
 }
 
-// getRecentOps 获取进程近期操作
+// getRecentOps 获取进程近期操作.
 func (ba *BehaviorAnalyzer) getRecentOps(pid int, window time.Duration) []FileOpRecord {
 	ba.mu.RLock()
 	defer ba.mu.RUnlock()
@@ -456,7 +456,7 @@ func (ba *BehaviorAnalyzer) getRecentOps(pid int, window time.Duration) []FileOp
 // 基线更新
 // ============================================================
 
-// updateBaseline 更新全局基线
+// updateBaseline 更新全局基线.
 func (ba *BehaviorAnalyzer) updateBaseline(profiles map[int]*ProcessProfile) {
 	ba.mu.Lock()
 	defer ba.mu.Unlock()
@@ -501,7 +501,7 @@ func (ba *BehaviorAnalyzer) updateBaseline(profiles map[int]*ProcessProfile) {
 // 清理循环
 // ============================================================
 
-// cleanupLoop 清理过期数据
+// cleanupLoop 清理过期数据.
 func (ba *BehaviorAnalyzer) cleanupLoop() {
 	ticker := time.NewTicker(10 * time.Minute)
 	defer ticker.Stop()
@@ -516,7 +516,7 @@ func (ba *BehaviorAnalyzer) cleanupLoop() {
 	}
 }
 
-// cleanup 清理过期的进程画像和操作记录
+// cleanup 清理过期的进程画像和操作记录.
 func (ba *BehaviorAnalyzer) cleanup() {
 	ba.mu.Lock()
 	defer ba.mu.Unlock()
@@ -551,7 +551,7 @@ func (ba *BehaviorAnalyzer) cleanup() {
 // 查询接口
 // ============================================================
 
-// GetProfile 获取进程画像
+// GetProfile 获取进程画像.
 func (ba *BehaviorAnalyzer) GetProfile(pid int) (*ProcessProfile, bool) {
 	ba.mu.RLock()
 	defer ba.mu.RUnlock()
@@ -563,7 +563,7 @@ func (ba *BehaviorAnalyzer) GetProfile(pid int) (*ProcessProfile, bool) {
 	return &result, true
 }
 
-// GetAnomalousProcesses 获取异常进程列表
+// GetAnomalousProcesses 获取异常进程列表.
 func (ba *BehaviorAnalyzer) GetAnomalousProcesses(threshold float64) []ProcessProfile {
 	ba.mu.RLock()
 	defer ba.mu.RUnlock()
@@ -577,7 +577,7 @@ func (ba *BehaviorAnalyzer) GetAnomalousProcesses(threshold float64) []ProcessPr
 	return result
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (ba *BehaviorAnalyzer) GetStats() BehaviorStats {
 	ba.mu.RLock()
 	defer ba.mu.RUnlock()
@@ -590,7 +590,7 @@ func (ba *BehaviorAnalyzer) GetStats() BehaviorStats {
 // 内置模式检测器
 // ============================================================
 
-// EncryptionBurstDetector 加密突发检测器
+// EncryptionBurstDetector 加密突发检测器.
 type EncryptionBurstDetector struct{}
 
 func (d *EncryptionBurstDetector) Name() string { return "encryption-burst" }
@@ -620,7 +620,7 @@ func (d *EncryptionBurstDetector) Detect(profile *ProcessProfile, recentOps []Fi
 	return nil
 }
 
-// MassRenameDetector 批量重命名检测器
+// MassRenameDetector 批量重命名检测器.
 type MassRenameDetector struct{}
 
 func (d *MassRenameDetector) Name() string { return "mass-rename" }
@@ -646,7 +646,7 @@ func (d *MassRenameDetector) Detect(profile *ProcessProfile, recentOps []FileOpR
 	return nil
 }
 
-// EntropySpikeDetector 熵值突变检测器
+// EntropySpikeDetector 熵值突变检测器.
 type EntropySpikeDetector struct{}
 
 func (d *EntropySpikeDetector) Name() string { return "entropy-spike" }
@@ -671,7 +671,7 @@ func (d *EntropySpikeDetector) Detect(profile *ProcessProfile, recentOps []FileO
 	return nil
 }
 
-// ShadowCopyDeletionDetector 卷影副本删除检测器
+// ShadowCopyDeletionDetector 卷影副本删除检测器.
 type ShadowCopyDeletionDetector struct{}
 
 func (d *ShadowCopyDeletionDetector) Name() string { return "shadow-copy-deletion" }
@@ -702,7 +702,7 @@ func (d *ShadowCopyDeletionDetector) Detect(profile *ProcessProfile, recentOps [
 	return nil
 }
 
-// ExtensionStormDetector 扩展名风暴检测器
+// ExtensionStormDetector 扩展名风暴检测器.
 type ExtensionStormDetector struct{}
 
 func (d *ExtensionStormDetector) Name() string { return "extension-storm" }
@@ -761,7 +761,7 @@ func (d *ExtensionStormDetector) Detect(profile *ProcessProfile, recentOps []Fil
 // 辅助函数
 // ============================================================
 
-// extractExt 提取文件扩展名
+// extractExt 提取文件扩展名.
 func extractExt(path string) string {
 	for i := len(path) - 1; i >= 0; i-- {
 		if path[i] == '.' {

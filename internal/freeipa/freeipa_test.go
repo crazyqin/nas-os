@@ -366,11 +366,11 @@ func TestClient_UpdateConfig(t *testing.T) {
 
 func TestMatchUserFilter(t *testing.T) {
 	user := LDAPUser{
-		Username:    "alice",
-		Email:       "alice@example.com",
-		Enabled:     true,
-		UIDNumber:   1000,
-		Groups:      []string{"admins", "users"},
+		Username:  "alice",
+		Email:     "alice@example.com",
+		Enabled:   true,
+		UIDNumber: 1000,
+		Groups:    []string{"admins", "users"},
 	}
 
 	// 空过滤器匹配一切
@@ -707,19 +707,19 @@ func TestGroupSearchFilter_Fields(t *testing.T) {
 	}
 }
 
-// mockConn 模拟网络连接
+// mockConn 模拟网络连接.
 type mockConn struct{}
 
-func (m *mockConn) Read(b []byte) (n int, err error)  { return 0, nil }
-func (m *mockConn) Write(b []byte) (n int, err error) { return len(b), nil }
-func (m *mockConn) Close() error                      { return nil }
+func (m *mockConn) Read(b []byte) (n int, err error)   { return 0, nil }
+func (m *mockConn) Write(b []byte) (n int, err error)  { return len(b), nil }
+func (m *mockConn) Close() error                       { return nil }
 func (m *mockConn) LocalAddr() net.Addr                { return nil }
 func (m *mockConn) RemoteAddr() net.Addr               { return nil }
 func (m *mockConn) SetDeadline(t time.Time) error      { return nil }
-func (m *mockConn) SetReadDeadline(t time.Time) error   { return nil }
-func (m *mockConn) SetWriteDeadline(t time.Time) error  { return nil }
+func (m *mockConn) SetReadDeadline(t time.Time) error  { return nil }
+func (m *mockConn) SetWriteDeadline(t time.Time) error { return nil }
 
-// nopCloser 创建一个 io.ReadCloser 用于测试
+// nopCloser 创建一个 io.ReadCloser 用于测试.
 func nopCloser(s string) *stringReader {
 	return &stringReader{s: s, i: 0}
 }

@@ -4,7 +4,7 @@ package scrubscheduler
 
 import "time"
 
-// ScrubState 表示 scrub 任务的状态
+// ScrubState 表示 scrub 任务的状态.
 type ScrubState string
 
 const (
@@ -15,7 +15,7 @@ const (
 	ScrubStateFailed    ScrubState = "failed"
 )
 
-// MaintenanceWindow 定义维护时间窗口，用于避开业务高峰期
+// MaintenanceWindow 定义维护时间窗口，用于避开业务高峰期.
 type MaintenanceWindow struct {
 	// Start 是每天允许开始 scrub 的时间 (HH:MM 格式, 24h)
 	Start string `json:"start"`
@@ -23,7 +23,7 @@ type MaintenanceWindow struct {
 	End string `json:"end"`
 }
 
-// ScrubSchedule 定义一个存储池的 scrub 调度配置
+// ScrubSchedule 定义一个存储池的 scrub 调度配置.
 type ScrubSchedule struct {
 	// ID 是调度的唯一标识
 	ID string `json:"id"`
@@ -45,7 +45,7 @@ type ScrubSchedule struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// ScrubStatus 表示当前 scrub 运行状态
+// ScrubStatus 表示当前 scrub 运行状态.
 type ScrubStatus struct {
 	// PoolName 是存储池名称
 	PoolName string `json:"pool_name"`
@@ -63,7 +63,7 @@ type ScrubStatus struct {
 	RetryAttempt int `json:"retry_attempt"`
 }
 
-// ScrubHistory 记录一次 scrub 的执行结果
+// ScrubHistory 记录一次 scrub 的执行结果.
 type ScrubHistory struct {
 	// ID 是记录的唯一标识
 	ID string `json:"id"`
@@ -89,7 +89,7 @@ type ScrubHistory struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// CreateScheduleRequest 创建调度的请求体
+// CreateScheduleRequest 创建调度的请求体.
 type CreateScheduleRequest struct {
 	PoolName          string            `json:"pool_name" binding:"required"`
 	Schedule          string            `json:"schedule" binding:"required"`
@@ -99,7 +99,7 @@ type CreateScheduleRequest struct {
 	Enabled           *bool             `json:"enabled"`
 }
 
-// UpdateScheduleRequest 更新调度的请求体
+// UpdateScheduleRequest 更新调度的请求体.
 type UpdateScheduleRequest struct {
 	Schedule          *string            `json:"schedule"`
 	MaintenanceWindow *MaintenanceWindow `json:"maintenance_window"`
@@ -108,7 +108,7 @@ type UpdateScheduleRequest struct {
 	Enabled           *bool              `json:"enabled"`
 }
 
-// ScrubSchedulerConfig 调度器配置
+// ScrubSchedulerConfig 调度器配置.
 type ScrubSchedulerConfig struct {
 	// DefaultMaintenanceWindow 全局默认维护窗口
 	DefaultMaintenanceWindow MaintenanceWindow `json:"default_maintenance_window"`
@@ -122,7 +122,7 @@ type ScrubSchedulerConfig struct {
 	MaxHistoryRecords int `json:"max_history_records"`
 }
 
-// DefaultSchedulerConfig 返回默认配置
+// DefaultSchedulerConfig 返回默认配置.
 func DefaultSchedulerConfig() *ScrubSchedulerConfig {
 	return &ScrubSchedulerConfig{
 		DefaultMaintenanceWindow: MaintenanceWindow{

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// AIAction 表示AI助手识别的操作类型
+// AIAction 表示AI助手识别的操作类型.
 type AIAction string
 
 const (
@@ -21,7 +21,7 @@ const (
 	ActionHelp     AIAction = "help"     // 帮助信息
 )
 
-// Message 表示对话消息
+// Message 表示对话消息.
 type Message struct {
 	Role      string    // 角色：user/assistant/system
 	Content   string    // 消息内容
@@ -29,7 +29,7 @@ type Message struct {
 	Action    AIAction  // 关联的操作类型
 }
 
-// SystemStatus 表示NAS系统状态
+// SystemStatus 表示NAS系统状态.
 type SystemStatus struct {
 	CPUUsage    float64 // CPU使用率
 	MemoryUsage float64 // 内存使用率
@@ -40,7 +40,7 @@ type SystemStatus struct {
 	ServicesOK  bool    // 服务状态
 }
 
-// StorageStatus 表示存储状态
+// StorageStatus 表示存储状态.
 type StorageStatus struct {
 	TotalSpace   int64  // 总空间（字节）
 	UsedSpace    int64  // 已用空间（字节）
@@ -50,7 +50,7 @@ type StorageStatus struct {
 	HealthStatus string // 健康状态
 }
 
-// DiagnosisResult 诊断结果
+// DiagnosisResult 诊断结果.
 type DiagnosisResult struct {
 	IssueType   string    // 问题类型
 	Severity    string    // 严重程度：info/warning/error/critical
@@ -60,7 +60,7 @@ type DiagnosisResult struct {
 	Timestamp   time.Time // 诊断时间
 }
 
-// Suggestion 操作建议
+// Suggestion 操作建议.
 type Suggestion struct {
 	Title       string   // 建议标题
 	Description string   // 建议描述
@@ -69,7 +69,7 @@ type Suggestion struct {
 	Steps       []string // 操作步骤
 }
 
-// AIResult AI处理结果
+// AIResult AI处理结果.
 type AIResult struct {
 	Action      AIAction          // 操作类型
 	Response    string            // AI响应内容
@@ -79,7 +79,7 @@ type AIResult struct {
 	Timestamp   time.Time         // 处理时间
 }
 
-// AIProvider AI后端提供者接口
+// AIProvider AI后端提供者接口.
 type AIProvider interface {
 	// Name 返回提供者名称
 	Name() string
@@ -89,14 +89,14 @@ type AIProvider interface {
 	IsAvailable() bool
 }
 
-// LocalProvider 本地LLM提供者
+// LocalProvider 本地LLM提供者.
 type LocalProvider struct {
 	name      string
 	model     string
 	available bool
 }
 
-// NewLocalProvider 创建本地LLM提供者
+// NewLocalProvider 创建本地LLM提供者.
 func NewLocalProvider(name, model string) *LocalProvider {
 	return &LocalProvider{
 		name:      name,
@@ -105,12 +105,12 @@ func NewLocalProvider(name, model string) *LocalProvider {
 	}
 }
 
-// Name 返回提供者名称
+// Name 返回提供者名称.
 func (lp *LocalProvider) Name() string {
 	return lp.name
 }
 
-// Process 处理查询请求
+// Process 处理查询请求.
 func (lp *LocalProvider) Process(query string, context map[string]string) (string, error) {
 	if !lp.available {
 		return "", fmt.Errorf("本地LLM不可用")
@@ -123,12 +123,12 @@ func (lp *LocalProvider) Process(query string, context map[string]string) (strin
 	return response, nil
 }
 
-// IsAvailable 检查提供者是否可用
+// IsAvailable 检查提供者是否可用.
 func (lp *LocalProvider) IsAvailable() bool {
 	return lp.available
 }
 
-// RemoteProvider 远程API提供者
+// RemoteProvider 远程API提供者.
 type RemoteProvider struct {
 	name      string
 	endpoint  string
@@ -136,7 +136,7 @@ type RemoteProvider struct {
 	available bool
 }
 
-// NewRemoteProvider 创建远程API提供者
+// NewRemoteProvider 创建远程API提供者.
 func NewRemoteProvider(name, endpoint, apiKey string) *RemoteProvider {
 	return &RemoteProvider{
 		name:      name,
@@ -146,12 +146,12 @@ func NewRemoteProvider(name, endpoint, apiKey string) *RemoteProvider {
 	}
 }
 
-// Name 返回提供者名称
+// Name 返回提供者名称.
 func (rp *RemoteProvider) Name() string {
 	return rp.name
 }
 
-// Process 处理查询请求
+// Process 处理查询请求.
 func (rp *RemoteProvider) Process(query string, context map[string]string) (string, error) {
 	if !rp.available {
 		return "", fmt.Errorf("远程API不可用")
@@ -164,12 +164,12 @@ func (rp *RemoteProvider) Process(query string, context map[string]string) (stri
 	return response, nil
 }
 
-// IsAvailable 检查提供者是否可用
+// IsAvailable 检查提供者是否可用.
 func (rp *RemoteProvider) IsAvailable() bool {
 	return rp.available
 }
 
-// UnifiedAIAssistant 统一AI助手
+// UnifiedAIAssistant 统一AI助手.
 type UnifiedAIAssistant struct {
 	mu              sync.RWMutex
 	providers       []AIProvider         // AI后端列表
@@ -180,7 +180,7 @@ type UnifiedAIAssistant struct {
 	defaultProvider AIProvider           // 默认AI后端
 }
 
-// NewUnifiedAIAssistant 创建统一AI助手实例
+// NewUnifiedAIAssistant 创建统一AI助手实例.
 func NewUnifiedAIAssistant() *UnifiedAIAssistant {
 	return &UnifiedAIAssistant{
 		providers:     make([]AIProvider, 0),
@@ -189,7 +189,7 @@ func NewUnifiedAIAssistant() *UnifiedAIAssistant {
 	}
 }
 
-// RegisterProvider 注册AI后端提供者
+// RegisterProvider 注册AI后端提供者.
 func (a *UnifiedAIAssistant) RegisterProvider(provider AIProvider) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -199,14 +199,14 @@ func (a *UnifiedAIAssistant) RegisterProvider(provider AIProvider) {
 	}
 }
 
-// SetDefaultProvider 设置默认AI后端
+// SetDefaultProvider 设置默认AI后端.
 func (a *UnifiedAIAssistant) SetDefaultProvider(provider AIProvider) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.defaultProvider = provider
 }
 
-// GetProviders 获取所有AI后端
+// GetProviders 获取所有AI后端.
 func (a *UnifiedAIAssistant) GetProviders() []AIProvider {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -215,21 +215,21 @@ func (a *UnifiedAIAssistant) GetProviders() []AIProvider {
 	return providers
 }
 
-// UpdateSystemStatus 更新系统状态
+// UpdateSystemStatus 更新系统状态.
 func (a *UnifiedAIAssistant) UpdateSystemStatus(status *SystemStatus) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.systemStatus = status
 }
 
-// UpdateStorageStatus 更新存储状态
+// UpdateStorageStatus 更新存储状态.
 func (a *UnifiedAIAssistant) UpdateStorageStatus(status *StorageStatus) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.storageStatus = status
 }
 
-// getSystemContext 获取系统上下文信息
+// getSystemContext 获取系统上下文信息.
 func (a *UnifiedAIAssistant) getSystemContext() map[string]string {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -254,7 +254,7 @@ func (a *UnifiedAIAssistant) getSystemContext() map[string]string {
 	return context
 }
 
-// classifyQuery 分类查询意图
+// classifyQuery 分类查询意图.
 func (a *UnifiedAIAssistant) classifyQuery(query string) AIAction {
 	query = strings.ToLower(query)
 
@@ -302,7 +302,7 @@ func (a *UnifiedAIAssistant) classifyQuery(query string) AIAction {
 	return ActionQuery
 }
 
-// addMessage 添加消息到对话历史
+// addMessage 添加消息到对话历史.
 func (a *UnifiedAIAssistant) addMessage(sessionID string, msg Message) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -322,7 +322,7 @@ func (a *UnifiedAIAssistant) addMessage(sessionID string, msg Message) {
 	a.conversations[sessionID] = history
 }
 
-// GetConversationHistory 获取对话历史
+// GetConversationHistory 获取对话历史.
 func (a *UnifiedAIAssistant) GetConversationHistory(sessionID string) []Message {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -337,14 +337,14 @@ func (a *UnifiedAIAssistant) GetConversationHistory(sessionID string) []Message 
 	return result
 }
 
-// ClearConversationHistory 清空对话历史
+// ClearConversationHistory 清空对话历史.
 func (a *UnifiedAIAssistant) ClearConversationHistory(sessionID string) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	delete(a.conversations, sessionID)
 }
 
-// Query 处理自然语言查询
+// Query 处理自然语言查询.
 func (a *UnifiedAIAssistant) Query(sessionID, query string) (*AIResult, error) {
 	if query == "" {
 		return nil, fmt.Errorf("查询内容不能为空")
@@ -414,7 +414,7 @@ func (a *UnifiedAIAssistant) Query(sessionID, query string) (*AIResult, error) {
 	return result, nil
 }
 
-// Diagnose 智能故障诊断
+// Diagnose 智能故障诊断.
 func (a *UnifiedAIAssistant) Diagnose(sessionID, symptom string) (*DiagnosisResult, error) {
 	if symptom == "" {
 		return nil, fmt.Errorf("症状描述不能为空")
@@ -442,7 +442,7 @@ func (a *UnifiedAIAssistant) Diagnose(sessionID, symptom string) (*DiagnosisResu
 	return diagnosis, nil
 }
 
-// performDiagnosis 执行诊断
+// performDiagnosis 执行诊断.
 func (a *UnifiedAIAssistant) performDiagnosis(symptom string) *DiagnosisResult {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -581,7 +581,7 @@ func (a *UnifiedAIAssistant) performDiagnosis(symptom string) *DiagnosisResult {
 	return diagnosis
 }
 
-// formatDiagnosisResponse 格式化诊断响应
+// formatDiagnosisResponse 格式化诊断响应.
 func (a *UnifiedAIAssistant) formatDiagnosisResponse(diagnosis *DiagnosisResult) string {
 	var sb strings.Builder
 
@@ -608,7 +608,7 @@ func (a *UnifiedAIAssistant) formatDiagnosisResponse(diagnosis *DiagnosisResult)
 	return sb.String()
 }
 
-// Suggest 生成操作建议
+// Suggest 生成操作建议.
 func (a *UnifiedAIAssistant) Suggest(sessionID, scenario string) ([]*Suggestion, error) {
 	if scenario == "" {
 		return nil, fmt.Errorf("场景描述不能为空")
@@ -636,7 +636,7 @@ func (a *UnifiedAIAssistant) Suggest(sessionID, scenario string) ([]*Suggestion,
 	return suggestions, nil
 }
 
-// generateSuggestions 生成建议
+// generateSuggestions 生成建议.
 func (a *UnifiedAIAssistant) generateSuggestions(scenario string) []*Suggestion {
 	scenario = strings.ToLower(scenario)
 	suggestions := make([]*Suggestion, 0)
@@ -729,7 +729,7 @@ func (a *UnifiedAIAssistant) generateSuggestions(scenario string) []*Suggestion 
 	return suggestions
 }
 
-// formatSuggestionsResponse 格式化建议响应
+// formatSuggestionsResponse 格式化建议响应.
 func (a *UnifiedAIAssistant) formatSuggestionsResponse(suggestions []*Suggestion) string {
 	var sb strings.Builder
 
@@ -752,7 +752,7 @@ func (a *UnifiedAIAssistant) formatSuggestionsResponse(suggestions []*Suggestion
 	return sb.String()
 }
 
-// GetStatus 获取系统状态概览
+// GetStatus 获取系统状态概览.
 func (a *UnifiedAIAssistant) GetStatus() map[string]interface{} {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -788,7 +788,7 @@ func (a *UnifiedAIAssistant) GetStatus() map[string]interface{} {
 	return status
 }
 
-// formatStatusResponse 格式化状态响应
+// formatStatusResponse 格式化状态响应.
 func (a *UnifiedAIAssistant) formatStatusResponse() string {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -826,7 +826,7 @@ func (a *UnifiedAIAssistant) formatStatusResponse() string {
 	return sb.String()
 }
 
-// formatHelpResponse 格式化帮助响应
+// formatHelpResponse 格式化帮助响应.
 func (a *UnifiedAIAssistant) formatHelpResponse() string {
 	return `🤖 NAS智能助手 - 使用帮助
 ━━━━━━━━━━━━━━━━━━━━
@@ -870,7 +870,7 @@ func (a *UnifiedAIAssistant) formatHelpResponse() string {
 `
 }
 
-// parseCommand 解析命令
+// parseCommand 解析命令.
 func (a *UnifiedAIAssistant) parseCommand(input string) (AIAction, string) {
 	input = strings.TrimSpace(input)
 
@@ -895,7 +895,7 @@ func (a *UnifiedAIAssistant) parseCommand(input string) (AIAction, string) {
 	return ActionQuery, input
 }
 
-// ExecuteCommand 执行命令
+// ExecuteCommand 执行命令.
 func (a *UnifiedAIAssistant) ExecuteCommand(sessionID, command string) (*AIResult, error) {
 	action, content := a.parseCommand(command)
 
@@ -943,7 +943,7 @@ func (a *UnifiedAIAssistant) ExecuteCommand(sessionID, command string) (*AIResul
 	}
 }
 
-// GetStats 获取助手统计信息
+// GetStats 获取助手统计信息.
 func (a *UnifiedAIAssistant) GetStats() map[string]interface{} {
 	a.mu.RLock()
 	defer a.mu.RUnlock()

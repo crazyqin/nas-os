@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// TestChangeEventCreation 测试变更事件创建
+// TestChangeEventCreation 测试变更事件创建.
 func TestChangeEventCreation(t *testing.T) {
 	event := &ChangeEvent{
 		ID:           "evt-001",
@@ -48,7 +48,7 @@ func TestChangeEventCreation(t *testing.T) {
 	}
 }
 
-// TestRecoveryPointCreation 测试恢复点创建
+// TestRecoveryPointCreation 测试恢复点创建.
 func TestRecoveryPointCreation(t *testing.T) {
 	now := time.Now()
 	events := []*ChangeEvent{
@@ -107,7 +107,7 @@ func TestRecoveryPointCreation(t *testing.T) {
 	}
 }
 
-// TestCDPolicy 测试保护策略
+// TestCDPolicy 测试保护策略.
 func TestCDPolicy(t *testing.T) {
 	policy := &CDPolicy{
 		ID:              "policy-001",
@@ -173,7 +173,7 @@ func TestCDPolicy(t *testing.T) {
 	}
 }
 
-// TestStorageBackend 测试存储后端
+// TestStorageBackend 测试存储后端.
 func TestStorageBackend(t *testing.T) {
 	backend := &StorageBackend{
 		ID:          "backend-local-001",
@@ -234,7 +234,7 @@ func TestStorageBackend(t *testing.T) {
 	}
 }
 
-// TestRetentionManager 测试保留策略
+// TestRetentionManager 测试保留策略.
 func TestRetentionManager(t *testing.T) {
 	// 测试按时间保留
 	timeRetention := &RetentionManager{
@@ -289,7 +289,7 @@ func TestRetentionManager(t *testing.T) {
 	}
 }
 
-// TestPointInTimeRecovery 测试时间点恢复
+// TestPointInTimeRecovery 测试时间点恢复.
 func TestPointInTimeRecovery(t *testing.T) {
 	targetTime := time.Now().Add(-2 * time.Hour)
 
@@ -344,7 +344,7 @@ func TestPointInTimeRecovery(t *testing.T) {
 	}
 }
 
-// TestReplicationManager 测试复制管理器
+// TestReplicationManager 测试复制管理器.
 func TestReplicationManager(t *testing.T) {
 	source := &StorageBackend{
 		ID:       "source-001",
@@ -415,7 +415,7 @@ func TestReplicationManager(t *testing.T) {
 	}
 }
 
-// TestCDPEngine 测试CDP引擎
+// TestCDPEngine 测试CDP引擎.
 func TestCDPEngine(t *testing.T) {
 	config := &EngineConfig{
 		WatchPaths:          []string{"/data/documents", "/data/projects"},
@@ -512,7 +512,7 @@ func TestCDPEngine(t *testing.T) {
 	}
 }
 
-// TestDedupStats 测试去重统计
+// TestDedupStats 测试去重统计.
 func TestDedupStats(t *testing.T) {
 	stats := &DedupStats{
 		TotalChunks:     10000,
@@ -547,7 +547,7 @@ func TestDedupStats(t *testing.T) {
 	}
 }
 
-// TestEventTypeConstants 测试事件类型常量
+// TestEventTypeConstants 测试事件类型常量.
 func TestEventTypeConstants(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -569,7 +569,7 @@ func TestEventTypeConstants(t *testing.T) {
 	}
 }
 
-// TestRecoveryStatusConstants 测试恢复状态常量
+// TestRecoveryStatusConstants 测试恢复状态常量.
 func TestRecoveryStatusConstants(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -592,7 +592,7 @@ func TestRecoveryStatusConstants(t *testing.T) {
 	}
 }
 
-// abs 返回浮点数的绝对值
+// abs 返回浮点数的绝对值.
 func abs(x float64) float64 {
 	if x < 0 {
 		return -x

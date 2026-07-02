@@ -27,7 +27,7 @@ var (
 // 场景管理
 // ============================================================
 
-// AddScene 添加自动化场景
+// AddScene 添加自动化场景.
 func (m *Manager) AddScene(scene *Scene) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -63,7 +63,7 @@ func (m *Manager) AddScene(scene *Scene) error {
 	return nil
 }
 
-// GetScene 获取场景
+// GetScene 获取场景.
 func (m *Manager) GetScene(id string) (*Scene, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -75,7 +75,7 @@ func (m *Manager) GetScene(id string) (*Scene, error) {
 	return scene, nil
 }
 
-// ListScenes 列出所有场景
+// ListScenes 列出所有场景.
 func (m *Manager) ListScenes() []*Scene {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -87,7 +87,7 @@ func (m *Manager) ListScenes() []*Scene {
 	return scenes
 }
 
-// UpdateScene 更新场景
+// UpdateScene 更新场景.
 func (m *Manager) UpdateScene(id string, update *Scene) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -133,7 +133,7 @@ func (m *Manager) UpdateScene(id string, update *Scene) error {
 	return nil
 }
 
-// DeleteScene 删除场景
+// DeleteScene 删除场景.
 func (m *Manager) DeleteScene(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -153,7 +153,7 @@ func (m *Manager) DeleteScene(id string) error {
 	return nil
 }
 
-// EnableScene 启用场景
+// EnableScene 启用场景.
 func (m *Manager) EnableScene(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -168,7 +168,7 @@ func (m *Manager) EnableScene(id string) error {
 	return nil
 }
 
-// DisableScene 禁用场景
+// DisableScene 禁用场景.
 func (m *Manager) DisableScene(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -183,7 +183,7 @@ func (m *Manager) DisableScene(id string) error {
 	return nil
 }
 
-// ExecuteScene 执行场景
+// ExecuteScene 执行场景.
 func (m *Manager) ExecuteScene(id string) error {
 	m.mu.Lock()
 	scene, ok := m.scenes[id]
@@ -216,7 +216,7 @@ func (m *Manager) ExecuteScene(id string) error {
 // 条件评估
 // ============================================================
 
-// evaluateConditions 评估所有条件（AND逻辑）
+// evaluateConditions 评估所有条件（AND逻辑）.
 func (m *Manager) evaluateConditions(conditions []Condition) bool {
 	for _, cond := range conditions {
 		if !m.evaluateCondition(cond) {
@@ -226,7 +226,7 @@ func (m *Manager) evaluateConditions(conditions []Condition) bool {
 	return true
 }
 
-// evaluateCondition 评估单个条件
+// evaluateCondition 评估单个条件.
 func (m *Manager) evaluateCondition(cond Condition) bool {
 	device, ok := m.devices[cond.DeviceID]
 	if !ok {
@@ -241,7 +241,7 @@ func (m *Manager) evaluateCondition(cond Condition) bool {
 	return compareValues(currentValue, cond.Value, cond.Operator)
 }
 
-// compareValues 比较两个值
+// compareValues 比较两个值.
 func compareValues(current, expected any, op ComparisonOperator) bool {
 	switch op {
 	case OpEqual:
@@ -263,7 +263,7 @@ func compareValues(current, expected any, op ComparisonOperator) bool {
 	}
 }
 
-// toFloat64 将值转换为float64
+// toFloat64 将值转换为float64.
 func toFloat64(v any) float64 {
 	switch val := v.(type) {
 	case float64:
@@ -283,7 +283,7 @@ func toFloat64(v any) float64 {
 	}
 }
 
-// contains 检查字符串是否包含子串
+// contains 检查字符串是否包含子串.
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && (s == substr || len(substr) == 0 || findSubstring(s, substr))
 }
@@ -301,7 +301,7 @@ func findSubstring(s, substr string) bool {
 // 动作执行
 // ============================================================
 
-// executeActions 执行一组动作
+// executeActions 执行一组动作.
 func (m *Manager) executeActions(actions []Action) error {
 	for _, action := range actions {
 		if err := m.executeAction(action); err != nil {
@@ -311,7 +311,7 @@ func (m *Manager) executeActions(actions []Action) error {
 	return nil
 }
 
-// executeAction 执行单个动作
+// executeAction 执行单个动作.
 func (m *Manager) executeAction(action Action) error {
 	switch action.Type {
 	case ActionTypeDeviceControl:
@@ -327,7 +327,7 @@ func (m *Manager) executeAction(action Action) error {
 	}
 }
 
-// executeDeviceControl 执行设备控制动作
+// executeDeviceControl 执行设备控制动作.
 func (m *Manager) executeDeviceControl(action Action) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -355,7 +355,7 @@ func (m *Manager) executeDeviceControl(action Action) error {
 	return nil
 }
 
-// executeNotification 执行通知动作
+// executeNotification 执行通知动作.
 func (m *Manager) executeNotification(action Action) error {
 	// 通知功能可以扩展为推送、邮件、短信等
 	// 这里只记录事件
@@ -372,7 +372,7 @@ func (m *Manager) executeNotification(action Action) error {
 	return nil
 }
 
-// executeDelay 执行延时动作
+// executeDelay 执行延时动作.
 func (m *Manager) executeDelay(action Action) error {
 	if action.DelayMs > 0 {
 		time.Sleep(time.Duration(action.DelayMs) * time.Millisecond)
@@ -384,7 +384,7 @@ func (m *Manager) executeDelay(action Action) error {
 // 定时任务管理
 // ============================================================
 
-// AddScheduledTask 添加定时任务
+// AddScheduledTask 添加定时任务.
 func (m *Manager) AddScheduledTask(task *ScheduledTask) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -419,7 +419,7 @@ func (m *Manager) AddScheduledTask(task *ScheduledTask) error {
 	return nil
 }
 
-// GetScheduledTask 获取定时任务
+// GetScheduledTask 获取定时任务.
 func (m *Manager) GetScheduledTask(id string) (*ScheduledTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -431,7 +431,7 @@ func (m *Manager) GetScheduledTask(id string) (*ScheduledTask, error) {
 	return task, nil
 }
 
-// ListScheduledTasks 列出所有定时任务
+// ListScheduledTasks 列出所有定时任务.
 func (m *Manager) ListScheduledTasks() []*ScheduledTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -443,7 +443,7 @@ func (m *Manager) ListScheduledTasks() []*ScheduledTask {
 	return tasks
 }
 
-// UpdateScheduledTask 更新定时任务
+// UpdateScheduledTask 更新定时任务.
 func (m *Manager) UpdateScheduledTask(id string, update *ScheduledTask) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -476,7 +476,7 @@ func (m *Manager) UpdateScheduledTask(id string, update *ScheduledTask) error {
 	return nil
 }
 
-// DeleteScheduledTask 删除定时任务
+// DeleteScheduledTask 删除定时任务.
 func (m *Manager) DeleteScheduledTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -489,7 +489,7 @@ func (m *Manager) DeleteScheduledTask(id string) error {
 	return nil
 }
 
-// ExecuteScheduledTasks 执行到期的定时任务
+// ExecuteScheduledTasks 执行到期的定时任务.
 func (m *Manager) ExecuteScheduledTasks() {
 	m.mu.Lock()
 	tasks := make([]*ScheduledTask, 0)
@@ -514,7 +514,7 @@ func (m *Manager) ExecuteScheduledTasks() {
 	}
 }
 
-// shouldRunTask 检查任务是否应该执行
+// shouldRunTask 检查任务是否应该执行.
 func (m *Manager) shouldRunTask(task *ScheduledTask) bool {
 	parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
 	schedule, err := parser.Parse(task.CronExpr)
@@ -538,7 +538,7 @@ func (m *Manager) shouldRunTask(task *ScheduledTask) bool {
 // 验证函数
 // ============================================================
 
-// validateTrigger 验证触发器
+// validateTrigger 验证触发器.
 func validateTrigger(trigger *Trigger) error {
 	switch trigger.Type {
 	case TriggerTypeDevice:
@@ -562,7 +562,7 @@ func validateTrigger(trigger *Trigger) error {
 	return nil
 }
 
-// validateAction 验证动作
+// validateAction 验证动作.
 func validateAction(action *Action) error {
 	switch action.Type {
 	case ActionTypeDeviceControl:

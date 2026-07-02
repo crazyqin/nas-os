@@ -459,7 +459,7 @@ func TestExtractMentions(t *testing.T) {
 	}
 }
 
-// helper
+// helper.
 func abs(x float64) float64 {
 	if x < 0 {
 		return -x

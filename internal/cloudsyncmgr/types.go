@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// 常量别名 - 兼容 manager.go 引用
+// 常量别名 - 兼容 manager.go 引用.
 const (
 	ProviderS3       = ProviderType("s3")
 	ProviderOSS      = ProviderType("oss")

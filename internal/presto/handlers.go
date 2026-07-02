@@ -9,14 +9,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handlers Presto HTTP 处理器
+// Handlers Presto HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 	server  *Server
 	logger  *zap.Logger
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager, server *Server, logger *zap.Logger) *Handlers {
 	return &Handlers{
 		manager: manager,
@@ -25,7 +25,7 @@ func NewHandlers(manager *Manager, server *Server, logger *zap.Logger) *Handlers
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	presto := api.Group("/presto")
 	{
@@ -65,7 +65,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 // @Success 201 {object} TransferInfo
 // @Failure 400 {object} ErrorResponse
 // @Failure 429 {object} ErrorResponse
-// @Router /api/v1/presto/transfers [post]
+// @Router /api/v1/presto/transfers [post].
 func (h *Handlers) CreateTransfer(c *gin.Context) {
 	var req CreateTransferRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -114,7 +114,7 @@ func (h *Handlers) CreateTransfer(c *gin.Context) {
 // @Produce json
 // @Param status query string false "状态过滤" Enums(pending, running, paused, completed, failed, cancelled)
 // @Success 200 {array} TransferInfo
-// @Router /api/v1/presto/transfers [get]
+// @Router /api/v1/presto/transfers [get].
 func (h *Handlers) ListTransfers(c *gin.Context) {
 	transfers := h.manager.ListTransfers()
 	statusFilter := c.Query("status")
@@ -138,7 +138,7 @@ func (h *Handlers) ListTransfers(c *gin.Context) {
 // @Param id path string true "传输任务 ID"
 // @Success 200 {object} TransferInfo
 // @Failure 404 {object} ErrorResponse
-// @Router /api/v1/presto/transfers/{id} [get]
+// @Router /api/v1/presto/transfers/{id} [get].
 func (h *Handlers) GetTransfer(c *gin.Context) {
 	id := c.Param("id")
 
@@ -163,7 +163,7 @@ func (h *Handlers) GetTransfer(c *gin.Context) {
 // @Success 200 {object} SuccessResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
-// @Router /api/v1/presto/transfers/{id}/cancel [post]
+// @Router /api/v1/presto/transfers/{id}/cancel [post].
 func (h *Handlers) CancelTransfer(c *gin.Context) {
 	id := c.Param("id")
 
@@ -197,7 +197,7 @@ func (h *Handlers) CancelTransfer(c *gin.Context) {
 // @Success 200 {object} SuccessResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
-// @Router /api/v1/presto/transfers/{id}/pause [post]
+// @Router /api/v1/presto/transfers/{id}/pause [post].
 func (h *Handlers) PauseTransfer(c *gin.Context) {
 	id := c.Param("id")
 
@@ -231,7 +231,7 @@ func (h *Handlers) PauseTransfer(c *gin.Context) {
 // @Success 200 {object} SuccessResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
-// @Router /api/v1/presto/transfers/{id}/resume [post]
+// @Router /api/v1/presto/transfers/{id}/resume [post].
 func (h *Handlers) ResumeTransfer(c *gin.Context) {
 	id := c.Param("id")
 
@@ -265,7 +265,7 @@ func (h *Handlers) ResumeTransfer(c *gin.Context) {
 // @Success 200 {object} SuccessResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
-// @Router /api/v1/presto/transfers/{id} [delete]
+// @Router /api/v1/presto/transfers/{id} [delete].
 func (h *Handlers) DeleteTransfer(c *gin.Context) {
 	id := c.Param("id")
 
@@ -305,7 +305,7 @@ func (h *Handlers) DeleteTransfer(c *gin.Context) {
 // @Tags presto
 // @Produce json
 // @Success 200 {object} Stats
-// @Router /api/v1/presto/stats [get]
+// @Router /api/v1/presto/stats [get].
 func (h *Handlers) GetStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, stats)
@@ -317,7 +317,7 @@ func (h *Handlers) GetStats(c *gin.Context) {
 // @Tags presto
 // @Produce json
 // @Success 200 {object} ServerStatusResponse
-// @Router /api/v1/presto/server/status [get]
+// @Router /api/v1/presto/server/status [get].
 func (h *Handlers) GetServerStatus(c *gin.Context) {
 	if h.server == nil {
 		c.JSON(http.StatusOK, ServerStatusResponse{
@@ -350,7 +350,7 @@ func (h *Handlers) GetServerStatus(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} SuccessResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /api/v1/presto/server/start [post]
+// @Router /api/v1/presto/server/start [post].
 func (h *Handlers) StartServer(c *gin.Context) {
 	if h.server == nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{
@@ -389,7 +389,7 @@ func (h *Handlers) StartServer(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} SuccessResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /api/v1/presto/server/stop [post]
+// @Router /api/v1/presto/server/stop [post].
 func (h *Handlers) StopServer(c *gin.Context) {
 	if h.server == nil {
 		c.JSON(http.StatusOK, SuccessResponse{
@@ -427,7 +427,7 @@ func (h *Handlers) StopServer(c *gin.Context) {
 // @Tags presto
 // @Produce json
 // @Success 200 {object} ConfigResponse
-// @Router /api/v1/presto/config [get]
+// @Router /api/v1/presto/config [get].
 func (h *Handlers) GetConfig(c *gin.Context) {
 	cfg := h.server.config
 	c.JSON(http.StatusOK, ConfigResponse{
@@ -453,7 +453,7 @@ func (h *Handlers) GetConfig(c *gin.Context) {
 // @Param request body UpdateConfigRequest true "配置更新请求"
 // @Success 200 {object} SuccessResponse
 // @Failure 400 {object} ErrorResponse
-// @Router /api/v1/presto/config [put]
+// @Router /api/v1/presto/config [put].
 func (h *Handlers) UpdateConfig(c *gin.Context) {
 	var req UpdateConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -493,7 +493,7 @@ func (h *Handlers) UpdateConfig(c *gin.Context) {
 // @Produce json
 // @Param hours query int false "清理多少小时前的任务" default(24)
 // @Success 200 {object} CleanupResponse
-// @Router /api/v1/presto/cleanup [post]
+// @Router /api/v1/presto/cleanup [post].
 func (h *Handlers) CleanupTransfers(c *gin.Context) {
 	hoursStr := c.DefaultQuery("hours", "24")
 	hours, err := strconv.Atoi(hoursStr)
@@ -512,7 +512,7 @@ func (h *Handlers) CleanupTransfers(c *gin.Context) {
 
 // 请求/响应结构体
 
-// CreateTransferRequest 创建传输请求
+// CreateTransferRequest 创建传输请求.
 type CreateTransferRequest struct {
 	Name       string `json:"name" binding:"required"`
 	SourcePath string `json:"source_path" binding:"required"`
@@ -520,7 +520,7 @@ type CreateTransferRequest struct {
 	Mode       string `json:"mode"` // send/recv
 }
 
-// UpdateConfigRequest 更新配置请求
+// UpdateConfigRequest 更新配置请求.
 type UpdateConfigRequest struct {
 	MaxConcurrent    int   `json:"max_concurrent"`
 	ChunkSize        int   `json:"chunk_size"`
@@ -528,19 +528,19 @@ type UpdateConfigRequest struct {
 	SpeedLimit       int64 `json:"speed_limit"`
 }
 
-// ErrorResponse 错误响应
+// ErrorResponse 错误响应.
 type ErrorResponse struct {
 	Error   string `json:"error"`
 	Message string `json:"message"`
 }
 
-// SuccessResponse 成功响应
+// SuccessResponse 成功响应.
 type SuccessResponse struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 }
 
-// ServerStatusResponse 服务端状态响应
+// ServerStatusResponse 服务端状态响应.
 type ServerStatusResponse struct {
 	Status    string    `json:"status"`
 	Message   string    `json:"message"`
@@ -548,7 +548,7 @@ type ServerStatusResponse struct {
 	StartTime time.Time `json:"start_time,omitempty"`
 }
 
-// ConfigResponse 配置响应
+// ConfigResponse 配置响应.
 type ConfigResponse struct {
 	ListenAddr        string `json:"listen_addr"`
 	MaxConcurrent     int    `json:"max_concurrent"`
@@ -562,7 +562,7 @@ type ConfigResponse struct {
 	EnableMTLS        bool   `json:"enable_mtls"`
 }
 
-// CleanupResponse 清理响应
+// CleanupResponse 清理响应.
 type CleanupResponse struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`

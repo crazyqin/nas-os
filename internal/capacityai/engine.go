@@ -8,51 +8,51 @@ import (
 	"time"
 )
 
-// StoragePool 存储池信息
+// StoragePool 存储池信息.
 type StoragePool struct {
-	ID          string  `json:"id"`
-	Name        string  `json:"name"`
-	TotalBytes  int64   `json:"totalBytes"`
-	UsedBytes   int64   `json:"usedBytes"`
-	FreeBytes   int64   `json:"freeBytes"`
-	UsageRatio  float64 `json:"usageRatio"`
-	PoolType    string  `json:"poolType"` // single, mirror, raidz1, raidz2, raidz3
-	Tier        string  `json:"tier"`     // nvme, ssd, hdd
+	ID         string  `json:"id"`
+	Name       string  `json:"name"`
+	TotalBytes int64   `json:"totalBytes"`
+	UsedBytes  int64   `json:"usedBytes"`
+	FreeBytes  int64   `json:"freeBytes"`
+	UsageRatio float64 `json:"usageRatio"`
+	PoolType   string  `json:"poolType"` // single, mirror, raidz1, raidz2, raidz3
+	Tier       string  `json:"tier"`     // nvme, ssd, hdd
 }
 
-// CapacityForecast 容量预测
+// CapacityForecast 容量预测.
 type CapacityForecast struct {
-	PoolID          string    `json:"poolId"`
-	PoolName        string    `json:"poolName"`
-	CurrentUsage    float64   `json:"currentUsage"`
-	PredictedUsage  float64   `json:"predictedUsage"` // 30天后
-	DaysUntilFull   int       `json:"daysUntilFull"`
-	GrowthRateGB    float64   `json:"growthRateGB"` // 每日增长GB
-	Recommendation  string    `json:"recommendation"`
-	Urgency         string    `json:"urgency"` // low, medium, high, critical
-	ForecastTime    time.Time `json:"forecastTime"`
+	PoolID         string    `json:"poolId"`
+	PoolName       string    `json:"poolName"`
+	CurrentUsage   float64   `json:"currentUsage"`
+	PredictedUsage float64   `json:"predictedUsage"` // 30天后
+	DaysUntilFull  int       `json:"daysUntilFull"`
+	GrowthRateGB   float64   `json:"growthRateGB"` // 每日增长GB
+	Recommendation string    `json:"recommendation"`
+	Urgency        string    `json:"urgency"` // low, medium, high, critical
+	ForecastTime   time.Time `json:"forecastTime"`
 }
 
-// CostOptimization 成本优化建议
+// CostOptimization 成本优化建议.
 type CostOptimization struct {
-	ID          string  `json:"id"`
-	Type        string  `json:"type"` // tier_migration, dedup, compress, expand
-	Description string  `json:"description"`
+	ID            string  `json:"id"`
+	Type          string  `json:"type"` // tier_migration, dedup, compress, expand
+	Description   string  `json:"description"`
 	EstimatedSave float64 `json:"estimatedSave"` // 预估节省金额
-	Priority    string  `json:"priority"`
-	Action      string  `json:"action"`
+	Priority      string  `json:"priority"`
+	Action        string  `json:"action"`
 }
 
 // CapacityAI AI容量规划与成本优化
-// 对标 TrueNAS 成本效益分析 + 群晖存储分析
+// 对标 TrueNAS 成本效益分析 + 群晖存储分析.
 type CapacityAI struct {
-	mu         sync.RWMutex
-	pools      map[string]*StoragePool
-	forecasts  []CapacityForecast
+	mu            sync.RWMutex
+	pools         map[string]*StoragePool
+	forecasts     []CapacityForecast
 	optimizations []CostOptimization
-	growthHist []GrowthSample
-	stopCh     chan struct{}
-	running    bool
+	growthHist    []GrowthSample
+	stopCh        chan struct{}
+	running       bool
 }
 
 type GrowthSample struct {
@@ -61,18 +61,18 @@ type GrowthSample struct {
 	UsedBytes int64     `json:"usedBytes"`
 }
 
-// NewCapacityAI 创建容量AI
+// NewCapacityAI 创建容量AI.
 func NewCapacityAI() *CapacityAI {
 	return &CapacityAI{
-		pools:      make(map[string]*StoragePool),
-		forecasts:  make([]CapacityForecast, 0),
+		pools:         make(map[string]*StoragePool),
+		forecasts:     make([]CapacityForecast, 0),
 		optimizations: make([]CostOptimization, 0),
-		growthHist: make([]GrowthSample, 0),
-		stopCh:     make(chan struct{}),
+		growthHist:    make([]GrowthSample, 0),
+		stopCh:        make(chan struct{}),
 	}
 }
 
-// Start 启动
+// Start 启动.
 func (c *CapacityAI) Start() {
 	c.mu.Lock()
 	if c.running {
@@ -85,7 +85,7 @@ func (c *CapacityAI) Start() {
 	log.Println("[CapacityAI] AI容量规划已启动")
 }
 
-// Stop 停止
+// Stop 停止.
 func (c *CapacityAI) Stop() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -97,7 +97,7 @@ func (c *CapacityAI) Stop() {
 	log.Println("[CapacityAI] AI容量规划已停止")
 }
 
-// RegisterPool 注册存储池
+// RegisterPool 注册存储池.
 func (c *CapacityAI) RegisterPool(pool StoragePool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -108,7 +108,7 @@ func (c *CapacityAI) RegisterPool(pool StoragePool) {
 	c.pools[pool.ID] = &pool
 }
 
-// RecordUsage 记录使用量
+// RecordUsage 记录使用量.
 func (c *CapacityAI) RecordUsage(poolID string, usedBytes int64) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -135,7 +135,7 @@ func (c *CapacityAI) RecordUsage(poolID string, usedBytes int64) {
 	}
 }
 
-// analyze 执行分析
+// analyze 执行分析.
 func (c *CapacityAI) analyze() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -223,12 +223,12 @@ func (c *CapacityAI) calculateGrowthRate(poolID string) float64 {
 func (c *CapacityAI) generateOptimizations(pool *StoragePool) {
 	if pool.UsageRatio > 0.7 {
 		c.optimizations = append(c.optimizations, CostOptimization{
-			ID:          "opt-" + pool.ID + "-tier",
-			Type:        "tier_migration",
-			Description: "将冷数据迁移到低层级存储可释放 " + pool.Name + " 空间",
+			ID:            "opt-" + pool.ID + "-tier",
+			Type:          "tier_migration",
+			Description:   "将冷数据迁移到低层级存储可释放 " + pool.Name + " 空间",
 			EstimatedSave: float64(pool.UsedBytes) * 0.3 / (1024 * 1024 * 1024) * 0.1,
-			Priority:    "medium",
-			Action:      "启用智能分层引擎",
+			Priority:      "medium",
+			Action:        "启用智能分层引擎",
 		})
 	}
 	if pool.PoolType == "raidz1" && pool.UsageRatio > 0.6 {
@@ -268,21 +268,21 @@ func (c *CapacityAI) analysisLoop() {
 	}
 }
 
-// GetForecasts 获取预测
+// GetForecasts 获取预测.
 func (c *CapacityAI) GetForecasts() []CapacityForecast {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.forecasts
 }
 
-// GetOptimizations 获取优化建议
+// GetOptimizations 获取优化建议.
 func (c *CapacityAI) GetOptimizations() []CostOptimization {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.optimizations
 }
 
-// GetPools 获取存储池
+// GetPools 获取存储池.
 func (c *CapacityAI) GetPools() []StoragePool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -293,5 +293,5 @@ func (c *CapacityAI) GetPools() []StoragePool {
 	return result
 }
 
-// suppress unused import
+// suppress unused import.
 var _ = math.Log

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Step 向导步骤
+// Step 向导步骤.
 type Step string
 
 const (
@@ -21,7 +21,7 @@ const (
 	StepComplete      Step = "complete"       // 完成
 )
 
-// RAIDType RAID类型
+// RAIDType RAID类型.
 type RAIDType string
 
 const (
@@ -36,7 +36,7 @@ const (
 	RAIDZ3    RAIDType = "raidz3" // ZFS RAIDZ3
 )
 
-// DiskInfo 磁盘信息
+// DiskInfo 磁盘信息.
 type DiskInfo struct {
 	ID          string `json:"id"`
 	Device      string `json:"device"`
@@ -50,7 +50,7 @@ type DiskInfo struct {
 	Interface   string `json:"interface"`   // sata/sas/nvme/usb
 }
 
-// RAIDConfig RAID配置
+// RAIDConfig RAID配置.
 type RAIDConfig struct {
 	Type       RAIDType `json:"type"`
 	Disks      []string `json:"disks"`       // 磁盘ID列表
@@ -58,7 +58,7 @@ type RAIDConfig struct {
 	Spares     int      `json:"spares"`      // 热备盘数量
 }
 
-// PoolConfig 存储池配置
+// PoolConfig 存储池配置.
 type PoolConfig struct {
 	Name        string     `json:"name"`
 	RAID        RAIDConfig `json:"raid"`
@@ -68,7 +68,7 @@ type PoolConfig struct {
 	Quota       int64      `json:"quota"` // 配额（字节，0为无限制）
 }
 
-// VolumeConfig 卷配置
+// VolumeConfig 卷配置.
 type VolumeConfig struct {
 	Name       string `json:"name"`
 	PoolName   string `json:"pool_name"`
@@ -78,7 +78,7 @@ type VolumeConfig struct {
 	Quota      int64  `json:"quota"`
 }
 
-// ShareConfig 共享配置
+// ShareConfig 共享配置.
 type ShareConfig struct {
 	Name        string   `json:"name"`
 	Path        string   `json:"path"`
@@ -89,7 +89,7 @@ type ShareConfig struct {
 	Groups      []string `json:"groups"`
 }
 
-// SetupSession 设置会话
+// SetupSession 设置会话.
 type SetupSession struct {
 	ID          string       `json:"id"`
 	CurrentStep Step         `json:"current_step"`
@@ -104,7 +104,7 @@ type SetupSession struct {
 	Error       string       `json:"error,omitempty"`
 }
 
-// RAIDRecommendation RAID推荐
+// RAIDRecommendation RAID推荐.
 type RAIDRecommendation struct {
 	Type           RAIDType `json:"type"`
 	Description    string   `json:"description"`
@@ -117,14 +117,14 @@ type RAIDRecommendation struct {
 	Reason         string   `json:"reason"`          // 推荐原因
 }
 
-// DiskRecommendation 磁盘推荐
+// DiskRecommendation 磁盘推荐.
 type DiskRecommendation struct {
 	DiskID string `json:"disk_id"`
 	Role   string `json:"role"` // data/spare/cache/log
 	Reason string `json:"reason"`
 }
 
-// CapacityEstimation 容量估算
+// CapacityEstimation 容量估算.
 type CapacityEstimation struct {
 	TotalRaw    int64   `json:"total_raw"`    // 原始总容量
 	Usable      int64   `json:"usable"`       // 可用容量
@@ -133,7 +133,7 @@ type CapacityEstimation struct {
 	Recommended bool    `json:"recommended"`  // 是否推荐此配置
 }
 
-// DefaultRAIDDefaults 返回默认RAID配置
+// DefaultRAIDDefaults 返回默认RAID配置.
 func DefaultRAIDDefaults() RAIDConfig {
 	return RAIDConfig{
 		Type:       RAID1,
@@ -142,7 +142,7 @@ func DefaultRAIDDefaults() RAIDConfig {
 	}
 }
 
-// DefaultPoolDefaults 返回默认存储池配置
+// DefaultPoolDefaults 返回默认存储池配置.
 func DefaultPoolDefaults() PoolConfig {
 	return PoolConfig{
 		Compression: "lz4",
@@ -152,7 +152,7 @@ func DefaultPoolDefaults() PoolConfig {
 	}
 }
 
-// DefaultVolumeDefaults 返回默认卷配置
+// DefaultVolumeDefaults 返回默认卷配置.
 func DefaultVolumeDefaults() VolumeConfig {
 	return VolumeConfig{
 		FileSystem: "btrfs",
@@ -160,7 +160,7 @@ func DefaultVolumeDefaults() VolumeConfig {
 	}
 }
 
-// ValidateRAIDConfig 验证RAID配置
+// ValidateRAIDConfig 验证RAID配置.
 func ValidateRAIDConfig(config RAIDConfig, disks []DiskInfo) error {
 	if len(config.Disks) == 0 {
 		return fmt.Errorf("至少需要选择一个磁盘")
@@ -216,7 +216,7 @@ func ValidateRAIDConfig(config RAIDConfig, disks []DiskInfo) error {
 	return nil
 }
 
-// RecommendRAID 根据磁盘数量和用途推荐RAID类型
+// RecommendRAID 根据磁盘数量和用途推荐RAID类型.
 func RecommendRAID(diskCount int, priority string) []RAIDRecommendation {
 	var recommendations []RAIDRecommendation
 
@@ -344,7 +344,7 @@ func RecommendRAID(diskCount int, priority string) []RAIDRecommendation {
 	return recommendations
 }
 
-// EstimateCapacity 估算可用容量
+// EstimateCapacity 估算可用容量.
 func EstimateCapacity(diskCount int, minDiskSize int64, raidType RAIDType) CapacityEstimation {
 	totalRaw := minDiskSize * int64(diskCount)
 

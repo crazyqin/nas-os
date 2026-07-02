@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Config 推荐引擎配置
+// Config 推荐引擎配置.
 type Config struct {
 	CacheTTL    time.Duration `json:"cache_ttl"`
 	MaxResults  int           `json:"max_results"`
@@ -14,7 +14,7 @@ type Config struct {
 	Weights     Weights       `json:"weights"`
 }
 
-// Weights 推荐算法权重
+// Weights 推荐算法权重.
 type Weights struct {
 	TimeDecay     float64 `json:"time_decay"`    // 时间衰减权重 0.3
 	Frequency     float64 `json:"frequency"`     // 频率权重 0.3
@@ -22,7 +22,7 @@ type Weights struct {
 	Content       float64 `json:"content"`       // 内容相似度权重 0.2
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		CacheTTL:    30 * time.Minute,
@@ -38,7 +38,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// UserProfile 用户画像
+// UserProfile 用户画像.
 type UserProfile struct {
 	UserID        string             `json:"user_id"`
 	AccessHistory []AccessRecord     `json:"access_history"`
@@ -46,7 +46,7 @@ type UserProfile struct {
 	LastActive    time.Time          `json:"last_active"`
 }
 
-// FileItem 文件信息
+// FileItem 文件信息.
 type FileItem struct {
 	FileID    string            `json:"file_id"`
 	Name      string            `json:"name"`
@@ -59,7 +59,7 @@ type FileItem struct {
 	UpdatedAt time.Time         `json:"updated_at"`
 }
 
-// AccessRecord 访问记录
+// AccessRecord 访问记录.
 type AccessRecord struct {
 	UserID    string    `json:"user_id"`
 	FileID    string    `json:"file_id"`
@@ -67,7 +67,7 @@ type AccessRecord struct {
 	Action    string    `json:"action"` // view, edit, download
 }
 
-// Recommendation 推荐结果
+// Recommendation 推荐结果.
 type Recommendation struct {
 	FileID    string    `json:"file_id"`
 	Name      string    `json:"name"`
@@ -77,13 +77,13 @@ type Recommendation struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// CacheEntry 缓存条目
+// CacheEntry 缓存条目.
 type CacheEntry struct {
 	Recommendations []Recommendation `json:"recommendations"`
 	ExpiresAt       time.Time        `json:"expires_at"`
 }
 
-// Engine 推荐引擎
+// Engine 推荐引擎.
 type Engine struct {
 	config    *Config
 	mu        sync.RWMutex
@@ -93,7 +93,7 @@ type Engine struct {
 	accessLog []AccessRecord          // 访问历史
 }
 
-// NewEngine 创建推荐引擎
+// NewEngine 创建推荐引擎.
 func NewEngine(config *Config) *Engine {
 	if config == nil {
 		config = DefaultConfig()
@@ -106,13 +106,13 @@ func NewEngine(config *Config) *Engine {
 	}
 }
 
-// GetUserRecommendationsRequest 获取推荐请求
+// GetUserRecommendationsRequest 获取推荐请求.
 type GetUserRecommendationsRequest struct {
 	UserID string `json:"user_id" binding:"required"`
 	Limit  int    `json:"limit"`
 }
 
-// GetUserRecommendationsResponse 推荐响应
+// GetUserRecommendationsResponse 推荐响应.
 type GetUserRecommendationsResponse struct {
 	UserID          string           `json:"user_id"`
 	Recommendations []Recommendation `json:"recommendations"`
@@ -120,14 +120,14 @@ type GetUserRecommendationsResponse struct {
 	ExpiresAt       time.Time        `json:"expires_at"`
 }
 
-// AddAccessRecordRequest 添加访问记录请求
+// AddAccessRecordRequest 添加访问记录请求.
 type AddAccessRecordRequest struct {
 	UserID string `json:"user_id" binding:"required"`
 	FileID string `json:"file_id" binding:"required"`
 	Action string `json:"action" binding:"required"`
 }
 
-// AddFileRequest 添加文件请求
+// AddFileRequest 添加文件请求.
 type AddFileRequest struct {
 	FileID   string            `json:"file_id" binding:"required"`
 	Name     string            `json:"name" binding:"required"`
@@ -138,7 +138,7 @@ type AddFileRequest struct {
 	Metadata map[string]string `json:"metadata"`
 }
 
-// AddUserRequest 添加用户请求
+// AddUserRequest 添加用户请求.
 type AddUserRequest struct {
 	UserID string `json:"user_id" binding:"required"`
 }

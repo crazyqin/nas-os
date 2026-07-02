@@ -450,9 +450,10 @@ func (m *Manager) StartExport(req ExportRequest) (*ExportTask, error) {
 	outputPath := req.OutputPath
 	if outputPath == "" {
 		ext := string(req.TargetFormat)
-		if req.Compress == CompressGzip {
+		switch req.Compress {
+		case CompressGzip:
 			ext += ".gz"
-		} else if req.Compress == CompressZstd {
+		case CompressZstd:
 			ext += ".zst"
 		}
 		outputPath = filepath.Join(m.storagePath, "exports", image.Name+"."+ext)

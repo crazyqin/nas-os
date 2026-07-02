@@ -10,7 +10,7 @@ import (
 
 // ========== 云提供商 ==========
 
-// Provider 云服务提供商
+// Provider 云服务提供商.
 type Provider string
 
 const (
@@ -25,7 +25,7 @@ const (
 
 // ========== 存储类别 ==========
 
-// StorageClass 存储类别
+// StorageClass 存储类别.
 type StorageClass string
 
 const (
@@ -38,7 +38,7 @@ const (
 
 // ========== 费用类型 ==========
 
-// CostType 费用类型
+// CostType 费用类型.
 type CostType string
 
 const (
@@ -51,7 +51,7 @@ const (
 
 // ========== 账户配置 ==========
 
-// CloudAccount 云账户配置
+// CloudAccount 云账户配置.
 type CloudAccount struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -68,7 +68,7 @@ type CloudAccount struct {
 
 // ========== 成本记录 ==========
 
-// CostRecord 成本记录
+// CostRecord 成本记录.
 type CostRecord struct {
 	ID        string            `json:"id"`
 	AccountID string            `json:"account_id"`
@@ -86,7 +86,7 @@ type CostRecord struct {
 
 // ========== 预算 ==========
 
-// Budget 预算配置
+// Budget 预算配置.
 type Budget struct {
 	ID         string    `json:"id"`
 	Name       string    `json:"name"`
@@ -100,7 +100,7 @@ type Budget struct {
 
 // ========== 成本分析 ==========
 
-// CostAnalysis 成本分析结果
+// CostAnalysis 成本分析结果.
 type CostAnalysis struct {
 	AccountID      string                   `json:"account_id"`
 	Provider       Provider                 `json:"provider"`
@@ -113,14 +113,14 @@ type CostAnalysis struct {
 	ComparedToPrev float64                  `json:"compared_to_prev"` // 同比变化百分比
 }
 
-// CostTrend 成本趋势
+// CostTrend 成本趋势.
 type CostTrend struct {
 	Date  string  `json:"date"`
 	Cost  float64 `json:"cost"`
 	Usage int64   `json:"usage"`
 }
 
-// CostSuggestion 成本优化建议
+// CostSuggestion 成本优化建议.
 type CostSuggestion struct {
 	Type        string  `json:"type"`     // lifecycle, class_change, delete_unused
 	Priority    string  `json:"priority"` // high, medium, low
@@ -131,7 +131,7 @@ type CostSuggestion struct {
 
 // ========== 成本追踪器 ==========
 
-// CostTracker 成本追踪器
+// CostTracker 成本追踪器.
 type CostTracker struct {
 	mu       sync.RWMutex
 	accounts map[string]*CloudAccount
@@ -140,7 +140,7 @@ type CostTracker struct {
 	alerts   []BudgetAlert
 }
 
-// BudgetAlert 预算告警
+// BudgetAlert 预算告警.
 type BudgetAlert struct {
 	BudgetID  string    `json:"budget_id"`
 	AccountID string    `json:"account_id"`
@@ -152,10 +152,10 @@ type BudgetAlert struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// TrackerOption 追踪器配置选项
+// TrackerOption 追踪器配置选项.
 type TrackerOption func(*CostTracker)
 
-// NewCostTracker 创建成本追踪器
+// NewCostTracker 创建成本追踪器.
 func NewCostTracker(opts ...TrackerOption) *CostTracker {
 	t := &CostTracker{
 		accounts: make(map[string]*CloudAccount),
@@ -170,7 +170,7 @@ func NewCostTracker(opts ...TrackerOption) *CostTracker {
 
 // ========== 账户管理 ==========
 
-// AddAccount 添加云账户
+// AddAccount 添加云账户.
 func (t *CostTracker) AddAccount(account *CloudAccount) error {
 	if account.ID == "" {
 		return errors.New("account ID cannot be empty")
@@ -188,7 +188,7 @@ func (t *CostTracker) AddAccount(account *CloudAccount) error {
 	return nil
 }
 
-// RemoveAccount 移除云账户
+// RemoveAccount 移除云账户.
 func (t *CostTracker) RemoveAccount(accountID string) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -200,7 +200,7 @@ func (t *CostTracker) RemoveAccount(accountID string) error {
 	return nil
 }
 
-// ListAccounts 列出所有账户
+// ListAccounts 列出所有账户.
 func (t *CostTracker) ListAccounts() []*CloudAccount {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -214,7 +214,7 @@ func (t *CostTracker) ListAccounts() []*CloudAccount {
 
 // ========== 成本记录 ==========
 
-// RecordCost 记录费用
+// RecordCost 记录费用.
 func (t *CostTracker) RecordCost(record *CostRecord) error {
 	if record.AccountID == "" {
 		return errors.New("account ID cannot be empty")
@@ -238,7 +238,7 @@ func (t *CostTracker) RecordCost(record *CostRecord) error {
 
 // ========== 成本分析 ==========
 
-// AnalyzeCost 分析成本
+// AnalyzeCost 分析成本.
 func (t *CostTracker) AnalyzeCost(accountID, period string) *CostAnalysis {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -267,7 +267,7 @@ func (t *CostTracker) AnalyzeCost(accountID, period string) *CostAnalysis {
 	return analysis
 }
 
-// GetTotalCost 获取总成本
+// GetTotalCost 获取总成本.
 func (t *CostTracker) GetTotalCost(period string) float64 {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -285,7 +285,7 @@ func (t *CostTracker) GetTotalCost(period string) float64 {
 
 // ========== 预算管理 ==========
 
-// SetBudget 设置预算
+// SetBudget 设置预算.
 func (t *CostTracker) SetBudget(budget *Budget) error {
 	if budget.ID == "" {
 		return errors.New("budget ID cannot be empty")
@@ -299,7 +299,7 @@ func (t *CostTracker) SetBudget(budget *Budget) error {
 	return nil
 }
 
-// GetBudgetStatus 获取预算状态
+// GetBudgetStatus 获取预算状态.
 func (t *CostTracker) GetBudgetStatus(budgetID string) (float64, float64, error) {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -313,7 +313,7 @@ func (t *CostTracker) GetBudgetStatus(budgetID string) (float64, float64, error)
 	return budget.MonthlyCap, actual, nil
 }
 
-// GetAlerts 获取预算告警
+// GetAlerts 获取预算告警.
 func (t *CostTracker) GetAlerts() []BudgetAlert {
 	t.mu.RLock()
 	defer t.mu.RUnlock()

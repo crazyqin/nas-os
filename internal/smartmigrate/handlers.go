@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 智能迁移 HTTP 处理器
+// Handlers 智能迁移 HTTP 处理器.
 type Handlers struct {
 	mgr *SmartMigrateManager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *SmartMigrateManager) *Handlers {
 	return &Handlers{mgr: mgr}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	migrate := api.Group("/migrate")
 	{

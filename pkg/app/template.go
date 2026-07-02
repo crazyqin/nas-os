@@ -12,12 +12,12 @@ import (
 
 // ========== 模板解析器 ==========
 
-// TemplateParser 模板解析器
+// TemplateParser 模板解析器.
 type TemplateParser struct {
 	builtinFuncs template.FuncMap // 内置函数
 }
 
-// NewTemplateParser 创建模板解析器
+// NewTemplateParser 创建模板解析器.
 func NewTemplateParser() *TemplateParser {
 	return &TemplateParser{
 		builtinFuncs: template.FuncMap{
@@ -52,7 +52,7 @@ func NewTemplateParser() *TemplateParser {
 	}
 }
 
-// ParseFile 从文件解析模板
+// ParseFile 从文件解析模板.
 func (p *TemplateParser) ParseFile(path string) (*Template, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -62,7 +62,7 @@ func (p *TemplateParser) ParseFile(path string) (*Template, error) {
 	return p.ParseJSON(data)
 }
 
-// ParseJSON 从JSON解析模板
+// ParseJSON 从JSON解析模板.
 func (p *TemplateParser) ParseJSON(data []byte) (*Template, error) {
 	tmpl := &Template{}
 	if err := json.Unmarshal(data, tmpl); err != nil {
@@ -76,7 +76,7 @@ func (p *TemplateParser) ParseJSON(data []byte) (*Template, error) {
 	return tmpl, nil
 }
 
-// ParseYAML 从YAML解析模板（简化实现，使用JSON转换）
+// ParseYAML 从YAML解析模板（简化实现，使用JSON转换）.
 func (p *TemplateParser) ParseYAML(data []byte) (*Template, error) {
 	// 简化实现，实际应使用yaml库
 	// 这里假设YAML已经被转换为JSON格式
@@ -85,7 +85,7 @@ func (p *TemplateParser) ParseYAML(data []byte) (*Template, error) {
 
 // ========== Compose 模板渲染 ==========
 
-// ComposeRenderData Compose模板渲染数据
+// ComposeRenderData Compose模板渲染数据.
 type ComposeRenderData struct {
 	// 基本信息
 	AppID      string `json:"appId"`
@@ -112,7 +112,7 @@ type ComposeRenderData struct {
 	Custom map[string]interface{} `json:"custom"`
 }
 
-// RenderCompose 渲染Compose模板（使用模板引擎）
+// RenderCompose 渲染Compose模板（使用模板引擎）.
 func (p *TemplateParser) RenderCompose(tmpl *Template, data *ComposeRenderData) (string, error) {
 	// 如果模板有预定义的Compose内容，使用模板渲染
 	if len(tmpl.Containers) > 0 && tmpl.Containers[0].ComposeTemplate != "" {
@@ -123,7 +123,7 @@ func (p *TemplateParser) RenderCompose(tmpl *Template, data *ComposeRenderData) 
 	return p.generateCompose(tmpl, data)
 }
 
-// renderFromTemplate 使用模板字符串渲染
+// renderFromTemplate 使用模板字符串渲染.
 func (p *TemplateParser) renderFromTemplate(templateStr string, data *ComposeRenderData) (string, error) {
 	tmpl, err := template.New("compose").Funcs(p.builtinFuncs).Parse(templateStr)
 	if err != nil {
@@ -138,7 +138,7 @@ func (p *TemplateParser) renderFromTemplate(templateStr string, data *ComposeRen
 	return result.String(), nil
 }
 
-// generateCompose 从容器规格生成Compose文件
+// generateCompose 从容器规格生成Compose文件.
 func (p *TemplateParser) generateCompose(tmpl *Template, data *ComposeRenderData) (string, error) {
 	var compose strings.Builder
 
@@ -147,12 +147,12 @@ func (p *TemplateParser) generateCompose(tmpl *Template, data *ComposeRenderData
 	compose.WriteString("services:\n")
 
 	for _, container := range tmpl.Containers {
-		compose.WriteString(fmt.Sprintf("  %s:\n", container.Name))
-		compose.WriteString(fmt.Sprintf("    image: %s\n", container.Image))
+		fmt.Fprintf(&compose, "  %s:\n", container.Name)
+		fmt.Fprintf(&compose, "    image: %s\n", container.Image)
 
 		// 主机名
 		if container.Hostname != "" {
-			compose.WriteString(fmt.Sprintf("    hostname: %s\n", container.Hostname))
+			fmt.Fprintf(&compose, "    hostname: %s\n", container.Hostname)
 		}
 
 		// 特权模式
@@ -162,14 +162,14 @@ func (p *TemplateParser) generateCompose(tmpl *Template, data *ComposeRenderData
 
 		// 网络模式
 		if container.NetworkMode != "" {
-			compose.WriteString(fmt.Sprintf("    network_mode: %s\n", container.NetworkMode))
+			fmt.Fprintf(&compose, "    network_mode: %s\n", container.NetworkMode)
 		} else if data.Network != "" {
-			compose.WriteString(fmt.Sprintf("    networks:\n      - %s\n", data.Network))
+			fmt.Fprintf(&compose, "    networks:\n      - %s\n", data.Network)
 		}
 
 		// 重启策略
 		if container.RestartPolicy != "" {
-			compose.WriteString(fmt.Sprintf("    restart: %s\n", container.RestartPolicy))
+			fmt.Fprintf(&compose, "    restart: %s\n", container.RestartPolicy)
 		} else {
 			compose.WriteString("    restart: unless-stopped\n")
 		}
@@ -178,7 +178,7 @@ func (p *TemplateParser) generateCompose(tmpl *Template, data *ComposeRenderData
 		if len(container.Command) > 0 {
 			compose.WriteString("    command:\n")
 			for _, cmd := range container.Command {
-				compose.WriteString(fmt.Sprintf("      - %s\n", cmd))
+				fmt.Fprintf(&compose, "      - %s\n", cmd)
 			}
 		}
 
@@ -195,7 +195,7 @@ func (p *TemplateParser) generateCompose(tmpl *Template, data *ComposeRenderData
 				if port.Protocol != "" && port.Protocol != "tcp" {
 					portStr += "/" + port.Protocol
 				}
-				compose.WriteString(fmt.Sprintf("      - %s\n", portStr))
+				fmt.Fprintf(&compose, "      - %s\n", portStr)
 			}
 		}
 
@@ -212,7 +212,7 @@ func (p *TemplateParser) generateCompose(tmpl *Template, data *ComposeRenderData
 				if vol.ReadOnly {
 					volStr += ":ro"
 				}
-				compose.WriteString(fmt.Sprintf("      - %s\n", volStr))
+				fmt.Fprintf(&compose, "      - %s\n", volStr)
 			}
 		}
 
@@ -229,7 +229,7 @@ func (p *TemplateParser) generateCompose(tmpl *Template, data *ComposeRenderData
 			compose.WriteString("    environment:\n")
 			for k, v := range env {
 				// 转义环境变量值
-				compose.WriteString(fmt.Sprintf("      %s: %s\n", k, escapeYAMLString(v)))
+				fmt.Fprintf(&compose, "      %s: %s\n", k, escapeYAMLString(v))
 			}
 		}
 
@@ -239,10 +239,10 @@ func (p *TemplateParser) generateCompose(tmpl *Template, data *ComposeRenderData
 			compose.WriteString("      resources:\n")
 			compose.WriteString("        limits:\n")
 			if data.CPU != "" {
-				compose.WriteString(fmt.Sprintf("          cpus: %s\n", data.CPU))
+				fmt.Fprintf(&compose, "          cpus: %s\n", data.CPU)
 			}
 			if data.Memory != "" {
-				compose.WriteString(fmt.Sprintf("          memory: %s\n", data.Memory))
+				fmt.Fprintf(&compose, "          memory: %s\n", data.Memory)
 			}
 		}
 
@@ -251,12 +251,12 @@ func (p *TemplateParser) generateCompose(tmpl *Template, data *ComposeRenderData
 			compose.WriteString("    healthcheck:\n")
 			compose.WriteString("      test:\n")
 			for _, cmd := range container.HealthCheck.Test {
-				compose.WriteString(fmt.Sprintf("        - %s\n", cmd))
+				fmt.Fprintf(&compose, "        - %s\n", cmd)
 			}
-			compose.WriteString(fmt.Sprintf("      interval: %ds\n", container.HealthCheck.Interval))
-			compose.WriteString(fmt.Sprintf("      timeout: %ds\n", container.HealthCheck.Timeout))
-			compose.WriteString(fmt.Sprintf("      start_period: %ds\n", container.HealthCheck.StartPeriod))
-			compose.WriteString(fmt.Sprintf("      retries: %d\n", container.HealthCheck.Retries))
+			fmt.Fprintf(&compose, "      interval: %ds\n", container.HealthCheck.Interval)
+			fmt.Fprintf(&compose, "      timeout: %ds\n", container.HealthCheck.Timeout)
+			fmt.Fprintf(&compose, "      start_period: %ds\n", container.HealthCheck.StartPeriod)
+			fmt.Fprintf(&compose, "      retries: %d\n", container.HealthCheck.Retries)
 		}
 
 		compose.WriteString("\n")
@@ -265,8 +265,8 @@ func (p *TemplateParser) generateCompose(tmpl *Template, data *ComposeRenderData
 	// 网络定义
 	if data.Network != "" {
 		compose.WriteString("networks:\n")
-		compose.WriteString(fmt.Sprintf("  %s:\n", data.Network))
-		compose.WriteString(fmt.Sprintf("    name: %s\n", data.Network))
+		fmt.Fprintf(&compose, "  %s:\n", data.Network)
+		fmt.Fprintf(&compose, "    name: %s\n", data.Network)
 		compose.WriteString("    external: true\n")
 		compose.WriteString("\n")
 	}
@@ -276,15 +276,15 @@ func (p *TemplateParser) generateCompose(tmpl *Template, data *ComposeRenderData
 
 // ========== 模板验证 ==========
 
-// TemplateValidator 模板验证器
+// TemplateValidator 模板验证器.
 type TemplateValidator struct{}
 
-// NewTemplateValidator 创建模板验证器
+// NewTemplateValidator 创建模板验证器.
 func NewTemplateValidator() *TemplateValidator {
 	return &TemplateValidator{}
 }
 
-// Validate 验证模板完整性
+// Validate 验证模板完整性.
 func (v *TemplateValidator) Validate(tmpl *Template) []error {
 	errors := []error{}
 
@@ -327,7 +327,7 @@ func (v *TemplateValidator) Validate(tmpl *Template) []error {
 	return errors
 }
 
-// validateContainer 验证容器配置
+// validateContainer 验证容器配置.
 func (v *TemplateValidator) validateContainer(c ContainerSpec) []error {
 	errors := []error{}
 
@@ -360,7 +360,7 @@ func (v *TemplateValidator) validateContainer(c ContainerSpec) []error {
 
 // ========== 辅助函数 ==========
 
-// escapeShellArg 转义Shell参数
+// escapeShellArg 转义Shell参数.
 func escapeShellArg(arg string) string {
 	// 如果包含特殊字符，用单引号包裹并转义内部单引号
 	if strings.ContainsAny(arg, " \t\n\"'$\\`") {
@@ -369,7 +369,7 @@ func escapeShellArg(arg string) string {
 	return arg
 }
 
-// escapeYAMLString 转义YAML字符串
+// escapeYAMLString 转义YAML字符串.
 func escapeYAMLString(s string) string {
 	// 如果字符串包含特殊字符或以数字/特殊字符开头，需要引号
 	needsQuote := strings.ContainsAny(s, ":#{}[]&*|>?\"'`\n\r\t") ||
@@ -387,7 +387,7 @@ func escapeYAMLString(s string) string {
 
 // ========== 模板合并 ==========
 
-// MergeTemplates 合并多个模板（用于多容器应用）
+// MergeTemplates 合并多个模板（用于多容器应用）.
 func MergeTemplates(templates []*Template) (*Template, error) {
 	if len(templates) == 0 {
 		return nil, fmt.Errorf("没有模板可合并")
@@ -432,7 +432,7 @@ func MergeTemplates(templates []*Template) (*Template, error) {
 	return result, nil
 }
 
-// CloneTemplate 克隆模板（用于自定义修改）
+// CloneTemplate 克隆模板（用于自定义修改）.
 func CloneTemplate(tmpl *Template) *Template {
 	result := &Template{
 		ID:          tmpl.ID,
@@ -495,7 +495,7 @@ func CloneTemplate(tmpl *Template) *Template {
 	return result
 }
 
-// ExtendTemplate 扩展模板（添加自定义容器）
+// ExtendTemplate 扩展模板（添加自定义容器）.
 func ExtendTemplate(base *Template, additionalContainers []ContainerSpec) *Template {
 	result := CloneTemplate(base)
 	result.Containers = append(result.Containers, additionalContainers...)

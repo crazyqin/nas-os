@@ -16,13 +16,13 @@ import (
 	"nas-os/internal/search/chinese"
 )
 
-// QueryEngine 查询引擎（简化实现）
+// QueryEngine 查询引擎（简化实现）.
 type QueryEngine struct {
 	parser *QueryParser
 	logger *zap.Logger
 }
 
-// NewQueryEngine 创建查询引擎
+// NewQueryEngine 创建查询引擎.
 func NewQueryEngine(logger *zap.Logger) *QueryEngine {
 	return &QueryEngine{
 		parser: NewQueryParser(),
@@ -30,25 +30,25 @@ func NewQueryEngine(logger *zap.Logger) *QueryEngine {
 	}
 }
 
-// Parse 解析查询字符串
+// Parse 解析查询字符串.
 func (q *QueryEngine) Parse(query string) (*ParsedQuery, error) {
 	return q.parser.Parse(query)
 }
 
-// FileWatcher 文件监控器（简化包装）
+// FileWatcher 文件监控器（简化包装）.
 type FileWatcher struct {
 	watcher *Watcher
 	changes []FileChange
 	mu      sync.RWMutex
 }
 
-// FileChange 文件变更事件
+// FileChange 文件变更事件.
 type FileChange struct {
 	Path string
 	Type ChangeType
 }
 
-// ChangeType 变更类型
+// ChangeType 变更类型.
 type ChangeType int
 
 const (
@@ -57,29 +57,29 @@ const (
 	ChangeTypeDelete ChangeType = 3
 )
 
-// NewFileWatcher 创建文件监控器
+// NewFileWatcher 创建文件监控器.
 func NewFileWatcher(paths []string, logger *zap.Logger) *FileWatcher {
 	return &FileWatcher{
 		changes: make([]FileChange, 0),
 	}
 }
 
-// Start 启动监控
+// Start 启动监控.
 func (f *FileWatcher) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (f *FileWatcher) Stop() {}
 
-// GetChanges 获取变更列表
+// GetChanges 获取变更列表.
 func (f *FileWatcher) GetChanges() []FileChange {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 	return f.changes
 }
 
-// IndexStatus 索引状态
+// IndexStatus 索引状态.
 type IndexStatus struct {
 	TotalFiles   int64
 	IndexedFiles int64
@@ -89,7 +89,7 @@ type IndexStatus struct {
 	Progress     float64
 }
 
-// SpotlightIndexer Spotlight索引器
+// SpotlightIndexer Spotlight索引器.
 type SpotlightIndexer struct {
 	engine *Engine
 	config SpotlightConfig
@@ -98,7 +98,7 @@ type SpotlightIndexer struct {
 	mu     sync.RWMutex
 }
 
-// NewIndexer 创建索引器
+// NewIndexer 创建索引器.
 func NewIndexer(config SpotlightConfig, logger *zap.Logger) *SpotlightIndexer {
 	return &SpotlightIndexer{
 		config: config,
@@ -107,38 +107,38 @@ func NewIndexer(config SpotlightConfig, logger *zap.Logger) *SpotlightIndexer {
 	}
 }
 
-// Search 搜索索引
+// Search 搜索索引.
 func (i *SpotlightIndexer) Search(ctx context.Context, query *ParsedQuery, limit, offset int) ([]SpotlightFile, int, error) {
 	// 简化实现：返回空结果
 	// 完整实现应该调用Engine.Search
 	return []SpotlightFile{}, 0, nil
 }
 
-// ClearIndex 清空索引
+// ClearIndex 清空索引.
 func (i *SpotlightIndexer) ClearIndex(path string) {}
 
-// BuildIndex 构建索引
+// BuildIndex 构建索引.
 func (i *SpotlightIndexer) BuildIndex(ctx context.Context, path string) error {
 	return nil
 }
 
-// IndexFile 索引单个文件
+// IndexFile 索引单个文件.
 func (i *SpotlightIndexer) IndexFile(ctx context.Context, path string) error {
 	return nil
 }
 
-// RemoveFromIndex 从索引移除
+// RemoveFromIndex 从索引移除.
 func (i *SpotlightIndexer) RemoveFromIndex(ctx context.Context, path string) error {
 	return nil
 }
 
-// GetStatus 获取状态
+// GetStatus 获取状态.
 func (i *SpotlightIndexer) GetStatus() *IndexStatus {
 	return &i.status
 }
 
 // SpotlightService SMB Spotlight搜索服务
-// 支持中文分词、全文索引、语义搜索
+// 支持中文分词、全文索引、语义搜索.
 type SpotlightService struct {
 	indexer   *SpotlightIndexer
 	query     *QueryEngine
@@ -149,7 +149,7 @@ type SpotlightService struct {
 	mu        sync.RWMutex
 }
 
-// SpotlightConfig Spotlight配置
+// SpotlightConfig Spotlight配置.
 type SpotlightConfig struct {
 	EnableContentIndex bool     `json:"enableContentIndex"`
 	IndexPaths         []string `json:"indexPaths"`
@@ -163,7 +163,7 @@ type SpotlightConfig struct {
 	MaxSearchResults   int      `json:"maxSearchResults"` // 最大搜索结果数
 }
 
-// SpotlightQuery Spotlight搜索请求
+// SpotlightQuery Spotlight搜索请求.
 type SpotlightQuery struct {
 	Query      string            `json:"query"`
 	Path       string            `json:"path"`       // 搜索路径范围
@@ -177,7 +177,7 @@ type SpotlightQuery struct {
 	Offset     int               `json:"offset"`
 }
 
-// SpotlightResult Spotlight搜索结果
+// SpotlightResult Spotlight搜索结果.
 type SpotlightResult struct {
 	Files       []SpotlightFile `json:"files"`
 	Total       int             `json:"total"`
@@ -185,7 +185,7 @@ type SpotlightResult struct {
 	Suggestions []string        `json:"suggestions"` // 搜索建议
 }
 
-// SpotlightFile Spotlight文件信息
+// SpotlightFile Spotlight文件信息.
 type SpotlightFile struct {
 	Path         string            `json:"path"`
 	Name         string            `json:"name"`
@@ -198,7 +198,7 @@ type SpotlightFile struct {
 	Score        float64           `json:"score"`   // 相关性评分
 }
 
-// NewSpotlightService 创建Spotlight服务
+// NewSpotlightService 创建Spotlight服务.
 func NewSpotlightService(config SpotlightConfig, logger *zap.Logger) *SpotlightService {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -233,7 +233,7 @@ func NewSpotlightService(config SpotlightConfig, logger *zap.Logger) *SpotlightS
 }
 
 // Search 执行Spotlight搜索
-// 支持中文分词和语义搜索增强
+// 支持中文分词和语义搜索增强.
 func (s *SpotlightService) Search(ctx context.Context, req SpotlightQuery) (*SpotlightResult, error) {
 	startTime := time.Now()
 
@@ -313,7 +313,7 @@ func (s *SpotlightService) Search(ctx context.Context, req SpotlightQuery) (*Spo
 }
 
 // semanticSearchFallback 语义搜索回退
-// 当标准搜索无结果时，尝试语义搜索
+// 当标准搜索无结果时，尝试语义搜索.
 func (s *SpotlightService) semanticSearchFallback(ctx context.Context, query string, limit int) ([]SpotlightFile, int) {
 	if s.segmenter == nil {
 		return nil, 0
@@ -345,7 +345,7 @@ func (s *SpotlightService) semanticSearchFallback(ctx context.Context, query str
 	return files, total
 }
 
-// SearchByAttributes 按Spotlight属性搜索（macOS兼容）
+// SearchByAttributes 按Spotlight属性搜索（macOS兼容）.
 func (s *SpotlightService) SearchByAttributes(ctx context.Context, attrs map[string]string, limit int) (*SpotlightResult, error) {
 	// 将Spotlight属性转换为内部查询
 	query := ""
@@ -369,7 +369,7 @@ func (s *SpotlightService) SearchByAttributes(ctx context.Context, attrs map[str
 	})
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (s *SpotlightService) RebuildIndex(ctx context.Context, path string, force bool) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -385,7 +385,7 @@ func (s *SpotlightService) RebuildIndex(ctx context.Context, path string, force 
 	return s.indexer.BuildIndex(ctx, path)
 }
 
-// GetIndexStatus 获取索引状态
+// GetIndexStatus 获取索引状态.
 func (s *SpotlightService) GetIndexStatus() *IndexStatus {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -393,7 +393,7 @@ func (s *SpotlightService) GetIndexStatus() *IndexStatus {
 	return s.indexer.GetStatus()
 }
 
-// Start 启动Spotlight服务
+// Start 启动Spotlight服务.
 func (s *SpotlightService) Start(ctx context.Context) error {
 	// 启动文件监听
 	if err := s.watcher.Start(ctx); err != nil {
@@ -407,14 +407,14 @@ func (s *SpotlightService) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止Spotlight服务
+// Stop 停止Spotlight服务.
 func (s *SpotlightService) Stop() error {
 	s.watcher.Stop()
 	s.logger.Info("Spotlight服务已停止")
 	return nil
 }
 
-// runIndexUpdate 运行索引更新任务
+// runIndexUpdate 运行索引更新任务.
 func (s *SpotlightService) runIndexUpdate(ctx context.Context) {
 	ticker := time.NewTicker(time.Duration(s.config.UpdateInterval) * time.Second)
 	defer ticker.Stop()
@@ -438,7 +438,7 @@ func (s *SpotlightService) runIndexUpdate(ctx context.Context) {
 	}
 }
 
-// generateSuggestions 生成搜索建议
+// generateSuggestions 生成搜索建议.
 func (s *SpotlightService) generateSuggestions(query string) []string {
 	suggestions := []string{}
 
@@ -468,14 +468,14 @@ func (s *SpotlightService) generateSuggestions(query string) []string {
 
 // ========== 搜索语法解析 ==========
 
-// BoolExpression 布尔表达式
+// BoolExpression 布尔表达式.
 type BoolExpression struct {
 	Operator string      // AND, OR, NOT
 	Left     interface{} // ParsedQuery or BoolExpression
 	Right    interface{} // ParsedQuery or BoolExpression
 }
 
-// parseSize 解析大小字符串
+// parseSize 解析大小字符串.
 func parseSize(s string) int64 {
 	s = strings.TrimSpace(s)
 	s = strings.ToLower(s)
@@ -501,7 +501,7 @@ func parseSize(s string) int64 {
 	return result * multiplier
 }
 
-// parseDateRange 解析日期范围
+// parseDateRange 解析日期范围.
 func parseDateRange(s string) DateRange {
 	// 支持格式: 2024-01-01, >2024-01-01, <2024-01-01
 	dr := DateRange{}
@@ -528,7 +528,7 @@ func parseDateRange(s string) DateRange {
 
 // ========== 文件类型检测 ==========
 
-// DetectFileType 检测文件类型
+// DetectFileType 检测文件类型.
 func DetectFileType(path string) string {
 	ext := strings.ToLower(filepath.Ext(path))
 
@@ -563,7 +563,7 @@ func DetectFileType(path string) string {
 
 // ========== Spotlight属性映射 ==========
 
-// SpotlightAttributeMap macOS Spotlight属性映射
+// SpotlightAttributeMap macOS Spotlight属性映射.
 var SpotlightAttributeMap = map[string]string{
 	"kMDItemDisplayName":         "name",
 	"kMDItemPath":                "path",
@@ -583,7 +583,7 @@ var SpotlightAttributeMap = map[string]string{
 	"kMDItemAudioBitRate":        "bitRate",
 }
 
-// MapToSpotlightAttributes 将内部属性映射到Spotlight格式
+// MapToSpotlightAttributes 将内部属性映射到Spotlight格式.
 func MapToSpotlightAttributes(attrs map[string]string) map[string]string {
 	result := map[string]string{}
 	for internalKey, value := range attrs {

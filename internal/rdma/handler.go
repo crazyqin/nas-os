@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler RDMA HTTP处理器
+// Handler RDMA HTTP处理器.
 type Handler struct {
 	manager *RDMAManager
 }
 
-// NewHandler 创建RDMA处理器
+// NewHandler 创建RDMA处理器.
 func NewHandler(manager *RDMAManager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	rdma := rg.Group("/rdma")
 	{
@@ -32,7 +32,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 }
 
 // GetStatus 获取RDMA状态
-// GET /api/v1/rdma/status
+// GET /api/v1/rdma/status.
 func (h *Handler) GetStatus(c *gin.Context) {
 	status := h.manager.GetStatus()
 	c.JSON(http.StatusOK, gin.H{
@@ -43,7 +43,7 @@ func (h *Handler) GetStatus(c *gin.Context) {
 }
 
 // GetConnections 获取活跃连接列表
-// GET /api/v1/rdma/connections
+// GET /api/v1/rdma/connections.
 func (h *Handler) GetConnections(c *gin.Context) {
 	conns := h.manager.GetConnections()
 	c.JSON(http.StatusOK, gin.H{
@@ -54,7 +54,7 @@ func (h *Handler) GetConnections(c *gin.Context) {
 }
 
 // GetStats 获取性能统计
-// GET /api/v1/rdma/stats
+// GET /api/v1/rdma/stats.
 func (h *Handler) GetStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, gin.H{
@@ -65,7 +65,7 @@ func (h *Handler) GetStats(c *gin.Context) {
 }
 
 // GetDevices 获取RDMA设备列表
-// GET /api/v1/rdma/devices
+// GET /api/v1/rdma/devices.
 func (h *Handler) GetDevices(c *gin.Context) {
 	devices := h.manager.GetDevices()
 	c.JSON(http.StatusOK, gin.H{
@@ -75,7 +75,7 @@ func (h *Handler) GetDevices(c *gin.Context) {
 	})
 }
 
-// UpdateConfigRequest 更新配置请求
+// UpdateConfigRequest 更新配置请求.
 type UpdateConfigRequest struct {
 	Enabled          *bool             `json:"enabled,omitempty"`
 	DefaultTransport *TransportType    `json:"defaultTransport,omitempty"`
@@ -89,7 +89,7 @@ type UpdateConfigRequest struct {
 }
 
 // UpdateConfig 更新RDMA配置
-// POST /api/v1/rdma/config
+// POST /api/v1/rdma/config.
 func (h *Handler) UpdateConfig(c *gin.Context) {
 	var req UpdateConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -142,7 +142,7 @@ func (h *Handler) UpdateConfig(c *gin.Context) {
 }
 
 // Enable 启用RDMA
-// POST /api/v1/rdma/enable
+// POST /api/v1/rdma/enable.
 func (h *Handler) Enable(c *gin.Context) {
 	if err := h.manager.EnableRDMA(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -158,7 +158,7 @@ func (h *Handler) Enable(c *gin.Context) {
 }
 
 // Disable 禁用RDMA
-// POST /api/v1/rdma/disable
+// POST /api/v1/rdma/disable.
 func (h *Handler) Disable(c *gin.Context) {
 	if err := h.manager.DisableRDMA(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -174,7 +174,7 @@ func (h *Handler) Disable(c *gin.Context) {
 }
 
 // GetMultipath 获取多路径状态
-// GET /api/v1/rdma/multipath
+// GET /api/v1/rdma/multipath.
 func (h *Handler) GetMultipath(c *gin.Context) {
 	groups := h.manager.GetMultipathStatus()
 	c.JSON(http.StatusOK, gin.H{

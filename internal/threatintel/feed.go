@@ -11,7 +11,7 @@ import (
 // 情报订阅管理
 // ============================================================
 
-// FeedManager 情报订阅管理器
+// FeedManager 情报订阅管理器.
 type FeedManager struct {
 	engine      *Engine
 	subscribers map[string][]chan *IOC
@@ -19,7 +19,7 @@ type FeedManager struct {
 	stopChan    chan struct{}
 }
 
-// NewFeedManager 创建情报订阅管理器
+// NewFeedManager 创建情报订阅管理器.
 func NewFeedManager(engine *Engine) *FeedManager {
 	return &FeedManager{
 		engine:      engine,
@@ -28,7 +28,7 @@ func NewFeedManager(engine *Engine) *FeedManager {
 	}
 }
 
-// Subscribe 订阅情报更新
+// Subscribe 订阅情报更新.
 func (fm *FeedManager) Subscribe(feedID string) <-chan *IOC {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -38,7 +38,7 @@ func (fm *FeedManager) Subscribe(feedID string) <-chan *IOC {
 	return ch
 }
 
-// Unsubscribe 取消订阅
+// Unsubscribe 取消订阅.
 func (fm *FeedManager) Unsubscribe(feedID string, ch <-chan *IOC) {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -52,7 +52,7 @@ func (fm *FeedManager) Unsubscribe(feedID string, ch <-chan *IOC) {
 	}
 }
 
-// NotifySubscribers 通知订阅者有新的 IOC
+// NotifySubscribers 通知订阅者有新的 IOC.
 func (fm *FeedManager) NotifySubscribers(feedID string, ioc *IOC) {
 	fm.mu.RLock()
 	defer fm.mu.RUnlock()
@@ -67,7 +67,7 @@ func (fm *FeedManager) NotifySubscribers(feedID string, ioc *IOC) {
 	}
 }
 
-// Stop 停止订阅管理器
+// Stop 停止订阅管理器.
 func (fm *FeedManager) Stop() {
 	close(fm.stopChan)
 }
@@ -76,7 +76,7 @@ func (fm *FeedManager) Stop() {
 // 情报共享
 // ============================================================
 
-// SharingConfig 情报共享配置
+// SharingConfig 情报共享配置.
 type SharingConfig struct {
 	// Enabled 是否启用共享
 	Enabled bool `json:"enabled"`
@@ -90,7 +90,7 @@ type SharingConfig struct {
 	ExportInterval time.Duration `json:"export_interval"`
 }
 
-// DefaultSharingConfig 默认共享配置
+// DefaultSharingConfig 默认共享配置.
 func DefaultSharingConfig() *SharingConfig {
 	return &SharingConfig{
 		Enabled:        true,
@@ -101,7 +101,7 @@ func DefaultSharingConfig() *SharingConfig {
 	}
 }
 
-// SharingManager 情报共享管理器
+// SharingManager 情报共享管理器.
 type SharingManager struct {
 	config     *SharingConfig
 	engine     *Engine
@@ -109,7 +109,7 @@ type SharingManager struct {
 	mu         sync.RWMutex
 }
 
-// NewSharingManager 创建共享管理器
+// NewSharingManager 创建共享管理器.
 func NewSharingManager(config *SharingConfig, engine *Engine) *SharingManager {
 	if config == nil {
 		config = DefaultSharingConfig()
@@ -121,7 +121,7 @@ func NewSharingManager(config *SharingConfig, engine *Engine) *SharingManager {
 	}
 }
 
-// ExportIOCs 导出 IOC 列表
+// ExportIOCs 导出 IOC 列表.
 func (sm *SharingManager) ExportIOCs() []*IOC {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -139,7 +139,7 @@ func (sm *SharingManager) ExportIOCs() []*IOC {
 	return exportable
 }
 
-// ImportIOCs 导入 IOC 列表
+// ImportIOCs 导入 IOC 列表.
 func (sm *SharingManager) ImportIOCs(iocs []*IOC, sourceID string) (int, int) {
 	imported := 0
 	skipped := 0
@@ -174,7 +174,7 @@ func (sm *SharingManager) ImportIOCs(iocs []*IOC, sourceID string) (int, int) {
 	return imported, skipped
 }
 
-// GetExportStats 获取导出统计
+// GetExportStats 获取导出统计.
 func (sm *SharingManager) GetExportStats() map[string]int {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -194,7 +194,7 @@ func (sm *SharingManager) GetExportStats() map[string]int {
 // 可信源管理
 // ============================================================
 
-// TrustedSource 可信情报源
+// TrustedSource 可信情报源.
 type TrustedSource struct {
 	// ID 源 ID
 	ID string `json:"id"`
@@ -214,13 +214,13 @@ type TrustedSource struct {
 	Verified bool `json:"verified"`
 }
 
-// TrustedSourceManager 可信源管理器
+// TrustedSourceManager 可信源管理器.
 type TrustedSourceManager struct {
 	sources map[string]*TrustedSource
 	mu      sync.RWMutex
 }
 
-// NewTrustedSourceManager 创建可信源管理器
+// NewTrustedSourceManager 创建可信源管理器.
 func NewTrustedSourceManager() *TrustedSourceManager {
 	tsm := &TrustedSourceManager{
 		sources: make(map[string]*TrustedSource),
@@ -231,7 +231,7 @@ func NewTrustedSourceManager() *TrustedSourceManager {
 	return tsm
 }
 
-// AddDefaults 添加默认可信源
+// AddDefaults 添加默认可信源.
 func (tsm *TrustedSourceManager) AddDefaults() {
 	defaults := []*TrustedSource{
 		{
@@ -266,21 +266,21 @@ func (tsm *TrustedSourceManager) AddDefaults() {
 	}
 }
 
-// Add 添加可信源
+// Add 添加可信源.
 func (tsm *TrustedSourceManager) Add(source *TrustedSource) {
 	tsm.mu.Lock()
 	defer tsm.mu.Unlock()
 	tsm.sources[source.ID] = source
 }
 
-// Remove 移除可信源
+// Remove 移除可信源.
 func (tsm *TrustedSourceManager) Remove(id string) {
 	tsm.mu.Lock()
 	defer tsm.mu.Unlock()
 	delete(tsm.sources, id)
 }
 
-// Get 获取可信源
+// Get 获取可信源.
 func (tsm *TrustedSourceManager) Get(id string) (*TrustedSource, bool) {
 	tsm.mu.RLock()
 	defer tsm.mu.RUnlock()
@@ -288,7 +288,7 @@ func (tsm *TrustedSourceManager) Get(id string) (*TrustedSource, bool) {
 	return src, exists
 }
 
-// List 列出所有可信源
+// List 列出所有可信源.
 func (tsm *TrustedSourceManager) List() []*TrustedSource {
 	tsm.mu.RLock()
 	defer tsm.mu.RUnlock()
@@ -300,7 +300,7 @@ func (tsm *TrustedSourceManager) List() []*TrustedSource {
 	return sources
 }
 
-// GetByTrustLevel 按信任级别筛选
+// GetByTrustLevel 按信任级别筛选.
 func (tsm *TrustedSourceManager) GetByTrustLevel(minLevel int) []*TrustedSource {
 	tsm.mu.RLock()
 	defer tsm.mu.RUnlock()
@@ -314,7 +314,7 @@ func (tsm *TrustedSourceManager) GetByTrustLevel(minLevel int) []*TrustedSource 
 	return sources
 }
 
-// GetVerified 获取已验证的可信源
+// GetVerified 获取已验证的可信源.
 func (tsm *TrustedSourceManager) GetVerified() []*TrustedSource {
 	tsm.mu.RLock()
 	defer tsm.mu.RUnlock()
@@ -328,7 +328,7 @@ func (tsm *TrustedSourceManager) GetVerified() []*TrustedSource {
 	return sources
 }
 
-// VerifySource 验证情报源
+// VerifySource 验证情报源.
 func (tsm *TrustedSourceManager) VerifySource(id string) error {
 	tsm.mu.Lock()
 	defer tsm.mu.Unlock()
@@ -347,7 +347,7 @@ func (tsm *TrustedSourceManager) VerifySource(id string) error {
 // 自动更新调度
 // ============================================================
 
-// UpdateScheduler 自动更新调度器
+// UpdateScheduler 自动更新调度器.
 type UpdateScheduler struct {
 	engine   *Engine
 	feedMgr  *FeedManager
@@ -357,7 +357,7 @@ type UpdateScheduler struct {
 	mu       sync.Mutex
 }
 
-// NewUpdateScheduler 创建自动更新调度器
+// NewUpdateScheduler 创建自动更新调度器.
 func NewUpdateScheduler(engine *Engine, feedMgr *FeedManager, interval time.Duration) *UpdateScheduler {
 	return &UpdateScheduler{
 		engine:   engine,
@@ -367,7 +367,7 @@ func NewUpdateScheduler(engine *Engine, feedMgr *FeedManager, interval time.Dura
 	}
 }
 
-// Start 启动自动更新
+// Start 启动自动更新.
 func (us *UpdateScheduler) Start() {
 	us.mu.Lock()
 	if us.running {
@@ -380,7 +380,7 @@ func (us *UpdateScheduler) Start() {
 	go us.run()
 }
 
-// Stop 停止自动更新
+// Stop 停止自动更新.
 func (us *UpdateScheduler) Stop() {
 	us.mu.Lock()
 	defer us.mu.Unlock()
@@ -391,7 +391,7 @@ func (us *UpdateScheduler) Stop() {
 	}
 }
 
-// IsRunning 是否正在运行
+// IsRunning 是否正在运行.
 func (us *UpdateScheduler) IsRunning() bool {
 	us.mu.Lock()
 	defer us.mu.Unlock()
@@ -429,7 +429,7 @@ func (us *UpdateScheduler) updateFeeds() {
 	}
 }
 
-// GetUpdateStatus 获取更新状态
+// GetUpdateStatus 获取更新状态.
 func (us *UpdateScheduler) GetUpdateStatus() map[string]interface{} {
 	us.mu.Lock()
 	defer us.mu.Unlock()

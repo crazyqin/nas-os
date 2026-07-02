@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// PredictFailure 预测磁盘故障
+// PredictFailure 预测磁盘故障.
 func (m *SmartHDDManager) PredictFailure(diskID string) (*FailurePrediction, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -67,7 +67,7 @@ func (m *SmartHDDManager) PredictFailure(diskID string) (*FailurePrediction, err
 	return prediction, nil
 }
 
-// FailurePrediction 故障预测
+// FailurePrediction 故障预测.
 type FailurePrediction struct {
 	DiskID            string    `json:"disk_id"`
 	Device            string    `json:"device"`
@@ -78,7 +78,7 @@ type FailurePrediction struct {
 	PredictedAt       time.Time `json:"predicted_at"`
 }
 
-// calculateRiskLevel 计算风险等级
+// calculateRiskLevel 计算风险等级.
 func (m *SmartHDDManager) calculateRiskLevel(score float64) string {
 	if score >= 80 {
 		return "low"
@@ -90,7 +90,7 @@ func (m *SmartHDDManager) calculateRiskLevel(score float64) string {
 	return "critical"
 }
 
-// GetHealthHistory 获取健康历史
+// GetHealthHistory 获取健康历史.
 func (m *SmartHDDManager) GetHealthHistory(diskID string) ([]*HealthRecord, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -118,7 +118,7 @@ func (m *SmartHDDManager) GetHealthHistory(diskID string) ([]*HealthRecord, erro
 	return records, nil
 }
 
-// HealthRecord 健康记录
+// HealthRecord 健康记录.
 type HealthRecord struct {
 	DiskID      string    `json:"disk_id"`
 	Device      string    `json:"device"`
@@ -127,7 +127,7 @@ type HealthRecord struct {
 	RecordedAt  time.Time `json:"recorded_at"`
 }
 
-// GetDiskIOStats 获取磁盘IO统计
+// GetDiskIOStats 获取磁盘IO统计.
 func (m *SmartHDDManager) GetDiskIOStats(diskID string) (*DiskIOStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -150,7 +150,7 @@ func (m *SmartHDDManager) GetDiskIOStats(diskID string) (*DiskIOStats, error) {
 	}, nil
 }
 
-// DiskIOStats 磁盘IO统计
+// DiskIOStats 磁盘IO统计.
 type DiskIOStats struct {
 	DiskID      string    `json:"disk_id"`
 	Device      string    `json:"device"`
@@ -163,7 +163,7 @@ type DiskIOStats struct {
 	CollectedAt time.Time `json:"collected_at"`
 }
 
-// GetDisksByHealth 按健康状态获取磁盘
+// GetDisksByHealth 按健康状态获取磁盘.
 func (m *SmartHDDManager) GetDisksByHealth(status HealthStatus) []*DiskInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -177,22 +177,22 @@ func (m *SmartHDDManager) GetDisksByHealth(status HealthStatus) []*DiskInfo {
 	return disks
 }
 
-// GetCriticalDisks 获取临界状态磁盘
+// GetCriticalDisks 获取临界状态磁盘.
 func (m *SmartHDDManager) GetCriticalDisks() []*DiskInfo {
 	return m.GetDisksByHealth(HealthCritical)
 }
 
-// GetWarningDisks 获取警告状态磁盘
+// GetWarningDisks 获取警告状态磁盘.
 func (m *SmartHDDManager) GetWarningDisks() []*DiskInfo {
 	return m.GetDisksByHealth(HealthWarning)
 }
 
-// GetHealthyDisks 获取健康磁盘
+// GetHealthyDisks 获取健康磁盘.
 func (m *SmartHDDManager) GetHealthyDisks() []*DiskInfo {
 	return m.GetDisksByHealth(HealthGood)
 }
 
-// ExportReport 导出健康报告
+// ExportReport 导出健康报告.
 func (m *SmartHDDManager) ExportReport() *HealthReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -218,14 +218,14 @@ func (m *SmartHDDManager) ExportReport() *HealthReport {
 	return report
 }
 
-// HealthReport 健康报告
+// HealthReport 健康报告.
 type HealthReport struct {
 	GeneratedAt time.Time     `json:"generated_at"`
 	TotalDisks  int           `json:"total_disks"`
 	Disks       []*DiskReport `json:"disks"`
 }
 
-// DiskReport 磁盘报告
+// DiskReport 磁盘报告.
 type DiskReport struct {
 	Device       string `json:"device"`
 	Model        string `json:"model"`

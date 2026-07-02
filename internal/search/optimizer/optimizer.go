@@ -18,7 +18,7 @@ import (
 // ================== 批量索引优化器 ==================
 
 // BatchOptimizer 批量索引优化器
-// 将零散的索引操作合并为批量操作，减少 I/O 开销
+// 将零散的索引操作合并为批量操作，减少 I/O 开销.
 type BatchOptimizer struct {
 	index     bleve.Index
 	batchSize int
@@ -29,13 +29,13 @@ type BatchOptimizer struct {
 	onFlush   func(count int) // 刷新回调
 }
 
-// BatchOptimizerConfig 批量优化器配置
+// BatchOptimizerConfig 批量优化器配置.
 type BatchOptimizerConfig struct {
 	BatchSize     int           `json:"batchSize"`     // 批量大小
 	FlushInterval time.Duration `json:"flushInterval"` // 定时刷新间隔
 }
 
-// DefaultBatchOptimizerConfig 默认配置
+// DefaultBatchOptimizerConfig 默认配置.
 func DefaultBatchOptimizerConfig() BatchOptimizerConfig {
 	return BatchOptimizerConfig{
 		BatchSize:     200,
@@ -43,7 +43,7 @@ func DefaultBatchOptimizerConfig() BatchOptimizerConfig {
 	}
 }
 
-// NewBatchOptimizer 创建批量索引优化器
+// NewBatchOptimizer 创建批量索引优化器.
 func NewBatchOptimizer(index bleve.Index, config BatchOptimizerConfig, logger *zap.Logger) *BatchOptimizer {
 	if config.BatchSize <= 0 {
 		config.BatchSize = 200
@@ -58,7 +58,7 @@ func NewBatchOptimizer(index bleve.Index, config BatchOptimizerConfig, logger *z
 }
 
 // Add 添加文档到批量缓冲区
-// 当缓冲区满时自动刷新
+// 当缓冲区满时自动刷新.
 func (bo *BatchOptimizer) Add(id string, data interface{}) error {
 	bo.mu.Lock()
 	defer bo.mu.Unlock()
@@ -77,7 +77,7 @@ func (bo *BatchOptimizer) Add(id string, data interface{}) error {
 	return nil
 }
 
-// Delete 删除文档（加入批量缓冲区）
+// Delete 删除文档（加入批量缓冲区）.
 func (bo *BatchOptimizer) Delete(id string) error {
 	bo.mu.Lock()
 	defer bo.mu.Unlock()
@@ -92,7 +92,7 @@ func (bo *BatchOptimizer) Delete(id string) error {
 	return nil
 }
 
-// Flush 手动刷新批量缓冲区
+// Flush 手动刷新批量缓冲区.
 func (bo *BatchOptimizer) Flush() error {
 	bo.mu.Lock()
 	defer bo.mu.Unlock()
@@ -100,7 +100,7 @@ func (bo *BatchOptimizer) Flush() error {
 	return bo.flushLocked()
 }
 
-// flushLocked 内部刷新（需持有锁）
+// flushLocked 内部刷新（需持有锁）.
 func (bo *BatchOptimizer) flushLocked() error {
 	if bo.count == 0 {
 		return nil
@@ -124,14 +124,14 @@ func (bo *BatchOptimizer) flushLocked() error {
 	return nil
 }
 
-// PendingCount 获取待提交的文档数量
+// PendingCount 获取待提交的文档数量.
 func (bo *BatchOptimizer) PendingCount() int {
 	bo.mu.Lock()
 	defer bo.mu.Unlock()
 	return bo.count
 }
 
-// SetOnFlushCallback 设置刷新回调
+// SetOnFlushCallback 设置刷新回调.
 func (bo *BatchOptimizer) SetOnFlushCallback(fn func(count int)) {
 	bo.mu.Lock()
 	defer bo.mu.Unlock()
@@ -141,7 +141,7 @@ func (bo *BatchOptimizer) SetOnFlushCallback(fn func(count int)) {
 // ================== 增量索引器 ==================
 
 // IncrementalIndexer 增量索引器
-// 只索引变更的文件，通过比较文件修改时间和内容哈希来判断
+// 只索引变更的文件，通过比较文件修改时间和内容哈希来判断.
 type IncrementalIndexer struct {
 	index        bleve.Index
 	logger       *zap.Logger
@@ -154,7 +154,7 @@ type IncrementalIndexer struct {
 	errorCount   int64
 }
 
-// IndexState 索引状态
+// IndexState 索引状态.
 type IndexState struct {
 	Files    map[string]FileMeta `json:"files"`    // 文件元信息
 	Version  int                 `json:"version"`  // 状态版本
@@ -162,7 +162,7 @@ type IndexState struct {
 	mu       sync.RWMutex
 }
 
-// FileMeta 文件元信息
+// FileMeta 文件元信息.
 type FileMeta struct {
 	Path        string    `json:"path"`
 	ModTime     time.Time `json:"modTime"`
@@ -171,7 +171,7 @@ type FileMeta struct {
 	IndexedAt   time.Time `json:"indexedAt"`
 }
 
-// IncrementalIndexerConfig 增量索引器配置
+// IncrementalIndexerConfig 增量索引器配置.
 type IncrementalIndexerConfig struct {
 	StatePath      string `json:"statePath"`      // 状态文件路径
 	BatchSize      int    `json:"batchSize"`      // 批量大小
@@ -179,7 +179,7 @@ type IncrementalIndexerConfig struct {
 	UseContentHash bool   `json:"useContentHash"` // 是否使用内容哈希比较
 }
 
-// DefaultIncrementalIndexerConfig 默认配置
+// DefaultIncrementalIndexerConfig 默认配置.
 func DefaultIncrementalIndexerConfig() IncrementalIndexerConfig {
 	return IncrementalIndexerConfig{
 		StatePath:      "/var/lib/nas-os/search/incremental.state",
@@ -189,7 +189,7 @@ func DefaultIncrementalIndexerConfig() IncrementalIndexerConfig {
 	}
 }
 
-// NewIncrementalIndexer 创建增量索引器
+// NewIncrementalIndexer 创建增量索引器.
 func NewIncrementalIndexer(index bleve.Index, config IncrementalIndexerConfig, logger *zap.Logger) (*IncrementalIndexer, error) {
 	if config.StatePath == "" {
 		config = DefaultIncrementalIndexerConfig()
@@ -217,7 +217,7 @@ func NewIncrementalIndexer(index bleve.Index, config IncrementalIndexerConfig, l
 }
 
 // ScanAndIndex 扫描目录并增量索引变更文件
-// 返回：新增数、更新数、跳过数、错误数
+// 返回：新增数、更新数、跳过数、错误数.
 func (ii *IncrementalIndexer) ScanAndIndex(root string, indexFn func(path string) (interface{}, error)) (added, updated, skipped, errored int64, err error) {
 	startTime := time.Now()
 
@@ -291,11 +291,11 @@ func (ii *IncrementalIndexer) ScanAndIndex(root string, indexFn func(path string
 		zap.Int64("errored", errored),
 		zap.Duration("duration", time.Since(startTime)))
 
-	return
+	return added, updated, skipped, errored, err
 }
 
 // needsUpdate 检查文件是否需要更新索引
-// 返回：是否需要更新，原因（new/modified/resized）
+// 返回：是否需要更新，原因（new/modified/resized）.
 func (ii *IncrementalIndexer) needsUpdate(path string, info os.FileInfo) (bool, string) {
 	ii.state.mu.RLock()
 	meta, exists := ii.state.Files[path]
@@ -318,7 +318,7 @@ func (ii *IncrementalIndexer) needsUpdate(path string, info os.FileInfo) (bool, 
 	return false, ""
 }
 
-// updateState 更新索引状态
+// updateState 更新索引状态.
 func (ii *IncrementalIndexer) updateState(path string, info os.FileInfo) {
 	ii.state.mu.Lock()
 	defer ii.state.mu.Unlock()
@@ -331,7 +331,7 @@ func (ii *IncrementalIndexer) updateState(path string, info os.FileInfo) {
 	}
 }
 
-// SaveState 保存索引状态到文件
+// SaveState 保存索引状态到文件.
 func (ii *IncrementalIndexer) SaveState() error {
 	ii.state.mu.RLock()
 	snapshot := struct {
@@ -354,7 +354,7 @@ func (ii *IncrementalIndexer) SaveState() error {
 	return os.WriteFile(ii.statePath, data, 0644)
 }
 
-// LoadState 加载索引状态
+// LoadState 加载索引状态.
 func (ii *IncrementalIndexer) LoadState() error {
 	state, err := loadIndexState(ii.statePath)
 	if err != nil {
@@ -364,7 +364,7 @@ func (ii *IncrementalIndexer) LoadState() error {
 	return nil
 }
 
-// Stats 获取索引统计
+// Stats 获取索引统计.
 func (ii *IncrementalIndexer) Stats() IncrementalStats {
 	return IncrementalStats{
 		IndexedCount: atomic.LoadInt64(&ii.indexedCount),
@@ -374,7 +374,7 @@ func (ii *IncrementalIndexer) Stats() IncrementalStats {
 	}
 }
 
-// IncrementalStats 增量索引统计
+// IncrementalStats 增量索引统计.
 type IncrementalStats struct {
 	IndexedCount int64 `json:"indexedCount"`
 	SkippedCount int64 `json:"skippedCount"`
@@ -382,7 +382,7 @@ type IncrementalStats struct {
 	TotalFiles   int64 `json:"totalFiles"`
 }
 
-// loadIndexState 从文件加载索引状态
+// loadIndexState 从文件加载索引状态.
 func loadIndexState(path string) (*IndexState, error) {
 	if path == "" {
 		return &IndexState{
@@ -419,13 +419,13 @@ func loadIndexState(path string) (*IndexState, error) {
 // ================== 索引压缩器 ==================
 
 // IndexCompactor 索引压缩器
-// 优化索引存储空间，清理已删除文档和碎片
+// 优化索引存储空间，清理已删除文档和碎片.
 type IndexCompactor struct {
 	index  bleve.Index
 	logger *zap.Logger
 }
 
-// CompactResult 压缩结果
+// CompactResult 压缩结果.
 type CompactResult struct {
 	BeforeSize int64         `json:"beforeSize"` // 压缩前大小
 	AfterSize  int64         `json:"afterSize"`  // 压缩后大小
@@ -433,7 +433,7 @@ type CompactResult struct {
 	Duration   time.Duration `json:"duration"`   // 耗时
 }
 
-// NewIndexCompactor 创建索引压缩器
+// NewIndexCompactor 创建索引压缩器.
 func NewIndexCompactor(index bleve.Index, logger *zap.Logger) *IndexCompactor {
 	return &IndexCompactor{
 		index:  index,
@@ -442,7 +442,7 @@ func NewIndexCompactor(index bleve.Index, logger *zap.Logger) *IndexCompactor {
 }
 
 // Compact 执行索引压缩
-// 通过重建索引来消除碎片和已删除条目
+// 通过重建索引来消除碎片和已删除条目.
 func (ic *IndexCompactor) Compact(indexPath string) (*CompactResult, error) {
 	startTime := time.Now()
 
@@ -485,7 +485,7 @@ func (ic *IndexCompactor) Compact(indexPath string) (*CompactResult, error) {
 
 // ================== 索引统计 ==================
 
-// IndexStats 索引统计信息
+// IndexStats 索引统计信息.
 type IndexStats struct {
 	// 基本统计
 	TotalDocuments int64  `json:"totalDocuments"` // 总文档数
@@ -511,7 +511,7 @@ type IndexStats struct {
 }
 
 // StatsCollector 统计收集器
-// 收集和聚合索引性能指标
+// 收集和聚合索引性能指标.
 type StatsCollector struct {
 	index         bleve.Index
 	logger        *zap.Logger
@@ -524,7 +524,7 @@ type StatsCollector struct {
 	mu            sync.RWMutex
 }
 
-// NewStatsCollector 创建统计收集器
+// NewStatsCollector 创建统计收集器.
 func NewStatsCollector(index bleve.Index, logger *zap.Logger) *StatsCollector {
 	return &StatsCollector{
 		index:     index,
@@ -533,26 +533,26 @@ func NewStatsCollector(index bleve.Index, logger *zap.Logger) *StatsCollector {
 	}
 }
 
-// RecordSearch 记录一次搜索
+// RecordSearch 记录一次搜索.
 func (sc *StatsCollector) RecordSearch(duration time.Duration) {
 	atomic.AddInt64(&sc.totalSearches, 1)
 	atomic.AddInt64(&sc.totalSearchMs, duration.Milliseconds())
 }
 
-// RecordIndex 记录一次索引操作
+// RecordIndex 记录一次索引操作.
 func (sc *StatsCollector) RecordIndex(count int, duration time.Duration) {
 	atomic.AddInt64(&sc.totalIndexed, int64(count))
 	atomic.AddInt64(&sc.totalIndexMs, duration.Milliseconds())
 }
 
-// RecordOptimization 记录一次优化操作
+// RecordOptimization 记录一次优化操作.
 func (sc *StatsCollector) RecordOptimization() {
 	sc.mu.Lock()
 	defer sc.mu.Unlock()
 	sc.lastOptimized = time.Now()
 }
 
-// GetStats 获取索引统计信息
+// GetStats 获取索引统计信息.
 func (sc *StatsCollector) GetStats(indexPath string) *IndexStats {
 	sc.mu.RLock()
 	defer sc.mu.RUnlock()
@@ -588,7 +588,7 @@ func (sc *StatsCollector) GetStats(indexPath string) *IndexStats {
 
 // ================== 辅助函数 ==================
 
-// getDirSize 获取目录总大小
+// getDirSize 获取目录总大小.
 func getDirSize(path string) (int64, error) {
 	var size int64
 	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
@@ -603,7 +603,7 @@ func getDirSize(path string) (int64, error) {
 	return size, err
 }
 
-// formatBytes 格式化字节大小为人类可读字符串
+// formatBytes 格式化字节大小为人类可读字符串.
 func formatBytes(bytes int64) string {
 	const (
 		KB = 1024

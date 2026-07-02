@@ -20,14 +20,14 @@ func TestAddFeature(t *testing.T) {
 		Priority:    "high",
 		Assignee:    "兵部",
 	})
-	
+
 	if feat.ID == "" {
 		t.Fatal("expected non-empty ID")
 	}
 	if feat.Status != "planned" {
 		t.Errorf("expected status 'planned', got %s", feat.Status)
 	}
-	
+
 	features := rm.GetFeatures()
 	if len(features) != 1 {
 		t.Fatalf("expected 1 feature, got %d", len(features))
@@ -40,7 +40,7 @@ func TestUpdateFeature(t *testing.T) {
 		Title:    "测试功能",
 		Priority: "medium",
 	})
-	
+
 	ok := rm.UpdateFeature(feat.ID, map[string]interface{}{
 		"status":   "in_progress",
 		"progress": 50.0,
@@ -48,7 +48,7 @@ func TestUpdateFeature(t *testing.T) {
 	if !ok {
 		t.Fatal("expected true")
 	}
-	
+
 	features := rm.GetFeatures()
 	if features[0].Status != "in_progress" {
 		t.Errorf("expected status 'in_progress', got %s", features[0].Status)
@@ -73,12 +73,12 @@ func TestGetStats(t *testing.T) {
 	rm := NewFeatureRoadmap()
 	rm.AddFeature(Feature{Title: "A", Priority: "high", Status: "planned"})
 	rm.AddFeature(Feature{Title: "B", Priority: "low", Status: "released"})
-	
+
 	features := rm.GetFeatures()
 	if len(features) != 2 {
 		t.Fatalf("expected 2 features, got %d", len(features))
 	}
-	
+
 	stats := rm.GetStats()
 	if stats.TotalFeatures != 2 {
 		t.Errorf("expected 2 features, got %d", stats.TotalFeatures)

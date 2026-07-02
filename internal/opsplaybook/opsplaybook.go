@@ -46,33 +46,33 @@ const (
 type StepType string
 
 const (
-	StepCommand    StepType = "command"
-	StepScript     StepType = "script"
-	StepHTTP       StepType = "http"
-	StepCheck      StepType = "check"
-	StepApproval   StepType = "approval"
-	StepNotify     StepType = "notify"
-	StepWait       StepType = "wait"
+	StepCommand  StepType = "command"
+	StepScript   StepType = "script"
+	StepHTTP     StepType = "http"
+	StepCheck    StepType = "check"
+	StepApproval StepType = "approval"
+	StepNotify   StepType = "notify"
+	StepWait     StepType = "wait"
 )
 
 // Playbook represents an operations playbook template.
 type Playbook struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	Category    string         `json:"category"`
-	Severity    Severity       `json:"severity"`
-	Status      PlaybookStatus `json:"status"`
-	Tags        []string       `json:"tags,omitempty"`
-	Steps       []Step         `json:"steps"`
-	RequiresApproval bool      `json:"requires_approval"`
-	SLATargetMinutes int       `json:"sla_target_minutes"`
-	CreatedBy   string         `json:"created_by"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	Version     int            `json:"version"`
-	RunCount    int            `json:"run_count"`
-	SuccessRate float64        `json:"success_rate"`
+	ID               string         `json:"id"`
+	Name             string         `json:"name"`
+	Description      string         `json:"description"`
+	Category         string         `json:"category"`
+	Severity         Severity       `json:"severity"`
+	Status           PlaybookStatus `json:"status"`
+	Tags             []string       `json:"tags,omitempty"`
+	Steps            []Step         `json:"steps"`
+	RequiresApproval bool           `json:"requires_approval"`
+	SLATargetMinutes int            `json:"sla_target_minutes"`
+	CreatedBy        string         `json:"created_by"`
+	CreatedAt        time.Time      `json:"created_at"`
+	UpdatedAt        time.Time      `json:"updated_at"`
+	Version          int            `json:"version"`
+	RunCount         int            `json:"run_count"`
+	SuccessRate      float64        `json:"success_rate"`
 }
 
 // Step represents a single step in a playbook.
@@ -95,39 +95,39 @@ type Step struct {
 
 // Execution represents a single execution of a playbook.
 type Execution struct {
-	ID          string          `json:"id"`
-	PlaybookID  string          `json:"playbook_id"`
-	Status      ExecutionStatus `json:"status"`
-	TriggeredBy string          `json:"triggered_by"`
-	StartedAt   *time.Time      `json:"started_at,omitempty"`
-	CompletedAt *time.Time      `json:"completed_at,omitempty"`
-	DurationMs  int64           `json:"duration_ms"`
-	StepResults []StepResult    `json:"step_results"`
-	Approval    *ApprovalRecord `json:"approval,omitempty"`
-	Error       string          `json:"error,omitempty"`
+	ID          string            `json:"id"`
+	PlaybookID  string            `json:"playbook_id"`
+	Status      ExecutionStatus   `json:"status"`
+	TriggeredBy string            `json:"triggered_by"`
+	StartedAt   *time.Time        `json:"started_at,omitempty"`
+	CompletedAt *time.Time        `json:"completed_at,omitempty"`
+	DurationMs  int64             `json:"duration_ms"`
+	StepResults []StepResult      `json:"step_results"`
+	Approval    *ApprovalRecord   `json:"approval,omitempty"`
+	Error       string            `json:"error,omitempty"`
 	Context     map[string]string `json:"context,omitempty"`
 }
 
 // StepResult represents the result of executing a single step.
 type StepResult struct {
-	StepID    string        `json:"step_id"`
-	Status    ExecutionStatus `json:"status"`
-	Output    string        `json:"output,omitempty"`
-	Error     string        `json:"error,omitempty"`
-	StartedAt time.Time     `json:"started_at"`
-	EndAt     time.Time     `json:"end_at"`
-	DurationMs int64        `json:"duration_ms"`
-	Retries   int           `json:"retries"`
+	StepID     string          `json:"step_id"`
+	Status     ExecutionStatus `json:"status"`
+	Output     string          `json:"output,omitempty"`
+	Error      string          `json:"error,omitempty"`
+	StartedAt  time.Time       `json:"started_at"`
+	EndAt      time.Time       `json:"end_at"`
+	DurationMs int64           `json:"duration_ms"`
+	Retries    int             `json:"retries"`
 }
 
 // ApprovalRecord represents an approval request and its outcome.
 type ApprovalRecord struct {
-	RequestedAt  time.Time  `json:"requested_at"`
-	RequestedBy  string     `json:"requested_by"`
-	Approver     string     `json:"approver,omitempty"`
-	Approved     bool       `json:"approved"`
-	DecidedAt    *time.Time `json:"decided_at,omitempty"`
-	Comment      string     `json:"comment,omitempty"`
+	RequestedAt time.Time  `json:"requested_at"`
+	RequestedBy string     `json:"requested_by"`
+	Approver    string     `json:"approver,omitempty"`
+	Approved    bool       `json:"approved"`
+	DecidedAt   *time.Time `json:"decided_at,omitempty"`
+	Comment     string     `json:"comment,omitempty"`
 }
 
 // SLAReport represents an SLA compliance report.
@@ -145,16 +145,16 @@ type SLAReport struct {
 
 // KnowledgeEntry represents a knowledge base article linked to a playbook.
 type KnowledgeEntry struct {
-	ID          string    `json:"id"`
-	PlaybookID  string    `json:"playbook_id"`
-	Title       string    `json:"title"`
-	Content     string    `json:"content"`
-	Category    string    `json:"category"`
-	Tags        []string  `json:"tags,omitempty"`
-	Author      string    `json:"author"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	Helpful     int       `json:"helpful_count"`
+	ID         string    `json:"id"`
+	PlaybookID string    `json:"playbook_id"`
+	Title      string    `json:"title"`
+	Content    string    `json:"content"`
+	Category   string    `json:"category"`
+	Tags       []string  `json:"tags,omitempty"`
+	Author     string    `json:"author"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+	Helpful    int       `json:"helpful_count"`
 }
 
 // Manager manages playbooks, executions, and knowledge base.

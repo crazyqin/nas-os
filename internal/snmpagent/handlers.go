@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 提供 SNMP 管理的 HTTP 处理器
+// Handlers 提供 SNMP 管理的 HTTP 处理器.
 type Handlers struct {
 	agent *Agent
 }
 
-// NewHandlers 创建新的 SNMP 处理器
+// NewHandlers 创建新的 SNMP 处理器.
 func NewHandlers(agent *Agent) *Handlers {
 	return &Handlers{agent: agent}
 }
 
-// RegisterRoutes 注册 SNMP API 路由
+// RegisterRoutes 注册 SNMP API 路由.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	snmp := rg.Group("/snmp")
 	{
@@ -32,13 +32,13 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// getStatus 返回 SNMP 代理状态
+// getStatus 返回 SNMP 代理状态.
 func (h *Handlers) getStatus(c *gin.Context) {
 	status := h.agent.GetStatus()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": status})
 }
 
-// startAgent 启动 SNMP 代理
+// startAgent 启动 SNMP 代理.
 func (h *Handlers) startAgent(c *gin.Context) {
 	if err := h.agent.Start(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
@@ -47,7 +47,7 @@ func (h *Handlers) startAgent(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "SNMP 代理已启动"})
 }
 
-// stopAgent 停止 SNMP 代理
+// stopAgent 停止 SNMP 代理.
 func (h *Handlers) stopAgent(c *gin.Context) {
 	if err := h.agent.Stop(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
@@ -56,13 +56,13 @@ func (h *Handlers) stopAgent(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "SNMP 代理已停止"})
 }
 
-// listMetrics 列出所有 SNMP 指标
+// listMetrics 列出所有 SNMP 指标.
 func (h *Handlers) listMetrics(c *gin.Context) {
 	metrics := h.agent.ListMetrics()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": metrics})
 }
 
-// registerMetric 注册新的 SNMP 指标
+// registerMetric 注册新的 SNMP 指标.
 func (h *Handlers) registerMetric(c *gin.Context) {
 	var req struct {
 		OID    string            `json:"oid"`
@@ -82,7 +82,7 @@ func (h *Handlers) registerMetric(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "指标已注册"})
 }
 
-// updateMetric 更新 SNMP 指标值
+// updateMetric 更新 SNMP 指标值.
 func (h *Handlers) updateMetric(c *gin.Context) {
 	oid := c.Param("oid")
 	var req struct {
@@ -99,7 +99,7 @@ func (h *Handlers) updateMetric(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "指标已更新"})
 }
 
-// deleteMetric 删除 SNMP 指标
+// deleteMetric 删除 SNMP 指标.
 func (h *Handlers) deleteMetric(c *gin.Context) {
 	oid := c.Param("oid")
 	if err := h.agent.UnregisterMetric(oid); err != nil {
@@ -109,13 +109,13 @@ func (h *Handlers) deleteMetric(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "指标已删除"})
 }
 
-// getConfig 获取 SNMP 配置
+// getConfig 获取 SNMP 配置.
 func (h *Handlers) getConfig(c *gin.Context) {
 	cfg := h.agent.GetConfig()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": cfg})
 }
 
-// updateConfig 更新 SNMP 配置
+// updateConfig 更新 SNMP 配置.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var cfg SNMPConfig
 	if err := c.ShouldBindJSON(&cfg); err != nil {

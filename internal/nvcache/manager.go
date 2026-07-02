@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager NVMe 缓存管理器
+// Manager NVMe 缓存管理器.
 type Manager struct {
 	mu            sync.RWMutex
 	logger        *zap.Logger
@@ -30,7 +30,7 @@ type Manager struct {
 	running       bool
 }
 
-// NewManager 创建 NVMe 缓存管理器
+// NewManager 创建 NVMe 缓存管理器.
 func NewManager(logger *zap.Logger, config *CacheGlobalConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -54,12 +54,12 @@ func NewManager(logger *zap.Logger, config *CacheGlobalConfig) *Manager {
 	}
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	return fmt.Sprintf("%d", time.Now().UnixNano())
 }
 
-// RegisterDevice 注册缓存设备
+// RegisterDevice 注册缓存设备.
 func (m *Manager) RegisterDevice(req *RegisterDeviceRequest) (*CacheDevice, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -93,7 +93,7 @@ func (m *Manager) RegisterDevice(req *RegisterDeviceRequest) (*CacheDevice, erro
 	return device, nil
 }
 
-// GetDevice 获取设备信息
+// GetDevice 获取设备信息.
 func (m *Manager) GetDevice(id string) (*CacheDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -105,7 +105,7 @@ func (m *Manager) GetDevice(id string) (*CacheDevice, error) {
 	return device, nil
 }
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (m *Manager) ListDevices(role DeviceRole) []*CacheDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -124,7 +124,7 @@ func (m *Manager) ListDevices(role DeviceRole) []*CacheDevice {
 	return devices
 }
 
-// UnregisterDevice 注销设备
+// UnregisterDevice 注销设备.
 func (m *Manager) UnregisterDevice(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -151,7 +151,7 @@ func (m *Manager) UnregisterDevice(id string) error {
 	return nil
 }
 
-// CreatePool 创建缓存池
+// CreatePool 创建缓存池.
 func (m *Manager) CreatePool(req *CreatePoolRequest) (*CachePool, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -225,7 +225,7 @@ func (m *Manager) CreatePool(req *CreatePoolRequest) (*CachePool, error) {
 	return pool, nil
 }
 
-// getMinDevicesForRAID 获取 RAID 级别最少设备数
+// getMinDevicesForRAID 获取 RAID 级别最少设备数.
 func getMinDevicesForRAID(level RAIDLevel) int {
 	switch level {
 	case RAID0:
@@ -241,7 +241,7 @@ func getMinDevicesForRAID(level RAIDLevel) int {
 	}
 }
 
-// calculateRAIDCapacity 计算 RAID 有效容量
+// calculateRAIDCapacity 计算 RAID 有效容量.
 func calculateRAIDCapacity(level RAIDLevel, devices []*CacheDevice) int64 {
 	if len(devices) == 0 {
 		return 0
@@ -269,7 +269,7 @@ func calculateRAIDCapacity(level RAIDLevel, devices []*CacheDevice) int64 {
 	}
 }
 
-// GetPool 获取缓存池
+// GetPool 获取缓存池.
 func (m *Manager) GetPool(id string) (*CachePool, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -281,7 +281,7 @@ func (m *Manager) GetPool(id string) (*CachePool, error) {
 	return pool, nil
 }
 
-// ListPools 列出所有缓存池
+// ListPools 列出所有缓存池.
 func (m *Manager) ListPools() []*CachePool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -298,7 +298,7 @@ func (m *Manager) ListPools() []*CachePool {
 	return pools
 }
 
-// DeletePool 删除缓存池
+// DeletePool 删除缓存池.
 func (m *Manager) DeletePool(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -333,7 +333,7 @@ func (m *Manager) DeletePool(id string) error {
 	return nil
 }
 
-// UpdatePoolPolicy 更新缓存池策略
+// UpdatePoolPolicy 更新缓存池策略.
 func (m *Manager) UpdatePoolPolicy(id string, req *UpdatePolicyRequest) (*CachePool, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -363,7 +363,7 @@ func (m *Manager) UpdatePoolPolicy(id string, req *UpdatePolicyRequest) (*CacheP
 	return pool, nil
 }
 
-// CreateMapping 创建缓存映射
+// CreateMapping 创建缓存映射.
 func (m *Manager) CreateMapping(req *CreateMappingRequest) (*CacheMapping, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -423,7 +423,7 @@ func (m *Manager) CreateMapping(req *CreateMappingRequest) (*CacheMapping, error
 	return mapping, nil
 }
 
-// GetMapping 获取缓存映射
+// GetMapping 获取缓存映射.
 func (m *Manager) GetMapping(id string) (*CacheMapping, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -435,7 +435,7 @@ func (m *Manager) GetMapping(id string) (*CacheMapping, error) {
 	return mapping, nil
 }
 
-// ListMappings 列出缓存映射
+// ListMappings 列出缓存映射.
 func (m *Manager) ListMappings(poolID string) []*CacheMapping {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -454,7 +454,7 @@ func (m *Manager) ListMappings(poolID string) []*CacheMapping {
 	return mappings
 }
 
-// DeleteMapping 删除缓存映射
+// DeleteMapping 删除缓存映射.
 func (m *Manager) DeleteMapping(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -478,7 +478,7 @@ func (m *Manager) DeleteMapping(id string) error {
 	return nil
 }
 
-// CreateTierRule 创建分层规则
+// CreateTierRule 创建分层规则.
 func (m *Manager) CreateTierRule(req *CreateTierRuleRequest) (*TierRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -510,7 +510,7 @@ func (m *Manager) CreateTierRule(req *CreateTierRuleRequest) (*TierRule, error) 
 	return rule, nil
 }
 
-// GetTierRule 获取分层规则
+// GetTierRule 获取分层规则.
 func (m *Manager) GetTierRule(id string) (*TierRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -522,7 +522,7 @@ func (m *Manager) GetTierRule(id string) (*TierRule, error) {
 	return rule, nil
 }
 
-// ListTierRules 列出分层规则
+// ListTierRules 列出分层规则.
 func (m *Manager) ListTierRules() []*TierRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -539,7 +539,7 @@ func (m *Manager) ListTierRules() []*TierRule {
 	return rules
 }
 
-// UpdateTierRule 更新分层规则
+// UpdateTierRule 更新分层规则.
 func (m *Manager) UpdateTierRule(id string, req *CreateTierRuleRequest) (*TierRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -561,7 +561,7 @@ func (m *Manager) UpdateTierRule(id string, req *CreateTierRuleRequest) (*TierRu
 	return rule, nil
 }
 
-// DeleteTierRule 删除分层规则
+// DeleteTierRule 删除分层规则.
 func (m *Manager) DeleteTierRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -574,7 +574,7 @@ func (m *Manager) DeleteTierRule(id string) error {
 	return nil
 }
 
-// CreateWarmupTask 创建缓存预热任务
+// CreateWarmupTask 创建缓存预热任务.
 func (m *Manager) CreateWarmupTask(req *CreateWarmupRequest) (*WarmupTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -613,7 +613,7 @@ func (m *Manager) CreateWarmupTask(req *CreateWarmupRequest) (*WarmupTask, error
 	return task, nil
 }
 
-// executeWarmupTask 执行预热任务
+// executeWarmupTask 执行预热任务.
 func (m *Manager) executeWarmupTask(task *WarmupTask) {
 	// 模拟预热过程
 	time.Sleep(2 * time.Second)
@@ -632,7 +632,7 @@ func (m *Manager) executeWarmupTask(task *WarmupTask) {
 		zap.Int("files", task.WarmedFiles))
 }
 
-// GetWarmupTask 获取预热任务
+// GetWarmupTask 获取预热任务.
 func (m *Manager) GetWarmupTask(id string) (*WarmupTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -644,7 +644,7 @@ func (m *Manager) GetWarmupTask(id string) (*WarmupTask, error) {
 	return task, nil
 }
 
-// ListWarmupTasks 列出预热任务
+// ListWarmupTasks 列出预热任务.
 func (m *Manager) ListWarmupTasks(poolID string) []*WarmupTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -663,7 +663,7 @@ func (m *Manager) ListWarmupTasks(poolID string) []*WarmupTask {
 	return tasks
 }
 
-// CancelWarmupTask 取消预热任务
+// CancelWarmupTask 取消预热任务.
 func (m *Manager) CancelWarmupTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -684,7 +684,7 @@ func (m *Manager) CancelWarmupTask(id string) error {
 	return nil
 }
 
-// StartConsistencyCheck 启动一致性检查
+// StartConsistencyCheck 启动一致性检查.
 func (m *Manager) StartConsistencyCheck(poolID string) (*ConsistencyCheck, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -725,7 +725,7 @@ func (m *Manager) StartConsistencyCheck(poolID string) (*ConsistencyCheck, error
 	return check, nil
 }
 
-// executeConsistencyCheck 执行一致性检查
+// executeConsistencyCheck 执行一致性检查.
 func (m *Manager) executeConsistencyCheck(check *ConsistencyCheck) {
 	// 模拟检查过程
 	time.Sleep(3 * time.Second)
@@ -743,7 +743,7 @@ func (m *Manager) executeConsistencyCheck(check *ConsistencyCheck) {
 		zap.Int64("inconsistent", check.InconsistentBlocks))
 }
 
-// GetConsistencyCheck 获取一致性检查结果
+// GetConsistencyCheck 获取一致性检查结果.
 func (m *Manager) GetConsistencyCheck(id string) (*ConsistencyCheck, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -755,7 +755,7 @@ func (m *Manager) GetConsistencyCheck(id string) (*ConsistencyCheck, error) {
 	return check, nil
 }
 
-// ListConsistencyChecks 列出一致性检查结果
+// ListConsistencyChecks 列出一致性检查结果.
 func (m *Manager) ListConsistencyChecks(poolID string) []*ConsistencyCheck {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -774,7 +774,7 @@ func (m *Manager) ListConsistencyChecks(poolID string) []*ConsistencyCheck {
 	return checks
 }
 
-// GetStats 获取缓存统计信息
+// GetStats 获取缓存统计信息.
 func (m *Manager) GetStats(poolID string) (*CacheStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -791,7 +791,7 @@ func (m *Manager) GetStats(poolID string) (*CacheStats, error) {
 	return stats, nil
 }
 
-// calculateHitRate 计算命中率
+// calculateHitRate 计算命中率.
 func calculateHitRate(hit, miss int64) float64 {
 	total := hit + miss
 	if total == 0 {
@@ -800,7 +800,7 @@ func calculateHitRate(hit, miss int64) float64 {
 	return math.Round(float64(hit)/float64(total)*10000) / 100
 }
 
-// GetStatsHistory 获取统计历史
+// GetStatsHistory 获取统计历史.
 func (m *Manager) GetStatsHistory(poolID string, limit int) []*CacheStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -824,7 +824,7 @@ func (m *Manager) GetStatsHistory(poolID string, limit int) []*CacheStats {
 	return result
 }
 
-// UpdateStats 更新缓存统计（模拟 IO 操作时调用）
+// UpdateStats 更新缓存统计（模拟 IO 操作时调用）.
 func (m *Manager) UpdateStats(poolID string, hit bool, isRead bool, bytes int64, latencyUs float64) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -867,7 +867,7 @@ func (m *Manager) UpdateStats(poolID string, hit bool, isRead bool, bytes int64,
 	stats.BandwidthMBps = float64(stats.TotalReadBytes+stats.TotalWriteBytes) / 1024 / 1024
 }
 
-// FlushCache 刷回缓存中的脏数据
+// FlushCache 刷回缓存中的脏数据.
 func (m *Manager) FlushCache(ctx context.Context, req *FlushRequest) error {
 	m.mu.RLock()
 	pool, ok := m.pools[req.CachePoolID]
@@ -909,7 +909,7 @@ func (m *Manager) FlushCache(ctx context.Context, req *FlushRequest) error {
 	return nil
 }
 
-// InvalidateCache 失效指定缓存
+// InvalidateCache 失效指定缓存.
 func (m *Manager) InvalidateCache(poolID string, paths []string) error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -926,7 +926,7 @@ func (m *Manager) InvalidateCache(poolID string, paths []string) error {
 	return nil
 }
 
-// GetConfig 获取全局配置
+// GetConfig 获取全局配置.
 func (m *Manager) GetConfig() *CacheGlobalConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -934,7 +934,7 @@ func (m *Manager) GetConfig() *CacheGlobalConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新全局配置
+// UpdateConfig 更新全局配置.
 func (m *Manager) UpdateConfig(cfg *CacheGlobalConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -943,22 +943,22 @@ func (m *Manager) UpdateConfig(cfg *CacheGlobalConfig) {
 	}
 }
 
-// GetSupportedPolicies 获取支持的缓存策略
+// GetSupportedPolicies 获取支持的缓存策略.
 func (m *Manager) GetSupportedPolicies() []CachePolicy {
 	return SupportedPolicies()
 }
 
-// GetSupportedEvictions 获取支持的淘汰策略
+// GetSupportedEvictions 获取支持的淘汰策略.
 func (m *Manager) GetSupportedEvictions() []EvictionPolicy {
 	return SupportedEvictions()
 }
 
-// GetSupportedRAIDLevels 获取支持的 RAID 级别
+// GetSupportedRAIDLevels 获取支持的 RAID 级别.
 func (m *Manager) GetSupportedRAIDLevels() []RAIDLevel {
 	return SupportedRAIDLevels()
 }
 
-// GetSystemOverview 获取系统概览
+// GetSystemOverview 获取系统概览.
 func (m *Manager) GetSystemOverview() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1009,7 +1009,7 @@ func (m *Manager) GetSystemOverview() map[string]interface{} {
 	}
 }
 
-// calculateUsagePercent 计算使用率百分比
+// calculateUsagePercent 计算使用率百分比.
 func calculateUsagePercent(used, total int64) float64 {
 	if total == 0 {
 		return 0
@@ -1017,7 +1017,7 @@ func calculateUsagePercent(used, total int64) float64 {
 	return math.Round(float64(used)/float64(total)*10000) / 100
 }
 
-// SearchDevices 搜索设备
+// SearchDevices 搜索设备.
 func (m *Manager) SearchDevices(keyword string) []*CacheDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

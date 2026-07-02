@@ -4,7 +4,7 @@ package sprintboard
 
 import "time"
 
-// BoardType 看板类型
+// BoardType 看板类型.
 type BoardType string
 
 const (
@@ -12,7 +12,7 @@ const (
 	BoardTypeKanban BoardType = "kanban"
 )
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -24,7 +24,7 @@ const (
 	TaskStatusBlocked    TaskStatus = "blocked"
 )
 
-// TaskPriority 任务优先级
+// TaskPriority 任务优先级.
 type TaskPriority string
 
 const (
@@ -34,7 +34,7 @@ const (
 	PriorityLow      TaskPriority = "low"
 )
 
-// TaskType 任务类型
+// TaskType 任务类型.
 type TaskType string
 
 const (
@@ -45,7 +45,7 @@ const (
 	TaskTypeSubtask TaskType = "subtask"
 )
 
-// SprintStatus Sprint 状态
+// SprintStatus Sprint 状态.
 type SprintStatus string
 
 const (
@@ -55,7 +55,7 @@ const (
 	SprintStatusCanceled SprintStatus = "canceled"
 )
 
-// Sprint Sprint 迭代
+// Sprint Sprint 迭代.
 type Sprint struct {
 	ID        string       `json:"id"`
 	BoardID   string       `json:"board_id"`
@@ -70,7 +70,7 @@ type Sprint struct {
 	UpdatedAt time.Time    `json:"updated_at"`
 }
 
-// Task 任务卡片
+// Task 任务卡片.
 type Task struct {
 	ID          string       `json:"id"`
 	BoardID     string       `json:"board_id"`
@@ -93,7 +93,7 @@ type Task struct {
 	CompletedAt *time.Time   `json:"completed_at,omitempty"`
 }
 
-// Board 看板
+// Board 看板.
 type Board struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name" binding:"required"`
@@ -107,7 +107,7 @@ type Board struct {
 	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
-// Column 看板列
+// Column 看板列.
 type Column struct {
 	ID        string     `json:"id"`
 	Name      string     `json:"name"`
@@ -117,7 +117,7 @@ type Column struct {
 	TaskCount int        `json:"task_count"`
 }
 
-// SwimLane 泳道
+// SwimLane 泳道.
 type SwimLane struct {
 	ID          string    `json:"id"`
 	BoardID     string    `json:"board_id"`
@@ -128,7 +128,7 @@ type SwimLane struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// SprintMetrics Sprint 指标
+// SprintMetrics Sprint 指标.
 type SprintMetrics struct {
 	SprintID        string         `json:"sprint_id"`
 	SprintName      string         `json:"sprint_name"`
@@ -148,7 +148,7 @@ type SprintMetrics struct {
 	BlockedTasks    int            `json:"blocked_tasks"`
 }
 
-// BurndownDay 燃尽图每日数据点
+// BurndownDay 燃尽图每日数据点.
 type BurndownDay struct {
 	Date            time.Time `json:"date"`
 	RemainingPoints int       `json:"remaining_points"`
@@ -157,7 +157,7 @@ type BurndownDay struct {
 	PointsCompleted int       `json:"points_completed"`
 }
 
-// CreateSprintRequest 创建 Sprint 请求
+// CreateSprintRequest 创建 Sprint 请求.
 type CreateSprintRequest struct {
 	BoardID   string    `json:"board_id" binding:"required"`
 	Name      string    `json:"name" binding:"required"`
@@ -167,7 +167,7 @@ type CreateSprintRequest struct {
 	Capacity  int       `json:"capacity,omitempty"`
 }
 
-// CreateTaskRequest 创建任务请求
+// CreateTaskRequest 创建任务请求.
 type CreateTaskRequest struct {
 	BoardID     string       `json:"board_id" binding:"required"`
 	SprintID    string       `json:"sprint_id,omitempty"`
@@ -183,14 +183,14 @@ type CreateTaskRequest struct {
 	DueDate     *time.Time   `json:"due_date,omitempty"`
 }
 
-// MoveTaskRequest 移动任务请求
+// MoveTaskRequest 移动任务请求.
 type MoveTaskRequest struct {
 	TargetStatus TaskStatus `json:"target_status" binding:"required"`
 	Position     int        `json:"position,omitempty"`
 	SwimLaneID   string     `json:"swim_lane_id,omitempty"`
 }
 
-// CreateBoardRequest 创建看板请求
+// CreateBoardRequest 创建看板请求.
 type CreateBoardRequest struct {
 	Name        string    `json:"name" binding:"required"`
 	Type        BoardType `json:"type" binding:"required"`
@@ -198,7 +198,7 @@ type CreateBoardRequest struct {
 	OwnerID     string    `json:"owner_id" binding:"required"`
 }
 
-// CreateSwimLaneRequest 创建泳道请求
+// CreateSwimLaneRequest 创建泳道请求.
 type CreateSwimLaneRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description,omitempty"`

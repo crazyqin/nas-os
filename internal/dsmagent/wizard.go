@@ -8,52 +8,52 @@ import (
 )
 
 // GuidedWizard 引导式向导，帮助管理员完成复杂任务
-// 提供步骤引导、用户交互、进度跟踪和错误恢复能力
+// 提供步骤引导、用户交互、进度跟踪和错误恢复能力.
 type GuidedWizard struct {
-	mu         sync.RWMutex
-	templates  map[string]*WizardTemplate  // 向导模板库
-	sessions   map[string]*WizardSession   // 活跃会话
+	mu        sync.RWMutex
+	templates map[string]*WizardTemplate // 向导模板库
+	sessions  map[string]*WizardSession  // 活跃会话
 }
 
-// WizardTemplate 向导模板
+// WizardTemplate 向导模板.
 type WizardTemplate struct {
-	ID          string           `json:"id"`
-	Name        string           `json:"name"`
-	Description string           `json:"description"`
-	Category    string           `json:"category"`
-	Steps       []WizardStepDef  `json:"steps"`
-	RequiredRole AgentRole       `json:"required_role"`
-	EstimatedTime time.Duration  `json:"estimated_time"` // 预估完成时间
+	ID            string          `json:"id"`
+	Name          string          `json:"name"`
+	Description   string          `json:"description"`
+	Category      string          `json:"category"`
+	Steps         []WizardStepDef `json:"steps"`
+	RequiredRole  AgentRole       `json:"required_role"`
+	EstimatedTime time.Duration   `json:"estimated_time"` // 预估完成时间
 }
 
-// WizardStepDef 向导步骤定义
+// WizardStepDef 向导步骤定义.
 type WizardStepDef struct {
-	ID          string              `json:"id"`
-	Name        string              `json:"name"`
-	Description string              `json:"description"`
-	Type        WizardStepType      `json:"type"`
-	Fields      []WizardField       `json:"fields,omitempty"`    // 需要用户输入的字段
-	Validation  string              `json:"validation,omitempty"` // 验证规则
-	Optional    bool                `json:"optional,omitempty"`   // 是否可选步骤
+	ID          string         `json:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Type        WizardStepType `json:"type"`
+	Fields      []WizardField  `json:"fields,omitempty"`     // 需要用户输入的字段
+	Validation  string         `json:"validation,omitempty"` // 验证规则
+	Optional    bool           `json:"optional,omitempty"`   // 是否可选步骤
 }
 
-// WizardStepType 向导步骤类型
+// WizardStepType 向导步骤类型.
 type WizardStepType string
 
 const (
-	StepTypeInput    WizardStepType = "input"     // 用户输入
-	StepTypeSelect   WizardStepType = "select"    // 单选
-	StepTypeMulti    WizardStepType = "multi"     // 多选
-	StepTypeConfirm  WizardStepType = "confirm"   // 确认
-	StepTypeInfo     WizardStepType = "info"      // 信息展示
-	StepTypeExecute  WizardStepType = "execute"   // 执行操作
+	StepTypeInput   WizardStepType = "input"   // 用户输入
+	StepTypeSelect  WizardStepType = "select"  // 单选
+	StepTypeMulti   WizardStepType = "multi"   // 多选
+	StepTypeConfirm WizardStepType = "confirm" // 确认
+	StepTypeInfo    WizardStepType = "info"    // 信息展示
+	StepTypeExecute WizardStepType = "execute" // 执行操作
 )
 
-// WizardField 向导字段定义
+// WizardField 向导字段定义.
 type WizardField struct {
 	Name        string   `json:"name"`
 	Label       string   `json:"label"`
-	Type        string   `json:"type"`        // text, number, password, select
+	Type        string   `json:"type"` // text, number, password, select
 	Required    bool     `json:"required"`
 	Default     string   `json:"default,omitempty"`
 	Options     []string `json:"options,omitempty"` // 用于select类型
@@ -61,7 +61,7 @@ type WizardField struct {
 	HelpText    string   `json:"help_text,omitempty"`
 }
 
-// WizardSession 向导会话实例
+// WizardSession 向导会话实例.
 type WizardSession struct {
 	ID          string                 `json:"id"`
 	TemplateID  string                 `json:"template_id"`
@@ -75,7 +75,7 @@ type WizardSession struct {
 	Error       string                 `json:"error,omitempty"`
 }
 
-// WizardStatus 向导状态
+// WizardStatus 向导状态.
 type WizardStatus string
 
 const (
@@ -86,16 +86,16 @@ const (
 	WizardStatusCancelled WizardStatus = "cancelled"
 )
 
-// WizardStepInfo 向导步骤信息（返回给客户端）
+// WizardStepInfo 向导步骤信息（返回给客户端）.
 type WizardStepInfo struct {
-	StepIndex   int            `json:"step_index"`
-	TotalSteps  int            `json:"total_steps"`
-	Step        WizardStepDef  `json:"step"`
-	Progress    float64        `json:"progress"` // 进度百分比
-	PrevData    map[string]interface{} `json:"prev_data,omitempty"` // 之前步骤的数据
+	StepIndex  int                    `json:"step_index"`
+	TotalSteps int                    `json:"total_steps"`
+	Step       WizardStepDef          `json:"step"`
+	Progress   float64                `json:"progress"`            // 进度百分比
+	PrevData   map[string]interface{} `json:"prev_data,omitempty"` // 之前步骤的数据
 }
 
-// NewGuidedWizard 创建引导式向导实例
+// NewGuidedWizard 创建引导式向导实例.
 func NewGuidedWizard() *GuidedWizard {
 	wizard := &GuidedWizard{
 		templates: make(map[string]*WizardTemplate),
@@ -108,15 +108,15 @@ func NewGuidedWizard() *GuidedWizard {
 	return wizard
 }
 
-// registerDefaultTemplates 注册默认向导模板
+// registerDefaultTemplates 注册默认向导模板.
 func (w *GuidedWizard) registerDefaultTemplates() {
 	// 存储池创建向导
 	w.RegisterTemplate(&WizardTemplate{
-		ID:          "wizard_create_storage_pool",
-		Name:        "创建存储池",
-		Description: "引导您创建新的存储池，配置RAID类型和磁盘选择",
-		Category:    "storage",
-		RequiredRole: RoleStorageAdmin,
+		ID:            "wizard_create_storage_pool",
+		Name:          "创建存储池",
+		Description:   "引导您创建新的存储池，配置RAID类型和磁盘选择",
+		Category:      "storage",
+		RequiredRole:  RoleStorageAdmin,
 		EstimatedTime: 5 * time.Minute,
 		Steps: []WizardStepDef{
 			{
@@ -172,11 +172,11 @@ func (w *GuidedWizard) registerDefaultTemplates() {
 
 	// 网络配置向导
 	w.RegisterTemplate(&WizardTemplate{
-		ID:          "wizard_network_config",
-		Name:        "网络配置",
-		Description: "引导您配置网络接口、IP地址和DNS设置",
-		Category:    "network",
-		RequiredRole: RoleNetworkAdmin,
+		ID:            "wizard_network_config",
+		Name:          "网络配置",
+		Description:   "引导您配置网络接口、IP地址和DNS设置",
+		Category:      "network",
+		RequiredRole:  RoleNetworkAdmin,
 		EstimatedTime: 3 * time.Minute,
 		Steps: []WizardStepDef{
 			{
@@ -236,11 +236,11 @@ func (w *GuidedWizard) registerDefaultTemplates() {
 
 	// 用户创建向导
 	w.RegisterTemplate(&WizardTemplate{
-		ID:          "wizard_create_user",
-		Name:        "创建用户",
-		Description: "引导您创建新用户账户并配置权限",
-		Category:    "user",
-		RequiredRole: RoleSystemAdmin,
+		ID:            "wizard_create_user",
+		Name:          "创建用户",
+		Description:   "引导您创建新用户账户并配置权限",
+		Category:      "user",
+		RequiredRole:  RoleSystemAdmin,
 		EstimatedTime: 2 * time.Minute,
 		Steps: []WizardStepDef{
 			{
@@ -293,7 +293,7 @@ func (w *GuidedWizard) registerDefaultTemplates() {
 	log.Printf("[GuidedWizard] 注册了 %d 个默认向导模板", len(w.templates))
 }
 
-// RegisterTemplate 注册向导模板
+// RegisterTemplate 注册向导模板.
 func (w *GuidedWizard) RegisterTemplate(tmpl *WizardTemplate) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -310,7 +310,7 @@ func (w *GuidedWizard) RegisterTemplate(tmpl *WizardTemplate) error {
 	return nil
 }
 
-// ListTemplates 列出所有向导模板
+// ListTemplates 列出所有向导模板.
 func (w *GuidedWizard) ListTemplates(category *string) []*WizardTemplate {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
@@ -324,7 +324,7 @@ func (w *GuidedWizard) ListTemplates(category *string) []*WizardTemplate {
 	return templates
 }
 
-// StartSession 启动新的向导会话
+// StartSession 启动新的向导会话.
 func (w *GuidedWizard) StartSession(templateID, userID string) (*WizardSession, error) {
 	w.mu.RLock()
 	_, exists := w.templates[templateID]
@@ -355,7 +355,7 @@ func (w *GuidedWizard) StartSession(templateID, userID string) (*WizardSession, 
 	return session, nil
 }
 
-// GetCurrentStep 获取当前步骤信息
+// GetCurrentStep 获取当前步骤信息.
 func (w *GuidedWizard) GetCurrentStep(sessionID string) (*WizardStepInfo, error) {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
@@ -390,7 +390,7 @@ func (w *GuidedWizard) GetCurrentStep(sessionID string) (*WizardStepInfo, error)
 	}, nil
 }
 
-// SubmitStepResponse 提交当前步骤的响应
+// SubmitStepResponse 提交当前步骤的响应.
 func (w *GuidedWizard) SubmitStepResponse(sessionID string, response map[string]interface{}) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -452,7 +452,7 @@ func (w *GuidedWizard) SubmitStepResponse(sessionID string, response map[string]
 	return nil
 }
 
-// GoBack 返回上一步
+// GoBack 返回上一步.
 func (w *GuidedWizard) GoBack(sessionID string) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -475,7 +475,7 @@ func (w *GuidedWizard) GoBack(sessionID string) error {
 	return nil
 }
 
-// CancelSession 取消向导会话
+// CancelSession 取消向导会话.
 func (w *GuidedWizard) CancelSession(sessionID string) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -493,7 +493,7 @@ func (w *GuidedWizard) CancelSession(sessionID string) error {
 	return nil
 }
 
-// GetSession 获取向导会话详情
+// GetSession 获取向导会话详情.
 func (w *GuidedWizard) GetSession(sessionID string) (*WizardSession, error) {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
@@ -505,7 +505,7 @@ func (w *GuidedWizard) GetSession(sessionID string) (*WizardSession, error) {
 	return session, nil
 }
 
-// ListSessions 列出用户的向导会话
+// ListSessions 列出用户的向导会话.
 func (w *GuidedWizard) ListSessions(userID string) []*WizardSession {
 	w.mu.RLock()
 	defer w.mu.RUnlock()

@@ -99,9 +99,10 @@ func (h *Handlers) updateCalendar(c *gin.Context) {
 
 	if err := h.manager.UpdateCalendar(&cal); err != nil {
 		code := http.StatusInternalServerError
-		if err == ErrCalendarNotFound {
+		switch err {
+		case ErrCalendarNotFound:
 			code = http.StatusNotFound
-		} else if err == ErrInvalidInput {
+		case ErrInvalidInput:
 			code = http.StatusBadRequest
 		}
 		c.JSON(code, gin.H{"error": err.Error()})

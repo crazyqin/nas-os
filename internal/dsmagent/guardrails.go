@@ -8,50 +8,50 @@ import (
 )
 
 // Guardrails 安全护栏，限制危险操作和资源使用
-// 提供操作审批、资源限制、审计日志和角色访问控制
+// 提供操作审批、资源限制、审计日志和角色访问控制.
 type Guardrails struct {
-	mu            sync.RWMutex
-	config        GuardrailsConfig
-	auditLog      []*AuditEntry           // 审计日志
-	approvals     map[string]*ApprovalRequest // 待审批请求
-	rateLimiters  map[string]*RateLimiter  // 速率限制器
+	mu           sync.RWMutex
+	config       GuardrailsConfig
+	auditLog     []*AuditEntry               // 审计日志
+	approvals    map[string]*ApprovalRequest // 待审批请求
+	rateLimiters map[string]*RateLimiter     // 速率限制器
 }
 
-// GuardrailsConfig 安全护栏配置
+// GuardrailsConfig 安全护栏配置.
 type GuardrailsConfig struct {
 	// 资源限制
-	MaxCPUUsage    float64 `json:"max_cpu_usage"`     // CPU使用率上限（百分比）
-	MaxMemoryUsage float64 `json:"max_memory_usage"`  // 内存使用率上限（百分比）
-	MaxDiskUsage   float64 `json:"max_disk_usage"`    // 磁盘使用率上限（百分比）
-	MaxNetworkIO   int64   `json:"max_network_io"`    // 网络IO上限（字节/秒）
+	MaxCPUUsage    float64 `json:"max_cpu_usage"`    // CPU使用率上限（百分比）
+	MaxMemoryUsage float64 `json:"max_memory_usage"` // 内存使用率上限（百分比）
+	MaxDiskUsage   float64 `json:"max_disk_usage"`   // 磁盘使用率上限（百分比）
+	MaxNetworkIO   int64   `json:"max_network_io"`   // 网络IO上限（字节/秒）
 
 	// 操作限制
-	RequireApproval   bool     `json:"require_approval"`    // 危险操作是否需要审批
-	BlockedOperations []string `json:"blocked_operations"`  // 禁止的操作列表
-	DangerousPatterns []string `json:"dangerous_patterns"`  // 危险命令模式
+	RequireApproval   bool     `json:"require_approval"`   // 危险操作是否需要审批
+	BlockedOperations []string `json:"blocked_operations"` // 禁止的操作列表
+	DangerousPatterns []string `json:"dangerous_patterns"` // 危险命令模式
 
 	// 速率限制
-	RateLimitWindow time.Duration `json:"rate_limit_window"` // 速率限制时间窗口
+	RateLimitWindow time.Duration `json:"rate_limit_window"`  // 速率限制时间窗口
 	MaxOpsPerWindow int           `json:"max_ops_per_window"` // 窗口内最大操作数
 
 	// 审计设置
-	AuditEnabled    bool `json:"audit_enabled"`    // 是否启用审计
+	AuditEnabled    bool `json:"audit_enabled"`     // 是否启用审计
 	MaxAuditEntries int  `json:"max_audit_entries"` // 最大审计日志条数
 }
 
-// AuditEntry 审计日志条目
+// AuditEntry 审计日志条目.
 type AuditEntry struct {
 	ID        string                 `json:"id"`
 	Timestamp time.Time              `json:"timestamp"`
-	Actor     string                 `json:"actor"`      // 操作者
-	Action    string                 `json:"action"`     // 操作类型
-	Resource  string                 `json:"resource"`   // 操作对象
+	Actor     string                 `json:"actor"`    // 操作者
+	Action    string                 `json:"action"`   // 操作类型
+	Resource  string                 `json:"resource"` // 操作对象
 	Details   map[string]interface{} `json:"details,omitempty"`
-	Allowed   bool                   `json:"allowed"`    // 是否被允许
-	Reason    string                 `json:"reason"`     // 决策原因
+	Allowed   bool                   `json:"allowed"` // 是否被允许
+	Reason    string                 `json:"reason"`  // 决策原因
 }
 
-// ApprovalRequest 审批请求
+// ApprovalRequest 审批请求.
 type ApprovalRequest struct {
 	ID          string                 `json:"id"`
 	RequestedBy string                 `json:"requested_by"`
@@ -66,7 +66,7 @@ type ApprovalRequest struct {
 	Comment     string                 `json:"comment,omitempty"`
 }
 
-// ApprovalStatus 审批状态
+// ApprovalStatus 审批状态.
 type ApprovalStatus string
 
 const (
@@ -76,14 +76,14 @@ const (
 	ApprovalExpired  ApprovalStatus = "expired"
 )
 
-// RateLimiter 速率限制器
+// RateLimiter 速率限制器.
 type RateLimiter struct {
 	window    time.Duration
 	maxOps    int
 	operation []time.Time
 }
 
-// NewGuardrails 创建安全护栏实例
+// NewGuardrails 创建安全护栏实例.
 func NewGuardrails(config GuardrailsConfig) *Guardrails {
 	// 设置默认值
 	if config.MaxCPUUsage <= 0 {
@@ -137,7 +137,7 @@ func NewGuardrails(config GuardrailsConfig) *Guardrails {
 	return guard
 }
 
-// CheckOperation 检查操作是否被允许
+// CheckOperation 检查操作是否被允许.
 func (g *Guardrails) CheckOperation(actor, action, resource string) error {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -172,7 +172,7 @@ func (g *Guardrails) CheckOperation(actor, action, resource string) error {
 	return nil
 }
 
-// CheckResourceLimits 检查资源使用是否超限
+// CheckResourceLimits 检查资源使用是否超限.
 func (g *Guardrails) CheckResourceLimits(health *SystemHealth) []string {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -192,7 +192,7 @@ func (g *Guardrails) CheckResourceLimits(health *SystemHealth) []string {
 	return warnings
 }
 
-// CheckWorkflowExecution 检查工作流是否允许执行
+// CheckWorkflowExecution 检查工作流是否允许执行.
 func (g *Guardrails) CheckWorkflowExecution(tmpl *WorkflowTemplate) error {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -209,7 +209,7 @@ func (g *Guardrails) CheckWorkflowExecution(tmpl *WorkflowTemplate) error {
 	return nil
 }
 
-// RequestApproval 请求操作审批
+// RequestApproval 请求操作审批.
 func (g *Guardrails) RequestApproval(requestedBy, action, resource, reason string) (*ApprovalRequest, error) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -230,7 +230,7 @@ func (g *Guardrails) RequestApproval(requestedBy, action, resource, reason strin
 	return request, nil
 }
 
-// ApproveRequest 批准审批请求
+// ApproveRequest 批准审批请求.
 func (g *Guardrails) ApproveRequest(requestID, reviewedBy, comment string) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -256,7 +256,7 @@ func (g *Guardrails) ApproveRequest(requestID, reviewedBy, comment string) error
 	return nil
 }
 
-// RejectRequest 拒绝审批请求
+// RejectRequest 拒绝审批请求.
 func (g *Guardrails) RejectRequest(requestID, reviewedBy, comment string) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -282,7 +282,7 @@ func (g *Guardrails) RejectRequest(requestID, reviewedBy, comment string) error 
 	return nil
 }
 
-// GetApprovalRequest 获取审批请求详情
+// GetApprovalRequest 获取审批请求详情.
 func (g *Guardrails) GetApprovalRequest(requestID string) (*ApprovalRequest, error) {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -294,7 +294,7 @@ func (g *Guardrails) GetApprovalRequest(requestID string) (*ApprovalRequest, err
 	return request, nil
 }
 
-// ListPendingApprovals 列出待审批请求
+// ListPendingApprovals 列出待审批请求.
 func (g *Guardrails) ListPendingApprovals() []*ApprovalRequest {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -308,7 +308,7 @@ func (g *Guardrails) ListPendingApprovals() []*ApprovalRequest {
 	return pending
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (g *Guardrails) GetAuditLog(limit int) []*AuditEntry {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -325,7 +325,7 @@ func (g *Guardrails) GetAuditLog(limit int) []*AuditEntry {
 	return g.auditLog[start:]
 }
 
-// addAuditEntry 添加审计日志条目
+// addAuditEntry 添加审计日志条目.
 func (g *Guardrails) addAuditEntry(actor, action, resource string, allowed bool, reason string) {
 	if !g.config.AuditEnabled {
 		return
@@ -349,7 +349,7 @@ func (g *Guardrails) addAuditEntry(actor, action, resource string, allowed bool,
 	}
 }
 
-// checkRateLimit 检查速率限制
+// checkRateLimit 检查速率限制.
 func (g *Guardrails) checkRateLimit(actor string) bool {
 	limiter, exists := g.rateLimiters[actor]
 	if !exists {
@@ -382,12 +382,12 @@ func (g *Guardrails) checkRateLimit(actor string) bool {
 	return true
 }
 
-// containsPattern 检查字符串是否包含指定模式
+// containsPattern 检查字符串是否包含指定模式.
 func containsPattern(s, pattern string) bool {
 	return len(s) >= len(pattern) && (s == pattern || len(s) > 0 && len(pattern) > 0 && findSubstring(s, pattern))
 }
 
-// findSubstring 简单的子串查找
+// findSubstring 简单的子串查找.
 func findSubstring(s, substr string) bool {
 	for i := 0; i <= len(s)-len(substr); i++ {
 		if s[i:i+len(substr)] == substr {
@@ -397,14 +397,14 @@ func findSubstring(s, substr string) bool {
 	return false
 }
 
-// GetConfig 获取安全护栏配置
+// GetConfig 获取安全护栏配置.
 func (g *Guardrails) GetConfig() GuardrailsConfig {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
 	return g.config
 }
 
-// UpdateConfig 更新安全护栏配置
+// UpdateConfig 更新安全护栏配置.
 func (g *Guardrails) UpdateConfig(config GuardrailsConfig) {
 	g.mu.Lock()
 	defer g.mu.Unlock()

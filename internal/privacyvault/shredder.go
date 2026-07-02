@@ -17,17 +17,17 @@ import (
 // 擦除模式常量
 // ============================================================
 
-// ShredMode 擦除模式
+// ShredMode 擦除模式.
 type ShredMode string
 
 const (
-	// ShredModeStandard 标准覆写（3次：随机、补零、随机）
+	// ShredModeStandard 标准覆写（3次：随机、补零、随机）.
 	ShredModeStandard ShredMode = "standard"
-	// ShredModeDoD5220 美国国防部 DoD 5220.22-M 标准（7次覆写）
+	// ShredModeDoD5220 美国国防部 DoD 5220.22-M 标准（7次覆写）.
 	ShredModeDoD5220 ShredMode = "dod5220"
-	// ShredModeGutmann Gutmann 方法（35次覆写）
+	// ShredModeGutmann Gutmann 方法（35次覆写）.
 	ShredModeGutmann ShredMode = "gutmann"
-	// ShredModeRandom 纯随机覆写
+	// ShredModeRandom 纯随机覆写.
 	ShredModeRandom ShredMode = "random"
 )
 
@@ -35,7 +35,7 @@ const (
 // 数据结构
 // ============================================================
 
-// ShredResult 擦除操作结果
+// ShredResult 擦除操作结果.
 type ShredResult struct {
 	// FilePath 文件路径
 	FilePath string `json:"file_path"`
@@ -55,7 +55,7 @@ type ShredResult struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// ShredConfig 擦除配置
+// ShredConfig 擦除配置.
 type ShredConfig struct {
 	// Mode 擦除模式
 	Mode ShredMode `json:"mode"`
@@ -71,7 +71,7 @@ type ShredConfig struct {
 	MaxFileSize int64 `json:"max_file_size"`
 }
 
-// DefaultShredConfig 默认擦除配置
+// DefaultShredConfig 默认擦除配置.
 func DefaultShredConfig() *ShredConfig {
 	return &ShredConfig{
 		Mode:            ShredModeStandard,
@@ -83,13 +83,13 @@ func DefaultShredConfig() *ShredConfig {
 	}
 }
 
-// Shredder 安全擦除器
+// Shredder 安全擦除器.
 type Shredder struct {
 	config *ShredConfig
 	mu     sync.Mutex
 }
 
-// NewShredder 创建安全擦除器
+// NewShredder 创建安全擦除器.
 func NewShredder(config *ShredConfig) *Shredder {
 	if config == nil {
 		config = DefaultShredConfig()
@@ -101,7 +101,7 @@ func NewShredder(config *ShredConfig) *Shredder {
 // 公共方法
 // ============================================================
 
-// ShredFile 安全擦除单个文件
+// ShredFile 安全擦除单个文件.
 func (s *Shredder) ShredFile(filePath string) (*ShredResult, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -154,14 +154,14 @@ func (s *Shredder) ShredFile(filePath string) (*ShredResult, error) {
 	return result, nil
 }
 
-// ShredData 安全擦除内存中的数据（置零）
+// ShredData 安全擦除内存中的数据（置零）.
 func (s *Shredder) ShredData(data []byte) {
 	for i := range data {
 		data[i] = 0
 	}
 }
 
-// ShredDirectory 递归擦除目录中的所有文件
+// ShredDirectory 递归擦除目录中的所有文件.
 func (s *Shredder) ShredDirectory(dirPath string) ([]*ShredResult, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -212,7 +212,7 @@ func (s *Shredder) ShredDirectory(dirPath string) ([]*ShredResult, error) {
 	return results, firstErr
 }
 
-// CleanupTempFiles 清理临时文件
+// CleanupTempFiles 清理临时文件.
 func (s *Shredder) CleanupTempFiles() ([]*ShredResult, error) {
 	var results []*ShredResult
 	var firstErr error
@@ -251,7 +251,7 @@ func (s *Shredder) CleanupTempFiles() ([]*ShredResult, error) {
 }
 
 // SSDTrimFlush 执行 SSD TRIM 刷新（模拟）
-// 实际实现需要调用 fstrim 或设备特定命令
+// 实际实现需要调用 fstrim 或设备特定命令.
 func (s *Shredder) SSDTrimFlush(mountPoint string) error {
 	// 检查挂载点
 	if mountPoint == "" {
@@ -264,7 +264,7 @@ func (s *Shredder) SSDTrimFlush(mountPoint string) error {
 	return nil
 }
 
-// GetStats 获取擦除统计信息
+// GetStats 获取擦除统计信息.
 func (s *Shredder) GetStats(results []*ShredResult) *ShredStats {
 	stats := &ShredStats{}
 	for _, r := range results {
@@ -395,7 +395,7 @@ func (s *Shredder) fillBuffer(buf []byte, pass int) error {
 // 统计结构
 // ============================================================
 
-// ShredStats 擦除统计信息
+// ShredStats 擦除统计信息.
 type ShredStats struct {
 	// TotalFiles 处理文件总数
 	TotalFiles int `json:"total_files"`
@@ -411,7 +411,7 @@ type ShredStats struct {
 	TotalDuration time.Duration `json:"total_duration"`
 }
 
-// IsTempFile 判断文件是否为临时文件
+// IsTempFile 判断文件是否为临时文件.
 func IsTempFile(path string) bool {
 	cleanPath := filepath.Clean(path)
 	tmpDirs := []string{filepath.Clean(os.TempDir()), filepath.Clean("/tmp")}

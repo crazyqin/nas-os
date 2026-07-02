@@ -11,14 +11,14 @@ import (
 	"time"
 )
 
-// Manager 看板管理器
+// Manager 看板管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	boards   map[string]*Board
 	activity []*Activity
 }
 
-// NewManager 创建看板管理器
+// NewManager 创建看板管理器.
 func NewManager() *Manager {
 	return &Manager{
 		boards:   make(map[string]*Board),
@@ -48,7 +48,7 @@ func (m *Manager) addActivity(boardID, cardID, userID, action, detail string) {
 // 看板管理
 // ============================================================
 
-// ListBoards 列出所有看板
+// ListBoards 列出所有看板.
 func (m *Manager) ListBoards() []*Board {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -63,7 +63,7 @@ func (m *Manager) ListBoards() []*Board {
 	return boards
 }
 
-// CreateBoard 创建看板
+// CreateBoard 创建看板.
 func (m *Manager) CreateBoard(req *CreateBoardRequest) (*Board, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -100,7 +100,7 @@ func (m *Manager) CreateBoard(req *CreateBoardRequest) (*Board, error) {
 	return board, nil
 }
 
-// GetBoard 获取看板
+// GetBoard 获取看板.
 func (m *Manager) GetBoard(id string) (*Board, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -112,7 +112,7 @@ func (m *Manager) GetBoard(id string) (*Board, error) {
 	return board, nil
 }
 
-// UpdateBoard 更新看板
+// UpdateBoard 更新看板.
 func (m *Manager) UpdateBoard(id string, req *UpdateBoardRequest) (*Board, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -134,7 +134,7 @@ func (m *Manager) UpdateBoard(id string, req *UpdateBoardRequest) (*Board, error
 	return board, nil
 }
 
-// DeleteBoard 删除看板
+// DeleteBoard 删除看板.
 func (m *Manager) DeleteBoard(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -146,7 +146,7 @@ func (m *Manager) DeleteBoard(id string) error {
 	return nil
 }
 
-// ArchiveBoard 归档看板
+// ArchiveBoard 归档看板.
 func (m *Manager) ArchiveBoard(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -166,7 +166,7 @@ func (m *Manager) ArchiveBoard(id string) error {
 // 列管理
 // ============================================================
 
-// AddColumn 添加列
+// AddColumn 添加列.
 func (m *Manager) AddColumn(boardID string, req *CreateColumnRequest) (*Column, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -203,7 +203,7 @@ func (m *Manager) AddColumn(boardID string, req *CreateColumnRequest) (*Column, 
 	return column, nil
 }
 
-// UpdateColumn 更新列
+// UpdateColumn 更新列.
 func (m *Manager) UpdateColumn(boardID, columnID string, req *UpdateColumnRequest) (*Column, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -252,7 +252,7 @@ func (m *Manager) UpdateColumn(boardID, columnID string, req *UpdateColumnReques
 	return col, nil
 }
 
-// DeleteColumn 删除列
+// DeleteColumn 删除列.
 func (m *Manager) DeleteColumn(boardID, columnID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -282,7 +282,7 @@ func (m *Manager) DeleteColumn(boardID, columnID string) error {
 // 卡片管理
 // ============================================================
 
-// AddCard 添加卡片
+// AddCard 添加卡片.
 func (m *Manager) AddCard(boardID string, req *CreateCardRequest) (*Card, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -338,7 +338,7 @@ func (m *Manager) AddCard(boardID string, req *CreateCardRequest) (*Card, error)
 	return card, nil
 }
 
-// GetCard 获取卡片
+// GetCard 获取卡片.
 func (m *Manager) GetCard(boardID, cardID string) (*Card, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -358,7 +358,7 @@ func (m *Manager) GetCard(boardID, cardID string) (*Card, error) {
 	return nil, fmt.Errorf("card not found: %s", cardID)
 }
 
-// UpdateCard 更新卡片
+// UpdateCard 更新卡片.
 func (m *Manager) UpdateCard(boardID, cardID string, req *UpdateCardRequest) (*Card, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -403,7 +403,7 @@ func (m *Manager) UpdateCard(boardID, cardID string, req *UpdateCardRequest) (*C
 	return card, nil
 }
 
-// DeleteCard 删除卡片
+// DeleteCard 删除卡片.
 func (m *Manager) DeleteCard(boardID, cardID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -429,7 +429,7 @@ func (m *Manager) DeleteCard(boardID, cardID string) error {
 	return fmt.Errorf("card not found: %s", cardID)
 }
 
-// MoveCard 移动卡片
+// MoveCard 移动卡片.
 func (m *Manager) MoveCard(boardID, cardID string, req *MoveCardRequest) (*Card, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -504,7 +504,7 @@ func (m *Manager) MoveCard(boardID, cardID string, req *MoveCardRequest) (*Card,
 	return card, nil
 }
 
-// AssignCard 分配卡片给成员
+// AssignCard 分配卡片给成员.
 func (m *Manager) AssignCard(boardID, cardID, assigneeID string) (*Card, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -534,7 +534,7 @@ func (m *Manager) AssignCard(boardID, cardID, assigneeID string) (*Card, error) 
 // 标签管理
 // ============================================================
 
-// AddLabel 添加标签
+// AddLabel 添加标签.
 func (m *Manager) AddLabel(boardID string, req *CreateLabelRequest) (*Label, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -558,7 +558,7 @@ func (m *Manager) AddLabel(boardID string, req *CreateLabelRequest) (*Label, err
 	return label, nil
 }
 
-// UpdateLabel 更新标签
+// UpdateLabel 更新标签.
 func (m *Manager) UpdateLabel(boardID, labelID string, req *UpdateLabelRequest) (*Label, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -583,7 +583,7 @@ func (m *Manager) UpdateLabel(boardID, labelID string, req *UpdateLabelRequest) 
 	return nil, fmt.Errorf("label not found: %s", labelID)
 }
 
-// DeleteLabel 删除标签
+// DeleteLabel 删除标签.
 func (m *Manager) DeleteLabel(boardID, labelID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -609,7 +609,7 @@ func (m *Manager) DeleteLabel(boardID, labelID string) error {
 	return fmt.Errorf("label not found: %s", labelID)
 }
 
-// ApplyLabel 应用标签到卡片
+// ApplyLabel 应用标签到卡片.
 func (m *Manager) ApplyLabel(boardID, cardID, labelID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -649,7 +649,7 @@ func (m *Manager) ApplyLabel(boardID, cardID, labelID string) error {
 	return nil
 }
 
-// RemoveLabel 移除卡片标签
+// RemoveLabel 移除卡片标签.
 func (m *Manager) RemoveLabel(boardID, cardID, labelID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -674,7 +674,7 @@ func (m *Manager) RemoveLabel(boardID, cardID, labelID string) error {
 // 搜索与过滤
 // ============================================================
 
-// SearchCards 搜索卡片
+// SearchCards 搜索卡片.
 func (m *Manager) SearchCards(filter *CardFilter) []*Card {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -706,7 +706,7 @@ func (m *Manager) SearchCards(filter *CardFilter) []*Card {
 // 统计报表
 // ============================================================
 
-// GetBoardStats 获取看板统计
+// GetBoardStats 获取看板统计.
 func (m *Manager) GetBoardStats(boardID string) (*BoardStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -737,7 +737,7 @@ func (m *Manager) GetBoardStats(boardID string) (*BoardStats, error) {
 	return stats, nil
 }
 
-// GetBurndownData 获取燃尽图数据
+// GetBurndownData 获取燃尽图数据.
 func (m *Manager) GetBurndownData(boardID string, days int) ([]*BurndownPoint, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -788,7 +788,7 @@ func (m *Manager) GetBurndownData(boardID string, days int) ([]*BurndownPoint, e
 	return points, nil
 }
 
-// GetVelocityData 获取速度图数据
+// GetVelocityData 获取速度图数据.
 func (m *Manager) GetVelocityData(boardID string, sprints int) ([]*VelocityPoint, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -833,7 +833,7 @@ func (m *Manager) GetVelocityData(boardID string, sprints int) ([]*VelocityPoint
 	return points, nil
 }
 
-// GetCumulativeFlowData 获取累积流图数据
+// GetCumulativeFlowData 获取累积流图数据.
 func (m *Manager) GetCumulativeFlowData(boardID string, days int) ([]*CumulativeFlowPoint, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -877,7 +877,7 @@ func (m *Manager) GetCumulativeFlowData(boardID string, days int) ([]*Cumulative
 // 成员管理
 // ============================================================
 
-// AssignMember 分配成员
+// AssignMember 分配成员.
 func (m *Manager) AssignMember(boardID string, req *AssignMemberRequest) (*Member, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -913,7 +913,7 @@ func (m *Manager) AssignMember(boardID string, req *AssignMemberRequest) (*Membe
 	return member, nil
 }
 
-// RemoveMember 移除成员
+// RemoveMember 移除成员.
 func (m *Manager) RemoveMember(boardID, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -937,7 +937,7 @@ func (m *Manager) RemoveMember(boardID, userID string) error {
 // 活动记录
 // ============================================================
 
-// GetActivity 获取活动记录
+// GetActivity 获取活动记录.
 func (m *Manager) GetActivity(boardID string, limit int) []*Activity {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

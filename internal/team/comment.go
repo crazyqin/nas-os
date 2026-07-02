@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// CommentManager 评论管理器
+// CommentManager 评论管理器.
 type CommentManager struct {
 	mu            sync.RWMutex
 	comments      map[string]*Comment        // commentID -> Comment
@@ -23,7 +23,7 @@ type CommentManager struct {
 	notifier      *Notifier
 }
 
-// NewCommentManager 创建评论管理器
+// NewCommentManager 创建评论管理器.
 func NewCommentManager(configPath string, manager *Manager) *CommentManager {
 	cm := &CommentManager{
 		comments:      make(map[string]*Comment),
@@ -42,7 +42,7 @@ func NewCommentManager(configPath string, manager *Manager) *CommentManager {
 	return cm
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (cm *CommentManager) loadConfig() error {
 	if _, err := os.Stat(cm.configPath); os.IsNotExist(err) {
 		return nil
@@ -79,7 +79,7 @@ func (cm *CommentManager) loadConfig() error {
 	return nil
 }
 
-// saveConfig 保存配置
+// saveConfig 保存配置.
 func (cm *CommentManager) saveConfig() error {
 	if cm.configPath == "" {
 		return nil
@@ -105,10 +105,10 @@ func (cm *CommentManager) saveConfig() error {
 	return os.WriteFile(cm.configPath, data, 0600)
 }
 
-// mentionRegex @提及正则表达式
+// mentionRegex @提及正则表达式.
 var mentionRegex = regexp.MustCompile(`@(\w+)`)
 
-// parseMentions 解析评论中的@提及
+// parseMentions 解析评论中的@提及.
 func parseMentions(content string) []Mention {
 	mentions := make([]Mention, 0)
 	matches := mentionRegex.FindAllStringSubmatchIndex(content, -1)
@@ -126,7 +126,7 @@ func parseMentions(content string) []Mention {
 	return mentions
 }
 
-// CreateComment 创建评论
+// CreateComment 创建评论.
 func (cm *CommentManager) CreateComment(input CommentInput, userID, username string) (*Comment, error) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -227,7 +227,7 @@ func (cm *CommentManager) CreateComment(input CommentInput, userID, username str
 	return comment, nil
 }
 
-// GetComment 获取评论
+// GetComment 获取评论.
 func (cm *CommentManager) GetComment(commentID string) (*Comment, error) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -239,7 +239,7 @@ func (cm *CommentManager) GetComment(commentID string) (*Comment, error) {
 	return comment, nil
 }
 
-// UpdateComment 更新评论
+// UpdateComment 更新评论.
 func (cm *CommentManager) UpdateComment(commentID, content, userID, username string) (*Comment, error) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -299,7 +299,7 @@ func (cm *CommentManager) UpdateComment(commentID, content, userID, username str
 	return comment, nil
 }
 
-// DeleteComment 删除评论
+// DeleteComment 删除评论.
 func (cm *CommentManager) DeleteComment(commentID, userID, username string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -338,7 +338,7 @@ func (cm *CommentManager) DeleteComment(commentID, userID, username string) erro
 	return nil
 }
 
-// ListResourceComments 列出资源的评论
+// ListResourceComments 列出资源的评论.
 func (cm *CommentManager) ListResourceComments(resourceID string, includeDeleted bool) []*Comment {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -362,7 +362,7 @@ func (cm *CommentManager) ListResourceComments(resourceID string, includeDeleted
 	return comments
 }
 
-// ListUserComments 列出用户的评论
+// ListUserComments 列出用户的评论.
 func (cm *CommentManager) ListUserComments(userID string, limit int) []*Comment {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -386,7 +386,7 @@ func (cm *CommentManager) ListUserComments(userID string, limit int) []*Comment 
 	return comments
 }
 
-// GetCommentReplies 获取评论的回复
+// GetCommentReplies 获取评论的回复.
 func (cm *CommentManager) GetCommentReplies(parentID string) []*Comment {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -402,7 +402,7 @@ func (cm *CommentManager) GetCommentReplies(parentID string) []*Comment {
 	return replies
 }
 
-// AddReaction 添加表情反应
+// AddReaction 添加表情反应.
 func (cm *CommentManager) AddReaction(commentID, emoji, userID string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -421,7 +421,7 @@ func (cm *CommentManager) AddReaction(commentID, emoji, userID string) error {
 	return nil
 }
 
-// RemoveReaction 移除表情反应
+// RemoveReaction 移除表情反应.
 func (cm *CommentManager) RemoveReaction(commentID, emoji, userID string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -442,7 +442,7 @@ func (cm *CommentManager) RemoveReaction(commentID, emoji, userID string) error 
 	return nil
 }
 
-// GetMentions 获取用户被提及的列表
+// GetMentions 获取用户被提及的列表.
 func (cm *CommentManager) GetMentions(userID string) []*Comment {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -465,7 +465,7 @@ func (cm *CommentManager) GetMentions(userID string) []*Comment {
 	return mentions
 }
 
-// GetCommentThread 获取评论线程（包括所有回复）
+// GetCommentThread 获取评论线程（包括所有回复）.
 func (cm *CommentManager) GetCommentThread(resourceID string) []*Comment {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -505,7 +505,7 @@ func (cm *CommentManager) GetCommentThread(resourceID string) []*Comment {
 	return result
 }
 
-// GetStats 获取评论统计
+// GetStats 获取评论统计.
 func (cm *CommentManager) GetStats() map[string]interface{} {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -538,7 +538,7 @@ func (cm *CommentManager) GetStats() map[string]interface{} {
 	}
 }
 
-// SearchComments 搜索评论
+// SearchComments 搜索评论.
 func (cm *CommentManager) SearchComments(query string, limit int) []*Comment {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -562,7 +562,7 @@ func (cm *CommentManager) SearchComments(query string, limit int) []*Comment {
 	return results
 }
 
-// truncateContent 截断内容
+// truncateContent 截断内容.
 func truncateContent(content string, maxLen int) string {
 	if len(content) <= maxLen {
 		return content
@@ -570,7 +570,7 @@ func truncateContent(content string, maxLen int) string {
 	return content[:maxLen] + "..."
 }
 
-// sortCommentsByTime 按时间排序评论
+// sortCommentsByTime 按时间排序评论.
 func sortCommentsByTime(comments []*Comment) {
 	// 简单冒泡排序，对于小规模数据足够
 	for i := 0; i < len(comments)-1; i++ {

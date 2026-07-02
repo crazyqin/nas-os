@@ -4,7 +4,7 @@ package filesyncclient
 
 import "time"
 
-// DeviceType 设备类型
+// DeviceType 设备类型.
 type DeviceType string
 
 const (
@@ -13,7 +13,7 @@ const (
 	DeviceServer  DeviceType = "server"
 )
 
-// ClientStatus 客户端状态
+// ClientStatus 客户端状态.
 type ClientStatus string
 
 const (
@@ -21,7 +21,7 @@ const (
 	ClientOffline ClientStatus = "offline"
 )
 
-// SyncMode 同步模式
+// SyncMode 同步模式.
 type SyncMode string
 
 const (
@@ -30,7 +30,7 @@ const (
 	SyncSmart  SyncMode = "smart"
 )
 
-// FolderStatus 文件夹同步状态
+// FolderStatus 文件夹同步状态.
 type FolderStatus string
 
 const (
@@ -40,7 +40,7 @@ const (
 	FolderSyncing FolderStatus = "syncing"
 )
 
-// ConflictPolicy 冲突策略
+// ConflictPolicy 冲突策略.
 type ConflictPolicy string
 
 const (
@@ -50,7 +50,7 @@ const (
 	ConflictAsk        ConflictPolicy = "ask"
 )
 
-// SyncStatus 文件同步状态
+// SyncStatus 文件同步状态.
 type SyncStatus string
 
 const (
@@ -61,7 +61,7 @@ const (
 	FilePending  SyncStatus = "pending"
 )
 
-// EventType 事件类型
+// EventType 事件类型.
 type EventType string
 
 const (
@@ -71,7 +71,7 @@ const (
 	EventConflict EventType = "conflict"
 )
 
-// SyncClient 同步客户端
+// SyncClient 同步客户端.
 type SyncClient struct {
 	ID         string       `json:"id"`
 	Name       string       `json:"name"`
@@ -82,7 +82,7 @@ type SyncClient struct {
 	PairedAt   time.Time    `json:"paired_at"`
 }
 
-// SyncFolder 同步文件夹
+// SyncFolder 同步文件夹.
 type SyncFolder struct {
 	ID             string         `json:"id"`
 	ClientID       string         `json:"client_id"`
@@ -96,7 +96,7 @@ type SyncFolder struct {
 	ConflictPolicy ConflictPolicy `json:"conflict_policy"`
 }
 
-// SyncConflict 同步冲突
+// SyncConflict 同步冲突.
 type SyncConflict struct {
 	ID            string    `json:"id"`
 	FolderID      string    `json:"folder_id"`
@@ -109,7 +109,7 @@ type SyncConflict struct {
 	ResolvedAt    time.Time `json:"resolved_at,omitempty"`
 }
 
-// SyncFile 同步文件
+// SyncFile 同步文件.
 type SyncFile struct {
 	ID           string     `json:"id"`
 	FolderID     string     `json:"folder_id"`
@@ -121,7 +121,7 @@ type SyncFile struct {
 	SyncStatus   SyncStatus `json:"sync_status"`
 }
 
-// SyncStats 同步统计
+// SyncStats 同步统计.
 type SyncStats struct {
 	TotalClients  int     `json:"total_clients"`
 	TotalFolders  int     `json:"total_folders"`
@@ -133,7 +133,7 @@ type SyncStats struct {
 	DownloadSpeed float64 `json:"download_speed"`
 }
 
-// SyncEvent 同步事件
+// SyncEvent 同步事件.
 type SyncEvent struct {
 	ID        string    `json:"id"`
 	ClientID  string    `json:"client_id"`
@@ -143,14 +143,14 @@ type SyncEvent struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// RegisterClientRequest 注册客户端请求
+// RegisterClientRequest 注册客户端请求.
 type RegisterClientRequest struct {
 	Name       string     `json:"name" binding:"required"`
 	DeviceType DeviceType `json:"device_type" binding:"required"`
 	OS         string     `json:"os"`
 }
 
-// CreateFolderRequest 创建同步文件夹请求
+// CreateFolderRequest 创建同步文件夹请求.
 type CreateFolderRequest struct {
 	ClientID       string         `json:"client_id" binding:"required"`
 	LocalPath      string         `json:"local_path" binding:"required"`
@@ -159,19 +159,19 @@ type CreateFolderRequest struct {
 	ConflictPolicy ConflictPolicy `json:"conflict_policy"`
 }
 
-// UpdateFolderRequest 更新同步文件夹请求
+// UpdateFolderRequest 更新同步文件夹请求.
 type UpdateFolderRequest struct {
 	SyncMode       SyncMode       `json:"sync_mode"`
 	Status         FolderStatus   `json:"status"`
 	ConflictPolicy ConflictPolicy `json:"conflict_policy"`
 }
 
-// ResolveConflictRequest 解决冲突请求
+// ResolveConflictRequest 解决冲突请求.
 type ResolveConflictRequest struct {
 	Resolution string `json:"resolution" binding:"required"`
 }
 
-// IsValidDeviceType 检查设备类型是否有效
+// IsValidDeviceType 检查设备类型是否有效.
 func IsValidDeviceType(dt DeviceType) bool {
 	switch dt {
 	case DeviceDesktop, DeviceMobile, DeviceServer:
@@ -180,7 +180,7 @@ func IsValidDeviceType(dt DeviceType) bool {
 	return false
 }
 
-// IsValidSyncMode 检查同步模式是否有效
+// IsValidSyncMode 检查同步模式是否有效.
 func IsValidSyncMode(sm SyncMode) bool {
 	switch sm {
 	case SyncOneWay, SyncTwoWay, SyncSmart:
@@ -189,7 +189,7 @@ func IsValidSyncMode(sm SyncMode) bool {
 	return false
 }
 
-// IsValidConflictPolicy 检查冲突策略是否有效
+// IsValidConflictPolicy 检查冲突策略是否有效.
 func IsValidConflictPolicy(cp ConflictPolicy) bool {
 	switch cp {
 	case ConflictKeepLocal, ConflictKeepRemote, ConflictKeepBoth, ConflictAsk:
@@ -198,7 +198,7 @@ func IsValidConflictPolicy(cp ConflictPolicy) bool {
 	return false
 }
 
-// IsValidEventType 检查事件类型是否有效
+// IsValidEventType 检查事件类型是否有效.
 func IsValidEventType(et EventType) bool {
 	switch et {
 	case EventCreate, EventUpdate, EventDelete, EventConflict:

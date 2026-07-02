@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Store 审计日志存储接口
+// Store 审计日志存储接口.
 type Store interface {
 	// Query 查询审计日志
 	Query(opts QueryOptions) (*QueryResult, error)
@@ -35,17 +35,17 @@ type Store interface {
 	GenerateReport(standard ComplianceStandard, start, end time.Time) (*ComplianceReport, error)
 }
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	store Store
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(store Store) *Handler {
 	return &Handler{store: store}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	group := router.Group("/sys-audit")
 	{
@@ -72,7 +72,7 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	}
 }
 
-// GetLogs 获取审计日志列表
+// GetLogs 获取审计日志列表.
 func (h *Handler) GetLogs(c *gin.Context) {
 	opts := QueryOptions{
 		Limit:  50,
@@ -121,7 +121,7 @@ func (h *Handler) GetLogs(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(result))
 }
 
-// CreateLog 创建审计日志
+// CreateLog 创建审计日志.
 func (h *Handler) CreateLog(c *gin.Context) {
 	var entry Entry
 	if err := c.ShouldBindJSON(&entry); err != nil {
@@ -145,7 +145,7 @@ func (h *Handler) CreateLog(c *gin.Context) {
 	c.JSON(http.StatusCreated, SuccessResponse(entry))
 }
 
-// GetLogByID 获取单条日志详情
+// GetLogByID 获取单条日志详情.
 func (h *Handler) GetLogByID(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -162,7 +162,7 @@ func (h *Handler) GetLogByID(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(entry))
 }
 
-// GetStats 获取审计统计
+// GetStats 获取审计统计.
 func (h *Handler) GetStats(c *gin.Context) {
 	stats, err := h.store.Stats()
 	if err != nil {
@@ -173,13 +173,13 @@ func (h *Handler) GetStats(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(stats))
 }
 
-// GetCategories 获取事件分类列表
+// GetCategories 获取事件分类列表.
 func (h *Handler) GetCategories(c *gin.Context) {
 	categories := h.store.Categories()
 	c.JSON(http.StatusOK, SuccessResponse(categories))
 }
 
-// ExportLogs 导出审计日志
+// ExportLogs 导出审计日志.
 func (h *Handler) ExportLogs(c *gin.Context) {
 	opts := ExportOptions{
 		Format: ExportJSON,
@@ -234,7 +234,7 @@ func (h *Handler) ExportLogs(c *gin.Context) {
 	c.Data(http.StatusOK, "application/json", data)
 }
 
-// Cleanup 清理过期日志
+// Cleanup 清理过期日志.
 func (h *Handler) Cleanup(c *gin.Context) {
 	var req struct {
 		MaxAgeDays int `json:"max_age_days"`
@@ -262,7 +262,7 @@ func (h *Handler) Cleanup(c *gin.Context) {
 	}))
 }
 
-// ListEvents 获取事件列表
+// ListEvents 获取事件列表.
 func (h *Handler) ListEvents(c *gin.Context) {
 	limit := 50
 	offset := 0
@@ -286,7 +286,7 @@ func (h *Handler) ListEvents(c *gin.Context) {
 	}))
 }
 
-// SearchEventsRequest 事件搜索请求
+// SearchEventsRequest 事件搜索请求.
 type SearchEventsRequest struct {
 	Keyword  string   `json:"keyword"`
 	Level    Level    `json:"level"`
@@ -300,7 +300,7 @@ type SearchEventsRequest struct {
 	Offset   int      `json:"offset"`
 }
 
-// SearchEvents 搜索事件
+// SearchEvents 搜索事件.
 func (h *Handler) SearchEvents(c *gin.Context) {
 	var req SearchEventsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -346,7 +346,7 @@ func (h *Handler) SearchEvents(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse(result))
 }
 
-// ListReports 获取报告列表
+// ListReports 获取报告列表.
 func (h *Handler) ListReports(c *gin.Context) {
 	reports, err := h.store.ListReports()
 	if err != nil {
@@ -360,14 +360,14 @@ func (h *Handler) ListReports(c *gin.Context) {
 	}))
 }
 
-// GenerateReportRequest 生成报告请求
+// GenerateReportRequest 生成报告请求.
 type GenerateReportRequest struct {
 	Standard ComplianceStandard `json:"standard" binding:"required"`
 	Start    string             `json:"start_time" binding:"required"`
 	End      string             `json:"end_time" binding:"required"`
 }
 
-// GenerateReport 生成合规报告
+// GenerateReport 生成合规报告.
 func (h *Handler) GenerateReport(c *gin.Context) {
 	var req GenerateReportRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

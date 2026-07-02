@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// ProtectionLevel defines protection severity levels
+// ProtectionLevel defines protection severity levels.
 type ProtectionLevel string
 
 const (
@@ -17,7 +17,7 @@ const (
 	LevelCompliance ProtectionLevel = "compliance" // 合规模式(SEC-17a-4)
 )
 
-// DetectionRule defines anomaly detection rules
+// DetectionRule defines anomaly detection rules.
 type DetectionRule struct {
 	ID        string  `json:"id"`
 	Name      string  `json:"name"`
@@ -28,7 +28,7 @@ type DetectionRule struct {
 	Enabled   bool    `json:"enabled"`
 }
 
-// ProtectionStatus defines protection module status
+// ProtectionStatus defines protection module status.
 type ProtectionStatus struct {
 	Level            ProtectionLevel `json:"level"`
 	WORMEnabled      bool            `json:"worm_enabled"`
@@ -38,7 +38,7 @@ type ProtectionStatus struct {
 	ThreatsBlocked   int             `json:"threats_blocked"`
 }
 
-// AnomalyEvent represents detected suspicious activity
+// AnomalyEvent represents detected suspicious activity.
 type AnomalyEvent struct {
 	ID        string    `json:"id"`
 	Type      string    `json:"type"` // rapid_deletion/unusual_access/encryption_pattern
@@ -50,7 +50,7 @@ type AnomalyEvent struct {
 	Resolved  bool      `json:"resolved"`
 }
 
-// Manager manages ransomware protection
+// Manager manages ransomware protection.
 type Manager struct {
 	level  ProtectionLevel
 	rules  []*DetectionRule
@@ -58,7 +58,7 @@ type Manager struct {
 	events []*AnomalyEvent
 }
 
-// NewManager creates a new protection manager
+// NewManager creates a new protection manager.
 func NewManager(level ProtectionLevel) *Manager {
 	return &Manager{
 		level: level,
@@ -69,7 +69,7 @@ func NewManager(level ProtectionLevel) *Manager {
 	}
 }
 
-// getDefaultRules returns default detection rules
+// getDefaultRules returns default detection rules.
 func getDefaultRules() []*DetectionRule {
 	return []*DetectionRule{
 		{
@@ -102,26 +102,26 @@ func getDefaultRules() []*DetectionRule {
 	}
 }
 
-// EnableWORM enables Write Once Read Many mode
+// EnableWORM enables Write Once Read Many mode.
 func (m *Manager) EnableWORM(ctx context.Context, path string, retentionDays int) error {
 	m.status.WORMEnabled = true
 	return fmt.Errorf("WORM enabled for path: %s, retention: %d days", path, retentionDays)
 }
 
-// EnableAutoSnapshot enables automatic snapshot protection
+// EnableAutoSnapshot enables automatic snapshot protection.
 func (m *Manager) EnableAutoSnapshot(ctx context.Context, interval int) error {
 	m.status.SnapshotEnabled = true
 	return nil
 }
 
-// Detect scans for ransomware activity
+// Detect scans for ransomware activity.
 func (m *Manager) Detect(ctx context.Context, path string) ([]*AnomalyEvent, error) {
 	m.status.LastScan = time.Now()
 	// 返回检测结果
 	return m.events, nil
 }
 
-// QuarantineUser blocks suspicious user access
+// QuarantineUser blocks suspicious user access.
 func (m *Manager) QuarantineUser(ctx context.Context, user string) error {
 	for _, event := range m.events {
 		if event.User == user {
@@ -131,12 +131,12 @@ func (m *Manager) QuarantineUser(ctx context.Context, user string) error {
 	return nil
 }
 
-// RestoreFromSnapshot restores files from snapshot
+// RestoreFromSnapshot restores files from snapshot.
 func (m *Manager) RestoreFromSnapshot(ctx context.Context, path string, snapshotID string) error {
 	return fmt.Errorf("restoring from snapshot: %s", snapshotID)
 }
 
-// GetStatus returns current protection status
+// GetStatus returns current protection status.
 func (m *Manager) GetStatus() ProtectionStatus {
 	return m.status
 }

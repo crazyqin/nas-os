@@ -15,7 +15,7 @@ import (
 
 // ========== 存储趋势数据结构 ==========
 
-// StorageTrendData 存储趋势数据
+// StorageTrendData 存储趋势数据.
 type StorageTrendData struct {
 	Timestamp    time.Time `json:"timestamp"`
 	TotalSize    uint64    `json:"totalSize"`
@@ -25,7 +25,7 @@ type StorageTrendData struct {
 	GrowthRate   float64   `json:"growthRate"` // 每日增长率 (GB/day)
 }
 
-// StoragePoolTrend 存储池趋势
+// StoragePoolTrend 存储池趋势.
 type StoragePoolTrend struct {
 	PoolID     string             `json:"poolId"`
 	PoolName   string             `json:"poolName"`
@@ -33,7 +33,7 @@ type StoragePoolTrend struct {
 	Prediction *StoragePrediction `json:"prediction,omitempty"`
 }
 
-// StoragePrediction 存储容量预测
+// StoragePrediction 存储容量预测.
 type StoragePrediction struct {
 	FullDate          time.Time `json:"fullDate"`          // 预测满盘日期
 	DaysUntilFull     int       `json:"daysUntilFull"`     // 距离满盘天数
@@ -46,7 +46,7 @@ type StoragePrediction struct {
 	PredictedUsage90d float64   `json:"predictedUsage90d"` // 90天后预测使用率
 }
 
-// TrendTimeRange 时间范围
+// TrendTimeRange 时间范围.
 type TrendTimeRange string
 
 const (
@@ -57,7 +57,7 @@ const (
 	TrendRange365Days TrendTimeRange = "365d"
 )
 
-// TrendAggregation 聚合方式
+// TrendAggregation 聚合方式.
 type TrendAggregation string
 
 const (
@@ -67,7 +67,7 @@ const (
 	TrendAggMonthly TrendAggregation = "monthly"
 )
 
-// StorageTrendQuery 趋势查询参数
+// StorageTrendQuery 趋势查询参数.
 type StorageTrendQuery struct {
 	PoolID       string           `json:"poolId,omitempty"`
 	TimeRange    TrendTimeRange   `json:"timeRange"`
@@ -75,7 +75,7 @@ type StorageTrendQuery struct {
 	IncludeShare bool             `json:"includeShare"` // 是否包含共享文件夹分组
 }
 
-// StorageHistoryRecord 历史记录
+// StorageHistoryRecord 历史记录.
 type StorageHistoryRecord struct {
 	ID           string    `json:"id"`
 	PoolID       string    `json:"poolId"`
@@ -89,7 +89,7 @@ type StorageHistoryRecord struct {
 	ShareName    string    `json:"shareName,omitempty"` // 共享文件夹名称
 }
 
-// ShareTrendData 共享文件夹趋势
+// ShareTrendData 共享文件夹趋势.
 type ShareTrendData struct {
 	ShareID    string             `json:"shareId"`
 	ShareName  string             `json:"shareName"`
@@ -99,7 +99,7 @@ type ShareTrendData struct {
 
 // ========== 存储趋势管理器 ==========
 
-// StorageTrendManager 存储趋势管理器
+// StorageTrendManager 存储趋势管理器.
 type StorageTrendManager struct {
 	mu                 sync.RWMutex
 	metricsDir         string                            // 指标存储目录
@@ -108,14 +108,14 @@ type StorageTrendManager struct {
 	lastCollection     time.Time                         // 上次采集时间
 }
 
-// StorageTrendConfig 配置
+// StorageTrendConfig 配置.
 type StorageTrendConfig struct {
 	MetricsDir         string        `json:"metricsDir"`
 	CollectionInterval time.Duration `json:"collectionInterval"`
 	MaxHistoryDays     int           `json:"maxHistoryDays"`
 }
 
-// NewStorageTrendManager 创建存储趋势管理器
+// NewStorageTrendManager 创建存储趋势管理器.
 func NewStorageTrendManager(config *StorageTrendConfig) (*StorageTrendManager, error) {
 	if config == nil {
 		config = &StorageTrendConfig{
@@ -147,7 +147,7 @@ func NewStorageTrendManager(config *StorageTrendConfig) (*StorageTrendManager, e
 
 // ========== 数据采集 ==========
 
-// CollectSnapshot 采集存储容量快照
+// CollectSnapshot 采集存储容量快照.
 func (m *StorageTrendManager) CollectSnapshot(pools []StoragePoolInfo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -180,7 +180,7 @@ func (m *StorageTrendManager) CollectSnapshot(pools []StoragePoolInfo) error {
 	return nil
 }
 
-// StoragePoolInfo 存储池信息
+// StoragePoolInfo 存储池信息.
 type StoragePoolInfo struct {
 	PoolID       string  `json:"poolId"`
 	PoolName     string  `json:"poolName"`
@@ -190,7 +190,7 @@ type StoragePoolInfo struct {
 	UsagePercent float64 `json:"usagePercent"`
 }
 
-// saveRecordToFile 保存记录到文件
+// saveRecordToFile 保存记录到文件.
 func (m *StorageTrendManager) saveRecordToFile(record *StorageHistoryRecord) error {
 	dateDir := filepath.Join(m.metricsDir, "storage", record.Timestamp.Format("2006-01-02"))
 	if err := os.MkdirAll(dateDir, 0750); err != nil {
@@ -220,7 +220,7 @@ func (m *StorageTrendManager) saveRecordToFile(record *StorageHistoryRecord) err
 	return os.WriteFile(filename, data, 0644)
 }
 
-// loadHistory 加载历史数据
+// loadHistory 加载历史数据.
 func (m *StorageTrendManager) loadHistory() error {
 	storageDir := filepath.Join(m.metricsDir, "storage")
 
@@ -274,7 +274,7 @@ func (m *StorageTrendManager) loadHistory() error {
 	return nil
 }
 
-// sortRecordsByTime 按时间排序记录
+// sortRecordsByTime 按时间排序记录.
 func sortRecordsByTime(records []StorageHistoryRecord) {
 	for i := 0; i < len(records)-1; i++ {
 		for j := i + 1; j < len(records); j++ {
@@ -287,7 +287,7 @@ func sortRecordsByTime(records []StorageHistoryRecord) {
 
 // ========== 趋势数据API ==========
 
-// GetStorageTrend 获取存储趋势数据
+// GetStorageTrend 获取存储趋势数据.
 func (m *StorageTrendManager) GetStorageTrend(query *StorageTrendQuery) ([]StoragePoolTrend, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -349,7 +349,7 @@ func (m *StorageTrendManager) GetStorageTrend(query *StorageTrendQuery) ([]Stora
 	return trends, nil
 }
 
-// calculateStartTime 计算起始时间
+// calculateStartTime 计算起始时间.
 func (m *StorageTrendManager) calculateStartTime(rangeType TrendTimeRange, now time.Time) time.Time {
 	switch rangeType {
 	case TrendRange7Days:
@@ -367,7 +367,7 @@ func (m *StorageTrendManager) calculateStartTime(rangeType TrendTimeRange, now t
 	}
 }
 
-// filterRecordsByTime 过滤时间范围内的记录
+// filterRecordsByTime 过滤时间范围内的记录.
 func (m *StorageTrendManager) filterRecordsByTime(records []StorageHistoryRecord, start, end time.Time) []StorageHistoryRecord {
 	var filtered []StorageHistoryRecord
 	for _, r := range records {
@@ -378,7 +378,7 @@ func (m *StorageTrendManager) filterRecordsByTime(records []StorageHistoryRecord
 	return filtered
 }
 
-// aggregateRecords 聚合记录
+// aggregateRecords 聚合记录.
 func (m *StorageTrendManager) aggregateRecords(records []StorageHistoryRecord, agg TrendAggregation) []StorageHistoryRecord {
 	if len(records) == 0 {
 		return records
@@ -399,7 +399,7 @@ func (m *StorageTrendManager) aggregateRecords(records []StorageHistoryRecord, a
 	}
 }
 
-// aggregateByDay 按天聚合
+// aggregateByDay 按天聚合.
 func (m *StorageTrendManager) aggregateByDay(records []StorageHistoryRecord) []StorageHistoryRecord {
 	dayMap := make(map[string][]StorageHistoryRecord)
 
@@ -443,7 +443,7 @@ func (m *StorageTrendManager) aggregateByDay(records []StorageHistoryRecord) []S
 	return aggregated
 }
 
-// aggregateByWeek 按周聚合
+// aggregateByWeek 按周聚合.
 func (m *StorageTrendManager) aggregateByWeek(records []StorageHistoryRecord) []StorageHistoryRecord {
 	weekMap := make(map[int][]StorageHistoryRecord)
 
@@ -484,7 +484,7 @@ func (m *StorageTrendManager) aggregateByWeek(records []StorageHistoryRecord) []
 	return aggregated
 }
 
-// aggregateByMonth 按月聚合
+// aggregateByMonth 按月聚合.
 func (m *StorageTrendManager) aggregateByMonth(records []StorageHistoryRecord) []StorageHistoryRecord {
 	monthMap := make(map[string][]StorageHistoryRecord)
 
@@ -525,7 +525,7 @@ func (m *StorageTrendManager) aggregateByMonth(records []StorageHistoryRecord) [
 
 // ========== 增长率计算 ==========
 
-// calculateGrowthRate 计算增长率
+// calculateGrowthRate 计算增长率.
 func (m *StorageTrendManager) calculateGrowthRate(records []StorageHistoryRecord) []StorageTrendData {
 	var trendData []StorageTrendData
 
@@ -560,7 +560,7 @@ func (m *StorageTrendManager) calculateGrowthRate(records []StorageHistoryRecord
 
 // ========== 容量预测 ==========
 
-// GetStoragePrediction 获取存储容量预测
+// GetStoragePrediction 获取存储容量预测.
 func (m *StorageTrendManager) GetStoragePrediction(poolID string) (*StoragePrediction, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -578,7 +578,7 @@ func (m *StorageTrendManager) GetStoragePrediction(poolID string) (*StoragePredi
 	return &prediction, nil
 }
 
-// calculatePrediction 计算预测
+// calculatePrediction 计算预测.
 func (m *StorageTrendManager) calculatePrediction(trendData []StorageTrendData) StoragePrediction {
 	prediction := StoragePrediction{}
 
@@ -633,7 +633,7 @@ func (m *StorageTrendManager) calculatePrediction(trendData []StorageTrendData) 
 	return prediction
 }
 
-// calculateConfidence 计算预测置信度
+// calculateConfidence 计算预测置信度.
 func (m *StorageTrendManager) calculateConfidence(dataPoints []StorageTrendData, avgGrowth float64) float64 {
 	// 置信度因素：
 	// 1. 数据量：越多数据置信度越高
@@ -665,7 +665,7 @@ func (m *StorageTrendManager) calculateConfidence(dataPoints []StorageTrendData,
 
 // ========== 历史数据API ==========
 
-// GetStorageHistory 获取存储历史数据
+// GetStorageHistory 获取存储历史数据.
 func (m *StorageTrendManager) GetStorageHistory(poolID string, days int) ([]StorageHistoryRecord, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -689,7 +689,7 @@ func (m *StorageTrendManager) GetStorageHistory(poolID string, days int) ([]Stor
 	return history, nil
 }
 
-// GetShareHistory 获取共享文件夹历史数据
+// GetShareHistory 获取共享文件夹历史数据.
 func (m *StorageTrendManager) GetShareHistory(poolID, shareID string, days int) ([]StorageHistoryRecord, error) {
 	history, err := m.GetStorageHistory(poolID, days)
 	if err != nil {
@@ -708,7 +708,7 @@ func (m *StorageTrendManager) GetShareHistory(poolID, shareID string, days int) 
 
 // ========== 图表数据格式化 ==========
 
-// ToChartData 转换为图表数据格式 (ECharts)
+// ToChartData 转换为图表数据格式 (ECharts).
 func (t *StoragePoolTrend) ToChartData() *EChartsLineData {
 	chartData := &EChartsLineData{
 		Title:  fmt.Sprintf("%s 存储趋势", t.PoolName),
@@ -750,21 +750,21 @@ func (t *StoragePoolTrend) ToChartData() *EChartsLineData {
 	return chartData
 }
 
-// EChartsLineData ECharts折线图数据
+// EChartsLineData ECharts折线图数据.
 type EChartsLineData struct {
 	Title  string           `json:"title"`
 	XAxis  []string         `json:"xAxis"`
 	Series []*EChartsSeries `json:"series"`
 }
 
-// EChartsSeries ECharts系列
+// EChartsSeries ECharts系列.
 type EChartsSeries struct {
 	Name string    `json:"name"`
 	Type string    `json:"type"`
 	Data []float64 `json:"data"`
 }
 
-// ToChartJSData 转换为Chart.js数据格式
+// ToChartJSData 转换为Chart.js数据格式.
 func (t *StoragePoolTrend) ToChartJSData() *ChartJSLineData {
 	chartData := &ChartJSLineData{
 		Labels:   make([]string, 0),
@@ -803,13 +803,13 @@ func (t *StoragePoolTrend) ToChartJSData() *ChartJSLineData {
 	return chartData
 }
 
-// ChartJSLineData Chart.js折线图数据
+// ChartJSLineData Chart.js折线图数据.
 type ChartJSLineData struct {
 	Labels   []string          `json:"labels"`
 	Datasets []*ChartJSDataset `json:"datasets"`
 }
 
-// ChartJSDataset Chart.js数据集
+// ChartJSDataset Chart.js数据集.
 type ChartJSDataset struct {
 	Label           string    `json:"label"`
 	Data            []float64 `json:"data"`
@@ -820,7 +820,7 @@ type ChartJSDataset struct {
 
 // ========== 清理和维护 ==========
 
-// CleanupOldRecords 清理过期记录
+// CleanupOldRecords 清理过期记录.
 func (m *StorageTrendManager) CleanupOldRecords(maxDays int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -864,7 +864,7 @@ func (m *StorageTrendManager) CleanupOldRecords(maxDays int) error {
 	return nil
 }
 
-// GetCollectionStatus 获取采集状态
+// GetCollectionStatus 获取采集状态.
 func (m *StorageTrendManager) GetCollectionStatus() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -884,7 +884,7 @@ func (m *StorageTrendManager) GetCollectionStatus() map[string]interface{} {
 
 // ========== 单元测试辅助 ==========
 
-// GenerateMockHistory 生成模拟历史数据
+// GenerateMockHistory 生成模拟历史数据.
 func GenerateMockHistory(poolID, poolName string, days int) []StorageHistoryRecord {
 	var records []StorageHistoryRecord
 

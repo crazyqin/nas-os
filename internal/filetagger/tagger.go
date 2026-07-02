@@ -1141,8 +1141,8 @@ func globToRegex(pattern string) (*regexp.Regexp, error) {
 
 	i := 0
 	for i < len(pattern) {
-		switch {
-		case pattern[i] == '*':
+		switch pattern[i] {
+		case '*':
 			if i+1 < len(pattern) && pattern[i+1] == '*' {
 				// ** 匹配任意路径
 				sb.WriteString(".*")
@@ -1156,13 +1156,13 @@ func globToRegex(pattern string) (*regexp.Regexp, error) {
 				sb.WriteString("[^/]*")
 				i++
 			}
-		case pattern[i] == '?':
+		case '?':
 			sb.WriteString("[^/]")
 			i++
-		case pattern[i] == '[':
+		case '[':
 			sb.WriteString("[")
 			i++
-		case pattern[i] == ']':
+		case ']':
 			sb.WriteString("]")
 			i++
 		default:

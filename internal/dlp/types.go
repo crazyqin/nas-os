@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// ScanStatus represents scan status
+// ScanStatus represents scan status.
 type ScanStatus string
 
 const (
@@ -20,7 +20,7 @@ const (
 	ScanFailed   ScanStatus = "failed"
 )
 
-// FindingSeverity represents finding severity
+// FindingSeverity represents finding severity.
 type FindingSeverity string
 
 const (
@@ -30,7 +30,7 @@ const (
 	SeverityCritical FindingSeverity = "critical"
 )
 
-// FindingType represents the type of DLP finding
+// FindingType represents the type of DLP finding.
 type FindingType string
 
 const (
@@ -42,7 +42,7 @@ const (
 	FindingMalware     FindingType = "malware_pattern"
 )
 
-// PolicyAction represents the action to take on a finding
+// PolicyAction represents the action to take on a finding.
 type PolicyAction string
 
 const (
@@ -53,7 +53,7 @@ const (
 	ActionLog        PolicyAction = "log_only"
 )
 
-// ScanJob represents a DLP scan job
+// ScanJob represents a DLP scan job.
 type ScanJob struct {
 	ID           string     `json:"id"`
 	Name         string     `json:"name"`
@@ -67,7 +67,7 @@ type ScanJob struct {
 	Errors       []string   `json:"errors,omitempty"`
 }
 
-// Finding represents a DLP finding
+// Finding represents a DLP finding.
 type Finding struct {
 	ID          string          `json:"id"`
 	ScanID      string          `json:"scan_id"`
@@ -85,7 +85,7 @@ type Finding struct {
 	ResolvedBy  string          `json:"resolved_by,omitempty"`
 }
 
-// DLPPolicy represents a DLP scanning policy
+// DLPPolicy represents a DLP scanning policy.
 type DLPPolicy struct {
 	ID          string          `json:"id"`
 	Name        string          `json:"name"`
@@ -101,7 +101,7 @@ type DLPPolicy struct {
 	UpdatedAt   time.Time       `json:"updated_at"`
 }
 
-// ScanStats represents DLP scan statistics
+// ScanStats represents DLP scan statistics.
 type ScanStats struct {
 	TotalScans         int `json:"total_scans"`
 	TotalFindings      int `json:"total_findings"`
@@ -113,7 +113,7 @@ type ScanStats struct {
 	LowFindings        int `json:"low_findings"`
 }
 
-// Config holds DLP configuration
+// Config holds DLP configuration.
 type Config struct {
 	Enabled             bool    `json:"enabled"`
 	ScanIntervalHours   int     `json:"scan_interval_hours"`
@@ -125,7 +125,7 @@ type Config struct {
 	RetentionDays       int     `json:"retention_days"`
 }
 
-// Manager manages DLP scanning
+// Manager manages DLP scanning.
 type Manager struct {
 	config   *Config
 	scans    map[string]*ScanJob
@@ -136,7 +136,7 @@ type Manager struct {
 	cancel   context.CancelFunc
 }
 
-// NewManager creates a new DLP manager
+// NewManager creates a new DLP manager.
 func NewManager(config *Config) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Manager{
@@ -149,7 +149,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// Start starts the DLP manager
+// Start starts the DLP manager.
 func (m *Manager) Start() error {
 	if !m.config.Enabled {
 		return fmt.Errorf("DLP is disabled")
@@ -157,12 +157,12 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop stops the DLP manager
+// Stop stops the DLP manager.
 func (m *Manager) Stop() {
 	m.cancel()
 }
 
-// CreateScan creates a new scan job
+// CreateScan creates a new scan job.
 func (m *Manager) CreateScan(name, path string, recursive bool) *ScanJob {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -179,7 +179,7 @@ func (m *Manager) CreateScan(name, path string, recursive bool) *ScanJob {
 	return scan
 }
 
-// ListScans returns all scan jobs
+// ListScans returns all scan jobs.
 func (m *Manager) ListScans() []*ScanJob {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -190,7 +190,7 @@ func (m *Manager) ListScans() []*ScanJob {
 	return scans
 }
 
-// AddFinding adds a DLP finding
+// AddFinding adds a DLP finding.
 func (m *Manager) AddFinding(finding *Finding) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -199,14 +199,14 @@ func (m *Manager) AddFinding(finding *Finding) {
 	m.findings = append(m.findings, finding)
 }
 
-// ListFindings returns all findings
+// ListFindings returns all findings.
 func (m *Manager) ListFindings() []*Finding {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.findings
 }
 
-// ResolveFinding resolves a finding
+// ResolveFinding resolves a finding.
 func (m *Manager) ResolveFinding(id, resolvedBy string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -220,7 +220,7 @@ func (m *Manager) ResolveFinding(id, resolvedBy string) error {
 	return fmt.Errorf("finding %s not found", id)
 }
 
-// AddPolicy adds a DLP policy
+// AddPolicy adds a DLP policy.
 func (m *Manager) AddPolicy(policy *DLPPolicy) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -230,7 +230,7 @@ func (m *Manager) AddPolicy(policy *DLPPolicy) {
 	m.policies[policy.ID] = policy
 }
 
-// ListPolicies returns all policies
+// ListPolicies returns all policies.
 func (m *Manager) ListPolicies() []*DLPPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -241,7 +241,7 @@ func (m *Manager) ListPolicies() []*DLPPolicy {
 	return policies
 }
 
-// GetStats returns DLP statistics
+// GetStats returns DLP statistics.
 func (m *Manager) GetStats() *ScanStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

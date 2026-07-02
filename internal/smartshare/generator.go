@@ -11,14 +11,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// Generator 分享链接生成器
+// Generator 分享链接生成器.
 type Generator struct {
 	logger      *zap.Logger
 	baseURL     string
 	shortDomain string
 }
 
-// NewGenerator 创建链接生成器
+// NewGenerator 创建链接生成器.
 func NewGenerator(logger *zap.Logger) *Generator {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -31,14 +31,14 @@ func NewGenerator(logger *zap.Logger) *Generator {
 	}
 }
 
-// GenerateToken 生成唯一 Token
+// GenerateToken 生成唯一 Token.
 func (g *Generator) GenerateToken() string {
 	b := make([]byte, 24)
 	rand.Read(b)
 	return base64.URLEncoding.EncodeToString(b)
 }
 
-// GenerateShortCode 生成短链接码
+// GenerateShortCode 生成短链接码.
 func (g *Generator) GenerateShortCode() string {
 	b := make([]byte, 6)
 	rand.Read(b)
@@ -51,29 +51,29 @@ func (g *Generator) GenerateShortCode() string {
 	return strings.ToLower(code)
 }
 
-// GenerateOneTimeToken 生成一次性 Token
+// GenerateOneTimeToken 生成一次性 Token.
 func (g *Generator) GenerateOneTimeToken() string {
 	b := make([]byte, 32)
 	rand.Read(b)
 	return "ot_" + hex.EncodeToString(b)
 }
 
-// GenerateQRCodeData 生成二维码数据
+// GenerateQRCodeData 生成二维码数据.
 func (g *Generator) GenerateQRCodeData(token string) string {
 	return fmt.Sprintf("https://%s/%s", g.shortDomain, token)
 }
 
-// GenerateShareURL 生成完整分享 URL
+// GenerateShareURL 生成完整分享 URL.
 func (g *Generator) GenerateShareURL(token string) string {
 	return fmt.Sprintf("%s/%s", g.baseURL, token)
 }
 
-// GeneratePasswordProtectedURL 生成密码保护的分享 URL
+// GeneratePasswordProtectedURL 生成密码保护的分享 URL.
 func (g *Generator) GeneratePasswordProtectedURL(token, passwordHint string) string {
 	return fmt.Sprintf("%s/%s?hint=%s", g.baseURL, token, passwordHint)
 }
 
-// QRCodeResponse 二维码响应
+// QRCodeResponse 二维码响应.
 type QRCodeResponse struct {
 	Token      string `json:"token"`
 	ShortCode  string `json:"short_code"`
@@ -83,7 +83,7 @@ type QRCodeResponse struct {
 	QRCodeData string `json:"qr_code_data"` // 二维码原始数据
 }
 
-// GenerateQRCode 生成二维码
+// GenerateQRCode 生成二维码.
 func (g *Generator) GenerateQRCode(token string) *QRCodeResponse {
 	shortCode := g.GenerateShortCode()
 
@@ -97,12 +97,12 @@ func (g *Generator) GenerateQRCode(token string) *QRCodeResponse {
 	}
 }
 
-// SetBaseURL 设置基础 URL
+// SetBaseURL 设置基础 URL.
 func (g *Generator) SetBaseURL(url string) {
 	g.baseURL = url
 }
 
-// SetShortDomain 设置短链接域名
+// SetShortDomain 设置短链接域名.
 func (g *Generator) SetShortDomain(domain string) {
 	g.shortDomain = domain
 }

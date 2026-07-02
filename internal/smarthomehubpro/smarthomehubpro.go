@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Protocol 智能家居协议
+// Protocol 智能家居协议.
 type Protocol string
 
 const (
@@ -24,7 +24,7 @@ const (
 	ProtocolMQTT   Protocol = "mqtt"   // MQTT协议
 )
 
-// DeviceType 设备类型
+// DeviceType 设备类型.
 type DeviceType string
 
 const (
@@ -44,7 +44,7 @@ const (
 	DeviceTypeOther      DeviceType = "other"      // 其他
 )
 
-// DeviceState 设备状态
+// DeviceState 设备状态.
 type DeviceState string
 
 const (
@@ -53,7 +53,7 @@ const (
 	StateUnavail DeviceState = "unavailable" // 不可用
 )
 
-// TriggerType 触发器类型
+// TriggerType 触发器类型.
 type TriggerType string
 
 const (
@@ -64,7 +64,7 @@ const (
 	TriggerCondition TriggerType = "condition" // 条件触发
 )
 
-// ActionType 动作类型
+// ActionType 动作类型.
 type ActionType string
 
 const (
@@ -75,7 +75,7 @@ const (
 	ActionWebhook       ActionType = "webhook"        // Webhook调用
 )
 
-// Device 智能设备
+// Device 智能设备.
 type Device struct {
 	ID           string                 `json:"id"`
 	Name         string                 `json:"name"`
@@ -93,7 +93,7 @@ type Device struct {
 	RegisteredAt time.Time              `json:"registered_at"`
 }
 
-// Room 房间
+// Room 房间.
 type Room struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -102,7 +102,7 @@ type Room struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// Scene 场景
+// Scene 场景.
 type Scene struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
@@ -114,7 +114,7 @@ type Scene struct {
 	UpdatedAt   time.Time      `json:"updated_at"`
 }
 
-// SceneAction 场景动作
+// SceneAction 场景动作.
 type SceneAction struct {
 	DeviceID   string                 `json:"device_id"`
 	Action     string                 `json:"action"`
@@ -122,7 +122,7 @@ type SceneAction struct {
 	Delay      time.Duration          `json:"delay,omitempty"`
 }
 
-// Automation 自动化规则
+// Automation 自动化规则.
 type Automation struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -137,7 +137,7 @@ type Automation struct {
 	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
-// Trigger 触发器
+// Trigger 触发器.
 type Trigger struct {
 	Type       TriggerType            `json:"type"`
 	DeviceID   string                 `json:"device_id,omitempty"`
@@ -148,7 +148,7 @@ type Trigger struct {
 	Parameters map[string]interface{} `json:"parameters,omitempty"`
 }
 
-// Condition 条件
+// Condition 条件.
 type Condition struct {
 	Type     string      `json:"type"` // device, time, state
 	DeviceID string      `json:"device_id,omitempty"`
@@ -157,7 +157,7 @@ type Condition struct {
 	Value    interface{} `json:"value,omitempty"`
 }
 
-// Action 动作
+// Action 动作.
 type Action struct {
 	Type       ActionType             `json:"type"`
 	DeviceID   string                 `json:"device_id,omitempty"`
@@ -168,7 +168,7 @@ type Action struct {
 	Webhook    string                 `json:"webhook,omitempty"`
 }
 
-// EnergyReading 能耗读数
+// EnergyReading 能耗读数.
 type EnergyReading struct {
 	DeviceID  string    `json:"device_id"`
 	Power     float64   `json:"power"`   // 功率 W
@@ -178,7 +178,7 @@ type EnergyReading struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// Hub 智能家居Hub
+// Hub 智能家居Hub.
 type Hub struct {
 	mu          sync.RWMutex
 	config      *Config
@@ -192,7 +192,7 @@ type Hub struct {
 	cancel      context.CancelFunc
 }
 
-// Config Hub配置
+// Config Hub配置.
 type Config struct {
 	DiscoveryEnabled  bool          `json:"discovery_enabled"`
 	DiscoveryInterval time.Duration `json:"discovery_interval"`
@@ -206,7 +206,7 @@ type Config struct {
 	ZWaveEnabled      bool          `json:"zwave_enabled"`
 }
 
-// NewHub 创建新的智能家居Hub
+// NewHub 创建新的智能家居Hub.
 func NewHub(config *Config) *Hub {
 	if config == nil {
 		config = &Config{
@@ -232,7 +232,7 @@ func NewHub(config *Config) *Hub {
 	}
 }
 
-// AddDevice 添加设备
+// AddDevice 添加设备.
 func (h *Hub) AddDevice(device *Device) error {
 	if device == nil {
 		return errors.New("device cannot be nil")
@@ -253,7 +253,7 @@ func (h *Hub) AddDevice(device *Device) error {
 	return nil
 }
 
-// RemoveDevice 移除设备
+// RemoveDevice 移除设备.
 func (h *Hub) RemoveDevice(deviceID string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -266,7 +266,7 @@ func (h *Hub) RemoveDevice(deviceID string) error {
 	return nil
 }
 
-// GetDevice 获取设备
+// GetDevice 获取设备.
 func (h *Hub) GetDevice(deviceID string) (*Device, error) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -278,7 +278,7 @@ func (h *Hub) GetDevice(deviceID string) (*Device, error) {
 	return device, nil
 }
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (h *Hub) ListDevices() []*Device {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -290,7 +290,7 @@ func (h *Hub) ListDevices() []*Device {
 	return devices
 }
 
-// UpdateDeviceState 更新设备状态
+// UpdateDeviceState 更新设备状态.
 func (h *Hub) UpdateDeviceState(deviceID string, state DeviceState, properties map[string]interface{}) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -313,7 +313,7 @@ func (h *Hub) UpdateDeviceState(deviceID string, state DeviceState, properties m
 	return nil
 }
 
-// AddRoom 添加房间
+// AddRoom 添加房间.
 func (h *Hub) AddRoom(room *Room) error {
 	if room == nil {
 		return errors.New("room cannot be nil")
@@ -330,7 +330,7 @@ func (h *Hub) AddRoom(room *Room) error {
 	return nil
 }
 
-// AddScene 添加场景
+// AddScene 添加场景.
 func (h *Hub) AddScene(scene *Scene) error {
 	if scene == nil {
 		return errors.New("scene cannot be nil")
@@ -344,7 +344,7 @@ func (h *Hub) AddScene(scene *Scene) error {
 	return nil
 }
 
-// ActivateScene 激活场景
+// ActivateScene 激活场景.
 func (h *Hub) ActivateScene(sceneID string) error {
 	h.mu.RLock()
 	scene, exists := h.scenes[sceneID]
@@ -377,7 +377,7 @@ func (h *Hub) ActivateScene(sceneID string) error {
 	return nil
 }
 
-// AddAutomation 添加自动化规则
+// AddAutomation 添加自动化规则.
 func (h *Hub) AddAutomation(automation *Automation) error {
 	if automation == nil {
 		return errors.New("automation cannot be nil")
@@ -391,7 +391,7 @@ func (h *Hub) AddAutomation(automation *Automation) error {
 	return nil
 }
 
-// RecordEnergy 记录能耗
+// RecordEnergy 记录能耗.
 func (h *Hub) RecordEnergy(reading *EnergyReading) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -400,7 +400,7 @@ func (h *Hub) RecordEnergy(reading *EnergyReading) {
 	h.energyLog = append(h.energyLog, reading)
 }
 
-// GetEnergyStats 获取能耗统计
+// GetEnergyStats 获取能耗统计.
 func (h *Hub) GetEnergyStats(deviceID string, duration time.Duration) (float64, float64) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -419,7 +419,7 @@ func (h *Hub) GetEnergyStats(deviceID string, duration time.Duration) (float64, 
 	return totalEnergy, maxPower
 }
 
-// GetOnlineDevices 获取在线设备数
+// GetOnlineDevices 获取在线设备数.
 func (h *Hub) GetOnlineDevices() int {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -433,7 +433,7 @@ func (h *Hub) GetOnlineDevices() int {
 	return count
 }
 
-// Start 启动Hub
+// Start 启动Hub.
 func (h *Hub) Start() error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -445,7 +445,7 @@ func (h *Hub) Start() error {
 	return nil
 }
 
-// Stop 停止Hub
+// Stop 停止Hub.
 func (h *Hub) Stop() error {
 	h.mu.Lock()
 	defer h.mu.Unlock()

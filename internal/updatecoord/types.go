@@ -41,9 +41,9 @@ const (
 type UpdateChannel string
 
 const (
-	ChannelStable UpdateChannel = "stable"
-	ChannelBeta   UpdateChannel = "beta"
-	ChannelLTS    UpdateChannel = "lts"
+	ChannelStable  UpdateChannel = "stable"
+	ChannelBeta    UpdateChannel = "beta"
+	ChannelLTS     UpdateChannel = "lts"
 	ChannelNightly UpdateChannel = "nightly"
 )
 
@@ -68,11 +68,11 @@ type PreCheckRequest struct {
 
 // PreCheckResult 预检结果.
 type PreCheckResult struct {
-	Version      string            `json:"version"`
-	Passed       bool              `json:"passed"`
-	Checks       []PreCheckItem   `json:"checks"`
-	Warnings     []string         `json:"warnings,omitempty"`
-	CheckedAt    time.Time        `json:"checkedAt"`
+	Version   string         `json:"version"`
+	Passed    bool           `json:"passed"`
+	Checks    []PreCheckItem `json:"checks"`
+	Warnings  []string       `json:"warnings,omitempty"`
+	CheckedAt time.Time      `json:"checkedAt"`
 }
 
 // PreCheckItem 单项预检结果.
@@ -86,61 +86,61 @@ type PreCheckItem struct {
 
 // ApplyRequest 应用更新请求.
 type ApplyRequest struct {
-	Version     string `json:"version" binding:"required"`
-	DryRun      bool   `json:"dryRun"`
-	SkipBackup  bool   `json:"skipBackup"`
-	AutoRollback bool  `json:"autoRollback"`
+	Version      string `json:"version" binding:"required"`
+	DryRun       bool   `json:"dryRun"`
+	SkipBackup   bool   `json:"skipBackup"`
+	AutoRollback bool   `json:"autoRollback"`
 }
 
 // ApplyResult 应用更新结果.
 type ApplyResult struct {
-	Version     string           `json:"version"`
-	Phase       UpdatePhase      `json:"phase"`
-	Progress    float64          `json:"progress"`
-	Steps       []UpdateStep     `json:"steps"`
-	StartedAt   time.Time        `json:"startedAt"`
-	FinishedAt  time.Time        `json:"finishedAt,omitempty"`
-	Error       string           `json:"error,omitempty"`
-}
-
-// UpdateStep 更新步骤.
-type UpdateStep struct {
-	ID         string            `json:"id"`
-	Order      int               `json:"order"`
-	Name       string            `json:"name"`
-	Phase      UpdatePhase       `json:"phase"`
-	Status     UpdateStepStatus  `json:"status"`
-	StartedAt  time.Time         `json:"startedAt,omitempty"`
-	FinishedAt time.Time         `json:"finishedAt,omitempty"`
-	Error      string            `json:"error,omitempty"`
-}
-
-// HistoryEntry 更新历史记录.
-type HistoryEntry struct {
-	ID         string       `json:"id"`
 	Version    string       `json:"version"`
-	FromVersion string     `json:"fromVersion"`
 	Phase      UpdatePhase  `json:"phase"`
-	Success    bool         `json:"success"`
+	Progress   float64      `json:"progress"`
 	Steps      []UpdateStep `json:"steps"`
 	StartedAt  time.Time    `json:"startedAt"`
 	FinishedAt time.Time    `json:"finishedAt,omitempty"`
 	Error      string       `json:"error,omitempty"`
 }
 
+// UpdateStep 更新步骤.
+type UpdateStep struct {
+	ID         string           `json:"id"`
+	Order      int              `json:"order"`
+	Name       string           `json:"name"`
+	Phase      UpdatePhase      `json:"phase"`
+	Status     UpdateStepStatus `json:"status"`
+	StartedAt  time.Time        `json:"startedAt,omitempty"`
+	FinishedAt time.Time        `json:"finishedAt,omitempty"`
+	Error      string           `json:"error,omitempty"`
+}
+
+// HistoryEntry 更新历史记录.
+type HistoryEntry struct {
+	ID          string       `json:"id"`
+	Version     string       `json:"version"`
+	FromVersion string       `json:"fromVersion"`
+	Phase       UpdatePhase  `json:"phase"`
+	Success     bool         `json:"success"`
+	Steps       []UpdateStep `json:"steps"`
+	StartedAt   time.Time    `json:"startedAt"`
+	FinishedAt  time.Time    `json:"finishedAt,omitempty"`
+	Error       string       `json:"error,omitempty"`
+}
+
 // RollbackRequest 回滚请求.
 type RollbackRequest struct {
-	Version    string `json:"version" binding:"required"`
-	HistoryID  string `json:"historyId"`
+	Version   string `json:"version" binding:"required"`
+	HistoryID string `json:"historyId"`
 }
 
 // RollbackResult 回滚结果.
 type RollbackResult struct {
-	Version    string       `json:"version"`
-	Success    bool         `json:"success"`
-	Steps      []UpdateStep `json:"steps"`
-	Message    string       `json:"message"`
-	RolledAt   time.Time    `json:"rolledAt"`
+	Version  string       `json:"version"`
+	Success  bool         `json:"success"`
+	Steps    []UpdateStep `json:"steps"`
+	Message  string       `json:"message"`
+	RolledAt time.Time    `json:"rolledAt"`
 }
 
 // ========== 内部任务模型 ==========

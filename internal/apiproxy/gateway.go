@@ -15,14 +15,14 @@ import (
 // ========== OpenAI 兼容网关 ==========
 
 // Gateway OpenAI 兼容 API 网关
-// 实现 /v1/chat/completions 兼容接口，支持流式和非流式请求转发
+// 实现 /v1/chat/completions 兼容接口，支持流式和非流式请求转发.
 type Gateway struct {
-	router   *Router
-	keyMgr   *KeyManager
-	client   *http.Client
+	router *Router
+	keyMgr *KeyManager
+	client *http.Client
 }
 
-// NewGateway 创建网关实例
+// NewGateway 创建网关实例.
 func NewGateway(router *Router, keyMgr *KeyManager) *Gateway {
 	return &Gateway{
 		router: router,
@@ -34,7 +34,7 @@ func NewGateway(router *Router, keyMgr *KeyManager) *Gateway {
 }
 
 // ChatCompletions 处理 /v1/chat/completions 请求
-// 认证 → 路由 → 转发 → 返回结果（支持流式和非流式）
+// 认证 → 路由 → 转发 → 返回结果（支持流式和非流式）.
 func (g *Gateway) ChatCompletions(ctx context.Context, apiKey string, req *ChatCompletionRequest) (*ChatCompletionResponse, error) {
 	// 1. 验证 API Key
 	keyCfg, err := g.keyMgr.Validate(apiKey)
@@ -94,7 +94,7 @@ func (g *Gateway) ChatCompletions(ctx context.Context, apiKey string, req *ChatC
 }
 
 // ChatCompletionsStream 处理流式 /v1/chat/completions 请求
-// 返回一个 channel，持续推送 StreamChunk
+// 返回一个 channel，持续推送 StreamChunk.
 func (g *Gateway) ChatCompletionsStream(ctx context.Context, apiKey string, req *ChatCompletionRequest) (<-chan StreamChunk, error) {
 	// 1. 验证 API Key
 	keyCfg, err := g.keyMgr.Validate(apiKey)
@@ -151,7 +151,7 @@ func (g *Gateway) ChatCompletionsStream(ctx context.Context, apiKey string, req 
 	return ch, nil
 }
 
-// forward 转发非流式请求到 provider
+// forward 转发非流式请求到 provider.
 func (g *Gateway) forward(ctx context.Context, provider *AIProvider, req *ChatCompletionRequest) (*ChatCompletionResponse, error) {
 	url := strings.TrimSuffix(provider.Endpoint, "/") + "/v1/chat/completions"
 
@@ -190,7 +190,7 @@ func (g *Gateway) forward(ctx context.Context, provider *AIProvider, req *ChatCo
 }
 
 // forwardStream 转发流式请求到 provider
-// 返回 StreamChunk channel 和估算的 token 总量
+// 返回 StreamChunk channel 和估算的 token 总量.
 func (g *Gateway) forwardStream(ctx context.Context, provider *AIProvider, req *ChatCompletionRequest) (<-chan StreamChunk, int, error) {
 	// 强制设置 stream=true
 	streamReq := *req
@@ -267,7 +267,7 @@ func (g *Gateway) forwardStream(ctx context.Context, provider *AIProvider, req *
 	return ch, totalTokens, nil
 }
 
-// fallbackForward 故障转移转发（非流式）
+// fallbackForward 故障转移转发（非流式）.
 func (g *Gateway) fallbackForward(ctx context.Context, req *ChatCompletionRequest, excludeID string) (*ChatCompletionResponse, error) {
 	provider, err := g.router.RouteWithFallback(req.Model, excludeID)
 	if err != nil {
@@ -276,7 +276,7 @@ func (g *Gateway) fallbackForward(ctx context.Context, req *ChatCompletionReques
 	return g.forward(ctx, provider, req)
 }
 
-// fallbackForwardStream 故障转移流式转发
+// fallbackForwardStream 故障转移流式转发.
 func (g *Gateway) fallbackForwardStream(ctx context.Context, req *ChatCompletionRequest, excludeID string) (<-chan StreamChunk, int, error) {
 	provider, err := g.router.RouteWithFallback(req.Model, excludeID)
 	if err != nil {
@@ -286,7 +286,7 @@ func (g *Gateway) fallbackForwardStream(ctx context.Context, req *ChatCompletion
 }
 
 // HandleHTTP 处理 HTTP 请求（可作为 http.Handler 使用）
-// 路径: POST /v1/chat/completions
+// 路径: POST /v1/chat/completions.
 func (g *Gateway) HandleHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		g.writeError(w, http.StatusMethodNotAllowed, "method_not_allowed", "仅支持 POST 请求")
@@ -323,7 +323,7 @@ func (g *Gateway) HandleHTTP(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-// handleStreamHTTP 处理流式 HTTP 请求
+// handleStreamHTTP 处理流式 HTTP 请求.
 func (g *Gateway) handleStreamHTTP(w http.ResponseWriter, r *http.Request, apiKey string, req *ChatCompletionRequest) {
 	ch, err := g.ChatCompletionsStream(r.Context(), apiKey, req)
 	if err != nil {
@@ -356,7 +356,7 @@ func (g *Gateway) handleStreamHTTP(w http.ResponseWriter, r *http.Request, apiKe
 }
 
 // extractAPIKey 从请求中提取 API Key
-// 优先从 Authorization Header 提取，其次从 x-api-key Header
+// 优先从 Authorization Header 提取，其次从 x-api-key Header.
 func (g *Gateway) extractAPIKey(r *http.Request) string {
 	auth := r.Header.Get("Authorization")
 	if strings.HasPrefix(auth, "Bearer ") {
@@ -365,7 +365,7 @@ func (g *Gateway) extractAPIKey(r *http.Request) string {
 	return r.Header.Get("x-api-key")
 }
 
-// writeError 写入错误响应（OpenAI 兼容格式）
+// writeError 写入错误响应（OpenAI 兼容格式）.
 func (g *Gateway) writeError(w http.ResponseWriter, status int, code, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -378,7 +378,7 @@ func (g *Gateway) writeError(w http.ResponseWriter, status int, code, message st
 	})
 }
 
-// Close 关闭网关，释放资源
+// Close 关闭网关，释放资源.
 func (g *Gateway) Close() {
 	// 目前 http.Client 无需显式关闭
 }

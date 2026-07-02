@@ -13,7 +13,7 @@ import (
 
 // LXCSandboxManager LXC容器沙箱管理器
 // 对标 TrueNAS SCALE 的 LXC Sandboxes 功能
-// 提供轻量级应用隔离运行环境
+// 提供轻量级应用隔离运行环境.
 type LXCSandboxManager struct {
 	mu        sync.RWMutex
 	config    *LXCConfig
@@ -23,7 +23,7 @@ type LXCSandboxManager struct {
 	wg        sync.WaitGroup
 }
 
-// LXCConfig LXC配置
+// LXCConfig LXC配置.
 type LXCConfig struct {
 	Enabled       bool   `json:"enabled"`
 	StoragePath   string `json:"storage_path"`
@@ -35,29 +35,29 @@ type LXCConfig struct {
 	DefaultDiskGB int    `json:"default_disk_gb"`
 }
 
-// Sandbox LXC沙箱实例
+// Sandbox LXC沙箱实例.
 type Sandbox struct {
-	ID            string             `json:"id"`
-	Name          string             `json:"name"`
-	Template      string             `json:"template"`
-	Status        ContainerStatus    `json:"status"`
-	IP            string             `json:"ip"`
-	CPU           int                `json:"cpu"`
-	MemoryMB      int                `json:"memory_mb"`
-	DiskGB        int                `json:"disk_gb"`
-	Ports         []PortMap           `json:"ports"`
-	Volumes       []VolumeMount      `json:"volumes"`
-	EnvVars       map[string]string  `json:"env_vars"`
-	CreatedAt     time.Time          `json:"created_at"`
-	StartedAt     *time.Time         `json:"started_at,omitempty"`
-	Stats         *SandboxStats      `json:"stats,omitempty"`
-	RestartPolicy RestartPolicy      `json:"restart_policy"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Template      string            `json:"template"`
+	Status        ContainerStatus   `json:"status"`
+	IP            string            `json:"ip"`
+	CPU           int               `json:"cpu"`
+	MemoryMB      int               `json:"memory_mb"`
+	DiskGB        int               `json:"disk_gb"`
+	Ports         []PortMap         `json:"ports"`
+	Volumes       []VolumeMount     `json:"volumes"`
+	EnvVars       map[string]string `json:"env_vars"`
+	CreatedAt     time.Time         `json:"created_at"`
+	StartedAt     *time.Time        `json:"started_at,omitempty"`
+	Stats         *SandboxStats     `json:"stats,omitempty"`
+	RestartPolicy RestartPolicy     `json:"restart_policy"`
 }
 
-// RestartPolicy 重启策略（sandbox 版本的别名）
+// RestartPolicy 重启策略（sandbox 版本的别名）.
 type SandboxRestartPolicy = RestartPolicy
 
-// SandboxStats 沙箱统计
+// SandboxStats 沙箱统计.
 type SandboxStats struct {
 	CPUPercent    float64   `json:"cpu_percent"`
 	MemoryUsedMB  int       `json:"memory_used_mb"`
@@ -69,7 +69,7 @@ type SandboxStats struct {
 	Timestamp     time.Time `json:"timestamp"`
 }
 
-// SandboxOptions 沙箱选项
+// SandboxOptions 沙箱选项.
 type SandboxOptions struct {
 	CPU           int
 	MemoryMB      int
@@ -80,7 +80,7 @@ type SandboxOptions struct {
 	RestartPolicy RestartPolicy
 }
 
-// NewLXCSandboxManager 创建LXC沙箱管理器
+// NewLXCSandboxManager 创建LXC沙箱管理器.
 func NewLXCSandboxManager(cfg *LXCConfig) *LXCSandboxManager {
 	if cfg == nil {
 		cfg = &LXCConfig{
@@ -103,7 +103,7 @@ func NewLXCSandboxManager(cfg *LXCConfig) *LXCSandboxManager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *LXCSandboxManager) Start() error {
 	if !m.config.Enabled {
 		return nil
@@ -118,14 +118,14 @@ func (m *LXCSandboxManager) Start() error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *LXCSandboxManager) Stop() error {
 	m.cancel()
 	m.wg.Wait()
 	return nil
 }
 
-// CreateSandbox 创建沙箱
+// CreateSandbox 创建沙箱.
 func (m *LXCSandboxManager) CreateSandbox(name, templateName string, opts *SandboxOptions) (*Sandbox, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -184,7 +184,7 @@ func (m *LXCSandboxManager) CreateSandbox(name, templateName string, opts *Sandb
 	return sandbox, nil
 }
 
-// StartSandbox 启动沙箱
+// StartSandbox 启动沙箱.
 func (m *LXCSandboxManager) StartSandbox(id string) error {
 	m.mu.Lock()
 	sandbox, exists := m.sandboxes[id]
@@ -217,7 +217,7 @@ func (m *LXCSandboxManager) StartSandbox(id string) error {
 	return nil
 }
 
-// StopSandbox 停止沙箱
+// StopSandbox 停止沙箱.
 func (m *LXCSandboxManager) StopSandbox(id string) error {
 	m.mu.Lock()
 	sandbox, exists := m.sandboxes[id]
@@ -244,7 +244,7 @@ func (m *LXCSandboxManager) StopSandbox(id string) error {
 	return nil
 }
 
-// DeleteSandbox 删除沙箱
+// DeleteSandbox 删除沙箱.
 func (m *LXCSandboxManager) DeleteSandbox(id string) error {
 	m.mu.Lock()
 	sandbox, exists := m.sandboxes[id]
@@ -272,7 +272,7 @@ func (m *LXCSandboxManager) DeleteSandbox(id string) error {
 	return nil
 }
 
-// ListSandboxes 列出所有沙箱
+// ListSandboxes 列出所有沙箱.
 func (m *LXCSandboxManager) ListSandboxes() []*Sandbox {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -283,7 +283,7 @@ func (m *LXCSandboxManager) ListSandboxes() []*Sandbox {
 	return result
 }
 
-// GetSandboxStats 获取沙箱统计
+// GetSandboxStats 获取沙箱统计.
 func (m *LXCSandboxManager) GetSandboxStats(id string) (*SandboxStats, error) {
 	m.mu.RLock()
 	sandbox, exists := m.sandboxes[id]
@@ -338,7 +338,7 @@ func (m *LXCSandboxManager) allocateIP() string {
 	return fmt.Sprintf("10.0.3.%d", 100+len(m.sandboxes))
 }
 
-// ExportSandbox 导出沙箱配置为JSON
+// ExportSandbox 导出沙箱配置为JSON.
 func (m *LXCSandboxManager) ExportSandbox(id string) ([]byte, error) {
 	m.mu.RLock()
 	sandbox, exists := m.sandboxes[id]

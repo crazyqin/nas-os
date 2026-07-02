@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// KeyState 密钥状态
+// KeyState 密钥状态.
 type KeyState string
 
 const (
@@ -24,7 +24,7 @@ const (
 	KeyStateDestroyed   KeyState = "destroyed"
 )
 
-// KeyAlgorithm 密钥算法
+// KeyAlgorithm 密钥算法.
 type KeyAlgorithm string
 
 const (
@@ -34,7 +34,7 @@ const (
 	AlgorithmRSA4096 KeyAlgorithm = "RSA-4096"
 )
 
-// KMIPKey KMIP密钥
+// KMIPKey KMIP密钥.
 type KMIPKey struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -58,7 +58,7 @@ type KMIPKey struct {
 	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
-// KMIPConfig KMIP配置
+// KMIPConfig KMIP配置.
 type KMIPConfig struct {
 	// 服务器配置
 	Host string `json:"host"`
@@ -83,7 +83,7 @@ type KMIPConfig struct {
 	RotateDays int  `json:"rotate_days"`
 }
 
-// RotatePolicy 轮换策略
+// RotatePolicy 轮换策略.
 type RotatePolicy struct {
 	ID             string       `json:"id"`
 	Name           string       `json:"name"`
@@ -95,7 +95,7 @@ type RotatePolicy struct {
 	Enabled        bool         `json:"enabled"`
 }
 
-// AuditEvent 审计事件
+// AuditEvent 审计事件.
 type AuditEvent struct {
 	ID        string    `json:"id"`
 	Timestamp time.Time `json:"timestamp"`
@@ -107,7 +107,7 @@ type AuditEvent struct {
 	Details   string    `json:"details,omitempty"`
 }
 
-// Service KMIP服务
+// Service KMIP服务.
 type Service struct {
 	mu       sync.RWMutex
 	config   *KMIPConfig
@@ -117,7 +117,7 @@ type Service struct {
 	client   *tls.Conn
 }
 
-// NewService 创建KMIP服务
+// NewService 创建KMIP服务.
 func NewService(config *KMIPConfig) *Service {
 	if config == nil {
 		config = &KMIPConfig{
@@ -138,7 +138,7 @@ func NewService(config *KMIPConfig) *Service {
 	}
 }
 
-// Connect 连接到KMIP服务器
+// Connect 连接到KMIP服务器.
 func (s *Service) Connect(ctx context.Context) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -184,7 +184,7 @@ func (s *Service) Connect(ctx context.Context) error {
 	return nil
 }
 
-// Disconnect 断开连接
+// Disconnect 断开连接.
 func (s *Service) Disconnect(ctx context.Context) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -199,7 +199,7 @@ func (s *Service) Disconnect(ctx context.Context) error {
 	return nil
 }
 
-// CreateKey 创建密钥
+// CreateKey 创建密钥.
 func (s *Service) CreateKey(ctx context.Context, key *KMIPKey) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -241,7 +241,7 @@ func (s *Service) CreateKey(ctx context.Context, key *KMIPKey) error {
 	return nil
 }
 
-// ActivateKey 激活密钥
+// ActivateKey 激活密钥.
 func (s *Service) ActivateKey(ctx context.Context, keyID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -264,7 +264,7 @@ func (s *Service) ActivateKey(ctx context.Context, keyID string) error {
 	return nil
 }
 
-// DeactivateKey 停用密钥
+// DeactivateKey 停用密钥.
 func (s *Service) DeactivateKey(ctx context.Context, keyID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -284,7 +284,7 @@ func (s *Service) DeactivateKey(ctx context.Context, keyID string) error {
 	return nil
 }
 
-// DestroyKey 销毁密钥
+// DestroyKey 销毁密钥.
 func (s *Service) DestroyKey(ctx context.Context, keyID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -300,7 +300,7 @@ func (s *Service) DestroyKey(ctx context.Context, keyID string) error {
 	return nil
 }
 
-// GetKey 获取密钥信息
+// GetKey 获取密钥信息.
 func (s *Service) GetKey(ctx context.Context, keyID string) (*KMIPKey, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -313,7 +313,7 @@ func (s *Service) GetKey(ctx context.Context, keyID string) (*KMIPKey, error) {
 	return key, nil
 }
 
-// ListKeys 列出密钥
+// ListKeys 列出密钥.
 func (s *Service) ListKeys(ctx context.Context, state KeyState) []*KMIPKey {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -328,7 +328,7 @@ func (s *Service) ListKeys(ctx context.Context, state KeyState) []*KMIPKey {
 	return keys
 }
 
-// RotateKey 轮换密钥
+// RotateKey 轮换密钥.
 func (s *Service) RotateKey(ctx context.Context, keyID string) (*KMIPKey, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -369,7 +369,7 @@ func (s *Service) RotateKey(ctx context.Context, keyID string) (*KMIPKey, error)
 	return newKey, nil
 }
 
-// AddRotatePolicy 添加轮换策略
+// AddRotatePolicy 添加轮换策略.
 func (s *Service) AddRotatePolicy(ctx context.Context, policy *RotatePolicy) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -382,7 +382,7 @@ func (s *Service) AddRotatePolicy(ctx context.Context, policy *RotatePolicy) err
 	return nil
 }
 
-// ListRotatePolicies 列出轮换策略
+// ListRotatePolicies 列出轮换策略.
 func (s *Service) ListRotatePolicies(ctx context.Context) []*RotatePolicy {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -395,7 +395,7 @@ func (s *Service) ListRotatePolicies(ctx context.Context) []*RotatePolicy {
 	return policies
 }
 
-// CheckAndRotateKeys 检查并轮换需要轮换的密钥
+// CheckAndRotateKeys 检查并轮换需要轮换的密钥.
 func (s *Service) CheckAndRotateKeys(ctx context.Context) ([]string, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -432,7 +432,7 @@ func (s *Service) CheckAndRotateKeys(ctx context.Context) ([]string, error) {
 	return rotatedKeys, nil
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (s *Service) GetAuditLog(ctx context.Context, limit int) []AuditEvent {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

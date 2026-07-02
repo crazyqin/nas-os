@@ -7,18 +7,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	svc *Service
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(svc *Service) *Handler {
 	return &Handler{svc: svc}
 }
 
 // RegisterRoutes 注册路由到 gin 路由组
-// 路由前缀: /api/v1/sharedlabels
+// 路由前缀: /api/v1/sharedlabels.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	g := rg.Group("/sharedlabels")
 	{
@@ -32,7 +32,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 }
 
 // assignLabels 为文件分配标签
-// POST /api/v1/sharedlabels/assign
+// POST /api/v1/sharedlabels/assign.
 func (h *Handler) assignLabels(c *gin.Context) {
 	var req AssignLabelRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -50,7 +50,7 @@ func (h *Handler) assignLabels(c *gin.Context) {
 }
 
 // searchByLabels 按标签搜索文件
-// GET /api/v1/sharedlabels/search?label_ids=xxx&label_ids=yyy
+// GET /api/v1/sharedlabels/search?label_ids=xxx&label_ids=yyy.
 func (h *Handler) searchByLabels(c *gin.Context) {
 	labelIDs := c.QueryArray("label_ids")
 	if len(labelIDs) == 0 {
@@ -68,7 +68,7 @@ func (h *Handler) searchByLabels(c *gin.Context) {
 }
 
 // listLabels 列出所有标签
-// GET /api/v1/sharedlabels/list?type=team&tenant_id=xxx
+// GET /api/v1/sharedlabels/list?type=team&tenant_id=xxx.
 func (h *Handler) listLabels(c *gin.Context) {
 	labelType := LabelType(c.Query("type"))
 	tenantID := c.Query("tenant_id")
@@ -83,7 +83,7 @@ func (h *Handler) listLabels(c *gin.Context) {
 }
 
 // removeLabels 移除文件标签
-// DELETE /api/v1/sharedlabels/remove
+// DELETE /api/v1/sharedlabels/remove.
 func (h *Handler) removeLabels(c *gin.Context) {
 	var req RemoveLabelRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -100,7 +100,7 @@ func (h *Handler) removeLabels(c *gin.Context) {
 }
 
 // createLabel 创建新标签
-// POST /api/v1/sharedlabels/create
+// POST /api/v1/sharedlabels/create.
 func (h *Handler) createLabel(c *gin.Context) {
 	var req CreateLabelRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -118,7 +118,7 @@ func (h *Handler) createLabel(c *gin.Context) {
 }
 
 // getStats 获取标签统计
-// GET /api/v1/sharedlabels/stats?tenant_id=xxx
+// GET /api/v1/sharedlabels/stats?tenant_id=xxx.
 func (h *Handler) getStats(c *gin.Context) {
 	tenantID := c.Query("tenant_id")
 

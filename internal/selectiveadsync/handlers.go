@@ -6,17 +6,17 @@ import (
 	"net/http"
 )
 
-// SelectiveADSyncHandler HTTP 处理器
+// SelectiveADSyncHandler HTTP 处理器.
 type SelectiveADSyncHandler struct {
 	manager *SelectiveADSyncManager
 }
 
-// NewSelectiveADSyncHandler 创建处理器
+// NewSelectiveADSyncHandler 创建处理器.
 func NewSelectiveADSyncHandler(manager *SelectiveADSyncManager) *SelectiveADSyncHandler {
 	return &SelectiveADSyncHandler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *SelectiveADSyncHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/ad/ous", h.handleListOUs)
 	mux.HandleFunc("/api/v1/ad/ous/discover", h.handleDiscoverOUs)
@@ -34,7 +34,7 @@ func (h *SelectiveADSyncHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/ad/config", h.handleConfig)
 }
 
-// handleListOUs 处理列出所有OU请求
+// handleListOUs 处理列出所有OU请求.
 func (h *SelectiveADSyncHandler) handleListOUs(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -50,7 +50,7 @@ func (h *SelectiveADSyncHandler) handleListOUs(w http.ResponseWriter, r *http.Re
 	})
 }
 
-// handleDiscoverOUs 处理发现OU请求
+// handleDiscoverOUs 处理发现OU请求.
 func (h *SelectiveADSyncHandler) handleDiscoverOUs(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -73,7 +73,7 @@ func (h *SelectiveADSyncHandler) handleDiscoverOUs(w http.ResponseWriter, r *htt
 	})
 }
 
-// handleSelectOUs 处理选择OU请求
+// handleSelectOUs 处理选择OU请求.
 func (h *SelectiveADSyncHandler) handleSelectOUs(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -112,7 +112,7 @@ func (h *SelectiveADSyncHandler) handleSelectOUs(w http.ResponseWriter, r *http.
 	})
 }
 
-// handleDeselectOUs 处理取消选择OU请求
+// handleDeselectOUs 处理取消选择OU请求.
 func (h *SelectiveADSyncHandler) handleDeselectOUs(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -145,7 +145,7 @@ func (h *SelectiveADSyncHandler) handleDeselectOUs(w http.ResponseWriter, r *htt
 	})
 }
 
-// handleGetSelectedOUs 处理获取已选择OU请求
+// handleGetSelectedOUs 处理获取已选择OU请求.
 func (h *SelectiveADSyncHandler) handleGetSelectedOUs(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -161,7 +161,7 @@ func (h *SelectiveADSyncHandler) handleGetSelectedOUs(w http.ResponseWriter, r *
 	})
 }
 
-// handleSync 处理同步请求
+// handleSync 处理同步请求.
 func (h *SelectiveADSyncHandler) handleSync(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -190,7 +190,7 @@ func (h *SelectiveADSyncHandler) handleSync(w http.ResponseWriter, r *http.Reque
 	})
 }
 
-// handleSyncStatus 处理同步状态请求
+// handleSyncStatus 处理同步状态请求.
 func (h *SelectiveADSyncHandler) handleSyncStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -214,7 +214,7 @@ func (h *SelectiveADSyncHandler) handleSyncStatus(w http.ResponseWriter, r *http
 	})
 }
 
-// handleSyncHistory 处理同步历史请求
+// handleSyncHistory 处理同步历史请求.
 func (h *SelectiveADSyncHandler) handleSyncHistory(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -230,7 +230,7 @@ func (h *SelectiveADSyncHandler) handleSyncHistory(w http.ResponseWriter, r *htt
 	})
 }
 
-// handleSyncStats 处理同步统计请求
+// handleSyncStats 处理同步统计请求.
 func (h *SelectiveADSyncHandler) handleSyncStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -246,7 +246,7 @@ func (h *SelectiveADSyncHandler) handleSyncStats(w http.ResponseWriter, r *http.
 	})
 }
 
-// handleListRules 处理列出规则请求
+// handleListRules 处理列出规则请求.
 func (h *SelectiveADSyncHandler) handleListRules(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -262,7 +262,7 @@ func (h *SelectiveADSyncHandler) handleListRules(w http.ResponseWriter, r *http.
 	})
 }
 
-// handleCreateRule 处理创建规则请求
+// handleCreateRule 处理创建规则请求.
 func (h *SelectiveADSyncHandler) handleCreateRule(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -294,7 +294,7 @@ func (h *SelectiveADSyncHandler) handleCreateRule(w http.ResponseWriter, r *http
 	})
 }
 
-// handleUpdateRule 处理更新规则请求
+// handleUpdateRule 处理更新规则请求.
 func (h *SelectiveADSyncHandler) handleUpdateRule(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost && r.Method != http.MethodPut {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -325,7 +325,7 @@ func (h *SelectiveADSyncHandler) handleUpdateRule(w http.ResponseWriter, r *http
 	})
 }
 
-// handleDeleteRule 处理删除规则请求
+// handleDeleteRule 处理删除规则请求.
 func (h *SelectiveADSyncHandler) handleDeleteRule(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost && r.Method != http.MethodDelete {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -358,7 +358,7 @@ func (h *SelectiveADSyncHandler) handleDeleteRule(w http.ResponseWriter, r *http
 	})
 }
 
-// handleConfig 处理配置请求
+// handleConfig 处理配置请求.
 func (h *SelectiveADSyncHandler) handleConfig(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -387,7 +387,7 @@ func (h *SelectiveADSyncHandler) handleConfig(w http.ResponseWriter, r *http.Req
 	}
 }
 
-// writeJSON 写入JSON响应
+// writeJSON 写入JSON响应.
 func writeJSON(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data)

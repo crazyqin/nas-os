@@ -10,7 +10,7 @@ import (
 
 // SMBMultichannelManager SMB多通道管理器
 // 对标 TrueNAS SCALE 的 Multichannel SMB 功能
-// 通过多网卡/多连接聚合提升 SMB 传输带宽
+// 通过多网卡/多连接聚合提升 SMB 传输带宽.
 type SMBMultichannelManager struct {
 	mu        sync.RWMutex
 	config    *MultichannelConfig
@@ -22,7 +22,7 @@ type SMBMultichannelManager struct {
 	wg        sync.WaitGroup
 }
 
-// MultichannelConfig 多通道配置
+// MultichannelConfig 多通道配置.
 type MultichannelConfig struct {
 	Enabled              bool          `json:"enabled"`
 	MaxChannelsPerClient int           `json:"max_channels_per_client"`
@@ -35,7 +35,7 @@ type MultichannelConfig struct {
 	RSSEnabled           bool          `json:"rss_enabled"` // Receive Side Scaling
 }
 
-// BalanceMode 负载均衡模式
+// BalanceMode 负载均衡模式.
 type BalanceMode string
 
 const (
@@ -45,7 +45,7 @@ const (
 	BalanceAdaptive   BalanceMode = "adaptive" // 自适应，根据延迟和带宽动态调整
 )
 
-// ChannelGroup 客户端通道组
+// ChannelGroup 客户端通道组.
 type ChannelGroup struct {
 	ClientIP   string            `json:"client_ip"`
 	Channels   []*NetworkChannel `json:"channels"`
@@ -56,7 +56,7 @@ type ChannelGroup struct {
 	State      ChannelGroupState `json:"state"`
 }
 
-// ChannelGroupState 通道组状态
+// ChannelGroupState 通道组状态.
 type ChannelGroupState string
 
 const (
@@ -65,7 +65,7 @@ const (
 	GroupStateFailed   ChannelGroupState = "failed"
 )
 
-// NetworkChannel 单个网络通道
+// NetworkChannel 单个网络通道.
 type NetworkChannel struct {
 	ID           string        `json:"id"`
 	LocalAddr    string        `json:"local_addr"`
@@ -80,7 +80,7 @@ type NetworkChannel struct {
 	LastHealthAt time.Time     `json:"last_health_at"`
 }
 
-// ChannelState 通道状态
+// ChannelState 通道状态.
 type ChannelState string
 
 const (
@@ -89,7 +89,7 @@ const (
 	ChannelStateDegraded ChannelState = "degraded"
 )
 
-// MultichannelStats 多通道统计
+// MultichannelStats 多通道统计.
 type MultichannelStats struct {
 	mu                sync.Mutex
 	TotalConnections  int64   `json:"total_connections"`
@@ -100,14 +100,14 @@ type MultichannelStats struct {
 	AvgLatency        float64 `json:"avg_latency_ms"`
 }
 
-// ChannelHealthMonitor 通道健康监控
+// ChannelHealthMonitor 通道健康监控.
 type ChannelHealthMonitor struct {
 	mu       sync.RWMutex
 	results  map[string]*HealthResult
 	interval time.Duration
 }
 
-// HealthResult 健康检查结果
+// HealthResult 健康检查结果.
 type HealthResult struct {
 	ChannelID string        `json:"channel_id"`
 	Healthy   bool          `json:"healthy"`
@@ -116,7 +116,7 @@ type HealthResult struct {
 	ErrorMsg  string        `json:"error_msg,omitempty"`
 }
 
-// NewSMBMultichannelManager 创建多通道管理器
+// NewSMBMultichannelManager 创建多通道管理器.
 func NewSMBMultichannelManager(cfg *MultichannelConfig) *SMBMultichannelManager {
 	if cfg == nil {
 		cfg = &MultichannelConfig{
@@ -151,7 +151,7 @@ func NewSMBMultichannelManager(cfg *MultichannelConfig) *SMBMultichannelManager 
 	}
 }
 
-// Start 启动多通道管理
+// Start 启动多通道管理.
 func (m *SMBMultichannelManager) Start() error {
 	if !m.config.Enabled {
 		return nil
@@ -168,14 +168,14 @@ func (m *SMBMultichannelManager) Start() error {
 	return nil
 }
 
-// Stop 停止管理
+// Stop 停止管理.
 func (m *SMBMultichannelManager) Stop() error {
 	m.cancel()
 	m.wg.Wait()
 	return nil
 }
 
-// EstablishChannels 为客户端建立多通道
+// EstablishChannels 为客户端建立多通道.
 func (m *SMBMultichannelManager) EstablishChannels(clientIP string) (*ChannelGroup, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -234,7 +234,7 @@ func (m *SMBMultichannelManager) EstablishChannels(clientIP string) (*ChannelGro
 	return group, nil
 }
 
-// SelectChannel 为请求选择最佳通道
+// SelectChannel 为请求选择最佳通道.
 func (m *SMBMultichannelManager) SelectChannel(clientIP string) (*NetworkChannel, error) {
 	m.mu.RLock()
 	group, exists := m.channels[clientIP]
@@ -314,7 +314,7 @@ func (m *SMBMultichannelManager) channelScore(ch *NetworkChannel) float64 {
 	return bwScore*0.4 + latScore*0.3 + lossScore*0.3
 }
 
-// ReleaseChannels 释放客户端通道
+// ReleaseChannels 释放客户端通道.
 func (m *SMBMultichannelManager) ReleaseChannels(clientIP string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -328,7 +328,7 @@ func (m *SMBMultichannelManager) ReleaseChannels(clientIP string) {
 	}
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *SMBMultichannelManager) GetStats() *MultichannelStats {
 	m.stats.mu.Lock()
 	defer m.stats.mu.Unlock()

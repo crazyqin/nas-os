@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 智能通知 API 处理器
+// Handlers 智能通知 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	notify := r.Group("/smartnotify")
 	{
@@ -59,14 +59,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// sendNotification 发送通知
+// sendNotification 发送通知.
 func (h *Handlers) sendNotification(c *gin.Context) {
 	var notify Notification
 	if err := c.ShouldBindJSON(&notify); err != nil {
@@ -92,7 +92,7 @@ func (h *Handlers) sendNotification(c *gin.Context) {
 	})
 }
 
-// sendBatchNotifications 批量发送通知
+// sendBatchNotifications 批量发送通知.
 func (h *Handlers) sendBatchNotifications(c *gin.Context) {
 	var notifications []Notification
 	if err := c.ShouldBindJSON(&notifications); err != nil {
@@ -127,7 +127,7 @@ func (h *Handlers) sendBatchNotifications(c *gin.Context) {
 	})
 }
 
-// listNotifications 列出通知
+// listNotifications 列出通知.
 func (h *Handlers) listNotifications(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "50")
 	limit, err := strconv.Atoi(limitStr)
@@ -143,7 +143,7 @@ func (h *Handlers) listNotifications(c *gin.Context) {
 	})
 }
 
-// getNotification 获取通知详情
+// getNotification 获取通知详情.
 func (h *Handlers) getNotification(c *gin.Context) {
 	id := c.Param("id")
 	notify, err := h.manager.GetNotification(id)
@@ -162,7 +162,7 @@ func (h *Handlers) getNotification(c *gin.Context) {
 	})
 }
 
-// listRules 列出规则
+// listRules 列出规则.
 func (h *Handlers) listRules(c *gin.Context) {
 	rules := h.manager.ListRules()
 	c.JSON(http.StatusOK, response{
@@ -172,7 +172,7 @@ func (h *Handlers) listRules(c *gin.Context) {
 	})
 }
 
-// createRule 创建规则
+// createRule 创建规则.
 func (h *Handlers) createRule(c *gin.Context) {
 	var rule NotifyRule
 	if err := c.ShouldBindJSON(&rule); err != nil {
@@ -198,7 +198,7 @@ func (h *Handlers) createRule(c *gin.Context) {
 	})
 }
 
-// getRule 获取规则
+// getRule 获取规则.
 func (h *Handlers) getRule(c *gin.Context) {
 	id := c.Param("id")
 	rule, err := h.manager.GetRule(id)
@@ -217,7 +217,7 @@ func (h *Handlers) getRule(c *gin.Context) {
 	})
 }
 
-// updateRule 更新规则
+// updateRule 更新规则.
 func (h *Handlers) updateRule(c *gin.Context) {
 	id := c.Param("id")
 	var rule NotifyRule
@@ -244,7 +244,7 @@ func (h *Handlers) updateRule(c *gin.Context) {
 	})
 }
 
-// deleteRule 删除规则
+// deleteRule 删除规则.
 func (h *Handlers) deleteRule(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteRule(id); err != nil {
@@ -261,7 +261,7 @@ func (h *Handlers) deleteRule(c *gin.Context) {
 	})
 }
 
-// toggleRule 切换规则状态
+// toggleRule 切换规则状态.
 func (h *Handlers) toggleRule(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.ToggleRule(id); err != nil {
@@ -278,7 +278,7 @@ func (h *Handlers) toggleRule(c *gin.Context) {
 	})
 }
 
-// listTemplates 列出模板
+// listTemplates 列出模板.
 func (h *Handlers) listTemplates(c *gin.Context) {
 	templates := h.manager.ListTemplates()
 	c.JSON(http.StatusOK, response{
@@ -288,7 +288,7 @@ func (h *Handlers) listTemplates(c *gin.Context) {
 	})
 }
 
-// createTemplate 创建模板
+// createTemplate 创建模板.
 func (h *Handlers) createTemplate(c *gin.Context) {
 	var tpl NotifyTemplate
 	if err := c.ShouldBindJSON(&tpl); err != nil {
@@ -314,7 +314,7 @@ func (h *Handlers) createTemplate(c *gin.Context) {
 	})
 }
 
-// getTemplate 获取模板
+// getTemplate 获取模板.
 func (h *Handlers) getTemplate(c *gin.Context) {
 	id := c.Param("id")
 	tpl, err := h.manager.GetTemplate(id)
@@ -333,7 +333,7 @@ func (h *Handlers) getTemplate(c *gin.Context) {
 	})
 }
 
-// updateTemplate 更新模板
+// updateTemplate 更新模板.
 func (h *Handlers) updateTemplate(c *gin.Context) {
 	id := c.Param("id")
 	var tpl NotifyTemplate
@@ -360,7 +360,7 @@ func (h *Handlers) updateTemplate(c *gin.Context) {
 	})
 }
 
-// deleteTemplate 删除模板
+// deleteTemplate 删除模板.
 func (h *Handlers) deleteTemplate(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteTemplate(id); err != nil {
@@ -377,7 +377,7 @@ func (h *Handlers) deleteTemplate(c *gin.Context) {
 	})
 }
 
-// renderTemplate 渲染模板
+// renderTemplate 渲染模板.
 func (h *Handlers) renderTemplate(c *gin.Context) {
 	id := c.Param("id")
 	var vars map[string]string
@@ -408,7 +408,7 @@ func (h *Handlers) renderTemplate(c *gin.Context) {
 	})
 }
 
-// getHistory 获取历史
+// getHistory 获取历史.
 func (h *Handlers) getHistory(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "50")
 	limit, err := strconv.Atoi(limitStr)
@@ -424,7 +424,7 @@ func (h *Handlers) getHistory(c *gin.Context) {
 	})
 }
 
-// getStats 获取统计
+// getStats 获取统计.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, response{
@@ -434,7 +434,7 @@ func (h *Handlers) getStats(c *gin.Context) {
 	})
 }
 
-// getConfig 获取配置
+// getConfig 获取配置.
 func (h *Handlers) getConfig(c *gin.Context) {
 	cfg := h.manager.GetConfig()
 	c.JSON(http.StatusOK, response{
@@ -444,7 +444,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 	})
 }
 
-// updateConfig 更新配置
+// updateConfig 更新配置.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var cfg SmartNotifyConfig
 	if err := c.ShouldBindJSON(&cfg); err != nil {
@@ -462,7 +462,7 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 	})
 }
 
-// getChannels 获取支持的渠道
+// getChannels 获取支持的渠道.
 func (h *Handlers) getChannels(c *gin.Context) {
 	channels := ValidChannels()
 	c.JSON(http.StatusOK, response{

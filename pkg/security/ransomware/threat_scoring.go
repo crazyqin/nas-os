@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// ThreatScoringEngine 多因子威胁评分引擎
+// ThreatScoringEngine 多因子威胁评分引擎.
 type ThreatScoringEngine struct {
 	config    ThreatScoringConfig
 	signature *SignatureMatcher
@@ -25,7 +25,7 @@ type ThreatScoringEngine struct {
 	eventsMu sync.RWMutex
 }
 
-// ScoringStats 评分统计
+// ScoringStats 评分统计.
 type ScoringStats struct {
 	TotalEvaluated     int64                   `json:"total_evaluated"`
 	ByThreatLevel      map[ThreatLevel]int64   `json:"by_threat_level"`
@@ -37,7 +37,7 @@ type ScoringStats struct {
 	HoneypotTriggers   int64                   `json:"honeypot_triggers"`
 }
 
-// NewThreatScoringEngine 创建威胁评分引擎
+// NewThreatScoringEngine 创建威胁评分引擎.
 func NewThreatScoringEngine(config ThreatScoringConfig) *ThreatScoringEngine {
 	engine := &ThreatScoringEngine{
 		config:    config,
@@ -54,7 +54,7 @@ func NewThreatScoringEngine(config ThreatScoringConfig) *ThreatScoringEngine {
 	return engine
 }
 
-// Evaluate 综合评估文件事件，返回多因子威胁评分结果
+// Evaluate 综合评估文件事件，返回多因子威胁评分结果.
 func (e *ThreatScoringEngine) Evaluate(event *FileEvent) *DetectionResult {
 	result := &DetectionResult{
 		ID:             generateID(),
@@ -153,7 +153,7 @@ func (e *ThreatScoringEngine) Evaluate(event *FileEvent) *DetectionResult {
 	return result
 }
 
-// calculateWeightedScore 计算加权综合评分
+// calculateWeightedScore 计算加权综合评分.
 func (e *ThreatScoringEngine) calculateWeightedScore(scores FactorScores) float64 {
 	cfg := e.config
 
@@ -211,7 +211,7 @@ func (e *ThreatScoringEngine) calculateWeightedScore(scores FactorScores) float6
 	return weighted / weightSum
 }
 
-// applyBoosts 应用加成系数
+// applyBoosts 应用加成系数.
 func (e *ThreatScoringEngine) applyBoosts(score float64, result *DetectionResult) float64 {
 	cfg := e.config
 
@@ -233,7 +233,7 @@ func (e *ThreatScoringEngine) applyBoosts(score float64, result *DetectionResult
 	return score
 }
 
-// determineThreatLevel 确定威胁等级
+// determineThreatLevel 确定威胁等级.
 func (e *ThreatScoringEngine) determineThreatLevel(score int) ThreatLevel {
 	if score >= e.config.CriticalScoreThreshold {
 		return ThreatLevelCritical
@@ -247,7 +247,7 @@ func (e *ThreatScoringEngine) determineThreatLevel(score int) ThreatLevel {
 	return ThreatLevelNone
 }
 
-// calculateConfidence 计算置信度
+// calculateConfidence 计算置信度.
 func (e *ThreatScoringEngine) calculateConfidence(result *DetectionResult) float64 {
 	// 置信度基于匹配因子数量和评分一致性
 	factorCount := len(result.DetectionTypes)
@@ -280,7 +280,7 @@ func (e *ThreatScoringEngine) calculateConfidence(result *DetectionResult) float
 	return confidence
 }
 
-// getSuggestedAction 获取建议行动
+// getSuggestedAction 获取建议行动.
 func (e *ThreatScoringEngine) getSuggestedAction(result *DetectionResult) string {
 	switch result.ThreatLevel {
 	case ThreatLevelCritical:
@@ -299,7 +299,7 @@ func (e *ThreatScoringEngine) getSuggestedAction(result *DetectionResult) string
 	}
 }
 
-// evaluateExtension 评估扩展名风险
+// evaluateExtension 评估扩展名风险.
 func (e *ThreatScoringEngine) evaluateExtension(event *FileEvent) int {
 	ext := event.Extension
 	if ext == "" {
@@ -326,7 +326,7 @@ func (e *ThreatScoringEngine) evaluateExtension(event *FileEvent) int {
 	return 0
 }
 
-// evaluateTimestampPattern 评估时间模式
+// evaluateTimestampPattern 评估时间模式.
 func (e *ThreatScoringEngine) evaluateTimestampPattern(event *FileEvent) int {
 	// 分析最近的文件操作时间分布
 	events := e.getRecentEvents(e.config.RapidChangeWindow)
@@ -358,7 +358,7 @@ func (e *ThreatScoringEngine) evaluateTimestampPattern(event *FileEvent) int {
 	return 0
 }
 
-// evaluateUserBehavior 评估用户行为
+// evaluateUserBehavior 评估用户行为.
 func (e *ThreatScoringEngine) evaluateUserBehavior(event *FileEvent) int {
 	// 检查用户是否在短时间内操作了大量不同类型的文件
 	events := e.getRecentEvents(300) // 5分钟
@@ -393,7 +393,7 @@ func (e *ThreatScoringEngine) evaluateUserBehavior(event *FileEvent) int {
 	return 0
 }
 
-// updateStats 更新统计
+// updateStats 更新统计.
 func (e *ThreatScoringEngine) updateStats(result *DetectionResult) {
 	e.statsMu.Lock()
 	defer e.statsMu.Unlock()
@@ -422,7 +422,7 @@ func (e *ThreatScoringEngine) updateStats(result *DetectionResult) {
 	}
 }
 
-// addEvent 添加事件到缓存
+// addEvent 添加事件到缓存.
 func (e *ThreatScoringEngine) addEvent(event *FileEvent) {
 	e.eventsMu.Lock()
 	defer e.eventsMu.Unlock()
@@ -435,7 +435,7 @@ func (e *ThreatScoringEngine) addEvent(event *FileEvent) {
 	}
 }
 
-// getRecentEvents 获取最近的事件
+// getRecentEvents 获取最近的事件.
 func (e *ThreatScoringEngine) getRecentEvents(windowSeconds int) []*FileEvent {
 	e.eventsMu.RLock()
 	defer e.eventsMu.RUnlock()
@@ -453,7 +453,7 @@ func (e *ThreatScoringEngine) getRecentEvents(windowSeconds int) []*FileEvent {
 	return recent
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (e *ThreatScoringEngine) GetStats() ScoringStats {
 	e.statsMu.RLock()
 	defer e.statsMu.RUnlock()
@@ -462,12 +462,12 @@ func (e *ThreatScoringEngine) GetStats() ScoringStats {
 
 // ========== 熵值分析器 ==========
 
-// EntropyAnalyzer 熵值分析器
+// EntropyAnalyzer 熵值分析器.
 type EntropyAnalyzer struct {
 	threshold float64
 }
 
-// NewEntropyAnalyzer 创建熵值分析器
+// NewEntropyAnalyzer 创建熵值分析器.
 func NewEntropyAnalyzer(threshold float64) *EntropyAnalyzer {
 	if threshold <= 0 {
 		threshold = 7.5
@@ -475,7 +475,7 @@ func NewEntropyAnalyzer(threshold float64) *EntropyAnalyzer {
 	return &EntropyAnalyzer{threshold: threshold}
 }
 
-// Evaluate 评估熵值，返回评分 0-100
+// Evaluate 评估熵值，返回评分 0-100.
 func (e *EntropyAnalyzer) Evaluate(entropy float64) int {
 	if entropy < e.threshold {
 		return 0
@@ -492,7 +492,7 @@ func (e *EntropyAnalyzer) Evaluate(entropy float64) int {
 	return min(100, max(0, score))
 }
 
-// CalculateEntropy 计算数据的香农熵
+// CalculateEntropy 计算数据的香农熵.
 func CalculateEntropy(data []byte) float64 {
 	if len(data) == 0 {
 		return 0
@@ -518,14 +518,14 @@ func CalculateEntropy(data []byte) float64 {
 
 // ========== 签名匹配器 ==========
 
-// SignatureMatcher 签名匹配器
+// SignatureMatcher 签名匹配器.
 type SignatureMatcher struct {
 	db          *SignatureDB
 	extensions  map[string]*RansomwareSignature
 	ransomNotes map[string]*RansomwareSignature
 }
 
-// NewSignatureMatcher 创建签名匹配器
+// NewSignatureMatcher 创建签名匹配器.
 func NewSignatureMatcher(db *SignatureDB) *SignatureMatcher {
 	m := &SignatureMatcher{
 		db:          db,
@@ -546,7 +546,7 @@ func NewSignatureMatcher(db *SignatureDB) *SignatureMatcher {
 	return m
 }
 
-// MatchResult 签名匹配结果
+// MatchResult 签名匹配结果.
 type MatchResult struct {
 	Score         int
 	SignatureID   string
@@ -554,7 +554,7 @@ type MatchResult struct {
 	Family        string
 }
 
-// Match 匹配文件事件
+// Match 匹配文件事件.
 func (m *SignatureMatcher) Match(event *FileEvent) *MatchResult {
 	// 扩展名匹配
 	if event.Extension != "" {
@@ -582,19 +582,19 @@ func (m *SignatureMatcher) Match(event *FileEvent) *MatchResult {
 	return nil
 }
 
-// MatchExtension 匹配扩展名
+// MatchExtension 匹配扩展名.
 func (m *SignatureMatcher) MatchExtension(ext string) bool {
 	_, ok := m.extensions[ext]
 	return ok
 }
 
-// MatchRansomNote 匹配勒索信文件名
+// MatchRansomNote 匹配勒索信文件名.
 func (m *SignatureMatcher) MatchRansomNote(filename string) bool {
 	_, ok := m.ransomNotes[filename]
 	return ok
 }
 
-// IsKEV 检查是否为已知在利用的漏洞关联
+// IsKEV 检查是否为已知在利用的漏洞关联.
 func (m *SignatureMatcher) IsKEV(sigID string) bool {
 	for _, sig := range m.db.Signatures {
 		if sig.ID == sigID {
@@ -605,7 +605,7 @@ func (m *SignatureMatcher) IsKEV(sigID string) bool {
 	return false
 }
 
-// IsRansomwareFamily 检查是否为勒索软件家族
+// IsRansomwareFamily 检查是否为勒索软件家族.
 func (m *SignatureMatcher) IsRansomwareFamily(name string) bool {
 	for _, sig := range m.db.Signatures {
 		if sig.Name == name || contains(sig.Aliases, name) {
@@ -617,17 +617,17 @@ func (m *SignatureMatcher) IsRansomwareFamily(name string) bool {
 
 // ========== 行为分析器 ==========
 
-// BehaviorAnalyzer 行为分析器
+// BehaviorAnalyzer 行为分析器.
 type BehaviorAnalyzer struct {
 	patterns []BehaviorPattern
 }
 
-// NewBehaviorAnalyzer 创建行为分析器
+// NewBehaviorAnalyzer 创建行为分析器.
 func NewBehaviorAnalyzer(patterns []BehaviorPattern) *BehaviorAnalyzer {
 	return &BehaviorAnalyzer{patterns: patterns}
 }
 
-// Evaluate 评估行为模式
+// Evaluate 评估行为模式.
 func (b *BehaviorAnalyzer) Evaluate(event *FileEvent, recentEvents []*FileEvent) int {
 	totalScore := 0
 
@@ -644,7 +644,7 @@ func (b *BehaviorAnalyzer) Evaluate(event *FileEvent, recentEvents []*FileEvent)
 	return min(100, totalScore)
 }
 
-// matchPattern 匹配行为模式
+// matchPattern 匹配行为模式.
 func (b *BehaviorAnalyzer) matchPattern(pattern BehaviorPattern, event *FileEvent, recentEvents []*FileEvent) bool {
 	matchedConditions := 0
 
@@ -657,7 +657,7 @@ func (b *BehaviorAnalyzer) matchPattern(pattern BehaviorPattern, event *FileEven
 	return matchedConditions >= len(pattern.Conditions)/2
 }
 
-// evaluateCondition 评估条件
+// evaluateCondition 评估条件.
 func (b *BehaviorAnalyzer) evaluateCondition(cond Condition, event *FileEvent, recentEvents []*FileEvent) bool {
 	switch cond.Type {
 	case "count":
@@ -671,7 +671,7 @@ func (b *BehaviorAnalyzer) evaluateCondition(cond Condition, event *FileEvent, r
 	}
 }
 
-// evaluateCountCondition 评估计数条件
+// evaluateCountCondition 评估计数条件.
 func (b *BehaviorAnalyzer) evaluateCountCondition(cond Condition, events []*FileEvent) bool {
 	count := 0
 	for _, ev := range events {
@@ -682,7 +682,7 @@ func (b *BehaviorAnalyzer) evaluateCountCondition(cond Condition, events []*File
 	return count >= cond.Count
 }
 
-// evaluateMatchCondition 评估匹配条件
+// evaluateMatchCondition 评估匹配条件.
 func (b *BehaviorAnalyzer) evaluateMatchCondition(cond Condition, event *FileEvent) bool {
 	switch cond.Field {
 	case "extension":
@@ -696,14 +696,14 @@ func (b *BehaviorAnalyzer) evaluateMatchCondition(cond Condition, event *FileEve
 
 // ========== 诱饵检测器 ==========
 
-// HoneypotDetector 诱饵文件检测器
+// HoneypotDetector 诱饵文件检测器.
 type HoneypotDetector struct {
 	config HoneypotConfig
 	files  map[string]*HoneypotFile // path -> file
 	mu     sync.RWMutex
 }
 
-// HoneypotFile 诱饵文件记录
+// HoneypotFile 诱饵文件记录.
 type HoneypotFile struct {
 	ID          string
 	Path        string
@@ -714,7 +714,7 @@ type HoneypotFile struct {
 	TriggerType string
 }
 
-// NewHoneypotDetector 创建诱饵检测器
+// NewHoneypotDetector 创建诱饵检测器.
 func NewHoneypotDetector(config HoneypotConfig) *HoneypotDetector {
 	return &HoneypotDetector{
 		config: config,
@@ -722,7 +722,7 @@ func NewHoneypotDetector(config HoneypotConfig) *HoneypotDetector {
 	}
 }
 
-// Check 检查事件是否触及诱饵文件
+// Check 检查事件是否触及诱饵文件.
 func (h *HoneypotDetector) Check(event *FileEvent) int {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -750,7 +750,7 @@ func (h *HoneypotDetector) Check(event *FileEvent) int {
 	}
 }
 
-// RegisterFile 注册诱饵文件
+// RegisterFile 注册诱饵文件.
 func (h *HoneypotDetector) RegisterFile(file *HoneypotFile) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -759,13 +759,13 @@ func (h *HoneypotDetector) RegisterFile(file *HoneypotFile) {
 
 // ========== 签名数据库 ==========
 
-// SignatureDB 签名数据库
+// SignatureDB 签名数据库.
 type SignatureDB struct {
 	Signatures  []*RansomwareSignature
 	LastUpdated time.Time
 }
 
-// DefaultSignatureDB 默认签名库
+// DefaultSignatureDB 默认签名库.
 func DefaultSignatureDB() *SignatureDB {
 	return &SignatureDB{
 		Signatures: []*RansomwareSignature{
@@ -831,7 +831,7 @@ func DefaultSignatureDB() *SignatureDB {
 
 // ========== 默认行为模式 ==========
 
-// DefaultBehaviorPatterns 默认行为模式
+// DefaultBehaviorPatterns 默认行为模式.
 func DefaultBehaviorPatterns() []BehaviorPattern {
 	return []BehaviorPattern{
 		{
@@ -981,7 +981,7 @@ func contains(list []string, item string) bool {
 	return false
 }
 
-// DefaultHoneypotConfig 默认诱饵配置
+// DefaultHoneypotConfig 默认诱饵配置.
 func DefaultHoneypotConfig() HoneypotConfig {
 	return HoneypotConfig{
 		Enabled:       true,

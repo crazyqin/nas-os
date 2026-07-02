@@ -70,9 +70,9 @@ func TestCloudUIManager_AddWidget(t *testing.T) {
 
 	// 添加小部件
 	widget := Widget{
-		ID:   "widget-1",
-		Name: "CPU Usage",
-		Type: "gauge",
+		ID:       "widget-1",
+		Name:     "CPU Usage",
+		Type:     "gauge",
 		Position: Position{X: 0, Y: 0},
 		Size:     Size{Width: 1, Height: 1},
 		Config: map[string]interface{}{

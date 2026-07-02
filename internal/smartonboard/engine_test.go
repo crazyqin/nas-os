@@ -31,12 +31,12 @@ func TestCreateProfile(t *testing.T) {
 func TestCompleteStep(t *testing.T) {
 	ob := NewSmartOnboard()
 	profile := ob.CreateProfile("测试")
-	
+
 	ok := ob.CompleteStep(profile.ID, "network")
 	if !ok {
 		t.Fatal("expected true")
 	}
-	
+
 	profiles := ob.GetProfiles()
 	if len(profiles) != 1 {
 		t.Fatalf("expected 1 profile, got %d", len(profiles))
@@ -50,13 +50,13 @@ func TestCompleteStep(t *testing.T) {
 func TestSkipStep(t *testing.T) {
 	ob := NewSmartOnboard()
 	profile := ob.CreateProfile("测试")
-	
+
 	// required 步骤不能跳过
 	ok := ob.SkipStep(profile.ID, "network")
 	if ok {
 		t.Fatal("should not skip required step")
 	}
-	
+
 	// 非required可以跳过
 	ok = ob.SkipStep(profile.ID, "apps")
 	if !ok {

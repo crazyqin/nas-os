@@ -16,7 +16,7 @@ import (
 // 测试辅助函数
 // =============================================================================
 
-// newTestSyncTask 创建一个测试用的 SyncTask
+// newTestSyncTask 创建一个测试用的 SyncTask.
 func newTestSyncTask() *SyncTask {
 	return &SyncTask{
 		ID:               "test_task_" + randomString(8),
@@ -33,7 +33,7 @@ func newTestSyncTask() *SyncTask {
 	}
 }
 
-// newTestProviderConfig 创建一个测试用的 ProviderConfig
+// newTestProviderConfig 创建一个测试用的 ProviderConfig.
 func newTestProviderConfig() *ProviderConfig {
 	return &ProviderConfig{
 		ID:       "test_provider",
@@ -44,7 +44,7 @@ func newTestProviderConfig() *ProviderConfig {
 	}
 }
 
-// setupTestDirs 创建测试用的临时目录
+// setupTestDirs 创建测试用的临时目录.
 func setupTestDirs(t *testing.T) (localPath, remotePath string, cleanup func()) {
 	tmpDir := t.TempDir()
 	localPath = filepath.Join(tmpDir, "local")
@@ -63,7 +63,7 @@ func setupTestDirs(t *testing.T) (localPath, remotePath string, cleanup func()) 
 	return localPath, remotePath, cleanup
 }
 
-// randomString 生成随机字符串（测试用）
+// randomString 生成随机字符串（测试用）.
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, n)
@@ -74,7 +74,7 @@ func randomString(n int) string {
 	return string(b)
 }
 
-// mockProviderForRename 用于 Rename 测试的 mock provider
+// mockProviderForRename 用于 Rename 测试的 mock provider.
 type mockProviderForRename struct{}
 
 func (m *mockProviderForRename) Upload(_ context.Context, _, _ string) error   { return nil }

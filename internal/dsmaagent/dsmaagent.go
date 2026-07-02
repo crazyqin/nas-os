@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// AgentTask 代理任务
+// AgentTask 代理任务.
 type AgentTask struct {
 	ID          string                 `json:"id"`
 	Name        string                 `json:"name"`
@@ -25,7 +25,7 @@ type AgentTask struct {
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// TaskStep 任务步骤
+// TaskStep 任务步骤.
 type TaskStep struct {
 	Name        string                 `json:"name"`
 	Status      StepStatus             `json:"status"`
@@ -37,7 +37,7 @@ type TaskStep struct {
 	CompletedAt *time.Time             `json:"completed_at,omitempty"`
 }
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus int
 
 const (
@@ -48,7 +48,7 @@ const (
 	TaskCancelled
 )
 
-// StepStatus 步骤状态
+// StepStatus 步骤状态.
 type StepStatus int
 
 const (
@@ -59,7 +59,7 @@ const (
 	StepSkipped
 )
 
-// TaskPriority 任务优先级
+// TaskPriority 任务优先级.
 type TaskPriority int
 
 const (
@@ -69,37 +69,37 @@ const (
 	PriorityCritical
 )
 
-// AgentAction 代理动作
+// AgentAction 代理动作.
 type AgentAction struct {
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	Handler     ActionHandler          `json:"-"`
-	Parameters  []ActionParameter      `json:"parameters"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Handler     ActionHandler     `json:"-"`
+	Parameters  []ActionParameter `json:"parameters"`
 }
 
-// ActionHandler 动作处理器
+// ActionHandler 动作处理器.
 type ActionHandler func(ctx context.Context, params map[string]interface{}) (map[string]interface{}, error)
 
-// ActionParameter 动作参数
+// ActionParameter 动作参数.
 type ActionParameter struct {
-	Name        string `json:"name"`
-	Type        string `json:"type"`
-	Description string `json:"description"`
-	Required    bool   `json:"required"`
+	Name        string      `json:"name"`
+	Type        string      `json:"type"`
+	Description string      `json:"description"`
+	Required    bool        `json:"required"`
 	Default     interface{} `json:"default,omitempty"`
 }
 
-// AgentMetrics 代理指标
+// AgentMetrics 代理指标.
 type AgentMetrics struct {
-	TotalTasks      int64         `json:"total_tasks"`
-	CompletedTasks  int64         `json:"completed_tasks"`
-	FailedTasks     int64         `json:"failed_tasks"`
-	AverageTaskTime time.Duration `json:"average_task_time"`
-	ActiveTasks     int           `json:"active_tasks"`
-	RegisteredActions int         `json:"registered_actions"`
+	TotalTasks        int64         `json:"total_tasks"`
+	CompletedTasks    int64         `json:"completed_tasks"`
+	FailedTasks       int64         `json:"failed_tasks"`
+	AverageTaskTime   time.Duration `json:"average_task_time"`
+	ActiveTasks       int           `json:"active_tasks"`
+	RegisteredActions int           `json:"registered_actions"`
 }
 
-// DSMAgent 智能代理引擎
+// DSMAgent 智能代理引擎.
 type DSMAgent struct {
 	mu      sync.RWMutex
 	actions map[string]*AgentAction
@@ -112,7 +112,7 @@ type DSMAgent struct {
 	logger  *slog.Logger
 }
 
-// NewDSMAgent 创建智能代理引擎
+// NewDSMAgent 创建智能代理引擎.
 func NewDSMAgent(workers int, logger *slog.Logger) *DSMAgent {
 	if workers <= 0 {
 		workers = 4
@@ -140,7 +140,7 @@ func NewDSMAgent(workers int, logger *slog.Logger) *DSMAgent {
 	return agent
 }
 
-// Start 启动代理引擎
+// Start 启动代理引擎.
 func (a *DSMAgent) Start() error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -153,14 +153,14 @@ func (a *DSMAgent) Start() error {
 	return nil
 }
 
-// Stop 停止代理引擎
+// Stop 停止代理引擎.
 func (a *DSMAgent) Stop() error {
 	a.cancel()
 	a.logger.Info("DSM Agent已停止")
 	return nil
 }
 
-// RegisterAction 注册动作
+// RegisterAction 注册动作.
 func (a *DSMAgent) RegisterAction(action *AgentAction) error {
 	if action == nil {
 		return errors.New("action cannot be nil")
@@ -186,7 +186,7 @@ func (a *DSMAgent) RegisterAction(action *AgentAction) error {
 	return nil
 }
 
-// SubmitTask 提交任务
+// SubmitTask 提交任务.
 func (a *DSMAgent) SubmitTask(task *AgentTask) (string, error) {
 	if task == nil {
 		return "", errors.New("task cannot be nil")
@@ -215,7 +215,7 @@ func (a *DSMAgent) SubmitTask(task *AgentTask) (string, error) {
 	return task.ID, nil
 }
 
-// GetTask 获取任务状态
+// GetTask 获取任务状态.
 func (a *DSMAgent) GetTask(taskID string) (*AgentTask, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -228,7 +228,7 @@ func (a *DSMAgent) GetTask(taskID string) (*AgentTask, error) {
 	return task, nil
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (a *DSMAgent) CancelTask(taskID string) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -250,7 +250,7 @@ func (a *DSMAgent) CancelTask(taskID string) error {
 	return nil
 }
 
-// GetMetrics 获取指标
+// GetMetrics 获取指标.
 func (a *DSMAgent) GetMetrics() *AgentMetrics {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -266,7 +266,7 @@ func (a *DSMAgent) GetMetrics() *AgentMetrics {
 	return &metrics
 }
 
-// ListActions 列出已注册动作
+// ListActions 列出已注册动作.
 func (a *DSMAgent) ListActions() []*AgentAction {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -279,7 +279,7 @@ func (a *DSMAgent) ListActions() []*AgentAction {
 	return actions
 }
 
-// ExecuteAction 执行动作
+// ExecuteAction 执行动作.
 func (a *DSMAgent) ExecuteAction(ctx context.Context, actionName string, params map[string]interface{}) (map[string]interface{}, error) {
 	a.mu.RLock()
 	action, exists := a.actions[actionName]
@@ -315,7 +315,7 @@ func (a *DSMAgent) ExecuteAction(ctx context.Context, actionName string, params 
 	return result, nil
 }
 
-// worker 工作协程
+// worker 工作协程.
 func (a *DSMAgent) worker(id int) {
 	a.logger.Debug("工作协程已启动", "worker", id)
 
@@ -330,7 +330,7 @@ func (a *DSMAgent) worker(id int) {
 	}
 }
 
-// executeTask 执行任务
+// executeTask 执行任务.
 func (a *DSMAgent) executeTask(task *AgentTask) {
 	a.mu.Lock()
 	task.Status = TaskRunning
@@ -412,7 +412,7 @@ func (a *DSMAgent) executeTask(task *AgentTask) {
 	a.logger.Info("任务执行完成", "id", task.ID, "name", task.Name)
 }
 
-// registerBuiltinActions 注册内置动作
+// registerBuiltinActions 注册内置动作.
 func (a *DSMAgent) registerBuiltinActions() {
 	// 文件操作动作
 	a.actions["file.read"] = &AgentAction{

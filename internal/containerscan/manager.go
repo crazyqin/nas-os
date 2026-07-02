@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager manages container scan operations including scheduling, lists, and reports
+// Manager manages container scan operations including scheduling, lists, and reports.
 type Manager struct {
 	logger    *zap.Logger
 	scanner   *Scanner
@@ -26,7 +26,7 @@ type Manager struct {
 	stopCh    chan struct{}
 }
 
-// NewManager creates a new scan manager
+// NewManager creates a new scan manager.
 func NewManager(logger *zap.Logger, scanner *Scanner) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -42,19 +42,19 @@ func NewManager(logger *zap.Logger, scanner *Scanner) *Manager {
 	}
 }
 
-// Start begins the scheduled scan runner
+// Start begins the scheduled scan runner.
 func (m *Manager) Start(ctx context.Context) {
 	go m.runScheduler(ctx)
 	m.logger.Info("scan manager started")
 }
 
-// Stop stops the scheduled scan runner
+// Stop stops the scheduled scan runner.
 func (m *Manager) Stop() {
 	close(m.stopCh)
 	m.logger.Info("scan manager stopped")
 }
 
-// runScheduler periodically checks and runs scheduled scans
+// runScheduler periodically checks and runs scheduled scans.
 func (m *Manager) runScheduler(ctx context.Context) {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -71,7 +71,7 @@ func (m *Manager) runScheduler(ctx context.Context) {
 	}
 }
 
-// runDueScans runs all scheduled scans that are due
+// runDueScans runs all scheduled scans that are due.
 func (m *Manager) runDueScans(ctx context.Context) {
 	m.schedMu.RLock()
 	var dueScans []*ScanSchedule
@@ -111,7 +111,7 @@ func (m *Manager) runDueScans(ctx context.Context) {
 	}
 }
 
-// AddSchedule adds a new scan schedule
+// AddSchedule adds a new scan schedule.
 func (m *Manager) AddSchedule(schedule *ScanSchedule) error {
 	if schedule.ID == "" {
 		return fmt.Errorf("schedule ID is required")
@@ -142,14 +142,14 @@ func (m *Manager) AddSchedule(schedule *ScanSchedule) error {
 	return nil
 }
 
-// GetSchedule returns a schedule by ID
+// GetSchedule returns a schedule by ID.
 func (m *Manager) GetSchedule(id string) *ScanSchedule {
 	m.schedMu.RLock()
 	defer m.schedMu.RUnlock()
 	return m.schedules[id]
 }
 
-// ListSchedules returns all schedules
+// ListSchedules returns all schedules.
 func (m *Manager) ListSchedules() []*ScanSchedule {
 	m.schedMu.RLock()
 	defer m.schedMu.RUnlock()
@@ -161,7 +161,7 @@ func (m *Manager) ListSchedules() []*ScanSchedule {
 	return schedules
 }
 
-// DeleteSchedule removes a schedule by ID
+// DeleteSchedule removes a schedule by ID.
 func (m *Manager) DeleteSchedule(id string) bool {
 	m.schedMu.Lock()
 	defer m.schedMu.Unlock()
@@ -173,7 +173,7 @@ func (m *Manager) DeleteSchedule(id string) bool {
 	return true
 }
 
-// UpdateSchedule updates an existing schedule
+// UpdateSchedule updates an existing schedule.
 func (m *Manager) UpdateSchedule(id string, schedule *ScanSchedule) error {
 	m.schedMu.Lock()
 	defer m.schedMu.Unlock()
@@ -195,7 +195,7 @@ func (m *Manager) UpdateSchedule(id string, schedule *ScanSchedule) error {
 	return nil
 }
 
-// AddToWhitelist adds an image to the whitelist
+// AddToWhitelist adds an image to the whitelist.
 func (m *Manager) AddToWhitelist(image, reason, addedBy string) {
 	m.listMu.Lock()
 	defer m.listMu.Unlock()
@@ -209,7 +209,7 @@ func (m *Manager) AddToWhitelist(image, reason, addedBy string) {
 	m.logger.Info("image added to whitelist", zap.String("image", image))
 }
 
-// RemoveFromWhitelist removes an image from the whitelist
+// RemoveFromWhitelist removes an image from the whitelist.
 func (m *Manager) RemoveFromWhitelist(image string) bool {
 	m.listMu.Lock()
 	defer m.listMu.Unlock()
@@ -221,7 +221,7 @@ func (m *Manager) RemoveFromWhitelist(image string) bool {
 	return true
 }
 
-// IsWhitelisted checks if an image is whitelisted
+// IsWhitelisted checks if an image is whitelisted.
 func (m *Manager) IsWhitelisted(image string) bool {
 	m.listMu.RLock()
 	defer m.listMu.RUnlock()
@@ -229,7 +229,7 @@ func (m *Manager) IsWhitelisted(image string) bool {
 	return exists
 }
 
-// ListWhitelist returns all whitelisted images
+// ListWhitelist returns all whitelisted images.
 func (m *Manager) ListWhitelist() []*ImageListEntry {
 	m.listMu.RLock()
 	defer m.listMu.RUnlock()
@@ -241,7 +241,7 @@ func (m *Manager) ListWhitelist() []*ImageListEntry {
 	return entries
 }
 
-// AddToBlacklist adds an image to the blacklist
+// AddToBlacklist adds an image to the blacklist.
 func (m *Manager) AddToBlacklist(image, reason, addedBy string) {
 	m.listMu.Lock()
 	defer m.listMu.Unlock()
@@ -255,7 +255,7 @@ func (m *Manager) AddToBlacklist(image, reason, addedBy string) {
 	m.logger.Info("image added to blacklist", zap.String("image", image))
 }
 
-// RemoveFromBlacklist removes an image from the blacklist
+// RemoveFromBlacklist removes an image from the blacklist.
 func (m *Manager) RemoveFromBlacklist(image string) bool {
 	m.listMu.Lock()
 	defer m.listMu.Unlock()
@@ -267,7 +267,7 @@ func (m *Manager) RemoveFromBlacklist(image string) bool {
 	return true
 }
 
-// IsBlacklisted checks if an image is blacklisted
+// IsBlacklisted checks if an image is blacklisted.
 func (m *Manager) IsBlacklisted(image string) bool {
 	m.listMu.RLock()
 	defer m.listMu.RUnlock()
@@ -275,7 +275,7 @@ func (m *Manager) IsBlacklisted(image string) bool {
 	return exists
 }
 
-// ListBlacklist returns all blacklisted images
+// ListBlacklist returns all blacklisted images.
 func (m *Manager) ListBlacklist() []*ImageListEntry {
 	m.listMu.RLock()
 	defer m.listMu.RUnlock()
@@ -287,7 +287,7 @@ func (m *Manager) ListBlacklist() []*ImageListEntry {
 	return entries
 }
 
-// GenerateReport generates a scan report in the specified format
+// GenerateReport generates a scan report in the specified format.
 func (m *Manager) GenerateReport(image string, format ReportFormat) (*ScanReport, error) {
 	result := m.scanner.GetCachedResult(image)
 	if result == nil {
@@ -328,14 +328,14 @@ func (m *Manager) GenerateReport(image string, format ReportFormat) (*ScanReport
 	return report, nil
 }
 
-// GetReport returns a report by ID
+// GetReport returns a report by ID.
 func (m *Manager) GetReport(id string) *ScanReport {
 	m.reportMu.RLock()
 	defer m.reportMu.RUnlock()
 	return m.reports[id]
 }
 
-// ListReports returns all reports
+// ListReports returns all reports.
 func (m *Manager) ListReports() []*ScanReport {
 	m.reportMu.RLock()
 	defer m.reportMu.RUnlock()
@@ -347,7 +347,7 @@ func (m *Manager) ListReports() []*ScanReport {
 	return reports
 }
 
-// DeleteReport removes a report by ID
+// DeleteReport removes a report by ID.
 func (m *Manager) DeleteReport(id string) bool {
 	m.reportMu.Lock()
 	defer m.reportMu.Unlock()
@@ -360,7 +360,7 @@ func (m *Manager) DeleteReport(id string) bool {
 }
 
 // CheckImageAccess checks if an image is allowed to be scanned
-// Returns true if allowed, false if blocked
+// Returns true if allowed, false if blocked.
 func (m *Manager) CheckImageAccess(image string) (bool, string) {
 	// Check blacklist first
 	if m.IsBlacklisted(image) {

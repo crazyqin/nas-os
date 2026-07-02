@@ -4,7 +4,7 @@ package microsvcmesh
 
 import "time"
 
-// ServiceStatus 服务状态
+// ServiceStatus 服务状态.
 type ServiceStatus string
 
 const (
@@ -14,7 +14,7 @@ const (
 	ServiceStatusUnknown   ServiceStatus = "unknown"
 )
 
-// CircuitState 熔断器状态
+// CircuitState 熔断器状态.
 type CircuitState string
 
 const (
@@ -23,7 +23,7 @@ const (
 	CircuitHalfOpen CircuitState = "half_open" // 半开（探测）
 )
 
-// RouteStrategy 路由策略
+// RouteStrategy 路由策略.
 type RouteStrategy string
 
 const (
@@ -34,7 +34,7 @@ const (
 	RouteSticky     RouteStrategy = "sticky"      // 粘性会话
 )
 
-// Protocol 协议类型
+// Protocol 协议类型.
 type Protocol string
 
 const (
@@ -44,7 +44,7 @@ const (
 	ProtocolTCP   Protocol = "tcp"
 )
 
-// Config 微服务网格配置
+// Config 微服务网格配置.
 type Config struct {
 	Enabled             bool    `json:"enabled"`
 	ListenAddr          string  `json:"listen_addr"`           // 代理监听地址
@@ -58,7 +58,7 @@ type Config struct {
 	MetricsEnabled      bool    `json:"metrics_enabled"`       // 是否启用指标收集
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:             true,
@@ -74,7 +74,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// Service 服务定义
+// Service 服务定义.
 type Service struct {
 	Name      string            `json:"name"`
 	Version   string            `json:"version"`
@@ -88,7 +88,7 @@ type Service struct {
 	UpdatedAt time.Time         `json:"updated_at"`
 }
 
-// Endpoint 服务端点
+// Endpoint 服务端点.
 type Endpoint struct {
 	ID       string            `json:"id"`
 	Host     string            `json:"host"`
@@ -99,7 +99,7 @@ type Endpoint struct {
 	Tags     map[string]string `json:"tags,omitempty"`
 }
 
-// Route 路由规则
+// Route 路由规则.
 type Route struct {
 	ID       string            `json:"id"`
 	Name     string            `json:"name"`
@@ -113,14 +113,14 @@ type Route struct {
 	Timeout  int               `json:"timeout"` // 超时（秒）
 }
 
-// RetryPolicy 重试策略
+// RetryPolicy 重试策略.
 type RetryPolicy struct {
 	MaxRetries int      `json:"max_retries"`
 	RetryOn    []string `json:"retry_on"` // 重试条件：5xx, timeout, connection_error
 	Backoff    string   `json:"backoff"`  // 退避策略：linear, exponential
 }
 
-// CircuitBreakerConfig 熔断器配置
+// CircuitBreakerConfig 熔断器配置.
 type CircuitBreakerConfig struct {
 	FailureThreshold int     `json:"failure_threshold"` // 失败阈值
 	SuccessThreshold int     `json:"success_threshold"` // 成功阈值（半开→关闭）
@@ -130,7 +130,7 @@ type CircuitBreakerConfig struct {
 	WindowSize       int     `json:"window_size"`       // 统计窗口大小（秒）
 }
 
-// DefaultCircuitBreakerConfig 默认熔断器配置
+// DefaultCircuitBreakerConfig 默认熔断器配置.
 func DefaultCircuitBreakerConfig() *CircuitBreakerConfig {
 	return &CircuitBreakerConfig{
 		FailureThreshold: 5,
@@ -142,7 +142,7 @@ func DefaultCircuitBreakerConfig() *CircuitBreakerConfig {
 	}
 }
 
-// TraceSpan 追踪跨度
+// TraceSpan 追踪跨度.
 type TraceSpan struct {
 	TraceID   string            `json:"trace_id"`
 	SpanID    string            `json:"span_id"`
@@ -157,14 +157,14 @@ type TraceSpan struct {
 	Events    []TraceEvent      `json:"events,omitempty"`
 }
 
-// TraceEvent 追踪事件
+// TraceEvent 追踪事件.
 type TraceEvent struct {
 	Name      string            `json:"name"`
 	Timestamp time.Time         `json:"timestamp"`
 	Fields    map[string]string `json:"fields,omitempty"`
 }
 
-// MetricPoint 指标数据点
+// MetricPoint 指标数据点.
 type MetricPoint struct {
 	Name      string            `json:"name"`
 	Type      string            `json:"type"` // counter, gauge, histogram
@@ -173,7 +173,7 @@ type MetricPoint struct {
 	Timestamp time.Time         `json:"timestamp"`
 }
 
-// ProxyRequest 代理请求
+// ProxyRequest 代理请求.
 type ProxyRequest struct {
 	Method  string            `json:"method"`
 	Path    string            `json:"path"`
@@ -182,7 +182,7 @@ type ProxyRequest struct {
 	Service string            `json:"service"`
 }
 
-// ProxyResponse 代理响应
+// ProxyResponse 代理响应.
 type ProxyResponse struct {
 	StatusCode int               `json:"status_code"`
 	Headers    map[string]string `json:"headers,omitempty"`

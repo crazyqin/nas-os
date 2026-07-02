@@ -10,14 +10,14 @@ import (
 )
 
 // SubtitleManager 字幕管理器
-// 负责搜索、下载和管理字幕文件，支持多语言
+// 负责搜索、下载和管理字幕文件，支持多语言.
 type SubtitleManager struct {
 	scraper *Scraper // 引用刮削器，复用其字幕数据库
 	saveDir string   // 字幕保存目录
 }
 
 // NewSubtitleManager 创建字幕管理器
-// saveDir 为字幕保存根目录，为空则默认使用 /tmp/subtitles
+// saveDir 为字幕保存根目录，为空则默认使用 /tmp/subtitles.
 func NewSubtitleManager(scraper *Scraper, saveDir string) *SubtitleManager {
 	if saveDir == "" {
 		saveDir = "/tmp/subtitles"
@@ -30,7 +30,7 @@ func NewSubtitleManager(scraper *Scraper, saveDir string) *SubtitleManager {
 
 // Search 搜索字幕，返回指定媒体和语言的可用字幕列表
 // mediaKey 为媒体的查找键（如 "inception_2010"）
-// lang 为语言代码（如 "zh-CN", "en-US"），为空则返回所有语言
+// lang 为语言代码（如 "zh-CN", "en-US"），为空则返回所有语言.
 func (m *SubtitleManager) Search(mediaKey string, lang string) ([]subtitleRecord, error) {
 	records, ok := m.scraper.subtitleDB[mediaKey]
 	if !ok {
@@ -57,7 +57,7 @@ func (m *SubtitleManager) Search(mediaKey string, lang string) ([]subtitleRecord
 	return filtered, nil
 }
 
-// SearchByItem 通过 MediaItem 搜索字幕
+// SearchByItem 通过 MediaItem 搜索字幕.
 func (m *SubtitleManager) SearchByItem(item *MediaItem, lang string) ([]subtitleRecord, error) {
 	if item == nil {
 		return nil, errors.New("媒体项不能为空")
@@ -67,7 +67,7 @@ func (m *SubtitleManager) SearchByItem(item *MediaItem, lang string) ([]subtitle
 
 // Download 下载字幕并保存到文件
 // mediaKey 为媒体查找键，lang 为目标语言
-// 返回 SubtitleResult 包含保存路径等信息
+// 返回 SubtitleResult 包含保存路径等信息.
 func (m *SubtitleManager) Download(mediaKey string, lang string) *SubtitleResult {
 	records, err := m.Search(mediaKey, lang)
 	if err != nil {
@@ -113,7 +113,7 @@ func (m *SubtitleManager) Download(mediaKey string, lang string) *SubtitleResult
 	}
 }
 
-// DownloadByItem 通过 MediaItem 下载字幕
+// DownloadByItem 通过 MediaItem 下载字幕.
 func (m *SubtitleManager) DownloadByItem(item *MediaItem, lang string) *SubtitleResult {
 	if item == nil {
 		return &SubtitleResult{
@@ -124,7 +124,7 @@ func (m *SubtitleManager) DownloadByItem(item *MediaItem, lang string) *Subtitle
 }
 
 // DownloadMulti 下载多语言字幕
-// langs 为需要下载的语言列表，返回每种语言的结果
+// langs 为需要下载的语言列表，返回每种语言的结果.
 func (m *SubtitleManager) DownloadMulti(mediaKey string, langs []string) []*SubtitleResult {
 	results := make([]*SubtitleResult, 0, len(langs))
 	for _, lang := range langs {
@@ -134,7 +134,7 @@ func (m *SubtitleManager) DownloadMulti(mediaKey string, langs []string) []*Subt
 	return results
 }
 
-// ListAvailableLanguages 列出指定媒体可用的字幕语言
+// ListAvailableLanguages 列出指定媒体可用的字幕语言.
 func (m *SubtitleManager) ListAvailableLanguages(mediaKey string) ([]string, error) {
 	records, ok := m.scraper.subtitleDB[mediaKey]
 	if !ok {
@@ -152,12 +152,12 @@ func (m *SubtitleManager) ListAvailableLanguages(mediaKey string) ([]string, err
 	return langs, nil
 }
 
-// GetSaveDir 获取字幕保存目录
+// GetSaveDir 获取字幕保存目录.
 func (m *SubtitleManager) GetSaveDir() string {
 	return m.saveDir
 }
 
-// SetSaveDir 设置字幕保存目录
+// SetSaveDir 设置字幕保存目录.
 func (m *SubtitleManager) SetSaveDir(dir string) {
 	m.saveDir = dir
 }

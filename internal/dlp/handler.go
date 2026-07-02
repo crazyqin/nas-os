@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler handles HTTP requests for DLP
+// Handler handles HTTP requests for DLP.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler creates a new DLP handler
+// NewHandler creates a new DLP handler.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes registers the HTTP routes
+// RegisterRoutes registers the HTTP routes.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/dlp/scans", h.handleScans)
 	mux.HandleFunc("/api/v1/dlp/scan", h.handleScan)

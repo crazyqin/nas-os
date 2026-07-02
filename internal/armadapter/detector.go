@@ -15,19 +15,19 @@ import (
 
 // ========== 硬件检测器 ==========
 
-// Detector ARM 硬件检测器
+// Detector ARM 硬件检测器.
 type Detector struct {
 	mu       sync.RWMutex
 	info     *ARMHardwareInfo
 	detected bool
 }
 
-// NewDetector 创建硬件检测器
+// NewDetector 创建硬件检测器.
 func NewDetector() *Detector {
 	return &Detector{}
 }
 
-// Detect 检测 ARM 硬件信息
+// Detect 检测 ARM 硬件信息.
 func (d *Detector) Detect() (*ARMHardwareInfo, error) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -78,7 +78,7 @@ func (d *Detector) Detect() (*ARMHardwareInfo, error) {
 	return info, nil
 }
 
-// GetInfo 获取已检测的硬件信息（需先调用 Detect）
+// GetInfo 获取已检测的硬件信息（需先调用 Detect）.
 func (d *Detector) GetInfo() (*ARMHardwareInfo, error) {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -89,7 +89,7 @@ func (d *Detector) GetInfo() (*ARMHardwareInfo, error) {
 	return d.info, nil
 }
 
-// Reset 重置检测器，强制重新检测
+// Reset 重置检测器，强制重新检测.
 func (d *Detector) Reset() {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -100,7 +100,7 @@ func (d *Detector) Reset() {
 
 // ========== 架构检测 ==========
 
-// detectArchType 检测 ARM 架构类型
+// detectArchType 检测 ARM 架构类型.
 func (d *Detector) detectArchType() ArchType {
 	goarch := runtime.GOARCH
 	switch goarch {
@@ -114,7 +114,7 @@ func (d *Detector) detectArchType() ArchType {
 	}
 }
 
-// detectARMVersion 检测 32 位 ARM 版本
+// detectARMVersion 检测 32 位 ARM 版本.
 func (d *Detector) detectARMVersion() ArchType {
 	cpuinfo, err := readCPUInfo()
 	if err != nil {
@@ -146,7 +146,7 @@ func (d *Detector) detectARMVersion() ArchType {
 	return ArchARMv7
 }
 
-// inferArchFromPart 从 CPU part 推断架构版本
+// inferArchFromPart 从 CPU part 推断架构版本.
 func (d *Detector) inferArchFromPart(part string) ArchType {
 	part = strings.ToLower(part)
 	switch {
@@ -161,7 +161,7 @@ func (d *Detector) inferArchFromPart(part string) ArchType {
 	}
 }
 
-// detectArchVersion 检测架构版本字符串
+// detectArchVersion 检测架构版本字符串.
 func (d *Detector) detectArchVersion() string {
 	cpuinfo, err := readCPUInfo()
 	if err != nil {
@@ -191,7 +191,7 @@ func (d *Detector) detectArchVersion() string {
 	return "ARMv7-A"
 }
 
-// detectBits 检测位宽
+// detectBits 检测位宽.
 func (d *Detector) detectBits() int {
 	if runtime.GOARCH == "arm64" {
 		return 64
@@ -201,7 +201,7 @@ func (d *Detector) detectBits() int {
 
 // ========== SoC 检测 ==========
 
-// detectSoC 检测 SoC 厂商和型号
+// detectSoC 检测 SoC 厂商和型号.
 func (d *Detector) detectSoC() (SoCFamily, string) {
 	// 1. 从 /proc/device-tree/compatible 读取
 	if compat := readDeviceTreeCompatible(); compat != "" {
@@ -229,7 +229,7 @@ func (d *Detector) detectSoC() (SoCFamily, string) {
 	return SoCUnknown, "unknown"
 }
 
-// inferSoCFromHardware 从 Hardware 字段推断 SoC
+// inferSoCFromHardware 从 Hardware 字段推断 SoC.
 func (d *Detector) inferSoCFromHardware(hw string) (SoCFamily, string) {
 	hw = strings.ToLower(hw)
 	switch {
@@ -255,7 +255,7 @@ func (d *Detector) inferSoCFromHardware(hw string) (SoCFamily, string) {
 	}
 }
 
-// inferSoCFromModel 从 model name 推断 SoC
+// inferSoCFromModel 从 model name 推断 SoC.
 func (d *Detector) inferSoCFromModel(model string) (SoCFamily, string) {
 	model = strings.ToLower(model)
 	switch {
@@ -268,7 +268,7 @@ func (d *Detector) inferSoCFromModel(model string) (SoCFamily, string) {
 	}
 }
 
-// inferSoCFromDMIVendor 从 DMI 厂商推断 SoC
+// inferSoCFromDMIVendor 从 DMI 厂商推断 SoC.
 func (d *Detector) inferSoCFromDMIVendor(vendor string) (SoCFamily, string) {
 	vendor = strings.ToLower(vendor)
 	switch {
@@ -283,7 +283,7 @@ func (d *Detector) inferSoCFromDMIVendor(vendor string) (SoCFamily, string) {
 	}
 }
 
-// extractRockchipModel 从字符串中提取 Rockchip 型号
+// extractRockchipModel 从字符串中提取 Rockchip 型号.
 func extractRockchipModel(s string) string {
 	re := regexp.MustCompile(`(?i)(rk\d{4}[a-z]*)`)
 	if match := re.FindString(s); match != "" {
@@ -294,7 +294,7 @@ func extractRockchipModel(s string) string {
 
 // ========== CPU 检测 ==========
 
-// detectCPUCores 检测 CPU 核心数
+// detectCPUCores 检测 CPU 核心数.
 func (d *Detector) detectCPUCores() int {
 	// /sys/devices/system/cpu/online 比 runtime 更准确
 	if data, err := os.ReadFile("/sys/devices/system/cpu/online"); err == nil {
@@ -306,7 +306,7 @@ func (d *Detector) detectCPUCores() int {
 	return runtime.NumCPU()
 }
 
-// parseCPUOnline 解析 CPU online 字符串 (e.g., "0-3", "0-3,4-7")
+// parseCPUOnline 解析 CPU online 字符串 (e.g., "0-3", "0-3,4-7").
 func parseCPUOnline(s string) int {
 	total := 0
 	for _, part := range strings.Split(s, ",") {
@@ -329,7 +329,7 @@ func parseCPUOnline(s string) int {
 	return total
 }
 
-// detectMaxFreq 检测最大 CPU 频率
+// detectMaxFreq 检测最大 CPU 频率.
 func (d *Detector) detectMaxFreq() int {
 	// 尝试读取 CPU0 的最大频率
 	paths := []string{
@@ -347,7 +347,7 @@ func (d *Detector) detectMaxFreq() int {
 	return 0
 }
 
-// detectFeatures 检测 CPU 特性
+// detectFeatures 检测 CPU 特性.
 func (d *Detector) detectFeatures() []CPUFeature {
 	var features []CPUFeature
 	featureSet := make(map[CPUFeature]bool)
@@ -366,26 +366,26 @@ func (d *Detector) detectFeatures() []CPUFeature {
 	return features
 }
 
-// parseFeatures 解析 CPU 特性字符串
+// parseFeatures 解析 CPU 特性字符串.
 func parseFeatures(flags string, seen map[CPUFeature]bool) []CPUFeature {
 	var features []CPUFeature
 	featureMap := map[string]CPUFeature{
-		"neon":     FeatureNEON,
-		"asimd":    FeatureNEON, // ARM64 的 NEON 叫 ASIMD
-		"vfpv4":    FeatureVFPv4,
-		"vfp":      FeatureVFPv4,
-		"aes":      FeatureAES,
-		"sha1":     FeatureSHA1,
-		"sha2":     FeatureSHA2,
-		"crc32":    FeatureCRC32,
-		"lse":      FeatureLSE,
-		"atomics":  FeatureLSE,
-		"sve":      FeatureSVE,
-		"asimddp":  FeatureDotProd,
-		"dotprod":  FeatureDotProd,
-		"fp16":     FeatureFP16,
-		"fphp":     FeatureFP16,
-		"i8mm":     FeatureI8MM,
+		"neon":    FeatureNEON,
+		"asimd":   FeatureNEON, // ARM64 的 NEON 叫 ASIMD
+		"vfpv4":   FeatureVFPv4,
+		"vfp":     FeatureVFPv4,
+		"aes":     FeatureAES,
+		"sha1":    FeatureSHA1,
+		"sha2":    FeatureSHA2,
+		"crc32":   FeatureCRC32,
+		"lse":     FeatureLSE,
+		"atomics": FeatureLSE,
+		"sve":     FeatureSVE,
+		"asimddp": FeatureDotProd,
+		"dotprod": FeatureDotProd,
+		"fp16":    FeatureFP16,
+		"fphp":    FeatureFP16,
+		"i8mm":    FeatureI8MM,
 	}
 
 	for _, token := range strings.Fields(flags) {
@@ -397,7 +397,7 @@ func parseFeatures(flags string, seen map[CPUFeature]bool) []CPUFeature {
 	return features
 }
 
-// detectBigLittle 检测 big.LITTLE 配置
+// detectBigLittle 检测 big.LITTLE 配置.
 func (d *Detector) detectBigLittle(totalCores int) (big, little int) {
 	// 尝试从 sysfs 推断不同集群的最大频率
 	freqs := make(map[int]bool)
@@ -447,7 +447,7 @@ func (d *Detector) detectBigLittle(totalCores int) (big, little int) {
 		}
 
 		if big > 0 && little > 0 {
-			return
+			return big, little
 		}
 	}
 
@@ -457,12 +457,12 @@ func (d *Detector) detectBigLittle(totalCores int) (big, little int) {
 		big = totalCores / 2
 		little = totalCores - big
 	}
-	return
+	return big, little
 }
 
 // ========== 内存检测 ==========
 
-// detectMemory 检测内存大小
+// detectMemory 检测内存大小.
 func (d *Detector) detectMemory() int {
 	file, err := os.Open("/proc/meminfo")
 	if err != nil {
@@ -486,7 +486,7 @@ func (d *Detector) detectMemory() int {
 	return 0
 }
 
-// detectLPDDRType 检测 LPDDR 类型
+// detectLPDDRType 检测 LPDDR 类型.
 func (d *Detector) detectLPDDRType() string {
 	// 尝试从 DMI 或设备树推断
 	if data, err := os.ReadFile("/proc/device-tree/memory/ddr_type"); err == nil {
@@ -517,7 +517,7 @@ func (d *Detector) detectLPDDRType() string {
 
 // ========== 存储检测 ==========
 
-// detectUSB3 检测 USB 3.0 支持
+// detectUSB3 检测 USB 3.0 支持.
 func (d *Detector) detectUSB3() bool {
 	// 检查 /sys/bus/usb/devices/ 下是否有 USB 3.0 设备
 	entries, err := os.ReadDir("/sys/bus/usb/devices")
@@ -538,7 +538,7 @@ func (d *Detector) detectUSB3() bool {
 	return false
 }
 
-// detectPCIe 检测 PCIe 支持
+// detectPCIe 检测 PCIe 支持.
 func (d *Detector) detectPCIe() bool {
 	entries, err := os.ReadDir("/sys/bus/pci/devices")
 	if err != nil {
@@ -547,7 +547,7 @@ func (d *Detector) detectPCIe() bool {
 	return len(entries) > 0
 }
 
-// detectSATA 检测 SATA 支持
+// detectSATA 检测 SATA 支持.
 func (d *Detector) detectSATA() bool {
 	entries, err := os.ReadDir("/sys/class/ata_port")
 	if err != nil {
@@ -558,7 +558,7 @@ func (d *Detector) detectSATA() bool {
 
 // ========== 网络检测 ==========
 
-// detectEthernet 检测以太网能力
+// detectEthernet 检测以太网能力.
 func (d *Detector) detectEthernet() (gbe, gbe25 bool) {
 	entries, err := os.ReadDir("/sys/class/net")
 	if err != nil {
@@ -589,10 +589,10 @@ func (d *Detector) detectEthernet() (gbe, gbe25 bool) {
 			gbe = true
 		}
 	}
-	return
+	return gbe, gbe25
 }
 
-// detectWiFi 检测 WiFi 支持
+// detectWiFi 检测 WiFi 支持.
 func (d *Detector) detectWiFi() (bool, string) {
 	entries, err := os.ReadDir("/sys/class/net")
 	if err != nil {
@@ -628,7 +628,7 @@ func (d *Detector) detectWiFi() (bool, string) {
 
 // ========== 辅助函数 ==========
 
-// readCPUInfo 读取 /proc/cpuinfo 并解析为 map
+// readCPUInfo 读取 /proc/cpuinfo 并解析为 map.
 func readCPUInfo() (map[string]string, error) {
 	file, err := os.Open("/proc/cpuinfo")
 	if err != nil {
@@ -652,7 +652,7 @@ func readCPUInfo() (map[string]string, error) {
 	return result, scanner.Err()
 }
 
-// readDeviceTreeCompatible 读取设备树 compatible 属性
+// readDeviceTreeCompatible 读取设备树 compatible 属性.
 func readDeviceTreeCompatible() string {
 	data, err := os.ReadFile("/proc/device-tree/compatible")
 	if err != nil {
@@ -662,7 +662,7 @@ func readDeviceTreeCompatible() string {
 	return strings.ReplaceAll(strings.TrimRight(string(data), "\x00"), "\x00", ",")
 }
 
-// parseSoCFromCompatible 从 compatible 字符串解析 SoC 信息
+// parseSoCFromCompatible 从 compatible 字符串解析 SoC 信息.
 func parseSoCFromCompatible(compat string) (SoCFamily, string) {
 	compat = strings.ToLower(compat)
 	switch {
@@ -687,7 +687,7 @@ func parseSoCFromCompatible(compat string) (SoCFamily, string) {
 	}
 }
 
-// readDMISysVendor 读取 DMI 系统厂商
+// readDMISysVendor 读取 DMI 系统厂商.
 func readDMISysVendor() string {
 	data, err := os.ReadFile("/sys/class/dmi/id/sys_vendor")
 	if err != nil {
@@ -696,5 +696,5 @@ func readDMISysVendor() string {
 	return strings.TrimSpace(string(data))
 }
 
-// 用于测试的时间函数
+// 用于测试的时间函数.
 var nowFunc = func() time.Time { return time.Now() }

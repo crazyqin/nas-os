@@ -11,18 +11,18 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handlers 日志中心 API 处理器
+// Handlers 日志中心 API 处理器.
 type Handlers struct {
 	manager *Manager
 	logger  *zap.Logger
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(logger *zap.Logger, manager *Manager) *Handlers {
 	return &Handlers{manager: manager, logger: logger}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	lg := r.Group("/logcenter")
 	{
@@ -58,7 +58,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// queryLogs 查询日志
+// queryLogs 查询日志.
 func (h *Handlers) queryLogs(c *gin.Context) {
 	var query LogQuery
 	if err := c.ShouldBindQuery(&query); err != nil {
@@ -82,13 +82,13 @@ func (h *Handlers) queryLogs(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// getStats 获取统计
+// getStats 获取统计.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, stats)
 }
 
-// addLog 添加日志
+// addLog 添加日志.
 func (h *Handlers) addLog(c *gin.Context) {
 	var entry LogEntry
 	if err := c.ShouldBindJSON(&entry); err != nil {
@@ -100,19 +100,19 @@ func (h *Handlers) addLog(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "日志已添加"})
 }
 
-// clearLogs 清空日志
+// clearLogs 清空日志.
 func (h *Handlers) clearLogs(c *gin.Context) {
 	h.manager.Clear()
 	c.JSON(http.StatusOK, gin.H{"message": "日志已清空"})
 }
 
-// getConfig 获取配置
+// getConfig 获取配置.
 func (h *Handlers) getConfig(c *gin.Context) {
 	config := h.manager.GetConfig()
 	c.JSON(http.StatusOK, config)
 }
 
-// updateConfig 更新配置
+// updateConfig 更新配置.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var config LogConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -124,19 +124,19 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "配置已更新"})
 }
 
-// getSources 获取来源列表
+// getSources 获取来源列表.
 func (h *Handlers) getSources(c *gin.Context) {
 	sources := h.manager.GetSources()
 	c.JSON(http.StatusOK, gin.H{"sources": sources})
 }
 
-// getCategories 获取分类列表
+// getCategories 获取分类列表.
 func (h *Handlers) getCategories(c *gin.Context) {
 	categories := h.manager.GetCategories()
 	c.JSON(http.StatusOK, gin.H{"categories": categories})
 }
 
-// exportLogs 导出日志
+// exportLogs 导出日志.
 func (h *Handlers) exportLogs(c *gin.Context) {
 	var query LogQuery
 	if err := c.ShouldBindQuery(&query); err != nil {
@@ -163,7 +163,7 @@ func (h *Handlers) exportLogs(c *gin.Context) {
 	c.Data(http.StatusOK, c.GetHeader("Content-Type"), data)
 }
 
-// streamLogs 实时日志流 (WebSocket)
+// streamLogs 实时日志流 (WebSocket).
 func (h *Handlers) streamLogs(c *gin.Context) {
 	upgrader := websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
@@ -218,7 +218,7 @@ func (h *Handlers) streamLogs(c *gin.Context) {
 	}
 }
 
-// parseQueryParams 解析查询参数
+// parseQueryParams 解析查询参数.
 func parseQueryParams(c *gin.Context) LogQuery {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "50"))

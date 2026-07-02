@@ -10,17 +10,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 文件完整性监控 API 处理器
+// Handlers 文件完整性监控 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	fim := r.Group("/file-integrity")
 	{

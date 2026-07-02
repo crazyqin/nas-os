@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Manager 智能定价分析管理器
+// Manager 智能定价分析管理器.
 type Manager struct {
 	mu sync.RWMutex
 
@@ -24,7 +24,7 @@ type Manager struct {
 	costHistory map[string][]CostTrendPoint // provider -> history
 }
 
-// BudgetAlert 预算告警
+// BudgetAlert 预算告警.
 type BudgetAlert struct {
 	ID        string    `json:"id"`
 	Provider  string    `json:"provider"`
@@ -34,7 +34,7 @@ type BudgetAlert struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// NewManager 创建智能定价分析管理器
+// NewManager 创建智能定价分析管理器.
 func NewManager(config SmartPricingConfig) *Manager {
 	m := &Manager{
 		config:      config,
@@ -51,7 +51,7 @@ func NewManager(config SmartPricingConfig) *Manager {
 	return m
 }
 
-// initDefaultPlans 初始化默认存储方案
+// initDefaultPlans 初始化默认存储方案.
 func (m *Manager) initDefaultPlans() {
 	m.plans = []StoragePlan{
 		// AWS S3
@@ -201,14 +201,14 @@ func (m *Manager) initDefaultPlans() {
 	}
 }
 
-// GetPlans 获取所有存储方案
+// GetPlans 获取所有存储方案.
 func (m *Manager) GetPlans() []StoragePlan {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.plans
 }
 
-// GetPlansByProvider 按提供商筛选方案
+// GetPlansByProvider 按提供商筛选方案.
 func (m *Manager) GetPlansByProvider(provider StorageProvider) []StoragePlan {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -222,7 +222,7 @@ func (m *Manager) GetPlansByProvider(provider StorageProvider) []StoragePlan {
 	return result
 }
 
-// CompareCost 成本对比
+// CompareCost 成本对比.
 func (m *Manager) CompareCost(req CostCompareRequest) (*CostCompareResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -307,7 +307,7 @@ func (m *Manager) CompareCost(req CostCompareRequest) (*CostCompareResult, error
 	return result, nil
 }
 
-// GetRecommendations 获取优化建议
+// GetRecommendations 获取优化建议.
 func (m *Manager) GetRecommendations(storageGB float64, currentProvider StorageProvider, currentTier StorageTier, monthlyCost float64) (*RecommendationsResponse, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -437,7 +437,7 @@ func (m *Manager) GetRecommendations(storageGB float64, currentProvider StorageP
 	return response, nil
 }
 
-// GetCostTrends 获取成本趋势
+// GetCostTrends 获取成本趋势.
 func (m *Manager) GetCostTrends(req CostTrendRequest) (*CostTrendResponse, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -481,7 +481,7 @@ func (m *Manager) GetCostTrends(req CostTrendRequest) (*CostTrendResponse, error
 	return response, nil
 }
 
-// generateMockTrends 生成模拟趋势数据
+// generateMockTrends 生成模拟趋势数据.
 func (m *Manager) generateMockTrends() {
 	providers := []string{"aws_s3", "aliyun_oss", "tencent_cos", "minio"}
 	baseCosts := map[string]float64{
@@ -514,7 +514,7 @@ func (m *Manager) generateMockTrends() {
 	}
 }
 
-// calculateTrendSummary 计算趋势摘要
+// calculateTrendSummary 计算趋势摘要.
 func (m *Manager) calculateTrendSummary(trends []CostTrendPoint) TrendSummary {
 	if len(trends) == 0 {
 		return TrendSummary{}
@@ -554,7 +554,7 @@ func (m *Manager) calculateTrendSummary(trends []CostTrendPoint) TrendSummary {
 	}
 }
 
-// AddCostHistory 添加成本历史数据
+// AddCostHistory 添加成本历史数据.
 func (m *Manager) AddCostHistory(provider string, point CostTrendPoint) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

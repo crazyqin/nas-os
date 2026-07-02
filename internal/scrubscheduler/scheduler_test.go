@@ -15,7 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// mockExecutor 用于测试的 mock ZFS 执行器
+// mockExecutor 用于测试的 mock ZFS 执行器.
 type mockExecutor struct {
 	mu           sync.Mutex
 	startCalled  int

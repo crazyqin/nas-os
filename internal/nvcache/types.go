@@ -4,69 +4,69 @@ package nvcache
 
 import "time"
 
-// CachePolicy 缓存策略
+// CachePolicy 缓存策略.
 type CachePolicy string
 
 const (
-	// PolicyWriteBack 写回策略，数据先写入缓存，异步刷回底层存储
+	// PolicyWriteBack 写回策略，数据先写入缓存，异步刷回底层存储.
 	PolicyWriteBack CachePolicy = "write-back"
-	// PolicyWriteThrough 写穿策略，数据同时写入缓存和底层存储
+	// PolicyWriteThrough 写穿策略，数据同时写入缓存和底层存储.
 	PolicyWriteThrough CachePolicy = "write-through"
-	// PolicyReadAhead 预读策略，提前加载可能访问的数据到缓存
+	// PolicyReadAhead 预读策略，提前加载可能访问的数据到缓存.
 	PolicyReadAhead CachePolicy = "read-ahead"
 )
 
-// EvictionPolicy 淘汰策略
+// EvictionPolicy 淘汰策略.
 type EvictionPolicy string
 
 const (
-	// EvictionLRU 最近最少使用淘汰策略
+	// EvictionLRU 最近最少使用淘汰策略.
 	EvictionLRU EvictionPolicy = "lru"
-	// EvictionLFU 最不经常使用淘汰策略
+	// EvictionLFU 最不经常使用淘汰策略.
 	EvictionLFU EvictionPolicy = "lfu"
-	// EvictionARC 自适应替换缓存策略
+	// EvictionARC 自适应替换缓存策略.
 	EvictionARC EvictionPolicy = "arc"
 )
 
-// CacheStatus 缓存状态
+// CacheStatus 缓存状态.
 type CacheStatus string
 
 const (
-	// StatusActive 活跃状态
+	// StatusActive 活跃状态.
 	StatusActive CacheStatus = "active"
-	// StatusInactive 非活跃状态
+	// StatusInactive 非活跃状态.
 	StatusInactive CacheStatus = "inactive"
-	// StatusSyncing 同步中状态
+	// StatusSyncing 同步中状态.
 	StatusSyncing CacheStatus = "syncing"
-	// StatusError 错误状态
+	// StatusError 错误状态.
 	StatusError CacheStatus = "error"
 )
 
-// DeviceRole 设备角色
+// DeviceRole 设备角色.
 type DeviceRole string
 
 const (
-	// RoleCache 缓存设备角色
+	// RoleCache 缓存设备角色.
 	RoleCache DeviceRole = "cache"
-	// RoleBackend 后端存储设备角色
+	// RoleBackend 后端存储设备角色.
 	RoleBackend DeviceRole = "backend"
 )
 
-// RAIDLevel RAID 级别
+// RAIDLevel RAID 级别.
 type RAIDLevel string
 
 const (
-	// RAID0 条带化，提高性能无冗余
+	// RAID0 条带化，提高性能无冗余.
 	RAID0 RAIDLevel = "raid0"
-	// RAID1 镜像，数据冗余
+	// RAID1 镜像，数据冗余.
 	RAID1 RAIDLevel = "raid1"
-	// RAID5 分布式奇偶校验
+	// RAID5 分布式奇偶校验.
 	RAID5 RAIDLevel = "raid5"
-	// RAID10 镜像+条带化
+	// RAID10 镜像+条带化.
 	RAID10 RAIDLevel = "raid10"
 )
 
-// CacheDevice 缓存设备信息
+// CacheDevice 缓存设备信息.
 type CacheDevice struct {
 	// ID 设备唯一标识
 	ID string `json:"id"`
@@ -96,7 +96,7 @@ type CacheDevice struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// CachePool 缓存池
+// CachePool 缓存池.
 type CachePool struct {
 	// ID 缓存池唯一标识
 	ID string `json:"id"`
@@ -122,7 +122,7 @@ type CachePool struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// CacheMapping 缓存映射关系
+// CacheMapping 缓存映射关系.
 type CacheMapping struct {
 	// ID 映射唯一标识
 	ID string `json:"id"`
@@ -144,7 +144,7 @@ type CacheMapping struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// CacheStats 缓存统计信息
+// CacheStats 缓存统计信息.
 type CacheStats struct {
 	// CachePoolID 缓存池 ID
 	CachePoolID string `json:"cache_pool_id"`
@@ -184,7 +184,7 @@ type CacheStats struct {
 	CollectedAt time.Time `json:"collected_at"`
 }
 
-// TierRule 分层规则
+// TierRule 分层规则.
 type TierRule struct {
 	// ID 规则唯一标识
 	ID string `json:"id"`
@@ -210,7 +210,7 @@ type TierRule struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// WarmupTask 缓存预热任务
+// WarmupTask 缓存预热任务.
 type WarmupTask struct {
 	// ID 任务唯一标识
 	ID string `json:"id"`
@@ -242,7 +242,7 @@ type WarmupTask struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// ConsistencyCheck 一致性检查结果
+// ConsistencyCheck 一致性检查结果.
 type ConsistencyCheck struct {
 	// ID 检查唯一标识
 	ID string `json:"id"`
@@ -266,7 +266,7 @@ type ConsistencyCheck struct {
 	CompletedAt time.Time `json:"completed_at,omitempty"`
 }
 
-// CreatePoolRequest 创建缓存池请求
+// CreatePoolRequest 创建缓存池请求.
 type CreatePoolRequest struct {
 	// Name 缓存池名称
 	Name string `json:"name" binding:"required"`
@@ -280,7 +280,7 @@ type CreatePoolRequest struct {
 	EvictionPolicy EvictionPolicy `json:"eviction_policy" binding:"required"`
 }
 
-// CreateMappingRequest 创建缓存映射请求
+// CreateMappingRequest 创建缓存映射请求.
 type CreateMappingRequest struct {
 	// CachePoolID 缓存池 ID
 	CachePoolID string `json:"cache_pool_id" binding:"required"`
@@ -294,7 +294,7 @@ type CreateMappingRequest struct {
 	BlockSizeKB int `json:"block_size_kb,omitempty"`
 }
 
-// CreateTierRuleRequest 创建分层规则请求
+// CreateTierRuleRequest 创建分层规则请求.
 type CreateTierRuleRequest struct {
 	// Name 规则名称
 	Name string `json:"name" binding:"required"`
@@ -312,7 +312,7 @@ type CreateTierRuleRequest struct {
 	PromoteScheduleMB int `json:"promote_schedule_mb,omitempty"`
 }
 
-// CreateWarmupRequest 创建预热任务请求
+// CreateWarmupRequest 创建预热任务请求.
 type CreateWarmupRequest struct {
 	// Name 任务名称
 	Name string `json:"name" binding:"required"`
@@ -324,7 +324,7 @@ type CreateWarmupRequest struct {
 	FilePattern string `json:"file_pattern,omitempty"`
 }
 
-// RegisterDeviceRequest 注册设备请求
+// RegisterDeviceRequest 注册设备请求.
 type RegisterDeviceRequest struct {
 	// Name 设备名称
 	Name string `json:"name" binding:"required"`
@@ -336,7 +336,7 @@ type RegisterDeviceRequest struct {
 	CapacityGB int64 `json:"capacity_gb,omitempty"`
 }
 
-// UpdatePolicyRequest 更新策略请求
+// UpdatePolicyRequest 更新策略请求.
 type UpdatePolicyRequest struct {
 	// Policy 缓存策略
 	Policy CachePolicy `json:"policy" binding:"required"`
@@ -344,7 +344,7 @@ type UpdatePolicyRequest struct {
 	EvictionPolicy EvictionPolicy `json:"eviction_policy,omitempty"`
 }
 
-// FlushRequest 刷回请求
+// FlushRequest 刷回请求.
 type FlushRequest struct {
 	// CachePoolID 缓存池 ID
 	CachePoolID string `json:"cache_pool_id" binding:"required"`
@@ -352,7 +352,7 @@ type FlushRequest struct {
 	Force bool `json:"force,omitempty"`
 }
 
-// CacheGlobalConfig 全局缓存配置
+// CacheGlobalConfig 全局缓存配置.
 type CacheGlobalConfig struct {
 	// Enabled 是否启用缓存模块
 	Enabled bool `json:"enabled"`
@@ -374,7 +374,7 @@ type CacheGlobalConfig struct {
 	ConsistencyCheckEnabled bool `json:"consistency_check_enabled"`
 }
 
-// DefaultCacheGlobalConfig 返回默认全局配置
+// DefaultCacheGlobalConfig 返回默认全局配置.
 func DefaultCacheGlobalConfig() *CacheGlobalConfig {
 	return &CacheGlobalConfig{
 		Enabled:                 true,
@@ -389,7 +389,7 @@ func DefaultCacheGlobalConfig() *CacheGlobalConfig {
 	}
 }
 
-// IsValidPolicy 检查缓存策略是否有效
+// IsValidPolicy 检查缓存策略是否有效.
 func IsValidPolicy(p CachePolicy) bool {
 	switch p {
 	case PolicyWriteBack, PolicyWriteThrough, PolicyReadAhead:
@@ -398,7 +398,7 @@ func IsValidPolicy(p CachePolicy) bool {
 	return false
 }
 
-// IsValidEviction 检查淘汰策略是否有效
+// IsValidEviction 检查淘汰策略是否有效.
 func IsValidEviction(p EvictionPolicy) bool {
 	switch p {
 	case EvictionLRU, EvictionLFU, EvictionARC:
@@ -407,7 +407,7 @@ func IsValidEviction(p EvictionPolicy) bool {
 	return false
 }
 
-// IsValidRAIDLevel 检查 RAID 级别是否有效
+// IsValidRAIDLevel 检查 RAID 级别是否有效.
 func IsValidRAIDLevel(level RAIDLevel) bool {
 	switch level {
 	case RAID0, RAID1, RAID5, RAID10, "":
@@ -416,17 +416,17 @@ func IsValidRAIDLevel(level RAIDLevel) bool {
 	return false
 }
 
-// SupportedPolicies 返回所有支持的缓存策略
+// SupportedPolicies 返回所有支持的缓存策略.
 func SupportedPolicies() []CachePolicy {
 	return []CachePolicy{PolicyWriteBack, PolicyWriteThrough, PolicyReadAhead}
 }
 
-// SupportedEvictions 返回所有支持的淘汰策略
+// SupportedEvictions 返回所有支持的淘汰策略.
 func SupportedEvictions() []EvictionPolicy {
 	return []EvictionPolicy{EvictionLRU, EvictionLFU, EvictionARC}
 }
 
-// SupportedRAIDLevels 返回所有支持的 RAID 级别
+// SupportedRAIDLevels 返回所有支持的 RAID 级别.
 func SupportedRAIDLevels() []RAIDLevel {
 	return []RAIDLevel{RAID0, RAID1, RAID5, RAID10}
 }

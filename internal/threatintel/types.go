@@ -14,7 +14,7 @@ import (
 // 威胁级别常量
 // ============================================================
 
-// Severity 威胁严重级别
+// Severity 威胁严重级别.
 type Severity string
 
 const (
@@ -28,7 +28,7 @@ const (
 // IOC 类型常量
 // ============================================================
 
-// IOCType IOC 指标类型
+// IOCType IOC 指标类型.
 type IOCType string
 
 const (
@@ -44,7 +44,7 @@ const (
 // 情报源类型
 // ============================================================
 
-// FeedType 情报源类型
+// FeedType 情报源类型.
 type FeedType string
 
 const (
@@ -55,7 +55,7 @@ const (
 	FeedTypeInternal   FeedType = "internal"
 )
 
-// FeedStatus 情报源状态
+// FeedStatus 情报源状态.
 type FeedStatus string
 
 const (
@@ -68,7 +68,7 @@ const (
 // 扫描状态
 // ============================================================
 
-// ScanStatus 扫描状态
+// ScanStatus 扫描状态.
 type ScanStatus string
 
 const (
@@ -82,7 +82,7 @@ const (
 // 告警类型
 // ============================================================
 
-// AlertStatus 告警状态
+// AlertStatus 告警状态.
 type AlertStatus string
 
 const (
@@ -96,7 +96,7 @@ const (
 // 数据结构定义
 // ============================================================
 
-// ThreatFeed 威胁情报源
+// ThreatFeed 威胁情报源.
 type ThreatFeed struct {
 	// ID 情报源唯一标识符
 	ID string `json:"id"`
@@ -124,7 +124,7 @@ type ThreatFeed struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// IOC 威胁指标 (Indicator of Compromise)
+// IOC 威胁指标 (Indicator of Compromise).
 type IOC struct {
 	// ID IOC 唯一标识符
 	ID string `json:"id"`
@@ -156,7 +156,7 @@ type IOC struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// Alert 威胁告警
+// Alert 威胁告警.
 type Alert struct {
 	// ID 告警唯一标识符
 	ID string `json:"id"`
@@ -190,7 +190,7 @@ type Alert struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// ScanResult 扫描结果
+// ScanResult 扫描结果.
 type ScanResult struct {
 	// ID 扫描唯一标识符
 	ID string `json:"id"`
@@ -220,7 +220,7 @@ type ScanResult struct {
 	Summary string `json:"summary"`
 }
 
-// Vulnerability 漏洞信息
+// Vulnerability 漏洞信息.
 type Vulnerability struct {
 	// ID 漏洞唯一标识符
 	ID string `json:"id"`
@@ -246,7 +246,7 @@ type Vulnerability struct {
 	PublishedAt time.Time `json:"published_at"`
 }
 
-// ServiceInfo 服务信息
+// ServiceInfo 服务信息.
 type ServiceInfo struct {
 	// Port 端口号
 	Port int `json:"port"`
@@ -262,7 +262,7 @@ type ServiceInfo struct {
 	State string `json:"state"`
 }
 
-// ThreatScore 威胁评分详情
+// ThreatScore 威胁评分详情.
 type ThreatScore struct {
 	// Overall 总体评分（0-100）
 	Overall int `json:"overall"`
@@ -286,7 +286,7 @@ type ThreatScore struct {
 // 配置与统计
 // ============================================================
 
-// ThreatIntelConfig 威胁情报中心配置
+// ThreatIntelConfig 威胁情报中心配置.
 type ThreatIntelConfig struct {
 	// Enabled 是否启用
 	Enabled bool `json:"enabled"`
@@ -308,7 +308,7 @@ type ThreatIntelConfig struct {
 	FeedUpdateInterval time.Duration `json:"feed_update_interval"`
 }
 
-// ThreatIntelStats 威胁情报统计
+// ThreatIntelStats 威胁情报统计.
 type ThreatIntelStats struct {
 	// TotalFeeds 情报源总数
 	TotalFeeds int `json:"total_feeds"`
@@ -334,14 +334,14 @@ type ThreatIntelStats struct {
 // 错误类型
 // ============================================================
 
-// ThreatIntelError 威胁情报错误
+// ThreatIntelError 威胁情报错误.
 type ThreatIntelError struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 	Err     error  `json:"-"`
 }
 
-// Error 实现 error 接口
+// Error 实现 error 接口.
 func (e *ThreatIntelError) Error() string {
 	if e.Err != nil {
 		return fmt.Sprintf("[%s] %s: %v", e.Code, e.Message, e.Err)
@@ -349,12 +349,12 @@ func (e *ThreatIntelError) Error() string {
 	return fmt.Sprintf("[%s] %s", e.Code, e.Message)
 }
 
-// Unwrap 返回内部错误
+// Unwrap 返回内部错误.
 func (e *ThreatIntelError) Unwrap() error {
 	return e.Err
 }
 
-// 预定义错误
+// 预定义错误.
 var (
 	ErrFeedNotFound     = &ThreatIntelError{Code: "FEED_NOT_FOUND", Message: "情报源不存在"}
 	ErrFeedExists       = &ThreatIntelError{Code: "FEED_EXISTS", Message: "情报源已存在"}
@@ -365,12 +365,12 @@ var (
 	ErrFeedUpdateFailed = &ThreatIntelError{Code: "FEED_UPDATE_FAILED", Message: "情报源更新失败"}
 )
 
-// NewThreatIntelError 创建包含内部错误的 ThreatIntelError
+// NewThreatIntelError 创建包含内部错误的 ThreatIntelError.
 func NewThreatIntelError(code, message string, err error) *ThreatIntelError {
 	return &ThreatIntelError{Code: code, Message: message, Err: err}
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *ThreatIntelConfig {
 	return &ThreatIntelConfig{
 		Enabled:            true,
@@ -389,7 +389,7 @@ func DefaultConfig() *ThreatIntelConfig {
 // 常见漏洞数据库（示例）
 // ============================================================
 
-// KnownVulnerability 已知漏洞模板
+// KnownVulnerability 已知漏洞模板.
 type KnownVulnerability struct {
 	CVE         string
 	Title       string
@@ -401,7 +401,7 @@ type KnownVulnerability struct {
 	Solution    string
 }
 
-// CommonVulns 常见漏洞示例数据
+// CommonVulns 常见漏洞示例数据.
 var CommonVulns = []KnownVulnerability{
 	{
 		CVE: "CVE-2021-44228", Title: "Log4Shell", Severity: SeverityCritical, CVSS: 10.0,
@@ -420,21 +420,21 @@ var CommonVulns = []KnownVulnerability{
 	},
 }
 
-// ScanManager 返回互斥锁管理器
+// ScanManager 返回互斥锁管理器.
 type ScanManager struct {
 	mu       sync.Mutex
 	isScan   bool
 	scanChan chan struct{}
 }
 
-// NewScanManager 创建扫描管理器
+// NewScanManager 创建扫描管理器.
 func NewScanManager() *ScanManager {
 	return &ScanManager{
 		scanChan: make(chan struct{}, 1),
 	}
 }
 
-// TryStartScan 尝试开始扫描，返回是否成功
+// TryStartScan 尝试开始扫描，返回是否成功.
 func (sm *ScanManager) TryStartScan() bool {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -445,14 +445,14 @@ func (sm *ScanManager) TryStartScan() bool {
 	return true
 }
 
-// FinishScan 完成扫描
+// FinishScan 完成扫描.
 func (sm *ScanManager) FinishScan() {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
 	sm.isScan = false
 }
 
-// IsScanning 是否正在扫描
+// IsScanning 是否正在扫描.
 func (sm *ScanManager) IsScanning() bool {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()

@@ -14,7 +14,7 @@ import (
 )
 
 // IndexOptimizer 索引优化器
-// 负责索引压缩、清理过期条目、优化存储结构
+// 负责索引压缩、清理过期条目、优化存储结构.
 type IndexOptimizer struct {
 	indexer *Indexer
 	logger  *zap.Logger
@@ -28,7 +28,7 @@ type IndexOptimizer struct {
 	stats OptimizerStats
 }
 
-// OptimizerStats 优化器统计
+// OptimizerStats 优化器统计.
 type OptimizerStats struct {
 	TotalOptimizations int64     `json:"totalOptimizations"`
 	LastOptimization   time.Time `json:"lastOptimization"`
@@ -37,7 +37,7 @@ type OptimizerStats struct {
 	RemovedEntries     int64     `json:"removedEntries"`
 }
 
-// NewIndexOptimizer 创建索引优化器
+// NewIndexOptimizer 创建索引优化器.
 func NewIndexOptimizer(indexer *Indexer, config EngineConfig, logger *zap.Logger) *IndexOptimizer {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -50,7 +50,7 @@ func NewIndexOptimizer(indexer *Indexer, config EngineConfig, logger *zap.Logger
 	}
 }
 
-// Start 启动索引优化器
+// Start 启动索引优化器.
 func (opt *IndexOptimizer) Start(ctx context.Context) error {
 	opt.mu.Lock()
 	defer opt.mu.Unlock()
@@ -69,7 +69,7 @@ func (opt *IndexOptimizer) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止索引优化器
+// Stop 停止索引优化器.
 func (opt *IndexOptimizer) Stop() {
 	opt.mu.Lock()
 	defer opt.mu.Unlock()
@@ -84,7 +84,7 @@ func (opt *IndexOptimizer) Stop() {
 	opt.logger.Info("索引优化器已停止")
 }
 
-// OptimizeNow 立即执行优化
+// OptimizeNow 立即执行优化.
 func (opt *IndexOptimizer) OptimizeNow(ctx context.Context) error {
 	opt.logger.Info("开始索引优化")
 	startTime := time.Now()
@@ -125,7 +125,7 @@ func (opt *IndexOptimizer) OptimizeNow(ctx context.Context) error {
 	return nil
 }
 
-// cleanupExpiredEntries 清理过期条目
+// cleanupExpiredEntries 清理过期条目.
 func (opt *IndexOptimizer) cleanupExpiredEntries(ctx context.Context) (int, error) {
 	opt.logger.Debug("清理过期条目")
 
@@ -140,7 +140,7 @@ func (opt *IndexOptimizer) cleanupExpiredEntries(ctx context.Context) (int, erro
 	return 0, nil
 }
 
-// compactIndex 压缩索引
+// compactIndex 压缩索引.
 func (opt *IndexOptimizer) compactIndex(ctx context.Context) error {
 	opt.logger.Debug("压缩索引")
 
@@ -165,13 +165,13 @@ func (opt *IndexOptimizer) compactIndex(ctx context.Context) error {
 	return nil
 }
 
-// optimizeIndexStructure 优化索引结构
+// optimizeIndexStructure 优化索引结构.
 func (opt *IndexOptimizer) optimizeIndexStructure(ctx context.Context) error {
 	opt.logger.Debug("优化索引结构")
 	return nil
 }
 
-// runPeriodicOptimization 定期优化
+// runPeriodicOptimization 定期优化.
 func (opt *IndexOptimizer) runPeriodicOptimization() {
 	// 每天凌晨 3 点执行优化
 	ticker := time.NewTicker(24 * time.Hour)
@@ -193,21 +193,21 @@ func (opt *IndexOptimizer) runPeriodicOptimization() {
 	}
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (opt *IndexOptimizer) GetStats() OptimizerStats {
 	opt.mu.RLock()
 	defer opt.mu.RUnlock()
 	return opt.stats
 }
 
-// IsRunning 是否在运行
+// IsRunning 是否在运行.
 func (opt *IndexOptimizer) IsRunning() bool {
 	opt.mu.RLock()
 	defer opt.mu.RUnlock()
 	return opt.running
 }
 
-// EstimateIndexSize 估算索引大小
+// EstimateIndexSize 估算索引大小.
 func (opt *IndexOptimizer) EstimateIndexSize(paths []string) (int64, int64, error) {
 	var totalFiles int64
 	var totalSize int64
@@ -243,7 +243,7 @@ func (opt *IndexOptimizer) EstimateIndexSize(paths []string) (int64, int64, erro
 	return totalFiles, totalSize, nil
 }
 
-// RecommendConfig 推荐配置
+// RecommendConfig 推荐配置.
 func (opt *IndexOptimizer) RecommendConfig(paths []string) EngineConfig {
 	totalFiles, totalSize, err := opt.EstimateIndexSize(paths)
 	if err != nil {

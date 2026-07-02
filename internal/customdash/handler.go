@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler 仪表盘HTTP处理器
+// Handler 仪表盘HTTP处理器.
 type Handler struct {
 	manager *DashboardManager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *DashboardManager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	dash := rg.Group("/dashboard")
 	{
@@ -34,7 +34,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// ListDashboards GET /list
+// ListDashboards GET /list.
 func (h *Handler) ListDashboards(c *gin.Context) {
 	dashboards := h.manager.ListDashboards()
 	c.JSON(http.StatusOK, gin.H{
@@ -43,7 +43,7 @@ func (h *Handler) ListDashboards(c *gin.Context) {
 	})
 }
 
-// CreateDashboard POST /create
+// CreateDashboard POST /create.
 func (h *Handler) CreateDashboard(c *gin.Context) {
 	var req struct {
 		Name        string `json:"name" binding:"required"`
@@ -61,7 +61,7 @@ func (h *Handler) CreateDashboard(c *gin.Context) {
 	c.JSON(http.StatusCreated, dash)
 }
 
-// UpdateDashboard PUT /:id
+// UpdateDashboard PUT /:id.
 func (h *Handler) UpdateDashboard(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
@@ -80,7 +80,7 @@ func (h *Handler) UpdateDashboard(c *gin.Context) {
 	c.JSON(http.StatusOK, dash)
 }
 
-// DeleteDashboard DELETE /:id
+// DeleteDashboard DELETE /:id.
 func (h *Handler) DeleteDashboard(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteDashboard(id); err != nil {
@@ -90,7 +90,7 @@ func (h *Handler) DeleteDashboard(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "dashboard deleted"})
 }
 
-// GetWidgets GET /:id/widgets
+// GetWidgets GET /:id/widgets.
 func (h *Handler) GetWidgets(c *gin.Context) {
 	id := c.Param("id")
 	widgets, err := h.manager.GetWidgets(id)
@@ -104,7 +104,7 @@ func (h *Handler) GetWidgets(c *gin.Context) {
 	})
 }
 
-// AddWidget POST /:id/widgets
+// AddWidget POST /:id/widgets.
 func (h *Handler) AddWidget(c *gin.Context) {
 	id := c.Param("id")
 	var w Widget
@@ -120,7 +120,7 @@ func (h *Handler) AddWidget(c *gin.Context) {
 	c.JSON(http.StatusCreated, widget)
 }
 
-// UpdateWidget PUT /:id/widgets/:wid
+// UpdateWidget PUT /:id/widgets/:wid.
 func (h *Handler) UpdateWidget(c *gin.Context) {
 	id := c.Param("id")
 	wid := c.Param("wid")
@@ -137,7 +137,7 @@ func (h *Handler) UpdateWidget(c *gin.Context) {
 	c.JSON(http.StatusOK, widget)
 }
 
-// DeleteWidget DELETE /:id/widgets/:wid
+// DeleteWidget DELETE /:id/widgets/:wid.
 func (h *Handler) DeleteWidget(c *gin.Context) {
 	id := c.Param("id")
 	wid := c.Param("wid")
@@ -148,7 +148,7 @@ func (h *Handler) DeleteWidget(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "widget deleted"})
 }
 
-// ExportDashboard POST /:id/export
+// ExportDashboard POST /:id/export.
 func (h *Handler) ExportDashboard(c *gin.Context) {
 	id := c.Param("id")
 	data, err := h.manager.ExportDashboard(id)
@@ -159,7 +159,7 @@ func (h *Handler) ExportDashboard(c *gin.Context) {
 	c.JSON(http.StatusOK, data)
 }
 
-// ImportDashboard POST /import
+// ImportDashboard POST /import.
 func (h *Handler) ImportDashboard(c *gin.Context) {
 	var data ExportData
 	if err := c.ShouldBindJSON(&data); err != nil {
@@ -174,7 +174,7 @@ func (h *Handler) ImportDashboard(c *gin.Context) {
 	c.JSON(http.StatusCreated, dash)
 }
 
-// GetWidgetData GET /:id/widgets/:wid/data
+// GetWidgetData GET /:id/widgets/:wid/data.
 func (h *Handler) GetWidgetData(c *gin.Context) {
 	id := c.Param("id")
 	wid := c.Param("wid")

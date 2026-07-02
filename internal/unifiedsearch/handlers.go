@@ -10,17 +10,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 统一搜索 API 处理器
+// Handlers 统一搜索 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	search := r.Group("/search")
 	{
@@ -67,7 +67,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
@@ -75,7 +75,7 @@ type response struct {
 }
 
 // unifiedSearch GET /api/v1/search?q=keyword
-// 统一搜索接口，支持所有内容类型的跨模块搜索
+// 统一搜索接口，支持所有内容类型的跨模块搜索.
 func (h *Handlers) unifiedSearch(c *gin.Context) {
 	queryStr := c.Query("q")
 	if queryStr == "" {
@@ -197,7 +197,7 @@ func (h *Handlers) unifiedSearch(c *gin.Context) {
 }
 
 // rebuildIndex POST /api/v1/search/index/rebuild
-// 重建索引
+// 重建索引.
 func (h *Handlers) rebuildIndex(c *gin.Context) {
 	if err := h.manager.RebuildIndex(); err != nil {
 		c.JSON(http.StatusInternalServerError, response{
@@ -213,7 +213,7 @@ func (h *Handlers) rebuildIndex(c *gin.Context) {
 	})
 }
 
-// buildIndex POST /api/v1/search/index/build
+// buildIndex POST /api/v1/search/index/build.
 func (h *Handlers) buildIndex(c *gin.Context) {
 	var req IndexRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -243,7 +243,7 @@ func (h *Handlers) buildIndex(c *gin.Context) {
 	})
 }
 
-// incrementalUpdate POST /api/v1/search/index/incremental
+// incrementalUpdate POST /api/v1/search/index/incremental.
 func (h *Handlers) incrementalUpdate(c *gin.Context) {
 	var req IndexRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -274,7 +274,7 @@ func (h *Handlers) incrementalUpdate(c *gin.Context) {
 }
 
 // getIndexStats GET /api/v1/search/stats
-// 获取索引统计信息
+// 获取索引统计信息.
 func (h *Handlers) getIndexStats(c *gin.Context) {
 	stats := h.manager.GetIndexStats()
 
@@ -286,7 +286,7 @@ func (h *Handlers) getIndexStats(c *gin.Context) {
 }
 
 // getSuggestions GET /api/v1/search/suggestions?q=keyword
-// 获取搜索建议
+// 获取搜索建议.
 func (h *Handlers) getSuggestions(c *gin.Context) {
 	query := c.Query("q")
 	if query == "" {
@@ -315,7 +315,7 @@ func (h *Handlers) getSuggestions(c *gin.Context) {
 	})
 }
 
-// getHistory GET /api/v1/search/history
+// getHistory GET /api/v1/search/history.
 func (h *Handlers) getHistory(c *gin.Context) {
 	limit := 50
 	if limitStr := c.Query("limit"); limitStr != "" {
@@ -333,7 +333,7 @@ func (h *Handlers) getHistory(c *gin.Context) {
 	})
 }
 
-// clearHistory DELETE /api/v1/search/history
+// clearHistory DELETE /api/v1/search/history.
 func (h *Handlers) clearHistory(c *gin.Context) {
 	h.manager.ClearSearchHistory()
 
@@ -343,7 +343,7 @@ func (h *Handlers) clearHistory(c *gin.Context) {
 	})
 }
 
-// getHotSearches GET /api/v1/search/hot
+// getHotSearches GET /api/v1/search/hot.
 func (h *Handlers) getHotSearches(c *gin.Context) {
 	limit := 10
 	if limitStr := c.Query("limit"); limitStr != "" {
@@ -361,7 +361,7 @@ func (h *Handlers) getHotSearches(c *gin.Context) {
 	})
 }
 
-// listDocuments GET /api/v1/search/documents
+// listDocuments GET /api/v1/search/documents.
 func (h *Handlers) listDocuments(c *gin.Context) {
 	var contentType ContentType
 	if typeStr := c.Query("type"); typeStr != "" {
@@ -387,7 +387,7 @@ func (h *Handlers) listDocuments(c *gin.Context) {
 	})
 }
 
-// getDocument GET /api/v1/search/documents/:id
+// getDocument GET /api/v1/search/documents/:id.
 func (h *Handlers) getDocument(c *gin.Context) {
 	id := c.Param("id")
 	doc, err := h.manager.GetDocument(id)
@@ -406,7 +406,7 @@ func (h *Handlers) getDocument(c *gin.Context) {
 	})
 }
 
-// addDocument POST /api/v1/search/documents
+// addDocument POST /api/v1/search/documents.
 func (h *Handlers) addDocument(c *gin.Context) {
 	var doc SearchIndex
 	if err := c.ShouldBindJSON(&doc); err != nil {
@@ -432,7 +432,7 @@ func (h *Handlers) addDocument(c *gin.Context) {
 	})
 }
 
-// updateDocument PUT /api/v1/search/documents/:id
+// updateDocument PUT /api/v1/search/documents/:id.
 func (h *Handlers) updateDocument(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateIndexRequest
@@ -459,7 +459,7 @@ func (h *Handlers) updateDocument(c *gin.Context) {
 	})
 }
 
-// deleteDocument DELETE /api/v1/search/documents/:id
+// deleteDocument DELETE /api/v1/search/documents/:id.
 func (h *Handlers) deleteDocument(c *gin.Context) {
 	id := c.Param("id")
 	doc, err := h.manager.GetDocument(id)
@@ -485,7 +485,7 @@ func (h *Handlers) deleteDocument(c *gin.Context) {
 	})
 }
 
-// listTasks GET /api/v1/search/index/tasks
+// listTasks GET /api/v1/search/index/tasks.
 func (h *Handlers) listTasks(c *gin.Context) {
 	tasks := h.manager.ListTasks()
 
@@ -496,7 +496,7 @@ func (h *Handlers) listTasks(c *gin.Context) {
 	})
 }
 
-// getTask GET /api/v1/search/index/tasks/:id
+// getTask GET /api/v1/search/index/tasks/:id.
 func (h *Handlers) getTask(c *gin.Context) {
 	id := c.Param("id")
 	task, err := h.manager.GetTask(id)
@@ -515,7 +515,7 @@ func (h *Handlers) getTask(c *gin.Context) {
 	})
 }
 
-// getConfig GET /api/v1/search/config
+// getConfig GET /api/v1/search/config.
 func (h *Handlers) getConfig(c *gin.Context) {
 	cfg := h.manager.GetConfig()
 
@@ -526,7 +526,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 	})
 }
 
-// updateConfig PUT /api/v1/search/config
+// updateConfig PUT /api/v1/search/config.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var cfg SearchConfig
 	if err := c.ShouldBindJSON(&cfg); err != nil {
@@ -546,7 +546,7 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 }
 
 // searchFiles GET /api/v1/search/files?q=keyword
-// 文件系统搜索
+// 文件系统搜索.
 func (h *Handlers) searchFiles(c *gin.Context) {
 	queryStr := c.Query("q")
 	if queryStr == "" {
@@ -584,7 +584,7 @@ func (h *Handlers) searchFiles(c *gin.Context) {
 }
 
 // searchPhotos GET /api/v1/search/photos?q=keyword
-// 照片库搜索
+// 照片库搜索.
 func (h *Handlers) searchPhotos(c *gin.Context) {
 	queryStr := c.Query("q")
 	if queryStr == "" {
@@ -622,7 +622,7 @@ func (h *Handlers) searchPhotos(c *gin.Context) {
 }
 
 // searchDocuments GET /api/v1/search/documents/search?q=keyword
-// 文档内容搜索
+// 文档内容搜索.
 func (h *Handlers) searchDocuments(c *gin.Context) {
 	queryStr := c.Query("q")
 	if queryStr == "" {
@@ -660,7 +660,7 @@ func (h *Handlers) searchDocuments(c *gin.Context) {
 }
 
 // searchEmails GET /api/v1/search/emails?q=keyword
-// 邮件内容搜索
+// 邮件内容搜索.
 func (h *Handlers) searchEmails(c *gin.Context) {
 	queryStr := c.Query("q")
 	if queryStr == "" {
@@ -697,7 +697,7 @@ func (h *Handlers) searchEmails(c *gin.Context) {
 	})
 }
 
-// applyPaginationParams 应用分页参数
+// applyPaginationParams 应用分页参数.
 func applyPaginationParams(c *gin.Context, query *SearchQuery) {
 	if pageStr := c.Query("page"); pageStr != "" {
 		if page, err := strconv.Atoi(pageStr); err == nil && page > 0 {
@@ -711,7 +711,7 @@ func applyPaginationParams(c *gin.Context, query *SearchQuery) {
 	}
 }
 
-// splitAndTrim 按逗号分割并去除空白
+// splitAndTrim 按逗号分割并去除空白.
 func splitAndTrim(s string) []string {
 	parts := make([]string, 0)
 	for _, p := range splitString(s, ",") {
@@ -723,7 +723,7 @@ func splitAndTrim(s string) []string {
 	return parts
 }
 
-// splitString 分割字符串
+// splitString 分割字符串.
 func splitString(s, sep string) []string {
 	if s == "" {
 		return nil
@@ -740,7 +740,7 @@ func splitString(s, sep string) []string {
 	return parts
 }
 
-// trimSpace 去除空白
+// trimSpace 去除空白.
 func trimSpace(s string) string {
 	start := 0
 	end := len(s)
@@ -753,7 +753,7 @@ func trimSpace(s string) string {
 	return s[start:end]
 }
 
-// isSpace 检查是否为空白字符
+// isSpace 检查是否为空白字符.
 func isSpace(b byte) bool {
 	return b == ' ' || b == '\t' || b == '\n' || b == '\r'
 }

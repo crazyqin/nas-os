@@ -98,9 +98,10 @@ func (h *Handlers) createTag(c *gin.Context) {
 	tag, err := h.engine.CreateTag(req.Name, req.Category, req.ParentID, req.Color, req.Icon)
 	if err != nil {
 		code := apiresponse.CodeInternalError
-		if err == ErrTagExists {
+		switch err {
+		case ErrTagExists:
 			code = apiresponse.CodeConflict
-		} else if err == ErrTagNotFound {
+		case ErrTagNotFound:
 			code = apiresponse.CodeNotFound
 		}
 		c.JSON(http.StatusOK, apiresponse.Error(code, err.Error()))
@@ -138,9 +139,10 @@ func (h *Handlers) updateTag(c *gin.Context) {
 	tag, err := h.engine.UpdateTag(id, req.Name, req.ParentID, req.Color, req.Icon)
 	if err != nil {
 		code := apiresponse.CodeInternalError
-		if err == ErrTagNotFound {
+		switch err {
+		case ErrTagNotFound:
 			code = apiresponse.CodeNotFound
-		} else if err == ErrCircularParent {
+		case ErrCircularParent:
 			code = apiresponse.CodeBadRequest
 		}
 		c.JSON(http.StatusOK, apiresponse.Error(code, err.Error()))

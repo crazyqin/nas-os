@@ -7,7 +7,7 @@ import (
 
 // ========== 容器编排核心类型 ==========
 
-// OrchestrationProject 编排项目
+// OrchestrationProject 编排项目.
 type OrchestrationProject struct {
 	ID          string                    `json:"id"`
 	Name        string                    `json:"name"`
@@ -22,7 +22,7 @@ type OrchestrationProject struct {
 	Labels      map[string]string         `json:"labels,omitempty"`
 }
 
-// ProjectStatus 项目状态
+// ProjectStatus 项目状态.
 type ProjectStatus string
 
 const (
@@ -36,7 +36,7 @@ const (
 	ProjectStatusHealing  ProjectStatus = "healing"
 )
 
-// ServiceConfig 服务配置
+// ServiceConfig 服务配置.
 type ServiceConfig struct {
 	Name          string              `json:"name"`
 	Image         string              `json:"image"`
@@ -62,7 +62,7 @@ type ServiceConfig struct {
 	DesiredCount  int                 `json:"desired_count"`
 }
 
-// ServiceStatus 服务状态
+// ServiceStatus 服务状态.
 type ServiceStatus string
 
 const (
@@ -76,7 +76,7 @@ const (
 	ServiceStatusHealing   ServiceStatus = "healing"
 )
 
-// PortMapping 端口映射
+// PortMapping 端口映射.
 type PortMapping struct {
 	HostPort      int    `json:"host_port"`
 	ContainerPort int    `json:"container_port"`
@@ -84,7 +84,7 @@ type PortMapping struct {
 	HostIP        string `json:"host_ip,omitempty"`
 }
 
-// VolumeMount 卷挂载
+// VolumeMount 卷挂载.
 type VolumeMount struct {
 	Source      string       `json:"source"`
 	Target      string       `json:"target"`
@@ -93,12 +93,12 @@ type VolumeMount struct {
 	BindOptions *BindOptions `json:"bind_options,omitempty"`
 }
 
-// BindOptions 绑定挂载选项
+// BindOptions 绑定挂载选项.
 type BindOptions struct {
 	Propagation string `json:"propagation,omitempty"` // rshared, shared, slave, private
 }
 
-// ServiceDependency 服务依赖
+// ServiceDependency 服务依赖.
 type ServiceDependency struct {
 	ServiceName string        `json:"service_name"`
 	Condition   string        `json:"condition"` // service_started, service_healthy, service_completed_successfully
@@ -106,7 +106,7 @@ type ServiceDependency struct {
 	Timeout     time.Duration `json:"timeout,omitempty"`
 }
 
-// HealthCheckConfig 健康检查配置
+// HealthCheckConfig 健康检查配置.
 type HealthCheckConfig struct {
 	Test        []string      `json:"test"`
 	Interval    time.Duration `json:"interval"`
@@ -116,7 +116,7 @@ type HealthCheckConfig struct {
 	Disable     bool          `json:"disable,omitempty"`
 }
 
-// HealthStatus 健康状态
+// HealthStatus 健康状态.
 type HealthStatus string
 
 const (
@@ -126,7 +126,7 @@ const (
 	HealthStatusNone      HealthStatus = "none"
 )
 
-// ResourceLimits 资源限制
+// ResourceLimits 资源限制.
 type ResourceLimits struct {
 	CPU       *CPULimit    `json:"cpu,omitempty"`
 	Memory    *MemoryLimit `json:"memory,omitempty"`
@@ -134,7 +134,7 @@ type ResourceLimits struct {
 	PidsLimit *int         `json:"pids_limit,omitempty"`
 }
 
-// CPULimit CPU 限制
+// CPULimit CPU 限制.
 type CPULimit struct {
 	Cores           float64 `json:"cores"`       // CPU 核数
 	Shares          int     `json:"shares"`      // CPU shares (相对权重)
@@ -145,7 +145,7 @@ type CPULimit struct {
 	RealtimeRuntime int     `json:"realtime_runtime,omitempty"`
 }
 
-// MemoryLimit 内存限制
+// MemoryLimit 内存限制.
 type MemoryLimit struct {
 	Limit       int64 `json:"limit"`       // 内存限制 (字节)
 	Reservation int64 `json:"reservation"` // 内存预留 (字节)
@@ -154,7 +154,7 @@ type MemoryLimit struct {
 	Swappiness  int   `json:"swappiness"`  // Swappiness (0-100)
 }
 
-// IOLimit IO 限制
+// IOLimit IO 限制.
 type IOLimit struct {
 	DeviceReadBps   int64 `json:"device_read_bps"`   // 读取带宽限制 (字节/秒)
 	DeviceWriteBps  int64 `json:"device_write_bps"`  // 写入带宽限制 (字节/秒)
@@ -162,7 +162,7 @@ type IOLimit struct {
 	DeviceWriteIOps int64 `json:"device_write_iops"` // 写入 IOPS 限制
 }
 
-// DeployConfig 部署配置
+// DeployConfig 部署配置.
 type DeployConfig struct {
 	Replicas       int                   `json:"replicas"`
 	AutoScale      *AutoScalePolicy      `json:"auto_scale,omitempty"`
@@ -172,7 +172,7 @@ type DeployConfig struct {
 	Labels         map[string]string     `json:"labels,omitempty"`
 }
 
-// AutoScalePolicy 自动扩缩容策略
+// AutoScalePolicy 自动扩缩容策略.
 type AutoScalePolicy struct {
 	Enabled     bool            `json:"enabled"`
 	MinReplicas int             `json:"min_replicas"`
@@ -183,7 +183,7 @@ type AutoScalePolicy struct {
 	ScaleDown   *ScaleRules     `json:"scale_down,omitempty"`
 }
 
-// ScalingMetric 扩缩容指标
+// ScalingMetric 扩缩容指标.
 type ScalingMetric struct {
 	Type    string        `json:"type"`    // cpu, memory, requests_per_second, custom
 	Target  float64       `json:"target"`  // 目标值
@@ -191,14 +191,14 @@ type ScalingMetric struct {
 	Window  time.Duration `json:"window"`  // 采样窗口
 }
 
-// ScaleRules 扩缩容规则
+// ScaleRules 扩缩容规则.
 type ScaleRules struct {
 	StepSize      int           `json:"step_size"`     // 每次扩缩容数量
 	StepPercent   int           `json:"step_percent"`  // 每次扩缩容百分比
 	Stabilization time.Duration `json:"stabilization"` // 稳定窗口
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 type UpdateConfig struct {
 	Parallelism     int           `json:"parallelism"`
 	Delay           time.Duration `json:"delay"`
@@ -208,7 +208,7 @@ type UpdateConfig struct {
 	MaxFailureRatio float64       `json:"max_failure_ratio"`
 }
 
-// RollbackConfig 回滚配置
+// RollbackConfig 回滚配置.
 type RollbackConfig struct {
 	Parallelism     int           `json:"parallelism"`
 	Delay           time.Duration `json:"delay"`
@@ -218,14 +218,14 @@ type RollbackConfig struct {
 	MaxFailureRatio float64       `json:"max_failure_ratio"`
 }
 
-// PlacementConstraint 放置约束
+// PlacementConstraint 放置约束.
 type PlacementConstraint struct {
 	Type     string `json:"type"`     // node.role, node.platform.os, etc.
 	Operator string `json:"operator"` // ==, !=
 	Value    string `json:"value"`
 }
 
-// RestartPolicy 重启策略
+// RestartPolicy 重启策略.
 type RestartPolicy string
 
 const (
@@ -235,7 +235,7 @@ const (
 	RestartPolicyNo         RestartPolicy = "no"
 )
 
-// NetworkConfig 网络配置
+// NetworkConfig 网络配置.
 type NetworkConfig struct {
 	Name       string            `json:"name"`
 	Driver     string            `json:"driver"` // bridge, host, overlay, macvlan
@@ -246,20 +246,20 @@ type NetworkConfig struct {
 	Options    map[string]string `json:"options,omitempty"`
 }
 
-// IPAMConfig IPAM 配置
+// IPAMConfig IPAM 配置.
 type IPAMConfig struct {
 	Driver string     `json:"driver,omitempty"`
 	Config []IPAMPool `json:"config,omitempty"`
 }
 
-// IPAMPool IPAM 地址池
+// IPAMPool IPAM 地址池.
 type IPAMPool struct {
 	Subnet  string `json:"subnet"`
 	Gateway string `json:"gateway,omitempty"`
 	IPRange string `json:"ip_range,omitempty"`
 }
 
-// VolumeConfig 卷配置
+// VolumeConfig 卷配置.
 type VolumeConfig struct {
 	Name       string            `json:"name"`
 	Driver     string            `json:"driver"` // local, nfs, cifs
@@ -270,7 +270,7 @@ type VolumeConfig struct {
 
 // ========== 日志聚合类型 ==========
 
-// LogEntry 日志条目
+// LogEntry 日志条目.
 type LogEntry struct {
 	Timestamp   time.Time         `json:"timestamp"`
 	Service     string            `json:"service"`
@@ -280,7 +280,7 @@ type LogEntry struct {
 	Labels      map[string]string `json:"labels,omitempty"`
 }
 
-// LogQuery 日志查询参数
+// LogQuery 日志查询参数.
 type LogQuery struct {
 	Services   []string  `json:"services,omitempty"`
 	Since      time.Time `json:"since,omitempty"`
@@ -293,7 +293,7 @@ type LogQuery struct {
 	Limit      int       `json:"limit,omitempty"`
 }
 
-// LogStream 日志流
+// LogStream 日志流.
 type LogStream struct {
 	Entries chan LogEntry `json:"-"`
 	Error   error         `json:"-"`
@@ -302,13 +302,13 @@ type LogStream struct {
 
 // ========== 依赖排序类型 ==========
 
-// DependencyGraph 依赖图
+// DependencyGraph 依赖图.
 type DependencyGraph struct {
 	Nodes map[string]*DependencyNode
 	Edges map[string][]string // node -> dependencies
 }
 
-// DependencyNode 依赖节点
+// DependencyNode 依赖节点.
 type DependencyNode struct {
 	Name         string
 	Service      *ServiceConfig
@@ -318,7 +318,7 @@ type DependencyNode struct {
 	InStack      bool
 }
 
-// StartupOrder 启动顺序
+// StartupOrder 启动顺序.
 type StartupOrder struct {
 	Stages [][]string `json:"stages"` // 每个阶段可以并行启动的服务
 	Total  int        `json:"total"`
@@ -326,7 +326,7 @@ type StartupOrder struct {
 
 // ========== 健康监控类型 ==========
 
-// HealthReport 健康报告
+// HealthReport 健康报告.
 type HealthReport struct {
 	ProjectID string                    `json:"project_id"`
 	Timestamp time.Time                 `json:"timestamp"`
@@ -336,7 +336,7 @@ type HealthReport struct {
 	Issues    []HealthIssue             `json:"issues,omitempty"`
 }
 
-// ServiceHealth 服务健康状态
+// ServiceHealth 服务健康状态.
 type ServiceHealth struct {
 	ServiceName string           `json:"service_name"`
 	Status      HealthStatus     `json:"status"`
@@ -347,7 +347,7 @@ type ServiceHealth struct {
 	Issues      []HealthIssue    `json:"issues,omitempty"`
 }
 
-// InstanceHealth 实例健康状态
+// InstanceHealth 实例健康状态.
 type InstanceHealth struct {
 	ContainerID string        `json:"container_id"`
 	Status      HealthStatus  `json:"status"`
@@ -357,7 +357,7 @@ type InstanceHealth struct {
 	Restarts    int           `json:"restarts"`
 }
 
-// HealthIssue 健康问题
+// HealthIssue 健康问题.
 type HealthIssue struct {
 	Service     string    `json:"service"`
 	ContainerID string    `json:"container_id,omitempty"`
@@ -370,7 +370,7 @@ type HealthIssue struct {
 
 // ========== 拓扑排序辅助类型 ==========
 
-// TopologicalSorter 拓扑排序器
+// TopologicalSorter 拓扑排序器.
 type TopologicalSorter struct {
 	graph     *DependencyGraph
 	result    []string
@@ -382,7 +382,7 @@ type TopologicalSorter struct {
 
 // ========== API 请求/响应类型 ==========
 
-// CreateProjectRequest 创建项目请求
+// CreateProjectRequest 创建项目请求.
 type CreateProjectRequest struct {
 	Name        string                    `json:"name" binding:"required"`
 	Description string                    `json:"description,omitempty"`
@@ -393,7 +393,7 @@ type CreateProjectRequest struct {
 	Labels      map[string]string         `json:"labels,omitempty"`
 }
 
-// UpdateProjectRequest 更新项目请求
+// UpdateProjectRequest 更新项目请求.
 type UpdateProjectRequest struct {
 	Name        *string                   `json:"name,omitempty"`
 	Description *string                   `json:"description,omitempty"`
@@ -403,31 +403,31 @@ type UpdateProjectRequest struct {
 	Labels      map[string]string         `json:"labels,omitempty"`
 }
 
-// ScaleServiceRequest 扩缩容请求
+// ScaleServiceRequest 扩缩容请求.
 type ScaleServiceRequest struct {
 	Replicas int  `json:"replicas" binding:"required,min=0"`
 	Force    bool `json:"force,omitempty"`
 }
 
-// UpdateHealthCheckRequest 更新健康检查请求
+// UpdateHealthCheckRequest 更新健康检查请求.
 type UpdateHealthCheckRequest struct {
 	ServiceName string             `json:"service_name" binding:"required"`
 	HealthCheck *HealthCheckConfig `json:"health_check" binding:"required"`
 }
 
-// UpdateResourceLimitsRequest 更新资源限制请求
+// UpdateResourceLimitsRequest 更新资源限制请求.
 type UpdateResourceLimitsRequest struct {
 	ServiceName string          `json:"service_name" binding:"required"`
 	Resources   *ResourceLimits `json:"resources" binding:"required"`
 }
 
-// UpdateAutoScaleRequest 更新自动扩缩容请求
+// UpdateAutoScaleRequest 更新自动扩缩容请求.
 type UpdateAutoScaleRequest struct {
 	ServiceName string           `json:"service_name" binding:"required"`
 	AutoScale   *AutoScalePolicy `json:"auto_scale" binding:"required"`
 }
 
-// ProjectStats 项目统计
+// ProjectStats 项目统计.
 type ProjectStats struct {
 	ProjectID        string        `json:"project_id"`
 	TotalServices    int           `json:"total_services"`
@@ -439,7 +439,7 @@ type ProjectStats struct {
 	Uptime           time.Duration `json:"uptime"`
 }
 
-// AutoScaleEvent 扩缩容事件
+// AutoScaleEvent 扩缩容事件.
 type AutoScaleEvent struct {
 	ID          string    `json:"id"`
 	ProjectID   string    `json:"project_id"`
@@ -453,7 +453,7 @@ type AutoScaleEvent struct {
 	Error       string    `json:"error,omitempty"`
 }
 
-// ContainerMetrics 容器指标
+// ContainerMetrics 容器指标.
 type ContainerMetrics struct {
 	ContainerID string         `json:"container_id"`
 	ServiceName string         `json:"service_name"`
@@ -464,7 +464,7 @@ type ContainerMetrics struct {
 	IO          IOMetrics      `json:"io"`
 }
 
-// CPUMetrics CPU 指标
+// CPUMetrics CPU 指标.
 type CPUMetrics struct {
 	Percent         float64 `json:"percent"`
 	Usage           int64   `json:"usage"`
@@ -473,7 +473,7 @@ type CPUMetrics struct {
 	ThrottleTime    int     `json:"throttle_time"`
 }
 
-// MemoryMetrics 内存指标
+// MemoryMetrics 内存指标.
 type MemoryMetrics struct {
 	Usage    int64   `json:"usage"`
 	MaxUsage int64   `json:"max_usage"`
@@ -484,7 +484,7 @@ type MemoryMetrics struct {
 	Swap     int64   `json:"swap"`
 }
 
-// NetworkMetrics 网络指标
+// NetworkMetrics 网络指标.
 type NetworkMetrics struct {
 	RxBytes   int64 `json:"rx_bytes"`
 	TxBytes   int64 `json:"tx_bytes"`
@@ -496,7 +496,7 @@ type NetworkMetrics struct {
 	TxDropped int64 `json:"tx_dropped"`
 }
 
-// IOMetrics IO 指标
+// IOMetrics IO 指标.
 type IOMetrics struct {
 	ReadBytes  int64 `json:"read_bytes"`
 	WriteBytes int64 `json:"write_bytes"`
@@ -506,7 +506,7 @@ type IOMetrics struct {
 
 // ========== 容器编排增强类型 ==========
 
-// ComposeStack Docker Compose 栈
+// ComposeStack Docker Compose 栈.
 type ComposeStack struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -520,7 +520,7 @@ type ComposeStack struct {
 	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
-// StackStatus 栈状态
+// StackStatus 栈状态.
 type StackStatus string
 
 const (
@@ -531,7 +531,7 @@ const (
 	StackStatusPartial   StackStatus = "partial"
 )
 
-// ComposeService Compose 服务
+// ComposeService Compose 服务.
 type ComposeService struct {
 	Name     string   `json:"name"`
 	Image    string   `json:"image"`
@@ -540,7 +540,7 @@ type ComposeService struct {
 	Replicas int      `json:"replicas"`
 }
 
-// ContainerHealth 容器健康状态
+// ContainerHealth 容器健康状态.
 type ContainerHealth struct {
 	ContainerID  string        `json:"container_id"`
 	ServiceName  string        `json:"service_name"`
@@ -555,7 +555,7 @@ type ContainerHealth struct {
 	Memory       int64         `json:"memory_bytes"`
 }
 
-// AutoScaleRule 自动扩缩容规则
+// AutoScaleRule 自动扩缩容规则.
 type AutoScaleRule struct {
 	ID          string        `json:"id"`
 	StackID     string        `json:"stack_id"`
@@ -570,7 +570,7 @@ type AutoScaleRule struct {
 	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
-// ImageCache 镜像缓存
+// ImageCache 镜像缓存.
 type ImageCache struct {
 	ImageName string    `json:"image_name"`
 	Tag       string    `json:"tag"`
@@ -581,7 +581,7 @@ type ImageCache struct {
 	Cached    bool      `json:"cached"`
 }
 
-// RecoveryPolicy 容器恢复策略
+// RecoveryPolicy 容器恢复策略.
 type RecoveryPolicy struct {
 	ID               string        `json:"id"`
 	StackID          string        `json:"stack_id"`
@@ -596,7 +596,7 @@ type RecoveryPolicy struct {
 	UpdatedAt        time.Time     `json:"updated_at"`
 }
 
-// DeployStackRequest 部署栈请求
+// DeployStackRequest 部署栈请求.
 type DeployStackRequest struct {
 	Name        string            `json:"name" binding:"required"`
 	ComposeFile string            `json:"compose_file" binding:"required"`
@@ -604,7 +604,7 @@ type DeployStackRequest struct {
 	Pull        bool              `json:"pull"`
 }
 
-// SetAutoScaleRequest 设置自动扩缩容请求
+// SetAutoScaleRequest 设置自动扩缩容请求.
 type SetAutoScaleRequest struct {
 	ServiceName string  `json:"service_name" binding:"required"`
 	Enabled     bool    `json:"enabled"`
@@ -614,13 +614,13 @@ type SetAutoScaleRequest struct {
 	TargetValue float64 `json:"target_value"`
 }
 
-// CacheImageRequest 缓存镜像请求
+// CacheImageRequest 缓存镜像请求.
 type CacheImageRequest struct {
 	Image string `json:"image" binding:"required"`
 	Tag   string `json:"tag"`
 }
 
-// SetRecoveryRequest 设置恢复策略请求
+// SetRecoveryRequest 设置恢复策略请求.
 type SetRecoveryRequest struct {
 	ServiceName      string `json:"service_name" binding:"required"`
 	Enabled          bool   `json:"enabled"`

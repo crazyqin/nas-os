@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// AssetCategory 资产分类
+// AssetCategory 资产分类.
 type AssetCategory struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -18,7 +18,7 @@ type AssetCategory struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// AddBeneficiary 添加受益人
+// AddBeneficiary 添加受益人.
 func (m *Manager) AddBeneficiary(planID string, req *BeneficiaryRequest) (*Beneficiary, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -75,7 +75,7 @@ func (m *Manager) AddBeneficiary(planID string, req *BeneficiaryRequest) (*Benef
 	return beneficiary, nil
 }
 
-// UpdateBeneficiary 更新受益人
+// UpdateBeneficiary 更新受益人.
 func (m *Manager) UpdateBeneficiary(planID, beneficiaryID string, req *BeneficiaryRequest) (*Beneficiary, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -117,7 +117,7 @@ func (m *Manager) UpdateBeneficiary(planID, beneficiaryID string, req *Beneficia
 	return nil, fmt.Errorf("beneficiary not found: %s", beneficiaryID)
 }
 
-// RemoveBeneficiary 移除受益人
+// RemoveBeneficiary 移除受益人.
 func (m *Manager) RemoveBeneficiary(planID, beneficiaryID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -150,7 +150,7 @@ func (m *Manager) RemoveBeneficiary(planID, beneficiaryID string) error {
 	return fmt.Errorf("beneficiary not found: %s", beneficiaryID)
 }
 
-// ListBeneficiaries 列出受益人
+// ListBeneficiaries 列出受益人.
 func (m *Manager) ListBeneficiaries(planID string) ([]*Beneficiary, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -163,7 +163,7 @@ func (m *Manager) ListBeneficiaries(planID string) ([]*Beneficiary, error) {
 	return plan.Beneficiaries, nil
 }
 
-// AddAsset 添加数字资产
+// AddAsset 添加数字资产.
 func (m *Manager) AddAsset(planID string, req *AssetRequest) (*DigitalAsset, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -228,7 +228,7 @@ func (m *Manager) AddAsset(planID string, req *AssetRequest) (*DigitalAsset, err
 	return asset, nil
 }
 
-// UpdateAsset 更新数字资产
+// UpdateAsset 更新数字资产.
 func (m *Manager) UpdateAsset(planID, assetID string, req *AssetRequest) (*DigitalAsset, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -282,7 +282,7 @@ func (m *Manager) UpdateAsset(planID, assetID string, req *AssetRequest) (*Digit
 	return nil, fmt.Errorf("asset not found: %s", assetID)
 }
 
-// RemoveAsset 移除数字资产
+// RemoveAsset 移除数字资产.
 func (m *Manager) RemoveAsset(planID, assetID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -315,7 +315,7 @@ func (m *Manager) RemoveAsset(planID, assetID string) error {
 	return fmt.Errorf("asset not found: %s", assetID)
 }
 
-// ListAssets 列出资产
+// ListAssets 列出资产.
 func (m *Manager) ListAssets(planID string) ([]*DigitalAsset, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -328,7 +328,7 @@ func (m *Manager) ListAssets(planID string) ([]*DigitalAsset, error) {
 	return plan.Assets, nil
 }
 
-// ListAssetsByType 按类型列出资产
+// ListAssetsByType 按类型列出资产.
 func (m *Manager) ListAssetsByType(planID string, assetType AssetType) ([]*DigitalAsset, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -348,7 +348,7 @@ func (m *Manager) ListAssetsByType(planID string, assetType AssetType) ([]*Digit
 	return result, nil
 }
 
-// DecryptAssetData 解密资产数据
+// DecryptAssetData 解密资产数据.
 func (m *Manager) DecryptAssetData(planID, assetID string) (string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -381,7 +381,7 @@ func (m *Manager) DecryptAssetData(planID, assetID string) (string, error) {
 	return "", fmt.Errorf("asset not found: %s", assetID)
 }
 
-// GetAssetSummary 获取资产摘要
+// GetAssetSummary 获取资产摘要.
 func (m *Manager) GetAssetSummary(planID string) (map[AssetType]int, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

@@ -14,7 +14,7 @@ import (
 
 // ========== 测试辅助函数 ==========
 
-// setupTestManager 创建测试用管理器
+// setupTestManager 创建测试用管理器.
 func setupTestManager(t *testing.T) (*Manager, string) {
 	t.Helper()
 
@@ -41,7 +41,7 @@ func setupTestManager(t *testing.T) (*Manager, string) {
 	return manager, tempDir
 }
 
-// createTestFile 创建测试文件
+// createTestFile 创建测试文件.
 func createTestFile(t *testing.T, dir, name, content string) string {
 	t.Helper()
 

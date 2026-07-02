@@ -12,25 +12,25 @@ import (
 
 // ========== 电源状态定义 ==========
 
-// PowerState 磁盘电源状态
+// PowerState 磁盘电源状态.
 type PowerState uint8
 
 const (
-	// PowerActive 活动状态（完全供电）
+	// PowerActive 活动状态（完全供电）.
 	PowerActive PowerState = 0x00
-	// PowerIdle 待机状态（部分供电）
+	// PowerIdle 待机状态（部分供电）.
 	PowerIdle PowerState = 0x01
-	// PowerStandby 待机状态（低功耗）
+	// PowerStandby 待机状态（低功耗）.
 	PowerStandby PowerState = 0x02
-	// PowerSleep 睡眠状态（极低功耗）
+	// PowerSleep 睡眠状态（极低功耗）.
 	PowerSleep PowerState = 0x03
-	// PowerSpindown 停转状态（电机停止）
+	// PowerSpindown 停转状态（电机停止）.
 	PowerSpindown PowerState = 0x04
-	// PowerUnknown 未知状态
+	// PowerUnknown 未知状态.
 	PowerUnknown PowerState = 0xFF
 )
 
-// String 返回电源状态字符串
+// String 返回电源状态字符串.
 func (s PowerState) String() string {
 	switch s {
 	case PowerActive:
@@ -50,7 +50,7 @@ func (s PowerState) String() string {
 
 // ========== 磁盘配置 ==========
 
-// DiskConfig 磁盘电源配置
+// DiskConfig 磁盘电源配置.
 type DiskConfig struct {
 	DevicePath       string        `json:"device_path"`        // 设备路径 /dev/sdX
 	SerialNumber     string        `json:"serial_number"`      // 序列号
@@ -70,23 +70,23 @@ type DiskConfig struct {
 
 // ========== 电源管理策略 ==========
 
-// PowerPolicy 电源管理策略
+// PowerPolicy 电源管理策略.
 type PowerPolicy string
 
 const (
-	// PolicyAlwaysOn 常开模式（不节能）
+	// PolicyAlwaysOn 常开模式（不节能）.
 	PolicyAlwaysOn PowerPolicy = "always_on"
-	// PolicyModerate 中等节能（适度停转）
+	// PolicyModerate 中等节能（适度停转）.
 	PolicyModerate PowerPolicy = "moderate"
-	// PolicyAggressive 激进节能（快速停转）
+	// PolicyAggressive 激进节能（快速停转）.
 	PolicyAggressive PowerPolicy = "aggressive"
-	// PolicySmart 智能节能（学习用户行为）
+	// PolicySmart 智能节能（学习用户行为）.
 	PolicySmart PowerPolicy = "smart"
-	// PolicyCustom 自定义策略
+	// PolicyCustom 自定义策略.
 	PolicyCustom PowerPolicy = "custom"
 )
 
-// PolicyConfig 策略配置
+// PolicyConfig 策略配置.
 type PolicyConfig struct {
 	Policy            PowerPolicy   `json:"policy"`
 	IdleThreshold     time.Duration `json:"idle_threshold"`     // 空闲阈值
@@ -105,7 +105,7 @@ type timeRange struct {
 
 // ========== 电源管理器 ==========
 
-// PowerManager 磁盘电源管理器
+// PowerManager 磁盘电源管理器.
 type PowerManager struct {
 	disks    map[string]*DiskInfo        // 磁盘信息
 	policy   *PolicyConfig               // 当前策略
@@ -119,7 +119,7 @@ type PowerManager struct {
 	eventBus EventBus                    // 事件总线
 }
 
-// DiskInfo 磁盘运行信息
+// DiskInfo 磁盘运行信息.
 type DiskInfo struct {
 	Config      DiskConfig   `json:"config"`
 	State       PowerState   `json:"state"`
@@ -132,7 +132,7 @@ type DiskInfo struct {
 	mu          sync.RWMutex `json:"-"`
 }
 
-// ActivityTracker 活动追踪器
+// ActivityTracker 活动追踪器.
 type ActivityTracker struct {
 	RecentIO     []time.Time         `json:"recent_io"`     // 最近I/O时间
 	HourlyStats  map[int]*HourlyStat `json:"hourly_stats"`  // 每小时统计
@@ -141,28 +141,28 @@ type ActivityTracker struct {
 	mu           sync.RWMutex        `json:"-"`
 }
 
-// HourlyStat 每小时统计
+// HourlyStat 每小时统计.
 type HourlyStat struct {
 	Hour       int     `json:"hour"`
 	IOCount    uint64  `json:"io_count"`
 	ActiveTime float64 `json:"active_time"`
 }
 
-// DailyStat 每日统计
+// DailyStat 每日统计.
 type DailyStat struct {
 	Day        int     `json:"day"`
 	IOCount    uint64  `json:"io_count"`
 	ActiveTime float64 `json:"active_time"`
 }
 
-// PredictionModel 预测模型
+// PredictionModel 预测模型.
 type PredictionModel struct {
 	PredictedActiveHours []int     `json:"predicted_active_hours"`
 	Confidence           float64   `json:"confidence"`
 	LastUpdated          time.Time `json:"last_updated"`
 }
 
-// PowerConfig 全局电源配置
+// PowerConfig 全局电源配置.
 type PowerConfig struct {
 	CheckInterval     time.Duration `json:"check_interval"`      // 检查间隔
 	WakeupTimeout     time.Duration `json:"wakeup_timeout"`      // 唤醒超时
@@ -173,7 +173,7 @@ type PowerConfig struct {
 	WakeupRetryDelay  time.Duration `json:"wakeup_retry_delay"`  // 唤醒重试延迟
 }
 
-// DefaultPowerConfig 默认电源配置
+// DefaultPowerConfig 默认电源配置.
 func DefaultPowerConfig() *PowerConfig {
 	return &PowerConfig{
 		CheckInterval:     30 * time.Second,
@@ -201,7 +201,7 @@ var (
 
 // ========== 管理器方法 ==========
 
-// NewPowerManager 创建电源管理器
+// NewPowerManager 创建电源管理器.
 func NewPowerManager(config *PowerConfig, policy *PolicyConfig, logger Logger, eventBus EventBus) *PowerManager {
 	if config == nil {
 		config = DefaultPowerConfig()
@@ -228,7 +228,7 @@ func NewPowerManager(config *PowerConfig, policy *PolicyConfig, logger Logger, e
 	}
 }
 
-// Start 启动电源管理器
+// Start 启动电源管理器.
 func (m *PowerManager) Start() error {
 	m.running.Store(true)
 
@@ -247,7 +247,7 @@ func (m *PowerManager) Start() error {
 	return nil
 }
 
-// Stop 停止电源管理器
+// Stop 停止电源管理器.
 func (m *PowerManager) Stop() {
 	m.running.Store(false)
 	m.cancel()
@@ -258,7 +258,7 @@ func (m *PowerManager) Stop() {
 	m.logger.Info("Disk power manager stopped")
 }
 
-// RegisterDisk 注册磁盘
+// RegisterDisk 注册磁盘.
 func (m *PowerManager) RegisterDisk(config DiskConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -281,7 +281,7 @@ func (m *PowerManager) RegisterDisk(config DiskConfig) error {
 	return nil
 }
 
-// UnregisterDisk 注销磁盘
+// UnregisterDisk 注销磁盘.
 func (m *PowerManager) UnregisterDisk(devicePath string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -297,7 +297,7 @@ func (m *PowerManager) UnregisterDisk(devicePath string) error {
 	return nil
 }
 
-// WakeDisk 唤醒磁盘
+// WakeDisk 唤醒磁盘.
 func (m *PowerManager) WakeDisk(devicePath string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -344,7 +344,7 @@ func (m *PowerManager) WakeDisk(devicePath string) error {
 	return nil
 }
 
-// SpindownDisk 停转磁盘
+// SpindownDisk 停转磁盘.
 func (m *PowerManager) SpindownDisk(devicePath string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -383,7 +383,7 @@ func (m *PowerManager) SpindownDisk(devicePath string) error {
 	return nil
 }
 
-// GetDiskState 获取磁盘状态
+// GetDiskState 获取磁盘状态.
 func (m *PowerManager) GetDiskState(devicePath string) (PowerState, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -398,7 +398,7 @@ func (m *PowerManager) GetDiskState(devicePath string) (PowerState, error) {
 	return disk.State, nil
 }
 
-// SetPolicy 设置电源策略
+// SetPolicy 设置电源策略.
 func (m *PowerManager) SetPolicy(policy *PolicyConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -614,7 +614,7 @@ func (m *PowerManager) wakeupAll() {
 
 // ========== 统计信息 ==========
 
-// GetStats 获取电源统计
+// GetStats 获取电源统计.
 func (m *PowerManager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -644,7 +644,7 @@ func (m *PowerManager) GetStats() map[string]interface{} {
 
 // ========== ActivityTracker构造 ==========
 
-// NewActivityTracker 创建活动追踪器
+// NewActivityTracker 创建活动追踪器.
 func NewActivityTracker() *ActivityTracker {
 	return &ActivityTracker{
 		RecentIO:    make([]time.Time, 0),
@@ -655,7 +655,7 @@ func NewActivityTracker() *ActivityTracker {
 
 // ========== 接口定义 ==========
 
-// Logger 日志接口
+// Logger 日志接口.
 type Logger interface {
 	Info(msg string)
 	Infof(format string, args ...interface{})
@@ -665,7 +665,7 @@ type Logger interface {
 	Errorf(format string, args ...interface{})
 }
 
-// EventBus 事件总线接口
+// EventBus 事件总线接口.
 type EventBus interface {
 	Publish(topic string, data map[string]interface{})
 }

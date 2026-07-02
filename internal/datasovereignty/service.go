@@ -120,17 +120,17 @@ func (s *Service) CreateTag(req TagRequest) (*SovereigntyTag, error) {
 
 	now := time.Now()
 	tag := &SovereigntyTag{
-		ID:               uuid.New().String(),
-		ResourcePath:     req.ResourcePath,
-		ResourceType:     req.ResourceType,
-		Frameworks:       req.Frameworks,
-		AllowedRegions:   allowedList,
+		ID:                uuid.New().String(),
+		ResourcePath:      req.ResourcePath,
+		ResourceType:      req.ResourceType,
+		Frameworks:        req.Frameworks,
+		AllowedRegions:    allowedList,
 		RestrictedRegions: req.RestrictedRegions,
-		DataSubject:      req.DataSubject,
-		Description:      req.Description,
-		CreatedAt:        now,
-		UpdatedAt:        now,
-		CreatedBy:        req.CreatedBy,
+		DataSubject:       req.DataSubject,
+		Description:       req.Description,
+		CreatedAt:         now,
+		UpdatedAt:         now,
+		CreatedBy:         req.CreatedBy,
 	}
 
 	s.tags[tag.ID] = tag

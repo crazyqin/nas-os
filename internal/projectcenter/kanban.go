@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// KanbanManager 看板管理器
+// KanbanManager 看板管理器.
 type KanbanManager struct {
 	mu      sync.RWMutex
 	boards  map[string]*KanbanBoard
@@ -14,7 +14,7 @@ type KanbanManager struct {
 	nextID  int
 }
 
-// NewKanbanManager 创建看板管理器
+// NewKanbanManager 创建看板管理器.
 func NewKanbanManager(taskMgr *TaskManager) *KanbanManager {
 	return &KanbanManager{
 		boards:  make(map[string]*KanbanBoard),
@@ -23,7 +23,7 @@ func NewKanbanManager(taskMgr *TaskManager) *KanbanManager {
 	}
 }
 
-// CreateBoard 创建看板
+// CreateBoard 创建看板.
 func (m *KanbanManager) CreateBoard(projectID, name string) (*KanbanBoard, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -48,7 +48,7 @@ func (m *KanbanManager) CreateBoard(projectID, name string) (*KanbanBoard, error
 	return board, nil
 }
 
-// defaultColumns 默认看板列
+// defaultColumns 默认看板列.
 func defaultColumns() []KanbanColumn {
 	return []KanbanColumn{
 		{ID: "col_todo", Name: "待办", Status: TaskStatusTodo, Order: 1, WIPLimit: 0},
@@ -58,7 +58,7 @@ func defaultColumns() []KanbanColumn {
 	}
 }
 
-// GetBoard 获取看板
+// GetBoard 获取看板.
 func (m *KanbanManager) GetBoard(boardID string) (*KanbanBoard, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -70,7 +70,7 @@ func (m *KanbanManager) GetBoard(boardID string) (*KanbanBoard, error) {
 	return board, nil
 }
 
-// GetProjectBoard 获取项目的看板
+// GetProjectBoard 获取项目的看板.
 func (m *KanbanManager) GetProjectBoard(projectID string) (*KanbanBoard, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -83,7 +83,7 @@ func (m *KanbanManager) GetProjectBoard(projectID string) (*KanbanBoard, error) 
 	return nil, fmt.Errorf("no board found for project %s", projectID)
 }
 
-// DeleteBoard 删除看板
+// DeleteBoard 删除看板.
 func (m *KanbanManager) DeleteBoard(boardID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -96,7 +96,7 @@ func (m *KanbanManager) DeleteBoard(boardID string) error {
 	return nil
 }
 
-// UpdateBoardColumns 更新看板列
+// UpdateBoardColumns 更新看板列.
 func (m *KanbanManager) UpdateBoardColumns(boardID string, columns []KanbanColumn) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -110,7 +110,7 @@ func (m *KanbanManager) UpdateBoardColumns(boardID string, columns []KanbanColum
 	return nil
 }
 
-// AddColumn 添加看板列
+// AddColumn 添加看板列.
 func (m *KanbanManager) AddColumn(boardID string, col KanbanColumn) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -131,7 +131,7 @@ func (m *KanbanManager) AddColumn(boardID string, col KanbanColumn) error {
 	return nil
 }
 
-// RemoveColumn 移除看板列
+// RemoveColumn 移除看板列.
 func (m *KanbanManager) RemoveColumn(boardID, columnID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -151,7 +151,7 @@ func (m *KanbanManager) RemoveColumn(boardID, columnID string) error {
 	return nil
 }
 
-// SetColumnWIP 设置列在制品限制
+// SetColumnWIP 设置列在制品限制.
 func (m *KanbanManager) SetColumnWIP(boardID, columnID string, wipLimit int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -170,7 +170,7 @@ func (m *KanbanManager) SetColumnWIP(boardID, columnID string, wipLimit int) err
 	return fmt.Errorf("column %s not found", columnID)
 }
 
-// CheckWIPLimit 检查 WIP 限制
+// CheckWIPLimit 检查 WIP 限制.
 func (m *KanbanManager) CheckWIPLimit(boardID, columnID string) (bool, int, int, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -209,7 +209,7 @@ func (m *KanbanManager) CheckWIPLimit(boardID, columnID string) (bool, int, int,
 	return exceeded, count, targetCol.WIPLimit, nil
 }
 
-// GetBoardView 获取看板视图数据（按列分组的任务）
+// GetBoardView 获取看板视图数据（按列分组的任务）.
 func (m *KanbanManager) GetBoardView(boardID string) (map[string][]*Task, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -239,7 +239,7 @@ func (m *KanbanManager) GetBoardView(boardID string) (map[string][]*Task, error)
 	return view, nil
 }
 
-// UpdateFilters 更新看板过滤器
+// UpdateFilters 更新看板过滤器.
 func (m *KanbanManager) UpdateFilters(boardID string, filters KanbanFilters) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -253,7 +253,7 @@ func (m *KanbanManager) UpdateFilters(boardID string, filters KanbanFilters) err
 	return nil
 }
 
-// GetBoardStats 获取看板统计
+// GetBoardStats 获取看板统计.
 func (m *KanbanManager) GetBoardStats(boardID string) (*BoardStatsExtended, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -289,7 +289,7 @@ func (m *KanbanManager) GetBoardStats(boardID string) (*BoardStatsExtended, erro
 	return stats, nil
 }
 
-// BoardStatsExtended 扩展看板统计
+// BoardStatsExtended 扩展看板统计.
 type BoardStatsExtended struct {
 	TotalTasks     int            `json:"total_tasks"`
 	CompletedTasks int            `json:"completed_tasks"`
@@ -298,7 +298,7 @@ type BoardStatsExtended struct {
 	Columns        map[string]int `json:"columns"` // status -> count
 }
 
-// applyFilters 应用过滤器
+// applyFilters 应用过滤器.
 func applyFilters(tasks []*Task, filters KanbanFilters) []*Task {
 	var result []*Task
 	for _, task := range tasks {
@@ -356,7 +356,7 @@ func matchTags(task *Task, tags []string) bool {
 	return false
 }
 
-// ListBoards 列出看板
+// ListBoards 列出看板.
 func (m *KanbanManager) ListBoards(projectID string) []*KanbanBoard {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

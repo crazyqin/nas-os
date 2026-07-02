@@ -7,17 +7,17 @@ import (
 	"strings"
 )
 
-// Handlers HTTP 处理器
+// Handlers HTTP 处理器.
 type Handlers struct {
 	mgr *Manager
 }
 
-// NewHandlers 创建 HTTP 处理器
+// NewHandlers 创建 HTTP 处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{mgr: mgr}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux, prefix string) {
 	mux.HandleFunc(prefix+"/volumes", h.handleVolumes)
 	mux.HandleFunc(prefix+"/volumes/encrypt", h.handleEncrypt)
@@ -41,7 +41,7 @@ func writeJSON(w http.ResponseWriter, code int, data interface{}) {
 	json.NewEncoder(w).Encode(data)
 }
 
-// handleVolumes 管理卷
+// handleVolumes 管理卷.
 func (h *Handlers) handleVolumes(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -85,7 +85,7 @@ func (h *Handlers) handleVolumes(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleEncrypt 加密卷
+// handleEncrypt 加密卷.
 func (h *Handlers) handleEncrypt(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -111,7 +111,7 @@ func (h *Handlers) handleEncrypt(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleDecrypt 解密卷
+// handleDecrypt 解密卷.
 func (h *Handlers) handleDecrypt(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -137,7 +137,7 @@ func (h *Handlers) handleDecrypt(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleLock 锁定卷
+// handleLock 锁定卷.
 func (h *Handlers) handleLock(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -163,7 +163,7 @@ func (h *Handlers) handleLock(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleUnlock 解锁卷
+// handleUnlock 解锁卷.
 func (h *Handlers) handleUnlock(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -190,7 +190,7 @@ func (h *Handlers) handleUnlock(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleRotateKey 轮换密钥
+// handleRotateKey 轮换密钥.
 func (h *Handlers) handleRotateKey(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -216,7 +216,7 @@ func (h *Handlers) handleRotateKey(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleAudit 获取审计日志
+// handleAudit 获取审计日志.
 func (h *Handlers) handleAudit(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -234,7 +234,7 @@ func (h *Handlers) handleAudit(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleStats 获取统计信息
+// handleStats 获取统计信息.
 func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 405, Message: "方法不允许"})
@@ -249,7 +249,7 @@ func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GetVolumeIDFromPath 从路径获取卷 ID
+// GetVolumeIDFromPath 从路径获取卷 ID.
 func (h *Handlers) GetVolumeIDFromPath(path string) (string, error) {
 	volumes := h.mgr.ListVolumes()
 	for _, v := range volumes {

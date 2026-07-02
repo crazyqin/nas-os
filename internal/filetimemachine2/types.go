@@ -5,7 +5,7 @@ import "time"
 
 // ========== 快照相关类型 ==========
 
-// SnapshotStatus 快照状态
+// SnapshotStatus 快照状态.
 type SnapshotStatus string
 
 const (
@@ -16,7 +16,7 @@ const (
 	SnapshotExpired   SnapshotStatus = "expired"
 )
 
-// Snapshot 快照信息
+// Snapshot 快照信息.
 type Snapshot struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
@@ -32,7 +32,7 @@ type Snapshot struct {
 	ErrorMsg    string         `json:"error_msg,omitempty"`
 }
 
-// SnapshotListItem 快照列表项（轻量）
+// SnapshotListItem 快照列表项（轻量）.
 type SnapshotListItem struct {
 	ID        string         `json:"id"`
 	Name      string         `json:"name"`
@@ -43,7 +43,7 @@ type SnapshotListItem struct {
 	Tags      []string       `json:"tags,omitempty"`
 }
 
-// CreateSnapshotRequest 创建快照请求
+// CreateSnapshotRequest 创建快照请求.
 type CreateSnapshotRequest struct {
 	Name        string   `json:"name" binding:"required"`
 	Description string   `json:"description,omitempty"`
@@ -52,7 +52,7 @@ type CreateSnapshotRequest struct {
 	Force       bool     `json:"force"` // 即使无变更也强制创建
 }
 
-// RestoreRequest 恢复请求
+// RestoreRequest 恢复请求.
 type RestoreRequest struct {
 	TargetPath    string   `json:"target_path" binding:"required"` // 恢复目标路径
 	SourcePaths   []string `json:"source_paths"`                   // 指定要恢复的文件/目录，空则全量恢复
@@ -60,7 +60,7 @@ type RestoreRequest struct {
 	DryRun        bool     `json:"dry_run"`                        // 仅预览不执行
 }
 
-// RestoreResult 恢复结果
+// RestoreResult 恢复结果.
 type RestoreResult struct {
 	RestoredFiles int      `json:"restored_files"`
 	RestoredDirs  int      `json:"restored_dirs"`
@@ -71,7 +71,7 @@ type RestoreResult struct {
 	IsDryRun      bool     `json:"is_dry_run"`
 }
 
-// SnapshotContent 快照浏览内容
+// SnapshotContent 快照浏览内容.
 type SnapshotContent struct {
 	SnapshotID string      `json:"snapshot_id"`
 	Path       string      `json:"path"`
@@ -79,7 +79,7 @@ type SnapshotContent struct {
 	TotalCount int         `json:"total_count"`
 }
 
-// FileEntry 文件条目
+// FileEntry 文件条目.
 type FileEntry struct {
 	Name    string    `json:"name"`
 	Path    string    `json:"path"`
@@ -90,14 +90,14 @@ type FileEntry struct {
 	Hash    string    `json:"hash,omitempty"` // 文件内容 hash
 }
 
-// TagRequest 标签请求
+// TagRequest 标签请求.
 type TagRequest struct {
 	Tags []string `json:"tags" binding:"required"`
 }
 
 // ========== Diff 相关类型 ==========
 
-// DiffType 差异类型
+// DiffType 差异类型.
 type DiffType string
 
 const (
@@ -107,7 +107,7 @@ const (
 	DiffRenamed  DiffType = "renamed"
 )
 
-// FileDiff 文件差异
+// FileDiff 文件差异.
 type FileDiff struct {
 	Path      string     `json:"path"`
 	Type      DiffType   `json:"type"`
@@ -120,7 +120,7 @@ type FileDiff struct {
 	LineDiffs []LineDiff `json:"line_diffs,omitempty"` // 文本文件行级差异
 }
 
-// LineDiff 行级差异
+// LineDiff 行级差异.
 type LineDiff struct {
 	OldLine int    `json:"old_line"` // 0 表示新增行
 	NewLine int    `json:"new_line"` // 0 表示删除行
@@ -128,7 +128,7 @@ type LineDiff struct {
 	Content string `json:"content"`
 }
 
-// DiffResult 差异对比结果
+// DiffResult 差异对比结果.
 type DiffResult struct {
 	SnapshotA  string     `json:"snapshot_a"`
 	SnapshotB  string     `json:"snapshot_b"`
@@ -137,7 +137,7 @@ type DiffResult struct {
 	ComparedAt time.Time  `json:"compared_at"`
 }
 
-// DiffStats 变更统计
+// DiffStats 变更统计.
 type DiffStats struct {
 	Added        int   `json:"added"`
 	Modified     int   `json:"modified"`
@@ -150,7 +150,7 @@ type DiffStats struct {
 
 // ========== 时间线相关类型 ==========
 
-// AggregationGranularity 聚合粒度
+// AggregationGranularity 聚合粒度.
 type AggregationGranularity string
 
 const (
@@ -160,21 +160,21 @@ const (
 	GranularityMonth AggregationGranularity = "month"
 )
 
-// TimelineRequest 时间线请求
+// TimelineRequest 时间线请求.
 type TimelineRequest struct {
 	Granularity string `form:"granularity"` // hour, day, week, month
 	StartTime   string `form:"start_time"`
 	EndTime     string `form:"end_time"`
 }
 
-// TimelineData 时间线数据
+// TimelineData 时间线数据.
 type TimelineData struct {
 	Granularity AggregationGranularity `json:"granularity"`
 	Buckets     []TimelineBucket       `json:"buckets"`
 	Total       int                    `json:"total"`
 }
 
-// TimelineBucket 时间线桶
+// TimelineBucket 时间线桶.
 type TimelineBucket struct {
 	StartTime     time.Time `json:"start_time"`
 	EndTime       time.Time `json:"end_time"`
@@ -185,7 +185,7 @@ type TimelineBucket struct {
 
 // ========== 保留策略相关类型 ==========
 
-// RetentionRule 保留规则
+// RetentionRule 保留规则.
 type RetentionRule struct {
 	Name     string `json:"name"`     // 规则名称
 	Interval string `json:"interval"` // 时间间隔: 1h, 1d, 1w, 1m
@@ -193,7 +193,7 @@ type RetentionRule struct {
 	Priority int    `json:"priority"` // 优先级，数字越大越优先
 }
 
-// RetentionConfig 保留策略配置
+// RetentionConfig 保留策略配置.
 type RetentionConfig struct {
 	Enabled       bool            `json:"enabled"`
 	Rules         []RetentionRule `json:"rules"`
@@ -204,7 +204,7 @@ type RetentionConfig struct {
 	NextCleanupAt *time.Time      `json:"next_cleanup_at,omitempty"`
 }
 
-// UpdateRetentionRequest 更新保留策略请求
+// UpdateRetentionRequest 更新保留策略请求.
 type UpdateRetentionRequest struct {
 	Enabled      bool            `json:"enabled"`
 	Rules        []RetentionRule `json:"rules"`
@@ -213,7 +213,7 @@ type UpdateRetentionRequest struct {
 	AutoCleanup  bool            `json:"auto_cleanup"`
 }
 
-// CleanupResult 清理结果
+// CleanupResult 清理结果.
 type CleanupResult struct {
 	DeletedCount   int      `json:"deleted_count"`
 	ReclaimedBytes int64    `json:"reclaimed_bytes"`
@@ -222,7 +222,7 @@ type CleanupResult struct {
 
 // ========== 存储统计相关类型 ==========
 
-// StorageStats 存储统计
+// StorageStats 存储统计.
 type StorageStats struct {
 	TotalSnapshots  int        `json:"total_snapshots"`
 	TotalSize       int64      `json:"total_size"`      // 总占用空间
@@ -237,7 +237,7 @@ type StorageStats struct {
 
 // ========== 搜索相关类型 ==========
 
-// SearchRequest 搜索请求
+// SearchRequest 搜索请求.
 type SearchRequest struct {
 	FileName  string `form:"file_name"`  // 文件名（支持通配符）
 	StartTime string `form:"start_time"` // 搜索起始时间
@@ -248,13 +248,13 @@ type SearchRequest struct {
 	Limit     int    `form:"limit"`      // 返回数量限制
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	Total   int           `json:"total"`
 	Entries []SearchEntry `json:"entries"`
 }
 
-// SearchEntry 搜索结果条目
+// SearchEntry 搜索结果条目.
 type SearchEntry struct {
 	SnapshotID   string    `json:"snapshot_id"`
 	SnapshotName string    `json:"snapshot_name"`

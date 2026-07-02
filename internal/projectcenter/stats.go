@@ -5,14 +5,14 @@ import (
 	"time"
 )
 
-// StatsManager 统计管理器
+// StatsManager 统计管理器.
 type StatsManager struct {
 	mu           sync.RWMutex
 	taskMgr      *TaskManager
 	milestoneMgr *MilestoneManager
 }
 
-// NewStatsManager 创建统计管理器
+// NewStatsManager 创建统计管理器.
 func NewStatsManager(taskMgr *TaskManager, milestoneMgr *MilestoneManager) *StatsManager {
 	return &StatsManager{
 		taskMgr:      taskMgr,
@@ -20,7 +20,7 @@ func NewStatsManager(taskMgr *TaskManager, milestoneMgr *MilestoneManager) *Stat
 	}
 }
 
-// GetProjectStats 获取项目统计
+// GetProjectStats 获取项目统计.
 func (m *StatsManager) GetProjectStats(projectID string) (*ProjectStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -100,7 +100,7 @@ func (m *StatsManager) GetProjectStats(projectID string) (*ProjectStats, error) 
 	return stats, nil
 }
 
-// calculateTimelineStats 计算时间线统计
+// calculateTimelineStats 计算时间线统计.
 func (m *StatsManager) calculateTimelineStats(projectID string, tasks []*Task) TimelineStats {
 	var earliestStart, latestEnd time.Time
 	var set bool
@@ -153,7 +153,7 @@ func (m *StatsManager) calculateTimelineStats(projectID string, tasks []*Task) T
 	}
 }
 
-// GetMemberWorkloads 获取成员工作量统计
+// GetMemberWorkloads 获取成员工作量统计.
 func (m *StatsManager) GetMemberWorkloads(projectID string) []*MemberWorkload {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -205,7 +205,7 @@ func (m *StatsManager) GetMemberWorkloads(projectID string) []*MemberWorkload {
 	return workloads
 }
 
-// GetStatusDistribution 获取任务状态分布
+// GetStatusDistribution 获取任务状态分布.
 func (m *StatsManager) GetStatusDistribution(projectID string) map[string]StatusDistItem {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -248,7 +248,7 @@ func (m *StatsManager) GetStatusDistribution(projectID string) map[string]Status
 	return dist
 }
 
-// StatusDistItem 状态分布项
+// StatusDistItem 状态分布项.
 type StatusDistItem struct {
 	Status     string  `json:"status"`
 	Label      string  `json:"label"`
@@ -256,7 +256,7 @@ type StatusDistItem struct {
 	Percentage float64 `json:"percentage"`
 }
 
-// GetPriorityDistribution 获取任务优先级分布
+// GetPriorityDistribution 获取任务优先级分布.
 func (m *StatsManager) GetPriorityDistribution(projectID string) map[string]PriorityDistItem {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -298,7 +298,7 @@ func (m *StatsManager) GetPriorityDistribution(projectID string) map[string]Prio
 	return dist
 }
 
-// PriorityDistItem 优先级分布项
+// PriorityDistItem 优先级分布项.
 type PriorityDistItem struct {
 	Priority   string  `json:"priority"`
 	Label      string  `json:"label"`
@@ -306,7 +306,7 @@ type PriorityDistItem struct {
 	Percentage float64 `json:"percentage"`
 }
 
-// GetWeeklyProgress 获取每周进度
+// GetWeeklyProgress 获取每周进度.
 func (m *StatsManager) GetWeeklyProgress(projectID string, weeks int) []WeeklyProgressItem {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -346,7 +346,7 @@ func (m *StatsManager) GetWeeklyProgress(projectID string, weeks int) []WeeklyPr
 	return items
 }
 
-// WeeklyProgressItem 每周进度项
+// WeeklyProgressItem 每周进度项.
 type WeeklyProgressItem struct {
 	WeekStart time.Time `json:"week_start"`
 	WeekEnd   time.Time `json:"week_end"`
@@ -354,7 +354,7 @@ type WeeklyProgressItem struct {
 	Completed int       `json:"completed"`
 }
 
-// GetProjectSummary 获取项目概览摘要
+// GetProjectSummary 获取项目概览摘要.
 func (m *StatsManager) GetProjectSummary(projectID string) (*ProjectSummary, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -366,11 +366,12 @@ func (m *StatsManager) GetProjectSummary(projectID string) (*ProjectSummary, err
 	summary.TotalTasks = total
 
 	for _, task := range tasks {
-		if task.Status == TaskStatusDone {
+		switch task.Status {
+		case TaskStatusDone:
 			summary.CompletedTasks++
-		} else if task.Status == TaskStatusInProgress {
+		case TaskStatusInProgress:
 			summary.InProgressTasks++
-		} else if task.Status == TaskStatusBlocked {
+		case TaskStatusBlocked:
 			summary.BlockedTasks++
 		}
 	}
@@ -395,7 +396,7 @@ func (m *StatsManager) GetProjectSummary(projectID string) (*ProjectSummary, err
 	return summary, nil
 }
 
-// ProjectSummary 项目摘要
+// ProjectSummary 项目摘要.
 type ProjectSummary struct {
 	TotalTasks          int     `json:"total_tasks"`
 	CompletedTasks      int     `json:"completed_tasks"`
@@ -407,7 +408,7 @@ type ProjectSummary struct {
 	OverallProgress     float64 `json:"overall_progress"`
 }
 
-// GetBurndownData 获取燃尽图数据
+// GetBurndownData 获取燃尽图数据.
 func (m *StatsManager) GetBurndownData(projectID string, startDate, endDate time.Time) []BurndownItem {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -448,7 +449,7 @@ func (m *StatsManager) GetBurndownData(projectID string, startDate, endDate time
 	return items
 }
 
-// BurndownItem 燃尽图数据项
+// BurndownItem 燃尽图数据项.
 type BurndownItem struct {
 	Date      time.Time `json:"date"`
 	Actual    int       `json:"actual"`

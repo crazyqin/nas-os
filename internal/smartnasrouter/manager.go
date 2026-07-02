@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Manager 智能路由管理器
+// Manager 智能路由管理器.
 type Manager struct {
 	mu           sync.RWMutex
 	nodes        map[string]*Node
@@ -25,7 +25,7 @@ type Manager struct {
 	roundRobin   int
 }
 
-// NewManager 创建路由管理器
+// NewManager 创建路由管理器.
 func NewManager(healthCfg *HealthCheckConfig) *Manager {
 	cfg := DefaultHealthCheckConfig()
 	if healthCfg != nil {
@@ -42,7 +42,7 @@ func NewManager(healthCfg *HealthCheckConfig) *Manager {
 
 // ========== 节点管理 ==========
 
-// AddNode 添加节点
+// AddNode 添加节点.
 func (m *Manager) AddNode(req AddNodeRequest) (*Node, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -85,7 +85,7 @@ func (m *Manager) AddNode(req AddNodeRequest) (*Node, error) {
 	return node, nil
 }
 
-// GetNode 获取节点
+// GetNode 获取节点.
 func (m *Manager) GetNode(id string) (*Node, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -97,7 +97,7 @@ func (m *Manager) GetNode(id string) (*Node, error) {
 	return node, nil
 }
 
-// UpdateNode 更新节点
+// UpdateNode 更新节点.
 func (m *Manager) UpdateNode(id string, req UpdateNodeRequest) (*Node, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -138,7 +138,7 @@ func (m *Manager) UpdateNode(id string, req UpdateNodeRequest) (*Node, error) {
 	return node, nil
 }
 
-// DeleteNode 删除节点
+// DeleteNode 删除节点.
 func (m *Manager) DeleteNode(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -151,7 +151,7 @@ func (m *Manager) DeleteNode(id string) error {
 	return nil
 }
 
-// ListNodes 列出所有节点
+// ListNodes 列出所有节点.
 func (m *Manager) ListNodes() []*Node {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -165,7 +165,7 @@ func (m *Manager) ListNodes() []*Node {
 
 // ========== 路由规则 ==========
 
-// AddRule 添加路由规则
+// AddRule 添加路由规则.
 func (m *Manager) AddRule(rule RouteRule) *RouteRule {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -178,7 +178,7 @@ func (m *Manager) AddRule(rule RouteRule) *RouteRule {
 	return &rule
 }
 
-// ListRules 列出所有路由规则
+// ListRules 列出所有路由规则.
 func (m *Manager) ListRules() []*RouteRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -193,7 +193,7 @@ func (m *Manager) ListRules() []*RouteRule {
 	return rules
 }
 
-// DeleteRule 删除路由规则
+// DeleteRule 删除路由规则.
 func (m *Manager) DeleteRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -207,7 +207,7 @@ func (m *Manager) DeleteRule(id string) error {
 
 // ========== 延迟探测 ==========
 
-// ProbeNode 探测单个节点延迟
+// ProbeNode 探测单个节点延迟.
 func (m *Manager) ProbeNode(nodeID string) (*ProbeResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -240,7 +240,7 @@ func (m *Manager) ProbeNode(nodeID string) (*ProbeResult, error) {
 	return result, nil
 }
 
-// ProbeAll 探测所有节点
+// ProbeAll 探测所有节点.
 func (m *Manager) ProbeAll() []*ProbeResult {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -273,7 +273,7 @@ func (m *Manager) ProbeAll() []*ProbeResult {
 	return results
 }
 
-// simulateProbe 模拟延迟探测
+// simulateProbe 模拟延迟探测.
 func (m *Manager) simulateProbe(node *Node) int64 {
 	// 模拟延迟：基于负载计算
 	baseLatency := int64(10)
@@ -290,7 +290,7 @@ func (m *Manager) simulateProbe(node *Node) int64 {
 
 // ========== 路由决策 ==========
 
-// Route 获取路由决策
+// Route 获取路由决策.
 func (m *Manager) Route(req RouteRequest) (*RouteDecision, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -367,7 +367,7 @@ func (m *Manager) Route(req RouteRequest) (*RouteDecision, error) {
 	}, nil
 }
 
-// getCandidates 获取候选节点
+// getCandidates 获取候选节点.
 func (m *Manager) getCandidates(targetIDs []string) []*Node {
 	var candidates []*Node
 
@@ -387,14 +387,14 @@ func (m *Manager) getCandidates(targetIDs []string) []*Node {
 	return candidates
 }
 
-// selectRoundRobin 轮询选择
+// selectRoundRobin 轮询选择.
 func (m *Manager) selectRoundRobin(nodes []*Node) (*Node, string) {
 	idx := m.roundRobin % len(nodes)
 	m.roundRobin++
 	return nodes[idx], fmt.Sprintf("轮询选择，索引 %d", idx)
 }
 
-// selectWeighted 加权选择
+// selectWeighted 加权选择.
 func (m *Manager) selectWeighted(nodes []*Node) (*Node, float64, string) {
 	type scored struct {
 		node  *Node
@@ -415,7 +415,7 @@ func (m *Manager) selectWeighted(nodes []*Node) (*Node, float64, string) {
 	return best.node, best.score, fmt.Sprintf("综合评分最高 %.1f", best.score)
 }
 
-// selectLeastConn 最少连接选择
+// selectLeastConn 最少连接选择.
 func (m *Manager) selectLeastConn(nodes []*Node) (*Node, float64, string) {
 	var best *Node
 	bestScore := -1.0
@@ -432,7 +432,7 @@ func (m *Manager) selectLeastConn(nodes []*Node) (*Node, float64, string) {
 	return best, bestScore, fmt.Sprintf("连接数最少 %d/%d", best.CurrConns, best.MaxConns)
 }
 
-// selectLatency 最低延迟选择
+// selectLatency 最低延迟选择.
 func (m *Manager) selectLatency(nodes []*Node) (*Node, float64, string) {
 	var best *Node
 	bestLatency := int64(math.MaxInt64)
@@ -448,7 +448,7 @@ func (m *Manager) selectLatency(nodes []*Node) (*Node, float64, string) {
 	return best, score, fmt.Sprintf("延迟最低 %dms", bestLatency)
 }
 
-// selectGeo 地理位置选择
+// selectGeo 地理位置选择.
 func (m *Manager) selectGeo(nodes []*Node, region string) (*Node, float64, string) {
 	// 优先选择同区域节点
 	for _, n := range nodes {
@@ -462,7 +462,7 @@ func (m *Manager) selectGeo(nodes []*Node, region string) (*Node, float64, strin
 	return m.selectWeighted(nodes)
 }
 
-// calculateScore 计算节点综合评分
+// calculateScore 计算节点综合评分.
 func (m *Manager) calculateScore(n *Node) float64 {
 	weightScore := float64(n.Weight) * 0.3
 	cpuScore := (100 - n.CPUUsage) * 0.2
@@ -474,7 +474,7 @@ func (m *Manager) calculateScore(n *Node) float64 {
 
 // ========== 故障转移 ==========
 
-// TriggerFailover 触发故障转移
+// TriggerFailover 触发故障转移.
 func (m *Manager) TriggerFailover(nodeID, reason string) (*FailoverEvent, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -518,7 +518,7 @@ func (m *Manager) TriggerFailover(nodeID, reason string) (*FailoverEvent, error)
 	return event, nil
 }
 
-// RecoverNode 恢复节点
+// RecoverNode 恢复节点.
 func (m *Manager) RecoverNode(nodeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -536,7 +536,7 @@ func (m *Manager) RecoverNode(nodeID string) error {
 
 // ========== 统计 ==========
 
-// GetStats 获取路由统计
+// GetStats 获取路由统计.
 func (m *Manager) GetStats() RouterStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -581,7 +581,7 @@ func (m *Manager) GetStats() RouterStats {
 	return stats
 }
 
-// GetFailoverEvents 获取故障转移事件
+// GetFailoverEvents 获取故障转移事件.
 func (m *Manager) GetFailoverEvents() []*FailoverEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -591,7 +591,7 @@ func (m *Manager) GetFailoverEvents() []*FailoverEvent {
 	return events
 }
 
-// UpdateNodeMetrics 更新节点指标
+// UpdateNodeMetrics 更新节点指标.
 func (m *Manager) UpdateNodeMetrics(nodeID string, cpu, mem, disk float64, conns int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

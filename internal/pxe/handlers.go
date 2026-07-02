@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler handles PXE HTTP API requests
+// Handler handles PXE HTTP API requests.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler creates a new PXE handler
+// NewHandler creates a new PXE handler.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes registers PXE API routes under the given router group
+// RegisterRoutes registers PXE API routes under the given router group.
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	pxe := r.Group("/pxe")
 	{
@@ -40,13 +40,13 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// HandleGetConfig returns the current PXE configuration
+// HandleGetConfig returns the current PXE configuration.
 func (h *Handler) HandleGetConfig(c *gin.Context) {
 	cfg := h.manager.GetConfig()
 	c.JSON(http.StatusOK, cfg)
 }
 
-// HandleUpdateConfig partially updates PXE configuration
+// HandleUpdateConfig partially updates PXE configuration.
 func (h *Handler) HandleUpdateConfig(c *gin.Context) {
 	var req CreatePXEConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -62,13 +62,13 @@ func (h *Handler) HandleUpdateConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, h.manager.GetConfig())
 }
 
-// HandleListClients returns all PXE clients
+// HandleListClients returns all PXE clients.
 func (h *Handler) HandleListClients(c *gin.Context) {
 	clients := h.manager.ListClients()
 	c.JSON(http.StatusOK, clients)
 }
 
-// HandleGetClient returns a single client by MAC address
+// HandleGetClient returns a single client by MAC address.
 func (h *Handler) HandleGetClient(c *gin.Context) {
 	mac := c.Param("mac")
 	client, err := h.manager.GetClientByMAC(mac)
@@ -79,7 +79,7 @@ func (h *Handler) HandleGetClient(c *gin.Context) {
 	c.JSON(http.StatusOK, client)
 }
 
-// HandleUpdateClient updates a PXE client
+// HandleUpdateClient updates a PXE client.
 func (h *Handler) HandleUpdateClient(c *gin.Context) {
 	mac := c.Param("mac")
 	var req UpdateClientRequest
@@ -101,7 +101,7 @@ func (h *Handler) HandleUpdateClient(c *gin.Context) {
 	c.JSON(http.StatusOK, client)
 }
 
-// HandleAddImage adds a new boot image
+// HandleAddImage adds a new boot image.
 func (h *Handler) HandleAddImage(c *gin.Context) {
 	var img PXEImage
 	if err := c.ShouldBindJSON(&img); err != nil {
@@ -117,7 +117,7 @@ func (h *Handler) HandleAddImage(c *gin.Context) {
 	c.JSON(http.StatusCreated, img)
 }
 
-// HandleRemoveImage removes a boot image by ID
+// HandleRemoveImage removes a boot image by ID.
 func (h *Handler) HandleRemoveImage(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.RemoveBootImage(id); err != nil {
@@ -127,13 +127,13 @@ func (h *Handler) HandleRemoveImage(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse{Success: true})
 }
 
-// HandleListImages returns all registered boot images
+// HandleListImages returns all registered boot images.
 func (h *Handler) HandleListImages(c *gin.Context) {
 	images := h.manager.ListImages()
 	c.JSON(http.StatusOK, images)
 }
 
-// HandleSetBootMenu replaces the boot menu
+// HandleSetBootMenu replaces the boot menu.
 func (h *Handler) HandleSetBootMenu(c *gin.Context) {
 	var menu []BootMenuItem
 	if err := c.ShouldBindJSON(&menu); err != nil {
@@ -149,13 +149,13 @@ func (h *Handler) HandleSetBootMenu(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse{Success: true, Data: menu})
 }
 
-// HandleGetStats returns PXE service statistics
+// HandleGetStats returns PXE service statistics.
 func (h *Handler) HandleGetStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, stats)
 }
 
-// HandleStart starts the PXE services
+// HandleStart starts the PXE services.
 func (h *Handler) HandleStart(c *gin.Context) {
 	if err := h.manager.Start(); err != nil {
 		c.JSON(http.StatusConflict, ErrorResponse{Error: "conflict", Message: err.Error()})
@@ -164,7 +164,7 @@ func (h *Handler) HandleStart(c *gin.Context) {
 	c.JSON(http.StatusOK, SuccessResponse{Success: true})
 }
 
-// HandleStop stops the PXE services
+// HandleStop stops the PXE services.
 func (h *Handler) HandleStop(c *gin.Context) {
 	if err := h.manager.Stop(); err != nil {
 		c.JSON(http.StatusConflict, ErrorResponse{Error: "conflict", Message: err.Error()})

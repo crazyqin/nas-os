@@ -13,7 +13,7 @@ import (
 
 // ========== 核心类型 ==========
 
-// BackupType 备份类型
+// BackupType 备份类型.
 type BackupType string
 
 const (
@@ -21,7 +21,7 @@ const (
 	BackupTypeIncremental BackupType = "incremental" // 增量备份
 )
 
-// MediaType 恢复介质类型
+// MediaType 恢复介质类型.
 type MediaType string
 
 const (
@@ -29,7 +29,7 @@ const (
 	MediaTypeISO MediaType = "iso" // ISO 镜像
 )
 
-// LocationType 存储位置类型
+// LocationType 存储位置类型.
 type LocationType string
 
 const (
@@ -38,7 +38,7 @@ const (
 	LocationTypeCloud LocationType = "cloud" // 云存储
 )
 
-// JobStatus 任务状态
+// JobStatus 任务状态.
 type JobStatus string
 
 const (
@@ -49,7 +49,7 @@ const (
 	JobStatusCancelled JobStatus = "cancelled" // 已取消
 )
 
-// StepStatus 步骤状态
+// StepStatus 步骤状态.
 type StepStatus string
 
 const (
@@ -60,7 +60,7 @@ const (
 	StepStatusSkipped   StepStatus = "skipped"   // 已跳过
 )
 
-// BackupOptions 备份选项
+// BackupOptions 备份选项.
 type BackupOptions struct {
 	Type          BackupType `json:"type"`          // 备份类型
 	ParentImageID string     `json:"parentImageId"` // 增量备份的父镜像ID
@@ -72,7 +72,7 @@ type BackupOptions struct {
 	Verify        bool       `json:"verify"`        // 备份后验证
 }
 
-// BackupImage 备份镜像
+// BackupImage 备份镜像.
 type BackupImage struct {
 	ID            string     `json:"id"`
 	Name          string     `json:"name"`
@@ -88,7 +88,7 @@ type BackupImage struct {
 	CreatedAt     time.Time  `json:"createdAt"`
 }
 
-// RecoveryPlan 恢复计划
+// RecoveryPlan 恢复计划.
 type RecoveryPlan struct {
 	ID           string         `json:"id"`
 	Name         string         `json:"name"`
@@ -100,7 +100,7 @@ type RecoveryPlan struct {
 	CreatedAt    time.Time      `json:"createdAt"`
 }
 
-// RecoveryStep 恢复步骤
+// RecoveryStep 恢复步骤.
 type RecoveryStep struct {
 	Sequence    int        `json:"sequence"`    // 序号
 	Type        string     `json:"type"`        // 步骤类型
@@ -110,7 +110,7 @@ type RecoveryStep struct {
 	ErrorMsg    string     `json:"errorMsg"`    // 错误信息
 }
 
-// RecoveryMedia 恢复介质
+// RecoveryMedia 恢复介质.
 type RecoveryMedia struct {
 	ID        string    `json:"id"`
 	Type      MediaType `json:"type"`  // USB/ISO
@@ -120,7 +120,7 @@ type RecoveryMedia struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-// BackupSchedule 备份调度
+// BackupSchedule 备份调度.
 type BackupSchedule struct {
 	ID          string    `json:"id"`
 	PlanID      string    `json:"planId"` // 关联计划ID
@@ -132,7 +132,7 @@ type BackupSchedule struct {
 	CreatedAt   time.Time `json:"createdAt"`
 }
 
-// BackupLocation 备份存储位置
+// BackupLocation 备份存储位置.
 type BackupLocation struct {
 	ID        string       `json:"id"`
 	Name      string       `json:"name"`
@@ -145,7 +145,7 @@ type BackupLocation struct {
 	CreatedAt time.Time    `json:"createdAt"`
 }
 
-// RestoreJob 恢复任务
+// RestoreJob 恢复任务.
 type RestoreJob struct {
 	ID          string     `json:"id"`
 	PlanID      string     `json:"planId"`      // 关联计划ID
@@ -159,7 +159,7 @@ type RestoreJob struct {
 
 // ========== Manager ==========
 
-// Manager 裸机恢复管理器
+// Manager 裸机恢复管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	images    map[string]*BackupImage
@@ -176,7 +176,7 @@ type Manager struct {
 	planSeq   int
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		images:    make(map[string]*BackupImage),
@@ -190,7 +190,7 @@ func NewManager() *Manager {
 
 // ========== 镜像管理 ==========
 
-// CreateImage 创建备份镜像
+// CreateImage 创建备份镜像.
 func (m *Manager) CreateImage(device string, name string, opts *BackupOptions) (*BackupImage, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -266,7 +266,7 @@ func (m *Manager) CreateImage(device string, name string, opts *BackupOptions) (
 	return img, nil
 }
 
-// ListImages 列出所有镜像
+// ListImages 列出所有镜像.
 func (m *Manager) ListImages() []BackupImage {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -278,7 +278,7 @@ func (m *Manager) ListImages() []BackupImage {
 	return images
 }
 
-// DeleteImage 删除镜像
+// DeleteImage 删除镜像.
 func (m *Manager) DeleteImage(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -300,7 +300,7 @@ func (m *Manager) DeleteImage(id string) error {
 	return nil
 }
 
-// VerifyImage 验证镜像
+// VerifyImage 验证镜像.
 func (m *Manager) VerifyImage(id string) (bool, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -328,7 +328,7 @@ func (m *Manager) VerifyImage(id string) (bool, error) {
 
 // ========== 恢复介质 ==========
 
-// CreateRecoveryMedia 创建恢复介质
+// CreateRecoveryMedia 创建恢复介质.
 func (m *Manager) CreateRecoveryMedia(mediaType string, path string) (*RecoveryMedia, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -368,7 +368,7 @@ func (m *Manager) CreateRecoveryMedia(mediaType string, path string) (*RecoveryM
 
 // ========== 恢复计划 ==========
 
-// CreatePlan 创建恢复计划
+// CreatePlan 创建恢复计划.
 func (m *Manager) CreatePlan(plan *RecoveryPlan) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -400,7 +400,7 @@ func (m *Manager) CreatePlan(plan *RecoveryPlan) error {
 	return nil
 }
 
-// ExecutePlan 执行恢复计划
+// ExecutePlan 执行恢复计划.
 func (m *Manager) ExecutePlan(planID string, targetDevice string) (*RestoreJob, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -440,7 +440,7 @@ func (m *Manager) ExecutePlan(planID string, targetDevice string) (*RestoreJob, 
 	return job, nil
 }
 
-// GetJobStatus 获取任务状态
+// GetJobStatus 获取任务状态.
 func (m *Manager) GetJobStatus(jobID string) *RestoreJob {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -452,7 +452,7 @@ func (m *Manager) GetJobStatus(jobID string) *RestoreJob {
 	return job
 }
 
-// ListJobs 列出所有任务
+// ListJobs 列出所有任务.
 func (m *Manager) ListJobs() []RestoreJob {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -464,7 +464,7 @@ func (m *Manager) ListJobs() []RestoreJob {
 	return jobs
 }
 
-// CancelJob 取消任务
+// CancelJob 取消任务.
 func (m *Manager) CancelJob(jobID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -493,7 +493,7 @@ func (m *Manager) CancelJob(jobID string) error {
 
 // ========== 存储位置管理 ==========
 
-// AddLocation 添加存储位置
+// AddLocation 添加存储位置.
 func (m *Manager) AddLocation(loc *BackupLocation) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -530,7 +530,7 @@ func (m *Manager) AddLocation(loc *BackupLocation) error {
 	return nil
 }
 
-// ListLocations 列出所有存储位置
+// ListLocations 列出所有存储位置.
 func (m *Manager) ListLocations() []BackupLocation {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -544,7 +544,7 @@ func (m *Manager) ListLocations() []BackupLocation {
 
 // ========== 调度管理 ==========
 
-// SetSchedule 设置备份调度
+// SetSchedule 设置备份调度.
 func (m *Manager) SetSchedule(planID string, sched *BackupSchedule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -574,7 +574,7 @@ func (m *Manager) SetSchedule(planID string, sched *BackupSchedule) error {
 	return nil
 }
 
-// GetSchedule 获取计划的调度
+// GetSchedule 获取计划的调度.
 func (m *Manager) GetSchedule(planID string) *BackupSchedule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -587,7 +587,7 @@ func (m *Manager) GetSchedule(planID string) *BackupSchedule {
 	return nil
 }
 
-// calculateNextRun 计算下次执行时间
+// calculateNextRun 计算下次执行时间.
 func (m *Manager) calculateNextRun(frequency string) time.Time {
 	now := time.Now()
 	switch frequency {

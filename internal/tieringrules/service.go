@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// FileItem 文件项（用于规则评估）
+// FileItem 文件项（用于规则评估）.
 type FileItem struct {
 	Path       string
 	Size       int64
@@ -17,14 +17,14 @@ type FileItem struct {
 	ModifyTime time.Time // 最后修改时间
 }
 
-// Engine 分层规则引擎
+// Engine 分层规则引擎.
 type Engine struct {
-	mu       sync.RWMutex
-	rules    map[string]*TieringRule
-	history  []*MigrationRecord
+	mu      sync.RWMutex
+	rules   map[string]*TieringRule
+	history []*MigrationRecord
 }
 
-// NewEngine 创建规则引擎
+// NewEngine 创建规则引擎.
 func NewEngine() *Engine {
 	return &Engine{
 		rules:   make(map[string]*TieringRule),
@@ -32,7 +32,7 @@ func NewEngine() *Engine {
 	}
 }
 
-// CreateRule 创建规则
+// CreateRule 创建规则.
 func (e *Engine) CreateRule(req *CreateRuleRequest) (*TieringRule, error) {
 	if req.Name == "" {
 		return nil, fmt.Errorf("rule name is required")
@@ -61,7 +61,7 @@ func (e *Engine) CreateRule(req *CreateRuleRequest) (*TieringRule, error) {
 	return rule, nil
 }
 
-// GetRule 获取规则
+// GetRule 获取规则.
 func (e *Engine) GetRule(id string) (*TieringRule, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -72,7 +72,7 @@ func (e *Engine) GetRule(id string) (*TieringRule, error) {
 	return r, nil
 }
 
-// ListRules 列出所有规则
+// ListRules 列出所有规则.
 func (e *Engine) ListRules() []*TieringRule {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -83,7 +83,7 @@ func (e *Engine) ListRules() []*TieringRule {
 	return result
 }
 
-// UpdateRule 更新规则
+// UpdateRule 更新规则.
 func (e *Engine) UpdateRule(id string, req *CreateRuleRequest) (*TieringRule, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -114,7 +114,7 @@ func (e *Engine) UpdateRule(id string, req *CreateRuleRequest) (*TieringRule, er
 	return r, nil
 }
 
-// DeleteRule 删除规则
+// DeleteRule 删除规则.
 func (e *Engine) DeleteRule(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -125,7 +125,7 @@ func (e *Engine) DeleteRule(id string) error {
 	return nil
 }
 
-// EvaluateFile 评估文件是否匹配任一启用的规则
+// EvaluateFile 评估文件是否匹配任一启用的规则.
 func (e *Engine) EvaluateFile(f *FileItem) []*TieringRule {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -141,7 +141,7 @@ func (e *Engine) EvaluateFile(f *FileItem) []*TieringRule {
 	return matched
 }
 
-// matchCondition 检查文件是否匹配规则条件
+// matchCondition 检查文件是否匹配规则条件.
 func (e *Engine) matchCondition(r *TieringRule, f *FileItem) bool {
 	switch r.Condition {
 	case ConditionAccessFreq:
@@ -155,7 +155,7 @@ func (e *Engine) matchCondition(r *TieringRule, f *FileItem) bool {
 	return false
 }
 
-// ExecuteMigration 执行数据迁移
+// ExecuteMigration 执行数据迁移.
 func (e *Engine) ExecuteMigration(rule *TieringRule, f *FileItem) (*MigrationRecord, error) {
 	rec := &MigrationRecord{
 		ID:         generateID(),
@@ -177,7 +177,7 @@ func (e *Engine) ExecuteMigration(rule *TieringRule, f *FileItem) (*MigrationRec
 	return rec, nil
 }
 
-// GetHistory 获取迁移历史
+// GetHistory 获取迁移历史.
 func (e *Engine) GetHistory() []*MigrationRecord {
 	e.mu.RLock()
 	defer e.mu.RUnlock()

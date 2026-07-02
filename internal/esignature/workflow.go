@@ -315,7 +315,7 @@ func (we *WorkflowEngine) ProcessStep(req StepActionRequest) (*WorkflowInstance,
 	}
 
 	// 获取工作流配置（已经持有写锁，直接访问）
-	wf, _ := we.workflows[inst.WorkflowID]
+	wf := we.workflows[inst.WorkflowID]
 
 	// 检查是否需要并行等待
 	if wf != nil && stepIndex < len(wf.Steps) {

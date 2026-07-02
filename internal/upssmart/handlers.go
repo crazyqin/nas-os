@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// APIResponse 统一 API 响应结构
+// APIResponse 统一 API 响应结构.
 type APIResponse struct {
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data,omitempty"`
@@ -18,7 +18,7 @@ type APIResponse struct {
 	Message string      `json:"message,omitempty"`
 }
 
-// UPSStatusResponse UPS 状态响应
+// UPSStatusResponse UPS 状态响应.
 type UPSStatusResponse struct {
 	Devices     []*UPSDevice `json:"devices"`
 	TotalCount  int          `json:"total_count"`
@@ -26,7 +26,7 @@ type UPSStatusResponse struct {
 	LastUpdated time.Time    `json:"last_updated"`
 }
 
-// BatteryResponse 电池详情响应
+// BatteryResponse 电池详情响应.
 type BatteryResponse struct {
 	Health        *BatteryHealth `json:"health"`
 	UPSID         string         `json:"ups_id"`
@@ -34,26 +34,26 @@ type BatteryResponse struct {
 	CurrentStatus UPSStatus      `json:"current_status"`
 }
 
-// EventsResponse 事件历史响应
+// EventsResponse 事件历史响应.
 type EventsResponse struct {
 	Events  []PowerEventRecord `json:"events"`
 	Total   int                `json:"total"`
 	HasMore bool               `json:"has_more"`
 }
 
-// TestRequest 测试请求
+// TestRequest 测试请求.
 type TestRequest struct {
 	UPSID string `json:"ups_id"`
 }
 
-// Handler UPS 管理 API 处理器
+// Handler UPS 管理 API 处理器.
 type Handler struct {
 	upsManager      *UPSManager
 	batteryManager  *BatteryManager
 	shutdownManager *ShutdownManager
 }
 
-// NewHandler 创建 API 处理器
+// NewHandler 创建 API 处理器.
 func NewHandler(
 	upsManager *UPSManager,
 	batteryManager *BatteryManager,
@@ -66,7 +66,7 @@ func NewHandler(
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux, basePath string) {
 	mux.HandleFunc(basePath+"/ups/status", h.handleUPSStatus)
 	mux.HandleFunc(basePath+"/ups/battery", h.handleBattery)
@@ -78,7 +78,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux, basePath string) {
 }
 
 // handleUPSStatus 处理 UPS 状态请求
-// GET /api/v1/ups/status
+// GET /api/v1/ups/status.
 func (h *Handler) handleUPSStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 GET 方法")
@@ -108,7 +108,7 @@ func (h *Handler) handleUPSStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleBattery 处理电池详情请求
-// GET /api/v1/ups/battery?ups_id=xxx
+// GET /api/v1/ups/battery?ups_id=xxx.
 func (h *Handler) handleBattery(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 GET 方法")
@@ -156,7 +156,7 @@ func (h *Handler) handleBattery(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleTest 处理电池测试请求
-// POST /api/v1/ups/test
+// POST /api/v1/ups/test.
 func (h *Handler) handleTest(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 POST 方法")
@@ -187,7 +187,7 @@ func (h *Handler) handleTest(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleShutdownPolicy 处理关机策略请求
-// GET/PUT /api/v1/ups/shutdown-policy
+// GET/PUT /api/v1/ups/shutdown-policy.
 func (h *Handler) handleShutdownPolicy(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -199,7 +199,7 @@ func (h *Handler) handleShutdownPolicy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getShutdownPolicy 获取关机策略
+// getShutdownPolicy 获取关机策略.
 func (h *Handler) getShutdownPolicy(w http.ResponseWriter, r *http.Request) {
 	policy := h.shutdownManager.GetPolicy()
 	writeJSON(w, http.StatusOK, APIResponse{
@@ -208,7 +208,7 @@ func (h *Handler) getShutdownPolicy(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// updateShutdownPolicy 更新关机策略
+// updateShutdownPolicy 更新关机策略.
 func (h *Handler) updateShutdownPolicy(w http.ResponseWriter, r *http.Request) {
 	var policy ShutdownPolicy
 	if err := json.NewDecoder(r.Body).Decode(&policy); err != nil {
@@ -237,7 +237,7 @@ func (h *Handler) updateShutdownPolicy(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleEvents 处理电源事件请求
-// GET /api/v1/ups/events?limit=50&type=power_out
+// GET /api/v1/ups/events?limit=50&type=power_out.
 func (h *Handler) handleEvents(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "仅支持 GET 方法")
@@ -277,7 +277,7 @@ func (h *Handler) handleEvents(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// writeJSON 写入 JSON 响应
+// writeJSON 写入 JSON 响应.
 func writeJSON(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
@@ -286,7 +286,7 @@ func writeJSON(w http.ResponseWriter, statusCode int, data interface{}) {
 	}
 }
 
-// writeError 写入错误响应
+// writeError 写入错误响应.
 func writeError(w http.ResponseWriter, statusCode int, message string) {
 	writeJSON(w, statusCode, APIResponse{
 		Success: false,

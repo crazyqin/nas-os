@@ -210,7 +210,8 @@ func TestGetEvents(t *testing.T) {
 
 func TestThreatLevelString(t *testing.T) {
 	tests := []struct {
-		l ThreatLevel; s string
+		l ThreatLevel
+		s string
 	}{
 		{LevelLow, "low"}, {LevelMedium, "medium"}, {LevelHigh, "high"},
 		{LevelCritical, "critical"}, {ThreatLevel(99), "unknown"},

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Language 语言类型
+// Language 语言类型.
 type Language string
 
 const (
@@ -16,7 +16,7 @@ const (
 	LangJapanese Language = "ja"
 )
 
-// WriteStyle 写作风格
+// WriteStyle 写作风格.
 type WriteStyle string
 
 const (
@@ -25,7 +25,7 @@ const (
 	StyleTechnical WriteStyle = "technical" // 技术
 )
 
-// TaskType 任务类型
+// TaskType 任务类型.
 type TaskType string
 
 const (
@@ -35,7 +35,7 @@ const (
 	TaskTemplate TaskType = "template" // 模板填充
 )
 
-// TemplateType 模板类型
+// TemplateType 模板类型.
 type TemplateType string
 
 const (
@@ -44,7 +44,7 @@ const (
 	TmplAnnounce TemplateType = "announce" // 公告
 )
 
-// WriteRequest 写作请求
+// WriteRequest 写作请求.
 type WriteRequest struct {
 	TaskType     TaskType     `json:"task_type"`
 	Content      string       `json:"content"`
@@ -54,7 +54,7 @@ type WriteRequest struct {
 	MaxTokens    int          `json:"max_tokens,omitempty"`
 }
 
-// WriteResult 写作结果
+// WriteResult 写作结果.
 type WriteResult struct {
 	ID         string     `json:"id"`
 	TaskType   TaskType   `json:"task_type"`
@@ -66,7 +66,7 @@ type WriteResult struct {
 	CreatedAt  time.Time  `json:"created_at"`
 }
 
-// Template 模板定义
+// Template 模板定义.
 type Template struct {
 	ID          string       `json:"id"`
 	Type        TemplateType `json:"type"`
@@ -77,13 +77,13 @@ type Template struct {
 	Variables   []string     `json:"variables"`
 }
 
-// TemplateRequest 模板请求
+// TemplateRequest 模板请求.
 type TemplateRequest struct {
 	TemplateID string            `json:"template_id"`
 	Variables  map[string]string `json:"variables"`
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	DefaultLanguage Language   `json:"default_language"`
 	DefaultStyle    WriteStyle `json:"default_style"`
@@ -91,7 +91,7 @@ type Config struct {
 	HistorySize     int        `json:"history_size"`
 }
 
-// Manager 管理器
+// Manager 管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	config    *Config
@@ -106,7 +106,7 @@ var (
 	ErrTemplateEmpty = errors.New("template is empty")
 )
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(dataFile string) *Manager {
 	return &Manager{
 		config: &Config{
@@ -119,7 +119,7 @@ func NewManager(dataFile string) *Manager {
 	}
 }
 
-// Initialize 初始化
+// Initialize 初始化.
 func (m *Manager) Initialize() error {
 	m.initTemplates()
 	return nil

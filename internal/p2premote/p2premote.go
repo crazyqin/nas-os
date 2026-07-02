@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-// ConnectionStatus represents the status of a P2P connection
+// ConnectionStatus represents the status of a P2P connection.
 type ConnectionStatus string
 
 const (
@@ -25,7 +25,7 @@ const (
 	StatusRelaying     ConnectionStatus = "relaying" // Using relay server
 )
 
-// PeerInfo represents a peer in the P2P network
+// PeerInfo represents a peer in the P2P network.
 type PeerInfo struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -37,7 +37,7 @@ type PeerInfo struct {
 	Metadata    map[string]string `json:"metadata,omitempty"`
 }
 
-// Tunnel represents an active P2P tunnel
+// Tunnel represents an active P2P tunnel.
 type Tunnel struct {
 	ID          string            `json:"id"`
 	LocalPeer   string            `json:"local_peer"`
@@ -55,17 +55,17 @@ type Tunnel struct {
 	Metadata    map[string]string `json:"metadata,omitempty"`
 }
 
-// P2PConfig configuration for the P2P service
+// P2PConfig configuration for the P2P service.
 type P2PConfig struct {
-	ListenPort     int           `json:"listen_port"`
-	RelayServers   []string      `json:"relay_servers"`
-	STUNServers    []string      `json:"stun_servers"`
-	EnableRelay    bool          `json:"enable_relay"`
-	EnableIPv6     bool          `json:"enable_ipv6"`
-	MaxPeers       int           `json:"max_peers"`
-	MaxTunnels     int           `json:"max_tunnels"`
-	KeepAlive      time.Duration `json:"keep_alive"`
-	ConnectTimeout time.Duration `json:"connect_timeout"`
+	ListenPort     int             `json:"listen_port"`
+	RelayServers   []string        `json:"relay_servers"`
+	STUNServers    []string        `json:"stun_servers"`
+	EnableRelay    bool            `json:"enable_relay"`
+	EnableIPv6     bool            `json:"enable_ipv6"`
+	MaxPeers       int             `json:"max_peers"`
+	MaxTunnels     int             `json:"max_tunnels"`
+	KeepAlive      time.Duration   `json:"keep_alive"`
+	ConnectTimeout time.Duration   `json:"connect_timeout"`
 	RateLimit      RateLimitConfig `json:"rate_limit"`
 }
 
@@ -73,15 +73,15 @@ type P2PConfig struct {
 // AES-256-GCM Crypto Engine
 // ============================================================
 
-// CryptoEngine provides AES-256-GCM encryption and decryption
+// CryptoEngine provides AES-256-GCM encryption and decryption.
 type CryptoEngine struct {
 	key []byte // 32 bytes for AES-256
 }
 
 const (
-	// AES256GCMKeySize is the required key size for AES-256-GCM
+	// AES256GCMKeySize is the required key size for AES-256-GCM.
 	AES256GCMKeySize = 32
-	// AESGCMNonceSize is the nonce size for AES-GCM
+	// AESGCMNonceSize is the nonce size for AES-GCM.
 	AESGCMNonceSize = 12
 )
 
@@ -94,7 +94,7 @@ func NewCryptoEngine(key []byte) (*CryptoEngine, error) {
 	return &CryptoEngine{key: key}, nil
 }
 
-// NewCryptoEngineRandom generates a random AES-256 key and returns the engine
+// NewCryptoEngineRandom generates a random AES-256 key and returns the engine.
 func NewCryptoEngineRandom() (*CryptoEngine, error) {
 	key := make([]byte, AES256GCMKeySize)
 	if _, err := rand.Read(key); err != nil {
@@ -151,7 +151,7 @@ func (ce *CryptoEngine) Decrypt(ciphertext []byte) ([]byte, error) {
 	return plaintext, nil
 }
 
-// KeyHex returns the hex-encoded key (useful for sharing / config)
+// KeyHex returns the hex-encoded key (useful for sharing / config).
 func (ce *CryptoEngine) KeyHex() string {
 	return hex.EncodeToString(ce.key)
 }
@@ -160,7 +160,7 @@ func (ce *CryptoEngine) KeyHex() string {
 // Rate Limiter (Token Bucket)
 // ============================================================
 
-// RateLimitConfig configures the token-bucket rate limiter
+// RateLimitConfig configures the token-bucket rate limiter.
 type RateLimitConfig struct {
 	// Rate is the number of tokens added per second (sustained throughput)
 	Rate float64 `json:"rate"`
@@ -168,7 +168,7 @@ type RateLimitConfig struct {
 	Burst int `json:"burst"`
 }
 
-// RateLimiter implements a token-bucket rate limiter
+// RateLimiter implements a token-bucket rate limiter.
 type RateLimiter struct {
 	mu         sync.Mutex
 	rate       float64   // tokens per second
@@ -247,7 +247,7 @@ func (rl *RateLimiter) Wait(ctx context.Context, n int) error {
 	}
 }
 
-// Tokens returns the current number of available tokens (for diagnostics)
+// Tokens returns the current number of available tokens (for diagnostics).
 func (rl *RateLimiter) Tokens() float64 {
 	rl.mu.Lock()
 	defer rl.mu.Unlock()
@@ -255,7 +255,7 @@ func (rl *RateLimiter) Tokens() float64 {
 	return rl.tokens
 }
 
-// refill adds tokens based on elapsed time; caller must hold rl.mu
+// refill adds tokens based on elapsed time; caller must hold rl.mu.
 func (rl *RateLimiter) refill() {
 	now := time.Now()
 	elapsed := now.Sub(rl.lastRefill).Seconds()
@@ -267,21 +267,21 @@ func (rl *RateLimiter) refill() {
 	}
 }
 
-// P2PService manages P2P connections
+// P2PService manages P2P connections.
 type P2PService struct {
-	config       P2PConfig
-	peers        map[string]*PeerInfo
-	tunnels      map[string]*Tunnel
-	mu           sync.RWMutex
-	ctx          context.Context
-	cancel       context.CancelFunc
-	nodeID       string
-	stats        P2PStats
-	crypto       *CryptoEngine
-	rateLimiter  *RateLimiter
+	config      P2PConfig
+	peers       map[string]*PeerInfo
+	tunnels     map[string]*Tunnel
+	mu          sync.RWMutex
+	ctx         context.Context
+	cancel      context.CancelFunc
+	nodeID      string
+	stats       P2PStats
+	crypto      *CryptoEngine
+	rateLimiter *RateLimiter
 }
 
-// P2PStats contains P2P statistics
+// P2PStats contains P2P statistics.
 type P2PStats struct {
 	TotalPeers     int       `json:"total_peers"`
 	ActiveTunnels  int       `json:"active_tunnels"`
@@ -290,7 +290,7 @@ type P2PStats struct {
 	Uptime         time.Time `json:"uptime"`
 }
 
-// NewP2PService creates a new P2P service
+// NewP2PService creates a new P2P service.
 func NewP2PService(config P2PConfig) *P2PService {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -337,7 +337,7 @@ func NewP2PService(config P2PConfig) *P2PService {
 	}
 }
 
-// Start begins the P2P service
+// Start begins the P2P service.
 func (s *P2PService) Start() error {
 	log.Printf("[P2PRemote] Starting P2P service (Node: %s)", s.nodeID)
 
@@ -355,7 +355,7 @@ func (s *P2PService) Start() error {
 	return nil
 }
 
-// Stop gracefully stops the service
+// Stop gracefully stops the service.
 func (s *P2PService) Stop() error {
 	s.cancel()
 
@@ -370,7 +370,7 @@ func (s *P2PService) Stop() error {
 	return nil
 }
 
-// RegisterPeer registers a new peer
+// RegisterPeer registers a new peer.
 func (s *P2PService) RegisterPeer(peer *PeerInfo) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -391,7 +391,7 @@ func (s *P2PService) RegisterPeer(peer *PeerInfo) error {
 	return nil
 }
 
-// UnregisterPeer removes a peer
+// UnregisterPeer removes a peer.
 func (s *P2PService) UnregisterPeer(peerID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -415,7 +415,7 @@ func (s *P2PService) UnregisterPeer(peerID string) error {
 	return nil
 }
 
-// GetPeer returns peer information
+// GetPeer returns peer information.
 func (s *P2PService) GetPeer(peerID string) (*PeerInfo, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -427,7 +427,7 @@ func (s *P2PService) GetPeer(peerID string) (*PeerInfo, error) {
 	return peer, nil
 }
 
-// ListPeers returns all registered peers
+// ListPeers returns all registered peers.
 func (s *P2PService) ListPeers() []*PeerInfo {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -483,7 +483,7 @@ func (s *P2PService) CreateTunnel(remotePeerID string, localPort, remotePort int
 	return tunnel, nil
 }
 
-// CloseTunnel closes a P2P tunnel
+// CloseTunnel closes a P2P tunnel.
 func (s *P2PService) CloseTunnel(tunnelID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -500,7 +500,7 @@ func (s *P2PService) CloseTunnel(tunnelID string) error {
 	return nil
 }
 
-// GetTunnel returns tunnel information
+// GetTunnel returns tunnel information.
 func (s *P2PService) GetTunnel(tunnelID string) (*Tunnel, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -512,7 +512,7 @@ func (s *P2PService) GetTunnel(tunnelID string) (*Tunnel, error) {
 	return tunnel, nil
 }
 
-// ListTunnels returns all tunnels
+// ListTunnels returns all tunnels.
 func (s *P2PService) ListTunnels() []*Tunnel {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -524,7 +524,7 @@ func (s *P2PService) ListTunnels() []*Tunnel {
 	return tunnels
 }
 
-// GetStats returns P2P statistics
+// GetStats returns P2P statistics.
 func (s *P2PService) GetStats() P2PStats {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -541,17 +541,17 @@ func (s *P2PService) GetStats() P2PStats {
 	return stats
 }
 
-// GetCrypto returns the crypto engine (for external use / testing)
+// GetCrypto returns the crypto engine (for external use / testing).
 func (s *P2PService) GetCrypto() *CryptoEngine {
 	return s.crypto
 }
 
-// GetRateLimiter returns the rate limiter (for diagnostics / testing)
+// GetRateLimiter returns the rate limiter (for diagnostics / testing).
 func (s *P2PService) GetRateLimiter() *RateLimiter {
 	return s.rateLimiter
 }
 
-// establishTunnel establishes a P2P tunnel
+// establishTunnel establishes a P2P tunnel.
 func (s *P2PService) establishTunnel(tunnel *Tunnel, remotePeer *PeerInfo) {
 	// Simulate NAT traversal and connection
 	time.Sleep(2 * time.Second)
@@ -573,7 +573,7 @@ func (s *P2PService) establishTunnel(tunnel *Tunnel, remotePeer *PeerInfo) {
 	log.Printf("[P2PRemote] Tunnel established: %s", tunnel.ID)
 }
 
-// natTraversalLoop performs NAT traversal
+// natTraversalLoop performs NAT traversal.
 func (s *P2PService) natTraversalLoop() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
@@ -588,7 +588,7 @@ func (s *P2PService) natTraversalLoop() {
 	}
 }
 
-// keepAliveLoop sends keepalive packets
+// keepAliveLoop sends keepalive packets.
 func (s *P2PService) keepAliveLoop() {
 	ticker := time.NewTicker(s.config.KeepAlive)
 	defer ticker.Stop()
@@ -609,7 +609,7 @@ func (s *P2PService) keepAliveLoop() {
 	}
 }
 
-// statsLoop logs statistics
+// statsLoop logs statistics.
 func (s *P2PService) statsLoop() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
@@ -626,7 +626,7 @@ func (s *P2PService) statsLoop() {
 	}
 }
 
-// Helper functions
+// Helper functions.
 func generateNodeID() (string, error) {
 	bytes := make([]byte, 16)
 	if _, err := rand.Read(bytes); err != nil {

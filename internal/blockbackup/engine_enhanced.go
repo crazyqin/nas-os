@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// ProgressCallback 进度回调函数
+// ProgressCallback 进度回调函数.
 type ProgressCallback func(jobID string, progress int, bytesProcessed uint64)
 
 // BackupChain 备份链 (full → incremental → incremental ...)
@@ -23,7 +23,7 @@ type BackupChain struct {
 	mu           sync.RWMutex
 }
 
-// ChainEntry 备份链条目
+// ChainEntry 备份链条目.
 type ChainEntry struct {
 	JobID     string    `json:"job_id"`
 	SnapID    string    `json:"snap_id"`
@@ -32,14 +32,14 @@ type ChainEntry struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// BackupChainManager 备份链管理器
+// BackupChainManager 备份链管理器.
 type BackupChainManager struct {
 	chains map[string]*BackupChain // key = rootSnapshot ID
 	mu     sync.RWMutex
 	logger *zap.Logger
 }
 
-// BackupScheduler 备份调度器
+// BackupScheduler 备份调度器.
 type BackupScheduler struct {
 	cron    *cron.Cron
 	engine  *BlockBackupEngine
@@ -49,7 +49,7 @@ type BackupScheduler struct {
 	running bool
 }
 
-// ScheduledBackup 调度备份配置
+// ScheduledBackup 调度备份配置.
 type ScheduledBackup struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
@@ -60,7 +60,7 @@ type ScheduledBackup struct {
 	Enabled  bool   `json:"enabled"`
 }
 
-// BandwidthLimiter 带宽限速器
+// BandwidthLimiter 带宽限速器.
 type BandwidthLimiter struct {
 	limitBytesPerSec int64
 	bytesThisSecond  int64
@@ -68,7 +68,7 @@ type BandwidthLimiter struct {
 	mu               sync.Mutex
 }
 
-// ParallelExecutor 并行备份执行器
+// ParallelExecutor 并行备份执行器.
 type ParallelExecutor struct {
 	maxParallel int
 	semaphore   chan struct{}
@@ -76,7 +76,7 @@ type ParallelExecutor struct {
 	logger      *zap.Logger
 }
 
-// DifferentialBackupRequest 差异备份请求
+// DifferentialBackupRequest 差异备份请求.
 type DifferentialBackupRequest struct {
 	Source      string `json:"source"`
 	Destination string `json:"destination"`
@@ -91,7 +91,7 @@ func NewBackupChainManager(logger *zap.Logger) *BackupChainManager {
 	}
 }
 
-// CreateChain 创建新的备份链 (以全量备份为根)
+// CreateChain 创建新的备份链 (以全量备份为根).
 func (bcm *BackupChainManager) CreateChain(rootSnapID, jobID string) *BackupChain {
 	bcm.mu.Lock()
 	defer bcm.mu.Unlock()
@@ -112,7 +112,7 @@ func (bcm *BackupChainManager) CreateChain(rootSnapID, jobID string) *BackupChai
 	return chain
 }
 
-// AppendToChain 向备份链追加增量/差异条目
+// AppendToChain 向备份链追加增量/差异条目.
 func (bcm *BackupChainManager) AppendToChain(rootSnapID, jobID, snapID, backupType, parentSnapID string) error {
 	bcm.mu.Lock()
 	defer bcm.mu.Unlock()
@@ -141,14 +141,14 @@ func (bcm *BackupChainManager) AppendToChain(rootSnapID, jobID, snapID, backupTy
 	return nil
 }
 
-// GetChain 获取备份链
+// GetChain 获取备份链.
 func (bcm *BackupChainManager) GetChain(rootSnapID string) *BackupChain {
 	bcm.mu.RLock()
 	defer bcm.mu.RUnlock()
 	return bcm.chains[rootSnapID]
 }
 
-// ListChains 列出所有备份链
+// ListChains 列出所有备份链.
 func (bcm *BackupChainManager) ListChains() []*BackupChain {
 	bcm.mu.RLock()
 	defer bcm.mu.RUnlock()
@@ -159,7 +159,7 @@ func (bcm *BackupChainManager) ListChains() []*BackupChain {
 	return chains
 }
 
-// GetLatestFullSnapshot 获取最近一次全量快照
+// GetLatestFullSnapshot 获取最近一次全量快照.
 func (bbe *BlockBackupEngine) GetLatestFullSnapshot() *BlockSnapshot {
 	bbe.mu.RLock()
 	defer bbe.mu.RUnlock()
@@ -177,7 +177,7 @@ func (bbe *BlockBackupEngine) GetLatestFullSnapshot() *BlockSnapshot {
 
 // --- Differential Backup ---
 
-// CreateDifferentialBackup 创建差异备份 (基于最后一次全量备份)
+// CreateDifferentialBackup 创建差异备份 (基于最后一次全量备份).
 func (bbe *BlockBackupEngine) CreateDifferentialBackup(ctx context.Context, source, dest string) (*BackupJob, error) {
 	// 查找最后一次全量快照
 	baseSnap := bbe.GetLatestFullSnapshot()
@@ -256,14 +256,14 @@ func (bbe *BlockBackupEngine) runDifferentialBackup(ctx context.Context, job *Ba
 
 // --- Progress Callback ---
 
-// SetProgressCallback 设置进度回调 (可在任意 job 上使用)
+// SetProgressCallback 设置进度回调 (可在任意 job 上使用).
 func (bbe *BlockBackupEngine) SetProgressCallback(cb ProgressCallback) {
 	bbe.mu.Lock()
 	bbe.progressCallback = cb
 	bbe.mu.Unlock()
 }
 
-// ReportProgress 报告进度
+// ReportProgress 报告进度.
 func (bbe *BlockBackupEngine) ReportProgress(jobID string, progress int, bytesProcessed uint64) {
 	bbe.mu.RLock()
 	cb := bbe.progressCallback
@@ -283,7 +283,7 @@ func NewBandwidthLimiter(limitMBps int) *BandwidthLimiter {
 	}
 }
 
-// Acquire 带宽限制 - 阻塞直到有可用带宽配额
+// Acquire 带宽限制 - 阻塞直到有可用带宽配额.
 func (bl *BandwidthLimiter) Acquire(bytes int64) {
 	if bl.limitBytesPerSec <= 0 {
 		return // 无限制
@@ -320,7 +320,7 @@ func NewParallelExecutor(maxParallel int, logger *zap.Logger) *ParallelExecutor 
 	}
 }
 
-// Submit 提交并行任务
+// Submit 提交并行任务.
 func (pe *ParallelExecutor) Submit(fn func()) {
 	pe.activeJobs.Add(1)
 	go func() {
@@ -333,12 +333,12 @@ func (pe *ParallelExecutor) Submit(fn func()) {
 	}()
 }
 
-// Wait 等待所有任务完成
+// Wait 等待所有任务完成.
 func (pe *ParallelExecutor) Wait() {
 	pe.activeJobs.Wait()
 }
 
-// ActiveCount 当前活跃任务数
+// ActiveCount 当前活跃任务数.
 func (pe *ParallelExecutor) ActiveCount() int {
 	return len(pe.semaphore)
 }
@@ -354,7 +354,7 @@ func NewBackupScheduler(engine *BlockBackupEngine, logger *zap.Logger) *BackupSc
 	}
 }
 
-// AddSchedule 添加定时备份
+// AddSchedule 添加定时备份.
 func (bs *BackupScheduler) AddSchedule(cfg ScheduledBackup) error {
 	bs.mu.Lock()
 	defer bs.mu.Unlock()
@@ -410,7 +410,7 @@ func (bs *BackupScheduler) AddSchedule(cfg ScheduledBackup) error {
 	return nil
 }
 
-// RemoveSchedule 移除调度
+// RemoveSchedule 移除调度.
 func (bs *BackupScheduler) RemoveSchedule(id string) {
 	bs.mu.Lock()
 	defer bs.mu.Unlock()
@@ -422,7 +422,7 @@ func (bs *BackupScheduler) RemoveSchedule(id string) {
 	}
 }
 
-// Start 启动调度器
+// Start 启动调度器.
 func (bs *BackupScheduler) Start() {
 	bs.mu.Lock()
 	defer bs.mu.Unlock()
@@ -434,7 +434,7 @@ func (bs *BackupScheduler) Start() {
 	bs.logger.Info("Backup scheduler started")
 }
 
-// Stop 停止调度器
+// Stop 停止调度器.
 func (bs *BackupScheduler) Stop() {
 	bs.mu.Lock()
 	defer bs.mu.Unlock()
@@ -446,7 +446,7 @@ func (bs *BackupScheduler) Stop() {
 	bs.logger.Info("Backup scheduler stopped")
 }
 
-// ListSchedules 列出所有调度
+// ListSchedules 列出所有调度.
 func (bs *BackupScheduler) ListSchedules() []cron.Entry {
 	bs.mu.RLock()
 	defer bs.mu.RUnlock()
@@ -455,7 +455,7 @@ func (bs *BackupScheduler) ListSchedules() []cron.Entry {
 
 // --- Enhanced Engine with parallel + bandwidth ---
 
-// RunParallelBackups 并行执行多个备份任务
+// RunParallelBackups 并行执行多个备份任务.
 func (bbe *BlockBackupEngine) RunParallelBackups(ctx context.Context, requests []DifferentialBackupRequest, backupType string) ([]*BackupJob, error) {
 	executor := NewParallelExecutor(bbe.config.Parallel, bbe.logger)
 	results := make([]*BackupJob, len(requests))
@@ -504,7 +504,7 @@ func (bbe *BlockBackupEngine) RunParallelBackups(ctx context.Context, requests [
 	return results, nil
 }
 
-// ListSnapshots 列出所有快照
+// ListSnapshots 列出所有快照.
 func (bbe *BlockBackupEngine) ListSnapshots() []*BlockSnapshot {
 	bbe.mu.RLock()
 	defer bbe.mu.RUnlock()
@@ -518,7 +518,7 @@ func (bbe *BlockBackupEngine) ListSnapshots() []*BlockSnapshot {
 
 // --- Helpers ---
 
-// shellQuote 简单 shell 参数转义
+// shellQuote 简单 shell 参数转义.
 func shellQuote(s string) string {
 	return "'" + strings.ReplaceAll(s, "'", "'\\''") + "'"
 }

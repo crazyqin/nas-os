@@ -9,28 +9,28 @@ import (
 
 // ========== 兼容性验证器 ==========
 
-// CompatibilityChecker 兼容性检查器
+// CompatibilityChecker 兼容性检查器.
 type CompatibilityChecker struct {
-	mu              sync.RWMutex
+	mu               sync.RWMutex
 	supportedDevices []SupportedDevice
-	minRequirements MinRequirements
+	minRequirements  MinRequirements
 }
 
-// MinRequirements 最低运行要求
+// MinRequirements 最低运行要求.
 type MinRequirements struct {
-	MinArchBits  int // 最低位宽 (32/64)
-	MinMemoryMB  int // 最低内存 (MB)
-	MinCPUCores  int // 最低 CPU 核心数
+	MinArchBits  int        // 最低位宽 (32/64)
+	MinMemoryMB  int        // 最低内存 (MB)
+	MinCPUCores  int        // 最低 CPU 核心数
 	RequiredArch []ArchType // 支持的架构列表
 }
 
-// NewCompatibilityChecker 创建兼容性检查器
+// NewCompatibilityChecker 创建兼容性检查器.
 func NewCompatibilityChecker() *CompatibilityChecker {
 	checker := &CompatibilityChecker{
 		minRequirements: MinRequirements{
-			MinArchBits: 32,
-			MinMemoryMB: 512,
-			MinCPUCores: 2,
+			MinArchBits:  32,
+			MinMemoryMB:  512,
+			MinCPUCores:  2,
 			RequiredArch: []ArchType{ArchARM64, ArchARMv7},
 		},
 	}
@@ -39,7 +39,7 @@ func NewCompatibilityChecker() *CompatibilityChecker {
 }
 
 // initSupportedDevices 初始化支持的设备列表
-// 参考飞牛 fnOS 2026年1月 ARM 公测版首批适配设备
+// 参考飞牛 fnOS 2026年1月 ARM 公测版首批适配设备.
 func (c *CompatibilityChecker) initSupportedDevices() {
 	c.supportedDevices = []SupportedDevice{
 		// ===== Rockchip 系列 =====
@@ -104,7 +104,7 @@ func (c *CompatibilityChecker) initSupportedDevices() {
 	}
 }
 
-// Check 兼容性检查
+// Check 兼容性检查.
 func (c *CompatibilityChecker) Check(info *ARMHardwareInfo) (*CompatReport, error) {
 	if info == nil {
 		return nil, fmt.Errorf("hardware info is nil")
@@ -191,7 +191,7 @@ func (c *CompatibilityChecker) Check(info *ARMHardwareInfo) (*CompatReport, erro
 	return report, nil
 }
 
-// checkArchCompat 架构兼容性检查
+// checkArchCompat 架构兼容性检查.
 func (c *CompatibilityChecker) checkArchCompat(info *ARMHardwareInfo) (*CompatIssue, int) {
 	supported := false
 	for _, arch := range c.minRequirements.RequiredArch {
@@ -222,7 +222,7 @@ func (c *CompatibilityChecker) checkArchCompat(info *ARMHardwareInfo) (*CompatIs
 	return nil, 0
 }
 
-// checkMemoryCompat 内存兼容性检查
+// checkMemoryCompat 内存兼容性检查.
 func (c *CompatibilityChecker) checkMemoryCompat(info *ARMHardwareInfo) (*CompatIssue, int) {
 	if info.MemoryMB < c.minRequirements.MinMemoryMB {
 		return &CompatIssue{
@@ -254,7 +254,7 @@ func (c *CompatibilityChecker) checkMemoryCompat(info *ARMHardwareInfo) (*Compat
 	return nil, 0
 }
 
-// checkCPUCompat CPU 兼容性检查
+// checkCPUCompat CPU 兼容性检查.
 func (c *CompatibilityChecker) checkCPUCompat(info *ARMHardwareInfo) (*CompatIssue, int) {
 	if info.CPUCores < c.minRequirements.MinCPUCores {
 		return &CompatIssue{
@@ -277,7 +277,7 @@ func (c *CompatibilityChecker) checkCPUCompat(info *ARMHardwareInfo) (*CompatIss
 	return nil, 0
 }
 
-// checkStorageCompat 存储兼容性检查
+// checkStorageCompat 存储兼容性检查.
 func (c *CompatibilityChecker) checkStorageCompat(info *ARMHardwareInfo) (*CompatIssue, int) {
 	if !info.HasUSB3 && !info.HasPCIe && !info.HasSATA {
 		return &CompatIssue{
@@ -300,7 +300,7 @@ func (c *CompatibilityChecker) checkStorageCompat(info *ARMHardwareInfo) (*Compa
 	return nil, 0
 }
 
-// checkNetworkCompat 网络兼容性检查
+// checkNetworkCompat 网络兼容性检查.
 func (c *CompatibilityChecker) checkNetworkCompat(info *ARMHardwareInfo) (*CompatIssue, int) {
 	if !info.HasGbE {
 		return &CompatIssue{
@@ -314,7 +314,7 @@ func (c *CompatibilityChecker) checkNetworkCompat(info *ARMHardwareInfo) (*Compa
 	return nil, 0
 }
 
-// checkFeatureCompat CPU 特性兼容性检查
+// checkFeatureCompat CPU 特性兼容性检查.
 func (c *CompatibilityChecker) checkFeatureCompat(info *ARMHardwareInfo) ([]CompatIssue, int) {
 	var issues []CompatIssue
 	penalty := 0
@@ -360,7 +360,7 @@ func (c *CompatibilityChecker) checkFeatureCompat(info *ARMHardwareInfo) ([]Comp
 	return issues, penalty
 }
 
-// checkKnownDevice 检查已知支持设备列表
+// checkKnownDevice 检查已知支持设备列表.
 func (c *CompatibilityChecker) checkKnownDevice(info *ARMHardwareInfo) *SupportedDevice {
 	for _, dev := range c.supportedDevices {
 		if dev.SoC == info.SoC && (dev.SoCModel == info.SoCModel || info.SoCModel == "") {
@@ -370,7 +370,7 @@ func (c *CompatibilityChecker) checkKnownDevice(info *ARMHardwareInfo) *Supporte
 	return nil
 }
 
-// determineOverallLevel 确定整体兼容等级
+// determineOverallLevel 确定整体兼容等级.
 func (c *CompatibilityChecker) determineOverallLevel(score int, issues []CompatIssue) CompatLevel {
 	// 检查是否有不支持的问题
 	for _, issue := range issues {
@@ -391,7 +391,7 @@ func (c *CompatibilityChecker) determineOverallLevel(score int, issues []CompatI
 	}
 }
 
-// GetSupportedDevices 获取支持的设备列表
+// GetSupportedDevices 获取支持的设备列表.
 func (c *CompatibilityChecker) GetSupportedDevices() []SupportedDevice {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -401,7 +401,7 @@ func (c *CompatibilityChecker) GetSupportedDevices() []SupportedDevice {
 	return result
 }
 
-// SetMinRequirements 设置最低要求
+// SetMinRequirements 设置最低要求.
 func (c *CompatibilityChecker) SetMinRequirements(req MinRequirements) {
 	c.mu.Lock()
 	defer c.mu.Unlock()

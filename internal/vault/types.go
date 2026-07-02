@@ -7,20 +7,20 @@ import (
 	"time"
 )
 
-// 支持的加密算法常量
+// 支持的加密算法常量.
 const (
 	AlgorithmAES256GCM        = "aes-256-gcm"
 	AlgorithmChaCha20Poly1305 = "chacha20-poly1305"
 )
 
-// 保险库状态常量
+// 保险库状态常量.
 const (
 	StatusLocked   = "locked"
 	StatusUnlocked = "unlocked"
 	StatusError    = "error"
 )
 
-// 密钥派生算法常量
+// 密钥派生算法常量.
 const (
 	KeyDerivationArgon2id = "argon2id"
 	KeyDerivationPBKDF2   = "pbkdf2"
@@ -103,25 +103,25 @@ func (e *VaultError) Unwrap() error {
 	return e.Err
 }
 
-// 预定义错误码
+// 预定义错误码.
 var (
-	// ErrVaultNotFound 保险库不存在
+	// ErrVaultNotFound 保险库不存在.
 	ErrVaultNotFound = &VaultError{Code: "VAULT_NOT_FOUND", Message: "保险库不存在"}
-	// ErrVaultAlreadyExists 保险库名称已存在
+	// ErrVaultAlreadyExists 保险库名称已存在.
 	ErrVaultAlreadyExists = &VaultError{Code: "VAULT_ALREADY_EXISTS", Message: "保险库已存在"}
-	// ErrVaultLocked 保险库已锁定，无法执行操作
+	// ErrVaultLocked 保险库已锁定，无法执行操作.
 	ErrVaultLocked = &VaultError{Code: "VAULT_LOCKED", Message: "保险库已锁定"}
-	// ErrVaultAlreadyUnlocked 保险库已处于解锁状态
+	// ErrVaultAlreadyUnlocked 保险库已处于解锁状态.
 	ErrVaultAlreadyUnlocked = &VaultError{Code: "VAULT_ALREADY_UNLOCKED", Message: "保险库已解锁"}
-	// ErrInvalidPassphrase 密码错误
+	// ErrInvalidPassphrase 密码错误.
 	ErrInvalidPassphrase = &VaultError{Code: "INVALID_PASSPHRASE", Message: "密码错误"}
-	// ErrInvalidAlgorithm 不支持的加密算法
+	// ErrInvalidAlgorithm 不支持的加密算法.
 	ErrInvalidAlgorithm = &VaultError{Code: "INVALID_ALGORITHM", Message: "不支持的加密算法"}
-	// ErrMaxAttemptsExceeded 解锁失败次数超过上限
+	// ErrMaxAttemptsExceeded 解锁失败次数超过上限.
 	ErrMaxAttemptsExceeded = &VaultError{Code: "MAX_ATTEMPTS_EXCEEDED", Message: "解锁尝试次数已超出上限"}
-	// ErrInvalidPath 无效的挂载路径
+	// ErrInvalidPath 无效的挂载路径.
 	ErrInvalidPath = &VaultError{Code: "INVALID_PATH", Message: "无效的挂载路径"}
-	// ErrVaultNotEmpty 保险库非空，无法删除
+	// ErrVaultNotEmpty 保险库非空，无法删除.
 	ErrVaultNotEmpty = &VaultError{Code: "VAULT_NOT_EMPTY", Message: "保险库非空，无法删除"}
 )
 

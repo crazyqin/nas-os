@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// CloneType 克隆类型
+// CloneType 克隆类型.
 type CloneType string
 
 const (
@@ -18,7 +18,7 @@ const (
 	CloneLinked CloneType = "linked" // 链接克隆（COW）
 )
 
-// CloneStatus 克隆状态
+// CloneStatus 克隆状态.
 type CloneStatus string
 
 const (
@@ -28,7 +28,7 @@ const (
 	StatusFailed     CloneStatus = "failed"
 )
 
-// BlockCloneTask 块克隆任务
+// BlockCloneTask 块克隆任务.
 type BlockCloneTask struct {
 	ID          string      `json:"id"`
 	SourceLUN   string      `json:"source_lun"`
@@ -44,7 +44,7 @@ type BlockCloneTask struct {
 	ErrorMsg    string      `json:"error_msg,omitempty"`
 }
 
-// LUNInfo LUN信息
+// LUNInfo LUN信息.
 type LUNInfo struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -56,7 +56,7 @@ type LUNInfo struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// CloneStats 克隆统计
+// CloneStats 克隆统计.
 type CloneStats struct {
 	TotalClones      int64   `json:"total_clones"`
 	SuccessfulClones int64   `json:"successful_clones"`
@@ -65,7 +65,7 @@ type CloneStats struct {
 	AverageSpeedMBps float64 `json:"average_speed_mbps"`
 }
 
-// BlockCloneManager 块克隆管理器
+// BlockCloneManager 块克隆管理器.
 type BlockCloneManager struct {
 	mu     sync.RWMutex
 	config ManagerConfig
@@ -74,7 +74,7 @@ type BlockCloneManager struct {
 	stats  CloneStats
 }
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
 	MaxConcurrentClones int       `json:"max_concurrent_clones"`
 	DefaultCloneType    CloneType `json:"default_clone_type"`
@@ -84,7 +84,7 @@ type ManagerConfig struct {
 	TargetIOPS          int       `json:"target_iops"`
 }
 
-// DefaultManagerConfig 默认配置
+// DefaultManagerConfig 默认配置.
 func DefaultManagerConfig() ManagerConfig {
 	return ManagerConfig{
 		MaxConcurrentClones: 4,
@@ -96,7 +96,7 @@ func DefaultManagerConfig() ManagerConfig {
 	}
 }
 
-// 预定义错误
+// 预定义错误.
 var (
 	ErrLUNNotFound      = errors.New("LUN not found")
 	ErrLUNExists        = errors.New("LUN already exists")

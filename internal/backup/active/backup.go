@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// BackupType 备份类型
+// BackupType 备份类型.
 type BackupType string
 
 const (
@@ -24,7 +24,7 @@ const (
 	BackupTypeDifferential BackupType = "differential" // 差异备份
 )
 
-// BackupStatus 备份任务状态
+// BackupStatus 备份任务状态.
 type BackupStatus string
 
 const (
@@ -35,7 +35,7 @@ const (
 	BackupStatusCancelled BackupStatus = "cancelled"
 )
 
-// BackupPolicy 备份策略
+// BackupPolicy 备份策略.
 type BackupPolicy struct {
 	Type              BackupType `json:"type"`                // 备份类型
 	FullInterval      int        `json:"full_interval"`       // 全量备份间隔天数（增量/差异模式下使用）
@@ -49,7 +49,7 @@ type BackupPolicy struct {
 	MaxBandwidth      int        `json:"max_bandwidth"`       // 最大带宽限制（MB/s，0 无限制）
 }
 
-// ScheduleConfig 定时备份配置
+// ScheduleConfig 定时备份配置.
 type ScheduleConfig struct {
 	Enabled       bool   `json:"enabled"`         // 是否启用定时备份
 	Cron          string `json:"cron"`            // Cron 表达式
@@ -59,7 +59,7 @@ type ScheduleConfig struct {
 	SkipOnBattery bool   `json:"skip_on_battery"` // 电池供电时跳过
 }
 
-// BackupSource 备份源配置
+// BackupSource 备份源配置.
 type BackupSource struct {
 	Type     string   `json:"type"`     // file, directory, volume, database
 	Paths    []string `json:"paths"`    // 源路径列表
@@ -67,7 +67,7 @@ type BackupSource struct {
 	Includes []string `json:"includes"` // 包含模式（为空时包含全部）
 }
 
-// BackupDestination 备份目标配置
+// BackupDestination 备份目标配置.
 type BackupDestination struct {
 	Type       string `json:"type"`       // local, s3, nfs, smb, rsync
 	Path       string `json:"path"`       // 目标路径
@@ -76,7 +76,7 @@ type BackupDestination struct {
 	Credential string `json:"credential"` // 凭证标识（引用密钥管理）
 }
 
-// BackupJob 备份任务
+// BackupJob 备份任务.
 type BackupJob struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`        // 任务名称
@@ -95,7 +95,7 @@ type BackupJob struct {
 	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
-// BackupResult 备份执行结果
+// BackupResult 备份执行结果.
 type BackupResult struct {
 	SnapshotID     string        `json:"snapshot_id"`     // 生成的快照 ID
 	BackupType     BackupType    `json:"backup_type"`     // 实际备份类型
@@ -110,7 +110,7 @@ type BackupResult struct {
 	CompletedAt    time.Time     `json:"completed_at"`
 }
 
-// BackupSnapshot 备份快照信息
+// BackupSnapshot 备份快照信息.
 type BackupSnapshot struct {
 	ID         string            `json:"id"`
 	JobID      string            `json:"job_id"`      // 所属任务 ID
@@ -123,7 +123,7 @@ type BackupSnapshot struct {
 	CreatedAt  time.Time         `json:"created_at"`
 }
 
-// BackupManager 备份管理器
+// BackupManager 备份管理器.
 type BackupManager struct {
 	mu         sync.RWMutex
 	jobs       map[string]*BackupJob
@@ -134,7 +134,7 @@ type BackupManager struct {
 	stopCh     chan struct{}
 }
 
-// ManagerConfig 备份管理器配置
+// ManagerConfig 备份管理器配置.
 type ManagerConfig struct {
 	StoragePath   string `json:"storage_path"`   // 备份存储根路径
 	MaxConcurrent int    `json:"max_concurrent"` // 最大并发备份任务数
@@ -143,7 +143,7 @@ type ManagerConfig struct {
 	WorkerCount   int    `json:"worker_count"`   // 工作线程数
 }
 
-// NewBackupManager 创建备份管理器
+// NewBackupManager 创建备份管理器.
 func NewBackupManager(configPath string, logger *zap.Logger) (*BackupManager, error) {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -173,7 +173,7 @@ func NewBackupManager(configPath string, logger *zap.Logger) (*BackupManager, er
 	return bm, nil
 }
 
-// CreateJob 创建备份任务
+// CreateJob 创建备份任务.
 func (bm *BackupManager) CreateJob(ctx context.Context, job *BackupJob) (*BackupJob, error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -234,7 +234,7 @@ func (bm *BackupManager) CreateJob(ctx context.Context, job *BackupJob) (*Backup
 	return job, nil
 }
 
-// RunBackup 执行备份任务
+// RunBackup 执行备份任务.
 func (bm *BackupManager) RunBackup(ctx context.Context, jobID string) (*BackupResult, error) {
 	bm.mu.Lock()
 	job, exists := bm.jobs[jobID]
@@ -357,7 +357,7 @@ func (bm *BackupManager) RunBackup(ctx context.Context, jobID string) (*BackupRe
 	return result, nil
 }
 
-// Restore 从备份快照恢复数据
+// Restore 从备份快照恢复数据.
 func (bm *BackupManager) Restore(ctx context.Context, snapshotID, targetPath string) error {
 	bm.mu.RLock()
 	snap, exists := bm.snapshots[snapshotID]
@@ -392,7 +392,7 @@ func (bm *BackupManager) Restore(ctx context.Context, snapshotID, targetPath str
 	return nil
 }
 
-// ListSnapshots 列出备份任务的所有快照
+// ListSnapshots 列出备份任务的所有快照.
 func (bm *BackupManager) ListSnapshots(jobID string) []*BackupSnapshot {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -406,7 +406,7 @@ func (bm *BackupManager) ListSnapshots(jobID string) []*BackupSnapshot {
 	return result
 }
 
-// DeleteJob 删除备份任务
+// DeleteJob 删除备份任务.
 func (bm *BackupManager) DeleteJob(ctx context.Context, jobID string) error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -434,7 +434,7 @@ func (bm *BackupManager) DeleteJob(ctx context.Context, jobID string) error {
 	return bm.saveConfig()
 }
 
-// GetJob 获取备份任务信息
+// GetJob 获取备份任务信息.
 func (bm *BackupManager) GetJob(jobID string) (*BackupJob, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -446,7 +446,7 @@ func (bm *BackupManager) GetJob(jobID string) (*BackupJob, error) {
 	return job, nil
 }
 
-// ListJobs 列出所有备份任务
+// ListJobs 列出所有备份任务.
 func (bm *BackupManager) ListJobs() []*BackupJob {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -458,7 +458,7 @@ func (bm *BackupManager) ListJobs() []*BackupJob {
 	return result
 }
 
-// runFullBackup 执行全量备份
+// runFullBackup 执行全量备份.
 func (bm *BackupManager) runFullBackup(ctx context.Context, job *BackupJob, snapshotPath string, result *BackupResult) error {
 	bm.logger.Debug("执行全量备份", zap.Strings("sources", job.Source.Paths))
 
@@ -473,7 +473,7 @@ func (bm *BackupManager) runFullBackup(ctx context.Context, job *BackupJob, snap
 	return nil
 }
 
-// runIncrementalBackup 执行增量备份（基于上次备份）
+// runIncrementalBackup 执行增量备份（基于上次备份）.
 func (bm *BackupManager) runIncrementalBackup(ctx context.Context, job *BackupJob, snapshotPath string, parentID string, result *BackupResult) error {
 	bm.logger.Debug("执行增量备份",
 		zap.String("parent", parentID),
@@ -489,7 +489,7 @@ func (bm *BackupManager) runIncrementalBackup(ctx context.Context, job *BackupJo
 	return nil
 }
 
-// runDifferentialBackup 执行差异备份（基于上次全量备份）
+// runDifferentialBackup 执行差异备份（基于上次全量备份）.
 func (bm *BackupManager) runDifferentialBackup(ctx context.Context, job *BackupJob, snapshotPath string, fullSnapshotID string, result *BackupResult) error {
 	bm.logger.Debug("执行差异备份",
 		zap.String("full_snapshot", fullSnapshotID),
@@ -505,7 +505,7 @@ func (bm *BackupManager) runDifferentialBackup(ctx context.Context, job *BackupJ
 	return nil
 }
 
-// getLatestSnapshot 获取任务的最新快照 ID
+// getLatestSnapshot 获取任务的最新快照 ID.
 func (bm *BackupManager) getLatestSnapshot(jobID string) string {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -517,7 +517,7 @@ func (bm *BackupManager) getLatestSnapshot(jobID string) string {
 	return job.Snapshots[len(job.Snapshots)-1]
 }
 
-// getLastFullSnapshot 获取任务的最近一次全量快照
+// getLastFullSnapshot 获取任务的最近一次全量快照.
 func (bm *BackupManager) getLastFullSnapshot(jobID string) string {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -537,7 +537,7 @@ func (bm *BackupManager) getLastFullSnapshot(jobID string) string {
 	return ""
 }
 
-// buildRestoreChain 构建恢复链（从基线到目标快照）
+// buildRestoreChain 构建恢复链（从基线到目标快照）.
 func (bm *BackupManager) buildRestoreChain(snapshotID string) []*BackupSnapshot {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -564,7 +564,7 @@ func (bm *BackupManager) buildRestoreChain(snapshotID string) []*BackupSnapshot 
 	return chain
 }
 
-// restoreSnapshot 恢复单个快照到目标路径
+// restoreSnapshot 恢复单个快照到目标路径.
 func (bm *BackupManager) restoreSnapshot(ctx context.Context, snap *BackupSnapshot, targetPath string) error {
 	// 实际恢复逻辑：
 	// 1. 打开快照文件
@@ -576,7 +576,7 @@ func (bm *BackupManager) restoreSnapshot(ctx context.Context, snap *BackupSnapsh
 	return nil
 }
 
-// verifySnapshot 验证快照完整性
+// verifySnapshot 验证快照完整性.
 func (bm *BackupManager) verifySnapshot(snapshotPath string, result *BackupResult) bool {
 	// 实际验证逻辑：
 	// 1. 读取快照校验清单
@@ -585,7 +585,7 @@ func (bm *BackupManager) verifySnapshot(snapshotPath string, result *BackupResul
 	return true
 }
 
-// applyRetentionPolicy 应用备份保留策略
+// applyRetentionPolicy 应用备份保留策略.
 func (bm *BackupManager) applyRetentionPolicy(jobID string) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -614,7 +614,7 @@ func (bm *BackupManager) applyRetentionPolicy(jobID string) {
 	job.Snapshots = job.Snapshots[excess:]
 }
 
-// calculateNextRun 计算下次执行时间
+// calculateNextRun 计算下次执行时间.
 func (bm *BackupManager) calculateNextRun(schedule ScheduleConfig) time.Time {
 	// 简化实现：返回明天同一时间
 	// 实际应解析 cron 表达式
@@ -622,7 +622,7 @@ func (bm *BackupManager) calculateNextRun(schedule ScheduleConfig) time.Time {
 	return now.Add(24 * time.Hour)
 }
 
-// loadConfig 从磁盘加载备份配置
+// loadConfig 从磁盘加载备份配置.
 func (bm *BackupManager) loadConfig() error {
 	data, err := os.ReadFile(bm.configPath)
 	if err != nil {
@@ -654,7 +654,7 @@ func (bm *BackupManager) loadConfig() error {
 	return nil
 }
 
-// saveConfig 保存备份配置到磁盘
+// saveConfig 保存备份配置到磁盘.
 func (bm *BackupManager) saveConfig() error {
 	cfg := struct {
 		Jobs      map[string]*BackupJob      `json:"jobs"`
@@ -679,7 +679,7 @@ func (bm *BackupManager) saveConfig() error {
 	return os.WriteFile(bm.configPath, data, 0644)
 }
 
-// Close 关闭备份管理器
+// Close 关闭备份管理器.
 func (bm *BackupManager) Close() error {
 	close(bm.stopCh)
 	bm.logger.Info("备份管理器已关闭")

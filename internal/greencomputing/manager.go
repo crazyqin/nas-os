@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Manager manages green computing optimization
+// Manager manages green computing optimization.
 type Manager struct {
 	mu            sync.RWMutex
 	readings      []*EnergyReading
@@ -16,7 +16,7 @@ type Manager struct {
 	latestReading *EnergyReading
 }
 
-// Config represents green computing configuration
+// Config represents green computing configuration.
 type Config struct {
 	Enabled            bool    `json:"enabled"`
 	MonitoringInterval int     `json:"monitoring_interval"`
@@ -30,7 +30,7 @@ type Config struct {
 	IdleThreshold      int     `json:"idle_threshold"`
 }
 
-// DefaultConfig returns default configuration
+// DefaultConfig returns default configuration.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:            true,
@@ -46,7 +46,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// NewManager creates a new green computing manager
+// NewManager creates a new green computing manager.
 func NewManager(config *Config) *Manager {
 	if config == nil {
 		config = DefaultConfig()
@@ -59,7 +59,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// RecordReading records an energy reading
+// RecordReading records an energy reading.
 func (m *Manager) RecordReading(reading *EnergyReading) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -72,14 +72,14 @@ func (m *Manager) RecordReading(reading *EnergyReading) {
 	m.latestReading = reading
 }
 
-// GetLatestReading returns the latest energy reading
+// GetLatestReading returns the latest energy reading.
 func (m *Manager) GetLatestReading() *EnergyReading {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.latestReading
 }
 
-// GetReadings returns readings within a time range
+// GetReadings returns readings within a time range.
 func (m *Manager) GetReadings(start, end time.Time) []*EnergyReading {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -93,7 +93,7 @@ func (m *Manager) GetReadings(start, end time.Time) []*EnergyReading {
 	return result
 }
 
-// CalculateFootprint calculates carbon footprint for a period
+// CalculateFootprint calculates carbon footprint for a period.
 func (m *Manager) CalculateFootprint(start, end time.Time) *CarbonFootprint {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -132,7 +132,7 @@ func (m *Manager) CalculateFootprint(start, end time.Time) *CarbonFootprint {
 	return footprint
 }
 
-// GetDailyFootprint returns today's carbon footprint
+// GetDailyFootprint returns today's carbon footprint.
 func (m *Manager) GetDailyFootprint() *CarbonFootprint {
 	now := time.Now()
 	start := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
@@ -140,7 +140,7 @@ func (m *Manager) GetDailyFootprint() *CarbonFootprint {
 	return m.CalculateFootprint(start, end)
 }
 
-// GetWeeklyFootprint returns this week's carbon footprint
+// GetWeeklyFootprint returns this week's carbon footprint.
 func (m *Manager) GetWeeklyFootprint() *CarbonFootprint {
 	now := time.Now()
 	weekday := int(now.Weekday())
@@ -152,7 +152,7 @@ func (m *Manager) GetWeeklyFootprint() *CarbonFootprint {
 	return m.CalculateFootprint(start, end)
 }
 
-// GetMonthlyFootprint returns this month's carbon footprint
+// GetMonthlyFootprint returns this month's carbon footprint.
 func (m *Manager) GetMonthlyFootprint() *CarbonFootprint {
 	now := time.Now()
 	start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
@@ -160,7 +160,7 @@ func (m *Manager) GetMonthlyFootprint() *CarbonFootprint {
 	return m.CalculateFootprint(start, end)
 }
 
-// CreateStrategy creates a new sleep strategy
+// CreateStrategy creates a new sleep strategy.
 func (m *Manager) CreateStrategy(name, description string, idleThreshold time.Duration) *SleepStrategy {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -182,7 +182,7 @@ func (m *Manager) CreateStrategy(name, description string, idleThreshold time.Du
 	return strategy
 }
 
-// GetStrategy returns a strategy by ID
+// GetStrategy returns a strategy by ID.
 func (m *Manager) GetStrategy(id string) (*SleepStrategy, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -190,7 +190,7 @@ func (m *Manager) GetStrategy(id string) (*SleepStrategy, bool) {
 	return s, ok
 }
 
-// ListStrategies returns all strategies
+// ListStrategies returns all strategies.
 func (m *Manager) ListStrategies() []*SleepStrategy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -202,7 +202,7 @@ func (m *Manager) ListStrategies() []*SleepStrategy {
 	return strategies
 }
 
-// UpdateStrategy updates a strategy
+// UpdateStrategy updates a strategy.
 func (m *Manager) UpdateStrategy(id string, updates *SleepStrategy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -238,7 +238,7 @@ func (m *Manager) UpdateStrategy(id string, updates *SleepStrategy) error {
 	return nil
 }
 
-// ActivateStrategy activates a strategy and deactivates others
+// ActivateStrategy activates a strategy and deactivates others.
 func (m *Manager) ActivateStrategy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -255,7 +255,7 @@ func (m *Manager) ActivateStrategy(id string) error {
 	return nil
 }
 
-// DeleteStrategy deletes a strategy
+// DeleteStrategy deletes a strategy.
 func (m *Manager) DeleteStrategy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -267,7 +267,7 @@ func (m *Manager) DeleteStrategy(id string) error {
 	return nil
 }
 
-// GenerateEfficiencyReport generates an efficiency report
+// GenerateEfficiencyReport generates an efficiency report.
 func (m *Manager) GenerateEfficiencyReport(period string) *EfficiencyReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -340,7 +340,7 @@ func (m *Manager) GenerateEfficiencyReport(period string) *EfficiencyReport {
 	return report
 }
 
-// calculateEfficiencyScore calculates an efficiency score
+// calculateEfficiencyScore calculates an efficiency score.
 func (m *Manager) calculateEfficiencyScore(report *EfficiencyReport) float64 {
 	score := 100.0
 
@@ -372,7 +372,7 @@ func (m *Manager) calculateEfficiencyScore(report *EfficiencyReport) float64 {
 	return score
 }
 
-// generateRecommendations generates optimization recommendations
+// generateRecommendations generates optimization recommendations.
 func (m *Manager) generateRecommendations(report *EfficiencyReport) []*Recommendation {
 	recs := make([]*Recommendation, 0)
 
@@ -422,7 +422,7 @@ func (m *Manager) generateRecommendations(report *EfficiencyReport) []*Recommend
 	return recs
 }
 
-// generateTrends generates efficiency trends
+// generateTrends generates efficiency trends.
 func (m *Manager) generateTrends(period string) *EfficiencyTrends {
 	trends := &EfficiencyTrends{
 		EnergyTrend:     "stable",
@@ -463,7 +463,7 @@ func (m *Manager) generateTrends(period string) *EfficiencyTrends {
 	return trends
 }
 
-// GetGreenScore calculates the overall green computing score
+// GetGreenScore calculates the overall green computing score.
 func (m *Manager) GetGreenScore() *GreenScore {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

@@ -7,21 +7,21 @@ import (
 	"time"
 )
 
-// ScanStatus 扫描状态类型
+// ScanStatus 扫描状态类型.
 type ScanStatus string
 
 const (
-	// ScanStatusPending 等待中
+	// ScanStatusPending 等待中.
 	ScanStatusPending ScanStatus = "pending"
-	// ScanStatusRunning 运行中
+	// ScanStatusRunning 运行中.
 	ScanStatusRunning ScanStatus = "running"
-	// ScanStatusCompleted 已完成
+	// ScanStatusCompleted 已完成.
 	ScanStatusCompleted ScanStatus = "completed"
-	// ScanStatusFailed 失败
+	// ScanStatusFailed 失败.
 	ScanStatusFailed ScanStatus = "failed"
 )
 
-// ScanConfig 扫描配置
+// ScanConfig 扫描配置.
 type ScanConfig struct {
 	Paths        []string `json:"paths"`
 	MinFileSize  int64    `json:"minFileSize,omitempty"`
@@ -31,7 +31,7 @@ type ScanConfig struct {
 	Algorithm    string   `json:"algorithm,omitempty"` // sha256, md5
 }
 
-// ScanResult 扫描结果
+// ScanResult 扫描结果.
 type ScanResult struct {
 	ID             string            `json:"id"`
 	Status         ScanStatus        `json:"status"`
@@ -43,7 +43,7 @@ type ScanResult struct {
 	CompletedAt    *time.Time        `json:"completedAt,omitempty"`
 }
 
-// Recommendation 清理建议
+// Recommendation 清理建议.
 type Recommendation struct {
 	GroupID     string   `json:"groupId"`
 	Hash        string   `json:"hash"`
@@ -53,7 +53,7 @@ type Recommendation struct {
 	Reason      string   `json:"reason"`
 }
 
-// ExtendedManager 扩展管理器，添加任务要求的方法
+// ExtendedManager 扩展管理器，添加任务要求的方法.
 type ExtendedManager struct {
 	*Manager
 	mu       sync.RWMutex
@@ -61,7 +61,7 @@ type ExtendedManager struct {
 	scanList []*ScanResult
 }
 
-// NewExtendedManager 创建扩展管理器
+// NewExtendedManager 创建扩展管理器.
 func NewExtendedManager(config *ManagerConfig) *ExtendedManager {
 	return &ExtendedManager{
 		Manager:  NewManager(config),
@@ -70,7 +70,7 @@ func NewExtendedManager(config *ManagerConfig) *ExtendedManager {
 	}
 }
 
-// StartScan 启动扫描任务
+// StartScan 启动扫描任务.
 func (m *ExtendedManager) StartScan(config *ScanConfig) (*ScanResult, error) {
 	// 转换配置
 	algorithm := HashSHA256
@@ -114,7 +114,7 @@ func (m *ExtendedManager) StartScan(config *ScanConfig) (*ScanResult, error) {
 	return result, nil
 }
 
-// GetScanResult 获取扫描结果
+// GetScanResult 获取扫描结果.
 func (m *ExtendedManager) GetScanResult(id string) (*ScanResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -126,7 +126,7 @@ func (m *ExtendedManager) GetScanResult(id string) (*ScanResult, error) {
 	return result, nil
 }
 
-// ListScans 列出所有扫描任务
+// ListScans 列出所有扫描任务.
 func (m *ExtendedManager) ListScans() []*ScanResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -136,7 +136,7 @@ func (m *ExtendedManager) ListScans() []*ScanResult {
 	return result
 }
 
-// DeleteDuplicate 删除重复文件（保留第一个）
+// DeleteDuplicate 删除重复文件（保留第一个）.
 func (m *ExtendedManager) DeleteDuplicate(groupID string, keepIndex int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -165,7 +165,7 @@ func (m *ExtendedManager) DeleteDuplicate(groupID string, keepIndex int) error {
 	return ErrNoDuplicates
 }
 
-// GetRecommendations 获取清理建议
+// GetRecommendations 获取清理建议.
 func (m *ExtendedManager) GetRecommendations() []*Recommendation {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

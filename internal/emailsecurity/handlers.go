@@ -10,14 +10,14 @@ import (
 	"github.com/google/uuid"
 )
 
-// Handler 邮件安全处理器
+// Handler 邮件安全处理器.
 type Handler struct {
 	scanner    *Scanner
 	quarantine *QuarantineManager
 	reports    map[string]*ThreatReport
 }
 
-// NewHandler 创建新的处理器实例
+// NewHandler 创建新的处理器实例.
 func NewHandler(scanner *Scanner, quarantine *QuarantineManager) *Handler {
 	return &Handler{
 		scanner:    scanner,
@@ -26,7 +26,7 @@ func NewHandler(scanner *Scanner, quarantine *QuarantineManager) *Handler {
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	emailSecurity := rg.Group("/email-security")
 	{
@@ -63,7 +63,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// ListPolicies 列出安全策略
+// ListPolicies 列出安全策略.
 func (h *Handler) ListPolicies(c *gin.Context) {
 	policies := h.scanner.ListPolicies()
 	c.JSON(http.StatusOK, gin.H{
@@ -73,7 +73,7 @@ func (h *Handler) ListPolicies(c *gin.Context) {
 	})
 }
 
-// CreatePolicy 创建安全策略
+// CreatePolicy 创建安全策略.
 func (h *Handler) CreatePolicy(c *gin.Context) {
 	var req CreatePolicyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -106,7 +106,7 @@ func (h *Handler) CreatePolicy(c *gin.Context) {
 	})
 }
 
-// GetPolicy 获取安全策略
+// GetPolicy 获取安全策略.
 func (h *Handler) GetPolicy(c *gin.Context) {
 	id := c.Param("id")
 	policy, ok := h.scanner.GetPolicy(id)
@@ -125,7 +125,7 @@ func (h *Handler) GetPolicy(c *gin.Context) {
 	})
 }
 
-// UpdatePolicy 更新安全策略
+// UpdatePolicy 更新安全策略.
 func (h *Handler) UpdatePolicy(c *gin.Context) {
 	id := c.Param("id")
 	existing, ok := h.scanner.GetPolicy(id)
@@ -177,7 +177,7 @@ func (h *Handler) UpdatePolicy(c *gin.Context) {
 	})
 }
 
-// DeletePolicy 删除安全策略
+// DeletePolicy 删除安全策略.
 func (h *Handler) DeletePolicy(c *gin.Context) {
 	id := c.Param("id")
 	if _, ok := h.scanner.GetPolicy(id); !ok {
@@ -196,7 +196,7 @@ func (h *Handler) DeletePolicy(c *gin.Context) {
 	})
 }
 
-// ScanEmail 扫描邮件
+// ScanEmail 扫描邮件.
 func (h *Handler) ScanEmail(c *gin.Context) {
 	var req ScanEmailRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -250,7 +250,7 @@ func (h *Handler) ScanEmail(c *gin.Context) {
 	})
 }
 
-// ListQuarantine 列出隔离邮件
+// ListQuarantine 列出隔离邮件.
 func (h *Handler) ListQuarantine(c *gin.Context) {
 	status := c.Query("status")
 	threatLevel := c.Query("threat_level")
@@ -278,7 +278,7 @@ func (h *Handler) ListQuarantine(c *gin.Context) {
 	})
 }
 
-// GetQuarantineItem 获取隔离项详情
+// GetQuarantineItem 获取隔离项详情.
 func (h *Handler) GetQuarantineItem(c *gin.Context) {
 	id := c.Param("id")
 	item, err := h.quarantine.GetItem(id)
@@ -297,7 +297,7 @@ func (h *Handler) GetQuarantineItem(c *gin.Context) {
 	})
 }
 
-// ReviewQuarantine 审批隔离邮件
+// ReviewQuarantine 审批隔离邮件.
 func (h *Handler) ReviewQuarantine(c *gin.Context) {
 	id := c.Param("id")
 	var req ReviewQuarantineRequest
@@ -323,7 +323,7 @@ func (h *Handler) ReviewQuarantine(c *gin.Context) {
 	})
 }
 
-// BatchReviewQuarantine 批量审批隔离邮件
+// BatchReviewQuarantine 批量审批隔离邮件.
 func (h *Handler) BatchReviewQuarantine(c *gin.Context) {
 	var req struct {
 		ItemIDs  []string `json:"item_ids" binding:"required"`
@@ -362,7 +362,7 @@ func (h *Handler) BatchReviewQuarantine(c *gin.Context) {
 	})
 }
 
-// DeleteQuarantineItem 删除隔离项
+// DeleteQuarantineItem 删除隔离项.
 func (h *Handler) DeleteQuarantineItem(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.quarantine.DeleteItem(id); err != nil {
@@ -379,7 +379,7 @@ func (h *Handler) DeleteQuarantineItem(c *gin.Context) {
 	})
 }
 
-// ListReports 列出威胁报告
+// ListReports 列出威胁报告.
 func (h *Handler) ListReports(c *gin.Context) {
 	reports := make([]*ThreatReport, 0, len(h.reports))
 	for _, r := range h.reports {
@@ -393,7 +393,7 @@ func (h *Handler) ListReports(c *gin.Context) {
 	})
 }
 
-// GenerateReport 生成威胁报告
+// GenerateReport 生成威胁报告.
 func (h *Handler) GenerateReport(c *gin.Context) {
 	var req GenerateReportRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -457,7 +457,7 @@ func (h *Handler) GenerateReport(c *gin.Context) {
 	})
 }
 
-// GetReport 获取威胁报告
+// GetReport 获取威胁报告.
 func (h *Handler) GetReport(c *gin.Context) {
 	id := c.Param("id")
 	report, ok := h.reports[id]
@@ -476,7 +476,7 @@ func (h *Handler) GetReport(c *gin.Context) {
 	})
 }
 
-// ListAuditRules 列出审计规则
+// ListAuditRules 列出审计规则.
 func (h *Handler) ListAuditRules(c *gin.Context) {
 	// 简化实现，返回示例数据
 	rules := []AuditRule{
@@ -500,7 +500,7 @@ func (h *Handler) ListAuditRules(c *gin.Context) {
 	})
 }
 
-// CreateAuditRule 创建审计规则
+// CreateAuditRule 创建审计规则.
 func (h *Handler) CreateAuditRule(c *gin.Context) {
 	var req CreateAuditRuleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -530,7 +530,7 @@ func (h *Handler) CreateAuditRule(c *gin.Context) {
 	})
 }
 
-// UpdateAuditRule 更新审计规则
+// UpdateAuditRule 更新审计规则.
 func (h *Handler) UpdateAuditRule(c *gin.Context) {
 	id := c.Param("id")
 	var req CreateAuditRuleRequest
@@ -560,7 +560,7 @@ func (h *Handler) UpdateAuditRule(c *gin.Context) {
 	})
 }
 
-// DeleteAuditRule 删除审计规则
+// DeleteAuditRule 删除审计规则.
 func (h *Handler) DeleteAuditRule(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -568,7 +568,7 @@ func (h *Handler) DeleteAuditRule(c *gin.Context) {
 	})
 }
 
-// GetStats 获取邮件安全统计
+// GetStats 获取邮件安全统计.
 func (h *Handler) GetStats(c *gin.Context) {
 	quarantineStats := h.quarantine.GetStats()
 

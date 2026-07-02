@@ -7,17 +7,17 @@ import (
 	"time"
 )
 
-// Handler handles HTTP requests for green computing
+// Handler handles HTTP requests for green computing.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler creates a new green computing handler
+// NewHandler creates a new green computing handler.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes registers HTTP routes
+// RegisterRoutes registers HTTP routes.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/green/energy/reading", h.handleRecordReading)
 	mux.HandleFunc("/api/v1/green/energy/latest", h.handleLatestReading)

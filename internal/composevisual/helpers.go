@@ -9,17 +9,17 @@ import (
 	"github.com/google/uuid"
 )
 
-// GenerateUUID 生成 UUID
+// GenerateUUID 生成 UUID.
 func GenerateUUID() string {
 	return uuid.New().String()
 }
 
-// Now 返回当前时间
+// Now 返回当前时间.
 func Now() time.Time {
 	return time.Now()
 }
 
-// CalculateNodePosition 计算节点位置（自动布局算法 - 网格布局）
+// CalculateNodePosition 计算节点位置（自动布局算法 - 网格布局）.
 func CalculateNodePosition(index int) *NodePosition {
 	const (
 		nodeWidth  = 280
@@ -38,7 +38,7 @@ func CalculateNodePosition(index int) *NodePosition {
 	}
 }
 
-// ClassifyServices 对服务进行分类分层
+// ClassifyServices 对服务进行分类分层.
 func ClassifyServices(services map[string]*ServiceNode) map[string]int {
 	tierMap := make(map[string]int)
 	for name, svc := range services {
@@ -57,7 +57,7 @@ func ClassifyServices(services map[string]*ServiceNode) map[string]int {
 	return tierMap
 }
 
-// ClassifyServiceType 判断服务类型
+// ClassifyServiceType 判断服务类型.
 func ClassifyServiceType(image string) string {
 	img := strings.ToLower(image)
 	switch {
@@ -76,7 +76,7 @@ func ClassifyServiceType(image string) string {
 	}
 }
 
-// IsDatabaseImage 判断是否为数据库镜像
+// IsDatabaseImage 判断是否为数据库镜像.
 func IsDatabaseImage(img string) bool {
 	for _, db := range []string{"mysql", "mariadb", "postgres", "postgresql", "mongo", "mssql", "clickhouse", "influxdb", "cockroach"} {
 		if strings.Contains(img, db) {
@@ -86,7 +86,7 @@ func IsDatabaseImage(img string) bool {
 	return false
 }
 
-// IsCacheImage 判断是否为缓存镜像
+// IsCacheImage 判断是否为缓存镜像.
 func IsCacheImage(img string) bool {
 	for _, c := range []string{"redis", "memcached", "varnish", "hazelcast"} {
 		if strings.Contains(img, c) {
@@ -96,7 +96,7 @@ func IsCacheImage(img string) bool {
 	return false
 }
 
-// IsProxyImage 判断是否为代理镜像
+// IsProxyImage 判断是否为代理镜像.
 func IsProxyImage(img string) bool {
 	for _, p := range []string{"nginx", "traefik", "haproxy", "caddy", "apache", "httpd", "envoy", "kong"} {
 		if strings.Contains(img, p) {
@@ -106,7 +106,7 @@ func IsProxyImage(img string) bool {
 	return false
 }
 
-// IsQueueImage 判断是否为消息队列镜像
+// IsQueueImage 判断是否为消息队列镜像.
 func IsQueueImage(img string) bool {
 	for _, q := range []string{"rabbitmq", "kafka", "nats", "activemq", "zeromq", "pulsar"} {
 		if strings.Contains(img, q) {
@@ -116,7 +116,7 @@ func IsQueueImage(img string) bool {
 	return false
 }
 
-// IsStorageImage 判断是否为存储镜像
+// IsStorageImage 判断是否为存储镜像.
 func IsStorageImage(img string) bool {
 	for _, s := range []string{"minio", "nextcloud", "owncloud", "seafile"} {
 		if strings.Contains(img, s) {
@@ -127,7 +127,7 @@ func IsStorageImage(img string) bool {
 }
 
 // IsInfraImage 判断是否为基础设
-// IsInfraImage 判断是否为基础设施镜像
+// IsInfraImage 判断是否为基础设施镜像.
 func IsInfraImage(img string) bool {
 	for _, infra := range []string{"portainer", "watchtower", "cadvisor", "prometheus", "grafana", "loki", "fluentd", "elasticsearch", "kibana", "consul", "etcd", "vault"} {
 		if strings.Contains(img, infra) {
@@ -137,7 +137,7 @@ func IsInfraImage(img string) bool {
 	return false
 }
 
-// CalculateStartOrder 计算服务启动顺序（拓扑排序 - BFS分层法）
+// CalculateStartOrder 计算服务启动顺序（拓扑排序 - BFS分层法）.
 func CalculateStartOrder(services map[string]*ServiceNode) [][]string {
 	inDegree := make(map[string]int)
 	graph := make(map[string][]string)
@@ -179,7 +179,7 @@ func CalculateStartOrder(services map[string]*ServiceNode) [][]string {
 	return result
 }
 
-// SuggestResources 根据镜像类型推荐资源限制
+// SuggestResources 根据镜像类型推荐资源限制.
 func SuggestResources(image string) *ResourceLimits {
 	img := strings.ToLower(image)
 	switch {
@@ -198,7 +198,7 @@ func SuggestResources(image string) *ResourceLimits {
 	}
 }
 
-// ParsePortMapping 解析端口映射 "8080:80/tcp"
+// ParsePortMapping 解析端口映射 "8080:80/tcp".
 func ParsePortMapping(s string) *PortMapping {
 	protocol := "tcp"
 	parts := strings.SplitN(s, "/", 2)
@@ -226,7 +226,7 @@ func ParsePortMapping(s string) *PortMapping {
 	return &PortMapping{HostPort: hostPort, ContainerPort: containerPort, Protocol: protocol, IP: ip}
 }
 
-// ParseVolumeMapping 解析卷映射 "source:target:ro"
+// ParseVolumeMapping 解析卷映射 "source:target:ro".
 func ParseVolumeMapping(s string) *VolumeMapping {
 	parts := strings.Split(s, ":")
 	if len(parts) < 2 {

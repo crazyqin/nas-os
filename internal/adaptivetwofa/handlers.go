@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 自适应2FA HTTP处理器
+// Handlers 自适应2FA HTTP处理器.
 type Handlers struct {
 	manager *AdaptiveManager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *AdaptiveManager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
 	adaptive := apiGroup.Group("/adaptive-2fa")
 	{
@@ -43,7 +43,7 @@ func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
 
 // ========== 请求/响应类型 ==========
 
-// EvaluateLoginRequest 评估登录请求
+// EvaluateLoginRequest 评估登录请求.
 type EvaluateLoginRequest struct {
 	UserID            string            `json:"user_id" binding:"required"`
 	Username          string            `json:"username" binding:"required"`
@@ -54,7 +54,7 @@ type EvaluateLoginRequest struct {
 	FingerprintExtra  map[string]string `json:"fingerprint_extra,omitempty"`
 }
 
-// EvaluateLoginResponse 评估登录响应
+// EvaluateLoginResponse 评估登录响应.
 type EvaluateLoginResponse struct {
 	Allowed           bool            `json:"allowed"`
 	RiskScore         *RiskScore      `json:"risk_score"`
@@ -63,7 +63,7 @@ type EvaluateLoginResponse struct {
 	Message           string          `json:"message,omitempty"`
 }
 
-// TrustDeviceRequest 信任设备请求
+// TrustDeviceRequest 信任设备请求.
 type TrustDeviceRequest struct {
 	UserID            string       `json:"user_id" binding:"required"`
 	DeviceFingerprint string       `json:"device_fingerprint" binding:"required"`
@@ -72,7 +72,7 @@ type TrustDeviceRequest struct {
 	GeoLocation       *GeoLocation `json:"geo_location,omitempty"`
 }
 
-// VerifyChallengeRequest 验证挑战请求
+// VerifyChallengeRequest 验证挑战请求.
 type VerifyChallengeRequest struct {
 	ChallengeID string `json:"challenge_id" binding:"required"`
 }
@@ -89,7 +89,7 @@ type VerifyChallengeRequest struct {
 // @Success 200 {object} api.Response{data=EvaluateLoginResponse}
 // @Failure 400 {object} api.Response
 // @Failure 500 {object} api.Response
-// @Router /adaptive-2fa/evaluate [post]
+// @Router /adaptive-2fa/evaluate [post].
 func (h *Handlers) evaluateLogin(c *gin.Context) {
 	var req EvaluateLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -142,7 +142,7 @@ func (h *Handlers) evaluateLogin(c *gin.Context) {
 // @Success 200 {object} api.Response{data=TrustedDevice}
 // @Failure 400 {object} api.Response
 // @Failure 500 {object} api.Response
-// @Router /adaptive-2fa/trust-device [post]
+// @Router /adaptive-2fa/trust-device [post].
 func (h *Handlers) trustDevice(c *gin.Context) {
 	var req TrustDeviceRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -175,7 +175,7 @@ func (h *Handlers) trustDevice(c *gin.Context) {
 // @Param user_id query string true "用户ID"
 // @Success 200 {object} api.Response{data=[]TrustedDevice}
 // @Failure 400 {object} api.Response
-// @Router /adaptive-2fa/trusted-devices [get]
+// @Router /adaptive-2fa/trusted-devices [get].
 func (h *Handlers) getTrustedDevices(c *gin.Context) {
 	userID := c.Query("user_id")
 	if userID == "" {
@@ -198,7 +198,7 @@ func (h *Handlers) getTrustedDevices(c *gin.Context) {
 // @Success 200 {object} api.Response
 // @Failure 400 {object} api.Response
 // @Failure 404 {object} api.Response
-// @Router /adaptive-2fa/trusted-devices/{device_id} [delete]
+// @Router /adaptive-2fa/trusted-devices/{device_id} [delete].
 func (h *Handlers) revokeTrust(c *gin.Context) {
 	userID := c.Query("user_id")
 	if userID == "" {
@@ -229,7 +229,7 @@ func (h *Handlers) revokeTrust(c *gin.Context) {
 // @Param user_id query string true "用户ID"
 // @Success 200 {object} api.Response
 // @Failure 400 {object} api.Response
-// @Router /adaptive-2fa/trusted-devices [delete]
+// @Router /adaptive-2fa/trusted-devices [delete].
 func (h *Handlers) revokeAllTrust(c *gin.Context) {
 	userID := c.Query("user_id")
 	if userID == "" {
@@ -255,7 +255,7 @@ func (h *Handlers) revokeAllTrust(c *gin.Context) {
 // @Success 200 {object} api.Response{data=AuthChallenge}
 // @Failure 400 {object} api.Response
 // @Failure 404 {object} api.Response
-// @Router /adaptive-2fa/verify-challenge [post]
+// @Router /adaptive-2fa/verify-challenge [post].
 func (h *Handlers) verifyChallenge(c *gin.Context) {
 	var req VerifyChallengeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -286,7 +286,7 @@ func (h *Handlers) verifyChallenge(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} api.Response
-// @Router /adaptive-2fa/stats [get]
+// @Router /adaptive-2fa/stats [get].
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	api.OK(c, stats)
@@ -299,7 +299,7 @@ func (h *Handlers) getStats(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} api.Response{data=AdaptiveConfig}
-// @Router /adaptive-2fa/config [get]
+// @Router /adaptive-2fa/config [get].
 func (h *Handlers) getConfig(c *gin.Context) {
 	config := h.manager.GetConfig()
 	api.OK(c, config)

@@ -4,7 +4,7 @@ package contacts
 
 import "time"
 
-// Contact 联系人
+// Contact 联系人.
 type Contact struct {
 	ID        string    `json:"id"`
 	FirstName string    `json:"first_name"`
@@ -24,19 +24,19 @@ type Contact struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// Phone 电话号码
+// Phone 电话号码.
 type Phone struct {
 	Type   string `json:"type"` // home, work, mobile, fax, other
 	Number string `json:"number"`
 }
 
-// Email 邮箱
+// Email 邮箱.
 type Email struct {
 	Type  string `json:"type"` // home, work, other
 	Email string `json:"email"`
 }
 
-// Address 地址
+// Address 地址.
 type Address struct {
 	Type       string `json:"type"` // home, work, other
 	Street     string `json:"street,omitempty"`
@@ -46,7 +46,7 @@ type Address struct {
 	Country    string `json:"country,omitempty"`
 }
 
-// ContactGroup 联系人分组
+// ContactGroup 联系人分组.
 type ContactGroup struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -57,7 +57,7 @@ type ContactGroup struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// ContactCreateRequest 创建联系人请求
+// ContactCreateRequest 创建联系人请求.
 type ContactCreateRequest struct {
 	FirstName string    `json:"first_name" binding:"required"`
 	LastName  string    `json:"last_name"`
@@ -74,7 +74,7 @@ type ContactCreateRequest struct {
 	Website   string    `json:"website,omitempty"`
 }
 
-// ContactUpdateRequest 更新联系人请求
+// ContactUpdateRequest 更新联系人请求.
 type ContactUpdateRequest struct {
 	FirstName string    `json:"first_name"`
 	LastName  string    `json:"last_name"`
@@ -91,21 +91,21 @@ type ContactUpdateRequest struct {
 	Website   string    `json:"website,omitempty"`
 }
 
-// ContactGroupCreateRequest 创建分组请求
+// ContactGroupCreateRequest 创建分组请求.
 type ContactGroupCreateRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description,omitempty"`
 	Color       string `json:"color,omitempty"`
 }
 
-// ContactGroupUpdateRequest 更新分组请求
+// ContactGroupUpdateRequest 更新分组请求.
 type ContactGroupUpdateRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
 	Color       string `json:"color,omitempty"`
 }
 
-// SearchRequest 搜索请求
+// SearchRequest 搜索请求.
 type SearchRequest struct {
 	Query   string `json:"query" form:"q"`
 	Name    string `json:"name" form:"name"`
@@ -117,14 +117,14 @@ type SearchRequest struct {
 	Offset  int    `json:"offset" form:"offset"`
 }
 
-// BatchImportRequest 批量导入请求
+// BatchImportRequest 批量导入请求.
 type BatchImportRequest struct {
 	Format  string `json:"format"` // csv, vcard
 	Content string `json:"content"`
 	GroupID string `json:"group_id,omitempty"`
 }
 
-// DuplicateContact 重复联系人
+// DuplicateContact 重复联系人.
 type DuplicateContact struct {
 	Contact1 *Contact `json:"contact1"`
 	Contact2 *Contact `json:"contact2"`
@@ -132,14 +132,14 @@ type DuplicateContact struct {
 	Reasons  []string `json:"reasons"`
 }
 
-// ShareRequest 分享请求
+// ShareRequest 分享请求.
 type ShareRequest struct {
 	GroupID    string   `json:"group_id" binding:"required"`
 	TargetUser []string `json:"target_users" binding:"required"`
 	Permission string   `json:"permission"` // read, write
 }
 
-// VCard vCard 格式
+// VCard vCard 格式.
 type VCard struct {
 	Version   string    `json:"version"`
 	FirstName string    `json:"first_name"`
@@ -156,14 +156,14 @@ type VCard struct {
 	Photo     string    `json:"photo,omitempty"`
 }
 
-// MergeResult 合并结果
+// MergeResult 合并结果.
 type MergeResult struct {
 	Kept     *Contact          `json:"kept"`
 	Merged   []*Contact        `json:"merged"`
 	FieldMap map[string]string `json:"field_map"`
 }
 
-// ShareInfo 分享信息
+// ShareInfo 分享信息.
 type ShareInfo struct {
 	ID         string    `json:"id"`
 	GroupID    string    `json:"group_id"`
@@ -174,7 +174,7 @@ type ShareInfo struct {
 	CreatedAt  time.Time `json:"created_at"`
 }
 
-// ImportResult 导入结果
+// ImportResult 导入结果.
 type ImportResult struct {
 	Total    int      `json:"total"`
 	Imported int      `json:"imported"`
@@ -183,7 +183,7 @@ type ImportResult struct {
 	Skipped  int      `json:"skipped"`
 }
 
-// ExportResult 导出结果
+// ExportResult 导出结果.
 type ExportResult struct {
 	Format  string `json:"format"`
 	Content string `json:"content"`

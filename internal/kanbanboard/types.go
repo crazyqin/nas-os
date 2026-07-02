@@ -8,7 +8,7 @@ import "time"
 // 核心类型
 // ============================================================
 
-// BoardStatus 看板状态
+// BoardStatus 看板状态.
 type BoardStatus string
 
 const (
@@ -16,7 +16,7 @@ const (
 	BoardStatusArchived BoardStatus = "archived"
 )
 
-// CardPriority 卡片优先级
+// CardPriority 卡片优先级.
 type CardPriority string
 
 const (
@@ -26,7 +26,7 @@ const (
 	PriorityUrgent CardPriority = "urgent"
 )
 
-// CardStatus 卡片状态
+// CardStatus 卡片状态.
 type CardStatus string
 
 const (
@@ -40,7 +40,7 @@ const (
 // 看板实体
 // ============================================================
 
-// Board 看板
+// Board 看板.
 type Board struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -54,18 +54,18 @@ type Board struct {
 	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
-// Column 看板列
+// Column 看板列.
 type Column struct {
-	ID        string  `json:"id"`
-	BoardID   string  `json:"board_id"`
-	Name      string  `json:"name"`
-	Position  int     `json:"position"`
-	WIPLimit  int     `json:"wip_limit"` // 0 表示无限制
-	Cards     []*Card `json:"cards"`
+	ID        string    `json:"id"`
+	BoardID   string    `json:"board_id"`
+	Name      string    `json:"name"`
+	Position  int       `json:"position"`
+	WIPLimit  int       `json:"wip_limit"` // 0 表示无限制
+	Cards     []*Card   `json:"cards"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// Card 卡片
+// Card 卡片.
 type Card struct {
 	ID          string       `json:"id"`
 	ColumnID    string       `json:"column_id"`
@@ -84,7 +84,7 @@ type Card struct {
 	CompletedAt *time.Time   `json:"completed_at,omitempty"`
 }
 
-// Label 标签
+// Label 标签.
 type Label struct {
 	ID      string `json:"id"`
 	BoardID string `json:"board_id"`
@@ -92,7 +92,7 @@ type Label struct {
 	Color   string `json:"color"`
 }
 
-// Member 成员
+// Member 成员.
 type Member struct {
 	UserID   string    `json:"user_id"`
 	Username string    `json:"username"`
@@ -100,7 +100,7 @@ type Member struct {
 	JoinedAt time.Time `json:"joined_at"`
 }
 
-// Activity 活动记录
+// Activity 活动记录.
 type Activity struct {
 	ID        string    `json:"id"`
 	BoardID   string    `json:"board_id"`
@@ -115,34 +115,34 @@ type Activity struct {
 // 请求类型
 // ============================================================
 
-// CreateBoardRequest 创建看板请求
+// CreateBoardRequest 创建看板请求.
 type CreateBoardRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description"`
 	OwnerID     string `json:"owner_id" binding:"required"`
 }
 
-// UpdateBoardRequest 更新看板请求
+// UpdateBoardRequest 更新看板请求.
 type UpdateBoardRequest struct {
 	Name        *string `json:"name,omitempty"`
 	Description *string `json:"description,omitempty"`
 }
 
-// CreateColumnRequest 创建列请求
+// CreateColumnRequest 创建列请求.
 type CreateColumnRequest struct {
 	Name     string `json:"name" binding:"required"`
 	Position int    `json:"position"`
 	WIPLimit int    `json:"wip_limit"`
 }
 
-// UpdateColumnRequest 更新列请求
+// UpdateColumnRequest 更新列请求.
 type UpdateColumnRequest struct {
 	Name     *string `json:"name,omitempty"`
 	WIPLimit *int    `json:"wip_limit,omitempty"`
 	Position *int    `json:"position,omitempty"`
 }
 
-// CreateCardRequest 创建卡片请求
+// CreateCardRequest 创建卡片请求.
 type CreateCardRequest struct {
 	ColumnID    string       `json:"column_id" binding:"required"`
 	Title       string       `json:"title" binding:"required"`
@@ -154,7 +154,7 @@ type CreateCardRequest struct {
 	CreatedBy   string       `json:"created_by"`
 }
 
-// UpdateCardRequest 更新卡片请求
+// UpdateCardRequest 更新卡片请求.
 type UpdateCardRequest struct {
 	Title       *string       `json:"title,omitempty"`
 	Description *string       `json:"description,omitempty"`
@@ -164,25 +164,25 @@ type UpdateCardRequest struct {
 	Status      *CardStatus   `json:"status,omitempty"`
 }
 
-// MoveCardRequest 移动卡片请求
+// MoveCardRequest 移动卡片请求.
 type MoveCardRequest struct {
 	TargetColumnID string `json:"target_column_id" binding:"required"`
 	Position       int    `json:"position"`
 }
 
-// CreateLabelRequest 创建标签请求
+// CreateLabelRequest 创建标签请求.
 type CreateLabelRequest struct {
 	Name  string `json:"name" binding:"required"`
 	Color string `json:"color" binding:"required"`
 }
 
-// UpdateLabelRequest 更新标签请求
+// UpdateLabelRequest 更新标签请求.
 type UpdateLabelRequest struct {
 	Name  *string `json:"name,omitempty"`
 	Color *string `json:"color,omitempty"`
 }
 
-// AssignMemberRequest 分配成员请求
+// AssignMemberRequest 分配成员请求.
 type AssignMemberRequest struct {
 	UserID   string `json:"user_id" binding:"required"`
 	Username string `json:"username" binding:"required"`
@@ -193,7 +193,7 @@ type AssignMemberRequest struct {
 // 搜索与过滤
 // ============================================================
 
-// CardFilter 卡片过滤条件
+// CardFilter 卡片过滤条件.
 type CardFilter struct {
 	BoardID    string       `json:"board_id"`
 	AssigneeID string       `json:"assignee_id"`
@@ -207,34 +207,34 @@ type CardFilter struct {
 // 统计报表
 // ============================================================
 
-// BurndownPoint 燃尽图数据点
+// BurndownPoint 燃尽图数据点.
 type BurndownPoint struct {
 	Date      time.Time `json:"date"`
 	Remaining int       `json:"remaining"`
 	Completed int       `json:"completed"`
 }
 
-// VelocityPoint 速度图数据点
+// VelocityPoint 速度图数据点.
 type VelocityPoint struct {
 	SprintName string `json:"sprint_name"`
 	Planned    int    `json:"planned"`
 	Completed  int    `json:"completed"`
 }
 
-// CumulativeFlowPoint 累积流图数据点
+// CumulativeFlowPoint 累积流图数据点.
 type CumulativeFlowPoint struct {
 	Date   time.Time      `json:"date"`
 	Counts map[string]int `json:"counts"` // column_name -> count
 }
 
-// BoardStats 看板统计
+// BoardStats 看板统计.
 type BoardStats struct {
-	TotalCards      int                `json:"total_cards"`
-	CompletedCards  int                `json:"completed_cards"`
-	TodoCards       int                `json:"todo_cards"`
-	InProgressCards int                `json:"in_progress_cards"`
-	BlockedCards    int                `json:"blocked_cards"`
-	Burndown        []*BurndownPoint   `json:"burndown,omitempty"`
-	Velocity        []*VelocityPoint   `json:"velocity,omitempty"`
+	TotalCards      int                    `json:"total_cards"`
+	CompletedCards  int                    `json:"completed_cards"`
+	TodoCards       int                    `json:"todo_cards"`
+	InProgressCards int                    `json:"in_progress_cards"`
+	BlockedCards    int                    `json:"blocked_cards"`
+	Burndown        []*BurndownPoint       `json:"burndown,omitempty"`
+	Velocity        []*VelocityPoint       `json:"velocity,omitempty"`
 	CumulativeFlow  []*CumulativeFlowPoint `json:"cumulative_flow,omitempty"`
 }

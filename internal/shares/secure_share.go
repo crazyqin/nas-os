@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-// SecureShareLink represents a secure share link with protection
+// SecureShareLink represents a secure share link with protection.
 type SecureShareLink struct {
 	ID           string `json:"id"`
 	Token        string `json:"token"`        // Unique access token
@@ -48,7 +48,7 @@ type SecureShareLink struct {
 	Metadata    map[string]string `json:"metadata,omitempty"`
 }
 
-// ShareAccessLog records access to a share link
+// ShareAccessLog records access to a share link.
 type ShareAccessLog struct {
 	Timestamp time.Time `json:"timestamp"`
 	IPAddress string    `json:"ipAddress,omitempty"`
@@ -58,7 +58,7 @@ type ShareAccessLog struct {
 	Reason    string    `json:"reason,omitempty"`
 }
 
-// SecureShareManager manages secure share links
+// SecureShareManager manages secure share links.
 type SecureShareManager struct {
 	mu     sync.RWMutex
 	links  map[string]*SecureShareLink
@@ -68,7 +68,7 @@ type SecureShareManager struct {
 	config SecureShareConfig
 }
 
-// SecureShareConfig contains configuration for secure sharing
+// SecureShareConfig contains configuration for secure sharing.
 type SecureShareConfig struct {
 	DefaultExpiration   time.Duration `json:"defaultExpiration"`
 	MaxExpirationDays   int           `json:"maxExpirationDays"`
@@ -78,7 +78,7 @@ type SecureShareConfig struct {
 	MaxAccessLogEntries int           `json:"maxAccessLogEntries"`
 }
 
-// DefaultSecureShareConfig returns default configuration
+// DefaultSecureShareConfig returns default configuration.
 func DefaultSecureShareConfig() SecureShareConfig {
 	return SecureShareConfig{
 		DefaultExpiration:   7 * 24 * time.Hour, // 7 days
@@ -90,7 +90,7 @@ func DefaultSecureShareConfig() SecureShareConfig {
 	}
 }
 
-// NewSecureShareManager creates a new secure share manager
+// NewSecureShareManager creates a new secure share manager.
 func NewSecureShareManager(config SecureShareConfig) *SecureShareManager {
 	return &SecureShareManager{
 		links:  make(map[string]*SecureShareLink),
@@ -99,7 +99,7 @@ func NewSecureShareManager(config SecureShareConfig) *SecureShareManager {
 	}
 }
 
-// CreateSecureLink creates a new secure share link
+// CreateSecureLink creates a new secure share link.
 func (m *SecureShareManager) CreateSecureLink(ctx context.Context, req CreateSecureLinkRequest) (*SecureShareLink, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -167,7 +167,7 @@ func (m *SecureShareManager) CreateSecureLink(ctx context.Context, req CreateSec
 	return link, nil
 }
 
-// CreateSecureLinkRequest represents a request to create a secure link
+// CreateSecureLinkRequest represents a request to create a secure link.
 type CreateSecureLinkRequest struct {
 	ResourceType   string            `json:"resourceType"`
 	ResourceID     string            `json:"resourceId"`
@@ -183,7 +183,7 @@ type CreateSecureLinkRequest struct {
 	Metadata       map[string]string `json:"metadata,omitempty"`
 }
 
-// validateRequest validates the create request
+// validateRequest validates the create request.
 func (m *SecureShareManager) validateRequest(req CreateSecureLinkRequest) error {
 	if req.ResourceType == "" {
 		return fmt.Errorf("resource type is required")
@@ -208,7 +208,7 @@ func (m *SecureShareManager) validateRequest(req CreateSecureLinkRequest) error 
 	return nil
 }
 
-// generateToken generates a secure random token
+// generateToken generates a secure random token.
 func (m *SecureShareManager) generateToken() (string, error) {
 	bytes := make([]byte, m.config.TokenLength)
 	if _, err := rand.Read(bytes); err != nil {
@@ -217,7 +217,7 @@ func (m *SecureShareManager) generateToken() (string, error) {
 	return base64.URLEncoding.EncodeToString(bytes), nil
 }
 
-// ValidateAccess validates access to a share link
+// ValidateAccess validates access to a share link.
 func (m *SecureShareManager) ValidateAccess(ctx context.Context, token, password string) (*SecureShareLink, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -261,7 +261,7 @@ func (m *SecureShareManager) ValidateAccess(ctx context.Context, token, password
 	return link, nil
 }
 
-// LogAccess logs access to a share link
+// LogAccess logs access to a share link.
 func (m *SecureShareManager) LogAccess(ctx context.Context, token string, log ShareAccessLog) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -292,7 +292,7 @@ func (m *SecureShareManager) LogAccess(ctx context.Context, token string, log Sh
 	return nil
 }
 
-// GetLink retrieves a share link by ID
+// GetLink retrieves a share link by ID.
 func (m *SecureShareManager) GetLink(ctx context.Context, linkID string) (*SecureShareLink, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -305,7 +305,7 @@ func (m *SecureShareManager) GetLink(ctx context.Context, linkID string) (*Secur
 	return link, nil
 }
 
-// GetLinkByToken retrieves a share link by token
+// GetLinkByToken retrieves a share link by token.
 func (m *SecureShareManager) GetLinkByToken(ctx context.Context, token string) (*SecureShareLink, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -323,7 +323,7 @@ func (m *SecureShareManager) GetLinkByToken(ctx context.Context, token string) (
 	return link, nil
 }
 
-// ListLinks lists share links created by a user
+// ListLinks lists share links created by a user.
 func (m *SecureShareManager) ListLinks(ctx context.Context, userID string) ([]*SecureShareLink, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -341,7 +341,7 @@ func (m *SecureShareManager) ListLinks(ctx context.Context, userID string) ([]*S
 	return links, nil
 }
 
-// DeleteLink deletes a share link
+// DeleteLink deletes a share link.
 func (m *SecureShareManager) DeleteLink(ctx context.Context, linkID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -357,7 +357,7 @@ func (m *SecureShareManager) DeleteLink(ctx context.Context, linkID string) erro
 	return nil
 }
 
-// UpdateLink updates a share link
+// UpdateLink updates a share link.
 func (m *SecureShareManager) UpdateLink(ctx context.Context, linkID string, req UpdateLinkRequest) (*SecureShareLink, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -402,7 +402,7 @@ func (m *SecureShareManager) UpdateLink(ctx context.Context, linkID string, req 
 	return link, nil
 }
 
-// UpdateLinkRequest represents an update request
+// UpdateLinkRequest represents an update request.
 type UpdateLinkRequest struct {
 	Password       string `json:"password,omitempty"`
 	ExpirationDays int    `json:"expirationDays,omitempty"`
@@ -412,7 +412,7 @@ type UpdateLinkRequest struct {
 	AllowDelete    *bool  `json:"allowDelete,omitempty"`
 }
 
-// CleanupExpiredLinks removes expired links
+// CleanupExpiredLinks removes expired links.
 func (m *SecureShareManager) CleanupExpiredLinks(ctx context.Context) (int, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -431,7 +431,7 @@ func (m *SecureShareManager) CleanupExpiredLinks(ctx context.Context) (int, erro
 	return count, nil
 }
 
-// hashPassword creates a password hash with salt
+// hashPassword creates a password hash with salt.
 func hashPassword(password string) (hash, salt string, err error) {
 	// Generate salt
 	saltBytes := make([]byte, 32)
@@ -449,7 +449,7 @@ func hashPassword(password string) (hash, salt string, err error) {
 	return hash, salt, nil
 }
 
-// verifyPassword verifies a password against the stored hash
+// verifyPassword verifies a password against the stored hash.
 func verifyPassword(password, storedHash, salt string) bool {
 	h := sha256.New()
 	h.Write([]byte(salt))
@@ -459,14 +459,14 @@ func verifyPassword(password, storedHash, salt string) bool {
 	return subtle.ConstantTimeCompare([]byte(computedHash), []byte(storedHash)) == 1
 }
 
-// generateShareID generates a unique share ID
+// generateShareID generates a unique share ID.
 func generateShareID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// sortLinksByDate sorts links by creation date (newest first)
+// sortLinksByDate sorts links by creation date (newest first).
 func sortLinksByDate(links []*SecureShareLink) {
 	for i := 0; i < len(links)-1; i++ {
 		for j := i + 1; j < len(links); j++ {
@@ -477,7 +477,7 @@ func sortLinksByDate(links []*SecureShareLink) {
 	}
 }
 
-// ParseShareURL parses a share URL and extracts the token
+// ParseShareURL parses a share URL and extracts the token.
 func ParseShareURL(url string) (token string, err error) {
 	// Expected format: /share/{token} or /s/{token}
 	parts := strings.Split(strings.TrimSuffix(url, "/"), "/")
@@ -495,23 +495,23 @@ func ParseShareURL(url string) (token string, err error) {
 	return "", fmt.Errorf("token not found in URL")
 }
 
-// GenerateShareURL generates a share URL from a base URL and token
+// GenerateShareURL generates a share URL from a base URL and token.
 func GenerateShareURL(baseURL, token string) string {
 	baseURL = strings.TrimSuffix(baseURL, "/")
 	return fmt.Sprintf("%s/share/%s", baseURL, token)
 }
 
-// IsPasswordProtected checks if a link requires a password
+// IsPasswordProtected checks if a link requires a password.
 func (l *SecureShareLink) IsPasswordProtected() bool {
 	return l.PasswordHash != ""
 }
 
-// IsExpired checks if a link is expired
+// IsExpired checks if a link is expired.
 func (l *SecureShareLink) IsExpired() bool {
 	return l.ExpiresAt != nil && time.Now().After(*l.ExpiresAt)
 }
 
-// RemainingAccesses returns the number of remaining accesses
+// RemainingAccesses returns the number of remaining accesses.
 func (l *SecureShareLink) RemainingAccesses() int {
 	if l.MaxAccesses <= 0 {
 		return -1 // unlimited
@@ -523,7 +523,7 @@ func (l *SecureShareLink) RemainingAccesses() int {
 	return remaining
 }
 
-// TimeRemaining returns the time remaining until expiration
+// TimeRemaining returns the time remaining until expiration.
 func (l *SecureShareLink) TimeRemaining() time.Duration {
 	if l.ExpiresAt == nil {
 		return -1 // no expiration
@@ -535,7 +535,7 @@ func (l *SecureShareLink) TimeRemaining() time.Duration {
 	return remaining
 }
 
-// ToPublicInfo returns public information about the link (safe to share)
+// ToPublicInfo returns public information about the link (safe to share).
 func (l *SecureShareLink) ToPublicInfo() PublicShareInfo {
 	return PublicShareInfo{
 		Token:            l.Token,
@@ -550,7 +550,7 @@ func (l *SecureShareLink) ToPublicInfo() PublicShareInfo {
 	}
 }
 
-// PublicShareInfo contains public information about a share
+// PublicShareInfo contains public information about a share.
 type PublicShareInfo struct {
 	Token            string     `json:"token"`
 	ResourceType     string     `json:"resourceType"`
@@ -563,7 +563,7 @@ type PublicShareInfo struct {
 	Description      string     `json:"description,omitempty"`
 }
 
-// Stats returns statistics about secure shares
+// Stats returns statistics about secure shares.
 func (m *SecureShareManager) Stats() ShareStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -583,7 +583,7 @@ func (m *SecureShareManager) Stats() ShareStats {
 	return stats
 }
 
-// ShareStats contains statistics about secure shares
+// ShareStats contains statistics about secure shares.
 type ShareStats struct {
 	TotalLinks        int `json:"totalLinks"`
 	PasswordProtected int `json:"passwordProtected"`
@@ -591,7 +591,7 @@ type ShareStats struct {
 	TotalAccesses     int `json:"totalAccesses"`
 }
 
-// GeneratePassword generates a random password for sharing
+// GeneratePassword generates a random password for sharing.
 func GeneratePassword(length int) (string, error) {
 	if length < 6 {
 		length = 6
@@ -613,7 +613,7 @@ func GeneratePassword(length int) (string, error) {
 	return string(b), nil
 }
 
-// ParseMaxAccesses parses max accesses from string
+// ParseMaxAccesses parses max accesses from string.
 func ParseMaxAccesses(s string) (int, error) {
 	if s == "" || s == "unlimited" {
 		return 0, nil

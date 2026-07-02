@@ -4,7 +4,7 @@ package photoai
 
 import "time"
 
-// PhotoStatus 照片状态
+// PhotoStatus 照片状态.
 type PhotoStatus string
 
 const (
@@ -14,7 +14,7 @@ const (
 	StatusFailed     PhotoStatus = "failed"
 )
 
-// PhotoCategory 照片分类
+// PhotoCategory 照片分类.
 type PhotoCategory string
 
 const (
@@ -29,7 +29,7 @@ const (
 	CategoryOther     PhotoCategory = "other"
 )
 
-// Photo 照片信息
+// Photo 照片信息.
 type Photo struct {
 	ID         string          `json:"id"`
 	Filename   string          `json:"filename"`
@@ -53,7 +53,7 @@ type Photo struct {
 	TakenAt    *time.Time      `json:"taken_at,omitempty"` // 拍摄时间
 }
 
-// EXIFData EXIF元数据
+// EXIFData EXIF元数据.
 type EXIFData struct {
 	CameraMake   string    `json:"camera_make,omitempty"`
 	CameraModel  string    `json:"camera_model,omitempty"`
@@ -68,7 +68,7 @@ type EXIFData struct {
 	TakenAt      time.Time `json:"taken_at"`
 }
 
-// GPSData GPS坐标
+// GPSData GPS坐标.
 type GPSData struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
@@ -76,7 +76,7 @@ type GPSData struct {
 	Address   string  `json:"address,omitempty"` // 反向地理编码地址
 }
 
-// FaceInfo 人脸信息
+// FaceInfo 人脸信息.
 type FaceInfo struct {
 	ID          string    `json:"id"`
 	PersonID    string    `json:"person_id,omitempty"` // 聚类后的人物ID
@@ -87,7 +87,7 @@ type FaceInfo struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// Rect 矩形区域
+// Rect 矩形区域.
 type Rect struct {
 	X      int `json:"x"`
 	Y      int `json:"y"`
@@ -95,7 +95,7 @@ type Rect struct {
 	Height int `json:"height"`
 }
 
-// Person 人物信息（聚类结果）
+// Person 人物信息（聚类结果）.
 type Person struct {
 	ID         string    `json:"id"`
 	Name       string    `json:"name"`
@@ -107,7 +107,7 @@ type Person struct {
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
-// SmartAlbum 智能相册
+// SmartAlbum 智能相册.
 type SmartAlbum struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -122,7 +122,7 @@ type SmartAlbum struct {
 	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
-// AlbumType 相册类型
+// AlbumType 相册类型.
 type AlbumType string
 
 const (
@@ -134,14 +134,14 @@ const (
 	AlbumTypeCustom   AlbumType = "custom"   // 自定义规则
 )
 
-// AlbumRule 相册规则
+// AlbumRule 相册规则.
 type AlbumRule struct {
 	Field    string      `json:"field"`    // category, tag, person_id, location, date_range, score
 	Operator string      `json:"operator"` // eq, contains, gt, lt, between, in
 	Value    interface{} `json:"value"`
 }
 
-// ShareLink 分享链接
+// ShareLink 分享链接.
 type ShareLink struct {
 	ID        string     `json:"id"`
 	Token     string     `json:"token"`
@@ -155,7 +155,7 @@ type ShareLink struct {
 	CreatedBy string     `json:"created_by,omitempty"`
 }
 
-// SearchQuery 搜索查询
+// SearchQuery 搜索查询.
 type SearchQuery struct {
 	Keywords   string          `json:"keywords,omitempty"`
 	Categories []PhotoCategory `json:"categories,omitempty"`
@@ -171,14 +171,14 @@ type SearchQuery struct {
 	PageSize   int             `json:"page_size"`
 }
 
-// LocationFilter 位置过滤
+// LocationFilter 位置过滤.
 type LocationFilter struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
 	RadiusKm  float64 `json:"radius_km"` // 半径（公里）
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	Photos   []*Photo `json:"photos"`
 	Total    int      `json:"total"`
@@ -186,14 +186,14 @@ type SearchResult struct {
 	PageSize int      `json:"page_size"`
 }
 
-// ScanRequest 扫描请求
+// ScanRequest 扫描请求.
 type ScanRequest struct {
 	Directory   string `json:"directory" binding:"required"`
 	Recursive   bool   `json:"recursive"`
 	ForceRescan bool   `json:"force_rescan"` // 强制重新扫描
 }
 
-// ScanResult 扫描结果
+// ScanResult 扫描结果.
 type ScanResult struct {
 	TotalFound  int      `json:"total_found"`
 	NewImported int      `json:"new_imported"`
@@ -202,13 +202,13 @@ type ScanResult struct {
 	Duration    string   `json:"duration"`
 }
 
-// ImportRequest 导入请求
+// ImportRequest 导入请求.
 type ImportRequest struct {
 	Paths     []string `json:"paths" binding:"required,min=1"` // 文件或目录路径
 	Recursive bool     `json:"recursive"`
 }
 
-// ImportResult 导入结果
+// ImportResult 导入结果.
 type ImportResult struct {
 	TotalFiles int      `json:"total_files"`
 	Imported   int      `json:"imported"`
@@ -217,27 +217,27 @@ type ImportResult struct {
 	Errors     []string `json:"errors,omitempty"`
 }
 
-// ThumbnailConfig 缩略图配置
+// ThumbnailConfig 缩略图配置.
 type ThumbnailConfig struct {
 	Sizes   []ThumbnailSize `json:"sizes"`
 	Quality int             `json:"quality"` // 1-100
 	Format  string          `json:"format"`  // jpeg, webp
 }
 
-// ThumbnailSize 缩略图尺寸
+// ThumbnailSize 缩略图尺寸.
 type ThumbnailSize struct {
 	Name   string `json:"name"` // small, medium, large
 	Width  int    `json:"width"`
 	Height int    `json:"height"`
 }
 
-// DuplicateGroup 重复照片组
+// DuplicateGroup 重复照片组.
 type DuplicateGroup struct {
 	Hash     string   `json:"hash"` // 感知哈希
 	PhotoIDs []string `json:"photo_ids"`
 }
 
-// PhotoAIConfig 照片AI配置
+// PhotoAIConfig 照片AI配置.
 type PhotoAIConfig struct {
 	Enabled                   bool             `json:"enabled"`
 	LibraryPath               string           `json:"library_path"`   // 照片库根目录
@@ -252,7 +252,7 @@ type PhotoAIConfig struct {
 	SupportedFormats          []string         `json:"supported_formats"` // 支持的图片格式
 }
 
-// DefaultPhotoAIConfig 默认配置
+// DefaultPhotoAIConfig 默认配置.
 func DefaultPhotoAIConfig() *PhotoAIConfig {
 	return &PhotoAIConfig{
 		Enabled:                   true,
@@ -277,7 +277,7 @@ func DefaultPhotoAIConfig() *PhotoAIConfig {
 	}
 }
 
-// AlbumRequest 创建/更新相册请求
+// AlbumRequest 创建/更新相册请求.
 type AlbumRequest struct {
 	Name        string      `json:"name" binding:"required"`
 	Description string      `json:"description,omitempty"`
@@ -285,7 +285,7 @@ type AlbumRequest struct {
 	Rules       []AlbumRule `json:"rules" binding:"required,min=1"`
 }
 
-// ShareRequest 创建分享请求
+// ShareRequest 创建分享请求.
 type ShareRequest struct {
 	PhotoIDs  []string `json:"photo_ids" binding:"required,min=1"`
 	Password  string   `json:"password,omitempty"`
@@ -293,24 +293,24 @@ type ShareRequest struct {
 	MaxViews  int      `json:"max_views,omitempty"`
 }
 
-// RenamePersonRequest 重命名人物请求
+// RenamePersonRequest 重命名人物请求.
 type RenamePersonRequest struct {
 	Name string `json:"name" binding:"required"`
 }
 
-// FavoriteRequest 收藏请求
+// FavoriteRequest 收藏请求.
 type FavoriteRequest struct {
 	IsFavorite bool `json:"is_favorite"`
 }
 
-// BatchTagRequest 批量标签请求
+// BatchTagRequest 批量标签请求.
 type BatchTagRequest struct {
 	PhotoIDs []string `json:"photo_ids" binding:"required,min=1"`
 	Tags     []string `json:"tags" binding:"required,min=1"`
 	Action   string   `json:"action"` // add, remove, set
 }
 
-// AIAnalysisResult AI分析结果
+// AIAnalysisResult AI分析结果.
 type AIAnalysisResult struct {
 	Categories []PhotoCategory `json:"categories"`
 	Tags       []string        `json:"tags"`

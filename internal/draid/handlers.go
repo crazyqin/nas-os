@@ -10,17 +10,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 提供 DRAID 管理的 HTTP 处理器
+// Handlers 提供 DRAID 管理的 HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建新的 DRAID 处理器
+// NewHandlers 创建新的 DRAID 处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册 DRAID API 路由
+// RegisterRoutes 注册 DRAID API 路由.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	draid := rg.Group("/draid")
 	{
@@ -51,13 +51,13 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// listArrays 列出所有 DRAID 阵列
+// listArrays 列出所有 DRAID 阵列.
 func (h *Handlers) listArrays(c *gin.Context) {
 	arrays := h.manager.ListArrays()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": arrays})
 }
 
-// createArray 创建 DRAID 阵列
+// createArray 创建 DRAID 阵列.
 func (h *Handlers) createArray(c *gin.Context) {
 	var req struct {
 		Name         string   `json:"name" binding:"required"`
@@ -79,7 +79,7 @@ func (h *Handlers) createArray(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "DRAID 阵列已创建"})
 }
 
-// getArray 获取 DRAID 阵列信息
+// getArray 获取 DRAID 阵列信息.
 func (h *Handlers) getArray(c *gin.Context) {
 	name := c.Param("name")
 	arr, err := h.manager.GetArray(name)
@@ -90,7 +90,7 @@ func (h *Handlers) getArray(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": arr})
 }
 
-// deleteArray 删除 DRAID 阵列
+// deleteArray 删除 DRAID 阵列.
 func (h *Handlers) deleteArray(c *gin.Context) {
 	name := c.Param("name")
 	if err := h.manager.DeleteArray(name); err != nil {
@@ -100,7 +100,7 @@ func (h *Handlers) deleteArray(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "DRAID 阵列已删除"})
 }
 
-// getArrayStatus 获取 DRAID 阵列详细状态
+// getArrayStatus 获取 DRAID 阵列详细状态.
 func (h *Handlers) getArrayStatus(c *gin.Context) {
 	name := c.Param("name")
 	status, err := h.manager.GetArrayStatus(name)
@@ -111,7 +111,7 @@ func (h *Handlers) getArrayStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": status})
 }
 
-// listDistributedSpares 列出分布式热备
+// listDistributedSpares 列出分布式热备.
 func (h *Handlers) listDistributedSpares(c *gin.Context) {
 	name := c.Param("name")
 	spares, err := h.manager.ListDistributedSpares(name)
@@ -122,7 +122,7 @@ func (h *Handlers) listDistributedSpares(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": spares})
 }
 
-// addDistributedSpare 添加分布式热备
+// addDistributedSpare 添加分布式热备.
 func (h *Handlers) addDistributedSpare(c *gin.Context) {
 	name := c.Param("name")
 	var req struct {
@@ -139,7 +139,7 @@ func (h *Handlers) addDistributedSpare(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "分布式热备已添加"})
 }
 
-// removeDistributedSpare 移除分布式热备
+// removeDistributedSpare 移除分布式热备.
 func (h *Handlers) removeDistributedSpare(c *gin.Context) {
 	name := c.Param("name")
 	device := c.Param("device")
@@ -150,7 +150,7 @@ func (h *Handlers) removeDistributedSpare(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "分布式热备已移除"})
 }
 
-// reportDeviceFailure 报告设备故障
+// reportDeviceFailure 报告设备故障.
 func (h *Handlers) reportDeviceFailure(c *gin.Context) {
 	name := c.Param("name")
 	device := c.Param("device")
@@ -161,7 +161,7 @@ func (h *Handlers) reportDeviceFailure(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "设备故障已报告"})
 }
 
-// rebuildArray 触发阵列重建
+// rebuildArray 触发阵列重建.
 func (h *Handlers) rebuildArray(c *gin.Context) {
 	name := c.Param("name")
 	if err := h.manager.RebuildArray(name); err != nil {
@@ -171,7 +171,7 @@ func (h *Handlers) rebuildArray(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "阵列重建已开始"})
 }
 
-// updateRebuildProgress 更新重建进度
+// updateRebuildProgress 更新重建进度.
 func (h *Handlers) updateRebuildProgress(c *gin.Context) {
 	name := c.Param("name")
 	var req struct {
@@ -188,7 +188,7 @@ func (h *Handlers) updateRebuildProgress(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "重建进度已更新"})
 }
 
-// reshareData 触发数据重分布
+// reshareData 触发数据重分布.
 func (h *Handlers) reshareData(c *gin.Context) {
 	name := c.Param("name")
 	var req struct {
@@ -205,7 +205,7 @@ func (h *Handlers) reshareData(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "数据重分布已开始"})
 }
 
-// updateReshareProgress 更新数据重分布进度
+// updateReshareProgress 更新数据重分布进度.
 func (h *Handlers) updateReshareProgress(c *gin.Context) {
 	name := c.Param("name")
 	var req struct {
@@ -223,7 +223,7 @@ func (h *Handlers) updateReshareProgress(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "重分布进度已更新"})
 }
 
-// getMetrics 获取性能指标
+// getMetrics 获取性能指标.
 func (h *Handlers) getMetrics(c *gin.Context) {
 	name := c.Param("name")
 	metrics, err := h.manager.GetMetrics(name)
@@ -234,7 +234,7 @@ func (h *Handlers) getMetrics(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": metrics})
 }
 
-// updateMetrics 更新性能指标
+// updateMetrics 更新性能指标.
 func (h *Handlers) updateMetrics(c *gin.Context) {
 	name := c.Param("name")
 	var req PerformanceMetrics

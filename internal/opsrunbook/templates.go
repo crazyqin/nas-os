@@ -2,7 +2,7 @@ package opsrunbook
 
 import "time"
 
-// LoadBuiltInTemplates 加载内置运维手册模板
+// LoadBuiltInTemplates 加载内置运维手册模板.
 func LoadBuiltInTemplates() []*Runbook {
 	return []*Runbook{
 		diskReplacementTemplate(),
@@ -14,7 +14,7 @@ func LoadBuiltInTemplates() []*Runbook {
 	}
 }
 
-// diskReplacementTemplate 磁盘更换手册
+// diskReplacementTemplate 磁盘更换手册.
 func diskReplacementTemplate() *Runbook {
 	return &Runbook{
 		ID:          "builtin_disk_replacement",
@@ -36,13 +36,13 @@ func diskReplacementTemplate() *Runbook {
 				RetryDelay:  5 * time.Second,
 			},
 			{
-				ID:         "check_raid_status",
-				Name:       "检查RAID阵列状态",
+				ID:          "check_raid_status",
+				Name:        "检查RAID阵列状态",
 				Description: "确认RAID阵列降级状态",
-				Type:       StepTypeCommand,
-				Command:    "btrfs device stats ${mount_point}",
-				Timeout:    15 * time.Second,
-				DependsOn:  []string{"check_disk_status"},
+				Type:        StepTypeCommand,
+				Command:     "btrfs device stats ${mount_point}",
+				Timeout:     15 * time.Second,
+				DependsOn:   []string{"check_disk_status"},
 			},
 			{
 				ID:          "notify_team",
@@ -104,7 +104,7 @@ func diskReplacementTemplate() *Runbook {
 	}
 }
 
-// serviceRecoveryTemplate 服务恢复手册
+// serviceRecoveryTemplate 服务恢复手册.
 func serviceRecoveryTemplate() *Runbook {
 	return &Runbook{
 		ID:          "builtin_service_recovery",
@@ -184,7 +184,7 @@ func serviceRecoveryTemplate() *Runbook {
 	}
 }
 
-// backupVerificationTemplate 备份验证手册
+// backupVerificationTemplate 备份验证手册.
 func backupVerificationTemplate() *Runbook {
 	return &Runbook{
 		ID:          "builtin_backup_verify",
@@ -247,7 +247,7 @@ func backupVerificationTemplate() *Runbook {
 	}
 }
 
-// systemUpgradeTemplate 系统升级手册
+// systemUpgradeTemplate 系统升级手册.
 func systemUpgradeTemplate() *Runbook {
 	return &Runbook{
 		ID:          "builtin_system_upgrade",
@@ -275,10 +275,10 @@ func systemUpgradeTemplate() *Runbook {
 				Timeout:     2 * time.Minute,
 				DependsOn:   []string{"pre_check"},
 				Rollback: &Step{
-					ID:      "restore_config",
-					Name:    "恢复配置",
-					Type:    StepTypeScript,
-					Script:  "tar xzf /tmp/nas_config_backup_*.tar.gz -C /",
+					ID:     "restore_config",
+					Name:   "恢复配置",
+					Type:   StepTypeScript,
+					Script: "tar xzf /tmp/nas_config_backup_*.tar.gz -C /",
 				},
 			},
 			{
@@ -341,7 +341,7 @@ func systemUpgradeTemplate() *Runbook {
 	}
 }
 
-// networkTroubleshootTemplate 网络故障排查手册
+// networkTroubleshootTemplate 网络故障排查手册.
 func networkTroubleshootTemplate() *Runbook {
 	return &Runbook{
 		ID:          "builtin_network_troubleshoot",
@@ -384,28 +384,28 @@ func networkTroubleshootTemplate() *Runbook {
 				DependsOn: []string{"ping_gateway"},
 			},
 			{
-				ID:        "check_firewall",
-				Name:      "检查防火墙规则",
-				Type:      StepTypeCommand,
-				Command:   "iptables -L -n | head -30",
-				Timeout:   5 * time.Second,
-				DependsOn: []string{"ping_external"},
+				ID:         "check_firewall",
+				Name:       "检查防火墙规则",
+				Type:       StepTypeCommand,
+				Command:    "iptables -L -n | head -30",
+				Timeout:    5 * time.Second,
+				DependsOn:  []string{"ping_external"},
 				ContinueOn: "always",
 			},
 			{
-				ID:        "check_connections",
-				Name:      "检查网络连接",
-				Type:      StepTypeCommand,
-				Command:   "ss -tuln | head -20",
-				Timeout:   5 * time.Second,
-				DependsOn: []string{"check_firewall"},
+				ID:         "check_connections",
+				Name:       "检查网络连接",
+				Type:       StepTypeCommand,
+				Command:    "ss -tuln | head -20",
+				Timeout:    5 * time.Second,
+				DependsOn:  []string{"check_firewall"},
 				ContinueOn: "always",
 			},
 			{
-				ID:      "diagnose_report",
-				Name:    "生成诊断报告",
-				Type:    StepTypeNotify,
-				Command: "网络诊断完成，请查看详细日志",
+				ID:        "diagnose_report",
+				Name:      "生成诊断报告",
+				Type:      StepTypeNotify,
+				Command:   "网络诊断完成，请查看详细日志",
 				DependsOn: []string{"check_connections"},
 			},
 		},
@@ -418,7 +418,7 @@ func networkTroubleshootTemplate() *Runbook {
 	}
 }
 
-// emergencyShutdownTemplate 紧急关机手册
+// emergencyShutdownTemplate 紧急关机手册.
 func emergencyShutdownTemplate() *Runbook {
 	return &Runbook{
 		ID:          "builtin_emergency_shutdown",
@@ -457,11 +457,11 @@ func emergencyShutdownTemplate() *Runbook {
 				ContinueOn:  "always",
 			},
 			{
-				ID:          "notify_shutdown",
-				Name:        "发送关机通知",
-				Type:        StepTypeNotify,
-				Command:     "系统正在执行紧急关机",
-				DependsOn:   []string{"unmount_storage"},
+				ID:        "notify_shutdown",
+				Name:      "发送关机通知",
+				Type:      StepTypeNotify,
+				Command:   "系统正在执行紧急关机",
+				DependsOn: []string{"unmount_storage"},
 			},
 			{
 				ID:          "execute_shutdown",
@@ -473,8 +473,8 @@ func emergencyShutdownTemplate() *Runbook {
 				DependsOn:   []string{"notify_shutdown"},
 			},
 		},
-		Variables:   []*Variable{},
-		RollbackOn:  "never",
-		Author:      "system",
+		Variables:  []*Variable{},
+		RollbackOn: "never",
+		Author:     "system",
 	}
 }

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Manager 量子安全通信管理器
+// Manager 量子安全通信管理器.
 type Manager struct {
 	mu              sync.RWMutex
 	channels        map[string]*SecureChannel
@@ -23,7 +23,7 @@ type Manager struct {
 	startedAt       time.Time
 }
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
 	DefaultAlgorithm AlgorithmType
 	DefaultSecurity  SecurityLevel
@@ -32,7 +32,7 @@ type ManagerConfig struct {
 	AuditLogSize     int
 }
 
-// NewManager 创建量子安全通信管理器
+// NewManager 创建量子安全通信管理器.
 func NewManager(cfg *ManagerConfig) *Manager {
 	if cfg == nil {
 		cfg = &ManagerConfig{}
@@ -65,7 +65,7 @@ func NewManager(cfg *ManagerConfig) *Manager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() {
 	m.mu.Lock()
 	if m.running {
@@ -77,7 +77,7 @@ func (m *Manager) Start() {
 	m.mu.Unlock()
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -88,7 +88,7 @@ func (m *Manager) Stop() {
 	}
 }
 
-// GenerateKeyPair 生成密钥对
+// GenerateKeyPair 生成密钥对.
 func (m *Manager) GenerateKeyPair(algorithm AlgorithmType, level SecurityLevel) (*KeyPair, error) {
 	if algorithm == "" {
 		algorithm = m.defaultAlgo
@@ -130,7 +130,7 @@ func (m *Manager) GenerateKeyPair(algorithm AlgorithmType, level SecurityLevel) 
 	return kp, nil
 }
 
-// InitiateHandshake 发起握手
+// InitiateHandshake 发起握手.
 func (m *Manager) InitiateHandshake(algorithm AlgorithmType, level SecurityLevel) (*HandshakeSession, error) {
 	if algorithm == "" {
 		algorithm = m.defaultAlgo
@@ -163,7 +163,7 @@ func (m *Manager) InitiateHandshake(algorithm AlgorithmType, level SecurityLevel
 	return session, nil
 }
 
-// CompleteHandshake 完成握手
+// CompleteHandshake 完成握手.
 func (m *Manager) CompleteHandshake(sessionID string, remotePubKey []byte) (*SecureChannel, error) {
 	m.mu.Lock()
 	session, ok := m.handshakes[sessionID]
@@ -207,7 +207,7 @@ func (m *Manager) CompleteHandshake(sessionID string, remotePubKey []byte) (*Sec
 	return channel, nil
 }
 
-// EncryptMessage 加密消息
+// EncryptMessage 加密消息.
 func (m *Manager) EncryptMessage(channelID string, plaintext []byte) (*EncryptedMessage, error) {
 	m.mu.RLock()
 	channel, ok := m.channels[channelID]
@@ -250,7 +250,7 @@ func (m *Manager) EncryptMessage(channelID string, plaintext []byte) (*Encrypted
 	return msg, nil
 }
 
-// DecryptMessage 解密消息
+// DecryptMessage 解密消息.
 func (m *Manager) DecryptMessage(msg *EncryptedMessage) ([]byte, error) {
 	m.mu.RLock()
 	channel, ok := m.channels[msg.ChannelID]
@@ -277,7 +277,7 @@ func (m *Manager) DecryptMessage(msg *EncryptedMessage) ([]byte, error) {
 	return plaintext, nil
 }
 
-// SignMessage 签名消息
+// SignMessage 签名消息.
 func (m *Manager) SignMessage(keyID string, message []byte) (*DigitalSignature, error) {
 	m.mu.RLock()
 	keyPair, ok := m.keyPairs[keyID]
@@ -301,7 +301,7 @@ func (m *Manager) SignMessage(keyID string, message []byte) (*DigitalSignature, 
 	}, nil
 }
 
-// VerifySignature 验证签名
+// VerifySignature 验证签名.
 func (m *Manager) VerifySignature(sig *DigitalSignature) (bool, error) {
 	if sig == nil || len(sig.Signature) == 0 || len(sig.PublicKey) == 0 {
 		return false, fmt.Errorf("无效签名数据")
@@ -316,7 +316,7 @@ func (m *Manager) VerifySignature(sig *DigitalSignature) (bool, error) {
 	return true, nil
 }
 
-// CloseChannel 关闭安全通道
+// CloseChannel 关闭安全通道.
 func (m *Manager) CloseChannel(channelID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -331,7 +331,7 @@ func (m *Manager) CloseChannel(channelID string) error {
 	return nil
 }
 
-// GetChannel 获取安全通道
+// GetChannel 获取安全通道.
 func (m *Manager) GetChannel(channelID string) (*SecureChannel, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -343,7 +343,7 @@ func (m *Manager) GetChannel(channelID string) (*SecureChannel, error) {
 	return channel, nil
 }
 
-// ListChannels 列出所有通道
+// ListChannels 列出所有通道.
 func (m *Manager) ListChannels() []*SecureChannel {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -355,7 +355,7 @@ func (m *Manager) ListChannels() []*SecureChannel {
 	return channels
 }
 
-// GetHandshake 获取握手会话
+// GetHandshake 获取握手会话.
 func (m *Manager) GetHandshake(sessionID string) (*HandshakeSession, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -367,7 +367,7 @@ func (m *Manager) GetHandshake(sessionID string) (*HandshakeSession, error) {
 	return session, nil
 }
 
-// GetSupportedAlgorithms 获取支持的算法列表
+// GetSupportedAlgorithms 获取支持的算法列表.
 func (m *Manager) GetSupportedAlgorithms() []AlgorithmInfo {
 	return []AlgorithmInfo{
 		{
@@ -439,7 +439,7 @@ func (m *Manager) GetSupportedAlgorithms() []AlgorithmInfo {
 	}
 }
 
-// GetState 获取管理器状态
+// GetState 获取管理器状态.
 func (m *Manager) GetState() *ManagerState {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -469,7 +469,7 @@ func (m *Manager) GetState() *ManagerState {
 	}
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (m *Manager) GetAuditLog(limit int) []SecurityAudit {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -485,14 +485,14 @@ func (m *Manager) GetAuditLog(limit int) []SecurityAudit {
 	return result
 }
 
-// RunWithContext 带 Context 运行
+// RunWithContext 带 Context 运行.
 func (m *Manager) RunWithContext(ctx context.Context) {
 	m.Start()
 	<-ctx.Done()
 	m.Stop()
 }
 
-// addAuditLog 添加审计日志（内部使用，需持有锁）
+// addAuditLog 添加审计日志（内部使用，需持有锁）.
 func (m *Manager) addAuditLog(eventType, channelID string, algorithm AlgorithmType, details, severity string) {
 	entry := SecurityAudit{
 		ID:        fmt.Sprintf("audit-%d", time.Now().UnixNano()),
@@ -512,7 +512,7 @@ func (m *Manager) addAuditLog(eventType, channelID string, algorithm AlgorithmTy
 	m.auditLog = append(m.auditLog, entry)
 }
 
-// 辅助函数：获取算法参数大小
+// 辅助函数：获取算法参数大小.
 func getPublicKeySize(algo AlgorithmType, level SecurityLevel) int {
 	switch algo {
 	case AlgorithmKyber:

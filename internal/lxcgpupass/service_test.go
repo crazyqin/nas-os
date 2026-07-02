@@ -153,7 +153,7 @@ func TestGetDeviceNotFound(t *testing.T) {
 
 // ========== GPU 分配测试 ==========
 
-// injectDevice 向 Service 注入测试设备（绕过 sysfs）
+// injectDevice 向 Service 注入测试设备（绕过 sysfs）.
 func injectDevice(svc *Service, pciAddr string, vendor GPUVendor) *GPUDevice {
 	d := &GPUDevice{
 		PCIAddress: pciAddr,

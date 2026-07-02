@@ -11,13 +11,13 @@ import (
 	"time"
 )
 
-// Manager 知识库管理器
+// Manager 知识库管理器.
 type Manager struct {
 	mu    sync.RWMutex
 	wikis map[string]*Wiki
 }
 
-// NewManager 创建知识库管理器
+// NewManager 创建知识库管理器.
 func NewManager() *Manager {
 	return &Manager{
 		wikis: make(map[string]*Wiki),
@@ -30,7 +30,7 @@ func generateID() string {
 	return hex.EncodeToString(b)
 }
 
-// ListWikis 列出所有知识库
+// ListWikis 列出所有知识库.
 func (m *Manager) ListWikis() []*Wiki {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -45,7 +45,7 @@ func (m *Manager) ListWikis() []*Wiki {
 	return wikis
 }
 
-// CreateWiki 创建知识库
+// CreateWiki 创建知识库.
 func (m *Manager) CreateWiki(req *CreateWikiRequest) (*Wiki, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -67,7 +67,7 @@ func (m *Manager) CreateWiki(req *CreateWikiRequest) (*Wiki, error) {
 	return wiki, nil
 }
 
-// GetWiki 获取知识库
+// GetWiki 获取知识库.
 func (m *Manager) GetWiki(id string) (*Wiki, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -79,7 +79,7 @@ func (m *Manager) GetWiki(id string) (*Wiki, error) {
 	return wiki, nil
 }
 
-// DeleteWiki 删除知识库
+// DeleteWiki 删除知识库.
 func (m *Manager) DeleteWiki(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -91,7 +91,7 @@ func (m *Manager) DeleteWiki(id string) error {
 	return nil
 }
 
-// CreatePage 创建页面
+// CreatePage 创建页面.
 func (m *Manager) CreatePage(wikiID string, req *CreatePageRequest) (*Page, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -162,7 +162,7 @@ func (m *Manager) CreatePage(wikiID string, req *CreatePageRequest) (*Page, erro
 	return page, nil
 }
 
-// UpdatePage 更新页面
+// UpdatePage 更新页面.
 func (m *Manager) UpdatePage(wikiID, pageID string, req *UpdatePageRequest) (*Page, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -212,7 +212,7 @@ func (m *Manager) UpdatePage(wikiID, pageID string, req *UpdatePageRequest) (*Pa
 	return page, nil
 }
 
-// GetPage 获取页面
+// GetPage 获取页面.
 func (m *Manager) GetPage(wikiID, pageID string) (*Page, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -229,7 +229,7 @@ func (m *Manager) GetPage(wikiID, pageID string) (*Page, error) {
 	return page, nil
 }
 
-// DeletePage 删除页面
+// DeletePage 删除页面.
 func (m *Manager) DeletePage(wikiID, pageID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -248,7 +248,7 @@ func (m *Manager) DeletePage(wikiID, pageID string) error {
 	return nil
 }
 
-// GetHistory 获取页面版本历史
+// GetHistory 获取页面版本历史.
 func (m *Manager) GetHistory(wikiID, pageID string) ([]*Revision, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -273,7 +273,7 @@ func (m *Manager) GetHistory(wikiID, pageID string) ([]*Revision, error) {
 	return revisions, nil
 }
 
-// SearchPages 全文搜索
+// SearchPages 全文搜索.
 func (m *Manager) SearchPages(req *SearchRequest) []*SearchResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -305,7 +305,7 @@ func (m *Manager) SearchPages(req *SearchRequest) []*SearchResult {
 	return results
 }
 
-// SetPermission 设置权限
+// SetPermission 设置权限.
 func (m *Manager) SetPermission(wikiID string, req *SetPermissionRequest) (*Permission, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -337,7 +337,7 @@ func (m *Manager) SetPermission(wikiID string, req *SetPermissionRequest) (*Perm
 	return perm, nil
 }
 
-// RemovePermission 移除权限
+// RemovePermission 移除权限.
 func (m *Manager) RemovePermission(wikiID, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

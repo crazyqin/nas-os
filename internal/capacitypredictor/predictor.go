@@ -12,7 +12,7 @@ import (
 
 // ==================== 数据类型 ====================
 
-// UsageSnapshot 使用量快照
+// UsageSnapshot 使用量快照.
 type UsageSnapshot struct {
 	Timestamp  time.Time `json:"timestamp"`
 	TotalBytes int64     `json:"totalBytes"`
@@ -22,7 +22,7 @@ type UsageSnapshot struct {
 	InodeUsed  int64     `json:"inodeUsed"`
 }
 
-// PredictionResult 预测结果
+// PredictionResult 预测结果.
 type PredictionResult struct {
 	Dataset         string      `json:"dataset"`
 	CurrentUsage    float64     `json:"currentUsage"`    // 当前使用率 (0-100)
@@ -36,7 +36,7 @@ type PredictionResult struct {
 	GeneratedAt     time.Time   `json:"generatedAt"`
 }
 
-// GrowthTrend 增长趋势
+// GrowthTrend 增长趋势.
 type GrowthTrend string
 
 const (
@@ -47,7 +47,7 @@ const (
 	TrendDeclining GrowthTrend = "declining" // 下降
 )
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 const (
@@ -56,7 +56,7 @@ const (
 	AlertCritical AlertLevel = "critical"
 )
 
-// CapacityAlert 容量告警
+// CapacityAlert 容量告警.
 type CapacityAlert struct {
 	Level     AlertLevel `json:"level"`
 	Dataset   string     `json:"dataset"`
@@ -66,7 +66,7 @@ type CapacityAlert struct {
 	CreatedAt time.Time  `json:"createdAt"`
 }
 
-// CapacityReport 容量报告
+// CapacityReport 容量报告.
 type CapacityReport struct {
 	GeneratedAt  time.Time           `json:"generatedAt"`
 	Datasets     []*PredictionResult `json:"datasets"`
@@ -78,7 +78,7 @@ type CapacityReport struct {
 
 // ==================== 预测器 ====================
 
-// Predictor 容量预测器
+// Predictor 容量预测器.
 type Predictor struct {
 	mu sync.RWMutex
 
@@ -93,7 +93,7 @@ type Predictor struct {
 	minSamples     int
 }
 
-// NewPredictor 创建容量预测器
+// NewPredictor 创建容量预测器.
 func NewPredictor() *Predictor {
 	return &Predictor{
 		history:         make(map[string][]*UsageSnapshot),
@@ -105,7 +105,7 @@ func NewPredictor() *Predictor {
 
 // ==================== 数据采集 ====================
 
-// RecordSnapshot 记录使用量快照
+// RecordSnapshot 记录使用量快照.
 func (p *Predictor) RecordSnapshot(dataset string, snap *UsageSnapshot) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -131,7 +131,7 @@ func (p *Predictor) RecordSnapshot(dataset string, snap *UsageSnapshot) {
 
 // ==================== 预测分析 ====================
 
-// Predict 预测指定数据集的容量
+// Predict 预测指定数据集的容量.
 func (p *Predictor) Predict(dataset string) (*PredictionResult, error) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -191,7 +191,7 @@ func (p *Predictor) Predict(dataset string) (*PredictionResult, error) {
 	return result, nil
 }
 
-// calculateGrowthRate 计算增长速率（线性回归）
+// calculateGrowthRate 计算增长速率（线性回归）.
 func (p *Predictor) calculateGrowthRate(snapshots []*UsageSnapshot) (float64, float64) {
 	n := len(snapshots)
 	if n < 2 {
@@ -240,7 +240,7 @@ func (p *Predictor) calculateGrowthRate(snapshots []*UsageSnapshot) (float64, fl
 	return slope, confidence
 }
 
-// analyzeTrend 分析增长趋势
+// analyzeTrend 分析增长趋势.
 func (p *Predictor) analyzeTrend(snapshots []*UsageSnapshot) GrowthTrend {
 	n := len(snapshots)
 	if n < 3 {
@@ -275,7 +275,7 @@ func (p *Predictor) analyzeTrend(snapshots []*UsageSnapshot) GrowthTrend {
 	}
 }
 
-// segmentGrowthRate 计算片段增长速率
+// segmentGrowthRate 计算片段增长速率.
 func (p *Predictor) segmentGrowthRate(snapshots []*UsageSnapshot) float64 {
 	n := len(snapshots)
 	if n < 2 {
@@ -289,7 +289,7 @@ func (p *Predictor) segmentGrowthRate(snapshots []*UsageSnapshot) float64 {
 	return growth / duration
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (p *Predictor) generateRecommendations(usage float64, trend GrowthTrend, daysRemaining int) []string {
 	var recs []string
 
@@ -323,7 +323,7 @@ func (p *Predictor) generateRecommendations(usage float64, trend GrowthTrend, da
 
 // ==================== 告警管理 ====================
 
-// CheckAlerts 检查容量告警
+// CheckAlerts 检查容量告警.
 func (p *Predictor) CheckAlerts(dataset string) []*CapacityAlert {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -362,7 +362,7 @@ func (p *Predictor) CheckAlerts(dataset string) []*CapacityAlert {
 
 // ==================== 报告生成 ====================
 
-// GenerateReport 生成容量报告
+// GenerateReport 生成容量报告.
 func (p *Predictor) GenerateReport() *CapacityReport {
 	p.mu.RLock()
 	datasets := make([]string, 0, len(p.history))
@@ -410,14 +410,14 @@ func (p *Predictor) GenerateReport() *CapacityReport {
 
 // ==================== 配置 ====================
 
-// SetAlertThresholds 设置告警阈值
+// SetAlertThresholds 设置告警阈值.
 func (p *Predictor) SetAlertThresholds(thresholds []float64) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.alertThresholds = thresholds
 }
 
-// GetHistory 获取历史数据
+// GetHistory 获取历史数据.
 func (p *Predictor) GetHistory(dataset string, days int) []*UsageSnapshot {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -437,7 +437,7 @@ func (p *Predictor) GetHistory(dataset string, days int) []*UsageSnapshot {
 	return result
 }
 
-// GetDatasets 获取所有数据集列表
+// GetDatasets 获取所有数据集列表.
 func (p *Predictor) GetDatasets() []string {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -449,7 +449,7 @@ func (p *Predictor) GetDatasets() []string {
 	return datasets
 }
 
-// CalculateLinearForecast 线性预测（用于自定义时间范围）
+// CalculateLinearForecast 线性预测（用于自定义时间范围）.
 func (p *Predictor) CalculateLinearForecast(dataset string, daysAhead int) (float64, error) {
 	pred, err := p.Predict(dataset)
 	if err != nil {
@@ -472,7 +472,7 @@ func (p *Predictor) CalculateLinearForecast(dataset string, daysAhead int) (floa
 	return futureUsage, nil
 }
 
-// EstimateRequiredCapacity 估算扩容需求
+// EstimateRequiredCapacity 估算扩容需求.
 func (p *Predictor) EstimateRequiredCapacity(dataset string, targetDays int) (int64, error) {
 	pred, err := p.Predict(dataset)
 	if err != nil {
@@ -487,7 +487,7 @@ func (p *Predictor) EstimateRequiredCapacity(dataset string, targetDays int) (in
 	return required, nil
 }
 
-// GetPeakUsage 获取峰值使用时间
+// GetPeakUsage 获取峰值使用时间.
 func (p *Predictor) GetPeakUsage(dataset string) *UsageSnapshot {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -506,7 +506,7 @@ func (p *Predictor) GetPeakUsage(dataset string) *UsageSnapshot {
 	return peak
 }
 
-// EstimateDaysUntilFull 计算满盘天数（简化接口）
+// EstimateDaysUntilFull 计算满盘天数（简化接口）.
 func EstimateDaysUntilFull(currentFree int64, dailyGrowth float64) int {
 	if dailyGrowth <= 0 {
 		return math.MaxInt32

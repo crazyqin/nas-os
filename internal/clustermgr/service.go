@@ -88,17 +88,17 @@ func (s *Service) CreateCluster(ctx context.Context, req *CreateClusterRequest) 
 	}
 
 	cs := &clusterState{
-		id:            clusterID,
-		name:          req.Name,
-		status:        ClusterHealthy,
-		leaderID:      leaderID,
-		nodes:         map[string]*ClusterNode{leaderID: leaderNode},
-		migrations:    make(map[string]*WorkloadMigration),
-		qosRules:      make(map[string]*QoSRule),
-		protections:   make(map[string]*CentralizedProtection),
-		healthRecords: make(map[string]*NodeHealth),
-		createdAt:     now,
-		updatedAt:     now,
+		id:             clusterID,
+		name:           req.Name,
+		status:         ClusterHealthy,
+		leaderID:       leaderID,
+		nodes:          map[string]*ClusterNode{leaderID: leaderNode},
+		migrations:     make(map[string]*WorkloadMigration),
+		qosRules:       make(map[string]*QoSRule),
+		protections:    make(map[string]*CentralizedProtection),
+		healthRecords:  make(map[string]*NodeHealth),
+		createdAt:      now,
+		updatedAt:      now,
 		faultTolerance: 0,
 	}
 
@@ -298,9 +298,9 @@ func (s *Service) MigrateWorkload(ctx context.Context, req *MigrateWorkloadReque
 
 	return &MigrationResponse{
 		MigrationID: migrationID,
-		Status:       migration.Status,
-		Progress:     migration.Progress,
-		Message:      fmt.Sprintf("工作负载 %s 已从 %s 迁移到 %s", req.WorkloadID, sourceNode.Name, targetNode.Name),
+		Status:      migration.Status,
+		Progress:    migration.Progress,
+		Message:     fmt.Sprintf("工作负载 %s 已从 %s 迁移到 %s", req.WorkloadID, sourceNode.Name, targetNode.Name),
 	}, nil
 }
 

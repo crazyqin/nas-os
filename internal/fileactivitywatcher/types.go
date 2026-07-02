@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// EventType 事件类型
+// EventType 事件类型.
 type EventType string
 
 const (
@@ -20,7 +20,7 @@ const (
 	EventMove   EventType = "move"   // 移动/重命名
 )
 
-// AlertSeverity 告警严重级别
+// AlertSeverity 告警严重级别.
 type AlertSeverity string
 
 const (
@@ -29,7 +29,7 @@ const (
 	SeverityCritical AlertSeverity = "critical"
 )
 
-// ActivityEvent 文件活动事件
+// ActivityEvent 文件活动事件.
 type ActivityEvent struct {
 	ID        string    `json:"id"`
 	Path      string    `json:"path"`
@@ -39,7 +39,7 @@ type ActivityEvent struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// WatchDir 监控目录
+// WatchDir 监控目录.
 type WatchDir struct {
 	ID        string    `json:"id"`
 	Path      string    `json:"path"`
@@ -49,7 +49,7 @@ type WatchDir struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// AlertRule 告警规则
+// AlertRule 告警规则.
 type AlertRule struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
@@ -63,7 +63,7 @@ type AlertRule struct {
 	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
-// Alert 告警实例
+// Alert 告警实例.
 type Alert struct {
 	ID        string        `json:"id"`
 	RuleID    string        `json:"rule_id"`
@@ -76,14 +76,14 @@ type Alert struct {
 	Resolved  bool          `json:"resolved"`
 }
 
-// ActivityStats 活动统计
+// ActivityStats 活动统计.
 type ActivityStats struct {
 	Hourly map[string]int `json:"hourly"` // "2006-01-02T15" -> count
 	Daily  map[string]int `json:"daily"`  // "2006-01-02" -> count
 	Total  int            `json:"total"`
 }
 
-// Manager 文件活动监控管理器
+// Manager 文件活动监控管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	events     []*ActivityEvent
@@ -93,7 +93,7 @@ type Manager struct {
 	maxEvents  int
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		events:     make([]*ActivityEvent, 0, 1000),
@@ -104,7 +104,7 @@ func NewManager() *Manager {
 	}
 }
 
-// AddWatchDir 添加监控目录
+// AddWatchDir 添加监控目录.
 func (m *Manager) AddWatchDir(dir *WatchDir) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -121,7 +121,7 @@ func (m *Manager) AddWatchDir(dir *WatchDir) error {
 	return nil
 }
 
-// RemoveWatchDir 移除监控目录
+// RemoveWatchDir 移除监控目录.
 func (m *Manager) RemoveWatchDir(id string) bool {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -133,7 +133,7 @@ func (m *Manager) RemoveWatchDir(id string) bool {
 	return true
 }
 
-// ListWatchDirs 列出监控目录
+// ListWatchDirs 列出监控目录.
 func (m *Manager) ListWatchDirs() []WatchDir {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -145,7 +145,7 @@ func (m *Manager) ListWatchDirs() []WatchDir {
 	return result
 }
 
-// AddAlertRule 添加告警规则
+// AddAlertRule 添加告警规则.
 func (m *Manager) AddAlertRule(rule *AlertRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -172,7 +172,7 @@ func (m *Manager) AddAlertRule(rule *AlertRule) error {
 	return nil
 }
 
-// UpdateAlertRule 更新告警规则
+// UpdateAlertRule 更新告警规则.
 func (m *Manager) UpdateAlertRule(rule *AlertRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -185,7 +185,7 @@ func (m *Manager) UpdateAlertRule(rule *AlertRule) error {
 	return nil
 }
 
-// DeleteAlertRule 删除告警规则
+// DeleteAlertRule 删除告警规则.
 func (m *Manager) DeleteAlertRule(id string) bool {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -197,7 +197,7 @@ func (m *Manager) DeleteAlertRule(id string) bool {
 	return true
 }
 
-// ListAlertRules 列出告警规则
+// ListAlertRules 列出告警规则.
 func (m *Manager) ListAlertRules() []AlertRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -209,7 +209,7 @@ func (m *Manager) ListAlertRules() []AlertRule {
 	return result
 }
 
-// RecordEvent 记录文件活动事件
+// RecordEvent 记录文件活动事件.
 func (m *Manager) RecordEvent(event *ActivityEvent) *Alert {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -236,7 +236,7 @@ func (m *Manager) RecordEvent(event *ActivityEvent) *Alert {
 	return m.checkAlertRules(event)
 }
 
-// matchesWatchDir 检查路径是否匹配监控目录
+// matchesWatchDir 检查路径是否匹配监控目录.
 func (m *Manager) matchesWatchDir(path string) bool {
 	if len(m.watchDirs) == 0 {
 		return true
@@ -268,7 +268,7 @@ func (m *Manager) matchesWatchDir(path string) bool {
 	return false
 }
 
-// checkAlertRules 检查告警规则
+// checkAlertRules 检查告警规则.
 func (m *Manager) checkAlertRules(event *ActivityEvent) *Alert {
 	for _, rule := range m.alertRules {
 		if !rule.Enabled {
@@ -332,7 +332,7 @@ func (m *Manager) checkAlertRules(event *ActivityEvent) *Alert {
 	return nil
 }
 
-// GetEvents 查询活动事件
+// GetEvents 查询活动事件.
 func (m *Manager) GetEvents(eventType string, limit int) []ActivityEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -353,7 +353,7 @@ func (m *Manager) GetEvents(eventType string, limit int) []ActivityEvent {
 	return result
 }
 
-// GetStats 获取活动统计
+// GetStats 获取活动统计.
 func (m *Manager) GetStats() ActivityStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -374,7 +374,7 @@ func (m *Manager) GetStats() ActivityStats {
 	return stats
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (m *Manager) GetAlerts(resolved bool) []Alert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -388,7 +388,7 @@ func (m *Manager) GetAlerts(resolved bool) []Alert {
 	return result
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (m *Manager) ResolveAlert(alertID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

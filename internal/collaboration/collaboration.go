@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Collaboration 团队协作模块
+// Collaboration 团队协作模块.
 type Collaboration struct {
 	mu         sync.RWMutex
 	teams      map[string]*Team
@@ -20,7 +20,7 @@ type Collaboration struct {
 	config     *Config
 }
 
-// Team 团队
+// Team 团队.
 type Team struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -31,7 +31,7 @@ type Team struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// Member 成员
+// Member 成员.
 type Member struct {
 	ID        string    `json:"id"`
 	UserID    string    `json:"user_id"`
@@ -42,7 +42,7 @@ type Member struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// Share 共享
+// Share 共享.
 type Share struct {
 	ID            string     `json:"id"`
 	FileID        string     `json:"file_id"`
@@ -57,7 +57,7 @@ type Share struct {
 	UpdatedAt     time.Time  `json:"updated_at"`
 }
 
-// Tag 标签
+// Tag 标签.
 type Tag struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -67,7 +67,7 @@ type Tag struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// FileLock 文件锁
+// FileLock 文件锁.
 type FileLock struct {
 	ID        string    `json:"id"`
 	FileID    string    `json:"file_id"`
@@ -77,7 +77,7 @@ type FileLock struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// FileRequest 文件请求
+// FileRequest 文件请求.
 type FileRequest struct {
 	ID          string     `json:"id"`
 	Title       string     `json:"title"`
@@ -91,7 +91,7 @@ type FileRequest struct {
 	UpdatedAt   time.Time  `json:"updated_at"`
 }
 
-// Activity 活动记录
+// Activity 活动记录.
 type Activity struct {
 	ID        string                 `json:"id"`
 	Type      string                 `json:"type"` // share, lock, tag, request, comment
@@ -101,7 +101,7 @@ type Activity struct {
 	CreatedAt time.Time              `json:"created_at"`
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	MaxTeams             int           `json:"max_teams"`
 	MaxMembers           int           `json:"max_members"`
@@ -111,7 +111,7 @@ type Config struct {
 	NotificationsEnabled bool          `json:"notifications_enabled"`
 }
 
-// NewCollaboration 创建协作模块
+// NewCollaboration 创建协作模块.
 func NewCollaboration(config *Config) *Collaboration {
 	return &Collaboration{
 		teams:      make(map[string]*Team),
@@ -125,7 +125,7 @@ func NewCollaboration(config *Config) *Collaboration {
 	}
 }
 
-// CreateTeam 创建团队
+// CreateTeam 创建团队.
 func (c *Collaboration) CreateTeam(ctx context.Context, team *Team) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -136,7 +136,7 @@ func (c *Collaboration) CreateTeam(ctx context.Context, team *Team) error {
 	return nil
 }
 
-// GetTeam 获取团队
+// GetTeam 获取团队.
 func (c *Collaboration) GetTeam(ctx context.Context, id string) (*Team, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -148,7 +148,7 @@ func (c *Collaboration) GetTeam(ctx context.Context, id string) (*Team, error) {
 	return team, nil
 }
 
-// ListTeams 列出团队
+// ListTeams 列出团队.
 func (c *Collaboration) ListTeams(ctx context.Context, userID string) []*Team {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -162,7 +162,7 @@ func (c *Collaboration) ListTeams(ctx context.Context, userID string) []*Team {
 	return teams
 }
 
-// AddMember 添加成员
+// AddMember 添加成员.
 func (c *Collaboration) AddMember(ctx context.Context, member *Member) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -182,7 +182,7 @@ func (c *Collaboration) AddMember(ctx context.Context, member *Member) error {
 	return nil
 }
 
-// RemoveMember 移除成员
+// RemoveMember 移除成员.
 func (c *Collaboration) RemoveMember(ctx context.Context, memberID string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -202,7 +202,7 @@ func (c *Collaboration) RemoveMember(ctx context.Context, memberID string) error
 	return nil
 }
 
-// UpdateMemberRole 更新成员角色
+// UpdateMemberRole 更新成员角色.
 func (c *Collaboration) UpdateMemberRole(ctx context.Context, memberID, role string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -217,7 +217,7 @@ func (c *Collaboration) UpdateMemberRole(ctx context.Context, memberID, role str
 	return nil
 }
 
-// CreateShare 创建共享
+// CreateShare 创建共享.
 func (c *Collaboration) CreateShare(ctx context.Context, share *Share) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -235,7 +235,7 @@ func (c *Collaboration) CreateShare(ctx context.Context, share *Share) error {
 	return nil
 }
 
-// GetShare 获取共享
+// GetShare 获取共享.
 func (c *Collaboration) GetShare(ctx context.Context, id string) (*Share, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -247,7 +247,7 @@ func (c *Collaboration) GetShare(ctx context.Context, id string) (*Share, error)
 	return share, nil
 }
 
-// UpdateShare 更新共享
+// UpdateShare 更新共享.
 func (c *Collaboration) UpdateShare(ctx context.Context, shareID string, updates map[string]interface{}) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -268,7 +268,7 @@ func (c *Collaboration) UpdateShare(ctx context.Context, shareID string, updates
 	return nil
 }
 
-// DeleteShare 删除共享
+// DeleteShare 删除共享.
 func (c *Collaboration) DeleteShare(ctx context.Context, shareID string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -277,7 +277,7 @@ func (c *Collaboration) DeleteShare(ctx context.Context, shareID string) error {
 	return nil
 }
 
-// AddTag 添加标签
+// AddTag 添加标签.
 func (c *Collaboration) AddTag(ctx context.Context, tag *Tag) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -287,7 +287,7 @@ func (c *Collaboration) AddTag(ctx context.Context, tag *Tag) error {
 	return nil
 }
 
-// TagFile 文件打标签
+// TagFile 文件打标签.
 func (c *Collaboration) TagFile(ctx context.Context, tagID, fileID string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -308,7 +308,7 @@ func (c *Collaboration) TagFile(ctx context.Context, tagID, fileID string) error
 	return nil
 }
 
-// UntagFile 移除文件标签
+// UntagFile 移除文件标签.
 func (c *Collaboration) UntagFile(ctx context.Context, tagID, fileID string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -322,7 +322,7 @@ func (c *Collaboration) UntagFile(ctx context.Context, tagID, fileID string) err
 	return nil
 }
 
-// GetTags 获取文件标签
+// GetTags 获取文件标签.
 func (c *Collaboration) GetTags(ctx context.Context, fileID string) []*Tag {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -336,7 +336,7 @@ func (c *Collaboration) GetTags(ctx context.Context, fileID string) []*Tag {
 	return tags
 }
 
-// LockFile 锁定文件
+// LockFile 锁定文件.
 func (c *Collaboration) LockFile(ctx context.Context, fileID, userID, reason string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -366,7 +366,7 @@ func (c *Collaboration) LockFile(ctx context.Context, fileID, userID, reason str
 	return nil
 }
 
-// UnlockFile 解锁文件
+// UnlockFile 解锁文件.
 func (c *Collaboration) UnlockFile(ctx context.Context, fileID, userID string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -390,7 +390,7 @@ func (c *Collaboration) UnlockFile(ctx context.Context, fileID, userID string) e
 	return nil
 }
 
-// IsFileLocked 检查文件是否锁定
+// IsFileLocked 检查文件是否锁定.
 func (c *Collaboration) IsFileLocked(ctx context.Context, fileID string) (bool, string) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -409,7 +409,7 @@ func (c *Collaboration) IsFileLocked(ctx context.Context, fileID string) (bool, 
 	return true, lock.LockedBy
 }
 
-// CreateFileRequest 创建文件请求
+// CreateFileRequest 创建文件请求.
 func (c *Collaboration) CreateFileRequest(ctx context.Context, request *FileRequest) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -428,7 +428,7 @@ func (c *Collaboration) CreateFileRequest(ctx context.Context, request *FileRequ
 	return nil
 }
 
-// GetFileRequest 获取文件请求
+// GetFileRequest 获取文件请求.
 func (c *Collaboration) GetFileRequest(ctx context.Context, id string) (*FileRequest, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -440,7 +440,7 @@ func (c *Collaboration) GetFileRequest(ctx context.Context, id string) (*FileReq
 	return request, nil
 }
 
-// UpdateFileRequestStatus 更新文件请求状态
+// UpdateFileRequestStatus 更新文件请求状态.
 func (c *Collaboration) UpdateFileRequestStatus(ctx context.Context, requestID, status string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -455,7 +455,7 @@ func (c *Collaboration) UpdateFileRequestStatus(ctx context.Context, requestID, 
 	return nil
 }
 
-// AddFileToRequest 添加文件到请求
+// AddFileToRequest 添加文件到请求.
 func (c *Collaboration) AddFileToRequest(ctx context.Context, requestID, fileID string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -470,7 +470,7 @@ func (c *Collaboration) AddFileToRequest(ctx context.Context, requestID, fileID 
 	return nil
 }
 
-// GetActivities 获取活动记录
+// GetActivities 获取活动记录.
 func (c *Collaboration) GetActivities(ctx context.Context, fileID string, limit int) []*Activity {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -491,7 +491,7 @@ func (c *Collaboration) GetActivities(ctx context.Context, fileID string, limit 
 	return activities
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (c *Collaboration) GetStats(ctx context.Context) map[string]interface{} {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -507,7 +507,7 @@ func (c *Collaboration) GetStats(ctx context.Context) map[string]interface{} {
 	}
 }
 
-// 内部方法
+// 内部方法.
 func (c *Collaboration) addActivity(activityType, userID, fileID string, details map[string]interface{}) {
 	activity := &Activity{
 		ID:        generateID(),
@@ -520,7 +520,7 @@ func (c *Collaboration) addActivity(activityType, userID, fileID string, details
 	c.activities = append(c.activities, activity)
 }
 
-// 辅助函数
+// 辅助函数.
 func containsMember(members []string, userID string) bool {
 	for _, member := range members {
 		if member == userID {

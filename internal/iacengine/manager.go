@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager manages IaC templates, stacks, and resources
+// Manager manages IaC templates, stacks, and resources.
 type Manager struct {
 	logger    *zap.Logger
 	templates map[string]*IaCTemplate
@@ -24,7 +24,7 @@ type Manager struct {
 	driftMu   sync.RWMutex
 }
 
-// NewManager creates a new IaC engine manager
+// NewManager creates a new IaC engine manager.
 func NewManager(logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -38,7 +38,7 @@ func NewManager(logger *zap.Logger) *Manager {
 	}
 }
 
-// ParseTemplate parses and validates an IaC template
+// ParseTemplate parses and validates an IaC template.
 func (m *Manager) ParseTemplate(template *IaCTemplate) error {
 	if template.ID == "" {
 		return fmt.Errorf("template ID is required")
@@ -73,7 +73,7 @@ func (m *Manager) ParseTemplate(template *IaCTemplate) error {
 	return nil
 }
 
-// DeployStack deploys a new stack from a template
+// DeployStack deploys a new stack from a template.
 func (m *Manager) DeployStack(ctx context.Context, req DeployStackRequest) (*Stack, error) {
 	m.tmplMu.RLock()
 	tmpl, exists := m.templates[req.TemplateID]
@@ -167,7 +167,7 @@ func (m *Manager) DeployStack(ctx context.Context, req DeployStackRequest) (*Sta
 	return stack, nil
 }
 
-// DetectDrift detects configuration drift for a stack
+// DetectDrift detects configuration drift for a stack.
 func (m *Manager) DetectDrift(ctx context.Context, stackID string) (*DriftReport, error) {
 	m.stackMu.RLock()
 	stack, exists := m.stacks[stackID]
@@ -248,7 +248,7 @@ func (m *Manager) DetectDrift(ctx context.Context, stackID string) (*DriftReport
 	return report, nil
 }
 
-// DestroyStack destroys a stack and all its resources
+// DestroyStack destroys a stack and all its resources.
 func (m *Manager) DestroyStack(ctx context.Context, stackID string) error {
 	m.stackMu.RLock()
 	stack, exists := m.stacks[stackID]
@@ -294,7 +294,7 @@ func (m *Manager) DestroyStack(ctx context.Context, stackID string) error {
 	return nil
 }
 
-// ListStacks returns all stacks
+// ListStacks returns all stacks.
 func (m *Manager) ListStacks() []*Stack {
 	m.stackMu.RLock()
 	defer m.stackMu.RUnlock()
@@ -306,14 +306,14 @@ func (m *Manager) ListStacks() []*Stack {
 	return stacks
 }
 
-// GetStack returns a stack by ID
+// GetStack returns a stack by ID.
 func (m *Manager) GetStack(id string) *Stack {
 	m.stackMu.RLock()
 	defer m.stackMu.RUnlock()
 	return m.stacks[id]
 }
 
-// DeleteStack removes a stack record (does not destroy resources)
+// DeleteStack removes a stack record (does not destroy resources).
 func (m *Manager) DeleteStack(id string) bool {
 	m.stackMu.Lock()
 	defer m.stackMu.Unlock()
@@ -325,14 +325,14 @@ func (m *Manager) DeleteStack(id string) bool {
 	return true
 }
 
-// GetTemplate returns a template by ID
+// GetTemplate returns a template by ID.
 func (m *Manager) GetTemplate(id string) *IaCTemplate {
 	m.tmplMu.RLock()
 	defer m.tmplMu.RUnlock()
 	return m.templates[id]
 }
 
-// ListTemplates returns all templates
+// ListTemplates returns all templates.
 func (m *Manager) ListTemplates() []*IaCTemplate {
 	m.tmplMu.RLock()
 	defer m.tmplMu.RUnlock()
@@ -344,7 +344,7 @@ func (m *Manager) ListTemplates() []*IaCTemplate {
 	return templates
 }
 
-// DeleteTemplate deletes a template
+// DeleteTemplate deletes a template.
 func (m *Manager) DeleteTemplate(id string) bool {
 	m.tmplMu.Lock()
 	defer m.tmplMu.Unlock()
@@ -356,14 +356,14 @@ func (m *Manager) DeleteTemplate(id string) bool {
 	return true
 }
 
-// GetDriftReport returns a drift report by ID
+// GetDriftReport returns a drift report by ID.
 func (m *Manager) GetDriftReport(id string) *DriftReport {
 	m.driftMu.RLock()
 	defer m.driftMu.RUnlock()
 	return m.drifts[id]
 }
 
-// ListDriftReports returns all drift reports
+// ListDriftReports returns all drift reports.
 func (m *Manager) ListDriftReports() []*DriftReport {
 	m.driftMu.RLock()
 	defer m.driftMu.RUnlock()
@@ -375,14 +375,14 @@ func (m *Manager) ListDriftReports() []*DriftReport {
 	return reports
 }
 
-// GetResource returns a resource by ID
+// GetResource returns a resource by ID.
 func (m *Manager) GetResource(id string) *Resource {
 	m.resMu.RLock()
 	defer m.resMu.RUnlock()
 	return m.resources[id]
 }
 
-// ListResources returns all resources for a stack
+// ListResources returns all resources for a stack.
 func (m *Manager) ListResources(stackID string) []*Resource {
 	m.resMu.RLock()
 	defer m.resMu.RUnlock()

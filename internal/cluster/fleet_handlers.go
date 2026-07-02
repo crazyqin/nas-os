@@ -9,17 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// FleetAPI 舰队管理API处理器
+// FleetAPI 舰队管理API处理器.
 type FleetAPI struct {
 	fleet *Fleet
 }
 
-// NewFleetAPI 创建舰队API
+// NewFleetAPI 创建舰队API.
 func NewFleetAPI(fleet *Fleet) *FleetAPI {
 	return &FleetAPI{fleet: fleet}
 }
 
-// RegisterFleetRoutes 注册舰队管理路由
+// RegisterFleetRoutes 注册舰队管理路由.
 func (api *FleetAPI) RegisterFleetRoutes(router *gin.RouterGroup) {
 	cluster := router.Group("/cluster")
 	{
@@ -61,7 +61,7 @@ func (api *FleetAPI) RegisterFleetRoutes(router *gin.RouterGroup) {
 
 // ========== 集群概览 ==========
 
-// GetSummary 获取集群摘要
+// GetSummary 获取集群摘要.
 func (api *FleetAPI) GetSummary(c *gin.Context) {
 	summary := api.fleet.GetFleetSummary()
 	c.JSON(http.StatusOK, gin.H{
@@ -70,7 +70,7 @@ func (api *FleetAPI) GetSummary(c *gin.Context) {
 	})
 }
 
-// GetClusterHealth 获取集群健康状态
+// GetClusterHealth 获取集群健康状态.
 func (api *FleetAPI) GetClusterHealth(c *gin.Context) {
 	api.fleet.mu.RLock()
 	nodes := make(map[string]*FleetNode)
@@ -88,7 +88,7 @@ func (api *FleetAPI) GetClusterHealth(c *gin.Context) {
 
 // ========== 节点管理 ==========
 
-// ListNodes 列出节点
+// ListNodes 列出节点.
 func (api *FleetAPI) ListNodes(c *gin.Context) {
 	filter := &NodeFilter{
 		Role:  FleetNodeRole(c.Query("role")),
@@ -104,7 +104,7 @@ func (api *FleetAPI) ListNodes(c *gin.Context) {
 	})
 }
 
-// GetNode 获取节点
+// GetNode 获取节点.
 func (api *FleetAPI) GetNode(c *gin.Context) {
 	id := c.Param("id")
 	node, ok := api.fleet.GetNode(id)
@@ -122,7 +122,7 @@ func (api *FleetAPI) GetNode(c *gin.Context) {
 	})
 }
 
-// RegisterNode 注册节点
+// RegisterNode 注册节点.
 func (api *FleetAPI) RegisterNode(c *gin.Context) {
 	var node FleetNode
 	if err := c.ShouldBindJSON(&node); err != nil {
@@ -147,7 +147,7 @@ func (api *FleetAPI) RegisterNode(c *gin.Context) {
 	})
 }
 
-// UpdateNode 更新节点
+// UpdateNode 更新节点.
 func (api *FleetAPI) UpdateNode(c *gin.Context) {
 	id := c.Param("id")
 	var node FleetNode
@@ -197,7 +197,7 @@ func (api *FleetAPI) UpdateNode(c *gin.Context) {
 	})
 }
 
-// UnregisterNode 注销节点
+// UnregisterNode 注销节点.
 func (api *FleetAPI) UnregisterNode(c *gin.Context) {
 	id := c.Param("id")
 	if err := api.fleet.UnregisterNode(id); err != nil {
@@ -214,7 +214,7 @@ func (api *FleetAPI) UnregisterNode(c *gin.Context) {
 	})
 }
 
-// UpdateNodeState 更新节点状态
+// UpdateNodeState 更新节点状态.
 func (api *FleetAPI) UpdateNodeState(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
@@ -242,7 +242,7 @@ func (api *FleetAPI) UpdateNodeState(c *gin.Context) {
 	})
 }
 
-// UpdateNodeRole 更新节点角色
+// UpdateNodeRole 更新节点角色.
 func (api *FleetAPI) UpdateNodeRole(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
@@ -270,7 +270,7 @@ func (api *FleetAPI) UpdateNodeRole(c *gin.Context) {
 	})
 }
 
-// UpdateNodeMetrics 更新节点指标
+// UpdateNodeMetrics 更新节点指标.
 func (api *FleetAPI) UpdateNodeMetrics(c *gin.Context) {
 	id := c.Param("id")
 	var metrics NodeMetrics
@@ -296,7 +296,7 @@ func (api *FleetAPI) UpdateNodeMetrics(c *gin.Context) {
 	})
 }
 
-// GetNodeHealth 获取节点健康
+// GetNodeHealth 获取节点健康.
 func (api *FleetAPI) GetNodeHealth(c *gin.Context) {
 	id := c.Param("id")
 	health, ok := api.fleet.healthAgg.GetNodeHealth(id)
@@ -316,7 +316,7 @@ func (api *FleetAPI) GetNodeHealth(c *gin.Context) {
 
 // ========== 节点分组 ==========
 
-// ListGroups 列出分组
+// ListGroups 列出分组.
 func (api *FleetAPI) ListGroups(c *gin.Context) {
 	groups := api.fleet.ListGroups()
 	c.JSON(http.StatusOK, gin.H{
@@ -326,7 +326,7 @@ func (api *FleetAPI) ListGroups(c *gin.Context) {
 	})
 }
 
-// GetGroup 获取分组
+// GetGroup 获取分组.
 func (api *FleetAPI) GetGroup(c *gin.Context) {
 	id := c.Param("id")
 	group, ok := api.fleet.GetGroup(id)
@@ -344,7 +344,7 @@ func (api *FleetAPI) GetGroup(c *gin.Context) {
 	})
 }
 
-// CreateGroup 创建分组
+// CreateGroup 创建分组.
 func (api *FleetAPI) CreateGroup(c *gin.Context) {
 	var group NodeGroup
 	if err := c.ShouldBindJSON(&group); err != nil {
@@ -369,7 +369,7 @@ func (api *FleetAPI) CreateGroup(c *gin.Context) {
 	})
 }
 
-// DeleteGroup 删除分组
+// DeleteGroup 删除分组.
 func (api *FleetAPI) DeleteGroup(c *gin.Context) {
 	id := c.Param("id")
 	if err := api.fleet.DeleteGroup(id); err != nil {
@@ -386,7 +386,7 @@ func (api *FleetAPI) DeleteGroup(c *gin.Context) {
 	})
 }
 
-// AddNodeToGroup 添加节点到分组
+// AddNodeToGroup 添加节点到分组.
 func (api *FleetAPI) AddNodeToGroup(c *gin.Context) {
 	groupID := c.Param("id")
 	nodeID := c.Param("nodeId")
@@ -405,7 +405,7 @@ func (api *FleetAPI) AddNodeToGroup(c *gin.Context) {
 	})
 }
 
-// RemoveNodeFromGroup 从分组移除节点
+// RemoveNodeFromGroup 从分组移除节点.
 func (api *FleetAPI) RemoveNodeFromGroup(c *gin.Context) {
 	groupID := c.Param("id")
 	nodeID := c.Param("nodeId")
@@ -426,7 +426,7 @@ func (api *FleetAPI) RemoveNodeFromGroup(c *gin.Context) {
 
 // ========== 跨节点任务 ==========
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (api *FleetAPI) ListTasks(c *gin.Context) {
 	filter := &TaskFilter{
 		Type:   CrossNodeTaskType(c.Query("type")),
@@ -448,7 +448,7 @@ func (api *FleetAPI) ListTasks(c *gin.Context) {
 	})
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (api *FleetAPI) GetTask(c *gin.Context) {
 	id := c.Param("id")
 	task, ok := api.fleet.GetTask(id)
@@ -466,7 +466,7 @@ func (api *FleetAPI) GetTask(c *gin.Context) {
 	})
 }
 
-// ScheduleTask 创建任务
+// ScheduleTask 创建任务.
 func (api *FleetAPI) ScheduleTask(c *gin.Context) {
 	var task CrossNodeTask
 	if err := c.ShouldBindJSON(&task); err != nil {
@@ -491,7 +491,7 @@ func (api *FleetAPI) ScheduleTask(c *gin.Context) {
 	})
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (api *FleetAPI) CancelTask(c *gin.Context) {
 	id := c.Param("id")
 	if err := api.fleet.CancelTask(id); err != nil {
@@ -510,7 +510,7 @@ func (api *FleetAPI) CancelTask(c *gin.Context) {
 
 // ========== 告警管理 ==========
 
-// ListAlerts 列出告警
+// ListAlerts 列出告警.
 func (api *FleetAPI) ListAlerts(c *gin.Context) {
 	filter := &AlertFilter{
 		Level:  c.Query("level"),
@@ -531,7 +531,7 @@ func (api *FleetAPI) ListAlerts(c *gin.Context) {
 	})
 }
 
-// AckAlert 确认告警
+// AckAlert 确认告警.
 func (api *FleetAPI) AckAlert(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
@@ -556,7 +556,7 @@ func (api *FleetAPI) AckAlert(c *gin.Context) {
 	})
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (api *FleetAPI) ResolveAlert(c *gin.Context) {
 	id := c.Param("id")
 	if err := api.fleet.alertAgg.ResolveAlert(id); err != nil {

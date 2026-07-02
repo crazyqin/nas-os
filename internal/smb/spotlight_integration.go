@@ -21,7 +21,7 @@ import (
 )
 
 // SpotlightIntegration SMB Spotlight集成服务
-// 提供macOS Spotlight搜索兼容性
+// 提供macOS Spotlight搜索兼容性.
 type SpotlightIntegration struct {
 	config  SpotlightConfig
 	logger  *zap.Logger
@@ -33,7 +33,7 @@ type SpotlightIntegration struct {
 	cancel  context.CancelFunc
 }
 
-// SpotlightConfig Spotlight配置
+// SpotlightConfig Spotlight配置.
 type SpotlightConfig struct {
 	Enabled          bool     `json:"enabled"`          // 启用Spotlight
 	SharePaths       []string `json:"sharePaths"`       // SMB共享路径
@@ -54,7 +54,7 @@ type SpotlightConfig struct {
 	FuzzyThreshold      float64 `json:"fuzzyThreshold"`      // 模糊匹配阈值，默认0.7
 }
 
-// Indexer Spotlight索引器
+// Indexer Spotlight索引器.
 type Indexer struct {
 	config     SpotlightConfig
 	logger     *zap.Logger
@@ -72,7 +72,7 @@ type Indexer struct {
 	indexWorkers    sync.WaitGroup // 索引工作者组
 }
 
-// SearchCache 搜索结果缓存 (LRU)
+// SearchCache 搜索结果缓存 (LRU).
 type SearchCache struct {
 	items   map[string]*CacheEntry
 	maxSize int
@@ -81,7 +81,7 @@ type SearchCache struct {
 	order   []string // LRU顺序
 }
 
-// CacheEntry 缓存条目
+// CacheEntry 缓存条目.
 type CacheEntry struct {
 	Query     string
 	Result    *SpotlightResponse
@@ -90,7 +90,7 @@ type CacheEntry struct {
 	HitCount  int
 }
 
-// FileInfo 文件信息索引
+// FileInfo 文件信息索引.
 type FileInfo struct {
 	Path        string            `json:"path"`
 	Name        string            `json:"name"`
@@ -105,7 +105,7 @@ type FileInfo struct {
 	Score       float64           `json:"score"` // 搜索相关性评分
 }
 
-// ContentInfo 内容索引
+// ContentInfo 内容索引.
 type ContentInfo struct {
 	Path        string   `json:"path"`
 	TextContent string   `json:"textContent"`
@@ -115,7 +115,7 @@ type ContentInfo struct {
 	Language    string   `json:"language"`
 }
 
-// IndexStats 索引统计
+// IndexStats 索引统计.
 type IndexStats struct {
 	TotalFiles   int64     `json:"totalFiles"`
 	IndexedFiles int64     `json:"indexedFiles"`
@@ -125,12 +125,12 @@ type IndexStats struct {
 	Progress     float64   `json:"progress"`
 }
 
-// MDQueryHandler macOS mdquery兼容处理器
+// MDQueryHandler macOS mdquery兼容处理器.
 type MDQueryHandler struct {
 	logger *zap.Logger
 }
 
-// SpotlightQuery Spotlight查询请求
+// SpotlightQuery Spotlight查询请求.
 type SpotlightQuery struct {
 	Query         string   `json:"query"`         // Spotlight查询语法
 	Attributes    []string `json:"attributes"`    // 请求的属性
@@ -144,7 +144,7 @@ type SpotlightQuery struct {
 	ContentSearch bool     `json:"contentSearch"` // 内容搜索
 }
 
-// SpotlightResult Spotlight搜索结果
+// SpotlightResult Spotlight搜索结果.
 type SpotlightResult struct {
 	Path       string            `json:"path"`
 	Name       string            `json:"name"`
@@ -157,7 +157,7 @@ type SpotlightResult struct {
 	Snippet    string            `json:"snippet"` // 内容摘要
 }
 
-// SpotlightResponse Spotlight搜索响应
+// SpotlightResponse Spotlight搜索响应.
 type SpotlightResponse struct {
 	Query      string            `json:"query"`
 	Results    []SpotlightResult `json:"results"`
@@ -168,7 +168,7 @@ type SpotlightResponse struct {
 	Error      string            `json:"error,omitempty"`
 }
 
-// NewSpotlightIntegration 创建Spotlight集成服务
+// NewSpotlightIntegration 创建Spotlight集成服务.
 func NewSpotlightIntegration(config SpotlightConfig, logger *zap.Logger) *SpotlightIntegration {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -200,7 +200,7 @@ func NewSpotlightIntegration(config SpotlightConfig, logger *zap.Logger) *Spotli
 	}
 }
 
-// NewIndexer 创建索引器
+// NewIndexer 创建索引器.
 func NewIndexer(config SpotlightConfig, logger *zap.Logger) *Indexer {
 	// 设置性能优化默认值
 	if config.CacheTTLSeconds <= 0 {
@@ -233,7 +233,7 @@ func NewIndexer(config SpotlightConfig, logger *zap.Logger) *Indexer {
 	return idx
 }
 
-// NewSearchCache 创建搜索缓存
+// NewSearchCache 创建搜索缓存.
 func NewSearchCache(maxSize int, ttl time.Duration) *SearchCache {
 	if maxSize <= 0 {
 		maxSize = 100
@@ -246,12 +246,12 @@ func NewSearchCache(maxSize int, ttl time.Duration) *SearchCache {
 	}
 }
 
-// NewMDQueryHandler 创建mdquery处理器
+// NewMDQueryHandler 创建mdquery处理器.
 func NewMDQueryHandler(logger *zap.Logger) *MDQueryHandler {
 	return &MDQueryHandler{logger: logger}
 }
 
-// Start 启动Spotlight服务
+// Start 启动Spotlight服务.
 func (si *SpotlightIntegration) Start(ctx context.Context) error {
 	if !si.config.Enabled {
 		si.logger.Info("Spotlight集成已禁用")
@@ -277,7 +277,7 @@ func (si *SpotlightIntegration) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止Spotlight服务
+// Stop 停止Spotlight服务.
 func (si *SpotlightIntegration) Stop() error {
 	si.cancel()
 	si.mu.Lock()
@@ -290,7 +290,7 @@ func (si *SpotlightIntegration) Stop() error {
 	return nil
 }
 
-// Search 执行Spotlight搜索
+// Search 执行Spotlight搜索.
 func (si *SpotlightIntegration) Search(ctx context.Context, query SpotlightQuery) (*SpotlightResponse, error) {
 	startTime := time.Now()
 
@@ -350,17 +350,17 @@ func (si *SpotlightIntegration) Search(ctx context.Context, query SpotlightQuery
 	return response, nil
 }
 
-// GetIndexStatus 获取索引状态
+// GetIndexStatus 获取索引状态.
 func (si *SpotlightIntegration) GetIndexStatus() *IndexStats {
 	return si.indexer.GetStats()
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (si *SpotlightIntegration) RebuildIndex(ctx context.Context, path string) error {
 	return si.indexer.BuildIndex(ctx, path)
 }
 
-// EnableForShare 为SMB共享启用Spotlight
+// EnableForShare 为SMB共享启用Spotlight.
 func (si *SpotlightIntegration) EnableForShare(sharePath string) error {
 	si.mu.Lock()
 	defer si.mu.Unlock()
@@ -374,7 +374,7 @@ func (si *SpotlightIntegration) EnableForShare(sharePath string) error {
 	return nil
 }
 
-// DisableForShare 为SMB共享禁用Spotlight
+// DisableForShare 为SMB共享禁用Spotlight.
 func (si *SpotlightIntegration) DisableForShare(sharePath string) error {
 	si.mu.Lock()
 	defer si.mu.Unlock()
@@ -389,7 +389,7 @@ func (si *SpotlightIntegration) DisableForShare(sharePath string) error {
 	return nil
 }
 
-// runBackgroundUpdate 后台更新任务
+// runBackgroundUpdate 后台更新任务.
 func (si *SpotlightIntegration) runBackgroundUpdate(ctx context.Context) {
 	ticker := time.NewTicker(time.Duration(si.config.UpdateInterval) * time.Second)
 	defer ticker.Stop()
@@ -406,7 +406,7 @@ func (si *SpotlightIntegration) runBackgroundUpdate(ctx context.Context) {
 
 // ========== 索引器方法 ==========
 
-// Start 启动索引器
+// Start 启动索引器.
 func (idx *Indexer) Start(ctx context.Context, paths []string) error {
 	idx.mu.Lock()
 	idx.running = true
@@ -425,14 +425,14 @@ func (idx *Indexer) Start(ctx context.Context, paths []string) error {
 	return nil
 }
 
-// Stop 停止索引器
+// Stop 停止索引器.
 func (idx *Indexer) Stop() {
 	idx.mu.Lock()
 	idx.running = false
 	idx.mu.Unlock()
 }
 
-// BuildIndex 构建索引
+// BuildIndex 构建索引.
 func (idx *Indexer) BuildIndex(ctx context.Context, basePath string) error {
 	if basePath == "" {
 		return fmt.Errorf("索引路径不能为空")
@@ -468,7 +468,7 @@ func (idx *Indexer) BuildIndex(ctx context.Context, basePath string) error {
 	return nil
 }
 
-// walkAndIndex 遍历并索引
+// walkAndIndex 遍历并索引.
 func (idx *Indexer) walkAndIndex(path string, filesIndexed, sizeIndexed *int64) error {
 	entries, err := os.ReadDir(path)
 	if err != nil {
@@ -509,7 +509,7 @@ func (idx *Indexer) walkAndIndex(path string, filesIndexed, sizeIndexed *int64) 
 	return nil
 }
 
-// indexFile 索引单个文件
+// indexFile 索引单个文件.
 func (idx *Indexer) indexFile(path string, info os.FileInfo) {
 	ext := strings.ToLower(filepath.Ext(path))
 
@@ -536,7 +536,7 @@ func (idx *Indexer) indexFile(path string, info os.FileInfo) {
 	}
 }
 
-// indexContent 索引文件内容
+// indexContent 索引文件内容.
 func (idx *Indexer) indexContent(path string) {
 	// 限制文件大小
 	maxSize := idx.config.MaxIndexSize * 1024 * 1024
@@ -573,7 +573,7 @@ func (idx *Indexer) indexContent(path string) {
 	idx.mu.Unlock()
 }
 
-// SearchFiles 搜索文件
+// SearchFiles 搜索文件.
 func (idx *Indexer) SearchFiles(ctx context.Context, query map[string]interface{}, req SpotlightQuery) ([]FileInfo, error) {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()
@@ -655,7 +655,7 @@ func (idx *Indexer) SearchFiles(ctx context.Context, query map[string]interface{
 	return results, nil
 }
 
-// ClearIndex 清除索引
+// ClearIndex 清除索引.
 func (idx *Indexer) ClearIndex(path string) {
 	idx.mu.Lock()
 	defer idx.mu.Unlock()
@@ -680,7 +680,7 @@ func (idx *Indexer) ClearIndex(path string) {
 	}
 }
 
-// RefreshIndex 刷新索引
+// RefreshIndex 刷新索引.
 func (idx *Indexer) RefreshIndex(ctx context.Context) {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()
@@ -706,7 +706,7 @@ func (idx *Indexer) RefreshIndex(ctx context.Context) {
 	}
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (idx *Indexer) GetStats() *IndexStats {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()
@@ -716,7 +716,7 @@ func (idx *Indexer) GetStats() *IndexStats {
 // ========== MDQuery处理器方法 ==========
 
 // ParseQuery 解析Spotlight查询语法
-// 支持: kMDItemDisplayName == "xxx", kMDItemContentType == "yyy"
+// 支持: kMDItemDisplayName == "xxx", kMDItemContentType == "yyy".
 func (mq *MDQueryHandler) ParseQuery(query string) map[string]interface{} {
 	result := make(map[string]interface{})
 
@@ -753,7 +753,7 @@ func (mq *MDQueryHandler) ParseQuery(query string) map[string]interface{} {
 	return result
 }
 
-// mapSpotlightAttr 映射Spotlight属性到内部字段
+// mapSpotlightAttr 映射Spotlight属性到内部字段.
 func (mq *MDQueryHandler) mapSpotlightAttr(attr string) string {
 	attrMap := map[string]string{
 		"kMDItemDisplayName":         "name",
@@ -784,7 +784,7 @@ func (mq *MDQueryHandler) mapSpotlightAttr(attr string) string {
 	return ""
 }
 
-// MapToSpotlightAttributes 将内部属性映射到Spotlight格式
+// MapToSpotlightAttributes 将内部属性映射到Spotlight格式.
 func (mq *MDQueryHandler) MapToSpotlightAttributes(attrs map[string]string) map[string]string {
 	result := make(map[string]string)
 
@@ -1017,7 +1017,7 @@ func removeFromSlice(slice []string, item string) []string {
 }
 
 // GenerateSMBSpotlightConfig 生成SMB Spotlight配置
-// 用于smb.conf中的spotlight配置
+// 用于smb.conf中的spotlight配置.
 func GenerateSMBSpotlightConfig(enabled bool, indexPaths []string) string {
 	if !enabled {
 		return ""
@@ -1040,7 +1040,7 @@ func GenerateSMBSpotlightConfig(enabled bool, indexPaths []string) string {
 	return config.String()
 }
 
-// ExportSpotlightAPI 导出Spotlight API端点
+// ExportSpotlightAPI 导出Spotlight API端点.
 func (si *SpotlightIntegration) ExportSpotlightAPI() map[string]interface{} {
 	return map[string]interface{}{
 		"version":    "2.403.0",

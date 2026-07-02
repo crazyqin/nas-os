@@ -20,21 +20,21 @@ import (
 	"time"
 )
 
-// LEDState LED状态枚举
+// LEDState LED状态枚举.
 type LEDState int
 
 const (
-	// LEDStateOff LED关闭
+	// LEDStateOff LED关闭.
 	LEDStateOff LEDState = iota
-	// LEDStateOn LED常亮（定位模式）
+	// LEDStateOn LED常亮（定位模式）.
 	LEDStateOn
-	// LEDStateBlink LED闪烁（故障/告警）
+	// LEDStateBlink LED闪烁（故障/告警）.
 	LEDStateBlink
-	// LEDStateError LED错误状态（无法控制）
+	// LEDStateError LED错误状态（无法控制）.
 	LEDStateError
 )
 
-// String 返回LED状态的字符串表示
+// String 返回LED状态的字符串表示.
 func (s LEDState) String() string {
 	switch s {
 	case LEDStateOff:
@@ -50,23 +50,23 @@ func (s LEDState) String() string {
 	}
 }
 
-// LEDControlMethod LED控制方式
+// LEDControlMethod LED控制方式.
 type LEDControlMethod string
 
 const (
-	// ControlMethodSCSIGeneric SCSI Generic 方式 (sg_raw)
+	// ControlMethodSCSIGeneric SCSI Generic 方式 (sg_raw).
 	ControlMethodSCSIGeneric LEDControlMethod = "scsi_generic"
-	// ControlMethodIPMI IPMI Chassis Identify
+	// ControlMethodIPMI IPMI Chassis Identify.
 	ControlMethodIPMI LEDControlMethod = "ipmi"
-	// ControlMethodMegaRAID LSI/Broadcom MegaRAID CLI
+	// ControlMethodMegaRAID LSI/Broadcom MegaRAID CLI.
 	ControlMethodMegaRAID LEDControlMethod = "megaraid"
-	// ControlMethodAdaptec Adaptec ARCCONF
+	// ControlMethodAdaptec Adaptec ARCCONF.
 	ControlMethodAdaptec LEDControlMethod = "adaptec"
-	// ControlMethodHBA 通用HBA控制
+	// ControlMethodHBA 通用HBA控制.
 	ControlMethodHBA LEDControlMethod = "hba"
 )
 
-// BlinkPolicy 闪烁策略
+// BlinkPolicy 闪烁策略.
 type BlinkPolicy struct {
 	// Name 策略名称
 	Name string `json:"name"`
@@ -82,25 +82,25 @@ type BlinkPolicy struct {
 	AutoStop bool `json:"auto_stop"`
 }
 
-// BlinkReason 闪烁原因
+// BlinkReason 闪烁原因.
 type BlinkReason string
 
 const (
-	// BlinkReasonFault 硬盘故障
+	// BlinkReasonFault 硬盘故障.
 	BlinkReasonFault BlinkReason = "fault"
-	// BlinkReasonLocate 定位硬盘
+	// BlinkReasonLocate 定位硬盘.
 	BlinkReasonLocate BlinkReason = "locate"
-	// BlinkReasonRebuild RAID重建中
+	// BlinkReasonRebuild RAID重建中.
 	BlinkReasonRebuild BlinkReason = "rebuild"
-	// BlinkReasonPredictive 预测性故障
+	// BlinkReasonPredictive 预测性故障.
 	BlinkReasonPredictive BlinkReason = "predictive"
-	// BlinkReasonHotSpare 热备盘激活
+	// BlinkReasonHotSpare 热备盘激活.
 	BlinkReasonHotSpare BlinkReason = "hot_spare"
 )
 
-// 预定义闪烁策略
+// 预定义闪烁策略.
 var (
-	// PolicyFault 故障闪烁策略：快闪
+	// PolicyFault 故障闪烁策略：快闪.
 	PolicyFault = BlinkPolicy{
 		Name:        "fault",
 		Reason:      BlinkReasonFault,
@@ -110,7 +110,7 @@ var (
 		AutoStop:    false,
 	}
 
-	// PolicyLocate 定位闪烁策略：慢闪
+	// PolicyLocate 定位闪烁策略：慢闪.
 	PolicyLocate = BlinkPolicy{
 		Name:        "locate",
 		Reason:      BlinkReasonLocate,
@@ -120,7 +120,7 @@ var (
 		AutoStop:    true,
 	}
 
-	// PolicyRebuild 重建闪烁策略：中速闪
+	// PolicyRebuild 重建闪烁策略：中速闪.
 	PolicyRebuild = BlinkPolicy{
 		Name:        "rebuild",
 		Reason:      BlinkReasonRebuild,
@@ -130,7 +130,7 @@ var (
 		AutoStop:    false,
 	}
 
-	// PolicyPredictive 预测性故障策略：慢速间隔闪
+	// PolicyPredictive 预测性故障策略：慢速间隔闪.
 	PolicyPredictive = BlinkPolicy{
 		Name:        "predictive",
 		Reason:      BlinkReasonPredictive,
@@ -141,7 +141,7 @@ var (
 	}
 )
 
-// DiskIdentifier 磁盘标识
+// DiskIdentifier 磁盘标识.
 type DiskIdentifier struct {
 	// DevicePath 设备路径，例如 /dev/sda
 	DevicePath string `json:"device_path"`
@@ -159,7 +159,7 @@ type DiskIdentifier struct {
 	HBAController string `json:"hba_controller"`
 }
 
-// DiskLedInfo 磁盘LED信息
+// DiskLedInfo 磁盘LED信息.
 type DiskLedInfo struct {
 	// Disk 磁盘标识
 	Disk DiskIdentifier `json:"disk"`
@@ -179,7 +179,7 @@ type DiskLedInfo struct {
 	Error string `json:"error,omitempty"`
 }
 
-// StoragePool 存储池信息
+// StoragePool 存储池信息.
 type StoragePool struct {
 	// ID 池ID
 	ID string `json:"id"`
@@ -193,7 +193,7 @@ type StoragePool struct {
 	RAIDLevel string `json:"raid_level,omitempty"`
 }
 
-// RAIDGroup RAID组信息
+// RAIDGroup RAID组信息.
 type RAIDGroup struct {
 	// ID RAID组ID
 	ID string `json:"id"`
@@ -207,7 +207,7 @@ type RAIDGroup struct {
 	RAIDLevel string `json:"raid_level"`
 }
 
-// LEDEvent LED事件
+// LEDEvent LED事件.
 type LEDEvent struct {
 	// Timestamp 事件时间
 	Timestamp time.Time `json:"timestamp"`
@@ -223,21 +223,21 @@ type LEDEvent struct {
 	Reason string `json:"reason,omitempty"`
 }
 
-// LEDEventType LED事件类型
+// LEDEventType LED事件类型.
 type LEDEventType string
 
 const (
-	// EventStateChanged 状态变化
+	// EventStateChanged 状态变化.
 	EventStateChanged LEDEventType = "state_changed"
-	// EventBlinkStart 闪烁开始
+	// EventBlinkStart 闪烁开始.
 	EventBlinkStart LEDEventType = "blink_start"
-	// EventBlinkStop 闪烁停止
+	// EventBlinkStop 闪烁停止.
 	EventBlinkStop LEDEventType = "blink_stop"
-	// EventControlError 控制错误
+	// EventControlError 控制错误.
 	EventControlError LEDEventType = "control_error"
 )
 
-// HDDLedController 硬盘LED控制器接口
+// HDDLedController 硬盘LED控制器接口.
 type HDDLedController interface {
 	// Init 初始化控制器
 	Init(ctx context.Context) error
@@ -300,7 +300,7 @@ type HDDLedController interface {
 	Unsubscribe(id SubscriptionID)
 }
 
-// BulkResult 批量操作结果
+// BulkResult 批量操作结果.
 type BulkResult struct {
 	// Total 总数
 	Total int `json:"total"`
@@ -312,7 +312,7 @@ type BulkResult struct {
 	Errors []DiskError `json:"errors,omitempty"`
 }
 
-// DiskError 磁盘操作错误
+// DiskError 磁盘操作错误.
 type DiskError struct {
 	// Disk 磁盘标识
 	Disk DiskIdentifier `json:"disk"`
@@ -320,13 +320,13 @@ type DiskError struct {
 	Error string `json:"error"`
 }
 
-// EventHandler 事件处理函数
+// EventHandler 事件处理函数.
 type EventHandler func(event LEDEvent)
 
-// SubscriptionID 订阅ID
+// SubscriptionID 订阅ID.
 type SubscriptionID string
 
-// ControllerConfig 控制器配置
+// ControllerConfig 控制器配置.
 type ControllerConfig struct {
 	// DefaultMethod 默认控制方式
 	DefaultMethod LEDControlMethod `json:"default_method"`
@@ -340,7 +340,7 @@ type ControllerConfig struct {
 	EventBufferSize int `json:"event_buffer_size"`
 }
 
-// MethodConfig 控制方式配置
+// MethodConfig 控制方式配置.
 type MethodConfig struct {
 	// Enabled 是否启用
 	Enabled bool `json:"enabled"`
@@ -354,7 +354,7 @@ type MethodConfig struct {
 	MegaRAIDConfig *MegaRAIDConfig `json:"megaraid_config,omitempty"`
 }
 
-// IPMIConfig IPMI配置
+// IPMIConfig IPMI配置.
 type IPMIConfig struct {
 	// Host IPMI主机地址
 	Host string `json:"host"`
@@ -366,7 +366,7 @@ type IPMIConfig struct {
 	Interface string `json:"interface"`
 }
 
-// MegaRAIDConfig MegaRAID配置
+// MegaRAIDConfig MegaRAID配置.
 type MegaRAIDConfig struct {
 	// CLIPath MegaCLI/StorCLI路径
 	CLIPath string `json:"cli_path"`
@@ -374,7 +374,7 @@ type MegaRAIDConfig struct {
 	ControllerID int `json:"controller_id"`
 }
 
-// DefaultControllerConfig 返回默认控制器配置
+// DefaultControllerConfig 返回默认控制器配置.
 func DefaultControllerConfig() ControllerConfig {
 	return ControllerConfig{
 		DefaultMethod:      ControlMethodSCSIGeneric,
@@ -398,7 +398,7 @@ func DefaultControllerConfig() ControllerConfig {
 	}
 }
 
-// ValidationError 参数验证错误
+// ValidationError 参数验证错误.
 type ValidationError struct {
 	Field   string
 	Message string
@@ -408,7 +408,7 @@ func (e *ValidationError) Error() string {
 	return fmt.Sprintf("validation error: %s - %s", e.Field, e.Message)
 }
 
-// ControllerError 控制器错误
+// ControllerError 控制器错误.
 type ControllerError struct {
 	Code    string
 	Message string
@@ -426,7 +426,7 @@ func (e *ControllerError) Unwrap() error {
 	return e.Cause
 }
 
-// 常见错误码
+// 常见错误码.
 var (
 	ErrDiskNotFound     = &ControllerError{Code: "DISK_NOT_FOUND", Message: "disk not found"}
 	ErrLEDControlFailed = &ControllerError{Code: "LED_CONTROL_FAILED", Message: "LED control failed"}
@@ -435,20 +435,20 @@ var (
 	ErrAlreadyBlinking  = &ControllerError{Code: "ALREADY_BLINKING", Message: "LED is already blinking"}
 )
 
-// ledStateStore LED状态存储（内存实现）
+// ledStateStore LED状态存储（内存实现）.
 type ledStateStore struct {
 	mu    sync.RWMutex
 	store map[string]*DiskLedInfo // key: device_path or slot identifier
 }
 
-// newLedStateStore 创建新的LED状态存储
+// newLedStateStore 创建新的LED状态存储.
 func newLedStateStore() *ledStateStore {
 	return &ledStateStore{
 		store: make(map[string]*DiskLedInfo),
 	}
 }
 
-// getDiskKey 获取磁盘的唯一键
+// getDiskKey 获取磁盘的唯一键.
 func getDiskKey(disk DiskIdentifier) string {
 	if disk.DevicePath != "" {
 		return disk.DevicePath
@@ -462,7 +462,7 @@ func getDiskKey(disk DiskIdentifier) string {
 	return fmt.Sprintf("slot:%s:%d", disk.EnclosureID, disk.SlotNumber)
 }
 
-// Set 设置LED状态
+// Set 设置LED状态.
 func (s *ledStateStore) Set(disk DiskIdentifier, state LEDState, method LEDControlMethod, policy *BlinkPolicy, reason string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -483,7 +483,7 @@ func (s *ledStateStore) Set(disk DiskIdentifier, state LEDState, method LEDContr
 	s.store[key] = info
 }
 
-// Get 获取LED状态
+// Get 获取LED状态.
 func (s *ledStateStore) Get(disk DiskIdentifier) (*DiskLedInfo, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -493,7 +493,7 @@ func (s *ledStateStore) Get(disk DiskIdentifier) (*DiskLedInfo, bool) {
 	return info, exists
 }
 
-// Delete 删除LED状态
+// Delete 删除LED状态.
 func (s *ledStateStore) Delete(disk DiskIdentifier) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -502,7 +502,7 @@ func (s *ledStateStore) Delete(disk DiskIdentifier) {
 	delete(s.store, key)
 }
 
-// ListAll 列出所有LED状态
+// ListAll 列出所有LED状态.
 func (s *ledStateStore) ListAll() []*DiskLedInfo {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -514,7 +514,7 @@ func (s *ledStateStore) ListAll() []*DiskLedInfo {
 	return result
 }
 
-// eventBus 事件总线
+// eventBus 事件总线.
 type eventBus struct {
 	mu          sync.RWMutex
 	subscribers map[SubscriptionID]EventHandler
@@ -522,7 +522,7 @@ type eventBus struct {
 	bufferSize  int
 }
 
-// newEventBus 创建新的事件总线
+// newEventBus 创建新的事件总线.
 func newEventBus(bufferSize int) *eventBus {
 	return &eventBus{
 		subscribers: make(map[SubscriptionID]EventHandler),
@@ -530,7 +530,7 @@ func newEventBus(bufferSize int) *eventBus {
 	}
 }
 
-// Subscribe 订阅事件
+// Subscribe 订阅事件.
 func (b *eventBus) Subscribe(handler EventHandler) SubscriptionID {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -541,7 +541,7 @@ func (b *eventBus) Subscribe(handler EventHandler) SubscriptionID {
 	return id
 }
 
-// Unsubscribe 取消订阅
+// Unsubscribe 取消订阅.
 func (b *eventBus) Unsubscribe(id SubscriptionID) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -549,7 +549,7 @@ func (b *eventBus) Unsubscribe(id SubscriptionID) {
 	delete(b.subscribers, id)
 }
 
-// Publish 发布事件
+// Publish 发布事件.
 func (b *eventBus) Publish(event LEDEvent) {
 	b.mu.RLock()
 	defer b.mu.RUnlock()

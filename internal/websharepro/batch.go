@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// BatchOperationType 批量操作类型
+// BatchOperationType 批量操作类型.
 type BatchOperationType string
 
 const (
@@ -27,7 +27,7 @@ const (
 	BatchOpShare    BatchOperationType = "share"
 )
 
-// BatchTaskStatus 任务状态
+// BatchTaskStatus 任务状态.
 type BatchTaskStatus string
 
 const (
@@ -39,7 +39,7 @@ const (
 	TaskRolledBack BatchTaskStatus = "rolledback"
 )
 
-// BatchOperation 批量操作项
+// BatchOperation 批量操作项.
 type BatchOperation struct {
 	ID          string             `json:"id"`
 	Source      string             `json:"source"`
@@ -48,7 +48,7 @@ type BatchOperation struct {
 	Options     map[string]any     `json:"options,omitempty"`
 }
 
-// BatchTask 批量任务
+// BatchTask 批量任务.
 type BatchTask struct {
 	ID           string             `json:"id"`
 	Operations   []*BatchOperation  `json:"operations"`
@@ -71,7 +71,7 @@ type BatchTask struct {
 	cancelMu     sync.Mutex         `json:"-"`
 }
 
-// BatchError 批量操作错误
+// BatchError 批量操作错误.
 type BatchError struct {
 	OperationID string    `json:"operationId"`
 	Source      string    `json:"source"`
@@ -79,7 +79,7 @@ type BatchError struct {
 	Timestamp   time.Time `json:"timestamp"`
 }
 
-// BatchResult 批量操作结果
+// BatchResult 批量操作结果.
 type BatchResult struct {
 	OperationID string        `json:"operationId"`
 	Status      string        `json:"status"`
@@ -88,10 +88,10 @@ type BatchResult struct {
 	Duration    time.Duration `json:"duration"`
 }
 
-// BatchProgressCallback 进度回调
+// BatchProgressCallback 进度回调.
 type BatchProgressCallback func(task *BatchTask)
 
-// BatchConfig 批量操作配置
+// BatchConfig 批量操作配置.
 type BatchConfig struct {
 	DefaultConcurrency int           `json:"defaultConcurrency"` // 默认并发数
 	MaxConcurrency     int           `json:"maxConcurrency"`     // 最大并发数
@@ -102,7 +102,7 @@ type BatchConfig struct {
 	ProgressInterval   time.Duration `json:"progressInterval"`   // 进度回调间隔
 }
 
-// BatchExecutor 批量执行器
+// BatchExecutor 批量执行器.
 type BatchExecutor struct {
 	mu        sync.RWMutex
 	tasks     map[string]*BatchTask
@@ -111,13 +111,13 @@ type BatchExecutor struct {
 	progress  []BatchProgressCallback
 }
 
-// OperationExecutor 操作执行器接口
+// OperationExecutor 操作执行器接口.
 type OperationExecutor interface {
 	Execute(ctx context.Context, op *BatchOperation) error
 	Rollback(ctx context.Context, op *BatchOperation) error
 }
 
-// NewBatchExecutor 创建批量执行器
+// NewBatchExecutor 创建批量执行器.
 func NewBatchExecutor(config *BatchConfig) *BatchExecutor {
 	if config == nil {
 		config = &BatchConfig{
@@ -149,21 +149,21 @@ func NewBatchExecutor(config *BatchConfig) *BatchExecutor {
 	return executor
 }
 
-// RegisterExecutor 注册操作执行器
+// RegisterExecutor 注册操作执行器.
 func (e *BatchExecutor) RegisterExecutor(opType BatchOperationType, executor OperationExecutor) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.executors[opType] = executor
 }
 
-// OnProgress 注册进度回调
+// OnProgress 注册进度回调.
 func (e *BatchExecutor) OnProgress(callback BatchProgressCallback) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.progress = append(e.progress, callback)
 }
 
-// Submit 提交批量任务
+// Submit 提交批量任务.
 func (e *BatchExecutor) Submit(operations []*BatchOperation, author string) (*BatchTask, error) {
 	if len(operations) == 0 {
 		return nil, errors.New("no operations provided")
@@ -208,7 +208,7 @@ func (e *BatchExecutor) Submit(operations []*BatchOperation, author string) (*Ba
 	return task, nil
 }
 
-// Cancel 取消任务
+// Cancel 取消任务.
 func (e *BatchExecutor) Cancel(taskID string) error {
 	e.mu.RLock()
 	task, exists := e.tasks[taskID]
@@ -232,7 +232,7 @@ func (e *BatchExecutor) Cancel(taskID string) error {
 	return nil
 }
 
-// GetTask 获取任务状态
+// GetTask 获取任务状态.
 func (e *BatchExecutor) GetTask(taskID string) (*BatchTask, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -269,7 +269,7 @@ func (e *BatchExecutor) GetTask(taskID string) (*BatchTask, error) {
 	return &taskCopy, nil
 }
 
-// ListTasks 列出所有任务
+// ListTasks 列出所有任务.
 func (e *BatchExecutor) ListTasks() []*BatchTask {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -300,7 +300,7 @@ func (e *BatchExecutor) ListTasks() []*BatchTask {
 	return tasks
 }
 
-// RollbackTask 回滚任务
+// RollbackTask 回滚任务.
 func (e *BatchExecutor) RollbackTask(taskID string) error {
 	e.mu.RLock()
 	task, exists := e.tasks[taskID]
@@ -352,7 +352,7 @@ func (e *BatchExecutor) RollbackTask(taskID string) error {
 	return nil
 }
 
-// executeTask 执行批量任务
+// executeTask 执行批量任务.
 func (e *BatchExecutor) executeTask(ctx context.Context, task *BatchTask) {
 	task.StartTime = time.Now()
 	task.Status = TaskRunning
@@ -445,7 +445,7 @@ func (e *BatchExecutor) executeTask(ctx context.Context, task *BatchTask) {
 	e.notifyProgress(task)
 }
 
-// executeOperation 执行单个操作
+// executeOperation 执行单个操作.
 func (e *BatchExecutor) executeOperation(ctx context.Context, op *BatchOperation) *BatchResult {
 	start := time.Now()
 
@@ -488,7 +488,7 @@ func (e *BatchExecutor) executeOperation(ctx context.Context, op *BatchOperation
 	}
 }
 
-// notifyProgress 通知进度
+// notifyProgress 通知进度.
 func (e *BatchExecutor) notifyProgress(task *BatchTask) {
 	e.mu.RLock()
 	callbacks := e.progress
@@ -499,14 +499,14 @@ func (e *BatchExecutor) notifyProgress(task *BatchTask) {
 	}
 }
 
-// mu 获取任务锁
+// mu 获取任务锁.
 func (t *BatchTask) mu() *sync.Mutex {
 	return &t.cancelMu
 }
 
 // ---- 操作执行器实现 ----
 
-// CopyExecutor 复制操作执行器
+// CopyExecutor 复制操作执行器.
 type CopyExecutor struct{}
 
 func (e *CopyExecutor) Execute(_ context.Context, _ *BatchOperation) error {
@@ -518,7 +518,7 @@ func (e *CopyExecutor) Rollback(_ context.Context, _ *BatchOperation) error {
 	return errors.New("copy rollback: not implemented")
 }
 
-// MoveExecutor 移动操作执行器
+// MoveExecutor 移动操作执行器.
 type MoveExecutor struct{}
 
 func (e *MoveExecutor) Execute(_ context.Context, _ *BatchOperation) error {
@@ -529,7 +529,7 @@ func (e *MoveExecutor) Rollback(_ context.Context, _ *BatchOperation) error {
 	return errors.New("move rollback: not implemented")
 }
 
-// DeleteExecutor 删除操作执行器
+// DeleteExecutor 删除操作执行器.
 type DeleteExecutor struct{}
 
 func (e *DeleteExecutor) Execute(_ context.Context, _ *BatchOperation) error {
@@ -540,7 +540,7 @@ func (e *DeleteExecutor) Rollback(_ context.Context, _ *BatchOperation) error {
 	return errors.New("delete rollback: not implemented")
 }
 
-// MkdirExecutor 创建目录执行器
+// MkdirExecutor 创建目录执行器.
 type MkdirExecutor struct{}
 
 func (e *MkdirExecutor) Execute(_ context.Context, _ *BatchOperation) error {
@@ -551,7 +551,7 @@ func (e *MkdirExecutor) Rollback(_ context.Context, _ *BatchOperation) error {
 	return errors.New("mkdir rollback: not implemented")
 }
 
-// CompressExecutor 压缩操作执行器
+// CompressExecutor 压缩操作执行器.
 type CompressExecutor struct{}
 
 func (e *CompressExecutor) Execute(_ context.Context, _ *BatchOperation) error {
@@ -562,7 +562,7 @@ func (e *CompressExecutor) Rollback(_ context.Context, _ *BatchOperation) error 
 	return errors.New("compress rollback: not implemented")
 }
 
-// ShareExecutor 分享操作执行器
+// ShareExecutor 分享操作执行器.
 type ShareExecutor struct{}
 
 func (e *ShareExecutor) Execute(_ context.Context, _ *BatchOperation) error {
@@ -573,7 +573,7 @@ func (e *ShareExecutor) Rollback(_ context.Context, _ *BatchOperation) error {
 	return errors.New("share rollback: not implemented")
 }
 
-// GetTaskProgress 获取任务进度
+// GetTaskProgress 获取任务进度.
 func (e *BatchExecutor) GetTaskProgress(taskID string) (float64, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -586,7 +586,7 @@ func (e *BatchExecutor) GetTaskProgress(taskID string) (float64, error) {
 	return task.Progress, nil
 }
 
-// CleanCompleted 清理已完成的任务
+// CleanCompleted 清理已完成的任务.
 func (e *BatchExecutor) CleanCompleted() int {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -601,7 +601,7 @@ func (e *BatchExecutor) CleanCompleted() int {
 	return count
 }
 
-// GetStats 获取执行器统计
+// GetStats 获取执行器统计.
 func (e *BatchExecutor) GetStats() map[string]any {
 	e.mu.RLock()
 	defer e.mu.RUnlock()

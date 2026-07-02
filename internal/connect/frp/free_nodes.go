@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// NodeRegion 节点区域
+// NodeRegion 节点区域.
 type NodeRegion string
 
 const (
@@ -17,7 +17,7 @@ const (
 	RegionEU NodeRegion = "eu" // 欧洲
 )
 
-// FreeNode 免费节点信息
+// FreeNode 免费节点信息.
 type FreeNode struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
@@ -32,14 +32,14 @@ type FreeNode struct {
 	LastCheck   time.Time  `json:"last_check"`
 }
 
-// FreeNodeConfig 免费节点配置
+// FreeNodeConfig 免费节点配置.
 type FreeNodeConfig struct {
 	nodes     map[string]*FreeNode
 	regionMap map[NodeRegion][]string // 区域到节点ID的映射
 	mu        sync.RWMutex
 }
 
-// DefaultFreeNodes 默认免费节点列表（参考飞牛FN Connect）
+// DefaultFreeNodes 默认免费节点列表（参考飞牛FN Connect）.
 var defaultFreeNodes = []*FreeNode{
 	// 中国节点
 	{
@@ -86,7 +86,7 @@ var defaultFreeNodes = []*FreeNode{
 	},
 }
 
-// NewFreeNodeConfig 创建免费节点配置
+// NewFreeNodeConfig 创建免费节点配置.
 func NewFreeNodeConfig() *FreeNodeConfig {
 	config := &FreeNodeConfig{
 		nodes:     make(map[string]*FreeNode),
@@ -102,14 +102,14 @@ func NewFreeNodeConfig() *FreeNodeConfig {
 	return config
 }
 
-// GetNode 获取指定节点
+// GetNode 获取指定节点.
 func (c *FreeNodeConfig) GetNode(id string) *FreeNode {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.nodes[id]
 }
 
-// GetAllNodes 获取所有节点
+// GetAllNodes 获取所有节点.
 func (c *FreeNodeConfig) GetAllNodes() []*FreeNode {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -121,7 +121,7 @@ func (c *FreeNodeConfig) GetAllNodes() []*FreeNode {
 	return nodes
 }
 
-// GetNodesByRegion 获取指定区域的节点
+// GetNodesByRegion 获取指定区域的节点.
 func (c *FreeNodeConfig) GetNodesByRegion(region NodeRegion) []*FreeNode {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -140,7 +140,7 @@ func (c *FreeNodeConfig) GetNodesByRegion(region NodeRegion) []*FreeNode {
 	return nodes
 }
 
-// GetBestNode 获取最优节点（按优先级和在线状态）
+// GetBestNode 获取最优节点（按优先级和在线状态）.
 func (c *FreeNodeConfig) GetBestNode(region ...NodeRegion) *FreeNode {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -176,7 +176,7 @@ func (c *FreeNodeConfig) GetBestNode(region ...NodeRegion) *FreeNode {
 	return bestNode
 }
 
-// AddNode 添加自定义节点
+// AddNode 添加自定义节点.
 func (c *FreeNodeConfig) AddNode(node *FreeNode) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -189,7 +189,7 @@ func (c *FreeNodeConfig) AddNode(node *FreeNode) {
 	c.regionMap[node.Region] = append(c.regionMap[node.Region], node.ID)
 }
 
-// RemoveNode 移除节点
+// RemoveNode 移除节点.
 func (c *FreeNodeConfig) RemoveNode(id string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -213,7 +213,7 @@ func (c *FreeNodeConfig) RemoveNode(id string) {
 	delete(c.nodes, id)
 }
 
-// UpdateNodeStatus 更新节点状态
+// UpdateNodeStatus 更新节点状态.
 func (c *FreeNodeConfig) UpdateNodeStatus(id string, online bool, latency int) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -225,7 +225,7 @@ func (c *FreeNodeConfig) UpdateNodeStatus(id string, online bool, latency int) {
 	}
 }
 
-// NodeToClientConfig 将节点转换为客户端配置
+// NodeToClientConfig 将节点转换为客户端配置.
 func NodeToClientConfig(node *FreeNode) *ClientConfig {
 	return &ClientConfig{
 		Common: CommonConfig{
@@ -245,7 +245,7 @@ func NodeToClientConfig(node *FreeNode) *ClientConfig {
 	}
 }
 
-// QuickConnectConfig 一键连接配置
+// QuickConnectConfig 一键连接配置.
 type QuickConnectConfig struct {
 	NodeID     string     `json:"node_id,omitempty"`     // 指定节点ID，不指定则自动选择最优
 	Region     NodeRegion `json:"region,omitempty"`      // 指定区域，不指定则自动选择
@@ -255,7 +255,7 @@ type QuickConnectConfig struct {
 	TunnelType TunnelType `json:"tunnel_type,omitempty"` // 隧道类型
 }
 
-// QuickConnectResult 一键连接结果
+// QuickConnectResult 一键连接结果.
 type QuickConnectResult struct {
 	Success   bool      `json:"success"`
 	Node      *FreeNode `json:"node"`

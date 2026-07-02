@@ -12,17 +12,17 @@ import (
 // Handler HTTP 处理器
 // ============================================================
 
-// Handler 混合共享 HTTP 处理器
+// Handler 混合共享 HTTP 处理器.
 type Handler struct {
 	service *Service
 }
 
-// NewHandler 创建新的 Handler
+// NewHandler 创建新的 Handler.
 func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	share := r.Group("/hybridshare")
 	{
@@ -70,7 +70,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 // @Produce json
 // @Param request body CreateShareRequest true "创建请求"
 // @Success 201 {object} HybridShareConfig
-// @Router /api/v1/hybridshare [post]
+// @Router /api/v1/hybridshare [post].
 func (h *Handler) CreateShare(c *gin.Context) {
 	var req CreateShareRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -92,7 +92,7 @@ func (h *Handler) CreateShare(c *gin.Context) {
 // @Tags hybridshare
 // @Produce json
 // @Success 200 {array} ShareSummary
-// @Router /api/v1/hybridshare [get]
+// @Router /api/v1/hybridshare [get].
 func (h *Handler) ListShares(c *gin.Context) {
 	summaries := h.service.ListShares()
 	c.JSON(http.StatusOK, summaries)
@@ -104,7 +104,7 @@ func (h *Handler) ListShares(c *gin.Context) {
 // @Produce json
 // @Param id path string true "共享ID"
 // @Success 200 {object} HybridShareConfig
-// @Router /api/v1/hybridshare/{id} [get]
+// @Router /api/v1/hybridshare/{id} [get].
 func (h *Handler) GetShare(c *gin.Context) {
 	id := c.Param("id")
 
@@ -125,7 +125,7 @@ func (h *Handler) GetShare(c *gin.Context) {
 // @Param id path string true "共享ID"
 // @Param request body UpdateShareRequest true "更新请求"
 // @Success 200 {object} HybridShareConfig
-// @Router /api/v1/hybridshare/{id} [put]
+// @Router /api/v1/hybridshare/{id} [put].
 func (h *Handler) UpdateShare(c *gin.Context) {
 	id := c.Param("id")
 
@@ -150,7 +150,7 @@ func (h *Handler) UpdateShare(c *gin.Context) {
 // @Produce json
 // @Param id path string true "共享ID"
 // @Success 200 {object} map[string]string
-// @Router /api/v1/hybridshare/{id} [delete]
+// @Router /api/v1/hybridshare/{id} [delete].
 func (h *Handler) DeleteShare(c *gin.Context) {
 	id := c.Param("id")
 
@@ -173,7 +173,7 @@ func (h *Handler) DeleteShare(c *gin.Context) {
 // @Param id path string true "共享ID"
 // @Param path query string false "路径前缀"
 // @Success 200 {array} FileMetadata
-// @Router /api/v1/hybridshare/{id}/files [get]
+// @Router /api/v1/hybridshare/{id}/files [get].
 func (h *Handler) ListFiles(c *gin.Context) {
 	shareID := c.Param("id")
 	path := c.DefaultQuery("path", "")
@@ -194,7 +194,7 @@ func (h *Handler) ListFiles(c *gin.Context) {
 // @Param id path string true "共享ID"
 // @Param path path string true "文件路径"
 // @Success 200 {object} FileMetadata
-// @Router /api/v1/hybridshare/{id}/files/{path} [get]
+// @Router /api/v1/hybridshare/{id}/files/{path} [get].
 func (h *Handler) GetFileMetadata(c *gin.Context) {
 	shareID := c.Param("id")
 	filePath := c.Param("path")
@@ -215,7 +215,7 @@ func (h *Handler) GetFileMetadata(c *gin.Context) {
 // 缓存操作 Handlers
 // ============================================================
 
-// CacheFileRequest 缓存文件请求
+// CacheFileRequest 缓存文件请求.
 type CacheFileRequest struct {
 	ShareID  string `json:"share_id" binding:"required"`
 	FilePath string `json:"file_path" binding:"required"`
@@ -229,7 +229,7 @@ type CacheFileRequest struct {
 // @Param id path string true "共享ID"
 // @Param request body CacheFileRequest true "缓存请求"
 // @Success 200 {object} map[string]string
-// @Router /api/v1/hybridshare/{id}/cache [post]
+// @Router /api/v1/hybridshare/{id}/cache [post].
 func (h *Handler) CacheFile(c *gin.Context) {
 	shareID := c.Param("id")
 
@@ -263,7 +263,7 @@ func (h *Handler) CacheFile(c *gin.Context) {
 // @Param id path string true "共享ID"
 // @Param path path string true "文件路径"
 // @Success 200 {object} map[string]string
-// @Router /api/v1/hybridshare/{id}/cache/{path} [delete]
+// @Router /api/v1/hybridshare/{id}/cache/{path} [delete].
 func (h *Handler) EvictFromCache(c *gin.Context) {
 	shareID := c.Param("id")
 	filePath := c.Param("path")
@@ -279,7 +279,7 @@ func (h *Handler) EvictFromCache(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "file evicted from cache"})
 }
 
-// PinFileRequest 固定文件请求
+// PinFileRequest 固定文件请求.
 type PinFileRequest struct {
 	ShareID  string `json:"share_id" binding:"required"`
 	FilePath string `json:"file_path" binding:"required"`
@@ -293,7 +293,7 @@ type PinFileRequest struct {
 // @Param id path string true "共享ID"
 // @Param request body PinFileRequest true "固定请求"
 // @Success 200 {object} map[string]string
-// @Router /api/v1/hybridshare/{id}/cache/pin [post]
+// @Router /api/v1/hybridshare/{id}/cache/pin [post].
 func (h *Handler) PinFile(c *gin.Context) {
 	shareID := c.Param("id")
 
@@ -322,7 +322,7 @@ func (h *Handler) PinFile(c *gin.Context) {
 // @Param id path string true "共享ID"
 // @Param path path string true "文件路径"
 // @Success 200 {object} map[string]string
-// @Router /api/v1/hybridshare/{id}/cache/pin/{path} [delete]
+// @Router /api/v1/hybridshare/{id}/cache/pin/{path} [delete].
 func (h *Handler) UnpinFile(c *gin.Context) {
 	shareID := c.Param("id")
 	filePath := c.Param("path")
@@ -350,7 +350,7 @@ func (h *Handler) UnpinFile(c *gin.Context) {
 // @Param id path string true "共享ID"
 // @Param request body SyncRequest true "同步请求"
 // @Success 202 {object} SyncTask
-// @Router /api/v1/hybridshare/{id}/sync [post]
+// @Router /api/v1/hybridshare/{id}/sync [post].
 func (h *Handler) StartSync(c *gin.Context) {
 	shareID := c.Param("id")
 
@@ -382,7 +382,7 @@ func (h *Handler) StartSync(c *gin.Context) {
 // @Produce json
 // @Param id path string true "共享ID"
 // @Success 200 {array} SyncTask
-// @Router /api/v1/hybridshare/{id}/sync/tasks [get]
+// @Router /api/v1/hybridshare/{id}/sync/tasks [get].
 func (h *Handler) ListSyncTasks(c *gin.Context) {
 	shareID := c.Param("id")
 
@@ -396,7 +396,7 @@ func (h *Handler) ListSyncTasks(c *gin.Context) {
 // @Produce json
 // @Param taskId path string true "任务ID"
 // @Success 200 {object} SyncTask
-// @Router /api/v1/hybridshare/sync/tasks/{taskId} [get]
+// @Router /api/v1/hybridshare/sync/tasks/{taskId} [get].
 func (h *Handler) GetSyncTask(c *gin.Context) {
 	taskID := c.Param("taskId")
 
@@ -415,7 +415,7 @@ func (h *Handler) GetSyncTask(c *gin.Context) {
 // @Produce json
 // @Param taskId path string true "任务ID"
 // @Success 200 {object} map[string]string
-// @Router /api/v1/hybridshare/sync/tasks/{taskId}/cancel [post]
+// @Router /api/v1/hybridshare/sync/tasks/{taskId}/cancel [post].
 func (h *Handler) CancelSyncTask(c *gin.Context) {
 	taskID := c.Param("taskId")
 
@@ -437,7 +437,7 @@ func (h *Handler) CancelSyncTask(c *gin.Context) {
 // @Produce json
 // @Param id path string true "共享ID"
 // @Success 200 {object} CapacityStats
-// @Router /api/v1/hybridshare/{id}/stats/capacity [get]
+// @Router /api/v1/hybridshare/{id}/stats/capacity [get].
 func (h *Handler) GetCapacityStats(c *gin.Context) {
 	shareID := c.Param("id")
 
@@ -456,7 +456,7 @@ func (h *Handler) GetCapacityStats(c *gin.Context) {
 // @Produce json
 // @Param id path string true "共享ID"
 // @Success 200 {object} BandwidthStats
-// @Router /api/v1/hybridshare/{id}/stats/bandwidth [get]
+// @Router /api/v1/hybridshare/{id}/stats/bandwidth [get].
 func (h *Handler) GetBandwidthStats(c *gin.Context) {
 	shareID := c.Param("id")
 
@@ -480,7 +480,7 @@ func (h *Handler) GetBandwidthStats(c *gin.Context) {
 // @Param id path string true "共享ID"
 // @Param limit query int false "返回数量限制"
 // @Success 200 {array} SyncLog
-// @Router /api/v1/hybridshare/{id}/logs/sync [get]
+// @Router /api/v1/hybridshare/{id}/logs/sync [get].
 func (h *Handler) GetSyncLogs(c *gin.Context) {
 	shareID := c.Param("id")
 	limitStr := c.DefaultQuery("limit", "100")
@@ -500,7 +500,7 @@ func (h *Handler) GetSyncLogs(c *gin.Context) {
 // @Param id path string true "共享ID"
 // @Param limit query int false "返回数量限制"
 // @Success 200 {array} EventLog
-// @Router /api/v1/hybridshare/{id}/logs/events [get]
+// @Router /api/v1/hybridshare/{id}/logs/events [get].
 func (h *Handler) GetEventLogs(c *gin.Context) {
 	shareID := c.Param("id")
 	limitStr := c.DefaultQuery("limit", "100")

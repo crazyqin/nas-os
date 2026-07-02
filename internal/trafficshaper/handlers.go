@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 流量整形 API 处理器
+// Handlers 流量整形 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	traffic := r.Group("/traffic")
 	{
@@ -54,14 +54,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// createRule 创建流量规则
+// createRule 创建流量规则.
 func (h *Handlers) createRule(c *gin.Context) {
 	var rule TrafficRule
 	if err := c.ShouldBindJSON(&rule); err != nil {
@@ -88,7 +88,7 @@ func (h *Handlers) createRule(c *gin.Context) {
 	})
 }
 
-// listRules 列出流量规则
+// listRules 列出流量规则.
 func (h *Handlers) listRules(c *gin.Context) {
 	rules := h.manager.ListRules()
 	c.JSON(http.StatusOK, response{
@@ -98,7 +98,7 @@ func (h *Handlers) listRules(c *gin.Context) {
 	})
 }
 
-// updateRule 更新流量规则
+// updateRule 更新流量规则.
 func (h *Handlers) updateRule(c *gin.Context) {
 	id := c.Param("id")
 	var rule TrafficRule
@@ -126,7 +126,7 @@ func (h *Handlers) updateRule(c *gin.Context) {
 	})
 }
 
-// deleteRule 删除流量规则
+// deleteRule 删除流量规则.
 func (h *Handlers) deleteRule(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteRule(id); err != nil {
@@ -143,7 +143,7 @@ func (h *Handlers) deleteRule(c *gin.Context) {
 	})
 }
 
-// toggleRule 启用/禁用流量规则
+// toggleRule 启用/禁用流量规则.
 func (h *Handlers) toggleRule(c *gin.Context) {
 	id := c.Param("id")
 	rule, err := h.manager.ToggleRule(id)
@@ -162,7 +162,7 @@ func (h *Handlers) toggleRule(c *gin.Context) {
 	})
 }
 
-// createClass 创建流量类别
+// createClass 创建流量类别.
 func (h *Handlers) createClass(c *gin.Context) {
 	var class TrafficClass
 	if err := c.ShouldBindJSON(&class); err != nil {
@@ -189,7 +189,7 @@ func (h *Handlers) createClass(c *gin.Context) {
 	})
 }
 
-// listClasses 列出流量类别
+// listClasses 列出流量类别.
 func (h *Handlers) listClasses(c *gin.Context) {
 	classes := h.manager.ListClasses()
 	c.JSON(http.StatusOK, response{
@@ -199,7 +199,7 @@ func (h *Handlers) listClasses(c *gin.Context) {
 	})
 }
 
-// updateClass 更新流量类别
+// updateClass 更新流量类别.
 func (h *Handlers) updateClass(c *gin.Context) {
 	id := c.Param("id")
 	var class TrafficClass
@@ -227,7 +227,7 @@ func (h *Handlers) updateClass(c *gin.Context) {
 	})
 }
 
-// deleteClass 删除流量类别
+// deleteClass 删除流量类别.
 func (h *Handlers) deleteClass(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteClass(id); err != nil {
@@ -244,7 +244,7 @@ func (h *Handlers) deleteClass(c *gin.Context) {
 	})
 }
 
-// getGlobalStats 获取全局流量统计
+// getGlobalStats 获取全局流量统计.
 func (h *Handlers) getGlobalStats(c *gin.Context) {
 	stats := h.manager.GetGlobalStats()
 	c.JSON(http.StatusOK, response{
@@ -254,7 +254,7 @@ func (h *Handlers) getGlobalStats(c *gin.Context) {
 	})
 }
 
-// getRuleStats 获取指定规则的流量统计
+// getRuleStats 获取指定规则的流量统计.
 func (h *Handlers) getRuleStats(c *gin.Context) {
 	id := c.Param("id")
 	stats, err := h.manager.GetRuleStats(id)
@@ -273,7 +273,7 @@ func (h *Handlers) getRuleStats(c *gin.Context) {
 	})
 }
 
-// getAllocation 获取带宽分配
+// getAllocation 获取带宽分配.
 func (h *Handlers) getAllocation(c *gin.Context) {
 	allocation := h.manager.GetAllocation()
 	c.JSON(http.StatusOK, response{
@@ -283,7 +283,7 @@ func (h *Handlers) getAllocation(c *gin.Context) {
 	})
 }
 
-// rebalance 重新平衡带宽分配
+// rebalance 重新平衡带宽分配.
 func (h *Handlers) rebalance(c *gin.Context) {
 	allocation := h.manager.Rebalance()
 	c.JSON(http.StatusOK, response{
@@ -293,7 +293,7 @@ func (h *Handlers) rebalance(c *gin.Context) {
 	})
 }
 
-// getEvents 获取事件日志
+// getEvents 获取事件日志.
 func (h *Handlers) getEvents(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "100")
 	limit, err := strconv.Atoi(limitStr)
@@ -313,7 +313,7 @@ func (h *Handlers) getEvents(c *gin.Context) {
 	})
 }
 
-// simulateTraffic 模拟流量
+// simulateTraffic 模拟流量.
 func (h *Handlers) simulateTraffic(c *gin.Context) {
 	h.manager.SimulateTraffic()
 	c.JSON(http.StatusOK, response{
@@ -322,7 +322,7 @@ func (h *Handlers) simulateTraffic(c *gin.Context) {
 	})
 }
 
-// getConfig 获取配置
+// getConfig 获取配置.
 func (h *Handlers) getConfig(c *gin.Context) {
 	config := h.manager.GetConfig()
 	c.JSON(http.StatusOK, response{
@@ -332,7 +332,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 	})
 }
 
-// updateConfig 更新配置
+// updateConfig 更新配置.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var config TrafficShaperConfig
 	if err := c.ShouldBindJSON(&config); err != nil {

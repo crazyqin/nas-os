@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 const (
@@ -15,7 +15,7 @@ const (
 	AlertEmergency AlertLevel = "emergency"
 )
 
-// TrendDirection 趋势方向
+// TrendDirection 趋势方向.
 type TrendDirection string
 
 const (
@@ -25,7 +25,7 @@ const (
 	TrendUnknown    TrendDirection = "unknown"
 )
 
-// DataType 数据类型
+// DataType 数据类型.
 type DataType string
 
 const (
@@ -37,7 +37,7 @@ const (
 	DataTypeOther    DataType = "other"
 )
 
-// ForecastMethod 预测方法
+// ForecastMethod 预测方法.
 type ForecastMethod string
 
 const (
@@ -46,7 +46,7 @@ const (
 	MethodExponential      ForecastMethod = "exponential_smoothing"
 )
 
-// ExpansionType 扩容类型
+// ExpansionType 扩容类型.
 type ExpansionType string
 
 const (
@@ -56,7 +56,7 @@ const (
 	ExpansionCloudTier  ExpansionType = "cloud_tier"
 )
 
-// CapacitySnapshot 容量快照
+// CapacitySnapshot 容量快照.
 type CapacitySnapshot struct {
 	Timestamp   time.Time          `json:"timestamp"`
 	TotalBytes  int64              `json:"total_bytes"`
@@ -66,7 +66,7 @@ type CapacitySnapshot struct {
 	ByType      map[DataType]int64 `json:"by_type,omitempty"`
 }
 
-// Forecast 容量预测结果
+// Forecast 容量预测结果.
 type Forecast struct {
 	ID                string         `json:"id"`
 	TargetDate        time.Time      `json:"target_date"`
@@ -81,7 +81,7 @@ type Forecast struct {
 	CreatedAt         time.Time      `json:"created_at"`
 }
 
-// GrowthRate 增长率分析结果
+// GrowthRate 增长率分析结果.
 type GrowthRate struct {
 	DataType           DataType       `json:"data_type"`
 	DailyGrowthBytes   int64          `json:"daily_growth_bytes"`
@@ -93,7 +93,7 @@ type GrowthRate struct {
 	TotalShare         float64        `json:"total_share"`
 }
 
-// GrowthAnalysis 增长分析汇总
+// GrowthAnalysis 增长分析汇总.
 type GrowthAnalysis struct {
 	OverallGrowthRate float64      `json:"overall_growth_rate"`
 	OverallDailyBytes int64        `json:"overall_daily_bytes"`
@@ -101,7 +101,7 @@ type GrowthAnalysis struct {
 	AnalysisTime      time.Time    `json:"analysis_time"`
 }
 
-// CapacityAlert 容量告警
+// CapacityAlert 容量告警.
 type CapacityAlert struct {
 	ID           string     `json:"id"`
 	Level        AlertLevel `json:"level"`
@@ -114,7 +114,7 @@ type CapacityAlert struct {
 	Acknowledged bool       `json:"acknowledged"`
 }
 
-// WhatIfScenario What-If 模拟场景
+// WhatIfScenario What-If 模拟场景.
 type WhatIfScenario struct {
 	ID              string            `json:"id"`
 	Name            string            `json:"name"`
@@ -124,7 +124,7 @@ type WhatIfScenario struct {
 	CreatedAt       time.Time         `json:"created_at"`
 }
 
-// Modification 容量修改项
+// Modification 容量修改项.
 type Modification struct {
 	Type        string   `json:"type"`      // "add_data", "remove_data", "add_capacity"
 	DataType    DataType `json:"data_type"` // 仅 add_data/remove_data 时使用
@@ -132,7 +132,7 @@ type Modification struct {
 	Description string   `json:"description"`
 }
 
-// SimulationResult 模拟结果
+// SimulationResult 模拟结果.
 type SimulationResult struct {
 	ProjectedTotalBytes   int64       `json:"projected_total_bytes"`
 	ProjectedUsedBytes    int64       `json:"projected_used_bytes"`
@@ -143,14 +143,14 @@ type SimulationResult struct {
 	EstimatedFullDate     *time.Time  `json:"estimated_full_date,omitempty"`
 }
 
-// Comparison 对比结果
+// Comparison 对比结果.
 type Comparison struct {
 	UsageChange      float64 `json:"usage_change"`
 	FreeBytesChange  int64   `json:"free_bytes_change"`
 	DaysToFullChange int     `json:"days_to_full_change"`
 }
 
-// ExpansionPlan 扩容方案
+// ExpansionPlan 扩容方案.
 type ExpansionPlan struct {
 	ID                 string        `json:"id"`
 	Type               ExpansionType `json:"type"`
@@ -168,7 +168,7 @@ type ExpansionPlan struct {
 	Rank               int           `json:"rank"`
 }
 
-// ExpansionRecommendation 扩容建议汇总
+// ExpansionRecommendation 扩容建议汇总.
 type ExpansionRecommendation struct {
 	CurrentTotalBytes int64           `json:"current_total_bytes"`
 	CurrentUsedBytes  int64           `json:"current_used_bytes"`
@@ -179,7 +179,7 @@ type ExpansionRecommendation struct {
 	CreatedAt         time.Time       `json:"created_at"`
 }
 
-// ForecastConfig 配置
+// ForecastConfig 配置.
 type ForecastConfig struct {
 	Enabled             bool          `json:"enabled"`
 	WarningThreshold    float64       `json:"warning_threshold"`     // 80%
@@ -195,7 +195,7 @@ type ForecastConfig struct {
 	ExpansionTargetDays int           `json:"expansion_target_days"` // 扩容目标天数
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() ForecastConfig {
 	return ForecastConfig{
 		Enabled:             true,

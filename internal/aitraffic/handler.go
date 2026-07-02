@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	analyzer *Analyzer
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(analyzer *Analyzer) *Handler {
 	return &Handler{analyzer: analyzer}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/aitraffic/stats", h.handleGetStats)
 	mux.HandleFunc("/api/aitraffic/anomalies", h.handleGetAnomalies)

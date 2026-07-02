@@ -416,7 +416,7 @@ func TestGetArrayStatus(t *testing.T) {
 	}
 }
 
-// contains 检查字符串是否包含子串
+// contains 检查字符串是否包含子串.
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && (s == substr || len(s) > 0 && containsSubstr(s, substr))
 }

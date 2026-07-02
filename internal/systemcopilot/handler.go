@@ -6,19 +6,19 @@ import (
 	"strconv"
 )
 
-// Handler handles HTTP requests for SystemCopilot
+// Handler handles HTTP requests for SystemCopilot.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler creates a new SystemCopilot HTTP handler
+// NewHandler creates a new SystemCopilot HTTP handler.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{
 		manager: manager,
 	}
 }
 
-// RegisterRoutes registers all SystemCopilot HTTP routes
+// RegisterRoutes registers all SystemCopilot HTTP routes.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/systemcopilot/process", h.handleProcess)
 	mux.HandleFunc("/api/systemcopilot/confirm", h.handleConfirm)
@@ -28,7 +28,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/systemcopilot/session", h.handleSession)
 }
 
-// handleProcess handles natural language command processing
+// handleProcess handles natural language command processing.
 func (h *Handler) handleProcess(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -66,7 +66,7 @@ func (h *Handler) handleProcess(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, resp)
 }
 
-// handleConfirm handles command confirmation
+// handleConfirm handles command confirmation.
 func (h *Handler) handleConfirm(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -98,7 +98,7 @@ func (h *Handler) handleConfirm(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleSuggestions returns AI-generated suggestions
+// handleSuggestions returns AI-generated suggestions.
 func (h *Handler) handleSuggestions(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -113,7 +113,7 @@ func (h *Handler) handleSuggestions(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleHistory returns command history
+// handleHistory returns command history.
 func (h *Handler) handleHistory(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -146,7 +146,7 @@ func (h *Handler) handleHistory(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleStats returns copilot usage statistics
+// handleStats returns copilot usage statistics.
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -157,7 +157,7 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, stats)
 }
 
-// handleSession returns session details
+// handleSession returns session details.
 func (h *Handler) handleSession(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -179,14 +179,14 @@ func (h *Handler) handleSession(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, session)
 }
 
-// writeJSON writes a JSON response
+// writeJSON writes a JSON response.
 func writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(data)
 }
 
-// writeError writes an error response
+// writeError writes an error response.
 func writeError(w http.ResponseWriter, status int, message string) {
 	writeJSON(w, status, map[string]string{
 		"error": message,

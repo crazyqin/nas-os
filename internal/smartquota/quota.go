@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// QuotaLevel 配额层级
+// QuotaLevel 配额层级.
 type QuotaLevel string
 
 const (
@@ -22,7 +22,7 @@ const (
 	LevelProject QuotaLevel = "project" // 项目级
 )
 
-// QuotaPolicy 配额策略
+// QuotaPolicy 配额策略.
 type QuotaPolicy string
 
 const (
@@ -31,16 +31,16 @@ const (
 	PolicyElastic QuotaPolicy = "elastic" // 弹性：自动扩容
 )
 
-// AlertThreshold 告警阈值
+// AlertThreshold 告警阈值.
 var AlertThresholds = []float64{50, 75, 90, 100}
 
-// UsageRecord 使用量记录
+// UsageRecord 使用量记录.
 type UsageRecord struct {
 	Timestamp time.Time `json:"timestamp"`
 	UsedBytes int64     `json:"usedBytes"`
 }
 
-// Alert 配额告警
+// Alert 配额告警.
 type Alert struct {
 	ID          string    `json:"id"`
 	QuotaID     string    `json:"quotaId"`
@@ -55,7 +55,7 @@ type Alert struct {
 	Acked       bool      `json:"acked"`
 }
 
-// Prediction 使用量预测
+// Prediction 使用量预测.
 type Prediction struct {
 	QuotaID         string     `json:"quotaId"`
 	CurrentUsed     int64      `json:"currentUsed"`
@@ -66,7 +66,7 @@ type Prediction struct {
 	Trend           string     `json:"trend"` // increasing / stable / decreasing
 }
 
-// CleanupSuggestion 清理建议
+// CleanupSuggestion 清理建议.
 type CleanupSuggestion struct {
 	Type        string `json:"type"`        // large_file / duplicate / stale_file
 	Target      string `json:"target"`      // 目标路径
@@ -75,7 +75,7 @@ type CleanupSuggestion struct {
 	Priority    int    `json:"priority"`    // 优先级 1-5
 }
 
-// HistoryStats 历史统计
+// HistoryStats 历史统计.
 type HistoryStats struct {
 	QuotaID  string        `json:"quotaId"`
 	Period   string        `json:"period"` // day / week / month
@@ -86,7 +86,7 @@ type HistoryStats struct {
 	Growth   int64         `json:"growth"` // 周期内净增长
 }
 
-// QuotaConfig 配额配置
+// QuotaConfig 配额配置.
 type QuotaConfig struct {
 	ID            string           `json:"id"`
 	Name          string           `json:"name"`
@@ -103,7 +103,7 @@ type QuotaConfig struct {
 	UpdatedAt     time.Time        `json:"updatedAt"`
 }
 
-// QuotaTemplate 配额模板
+// QuotaTemplate 配额模板.
 type QuotaTemplate struct {
 	Name       string      `json:"name"`
 	Level      QuotaLevel  `json:"level"`
@@ -111,7 +111,7 @@ type QuotaTemplate struct {
 	Policy     QuotaPolicy `json:"policy"`
 }
 
-// DefaultTemplates 默认配额模板
+// DefaultTemplates 默认配额模板.
 var DefaultTemplates = []QuotaTemplate{
 	{Name: "family_user", Level: LevelUser, LimitBytes: 1024 * 1024 * 1024 * 1024, Policy: PolicySoft},             // 1TB
 	{Name: "office_user", Level: LevelUser, LimitBytes: 500 * 1024 * 1024 * 1024, Policy: PolicyHard},              // 500GB
@@ -120,7 +120,7 @@ var DefaultTemplates = []QuotaTemplate{
 	{Name: "project_default", Level: LevelProject, LimitBytes: 10 * 1024 * 1024 * 1024 * 1024, Policy: PolicyHard}, // 10TB
 }
 
-// QuotaManager 配额管理器
+// QuotaManager 配额管理器.
 type QuotaManager struct {
 	quotas  map[string]*QuotaConfig
 	alerts  []*Alert
@@ -131,7 +131,7 @@ type QuotaManager struct {
 	onAlert func(alert *Alert) // 告警回调
 }
 
-// NewQuotaManager 创建配额管理器
+// NewQuotaManager 创建配额管理器.
 func NewQuotaManager() *QuotaManager {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &QuotaManager{
@@ -143,14 +143,14 @@ func NewQuotaManager() *QuotaManager {
 	}
 }
 
-// SetAlertCallback 设置告警回调
+// SetAlertCallback 设置告警回调.
 func (qm *QuotaManager) SetAlertCallback(fn func(alert *Alert)) {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
 	qm.onAlert = fn
 }
 
-// CreateQuota 创建配额
+// CreateQuota 创建配额.
 func (qm *QuotaManager) CreateQuota(cfg QuotaConfig) (*QuotaConfig, error) {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
@@ -175,7 +175,7 @@ func (qm *QuotaManager) CreateQuota(cfg QuotaConfig) (*QuotaConfig, error) {
 	return &cfg, nil
 }
 
-// GetQuota 获取配额
+// GetQuota 获取配额.
 func (qm *QuotaManager) GetQuota(id string) (*QuotaConfig, error) {
 	qm.mu.RLock()
 	defer qm.mu.RUnlock()
@@ -187,7 +187,7 @@ func (qm *QuotaManager) GetQuota(id string) (*QuotaConfig, error) {
 	return q, nil
 }
 
-// UpdateQuota 更新配额
+// UpdateQuota 更新配额.
 func (qm *QuotaManager) UpdateQuota(id string, update QuotaConfig) (*QuotaConfig, error) {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
@@ -214,7 +214,7 @@ func (qm *QuotaManager) UpdateQuota(id string, update QuotaConfig) (*QuotaConfig
 	return q, nil
 }
 
-// DeleteQuota 删除配额
+// DeleteQuota 删除配额.
 func (qm *QuotaManager) DeleteQuota(id string) error {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
@@ -234,7 +234,7 @@ func (qm *QuotaManager) DeleteQuota(id string) error {
 	return nil
 }
 
-// ListQuotas 列出所有配额
+// ListQuotas 列出所有配额.
 func (qm *QuotaManager) ListQuotas() []*QuotaConfig {
 	qm.mu.RLock()
 	defer qm.mu.RUnlock()
@@ -249,7 +249,7 @@ func (qm *QuotaManager) ListQuotas() []*QuotaConfig {
 	return result
 }
 
-// UpdateUsage 更新使用量并检查告警
+// UpdateUsage 更新使用量并检查告警.
 func (qm *QuotaManager) UpdateUsage(id string, usedBytes int64) error {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
@@ -283,7 +283,7 @@ func (qm *QuotaManager) UpdateUsage(id string, usedBytes int64) error {
 	return nil
 }
 
-// checkAlertsLocked 检查告警（需持有锁）
+// checkAlertsLocked 检查告警（需持有锁）.
 func (qm *QuotaManager) checkAlertsLocked(q *QuotaConfig) {
 	if q.LimitBytes <= 0 {
 		return
@@ -327,7 +327,7 @@ func (qm *QuotaManager) checkAlertsLocked(q *QuotaConfig) {
 	}
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (qm *QuotaManager) GetAlerts(ackedFilter *bool) []*Alert {
 	qm.mu.RLock()
 	defer qm.mu.RUnlock()
@@ -342,7 +342,7 @@ func (qm *QuotaManager) GetAlerts(ackedFilter *bool) []*Alert {
 	return result
 }
 
-// PredictUsage 使用量预测
+// PredictUsage 使用量预测.
 func (qm *QuotaManager) PredictUsage(id string) (*Prediction, error) {
 	qm.mu.RLock()
 	defer qm.mu.RUnlock()
@@ -406,7 +406,7 @@ func (qm *QuotaManager) PredictUsage(id string) (*Prediction, error) {
 	return pred, nil
 }
 
-// GetHistory 获取历史统计
+// GetHistory 获取历史统计.
 func (qm *QuotaManager) GetHistory(id, period string) (*HistoryStats, error) {
 	qm.mu.RLock()
 	defer qm.mu.RUnlock()
@@ -468,7 +468,7 @@ func (qm *QuotaManager) GetHistory(id, period string) (*HistoryStats, error) {
 	return stats, nil
 }
 
-// ApplyTemplate 应用配额模板
+// ApplyTemplate 应用配额模板.
 func (qm *QuotaManager) ApplyTemplate(templateName, ownerID, name string) (*QuotaConfig, error) {
 	var tmpl *QuotaTemplate
 	for _, t := range DefaultTemplates {
@@ -493,7 +493,7 @@ func (qm *QuotaManager) ApplyTemplate(templateName, ownerID, name string) (*Quot
 	return qm.CreateQuota(cfg)
 }
 
-// InheritQuota 配额继承：从父配额分配子配额
+// InheritQuota 配额继承：从父配额分配子配额.
 func (qm *QuotaManager) InheritQuota(parentID, childName, childOwnerID string, allocateBytes int64) (*QuotaConfig, error) {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
@@ -540,7 +540,7 @@ func (qm *QuotaManager) InheritQuota(parentID, childName, childOwnerID string, a
 	return child, nil
 }
 
-// GetCleanupSuggestions 获取清理建议
+// GetCleanupSuggestions 获取清理建议.
 func (qm *QuotaManager) GetCleanupSuggestions(id string) ([]CleanupSuggestion, error) {
 	qm.mu.RLock()
 	defer qm.mu.RUnlock()
@@ -608,7 +608,7 @@ func (qm *QuotaManager) GetCleanupSuggestions(id string) ([]CleanupSuggestion, e
 	return suggestions, nil
 }
 
-// formatBytes 格式化字节数
+// formatBytes 格式化字节数.
 func formatBytes(bytes int64) string {
 	const unit = 1024
 	if bytes < unit {
@@ -622,5 +622,5 @@ func formatBytes(bytes int64) string {
 	return fmt.Sprintf("%.1f %ciB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }
 
-// log 供内部使用
+// log 供内部使用.
 var _ = log.Println

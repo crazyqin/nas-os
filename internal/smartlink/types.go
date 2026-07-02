@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// SharePermission defines the permission level of a share link
+// SharePermission defines the permission level of a share link.
 type SharePermission string
 
 const (
@@ -14,7 +14,7 @@ const (
 	PermissionPreview   SharePermission = "preview"
 )
 
-// ShareLink represents a smart share link
+// ShareLink represents a smart share link.
 type ShareLink struct {
 	ID          string          `json:"id"`
 	Token       string          `json:"token"`
@@ -33,7 +33,7 @@ type ShareLink struct {
 	mu          sync.RWMutex    `json:"-"`
 }
 
-// IsExpired checks if the link has expired
+// IsExpired checks if the link has expired.
 func (sl *ShareLink) IsExpired() bool {
 	sl.mu.RLock()
 	defer sl.mu.RUnlock()
@@ -44,7 +44,7 @@ func (sl *ShareLink) IsExpired() bool {
 	return time.Now().After(*sl.ExpiresAt)
 }
 
-// IsMaxVisitsReached checks if max visits limit is reached
+// IsMaxVisitsReached checks if max visits limit is reached.
 func (sl *ShareLink) IsMaxVisitsReached() bool {
 	sl.mu.RLock()
 	defer sl.mu.RUnlock()
@@ -55,7 +55,7 @@ func (sl *ShareLink) IsMaxVisitsReached() bool {
 	return sl.VisitCount >= sl.MaxVisits
 }
 
-// IsAccessible checks if the link can be accessed
+// IsAccessible checks if the link can be accessed.
 func (sl *ShareLink) IsAccessible() bool {
 	sl.mu.RLock()
 	defer sl.mu.RUnlock()
@@ -63,7 +63,7 @@ func (sl *ShareLink) IsAccessible() bool {
 	return sl.IsActive && !sl.IsExpired() && !sl.IsMaxVisitsReached()
 }
 
-// IncrementVisit increments visit count and deactivates if one-time
+// IncrementVisit increments visit count and deactivates if one-time.
 func (sl *ShareLink) IncrementVisit() {
 	sl.mu.Lock()
 	defer sl.mu.Unlock()
@@ -76,7 +76,7 @@ func (sl *ShareLink) IncrementVisit() {
 	}
 }
 
-// AccessLog represents an access log entry
+// AccessLog represents an access log entry.
 type AccessLog struct {
 	ID         string    `json:"id"`
 	LinkID     string    `json:"link_id"`
@@ -87,7 +87,7 @@ type AccessLog struct {
 	Reason     string    `json:"reason,omitempty"`
 }
 
-// SharePolicy defines sharing policy constraints
+// SharePolicy defines sharing policy constraints.
 type SharePolicy struct {
 	MaxLinksPerUser   int           `json:"max_links_per_user"`
 	DefaultExpiration time.Duration `json:"default_expiration"`
@@ -97,7 +97,7 @@ type SharePolicy struct {
 	MaxVisitsPerLink  int           `json:"max_visits_per_link"`
 }
 
-// DefaultSharePolicy returns default sharing policy
+// DefaultSharePolicy returns default sharing policy.
 func DefaultSharePolicy() SharePolicy {
 	return SharePolicy{
 		MaxLinksPerUser:   100,
@@ -109,7 +109,7 @@ func DefaultSharePolicy() SharePolicy {
 	}
 }
 
-// LinkStats represents statistics for a share link
+// LinkStats represents statistics for a share link.
 type LinkStats struct {
 	LinkID          string     `json:"link_id"`
 	TotalVisits     int        `json:"total_visits"`
@@ -119,7 +119,7 @@ type LinkStats struct {
 	IPAddresses     []string   `json:"ip_addresses,omitempty"`
 }
 
-// CreateLinkRequest represents request to create a share link
+// CreateLinkRequest represents request to create a share link.
 type CreateLinkRequest struct {
 	FileID      string          `json:"file_id" binding:"required"`
 	Permission  SharePermission `json:"permission" binding:"required"`
@@ -130,12 +130,12 @@ type CreateLinkRequest struct {
 	Description string          `json:"description,omitempty"`
 }
 
-// AccessLinkRequest represents request to access a share link
+// AccessLinkRequest represents request to access a share link.
 type AccessLinkRequest struct {
 	Password string `json:"password,omitempty"`
 }
 
-// LinkResponse represents share link response
+// LinkResponse represents share link response.
 type LinkResponse struct {
 	ID          string          `json:"id"`
 	Token       string          `json:"token"`
@@ -151,12 +151,12 @@ type LinkResponse struct {
 	URL         string          `json:"url"`
 }
 
-// BatchCreateRequest represents batch creation request
+// BatchCreateRequest represents batch creation request.
 type BatchCreateRequest struct {
 	Links []CreateLinkRequest `json:"links" binding:"required,min=1,max=50"`
 }
 
-// BatchCreateResponse represents batch creation response
+// BatchCreateResponse represents batch creation response.
 type BatchCreateResponse struct {
 	Links   []LinkResponse `json:"links"`
 	Success int            `json:"success"`

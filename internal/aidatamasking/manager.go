@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 数据脱敏管理器
+// Manager 数据脱敏管理器.
 type Manager struct {
 	mu     sync.RWMutex
 	logger *zap.Logger
@@ -18,7 +18,7 @@ type Manager struct {
 	audit  []*AuditLog
 }
 
-// NewManager 创建数据脱敏管理器
+// NewManager 创建数据脱敏管理器.
 func NewManager(logger *zap.Logger, config *MaskingEngineConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -36,7 +36,7 @@ func NewManager(logger *zap.Logger, config *MaskingEngineConfig) *Manager {
 	}
 }
 
-// MaskText 对文本进行脱敏
+// MaskText 对文本进行脱敏.
 func (m *Manager) MaskText(req *MaskingRequest) (*MaskingResponse, error) {
 	m.mu.RLock()
 	enabled := m.config.Enabled
@@ -84,7 +84,7 @@ func (m *Manager) MaskText(req *MaskingRequest) (*MaskingResponse, error) {
 	return resp, nil
 }
 
-// BatchMaskText 批量文本脱敏
+// BatchMaskText 批量文本脱敏.
 func (m *Manager) BatchMaskText(req *BatchMaskingRequest) (*BatchMaskingResponse, error) {
 	m.mu.RLock()
 	enabled := m.config.Enabled
@@ -137,7 +137,7 @@ func (m *Manager) BatchMaskText(req *BatchMaskingRequest) (*BatchMaskingResponse
 	}, nil
 }
 
-// ProcessAIPrompt 处理AI提示词
+// ProcessAIPrompt 处理AI提示词.
 func (m *Manager) ProcessAIPrompt(req *AIPromptRequest) (*AIPromptResponse, error) {
 	m.mu.RLock()
 	aiConfig := m.config.AIIntegration
@@ -203,7 +203,7 @@ func (m *Manager) ProcessAIPrompt(req *AIPromptRequest) (*AIPromptResponse, erro
 	}, nil
 }
 
-// AddRule 添加脱敏规则
+// AddRule 添加脱敏规则.
 func (m *Manager) AddRule(rule *MaskingRule) error {
 	m.mu.Lock()
 	err := m.engine.AddRule(rule)
@@ -230,7 +230,7 @@ func (m *Manager) AddRule(rule *MaskingRule) error {
 	return nil
 }
 
-// UpdateRule 更新脱敏规则
+// UpdateRule 更新脱敏规则.
 func (m *Manager) UpdateRule(id string, rule *MaskingRule) error {
 	m.mu.Lock()
 	err := m.engine.UpdateRule(id, rule)
@@ -256,7 +256,7 @@ func (m *Manager) UpdateRule(id string, rule *MaskingRule) error {
 	return nil
 }
 
-// DeleteRule 删除脱敏规则
+// DeleteRule 删除脱敏规则.
 func (m *Manager) DeleteRule(id string) error {
 	m.mu.Lock()
 	err := m.engine.DeleteRule(id)
@@ -282,7 +282,7 @@ func (m *Manager) DeleteRule(id string) error {
 	return nil
 }
 
-// GetRule 获取脱敏规则
+// GetRule 获取脱敏规则.
 func (m *Manager) GetRule(id string) (*MaskingRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -290,7 +290,7 @@ func (m *Manager) GetRule(id string) (*MaskingRule, error) {
 	return m.engine.GetRule(id)
 }
 
-// ListRules 列出所有脱敏规则
+// ListRules 列出所有脱敏规则.
 func (m *Manager) ListRules() []*MaskingRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -298,12 +298,12 @@ func (m *Manager) ListRules() []*MaskingRule {
 	return m.engine.ListRules()
 }
 
-// HasSensitiveData 检查文本是否包含敏感数据
+// HasSensitiveData 检查文本是否包含敏感数据.
 func (m *Manager) HasSensitiveData(text string) (bool, []SensitiveDataType) {
 	return m.engine.HasSensitiveData(text)
 }
 
-// GetMaskingLogs 获取脱敏日志
+// GetMaskingLogs 获取脱敏日志.
 func (m *Manager) GetMaskingLogs(limit int) []*MaskingLog {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -322,7 +322,7 @@ func (m *Manager) GetMaskingLogs(limit int) []*MaskingLog {
 	return result
 }
 
-// GetAuditLogs 获取审计日志
+// GetAuditLogs 获取审计日志.
 func (m *Manager) GetAuditLogs(limit int) []*AuditLog {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -341,7 +341,7 @@ func (m *Manager) GetAuditLogs(limit int) []*AuditLog {
 	return result
 }
 
-// addMaskingLog 添加脱敏日志
+// addMaskingLog 添加脱敏日志.
 func (m *Manager) addMaskingLog(log *MaskingLog) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -355,7 +355,7 @@ func (m *Manager) addMaskingLog(log *MaskingLog) {
 	}
 }
 
-// addAuditLog 添加审计日志
+// addAuditLog 添加审计日志.
 func (m *Manager) addAuditLog(log *AuditLog) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -369,7 +369,7 @@ func (m *Manager) addAuditLog(log *AuditLog) {
 	}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *MaskingEngineConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -377,7 +377,7 @@ func (m *Manager) GetConfig() *MaskingEngineConfig {
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config *MaskingEngineConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -388,7 +388,7 @@ func (m *Manager) UpdateConfig(config *MaskingEngineConfig) {
 	}
 }
 
-// generateLogID 生成日志ID
+// generateLogID 生成日志ID.
 func generateLogID() string {
 	return fmt.Sprintf("log-%d", time.Now().UnixNano())
 }

@@ -9,21 +9,21 @@ import (
 	"time"
 )
 
-// 错误定义
+// 错误定义.
 var (
-	ErrMethodNotFound      = errors.New("方法不存在")
-	ErrInvalidParams       = errors.New("无效参数")
-	ErrInternalError       = errors.New("内部错误")
-	ErrInvalidRequest      = errors.New("无效请求")
-	ErrParseError          = errors.New("解析错误")
-	ErrAPIKeyNotFound      = errors.New("API密钥不存在")
-	ErrAPIKeyExpired       = errors.New("API密钥已过期")
-	ErrAPIKeyRevoked       = errors.New("API密钥已撤销")
-	ErrPermissionDenied    = errors.New("权限被拒绝")
-	ErrRateLimitExceeded   = errors.New("请求频率超限")
+	ErrMethodNotFound    = errors.New("方法不存在")
+	ErrInvalidParams     = errors.New("无效参数")
+	ErrInternalError     = errors.New("内部错误")
+	ErrInvalidRequest    = errors.New("无效请求")
+	ErrParseError        = errors.New("解析错误")
+	ErrAPIKeyNotFound    = errors.New("API密钥不存在")
+	ErrAPIKeyExpired     = errors.New("API密钥已过期")
+	ErrAPIKeyRevoked     = errors.New("API密钥已撤销")
+	ErrPermissionDenied  = errors.New("权限被拒绝")
+	ErrRateLimitExceeded = errors.New("请求频率超限")
 )
 
-// JSON-RPC 2.0 错误码
+// JSON-RPC 2.0 错误码.
 const (
 	ErrorCodeParseError     = -32700
 	ErrorCodeInvalidRequest = -32600
@@ -32,16 +32,16 @@ const (
 	ErrorCodeInternalError  = -32603
 )
 
-// APIKeyStatus API密钥状态
+// APIKeyStatus API密钥状态.
 type APIKeyStatus string
 
 const (
-	APIKeyStatusActive  APIKeyStatus = "active"   // 活跃
-	APIKeyStatusExpired APIKeyStatus = "expired"  // 已过期
-	APIKeyStatusRevoked APIKeyStatus = "revoked"  // 已撤销
+	APIKeyStatusActive  APIKeyStatus = "active"  // 活跃
+	APIKeyStatusExpired APIKeyStatus = "expired" // 已过期
+	APIKeyStatusRevoked APIKeyStatus = "revoked" // 已撤销
 )
 
-// Permission 权限类型
+// Permission 权限类型.
 type Permission string
 
 const (
@@ -52,7 +52,7 @@ const (
 	PermExecute Permission = "execute" // 执行
 )
 
-// Request JSON-RPC 2.0 请求
+// Request JSON-RPC 2.0 请求.
 type Request struct {
 	JSONRPC string          `json:"jsonrpc"`
 	Method  string          `json:"method"`
@@ -60,7 +60,7 @@ type Request struct {
 	ID      interface{}     `json:"id"`
 }
 
-// Response JSON-RPC 2.0 响应
+// Response JSON-RPC 2.0 响应.
 type Response struct {
 	JSONRPC string      `json:"jsonrpc"`
 	Result  interface{} `json:"result,omitempty"`
@@ -68,97 +68,97 @@ type Response struct {
 	ID      interface{} `json:"id"`
 }
 
-// Error JSON-RPC 2.0 错误
+// Error JSON-RPC 2.0 错误.
 type Error struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// BatchRequest 批量请求
+// BatchRequest 批量请求.
 type BatchRequest []Request
 
-// APIKey API密钥
+// APIKey API密钥.
 type APIKey struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Description string       `json:"description,omitempty"`
-	Key         string       `json:"key"`
-	Secret      string       `json:"secret,omitempty"`
-	UserID      string       `json:"user_id"`
-	UserName    string       `json:"user_name,omitempty"`
-	Permissions []Permission `json:"permissions"`
-	Status      APIKeyStatus `json:"status"`
-	ExpiresAt   *time.Time   `json:"expires_at,omitempty"`
-	LastUsedAt  *time.Time   `json:"last_used_at,omitempty"`
-	UsageCount  int64        `json:"usage_count"`
-	RateLimit   int          `json:"rate_limit"` // 每分钟请求限制
-	IPWhitelist []string     `json:"ip_whitelist,omitempty"`
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Description string            `json:"description,omitempty"`
+	Key         string            `json:"key"`
+	Secret      string            `json:"secret,omitempty"`
+	UserID      string            `json:"user_id"`
+	UserName    string            `json:"user_name,omitempty"`
+	Permissions []Permission      `json:"permissions"`
+	Status      APIKeyStatus      `json:"status"`
+	ExpiresAt   *time.Time        `json:"expires_at,omitempty"`
+	LastUsedAt  *time.Time        `json:"last_used_at,omitempty"`
+	UsageCount  int64             `json:"usage_count"`
+	RateLimit   int               `json:"rate_limit"` // 每分钟请求限制
+	IPWhitelist []string          `json:"ip_whitelist,omitempty"`
 	Metadata    map[string]string `json:"metadata,omitempty"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	CreatedAt   time.Time         `json:"created_at"`
+	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
-// APIVersion API版本
+// APIVersion API版本.
 type APIVersion struct {
-	Version     string    `json:"version"`
-	ReleaseDate string    `json:"release_date"`
-	Status      string    `json:"status"` // current, deprecated, sunset
+	Version      string     `json:"version"`
+	ReleaseDate  string     `json:"release_date"`
+	Status       string     `json:"status"` // current, deprecated, sunset
 	DeprecatedAt *time.Time `json:"deprecated_at,omitempty"`
-	SunsetAt    *time.Time `json:"sunset_at,omitempty"`
-	Changes     []string  `json:"changes,omitempty"`
+	SunsetAt     *time.Time `json:"sunset_at,omitempty"`
+	Changes      []string   `json:"changes,omitempty"`
 }
 
-// Method API方法定义
+// Method API方法定义.
 type Method struct {
-	Name        string      `json:"name"`
-	Description string      `json:"description,omitempty"`
+	Name        string        `json:"name"`
+	Description string        `json:"description,omitempty"`
 	Handler     MethodHandler `json:"-"`
-	Params      []ParamDef  `json:"params,omitempty"`
-	Permissions []Permission `json:"required_permissions,omitempty"`
-	Deprecated  bool        `json:"deprecated,omitempty"`
-	Version     string      `json:"version,omitempty"`
+	Params      []ParamDef    `json:"params,omitempty"`
+	Permissions []Permission  `json:"required_permissions,omitempty"`
+	Deprecated  bool          `json:"deprecated,omitempty"`
+	Version     string        `json:"version,omitempty"`
 }
 
-// ParamDef 参数定义
+// ParamDef 参数定义.
 type ParamDef struct {
-	Name        string `json:"name"`
-	Type        string `json:"type"`
-	Required    bool   `json:"required"`
-	Description string `json:"description,omitempty"`
+	Name        string      `json:"name"`
+	Type        string      `json:"type"`
+	Required    bool        `json:"required"`
+	Description string      `json:"description,omitempty"`
 	Default     interface{} `json:"default,omitempty"`
 }
 
-// MethodHandler 方法处理器
+// MethodHandler 方法处理器.
 type MethodHandler func(params json.RawMessage) (interface{}, *Error)
 
-// RateLimitEntry 频率限制记录
+// RateLimitEntry 频率限制记录.
 type RateLimitEntry struct {
-	Count     int
-	ResetAt   time.Time
+	Count   int
+	ResetAt time.Time
 }
 
-// Server JSON-RPC 2.0 服务器
+// Server JSON-RPC 2.0 服务器.
 type Server struct {
-	mu            sync.RWMutex
-	methods       map[string]*Method
-	apiKeys       map[string]*APIKey
-	versions      []*APIVersion
+	mu             sync.RWMutex
+	methods        map[string]*Method
+	apiKeys        map[string]*APIKey
+	versions       []*APIVersion
 	currentVersion string
-	rateLimits    map[string]*RateLimitEntry
-	maxBatchSize  int
-	startTime     time.Time
-	totalRequests int64
+	rateLimits     map[string]*RateLimitEntry
+	maxBatchSize   int
+	startTime      time.Time
+	totalRequests  int64
 }
 
-// NewServer 创建JSON-RPC服务器
+// NewServer 创建JSON-RPC服务器.
 func NewServer(version string) *Server {
 	s := &Server{
-		methods:       make(map[string]*Method),
-		apiKeys:       make(map[string]*APIKey),
-		rateLimits:    make(map[string]*RateLimitEntry),
-		maxBatchSize:  100,
-		startTime:     time.Now(),
+		methods:        make(map[string]*Method),
+		apiKeys:        make(map[string]*APIKey),
+		rateLimits:     make(map[string]*RateLimitEntry),
+		maxBatchSize:   100,
+		startTime:      time.Now(),
 		currentVersion: version,
 	}
 
@@ -177,7 +177,7 @@ func NewServer(version string) *Server {
 	return s
 }
 
-// registerBuiltinMethods 注册内置方法
+// registerBuiltinMethods 注册内置方法.
 func (s *Server) registerBuiltinMethods() {
 	s.RegisterMethod(&Method{
 		Name:        "system.version",
@@ -211,17 +211,17 @@ func (s *Server) registerBuiltinMethods() {
 		Description: "系统健康检查",
 		Handler: func(params json.RawMessage) (interface{}, *Error) {
 			return map[string]interface{}{
-				"status":    "healthy",
-				"uptime":    int64(time.Since(s.startTime).Seconds()),
-				"requests":  s.totalRequests,
-				"methods":   len(s.methods),
-				"api_keys":  len(s.apiKeys),
+				"status":   "healthy",
+				"uptime":   int64(time.Since(s.startTime).Seconds()),
+				"requests": s.totalRequests,
+				"methods":  len(s.methods),
+				"api_keys": len(s.apiKeys),
 			}, nil
 		},
 	})
 }
 
-// RegisterMethod 注册API方法
+// RegisterMethod 注册API方法.
 func (s *Server) RegisterMethod(method *Method) error {
 	if method == nil || method.Name == "" {
 		return ErrInvalidParams
@@ -234,7 +234,7 @@ func (s *Server) RegisterMethod(method *Method) error {
 	return nil
 }
 
-// UnregisterMethod 注销API方法
+// UnregisterMethod 注销API方法.
 func (s *Server) UnregisterMethod(name string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -247,7 +247,7 @@ func (s *Server) UnregisterMethod(name string) error {
 	return nil
 }
 
-// CreateAPIKey 创建API密钥
+// CreateAPIKey 创建API密钥.
 func (s *Server) CreateAPIKey(key *APIKey) error {
 	if key == nil || key.ID == "" || key.Key == "" || key.UserID == "" {
 		return ErrInvalidParams
@@ -264,7 +264,7 @@ func (s *Server) CreateAPIKey(key *APIKey) error {
 	return nil
 }
 
-// RevokeAPIKey 撤销API密钥
+// RevokeAPIKey 撤销API密钥.
 func (s *Server) RevokeAPIKey(keyID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -280,7 +280,7 @@ func (s *Server) RevokeAPIKey(keyID string) error {
 	return nil
 }
 
-// GetAPIKey 获取API密钥
+// GetAPIKey 获取API密钥.
 func (s *Server) GetAPIKey(keyID string) (*APIKey, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -293,7 +293,7 @@ func (s *Server) GetAPIKey(keyID string) (*APIKey, error) {
 	return key, nil
 }
 
-// ListAPIKeys 列出用户API密钥
+// ListAPIKeys 列出用户API密钥.
 func (s *Server) ListAPIKeys(userID string) []*APIKey {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -307,7 +307,7 @@ func (s *Server) ListAPIKeys(userID string) []*APIKey {
 	return result
 }
 
-// ValidateAPIKey 验证API密钥
+// ValidateAPIKey 验证API密钥.
 func (s *Server) ValidateAPIKey(keyStr string) (*APIKey, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -328,7 +328,7 @@ func (s *Server) ValidateAPIKey(keyStr string) (*APIKey, error) {
 	return nil, ErrAPIKeyNotFound
 }
 
-// HandleRequest 处理单个请求
+// HandleRequest 处理单个请求.
 func (s *Server) HandleRequest(req *Request) *Response {
 	s.mu.Lock()
 	s.totalRequests++
@@ -376,7 +376,7 @@ func (s *Server) HandleRequest(req *Request) *Response {
 	}
 }
 
-// HandleBatchRequest 处理批量请求
+// HandleBatchRequest 处理批量请求.
 func (s *Server) HandleBatchRequest(batch BatchRequest) []*Response {
 	if len(batch) > s.maxBatchSize {
 		return []*Response{
@@ -398,7 +398,7 @@ func (s *Server) HandleBatchRequest(batch BatchRequest) []*Response {
 	return responses
 }
 
-// GetStats 获取服务器统计
+// GetStats 获取服务器统计.
 func (s *Server) GetStats() map[string]interface{} {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -412,14 +412,14 @@ func (s *Server) GetStats() map[string]interface{} {
 	}
 }
 
-// GetVersions 获取API版本历史
+// GetVersions 获取API版本历史.
 func (s *Server) GetVersions() []*APIVersion {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.versions
 }
 
-// CheckRateLimit 检查频率限制
+// CheckRateLimit 检查频率限制.
 func (s *Server) CheckRateLimit(keyID string, limit int) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -447,7 +447,7 @@ func (s *Server) CheckRateLimit(keyID string, limit int) bool {
 	return true
 }
 
-// UpdateAPIKeyUsage 更新API密钥使用统计
+// UpdateAPIKeyUsage 更新API密钥使用统计.
 func (s *Server) UpdateAPIKeyUsage(keyID string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()

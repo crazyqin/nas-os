@@ -9,13 +9,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// PricingHandler 智能定价 API 处理器
+// PricingHandler 智能定价 API 处理器.
 type PricingHandler struct {
 	manager *PricingManager
 	logger  *zap.Logger
 }
 
-// NewPricingHandler 创建定价处理器
+// NewPricingHandler 创建定价处理器.
 func NewPricingHandler(manager *PricingManager, logger *zap.Logger) *PricingHandler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -26,7 +26,7 @@ func NewPricingHandler(manager *PricingManager, logger *zap.Logger) *PricingHand
 	}
 }
 
-// RegisterPricingRoutes 注册定价路由
+// RegisterPricingRoutes 注册定价路由.
 func (h *PricingHandler) RegisterPricingRoutes(rg *gin.RouterGroup) {
 	pricing := rg.Group("/pricing")
 	{
@@ -52,7 +52,7 @@ func (h *PricingHandler) RegisterPricingRoutes(rg *gin.RouterGroup) {
 }
 
 // calculatePrice 计算价格
-// POST /api/v1/pricing/calculate
+// POST /api/v1/pricing/calculate.
 func (h *PricingHandler) calculatePrice(c *gin.Context) {
 	var req struct {
 		UserID       string  `json:"user_id" binding:"required"`
@@ -85,7 +85,7 @@ func (h *PricingHandler) calculatePrice(c *gin.Context) {
 }
 
 // getUsageMetrics 获取使用量指标
-// GET /api/v1/pricing/usage/:userID
+// GET /api/v1/pricing/usage/:userID.
 func (h *PricingHandler) getUsageMetrics(c *gin.Context) {
 	userID := c.Param("userID")
 	resourceType := c.Query("resource_type")
@@ -122,7 +122,7 @@ func (h *PricingHandler) getUsageMetrics(c *gin.Context) {
 }
 
 // applyDiscount 应用折扣
-// POST /api/v1/pricing/discount
+// POST /api/v1/pricing/discount.
 func (h *PricingHandler) applyDiscount(c *gin.Context) {
 	var req struct {
 		UserID string  `json:"user_id" binding:"required"`
@@ -155,7 +155,7 @@ func (h *PricingHandler) applyDiscount(c *gin.Context) {
 }
 
 // generateInvoice 生成发票
-// POST /api/v1/pricing/invoice
+// POST /api/v1/pricing/invoice.
 func (h *PricingHandler) generateInvoice(c *gin.Context) {
 	var req struct {
 		UserID      string `json:"user_id" binding:"required"`
@@ -206,7 +206,7 @@ func (h *PricingHandler) generateInvoice(c *gin.Context) {
 }
 
 // getInvoice 获取发票
-// GET /api/v1/pricing/invoice/:invoiceID
+// GET /api/v1/pricing/invoice/:invoiceID.
 func (h *PricingHandler) getInvoice(c *gin.Context) {
 	invoiceID := c.Param("invoiceID")
 
@@ -226,7 +226,7 @@ func (h *PricingHandler) getInvoice(c *gin.Context) {
 }
 
 // getUserInvoices 获取用户发票列表
-// GET /api/v1/pricing/invoices/:userID
+// GET /api/v1/pricing/invoices/:userID.
 func (h *PricingHandler) getUserInvoices(c *gin.Context) {
 	userID := c.Param("userID")
 
@@ -242,7 +242,7 @@ func (h *PricingHandler) getUserInvoices(c *gin.Context) {
 }
 
 // getTiers 获取定价层级
-// GET /api/v1/pricing/tiers
+// GET /api/v1/pricing/tiers.
 func (h *PricingHandler) getTiers(c *gin.Context) {
 	tiers := h.manager.GetTiers()
 
@@ -256,7 +256,7 @@ func (h *PricingHandler) getTiers(c *gin.Context) {
 }
 
 // getPlans 获取计费方案
-// GET /api/v1/pricing/plans
+// GET /api/v1/pricing/plans.
 func (h *PricingHandler) getPlans(c *gin.Context) {
 	plans := h.manager.GetPlans()
 
@@ -270,7 +270,7 @@ func (h *PricingHandler) getPlans(c *gin.Context) {
 }
 
 // getPriceRules 获取价格规则
-// GET /api/v1/pricing/rules
+// GET /api/v1/pricing/rules.
 func (h *PricingHandler) getPriceRules(c *gin.Context) {
 	rules := h.manager.GetPriceRules()
 

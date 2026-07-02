@@ -5,7 +5,7 @@ package smbhafailover
 
 import "time"
 
-// SessionState SMB 会话状态
+// SessionState SMB 会话状态.
 type SessionState struct {
 	// 会话唯一标识
 	SessionID string `json:"session_id"`
@@ -25,7 +25,7 @@ type SessionState struct {
 	OpenHandles int `json:"open_handles"`
 }
 
-// Snapshot 会话状态快照
+// Snapshot 会话状态快照.
 type Snapshot struct {
 	// 快照唯一标识
 	ID string `json:"id"`
@@ -39,7 +39,7 @@ type Snapshot struct {
 	SourceNode string `json:"source_node"`
 }
 
-// SnapshotStatus 快照状态
+// SnapshotStatus 快照状态.
 type SnapshotStatus string
 
 const (
@@ -48,7 +48,7 @@ const (
 	SnapshotStatusFailed   SnapshotStatus = "failed"
 )
 
-// FailoverStatus 故障转移状态
+// FailoverStatus 故障转移状态.
 type FailoverStatus string
 
 const (
@@ -59,15 +59,15 @@ const (
 	FailoverStatusFailed    FailoverStatus = "failed"
 )
 
-// FailoverState 故障转移状态信息
+// FailoverState 故障转移状态信息.
 type FailoverState struct {
-	Status    FailoverStatus `json:"status"`
-	LastFail  *time.Time      `json:"last_fail,omitempty"`
+	Status     FailoverStatus `json:"status"`
+	LastFail   *time.Time     `json:"last_fail,omitempty"`
 	ActiveNode string         `json:"active_node"`
-	SnapshotID string        `json:"snapshot_id,omitempty"`
+	SnapshotID string         `json:"snapshot_id,omitempty"`
 }
 
-// CreateSnapshotRequest 创建快照请求
+// CreateSnapshotRequest 创建快照请求.
 type CreateSnapshotRequest struct {
 	SourceNode string `json:"source_node,omitempty"`
 }

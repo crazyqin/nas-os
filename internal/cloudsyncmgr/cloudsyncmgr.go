@@ -12,7 +12,7 @@ import (
 
 // ========== 云提供商管理 ==========
 
-// ProviderConfig 云提供商
+// ProviderConfig 云提供商.
 type ProviderConfig struct {
 	ID         string            `json:"id"`
 	Name       string            `json:"name"`
@@ -33,7 +33,7 @@ type ProviderConfig struct {
 	CreatedAt  time.Time         `json:"created_at"`
 }
 
-// ProviderType 提供商类型
+// ProviderType 提供商类型.
 type ProviderType string
 
 const (
@@ -50,7 +50,7 @@ const (
 	ProviderTypeSFTP        ProviderType = "sftp"
 )
 
-// AuthMethod 认证方法
+// AuthMethod 认证方法.
 type AuthMethod string
 
 const (
@@ -60,7 +60,7 @@ const (
 	AuthMethodToken     AuthMethod = "token"
 )
 
-// ProviderStatus 提供商状态
+// ProviderStatus 提供商状态.
 type ProviderStatus string
 
 const (
@@ -71,7 +71,7 @@ const (
 
 // ========== 同步任务管理 ==========
 
-// CloudSyncTask 同步任务
+// CloudSyncTask 同步任务.
 type CloudSyncTask struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -95,7 +95,7 @@ type CloudSyncTask struct {
 	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
-// SyncDirection 同步方向
+// SyncDirection 同步方向.
 type SyncDirection string
 
 const (
@@ -105,7 +105,7 @@ const (
 	SyncDirectionMirror        SyncDirection = "mirror"        // 镜像（本地为准）
 )
 
-// SyncMode 同步模式
+// SyncMode 同步模式.
 type SyncMode string
 
 const (
@@ -115,7 +115,7 @@ const (
 	SyncModeRealtime     SyncMode = "realtime"     // 实时同步
 )
 
-// SyncSchedule 同步调度
+// SyncSchedule 同步调度.
 type SyncSchedule struct {
 	Enabled    bool       `json:"enabled"`
 	Interval   int        `json:"interval"`    // 分钟
@@ -125,14 +125,14 @@ type SyncSchedule struct {
 	EndDate    *time.Time `json:"end_date,omitempty"`
 }
 
-// SyncFilter 同步过滤器
+// SyncFilter 同步过滤器.
 type SyncFilter struct {
 	Type    FilterType `json:"type"`
 	Pattern string     `json:"pattern"`
 	Exclude bool       `json:"exclude"`
 }
 
-// FilterType 过滤类型
+// FilterType 过滤类型.
 type FilterType string
 
 const (
@@ -143,7 +143,7 @@ const (
 	FilterTypeRegex  FilterType = "regex"
 )
 
-// SyncOptions 同步选项
+// SyncOptions 同步选项.
 type SyncOptions struct {
 	DeleteExtraneous   bool  `json:"delete_extraneous"`
 	PreserveTimestamps bool  `json:"preserve_timestamps"`
@@ -159,7 +159,7 @@ type SyncOptions struct {
 	MinFileSize        int64 `json:"min_file_size"`
 }
 
-// EncryptionConfig 加密配置
+// EncryptionConfig 加密配置.
 type EncryptionConfig struct {
 	Enabled   bool   `json:"enabled"`
 	Algorithm string `json:"algorithm"`
@@ -167,7 +167,7 @@ type EncryptionConfig struct {
 	Salt      string `json:"salt,omitempty"`
 }
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -178,7 +178,7 @@ const (
 	TaskStatusCompleted TaskStatus = "completed"
 )
 
-// TaskStats 任务统计
+// TaskStats 任务统计.
 type TaskStats struct {
 	FilesUploaded   int64     `json:"files_uploaded"`
 	FilesDownloaded int64     `json:"files_downloaded"`
@@ -198,7 +198,7 @@ type TaskStats struct {
 
 // ========== 同步管理器 ==========
 
-// CloudSyncManager 云同步管理器
+// CloudSyncManager 云同步管理器.
 type CloudSyncManager struct {
 	mu        sync.RWMutex
 	providers map[string]*ProviderConfig
@@ -208,7 +208,7 @@ type CloudSyncManager struct {
 	stats     ManagerStats
 }
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
 	MaxProviders       int    `json:"max_providers"`
 	MaxTasks           int    `json:"max_tasks"`
@@ -223,7 +223,7 @@ type ManagerConfig struct {
 	TempDir            string `json:"temp_dir"`
 }
 
-// ManagerStats 管理器统计
+// ManagerStats 管理器统计.
 type ManagerStats struct {
 	TotalProviders  int       `json:"total_providers"`
 	OnlineProviders int       `json:"online_providers"`
@@ -235,7 +235,7 @@ type ManagerStats struct {
 	LastSyncTime    time.Time `json:"last_sync_time"`
 }
 
-// SyncHistory 同步历史
+// SyncHistory 同步历史.
 type SyncHistory struct {
 	ID          string        `json:"id"`
 	TaskID      string        `json:"task_id"`
@@ -250,7 +250,7 @@ type SyncHistory struct {
 	EndTime     time.Time     `json:"end_time"`
 }
 
-// NewCloudSyncManager 创建云同步管理器
+// NewCloudSyncManager 创建云同步管理器.
 func NewCloudSyncManager(config ManagerConfig) *CloudSyncManager {
 	// 设置默认值
 	if config.MaxProviders == 0 {
@@ -285,7 +285,7 @@ func NewCloudSyncManager(config ManagerConfig) *CloudSyncManager {
 
 // ========== 提供商管理 ==========
 
-// AddProvider 添加云提供商
+// AddProvider 添加云提供商.
 func (m *CloudSyncManager) AddProvider(provider ProviderConfig) (*ProviderConfig, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -319,7 +319,7 @@ func (m *CloudSyncManager) AddProvider(provider ProviderConfig) (*ProviderConfig
 	return &provider, nil
 }
 
-// RemoveProvider 移除云提供商
+// RemoveProvider 移除云提供商.
 func (m *CloudSyncManager) RemoveProvider(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -337,7 +337,7 @@ func (m *CloudSyncManager) RemoveProvider(id string) error {
 	return nil
 }
 
-// GetProvider 获取云提供商
+// GetProvider 获取云提供商.
 func (m *CloudSyncManager) GetProvider(id string) (*ProviderConfig, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -350,7 +350,7 @@ func (m *CloudSyncManager) GetProvider(id string) (*ProviderConfig, error) {
 	return provider, nil
 }
 
-// ListProviders 列出所有云提供商
+// ListProviders 列出所有云提供商.
 func (m *CloudSyncManager) ListProviders() []*ProviderConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -363,7 +363,7 @@ func (m *CloudSyncManager) ListProviders() []*ProviderConfig {
 	return result
 }
 
-// TestProviderConnection 测试提供商连接
+// TestProviderConnection 测试提供商连接.
 func (m *CloudSyncManager) TestProviderConnection(id string) (*ConnectionTestResult, error) {
 	m.mu.RLock()
 	provider, exists := m.providers[id]
@@ -396,7 +396,7 @@ func (m *CloudSyncManager) TestProviderConnection(id string) (*ConnectionTestRes
 	return result, nil
 }
 
-// ConnectionTestResult 连接测试结果
+// ConnectionTestResult 连接测试结果.
 type ConnectionTestResult struct {
 	ProviderID string    `json:"provider_id"`
 	StartTime  time.Time `json:"start_time"`
@@ -409,7 +409,7 @@ type ConnectionTestResult struct {
 
 // ========== 任务管理 ==========
 
-// CreateTask 创建同步任务
+// CreateTask 创建同步任务.
 func (m *CloudSyncManager) CreateTask(task CloudSyncTask) (*CloudSyncTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -452,7 +452,7 @@ func (m *CloudSyncManager) CreateTask(task CloudSyncTask) (*CloudSyncTask, error
 	return &task, nil
 }
 
-// UpdateTask 更新同步任务
+// UpdateTask 更新同步任务.
 func (m *CloudSyncManager) UpdateTask(id string, task CloudSyncTask) (*CloudSyncTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -475,7 +475,7 @@ func (m *CloudSyncManager) UpdateTask(id string, task CloudSyncTask) (*CloudSync
 	return &task, nil
 }
 
-// DeleteTask 删除同步任务
+// DeleteTask 删除同步任务.
 func (m *CloudSyncManager) DeleteTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -495,7 +495,7 @@ func (m *CloudSyncManager) DeleteTask(id string) error {
 	return nil
 }
 
-// GetTask 获取同步任务
+// GetTask 获取同步任务.
 func (m *CloudSyncManager) GetTask(id string) (*CloudSyncTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -508,7 +508,7 @@ func (m *CloudSyncManager) GetTask(id string) (*CloudSyncTask, error) {
 	return task, nil
 }
 
-// ListTasks 列出所有同步任务
+// ListTasks 列出所有同步任务.
 func (m *CloudSyncManager) ListTasks() []*CloudSyncTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -523,7 +523,7 @@ func (m *CloudSyncManager) ListTasks() []*CloudSyncTask {
 
 // ========== 同步操作 ==========
 
-// StartSync 启动同步
+// StartSync 启动同步.
 func (m *CloudSyncManager) StartSync(taskID string) (*SyncResult, error) {
 	m.mu.Lock()
 	task, exists := m.tasks[taskID]
@@ -603,7 +603,7 @@ func (m *CloudSyncManager) StartSync(taskID string) (*SyncResult, error) {
 	return result, nil
 }
 
-// SyncResult 同步结果
+// SyncResult 同步结果.
 type SyncResult struct {
 	TaskID      string     `json:"task_id"`
 	StartTime   time.Time  `json:"start_time"`
@@ -615,7 +615,7 @@ type SyncResult struct {
 	Error       string     `json:"error,omitempty"`
 }
 
-// StopSync 停止同步
+// StopSync 停止同步.
 func (m *CloudSyncManager) StopSync(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -635,7 +635,7 @@ func (m *CloudSyncManager) StopSync(taskID string) error {
 	return nil
 }
 
-// PauseTask 暂停任务
+// PauseTask 暂停任务.
 func (m *CloudSyncManager) PauseTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -652,7 +652,7 @@ func (m *CloudSyncManager) PauseTask(id string) error {
 	return nil
 }
 
-// ResumeTask 恢复任务
+// ResumeTask 恢复任务.
 func (m *CloudSyncManager) ResumeTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -671,7 +671,7 @@ func (m *CloudSyncManager) ResumeTask(id string) error {
 
 // ========== 历史记录 ==========
 
-// GetHistory 获取同步历史
+// GetHistory 获取同步历史.
 func (m *CloudSyncManager) GetHistory(taskID string, limit int) []SyncHistory {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -691,7 +691,7 @@ func (m *CloudSyncManager) GetHistory(taskID string, limit int) []SyncHistory {
 
 // ========== 辅助方法 ==========
 
-// updateStats 更新统计
+// updateStats 更新统计.
 func (m *CloudSyncManager) updateStats() {
 	m.stats.TotalProviders = len(m.providers)
 	m.stats.OnlineProviders = 0
@@ -711,14 +711,14 @@ func (m *CloudSyncManager) updateStats() {
 	}
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *CloudSyncManager) GetStats() ManagerStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.stats
 }
 
-// SaveConfig 保存配置
+// SaveConfig 保存配置.
 func (m *CloudSyncManager) SaveConfig(path string) error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -731,7 +731,7 @@ func (m *CloudSyncManager) SaveConfig(path string) error {
 	return os.WriteFile(path, data, 0640)
 }
 
-// LoadConfig 加载配置
+// LoadConfig 加载配置.
 func (m *CloudSyncManager) LoadConfig(path string) error {
 	data, err := os.ReadFile(path)
 	if err != nil {

@@ -294,15 +294,15 @@ type TierCostConfig struct {
 
 // CostBreakdown 成本分解.
 type CostBreakdown struct {
-	Tier         StorageTier `json:"tier"`
-	TierName     string      `json:"tier_name"`
-	CapacityTB   float64     `json:"capacity_tb"`
-	UsedTB       float64     `json:"used_tb"`
-	Utilization  float64     `json:"utilization"`   // 使用率 0-1
-	CostPerTB    float64     `json:"cost_per_tb"`   // 每TB月成本
-	MonthlyCost  float64     `json:"monthly_cost"`  // 月度成本（元）
-	YearlyCost   float64     `json:"yearly_cost"`   // 年度成本（元）
-	CostPerGB    float64     `json:"cost_per_gb"`   // 每GB月成本
+	Tier        StorageTier `json:"tier"`
+	TierName    string      `json:"tier_name"`
+	CapacityTB  float64     `json:"capacity_tb"`
+	UsedTB      float64     `json:"used_tb"`
+	Utilization float64     `json:"utilization"`  // 使用率 0-1
+	CostPerTB   float64     `json:"cost_per_tb"`  // 每TB月成本
+	MonthlyCost float64     `json:"monthly_cost"` // 月度成本（元）
+	YearlyCost  float64     `json:"yearly_cost"`  // 年度成本（元）
+	CostPerGB   float64     `json:"cost_per_gb"`  // 每GB月成本
 }
 
 // CostPrediction 成本预测.
@@ -316,12 +316,12 @@ type CostPrediction struct {
 
 // CostForecast 成本预测报告.
 type CostForecast struct {
-	GeneratedAt    time.Time        `json:"generated_at"`
-	CurrentCost    float64          `json:"current_cost"`    // 当前月度成本（元）
-	CurrentSizeTB  float64          `json:"current_size_tb"` // 当前总容量（TB）
-	GrowthRateTB   float64          `json:"growth_rate_tb"`  // 月增长率（TB/月）
-	Predictions    []CostPrediction `json:"predictions"`     // 未来12个月预测
-	Breakpoint     *BreakpointInfo  `json:"breakpoint"`      // 瓶颈预测
+	GeneratedAt          time.Time           `json:"generated_at"`
+	CurrentCost          float64             `json:"current_cost"`          // 当前月度成本（元）
+	CurrentSizeTB        float64             `json:"current_size_tb"`       // 当前总容量（TB）
+	GrowthRateTB         float64             `json:"growth_rate_tb"`        // 月增长率（TB/月）
+	Predictions          []CostPrediction    `json:"predictions"`           // 未来12个月预测
+	Breakpoint           *BreakpointInfo     `json:"breakpoint"`            // 瓶颈预测
 	SavingsOpportunities []SavingOpportunity `json:"savings_opportunities"` // 节省机会
 }
 
@@ -335,55 +335,55 @@ type BreakpointInfo struct {
 
 // SavingOpportunity 节省机会.
 type SavingOpportunity struct {
-	Type        string  `json:"type"`     // tier_migration, dedup, compression, cold_archive
-	Description string  `json:"description"`
+	Type           string  `json:"type"` // tier_migration, dedup, compression, cold_archive
+	Description    string  `json:"description"`
 	SavingPerMonth float64 `json:"saving_per_month"` // 每月可节省（元）
 	SavingPerYear  float64 `json:"saving_per_year"`  // 每年可节省（元）
-	Confidence  float64 `json:"confidence"` // 置信度 0-1
-	Difficulty  string  `json:"difficulty"` // easy, medium, hard
+	Confidence     float64 `json:"confidence"`       // 置信度 0-1
+	Difficulty     string  `json:"difficulty"`       // easy, medium, hard
 }
 
 // OptimizationRecommendation 存储优化建议.
 type OptimizationRecommendation struct {
-	ID          string  `json:"id"`
-	Category    string  `json:"category"`    // tier, dedup, compression, lifecycle, cleanup
-	Priority    string  `json:"priority"`    // high, medium, low
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Impact      string  `json:"impact"`      // 预期影响
-	SavingBytes int64   `json:"saving_bytes"` // 可节省空间（字节）
-	SavingCost  float64 `json:"saving_cost"`  // 可节省成本（元/月）
-	Effort      string  `json:"effort"`       // 实施难度
-	Steps       []string `json:"steps"`       // 实施步骤
+	ID          string   `json:"id"`
+	Category    string   `json:"category"` // tier, dedup, compression, lifecycle, cleanup
+	Priority    string   `json:"priority"` // high, medium, low
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Impact      string   `json:"impact"`       // 预期影响
+	SavingBytes int64    `json:"saving_bytes"` // 可节省空间（字节）
+	SavingCost  float64  `json:"saving_cost"`  // 可节省成本（元/月）
+	Effort      string   `json:"effort"`       // 实施难度
+	Steps       []string `json:"steps"`        // 实施步骤
 }
 
 // StorageCostReport 存储成本分析完整报告.
 type StorageCostReport struct {
-	GeneratedAt     time.Time                  `json:"generated_at"`
-	TierBreakdown   []CostBreakdown            `json:"tier_breakdown"`
-	TotalMonthlyCost float64                   `json:"total_monthly_cost"`
-	TotalYearlyCost  float64                   `json:"total_yearly_cost"`
-	CostPerTBAvg     float64                   `json:"cost_per_tb_avg"`
-	Forecast         *CostForecast             `json:"forecast,omitempty"`
-	Recommendations  []OptimizationRecommendation `json:"recommendations"`
-	ComparisonWithCloud *CloudCostComparison   `json:"comparison_with_cloud,omitempty"`
+	GeneratedAt         time.Time                    `json:"generated_at"`
+	TierBreakdown       []CostBreakdown              `json:"tier_breakdown"`
+	TotalMonthlyCost    float64                      `json:"total_monthly_cost"`
+	TotalYearlyCost     float64                      `json:"total_yearly_cost"`
+	CostPerTBAvg        float64                      `json:"cost_per_tb_avg"`
+	Forecast            *CostForecast                `json:"forecast,omitempty"`
+	Recommendations     []OptimizationRecommendation `json:"recommendations"`
+	ComparisonWithCloud *CloudCostComparison         `json:"comparison_with_cloud,omitempty"`
 }
 
 // CloudCostComparison 云存储成本对比.
 type CloudCostComparison struct {
-	LocalCostPerTB  float64            `json:"local_cost_per_tb"`
-	CloudProviders  []CloudProviderCost `json:"cloud_providers"`
-	BestOption      string             `json:"best_option"`
-	SavingsVsCloud  float64            `json:"savings_vs_cloud"` // 本地 vs 最便宜云的节省（元/月）
+	LocalCostPerTB float64             `json:"local_cost_per_tb"`
+	CloudProviders []CloudProviderCost `json:"cloud_providers"`
+	BestOption     string              `json:"best_option"`
+	SavingsVsCloud float64             `json:"savings_vs_cloud"` // 本地 vs 最便宜云的节省（元/月）
 }
 
 // CloudProviderCost 云服务商成本.
 type CloudProviderCost struct {
-	Provider      string  `json:"provider"`       // AWS, Azure, Aliyun, etc.
-	Tier          string  `json:"tier"`           // standard, infrequent, archive
+	Provider       string  `json:"provider"` // AWS, Azure, Aliyun, etc.
+	Tier           string  `json:"tier"`     // standard, infrequent, archive
 	CostPerTBMonth float64 `json:"cost_per_tb_month"`
-	MonthlyCost   float64 `json:"monthly_cost"`
-	LatencyMs     float64 `json:"latency_ms"`
+	MonthlyCost    float64 `json:"monthly_cost"`
+	LatencyMs      float64 `json:"latency_ms"`
 }
 
 // DefaultTierConfigs 返回默认的存储层级成本配置.

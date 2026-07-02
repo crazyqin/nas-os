@@ -232,7 +232,7 @@ func TestResponder_NetworkRules(t *testing.T) {
 	}
 }
 
-// 辅助函数
+// 辅助函数.
 func writeTestFile(path, content string) {
 	err := os.WriteFile(path, []byte(content), 0644)
 	if err != nil {

@@ -12,30 +12,30 @@ import (
 	"golang.org/x/time/rate"
 )
 
-// Backend represents a backend server
+// Backend represents a backend server.
 type Backend struct {
-	ID       string `json:"id"`
-	URL      string `json:"url"`
-	Weight   int    `json:"weight"`
-	Alive    bool   `json:"alive"`
-	mu       sync.RWMutex
+	ID     string `json:"id"`
+	URL    string `json:"url"`
+	Weight int    `json:"weight"`
+	Alive  bool   `json:"alive"`
+	mu     sync.RWMutex
 }
 
-// SetAlive sets the alive status of the backend
+// SetAlive sets the alive status of the backend.
 func (b *Backend) SetAlive(alive bool) {
 	b.mu.Lock()
 	b.Alive = alive
 	b.mu.Unlock()
 }
 
-// IsAlive returns the alive status of the backend
+// IsAlive returns the alive status of the backend.
 func (b *Backend) IsAlive() bool {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
 	return b.Alive
 }
 
-// ReverseProxy represents the reverse proxy core
+// ReverseProxy represents the reverse proxy core.
 type ReverseProxy struct {
 	backends    []*Backend
 	currentIdx  uint64
@@ -44,7 +44,7 @@ type ReverseProxy struct {
 	proxyConfig *ProxyConfig
 }
 
-// ProxyConfig holds proxy configuration
+// ProxyConfig holds proxy configuration.
 type ProxyConfig struct {
 	MaxIdleConns        int           `json:"maxIdleConns"`
 	MaxIdleConnsPerHost int           `json:"maxIdleConnsPerHost"`
@@ -52,7 +52,7 @@ type ProxyConfig struct {
 	RequestTimeout      time.Duration `json:"requestTimeout"`
 }
 
-// DefaultProxyConfig returns default proxy configuration
+// DefaultProxyConfig returns default proxy configuration.
 func DefaultProxyConfig() *ProxyConfig {
 	return &ProxyConfig{
 		MaxIdleConns:        100,
@@ -62,7 +62,7 @@ func DefaultProxyConfig() *ProxyConfig {
 	}
 }
 
-// NewReverseProxy creates a new reverse proxy
+// NewReverseProxy creates a new reverse proxy.
 func NewReverseProxy(config *ProxyConfig) *ReverseProxy {
 	if config == nil {
 		config = DefaultProxyConfig()
@@ -73,14 +73,14 @@ func NewReverseProxy(config *ProxyConfig) *ReverseProxy {
 	}
 }
 
-// AddBackend adds a backend server
+// AddBackend adds a backend server.
 func (rp *ReverseProxy) AddBackend(backend *Backend) {
 	rp.mu.Lock()
 	defer rp.mu.Unlock()
 	rp.backends = append(rp.backends, backend)
 }
 
-// RemoveBackend removes a backend server by ID
+// RemoveBackend removes a backend server by ID.
 func (rp *ReverseProxy) RemoveBackend(id string) bool {
 	rp.mu.Lock()
 	defer rp.mu.Unlock()
@@ -93,7 +93,7 @@ func (rp *ReverseProxy) RemoveBackend(id string) bool {
 	return false
 }
 
-// GetBackends returns all backends
+// GetBackends returns all backends.
 func (rp *ReverseProxy) GetBackends() []*Backend {
 	rp.mu.RLock()
 	defer rp.mu.RUnlock()
@@ -102,7 +102,7 @@ func (rp *ReverseProxy) GetBackends() []*Backend {
 	return backends
 }
 
-// NextBackend returns the next alive backend using round-robin
+// NextBackend returns the next alive backend using round-robin.
 func (rp *ReverseProxy) NextBackend() (*Backend, error) {
 	rp.mu.Lock()
 	defer rp.mu.Unlock()
@@ -123,7 +123,7 @@ func (rp *ReverseProxy) NextBackend() (*Backend, error) {
 	return nil, fmt.Errorf("no alive backends available")
 }
 
-// ProxyRequest proxies the request to the selected backend
+// ProxyRequest proxies the request to the selected backend.
 func (rp *ReverseProxy) ProxyRequest(w http.ResponseWriter, r *http.Request) error {
 	backend, err := rp.NextBackend()
 	if err != nil {
@@ -166,7 +166,7 @@ func (rp *ReverseProxy) ProxyRequest(w http.ResponseWriter, r *http.Request) err
 	return nil
 }
 
-// HealthCheck performs health checks on all backends
+// HealthCheck performs health checks on all backends.
 func (rp *ReverseProxy) HealthCheck(ctx context.Context, interval time.Duration, timeout time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
@@ -198,7 +198,7 @@ func (rp *ReverseProxy) HealthCheck(ctx context.Context, interval time.Duration,
 	}
 }
 
-// ProxyMetrics contains proxy metrics
+// ProxyMetrics contains proxy metrics.
 type ProxyMetrics struct {
 	TotalRequests   int64 `json:"totalRequests"`
 	SuccessRequests int64 `json:"successRequests"`
@@ -206,7 +206,7 @@ type ProxyMetrics struct {
 	AvgResponseTime int64 `json:"avgResponseTime"`
 }
 
-// GetMetrics returns proxy metrics (placeholder implementation)
+// GetMetrics returns proxy metrics (placeholder implementation).
 func (rp *ReverseProxy) GetMetrics() *ProxyMetrics {
 	return &ProxyMetrics{
 		TotalRequests:   0,

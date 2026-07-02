@@ -338,7 +338,7 @@ func (e *CollabEngine) validateOperation(doc *CollabDocument, op *Operation) err
 }
 
 // transformOperation OT变换操作.
-// 简化版OT：当两个操作冲突时，根据序列号优先级进行变换
+// 简化版OT：当两个操作冲突时，根据序列号优先级进行变换.
 func (e *CollabEngine) transformOperation(doc *CollabDocument, op *Operation) *Operation {
 	if len(doc.OpLog) == 0 {
 		return op

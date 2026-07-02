@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler HTTP API handler
+// Handler HTTP API handler.
 type Handler struct {
 	portal *Portal
 }
 
-// NewHandler 创建新的 handler
+// NewHandler 创建新的 handler.
 func NewHandler(portal *Portal) *Handler {
 	return &Handler{portal: portal}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	selfservice := rg.Group("/selfservice")
 	{

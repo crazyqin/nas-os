@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Engine 搜索引擎实现
+// Engine 搜索引擎实现.
 type Engine struct {
 	config    *SearchConfig
 	indexes   map[string]*SearchIndex
@@ -25,7 +25,7 @@ type Engine struct {
 	stopCh    chan struct{}
 }
 
-// NewEngine 创建搜索引擎
+// NewEngine 创建搜索引擎.
 func NewEngine(config *SearchConfig, encoder VectorEncoder, extractor ContentExtractor) *Engine {
 	if config == nil {
 		config = DefaultSearchConfig()
@@ -46,7 +46,7 @@ func NewEngine(config *SearchConfig, encoder VectorEncoder, extractor ContentExt
 	return engine
 }
 
-// Search 执行搜索
+// Search 执行搜索.
 func (e *Engine) Search(query *SearchQuery) (*SearchResponse, error) {
 	start := time.Now()
 
@@ -131,7 +131,7 @@ func (e *Engine) Search(query *SearchQuery) (*SearchResponse, error) {
 	return response, nil
 }
 
-// fullTextSearch 全文检索
+// fullTextSearch 全文检索.
 func (e *Engine) fullTextSearch(query *SearchQuery) []SearchResult {
 	var results []SearchResult
 	keyword := strings.ToLower(query.Keyword)
@@ -211,7 +211,7 @@ func (e *Engine) fullTextSearch(query *SearchQuery) []SearchResult {
 	return results
 }
 
-// semanticSearch 语义搜索
+// semanticSearch 语义搜索.
 func (e *Engine) semanticSearch(query *SearchQuery) []SearchResult {
 	if e.encoder == nil {
 		return nil
@@ -257,7 +257,7 @@ func (e *Engine) semanticSearch(query *SearchQuery) []SearchResult {
 	return results
 }
 
-// mergeResults 合并全文和语义搜索结果
+// mergeResults 合并全文和语义搜索结果.
 func (e *Engine) mergeResults(fullText, semantic []SearchResult) []SearchResult {
 	merged := make(map[string]*SearchResult)
 
@@ -285,7 +285,7 @@ func (e *Engine) mergeResults(fullText, semantic []SearchResult) []SearchResult 
 	return results
 }
 
-// IndexDocument 索引单个文档
+// IndexDocument 索引单个文档.
 func (e *Engine) IndexDocument(doc *SearchIndex) error {
 	if doc.ID == "" {
 		doc.ID = uuid.New().String()
@@ -330,7 +330,7 @@ func (e *Engine) IndexDocument(doc *SearchIndex) error {
 	return nil
 }
 
-// IndexBatch 批量索引
+// IndexBatch 批量索引.
 func (e *Engine) IndexBatch(docs []*SearchIndex) error {
 	for _, doc := range docs {
 		if err := e.IndexDocument(doc); err != nil {
@@ -340,7 +340,7 @@ func (e *Engine) IndexBatch(docs []*SearchIndex) error {
 	return nil
 }
 
-// DeleteDocument 删除文档索引
+// DeleteDocument 删除文档索引.
 func (e *Engine) DeleteDocument(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -360,7 +360,7 @@ func (e *Engine) DeleteDocument(id string) error {
 	return nil
 }
 
-// UpdateDocument 更新文档索引
+// UpdateDocument 更新文档索引.
 func (e *Engine) UpdateDocument(doc *SearchIndex) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -400,7 +400,7 @@ func (e *Engine) UpdateDocument(doc *SearchIndex) error {
 	return nil
 }
 
-// GetStats 获取搜索统计
+// GetStats 获取搜索统计.
 func (e *Engine) GetStats() (*SearchStats, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -409,7 +409,7 @@ func (e *Engine) GetStats() (*SearchStats, error) {
 	return &stats, nil
 }
 
-// Suggest 搜索建议
+// Suggest 搜索建议.
 func (e *Engine) Suggest(prefix string, limit int) ([]Suggestion, error) {
 	if limit <= 0 {
 		limit = 10
@@ -476,19 +476,19 @@ func (e *Engine) Suggest(prefix string, limit int) ([]Suggestion, error) {
 	return suggestions, nil
 }
 
-// Close 关闭引擎
+// Close 关闭引擎.
 func (e *Engine) Close() error {
 	close(e.stopCh)
 	e.cache.Clear()
 	return nil
 }
 
-// buildCacheKey 构建缓存键
+// buildCacheKey 构建缓存键.
 func (e *Engine) buildCacheKey(query *SearchQuery) string {
 	return fmt.Sprintf("%s:%s:%d:%d", query.Keyword, query.Mode, query.Page, query.PageSize)
 }
 
-// highlightText 高亮文本
+// highlightText 高亮文本.
 func (e *Engine) highlightText(text, keyword string) string {
 	lower := strings.ToLower(text)
 	keywordLower := strings.ToLower(keyword)
@@ -512,7 +512,7 @@ func (e *Engine) highlightText(text, keyword string) string {
 	return snippet
 }
 
-// extractSnippet 提取摘要
+// extractSnippet 提取摘要.
 func (e *Engine) extractSnippet(content, keyword string, maxLen int) string {
 	if len(content) <= maxLen {
 		return content
@@ -538,7 +538,7 @@ func (e *Engine) extractSnippet(content, keyword string, maxLen int) string {
 	return content[:maxLen]
 }
 
-// applyFilters 应用过滤器
+// applyFilters 应用过滤器.
 func (e *Engine) applyFilters(results []SearchResult, query *SearchQuery) []SearchResult {
 	var filtered []SearchResult
 
@@ -612,7 +612,7 @@ func (e *Engine) applyFilters(results []SearchResult, query *SearchQuery) []Sear
 	return filtered
 }
 
-// sortResults 排序结果
+// sortResults 排序结果.
 func (e *Engine) sortResults(results []SearchResult, order SortOrder) []SearchResult {
 	sort.Slice(results, func(i, j int) bool {
 		switch order {
@@ -633,7 +633,7 @@ func (e *Engine) sortResults(results []SearchResult, order SortOrder) []SearchRe
 	return results
 }
 
-// updateHotWords 更新热词
+// updateHotWords 更新热词.
 func (e *Engine) updateHotWords(keyword string) {
 	words := strings.Fields(keyword)
 	for _, word := range words {
@@ -662,7 +662,7 @@ func (e *Engine) updateHotWords(keyword string) {
 	}
 }
 
-// generateSuggestions 生成搜索建议
+// generateSuggestions 生成搜索建议.
 func (e *Engine) generateSuggestions(keyword string) []string {
 	suggestions := make([]string, 0)
 	seen := make(map[string]bool)
@@ -684,7 +684,7 @@ func (e *Engine) generateSuggestions(keyword string) []string {
 	return suggestions
 }
 
-// calculateFacets 计算分面统计
+// calculateFacets 计算分面统计.
 func (e *Engine) calculateFacets(results []SearchResult) *SearchFacets {
 	facets := &SearchFacets{
 		FileTypes: make(map[FileType]int),
@@ -708,7 +708,7 @@ func (e *Engine) calculateFacets(results []SearchResult) *SearchFacets {
 	return facets
 }
 
-// cosineSimilarity 计算余弦相似度
+// cosineSimilarity 计算余弦相似度.
 func cosineSimilarity(a, b []float64) float64 {
 	if len(a) != len(b) || len(a) == 0 {
 		return 0
@@ -728,7 +728,7 @@ func cosineSimilarity(a, b []float64) float64 {
 	return dotProduct / (sqrt(normA) * sqrt(normB))
 }
 
-// sqrt 平方根
+// sqrt 平方根.
 func sqrt(x float64) float64 {
 	if x < 0 {
 		return 0

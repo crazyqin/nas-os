@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// AppModule 应用模块 - 整合所有子模块
+// AppModule 应用模块 - 整合所有子模块.
 type AppModule struct {
 	*BaseModule
 	container *Container
@@ -18,7 +18,7 @@ type AppModule struct {
 	server    *http.Server
 }
 
-// NewAppModule 创建应用模块
+// NewAppModule 创建应用模块.
 func NewAppModule(logger *zap.Logger, container *Container) *AppModule {
 	return &AppModule{
 		BaseModule: &BaseModule{
@@ -29,7 +29,7 @@ func NewAppModule(logger *zap.Logger, container *Container) *AppModule {
 	}
 }
 
-// Init 初始化应用
+// Init 初始化应用.
 func (a *AppModule) Init(ctx context.Context) error {
 	a.engine = gin.New()
 	a.engine.Use(gin.Recovery())
@@ -39,7 +39,7 @@ func (a *AppModule) Init(ctx context.Context) error {
 	return nil
 }
 
-// Start 启动HTTP服务器
+// Start 启动HTTP服务器.
 func (a *AppModule) Start(ctx context.Context) error {
 	a.server = &http.Server{
 		Addr:    ":8080",
@@ -56,7 +56,7 @@ func (a *AppModule) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止HTTP服务器
+// Stop 停止HTTP服务器.
 func (a *AppModule) Stop(ctx context.Context) error {
 	shutdownCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -75,12 +75,12 @@ func (a *AppModule) registerRoutes() {
 	}
 }
 
-// RouteRegistrar 路由注册接口
+// RouteRegistrar 路由注册接口.
 type RouteRegistrar interface {
 	RegisterRoutes(rg *gin.RouterGroup)
 }
 
-// ModuleAdapter 模块适配器 - 将现有Manager适配为Module接口
+// ModuleAdapter 模块适配器 - 将现有Manager适配为Module接口.
 type ModuleAdapter struct {
 	*BaseModule
 	initFn  func(ctx context.Context) error
@@ -88,7 +88,7 @@ type ModuleAdapter struct {
 	stopFn  func(ctx context.Context) error
 }
 
-// NewModuleAdapter 创建模块适配器
+// NewModuleAdapter 创建模块适配器.
 func NewModuleAdapter(name string, deps []string, logger *zap.Logger) *ModuleAdapter {
 	return &ModuleAdapter{
 		BaseModule: &BaseModule{
@@ -135,7 +135,7 @@ func (m *ModuleAdapter) Stop(ctx context.Context) error {
 	return nil
 }
 
-// ListModules 列出所有已注册模块
+// ListModules 列出所有已注册模块.
 func (c *Container) ListModules() []string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -147,7 +147,7 @@ func (c *Container) ListModules() []string {
 	return names
 }
 
-// GetModule 获取模块
+// GetModule 获取模块.
 func (c *Container) GetModule(name string) (Module, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -155,14 +155,14 @@ func (c *Container) GetModule(name string) (Module, bool) {
 	return m, ok
 }
 
-// ModuleStatus 模块状态
+// ModuleStatus 模块状态.
 type ModuleStatus struct {
 	Name    string `json:"name"`
 	Healthy bool   `json:"healthy"`
 	Error   string `json:"error,omitempty"`
 }
 
-// GetModulesStatus 获取所有模块状态
+// GetModulesStatus 获取所有模块状态.
 func (c *Container) GetModulesStatus(ctx context.Context) []ModuleStatus {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -179,7 +179,7 @@ func (c *Container) GetModulesStatus(ctx context.Context) []ModuleStatus {
 	return statuses
 }
 
-// RestartModule 重启模块
+// RestartModule 重启模块.
 func (c *Container) RestartModule(ctx context.Context, name string) error {
 	c.mu.RLock()
 	mod, ok := c.modules[name]

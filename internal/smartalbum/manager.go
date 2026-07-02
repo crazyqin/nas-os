@@ -14,7 +14,7 @@ import (
 
 // ========== 核心类型 ==========
 
-// Photo 照片元数据
+// Photo 照片元数据.
 type Photo struct {
 	ID          string            `json:"id"`
 	Filename    string            `json:"filename"`
@@ -34,12 +34,12 @@ type Photo struct {
 	IsFavorite  bool              `json:"isFavorite"`
 	IsHidden    bool              `json:"isHidden"`
 	AlbumIDs    []string          `json:"albumIds,omitempty"`
-	Hash        string            `json:"hash"` // 感知哈希，用于去重
+	Hash        string            `json:"hash"`                // 感知哈希，用于去重
 	Embedding   []float64         `json:"embedding,omitempty"` // CLIP 语义向量
 	Metadata    map[string]string `json:"metadata,omitempty"`
 }
 
-// GPSInfo GPS 信息
+// GPSInfo GPS 信息.
 type GPSInfo struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
@@ -49,7 +49,7 @@ type GPSInfo struct {
 	Country   string  `json:"country,omitempty"`
 }
 
-// MapCluster 地图聚合点
+// MapCluster 地图聚合点.
 type MapCluster struct {
 	ID        string   `json:"id"`
 	Latitude  float64  `json:"latitude"`
@@ -59,13 +59,13 @@ type MapCluster struct {
 	Radius    float64  `json:"radius"` // 聚合半径（米）
 }
 
-// MapBounds 地图边界
+// MapBounds 地图边界.
 type MapBounds struct {
 	NorthEast GPSInfo `json:"northEast"`
 	SouthWest GPSInfo `json:"southWest"`
 }
 
-// Face 人脸信息
+// Face 人脸信息.
 type Face struct {
 	ID         string    `json:"id"`
 	Name       string    `json:"name,omitempty"`
@@ -77,7 +77,7 @@ type Face struct {
 	UpdatedAt  time.Time `json:"updatedAt"`
 }
 
-// SceneCategory 场景分类
+// SceneCategory 场景分类.
 type SceneCategory string
 
 const (
@@ -93,7 +93,7 @@ const (
 	SceneOther        SceneCategory = "other"        // 其他
 )
 
-// Album 相册
+// Album 相册.
 type Album struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
@@ -108,7 +108,7 @@ type Album struct {
 	IsShared    bool           `json:"isShared"`
 }
 
-// AlbumType 相册类型
+// AlbumType 相册类型.
 type AlbumType string
 
 const (
@@ -120,7 +120,7 @@ const (
 	AlbumTypePlace    AlbumType = "place"    // 地点相册
 )
 
-// AlbumCriteria 智能相册条件
+// AlbumCriteria 智能相册条件.
 type AlbumCriteria struct {
 	Tags      []string        `json:"tags,omitempty"`
 	Scenes    []SceneCategory `json:"scenes,omitempty"`
@@ -133,7 +133,7 @@ type AlbumCriteria struct {
 	Location  string          `json:"location,omitempty"` // 地点关键词
 }
 
-// TimelineEntry 时间线条目
+// TimelineEntry 时间线条目.
 type TimelineEntry struct {
 	Date      string   `json:"date"` // YYYY-MM-DD
 	Count     int      `json:"count"`
@@ -142,7 +142,7 @@ type TimelineEntry struct {
 	Locations []string `json:"locations,omitempty"`
 }
 
-// DuplicateGroup 重复照片组
+// DuplicateGroup 重复照片组.
 type DuplicateGroup struct {
 	Hash      string   `json:"hash"`
 	PhotoIDs  []string `json:"photoIds"`
@@ -153,7 +153,7 @@ type DuplicateGroup struct {
 
 // ========== Manager ==========
 
-// Manager 智能相册管理器
+// Manager 智能相册管理器.
 type Manager struct {
 	mu     sync.RWMutex
 	photos map[string]*Photo
@@ -162,7 +162,7 @@ type Manager struct {
 	index  map[string][]string // tag -> photoIDs
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		photos: make(map[string]*Photo),
@@ -174,7 +174,7 @@ func NewManager() *Manager {
 
 // ========== 照片管理 ==========
 
-// AddPhoto 添加照片
+// AddPhoto 添加照片.
 func (m *Manager) AddPhoto(photo Photo) (*Photo, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -193,7 +193,7 @@ func (m *Manager) AddPhoto(photo Photo) (*Photo, error) {
 	return &photo, nil
 }
 
-// GetPhoto 获取照片
+// GetPhoto 获取照片.
 func (m *Manager) GetPhoto(id string) (*Photo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -205,7 +205,7 @@ func (m *Manager) GetPhoto(id string) (*Photo, error) {
 	return photo, nil
 }
 
-// ListPhotos 列出照片
+// ListPhotos 列出照片.
 func (m *Manager) ListPhotos(limit, offset int) []*Photo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -231,7 +231,7 @@ func (m *Manager) ListPhotos(limit, offset int) []*Photo {
 	return photos[offset:end]
 }
 
-// DeletePhoto 删除照片
+// DeletePhoto 删除照片.
 func (m *Manager) DeletePhoto(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -256,7 +256,7 @@ func (m *Manager) DeletePhoto(id string) error {
 	return nil
 }
 
-// ToggleFavorite 切换收藏状态
+// ToggleFavorite 切换收藏状态.
 func (m *Manager) ToggleFavorite(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -271,7 +271,7 @@ func (m *Manager) ToggleFavorite(id string) error {
 
 // ========== 人脸管理 ==========
 
-// RegisterFace 注册人脸
+// RegisterFace 注册人脸.
 func (m *Manager) RegisterFace(name string, photoID string, embedding []float64) (*Face, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -297,7 +297,7 @@ func (m *Manager) RegisterFace(name string, photoID string, embedding []float64)
 	return face, nil
 }
 
-// LinkFaceToPhoto 关联人脸到照片
+// LinkFaceToPhoto 关联人脸到照片.
 func (m *Manager) LinkFaceToPhoto(faceID, photoID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -326,7 +326,7 @@ func (m *Manager) LinkFaceToPhoto(faceID, photoID string) error {
 	return nil
 }
 
-// GetFace 获取人脸
+// GetFace 获取人脸.
 func (m *Manager) GetFace(id string) (*Face, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -338,7 +338,7 @@ func (m *Manager) GetFace(id string) (*Face, error) {
 	return face, nil
 }
 
-// ListFaces 列出人脸
+// ListFaces 列出人脸.
 func (m *Manager) ListFaces() []*Face {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -352,7 +352,7 @@ func (m *Manager) ListFaces() []*Face {
 
 // ========== 相册管理 ==========
 
-// CreateAlbum 创建相册
+// CreateAlbum 创建相册.
 func (m *Manager) CreateAlbum(name string, albumType AlbumType) (*Album, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -369,7 +369,7 @@ func (m *Manager) CreateAlbum(name string, albumType AlbumType) (*Album, error) 
 	return album, nil
 }
 
-// AddPhotoToAlbum 添加照片到相册
+// AddPhotoToAlbum 添加照片到相册.
 func (m *Manager) AddPhotoToAlbum(albumID, photoID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -398,7 +398,7 @@ func (m *Manager) AddPhotoToAlbum(albumID, photoID string) error {
 	return nil
 }
 
-// GetAlbum 获取相册
+// GetAlbum 获取相册.
 func (m *Manager) GetAlbum(id string) (*Album, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -410,7 +410,7 @@ func (m *Manager) GetAlbum(id string) (*Album, error) {
 	return album, nil
 }
 
-// ListAlbums 列出相册
+// ListAlbums 列出相册.
 func (m *Manager) ListAlbums() []*Album {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -422,7 +422,7 @@ func (m *Manager) ListAlbums() []*Album {
 	return albums
 }
 
-// CreateSmartAlbum 创建智能相册
+// CreateSmartAlbum 创建智能相册.
 func (m *Manager) CreateSmartAlbum(name string, criteria AlbumCriteria) (*Album, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -449,7 +449,7 @@ func (m *Manager) CreateSmartAlbum(name string, criteria AlbumCriteria) (*Album,
 	return album, nil
 }
 
-// matchesCriteria 检查照片是否匹配条件
+// matchesCriteria 检查照片是否匹配条件.
 func (m *Manager) matchesCriteria(photo *Photo, criteria AlbumCriteria) bool {
 	// 标签匹配
 	if len(criteria.Tags) > 0 {
@@ -540,7 +540,7 @@ func (m *Manager) matchesCriteria(photo *Photo, criteria AlbumCriteria) bool {
 
 // ========== 时间线 ==========
 
-// GenerateTimeline 生成时间线
+// GenerateTimeline 生成时间线.
 func (m *Manager) GenerateTimeline() []*TimelineEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -579,7 +579,7 @@ func (m *Manager) GenerateTimeline() []*TimelineEntry {
 
 // ========== 重复检测 ==========
 
-// DetectDuplicates 检测重复照片
+// DetectDuplicates 检测重复照片.
 func (m *Manager) DetectDuplicates() []*DuplicateGroup {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -618,7 +618,7 @@ func (m *Manager) DetectDuplicates() []*DuplicateGroup {
 
 // ========== 搜索功能 ==========
 
-// SearchPhotos 搜索照片
+// SearchPhotos 搜索照片.
 func (m *Manager) SearchPhotos(query string, tags []string, scene SceneCategory) []*Photo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -682,7 +682,7 @@ func (m *Manager) SearchPhotos(query string, tags []string, scene SceneCategory)
 
 // ========== 语义搜索（新增） ==========
 
-// SemanticSearch 语义搜索 - 使用 CLIP 向量相似度
+// SemanticSearch 语义搜索 - 使用 CLIP 向量相似度.
 func (m *Manager) SemanticSearch(queryEmbedding []float64, topK int, minScore float64) []*Photo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -722,7 +722,7 @@ func (m *Manager) SemanticSearch(queryEmbedding []float64, topK int, minScore fl
 	return results
 }
 
-// FindSimilarPhotos 查找相似照片
+// FindSimilarPhotos 查找相似照片.
 func (m *Manager) FindSimilarPhotos(photoID string, topK int) ([]*Photo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -766,7 +766,7 @@ func (m *Manager) FindSimilarPhotos(photoID string, topK int) ([]*Photo, error) 
 
 // ========== 地图功能（新增） ==========
 
-// GetMapClusters 获取地图聚合点
+// GetMapClusters 获取地图聚合点.
 func (m *Manager) GetMapClusters(bounds *MapBounds, zoomLevel int) []*MapCluster {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -839,7 +839,7 @@ func (m *Manager) GetMapClusters(bounds *MapBounds, zoomLevel int) []*MapCluster
 	return clusters
 }
 
-// GetPhotosByLocation 按地点获取照片
+// GetPhotosByLocation 按地点获取照片.
 func (m *Manager) GetPhotosByLocation(city string, limit int) []*Photo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -866,7 +866,7 @@ func (m *Manager) GetPhotosByLocation(city string, limit int) []*Photo {
 
 // ========== 统计 ==========
 
-// GetStats 获取相册统计
+// GetStats 获取相册统计.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -907,7 +907,7 @@ func (m *Manager) GetStats() map[string]interface{} {
 
 // ========== 辅助函数 ==========
 
-// contains 简单字符串包含检查
+// contains 简单字符串包含检查.
 func contains(s, substr string) bool {
 	if len(substr) == 0 {
 		return true
@@ -923,7 +923,7 @@ func contains(s, substr string) bool {
 	return false
 }
 
-// appendUnique 追加唯一值
+// appendUnique 追加唯一值.
 func appendUnique(slice []string, item string) []string {
 	for _, s := range slice {
 		if s == item {
@@ -933,7 +933,7 @@ func appendUnique(slice []string, item string) []string {
 	return append(slice, item)
 }
 
-// cosineSimilarity 计算余弦相似度
+// cosineSimilarity 计算余弦相似度.
 func cosineSimilarity(a, b []float64) float64 {
 	if len(a) != len(b) || len(a) == 0 {
 		return 0
@@ -952,7 +952,7 @@ func cosineSimilarity(a, b []float64) float64 {
 	return dotProduct / (math.Sqrt(normA) * math.Sqrt(normB))
 }
 
-// haversineDistance 计算两点间的距离（米）
+// haversineDistance 计算两点间的距离（米）.
 func haversineDistance(lat1, lon1, lat2, lon2 float64) float64 {
 	const earthRadius = 6371000 // 地球半径（米）
 
@@ -970,7 +970,7 @@ func haversineDistance(lat1, lon1, lat2, lon2 float64) float64 {
 	return earthRadius * c
 }
 
-// calculateClusterRadius 根据缩放级别计算聚合半径
+// calculateClusterRadius 根据缩放级别计算聚合半径.
 func calculateClusterRadius(zoomLevel int) float64 {
 	// 缩放级别越高，聚合半径越小
 	switch {
@@ -989,7 +989,7 @@ func calculateClusterRadius(zoomLevel int) float64 {
 
 // ========== 批量操作 ==========
 
-// BatchAddEmbeddings 批量添加嵌入向量
+// BatchAddEmbeddings 批量添加嵌入向量.
 func (m *Manager) BatchAddEmbeddings(embeddings map[string][]float64) int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1004,7 +1004,7 @@ func (m *Manager) BatchAddEmbeddings(embeddings map[string][]float64) int {
 	return count
 }
 
-// AutoTag 自动生成标签（基于场景和元数据）
+// AutoTag 自动生成标签（基于场景和元数据）.
 func (m *Manager) AutoTag(photoID string) ([]string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

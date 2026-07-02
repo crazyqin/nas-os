@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 提供 RAID 管理的 HTTP 处理器
+// Handlers 提供 RAID 管理的 HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建新的 RAID 处理器
+// NewHandlers 创建新的 RAID 处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册 RAID API 路由
+// RegisterRoutes 注册 RAID API 路由.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	raid := rg.Group("/raid")
 	{

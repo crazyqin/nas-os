@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Manager 路由管理器
+// Manager 路由管理器.
 type Manager struct {
 	routes  sync.Map // routeID -> *RouteConfig
 	metrics sync.Map // modelID -> *modelMetricsData
@@ -29,12 +29,12 @@ type routeStatsData struct {
 	mu                sync.Mutex
 }
 
-// NewManager 创建路由管理器
+// NewManager 创建路由管理器.
 func NewManager() *Manager {
 	return &Manager{}
 }
 
-// CreateRoute 创建路由配置
+// CreateRoute 创建路由配置.
 func (m *Manager) CreateRoute(req *CreateRouteRequest) (*RouteConfig, error) {
 	route := &RouteConfig{
 		ID:              fmt.Sprintf("route_%d", time.Now().UnixNano()),
@@ -69,7 +69,7 @@ func (m *Manager) CreateRoute(req *CreateRouteRequest) (*RouteConfig, error) {
 	return route, nil
 }
 
-// Select 选择模型
+// Select 选择模型.
 func (m *Manager) Select(ctx context.Context, req *RouteRequest) (*RouteDecision, error) {
 	start := time.Now()
 
@@ -328,7 +328,7 @@ func (m *Manager) getModelSuccessRate(modelID string) float64 {
 	return 0.99 // 默认成功率
 }
 
-// ReportResult 上报结果
+// ReportResult 上报结果.
 func (m *Manager) ReportResult(ctx context.Context, decision *RouteDecision, success bool, latencyMs int64, tokens int) error {
 	// 更新模型指标
 	m.updateModelMetrics(decision.SelectedModel, success, latencyMs, int64(tokens))
@@ -408,7 +408,7 @@ func (m *Manager) updateRouteStats(routeID, modelID string, success bool, latenc
 	rs.stats.ModelDistribution[modelID]++
 }
 
-// GetStats 获取路由统计
+// GetStats 获取路由统计.
 func (m *Manager) GetStats(ctx context.Context, routeID string) (*RouteStats, error) {
 	data, ok := m.stats.Load(routeID)
 	if !ok {
@@ -423,7 +423,7 @@ func (m *Manager) GetStats(ctx context.Context, routeID string) (*RouteStats, er
 	return &stats, nil
 }
 
-// GetModelMetrics 获取模型指标
+// GetModelMetrics 获取模型指标.
 func (m *Manager) GetModelMetrics(ctx context.Context, modelID string) (*ModelMetrics, error) {
 	data, ok := m.metrics.Load(modelID)
 	if !ok {
@@ -438,12 +438,12 @@ func (m *Manager) GetModelMetrics(ctx context.Context, modelID string) (*ModelMe
 	return &metrics, nil
 }
 
-// HealthCheck 健康检查
+// HealthCheck 健康检查.
 func (m *Manager) HealthCheck(ctx context.Context) error {
 	return nil
 }
 
-// ListRoutes 列出路由配置
+// ListRoutes 列出路由配置.
 func (m *Manager) ListRoutes() []*RouteConfig {
 	var routes []*RouteConfig
 	m.routes.Range(func(key, value interface{}) bool {
@@ -453,7 +453,7 @@ func (m *Manager) ListRoutes() []*RouteConfig {
 	return routes
 }
 
-// DeleteRoute 删除路由配置
+// DeleteRoute 删除路由配置.
 func (m *Manager) DeleteRoute(routeID string) error {
 	if _, loaded := m.routes.LoadAndDelete(routeID); !loaded {
 		return fmt.Errorf("route %s not found", routeID)

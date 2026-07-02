@@ -9,17 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler 资源计量HTTP处理器
+// Handler 资源计量HTTP处理器.
 type Handler struct {
 	service *Service
 }
 
-// NewHandler 创建HTTP处理器
+// NewHandler 创建HTTP处理器.
 func NewHandler(svc *Service) *Handler {
 	return &Handler{service: svc}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	g := rg.Group("/resmetering")
 	{
@@ -32,7 +32,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 
 // parseTimeRange 解析时间范围参数
 // period: hourly/daily/monthly
-// 返回: from, to, period
+// 返回: from, to, period.
 func parseTimeRange(c *gin.Context) (time.Time, time.Time, AggregationPeriod) {
 	now := time.Now()
 	period := AggregationPeriod(c.DefaultQuery("period", "daily"))
@@ -66,7 +66,7 @@ func parseTimeRange(c *gin.Context) (time.Time, time.Time, AggregationPeriod) {
 }
 
 // Summary 获取资源使用汇总
-// GET /api/v1/resmetering/summary?period=daily&from=2024-01-01T00:00:00Z&to=2024-01-02T00:00:00Z
+// GET /api/v1/resmetering/summary?period=daily&from=2024-01-01T00:00:00Z&to=2024-01-02T00:00:00Z.
 func (h *Handler) Summary(c *gin.Context) {
 	from, to, period := parseTimeRange(c)
 	summary := h.service.GetSummary(period, from, to)
@@ -74,7 +74,7 @@ func (h *Handler) Summary(c *gin.Context) {
 }
 
 // ByUser 按用户维度获取资源使用报告
-// GET /api/v1/resmetering/by-user?period=daily
+// GET /api/v1/resmetering/by-user?period=daily.
 func (h *Handler) ByUser(c *gin.Context) {
 	from, to, period := parseTimeRange(c)
 	report := h.service.GetByUser(period, from, to)
@@ -82,7 +82,7 @@ func (h *Handler) ByUser(c *gin.Context) {
 }
 
 // ByContainer 按容器维度获取资源使用报告
-// GET /api/v1/resmetering/by-container?period=hourly
+// GET /api/v1/resmetering/by-container?period=hourly.
 func (h *Handler) ByContainer(c *gin.Context) {
 	from, to, period := parseTimeRange(c)
 	report := h.service.GetByContainer(period, from, to)
@@ -90,7 +90,7 @@ func (h *Handler) ByContainer(c *gin.Context) {
 }
 
 // Record 提交一条资源采样数据
-// POST /api/v1/resmetering/record
+// POST /api/v1/resmetering/record.
 func (h *Handler) Record(c *gin.Context) {
 	var sample Sample
 	if err := c.ShouldBindJSON(&sample); err != nil {
@@ -107,10 +107,10 @@ func (h *Handler) Record(c *gin.Context) {
 }
 
 // parsePeriod 辅助函数：将字符串转为AggregationPeriod
-// 用于测试中快速构造
+// 用于测试中快速构造.
 func parsePeriod(s string) AggregationPeriod {
 	return AggregationPeriod(s)
 }
 
-// dummy reference to keep strconv imported (used in future pagination)
+// dummy reference to keep strconv imported (used in future pagination).
 var _ = strconv.Itoa

@@ -464,21 +464,21 @@ func TestManager_GetCostSummary(t *testing.T) {
 	defer mgr.Stop()
 
 	mgr.AddCostRecord(&CostRecord{
-		AssetID: "asset_1",
-		Type:    CostTypePurchase,
-		Amount:  5000.0,
+		AssetID:  "asset_1",
+		Type:     CostTypePurchase,
+		Amount:   5000.0,
 		Currency: "CNY",
 	})
 	mgr.AddCostRecord(&CostRecord{
-		AssetID: "asset_1",
-		Type:    CostTypeMaintenance,
-		Amount:  200.0,
+		AssetID:  "asset_1",
+		Type:     CostTypeMaintenance,
+		Amount:   200.0,
 		Currency: "CNY",
 	})
 	mgr.AddCostRecord(&CostRecord{
-		AssetID: "asset_2",
-		Type:    CostTypePower,
-		Amount:  50.0,
+		AssetID:  "asset_2",
+		Type:     CostTypePower,
+		Amount:   50.0,
 		Currency: "CNY",
 	})
 
@@ -594,9 +594,9 @@ func TestManager_GetStats(t *testing.T) {
 	addTestAsset(mgr, "NAS-2", "SN002")
 
 	mgr.AddCostRecord(&CostRecord{
-		AssetID: "asset_1",
-		Type:    CostTypePurchase,
-		Amount:  5000.0,
+		AssetID:  "asset_1",
+		Type:     CostTypePurchase,
+		Amount:   5000.0,
 		Currency: "CNY",
 	})
 

@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Manager 成本预测管理器
+// Manager 成本预测管理器.
 type Manager struct {
 	mu sync.RWMutex
 
@@ -25,7 +25,7 @@ type Manager struct {
 	forecastCache map[string]*ForecastResult
 }
 
-// NewManager 创建成本预测管理器
+// NewManager 创建成本预测管理器.
 func NewManager(config CostPredictConfig) *Manager {
 	m := &Manager{
 		config:        config,
@@ -43,7 +43,7 @@ func NewManager(config CostPredictConfig) *Manager {
 	return m
 }
 
-// generateMockHistory 生成模拟历史数据
+// generateMockHistory 生成模拟历史数据.
 func (m *Manager) generateMockHistory() {
 	baseCost := 100.0
 	baseStorage := int64(500 * 1024 * 1024 * 1024) // 500GB in bytes
@@ -81,7 +81,7 @@ func (m *Manager) generateMockHistory() {
 	}
 }
 
-// GetForecast 获取成本预测
+// GetForecast 获取成本预测.
 func (m *Manager) GetForecast(method PredictionMethod, horizon ForecastHorizon, provider string) (*ForecastResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -140,7 +140,7 @@ func (m *Manager) GetForecast(method PredictionMethod, horizon ForecastHorizon, 
 	return result, nil
 }
 
-// linearRegression 线性回归预测
+// linearRegression 线性回归预测.
 func (m *Manager) linearRegression(history []CostRecord, horizon ForecastHorizon) ([]ForecastPoint, float64, ConfidenceLevel) {
 	n := len(history)
 	if n < 2 {
@@ -209,7 +209,7 @@ func (m *Manager) linearRegression(history []CostRecord, horizon ForecastHorizon
 	return forecasts, accuracy, confidence
 }
 
-// exponentialSmoothing 指数平滑预测
+// exponentialSmoothing 指数平滑预测.
 func (m *Manager) exponentialSmoothing(history []CostRecord, horizon ForecastHorizon) ([]ForecastPoint, float64, ConfidenceLevel) {
 	n := len(history)
 	if n < 2 {
@@ -270,7 +270,7 @@ func (m *Manager) exponentialSmoothing(history []CostRecord, horizon ForecastHor
 	return forecasts, accuracy, confidence
 }
 
-// movingAverage 移动平均预测
+// movingAverage 移动平均预测.
 func (m *Manager) movingAverage(history []CostRecord, horizon ForecastHorizon) ([]ForecastPoint, float64, ConfidenceLevel) {
 	n := len(history)
 	window := 3 // 移动窗口
@@ -336,7 +336,7 @@ func (m *Manager) movingAverage(history []CostRecord, horizon ForecastHorizon) (
 	return forecasts, accuracy, confidence
 }
 
-// GetGrowthForecast 获取存储增长预测
+// GetGrowthForecast 获取存储增长预测.
 func (m *Manager) GetGrowthForecast(provider string, capacityGB float64) (*GrowthForecast, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -404,7 +404,7 @@ func (m *Manager) GetGrowthForecast(provider string, capacityGB float64) (*Growt
 	return result, nil
 }
 
-// SetAlertConfig 设置预算告警配置
+// SetAlertConfig 设置预算告警配置.
 func (m *Manager) SetAlertConfig(req AlertConfigRequest) (*AlertConfig, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -437,21 +437,21 @@ func (m *Manager) SetAlertConfig(req AlertConfigRequest) (*AlertConfig, error) {
 	return &config, nil
 }
 
-// GetAlertConfigs 获取告警配置列表
+// GetAlertConfigs 获取告警配置列表.
 func (m *Manager) GetAlertConfigs() []AlertConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.alertConfigs
 }
 
-// GetActiveAlerts 获取活跃告警
+// GetActiveAlerts 获取活跃告警.
 func (m *Manager) GetActiveAlerts() []BudgetAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.activeAlerts
 }
 
-// checkAlerts 检查告警
+// checkAlerts 检查告警.
 func (m *Manager) checkAlerts() {
 	for _, config := range m.alertConfigs {
 		if !config.Enabled {
@@ -495,7 +495,7 @@ func (m *Manager) checkAlerts() {
 	}
 }
 
-// GetReport 获取预测报告
+// GetReport 获取预测报告.
 func (m *Manager) GetReport(provider string) (*PredictionReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -550,7 +550,7 @@ func (m *Manager) GetReport(provider string) (*PredictionReport, error) {
 	return report, nil
 }
 
-// getForecastInternal 内部获取预测
+// getForecastInternal 内部获取预测.
 func (m *Manager) getForecastInternal(method PredictionMethod, horizon ForecastHorizon, provider string) (*ForecastResult, error) {
 	var history []CostRecord
 	for _, record := range m.costHistory {
@@ -583,7 +583,7 @@ func (m *Manager) getForecastInternal(method PredictionMethod, horizon ForecastH
 	}, nil
 }
 
-// getGrowthForecastInternal 内部获取增长预测
+// getGrowthForecastInternal 内部获取增长预测.
 func (m *Manager) getGrowthForecastInternal(provider string, capacityGB float64) (*GrowthForecast, error) {
 	var history []GrowthRecord
 	for _, record := range m.growthHistory {
@@ -639,12 +639,12 @@ func (m *Manager) getGrowthForecastInternal(provider string, capacityGB float64)
 	}, nil
 }
 
-// getActiveAlertsInternal 内部获取活跃告警
+// getActiveAlertsInternal 内部获取活跃告警.
 func (m *Manager) getActiveAlertsInternal() []BudgetAlert {
 	return m.activeAlerts
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (m *Manager) generateRecommendations(currentCost float64, growth *GrowthForecast) []string {
 	var recommendations []string
 
@@ -668,7 +668,7 @@ func (m *Manager) generateRecommendations(currentCost float64, growth *GrowthFor
 	return recommendations
 }
 
-// calculateTrend 计算趋势
+// calculateTrend 计算趋势.
 func (m *Manager) calculateTrend(history []CostRecord) string {
 	if len(history) < 2 {
 		return "stable"
@@ -686,7 +686,7 @@ func (m *Manager) calculateTrend(history []CostRecord) string {
 	return "stable"
 }
 
-// calculateGrowthRate 计算增长率
+// calculateGrowthRate 计算增长率.
 func (m *Manager) calculateGrowthRate(history []CostRecord) float64 {
 	if len(history) < 2 {
 		return 0
@@ -701,7 +701,7 @@ func (m *Manager) calculateGrowthRate(history []CostRecord) float64 {
 	return totalGrowth / float64(len(history)-1)
 }
 
-// getHorizonMonths 获取预测月数
+// getHorizonMonths 获取预测月数.
 func getHorizonMonths(horizon ForecastHorizon) int {
 	switch horizon {
 	case Horizon3Months:
@@ -717,7 +717,7 @@ func getHorizonMonths(horizon ForecastHorizon) int {
 	}
 }
 
-// AddCostRecord 添加成本记录
+// AddCostRecord 添加成本记录.
 func (m *Manager) AddCostRecord(record CostRecord) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

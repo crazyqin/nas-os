@@ -131,9 +131,9 @@ func TestCancelExecution(t *testing.T) {
 		Enabled: true,
 		Steps: []*Step{
 			{
-				ID:      "slow",
-				Type:    StepTypeDelay,
-				Action:  "delay",
+				ID:         "slow",
+				Type:       StepTypeDelay,
+				Action:     "delay",
 				Parameters: map[string]interface{}{"seconds": float64(10)},
 			},
 		},

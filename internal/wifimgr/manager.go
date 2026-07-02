@@ -12,7 +12,7 @@ import (
 
 // ========== 类型定义 ==========
 
-// AuthType 认证类型
+// AuthType 认证类型.
 type AuthType string
 
 const (
@@ -22,7 +22,7 @@ const (
 	AuthOpen           AuthType = "Open"
 )
 
-// BandType 频段类型
+// BandType 频段类型.
 type BandType string
 
 const (
@@ -31,7 +31,7 @@ const (
 	BandAuto  BandType = "Auto"
 )
 
-// WiFiNetwork WiFi 网络
+// WiFiNetwork WiFi 网络.
 type WiFiNetwork struct {
 	SSID      string    `json:"ssid"`
 	BSSID     string    `json:"bssid"`
@@ -44,7 +44,7 @@ type WiFiNetwork struct {
 	LastSeen  time.Time `json:"lastSeen"`
 }
 
-// WiFiProfile WiFi 配置
+// WiFiProfile WiFi 配置.
 type WiFiProfile struct {
 	ID          string    `json:"id"`
 	SSID        string    `json:"ssid"`
@@ -56,7 +56,7 @@ type WiFiProfile struct {
 	CreatedAt   time.Time `json:"createdAt"`
 }
 
-// WiFiStatus WiFi 状态
+// WiFiStatus WiFi 状态.
 type WiFiStatus struct {
 	Connected   bool      `json:"connected"`
 	SSID        string    `json:"ssid,omitempty"`
@@ -70,7 +70,7 @@ type WiFiStatus struct {
 	ConnectedAt time.Time `json:"connectedAt,omitempty"`
 }
 
-// HotspotConfig 热点配置
+// HotspotConfig 热点配置.
 type HotspotConfig struct {
 	SSID       string   `json:"ssid"`
 	Password   string   `json:"password,omitempty"`
@@ -81,7 +81,7 @@ type HotspotConfig struct {
 	Hidden     bool     `json:"hidden"`
 }
 
-// SignalHistory 信号历史
+// SignalHistory 信号历史.
 type SignalHistory struct {
 	Timestamp time.Time `json:"timestamp"`
 	Signal    int       `json:"signal"` // dBm
@@ -90,7 +90,7 @@ type SignalHistory struct {
 
 // ========== Manager ==========
 
-// Manager WiFi 管理器
+// Manager WiFi 管理器.
 type Manager struct {
 	mu                sync.RWMutex
 	networks          []WiFiNetwork
@@ -105,7 +105,7 @@ type Manager struct {
 	scanInterval      time.Duration
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		profiles:          make(map[string]*WiFiProfile),
@@ -116,7 +116,7 @@ func NewManager() *Manager {
 	return m
 }
 
-// initDefaults 初始化默认配置
+// initDefaults 初始化默认配置.
 func (m *Manager) initDefaults() {
 	// 默认状态：未连接
 	m.status = WiFiStatus{
@@ -134,7 +134,7 @@ func (m *Manager) initDefaults() {
 
 // ========== 扫描 ==========
 
-// Scan 扫描 WiFi 网络
+// Scan 扫描 WiFi 网络.
 func (m *Manager) Scan() ([]WiFiNetwork, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -146,7 +146,7 @@ func (m *Manager) Scan() ([]WiFiNetwork, error) {
 	return m.networks, nil
 }
 
-// simulateScan 模拟扫描
+// simulateScan 模拟扫描.
 func (m *Manager) simulateScan() []WiFiNetwork {
 	now := time.Now()
 	return []WiFiNetwork{
@@ -160,7 +160,7 @@ func (m *Manager) simulateScan() []WiFiNetwork {
 
 // ========== 连接 ==========
 
-// Connect 连接到网络
+// Connect 连接到网络.
 func (m *Manager) Connect(profileID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -195,7 +195,7 @@ func (m *Manager) Connect(profileID string) error {
 	return nil
 }
 
-// Disconnect 断开连接
+// Disconnect 断开连接.
 func (m *Manager) Disconnect() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -211,7 +211,7 @@ func (m *Manager) Disconnect() error {
 	return nil
 }
 
-// GetStatus 获取 WiFi 状态
+// GetStatus 获取 WiFi 状态.
 func (m *Manager) GetStatus() (*WiFiStatus, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -222,7 +222,7 @@ func (m *Manager) GetStatus() (*WiFiStatus, error) {
 
 // ========== 配置管理 ==========
 
-// SaveProfile 保存 WiFi 配置
+// SaveProfile 保存 WiFi 配置.
 func (m *Manager) SaveProfile(profile *WiFiProfile) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -241,7 +241,7 @@ func (m *Manager) SaveProfile(profile *WiFiProfile) error {
 	return nil
 }
 
-// DeleteProfile 删除 WiFi 配置
+// DeleteProfile 删除 WiFi 配置.
 func (m *Manager) DeleteProfile(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -260,7 +260,7 @@ func (m *Manager) DeleteProfile(id string) error {
 	return nil
 }
 
-// ListProfiles 列出所有配置
+// ListProfiles 列出所有配置.
 func (m *Manager) ListProfiles() []WiFiProfile {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -274,7 +274,7 @@ func (m *Manager) ListProfiles() []WiFiProfile {
 
 // ========== 热点 ==========
 
-// EnableHotspot 启用热点
+// EnableHotspot 启用热点.
 func (m *Manager) EnableHotspot(config *HotspotConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -295,7 +295,7 @@ func (m *Manager) EnableHotspot(config *HotspotConfig) error {
 	return nil
 }
 
-// DisableHotspot 禁用热点
+// DisableHotspot 禁用热点.
 func (m *Manager) DisableHotspot() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -312,7 +312,7 @@ func (m *Manager) DisableHotspot() error {
 	return nil
 }
 
-// GetHotspotStatus 获取热点状态
+// GetHotspotStatus 获取热点状态.
 func (m *Manager) GetHotspotStatus() (*HotspotConfig, int, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -327,7 +327,7 @@ func (m *Manager) GetHotspotStatus() (*HotspotConfig, int, error) {
 
 // ========== 信号监控 ==========
 
-// GetSignalHistory 获取信号历史
+// GetSignalHistory 获取信号历史.
 func (m *Manager) GetSignalHistory(duration time.Duration) []SignalHistory {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -344,7 +344,7 @@ func (m *Manager) GetSignalHistory(duration time.Duration) []SignalHistory {
 
 // ========== 自动重连 ==========
 
-// SetAutoReconnect 设置自动重连
+// SetAutoReconnect 设置自动重连.
 func (m *Manager) SetAutoReconnect(enable bool, strategy string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -364,7 +364,7 @@ func (m *Manager) SetAutoReconnect(enable bool, strategy string) error {
 
 // ========== 安全审计 ==========
 
-// ScanDiagnostics 安全诊断扫描
+// ScanDiagnostics 安全诊断扫描.
 func (m *Manager) ScanDiagnostics() ([]WiFiNetwork, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

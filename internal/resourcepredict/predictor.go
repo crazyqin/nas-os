@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// ResourceType 资源类型
+// ResourceType 资源类型.
 type ResourceType string
 
 const (
@@ -22,7 +22,7 @@ const (
 	ResourceInode   ResourceType = "inode"
 )
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 const (
@@ -32,7 +32,7 @@ const (
 	AlertUrgent   AlertLevel = "urgent"
 )
 
-// Thresholds 预测告警阈值
+// Thresholds 预测告警阈值.
 type Thresholds struct {
 	WarningDays   int     `json:"warningDays"`   // 跄尽前N天告警(Warning)
 	CriticalDays  int     `json:"criticalDays"`  // 耗尽前N天告警(Critical)
@@ -41,7 +41,7 @@ type Thresholds struct {
 	MinDataPoints int     `json:"minDataPoints"` // 最少数据点
 }
 
-// DefaultThresholds 默认阈值
+// DefaultThresholds 默认阈值.
 func DefaultThresholds() Thresholds {
 	return Thresholds{
 		WarningDays:   30,
@@ -52,14 +52,14 @@ func DefaultThresholds() Thresholds {
 	}
 }
 
-// DataPoint 资源使用数据点
+// DataPoint 资源使用数据点.
 type DataPoint struct {
 	Timestamp time.Time `json:"timestamp"`
 	Value     float64   `json:"value"` // 使用率 (0-100) 或绝对值
 	Total     float64   `json:"total"` // 总量(如磁盘总容量)
 }
 
-// ResourceMetric 资源指标
+// ResourceMetric 资源指标.
 type ResourceMetric struct {
 	Type         ResourceType `json:"type"`
 	Name         string       `json:"name"` // 如 "/dev/sda1", "system-memory"
@@ -69,7 +69,7 @@ type ResourceMetric struct {
 	MaxValue     float64      `json:"maxValue"`
 }
 
-// Prediction 预测结果
+// Prediction 预测结果.
 type Prediction struct {
 	ResourceType  ResourceType `json:"resourceType"`
 	ResourceName  string       `json:"resourceName"`
@@ -86,7 +86,7 @@ type Prediction struct {
 	IsIncreasing  bool         `json:"isIncreasing"`
 }
 
-// PredictionReport 预测报告
+// PredictionReport 预测报告.
 type PredictionReport struct {
 	Timestamp   time.Time    `json:"timestamp"`
 	Predictions []Prediction `json:"predictions"`
@@ -94,7 +94,7 @@ type PredictionReport struct {
 	MaxAlert    AlertLevel   `json:"maxAlert"`
 }
 
-// PredictorConfig 预测器配置
+// PredictorConfig 预测器配置.
 type PredictorConfig struct {
 	Thresholds       Thresholds    `json:"thresholds"`
 	RetentionDays    int           `json:"retentionDays"`    // 数据保留天数
@@ -102,7 +102,7 @@ type PredictorConfig struct {
 	MaxDataPoints    int           `json:"maxDataPoints"`    // 每资源最大数据点数
 }
 
-// DefaultPredictorConfig 默认预测器配置
+// DefaultPredictorConfig 默认预测器配置.
 func DefaultPredictorConfig() PredictorConfig {
 	return PredictorConfig{
 		Thresholds:       DefaultThresholds(),
@@ -112,7 +112,7 @@ func DefaultPredictorConfig() PredictorConfig {
 	}
 }
 
-// ResourcePredictor 资源预测器
+// ResourcePredictor 资源预测器.
 type ResourcePredictor struct {
 	config      PredictorConfig
 	metrics     map[ResourceType]*ResourceMetric
@@ -125,7 +125,7 @@ type ResourcePredictor struct {
 	onAlert func(prediction Prediction)
 }
 
-// NewResourcePredictor 创建资源预测器
+// NewResourcePredictor 创建资源预测器.
 func NewResourcePredictor(config PredictorConfig) *ResourcePredictor {
 	return &ResourcePredictor{
 		config:  config,
@@ -134,12 +134,12 @@ func NewResourcePredictor(config PredictorConfig) *ResourcePredictor {
 	}
 }
 
-// SetAlertCallback 设置告警回调
+// SetAlertCallback 设置告警回调.
 func (rp *ResourcePredictor) SetAlertCallback(fn func(prediction Prediction)) {
 	rp.onAlert = fn
 }
 
-// RegisterResource 注册资源监控
+// RegisterResource 注册资源监控.
 func (rp *ResourcePredictor) RegisterResource(resType ResourceType, name, unit string, maxValue float64) {
 	rp.mu.Lock()
 	defer rp.mu.Unlock()
@@ -153,7 +153,7 @@ func (rp *ResourcePredictor) RegisterResource(resType ResourceType, name, unit s
 	log.Printf("[ResourcePredict] registered %s (%s), max=%.0f %s", resType, name, maxValue, unit)
 }
 
-// RecordValue 记录资源使用值
+// RecordValue 记录资源使用值.
 func (rp *ResourcePredictor) RecordValue(resType ResourceType, value float64) {
 	rp.mu.Lock()
 	defer rp.mu.Unlock()
@@ -178,7 +178,7 @@ func (rp *ResourcePredictor) RecordValue(resType ResourceType, value float64) {
 	}
 }
 
-// Start 启动预测循环
+// Start 启动预测循环.
 func (rp *ResourcePredictor) Start() {
 	rp.mu.Lock()
 	if rp.running {
@@ -192,7 +192,7 @@ func (rp *ResourcePredictor) Start() {
 	log.Printf("[ResourcePredict] predictor started, interval=%v", rp.config.SamplingInterval)
 }
 
-// Stop 停止预测
+// Stop 停止预测.
 func (rp *ResourcePredictor) Stop() {
 	rp.mu.Lock()
 	defer rp.mu.Unlock()
@@ -204,7 +204,7 @@ func (rp *ResourcePredictor) Stop() {
 	log.Printf("[ResourcePredict] predictor stopped")
 }
 
-// PredictNow 立即执行预测
+// PredictNow 立即执行预测.
 func (rp *ResourcePredictor) PredictNow() PredictionReport {
 	rp.mu.Lock()
 	defer rp.mu.Unlock()
@@ -235,7 +235,7 @@ func (rp *ResourcePredictor) PredictNow() PredictionReport {
 	return report
 }
 
-// GetLatest 获取最新预测结果
+// GetLatest 获取最新预测结果.
 func (rp *ResourcePredictor) GetLatest() []Prediction {
 	rp.mu.RLock()
 	defer rp.mu.RUnlock()
@@ -244,7 +244,7 @@ func (rp *ResourcePredictor) GetLatest() []Prediction {
 	return result
 }
 
-// predictResource 预测单个资源
+// predictResource 预测单个资源.
 func (rp *ResourcePredictor) predictResource(metric *ResourceMetric) Prediction {
 	prediction := Prediction{
 		ResourceType:  metric.Type,
@@ -302,7 +302,7 @@ func (rp *ResourcePredictor) predictResource(metric *ResourceMetric) Prediction 
 	return prediction
 }
 
-// linearRegression 线性回归
+// linearRegression 线性回归.
 func (rp *ResourcePredictor) linearRegression(points []DataPoint) (slope, r2 float64) {
 	n := float64(len(points))
 	if n < 2 {
@@ -349,7 +349,7 @@ func (rp *ResourcePredictor) linearRegression(points []DataPoint) (slope, r2 flo
 	return slope, r2
 }
 
-// calculateConfidence 计算预测置信度
+// calculateConfidence 计算预测置信度.
 func (rp *ResourcePredictor) calculateConfidence(metric *ResourceMetric, slope, r2 float64) float64 {
 	// 基础置信度来自R²
 	confidence := r2
@@ -373,7 +373,7 @@ func (rp *ResourcePredictor) calculateConfidence(metric *ResourceMetric, slope, 
 	return math.Min(1.0, math.Max(0, confidence))
 }
 
-// determineAlertLevel 确定告警级别
+// determineAlertLevel 确定告警级别.
 func (rp *ResourcePredictor) determineAlertLevel(daysUntilFull, usagePercent float64) AlertLevel {
 	thresholds := rp.config.Thresholds
 
@@ -394,7 +394,7 @@ func (rp *ResourcePredictor) determineAlertLevel(daysUntilFull, usagePercent flo
 	}
 }
 
-// generateAlertMessage 生成告警消息
+// generateAlertMessage 生成告警消息.
 func (rp *ResourcePredictor) generateAlertMessage(p Prediction) string {
 	resourceName := string(p.ResourceType)
 	if p.ResourceName != "" {
@@ -416,7 +416,7 @@ func (rp *ResourcePredictor) generateAlertMessage(p Prediction) string {
 	}
 }
 
-// generateSummary 生成报告摘要
+// generateSummary 生成报告摘要.
 func (rp *ResourcePredictor) generateSummary(predictions []Prediction) string {
 	warnings := 0
 	criticals := 0
@@ -445,7 +445,7 @@ func (rp *ResourcePredictor) generateSummary(predictions []Prediction) string {
 	return "✅ 所有资源状态正常"
 }
 
-// predictLoop 预测主循环
+// predictLoop 预测主循环.
 func (rp *ResourcePredictor) predictLoop() {
 	ticker := time.NewTicker(rp.config.SamplingInterval)
 	defer ticker.Stop()
@@ -463,7 +463,7 @@ func (rp *ResourcePredictor) predictLoop() {
 	}
 }
 
-// GetMetrics 获取所有资源指标
+// GetMetrics 获取所有资源指标.
 func (rp *ResourcePredictor) GetMetrics() map[ResourceType]*ResourceMetric {
 	rp.mu.RLock()
 	defer rp.mu.RUnlock()
@@ -475,7 +475,7 @@ func (rp *ResourcePredictor) GetMetrics() map[ResourceType]*ResourceMetric {
 	return result
 }
 
-// alertPriority 告警优先级
+// alertPriority 告警优先级.
 func alertPriority(level AlertLevel) int {
 	switch level {
 	case AlertUrgent:

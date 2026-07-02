@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// NewManager 创建工作流管理器
+// NewManager 创建工作流管理器.
 func NewManager(dataFile string) *Manager {
 	return &Manager{
 		workflows:  make(map[string]*Workflow),
@@ -26,13 +26,13 @@ func NewManager(dataFile string) *Manager {
 	}
 }
 
-// Initialize 初始化管理器
+// Initialize 初始化管理器.
 func (m *Manager) Initialize() error {
 	m.loadDefaultTemplates()
 	return m.load()
 }
 
-// CreateWorkflow 创建工作流
+// CreateWorkflow 创建工作流.
 func (m *Manager) CreateWorkflow(wf *Workflow) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -67,7 +67,7 @@ func (m *Manager) CreateWorkflow(wf *Workflow) error {
 	return m.save()
 }
 
-// UpdateWorkflow 更新工作流
+// UpdateWorkflow 更新工作流.
 func (m *Manager) UpdateWorkflow(wf *Workflow) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -103,7 +103,7 @@ func (m *Manager) UpdateWorkflow(wf *Workflow) error {
 	return m.save()
 }
 
-// GetWorkflow 获取工作流
+// GetWorkflow 获取工作流.
 func (m *Manager) GetWorkflow(id string) (*Workflow, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -115,7 +115,7 @@ func (m *Manager) GetWorkflow(id string) (*Workflow, error) {
 	return wf, nil
 }
 
-// ListWorkflows 列出工作流
+// ListWorkflows 列出工作流.
 func (m *Manager) ListWorkflows(status WorkflowStatus, tags []string) []*Workflow {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -133,7 +133,7 @@ func (m *Manager) ListWorkflows(status WorkflowStatus, tags []string) []*Workflo
 	return result
 }
 
-// DeleteWorkflow 删除工作流
+// DeleteWorkflow 删除工作流.
 func (m *Manager) DeleteWorkflow(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -146,7 +146,7 @@ func (m *Manager) DeleteWorkflow(id string) error {
 	return m.save()
 }
 
-// EnableWorkflow 启用工作流
+// EnableWorkflow 启用工作流.
 func (m *Manager) EnableWorkflow(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -160,7 +160,7 @@ func (m *Manager) EnableWorkflow(id string) error {
 	return m.save()
 }
 
-// DisableWorkflow 禁用工作流
+// DisableWorkflow 禁用工作流.
 func (m *Manager) DisableWorkflow(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -174,7 +174,7 @@ func (m *Manager) DisableWorkflow(id string) error {
 	return m.save()
 }
 
-// ExecuteWorkflow 执行工作流
+// ExecuteWorkflow 执行工作流.
 func (m *Manager) ExecuteWorkflow(workflowID string, triggerType TriggerType, input string) (*Execution, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -252,7 +252,7 @@ func (m *Manager) ExecuteWorkflow(workflowID string, triggerType TriggerType, in
 	return exec, m.save()
 }
 
-// executeNode 执行单个节点
+// executeNode 执行单个节点.
 func (m *Manager) executeNode(node *Node, input string) (string, error) {
 	switch node.Type {
 	case NodeFileOp:
@@ -280,7 +280,7 @@ func (m *Manager) executeNode(node *Node, input string) (string, error) {
 	}
 }
 
-// executeFileOp 执行文件操作
+// executeFileOp 执行文件操作.
 func executeFileOp(node *Node, input string) (string, error) {
 	operation := node.Config["operation"]
 	switch operation {
@@ -297,7 +297,7 @@ func executeFileOp(node *Node, input string) (string, error) {
 	}
 }
 
-// executeScript 执行脚本
+// executeScript 执行脚本.
 func executeScript(node *Node, input string) (string, error) {
 	script := node.Config["script"]
 	if script == "" {
@@ -307,7 +307,7 @@ func executeScript(node *Node, input string) (string, error) {
 	return fmt.Sprintf("脚本执行完成: %s", script[:min(50, len(script))]), nil
 }
 
-// executeHTTP 执行HTTP调用
+// executeHTTP 执行HTTP调用.
 func executeHTTP(node *Node, input string) (string, error) {
 	url := node.Config["url"]
 	method := node.Config["method"]
@@ -317,14 +317,14 @@ func executeHTTP(node *Node, input string) (string, error) {
 	return fmt.Sprintf("HTTP %s %s 完成", method, url), nil
 }
 
-// executeNotify 发送通知
+// executeNotify 发送通知.
 func executeNotify(node *Node, input string) (string, error) {
 	title := node.Config["title"]
 	channel := node.Config["channel"]
 	return fmt.Sprintf("通知已发送到 %s: %s", channel, title), nil
 }
 
-// executeAI 执行AI推理
+// executeAI 执行AI推理.
 func executeAI(node *Node, input string) (string, error) {
 	prompt := node.Config["prompt"]
 	if prompt == "" {
@@ -333,7 +333,7 @@ func executeAI(node *Node, input string) (string, error) {
 	return fmt.Sprintf("AI推理完成，基于输入: %s", input[:min(50, len(input))]), nil
 }
 
-// executeCondition 条件判断
+// executeCondition 条件判断.
 func executeCondition(node *Node, input string) (string, error) {
 	condition := node.Config["condition"]
 	value := node.Config["value"]
@@ -346,12 +346,12 @@ func executeCondition(node *Node, input string) (string, error) {
 	return "false", nil
 }
 
-// executeDelay 延时
+// executeDelay 延时.
 func executeDelay(node *Node) (string, error) {
 	return "延时完成", nil
 }
 
-// executeTransform 数据转换
+// executeTransform 数据转换.
 func executeTransform(node *Node, input string) (string, error) {
 	transformType := node.Config["type"]
 	switch transformType {
@@ -366,7 +366,7 @@ func executeTransform(node *Node, input string) (string, error) {
 	}
 }
 
-// GetExecution 获取执行记录
+// GetExecution 获取执行记录.
 func (m *Manager) GetExecution(execID string) (*Execution, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -378,7 +378,7 @@ func (m *Manager) GetExecution(execID string) (*Execution, error) {
 	return exec, nil
 }
 
-// ListExecutions 列出执行记录
+// ListExecutions 列出执行记录.
 func (m *Manager) ListExecutions(workflowID string, status ExecutionStatus, limit int) []*Execution {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -403,7 +403,7 @@ func (m *Manager) ListExecutions(workflowID string, status ExecutionStatus, limi
 	return result
 }
 
-// GetVersions 获取工作流版本历史
+// GetVersions 获取工作流版本历史.
 func (m *Manager) GetVersions(workflowID string) ([]*Version, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -414,7 +414,7 @@ func (m *Manager) GetVersions(workflowID string) ([]*Version, error) {
 	return m.versions[workflowID], nil
 }
 
-// RollbackVersion 回滚到指定版本
+// RollbackVersion 回滚到指定版本.
 func (m *Manager) RollbackVersion(workflowID string, version int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -458,7 +458,7 @@ func (m *Manager) RollbackVersion(workflowID string, version int) error {
 	return m.save()
 }
 
-// ListTemplates 列出模板
+// ListTemplates 列出模板.
 func (m *Manager) ListTemplates(category string) []*Template {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -473,7 +473,7 @@ func (m *Manager) ListTemplates(category string) []*Template {
 	return result
 }
 
-// CreateFromTemplate 从模板创建工作流
+// CreateFromTemplate 从模板创建工作流.
 func (m *Manager) CreateFromTemplate(templateID string, name string) (*Workflow, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -506,7 +506,7 @@ func (m *Manager) CreateFromTemplate(templateID string, name string) (*Workflow,
 	return &wf, m.save()
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() *Stats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -539,7 +539,7 @@ func (m *Manager) GetStats() *Stats {
 	return stats
 }
 
-// loadDefaultTemplates 加载默认模板
+// loadDefaultTemplates 加载默认模板.
 func (m *Manager) loadDefaultTemplates() {
 	templates := []Template{
 		{
@@ -643,7 +643,7 @@ func (m *Manager) loadDefaultTemplates() {
 	}
 }
 
-// validateDAG 验证DAG有效性
+// validateDAG 验证DAG有效性.
 func validateDAG(nodes []Node, edges []Edge) error {
 	if len(nodes) == 0 {
 		return ErrInvalidDAG
@@ -684,7 +684,7 @@ func validateDAG(nodes []Node, edges []Edge) error {
 	return nil
 }
 
-// hasCycle 使用DFS检测环
+// hasCycle 使用DFS检测环.
 func hasCycle(nodes []Node, edges []Edge) bool {
 	adj := make(map[string][]string)
 	for _, e := range edges {
@@ -723,7 +723,7 @@ func hasCycle(nodes []Node, edges []Edge) bool {
 	return false
 }
 
-// topologicalSort 拓扑排序
+// topologicalSort 拓扑排序.
 func topologicalSort(nodes []Node, edges []Edge) ([]string, error) {
 	if hasCycle(nodes, edges) {
 		return nil, ErrInvalidDAG
@@ -766,7 +766,7 @@ func topologicalSort(nodes []Node, edges []Edge) ([]string, error) {
 	return order, nil
 }
 
-// findNode 查找节点
+// findNode 查找节点.
 func findNode(nodes []Node, id string) *Node {
 	for i := range nodes {
 		if nodes[i].ID == id {
@@ -776,7 +776,7 @@ func findNode(nodes []Node, id string) *Node {
 	return nil
 }
 
-// hasAnyTag 检查是否有任意标签匹配
+// hasAnyTag 检查是否有任意标签匹配.
 func hasAnyTag(tags []string, filter []string) bool {
 	tagSet := make(map[string]bool)
 	for _, t := range tags {
@@ -790,7 +790,7 @@ func hasAnyTag(tags []string, filter []string) bool {
 	return false
 }
 
-// sortExecutions 按时间倒序排序
+// sortExecutions 按时间倒序排序.
 func sortExecutions(execs []*Execution) {
 	for i := 0; i < len(execs)-1; i++ {
 		for j := i + 1; j < len(execs); j++ {
@@ -808,7 +808,7 @@ func min(a, b int) int {
 	return b
 }
 
-// load 加载数据
+// load 加载数据.
 func (m *Manager) load() error {
 	if m.dataFile == "" {
 		return nil
@@ -840,7 +840,7 @@ func (m *Manager) load() error {
 	return nil
 }
 
-// save 保存数据
+// save 保存数据.
 func (m *Manager) save() error {
 	if m.dataFile == "" {
 		return nil

@@ -532,7 +532,7 @@ func createTempFile(t *testing.T, dir, name, content string) string {
 	return path
 }
 
-// mockReader 模拟 io.Reader
+// mockReader 模拟 io.Reader.
 type mockReader struct {
 	data []byte
 	pos  int

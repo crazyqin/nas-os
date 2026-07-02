@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Analyzer 智能存储成本分析器
+// Analyzer 智能存储成本分析器.
 type Analyzer struct {
 	mu sync.RWMutex
 
@@ -23,7 +23,7 @@ type Analyzer struct {
 	defaultPeriod int
 }
 
-// NewAnalyzer 创建分析器
+// NewAnalyzer 创建分析器.
 func NewAnalyzer() *Analyzer {
 	a := &Analyzer{
 		tiers:         make(map[StorageTierType]*StorageTier),
@@ -34,7 +34,7 @@ func NewAnalyzer() *Analyzer {
 	return a
 }
 
-// initDefaultTiers 初始化默认存储层级配置
+// initDefaultTiers 初始化默认存储层级配置.
 func (a *Analyzer) initDefaultTiers() {
 	a.tiers[TierHDD] = &StorageTier{
 		Type:             TierHDD,
@@ -90,7 +90,7 @@ func (a *Analyzer) initDefaultTiers() {
 // 层级管理
 // ============================================================
 
-// GetTier 获取存储层级配置
+// GetTier 获取存储层级配置.
 func (a *Analyzer) GetTier(tierType StorageTierType) (*StorageTier, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -102,7 +102,7 @@ func (a *Analyzer) GetTier(tierType StorageTierType) (*StorageTier, error) {
 	return tier, nil
 }
 
-// ListTiers 列出所有存储层级配置
+// ListTiers 列出所有存储层级配置.
 func (a *Analyzer) ListTiers() []*StorageTier {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -114,7 +114,7 @@ func (a *Analyzer) ListTiers() []*StorageTier {
 	return result
 }
 
-// UpdateTierCost 更新层级成本
+// UpdateTierCost 更新层级成本.
 func (a *Analyzer) UpdateTierCost(tierType StorageTierType, costPerTBMonth float64) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -132,7 +132,7 @@ func (a *Analyzer) UpdateTierCost(tierType StorageTierType, costPerTBMonth float
 // 成本记录管理
 // ============================================================
 
-// AddCostRecord 添加成本记录
+// AddCostRecord 添加成本记录.
 func (a *Analyzer) AddCostRecord(record CostRecord) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -155,7 +155,7 @@ func (a *Analyzer) AddCostRecord(record CostRecord) {
 	log.Printf("[智能成本] 添加成本记录: %s, %s, %.2f 元", record.ID, record.TierType, record.TotalCost)
 }
 
-// GetCostRecords 获取成本记录
+// GetCostRecords 获取成本记录.
 func (a *Analyzer) GetCostRecords() []CostRecord {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -166,7 +166,7 @@ func (a *Analyzer) GetCostRecords() []CostRecord {
 // 存储成本计算
 // ============================================================
 
-// CalculateTierCost 计算单层级月成本
+// CalculateTierCost 计算单层级月成本.
 func (a *Analyzer) CalculateTierCost(tierType StorageTierType, capacityTB float64) (float64, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -185,7 +185,7 @@ func (a *Analyzer) CalculateTierCost(tierType StorageTierType, capacityTB float6
 // 多层级成本对比
 // ============================================================
 
-// CompareTiers 多层级成本对比
+// CompareTiers 多层级成本对比.
 func (a *Analyzer) CompareTiers(capacityTB float64) ([]TierCostDetail, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -229,7 +229,7 @@ func (a *Analyzer) CompareTiers(capacityTB float64) ([]TierCostDetail, error) {
 // 历史成本趋势分析
 // ============================================================
 
-// AnalyzeTrend 分析历史成本趋势
+// AnalyzeTrend 分析历史成本趋势.
 func (a *Analyzer) AnalyzeTrend(months int) ([]TrendPoint, error) {
 	a.mu.RLock()
 	records := a.records
@@ -307,7 +307,7 @@ func (a *Analyzer) AnalyzeTrend(months int) ([]TrendPoint, error) {
 // 成本优化建议
 // ============================================================
 
-// GenerateOptimization 生成成本优化建议
+// GenerateOptimization 生成成本优化建议.
 func (a *Analyzer) GenerateOptimization() *Optimization {
 	a.mu.RLock()
 	records := a.records
@@ -479,7 +479,7 @@ func (a *Analyzer) GenerateOptimization() *Optimization {
 // 成本预测
 // ============================================================
 
-// GenerateForecast 生成成本预测
+// GenerateForecast 生成成本预测.
 func (a *Analyzer) GenerateForecast(horizonMonths int, model string) (*Forecast, error) {
 	a.mu.RLock()
 	records := a.records
@@ -597,7 +597,7 @@ func (a *Analyzer) GenerateForecast(horizonMonths int, model string) (*Forecast,
 	return forecast, nil
 }
 
-// sumProjectedCosts 计算预测周期内的总成本
+// sumProjectedCosts 计算预测周期内的总成本.
 func sumProjectedCosts(points []ForecastPoint, months int, baseCost, growthRate float64) float64 {
 	total := 0.0
 	for m := 1; m <= months; m++ {
@@ -610,7 +610,7 @@ func sumProjectedCosts(points []ForecastPoint, months int, baseCost, growthRate 
 // 成本报告
 // ============================================================
 
-// GenerateReport 生成成本报告
+// GenerateReport 生成成本报告.
 func (a *Analyzer) GenerateReport(label string) *CostReport {
 	a.mu.RLock()
 	records := a.records
@@ -734,7 +734,7 @@ func (a *Analyzer) GenerateReport(label string) *CostReport {
 // 云 vs 本地对比
 // ============================================================
 
-// CompareCloudVsLocal 云存储 vs 本地存储成本对比
+// CompareCloudVsLocal 云存储 vs 本地存储成本对比.
 func (a *Analyzer) CompareCloudVsLocal(capacityTB float64, periodMonths int) *CompareResult {
 	a.mu.RLock()
 	tiers := a.tiers

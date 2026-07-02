@@ -10,19 +10,19 @@ import (
 	"time"
 )
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
-	Enabled       bool   `json:"enabled"`
-	StoragePath   string `json:"storagePath"`
-	BridgeName    string `json:"bridgeName"`
-	SubnetCIDR    string `json:"subnetCIDR"`
-	MaxContainers int    `json:"maxContainers"`
-	SnapshotPath  string `json:"snapshotPath"`
-	HAEnabled     bool   `json:"haEnabled"`
+	Enabled       bool     `json:"enabled"`
+	StoragePath   string   `json:"storagePath"`
+	BridgeName    string   `json:"bridgeName"`
+	SubnetCIDR    string   `json:"subnetCIDR"`
+	MaxContainers int      `json:"maxContainers"`
+	SnapshotPath  string   `json:"snapshotPath"`
+	HAEnabled     bool     `json:"haEnabled"`
 	HAPeerNodes   []string `json:"haPeerNodes"`
 }
 
-// DefaultManagerConfig 默认管理器配置
+// DefaultManagerConfig 默认管理器配置.
 func DefaultManagerConfig() *ManagerConfig {
 	return &ManagerConfig{
 		Enabled:       true,
@@ -35,7 +35,7 @@ func DefaultManagerConfig() *ManagerConfig {
 	}
 }
 
-// Manager LXC 容器统一管理器
+// Manager LXC 容器统一管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	config     *ManagerConfig
@@ -47,7 +47,7 @@ type Manager struct {
 	wg         sync.WaitGroup
 }
 
-// NewManager 创建 LXC 容器管理器
+// NewManager 创建 LXC 容器管理器.
 func NewManager(cfg *ManagerConfig) *Manager {
 	if cfg == nil {
 		cfg = DefaultManagerConfig()
@@ -63,7 +63,7 @@ func NewManager(cfg *ManagerConfig) *Manager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() error {
 	if !m.config.Enabled {
 		return nil
@@ -85,7 +85,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() error {
 	m.cancel()
 	m.wg.Wait()
@@ -94,7 +94,7 @@ func (m *Manager) Stop() error {
 
 // ========== 容器生命周期管理 ==========
 
-// CreateContainer 创建容器
+// CreateContainer 创建容器.
 func (m *Manager) CreateContainer(req CreateRequest) (*Container, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -177,7 +177,7 @@ func (m *Manager) CreateContainer(req CreateRequest) (*Container, error) {
 	return container, nil
 }
 
-// StartContainer 启动容器
+// StartContainer 启动容器.
 func (m *Manager) StartContainer(id string) error {
 	m.mu.Lock()
 	container, exists := m.containers[id]
@@ -220,7 +220,7 @@ func (m *Manager) StartContainer(id string) error {
 	return nil
 }
 
-// StopContainer 停止容器
+// StopContainer 停止容器.
 func (m *Manager) StopContainer(id string) error {
 	m.mu.Lock()
 	container, exists := m.containers[id]
@@ -257,7 +257,7 @@ func (m *Manager) StopContainer(id string) error {
 	return nil
 }
 
-// RestartContainer 重启容器
+// RestartContainer 重启容器.
 func (m *Manager) RestartContainer(id string) error {
 	m.mu.RLock()
 	container, exists := m.containers[id]
@@ -289,7 +289,7 @@ func (m *Manager) RestartContainer(id string) error {
 	return nil
 }
 
-// DeleteContainer 删除容器
+// DeleteContainer 删除容器.
 func (m *Manager) DeleteContainer(id string) error {
 	m.mu.Lock()
 	container, exists := m.containers[id]
@@ -327,7 +327,7 @@ func (m *Manager) DeleteContainer(id string) error {
 	return nil
 }
 
-// GetContainer 获取容器
+// GetContainer 获取容器.
 func (m *Manager) GetContainer(id string) (*Container, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -339,7 +339,7 @@ func (m *Manager) GetContainer(id string) (*Container, error) {
 	return container, nil
 }
 
-// ListContainers 列出所有容器
+// ListContainers 列出所有容器.
 func (m *Manager) ListContainers() []*Container {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -351,7 +351,7 @@ func (m *Manager) ListContainers() []*Container {
 	return result
 }
 
-// ListByStatus 按状态列出容器
+// ListByStatus 按状态列出容器.
 func (m *Manager) ListByStatus(status ContainerStatus) []*Container {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -365,7 +365,7 @@ func (m *Manager) ListByStatus(status ContainerStatus) []*Container {
 	return result
 }
 
-// GetStats 获取容器资源统计
+// GetStats 获取容器资源统计.
 func (m *Manager) GetStats(id string) (*Stats, error) {
 	m.mu.RLock()
 	container, exists := m.containers[id]
@@ -395,7 +395,7 @@ func (m *Manager) GetStats(id string) (*Stats, error) {
 	return stats, nil
 }
 
-// UpdateResources 更新容器资源限制
+// UpdateResources 更新容器资源限制.
 func (m *Manager) UpdateResources(id string, res ResourceLimit) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -422,7 +422,7 @@ func (m *Manager) UpdateResources(id string, res ResourceLimit) error {
 
 // ========== 资源限制 ==========
 
-// applyCgroupLimits 应用 cgroup 资源限制
+// applyCgroupLimits 应用 cgroup 资源限制.
 func (m *Manager) applyCgroupLimits(container *Container) error {
 	cgroupPath := filepath.Join("/sys/fs/cgroup/lxc", container.ID)
 
@@ -448,7 +448,7 @@ func (m *Manager) applyCgroupLimits(container *Container) error {
 	return nil
 }
 
-// generateConfig 生成 LXC 配置文件
+// generateConfig 生成 LXC 配置文件.
 func (m *Manager) generateConfig(container *Container) error {
 	configPath := filepath.Join(m.config.StoragePath, container.ID, "config")
 
@@ -511,7 +511,7 @@ lxc.cgroup2.memory.swap.max = %d
 
 // ========== 快照备份 ==========
 
-// CreateSnapshot 创建容器快照
+// CreateSnapshot 创建容器快照.
 func (m *Manager) CreateSnapshot(containerID, name, description string) (*Snapshot, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -563,7 +563,7 @@ func (m *Manager) CreateSnapshot(containerID, name, description string) (*Snapsh
 	return snapshot, nil
 }
 
-// RestoreSnapshot 从快照恢复容器
+// RestoreSnapshot 从快照恢复容器.
 func (m *Manager) RestoreSnapshot(snapshotID string) error {
 	m.mu.Lock()
 	snapshot, exists := m.snapshots[snapshotID]
@@ -616,7 +616,7 @@ func (m *Manager) RestoreSnapshot(snapshotID string) error {
 	return nil
 }
 
-// DeleteSnapshot 删除快照
+// DeleteSnapshot 删除快照.
 func (m *Manager) DeleteSnapshot(snapshotID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -648,7 +648,7 @@ func (m *Manager) DeleteSnapshot(snapshotID string) error {
 	return nil
 }
 
-// ListSnapshots 列出容器的所有快照
+// ListSnapshots 列出容器的所有快照.
 func (m *Manager) ListSnapshots(containerID string) ([]Snapshot, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -663,7 +663,7 @@ func (m *Manager) ListSnapshots(containerID string) ([]Snapshot, error) {
 
 // ========== 网络隔离 ==========
 
-// CreateIsolatedNetwork 创建隔离网络命名空间
+// CreateIsolatedNetwork 创建隔离网络命名空间.
 func (m *Manager) CreateIsolatedNetwork(containerID string) error {
 	m.mu.RLock()
 	container, exists := m.containers[containerID]
@@ -681,7 +681,7 @@ func (m *Manager) CreateIsolatedNetwork(containerID string) error {
 	return nil
 }
 
-// AddPortMapping 添加端口映射
+// AddPortMapping 添加端口映射.
 func (m *Manager) AddPortMapping(containerID string, port PortMap) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -709,7 +709,7 @@ func (m *Manager) AddPortMapping(containerID string, port PortMap) error {
 	return nil
 }
 
-// RemovePortMapping 移除端口映射
+// RemovePortMapping 移除端口映射.
 func (m *Manager) RemovePortMapping(containerID string, hostPort int, protocol string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -748,7 +748,7 @@ func (m *Manager) removePortMapping(container *Container, port PortMap) error {
 
 // ========== 存储卷管理 ==========
 
-// AddVolume 添加存储卷
+// AddVolume 添加存储卷.
 func (m *Manager) AddVolume(containerID string, vol VolumeMount) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -775,7 +775,7 @@ func (m *Manager) AddVolume(containerID string, vol VolumeMount) error {
 	return nil
 }
 
-// RemoveVolume 移除存储卷
+// RemoveVolume 移除存储卷.
 func (m *Manager) RemoveVolume(containerID, destination string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -798,7 +798,7 @@ func (m *Manager) RemoveVolume(containerID, destination string) error {
 
 // ========== 健康检查 ==========
 
-// healthCheckLoop 健康检查循环
+// healthCheckLoop 健康检查循环.
 func (m *Manager) healthCheckLoop(container *Container) {
 	defer m.wg.Done()
 
@@ -867,7 +867,7 @@ func (m *Manager) healthCheckLoop(container *Container) {
 	}
 }
 
-// runHealthCheck 执行健康检查
+// runHealthCheck 执行健康检查.
 func (m *Manager) runHealthCheck(container *Container) bool {
 	hc := container.HealthCheck
 	if hc == nil || hc.Command == "" {
@@ -883,7 +883,7 @@ func (m *Manager) runHealthCheck(container *Container) bool {
 
 // ========== 高可用支持 ==========
 
-// handleFailover 处理故障转移
+// handleFailover 处理故障转移.
 func (m *Manager) handleFailover(container *Container) {
 	ha := container.HAConfig
 	if ha == nil || !ha.Enabled {
@@ -911,7 +911,7 @@ func (m *Manager) handleFailover(container *Container) {
 	ha.LastFailover = &now
 }
 
-// EnableHA 为容器启用高可用
+// EnableHA 为容器启用高可用.
 func (m *Manager) EnableHA(containerID string, haCfg HAConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -928,7 +928,7 @@ func (m *Manager) EnableHA(containerID string, haCfg HAConfig) error {
 	return nil
 }
 
-// DisableHA 为容器禁用高可用
+// DisableHA 为容器禁用高可用.
 func (m *Manager) DisableHA(containerID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -946,7 +946,7 @@ func (m *Manager) DisableHA(containerID string) error {
 
 // ========== 批量操作 ==========
 
-// BatchStart 批量启动容器
+// BatchStart 批量启动容器.
 func (m *Manager) BatchStart(ids []string) map[string]error {
 	result := make(map[string]error)
 	for _, id := range ids {
@@ -955,7 +955,7 @@ func (m *Manager) BatchStart(ids []string) map[string]error {
 	return result
 }
 
-// BatchStop 批量停止容器
+// BatchStop 批量停止容器.
 func (m *Manager) BatchStop(ids []string) map[string]error {
 	result := make(map[string]error)
 	for _, id := range ids {
@@ -964,7 +964,7 @@ func (m *Manager) BatchStop(ids []string) map[string]error {
 	return result
 }
 
-// BatchDelete 批量删除容器
+// BatchDelete 批量删除容器.
 func (m *Manager) BatchDelete(ids []string) map[string]error {
 	result := make(map[string]error)
 	for _, id := range ids {
@@ -975,31 +975,31 @@ func (m *Manager) BatchDelete(ids []string) map[string]error {
 
 // ========== 系统信息 ==========
 
-// ContainerCount 容器数量
+// ContainerCount 容器数量.
 func (m *Manager) ContainerCount() int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return len(m.containers)
 }
 
-// TemplateManager 获取模板管理器
+// TemplateManager 获取模板管理器.
 func (m *Manager) TemplateManager() *TemplateManager {
 	return m.templates
 }
 
-// StatusSummary 系统状态摘要
+// StatusSummary 系统状态摘要.
 type StatusSummary struct {
-	TotalContainers  int `json:"totalContainers"`
-	Running          int `json:"running"`
-	Stopped          int `json:"stopped"`
-	Error            int `json:"error"`
-	TotalTemplates   int `json:"totalTemplates"`
-	TotalSnapshots   int `json:"totalSnapshots"`
-	MaxContainers    int `json:"maxContainers"`
-	HAEnabled        bool `json:"haEnabled"`
+	TotalContainers int  `json:"totalContainers"`
+	Running         int  `json:"running"`
+	Stopped         int  `json:"stopped"`
+	Error           int  `json:"error"`
+	TotalTemplates  int  `json:"totalTemplates"`
+	TotalSnapshots  int  `json:"totalSnapshots"`
+	MaxContainers   int  `json:"maxContainers"`
+	HAEnabled       bool `json:"haEnabled"`
 }
 
-// GetStatusSummary 获取系统状态摘要
+// GetStatusSummary 获取系统状态摘要.
 func (m *Manager) GetStatusSummary() StatusSummary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

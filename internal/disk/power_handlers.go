@@ -5,24 +5,25 @@ package disk
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-// PowerHandlers 电源管理处理器
+// PowerHandlers 电源管理处理器.
 type PowerHandlers struct {
 	manager *PowerManager
 }
 
-// NewPowerHandlers 创建电源管理处理器
+// NewPowerHandlers 创建电源管理处理器.
 func NewPowerHandlers(manager *PowerManager) *PowerHandlers {
 	return &PowerHandlers{
 		manager: manager,
 	}
 }
 
-// RegisterRoutes 注册电源管理路由
+// RegisterRoutes 注册电源管理路由.
 func (h *PowerHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	power := r.Group("/power")
 	{
@@ -74,7 +75,7 @@ func (h *PowerHandlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/status [get]
+// @Router /disk/power/status [get].
 func (h *PowerHandlers) getAllPowerStatus(c *gin.Context) {
 	statuses := h.manager.GetAllStatuses()
 
@@ -121,7 +122,7 @@ func (h *PowerHandlers) getAllPowerStatus(c *gin.Context) {
 // @Produce json
 // @Param disk path string true "磁盘ID"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/status/{disk} [get]
+// @Router /disk/power/status/{disk} [get].
 func (h *PowerHandlers) getDiskPowerStatus(c *gin.Context) {
 	diskID := c.Param("disk")
 	if diskID == "" {
@@ -155,7 +156,7 @@ func (h *PowerHandlers) getDiskPowerStatus(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/policies [get]
+// @Router /disk/power/policies [get].
 func (h *PowerHandlers) getAllPolicies(c *gin.Context) {
 	// 获取所有策略
 	policies := h.manager.GetAllPolicies()
@@ -175,7 +176,7 @@ func (h *PowerHandlers) getAllPolicies(c *gin.Context) {
 // @Produce json
 // @Param id path string true "策略ID"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/policies/{id} [get]
+// @Router /disk/power/policies/{id} [get].
 func (h *PowerHandlers) getPolicy(c *gin.Context) {
 	policyID := c.Param("id")
 	if policyID == "" {
@@ -202,7 +203,7 @@ func (h *PowerHandlers) getPolicy(c *gin.Context) {
 	})
 }
 
-// createPolicyRequest 创建策略请求
+// createPolicyRequest 创建策略请求.
 type createPolicyRequest struct {
 	ID               string           `json:"id" binding:"required"`
 	Name             string           `json:"name" binding:"required"`
@@ -224,7 +225,7 @@ type createPolicyRequest struct {
 // @Produce json
 // @Param request body createPolicyRequest true "策略配置"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/policies [post]
+// @Router /disk/power/policies [post].
 func (h *PowerHandlers) createPolicy(c *gin.Context) {
 	var req createPolicyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -272,7 +273,7 @@ func (h *PowerHandlers) createPolicy(c *gin.Context) {
 // @Param id path string true "策略ID"
 // @Param request body createPolicyRequest true "策略配置"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/policies/{id} [put]
+// @Router /disk/power/policies/{id} [put].
 func (h *PowerHandlers) updatePolicy(c *gin.Context) {
 	policyID := c.Param("id")
 
@@ -321,7 +322,7 @@ func (h *PowerHandlers) updatePolicy(c *gin.Context) {
 // @Produce json
 // @Param id path string true "策略ID"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/policies/{id} [delete]
+// @Router /disk/power/policies/{id} [delete].
 func (h *PowerHandlers) deletePolicy(c *gin.Context) {
 	policyID := c.Param("id")
 
@@ -347,7 +348,7 @@ func (h *PowerHandlers) deletePolicy(c *gin.Context) {
 // @Produce json
 // @Param disk path string true "磁盘ID"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/disks/{disk}/wake [post]
+// @Router /disk/power/disks/{disk}/wake [post].
 func (h *PowerHandlers) wakeDisk(c *gin.Context) {
 	diskID := c.Param("disk")
 	if diskID == "" {
@@ -384,7 +385,7 @@ func (h *PowerHandlers) wakeDisk(c *gin.Context) {
 // @Produce json
 // @Param disk path string true "磁盘ID"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/disks/{disk}/sleep [post]
+// @Router /disk/power/disks/{disk}/sleep [post].
 func (h *PowerHandlers) sleepDisk(c *gin.Context) {
 	diskID := c.Param("disk")
 	if diskID == "" {
@@ -420,7 +421,7 @@ func (h *PowerHandlers) sleepDisk(c *gin.Context) {
 // @Produce json
 // @Param disk path string true "磁盘ID"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/disks/{disk}/standby [post]
+// @Router /disk/power/disks/{disk}/standby [post].
 func (h *PowerHandlers) standbyDisk(c *gin.Context) {
 	diskID := c.Param("disk")
 	if diskID == "" {
@@ -448,7 +449,7 @@ func (h *PowerHandlers) standbyDisk(c *gin.Context) {
 	})
 }
 
-// wakeQueueRequest 按需唤醒请求
+// wakeQueueRequest 按需唤醒请求.
 type wakeQueueRequest struct {
 	DiskID      string `json:"diskId" binding:"required"`
 	Reason      string `json:"reason"`
@@ -463,7 +464,7 @@ type wakeQueueRequest struct {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/wake-queue [get]
+// @Router /disk/power/wake-queue [get].
 func (h *PowerHandlers) getWakeQueue(c *gin.Context) {
 	queue := h.manager.GetWakeQueue()
 
@@ -482,7 +483,7 @@ func (h *PowerHandlers) getWakeQueue(c *gin.Context) {
 // @Produce json
 // @Param request body wakeQueueRequest true "唤醒请求"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/wake-queue [post]
+// @Router /disk/power/wake-queue [post].
 func (h *PowerHandlers) addToWakeQueue(c *gin.Context) {
 	var req wakeQueueRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -524,7 +525,7 @@ func (h *PowerHandlers) addToWakeQueue(c *gin.Context) {
 // @Produce json
 // @Param disk path string true "磁盘ID"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/wake-queue/{disk} [delete]
+// @Router /disk/power/wake-queue/{disk} [delete].
 func (h *PowerHandlers) clearWakeQueue(c *gin.Context) {
 	diskID := c.Param("disk")
 
@@ -543,7 +544,7 @@ func (h *PowerHandlers) clearWakeQueue(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/energy/report [get]
+// @Router /disk/power/energy/report [get].
 func (h *PowerHandlers) getEnergyReport(c *gin.Context) {
 	report := h.manager.GetEnergyReport()
 
@@ -561,7 +562,7 @@ func (h *PowerHandlers) getEnergyReport(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/energy/stats [get]
+// @Router /disk/power/energy/stats [get].
 func (h *PowerHandlers) getEnergyStats(c *gin.Context) {
 	stats := h.manager.GetEnergyStatistics()
 
@@ -580,11 +581,19 @@ func (h *PowerHandlers) getEnergyStats(c *gin.Context) {
 // @Produce json
 // @Param limit query int false "返回数量限制" default(24)
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/energy/hourly [get]
+// @Router /disk/power/energy/hourly [get].
 func (h *PowerHandlers) getHourlyEnergyStats(c *gin.Context) {
 	limit := 24
 	if l := c.Query("limit"); l != "" {
-		// 解析limit参数
+		parsedLimit, err := strconv.Atoi(l)
+		if err != nil || parsedLimit <= 0 {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"code":    400,
+				"message": "limit必须为正整数",
+			})
+			return
+		}
+		limit = parsedLimit
 	}
 
 	stats := h.manager.GetHourlyEnergyStats(limit)
@@ -604,7 +613,7 @@ func (h *PowerHandlers) getHourlyEnergyStats(c *gin.Context) {
 // @Produce json
 // @Param disk path string true "磁盘ID"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/energy/disk/{disk} [get]
+// @Router /disk/power/energy/disk/{disk} [get].
 func (h *PowerHandlers) getDiskEnergyStat(c *gin.Context) {
 	diskID := c.Param("disk")
 
@@ -624,7 +633,7 @@ func (h *PowerHandlers) getDiskEnergyStat(c *gin.Context) {
 	})
 }
 
-// businessHoursRequest 业务时段请求
+// businessHoursRequest 业务时段请求.
 type businessHoursRequest struct {
 	Periods []BusinessPeriod `json:"periods" binding:"required"`
 }
@@ -636,7 +645,7 @@ type businessHoursRequest struct {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/business-hours [get]
+// @Router /disk/power/business-hours [get].
 func (h *PowerHandlers) getBusinessHours(c *gin.Context) {
 	periods := h.manager.GetBusinessHours()
 
@@ -655,7 +664,7 @@ func (h *PowerHandlers) getBusinessHours(c *gin.Context) {
 // @Produce json
 // @Param request body businessHoursRequest true "时段配置"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/business-hours [put]
+// @Router /disk/power/business-hours [put].
 func (h *PowerHandlers) updateBusinessHours(c *gin.Context) {
 	var req businessHoursRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -675,7 +684,7 @@ func (h *PowerHandlers) updateBusinessHours(c *gin.Context) {
 	})
 }
 
-// smartScheduleConfigRequest 智能调度配置请求
+// smartScheduleConfigRequest 智能调度配置请求.
 type smartScheduleConfigRequest struct {
 	EnableWakeOnDemand    bool    `json:"enableWakeOnDemand"`
 	EnableSmartScheduling bool    `json:"enableSmartScheduling"`
@@ -691,7 +700,7 @@ type smartScheduleConfigRequest struct {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/smart-schedule/config [get]
+// @Router /disk/power/smart-schedule/config [get].
 func (h *PowerHandlers) getSmartScheduleConfig(c *gin.Context) {
 	config := h.manager.GetSmartScheduleConfig()
 
@@ -710,7 +719,7 @@ func (h *PowerHandlers) getSmartScheduleConfig(c *gin.Context) {
 // @Produce json
 // @Param request body smartScheduleConfigRequest true "配置参数"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/smart-schedule/config [put]
+// @Router /disk/power/smart-schedule/config [put].
 func (h *PowerHandlers) updateSmartScheduleConfig(c *gin.Context) {
 	var req smartScheduleConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -737,7 +746,7 @@ func (h *PowerHandlers) updateSmartScheduleConfig(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/config [get]
+// @Router /disk/power/config [get].
 func (h *PowerHandlers) getConfig(c *gin.Context) {
 	config := h.manager.GetConfig()
 
@@ -748,7 +757,7 @@ func (h *PowerHandlers) getConfig(c *gin.Context) {
 	})
 }
 
-// powerConfigRequest 电源配置请求
+// powerConfigRequest 电源配置请求.
 type powerConfigRequest struct {
 	CheckInterval         int     `json:"checkInterval"` // 秒
 	DefaultPolicy         string  `json:"defaultPolicy"`
@@ -768,7 +777,7 @@ type powerConfigRequest struct {
 // @Produce json
 // @Param request body powerConfigRequest true "配置参数"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/config [put]
+// @Router /disk/power/config [put].
 func (h *PowerHandlers) updateConfig(c *gin.Context) {
 	var req powerConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -796,7 +805,7 @@ func (h *PowerHandlers) updateConfig(c *gin.Context) {
 	})
 }
 
-// registerDiskRequest 注册磁盘请求
+// registerDiskRequest 注册磁盘请求.
 type registerDiskRequest struct {
 	DiskID   string `json:"diskId" binding:"required"`
 	PolicyID string `json:"policyId"`
@@ -810,7 +819,7 @@ type registerDiskRequest struct {
 // @Produce json
 // @Param request body registerDiskRequest true "注册请求"
 // @Success 200 {object} map[string]interface{} "成功"
-// @Router /disk/power/register [post]
+// @Router /disk/power/register [post].
 func (h *PowerHandlers) RegisterDisk(c *gin.Context) {
 	var req registerDiskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

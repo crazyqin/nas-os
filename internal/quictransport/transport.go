@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// QUICConfig QUIC传输配置
+// QUICConfig QUIC传输配置.
 type QUICConfig struct {
 	Enabled        bool          `json:"enabled"`
 	ListenAddr     string        `json:"listenAddr"`
@@ -21,7 +21,7 @@ type QUICConfig struct {
 	EnableDatagram bool          `json:"enableDatagram"`
 }
 
-// QUICConnection QUIC连接
+// QUICConnection QUIC连接.
 type QUICConnection struct {
 	ID         string    `json:"id"`
 	RemoteAddr string    `json:"remoteAddr"`
@@ -33,7 +33,7 @@ type QUICConnection struct {
 	Status     string    `json:"status"` // connected, disconnected, error
 }
 
-// QUICStats QUIC统计
+// QUICStats QUIC统计.
 type QUICStats struct {
 	TotalConnections  int64         `json:"totalConnections"`
 	ActiveConnections int           `json:"activeConnections"`
@@ -41,7 +41,7 @@ type QUICStats struct {
 	AvgLatency        time.Duration `json:"avgLatency"`
 }
 
-// QUICTransport QUIC传输层
+// QUICTransport QUIC传输层.
 type QUICTransport struct {
 	config      QUICConfig
 	logger      *slog.Logger
@@ -54,7 +54,7 @@ type QUICTransport struct {
 	running     bool
 }
 
-// NewQUICTransport 创建QUIC传输层
+// NewQUICTransport 创建QUIC传输层.
 func NewQUICTransport(config QUICConfig, logger *slog.Logger) *QUICTransport {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -67,7 +67,7 @@ func NewQUICTransport(config QUICConfig, logger *slog.Logger) *QUICTransport {
 	}
 }
 
-// Start 启动QUIC传输层
+// Start 启动QUIC传输层.
 func (t *QUICTransport) Start() error {
 	if !t.config.Enabled {
 		t.logger.Info("QUIC传输层未启用")
@@ -86,7 +86,7 @@ func (t *QUICTransport) Start() error {
 	return nil
 }
 
-// Stop 停止QUIC传输层
+// Stop 停止QUIC传输层.
 func (t *QUICTransport) Stop() {
 	t.cancel()
 	t.wg.Wait()
@@ -94,7 +94,7 @@ func (t *QUICTransport) Stop() {
 	t.logger.Info("QUIC传输层已停止")
 }
 
-// loadTLSConfig 加载TLS配置
+// loadTLSConfig 加载TLS配置.
 func (t *QUICTransport) loadTLSConfig() (*tls.Config, error) {
 	if t.config.TLSCertFile == "" || t.config.TLSKeyFile == "" {
 		// 使用自签名证书
@@ -115,7 +115,7 @@ func (t *QUICTransport) loadTLSConfig() (*tls.Config, error) {
 	}, nil
 }
 
-// Connect 连接到远程QUIC服务器
+// Connect 连接到远程QUIC服务器.
 func (t *QUICTransport) Connect(addr string) (*QUICConnection, error) {
 	if !t.running {
 		return nil, fmt.Errorf("QUIC传输层未启动")
@@ -142,7 +142,7 @@ func (t *QUICTransport) Connect(addr string) (*QUICConnection, error) {
 	return qc, nil
 }
 
-// GetConnection 获取连接
+// GetConnection 获取连接.
 func (t *QUICTransport) GetConnection(connID string) (*QUICConnection, error) {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -155,7 +155,7 @@ func (t *QUICTransport) GetConnection(connID string) (*QUICConnection, error) {
 	return conn, nil
 }
 
-// ListConnections 列出连接
+// ListConnections 列出连接.
 func (t *QUICTransport) ListConnections(status string) []*QUICConnection {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -170,7 +170,7 @@ func (t *QUICTransport) ListConnections(status string) []*QUICConnection {
 	return conns
 }
 
-// CloseConnection 关闭连接
+// CloseConnection 关闭连接.
 func (t *QUICTransport) CloseConnection(connID string) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -188,14 +188,14 @@ func (t *QUICTransport) CloseConnection(connID string) error {
 	return nil
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (t *QUICTransport) GetStats() QUICStats {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
 	return t.stats
 }
 
-// IsRunning 是否运行中
+// IsRunning 是否运行中.
 func (t *QUICTransport) IsRunning() bool {
 	return t.running
 }

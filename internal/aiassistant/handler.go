@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers AI 助手 API 处理器
+// Handlers AI 助手 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	ai := r.Group("/ai-assistant")
 	{
@@ -51,14 +51,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// query 处理自然语言查询
+// query 处理自然语言查询.
 func (h *Handlers) query(c *gin.Context) {
 	var req QueryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -103,7 +103,7 @@ func (h *Handlers) queryStream(c *gin.Context) {
 	c.SSEvent("message", resp)
 }
 
-// getSystemStatus 获取系统状态
+// getSystemStatus 获取系统状态.
 func (h *Handlers) getSystemStatus(c *gin.Context) {
 	req := &QueryRequest{Query: "系统状态概览", QueryType: QueryTypeSystem}
 	resp, err := h.manager.ProcessQuery(c.Request.Context(), req)
@@ -114,7 +114,7 @@ func (h *Handlers) getSystemStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: resp.Data})
 }
 
-// getCPUStatus 获取 CPU 状态
+// getCPUStatus 获取 CPU 状态.
 func (h *Handlers) getCPUStatus(c *gin.Context) {
 	req := &QueryRequest{Query: "CPU 使用情况", QueryType: QueryTypeCPU}
 	resp, err := h.manager.ProcessQuery(c.Request.Context(), req)
@@ -125,7 +125,7 @@ func (h *Handlers) getCPUStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: resp.Data})
 }
 
-// getMemoryStatus 获取内存状态
+// getMemoryStatus 获取内存状态.
 func (h *Handlers) getMemoryStatus(c *gin.Context) {
 	req := &QueryRequest{Query: "内存使用情况", QueryType: QueryTypeMemory}
 	resp, err := h.manager.ProcessQuery(c.Request.Context(), req)
@@ -136,7 +136,7 @@ func (h *Handlers) getMemoryStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: resp.Data})
 }
 
-// getDiskStatus 获取磁盘状态
+// getDiskStatus 获取磁盘状态.
 func (h *Handlers) getDiskStatus(c *gin.Context) {
 	req := &QueryRequest{Query: "磁盘使用情况", QueryType: QueryTypeDisk}
 	resp, err := h.manager.ProcessQuery(c.Request.Context(), req)
@@ -147,7 +147,7 @@ func (h *Handlers) getDiskStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: resp.Data})
 }
 
-// searchFiles 文件搜索
+// searchFiles 文件搜索.
 func (h *Handlers) searchFiles(c *gin.Context) {
 	var req FileSearchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -168,7 +168,7 @@ func (h *Handlers) searchFiles(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: resp.Data})
 }
 
-// diagnose 故障诊断
+// diagnose 故障诊断.
 func (h *Handlers) diagnose(c *gin.Context) {
 	var req DiagnosisRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -189,7 +189,7 @@ func (h *Handlers) diagnose(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: resp.Data})
 }
 
-// createConversation 创建对话
+// createConversation 创建对话.
 func (h *Handlers) createConversation(c *gin.Context) {
 	conv := h.manager.CreateConversation()
 	c.JSON(http.StatusCreated, response{
@@ -199,7 +199,7 @@ func (h *Handlers) createConversation(c *gin.Context) {
 	})
 }
 
-// getConversation 获取对话
+// getConversation 获取对话.
 func (h *Handlers) getConversation(c *gin.Context) {
 	id := c.Param("id")
 	conv, err := h.manager.GetConversation(id)
@@ -210,7 +210,7 @@ func (h *Handlers) getConversation(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: conv})
 }
 
-// addMessage 添加消息
+// addMessage 添加消息.
 func (h *Handlers) addMessage(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
@@ -230,7 +230,7 @@ func (h *Handlers) addMessage(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "message added"})
 }
 
-// getHistory 获取查询历史
+// getHistory 获取查询历史.
 func (h *Handlers) getHistory(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "50")
 	limit, err := strconv.Atoi(limitStr)
@@ -242,13 +242,13 @@ func (h *Handlers) getHistory(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: history})
 }
 
-// getConfig 获取配置
+// getConfig 获取配置.
 func (h *Handlers) getConfig(c *gin.Context) {
 	cfg := h.manager.GetConfig()
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: cfg})
 }
 
-// updateConfig 更新配置
+// updateConfig 更新配置.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var cfg AIConfig
 	if err := c.ShouldBindJSON(&cfg); err != nil {
@@ -259,7 +259,7 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "config updated"})
 }
 
-// clearCache 清除缓存
+// clearCache 清除缓存.
 func (h *Handlers) clearCache(c *gin.Context) {
 	h.manager.ClearCache()
 	c.JSON(http.StatusOK, response{Code: 0, Message: "cache cleared"})

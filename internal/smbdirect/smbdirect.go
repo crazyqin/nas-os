@@ -19,7 +19,7 @@ import (
 
 // ========== RDMA 连接管理 ==========
 
-// RDMAConnection RDMA 连接
+// RDMAConnection RDMA 连接.
 type RDMAConnection struct {
 	ID            string        `json:"id"`
 	LocalAddr     string        `json:"local_addr"`
@@ -37,7 +37,7 @@ type RDMAConnection struct {
 	Transport     TransportType `json:"transport"` // 传输类型
 }
 
-// ConnState 连接状态
+// ConnState 连接状态.
 type ConnState string
 
 const (
@@ -49,7 +49,7 @@ const (
 	ConnStateClosed      ConnState = "closed"
 )
 
-// TransportType 传输类型
+// TransportType 传输类型.
 type TransportType string
 
 const (
@@ -60,7 +60,7 @@ const (
 	TransportTCP        TransportType = "tcp" // 降级回退
 )
 
-// ConnStats 连接统计
+// ConnStats 连接统计.
 type ConnStats struct {
 	BytesSent     int64         `json:"bytes_sent"`
 	BytesReceived int64         `json:"bytes_received"`
@@ -73,7 +73,7 @@ type ConnStats struct {
 
 // ========== 队列对管理 ==========
 
-// QueuePair 队列对 (RDMA 核心资源)
+// QueuePair 队列对 (RDMA 核心资源).
 type QueuePair struct {
 	ID            uint32    `json:"id"`
 	State         QPState   `json:"state"`
@@ -88,7 +88,7 @@ type QueuePair struct {
 	CreatedAt     time.Time `json:"created_at"`
 }
 
-// QPState 队列对状态
+// QPState 队列对状态.
 type QPState string
 
 const (
@@ -99,7 +99,7 @@ const (
 	QPStateError QPState = "error"
 )
 
-// QPType 队列对类型
+// QPType 队列对类型.
 type QPType string
 
 const (
@@ -108,7 +108,7 @@ const (
 	QPTypeUD QPType = "ud" // Unreliable Datagram
 )
 
-// QPStats 队列对统计
+// QPStats 队列对统计.
 type QPStats struct {
 	SendWRCount int64   `json:"send_wr_count"`
 	RecvWRCount int64   `json:"recv_wr_count"`
@@ -121,7 +121,7 @@ type QPStats struct {
 
 // ========== 内存注册管理 ==========
 
-// MemoryRegion 内存区域 (RDMA 内存注册)
+// MemoryRegion 内存区域 (RDMA 内存注册).
 type MemoryRegion struct {
 	ID        uint64        `json:"id"`
 	Addr      uintptr       `json:"addr"`
@@ -134,7 +134,7 @@ type MemoryRegion struct {
 	CreatedAt time.Time     `json:"created_at"`
 }
 
-// MRAccessFlags 内存访问标志
+// MRAccessFlags 内存访问标志.
 type MRAccessFlags int
 
 const (
@@ -145,7 +145,7 @@ const (
 	MRAccessBind         MRAccessFlags = 0x10
 )
 
-// MRState 内存区域状态
+// MRState 内存区域状态.
 type MRState string
 
 const (
@@ -156,7 +156,7 @@ const (
 
 // ========== SMB Direct 管理器 ==========
 
-// SMBDirectManager SMB Direct 管理器 (主入口)
+// SMBDirectManager SMB Direct 管理器 (主入口).
 type SMBDirectManager struct {
 	mu            sync.RWMutex
 	config        *Config
@@ -177,7 +177,7 @@ type SMBDirectManager struct {
 	nextMRID      uint64
 }
 
-// Config SMB Direct 配置
+// Config SMB Direct 配置.
 type Config struct {
 	Enabled             bool          `json:"enabled"`
 	ListenAddr          string        `json:"listen_addr"`
@@ -199,7 +199,7 @@ type Config struct {
 	MaxInlineData       int           `json:"max_inline_data"`
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:             true,
@@ -223,7 +223,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// RDMAPort RDMA 端口
+// RDMAPort RDMA 端口.
 type RDMAPort struct {
 	ID        uint8     `json:"id"`
 	State     string    `json:"state"`
@@ -234,7 +234,7 @@ type RDMAPort struct {
 	Stats     PortStats `json:"stats"`
 }
 
-// PortStats 端口统计
+// PortStats 端口统计.
 type PortStats struct {
 	BytesSent     int64 `json:"bytes_sent"`
 	BytesReceived int64 `json:"bytes_received"`
@@ -243,7 +243,7 @@ type PortStats struct {
 	Errors        int64 `json:"errors"`
 }
 
-// ManagerStats 管理器统计
+// ManagerStats 管理器统计.
 type ManagerStats struct {
 	TotalConnections    int64         `json:"total_connections"`
 	ActiveConnections   int64         `json:"active_connections"`
@@ -265,7 +265,7 @@ type ManagerStats struct {
 	LastUpdate          time.Time     `json:"last_update"`
 }
 
-// StatusCache 状态缓存
+// StatusCache 状态缓存.
 type StatusCache struct {
 	mu        sync.RWMutex
 	status    *Status
@@ -273,7 +273,7 @@ type StatusCache struct {
 	ttl       time.Duration
 }
 
-// Status 状态信息
+// Status 状态信息.
 type Status struct {
 	State          string        `json:"state"`
 	Transport      TransportType `json:"transport"`
@@ -289,7 +289,7 @@ type Status struct {
 	Uptime         time.Duration `json:"uptime"`
 }
 
-// Event 事件
+// Event 事件.
 type Event struct {
 	Type      EventType
 	ConnID    string
@@ -297,7 +297,7 @@ type Event struct {
 	Data      interface{}
 }
 
-// EventType 事件类型
+// EventType 事件类型.
 type EventType string
 
 const (
@@ -316,7 +316,7 @@ func init() {
 	log.Println("[smbdirect] SMB Direct 模块初始化")
 }
 
-// New 创建 SMB Direct 管理器
+// New 创建 SMB Direct 管理器.
 func New(config *Config) *SMBDirectManager {
 	if config == nil {
 		config = DefaultConfig()
@@ -347,7 +347,7 @@ func New(config *Config) *SMBDirectManager {
 	return mgr
 }
 
-// initRDMAPorts 初始化 RDMA 端口
+// initRDMAPorts 初始化 RDMA 端口.
 func (m *SMBDirectManager) initRDMAPorts() {
 	// 检测系统 RDMA 设备
 	ports := m.detectRDMADevices()
@@ -369,7 +369,7 @@ func (m *SMBDirectManager) initRDMAPorts() {
 	log.Printf("[smbdirect] 检测到 %d 个 RDMA 端口", len(ports))
 }
 
-// detectRDMADevices 检测 RDMA 设备
+// detectRDMADevices 检测 RDMA 设备.
 func (m *SMBDirectManager) detectRDMADevices() []*RDMAPort {
 	base := "/sys/class/infiniband"
 	entries, err := os.ReadDir(base)
@@ -400,7 +400,7 @@ func (m *SMBDirectManager) detectRDMADevices() []*RDMAPort {
 
 // ========== 生命周期管理 ==========
 
-// Start 启动 SMB Direct 管理器
+// Start 启动 SMB Direct 管理器.
 func (m *SMBDirectManager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -455,7 +455,7 @@ func (m *SMBDirectManager) Start() error {
 	return nil
 }
 
-// Stop 停止 SMB Direct 管理器
+// Stop 停止 SMB Direct 管理器.
 func (m *SMBDirectManager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -500,7 +500,7 @@ func (m *SMBDirectManager) Stop() {
 	log.Println("[smbdirect] SMB Direct 管理器已停止")
 }
 
-// GetStatus 获取管理器状态
+// GetStatus 获取管理器状态.
 func (m *SMBDirectManager) GetStatus() *Status {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -545,7 +545,7 @@ func (m *SMBDirectManager) GetStatus() *Status {
 
 // ========== RDMA 操作 ==========
 
-// CreateConnection 创建 RDMA 连接
+// CreateConnection 创建 RDMA 连接.
 func (m *SMBDirectManager) CreateConnection(localAddr, remoteAddr string) (*RDMAConnection, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -607,7 +607,7 @@ func (m *SMBDirectManager) CreateConnection(localAddr, remoteAddr string) (*RDMA
 	return conn, nil
 }
 
-// createRDMAConnection 创建 RDMA 连接
+// createRDMAConnection 创建 RDMA 连接.
 func (m *SMBDirectManager) createRDMAConnection(conn *RDMAConnection) error {
 	if !m.isRDMAAvailable() {
 		return fmt.Errorf("RDMA device unavailable")
@@ -624,7 +624,7 @@ func (m *SMBDirectManager) createRDMAConnection(conn *RDMAConnection) error {
 	return nil
 }
 
-// createTCPConnection 创建 TCP 连接 (降级模式)
+// createTCPConnection 创建 TCP 连接 (降级模式).
 func (m *SMBDirectManager) createTCPConnection(conn *RDMAConnection) error {
 	// 使用标准 TCP 连接
 	tcpConn, err := net.DialTimeout("tcp", conn.RemoteAddr, m.config.Timeout)
@@ -636,7 +636,7 @@ func (m *SMBDirectManager) createTCPConnection(conn *RDMAConnection) error {
 	return nil
 }
 
-// CloseConnection 关闭连接
+// CloseConnection 关闭连接.
 func (m *SMBDirectManager) CloseConnection(connID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -652,7 +652,7 @@ func (m *SMBDirectManager) CloseConnection(connID string) error {
 	return nil
 }
 
-// closeConnection 关闭连接 (内部方法，调用者需持有锁)
+// closeConnection 关闭连接 (内部方法，调用者需持有锁).
 func (m *SMBDirectManager) closeConnection(connID string, conn *RDMAConnection) {
 	conn.State = ConnStateClosed
 	log.Printf("[smbdirect] 关闭连接 %s", connID)
@@ -664,7 +664,7 @@ func (m *SMBDirectManager) closeConnection(connID string, conn *RDMAConnection) 
 	})
 }
 
-// GetConnection 获取连接
+// GetConnection 获取连接.
 func (m *SMBDirectManager) GetConnection(connID string) (*RDMAConnection, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -679,7 +679,7 @@ func (m *SMBDirectManager) GetConnection(connID string) (*RDMAConnection, error)
 
 // ========== 队列对管理 ==========
 
-// initQueuePairPool 初始化队列对池
+// initQueuePairPool 初始化队列对池.
 func (m *SMBDirectManager) initQueuePairPool() error {
 	log.Printf("[smbdirect] 初始化队列对池 (大小: %d)", m.config.MaxQueuePairs)
 
@@ -704,7 +704,7 @@ func (m *SMBDirectManager) initQueuePairPool() error {
 	return nil
 }
 
-// CreateQueuePair 创建队列对
+// CreateQueuePair 创建队列对.
 func (m *SMBDirectManager) CreateQueuePair() (*QueuePair, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -738,7 +738,7 @@ func (m *SMBDirectManager) CreateQueuePair() (*QueuePair, error) {
 	return qp, nil
 }
 
-// destroyQueuePair 销毁队列对
+// destroyQueuePair 销毁队列对.
 func (m *SMBDirectManager) destroyQueuePair(id uint32, qp *QueuePair) {
 	qp.State = QPStateError
 	delete(m.queuePairs, id)
@@ -747,7 +747,7 @@ func (m *SMBDirectManager) destroyQueuePair(id uint32, qp *QueuePair) {
 
 // ========== 内存注册管理 ==========
 
-// initMemoryRegionPool 初始化内存区域池
+// initMemoryRegionPool 初始化内存区域池.
 func (m *SMBDirectManager) initMemoryRegionPool() error {
 	log.Printf("[smbdirect] 初始化内存区域池 (大小: %d)", m.config.MRPoolSize)
 
@@ -756,7 +756,7 @@ func (m *SMBDirectManager) initMemoryRegionPool() error {
 	return nil
 }
 
-// RegisterMemory 注册内存区域
+// RegisterMemory 注册内存区域.
 func (m *SMBDirectManager) RegisterMemory(addr uintptr, length int, access MRAccessFlags) (*MemoryRegion, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -790,7 +790,7 @@ func (m *SMBDirectManager) RegisterMemory(addr uintptr, length int, access MRAcc
 	return mr, nil
 }
 
-// unregisterMemoryRegion 注销内存区域
+// unregisterMemoryRegion 注销内存区域.
 func (m *SMBDirectManager) unregisterMemoryRegion(id uint64, mr *MemoryRegion) {
 	mr.State = MRStateInvalid
 	delete(m.memoryRegions, id)
@@ -799,7 +799,7 @@ func (m *SMBDirectManager) unregisterMemoryRegion(id uint64, mr *MemoryRegion) {
 
 // ========== 性能监控 ==========
 
-// statsCollectorLoop 统计收集循环
+// statsCollectorLoop 统计收集循环.
 func (m *SMBDirectManager) statsCollectorLoop() {
 	defer m.wg.Done()
 
@@ -816,7 +816,7 @@ func (m *SMBDirectManager) statsCollectorLoop() {
 	}
 }
 
-// collectStats 收集统计信息
+// collectStats 收集统计信息.
 func (m *SMBDirectManager) collectStats() {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -876,7 +876,7 @@ func (m *SMBDirectManager) collectStats() {
 
 // ========== 健康检查 ==========
 
-// startListener 启动 RDMA 监听
+// startListener 启动 RDMA 监听.
 func (m *SMBDirectManager) startListener() error {
 	log.Printf("[smbdirect] 启动监听 %s", m.config.ListenAddr)
 	if m.fallbackTCP {
@@ -892,7 +892,7 @@ func (m *SMBDirectManager) startListener() error {
 	return nil
 }
 
-// healthCheckLoop 健康检查循环
+// healthCheckLoop 健康检查循环.
 func (m *SMBDirectManager) healthCheckLoop() {
 	defer m.wg.Done()
 
@@ -909,7 +909,7 @@ func (m *SMBDirectManager) healthCheckLoop() {
 	}
 }
 
-// performHealthCheck 执行健康检查
+// performHealthCheck 执行健康检查.
 func (m *SMBDirectManager) performHealthCheck() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -948,7 +948,7 @@ func (m *SMBDirectManager) performHealthCheck() {
 	}
 }
 
-// isRDMAAvailable 检查 RDMA 是否可用
+// isRDMAAvailable 检查 RDMA 是否可用.
 func (m *SMBDirectManager) isRDMAAvailable() bool {
 	ports := m.detectRDMADevices()
 	for _, p := range ports {
@@ -962,7 +962,7 @@ func (m *SMBDirectManager) isRDMAAvailable() bool {
 
 // ========== 事件处理 ==========
 
-// eventProcessorLoop 事件处理循环
+// eventProcessorLoop 事件处理循环.
 func (m *SMBDirectManager) eventProcessorLoop() {
 	defer m.wg.Done()
 
@@ -976,7 +976,7 @@ func (m *SMBDirectManager) eventProcessorLoop() {
 	}
 }
 
-// processEvent 处理事件
+// processEvent 处理事件.
 func (m *SMBDirectManager) processEvent(event Event) {
 	log.Printf("[smbdirect] 事件: %s (连接: %s)", event.Type, event.ConnID)
 
@@ -988,7 +988,7 @@ func (m *SMBDirectManager) processEvent(event Event) {
 	}
 }
 
-// emitEvent 发送事件
+// emitEvent 发送事件.
 func (m *SMBDirectManager) emitEvent(event Event) {
 	select {
 	case m.eventChan <- event:
@@ -999,7 +999,7 @@ func (m *SMBDirectManager) emitEvent(event Event) {
 
 // ========== 辅助方法 ==========
 
-// getHealthStatus 获取健康状态
+// getHealthStatus 获取健康状态.
 func (m *SMBDirectManager) getHealthStatus() string {
 	if !m.running {
 		return "stopped"
@@ -1016,7 +1016,7 @@ func (m *SMBDirectManager) getHealthStatus() string {
 	return "healthy"
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *SMBDirectManager) GetStats() *ManagerStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1026,7 +1026,7 @@ func (m *SMBDirectManager) GetStats() *ManagerStats {
 	return &stats
 }
 
-// GetConnections 获取所有连接
+// GetConnections 获取所有连接.
 func (m *SMBDirectManager) GetConnections() []*RDMAConnection {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1039,7 +1039,7 @@ func (m *SMBDirectManager) GetConnections() []*RDMAConnection {
 	return conns
 }
 
-// GetQueuePairs 获取所有队列对
+// GetQueuePairs 获取所有队列对.
 func (m *SMBDirectManager) GetQueuePairs() []*QueuePair {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1052,7 +1052,7 @@ func (m *SMBDirectManager) GetQueuePairs() []*QueuePair {
 	return qps
 }
 
-// GetMemoryRegions 获取所有内存区域
+// GetMemoryRegions 获取所有内存区域.
 func (m *SMBDirectManager) GetMemoryRegions() []*MemoryRegion {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

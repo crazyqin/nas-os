@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// IoTDevice IoT 设备
+// IoTDevice IoT 设备.
 type IoTDevice struct {
 	ID       string                 `json:"id"`
 	Name     string                 `json:"name"`
@@ -21,7 +21,7 @@ type IoTDevice struct {
 	Metadata map[string]string      `json:"metadata"`
 }
 
-// IoTDataPoint IoT 数据点
+// IoTDataPoint IoT 数据点.
 type IoTDataPoint struct {
 	DeviceID  string    `json:"device_id"`
 	Timestamp time.Time `json:"timestamp"`
@@ -31,7 +31,7 @@ type IoTDataPoint struct {
 	Quality   int       `json:"quality"` // 0-100
 }
 
-// AIModel AI 模型
+// AIModel AI 模型.
 type AIModel struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
@@ -45,14 +45,14 @@ type AIModel struct {
 	LoadedAt    *time.Time `json:"loaded_at,omitempty"`
 }
 
-// InferenceRequest 推理请求
+// InferenceRequest 推理请求.
 type InferenceRequest struct {
 	ModelID string                 `json:"model_id"`
 	Input   interface{}            `json:"input"`
 	Options map[string]interface{} `json:"options,omitempty"`
 }
 
-// InferenceResult 推理结果
+// InferenceResult 推理结果.
 type InferenceResult struct {
 	ID        string        `json:"id"`
 	ModelID   string        `json:"model_id"`
@@ -63,7 +63,7 @@ type InferenceResult struct {
 	Timestamp time.Time     `json:"timestamp"`
 }
 
-// DataFilter 数据过滤器
+// DataFilter 数据过滤器.
 type DataFilter struct {
 	ID      string                 `json:"id"`
 	Name    string                 `json:"name"`
@@ -72,7 +72,7 @@ type DataFilter struct {
 	Enabled bool                   `json:"enabled"`
 }
 
-// DataAggregator 数据聚合器
+// DataAggregator 数据聚合器.
 type DataAggregator struct {
 	ID        string        `json:"id"`
 	Name      string        `json:"name"`
@@ -82,7 +82,7 @@ type DataAggregator struct {
 	DeviceIDs []string      `json:"device_ids"`
 }
 
-// OfflineCache 离线缓存
+// OfflineCache 离线缓存.
 type OfflineCache struct {
 	mu         sync.RWMutex
 	data       []IoTDataPoint
@@ -91,7 +91,7 @@ type OfflineCache struct {
 	lastSync   *time.Time
 }
 
-// NewOfflineCache 创建离线缓存
+// NewOfflineCache 创建离线缓存.
 func NewOfflineCache(maxSize int) *OfflineCache {
 	return &OfflineCache{
 		data:    make([]IoTDataPoint, 0, maxSize),
@@ -99,7 +99,7 @@ func NewOfflineCache(maxSize int) *OfflineCache {
 	}
 }
 
-// Add 添加数据到缓存
+// Add 添加数据到缓存.
 func (c *OfflineCache) Add(point IoTDataPoint) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -112,7 +112,7 @@ func (c *OfflineCache) Add(point IoTDataPoint) {
 	c.data = append(c.data, point)
 }
 
-// Flush 刷新缓存
+// Flush 刷新缓存.
 func (c *OfflineCache) Flush() []IoTDataPoint {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -125,14 +125,14 @@ func (c *OfflineCache) Flush() []IoTDataPoint {
 	return data
 }
 
-// Size 返回缓存大小
+// Size 返回缓存大小.
 func (c *OfflineCache) Size() int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return len(c.data)
 }
 
-// IoTManager IoT 管理器
+// IoTManager IoT 管理器.
 type IoTManager struct {
 	devices     map[string]*IoTDevice
 	cache       *OfflineCache
@@ -141,7 +141,7 @@ type IoTManager struct {
 	mu          sync.RWMutex
 }
 
-// NewIoTManager 创建 IoT 管理器
+// NewIoTManager 创建 IoT 管理器.
 func NewIoTManager(cacheSize int) *IoTManager {
 	return &IoTManager{
 		devices:     make(map[string]*IoTDevice),
@@ -151,7 +151,7 @@ func NewIoTManager(cacheSize int) *IoTManager {
 	}
 }
 
-// RegisterDevice 注册 IoT 设备
+// RegisterDevice 注册 IoT 设备.
 func (m *IoTManager) RegisterDevice(device *IoTDevice) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -167,7 +167,7 @@ func (m *IoTManager) RegisterDevice(device *IoTDevice) error {
 	return nil
 }
 
-// IngestData 采集数据
+// IngestData 采集数据.
 func (m *IoTManager) IngestData(point IoTDataPoint) error {
 	m.mu.RLock()
 	device, ok := m.devices[point.DeviceID]
@@ -191,7 +191,7 @@ func (m *IoTManager) IngestData(point IoTDataPoint) error {
 	return nil
 }
 
-// applyFilters 应用数据过滤器
+// applyFilters 应用数据过滤器.
 func (m *IoTManager) applyFilters(point IoTDataPoint) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -222,7 +222,7 @@ func (m *IoTManager) applyFilters(point IoTDataPoint) bool {
 	return true
 }
 
-// GetDevices 获取所有设备
+// GetDevices 获取所有设备.
 func (m *IoTManager) GetDevices() []*IoTDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -234,7 +234,7 @@ func (m *IoTManager) GetDevices() []*IoTDevice {
 	return devices
 }
 
-// GetDevice 获取设备
+// GetDevice 获取设备.
 func (m *IoTManager) GetDevice(deviceID string) (*IoTDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -247,21 +247,21 @@ func (m *IoTManager) GetDevice(deviceID string) (*IoTDevice, error) {
 	return device, nil
 }
 
-// AIManager AI 推理管理器
+// AIManager AI 推理管理器.
 type AIManager struct {
 	models  map[string]*AIModel
 	results []*InferenceResult
 	mu      sync.RWMutex
 }
 
-// NewAIManager 创建 AI 管理器
+// NewAIManager 创建 AI 管理器.
 func NewAIManager() *AIManager {
 	return &AIManager{
 		models: make(map[string]*AIModel),
 	}
 }
 
-// LoadModel 加载模型
+// LoadModel 加载模型.
 func (m *AIManager) LoadModel(model *AIModel) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -278,7 +278,7 @@ func (m *AIManager) LoadModel(model *AIModel) error {
 	return nil
 }
 
-// UnloadModel 卸载模型
+// UnloadModel 卸载模型.
 func (m *AIManager) UnloadModel(modelID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -294,7 +294,7 @@ func (m *AIManager) UnloadModel(modelID string) error {
 	return nil
 }
 
-// RunInference 运行推理
+// RunInference 运行推理.
 func (m *AIManager) RunInference(request *InferenceRequest) (*InferenceResult, error) {
 	m.mu.RLock()
 	model, ok := m.models[request.ModelID]
@@ -327,7 +327,7 @@ func (m *AIManager) RunInference(request *InferenceRequest) (*InferenceResult, e
 	return result, nil
 }
 
-// GetModels 获取所有模型
+// GetModels 获取所有模型.
 func (m *AIManager) GetModels() []*AIModel {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -339,7 +339,7 @@ func (m *AIManager) GetModels() []*AIModel {
 	return models
 }
 
-// GetModel 获取模型
+// GetModel 获取模型.
 func (m *AIManager) GetModel(modelID string) (*AIModel, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -352,7 +352,7 @@ func (m *AIManager) GetModel(modelID string) (*AIModel, error) {
 	return model, nil
 }
 
-// MarshalJSON 序列化 IoT 管理器
+// MarshalJSON 序列化 IoT 管理器.
 func (m *IoTManager) MarshalJSON() ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -370,7 +370,7 @@ func (m *IoTManager) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// MarshalJSON 序列化 AI 管理器
+// MarshalJSON 序列化 AI 管理器.
 func (m *AIManager) MarshalJSON() ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

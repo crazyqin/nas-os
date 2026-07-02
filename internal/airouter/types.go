@@ -9,25 +9,25 @@ import (
 
 // ========== 路由策略 ==========
 
-// RouteStrategy 路由策略类型
+// RouteStrategy 路由策略类型.
 type RouteStrategy string
 
 const (
-	// StrategyRoundRobin 轮询
+	// StrategyRoundRobin 轮询.
 	StrategyRoundRobin RouteStrategy = "round_robin"
-	// StrategyLeastLatency 最低延迟
+	// StrategyLeastLatency 最低延迟.
 	StrategyLeastLatency RouteStrategy = "least_latency"
-	// StrategyCostOptimized 成本优化
+	// StrategyCostOptimized 成本优化.
 	StrategyCostOptimized RouteStrategy = "cost_optimized"
-	// StrategyQualityFirst 质量优先
+	// StrategyQualityFirst 质量优先.
 	StrategyQualityFirst RouteStrategy = "quality_first"
-	// StrategyFailover 故障转移
+	// StrategyFailover 故障转移.
 	StrategyFailover RouteStrategy = "failover"
-	// StrategyWeighted 权重分配
+	// StrategyWeighted 权重分配.
 	StrategyWeighted RouteStrategy = "weighted"
 )
 
-// ModelHealth 模型健康状态
+// ModelHealth 模型健康状态.
 type ModelHealth string
 
 const (
@@ -39,7 +39,7 @@ const (
 
 // ========== 路由配置 ==========
 
-// RouteConfig 路由配置
+// RouteConfig 路由配置.
 type RouteConfig struct {
 	ID              string        `json:"id"`
 	Name            string        `json:"name"`
@@ -53,7 +53,7 @@ type RouteConfig struct {
 	UpdatedAt       time.Time     `json:"updatedAt"`
 }
 
-// ModelEntry 路由模型条目
+// ModelEntry 路由模型条目.
 type ModelEntry struct {
 	ModelID       string      `json:"modelName"`
 	Weight        int         `json:"weight"`
@@ -68,7 +68,7 @@ type ModelEntry struct {
 	TotalCost     float64     `json:"totalCost"`
 }
 
-// CreateRouteRequest 创建路由请求
+// CreateRouteRequest 创建路由请求.
 type CreateRouteRequest struct {
 	Name            string        `json:"name" binding:"required"`
 	Strategy        RouteStrategy `json:"strategy" binding:"required"`
@@ -80,7 +80,7 @@ type CreateRouteRequest struct {
 
 // ========== 路由决策 ==========
 
-// RouteDecision 路由决策结果
+// RouteDecision 路由决策结果.
 type RouteDecision struct {
 	RouteID       string        `json:"routeId"`
 	SelectedModel string        `json:"selectedModel"`
@@ -90,7 +90,7 @@ type RouteDecision struct {
 	DecisionMs    int64         `json:"decisionMs"`
 }
 
-// RouteRequest 路由请求
+// RouteRequest 路由请求.
 type RouteRequest struct {
 	RouteID   string `json:"routeId"`
 	PromptLen int    `json:"promptLen"`
@@ -100,7 +100,7 @@ type RouteRequest struct {
 
 // ========== 路由统计 ==========
 
-// RouteStats 路由统计
+// RouteStats 路由统计.
 type RouteStats struct {
 	RouteID           string           `json:"routeId"`
 	TotalRequests     int64            `json:"totalRequests"`
@@ -114,7 +114,7 @@ type RouteStats struct {
 	LastRequestTime   time.Time        `json:"lastRequestTime"`
 }
 
-// ModelMetrics 模型性能指标
+// ModelMetrics 模型性能指标.
 type ModelMetrics struct {
 	ModelID       string      `json:"modelName"`
 	Health        ModelHealth `json:"health"`
@@ -134,7 +134,7 @@ type ModelMetrics struct {
 
 // ========== 路由接口 ==========
 
-// Router 路由器接口
+// Router 路由器接口.
 type Router interface {
 	// Select 选择模型
 	Select(ctx context.Context, req *RouteRequest) (*RouteDecision, error)

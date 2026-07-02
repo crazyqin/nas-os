@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// SandboxStorageBackend 沙箱存储后端类型
+// SandboxStorageBackend 沙箱存储后端类型.
 type SandboxStorageBackend string
 
 const (
@@ -25,7 +25,7 @@ const (
 	SandboxBackendLVM   SandboxStorageBackend = "lvm"   // LVM 逻辑卷
 )
 
-// SandboxVolumeStatus 沙箱存储卷状态
+// SandboxVolumeStatus 沙箱存储卷状态.
 type SandboxVolumeStatus string
 
 const (
@@ -35,7 +35,7 @@ const (
 	SandboxVolumeDeleted SandboxVolumeStatus = "deleted"
 )
 
-// SandboxStoragePool 沙箱存储池
+// SandboxStoragePool 沙箱存储池.
 type SandboxStoragePool struct {
 	ID        string                `json:"id"`
 	Name      string                `json:"name"`       // 存储池名称
@@ -49,7 +49,7 @@ type SandboxStoragePool struct {
 	UpdatedAt time.Time             `json:"updated_at"`
 }
 
-// SandboxStorageVolume 沙箱存储卷
+// SandboxStorageVolume 沙箱存储卷.
 type SandboxStorageVolume struct {
 	ID         string              `json:"id"`
 	Name       string              `json:"name"`        // 卷名称
@@ -64,7 +64,7 @@ type SandboxStorageVolume struct {
 	UpdatedAt  time.Time           `json:"updated_at"`
 }
 
-// SandboxSnapshot 沙箱存储快照
+// SandboxSnapshot 沙箱存储快照.
 type SandboxSnapshot struct {
 	ID        string            `json:"id"`
 	VolumeID  string            `json:"volume_id"` // 所属卷 ID
@@ -76,7 +76,7 @@ type SandboxSnapshot struct {
 	CreatedAt time.Time         `json:"created_at"`
 }
 
-// SandboxStorageManagerConfig 沙箱存储管理器配置
+// SandboxStorageManagerConfig 沙箱存储管理器配置.
 type SandboxStorageManagerConfig struct {
 	DefaultBackend SandboxStorageBackend `json:"default_backend"` // 默认存储后端
 	DefaultPool    string                `json:"default_pool"`    // 默认存储池名
@@ -84,7 +84,7 @@ type SandboxStorageManagerConfig struct {
 	EnableQuota    bool                  `json:"enable_quota"`    // 是否启用磁盘配额
 }
 
-// SandboxStorageManager 沙箱存储管理器
+// SandboxStorageManager 沙箱存储管理器.
 type SandboxStorageManager struct {
 	mu        sync.RWMutex
 	pools     map[string]*SandboxStoragePool
@@ -95,7 +95,7 @@ type SandboxStorageManager struct {
 	dataDir   string
 }
 
-// NewSandboxStorageManager 创建沙箱存储管理器
+// NewSandboxStorageManager 创建沙箱存储管理器.
 func NewSandboxStorageManager(dataDir string, logger *zap.Logger) (*SandboxStorageManager, error) {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -132,7 +132,7 @@ func NewSandboxStorageManager(dataDir string, logger *zap.Logger) (*SandboxStora
 	return sm, nil
 }
 
-// CreateVolume 创建沙箱存储卷
+// CreateVolume 创建沙箱存储卷.
 func (sm *SandboxStorageManager) CreateVolume(ctx context.Context, name, poolID string, size int64) (*SandboxStorageVolume, error) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -181,7 +181,7 @@ func (sm *SandboxStorageManager) CreateVolume(ctx context.Context, name, poolID 
 	return volume, nil
 }
 
-// MountVolume 挂载存储卷到沙箱
+// MountVolume 挂载存储卷到沙箱.
 func (sm *SandboxStorageManager) MountVolume(ctx context.Context, volumeID, sandboxID, mountPoint string) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -216,7 +216,7 @@ func (sm *SandboxStorageManager) MountVolume(ctx context.Context, volumeID, sand
 	return nil
 }
 
-// UnmountVolume 从沙箱卸载存储卷
+// UnmountVolume 从沙箱卸载存储卷.
 func (sm *SandboxStorageManager) UnmountVolume(ctx context.Context, volumeID string) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -239,7 +239,7 @@ func (sm *SandboxStorageManager) UnmountVolume(ctx context.Context, volumeID str
 	return nil
 }
 
-// DeleteVolume 删除存储卷
+// DeleteVolume 删除存储卷.
 func (sm *SandboxStorageManager) DeleteVolume(ctx context.Context, volumeID string) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -270,7 +270,7 @@ func (sm *SandboxStorageManager) DeleteVolume(ctx context.Context, volumeID stri
 	return nil
 }
 
-// Snapshot 创建沙箱存储快照
+// Snapshot 创建沙箱存储快照.
 func (sm *SandboxStorageManager) Snapshot(ctx context.Context, volumeID, name string, labels map[string]string) (*SandboxSnapshot, error) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -327,7 +327,7 @@ func (sm *SandboxStorageManager) Snapshot(ctx context.Context, volumeID, name st
 	return snapshot, nil
 }
 
-// ListVolumes 列出存储池中的所有卷
+// ListVolumes 列出存储池中的所有卷.
 func (sm *SandboxStorageManager) ListVolumes(poolID string) []*SandboxStorageVolume {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -341,7 +341,7 @@ func (sm *SandboxStorageManager) ListVolumes(poolID string) []*SandboxStorageVol
 	return result
 }
 
-// ListSnapshots 列出卷的所有快照
+// ListSnapshots 列出卷的所有快照.
 func (sm *SandboxStorageManager) ListSnapshots(volumeID string) []*SandboxSnapshot {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -355,7 +355,7 @@ func (sm *SandboxStorageManager) ListSnapshots(volumeID string) []*SandboxSnapsh
 	return result
 }
 
-// GetPool 获取存储池信息
+// GetPool 获取存储池信息.
 func (sm *SandboxStorageManager) GetPool(poolID string) (*SandboxStoragePool, error) {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -367,7 +367,7 @@ func (sm *SandboxStorageManager) GetPool(poolID string) (*SandboxStoragePool, er
 	return pool, nil
 }
 
-// CreatePool 创建存储池
+// CreatePool 创建存储池.
 func (sm *SandboxStorageManager) CreatePool(ctx context.Context, name string, backend SandboxStorageBackend, path string, totalSize int64) (*SandboxStoragePool, error) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -407,7 +407,7 @@ func (sm *SandboxStorageManager) CreatePool(ctx context.Context, name string, ba
 	return pool, nil
 }
 
-// initDefaultPool 初始化默认存储池
+// initDefaultPool 初始化默认存储池.
 func (sm *SandboxStorageManager) initDefaultPool() error {
 	defaultPath := filepath.Join(sm.dataDir, "pools", "default")
 	if err := os.MkdirAll(defaultPath, 0755); err != nil {
@@ -432,7 +432,7 @@ func (sm *SandboxStorageManager) initDefaultPool() error {
 	return nil
 }
 
-// Close 关闭存储管理器
+// Close 关闭存储管理器.
 func (sm *SandboxStorageManager) Close() error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()

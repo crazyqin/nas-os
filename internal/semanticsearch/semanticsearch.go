@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Document 文档
+// Document 文档.
 type Document struct {
 	ID        string    `json:"id"`
 	Title     string    `json:"title"`
@@ -24,7 +24,7 @@ type Document struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// SearchQuery 搜索查询
+// SearchQuery 搜索查询.
 type SearchQuery struct {
 	Text      string   `json:"text"`
 	Limit     int      `json:"limit"`
@@ -32,34 +32,34 @@ type SearchQuery struct {
 	Filters   []Filter `json:"filters,omitempty"`
 }
 
-// Filter 过滤器
+// Filter 过滤器.
 type Filter struct {
 	Field string      `json:"field"`
 	Value interface{} `json:"value"`
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	Document *Document `json:"document"`
 	Score    float64   `json:"score"`
 	Matches  []Match   `json:"matches,omitempty"`
 }
 
-// Match 匹配项
+// Match 匹配项.
 type Match struct {
 	Field   string `json:"field"`
 	Context string `json:"context"`
 }
 
-// SearchMetrics 搜索指标
+// SearchMetrics 搜索指标.
 type SearchMetrics struct {
-	TotalDocuments  int     `json:"total_documents"`
-	TotalSearches   int64   `json:"total_searches"`
-	AverageLatency  float64 `json:"average_latency_ms"`
-	IndexSize       int     `json:"index_size"`
+	TotalDocuments int     `json:"total_documents"`
+	TotalSearches  int64   `json:"total_searches"`
+	AverageLatency float64 `json:"average_latency_ms"`
+	IndexSize      int     `json:"index_size"`
 }
 
-// SemanticEngine 语义搜索引擎
+// SemanticEngine 语义搜索引擎.
 type SemanticEngine struct {
 	mu        sync.RWMutex
 	documents map[string]*Document
@@ -68,7 +68,7 @@ type SemanticEngine struct {
 	logger    *slog.Logger
 }
 
-// NewSemanticEngine 创建语义搜索引擎
+// NewSemanticEngine 创建语义搜索引擎.
 func NewSemanticEngine(logger *slog.Logger) *SemanticEngine {
 	if logger == nil {
 		logger = slog.Default()
@@ -82,7 +82,7 @@ func NewSemanticEngine(logger *slog.Logger) *SemanticEngine {
 	}
 }
 
-// IndexDocument 索引文档
+// IndexDocument 索引文档.
 func (e *SemanticEngine) IndexDocument(doc *Document) error {
 	if doc == nil {
 		return errors.New("document cannot be nil")
@@ -112,7 +112,7 @@ func (e *SemanticEngine) IndexDocument(doc *Document) error {
 	return nil
 }
 
-// RemoveDocument 移除文档
+// RemoveDocument 移除文档.
 func (e *SemanticEngine) RemoveDocument(docID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -131,7 +131,7 @@ func (e *SemanticEngine) RemoveDocument(docID string) error {
 	return nil
 }
 
-// Search 语义搜索
+// Search 语义搜索.
 func (e *SemanticEngine) Search(query *SearchQuery) ([]*SearchResult, error) {
 	if query == nil {
 		return nil, errors.New("query cannot be nil")
@@ -188,7 +188,7 @@ func (e *SemanticEngine) Search(query *SearchQuery) ([]*SearchResult, error) {
 	return results, nil
 }
 
-// GetDocument 获取文档
+// GetDocument 获取文档.
 func (e *SemanticEngine) GetDocument(docID string) (*Document, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -201,7 +201,7 @@ func (e *SemanticEngine) GetDocument(docID string) (*Document, error) {
 	return doc, nil
 }
 
-// ListDocuments 列出文档
+// ListDocuments 列出文档.
 func (e *SemanticEngine) ListDocuments(limit, offset int) []*Document {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -227,7 +227,7 @@ func (e *SemanticEngine) ListDocuments(limit, offset int) []*Document {
 	return docs
 }
 
-// GetMetrics 获取指标
+// GetMetrics 获取指标.
 func (e *SemanticEngine) GetMetrics() *SearchMetrics {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -237,7 +237,7 @@ func (e *SemanticEngine) GetMetrics() *SearchMetrics {
 	return &metrics
 }
 
-// generateVector 生成简单向量
+// generateVector 生成简单向量.
 func (e *SemanticEngine) generateVector(text string) []float64 {
 	// 简单实现：基于字符频率生成向量
 	words := strings.Fields(strings.ToLower(text))
@@ -250,7 +250,7 @@ func (e *SemanticEngine) generateVector(text string) []float64 {
 	}
 
 	// 归一化
- norm := 0.0
+	norm := 0.0
 	for _, v := range vector {
 		norm += v * v
 	}
@@ -264,7 +264,7 @@ func (e *SemanticEngine) generateVector(text string) []float64 {
 	return vector
 }
 
-// simpleHash 简单哈希
+// simpleHash 简单哈希.
 func (e *SemanticEngine) simpleHash(s string) uint32 {
 	var hash uint32
 	for _, c := range s {
@@ -273,7 +273,7 @@ func (e *SemanticEngine) simpleHash(s string) uint32 {
 	return hash
 }
 
-// cosineSimilarity 余弦相似度
+// cosineSimilarity 余弦相似度.
 func (e *SemanticEngine) cosineSimilarity(a, b []float64) float64 {
 	if len(a) != len(b) {
 		return 0
@@ -296,7 +296,7 @@ func (e *SemanticEngine) cosineSimilarity(a, b []float64) float64 {
 	return dotProduct / (math.Sqrt(normA) * math.Sqrt(normB))
 }
 
-// updateIndex 更新倒排索引
+// updateIndex 更新倒排索引.
 func (e *SemanticEngine) updateIndex(doc *Document) {
 	words := strings.Fields(strings.ToLower(doc.Content + " " + doc.Title))
 	for _, word := range words {
@@ -307,7 +307,7 @@ func (e *SemanticEngine) updateIndex(doc *Document) {
 	}
 }
 
-// removeFromIndex 从索引移除
+// removeFromIndex 从索引移除.
 func (e *SemanticEngine) removeFromIndex(docID string) {
 	for word, ids := range e.index {
 		for i, id := range ids {
@@ -319,7 +319,7 @@ func (e *SemanticEngine) removeFromIndex(docID string) {
 	}
 }
 
-// matchesFilters 匹配过滤器
+// matchesFilters 匹配过滤器.
 func (e *SemanticEngine) matchesFilters(doc *Document, filters []Filter) bool {
 	for _, filter := range filters {
 		switch filter.Field {
@@ -344,7 +344,7 @@ func (e *SemanticEngine) matchesFilters(doc *Document, filters []Filter) bool {
 	return true
 }
 
-// findMatches 查找匹配
+// findMatches 查找匹配.
 func (e *SemanticEngine) findMatches(doc *Document, query string) []Match {
 	var matches []Match
 	queryWords := strings.Fields(strings.ToLower(query))

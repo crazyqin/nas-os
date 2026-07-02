@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// GitClient is an interface for Git operations
+// GitClient is an interface for Git operations.
 type GitClient interface {
 	// Clone clones a repository
 	Clone(ctx context.Context, url, branch, path string, auth GitAuth) error
@@ -24,7 +24,7 @@ type GitClient interface {
 	ListFiles(ctx context.Context, path, dir, revision string) ([]string, error)
 }
 
-// K8sClient is an interface for Kubernetes operations
+// K8sClient is an interface for Kubernetes operations.
 type K8sClient interface {
 	// Apply applies a manifest
 	Apply(ctx context.Context, manifest []byte, namespace string) error
@@ -36,7 +36,7 @@ type K8sClient interface {
 	GetResource(ctx context.Context, kind, name, namespace string) ([]byte, error)
 }
 
-// Engine is the main GitOps engine
+// Engine is the main GitOps engine.
 type Engine struct {
 	logger      *zap.Logger
 	config      GitOpsConfig
@@ -49,7 +49,7 @@ type Engine struct {
 	stopCh      chan struct{}
 }
 
-// repoState tracks the state of a repository
+// repoState tracks the state of a repository.
 type repoState struct {
 	repo       GitRepo
 	localPath  string
@@ -58,7 +58,7 @@ type repoState struct {
 	syncing    bool
 }
 
-// NewEngine creates a new GitOps engine
+// NewEngine creates a new GitOps engine.
 func NewEngine(logger *zap.Logger, config GitOpsConfig, gitClient GitClient, k8sClient K8sClient) *Engine {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -75,7 +75,7 @@ func NewEngine(logger *zap.Logger, config GitOpsConfig, gitClient GitClient, k8s
 	}
 }
 
-// Start starts the GitOps engine
+// Start starts the GitOps engine.
 func (e *Engine) Start(ctx context.Context) error {
 	e.logger.Info("starting GitOps engine")
 
@@ -95,13 +95,13 @@ func (e *Engine) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop stops the GitOps engine
+// Stop stops the GitOps engine.
 func (e *Engine) Stop() {
 	e.logger.Info("stopping GitOps engine")
 	close(e.stopCh)
 }
 
-// initRepo initializes a repository
+// initRepo initializes a repository.
 func (e *Engine) initRepo(ctx context.Context, repo GitRepo) error {
 	localPath := fmt.Sprintf("/tmp/gitops/%s", repo.ID)
 
@@ -130,7 +130,7 @@ func (e *Engine) initRepo(ctx context.Context, repo GitRepo) error {
 	return nil
 }
 
-// syncLoop runs periodic syncs
+// syncLoop runs periodic syncs.
 func (e *Engine) syncLoop(ctx context.Context) {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -147,7 +147,7 @@ func (e *Engine) syncLoop(ctx context.Context) {
 	}
 }
 
-// syncAllRepos syncs all repositories
+// syncAllRepos syncs all repositories.
 func (e *Engine) syncAllRepos(ctx context.Context) {
 	e.mu.RLock()
 	repoIDs := make([]string, 0, len(e.repos))
@@ -175,7 +175,7 @@ func (e *Engine) syncAllRepos(ctx context.Context) {
 	}
 }
 
-// SyncRepo syncs a specific repository
+// SyncRepo syncs a specific repository.
 func (e *Engine) SyncRepo(ctx context.Context, repoID string) error {
 	e.mu.Lock()
 	state, exists := e.repos[repoID]
@@ -245,7 +245,7 @@ func (e *Engine) SyncRepo(ctx context.Context, repoID string) error {
 	return nil
 }
 
-// deployToEnvironment deploys manifests to an environment
+// deployToEnvironment deploys manifests to an environment.
 func (e *Engine) deployToEnvironment(ctx context.Context, repoID string, env Environment, revision string) error {
 	state := e.getRepoState(repoID)
 	if state == nil {
@@ -314,7 +314,7 @@ func (e *Engine) deployToEnvironment(ctx context.Context, repoID string, env Env
 	return nil
 }
 
-// Rollback rolls back a deployment
+// Rollback rolls back a deployment.
 func (e *Engine) Rollback(ctx context.Context, req RollbackRequest) (*Deployment, error) {
 	e.mu.RLock()
 	deployment, exists := e.deployments[req.DeploymentID]
@@ -355,7 +355,7 @@ func (e *Engine) Rollback(ctx context.Context, req RollbackRequest) (*Deployment
 	return e.getDeployment(newDeploymentID), nil
 }
 
-// GetSyncStatus returns sync status for a repo/environment
+// GetSyncStatus returns sync status for a repo/environment.
 func (e *Engine) GetSyncStatus(repoID string, env Environment) *SyncStatusDetail {
 	key := fmt.Sprintf("%s/%s", repoID, env)
 	e.mu.RLock()
@@ -363,12 +363,12 @@ func (e *Engine) GetSyncStatus(repoID string, env Environment) *SyncStatusDetail
 	return e.syncStatus[key]
 }
 
-// GetDeployment returns a deployment by ID
+// GetDeployment returns a deployment by ID.
 func (e *Engine) GetDeployment(id string) *Deployment {
 	return e.getDeployment(id)
 }
 
-// ListDeployments returns deployments for a repo and environment
+// ListDeployments returns deployments for a repo and environment.
 func (e *Engine) ListDeployments(repoID string, env Environment) []*Deployment {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -382,7 +382,7 @@ func (e *Engine) ListDeployments(repoID string, env Environment) []*Deployment {
 	return result
 }
 
-// GetRepo returns a repository by ID
+// GetRepo returns a repository by ID.
 func (e *Engine) GetRepo(id string) *GitRepo {
 	state := e.getRepoState(id)
 	if state == nil {
@@ -392,7 +392,7 @@ func (e *Engine) GetRepo(id string) *GitRepo {
 	return &repo
 }
 
-// ListRepos returns all configured repositories
+// ListRepos returns all configured repositories.
 func (e *Engine) ListRepos() []GitRepo {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -404,7 +404,7 @@ func (e *Engine) ListRepos() []GitRepo {
 	return repos
 }
 
-// AddRepo adds a new repository
+// AddRepo adds a new repository.
 func (e *Engine) AddRepo(req AddRepoRequest) (*GitRepo, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -434,7 +434,7 @@ func (e *Engine) AddRepo(req AddRepoRequest) (*GitRepo, error) {
 	return &repo, nil
 }
 
-// DetectDrift detects configuration drift for a repo/environment
+// DetectDrift detects configuration drift for a repo/environment.
 func (e *Engine) DetectDrift(repoID string, env Environment) (*DriftDetection, error) {
 	e.mu.RLock()
 	state, exists := e.repos[repoID]
@@ -499,17 +499,17 @@ func (e *Engine) updateSyncStatus(repoID string, env Environment, status SyncSta
 	defer e.mu.Unlock()
 
 	detail := &SyncStatusDetail{
-		RepoID:        repoID,
-		Environment:   env,
-		Status:        status,
-		LastSyncAt:    time.Now(),
-		LastCommitSHA: state.lastCommit,
-		DesiredSHA:    state.lastCommit,
-		SyncDuration:  time.Since(startTime),
-		Error:         errMsg,
+		RepoID:       repoID,
+		Environment:  env,
+		Status:       status,
+		LastSyncAt:   time.Now(),
+		SyncDuration: time.Since(startTime),
+		Error:        errMsg,
 	}
 	if state != nil {
 		detail.RepoName = state.repo.Name
+		detail.LastCommitSHA = state.lastCommit
+		detail.DesiredSHA = state.lastCommit
 	}
 
 	e.syncStatus[key] = detail

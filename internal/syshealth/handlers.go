@@ -23,7 +23,7 @@ func NewHandler(dashboard *Dashboard, logger *zap.Logger) *Handler {
 }
 
 // RegisterRoutes 注册路由到 gin 路由组。
-// 路由前缀: /api/v1/syshealth
+// 路由前缀: /api/v1/syshealth.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	rg.GET("/overview", h.handleOverview)
 	rg.GET("/trends", h.handleTrends)
@@ -39,7 +39,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 // ========== 总览 ==========
 
 // handleOverview 获取系统总览。
-// GET /api/v1/syshealth/overview
+// GET /api/v1/syshealth/overview.
 func (h *Handler) handleOverview(c *gin.Context) {
 	overview, err := h.dashboard.GetOverview()
 	if err != nil {
@@ -62,7 +62,7 @@ func (h *Handler) handleOverview(c *gin.Context) {
 // ========== 趋势 ==========
 
 // handleTrends 获取健康趋势。
-// GET /api/v1/syshealth/trends?days=30
+// GET /api/v1/syshealth/trends?days=30.
 func (h *Handler) handleTrends(c *gin.Context) {
 	days := 30
 	if d := c.Query("days"); d != "" {
@@ -99,7 +99,7 @@ func (h *Handler) handleTrends(c *gin.Context) {
 // ========== 告警 ==========
 
 // handleAlerts 获取告警列表。
-// GET /api/v1/syshealth/alerts?resolved=false
+// GET /api/v1/syshealth/alerts?resolved=false.
 func (h *Handler) handleAlerts(c *gin.Context) {
 	resolved := false
 	if r := c.Query("resolved"); r == "true" {
@@ -119,7 +119,7 @@ func (h *Handler) handleAlerts(c *gin.Context) {
 }
 
 // handleResolveAlert 解决告警。
-// POST /api/v1/syshealth/alerts/:id/resolve
+// POST /api/v1/syshealth/alerts/:id/resolve.
 func (h *Handler) handleResolveAlert(c *gin.Context) {
 	alertID := c.Param("id")
 	if alertID == "" {
@@ -147,7 +147,7 @@ func (h *Handler) handleResolveAlert(c *gin.Context) {
 // ========== 快速修复 ==========
 
 // handleListFixes 获取可用修复动作列表。
-// GET /api/v1/syshealth/fixes
+// GET /api/v1/syshealth/fixes.
 func (h *Handler) handleListFixes(c *gin.Context) {
 	fixes := h.dashboard.GetAvailableFixes()
 
@@ -159,7 +159,7 @@ func (h *Handler) handleListFixes(c *gin.Context) {
 }
 
 // handleFix 执行快速修复。
-// POST /api/v1/syshealth/fix/:issue
+// POST /api/v1/syshealth/fix/:issue.
 func (h *Handler) handleFix(c *gin.Context) {
 	issue := c.Param("issue")
 	if issue == "" {
@@ -212,7 +212,7 @@ func (h *Handler) handleFix(c *gin.Context) {
 // ========== 子系统 ==========
 
 // handleSubsystem 获取指定子系统状态。
-// GET /api/v1/syshealth/subsystem/:name
+// GET /api/v1/syshealth/subsystem/:name.
 func (h *Handler) handleSubsystem(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -242,7 +242,7 @@ func (h *Handler) handleSubsystem(c *gin.Context) {
 // ========== 历史记录 ==========
 
 // handleHistory 获取历史记录。
-// GET /api/v1/syshealth/history?days=7
+// GET /api/v1/syshealth/history?days=7.
 func (h *Handler) handleHistory(c *gin.Context) {
 	days := 7
 	if d := c.Query("days"); d != "" {
@@ -274,7 +274,7 @@ func (h *Handler) handleHistory(c *gin.Context) {
 // ========== 刷新缓存 ==========
 
 // handleRefresh 强制刷新缓存。
-// POST /api/v1/syshealth/refresh
+// POST /api/v1/syshealth/refresh.
 func (h *Handler) handleRefresh(c *gin.Context) {
 	if err := h.dashboard.RefreshCache(); err != nil {
 		h.logger.Error("刷新缓存失败", zap.Error(err))

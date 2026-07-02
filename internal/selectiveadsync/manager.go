@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// SelectiveADSyncManager 选择性AD同步管理器
+// SelectiveADSyncManager 选择性AD同步管理器.
 type SelectiveADSyncManager struct {
 	mu          sync.RWMutex
 	config      OUSyncConfig
@@ -23,7 +23,7 @@ type SelectiveADSyncManager struct {
 	ldapConn    interface{}          // LDAP连接（实际使用 go-ldap）
 }
 
-// NewSelectiveADSyncManager 创建管理器
+// NewSelectiveADSyncManager 创建管理器.
 func NewSelectiveADSyncManager() *SelectiveADSyncManager {
 	return &SelectiveADSyncManager{
 		config:      DefaultOUSyncConfig(),
@@ -34,14 +34,14 @@ func NewSelectiveADSyncManager() *SelectiveADSyncManager {
 	}
 }
 
-// SetConfig 设置配置
+// SetConfig 设置配置.
 func (m *SelectiveADSyncManager) SetConfig(config OUSyncConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.config = config
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *SelectiveADSyncManager) GetConfig() OUSyncConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -52,7 +52,7 @@ func (m *SelectiveADSyncManager) GetConfig() OUSyncConfig {
 // OU 管理
 // ============================================================
 
-// DiscoverOUs 发现AD中的OU
+// DiscoverOUs 发现AD中的OU.
 func (m *SelectiveADSyncManager) DiscoverOUs() ([]OUInfo, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -124,7 +124,7 @@ func (m *SelectiveADSyncManager) DiscoverOUs() ([]OUInfo, error) {
 	return mockOUs, nil
 }
 
-// ListOUs 列出所有已发现的OU
+// ListOUs 列出所有已发现的OU.
 func (m *SelectiveADSyncManager) ListOUs() []OUInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -136,7 +136,7 @@ func (m *SelectiveADSyncManager) ListOUs() []OUInfo {
 	return ous
 }
 
-// SelectOUs 选择要同步的OU
+// SelectOUs 选择要同步的OU.
 func (m *SelectiveADSyncManager) SelectOUs(ouDNs []string, replace bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -161,7 +161,7 @@ func (m *SelectiveADSyncManager) SelectOUs(ouDNs []string, replace bool) error {
 	return nil
 }
 
-// DeselectOUs 取消选择OU
+// DeselectOUs 取消选择OU.
 func (m *SelectiveADSyncManager) DeselectOUs(ouDNs []string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -178,7 +178,7 @@ func (m *SelectiveADSyncManager) DeselectOUs(ouDNs []string) error {
 	return nil
 }
 
-// GetSelectedOUs 获取已选择的OU列表
+// GetSelectedOUs 获取已选择的OU列表.
 func (m *SelectiveADSyncManager) GetSelectedOUs() []OUInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -196,7 +196,7 @@ func (m *SelectiveADSyncManager) GetSelectedOUs() []OUInfo {
 // 规则管理
 // ============================================================
 
-// CreateRule 创建同步规则
+// CreateRule 创建同步规则.
 func (m *SelectiveADSyncManager) CreateRule(rule SyncRule) (*SyncRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -223,7 +223,7 @@ func (m *SelectiveADSyncManager) CreateRule(rule SyncRule) (*SyncRule, error) {
 	return &ruleCopy, nil
 }
 
-// UpdateRule 更新同步规则
+// UpdateRule 更新同步规则.
 func (m *SelectiveADSyncManager) UpdateRule(rule SyncRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -243,7 +243,7 @@ func (m *SelectiveADSyncManager) UpdateRule(rule SyncRule) error {
 	return nil
 }
 
-// DeleteRule 删除同步规则
+// DeleteRule 删除同步规则.
 func (m *SelectiveADSyncManager) DeleteRule(ruleID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -256,7 +256,7 @@ func (m *SelectiveADSyncManager) DeleteRule(ruleID string) error {
 	return nil
 }
 
-// GetRule 获取同步规则
+// GetRule 获取同步规则.
 func (m *SelectiveADSyncManager) GetRule(ruleID string) (*SyncRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -269,7 +269,7 @@ func (m *SelectiveADSyncManager) GetRule(ruleID string) (*SyncRule, error) {
 	return rule, nil
 }
 
-// ListRules 列出所有规则
+// ListRules 列出所有规则.
 func (m *SelectiveADSyncManager) ListRules() []SyncRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -285,7 +285,7 @@ func (m *SelectiveADSyncManager) ListRules() []SyncRule {
 // 同步逻辑
 // ============================================================
 
-// Sync 执行同步
+// Sync 执行同步.
 func (m *SelectiveADSyncManager) Sync(req SyncRequest) (*SyncResult, error) {
 	m.mu.Lock()
 
@@ -398,14 +398,14 @@ func (m *SelectiveADSyncManager) Sync(req SyncRequest) (*SyncResult, error) {
 	return result, nil
 }
 
-// GetLastSyncResult 获取最后一次同步结果
+// GetLastSyncResult 获取最后一次同步结果.
 func (m *SelectiveADSyncManager) GetLastSyncResult() *SyncResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.lastResult
 }
 
-// GetSyncHistory 获取同步历史
+// GetSyncHistory 获取同步历史.
 func (m *SelectiveADSyncManager) GetSyncHistory() []SyncHistory {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -415,7 +415,7 @@ func (m *SelectiveADSyncManager) GetSyncHistory() []SyncHistory {
 	return history
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *SelectiveADSyncManager) GetStats() SyncStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -426,7 +426,7 @@ func (m *SelectiveADSyncManager) GetStats() SyncStats {
 // 内部方法
 // ============================================================
 
-// applyFilters 应用过滤规则
+// applyFilters 应用过滤规则.
 func (m *SelectiveADSyncManager) applyFilters(ous []OUInfo, rules []SyncRule) []OUInfo {
 	if len(rules) == 0 {
 		return ous
@@ -445,7 +445,7 @@ func (m *SelectiveADSyncManager) applyFilters(ous []OUInfo, rules []SyncRule) []
 	return filtered
 }
 
-// matchesRule 检查OU是否匹配规则
+// matchesRule 检查OU是否匹配规则.
 func (m *SelectiveADSyncManager) matchesRule(ou OUInfo, rule SyncRule) bool {
 	// 检查包含列表
 	if len(rule.Filter.IncludeOUs) > 0 {
@@ -486,7 +486,7 @@ func (m *SelectiveADSyncManager) matchesRule(ou OUInfo, rule SyncRule) bool {
 	return true
 }
 
-// updateSelectedCount 更新已选择OU计数
+// updateSelectedCount 更新已选择OU计数.
 func (m *SelectiveADSyncManager) updateSelectedCount() {
 	count := 0
 	for _, ou := range m.ous {

@@ -10,13 +10,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// TrackerHandler 碳足迹追踪 API 处理器
+// TrackerHandler 碳足迹追踪 API 处理器.
 type TrackerHandler struct {
 	manager *TrackerManager
 	logger  *zap.Logger
 }
 
-// NewTrackerHandler 创建碳足迹追踪处理器
+// NewTrackerHandler 创建碳足迹追踪处理器.
 func NewTrackerHandler(manager *TrackerManager, logger *zap.Logger) *TrackerHandler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -27,7 +27,7 @@ func NewTrackerHandler(manager *TrackerManager, logger *zap.Logger) *TrackerHand
 	}
 }
 
-// RegisterTrackerRoutes 注册追踪路由
+// RegisterTrackerRoutes 注册追踪路由.
 func (h *TrackerHandler) RegisterTrackerRoutes(rg *gin.RouterGroup) {
 	carbon := rg.Group("/carbon")
 	{
@@ -56,7 +56,7 @@ func (h *TrackerHandler) RegisterTrackerRoutes(rg *gin.RouterGroup) {
 }
 
 // calculateFootprint 计算碳足迹
-// POST /api/v1/carbon/footprint
+// POST /api/v1/carbon/footprint.
 func (h *TrackerHandler) calculateFootprint(c *gin.Context) {
 	var req struct {
 		DeviceID   string  `json:"device_id" binding:"required"`
@@ -114,7 +114,7 @@ func (h *TrackerHandler) calculateFootprint(c *gin.Context) {
 }
 
 // getGreenScore 获取绿色评分
-// GET /api/v1/carbon/score/:deviceID
+// GET /api/v1/carbon/score/:deviceID.
 func (h *TrackerHandler) getGreenScore(c *gin.Context) {
 	deviceID := c.Param("deviceID")
 
@@ -135,7 +135,7 @@ func (h *TrackerHandler) getGreenScore(c *gin.Context) {
 }
 
 // getEnergySources 获取能源来源列表
-// GET /api/v1/carbon/energy-sources
+// GET /api/v1/carbon/energy-sources.
 func (h *TrackerHandler) getEnergySources(c *gin.Context) {
 	sources := h.manager.GetEnergySources()
 
@@ -149,7 +149,7 @@ func (h *TrackerHandler) getEnergySources(c *gin.Context) {
 }
 
 // setEnergySource 设置能源来源
-// POST /api/v1/carbon/energy-source
+// POST /api/v1/carbon/energy-source.
 func (h *TrackerHandler) setEnergySource(c *gin.Context) {
 	var source EnergySource
 
@@ -177,7 +177,7 @@ func (h *TrackerHandler) setEnergySource(c *gin.Context) {
 }
 
 // getHistory 获取碳排放历史
-// GET /api/v1/carbon/history/:deviceID?start_time=...&end_time=...&limit=100
+// GET /api/v1/carbon/history/:deviceID?start_time=...&end_time=...&limit=100.
 func (h *TrackerHandler) getHistory(c *gin.Context) {
 	deviceID := c.Param("deviceID")
 
@@ -220,7 +220,7 @@ func (h *TrackerHandler) getHistory(c *gin.Context) {
 }
 
 // getEmissions 获取排放记录
-// GET /api/v1/carbon/emissions?start_time=...&end_time=...&limit=100
+// GET /api/v1/carbon/emissions?start_time=...&end_time=...&limit=100.
 func (h *TrackerHandler) getEmissions(c *gin.Context) {
 	var startTime, endTime time.Time
 	if v := c.Query("start_time"); v != "" {
@@ -253,7 +253,7 @@ func (h *TrackerHandler) getEmissions(c *gin.Context) {
 }
 
 // getDeviceSummary 获取设备碳排放汇总
-// GET /api/v1/carbon/summary/:deviceID?days=30
+// GET /api/v1/carbon/summary/:deviceID?days=30.
 func (h *TrackerHandler) getDeviceSummary(c *gin.Context) {
 	deviceID := c.Param("deviceID")
 
@@ -281,7 +281,7 @@ func (h *TrackerHandler) getDeviceSummary(c *gin.Context) {
 }
 
 // getDashboard 获取仪表盘数据
-// GET /api/v1/carbon/dashboard
+// GET /api/v1/carbon/dashboard.
 func (h *TrackerHandler) getDashboard(c *gin.Context) {
 	dashboard := h.manager.GetDashboardData()
 

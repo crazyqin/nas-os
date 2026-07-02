@@ -15,28 +15,28 @@ import (
 // IOC 验证器
 // ============================================================
 
-// IOCValidator IOC 验证器
+// IOCValidator IOC 验证器.
 type IOCValidator struct {
 	mu sync.RWMutex
 }
 
-// NewIOCValidator 创建 IOC 验证器
+// NewIOCValidator 创建 IOC 验证器.
 func NewIOCValidator() *IOCValidator {
 	return &IOCValidator{}
 }
 
-// ValidateIP 验证 IP 地址格式
+// ValidateIP 验证 IP 地址格式.
 func (v *IOCValidator) ValidateIP(value string) bool {
 	return net.ParseIP(value) != nil
 }
 
-// ValidateCIDR 验证 CIDR 格式
+// ValidateCIDR 验证 CIDR 格式.
 func (v *IOCValidator) ValidateCIDR(value string) bool {
 	_, _, err := net.ParseCIDR(value)
 	return err == nil
 }
 
-// ValidateDomain 验证域名格式
+// ValidateDomain 验证域名格式.
 func (v *IOCValidator) ValidateDomain(value string) bool {
 	if len(value) == 0 || len(value) > 253 {
 		return false
@@ -45,12 +45,12 @@ func (v *IOCValidator) ValidateDomain(value string) bool {
 	return domainRegex.MatchString(value)
 }
 
-// ValidateURL 验证 URL 格式
+// ValidateURL 验证 URL 格式.
 func (v *IOCValidator) ValidateURL(value string) bool {
 	return strings.HasPrefix(value, "http://") || strings.HasPrefix(value, "https://")
 }
 
-// ValidateFileHash 验证文件哈希格式（MD5/SHA1/SHA256）
+// ValidateFileHash 验证文件哈希格式（MD5/SHA1/SHA256）.
 func (v *IOCValidator) ValidateFileHash(value string) bool {
 	value = strings.ToLower(value)
 	md5Regex := regexp.MustCompile(`^[a-f0-9]{32}$`)
@@ -59,13 +59,13 @@ func (v *IOCValidator) ValidateFileHash(value string) bool {
 	return md5Regex.MatchString(value) || sha1Regex.MatchString(value) || sha256Regex.MatchString(value)
 }
 
-// ValidateEmail 验证邮箱格式
+// ValidateEmail 验证邮箱格式.
 func (v *IOCValidator) ValidateEmail(value string) bool {
 	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
 	return emailRegex.MatchString(value)
 }
 
-// ValidateIOC 验证 IOC 是否合法
+// ValidateIOC 验证 IOC 是否合法.
 func (v *IOCValidator) ValidateIOC(ioc *IOC) error {
 	switch ioc.Type {
 	case IOCTypeIP:
@@ -103,14 +103,14 @@ func (v *IOCValidator) ValidateIOC(ioc *IOC) error {
 // IOC 匹配器
 // ============================================================
 
-// IOCMatcher IOC 匹配器
+// IOCMatcher IOC 匹配器.
 type IOCMatcher struct {
 	engine    *Engine
 	validator *IOCValidator
 	mu        sync.RWMutex
 }
 
-// NewIOCMatcher 创建 IOC 匹配器
+// NewIOCMatcher 创建 IOC 匹配器.
 func NewIOCMatcher(engine *Engine) *IOCMatcher {
 	return &IOCMatcher{
 		engine:    engine,
@@ -118,7 +118,7 @@ func NewIOCMatcher(engine *Engine) *IOCMatcher {
 	}
 }
 
-// MatchIP 匹配 IP 地址
+// MatchIP 匹配 IP 地址.
 func (m *IOCMatcher) MatchIP(ip string) []*IOC {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -146,7 +146,7 @@ func (m *IOCMatcher) MatchIP(ip string) []*IOC {
 	return matches
 }
 
-// MatchDomain 匹配域名
+// MatchDomain 匹配域名.
 func (m *IOCMatcher) MatchDomain(domain string) []*IOC {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -166,7 +166,7 @@ func (m *IOCMatcher) MatchDomain(domain string) []*IOC {
 	return matches
 }
 
-// MatchFileHash 匹配文件哈希
+// MatchFileHash 匹配文件哈希.
 func (m *IOCMatcher) MatchFileHash(hash string) []*IOC {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -183,7 +183,7 @@ func (m *IOCMatcher) MatchFileHash(hash string) []*IOC {
 	return matches
 }
 
-// MatchURL 匹配 URL
+// MatchURL 匹配 URL.
 func (m *IOCMatcher) MatchURL(url string) []*IOC {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -203,7 +203,7 @@ func (m *IOCMatcher) MatchURL(url string) []*IOC {
 	return matches
 }
 
-// MatchAny 自动检测 IOC 类型并匹配
+// MatchAny 自动检测 IOC 类型并匹配.
 func (m *IOCMatcher) MatchAny(value string) []*IOC {
 	if m.validator.ValidateIP(value) {
 		return m.MatchIP(value)
@@ -224,7 +224,7 @@ func (m *IOCMatcher) MatchAny(value string) []*IOC {
 // IOC 阻断管理
 // ============================================================
 
-// BlockManager IOC 阻断管理器
+// BlockManager IOC 阻断管理器.
 type BlockManager struct {
 	engine         *Engine
 	blockedIPs     map[string]time.Time
@@ -232,7 +232,7 @@ type BlockManager struct {
 	mu             sync.RWMutex
 }
 
-// NewBlockManager 创建阻断管理器
+// NewBlockManager 创建阻断管理器.
 func NewBlockManager(engine *Engine) *BlockManager {
 	return &BlockManager{
 		engine:         engine,
@@ -241,7 +241,7 @@ func NewBlockManager(engine *Engine) *BlockManager {
 	}
 }
 
-// BlockIP 阻断 IP
+// BlockIP 阻断 IP.
 func (bm *BlockManager) BlockIP(ip string, duration time.Duration) error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -262,7 +262,7 @@ func (bm *BlockManager) BlockIP(ip string, duration time.Duration) error {
 	return nil
 }
 
-// UnblockIP 取消阻断 IP
+// UnblockIP 取消阻断 IP.
 func (bm *BlockManager) UnblockIP(ip string) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -275,7 +275,7 @@ func (bm *BlockManager) UnblockIP(ip string) {
 	}
 }
 
-// IsIPBlocked 检查 IP 是否被阻断
+// IsIPBlocked 检查 IP 是否被阻断.
 func (bm *BlockManager) IsIPBlocked(ip string) bool {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -293,7 +293,7 @@ func (bm *BlockManager) IsIPBlocked(ip string) bool {
 	return true
 }
 
-// BlockDomain 阻断域名
+// BlockDomain 阻断域名.
 func (bm *BlockManager) BlockDomain(domain string, duration time.Duration) error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -310,7 +310,7 @@ func (bm *BlockManager) BlockDomain(domain string, duration time.Duration) error
 	return nil
 }
 
-// UnblockDomain 取消阻断域名
+// UnblockDomain 取消阻断域名.
 func (bm *BlockManager) UnblockDomain(domain string) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -324,7 +324,7 @@ func (bm *BlockManager) UnblockDomain(domain string) {
 	}
 }
 
-// IsDomainBlocked 检查域名是否被阻断
+// IsDomainBlocked 检查域名是否被阻断.
 func (bm *BlockManager) IsDomainBlocked(domain string) bool {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -343,7 +343,7 @@ func (bm *BlockManager) IsDomainBlocked(domain string) bool {
 	return true
 }
 
-// GetBlockedIPs 获取所有被阻断的 IP
+// GetBlockedIPs 获取所有被阻断的 IP.
 func (bm *BlockManager) GetBlockedIPs() map[string]time.Time {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -358,7 +358,7 @@ func (bm *BlockManager) GetBlockedIPs() map[string]time.Time {
 	return result
 }
 
-// GetBlockedDomains 获取所有被阻断的域名
+// GetBlockedDomains 获取所有被阻断的域名.
 func (bm *BlockManager) GetBlockedDomains() map[string]time.Time {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -373,7 +373,7 @@ func (bm *BlockManager) GetBlockedDomains() map[string]time.Time {
 	return result
 }
 
-// CleanupExpired 清理过期的阻断记录
+// CleanupExpired 清理过期的阻断记录.
 func (bm *BlockManager) CleanupExpired() int {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -398,7 +398,7 @@ func (bm *BlockManager) CleanupExpired() int {
 	return cleaned
 }
 
-// AutoBlockHighThreat 自动阻断高威胁 IOC
+// AutoBlockHighThreat 自动阻断高威胁 IOC.
 func (bm *BlockManager) AutoBlockHighThreat(threshold int) int {
 	blocked := 0
 	iocs := bm.engine.ListIOCs()

@@ -11,11 +11,11 @@ import (
 	"time"
 )
 
-// PredictorHealthLevel 预测器健康等级
+// PredictorHealthLevel 预测器健康等级.
 type PredictorHealthLevel string
 
 // PredictorHealthLevel 预测器健康等级
-// 使用 Predictor 前缀避免与 HealthStatus 常量冲突
+// 使用 Predictor 前缀避免与 HealthStatus 常量冲突.
 const (
 	PredictorExcellent PredictorHealthLevel = "excellent" // 健康状态优秀
 	PredictorGood      PredictorHealthLevel = "good"      // 健康状态良好
@@ -24,79 +24,79 @@ const (
 	PredictorFailure   PredictorHealthLevel = "failure"   // 预测故障
 )
 
-// DiskSMARTData 磁盘 SMART 数据
+// DiskSMARTData 磁盘 SMART 数据.
 type DiskSMARTData struct {
-	DeviceID         string    `json:"device_id"`
-	Model            string    `json:"model"`
-	Serial           string    `json:"serial"`
-	Capacity         int64     `json:"capacity"`
-	Temperature      int       `json:"temperature"`       // 当前温度（℃）
-	TemperatureMax   int       `json:"temperature_max"`   // 历史最高温度
-	PowerOnHours     int64     `json:"power_on_hours"`    // 通电时间
-	PowerCycleCount  int64     `json:"power_cycle_count"` // 通电次数
-	ReallocatedSects int64     `json:"reallocated_sectors"` // 重映射扇区
-	PendingSects     int64     `json:"pending_sectors"`   // 待映射扇区
-	UncorrectableSects int64   `json:"uncorrectable_sectors"` // 不可修正扇区
-	SeekErrorRate    float64   `json:"seek_error_rate"`   // 寻道错误率
-	ReadErrorRate    float64   `json:"read_error_rate"`   // 读取错误率
-	SpinRetryCount   int64     `json:"spin_retry_count"`  // 主轴重试次数
-	CRCTErrorCount   int64     `json:"crc_error_count"`   // CRC 错误计数
-	TotalWritten     int64     `json:"total_written"`     // 总写入量（TB）
-	TotalRead        int64     `json:"total_read"`        // 总读取量（TB）
-	WearLeveling     int       `json:"wear_leveling"`     // 磨损均衡（SSD，0-100%）
-	MediaErrors      int64     `json:"media_errors"`      // 介质错误
-	LastChecked      time.Time `json:"last_checked"`
+	DeviceID           string    `json:"device_id"`
+	Model              string    `json:"model"`
+	Serial             string    `json:"serial"`
+	Capacity           int64     `json:"capacity"`
+	Temperature        int       `json:"temperature"`           // 当前温度（℃）
+	TemperatureMax     int       `json:"temperature_max"`       // 历史最高温度
+	PowerOnHours       int64     `json:"power_on_hours"`        // 通电时间
+	PowerCycleCount    int64     `json:"power_cycle_count"`     // 通电次数
+	ReallocatedSects   int64     `json:"reallocated_sectors"`   // 重映射扇区
+	PendingSects       int64     `json:"pending_sectors"`       // 待映射扇区
+	UncorrectableSects int64     `json:"uncorrectable_sectors"` // 不可修正扇区
+	SeekErrorRate      float64   `json:"seek_error_rate"`       // 寻道错误率
+	ReadErrorRate      float64   `json:"read_error_rate"`       // 读取错误率
+	SpinRetryCount     int64     `json:"spin_retry_count"`      // 主轴重试次数
+	CRCTErrorCount     int64     `json:"crc_error_count"`       // CRC 错误计数
+	TotalWritten       int64     `json:"total_written"`         // 总写入量（TB）
+	TotalRead          int64     `json:"total_read"`            // 总读取量（TB）
+	WearLeveling       int       `json:"wear_leveling"`         // 磨损均衡（SSD，0-100%）
+	MediaErrors        int64     `json:"media_errors"`          // 介质错误
+	LastChecked        time.Time `json:"last_checked"`
 }
 
-// HealthReport 健康报告
+// HealthReport 健康报告.
 type HealthReport struct {
-	DeviceID      string              `json:"device_id"`
-	Level         PredictorHealthLevel `json:"level"`
-	Score         int         `json:"score"`          // 0-100 健康评分
-	PredictedLife int         `json:"predicted_life"`  // 预测剩余寿命（天）
-	FailureProb   float64     `json:"failure_prob"`   // 90天内故障概率（0-1）
-	Warnings      []Warning   `json:"warnings"`
-	Recommendations []string  `json:"recommendations"`
-	GeneratedAt   time.Time   `json:"generated_at"`
+	DeviceID        string               `json:"device_id"`
+	Level           PredictorHealthLevel `json:"level"`
+	Score           int                  `json:"score"`          // 0-100 健康评分
+	PredictedLife   int                  `json:"predicted_life"` // 预测剩余寿命（天）
+	FailureProb     float64              `json:"failure_prob"`   // 90天内故障概率（0-1）
+	Warnings        []Warning            `json:"warnings"`
+	Recommendations []string             `json:"recommendations"`
+	GeneratedAt     time.Time            `json:"generated_at"`
 }
 
-// Warning 告警信息
+// Warning 告警信息.
 type Warning struct {
-	Code     string `json:"code"`
-	Severity string `json:"severity"` // info, warning, critical
-	Message  string `json:"message"`
-	Value    string `json:"value"`
+	Code      string `json:"code"`
+	Severity  string `json:"severity"` // info, warning, critical
+	Message   string `json:"message"`
+	Value     string `json:"value"`
 	Threshold string `json:"threshold"`
 }
 
-// PredictiveMetrics 预测指标
+// PredictiveMetrics 预测指标.
 type PredictiveMetrics struct {
-	TemperatureTrend   float64 `json:"temperature_trend"`   // 温度趋势（℃/天）
-	ErrorRateTrend     float64 `json:"error_rate_trend"`    // 错误率趋势
-	PerformanceDegrad  float64 `json:"performance_degrad"`  // 性能退化百分比
-	RemainingLifePct   float64 `json:"remaining_life_pct"`  // 剩余寿命百分比
-	MTBFHours          int64   `json:"mtbf_hours"`          // 平均故障间隔时间
+	TemperatureTrend  float64 `json:"temperature_trend"`  // 温度趋势（℃/天）
+	ErrorRateTrend    float64 `json:"error_rate_trend"`   // 错误率趋势
+	PerformanceDegrad float64 `json:"performance_degrad"` // 性能退化百分比
+	RemainingLifePct  float64 `json:"remaining_life_pct"` // 剩余寿命百分比
+	MTBFHours         int64   `json:"mtbf_hours"`         // 平均故障间隔时间
 }
 
-// HealthPredictor 健康预测器
+// HealthPredictor 健康预测器.
 type HealthPredictor struct {
-	mu       sync.RWMutex
-	logger   *slog.Logger
-	history  map[string][]DiskSMARTData // 设备ID -> 历史数据
-	reports  map[string]*HealthReport   // 设备ID -> 最新报告
-	alerts   []Alert
+	mu      sync.RWMutex
+	logger  *slog.Logger
+	history map[string][]DiskSMARTData // 设备ID -> 历史数据
+	reports map[string]*HealthReport   // 设备ID -> 最新报告
+	alerts  []Alert
 }
 
-// Alert 告警记录
+// Alert 告警记录.
 type Alert struct {
-	DeviceID  string              `json:"device_id"`
+	DeviceID  string               `json:"device_id"`
 	Level     PredictorHealthLevel `json:"level"`
-	Message   string      `json:"message"`
-	CreatedAt time.Time   `json:"created_at"`
-	Acked     bool        `json:"acked"`
+	Message   string               `json:"message"`
+	CreatedAt time.Time            `json:"created_at"`
+	Acked     bool                 `json:"acked"`
 }
 
-// NewPredictor 创建健康预测器
+// NewPredictor 创建健康预测器.
 func NewPredictor(logger *slog.Logger) *HealthPredictor {
 	if logger == nil {
 		logger = slog.Default()
@@ -108,7 +108,7 @@ func NewPredictor(logger *slog.Logger) *HealthPredictor {
 	}
 }
 
-// IngestSMARTData 输入 SMART 数据并更新预测
+// IngestSMARTData 输入 SMART 数据并更新预测.
 func (p *HealthPredictor) IngestSMARTData(data DiskSMARTData) *HealthReport {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -138,7 +138,7 @@ func (p *HealthPredictor) IngestSMARTData(data DiskSMARTData) *HealthReport {
 	return report
 }
 
-// evaluate 评估磁盘健康状态
+// evaluate 评估磁盘健康状态.
 func (p *HealthPredictor) evaluate(data DiskSMARTData) *HealthReport {
 	report := &HealthReport{
 		DeviceID:    data.DeviceID,
@@ -234,7 +234,7 @@ func (p *HealthPredictor) evaluate(data DiskSMARTData) *HealthReport {
 	return report
 }
 
-// scoreToLevel 根据评分确定健康等级
+// scoreToLevel 根据评分确定健康等级.
 func (p *HealthPredictor) scoreToLevel(score int) PredictorHealthLevel {
 	switch {
 	case score >= 90:
@@ -250,7 +250,7 @@ func (p *HealthPredictor) scoreToLevel(score int) PredictorHealthLevel {
 	}
 }
 
-// predictRemainingLife 预测剩余寿命（天）
+// predictRemainingLife 预测剩余寿命（天）.
 func (p *HealthPredictor) predictRemainingLife(data DiskSMARTData, history []DiskSMARTData) int {
 	if data.PowerOnHours == 0 {
 		return 3650 // 默认 10 年
@@ -282,7 +282,7 @@ func (p *HealthPredictor) predictRemainingLife(data DiskSMARTData, history []Dis
 	return int(remaining / 24) // 转换为天数
 }
 
-// calculateFailureProb 计算 90 天内故障概率
+// calculateFailureProb 计算 90 天内故障概率.
 func (p *HealthPredictor) calculateFailureProb(data DiskSMARTData, history []DiskSMARTData, score int) float64 {
 	prob := 0.01 // 基础概率 1%
 
@@ -313,7 +313,7 @@ func (p *HealthPredictor) calculateFailureProb(data DiskSMARTData, history []Dis
 	return prob
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (p *HealthPredictor) generateRecommendations(report *HealthReport, data DiskSMARTData) []string {
 	var recs []string
 
@@ -341,7 +341,7 @@ func (p *HealthPredictor) generateRecommendations(report *HealthReport, data Dis
 	return recs
 }
 
-// GetReport 获取设备健康报告
+// GetReport 获取设备健康报告.
 func (p *HealthPredictor) GetReport(deviceID string) (*HealthReport, bool) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -349,7 +349,7 @@ func (p *HealthPredictor) GetReport(deviceID string) (*HealthReport, bool) {
 	return report, found
 }
 
-// GetAllReports 获取所有设备健康报告
+// GetAllReports 获取所有设备健康报告.
 func (p *HealthPredictor) GetAllReports() map[string]*HealthReport {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -361,7 +361,7 @@ func (p *HealthPredictor) GetAllReports() map[string]*HealthReport {
 	return result
 }
 
-// GetAlerts 获取未确认的告警
+// GetAlerts 获取未确认的告警.
 func (p *HealthPredictor) GetAlerts() []Alert {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -375,7 +375,7 @@ func (p *HealthPredictor) GetAlerts() []Alert {
 	return unacked
 }
 
-// AckAlert 确认告警
+// AckAlert 确认告警.
 func (p *HealthPredictor) AckAlert(deviceID string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()

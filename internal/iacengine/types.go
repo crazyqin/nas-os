@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// StackStatus represents the state of a stack
+// StackStatus represents the state of a stack.
 type StackStatus string
 
 const (
@@ -18,7 +18,7 @@ const (
 	StackStatusDrifted  StackStatus = "drifted"
 )
 
-// ResourceStatus represents the state of a resource
+// ResourceStatus represents the state of a resource.
 type ResourceStatus string
 
 const (
@@ -31,7 +31,7 @@ const (
 	ResourceStatusDrifted  ResourceStatus = "drifted"
 )
 
-// DriftStatus represents drift detection result
+// DriftStatus represents drift detection result.
 type DriftStatus string
 
 const (
@@ -41,7 +41,7 @@ const (
 	DriftStatusModified DriftStatus = "modified"
 )
 
-// IaCTemplate represents an Infrastructure as Code template
+// IaCTemplate represents an Infrastructure as Code template.
 type IaCTemplate struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -54,7 +54,7 @@ type IaCTemplate struct {
 	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
-// Resource represents a managed infrastructure resource
+// Resource represents a managed infrastructure resource.
 type Resource struct {
 	ID         string            `json:"id"`
 	StackID    string            `json:"stack_id"`
@@ -68,7 +68,7 @@ type Resource struct {
 	UpdatedAt  time.Time         `json:"updated_at"`
 }
 
-// Stack represents a deployed infrastructure stack
+// Stack represents a deployed infrastructure stack.
 type Stack struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -85,7 +85,7 @@ type Stack struct {
 	DestroyedAt *time.Time        `json:"destroyed_at,omitempty"`
 }
 
-// DriftReport represents a drift detection report
+// DriftReport represents a drift detection report.
 type DriftReport struct {
 	ID        string          `json:"id"`
 	StackID   string          `json:"stack_id"`
@@ -96,7 +96,7 @@ type DriftReport struct {
 	Summary   DriftSummary    `json:"summary"`
 }
 
-// ResourceDrift represents drift in a single resource
+// ResourceDrift represents drift in a single resource.
 type ResourceDrift struct {
 	ResourceID   string      `json:"resource_id"`
 	ResourceName string      `json:"resource_name"`
@@ -107,7 +107,7 @@ type ResourceDrift struct {
 	Diff         string      `json:"diff,omitempty"`
 }
 
-// DriftSummary provides a summary of drift detection
+// DriftSummary provides a summary of drift detection.
 type DriftSummary struct {
 	TotalResources     int `json:"total_resources"`
 	DriftedResources   int `json:"drifted_resources"`
@@ -116,14 +116,14 @@ type DriftSummary struct {
 	UnchangedResources int `json:"unchanged_resources"`
 }
 
-// DeployStackRequest is the request for deploying a stack
+// DeployStackRequest is the request for deploying a stack.
 type DeployStackRequest struct {
 	Name       string            `json:"name" binding:"required"`
 	TemplateID string            `json:"template_id" binding:"required"`
 	Variables  map[string]string `json:"variables,omitempty"`
 }
 
-// UpdateStackRequest is the request for updating a stack
+// UpdateStackRequest is the request for updating a stack.
 type UpdateStackRequest struct {
 	Variables map[string]string `json:"variables,omitempty"`
 }

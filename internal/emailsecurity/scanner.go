@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// Scanner 邮件安全扫描器
+// Scanner 邮件安全扫描器.
 type Scanner struct {
 	mu              sync.RWMutex
 	policies        map[string]*SecurityPolicy
@@ -24,7 +24,7 @@ type Scanner struct {
 	keywordPatterns []*regexp.Regexp
 }
 
-// NewScanner 创建新的扫描器实例
+// NewScanner 创建新的扫描器实例.
 func NewScanner() *Scanner {
 	s := &Scanner{
 		policies:        make(map[string]*SecurityPolicy),
@@ -39,7 +39,7 @@ func NewScanner() *Scanner {
 	return s
 }
 
-// initDefaultConfig 初始化默认配置
+// initDefaultConfig 初始化默认配置.
 func (s *Scanner) initDefaultConfig() {
 	// 可执行文件扩展名
 	execExts := []string{
@@ -61,7 +61,7 @@ func (s *Scanner) initDefaultConfig() {
 	}
 }
 
-// ScanEmail 扫描邮件
+// ScanEmail 扫描邮件.
 func (s *Scanner) ScanEmail(req ScanEmailRequest) (*ScanResult, error) {
 	startTime := time.Now()
 
@@ -110,7 +110,7 @@ func (s *Scanner) ScanEmail(req ScanEmailRequest) (*ScanResult, error) {
 	return result, nil
 }
 
-// scanAttachments 扫描附件
+// scanAttachments 扫描附件.
 func (s *Scanner) scanAttachments(attachments []AttachmentInfo, config AttachmentScanConfig) []ThreatItem {
 	threats := make([]ThreatItem, 0)
 
@@ -167,7 +167,7 @@ func (s *Scanner) scanAttachments(attachments []AttachmentInfo, config Attachmen
 	return threats
 }
 
-// scanForPhishing 扫描钓鱼链接
+// scanForPhishing 扫描钓鱼链接.
 func (s *Scanner) scanForPhishing(body, subject string, config PhishingDetectionConfig) []ThreatItem {
 	threats := make([]ThreatItem, 0)
 
@@ -236,7 +236,7 @@ func (s *Scanner) scanForPhishing(body, subject string, config PhishingDetection
 	return threats
 }
 
-// scanContentCompliance 扫描内容合规
+// scanContentCompliance 扫描内容合规.
 func (s *Scanner) scanContentCompliance(body, subject string, config ContentComplianceConfig) []ThreatItem {
 	threats := make([]ThreatItem, 0)
 	content := strings.ToLower(subject + " " + body)
@@ -304,7 +304,7 @@ func (s *Scanner) scanContentCompliance(body, subject string, config ContentComp
 	return threats
 }
 
-// calculateThreatScore 计算威胁评分
+// calculateThreatScore 计算威胁评分.
 func (s *Scanner) calculateThreatScore(threats []ThreatItem) int {
 	if len(threats) == 0 {
 		return 0
@@ -332,7 +332,7 @@ func (s *Scanner) calculateThreatScore(threats []ThreatItem) int {
 	return score
 }
 
-// getApplicablePolicies 获取适用的安全策略
+// getApplicablePolicies 获取适用的安全策略.
 func (s *Scanner) getApplicablePolicies() []*SecurityPolicy {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -354,7 +354,7 @@ func (s *Scanner) getApplicablePolicies() []*SecurityPolicy {
 	return policies
 }
 
-// isExecutable 检查是否为可执行文件
+// isExecutable 检查是否为可执行文件.
 func (s *Scanner) isExecutable(filename string) bool {
 	lower := strings.ToLower(filename)
 	for ext := range s.executableExts {
@@ -365,7 +365,7 @@ func (s *Scanner) isExecutable(filename string) bool {
 	return false
 }
 
-// isMacroDocument 检查是否为宏文档
+// isMacroDocument 检查是否为宏文档.
 func (s *Scanner) isMacroDocument(filename string) bool {
 	lower := strings.ToLower(filename)
 	for ext := range s.macroDocTypes {
@@ -376,7 +376,7 @@ func (s *Scanner) isMacroDocument(filename string) bool {
 	return false
 }
 
-// isBlockedArchive 检查是否为受限压缩文件
+// isBlockedArchive 检查是否为受限压缩文件.
 func (s *Scanner) isBlockedArchive(filename string, blockedTypes []string) bool {
 	lower := strings.ToLower(filename)
 	for _, t := range blockedTypes {
@@ -387,13 +387,13 @@ func (s *Scanner) isBlockedArchive(filename string, blockedTypes []string) bool 
 	return false
 }
 
-// extractURLs 提取文本中的URL
+// extractURLs 提取文本中的URL.
 func (s *Scanner) extractURLs(text string) []string {
 	urlPattern := regexp.MustCompile(`https?://[^\s<>"{}|\\^` + "`" + `\[\]]+`)
 	return urlPattern.FindAllString(text, -1)
 }
 
-// extractDomain 从URL中提取域名
+// extractDomain 从URL中提取域名.
 func (s *Scanner) extractDomain(url string) string {
 	// 移除协议前缀
 	domain := url
@@ -411,7 +411,7 @@ func (s *Scanner) extractDomain(url string) string {
 	return strings.ToLower(domain)
 }
 
-// isDomainBlacklisted 检查域名是否在黑名单中
+// isDomainBlacklisted 检查域名是否在黑名单中.
 func (s *Scanner) isDomainBlacklisted(domain string, blacklist []string) bool {
 	for _, bd := range blacklist {
 		if strings.EqualFold(domain, bd) || strings.HasSuffix(domain, "."+bd) {
@@ -425,7 +425,7 @@ func (s *Scanner) isDomainBlacklisted(domain string, blacklist []string) bool {
 	return false
 }
 
-// isDomainWhitelisted 检查域名是否在白名单中
+// isDomainWhitelisted 检查域名是否在白名单中.
 func (s *Scanner) isDomainWhitelisted(domain string, whitelist []string) bool {
 	for _, wd := range whitelist {
 		if strings.EqualFold(domain, wd) || strings.HasSuffix(domain, "."+wd) {
@@ -435,7 +435,7 @@ func (s *Scanner) isDomainWhitelisted(domain string, whitelist []string) bool {
 	return false
 }
 
-// isSuspiciousURL 检查URL是否可疑
+// isSuspiciousURL 检查URL是否可疑.
 func (s *Scanner) isSuspiciousURL(url string) bool {
 	suspiciousPatterns := []string{
 		"login", "signin", "verify", "update", "secure",
@@ -471,7 +471,7 @@ func (s *Scanner) isSuspiciousURL(url string) bool {
 	return score >= 2
 }
 
-// hasPhishingSubject 检查主题是否包含钓鱼特征
+// hasPhishingSubject 检查主题是否包含钓鱼特征.
 func (s *Scanner) hasPhishingSubject(subject string) bool {
 	phishingKeywords := []string{
 		"urgent", "immediately", "action required", "verify your",
@@ -490,21 +490,21 @@ func (s *Scanner) hasPhishingSubject(subject string) bool {
 	return false
 }
 
-// AddPolicy 添加安全策略
+// AddPolicy 添加安全策略.
 func (s *Scanner) AddPolicy(policy *SecurityPolicy) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.policies[policy.ID] = policy
 }
 
-// RemovePolicy 移除安全策略
+// RemovePolicy 移除安全策略.
 func (s *Scanner) RemovePolicy(policyID string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	delete(s.policies, policyID)
 }
 
-// GetPolicy 获取安全策略
+// GetPolicy 获取安全策略.
 func (s *Scanner) GetPolicy(policyID string) (*SecurityPolicy, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -512,7 +512,7 @@ func (s *Scanner) GetPolicy(policyID string) (*SecurityPolicy, bool) {
 	return p, ok
 }
 
-// ListPolicies 列出所有安全策略
+// ListPolicies 列出所有安全策略.
 func (s *Scanner) ListPolicies() []*SecurityPolicy {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -524,21 +524,21 @@ func (s *Scanner) ListPolicies() []*SecurityPolicy {
 	return policies
 }
 
-// AddURLToBlacklist 添加URL到黑名单
+// AddURLToBlacklist 添加URL到黑名单.
 func (s *Scanner) AddURLToBlacklist(url string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.urlBlacklist[strings.ToLower(url)] = true
 }
 
-// AddDomainToBlacklist 添加域名到黑名单
+// AddDomainToBlacklist 添加域名到黑名单.
 func (s *Scanner) AddDomainToBlacklist(domain string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.domainBlacklist[strings.ToLower(domain)] = true
 }
 
-// GenerateContentHash 生成内容哈希
+// GenerateContentHash 生成内容哈希.
 func GenerateContentHash(content string) string {
 	hash := sha256.Sum256([]byte(content))
 	return hex.EncodeToString(hash[:])

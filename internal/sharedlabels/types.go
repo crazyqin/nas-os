@@ -14,7 +14,7 @@ import (
 
 // ========== 标签类型定义 ==========
 
-// LabelType 标签类型
+// LabelType 标签类型.
 type LabelType string
 
 const (
@@ -23,7 +23,7 @@ const (
 	LabelTypeTeam   LabelType = "team"   // 团队标签
 )
 
-// LabelColor 标签颜色
+// LabelColor 标签颜色.
 type LabelColor string
 
 const (
@@ -37,22 +37,22 @@ const (
 	ColorGray   LabelColor = "gray"
 )
 
-// Label 共享标签定义
+// Label 共享标签定义.
 type Label struct {
-	ID          string     `json:"id"`           // 唯一标识
-	Name        string     `json:"name"`         // 标签名称
-	Description string     `json:"description"`  // 标签描述
-	Type        LabelType  `json:"type"`         // 标签类型
-	Color       LabelColor `json:"color"`        // 标签颜色
-	CreatedBy   string     `json:"created_by"`   // 创建者
-	CreatedAt   time.Time  `json:"created_at"`   // 创建时间
-	UpdatedAt   time.Time  `json:"updated_at"`   // 更新时间
-	FileCount   int        `json:"file_count"`   // 使用此标签的文件数
-	IsPublic    bool       `json:"is_public"`    // 是否公开可见
-	TenantID    string     `json:"tenant_id"`    // 租户ID（多租户支持）
+	ID          string     `json:"id"`          // 唯一标识
+	Name        string     `json:"name"`        // 标签名称
+	Description string     `json:"description"` // 标签描述
+	Type        LabelType  `json:"type"`        // 标签类型
+	Color       LabelColor `json:"color"`       // 标签颜色
+	CreatedBy   string     `json:"created_by"`  // 创建者
+	CreatedAt   time.Time  `json:"created_at"`  // 创建时间
+	UpdatedAt   time.Time  `json:"updated_at"`  // 更新时间
+	FileCount   int        `json:"file_count"`  // 使用此标签的文件数
+	IsPublic    bool       `json:"is_public"`   // 是否公开可见
+	TenantID    string     `json:"tenant_id"`   // 租户ID（多租户支持）
 }
 
-// FileLabel 文件标签关联
+// FileLabel 文件标签关联.
 type FileLabel struct {
 	FileID    string    `json:"file_id"`    // 文件ID
 	FilePath  string    `json:"file_path"`  // 文件路径
@@ -62,7 +62,7 @@ type FileLabel struct {
 	AppliedAt time.Time `json:"applied_at"` // 应用时间
 }
 
-// LabelStats 标签统计
+// LabelStats 标签统计.
 type LabelStats struct {
 	TotalLabels  int            `json:"total_labels"`   // 标签总数
 	TotalFiles   int            `json:"total_files"`    // 文件总数
@@ -70,7 +70,7 @@ type LabelStats struct {
 	TopLabels    []LabelRank    `json:"top_labels"`     // 热门标签
 }
 
-// LabelRank 标签排名
+// LabelRank 标签排名.
 type LabelRank struct {
 	LabelID   string `json:"label_id"`   // 标签ID
 	LabelName string `json:"label_name"` // 标签名称
@@ -79,48 +79,48 @@ type LabelRank struct {
 
 // ========== 请求/响应结构 ==========
 
-// AssignLabelRequest 为文件分配标签请求
+// AssignLabelRequest 为文件分配标签请求.
 type AssignLabelRequest struct {
-	FileID    string   `json:"file_id" binding:"required"`    // 文件ID
-	FilePath  string   `json:"file_path" binding:"required"`  // 文件路径
-	LabelIDs  []string `json:"label_ids" binding:"required"`  // 标签ID列表
-	AppliedBy string   `json:"applied_by"`                    // 操作人
+	FileID    string   `json:"file_id" binding:"required"`   // 文件ID
+	FilePath  string   `json:"file_path" binding:"required"` // 文件路径
+	LabelIDs  []string `json:"label_ids" binding:"required"` // 标签ID列表
+	AppliedBy string   `json:"applied_by"`                   // 操作人
 }
 
-// SearchByLabelRequest 按标签搜索文件请求
+// SearchByLabelRequest 按标签搜索文件请求.
 type SearchByLabelRequest struct {
 	LabelIDs []string `form:"label_ids" json:"label_ids"` // 标签ID列表
 	TenantID string   `form:"tenant_id" json:"tenant_id"` // 租户ID
 }
 
-// CreateLabelRequest 创建标签请求
+// CreateLabelRequest 创建标签请求.
 type CreateLabelRequest struct {
-	Name        string     `json:"name" binding:"required"`        // 标签名称
-	Description string     `json:"description"`                    // 标签描述
-	Type        LabelType  `json:"type" binding:"required"`         // 标签类型
-	Color       LabelColor `json:"color"`                           // 标签颜色
-	CreatedBy   string     `json:"created_by" binding:"required"`   // 创建者
-	IsPublic    bool       `json:"is_public"`                       // 是否公开
-	TenantID    string     `json:"tenant_id"`                       // 租户ID
+	Name        string     `json:"name" binding:"required"`       // 标签名称
+	Description string     `json:"description"`                   // 标签描述
+	Type        LabelType  `json:"type" binding:"required"`       // 标签类型
+	Color       LabelColor `json:"color"`                         // 标签颜色
+	CreatedBy   string     `json:"created_by" binding:"required"` // 创建者
+	IsPublic    bool       `json:"is_public"`                     // 是否公开
+	TenantID    string     `json:"tenant_id"`                     // 租户ID
 }
 
-// RemoveLabelRequest 移除文件标签请求
+// RemoveLabelRequest 移除文件标签请求.
 type RemoveLabelRequest struct {
-	FileID   string `json:"file_id" binding:"required"`   // 文件ID
+	FileID   string   `json:"file_id" binding:"required"`   // 文件ID
 	LabelIDs []string `json:"label_ids" binding:"required"` // 标签ID列表
 }
 
 // ========== 服务层 ==========
 
-// Service 共享标签服务
+// Service 共享标签服务.
 type Service struct {
 	mu         sync.RWMutex
-	labels     map[string]*Label          // 标签集合
-	fileLabels map[string][]*FileLabel    // fileID -> 标签列表
-	labelFiles map[string][]*FileLabel    // labelID -> 文件列表（索引）
+	labels     map[string]*Label       // 标签集合
+	fileLabels map[string][]*FileLabel // fileID -> 标签列表
+	labelFiles map[string][]*FileLabel // labelID -> 文件列表（索引）
 }
 
-// NewService 创建共享标签服务
+// NewService 创建共享标签服务.
 func NewService() *Service {
 	return &Service{
 		labels:     make(map[string]*Label),
@@ -129,7 +129,7 @@ func NewService() *Service {
 	}
 }
 
-// CreateLabel 创建标签
+// CreateLabel 创建标签.
 func (s *Service) CreateLabel(ctx context.Context, req CreateLabelRequest) (*Label, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -159,7 +159,7 @@ func (s *Service) CreateLabel(ctx context.Context, req CreateLabelRequest) (*Lab
 	return label, nil
 }
 
-// ListLabels 列出标签
+// ListLabels 列出标签.
 func (s *Service) ListLabels(ctx context.Context, labelType LabelType, tenantID string) ([]*Label, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -177,7 +177,7 @@ func (s *Service) ListLabels(ctx context.Context, labelType LabelType, tenantID 
 	return result, nil
 }
 
-// GetLabel 获取标签详情
+// GetLabel 获取标签详情.
 func (s *Service) GetLabel(ctx context.Context, labelID string) (*Label, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -189,7 +189,7 @@ func (s *Service) GetLabel(ctx context.Context, labelID string) (*Label, error) 
 	return label, nil
 }
 
-// AssignLabels 为文件分配标签（支持多标签）
+// AssignLabels 为文件分配标签（支持多标签）.
 func (s *Service) AssignLabels(ctx context.Context, req AssignLabelRequest) ([]*FileLabel, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -233,7 +233,7 @@ func (s *Service) AssignLabels(ctx context.Context, req AssignLabelRequest) ([]*
 	return result, nil
 }
 
-// RemoveLabels 移除文件标签
+// RemoveLabels 移除文件标签.
 func (s *Service) RemoveLabels(ctx context.Context, req RemoveLabelRequest) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -269,7 +269,7 @@ func (s *Service) RemoveLabels(ctx context.Context, req RemoveLabelRequest) erro
 	return nil
 }
 
-// SearchByLabels 按标签搜索文件
+// SearchByLabels 按标签搜索文件.
 func (s *Service) SearchByLabels(ctx context.Context, labelIDs []string) ([]*FileLabel, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -303,14 +303,14 @@ func (s *Service) SearchByLabels(ctx context.Context, labelIDs []string) ([]*Fil
 	return result, nil
 }
 
-// GetFileLabels 获取文件的所有标签
+// GetFileLabels 获取文件的所有标签.
 func (s *Service) GetFileLabels(ctx context.Context, fileID string) ([]*FileLabel, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.fileLabels[fileID], nil
 }
 
-// GetStats 获取标签统计
+// GetStats 获取标签统计.
 func (s *Service) GetStats(ctx context.Context, tenantID string) (*LabelStats, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -341,7 +341,7 @@ func (s *Service) GetStats(ctx context.Context, tenantID string) (*LabelStats, e
 	return stats, nil
 }
 
-// DeleteLabel 删除标签
+// DeleteLabel 删除标签.
 func (s *Service) DeleteLabel(ctx context.Context, labelID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()

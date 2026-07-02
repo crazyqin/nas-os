@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Engine 离线AI引擎
+// Engine 离线AI引擎.
 type Engine struct {
 	mu          sync.RWMutex
 	logger      *zap.Logger
@@ -23,7 +23,7 @@ type Engine struct {
 	stopCh      chan struct{}
 }
 
-// NewEngine 创建离线AI引擎
+// NewEngine 创建离线AI引擎.
 func NewEngine(logger *zap.Logger, config *Config) *Engine {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -46,7 +46,7 @@ func NewEngine(logger *zap.Logger, config *Config) *Engine {
 	return e
 }
 
-// detectGPU 检测 GPU 信息
+// detectGPU 检测 GPU 信息.
 func (e *Engine) detectGPU() *GPUInfo {
 	info := &GPUInfo{
 		Available: false,
@@ -71,7 +71,7 @@ func (e *Engine) detectGPU() *GPUInfo {
 	return info
 }
 
-// Start 启动引擎
+// Start 启动引擎.
 func (e *Engine) Start(ctx context.Context) error {
 	if !atomic.CompareAndSwapInt32(&e.running, 0, 1) {
 		return fmt.Errorf("engine already running")
@@ -93,7 +93,7 @@ func (e *Engine) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止引擎
+// Stop 停止引擎.
 func (e *Engine) Stop() {
 	if !atomic.CompareAndSwapInt32(&e.running, 1, 0) {
 		return
@@ -112,12 +112,12 @@ func (e *Engine) Stop() {
 	e.logger.Info("offline AI engine stopped")
 }
 
-// IsRunning 引擎是否运行中
+// IsRunning 引擎是否运行中.
 func (e *Engine) IsRunning() bool {
 	return atomic.LoadInt32(&e.running) == 1
 }
 
-// loadDefaultModel 加载默认模型
+// loadDefaultModel 加载默认模型.
 func (e *Engine) loadDefaultModel(ctx context.Context) error {
 	return e.LoadModel(ctx, &Model{
 		Name:        e.config.DefaultModel,
@@ -132,7 +132,7 @@ func (e *Engine) loadDefaultModel(ctx context.Context) error {
 	})
 }
 
-// LoadModel 加载模型
+// LoadModel 加载模型.
 func (e *Engine) LoadModel(ctx context.Context, model *Model) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -153,7 +153,7 @@ func (e *Engine) LoadModel(ctx context.Context, model *Model) error {
 	return nil
 }
 
-// UnloadModel 卸载模型
+// UnloadModel 卸载模型.
 func (e *Engine) UnloadModel(name string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -169,7 +169,7 @@ func (e *Engine) UnloadModel(name string) error {
 	return nil
 }
 
-// GetModel 获取模型信息
+// GetModel 获取模型信息.
 func (e *Engine) GetModel(name string) (*Model, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -181,7 +181,7 @@ func (e *Engine) GetModel(name string) (*Model, error) {
 	return model, nil
 }
 
-// ListModels 列出所有已加载模型
+// ListModels 列出所有已加载模型.
 func (e *Engine) ListModels() []*Model {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -193,7 +193,7 @@ func (e *Engine) ListModels() []*Model {
 	return result
 }
 
-// SwitchModel 切换默认模型
+// SwitchModel 切换默认模型.
 func (e *Engine) SwitchModel(name string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -207,12 +207,12 @@ func (e *Engine) SwitchModel(name string) error {
 	return nil
 }
 
-// GetGPUInfo 获取 GPU 信息
+// GetGPUInfo 获取 GPU 信息.
 func (e *Engine) GetGPUInfo() *GPUInfo {
 	return e.gpuInfo
 }
 
-// Infer 执行推理
+// Infer 执行推理.
 func (e *Engine) Infer(ctx context.Context, req *InferRequest) (*InferResponse, error) {
 	if !e.IsRunning() {
 		return nil, fmt.Errorf("engine not running")
@@ -270,14 +270,14 @@ func (e *Engine) Infer(ctx context.Context, req *InferRequest) (*InferResponse, 
 	}, nil
 }
 
-// estimateTokens 估算 token 数
+// estimateTokens 估算 token 数.
 func estimateTokens(text string) int {
 	// 粗略估算：平均 1 token ≈ 4 字符（英文）或 1.5 字符（中文）
 	runes := []rune(text)
 	return len(runes)*2/3 + 1
 }
 
-// truncateString 截断字符串
+// truncateString 截断字符串.
 func truncateString(s string, maxLen int) string {
 	runes := []rune(s)
 	if len(runes) <= maxLen {

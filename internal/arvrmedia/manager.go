@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// Manager 管理 AR/VR 媒体体验模块
+// Manager 管理 AR/VR 媒体体验模块.
 type Manager struct {
 	mu               sync.RWMutex
 	panoramas        map[string]*PanoramaMedia
@@ -28,7 +28,7 @@ type Manager struct {
 	modelFormats     map[string]bool
 }
 
-// NewManager 创建新的 AR/VR 媒体管理器
+// NewManager 创建新的 AR/VR 媒体管理器.
 func NewManager(storagePath string) *Manager {
 	return &Manager{
 		panoramas:    make(map[string]*PanoramaMedia),
@@ -52,7 +52,7 @@ func NewManager(storagePath string) *Manager {
 
 // ==================== 全景媒体管理 ====================
 
-// CreatePanorama 创建全景媒体记录
+// CreatePanorama 创建全景媒体记录.
 func (m *Manager) CreatePanorama(req *PanoramaMedia) (*PanoramaMedia, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -88,7 +88,7 @@ func (m *Manager) CreatePanorama(req *PanoramaMedia) (*PanoramaMedia, error) {
 	return media, nil
 }
 
-// GetPanorama 获取全景媒体
+// GetPanorama 获取全景媒体.
 func (m *Manager) GetPanorama(id string) (*PanoramaMedia, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -96,7 +96,7 @@ func (m *Manager) GetPanorama(id string) (*PanoramaMedia, bool) {
 	return media, ok
 }
 
-// UpdatePanorama 更新全景媒体
+// UpdatePanorama 更新全景媒体.
 func (m *Manager) UpdatePanorama(id string, updates map[string]interface{}) (*PanoramaMedia, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -120,7 +120,7 @@ func (m *Manager) UpdatePanorama(id string, updates map[string]interface{}) (*Pa
 	return media, nil
 }
 
-// DeletePanorama 删除全景媒体
+// DeletePanorama 删除全景媒体.
 func (m *Manager) DeletePanorama(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -140,7 +140,7 @@ func (m *Manager) DeletePanorama(id string) error {
 	return nil
 }
 
-// ListPanoramas 列出全景媒体
+// ListPanoramas 列出全景媒体.
 func (m *Manager) ListPanoramas(mediaType string, page, pageSize int) ([]PanoramaMedia, int) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -175,7 +175,7 @@ func (m *Manager) ListPanoramas(mediaType string, page, pageSize int) ([]Panoram
 
 // ==================== 3D模型管理 ====================
 
-// CreateModel 创建3D模型记录
+// CreateModel 创建3D模型记录.
 func (m *Manager) CreateModel(req *Model3D) (*Model3D, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -210,7 +210,7 @@ func (m *Manager) CreateModel(req *Model3D) (*Model3D, error) {
 	return model, nil
 }
 
-// GetModel 获取3D模型
+// GetModel 获取3D模型.
 func (m *Manager) GetModel(id string) (*Model3D, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -218,7 +218,7 @@ func (m *Manager) GetModel(id string) (*Model3D, bool) {
 	return model, ok
 }
 
-// DeleteModel 删除3D模型
+// DeleteModel 删除3D模型.
 func (m *Manager) DeleteModel(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -238,7 +238,7 @@ func (m *Manager) DeleteModel(id string) error {
 	return nil
 }
 
-// ListModels 列出3D模型
+// ListModels 列出3D模型.
 func (m *Manager) ListModels(format string, page, pageSize int) ([]Model3D, int) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -270,7 +270,7 @@ func (m *Manager) ListModels(format string, page, pageSize int) ([]Model3D, int)
 
 // ==================== VR画廊管理 ====================
 
-// CreateGallery 创建VR画廊
+// CreateGallery 创建VR画廊.
 func (m *Manager) CreateGallery(req *VREntry) (*VREntry, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -304,7 +304,7 @@ func (m *Manager) CreateGallery(req *VREntry) (*VREntry, error) {
 	return gallery, nil
 }
 
-// GetGallery 获取VR画廊
+// GetGallery 获取VR画廊.
 func (m *Manager) GetGallery(id string) (*VREntry, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -312,7 +312,7 @@ func (m *Manager) GetGallery(id string) (*VREntry, bool) {
 	return gallery, ok
 }
 
-// UpdateGallery 更新VR画廊
+// UpdateGallery 更新VR画廊.
 func (m *Manager) UpdateGallery(id string, updates map[string]interface{}) (*VREntry, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -339,7 +339,7 @@ func (m *Manager) UpdateGallery(id string, updates map[string]interface{}) (*VRE
 	return gallery, nil
 }
 
-// DeleteGallery 删除VR画廊
+// DeleteGallery 删除VR画廊.
 func (m *Manager) DeleteGallery(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -351,7 +351,7 @@ func (m *Manager) DeleteGallery(id string) error {
 	return nil
 }
 
-// ListGalleries 列出VR画廊
+// ListGalleries 列出VR画廊.
 func (m *Manager) ListGalleries() []*VREntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -365,7 +365,7 @@ func (m *Manager) ListGalleries() []*VREntry {
 
 // ==================== 空间音频配置 ====================
 
-// CreateAudioConfig 创建空间音频配置
+// CreateAudioConfig 创建空间音频配置.
 func (m *Manager) CreateAudioConfig(req *SpatialAudioConfig) (*SpatialAudioConfig, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -406,7 +406,7 @@ func (m *Manager) CreateAudioConfig(req *SpatialAudioConfig) (*SpatialAudioConfi
 	return config, nil
 }
 
-// GetAudioConfig 获取空间音频配置
+// GetAudioConfig 获取空间音频配置.
 func (m *Manager) GetAudioConfig(id string) (*SpatialAudioConfig, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -414,7 +414,7 @@ func (m *Manager) GetAudioConfig(id string) (*SpatialAudioConfig, bool) {
 	return config, ok
 }
 
-// UpdateAudioConfig 更新空间音频配置
+// UpdateAudioConfig 更新空间音频配置.
 func (m *Manager) UpdateAudioConfig(id string, updates map[string]interface{}) (*SpatialAudioConfig, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -440,7 +440,7 @@ func (m *Manager) UpdateAudioConfig(id string, updates map[string]interface{}) (
 	return config, nil
 }
 
-// DeleteAudioConfig 删除空间音频配置
+// DeleteAudioConfig 删除空间音频配置.
 func (m *Manager) DeleteAudioConfig(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -452,7 +452,7 @@ func (m *Manager) DeleteAudioConfig(id string) error {
 	return nil
 }
 
-// ListAudioConfigs 列出空间音频配置
+// ListAudioConfigs 列出空间音频配置.
 func (m *Manager) ListAudioConfigs() []*SpatialAudioConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -466,7 +466,7 @@ func (m *Manager) ListAudioConfigs() []*SpatialAudioConfig {
 
 // ==================== 沉浸式影院管理 ====================
 
-// CreateTheater 创建沉浸式影院
+// CreateTheater 创建沉浸式影院.
 func (m *Manager) CreateTheater(req *ImmersiveTheater) (*ImmersiveTheater, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -506,7 +506,7 @@ func (m *Manager) CreateTheater(req *ImmersiveTheater) (*ImmersiveTheater, error
 	return theater, nil
 }
 
-// GetTheater 获取沉浸式影院
+// GetTheater 获取沉浸式影院.
 func (m *Manager) GetTheater(id string) (*ImmersiveTheater, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -514,7 +514,7 @@ func (m *Manager) GetTheater(id string) (*ImmersiveTheater, bool) {
 	return theater, ok
 }
 
-// DeleteTheater 删除沉浸式影院
+// DeleteTheater 删除沉浸式影院.
 func (m *Manager) DeleteTheater(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -526,7 +526,7 @@ func (m *Manager) DeleteTheater(id string) error {
 	return nil
 }
 
-// ListTheaters 列出沉浸式影院
+// ListTheaters 列出沉浸式影院.
 func (m *Manager) ListTheaters() []*ImmersiveTheater {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -540,7 +540,7 @@ func (m *Manager) ListTheaters() []*ImmersiveTheater {
 
 // ==================== WebXR会话管理 ====================
 
-// CreateSession 创建WebXR会话
+// CreateSession 创建WebXR会话.
 func (m *Manager) CreateSession(mode XRMode, deviceID string) (*WebXRSession, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -564,7 +564,7 @@ func (m *Manager) CreateSession(mode XRMode, deviceID string) (*WebXRSession, er
 	return session, nil
 }
 
-// GetSession 获取WebXR会话
+// GetSession 获取WebXR会话.
 func (m *Manager) GetSession(id string) (*WebXRSession, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -572,7 +572,7 @@ func (m *Manager) GetSession(id string) (*WebXRSession, bool) {
 	return session, ok
 }
 
-// UpdateSessionStatus 更新WebXR会话状态
+// UpdateSessionStatus 更新WebXR会话状态.
 func (m *Manager) UpdateSessionStatus(id, status string) (*WebXRSession, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -591,7 +591,7 @@ func (m *Manager) UpdateSessionStatus(id, status string) (*WebXRSession, error) 
 	return session, nil
 }
 
-// ListActiveSessions 列出活跃会话
+// ListActiveSessions 列出活跃会话.
 func (m *Manager) ListActiveSessions() []*WebXRSession {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -607,7 +607,7 @@ func (m *Manager) ListActiveSessions() []*WebXRSession {
 
 // ==================== 媒体导入 ====================
 
-// ImportMedia 导入媒体文件
+// ImportMedia 导入媒体文件.
 func (m *Manager) ImportMedia(ctx context.Context, sourcePath string, mediaType MediaType) (*ImportTask, error) {
 	m.mu.Lock()
 
@@ -712,7 +712,7 @@ func (m *Manager) processImport(ctx context.Context, task *ImportTask) {
 	})
 }
 
-// GetImportTask 获取导入任务状态
+// GetImportTask 获取导入任务状态.
 func (m *Manager) GetImportTask(id string) (*ImportTask, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -722,7 +722,7 @@ func (m *Manager) GetImportTask(id string) (*ImportTask, bool) {
 
 // ==================== 统计 ====================
 
-// GetStats 获取AR/VR媒体统计
+// GetStats 获取AR/VR媒体统计.
 func (m *Manager) GetStats() *ARVRStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

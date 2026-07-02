@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	group := router.Group("/fan")
 	{
@@ -30,22 +30,22 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	}
 }
 
-// GetFans 获取风扇状态
+// GetFans 获取风扇状态.
 func (h *Handler) GetFans(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "ok", "data": h.manager.GetFans()})
 }
 
-// GetSensors 获取温度传感器
+// GetSensors 获取温度传感器.
 func (h *Handler) GetSensors(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "ok", "data": h.manager.GetSensors()})
 }
 
-// GetProfiles 获取配置曲线
+// GetProfiles 获取配置曲线.
 func (h *Handler) GetProfiles(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "ok", "data": h.manager.GetProfiles()})
 }
 
-// SetProfile 设置活跃配置
+// SetProfile 设置活跃配置.
 func (h *Handler) SetProfile(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.SetProfile(id); err != nil {
@@ -55,7 +55,7 @@ func (h *Handler) SetProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "配置已应用"})
 }
 
-// SetFanMode 设置风扇模式
+// SetFanMode 设置风扇模式.
 func (h *Handler) SetFanMode(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
@@ -73,7 +73,7 @@ func (h *Handler) SetFanMode(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "风扇模式已更新"})
 }
 
-// GetAlerts 获取告警
+// GetAlerts 获取告警.
 func (h *Handler) GetAlerts(c *gin.Context) {
 	resolved := c.Query("resolved") == "true"
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "ok", "data": h.manager.GetAlerts(resolved)})

@@ -15,15 +15,15 @@ import (
 )
 
 const (
-	// DefaultPBKDF2Iterations PBKDF2 默认迭代次数
+	// DefaultPBKDF2Iterations PBKDF2 默认迭代次数.
 	DefaultPBKDF2Iterations = 100000
-	// DefaultSaltSize 默认盐值长度（字节）
+	// DefaultSaltSize 默认盐值长度（字节）.
 	DefaultSaltSize = 32
-	// DefaultKeySize 默认密钥长度（字节）
+	// DefaultKeySize 默认密钥长度（字节）.
 	DefaultKeySize = 32
 )
 
-// CryptoEngine 加密引擎
+// CryptoEngine 加密引擎.
 type CryptoEngine struct {
 	algorithm  EncryptionAlgorithm
 	keySize    int
@@ -31,7 +31,7 @@ type CryptoEngine struct {
 	iterations int
 }
 
-// NewCryptoEngine 创建加密引擎
+// NewCryptoEngine 创建加密引擎.
 func NewCryptoEngine(algorithm EncryptionAlgorithm) *CryptoEngine {
 	return &CryptoEngine{
 		algorithm:  algorithm,
@@ -42,7 +42,7 @@ func NewCryptoEngine(algorithm EncryptionAlgorithm) *CryptoEngine {
 }
 
 // DeriveKey 使用 PBKDF2-SHA256 从密码派生密钥
-// 返回派生密钥和盐值
+// 返回派生密钥和盐值.
 func (ce *CryptoEngine) DeriveKey(passphrase string) ([]byte, []byte, error) {
 	salt := make([]byte, ce.saltSize)
 	if _, err := io.ReadFull(rand.Reader, salt); err != nil {
@@ -53,7 +53,7 @@ func (ce *CryptoEngine) DeriveKey(passphrase string) ([]byte, []byte, error) {
 	return key, salt, nil
 }
 
-// DeriveKeyWithSalt 使用指定盐值派生密钥
+// DeriveKeyWithSalt 使用指定盐值派生密钥.
 func (ce *CryptoEngine) DeriveKeyWithSalt(passphrase string, salt []byte) []byte {
 	return ce.deriveKeyWithSalt(passphrase, salt)
 }
@@ -62,7 +62,7 @@ func (ce *CryptoEngine) deriveKeyWithSalt(passphrase string, salt []byte) []byte
 	return pbkdf2([]byte(passphrase), salt, ce.iterations, ce.keySize)
 }
 
-// pbkdf2 PBKDF2-SHA256 密钥派生实现
+// pbkdf2 PBKDF2-SHA256 密钥派生实现.
 func pbkdf2(password, salt []byte, iterations, keyLen int) []byte {
 	key := make([]byte, keyLen)
 	blockCount := (keyLen + sha256.Size - 1) / sha256.Size
@@ -97,7 +97,7 @@ func pbkdf2(password, salt []byte, iterations, keyLen int) []byte {
 	return key
 }
 
-// Encrypt 使用 AES-256-GCM 加密数据
+// Encrypt 使用 AES-256-GCM 加密数据.
 func (ce *CryptoEngine) Encrypt(key, plaintext []byte) ([]byte, error) {
 	if len(key) != ce.keySize {
 		return nil, NewPrivacyVaultError("INVALID_KEY_SIZE", "密钥长度不正确", nil)
@@ -123,7 +123,7 @@ func (ce *CryptoEngine) Encrypt(key, plaintext []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
-// Decrypt 使用 AES-256-GCM 解密数据
+// Decrypt 使用 AES-256-GCM 解密数据.
 func (ce *CryptoEngine) Decrypt(key, ciphertext []byte) ([]byte, error) {
 	if len(key) != ce.keySize {
 		return nil, NewPrivacyVaultError("INVALID_KEY_SIZE", "密钥长度不正确", nil)
@@ -153,7 +153,7 @@ func (ce *CryptoEngine) Decrypt(key, ciphertext []byte) ([]byte, error) {
 	return plaintext, nil
 }
 
-// RotateKey 轮换密钥：使用旧密钥解密，新密钥加密
+// RotateKey 轮换密钥：使用旧密钥解密，新密钥加密.
 func (ce *CryptoEngine) RotateKey(oldKey, newKey, ciphertext []byte) ([]byte, error) {
 	plaintext, err := ce.Decrypt(oldKey, ciphertext)
 	if err != nil {
@@ -168,19 +168,19 @@ func (ce *CryptoEngine) RotateKey(oldKey, newKey, ciphertext []byte) ([]byte, er
 	return newCiphertext, nil
 }
 
-// ComputeHash 计算数据的 SHA-256 哈希
+// ComputeHash 计算数据的 SHA-256 哈希.
 func ComputeHash(data []byte) string {
 	hash := sha256.Sum256(data)
 	return hex.EncodeToString(hash[:])
 }
 
-// VerifyHash 验证数据的 SHA-256 哈希
+// VerifyHash 验证数据的 SHA-256 哈希.
 func VerifyHash(data []byte, expectedHash string) bool {
 	actualHash := ComputeHash(data)
 	return hmac.Equal([]byte(actualHash), []byte(expectedHash))
 }
 
-// GenerateToken 生成随机令牌
+// GenerateToken 生成随机令牌.
 func GenerateToken(length int) (string, error) {
 	if length <= 0 {
 		length = 32
@@ -192,24 +192,24 @@ func GenerateToken(length int) (string, error) {
 	return hex.EncodeToString(bytes), nil
 }
 
-// GenerateVerificationToken 生成密码验证令牌
+// GenerateVerificationToken 生成密码验证令牌.
 func GenerateVerificationToken(passphrase string, salt []byte) string {
 	key := sha256.Sum256(append(salt, []byte(passphrase)...))
 	return hex.EncodeToString(key[:])
 }
 
-// VerifyPassphrase 验证密码是否匹配
+// VerifyPassphrase 验证密码是否匹配.
 func VerifyPassphrase(passphrase string, salt []byte, expectedToken string) bool {
 	actualToken := GenerateVerificationToken(passphrase, salt)
 	return hmac.Equal([]byte(actualToken), []byte(expectedToken))
 }
 
-// FormatKeyID 格式化密钥 ID
+// FormatKeyID 格式化密钥 ID.
 func FormatKeyID(vaultID string, index int) string {
 	return fmt.Sprintf("key-%s-%d", vaultID, index)
 }
 
-// KeyRotationInfo 密钥轮换信息
+// KeyRotationInfo 密钥轮换信息.
 type KeyRotationInfo struct {
 	VaultID      string    `json:"vault_id"`
 	OldKeyID     string    `json:"old_key_id"`

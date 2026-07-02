@@ -12,7 +12,7 @@ import (
 )
 
 // PasskeyManager Passkey 认证管理器
-// 基于 WebAuthn 标准，支持 Passkey 无密码认证
+// 基于 WebAuthn 标准，支持 Passkey 无密码认证.
 type PasskeyManager struct {
 	mu          sync.RWMutex
 	credentials map[string][]*PasskeyCredential // userID -> credentials
@@ -22,7 +22,7 @@ type PasskeyManager struct {
 	webauthn    *WebAuthnManager
 }
 
-// PasskeyCredential Passkey 凭据
+// PasskeyCredential Passkey 凭据.
 type PasskeyCredential struct {
 	ID              string     `json:"id"`
 	PublicKey       []byte     `json:"publicKey"`
@@ -37,7 +37,7 @@ type PasskeyCredential struct {
 	IsPasskey       bool       `json:"isPasskey"`   // 是否是 Passkey
 }
 
-// PasskeySession Passkey 会话
+// PasskeySession Passkey 会话.
 type PasskeySession struct {
 	SessionID  string    `json:"sessionId"`
 	UserID     string    `json:"userId"`
@@ -49,7 +49,7 @@ type PasskeySession struct {
 	DeviceType string    `json:"deviceType"` // 认证设备类型
 }
 
-// PasskeyConfig Passkey 配置
+// PasskeyConfig Passkey 配置.
 type PasskeyConfig struct {
 	RPDisplayName         string   `json:"rpDisplayName"`         // 显示名称
 	RPID                  string   `json:"rpId"`                  // Relying Party ID
@@ -60,7 +60,7 @@ type PasskeyConfig struct {
 	AttestationConveyance string   `json:"attestationConveyance"` // none, indirect, direct
 }
 
-// DefaultPasskeyConfig 默认配置
+// DefaultPasskeyConfig 默认配置.
 var DefaultPasskeyConfig = PasskeyConfig{
 	RPDisplayName:         "NAS-OS",
 	RPID:                  "localhost",
@@ -71,7 +71,7 @@ var DefaultPasskeyConfig = PasskeyConfig{
 	AttestationConveyance: "none",
 }
 
-// NewPasskeyManager 创建 Passkey 管理器
+// NewPasskeyManager 创建 Passkey 管理器.
 func NewPasskeyManager(cfg PasskeyConfig) (*PasskeyManager, error) {
 	webauthnCfg := WebAuthnConfig{
 		RPDisplayName: cfg.RPDisplayName,
@@ -94,7 +94,7 @@ func NewPasskeyManager(cfg PasskeyConfig) (*PasskeyManager, error) {
 }
 
 // BeginPasskeyRegistration 开始 Passkey 注册
-// 返回注册选项供前端使用
+// 返回注册选项供前端使用.
 func (m *PasskeyManager) BeginPasskeyRegistration(userID, username, displayName string) (string, map[string]interface{}, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -158,7 +158,7 @@ func (m *PasskeyManager) BeginPasskeyRegistration(userID, username, displayName 
 	return sessionID, options, nil
 }
 
-// getExcludeCredentials 获取排除的凭据（防止重复注册同一认证器）
+// getExcludeCredentials 获取排除的凭据（防止重复注册同一认证器）.
 func (m *PasskeyManager) getExcludeCredentials(userID string) []map[string]interface{} {
 	creds := m.credentials[userID]
 	exclude := make([]map[string]interface{}, len(creds))
@@ -172,7 +172,7 @@ func (m *PasskeyManager) getExcludeCredentials(userID string) []map[string]inter
 }
 
 // FinishPasskeyRegistration 完成 Passkey 注册
-// 验证前端返回的凭据并存储
+// 验证前端返回的凭据并存储.
 func (m *PasskeyManager) FinishPasskeyRegistration(sessionID string, responseData map[string]interface{}) (*PasskeyCredential, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -263,7 +263,7 @@ func (m *PasskeyManager) FinishPasskeyRegistration(sessionID string, responseDat
 }
 
 // BeginPasskeyAuthentication 开始 Passkey 认证
-// 返回认证选项供前端使用
+// 返回认证选项供前端使用.
 func (m *PasskeyManager) BeginPasskeyAuthentication(userID string) (string, map[string]interface{}, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -320,7 +320,7 @@ func (m *PasskeyManager) BeginPasskeyAuthentication(userID string) (string, map[
 }
 
 // BeginPasskeyAuthenticationAuto 自动 Passkey 认证
-// 不指定 allowCredentials，让浏览器自动选择
+// 不指定 allowCredentials，让浏览器自动选择.
 func (m *PasskeyManager) BeginPasskeyAuthenticationAuto() (string, map[string]interface{}, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -360,7 +360,7 @@ func (m *PasskeyManager) BeginPasskeyAuthenticationAuto() (string, map[string]in
 }
 
 // FinishPasskeyAuthentication 完成 Passkey 认证
-// 验证前端返回的签名并返回用户 ID
+// 验证前端返回的签名并返回用户 ID.
 func (m *PasskeyManager) FinishPasskeyAuthentication(sessionID string, responseData map[string]interface{}) (string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -483,14 +483,14 @@ func (m *PasskeyManager) FinishPasskeyAuthentication(sessionID string, responseD
 	return userID, nil
 }
 
-// GetPasskeys 获取用户的 Passkey 列表
+// GetPasskeys 获取用户的 Passkey 列表.
 func (m *PasskeyManager) GetPasskeys(userID string) []*PasskeyCredential {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.credentials[userID]
 }
 
-// RemovePasskey 移除 Passkey
+// RemovePasskey 移除 Passkey.
 func (m *PasskeyManager) RemovePasskey(userID, credentialID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -505,7 +505,7 @@ func (m *PasskeyManager) RemovePasskey(userID, credentialID string) error {
 	return fmt.Errorf("Passkey 不存在")
 }
 
-// UpdatePasskeyName 更新 Passkey 名称
+// UpdatePasskeyName 更新 Passkey 名称.
 func (m *PasskeyManager) UpdatePasskeyName(userID, credentialID, name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -520,14 +520,14 @@ func (m *PasskeyManager) UpdatePasskeyName(userID, credentialID, name string) er
 	return fmt.Errorf("Passkey 不存在")
 }
 
-// HasPasskey 检查用户是否有 Passkey
+// HasPasskey 检查用户是否有 Passkey.
 func (m *PasskeyManager) HasPasskey(userID string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return len(m.credentials[userID]) > 0
 }
 
-// GetPasskeyStats 获取 Passkey 统计
+// GetPasskeyStats 获取 Passkey 统计.
 func (m *PasskeyManager) GetPasskeyStats(userID string) map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

@@ -13,7 +13,7 @@ import (
 // 仪表盘数据类型
 // ============================================================
 
-// ServiceTopologyNode 服务拓扑节点
+// ServiceTopologyNode 服务拓扑节点.
 type ServiceTopologyNode struct {
 	Name        string        `json:"name"`         // 服务名称
 	DisplayName string        `json:"display_name"` // 显示名称
@@ -23,20 +23,20 @@ type ServiceTopologyNode struct {
 	Tags        []string      `json:"tags"`         // 标签
 }
 
-// ServiceTopologyEdge 服务拓扑边（依赖关系）
+// ServiceTopologyEdge 服务拓扑边（依赖关系）.
 type ServiceTopologyEdge struct {
 	Source string `json:"source"` // 依赖方
 	Target string `json:"target"` // 被依赖方
 	Type   string `json:"type"`   // 依赖类型: "http", "tcp", "rpc" 等
 }
 
-// ServiceTopology 服务拓扑图
+// ServiceTopology 服务拓扑图.
 type ServiceTopology struct {
 	Nodes []ServiceTopologyNode `json:"nodes"` // 节点列表
 	Edges []ServiceTopologyEdge `json:"edges"` // 边列表
 }
 
-// StatusOverview 状态概览
+// StatusOverview 状态概览.
 type StatusOverview struct {
 	Total     int       `json:"total"`      // 总服务数
 	Healthy   int       `json:"healthy"`    // 正常服务数
@@ -47,7 +47,7 @@ type StatusOverview struct {
 	UpdatedAt time.Time `json:"updated_at"` // 更新时间
 }
 
-// AvailabilityRecord 可用性记录
+// AvailabilityRecord 可用性记录.
 type AvailabilityRecord struct {
 	Timestamp    time.Time     `json:"timestamp"`     // 记录时间
 	Status       ServiceStatus `json:"status"`        // 状态
@@ -56,7 +56,7 @@ type AvailabilityRecord struct {
 	ResponseTime time.Duration `json:"response_time"` // 响应时间
 }
 
-// ServiceAvailabilityStats 服务可用性统计
+// ServiceAvailabilityStats 服务可用性统计.
 type ServiceAvailabilityStats struct {
 	ServiceName      string               `json:"service_name"`      // 服务名称
 	Period           string               `json:"period"`            // 统计周期
@@ -73,7 +73,7 @@ type ServiceAvailabilityStats struct {
 	UpdatedAt        time.Time            `json:"updated_at"`        // 更新时间
 }
 
-// DashboardSummary 仪表盘汇总
+// DashboardSummary 仪表盘汇总.
 type DashboardSummary struct {
 	Overview     StatusOverview                       `json:"overview"`     // 状态概览
 	Topology     ServiceTopology                      `json:"topology"`     // 服务拓扑
@@ -83,7 +83,7 @@ type DashboardSummary struct {
 	UpdatedAt    time.Time                            `json:"updated_at"`   // 更新时间
 }
 
-// DashboardAlert 仪表盘告警
+// DashboardAlert 仪表盘告警.
 type DashboardAlert struct {
 	ServiceName string        `json:"service_name"` // 服务名称
 	Level       ServiceStatus `json:"level"`        // 告警级别
@@ -96,7 +96,7 @@ type DashboardAlert struct {
 // 服务仪表盘
 // ============================================================
 
-// ServiceDashboard 服务仪表盘
+// ServiceDashboard 服务仪表盘.
 type ServiceDashboard struct {
 	mu sync.RWMutex
 
@@ -111,7 +111,7 @@ type ServiceDashboard struct {
 	maxHistoryLen       int                             // 最大历史记录数
 }
 
-// NewServiceDashboard 创建服务仪表盘
+// NewServiceDashboard 创建服务仪表盘.
 func NewServiceDashboard(manager *ServiceHealthManager) *ServiceDashboard {
 	return &ServiceDashboard{
 		manager:             manager,
@@ -125,14 +125,14 @@ func NewServiceDashboard(manager *ServiceHealthManager) *ServiceDashboard {
 // 拓扑管理
 // ============================================================
 
-// UpdateTopology 更新服务拓扑
+// UpdateTopology 更新服务拓扑.
 func (d *ServiceDashboard) UpdateTopology(topology ServiceTopology) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	d.topology = topology
 }
 
-// GetTopology 获取服务拓扑
+// GetTopology 获取服务拓扑.
 func (d *ServiceDashboard) GetTopology() ServiceTopology {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -155,7 +155,7 @@ func (d *ServiceDashboard) GetTopology() ServiceTopology {
 	return result
 }
 
-// AddTopologyNode 添加拓扑节点
+// AddTopologyNode 添加拓扑节点.
 func (d *ServiceDashboard) AddTopologyNode(node ServiceTopologyNode) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -171,7 +171,7 @@ func (d *ServiceDashboard) AddTopologyNode(node ServiceTopologyNode) {
 	d.topology.Nodes = append(d.topology.Nodes, node)
 }
 
-// AddTopologyEdge 添加拓扑边（依赖关系）
+// AddTopologyEdge 添加拓扑边（依赖关系）.
 func (d *ServiceDashboard) AddTopologyEdge(edge ServiceTopologyEdge) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -186,7 +186,7 @@ func (d *ServiceDashboard) AddTopologyEdge(edge ServiceTopologyEdge) {
 	d.topology.Edges = append(d.topology.Edges, edge)
 }
 
-// RemoveTopologyNode 移除拓扑节点
+// RemoveTopologyNode 移除拓扑节点.
 func (d *ServiceDashboard) RemoveTopologyNode(name string) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -213,7 +213,7 @@ func (d *ServiceDashboard) RemoveTopologyNode(name string) {
 // 状态概览
 // ============================================================
 
-// GetStatusOverview 获取状态概览
+// GetStatusOverview 获取状态概览.
 func (d *ServiceDashboard) GetStatusOverview() StatusOverview {
 	services := d.manager.ListServices()
 
@@ -248,7 +248,7 @@ func (d *ServiceDashboard) GetStatusOverview() StatusOverview {
 	return overview
 }
 
-// GetStatusOverviewByTag 按标签获取状态概览
+// GetStatusOverviewByTag 按标签获取状态概览.
 func (d *ServiceDashboard) GetStatusOverviewByTag(tagKey, tagValue string) StatusOverview {
 	services := d.manager.ListServices()
 
@@ -296,7 +296,7 @@ func (d *ServiceDashboard) GetStatusOverviewByTag(tagKey, tagValue string) Statu
 // 历史可用性统计
 // ============================================================
 
-// RecordAvailability 记录可用性数据
+// RecordAvailability 记录可用性数据.
 func (d *ServiceDashboard) RecordAvailability(name string, record AvailabilityRecord) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -309,7 +309,7 @@ func (d *ServiceDashboard) RecordAvailability(name string, record AvailabilityRe
 	}
 }
 
-// GetAvailabilityStats 获取服务可用性统计
+// GetAvailabilityStats 获取服务可用性统计.
 func (d *ServiceDashboard) GetAvailabilityStats(name string, period time.Duration) (*ServiceAvailabilityStats, error) {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -345,9 +345,10 @@ func (d *ServiceDashboard) GetAvailabilityStats(name string, period time.Duratio
 	successCount := 0
 
 	for i, r := range filtered {
-		if r.Status == StatusHealthy || r.Status == StatusWarning {
+		switch r.Status {
+		case StatusHealthy, StatusWarning:
 			successCount++
-		} else if r.Status == StatusCritical {
+		case StatusCritical:
 			stats.FailedChecks++
 			lt := r.Timestamp
 			lastDowntime = &lt
@@ -383,7 +384,7 @@ func (d *ServiceDashboard) GetAvailabilityStats(name string, period time.Duratio
 	return stats, nil
 }
 
-// GetAllAvailabilityStats 获取所有服务的可用性统计
+// GetAllAvailabilityStats 获取所有服务的可用性统计.
 func (d *ServiceDashboard) GetAllAvailabilityStats(period time.Duration) map[string]*ServiceAvailabilityStats {
 	d.mu.RLock()
 	names := make([]string, 0, len(d.availabilityHistory))
@@ -406,7 +407,7 @@ func (d *ServiceDashboard) GetAllAvailabilityStats(period time.Duration) map[str
 // 仪表盘汇总
 // ============================================================
 
-// GetDashboardSummary 获取仪表盘汇总数据
+// GetDashboardSummary 获取仪表盘汇总数据.
 func (d *ServiceDashboard) GetDashboardSummary(period time.Duration) DashboardSummary {
 	summary := DashboardSummary{
 		Overview:     d.GetStatusOverview(),
@@ -420,7 +421,7 @@ func (d *ServiceDashboard) GetDashboardSummary(period time.Duration) DashboardSu
 	return summary
 }
 
-// GetActiveAlerts 获取活跃告警
+// GetActiveAlerts 获取活跃告警.
 func (d *ServiceDashboard) GetActiveAlerts() []DashboardAlert {
 	services := d.manager.ListServices()
 	alerts := make([]DashboardAlert, 0)
@@ -457,7 +458,7 @@ func (d *ServiceDashboard) GetActiveAlerts() []DashboardAlert {
 	return alerts
 }
 
-// GetServiceRanking 获取服务健康排名
+// GetServiceRanking 获取服务健康排名.
 func (d *ServiceDashboard) GetServiceRanking(limit int) []*ServiceHealth {
 	services := d.manager.ListServices()
 
@@ -477,7 +478,7 @@ func (d *ServiceDashboard) GetServiceRanking(limit int) []*ServiceHealth {
 // SLA 计算（99.9% 可用性目标）
 // ============================================================
 
-// SLATarget SLA 目标配置
+// SLATarget SLA 目标配置.
 type SLATarget struct {
 	Name           string  `json:"name"`             // SLA 名称
 	TargetUptime   float64 `json:"target_uptime"`    // 目标可用性百分比，如 99.9
@@ -485,7 +486,7 @@ type SLATarget struct {
 	MaxDowntimeMin float64 `json:"max_downtime_min"` // 最大允许故障时间（分钟）
 }
 
-// SLAResult SLA 计算结果
+// SLAResult SLA 计算结果.
 type SLAResult struct {
 	ServiceName   string        `json:"service_name"`   // 服务名称
 	SLATarget     SLATarget     `json:"sla_target"`     // SLA 目标
@@ -499,7 +500,7 @@ type SLAResult struct {
 	ReportTime    time.Time     `json:"report_time"`    // 报告时间
 }
 
-// DefaultSLATargets 默认 SLA 目标
+// DefaultSLATargets 默认 SLA 目标.
 func DefaultSLATargets() []SLATarget {
 	return []SLATarget{
 		{Name: "critical", TargetUptime: 99.99, PeriodDays: 30, MaxDowntimeMin: 4.32},
@@ -509,7 +510,7 @@ func DefaultSLATargets() []SLATarget {
 	}
 }
 
-// CalculateSLA 计算服务 SLA
+// CalculateSLA 计算服务 SLA.
 func (d *ServiceDashboard) CalculateSLA(name string, target SLATarget) (*SLAResult, error) {
 	period := time.Duration(target.PeriodDays) * 24 * time.Hour
 	stats, err := d.GetAvailabilityStats(name, period)
@@ -555,7 +556,7 @@ func (d *ServiceDashboard) CalculateSLA(name string, target SLATarget) (*SLAResu
 	return result, nil
 }
 
-// CalculateAllSLA 计算所有服务的 SLA
+// CalculateAllSLA 计算所有服务的 SLA.
 func (d *ServiceDashboard) CalculateAllSLA(target SLATarget) map[string]*SLAResult {
 	services := d.manager.ListServices()
 	results := make(map[string]*SLAResult)
@@ -574,7 +575,7 @@ func (d *ServiceDashboard) CalculateAllSLA(target SLATarget) map[string]*SLAResu
 // 辅助函数
 // ============================================================
 
-// formatDuration 格式化时间段
+// formatDuration 格式化时间段.
 func formatDuration(d time.Duration) string {
 	if d < time.Minute {
 		return fmt.Sprintf("%ds", int(d.Seconds()))

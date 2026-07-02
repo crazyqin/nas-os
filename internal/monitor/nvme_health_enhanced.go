@@ -12,7 +12,7 @@ import (
 	"nas-os/internal/disk"
 )
 
-// NVMeEnhancedMonitor NVMe增强监控器
+// NVMeEnhancedMonitor NVMe增强监控器.
 type NVMeEnhancedMonitor struct {
 	mu              sync.RWMutex
 	nvmeMonitor     *disk.NVMeMonitor
@@ -22,7 +22,7 @@ type NVMeEnhancedMonitor struct {
 	predictionCache map[string]*NVMeLifePredictionEnhanced
 }
 
-// NVMeHealthPoint NVMe健康数据点
+// NVMeHealthPoint NVMe健康数据点.
 type NVMeHealthPoint struct {
 	Timestamp        time.Time `json:"timestamp"`
 	HealthPercentage uint8     `json:"healthPercentage"`
@@ -32,7 +32,7 @@ type NVMeHealthPoint struct {
 	AlertLevel       string    `json:"alertLevel"`
 }
 
-// NVMeLifePredictionEnhanced NVMe寿命预测增强版
+// NVMeLifePredictionEnhanced NVMe寿命预测增强版.
 type NVMeLifePredictionEnhanced struct {
 	Device       string `json:"device"`
 	Model        string `json:"model"`
@@ -67,7 +67,7 @@ type NVMeLifePredictionEnhanced struct {
 	LastUpdated time.Time `json:"lastUpdated"`
 }
 
-// NVMeHealthScoreEnhanced NVMe健康评分增强版
+// NVMeHealthScoreEnhanced NVMe健康评分增强版.
 type NVMeHealthScoreEnhanced struct {
 	Device string `json:"device"`
 	Model  string `json:"model"`
@@ -97,7 +97,7 @@ type NVMeHealthScoreEnhanced struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// NewNVMeEnhancedMonitor 创建NVMe增强监控器
+// NewNVMeEnhancedMonitor 创建NVMe增强监控器.
 func NewNVMeEnhancedMonitor(alertMgr *AlertingManager) *NVMeEnhancedMonitor {
 	return &NVMeEnhancedMonitor{
 		nvmeMonitor:     disk.NewNVMeMonitor(),
@@ -107,7 +107,7 @@ func NewNVMeEnhancedMonitor(alertMgr *AlertingManager) *NVMeEnhancedMonitor {
 	}
 }
 
-// CheckNVMeDevice 检查NVMe设备健康状态
+// CheckNVMeDevice 检查NVMe设备健康状态.
 func (m *NVMeEnhancedMonitor) CheckNVMeDevice(device string) (*NVMeHealthScoreEnhanced, error) {
 	// 获取基础健康信息
 	info, err := m.nvmeMonitor.GetNVMeHealth(device)
@@ -191,7 +191,7 @@ func (m *NVMeEnhancedMonitor) CheckNVMeDevice(device string) (*NVMeHealthScoreEn
 	return score, nil
 }
 
-// calculateLifeScore 计算寿命评分 (基于TBW)
+// calculateLifeScore 计算寿命评分 (基于TBW).
 func (m *NVMeEnhancedMonitor) calculateLifeScore(info *disk.NVMeHealthInfo, tbwSpec *disk.TBWSpec) disk.ComponentScore {
 	score := disk.ComponentScore{
 		Weight: 0.40,
@@ -251,7 +251,7 @@ func (m *NVMeEnhancedMonitor) calculateLifeScore(info *disk.NVMeHealthInfo, tbwS
 	return score
 }
 
-// calculateTemperatureScore 计算温度评分
+// calculateTemperatureScore 计算温度评分.
 func (m *NVMeEnhancedMonitor) calculateTemperatureScore(info *disk.NVMeHealthInfo) disk.ComponentScore {
 	score := disk.ComponentScore{
 		Weight: 0.25,
@@ -294,7 +294,7 @@ func (m *NVMeEnhancedMonitor) calculateTemperatureScore(info *disk.NVMeHealthInf
 	return score
 }
 
-// calculateErrorScore 计算错误评分
+// calculateErrorScore 计算错误评分.
 func (m *NVMeEnhancedMonitor) calculateErrorScore(info *disk.NVMeHealthInfo) disk.ComponentScore {
 	score := disk.ComponentScore{
 		Weight: 0.20,
@@ -348,7 +348,7 @@ func (m *NVMeEnhancedMonitor) calculateErrorScore(info *disk.NVMeHealthInfo) dis
 	return score
 }
 
-// calculateSpareScore 计算备用块评分
+// calculateSpareScore 计算备用块评分.
 func (m *NVMeEnhancedMonitor) calculateSpareScore(info *disk.NVMeHealthInfo) disk.ComponentScore {
 	score := disk.ComponentScore{
 		Weight: 0.10,
@@ -387,7 +387,7 @@ func (m *NVMeEnhancedMonitor) calculateSpareScore(info *disk.NVMeHealthInfo) dis
 	return score
 }
 
-// calculateStabilityScore 计算稳定性评分
+// calculateStabilityScore 计算稳定性评分.
 func (m *NVMeEnhancedMonitor) calculateStabilityScore(device string) disk.ComponentScore {
 	score := disk.ComponentScore{
 		Weight: 0.05,
@@ -437,7 +437,7 @@ func (m *NVMeEnhancedMonitor) calculateStabilityScore(device string) disk.Compon
 	return score
 }
 
-// predictEnhancedLife 预测NVMe剩余寿命
+// predictEnhancedLife 预测NVMe剩余寿命.
 func (m *NVMeEnhancedMonitor) predictEnhancedLife(info *disk.NVMeHealthInfo, tbwSpec *disk.TBWSpec, manufacturer string) *NVMeLifePredictionEnhanced {
 	if info.Usage == nil {
 		return nil
@@ -559,7 +559,7 @@ func (m *NVMeEnhancedMonitor) predictEnhancedLife(info *disk.NVMeHealthInfo, tbw
 	return prediction
 }
 
-// evaluateEnhancedAlertLevel 评估增强三级预警
+// evaluateEnhancedAlertLevel 评估增强三级预警.
 func (m *NVMeEnhancedMonitor) evaluateEnhancedAlertLevel(info *disk.NVMeHealthInfo, score *NVMeHealthScoreEnhanced) (string, []string) {
 	alertLevel := string(info.AlertLevel)
 	reasons := info.AlertReasons
@@ -598,7 +598,7 @@ func (m *NVMeEnhancedMonitor) evaluateEnhancedAlertLevel(info *disk.NVMeHealthIn
 	return alertLevel, reasons
 }
 
-// generateEnhancedRecommendations 生成增强建议
+// generateEnhancedRecommendations 生成增强建议.
 func (m *NVMeEnhancedMonitor) generateEnhancedRecommendations(info *disk.NVMeHealthInfo, score *NVMeHealthScoreEnhanced) []string {
 	var recommendations []string
 
@@ -615,23 +615,26 @@ func (m *NVMeEnhancedMonitor) generateEnhancedRecommendations(info *disk.NVMeHea
 	}
 
 	// 温度建议
-	if score.TemperatureScore.Status == "critical" {
+	switch score.TemperatureScore.Status {
+	case "critical":
 		recommendations = append(recommendations, "🌡️ NVMe温度严重过高，立即安装散热片或改善散热")
-	} else if score.TemperatureScore.Status == "warning" {
+	case "warning":
 		recommendations = append(recommendations, "🌡️ NVMe温度偏高，建议安装散热片")
 	}
 
 	// 错误建议
-	if score.ErrorScore.Status == "critical" {
+	switch score.ErrorScore.Status {
+	case "critical":
 		recommendations = append(recommendations, "❌ 检测到严重错误，建议立即备份并更换设备")
-	} else if score.ErrorScore.Status == "warning" {
+	case "warning":
 		recommendations = append(recommendations, "⚠️ 存在错误日志，建议运行完整诊断测试")
 	}
 
 	// 备用块建议
-	if score.SpareScore.Status == "critical" {
+	switch score.SpareScore.Status {
+	case "critical":
 		recommendations = append(recommendations, "💾 备用块空间低于阈值，设备可能即将失效")
-	} else if score.SpareScore.Status == "warning" {
+	case "warning":
 		recommendations = append(recommendations, "💾 备用块空间偏低，密切关注")
 	}
 
@@ -659,7 +662,7 @@ func (m *NVMeEnhancedMonitor) generateEnhancedRecommendations(info *disk.NVMeHea
 	return recommendations
 }
 
-// recordHealthPoint 记录健康数据点
+// recordHealthPoint 记录健康数据点.
 func (m *NVMeEnhancedMonitor) recordHealthPoint(device string, info *disk.NVMeHealthInfo, prediction *NVMeLifePredictionEnhanced) {
 	point := NVMeHealthPoint{
 		Timestamp:        time.Now(),
@@ -690,16 +693,17 @@ func (m *NVMeEnhancedMonitor) recordHealthPoint(device string, info *disk.NVMeHe
 	m.mu.Unlock()
 }
 
-// triggerNVMeAlert 触发NVMe告警
+// triggerNVMeAlert 触发NVMe告警.
 func (m *NVMeEnhancedMonitor) triggerNVMeAlert(device string, score *NVMeHealthScoreEnhanced) {
 	if m.alertManager == nil {
 		return
 	}
 
 	severity := "warning"
-	if score.AlertLevel == "emergency" {
+	switch score.AlertLevel {
+	case "emergency":
 		severity = "critical"
-	} else if score.AlertLevel == "critical" {
+	case "critical":
 		severity = "critical"
 	}
 
@@ -722,7 +726,7 @@ func (m *NVMeEnhancedMonitor) triggerNVMeAlert(device string, score *NVMeHealthS
 	)
 }
 
-// GetAllNVMeDevices 获取所有NVMe设备健康状态
+// GetAllNVMeDevices 获取所有NVMe设备健康状态.
 func (m *NVMeEnhancedMonitor) GetAllNVMeDevices() ([]*NVMeHealthScoreEnhanced, error) {
 	devices, err := m.nvmeMonitor.ScanNVMeDevices()
 	if err != nil {
@@ -741,14 +745,14 @@ func (m *NVMeEnhancedMonitor) GetAllNVMeDevices() ([]*NVMeHealthScoreEnhanced, e
 	return scores, nil
 }
 
-// GetPredictionCache 获取预测缓存
+// GetPredictionCache 获取预测缓存.
 func (m *NVMeEnhancedMonitor) GetPredictionCache(device string) *NVMeLifePredictionEnhanced {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.predictionCache[device]
 }
 
-// GetHealthHistory 获取健康历史
+// GetHealthHistory 获取健康历史.
 func (m *NVMeEnhancedMonitor) GetHealthHistory(device string, limit int) []NVMeHealthPoint {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -760,12 +764,12 @@ func (m *NVMeEnhancedMonitor) GetHealthHistory(device string, limit int) []NVMeH
 	return history
 }
 
-// RunNVMeTest 运行NVMe测试
+// RunNVMeTest 运行NVMe测试.
 func (m *NVMeEnhancedMonitor) RunNVMeTest(device string, testType disk.NVMeTestType) (*disk.NVMeTestResult, error) {
 	return m.nvmeMonitor.RunNVMeTest(device, testType)
 }
 
-// identifyManufacturer 识别NVMe厂商
+// identifyManufacturer 识别NVMe厂商.
 func identifyManufacturer(model string) string {
 	modelUpper := strings.ToUpper(model)
 
@@ -797,7 +801,7 @@ func identifyManufacturer(model string) string {
 	return "Unknown"
 }
 
-// scoreToGrade 分数转等级
+// scoreToGrade 分数转等级.
 func scoreToGrade(score float64) string {
 	switch {
 	case score >= 90:
@@ -813,7 +817,7 @@ func scoreToGrade(score float64) string {
 	}
 }
 
-// NVMeSummaryReport NVMe汇总报告
+// NVMeSummaryReport NVMe汇总报告.
 type NVMeSummaryReport struct {
 	TotalDevices       int                        `json:"totalDevices"`
 	HealthyDevices     int                        `json:"healthyDevices"`
@@ -831,7 +835,7 @@ type NVMeSummaryReport struct {
 	Timestamp          time.Time                  `json:"timestamp"`
 }
 
-// GenerateSummaryReport 生成汇总报告
+// GenerateSummaryReport 生成汇总报告.
 func (m *NVMeEnhancedMonitor) GenerateSummaryReport() (*NVMeSummaryReport, error) {
 	devices, err := m.GetAllNVMeDevices()
 	if err != nil {

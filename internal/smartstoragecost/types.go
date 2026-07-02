@@ -10,21 +10,21 @@ import (
 // 存储层级类型
 // ============================================================
 
-// StorageTierType 存储介质类型
+// StorageTierType 存储介质类型.
 type StorageTierType string
 
 const (
-	// TierHDD 机械硬盘
+	// TierHDD 机械硬盘.
 	TierHDD StorageTierType = "hdd"
-	// TierSSD SATA固态硬盘
+	// TierSSD SATA固态硬盘.
 	TierSSD StorageTierType = "ssd"
-	// TierNVMe NVMe固态硬盘
+	// TierNVMe NVMe固态硬盘.
 	TierNVMe StorageTierType = "nvme"
-	// TierCloud 云存储
+	// TierCloud 云存储.
 	TierCloud StorageTierType = "cloud"
 )
 
-// StorageTier 存储层级配置
+// StorageTier 存储层级配置.
 type StorageTier struct {
 	Type             StorageTierType `json:"type"`
 	Name             string          `json:"name"`
@@ -42,7 +42,7 @@ type StorageTier struct {
 // 成本记录
 // ============================================================
 
-// CostRecord 成本记录
+// CostRecord 成本记录.
 type CostRecord struct {
 	ID         string            `json:"id"`
 	Timestamp  time.Time         `json:"timestamp"`
@@ -61,7 +61,7 @@ type CostRecord struct {
 // 成本报告
 // ============================================================
 
-// CostReport 成本报告
+// CostReport 成本报告.
 type CostReport struct {
 	ReportID       string              `json:"report_id"`
 	GeneratedAt    time.Time           `json:"generated_at"`
@@ -73,14 +73,14 @@ type CostReport struct {
 	YoYChange      *YearOverYearChange `json:"yoy_change,omitempty"`
 }
 
-// ReportPeriod 报告时间范围
+// ReportPeriod 报告时间范围.
 type ReportPeriod struct {
 	Start time.Time `json:"start"`
 	End   time.Time `json:"end"`
 	Label string    `json:"label"` // "2024-Q1", "2024-05", etc.
 }
 
-// CostSummary 成本摘要
+// CostSummary 成本摘要.
 type CostSummary struct {
 	TotalMonthlyCost  float64 `json:"total_monthly_cost"`  // 本月总成本 (元)
 	TotalCapacityTB   float64 `json:"total_capacity_tb"`   // 总容量 (TB)
@@ -91,7 +91,7 @@ type CostSummary struct {
 	CostChangePercent float64 `json:"cost_change_percent"` // 环比变化 (%)
 }
 
-// TierCostDetail 单层级成本详情
+// TierCostDetail 单层级成本详情.
 type TierCostDetail struct {
 	TierType     StorageTierType `json:"tier_type"`
 	TierName     string          `json:"tier_name"`
@@ -103,7 +103,7 @@ type TierCostDetail struct {
 	SharePercent float64         `json:"share_percent"` // 占总成本比例 (%)
 }
 
-// TrendPoint 趋势数据点
+// TrendPoint 趋势数据点.
 type TrendPoint struct {
 	Date        time.Time `json:"date"`
 	TotalCost   float64   `json:"total_cost"`
@@ -113,7 +113,7 @@ type TrendPoint struct {
 	Utilization float64   `json:"utilization"`
 }
 
-// CostDriver 成本驱动因素
+// CostDriver 成本驱动因素.
 type CostDriver struct {
 	Category    string  `json:"category"`
 	Description string  `json:"description"`
@@ -122,7 +122,7 @@ type CostDriver struct {
 	Trend       string  `json:"trend"` // "increasing", "stable", "decreasing"
 }
 
-// YearOverYearChange 同比变化
+// YearOverYearChange 同比变化.
 type YearOverYearChange struct {
 	CurrentYearCost  float64 `json:"current_year_cost"`
 	PreviousYearCost float64 `json:"previous_year_cost"`
@@ -134,7 +134,7 @@ type YearOverYearChange struct {
 // 成本预测
 // ============================================================
 
-// Forecast 成本预测结果
+// Forecast 成本预测结果.
 type Forecast struct {
 	GeneratedAt     time.Time          `json:"generated_at"`
 	HorizonMonths   int                `json:"horizon_months"`
@@ -147,7 +147,7 @@ type Forecast struct {
 	Scenarios       []ForecastScenario `json:"scenarios"`
 }
 
-// ForecastPoint 预测数据点
+// ForecastPoint 预测数据点.
 type ForecastPoint struct {
 	Month         time.Time `json:"month"`
 	ProjectedCost float64   `json:"projected_cost"`
@@ -156,7 +156,7 @@ type ForecastPoint struct {
 	ProjectedTB   float64   `json:"projected_tb"`
 }
 
-// ForecastScenario 预测场景
+// ForecastScenario 预测场景.
 type ForecastScenario struct {
 	Name           string  `json:"name"` // "optimistic", "baseline", "pessimistic"
 	Description    string  `json:"description"`
@@ -169,7 +169,7 @@ type ForecastScenario struct {
 // 优化建议
 // ============================================================
 
-// Optimization 优化建议
+// Optimization 优化建议.
 type Optimization struct {
 	GeneratedAt    time.Time                `json:"generated_at"`
 	TotalSaving    float64                  `json:"total_annual_saving"` // 年节省总额 (元)
@@ -180,7 +180,7 @@ type Optimization struct {
 	RiskAssessment RiskAssessment           `json:"risk_assessment"`
 }
 
-// OptimizationSuggestion 优化建议项
+// OptimizationSuggestion 优化建议项.
 type OptimizationSuggestion struct {
 	ID          string   `json:"id"`
 	Title       string   `json:"title"`
@@ -194,7 +194,7 @@ type OptimizationSuggestion struct {
 	Steps       []string `json:"steps,omitempty"`
 }
 
-// QuickWin 快速优化项（低投入高回报）
+// QuickWin 快速优化项（低投入高回报）.
 type QuickWin struct {
 	Title           string  `json:"title"`
 	SavingEst       float64 `json:"saving_est"`
@@ -202,7 +202,7 @@ type QuickWin struct {
 	Description     string  `json:"description"`
 }
 
-// StrategicMove 战略优化项（长期规划）
+// StrategicMove 战略优化项（长期规划）.
 type StrategicMove struct {
 	Title         string  `json:"title"`
 	SavingEst     float64 `json:"saving_est"`
@@ -211,7 +211,7 @@ type StrategicMove struct {
 	Description   string  `json:"description"`
 }
 
-// RiskAssessment 风险评估
+// RiskAssessment 风险评估.
 type RiskAssessment struct {
 	OverallRisk string   `json:"overall_risk"` // "low", "medium", "high"
 	RiskFactors []string `json:"risk_factors"`
@@ -222,7 +222,7 @@ type RiskAssessment struct {
 // 多方案对比
 // ============================================================
 
-// CompareRequest 多方案对比请求
+// CompareRequest 多方案对比请求.
 type CompareRequest struct {
 	Scenarios    []CompareScenario `json:"scenarios" binding:"required,min=2"`
 	PeriodMonths int               `json:"period_months"` // 对比周期 (月), 默认 36
@@ -230,7 +230,7 @@ type CompareRequest struct {
 	GrowthRate   float64           `json:"growth_rate"`   // 月增长率 (%)
 }
 
-// CompareScenario 对比方案
+// CompareScenario 对比方案.
 type CompareScenario struct {
 	Name         string          `json:"name"`
 	TierType     StorageTierType `json:"tier_type"`
@@ -240,7 +240,7 @@ type CompareScenario struct {
 	IncludeCloud bool            `json:"include_cloud"`  // 是否含云备份
 }
 
-// CompareResult 对比结果
+// CompareResult 对比结果.
 type CompareResult struct {
 	GeneratedAt  time.Time        `json:"generated_at"`
 	PeriodMonths int              `json:"period_months"`
@@ -251,7 +251,7 @@ type CompareResult struct {
 	Analysis     string           `json:"analysis"`
 }
 
-// ScenarioResult 单方案结果
+// ScenarioResult 单方案结果.
 type ScenarioResult struct {
 	Name           string          `json:"name"`
 	TierType       StorageTierType `json:"tier_type"`
@@ -268,7 +268,7 @@ type ScenarioResult struct {
 // 通用类型
 // ============================================================
 
-// APIError API错误响应
+// APIError API错误响应.
 type APIError struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`

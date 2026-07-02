@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// PowerEventType 电源事件类型
+// PowerEventType 电源事件类型.
 type PowerEventType string
 
 const (
@@ -28,7 +28,7 @@ const (
 	PowerEventScheduled     PowerEventType = "scheduled"
 )
 
-// PowerEventState 电源事件状态
+// PowerEventState 电源事件状态.
 type PowerEventState string
 
 const (
@@ -39,7 +39,7 @@ const (
 	StateCancelled PowerEventState = "cancelled"
 )
 
-// ShutdownPolicy 关机策略类型
+// ShutdownPolicy 关机策略类型.
 type ShutdownPolicy string
 
 const (
@@ -48,7 +48,7 @@ const (
 	ShutdownPolicyDelayed   ShutdownPolicy = "delayed"   // 延迟关机
 )
 
-// UPSStatus UPS状态
+// UPSStatus UPS状态.
 type UPSStatus struct {
 	Online        bool      `json:"online"`
 	BatteryLevel  int       `json:"battery_level"`  // 0-100
@@ -61,7 +61,7 @@ type UPSStatus struct {
 	LastUpdated   time.Time `json:"last_updated"`
 }
 
-// PowerEvent 电源事件
+// PowerEvent 电源事件.
 type PowerEvent struct {
 	ID          string          `json:"id"`
 	Type        PowerEventType  `json:"type"`
@@ -77,7 +77,7 @@ type PowerEvent struct {
 	UpdatedAt   time.Time       `json:"updated_at"`
 }
 
-// PowerSchedule 电源调度
+// PowerSchedule 电源调度.
 type PowerSchedule struct {
 	ID             string         `json:"id"`
 	Name           string         `json:"name"`
@@ -94,7 +94,7 @@ type PowerSchedule struct {
 	UpdatedAt      time.Time      `json:"updated_at"`
 }
 
-// Config 电源事件管理器配置
+// Config 电源事件管理器配置.
 type Config struct {
 	LowBatteryThreshold      int           `json:"low_battery_threshold"`      // 低电量阈值(默认20%)
 	CriticalBatteryThreshold int           `json:"critical_battery_threshold"` // 临界电量阈值(默认10%)
@@ -105,7 +105,7 @@ type Config struct {
 	MaxHistorySize           int           `json:"max_history_size"`           // 最大历史记录数
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() Config {
 	return Config{
 		LowBatteryThreshold:      20,
@@ -118,7 +118,7 @@ func DefaultConfig() Config {
 	}
 }
 
-// Manager 电源事件管理器
+// Manager 电源事件管理器.
 type Manager struct {
 	config     Config
 	logger     *zap.Logger
@@ -131,7 +131,7 @@ type Manager struct {
 	eventChan  chan PowerEvent
 }
 
-// NewManager 创建电源事件管理器
+// NewManager 创建电源事件管理器.
 func NewManager(config Config, logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -145,7 +145,7 @@ func NewManager(config Config, logger *zap.Logger) *Manager {
 	}
 }
 
-// Start 启动电源事件管理器
+// Start 启动电源事件管理器.
 func (m *Manager) Start(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -164,7 +164,7 @@ func (m *Manager) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止电源事件管理器
+// Stop 停止电源事件管理器.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -175,7 +175,7 @@ func (m *Manager) Stop() {
 	}
 }
 
-// SchedulePowerOn 定时开机
+// SchedulePowerOn 定时开机.
 func (m *Manager) SchedulePowerOn(ctx context.Context, scheduledAt time.Time, targetMAC, targetIP string) (*PowerEvent, error) {
 	if targetMAC == "" {
 		return nil, fmt.Errorf("目标MAC地址不能为空")
@@ -217,7 +217,7 @@ func (m *Manager) SchedulePowerOn(ctx context.Context, scheduledAt time.Time, ta
 	return event, nil
 }
 
-// SchedulePowerOff 定时关机
+// SchedulePowerOff 定时关机.
 func (m *Manager) SchedulePowerOff(ctx context.Context, scheduledAt time.Time, policy ShutdownPolicy, delaySeconds int) (*PowerEvent, error) {
 	if policy == "" {
 		policy = m.policy
@@ -256,7 +256,7 @@ func (m *Manager) SchedulePowerOff(ctx context.Context, scheduledAt time.Time, p
 	return event, nil
 }
 
-// ScheduleRestart 定时重启
+// ScheduleRestart 定时重启.
 func (m *Manager) ScheduleRestart(ctx context.Context, scheduledAt time.Time, policy ShutdownPolicy, delaySeconds int) (*PowerEvent, error) {
 	if policy == "" {
 		policy = m.policy
@@ -295,7 +295,7 @@ func (m *Manager) ScheduleRestart(ctx context.Context, scheduledAt time.Time, po
 	return event, nil
 }
 
-// HandleUPSEvent 处理UPS事件
+// HandleUPSEvent 处理UPS事件.
 func (m *Manager) HandleUPSEvent(ctx context.Context, eventType PowerEventType, upsStatus UPSStatus) error {
 	m.mu.Lock()
 	m.upsStatus = upsStatus
@@ -342,7 +342,7 @@ func (m *Manager) HandleUPSEvent(ctx context.Context, eventType PowerEventType, 
 	return nil
 }
 
-// SetShutdownPolicy 设置关机策略
+// SetShutdownPolicy 设置关机策略.
 func (m *Manager) SetShutdownPolicy(policy ShutdownPolicy) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -350,14 +350,14 @@ func (m *Manager) SetShutdownPolicy(policy ShutdownPolicy) {
 	m.logger.Info("设置关机策略", zap.String("policy", string(policy)))
 }
 
-// GetShutdownPolicy 获取当前关机策略
+// GetShutdownPolicy 获取当前关机策略.
 func (m *Manager) GetShutdownPolicy() ShutdownPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.policy
 }
 
-// GetPowerHistory 获取电源事件历史
+// GetPowerHistory 获取电源事件历史.
 func (m *Manager) GetPowerHistory(limit int) []PowerEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -374,7 +374,7 @@ func (m *Manager) GetPowerHistory(limit int) []PowerEvent {
 	return result
 }
 
-// TriggerWakeOnLan 触发WOL唤醒
+// TriggerWakeOnLan 触发WOL唤醒.
 func (m *Manager) TriggerWakeOnLan(ctx context.Context, targetMAC, targetIP string) error {
 	mac, err := net.ParseMAC(targetMAC)
 	if err != nil {
@@ -445,14 +445,14 @@ func (m *Manager) TriggerWakeOnLan(ctx context.Context, targetMAC, targetIP stri
 	return nil
 }
 
-// CheckBatteryStatus 检查电池状态
+// CheckBatteryStatus 检查电池状态.
 func (m *Manager) CheckBatteryStatus() UPSStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.upsStatus
 }
 
-// UpdateUPSStatus 更新UPS状态
+// UpdateUPSStatus 更新UPS状态.
 func (m *Manager) UpdateUPSStatus(status UPSStatus) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -460,7 +460,7 @@ func (m *Manager) UpdateUPSStatus(status UPSStatus) {
 	m.upsStatus = status
 }
 
-// AddSchedule 添加电源调度
+// AddSchedule 添加电源调度.
 func (m *Manager) AddSchedule(schedule *PowerSchedule) error {
 	if schedule.ID == "" {
 		schedule.ID = uuid.New().String()
@@ -475,7 +475,7 @@ func (m *Manager) AddSchedule(schedule *PowerSchedule) error {
 	return nil
 }
 
-// RemoveSchedule 移除电源调度
+// RemoveSchedule 移除电源调度.
 func (m *Manager) RemoveSchedule(scheduleID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -489,7 +489,7 @@ func (m *Manager) RemoveSchedule(scheduleID string) error {
 	return nil
 }
 
-// GetSchedules 获取所有电源调度
+// GetSchedules 获取所有电源调度.
 func (m *Manager) GetSchedules() []*PowerSchedule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -501,7 +501,7 @@ func (m *Manager) GetSchedules() []*PowerSchedule {
 	return schedules
 }
 
-// UpdateSchedule 更新电源调度
+// UpdateSchedule 更新电源调度.
 func (m *Manager) UpdateSchedule(schedule *PowerSchedule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -672,7 +672,7 @@ func (m *Manager) processEvents(ctx context.Context) {
 }
 
 // buildMagicPacket 构建WOL魔术包
-// 格式: 6字节0xFF + 16次重复的MAC地址
+// 格式: 6字节0xFF + 16次重复的MAC地址.
 func buildMagicPacket(mac net.HardwareAddr) []byte {
 	packet := make([]byte, 6+16*6)
 

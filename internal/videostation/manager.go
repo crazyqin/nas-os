@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Manager 视频站管理器
+// Manager 视频站管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	videos     map[string]*Video
@@ -20,7 +20,7 @@ type Manager struct {
 	subtitles  map[string]*Subtitle
 }
 
-// NewManager 创建视频站管理器
+// NewManager 创建视频站管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		videos:     make(map[string]*Video),
@@ -38,12 +38,12 @@ func NewManager() *Manager {
 	return m
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	return fmt.Sprintf("%d-%04x", time.Now().UnixNano(), rand.Intn(0xffff))
 }
 
-// initDefaultLibraries 初始化默认视频库
+// initDefaultLibraries 初始化默认视频库.
 func (m *Manager) initDefaultLibraries() {
 	now := time.Now()
 	libs := []VideoLibrary{
@@ -69,7 +69,7 @@ func (m *Manager) initDefaultLibraries() {
 	}
 }
 
-// initSampleVideos 初始化示例视频
+// initSampleVideos 初始化示例视频.
 func (m *Manager) initSampleVideos() {
 	now := time.Now()
 	videos := []Video{
@@ -130,7 +130,7 @@ func (m *Manager) initSampleVideos() {
 	}
 }
 
-// ListVideos 列出视频
+// ListVideos 列出视频.
 func (m *Manager) ListVideos(libraryID, category, tag string) []Video {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -160,7 +160,7 @@ func (m *Manager) ListVideos(libraryID, category, tag string) []Video {
 	return result
 }
 
-// GetVideo 获取视频详情
+// GetVideo 获取视频详情.
 func (m *Manager) GetVideo(id string) (*Video, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -172,7 +172,7 @@ func (m *Manager) GetVideo(id string) (*Video, error) {
 	return v, nil
 }
 
-// UpdateVideo 更新视频元数据
+// UpdateVideo 更新视频元数据.
 func (m *Manager) UpdateVideo(id string, req *UpdateVideoRequest) (*Video, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -208,7 +208,7 @@ func (m *Manager) UpdateVideo(id string, req *UpdateVideoRequest) (*Video, error
 	return v, nil
 }
 
-// DeleteVideo 删除视频
+// DeleteVideo 删除视频.
 func (m *Manager) DeleteVideo(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -233,7 +233,7 @@ func (m *Manager) DeleteVideo(id string) error {
 	return nil
 }
 
-// PlayVideo 准备播放
+// PlayVideo 准备播放.
 func (m *Manager) PlayVideo(videoID string, userID string, req *PlayRequest) (*PlayResponse, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -290,7 +290,7 @@ func (m *Manager) PlayVideo(videoID string, userID string, req *PlayRequest) (*P
 	}, nil
 }
 
-// UpdateSession 更新播放进度
+// UpdateSession 更新播放进度.
 func (m *Manager) UpdateSession(sessionID string, req *SessionUpdateRequest) (*PlaySession, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -312,7 +312,7 @@ func (m *Manager) UpdateSession(sessionID string, req *SessionUpdateRequest) (*P
 	return session, nil
 }
 
-// GetSessions 获取播放会话
+// GetSessions 获取播放会话.
 func (m *Manager) GetSessions(userID string) []PlaySession {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -326,7 +326,7 @@ func (m *Manager) GetSessions(userID string) []PlaySession {
 	return result
 }
 
-// CreateTranscodeJob 创建转码任务
+// CreateTranscodeJob 创建转码任务.
 func (m *Manager) CreateTranscodeJob(videoID string, req *TranscodeRequest) (*TranscodeJob, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -370,7 +370,7 @@ func (m *Manager) CreateTranscodeJob(videoID string, req *TranscodeRequest) (*Tr
 	return job, nil
 }
 
-// simulateTranscode 模拟转码过程
+// simulateTranscode 模拟转码过程.
 func (m *Manager) simulateTranscode(jobID string) {
 	m.mu.Lock()
 	job, ok := m.transcodes[jobID]
@@ -415,7 +415,7 @@ func (m *Manager) simulateTranscode(jobID string) {
 	}
 }
 
-// GetTranscodeJob 获取转码任务
+// GetTranscodeJob 获取转码任务.
 func (m *Manager) GetTranscodeJob(jobID string) (*TranscodeJob, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -427,7 +427,7 @@ func (m *Manager) GetTranscodeJob(jobID string) (*TranscodeJob, error) {
 	return job, nil
 }
 
-// ListTranscodeJobs 列出转码任务
+// ListTranscodeJobs 列出转码任务.
 func (m *Manager) ListTranscodeJobs(videoID string) []TranscodeJob {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -441,7 +441,7 @@ func (m *Manager) ListTranscodeJobs(videoID string) []TranscodeJob {
 	return result
 }
 
-// CancelTranscodeJob 取消转码任务
+// CancelTranscodeJob 取消转码任务.
 func (m *Manager) CancelTranscodeJob(jobID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -459,7 +459,7 @@ func (m *Manager) CancelTranscodeJob(jobID string) error {
 	return nil
 }
 
-// ListSubtitles 列出字幕
+// ListSubtitles 列出字幕.
 func (m *Manager) ListSubtitles(videoID string) []Subtitle {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -473,7 +473,7 @@ func (m *Manager) ListSubtitles(videoID string) []Subtitle {
 	return result
 }
 
-// AddSubtitle 添加字幕
+// AddSubtitle 添加字幕.
 func (m *Manager) AddSubtitle(videoID string, sub *Subtitle) (*Subtitle, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -494,7 +494,7 @@ func (m *Manager) AddSubtitle(videoID string, sub *Subtitle) (*Subtitle, error) 
 	return sub, nil
 }
 
-// DeleteSubtitle 删除字幕
+// DeleteSubtitle 删除字幕.
 func (m *Manager) DeleteSubtitle(subID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -519,7 +519,7 @@ func (m *Manager) DeleteSubtitle(subID string) error {
 	return nil
 }
 
-// ListLibraries 列出视频库
+// ListLibraries 列出视频库.
 func (m *Manager) ListLibraries() []VideoLibrary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -531,7 +531,7 @@ func (m *Manager) ListLibraries() []VideoLibrary {
 	return result
 }
 
-// GetLibrary 获取视频库详情
+// GetLibrary 获取视频库详情.
 func (m *Manager) GetLibrary(id string) (*VideoLibrary, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -543,7 +543,7 @@ func (m *Manager) GetLibrary(id string) (*VideoLibrary, error) {
 	return lib, nil
 }
 
-// CreateLibrary 创建视频库
+// CreateLibrary 创建视频库.
 func (m *Manager) CreateLibrary(req *CreateLibraryRequest) *VideoLibrary {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -569,7 +569,7 @@ func (m *Manager) CreateLibrary(req *CreateLibraryRequest) *VideoLibrary {
 	return lib
 }
 
-// DeleteLibrary 删除视频库
+// DeleteLibrary 删除视频库.
 func (m *Manager) DeleteLibrary(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -592,7 +592,7 @@ func (m *Manager) DeleteLibrary(id string) error {
 	return nil
 }
 
-// ScanLibrary 扫描视频库
+// ScanLibrary 扫描视频库.
 func (m *Manager) ScanLibrary(id string) (*ScanResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -651,7 +651,7 @@ func (m *Manager) ScanLibrary(id string) (*ScanResult, error) {
 	return result, nil
 }
 
-// GetRecentlyPlayed 获取最近播放
+// GetRecentlyPlayed 获取最近播放.
 func (m *Manager) GetRecentlyPlayed(userID string, limit int) []Video {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -695,7 +695,7 @@ func (m *Manager) GetRecentlyPlayed(userID string, limit int) []Video {
 	return result
 }
 
-// GetStats 获取视频统计
+// GetStats 获取视频统计.
 func (m *Manager) GetStats() *VideoStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// ClientManager 客户端管理器
+// ClientManager 客户端管理器.
 type ClientManager struct {
 	clients    map[string]*Client
 	nodeConfig *FreeNodeConfig
@@ -31,7 +31,7 @@ type ClientManager struct {
 	wg     sync.WaitGroup
 }
 
-// ClientStatusInfo 客户端状态信息
+// ClientStatusInfo 客户端状态信息.
 type ClientStatusInfo struct {
 	ClientID    string         `json:"client_id"`
 	NodeID      string         `json:"node_id"`
@@ -46,7 +46,7 @@ type ClientStatusInfo struct {
 	Error       string         `json:"error,omitempty"`
 }
 
-// ClientEvent 客户端事件
+// ClientEvent 客户端事件.
 type ClientEvent struct {
 	Type      string    `json:"type"` // connected, disconnected, tunnel_started, tunnel_stopped, error
 	ClientID  string    `json:"client_id"`
@@ -56,7 +56,7 @@ type ClientEvent struct {
 	Error     error     `json:"error,omitempty"`
 }
 
-// NewClientManager 创建客户端管理器
+// NewClientManager 创建客户端管理器.
 func NewClientManager(logger *zap.Logger) *ClientManager {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -77,7 +77,7 @@ func NewClientManager(logger *zap.Logger) *ClientManager {
 	return mgr
 }
 
-// QuickConnect 一键连接（使用免费节点）
+// QuickConnect 一键连接（使用免费节点）.
 func (m *ClientManager) QuickConnect(config *QuickConnectConfig) (*QuickConnectResult, error) {
 	// 选择节点
 	var node *FreeNode
@@ -182,7 +182,7 @@ func (m *ClientManager) QuickConnect(config *QuickConnectConfig) (*QuickConnectR
 	return result, nil
 }
 
-// Disconnect 断开指定客户端
+// Disconnect 断开指定客户端.
 func (m *ClientManager) Disconnect(clientID string) error {
 	m.mu.Lock()
 	client, exists := m.clients[clientID]
@@ -205,7 +205,7 @@ func (m *ClientManager) Disconnect(clientID string) error {
 	return nil
 }
 
-// DisconnectAll 断开所有客户端
+// DisconnectAll 断开所有客户端.
 func (m *ClientManager) DisconnectAll() error {
 	m.mu.Lock()
 	clients := make([]*Client, 0, len(m.clients))
@@ -233,14 +233,14 @@ func (m *ClientManager) DisconnectAll() error {
 	return nil
 }
 
-// GetClient 获取客户端
+// GetClient 获取客户端.
 func (m *ClientManager) GetClient(clientID string) *Client {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.clients[clientID]
 }
 
-// GetAllClients 获取所有客户端
+// GetAllClients 获取所有客户端.
 func (m *ClientManager) GetAllClients() map[string]*Client {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -252,7 +252,7 @@ func (m *ClientManager) GetAllClients() map[string]*Client {
 	return result
 }
 
-// GetClientStatus 获取客户端状态
+// GetClientStatus 获取客户端状态.
 func (m *ClientManager) GetClientStatus(clientID string) *ClientStatusInfo {
 	m.statusMu.RLock()
 	status, exists := m.statusCache[clientID]
@@ -274,7 +274,7 @@ func (m *ClientManager) GetClientStatus(clientID string) *ClientStatusInfo {
 	return m.buildClientStatus(clientID, client)
 }
 
-// GetAllClientStatus 获取所有客户端状态
+// GetAllClientStatus 获取所有客户端状态.
 func (m *ClientManager) GetAllClientStatus() []*ClientStatusInfo {
 	m.mu.RLock()
 	clients := make(map[string]*Client, len(m.clients))
@@ -294,7 +294,7 @@ func (m *ClientManager) GetAllClientStatus() []*ClientStatusInfo {
 	return statuses
 }
 
-// buildClientStatus 构建客户端状态
+// buildClientStatus 构建客户端状态.
 func (m *ClientManager) buildClientStatus(clientID string, client *Client) *ClientStatusInfo {
 	// 获取节点信息
 	node := m.nodeConfig.GetNode(clientID)
@@ -326,17 +326,17 @@ func (m *ClientManager) buildClientStatus(clientID string, client *Client) *Clie
 	return status
 }
 
-// GetNodes 获取所有可用节点
+// GetNodes 获取所有可用节点.
 func (m *ClientManager) GetNodes() []*FreeNode {
 	return m.nodeConfig.GetAllNodes()
 }
 
-// GetNodesByRegion 获取指定区域的节点
+// GetNodesByRegion 获取指定区域的节点.
 func (m *ClientManager) GetNodesByRegion(region NodeRegion) []*FreeNode {
 	return m.nodeConfig.GetNodesByRegion(region)
 }
 
-// GetBestNode 获取最优节点
+// GetBestNode 获取最优节点.
 func (m *ClientManager) GetBestNode(region ...NodeRegion) *FreeNode {
 	if len(region) > 0 {
 		return m.nodeConfig.GetBestNode(region[0])
@@ -344,27 +344,27 @@ func (m *ClientManager) GetBestNode(region ...NodeRegion) *FreeNode {
 	return m.nodeConfig.GetBestNode()
 }
 
-// AddNode 添加自定义节点
+// AddNode 添加自定义节点.
 func (m *ClientManager) AddNode(node *FreeNode) {
 	m.nodeConfig.AddNode(node)
 }
 
-// RemoveNode 移除节点
+// RemoveNode 移除节点.
 func (m *ClientManager) RemoveNode(nodeID string) {
 	m.nodeConfig.RemoveNode(nodeID)
 }
 
-// UpdateNodeStatus 更新节点状态
+// UpdateNodeStatus 更新节点状态.
 func (m *ClientManager) UpdateNodeStatus(nodeID string, online bool, latency int) {
 	m.nodeConfig.UpdateNodeStatus(nodeID, online, latency)
 }
 
-// Events 返回事件通道
+// Events 返回事件通道.
 func (m *ClientManager) Events() <-chan ClientEvent {
 	return m.eventChan
 }
 
-// statusMonitorLoop 状态监控循环
+// statusMonitorLoop 状态监控循环.
 func (m *ClientManager) statusMonitorLoop() {
 	defer m.wg.Done()
 
@@ -381,7 +381,7 @@ func (m *ClientManager) statusMonitorLoop() {
 	}
 }
 
-// updateAllStatus 更新所有客户端状态
+// updateAllStatus 更新所有客户端状态.
 func (m *ClientManager) updateAllStatus() {
 	m.mu.RLock()
 	clients := make(map[string]*Client, len(m.clients))
@@ -401,7 +401,7 @@ func (m *ClientManager) updateAllStatus() {
 	}
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *ClientManager) Close() error {
 	m.cancel()
 	m.wg.Wait()
@@ -414,7 +414,7 @@ func (m *ClientManager) Close() error {
 	return nil
 }
 
-// HealthCheck 健康检查所有节点
+// HealthCheck 健康检查所有节点.
 func (m *ClientManager) HealthCheck(ctx context.Context) map[string]*NodeHealthResult {
 	nodes := m.nodeConfig.GetAllNodes()
 	results := make(map[string]*NodeHealthResult)
@@ -457,7 +457,7 @@ func (m *ClientManager) HealthCheck(ctx context.Context) map[string]*NodeHealthR
 	return results
 }
 
-// NodeHealthResult 节点健康检查结果
+// NodeHealthResult 节点健康检查结果.
 type NodeHealthResult struct {
 	NodeID    string     `json:"node_id"`
 	NodeName  string     `json:"node_name"`
@@ -468,7 +468,7 @@ type NodeHealthResult struct {
 	CheckTime time.Time  `json:"check_time"`
 }
 
-// checkNodeConnectivity 检查节点连通性
+// checkNodeConnectivity 检查节点连通性.
 func (m *ClientManager) checkNodeConnectivity(ctx context.Context, node *FreeNode) error {
 	// 简单的TCP连接测试
 	addr := fmt.Sprintf("%s:%d", node.ServerAddr, node.ServerPort)

@@ -7,19 +7,19 @@ import (
 	"time"
 )
 
-// Service 存储TCO计算服务
+// Service 存储TCO计算服务.
 type Service struct {
 	templates []Template
 }
 
-// NewService 创建新的计算服务
+// NewService 创建新的计算服务.
 func NewService() *Service {
 	return &Service{
 		templates: defaultTemplates(),
 	}
 }
 
-// Calculate 计算单个方案的成本
+// Calculate 计算单个方案的成本.
 func (s *Service) Calculate(req CalcRequest) (CalcResult, error) {
 	if len(req.Disks) == 0 {
 		return CalcResult{}, fmt.Errorf("磁盘配置不能为空")
@@ -95,7 +95,7 @@ func (s *Service) Calculate(req CalcRequest) (CalcResult, error) {
 	return result, nil
 }
 
-// Compare 对比多个方案
+// Compare 对比多个方案.
 func (s *Service) Compare(requests []CalcRequest) (*ComparisonResult, error) {
 	if len(requests) == 0 {
 		return nil, fmt.Errorf("至少需要一个方案")
@@ -132,12 +132,12 @@ func (s *Service) Compare(requests []CalcRequest) (*ComparisonResult, error) {
 	}, nil
 }
 
-// GetTemplates 获取预置模板
+// GetTemplates 获取预置模板.
 func (s *Service) GetTemplates() []Template {
 	return s.templates
 }
 
-// inferScheme 根据磁盘配置推断存储方案类型
+// inferScheme 根据磁盘配置推断存储方案类型.
 func inferScheme(disks []DiskSpec) StorageScheme {
 	hasHDD, hasSSD, hasNVMe := false, false, false
 	for _, d := range disks {
@@ -163,12 +163,12 @@ func inferScheme(disks []DiskSpec) StorageScheme {
 	}
 }
 
-// roundToTwo 保留两位小数
+// roundToTwo 保留两位小数.
 func roundToTwo(v float64) float64 {
 	return math.Round(v*100) / 100
 }
 
-// defaultTemplates 预置存储方案模板
+// defaultTemplates 预置存储方案模板.
 func defaultTemplates() []Template {
 	return []Template{
 		{

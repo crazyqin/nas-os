@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// ChangeType 变更类型
+// ChangeType 变更类型.
 type ChangeType string
 
 const (
@@ -23,7 +23,7 @@ const (
 	ChangeDelete ChangeType = "Delete"
 )
 
-// DriftSeverity 漂移严重程度
+// DriftSeverity 漂移严重程度.
 type DriftSeverity int
 
 const (
@@ -33,7 +33,7 @@ const (
 	SeverityCritical                      // 严重
 )
 
-// String 返回严重程度的字符串表示
+// String 返回严重程度的字符串表示.
 func (s DriftSeverity) String() string {
 	switch s {
 	case SeverityLow:
@@ -49,7 +49,7 @@ func (s DriftSeverity) String() string {
 	}
 }
 
-// ConfigSnapshot 配置快照
+// ConfigSnapshot 配置快照.
 type ConfigSnapshot struct {
 	ID        string                 `json:"id"`
 	Timestamp time.Time              `json:"timestamp"`
@@ -58,7 +58,7 @@ type ConfigSnapshot struct {
 	Label     string                 `json:"label,omitempty"`
 }
 
-// ConfigChange 配置变更
+// ConfigChange 配置变更.
 type ConfigChange struct {
 	Path     string      `json:"path"`
 	OldValue interface{} `json:"old_value,omitempty"`
@@ -66,7 +66,7 @@ type ConfigChange struct {
 	Type     ChangeType  `json:"type"`
 }
 
-// DriftReport 漂移报告
+// DriftReport 漂移报告.
 type DriftReport struct {
 	BaselineID  string         `json:"baseline_id"`
 	CurrentID   string         `json:"current_id"`
@@ -76,7 +76,7 @@ type DriftReport struct {
 	GeneratedAt time.Time      `json:"generated_at"`
 }
 
-// Manager 配置漂移管理器
+// Manager 配置漂移管理器.
 type Manager struct {
 	mu           sync.RWMutex
 	storageDir   string
@@ -85,7 +85,7 @@ type Manager struct {
 	driftHistory []DriftReport
 }
 
-// NewManager 创建配置漂移管理器
+// NewManager 创建配置漂移管理器.
 func NewManager(storageDir string) *Manager {
 	if storageDir == "" {
 		storageDir = "/tmp/configdrift"
@@ -106,19 +106,19 @@ func NewManager(storageDir string) *Manager {
 	return m
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	return fmt.Sprintf("%d", time.Now().UnixNano())
 }
 
-// hashConfig 计算配置内容的哈希值
+// hashConfig 计算配置内容的哈希值.
 func hashConfig(config map[string]interface{}) string {
 	data, _ := json.Marshal(config)
 	hash := sha256.Sum256(data)
 	return fmt.Sprintf("%x", hash[:8])
 }
 
-// TakeSnapshot 拍摄配置快照
+// TakeSnapshot 拍摄配置快照.
 func (m *Manager) TakeSnapshot(label string) (*ConfigSnapshot, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -144,7 +144,7 @@ func (m *Manager) TakeSnapshot(label string) (*ConfigSnapshot, error) {
 	return snapshot, nil
 }
 
-// readSystemConfig 读取系统配置（模拟实现）
+// readSystemConfig 读取系统配置（模拟实现）.
 func (m *Manager) readSystemConfig() map[string]interface{} {
 	// 模拟读取系统配置，实际应用中应该读取真实的配置文件
 	return map[string]interface{}{
@@ -173,7 +173,7 @@ func (m *Manager) readSystemConfig() map[string]interface{} {
 	}
 }
 
-// GetSnapshot 获取指定快照
+// GetSnapshot 获取指定快照.
 func (m *Manager) GetSnapshot(id string) (*ConfigSnapshot, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -186,7 +186,7 @@ func (m *Manager) GetSnapshot(id string) (*ConfigSnapshot, error) {
 	return snapshot, nil
 }
 
-// ListSnapshots 列出所有快照
+// ListSnapshots 列出所有快照.
 func (m *Manager) ListSnapshots() ([]ConfigSnapshot, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -204,7 +204,7 @@ func (m *Manager) ListSnapshots() ([]ConfigSnapshot, error) {
 	return snapshots, nil
 }
 
-// SetBaseline 设置基线快照
+// SetBaseline 设置基线快照.
 func (m *Manager) SetBaseline(snapshotID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -217,7 +217,7 @@ func (m *Manager) SetBaseline(snapshotID string) error {
 	return nil
 }
 
-// GetBaseline 获取基线快照
+// GetBaseline 获取基线快照.
 func (m *Manager) GetBaseline() (*ConfigSnapshot, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -234,7 +234,7 @@ func (m *Manager) GetBaseline() (*ConfigSnapshot, error) {
 	return snapshot, nil
 }
 
-// CompareSnapshots 比较两个快照的差异
+// CompareSnapshots 比较两个快照的差异.
 func (m *Manager) CompareSnapshots(baselineID, currentID string) (*DriftReport, error) {
 	m.mu.RLock()
 	baseline, ok := m.snapshots[baselineID]
@@ -276,7 +276,7 @@ func (m *Manager) CompareSnapshots(baselineID, currentID string) (*DriftReport, 
 	return &report, nil
 }
 
-// DetectDrift 检测配置漂移（与最新基线对比）
+// DetectDrift 检测配置漂移（与最新基线对比）.
 func (m *Manager) DetectDrift() (*DriftReport, error) {
 	m.mu.RLock()
 	baselineID := m.baselineID
@@ -295,7 +295,7 @@ func (m *Manager) DetectDrift() (*DriftReport, error) {
 	return m.CompareSnapshots(baselineID, currentSnapshot.ID)
 }
 
-// deepCompare 深度比较两个配置
+// deepCompare 深度比较两个配置.
 func (m *Manager) deepCompare(baseline, current interface{}, path string) []ConfigChange {
 	var changes []ConfigChange
 
@@ -388,7 +388,7 @@ func (m *Manager) deepCompare(baseline, current interface{}, path string) []Conf
 	return changes
 }
 
-// calculateDriftScore 计算漂移评分 (0-100)
+// calculateDriftScore 计算漂移评分 (0-100).
 func (m *Manager) calculateDriftScore(changes []ConfigChange, baseline map[string]interface{}) float64 {
 	if len(changes) == 0 {
 		return 0
@@ -421,7 +421,7 @@ func (m *Manager) calculateDriftScore(changes []ConfigChange, baseline map[strin
 	return score
 }
 
-// countConfigKeys 统计配置项总数
+// countConfigKeys 统计配置项总数.
 func (m *Manager) countConfigKeys(config map[string]interface{}) int {
 	count := 0
 	for _, v := range config {
@@ -433,7 +433,7 @@ func (m *Manager) countConfigKeys(config map[string]interface{}) int {
 	return count
 }
 
-// determineSeverity 确定漂移严重程度
+// determineSeverity 确定漂移严重程度.
 func (m *Manager) determineSeverity(score float64, changes []ConfigChange) DriftSeverity {
 	// 检查是否有关键配置变更
 	hasCriticalChange := false
@@ -461,7 +461,7 @@ func (m *Manager) determineSeverity(score float64, changes []ConfigChange) Drift
 	return SeverityLow
 }
 
-// AutoRollback 自动回滚到指定快照
+// AutoRollback 自动回滚到指定快照.
 func (m *Manager) AutoRollback(snapshotID string) error {
 	m.mu.RLock()
 	snapshot, ok := m.snapshots[snapshotID]
@@ -478,7 +478,7 @@ func (m *Manager) AutoRollback(snapshotID string) error {
 	return nil
 }
 
-// GetDriftHistory 获取漂移历史
+// GetDriftHistory 获取漂移历史.
 func (m *Manager) GetDriftHistory() ([]DriftReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -489,12 +489,12 @@ func (m *Manager) GetDriftHistory() ([]DriftReport, error) {
 	return history, nil
 }
 
-// ExportReport 导出漂移报告为 JSON
+// ExportReport 导出漂移报告为 JSON.
 func (m *Manager) ExportReport(report DriftReport) ([]byte, error) {
 	return json.MarshalIndent(report, "", "  ")
 }
 
-// saveSnapshot 保存快照到文件
+// saveSnapshot 保存快照到文件.
 func (m *Manager) saveSnapshot(snapshot *ConfigSnapshot) error {
 	filename := filepath.Join(m.storageDir, snapshot.ID+".json")
 	data, err := json.MarshalIndent(snapshot, "", "  ")
@@ -504,7 +504,7 @@ func (m *Manager) saveSnapshot(snapshot *ConfigSnapshot) error {
 	return os.WriteFile(filename, data, 0644)
 }
 
-// loadSnapshots 从文件加载快照
+// loadSnapshots 从文件加载快照.
 func (m *Manager) loadSnapshots() {
 	files, err := os.ReadDir(m.storageDir)
 	if err != nil {

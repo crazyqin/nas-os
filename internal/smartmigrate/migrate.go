@@ -14,7 +14,7 @@ import (
 
 // SmartMigrateManager 智能数据迁移管理器
 // 对标群晖 Data Migration 和 TrueNAS 数据迁移功能
-// 支持跨存储池、跨设备、跨节点的数据迁移
+// 支持跨存储池、跨设备、跨节点的数据迁移.
 type SmartMigrateManager struct {
 	mu      sync.RWMutex
 	config  *MigrateConfig
@@ -25,7 +25,7 @@ type SmartMigrateManager struct {
 	wg      sync.WaitGroup
 }
 
-// MigrateConfig 迁移配置
+// MigrateConfig 迁移配置.
 type MigrateConfig struct {
 	Enabled          bool `json:"enabled"`
 	MaxConcurrent    int  `json:"max_concurrent"`
@@ -37,7 +37,7 @@ type MigrateConfig struct {
 	RetryDelaySec    int  `json:"retry_delay_sec"`
 }
 
-// MigrateTask 迁移任务
+// MigrateTask 迁移任务.
 type MigrateTask struct {
 	ID              string          `json:"id"`
 	Name            string          `json:"name"`
@@ -58,7 +58,7 @@ type MigrateTask struct {
 	ChecksumOK      bool            `json:"checksum_ok"`
 }
 
-// MigrateType 迁移类型
+// MigrateType 迁移类型.
 type MigrateType string
 
 const (
@@ -68,7 +68,7 @@ const (
 	TypeReplicate MigrateType = "replicate" // 复制（含校验）
 )
 
-// MigrateStatus 迁移状态
+// MigrateStatus 迁移状态.
 type MigrateStatus string
 
 const (
@@ -80,7 +80,7 @@ const (
 	MigrateStatusCancelled MigrateStatus = "cancelled"
 )
 
-// MigrateOptions 迁移选项
+// MigrateOptions 迁移选项.
 type MigrateOptions struct {
 	ExcludePatterns []string `json:"exclude_patterns"`
 	IncludePatterns []string `json:"include_patterns"`
@@ -90,7 +90,7 @@ type MigrateOptions struct {
 	Encrypt         bool     `json:"encrypt"`
 }
 
-// MigrateRecord 迁移历史记录
+// MigrateRecord 迁移历史记录.
 type MigrateRecord struct {
 	TaskID      string        `json:"task_id"`
 	SourcePath  string        `json:"source_path"`
@@ -102,7 +102,7 @@ type MigrateRecord struct {
 	CompletedAt time.Time     `json:"completed_at"`
 }
 
-// NewSmartMigrateManager 创建智能迁移管理器
+// NewSmartMigrateManager 创建智能迁移管理器.
 func NewSmartMigrateManager(cfg *MigrateConfig) *SmartMigrateManager {
 	if cfg == nil {
 		cfg = &MigrateConfig{
@@ -125,17 +125,17 @@ func NewSmartMigrateManager(cfg *MigrateConfig) *SmartMigrateManager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *SmartMigrateManager) Start() error { return nil }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *SmartMigrateManager) Stop() error {
 	m.cancel()
 	m.wg.Wait()
 	return nil
 }
 
-// CreateTask 创建迁移任务
+// CreateTask 创建迁移任务.
 func (m *SmartMigrateManager) CreateTask(name, src, dst string, mtype MigrateType, opts *MigrateOptions) (*MigrateTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -178,7 +178,7 @@ func (m *SmartMigrateManager) CreateTask(name, src, dst string, mtype MigrateTyp
 	return task, nil
 }
 
-// StartTask 启动迁移任务
+// StartTask 启动迁移任务.
 func (m *SmartMigrateManager) StartTask(taskID string) error {
 	m.mu.RLock()
 	task, exists := m.tasks[taskID]
@@ -369,7 +369,7 @@ func mustFileSize(path string) int64 {
 	return info.Size()
 }
 
-// GetTask 获取任务详情
+// GetTask 获取任务详情.
 func (m *SmartMigrateManager) GetTask(taskID string) (*MigrateTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -380,7 +380,7 @@ func (m *SmartMigrateManager) GetTask(taskID string) (*MigrateTask, error) {
 	return task, nil
 }
 
-// ListTasks 列出所有任务
+// ListTasks 列出所有任务.
 func (m *SmartMigrateManager) ListTasks() []*MigrateTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -391,7 +391,7 @@ func (m *SmartMigrateManager) ListTasks() []*MigrateTask {
 	return result
 }
 
-// PauseTask 暂停任务
+// PauseTask 暂停任务.
 func (m *SmartMigrateManager) PauseTask(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -406,7 +406,7 @@ func (m *SmartMigrateManager) PauseTask(taskID string) error {
 	return nil
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (m *SmartMigrateManager) CancelTask(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -418,7 +418,7 @@ func (m *SmartMigrateManager) CancelTask(taskID string) error {
 	return nil
 }
 
-// GetHistory 获取迁移历史
+// GetHistory 获取迁移历史.
 func (m *SmartMigrateManager) GetHistory() []MigrateRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

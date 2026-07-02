@@ -7,21 +7,21 @@ import (
 	"time"
 )
 
-// RiskLevel 风险等级
+// RiskLevel 风险等级.
 type RiskLevel int
 
 const (
-	// RiskLow 低风险 - 信任设备，可跳过2FA
+	// RiskLow 低风险 - 信任设备，可跳过2FA.
 	RiskLow RiskLevel = iota
-	// RiskMedium 中风险 - 需要简单验证
+	// RiskMedium 中风险 - 需要简单验证.
 	RiskMedium
-	// RiskHigh 高风险 - 需要完整2FA
+	// RiskHigh 高风险 - 需要完整2FA.
 	RiskHigh
-	// RiskCritical 极高风险 - 需要额外验证或阻止
+	// RiskCritical 极高风险 - 需要额外验证或阻止.
 	RiskCritical
 )
 
-// String 返回风险等级的字符串表示
+// String 返回风险等级的字符串表示.
 func (r RiskLevel) String() string {
 	switch r {
 	case RiskLow:
@@ -37,7 +37,7 @@ func (r RiskLevel) String() string {
 	}
 }
 
-// RiskScore 风险评分
+// RiskScore 风险评分.
 type RiskScore struct {
 	// Score 总分 (0-100, 越高越危险)
 	Score int `json:"score"`
@@ -49,7 +49,7 @@ type RiskScore struct {
 	EvaluatedAt time.Time `json:"evaluated_at"`
 }
 
-// RiskFactor 风险因子
+// RiskFactor 风险因子.
 type RiskFactor struct {
 	// Name 因子名称
 	Name string `json:"name"`
@@ -61,7 +61,7 @@ type RiskFactor struct {
 	Weight float64 `json:"weight"`
 }
 
-// LoginContext 登录上下文
+// LoginContext 登录上下文.
 type LoginContext struct {
 	// UserID 用户ID
 	UserID string `json:"user_id"`
@@ -79,7 +79,7 @@ type LoginContext struct {
 	GeoLocation *GeoLocation `json:"geo_location,omitempty"`
 }
 
-// GeoLocation 地理位置信息
+// GeoLocation 地理位置信息.
 type GeoLocation struct {
 	// Country 国家
 	Country string `json:"country"`
@@ -93,7 +93,7 @@ type GeoLocation struct {
 	Longitude float64 `json:"longitude"`
 }
 
-// TrustedDevice 信任设备
+// TrustedDevice 信任设备.
 type TrustedDevice struct {
 	// DeviceID 设备唯一标识
 	DeviceID string `json:"device_id"`
@@ -117,12 +117,12 @@ type TrustedDevice struct {
 	TrustLevel int `json:"trust_level"`
 }
 
-// IsExpired 检查设备是否过期
+// IsExpired 检查设备是否过期.
 func (td *TrustedDevice) IsExpired() bool {
 	return time.Now().After(td.ExpiresAt)
 }
 
-// AuthChallenge 认证挑战
+// AuthChallenge 认证挑战.
 type AuthChallenge struct {
 	// ChallengeID 挑战ID
 	ChallengeID string `json:"challenge_id"`
@@ -140,12 +140,12 @@ type AuthChallenge struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// IsExpired 检查挑战是否过期
+// IsExpired 检查挑战是否过期.
 func (ac *AuthChallenge) IsExpired() bool {
 	return time.Now().After(ac.ExpiresAt)
 }
 
-// AdaptiveAuthResult 自适应认证结果
+// AdaptiveAuthResult 自适应认证结果.
 type AdaptiveAuthResult struct {
 	// Allowed 是否允许登录
 	Allowed bool `json:"allowed"`
@@ -159,7 +159,7 @@ type AdaptiveAuthResult struct {
 	Message string `json:"message,omitempty"`
 }
 
-// LoginHistory 登录历史
+// LoginHistory 登录历史.
 type LoginHistory struct {
 	// UserID 用户ID
 	UserID string `json:"user_id"`
@@ -179,7 +179,7 @@ type LoginHistory struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// AdaptiveConfig 自适应2FA配置
+// AdaptiveConfig 自适应2FA配置.
 type AdaptiveConfig struct {
 	// LowRiskThreshold 低风险阈值 (0-100)
 	LowRiskThreshold int `json:"low_risk_threshold"`
@@ -209,7 +209,7 @@ type AdaptiveConfig struct {
 	RapidLoginThreshold int `json:"rapid_login_threshold"`
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *AdaptiveConfig {
 	return &AdaptiveConfig{
 		LowRiskThreshold:    25,
@@ -228,7 +228,7 @@ func DefaultConfig() *AdaptiveConfig {
 	}
 }
 
-// UserLoginStats 用户登录统计
+// UserLoginStats 用户登录统计.
 type UserLoginStats struct {
 	mu             sync.RWMutex
 	UserID         string

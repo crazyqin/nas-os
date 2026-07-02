@@ -19,7 +19,7 @@ var (
 	ErrInvalidConfig       = errors.New("invalid configuration")
 )
 
-// DeviceType 设备类型
+// DeviceType 设备类型.
 type DeviceType string
 
 const (
@@ -28,7 +28,7 @@ const (
 	DeviceTypeIPU      DeviceType = "ipu"      // 基础设施处理单元
 )
 
-// DeviceState 设备状态
+// DeviceState 设备状态.
 type DeviceState string
 
 const (
@@ -39,7 +39,7 @@ const (
 	StateDisabled DeviceState = "disabled"
 )
 
-// OffloadType 卸载功能类型
+// OffloadType 卸载功能类型.
 type OffloadType string
 
 const (
@@ -57,7 +57,7 @@ const (
 	OffloadMLInference OffloadType = "ml_inference" // ML推理
 )
 
-// OffloadState 卸载状态
+// OffloadState 卸载状态.
 type OffloadState string
 
 const (
@@ -66,7 +66,7 @@ const (
 	OffloadStateError    OffloadState = "error"
 )
 
-// SmartNICDevice SmartNIC 设备
+// SmartNICDevice SmartNIC 设备.
 type SmartNICDevice struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
@@ -90,7 +90,7 @@ type SmartNICDevice struct {
 	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
-// DeviceStats 设备统计
+// DeviceStats 设备统计.
 type DeviceStats struct {
 	RXPackets      uint64  `json:"rx_packets"`
 	TXPackets      uint64  `json:"tx_packets"`
@@ -102,7 +102,7 @@ type DeviceStats struct {
 	MemoryUsage    float64 `json:"memory_usage"` // %
 }
 
-// OffloadFunction 卸载功能实例
+// OffloadFunction 卸载功能实例.
 type OffloadFunction struct {
 	ID        string            `json:"id"`
 	DeviceID  string            `json:"device_id"`
@@ -114,7 +114,7 @@ type OffloadFunction struct {
 	UpdatedAt time.Time         `json:"updated_at"`
 }
 
-// OffloadStats 卸载统计
+// OffloadStats 卸载统计.
 type OffloadStats struct {
 	ProcessedPackets uint64  `json:"processed_packets"`
 	ProcessedBytes   uint64  `json:"processed_bytes"`
@@ -123,7 +123,7 @@ type OffloadStats struct {
 	ThroughputGbps   float64 `json:"throughput_gbps"`
 }
 
-// Manager SmartNIC 卸载管理器
+// Manager SmartNIC 卸载管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	devices  map[string]*SmartNICDevice
@@ -132,7 +132,7 @@ type Manager struct {
 	stopCh   chan struct{}
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		devices:  make(map[string]*SmartNICDevice),
@@ -141,7 +141,7 @@ func NewManager() *Manager {
 	}
 }
 
-// RegisterDevice 注册设备
+// RegisterDevice 注册设备.
 func (m *Manager) RegisterDevice(dev *SmartNICDevice) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -158,7 +158,7 @@ func (m *Manager) RegisterDevice(dev *SmartNICDevice) error {
 	return nil
 }
 
-// UnregisterDevice 注销设备
+// UnregisterDevice 注销设备.
 func (m *Manager) UnregisterDevice(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -169,7 +169,7 @@ func (m *Manager) UnregisterDevice(id string) error {
 	return nil
 }
 
-// GetDevice 获取设备
+// GetDevice 获取设备.
 func (m *Manager) GetDevice(id string) (*SmartNICDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -180,7 +180,7 @@ func (m *Manager) GetDevice(id string) (*SmartNICDevice, error) {
 	return dev, nil
 }
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (m *Manager) ListDevices() []*SmartNICDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -191,7 +191,7 @@ func (m *Manager) ListDevices() []*SmartNICDevice {
 	return devices
 }
 
-// EnableOffload 启用卸载功能
+// EnableOffload 启用卸载功能.
 func (m *Manager) EnableOffload(deviceID string, offloadType OffloadType, config map[string]string) (*OffloadFunction, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -229,7 +229,7 @@ func (m *Manager) EnableOffload(deviceID string, offloadType OffloadType, config
 	return offload, nil
 }
 
-// DisableOffload 禁用卸载功能
+// DisableOffload 禁用卸载功能.
 func (m *Manager) DisableOffload(offloadID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -242,7 +242,7 @@ func (m *Manager) DisableOffload(offloadID string) error {
 	return nil
 }
 
-// ListOffloads 列出设备的卸载功能
+// ListOffloads 列出设备的卸载功能.
 func (m *Manager) ListOffloads(deviceID string) []*OffloadFunction {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -255,7 +255,7 @@ func (m *Manager) ListOffloads(deviceID string) []*OffloadFunction {
 	return result
 }
 
-// GetDeviceStats 获取设备统计
+// GetDeviceStats 获取设备统计.
 func (m *Manager) GetDeviceStats(deviceID string) (*DeviceStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -266,7 +266,7 @@ func (m *Manager) GetDeviceStats(deviceID string) (*DeviceStats, error) {
 	return &dev.Stats, nil
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *Manager) Close() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// StorageHealthMonitor 存储健康监控 - 学习 TrueNAS ZFS 健康检查
+// StorageHealthMonitor 存储健康监控 - 学习 TrueNAS ZFS 健康检查.
 type StorageHealthMonitor struct {
 	mu         sync.RWMutex
 	pools      map[string]*StoragePool
@@ -18,7 +18,7 @@ type StorageHealthMonitor struct {
 	stopChan   chan struct{}
 }
 
-// StoragePool 存储池
+// StoragePool 存储池.
 type StoragePool struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -34,7 +34,7 @@ type StoragePool struct {
 	Metadata      map[string]string `json:"metadata,omitempty"`
 }
 
-// PoolStatus 存储池状态
+// PoolStatus 存储池状态.
 type PoolStatus string
 
 const (
@@ -44,7 +44,7 @@ const (
 	PoolStatusOffline  PoolStatus = "offline"
 )
 
-// HealthStatus 健康状态
+// HealthStatus 健康状态.
 type HealthStatus string
 
 const (
@@ -54,7 +54,7 @@ const (
 	HealthUnknown  HealthStatus = "unknown"
 )
 
-// StorageDevice 存储设备
+// StorageDevice 存储设备.
 type StorageDevice struct {
 	ID                 string       `json:"id"`
 	Name               string       `json:"name"`
@@ -71,7 +71,7 @@ type StorageDevice struct {
 	Timestamp          time.Time    `json:"timestamp"`
 }
 
-// DeviceStatus 设备状态
+// DeviceStatus 设备状态.
 type DeviceStatus string
 
 const (
@@ -81,7 +81,7 @@ const (
 	DeviceRemoved  DeviceStatus = "removed"
 )
 
-// ScrubStatus 清理状态
+// ScrubStatus 清理状态.
 type ScrubStatus struct {
 	State     string     `json:"state"`
 	Progress  float64    `json:"progress"`
@@ -90,7 +90,7 @@ type ScrubStatus struct {
 	Errors    int64      `json:"errors"`
 }
 
-// HealthAlert 健康告警
+// HealthAlert 健康告警.
 type HealthAlert struct {
 	ID         string        `json:"id"`
 	Type       AlertType     `json:"type"`
@@ -103,7 +103,7 @@ type HealthAlert struct {
 	ResolvedAt *time.Time    `json:"resolved_at,omitempty"`
 }
 
-// AlertType 告警类型
+// AlertType 告警类型.
 type AlertType string
 
 const (
@@ -117,7 +117,7 @@ const (
 	AlertScrubError   AlertType = "scrub_error"
 )
 
-// AlertSeverity 告警级别
+// AlertSeverity 告警级别.
 type AlertSeverity string
 
 const (
@@ -126,7 +126,7 @@ const (
 	SeverityCritical AlertSeverity = "critical"
 )
 
-// HealthCheck 健康检查
+// HealthCheck 健康检查.
 type HealthCheck struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
@@ -139,7 +139,7 @@ type HealthCheck struct {
 	Status      CheckStatus   `json:"status"`
 }
 
-// CheckType 检查类型
+// CheckType 检查类型.
 type CheckType string
 
 const (
@@ -150,7 +150,7 @@ const (
 	CheckTypeMemory CheckType = "memory"
 )
 
-// CheckStatus 检查状态
+// CheckStatus 检查状态.
 type CheckStatus string
 
 const (
@@ -160,7 +160,7 @@ const (
 	CheckWarning CheckStatus = "warning"
 )
 
-// HealthThresholds 健康阈值
+// HealthThresholds 健康阈值.
 type HealthThresholds struct {
 	SpaceWarningPercent   float64 `json:"space_warning_percent"`
 	SpaceCriticalPercent  float64 `json:"space_critical_percent"`
@@ -171,7 +171,7 @@ type HealthThresholds struct {
 	MaxErrors             int64   `json:"max_errors"`
 }
 
-// NewStorageHealthMonitor 创建存储健康监控
+// NewStorageHealthMonitor 创建存储健康监控.
 func NewStorageHealthMonitor(thresholds *HealthThresholds) *StorageHealthMonitor {
 	if thresholds == nil {
 		thresholds = &HealthThresholds{
@@ -195,19 +195,19 @@ func NewStorageHealthMonitor(thresholds *HealthThresholds) *StorageHealthMonitor
 	}
 }
 
-// Start 启动监控
+// Start 启动监控.
 func (m *StorageHealthMonitor) Start(ctx context.Context) error {
 	go m.monitorLoop(ctx)
 	go m.alertProcessor(ctx)
 	return nil
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (m *StorageHealthMonitor) Stop() {
 	close(m.stopChan)
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (m *StorageHealthMonitor) monitorLoop(ctx context.Context) {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -224,7 +224,7 @@ func (m *StorageHealthMonitor) monitorLoop(ctx context.Context) {
 	}
 }
 
-// alertProcessor 告警处理器
+// alertProcessor 告警处理器.
 func (m *StorageHealthMonitor) alertProcessor(ctx context.Context) {
 	for {
 		select {
@@ -238,7 +238,7 @@ func (m *StorageHealthMonitor) alertProcessor(ctx context.Context) {
 	}
 }
 
-// processAlert 处理告警
+// processAlert 处理告警.
 func (m *StorageHealthMonitor) processAlert(alert *HealthAlert) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -249,7 +249,7 @@ func (m *StorageHealthMonitor) processAlert(alert *HealthAlert) {
 	// 这里可以添加通知逻辑（邮件、webhook等）
 }
 
-// RegisterPool 注册存储池
+// RegisterPool 注册存储池.
 func (m *StorageHealthMonitor) RegisterPool(pool *StoragePool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -258,7 +258,7 @@ func (m *StorageHealthMonitor) RegisterPool(pool *StoragePool) {
 	m.pools[pool.ID] = pool
 }
 
-// UpdatePoolStatus 更新存储池状态
+// UpdatePoolStatus 更新存储池状态.
 func (m *StorageHealthMonitor) UpdatePoolStatus(poolID string, status PoolStatus, health HealthStatus) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -276,7 +276,7 @@ func (m *StorageHealthMonitor) UpdatePoolStatus(poolID string, status PoolStatus
 	m.checkPoolAlerts(pool)
 }
 
-// checkPoolAlerts 检查存储池告警
+// checkPoolAlerts 检查存储池告警.
 func (m *StorageHealthMonitor) checkPoolAlerts(pool *StoragePool) {
 	// 检查空间使用率
 	usagePercent := float64(pool.UsedSize) / float64(pool.TotalSize) * 100
@@ -306,7 +306,7 @@ func (m *StorageHealthMonitor) checkPoolAlerts(pool *StoragePool) {
 	}
 }
 
-// checkDeviceAlerts 检查设备告警
+// checkDeviceAlerts 检查设备告警.
 func (m *StorageHealthMonitor) checkDeviceAlerts(pool *StoragePool, device *StorageDevice) {
 	// 温度检查
 	if device.Temperature >= m.thresholds.TempCriticalCelsius {
@@ -353,7 +353,7 @@ func (m *StorageHealthMonitor) checkDeviceAlerts(pool *StoragePool, device *Stor
 	}
 }
 
-// runHealthChecks 运行健康检查
+// runHealthChecks 运行健康检查.
 func (m *StorageHealthMonitor) runHealthChecks(ctx context.Context) {
 	m.mu.RLock()
 	checks := make([]*HealthCheck, 0, len(m.checks))
@@ -369,7 +369,7 @@ func (m *StorageHealthMonitor) runHealthChecks(ctx context.Context) {
 	}
 }
 
-// executeCheck 执行检查
+// executeCheck 执行检查.
 func (m *StorageHealthMonitor) executeCheck(ctx context.Context, check *HealthCheck) {
 	m.mu.Lock()
 	check.Status = CheckRunning
@@ -397,18 +397,18 @@ func (m *StorageHealthMonitor) executeCheck(ctx context.Context, check *HealthCh
 	m.mu.Unlock()
 }
 
-// runSMARTCheck 运行 SMART 检查
+// runSMARTCheck 运行 SMART 检查.
 func (m *StorageHealthMonitor) runSMARTCheck(ctx context.Context) CheckStatus {
 	// 实际实现需要读取 SMART 数据
 	return CheckPassed
 }
 
-// runScrubCheck 运行清理检查
+// runScrubCheck 运行清理检查.
 func (m *StorageHealthMonitor) runScrubCheck(ctx context.Context) CheckStatus {
 	return CheckPassed
 }
 
-// runSpaceCheck 运行空间检查
+// runSpaceCheck 运行空间检查.
 func (m *StorageHealthMonitor) runSpaceCheck(ctx context.Context) CheckStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -422,7 +422,7 @@ func (m *StorageHealthMonitor) runSpaceCheck(ctx context.Context) CheckStatus {
 	return CheckPassed
 }
 
-// runTempCheck 运行温度检查
+// runTempCheck 运行温度检查.
 func (m *StorageHealthMonitor) runTempCheck(ctx context.Context) CheckStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -437,7 +437,7 @@ func (m *StorageHealthMonitor) runTempCheck(ctx context.Context) CheckStatus {
 	return CheckPassed
 }
 
-// GetPoolHealth 获取存储池健康状态
+// GetPoolHealth 获取存储池健康状态.
 func (m *StorageHealthMonitor) GetPoolHealth(poolID string) (*StoragePool, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -449,7 +449,7 @@ func (m *StorageHealthMonitor) GetPoolHealth(poolID string) (*StoragePool, error
 	return pool, nil
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (m *StorageHealthMonitor) GetAlerts(severity AlertSeverity, resolved bool) []*HealthAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -463,7 +463,7 @@ func (m *StorageHealthMonitor) GetAlerts(severity AlertSeverity, resolved bool) 
 	return alerts
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (m *StorageHealthMonitor) ResolveAlert(alertID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -479,7 +479,7 @@ func (m *StorageHealthMonitor) ResolveAlert(alertID string) error {
 	return nil
 }
 
-// GetHealthSummary 获取健康摘要
+// GetHealthSummary 获取健康摘要.
 func (m *StorageHealthMonitor) GetHealthSummary() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler SMB Direct HTTP 处理器
+// Handler SMB Direct HTTP 处理器.
 type Handler struct {
 	mgr *SMBDirectManager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(mgr *SMBDirectManager) *Handler {
 	return &Handler{mgr: mgr}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/smbdirect/status", h.handleStatus)
 	mux.HandleFunc("/api/v1/smbdirect/connections", h.handleConnections)

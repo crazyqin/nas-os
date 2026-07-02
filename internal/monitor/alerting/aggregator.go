@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// AggregatedAlert 聚合后的告警
+// AggregatedAlert 聚合后的告警.
 type AggregatedAlert struct {
 	Key         string      `json:"key"`
 	AlertName   string      `json:"alertName"`
@@ -21,7 +21,7 @@ type AggregatedAlert struct {
 	Summary     string      `json:"summary"`
 }
 
-// AlertItem 单条告警项
+// AlertItem 单条告警项.
 type AlertItem struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -31,7 +31,7 @@ type AlertItem struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// AggregationConfig 聚合配置
+// AggregationConfig 聚合配置.
 type AggregationConfig struct {
 	Window        time.Duration `json:"window"`        // 聚合窗口，默认5分钟
 	GroupBy       []string      `json:"groupBy"`       // 聚合维度：level, serviceType, name
@@ -39,7 +39,7 @@ type AggregationConfig struct {
 	FlushInterval time.Duration `json:"flushInterval"` // 刷新间隔
 }
 
-// DefaultAggregationConfig 默认聚合配置
+// DefaultAggregationConfig 默认聚合配置.
 func DefaultAggregationConfig() AggregationConfig {
 	return AggregationConfig{
 		Window:        5 * time.Minute,
@@ -49,7 +49,7 @@ func DefaultAggregationConfig() AggregationConfig {
 	}
 }
 
-// aggregationGroup 聚合组
+// aggregationGroup 聚合组.
 type aggregationGroup struct {
 	key         string
 	alertName   string
@@ -60,7 +60,7 @@ type aggregationGroup struct {
 	lastSeen    time.Time
 }
 
-// Aggregator 告警聚合器
+// Aggregator 告警聚合器.
 type Aggregator struct {
 	mu     sync.RWMutex
 	config AggregationConfig
@@ -71,7 +71,7 @@ type Aggregator struct {
 	onFlush func(aggregated []*AggregatedAlert)
 }
 
-// NewAggregator 创建告警聚合器
+// NewAggregator 创建告警聚合器.
 func NewAggregator(config AggregationConfig) *Aggregator {
 	if config.Window <= 0 {
 		config.Window = 5 * time.Minute
@@ -90,14 +90,14 @@ func NewAggregator(config AggregationConfig) *Aggregator {
 	}
 }
 
-// SetFlushCallback 设置刷新回调
+// SetFlushCallback 设置刷新回调.
 func (a *Aggregator) SetFlushCallback(fn func(aggregated []*AggregatedAlert)) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.onFlush = fn
 }
 
-// Add 添加告警到聚合器
+// Add 添加告警到聚合器.
 func (a *Aggregator) Add(id, name, message, source, serviceType string, level AlertLevel, value float64, timestamp time.Time) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -140,7 +140,7 @@ func (a *Aggregator) Add(id, name, message, source, serviceType string, level Al
 	}
 }
 
-// Flush 刷新并返回聚合结果
+// Flush 刷新并返回聚合结果.
 func (a *Aggregator) Flush() []*AggregatedAlert {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -167,7 +167,7 @@ func (a *Aggregator) Flush() []*AggregatedAlert {
 	return result
 }
 
-// FlushAll 强制刷新所有聚合组
+// FlushAll 强制刷新所有聚合组.
 func (a *Aggregator) FlushAll() []*AggregatedAlert {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -184,14 +184,14 @@ func (a *Aggregator) FlushAll() []*AggregatedAlert {
 	return result
 }
 
-// GetPending 获取待刷新的聚合组数量
+// GetPending 获取待刷新的聚合组数量.
 func (a *Aggregator) GetPending() int {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	return len(a.groups)
 }
 
-// GetPendingDetails 获取待刷新的聚合组详情
+// GetPendingDetails 获取待刷新的聚合组详情.
 func (a *Aggregator) GetPendingDetails() []*AggregatedAlert {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -204,7 +204,7 @@ func (a *Aggregator) GetPendingDetails() []*AggregatedAlert {
 	return result
 }
 
-// GetStats 获取聚合器统计
+// GetStats 获取聚合器统计.
 func (a *Aggregator) GetStats() map[string]interface{} {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -223,7 +223,7 @@ func (a *Aggregator) GetStats() map[string]interface{} {
 	}
 }
 
-// buildAggregatedAlert 构建聚合告警
+// buildAggregatedAlert 构建聚合告警.
 func (a *Aggregator) buildAggregatedAlert(group *aggregationGroup) *AggregatedAlert {
 	children := make([]AlertItem, len(group.items))
 	copy(children, group.items)
@@ -248,7 +248,7 @@ func (a *Aggregator) buildAggregatedAlert(group *aggregationGroup) *AggregatedAl
 	}
 }
 
-// generateSummary 生成告警汇总
+// generateSummary 生成告警汇总.
 func (a *Aggregator) generateSummary(group *aggregationGroup, children []AlertItem) string {
 	switch {
 	case len(children) == 1:
@@ -284,7 +284,7 @@ func (a *Aggregator) generateSummary(group *aggregationGroup, children []AlertIt
 	}
 }
 
-// computeGroupKey 计算聚合组key
+// computeGroupKey 计算聚合组key.
 func (a *Aggregator) computeGroupKey(name string, level AlertLevel, serviceType string) string {
 	var parts []string
 
@@ -307,7 +307,7 @@ func (a *Aggregator) computeGroupKey(name string, level AlertLevel, serviceType 
 	return strings.Join(parts, "|")
 }
 
-// cleanExpiredAlerts 清理过期的原始告警
+// cleanExpiredAlerts 清理过期的原始告警.
 func (a *Aggregator) cleanExpiredAlerts() {
 	window := a.config.Window
 	cutoff := time.Now().Add(-window)
@@ -321,7 +321,7 @@ func (a *Aggregator) cleanExpiredAlerts() {
 	a.alerts = newAlerts
 }
 
-// StartFlushLoop 启动定时刷新循环
+// StartFlushLoop 启动定时刷新循环.
 func (a *Aggregator) StartFlushLoop(stopCh <-chan struct{}) {
 	ticker := time.NewTicker(a.config.FlushInterval)
 	defer ticker.Stop()

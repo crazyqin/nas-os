@@ -23,7 +23,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// 传输状态常量
+// 传输状态常量.
 const (
 	StatusPending   = "pending"
 	StatusRunning   = "running"
@@ -33,13 +33,13 @@ const (
 	StatusCancelled = "cancelled"
 )
 
-// 传输模式
+// 传输模式.
 const (
 	ModeSend = "send"
 	ModeRecv = "recv"
 )
 
-// 错误定义
+// 错误定义.
 var (
 	ErrTransferNotFound  = errors.New("传输任务不存在")
 	ErrTransferCancelled = errors.New("传输任务已取消")
@@ -53,7 +53,7 @@ var (
 	ErrDecryptionFailed  = errors.New("解密失败")
 )
 
-// Config Presto 配置
+// Config Presto 配置.
 type Config struct {
 	// 服务端监听地址
 	ListenAddr string `json:"listen_addr" yaml:"listen_addr"`
@@ -87,7 +87,7 @@ type Config struct {
 	ClientCAFile string `json:"client_ca_file" yaml:"client_ca_file"`
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		ListenAddr:        ":9443",
@@ -102,7 +102,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// Transfer 传输任务
+// Transfer 传输任务.
 type Transfer struct {
 	mu sync.RWMutex `json:"-"`
 
@@ -134,7 +134,7 @@ type Transfer struct {
 	checksums map[int]string     `json:"-"`
 }
 
-// ChunkState 数据块状态
+// ChunkState 数据块状态.
 type ChunkState struct {
 	Index       int    `json:"index"`
 	Offset      int64  `json:"offset"`
@@ -144,7 +144,7 @@ type ChunkState struct {
 	Transferred int64  `json:"transferred"`
 }
 
-// TransferInfo 传输信息（用于 API 响应）
+// TransferInfo 传输信息（用于 API 响应）.
 type TransferInfo struct {
 	ID           string        `json:"id"`
 	Name         string        `json:"name"`
@@ -171,7 +171,7 @@ type TransferInfo struct {
 	ETA          string        `json:"eta,omitempty"`
 }
 
-// Stats 传输统计
+// Stats 传输统计.
 type Stats struct {
 	TotalTransfers   int64   `json:"total_transfers"`
 	ActiveTransfers  int     `json:"active_transfers"`
@@ -183,7 +183,7 @@ type Stats struct {
 	AvgSpeedHuman    string  `json:"avg_speed_human"`
 }
 
-// Manager Presto 传输管理器
+// Manager Presto 传输管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	config    *Config
@@ -199,7 +199,7 @@ type Manager struct {
 	totalTransferred int64
 }
 
-// NewManager 创建传输管理器
+// NewManager 创建传输管理器.
 func NewManager(cfg *Config, logger *zap.Logger) *Manager {
 	if cfg == nil {
 		cfg = DefaultConfig()
@@ -219,7 +219,7 @@ func NewManager(cfg *Config, logger *zap.Logger) *Manager {
 	}
 }
 
-// CreateTransfer 创建新的传输任务
+// CreateTransfer 创建新的传输任务.
 func (m *Manager) CreateTransfer(name, sourcePath, destPath, mode string) (*Transfer, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -278,7 +278,7 @@ func (m *Manager) CreateTransfer(name, sourcePath, destPath, mode string) (*Tran
 	return t, nil
 }
 
-// GetTransfer 获取传输任务
+// GetTransfer 获取传输任务.
 func (m *Manager) GetTransfer(id string) (*Transfer, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -290,7 +290,7 @@ func (m *Manager) GetTransfer(id string) (*Transfer, error) {
 	return t, nil
 }
 
-// ListTransfers 列出所有传输任务
+// ListTransfers 列出所有传输任务.
 func (m *Manager) ListTransfers() []*Transfer {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -302,7 +302,7 @@ func (m *Manager) ListTransfers() []*Transfer {
 	return result
 }
 
-// CancelTransfer 取消传输任务
+// CancelTransfer 取消传输任务.
 func (m *Manager) CancelTransfer(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -329,7 +329,7 @@ func (m *Manager) CancelTransfer(id string) error {
 	return nil
 }
 
-// PauseTransfer 暂停传输任务
+// PauseTransfer 暂停传输任务.
 func (m *Manager) PauseTransfer(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -351,7 +351,7 @@ func (m *Manager) PauseTransfer(id string) error {
 	return nil
 }
 
-// ResumeTransfer 恢复传输任务
+// ResumeTransfer 恢复传输任务.
 func (m *Manager) ResumeTransfer(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -373,7 +373,7 @@ func (m *Manager) ResumeTransfer(id string) error {
 	return nil
 }
 
-// GetStats 获取传输统计
+// GetStats 获取传输统计.
 func (m *Manager) GetStats() *Stats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -421,7 +421,7 @@ func (m *Manager) getEarliestStart() time.Time {
 	return earliest
 }
 
-// Cleanup 清理已完成的任务
+// Cleanup 清理已完成的任务.
 func (m *Manager) Cleanup(olderThan time.Duration) int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -442,7 +442,7 @@ func (m *Manager) Cleanup(olderThan time.Duration) int {
 	return count
 }
 
-// GetTransferInfo 获取传输任务信息
+// GetTransferInfo 获取传输任务信息.
 func (t *Transfer) GetTransferInfo() *TransferInfo {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -487,7 +487,7 @@ func (t *Transfer) GetTransferInfo() *TransferInfo {
 
 // 加密相关函数
 
-// Encrypt 使用 AES-256-GCM 加密数据
+// Encrypt 使用 AES-256-GCM 加密数据.
 func Encrypt(data []byte, key []byte) ([]byte, error) {
 	if len(key) != 32 {
 		return nil, fmt.Errorf("密钥长度必须为 32 字节")
@@ -513,7 +513,7 @@ func Encrypt(data []byte, key []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
-// Decrypt 使用 AES-256-GCM 解密数据
+// Decrypt 使用 AES-256-GCM 解密数据.
 func Decrypt(data []byte, key []byte) ([]byte, error) {
 	if len(key) != 32 {
 		return nil, fmt.Errorf("密钥长度必须为 32 字节")
@@ -543,13 +543,13 @@ func Decrypt(data []byte, key []byte) ([]byte, error) {
 	return plaintext, nil
 }
 
-// ComputeChecksum 计算 SHA-256 校验和
+// ComputeChecksum 计算 SHA-256 校验和.
 func ComputeChecksum(data []byte) string {
 	h := sha256.Sum256(data)
 	return fmt.Sprintf("%x", h)
 }
 
-// ComputeFileChecksum 计算文件的 SHA-256 校验和
+// ComputeFileChecksum 计算文件的 SHA-256 校验和.
 func ComputeFileChecksum(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -567,7 +567,7 @@ func ComputeFileChecksum(path string) (string, error) {
 
 // 分块相关函数
 
-// CalculateChunks 计算文件分块信息
+// CalculateChunks 计算文件分块信息.
 func CalculateChunks(fileSize int64, chunkSize int) []ChunkState {
 	if chunkSize <= 0 {
 		chunkSize = 4 * 1024 * 1024 // 默认 4MB
@@ -599,7 +599,7 @@ func CalculateChunks(fileSize int64, chunkSize int) []ChunkState {
 
 // 协议消息定义
 
-// Message 类型常量
+// Message 类型常量.
 const (
 	MsgTypeHandshake  = "handshake"
 	MsgTypeFileMeta   = "file_meta"
@@ -613,7 +613,7 @@ const (
 	MsgTypeHeartbeat  = "heartbeat"
 )
 
-// Message 协议消息
+// Message 协议消息.
 type Message struct {
 	Type      string          `json:"type"`
 	ID        string          `json:"id,omitempty"`
@@ -622,7 +622,7 @@ type Message struct {
 	Checksum  string          `json:"checksum,omitempty"`
 }
 
-// HandshakePayload 握手载荷
+// HandshakePayload 握手载荷.
 type HandshakePayload struct {
 	Version    string `json:"version"`
 	ClientID   string `json:"client_id"`
@@ -632,7 +632,7 @@ type HandshakePayload struct {
 	SpeedLimit int64  `json:"speed_limit,omitempty"`
 }
 
-// FileMetaPayload 文件元数据载荷
+// FileMetaPayload 文件元数据载荷.
 type FileMetaPayload struct {
 	TransferID  string `json:"transfer_id"`
 	FileName    string `json:"file_name"`
@@ -645,7 +645,7 @@ type FileMetaPayload struct {
 	Permissions uint32 `json:"permissions"`
 }
 
-// ChunkRequestPayload 数据块请求载荷
+// ChunkRequestPayload 数据块请求载荷.
 type ChunkRequestPayload struct {
 	TransferID string `json:"transfer_id"`
 	ChunkIndex int    `json:"chunk_index"`
@@ -653,7 +653,7 @@ type ChunkRequestPayload struct {
 	Size       int64  `json:"size"`
 }
 
-// ChunkDataPayload 数据块数据载荷
+// ChunkDataPayload 数据块数据载荷.
 type ChunkDataPayload struct {
 	TransferID string `json:"transfer_id"`
 	ChunkIndex int    `json:"chunk_index"`
@@ -665,7 +665,7 @@ type ChunkDataPayload struct {
 	Encrypted  bool   `json:"encrypted"`
 }
 
-// ChunkAckPayload 数据块确认载荷
+// ChunkAckPayload 数据块确认载荷.
 type ChunkAckPayload struct {
 	TransferID string `json:"transfer_id"`
 	ChunkIndex int    `json:"chunk_index"`
@@ -674,7 +674,7 @@ type ChunkAckPayload struct {
 	Error      string `json:"error,omitempty"`
 }
 
-// ResumeRequestPayload 断点续传请求载荷
+// ResumeRequestPayload 断点续传请求载荷.
 type ResumeRequestPayload struct {
 	TransferID string `json:"transfer_id"`
 	FileName   string `json:"file_name"`
@@ -682,7 +682,7 @@ type ResumeRequestPayload struct {
 	Checksum   string `json:"checksum"`
 }
 
-// ResumeResponsePayload 断点续传响应载荷
+// ResumeResponsePayload 断点续传响应载荷.
 type ResumeResponsePayload struct {
 	TransferID  string       `json:"transfer_id"`
 	CanResume   bool         `json:"can_resume"`
@@ -690,13 +690,13 @@ type ResumeResponsePayload struct {
 	ChunkStates []ChunkState `json:"chunk_states,omitempty"`
 }
 
-// ErrorPayload 错误载荷
+// ErrorPayload 错误载荷.
 type ErrorPayload struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
-// CompletePayload 完成载荷
+// CompletePayload 完成载荷.
 type CompletePayload struct {
 	TransferID string  `json:"transfer_id"`
 	Checksum   string  `json:"checksum"`
@@ -705,7 +705,7 @@ type CompletePayload struct {
 	SpeedBps   float64 `json:"speed_bps"`
 }
 
-// NewMessage 创建新消息
+// NewMessage 创建新消息.
 func NewMessage(msgType string, payload interface{}) (*Message, error) {
 	var payloadBytes json.RawMessage
 	if payload != nil {
@@ -724,7 +724,7 @@ func NewMessage(msgType string, payload interface{}) (*Message, error) {
 	}, nil
 }
 
-// EncodeMessage 编码消息为字节（长度前缀 + JSON）
+// EncodeMessage 编码消息为字节（长度前缀 + JSON）.
 func EncodeMessage(msg *Message) ([]byte, error) {
 	data, err := json.Marshal(msg)
 	if err != nil {
@@ -739,7 +739,7 @@ func EncodeMessage(msg *Message) ([]byte, error) {
 	return buf, nil
 }
 
-// DecodeMessage 从字节解码消息
+// DecodeMessage 从字节解码消息.
 func DecodeMessage(r io.Reader) (*Message, error) {
 	// 读取长度前缀
 	lenBuf := make([]byte, 4)
@@ -802,7 +802,7 @@ func formatDuration(d time.Duration) string {
 	return fmt.Sprintf("%dh%dm%ds", int(d.Hours()), int(d.Minutes())%60, int(d.Seconds())%60)
 }
 
-// GenerateEncryptionKey 生成随机加密密钥
+// GenerateEncryptionKey 生成随机加密密钥.
 func GenerateEncryptionKey() ([]byte, error) {
 	key := make([]byte, 32)
 	if _, err := rand.Read(key); err != nil {
@@ -811,7 +811,7 @@ func GenerateEncryptionKey() ([]byte, error) {
 	return key, nil
 }
 
-// SaveTransferState 保存传输状态到文件（用于断点续传）
+// SaveTransferState 保存传输状态到文件（用于断点续传）.
 func (t *Transfer) SaveTransferState(dir string) error {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -853,7 +853,7 @@ func (t *Transfer) SaveTransferState(dir string) error {
 	return os.WriteFile(stateFile, data, 0644)
 }
 
-// LoadTransferState 从文件加载传输状态
+// LoadTransferState 从文件加载传输状态.
 func LoadTransferState(dir, id string) (*Transfer, error) {
 	stateFile := filepath.Join(dir, id+".state")
 	data, err := os.ReadFile(stateFile)

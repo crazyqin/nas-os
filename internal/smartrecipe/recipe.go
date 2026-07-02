@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Manager 智能菜谱管理器
+// Manager 智能菜谱管理器.
 type Manager struct {
 	mu            sync.RWMutex
 	recipes       map[string]*Recipe
@@ -24,14 +24,14 @@ type Manager struct {
 	cancel        context.CancelFunc
 }
 
-// Logger 日志接口
+// Logger 日志接口.
 type Logger interface {
 	Info(msg string, args ...interface{})
 	Error(msg string, args ...interface{})
 	Debug(msg string, args ...interface{})
 }
 
-// NewManager 创建菜谱管理器
+// NewManager 创建菜谱管理器.
 func NewManager(logger Logger) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Manager{
@@ -48,7 +48,7 @@ func NewManager(logger Logger) *Manager {
 
 // ==================== 菜谱管理 ====================
 
-// CreateRecipe 创建菜谱
+// CreateRecipe 创建菜谱.
 func (m *Manager) CreateRecipe(recipe *Recipe) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -67,7 +67,7 @@ func (m *Manager) CreateRecipe(recipe *Recipe) error {
 	return nil
 }
 
-// UpdateRecipe 更新菜谱
+// UpdateRecipe 更新菜谱.
 func (m *Manager) UpdateRecipe(recipe *Recipe) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -85,7 +85,7 @@ func (m *Manager) UpdateRecipe(recipe *Recipe) error {
 	return nil
 }
 
-// DeleteRecipe 删除菜谱
+// DeleteRecipe 删除菜谱.
 func (m *Manager) DeleteRecipe(recipeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -99,7 +99,7 @@ func (m *Manager) DeleteRecipe(recipeID string) error {
 	return nil
 }
 
-// GetRecipe 获取菜谱
+// GetRecipe 获取菜谱.
 func (m *Manager) GetRecipe(recipeID string) (*Recipe, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -111,7 +111,7 @@ func (m *Manager) GetRecipe(recipeID string) (*Recipe, error) {
 	return recipe, nil
 }
 
-// ListRecipes 列出菜谱（支持筛选）
+// ListRecipes 列出菜谱（支持筛选）.
 func (m *Manager) ListRecipes(category Category, difficulty Difficulty, keyword string) []*Recipe {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -139,7 +139,7 @@ func (m *Manager) ListRecipes(category Category, difficulty Difficulty, keyword 
 
 // ==================== 食材库管理 ====================
 
-// CreateIngredient 创建食材
+// CreateIngredient 创建食材.
 func (m *Manager) CreateIngredient(ingredient *Ingredient) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -154,7 +154,7 @@ func (m *Manager) CreateIngredient(ingredient *Ingredient) error {
 	return nil
 }
 
-// UpdateIngredient 更新食材
+// UpdateIngredient 更新食材.
 func (m *Manager) UpdateIngredient(ingredient *Ingredient) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -167,7 +167,7 @@ func (m *Manager) UpdateIngredient(ingredient *Ingredient) error {
 	return nil
 }
 
-// DeleteIngredient 删除食材
+// DeleteIngredient 删除食材.
 func (m *Manager) DeleteIngredient(ingredientID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -180,7 +180,7 @@ func (m *Manager) DeleteIngredient(ingredientID string) error {
 	return nil
 }
 
-// GetIngredient 获取食材
+// GetIngredient 获取食材.
 func (m *Manager) GetIngredient(ingredientID string) (*Ingredient, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -192,7 +192,7 @@ func (m *Manager) GetIngredient(ingredientID string) (*Ingredient, error) {
 	return ingredient, nil
 }
 
-// ListIngredients 列出食材
+// ListIngredients 列出食材.
 func (m *Manager) ListIngredients(category IngredientCategory) []*Ingredient {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -209,7 +209,7 @@ func (m *Manager) ListIngredients(category IngredientCategory) []*Ingredient {
 
 // ==================== 库存管理 ====================
 
-// AddInventory 添加库存
+// AddInventory 添加库存.
 func (m *Manager) AddInventory(item *InventoryItem) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -231,7 +231,7 @@ func (m *Manager) AddInventory(item *InventoryItem) error {
 	return nil
 }
 
-// UpdateInventory 更新库存
+// UpdateInventory 更新库存.
 func (m *Manager) UpdateInventory(item *InventoryItem) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -247,7 +247,7 @@ func (m *Manager) UpdateInventory(item *InventoryItem) error {
 	return nil
 }
 
-// DeleteInventory 删除库存
+// DeleteInventory 删除库存.
 func (m *Manager) DeleteInventory(itemID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -260,7 +260,7 @@ func (m *Manager) DeleteInventory(itemID string) error {
 	return nil
 }
 
-// GetInventory 获取库存列表
+// GetInventory 获取库存列表.
 func (m *Manager) GetInventory(location string, statusFilter InventoryStatus) []*InventoryItem {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -287,7 +287,7 @@ func (m *Manager) GetInventory(location string, statusFilter InventoryStatus) []
 	return items
 }
 
-// GetInventoryStatus 获取库存状态
+// GetInventoryStatus 获取库存状态.
 func (m *Manager) getInventoryStatus(item *InventoryItem, now time.Time) InventoryStatus {
 	if item.ExpiryDate.Before(now) {
 		return InventoryStatusExpired
@@ -301,7 +301,7 @@ func (m *Manager) getInventoryStatus(item *InventoryItem, now time.Time) Invento
 	return InventoryStatusNormal
 }
 
-// GetExpiringItems 获取即将过期的食材
+// GetExpiringItems 获取即将过期的食材.
 func (m *Manager) GetExpiringItems(days int) []*InventoryItem {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -323,7 +323,7 @@ func (m *Manager) GetExpiringItems(days int) []*InventoryItem {
 
 // ==================== 智能推荐 ====================
 
-// RecommendRecipes 推荐菜谱
+// RecommendRecipes 推荐菜谱.
 func (m *Manager) RecommendRecipes(req RecommendationRequest) []RecommendationResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -426,7 +426,7 @@ func (m *Manager) RecommendRecipes(req RecommendationRequest) []RecommendationRe
 
 // ==================== 膳食计划 ====================
 
-// CreateMealPlan 创建膳食计划
+// CreateMealPlan 创建膳食计划.
 func (m *Manager) CreateMealPlan(plan *MealPlan) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -442,7 +442,7 @@ func (m *Manager) CreateMealPlan(plan *MealPlan) error {
 	return nil
 }
 
-// UpdateMealPlan 更新膳食计划
+// UpdateMealPlan 更新膳食计划.
 func (m *Manager) UpdateMealPlan(plan *MealPlan) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -458,7 +458,7 @@ func (m *Manager) UpdateMealPlan(plan *MealPlan) error {
 	return nil
 }
 
-// DeleteMealPlan 删除膳食计划
+// DeleteMealPlan 删除膳食计划.
 func (m *Manager) DeleteMealPlan(planID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -471,7 +471,7 @@ func (m *Manager) DeleteMealPlan(planID string) error {
 	return nil
 }
 
-// GetMealPlan 获取膳食计划
+// GetMealPlan 获取膳食计划.
 func (m *Manager) GetMealPlan(planID string) (*MealPlan, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -483,7 +483,7 @@ func (m *Manager) GetMealPlan(planID string) (*MealPlan, error) {
 	return plan, nil
 }
 
-// ListMealPlans 列出膳食计划
+// ListMealPlans 列出膳食计划.
 func (m *Manager) ListMealPlans() []*MealPlan {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -497,7 +497,7 @@ func (m *Manager) ListMealPlans() []*MealPlan {
 
 // ==================== 营养分析 ====================
 
-// AnalyzeNutrition 分析膳食计划的营养成分
+// AnalyzeNutrition 分析膳食计划的营养成分.
 func (m *Manager) AnalyzeNutrition(planID string) (*NutritionSummary, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -546,7 +546,7 @@ func (m *Manager) AnalyzeNutrition(planID string) (*NutritionSummary, error) {
 	return summary, nil
 }
 
-// AnalyzeRecipeNutrition 分析单个菜谱营养
+// AnalyzeRecipeNutrition 分析单个菜谱营养.
 func (m *Manager) AnalyzeRecipeNutrition(recipeID string, servings int) (*Nutrient, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -576,7 +576,7 @@ func (m *Manager) AnalyzeRecipeNutrition(recipeID string, servings int) (*Nutrie
 
 // ==================== 购物清单 ====================
 
-// GenerateShoppingList 根据膳食计划生成购物清单
+// GenerateShoppingList 根据膳食计划生成购物清单.
 func (m *Manager) GenerateShoppingList(planID string, name string) (*ShoppingList, error) {
 	m.mu.RLock()
 	plan, ok := m.mealPlans[planID]
@@ -687,7 +687,7 @@ func (m *Manager) GenerateShoppingList(planID string, name string) (*ShoppingLis
 	return list, nil
 }
 
-// GetShoppingList 获取购物清单
+// GetShoppingList 获取购物清单.
 func (m *Manager) GetShoppingList(listID string) (*ShoppingList, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -699,7 +699,7 @@ func (m *Manager) GetShoppingList(listID string) (*ShoppingList, error) {
 	return list, nil
 }
 
-// UpdateShoppingItem 更新购物清单项（标记已购买等）
+// UpdateShoppingItem 更新购物清单项（标记已购买等）.
 func (m *Manager) UpdateShoppingItem(listID string, itemIndex int, checked bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -720,7 +720,7 @@ func (m *Manager) UpdateShoppingItem(listID string, itemIndex int, checked bool)
 
 // ==================== 辅助函数 ====================
 
-// calculateRecipeNutrition 计算菜谱总营养成分
+// calculateRecipeNutrition 计算菜谱总营养成分.
 func (m *Manager) calculateRecipeNutrition(recipe *Recipe) Nutrient {
 	total := Nutrient{}
 
@@ -754,7 +754,7 @@ func generateID(prefix string) string {
 
 // ==================== HTTP API ====================
 
-// RegisterRoutes 注册HTTP路由
+// RegisterRoutes 注册HTTP路由.
 func (m *Manager) RegisterRoutes(mux *http.ServeMux) {
 	// 菜谱管理
 	mux.HandleFunc("/api/recipes", m.handleRecipes)
@@ -783,7 +783,7 @@ func (m *Manager) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/shopping-lists/generate", m.handleGenerateShoppingList)
 }
 
-// handleRecipes 处理菜谱列表/创建
+// handleRecipes 处理菜谱列表/创建.
 func (m *Manager) handleRecipes(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -808,7 +808,7 @@ func (m *Manager) handleRecipes(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleRecipeByID 处理单个菜谱操作
+// handleRecipeByID 处理单个菜谱操作.
 func (m *Manager) handleRecipeByID(w http.ResponseWriter, r *http.Request) {
 	recipeID := strings.TrimPrefix(r.URL.Path, "/api/recipes/")
 	if recipeID == "" || recipeID == "recommend" {
@@ -846,7 +846,7 @@ func (m *Manager) handleRecipeByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleRecommendRecipes 处理菜谱推荐
+// handleRecommendRecipes 处理菜谱推荐.
 func (m *Manager) handleRecommendRecipes(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -863,7 +863,7 @@ func (m *Manager) handleRecommendRecipes(w http.ResponseWriter, r *http.Request)
 	writeJSON(w, results)
 }
 
-// handleIngredients 处理食材列表/创建
+// handleIngredients 处理食材列表/创建.
 func (m *Manager) handleIngredients(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -886,7 +886,7 @@ func (m *Manager) handleIngredients(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleIngredientByID 处理单个食材操作
+// handleIngredientByID 处理单个食材操作.
 func (m *Manager) handleIngredientByID(w http.ResponseWriter, r *http.Request) {
 	ingredientID := strings.TrimPrefix(r.URL.Path, "/api/ingredients/")
 	if ingredientID == "" {
@@ -924,7 +924,7 @@ func (m *Manager) handleIngredientByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleInventory 处理库存列表/添加
+// handleInventory 处理库存列表/添加.
 func (m *Manager) handleInventory(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -948,7 +948,7 @@ func (m *Manager) handleInventory(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleExpiringItems 处理即将过期的食材
+// handleExpiringItems 处理即将过期的食材.
 func (m *Manager) handleExpiringItems(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -964,7 +964,7 @@ func (m *Manager) handleExpiringItems(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, items)
 }
 
-// handleMealPlans 处理膳食计划列表/创建
+// handleMealPlans 处理膳食计划列表/创建.
 func (m *Manager) handleMealPlans(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -986,7 +986,7 @@ func (m *Manager) handleMealPlans(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleMealPlanByID 处理单个膳食计划操作
+// handleMealPlanByID 处理单个膳食计划操作.
 func (m *Manager) handleMealPlanByID(w http.ResponseWriter, r *http.Request) {
 	planID := strings.TrimPrefix(r.URL.Path, "/api/meal-plans/")
 	if planID == "" {
@@ -1024,7 +1024,7 @@ func (m *Manager) handleMealPlanByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleNutritionAnalysis 处理膳食计划营养分析
+// handleNutritionAnalysis 处理膳食计划营养分析.
 func (m *Manager) handleNutritionAnalysis(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -1045,7 +1045,7 @@ func (m *Manager) handleNutritionAnalysis(w http.ResponseWriter, r *http.Request
 	writeJSON(w, summary)
 }
 
-// handleRecipeNutrition 处理菜谱营养分析
+// handleRecipeNutrition 处理菜谱营养分析.
 func (m *Manager) handleRecipeNutrition(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -1072,7 +1072,7 @@ func (m *Manager) handleRecipeNutrition(w http.ResponseWriter, r *http.Request) 
 	writeJSON(w, nutrition)
 }
 
-// handleShoppingLists 处理购物清单列表
+// handleShoppingLists 处理购物清单列表.
 func (m *Manager) handleShoppingLists(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -1089,7 +1089,7 @@ func (m *Manager) handleShoppingLists(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, lists)
 }
 
-// handleShoppingListByID 处理单个购物清单操作
+// handleShoppingListByID 处理单个购物清单操作.
 func (m *Manager) handleShoppingListByID(w http.ResponseWriter, r *http.Request) {
 	listID := strings.TrimPrefix(r.URL.Path, "/api/shopping-lists/")
 	if listID == "" || listID == "generate" {
@@ -1123,7 +1123,7 @@ func (m *Manager) handleShoppingListByID(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-// handleGenerateShoppingList 处理生成购物清单
+// handleGenerateShoppingList 处理生成购物清单.
 func (m *Manager) handleGenerateShoppingList(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -1147,7 +1147,7 @@ func (m *Manager) handleGenerateShoppingList(w http.ResponseWriter, r *http.Requ
 	writeJSON(w, list)
 }
 
-// writeJSON 写入JSON响应
+// writeJSON 写入JSON响应.
 func writeJSON(w http.ResponseWriter, v interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(v)

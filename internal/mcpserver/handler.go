@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// HTTPHandler provides HTTP endpoints for the MCP server
+// HTTPHandler provides HTTP endpoints for the MCP server.
 type HTTPHandler struct {
 	server *MCPServer
 }
 
-// NewHTTPHandler creates a new HTTP handler for the MCP server
+// NewHTTPHandler creates a new HTTP handler for the MCP server.
 func NewHTTPHandler(server *MCPServer) *HTTPHandler {
 	return &HTTPHandler{server: server}
 }
 
-// RegisterRoutes registers MCP HTTP routes
+// RegisterRoutes registers MCP HTTP routes.
 func (h *HTTPHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/mcp/tools", h.handleTools)
 	mux.HandleFunc("/mcp/tools/invoke", h.handleInvokeTool)

@@ -11,10 +11,10 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 类型别名，供 realtime_sync.go 等模块使用
+// Manager 类型别名，供 realtime_sync.go 等模块使用.
 type Manager = CloudSyncManager
 
-// CloudSyncManager 云同步管理器
+// CloudSyncManager 云同步管理器.
 type CloudSyncManager struct {
 	mu sync.RWMutex
 
@@ -32,14 +32,14 @@ type CloudSyncManager struct {
 	logger     *zap.Logger
 }
 
-// NewManager 创建云同步管理器（兼容旧接口，configPath 暂未使用）
+// NewManager 创建云同步管理器（兼容旧接口，configPath 暂未使用）.
 func NewManager(configPath string) *Manager {
 	m := NewCloudSyncManager(zap.NewNop())
 	m.configPath = configPath
 	return m
 }
 
-// NewCloudSyncManager 创建云同步管理器
+// NewCloudSyncManager 创建云同步管理器.
 func NewCloudSyncManager(logger *zap.Logger) *CloudSyncManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -55,7 +55,7 @@ func NewCloudSyncManager(logger *zap.Logger) *CloudSyncManager {
 	}
 }
 
-// Initialize 初始化管理器
+// Initialize 初始化管理器.
 func (m *CloudSyncManager) Initialize() error {
 	if m.configPath != "" {
 		if err := m.loadConfig(); err != nil && !os.IsNotExist(err) {
@@ -66,7 +66,7 @@ func (m *CloudSyncManager) Initialize() error {
 	return nil
 }
 
-// CreateProvider 创建提供商实例
+// CreateProvider 创建提供商实例.
 func (m *CloudSyncManager) CreateProvider(config ProviderConfig) (*ProviderItem, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -111,7 +111,7 @@ func (m *CloudSyncManager) CreateProvider(config ProviderConfig) (*ProviderItem,
 	return provider, nil
 }
 
-// GetProvider 获取提供商实例
+// GetProvider 获取提供商实例.
 func (m *CloudSyncManager) GetProvider(id string) (*ProviderItem, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -123,7 +123,7 @@ func (m *CloudSyncManager) GetProvider(id string) (*ProviderItem, error) {
 	return provider, nil
 }
 
-// ListProviders 列出所有提供商
+// ListProviders 列出所有提供商.
 func (m *CloudSyncManager) ListProviders() []*ProviderItem {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -135,7 +135,7 @@ func (m *CloudSyncManager) ListProviders() []*ProviderItem {
 	return providers
 }
 
-// CreateSyncTask 创建同步任务（兼容旧接口）
+// CreateSyncTask 创建同步任务（兼容旧接口）.
 func (m *CloudSyncManager) CreateSyncTask(task SyncTask) (*SyncTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -176,17 +176,17 @@ func (m *CloudSyncManager) CreateSyncTask(task SyncTask) (*SyncTask, error) {
 	return &task, nil
 }
 
-// GetSyncTask 获取同步任务（兼容旧接口）
+// GetSyncTask 获取同步任务（兼容旧接口）.
 func (m *CloudSyncManager) GetSyncTask(id string) (*SyncTask, error) {
 	return m.GetTask(id)
 }
 
-// DeleteSyncTask 删除同步任务（兼容旧接口）
+// DeleteSyncTask 删除同步任务（兼容旧接口）.
 func (m *CloudSyncManager) DeleteSyncTask(id string) error {
 	return m.DeleteTask(id)
 }
 
-// UpdateProvider 更新提供商配置
+// UpdateProvider 更新提供商配置.
 func (m *CloudSyncManager) UpdateProvider(id string, config ProviderConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -211,7 +211,7 @@ func (m *CloudSyncManager) UpdateProvider(id string, config ProviderConfig) erro
 	return nil
 }
 
-// DeleteProvider 删除提供商
+// DeleteProvider 删除提供商.
 func (m *CloudSyncManager) DeleteProvider(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -232,17 +232,17 @@ func (m *CloudSyncManager) DeleteProvider(id string) error {
 	return nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *CloudSyncManager) GetStats() SyncStats {
 	return m.GetSyncStats()
 }
 
-// ListSyncTasks 列出所有同步任务（兼容旧接口）
+// ListSyncTasks 列出所有同步任务（兼容旧接口）.
 func (m *CloudSyncManager) ListSyncTasks() []*SyncTask {
 	return m.ListTasks()
 }
 
-// UpdateSyncTask 更新同步任务（兼容旧接口）
+// UpdateSyncTask 更新同步任务（兼容旧接口）.
 func (m *CloudSyncManager) UpdateSyncTask(id string, task SyncTask) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -269,7 +269,7 @@ func (m *CloudSyncManager) UpdateSyncTask(id string, task SyncTask) error {
 	return nil
 }
 
-// GetAllSyncStatuses 获取所有同步任务状态
+// GetAllSyncStatuses 获取所有同步任务状态.
 func (m *CloudSyncManager) GetAllSyncStatuses() map[string]*SyncStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -285,7 +285,7 @@ func (m *CloudSyncManager) GetAllSyncStatuses() map[string]*SyncStatus {
 // 辅助函数
 // ============================================================
 
-// humanBytes 将字节数转换为人类可读的格式
+// humanBytes 将字节数转换为人类可读的格式.
 func humanBytes(bytes int64) string {
 	const unit = 1024
 	if bytes < unit {
@@ -303,7 +303,7 @@ func humanBytes(bytes int64) string {
 // 连接管理
 // ============================================================
 
-// CreateConnection 创建云存储连接
+// CreateConnection 创建云存储连接.
 func (m *CloudSyncManager) CreateConnection(req CreateConnectionRequest) (*ConnectionConfig, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -338,7 +338,7 @@ func (m *CloudSyncManager) CreateConnection(req CreateConnectionRequest) (*Conne
 	return conn, nil
 }
 
-// GetConnection 获取连接配置
+// GetConnection 获取连接配置.
 func (m *CloudSyncManager) GetConnection(id string) (*ConnectionConfig, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -350,7 +350,7 @@ func (m *CloudSyncManager) GetConnection(id string) (*ConnectionConfig, error) {
 	return conn, nil
 }
 
-// ListConnections 列出所有连接
+// ListConnections 列出所有连接.
 func (m *CloudSyncManager) ListConnections() []*ConnectionConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -362,7 +362,7 @@ func (m *CloudSyncManager) ListConnections() []*ConnectionConfig {
 	return conns
 }
 
-// UpdateConnection 更新连接配置
+// UpdateConnection 更新连接配置.
 func (m *CloudSyncManager) UpdateConnection(id string, req UpdateConnectionRequest) (*ConnectionConfig, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -412,7 +412,7 @@ func (m *CloudSyncManager) UpdateConnection(id string, req UpdateConnectionReque
 	return conn, nil
 }
 
-// DeleteConnection 删除连接
+// DeleteConnection 删除连接.
 func (m *CloudSyncManager) DeleteConnection(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -437,7 +437,7 @@ func (m *CloudSyncManager) DeleteConnection(id string) error {
 // 同步任务管理
 // ============================================================
 
-// CreateTask 创建同步任务
+// CreateTask 创建同步任务.
 func (m *CloudSyncManager) CreateTask(req CreateTaskRequest) (*SyncTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -510,7 +510,7 @@ func (m *CloudSyncManager) CreateTask(req CreateTaskRequest) (*SyncTask, error) 
 	return task, nil
 }
 
-// GetTask 获取同步任务
+// GetTask 获取同步任务.
 func (m *CloudSyncManager) GetTask(id string) (*SyncTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -522,7 +522,7 @@ func (m *CloudSyncManager) GetTask(id string) (*SyncTask, error) {
 	return task, nil
 }
 
-// ListTasks 列出所有同步任务
+// ListTasks 列出所有同步任务.
 func (m *CloudSyncManager) ListTasks() []*SyncTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -534,7 +534,7 @@ func (m *CloudSyncManager) ListTasks() []*SyncTask {
 	return tasks
 }
 
-// UpdateTask 更新同步任务
+// UpdateTask 更新同步任务.
 func (m *CloudSyncManager) UpdateTask(id string, req UpdateTaskRequest) (*SyncTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -587,7 +587,7 @@ func (m *CloudSyncManager) UpdateTask(id string, req UpdateTaskRequest) (*SyncTa
 	return task, nil
 }
 
-// DeleteTask 删除同步任务
+// DeleteTask 删除同步任务.
 func (m *CloudSyncManager) DeleteTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -613,7 +613,7 @@ func (m *CloudSyncManager) DeleteTask(id string) error {
 // 同步控制
 // ============================================================
 
-// StartSync 启动同步
+// StartSync 启动同步.
 func (m *CloudSyncManager) StartSync(taskID string) error {
 	m.mu.Lock()
 
@@ -655,7 +655,7 @@ func (m *CloudSyncManager) StartSync(taskID string) error {
 	return nil
 }
 
-// PauseSync 暂停同步
+// PauseSync 暂停同步.
 func (m *CloudSyncManager) PauseSync(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -685,7 +685,7 @@ func (m *CloudSyncManager) PauseSync(taskID string) error {
 	return nil
 }
 
-// ResumeSync 恢复同步
+// ResumeSync 恢复同步.
 func (m *CloudSyncManager) ResumeSync(taskID string) error {
 	m.mu.Lock()
 
@@ -722,7 +722,7 @@ func (m *CloudSyncManager) ResumeSync(taskID string) error {
 	return nil
 }
 
-// StopSync 停止同步（重置为idle）
+// StopSync 停止同步（重置为idle）.
 func (m *CloudSyncManager) StopSync(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -754,7 +754,7 @@ func (m *CloudSyncManager) StopSync(taskID string) error {
 // 同步执行（模拟）
 // ============================================================
 
-// executeSync 执行同步任务（模拟实现）
+// executeSync 执行同步任务（模拟实现）.
 func (m *CloudSyncManager) executeSync(task *SyncTask, cancel chan struct{}) {
 	startTime := time.Now()
 
@@ -852,7 +852,7 @@ func (m *CloudSyncManager) executeSync(task *SyncTask, cancel chan struct{}) {
 // 状态和统计
 // ============================================================
 
-// GetSyncStatus 获取同步状态
+// GetSyncStatus 获取同步状态.
 func (m *CloudSyncManager) GetSyncStatus(taskID string) (*SyncStatus, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -868,7 +868,7 @@ func (m *CloudSyncManager) GetSyncStatus(taskID string) (*SyncStatus, error) {
 	return status, nil
 }
 
-// GetSyncLogs 获取同步日志
+// GetSyncLogs 获取同步日志.
 func (m *CloudSyncManager) GetSyncLogs(taskID string, limit int) []SyncLog {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -886,7 +886,7 @@ func (m *CloudSyncManager) GetSyncLogs(taskID string, limit int) []SyncLog {
 	return logs
 }
 
-// GetSyncStats 获取同步统计
+// GetSyncStats 获取同步统计.
 func (m *CloudSyncManager) GetSyncStats() SyncStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -916,7 +916,7 @@ func (m *CloudSyncManager) GetSyncStats() SyncStats {
 	return stats
 }
 
-// GetStorageUsage 获取存储用量（模拟）
+// GetStorageUsage 获取存储用量（模拟）.
 func (m *CloudSyncManager) GetStorageUsage(connID string) (*StorageUsage, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -946,7 +946,7 @@ func (m *CloudSyncManager) GetStorageUsage(connID string) (*StorageUsage, error)
 // Mock 数据
 // ============================================================
 
-// LoadMockData 加载演示数据
+// LoadMockData 加载演示数据.
 func (m *CloudSyncManager) LoadMockData() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -1163,7 +1163,7 @@ func (m *CloudSyncManager) LoadMockData() {
 		zap.Int("tasks", len(tasks)))
 }
 
-// RunSyncTask 执行同步任务（供 realtime_sync.go 调用）
+// RunSyncTask 执行同步任务（供 realtime_sync.go 调用）.
 func (m *CloudSyncManager) RunSyncTask(taskID string) (interface{}, error) {
 	err := m.StartSync(taskID)
 	if err != nil {
@@ -1176,13 +1176,13 @@ func (m *CloudSyncManager) RunSyncTask(taskID string) (interface{}, error) {
 // 配置持久化
 // ============================================================
 
-// configData 配置数据结构
+// configData 配置数据结构.
 type configData struct {
 	Providers map[string]*ProviderItem `json:"providers"`
 	Tasks     map[string]*SyncTask     `json:"tasks"`
 }
 
-// saveConfig 保存配置到文件
+// saveConfig 保存配置到文件.
 func (m *CloudSyncManager) saveConfig() error {
 	if m.configPath == "" {
 		return nil
@@ -1201,7 +1201,7 @@ func (m *CloudSyncManager) saveConfig() error {
 	return os.WriteFile(m.configPath, bytes, 0644)
 }
 
-// loadConfig 从文件加载配置
+// loadConfig 从文件加载配置.
 func (m *CloudSyncManager) loadConfig() error {
 	if m.configPath == "" {
 		return nil
@@ -1231,7 +1231,7 @@ func (m *CloudSyncManager) loadConfig() error {
 // 辅助函数
 // ============================================================
 
-// addLog 添加日志
+// addLog 添加日志.
 func (m *CloudSyncManager) addLog(taskID, level, message, filePath string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

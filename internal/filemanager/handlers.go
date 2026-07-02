@@ -9,13 +9,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handler 文件管理器HTTP处理器
+// Handler 文件管理器HTTP处理器.
 type Handler struct {
 	manager *Manager
 	logger  *zap.Logger
 }
 
-// NewHandler 创建文件管理器处理器
+// NewHandler 创建文件管理器处理器.
 func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -26,7 +26,7 @@ func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	fm := rg.Group("/filemanager")
 	{
@@ -87,7 +87,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// Browse 浏览根目录
+// Browse 浏览根目录.
 func (h *Handler) Browse(c *gin.Context) {
 	showHidden := c.Query("show_hidden") == "true"
 
@@ -100,7 +100,7 @@ func (h *Handler) Browse(c *gin.Context) {
 	c.JSON(http.StatusOK, listing)
 }
 
-// BrowsePath 浏览指定路径
+// BrowsePath 浏览指定路径.
 func (h *Handler) BrowsePath(c *gin.Context) {
 	path := c.Param("path")
 	showHidden := c.Query("show_hidden") == "true"
@@ -114,14 +114,14 @@ func (h *Handler) BrowsePath(c *gin.Context) {
 	c.JSON(http.StatusOK, listing)
 }
 
-// GetTreeRequest 获取树形目录请求
+// GetTreeRequest 获取树形目录请求.
 type GetTreeRequest struct {
 	Path       string `form:"path"`
 	MaxDepth   int    `form:"max_depth"`
 	ShowHidden bool   `form:"show_hidden"`
 }
 
-// GetTree 获取目录树
+// GetTree 获取目录树.
 func (h *Handler) GetTree(c *gin.Context) {
 	var req GetTreeRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -144,7 +144,7 @@ func (h *Handler) GetTree(c *gin.Context) {
 	c.JSON(http.StatusOK, tree)
 }
 
-// GetFileInfo 获取文件信息
+// GetFileInfo 获取文件信息.
 func (h *Handler) GetFileInfo(c *gin.Context) {
 	path := c.Param("path")
 
@@ -157,7 +157,7 @@ func (h *Handler) GetFileInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, node)
 }
 
-// GetFileAttributes 获取文件属性
+// GetFileAttributes 获取文件属性.
 func (h *Handler) GetFileAttributes(c *gin.Context) {
 	path := c.Param("path")
 
@@ -170,7 +170,7 @@ func (h *Handler) GetFileAttributes(c *gin.Context) {
 	c.JSON(http.StatusOK, attrs)
 }
 
-// GetDiskUsage 获取磁盘使用情况
+// GetDiskUsage 获取磁盘使用情况.
 func (h *Handler) GetDiskUsage(c *gin.Context) {
 	path := c.DefaultQuery("path", "/")
 
@@ -190,7 +190,7 @@ func (h *Handler) GetDiskUsage(c *gin.Context) {
 	})
 }
 
-// Copy 复制文件
+// Copy 复制文件.
 func (h *Handler) Copy(c *gin.Context) {
 	var req BatchOperation
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -208,7 +208,7 @@ func (h *Handler) Copy(c *gin.Context) {
 	c.JSON(http.StatusAccepted, op)
 }
 
-// Move 移动文件
+// Move 移动文件.
 func (h *Handler) Move(c *gin.Context) {
 	var req BatchOperation
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -226,12 +226,12 @@ func (h *Handler) Move(c *gin.Context) {
 	c.JSON(http.StatusAccepted, op)
 }
 
-// DeleteRequest 删除请求
+// DeleteRequest 删除请求.
 type DeleteRequest struct {
 	Sources []string `json:"sources" binding:"required,min=1"`
 }
 
-// Delete 删除文件
+// Delete 删除文件.
 func (h *Handler) Delete(c *gin.Context) {
 	var req DeleteRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -249,13 +249,13 @@ func (h *Handler) Delete(c *gin.Context) {
 	c.JSON(http.StatusAccepted, op)
 }
 
-// RenameRequest 重命名请求
+// RenameRequest 重命名请求.
 type RenameRequest struct {
 	Path    string `json:"path" binding:"required"`
 	NewName string `json:"new_name" binding:"required"`
 }
 
-// Rename 重命名
+// Rename 重命名.
 func (h *Handler) Rename(c *gin.Context) {
 	var req RenameRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -273,7 +273,7 @@ func (h *Handler) Rename(c *gin.Context) {
 	c.JSON(http.StatusAccepted, op)
 }
 
-// BatchOperation 批量操作
+// BatchOperation 批量操作.
 func (h *Handler) BatchOperation(c *gin.Context) {
 	var req BatchOperation
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -291,7 +291,7 @@ func (h *Handler) BatchOperation(c *gin.Context) {
 	c.JSON(http.StatusAccepted, op)
 }
 
-// DragDrop 拖拽操作
+// DragDrop 拖拽操作.
 func (h *Handler) DragDrop(c *gin.Context) {
 	var req DragDropRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -309,7 +309,7 @@ func (h *Handler) DragDrop(c *gin.Context) {
 	c.JSON(http.StatusAccepted, op)
 }
 
-// Compress 压缩文件
+// Compress 压缩文件.
 func (h *Handler) Compress(c *gin.Context) {
 	var opts CompressOptions
 	if err := c.ShouldBindJSON(&opts); err != nil {
@@ -327,7 +327,7 @@ func (h *Handler) Compress(c *gin.Context) {
 	c.JSON(http.StatusAccepted, op)
 }
 
-// Extract 解压文件
+// Extract 解压文件.
 func (h *Handler) Extract(c *gin.Context) {
 	var opts ExtractOptions
 	if err := c.ShouldBindJSON(&opts); err != nil {
@@ -345,7 +345,7 @@ func (h *Handler) Extract(c *gin.Context) {
 	c.JSON(http.StatusAccepted, op)
 }
 
-// GetPreview 获取文件预览
+// GetPreview 获取文件预览.
 func (h *Handler) GetPreview(c *gin.Context) {
 	path := c.Param("path")
 
@@ -358,7 +358,7 @@ func (h *Handler) GetPreview(c *gin.Context) {
 	c.JSON(http.StatusOK, info)
 }
 
-// GetPreviewContent 获取预览内容
+// GetPreviewContent 获取预览内容.
 func (h *Handler) GetPreviewContent(c *gin.Context) {
 	path := c.Param("path")
 	maxLines, _ := strconv.Atoi(c.DefaultQuery("max_lines", "100"))
@@ -375,7 +375,7 @@ func (h *Handler) GetPreviewContent(c *gin.Context) {
 	})
 }
 
-// GetThumbnail 获取缩略图
+// GetThumbnail 获取缩略图.
 func (h *Handler) GetThumbnail(c *gin.Context) {
 	path := c.Param("path")
 
@@ -391,7 +391,7 @@ func (h *Handler) GetThumbnail(c *gin.Context) {
 	})
 }
 
-// SearchRequest 搜索请求
+// SearchRequest 搜索请求.
 type SearchRequest struct {
 	Keyword       string   `json:"keyword" binding:"required"`
 	Path          string   `json:"path"`
@@ -401,7 +401,7 @@ type SearchRequest struct {
 	MaxResults    int      `json:"max_results"`
 }
 
-// Search 搜索文件
+// Search 搜索文件.
 func (h *Handler) Search(c *gin.Context) {
 	var req SearchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -430,7 +430,7 @@ func (h *Handler) Search(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// CreateShare 创建分享
+// CreateShare 创建分享.
 func (h *Handler) CreateShare(c *gin.Context) {
 	var req CreateShareRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -448,7 +448,7 @@ func (h *Handler) CreateShare(c *gin.Context) {
 	c.JSON(http.StatusCreated, link)
 }
 
-// GetShare 获取分享
+// GetShare 获取分享.
 func (h *Handler) GetShare(c *gin.Context) {
 	id := c.Param("id")
 
@@ -461,7 +461,7 @@ func (h *Handler) GetShare(c *gin.Context) {
 	c.JSON(http.StatusOK, link)
 }
 
-// UpdateShare 更新分享
+// UpdateShare 更新分享.
 func (h *Handler) UpdateShare(c *gin.Context) {
 	id := c.Param("id")
 
@@ -481,7 +481,7 @@ func (h *Handler) UpdateShare(c *gin.Context) {
 	c.JSON(http.StatusOK, link)
 }
 
-// DeleteShare 删除分享
+// DeleteShare 删除分享.
 func (h *Handler) DeleteShare(c *gin.Context) {
 	id := c.Param("id")
 
@@ -494,7 +494,7 @@ func (h *Handler) DeleteShare(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "分享链接已删除"})
 }
 
-// ListShares 列出分享
+// ListShares 列出分享.
 func (h *Handler) ListShares(c *gin.Context) {
 	userID := h.getUserID(c)
 	links := h.manager.share.ListLinks(userID)
@@ -505,13 +505,13 @@ func (h *Handler) ListShares(c *gin.Context) {
 	})
 }
 
-// GetShareStats 获取分享统计
+// GetShareStats 获取分享统计.
 func (h *Handler) GetShareStats(c *gin.Context) {
 	stats := h.manager.share.GetStats()
 	c.JSON(http.StatusOK, stats)
 }
 
-// PublicAccess 公开访问分享
+// PublicAccess 公开访问分享.
 func (h *Handler) PublicAccess(c *gin.Context) {
 	token := c.Param("token")
 	password := c.Query("password")
@@ -549,7 +549,7 @@ func (h *Handler) PublicAccess(c *gin.Context) {
 	})
 }
 
-// PublicVerifyPassword 验证公开分享密码
+// PublicVerifyPassword 验证公开分享密码.
 func (h *Handler) PublicVerifyPassword(c *gin.Context) {
 	token := c.Param("token")
 
@@ -575,7 +575,7 @@ func (h *Handler) PublicVerifyPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"verified": true})
 }
 
-// ListOperations 列出操作
+// ListOperations 列出操作.
 func (h *Handler) ListOperations(c *gin.Context) {
 	ops := h.manager.operations.ListOperations()
 	c.JSON(http.StatusOK, gin.H{
@@ -584,7 +584,7 @@ func (h *Handler) ListOperations(c *gin.Context) {
 	})
 }
 
-// GetOperation 获取操作状态
+// GetOperation 获取操作状态.
 func (h *Handler) GetOperation(c *gin.Context) {
 	id := c.Param("id")
 
@@ -597,7 +597,7 @@ func (h *Handler) GetOperation(c *gin.Context) {
 	c.JSON(http.StatusOK, op)
 }
 
-// CancelOperation 取消操作
+// CancelOperation 取消操作.
 func (h *Handler) CancelOperation(c *gin.Context) {
 	id := c.Param("id")
 
@@ -609,7 +609,7 @@ func (h *Handler) CancelOperation(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "操作已取消"})
 }
 
-// ListFavorites 列出收藏
+// ListFavorites 列出收藏.
 func (h *Handler) ListFavorites(c *gin.Context) {
 	userID := h.getUserID(c)
 	favorites := h.manager.ListFavorites(userID)
@@ -620,12 +620,12 @@ func (h *Handler) ListFavorites(c *gin.Context) {
 	})
 }
 
-// AddFavoriteRequest 添加收藏请求
+// AddFavoriteRequest 添加收藏请求.
 type AddFavoriteRequest struct {
 	Path string `json:"path" binding:"required"`
 }
 
-// AddFavorite 添加收藏
+// AddFavorite 添加收藏.
 func (h *Handler) AddFavorite(c *gin.Context) {
 	var req AddFavoriteRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -643,7 +643,7 @@ func (h *Handler) AddFavorite(c *gin.Context) {
 	c.JSON(http.StatusCreated, fav)
 }
 
-// RemoveFavorite 删除收藏
+// RemoveFavorite 删除收藏.
 func (h *Handler) RemoveFavorite(c *gin.Context) {
 	id := c.Param("id")
 
@@ -656,7 +656,7 @@ func (h *Handler) RemoveFavorite(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "收藏已删除"})
 }
 
-// ListVersions 列出版本
+// ListVersions 列出版本.
 func (h *Handler) ListVersions(c *gin.Context) {
 	path := c.Param("path")
 
@@ -672,7 +672,7 @@ func (h *Handler) ListVersions(c *gin.Context) {
 	})
 }
 
-// CreateVersion 创建版本
+// CreateVersion 创建版本.
 func (h *Handler) CreateVersion(c *gin.Context) {
 	path := c.Param("path")
 
@@ -691,12 +691,12 @@ func (h *Handler) CreateVersion(c *gin.Context) {
 	c.JSON(http.StatusCreated, version)
 }
 
-// RestoreVersionRequest 恢复版本请求
+// RestoreVersionRequest 恢复版本请求.
 type RestoreVersionRequest struct {
 	VersionID string `json:"version_id" binding:"required"`
 }
 
-// RestoreVersion 恢复版本
+// RestoreVersion 恢复版本.
 func (h *Handler) RestoreVersion(c *gin.Context) {
 	var req RestoreVersionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -712,7 +712,7 @@ func (h *Handler) RestoreVersion(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "版本已恢复"})
 }
 
-// getUserID 获取用户ID
+// getUserID 获取用户ID.
 func (h *Handler) getUserID(c *gin.Context) string {
 	// 从JWT或session获取用户ID
 	if userID, exists := c.Get("user_id"); exists {
@@ -723,7 +723,7 @@ func (h *Handler) getUserID(c *gin.Context) string {
 	return "anonymous"
 }
 
-// ErrorResponse 错误响应
+// ErrorResponse 错误响应.
 func ErrorResponse(code int, message string) gin.H {
 	return gin.H{
 		"error":     message,

@@ -20,11 +20,11 @@ func TestRegisterNode(t *testing.T) {
 	m := NewMonitor()
 
 	node := &Node{
-		ID:       "node-1",
-		Name:     "Primary NAS",
-		Hostname: "nas-primary",
+		ID:        "node-1",
+		Name:      "Primary NAS",
+		Hostname:  "nas-primary",
 		IPAddress: "192.168.1.100",
-		Type:     NodeTypePrimary,
+		Type:      NodeTypePrimary,
 		CPU: CPUInfo{
 			Model: "Intel i7",
 			Cores: 8,

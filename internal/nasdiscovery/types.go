@@ -5,13 +5,13 @@ import (
 	"time"
 )
 
-// 错误定义
+// 错误定义.
 var (
 	ErrDeviceNotFound = errors.New("设备未找到")
 	ErrAlreadyRunning = errors.New("发现服务已在运行")
 )
 
-// DeviceStatus 设备状态
+// DeviceStatus 设备状态.
 type DeviceStatus string
 
 const (
@@ -20,7 +20,7 @@ const (
 	DeviceStatusUnknown DeviceStatus = "unknown"
 )
 
-// ScanStatus 扫描状态
+// ScanStatus 扫描状态.
 type ScanStatus string
 
 const (
@@ -30,7 +30,7 @@ const (
 	ScanStatusFailed    ScanStatus = "failed"
 )
 
-// NASDevice 发现的 NAS 设备
+// NASDevice 发现的 NAS 设备.
 type NASDevice struct {
 	ID         string       `json:"id"`
 	IP         string       `json:"ip"`
@@ -49,7 +49,7 @@ type NASDevice struct {
 	Version    string       `json:"version,omitempty"`
 }
 
-// DiscoveryConfig 设备发现配置
+// DiscoveryConfig 设备发现配置.
 type DiscoveryConfig struct {
 	Enabled         bool     `json:"enabled"`
 	ScanInterval    int      `json:"scan_interval"` // 秒
@@ -61,7 +61,7 @@ type DiscoveryConfig struct {
 	TrustedNetworks []string `json:"trusted_networks"`
 }
 
-// ScanResult 扫描结果
+// ScanResult 扫描结果.
 type ScanResult struct {
 	ID           string     `json:"id"`
 	StartTime    time.Time  `json:"start_time"`
@@ -73,7 +73,7 @@ type ScanResult struct {
 	Error        string     `json:"error,omitempty"`
 }
 
-// DiscoveryMessage UDP 发现消息
+// DiscoveryMessage UDP 发现消息.
 type DiscoveryMessage struct {
 	Type      string `json:"type"` // "discovery" 或 "response"
 	Hostname  string `json:"hostname"`

@@ -7,7 +7,7 @@ import (
 
 // ==================== 审计事件相关 ====================
 
-// AuditEvent 审计事件
+// AuditEvent 审计事件.
 type AuditEvent struct {
 	ID        string            `json:"id"`
 	Timestamp time.Time         `json:"timestamp"`
@@ -25,7 +25,7 @@ type AuditEvent struct {
 	Severity  string            `json:"severity"` // info, warning, critical
 }
 
-// Actor 操作者
+// Actor 操作者.
 type Actor struct {
 	ID    string `json:"id"`
 	Name  string `json:"name"`
@@ -34,7 +34,7 @@ type Actor struct {
 	Email string `json:"email,omitempty"`
 }
 
-// Resource 资源
+// Resource 资源.
 type Resource struct {
 	ID    string `json:"id"`
 	Name  string `json:"name"`
@@ -43,7 +43,7 @@ type Resource struct {
 	Owner string `json:"owner,omitempty"`
 }
 
-// EventFilter 事件过滤器
+// EventFilter 事件过滤器.
 type EventFilter struct {
 	StartTime  *time.Time `json:"start_time,omitempty"`
 	EndTime    *time.Time `json:"end_time,omitempty"`
@@ -57,7 +57,7 @@ type EventFilter struct {
 
 // ==================== 可疑行为相关 ====================
 
-// SuspiciousActivity 可疑行为
+// SuspiciousActivity 可疑行为.
 type SuspiciousActivity struct {
 	ID            string     `json:"id"`
 	Timestamp     time.Time  `json:"timestamp"`
@@ -74,7 +74,7 @@ type SuspiciousActivity struct {
 	ResolvedAt    *time.Time `json:"resolved_at,omitempty"`
 }
 
-// SuspiciousFilter 可疑行为过滤器
+// SuspiciousFilter 可疑行为过滤器.
 type SuspiciousFilter struct {
 	StartTime *time.Time `json:"start_time,omitempty"`
 	EndTime   *time.Time `json:"end_time,omitempty"`
@@ -86,7 +86,7 @@ type SuspiciousFilter struct {
 
 // ==================== 审计报告相关 ====================
 
-// AuditReport 审计报告
+// AuditReport 审计报告.
 type AuditReport struct {
 	ID          string               `json:"id"`
 	Title       string               `json:"title"`
@@ -100,13 +100,13 @@ type AuditReport struct {
 	Format      string               `json:"format"` // json, csv, pdf
 }
 
-// ReportPeriod 报告周期
+// ReportPeriod 报告周期.
 type ReportPeriod struct {
 	Start time.Time `json:"start"`
 	End   time.Time `json:"end"`
 }
 
-// ReportSummary 报告摘要
+// ReportSummary 报告摘要.
 type ReportSummary struct {
 	TotalEvents      int            `json:"total_events"`
 	EventsByType     map[string]int `json:"events_by_type"`
@@ -117,14 +117,14 @@ type ReportSummary struct {
 	FailureRate      float64        `json:"failure_rate"`
 }
 
-// ActorStat 操作者统计
+// ActorStat 操作者统计.
 type ActorStat struct {
 	ActorID   string `json:"actor_id"`
 	ActorName string `json:"actor_name"`
 	Count     int    `json:"count"`
 }
 
-// ResourceStat 资源统计
+// ResourceStat 资源统计.
 type ResourceStat struct {
 	ResourceID   string `json:"resource_id"`
 	ResourceName string `json:"resource_name"`
@@ -133,7 +133,7 @@ type ResourceStat struct {
 
 // ==================== 保留策略相关 ====================
 
-// RetentionPolicy 保留策略
+// RetentionPolicy 保留策略.
 type RetentionPolicy struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -147,7 +147,7 @@ type RetentionPolicy struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// RetentionStats 保留统计
+// RetentionStats 保留统计.
 type RetentionStats struct {
 	PolicyID    string    `json:"policy_id"`
 	TotalEvents int       `json:"total_events"`
@@ -161,7 +161,7 @@ type RetentionStats struct {
 
 // ==================== 导出相关 ====================
 
-// AuditExport 审计导出
+// AuditExport 审计导出.
 type AuditExport struct {
 	ID          string      `json:"id"`
 	Format      string      `json:"format"` // json, csv, pdf
@@ -175,7 +175,7 @@ type AuditExport struct {
 	ExpiresAt   time.Time   `json:"expires_at"`
 }
 
-// ExportRequest 导出请求
+// ExportRequest 导出请求.
 type ExportRequest struct {
 	Format string      `json:"format"` // json, csv, pdf
 	Filter EventFilter `json:"filter"`

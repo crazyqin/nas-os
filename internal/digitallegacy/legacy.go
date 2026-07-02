@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// Manager 数字遗产管理器
+// Manager 数字遗产管理器.
 type Manager struct {
 	mu               sync.RWMutex
 	config           *DefaultLegacyConfig
@@ -27,7 +27,7 @@ type Manager struct {
 	running          bool
 }
 
-// NewManager 创建数字遗产管理器
+// NewManager 创建数字遗产管理器.
 func NewManager(config *DefaultLegacyConfig, encryptionKey []byte) *Manager {
 	if config == nil {
 		config = GetDefaultConfig()
@@ -45,14 +45,14 @@ func NewManager(config *DefaultLegacyConfig, encryptionKey []byte) *Manager {
 	}
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// encryptData 加密数据
+// encryptData 加密数据.
 func (m *Manager) encryptData(data string) (string, error) {
 	if m.encryptionKey == nil {
 		return "", fmt.Errorf("encryption key not set")
@@ -77,7 +77,7 @@ func (m *Manager) encryptData(data string) (string, error) {
 	return hex.EncodeToString(ciphertext), nil
 }
 
-// decryptData 解密数据
+// decryptData 解密数据.
 func (m *Manager) decryptData(encryptedData string) (string, error) {
 	if m.encryptionKey == nil {
 		return "", fmt.Errorf("encryption key not set")
@@ -112,13 +112,13 @@ func (m *Manager) decryptData(encryptedData string) (string, error) {
 	return string(plaintext), nil
 }
 
-// hashData 计算数据哈希
+// hashData 计算数据哈希.
 func hashData(data string) string {
 	h := sha256.Sum256([]byte(data))
 	return hex.EncodeToString(h[:])
 }
 
-// CreatePlan 创建遗产计划
+// CreatePlan 创建遗产计划.
 func (m *Manager) CreatePlan(req *LegacyPlanRequest, ownerID string) (*LegacyPlan, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -169,7 +169,7 @@ func (m *Manager) CreatePlan(req *LegacyPlanRequest, ownerID string) (*LegacyPla
 	return plan, nil
 }
 
-// GetPlan 获取遗产计划
+// GetPlan 获取遗产计划.
 func (m *Manager) GetPlan(id string) (*LegacyPlan, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -182,7 +182,7 @@ func (m *Manager) GetPlan(id string) (*LegacyPlan, error) {
 	return plan, nil
 }
 
-// ListPlans 列出所有遗产计划
+// ListPlans 列出所有遗产计划.
 func (m *Manager) ListPlans(ownerID string) []*LegacyPlan {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -196,7 +196,7 @@ func (m *Manager) ListPlans(ownerID string) []*LegacyPlan {
 	return plans
 }
 
-// UpdatePlan 更新遗产计划
+// UpdatePlan 更新遗产计划.
 func (m *Manager) UpdatePlan(id string, req *LegacyPlanRequest) (*LegacyPlan, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -233,7 +233,7 @@ func (m *Manager) UpdatePlan(id string, req *LegacyPlanRequest) (*LegacyPlan, er
 	return plan, nil
 }
 
-// DeletePlan 删除遗产计划
+// DeletePlan 删除遗产计划.
 func (m *Manager) DeletePlan(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -263,7 +263,7 @@ func (m *Manager) DeletePlan(id string) error {
 	return nil
 }
 
-// ActivatePlan 激活遗产计划
+// ActivatePlan 激活遗产计划.
 func (m *Manager) ActivatePlan(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -311,7 +311,7 @@ func (m *Manager) ActivatePlan(id string) error {
 	return nil
 }
 
-// TriggerPlan 触发遗产计划
+// TriggerPlan 触发遗产计划.
 func (m *Manager) TriggerPlan(planID string, req *TriggerRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -375,7 +375,7 @@ func (m *Manager) TriggerPlan(planID string, req *TriggerRequest) error {
 	return nil
 }
 
-// CheckInactivity 检查不活跃状态
+// CheckInactivity 检查不活跃状态.
 func (m *Manager) CheckInactivity() []*InactivityCheck {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -419,7 +419,7 @@ func (m *Manager) CheckInactivity() []*InactivityCheck {
 	return checks
 }
 
-// UpdateLastActive 更新最后活跃时间
+// UpdateLastActive 更新最后活跃时间.
 func (m *Manager) UpdateLastActive(ownerID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -435,7 +435,7 @@ func (m *Manager) UpdateLastActive(ownerID string) {
 	}
 }
 
-// GetAccessGrants 获取访问授权
+// GetAccessGrants 获取访问授权.
 func (m *Manager) GetAccessGrants(planID, beneficiaryID string) []*AccessGrant {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -449,7 +449,7 @@ func (m *Manager) GetAccessGrants(planID, beneficiaryID string) []*AccessGrant {
 	return grants
 }
 
-// GetAllAccessGrants 获取计划的所有访问授权
+// GetAllAccessGrants 获取计划的所有访问授权.
 func (m *Manager) GetAllAccessGrants(planID string) []*AccessGrant {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -463,7 +463,7 @@ func (m *Manager) GetAllAccessGrants(planID string) []*AccessGrant {
 	return grants
 }
 
-// RevokeAccessGrant 撤销访问授权
+// RevokeAccessGrant 撤销访问授权.
 func (m *Manager) RevokeAccessGrant(grantID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -481,7 +481,7 @@ func (m *Manager) RevokeAccessGrant(grantID string) error {
 	return fmt.Errorf("access grant not found: %s", grantID)
 }
 
-// GetAuditLogs 获取审计日志
+// GetAuditLogs 获取审计日志.
 func (m *Manager) GetAuditLogs(planID string, limit int) []*AuditLog {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -500,7 +500,7 @@ func (m *Manager) GetAuditLogs(planID string, limit int) []*AuditLog {
 	return logs
 }
 
-// addAuditLog 添加审计日志
+// addAuditLog 添加审计日志.
 func (m *Manager) addAuditLog(entry *AuditLog) {
 	m.auditLogs = append(m.auditLogs, entry)
 	if len(m.auditLogs) > 10000 {
@@ -508,7 +508,7 @@ func (m *Manager) addAuditLog(entry *AuditLog) {
 	}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *DefaultLegacyConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -516,7 +516,7 @@ func (m *Manager) GetConfig() *DefaultLegacyConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(cfg *DefaultLegacyConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

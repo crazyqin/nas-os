@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler 引导式告警HTTP处理器
+// Handler 引导式告警HTTP处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	guided := rg.Group("/alerts/guided")
 	{
@@ -30,13 +30,13 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// List GET /api/v1/alerts/guided
+// List GET /api/v1/alerts/guided.
 func (h *Handler) List(c *gin.Context) {
 	alerts := h.manager.List()
 	c.JSON(http.StatusOK, alerts)
 }
 
-// Get GET /api/v1/alerts/guided/:id
+// Get GET /api/v1/alerts/guided/:id.
 func (h *Handler) Get(c *gin.Context) {
 	id := c.Param("id")
 	alert, ok := h.manager.Get(id)
@@ -47,7 +47,7 @@ func (h *Handler) Get(c *gin.Context) {
 	c.JSON(http.StatusOK, alert)
 }
 
-// Acknowledge POST /api/v1/alerts/guided/:id/acknowledge
+// Acknowledge POST /api/v1/alerts/guided/:id/acknowledge.
 func (h *Handler) Acknowledge(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.Acknowledge(id); err != nil {
@@ -57,7 +57,7 @@ func (h *Handler) Acknowledge(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "acknowledged"})
 }
 
-// Silence POST /api/v1/alerts/guided/:id/silence
+// Silence POST /api/v1/alerts/guided/:id/silence.
 func (h *Handler) Silence(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.Silence(id); err != nil {
@@ -67,13 +67,13 @@ func (h *Handler) Silence(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "silenced"})
 }
 
-// Summary GET /api/v1/alerts/guided/summary
+// Summary GET /api/v1/alerts/guided/summary.
 func (h *Handler) Summary(c *gin.Context) {
 	summary := h.manager.Summary()
 	c.JSON(http.StatusOK, summary)
 }
 
-// CreateRuleRequest 创建规则请求
+// CreateRuleRequest 创建规则请求.
 type CreateRuleRequest struct {
 	Name      string   `json:"name" binding:"required"`
 	Condition string   `json:"condition" binding:"required"`
@@ -81,7 +81,7 @@ type CreateRuleRequest struct {
 	Category  Category `json:"category" binding:"required"`
 }
 
-// CreateRule POST /api/v1/alerts/guided/rules
+// CreateRule POST /api/v1/alerts/guided/rules.
 func (h *Handler) CreateRule(c *gin.Context) {
 	var req CreateRuleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

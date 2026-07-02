@@ -465,9 +465,9 @@ func TestDeleteLabel(t *testing.T) {
 
 	// 给卡片添加标签
 	card, _ := mgr.AddCard(board.ID, &CreateCardRequest{
-		ColumnID: board.Columns[0].ID,
-		Title:    "Test Card",
-		LabelIDs: []string{label.ID},
+		ColumnID:  board.Columns[0].ID,
+		Title:     "Test Card",
+		LabelIDs:  []string{label.ID},
 		CreatedBy: "u1",
 	})
 

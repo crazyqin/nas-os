@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// ContainerStatus represents container status
+// ContainerStatus represents container status.
 type ContainerStatus string
 
 const (
@@ -20,7 +20,7 @@ const (
 	ContainerUnknown ContainerStatus = "unknown"
 )
 
-// AlertType represents resource alert type
+// AlertType represents resource alert type.
 type AlertType string
 
 const (
@@ -32,7 +32,7 @@ const (
 	AlertHealthCheck AlertType = "health_check_failed"
 )
 
-// Container represents a monitored container
+// Container represents a monitored container.
 type Container struct {
 	ID           string          `json:"id"`
 	Name         string          `json:"name"`
@@ -48,7 +48,7 @@ type Container struct {
 	RestartCount int             `json:"restart_count"`
 }
 
-// ResourceUsage represents resource usage at a point in time
+// ResourceUsage represents resource usage at a point in time.
 type ResourceUsage struct {
 	ContainerID string    `json:"container_id"`
 	Timestamp   time.Time `json:"timestamp"`
@@ -63,7 +63,7 @@ type ResourceUsage struct {
 	PIDs        int       `json:"pids"`
 }
 
-// ResourceAlert represents a resource alert
+// ResourceAlert represents a resource alert.
 type ResourceAlert struct {
 	ID            string    `json:"id"`
 	ContainerID   string    `json:"container_id"`
@@ -77,7 +77,7 @@ type ResourceAlert struct {
 	ResolvedAt    time.Time `json:"resolved_at,omitempty"`
 }
 
-// ResourcePolicy represents resource policy for a container
+// ResourcePolicy represents resource policy for a container.
 type ResourcePolicy struct {
 	ContainerID      string  `json:"container_id"`
 	CPUWarning       float64 `json:"cpu_warning_percent"`
@@ -91,7 +91,7 @@ type ResourcePolicy struct {
 	AlertCooldownMin int     `json:"alert_cooldown_minutes"`
 }
 
-// MonitorStats represents container monitor statistics
+// MonitorStats represents container monitor statistics.
 type MonitorStats struct {
 	TotalContainers   int     `json:"total_containers"`
 	RunningContainers int     `json:"running_containers"`
@@ -104,7 +104,7 @@ type MonitorStats struct {
 	TotalNetTx        int64   `json:"total_net_tx_bytes"`
 }
 
-// Config holds container resource monitor configuration
+// Config holds container resource monitor configuration.
 type Config struct {
 	Enabled            bool    `json:"enabled"`
 	MonitorIntervalSec int     `json:"monitor_interval_seconds"`
@@ -116,7 +116,7 @@ type Config struct {
 	AlertCooldownMin   int     `json:"alert_cooldown_minutes"`
 }
 
-// Manager manages container resource monitoring
+// Manager manages container resource monitoring.
 type Manager struct {
 	config     *Config
 	containers map[string]*Container
@@ -128,7 +128,7 @@ type Manager struct {
 	cancel     context.CancelFunc
 }
 
-// NewManager creates a new container resource monitor manager
+// NewManager creates a new container resource monitor manager.
 func NewManager(config *Config) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Manager{
@@ -142,7 +142,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// Start starts the container resource monitor
+// Start starts the container resource monitor.
 func (m *Manager) Start() error {
 	if !m.config.Enabled {
 		return fmt.Errorf("container resource monitor is disabled")
@@ -150,19 +150,19 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop stops the container resource monitor
+// Stop stops the container resource monitor.
 func (m *Manager) Stop() {
 	m.cancel()
 }
 
-// RegisterContainer registers a container for monitoring
+// RegisterContainer registers a container for monitoring.
 func (m *Manager) RegisterContainer(c *Container) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.containers[c.ID] = c
 }
 
-// UnregisterContainer unregisters a container
+// UnregisterContainer unregisters a container.
 func (m *Manager) UnregisterContainer(id string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -171,7 +171,7 @@ func (m *Manager) UnregisterContainer(id string) {
 	delete(m.policies, id)
 }
 
-// ListContainers returns all monitored containers
+// ListContainers returns all monitored containers.
 func (m *Manager) ListContainers() []*Container {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -182,7 +182,7 @@ func (m *Manager) ListContainers() []*Container {
 	return containers
 }
 
-// RecordUsage records resource usage for a container
+// RecordUsage records resource usage for a container.
 func (m *Manager) RecordUsage(usage *ResourceUsage) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -190,28 +190,28 @@ func (m *Manager) RecordUsage(usage *ResourceUsage) {
 	m.usage[usage.ContainerID] = append(m.usage[usage.ContainerID], usage)
 }
 
-// GetUsageHistory returns usage history for a container
+// GetUsageHistory returns usage history for a container.
 func (m *Manager) GetUsageHistory(containerID string) []*ResourceUsage {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.usage[containerID]
 }
 
-// SetPolicy sets a resource policy for a container
+// SetPolicy sets a resource policy for a container.
 func (m *Manager) SetPolicy(policy *ResourcePolicy) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.policies[policy.ContainerID] = policy
 }
 
-// ListAlerts returns all resource alerts
+// ListAlerts returns all resource alerts.
 func (m *Manager) ListAlerts() []*ResourceAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.alerts
 }
 
-// ResolveAlert resolves a resource alert
+// ResolveAlert resolves a resource alert.
 func (m *Manager) ResolveAlert(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -225,7 +225,7 @@ func (m *Manager) ResolveAlert(id string) error {
 	return fmt.Errorf("alert %s not found", id)
 }
 
-// GetStats returns monitor statistics
+// GetStats returns monitor statistics.
 func (m *Manager) GetStats() *MonitorStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

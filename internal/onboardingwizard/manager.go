@@ -11,14 +11,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 引导管理器
+// Manager 引导管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	logger   *zap.Logger
 	sessions map[string]*Session
 }
 
-// NewManager 创建引导管理器
+// NewManager 创建引导管理器.
 func NewManager(logger *zap.Logger) *Manager {
 	return &Manager{
 		logger:   logger,
@@ -26,7 +26,7 @@ func NewManager(logger *zap.Logger) *Manager {
 	}
 }
 
-// CreateSession 创建引导会话
+// CreateSession 创建引导会话.
 func (m *Manager) CreateSession(req CreateSessionRequest) (*Session, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -80,7 +80,7 @@ func (m *Manager) CreateSession(req CreateSessionRequest) (*Session, error) {
 	return session, nil
 }
 
-// GetSession 获取引导会话
+// GetSession 获取引导会话.
 func (m *Manager) GetSession(sessionID string) (*Session, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -92,7 +92,7 @@ func (m *Manager) GetSession(sessionID string) (*Session, error) {
 	return session, nil
 }
 
-// ListSessions 列出所有会话
+// ListSessions 列出所有会话.
 func (m *Manager) ListSessions() []*Session {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -107,7 +107,7 @@ func (m *Manager) ListSessions() []*Session {
 	return sessions
 }
 
-// CompleteStep 完成步骤
+// CompleteStep 完成步骤.
 func (m *Manager) CompleteStep(sessionID, stepID string, data any) (*Session, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -147,7 +147,7 @@ func (m *Manager) CompleteStep(sessionID, stepID string, data any) (*Session, er
 	return session, nil
 }
 
-// SkipStep 跳过步骤
+// SkipStep 跳过步骤.
 func (m *Manager) SkipStep(sessionID, stepID string) (*Session, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -190,7 +190,7 @@ func (m *Manager) SkipStep(sessionID, stepID string) (*Session, error) {
 	return session, nil
 }
 
-// UnskipStep 取消跳过步骤
+// UnskipStep 取消跳过步骤.
 func (m *Manager) UnskipStep(sessionID, stepID string) (*Session, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -223,7 +223,7 @@ func (m *Manager) UnskipStep(sessionID, stepID string) (*Session, error) {
 	return session, nil
 }
 
-// GetProgress 获取引导进度
+// GetProgress 获取引导进度.
 func (m *Manager) GetProgress(sessionID string) (*Progress, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -235,7 +235,7 @@ func (m *Manager) GetProgress(sessionID string) (*Progress, error) {
 	return session.Progress, nil
 }
 
-// GetTemplates 获取所有模板
+// GetTemplates 获取所有模板.
 func (m *Manager) GetTemplates() []*Template {
 	return []*Template{
 		GetTemplate(TemplateTypeHome),
@@ -244,7 +244,7 @@ func (m *Manager) GetTemplates() []*Template {
 	}
 }
 
-// GetRecommendations 获取功能推荐
+// GetRecommendations 获取功能推荐.
 func (m *Manager) GetRecommendations(scenario string) []*RecommendedApp {
 	apps := make([]*RecommendedApp, 0)
 	switch scenario {
@@ -333,7 +333,7 @@ func (m *Manager) GetRecommendations(scenario string) []*RecommendedApp {
 	return apps
 }
 
-// updateProgress 更新进度（需在写锁下调用）
+// updateProgress 更新进度（需在写锁下调用）.
 func (m *Manager) updateProgress(session *Session) {
 	total := len(session.Steps)
 	completed := 0
@@ -376,7 +376,7 @@ func (m *Manager) updateProgress(session *Session) {
 	}
 }
 
-// findStep 查找步骤
+// findStep 查找步骤.
 func findStep(steps []*Step, stepID string) *Step {
 	for _, step := range steps {
 		if step.ID == stepID {
@@ -386,7 +386,7 @@ func findStep(steps []*Step, stepID string) *Step {
 	return nil
 }
 
-// getStepInfo 获取步骤信息
+// getStepInfo 获取步骤信息.
 func getStepInfo(stepType StepType) (name, description string) {
 	switch stepType {
 	case StepTypeNetwork:
@@ -404,7 +404,7 @@ func getStepInfo(stepType StepType) (name, description string) {
 	}
 }
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func GetTemplate(templateType TemplateType) *Template {
 	switch templateType {
 	case TemplateTypeHome:

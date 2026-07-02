@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// ExecutionStatus 工作流执行状态
+// ExecutionStatus 工作流执行状态.
 type ExecutionStatus int
 
 const (
@@ -19,7 +19,7 @@ const (
 	StatusCancelled                        // 已取消
 )
 
-// String 返回状态的字符串表示
+// String 返回状态的字符串表示.
 func (s ExecutionStatus) String() string {
 	switch s {
 	case StatusPending:
@@ -37,7 +37,7 @@ func (s ExecutionStatus) String() string {
 	}
 }
 
-// StepType 步骤类型
+// StepType 步骤类型.
 type StepType int
 
 const (
@@ -45,7 +45,7 @@ const (
 	StepTypeParallel                 // 并行步骤
 )
 
-// TriggerType 触发器类型
+// TriggerType 触发器类型.
 type TriggerType int
 
 const (
@@ -54,7 +54,7 @@ const (
 	TriggerTypeManual                    // 手动触发
 )
 
-// Step 工作流步骤
+// Step 工作流步骤.
 type Step struct {
 	ID          string            // 步骤ID
 	Name        string            // 步骤名称
@@ -68,7 +68,7 @@ type Step struct {
 	RetryDelay  time.Duration     // 重试延迟
 }
 
-// Trigger 工作流触发器
+// Trigger 工作流触发器.
 type Trigger struct {
 	ID          string            // 触发器ID
 	Type        TriggerType       // 触发器类型
@@ -78,7 +78,7 @@ type Trigger struct {
 	LastTrigger time.Time         // 上次触发时间
 }
 
-// Workflow 工作流定义
+// Workflow 工作流定义.
 type Workflow struct {
 	ID          string            // 工作流ID
 	Name        string            // 工作流名称
@@ -92,7 +92,7 @@ type Workflow struct {
 	Variables   map[string]string // 工作流变量
 }
 
-// Execution 工作流执行记录
+// Execution 工作流执行记录.
 type Execution struct {
 	ID          string                 // 执行ID
 	WorkflowID  string                 // 工作流ID
@@ -104,7 +104,7 @@ type Execution struct {
 	TriggeredBy string                 // 触发方式
 }
 
-// StepResult 步骤执行结果
+// StepResult 步骤执行结果.
 type StepResult struct {
 	StepID    string          // 步骤ID
 	Status    ExecutionStatus // 执行状态
@@ -115,7 +115,7 @@ type StepResult struct {
 	RetryNum  int             // 重试次数
 }
 
-// Template 工作流模板
+// Template 工作流模板.
 type Template struct {
 	ID          string   // 模板ID
 	Name        string   // 模板名称
@@ -125,7 +125,7 @@ type Template struct {
 	Tags        []string // 标签
 }
 
-// CronSchedule cron调度解析结果
+// CronSchedule cron调度解析结果.
 type CronSchedule struct {
 	Minute     []int // 分钟 (0-59)
 	Hour       []int // 小时 (0-23)
@@ -134,7 +134,7 @@ type CronSchedule struct {
 	DayOfWeek  []int // 星期 (0-6, 0=周日)
 }
 
-// SmartWorkflow 智能工作流引擎主结构体
+// SmartWorkflow 智能工作流引擎主结构体.
 type SmartWorkflow struct {
 	mu          sync.RWMutex
 	workflows   map[string]*Workflow  // 工作流存储
@@ -144,7 +144,7 @@ type SmartWorkflow struct {
 	execCounter int64                 // 执行计数器
 }
 
-// New 创建新的智能工作流引擎实例
+// New 创建新的智能工作流引擎实例.
 func New() *SmartWorkflow {
 	return &SmartWorkflow{
 		workflows:  make(map[string]*Workflow),
@@ -154,7 +154,7 @@ func New() *SmartWorkflow {
 	}
 }
 
-// CreateWorkflow 创建工作流
+// CreateWorkflow 创建工作流.
 func (sw *SmartWorkflow) CreateWorkflow(workflow *Workflow) error {
 	sw.mu.Lock()
 	defer sw.mu.Unlock()
@@ -179,7 +179,7 @@ func (sw *SmartWorkflow) CreateWorkflow(workflow *Workflow) error {
 	return nil
 }
 
-// UpdateWorkflow 更新工作流
+// UpdateWorkflow 更新工作流.
 func (sw *SmartWorkflow) UpdateWorkflow(workflow *Workflow) error {
 	sw.mu.Lock()
 	defer sw.mu.Unlock()
@@ -197,7 +197,7 @@ func (sw *SmartWorkflow) UpdateWorkflow(workflow *Workflow) error {
 	return nil
 }
 
-// DeleteWorkflow 删除工作流
+// DeleteWorkflow 删除工作流.
 func (sw *SmartWorkflow) DeleteWorkflow(workflowID string) error {
 	sw.mu.Lock()
 	defer sw.mu.Unlock()
@@ -211,7 +211,7 @@ func (sw *SmartWorkflow) DeleteWorkflow(workflowID string) error {
 	return nil
 }
 
-// GetWorkflow 获取工作流
+// GetWorkflow 获取工作流.
 func (sw *SmartWorkflow) GetWorkflow(workflowID string) (*Workflow, error) {
 	sw.mu.RLock()
 	defer sw.mu.RUnlock()
@@ -224,7 +224,7 @@ func (sw *SmartWorkflow) GetWorkflow(workflowID string) (*Workflow, error) {
 	return workflow, nil
 }
 
-// ListWorkflows 列出所有工作流
+// ListWorkflows 列出所有工作流.
 func (sw *SmartWorkflow) ListWorkflows() []*Workflow {
 	sw.mu.RLock()
 	defer sw.mu.RUnlock()
@@ -236,7 +236,7 @@ func (sw *SmartWorkflow) ListWorkflows() []*Workflow {
 	return workflows
 }
 
-// AddStep 添加工作流步骤
+// AddStep 添加工作流步骤.
 func (sw *SmartWorkflow) AddStep(workflowID string, step *Step) error {
 	sw.mu.Lock()
 	defer sw.mu.Unlock()
@@ -262,7 +262,7 @@ func (sw *SmartWorkflow) AddStep(workflowID string, step *Step) error {
 	return nil
 }
 
-// RemoveStep 移除工作流步骤
+// RemoveStep 移除工作流步骤.
 func (sw *SmartWorkflow) RemoveStep(workflowID, stepID string) error {
 	sw.mu.Lock()
 	defer sw.mu.Unlock()
@@ -283,7 +283,7 @@ func (sw *SmartWorkflow) RemoveStep(workflowID, stepID string) error {
 	return fmt.Errorf("步骤 %s 不存在", stepID)
 }
 
-// AddTrigger 添加触发器
+// AddTrigger 添加触发器.
 func (sw *SmartWorkflow) AddTrigger(workflowID string, trigger *Trigger) error {
 	sw.mu.Lock()
 	defer sw.mu.Unlock()
@@ -303,7 +303,7 @@ func (sw *SmartWorkflow) AddTrigger(workflowID string, trigger *Trigger) error {
 	return nil
 }
 
-// RemoveTrigger 移除触发器
+// RemoveTrigger 移除触发器.
 func (sw *SmartWorkflow) RemoveTrigger(workflowID, triggerID string) error {
 	sw.mu.Lock()
 	defer sw.mu.Unlock()
@@ -325,7 +325,7 @@ func (sw *SmartWorkflow) RemoveTrigger(workflowID, triggerID string) error {
 	return fmt.Errorf("触发器 %s 不存在", triggerID)
 }
 
-// Execute 执行工作流
+// Execute 执行工作流.
 func (sw *SmartWorkflow) Execute(workflowID string, triggeredBy string) (*Execution, error) {
 	sw.mu.Lock()
 
@@ -369,7 +369,7 @@ func (sw *SmartWorkflow) Execute(workflowID string, triggeredBy string) (*Execut
 	return execution, nil
 }
 
-// executeSteps 执行工作流步骤
+// executeSteps 执行工作流步骤.
 func (sw *SmartWorkflow) executeSteps(workflow *Workflow, execution *Execution) error {
 	// 构建步骤依赖图
 	stepMap := make(map[string]*Step)
@@ -419,7 +419,7 @@ func (sw *SmartWorkflow) executeSteps(workflow *Workflow, execution *Execution) 
 	return nil
 }
 
-// executeStep 执行单个步骤（带重试）
+// executeStep 执行单个步骤（带重试）.
 func (sw *SmartWorkflow) executeStep(step *Step) *StepResult {
 	result := &StepResult{
 		StepID:    step.ID,
@@ -457,7 +457,7 @@ func (sw *SmartWorkflow) executeStep(step *Step) *StepResult {
 	return result
 }
 
-// performStepAction 执行步骤动作
+// performStepAction 执行步骤动作.
 func (sw *SmartWorkflow) performStepAction(step *Step) error {
 	// 模拟执行，实际实现中这里会调用具体的动作处理器
 	if step.Action == "" {
@@ -468,7 +468,7 @@ func (sw *SmartWorkflow) performStepAction(step *Step) error {
 	return nil
 }
 
-// Schedule 定时调度工作流
+// Schedule 定时调度工作流.
 func (sw *SmartWorkflow) Schedule(workflowID string, cronExpr string) error {
 	sw.mu.Lock()
 	defer sw.mu.Unlock()
@@ -500,7 +500,7 @@ func (sw *SmartWorkflow) Schedule(workflowID string, cronExpr string) error {
 }
 
 // ParseCron 解析cron表达式
-// 支持标准5位格式: 分 时 日 月 周
+// 支持标准5位格式: 分 时 日 月 周.
 func ParseCron(expr string) (*CronSchedule, error) {
 	// 简化的cron解析实现
 	schedule := &CronSchedule{
@@ -535,7 +535,7 @@ func ParseCron(expr string) (*CronSchedule, error) {
 	return schedule, nil
 }
 
-// GetExecutionHistory 获取工作流执行历史
+// GetExecutionHistory 获取工作流执行历史.
 func (sw *SmartWorkflow) GetExecutionHistory(workflowID string) []*Execution {
 	sw.mu.RLock()
 	defer sw.mu.RUnlock()
@@ -549,7 +549,7 @@ func (sw *SmartWorkflow) GetExecutionHistory(workflowID string) []*Execution {
 	return history
 }
 
-// GetExecution 获取指定执行记录
+// GetExecution 获取指定执行记录.
 func (sw *SmartWorkflow) GetExecution(executionID string) (*Execution, error) {
 	sw.mu.RLock()
 	defer sw.mu.RUnlock()
@@ -561,7 +561,7 @@ func (sw *SmartWorkflow) GetExecution(executionID string) (*Execution, error) {
 	return exec, nil
 }
 
-// CreateFromTemplate 从模板创建工作流
+// CreateFromTemplate 从模板创建工作流.
 func (sw *SmartWorkflow) CreateFromTemplate(templateID string, workflowID string, variables map[string]string) (*Workflow, error) {
 	sw.mu.Lock()
 	defer sw.mu.Unlock()
@@ -603,7 +603,7 @@ func (sw *SmartWorkflow) CreateFromTemplate(templateID string, workflowID string
 	return workflow, nil
 }
 
-// GetTemplates 获取所有模板
+// GetTemplates 获取所有模板.
 func (sw *SmartWorkflow) GetTemplates() []*Template {
 	sw.mu.RLock()
 	defer sw.mu.RUnlock()
@@ -615,7 +615,7 @@ func (sw *SmartWorkflow) GetTemplates() []*Template {
 	return templates
 }
 
-// RegisterTemplate 注册工作流模板
+// RegisterTemplate 注册工作流模板.
 func (sw *SmartWorkflow) RegisterTemplate(template *Template) error {
 	sw.mu.Lock()
 	defer sw.mu.Unlock()
@@ -632,7 +632,7 @@ func (sw *SmartWorkflow) RegisterTemplate(template *Template) error {
 	return nil
 }
 
-// CancelExecution 取消正在执行的工作流
+// CancelExecution 取消正在执行的工作流.
 func (sw *SmartWorkflow) CancelExecution(executionID string) error {
 	sw.mu.Lock()
 	defer sw.mu.Unlock()
@@ -651,7 +651,7 @@ func (sw *SmartWorkflow) CancelExecution(executionID string) error {
 	return nil
 }
 
-// GetWorkflowTriggers 获取工作流的所有触发器
+// GetWorkflowTriggers 获取工作流的所有触发器.
 func (sw *SmartWorkflow) GetWorkflowTriggers(workflowID string) ([]*Trigger, error) {
 	sw.mu.RLock()
 	defer sw.mu.RUnlock()
@@ -664,7 +664,7 @@ func (sw *SmartWorkflow) GetWorkflowTriggers(workflowID string) ([]*Trigger, err
 	return workflow.Triggers, nil
 }
 
-// EnableWorkflow 启用工作流
+// EnableWorkflow 启用工作流.
 func (sw *SmartWorkflow) EnableWorkflow(workflowID string) error {
 	sw.mu.Lock()
 	defer sw.mu.Unlock()
@@ -679,7 +679,7 @@ func (sw *SmartWorkflow) EnableWorkflow(workflowID string) error {
 	return nil
 }
 
-// DisableWorkflow 禁用工作流
+// DisableWorkflow 禁用工作流.
 func (sw *SmartWorkflow) DisableWorkflow(workflowID string) error {
 	sw.mu.Lock()
 	defer sw.mu.Unlock()

@@ -8,13 +8,13 @@ import (
 	"time"
 )
 
-// SHR 冗余级别
+// SHR 冗余级别.
 const (
 	SHR1 = "SHR-1" // 容忍 1 块盘故障，类似 RAID5
 	SHR2 = "SHR-2" // 容忍 2 块盘故障，类似 RAID6
 )
 
-// 磁盘状态
+// 磁盘状态.
 const (
 	DiskStatusHealthy  = "healthy"  // 健康
 	DiskStatusDegraded = "degraded" // 降级（预警）
@@ -22,7 +22,7 @@ const (
 	DiskStatusSpare    = "spare"    // 热备
 )
 
-// 存储池状态
+// 存储池状态.
 const (
 	PoolStatusNormal    = "normal"    // 正常
 	PoolStatusDegraded  = "degraded"  // 降级（有故障盘）
@@ -32,7 +32,7 @@ const (
 	PoolStatusError     = "error"     // 错误
 )
 
-// 迁移状态
+// 迁移状态.
 const (
 	MigrationStatusPending    = "pending"     // 等待中
 	MigrationStatusInProgress = "in_progress" // 进行中
@@ -40,13 +40,13 @@ const (
 	MigrationStatusFailed     = "failed"      // 失败
 )
 
-// validRedundancyLevels 合法的冗余级别
+// validRedundancyLevels 合法的冗余级别.
 var validRedundancyLevels = map[string]bool{
 	SHR1: true,
 	SHR2: true,
 }
 
-// SHRDisk 表示一块物理硬盘
+// SHRDisk 表示一块物理硬盘.
 type SHRDisk struct {
 	Device   string    `json:"device"`    // 设备路径，如 /dev/sda
 	Model    string    `json:"model"`     // 硬盘型号
@@ -61,7 +61,7 @@ type SHRDisk struct {
 }
 
 // SHRArrange 表示 SHR 内部的一个子阵列
-// SHR 会将不同容量的硬盘分组，每组形成独立的 RAID 子阵列
+// SHR 会将不同容量的硬盘分组，每组形成独立的 RAID 子阵列.
 type SHRArrange struct {
 	Level     string   `json:"level"`      // 子阵列 RAID 级别 (RAID1/RAID5/RAID6)
 	Devices   []string `json:"devices"`    // 参与的设备列表
@@ -69,7 +69,7 @@ type SHRArrange struct {
 	TotalSize int64    `json:"total_size"` // 子阵列总容量（字节）
 }
 
-// SHRPool 表示一个 SHR 存储池
+// SHRPool 表示一个 SHR 存储池.
 type SHRPool struct {
 	Name         string       `json:"name"`          // 池名称
 	Redundancy   string       `json:"redundancy"`    // 冗余级别 SHR-1 / SHR-2
@@ -85,7 +85,7 @@ type SHRPool struct {
 	UpdatedAt    time.Time    `json:"updated_at"`    // 最后更新时间
 }
 
-// MigrationTask 表示一个数据迁移任务
+// MigrationTask 表示一个数据迁移任务.
 type MigrationTask struct {
 	ID          string    `json:"id"`           // 任务 ID
 	PoolName    string    `json:"pool_name"`    // 目标存储池
@@ -97,7 +97,7 @@ type MigrationTask struct {
 	Error       string    `json:"error"`        // 错误信息
 }
 
-// SHRConfig SHR 管理器配置
+// SHRConfig SHR 管理器配置.
 type SHRConfig struct {
 	AutoOptimize      bool   `json:"auto_optimize"`       // 是否自动优化阵列布局
 	DefaultRedundancy string `json:"default_redundancy"`  // 默认冗余级别
@@ -106,7 +106,7 @@ type SHRConfig struct {
 	AutoReplaceFailed bool   `json:"auto_replace_failed"` // 自动替换故障盘
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *SHRConfig {
 	return &SHRConfig{
 		AutoOptimize:      true,
@@ -117,7 +117,7 @@ func DefaultConfig() *SHRConfig {
 	}
 }
 
-// SHRManager 管理 SHR 存储池
+// SHRManager 管理 SHR 存储池.
 type SHRManager struct {
 	mu         sync.RWMutex
 	config     *SHRConfig
@@ -127,7 +127,7 @@ type SHRManager struct {
 	nextMigID  int
 }
 
-// NewSHRManager 创建新的 SHR 管理器
+// NewSHRManager 创建新的 SHR 管理器.
 func NewSHRManager() *SHRManager {
 	return &SHRManager{
 		config:     DefaultConfig(),
@@ -138,7 +138,7 @@ func NewSHRManager() *SHRManager {
 	}
 }
 
-// NewSHRManagerWithConfig 使用自定义配置创建 SHR 管理器
+// NewSHRManagerWithConfig 使用自定义配置创建 SHR 管理器.
 func NewSHRManagerWithConfig(cfg *SHRConfig) *SHRManager {
 	m := NewSHRManager()
 	if cfg != nil {
@@ -147,7 +147,7 @@ func NewSHRManagerWithConfig(cfg *SHRConfig) *SHRManager {
 	return m
 }
 
-// RegisterDisk 注册一块硬盘
+// RegisterDisk 注册一块硬盘.
 func (m *SHRManager) RegisterDisk(device, model, serial string, capacity int64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -175,7 +175,7 @@ func (m *SHRManager) RegisterDisk(device, model, serial string, capacity int64) 
 	return nil
 }
 
-// UnregisterDisk 注销一块硬盘
+// UnregisterDisk 注销一块硬盘.
 func (m *SHRManager) UnregisterDisk(device string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -193,7 +193,7 @@ func (m *SHRManager) UnregisterDisk(device string) error {
 	return nil
 }
 
-// GetDisk 获取硬盘信息
+// GetDisk 获取硬盘信息.
 func (m *SHRManager) GetDisk(device string) (*SHRDisk, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -205,7 +205,7 @@ func (m *SHRManager) GetDisk(device string) (*SHRDisk, error) {
 	return disk, nil
 }
 
-// ListDisks 列出所有硬盘
+// ListDisks 列出所有硬盘.
 func (m *SHRManager) ListDisks() []*SHRDisk {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -220,7 +220,7 @@ func (m *SHRManager) ListDisks() []*SHRDisk {
 	return result
 }
 
-// ListAvailableDisks 列出可用（未分配）的硬盘
+// ListAvailableDisks 列出可用（未分配）的硬盘.
 func (m *SHRManager) ListAvailableDisks() []*SHRDisk {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -237,7 +237,7 @@ func (m *SHRManager) ListAvailableDisks() []*SHRDisk {
 	return result
 }
 
-// CreatePool 创建 SHR 存储池
+// CreatePool 创建 SHR 存储池.
 func (m *SHRManager) CreatePool(name, redundancy string, devices []string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -309,7 +309,7 @@ func (m *SHRManager) CreatePool(name, redundancy string, devices []string) error
 	return nil
 }
 
-// DeletePool 删除存储池
+// DeletePool 删除存储池.
 func (m *SHRManager) DeletePool(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -339,7 +339,7 @@ func (m *SHRManager) DeletePool(name string) error {
 	return nil
 }
 
-// GetPool 获取存储池信息
+// GetPool 获取存储池信息.
 func (m *SHRManager) GetPool(name string) (*SHRPool, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -351,7 +351,7 @@ func (m *SHRManager) GetPool(name string) (*SHRPool, error) {
 	return pool, nil
 }
 
-// ListPools 列出所有存储池
+// ListPools 列出所有存储池.
 func (m *SHRManager) ListPools() []*SHRPool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -366,7 +366,7 @@ func (m *SHRManager) ListPools() []*SHRPool {
 	return result
 }
 
-// AddDisk 在线扩容：向存储池添加新硬盘
+// AddDisk 在线扩容：向存储池添加新硬盘.
 func (m *SHRManager) AddDisk(poolName string, device string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -427,7 +427,7 @@ func (m *SHRManager) AddDisk(poolName string, device string) error {
 	return nil
 }
 
-// AddSpareDisk 添加热备盘
+// AddSpareDisk 添加热备盘.
 func (m *SHRManager) AddSpareDisk(poolName string, device string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -461,7 +461,7 @@ func (m *SHRManager) AddSpareDisk(poolName string, device string) error {
 	return nil
 }
 
-// RemoveSpareDisk 移除热备盘
+// RemoveSpareDisk 移除热备盘.
 func (m *SHRManager) RemoveSpareDisk(poolName string, device string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -487,7 +487,7 @@ func (m *SHRManager) RemoveSpareDisk(poolName string, device string) error {
 	return fmt.Errorf("热备盘不存在: %s", device)
 }
 
-// MigrateRedundancy 在线迁移冗余级别（如 SHR-1 → SHR-2）
+// MigrateRedundancy 在线迁移冗余级别（如 SHR-1 → SHR-2）.
 func (m *SHRManager) MigrateRedundancy(poolName string, targetRedundancy string) (*MigrationTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -536,7 +536,7 @@ func (m *SHRManager) MigrateRedundancy(poolName string, targetRedundancy string)
 	return task, nil
 }
 
-// doMigration 异步执行迁移
+// doMigration 异步执行迁移.
 func (m *SHRManager) doMigration(migID, poolName, targetRedundancy string) {
 	task := m.migrations[migID]
 	if task == nil {
@@ -586,7 +586,7 @@ func (m *SHRManager) doMigration(migID, poolName, targetRedundancy string) {
 	log.Printf("存储池 %s 冗余级别迁移完成: %s → %s", poolName, oldRedundancy, targetRedundancy)
 }
 
-// GetMigration 获取迁移任务状态
+// GetMigration 获取迁移任务状态.
 func (m *SHRManager) GetMigration(taskID string) (*MigrationTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -598,7 +598,7 @@ func (m *SHRManager) GetMigration(taskID string) (*MigrationTask, error) {
 	return task, nil
 }
 
-// ListMigrations 列出所有迁移任务
+// ListMigrations 列出所有迁移任务.
 func (m *SHRManager) ListMigrations() []*MigrationTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -610,7 +610,7 @@ func (m *SHRManager) ListMigrations() []*MigrationTask {
 	return result
 }
 
-// ReplaceFailedDisk 替换故障盘（自动用热备盘替换或标记为待替换）
+// ReplaceFailedDisk 替换故障盘（自动用热备盘替换或标记为待替换）.
 func (m *SHRManager) ReplaceFailedDisk(poolName string, failedDevice string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -665,7 +665,7 @@ func (m *SHRManager) ReplaceFailedDisk(poolName string, failedDevice string) err
 	return nil
 }
 
-// MarkDiskDegraded 标记硬盘为降级状态
+// MarkDiskDegraded 标记硬盘为降级状态.
 func (m *SHRManager) MarkDiskDegraded(device string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -687,7 +687,7 @@ func (m *SHRManager) MarkDiskDegraded(device string) error {
 	return nil
 }
 
-// CalculateRedundancy 计算指定配置的冗余度
+// CalculateRedundancy 计算指定配置的冗余度.
 func (m *SHRManager) CalculateRedundancy(devices []string, redundancy string) (int, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -705,7 +705,7 @@ func (m *SHRManager) CalculateRedundancy(devices []string, redundancy string) (i
 	return m.calculateMaxFaultTolerance(redundancy, len(devices)), nil
 }
 
-// GetPoolStatus 获取存储池详细状态
+// GetPoolStatus 获取存储池详细状态.
 func (m *SHRManager) GetPoolStatus(poolName string) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -746,7 +746,7 @@ func (m *SHRManager) GetPoolStatus(poolName string) (map[string]interface{}, err
 	}, nil
 }
 
-// OptimizeLayout 自动优化存储池布局
+// OptimizeLayout 自动优化存储池布局.
 func (m *SHRManager) OptimizeLayout(poolName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -782,14 +782,14 @@ func (m *SHRManager) OptimizeLayout(poolName string) error {
 	return nil
 }
 
-// GetConfig 获取当前配置
+// GetConfig 获取当前配置.
 func (m *SHRManager) GetConfig() *SHRConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *SHRManager) UpdateConfig(cfg *SHRConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -805,7 +805,7 @@ func (m *SHRManager) UpdateConfig(cfg *SHRConfig) error {
 // --- 内部辅助函数 ---
 
 // calculateArrangements 计算最优阵列布局
-// SHR 核心算法：将不同容量硬盘分组，每组形成独立 RAID 子阵列
+// SHR 核心算法：将不同容量硬盘分组，每组形成独立 RAID 子阵列.
 func (m *SHRManager) calculateArrangements(disks []*SHRDisk, redundancy string) ([]SHRArrange, int64, error) {
 	if len(disks) == 0 {
 		return nil, 0, fmt.Errorf("没有可用硬盘")
@@ -826,7 +826,7 @@ func (m *SHRManager) calculateArrangements(disks []*SHRDisk, redundancy string) 
 
 // arrangeSHR1 SHR-1 布局算法
 // - 2 块盘：RAID1 镜像
-// - 3 块及以上：RAID5，剩余空间两两配对 RAID1
+// - 3 块及以上：RAID5，剩余空间两两配对 RAID1.
 func (m *SHRManager) arrangeSHR1(disks []*SHRDisk) ([]SHRArrange, int64, error) {
 	arrangements := make([]SHRArrange, 0)
 	var totalSize int64
@@ -882,7 +882,7 @@ func (m *SHRManager) arrangeSHR1(disks []*SHRDisk) ([]SHRArrange, int64, error) 
 }
 
 // arrangeSHR2 SHR-2 布局算法
-// - 所有盘用最小容量组成 RAID6，剩余空间两两 RAID1
+// - 所有盘用最小容量组成 RAID6，剩余空间两两 RAID1.
 func (m *SHRManager) arrangeSHR2(disks []*SHRDisk) ([]SHRArrange, int64, error) {
 	arrangements := make([]SHRArrange, 0)
 	var totalSize int64
@@ -927,7 +927,7 @@ func (m *SHRManager) arrangeSHR2(disks []*SHRDisk) ([]SHRArrange, int64, error) 
 	return arrangements, totalSize, nil
 }
 
-// calculateMaxFaultTolerance 计算最大容忍故障盘数
+// calculateMaxFaultTolerance 计算最大容忍故障盘数.
 func (m *SHRManager) calculateMaxFaultTolerance(redundancy string, diskCount int) int {
 	switch redundancy {
 	case SHR1:
@@ -945,7 +945,7 @@ func (m *SHRManager) calculateMaxFaultTolerance(redundancy string, diskCount int
 	}
 }
 
-// min64 返回两个 int64 中较小的值
+// min64 返回两个 int64 中较小的值.
 func min64(a, b int64) int64 {
 	if a < b {
 		return a

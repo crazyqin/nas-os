@@ -11,13 +11,13 @@ import (
 type AlertSeverity string
 
 const (
-	// SeverityEmergency 紧急：系统不可用，需立即处理
+	// SeverityEmergency 紧急：系统不可用，需立即处理.
 	SeverityEmergency AlertSeverity = "emergency"
-	// SeverityCritical 严重：核心功能受损，需优先处理
+	// SeverityCritical 严重：核心功能受损，需优先处理.
 	SeverityCritical AlertSeverity = "critical"
-	// SeverityWarning 警告：性能或可靠性受影响
+	// SeverityWarning 警告：性能或可靠性受影响.
 	SeverityWarning AlertSeverity = "warning"
-	// SeverityInfo 信息：仅供参考，无需立即处理
+	// SeverityInfo 信息：仅供参考，无需立即处理.
 	SeverityInfo AlertSeverity = "info"
 )
 
@@ -33,15 +33,15 @@ var SeverityOrder = map[AlertSeverity]int{
 type RemediationStatus string
 
 const (
-	// StatusPending 等待处理
+	// StatusPending 等待处理.
 	StatusPending RemediationStatus = "pending"
-	// StatusInProgress 处理中
+	// StatusInProgress 处理中.
 	StatusInProgress RemediationStatus = "in_progress"
-	// StatusCompleted 已完成
+	// StatusCompleted 已完成.
 	StatusCompleted RemediationStatus = "completed"
-	// StatusFailed 处理失败
+	// StatusFailed 处理失败.
 	StatusFailed RemediationStatus = "failed"
-	// StatusSkipped 已跳过
+	// StatusSkipped 已跳过.
 	StatusSkipped RemediationStatus = "skipped"
 )
 
@@ -49,23 +49,23 @@ const (
 type ActionType string
 
 const (
-	// ActionServiceRestart 重启服务
+	// ActionServiceRestart 重启服务.
 	ActionServiceRestart ActionType = "service_restart"
-	// ActionDiskCleanup 磁盘清理
+	// ActionDiskCleanup 磁盘清理.
 	ActionDiskCleanup ActionType = "disk_cleanup"
-	// ActionConfigChange 修改配置
+	// ActionConfigChange 修改配置.
 	ActionConfigChange ActionType = "config_change"
-	// ActionScript 执行脚本
+	// ActionScript 执行脚本.
 	ActionScript ActionType = "script"
-	// ActionCommand 执行命令
+	// ActionCommand 执行命令.
 	ActionCommand ActionType = "command"
-	// ActionZFSRepair ZFS 修复
+	// ActionZFSRepair ZFS 修复.
 	ActionZFSRepair ActionType = "zfs_repair"
-	// ActionNetworkReset 网络重置
+	// ActionNetworkReset 网络重置.
 	ActionNetworkReset ActionType = "network_reset"
-	// ActionLogRotation 日志轮转
+	// ActionLogRotation 日志轮转.
 	ActionLogRotation ActionType = "log_rotation"
-	// ActionNotifyUser 通知用户
+	// ActionNotifyUser 通知用户.
 	ActionNotifyUser ActionType = "notify_user"
 )
 
@@ -73,15 +73,15 @@ const (
 type AlertCategory string
 
 const (
-	// CatStorage 存储类
+	// CatStorage 存储类.
 	CatStorage AlertCategory = "storage"
-	// CatNetwork 网络类
+	// CatNetwork 网络类.
 	CatNetwork AlertCategory = "network"
-	// CatSystem 系统类
+	// CatSystem 系统类.
 	CatSystem AlertCategory = "system"
-	// CatService 服务类
+	// CatService 服务类.
 	CatService AlertCategory = "service"
-	// CatSecurity 安全类
+	// CatSecurity 安全类.
 	CatSecurity AlertCategory = "security"
 )
 

@@ -10,10 +10,10 @@ import (
 	"time"
 )
 
-// Base62字符集
+// Base62字符集.
 const base62Chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
-// LinkManager 共享链接管理器
+// LinkManager 共享链接管理器.
 type LinkManager struct {
 	mu         sync.RWMutex
 	links      map[string]*ShareLink
@@ -21,7 +21,7 @@ type LinkManager struct {
 	config     *LinkConfig
 }
 
-// NewLinkManager 创建管理器
+// NewLinkManager 创建管理器.
 func NewLinkManager(config *LinkConfig) *LinkManager {
 	if config == nil {
 		config = DefaultConfig()
@@ -33,7 +33,7 @@ func NewLinkManager(config *LinkConfig) *LinkManager {
 	}
 }
 
-// CreateLink 创建共享链接
+// CreateLink 创建共享链接.
 func (m *LinkManager) CreateLink(path, name, createdBy string, linkType LinkType, opts ...LinkOption) (*ShareLink, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -85,10 +85,10 @@ func (m *LinkManager) CreateLink(path, name, createdBy string, linkType LinkType
 	return link, nil
 }
 
-// LinkOption 链接选项函数
+// LinkOption 链接选项函数.
 type LinkOption func(*ShareLink)
 
-// WithPassword 设置密码
+// WithPassword 设置密码.
 func WithPassword(password string) LinkOption {
 	return func(l *ShareLink) {
 		if password != "" {
@@ -98,7 +98,7 @@ func WithPassword(password string) LinkOption {
 	}
 }
 
-// WithExpiry 设置过期时间（小时）
+// WithExpiry 设置过期时间（小时）.
 func WithExpiry(hours int) LinkOption {
 	return func(l *ShareLink) {
 		if hours > 0 {
@@ -108,35 +108,35 @@ func WithExpiry(hours int) LinkOption {
 	}
 }
 
-// WithMaxDownloads 设置最大下载次数
+// WithMaxDownloads 设置最大下载次数.
 func WithMaxDownloads(max int) LinkOption {
 	return func(l *ShareLink) {
 		l.MaxDownloads = max
 	}
 }
 
-// WithDescription 设置描述
+// WithDescription 设置描述.
 func WithDescription(desc string) LinkOption {
 	return func(l *ShareLink) {
 		l.Description = desc
 	}
 }
 
-// WithTags 设置标签
+// WithTags 设置标签.
 func WithTags(tags []string) LinkOption {
 	return func(l *ShareLink) {
 		l.Tags = tags
 	}
 }
 
-// WithRefererWhitelist 设置Referer白名单
+// WithRefererWhitelist 设置Referer白名单.
 func WithRefererWhitelist(referers []string) LinkOption {
 	return func(l *ShareLink) {
 		l.RefererWhitelist = referers
 	}
 }
 
-// WithBatchPaths 设置批量路径
+// WithBatchPaths 设置批量路径.
 func WithBatchPaths(paths []string) LinkOption {
 	return func(l *ShareLink) {
 		if len(paths) > 0 {
@@ -146,7 +146,7 @@ func WithBatchPaths(paths []string) LinkOption {
 	}
 }
 
-// GetLink 获取链接
+// GetLink 获取链接.
 func (m *LinkManager) GetLink(id string) (*ShareLink, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -154,7 +154,7 @@ func (m *LinkManager) GetLink(id string) (*ShareLink, bool) {
 	return link, ok
 }
 
-// GetLinkByShortCode 通过短码获取链接
+// GetLinkByShortCode 通过短码获取链接.
 func (m *LinkManager) GetLinkByShortCode(shortCode string) (*ShareLink, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -162,7 +162,7 @@ func (m *LinkManager) GetLinkByShortCode(shortCode string) (*ShareLink, bool) {
 	return link, ok
 }
 
-// GetLinkByToken 通过Token获取链接
+// GetLinkByToken 通过Token获取链接.
 func (m *LinkManager) GetLinkByToken(token string) (*ShareLink, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -177,7 +177,7 @@ func (m *LinkManager) GetLinkByToken(token string) (*ShareLink, bool) {
 	return nil, false
 }
 
-// ListLinks 列出链接
+// ListLinks 列出链接.
 func (m *LinkManager) ListLinks(createdBy string, activeOnly bool) []*ShareLink {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -195,7 +195,7 @@ func (m *LinkManager) ListLinks(createdBy string, activeOnly bool) []*ShareLink 
 	return result
 }
 
-// UpdateLink 更新链接
+// UpdateLink 更新链接.
 func (m *LinkManager) UpdateLink(id string, opts ...LinkOption) (*ShareLink, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -213,7 +213,7 @@ func (m *LinkManager) UpdateLink(id string, opts ...LinkOption) (*ShareLink, err
 	return link, nil
 }
 
-// DisableLink 禁用链接
+// DisableLink 禁用链接.
 func (m *LinkManager) DisableLink(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -227,7 +227,7 @@ func (m *LinkManager) DisableLink(id string) error {
 	return nil
 }
 
-// EnableLink 启用链接
+// EnableLink 启用链接.
 func (m *LinkManager) EnableLink(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -241,7 +241,7 @@ func (m *LinkManager) EnableLink(id string) error {
 	return nil
 }
 
-// DeleteLink 删除链接
+// DeleteLink 删除链接.
 func (m *LinkManager) DeleteLink(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -256,7 +256,7 @@ func (m *LinkManager) DeleteLink(id string) error {
 	return nil
 }
 
-// ValidateAccess 验证访问权限
+// ValidateAccess 验证访问权限.
 func (m *LinkManager) ValidateAccess(id, password, referer string) (*ShareLink, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -306,7 +306,7 @@ func (m *LinkManager) ValidateAccess(id, password, referer string) (*ShareLink, 
 	return link, nil
 }
 
-// ValidateAccessByShortCode 通过短码验证访问
+// ValidateAccessByShortCode 通过短码验证访问.
 func (m *LinkManager) ValidateAccessByShortCode(shortCode, password, referer string) (*ShareLink, error) {
 	m.mu.RLock()
 	link, ok := m.shortCodes[shortCode]
@@ -319,7 +319,7 @@ func (m *LinkManager) ValidateAccessByShortCode(shortCode, password, referer str
 	return m.ValidateAccess(id, password, referer)
 }
 
-// RecordAccess 记录访问
+// RecordAccess 记录访问.
 func (m *LinkManager) RecordAccess(id, ip, userAgent, referer, action string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -354,7 +354,7 @@ func (m *LinkManager) RecordAccess(id, ip, userAgent, referer, action string) {
 	link.LastAccessedAt = &entry.Timestamp
 }
 
-// GetLinkStats 获取链接统计
+// GetLinkStats 获取链接统计.
 func (m *LinkManager) GetLinkStats(id string) (*ShareStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -390,7 +390,7 @@ func (m *LinkManager) GetLinkStats(id string) (*ShareStats, error) {
 	return stats, nil
 }
 
-// GetGlobalStats 获取全局统计
+// GetGlobalStats 获取全局统计.
 func (m *LinkManager) GetGlobalStats() *ShareStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -418,7 +418,7 @@ func (m *LinkManager) GetGlobalStats() *ShareStats {
 	return stats
 }
 
-// CleanupExpired 清理过期链接
+// CleanupExpired 清理过期链接.
 func (m *LinkManager) CleanupExpired() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -435,7 +435,7 @@ func (m *LinkManager) CleanupExpired() int {
 	return count
 }
 
-// GenerateQRCodeData 生成二维码数据
+// GenerateQRCodeData 生成二维码数据.
 func (m *LinkManager) GenerateQRCodeData(id string) (string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -451,7 +451,7 @@ func (m *LinkManager) GenerateQRCodeData(id string) (string, error) {
 	return fmt.Sprintf("/s/%s", link.ShortCode), nil
 }
 
-// generateShortCode 生成短码
+// generateShortCode 生成短码.
 func (m *LinkManager) generateShortCode() (string, error) {
 	length := m.config.ShortCodeLength
 	if length == 0 {
@@ -471,7 +471,7 @@ func (m *LinkManager) generateShortCode() (string, error) {
 	return "", fmt.Errorf("failed to generate unique short code")
 }
 
-// detectPreviewType 检测预览类型
+// detectPreviewType 检测预览类型.
 func detectPreviewType(path string) PreviewType {
 	lower := strings.ToLower(path)
 	switch {
@@ -494,7 +494,7 @@ func detectPreviewType(path string) PreviewType {
 	}
 }
 
-// 工具函数
+// 工具函数.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
@@ -513,7 +513,7 @@ func generateRandomBytes(n int) []byte {
 	return b
 }
 
-// encodeBase62 Base62编码
+// encodeBase62 Base62编码.
 func encodeBase62(data []byte) (string, error) {
 	if len(data) == 0 {
 		return "", nil

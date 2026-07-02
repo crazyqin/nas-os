@@ -6,17 +6,17 @@ import (
 	"net/http"
 )
 
-// Handler REST API handler (v1)
+// Handler REST API handler (v1).
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler creates a REST API handler
+// NewHandler creates a REST API handler.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// handleProxies handles list (GET) and create (POST) for /proxies
+// handleProxies handles list (GET) and create (POST) for /proxies.
 func (h *Handler) handleProxies(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -48,7 +48,7 @@ func (h *Handler) handleProxies(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleProxyByID handles get/update/delete for /proxies/{id}
+// handleProxyByID handles get/update/delete for /proxies/{id}.
 func (h *Handler) handleProxyByID(w http.ResponseWriter, r *http.Request) {
 	// Extract ID from path: /api/v1/reverse-proxy/proxies/{id}[/rules]
 	path := r.URL.Path
@@ -95,7 +95,7 @@ func (h *Handler) handleProxyByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleRules handles rules for a proxy
+// handleRules handles rules for a proxy.
 func (h *Handler) handleRules(w http.ResponseWriter, r *http.Request, proxyID string) {
 	switch r.Method {
 	case http.MethodGet:
@@ -128,13 +128,13 @@ func (h *Handler) handleRules(w http.ResponseWriter, r *http.Request, proxyID st
 	}
 }
 
-// handleStats handles stats request
+// handleStats handles stats request.
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	stats := h.manager.GetStats()
 	respondJSON(w, stats)
 }
 
-// handleReload handles config reload
+// handleReload handles config reload.
 func (h *Handler) handleReload(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -153,17 +153,17 @@ func indexOf(s, substr string) int {
 	return -1
 }
 
-// ReverseProxyHandler 反向代理HTTP处理器
+// ReverseProxyHandler 反向代理HTTP处理器.
 type ReverseProxyHandler struct {
 	manager *ReverseProxyManager
 }
 
-// NewReverseProxyHandler 创建处理器
+// NewReverseProxyHandler 创建处理器.
 func NewReverseProxyHandler(manager *ReverseProxyManager) *ReverseProxyHandler {
 	return &ReverseProxyHandler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *ReverseProxyHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/reverseproxy/add", h.handleAddProxy)
 	mux.HandleFunc("/api/reverseproxy/remove", h.handleRemoveProxy)
@@ -175,7 +175,7 @@ func (h *ReverseProxyHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/reverseproxy/stats", h.handleGetStats)
 }
 
-// handleAddProxy 处理添加代理请求
+// handleAddProxy 处理添加代理请求.
 func (h *ReverseProxyHandler) handleAddProxy(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -196,7 +196,7 @@ func (h *ReverseProxyHandler) handleAddProxy(w http.ResponseWriter, r *http.Requ
 	respondJSON(w, rule)
 }
 
-// handleRemoveProxy 处理移除代理请求
+// handleRemoveProxy 处理移除代理请求.
 func (h *ReverseProxyHandler) handleRemoveProxy(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -219,7 +219,7 @@ func (h *ReverseProxyHandler) handleRemoveProxy(w http.ResponseWriter, r *http.R
 	respondJSON(w, map[string]string{"status": "removed"})
 }
 
-// handleUpdateProxy 处理更新代理请求
+// handleUpdateProxy 处理更新代理请求.
 func (h *ReverseProxyHandler) handleUpdateProxy(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -243,7 +243,7 @@ func (h *ReverseProxyHandler) handleUpdateProxy(w http.ResponseWriter, r *http.R
 	respondJSON(w, map[string]string{"status": "updated"})
 }
 
-// handleGetProxy 处理获取代理请求
+// handleGetProxy 处理获取代理请求.
 func (h *ReverseProxyHandler) handleGetProxy(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -260,13 +260,13 @@ func (h *ReverseProxyHandler) handleGetProxy(w http.ResponseWriter, r *http.Requ
 	respondJSON(w, proxy)
 }
 
-// handleListProxies 处理列出代理请求
+// handleListProxies 处理列出代理请求.
 func (h *ReverseProxyHandler) handleListProxies(w http.ResponseWriter, r *http.Request) {
 	proxies := h.manager.ListProxies()
 	respondJSON(w, proxies)
 }
 
-// handleEnableProxy 处理启用代理请求
+// handleEnableProxy 处理启用代理请求.
 func (h *ReverseProxyHandler) handleEnableProxy(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -289,7 +289,7 @@ func (h *ReverseProxyHandler) handleEnableProxy(w http.ResponseWriter, r *http.R
 	respondJSON(w, map[string]string{"status": "enabled"})
 }
 
-// handleDisableProxy 处理禁用代理请求
+// handleDisableProxy 处理禁用代理请求.
 func (h *ReverseProxyHandler) handleDisableProxy(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -312,13 +312,13 @@ func (h *ReverseProxyHandler) handleDisableProxy(w http.ResponseWriter, r *http.
 	respondJSON(w, map[string]string{"status": "disabled"})
 }
 
-// handleGetStats 处理获取统计请求
+// handleGetStats 处理获取统计请求.
 func (h *ReverseProxyHandler) handleGetStats(w http.ResponseWriter, r *http.Request) {
 	stats := h.manager.GetStats()
 	respondJSON(w, stats)
 }
 
-// respondJSON 响应JSON
+// respondJSON 响应JSON.
 func respondJSON(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data)

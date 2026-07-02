@@ -21,19 +21,19 @@ import (
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
-// Relay 帧类型
+// Relay 帧类型.
 const (
-	RelayFrameHandshake  uint8 = 0x01 // 握手
+	RelayFrameHandshake   uint8 = 0x01 // 握手
 	RelayFrameHandshakeOK uint8 = 0x02 // 握手确认
-	RelayFrameAuth       uint8 = 0x03 // 认证
-	RelayFrameAuthOK     uint8 = 0x04 // 认证确认
-	RelayFrameData       uint8 = 0x05 // 数据帧
-	RelayFrameKeepAlive  uint8 = 0x06 // 保活
-	RelayFrameError      uint8 = 0x07 // 错误
-	RelayFrameClose      uint8 = 0x08 // 关闭
+	RelayFrameAuth        uint8 = 0x03 // 认证
+	RelayFrameAuthOK      uint8 = 0x04 // 认证确认
+	RelayFrameData        uint8 = 0x05 // 数据帧
+	RelayFrameKeepAlive   uint8 = 0x06 // 保活
+	RelayFrameError       uint8 = 0x07 // 错误
+	RelayFrameClose       uint8 = 0x08 // 关闭
 )
 
-// RelayConnectionState 中继连接状态
+// RelayConnectionState 中继连接状态.
 type RelayConnectionState uint8
 
 const (
@@ -45,7 +45,7 @@ const (
 	RelayStateClosed     RelayConnectionState = 5
 )
 
-// RelayClientConfig 中继客户端配置
+// RelayClientConfig 中继客户端配置.
 type RelayClientConfig struct {
 	ServerAddr   string // 中继服务器地址
 	PeerID       string // 本端节点 ID
@@ -56,7 +56,7 @@ type RelayClientConfig struct {
 	KeepAlive    time.Duration
 }
 
-// RelayClient 中继客户端
+// RelayClient 中继客户端.
 type RelayClient struct {
 	mu       sync.RWMutex
 	logger   *zap.Logger
@@ -74,7 +74,7 @@ type RelayClient struct {
 	done     chan struct{}
 }
 
-// NewRelayClient 创建中继客户端
+// NewRelayClient 创建中继客户端.
 func NewRelayClient(logger *zap.Logger, config RelayClientConfig) *RelayClient {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -93,7 +93,7 @@ func NewRelayClient(logger *zap.Logger, config RelayClientConfig) *RelayClient {
 	}
 }
 
-// Connect 连接到中继服务器并建立加密通道
+// Connect 连接到中继服务器并建立加密通道.
 func (rc *RelayClient) Connect(ctx context.Context) error {
 	ctx, rc.cancel = context.WithCancel(ctx)
 	rc.ctx = ctx
@@ -149,7 +149,7 @@ func (rc *RelayClient) Connect(ctx context.Context) error {
 	return nil
 }
 
-// handshake 握手
+// handshake 握手.
 func (rc *RelayClient) handshake() error {
 	// 发送握手帧: [version(1)] + [peer_id_len(1)] + [peer_id]
 	version := byte(1)
@@ -188,7 +188,7 @@ func (rc *RelayClient) handshake() error {
 	return nil
 }
 
-// initCrypto 初始化加密
+// initCrypto 初始化加密.
 func (rc *RelayClient) initCrypto() error {
 	if len(rc.config.SecretKey) == 0 {
 		// 生成临时密钥
@@ -205,7 +205,7 @@ func (rc *RelayClient) initCrypto() error {
 	return nil
 }
 
-// authenticate 认证
+// authenticate 认证.
 func (rc *RelayClient) authenticate() error {
 	// 发送认证帧: [token_len(2)] + [token]
 	tokenBytes := []byte(rc.config.AuthToken)
@@ -229,7 +229,7 @@ func (rc *RelayClient) authenticate() error {
 	return nil
 }
 
-// requestPeer 请求连接到目标节点
+// requestPeer 请求连接到目标节点.
 func (rc *RelayClient) requestPeer(peerID string) error {
 	peerBytes := []byte(peerID)
 	msg := make([]byte, 2+len(peerBytes))
@@ -239,7 +239,7 @@ func (rc *RelayClient) requestPeer(peerID string) error {
 	return rc.writeFrame(RelayFrameData, msg)
 }
 
-// Send 发送数据
+// Send 发送数据.
 func (rc *RelayClient) Send(data []byte) error {
 	if rc.state != RelayStateReady {
 		return fmt.Errorf("连接未就绪")
@@ -260,12 +260,12 @@ func (rc *RelayClient) Send(data []byte) error {
 	return nil
 }
 
-// SetOnData 设置数据回调
+// SetOnData 设置数据回调.
 func (rc *RelayClient) SetOnData(fn func([]byte)) {
 	rc.onData = fn
 }
 
-// Close 关闭连接
+// Close 关闭连接.
 func (rc *RelayClient) Close() error {
 	if rc.state == RelayStateClosed {
 		return nil
@@ -278,7 +278,7 @@ func (rc *RelayClient) Close() error {
 	return rc.conn.Close()
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (rc *RelayClient) GetStats() map[string]interface{} {
 	return map[string]interface{}{
 		"state":     rc.state,
@@ -291,7 +291,7 @@ func (rc *RelayClient) GetStats() map[string]interface{} {
 	}
 }
 
-// readLoop 读取循环
+// readLoop 读取循环.
 func (rc *RelayClient) readLoop() {
 	for {
 		select {
@@ -343,7 +343,7 @@ func (rc *RelayClient) readLoop() {
 	}
 }
 
-// keepAliveLoop 保活循环
+// keepAliveLoop 保活循环.
 func (rc *RelayClient) keepAliveLoop() {
 	ticker := time.NewTicker(rc.config.KeepAlive)
 	defer ticker.Stop()
@@ -361,7 +361,7 @@ func (rc *RelayClient) keepAliveLoop() {
 	}
 }
 
-// writeFrame 写入帧
+// writeFrame 写入帧.
 func (rc *RelayClient) writeFrame(frameType uint8, data []byte) error {
 	// 帧格式: [type(1)] + [length(4)] + [data]
 	header := make([]byte, 5)
@@ -382,7 +382,7 @@ func (rc *RelayClient) writeFrame(frameType uint8, data []byte) error {
 	return rc.writer.Flush()
 }
 
-// readFrame 读取帧
+// readFrame 读取帧.
 func (rc *RelayClient) readFrame() (uint8, []byte, error) {
 	// 读取头部
 	header := make([]byte, 5)
@@ -409,7 +409,7 @@ func (rc *RelayClient) readFrame() (uint8, []byte, error) {
 	return frameType, data, nil
 }
 
-// RelayPool 中继服务器连接池
+// RelayPool 中继服务器连接池.
 type RelayPool struct {
 	mu      sync.RWMutex
 	logger  *zap.Logger
@@ -417,7 +417,7 @@ type RelayPool struct {
 	clients map[string]*RelayClient // peerID -> client
 }
 
-// NewRelayPool 创建中继连接池
+// NewRelayPool 创建中继连接池.
 func NewRelayPool(logger *zap.Logger) *RelayPool {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -429,7 +429,7 @@ func NewRelayPool(logger *zap.Logger) *RelayPool {
 	}
 }
 
-// ConnectToPeer 通过最佳中继服务器连接到目标节点
+// ConnectToPeer 通过最佳中继服务器连接到目标节点.
 func (p *RelayPool) ConnectToPeer(ctx context.Context, targetPeerID, authToken string, secretKey []byte) (*RelayClient, error) {
 	p.mu.RLock()
 	servers := make([]*RelayServer, len(p.servers))
@@ -474,14 +474,14 @@ func (p *RelayPool) ConnectToPeer(ctx context.Context, targetPeerID, authToken s
 	return nil, fmt.Errorf("所有中继服务器连接失败: %w", lastErr)
 }
 
-// AddServer 添加中继服务器
+// AddServer 添加中继服务器.
 func (p *RelayPool) AddServer(server *RelayServer) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.servers = append(p.servers, server)
 }
 
-// Close 关闭所有连接
+// Close 关闭所有连接.
 func (p *RelayPool) Close() {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -492,7 +492,7 @@ func (p *RelayPool) Close() {
 	p.clients = make(map[string]*RelayClient)
 }
 
-// deriveKey 使用 SHA-256 派生密钥
+// deriveKey 使用 SHA-256 派生密钥.
 func deriveKey(shared []byte, nonce []byte) []byte {
 	h := sha256.New()
 	h.Write(shared)

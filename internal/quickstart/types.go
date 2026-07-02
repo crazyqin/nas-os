@@ -9,7 +9,7 @@ import (
 
 // ========== 分类定义 ==========
 
-// Category 模板分类
+// Category 模板分类.
 type Category string
 
 const (
@@ -23,7 +23,7 @@ const (
 	CategoryMonitor  Category = "monitor"  // 监控
 )
 
-// CategoryInfo 分类信息
+// CategoryInfo 分类信息.
 type CategoryInfo struct {
 	ID          Category `json:"id"`
 	Name        string   `json:"name"`
@@ -31,7 +31,7 @@ type CategoryInfo struct {
 	Icon        string   `json:"icon"`
 }
 
-// DefaultCategories 预置分类列表
+// DefaultCategories 预置分类列表.
 var DefaultCategories = []CategoryInfo{
 	{ID: CategoryMedia, Name: "媒体中心", Description: "视频/音乐串流服务", Icon: "🎬"},
 	{ID: CategoryDownload, Name: "下载工具", Description: "BT/HTTP 下载管理", Icon: "⬇️"},
@@ -45,7 +45,7 @@ var DefaultCategories = []CategoryInfo{
 
 // ========== 参数定义 ==========
 
-// ParamType 参数类型
+// ParamType 参数类型.
 type ParamType string
 
 const (
@@ -57,7 +57,7 @@ const (
 	ParamTypeSelect ParamType = "select"
 )
 
-// TemplateParam 模板可配置参数
+// TemplateParam 模板可配置参数.
 type TemplateParam struct {
 	Key          string    `json:"key"`
 	Label        string    `json:"label"`
@@ -71,7 +71,7 @@ type TemplateParam struct {
 	Placeholder  string    `json:"placeholder,omitempty"`
 }
 
-// Validate 校验参数值
+// Validate 校验参数值.
 func (p *TemplateParam) Validate(value string) error {
 	if p.Required && value == "" {
 		return fmt.Errorf("参数 %s (%s) 为必填项", p.Key, p.Label)
@@ -112,7 +112,7 @@ func (p *TemplateParam) Validate(value string) error {
 
 // ========== 模板定义 ==========
 
-// Template 一键部署模板
+// Template 一键部署模板.
 type Template struct {
 	ID           string          `json:"id"`
 	Name         string          `json:"name"`
@@ -130,7 +130,7 @@ type Template struct {
 	UpdatedAt    time.Time       `json:"updated_at"`
 }
 
-// GetParam 获取参数定义
+// GetParam 获取参数定义.
 func (t *Template) GetParam(key string) *TemplateParam {
 	for i := range t.Params {
 		if t.Params[i].Key == key {
@@ -140,7 +140,7 @@ func (t *Template) GetParam(key string) *TemplateParam {
 	return nil
 }
 
-// ValidateParams 校验所有参数值
+// ValidateParams 校验所有参数值.
 func (t *Template) ValidateParams(params map[string]string) error {
 	for _, p := range t.Params {
 		val := params[p.Key]
@@ -156,7 +156,7 @@ func (t *Template) ValidateParams(params map[string]string) error {
 
 // ========== 环境需求 ==========
 
-// Requirements 部署环境需求
+// Requirements 部署环境需求.
 type Requirements struct {
 	MinDiskGB   int    `json:"min_disk_gb,omitempty"`   // 最小磁盘空间 GB
 	MinMemoryMB int    `json:"min_memory_mb,omitempty"` // 最小内存 MB
@@ -168,7 +168,7 @@ type Requirements struct {
 
 // ========== 部署定义 ==========
 
-// DeployStatus 部署状态
+// DeployStatus 部署状态.
 type DeployStatus string
 
 const (
@@ -180,7 +180,7 @@ const (
 	DeployStatusStopping  DeployStatus = "stopping"  // 停止中
 )
 
-// Deployment 部署实例
+// Deployment 部署实例.
 type Deployment struct {
 	ID          string                 `json:"id"`
 	TemplateID  string                 `json:"template_id"`
@@ -198,7 +198,7 @@ type Deployment struct {
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// ServiceInfo 容器服务信息
+// ServiceInfo 容器服务信息.
 type ServiceInfo struct {
 	Name        string `json:"name"`
 	ContainerID string `json:"container_id,omitempty"`
@@ -209,27 +209,27 @@ type ServiceInfo struct {
 
 // ========== API 请求/响应 ==========
 
-// ListTemplatesRequest 列表查询请求
+// ListTemplatesRequest 列表查询请求.
 type ListTemplatesRequest struct {
 	Category string   `form:"category"`
 	Tags     []string `form:"tags"`
 	Search   string   `form:"search"`
 }
 
-// DeployRequest 部署请求
+// DeployRequest 部署请求.
 type DeployRequest struct {
 	Name   string            `json:"name" binding:"required"`
 	Params map[string]string `json:"params"`
 }
 
-// APIResponse 通用 API 响应
+// APIResponse 通用 API 响应.
 type APIResponse struct {
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data,omitempty"`
 	Error   string      `json:"error,omitempty"`
 }
 
-// ListResponse 列表响应
+// ListResponse 列表响应.
 type ListResponse struct {
 	Items interface{} `json:"items"`
 	Total int         `json:"total"`

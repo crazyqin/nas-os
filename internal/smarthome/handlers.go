@@ -7,17 +7,17 @@ import (
 	"time"
 )
 
-// Handler handles HTTP requests for smart home
+// Handler handles HTTP requests for smart home.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler creates a new smart home handler
+// NewHandler creates a new smart home handler.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes registers the HTTP routes
+// RegisterRoutes registers the HTTP routes.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/smarthome/devices", h.handleDevices)
 	mux.HandleFunc("/api/v1/smarthome/device/", h.handleDevice)
@@ -341,11 +341,12 @@ func (h *Handler) handleScene(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			if err := h.manager.ExecuteScene(id); err != nil {
-				if err == ErrSceneNotFound {
+				switch err {
+				case ErrSceneNotFound:
 					jsonErr(w, http.StatusNotFound, err.Error())
-				} else if err == ErrSceneDisabled {
+				case ErrSceneDisabled:
 					jsonErr(w, http.StatusBadRequest, err.Error())
-				} else {
+				default:
 					jsonErr(w, http.StatusInternalServerError, err.Error())
 				}
 				return
@@ -544,7 +545,7 @@ func (h *Handler) handleEvents(w http.ResponseWriter, r *http.Request) {
 // Manager 扩展方法（能耗统计、仪表盘）
 // ============================================================
 
-// GetEnergyStats 获取总能耗统计
+// GetEnergyStats 获取总能耗统计.
 func (m *Manager) GetEnergyStats() map[string]any {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -569,7 +570,7 @@ func (m *Manager) GetEnergyStats() map[string]any {
 	}
 }
 
-// GetDeviceEnergyStats 获取单设备能耗统计
+// GetDeviceEnergyStats 获取单设备能耗统计.
 func (m *Manager) GetDeviceEnergyStats(deviceID string) (*EnergyStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -616,7 +617,7 @@ func (m *Manager) GetDeviceEnergyStats(deviceID string) (*EnergyStats, error) {
 	return stats, nil
 }
 
-// GetDashboardSummary 获取仪表盘摘要
+// GetDashboardSummary 获取仪表盘摘要.
 func (m *Manager) GetDashboardSummary() *DashboardSummary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

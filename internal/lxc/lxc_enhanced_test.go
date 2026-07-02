@@ -773,7 +773,7 @@ func TestManagerFullLifecycle(t *testing.T) {
 			ProcessMax: 100,
 		},
 		Network: NetworkConfig{
-			Mode:      NetworkBridge,
+			Mode:       NetworkBridge,
 			BridgeName: "lxcbr0",
 		},
 		Volumes: []VolumeMount{
@@ -867,8 +867,8 @@ func BenchmarkCreateContainer(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		mgr.CreateContainer(CreateRequest{
-			Name:     "bench-ct",
-			Template: "alpine-3.20",
+			Name:      "bench-ct",
+			Template:  "alpine-3.20",
 			Resources: ResourceLimit{CPUCores: 1, MemoryMB: 128},
 		})
 	}

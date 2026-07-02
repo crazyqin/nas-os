@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// Manager 多 NAS 连接管理器
+// Manager 多 NAS 连接管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	devices     map[string]*NASDevice
@@ -28,14 +28,14 @@ type Manager struct {
 	wg          sync.WaitGroup
 }
 
-// Logger 日志接口
+// Logger 日志接口.
 type Logger interface {
 	Info(msg string, args ...interface{})
 	Error(msg string, args ...interface{})
 	Debug(msg string, args ...interface{})
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	DiscoveryEnabled  bool          `json:"discovery_enabled"`
 	DiscoveryInterval time.Duration `json:"discovery_interval"`
@@ -45,7 +45,7 @@ type Config struct {
 	AutoReconnect     bool          `json:"auto_reconnect"`
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		DiscoveryEnabled:  true,
@@ -57,7 +57,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(logger Logger) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	m := &Manager{
@@ -82,7 +82,7 @@ func NewManager(logger Logger) *Manager {
 
 // ==================== 设备管理 ====================
 
-// AddDevice 添加 NAS 设备
+// AddDevice 添加 NAS 设备.
 func (m *Manager) AddDevice(device *NASDevice) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -100,7 +100,7 @@ func (m *Manager) AddDevice(device *NASDevice) error {
 	return nil
 }
 
-// UpdateDevice 更新设备信息
+// UpdateDevice 更新设备信息.
 func (m *Manager) UpdateDevice(device *NASDevice) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -116,7 +116,7 @@ func (m *Manager) UpdateDevice(device *NASDevice) error {
 	return nil
 }
 
-// RemoveDevice 移除设备
+// RemoveDevice 移除设备.
 func (m *Manager) RemoveDevice(deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -138,7 +138,7 @@ func (m *Manager) RemoveDevice(deviceID string) error {
 	return nil
 }
 
-// GetDevice 获取设备信息
+// GetDevice 获取设备信息.
 func (m *Manager) GetDevice(deviceID string) (*NASDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -150,7 +150,7 @@ func (m *Manager) GetDevice(deviceID string) (*NASDevice, error) {
 	return device, nil
 }
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (m *Manager) ListDevices(status DeviceStatus) []*NASDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -170,7 +170,7 @@ func (m *Manager) ListDevices(status DeviceStatus) []*NASDevice {
 
 // ==================== 设备分组 ====================
 
-// CreateGroup 创建设备分组
+// CreateGroup 创建设备分组.
 func (m *Manager) CreateGroup(group *DeviceGroup) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -186,7 +186,7 @@ func (m *Manager) CreateGroup(group *DeviceGroup) error {
 	return nil
 }
 
-// UpdateGroup 更新分组
+// UpdateGroup 更新分组.
 func (m *Manager) UpdateGroup(group *DeviceGroup) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -202,7 +202,7 @@ func (m *Manager) UpdateGroup(group *DeviceGroup) error {
 	return nil
 }
 
-// DeleteGroup 删除分组
+// DeleteGroup 删除分组.
 func (m *Manager) DeleteGroup(groupID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -215,7 +215,7 @@ func (m *Manager) DeleteGroup(groupID string) error {
 	return nil
 }
 
-// ListGroups 列出所有分组
+// ListGroups 列出所有分组.
 func (m *Manager) ListGroups() []*DeviceGroup {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -227,7 +227,7 @@ func (m *Manager) ListGroups() []*DeviceGroup {
 	return groups
 }
 
-// AddDeviceToGroup 将设备添加到分组
+// AddDeviceToGroup 将设备添加到分组.
 func (m *Manager) AddDeviceToGroup(deviceID, groupID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -255,7 +255,7 @@ func (m *Manager) AddDeviceToGroup(deviceID, groupID string) error {
 	return nil
 }
 
-// RemoveDeviceFromGroup 从分组移除设备
+// RemoveDeviceFromGroup 从分组移除设备.
 func (m *Manager) RemoveDeviceFromGroup(deviceID, groupID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -278,7 +278,7 @@ func (m *Manager) RemoveDeviceFromGroup(deviceID, groupID string) error {
 
 // ==================== 连接管理 ====================
 
-// Connect 连接到 NAS 设备
+// Connect 连接到 NAS 设备.
 func (m *Manager) Connect(deviceID string) (*Connection, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -315,7 +315,7 @@ func (m *Manager) Connect(deviceID string) (*Connection, error) {
 	return conn, nil
 }
 
-// Disconnect 断开连接
+// Disconnect 断开连接.
 func (m *Manager) Disconnect(deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -337,7 +337,7 @@ func (m *Manager) Disconnect(deviceID string) error {
 	return nil
 }
 
-// GetConnection 获取连接状态
+// GetConnection 获取连接状态.
 func (m *Manager) GetConnection(deviceID string) (*Connection, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -351,7 +351,7 @@ func (m *Manager) GetConnection(deviceID string) (*Connection, error) {
 
 // ==================== 凭证管理 ====================
 
-// SaveCredential 保存凭证
+// SaveCredential 保存凭证.
 func (m *Manager) SaveCredential(cred *Credential) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -367,7 +367,7 @@ func (m *Manager) SaveCredential(cred *Credential) error {
 	return nil
 }
 
-// GetCredential 获取凭证
+// GetCredential 获取凭证.
 func (m *Manager) GetCredential(credID string) (*Credential, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -379,7 +379,7 @@ func (m *Manager) GetCredential(credID string) (*Credential, error) {
 	return cred, nil
 }
 
-// ListCredentials 列出凭证
+// ListCredentials 列出凭证.
 func (m *Manager) ListCredentials() []*Credential {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -395,7 +395,7 @@ func (m *Manager) ListCredentials() []*Credential {
 	return creds
 }
 
-// DeleteCredential 删除凭证
+// DeleteCredential 删除凭证.
 func (m *Manager) DeleteCredential(credID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -410,7 +410,7 @@ func (m *Manager) DeleteCredential(credID string) error {
 
 // ==================== 状态同步 ====================
 
-// SyncDeviceStatus 同步设备状态
+// SyncDeviceStatus 同步设备状态.
 func (m *Manager) SyncDeviceStatus(deviceID string) (*DeviceStatus, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -427,7 +427,7 @@ func (m *Manager) SyncDeviceStatus(deviceID string) (*DeviceStatus, error) {
 	return &device.Status, nil
 }
 
-// SyncAllDevices 同步所有设备状态
+// SyncAllDevices 同步所有设备状态.
 func (m *Manager) SyncAllDevices() map[string]error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -445,7 +445,7 @@ func (m *Manager) SyncAllDevices() map[string]error {
 
 // ==================== 事件管理 ====================
 
-// GetEvents 获取事件列表
+// GetEvents 获取事件列表.
 func (m *Manager) GetEvents(limit int) []Event {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -462,7 +462,7 @@ func (m *Manager) GetEvents(limit int) []Event {
 	return m.events[start:]
 }
 
-// addEvent 添加事件（需要调用者持有锁）
+// addEvent 添加事件（需要调用者持有锁）.
 func (m *Manager) addEvent(eventType EventType, format string, args ...interface{}) {
 	event := Event{
 		ID:        generateID("evt"),
@@ -480,7 +480,7 @@ func (m *Manager) addEvent(eventType EventType, format string, args ...interface
 
 // ==================== 后台任务 ====================
 
-// heartbeatLoop 心跳检测循环
+// heartbeatLoop 心跳检测循环.
 func (m *Manager) heartbeatLoop() {
 	defer m.wg.Done()
 	ticker := time.NewTicker(m.config.HeartbeatInterval)
@@ -496,7 +496,7 @@ func (m *Manager) heartbeatLoop() {
 	}
 }
 
-// checkDeviceHeartbeats 检查设备心跳
+// checkDeviceHeartbeats 检查设备心跳.
 func (m *Manager) checkDeviceHeartbeats() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -517,7 +517,7 @@ func (m *Manager) checkDeviceHeartbeats() {
 	}
 }
 
-// discoveryLoop 设备发现循环
+// discoveryLoop 设备发现循环.
 func (m *Manager) discoveryLoop() {
 	defer m.wg.Done()
 
@@ -538,7 +538,7 @@ func (m *Manager) discoveryLoop() {
 	}
 }
 
-// discoverDevices 发现设备
+// discoverDevices 发现设备.
 func (m *Manager) discoverDevices() {
 	// 设备发现逻辑（mDNS/SSDP）
 	m.logger.Debug("执行设备发现...")
@@ -546,7 +546,7 @@ func (m *Manager) discoverDevices() {
 
 // ==================== 统计信息 ====================
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() *Stats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -572,7 +572,7 @@ func (m *Manager) GetStats() *Stats {
 	return stats
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.cancel()
 	m.wg.Wait()
@@ -580,7 +580,7 @@ func (m *Manager) Stop() {
 
 // ==================== HTTP 路由 ====================
 
-// RegisterRoutes 注册 HTTP 路由
+// RegisterRoutes 注册 HTTP 路由.
 func (m *Manager) RegisterRoutes(mux *http.ServeMux) {
 	// 设备管理
 	mux.HandleFunc("/api/nasconnect/devices", m.handleDevices)

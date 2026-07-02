@@ -6,22 +6,22 @@ import (
 	"net/http"
 )
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	manager *FailoverManager
 }
 
-// NewHandler 创建 HTTP 处理器
+// NewHandler 创建 HTTP 处理器.
 func NewHandler(manager *FailoverManager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// SnapshotRequest 创建快照请求体
+// SnapshotRequest 创建快照请求体.
 type SnapshotRequest struct {
 	SourceNode string `json:"source_node,omitempty"`
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/smbha/snapshot", h.Snapshot)
 	mux.HandleFunc("/api/smbha/sessions", h.Sessions)
@@ -29,7 +29,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/smbha/state", h.State)
 }
 
-// Snapshot 处理 POST /api/smbha/snapshot
+// Snapshot 处理 POST /api/smbha/snapshot.
 func (h *Handler) Snapshot(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, errorResponse("method not allowed"))
@@ -52,7 +52,7 @@ func (h *Handler) Snapshot(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, snap)
 }
 
-// Sessions 处理 GET /api/smbha/sessions
+// Sessions 处理 GET /api/smbha/sessions.
 func (h *Handler) Sessions(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, errorResponse("method not allowed"))
@@ -65,7 +65,7 @@ func (h *Handler) Sessions(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// Restore 处理 POST /api/smbha/restore
+// Restore 处理 POST /api/smbha/restore.
 func (h *Handler) Restore(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, errorResponse("method not allowed"))
@@ -90,13 +90,13 @@ func (h *Handler) Restore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"restored":  true,
-		"sessions":  restored,
-		"count":     len(restored),
+		"restored": true,
+		"sessions": restored,
+		"count":    len(restored),
 	})
 }
 
-// State 处理 GET /api/smbha/state
+// State 处理 GET /api/smbha/state.
 func (h *Handler) State(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, errorResponse("method not allowed"))

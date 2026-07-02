@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// DashboardAggregator 仪表板数据聚合器
+// DashboardAggregator 仪表板数据聚合器.
 type DashboardAggregator struct {
 	discovery  *DiscoveryService
 	config     DashboardConfig
@@ -33,7 +33,7 @@ type DashboardAggregator struct {
 	logger *zap.Logger
 }
 
-// DashboardConfig 仪表板配置
+// DashboardConfig 仪表板配置.
 type DashboardConfig struct {
 	// 数据收集间隔
 	CollectInterval time.Duration `json:"collect_interval"`
@@ -54,7 +54,7 @@ type DashboardConfig struct {
 	NodeTimeout time.Duration `json:"node_timeout"`
 }
 
-// AggregatedData 聚合数据
+// AggregatedData 聚合数据.
 type AggregatedData struct {
 	// 时间戳
 	Timestamp time.Time `json:"timestamp"`
@@ -81,7 +81,7 @@ type AggregatedData struct {
 	HistoricalData []TimeSeriesPoint `json:"historical_data,omitempty"`
 }
 
-// ClusterOverview 集群概览
+// ClusterOverview 集群概览.
 type ClusterOverview struct {
 	// 总节点数
 	TotalNodes int `json:"total_nodes"`
@@ -105,7 +105,7 @@ type ClusterOverview struct {
 	AvgResponseTime float64 `json:"avg_response_time"`
 }
 
-// NodeSummary 节点汇总
+// NodeSummary 节点汇总.
 type NodeSummary struct {
 	// 总 CPU 核心
 	TotalCPUCores int `json:"total_cpu_cores"`
@@ -129,7 +129,7 @@ type NodeSummary struct {
 	Nodes []NodeDetail `json:"nodes"`
 }
 
-// NodeDetail 节点详情
+// NodeDetail 节点详情.
 type NodeDetail struct {
 	ID           string    `json:"id"`
 	Name         string    `json:"name"`
@@ -148,7 +148,7 @@ type NodeDetail struct {
 	Capabilities []string  `json:"capabilities"`
 }
 
-// StorageSummary 存储汇总
+// StorageSummary 存储汇总.
 type StorageSummary struct {
 	// 总存储池数
 	TotalPools int `json:"total_pools"`
@@ -172,7 +172,7 @@ type StorageSummary struct {
 	NodeStorage []NodeStorageInfo `json:"node_storage"`
 }
 
-// NodeStorageInfo 节点存储信息
+// NodeStorageInfo 节点存储信息.
 type NodeStorageInfo struct {
 	NodeID       string       `json:"node_id"`
 	NodeName     string       `json:"node_name"`
@@ -184,7 +184,7 @@ type NodeStorageInfo struct {
 	UsagePercent float64      `json:"usage_percent"`
 }
 
-// PoolInfo 存储池信息
+// PoolInfo 存储池信息.
 type PoolInfo struct {
 	Name    string  `json:"name"`
 	Type    string  `json:"type"` // zfs, btrfs, lvm
@@ -195,7 +195,7 @@ type PoolInfo struct {
 	Health  string  `json:"health"`
 }
 
-// VolumeInfo 卷信息
+// VolumeInfo 卷信息.
 type VolumeInfo struct {
 	Name       string  `json:"name"`
 	Pool       string  `json:"pool"`
@@ -205,7 +205,7 @@ type VolumeInfo struct {
 	MountPoint string  `json:"mount_point"`
 }
 
-// ContainerSummary 容器汇总
+// ContainerSummary 容器汇总.
 type ContainerSummary struct {
 	// 总容器数
 	TotalContainers int `json:"total_containers"`
@@ -226,7 +226,7 @@ type ContainerSummary struct {
 	NodeContainers []NodeContainerInfo `json:"node_containers"`
 }
 
-// NodeContainerInfo 节点容器信息
+// NodeContainerInfo 节点容器信息.
 type NodeContainerInfo struct {
 	NodeID        string          `json:"node_id"`
 	NodeName      string          `json:"node_name"`
@@ -237,7 +237,7 @@ type NodeContainerInfo struct {
 	TotalMemUsage uint64          `json:"total_mem_usage"`
 }
 
-// ContainerInfo 容器信息
+// ContainerInfo 容器信息.
 type ContainerInfo struct {
 	ID       string            `json:"id"`
 	Name     string            `json:"name"`
@@ -249,7 +249,7 @@ type ContainerInfo struct {
 	Labels   map[string]string `json:"labels"`
 }
 
-// ServiceSummary 服务汇总
+// ServiceSummary 服务汇总.
 type ServiceSummary struct {
 	// 总服务数
 	TotalServices int `json:"total_services"`
@@ -267,7 +267,7 @@ type ServiceSummary struct {
 	NodeServices []NodeServiceInfo `json:"node_services"`
 }
 
-// NodeServiceInfo 节点服务信息
+// NodeServiceInfo 节点服务信息.
 type NodeServiceInfo struct {
 	NodeID       string        `json:"node_id"`
 	NodeName     string        `json:"node_name"`
@@ -276,7 +276,7 @@ type NodeServiceInfo struct {
 	StoppedCount int           `json:"stopped_count"`
 }
 
-// ServiceInfo 服务信息
+// ServiceInfo 服务信息.
 type ServiceInfo struct {
 	Name    string            `json:"name"`
 	Status  string            `json:"status"`
@@ -285,7 +285,7 @@ type ServiceInfo struct {
 	Labels  map[string]string `json:"labels,omitempty"`
 }
 
-// ResourceTrend 资源趋势
+// ResourceTrend 资源趋势.
 type ResourceTrend struct {
 	// CPU 趋势（最近 24 小时）
 	CPUTrend []TrendPoint `json:"cpu_trend"`
@@ -300,13 +300,13 @@ type ResourceTrend struct {
 	NetworkTrend []TrendPoint `json:"network_trend"`
 }
 
-// TrendPoint 趋势点
+// TrendPoint 趋势点.
 type TrendPoint struct {
 	Timestamp time.Time `json:"timestamp"`
 	Value     float64   `json:"value"`
 }
 
-// TimeSeriesPoint 时间序列数据点
+// TimeSeriesPoint 时间序列数据点.
 type TimeSeriesPoint struct {
 	Timestamp time.Time       `json:"timestamp"`
 	Cluster   ClusterOverview `json:"cluster"`
@@ -314,7 +314,7 @@ type TimeSeriesPoint struct {
 	Storage   StorageSummary  `json:"storage"`
 }
 
-// NewDashboardAggregator 创建仪表板聚合器
+// NewDashboardAggregator 创建仪表板聚合器.
 func NewDashboardAggregator(discovery *DiscoveryService, config DashboardConfig, logger *zap.Logger) (*DashboardAggregator, error) {
 	// 设置默认值
 	if config.CollectInterval == 0 {
@@ -352,7 +352,7 @@ func NewDashboardAggregator(discovery *DiscoveryService, config DashboardConfig,
 	return aggregator, nil
 }
 
-// Initialize 初始化聚合器
+// Initialize 初始化聚合器.
 func (da *DashboardAggregator) Initialize() error {
 	// 初始化数据
 	da.data = &AggregatedData{
@@ -369,7 +369,7 @@ func (da *DashboardAggregator) Initialize() error {
 	return nil
 }
 
-// collectLoop 数据收集循环
+// collectLoop 数据收集循环.
 func (da *DashboardAggregator) collectLoop() {
 	defer da.wg.Done()
 
@@ -389,7 +389,7 @@ func (da *DashboardAggregator) collectLoop() {
 	}
 }
 
-// collectData 收集所有节点数据
+// collectData 收集所有节点数据.
 func (da *DashboardAggregator) collectData() {
 	nodes := da.discovery.GetNodes()
 
@@ -431,7 +431,7 @@ func (da *DashboardAggregator) collectData() {
 	_ = da.saveData()
 }
 
-// collectClusterOverview 收集集群概览
+// collectClusterOverview 收集集群概览.
 func (da *DashboardAggregator) collectClusterOverview(nodes []*NodeInfo) ClusterOverview {
 	overview := ClusterOverview{
 		TotalNodes: len(nodes),
@@ -464,7 +464,7 @@ func (da *DashboardAggregator) collectClusterOverview(nodes []*NodeInfo) Cluster
 	return overview
 }
 
-// collectNodeSummary 收集节点汇总
+// collectNodeSummary 收集节点汇总.
 func (da *DashboardAggregator) collectNodeSummary(nodes []*NodeInfo) NodeSummary {
 	summary := NodeSummary{
 		Nodes: make([]NodeDetail, 0, len(nodes)),
@@ -502,7 +502,7 @@ func (da *DashboardAggregator) collectNodeSummary(nodes []*NodeInfo) NodeSummary
 	return summary
 }
 
-// collectNodeDetail 收集节点详情
+// collectNodeDetail 收集节点详情.
 func (da *DashboardAggregator) collectNodeDetail(node *NodeInfo) NodeDetail {
 	detail := NodeDetail{
 		ID:           node.ID,
@@ -544,7 +544,7 @@ func (da *DashboardAggregator) collectNodeDetail(node *NodeInfo) NodeDetail {
 	return detail
 }
 
-// fetchNodeDetail 从节点获取详情
+// fetchNodeDetail 从节点获取详情.
 func (da *DashboardAggregator) fetchNodeDetail(node *NodeInfo) (*NodeDetail, error) {
 	ctx, cancel := context.WithTimeout(da.ctx, da.config.NodeTimeout)
 	defer cancel()
@@ -575,7 +575,7 @@ func (da *DashboardAggregator) fetchNodeDetail(node *NodeInfo) (*NodeDetail, err
 	return &detail, nil
 }
 
-// collectStorageSummary 收集存储汇总
+// collectStorageSummary 收集存储汇总.
 func (da *DashboardAggregator) collectStorageSummary(nodes []*NodeInfo) StorageSummary {
 	summary := StorageSummary{
 		NodeStorage: make([]NodeStorageInfo, 0, len(nodes)),
@@ -613,7 +613,7 @@ func (da *DashboardAggregator) collectStorageSummary(nodes []*NodeInfo) StorageS
 	return summary
 }
 
-// fetchNodeStorage 从节点获取存储数据
+// fetchNodeStorage 从节点获取存储数据.
 func (da *DashboardAggregator) fetchNodeStorage(node *NodeInfo) (*NodeStorageInfo, error) {
 	ctx, cancel := context.WithTimeout(da.ctx, da.config.NodeTimeout)
 	defer cancel()
@@ -649,7 +649,7 @@ func (da *DashboardAggregator) fetchNodeStorage(node *NodeInfo) (*NodeStorageInf
 	return &info, nil
 }
 
-// collectContainerSummary 收集容器汇总
+// collectContainerSummary 收集容器汇总.
 func (da *DashboardAggregator) collectContainerSummary(nodes []*NodeInfo) ContainerSummary {
 	summary := ContainerSummary{
 		NodeContainers: make([]NodeContainerInfo, 0, len(nodes)),
@@ -680,7 +680,7 @@ func (da *DashboardAggregator) collectContainerSummary(nodes []*NodeInfo) Contai
 	return summary
 }
 
-// fetchNodeContainers 从节点获取容器数据
+// fetchNodeContainers 从节点获取容器数据.
 func (da *DashboardAggregator) fetchNodeContainers(node *NodeInfo) (*NodeContainerInfo, error) {
 	ctx, cancel := context.WithTimeout(da.ctx, da.config.NodeTimeout)
 	defer cancel()
@@ -712,7 +712,7 @@ func (da *DashboardAggregator) fetchNodeContainers(node *NodeInfo) (*NodeContain
 	return &info, nil
 }
 
-// collectServiceSummary 收集服务汇总
+// collectServiceSummary 收集服务汇总.
 func (da *DashboardAggregator) collectServiceSummary(nodes []*NodeInfo) ServiceSummary {
 	summary := ServiceSummary{
 		NodeServices: make([]NodeServiceInfo, 0, len(nodes)),
@@ -753,7 +753,7 @@ func (da *DashboardAggregator) collectServiceSummary(nodes []*NodeInfo) ServiceS
 	return summary
 }
 
-// collectResourceTrend 收集资源趋势
+// collectResourceTrend 收集资源趋势.
 func (da *DashboardAggregator) collectResourceTrend() ResourceTrend {
 	// 简化实现：使用历史数据
 	trend := ResourceTrend{}
@@ -783,7 +783,7 @@ func (da *DashboardAggregator) collectResourceTrend() ResourceTrend {
 	return trend
 }
 
-// addHistoryPoint 添加历史数据点
+// addHistoryPoint 添加历史数据点.
 func (da *DashboardAggregator) addHistoryPoint() {
 	point := TimeSeriesPoint{
 		Timestamp: da.data.Timestamp,
@@ -804,7 +804,7 @@ func (da *DashboardAggregator) addHistoryPoint() {
 	}
 }
 
-// GetData 获取聚合数据
+// GetData 获取聚合数据.
 func (da *DashboardAggregator) GetData() *AggregatedData {
 	da.dataMutex.RLock()
 	defer da.dataMutex.RUnlock()
@@ -812,7 +812,7 @@ func (da *DashboardAggregator) GetData() *AggregatedData {
 	return da.data
 }
 
-// GetCachedData 获取缓存数据（带过期检查）
+// GetCachedData 获取缓存数据（带过期检查）.
 func (da *DashboardAggregator) GetCachedData() (*AggregatedData, bool) {
 	da.dataMutex.RLock()
 	defer da.dataMutex.RUnlock()
@@ -824,12 +824,12 @@ func (da *DashboardAggregator) GetCachedData() (*AggregatedData, bool) {
 	return da.data, true
 }
 
-// SetOnDataUpdate 设置数据更新回调
+// SetOnDataUpdate 设置数据更新回调.
 func (da *DashboardAggregator) SetOnDataUpdate(callback func(data *AggregatedData)) {
 	da.onDataUpdate = callback
 }
 
-// Shutdown 关闭聚合器
+// Shutdown 关闭聚合器.
 func (da *DashboardAggregator) Shutdown() error {
 	da.cancel()
 	da.wg.Wait()
@@ -839,7 +839,7 @@ func (da *DashboardAggregator) Shutdown() error {
 	return nil
 }
 
-// saveData 持久化数据
+// saveData 持久化数据.
 func (da *DashboardAggregator) saveData() error {
 	dataFile := fmt.Sprintf("%s/dashboard_data.json", da.config.DataDir)
 
@@ -851,7 +851,7 @@ func (da *DashboardAggregator) saveData() error {
 	return os.WriteFile(dataFile, data, 0640)
 }
 
-// formatUptime 格式化运行时间
+// formatUptime 格式化运行时间.
 func formatUptime(d time.Duration) string {
 	if d < time.Minute {
 		return fmt.Sprintf("%d秒", int(d.Seconds()))

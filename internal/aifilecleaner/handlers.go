@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handlers HTTP处理器
+// Handlers HTTP处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// Scan 扫描文件
+// Scan 扫描文件.
 func (h *Handlers) Scan(w http.ResponseWriter, r *http.Request) {
 	var config ScanConfig
 	if err := json.NewDecoder(r.Body).Decode(&config); err != nil {
@@ -43,7 +43,7 @@ func (h *Handlers) Scan(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-// FindDuplicates 查找重复文件
+// FindDuplicates 查找重复文件.
 func (h *Handlers) FindDuplicates(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Paths []string `json:"paths"`
@@ -63,7 +63,7 @@ func (h *Handlers) FindDuplicates(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(duplicates)
 }
 
-// GetScanResult 获取扫描结果
+// GetScanResult 获取扫描结果.
 func (h *Handlers) GetScanResult(w http.ResponseWriter, r *http.Request) {
 	result, err := h.manager.GetScanResult()
 	if err != nil {
@@ -75,7 +75,7 @@ func (h *Handlers) GetScanResult(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-// CreateCleanTask 创建清理任务
+// CreateCleanTask 创建清理任务.
 func (h *Handlers) CreateCleanTask(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Files []string   `json:"files"`
@@ -97,7 +97,7 @@ func (h *Handlers) CreateCleanTask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(task)
 }
 
-// RunCleanTask 执行清理任务
+// RunCleanTask 执行清理任务.
 func (h *Handlers) RunCleanTask(w http.ResponseWriter, r *http.Request) {
 	taskID := r.URL.Query().Get("id")
 	if taskID == "" {
@@ -114,7 +114,7 @@ func (h *Handlers) RunCleanTask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "started"})
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (h *Handlers) GetTask(w http.ResponseWriter, r *http.Request) {
 	taskID := r.URL.Query().Get("id")
 	if taskID == "" {
@@ -132,14 +132,14 @@ func (h *Handlers) GetTask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(task)
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (h *Handlers) ListTasks(w http.ResponseWriter, r *http.Request) {
 	tasks := h.manager.ListTasks()
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(tasks)
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (h *Handlers) CancelTask(w http.ResponseWriter, r *http.Request) {
 	taskID := r.URL.Query().Get("id")
 	if taskID == "" {

@@ -155,10 +155,7 @@ func (m *BudgetManager) GetHistoricalData(budgetID string) ([]HistoricalDataPoin
 
 	points := make([]HistoricalDataPoint, len(monthlyData))
 	for i, d := range monthlyData {
-		points[i] = HistoricalDataPoint{
-			Date:   d.Date,
-			Amount: d.Amount,
-		}
+		points[i] = HistoricalDataPoint(d)
 	}
 
 	return points, nil

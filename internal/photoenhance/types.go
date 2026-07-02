@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-// EnhancementType represents the type of photo enhancement
+// EnhancementType represents the type of photo enhancement.
 type EnhancementType string
 
 const (
@@ -29,7 +29,7 @@ const (
 	EnhanceBackground EnhancementType = "background_blur"  // 背景虚化
 )
 
-// QualityLevel represents enhancement quality level
+// QualityLevel represents enhancement quality level.
 type QualityLevel string
 
 const (
@@ -38,7 +38,7 @@ const (
 	QualityBest    QualityLevel = "best"    // 最高质量，耗时较长
 )
 
-// EnhancementRequest represents a photo enhancement request
+// EnhancementRequest represents a photo enhancement request.
 type EnhancementRequest struct {
 	ID          string          `json:"id"`
 	SourcePath  string          `json:"source_path"`
@@ -51,7 +51,7 @@ type EnhancementRequest struct {
 	CreatedAt   time.Time       `json:"created_at"`
 }
 
-// EnhancementResult represents the result of a photo enhancement
+// EnhancementResult represents the result of a photo enhancement.
 type EnhancementResult struct {
 	ID             string        `json:"id"`
 	RequestID      string        `json:"request_id"`
@@ -67,7 +67,7 @@ type EnhancementResult struct {
 	Error          string        `json:"error,omitempty"`
 }
 
-// EnhancementJob represents a batch enhancement job
+// EnhancementJob represents a batch enhancement job.
 type EnhancementJob struct {
 	ID         string                `json:"id"`
 	Name       string                `json:"name"`
@@ -81,7 +81,7 @@ type EnhancementJob struct {
 	EndTime    time.Time             `json:"end_time"`
 }
 
-// Config represents photo enhancement configuration
+// Config represents photo enhancement configuration.
 type Config struct {
 	Enabled        bool         `json:"enabled"`
 	ModelPath      string       `json:"model_path"`     // AI模型路径
@@ -95,7 +95,7 @@ type Config struct {
 	BatchLimit     int          `json:"batch_limit"`   // 批量处理限制
 }
 
-// Manager manages photo enhancement operations
+// Manager manages photo enhancement operations.
 type Manager struct {
 	config     *Config
 	models     map[EnhancementType]string
@@ -107,7 +107,7 @@ type Manager struct {
 	cancel     context.CancelFunc
 }
 
-// NewManager creates a new photo enhancement manager
+// NewManager creates a new photo enhancement manager.
 func NewManager(config *Config) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -127,7 +127,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// Start starts the photo enhancement manager
+// Start starts the photo enhancement manager.
 func (m *Manager) Start() error {
 	if !m.config.Enabled {
 		return nil
@@ -141,12 +141,12 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop stops the photo enhancement manager
+// Stop stops the photo enhancement manager.
 func (m *Manager) Stop() {
 	m.cancel()
 }
 
-// loadModels loads the AI enhancement models
+// loadModels loads the AI enhancement models.
 func (m *Manager) loadModels() error {
 	modelDir := m.config.ModelPath
 	if modelDir == "" {
@@ -163,7 +163,7 @@ func (m *Manager) loadModels() error {
 	return nil
 }
 
-// EnhancePhoto enhances a single photo
+// EnhancePhoto enhances a single photo.
 func (m *Manager) EnhancePhoto(ctx context.Context, req *EnhancementRequest) (*EnhancementResult, error) {
 	m.workerPool <- struct{}{}        // acquire worker
 	defer func() { <-m.workerPool }() // release worker
@@ -228,7 +228,7 @@ func (m *Manager) EnhancePhoto(ctx context.Context, req *EnhancementRequest) (*E
 	return result, nil
 }
 
-// applyEnhancement applies the specified enhancement to the image
+// applyEnhancement applies the specified enhancement to the image.
 func (m *Manager) applyEnhancement(ctx context.Context, img image.Image, req *EnhancementRequest) (image.Image, error) {
 	switch req.Type {
 	case EnhanceSuperRes:
@@ -252,7 +252,7 @@ func (m *Manager) applyEnhancement(ctx context.Context, img image.Image, req *En
 	}
 }
 
-// superResolution performs AI super-resolution
+// superResolution performs AI super-resolution.
 func (m *Manager) superResolution(ctx context.Context, img image.Image, scale int) (image.Image, error) {
 	if scale <= 0 {
 		scale = 4
@@ -275,14 +275,14 @@ func (m *Manager) superResolution(ctx context.Context, img image.Image, scale in
 	return dst, nil
 }
 
-// gpuScale performs GPU-accelerated image scaling
+// gpuScale performs GPU-accelerated image scaling.
 func (m *Manager) gpuScale(ctx context.Context, src image.Image, dst *image.RGBA, scale int) (image.Image, error) {
 	// GPU acceleration via Vulkan/OpenCL
 	// This would integrate with the GPU module for hardware acceleration
 	return dst, nil
 }
 
-// softwareScale performs high-quality software image scaling
+// softwareScale performs high-quality software image scaling.
 func (m *Manager) softwareScale(src image.Image, dst *image.RGBA, scale int) {
 	bounds := src.Bounds()
 	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
@@ -298,7 +298,7 @@ func (m *Manager) softwareScale(src image.Image, dst *image.RGBA, scale int) {
 	}
 }
 
-// denoise performs AI denoising
+// denoise performs AI denoising.
 func (m *Manager) denoise(ctx context.Context, img image.Image, strength float64) (image.Image, error) {
 	if strength <= 0 {
 		strength = 0.5
@@ -307,43 +307,43 @@ func (m *Manager) denoise(ctx context.Context, img image.Image, strength float64
 	return img, nil
 }
 
-// repairOldPhoto repairs old/damaged photos
+// repairOldPhoto repairs old/damaged photos.
 func (m *Manager) repairOldPhoto(ctx context.Context, img image.Image) (image.Image, error) {
 	// Old photo repair: scratch removal, tear repair, noise reduction
 	return img, nil
 }
 
-// colorize adds color to black and white photos
+// colorize adds color to black and white photos.
 func (m *Manager) colorize(ctx context.Context, img image.Image) (image.Image, error) {
 	// AI-based colorization
 	return img, nil
 }
 
-// enhanceHDR applies HDR enhancement
+// enhanceHDR applies HDR enhancement.
 func (m *Manager) enhanceHDR(ctx context.Context, img image.Image, strength float64) (image.Image, error) {
 	// HDR tone mapping and enhancement
 	return img, nil
 }
 
-// dehaze removes haze/fog from images
+// dehaze removes haze/fog from images.
 func (m *Manager) dehaze(ctx context.Context, img image.Image) (image.Image, error) {
 	// Image dehazing algorithm
 	return img, nil
 }
 
-// restoreFace restores faces in photos
+// restoreFace restores faces in photos.
 func (m *Manager) restoreFace(ctx context.Context, img image.Image) (image.Image, error) {
 	// Face detection and restoration
 	return img, nil
 }
 
-// blurBackground blurs the background while keeping subject sharp
+// blurBackground blurs the background while keeping subject sharp.
 func (m *Manager) blurBackground(ctx context.Context, img image.Image, strength float64) (image.Image, error) {
 	// Background segmentation and blur
 	return img, nil
 }
 
-// saveImage saves an image to disk
+// saveImage saves an image to disk.
 func (m *Manager) saveImage(img image.Image, path string, format string, quality QualityLevel) error {
 	// Ensure output directory exists
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
@@ -376,14 +376,14 @@ func (m *Manager) saveImage(img image.Image, path string, format string, quality
 	}
 }
 
-// calculateQualityScore calculates enhancement quality score
+// calculateQualityScore calculates enhancement quality score.
 func (m *Manager) calculateQualityScore(original, enhanced image.Image) float64 {
 	// Simple quality metric based on size improvement and sharpness
 	// In production, this would use SSIM/PSNR metrics
 	return 85.0
 }
 
-// CreateBatchJob creates a batch enhancement job
+// CreateBatchJob creates a batch enhancement job.
 func (m *Manager) CreateBatchJob(name string, requests []*EnhancementRequest) *EnhancementJob {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -401,7 +401,7 @@ func (m *Manager) CreateBatchJob(name string, requests []*EnhancementRequest) *E
 	return job
 }
 
-// ProcessBatchJob processes a batch enhancement job
+// ProcessBatchJob processes a batch enhancement job.
 func (m *Manager) ProcessBatchJob(ctx context.Context, jobID string) error {
 	m.mu.Lock()
 	job, ok := m.jobs[jobID]
@@ -443,7 +443,7 @@ func (m *Manager) ProcessBatchJob(ctx context.Context, jobID string) error {
 	return nil
 }
 
-// GetJob returns a batch job by ID
+// GetJob returns a batch job by ID.
 func (m *Manager) GetJob(jobID string) (*EnhancementJob, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -455,7 +455,7 @@ func (m *Manager) GetJob(jobID string) (*EnhancementJob, error) {
 	return job, nil
 }
 
-// ListJobs returns all batch jobs
+// ListJobs returns all batch jobs.
 func (m *Manager) ListJobs() []*EnhancementJob {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -467,7 +467,7 @@ func (m *Manager) ListJobs() []*EnhancementJob {
 	return jobs
 }
 
-// GetStats returns enhancement statistics
+// GetStats returns enhancement statistics.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

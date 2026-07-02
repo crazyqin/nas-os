@@ -5,31 +5,31 @@ import (
 	"time"
 )
 
-// PathStatus 路径状态
+// PathStatus 路径状态.
 type PathStatus string
 
 const (
-	// PathActive 活跃路径
+	// PathActive 活跃路径.
 	PathActive PathStatus = "active"
-	// PathStandby 备用路径
+	// PathStandby 备用路径.
 	PathStandby PathStatus = "standby"
-	// PathFailed 故障路径
+	// PathFailed 故障路径.
 	PathFailed PathStatus = "failed"
-	// PathRemoved 已移除
+	// PathRemoved 已移除.
 	PathRemoved PathStatus = "removed"
 )
 
-// LoadBalancePolicy 负载均衡策略
+// LoadBalancePolicy 负载均衡策略.
 type LoadBalancePolicy string
 
 const (
-	// PolicyRoundRobin 轮询
+	// PolicyRoundRobin 轮询.
 	PolicyRoundRobin LoadBalancePolicy = "round-robin"
-	// PolicyLeastPending 最少待处理
+	// PolicyLeastPending 最少待处理.
 	PolicyLeastPending LoadBalancePolicy = "least-pending"
 )
 
-// SASDevice SAS 设备
+// SASDevice SAS 设备.
 type SASDevice struct {
 	// WWN 设备全球唯一标识
 	WWN string `json:"wwn"`
@@ -49,19 +49,19 @@ type SASDevice struct {
 	LastFailover *time.Time `json:"lastFailover,omitempty"`
 }
 
-// DeviceStatus 设备状态
+// DeviceStatus 设备状态.
 type DeviceStatus string
 
 const (
-	// DeviceHealthy 设备健康
+	// DeviceHealthy 设备健康.
 	DeviceHealthy DeviceStatus = "healthy"
-	// DeviceDegraded 设备降级（部分路径故障）
+	// DeviceDegraded 设备降级（部分路径故障）.
 	DeviceDegraded DeviceStatus = "degraded"
-	// DeviceFailed 设备故障（所有路径不可用）
+	// DeviceFailed 设备故障（所有路径不可用）.
 	DeviceFailed DeviceStatus = "failed"
 )
 
-// Path 单条路径
+// Path 单条路径.
 type Path struct {
 	// ID 路径标识（host:channel:id:lun）
 	ID string `json:"id"`
@@ -93,7 +93,7 @@ type Path struct {
 	LastHealthCheck time.Time `json:"lastHealthCheck"`
 }
 
-// FailoverEvent 故障切换事件
+// FailoverEvent 故障切换事件.
 type FailoverEvent struct {
 	// Timestamp 事件时间
 	Timestamp time.Time `json:"timestamp"`
@@ -109,7 +109,7 @@ type FailoverEvent struct {
 	DurationMs int64 `json:"durationMs"`
 }
 
-// HealthCheckResult 路径健康检查结果
+// HealthCheckResult 路径健康检查结果.
 type HealthCheckResult struct {
 	// PathID 路径 ID
 	PathID string `json:"pathId"`
@@ -123,7 +123,7 @@ type HealthCheckResult struct {
 	CheckedAt time.Time `json:"checkedAt"`
 }
 
-// ManualFailoverRequest 手动故障切换请求
+// ManualFailoverRequest 手动故障切换请求.
 type ManualFailoverRequest struct {
 	// DeviceWWN 设备 WWN
 	DeviceWWN string `json:"deviceWwn"`
@@ -131,7 +131,7 @@ type ManualFailoverRequest struct {
 	TargetPathID string `json:"targetPathId"`
 }
 
-// PolicyUpdateRequest 策略更新请求
+// PolicyUpdateRequest 策略更新请求.
 type PolicyUpdateRequest struct {
 	// DeviceWWN 设备 WWN
 	DeviceWWN string `json:"deviceWwn"`

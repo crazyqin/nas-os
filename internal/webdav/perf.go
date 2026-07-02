@@ -20,28 +20,28 @@ import (
 
 // ========== 批量操作 ==========
 
-// BatchRequest 批量操作请求
+// BatchRequest 批量操作请求.
 type BatchRequest struct {
-	Operation string         `json:"operation"` // upload, download, delete
-	Items     []BatchItem    `json:"items"`
-	Options   BatchOptions   `json:"options,omitempty"`
+	Operation string       `json:"operation"` // upload, download, delete
+	Items     []BatchItem  `json:"items"`
+	Options   BatchOptions `json:"options,omitempty"`
 }
 
-// BatchItem 批量操作项
+// BatchItem 批量操作项.
 type BatchItem struct {
 	Source      string `json:"source"`
 	Destination string `json:"destination,omitempty"`
 	Overwrite   bool   `json:"overwrite,omitempty"`
 }
 
-// BatchOptions 批量操作选项
+// BatchOptions 批量操作选项.
 type BatchOptions struct {
-	Concurrency int  `json:"concurrency,omitempty"` // 并发数，0=自动
+	Concurrency     int  `json:"concurrency,omitempty"`       // 并发数，0=自动
 	ContinueOnError bool `json:"continue_on_error,omitempty"` // 遇错继续
-	ChunkSize   int  `json:"chunk_size,omitempty"`  // 分块大小（字节）
+	ChunkSize       int  `json:"chunk_size,omitempty"`        // 分块大小（字节）
 }
 
-// BatchResult 批量操作结果
+// BatchResult 批量操作结果.
 type BatchResult struct {
 	Operation  string        `json:"operation"`
 	Total      int           `json:"total"`
@@ -53,21 +53,21 @@ type BatchResult struct {
 	TotalBytes int64         `json:"total_bytes"`
 }
 
-// BatchError 批量操作错误
+// BatchError 批量操作错误.
 type BatchError struct {
-	Item    string `json:"item"`
-	Error   string `json:"error"`
-	Index   int    `json:"index"`
+	Item  string `json:"item"`
+	Error string `json:"error"`
+	Index int    `json:"index"`
 }
 
-// BatchManager 批量操作管理器
+// BatchManager 批量操作管理器.
 type BatchManager struct {
 	mu        sync.RWMutex
 	pool      *ConnectionPool
 	chunkSize int64
 }
 
-// NewBatchManager 创建批量操作管理器
+// NewBatchManager 创建批量操作管理器.
 func NewBatchManager(pool *ConnectionPool) *BatchManager {
 	return &BatchManager{
 		pool:      pool,
@@ -75,7 +75,7 @@ func NewBatchManager(pool *ConnectionPool) *BatchManager {
 	}
 }
 
-// SetChunkSize 设置分块大小
+// SetChunkSize 设置分块大小.
 func (bm *BatchManager) SetChunkSize(size int64) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -84,7 +84,7 @@ func (bm *BatchManager) SetChunkSize(size int64) {
 	}
 }
 
-// ExecuteBatch 执行批量操作
+// ExecuteBatch 执行批量操作.
 func (bm *BatchManager) ExecuteBatch(ctx context.Context, rootPath string, req *BatchRequest) (*BatchResult, error) {
 	if req == nil || len(req.Items) == 0 {
 		return nil, fmt.Errorf("批量操作请求为空")
@@ -120,7 +120,7 @@ func (bm *BatchManager) ExecuteBatch(ctx context.Context, rootPath string, req *
 	return result, nil
 }
 
-// executeBatchUpload 并发批量上传
+// executeBatchUpload 并发批量上传.
 func (bm *BatchManager) executeBatchUpload(ctx context.Context, rootPath string, req *BatchRequest, result *BatchResult, concurrency int) {
 	sem := make(chan struct{}, concurrency)
 	var wg sync.WaitGroup
@@ -172,7 +172,7 @@ func (bm *BatchManager) executeBatchUpload(ctx context.Context, rootPath string,
 	wg.Wait()
 }
 
-// executeBatchDownload 并发批量下载
+// executeBatchDownload 并发批量下载.
 func (bm *BatchManager) executeBatchDownload(ctx context.Context, rootPath string, req *BatchRequest, result *BatchResult, concurrency int) {
 	sem := make(chan struct{}, concurrency)
 	var wg sync.WaitGroup
@@ -217,7 +217,7 @@ func (bm *BatchManager) executeBatchDownload(ctx context.Context, rootPath strin
 	wg.Wait()
 }
 
-// executeBatchDelete 并发批量删除
+// executeBatchDelete 并发批量删除.
 func (bm *BatchManager) executeBatchDelete(ctx context.Context, rootPath string, req *BatchRequest, result *BatchResult, concurrency int) {
 	sem := make(chan struct{}, concurrency)
 	var wg sync.WaitGroup
@@ -260,7 +260,7 @@ func (bm *BatchManager) executeBatchDelete(ctx context.Context, rootPath string,
 	wg.Wait()
 }
 
-// streamUpload 流式上传（分块写入）
+// streamUpload 流式上传（分块写入）.
 func (bm *BatchManager) streamUpload(ctx context.Context, destPath, source string, overwrite bool) error {
 	// 检查目标是否已存在
 	if _, err := os.Stat(destPath); err == nil && !overwrite {
@@ -331,7 +331,7 @@ func (bm *BatchManager) streamUpload(ctx context.Context, destPath, source strin
 	return nil
 }
 
-// streamDownload 流式下载
+// streamDownload 流式下载.
 func (bm *BatchManager) streamDownload(ctx context.Context, srcPath string, dst io.Writer) error {
 	file, err := os.Open(srcPath)
 	if err != nil {
@@ -364,7 +364,7 @@ func (bm *BatchManager) streamDownload(ctx context.Context, srcPath string, dst 
 	return nil
 }
 
-// countingWriter 用于统计写入字节数
+// countingWriter 用于统计写入字节数.
 type countingWriter struct {
 	written int64
 }
@@ -376,34 +376,34 @@ func (w *countingWriter) Write(p []byte) (int, error) {
 
 // ========== 并发连接池 ==========
 
-// PoolStats 连接池统计
+// PoolStats 连接池统计.
 type PoolStats struct {
-	Active    int   `json:"active"`
-	Idle      int   `json:"idle"`
-	Total     int   `json:"total"`
-	MaxConn   int   `json:"max_conn"`
-	Waiting   int   `json:"waiting"`
-	Errors    int64 `json:"errors"`
-	Timeouts  int64 `json:"timeouts"`
+	Active   int   `json:"active"`
+	Idle     int   `json:"idle"`
+	Total    int   `json:"total"`
+	MaxConn  int   `json:"max_conn"`
+	Waiting  int   `json:"waiting"`
+	Errors   int64 `json:"errors"`
+	Timeouts int64 `json:"timeouts"`
 }
 
-// ConnectionPool 并发连接池
+// ConnectionPool 并发连接池.
 type ConnectionPool struct {
-	mu         sync.RWMutex
-	maxConn    int
-	active     int
-	idle       int
-	waitQueue  chan struct{}
-	stats      PoolStats
-	timeout    time.Duration
-	onAcquire  func()
-	onRelease  func()
+	mu        sync.RWMutex
+	maxConn   int
+	active    int
+	idle      int
+	waitQueue chan struct{}
+	stats     PoolStats
+	timeout   time.Duration
+	onAcquire func()
+	onRelease func()
 }
 
-// PoolOption 连接池选项
+// PoolOption 连接池选项.
 type PoolOption func(*ConnectionPool)
 
-// WithMaxConnections 设置最大连接数
+// WithMaxConnections 设置最大连接数.
 func WithMaxConnections(max int) PoolOption {
 	return func(p *ConnectionPool) {
 		if max > 0 {
@@ -412,28 +412,28 @@ func WithMaxConnections(max int) PoolOption {
 	}
 }
 
-// WithPoolTimeout 设置连接池超时
+// WithPoolTimeout 设置连接池超时.
 func WithPoolTimeout(timeout time.Duration) PoolOption {
 	return func(p *ConnectionPool) {
 		p.timeout = timeout
 	}
 }
 
-// WithOnAcquire 设置获取连接回调
+// WithOnAcquire 设置获取连接回调.
 func WithOnAcquire(fn func()) PoolOption {
 	return func(p *ConnectionPool) {
 		p.onAcquire = fn
 	}
 }
 
-// WithOnRelease 设置释放连接回调
+// WithOnRelease 设置释放连接回调.
 func WithOnRelease(fn func()) PoolOption {
 	return func(p *ConnectionPool) {
 		p.onRelease = fn
 	}
 }
 
-// NewConnectionPool 创建连接池
+// NewConnectionPool 创建连接池.
 func NewConnectionPool(opts ...PoolOption) *ConnectionPool {
 	p := &ConnectionPool{
 		maxConn:   DefaultMaxConnections,
@@ -449,7 +449,7 @@ func NewConnectionPool(opts ...PoolOption) *ConnectionPool {
 	return p
 }
 
-// Acquire 获取连接
+// Acquire 获取连接.
 func (p *ConnectionPool) Acquire(ctx context.Context) error {
 	p.mu.Lock()
 
@@ -489,7 +489,7 @@ func (p *ConnectionPool) Acquire(ctx context.Context) error {
 	}
 }
 
-// Release 释放连接
+// Release 释放连接.
 func (p *ConnectionPool) Release() {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -506,7 +506,7 @@ func (p *ConnectionPool) Release() {
 	}
 }
 
-// GetStats 获取连接池统计
+// GetStats 获取连接池统计.
 func (p *ConnectionPool) GetStats() PoolStats {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -515,7 +515,7 @@ func (p *ConnectionPool) GetStats() PoolStats {
 	return stats
 }
 
-// Resize 动态调整连接池大小
+// Resize 动态调整连接池大小.
 func (p *ConnectionPool) Resize(newMax int) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -530,7 +530,7 @@ func (p *ConnectionPool) Resize(newMax int) {
 
 // ========== 性能监控 ==========
 
-// PerfMetrics 性能指标
+// PerfMetrics 性能指标.
 type PerfMetrics struct {
 	mu sync.RWMutex
 
@@ -548,12 +548,12 @@ type PerfMetrics struct {
 	P99LatencyMs       int64 `json:"p99_latency_ms"`
 
 	// 操作分类统计
-	GetOps     int64 `json:"get_ops"`
-	PutOps     int64 `json:"put_ops"`
-	DeleteOps  int64 `json:"delete_ops"`
+	GetOps      int64 `json:"get_ops"`
+	PutOps      int64 `json:"put_ops"`
+	DeleteOps   int64 `json:"delete_ops"`
 	PropfindOps int64 `json:"propfind_ops"`
-	LockOps    int64 `json:"lock_ops"`
-	BatchOps   int64 `json:"batch_ops"`
+	LockOps     int64 `json:"lock_ops"`
+	BatchOps    int64 `json:"batch_ops"`
 
 	// 连接统计
 	ConnectionsActive int64 `json:"connections_active"`
@@ -569,7 +569,7 @@ type PerfMetrics struct {
 	LastRequestTime *time.Time `json:"last_request_time,omitempty"`
 }
 
-// LatencyBucket 延迟桶
+// LatencyBucket 延迟桶.
 type LatencyBucket struct {
 	MinMs int64   `json:"min_ms"`
 	MaxMs int64   `json:"max_ms"`
@@ -577,15 +577,15 @@ type LatencyBucket struct {
 	Pct   float64 `json:"pct"`
 }
 
-// NewPerfMetrics 创建性能监控
+// NewPerfMetrics 创建性能监控.
 func NewPerfMetrics() *PerfMetrics {
 	return &PerfMetrics{
-		StartTime:  time.Now(),
-		latencies:  make([]int64, 1000),
+		StartTime: time.Now(),
+		latencies: make([]int64, 1000),
 	}
 }
 
-// RecordRequest 记录请求
+// RecordRequest 记录请求.
 func (pm *PerfMetrics) RecordRequest(method string, bytesSent, bytesRecv int64, latencyMs int64, err error) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -648,7 +648,7 @@ func (pm *PerfMetrics) RecordRequest(method string, bytesSent, bytesRecv int64, 
 	pm.P99LatencyMs = pm.calculateP99()
 }
 
-// calculateP99 计算 P99 延迟
+// calculateP99 计算 P99 延迟.
 func (pm *PerfMetrics) calculateP99() int64 {
 	var sorted []int64
 	for _, l := range pm.latencies {
@@ -676,7 +676,7 @@ func (pm *PerfMetrics) calculateP99() int64 {
 	return sorted[idx]
 }
 
-// StartRequest 标记请求开始
+// StartRequest 标记请求开始.
 func (pm *PerfMetrics) StartRequest() int64 {
 	atomic.AddInt64(&pm.ActiveRequests, 1)
 	atomic.AddInt64(&pm.ConnectionsActive, 1)
@@ -684,14 +684,14 @@ func (pm *PerfMetrics) StartRequest() int64 {
 	return time.Now().UnixMilli()
 }
 
-// EndRequest 标记请求结束
+// EndRequest 标记请求结束.
 func (pm *PerfMetrics) EndRequest(startTimeMs int64) int64 {
 	atomic.AddInt64(&pm.ActiveRequests, -1)
 	atomic.AddInt64(&pm.ConnectionsActive, -1)
 	return time.Now().UnixMilli() - startTimeMs
 }
 
-// GetSnapshot 获取指标快照
+// GetSnapshot 获取指标快照.
 func (pm *PerfMetrics) GetSnapshot() map[string]interface{} {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -727,18 +727,18 @@ func (pm *PerfMetrics) GetSnapshot() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"uptime_seconds":    int64(uptime.Seconds()),
-		"total_requests":    pm.TotalRequests,
-		"active_requests":   pm.ActiveRequests,
-		"success_requests":  pm.SuccessRequests,
-		"error_requests":    pm.ErrorRequests,
-		"error_rate":        pm.errorRate(),
-		"bytes_sent":        pm.TotalBytesSent,
-		"bytes_received":    pm.TotalBytesReceived,
-		"avg_latency_ms":    pm.AvgLatencyMs,
-		"max_latency_ms":    pm.MaxLatencyMs,
-		"p99_latency_ms":    pm.P99LatencyMs,
-		"latency_dist":      buckets,
+		"uptime_seconds":   int64(uptime.Seconds()),
+		"total_requests":   pm.TotalRequests,
+		"active_requests":  pm.ActiveRequests,
+		"success_requests": pm.SuccessRequests,
+		"error_requests":   pm.ErrorRequests,
+		"error_rate":       pm.errorRate(),
+		"bytes_sent":       pm.TotalBytesSent,
+		"bytes_received":   pm.TotalBytesReceived,
+		"avg_latency_ms":   pm.AvgLatencyMs,
+		"max_latency_ms":   pm.MaxLatencyMs,
+		"p99_latency_ms":   pm.P99LatencyMs,
+		"latency_dist":     buckets,
 		"ops_breakdown": map[string]int64{
 			"get":      pm.GetOps,
 			"put":      pm.PutOps,
@@ -754,7 +754,7 @@ func (pm *PerfMetrics) GetSnapshot() map[string]interface{} {
 	}
 }
 
-// errorRate 计算错误率
+// errorRate 计算错误率.
 func (pm *PerfMetrics) errorRate() float64 {
 	if pm.TotalRequests == 0 {
 		return 0
@@ -762,7 +762,7 @@ func (pm *PerfMetrics) errorRate() float64 {
 	return float64(pm.ErrorRequests) / float64(pm.TotalRequests) * 100
 }
 
-// Reset 重置统计
+// Reset 重置统计.
 func (pm *PerfMetrics) Reset() {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -793,31 +793,31 @@ func (pm *PerfMetrics) Reset() {
 
 // ========== 流式传输优化 ==========
 
-// StreamConfig 流式传输配置
+// StreamConfig 流式传输配置.
 type StreamConfig struct {
-	ChunkSize      int64 `json:"chunk_size"`       // 分块大小
-	MaxConcurrent  int   `json:"max_concurrent"`    // 最大并发数
-	BufferSize     int   `json:"buffer_size"`       // 缓冲区大小
-	EnableCompress bool  `json:"enable_compress"`   // 启用压缩
+	ChunkSize      int64 `json:"chunk_size"`      // 分块大小
+	MaxConcurrent  int   `json:"max_concurrent"`  // 最大并发数
+	BufferSize     int   `json:"buffer_size"`     // 缓冲区大小
+	EnableCompress bool  `json:"enable_compress"` // 启用压缩
 }
 
-// DefaultStreamConfig 默认流式传输配置
+// DefaultStreamConfig 默认流式传输配置.
 func DefaultStreamConfig() *StreamConfig {
 	return &StreamConfig{
-		ChunkSize:     DefaultChunkSize,
-		MaxConcurrent: 4,
-		BufferSize:    64 * 1024,
+		ChunkSize:      DefaultChunkSize,
+		MaxConcurrent:  4,
+		BufferSize:     64 * 1024,
 		EnableCompress: false,
 	}
 }
 
-// StreamTransmitter 流式传输器
+// StreamTransmitter 流式传输器.
 type StreamTransmitter struct {
 	config  *StreamConfig
 	metrics *PerfMetrics
 }
 
-// NewStreamTransmitter 创建流式传输器
+// NewStreamTransmitter 创建流式传输器.
 func NewStreamTransmitter(config *StreamConfig, metrics *PerfMetrics) *StreamTransmitter {
 	if config == nil {
 		config = DefaultStreamConfig()
@@ -828,7 +828,7 @@ func NewStreamTransmitter(config *StreamConfig, metrics *PerfMetrics) *StreamTra
 	}
 }
 
-// StreamWrite 流式写入文件
+// StreamWrite 流式写入文件.
 func (st *StreamTransmitter) StreamWrite(ctx context.Context, dst io.Writer, src io.Reader) (int64, error) {
 	startTime := time.Now().UnixMilli()
 	if st.metrics != nil {
@@ -876,7 +876,7 @@ func (st *StreamTransmitter) StreamWrite(ctx context.Context, dst io.Writer, src
 	return total, nil
 }
 
-// StreamRead 流式读取文件
+// StreamRead 流式读取文件.
 func (st *StreamTransmitter) StreamRead(ctx context.Context, dst io.Writer, src io.Reader) (int64, error) {
 	startTime := time.Now().UnixMilli()
 	if st.metrics != nil {
@@ -926,17 +926,17 @@ func (st *StreamTransmitter) StreamRead(ctx context.Context, dst io.Writer, src 
 
 // ========== 性能增强管理器 ==========
 
-// PerfManager 性能增强管理器
+// PerfManager 性能增强管理器.
 type PerfManager struct {
-	mu           sync.RWMutex
-	pool         *ConnectionPool
-	batchMgr     *BatchManager
-	transmitter  *StreamTransmitter
-	metrics      *PerfMetrics
-	enabled      bool
+	mu          sync.RWMutex
+	pool        *ConnectionPool
+	batchMgr    *BatchManager
+	transmitter *StreamTransmitter
+	metrics     *PerfMetrics
+	enabled     bool
 }
 
-// NewPerfManager 创建性能增强管理器
+// NewPerfManager 创建性能增强管理器.
 func NewPerfManager() *PerfManager {
 	pool := NewConnectionPool()
 	metrics := NewPerfMetrics()
@@ -952,56 +952,56 @@ func NewPerfManager() *PerfManager {
 	}
 }
 
-// SetEnabled 设置启用状态
+// SetEnabled 设置启用状态.
 func (pm *PerfManager) SetEnabled(enabled bool) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 	pm.enabled = enabled
 }
 
-// IsEnabled 是否启用
+// IsEnabled 是否启用.
 func (pm *PerfManager) IsEnabled() bool {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
 	return pm.enabled
 }
 
-// GetPool 获取连接池
+// GetPool 获取连接池.
 func (pm *PerfManager) GetPool() *ConnectionPool {
 	return pm.pool
 }
 
-// GetBatchManager 获取批量管理器
+// GetBatchManager 获取批量管理器.
 func (pm *PerfManager) GetBatchManager() *BatchManager {
 	return pm.batchMgr
 }
 
-// GetTransmitter 获取流式传输器
+// GetTransmitter 获取流式传输器.
 func (pm *PerfManager) GetTransmitter() *StreamTransmitter {
 	return pm.transmitter
 }
 
-// GetMetrics 获取性能指标
+// GetMetrics 获取性能指标.
 func (pm *PerfManager) GetMetrics() *PerfMetrics {
 	return pm.metrics
 }
 
-// GetStatus 获取性能增强状态
+// GetStatus 获取性能增强状态.
 func (pm *PerfManager) GetStatus() map[string]interface{} {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
 
 	return map[string]interface{}{
-		"enabled":       pm.enabled,
-		"pool_stats":    pm.pool.GetStats(),
-		"metrics":       pm.metrics.GetSnapshot(),
-		"chunk_size":    pm.batchMgr.chunkSize,
-		"buffer_size":   pm.transmitter.config.BufferSize,
+		"enabled":        pm.enabled,
+		"pool_stats":     pm.pool.GetStats(),
+		"metrics":        pm.metrics.GetSnapshot(),
+		"chunk_size":     pm.batchMgr.chunkSize,
+		"buffer_size":    pm.transmitter.config.BufferSize,
 		"max_concurrent": pm.transmitter.config.MaxConcurrent,
 	}
 }
 
-// Reset 重置所有性能指标
+// Reset 重置所有性能指标.
 func (pm *PerfManager) Reset() {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -1011,17 +1011,17 @@ func (pm *PerfManager) Reset() {
 // ========== 默认常量 ==========
 
 const (
-	// DefaultChunkSize 默认分块大小 256KB
+	// DefaultChunkSize 默认分块大小 256KB.
 	DefaultChunkSize = 256 * 1024
-	// DefaultMaxConnections 默认最大连接数
+	// DefaultMaxConnections 默认最大连接数.
 	DefaultMaxConnections = 100
-	// DefaultBatchConcurrency 默认批量并发数
+	// DefaultBatchConcurrency 默认批量并发数.
 	DefaultBatchConcurrency = 10
 )
 
 // ========== HTTP 处理器集成 ==========
 
-// RegisterPerfRoutes 注册性能增强路由
+// RegisterPerfRoutes 注册性能增强路由.
 func (pm *PerfManager) RegisterPerfRoutes(apiGroup *gin.RouterGroup) {
 	perf := apiGroup.Group("/webdav/perf")
 	{

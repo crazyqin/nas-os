@@ -257,7 +257,8 @@ func (h *UISearchHandler) searchApps(query string, limit int) []SearchItem {
 
 	for _, r := range appResults {
 		var item SearchItem
-		if r.Type == "app" {
+		switch r.Type {
+		case "app":
 			if app, ok := r.Item.(AppItem); ok {
 				item = SearchItem{
 					ID:          app.ID,
@@ -268,7 +269,7 @@ func (h *UISearchHandler) searchApps(query string, limit int) []SearchItem {
 					Type:        app.Category,
 				}
 			}
-		} else if r.Type == "container" {
+		case "container":
 			if container, ok := r.Item.(ContainerItem); ok {
 				item = SearchItem{
 					ID:          container.ID,

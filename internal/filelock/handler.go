@@ -8,18 +8,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler 文件锁 HTTP 处理器
+// Handler 文件锁 HTTP 处理器.
 type Handler struct {
 	service *Service
 }
 
-// NewHandler 创建 HTTP 处理器
+// NewHandler 创建 HTTP 处理器.
 func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
 // RegisterRoutes 注册路由
-// 路由组路径建议: /api/v1/filelock
+// 路由组路径建议: /api/v1/filelock.
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	group := r.Group("/filelock")
 	{
@@ -41,7 +41,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -49,7 +49,7 @@ type response struct {
 }
 
 // lock 锁定文件
-// POST /api/v1/filelock/lock
+// POST /api/v1/filelock/lock.
 func (h *Handler) lock(c *gin.Context) {
 	var req LockRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -80,7 +80,7 @@ func (h *Handler) lock(c *gin.Context) {
 }
 
 // unlock 解锁文件
-// POST /api/v1/filelock/unlock
+// POST /api/v1/filelock/unlock.
 func (h *Handler) unlock(c *gin.Context) {
 	var req UnlockRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -111,7 +111,7 @@ func (h *Handler) unlock(c *gin.Context) {
 }
 
 // list 查看锁定列表
-// GET /api/v1/filelock/list
+// GET /api/v1/filelock/list.
 func (h *Handler) list(c *gin.Context) {
 	// 支持可选过滤参数
 	userID := c.Query("user_id")
@@ -140,7 +140,7 @@ func (h *Handler) list(c *gin.Context) {
 }
 
 // getLock 获取锁详情
-// GET /api/v1/filelock/locks/:id
+// GET /api/v1/filelock/locks/:id.
 func (h *Handler) getLock(c *gin.Context) {
 	id := c.Param("id")
 	lock, err := h.service.GetLock(id)
@@ -160,7 +160,7 @@ func (h *Handler) getLock(c *gin.Context) {
 }
 
 // checkLock 检查文件是否被锁定
-// GET /api/v1/filelock/check/*filepath
+// GET /api/v1/filelock/check/*filepath.
 func (h *Handler) checkLock(c *gin.Context) {
 	filePath := c.Param("filepath")
 	locked := h.service.IsFileLocked(filePath)
@@ -176,7 +176,7 @@ func (h *Handler) checkLock(c *gin.Context) {
 }
 
 // getStats 获取统计信息
-// GET /api/v1/filelock/stats
+// GET /api/v1/filelock/stats.
 func (h *Handler) getStats(c *gin.Context) {
 	stats := h.service.GetStats()
 
@@ -188,7 +188,7 @@ func (h *Handler) getStats(c *gin.Context) {
 }
 
 // getConfig 获取配置
-// GET /api/v1/filelock/config
+// GET /api/v1/filelock/config.
 func (h *Handler) getConfig(c *gin.Context) {
 	cfg := h.service.GetConfig()
 
@@ -200,7 +200,7 @@ func (h *Handler) getConfig(c *gin.Context) {
 }
 
 // updateConfig 更新配置
-// PUT /api/v1/filelock/config
+// PUT /api/v1/filelock/config.
 func (h *Handler) updateConfig(c *gin.Context) {
 	var cfg Config
 	if err := c.ShouldBindJSON(&cfg); err != nil {

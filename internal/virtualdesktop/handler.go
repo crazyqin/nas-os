@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler HTTP处理器
+// Handler HTTP处理器.
 type Handler struct {
 	manager *VirtualDesktopManager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *VirtualDesktopManager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/vdi/desktops", h.handleDesktops)
 	mux.HandleFunc("/api/vdi/desktops/", h.handleDesktop)

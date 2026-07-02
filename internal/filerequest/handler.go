@@ -9,34 +9,34 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	svc *Service
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(svc *Service) *Handler {
 	return &Handler{svc: svc}
 }
 
 // RegisterRoutes 注册路由到 gin 路由组
-// 路由前缀: /api/v1/filerequest
+// 路由前缀: /api/v1/filerequest.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	g := rg.Group("/filerequest")
 	{
-		g.POST("/create", h.createRequest)               // 创建文件请求
-		g.GET("/list", h.listRequests)                    // 列出文件请求
-		g.POST("/upload/:token", h.uploadFile)            // 通过令牌上传文件
-		g.DELETE("/:id", h.deleteRequest)                 // 删除文件请求
-		g.GET("/:id", h.getRequest)                       // 获取请求详情
-		g.GET("/:id/uploads", h.listUploads)              // 获取上传列表
-		g.POST("/:id/close", h.closeRequest)              // 关闭请求
-		g.GET("/stats", h.getStats)                       // 统计信息
+		g.POST("/create", h.createRequest)     // 创建文件请求
+		g.GET("/list", h.listRequests)         // 列出文件请求
+		g.POST("/upload/:token", h.uploadFile) // 通过令牌上传文件
+		g.DELETE("/:id", h.deleteRequest)      // 删除文件请求
+		g.GET("/:id", h.getRequest)            // 获取请求详情
+		g.GET("/:id/uploads", h.listUploads)   // 获取上传列表
+		g.POST("/:id/close", h.closeRequest)   // 关闭请求
+		g.GET("/stats", h.getStats)            // 统计信息
 	}
 }
 
 // createRequest 创建文件请求
-// POST /api/v1/filerequest/create
+// POST /api/v1/filerequest/create.
 func (h *Handler) createRequest(c *gin.Context) {
 	var req CreateRequestRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -54,7 +54,7 @@ func (h *Handler) createRequest(c *gin.Context) {
 }
 
 // listRequests 列出文件请求
-// GET /api/v1/filerequest/list?creator_id=xxx&status=active&page=1&page_size=20
+// GET /api/v1/filerequest/list?creator_id=xxx&status=active&page=1&page_size=20.
 func (h *Handler) listRequests(c *gin.Context) {
 	var query ListRequestsQuery
 	if err := c.ShouldBindQuery(&query); err != nil {
@@ -79,7 +79,7 @@ func (h *Handler) listRequests(c *gin.Context) {
 }
 
 // uploadFile 通过令牌上传文件
-// POST /api/v1/filerequest/upload/:token
+// POST /api/v1/filerequest/upload/:token.
 func (h *Handler) uploadFile(c *gin.Context) {
 	token := c.Param("token")
 	if token == "" {
@@ -147,7 +147,7 @@ func (h *Handler) uploadFile(c *gin.Context) {
 }
 
 // deleteRequest 删除文件请求
-// DELETE /api/v1/filerequest/:id
+// DELETE /api/v1/filerequest/:id.
 func (h *Handler) deleteRequest(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -164,7 +164,7 @@ func (h *Handler) deleteRequest(c *gin.Context) {
 }
 
 // getRequest 获取请求详情
-// GET /api/v1/filerequest/:id
+// GET /api/v1/filerequest/:id.
 func (h *Handler) getRequest(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -182,7 +182,7 @@ func (h *Handler) getRequest(c *gin.Context) {
 }
 
 // listUploads 获取请求的上传文件列表
-// GET /api/v1/filerequest/:id/uploads
+// GET /api/v1/filerequest/:id/uploads.
 func (h *Handler) listUploads(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -200,7 +200,7 @@ func (h *Handler) listUploads(c *gin.Context) {
 }
 
 // closeRequest 关闭文件请求
-// POST /api/v1/filerequest/:id/close
+// POST /api/v1/filerequest/:id/close.
 func (h *Handler) closeRequest(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -217,7 +217,7 @@ func (h *Handler) closeRequest(c *gin.Context) {
 }
 
 // getStats 获取统计信息
-// GET /api/v1/filerequest/stats
+// GET /api/v1/filerequest/stats.
 func (h *Handler) getStats(c *gin.Context) {
 	stats, err := h.svc.GetStats(c.Request.Context())
 	if err != nil {
@@ -228,7 +228,7 @@ func (h *Handler) getStats(c *gin.Context) {
 	api.OK(c, stats)
 }
 
-// formatFileSize 格式化文件大小（辅助函数）
+// formatFileSize 格式化文件大小（辅助函数）.
 func formatFileSize(size int64) string {
 	if size < 1024 {
 		return strconv.FormatInt(size, 10) + " B"

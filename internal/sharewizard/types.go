@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Protocol 共享协议
+// Protocol 共享协议.
 type Protocol string
 
 const (
@@ -18,7 +18,7 @@ const (
 	ProtocolWebDAV Protocol = "webdav"
 )
 
-// Permission 权限级别
+// Permission 权限级别.
 type Permission string
 
 const (
@@ -28,7 +28,7 @@ const (
 	PermissionNoAccess  Permission = "noaccess"
 )
 
-// ShareTemplate 共享模板
+// ShareTemplate 共享模板.
 type ShareTemplate string
 
 const (
@@ -40,38 +40,38 @@ const (
 	TemplateTeam     ShareTemplate = "team"     // 团队协作
 )
 
-// UserPermission 用户权限
+// UserPermission 用户权限.
 type UserPermission struct {
 	Username   string     `json:"username"`
 	Permission Permission `json:"permission"`
 }
 
-// GroupPermission 组权限
+// GroupPermission 组权限.
 type GroupPermission struct {
 	Group      string     `json:"group"`
 	Permission Permission `json:"permission"`
 }
 
-// QuotaConfig 配额配置
+// QuotaConfig 配额配置.
 type QuotaConfig struct {
 	Enabled  bool  `json:"enabled"`
 	MaxSize  int64 `json:"max_size"`  // 字节
 	MaxFiles int64 `json:"max_files"` // 文件数
 }
 
-// RecycleBinConfig 回收站配置
+// RecycleBinConfig 回收站配置.
 type RecycleBinConfig struct {
 	Enabled        bool `json:"enabled"`
 	CleanAfterDays int  `json:"clean_after_days"` // 天后自动清理
 }
 
-// EncryptionConfig 加密配置
+// EncryptionConfig 加密配置.
 type EncryptionConfig struct {
 	Enabled   bool   `json:"enabled"`
 	Algorithm string `json:"algorithm"` // aes-256-xts 等
 }
 
-// ShareConfig 共享配置
+// ShareConfig 共享配置.
 type ShareConfig struct {
 	Name        string            `json:"name" binding:"required"`
 	Description string            `json:"description"`
@@ -90,7 +90,7 @@ type ShareConfig struct {
 	CreatedAt   time.Time         `json:"created_at"`
 }
 
-// ShareTemplateDef 模板定义
+// ShareTemplateDef 模板定义.
 type ShareTemplateDef struct {
 	Name        string        `json:"name"`
 	Template    ShareTemplate `json:"template"`
@@ -101,7 +101,7 @@ type ShareTemplateDef struct {
 	Quota       bool          `json:"quota"`
 }
 
-// DefaultTemplates 返回默认模板列表
+// DefaultTemplates 返回默认模板列表.
 func DefaultTemplates() []ShareTemplateDef {
 	return []ShareTemplateDef{
 		{
@@ -161,7 +161,7 @@ func DefaultTemplates() []ShareTemplateDef {
 	}
 }
 
-// ApplyTemplate 应用模板到配置
+// ApplyTemplate 应用模板到配置.
 func ApplyTemplate(config *ShareConfig, template ShareTemplate) {
 	defs := DefaultTemplates()
 	for _, def := range defs {
@@ -176,7 +176,7 @@ func ApplyTemplate(config *ShareConfig, template ShareTemplate) {
 	}
 }
 
-// ValidateShareConfig 验证共享配置
+// ValidateShareConfig 验证共享配置.
 func ValidateShareConfig(config ShareConfig) error {
 	if config.Name == "" {
 		return fmt.Errorf("共享名称不能为空")

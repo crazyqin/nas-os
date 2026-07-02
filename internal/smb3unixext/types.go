@@ -5,35 +5,35 @@ package smb3unixext
 
 import "time"
 
-// ExtensionStatus 扩展启用状态
+// ExtensionStatus 扩展启用状态.
 type ExtensionStatus string
 
 const (
-	// ExtensionStatusEnabled 已启用
+	// ExtensionStatusEnabled 已启用.
 	ExtensionStatusEnabled ExtensionStatus = "enabled"
-	// ExtensionStatusDisabled 已禁用
+	// ExtensionStatusDisabled 已禁用.
 	ExtensionStatusDisabled ExtensionStatus = "disabled"
 )
 
-// ClientCapability 客户端能力标志
+// ClientCapability 客户端能力标志.
 type ClientCapability string
 
 const (
-	// CapabilityPosixPath POSIX 路径操作
+	// CapabilityPosixPath POSIX 路径操作.
 	CapabilityPosixPath ClientCapability = "posix_path_operations"
-	// CapabilityPosixSymlink POSIX 符号链接操作
+	// CapabilityPosixSymlink POSIX 符号链接操作.
 	CapabilityPosixSymlink ClientCapability = "posix_symlink_operations"
-	// CapabilityPosixFileLock POSIX 文件范围锁
+	// CapabilityPosixFileLock POSIX 文件范围锁.
 	CapabilityPosixFileLock ClientCapability = "posix_file_range_lock"
-	// CapabilityPosixACL POSIX ACL 操作
+	// CapabilityPosixACL POSIX ACL 操作.
 	CapabilityPosixACL ClientCapability = "posix_acl_operations"
-	// CapabilityPosixRename POSIX 重命名操作
+	// CapabilityPosixRename POSIX 重命名操作.
 	CapabilityPosixRename ClientCapability = "posix_rename_operations"
-	// CapabilityPosixSetInfo POSIX 属性设置
+	// CapabilityPosixSetInfo POSIX 属性设置.
 	CapabilityPosixSetInfo ClientCapability = "posix_set_info"
 )
 
-// DefaultCapabilities 默认支持的 POSIX 扩展能力列表
+// DefaultCapabilities 默认支持的 POSIX 扩展能力列表.
 var DefaultCapabilities = []ClientCapability{
 	CapabilityPosixPath,
 	CapabilityPosixSymlink,
@@ -43,21 +43,21 @@ var DefaultCapabilities = []ClientCapability{
 	CapabilityPosixSetInfo,
 }
 
-// ShareProtocol 共享协议类型
+// ShareProtocol 共享协议类型.
 type ShareProtocol string
 
 const (
-	// ProtocolSMB 仅 SMB 协议
+	// ProtocolSMB 仅 SMB 协议.
 	ProtocolSMB ShareProtocol = "smb"
-	// ProtocolNFS 仅 NFS 协议
+	// ProtocolNFS 仅 NFS 协议.
 	ProtocolNFS ShareProtocol = "nfs"
-	// ProtocolAFP 仅 AFP 协议
+	// ProtocolAFP 仅 AFP 协议.
 	ProtocolAFP ShareProtocol = "afp"
-	// ProtocolMulti 多协议（SMB + NFS 等）
+	// ProtocolMulti 多协议（SMB + NFS 等）.
 	ProtocolMulti ShareProtocol = "multi"
 )
 
-// UnixExtensionConfig SMB3 Unix 扩展配置
+// UnixExtensionConfig SMB3 Unix 扩展配置.
 type UnixExtensionConfig struct {
 	// 共享名称
 	ShareName string `json:"share_name"`
@@ -79,7 +79,7 @@ type UnixExtensionConfig struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// SetExtensionRequest 设置 Unix 扩展请求
+// SetExtensionRequest 设置 Unix 扩展请求.
 type SetExtensionRequest struct {
 	// 共享名称
 	ShareName string `json:"share_name" binding:"required"`
@@ -87,7 +87,7 @@ type SetExtensionRequest struct {
 	Enabled bool `json:"enabled"`
 }
 
-// ClientCapabilityRequest 客户端能力协商请求
+// ClientCapabilityRequest 客户端能力协商请求.
 type ClientCapabilityRequest struct {
 	// 共享名称
 	ShareName string `json:"share_name" binding:"required"`
@@ -95,7 +95,7 @@ type ClientCapabilityRequest struct {
 	ClientCapabilities []ClientCapability `json:"client_capabilities" binding:"required"`
 }
 
-// ExtensionStatusResponse 扩展状态响应
+// ExtensionStatusResponse 扩展状态响应.
 type ExtensionStatusResponse struct {
 	// 共享名称
 	ShareName string `json:"share_name"`
@@ -115,7 +115,7 @@ type ExtensionStatusResponse struct {
 	NegotiatedCapabilities []ClientCapability `json:"negotiated_capabilities,omitempty"`
 }
 
-// SupportStatusResponse 全局支持状态响应
+// SupportStatusResponse 全局支持状态响应.
 type SupportStatusResponse struct {
 	// 是否支持 SMB3 Unix 扩展（编译期/运行期能力）
 	Supported bool `json:"supported"`

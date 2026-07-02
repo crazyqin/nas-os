@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// AgentPlatform 代理平台类型
+// AgentPlatform 代理平台类型.
 type AgentPlatform string
 
 const (
@@ -24,7 +24,7 @@ const (
 	PlatformMac     AgentPlatform = "macos"
 )
 
-// AgentStatus 代理状态
+// AgentStatus 代理状态.
 type AgentStatus string
 
 const (
@@ -34,7 +34,7 @@ const (
 	AgentStatusError   AgentStatus = "error"
 )
 
-// AgentInfo 远程代理信息
+// AgentInfo 远程代理信息.
 type AgentInfo struct {
 	ID            string            `json:"id"`
 	Hostname      string            `json:"hostname"`
@@ -52,7 +52,7 @@ type AgentInfo struct {
 	ActiveJobs    int               `json:"active_jobs"`
 }
 
-// AgentMessage 代理通信消息
+// AgentMessage 代理通信消息.
 type AgentMessage struct {
 	Type      string          `json:"type"` // "register", "heartbeat", "backup_data", "restore_request", "status_update"
 	ID        string          `json:"id"`
@@ -61,7 +61,7 @@ type AgentMessage struct {
 	Payload   json.RawMessage `json:"payload"`
 }
 
-// RegisterPayload 注册请求
+// RegisterPayload 注册请求.
 type RegisterPayload struct {
 	Hostname     string            `json:"hostname"`
 	Platform     AgentPlatform     `json:"platform"`
@@ -71,7 +71,7 @@ type RegisterPayload struct {
 	Labels       map[string]string `json:"labels"`
 }
 
-// HeartbeatPayload 心跳请求
+// HeartbeatPayload 心跳请求.
 type HeartbeatPayload struct {
 	Status      AgentStatus `json:"status"`
 	ActiveJobs  int         `json:"active_jobs"`
@@ -80,7 +80,7 @@ type HeartbeatPayload struct {
 	DiskFree    int64       `json:"disk_free"`
 }
 
-// BackupDataPayload 备份数据传输
+// BackupDataPayload 备份数据传输.
 type BackupDataPayload struct {
 	JobID      string `json:"job_id"`
 	SnapshotID string `json:"snapshot_id"`
@@ -92,7 +92,7 @@ type BackupDataPayload struct {
 	IsLast     bool   `json:"is_last"`
 }
 
-// RestoreRequestPayload 恢复请求
+// RestoreRequestPayload 恢复请求.
 type RestoreRequestPayload struct {
 	JobID       string         `json:"job_id"`
 	SnapshotID  string         `json:"snapshot_id"`
@@ -100,7 +100,7 @@ type RestoreRequestPayload struct {
 	Options     RestoreOptions `json:"options"`
 }
 
-// RestoreOptions 恢复选项
+// RestoreOptions 恢复选项.
 type RestoreOptions struct {
 	OverwriteExisting bool   `json:"overwrite_existing"`
 	RestoreACL        bool   `json:"restore_acl"`
@@ -108,7 +108,7 @@ type RestoreOptions struct {
 	TargetPath        string `json:"target_path"`
 }
 
-// AgentConnection 代理 WebSocket 连接
+// AgentConnection 代理 WebSocket 连接.
 type AgentConnection struct {
 	Agent     *AgentInfo
 	Conn      *websocket.Conn
@@ -117,7 +117,7 @@ type AgentConnection struct {
 	closeOnce sync.Once
 }
 
-// AgentRegistry 代理注册表
+// AgentRegistry 代理注册表.
 type AgentRegistry struct {
 	mu          sync.RWMutex
 	agents      map[string]*AgentInfo       // agentID -> info
@@ -125,7 +125,7 @@ type AgentRegistry struct {
 	logger      *zap.Logger
 }
 
-// NewAgentRegistry 创建代理注册表
+// NewAgentRegistry 创建代理注册表.
 func NewAgentRegistry(logger *zap.Logger) *AgentRegistry {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -137,7 +137,7 @@ func NewAgentRegistry(logger *zap.Logger) *AgentRegistry {
 	}
 }
 
-// Register 注册代理
+// Register 注册代理.
 func (r *AgentRegistry) Register(payload *RegisterPayload, conn *websocket.Conn, ip string) (*AgentInfo, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -181,7 +181,7 @@ func (r *AgentRegistry) Register(payload *RegisterPayload, conn *websocket.Conn,
 	return agent, nil
 }
 
-// Unregister 注销代理
+// Unregister 注销代理.
 func (r *AgentRegistry) Unregister(agentID string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -201,7 +201,7 @@ func (r *AgentRegistry) Unregister(agentID string) {
 	r.logger.Info("代理已注销", zap.String("agent_id", agentID))
 }
 
-// GetAgent 获取代理信息
+// GetAgent 获取代理信息.
 func (r *AgentRegistry) GetAgent(agentID string) (*AgentInfo, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -213,7 +213,7 @@ func (r *AgentRegistry) GetAgent(agentID string) (*AgentInfo, error) {
 	return agent, nil
 }
 
-// ListAgents 列出所有代理
+// ListAgents 列出所有代理.
 func (r *AgentRegistry) ListAgents(status AgentStatus) []*AgentInfo {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -227,7 +227,7 @@ func (r *AgentRegistry) ListAgents(status AgentStatus) []*AgentInfo {
 	return result
 }
 
-// Count 返回在线代理数量
+// Count 返回在线代理数量.
 func (r *AgentRegistry) Count() int {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -241,7 +241,7 @@ func (r *AgentRegistry) Count() int {
 	return count
 }
 
-// Heartbeat 处理代理心跳
+// Heartbeat 处理代理心跳.
 func (r *AgentRegistry) Heartbeat(agentID string, payload *HeartbeatPayload) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -258,7 +258,7 @@ func (r *AgentRegistry) Heartbeat(agentID string, payload *HeartbeatPayload) err
 	return nil
 }
 
-// SendMessage 向代理发送消息
+// SendMessage 向代理发送消息.
 func (r *AgentRegistry) SendMessage(agentID string, msg *AgentMessage) error {
 	r.mu.RLock()
 	conn, exists := r.connections[agentID]
@@ -284,7 +284,7 @@ func (r *AgentRegistry) SendMessage(agentID string, msg *AgentMessage) error {
 	}
 }
 
-// CleanupStale 清理超时代理
+// CleanupStale 清理超时代理.
 func (r *AgentRegistry) CleanupStale(timeout time.Duration) int {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -310,14 +310,14 @@ func (r *AgentRegistry) CleanupStale(timeout time.Duration) int {
 	return removed
 }
 
-// AgentHandler 代理 HTTP API 处理器
+// AgentHandler 代理 HTTP API 处理器.
 type AgentHandler struct {
 	registry *AgentRegistry
 	logger   *zap.Logger
 	upgrader websocket.Upgrader
 }
 
-// NewAgentHandler 创建代理 API 处理器
+// NewAgentHandler 创建代理 API 处理器.
 func NewAgentHandler(registry *AgentRegistry, logger *zap.Logger) *AgentHandler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -331,7 +331,7 @@ func NewAgentHandler(registry *AgentRegistry, logger *zap.Logger) *AgentHandler 
 	}
 }
 
-// RegisterRoutes 注册代理 API 路由到 gin 路由组
+// RegisterRoutes 注册代理 API 路由到 gin 路由组.
 func (h *AgentHandler) RegisterRoutes(rg *gin.RouterGroup) {
 	agents := rg.Group("/agents")
 	{

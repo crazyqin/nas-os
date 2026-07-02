@@ -16,21 +16,21 @@ import (
 	"time"
 )
 
-// AlertLevel 三级预警等级枚举 - 对标TrueNAS 25.10
+// AlertLevel 三级预警等级枚举 - 对标TrueNAS 25.10.
 type AlertLevel string
 
 const (
-	// AlertLevelNormal 正常状态
+	// AlertLevelNormal 正常状态.
 	AlertLevelNormal AlertLevel = "normal"
-	// AlertLevelWarning 警告级别 - 需要关注
+	// AlertLevelWarning 警告级别 - 需要关注.
 	AlertLevelWarning AlertLevel = "warning"
-	// AlertLevelCritical 严重级别 - 需要尽快处理
+	// AlertLevelCritical 严重级别 - 需要尽快处理.
 	AlertLevelCritical AlertLevel = "critical"
-	// AlertLevelEmergency 紧急级别 - 需要立即处理
+	// AlertLevelEmergency 紧急级别 - 需要立即处理.
 	AlertLevelEmergency AlertLevel = "emergency"
 )
 
-// AlertThresholds 预警阈值配置
+// AlertThresholds 预警阈值配置.
 type AlertThresholds struct {
 	// 温度阈值 (摄氏度)
 	TempWarning  uint8 `json:"temp_warning"`  // 70°C
@@ -46,7 +46,7 @@ type AlertThresholds struct {
 	TBWCritical uint8 `json:"tbw_critical"` // 90%
 }
 
-// DefaultAlertThresholds 默认预警阈值
+// DefaultAlertThresholds 默认预警阈值.
 var DefaultAlertThresholds = &AlertThresholds{
 	TempWarning:     70,
 	TempCritical:    85,
@@ -136,7 +136,7 @@ type NVMeUsageInfo struct {
 	TBWUsedPercent float64             `json:"tbwUsedPercent,omitempty"` // TBW使用百分比
 }
 
-// NVMeLifePrediction NVMe寿命预测 - 基于写入量、温度历史、磨损程度
+// NVMeLifePrediction NVMe寿命预测 - 基于写入量、温度历史、磨损程度.
 type NVMeLifePrediction struct {
 	// 预测结果
 	RemainingLifePercent float64   `json:"remainingLifePercent"` // 剩余寿命百分比
@@ -156,7 +156,7 @@ type NVMeLifePrediction struct {
 	PredictionLastUpdated time.Time    `json:"predictionLastUpdated"`
 }
 
-// TempRecord 温度历史记录
+// TempRecord 温度历史记录.
 type TempRecord struct {
 	Timestamp time.Time `json:"timestamp"`
 	Temp      uint8     `json:"temp"`
@@ -1267,7 +1267,7 @@ func (m *NVMeMonitor) PredictRemainingLife(info *NVMeHealthInfo) *NVMeLifePredic
 	}
 
 	// 2. 计算温度影响系数 (高温会加速NAND磨损)
-	var tempImpact float64 = 1.0
+	var tempImpact = 1.0
 	if info.Temperature != nil {
 		temp := float64(info.Temperature.Current)
 		// 温度在40°C以下影响最小，每升高10°C影响增加约15%
@@ -1434,7 +1434,7 @@ func (m *NVMeMonitor) GetAlertSummary() map[string]struct {
 	return summary
 }
 
-// GetTemperatureHistory 获取设备温度历史
+// GetTemperatureHistory 获取设备温度历史.
 func (m *NVMeMonitor) GetTemperatureHistory(device string) []TempRecord {
 	m.historyMu.RLock()
 	defer m.historyMu.RUnlock()

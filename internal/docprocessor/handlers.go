@@ -9,57 +9,57 @@ import (
 	"time"
 )
 
-// APIHandler HTTP API 处理器
+// APIHandler HTTP API 处理器.
 type APIHandler struct {
 	processor *Processor
 }
 
-// NewAPIHandler 创建新的API处理器
+// NewAPIHandler 创建新的API处理器.
 func NewAPIHandler(p *Processor) *APIHandler {
 	return &APIHandler{processor: p}
 }
 
-// AnalyzeRequest 文档分析请求
+// AnalyzeRequest 文档分析请求.
 type AnalyzeRequest struct {
 	Filename string `json:"filename"`
 	Content  string `json:"content"`
 }
 
-// AnalyzeResponse 文档分析响应
+// AnalyzeResponse 文档分析响应.
 type AnalyzeResponse struct {
 	Success bool            `json:"success"`
 	Result  *AnalysisResult `json:"result,omitempty"`
 	Error   string          `json:"error,omitempty"`
 }
 
-// ClassifyRequest 文档分类请求
+// ClassifyRequest 文档分类请求.
 type ClassifyRequest struct {
 	Filename string `json:"filename"`
 	Content  string `json:"content"`
 }
 
-// ClassifyResponse 文档分类响应
+// ClassifyResponse 文档分类响应.
 type ClassifyResponse struct {
 	Success bool            `json:"success"`
 	Result  *ClassifyResult `json:"result,omitempty"`
 	Error   string          `json:"error,omitempty"`
 }
 
-// SummarizeRequest 文档摘要请求
+// SummarizeRequest 文档摘要请求.
 type SummarizeRequest struct {
 	Filename  string `json:"filename"`
 	Content   string `json:"content"`
 	MaxLength int    `json:"max_length,omitempty"`
 }
 
-// SummarizeResponse 文档摘要响应
+// SummarizeResponse 文档摘要响应.
 type SummarizeResponse struct {
 	Success bool           `json:"success"`
 	Result  *SummaryResult `json:"result,omitempty"`
 	Error   string         `json:"error,omitempty"`
 }
 
-// DiffRequest 文档对比请求
+// DiffRequest 文档对比请求.
 type DiffRequest struct {
 	Filename1 string `json:"filename1"`
 	Content1  string `json:"content1"`
@@ -67,27 +67,27 @@ type DiffRequest struct {
 	Content2  string `json:"content2"`
 }
 
-// DiffResponse 文档对比响应
+// DiffResponse 文档对比响应.
 type DiffResponse struct {
 	Success bool        `json:"success"`
 	Result  *DiffResult `json:"result,omitempty"`
 	Error   string      `json:"error,omitempty"`
 }
 
-// SearchResponse 搜索响应
+// SearchResponse 搜索响应.
 type SearchResponse struct {
 	Success bool           `json:"success"`
 	Results []SearchResult `json:"results,omitempty"`
 	Error   string         `json:"error,omitempty"`
 }
 
-// ErrorResponse 错误响应
+// ErrorResponse 错误响应.
 type ErrorResponse struct {
 	Success bool   `json:"success"`
 	Error   string `json:"error"`
 }
 
-// RegisterRoutes 注册HTTP路由
+// RegisterRoutes 注册HTTP路由.
 func (h *APIHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/docs/analyze", h.handleAnalyze)
 	mux.HandleFunc("/api/v1/docs/classify", h.handleClassify)
@@ -96,7 +96,7 @@ func (h *APIHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/docs/search", h.handleSearch)
 }
 
-// handleAnalyze 处理文档分析请求
+// handleAnalyze 处理文档分析请求.
 func (h *APIHandler) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -134,7 +134,7 @@ func (h *APIHandler) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleClassify 处理文档分类请求
+// handleClassify 处理文档分类请求.
 func (h *APIHandler) handleClassify(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -172,7 +172,7 @@ func (h *APIHandler) handleClassify(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleSummarize 处理文档摘要请求
+// handleSummarize 处理文档摘要请求.
 func (h *APIHandler) handleSummarize(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -215,7 +215,7 @@ func (h *APIHandler) handleSummarize(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleDiff 处理文档对比请求
+// handleDiff 处理文档对比请求.
 func (h *APIHandler) handleDiff(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -263,7 +263,7 @@ func (h *APIHandler) handleDiff(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleSearch 处理文档搜索请求
+// handleSearch 处理文档搜索请求.
 func (h *APIHandler) handleSearch(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -292,14 +292,14 @@ func (h *APIHandler) handleSearch(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// writeJSON 写入JSON响应
+// writeJSON 写入JSON响应.
 func writeJSON(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(data)
 }
 
-// writeError 写入错误响应
+// writeError 写入错误响应.
 func writeError(w http.ResponseWriter, statusCode int, message string) {
 	writeJSON(w, statusCode, ErrorResponse{
 		Success: false,
@@ -307,12 +307,12 @@ func writeError(w http.ResponseWriter, statusCode int, message string) {
 	})
 }
 
-// generateID 生成简单的ID
+// generateID 生成简单的ID.
 func generateID() string {
 	return strconv.FormatInt(time.Now().UnixNano(), 36)
 }
 
-// readRequestBody 读取请求体（备用）
+// readRequestBody 读取请求体（备用）.
 func readRequestBody(r *http.Request) ([]byte, error) {
 	return io.ReadAll(r.Body)
 }

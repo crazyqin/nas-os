@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers UPS 电源管理 HTTP 处理器
+// Handlers UPS 电源管理 HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建 UPS 处理器
+// NewHandlers 创建 UPS 处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{manager: mgr}
 }
 
-// RegisterRoutes 注册 UPS 路由
+// RegisterRoutes 注册 UPS 路由.
 func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
 	ups := apiGroup.Group("/ups")
 	{
@@ -71,7 +71,7 @@ func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
 // @Tags ups
 // @Produce json
 // @Success 200 {object} api.Response{data=[]UPSDevice}
-// @Router /ups/devices [get]
+// @Router /ups/devices [get].
 func (h *Handlers) listDevices(c *gin.Context) {
 	devices := h.manager.ListDevices()
 	api.OK(c, devices)
@@ -85,7 +85,7 @@ func (h *Handlers) listDevices(c *gin.Context) {
 // @Param id path string true "UPS ID"
 // @Success 200 {object} api.Response{data=UPSDevice}
 // @Failure 404 {object} api.Response
-// @Router /ups/devices/{id} [get]
+// @Router /ups/devices/{id} [get].
 func (h *Handlers) getDevice(c *gin.Context) {
 	upsID := c.Param("id")
 	if upsID == "" {
@@ -115,7 +115,7 @@ func (h *Handlers) getDevice(c *gin.Context) {
 // @Param request body DiscoverRequest true "发现请求"
 // @Success 200 {object} api.Response{data=[]UPSDevice}
 // @Failure 400 {object} api.Response
-// @Router /ups/discover [post]
+// @Router /ups/discover [post].
 func (h *Handlers) discoverDevices(c *gin.Context) {
 	var req DiscoverRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -146,7 +146,7 @@ func (h *Handlers) discoverDevices(c *gin.Context) {
 // @Success 201 {object} api.Response{data=UPSDevice}
 // @Failure 400 {object} api.Response
 // @Failure 409 {object} api.Response
-// @Router /ups/connect [post]
+// @Router /ups/connect [post].
 func (h *Handlers) connectDevice(c *gin.Context) {
 	var req ConnectRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -179,7 +179,7 @@ func (h *Handlers) connectDevice(c *gin.Context) {
 // @Param id path string true "UPS ID"
 // @Success 200 {object} api.Response
 // @Failure 404 {object} api.Response
-// @Router /ups/devices/{id} [delete]
+// @Router /ups/devices/{id} [delete].
 func (h *Handlers) disconnectDevice(c *gin.Context) {
 	upsID := c.Param("id")
 	if upsID == "" {
@@ -209,7 +209,7 @@ func (h *Handlers) disconnectDevice(c *gin.Context) {
 // @Param id path string true "UPS ID"
 // @Success 200 {object} api.Response{data=PowerStatus}
 // @Failure 404 {object} api.Response
-// @Router /ups/devices/{id}/power [get]
+// @Router /ups/devices/{id}/power [get].
 func (h *Handlers) getPowerStatus(c *gin.Context) {
 	upsID := c.Param("id")
 	if upsID == "" {
@@ -236,7 +236,7 @@ func (h *Handlers) getPowerStatus(c *gin.Context) {
 // @Tags ups
 // @Produce json
 // @Success 200 {object} api.Response{data=map[string]PowerStatus}
-// @Router /ups/power [get]
+// @Router /ups/power [get].
 func (h *Handlers) getAllPowerStatus(c *gin.Context) {
 	status := h.manager.GetAllPowerStatus()
 	api.OK(c, status)
@@ -249,7 +249,7 @@ func (h *Handlers) getAllPowerStatus(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} api.Response{data=PowerStatus}
 // @Failure 404 {object} api.Response
-// @Router /ups/power/primary [get]
+// @Router /ups/power/primary [get].
 func (h *Handlers) getPrimaryPowerStatus(c *gin.Context) {
 	status, err := h.manager.GetPrimaryPowerStatus()
 	if err != nil {
@@ -274,7 +274,7 @@ func (h *Handlers) getPrimaryPowerStatus(c *gin.Context) {
 // @Param id path string true "UPS ID"
 // @Success 200 {object} api.Response{data=HardwareHealth}
 // @Failure 404 {object} api.Response
-// @Router /ups/devices/{id}/health [get]
+// @Router /ups/devices/{id}/health [get].
 func (h *Handlers) getHardwareHealth(c *gin.Context) {
 	upsID := c.Param("id")
 	if upsID == "" {
@@ -306,7 +306,7 @@ func (h *Handlers) getHardwareHealth(c *gin.Context) {
 // @Param request body SetShutdownPolicyRequest true "策略信息"
 // @Success 201 {object} api.Response{data=ShutdownPolicy}
 // @Failure 400 {object} api.Response
-// @Router /ups/policies [post]
+// @Router /ups/policies [post].
 func (h *Handlers) createShutdownPolicy(c *gin.Context) {
 	var req SetShutdownPolicyRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -329,7 +329,7 @@ func (h *Handlers) createShutdownPolicy(c *gin.Context) {
 // @Tags ups
 // @Produce json
 // @Success 200 {object} api.Response{data=[]ShutdownPolicy}
-// @Router /ups/policies [get]
+// @Router /ups/policies [get].
 func (h *Handlers) listShutdownPolicies(c *gin.Context) {
 	policies := h.manager.ListShutdownPolicies()
 	api.OK(c, policies)
@@ -343,7 +343,7 @@ func (h *Handlers) listShutdownPolicies(c *gin.Context) {
 // @Param id path string true "策略 ID"
 // @Success 200 {object} api.Response{data=ShutdownPolicy}
 // @Failure 404 {object} api.Response
-// @Router /ups/policies/{id} [get]
+// @Router /ups/policies/{id} [get].
 func (h *Handlers) getShutdownPolicy(c *gin.Context) {
 	policyID := c.Param("id")
 	if policyID == "" {
@@ -375,7 +375,7 @@ func (h *Handlers) getShutdownPolicy(c *gin.Context) {
 // @Success 200 {object} api.Response{data=ShutdownPolicy}
 // @Failure 400 {object} api.Response
 // @Failure 404 {object} api.Response
-// @Router /ups/policies/{id} [put]
+// @Router /ups/policies/{id} [put].
 func (h *Handlers) updateShutdownPolicy(c *gin.Context) {
 	policyID := c.Param("id")
 	if policyID == "" {
@@ -410,7 +410,7 @@ func (h *Handlers) updateShutdownPolicy(c *gin.Context) {
 // @Param id path string true "策略 ID"
 // @Success 200 {object} api.Response
 // @Failure 404 {object} api.Response
-// @Router /ups/policies/{id} [delete]
+// @Router /ups/policies/{id} [delete].
 func (h *Handlers) deleteShutdownPolicy(c *gin.Context) {
 	policyID := c.Param("id")
 	if policyID == "" {
@@ -443,7 +443,7 @@ func (h *Handlers) deleteShutdownPolicy(c *gin.Context) {
 // @Param limit query int false "每页数量" default(50)
 // @Param offset query int false "偏移量" default(0)
 // @Success 200 {object} api.Response{data=[]PowerEvent}
-// @Router /ups/events [get]
+// @Router /ups/events [get].
 func (h *Handlers) getEvents(c *gin.Context) {
 	var params EventQueryParams
 	if err := c.ShouldBindQuery(&params); err != nil {
@@ -462,7 +462,7 @@ func (h *Handlers) getEvents(c *gin.Context) {
 // @Produce json
 // @Param upsId query string false "UPS ID 过滤"
 // @Success 200 {object} api.Response{data=int}
-// @Router /ups/events/count [get]
+// @Router /ups/events/count [get].
 func (h *Handlers) getEventCount(c *gin.Context) {
 	upsID := c.Query("upsId")
 	count := h.manager.GetEventCount(upsID)
@@ -479,7 +479,7 @@ func (h *Handlers) getEventCount(c *gin.Context) {
 // @Param id path string true "UPS ID"
 // @Success 200 {object} api.Response{data=PowerStats}
 // @Failure 404 {object} api.Response
-// @Router /ups/devices/{id}/stats [get]
+// @Router /ups/devices/{id}/stats [get].
 func (h *Handlers) getPowerStats(c *gin.Context) {
 	upsID := c.Param("id")
 	if upsID == "" {
@@ -508,7 +508,7 @@ func (h *Handlers) getPowerStats(c *gin.Context) {
 // @Tags ups
 // @Produce json
 // @Success 200 {object} api.Response{data=Config}
-// @Router /ups/config [get]
+// @Router /ups/config [get].
 func (h *Handlers) getConfig(c *gin.Context) {
 	config := h.manager.GetConfig()
 	api.OK(c, config)
@@ -523,7 +523,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 // @Param request body UpdateConfigRequest true "配置信息"
 // @Success 200 {object} api.Response{data=Config}
 // @Failure 400 {object} api.Response
-// @Router /ups/config [put]
+// @Router /ups/config [put].
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var req UpdateConfigRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -543,7 +543,7 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 // @Tags ups
 // @Produce json
 // @Success 200 {object} api.Response
-// @Router /ups/start [post]
+// @Router /ups/start [post].
 func (h *Handlers) start(c *gin.Context) {
 	h.manager.Start()
 	api.OKWithMessage(c, "UPS 管理器已启动", nil)
@@ -555,7 +555,7 @@ func (h *Handlers) start(c *gin.Context) {
 // @Tags ups
 // @Produce json
 // @Success 200 {object} api.Response
-// @Router /ups/stop [post]
+// @Router /ups/stop [post].
 func (h *Handlers) stop(c *gin.Context) {
 	h.manager.Stop()
 	api.OKWithMessage(c, "UPS 管理器已停止", nil)
@@ -567,7 +567,7 @@ func (h *Handlers) stop(c *gin.Context) {
 // @Tags ups
 // @Produce json
 // @Success 200 {object} api.Response{data=map[string]interface{}}
-// @Router /ups/status [get]
+// @Router /ups/status [get].
 func (h *Handlers) getStatusSummary(c *gin.Context) {
 	summary := h.manager.GetStatusSummary()
 	api.OK(c, summary)
@@ -583,7 +583,7 @@ func (h *Handlers) getStatusSummary(c *gin.Context) {
 // @Success 200 {object} api.Response
 // @Failure 400 {object} api.Response
 // @Failure 404 {object} api.Response
-// @Router /ups/devices/{id}/status [put]
+// @Router /ups/devices/{id}/status [put].
 func (h *Handlers) setDeviceStatus(c *gin.Context) {
 	upsID := c.Param("id")
 	if upsID == "" {

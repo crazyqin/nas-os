@@ -13,7 +13,7 @@ import (
 
 // Manager LXC容器GPU分配管理器
 // 负责GPU设备分配到LXC容器的完整生命周期管理
-// 支持热插拔、资源配额、共享模式
+// 支持热插拔、资源配额、共享模式.
 type Manager struct {
 	mu          sync.RWMutex
 	config      *LXCConfig
@@ -25,7 +25,7 @@ type Manager struct {
 	cancel           context.CancelFunc
 }
 
-// NewManager 创建LXC GPU分配管理器
+// NewManager 创建LXC GPU分配管理器.
 func NewManager(config *LXCConfig) *Manager {
 	if config == nil {
 		config = DefaultLXCConfig()
@@ -41,7 +41,7 @@ func NewManager(config *LXCConfig) *Manager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() error {
 	// 发现GPU设备
 	if _, err := m.devices.DiscoverDevices(); err != nil {
@@ -54,14 +54,14 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() error {
 	m.cancel()
 	m.devices.StopPolling()
 	return nil
 }
 
-// GetDeviceManager 获取设备管理器
+// GetDeviceManager 获取设备管理器.
 func (m *Manager) GetDeviceManager() *DeviceManager {
 	return m.devices
 }
@@ -69,7 +69,7 @@ func (m *Manager) GetDeviceManager() *DeviceManager {
 // ========== GPU分配管理 ==========
 
 // AssignGPU 将GPU设备分配给LXC容器
-// 支持运行中容器的热插拔
+// 支持运行中容器的热插拔.
 func (m *Manager) AssignGPU(req *AssignGPURequest) (*LXCGPUAssignment, error) {
 	// 验证配额
 	if err := req.GPUQuota.Validate(); err != nil {
@@ -182,7 +182,7 @@ func (m *Manager) AssignGPU(req *AssignGPURequest) (*LXCGPUAssignment, error) {
 	return assignment, nil
 }
 
-// UnassignGPU 取消GPU分配
+// UnassignGPU 取消GPU分配.
 func (m *Manager) UnassignGPU(req *UnassignGPURequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -237,7 +237,7 @@ func (m *Manager) UnassignGPU(req *UnassignGPURequest) error {
 	return nil
 }
 
-// UpdateQuota 更新GPU资源配额
+// UpdateQuota 更新GPU资源配额.
 func (m *Manager) UpdateQuota(req *UpdateQuotaRequest) error {
 	if err := req.GPUQuota.Validate(); err != nil {
 		return fmt.Errorf("GPU配额无效: %w", err)
@@ -269,7 +269,7 @@ func (m *Manager) UpdateQuota(req *UpdateQuotaRequest) error {
 }
 
 // HotplugGPU GPU热插拔操作
-// 支持将GPU附加到运行中的容器或从中分离
+// 支持将GPU附加到运行中的容器或从中分离.
 func (m *Manager) HotplugGPU(req *HotplugRequest) (*LXCGPUAssignment, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -289,7 +289,7 @@ func (m *Manager) HotplugGPU(req *HotplugRequest) (*LXCGPUAssignment, error) {
 	}
 }
 
-// hotplugAttach 热插拔附加GPU到容器
+// hotplugAttach 热插拔附加GPU到容器.
 func (m *Manager) hotplugAttach(assignment *LXCGPUAssignment, containerID, pciAddr string) (*LXCGPUAssignment, error) {
 	// 检查容器是否运行中
 	status := m.getContainerStatus(containerID)
@@ -325,7 +325,7 @@ func (m *Manager) hotplugAttach(assignment *LXCGPUAssignment, containerID, pciAd
 	return assignment, nil
 }
 
-// hotplugDetach 热插拔分离GPU
+// hotplugDetach 热插拔分离GPU.
 func (m *Manager) hotplugDetach(assignment *LXCGPUAssignment, containerID, pciAddr string) (*LXCGPUAssignment, error) {
 	if assignment.HotplugState != HotplugStateAttached {
 		return nil, fmt.Errorf("GPU未附加到容器")
@@ -356,7 +356,7 @@ func (m *Manager) hotplugDetach(assignment *LXCGPUAssignment, containerID, pciAd
 // ========== 容器生命周期联动 ==========
 
 // OnContainerStart 容器启动时自动激活GPU分配
-// 应在LXC容器管理器的StartContainer回调中调用
+// 应在LXC容器管理器的StartContainer回调中调用.
 func (m *Manager) OnContainerStart(containerID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -380,7 +380,7 @@ func (m *Manager) OnContainerStart(containerID string) error {
 }
 
 // OnContainerStop 容器停止时暂停GPU分配
-// 应在LXC容器管理器的StopContainer回调中调用
+// 应在LXC容器管理器的StopContainer回调中调用.
 func (m *Manager) OnContainerStop(containerID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -409,7 +409,7 @@ func (m *Manager) OnContainerStop(containerID string) error {
 	return nil
 }
 
-// OnContainerDelete 容器删除时清理所有GPU分配
+// OnContainerDelete 容器删除时清理所有GPU分配.
 func (m *Manager) OnContainerDelete(containerID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -429,7 +429,7 @@ func (m *Manager) OnContainerDelete(containerID string) error {
 
 // ========== 查询接口 ==========
 
-// GetAssignment 获取分配详情
+// GetAssignment 获取分配详情.
 func (m *Manager) GetAssignment(assignmentID string) (*LXCGPUAssignment, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -441,7 +441,7 @@ func (m *Manager) GetAssignment(assignmentID string) (*LXCGPUAssignment, error) 
 	return assignment, nil
 }
 
-// GetContainerAssignments 获取容器的所有GPU分配
+// GetContainerAssignments 获取容器的所有GPU分配.
 func (m *Manager) GetContainerAssignments(containerID string) []*LXCGPUAssignment {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -456,7 +456,7 @@ func (m *Manager) GetContainerAssignments(containerID string) []*LXCGPUAssignmen
 	return result
 }
 
-// ListAllAssignments 列出所有分配记录
+// ListAllAssignments 列出所有分配记录.
 func (m *Manager) ListAllAssignments() []*LXCGPUAssignment {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -468,7 +468,7 @@ func (m *Manager) ListAllAssignments() []*LXCGPUAssignment {
 	return result
 }
 
-// GetDashboard 获取GPU分配仪表盘数据
+// GetDashboard 获取GPU分配仪表盘数据.
 func (m *Manager) GetDashboard() *GPUDashboard {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -516,7 +516,7 @@ func (m *Manager) GetDashboard() *GPUDashboard {
 	return dashboard
 }
 
-// GetContainerGPUStats 获取容器GPU统计
+// GetContainerGPUStats 获取容器GPU统计.
 func (m *Manager) GetContainerGPUStats(containerID string) (*StatsLXCGPU, error) {
 	m.mu.RLock()
 	assignments := m.containerAssigns[containerID]
@@ -553,7 +553,7 @@ func (m *Manager) GetContainerGPUStats(containerID string) (*StatsLXCGPU, error)
 
 // ========== 内部方法 ==========
 
-// findAssignment 查找容器的GPU分配记录
+// findAssignment 查找容器的GPU分配记录.
 func (m *Manager) findAssignment(containerID, pciAddr string) (*LXCGPUAssignment, error) {
 	assignIDs := m.containerAssigns[containerID]
 	for _, aid := range assignIDs {
@@ -564,7 +564,7 @@ func (m *Manager) findAssignment(containerID, pciAddr string) (*LXCGPUAssignment
 	return nil, fmt.Errorf("未找到分配记录: 容器=%s, GPU=%s", containerID, pciAddr)
 }
 
-// activateAssignment 激活分配（容器启动时调用）
+// activateAssignment 激活分配（容器启动时调用）.
 func (m *Manager) activateAssignment(assignment *LXCGPUAssignment) error {
 	if err := m.attachGPUToContainer(assignment.ContainerID, assignment.GPUPCIAddr, assignment.GPUQuota); err != nil {
 		return err
@@ -580,7 +580,7 @@ func (m *Manager) activateAssignment(assignment *LXCGPUAssignment) error {
 }
 
 // attachGPUToContainer 将GPU设备附加到LXC容器
-// 通过修改LXC容器配置和cgroup设备白名单实现
+// 通过修改LXC容器配置和cgroup设备白名单实现.
 func (m *Manager) attachGPUToContainer(containerID, pciAddr string, quota GPUQuota) error {
 	// 1. 获取GPU设备的设备号
 	deviceInfo, err := m.getGPUDeviceNumbers(pciAddr)
@@ -611,7 +611,7 @@ func (m *Manager) attachGPUToContainer(containerID, pciAddr string, quota GPUQuo
 	return nil
 }
 
-// detachGPUFromContainer 从LXC容器分离GPU设备
+// detachGPUFromContainer 从LXC容器分离GPU设备.
 func (m *Manager) detachGPUFromContainer(containerID, pciAddr string) error {
 	// 1. 从容器卸载GPU设备
 	if err := m.unmountGPUDeviceInContainer(containerID, pciAddr); err != nil {
@@ -632,16 +632,16 @@ func (m *Manager) detachGPUFromContainer(containerID, pciAddr string) error {
 	return nil
 }
 
-// gpuDeviceInfo GPU设备信息（用于设备号映射）
+// gpuDeviceInfo GPU设备信息（用于设备号映射）.
 type gpuDeviceInfo struct {
 	PCIAddr     string
-	Major       int    // 主设备号
-	Minor       int    // 次设备号
-	DevType     string // 设备类型 (char/block)
+	Major       int      // 主设备号
+	Minor       int      // 次设备号
+	DevType     string   // 设备类型 (char/block)
 	DevicePaths []string // 设备文件路径
 }
 
-// getGPUDeviceNumbers 获取GPU设备的主次设备号
+// getGPUDeviceNumbers 获取GPU设备的主次设备号.
 func (m *Manager) getGPUDeviceNumbers(pciAddr string) (*gpuDeviceInfo, error) {
 	info := &gpuDeviceInfo{
 		PCIAddr: pciAddr,
@@ -693,7 +693,7 @@ func (m *Manager) getGPUDeviceNumbers(pciAddr string) (*gpuDeviceInfo, error) {
 	return info, nil
 }
 
-// updateLXCConfigForGPU 更新LXC容器配置文件以支持GPU
+// updateLXCConfigForGPU 更新LXC容器配置文件以支持GPU.
 func (m *Manager) updateLXCConfigForGPU(containerID string, deviceInfo *gpuDeviceInfo) error {
 	configPath := filepath.Join(m.config.ConfigPath, containerID, "config")
 
@@ -725,7 +725,7 @@ func (m *Manager) updateLXCConfigForGPU(containerID string, deviceInfo *gpuDevic
 	return os.WriteFile(configPath, []byte(config), 0644)
 }
 
-// updateCGroupDeviceAllow 更新cgroup设备白名单
+// updateCGroupDeviceAllow 更新cgroup设备白名单.
 func (m *Manager) updateCGroupDeviceAllow(containerID string, deviceInfo *gpuDeviceInfo) error {
 	cgroupPath := filepath.Join(m.config.DeviceCGroup, containerID)
 
@@ -741,7 +741,7 @@ func (m *Manager) updateCGroupDeviceAllow(containerID string, deviceInfo *gpuDev
 	return nil
 }
 
-// applyGPUQuotaToCGroup 应用GPU资源配额到cgroup
+// applyGPUQuotaToCGroup 应用GPU资源配额到cgroup.
 func (m *Manager) applyGPUQuotaToCGroup(containerID, pciAddr string, quota GPUQuota) error {
 	// 对于NVIDIA MPS模式，通过环境变量和配置文件控制
 	// 对于独占模式，GPU配额主要通过设备级控制实现
@@ -757,7 +757,7 @@ func (m *Manager) applyGPUQuotaToCGroup(containerID, pciAddr string, quota GPUQu
 	return nil
 }
 
-// mountGPUDeviceInContainer 挂载GPU设备文件系统到容器
+// mountGPUDeviceInContainer 挂载GPU设备文件系统到容器.
 func (m *Manager) mountGPUDeviceInContainer(containerID string, deviceInfo *gpuDeviceInfo) error {
 	rootfsPath := filepath.Join(m.config.ConfigPath, containerID, "rootfs")
 
@@ -782,14 +782,14 @@ func (m *Manager) mountGPUDeviceInContainer(containerID string, deviceInfo *gpuD
 	return nil
 }
 
-// unmountGPUDeviceInContainer 从容器卸载GPU设备
+// unmountGPUDeviceInContainer 从容器卸载GPU设备.
 func (m *Manager) unmountGPUDeviceInContainer(containerID, pciAddr string) error {
 	// 使用umount卸载设备
 	// 实际实现需要找到所有挂载点并卸载
 	return nil
 }
 
-// removeFromCGroupDeviceAllow 从cgroup设备白名单移除
+// removeFromCGroupDeviceAllow 从cgroup设备白名单移除.
 func (m *Manager) removeFromCGroupDeviceAllow(containerID, pciAddr string) error {
 	cgroupPath := filepath.Join(m.config.DeviceCGroup, containerID)
 	denyPath := filepath.Join(cgroupPath, "devices.deny")
@@ -808,7 +808,7 @@ func (m *Manager) removeFromCGroupDeviceAllow(containerID, pciAddr string) error
 	return nil
 }
 
-// removeFromLXCConfig 从LXC配置中移除GPU设备
+// removeFromLXCConfig 从LXC配置中移除GPU设备.
 func (m *Manager) removeFromLXCConfig(containerID, pciAddr string) error {
 	configPath := filepath.Join(m.config.ConfigPath, containerID, "config")
 
@@ -839,7 +839,7 @@ func (m *Manager) removeFromLXCConfig(containerID, pciAddr string) error {
 	return os.WriteFile(configPath, []byte(strings.Join(newLines, "\n")), 0644)
 }
 
-// getContainerStatus 获取容器状态
+// getContainerStatus 获取容器状态.
 func (m *Manager) getContainerStatus(containerID string) LXCContainerStatus {
 	// 通过检查容器PID文件判断状态
 	pidFile := filepath.Join(m.config.ConfigPath, containerID, "pid")

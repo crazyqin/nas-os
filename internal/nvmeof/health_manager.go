@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// HealthManager NVMe健康监控管理器
+// HealthManager NVMe健康监控管理器.
 type HealthManager struct {
 	mu sync.RWMutex
 
@@ -43,7 +43,7 @@ type HealthManager struct {
 	configPath  string
 }
 
-// NewHealthManager 创建健康监控管理器
+// NewHealthManager 创建健康监控管理器.
 func NewHealthManager(nvmeManager *Manager, configPath string, logger *zap.Logger) *HealthManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -68,7 +68,7 @@ func NewHealthManager(nvmeManager *Manager, configPath string, logger *zap.Logge
 // 温度监控
 // ============================================================
 
-// RecordTemperature 记录设备温度读数
+// RecordTemperature 记录设备温度读数.
 func (hm *HealthManager) RecordTemperature(ctx context.Context, device string, subsystemNQN string, temp float64) error {
 	hm.mu.Lock()
 	defer hm.mu.Unlock()
@@ -158,7 +158,7 @@ func (hm *HealthManager) RecordTemperature(ctx context.Context, device string, s
 	return nil
 }
 
-// GetDeviceTemperatureStatus 获取设备温度状态
+// GetDeviceTemperatureStatus 获取设备温度状态.
 func (hm *HealthManager) GetDeviceTemperatureStatus(device string) (*DeviceTemperatureStatus, error) {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -170,7 +170,7 @@ func (hm *HealthManager) GetDeviceTemperatureStatus(device string) (*DeviceTempe
 	return status, nil
 }
 
-// GetTemperatureHistory 获取设备温度历史
+// GetTemperatureHistory 获取设备温度历史.
 func (hm *HealthManager) GetTemperatureHistory(device string, limit int) []TemperatureReading {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -190,7 +190,7 @@ func (hm *HealthManager) GetTemperatureHistory(device string, limit int) []Tempe
 	return result
 }
 
-// GetRecentAlerts 获取最近的温度告警
+// GetRecentAlerts 获取最近的温度告警.
 func (hm *HealthManager) GetRecentAlerts(limit int) []TemperatureAlert {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -205,7 +205,7 @@ func (hm *HealthManager) GetRecentAlerts(limit int) []TemperatureAlert {
 	return result
 }
 
-// GetAllDeviceStatuses 获取所有设备温度状态
+// GetAllDeviceStatuses 获取所有设备温度状态.
 func (hm *HealthManager) GetAllDeviceStatuses() []*DeviceTemperatureStatus {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -217,14 +217,14 @@ func (hm *HealthManager) GetAllDeviceStatuses() []*DeviceTemperatureStatus {
 	return statuses
 }
 
-// UpdateTemperatureConfig 更新温度监控配置
+// UpdateTemperatureConfig 更新温度监控配置.
 func (hm *HealthManager) UpdateTemperatureConfig(cfg TemperatureConfig) {
 	hm.mu.Lock()
 	defer hm.mu.Unlock()
 	hm.tempConfig = cfg
 }
 
-// GetTemperatureConfig 获取温度监控配置
+// GetTemperatureConfig 获取温度监控配置.
 func (hm *HealthManager) GetTemperatureConfig() TemperatureConfig {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -235,7 +235,7 @@ func (hm *HealthManager) GetTemperatureConfig() TemperatureConfig {
 // 寿命预测
 // ============================================================
 
-// PredictDeviceLife 预测设备寿命
+// PredictDeviceLife 预测设备寿命.
 func (hm *HealthManager) PredictDeviceLife(ctx context.Context, device string, subsystemNQN string, model string, serial string,
 	totalWriteCapacityTB float64, totalWrittenTB float64, percentageUsed int, availableSpare int,
 	powerOnHours uint64, unsafeShutdowns uint64, mediaErrors uint64) (*DeviceLifePrediction, error) {
@@ -330,7 +330,7 @@ func (hm *HealthManager) PredictDeviceLife(ctx context.Context, device string, s
 	return prediction, nil
 }
 
-// calculateTempDegradation 计算温度对寿命的影响
+// calculateTempDegradation 计算温度对寿命的影响.
 func (hm *HealthManager) calculateTempDegradation(device string) float64 {
 	history, exists := hm.tempHistory[device]
 	if !exists || len(history) == 0 {
@@ -360,7 +360,7 @@ func (hm *HealthManager) calculateTempDegradation(device string) float64 {
 	return avgDegradation
 }
 
-// calculateWriteDegradation 计算写入对寿命的影响
+// calculateWriteDegradation 计算写入对寿命的影响.
 func (hm *HealthManager) calculateWriteDegradation(totalWrittenTB, totalCapacityTB float64) float64 {
 	if totalCapacityTB <= 0 {
 		return 0.0
@@ -374,7 +374,7 @@ func (hm *HealthManager) calculateWriteDegradation(totalWrittenTB, totalCapacity
 	return degradation
 }
 
-// assessConfidence 评估预测置信度
+// assessConfidence 评估预测置信度.
 func (hm *HealthManager) assessConfidence(powerOnHours uint64, tempSamples int, pattern *WritePattern) string {
 	score := 0
 
@@ -409,7 +409,7 @@ func (hm *HealthManager) assessConfidence(powerOnHours uint64, tempSamples int, 
 	return "low"
 }
 
-// classifyWearLevel 分类磨损等级
+// classifyWearLevel 分类磨损等级.
 func (hm *HealthManager) classifyWearLevel(remainingPercent float64) string {
 	switch {
 	case remainingPercent > 70:
@@ -423,7 +423,7 @@ func (hm *HealthManager) classifyWearLevel(remainingPercent float64) string {
 	}
 }
 
-// UpdateWritePattern 更新设备写入模式
+// UpdateWritePattern 更新设备写入模式.
 func (hm *HealthManager) UpdateWritePattern(device string, subsystemNQN string, totalWriteTB, totalReadTB float64,
 	dailyWriteAvgGB, weeklyWriteAvgGB, peakWriteRateGBps, writeAmplification float64, sampleDays int) {
 	hm.mu.Lock()
@@ -443,7 +443,7 @@ func (hm *HealthManager) UpdateWritePattern(device string, subsystemNQN string, 
 	}
 }
 
-// GetLifePrediction 获取设备寿命预测
+// GetLifePrediction 获取设备寿命预测.
 func (hm *HealthManager) GetLifePrediction(device string) (*DeviceLifePrediction, error) {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -455,7 +455,7 @@ func (hm *HealthManager) GetLifePrediction(device string) (*DeviceLifePrediction
 	return pred, nil
 }
 
-// GetAllLifePredictions 获取所有设备寿命预测
+// GetAllLifePredictions 获取所有设备寿命预测.
 func (hm *HealthManager) GetAllLifePredictions() []*DeviceLifePrediction {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -471,7 +471,7 @@ func (hm *HealthManager) GetAllLifePredictions() []*DeviceLifePrediction {
 // 性能基准测试
 // ============================================================
 
-// StartBenchmark 启动性能基准测试
+// StartBenchmark 启动性能基准测试.
 func (hm *HealthManager) StartBenchmark(ctx context.Context, cfg BenchmarkConfig) (*BenchmarkResult, error) {
 	// 参数校验和默认值
 	if cfg.BlockSizeKB <= 0 {
@@ -517,7 +517,7 @@ func (hm *HealthManager) StartBenchmark(ctx context.Context, cfg BenchmarkConfig
 	return result, nil
 }
 
-// runBenchmark 执行基准测试
+// runBenchmark 执行基准测试.
 func (hm *HealthManager) runBenchmark(result *BenchmarkResult) {
 	defer hm.benchWg.Done()
 	result.Status = "running"
@@ -585,14 +585,14 @@ func (hm *HealthManager) runBenchmark(result *BenchmarkResult) {
 		zap.Float64("score", metrics.OverallScore))
 }
 
-// finishBenchmark 完成基准测试
+// finishBenchmark 完成基准测试.
 func (hm *HealthManager) finishBenchmark(result *BenchmarkResult) {
 	hm.mu.Lock()
 	defer hm.mu.Unlock()
 	delete(hm.benchRunning, result.Config.DevicePath)
 }
 
-// benchSequentialWrite 顺序写基准测试
+// benchSequentialWrite 顺序写基准测试.
 func (hm *HealthManager) benchSequentialWrite(path string, sizeMB, blockKB int) (float64, error) {
 	f, err := os.Create(path)
 	if err != nil {
@@ -626,7 +626,7 @@ func (hm *HealthManager) benchSequentialWrite(path string, sizeMB, blockKB int) 
 	return float64(written) / 1024 / 1024 / elapsed, nil
 }
 
-// benchSequentialRead 顺序读基准测试
+// benchSequentialRead 顺序读基准测试.
 func (hm *HealthManager) benchSequentialRead(path string, blockKB int) (float64, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -655,7 +655,7 @@ func (hm *HealthManager) benchSequentialRead(path string, blockKB int) (float64,
 	return float64(totalRead) / 1024 / 1024 / elapsed, nil
 }
 
-// benchRandomIO 随机IO基准测试
+// benchRandomIO 随机IO基准测试.
 func (hm *HealthManager) benchRandomIO(path string, blockSize int) (readIOPS, writeIOPS, latAvgMs, latP50Ms, latP95Ms, latP99Ms float64) {
 	f, err := os.OpenFile(path, os.O_RDWR, 0644)
 	if err != nil {
@@ -737,10 +737,10 @@ func (hm *HealthManager) benchRandomIO(path string, blockSize int) (readIOPS, wr
 		latP99Ms = float64(sorted[p99Idx].Nanoseconds()) / 1e6
 	}
 
-	return
+	return readIOPS, writeIOPS, latAvgMs, latP50Ms, latP95Ms, latP99Ms
 }
 
-// calculateOverallScore 计算综合评分 (0-100)
+// calculateOverallScore 计算综合评分 (0-100).
 func (hm *HealthManager) calculateOverallScore(m *BenchmarkMetrics) float64 {
 	score := 0.0
 	count := 0.0
@@ -786,7 +786,7 @@ func (hm *HealthManager) calculateOverallScore(m *BenchmarkMetrics) float64 {
 	return math.Round(score/count*100) / 100
 }
 
-// GetBenchmarkResult 获取基准测试结果
+// GetBenchmarkResult 获取基准测试结果.
 func (hm *HealthManager) GetBenchmarkResult(id string) (*BenchmarkResult, error) {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -798,7 +798,7 @@ func (hm *HealthManager) GetBenchmarkResult(id string) (*BenchmarkResult, error)
 	return result, nil
 }
 
-// ListBenchmarkResults 列出所有基准测试结果
+// ListBenchmarkResults 列出所有基准测试结果.
 func (hm *HealthManager) ListBenchmarkResults() []*BenchmarkResult {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -810,12 +810,12 @@ func (hm *HealthManager) ListBenchmarkResults() []*BenchmarkResult {
 	return results
 }
 
-// WaitForBenchmarks 等待所有异步基准测试完成（测试用）
+// WaitForBenchmarks 等待所有异步基准测试完成（测试用）.
 func (hm *HealthManager) WaitForBenchmarks() {
 	hm.benchWg.Wait()
 }
 
-// contains 检查字符串切片是否包含目标字符串
+// contains 检查字符串切片是否包含目标字符串.
 func contains(slice []string, target string) bool {
 	for _, s := range slice {
 		if s == target {

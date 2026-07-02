@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Manager manages reverse proxy configurations (REST API oriented)
+// Manager manages reverse proxy configurations (REST API oriented).
 type Manager struct {
 	mu      sync.RWMutex
 	proxies map[string]*ReverseProxy
@@ -16,7 +16,7 @@ type Manager struct {
 	stats   ProxyStats
 }
 
-// NewManager creates a new reverse proxy manager with mock data
+// NewManager creates a new reverse proxy manager with mock data.
 func NewManager() *Manager {
 	m := &Manager{
 		proxies: make(map[string]*ReverseProxy),
@@ -69,7 +69,7 @@ func (m *Manager) addMockProxies() {
 	}
 }
 
-// CreateProxy creates a new reverse proxy
+// CreateProxy creates a new reverse proxy.
 func (m *Manager) CreateProxy(req CreateProxyRequest) (*ReverseProxy, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -104,7 +104,7 @@ func (m *Manager) CreateProxy(req CreateProxyRequest) (*ReverseProxy, error) {
 	return proxy, nil
 }
 
-// UpdateProxy updates an existing reverse proxy
+// UpdateProxy updates an existing reverse proxy.
 func (m *Manager) UpdateProxy(id string, req UpdateProxyRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -147,7 +147,7 @@ func (m *Manager) UpdateProxy(id string, req UpdateProxyRequest) error {
 	return nil
 }
 
-// DeleteProxy deletes a reverse proxy
+// DeleteProxy deletes a reverse proxy.
 func (m *Manager) DeleteProxy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -163,7 +163,7 @@ func (m *Manager) DeleteProxy(id string) error {
 	return nil
 }
 
-// GetProxy returns a specific proxy by ID
+// GetProxy returns a specific proxy by ID.
 func (m *Manager) GetProxy(id string) (*ReverseProxy, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -175,7 +175,7 @@ func (m *Manager) GetProxy(id string) (*ReverseProxy, error) {
 	return proxy, nil
 }
 
-// ListProxies returns all configured proxies
+// ListProxies returns all configured proxies.
 func (m *Manager) ListProxies() []ReverseProxy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -187,12 +187,12 @@ func (m *Manager) ListProxies() []ReverseProxy {
 	return proxies
 }
 
-// ReloadConfig reloads the proxy configuration
+// ReloadConfig reloads the proxy configuration.
 func (m *Manager) ReloadConfig() error {
 	return nil
 }
 
-// GetStats returns aggregated proxy statistics
+// GetStats returns aggregated proxy statistics.
 func (m *Manager) GetStats() ProxyStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -200,7 +200,7 @@ func (m *Manager) GetStats() ProxyStats {
 	return m.stats
 }
 
-// AddRule adds a routing rule to a proxy
+// AddRule adds a routing rule to a proxy.
 func (m *Manager) AddRule(proxyID string, rule ProxyRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -215,7 +215,7 @@ func (m *Manager) AddRule(proxyID string, rule ProxyRule) error {
 	return nil
 }
 
-// GetRules returns all rules for a proxy
+// GetRules returns all rules for a proxy.
 func (m *Manager) GetRules(proxyID string) ([]ProxyRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

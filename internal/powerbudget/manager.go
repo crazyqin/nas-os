@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 功率预算管理器
+// Manager 功率预算管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	logger   *zap.Logger
@@ -24,7 +24,7 @@ type Manager struct {
 	running  bool
 }
 
-// NewManager 创建功率预算管理器
+// NewManager 创建功率预算管理器.
 func NewManager(logger *zap.Logger, config *PowerBudgetConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -44,14 +44,14 @@ func NewManager(logger *zap.Logger, config *PowerBudgetConfig) *Manager {
 	}
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// GetReadings 获取功率读数
+// GetReadings 获取功率读数.
 func (m *Manager) GetReadings(deviceID string, limit int) ([]*PowerReading, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -76,7 +76,7 @@ func (m *Manager) GetReadings(deviceID string, limit int) ([]*PowerReading, erro
 	return result, nil
 }
 
-// SetBudget 设置功率预算
+// SetBudget 设置功率预算.
 func (m *Manager) SetBudget(budget *PowerBudget) (*PowerBudget, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -104,7 +104,7 @@ func (m *Manager) SetBudget(budget *PowerBudget) (*PowerBudget, error) {
 	return budget, nil
 }
 
-// CalculateCost 计算能源成本
+// CalculateCost 计算能源成本.
 func (m *Manager) CalculateCost(periodStart, periodEnd time.Time) (*EnergyCost, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -178,7 +178,7 @@ func (m *Manager) CalculateCost(periodStart, periodEnd time.Time) (*EnergyCost, 
 	return energyCost, nil
 }
 
-// CreateSavingsPlan 创建节能计划
+// CreateSavingsPlan 创建节能计划.
 func (m *Manager) CreateSavingsPlan(plan *SavingsPlan) (*SavingsPlan, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -214,7 +214,7 @@ func (m *Manager) CreateSavingsPlan(plan *SavingsPlan) (*SavingsPlan, error) {
 	return plan, nil
 }
 
-// GetAlerts 获取告警
+// GetAlerts 获取告警.
 func (m *Manager) GetAlerts(level AlertLevel, limit int) ([]*PowerAlert, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -237,7 +237,7 @@ func (m *Manager) GetAlerts(level AlertLevel, limit int) ([]*PowerAlert, error) 
 	return result, nil
 }
 
-// checkBudgets 检查预算
+// checkBudgets 检查预算.
 func (m *Manager) checkBudgets() {
 	// 获取当前总功率
 	totalWatts := 0.0
@@ -286,7 +286,7 @@ func (m *Manager) checkBudgets() {
 	}
 }
 
-// generateMockReadings 生成模拟读数
+// generateMockReadings 生成模拟读数.
 func (m *Manager) generateMockReadings(deviceID string) []*PowerReading {
 	devices := []struct {
 		ID        string
@@ -337,7 +337,7 @@ func (m *Manager) generateMockReadings(deviceID string) []*PowerReading {
 	return readings
 }
 
-// estimateSavings 估算节省
+// estimateSavings 估算节省.
 func (m *Manager) estimateSavings(savingsType SavingsType, deviceID string) float64 {
 	switch savingsType {
 	case SavingsSchedule:
@@ -353,7 +353,7 @@ func (m *Manager) estimateSavings(savingsType SavingsType, deviceID string) floa
 	}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *PowerBudgetConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -361,7 +361,7 @@ func (m *Manager) GetConfig() *PowerBudgetConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(cfg *PowerBudgetConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -370,7 +370,7 @@ func (m *Manager) UpdateConfig(cfg *PowerBudgetConfig) {
 	}
 }
 
-// ListBudgets 列出所有预算
+// ListBudgets 列出所有预算.
 func (m *Manager) ListBudgets() []*PowerBudget {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -382,7 +382,7 @@ func (m *Manager) ListBudgets() []*PowerBudget {
 	return budgets
 }
 
-// GetBudget 获取预算
+// GetBudget 获取预算.
 func (m *Manager) GetBudget(id string) (*PowerBudget, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -394,7 +394,7 @@ func (m *Manager) GetBudget(id string) (*PowerBudget, error) {
 	return budget, nil
 }
 
-// DeleteBudget 删除预算
+// DeleteBudget 删除预算.
 func (m *Manager) DeleteBudget(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -406,7 +406,7 @@ func (m *Manager) DeleteBudget(id string) error {
 	return nil
 }
 
-// ListPlans 列出所有节能计划
+// ListPlans 列出所有节能计划.
 func (m *Manager) ListPlans() []*SavingsPlan {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -418,7 +418,7 @@ func (m *Manager) ListPlans() []*SavingsPlan {
 	return plans
 }
 
-// GetPlan 获取节能计划
+// GetPlan 获取节能计划.
 func (m *Manager) GetPlan(id string) (*SavingsPlan, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -430,7 +430,7 @@ func (m *Manager) GetPlan(id string) (*SavingsPlan, error) {
 	return plan, nil
 }
 
-// DeletePlan 删除节能计划
+// DeletePlan 删除节能计划.
 func (m *Manager) DeletePlan(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

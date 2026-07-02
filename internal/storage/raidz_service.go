@@ -33,7 +33,7 @@ var (
 // ========== RAIDZ 扩展服务 ==========
 
 // RAIDZExpansionService RAIDZ扩展核心服务
-// 整合 ZFS 命令调用、进度监控和异步任务管理
+// 整合 ZFS 命令调用、进度监控和异步任务管理.
 type RAIDZExpansionService struct {
 	mu sync.RWMutex
 
@@ -56,7 +56,7 @@ type RAIDZExpansionService struct {
 	stateCallbacks []func(*ExpansionTask)
 }
 
-// ExpansionTask 扩展任务
+// ExpansionTask 扩展任务.
 type ExpansionTask struct {
 	ID             string            `json:"id"`
 	PoolName       string            `json:"pool_name"`
@@ -80,7 +80,7 @@ type ExpansionTask struct {
 	LastUpdate     time.Time         `json:"last_update"`
 }
 
-// ExpansionStatus 扩展任务状态
+// ExpansionStatus 扩展任务状态.
 type ExpansionStatus string
 
 const (
@@ -93,7 +93,7 @@ const (
 	StatusCancelled ExpansionStatus = "cancelled"
 )
 
-// ExpansionProgress 进度详情
+// ExpansionProgress 进度详情.
 type ExpansionProgress struct {
 	TaskID         string        `json:"task_id"`
 	Percentage     float64       `json:"percentage"`
@@ -107,7 +107,7 @@ type ExpansionProgress struct {
 	LastUpdate     time.Time     `json:"last_update"`
 }
 
-// ExpansionEligibilityResult 扩展资格检查结果
+// ExpansionEligibilityResult 扩展资格检查结果.
 type ExpansionEligibilityResult struct {
 	PoolName         string           `json:"pool_name"`
 	Eligible         bool             `json:"eligible"`
@@ -123,7 +123,7 @@ type ExpansionEligibilityResult struct {
 	DiskRequirements DiskRequirements `json:"disk_requirements"`
 }
 
-// PreCheckResult 预检查结果
+// PreCheckResult 预检查结果.
 type PreCheckResult struct {
 	Name     string `json:"name"`
 	Passed   bool   `json:"passed"`
@@ -131,7 +131,7 @@ type PreCheckResult struct {
 	Required bool   `json:"required"`
 }
 
-// DiskRequirements 磁盘要求
+// DiskRequirements 磁盘要求.
 type DiskRequirements struct {
 	MinSizeGB     int      `json:"min_size_gb"`
 	RecommendedGB int      `json:"recommended_gb"`
@@ -139,7 +139,7 @@ type DiskRequirements struct {
 	MustMatchSize bool     `json:"must_match_size"`
 }
 
-// NewRAIDZExpansionService 创建扩展服务
+// NewRAIDZExpansionService 创建扩展服务.
 func NewRAIDZExpansionService(configPath string) (*RAIDZExpansionService, error) {
 	// 创建 ZFS 管理器
 	zfsManager, err := zfs.NewRAIDZExpansionManager(configPath)
@@ -166,7 +166,7 @@ func NewRAIDZExpansionService(configPath string) (*RAIDZExpansionService, error)
 
 // ========== 核心业务方法 ==========
 
-// CheckExpansionEligibility 检查池是否满足扩展条件
+// CheckExpansionEligibility 检查池是否满足扩展条件.
 func (s *RAIDZExpansionService) CheckExpansionEligibility(ctx context.Context, poolName string) (*ExpansionEligibilityResult, error) {
 	result := &ExpansionEligibilityResult{
 		PoolName:  poolName,
@@ -272,7 +272,7 @@ func (s *RAIDZExpansionService) CheckExpansionEligibility(ctx context.Context, p
 	return result, nil
 }
 
-// checkNoActiveScrub 检查是否有活跃的 scrub/resilver
+// checkNoActiveScrub 检查是否有活跃的 scrub/resilver.
 func (s *RAIDZExpansionService) checkNoActiveScrub(ctx context.Context, poolName string, result *ExpansionEligibilityResult) error {
 	cmd := exec.CommandContext(ctx, "zpool", "status", poolName)
 	output, err := cmd.Output()
@@ -316,7 +316,7 @@ func (s *RAIDZExpansionService) checkNoActiveScrub(ctx context.Context, poolName
 	return nil
 }
 
-// calculateCapacityGain 计算容量增益
+// calculateCapacityGain 计算容量增益.
 func (s *RAIDZExpansionService) calculateCapacityGain(vdev zfs.VdevExpansionInfo, totalSize uint64) uint64 {
 	// RAIDZ 扩展后，新磁盘的容量按数据盘比例分配
 	// 公式: 新容量 = 新磁盘容量 * (数据盘数 / 总盘数)
@@ -336,7 +336,7 @@ func (s *RAIDZExpansionService) calculateCapacityGain(vdev zfs.VdevExpansionInfo
 
 // ========== 扩展操作 ==========
 
-// StartExpansion 启动 RAIDZ 扩展任务
+// StartExpansion 启动 RAIDZ 扩展任务.
 func (s *RAIDZExpansionService) StartExpansion(ctx context.Context, poolName, newDisk string, force bool) (*ExpansionTask, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -397,7 +397,7 @@ func (s *RAIDZExpansionService) StartExpansion(ctx context.Context, poolName, ne
 	return task, nil
 }
 
-// executeExpansionAsync 异步执行扩展
+// executeExpansionAsync 异步执行扩展.
 func (s *RAIDZExpansionService) executeExpansionAsync(config zfs.ExpansionConfig, task *ExpansionTask) {
 	ctx := context.Background()
 
@@ -422,7 +422,7 @@ func (s *RAIDZExpansionService) executeExpansionAsync(config zfs.ExpansionConfig
 	s.monitorExpansionProgress(ctx, task, zfsStatus)
 }
 
-// monitorExpansionProgress 监控扩展进度
+// monitorExpansionProgress 监控扩展进度.
 func (s *RAIDZExpansionService) monitorExpansionProgress(ctx context.Context, task *ExpansionTask, initialStatus *zfs.ExpansionStatus) {
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -467,7 +467,7 @@ func (s *RAIDZExpansionService) monitorExpansionProgress(ctx context.Context, ta
 	}
 }
 
-// updateTaskFromZFS 从 ZFS 状态更新任务
+// updateTaskFromZFS 从 ZFS 状态更新任务.
 func (s *RAIDZExpansionService) updateTaskFromZFS(task *ExpansionTask, status *zfs.ExpansionStatus) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -487,12 +487,12 @@ func (s *RAIDZExpansionService) updateTaskFromZFS(task *ExpansionTask, status *z
 	}
 
 	// 更新能力
-	task.CanPause = status.CanResume == false && status.State == zfs.ExpansionStateRunning
+	task.CanPause = !status.CanResume && status.State == zfs.ExpansionStateRunning
 	task.CanCancel = status.CanCancel && status.State == zfs.ExpansionStateRunning
 	task.CanResume = status.CanResume && status.State == zfs.ExpansionStatePaused
 }
 
-// updateTaskStatus 更新任务状态
+// updateTaskStatus 更新任务状态.
 func (s *RAIDZExpansionService) updateTaskStatus(task *ExpansionTask, status ExpansionStatus) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -516,7 +516,7 @@ func (s *RAIDZExpansionService) updateTaskStatus(task *ExpansionTask, status Exp
 
 // ========== 任务控制 ==========
 
-// PauseExpansion 暂停扩展任务
+// PauseExpansion 暂停扩展任务.
 func (s *RAIDZExpansionService) PauseExpansion(poolName string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -543,7 +543,7 @@ func (s *RAIDZExpansionService) PauseExpansion(poolName string) error {
 	return nil
 }
 
-// ResumeExpansion 恢复扩展任务
+// ResumeExpansion 恢复扩展任务.
 func (s *RAIDZExpansionService) ResumeExpansion(poolName string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -569,7 +569,7 @@ func (s *RAIDZExpansionService) ResumeExpansion(poolName string) error {
 	return nil
 }
 
-// CancelExpansion 取消扩展任务
+// CancelExpansion 取消扩展任务.
 func (s *RAIDZExpansionService) CancelExpansion(poolName string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -603,7 +603,7 @@ func (s *RAIDZExpansionService) CancelExpansion(poolName string) error {
 
 // ========== 状态查询 ==========
 
-// GetExpansionStatus 获取扩展状态
+// GetExpansionStatus 获取扩展状态.
 func (s *RAIDZExpansionService) GetExpansionStatus(poolName string) (*ExpansionTask, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -619,7 +619,7 @@ func (s *RAIDZExpansionService) GetExpansionStatus(poolName string) (*ExpansionT
 	return task, nil
 }
 
-// GetAllActiveTasks 获取所有活跃任务
+// GetAllActiveTasks 获取所有活跃任务.
 func (s *RAIDZExpansionService) GetAllActiveTasks() []*ExpansionTask {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -631,7 +631,7 @@ func (s *RAIDZExpansionService) GetAllActiveTasks() []*ExpansionTask {
 	return tasks
 }
 
-// GetTaskHistory 获取任务历史
+// GetTaskHistory 获取任务历史.
 func (s *RAIDZExpansionService) GetTaskHistory(limit int) []*ExpansionTask {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -649,7 +649,7 @@ func (s *RAIDZExpansionService) GetTaskHistory(limit int) []*ExpansionTask {
 	return s.taskHistory[start:]
 }
 
-// ListAvailableDisks 获取可用磁盘列表
+// ListAvailableDisks 获取可用磁盘列表.
 func (s *RAIDZExpansionService) ListAvailableDisks(ctx context.Context) ([]AvailableDiskInfo, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -676,7 +676,7 @@ func (s *RAIDZExpansionService) ListAvailableDisks(ctx context.Context) ([]Avail
 	return disks, nil
 }
 
-// AvailableDiskInfo 可用磁盘信息
+// AvailableDiskInfo 可用磁盘信息.
 type AvailableDiskInfo struct {
 	Path      string `json:"path"`
 	Model     string `json:"model"`
@@ -686,7 +686,7 @@ type AvailableDiskInfo struct {
 	Available bool   `json:"available"`
 }
 
-// getDiskDetails 获取磁盘详细信息
+// getDiskDetails 获取磁盘详细信息.
 func (s *RAIDZExpansionService) getDiskDetails(ctx context.Context, diskPath string) *AvailableDiskInfo {
 	info := &AvailableDiskInfo{
 		Path:      diskPath,
@@ -734,21 +734,21 @@ func (s *RAIDZExpansionService) getDiskDetails(ctx context.Context, diskPath str
 
 // ========== 回调注册 ==========
 
-// RegisterProgressCallback 注册进度回调
+// RegisterProgressCallback 注册进度回调.
 func (s *RAIDZExpansionService) RegisterProgressCallback(poolName string, callback func(*ExpansionProgress)) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.progressCallbacks[poolName] = callback
 }
 
-// RegisterStateCallback 注册状态变更回调
+// RegisterStateCallback 注册状态变更回调.
 func (s *RAIDZExpansionService) RegisterStateCallback(callback func(*ExpansionTask)) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.stateCallbacks = append(s.stateCallbacks, callback)
 }
 
-// triggerProgressCallback 触发进度回调
+// triggerProgressCallback 触发进度回调.
 func (s *RAIDZExpansionService) triggerProgressCallback(task *ExpansionTask) {
 	s.mu.RLock()
 	callback, exists := s.progressCallbacks[task.PoolName]
@@ -773,7 +773,7 @@ func (s *RAIDZExpansionService) triggerProgressCallback(task *ExpansionTask) {
 
 // ========== 历史管理 ==========
 
-// addToHistory 添加到历史记录
+// addToHistory 添加到历史记录.
 func (s *RAIDZExpansionService) addToHistory(task *ExpansionTask) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -793,7 +793,7 @@ func (s *RAIDZExpansionService) addToHistory(task *ExpansionTask) {
 	_ = s.saveHistory()
 }
 
-// loadHistory 加载历史记录
+// loadHistory 加载历史记录.
 func (s *RAIDZExpansionService) loadHistory() error {
 	if s.configPath == "" {
 		return nil
@@ -811,7 +811,7 @@ func (s *RAIDZExpansionService) loadHistory() error {
 	return json.Unmarshal(data, &s.taskHistory)
 }
 
-// saveHistory 保存历史记录
+// saveHistory 保存历史记录.
 func (s *RAIDZExpansionService) saveHistory() error {
 	if s.configPath == "" {
 		return nil
@@ -828,22 +828,22 @@ func (s *RAIDZExpansionService) saveHistory() error {
 
 // ========== 辅助方法 ==========
 
-// generateTaskID 生成任务 ID
+// generateTaskID 生成任务 ID.
 func generateTaskID(poolName string) string {
 	return fmt.Sprintf("raidz-exp-%s-%d", poolName, time.Now().UnixNano())
 }
 
-// EstimateExpansionTime 预估扩展时间
+// EstimateExpansionTime 预估扩展时间.
 func (s *RAIDZExpansionService) EstimateExpansionTime(ctx context.Context, poolName string) (time.Duration, error) {
 	return s.zfsManager.EstimateExpansionTime(ctx, poolName)
 }
 
-// IsAvailable 检查服务是否可用
+// IsAvailable 检查服务是否可用.
 func (s *RAIDZExpansionService) IsAvailable() bool {
 	return s.zfsManager.IsAvailable()
 }
 
-// Close 关闭服务
+// Close 关闭服务.
 func (s *RAIDZExpansionService) Close() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()

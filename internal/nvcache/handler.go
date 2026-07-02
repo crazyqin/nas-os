@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers NVMe 缓存 API 处理器
+// Handlers NVMe 缓存 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	nvcache := r.Group("/nvcache")
 	{
@@ -82,14 +82,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// listDevices 列出设备
+// listDevices 列出设备.
 func (h *Handlers) listDevices(c *gin.Context) {
 	role := DeviceRole(c.Query("role"))
 	devices := h.manager.ListDevices(role)
@@ -101,7 +101,7 @@ func (h *Handlers) listDevices(c *gin.Context) {
 	})
 }
 
-// registerDevice 注册设备
+// registerDevice 注册设备.
 func (h *Handlers) registerDevice(c *gin.Context) {
 	var req RegisterDeviceRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -128,7 +128,7 @@ func (h *Handlers) registerDevice(c *gin.Context) {
 	})
 }
 
-// getDevice 获取设备
+// getDevice 获取设备.
 func (h *Handlers) getDevice(c *gin.Context) {
 	id := c.Param("id")
 	device, err := h.manager.GetDevice(id)
@@ -147,7 +147,7 @@ func (h *Handlers) getDevice(c *gin.Context) {
 	})
 }
 
-// unregisterDevice 注销设备
+// unregisterDevice 注销设备.
 func (h *Handlers) unregisterDevice(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.UnregisterDevice(id); err != nil {
@@ -164,7 +164,7 @@ func (h *Handlers) unregisterDevice(c *gin.Context) {
 	})
 }
 
-// searchDevices 搜索设备
+// searchDevices 搜索设备.
 func (h *Handlers) searchDevices(c *gin.Context) {
 	keyword := c.Query("q")
 	if keyword == "" {
@@ -183,7 +183,7 @@ func (h *Handlers) searchDevices(c *gin.Context) {
 	})
 }
 
-// listPools 列出缓存池
+// listPools 列出缓存池.
 func (h *Handlers) listPools(c *gin.Context) {
 	pools := h.manager.ListPools()
 	c.JSON(http.StatusOK, response{
@@ -193,7 +193,7 @@ func (h *Handlers) listPools(c *gin.Context) {
 	})
 }
 
-// createPool 创建缓存池
+// createPool 创建缓存池.
 func (h *Handlers) createPool(c *gin.Context) {
 	var req CreatePoolRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -220,7 +220,7 @@ func (h *Handlers) createPool(c *gin.Context) {
 	})
 }
 
-// getPool 获取缓存池
+// getPool 获取缓存池.
 func (h *Handlers) getPool(c *gin.Context) {
 	id := c.Param("id")
 	pool, err := h.manager.GetPool(id)
@@ -239,7 +239,7 @@ func (h *Handlers) getPool(c *gin.Context) {
 	})
 }
 
-// deletePool 删除缓存池
+// deletePool 删除缓存池.
 func (h *Handlers) deletePool(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeletePool(id); err != nil {
@@ -256,7 +256,7 @@ func (h *Handlers) deletePool(c *gin.Context) {
 	})
 }
 
-// updatePoolPolicy 更新缓存池策略
+// updatePoolPolicy 更新缓存池策略.
 func (h *Handlers) updatePoolPolicy(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdatePolicyRequest
@@ -284,7 +284,7 @@ func (h *Handlers) updatePoolPolicy(c *gin.Context) {
 	})
 }
 
-// listMappings 列出缓存映射
+// listMappings 列出缓存映射.
 func (h *Handlers) listMappings(c *gin.Context) {
 	poolID := c.Query("pool_id")
 	mappings := h.manager.ListMappings(poolID)
@@ -295,7 +295,7 @@ func (h *Handlers) listMappings(c *gin.Context) {
 	})
 }
 
-// createMapping 创建缓存映射
+// createMapping 创建缓存映射.
 func (h *Handlers) createMapping(c *gin.Context) {
 	var req CreateMappingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -322,7 +322,7 @@ func (h *Handlers) createMapping(c *gin.Context) {
 	})
 }
 
-// getMapping 获取缓存映射
+// getMapping 获取缓存映射.
 func (h *Handlers) getMapping(c *gin.Context) {
 	id := c.Param("id")
 	mapping, err := h.manager.GetMapping(id)
@@ -341,7 +341,7 @@ func (h *Handlers) getMapping(c *gin.Context) {
 	})
 }
 
-// deleteMapping 删除缓存映射
+// deleteMapping 删除缓存映射.
 func (h *Handlers) deleteMapping(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteMapping(id); err != nil {
@@ -358,7 +358,7 @@ func (h *Handlers) deleteMapping(c *gin.Context) {
 	})
 }
 
-// listTierRules 列出分层规则
+// listTierRules 列出分层规则.
 func (h *Handlers) listTierRules(c *gin.Context) {
 	rules := h.manager.ListTierRules()
 	c.JSON(http.StatusOK, response{
@@ -368,7 +368,7 @@ func (h *Handlers) listTierRules(c *gin.Context) {
 	})
 }
 
-// createTierRule 创建分层规则
+// createTierRule 创建分层规则.
 func (h *Handlers) createTierRule(c *gin.Context) {
 	var req CreateTierRuleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -395,7 +395,7 @@ func (h *Handlers) createTierRule(c *gin.Context) {
 	})
 }
 
-// getTierRule 获取分层规则
+// getTierRule 获取分层规则.
 func (h *Handlers) getTierRule(c *gin.Context) {
 	id := c.Param("id")
 	rule, err := h.manager.GetTierRule(id)
@@ -414,7 +414,7 @@ func (h *Handlers) getTierRule(c *gin.Context) {
 	})
 }
 
-// updateTierRule 更新分层规则
+// updateTierRule 更新分层规则.
 func (h *Handlers) updateTierRule(c *gin.Context) {
 	id := c.Param("id")
 	var req CreateTierRuleRequest
@@ -442,7 +442,7 @@ func (h *Handlers) updateTierRule(c *gin.Context) {
 	})
 }
 
-// deleteTierRule 删除分层规则
+// deleteTierRule 删除分层规则.
 func (h *Handlers) deleteTierRule(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteTierRule(id); err != nil {
@@ -459,7 +459,7 @@ func (h *Handlers) deleteTierRule(c *gin.Context) {
 	})
 }
 
-// listWarmupTasks 列出预热任务
+// listWarmupTasks 列出预热任务.
 func (h *Handlers) listWarmupTasks(c *gin.Context) {
 	poolID := c.Query("pool_id")
 	tasks := h.manager.ListWarmupTasks(poolID)
@@ -470,7 +470,7 @@ func (h *Handlers) listWarmupTasks(c *gin.Context) {
 	})
 }
 
-// createWarmupTask 创建预热任务
+// createWarmupTask 创建预热任务.
 func (h *Handlers) createWarmupTask(c *gin.Context) {
 	var req CreateWarmupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -497,7 +497,7 @@ func (h *Handlers) createWarmupTask(c *gin.Context) {
 	})
 }
 
-// getWarmupTask 获取预热任务
+// getWarmupTask 获取预热任务.
 func (h *Handlers) getWarmupTask(c *gin.Context) {
 	id := c.Param("id")
 	task, err := h.manager.GetWarmupTask(id)
@@ -516,7 +516,7 @@ func (h *Handlers) getWarmupTask(c *gin.Context) {
 	})
 }
 
-// cancelWarmupTask 取消预热任务
+// cancelWarmupTask 取消预热任务.
 func (h *Handlers) cancelWarmupTask(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.CancelWarmupTask(id); err != nil {
@@ -533,7 +533,7 @@ func (h *Handlers) cancelWarmupTask(c *gin.Context) {
 	})
 }
 
-// listConsistencyChecks 列出一致性检查
+// listConsistencyChecks 列出一致性检查.
 func (h *Handlers) listConsistencyChecks(c *gin.Context) {
 	poolID := c.Query("pool_id")
 	checks := h.manager.ListConsistencyChecks(poolID)
@@ -544,7 +544,7 @@ func (h *Handlers) listConsistencyChecks(c *gin.Context) {
 	})
 }
 
-// startConsistencyCheck 启动一致性检查
+// startConsistencyCheck 启动一致性检查.
 func (h *Handlers) startConsistencyCheck(c *gin.Context) {
 	poolID := c.Query("pool_id")
 	if poolID == "" {
@@ -571,7 +571,7 @@ func (h *Handlers) startConsistencyCheck(c *gin.Context) {
 	})
 }
 
-// getConsistencyCheck 获取一致性检查结果
+// getConsistencyCheck 获取一致性检查结果.
 func (h *Handlers) getConsistencyCheck(c *gin.Context) {
 	id := c.Param("id")
 	check, err := h.manager.GetConsistencyCheck(id)
@@ -590,7 +590,7 @@ func (h *Handlers) getConsistencyCheck(c *gin.Context) {
 	})
 }
 
-// getStats 获取缓存统计
+// getStats 获取缓存统计.
 func (h *Handlers) getStats(c *gin.Context) {
 	poolID := c.Param("pool_id")
 	stats, err := h.manager.GetStats(poolID)
@@ -609,7 +609,7 @@ func (h *Handlers) getStats(c *gin.Context) {
 	})
 }
 
-// getStatsHistory 获取统计历史
+// getStatsHistory 获取统计历史.
 func (h *Handlers) getStatsHistory(c *gin.Context) {
 	poolID := c.Param("pool_id")
 	limitStr := c.DefaultQuery("limit", "50")
@@ -626,7 +626,7 @@ func (h *Handlers) getStatsHistory(c *gin.Context) {
 	})
 }
 
-// flushCache 刷回缓存
+// flushCache 刷回缓存.
 func (h *Handlers) flushCache(c *gin.Context) {
 	var req FlushRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -651,7 +651,7 @@ func (h *Handlers) flushCache(c *gin.Context) {
 	})
 }
 
-// invalidateCache 失效缓存
+// invalidateCache 失效缓存.
 func (h *Handlers) invalidateCache(c *gin.Context) {
 	var req struct {
 		PoolID string   `json:"pool_id" binding:"required"`
@@ -679,7 +679,7 @@ func (h *Handlers) invalidateCache(c *gin.Context) {
 	})
 }
 
-// getConfig 获取配置
+// getConfig 获取配置.
 func (h *Handlers) getConfig(c *gin.Context) {
 	cfg := h.manager.GetConfig()
 	c.JSON(http.StatusOK, response{
@@ -689,7 +689,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 	})
 }
 
-// updateConfig 更新配置
+// updateConfig 更新配置.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var cfg CacheGlobalConfig
 	if err := c.ShouldBindJSON(&cfg); err != nil {
@@ -707,7 +707,7 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 	})
 }
 
-// getOverview 获取系统概览
+// getOverview 获取系统概览.
 func (h *Handlers) getOverview(c *gin.Context) {
 	overview := h.manager.GetSystemOverview()
 	c.JSON(http.StatusOK, response{
@@ -717,7 +717,7 @@ func (h *Handlers) getOverview(c *gin.Context) {
 	})
 }
 
-// getSupportedPolicies 获取支持的缓存策略
+// getSupportedPolicies 获取支持的缓存策略.
 func (h *Handlers) getSupportedPolicies(c *gin.Context) {
 	policies := h.manager.GetSupportedPolicies()
 	c.JSON(http.StatusOK, response{
@@ -727,7 +727,7 @@ func (h *Handlers) getSupportedPolicies(c *gin.Context) {
 	})
 }
 
-// getSupportedEvictions 获取支持的淘汰策略
+// getSupportedEvictions 获取支持的淘汰策略.
 func (h *Handlers) getSupportedEvictions(c *gin.Context) {
 	evictions := h.manager.GetSupportedEvictions()
 	c.JSON(http.StatusOK, response{
@@ -737,7 +737,7 @@ func (h *Handlers) getSupportedEvictions(c *gin.Context) {
 	})
 }
 
-// getSupportedRAIDLevels 获取支持的 RAID 级别
+// getSupportedRAIDLevels 获取支持的 RAID 级别.
 func (h *Handlers) getSupportedRAIDLevels(c *gin.Context) {
 	levels := h.manager.GetSupportedRAIDLevels()
 	c.JSON(http.StatusOK, response{

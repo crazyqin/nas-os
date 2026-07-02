@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// CarbonSource 碳排放来源类型
+// CarbonSource 碳排放来源类型.
 type CarbonSource string
 
 const (
@@ -18,7 +18,7 @@ const (
 	CarbonSourceDiesel  CarbonSource = "diesel"  // 柴油发电
 )
 
-// DeviceType 设备类型
+// DeviceType 设备类型.
 type DeviceType string
 
 const (
@@ -32,7 +32,7 @@ const (
 	DeviceTypeOther   DeviceType = "other"
 )
 
-// ReportType 报告类型
+// ReportType 报告类型.
 type ReportType string
 
 const (
@@ -42,7 +42,7 @@ const (
 	ReportTypeAnnual  ReportType = "annual"
 )
 
-// CarbonIntensityUnit 碳强度单位
+// CarbonIntensityUnit 碳强度单位.
 type CarbonIntensityUnit string
 
 const (
@@ -50,7 +50,7 @@ const (
 	CarbonIntensityKgKWh   CarbonIntensityUnit = "kgCO2/kWh"
 )
 
-// EnergyConsumption 能耗数据
+// EnergyConsumption 能耗数据.
 type EnergyConsumption struct {
 	Timestamp   time.Time `json:"timestamp"`
 	TotalWatts  float64   `json:"total_watts"`
@@ -62,7 +62,7 @@ type EnergyConsumption struct {
 	OtherWatts  float64   `json:"other_watts"`
 }
 
-// CarbonRecord 碳排放记录
+// CarbonRecord 碳排放记录.
 type CarbonRecord struct {
 	ID           string             `json:"id"`
 	Timestamp    time.Time          `json:"timestamp"`
@@ -73,7 +73,7 @@ type CarbonRecord struct {
 	DeviceStats  []DeviceCarbonStat `json:"device_stats,omitempty"`
 }
 
-// DeviceCarbonStat 设备碳排放统计
+// DeviceCarbonStat 设备碳排放统计.
 type DeviceCarbonStat struct {
 	DeviceID   string     `json:"device_id"`
 	DeviceName string     `json:"device_name"`
@@ -83,7 +83,7 @@ type DeviceCarbonStat struct {
 	Percentage float64    `json:"percentage"`
 }
 
-// CarbonIntensity 碳强度数据
+// CarbonIntensity 碳强度数据.
 type CarbonIntensity struct {
 	Region       string              `json:"region"`
 	Value        float64             `json:"value"` // gCO2/kWh
@@ -93,7 +93,7 @@ type CarbonIntensity struct {
 	ForecastNext float64             `json:"forecast_next,omitempty"` // 预测下一小时
 }
 
-// CarbonTarget 碳中和目标
+// CarbonTarget 碳中和目标.
 type CarbonTarget struct {
 	ID              string    `json:"id"`
 	Name            string    `json:"name"`
@@ -108,7 +108,7 @@ type CarbonTarget struct {
 	UpdatedAt       time.Time `json:"updated_at"`
 }
 
-// GreenEnergySuggestion 绿色能源调度建议
+// GreenEnergySuggestion 绿色能源调度建议.
 type GreenEnergySuggestion struct {
 	ID            string    `json:"id"`
 	Timestamp     time.Time `json:"timestamp"`
@@ -119,7 +119,7 @@ type GreenEnergySuggestion struct {
 	Detail        string    `json:"detail"`
 }
 
-// CarbonReductionTip 碳减排建议
+// CarbonReductionTip 碳减排建议.
 type CarbonReductionTip struct {
 	ID            string  `json:"id"`
 	Title         string  `json:"title"`
@@ -130,7 +130,7 @@ type CarbonReductionTip struct {
 	Implemented   bool    `json:"implemented"`
 }
 
-// ESGReport ESG 报告
+// ESGReport ESG 报告.
 type ESGReport struct {
 	ID              string           `json:"id"`
 	ReportType      ReportType       `json:"report_type"`
@@ -148,7 +148,7 @@ type ESGReport struct {
 	GeneratedAt     time.Time        `json:"generated_at"`
 }
 
-// EmissionEntry 排放条目
+// EmissionEntry 排放条目.
 type EmissionEntry struct {
 	Source     CarbonSource `json:"source"`
 	EnergyKWh  float64      `json:"energy_kwh"`
@@ -156,14 +156,14 @@ type EmissionEntry struct {
 	Percentage float64      `json:"percentage"`
 }
 
-// ReductionEntry 减排条目
+// ReductionEntry 减排条目.
 type ReductionEntry struct {
 	Action     string  `json:"action"`
 	CarbonKg   float64 `json:"carbon_kg"`
 	Percentage float64 `json:"percentage"`
 }
 
-// ESGScore ESG 评分
+// ESGScore ESG 评分.
 type ESGScore struct {
 	Overall       float64            `json:"overall"` // 0-100
 	Environmental float64            `json:"environmental"`
@@ -173,7 +173,7 @@ type ESGScore struct {
 	Rating        string             `json:"rating"` // A+, A, B, C, D, E
 }
 
-// DataCenterInfo 数据中心信息
+// DataCenterInfo 数据中心信息.
 type DataCenterInfo struct {
 	ID              string  `json:"id"`
 	Name            string  `json:"name"`
@@ -184,7 +184,7 @@ type DataCenterInfo struct {
 	PUE             float64 `json:"pue"`
 }
 
-// DataCenterComparison 数据中心对比
+// DataCenterComparison 数据中心对比.
 type DataCenterComparison struct {
 	DataCenters []DataCenterInfo   `json:"data_centers"`
 	Comparison  []ComparisonMetric `json:"comparison"`
@@ -192,7 +192,7 @@ type DataCenterComparison struct {
 	Timestamp   time.Time          `json:"timestamp"`
 }
 
-// ComparisonMetric 对比指标
+// ComparisonMetric 对比指标.
 type ComparisonMetric struct {
 	Metric string             `json:"metric"`
 	Unit   string             `json:"unit"`
@@ -200,7 +200,7 @@ type ComparisonMetric struct {
 	BestDC string             `json:"best_dc"`
 }
 
-// TrendPoint 趋势点
+// TrendPoint 趋势点.
 type TrendPoint struct {
 	Timestamp time.Time `json:"timestamp"`
 	EnergyKWh float64   `json:"energy_kwh"`
@@ -208,7 +208,7 @@ type TrendPoint struct {
 	Intensity float64   `json:"intensity"`
 }
 
-// CarbonTrackerConfig 碳足迹追踪配置
+// CarbonTrackerConfig 碳足迹追踪配置.
 type CarbonTrackerConfig struct {
 	Enabled           bool               `json:"enabled"`
 	DefaultRegion     string             `json:"default_region"`
@@ -220,7 +220,7 @@ type CarbonTrackerConfig struct {
 	DataCenters       []DataCenterInfo   `json:"data_centers"`
 }
 
-// DashboardResponse 仪表盘响应
+// DashboardResponse 仪表盘响应.
 type DashboardResponse struct {
 	CurrentEnergy   *EnergyConsumption      `json:"current_energy"`
 	TodayCarbonKg   float64                 `json:"today_carbon_kg"`
@@ -236,7 +236,7 @@ type DashboardResponse struct {
 	Timestamp       time.Time               `json:"timestamp"`
 }
 
-// DefaultCarbonTrackerConfig 默认配置
+// DefaultCarbonTrackerConfig 默认配置.
 func DefaultCarbonTrackerConfig() *CarbonTrackerConfig {
 	return &CarbonTrackerConfig{
 		Enabled:         true,
@@ -257,7 +257,7 @@ func DefaultCarbonTrackerConfig() *CarbonTrackerConfig {
 	}
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	return fmt.Sprintf("ct_%d", time.Now().UnixNano())
 }

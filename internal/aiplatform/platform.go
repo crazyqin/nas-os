@@ -9,18 +9,18 @@ import (
 	"go.uber.org/zap"
 )
 
-// AIPlatform 统一AI推理平台
+// AIPlatform 统一AI推理平台.
 type AIPlatform struct {
-	logger     *zap.Logger
-	providers  map[string]Provider
-	models     map[string]*Model
-	registry   *ModelRegistry
+	logger       *zap.Logger
+	providers    map[string]Provider
+	models       map[string]*Model
+	registry     *ModelRegistry
 	loadBalancer *LoadBalancer
-	cache      *ResponseCache
-	mu         sync.RWMutex
+	cache        *ResponseCache
+	mu           sync.RWMutex
 }
 
-// Provider AI推理提供商接口
+// Provider AI推理提供商接口.
 type Provider interface {
 	Name() string
 	Complete(ctx context.Context, req *CompletionRequest) (*CompletionResponse, error)
@@ -29,20 +29,20 @@ type Provider interface {
 	IsAvailable() bool
 }
 
-// Model 模型信息
+// Model 模型信息.
 type Model struct {
-	ID         string            `json:"id"`
-	Name       string            `json:"name"`
-	Provider   string            `json:"provider"`
-	Type       string            `json:"type"` // llm, embedding, vision, multimodal
-	MaxTokens  int               `json:"max_tokens"`
-	ContextWindow int            `json:"context_window"`
-	PricePer1k float64           `json:"price_per_1k"`
-	Capabilities []string        `json:"capabilities"`
-	Props      map[string]string `json:"props"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Provider      string            `json:"provider"`
+	Type          string            `json:"type"` // llm, embedding, vision, multimodal
+	MaxTokens     int               `json:"max_tokens"`
+	ContextWindow int               `json:"context_window"`
+	PricePer1k    float64           `json:"price_per_1k"`
+	Capabilities  []string          `json:"capabilities"`
+	Props         map[string]string `json:"props"`
 }
 
-// CompletionRequest 补全请求
+// CompletionRequest 补全请求.
 type CompletionRequest struct {
 	Model       string    `json:"model"`
 	Messages    []Message `json:"messages"`
@@ -53,35 +53,35 @@ type CompletionRequest struct {
 	Stop        []string  `json:"stop"`
 }
 
-// Message 消息
+// Message 消息.
 type Message struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
 }
 
-// CompletionResponse 补全响应
+// CompletionResponse 补全响应.
 type CompletionResponse struct {
-	ID      string   `json:"id"`
-	Content string   `json:"content"`
-	Model   string   `json:"model"`
-	Usage   Usage    `json:"usage"`
-	Latency int64    `json:"latency_ms"`
+	ID      string `json:"id"`
+	Content string `json:"content"`
+	Model   string `json:"model"`
+	Usage   Usage  `json:"usage"`
+	Latency int64  `json:"latency_ms"`
 }
 
-// Usage 使用量
+// Usage 使用量.
 type Usage struct {
 	PromptTokens     int `json:"prompt_tokens"`
 	CompletionTokens int `json:"completion_tokens"`
 	TotalTokens      int `json:"total_tokens"`
 }
 
-// ModelRegistry 模型注册表
+// ModelRegistry 模型注册表.
 type ModelRegistry struct {
 	models map[string]*Model
 	mu     sync.RWMutex
 }
 
-// LoadBalancer 负载均衡器
+// LoadBalancer 负载均衡器.
 type LoadBalancer struct {
 	providers []Provider
 	strategy  string // round-robin, least-latency, random
@@ -89,20 +89,20 @@ type LoadBalancer struct {
 	mu        sync.Mutex
 }
 
-// ResponseCache 响应缓存
+// ResponseCache 响应缓存.
 type ResponseCache struct {
 	cache map[string]*CacheEntry
 	mu    sync.RWMutex
 	ttl   time.Duration
 }
 
-// CacheEntry 缓存条目
+// CacheEntry 缓存条目.
 type CacheEntry struct {
 	Response  *CompletionResponse
 	CreatedAt time.Time
 }
 
-// NewAIPlatform 创建AI平台
+// NewAIPlatform 创建AI平台.
 func NewAIPlatform(logger *zap.Logger) *AIPlatform {
 	return &AIPlatform{
 		logger:    logger,
@@ -121,7 +121,7 @@ func NewAIPlatform(logger *zap.Logger) *AIPlatform {
 	}
 }
 
-// RegisterProvider 注册推理提供商
+// RegisterProvider 注册推理提供商.
 func (ap *AIPlatform) RegisterProvider(provider Provider) {
 	ap.mu.Lock()
 	defer ap.mu.Unlock()
@@ -142,7 +142,7 @@ func (ap *AIPlatform) RegisterProvider(provider Provider) {
 		zap.Int("models", len(provider.ListModels())))
 }
 
-// RegisterModel 注册模型
+// RegisterModel 注册模型.
 func (ap *AIPlatform) RegisterModel(model *Model) {
 	ap.registry.mu.Lock()
 	defer ap.registry.mu.Unlock()
@@ -150,7 +150,7 @@ func (ap *AIPlatform) RegisterModel(model *Model) {
 	ap.models[model.ID] = model
 }
 
-// Complete 执行补全
+// Complete 执行补全.
 func (ap *AIPlatform) Complete(ctx context.Context, req *CompletionRequest) (*CompletionResponse, error) {
 	start := time.Now()
 
@@ -188,7 +188,7 @@ func (ap *AIPlatform) Complete(ctx context.Context, req *CompletionRequest) (*Co
 	return resp, nil
 }
 
-// Stream 流式补全
+// Stream 流式补全.
 func (ap *AIPlatform) Stream(ctx context.Context, req *CompletionRequest) (<-chan *CompletionResponse, error) {
 	req.Stream = true
 
@@ -210,7 +210,7 @@ func (ap *AIPlatform) Stream(ctx context.Context, req *CompletionRequest) (<-cha
 	return ch, nil
 }
 
-// Embed 向量化
+// Embed 向量化.
 func (ap *AIPlatform) Embed(ctx context.Context, text string, model string) ([]float32, error) {
 	provider, err := ap.selectProvider(model)
 	if err != nil {
@@ -219,7 +219,7 @@ func (ap *AIPlatform) Embed(ctx context.Context, text string, model string) ([]f
 	return provider.Embed(ctx, text)
 }
 
-// selectProvider 选择提供商
+// selectProvider 选择提供商.
 func (ap *AIPlatform) selectProvider(modelID string) (Provider, error) {
 	ap.mu.RLock()
 	defer ap.mu.RUnlock()
@@ -237,7 +237,7 @@ func (ap *AIPlatform) selectProvider(modelID string) (Provider, error) {
 	return ap.loadBalancer.Next()
 }
 
-// Next 负载均衡选择下一个提供商
+// Next 负载均衡选择下一个提供商.
 func (lb *LoadBalancer) Next() (Provider, error) {
 	lb.mu.Lock()
 	defer lb.mu.Unlock()
@@ -285,7 +285,7 @@ func (ap *AIPlatform) cacheSet(key string, resp *CompletionResponse) {
 	}
 }
 
-// ListProviders 列出提供商
+// ListProviders 列出提供商.
 func (ap *AIPlatform) ListProviders() []string {
 	ap.mu.RLock()
 	defer ap.mu.RUnlock()
@@ -297,7 +297,7 @@ func (ap *AIPlatform) ListProviders() []string {
 	return names
 }
 
-// ListModels 列出模型
+// ListModels 列出模型.
 func (ap *AIPlatform) ListModels() []*Model {
 	ap.registry.mu.RLock()
 	defer ap.registry.mu.RUnlock()
@@ -309,7 +309,7 @@ func (ap *AIPlatform) ListModels() []*Model {
 	return models
 }
 
-// GetProviderStats 获取提供商统计
+// GetProviderStats 获取提供商统计.
 func (ap *AIPlatform) GetProviderStats() map[string]interface{} {
 	ap.mu.RLock()
 	defer ap.mu.RUnlock()

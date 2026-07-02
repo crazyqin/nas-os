@@ -7,21 +7,21 @@ import (
 	"time"
 )
 
-// SnapshotStats 快照统计信息
+// SnapshotStats 快照统计信息.
 type SnapshotStats struct {
 	TotalCount int
 	TotalSize  int64
 	BySandbox  map[string]int
 }
 
-// SnapshotManager 快照管理器
+// SnapshotManager 快照管理器.
 type SnapshotManager struct {
 	mu        sync.RWMutex
 	snapshots map[string]*Snapshot
 	basePath  string
 }
 
-// NewSnapshotManager 创建快照管理器
+// NewSnapshotManager 创建快照管理器.
 func NewSnapshotManager(basePath string) *SnapshotManager {
 	return &SnapshotManager{
 		snapshots: make(map[string]*Snapshot),
@@ -29,7 +29,7 @@ func NewSnapshotManager(basePath string) *SnapshotManager {
 	}
 }
 
-// Create 创建快照
+// Create 创建快照.
 func (sm *SnapshotManager) Create(sandboxID string, req *CreateSnapshotRequest) (*Snapshot, error) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -74,7 +74,7 @@ func (sm *SnapshotManager) Create(sandboxID string, req *CreateSnapshotRequest) 
 	return snapshot, nil
 }
 
-// Get 获取快照
+// Get 获取快照.
 func (sm *SnapshotManager) Get(id string) (*Snapshot, error) {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -86,7 +86,7 @@ func (sm *SnapshotManager) Get(id string) (*Snapshot, error) {
 	return snapshot, nil
 }
 
-// ListBySandbox 列出沙箱的所有快照
+// ListBySandbox 列出沙箱的所有快照.
 func (sm *SnapshotManager) ListBySandbox(sandboxID string) []*Snapshot {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -100,7 +100,7 @@ func (sm *SnapshotManager) ListBySandbox(sandboxID string) []*Snapshot {
 	return list
 }
 
-// List 列出所有快照
+// List 列出所有快照.
 func (sm *SnapshotManager) List() []*Snapshot {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -112,7 +112,7 @@ func (sm *SnapshotManager) List() []*Snapshot {
 	return list
 }
 
-// Delete 删除快照
+// Delete 删除快照.
 func (sm *SnapshotManager) Delete(id string) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -138,7 +138,7 @@ func (sm *SnapshotManager) Delete(id string) error {
 	return nil
 }
 
-// DeleteBySandbox 删除沙箱的所有快照
+// DeleteBySandbox 删除沙箱的所有快照.
 func (sm *SnapshotManager) DeleteBySandbox(sandboxID string) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -161,7 +161,7 @@ func (sm *SnapshotManager) DeleteBySandbox(sandboxID string) error {
 	return nil
 }
 
-// Restore 从快照恢复
+// Restore 从快照恢复.
 func (sm *SnapshotManager) Restore(snapshotID string, targetPath string) error {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -181,7 +181,7 @@ func (sm *SnapshotManager) Restore(snapshotID string, targetPath string) error {
 	return nil
 }
 
-// GetStats 获取快照统计信息
+// GetStats 获取快照统计信息.
 func (sm *SnapshotManager) GetStats() *SnapshotStats {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -199,7 +199,7 @@ func (sm *SnapshotManager) GetStats() *SnapshotStats {
 	return stats
 }
 
-// Count 获取快照总数
+// Count 获取快照总数.
 func (sm *SnapshotManager) Count() int {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -207,7 +207,7 @@ func (sm *SnapshotManager) Count() int {
 	return len(sm.snapshots)
 }
 
-// calculateSnapshotSize 计算快照大小
+// calculateSnapshotSize 计算快照大小.
 func (sm *SnapshotManager) calculateSnapshotSize(sandboxID string, snapType SnapshotType) int64 {
 	// 模拟计算快照大小
 	// 在实际实现中，这里会扫描沙箱文件系统并计算大小
@@ -221,7 +221,7 @@ func (sm *SnapshotManager) calculateSnapshotSize(sandboxID string, snapType Snap
 	return baseSize
 }
 
-// findLatestSnapshot 查找最新的快照
+// findLatestSnapshot 查找最新的快照.
 func (sm *SnapshotManager) findLatestSnapshot(sandboxID string) string {
 	var latest *Snapshot
 	for _, snapshot := range sm.snapshots {
@@ -237,7 +237,7 @@ func (sm *SnapshotManager) findLatestSnapshot(sandboxID string) string {
 	return ""
 }
 
-// cleanupSnapshotData 清理快照数据
+// cleanupSnapshotData 清理快照数据.
 func (sm *SnapshotManager) cleanupSnapshotData(snapshot *Snapshot) error {
 	// 模拟清理快照数据
 	// 在实际实现中，这里会删除快照文件

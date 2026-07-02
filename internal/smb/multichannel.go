@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// MultichannelConfig 多通道SMB配置
+// MultichannelConfig 多通道SMB配置.
 type MultichannelConfig struct {
 	Enabled           bool     `json:"enabled"`
 	MaxChannels       int      `json:"max_channels"`        // 最大通道数
@@ -24,7 +24,7 @@ type MultichannelConfig struct {
 	RequireSameSubnet bool     `json:"require_same_subnet"` // 要求同一子网
 }
 
-// NetworkInterface 网络接口信息（用于多通道）
+// NetworkInterface 网络接口信息（用于多通道）.
 type NetworkInterface struct {
 	Name        string   `json:"name"`
 	IPAddresses []string `json:"ip_addresses"`
@@ -38,7 +38,7 @@ type NetworkInterface struct {
 	Priority    int      `json:"priority"` // 用于排序优先级
 }
 
-// SMBChannel SMB通道信息
+// SMBChannel SMB通道信息.
 type SMBChannel struct {
 	ID              int       `json:"id"`
 	InterfaceName   string    `json:"interface_name"`
@@ -53,7 +53,7 @@ type SMBChannel struct {
 	RoundRobinIndex int       `json:"round_robin_index"`
 }
 
-// ChannelStatus 多通道状态
+// ChannelStatus 多通道状态.
 type ChannelStatus struct {
 	Enabled          bool               `json:"enabled"`
 	TotalChannels    int                `json:"total_channels"`
@@ -67,7 +67,7 @@ type ChannelStatus struct {
 	Config           MultichannelConfig `json:"config"`
 }
 
-// MultichannelManager 多通道管理器
+// MultichannelManager 多通道管理器.
 type MultichannelManager struct {
 	mu              sync.RWMutex
 	config          MultichannelConfig
@@ -78,7 +78,7 @@ type MultichannelManager struct {
 	running         bool
 }
 
-// DefaultMultichannelConfig 默认多通道配置
+// DefaultMultichannelConfig 默认多通道配置.
 func DefaultMultichannelConfig() MultichannelConfig {
 	return MultichannelConfig{
 		Enabled:           false,
@@ -93,7 +93,7 @@ func DefaultMultichannelConfig() MultichannelConfig {
 	}
 }
 
-// NewMultichannelManager 创建多通道管理器
+// NewMultichannelManager 创建多通道管理器.
 func NewMultichannelManager(config MultichannelConfig) *MultichannelManager {
 	m := &MultichannelManager{
 		config:     config,
@@ -109,7 +109,7 @@ func NewMultichannelManager(config MultichannelConfig) *MultichannelManager {
 	return m
 }
 
-// Start 启动多通道管理
+// Start 启动多通道管理.
 func (m *MultichannelManager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -138,7 +138,7 @@ func (m *MultichannelManager) Start() error {
 	return nil
 }
 
-// Stop 停止多通道管理
+// Stop 停止多通道管理.
 func (m *MultichannelManager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -161,7 +161,7 @@ func (m *MultichannelManager) Stop() error {
 	return nil
 }
 
-// discoverInterfaces 发现可用网络接口
+// discoverInterfaces 发现可用网络接口.
 func (m *MultichannelManager) discoverInterfaces() error {
 	// 如果指定了接口列表，只使用指定的
 	if len(m.config.Interfaces) > 0 && !m.config.AutoDiscover {
@@ -172,7 +172,7 @@ func (m *MultichannelManager) discoverInterfaces() error {
 	return m.discoverAllInterfaces()
 }
 
-// discoverSpecificInterfaces 发现指定的接口
+// discoverSpecificInterfaces 发现指定的接口.
 func (m *MultichannelManager) discoverSpecificInterfaces() error {
 	for _, ifaceName := range m.config.Interfaces {
 		iface, err := m.getInterfaceInfo(ifaceName)
@@ -193,7 +193,7 @@ func (m *MultichannelManager) discoverSpecificInterfaces() error {
 	return nil
 }
 
-// discoverAllInterfaces 发现所有可用接口
+// discoverAllInterfaces 发现所有可用接口.
 func (m *MultichannelManager) discoverAllInterfaces() error {
 	// 获取所有接口
 	ifaces, err := net.Interfaces()
@@ -237,7 +237,7 @@ func (m *MultichannelManager) discoverAllInterfaces() error {
 	return nil
 }
 
-// getInterfaceInfo 获取接口详细信息
+// getInterfaceInfo 获取接口详细信息.
 func (m *MultichannelManager) getInterfaceInfo(name string) (*NetworkInterface, error) {
 	iface, err := net.InterfaceByName(name)
 	if err != nil {
@@ -272,7 +272,7 @@ func (m *MultichannelManager) getInterfaceInfo(name string) (*NetworkInterface, 
 	return info, nil
 }
 
-// getInterfaceType 获取接口类型
+// getInterfaceType 获取接口类型.
 func (m *MultichannelManager) getInterfaceType(name string, flags net.Flags) string {
 	if flags&net.FlagLoopback != 0 {
 		return "loopback"
@@ -297,7 +297,7 @@ func (m *MultichannelManager) getInterfaceType(name string, flags net.Flags) str
 	}
 }
 
-// getInterfaceSpeed 获取接口速度(Mbps)
+// getInterfaceSpeed 获取接口速度(Mbps).
 func (m *MultichannelManager) getInterfaceSpeed(name string) int {
 	speedPath := fmt.Sprintf("/sys/class/net/%s/speed", name)
 	data, err := os.ReadFile(speedPath)
@@ -318,7 +318,7 @@ func (m *MultichannelManager) getInterfaceSpeed(name string) int {
 	return speed
 }
 
-// getInterfaceDropped 获取丢包统计
+// getInterfaceDropped 获取丢包统计.
 func (m *MultichannelManager) getInterfaceDropped(name string) (rxDropped, txDropped int64) {
 	rxPath := fmt.Sprintf("/sys/class/net/%s/statistics/rx_dropped", name)
 	txPath := fmt.Sprintf("/sys/class/net/%s/statistics/tx_dropped", name)
@@ -336,7 +336,7 @@ func (m *MultichannelManager) getInterfaceDropped(name string) (rxDropped, txDro
 	return
 }
 
-// isInterfaceSuitable 检查接口是否适合多通道
+// isInterfaceSuitable 检查接口是否适合多通道.
 func (m *MultichannelManager) isInterfaceSuitable(iface *NetworkInterface) bool {
 	// 必须有IPv4地址
 	if len(iface.IPAddresses) == 0 {
@@ -370,7 +370,7 @@ func (m *MultichannelManager) isInterfaceSuitable(iface *NetworkInterface) bool 
 	return true
 }
 
-// sameSubnet 检查两个IP是否在同一子网（简化版）
+// sameSubnet 检查两个IP是否在同一子网（简化版）.
 func (m *MultichannelManager) sameSubnet(ip1, ip2 string) bool {
 	// 简化判断：取前3段比较
 	parts1 := strings.Split(ip1, ".")
@@ -383,7 +383,7 @@ func (m *MultichannelManager) sameSubnet(ip1, ip2 string) bool {
 	return parts1[0] == parts2[0] && parts1[1] == parts2[1] && parts1[2] == parts2[2]
 }
 
-// sortInterfacesByPriority 按优先级排序接口
+// sortInterfacesByPriority 按优先级排序接口.
 func (m *MultichannelManager) sortInterfacesByPriority() {
 	// 按带宽降序排序
 	for i := 0; i < len(m.interfaces); i++ {
@@ -400,7 +400,7 @@ func (m *MultichannelManager) sortInterfacesByPriority() {
 	}
 }
 
-// createChannels 创建SMB通道
+// createChannels 创建SMB通道.
 func (m *MultichannelManager) createChannels() error {
 	for i, iface := range m.interfaces {
 		for _, ip := range iface.IPAddresses {
@@ -423,7 +423,7 @@ func (m *MultichannelManager) createChannels() error {
 	return nil
 }
 
-// healthCheckLoop 健康检查循环
+// healthCheckLoop 健康检查循环.
 func (m *MultichannelManager) healthCheckLoop() {
 	ticker := time.NewTicker(time.Duration(m.config.HealthCheckSec) * time.Second)
 	defer ticker.Stop()
@@ -438,7 +438,7 @@ func (m *MultichannelManager) healthCheckLoop() {
 	}
 }
 
-// performHealthCheck 执行健康检查
+// performHealthCheck 执行健康检查.
 func (m *MultichannelManager) performHealthCheck() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -461,7 +461,7 @@ func (m *MultichannelManager) performHealthCheck() {
 	}
 }
 
-// checkChannelHealth 检查通道健康状态
+// checkChannelHealth 检查通道健康状态.
 func (m *MultichannelManager) checkChannelHealth(channel *SMBChannel) int {
 	health := 100
 
@@ -499,7 +499,7 @@ func (m *MultichannelManager) checkChannelHealth(channel *SMBChannel) int {
 	return health
 }
 
-// testSMBConnection 测试SMB连接
+// testSMBConnection 测试SMB连接.
 func (m *MultichannelManager) testSMBConnection(ip string, port int) bool {
 	// 简化的连接测试
 	timeout := time.Second * 2
@@ -511,7 +511,7 @@ func (m *MultichannelManager) testSMBConnection(ip string, port int) bool {
 	return true
 }
 
-// GetStatus 获取多通道状态
+// GetStatus 获取多通道状态.
 func (m *MultichannelManager) GetStatus() *ChannelStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -544,7 +544,7 @@ func (m *MultichannelManager) GetStatus() *ChannelStatus {
 	return status
 }
 
-// UpdateConfig 更新多通道配置
+// UpdateConfig 更新多通道配置.
 func (m *MultichannelManager) UpdateConfig(config MultichannelConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -573,7 +573,7 @@ func (m *MultichannelManager) UpdateConfig(config MultichannelConfig) error {
 	return nil
 }
 
-// GetRoundRobinInterface 获取轮询接口（负载均衡）
+// GetRoundRobinInterface 获取轮询接口（负载均衡）.
 func (m *MultichannelManager) GetRoundRobinInterface() *NetworkInterface {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -605,7 +605,7 @@ func (m *MultichannelManager) GetRoundRobinInterface() *NetworkInterface {
 	return nil
 }
 
-// GenerateMultichannelConfig 生成多通道SMB配置片段
+// GenerateMultichannelConfig 生成多通道SMB配置片段.
 func GenerateMultichannelConfig(config *MultichannelConfig, interfaces []*NetworkInterface) string {
 	if !config.Enabled {
 		return ""
@@ -619,12 +619,10 @@ func GenerateMultichannelConfig(config *MultichannelConfig, interfaces []*Networ
 	if len(interfaces) > 0 {
 		var ifaceList []string
 		for _, iface := range interfaces {
-			for _, ip := range iface.IPAddresses {
-				ifaceList = append(ifaceList, ip)
-			}
+			ifaceList = append(ifaceList, iface.IPAddresses...)
 		}
 		if len(ifaceList) > 0 {
-			sb.WriteString(fmt.Sprintf("    interfaces = %s\n", strings.Join(ifaceList, " ")))
+			fmt.Fprintf(&sb, "    interfaces = %s\n", strings.Join(ifaceList, " "))
 			sb.WriteString("    bind interfaces only = yes\n")
 		}
 	}
@@ -632,7 +630,7 @@ func GenerateMultichannelConfig(config *MultichannelConfig, interfaces []*Networ
 	return sb.String()
 }
 
-// GetActiveInterfaceIPs 获取所有活动接口的IP地址
+// GetActiveInterfaceIPs 获取所有活动接口的IP地址.
 func (m *MultichannelManager) GetActiveInterfaceIPs() []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -646,7 +644,7 @@ func (m *MultichannelManager) GetActiveInterfaceIPs() []string {
 	return ips
 }
 
-// GetInterfaceByIP 根据IP获取接口信息
+// GetInterfaceByIP 根据IP获取接口信息.
 func (m *MultichannelManager) GetInterfaceByIP(ip string) *NetworkInterface {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -661,7 +659,7 @@ func (m *MultichannelManager) GetInterfaceByIP(ip string) *NetworkInterface {
 	return nil
 }
 
-// GetChannelByID 根据ID获取通道信息
+// GetChannelByID 根据ID获取通道信息.
 func (m *MultichannelManager) GetChannelByID(id int) *SMBChannel {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -674,7 +672,7 @@ func (m *MultichannelManager) GetChannelByID(id int) *SMBChannel {
 	return nil
 }
 
-// EnableChannel 启用指定通道
+// EnableChannel 启用指定通道.
 func (m *MultichannelManager) EnableChannel(id int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -693,7 +691,7 @@ func (m *MultichannelManager) EnableChannel(id int) error {
 	return fmt.Errorf("通道不存在: %d", id)
 }
 
-// DisableChannel 禁用指定通道
+// DisableChannel 禁用指定通道.
 func (m *MultichannelManager) DisableChannel(id int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -710,7 +708,7 @@ func (m *MultichannelManager) DisableChannel(id int) error {
 	return fmt.Errorf("通道不存在: %d", id)
 }
 
-// GetSmbStatusOutput 获取smbstatus多通道信息
+// GetSmbStatusOutput 获取smbstatus多通道信息.
 func (m *MultichannelManager) GetSmbStatusOutput() ([]MultichannelConnectionInfo, error) {
 	// 执行 smbstatus -p 获取进程信息
 	cmd := exec.Command("smbstatus", "-p")
@@ -722,7 +720,7 @@ func (m *MultichannelManager) GetSmbStatusOutput() ([]MultichannelConnectionInfo
 	return m.parseSmbStatusOutput(string(output))
 }
 
-// MultichannelConnectionInfo SMB多通道连接信息
+// MultichannelConnectionInfo SMB多通道连接信息.
 type MultichannelConnectionInfo struct {
 	PID        int    `json:"pid"`
 	SessionID  string `json:"session_id"`
@@ -734,7 +732,7 @@ type MultichannelConnectionInfo struct {
 	ShareCount int    `json:"share_count"`
 }
 
-// parseSmbStatusOutput 解析smbstatus输出
+// parseSmbStatusOutput 解析smbstatus输出.
 func (m *MultichannelManager) parseSmbStatusOutput(output string) ([]MultichannelConnectionInfo, error) {
 	var connections []MultichannelConnectionInfo
 
@@ -760,7 +758,7 @@ func (m *MultichannelManager) parseSmbStatusOutput(output string) ([]Multichanne
 	return connections, nil
 }
 
-// GetMultichannelMetrics 获取多通道性能指标
+// GetMultichannelMetrics 获取多通道性能指标.
 func (m *MultichannelManager) GetMultichannelMetrics() *MultichannelMetrics {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -800,7 +798,7 @@ func (m *MultichannelManager) GetMultichannelMetrics() *MultichannelMetrics {
 	return metrics
 }
 
-// MultichannelMetrics 多通道性能指标
+// MultichannelMetrics 多通道性能指标.
 type MultichannelMetrics struct {
 	TotalChannels  int             `json:"total_channels"`
 	ActiveChannels int             `json:"active_channels"`
@@ -811,7 +809,7 @@ type MultichannelMetrics struct {
 	ChannelMetrics []ChannelMetric `json:"channel_metrics"`
 }
 
-// ChannelMetric 单通道指标
+// ChannelMetric 单通道指标.
 type ChannelMetric struct {
 	ChannelID     int    `json:"channel_id"`
 	InterfaceName string `json:"interface_name"`
@@ -821,7 +819,7 @@ type ChannelMetric struct {
 	Connected     bool   `json:"connected"`
 }
 
-// ValidateMultichannelConfig 验证多通道配置
+// ValidateMultichannelConfig 验证多通道配置.
 func ValidateMultichannelConfig(config *MultichannelConfig) error {
 	if config.MaxChannels < 1 {
 		return fmt.Errorf("最大通道数必须大于0")

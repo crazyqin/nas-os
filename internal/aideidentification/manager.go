@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// DeidentificationManager 脱敏管理器
+// DeidentificationManager 脱敏管理器.
 type DeidentificationManager struct {
 	mu          sync.RWMutex
 	config      DeidentificationConfig
@@ -20,7 +20,7 @@ type DeidentificationManager struct {
 	ruleCounter int                              // 规则计数器
 }
 
-// NewDeidentificationManager 创建脱敏管理器
+// NewDeidentificationManager 创建脱敏管理器.
 func NewDeidentificationManager(config *DeidentificationConfig) *DeidentificationManager {
 	cfg := DefaultDeidentificationConfig()
 	if config != nil {
@@ -44,7 +44,7 @@ func NewDeidentificationManager(config *DeidentificationConfig) *Deidentificatio
 	return m
 }
 
-// initBuiltinRules 初始化内置 PII 检测规则
+// initBuiltinRules 初始化内置 PII 检测规则.
 func (m *DeidentificationManager) initBuiltinRules() {
 	builtinRules := []struct {
 		name    string
@@ -119,7 +119,7 @@ func (m *DeidentificationManager) initBuiltinRules() {
 	}
 }
 
-// CreateRule 创建脱敏规则
+// CreateRule 创建脱敏规则.
 func (m *DeidentificationManager) CreateRule(req *CreateRuleRequest) (*DeidentificationRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -157,7 +157,7 @@ func (m *DeidentificationManager) CreateRule(req *CreateRuleRequest) (*Deidentif
 	return rule, nil
 }
 
-// UpdateRule 更新脱敏规则
+// UpdateRule 更新脱敏规则.
 func (m *DeidentificationManager) UpdateRule(req *UpdateRuleRequest) (*DeidentificationRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -207,7 +207,7 @@ func (m *DeidentificationManager) UpdateRule(req *UpdateRuleRequest) (*Deidentif
 	return rule, nil
 }
 
-// DeleteRule 删除脱敏规则
+// DeleteRule 删除脱敏规则.
 func (m *DeidentificationManager) DeleteRule(ruleID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -229,7 +229,7 @@ func (m *DeidentificationManager) DeleteRule(ruleID string) error {
 	return nil
 }
 
-// GetRule 获取规则
+// GetRule 获取规则.
 func (m *DeidentificationManager) GetRule(ruleID string) (*DeidentificationRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -242,7 +242,7 @@ func (m *DeidentificationManager) GetRule(ruleID string) (*DeidentificationRule,
 	return rule, nil
 }
 
-// ListRules 列出所有规则
+// ListRules 列出所有规则.
 func (m *DeidentificationManager) ListRules() []DeidentificationRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -255,7 +255,7 @@ func (m *DeidentificationManager) ListRules() []DeidentificationRule {
 	return rules
 }
 
-// Deidentify 执行脱敏
+// Deidentify 执行脱敏.
 func (m *DeidentificationManager) Deidentify(text string, ruleID string) (*DeidentificationResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -334,7 +334,7 @@ func (m *DeidentificationManager) Deidentify(text string, ruleID string) (*Deide
 	return result, nil
 }
 
-// DeidentifyBatch 批量脱敏
+// DeidentifyBatch 批量脱敏.
 func (m *DeidentificationManager) DeidentifyBatch(req *BatchDeidentificationRequest) (*BatchDeidentificationResult, error) {
 	results := make([]DeidentificationResult, 0, len(req.Texts))
 	totalRedacted := 0
@@ -363,7 +363,7 @@ func (m *DeidentificationManager) DeidentifyBatch(req *BatchDeidentificationRequ
 	}, nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *DeidentificationManager) GetStats() *DeidentificationStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -371,7 +371,7 @@ func (m *DeidentificationManager) GetStats() *DeidentificationStats {
 	return m.stats
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (m *DeidentificationManager) GetAuditLog(limit int) []AuditEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -393,7 +393,7 @@ func (m *DeidentificationManager) GetAuditLog(limit int) []AuditEntry {
 // 内部方法
 // ============================================================
 
-// getEnabledRules 获取启用的规则
+// getEnabledRules 获取启用的规则.
 func (m *DeidentificationManager) getEnabledRules(ruleID string) []*DeidentificationRule {
 	if ruleID != "" {
 		// 指定规则
@@ -414,7 +414,7 @@ func (m *DeidentificationManager) getEnabledRules(ruleID string) []*Deidentifica
 	return rules
 }
 
-// sortRulesByPriority 按优先级排序（高优先级在前）
+// sortRulesByPriority 按优先级排序（高优先级在前）.
 func (m *DeidentificationManager) sortRulesByPriority(rules []*DeidentificationRule) {
 	// 简单冒泡排序
 	for i := 0; i < len(rules); i++ {
@@ -426,7 +426,7 @@ func (m *DeidentificationManager) sortRulesByPriority(rules []*DeidentificationR
 	}
 }
 
-// applyPolicy 应用脱敏策略
+// applyPolicy 应用脱敏策略.
 func (m *DeidentificationManager) applyPolicy(text string, rule *DeidentificationRule) string {
 	switch rule.Policy {
 	case PolicyMask:
@@ -462,7 +462,7 @@ func (m *DeidentificationManager) applyPolicy(text string, rule *Deidentificatio
 	}
 }
 
-// partialMask 部分脱敏
+// partialMask 部分脱敏.
 func (m *DeidentificationManager) partialMask(text string) string {
 	runes := []rune(text)
 	totalLen := len(runes)
@@ -479,7 +479,7 @@ func (m *DeidentificationManager) partialMask(text string) string {
 	return prefix + strings.Repeat("*", maskLen) + suffix
 }
 
-// updateStats 更新统计信息
+// updateStats 更新统计信息.
 func (m *DeidentificationManager) updateStats(result *DeidentificationResult) {
 	m.stats.TotalProcessed++
 	m.stats.TotalRedacted += result.TotalRedacted
@@ -491,7 +491,7 @@ func (m *DeidentificationManager) updateStats(result *DeidentificationResult) {
 	}
 }
 
-// addAuditEntry 添加审计日志
+// addAuditEntry 添加审计日志.
 func (m *DeidentificationManager) addAuditEntry(action string, ruleID string, piiType PIIType, redactedLen int, source string) {
 	entry := AuditEntry{
 		ID:          fmt.Sprintf("audit_%d", time.Now().UnixNano()),

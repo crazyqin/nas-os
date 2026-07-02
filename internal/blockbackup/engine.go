@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// BlockBackupEngine 块级增量备份引擎
+// BlockBackupEngine 块级增量备份引擎.
 type BlockBackupEngine struct {
 	logger           *zap.Logger
 	jobs             map[string]*BackupJob
@@ -21,7 +21,7 @@ type BlockBackupEngine struct {
 	progressCallback ProgressCallback
 }
 
-// BackupConfig 备份配置
+// BackupConfig 备份配置.
 type BackupConfig struct {
 	Compression   string `json:"compression"`    // lz4, zstd, gzip, none
 	BlockSize     int    `json:"block_size"`     // 块大小(字节)
@@ -33,7 +33,7 @@ type BackupConfig struct {
 	EncryptionKey string `json:"encryption_key"` // 加密密钥
 }
 
-// BackupJob 备份任务
+// BackupJob 备份任务.
 type BackupJob struct {
 	ID           string        `json:"id"`
 	Name         string        `json:"name"`
@@ -50,7 +50,7 @@ type BackupJob struct {
 	BaseSnapshot string        `json:"base_snapshot"` // 增量基准快照
 }
 
-// BlockSnapshot 块级快照
+// BlockSnapshot 块级快照.
 type BlockSnapshot struct {
 	ID        string    `json:"id"`
 	Volume    string    `json:"volume"`
@@ -60,7 +60,7 @@ type BlockSnapshot struct {
 	IsBase    bool      `json:"is_base"` // 是否为增量基准
 }
 
-// BackupReport 备份报告
+// BackupReport 备份报告.
 type BackupReport struct {
 	JobID      string        `json:"job_id"`
 	StartTime  time.Time     `json:"start_time"`
@@ -72,7 +72,7 @@ type BackupReport struct {
 	Verified   bool          `json:"verified"`
 }
 
-// NewBlockBackupEngine 创建块级备份引擎
+// NewBlockBackupEngine 创建块级备份引擎.
 func NewBlockBackupEngine(logger *zap.Logger, config BackupConfig) *BlockBackupEngine {
 	return &BlockBackupEngine{
 		logger:    logger,
@@ -82,7 +82,7 @@ func NewBlockBackupEngine(logger *zap.Logger, config BackupConfig) *BlockBackupE
 	}
 }
 
-// CreateFullBackup 创建全量备份
+// CreateFullBackup 创建全量备份.
 func (bbe *BlockBackupEngine) CreateFullBackup(ctx context.Context, source, dest string) (*BackupJob, error) {
 	bbe.mu.Lock()
 	job := &BackupJob{
@@ -112,13 +112,13 @@ func (bbe *BlockBackupEngine) runFullBackup(ctx context.Context, job *BackupJob)
 
 	var cmd *exec.Cmd
 
-	switch {
-	case bbe.config.Compression == "zstd":
+	switch bbe.config.Compression {
+	case "zstd":
 		// 使用zstd压缩的dd
 		cmd = exec.CommandContext(ctx, "bash", "-c",
 			fmt.Sprintf("dd if=%s bs=1M | zstd -T%d > %s",
 				job.Source, bbe.config.Parallel, job.Destination))
-	case bbe.config.Compression == "lz4":
+	case "lz4":
 		cmd = exec.CommandContext(ctx, "bash", "-c",
 			fmt.Sprintf("dd if=%s bs=1M | lz4 > %s",
 				job.Source, job.Destination))
@@ -159,7 +159,7 @@ func (bbe *BlockBackupEngine) runFullBackup(ctx context.Context, job *BackupJob)
 		zap.Duration("duration", job.Duration))
 }
 
-// CreateIncrementalBackup 创建增量备份
+// CreateIncrementalBackup 创建增量备份.
 func (bbe *BlockBackupEngine) CreateIncrementalBackup(ctx context.Context, source, dest, baseSnapshot string) (*BackupJob, error) {
 	bbe.mu.Lock()
 	job := &BackupJob{
@@ -218,7 +218,7 @@ func (bbe *BlockBackupEngine) runIncrementalBackup(ctx context.Context, job *Bac
 	bbe.logger.Info("Incremental backup completed", zap.String("job", job.ID))
 }
 
-// CreateZFSBlockBackup 创建ZFS块级备份
+// CreateZFSBlockBackup 创建ZFS块级备份.
 func (bbe *BlockBackupEngine) CreateZFSBlockBackup(ctx context.Context, dataset, dest string, incremental bool, baseSnap string) (*BackupJob, error) {
 	bbe.mu.Lock()
 	job := &BackupJob{
@@ -278,7 +278,7 @@ func (bbe *BlockBackupEngine) runZFSBackup(ctx context.Context, job *BackupJob) 
 	bbe.logger.Info("ZFS block backup completed", zap.String("job", job.ID))
 }
 
-// RestoreBackup 恢复备份
+// RestoreBackup 恢复备份.
 func (bbe *BlockBackupEngine) RestoreBackup(ctx context.Context, backupPath, dest string) error {
 	bbe.logger.Info("Restoring backup",
 		zap.String("source", backupPath),
@@ -305,7 +305,7 @@ func (bbe *BlockBackupEngine) RestoreBackup(ctx context.Context, backupPath, des
 	return nil
 }
 
-// VerifyBackup 验证备份完整性
+// VerifyBackup 验证备份完整性.
 func (bbe *BlockBackupEngine) VerifyBackup(ctx context.Context, backupPath string) error {
 	bbe.logger.Info("Verifying backup", zap.String("path", backupPath))
 
@@ -317,14 +317,14 @@ func (bbe *BlockBackupEngine) VerifyBackup(ctx context.Context, backupPath strin
 	return nil
 }
 
-// GetJob 获取任务信息
+// GetJob 获取任务信息.
 func (bbe *BlockBackupEngine) GetJob(jobID string) *BackupJob {
 	bbe.mu.RLock()
 	defer bbe.mu.RUnlock()
 	return bbe.jobs[jobID]
 }
 
-// ListJobs 列出所有任务
+// ListJobs 列出所有任务.
 func (bbe *BlockBackupEngine) ListJobs() []*BackupJob {
 	bbe.mu.RLock()
 	defer bbe.mu.RUnlock()
@@ -336,7 +336,7 @@ func (bbe *BlockBackupEngine) ListJobs() []*BackupJob {
 	return jobs
 }
 
-// CleanupOldBackups 清理过期备份
+// CleanupOldBackups 清理过期备份.
 func (bbe *BlockBackupEngine) CleanupOldBackups(ctx context.Context, backupDir string) error {
 	retention := bbe.config.RetentionDays
 	if retention <= 0 {

@@ -45,7 +45,7 @@ func TestRAIDProfile_Constants(t *testing.T) {
 	}
 }
 
-// 集成测试 - 需要root权限和btrfs文件系统
+// 集成测试 - 需要root权限和btrfs文件系统.
 func TestBtrfsManager_CreatePool_Integration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")

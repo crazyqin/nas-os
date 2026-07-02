@@ -7,7 +7,7 @@ import "time"
 // 知识库相关类型
 // ============================================================
 
-// Wiki 知识库
+// Wiki 知识库.
 type Wiki struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
@@ -20,7 +20,7 @@ type Wiki struct {
 	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
-// Page 页面
+// Page 页面.
 type Page struct {
 	ID        string      `json:"id"`
 	WikiID    string      `json:"wiki_id"`
@@ -38,7 +38,7 @@ type Page struct {
 	UpdatedAt time.Time   `json:"updated_at"`
 }
 
-// Revision 版本历史
+// Revision 版本历史.
 type Revision struct {
 	ID        string    `json:"id"`
 	PageID    string    `json:"page_id"`
@@ -50,7 +50,7 @@ type Revision struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	PageID      string    `json:"page_id"`
 	WikiID      string    `json:"wiki_id"`
@@ -62,7 +62,7 @@ type SearchResult struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// Permission 权限
+// Permission 权限.
 type Permission struct {
 	WikiID  string `json:"wiki_id"`
 	PageID  string `json:"page_id"`
@@ -75,7 +75,7 @@ type Permission struct {
 // 请求类型
 // ============================================================
 
-// CreateWikiRequest 创建知识库请求
+// CreateWikiRequest 创建知识库请求.
 type CreateWikiRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description"`
@@ -83,7 +83,7 @@ type CreateWikiRequest struct {
 	IsPublic    bool   `json:"is_public"`
 }
 
-// CreatePageRequest 创建页面请求
+// CreatePageRequest 创建页面请求.
 type CreatePageRequest struct {
 	Title    string   `json:"title" binding:"required"`
 	Content  string   `json:"content"`
@@ -92,7 +92,7 @@ type CreatePageRequest struct {
 	AuthorID string   `json:"author_id" binding:"required"`
 }
 
-// UpdatePageRequest 更新页面请求
+// UpdatePageRequest 更新页面请求.
 type UpdatePageRequest struct {
 	Title    *string  `json:"title"`
 	Content  *string  `json:"content"`
@@ -101,14 +101,14 @@ type UpdatePageRequest struct {
 	Comment  string   `json:"comment"`
 }
 
-// SearchRequest 搜索请求
+// SearchRequest 搜索请求.
 type SearchRequest struct {
 	Query  string `json:"query" binding:"required"`
 	WikiID string `json:"wiki_id"`
 	Limit  int    `json:"limit"`
 }
 
-// SetPermissionRequest 设置权限请求
+// SetPermissionRequest 设置权限请求.
 type SetPermissionRequest struct {
 	UserID  string `json:"user_id" binding:"required"`
 	CanView bool   `json:"can_view"`

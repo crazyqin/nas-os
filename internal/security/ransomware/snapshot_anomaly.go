@@ -10,7 +10,7 @@ import (
 )
 
 // SnapshotAnomalyDetector 快照异常检测器
-// 监控快照空间增长速率，检测突然大量数据变化（勒索加密典型特征）
+// 监控快照空间增长速率，检测突然大量数据变化（勒索加密典型特征）.
 type SnapshotAnomalyDetector struct {
 	config       SnapshotAnomalyConfig
 	zfsAdapter   ZFSAdapterInterface
@@ -25,7 +25,7 @@ type SnapshotAnomalyDetector struct {
 	alertChan    chan SnapshotAnomaly
 }
 
-// SnapshotAnomalyConfig 快照异常检测配置
+// SnapshotAnomalyConfig 快照异常检测配置.
 type SnapshotAnomalyConfig struct {
 	Enabled             bool          `json:"enabled"`
 	CheckInterval       time.Duration `json:"check_interval"`        // 检查间隔
@@ -38,7 +38,7 @@ type SnapshotAnomalyConfig struct {
 	ExcludeDatasets     []string      `json:"exclude_datasets"`      // 排除的数据集
 }
 
-// DefaultSnapshotAnomalyConfig 默认配置
+// DefaultSnapshotAnomalyConfig 默认配置.
 func DefaultSnapshotAnomalyConfig() SnapshotAnomalyConfig {
 	return SnapshotAnomalyConfig{
 		Enabled:             true,
@@ -53,7 +53,7 @@ func DefaultSnapshotAnomalyConfig() SnapshotAnomalyConfig {
 	}
 }
 
-// SnapshotThresholds 快照阈值
+// SnapshotThresholds 快照阈值.
 type SnapshotThresholds struct {
 	// 快照大小突增阈值（相对上次快照）
 	SizeIncreasePercent float64
@@ -67,7 +67,7 @@ type SnapshotThresholds struct {
 	ConsecutiveAnomalyThreshold int
 }
 
-// SnapshotAnomaly 快照异常类型
+// SnapshotAnomaly 快照异常类型.
 type SnapshotAnomaly struct {
 	ID               string            `json:"id"`
 	Type             AnomalyType       `json:"type"`
@@ -82,7 +82,7 @@ type SnapshotAnomaly struct {
 	DeletedSnapshots []string          `json:"deleted_snapshots,omitempty"`
 }
 
-// AnomalyType 异常类型
+// AnomalyType 异常类型.
 type AnomalyType string
 
 const (
@@ -93,7 +93,7 @@ const (
 	AnomalyRapidChange      AnomalyType = "rapid_change"      // 快速数据变化
 )
 
-// AnomalyStats 异常统计
+// AnomalyStats 异常统计.
 type AnomalyStats struct {
 	TotalChecks       int64                 `json:"total_checks"`
 	AnomaliesDetected int64                 `json:"anomalies_detected"`
@@ -104,7 +104,7 @@ type AnomalyStats struct {
 	AlertsSent        int64                 `json:"alerts_sent"`
 }
 
-// ZFSAdapterInterface ZFS适配器接口
+// ZFSAdapterInterface ZFS适配器接口.
 type ZFSAdapterInterface interface {
 	ListSnapshots(ctx context.Context, dataset string) ([]SnapshotInfo, error)
 	GetDatasetUsage(ctx context.Context, dataset string) (*DatasetUsage, error)
@@ -115,7 +115,7 @@ type ZFSAdapterInterface interface {
 	GetSnapshotUsed(ctx context.Context, snapshot string) (int64, error)
 }
 
-// SnapshotInfo 快照信息
+// SnapshotInfo 快照信息.
 type SnapshotInfo struct {
 	Name       string    `json:"name"`
 	Dataset    string    `json:"dataset"`
@@ -126,7 +126,7 @@ type SnapshotInfo struct {
 	HoldTag    string    `json:"hold_tag,omitempty"` // Hold标签
 }
 
-// DatasetUsage 数据集使用情况
+// DatasetUsage 数据集使用情况.
 type DatasetUsage struct {
 	Dataset         string  `json:"dataset"`
 	Used            int64   `json:"used"`
@@ -136,14 +136,14 @@ type DatasetUsage struct {
 	SnapshotCount   int     `json:"snapshot_count"`
 }
 
-// SnapshotHistoryStore 快照历史存储
+// SnapshotHistoryStore 快照历史存储.
 type SnapshotHistoryStore struct {
 	records map[string][]SnapshotRecord // dataset -> records
 	mu      sync.RWMutex
 	maxAge  time.Duration
 }
 
-// SnapshotRecord 快照记录
+// SnapshotRecord 快照记录.
 type SnapshotRecord struct {
 	SnapshotName string    `json:"snapshot_name"`
 	Dataset      string    `json:"dataset"`
@@ -152,7 +152,7 @@ type SnapshotRecord struct {
 	RecordedAt   time.Time `json:"recorded_at"`
 }
 
-// NewSnapshotAnomalyDetector 创建快照异常检测器
+// NewSnapshotAnomalyDetector 创建快照异常检测器.
 func NewSnapshotAnomalyDetector(config SnapshotAnomalyConfig) *SnapshotAnomalyDetector {
 	detector := &SnapshotAnomalyDetector{
 		config:       config,
@@ -173,14 +173,14 @@ func NewSnapshotAnomalyDetector(config SnapshotAnomalyConfig) *SnapshotAnomalyDe
 	return detector
 }
 
-// SetZFSAdapter 设置ZFS适配器
+// SetZFSAdapter 设置ZFS适配器.
 func (d *SnapshotAnomalyDetector) SetZFSAdapter(adapter ZFSAdapterInterface) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	d.zfsAdapter = adapter
 }
 
-// Start 启动检测
+// Start 启动检测.
 func (d *SnapshotAnomalyDetector) Start(ctx context.Context) error {
 	d.mu.Lock()
 	if d.running {
@@ -200,7 +200,7 @@ func (d *SnapshotAnomalyDetector) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止检测
+// Stop 停止检测.
 func (d *SnapshotAnomalyDetector) Stop() {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -216,7 +216,7 @@ func (d *SnapshotAnomalyDetector) Stop() {
 	close(d.alertChan)
 }
 
-// detectLoop 检测循环
+// detectLoop 检测循环.
 func (d *SnapshotAnomalyDetector) detectLoop() {
 	ticker := time.NewTicker(d.config.CheckInterval)
 	defer ticker.Stop()
@@ -241,7 +241,7 @@ func (d *SnapshotAnomalyDetector) detectLoop() {
 	}
 }
 
-// cleanupLoop 清理循环
+// cleanupLoop 清理循环.
 func (d *SnapshotAnomalyDetector) cleanupLoop() {
 	ticker := time.NewTicker(1 * time.Hour)
 	defer ticker.Stop()
@@ -256,7 +256,7 @@ func (d *SnapshotAnomalyDetector) cleanupLoop() {
 	}
 }
 
-// Detect 执行检测
+// Detect 执行检测.
 func (d *SnapshotAnomalyDetector) Detect(ctx context.Context) []SnapshotAnomaly {
 	d.mu.RLock()
 	zfsAdapter := d.zfsAdapter
@@ -333,7 +333,7 @@ func (d *SnapshotAnomalyDetector) Detect(ctx context.Context) []SnapshotAnomaly 
 	return anomalies
 }
 
-// detectSizeIncrease 检测快照大小突增
+// detectSizeIncrease 检测快照大小突增.
 func (d *SnapshotAnomalyDetector) detectSizeIncrease(dataset string, snapshots []SnapshotInfo, now time.Time) []SnapshotAnomaly {
 	anomalies := []SnapshotAnomaly{}
 
@@ -413,7 +413,7 @@ func (d *SnapshotAnomalyDetector) detectSizeIncrease(dataset string, snapshots [
 	return anomalies
 }
 
-// detectCountIncrease 检测快照数量突增
+// detectCountIncrease 检测快照数量突增.
 func (d *SnapshotAnomalyDetector) detectCountIncrease(dataset string, snapshots []SnapshotInfo, now time.Time) []SnapshotAnomaly {
 	anomalies := []SnapshotAnomaly{}
 
@@ -451,7 +451,7 @@ func (d *SnapshotAnomalyDetector) detectCountIncrease(dataset string, snapshots 
 	return anomalies
 }
 
-// detectSnapshotDeletion 检测快照删除
+// detectSnapshotDeletion 检测快照删除.
 func (d *SnapshotAnomalyDetector) detectSnapshotDeletion(ctx context.Context, dataset string, currentSnapshots []SnapshotInfo, now time.Time) []SnapshotAnomaly {
 	anomalies := []SnapshotAnomaly{}
 
@@ -499,7 +499,7 @@ func (d *SnapshotAnomalyDetector) detectSnapshotDeletion(ctx context.Context, da
 	return anomalies
 }
 
-// isExcluded 检查是否排除
+// isExcluded 检查是否排除.
 func (d *SnapshotAnomalyDetector) isExcluded(dataset string) bool {
 	for _, excluded := range d.config.ExcludeDatasets {
 		if dataset == excluded {
@@ -509,7 +509,7 @@ func (d *SnapshotAnomalyDetector) isExcluded(dataset string) bool {
 	return false
 }
 
-// recordHistory 记录历史
+// recordHistory 记录历史.
 func (d *SnapshotAnomalyDetector) recordHistory(dataset string, snapshots []SnapshotInfo, now time.Time) {
 	for _, snap := range snapshots {
 		record := SnapshotRecord{
@@ -523,7 +523,7 @@ func (d *SnapshotAnomalyDetector) recordHistory(dataset string, snapshots []Snap
 	}
 }
 
-// updateStats 更新统计
+// updateStats 更新统计.
 func (d *SnapshotAnomalyDetector) updateStats(anomaly SnapshotAnomaly) {
 	d.statsMu.Lock()
 	defer d.statsMu.Unlock()
@@ -534,19 +534,19 @@ func (d *SnapshotAnomalyDetector) updateStats(anomaly SnapshotAnomaly) {
 	d.stats.LastAnomalyTime = &anomaly.Timestamp
 }
 
-// Alerts 返回告警通道
+// Alerts 返回告警通道.
 func (d *SnapshotAnomalyDetector) Alerts() <-chan SnapshotAnomaly {
 	return d.alertChan
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (d *SnapshotAnomalyDetector) GetStats() AnomalyStats {
 	d.statsMu.RLock()
 	defer d.statsMu.RUnlock()
 	return d.stats
 }
 
-// NewSnapshotHistoryStore 创建快照历史存储
+// NewSnapshotHistoryStore 创建快照历史存储.
 func NewSnapshotHistoryStore(maxAge time.Duration) *SnapshotHistoryStore {
 	return &SnapshotHistoryStore{
 		records: make(map[string][]SnapshotRecord),
@@ -554,7 +554,7 @@ func NewSnapshotHistoryStore(maxAge time.Duration) *SnapshotHistoryStore {
 	}
 }
 
-// Add 添加记录
+// Add 添加记录.
 func (s *SnapshotHistoryStore) Add(record SnapshotRecord) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -568,7 +568,7 @@ func (s *SnapshotHistoryStore) Add(record SnapshotRecord) {
 	}
 }
 
-// Get 获取记录
+// Get 获取记录.
 func (s *SnapshotHistoryStore) Get(dataset string) []SnapshotRecord {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -591,7 +591,7 @@ func (s *SnapshotHistoryStore) Get(dataset string) []SnapshotRecord {
 	return validRecords
 }
 
-// Cleanup 清理过期记录
+// Cleanup 清理过期记录.
 func (s *SnapshotHistoryStore) Cleanup() int {
 	s.mu.Lock()
 	defer s.mu.Unlock()

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// NewRingBuffer 创建环形缓冲区
+// NewRingBuffer 创建环形缓冲区.
 func NewRingBuffer(capacity int) *RingBuffer {
 	return &RingBuffer{
 		data:     make([]DataPoint, capacity),
@@ -18,7 +18,7 @@ func NewRingBuffer(capacity int) *RingBuffer {
 	}
 }
 
-// Push 推入数据点
+// Push 推入数据点.
 func (rb *RingBuffer) Push(dp DataPoint) {
 	rb.mu.Lock()
 	defer rb.mu.Unlock()
@@ -32,7 +32,7 @@ func (rb *RingBuffer) Push(dp DataPoint) {
 	}
 }
 
-// Range 查询时间范围内的数据
+// Range 查询时间范围内的数据.
 func (rb *RingBuffer) Range(start, end time.Time) []DataPoint {
 	rb.mu.RLock()
 	defer rb.mu.RUnlock()
@@ -48,14 +48,14 @@ func (rb *RingBuffer) Range(start, end time.Time) []DataPoint {
 	return result
 }
 
-// Size 返回当前大小
+// Size 返回当前大小.
 func (rb *RingBuffer) Size() int {
 	rb.mu.RLock()
 	defer rb.mu.RUnlock()
 	return rb.size
 }
 
-// NewTimeSeries 创建时间序列
+// NewTimeSeries 创建时间序列.
 func NewTimeSeries(maxAge time.Duration) *TimeSeries {
 	return &TimeSeries{
 		series: make(map[string]*RingBuffer),
@@ -63,7 +63,7 @@ func NewTimeSeries(maxAge time.Duration) *TimeSeries {
 	}
 }
 
-// Add 添加数据点到时间序列
+// Add 添加数据点到时间序列.
 func (ts *TimeSeries) Add(metric string, dp DataPoint) {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
@@ -74,7 +74,7 @@ func (ts *TimeSeries) Add(metric string, dp DataPoint) {
 	ts.series[metric].Push(dp)
 }
 
-// Query 查询时间序列
+// Query 查询时间序列.
 func (ts *TimeSeries) Query(metric string, start, end time.Time) []DataPoint {
 	ts.mu.RLock()
 	defer ts.mu.RUnlock()
@@ -85,7 +85,7 @@ func (ts *TimeSeries) Query(metric string, start, end time.Time) []DataPoint {
 	return nil
 }
 
-// Metrics 返回所有指标名称
+// Metrics 返回所有指标名称.
 func (ts *TimeSeries) Metrics() []string {
 	ts.mu.RLock()
 	defer ts.mu.RUnlock()
@@ -97,7 +97,7 @@ func (ts *TimeSeries) Metrics() []string {
 	return metrics
 }
 
-// NewCube 创建数据立方体
+// NewCube 创建数据立方体.
 func NewCube(dimensions []Dimension, measures []Measure) *Cube {
 	return &Cube{
 		dimensions: dimensions,
@@ -106,7 +106,7 @@ func NewCube(dimensions []Dimension, measures []Measure) *Cube {
 	}
 }
 
-// Add 添加数据到立方体
+// Add 添加数据到立方体.
 func (c *Cube) Add(dp DataPoint) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -124,7 +124,7 @@ func (c *Cube) Add(dp DataPoint) {
 	}
 }
 
-// Slice 切片查询
+// Slice 切片查询.
 func (c *Cube) Slice(dimension string, value string) []CubeCell {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -142,7 +142,7 @@ func (c *Cube) Slice(dimension string, value string) []CubeCell {
 	return result
 }
 
-// Dice 切块查询
+// Dice 切块查询.
 func (c *Cube) Dice(filters map[string]string) []CubeCell {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -167,7 +167,7 @@ func (c *Cube) Dice(filters map[string]string) []CubeCell {
 	return result
 }
 
-// buildKey 构建维度key
+// buildKey 构建维度key.
 func (c *Cube) buildKey(dims map[string]string) string {
 	keys := make([]string, 0, len(dims))
 	for k := range dims {
@@ -182,7 +182,7 @@ func (c *Cube) buildKey(dims map[string]string) string {
 	return key
 }
 
-// parseKey 解析维度key
+// parseKey 解析维度key.
 func (c *Cube) parseKey(key string) map[string]string {
 	result := make(map[string]string)
 	pairs := splitString(key, ";")
@@ -212,7 +212,7 @@ func splitString(s, sep string) []string {
 	return result
 }
 
-// NewWarehouse 创建数据仓库
+// NewWarehouse 创建数据仓库.
 func NewWarehouse(maxPoints int) *Warehouse {
 	if maxPoints <= 0 {
 		maxPoints = 86400 // 默认1天每秒一条
@@ -225,7 +225,7 @@ func NewWarehouse(maxPoints int) *Warehouse {
 	}
 }
 
-// Ingest 数据采集
+// Ingest 数据采集.
 func (w *Warehouse) Ingest(dp DataPoint) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -262,7 +262,7 @@ func (w *Warehouse) Ingest(dp DataPoint) {
 	w.cubes[cubeKey].Add(dp)
 }
 
-// Query 执行OLAP查询
+// Query 执行OLAP查询.
 func (w *Warehouse) Query(q Query) (*QueryResult, error) {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
@@ -353,7 +353,7 @@ func (w *Warehouse) Query(q Query) (*QueryResult, error) {
 	return result, nil
 }
 
-// aggregate 计算聚合值
+// aggregate 计算聚合值.
 func (w *Warehouse) aggregate(points []DataPoint, m Measure) float64 {
 	if len(points) == 0 {
 		return 0
@@ -450,7 +450,7 @@ func indexOf(slice []string, item string) int {
 	return -1
 }
 
-// Rollup 时间聚合
+// Rollup 时间聚合.
 func (w *Warehouse) Rollup(req RollupRequest) (*QueryResult, error) {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
@@ -510,7 +510,7 @@ func (w *Warehouse) Rollup(req RollupRequest) (*QueryResult, error) {
 	return result, nil
 }
 
-// DrillDown 钻取查询
+// DrillDown 钻取查询.
 func (w *Warehouse) DrillDown(req DrillDownRequest) (*QueryResult, error) {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
@@ -573,7 +573,7 @@ func (w *Warehouse) DrillDown(req DrillDownRequest) (*QueryResult, error) {
 	return result, nil
 }
 
-// Pivot 旋转查询
+// Pivot 旋转查询.
 func (w *Warehouse) Pivot(req PivotRequest) (*QueryResult, error) {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
@@ -635,9 +635,7 @@ func (w *Warehouse) Pivot(req PivotRequest) (*QueryResult, error) {
 		Columns: req.RowDims,
 		Total:   len(rowSet),
 	}
-	for _, col := range cols {
-		result.Columns = append(result.Columns, col)
-	}
+	result.Columns = append(result.Columns, cols...)
 
 	// 填充数据
 	for row := range rowSet {
@@ -657,7 +655,7 @@ func (w *Warehouse) Pivot(req PivotRequest) (*QueryResult, error) {
 	return result, nil
 }
 
-// Stats 获取统计信息
+// Stats 获取统计信息.
 func (w *Warehouse) Stats() map[string]interface{} {
 	w.mu.RLock()
 	defer w.mu.RUnlock()

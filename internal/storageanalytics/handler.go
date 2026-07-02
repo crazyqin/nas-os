@@ -276,9 +276,9 @@ func (h *Handler) optimizationSavings(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"total_saving_bytes": totalSavingBytes,
-		"total_saving_cost":  totalSavingCost,
-		"by_category":        byCategory,
+		"total_saving_bytes":   totalSavingBytes,
+		"total_saving_cost":    totalSavingCost,
+		"by_category":          byCategory,
 		"recommendation_count": len(costReport.Recommendations),
 	})
 }

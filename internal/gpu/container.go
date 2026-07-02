@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// ContainerGPUConfig 容器GPU配置
+// ContainerGPUConfig 容器GPU配置.
 type ContainerGPUConfig struct {
 	// GPU设备分配
 	GPUIDs     []string `json:"gpuIds"`     // GPU设备ID列表
@@ -42,7 +42,7 @@ type ContainerGPUConfig struct {
 	CDIAnnotation string `json:"cdiAnnotation"` // CDI注解
 }
 
-// DefaultContainerGPUConfig 默认容器GPU配置
+// DefaultContainerGPUConfig 默认容器GPU配置.
 func DefaultContainerGPUConfig() *ContainerGPUConfig {
 	return &ContainerGPUConfig{
 		GPUAll:         false,
@@ -59,7 +59,7 @@ func DefaultContainerGPUConfig() *ContainerGPUConfig {
 	}
 }
 
-// GenerateDockerGPUArgs 生成Docker GPU参数
+// GenerateDockerGPUArgs 生成Docker GPU参数.
 func GenerateDockerGPUArgs(config *ContainerGPUConfig, devices []*GPUDevice) []string {
 	if config == nil {
 		config = DefaultContainerGPUConfig()
@@ -96,7 +96,7 @@ func GenerateDockerGPUArgs(config *ContainerGPUConfig, devices []*GPUDevice) []s
 
 		// 显存限制
 		if config.MemoryLimit > 0 {
-			args = append(args, "--gpus", fmt.Sprintf("capabilities=utility,compute,video"),
+			args = append(args, "--gpus", "capabilities=utility,compute,video",
 				"--gpus", fmt.Sprintf("limits.memory=%dMiB", config.MemoryLimit))
 		}
 
@@ -167,7 +167,7 @@ func GenerateDockerGPUArgs(config *ContainerGPUConfig, devices []*GPUDevice) []s
 	return args
 }
 
-// GPUIndicesToStrings 将GPU索引转换为字符串
+// GPUIndicesToStrings 将GPU索引转换为字符串.
 func (c *ContainerGPUConfig) GPUIndicesToStrings() []string {
 	result := make([]string, len(c.GPUIndices))
 	for i, idx := range c.GPUIndices {
@@ -176,7 +176,7 @@ func (c *ContainerGPUConfig) GPUIndicesToStrings() []string {
 	return result
 }
 
-// buildDevicePathsFromConfig 根据配置构建设备路径
+// buildDevicePathsFromConfig 根据配置构建设备路径.
 func buildDevicePathsFromConfig(config *ContainerGPUConfig, devices []*GPUDevice) []string {
 	paths := []string{}
 
@@ -212,13 +212,13 @@ func buildDevicePathsFromConfig(config *ContainerGPUConfig, devices []*GPUDevice
 	return paths
 }
 
-// extractGPUIndex 从GPU ID提取索引
+// extractGPUIndex 从GPU ID提取索引.
 func extractGPUIndex(id string) string {
 	// nvidia0 -> 0
 	return strings.TrimPrefix(id, "nvidia")
 }
 
-// GenerateDockerComposeGPUConfig 生成Docker Compose GPU配置
+// GenerateDockerComposeGPUConfig 生成Docker Compose GPU配置.
 func GenerateDockerComposeGPUConfig(config *ContainerGPUConfig, devices []*GPUDevice) map[string]interface{} {
 	if config == nil {
 		config = DefaultContainerGPUConfig()
@@ -287,7 +287,7 @@ func GenerateDockerComposeGPUConfig(config *ContainerGPUConfig, devices []*GPUDe
 	return gpuConfig
 }
 
-// ValidateGPUConfig 验证GPU配置
+// ValidateGPUConfig 验证GPU配置.
 func ValidateGPUConfig(config *ContainerGPUConfig, manager *Manager) error {
 	if config == nil {
 		return nil
@@ -348,7 +348,7 @@ func ValidateGPUConfig(config *ContainerGPUConfig, manager *Manager) error {
 	return nil
 }
 
-// MergeContainerGPUConfig 合并容器GPU配置
+// MergeContainerGPUConfig 合并容器GPU配置.
 func MergeContainerGPUConfig(base *ContainerGPUConfig, override *ContainerGPUConfig) *ContainerGPUConfig {
 	if base == nil {
 		base = DefaultContainerGPUConfig()
@@ -388,7 +388,7 @@ func MergeContainerGPUConfig(base *ContainerGPUConfig, override *ContainerGPUCon
 	return result
 }
 
-// mergeStrings 合并字符串数组
+// mergeStrings 合并字符串数组.
 func mergeStrings(a, b []string) []string {
 	result := a
 	for _, s := range b {
@@ -399,7 +399,7 @@ func mergeStrings(a, b []string) []string {
 	return result
 }
 
-// mergeInts 合并整数数组
+// mergeInts 合并整数数组.
 func mergeInts(a, b []int) []int {
 	result := a
 	for _, i := range b {
@@ -410,7 +410,7 @@ func mergeInts(a, b []int) []int {
 	return result
 }
 
-// mergeMaps 合并map
+// mergeMaps 合并map.
 func mergeMaps(a, b map[string]string) map[string]string {
 	result := make(map[string]string)
 	for k, v := range a {
@@ -422,7 +422,7 @@ func mergeMaps(a, b map[string]string) map[string]string {
 	return result
 }
 
-// containsString 检查字符串数组是否包含指定字符串
+// containsString 检查字符串数组是否包含指定字符串.
 func containsString(arr []string, s string) bool {
 	for _, a := range arr {
 		if a == s {
@@ -432,7 +432,7 @@ func containsString(arr []string, s string) bool {
 	return false
 }
 
-// containsInt 检查整数数组是否包含指定整数
+// containsInt 检查整数数组是否包含指定整数.
 func containsInt(arr []int, i int) bool {
 	for _, a := range arr {
 		if a == i {
@@ -442,7 +442,7 @@ func containsInt(arr []int, i int) bool {
 	return false
 }
 
-// GetGPUContainerRuntime 获取GPU容器运行时名称
+// GetGPUContainerRuntime 获取GPU容器运行时名称.
 func GetGPUContainerRuntime(config *ContainerGPUConfig) string {
 	if config == nil || !config.NvidiaRuntime {
 		return "runc"
@@ -455,7 +455,7 @@ func GetGPUContainerRuntime(config *ContainerGPUConfig) string {
 	return "nvidia"
 }
 
-// IsGPUConfigured 检查容器是否配置了GPU
+// IsGPUConfigured 检查容器是否配置了GPU.
 func IsGPUConfigured(config *ContainerGPUConfig) bool {
 	if config == nil {
 		return false

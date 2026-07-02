@@ -7,13 +7,13 @@ import (
 )
 
 // QueryParser 查询解析器
-// 支持 Spotlight 语法、布尔查询和过滤条件
+// 支持 Spotlight 语法、布尔查询和过滤条件.
 type QueryParser struct {
 	// 属性映射（Spotlight 属性名 -> 内部字段名）
 	attributeMap map[string]string
 }
 
-// ParsedQuery 解析后的查询
+// ParsedQuery 解析后的查询.
 type ParsedQuery struct {
 	Raw       string     `json:"raw"`
 	Terms     []string   `json:"terms"`
@@ -25,26 +25,26 @@ type ParsedQuery struct {
 	Operators []Operator `json:"operators,omitempty"`
 }
 
-// SizeRange 大小范围
+// SizeRange 大小范围.
 type SizeRange struct {
 	Min int64 `json:"min"`
 	Max int64 `json:"max"`
 }
 
-// DateRange 日期范围
+// DateRange 日期范围.
 type DateRange struct {
 	From time.Time `json:"from"`
 	To   time.Time `json:"to"`
 }
 
-// Operator 布尔运算符
+// Operator 布尔运算符.
 type Operator struct {
 	Type  string `json:"type"` // AND, OR, NOT
 	Left  string `json:"left"`
 	Right string `json:"right"`
 }
 
-// NewQueryParser 创建查询解析器
+// NewQueryParser 创建查询解析器.
 func NewQueryParser() *QueryParser {
 	return &QueryParser{
 		attributeMap: map[string]string{
@@ -61,7 +61,7 @@ func NewQueryParser() *QueryParser {
 	}
 }
 
-// Parse 解析查询字符串
+// Parse 解析查询字符串.
 func (p *QueryParser) Parse(query string) (*ParsedQuery, error) {
 	if query == "" {
 		return nil, fmt.Errorf("查询不能为空")
@@ -107,7 +107,7 @@ func (p *QueryParser) Parse(query string) (*ParsedQuery, error) {
 }
 
 // parseAttributes 解析 Spotlight 属性查询
-// 格式: kMDItemDisplayName == "value"
+// 格式: kMDItemDisplayName == "value".
 func (p *QueryParser) parseAttributes(query string, parsed *ParsedQuery) string {
 	// 查找属性查询模式
 	for attr, field := range p.attributeMap {
@@ -142,7 +142,7 @@ func (p *QueryParser) parseAttributes(query string, parsed *ParsedQuery) string 
 	return strings.TrimSpace(query)
 }
 
-// parseOperators 解析布尔运算符
+// parseOperators 解析布尔运算符.
 func (p *QueryParser) parseOperators(query string, parsed *ParsedQuery) string {
 	// 处理 AND
 	if strings.Contains(query, " AND ") {
@@ -187,7 +187,7 @@ func (p *QueryParser) parseOperators(query string, parsed *ParsedQuery) string {
 }
 
 // parseFileTypes 解析文件类型过滤
-// 格式: type:pdf 或 filetype:pdf
+// 格式: type:pdf 或 filetype:pdf.
 func (p *QueryParser) parseFileTypes(query string, parsed *ParsedQuery) string {
 	terms := strings.Fields(query)
 	remaining := make([]string, 0)
@@ -210,7 +210,7 @@ func (p *QueryParser) parseFileTypes(query string, parsed *ParsedQuery) string {
 }
 
 // parseSizeRange 解析大小范围
-// 格式: size:>1MB 或 size:<100KB
+// 格式: size:>1MB 或 size:<100KB.
 func (p *QueryParser) parseSizeRange(query string, parsed *ParsedQuery) string {
 	terms := strings.Fields(query)
 	remaining := make([]string, 0)
@@ -244,7 +244,7 @@ func (p *QueryParser) parseSizeRange(query string, parsed *ParsedQuery) string {
 }
 
 // parseDateRange 解析日期范围
-// 格式: date:>2024-01-01 或 date:<2024-12-31
+// 格式: date:>2024-01-01 或 date:<2024-12-31.
 func (p *QueryParser) parseDateRange(query string, parsed *ParsedQuery) string {
 	terms := strings.Fields(query)
 	remaining := make([]string, 0)
@@ -281,7 +281,7 @@ func (p *QueryParser) parseDateRange(query string, parsed *ParsedQuery) string {
 }
 
 // parsePaths 解析路径限制
-// 格式: path:/Volumes/share 或 in:/path
+// 格式: path:/Volumes/share 或 in:/path.
 func (p *QueryParser) parsePaths(query string, parsed *ParsedQuery) string {
 	terms := strings.Fields(query)
 	remaining := make([]string, 0)
@@ -302,7 +302,7 @@ func (p *QueryParser) parsePaths(query string, parsed *ParsedQuery) string {
 	return strings.Join(remaining, " ")
 }
 
-// extractQuotedValue 提取引号内的值
+// extractQuotedValue 提取引号内的值.
 func extractQuotedValue(s string) string {
 	s = strings.TrimSpace(s)
 
@@ -325,7 +325,7 @@ func extractQuotedValue(s string) string {
 	return s[start+1 : start+1+end]
 }
 
-// parseSize 解析大小字符串
+// parseSize 解析大小字符串.
 func parseSize(s string) int64 {
 	s = strings.TrimSpace(s)
 	s = strings.TrimPrefix(s, ">")
@@ -355,7 +355,7 @@ func parseSize(s string) int64 {
 	return result * multiplier
 }
 
-// parseDate 解析日期字符串
+// parseDate 解析日期字符串.
 func parseDate(s string) (time.Time, error) {
 	s = strings.TrimSpace(s)
 	s = strings.TrimPrefix(s, ">")

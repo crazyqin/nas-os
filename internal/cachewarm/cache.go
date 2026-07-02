@@ -232,7 +232,7 @@ func (c *SmartCache) evictLRU() {
 
 // evictLFU 淘汰最不频繁使用.
 func (c *SmartCache) evictLFU() {
-	var minFreq int = 1<<31 - 1
+	var minFreq = 1<<31 - 1
 	var minKey string
 
 	for key, elem := range c.entries {

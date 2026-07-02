@@ -7,20 +7,20 @@ import (
 	"time"
 )
 
-// Manager 存储设置向导管理器
+// Manager 存储设置向导管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	sessions map[string]*SetupSession
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		sessions: make(map[string]*SetupSession),
 	}
 }
 
-// CreateSession 创建设置会话
+// CreateSession 创建设置会话.
 func (m *Manager) CreateSession(disks []DiskInfo) (*SetupSession, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -43,7 +43,7 @@ func (m *Manager) CreateSession(disks []DiskInfo) (*SetupSession, error) {
 	return session, nil
 }
 
-// GetSession 获取会话
+// GetSession 获取会话.
 func (m *Manager) GetSession(id string) (*SetupSession, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -55,7 +55,7 @@ func (m *Manager) GetSession(id string) (*SetupSession, error) {
 	return session, nil
 }
 
-// UpdateStep 更新会话步骤
+// UpdateStep 更新会话步骤.
 func (m *Manager) UpdateStep(id string, step Step) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -70,7 +70,7 @@ func (m *Manager) UpdateStep(id string, step Step) error {
 	return nil
 }
 
-// SetPoolConfig 设置存储池配置
+// SetPoolConfig 设置存储池配置.
 func (m *Manager) SetPoolConfig(id string, config PoolConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -91,7 +91,7 @@ func (m *Manager) SetPoolConfig(id string, config PoolConfig) error {
 	return nil
 }
 
-// SetVolumeConfig 设置卷配置
+// SetVolumeConfig 设置卷配置.
 func (m *Manager) SetVolumeConfig(id string, config VolumeConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -107,7 +107,7 @@ func (m *Manager) SetVolumeConfig(id string, config VolumeConfig) error {
 	return nil
 }
 
-// SetShareConfig 设置共享配置
+// SetShareConfig 设置共享配置.
 func (m *Manager) SetShareConfig(id string, config ShareConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -123,7 +123,7 @@ func (m *Manager) SetShareConfig(id string, config ShareConfig) error {
 	return nil
 }
 
-// CompleteSession 完成会话
+// CompleteSession 完成会话.
 func (m *Manager) CompleteSession(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -141,7 +141,7 @@ func (m *Manager) CompleteSession(id string) error {
 	return nil
 }
 
-// GetRecommendations 获取RAID推荐
+// GetRecommendations 获取RAID推荐.
 func (m *Manager) GetRecommendations(id string, priority string) ([]RAIDRecommendation, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -154,7 +154,7 @@ func (m *Manager) GetRecommendations(id string, priority string) ([]RAIDRecommen
 	return RecommendRAID(len(session.Disks), priority), nil
 }
 
-// EstimateCapacity 估算容量
+// EstimateCapacity 估算容量.
 func (m *Manager) EstimateCapacity(id string, raidType RAIDType) (*CapacityEstimation, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -180,7 +180,7 @@ func (m *Manager) EstimateCapacity(id string, raidType RAIDType) (*CapacityEstim
 	return &estimation, nil
 }
 
-// ListSessions 列出所有会话
+// ListSessions 列出所有会话.
 func (m *Manager) ListSessions() []*SetupSession {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -192,7 +192,7 @@ func (m *Manager) ListSessions() []*SetupSession {
 	return sessions
 }
 
-// DeleteSession 删除会话
+// DeleteSession 删除会话.
 func (m *Manager) DeleteSession(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

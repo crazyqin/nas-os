@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers WireGuard 部署 API 处理器
+// Handlers WireGuard 部署 API 处理器.
 type Handlers struct {
 	engine *Engine
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(engine *Engine) *Handlers {
 	return &Handlers{engine: engine}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	wg := r.Group("/wgvdeploy")
 	{
@@ -57,7 +57,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // 服务状态和控制
 // ============================================================
 
-// getStatus 获取服务状态
+// getStatus 获取服务状态.
 func (h *Handlers) getStatus(c *gin.Context) {
 	status := h.engine.GetStatus()
 	c.JSON(http.StatusOK, APIResponse{
@@ -67,7 +67,7 @@ func (h *Handlers) getStatus(c *gin.Context) {
 	})
 }
 
-// startService 启动服务
+// startService 启动服务.
 func (h *Handlers) startService(c *gin.Context) {
 	if err := h.engine.Start(); err != nil {
 		c.JSON(http.StatusConflict, ErrorResponse{
@@ -84,7 +84,7 @@ func (h *Handlers) startService(c *gin.Context) {
 	})
 }
 
-// stopService 停止服务
+// stopService 停止服务.
 func (h *Handlers) stopService(c *gin.Context) {
 	if err := h.engine.Stop(); err != nil {
 		c.JSON(http.StatusConflict, ErrorResponse{
@@ -105,7 +105,7 @@ func (h *Handlers) stopService(c *gin.Context) {
 // 对端管理
 // ============================================================
 
-// listPeers 获取对端列表
+// listPeers 获取对端列表.
 func (h *Handlers) listPeers(c *gin.Context) {
 	peers := h.engine.ListPeers()
 	c.JSON(http.StatusOK, APIResponse{
@@ -115,7 +115,7 @@ func (h *Handlers) listPeers(c *gin.Context) {
 	})
 }
 
-// addPeer 添加对端
+// addPeer 添加对端.
 func (h *Handlers) addPeer(c *gin.Context) {
 	var req CreatePeerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -142,7 +142,7 @@ func (h *Handlers) addPeer(c *gin.Context) {
 	})
 }
 
-// getPeer 获取对端信息
+// getPeer 获取对端信息.
 func (h *Handlers) getPeer(c *gin.Context) {
 	id := c.Param("id")
 	peer, err := h.engine.GetPeer(id)
@@ -161,7 +161,7 @@ func (h *Handlers) getPeer(c *gin.Context) {
 	})
 }
 
-// updatePeer 更新对端
+// updatePeer 更新对端.
 func (h *Handlers) updatePeer(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdatePeerRequest
@@ -189,7 +189,7 @@ func (h *Handlers) updatePeer(c *gin.Context) {
 	})
 }
 
-// deletePeer 删除对端
+// deletePeer 删除对端.
 func (h *Handlers) deletePeer(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.engine.DeletePeer(id); err != nil {
@@ -206,7 +206,7 @@ func (h *Handlers) deletePeer(c *gin.Context) {
 	})
 }
 
-// getPeerConfig 获取客户端配置
+// getPeerConfig 获取客户端配置.
 func (h *Handlers) getPeerConfig(c *gin.Context) {
 	id := c.Param("id")
 	config, err := h.engine.GenerateClientConfig(id)
@@ -227,7 +227,7 @@ func (h *Handlers) getPeerConfig(c *gin.Context) {
 	})
 }
 
-// getPeerQRCode 获取客户端 QR 码
+// getPeerQRCode 获取客户端 QR 码.
 func (h *Handlers) getPeerQRCode(c *gin.Context) {
 	id := c.Param("id")
 	format := c.DefaultQuery("format", "svg")
@@ -270,7 +270,7 @@ func (h *Handlers) getPeerQRCode(c *gin.Context) {
 // 流量监控
 // ============================================================
 
-// getTrafficStats 获取流量统计
+// getTrafficStats 获取流量统计.
 func (h *Handlers) getTrafficStats(c *gin.Context) {
 	stats := h.engine.GetTrafficStats()
 	c.JSON(http.StatusOK, APIResponse{
@@ -280,7 +280,7 @@ func (h *Handlers) getTrafficStats(c *gin.Context) {
 	})
 }
 
-// getTrafficHistory 获取历史流量
+// getTrafficHistory 获取历史流量.
 func (h *Handlers) getTrafficHistory(c *gin.Context) {
 	var req TrafficHistoryRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -299,7 +299,7 @@ func (h *Handlers) getTrafficHistory(c *gin.Context) {
 	})
 }
 
-// getTrafficAlerts 获取流量告警
+// getTrafficAlerts 获取流量告警.
 func (h *Handlers) getTrafficAlerts(c *gin.Context) {
 	alerts := h.engine.CheckTrafficAlerts()
 	c.JSON(http.StatusOK, APIResponse{
@@ -313,7 +313,7 @@ func (h *Handlers) getTrafficAlerts(c *gin.Context) {
 // 配置模板
 // ============================================================
 
-// getTemplates 获取配置模板列表
+// getTemplates 获取配置模板列表.
 func (h *Handlers) getTemplates(c *gin.Context) {
 	templates := h.engine.GetTemplates()
 	c.JSON(http.StatusOK, APIResponse{
@@ -323,7 +323,7 @@ func (h *Handlers) getTemplates(c *gin.Context) {
 	})
 }
 
-// getTemplate 获取指定配置模板
+// getTemplate 获取指定配置模板.
 func (h *Handlers) getTemplate(c *gin.Context) {
 	id := c.Param("id")
 	template, err := h.engine.GetTemplate(id)
@@ -346,7 +346,7 @@ func (h *Handlers) getTemplate(c *gin.Context) {
 // 一键部署
 // ============================================================
 
-// deploy 一键部署
+// deploy 一键部署.
 func (h *Handlers) deploy(c *gin.Context) {
 	var req DeployRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -377,7 +377,7 @@ func (h *Handlers) deploy(c *gin.Context) {
 // 服务端配置
 // ============================================================
 
-// getServerConfig 获取服务端配置
+// getServerConfig 获取服务端配置.
 func (h *Handlers) getServerConfig(c *gin.Context) {
 	config := h.engine.GetServerConfig()
 	c.JSON(http.StatusOK, APIResponse{

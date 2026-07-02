@@ -14,7 +14,7 @@ import (
 
 // ================== 辅助函数 ==================
 
-// createTestEngine 创建用于测试的搜索引擎（使用临时目录）
+// createTestEngine 创建用于测试的搜索引擎（使用临时目录）.
 func createTestEngine(b *testing.B) (*Engine, func()) {
 	b.Helper()
 
@@ -47,7 +47,7 @@ func createTestEngine(b *testing.B) (*Engine, func()) {
 	return engine, cleanup
 }
 
-// createTempFiles 创建临时测试文件
+// createTempFiles 创建临时测试文件.
 func createTempFiles(b *testing.B, dir string, count int) []string {
 	b.Helper()
 
@@ -79,7 +79,7 @@ func createTempFiles(b *testing.B, dir string, count int) []string {
 // ================== 基准测试 ==================
 
 // BenchmarkIndexCreation 测试索引创建速度
-// 测量单个文档索引的吞吐量
+// 测量单个文档索引的吞吐量.
 func BenchmarkIndexCreation(b *testing.B) {
 	engine, cleanup := createTestEngine(b)
 	defer cleanup()
@@ -99,7 +99,7 @@ func BenchmarkIndexCreation(b *testing.B) {
 }
 
 // BenchmarkBatchIndexing 测试批量索引性能
-// 比较不同批量大小下的索引速度
+// 比较不同批量大小下的索引速度.
 func BenchmarkBatchIndexing(b *testing.B) {
 	batchSizes := []int{10, 50, 100, 200, 500}
 
@@ -133,7 +133,7 @@ func BenchmarkBatchIndexing(b *testing.B) {
 }
 
 // BenchmarkSearchResponseTime 测试搜索响应时间
-// 测量不同查询类型的搜索延迟
+// 测量不同查询类型的搜索延迟.
 func BenchmarkSearchResponseTime(b *testing.B) {
 	engine, cleanup := createTestEngine(b)
 	defer cleanup()
@@ -173,7 +173,7 @@ func BenchmarkSearchResponseTime(b *testing.B) {
 	}
 }
 
-// BenchmarkSearchWithHighlight 测试带高亮的搜索性能
+// BenchmarkSearchWithHighlight 测试带高亮的搜索性能.
 func BenchmarkSearchWithHighlight(b *testing.B) {
 	engine, cleanup := createTestEngine(b)
 	defer cleanup()
@@ -203,7 +203,7 @@ func BenchmarkSearchWithHighlight(b *testing.B) {
 	}
 }
 
-// BenchmarkSearchConcurrent 测试并发搜索性能
+// BenchmarkSearchConcurrent 测试并发搜索性能.
 func BenchmarkSearchConcurrent(b *testing.B) {
 	engine, cleanup := createTestEngine(b)
 	defer cleanup()
@@ -238,7 +238,7 @@ func BenchmarkSearchConcurrent(b *testing.B) {
 	})
 }
 
-// BenchmarkIndexDirectory 测试目录索引性能
+// BenchmarkIndexDirectory 测试目录索引性能.
 func BenchmarkIndexDirectory(b *testing.B) {
 	engine, cleanup := createTestEngine(b)
 	defer cleanup()
@@ -263,7 +263,7 @@ func BenchmarkIndexDirectory(b *testing.B) {
 	}
 }
 
-// BenchmarkFuzzySearch 测试模糊搜索性能
+// BenchmarkFuzzySearch 测试模糊搜索性能.
 func BenchmarkFuzzySearch(b *testing.B) {
 	engine, cleanup := createTestEngine(b)
 	defer cleanup()
@@ -292,7 +292,7 @@ func BenchmarkFuzzySearch(b *testing.B) {
 	}
 }
 
-// BenchmarkPrefixSearch 测试前缀搜索性能
+// BenchmarkPrefixSearch 测试前缀搜索性能.
 func BenchmarkPrefixSearch(b *testing.B) {
 	engine, cleanup := createTestEngine(b)
 	defer cleanup()
@@ -321,7 +321,7 @@ func BenchmarkPrefixSearch(b *testing.B) {
 	}
 }
 
-// BenchmarkDeleteAndReindex 测试删除后重新索引的性能
+// BenchmarkDeleteAndReindex 测试删除后重新索引的性能.
 func BenchmarkDeleteAndReindex(b *testing.B) {
 	engine, cleanup := createTestEngine(b)
 	defer cleanup()
@@ -357,7 +357,7 @@ func BenchmarkDeleteAndReindex(b *testing.B) {
 
 // ================== 测试数据生成 ==================
 
-// generateTestDocuments 生成测试文档
+// generateTestDocuments 生成测试文档.
 func generateTestDocuments(count int) []FileInfo {
 	docs := make([]FileInfo, count)
 
@@ -407,7 +407,7 @@ func generateTestDocuments(count int) []FileInfo {
 
 // ================== 集成测试 ==================
 
-// TestSearchIntegration 搜索集成测试
+// TestSearchIntegration 搜索集成测试.
 func TestSearchIntegration(t *testing.T) {
 	engine, cleanup := createTestEngine(&testing.B{})
 	defer cleanup()

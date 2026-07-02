@@ -86,10 +86,10 @@ func (s *SpotlightServer) ListShares() map[string]string {
 
 // SpotlightQuery macOS Spotlight 查询请求。
 type SpotlightQuery struct {
-	Query      string `json:"query" xml:"query"`           // Spotlight 查询字符串
-	ShareName  string `json:"shareName" xml:"shareName"`   // SMB 共享名
-	Path       string `json:"path,omitempty" xml:"path"`   // 搜索路径限制
-	MaxResults int    `json:"maxResults" xml:"maxResults"` // 最大结果数
+	Query      string `json:"query" xml:"query"`             // Spotlight 查询字符串
+	ShareName  string `json:"shareName" xml:"shareName"`     // SMB 共享名
+	Path       string `json:"path,omitempty" xml:"path"`     // 搜索路径限制
+	MaxResults int    `json:"maxResults" xml:"maxResults"`   // 最大结果数
 	SortBy     string `json:"sortBy,omitempty" xml:"sortBy"` // 排序字段
 }
 
@@ -118,13 +118,13 @@ type SpotlightResponse struct {
 // spotlightQueryMap 将 Spotlight 查询语法关键字映射到 TrueSearch 查询。
 // macOS Spotlight 使用 kMDItemxxx 格式的属性查询，需要转换为全文搜索。
 var spotlightQueryMap = map[string]string{
-	"kMDItemDisplayName":              "name",
-	"kMDItemTextContent":              "content",
-	"kMDItemFSName":                   "name",
-	"kMDItemContentType":              "ext",
-	"kMDItemFSSize":                   "size",
-	"kMDItemFSCreationDate":           "modTime",
-	"kMDItemContentModificationDate":  "modTime",
+	"kMDItemDisplayName":             "name",
+	"kMDItemTextContent":             "content",
+	"kMDItemFSName":                  "name",
+	"kMDItemContentType":             "ext",
+	"kMDItemFSSize":                  "size",
+	"kMDItemFSCreationDate":          "modTime",
+	"kMDItemContentModificationDate": "modTime",
 }
 
 // kindMap 文件扩展名到 macOS kind 类型映射。

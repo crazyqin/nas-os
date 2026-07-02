@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// VMState 虚拟机状态
+// VMState 虚拟机状态.
 type VMState string
 
 const (
@@ -17,7 +17,7 @@ const (
 	VMStateError    VMState = "error"
 )
 
-// VMOSType 操作系统类型
+// VMOSType 操作系统类型.
 type VMOSType string
 
 const (
@@ -27,7 +27,7 @@ const (
 	OSMacOS   VMOSType = "macos"
 )
 
-// VM 虚拟机
+// VM 虚拟机.
 type VM struct {
 	ID             string    `json:"id"`
 	Name           string    `json:"name"`
@@ -49,7 +49,7 @@ type VM struct {
 	StartedAt      time.Time `json:"startedAt"`
 }
 
-// VMSnapshot 虚拟机快照
+// VMSnapshot 虚拟机快照.
 type VMSnapshot struct {
 	ID        string    `json:"id"`
 	VMID      string    `json:"vmId"`
@@ -58,14 +58,14 @@ type VMSnapshot struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-// Manager 虚拟机管理器
+// Manager 虚拟机管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	vms       map[string]*VM
 	snapshots map[string][]*VMSnapshot
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		vms:       make(map[string]*VM),
@@ -73,7 +73,7 @@ func NewManager() *Manager {
 	}
 }
 
-// ListVMs 列出虚拟机
+// ListVMs 列出虚拟机.
 func (m *Manager) ListVMs() []*VM {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -84,7 +84,7 @@ func (m *Manager) ListVMs() []*VM {
 	return vms
 }
 
-// GetVM 获取虚拟机详情
+// GetVM 获取虚拟机详情.
 func (m *Manager) GetVM(id string) (*VM, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -95,7 +95,7 @@ func (m *Manager) GetVM(id string) (*VM, error) {
 	return vm, nil
 }
 
-// CreateVM 创建虚拟机
+// CreateVM 创建虚拟机.
 func (m *Manager) CreateVM(name string, osType VMOSType, cores, memMB, diskGB int) (*VM, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -114,7 +114,7 @@ func (m *Manager) CreateVM(name string, osType VMOSType, cores, memMB, diskGB in
 	return vm, nil
 }
 
-// DeleteVM 删除虚拟机
+// DeleteVM 删除虚拟机.
 func (m *Manager) DeleteVM(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -126,7 +126,7 @@ func (m *Manager) DeleteVM(id string) error {
 	return nil
 }
 
-// StartVM 启动虚拟机
+// StartVM 启动虚拟机.
 func (m *Manager) StartVM(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -139,7 +139,7 @@ func (m *Manager) StartVM(id string) error {
 	return nil
 }
 
-// StopVM 停止虚拟机
+// StopVM 停止虚拟机.
 func (m *Manager) StopVM(id string, force bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -151,7 +151,7 @@ func (m *Manager) StopVM(id string, force bool) error {
 	return nil
 }
 
-// PauseVM 暂停虚拟机
+// PauseVM 暂停虚拟机.
 func (m *Manager) PauseVM(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -163,7 +163,7 @@ func (m *Manager) PauseVM(id string) error {
 	return nil
 }
 
-// ResumeVM 恢复虚拟机
+// ResumeVM 恢复虚拟机.
 func (m *Manager) ResumeVM(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -175,7 +175,7 @@ func (m *Manager) ResumeVM(id string) error {
 	return nil
 }
 
-// CreateVMSnapshot 创建虚拟机快照
+// CreateVMSnapshot 创建虚拟机快照.
 func (m *Manager) CreateVMSnapshot(vmID, name string) (*VMSnapshot, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -196,7 +196,7 @@ func (m *Manager) CreateVMSnapshot(vmID, name string) (*VMSnapshot, error) {
 	return snap, nil
 }
 
-// GetVMSnapshots 获取虚拟机快照
+// GetVMSnapshots 获取虚拟机快照.
 func (m *Manager) GetVMSnapshots(vmID string) ([]*VMSnapshot, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -210,7 +210,7 @@ func (m *Manager) GetVMSnapshots(vmID string) ([]*VMSnapshot, error) {
 	return snaps, nil
 }
 
-// RollbackVMSnapshot 回滚虚拟机快照
+// RollbackVMSnapshot 回滚虚拟机快照.
 func (m *Manager) RollbackVMSnapshot(vmID, snapID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -230,7 +230,7 @@ func (m *Manager) RollbackVMSnapshot(vmID, snapID string) error {
 	return fmt.Errorf("snapshot %s not found", snapID)
 }
 
-// UpdateVM 更新虚拟机配置
+// UpdateVM 更新虚拟机配置.
 func (m *Manager) UpdateVM(id string, cores, memMB int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -247,7 +247,7 @@ func (m *Manager) UpdateVM(id string, cores, memMB int) error {
 	return nil
 }
 
-// AttachGPU 直通GPU
+// AttachGPU 直通GPU.
 func (m *Manager) AttachGPU(vmID, gpuID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -259,7 +259,7 @@ func (m *Manager) AttachGPU(vmID, gpuID string) error {
 	return nil
 }
 
-// AttachUSB 直通USB设备
+// AttachUSB 直通USB设备.
 func (m *Manager) AttachUSB(vmID, deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

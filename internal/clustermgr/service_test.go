@@ -394,11 +394,11 @@ func TestService_QoSRule(t *testing.T) {
 		req := &CreateQoSRuleRequest{
 			ClusterID: cluster.ID,
 			Name:      "cpu-limit",
-			Category:   QoSCPU,
-			NodeID:     node.ID,
-			Limit:      80,
-			Action:     QoSActionThrottle,
-			Priority:   75,
+			Category:  QoSCPU,
+			NodeID:    node.ID,
+			Limit:     80,
+			Action:    QoSActionThrottle,
+			Priority:  75,
 		}
 
 		result, err := svc.CreateQoSRule(context.Background(), req)
@@ -414,9 +414,9 @@ func TestService_QoSRule(t *testing.T) {
 		req := &CreateQoSRuleRequest{
 			ClusterID: cluster.ID,
 			Name:      "net-limit-global",
-			Category:   QoSNetwork,
-			Limit:      1000,
-			Action:     QoSActionQueue,
+			Category:  QoSNetwork,
+			Limit:     1000,
+			Action:    QoSActionQueue,
 		}
 
 		result, err := svc.CreateQoSRule(context.Background(), req)
@@ -429,10 +429,10 @@ func TestService_QoSRule(t *testing.T) {
 		req := &CreateQoSRuleRequest{
 			ClusterID: cluster.ID,
 			Name:      "bad-qos",
-			Category:   QoSCPU,
-			NodeID:     "non-existent",
-			Limit:      50,
-			Action:     QoSActionReject,
+			Category:  QoSCPU,
+			NodeID:    "non-existent",
+			Limit:     50,
+			Action:    QoSActionReject,
 		}
 
 		_, err := svc.CreateQoSRule(context.Background(), req)
@@ -496,11 +496,11 @@ func TestService_Protection(t *testing.T) {
 		req := &CreateProtectionRequest{
 			ClusterID:    cluster.ID,
 			Name:         "failover-protection",
-			Type:          ProtectionFailover,
-			Level:         ProtectionFull,
-			NodeIDs:       []string{node1.ID, node2.ID},
-			AutoFailover:  true,
-			ReplicaCount:  2,
+			Type:         ProtectionFailover,
+			Level:        ProtectionFull,
+			NodeIDs:      []string{node1.ID, node2.ID},
+			AutoFailover: true,
+			ReplicaCount: 2,
 		}
 
 		result, err := svc.CreateProtection(context.Background(), req)
@@ -515,10 +515,10 @@ func TestService_Protection(t *testing.T) {
 	t.Run("不存在的节点", func(t *testing.T) {
 		req := &CreateProtectionRequest{
 			ClusterID: cluster.ID,
-			Name:       "bad-protection",
-			Type:        ProtectionReplication,
-			Level:       ProtectionPartial,
-			NodeIDs:     []string{"non-existent"},
+			Name:      "bad-protection",
+			Type:      ProtectionReplication,
+			Level:     ProtectionPartial,
+			NodeIDs:   []string{"non-existent"},
 		}
 
 		_, err := svc.CreateProtection(context.Background(), req)

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// KnowledgeEntry 知识条目
+// KnowledgeEntry 知识条目.
 type KnowledgeEntry struct {
 	ID        string    `json:"id"`
 	Title     string    `json:"title"`
@@ -21,36 +21,36 @@ type KnowledgeEntry struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// Query 查询
+// Query 查询.
 type Query struct {
-	Text      string `json:"text"`
-	Category  string `json:"category,omitempty"`
-	Limit     int    `json:"limit"`
+	Text     string `json:"text"`
+	Category string `json:"category,omitempty"`
+	Limit    int    `json:"limit"`
 }
 
-// QueryResult 查询结果
+// QueryResult 查询结果.
 type QueryResult struct {
 	Entry *KnowledgeEntry `json:"entry"`
 	Score float64         `json:"score"`
 }
 
-// KnowledgeBaseMetrics 知识库指标
+// KnowledgeBaseMetrics 知识库指标.
 type KnowledgeBaseMetrics struct {
-	TotalEntries int `json:"total_entries"`
-	Categories   int `json:"categories"`
+	TotalEntries int   `json:"total_entries"`
+	Categories   int   `json:"categories"`
 	TotalQueries int64 `json:"total_queries"`
 }
 
-// LocalKnowledgeBase 本地AI知识库
+// LocalKnowledgeBase 本地AI知识库.
 type LocalKnowledgeBase struct {
-	mu        sync.RWMutex
-	entries   map[string]*KnowledgeEntry
+	mu         sync.RWMutex
+	entries    map[string]*KnowledgeEntry
 	categories map[string]int
-	metrics   *KnowledgeBaseMetrics
-	logger    *slog.Logger
+	metrics    *KnowledgeBaseMetrics
+	logger     *slog.Logger
 }
 
-// NewLocalKnowledgeBase 创建本地知识库
+// NewLocalKnowledgeBase 创建本地知识库.
 func NewLocalKnowledgeBase(logger *slog.Logger) *LocalKnowledgeBase {
 	if logger == nil {
 		logger = slog.Default()
@@ -64,7 +64,7 @@ func NewLocalKnowledgeBase(logger *slog.Logger) *LocalKnowledgeBase {
 	}
 }
 
-// AddEntry 添加知识条目
+// AddEntry 添加知识条目.
 func (kb *LocalKnowledgeBase) AddEntry(entry *KnowledgeEntry) error {
 	if entry == nil {
 		return errors.New("entry cannot be nil")
@@ -102,7 +102,7 @@ func (kb *LocalKnowledgeBase) AddEntry(entry *KnowledgeEntry) error {
 	return nil
 }
 
-// UpdateEntry 更新知识条目
+// UpdateEntry 更新知识条目.
 func (kb *LocalKnowledgeBase) UpdateEntry(entry *KnowledgeEntry) error {
 	if entry == nil {
 		return errors.New("entry cannot be nil")
@@ -139,7 +139,7 @@ func (kb *LocalKnowledgeBase) UpdateEntry(entry *KnowledgeEntry) error {
 	return nil
 }
 
-// RemoveEntry 移除知识条目
+// RemoveEntry 移除知识条目.
 func (kb *LocalKnowledgeBase) RemoveEntry(entryID string) error {
 	kb.mu.Lock()
 	defer kb.mu.Unlock()
@@ -162,7 +162,7 @@ func (kb *LocalKnowledgeBase) RemoveEntry(entryID string) error {
 	return nil
 }
 
-// Query 查询知识库
+// Query 查询知识库.
 func (kb *LocalKnowledgeBase) Query(query *Query) ([]*QueryResult, error) {
 	if query == nil {
 		return nil, errors.New("query cannot be nil")
@@ -212,7 +212,7 @@ func (kb *LocalKnowledgeBase) Query(query *Query) ([]*QueryResult, error) {
 	return results, nil
 }
 
-// GetEntry 获取知识条目
+// GetEntry 获取知识条目.
 func (kb *LocalKnowledgeBase) GetEntry(entryID string) (*KnowledgeEntry, error) {
 	kb.mu.RLock()
 	defer kb.mu.RUnlock()
@@ -225,7 +225,7 @@ func (kb *LocalKnowledgeBase) GetEntry(entryID string) (*KnowledgeEntry, error) 
 	return entry, nil
 }
 
-// ListCategories 列出分类
+// ListCategories 列出分类.
 func (kb *LocalKnowledgeBase) ListCategories() map[string]int {
 	kb.mu.RLock()
 	defer kb.mu.RUnlock()
@@ -238,7 +238,7 @@ func (kb *LocalKnowledgeBase) ListCategories() map[string]int {
 	return categories
 }
 
-// GetMetrics 获取指标
+// GetMetrics 获取指标.
 func (kb *LocalKnowledgeBase) GetMetrics() *KnowledgeBaseMetrics {
 	kb.mu.RLock()
 	defer kb.mu.RUnlock()
@@ -250,7 +250,7 @@ func (kb *LocalKnowledgeBase) GetMetrics() *KnowledgeBaseMetrics {
 	}
 }
 
-// generateVector 生成向量
+// generateVector 生成向量.
 func (kb *LocalKnowledgeBase) generateVector(text string) []float64 {
 	vector := make([]float64, 64)
 	for i, ch := range text {
@@ -271,7 +271,7 @@ func (kb *LocalKnowledgeBase) generateVector(text string) []float64 {
 	return vector
 }
 
-// similarity 相似度计算
+// similarity 相似度计算.
 func (kb *LocalKnowledgeBase) similarity(a, b []float64) float64 {
 	if len(a) != len(b) {
 		return 0

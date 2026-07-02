@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// HealthChecker 健康检查器
+// HealthChecker 健康检查器.
 type HealthChecker struct {
 	config   HealthCheckConfig
 	backends []*Backend
@@ -24,10 +24,10 @@ type HealthChecker struct {
 	mu sync.RWMutex
 }
 
-// HealthProbeFunc 自定义健康探针函数
+// HealthProbeFunc 自定义健康探针函数.
 type HealthProbeFunc func(ctx context.Context, backend *Backend) error
 
-// NewHealthChecker 创建健康检查器
+// NewHealthChecker 创建健康检查器.
 func NewHealthChecker(config HealthCheckConfig) *HealthChecker {
 	return &HealthChecker{
 		config: config,
@@ -40,21 +40,21 @@ func NewHealthChecker(config HealthCheckConfig) *HealthChecker {
 	}
 }
 
-// SetBackends 设置要检查的后端列表
+// SetBackends 设置要检查的后端列表.
 func (hc *HealthChecker) SetBackends(backends []*Backend) {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
 	hc.backends = backends
 }
 
-// RegisterProbe 注册自定义探针
+// RegisterProbe 注册自定义探针.
 func (hc *HealthChecker) RegisterProbe(name string, probe HealthProbeFunc) {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
 	hc.customProbes[name] = probe
 }
 
-// Start 启动健康检查
+// Start 启动健康检查.
 func (hc *HealthChecker) Start() {
 	if !hc.config.Enabled {
 		return
@@ -63,17 +63,17 @@ func (hc *HealthChecker) Start() {
 	go hc.run()
 }
 
-// Stop 停止健康检查
+// Stop 停止健康检查.
 func (hc *HealthChecker) Stop() {
 	close(hc.stopCh)
 }
 
-// Results 获取检查结果通道
+// Results 获取检查结果通道.
 func (hc *HealthChecker) Results() <-chan HealthCheckResult {
 	return hc.results
 }
 
-// run 运行健康检查循环
+// run 运行健康检查循环.
 func (hc *HealthChecker) run() {
 	ticker := time.NewTicker(hc.config.Interval)
 	defer ticker.Stop()
@@ -91,7 +91,7 @@ func (hc *HealthChecker) run() {
 	}
 }
 
-// checkAll 检查所有后端
+// checkAll 检查所有后端.
 func (hc *HealthChecker) checkAll() {
 	hc.mu.RLock()
 	backends := hc.backends
@@ -114,7 +114,7 @@ func (hc *HealthChecker) checkAll() {
 	wg.Wait()
 }
 
-// check 执行单个后端检查
+// check 执行单个后端检查.
 func (hc *HealthChecker) check(backend *Backend) HealthCheckResult {
 	start := time.Now()
 
@@ -146,7 +146,7 @@ func (hc *HealthChecker) check(backend *Backend) HealthCheckResult {
 	return result
 }
 
-// checkHTTP HTTP健康检查
+// checkHTTP HTTP健康检查.
 func (hc *HealthChecker) checkHTTP(backend *Backend) error {
 	ctx, cancel := context.WithTimeout(context.Background(), hc.config.Timeout)
 	defer cancel()
@@ -175,7 +175,7 @@ func (hc *HealthChecker) checkHTTP(backend *Backend) error {
 	return nil
 }
 
-// checkTCP TCP健康检查
+// checkTCP TCP健康检查.
 func (hc *HealthChecker) checkTCP(backend *Backend) error {
 	ctx, cancel := context.WithTimeout(context.Background(), hc.config.Timeout)
 	defer cancel()
@@ -206,7 +206,7 @@ func (hc *HealthChecker) checkTCP(backend *Backend) error {
 	return nil
 }
 
-// checkCustom 自定义探针检查
+// checkCustom 自定义探针检查.
 func (hc *HealthChecker) checkCustom(backend *Backend) error {
 	hc.mu.RLock()
 	probe, exists := hc.customProbes[backend.ID]
@@ -222,7 +222,7 @@ func (hc *HealthChecker) checkCustom(backend *Backend) error {
 	return probe(ctx, backend)
 }
 
-// updateBackend 更新后端健康状态
+// updateBackend 更新后端健康状态.
 func (hc *HealthChecker) updateBackend(backend *Backend, result HealthCheckResult) {
 	backend.mu.Lock()
 	defer backend.mu.Unlock()
@@ -256,7 +256,7 @@ func (hc *HealthChecker) updateBackend(backend *Backend, result HealthCheckResul
 	backend.LastCheck = time.Now()
 }
 
-// parseCounter 解析计数器
+// parseCounter 解析计数器.
 func parseCounter(s string) int {
 	if s == "" {
 		return 0
@@ -266,14 +266,14 @@ func parseCounter(s string) int {
 	return n
 }
 
-// CheckNow 立即检查指定后端
+// CheckNow 立即检查指定后端.
 func (hc *HealthChecker) CheckNow(backend *Backend) HealthCheckResult {
 	result := hc.check(backend)
 	hc.updateBackend(backend, result)
 	return result
 }
 
-// CheckAllNow 立即检查所有后端
+// CheckAllNow 立即检查所有后端.
 func (hc *HealthChecker) CheckAllNow() []HealthCheckResult {
 	hc.mu.RLock()
 	backends := hc.backends

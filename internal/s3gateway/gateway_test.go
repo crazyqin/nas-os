@@ -16,7 +16,7 @@ func init() {
 	gin.SetMode(gin.TestMode)
 }
 
-// setupTestRouter 创建测试用的gin引擎和handler
+// setupTestRouter 创建测试用的gin引擎和handler.
 func setupTestRouter() (*gin.Engine, *Gateway) {
 	gw := NewGateway(GatewayConfig{
 		StorageRoot:   "/tmp/s3-test",
@@ -34,7 +34,7 @@ func setupTestRouter() (*gin.Engine, *Gateway) {
 	return router, gw
 }
 
-// TestCreateAndListBuckets 测试创建和列出存储桶
+// TestCreateAndListBuckets 测试创建和列出存储桶.
 func TestCreateAndListBuckets(t *testing.T) {
 	router, _ := setupTestRouter()
 
@@ -71,7 +71,7 @@ func TestCreateAndListBuckets(t *testing.T) {
 	assert.Equal(t, float64(1), resp["count"])
 }
 
-// TestPutAndGetObject 测试上传和下载对象
+// TestPutAndGetObject 测试上传和下载对象.
 func TestPutAndGetObject(t *testing.T) {
 	router, gw := setupTestRouter()
 
@@ -103,7 +103,7 @@ func TestPutAndGetObject(t *testing.T) {
 	assert.Equal(t, "text/plain", w2.Header().Get("Content-Type"))
 }
 
-// TestDeleteObject 测试删除对象
+// TestDeleteObject 测试删除对象.
 func TestDeleteObject(t *testing.T) {
 	router, gw := setupTestRouter()
 
@@ -128,7 +128,7 @@ func TestDeleteObject(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, w2.Code)
 }
 
-// TestMultiTenantAccess 测试多租户隔离
+// TestMultiTenantAccess 测试多租户隔离.
 func TestMultiTenantAccess(t *testing.T) {
 	router, gw := setupTestRouter()
 
@@ -156,7 +156,7 @@ func TestMultiTenantAccess(t *testing.T) {
 	assert.Equal(t, float64(0), resp["count"]) // user2 没有桶
 }
 
-// TestBucketQuota 测试桶配额限制
+// TestBucketQuota 测试桶配额限制.
 func TestBucketQuota(t *testing.T) {
 	gw := NewGateway(GatewayConfig{
 		EnableLogging: true,
@@ -184,7 +184,7 @@ func TestBucketQuota(t *testing.T) {
 	assert.Contains(t, err.Error(), "quota exceeded")
 }
 
-// TestListObjects 测试列出对象
+// TestListObjects 测试列出对象.
 func TestListObjects(t *testing.T) {
 	router, gw := setupTestRouter()
 
@@ -211,7 +211,7 @@ func TestListObjects(t *testing.T) {
 	assert.Equal(t, float64(2), resp["count"]) // 只有dir/前缀的2个
 }
 
-// TestStatsAndConfig 测试统计和配置接口
+// TestStatsAndConfig 测试统计和配置接口.
 func TestStatsAndConfig(t *testing.T) {
 	router, gw := setupTestRouter()
 

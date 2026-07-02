@@ -535,7 +535,7 @@ func TestUpdateRequest(t *testing.T) {
 
 // ========== 辅助函数 ==========
 
-// getFirstToken 获取请求的第一个链接令牌（测试辅助）
+// getFirstToken 获取请求的第一个链接令牌（测试辅助）.
 func getFirstToken(svc *Service, requestID string) string {
 	svc.mu.RLock()
 	defer svc.mu.RUnlock()

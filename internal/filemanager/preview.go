@@ -10,13 +10,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// Preview 文件预览器
+// Preview 文件预览器.
 type Preview struct {
 	config ThumbnailConfig
 	logger *zap.Logger
 }
 
-// NewPreview 创建文件预览器
+// NewPreview 创建文件预览器.
 func NewPreview(config ThumbnailConfig, logger *zap.Logger) *Preview {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -27,7 +27,7 @@ func NewPreview(config ThumbnailConfig, logger *zap.Logger) *Preview {
 	}
 }
 
-// GetPreviewInfo 获取文件预览信息
+// GetPreviewInfo 获取文件预览信息.
 func (p *Preview) GetPreviewInfo(path string) (*PreviewInfo, error) {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -63,14 +63,14 @@ func (p *Preview) GetPreviewInfo(path string) (*PreviewInfo, error) {
 	return previewInfo, nil
 }
 
-// IsPreviewable 检查文件是否可预览
+// IsPreviewable 检查文件是否可预览.
 func (p *Preview) IsPreviewable(path string) bool {
 	mimeType := getMIMEType(path)
 	previewType := p.getPreviewType(mimeType, path)
 	return previewType != PreviewNone
 }
 
-// GetSupportedContentTypes 获取支持预览的内容类型
+// GetSupportedContentTypes 获取支持预览的内容类型.
 func (p *Preview) GetSupportedContentTypes() map[string][]string {
 	return map[string][]string{
 		"image": {
@@ -107,7 +107,7 @@ func (p *Preview) GetSupportedContentTypes() map[string][]string {
 	}
 }
 
-// getPreviewType 根据MIME类型判断预览类型
+// getPreviewType 根据MIME类型判断预览类型.
 func (p *Preview) getPreviewType(mimeType, path string) PreviewType {
 	ext := strings.ToLower(filepath.Ext(path))
 
@@ -148,7 +148,7 @@ func (p *Preview) getPreviewType(mimeType, path string) PreviewType {
 	return PreviewNone
 }
 
-// getImageInfo 获取图片信息
+// getImageInfo 获取图片信息.
 func (p *Preview) getImageInfo(path string, info *PreviewInfo) {
 	// 简化实现：仅读取文件头部判断尺寸
 	// 实际实现应该使用 image.Decode 或第三方库
@@ -172,7 +172,7 @@ func (p *Preview) getImageInfo(path string, info *PreviewInfo) {
 	}
 }
 
-// getMediaInfo 获取媒体信息（视频/音频）
+// getMediaInfo 获取媒体信息（视频/音频）.
 func (p *Preview) getMediaInfo(path string, info *PreviewInfo) {
 	// 简化实现：需要使用 ffprobe 或类似工具
 	// 这里只设置基本的MIME类型信息
@@ -202,7 +202,7 @@ func (p *Preview) getMediaInfo(path string, info *PreviewInfo) {
 	}
 }
 
-// getTextInfo 获取文本/代码信息
+// getTextInfo 获取文本/代码信息.
 func (p *Preview) getTextInfo(path string, info *PreviewInfo) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -260,21 +260,21 @@ func (p *Preview) getTextInfo(path string, info *PreviewInfo) {
 	}
 }
 
-// getPDFInfo 获取PDF信息
+// getPDFInfo 获取PDF信息.
 func (p *Preview) getPDFInfo(path string, info *PreviewInfo) {
 	// 简化实现：需要使用 pdf 库
 	// 这里只设置基本类型
 	info.Type = PreviewPDF
 }
 
-// getThumbnailPath 获取缩略图路径
+// getThumbnailPath 获取缩略图路径.
 func (p *Preview) getThumbnailPath(path string) string {
 	// 使用文件路径的hash作为缩略图文件名
 	// 简化实现：返回相对路径
 	return fmt.Sprintf("/thumbnails/%s.jpg", filepath.Base(path))
 }
 
-// GenerateThumbnail 生成缩略图
+// GenerateThumbnail 生成缩略图.
 func (p *Preview) GenerateThumbnail(path string) (string, error) {
 	if !p.config.Enabled {
 		return "", fmt.Errorf("缩略图功能未启用")
@@ -305,7 +305,7 @@ func (p *Preview) GenerateThumbnail(path string) (string, error) {
 	return thumbnailPath, nil
 }
 
-// GetPreviewContent 获取预览内容（用于文本/代码预览）
+// GetPreviewContent 获取预览内容（用于文本/代码预览）.
 func (p *Preview) GetPreviewContent(path string, maxLines int) (string, error) {
 	if maxLines <= 0 {
 		maxLines = 100

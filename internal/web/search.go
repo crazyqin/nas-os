@@ -134,7 +134,7 @@ func (s *GlobalSearchService) initDefaultQuickNav() {
 	}
 }
 
-// SearchRequest 增强搜索请求（支持分页、排序）
+// SearchRequest 增强搜索请求（支持分页、排序）.
 type SearchRequest struct {
 	Query      string           `json:"query"`      // 搜索关键词
 	Categories []SearchCategory `json:"categories"` // 搜索类别
@@ -147,7 +147,7 @@ type SearchRequest struct {
 	Tags       []string         `json:"tags"`       // 标签过滤
 }
 
-// SearchResponse 增强搜索响应（支持分页统计）
+// SearchResponse 增强搜索响应（支持分页统计）.
 type SearchResponse struct {
 	Query       string         `json:"query"`
 	Results     []SearchItem   `json:"results"`
@@ -177,7 +177,7 @@ func (s *GlobalSearchService) Search(ctx context.Context, query string, categori
 	return resp.Results, nil
 }
 
-// SearchAdvanced 高级搜索（支持分页、排序、过滤）
+// SearchAdvanced 高级搜索（支持分页、排序、过滤）.
 func (s *GlobalSearchService) SearchAdvanced(ctx context.Context, req SearchRequest) (*SearchResponse, error) {
 	startTime := time.Now()
 
@@ -330,7 +330,7 @@ func (s *GlobalSearchService) SearchAdvanced(ctx context.Context, req SearchRequ
 	return response, nil
 }
 
-// sortSearchItems 排序搜索结果
+// sortSearchItems 排序搜索结果.
 func (s *GlobalSearchService) sortSearchItems(items []SearchItem, sortBy string, desc bool) {
 	if sortBy == "" {
 		sortBy = "score"
@@ -364,7 +364,7 @@ func (s *GlobalSearchService) sortSearchItems(items []SearchItem, sortBy string,
 	}
 }
 
-// generateSuggestions 生成搜索建议
+// generateSuggestions 生成搜索建议.
 func (s *GlobalSearchService) generateSuggestions(query string, results []SearchItem) []string {
 	suggestions := make([]string, 0)
 

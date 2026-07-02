@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// VersionStatus 版本状态
+// VersionStatus 版本状态.
 type VersionStatus string
 
 const (
@@ -23,7 +23,7 @@ const (
 	VersionLocked   VersionStatus = "locked"
 )
 
-// VersionPolicy 版本保留策略
+// VersionPolicy 版本保留策略.
 type VersionPolicy struct {
 	MaxVersions     int           `json:"maxVersions"`     // 最大版本数
 	MaxAge          time.Duration `json:"maxAge"`          // 最大保留时长
@@ -33,7 +33,7 @@ type VersionPolicy struct {
 	CompressOld     bool          `json:"compressOld"`     // 压缩旧版本
 }
 
-// FileVersion 文件版本
+// FileVersion 文件版本.
 type FileVersion struct {
 	ID          string        `json:"id"`
 	FilePath    string        `json:"filePath"`
@@ -50,7 +50,7 @@ type FileVersion struct {
 	ParentID    string        `json:"parentId,omitempty"` // 增量版本的父版本
 }
 
-// VersionDiff 版本差异
+// VersionDiff 版本差异.
 type VersionDiff struct {
 	FromVersion   int      `json:"fromVersion"`
 	ToVersion     int      `json:"toVersion"`
@@ -61,7 +61,7 @@ type VersionDiff struct {
 	Summary       string   `json:"summary"`
 }
 
-// VersionStats 版本统计
+// VersionStats 版本统计.
 type VersionStats struct {
 	TotalVersions    int64      `json:"totalVersions"`
 	TotalSize        int64      `json:"totalSize"`
@@ -72,7 +72,7 @@ type VersionStats struct {
 	AvgVersionSize   int64      `json:"avgVersionSize"`
 }
 
-// VersionManager 版本管理器
+// VersionManager 版本管理器.
 type VersionManager struct {
 	mu       sync.RWMutex
 	versions map[string][]*FileVersion // filePath -> versions
@@ -81,7 +81,7 @@ type VersionManager struct {
 	stats    *VersionStats
 }
 
-// VersionStorage 版本存储接口
+// VersionStorage 版本存储接口.
 type VersionStorage interface {
 	Save(versionID string, data []byte) error
 	Load(versionID string) ([]byte, error)
@@ -89,7 +89,7 @@ type VersionStorage interface {
 	List(prefix string) ([]string, error)
 }
 
-// NewVersionManager 创建版本管理器
+// NewVersionManager 创建版本管理器.
 func NewVersionManager(storage VersionStorage, policy *VersionPolicy) *VersionManager {
 	if policy == nil {
 		policy = &VersionPolicy{
@@ -116,7 +116,7 @@ func NewVersionManager(storage VersionStorage, policy *VersionPolicy) *VersionMa
 	return m
 }
 
-// CreateVersion 创建新版本
+// CreateVersion 创建新版本.
 func (m *VersionManager) CreateVersion(filePath, author, message string, data []byte) (*FileVersion, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -183,7 +183,7 @@ func (m *VersionManager) CreateVersion(filePath, author, message string, data []
 	return version, nil
 }
 
-// GetVersion 获取特定版本
+// GetVersion 获取特定版本.
 func (m *VersionManager) GetVersion(filePath string, versionNum int) (*FileVersion, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -202,7 +202,7 @@ func (m *VersionManager) GetVersion(filePath string, versionNum int) (*FileVersi
 	return nil, fmt.Errorf("version %d not found for file: %s", versionNum, filePath)
 }
 
-// GetLatestVersion 获取最新版本
+// GetLatestVersion 获取最新版本.
 func (m *VersionManager) GetLatestVersion(filePath string) (*FileVersion, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -215,7 +215,7 @@ func (m *VersionManager) GetLatestVersion(filePath string) (*FileVersion, error)
 	return versions[len(versions)-1], nil
 }
 
-// ListVersions 列出文件的所有版本
+// ListVersions 列出文件的所有版本.
 func (m *VersionManager) ListVersions(filePath string) []*FileVersion {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -226,7 +226,7 @@ func (m *VersionManager) ListVersions(filePath string) []*FileVersion {
 	return result
 }
 
-// LoadVersionData 加载版本数据
+// LoadVersionData 加载版本数据.
 func (m *VersionManager) LoadVersionData(versionID string) ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -238,7 +238,7 @@ func (m *VersionManager) LoadVersionData(versionID string) ([]byte, error) {
 	return m.storage.Load(versionID)
 }
 
-// Rollback 回滚到指定版本
+// Rollback 回滚到指定版本.
 func (m *VersionManager) Rollback(filePath string, versionNum int, author string) (*FileVersion, error) {
 	m.mu.RLock()
 	versions, exists := m.versions[filePath]
@@ -274,7 +274,7 @@ func (m *VersionManager) Rollback(filePath string, versionNum int, author string
 	return m.CreateVersion(filePath, author, fmt.Sprintf("rollback to v%d", versionNum), data)
 }
 
-// TagVersion 为版本添加标签
+// TagVersion 为版本添加标签.
 func (m *VersionManager) TagVersion(filePath string, versionNum int, tag string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -300,7 +300,7 @@ func (m *VersionManager) TagVersion(filePath string, versionNum int, tag string)
 	return fmt.Errorf("version %d not found", versionNum)
 }
 
-// LockVersion 锁定版本（防止清理）
+// LockVersion 锁定版本（防止清理）.
 func (m *VersionManager) LockVersion(filePath string, versionNum int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -320,7 +320,7 @@ func (m *VersionManager) LockVersion(filePath string, versionNum int) error {
 	return fmt.Errorf("version %d not found", versionNum)
 }
 
-// UnlockVersion 解锁版本
+// UnlockVersion 解锁版本.
 func (m *VersionManager) UnlockVersion(filePath string, versionNum int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -340,7 +340,7 @@ func (m *VersionManager) UnlockVersion(filePath string, versionNum int) error {
 	return fmt.Errorf("version %d not found", versionNum)
 }
 
-// DiffVersions 计算两个版本之间的差异
+// DiffVersions 计算两个版本之间的差异.
 func (m *VersionManager) DiffVersions(filePath string, fromVersion, toVersion int) (*VersionDiff, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -389,7 +389,7 @@ func (m *VersionManager) DiffVersions(filePath string, fromVersion, toVersion in
 	return diff, nil
 }
 
-// DeleteVersion 删除版本
+// DeleteVersion 删除版本.
 func (m *VersionManager) DeleteVersion(filePath string, versionNum int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -424,7 +424,7 @@ func (m *VersionManager) DeleteVersion(filePath string, versionNum int) error {
 	return fmt.Errorf("version %d not found", versionNum)
 }
 
-// GetStats 获取版本统计
+// GetStats 获取版本统计.
 func (m *VersionManager) GetStats() *VersionStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -436,7 +436,7 @@ func (m *VersionManager) GetStats() *VersionStats {
 	return &stats
 }
 
-// ListAllVersions 列出所有文件的版本
+// ListAllVersions 列出所有文件的版本.
 func (m *VersionManager) ListAllVersions() map[string][]*FileVersion {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -450,7 +450,7 @@ func (m *VersionManager) ListAllVersions() map[string][]*FileVersion {
 	return result
 }
 
-// SearchVersions 搜索版本
+// SearchVersions 搜索版本.
 func (m *VersionManager) SearchVersions(query string) []*FileVersion {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -478,7 +478,7 @@ func (m *VersionManager) SearchVersions(query string) []*FileVersion {
 	return results
 }
 
-// applyPolicy 应用保留策略
+// applyPolicy 应用保留策略.
 func (m *VersionManager) applyPolicy(filePath string) {
 	versions := m.versions[filePath]
 	if len(versions) == 0 {
@@ -517,7 +517,7 @@ func (m *VersionManager) applyPolicy(filePath string) {
 	}
 }
 
-// cleanupWorker 后台清理工作协程
+// cleanupWorker 后台清理工作协程.
 func (m *VersionManager) cleanupWorker() {
 	ticker := time.NewTicker(m.policy.CleanupInterval)
 	defer ticker.Stop()
@@ -527,7 +527,7 @@ func (m *VersionManager) cleanupWorker() {
 	}
 }
 
-// cleanup 执行清理
+// cleanup 执行清理.
 func (m *VersionManager) cleanup() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -561,14 +561,14 @@ func (m *VersionManager) cleanup() {
 	}
 }
 
-// GetFileVersionCount 获取文件版本数量
+// GetFileVersionCount 获取文件版本数量.
 func (m *VersionManager) GetFileVersionCount(filePath string) int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return len(m.versions[filePath])
 }
 
-// HasVersions 检查文件是否有版本
+// HasVersions 检查文件是否有版本.
 func (m *VersionManager) HasVersions(filePath string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

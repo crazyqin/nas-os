@@ -9,17 +9,17 @@ import (
 	"time"
 )
 
-// Handler HTTP处理器
+// Handler HTTP处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(m *Manager) *Handler {
 	return &Handler{manager: m}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/smartsleep/config", h.handleConfig)
 	mux.HandleFunc("/api/v1/smartsleep/disks", h.handleDisks)
@@ -233,7 +233,7 @@ func (h *Handler) handleWake(w http.ResponseWriter, r *http.Request) {
 
 // ========== Manager 方法 ==========
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(config *Config) *Manager {
 	if config == nil {
 		config = DefaultConfig()
@@ -257,14 +257,14 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *Config {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config *Config) error {
 	if config == nil {
 		return ErrInvalidConfig
@@ -275,7 +275,7 @@ func (m *Manager) UpdateConfig(config *Config) error {
 	return nil
 }
 
-// RegisterDisk 注册磁盘
+// RegisterDisk 注册磁盘.
 func (m *Manager) RegisterDisk(id, device, model, serial string, wattsActive, wattsSleep float64) *DiskInfo {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -294,7 +294,7 @@ func (m *Manager) RegisterDisk(id, device, model, serial string, wattsActive, wa
 	return disk
 }
 
-// GetDisk 获取磁盘信息
+// GetDisk 获取磁盘信息.
 func (m *Manager) GetDisk(id string) (*DiskInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -306,7 +306,7 @@ func (m *Manager) GetDisk(id string) (*DiskInfo, error) {
 	return disk, nil
 }
 
-// ListDisks 列出所有磁盘
+// ListDisks 列出所有磁盘.
 func (m *Manager) ListDisks() []*DiskInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -318,7 +318,7 @@ func (m *Manager) ListDisks() []*DiskInfo {
 	return disks
 }
 
-// RecordAccess 记录访问
+// RecordAccess 记录访问.
 func (m *Manager) RecordAccess(diskID string, ioBytes int64, opType string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -395,7 +395,7 @@ func (m *Manager) recalculatePattern(pattern *AccessPattern) {
 	}
 }
 
-// PredictSleep 预测休眠
+// PredictSleep 预测休眠.
 func (m *Manager) PredictSleep(diskID string) (*SleepPrediction, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -488,7 +488,7 @@ func (m *Manager) PredictSleep(diskID string) (*SleepPrediction, error) {
 	return prediction, nil
 }
 
-// GetAllPredictions 获取所有磁盘的休眠预测
+// GetAllPredictions 获取所有磁盘的休眠预测.
 func (m *Manager) GetAllPredictions() []*SleepPrediction {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -500,7 +500,7 @@ func (m *Manager) GetAllPredictions() []*SleepPrediction {
 	return predictions
 }
 
-// PutDiskToSleep 将磁盘置入休眠
+// PutDiskToSleep 将磁盘置入休眠.
 func (m *Manager) PutDiskToSleep(diskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -519,7 +519,7 @@ func (m *Manager) PutDiskToSleep(diskID string) error {
 	return nil
 }
 
-// EmergencyWake 紧急唤醒磁盘
+// EmergencyWake 紧急唤醒磁盘.
 func (m *Manager) EmergencyWake(diskID, requestedBy string) (*WakeResponse, error) {
 	start := time.Now()
 
@@ -549,7 +549,7 @@ func (m *Manager) EmergencyWake(diskID, requestedBy string) (*WakeResponse, erro
 	}, nil
 }
 
-// GetEnergyStats 获取节能统计
+// GetEnergyStats 获取节能统计.
 func (m *Manager) GetEnergyStats() *EnergyStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -603,21 +603,21 @@ func (m *Manager) GetEnergyStats() *EnergyStats {
 	return stats
 }
 
-// GetPolicy 获取周末策略
+// GetPolicy 获取周末策略.
 func (m *Manager) GetPolicy() *WeekendPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.policy
 }
 
-// UpdatePolicy 更新周末策略
+// UpdatePolicy 更新周末策略.
 func (m *Manager) UpdatePolicy(policy *WeekendPolicy) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.policy = policy
 }
 
-// GetPattern 获取访问模式
+// GetPattern 获取访问模式.
 func (m *Manager) GetPattern(diskID string) (*AccessPattern, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -629,7 +629,7 @@ func (m *Manager) GetPattern(diskID string) (*AccessPattern, error) {
 	return pattern, nil
 }
 
-// AddTask 添加定时任务
+// AddTask 添加定时任务.
 func (m *Manager) AddTask(task *ScheduledTask) error {
 	if task == nil || task.ID == "" {
 		return ErrInvalidConfig
@@ -648,7 +648,7 @@ func (m *Manager) AddTask(task *ScheduledTask) error {
 	return nil
 }
 
-// GetTask 获取定时任务
+// GetTask 获取定时任务.
 func (m *Manager) GetTask(id string) (*ScheduledTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -660,7 +660,7 @@ func (m *Manager) GetTask(id string) (*ScheduledTask, error) {
 	return task, nil
 }
 
-// ListTasks 列出所有定时任务
+// ListTasks 列出所有定时任务.
 func (m *Manager) ListTasks() []*ScheduledTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -672,7 +672,7 @@ func (m *Manager) ListTasks() []*ScheduledTask {
 	return tasks
 }
 
-// RemoveTask 删除定时任务
+// RemoveTask 删除定时任务.
 func (m *Manager) RemoveTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -684,7 +684,7 @@ func (m *Manager) RemoveTask(id string) error {
 	return nil
 }
 
-// CheckTaskConflicts 检查定时任务与休眠计划的冲突
+// CheckTaskConflicts 检查定时任务与休眠计划的冲突.
 func (m *Manager) CheckTaskConflicts() []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

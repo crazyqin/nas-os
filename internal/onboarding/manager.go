@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Manager 新手引导管理器
+// Manager 新手引导管理器.
 type Manager struct {
 	mu            sync.RWMutex
 	wizards       map[string]*Wizard
@@ -18,7 +18,7 @@ type Manager struct {
 	progress      map[string]*Progress // key: userID:wizardID
 }
 
-// NewManager 创建新手引导管理器
+// NewManager 创建新手引导管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		wizards:       make(map[string]*Wizard),
@@ -89,7 +89,7 @@ func (m *Manager) initDefaultBestPractices() {
 	}
 }
 
-// GetWizard 获取向导
+// GetWizard 获取向导.
 func (m *Manager) GetWizard(id string) (*Wizard, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -101,7 +101,7 @@ func (m *Manager) GetWizard(id string) (*Wizard, error) {
 	return wizard, nil
 }
 
-// ListWizards 列出所有向导
+// ListWizards 列出所有向导.
 func (m *Manager) ListWizards() []*Wizard {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -113,7 +113,7 @@ func (m *Manager) ListWizards() []*Wizard {
 	return wizards
 }
 
-// CompleteStep 完成步骤
+// CompleteStep 完成步骤.
 func (m *Manager) CompleteStep(req *CompleteStepRequest) (*Progress, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -179,7 +179,7 @@ func (m *Manager) CompleteStep(req *CompleteStepRequest) (*Progress, error) {
 	return prog, nil
 }
 
-// GetGuides 获取功能引导列表
+// GetGuides 获取功能引导列表.
 func (m *Manager) GetGuides(category string) []*Guide {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -193,7 +193,7 @@ func (m *Manager) GetGuides(category string) []*Guide {
 	return guides
 }
 
-// GetGuide 获取单个引导
+// GetGuide 获取单个引导.
 func (m *Manager) GetGuide(id string) (*Guide, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -205,7 +205,7 @@ func (m *Manager) GetGuide(id string) (*Guide, error) {
 	return guide, nil
 }
 
-// RecommendPractice 推荐最佳实践
+// RecommendPractice 推荐最佳实践.
 func (m *Manager) RecommendPractice(category string) []*BestPractice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -229,7 +229,7 @@ func (m *Manager) RecommendPractice(category string) []*BestPractice {
 	return practices
 }
 
-// GetProgress 获取用户进度
+// GetProgress 获取用户进度.
 func (m *Manager) GetProgress(userID, wizardID string) (*Progress, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -258,7 +258,7 @@ func (m *Manager) GetProgress(userID, wizardID string) (*Progress, error) {
 	return prog, nil
 }
 
-// ResetProgress 重置进度
+// ResetProgress 重置进度.
 func (m *Manager) ResetProgress(userID, wizardID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// CommandType 命令类型
+// CommandType 命令类型.
 type CommandType string
 
 const (
@@ -24,7 +24,7 @@ const (
 	CmdUnknown      CommandType = "unknown"
 )
 
-// VoiceCommand 语音命令
+// VoiceCommand 语音命令.
 type VoiceCommand struct {
 	ID        string            `json:"id"`
 	Timestamp time.Time         `json:"timestamp"`
@@ -37,7 +37,7 @@ type VoiceCommand struct {
 	Error     string            `json:"error,omitempty"`
 }
 
-// VoiceResponse 语音响应
+// VoiceResponse 语音响应.
 type VoiceResponse struct {
 	Success bool        `json:"success"`
 	Message string      `json:"message"`
@@ -45,17 +45,17 @@ type VoiceResponse struct {
 	Speak   string      `json:"speak"` // TTS 文本
 }
 
-// CommandHandler 命令处理函数
+// CommandHandler 命令处理函数.
 type CommandHandler func(ctx context.Context, cmd *VoiceCommand) *VoiceResponse
 
-// SchedulerConfig 调度器配置
+// SchedulerConfig 调度器配置.
 type SchedulerConfig struct {
 	MaxHistory     int           `json:"max_history"`
 	CommandTimeout time.Duration `json:"command_timeout"`
 	Enabled        bool          `json:"enabled"`
 }
 
-// DefaultSchedulerConfig 默认配置
+// DefaultSchedulerConfig 默认配置.
 func DefaultSchedulerConfig() *SchedulerConfig {
 	return &SchedulerConfig{
 		MaxHistory:     1000,
@@ -64,7 +64,7 @@ func DefaultSchedulerConfig() *SchedulerConfig {
 	}
 }
 
-// Scheduler 调度器
+// Scheduler 调度器.
 type Scheduler struct {
 	config   *SchedulerConfig
 	handlers map[CommandType]CommandHandler
@@ -74,7 +74,7 @@ type Scheduler struct {
 	cancel   context.CancelFunc
 }
 
-// NewScheduler 创建调度器
+// NewScheduler 创建调度器.
 func NewScheduler(config *SchedulerConfig) *Scheduler {
 	if config == nil {
 		config = DefaultSchedulerConfig()
@@ -91,14 +91,14 @@ func NewScheduler(config *SchedulerConfig) *Scheduler {
 	return s
 }
 
-// RegisterHandler 注册命令处理器
+// RegisterHandler 注册命令处理器.
 func (s *Scheduler) RegisterHandler(cmdType CommandType, handler CommandHandler) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.handlers[cmdType] = handler
 }
 
-// ProcessCommand 处理语音命令
+// ProcessCommand 处理语音命令.
 func (s *Scheduler) ProcessCommand(rawText string, userID string) *VoiceResponse {
 	if !s.config.Enabled {
 		return &VoiceResponse{
@@ -158,7 +158,7 @@ func (s *Scheduler) ProcessCommand(rawText string, userID string) *VoiceResponse
 	return resp
 }
 
-// GetHistory 获取命令历史
+// GetHistory 获取命令历史.
 func (s *Scheduler) GetHistory(limit int) []*VoiceCommand {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -173,7 +173,7 @@ func (s *Scheduler) GetHistory(limit int) []*VoiceCommand {
 	return result
 }
 
-// GetCommandType 获取命令类型统计
+// GetCommandType 获取命令类型统计.
 func (s *Scheduler) GetCommandTypeStats() map[CommandType]int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -185,7 +185,7 @@ func (s *Scheduler) GetCommandTypeStats() map[CommandType]int {
 	return stats
 }
 
-// parseCommand 解析语音命令
+// parseCommand 解析语音命令.
 func (s *Scheduler) parseCommand(text string) (CommandType, map[string]string) {
 	lower := strings.ToLower(text)
 	params := make(map[string]string)
@@ -230,7 +230,7 @@ func (s *Scheduler) parseCommand(text string) (CommandType, map[string]string) {
 	return CmdUnknown, params
 }
 
-// registerDefaults 注册默认处理器
+// registerDefaults 注册默认处理器.
 func (s *Scheduler) registerDefaults() {
 	s.handlers[CmdStorageQuery] = func(ctx context.Context, cmd *VoiceCommand) *VoiceResponse {
 		return &VoiceResponse{
@@ -257,7 +257,7 @@ func (s *Scheduler) registerDefaults() {
 	}
 }
 
-// Stop 停止调度器
+// Stop 停止调度器.
 func (s *Scheduler) Stop() {
 	s.cancel()
 }

@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// IndexStatus 索引状态
+// IndexStatus 索引状态.
 type IndexStatus string
 
 const (
@@ -16,7 +16,7 @@ const (
 	IndexStatusError    IndexStatus = "error"
 )
 
-// ContentType 内容类型
+// ContentType 内容类型.
 type ContentType string
 
 const (
@@ -29,7 +29,7 @@ const (
 	ContentTypeNote     ContentType = "note"
 )
 
-// BooleanOp 布尔操作符
+// BooleanOp 布尔操作符.
 type BooleanOp string
 
 const (
@@ -38,7 +38,7 @@ const (
 	BooleanNOT BooleanOp = "NOT"
 )
 
-// SortOrder 排序方式
+// SortOrder 排序方式.
 type SortOrder string
 
 const (
@@ -51,7 +51,7 @@ const (
 	SortNameDesc  SortOrder = "name_desc"
 )
 
-// IndexTaskType 索引任务类型
+// IndexTaskType 索引任务类型.
 type IndexTaskType string
 
 const (
@@ -60,7 +60,7 @@ const (
 	TaskTypeDelete      IndexTaskType = "delete"
 )
 
-// IndexTaskStatus 索引任务状态
+// IndexTaskStatus 索引任务状态.
 type IndexTaskStatus string
 
 const (
@@ -71,7 +71,7 @@ const (
 	TaskStatusCancelled IndexTaskStatus = "cancelled"
 )
 
-// SearchIndex 搜索索引条目
+// SearchIndex 搜索索引条目.
 type SearchIndex struct {
 	ID          string            `json:"id"`
 	Path        string            `json:"path"`
@@ -91,7 +91,7 @@ type SearchIndex struct {
 	Owner       string            `json:"owner,omitempty"` // 文件所有者
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	ID          string            `json:"id"`
 	Path        string            `json:"path"`
@@ -109,7 +109,7 @@ type SearchResult struct {
 	ModifiedAt  time.Time         `json:"modified_at"`
 }
 
-// SearchQuery 搜索查询
+// SearchQuery 搜索查询.
 type SearchQuery struct {
 	Query      string        `json:"query" binding:"required"`
 	Types      []ContentType `json:"types,omitempty"`       // 按内容类型过滤
@@ -129,7 +129,7 @@ type SearchQuery struct {
 	UseRegex   bool          `json:"use_regex,omitempty"`   // 正则表达式
 }
 
-// SearchResponse 搜索响应
+// SearchResponse 搜索响应.
 type SearchResponse struct {
 	Query       string         `json:"query"`
 	Total       int            `json:"total"`
@@ -141,7 +141,7 @@ type SearchResponse struct {
 	TimeMs      int64          `json:"time_ms"`               // 搜索耗时
 }
 
-// Filter 搜索过滤器
+// Filter 搜索过滤器.
 type Filter struct {
 	Types      []ContentType `json:"types,omitempty"`
 	Tags       []string      `json:"tags,omitempty"`
@@ -152,7 +152,7 @@ type Filter struct {
 	SizeMax    *int64        `json:"size_max,omitempty"`
 }
 
-// IndexTask 索引任务
+// IndexTask 索引任务.
 type IndexTask struct {
 	ID           string          `json:"id"`
 	Type         IndexTaskType   `json:"type"`
@@ -167,7 +167,7 @@ type IndexTask struct {
 	CreatedAt    time.Time       `json:"created_at"`
 }
 
-// IndexStats 索引统计信息
+// IndexStats 索引统计信息.
 type IndexStats struct {
 	Status         IndexStatus         `json:"status"`
 	TotalDocuments int                 `json:"total_documents"`
@@ -177,7 +177,7 @@ type IndexStats struct {
 	ContentTypes   map[ContentType]int `json:"content_types"` // 各类型数量
 }
 
-// SearchHistory 搜索历史
+// SearchHistory 搜索历史.
 type SearchHistory struct {
 	ID          string    `json:"id"`
 	Query       string    `json:"query"`
@@ -185,24 +185,24 @@ type SearchHistory struct {
 	SearchedAt  time.Time `json:"searched_at"`
 }
 
-// HotSearch 热门搜索
+// HotSearch 热门搜索.
 type HotSearch struct {
 	Query string `json:"query"`
 	Count int    `json:"count"`
 }
 
-// IndexRequest 索引请求
+// IndexRequest 索引请求.
 type IndexRequest struct {
 	Path string `json:"path" binding:"required"`
 }
 
-// IndexResponse 索引响应
+// IndexResponse 索引响应.
 type IndexResponse struct {
 	TaskID  string `json:"task_id"`
 	Message string `json:"message"`
 }
 
-// UpdateIndexRequest 更新索引请求
+// UpdateIndexRequest 更新索引请求.
 type UpdateIndexRequest struct {
 	ID       string            `json:"id" binding:"required"`
 	Name     string            `json:"name,omitempty"`
@@ -211,18 +211,18 @@ type UpdateIndexRequest struct {
 	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
-// SuggestRequest 搜索建议请求
+// SuggestRequest 搜索建议请求.
 type SuggestRequest struct {
 	Query string `json:"query" binding:"required"`
 	Limit int    `json:"limit,omitempty"`
 }
 
-// SuggestResponse 搜索建议响应
+// SuggestResponse 搜索建议响应.
 type SuggestResponse struct {
 	Suggestions []string `json:"suggestions"`
 }
 
-// DefaultSearchQuery 默认搜索查询参数
+// DefaultSearchQuery 默认搜索查询参数.
 func DefaultSearchQuery() SearchQuery {
 	return SearchQuery{
 		Page:       1,
@@ -234,7 +234,7 @@ func DefaultSearchQuery() SearchQuery {
 	}
 }
 
-// DefaultIndexStats 默认索引统计
+// DefaultIndexStats 默认索引统计.
 func DefaultIndexStats() *IndexStats {
 	return &IndexStats{
 		Status:       IndexStatusIdle,
@@ -243,7 +243,7 @@ func DefaultIndexStats() *IndexStats {
 	}
 }
 
-// IsValidContentType 检查内容类型是否有效
+// IsValidContentType 检查内容类型是否有效.
 func IsValidContentType(ct ContentType) bool {
 	switch ct {
 	case ContentTypeFile, ContentTypePhoto, ContentTypeDocument, ContentTypeVideo, ContentTypeMusic, ContentTypeEmail, ContentTypeNote:
@@ -253,7 +253,7 @@ func IsValidContentType(ct ContentType) bool {
 	}
 }
 
-// IsValidSortOrder 检查排序方式是否有效
+// IsValidSortOrder 检查排序方式是否有效.
 func IsValidSortOrder(so SortOrder) bool {
 	switch so {
 	case SortRelevance, SortDateDesc, SortDateAsc, SortSizeDesc, SortSizeAsc, SortNameAsc, SortNameDesc:
@@ -263,7 +263,7 @@ func IsValidSortOrder(so SortOrder) bool {
 	}
 }
 
-// IsValidBooleanOp 检查布尔操作符是否有效
+// IsValidBooleanOp 检查布尔操作符是否有效.
 func IsValidBooleanOp(op BooleanOp) bool {
 	switch op {
 	case BooleanAND, BooleanOR, BooleanNOT:

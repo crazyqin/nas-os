@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// PrefetchEngine 智能缓存预取引擎
+// PrefetchEngine 智能缓存预取引擎.
 type PrefetchEngine struct {
 	mu            sync.RWMutex
 	cacheLayers   map[string]*CacheLayer    // 多级缓存层
@@ -25,7 +25,7 @@ type PrefetchEngine struct {
 	running       bool
 }
 
-// NewPrefetchEngine creates a new prefetch engine with the given configuration
+// NewPrefetchEngine creates a new prefetch engine with the given configuration.
 func NewPrefetchEngine(config PrefetchConfig, logger *slog.Logger) *PrefetchEngine {
 	if logger == nil {
 		logger = slog.Default()
@@ -76,7 +76,7 @@ func NewPrefetchEngine(config PrefetchConfig, logger *slog.Logger) *PrefetchEngi
 	return engine
 }
 
-// Start starts the prefetch engine background workers
+// Start starts the prefetch engine background workers.
 func (e *PrefetchEngine) Start() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -106,7 +106,7 @@ func (e *PrefetchEngine) Start() error {
 	return nil
 }
 
-// Stop gracefully stops the prefetch engine
+// Stop gracefully stops the prefetch engine.
 func (e *PrefetchEngine) Stop() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -122,7 +122,7 @@ func (e *PrefetchEngine) Stop() error {
 	return nil
 }
 
-// RecordAccess records a file access and updates the access pattern
+// RecordAccess records a file access and updates the access pattern.
 func (e *PrefetchEngine) RecordAccess(fileID string, path string, size int64) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -185,7 +185,7 @@ func (e *PrefetchEngine) RecordAccess(fileID string, path string, size int64) er
 	return nil
 }
 
-// Predict predicts which files are likely to be accessed next
+// Predict predicts which files are likely to be accessed next.
 func (e *PrefetchEngine) Predict(topN int) ([]*Prediction, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -233,7 +233,7 @@ func (e *PrefetchEngine) Predict(topN int) ([]*Prediction, error) {
 	return predictions, nil
 }
 
-// Prefetch executes a prefetch operation for the given file
+// Prefetch executes a prefetch operation for the given file.
 func (e *PrefetchEngine) Prefetch(sourcePath string, targetLayer string, size int64) (*PrefetchTask, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -286,7 +286,7 @@ func (e *PrefetchEngine) Prefetch(sourcePath string, targetLayer string, size in
 	return task, nil
 }
 
-// GetCacheStats returns cache statistics for all layers
+// GetCacheStats returns cache statistics for all layers.
 func (e *PrefetchEngine) GetCacheStats() map[string]interface{} {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -318,7 +318,7 @@ func (e *PrefetchEngine) GetCacheStats() map[string]interface{} {
 	return stats
 }
 
-// OptimizeCache optimizes cache layout based on access patterns and predictions
+// OptimizeCache optimizes cache layout based on access patterns and predictions.
 func (e *PrefetchEngine) OptimizeCache() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -362,7 +362,7 @@ func (e *PrefetchEngine) OptimizeCache() error {
 	return nil
 }
 
-// GetMetrics returns current prefetch performance metrics
+// GetMetrics returns current prefetch performance metrics.
 func (e *PrefetchEngine) GetMetrics() *PrefetchMetrics {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -392,7 +392,7 @@ func (e *PrefetchEngine) GetMetrics() *PrefetchMetrics {
 	return metrics
 }
 
-// prefetchWorker processes prefetch tasks from the queue
+// prefetchWorker processes prefetch tasks from the queue.
 func (e *PrefetchEngine) prefetchWorker() {
 	e.logger.Info("Prefetch worker started")
 	for {
@@ -406,7 +406,7 @@ func (e *PrefetchEngine) prefetchWorker() {
 	}
 }
 
-// executePrefetch executes a single prefetch task
+// executePrefetch executes a single prefetch task.
 func (e *PrefetchEngine) executePrefetch(task *PrefetchTask) {
 	e.mu.Lock()
 	task.Status = TaskRunning
@@ -459,7 +459,7 @@ func (e *PrefetchEngine) executePrefetch(task *PrefetchTask) {
 	)
 }
 
-// cacheOptimizer periodically optimizes cache layout
+// cacheOptimizer periodically optimizes cache layout.
 func (e *PrefetchEngine) cacheOptimizer() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
@@ -476,7 +476,7 @@ func (e *PrefetchEngine) cacheOptimizer() {
 	}
 }
 
-// mlModelUpdater periodically retrains the ML model
+// mlModelUpdater periodically retrains the ML model.
 func (e *PrefetchEngine) mlModelUpdater() {
 	ticker := time.NewTicker(10 * time.Minute)
 	defer ticker.Stop()
@@ -493,7 +493,7 @@ func (e *PrefetchEngine) mlModelUpdater() {
 	}
 }
 
-// analyzePattern analyzes an access pattern and updates its metrics
+// analyzePattern analyzes an access pattern and updates its metrics.
 func (e *PrefetchEngine) analyzePattern(pattern *AccessPattern) {
 	if len(pattern.AccessTimes) < 2 {
 		return
@@ -523,7 +523,7 @@ func (e *PrefetchEngine) analyzePattern(pattern *AccessPattern) {
 	pattern.Periodic = e.detectPeriodicity(pattern.AccessTimes)
 }
 
-// detectPeriodicity detects if access pattern is periodic
+// detectPeriodicity detects if access pattern is periodic.
 func (e *PrefetchEngine) detectPeriodicity(times []time.Time) float64 {
 	if len(times) < 3 {
 		return 0
@@ -564,7 +564,7 @@ func (e *PrefetchEngine) detectPeriodicity(times []time.Time) float64 {
 	return 0
 }
 
-// selectStrategy selects the best prefetch strategy for a pattern
+// selectStrategy selects the best prefetch strategy for a pattern.
 func (e *PrefetchEngine) selectStrategy(pattern *AccessPattern) PrefetchStrategy {
 	if pattern.Sequential > 0.7 {
 		return PrefetchSequential
@@ -575,7 +575,7 @@ func (e *PrefetchEngine) selectStrategy(pattern *AccessPattern) PrefetchStrategy
 	return PrefetchAdaptive
 }
 
-// estimateSize estimates the next access size based on history
+// estimateSize estimates the next access size based on history.
 func (e *PrefetchEngine) estimateSize(pattern *AccessPattern) int64 {
 	if len(pattern.ReadSizes) == 0 {
 		return 0
@@ -596,7 +596,7 @@ func (e *PrefetchEngine) estimateSize(pattern *AccessPattern) int64 {
 	return pattern.ReadSizes[len(pattern.ReadSizes)-1]
 }
 
-// calculateConfidence calculates prediction confidence
+// calculateConfidence calculates prediction confidence.
 func (e *PrefetchEngine) calculateConfidence(pattern *AccessPattern) float64 {
 	if len(pattern.AccessTimes) < 2 {
 		return 0
@@ -612,7 +612,7 @@ func (e *PrefetchEngine) calculateConfidence(pattern *AccessPattern) float64 {
 	return (dataConfidence + freqConfidence) / 2.0
 }
 
-// calculatePriority calculates prefetch priority for a file
+// calculatePriority calculates prefetch priority for a file.
 func (e *PrefetchEngine) calculatePriority(sourcePath string) float64 {
 	pattern, exists := e.accessHistory[sourcePath]
 	if !exists {
@@ -622,7 +622,7 @@ func (e *PrefetchEngine) calculatePriority(sourcePath string) float64 {
 	return (pattern.Frequency*0.4 + pattern.Sequential*0.3 + pattern.Periodic*0.3)
 }
 
-// evictEntries evicts cache entries to make room for new data
+// evictEntries evicts cache entries to make room for new data.
 func (e *PrefetchEngine) evictEntries(layer *CacheLayer, neededSize int64) {
 	freedSize := int64(0)
 
@@ -648,7 +648,7 @@ func (e *PrefetchEngine) evictEntries(layer *CacheLayer, neededSize int64) {
 	)
 }
 
-// evictLRU evicts least recently used entries
+// evictLRU evicts least recently used entries.
 func (e *PrefetchEngine) evictLRU(layer *CacheLayer, neededSize int64) int64 {
 	freed := int64(0)
 	for freed < neededSize && len(layer.Entries) > 0 {
@@ -667,7 +667,7 @@ func (e *PrefetchEngine) evictLRU(layer *CacheLayer, neededSize int64) int64 {
 	return freed
 }
 
-// evictLFU evicts least frequently used entries
+// evictLFU evicts least frequently used entries.
 func (e *PrefetchEngine) evictLFU(layer *CacheLayer, neededSize int64) int64 {
 	freed := int64(0)
 	for freed < neededSize && len(layer.Entries) > 0 {
@@ -686,7 +686,7 @@ func (e *PrefetchEngine) evictLFU(layer *CacheLayer, neededSize int64) int64 {
 	return freed
 }
 
-// evictARC evicts using Adaptive Replacement Cache policy
+// evictARC evicts using Adaptive Replacement Cache policy.
 func (e *PrefetchEngine) evictARC(layer *CacheLayer, neededSize int64) int64 {
 	// Simplified ARC: balance between LRU and LFU
 	freed := int64(0)
@@ -713,7 +713,7 @@ func (e *PrefetchEngine) evictARC(layer *CacheLayer, neededSize int64) int64 {
 	return freed
 }
 
-// evictMLAware evicts entries using ML-based priority
+// evictMLAware evicts entries using ML-based priority.
 func (e *PrefetchEngine) evictMLAware(layer *CacheLayer, neededSize int64) int64 {
 	freed := int64(0)
 	for freed < neededSize && len(layer.Entries) > 0 {
@@ -735,7 +735,7 @@ func (e *PrefetchEngine) evictMLAware(layer *CacheLayer, neededSize int64) int64
 	return freed
 }
 
-// promoteToFastLayer promotes a file to faster cache layer
+// promoteToFastLayer promotes a file to faster cache layer.
 func (e *PrefetchEngine) promoteToFastLayer(fileID string) {
 	var currentEntry *CacheEntry
 	var currentLayer string
@@ -776,7 +776,7 @@ func (e *PrefetchEngine) promoteToFastLayer(fileID string) {
 	}
 }
 
-// demoteToSlowLayer demotes a file to slower cache layer
+// demoteToSlowLayer demotes a file to slower cache layer.
 func (e *PrefetchEngine) demoteToSlowLayer(fileID string) {
 	var currentEntry *CacheEntry
 	var currentLayer string
@@ -814,7 +814,7 @@ func (e *PrefetchEngine) demoteToSlowLayer(fileID string) {
 	}
 }
 
-// updateHitRate updates overall hit rate
+// updateHitRate updates overall hit rate.
 func (e *PrefetchEngine) updateHitRate() {
 	total := e.metrics.SuccessfulHits + e.metrics.Misses
 	if total > 0 {
@@ -822,7 +822,7 @@ func (e *PrefetchEngine) updateHitRate() {
 	}
 }
 
-// totalCachedFiles returns total number of cached files across all layers
+// totalCachedFiles returns total number of cached files across all layers.
 func (e *PrefetchEngine) totalCachedFiles() int {
 	total := 0
 	for _, layer := range e.cacheLayers {
@@ -831,7 +831,7 @@ func (e *PrefetchEngine) totalCachedFiles() int {
 	return total
 }
 
-// updateMLWeights updates ML model weights based on prediction accuracy
+// updateMLWeights updates ML model weights based on prediction accuracy.
 func (e *PrefetchEngine) updateMLWeights() {
 	if e.mlModel.Predictions == 0 {
 		return
@@ -854,7 +854,7 @@ func (e *PrefetchEngine) updateMLWeights() {
 	e.mlModel.TrainedAt = time.Now()
 }
 
-// trainModel retrains the ML model with accumulated data
+// trainModel retrains the ML model with accumulated data.
 func (e *PrefetchEngine) trainModel() {
 	e.logger.Info("Training ML model",
 		"patterns", len(e.accessHistory),
@@ -871,7 +871,7 @@ func (e *PrefetchEngine) trainModel() {
 	}
 }
 
-// predict calculates access probability for a file
+// predict calculates access probability for a file.
 func (p *AccessPredictor) predict(fileID string, pattern *AccessPattern) float64 {
 	score := 0.0
 
@@ -894,7 +894,7 @@ func (p *AccessPredictor) predict(fileID string, pattern *AccessPattern) float64
 	return math.Min(score, 1.0)
 }
 
-// sortPredictions sorts predictions by probability descending
+// sortPredictions sorts predictions by probability descending.
 func sortPredictions(predictions []*Prediction) {
 	for i := 1; i < len(predictions); i++ {
 		key := predictions[i]

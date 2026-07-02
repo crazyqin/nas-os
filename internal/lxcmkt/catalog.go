@@ -9,14 +9,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager manages the LXC template catalog
+// Manager manages the LXC template catalog.
 type Manager struct {
 	logger    *zap.Logger
 	mu        sync.RWMutex
 	templates map[string]*Template
 }
 
-// NewManager creates a new template catalog manager
+// NewManager creates a new template catalog manager.
 func NewManager(logger *zap.Logger) *Manager {
 	m := &Manager{
 		logger:    logger,
@@ -26,7 +26,7 @@ func NewManager(logger *zap.Logger) *Manager {
 	return m
 }
 
-// loadDefaults loads built-in templates
+// loadDefaults loads built-in templates.
 func (m *Manager) loadDefaults() {
 	defaults := []Template{
 		{
@@ -200,7 +200,7 @@ func (m *Manager) loadDefaults() {
 	m.logger.Info("loaded default templates", zap.Int("count", len(defaults)))
 }
 
-// GetAll returns all templates
+// GetAll returns all templates.
 func (m *Manager) GetAll() []Template {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -212,7 +212,7 @@ func (m *Manager) GetAll() []Template {
 	return templates
 }
 
-// GetByID returns a template by ID
+// GetByID returns a template by ID.
 func (m *Manager) GetByID(id string) (*Template, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -224,7 +224,7 @@ func (m *Manager) GetByID(id string) (*Template, error) {
 	return t, nil
 }
 
-// Search searches templates by query
+// Search searches templates by query.
 func (m *Manager) Search(q SearchQuery) SearchResults {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -266,7 +266,7 @@ func (m *Manager) Search(q SearchQuery) SearchResults {
 	}
 }
 
-// matchTemplate checks if a template matches search query
+// matchTemplate checks if a template matches search query.
 func (m *Manager) matchTemplate(t *Template, q SearchQuery) bool {
 	// Filter by distro
 	if q.Distro != "" && !strings.EqualFold(t.Distro, q.Distro) {
@@ -316,7 +316,7 @@ func (m *Manager) matchTemplate(t *Template, q SearchQuery) bool {
 	return true
 }
 
-// sortTemplates sorts templates by the given field
+// sortTemplates sorts templates by the given field.
 func (m *Manager) sortTemplates(templates []Template, sortBy string) {
 	// Simple bubble sort for small datasets
 	for i := 0; i < len(templates); i++ {
@@ -339,7 +339,7 @@ func (m *Manager) sortTemplates(templates []Template, sortBy string) {
 	}
 }
 
-// Rate adds a rating to a template
+// Rate adds a rating to a template.
 func (m *Manager) Rate(templateID string, score int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -362,7 +362,7 @@ func (m *Manager) Rate(templateID string, score int) error {
 	return nil
 }
 
-// IncrementDownloads increments the download count
+// IncrementDownloads increments the download count.
 func (m *Manager) IncrementDownloads(templateID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -377,7 +377,7 @@ func (m *Manager) IncrementDownloads(templateID string) error {
 	return nil
 }
 
-// GetStats returns catalog statistics
+// GetStats returns catalog statistics.
 func (m *Manager) GetStats() StatsResponse {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -397,7 +397,7 @@ func (m *Manager) GetStats() StatsResponse {
 	return stats
 }
 
-// AddTemplate adds a custom template
+// AddTemplate adds a custom template.
 func (m *Manager) AddTemplate(t *Template) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -416,7 +416,7 @@ func (m *Manager) AddTemplate(t *Template) error {
 	return nil
 }
 
-// UpdateTemplate updates an existing template
+// UpdateTemplate updates an existing template.
 func (m *Manager) UpdateTemplate(t *Template) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -430,7 +430,7 @@ func (m *Manager) UpdateTemplate(t *Template) error {
 	return nil
 }
 
-// DeleteTemplate removes a template
+// DeleteTemplate removes a template.
 func (m *Manager) DeleteTemplate(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

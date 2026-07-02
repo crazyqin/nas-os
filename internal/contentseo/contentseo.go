@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Engine 内容 SEO 引擎
+// Engine 内容 SEO 引擎.
 type Engine struct {
 	indexer    *Indexer
 	stats      *SearchStats
@@ -17,7 +17,7 @@ type Engine struct {
 	stopCh     chan struct{}
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	IndexPath    string // 索引存储路径
 	MaxIndexSize int64  // 最大索引大小
@@ -25,7 +25,7 @@ type Config struct {
 	Workers      int    // 工作线程数
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		IndexPath:    "/var/lib/nas-os/contentseo/index",
@@ -35,7 +35,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// NewEngine 创建引擎实例
+// NewEngine 创建引擎实例.
 func NewEngine(config *Config) *Engine {
 	if config == nil {
 		config = DefaultConfig()
@@ -57,7 +57,7 @@ func NewEngine(config *Config) *Engine {
 	return engine
 }
 
-// Search 执行搜索
+// Search 执行搜索.
 func (e *Engine) Search(query SearchQuery) (*SearchResult, error) {
 	if query.Keyword == "" {
 		return nil, fmt.Errorf("keyword is required")
@@ -90,7 +90,7 @@ func (e *Engine) Search(query SearchQuery) (*SearchResult, error) {
 	}, nil
 }
 
-// GetStats 获取搜索统计
+// GetStats 获取搜索统计.
 func (e *Engine) GetStats() *SearchStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -102,7 +102,7 @@ func (e *Engine) GetStats() *SearchStats {
 	return &stats
 }
 
-// GetIndexStatus 获取索引状态
+// GetIndexStatus 获取索引状态.
 func (e *Engine) GetIndexStatus() *IndexStatusInfo {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -111,7 +111,7 @@ func (e *Engine) GetIndexStatus() *IndexStatusInfo {
 	return &status
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (e *Engine) RebuildIndex(fullRebuild bool) error {
 	e.mu.Lock()
 	if e.indexState.Status == IndexStatusIndexing || e.indexState.Status == IndexStatusRebuilding {
@@ -143,13 +143,13 @@ func (e *Engine) RebuildIndex(fullRebuild bool) error {
 	return nil
 }
 
-// Stop 停止引擎
+// Stop 停止引擎.
 func (e *Engine) Stop() {
 	close(e.stopCh)
 	e.indexer.Stop()
 }
 
-// recordQuery 记录查询统计
+// recordQuery 记录查询统计.
 func (e *Engine) recordQuery(keyword string) {
 	e.mu.Lock()
 	defer e.mu.Unlock()

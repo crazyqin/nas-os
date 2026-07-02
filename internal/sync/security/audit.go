@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// AuditAction represents the type of action being audited
+// AuditAction represents the type of action being audited.
 type AuditAction string
 
 const (
@@ -26,7 +26,7 @@ const (
 	ActionAccessDenied   AuditAction = "access_denied"
 )
 
-// AuditEntry represents a single audit log entry
+// AuditEntry represents a single audit log entry.
 type AuditEntry struct {
 	ID        string      `json:"id"`
 	Timestamp time.Time   `json:"timestamp"`
@@ -40,7 +40,7 @@ type AuditEntry struct {
 	Status    string      `json:"status"` // success, denied, error
 }
 
-// AuditLogger handles audit logging for sync operations
+// AuditLogger handles audit logging for sync operations.
 type AuditLogger struct {
 	mu      sync.Mutex
 	logDir  string
@@ -49,7 +49,7 @@ type AuditLogger struct {
 	encoder *json.Encoder
 }
 
-// NewAuditLogger creates a new audit logger
+// NewAuditLogger creates a new audit logger.
 func NewAuditLogger(logDir string, maxAgeDays int) (*AuditLogger, error) {
 	if err := os.MkdirAll(logDir, 0750); err != nil {
 		return nil, fmt.Errorf("create audit log dir: %w", err)
@@ -67,7 +67,7 @@ func NewAuditLogger(logDir string, maxAgeDays int) (*AuditLogger, error) {
 	return al, nil
 }
 
-// Log records an audit entry
+// Log records an audit entry.
 func (al *AuditLogger) Log(entry AuditEntry) error {
 	al.mu.Lock()
 	defer al.mu.Unlock()
@@ -80,7 +80,7 @@ func (al *AuditLogger) Log(entry AuditEntry) error {
 	return al.encoder.Encode(entry)
 }
 
-// Close closes the audit log file
+// Close closes the audit log file.
 func (al *AuditLogger) Close() error {
 	al.mu.Lock()
 	defer al.mu.Unlock()
@@ -90,7 +90,7 @@ func (al *AuditLogger) Close() error {
 	return nil
 }
 
-// rotate opens a new log file for the current date
+// rotate opens a new log file for the current date.
 func (al *AuditLogger) rotate() error {
 	if al.file != nil {
 		al.file.Close()
@@ -110,7 +110,7 @@ func (al *AuditLogger) rotate() error {
 	return nil
 }
 
-// PurgeOldLogs removes audit logs older than the retention period
+// PurgeOldLogs removes audit logs older than the retention period.
 func (al *AuditLogger) PurgeOldLogs() error {
 	entries, err := os.ReadDir(al.logDir)
 	if err != nil {

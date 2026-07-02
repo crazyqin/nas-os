@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// SecurityPolicy 安全策略配置
+// SecurityPolicy 安全策略配置.
 type SecurityPolicy struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -22,7 +22,7 @@ type SecurityPolicy struct {
 	UpdatedAt         time.Time               `json:"updated_at"`
 }
 
-// AttachmentScanConfig 附件安全扫描配置
+// AttachmentScanConfig 附件安全扫描配置.
 type AttachmentScanConfig struct {
 	Enabled           bool     `json:"enabled"`
 	BlockExecutables  bool     `json:"block_executables"`   // 阻止可执行文件
@@ -32,7 +32,7 @@ type AttachmentScanConfig struct {
 	ScanTimeoutSec    int      `json:"scan_timeout_sec"`    // 扫描超时(秒)
 }
 
-// PhishingDetectionConfig 钓鱼检测配置
+// PhishingDetectionConfig 钓鱼检测配置.
 type PhishingDetectionConfig struct {
 	Enabled             bool     `json:"enabled"`
 	CheckURLReputation  bool     `json:"check_url_reputation"`  // 检查URL信誉
@@ -42,7 +42,7 @@ type PhishingDetectionConfig struct {
 	MaxURLsPerEmail     int      `json:"max_urls_per_email"`    // 每封邮件最大URL数
 }
 
-// ContentComplianceConfig 内容合规配置
+// ContentComplianceConfig 内容合规配置.
 type ContentComplianceConfig struct {
 	Enabled           bool     `json:"enabled"`
 	KeywordFilters    []string `json:"keyword_filters"`    // 关键词过滤列表
@@ -51,7 +51,7 @@ type ContentComplianceConfig struct {
 	AlertOnViolation  bool     `json:"alert_on_violation"` // 违规时告警
 }
 
-// QuarantineItem 隔离邮件项
+// QuarantineItem 隔离邮件项.
 type QuarantineItem struct {
 	ID            string     `json:"id"`
 	MessageID     string     `json:"message_id"` // 原始邮件ID
@@ -70,7 +70,7 @@ type QuarantineItem struct {
 	ExpiresAt     time.Time  `json:"expires_at"` // 过期时间
 }
 
-// ScanResult 扫描结果
+// ScanResult 扫描结果.
 type ScanResult struct {
 	Threats       []ThreatItem `json:"threats"`
 	Score         int          `json:"score"`          // 威胁评分 0-100
@@ -79,7 +79,7 @@ type ScanResult struct {
 	ScannedAt     time.Time    `json:"scanned_at"`
 }
 
-// ThreatItem 威胁项
+// ThreatItem 威胁项.
 type ThreatItem struct {
 	Type        string `json:"type"`        // attachment, phishing, content, malware
 	Name        string `json:"name"`        // 威胁名称
@@ -89,7 +89,7 @@ type ThreatItem struct {
 	Action      string `json:"action"`      // block, quarantine, allow
 }
 
-// ThreatReport 威胁报告
+// ThreatReport 威胁报告.
 type ThreatReport struct {
 	ID               string          `json:"id"`
 	Period           string          `json:"period"` // daily, weekly, monthly
@@ -103,7 +103,7 @@ type ThreatReport struct {
 	GeneratedAt      time.Time       `json:"generated_at"`
 }
 
-// ThreatSummary 威胁摘要
+// ThreatSummary 威胁摘要.
 type ThreatSummary struct {
 	Type     string `json:"type"`
 	Name     string `json:"name"`
@@ -111,7 +111,7 @@ type ThreatSummary struct {
 	Severity string `json:"severity"`
 }
 
-// AuditRule 审计规则
+// AuditRule 审计规则.
 type AuditRule struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -126,7 +126,7 @@ type AuditRule struct {
 
 // ========== 请求/响应结构 ==========
 
-// CreatePolicyRequest 创建安全策略请求
+// CreatePolicyRequest 创建安全策略请求.
 type CreatePolicyRequest struct {
 	Name              string                  `json:"name" binding:"required"`
 	Description       string                  `json:"description"`
@@ -136,7 +136,7 @@ type CreatePolicyRequest struct {
 	ContentCompliance ContentComplianceConfig `json:"content_compliance"`
 }
 
-// UpdatePolicyRequest 更新安全策略请求
+// UpdatePolicyRequest 更新安全策略请求.
 type UpdatePolicyRequest struct {
 	Name              *string                  `json:"name,omitempty"`
 	Description       *string                  `json:"description,omitempty"`
@@ -147,14 +147,14 @@ type UpdatePolicyRequest struct {
 	ContentCompliance *ContentComplianceConfig `json:"content_compliance,omitempty"`
 }
 
-// ReviewQuarantineRequest 审批隔离邮件请求
+// ReviewQuarantineRequest 审批隔离邮件请求.
 type ReviewQuarantineRequest struct {
 	Action   string `json:"action" binding:"required"` // approve, reject, release
 	Note     string `json:"note"`
 	ReviewBy string `json:"review_by" binding:"required"`
 }
 
-// ScanEmailRequest 扫描邮件请求
+// ScanEmailRequest 扫描邮件请求.
 type ScanEmailRequest struct {
 	MessageID   string           `json:"message_id" binding:"required"`
 	From        string           `json:"from" binding:"required"`
@@ -164,7 +164,7 @@ type ScanEmailRequest struct {
 	Attachments []AttachmentInfo `json:"attachments,omitempty"`
 }
 
-// AttachmentInfo 附件信息
+// AttachmentInfo 附件信息.
 type AttachmentInfo struct {
 	Filename string `json:"filename"`
 	MimeType string `json:"mime_type"`
@@ -172,14 +172,14 @@ type AttachmentInfo struct {
 	Content  []byte `json:"content,omitempty"` // Base64编码的内容
 }
 
-// GenerateReportRequest 生成报告请求
+// GenerateReportRequest 生成报告请求.
 type GenerateReportRequest struct {
 	Period    string `json:"period" binding:"required"` // daily, weekly, monthly
 	StartTime string `json:"start_time"`
 	EndTime   string `json:"end_time"`
 }
 
-// ListQuarantineRequest 隔离邮件列表请求
+// ListQuarantineRequest 隔离邮件列表请求.
 type ListQuarantineRequest struct {
 	Status      string `form:"status"`
 	ThreatLevel string `form:"threat_level"`
@@ -187,7 +187,7 @@ type ListQuarantineRequest struct {
 	PageSize    int    `form:"page_size"`
 }
 
-// CreateAuditRuleRequest 创建审计规则请求
+// CreateAuditRuleRequest 创建审计规则请求.
 type CreateAuditRuleRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description"`
@@ -196,7 +196,7 @@ type CreateAuditRuleRequest struct {
 	Target      string `json:"target"`
 }
 
-// EmailSecurityStats 邮件安全统计
+// EmailSecurityStats 邮件安全统计.
 type EmailSecurityStats struct {
 	TotalScanned24h     int     `json:"total_scanned_24h"`
 	TotalBlocked24h     int     `json:"total_blocked_24h"`
@@ -208,7 +208,7 @@ type EmailSecurityStats struct {
 	ActiveRules         int     `json:"active_rules"`    // 活跃规则数
 }
 
-// ScanStatus 扫描状态枚举
+// ScanStatus 扫描状态枚举.
 const (
 	ScanStatusPending   = "pending"
 	ScanStatusScanning  = "scanning"
@@ -216,7 +216,7 @@ const (
 	ScanStatusFailed    = "failed"
 )
 
-// ThreatLevel 威胁等级枚举
+// ThreatLevel 威胁等级枚举.
 const (
 	ThreatLevelLow      = "low"
 	ThreatLevelMedium   = "medium"
@@ -224,7 +224,7 @@ const (
 	ThreatLevelCritical = "critical"
 )
 
-// QuarantineStatus 隔离状态枚举
+// QuarantineStatus 隔离状态枚举.
 const (
 	QuarantineStatusPending  = "pending"
 	QuarantineStatusApproved = "approved"
@@ -232,7 +232,7 @@ const (
 	QuarantineStatusReleased = "released"
 )
 
-// ThreatType 威胁类型枚举
+// ThreatType 威胁类型枚举.
 const (
 	ThreatTypeAttachment = "attachment"
 	ThreatTypePhishing   = "phishing"
@@ -240,7 +240,7 @@ const (
 	ThreatTypeMalware    = "malware"
 )
 
-// AuditAction 审计动作枚举
+// AuditAction 审计动作枚举.
 const (
 	AuditActionBlock      = "block"
 	AuditActionQuarantine = "quarantine"

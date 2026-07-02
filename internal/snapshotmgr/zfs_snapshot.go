@@ -18,10 +18,10 @@ type ZFSSnapshotConfig struct {
 	NamingFormat string `json:"naming_format"` // 快照命名格式，默认 "snap-%Y%m%d-%H%M%S"
 }
 
-// DefaultNamingFormat 默认快照命名格式
+// DefaultNamingFormat 默认快照命名格式.
 const DefaultNamingFormat = "snap-20060102-150405"
 
-// ZFSBookmark ZFS bookmark
+// ZFSBookmark ZFS bookmark.
 type ZFSBookmark struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`       // bookmark 名称
@@ -32,7 +32,7 @@ type ZFSBookmark struct {
 	GUID      string    `json:"guid"`       // ZFS 内部 GUID
 }
 
-// ZFSDiffResult 快照差异对比结果
+// ZFSDiffResult 快照差异对比结果.
 type ZFSDiffResult struct {
 	SnapshotA  string         `json:"snapshot_a"` // 快照 A 名称
 	SnapshotB  string         `json:"snapshot_b"` // 快照 B 名称
@@ -42,7 +42,7 @@ type ZFSDiffResult struct {
 	TotalSize  int64          `json:"total_size"` // 总变更大小
 }
 
-// ZFSDiffEntry 单个差异条目
+// ZFSDiffEntry 单个差异条目.
 type ZFSDiffEntry struct {
 	Type     string `json:"type"`      // added / modified / removed / renamed
 	Path     string `json:"path"`      // 文件/目录路径
@@ -52,7 +52,7 @@ type ZFSDiffEntry struct {
 	RefQuota int64  `json:"ref_quota"` // 引用配额变化
 }
 
-// ZFSHold ZFS 快照保护（防止误删）
+// ZFSHold ZFS 快照保护（防止误删）.
 type ZFSHold struct {
 	SnapshotID string    `json:"snapshot_id"` // 快照标识 (pool/dataset@snap)
 	Tag        string    `json:"tag"`         // 保护标签
@@ -61,7 +61,7 @@ type ZFSHold struct {
 	HolderRef  string    `json:"holder_ref"`  // 持有者引用（如 replication job ID）
 }
 
-// ZFSSnapshotManager ZFS 快照增强管理器
+// ZFSSnapshotManager ZFS 快照增强管理器.
 type ZFSSnapshotManager struct {
 	mu        sync.RWMutex
 	logger    *zap.Logger
@@ -69,7 +69,7 @@ type ZFSSnapshotManager struct {
 	holds     map[string][]ZFSHold    // key: snapshot_id
 }
 
-// NewZFSSnapshotManager 创建 ZFS 快照管理器
+// NewZFSSnapshotManager 创建 ZFS 快照管理器.
 func NewZFSSnapshotManager(logger *zap.Logger) *ZFSSnapshotManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -81,7 +81,7 @@ func NewZFSSnapshotManager(logger *zap.Logger) *ZFSSnapshotManager {
 	}
 }
 
-// GenerateSnapshotName 根据命名格式生成 ZFS 快照名
+// GenerateSnapshotName 根据命名格式生成 ZFS 快照名.
 func (z *ZFSSnapshotManager) GenerateSnapshotName(config *ZFSSnapshotConfig) string {
 	layout := config.NamingFormat
 	if layout == "" {
@@ -90,7 +90,7 @@ func (z *ZFSSnapshotManager) GenerateSnapshotName(config *ZFSSnapshotConfig) str
 	return time.Now().Format(layout)
 }
 
-// CreateSnapshotCommand 构建 zfs snapshot 命令参数
+// CreateSnapshotCommand 构建 zfs snapshot 命令参数.
 func (z *ZFSSnapshotManager) CreateSnapshotCommand(config *ZFSSnapshotConfig, snapName string) []string {
 	var target string
 	if config.Dataset != "" {
@@ -163,7 +163,7 @@ func (z *ZFSSnapshotManager) CreateBookmark(pool, dataset, snapName, bookmarkNam
 	return bm, nil
 }
 
-// ListBookmarks 列出所有 bookmark
+// ListBookmarks 列出所有 bookmark.
 func (z *ZFSSnapshotManager) ListBookmarks(pool, dataset string) []ZFSBookmark {
 	z.mu.RLock()
 	defer z.mu.RUnlock()
@@ -182,7 +182,7 @@ func (z *ZFSSnapshotManager) ListBookmarks(pool, dataset string) []ZFSBookmark {
 	return result
 }
 
-// DeleteBookmark 删除 bookmark
+// DeleteBookmark 删除 bookmark.
 func (z *ZFSSnapshotManager) DeleteBookmark(pool, dataset, bookmarkName string) error {
 	z.mu.Lock()
 	defer z.mu.Unlock()
@@ -235,7 +235,7 @@ func (z *ZFSSnapshotManager) Diff(pool, dataset, snapA, snapB string) (*ZFSDiffR
 	return result, nil
 }
 
-// AddHold 添加快照保护
+// AddHold 添加快照保护.
 func (z *ZFSSnapshotManager) AddHold(snapshotID, tag, reason, holderRef string) error {
 	z.mu.Lock()
 	defer z.mu.Unlock()
@@ -266,7 +266,7 @@ func (z *ZFSSnapshotManager) AddHold(snapshotID, tag, reason, holderRef string) 
 	return nil
 }
 
-// RemoveHold 移除快照保护
+// RemoveHold 移除快照保护.
 func (z *ZFSSnapshotManager) RemoveHold(snapshotID, tag string) error {
 	z.mu.Lock()
 	defer z.mu.Unlock()
@@ -293,7 +293,7 @@ func (z *ZFSSnapshotManager) RemoveHold(snapshotID, tag string) error {
 	return fmt.Errorf("hold tag %q not found on snapshot %s", tag, snapshotID)
 }
 
-// ListHolds 列出快照的所有保护
+// ListHolds 列出快照的所有保护.
 func (z *ZFSSnapshotManager) ListHolds(snapshotID string) []ZFSHold {
 	z.mu.RLock()
 	defer z.mu.RUnlock()
@@ -301,7 +301,7 @@ func (z *ZFSSnapshotManager) ListHolds(snapshotID string) []ZFSHold {
 	return append([]ZFSHold{}, z.holds[snapshotID]...)
 }
 
-// IsHeld 检查快照是否有保护（有保护的快照不可删除）
+// IsHeld 检查快照是否有保护（有保护的快照不可删除）.
 func (z *ZFSSnapshotManager) IsHeld(snapshotID string) bool {
 	z.mu.RLock()
 	defer z.mu.RUnlock()
@@ -309,7 +309,7 @@ func (z *ZFSSnapshotManager) IsHeld(snapshotID string) bool {
 	return len(z.holds[snapshotID]) > 0
 }
 
-// CanDelete 检查快照是否可以删除（考虑 hold 保护）
+// CanDelete 检查快照是否可以删除（考虑 hold 保护）.
 func (z *ZFSSnapshotManager) CanDelete(snapshotID string) (bool, []ZFSHold) {
 	z.mu.RLock()
 	defer z.mu.RUnlock()
@@ -318,7 +318,7 @@ func (z *ZFSSnapshotManager) CanDelete(snapshotID string) (bool, []ZFSHold) {
 	return len(holds) == 0, append([]ZFSHold{}, holds...)
 }
 
-// ParseZFSPath 解析 ZFS 路径 (pool/dataset@snap 或 pool/dataset#bookmark)
+// ParseZFSPath 解析 ZFS 路径 (pool/dataset@snap 或 pool/dataset#bookmark).
 func ParseZFSPath(path string) (pool, dataset, suffix, suffixType string) {
 	var mainPart string
 	if idx := strings.LastIndex(path, "@"); idx != -1 {

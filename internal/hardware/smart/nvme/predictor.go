@@ -13,7 +13,7 @@ import (
 // 类型定义 - 本包独立类型
 // ============================================================================
 
-// HealthStatus NVMe健康状态 (从 internal/hardware/nvme 复制以避免循环导入)
+// HealthStatus NVMe健康状态 (从 internal/hardware/nvme 复制以避免循环导入).
 type HealthStatus struct {
 	Device          string  // 设备路径
 	Temperature     int     // 温度 (摄氏度)
@@ -24,7 +24,7 @@ type HealthStatus struct {
 	MediaErrors     uint64  // 媒体错误数
 }
 
-// PredictedLife 预测寿命结果
+// PredictedLife 预测寿命结果.
 type PredictedLife struct {
 	RemainingDays    int       `json:"remainingDays"`    // 预计剩余天数
 	EstimatedEndDate time.Time `json:"estimatedEndDate"` // 预计失效日期
@@ -34,7 +34,7 @@ type PredictedLife struct {
 	Method           string    `json:"method"`           // 预测方法
 }
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 const (
@@ -44,7 +44,7 @@ const (
 	AlertLevelEmergency AlertLevel = "emergency"
 )
 
-// HealthStatusType 健康状态类型
+// HealthStatusType 健康状态类型.
 type HealthStatusType string
 
 const (
@@ -59,7 +59,7 @@ const (
 // 寿命预测模块
 // ============================================================================
 
-// LifePredictor NVMe寿命预测器
+// LifePredictor NVMe寿命预测器.
 type LifePredictor struct {
 	config         *PredictionConfig
 	history        map[string][]*HistoryPoint
@@ -69,7 +69,7 @@ type LifePredictor struct {
 	optimalSamples int
 }
 
-// PredictionConfig 预测配置
+// PredictionConfig 预测配置.
 type PredictionConfig struct {
 	Enabled          bool    `json:"enabled"`
 	MinSamples       int     `json:"minSamples"`
@@ -78,7 +78,7 @@ type PredictionConfig struct {
 	PredictionWindow int     `json:"predictionWindow"`
 }
 
-// DefaultPredictionConfig 默认预测配置
+// DefaultPredictionConfig 默认预测配置.
 func DefaultPredictionConfig() *PredictionConfig {
 	return &PredictionConfig{
 		Enabled:          true,
@@ -89,7 +89,7 @@ func DefaultPredictionConfig() *PredictionConfig {
 	}
 }
 
-// HistoryPoint 历史数据点
+// HistoryPoint 历史数据点.
 type HistoryPoint struct {
 	Timestamp      time.Time `json:"timestamp"`
 	PercentUsed    float64   `json:"percentUsed"`
@@ -100,7 +100,7 @@ type HistoryPoint struct {
 	HealthScore    float64   `json:"healthScore"`
 }
 
-// PredictionModel 预测模型
+// PredictionModel 预测模型.
 type PredictionModel struct {
 	Device          string    `json:"device"`
 	WriteRatePerDay uint64    `json:"writeRatePerDay"`
@@ -109,7 +109,7 @@ type PredictionModel struct {
 	SampleCount     int       `json:"sampleCount"`
 }
 
-// NewLifePredictor 创建寿命预测器
+// NewLifePredictor 创建寿命预测器.
 func NewLifePredictor(config *PredictionConfig) *LifePredictor {
 	if config == nil {
 		config = DefaultPredictionConfig()
@@ -123,7 +123,7 @@ func NewLifePredictor(config *PredictionConfig) *LifePredictor {
 	}
 }
 
-// AddHistoryPoint 添加历史数据点
+// AddHistoryPoint 添加历史数据点.
 func (p *LifePredictor) AddHistoryPoint(device string, health *HealthStatus) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -150,7 +150,7 @@ func (p *LifePredictor) AddHistoryPoint(device string, health *HealthStatus) {
 	p.history[device] = history
 }
 
-// Predict 执行寿命预测
+// Predict 执行寿命预测.
 func (p *LifePredictor) Predict(device string) *PredictedLife {
 	p.mu.RLock()
 	history := p.history[device]
@@ -207,7 +207,7 @@ func (p *LifePredictor) Predict(device string) *PredictedLife {
 	}
 }
 
-// calculateWriteRate 计算写入速率
+// calculateWriteRate 计算写入速率.
 func (p *LifePredictor) calculateWriteRate(history []*HistoryPoint) uint64 {
 	if len(history) < 2 {
 		return 0
@@ -234,7 +234,7 @@ func (p *LifePredictor) calculateWriteRate(history []*HistoryPoint) uint64 {
 	return uint64(writeRateFloat)
 }
 
-// calculateLifeDecayRate 计算寿命衰减速率(%/天)
+// calculateLifeDecayRate 计算寿命衰减速率(%/天).
 func (p *LifePredictor) calculateLifeDecayRate(history []*HistoryPoint) float64 {
 	if len(history) < 2 {
 		return 0
@@ -257,7 +257,7 @@ func (p *LifePredictor) calculateLifeDecayRate(history []*HistoryPoint) float64 
 	return totalLifeIncrease / days
 }
 
-// calculateConfidence 计算预测置信度
+// calculateConfidence 计算预测置信度.
 func (p *LifePredictor) calculateConfidence(sampleCount int) float64 {
 	ratio := float64(sampleCount) / float64(p.optimalSamples)
 	if ratio > 1 {
@@ -266,7 +266,7 @@ func (p *LifePredictor) calculateConfidence(sampleCount int) float64 {
 	return ratio * p.config.MaxConfidence
 }
 
-// GetHistory 获取历史数据
+// GetHistory 获取历史数据.
 func (p *LifePredictor) GetHistory(device string) []*HistoryPoint {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -277,7 +277,7 @@ func (p *LifePredictor) GetHistory(device string) []*HistoryPoint {
 // 异常检测模块
 // ============================================================================
 
-// AnomalyType 异常类型
+// AnomalyType 异常类型.
 type AnomalyType string
 
 const (
@@ -288,7 +288,7 @@ const (
 	AnomalySpareLow   AnomalyType = "spare_low"
 )
 
-// AnomalyLevel 异常级别
+// AnomalyLevel 异常级别.
 type AnomalyLevel string
 
 const (
@@ -299,7 +299,7 @@ const (
 	AnomalySevere AnomalyLevel = "severe"
 )
 
-// Anomaly 异常事件
+// Anomaly 异常事件.
 type Anomaly struct {
 	Device      string       `json:"device"`
 	Type        AnomalyType  `json:"type"`
@@ -310,7 +310,7 @@ type Anomaly struct {
 	Timestamp   time.Time    `json:"timestamp"`
 }
 
-// AnomalyDetector 异常检测器
+// AnomalyDetector 异常检测器.
 type AnomalyDetector struct {
 	config    *AnomalyConfig
 	baselines map[string]*Baseline
@@ -318,7 +318,7 @@ type AnomalyDetector struct {
 	mu        sync.RWMutex
 }
 
-// AnomalyConfig 异常检测配置
+// AnomalyConfig 异常检测配置.
 type AnomalyConfig struct {
 	WriteSpikeThreshold float64 `json:"writeSpikeThreshold"`
 	TempSpikeThreshold  float64 `json:"tempSpikeThreshold"`
@@ -326,7 +326,7 @@ type AnomalyConfig struct {
 	AnomalyWindow       int     `json:"anomalyWindow"`
 }
 
-// DefaultAnomalyConfig 默认异常检测配置
+// DefaultAnomalyConfig 默认异常检测配置.
 func DefaultAnomalyConfig() *AnomalyConfig {
 	return &AnomalyConfig{
 		WriteSpikeThreshold: 3.0,
@@ -336,7 +336,7 @@ func DefaultAnomalyConfig() *AnomalyConfig {
 	}
 }
 
-// Baseline 基线数据
+// Baseline 基线数据.
 type Baseline struct {
 	Device         string    `json:"device"`
 	AvgWriteRate   uint64    `json:"avgWriteRate"`
@@ -345,7 +345,7 @@ type Baseline struct {
 	LastUpdate     time.Time `json:"lastUpdate"`
 }
 
-// NewAnomalyDetector 创建异常检测器
+// NewAnomalyDetector 创建异常检测器.
 func NewAnomalyDetector(config *AnomalyConfig) *AnomalyDetector {
 	if config == nil {
 		config = DefaultAnomalyConfig()
@@ -357,7 +357,7 @@ func NewAnomalyDetector(config *AnomalyConfig) *AnomalyDetector {
 	}
 }
 
-// UpdateBaseline 更新基线数据
+// UpdateBaseline 更新基线数据.
 func (d *AnomalyDetector) UpdateBaseline(device string, history []*HistoryPoint) {
 	if len(history) < 10 {
 		return
@@ -393,7 +393,7 @@ func (d *AnomalyDetector) UpdateBaseline(device string, history []*HistoryPoint)
 	}
 }
 
-// Detect 检测异常
+// Detect 检测异常.
 func (d *AnomalyDetector) Detect(device string, health *HealthStatus) []*Anomaly {
 	d.mu.RLock()
 	baseline := d.baselines[device]
@@ -498,7 +498,7 @@ func (d *AnomalyDetector) Detect(device string, health *HealthStatus) []*Anomaly
 	return anomalies
 }
 
-// GetAnomalies 获取异常历史
+// GetAnomalies 获取异常历史.
 func (d *AnomalyDetector) GetAnomalies(device string) []*Anomaly {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -509,7 +509,7 @@ func (d *AnomalyDetector) GetAnomalies(device string) []*Anomaly {
 // 综合健康评估模块
 // ============================================================================
 
-// ComprehensiveHealth 全面健康评估
+// ComprehensiveHealth 全面健康评估.
 type ComprehensiveHealth struct {
 	Device          string           `json:"device"`
 	HealthScore     float64          `json:"healthScore"`
@@ -523,7 +523,7 @@ type ComprehensiveHealth struct {
 	Timestamp       time.Time        `json:"timestamp"`
 }
 
-// ThresholdConfig 阈值配置
+// ThresholdConfig 阈值配置.
 type ThresholdConfig struct {
 	LifespanWarning     float64 `json:"lifespanWarning"`
 	LifespanCritical    float64 `json:"lifespanCritical"`
@@ -536,7 +536,7 @@ type ThresholdConfig struct {
 	DaysCritical        int     `json:"daysCritical"`
 }
 
-// DefaultThresholdConfig 默认阈值配置
+// DefaultThresholdConfig 默认阈值配置.
 func DefaultThresholdConfig() *ThresholdConfig {
 	return &ThresholdConfig{
 		LifespanWarning:     80,
@@ -551,21 +551,21 @@ func DefaultThresholdConfig() *ThresholdConfig {
 	}
 }
 
-// EvaluationConfig 评估配置
+// EvaluationConfig 评估配置.
 type EvaluationConfig struct {
 	Thresholds *ThresholdConfig  `json:"thresholds"`
 	Prediction *PredictionConfig `json:"prediction"`
 	Anomaly    *AnomalyConfig    `json:"anomaly"`
 }
 
-// HealthEvaluator 健康评估器
+// HealthEvaluator 健康评估器.
 type HealthEvaluator struct {
 	predictor *LifePredictor
 	detector  *AnomalyDetector
 	config    *EvaluationConfig
 }
 
-// NewHealthEvaluator 创建健康评估器
+// NewHealthEvaluator 创建健康评估器.
 func NewHealthEvaluator(config *EvaluationConfig) *HealthEvaluator {
 	if config == nil {
 		config = &EvaluationConfig{
@@ -581,7 +581,7 @@ func NewHealthEvaluator(config *EvaluationConfig) *HealthEvaluator {
 	}
 }
 
-// Evaluate 执行全面健康评估
+// Evaluate 执行全面健康评估.
 func (e *HealthEvaluator) Evaluate(device string, health *HealthStatus, history []*HistoryPoint) *ComprehensiveHealth {
 	// 添加当前健康状态作为新数据点
 	e.predictor.AddHistoryPoint(device, health)
@@ -611,7 +611,7 @@ func (e *HealthEvaluator) Evaluate(device string, health *HealthStatus, history 
 	}
 }
 
-// evaluateAlertLevel 评估告警级别
+// evaluateAlertLevel 评估告警级别.
 func (e *HealthEvaluator) evaluateAlertLevel(health *HealthStatus, predicted *PredictedLife, anomalies []*Anomaly) (AlertLevel, string) {
 	th := e.config.Thresholds
 
@@ -663,7 +663,7 @@ func (e *HealthEvaluator) evaluateAlertLevel(health *HealthStatus, predicted *Pr
 	return AlertLevelNone, "NVMe状态正常"
 }
 
-// determineStatus 确定健康状态
+// determineStatus 确定健康状态.
 func (e *HealthEvaluator) determineStatus(alertLevel AlertLevel, healthScore float64) HealthStatusType {
 	switch alertLevel {
 	case AlertLevelEmergency:
@@ -684,7 +684,7 @@ func (e *HealthEvaluator) determineStatus(alertLevel AlertLevel, healthScore flo
 	}
 }
 
-// identifyRiskFactors 识别风险因素
+// identifyRiskFactors 识别风险因素.
 func (e *HealthEvaluator) identifyRiskFactors(health *HealthStatus, predicted *PredictedLife, anomalies []*Anomaly) []string {
 	factors := []string{}
 
@@ -719,7 +719,7 @@ func (e *HealthEvaluator) identifyRiskFactors(health *HealthStatus, predicted *P
 	return factors
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func (e *HealthEvaluator) generateRecommendations(status HealthStatusType, riskFactors []string) []string {
 	recommendations := []string{}
 
@@ -756,7 +756,7 @@ func (e *HealthEvaluator) generateRecommendations(status HealthStatusType, riskF
 // 辅助函数
 // ============================================================================
 
-// CalculateHealthScore 计算健康评分
+// CalculateHealthScore 计算健康评分.
 func CalculateHealthScore(health *HealthStatus) float64 {
 	score := 100.0
 
@@ -778,7 +778,7 @@ func CalculateHealthScore(health *HealthStatus) float64 {
 	return score
 }
 
-// calculateTempScore 计算温度评分
+// calculateTempScore 计算温度评分.
 func calculateTempScore(temp int) float64 {
 	if temp <= 50 {
 		return 100
@@ -795,7 +795,7 @@ func calculateTempScore(temp int) float64 {
 	return 0
 }
 
-// calculateErrorScore 计算错误评分
+// calculateErrorScore 计算错误评分.
 func calculateErrorScore(errors uint64) float64 {
 	if errors == 0 {
 		return 100
@@ -809,7 +809,7 @@ func calculateErrorScore(errors uint64) float64 {
 	return 25 - float64(errors-10)*2.5
 }
 
-// PredictWithContext 带上下文的预测
+// PredictWithContext 带上下文的预测.
 func (p *LifePredictor) PredictWithContext(ctx context.Context, device string) *PredictedLife {
 	select {
 	case <-ctx.Done():
@@ -819,7 +819,7 @@ func (p *LifePredictor) PredictWithContext(ctx context.Context, device string) *
 	}
 }
 
-// DetectWithContext 带上下文的异常检测
+// DetectWithContext 带上下文的异常检测.
 func (d *AnomalyDetector) DetectWithContext(ctx context.Context, device string, health *HealthStatus) []*Anomaly {
 	select {
 	case <-ctx.Done():
@@ -829,7 +829,7 @@ func (d *AnomalyDetector) DetectWithContext(ctx context.Context, device string, 
 	}
 }
 
-// EvaluateWithContext 带上下文的健康评估
+// EvaluateWithContext 带上下文的健康评估.
 func (e *HealthEvaluator) EvaluateWithContext(ctx context.Context, device string, health *HealthStatus, history []*HistoryPoint) *ComprehensiveHealth {
 	select {
 	case <-ctx.Done():

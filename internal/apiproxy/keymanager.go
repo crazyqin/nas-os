@@ -12,15 +12,15 @@ import (
 // ========== API Key 管理器 ==========
 
 // KeyManager 管理 API Key 的创建、吊销、限速和配额
-// 支持多用户，每个用户可拥有多个 Key
+// 支持多用户，每个用户可拥有多个 Key.
 type KeyManager struct {
-	mu      sync.RWMutex
-	keys    map[string]*APIKeyConfig      // keyID -> config
-	keyMap  map[string]string             // apiKey -> keyID（用于快速查找）
-	usage   map[string]*KeyUsageStat       // keyID -> 使用统计
+	mu     sync.RWMutex
+	keys   map[string]*APIKeyConfig // keyID -> config
+	keyMap map[string]string        // apiKey -> keyID（用于快速查找）
+	usage  map[string]*KeyUsageStat // keyID -> 使用统计
 }
 
-// NewKeyManager 创建 Key 管理器
+// NewKeyManager 创建 Key 管理器.
 func NewKeyManager() *KeyManager {
 	return &KeyManager{
 		keys:   make(map[string]*APIKeyConfig),
@@ -29,7 +29,7 @@ func NewKeyManager() *KeyManager {
 	}
 }
 
-// CreateKey 创建新的 API Key
+// CreateKey 创建新的 API Key.
 func (km *KeyManager) CreateKey(userID, name string, opts ...KeyOption) (*APIKeyConfig, error) {
 	if userID == "" {
 		return nil, fmt.Errorf("用户 ID 不能为空")
@@ -86,45 +86,45 @@ func (km *KeyManager) CreateKey(userID, name string, opts ...KeyOption) (*APIKey
 	return &result, nil
 }
 
-// KeyOption Key 创建的可选参数
+// KeyOption Key 创建的可选参数.
 type KeyOption func(*APIKeyConfig)
 
-// WithAllowedModels 设置允许的模型列表
+// WithAllowedModels 设置允许的模型列表.
 func WithAllowedModels(models []string) KeyOption {
 	return func(c *APIKeyConfig) {
 		c.AllowedModels = models
 	}
 }
 
-// WithRateLimit 设置每分钟请求限制
+// WithRateLimit 设置每分钟请求限制.
 func WithRateLimit(perMin int) KeyOption {
 	return func(c *APIKeyConfig) {
 		c.RateLimitPerMin = perMin
 	}
 }
 
-// WithDailyQuota 设置每日配额
+// WithDailyQuota 设置每日配额.
 func WithDailyQuota(quota int) KeyOption {
 	return func(c *APIKeyConfig) {
 		c.DailyQuota = quota
 	}
 }
 
-// WithMonthlyQuota 设置每月配额
+// WithMonthlyQuota 设置每月配额.
 func WithMonthlyQuota(quota int) KeyOption {
 	return func(c *APIKeyConfig) {
 		c.MonthlyQuota = quota
 	}
 }
 
-// WithExpiry 设置过期时间
+// WithExpiry 设置过期时间.
 func WithExpiry(t time.Time) KeyOption {
 	return func(c *APIKeyConfig) {
 		c.ExpiresAt = &t
 	}
 }
 
-// Validate 验证 API Key，返回 Key 配置
+// Validate 验证 API Key，返回 Key 配置.
 func (km *KeyManager) Validate(apiKey string) (*APIKeyConfig, error) {
 	if apiKey == "" {
 		return nil, fmt.Errorf("API Key 不能为空")
@@ -158,7 +158,7 @@ func (km *KeyManager) Validate(apiKey string) (*APIKeyConfig, error) {
 	return &result, nil
 }
 
-// RevokeKey 吊销 API Key
+// RevokeKey 吊销 API Key.
 func (km *KeyManager) RevokeKey(keyID string) error {
 	km.mu.Lock()
 	defer km.mu.Unlock()
@@ -176,7 +176,7 @@ func (km *KeyManager) RevokeKey(keyID string) error {
 	return nil
 }
 
-// DeleteKey 彻底删除 API Key
+// DeleteKey 彻底删除 API Key.
 func (km *KeyManager) DeleteKey(keyID string) error {
 	km.mu.Lock()
 	defer km.mu.Unlock()
@@ -193,7 +193,7 @@ func (km *KeyManager) DeleteKey(keyID string) error {
 	return nil
 }
 
-// ListKeys 列出指定用户的所有 API Key
+// ListKeys 列出指定用户的所有 API Key.
 func (km *KeyManager) ListKeys(userID string) []*APIKeyConfig {
 	km.mu.RLock()
 	defer km.mu.RUnlock()
@@ -210,7 +210,7 @@ func (km *KeyManager) ListKeys(userID string) []*APIKeyConfig {
 	return result
 }
 
-// GetKey 获取单个 Key 信息（不含完整 Key 值）
+// GetKey 获取单个 Key 信息（不含完整 Key 值）.
 func (km *KeyManager) GetKey(keyID string) (*APIKeyConfig, error) {
 	km.mu.RLock()
 	defer km.mu.RUnlock()
@@ -225,7 +225,7 @@ func (km *KeyManager) GetKey(keyID string) (*APIKeyConfig, error) {
 	return &result, nil
 }
 
-// CheckQuota 检查配额是否充足
+// CheckQuota 检查配额是否充足.
 func (km *KeyManager) CheckQuota(keyID string) error {
 	km.mu.Lock()
 	defer km.mu.Unlock()
@@ -276,7 +276,7 @@ func (km *KeyManager) CheckQuota(keyID string) error {
 	return nil
 }
 
-// RecordUsage 记录 token 使用量
+// RecordUsage 记录 token 使用量.
 func (km *KeyManager) RecordUsage(keyID string, tokens int) {
 	km.mu.Lock()
 	defer km.mu.Unlock()
@@ -284,8 +284,8 @@ func (km *KeyManager) RecordUsage(keyID string, tokens int) {
 	stat, ok := km.usage[keyID]
 	if !ok {
 		stat = &KeyUsageStat{
-			KeyID:          keyID,
-			LastResetDaily: time.Now(),
+			KeyID:            keyID,
+			LastResetDaily:   time.Now(),
 			LastResetMonthly: time.Now(),
 		}
 		km.usage[keyID] = stat
@@ -297,7 +297,7 @@ func (km *KeyManager) RecordUsage(keyID string, tokens int) {
 	stat.MonthRequests++
 }
 
-// TouchKey 更新 Key 的最后使用时间
+// TouchKey 更新 Key 的最后使用时间.
 func (km *KeyManager) TouchKey(keyID string) {
 	km.mu.Lock()
 	defer km.mu.Unlock()
@@ -310,7 +310,7 @@ func (km *KeyManager) TouchKey(keyID string) {
 	cfg.LastUsedAt = &now
 }
 
-// GetUsage 获取 Key 使用统计
+// GetUsage 获取 Key 使用统计.
 func (km *KeyManager) GetUsage(keyID string) (*KeyUsageStat, error) {
 	km.mu.RLock()
 	defer km.mu.RUnlock()
@@ -325,7 +325,7 @@ func (km *KeyManager) GetUsage(keyID string) (*KeyUsageStat, error) {
 	return &result, nil
 }
 
-// ResetUsage 重置 Key 使用统计
+// ResetUsage 重置 Key 使用统计.
 func (km *KeyManager) ResetUsage(keyID string) error {
 	km.mu.Lock()
 	defer km.mu.Unlock()

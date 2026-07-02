@@ -7,23 +7,23 @@ import (
 	"strings"
 )
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	manager *IncludeManager
 }
 
-// NewHandler 创建 HTTP 处理器
+// NewHandler 创建 HTTP 处理器.
 func NewHandler(manager *IncludeManager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/docker/compose-include", h.ComposeInclude)
 	mux.HandleFunc("/api/docker/compose-include/", h.ComposeIncludeByID)
 }
 
-// ComposeInclude 处理 POST /api/docker/compose-include（解析）
+// ComposeInclude 处理 POST /api/docker/compose-include（解析）.
 func (h *Handler) ComposeInclude(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, errorResponse("method not allowed"))
@@ -49,7 +49,7 @@ func (h *Handler) ComposeInclude(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, result)
 }
 
-// ComposeIncludeByID 处理 GET /api/docker/compose-include/:id（获取解析结果）
+// ComposeIncludeByID 处理 GET /api/docker/compose-include/:id（获取解析结果）.
 func (h *Handler) ComposeIncludeByID(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, errorResponse("method not allowed"))

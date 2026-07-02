@@ -6,17 +6,17 @@ import (
 	"net/http"
 )
 
-// Handler 处理隐私保险箱的 HTTP 请求
+// Handler 处理隐私保险箱的 HTTP 请求.
 type Handler struct {
 	engine *Engine
 }
 
-// NewHandler 创建隐私保险箱处理器
+// NewHandler 创建隐私保险箱处理器.
 func NewHandler(engine *Engine) *Handler {
 	return &Handler{engine: engine}
 }
 
-// RegisterRoutes 注册 HTTP 路由
+// RegisterRoutes 注册 HTTP 路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/vaults", h.handleVaults)
 	mux.HandleFunc("/api/v1/vault", h.handleVault)
@@ -28,7 +28,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/vault/share", h.handleShare)
 }
 
-// handleVaults 处理保险库列表请求
+// handleVaults 处理保险库列表请求.
 func (h *Handler) handleVaults(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -39,7 +39,7 @@ func (h *Handler) handleVaults(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(vaults)
 }
 
-// handleVault 处理保险库 CRUD 操作
+// handleVault 处理保险库 CRUD 操作.
 func (h *Handler) handleVault(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -85,7 +85,7 @@ func (h *Handler) handleVault(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleLock 锁定保险库
+// handleLock 锁定保险库.
 func (h *Handler) handleLock(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -105,7 +105,7 @@ func (h *Handler) handleLock(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "locked"})
 }
 
-// handleUnlock 解锁保险库
+// handleUnlock 解锁保险库.
 func (h *Handler) handleUnlock(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -126,7 +126,7 @@ func (h *Handler) handleUnlock(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "unlocked"})
 }
 
-// handleStats 返回统计信息
+// handleStats 返回统计信息.
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -137,7 +137,7 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(stats)
 }
 
-// handleAudit 返回审计日志
+// handleAudit 返回审计日志.
 func (h *Handler) handleAudit(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -149,7 +149,7 @@ func (h *Handler) handleAudit(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(entries)
 }
 
-// handleSecret 处理加密条目操作
+// handleSecret 处理加密条目操作.
 func (h *Handler) handleSecret(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -194,7 +194,7 @@ func (h *Handler) handleSecret(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleShare 处理分享链接操作
+// handleShare 处理分享链接操作.
 func (h *Handler) handleShare(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

@@ -6,17 +6,17 @@ import (
 	"net/http"
 )
 
-// Handler 智能洞察 HTTP 处理器
+// Handler 智能洞察 HTTP 处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由到 http.ServeMux
+// RegisterRoutes 注册路由到 http.ServeMux.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/smartinsight/insights", h.handleInsights)
 	mux.HandleFunc("/api/v1/smartinsight/recommendations", h.handleRecommendations)
@@ -27,14 +27,14 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/smartinsight/stats", h.handleStats)
 }
 
-// apiResponse 标准 API 响应
+// apiResponse 标准 API 响应.
 type apiResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// writeJSON 写入 JSON 响应
+// writeJSON 写入 JSON 响应.
 func writeJSON(w http.ResponseWriter, status int, resp apiResponse) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
@@ -42,7 +42,7 @@ func writeJSON(w http.ResponseWriter, status int, resp apiResponse) {
 }
 
 // handleInsights 处理洞察查询
-// GET /api/v1/smartinsight/insights?category=storage
+// GET /api/v1/smartinsight/insights?category=storage.
 func (h *Handler) handleInsights(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, apiResponse{Code: 1, Message: "method not allowed"})
@@ -62,7 +62,7 @@ func (h *Handler) handleInsights(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleRecommendations 处理推荐查询
-// GET /api/v1/smartinsight/recommendations?category=storage_optimize
+// GET /api/v1/smartinsight/recommendations?category=storage_optimize.
 func (h *Handler) handleRecommendations(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, apiResponse{Code: 1, Message: "method not allowed"})
@@ -80,7 +80,7 @@ func (h *Handler) handleRecommendations(w http.ResponseWriter, r *http.Request) 
 }
 
 // handleAnomalies 处理异常查询
-// GET /api/v1/smartinsight/anomalies?type=file_access
+// GET /api/v1/smartinsight/anomalies?type=file_access.
 func (h *Handler) handleAnomalies(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, apiResponse{Code: 1, Message: "method not allowed"})
@@ -99,7 +99,7 @@ func (h *Handler) handleAnomalies(w http.ResponseWriter, r *http.Request) {
 
 // handleReport 处理报告生成
 // POST /api/v1/smartinsight/report - 生成新报告
-// GET /api/v1/smartinsight/report - 获取所有报告列表
+// GET /api/v1/smartinsight/report - 获取所有报告列表.
 func (h *Handler) handleReport(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
@@ -122,7 +122,7 @@ func (h *Handler) handleReport(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleLatestReport 获取最新报告
-// GET /api/v1/smartinsight/report/latest
+// GET /api/v1/smartinsight/report/latest.
 func (h *Handler) handleLatestReport(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, apiResponse{Code: 1, Message: "method not allowed"})
@@ -143,7 +143,7 @@ func (h *Handler) handleLatestReport(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleCost 成本分析
-// GET /api/v1/smartinsight/cost
+// GET /api/v1/smartinsight/cost.
 func (h *Handler) handleCost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, apiResponse{Code: 1, Message: "method not allowed"})
@@ -160,7 +160,7 @@ func (h *Handler) handleCost(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleStats 系统统计概览
-// GET /api/v1/smartinsight/stats
+// GET /api/v1/smartinsight/stats.
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, apiResponse{Code: 1, Message: "method not allowed"})

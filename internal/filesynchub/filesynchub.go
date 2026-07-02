@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// SyncTask represents a file synchronization task
+// SyncTask represents a file synchronization task.
 type SyncTask struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
@@ -26,7 +26,7 @@ type SyncTask struct {
 	TotalSize   int64         `json:"total_size"`
 }
 
-// SyncResult represents the result of a sync operation
+// SyncResult represents the result of a sync operation.
 type SyncResult struct {
 	TaskID       string    `json:"task_id"`
 	StartTime    time.Time `json:"start_time"`
@@ -37,13 +37,13 @@ type SyncResult struct {
 	Errors       []string  `json:"errors,omitempty"`
 }
 
-// ConflictResolution defines how to handle conflicts
+// ConflictResolution defines how to handle conflicts.
 type ConflictResolution struct {
 	Strategy string `json:"strategy"` // source, destination, newest, largest, manual
 }
 
 // FileSyncHub provides file synchronization across devices
-// Inspired by Synology Drive
+// Inspired by Synology Drive.
 type FileSyncHub struct {
 	mu          sync.RWMutex
 	tasks       map[string]*SyncTask
@@ -52,7 +52,7 @@ type FileSyncHub struct {
 	conflictRes ConflictResolution
 }
 
-// NewFileSyncHub creates a new FileSyncHub instance
+// NewFileSyncHub creates a new FileSyncHub instance.
 func NewFileSyncHub() *FileSyncHub {
 	return &FileSyncHub{
 		tasks:       make(map[string]*SyncTask),
@@ -61,7 +61,7 @@ func NewFileSyncHub() *FileSyncHub {
 	}
 }
 
-// AddTask adds a synchronization task
+// AddTask adds a synchronization task.
 func (fsh *FileSyncHub) AddTask(task SyncTask) error {
 	fsh.mu.Lock()
 	defer fsh.mu.Unlock()
@@ -80,14 +80,14 @@ func (fsh *FileSyncHub) AddTask(task SyncTask) error {
 	return nil
 }
 
-// RemoveTask removes a synchronization task
+// RemoveTask removes a synchronization task.
 func (fsh *FileSyncHub) RemoveTask(taskID string) {
 	fsh.mu.Lock()
 	defer fsh.mu.Unlock()
 	delete(fsh.tasks, taskID)
 }
 
-// RunSync executes a sync task immediately
+// RunSync executes a sync task immediately.
 func (fsh *FileSyncHub) RunSync(ctx context.Context, taskID string) (*SyncResult, error) {
 	fsh.mu.RLock()
 	task, exists := fsh.tasks[taskID]
@@ -158,7 +158,7 @@ func (fsh *FileSyncHub) RunSync(ctx context.Context, taskID string) (*SyncResult
 	return result, nil
 }
 
-// GetTask returns a sync task
+// GetTask returns a sync task.
 func (fsh *FileSyncHub) GetTask(taskID string) (*SyncTask, error) {
 	fsh.mu.RLock()
 	defer fsh.mu.RUnlock()
@@ -170,7 +170,7 @@ func (fsh *FileSyncHub) GetTask(taskID string) (*SyncTask, error) {
 	return task, nil
 }
 
-// ListTasks returns all sync tasks
+// ListTasks returns all sync tasks.
 func (fsh *FileSyncHub) ListTasks() []*SyncTask {
 	fsh.mu.RLock()
 	defer fsh.mu.RUnlock()
@@ -182,14 +182,14 @@ func (fsh *FileSyncHub) ListTasks() []*SyncTask {
 	return tasks
 }
 
-// SetConflictResolution sets the conflict resolution strategy
+// SetConflictResolution sets the conflict resolution strategy.
 func (fsh *FileSyncHub) SetConflictResolution(resolution ConflictResolution) {
 	fsh.mu.Lock()
 	defer fsh.mu.Unlock()
 	fsh.conflictRes = resolution
 }
 
-// Start begins automatic synchronization
+// Start begins automatic synchronization.
 func (fsh *FileSyncHub) Start(ctx context.Context) error {
 	fsh.mu.Lock()
 	if fsh.running {
@@ -203,7 +203,7 @@ func (fsh *FileSyncHub) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop stops automatic synchronization
+// Stop stops automatic synchronization.
 func (fsh *FileSyncHub) Stop() {
 	fsh.mu.Lock()
 	defer fsh.mu.Unlock()
@@ -288,7 +288,7 @@ func (fsh *FileSyncHub) copyFile(src, dst string) error {
 	return err
 }
 
-// ComputeFileHash computes SHA256 hash of a file
+// ComputeFileHash computes SHA256 hash of a file.
 func ComputeFileHash(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {

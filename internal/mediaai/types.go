@@ -13,7 +13,7 @@ import (
 // AI Classifier Types
 // ============================================================
 
-// SceneCategory AI识别的场景分类
+// SceneCategory AI识别的场景分类.
 type SceneCategory string
 
 const (
@@ -35,7 +35,7 @@ const (
 	SceneUnknown      SceneCategory = "unknown"
 )
 
-// ContentRating 内容质量评级
+// ContentRating 内容质量评级.
 type ContentRating string
 
 const (
@@ -46,7 +46,7 @@ const (
 	RatingBlurry    ContentRating = "blurry"    // 模糊
 )
 
-// AITag AI自动生成的标签
+// AITag AI自动生成的标签.
 type AITag struct {
 	Name       string  `json:"name"`
 	Category   string  `json:"category"`   // scene, object, emotion, style
@@ -54,7 +54,7 @@ type AITag struct {
 	Source     string  `json:"source"`     // ai_vision, ai_text, metadata
 }
 
-// ClassificationResult 分类结果
+// ClassificationResult 分类结果.
 type ClassificationResult struct {
 	MediaID      string        `json:"media_id"`
 	Scenes       []SceneTag    `json:"scenes"`
@@ -70,20 +70,20 @@ type ClassificationResult struct {
 	AnalyzedAt   time.Time     `json:"analyzed_at"`
 }
 
-// SceneTag 场景标签
+// SceneTag 场景标签.
 type SceneTag struct {
 	Category   SceneCategory `json:"category"`
 	Confidence float64       `json:"confidence"`
 }
 
-// ObjectTag 物体标签
+// ObjectTag 物体标签.
 type ObjectTag struct {
 	Name       string  `json:"name"`
 	Confidence float64 `json:"confidence"`
 	Box        *BBox   `json:"box,omitempty"`
 }
 
-// BBox 边界框
+// BBox 边界框.
 type BBox struct {
 	X      float64 `json:"x"`
 	Y      float64 `json:"y"`
@@ -91,13 +91,13 @@ type BBox struct {
 	Height float64 `json:"height"`
 }
 
-// EmotionTag 情感标签
+// EmotionTag 情感标签.
 type EmotionTag struct {
 	Emotion    string  `json:"emotion"` // happy, sad, surprise, neutral
 	Confidence float64 `json:"confidence"`
 }
 
-// StyleTag 风格标签
+// StyleTag 风格标签.
 type StyleTag struct {
 	Style      string  `json:"style"` // vintage, modern, cinematic, artistic
 	Confidence float64 `json:"confidence"`
@@ -107,7 +107,7 @@ type StyleTag struct {
 // Face Recognition Types
 // ============================================================
 
-// Person 人物实体
+// Person 人物实体.
 type Person struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -120,7 +120,7 @@ type Person struct {
 	Embedding   []float32 `json:"-"` // 人脸特征向量(不序列化)
 }
 
-// Face 人脸实例
+// Face 人脸实例.
 type Face struct {
 	ID         string    `json:"id"`
 	MediaID    string    `json:"media_id"`
@@ -132,14 +132,14 @@ type Face struct {
 	Verified   bool      `json:"verified"` // 是否人工确认
 }
 
-// FaceAngle 人脸角度
+// FaceAngle 人脸角度.
 type FaceAngle struct {
 	Yaw   float64 `json:"yaw"`   // 左右转头
 	Pitch float64 `json:"pitch"` // 上下点头
 	Roll  float64 `json:"roll"`  // 歪头
 }
 
-// SmartAlbum 智能相册
+// SmartAlbum 智能相册.
 type SmartAlbum struct {
 	ID         string     `json:"id"`
 	Name       string     `json:"name"`
@@ -157,7 +157,7 @@ type SmartAlbum struct {
 	UpdatedAt  time.Time  `json:"updated_at"`
 }
 
-// AlbumType 相册类型
+// AlbumType 相册类型.
 type AlbumType string
 
 const (
@@ -170,13 +170,13 @@ const (
 	AlbumTypeCustom   AlbumType = "custom"   // 自定义
 )
 
-// DateRange 日期范围
+// DateRange 日期范围.
 type DateRange struct {
 	Start time.Time `json:"start"`
 	End   time.Time `json:"end"`
 }
 
-// FaceClusterConfig 人脸聚类配置
+// FaceClusterConfig 人脸聚类配置.
 type FaceClusterConfig struct {
 	SimilarityThreshold float64 `json:"similarity_threshold"` // 0.0-1.0, 默认0.65
 	MinClusterSize      int     `json:"min_cluster_size"`     // 最小聚类大小, 默认2
@@ -188,7 +188,7 @@ type FaceClusterConfig struct {
 // Recommendation Types
 // ============================================================
 
-// Recommendation 推荐项
+// Recommendation 推荐项.
 type Recommendation struct {
 	MediaID     string             `json:"media_id"`
 	Score       float64            `json:"score"` // 0-100
@@ -197,7 +197,7 @@ type Recommendation struct {
 	GeneratedAt time.Time          `json:"generated_at"`
 }
 
-// RecommendationType 推荐类型
+// RecommendationType 推荐类型.
 type RecommendationType string
 
 const (
@@ -210,14 +210,14 @@ const (
 	RecTypeRediscover RecommendationType = "rediscover" // 重新发现(很久没看的)
 )
 
-// RecommendReason 推荐原因
+// RecommendReason 推荐原因.
 type RecommendReason struct {
 	Type   string  `json:"type"` // genre, actor, director, scene, tag
 	Value  string  `json:"value"`
 	Weight float64 `json:"weight"`
 }
 
-// UserProfile 用户画像
+// UserProfile 用户画像.
 type UserProfile struct {
 	UserID            string             `json:"user_id"`
 	GenrePreferences  map[string]float64 `json:"genre_preferences"` // genre -> weight
@@ -232,7 +232,7 @@ type UserProfile struct {
 	LastActive        time.Time          `json:"last_active"`
 }
 
-// WatchEvent 观看事件
+// WatchEvent 观看事件.
 type WatchEvent struct {
 	MediaID   string    `json:"media_id"`
 	StartTime time.Time `json:"start_time"`
@@ -241,7 +241,7 @@ type WatchEvent struct {
 	Rating    int       `json:"rating"` // user rating 1-5
 }
 
-// MediaFeature 媒体特征(用于相似度计算)
+// MediaFeature 媒体特征(用于相似度计算).
 type MediaFeature struct {
 	MediaID    string    `json:"media_id"`
 	Genres     []string  `json:"genres"`
@@ -259,7 +259,7 @@ type MediaFeature struct {
 // Sync Types
 // ============================================================
 
-// SyncDevice 同步设备
+// SyncDevice 同步设备.
 type SyncDevice struct {
 	ID           string    `json:"id"`
 	Name         string    `json:"name"`
@@ -274,7 +274,7 @@ type SyncDevice struct {
 	StorageTotal int64     `json:"storage_total"`
 }
 
-// SyncTask 同步任务
+// SyncTask 同步任务.
 type SyncTask struct {
 	ID           string         `json:"id"`
 	SourceDevice string         `json:"source_device"`
@@ -291,7 +291,7 @@ type SyncTask struct {
 	Conflicts    []SyncConflict `json:"conflicts,omitempty"`
 }
 
-// SyncConflict 同步冲突
+// SyncConflict 同步冲突.
 type SyncConflict struct {
 	MediaID       string    `json:"media_id"`
 	Path          string    `json:"path"`
@@ -302,7 +302,7 @@ type SyncConflict struct {
 	Resolution    string    `json:"resolution"` // keep_source, keep_target, keep_both, manual
 }
 
-// SyncState 同步状态
+// SyncState 同步状态.
 type SyncState struct {
 	Version    int64     `json:"version"`
 	LastSyncAt time.Time `json:"last_sync_at"`
@@ -310,7 +310,7 @@ type SyncState struct {
 	DeviceID   string    `json:"device_id"`
 }
 
-// MediaSyncEntry 媒体同步条目
+// MediaSyncEntry 媒体同步条目.
 type MediaSyncEntry struct {
 	MediaID    string    `json:"media_id"`
 	Path       string    `json:"path"`
@@ -325,7 +325,7 @@ type MediaSyncEntry struct {
 // Engine Types
 // ============================================================
 
-// Config AI媒体引擎配置
+// Config AI媒体引擎配置.
 type Config struct {
 	Enabled        bool              `json:"enabled"`
 	ClassifierPath string            `json:"classifier_path"` // AI模型路径
@@ -342,7 +342,7 @@ type Config struct {
 	SyncInterval   time.Duration     `json:"sync_interval"`
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:      true,
@@ -367,7 +367,7 @@ func DefaultConfig() *Config {
 // Stats
 // ============================================================
 
-// AIStats AI媒体管理统计
+// AIStats AI媒体管理统计.
 type AIStats struct {
 	TotalAnalyzed     int            `json:"total_analyzed"`
 	TotalFaces        int            `json:"total_faces"`
@@ -384,7 +384,7 @@ type AIStats struct {
 	SceneDistribution map[string]int `json:"scene_distribution"`
 }
 
-// NewAIStats 创建空统计
+// NewAIStats 创建空统计.
 func NewAIStats() *AIStats {
 	return &AIStats{
 		SceneDistribution: make(map[string]int),
@@ -395,7 +395,7 @@ func NewAIStats() *AIStats {
 // Engine Error Types
 // ============================================================
 
-// ErrNotFound 未找到
+// ErrNotFound 未找到.
 type ErrNotFound struct {
 	Resource string
 	ID       string
@@ -405,7 +405,7 @@ func (e *ErrNotFound) Error() string {
 	return fmt.Sprintf("%s not found: %s", e.Resource, e.ID)
 }
 
-// ErrAlreadyExists 已存在
+// ErrAlreadyExists 已存在.
 type ErrAlreadyExists struct {
 	Resource string
 	ID       string
@@ -415,7 +415,7 @@ func (e *ErrAlreadyExists) Error() string {
 	return fmt.Sprintf("%s already exists: %s", e.Resource, e.ID)
 }
 
-// EngineInterface 引擎接口(用于测试mock)
+// EngineInterface 引擎接口(用于测试mock).
 type EngineInterface interface {
 	// 分类
 	ClassifyMedia(mediaID, filePath string) (*ClassificationResult, error)
@@ -450,38 +450,38 @@ type EngineInterface interface {
 	GetStats() *AIStats
 }
 
-// SmartAlbumOption 智能相册选项
+// SmartAlbumOption 智能相册选项.
 type SmartAlbumOption func(*SmartAlbum)
 
-// WithPersonIDs 设置人物ID
+// WithPersonIDs 设置人物ID.
 func WithPersonIDs(ids ...string) SmartAlbumOption {
 	return func(a *SmartAlbum) {
 		a.PersonIDs = ids
 	}
 }
 
-// WithSceneTags 设置场景标签
+// WithSceneTags 设置场景标签.
 func WithSceneTags(tags ...string) SmartAlbumOption {
 	return func(a *SmartAlbum) {
 		a.SceneTags = tags
 	}
 }
 
-// WithLocation 设置地点
+// WithLocation 设置地点.
 func WithLocation(loc string) SmartAlbumOption {
 	return func(a *SmartAlbum) {
 		a.Location = loc
 	}
 }
 
-// WithDateRange 设置日期范围
+// WithDateRange 设置日期范围.
 func WithDateRange(start, end time.Time) SmartAlbumOption {
 	return func(a *SmartAlbum) {
 		a.DateRange = &DateRange{Start: start, End: end}
 	}
 }
 
-// WithAlbumTags 设置标签过滤
+// WithAlbumTags 设置标签过滤.
 func WithAlbumTags(tags ...string) SmartAlbumOption {
 	return func(a *SmartAlbum) {
 		a.Tags = tags
@@ -491,7 +491,7 @@ func WithAlbumTags(tags ...string) SmartAlbumOption {
 // Ensure EngineInterface is implemented at compile time
 // var _ EngineInterface = (*Engine)(nil) // enable when Engine implements all interface methods
 
-// Engine 前向声明 - 在 engine.go 中实现
+// Engine 前向声明 - 在 engine.go 中实现.
 type Engine struct {
 	mu     sync.RWMutex
 	config *Config

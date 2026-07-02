@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Engine 威胁情报引擎
+// Engine 威胁情报引擎.
 type Engine struct {
 	config      *ThreatIntelConfig
 	feeds       map[string]*ThreatFeed
@@ -20,7 +20,7 @@ type Engine struct {
 	mu          sync.RWMutex
 }
 
-// NewEngine 创建威胁情报引擎
+// NewEngine 创建威胁情报引擎.
 func NewEngine(config *ThreatIntelConfig) *Engine {
 	if config == nil {
 		config = DefaultConfig()
@@ -43,7 +43,7 @@ func NewEngine(config *ThreatIntelConfig) *Engine {
 // 情报源管理
 // ============================================================
 
-// AddFeed 添加情报源
+// AddFeed 添加情报源.
 func (e *Engine) AddFeed(feed *ThreatFeed) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -61,7 +61,7 @@ func (e *Engine) AddFeed(feed *ThreatFeed) error {
 	return nil
 }
 
-// RemoveFeed 移除情报源
+// RemoveFeed 移除情报源.
 func (e *Engine) RemoveFeed(feedID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -81,7 +81,7 @@ func (e *Engine) RemoveFeed(feedID string) error {
 	return nil
 }
 
-// GetFeed 获取情报源信息
+// GetFeed 获取情报源信息.
 func (e *Engine) GetFeed(feedID string) (*ThreatFeed, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -94,7 +94,7 @@ func (e *Engine) GetFeed(feedID string) (*ThreatFeed, error) {
 	return feed, nil
 }
 
-// ListFeeds 列出所有情报源
+// ListFeeds 列出所有情报源.
 func (e *Engine) ListFeeds() []*ThreatFeed {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -106,7 +106,7 @@ func (e *Engine) ListFeeds() []*ThreatFeed {
 	return feeds
 }
 
-// UpdateFeedStatus 更新情报源状态
+// UpdateFeedStatus 更新情报源状态.
 func (e *Engine) UpdateFeedStatus(feedID string, status FeedStatus) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -125,7 +125,7 @@ func (e *Engine) UpdateFeedStatus(feedID string, status FeedStatus) error {
 // IOC 管理
 // ============================================================
 
-// AddIOC 添加 IOC
+// AddIOC 添加 IOC.
 func (e *Engine) AddIOC(ioc *IOC) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -148,7 +148,7 @@ func (e *Engine) AddIOC(ioc *IOC) error {
 	return nil
 }
 
-// RemoveIOC 移除 IOC
+// RemoveIOC 移除 IOC.
 func (e *Engine) RemoveIOC(iocID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -167,7 +167,7 @@ func (e *Engine) RemoveIOC(iocID string) error {
 	return nil
 }
 
-// GetIOC 获取 IOC 详情
+// GetIOC 获取 IOC 详情.
 func (e *Engine) GetIOC(iocID string) (*IOC, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -180,7 +180,7 @@ func (e *Engine) GetIOC(iocID string) (*IOC, error) {
 	return ioc, nil
 }
 
-// ListIOCs 列出所有 IOC
+// ListIOCs 列出所有 IOC.
 func (e *Engine) ListIOCs() []*IOC {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -192,7 +192,7 @@ func (e *Engine) ListIOCs() []*IOC {
 	return iocs
 }
 
-// LookupIOC 根据类型和值查找 IOC
+// LookupIOC 根据类型和值查找 IOC.
 func (e *Engine) LookupIOC(iocType IOCType, value string) *IOC {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -205,7 +205,7 @@ func (e *Engine) LookupIOC(iocType IOCType, value string) *IOC {
 	return nil
 }
 
-// BlockIOC 阻断 IOC
+// BlockIOC 阻断 IOC.
 func (e *Engine) BlockIOC(iocID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -219,7 +219,7 @@ func (e *Engine) BlockIOC(iocID string) error {
 	return nil
 }
 
-// UnblockIOC 取消阻断 IOC
+// UnblockIOC 取消阻断 IOC.
 func (e *Engine) UnblockIOC(iocID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -233,7 +233,7 @@ func (e *Engine) UnblockIOC(iocID string) error {
 	return nil
 }
 
-// GetBlockedIOCs 获取所有已阻断的 IOC
+// GetBlockedIOCs 获取所有已阻断的 IOC.
 func (e *Engine) GetBlockedIOCs() []*IOC {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -251,7 +251,7 @@ func (e *Engine) GetBlockedIOCs() []*IOC {
 // 告警管理
 // ============================================================
 
-// CreateAlert 创建告警
+// CreateAlert 创建告警.
 func (e *Engine) CreateAlert(alert *Alert) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -269,7 +269,7 @@ func (e *Engine) CreateAlert(alert *Alert) error {
 	return nil
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (e *Engine) AcknowledgeAlert(alertID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -285,7 +285,7 @@ func (e *Engine) AcknowledgeAlert(alertID string) error {
 	return nil
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (e *Engine) ResolveAlert(alertID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -301,7 +301,7 @@ func (e *Engine) ResolveAlert(alertID string) error {
 	return nil
 }
 
-// MarkFalsePositive 标记为误报
+// MarkFalsePositive 标记为误报.
 func (e *Engine) MarkFalsePositive(alertID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -317,7 +317,7 @@ func (e *Engine) MarkFalsePositive(alertID string) error {
 	return nil
 }
 
-// GetAlert 获取告警详情
+// GetAlert 获取告警详情.
 func (e *Engine) GetAlert(alertID string) (*Alert, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -330,7 +330,7 @@ func (e *Engine) GetAlert(alertID string) (*Alert, error) {
 	return alert, nil
 }
 
-// ListAlerts 列出所有告警
+// ListAlerts 列出所有告警.
 func (e *Engine) ListAlerts() []*Alert {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -342,7 +342,7 @@ func (e *Engine) ListAlerts() []*Alert {
 	return alerts
 }
 
-// GetOpenAlerts 获取未处理告警
+// GetOpenAlerts 获取未处理告警.
 func (e *Engine) GetOpenAlerts() []*Alert {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -360,7 +360,7 @@ func (e *Engine) GetOpenAlerts() []*Alert {
 // 扫描结果管理
 // ============================================================
 
-// SaveScanResult 保存扫描结果
+// SaveScanResult 保存扫描结果.
 func (e *Engine) SaveScanResult(result *ScanResult) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -368,7 +368,7 @@ func (e *Engine) SaveScanResult(result *ScanResult) {
 	e.scanResults[result.ID] = result
 }
 
-// GetScanResult 获取扫描结果
+// GetScanResult 获取扫描结果.
 func (e *Engine) GetScanResult(scanID string) (*ScanResult, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -381,7 +381,7 @@ func (e *Engine) GetScanResult(scanID string) (*ScanResult, error) {
 	return result, nil
 }
 
-// ListScanResults 列出所有扫描结果
+// ListScanResults 列出所有扫描结果.
 func (e *Engine) ListScanResults() []*ScanResult {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -397,7 +397,7 @@ func (e *Engine) ListScanResults() []*ScanResult {
 // 威胁评分
 // ============================================================
 
-// CalculateThreatScore 计算总体威胁评分
+// CalculateThreatScore 计算总体威胁评分.
 func (e *Engine) CalculateThreatScore() *ThreatScore {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -491,7 +491,7 @@ func (e *Engine) CalculateThreatScore() *ThreatScore {
 	return score
 }
 
-// GetThreatScore 获取当前威胁评分
+// GetThreatScore 获取当前威胁评分.
 func (e *Engine) GetThreatScore() *ThreatScore {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -502,7 +502,7 @@ func (e *Engine) GetThreatScore() *ThreatScore {
 // 统计与扫描控制
 // ============================================================
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (e *Engine) GetStats() *ThreatIntelStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -537,7 +537,7 @@ func (e *Engine) GetStats() *ThreatIntelStats {
 	return stats
 }
 
-// StartScan 开始扫描
+// StartScan 开始扫描.
 func (e *Engine) StartScan(scanID, scanType, target string) (*ScanResult, error) {
 	if !e.scanMgr.TryStartScan() {
 		return nil, ErrScanInProgress
@@ -555,7 +555,7 @@ func (e *Engine) StartScan(scanID, scanType, target string) (*ScanResult, error)
 	return result, nil
 }
 
-// CompleteScan 完成扫描
+// CompleteScan 完成扫描.
 func (e *Engine) CompleteScan(scanID string, result *ScanResult) {
 	e.scanMgr.FinishScan()
 	result.Status = ScanStatusComplete
@@ -564,7 +564,7 @@ func (e *Engine) CompleteScan(scanID string, result *ScanResult) {
 	e.SaveScanResult(result)
 }
 
-// FailScan 标记扫描失败
+// FailScan 标记扫描失败.
 func (e *Engine) FailScan(scanID string, reason string) {
 	e.scanMgr.FinishScan()
 	result, exists := e.scanResults[scanID]
@@ -576,12 +576,12 @@ func (e *Engine) FailScan(scanID string, reason string) {
 	}
 }
 
-// IsScanning 是否正在扫描
+// IsScanning 是否正在扫描.
 func (e *Engine) IsScanning() bool {
 	return e.scanMgr.IsScanning()
 }
 
-// CleanupExpiredIOCs 清理过期 IOC
+// CleanupExpiredIOCs 清理过期 IOC.
 func (e *Engine) CleanupExpiredIOCs() int {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -597,7 +597,7 @@ func (e *Engine) CleanupExpiredIOCs() int {
 	return cleaned
 }
 
-// FormatAlertMessage 格式化告警消息
+// FormatAlertMessage 格式化告警消息.
 func FormatAlertMessage(alert *Alert) string {
 	return fmt.Sprintf("[%s] %s - %s (Score: %d)",
 		alert.Severity, alert.Title, alert.Description, alert.Score)

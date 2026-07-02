@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// ResourceType represents resource types
+// ResourceType represents resource types.
 type ResourceType string
 
 const (
@@ -20,7 +20,7 @@ const (
 	ResourceGPU     ResourceType = "gpu"
 )
 
-// AllocationStatus represents allocation status
+// AllocationStatus represents allocation status.
 type AllocationStatus string
 
 const (
@@ -30,7 +30,7 @@ const (
 	StatusFailed    AllocationStatus = "failed"
 )
 
-// Resource represents a system resource
+// Resource represents a system resource.
 type Resource struct {
 	ID        string            `json:"id"`
 	Type      ResourceType      `json:"type"`
@@ -44,7 +44,7 @@ type Resource struct {
 	Metadata  map[string]string `json:"metadata,omitempty"`
 }
 
-// Allocation represents a resource allocation
+// Allocation represents a resource allocation.
 type Allocation struct {
 	ID         string           `json:"id"`
 	ResourceID string           `json:"resource_id"`
@@ -57,7 +57,7 @@ type Allocation struct {
 	ReleasedAt *time.Time       `json:"released_at,omitempty"`
 }
 
-// Prediction represents resource usage prediction
+// Prediction represents resource usage prediction.
 type Prediction struct {
 	ResourceType ResourceType `json:"resource_type"`
 	Current      float64      `json:"current"`
@@ -68,7 +68,7 @@ type Prediction struct {
 	GeneratedAt  time.Time    `json:"generated_at"`
 }
 
-// Optimization represents a resource optimization suggestion
+// Optimization represents a resource optimization suggestion.
 type Optimization struct {
 	ID           string       `json:"id"`
 	Title        string       `json:"title"`
@@ -81,7 +81,7 @@ type Optimization struct {
 	CreatedAt    time.Time    `json:"created_at"`
 }
 
-// Node represents a cluster node
+// Node represents a cluster node.
 type Node struct {
 	ID        string                     `json:"id"`
 	Name      string                     `json:"name"`
@@ -92,7 +92,7 @@ type Node struct {
 	LastSeen  time.Time                  `json:"last_seen"`
 }
 
-// Manager manages resource scheduling
+// Manager manages resource scheduling.
 type Manager struct {
 	mu          sync.RWMutex
 	resources   map[string]*Resource
@@ -102,7 +102,7 @@ type Manager struct {
 	config      *Config
 }
 
-// Config represents manager configuration
+// Config represents manager configuration.
 type Config struct {
 	PredictionWindow time.Duration `json:"prediction_window"`
 	MaxAllocations   int           `json:"max_allocations"`
@@ -110,7 +110,7 @@ type Config struct {
 	ScaleThreshold   float64       `json:"scale_threshold"`
 }
 
-// DefaultConfig returns default configuration
+// DefaultConfig returns default configuration.
 func DefaultConfig() *Config {
 	return &Config{
 		PredictionWindow: 24 * time.Hour,
@@ -120,7 +120,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// NewManager creates a new resource manager
+// NewManager creates a new resource manager.
 func NewManager(config *Config) *Manager {
 	if config == nil {
 		config = DefaultConfig()
@@ -134,7 +134,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// RegisterNode registers a cluster node
+// RegisterNode registers a cluster node.
 func (m *Manager) RegisterNode(node *Node) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -156,7 +156,7 @@ func (m *Manager) RegisterNode(node *Node) error {
 	return nil
 }
 
-// UnregisterNode unregisters a node
+// UnregisterNode unregisters a node.
 func (m *Manager) UnregisterNode(nodeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -178,7 +178,7 @@ func (m *Manager) UnregisterNode(nodeID string) error {
 	return nil
 }
 
-// AddResource adds a resource
+// AddResource adds a resource.
 func (m *Manager) AddResource(resource *Resource) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -192,7 +192,7 @@ func (m *Manager) AddResource(resource *Resource) error {
 	return nil
 }
 
-// GetResource gets a resource by ID
+// GetResource gets a resource by ID.
 func (m *Manager) GetResource(id string) (*Resource, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -205,7 +205,7 @@ func (m *Manager) GetResource(id string) (*Resource, error) {
 	return resource, nil
 }
 
-// ListResources lists all resources
+// ListResources lists all resources.
 func (m *Manager) ListResources(resourceType ResourceType) []*Resource {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -221,7 +221,7 @@ func (m *Manager) ListResources(resourceType ResourceType) []*Resource {
 	return resources
 }
 
-// AllocateResource allocates resources
+// AllocateResource allocates resources.
 func (m *Manager) AllocateResource(ctx context.Context, resourceID, service string, amount float64, priority int) (*Allocation, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -252,7 +252,7 @@ func (m *Manager) AllocateResource(ctx context.Context, resourceID, service stri
 	return allocation, nil
 }
 
-// ReleaseAllocation releases an allocation
+// ReleaseAllocation releases an allocation.
 func (m *Manager) ReleaseAllocation(allocationID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -279,7 +279,7 @@ func (m *Manager) ReleaseAllocation(allocationID string) error {
 	return nil
 }
 
-// GetAllocations gets allocations for a service
+// GetAllocations gets allocations for a service.
 func (m *Manager) GetAllocations(service string) []*Allocation {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -295,7 +295,7 @@ func (m *Manager) GetAllocations(service string) []*Allocation {
 	return allocations
 }
 
-// PredictUsage predicts resource usage
+// PredictUsage predicts resource usage.
 func (m *Manager) PredictUsage(ctx context.Context, resourceType ResourceType) (*Prediction, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -336,7 +336,7 @@ func (m *Manager) PredictUsage(ctx context.Context, resourceType ResourceType) (
 	return prediction, nil
 }
 
-// GetOptimizations gets optimization suggestions
+// GetOptimizations gets optimization suggestions.
 func (m *Manager) GetOptimizations(ctx context.Context) ([]*Optimization, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -377,7 +377,7 @@ func (m *Manager) GetOptimizations(ctx context.Context) ([]*Optimization, error)
 	return optimizations, nil
 }
 
-// GetNodes gets all nodes
+// GetNodes gets all nodes.
 func (m *Manager) GetNodes() []*Node {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -390,7 +390,7 @@ func (m *Manager) GetNodes() []*Node {
 	return nodes
 }
 
-// GetClusterStats gets cluster statistics
+// GetClusterStats gets cluster statistics.
 func (m *Manager) GetClusterStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -411,7 +411,7 @@ func (m *Manager) GetClusterStats() map[string]interface{} {
 	return stats
 }
 
-// HandleHTTP registers HTTP handlers
+// HandleHTTP registers HTTP handlers.
 func (m *Manager) HandleHTTP(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/resource/resources", m.handleResources)
 	mux.HandleFunc("/api/v1/resource/allocate", m.handleAllocate)

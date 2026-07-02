@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// RAIDZLevel RAIDZ 级别
+// RAIDZLevel RAIDZ 级别.
 type RAIDZLevel string
 
 const (
@@ -16,7 +16,7 @@ const (
 	RAIDZ3 RAIDZLevel = "raidz3"
 )
 
-// ExpansionPhase 扩展阶段
+// ExpansionPhase 扩展阶段.
 type ExpansionPhase string
 
 const (
@@ -29,7 +29,7 @@ const (
 	PhaseCancelled   ExpansionPhase = "cancelled"
 )
 
-// PoolHealth 池健康状态
+// PoolHealth 池健康状态.
 type PoolHealth string
 
 const (
@@ -39,7 +39,7 @@ const (
 	HealthOffline  PoolHealth = "OFFLINE"
 )
 
-// ExpansionConfig RAIDZ vdev 扩展配置
+// ExpansionConfig RAIDZ vdev 扩展配置.
 type ExpansionConfig struct {
 	PoolName   string     `json:"poolName"`   // 目标池名
 	VDevPath   string     `json:"vdevPath"`   // 目标 RAIDZ vdev 路径
@@ -50,7 +50,7 @@ type ExpansionConfig struct {
 	AutoResize bool       `json:"autoResize"` // 完成后自动调整池大小
 }
 
-// ExpansionStatus 扩展进度状态
+// ExpansionStatus 扩展进度状态.
 type ExpansionStatus struct {
 	PoolName       string         `json:"poolName"`
 	VDevPath       string         `json:"vdevPath"`
@@ -67,7 +67,7 @@ type ExpansionStatus struct {
 	CompletedDisks []string       `json:"completedDisks"`
 }
 
-// ExpansionManager 管理 RAIDZ vdev 扩展生命周期
+// ExpansionManager 管理 RAIDZ vdev 扩展生命周期.
 type ExpansionManager struct {
 	mu         sync.Mutex
 	status     *ExpansionStatus
@@ -76,13 +76,13 @@ type ExpansionManager struct {
 	cancelFunc context.CancelFunc
 }
 
-// HealthChecker 扩展前池健康验证
+// HealthChecker 扩展前池健康验证.
 type HealthChecker struct {
 	// 可以注入 PoolStatusProvider 用于实际查询池状态
 	provider PoolStatusProvider
 }
 
-// PoolStatusProvider 池状态查询接口
+// PoolStatusProvider 池状态查询接口.
 type PoolStatusProvider interface {
 	GetPoolHealth(ctx context.Context, poolName string) (PoolHealth, error)
 	GetPoolCapacity(ctx context.Context, poolName string) (totalBytes, usedBytes, freeBytes uint64, err error)
@@ -90,12 +90,12 @@ type PoolStatusProvider interface {
 	IsDiskAvailable(ctx context.Context, devicePath string) (bool, error)
 }
 
-// NewHealthChecker 创建健康检查器
+// NewHealthChecker 创建健康检查器.
 func NewHealthChecker(provider PoolStatusProvider) *HealthChecker {
 	return &HealthChecker{provider: provider}
 }
 
-// HealthCheckResult 健康检查结果
+// HealthCheckResult 健康检查结果.
 type HealthCheckResult struct {
 	PoolHealthy      bool     `json:"poolHealthy"`
 	CapacityOK       bool     `json:"capacityOk"`
@@ -106,7 +106,7 @@ type HealthCheckResult struct {
 	CurrentFreeBytes uint64   `json:"currentFreeBytes"`
 }
 
-// Check 执行扩展前健康检查
+// Check 执行扩展前健康检查.
 func (hc *HealthChecker) Check(ctx context.Context, cfg *ExpansionConfig) (*HealthCheckResult, error) {
 	result := &HealthCheckResult{Issues: []string{}}
 
@@ -175,7 +175,7 @@ func (hc *HealthChecker) Check(ctx context.Context, cfg *ExpansionConfig) (*Heal
 	return result, nil
 }
 
-// NewExpansionManager 创建扩展管理器
+// NewExpansionManager 创建扩展管理器.
 func NewExpansionManager(healthChecker *HealthChecker) *ExpansionManager {
 	return &ExpansionManager{
 		health: healthChecker,
@@ -183,7 +183,7 @@ func NewExpansionManager(healthChecker *HealthChecker) *ExpansionManager {
 	}
 }
 
-// StartExpansion 启动 RAIDZ vdev 扩展
+// StartExpansion 启动 RAIDZ vdev 扩展.
 func (em *ExpansionManager) StartExpansion(ctx context.Context, cfg *ExpansionConfig) error {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -266,7 +266,7 @@ func (em *ExpansionManager) StartExpansion(ctx context.Context, cfg *ExpansionCo
 
 // AddNextDisk 添加下一块磁盘到 RAIDZ vdev
 // 在实际实现中，这会调用 `zpool add <pool> <vdev> <disk>` 或类似命令
-// 此处返回 DiskAddResult 供调用者执行实际的 zpool 命令
+// 此处返回 DiskAddResult 供调用者执行实际的 zpool 命令.
 func (em *ExpansionManager) AddNextDisk(ctx context.Context) (*DiskAddResult, error) {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -300,7 +300,7 @@ func (em *ExpansionManager) AddNextDisk(ctx context.Context) (*DiskAddResult, er
 	return result, nil
 }
 
-// DiskAddResult 添加磁盘操作结果
+// DiskAddResult 添加磁盘操作结果.
 type DiskAddResult struct {
 	DiskPath   string     `json:"diskPath"`
 	PoolName   string     `json:"poolName"`
@@ -310,7 +310,7 @@ type DiskAddResult struct {
 	Cmd        string     `json:"cmd"` // 建议执行的命令
 }
 
-// MarkDiskAdded 标记当前磁盘已添加完成
+// MarkDiskAdded 标记当前磁盘已添加完成.
 func (em *ExpansionManager) MarkDiskAdded(diskPath string) {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -347,7 +347,7 @@ func (em *ExpansionManager) MarkDiskAdded(diskPath string) {
 	}
 }
 
-// UpdateDiskProgress 更新当前盘的扩展进度（resilver 进度）
+// UpdateDiskProgress 更新当前盘的扩展进度（resilver 进度）.
 func (em *ExpansionManager) UpdateDiskProgress(percent float64) {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -364,7 +364,7 @@ func (em *ExpansionManager) UpdateDiskProgress(percent float64) {
 	}
 }
 
-// GetExpansionStatus 获取扩展状态
+// GetExpansionStatus 获取扩展状态.
 func (em *ExpansionManager) GetExpansionStatus() *ExpansionStatus {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -380,7 +380,7 @@ func (em *ExpansionManager) GetExpansionStatus() *ExpansionStatus {
 	return &status
 }
 
-// CompleteExpansion 完成扩展，执行收尾工作
+// CompleteExpansion 完成扩展，执行收尾工作.
 func (em *ExpansionManager) CompleteExpansion(ctx context.Context) error {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -406,7 +406,7 @@ func (em *ExpansionManager) CompleteExpansion(ctx context.Context) error {
 	return nil
 }
 
-// CancelExpansion 取消扩展
+// CancelExpansion 取消扩展.
 func (em *ExpansionManager) CancelExpansion() error {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -422,7 +422,7 @@ func (em *ExpansionManager) CancelExpansion() error {
 	return nil
 }
 
-// FailExpansion 标记扩展失败
+// FailExpansion 标记扩展失败.
 func (em *ExpansionManager) FailExpansion(reason string) {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -434,7 +434,7 @@ func (em *ExpansionManager) FailExpansion(reason string) {
 	em.status.Errors = append(em.status.Errors, reason)
 }
 
-// IsExpansionInProgress 检查扩展是否进行中
+// IsExpansionInProgress 检查扩展是否进行中.
 func (em *ExpansionManager) IsExpansionInProgress() bool {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -446,12 +446,12 @@ func (em *ExpansionManager) IsExpansionInProgress() bool {
 		em.status.Phase == PhaseResilvering
 }
 
-// RaidZLevel 返回当前扩展的 RAIDZ 级别
+// RaidZLevel 返回当前扩展的 RAIDZ 级别.
 func (c *ExpansionConfig) RaidZLevel() RAIDZLevel {
 	return c.RAIDZLevel
 }
 
-// validateConfig 验证扩展配置
+// validateConfig 验证扩展配置.
 func validateConfig(cfg *ExpansionConfig) error {
 	if cfg.PoolName == "" {
 		return fmt.Errorf("池名不能为空")
@@ -484,7 +484,7 @@ func validateConfig(cfg *ExpansionConfig) error {
 }
 
 // EstimateCapacityGain 估算扩展后的容量增加
-// RAIDZ 容量计算: (N - P) * minDiskSize, 其中 N 是总盘数, P 是校验盘数
+// RAIDZ 容量计算: (N - P) * minDiskSize, 其中 N 是总盘数, P 是校验盘数.
 func EstimateCapacityGain(currentDisks int, newDisks int, level RAIDZLevel, diskSize uint64) uint64 {
 	parityDisks := 0
 	switch level {
@@ -505,7 +505,7 @@ func EstimateCapacityGain(currentDisks int, newDisks int, level RAIDZLevel, disk
 	return uint64(additionalDataDisks) * diskSize
 }
 
-// MockPoolStatusProvider 内存模拟池状态提供者（用于测试）
+// MockPoolStatusProvider 内存模拟池状态提供者（用于测试）.
 type MockPoolStatusProvider struct {
 	Health         PoolHealth
 	TotalBytes     uint64

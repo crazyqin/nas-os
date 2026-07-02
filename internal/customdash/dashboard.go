@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// WidgetType Widget类型
+// WidgetType Widget类型.
 type WidgetType string
 
 const (
@@ -27,7 +27,7 @@ const (
 	WidgetZFSHealth    WidgetType = "zfs_health"
 )
 
-// DataSourceType 数据源类型
+// DataSourceType 数据源类型.
 type DataSourceType string
 
 const (
@@ -37,7 +37,7 @@ const (
 	DataSourceHTTP       DataSourceType = "http"
 )
 
-// ThresholdOperator 阈值比较操作符
+// ThresholdOperator 阈值比较操作符.
 type ThresholdOperator string
 
 const (
@@ -48,19 +48,19 @@ const (
 	OpEQ  ThresholdOperator = "=="
 )
 
-// Position Widget位置（可拖拽布局配置）
+// Position Widget位置（可拖拽布局配置）.
 type Position struct {
 	X int `json:"x"`
 	Y int `json:"y"`
 }
 
-// Size Widget大小
+// Size Widget大小.
 type Size struct {
 	W int `json:"w"`
 	H int `json:"h"`
 }
 
-// ThresholdAlert 阈值告警配置
+// ThresholdAlert 阈值告警配置.
 type ThresholdAlert struct {
 	Enabled  bool              `json:"enabled"`
 	Metric   string            `json:"metric"`
@@ -69,7 +69,7 @@ type ThresholdAlert struct {
 	Message  string            `json:"message"`
 }
 
-// DataSource 数据源抽象
+// DataSource 数据源抽象.
 type DataSource struct {
 	Type     DataSourceType    `json:"type"`
 	Endpoint string            `json:"endpoint,omitempty"`
@@ -77,7 +77,7 @@ type DataSource struct {
 	Labels   map[string]string `json:"labels,omitempty"`
 }
 
-// Widget 仪表盘Widget配置
+// Widget 仪表盘Widget配置.
 type Widget struct {
 	ID              string         `json:"id"`
 	DashboardID     string         `json:"dashboardId"`
@@ -90,7 +90,7 @@ type Widget struct {
 	Threshold       ThresholdAlert `json:"threshold"`
 }
 
-// Dashboard 仪表盘
+// Dashboard 仪表盘.
 type Dashboard struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -100,14 +100,14 @@ type Dashboard struct {
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
-// WidgetData Widget数据（含历史记录）
+// WidgetData Widget数据（含历史记录）.
 type WidgetData struct {
 	WidgetID string        `json:"widgetId"`
 	Latest   *DataSample   `json:"latest,omitempty"`
 	Samples  []*DataSample `json:"samples"`
 }
 
-// DataSample 数据采样点
+// DataSample 数据采样点.
 type DataSample struct {
 	Timestamp time.Time          `json:"timestamp"`
 	Value     float64            `json:"value"`
@@ -115,18 +115,18 @@ type DataSample struct {
 	Extra     map[string]float64 `json:"extra,omitempty"`
 }
 
-// ExportData 导入/导出数据格式
+// ExportData 导入/导出数据格式.
 type ExportData struct {
 	Dashboard *Dashboard `json:"dashboard"`
 	Widgets   []*Widget  `json:"widgets"`
 }
 
-// DataProvider 数据提供者接口（可扩展）
+// DataProvider 数据提供者接口（可扩展）.
 type DataProvider interface {
 	Fetch(w *Widget) (*DataSample, error)
 }
 
-// BuiltinProvider 内置指标提供者
+// BuiltinProvider 内置指标提供者.
 type BuiltinProvider struct{}
 
 func (p *BuiltinProvider) Fetch(w *Widget) (*DataSample, error) {
@@ -169,7 +169,7 @@ func (p *BuiltinProvider) Fetch(w *Widget) (*DataSample, error) {
 	return sample, nil
 }
 
-// HTTPProvider 自定义HTTP数据源
+// HTTPProvider 自定义HTTP数据源.
 type HTTPProvider struct {
 	Endpoint string
 }
@@ -183,7 +183,7 @@ func (p *HTTPProvider) Fetch(w *Widget) (*DataSample, error) {
 	}, nil
 }
 
-// SNMPProvider SNMP数据源
+// SNMPProvider SNMP数据源.
 type SNMPProvider struct {
 	Endpoint string
 }
@@ -196,7 +196,7 @@ func (p *SNMPProvider) Fetch(w *Widget) (*DataSample, error) {
 	}, nil
 }
 
-// PrometheusProvider Prometheus数据源
+// PrometheusProvider Prometheus数据源.
 type PrometheusProvider struct {
 	Endpoint string
 }
@@ -209,7 +209,7 @@ func (p *PrometheusProvider) Fetch(w *Widget) (*DataSample, error) {
 	}, nil
 }
 
-// DashboardManager 仪表盘管理器
+// DashboardManager 仪表盘管理器.
 type DashboardManager struct {
 	dashboards map[string]*Dashboard
 	widgets    map[string]*Widget     // widgetID -> Widget
@@ -222,7 +222,7 @@ type DashboardManager struct {
 	sampler    *time.Ticker
 }
 
-// NewDashboardManager 创建仪表盘管理器
+// NewDashboardManager 创建仪表盘管理器.
 func NewDashboardManager() *DashboardManager {
 	dm := &DashboardManager{
 		dashboards: make(map[string]*Dashboard),
@@ -239,7 +239,7 @@ func NewDashboardManager() *DashboardManager {
 	return dm
 }
 
-// initDefaults 初始化3个默认仪表盘
+// initDefaults 初始化3个默认仪表盘.
 func (dm *DashboardManager) initDefaults() {
 	// 系统概览仪表盘
 	sysDash := &Dashboard{
@@ -307,7 +307,7 @@ func (dm *DashboardManager) initDefaults() {
 	log.Printf("[CustomDash] initialized %d default dashboards with %d widgets", 3, len(dm.widgets))
 }
 
-// ListDashboards 获取仪表盘列表
+// ListDashboards 获取仪表盘列表.
 func (dm *DashboardManager) ListDashboards() []*Dashboard {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -319,7 +319,7 @@ func (dm *DashboardManager) ListDashboards() []*Dashboard {
 	return result
 }
 
-// GetDashboard 获取单个仪表盘
+// GetDashboard 获取单个仪表盘.
 func (dm *DashboardManager) GetDashboard(id string) (*Dashboard, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -331,7 +331,7 @@ func (dm *DashboardManager) GetDashboard(id string) (*Dashboard, error) {
 	return &cp, nil
 }
 
-// CreateDashboard 创建仪表盘
+// CreateDashboard 创建仪表盘.
 func (dm *DashboardManager) CreateDashboard(name, description string) (*Dashboard, error) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -351,7 +351,7 @@ func (dm *DashboardManager) CreateDashboard(name, description string) (*Dashboar
 	return d, nil
 }
 
-// UpdateDashboard 更新仪表盘
+// UpdateDashboard 更新仪表盘.
 func (dm *DashboardManager) UpdateDashboard(id, name, description string) (*Dashboard, error) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -370,7 +370,7 @@ func (dm *DashboardManager) UpdateDashboard(id, name, description string) (*Dash
 	return &cp, nil
 }
 
-// DeleteDashboard 删除仪表盘（同时删除关联widget）
+// DeleteDashboard 删除仪表盘（同时删除关联widget）.
 func (dm *DashboardManager) DeleteDashboard(id string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -390,7 +390,7 @@ func (dm *DashboardManager) DeleteDashboard(id string) error {
 	return nil
 }
 
-// GetWidgets 获取仪表盘的widget列表
+// GetWidgets 获取仪表盘的widget列表.
 func (dm *DashboardManager) GetWidgets(dashboardID string) ([]*Widget, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -407,7 +407,7 @@ func (dm *DashboardManager) GetWidgets(dashboardID string) ([]*Widget, error) {
 	return result, nil
 }
 
-// AddWidget 添加widget
+// AddWidget 添加widget.
 func (dm *DashboardManager) AddWidget(dashboardID string, w *Widget) (*Widget, error) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -427,7 +427,7 @@ func (dm *DashboardManager) AddWidget(dashboardID string, w *Widget) (*Widget, e
 	return w, nil
 }
 
-// UpdateWidget 更新widget
+// UpdateWidget 更新widget.
 func (dm *DashboardManager) UpdateWidget(dashboardID, widgetID string, update *Widget) (*Widget, error) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -463,7 +463,7 @@ func (dm *DashboardManager) UpdateWidget(dashboardID, widgetID string, update *W
 	return &cp, nil
 }
 
-// DeleteWidget 删除widget
+// DeleteWidget 删除widget.
 func (dm *DashboardManager) DeleteWidget(dashboardID, widgetID string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -480,7 +480,7 @@ func (dm *DashboardManager) DeleteWidget(dashboardID, widgetID string) error {
 	return nil
 }
 
-// ExportDashboard 导出仪表盘（JSON格式）
+// ExportDashboard 导出仪表盘（JSON格式）.
 func (dm *DashboardManager) ExportDashboard(id string) (*ExportData, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -499,7 +499,7 @@ func (dm *DashboardManager) ExportDashboard(id string) (*ExportData, error) {
 	return &ExportData{Dashboard: &dashCopy, Widgets: widgets}, nil
 }
 
-// ImportDashboard 导入仪表盘（JSON格式）
+// ImportDashboard 导入仪表盘（JSON格式）.
 func (dm *DashboardManager) ImportDashboard(data *ExportData) (*Dashboard, error) {
 	if data == nil || data.Dashboard == nil {
 		return nil, fmt.Errorf("invalid import data")
@@ -529,7 +529,7 @@ func (dm *DashboardManager) ImportDashboard(data *ExportData) (*Dashboard, error
 	return data.Dashboard, nil
 }
 
-// ExportDashboardJSON 导出为JSON字节
+// ExportDashboardJSON 导出为JSON字节.
 func (dm *DashboardManager) ExportDashboardJSON(id string) ([]byte, error) {
 	data, err := dm.ExportDashboard(id)
 	if err != nil {
@@ -538,7 +538,7 @@ func (dm *DashboardManager) ExportDashboardJSON(id string) ([]byte, error) {
 	return json.MarshalIndent(data, "", "  ")
 }
 
-// ImportDashboardJSON 从JSON字节导入
+// ImportDashboardJSON 从JSON字节导入.
 func (dm *DashboardManager) ImportDashboardJSON(raw []byte) (*Dashboard, error) {
 	var data ExportData
 	if err := json.Unmarshal(raw, &data); err != nil {
@@ -547,7 +547,7 @@ func (dm *DashboardManager) ImportDashboardJSON(raw []byte) (*Dashboard, error) 
 	return dm.ImportDashboard(&data)
 }
 
-// GetWidgetData 获取widget数据（含历史记录）
+// GetWidgetData 获取widget数据（含历史记录）.
 func (dm *DashboardManager) GetWidgetData(dashboardID, widgetID string) (*WidgetData, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -565,7 +565,7 @@ func (dm *DashboardManager) GetWidgetData(dashboardID, widgetID string) (*Widget
 	return wd, nil
 }
 
-// collectSample 采集单个widget的数据
+// collectSample 采集单个widget的数据.
 func (dm *DashboardManager) collectSample(w *Widget) {
 	provider, ok := dm.providers[w.DataSource.Type]
 	if !ok {
@@ -600,7 +600,7 @@ func (dm *DashboardManager) collectSample(w *Widget) {
 	}
 }
 
-// checkThreshold 检查阈值告警
+// checkThreshold 检查阈值告警.
 func (dm *DashboardManager) checkThreshold(w *Widget, sample *DataSample) {
 	var value float64
 	if w.Threshold.Metric != "" {
@@ -632,7 +632,7 @@ func (dm *DashboardManager) checkThreshold(w *Widget, sample *DataSample) {
 	}
 }
 
-// StartSampler 启动后台数据采样
+// StartSampler 启动后台数据采样.
 func (dm *DashboardManager) StartSampler(interval time.Duration) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -657,7 +657,7 @@ func (dm *DashboardManager) StartSampler(interval time.Duration) {
 	log.Printf("[CustomDash] sampler started, interval: %v", interval)
 }
 
-// StopSampler 停止后台数据采样
+// StopSampler 停止后台数据采样.
 func (dm *DashboardManager) StopSampler() {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -671,7 +671,7 @@ func (dm *DashboardManager) StopSampler() {
 	log.Printf("[CustomDash] sampler stopped")
 }
 
-// WidgetDataSize 获取widget数据点数量（测试辅助）
+// WidgetDataSize 获取widget数据点数量（测试辅助）.
 func (dm *DashboardManager) WidgetDataSize(widgetID string) int {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -682,14 +682,14 @@ func (dm *DashboardManager) WidgetDataSize(widgetID string) int {
 	return len(wd.Samples)
 }
 
-// DashboardCount 获取仪表盘数量（测试辅助）
+// DashboardCount 获取仪表盘数量（测试辅助）.
 func (dm *DashboardManager) DashboardCount() int {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 	return len(dm.dashboards)
 }
 
-// WidgetCount 获取widget数量（测试辅助）
+// WidgetCount 获取widget数量（测试辅助）.
 func (dm *DashboardManager) WidgetCount() int {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()

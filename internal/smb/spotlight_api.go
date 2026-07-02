@@ -11,13 +11,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// SpotlightAPIHandler Spotlight API 处理器
+// SpotlightAPIHandler Spotlight API 处理器.
 type SpotlightAPIHandler struct {
 	service *SpotlightService
 	logger  *zap.Logger
 }
 
-// NewSpotlightAPIHandler 创建 Spotlight API 处理器
+// NewSpotlightAPIHandler 创建 Spotlight API 处理器.
 func NewSpotlightAPIHandler(service *SpotlightService, logger *zap.Logger) *SpotlightAPIHandler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -28,7 +28,7 @@ func NewSpotlightAPIHandler(service *SpotlightService, logger *zap.Logger) *Spot
 	}
 }
 
-// RegisterRoutes 注册 Spotlight API 路由
+// RegisterRoutes 注册 Spotlight API 路由.
 func (h *SpotlightAPIHandler) RegisterRoutes(api *gin.RouterGroup) {
 	spotlight := api.Group("/spotlight")
 	{
@@ -62,7 +62,7 @@ func (h *SpotlightAPIHandler) RegisterRoutes(api *gin.RouterGroup) {
 // ================== 搜索接口 ==================
 
 // Search POST 搜索接口
-// Body: SpotlightSearchRequest JSON
+// Body: SpotlightSearchRequest JSON.
 func (h *SpotlightAPIHandler) Search(c *gin.Context) {
 	var req SpotlightSearchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -93,7 +93,7 @@ func (h *SpotlightAPIHandler) Search(c *gin.Context) {
 }
 
 // SearchGet GET 搜索接口
-// Query: q, scope, limit, offset, sort, type
+// Query: q, scope, limit, offset, sort, type.
 func (h *SpotlightAPIHandler) SearchGet(c *gin.Context) {
 	req := &SpotlightSearchRequest{
 		Query:         c.Query("q"),
@@ -155,7 +155,7 @@ func (h *SpotlightAPIHandler) SearchGet(c *gin.Context) {
 
 // ================== 状态接口 ==================
 
-// GetStatus 获取索引状态
+// GetStatus 获取索引状态.
 func (h *SpotlightAPIHandler) GetStatus(c *gin.Context) {
 	status, err := h.service.GetIndexStatus(c.Request.Context())
 	if err != nil {
@@ -166,7 +166,7 @@ func (h *SpotlightAPIHandler) GetStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, status)
 }
 
-// GetStats 获取详细统计（兼容旧接口）
+// GetStats 获取详细统计（兼容旧接口）.
 func (h *SpotlightAPIHandler) GetStats(c *gin.Context) {
 	status, err := h.service.GetIndexStatus(c.Request.Context())
 	if err != nil {
@@ -199,7 +199,7 @@ func (h *SpotlightAPIHandler) GetStats(c *gin.Context) {
 // ================== 索引管理接口 ==================
 
 // RebuildIndex 重建索引
-// Body: { "path": "/data/share" }
+// Body: { "path": "/data/share" }.
 func (h *SpotlightAPIHandler) RebuildIndex(c *gin.Context) {
 	var req struct {
 		Path string `json:"path" binding:"required"`
@@ -224,7 +224,7 @@ func (h *SpotlightAPIHandler) RebuildIndex(c *gin.Context) {
 }
 
 // ClearIndex 清除索引
-// Body: { "path": "/data/share" }
+// Body: { "path": "/data/share" }.
 func (h *SpotlightAPIHandler) ClearIndex(c *gin.Context) {
 	var req struct {
 		Path string `json:"path" binding:"required"`
@@ -248,7 +248,7 @@ func (h *SpotlightAPIHandler) ClearIndex(c *gin.Context) {
 	})
 }
 
-// PauseIndexing 暂停索引
+// PauseIndexing 暂停索引.
 func (h *SpotlightAPIHandler) PauseIndexing(c *gin.Context) {
 	err := h.service.PauseIndexing(c.Request.Context())
 	if err != nil {
@@ -259,7 +259,7 @@ func (h *SpotlightAPIHandler) PauseIndexing(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "索引已暂停"})
 }
 
-// ResumeIndexing 恢复索引
+// ResumeIndexing 恢复索引.
 func (h *SpotlightAPIHandler) ResumeIndexing(c *gin.Context) {
 	err := h.service.ResumeIndexing(c.Request.Context())
 	if err != nil {
@@ -272,7 +272,7 @@ func (h *SpotlightAPIHandler) ResumeIndexing(c *gin.Context) {
 
 // ================== 共享配置接口 ==================
 
-// ListSpotlightShares 列出所有共享的 Spotlight 状态
+// ListSpotlightShares 列出所有共享的 Spotlight 状态.
 func (h *SpotlightAPIHandler) ListSpotlightShares(c *gin.Context) {
 	shares, err := h.service.ListSpotlightShares(c.Request.Context())
 	if err != nil {
@@ -286,7 +286,7 @@ func (h *SpotlightAPIHandler) ListSpotlightShares(c *gin.Context) {
 	})
 }
 
-// GetShareConfig 获取指定共享的 Spotlight 配置
+// GetShareConfig 获取指定共享的 Spotlight 配置.
 func (h *SpotlightAPIHandler) GetShareConfig(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -304,7 +304,7 @@ func (h *SpotlightAPIHandler) GetShareConfig(c *gin.Context) {
 }
 
 // UpdateShareConfig 更新共享 Spotlight 配置
-// Body: ShareSpotlightConfig JSON
+// Body: ShareSpotlightConfig JSON.
 func (h *SpotlightAPIHandler) UpdateShareConfig(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -334,7 +334,7 @@ func (h *SpotlightAPIHandler) UpdateShareConfig(c *gin.Context) {
 	})
 }
 
-// EnableForShare 启用共享的 Spotlight
+// EnableForShare 启用共享的 Spotlight.
 func (h *SpotlightAPIHandler) EnableForShare(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -355,7 +355,7 @@ func (h *SpotlightAPIHandler) EnableForShare(c *gin.Context) {
 	})
 }
 
-// DisableForShare 禁用共享的 Spotlight
+// DisableForShare 禁用共享的 Spotlight.
 func (h *SpotlightAPIHandler) DisableForShare(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -378,7 +378,7 @@ func (h *SpotlightAPIHandler) DisableForShare(c *gin.Context) {
 
 // ================== 配置接口 ==================
 
-// SpotlightGlobalConfig 全局配置响应
+// SpotlightGlobalConfig 全局配置响应.
 type SpotlightGlobalConfig struct {
 	Enabled             bool     `json:"enabled"`
 	SharePaths          []string `json:"sharePaths"`
@@ -397,7 +397,7 @@ type SpotlightGlobalConfig struct {
 	FuzzyThreshold      float64  `json:"fuzzyThreshold"`
 }
 
-// GetConfig 获取全局 Spotlight 配置
+// GetConfig 获取全局 Spotlight 配置.
 func (h *SpotlightAPIHandler) GetConfig(c *gin.Context) {
 	cfg := h.service.integration.config
 
@@ -423,7 +423,7 @@ func (h *SpotlightAPIHandler) GetConfig(c *gin.Context) {
 }
 
 // UpdateConfig 更新全局 Spotlight 配置
-// Body: SpotlightGlobalConfig JSON
+// Body: SpotlightGlobalConfig JSON.
 func (h *SpotlightAPIHandler) UpdateConfig(c *gin.Context) {
 	var req SpotlightGlobalConfig
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -456,7 +456,7 @@ func (h *SpotlightAPIHandler) UpdateConfig(c *gin.Context) {
 // ================== SMB.conf 配置生成 ==================
 
 // GenerateSMBConfSpotlight 生成 SMB.conf 的 Spotlight 配置段
-// 用于应用到 SMB 配置文件
+// 用于应用到 SMB 配置文件.
 func GenerateSMBConfSpotlight(enabled bool, indexPaths []string, excludedPaths []string) string {
 	if !enabled {
 		return ""
@@ -494,7 +494,7 @@ func GenerateSMBConfSpotlight(enabled bool, indexPaths []string, excludedPaths [
 // ================== macOS Spotlight 协议兼容 ==================
 
 // SpotlightMDQueryRequest macOS mdfind 请求格式
-// 用于支持 macOS Spotlight 原生搜索协议
+// 用于支持 macOS Spotlight 原生搜索协议.
 type SpotlightMDQueryRequest struct {
 	// Query mdfind 查询语法
 	// 格式: 'kMDItemDisplayName == "*.pdf" && kMDItemFSSize > 1000000'
@@ -513,7 +513,7 @@ type SpotlightMDQueryRequest struct {
 	Attributes []string `json:"attributes"`
 }
 
-// SpotlightMDQueryResponse macOS mdfind 响应格式
+// SpotlightMDQueryResponse macOS mdfind 响应格式.
 type SpotlightMDQueryResponse struct {
 	// Results 文件路径列表（原生 mdfind 格式）
 	Results []string `json:"results"`
@@ -529,7 +529,7 @@ type SpotlightMDQueryResponse struct {
 }
 
 // HandleMDQuery 处理 macOS mdfind 格式请求
-// POST /spotlight/mdfind
+// POST /spotlight/mdfind.
 func (h *SpotlightAPIHandler) HandleMDQuery(c *gin.Context) {
 	var req SpotlightMDQueryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

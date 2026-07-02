@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager manages GitOps repositories, sync operations, and deployments
+// Manager manages GitOps repositories, sync operations, and deployments.
 type Manager struct {
 	logger      *zap.Logger
 	repos       map[string]*GitRepo
@@ -25,7 +25,7 @@ type Manager struct {
 	stopCh      chan struct{}
 }
 
-// NewManager creates a new GitOps manager
+// NewManager creates a new GitOps manager.
 func NewManager(logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -40,19 +40,19 @@ func NewManager(logger *zap.Logger) *Manager {
 	}
 }
 
-// Start begins the background sync loop
+// Start begins the background sync loop.
 func (m *Manager) Start(ctx context.Context) {
 	go m.runSyncLoop(ctx)
 	m.logger.Info("gitops manager started")
 }
 
-// Stop stops the background sync loop
+// Stop stops the background sync loop.
 func (m *Manager) Stop() {
 	close(m.stopCh)
 	m.logger.Info("gitops manager stopped")
 }
 
-// ConnectRepo connects a new Git repository
+// ConnectRepo connects a new Git repository.
 func (m *Manager) ConnectRepo(repo *GitRepo) error {
 	if repo.ID == "" {
 		return fmt.Errorf("repo ID is required")
@@ -89,7 +89,7 @@ func (m *Manager) ConnectRepo(repo *GitRepo) error {
 	return nil
 }
 
-// SyncConfig synchronizes configuration from a repository
+// SyncConfig synchronizes configuration from a repository.
 func (m *Manager) SyncConfig(ctx context.Context, repoID string, force bool) (*DeploymentState, error) {
 	m.repoMu.RLock()
 	repo, exists := m.repos[repoID]
@@ -144,7 +144,7 @@ func (m *Manager) SyncConfig(ctx context.Context, repoID string, force bool) (*D
 	return deployment, nil
 }
 
-// DetectDrift detects configuration drift for a repository
+// DetectDrift detects configuration drift for a repository.
 func (m *Manager) DetectDrift(ctx context.Context, repoID string) ([]*DriftDetection, error) {
 	m.repoMu.RLock()
 	_, exists := m.repos[repoID]
@@ -176,7 +176,7 @@ func (m *Manager) DetectDrift(ctx context.Context, repoID string) ([]*DriftDetec
 	return drifts, nil
 }
 
-// Rollback rolls back to a previous deployment
+// Rollback rolls back to a previous deployment.
 func (m *Manager) Rollback(ctx context.Context, req RollbackRequest) (*DeploymentState, error) {
 	m.deployMu.RLock()
 	original, exists := m.deployments[req.DeploymentID]
@@ -225,7 +225,7 @@ func (m *Manager) Rollback(ctx context.Context, req RollbackRequest) (*Deploymen
 	return rollback, nil
 }
 
-// GetHistory returns deployment history for a repository
+// GetHistory returns deployment history for a repository.
 func (m *Manager) GetHistory(repoID string, limit int) []*DeploymentState {
 	m.historyMu.RLock()
 	defer m.historyMu.RUnlock()
@@ -237,14 +237,14 @@ func (m *Manager) GetHistory(repoID string, limit int) []*DeploymentState {
 	return deployments
 }
 
-// GetRepo returns a repository by ID
+// GetRepo returns a repository by ID.
 func (m *Manager) GetRepo(id string) *GitRepo {
 	m.repoMu.RLock()
 	defer m.repoMu.RUnlock()
 	return m.repos[id]
 }
 
-// ListRepos returns all connected repositories
+// ListRepos returns all connected repositories.
 func (m *Manager) ListRepos() []*GitRepo {
 	m.repoMu.RLock()
 	defer m.repoMu.RUnlock()
@@ -256,7 +256,7 @@ func (m *Manager) ListRepos() []*GitRepo {
 	return repos
 }
 
-// DeleteRepo disconnects a repository
+// DeleteRepo disconnects a repository.
 func (m *Manager) DeleteRepo(id string) bool {
 	m.repoMu.Lock()
 	defer m.repoMu.Unlock()
@@ -270,14 +270,14 @@ func (m *Manager) DeleteRepo(id string) bool {
 	return true
 }
 
-// GetDeployment returns a deployment by ID
+// GetDeployment returns a deployment by ID.
 func (m *Manager) GetDeployment(id string) *DeploymentState {
 	m.deployMu.RLock()
 	defer m.deployMu.RUnlock()
 	return m.deployments[id]
 }
 
-// ListDeployments returns all deployments
+// ListDeployments returns all deployments.
 func (m *Manager) ListDeployments() []*DeploymentState {
 	m.deployMu.RLock()
 	defer m.deployMu.RUnlock()
@@ -289,7 +289,7 @@ func (m *Manager) ListDeployments() []*DeploymentState {
 	return deployments
 }
 
-// AddDrift manually adds a drift detection entry
+// AddDrift manually adds a drift detection entry.
 func (m *Manager) AddDrift(drift *DriftDetection) {
 	m.driftMu.Lock()
 	defer m.driftMu.Unlock()
@@ -303,7 +303,7 @@ func (m *Manager) AddDrift(drift *DriftDetection) {
 		zap.String("severity", string(drift.Severity)))
 }
 
-// ResolveDrift marks a drift as resolved
+// ResolveDrift marks a drift as resolved.
 func (m *Manager) ResolveDrift(repoID, driftID string) bool {
 	m.driftMu.Lock()
 	defer m.driftMu.Unlock()
@@ -319,7 +319,7 @@ func (m *Manager) ResolveDrift(repoID, driftID string) bool {
 	return false
 }
 
-// runSyncLoop periodically syncs repositories with auto-sync enabled
+// runSyncLoop periodically syncs repositories with auto-sync enabled.
 func (m *Manager) runSyncLoop(ctx context.Context) {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -336,7 +336,7 @@ func (m *Manager) runSyncLoop(ctx context.Context) {
 	}
 }
 
-// runAutoSync syncs all repos with auto-sync enabled
+// runAutoSync syncs all repos with auto-sync enabled.
 func (m *Manager) runAutoSync(ctx context.Context) {
 	m.repoMu.RLock()
 	var autoSyncRepos []*GitRepo

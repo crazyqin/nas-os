@@ -11,35 +11,35 @@ import (
 	"time"
 )
 
-// AppRoute represents an application route configuration
+// AppRoute represents an application route configuration.
 type AppRoute struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Domain      string    `json:"domain"`
-	PathPrefix  string    `json:"path_prefix"`
-	TargetURL   string    `json:"target_url"`
-	WebSocket   bool      `json:"websocket"`
-	Auth        bool      `json:"auth"`
-	Enabled     bool      `json:"enabled"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID         string    `json:"id"`
+	Name       string    `json:"name"`
+	Domain     string    `json:"domain"`
+	PathPrefix string    `json:"path_prefix"`
+	TargetURL  string    `json:"target_url"`
+	WebSocket  bool      `json:"websocket"`
+	Auth       bool      `json:"auth"`
+	Enabled    bool      `json:"enabled"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
-// GatewayConfig represents the unified gateway configuration
+// GatewayConfig represents the unified gateway configuration.
 type GatewayConfig struct {
-	Domain      string            `json:"domain"`
-	Routes      map[string]*AppRoute `json:"routes"`
-	TLSEnabled  bool              `json:"tls_enabled"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	Domain     string               `json:"domain"`
+	Routes     map[string]*AppRoute `json:"routes"`
+	TLSEnabled bool                 `json:"tls_enabled"`
+	UpdatedAt  time.Time            `json:"updated_at"`
 }
 
-// Gateway handles unified gateway routing
+// Gateway handles unified gateway routing.
 type Gateway struct {
 	mu     sync.RWMutex
 	config GatewayConfig
 }
 
-// NewGateway creates a new unified gateway
+// NewGateway creates a new unified gateway.
 func NewGateway(domain string) *Gateway {
 	return &Gateway{
 		config: GatewayConfig{
@@ -51,7 +51,7 @@ func NewGateway(domain string) *Gateway {
 	}
 }
 
-// AddRoute adds a new application route
+// AddRoute adds a new application route.
 func (g *Gateway) AddRoute(route AppRoute) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -64,7 +64,7 @@ func (g *Gateway) AddRoute(route AppRoute) error {
 	return nil
 }
 
-// RemoveRoute removes an application route
+// RemoveRoute removes an application route.
 func (g *Gateway) RemoveRoute(id string) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -77,7 +77,7 @@ func (g *Gateway) RemoveRoute(id string) error {
 	return nil
 }
 
-// UpdateRoute updates an existing route
+// UpdateRoute updates an existing route.
 func (g *Gateway) UpdateRoute(id string, updates AppRoute) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -104,7 +104,7 @@ func (g *Gateway) UpdateRoute(id string, updates AppRoute) error {
 	return nil
 }
 
-// GetRoute returns a route by ID
+// GetRoute returns a route by ID.
 func (g *Gateway) GetRoute(id string) (*AppRoute, error) {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -116,7 +116,7 @@ func (g *Gateway) GetRoute(id string) (*AppRoute, error) {
 	return route, nil
 }
 
-// ListRoutes returns all routes
+// ListRoutes returns all routes.
 func (g *Gateway) ListRoutes() []*AppRoute {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -128,7 +128,7 @@ func (g *Gateway) ListRoutes() []*AppRoute {
 	return routes
 }
 
-// ServeHTTP implements http.Handler for the gateway
+// ServeHTTP implements http.Handler for the gateway.
 func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -191,7 +191,7 @@ func (g *Gateway) proxyRequest(w http.ResponseWriter, r *http.Request, route *Ap
 	proxy.ServeHTTP(w, r)
 }
 
-// RegisterRoutes registers gateway management HTTP routes
+// RegisterRoutes registers gateway management HTTP routes.
 func (g *Gateway) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/gateway/routes", g.handleRoutes)
 	mux.HandleFunc("/api/gateway/routes/add", g.handleAddRoute)
@@ -255,8 +255,8 @@ func (g *Gateway) handleUpdateRoute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		ID      string    `json:"id"`
-		Updates AppRoute  `json:"updates"`
+		ID      string   `json:"id"`
+		Updates AppRoute `json:"updates"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)

@@ -13,9 +13,9 @@ func TestHealthyDisk(t *testing.T) {
 	p := newTestPredictor()
 
 	data := DiskSMARTData{
-		DeviceID:    "sda",
-		Model:       "TestDisk",
-		Temperature: 35,
+		DeviceID:     "sda",
+		Model:        "TestDisk",
+		Temperature:  35,
 		PowerOnHours: 1000,
 	}
 
@@ -72,9 +72,9 @@ func TestSSDWearLeveling(t *testing.T) {
 	p := newTestPredictor()
 
 	data := DiskSMARTData{
-		DeviceID:      "nvme0",
-		Temperature:   40,
-		WearLeveling:  5, // 严重磨损
+		DeviceID:     "nvme0",
+		Temperature:  40,
+		WearLeveling: 5, // 严重磨损
 	}
 
 	report := p.IngestSMARTData(data)
@@ -87,8 +87,8 @@ func TestPendingSectors(t *testing.T) {
 	p := newTestPredictor()
 
 	data := DiskSMARTData{
-		DeviceID:    "sdd",
-		Temperature: 35,
+		DeviceID:     "sdd",
+		Temperature:  35,
 		PendingSects: 3,
 	}
 
@@ -124,9 +124,9 @@ func TestPredictedLife(t *testing.T) {
 	p := newTestPredictor()
 
 	data := DiskSMARTData{
-		DeviceID:      "sdf",
-		Temperature:   35,
-		PowerOnHours:  5000,
+		DeviceID:     "sdf",
+		Temperature:  35,
+		PowerOnHours: 5000,
 	}
 
 	report := p.IngestSMARTData(data)
@@ -225,9 +225,9 @@ func TestHighPowerOnHours(t *testing.T) {
 	p := newTestPredictor()
 
 	data := DiskSMARTData{
-		DeviceID:      "old-disk",
-		Temperature:   40,
-		PowerOnHours:  60000,
+		DeviceID:     "old-disk",
+		Temperature:  40,
+		PowerOnHours: 60000,
 	}
 
 	report := p.IngestSMARTData(data)

@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-// HoneyFileConfig 蜜罐文件配置
+// HoneyFileConfig 蜜罐文件配置.
 type HoneyFileConfig struct {
 	// 是否启用蜜罐检测
 	Enabled bool `json:"enabled"`
@@ -49,7 +49,7 @@ type HoneyFileConfig struct {
 	AlertOnRename bool `json:"alertOnRename"` // 文件被重命名时告警
 }
 
-// ContentPattern 蜜罐文件内容模式
+// ContentPattern 蜜罐文件内容模式.
 type ContentPattern struct {
 	// 内容类型：random（随机数据）、structured（结构化）、realistic（仿真）
 	Type string `json:"type"`
@@ -64,7 +64,7 @@ type ContentPattern struct {
 	TrackingMarkerPrefix string `json:"trackingMarkerPrefix"`
 }
 
-// HoneyFile 蜜罐文件记录
+// HoneyFile 蜜罐文件记录.
 type HoneyFile struct {
 	// 文件ID
 	ID string `json:"id"`
@@ -103,30 +103,30 @@ type HoneyFile struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// HoneyFileStatus 蜜罐文件状态
+// HoneyFileStatus 蜜罐文件状态.
 type HoneyFileStatus string
 
 const (
-	// HoneyFileStatusActive 正常状态
+	// HoneyFileStatusActive 正常状态.
 	HoneyFileStatusActive HoneyFileStatus = "active"
 
-	// HoneyFileStatusAccessed 被访问
+	// HoneyFileStatusAccessed 被访问.
 	HoneyFileStatusAccessed HoneyFileStatus = "accessed"
 
-	// HoneyFileStatusModified 被修改
+	// HoneyFileStatusModified 被修改.
 	HoneyFileStatusModified HoneyFileStatus = "modified"
 
-	// HoneyFileStatusDeleted 被删除
+	// HoneyFileStatusDeleted 被删除.
 	HoneyFileStatusDeleted HoneyFileStatus = "deleted"
 
-	// HoneyFileStatusRenamed 被重命名
+	// HoneyFileStatusRenamed 被重命名.
 	HoneyFileStatusRenamed HoneyFileStatus = "renamed"
 
-	// HoneyFileStatusEncrypted 被加密
+	// HoneyFileStatusEncrypted 被加密.
 	HoneyFileStatusEncrypted HoneyFileStatus = "encrypted"
 )
 
-// HoneyFileEvent 蜜罐文件事件
+// HoneyFileEvent 蜜罐文件事件.
 type HoneyFileEvent struct {
 	// 事件ID
 	ID string `json:"id"`
@@ -162,33 +162,33 @@ type HoneyFileEvent struct {
 	ThreatLevel ThreatLevel `json:"threatLevel"`
 }
 
-// HoneyFileEventType 蜜罐文件事件类型
+// HoneyFileEventType 蜜罐文件事件类型.
 type HoneyFileEventType string
 
 const (
-	// HoneyFileEventAccess 访问事件
+	// HoneyFileEventAccess 访问事件.
 	HoneyFileEventAccess HoneyFileEventType = "access"
 
-	// HoneyFileEventModify 修改事件
+	// HoneyFileEventModify 修改事件.
 	HoneyFileEventModify HoneyFileEventType = "modify"
 
-	// HoneyFileEventDelete 删除事件
+	// HoneyFileEventDelete 删除事件.
 	HoneyFileEventDelete HoneyFileEventType = "delete"
 
-	// HoneyFileEventRename 重命名事件
+	// HoneyFileEventRename 重命名事件.
 	HoneyFileEventRename HoneyFileEventType = "rename"
 
-	// HoneyFileEventEncrypt 加密事件
+	// HoneyFileEventEncrypt 加密事件.
 	HoneyFileEventEncrypt HoneyFileEventType = "encrypt"
 
-	// HoneyFileEventCreate 创建事件
+	// HoneyFileEventCreate 创建事件.
 	HoneyFileEventCreate HoneyFileEventType = "create"
 
-	// HoneyFileEventCheck 检查事件
+	// HoneyFileEventCheck 检查事件.
 	HoneyFileEventCheck HoneyFileEventType = "check"
 )
 
-// HoneyFileAlert 蜜罐文件告警
+// HoneyFileAlert 蜜罐文件告警.
 type HoneyFileAlert struct {
 	// 告警ID
 	ID string `json:"id"`
@@ -227,7 +227,7 @@ type HoneyFileAlert struct {
 	Status AlertStatus `json:"status"`
 }
 
-// AttackSource 攻击来源信息
+// AttackSource 攻击来源信息.
 type AttackSource struct {
 	// 进程信息
 	Process *ProcessInfo `json:"process,omitempty"`
@@ -242,7 +242,7 @@ type AttackSource struct {
 	ConnectionType string `json:"connectionType,omitempty"` // smb, nfs, ftp, webdav等
 }
 
-// HoneyFileManager 蜜罐文件管理器
+// HoneyFileManager 蜜罐文件管理器.
 type HoneyFileManager struct {
 	config HoneyFileConfig
 
@@ -267,7 +267,7 @@ type HoneyFileManager struct {
 	mu sync.RWMutex
 }
 
-// HoneyFileStats 蜜罐文件统计
+// HoneyFileStats 蜜罐文件统计.
 type HoneyFileStats struct {
 	// 总蜜罐文件数
 	TotalFiles int `json:"totalFiles"`
@@ -294,7 +294,7 @@ type HoneyFileStats struct {
 	LastTriggered time.Time `json:"lastTriggered,omitempty"`
 }
 
-// DefaultHoneyFileConfig 返回默认蜜罐配置
+// DefaultHoneyFileConfig 返回默认蜜罐配置.
 func DefaultHoneyFileConfig() HoneyFileConfig {
 	return HoneyFileConfig{
 		Enabled:       true,
@@ -317,7 +317,7 @@ func DefaultHoneyFileConfig() HoneyFileConfig {
 	}
 }
 
-// NewHoneyFileManager 创建蜜罐文件管理器
+// NewHoneyFileManager 创建蜜罐文件管理器.
 func NewHoneyFileManager(config HoneyFileConfig) (*HoneyFileManager, error) {
 	if config.FilesPerPath <= 0 {
 		config.FilesPerPath = 5
@@ -350,7 +350,7 @@ func NewHoneyFileManager(config HoneyFileConfig) (*HoneyFileManager, error) {
 	return m, nil
 }
 
-// DeployAll 在所有配置路径部署蜜罐文件
+// DeployAll 在所有配置路径部署蜜罐文件.
 func (m *HoneyFileManager) DeployAll() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -365,7 +365,7 @@ func (m *HoneyFileManager) DeployAll() error {
 	return nil
 }
 
-// deployInPath 在指定路径部署蜜罐文件
+// deployInPath 在指定路径部署蜜罐文件.
 func (m *HoneyFileManager) deployInPath(basePath string) error {
 	// 确保路径存在
 	if err := os.MkdirAll(basePath, 0755); err != nil {
@@ -387,7 +387,7 @@ func (m *HoneyFileManager) deployInPath(basePath string) error {
 	return nil
 }
 
-// createHoneyFile 创建单个蜜罐文件
+// createHoneyFile 创建单个蜜罐文件.
 func (m *HoneyFileManager) createHoneyFile(basePath string) (*HoneyFile, error) {
 	// 随机选择扩展名
 	extIndex, _ := rand.Int(rand.Reader, big.NewInt(int64(len(m.config.FileTypes))))
@@ -464,7 +464,7 @@ func (m *HoneyFileManager) createHoneyFile(basePath string) (*HoneyFile, error) 
 	return file, nil
 }
 
-// generateContent 生成蜜罐文件内容
+// generateContent 生成蜜罐文件内容.
 func (m *HoneyFileManager) generateContent(size int64, ext string) []byte {
 	content := make([]byte, size)
 
@@ -502,7 +502,7 @@ func (m *HoneyFileManager) generateContent(size int64, ext string) []byte {
 	return content
 }
 
-// generateJSONContent 生成JSON格式内容
+// generateJSONContent 生成JSON格式内容.
 func (m *HoneyFileManager) generateJSONContent(content []byte) {
 	template := `{"data": {"records": [], "metadata": {"created": "%s", "tracking": "%s"}}}`
 	data := fmt.Sprintf(template, time.Now().Format(time.RFC3339), generateRandomString(8))
@@ -512,7 +512,7 @@ func (m *HoneyFileManager) generateJSONContent(content []byte) {
 	}
 }
 
-// generateXMLContent 生成XML格式内容
+// generateXMLContent 生成XML格式内容.
 func (m *HoneyFileManager) generateXMLContent(content []byte) {
 	template := `<document><metadata created="%s"/></document>`
 	data := fmt.Sprintf(template, time.Now().Format(time.RFC3339))
@@ -522,7 +522,7 @@ func (m *HoneyFileManager) generateXMLContent(content []byte) {
 	}
 }
 
-// generateTextContent 生成文本内容
+// generateTextContent 生成文本内容.
 func (m *HoneyFileManager) generateTextContent(content []byte) {
 	template := "Report generated: %s\nConfidential data - do not distribute\n\n"
 	data := fmt.Sprintf(template, time.Now().Format(time.RFC3339))
@@ -536,12 +536,12 @@ func (m *HoneyFileManager) generateTextContent(content []byte) {
 	}
 }
 
-// generateBinaryContent 生成二进制内容
+// generateBinaryContent 生成二进制内容.
 func (m *HoneyFileManager) generateBinaryContent(content []byte) {
 	rand.Read(content)
 }
 
-// generateRealisticContent 生成仿真内容
+// generateRealisticContent 生成仿真内容.
 func (m *HoneyFileManager) generateRealisticContent(content []byte, ext string) {
 	ext = strings.ToLower(ext)
 
@@ -561,7 +561,7 @@ func (m *HoneyFileManager) generateRealisticContent(content []byte, ext string) 
 	}
 }
 
-// generateDocumentContent 生成文档仿真内容
+// generateDocumentContent 生成文档仿真内容.
 func (m *HoneyFileManager) generateDocumentContent(content []byte) {
 	header := "IMPORTANT DOCUMENT\n\nThis file contains confidential information.\n"
 	copy(content, header)
@@ -573,7 +573,7 @@ func (m *HoneyFileManager) generateDocumentContent(content []byte) {
 	}
 }
 
-// generateSpreadsheetContent 生成表格仿真内容
+// generateSpreadsheetContent 生成表格仿真内容.
 func (m *HoneyFileManager) generateSpreadsheetContent(content []byte) {
 	header := "Financial Report\nDate,Amount,Category\n"
 	copy(content, header)
@@ -582,7 +582,7 @@ func (m *HoneyFileManager) generateSpreadsheetContent(content []byte) {
 	}
 }
 
-// generatePDFLikeContent 生成PDF仿真内容
+// generatePDFLikeContent 生成PDF仿真内容.
 func (m *HoneyFileManager) generatePDFLikeContent(content []byte) {
 	// PDF文件头
 	pdfHeader := "%PDF-1.4\n%\xe2\xe3\xcf\xd3\n"
@@ -592,7 +592,7 @@ func (m *HoneyFileManager) generatePDFLikeContent(content []byte) {
 	}
 }
 
-// generateImageLikeContent 生成图像仿真内容
+// generateImageLikeContent 生成图像仿真内容.
 func (m *HoneyFileManager) generateImageLikeContent(content []byte) {
 	// JPEG文件头
 	jpegHeader := []byte{0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 'J', 'F', 'I', 'F'}
@@ -602,7 +602,7 @@ func (m *HoneyFileManager) generateImageLikeContent(content []byte) {
 	}
 }
 
-// generateArchiveLikeContent 生成压缩包仿真内容
+// generateArchiveLikeContent 生成压缩包仿真内容.
 func (m *HoneyFileManager) generateArchiveLikeContent(content []byte) {
 	// ZIP文件头
 	zipHeader := []byte{0x50, 0x4B, 0x03, 0x04}
@@ -612,7 +612,7 @@ func (m *HoneyFileManager) generateArchiveLikeContent(content []byte) {
 	}
 }
 
-// embedMarker 嵌入追踪标记
+// embedMarker 嵌入追踪标记.
 func (m *HoneyFileManager) embedMarker(content []byte) {
 	if len(content) < 100 {
 		return
@@ -624,7 +624,7 @@ func (m *HoneyFileManager) embedMarker(content []byte) {
 	copy(content[startPos:startPos+len(marker)], []byte(marker))
 }
 
-// CheckAll 检查所有蜜罐文件状态
+// CheckAll 检查所有蜜罐文件状态.
 func (m *HoneyFileManager) CheckAll() []HoneyFileEvent {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -644,7 +644,7 @@ func (m *HoneyFileManager) CheckAll() []HoneyFileEvent {
 	return events
 }
 
-// checkFile 检查单个蜜罐文件
+// checkFile 检查单个蜜罐文件.
 func (m *HoneyFileManager) checkFile(file *HoneyFile) *HoneyFileEvent {
 	oldStatus := file.Status
 
@@ -764,7 +764,7 @@ func (m *HoneyFileManager) checkFile(file *HoneyFile) *HoneyFileEvent {
 	return nil
 }
 
-// isContentEncrypted 检查内容是否被加密
+// isContentEncrypted 检查内容是否被加密.
 func (m *HoneyFileManager) isContentEncrypted(content []byte) bool {
 	// 检查熵值（加密文件通常高熵）
 	entropy := calculateEntropy(content)
@@ -783,7 +783,7 @@ func (m *HoneyFileManager) isContentEncrypted(content []byte) bool {
 	return false
 }
 
-// handleThreat 处理威胁事件
+// handleThreat 处理威胁事件.
 func (m *HoneyFileManager) handleThreat(event *HoneyFileEvent) {
 	m.stats.TriggeredFiles++
 	m.stats.LastTriggered = time.Now()
@@ -795,7 +795,7 @@ func (m *HoneyFileManager) handleThreat(event *HoneyFileEvent) {
 	m.alerts <- alert
 }
 
-// generateAlert 生成告警
+// generateAlert 生成告警.
 func (m *HoneyFileManager) generateAlert(event *HoneyFileEvent) HoneyFileAlert {
 	severity := event.ThreatLevel
 
@@ -863,7 +863,7 @@ func (m *HoneyFileManager) generateAlert(event *HoneyFileEvent) HoneyFileAlert {
 	}
 }
 
-// recordEvent 记录事件
+// recordEvent 记录事件.
 func (m *HoneyFileManager) recordEvent(event HoneyFileEvent) {
 	m.events = append(m.events, event)
 	// 保持事件列表在合理大小
@@ -872,12 +872,12 @@ func (m *HoneyFileManager) recordEvent(event HoneyFileEvent) {
 	}
 }
 
-// Alerts 返回告警通道
+// Alerts 返回告警通道.
 func (m *HoneyFileManager) Alerts() <-chan HoneyFileAlert {
 	return m.alerts
 }
 
-// GetFiles 获取所有蜜罐文件
+// GetFiles 获取所有蜜罐文件.
 func (m *HoneyFileManager) GetFiles() []*HoneyFile {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -889,7 +889,7 @@ func (m *HoneyFileManager) GetFiles() []*HoneyFile {
 	return files
 }
 
-// GetFilesByPath 获取指定路径的蜜罐文件
+// GetFilesByPath 获取指定路径的蜜罐文件.
 func (m *HoneyFileManager) GetFilesByPath(path string) []*HoneyFile {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -904,14 +904,14 @@ func (m *HoneyFileManager) GetFilesByPath(path string) []*HoneyFile {
 	return files
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *HoneyFileManager) GetStats() HoneyFileStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.stats
 }
 
-// GetEvents 获取事件记录
+// GetEvents 获取事件记录.
 func (m *HoneyFileManager) GetEvents(limit int) []HoneyFileEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -928,7 +928,7 @@ func (m *HoneyFileManager) GetEvents(limit int) []HoneyFileEvent {
 	return m.events[start:]
 }
 
-// Redeploy 重新部署被触发的蜜罐文件
+// Redeploy 重新部署被触发的蜜罐文件.
 func (m *HoneyFileManager) Redeploy() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -972,7 +972,7 @@ func (m *HoneyFileManager) Redeploy() error {
 	return nil
 }
 
-// StartMonitoring 启动持续监控
+// StartMonitoring 启动持续监控.
 func (m *HoneyFileManager) StartMonitoring(ctx interface{ Done() <-chan struct{} }) {
 	m.mu.Lock()
 	m.running = true
@@ -981,14 +981,14 @@ func (m *HoneyFileManager) StartMonitoring(ctx interface{ Done() <-chan struct{}
 	go m.monitorLoop(ctx)
 }
 
-// StopMonitoring 停止监控
+// StopMonitoring 停止监控.
 func (m *HoneyFileManager) StopMonitoring() {
 	m.mu.Lock()
 	m.running = false
 	m.mu.Unlock()
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (m *HoneyFileManager) monitorLoop(ctx interface{ Done() <-chan struct{} }) {
 	ticker := time.NewTicker(m.config.CheckInterval)
 	defer ticker.Stop()
@@ -1032,7 +1032,7 @@ func generateRandomString(length int) string {
 	return hex.EncodeToString(b)[:length]
 }
 
-// AddToDetector 将蜜罐检测集成到勒索软件检测器
+// AddToDetector 将蜜罐检测集成到勒索软件检测器.
 func (d *Detector) EnableHoneyFileDetection(config HoneyFileConfig) error {
 	manager, err := NewHoneyFileManager(config)
 	if err != nil {

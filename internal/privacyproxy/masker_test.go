@@ -571,10 +571,10 @@ func TestAuditorRingBuffer(t *testing.T) {
 	a := NewAuditor(5) // 小容量测试环形缓冲
 	for i := 0; i < 10; i++ {
 		a.Log(AuditEntry{
-			ID:        "ring-" + string(rune('A'+i)),
-			RuleID:    "builtin-phone",
-			RuleName:  "手机号",
-			Success:   true,
+			ID:       "ring-" + string(rune('A'+i)),
+			RuleID:   "builtin-phone",
+			RuleName: "手机号",
+			Success:  true,
 		})
 	}
 	total, capacity := a.Stats()

@@ -89,7 +89,7 @@ type FolderInfo struct {
 
 // ========== Master Key Handlers ==========
 
-// UnlockMaster POST /api/v1/encryption/unlock
+// UnlockMaster POST /api/v1/encryption/unlock.
 func (h *PerFolderHandlers) UnlockMaster(c *gin.Context) {
 	var req UnlockMasterRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -114,7 +114,7 @@ func (h *PerFolderHandlers) UnlockMaster(c *gin.Context) {
 	})
 }
 
-// LockMaster POST /api/v1/encryption/lock
+// LockMaster POST /api/v1/encryption/lock.
 func (h *PerFolderHandlers) LockMaster(c *gin.Context) {
 	h.manager.LockMasterKey()
 	api.OK(c, gin.H{
@@ -123,7 +123,7 @@ func (h *PerFolderHandlers) LockMaster(c *gin.Context) {
 	})
 }
 
-// GetStatus GET /api/v1/encryption/status
+// GetStatus GET /api/v1/encryption/status.
 func (h *PerFolderHandlers) GetStatus(c *gin.Context) {
 	api.OK(c, gin.H{
 		"masterKeyUnlocked": h.manager.IsUnlocked(),
@@ -133,7 +133,7 @@ func (h *PerFolderHandlers) GetStatus(c *gin.Context) {
 
 // ========== Folder Handlers ==========
 
-// CreateFolder POST /api/v1/encryption/folders
+// CreateFolder POST /api/v1/encryption/folders.
 func (h *PerFolderHandlers) CreateFolder(c *gin.Context) {
 	var req CreateFolderRequest
 	if err := api.BindAndValidate(c, &req); err != nil {
@@ -150,7 +150,7 @@ func (h *PerFolderHandlers) CreateFolder(c *gin.Context) {
 	api.Created(c, toFolderInfo(folder))
 }
 
-// ListFolders GET /api/v1/encryption/folders
+// ListFolders GET /api/v1/encryption/folders.
 func (h *PerFolderHandlers) ListFolders(c *gin.Context) {
 	folders := h.manager.ListFolders()
 	infos := make([]FolderInfo, len(folders))
@@ -163,7 +163,7 @@ func (h *PerFolderHandlers) ListFolders(c *gin.Context) {
 	})
 }
 
-// GetFolder GET /api/v1/encryption/folders/:id
+// GetFolder GET /api/v1/encryption/folders/:id.
 func (h *PerFolderHandlers) GetFolder(c *gin.Context) {
 	folderID := c.Param("id")
 	folder, err := h.manager.GetFolder(folderID)
@@ -174,7 +174,7 @@ func (h *PerFolderHandlers) GetFolder(c *gin.Context) {
 	api.OK(c, toFolderInfo(folder))
 }
 
-// DeleteFolder DELETE /api/v1/encryption/folders/:id
+// DeleteFolder DELETE /api/v1/encryption/folders/:id.
 func (h *PerFolderHandlers) DeleteFolder(c *gin.Context) {
 	folderID := c.Param("id")
 	if err := h.manager.DeleteFolder(folderID); err != nil {
@@ -184,7 +184,7 @@ func (h *PerFolderHandlers) DeleteFolder(c *gin.Context) {
 	api.OK(c, gin.H{"message": "folder deleted"})
 }
 
-// UnlockFolder POST /api/v1/encryption/folders/:id/unlock
+// UnlockFolder POST /api/v1/encryption/folders/:id/unlock.
 func (h *PerFolderHandlers) UnlockFolder(c *gin.Context) {
 	folderID := c.Param("id")
 	if err := h.manager.UnlockFolder(folderID); err != nil {
@@ -194,7 +194,7 @@ func (h *PerFolderHandlers) UnlockFolder(c *gin.Context) {
 	api.OK(c, gin.H{"message": "folder unlocked", "folderId": folderID})
 }
 
-// LockFolder POST /api/v1/encryption/folders/:id/lock
+// LockFolder POST /api/v1/encryption/folders/:id/lock.
 func (h *PerFolderHandlers) LockFolder(c *gin.Context) {
 	folderID := c.Param("id")
 	if err := h.manager.LockFolder(folderID); err != nil {
@@ -204,7 +204,7 @@ func (h *PerFolderHandlers) LockFolder(c *gin.Context) {
 	api.OK(c, gin.H{"message": "folder locked", "folderId": folderID})
 }
 
-// RotateKey POST /api/v1/encryption/folders/:id/rotate-key
+// RotateKey POST /api/v1/encryption/folders/:id/rotate-key.
 func (h *PerFolderHandlers) RotateKey(c *gin.Context) {
 	folderID := c.Param("id")
 	if err := h.manager.RotateKey(folderID); err != nil {
@@ -216,7 +216,7 @@ func (h *PerFolderHandlers) RotateKey(c *gin.Context) {
 
 // ========== Data Handlers ==========
 
-// EncryptData POST /api/v1/encryption/folders/:id/encrypt
+// EncryptData POST /api/v1/encryption/folders/:id/encrypt.
 func (h *PerFolderHandlers) EncryptData(c *gin.Context) {
 	folderID := c.Param("id")
 	var req EncryptDataRequest
@@ -242,7 +242,7 @@ func (h *PerFolderHandlers) EncryptData(c *gin.Context) {
 	})
 }
 
-// DecryptData POST /api/v1/encryption/folders/:id/decrypt
+// DecryptData POST /api/v1/encryption/folders/:id/decrypt.
 func (h *PerFolderHandlers) DecryptData(c *gin.Context) {
 	folderID := c.Param("id")
 	var req DecryptDataRequest
@@ -270,7 +270,7 @@ func (h *PerFolderHandlers) DecryptData(c *gin.Context) {
 
 // ========== Stats ==========
 
-// GetStats GET /api/v1/encryption/stats
+// GetStats GET /api/v1/encryption/stats.
 func (h *PerFolderHandlers) GetStats(c *gin.Context) {
 	stats := h.manager.Stats()
 	api.OK(c, stats)

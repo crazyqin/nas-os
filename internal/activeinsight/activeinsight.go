@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// ActiveInsight 活动洞察
+// ActiveInsight 活动洞察.
 type ActiveInsight struct {
 	mu         sync.RWMutex
 	devices    map[string]*Device
@@ -21,7 +21,7 @@ type ActiveInsight struct {
 	cancel     context.CancelFunc
 }
 
-// Config 活动洞察配置
+// Config 活动洞察配置.
 type Config struct {
 	CollectInterval time.Duration      `json:"collect_interval"`
 	RetentionDays   int                `json:"retention_days"`
@@ -32,7 +32,7 @@ type Config struct {
 	EmailAlerts     []string           `json:"email_alerts"`
 }
 
-// Device 设备信息
+// Device 设备信息.
 type Device struct {
 	ID       string            `json:"id"`
 	Name     string            `json:"name"`
@@ -50,7 +50,7 @@ type Device struct {
 	Tags     map[string]string `json:"tags"`
 }
 
-// DeviceStatus 设备状态
+// DeviceStatus 设备状态.
 type DeviceStatus string
 
 const (
@@ -60,7 +60,7 @@ const (
 	DeviceStatusError   DeviceStatus = "error"
 )
 
-// HardwareInfo 硬件信息
+// HardwareInfo 硬件信息.
 type HardwareInfo struct {
 	CPUModel    string  `json:"cpu_model"`
 	CPUCores    int     `json:"cpu_cores"`
@@ -73,7 +73,7 @@ type HardwareInfo struct {
 	Temperature float64 `json:"temperature"`
 }
 
-// NetworkInfo 网络信息
+// NetworkInfo 网络信息.
 type NetworkInfo struct {
 	Interfaces    []NetworkInterface `json:"interfaces"`
 	TotalSent     int64              `json:"total_sent"`
@@ -81,7 +81,7 @@ type NetworkInfo struct {
 	Connections   int                `json:"connections"`
 }
 
-// NetworkInterface 网络接口
+// NetworkInterface 网络接口.
 type NetworkInterface struct {
 	Name      string `json:"name"`
 	IP        string `json:"ip"`
@@ -92,7 +92,7 @@ type NetworkInterface struct {
 	Status    string `json:"status"`
 }
 
-// StorageInfo 存储信息
+// StorageInfo 存储信息.
 type StorageInfo struct {
 	Pools     []StoragePool `json:"pools"`
 	TotalSize int64         `json:"total_size"`
@@ -101,7 +101,7 @@ type StorageInfo struct {
 	Health    string        `json:"health"`
 }
 
-// StoragePool 存储池
+// StoragePool 存储池.
 type StoragePool struct {
 	Name      string `json:"name"`
 	Type      string `json:"type"`
@@ -113,7 +113,7 @@ type StoragePool struct {
 	RAIDLevel string `json:"raid_level"`
 }
 
-// Metric 指标
+// Metric 指标.
 type Metric struct {
 	Name      string            `json:"name"`
 	Value     float64           `json:"value"`
@@ -123,7 +123,7 @@ type Metric struct {
 	Tags      map[string]string `json:"tags"`
 }
 
-// Alert 告警
+// Alert 告警.
 type Alert struct {
 	ID         string        `json:"id"`
 	DeviceID   string        `json:"device_id"`
@@ -139,7 +139,7 @@ type Alert struct {
 	Notified   bool          `json:"notified"`
 }
 
-// AlertType 告警类型
+// AlertType 告警类型.
 type AlertType string
 
 const (
@@ -151,7 +151,7 @@ const (
 	AlertTypeHealth  AlertType = "health"
 )
 
-// AlertSeverity 告警级别
+// AlertSeverity 告警级别.
 type AlertSeverity string
 
 const (
@@ -160,13 +160,13 @@ const (
 	AlertSeverityCritical AlertSeverity = "critical"
 )
 
-// Collector 指标收集器接口
+// Collector 指标收集器接口.
 type Collector interface {
 	Name() string
 	Collect(ctx context.Context, device *Device) ([]*Metric, error)
 }
 
-// NewActiveInsight 创建活动洞察
+// NewActiveInsight 创建活动洞察.
 func NewActiveInsight(config *Config) *ActiveInsight {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &ActiveInsight{
@@ -179,7 +179,7 @@ func NewActiveInsight(config *Config) *ActiveInsight {
 	}
 }
 
-// Start 启动活动洞察
+// Start 启动活动洞察.
 func (ai *ActiveInsight) Start() error {
 	ai.mu.Lock()
 	defer ai.mu.Unlock()
@@ -203,7 +203,7 @@ func (ai *ActiveInsight) Start() error {
 	return nil
 }
 
-// Stop 停止活动洞察
+// Stop 停止活动洞察.
 func (ai *ActiveInsight) Stop() error {
 	ai.mu.Lock()
 	defer ai.mu.Unlock()
@@ -217,7 +217,7 @@ func (ai *ActiveInsight) Stop() error {
 	return nil
 }
 
-// RegisterDevice 注册设备
+// RegisterDevice 注册设备.
 func (ai *ActiveInsight) RegisterDevice(device *Device) error {
 	ai.mu.Lock()
 	defer ai.mu.Unlock()
@@ -232,7 +232,7 @@ func (ai *ActiveInsight) RegisterDevice(device *Device) error {
 	return nil
 }
 
-// UnregisterDevice 注销设备
+// UnregisterDevice 注销设备.
 func (ai *ActiveInsight) UnregisterDevice(deviceID string) error {
 	ai.mu.Lock()
 	defer ai.mu.Unlock()
@@ -246,7 +246,7 @@ func (ai *ActiveInsight) UnregisterDevice(deviceID string) error {
 	return nil
 }
 
-// UpdateDeviceStatus 更新设备状态
+// UpdateDeviceStatus 更新设备状态.
 func (ai *ActiveInsight) UpdateDeviceStatus(deviceID string, status DeviceStatus) error {
 	ai.mu.Lock()
 	defer ai.mu.Unlock()
@@ -261,7 +261,7 @@ func (ai *ActiveInsight) UpdateDeviceStatus(deviceID string, status DeviceStatus
 	return nil
 }
 
-// RecordMetric 记录指标
+// RecordMetric 记录指标.
 func (ai *ActiveInsight) RecordMetric(metric *Metric) error {
 	ai.mu.Lock()
 	defer ai.mu.Unlock()
@@ -281,7 +281,7 @@ func (ai *ActiveInsight) RecordMetric(metric *Metric) error {
 	return nil
 }
 
-// GetDevice 获取设备信息
+// GetDevice 获取设备信息.
 func (ai *ActiveInsight) GetDevice(deviceID string) (*Device, error) {
 	ai.mu.RLock()
 	defer ai.mu.RUnlock()
@@ -294,7 +294,7 @@ func (ai *ActiveInsight) GetDevice(deviceID string) (*Device, error) {
 	return device, nil
 }
 
-// GetDevices 获取所有设备
+// GetDevices 获取所有设备.
 func (ai *ActiveInsight) GetDevices() []*Device {
 	ai.mu.RLock()
 	defer ai.mu.RUnlock()
@@ -306,7 +306,7 @@ func (ai *ActiveInsight) GetDevices() []*Device {
 	return devices
 }
 
-// GetMetrics 获取设备指标
+// GetMetrics 获取设备指标.
 func (ai *ActiveInsight) GetMetrics(deviceID string, metricName string, since time.Time) ([]*Metric, error) {
 	ai.mu.RLock()
 	defer ai.mu.RUnlock()
@@ -325,7 +325,7 @@ func (ai *ActiveInsight) GetMetrics(deviceID string, metricName string, since ti
 	return result, nil
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (ai *ActiveInsight) GetAlerts(deviceID string, severity AlertSeverity, resolved bool) []*Alert {
 	ai.mu.RLock()
 	defer ai.mu.RUnlock()
@@ -347,7 +347,7 @@ func (ai *ActiveInsight) GetAlerts(deviceID string, severity AlertSeverity, reso
 	return alerts
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (ai *ActiveInsight) ResolveAlert(alertID string) error {
 	ai.mu.Lock()
 	defer ai.mu.Unlock()
@@ -363,7 +363,7 @@ func (ai *ActiveInsight) ResolveAlert(alertID string) error {
 	return fmt.Errorf("alert %s not found", alertID)
 }
 
-// RegisterCollector 注册指标收集器
+// RegisterCollector 注册指标收集器.
 func (ai *ActiveInsight) RegisterCollector(collector Collector) {
 	ai.mu.Lock()
 	defer ai.mu.Unlock()
@@ -371,7 +371,7 @@ func (ai *ActiveInsight) RegisterCollector(collector Collector) {
 	ai.collectors[collector.Name()] = collector
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (ai *ActiveInsight) GetStats() map[string]interface{} {
 	ai.mu.RLock()
 	defer ai.mu.RUnlock()
@@ -406,7 +406,7 @@ func (ai *ActiveInsight) GetStats() map[string]interface{} {
 	}
 }
 
-// collectMetrics 收集指标
+// collectMetrics 收集指标.
 func (ai *ActiveInsight) collectMetrics() {
 	ticker := time.NewTicker(ai.config.CollectInterval)
 	defer ticker.Stop()
@@ -421,7 +421,7 @@ func (ai *ActiveInsight) collectMetrics() {
 	}
 }
 
-// collectAllMetrics 收集所有设备指标
+// collectAllMetrics 收集所有设备指标.
 func (ai *ActiveInsight) collectAllMetrics() {
 	ai.mu.RLock()
 	devices := make([]*Device, 0, len(ai.devices))
@@ -444,7 +444,7 @@ func (ai *ActiveInsight) collectAllMetrics() {
 	}
 }
 
-// checkAlerts 检查告警
+// checkAlerts 检查告警.
 func (ai *ActiveInsight) checkAlerts() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -459,7 +459,7 @@ func (ai *ActiveInsight) checkAlerts() {
 	}
 }
 
-// checkAllAlerts 检查所有设备告警
+// checkAllAlerts 检查所有设备告警.
 func (ai *ActiveInsight) checkAllAlerts() {
 	ai.mu.Lock()
 	defer ai.mu.Unlock()
@@ -469,7 +469,7 @@ func (ai *ActiveInsight) checkAllAlerts() {
 	}
 }
 
-// checkDeviceAlerts 检查设备告警
+// checkDeviceAlerts 检查设备告警.
 func (ai *ActiveInsight) checkDeviceAlerts(device *Device) {
 	if device.Hardware == nil {
 		return
@@ -507,7 +507,7 @@ func (ai *ActiveInsight) checkDeviceAlerts(device *Device) {
 	}
 }
 
-// createAlert 创建告警
+// createAlert 创建告警.
 func (ai *ActiveInsight) createAlert(device *Device, alertType AlertType, severity AlertSeverity, title, message string, value, threshold float64) {
 	alert := &Alert{
 		ID:         fmt.Sprintf("alert_%d", time.Now().UnixNano()),
@@ -525,7 +525,7 @@ func (ai *ActiveInsight) createAlert(device *Device, alertType AlertType, severi
 	ai.alerts = append(ai.alerts, alert)
 }
 
-// cleanupOldData 清理旧数据
+// cleanupOldData 清理旧数据.
 func (ai *ActiveInsight) cleanupOldData() {
 	ticker := time.NewTicker(1 * time.Hour)
 	defer ticker.Stop()
@@ -540,7 +540,7 @@ func (ai *ActiveInsight) cleanupOldData() {
 	}
 }
 
-// cleanup 清理过期数据
+// cleanup 清理过期数据.
 func (ai *ActiveInsight) cleanup() {
 	ai.mu.Lock()
 	defer ai.mu.Unlock()

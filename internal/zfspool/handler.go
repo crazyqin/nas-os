@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// PoolStatus ZFS存储池状态
+// PoolStatus ZFS存储池状态.
 type PoolStatus string
 
 const (
@@ -16,7 +16,7 @@ const (
 	PoolStatusOffline  PoolStatus = "offline"
 )
 
-// RaidType RAID类型
+// RaidType RAID类型.
 type RaidType string
 
 const (
@@ -28,7 +28,7 @@ const (
 	RaidTypeDraid  RaidType = "draid"
 )
 
-// Pool ZFS存储池
+// Pool ZFS存储池.
 type Pool struct {
 	Name        string     `json:"name"`
 	Status      PoolStatus `json:"status"`
@@ -43,7 +43,7 @@ type Pool struct {
 	CreatedAt   time.Time  `json:"createdAt"`
 }
 
-// Dataset ZFS数据集
+// Dataset ZFS数据集.
 type Dataset struct {
 	Name        string `json:"name"`
 	Pool        string `json:"pool"`
@@ -55,7 +55,7 @@ type Dataset struct {
 	MountPoint  string `json:"mountPoint"`
 }
 
-// Snapshot ZFS快照
+// Snapshot ZFS快照.
 type Snapshot struct {
 	Name      string    `json:"name"`
 	Dataset   string    `json:"dataset"`
@@ -64,7 +64,7 @@ type Snapshot struct {
 	Clones    int       `json:"clones"`
 }
 
-// Disk 磁盘信息
+// Disk 磁盘信息.
 type Disk struct {
 	Device      string `json:"device"`
 	Serial      string `json:"serial"`
@@ -77,14 +77,14 @@ type Disk struct {
 	Role        string `json:"role"`
 }
 
-// Manager ZFS池管理器
+// Manager ZFS池管理器.
 type Manager struct {
 	mu    sync.RWMutex
 	pools map[string]*Pool
 	disks map[string]*Disk
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		pools: make(map[string]*Pool),
@@ -92,7 +92,7 @@ func NewManager() *Manager {
 	}
 }
 
-// GetPools 获取所有存储池
+// GetPools 获取所有存储池.
 func (m *Manager) GetPools() []*Pool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -103,7 +103,7 @@ func (m *Manager) GetPools() []*Pool {
 	return pools
 }
 
-// GetPool 获取指定池
+// GetPool 获取指定池.
 func (m *Manager) GetPool(name string) (*Pool, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -114,7 +114,7 @@ func (m *Manager) GetPool(name string) (*Pool, error) {
 	return pool, nil
 }
 
-// CreatePool 创建存储池
+// CreatePool 创建存储池.
 func (m *Manager) CreatePool(name string, raidType RaidType, disks []string) (*Pool, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -133,7 +133,7 @@ func (m *Manager) CreatePool(name string, raidType RaidType, disks []string) (*P
 	return pool, nil
 }
 
-// DeletePool 删除存储池
+// DeletePool 删除存储池.
 func (m *Manager) DeletePool(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -144,7 +144,7 @@ func (m *Manager) DeletePool(name string) error {
 	return nil
 }
 
-// StartScrub 开始清洗
+// StartScrub 开始清洗.
 func (m *Manager) StartScrub(poolName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -157,7 +157,7 @@ func (m *Manager) StartScrub(poolName string) error {
 	return nil
 }
 
-// GetPoolHealth 获取池健康状态
+// GetPoolHealth 获取池健康状态.
 func (m *Manager) GetPoolHealth(poolName string) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -175,7 +175,7 @@ func (m *Manager) GetPoolHealth(poolName string) (map[string]interface{}, error)
 	}, nil
 }
 
-// GetDisks 获取所有磁盘
+// GetDisks 获取所有磁盘.
 func (m *Manager) GetDisks() []*Disk {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -186,7 +186,7 @@ func (m *Manager) GetDisks() []*Disk {
 	return disks
 }
 
-// GetDisk 获取指定磁盘
+// GetDisk 获取指定磁盘.
 func (m *Manager) GetDisk(device string) (*Disk, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -197,7 +197,7 @@ func (m *Manager) GetDisk(device string) (*Disk, error) {
 	return disk, nil
 }
 
-// ExpandPool 扩展池 (RAID-Z Expansion)
+// ExpandPool 扩展池 (RAID-Z Expansion).
 func (m *Manager) ExpandPool(poolName string, newDisk string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -209,12 +209,12 @@ func (m *Manager) ExpandPool(poolName string, newDisk string) error {
 	return nil
 }
 
-// GetSnapshots 获取快照列表
+// GetSnapshots 获取快照列表.
 func (m *Manager) GetSnapshots(dataset string) ([]*Snapshot, error) {
 	return []*Snapshot{}, nil
 }
 
-// CreateSnapshot 创建快照
+// CreateSnapshot 创建快照.
 func (m *Manager) CreateSnapshot(dataset, name string) (*Snapshot, error) {
 	return &Snapshot{
 		Name:      fmt.Sprintf("%s@%s", dataset, name),
@@ -223,17 +223,17 @@ func (m *Manager) CreateSnapshot(dataset, name string) (*Snapshot, error) {
 	}, nil
 }
 
-// RollbackSnapshot 回滚快照
+// RollbackSnapshot 回滚快照.
 func (m *Manager) RollbackSnapshot(snapshotName string) error {
 	return nil
 }
 
-// GetDatasets 获取数据集列表
+// GetDatasets 获取数据集列表.
 func (m *Manager) GetDatasets(pool string) ([]*Dataset, error) {
 	return []*Dataset{}, nil
 }
 
-// CreateDataset 创建数据集
+// CreateDataset 创建数据集.
 func (m *Manager) CreateDataset(pool, name string, opts map[string]string) (*Dataset, error) {
 	return &Dataset{
 		Name:       fmt.Sprintf("%s/%s", pool, name),

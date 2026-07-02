@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// MediaType 媒体类型
+// MediaType 媒体类型.
 type MediaType string
 
 const (
@@ -25,7 +25,7 @@ const (
 	MediaTypeDoc   MediaType = "document"
 )
 
-// MediaItem 媒体项
+// MediaItem 媒体项.
 type MediaItem struct {
 	ID        string    `json:"id"`
 	Path      string    `json:"path"`
@@ -45,7 +45,7 @@ type MediaItem struct {
 	Favorite  bool      `json:"favorite"`
 }
 
-// Album 相册
+// Album 相册.
 type Album struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -58,7 +58,7 @@ type Album struct {
 	CreatedAt   time.Time   `json:"created_at"`
 }
 
-// SmartRules 智能相册规则
+// SmartRules 智能相册规则.
 type SmartRules struct {
 	Tags      []string `json:"tags,omitempty"`
 	MinRating int      `json:"min_rating,omitempty"`
@@ -68,7 +68,7 @@ type SmartRules struct {
 	Faces     []string `json:"faces,omitempty"`
 }
 
-// Manager 媒体库管理器
+// Manager 媒体库管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	logger   *zap.Logger
@@ -77,7 +77,7 @@ type Manager struct {
 	dataPath string
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(logger *zap.Logger, dataPath string) *Manager {
 	m := &Manager{
 		logger:   logger,
@@ -89,7 +89,7 @@ func NewManager(logger *zap.Logger, dataPath string) *Manager {
 	return m
 }
 
-// ScanDirectory 扫描目录
+// ScanDirectory 扫描目录.
 func (m *Manager) ScanDirectory(ctx context.Context, dir string) (int, error) {
 	count := 0
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
@@ -130,7 +130,7 @@ func (m *Manager) ScanDirectory(ctx context.Context, dir string) (int, error) {
 	return count, nil
 }
 
-// GetItem 获取媒体项
+// GetItem 获取媒体项.
 func (m *Manager) GetItem(id string) (*MediaItem, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -138,7 +138,7 @@ func (m *Manager) GetItem(id string) (*MediaItem, bool) {
 	return item, ok
 }
 
-// SearchItems 搜索媒体项
+// SearchItems 搜索媒体项.
 func (m *Manager) SearchItems(query string, mediaType MediaType, tags []string) []*MediaItem {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -159,7 +159,7 @@ func (m *Manager) SearchItems(query string, mediaType MediaType, tags []string) 
 	return results
 }
 
-// CreateAlbum 创建相册
+// CreateAlbum 创建相册.
 func (m *Manager) CreateAlbum(name, desc, albumType string) *Album {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -175,7 +175,7 @@ func (m *Manager) CreateAlbum(name, desc, albumType string) *Album {
 	return album
 }
 
-// AddToAlbum 添加到相册
+// AddToAlbum 添加到相册.
 func (m *Manager) AddToAlbum(albumID, itemID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -197,7 +197,7 @@ func (m *Manager) AddToAlbum(albumID, itemID string) error {
 	return nil
 }
 
-// ToggleFavorite 切换收藏
+// ToggleFavorite 切换收藏.
 func (m *Manager) ToggleFavorite(itemID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -210,7 +210,7 @@ func (m *Manager) ToggleFavorite(itemID string) error {
 	return nil
 }
 
-// SetRating 设置评分
+// SetRating 设置评分.
 func (m *Manager) SetRating(itemID string, rating int) error {
 	if rating < 0 || rating > 5 {
 		return fmt.Errorf("rating must be 0-5")
@@ -226,15 +226,15 @@ func (m *Manager) SetRating(itemID string, rating int) error {
 	return nil
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	stats := map[string]interface{}{
-		"total_items":   len(m.items),
-		"total_albums":  len(m.albums),
-		"by_type":       map[string]int{},
-		"total_size":    int64(0),
+		"total_items":    len(m.items),
+		"total_albums":   len(m.albums),
+		"by_type":        map[string]int{},
+		"total_size":     int64(0),
 		"favorite_count": 0,
 	}
 	byType := stats["by_type"].(map[string]int)
@@ -330,7 +330,7 @@ func generateID(s string) string {
 	return fmt.Sprintf("%x", time.Now().UnixNano())
 }
 
-// Handlers API handlers
+// Handlers API handlers.
 type Handlers struct {
 	mgr *Manager
 }

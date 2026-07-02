@@ -20,7 +20,7 @@ import (
 
 // ========== 类型定义 ==========
 
-// VersionConfig 版本控制配置
+// VersionConfig 版本控制配置.
 type VersionConfig struct {
 	// StoragePath 版本存储根目录
 	StoragePath string `json:"storage_path"`
@@ -36,7 +36,7 @@ type VersionConfig struct {
 	MaxStorageSize int64 `json:"max_storage_size"`
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *VersionConfig {
 	return &VersionConfig{
 		StoragePath:         "/var/lib/nas-os/fileversions",
@@ -48,7 +48,7 @@ func DefaultConfig() *VersionConfig {
 	}
 }
 
-// FileVersion 文件版本信息
+// FileVersion 文件版本信息.
 type FileVersion struct {
 	// ID 版本唯一标识
 	ID string `json:"id"`
@@ -74,7 +74,7 @@ type FileVersion struct {
 	StoragePath string `json:"storage_path"`
 }
 
-// VersionDiff 版本差异信息
+// VersionDiff 版本差异信息.
 type VersionDiff struct {
 	// FilePath 文件路径
 	FilePath string `json:"file_path"`
@@ -92,7 +92,7 @@ type VersionDiff struct {
 	Changes []DiffChange `json:"changes"`
 }
 
-// DiffChange 单行变更
+// DiffChange 单行变更.
 type DiffChange struct {
 	Type       string `json:"type"` // "add", "remove", "modify"
 	LineNum    int    `json:"line_num"`
@@ -100,7 +100,7 @@ type DiffChange struct {
 	OldContent string `json:"old_content,omitempty"`
 }
 
-// VersionStats 版本统计信息
+// VersionStats 版本统计信息.
 type VersionStats struct {
 	TotalFiles    int       `json:"total_files"`
 	TotalVersions int       `json:"total_versions"`
@@ -111,7 +111,7 @@ type VersionStats struct {
 
 // ========== 核心管理器 ==========
 
-// Manager 版本控制管理器
+// Manager 版本控制管理器.
 type Manager struct {
 	config   *VersionConfig
 	logger   *zap.Logger
@@ -121,7 +121,7 @@ type Manager struct {
 	cancel   context.CancelFunc
 }
 
-// NewManager 创建版本控制管理器
+// NewManager 创建版本控制管理器.
 func NewManager(config *VersionConfig, logger *zap.Logger) *Manager {
 	if config == nil {
 		config = DefaultConfig()
@@ -138,7 +138,7 @@ func NewManager(config *VersionConfig, logger *zap.Logger) *Manager {
 	}
 }
 
-// Start 启动版本控制管理器
+// Start 启动版本控制管理器.
 func (m *Manager) Start() error {
 	m.logger.Info("启动文件版本控制管理器",
 		zap.String("storage_path", m.config.StoragePath),
@@ -162,7 +162,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止版本控制管理器
+// Stop 停止版本控制管理器.
 func (m *Manager) Stop() error {
 	m.logger.Info("停止文件版本控制管理器")
 	m.cancel()
@@ -177,7 +177,7 @@ func (m *Manager) Stop() error {
 
 // ========== 核心功能 ==========
 
-// CreateVersion 创建文件版本快照
+// CreateVersion 创建文件版本快照.
 func (m *Manager) CreateVersion(ctx context.Context, filePath string, description string) (*FileVersion, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -261,7 +261,7 @@ func (m *Manager) CreateVersion(ctx context.Context, filePath string, descriptio
 	return version, nil
 }
 
-// ListVersions 获取文件版本历史
+// ListVersions 获取文件版本历史.
 func (m *Manager) ListVersions(filePath string) ([]*FileVersion, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -277,7 +277,7 @@ func (m *Manager) ListVersions(filePath string) ([]*FileVersion, error) {
 	return result, nil
 }
 
-// GetVersion 获取指定版本信息
+// GetVersion 获取指定版本信息.
 func (m *Manager) GetVersion(versionID string) (*FileVersion, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -293,7 +293,7 @@ func (m *Manager) GetVersion(versionID string) (*FileVersion, error) {
 	return nil, fmt.Errorf("版本不存在: %s", versionID)
 }
 
-// RestoreVersion 恢复到指定版本
+// RestoreVersion 恢复到指定版本.
 func (m *Manager) RestoreVersion(ctx context.Context, versionID string) error {
 	m.mu.RLock()
 	version, err := m.GetVersion(versionID)
@@ -312,7 +312,7 @@ func (m *Manager) RestoreVersion(ctx context.Context, versionID string) error {
 	return m.copyVersionFile(version.StoragePath, version.FilePath)
 }
 
-// CompareVersions 对比两个版本的差异
+// CompareVersions 对比两个版本的差异.
 func (m *Manager) CompareVersions(versionID1, versionID2 string) (*VersionDiff, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -343,7 +343,7 @@ func (m *Manager) CompareVersions(versionID1, versionID2 string) (*VersionDiff, 
 	return m.compareContents(v1, v2, content1, content2)
 }
 
-// GetStats 获取版本统计信息
+// GetStats 获取版本统计信息.
 func (m *Manager) GetStats() *VersionStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -375,7 +375,7 @@ func (m *Manager) GetStats() *VersionStats {
 
 // ========== 内部方法 ==========
 
-// calculateChecksum 计算文件校验和
+// calculateChecksum 计算文件校验和.
 func (m *Manager) calculateChecksum(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -391,20 +391,20 @@ func (m *Manager) calculateChecksum(filePath string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// generateVersionID 生成版本ID
+// generateVersionID 生成版本ID.
 func (m *Manager) generateVersionID(filePath string, modTime time.Time) string {
 	data := fmt.Sprintf("%s:%d:%d", filePath, modTime.UnixNano(), time.Now().UnixNano())
 	hash := sha256.Sum256([]byte(data))
 	return hex.EncodeToString(hash[:16])
 }
 
-// getStoragePath 获取版本存储路径
+// getStoragePath 获取版本存储路径.
 func (m *Manager) getStoragePath(versionID string) string {
 	// 使用两级目录结构避免单目录文件过多
 	return filepath.Join(m.config.StoragePath, versionID[:2], versionID)
 }
 
-// storeVersion 存储版本文件
+// storeVersion 存储版本文件.
 func (m *Manager) storeVersion(srcPath, dstPath string, incremental bool, baseVersionID string) error {
 	// 创建目录
 	if err := os.MkdirAll(filepath.Dir(dstPath), 0755); err != nil {
@@ -420,14 +420,14 @@ func (m *Manager) storeVersion(srcPath, dstPath string, incremental bool, baseVe
 	return m.copyFile(srcPath, dstPath)
 }
 
-// storeIncremental 存储增量差异
+// storeIncremental 存储增量差异.
 func (m *Manager) storeIncremental(srcPath, dstPath, baseVersionID string) error {
 	// 简化实现：存储完整文件，但标记为增量
 	// 实际生产环境应使用rsync或二进制diff
 	return m.copyFile(srcPath, dstPath)
 }
 
-// createIncrementalVersion 创建增量版本
+// createIncrementalVersion 创建增量版本.
 func (m *Manager) createIncrementalVersion(filePath string, baseVersion *FileVersion) (bool, error) {
 	// 获取当前文件大小
 	currentInfo, err := os.Stat(filePath)
@@ -448,7 +448,7 @@ func (m *Manager) createIncrementalVersion(filePath string, baseVersion *FileVer
 	return true, nil
 }
 
-// restoreFromIncremental 从增量版本恢复
+// restoreFromIncremental 从增量版本恢复.
 func (m *Manager) restoreFromIncremental(version *FileVersion) error {
 	// 获取基准版本
 	baseVersion, err := m.getVersionByID(version.BaseVersionID)
@@ -465,12 +465,12 @@ func (m *Manager) restoreFromIncremental(version *FileVersion) error {
 	return m.copyVersionFile(version.StoragePath, version.FilePath)
 }
 
-// copyVersionFile 复制版本文件到目标路径
+// copyVersionFile 复制版本文件到目标路径.
 func (m *Manager) copyVersionFile(src, dst string) error {
 	return m.copyFile(src, dst)
 }
 
-// copyFile 复制文件
+// copyFile 复制文件.
 func (m *Manager) copyFile(src, dst string) error {
 	sourceFile, err := os.Open(src)
 	if err != nil {
@@ -493,7 +493,7 @@ func (m *Manager) copyFile(src, dst string) error {
 	return err
 }
 
-// getVersionByID 根据ID获取版本
+// getVersionByID 根据ID获取版本.
 func (m *Manager) getVersionByID(versionID string) (*FileVersion, error) {
 	for _, versions := range m.versions {
 		for _, v := range versions {
@@ -505,12 +505,12 @@ func (m *Manager) getVersionByID(versionID string) (*FileVersion, error) {
 	return nil, fmt.Errorf("版本不存在: %s", versionID)
 }
 
-// getVersionContent 获取版本内容
+// getVersionContent 获取版本内容.
 func (m *Manager) getVersionContent(version *FileVersion) ([]byte, error) {
 	return os.ReadFile(version.StoragePath)
 }
 
-// compareContents 对比两个版本内容
+// compareContents 对比两个版本内容.
 func (m *Manager) compareContents(v1, v2 *FileVersion, content1, content2 []byte) (*VersionDiff, error) {
 	diff := &VersionDiff{
 		FilePath: v1.FilePath,
@@ -565,7 +565,7 @@ func (m *Manager) compareContents(v1, v2 *FileVersion, content1, content2 []byte
 	return diff, nil
 }
 
-// splitLines 按行分割文本
+// splitLines 按行分割文本.
 func splitLines(text string) []string {
 	if text == "" {
 		return []string{}
@@ -584,7 +584,7 @@ func splitLines(text string) []string {
 	return lines
 }
 
-// cleanupOldVersions 清理旧版本
+// cleanupOldVersions 清理旧版本.
 func (m *Manager) cleanupOldVersions(filePath string) {
 	versions := m.versions[filePath]
 	if len(versions) <= m.config.MaxVersions {
@@ -610,7 +610,7 @@ func (m *Manager) cleanupOldVersions(filePath string) {
 	m.versions[filePath] = versions[len(toDelete):]
 }
 
-// autoCleanup 自动清理过期版本
+// autoCleanup 自动清理过期版本.
 func (m *Manager) autoCleanup() {
 	if m.config.AutoCleanupInterval <= 0 {
 		m.logger.Debug("自动清理间隔未设置，跳过自动清理")
@@ -630,7 +630,7 @@ func (m *Manager) autoCleanup() {
 	}
 }
 
-// cleanupExpiredVersions 清理过期版本
+// cleanupExpiredVersions 清理过期版本.
 func (m *Manager) cleanupExpiredVersions() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -658,12 +658,12 @@ func (m *Manager) cleanupExpiredVersions() {
 
 // ========== 持久化 ==========
 
-// VersionIndex 版本索引
+// VersionIndex 版本索引.
 type VersionIndex struct {
 	Versions map[string][]*FileVersion `json:"versions"`
 }
 
-// loadIndex 加载版本索引
+// loadIndex 加载版本索引.
 func (m *Manager) loadIndex() error {
 	indexPath := filepath.Join(m.config.StoragePath, "index.json")
 
@@ -684,7 +684,7 @@ func (m *Manager) loadIndex() error {
 	return nil
 }
 
-// saveIndex 保存版本索引
+// saveIndex 保存版本索引.
 func (m *Manager) saveIndex() error {
 	indexPath := filepath.Join(m.config.StoragePath, "index.json")
 
@@ -700,7 +700,7 @@ func (m *Manager) saveIndex() error {
 	return os.WriteFile(indexPath, data, 0644)
 }
 
-// ListAllVersions 列出所有文件的版本（用于API）
+// ListAllVersions 列出所有文件的版本（用于API）.
 func (m *Manager) ListAllVersions() map[string][]*FileVersion {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -714,7 +714,7 @@ func (m *Manager) ListAllVersions() map[string][]*FileVersion {
 	return result
 }
 
-// DeleteVersion 删除指定版本
+// DeleteVersion 删除指定版本.
 func (m *Manager) DeleteVersion(versionID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

@@ -8,10 +8,10 @@ import (
 func TestRegisterAndGetSession(t *testing.T) {
 	m := NewFailoverManager()
 	s := &SessionState{
-		SessionID: "s1",
-		ClientIP:  "192.168.1.100",
-		Username:  "admin",
-		Domain:    "WORKGROUP",
+		SessionID:  "s1",
+		ClientIP:   "192.168.1.100",
+		Username:   "admin",
+		Domain:     "WORKGROUP",
 		SessionKey: "key123",
 	}
 	if err := m.RegisterSession(s); err != nil {

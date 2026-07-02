@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// StorageTier 存储层级
+// StorageTier 存储层级.
 type StorageTier string
 
 const (
@@ -16,7 +16,7 @@ const (
 	TierNVMe StorageTier = "nvme" // NVMe层 - 高性能低延迟
 )
 
-// AccessPattern 访问模式类型
+// AccessPattern 访问模式类型.
 type AccessPattern string
 
 const (
@@ -26,7 +26,7 @@ const (
 	PatternArchive AccessPattern = "archive" // 归档数据 - 几乎不访问
 )
 
-// IOPattern I/O访问模式
+// IOPattern I/O访问模式.
 type IOPattern string
 
 const (
@@ -36,7 +36,7 @@ const (
 	IOPatternStreaming  IOPattern = "streaming"  // 流式访问
 )
 
-// TieringPolicy 分层策略配置
+// TieringPolicy 分层策略配置.
 type TieringPolicy struct {
 	// 权重配置
 	AccessFrequencyWeight float64 `json:"accessFrequencyWeight"` // 访问频率权重 (默认0.4)
@@ -58,7 +58,7 @@ type TieringPolicy struct {
 	LargeFileThreshold int64 `json:"largeFileThreshold"` // 大文件阈值 (bytes)
 }
 
-// DefaultTieringPolicy 返回默认分层策略
+// DefaultTieringPolicy 返回默认分层策略.
 func DefaultTieringPolicy() TieringPolicy {
 	return TieringPolicy{
 		AccessFrequencyWeight: 0.4,
@@ -75,7 +75,7 @@ func DefaultTieringPolicy() TieringPolicy {
 	}
 }
 
-// FileAccessStats 文件访问统计
+// FileAccessStats 文件访问统计.
 type FileAccessStats struct {
 	FilePath        string         `json:"filePath"`
 	FileSize        int64          `json:"fileSize"`
@@ -92,14 +92,14 @@ type FileAccessStats struct {
 	Windows         []AccessWindow `json:"-"` // 访问窗口
 }
 
-// AccessWindow 访问时间窗口
+// AccessWindow 访问时间窗口.
 type AccessWindow struct {
 	Timestamp time.Time `json:"timestamp"`
 	Count     int64     `json:"count"`
 	Bytes     int64     `json:"bytes"`
 }
 
-// OptimizationScore 优化评分
+// OptimizationScore 优化评分.
 type OptimizationScore struct {
 	FilePath             string      `json:"filePath"`
 	CurrentTier          StorageTier `json:"currentTier"`
@@ -113,7 +113,7 @@ type OptimizationScore struct {
 	Reason               string      `json:"reason"`
 }
 
-// OptimizationDecision 优化决策
+// OptimizationDecision 优化决策.
 type OptimizationDecision struct {
 	FilePath         string      `json:"filePath"`
 	Action           string      `json:"action"` // promote/demote/keep
@@ -125,7 +125,7 @@ type OptimizationDecision struct {
 	EstimatedBenefit float64     `json:"estimatedBenefit"` // 预估性能提升百分比
 }
 
-// StorageMetrics 存储层指标
+// StorageMetrics 存储层指标.
 type StorageMetrics struct {
 	Tier          StorageTier `json:"tier"`
 	TotalCapacity int64       `json:"totalCapacity"` // 总容量 bytes
@@ -135,7 +135,7 @@ type StorageMetrics struct {
 	AvgLatencyMs  float64     `json:"avgLatencyMs"`  // 平均延迟 ms
 }
 
-// OptimizationStats 优化统计
+// OptimizationStats 优化统计.
 type OptimizationStats struct {
 	TotalFiles       int64   `json:"totalFiles"`
 	TotalDecisions   int64   `json:"totalDecisions"`
@@ -149,14 +149,14 @@ type OptimizationStats struct {
 	HDDUsage         float64 `json:"hddUsage"`
 }
 
-// AnalysisRequest 分析请求
+// AnalysisRequest 分析请求.
 type AnalysisRequest struct {
 	Path   string `json:"path"`   // 分析路径
 	Force  bool   `json:"force"`  // 强制重新分析
 	DryRun bool   `json:"dryRun"` // 只分析不执行
 }
 
-// OptimizationResponse 优化响应
+// OptimizationResponse 优化响应.
 type OptimizationResponse struct {
 	Status    string                 `json:"status"`
 	Decisions []OptimizationDecision `json:"decisions,omitempty"`
@@ -165,7 +165,7 @@ type OptimizationResponse struct {
 	Timestamp string                 `json:"timestamp"`
 }
 
-// TierConfig 存储层配置
+// TierConfig 存储层配置.
 type TierConfig struct {
 	Tier     StorageTier `json:"tier"`
 	Path     string      `json:"path"`     // 挂载路径
@@ -173,7 +173,7 @@ type TierConfig struct {
 	Type     string      `json:"type"`     // 设备类型
 }
 
-// MigrationRecord 迁移记录
+// MigrationRecord 迁移记录.
 type MigrationRecord struct {
 	ID        string      `json:"id"`
 	FilePath  string      `json:"filePath"`

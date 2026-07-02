@@ -21,31 +21,31 @@ import (
 // ========== RDMA Initiator 常量定义 ==========
 
 const (
-	// RDMAInitiatorDefaultPort RDMA Initiator 默认端口
+	// RDMAInitiatorDefaultPort RDMA Initiator 默认端口.
 	RDMAInitiatorDefaultPort = 4420
 
-	// RDMAInitiatorDefaultQueueDepth RDMA Initiator 默认队列深度
+	// RDMAInitiatorDefaultQueueDepth RDMA Initiator 默认队列深度.
 	RDMAInitiatorDefaultQueueDepth = 128
 
-	// RDMAInitiatorDefaultIOQueues RDMA Initiator 默认 IO 队列数
+	// RDMAInitiatorDefaultIOQueues RDMA Initiator 默认 IO 队列数.
 	RDMAInitiatorDefaultIOQueues = 8
 
-	// RDMAInitiatorDefaultKeepAlive RDMA Initiator 默认 Keep-alive 超时 (秒)
+	// RDMAInitiatorDefaultKeepAlive RDMA Initiator 默认 Keep-alive 超时 (秒).
 	RDMAInitiatorDefaultKeepAlive = 30
 
-	// RDMAInitiatorDefaultReconnectDelay RDMA Initiator 默认重连延迟 (秒)
+	// RDMAInitiatorDefaultReconnectDelay RDMA Initiator 默认重连延迟 (秒).
 	RDMAInitiatorDefaultReconnectDelay = 10
 
-	// RDMAInitiatorTimeout 命令超时时间 (秒)
+	// RDMAInitiatorTimeout 命令超时时间 (秒).
 	RDMAInitiatorTimeout = 60
 
-	// NVMeClassPath NVMe 设备类路径
+	// NVMeClassPath NVMe 设备类路径.
 	NVMeClassPath = "/sys/class/nvme"
 )
 
 // ========== RDMA Initiator 系统管理器 ==========
 
-// RDMAInitiatorSysManager RDMA Initiator 系统管理器
+// RDMAInitiatorSysManager RDMA Initiator 系统管理器.
 type RDMAInitiatorSysManager struct {
 	mu sync.RWMutex
 
@@ -65,7 +65,7 @@ type RDMAInitiatorSysManager struct {
 	running bool
 }
 
-// NewRDMAInitiatorSysManager 创建 RDMA Initiator 系统管理器
+// NewRDMAInitiatorSysManager 创建 RDMA Initiator 系统管理器.
 func NewRDMAInitiatorSysManager(rdmaConfig *pkgnvmeof.RDMAConfig, initiatorManager *pkgnvmeof.InitiatorManager) (*RDMAInitiatorSysManager, error) {
 	if rdmaConfig == nil {
 		rdmaConfig = pkgnvmeof.DefaultRDMAConfig()
@@ -94,7 +94,7 @@ func NewRDMAInitiatorSysManager(rdmaConfig *pkgnvmeof.RDMAConfig, initiatorManag
 	return m, nil
 }
 
-// checkRDMAAvailable 检查 RDMA Initiator 模块是否可用
+// checkRDMAAvailable 检查 RDMA Initiator 模块是否可用.
 func (m *RDMAInitiatorSysManager) checkRDMAAvailable() error {
 	// 检查 nvme 类目录是否存在
 	if _, err := os.Stat(NVMeClassPath); err != nil {
@@ -112,7 +112,7 @@ func (m *RDMAInitiatorSysManager) checkRDMAAvailable() error {
 	return nil
 }
 
-// loadModule 加载内核模块
+// loadModule 加载内核模块.
 func (m *RDMAInitiatorSysManager) loadModule(module string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -125,7 +125,7 @@ func (m *RDMAInitiatorSysManager) loadModule(module string) error {
 	return nil
 }
 
-// loadExistingConnections 加载现有连接
+// loadExistingConnections 加载现有连接.
 func (m *RDMAInitiatorSysManager) loadExistingConnections() {
 	// 遍历 /sys/class/nvme 目录
 	entries, err := os.ReadDir(NVMeClassPath)
@@ -198,7 +198,7 @@ func (m *RDMAInitiatorSysManager) loadExistingConnections() {
 
 // ========== RDMA Initiator 连接管理 ==========
 
-// ConnectRDMATarget 连接到 RDMA Target
+// ConnectRDMATarget 连接到 RDMA Target.
 func (m *RDMAInitiatorSysManager) ConnectRDMATarget(ctx context.Context, req *ConnectRDMATargetRequest) (*RDMAController, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -358,7 +358,7 @@ func (m *RDMAInitiatorSysManager) ConnectRDMATarget(ctx context.Context, req *Co
 	return ctrl, nil
 }
 
-// DisconnectRDMATarget 断开 RDMA Target 连接
+// DisconnectRDMATarget 断开 RDMA Target 连接.
 func (m *RDMAInitiatorSysManager) DisconnectRDMATarget(ctx context.Context, ctrlName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -387,7 +387,7 @@ func (m *RDMAInitiatorSysManager) DisconnectRDMATarget(ctx context.Context, ctrl
 	return nil
 }
 
-// DisconnectAllRDMATargets 断开所有 RDMA Target 连接
+// DisconnectAllRDMATargets 断开所有 RDMA Target 连接.
 func (m *RDMAInitiatorSysManager) DisconnectAllRDMATargets(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -413,7 +413,7 @@ func (m *RDMAInitiatorSysManager) DisconnectAllRDMATargets(ctx context.Context) 
 	return nil
 }
 
-// disconnectSingleController 断开单个控制器
+// disconnectSingleController 断开单个控制器.
 func (m *RDMAInitiatorSysManager) disconnectSingleController(ctx context.Context, ctrl *RDMAController) error {
 	cmd := exec.CommandContext(ctx, "nvme", "disconnect", "-n", ctrl.TargetNQN)
 	output, err := cmd.CombinedOutput()
@@ -423,7 +423,7 @@ func (m *RDMAInitiatorSysManager) disconnectSingleController(ctx context.Context
 	return nil
 }
 
-// scanNamespaces 扫描控制器命名空间
+// scanNamespaces 扫描控制器命名空间.
 func (m *RDMAInitiatorSysManager) scanNamespaces(ctrl *RDMAController) {
 	// 遍历控制器下的命名空间
 	// /sys/class/nvme/<ctrl>/device/nvme*
@@ -480,7 +480,7 @@ func (m *RDMAInitiatorSysManager) scanNamespaces(ctrl *RDMAController) {
 	}
 }
 
-// ListRDMAControllers 列出 RDMA 控制器
+// ListRDMAControllers 列出 RDMA 控制器.
 func (m *RDMAInitiatorSysManager) ListRDMAControllers() []*RDMAController {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -492,7 +492,7 @@ func (m *RDMAInitiatorSysManager) ListRDMAControllers() []*RDMAController {
 	return result
 }
 
-// GetRDMAController 获取 RDMA 控制器
+// GetRDMAController 获取 RDMA 控制器.
 func (m *RDMAInitiatorSysManager) GetRDMAController(name string) (*RDMAController, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -506,7 +506,7 @@ func (m *RDMAInitiatorSysManager) GetRDMAController(name string) (*RDMAControlle
 
 // ========== RDMA Initiator 发现 ==========
 
-// DiscoverRDMATargets 发现 RDMA Target
+// DiscoverRDMATargets 发现 RDMA Target.
 func (m *RDMAInitiatorSysManager) DiscoverRDMATargets(ctx context.Context, req *DiscoverRDMATargetsRequest) ([]*pkgnvmeof.DiscoveryLogEntry, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -548,7 +548,7 @@ func (m *RDMAInitiatorSysManager) DiscoverRDMATargets(ctx context.Context, req *
 	return m.parseDiscoveryLog(string(output)), nil
 }
 
-// parseDiscoveryLog 解析发现日志
+// parseDiscoveryLog 解析发现日志.
 func (m *RDMAInitiatorSysManager) parseDiscoveryLog(output string) []*pkgnvmeof.DiscoveryLogEntry {
 	entries := make([]*pkgnvmeof.DiscoveryLogEntry, 0)
 
@@ -601,7 +601,7 @@ func (m *RDMAInitiatorSysManager) parseDiscoveryLog(output string) []*pkgnvmeof.
 
 // ========== RDMA Initiator 服务管理 ==========
 
-// Start 启动 RDMA Initiator 服务
+// Start 启动 RDMA Initiator 服务.
 func (m *RDMAInitiatorSysManager) Start(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -638,7 +638,7 @@ func (m *RDMAInitiatorSysManager) Start(ctx context.Context) error {
 	return m.pkgRdmaManager.Start(ctx)
 }
 
-// Stop 停止 RDMA Initiator 服务
+// Stop 停止 RDMA Initiator 服务.
 func (m *RDMAInitiatorSysManager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -656,7 +656,7 @@ func (m *RDMAInitiatorSysManager) Stop() error {
 	return m.pkgRdmaManager.Stop()
 }
 
-// IsRunning 检查是否运行中
+// IsRunning 检查是否运行中.
 func (m *RDMAInitiatorSysManager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -665,7 +665,7 @@ func (m *RDMAInitiatorSysManager) IsRunning() bool {
 
 // ========== RDMA Initiator 统计 ==========
 
-// GetRDMAInitiatorStats 获取 RDMA Initiator 统计信息
+// GetRDMAInitiatorStats 获取 RDMA Initiator 统计信息.
 func (m *RDMAInitiatorSysManager) GetRDMAInitiatorStats() *RDMAInitiatorStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -689,7 +689,7 @@ func (m *RDMAInitiatorSysManager) GetRDMAInitiatorStats() *RDMAInitiatorStats {
 
 // ========== RDMA 控制器对象 ==========
 
-// RDMAController RDMA 控制器
+// RDMAController RDMA 控制器.
 type RDMAController struct {
 	// 控制器名称
 	Name string `json:"name"`
@@ -728,7 +728,7 @@ type RDMAController struct {
 	Stats pkgnvmeof.ControllerStats `json:"stats"`
 }
 
-// RDMANamespace RDMA 命名空间
+// RDMANamespace RDMA 命名空间.
 type RDMANamespace struct {
 	// 命名空间 ID
 	NSID uint32 `json:"nsid"`
@@ -755,7 +755,7 @@ type RDMANamespace struct {
 	ReadOnly bool `json:"readOnly"`
 }
 
-// RDMAInitiatorStats RDMA Initiator 统计
+// RDMAInitiatorStats RDMA Initiator 统计.
 type RDMAInitiatorStats struct {
 	// 可用性
 	Available bool `json:"available"`
@@ -793,7 +793,7 @@ type RDMAInitiatorStats struct {
 
 // ========== RDMA Initiator 请求 ==========
 
-// ConnectRDMATargetRequest 连接 RDMA Target 请求
+// ConnectRDMATargetRequest 连接 RDMA Target 请求.
 type ConnectRDMATargetRequest struct {
 	// 目标子系统 NQN
 	TargetNQN string `json:"targetNqn"`
@@ -832,7 +832,7 @@ type ConnectRDMATargetRequest struct {
 	DHCHAPKey string `json:"dhchapKey"`
 }
 
-// Validate 验证请求
+// Validate 验证请求.
 func (r *ConnectRDMATargetRequest) Validate() error {
 	if r.TargetNQN == "" {
 		return fmt.Errorf("target_nqn is required")
@@ -865,7 +865,7 @@ func (r *ConnectRDMATargetRequest) Validate() error {
 	return nil
 }
 
-// DiscoverRDMATargetsRequest 发现 RDMA Target 请求
+// DiscoverRDMATargetsRequest 发现 RDMA Target 请求.
 type DiscoverRDMATargetsRequest struct {
 	// 发现服务地址
 	Address string `json:"address"`
@@ -880,7 +880,7 @@ type DiscoverRDMATargetsRequest struct {
 	HostID string `json:"hostId"`
 }
 
-// Validate 验证请求
+// Validate 验证请求.
 func (r *DiscoverRDMATargetsRequest) Validate() error {
 	if r.Address == "" {
 		return fmt.Errorf("address is required")

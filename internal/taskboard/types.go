@@ -3,7 +3,7 @@ package taskboard
 
 import "time"
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -12,7 +12,7 @@ const (
 	StatusDone       TaskStatus = "done"        // 已完成
 )
 
-// TaskPriority 任务优先级
+// TaskPriority 任务优先级.
 type TaskPriority string
 
 const (
@@ -22,7 +22,7 @@ const (
 	PriorityLow    TaskPriority = "low"    // 低
 )
 
-// Board 看板
+// Board 看板.
 type Board struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -34,7 +34,7 @@ type Board struct {
 	CreatedBy   string    `json:"created_by"`
 }
 
-// TaskCard 任务卡片
+// TaskCard 任务卡片.
 type TaskCard struct {
 	ID          string       `json:"id"`
 	BoardID     string       `json:"board_id"`
@@ -51,7 +51,7 @@ type TaskCard struct {
 	CreatedBy   string       `json:"created_by"`
 }
 
-// Label 标签
+// Label 标签.
 type Label struct {
 	ID        string    `json:"id"`
 	BoardID   string    `json:"board_id"`
@@ -60,7 +60,7 @@ type Label struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// TaskFilter 任务过滤条件
+// TaskFilter 任务过滤条件.
 type TaskFilter struct {
 	Status     []TaskStatus   `form:"status"`
 	Priority   []TaskPriority `form:"priority"`
@@ -73,7 +73,7 @@ type TaskFilter struct {
 	Offset     int            `form:"offset"`
 }
 
-// BoardStats 看板统计
+// BoardStats 看板统计.
 type BoardStats struct {
 	TotalTasks   int            `json:"total_tasks"`
 	AvgProgress  float64        `json:"avg_progress"`
@@ -82,14 +82,14 @@ type BoardStats struct {
 	ByPriority   map[string]int `json:"by_priority"`
 }
 
-// CreateBoardRequest 创建看板请求
+// CreateBoardRequest 创建看板请求.
 type CreateBoardRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description"`
 	OwnerID     string `json:"owner_id"`
 }
 
-// CreateTaskRequest 创建任务请求
+// CreateTaskRequest 创建任务请求.
 type CreateTaskRequest struct {
 	Title       string       `json:"title" binding:"required"`
 	Description string       `json:"description"`
@@ -99,7 +99,7 @@ type CreateTaskRequest struct {
 	Labels      []string     `json:"labels"`
 }
 
-// UpdateTaskRequest 更新任务请求
+// UpdateTaskRequest 更新任务请求.
 type UpdateTaskRequest struct {
 	Title       *string       `json:"title,omitempty"`
 	Description *string       `json:"description,omitempty"`
@@ -109,18 +109,18 @@ type UpdateTaskRequest struct {
 	Labels      []string      `json:"labels,omitempty"`
 }
 
-// MoveTaskRequest 移动任务请求
+// MoveTaskRequest 移动任务请求.
 type MoveTaskRequest struct {
 	Status TaskStatus `json:"status" binding:"required"`
 }
 
-// CreateLabelRequest 创建标签请求
+// CreateLabelRequest 创建标签请求.
 type CreateLabelRequest struct {
 	Name  string `json:"name" binding:"required"`
 	Color string `json:"color" binding:"required"`
 }
 
-// UpdateProgressRequest 更新进度请求
+// UpdateProgressRequest 更新进度请求.
 type UpdateProgressRequest struct {
 	Progress int `json:"progress" binding:"required,min=0,max=100"`
 }

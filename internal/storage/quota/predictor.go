@@ -11,13 +11,13 @@ import (
 // ========== 预测器错误 ==========
 
 var (
-	// ErrInsufficientData 数据不足
+	// ErrInsufficientData 数据不足.
 	ErrInsufficientData = errors.New("历史数据不足以进行预测")
-	// ErrInvalidConfig 无效配置
+	// ErrInvalidConfig 无效配置.
 	ErrInvalidConfig = errors.New("无效的预测配置")
 )
 
-// Predictor 容量预测器
+// Predictor 容量预测器.
 type Predictor struct {
 	mu       sync.RWMutex
 	config   ForecastConfig
@@ -25,7 +25,7 @@ type Predictor struct {
 	maxItems int                       // 每个目标最大历史记录数
 }
 
-// NewPredictor 创建预测器
+// NewPredictor 创建预测器.
 func NewPredictor(config ForecastConfig) *Predictor {
 	if config.HistoryDays <= 0 {
 		config.HistoryDays = 30
@@ -41,7 +41,7 @@ func NewPredictor(config ForecastConfig) *Predictor {
 	}
 }
 
-// RecordUsage 记录使用量
+// RecordUsage 记录使用量.
 func (p *Predictor) RecordUsage(targetID string, usedBytes int64) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -62,7 +62,7 @@ func (p *Predictor) RecordUsage(targetID string, usedBytes int64) {
 	p.history[targetID] = records
 }
 
-// Predict 预测容量使用趋势
+// Predict 预测容量使用趋势.
 func (p *Predictor) Predict(ruleID, targetID string, maxBytes int64) (*PredictionResult, error) {
 	p.mu.RLock()
 	records := p.history[targetID]
@@ -120,7 +120,7 @@ func (p *Predictor) Predict(ruleID, targetID string, maxBytes int64) (*Predictio
 	}, nil
 }
 
-// calculateGrowthRate 计算增长率
+// calculateGrowthRate 计算增长率.
 func (p *Predictor) calculateGrowthRate(records []UsageHistory) (dailyGrowth float64, trend string, confidence float64) {
 	if len(records) < 2 {
 		return 0, TrendStable, 0
@@ -177,7 +177,7 @@ func (p *Predictor) calculateGrowthRate(records []UsageHistory) (dailyGrowth flo
 	return dailyGrowth, trend, confidence
 }
 
-// GetHistory 获取历史数据
+// GetHistory 获取历史数据.
 func (p *Predictor) GetHistory(targetID string) []UsageHistory {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -193,7 +193,7 @@ func (p *Predictor) GetHistory(targetID string) []UsageHistory {
 	return result
 }
 
-// GetHistoryStats 获取历史统计
+// GetHistoryStats 获取历史统计.
 func (p *Predictor) GetHistoryStats(targetID string) map[string]interface{} {
 	p.mu.RLock()
 	records := p.history[targetID]
@@ -231,7 +231,7 @@ func (p *Predictor) GetHistoryStats(targetID string) map[string]interface{} {
 	}
 }
 
-// ClearHistory 清除历史数据
+// ClearHistory 清除历史数据.
 func (p *Predictor) ClearHistory(targetID string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -239,7 +239,7 @@ func (p *Predictor) ClearHistory(targetID string) {
 	delete(p.history, targetID)
 }
 
-// ClearAllHistory 清除所有历史数据
+// ClearAllHistory 清除所有历史数据.
 func (p *Predictor) ClearAllHistory() {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -247,7 +247,7 @@ func (p *Predictor) ClearAllHistory() {
 	p.history = make(map[string][]UsageHistory)
 }
 
-// PredictAll 预测所有规则
+// PredictAll 预测所有规则.
 func (p *Predictor) PredictAll(rules []*QuotaRule, getUsageFunc func(targetType, targetID string) (int64, error)) []*PredictionResult {
 	results := make([]*PredictionResult, 0)
 
@@ -277,7 +277,7 @@ func (p *Predictor) PredictAll(rules []*QuotaRule, getUsageFunc func(targetType,
 	return results
 }
 
-// SetConfig 设置预测配置
+// SetConfig 设置预测配置.
 func (p *Predictor) SetConfig(config ForecastConfig) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -293,7 +293,7 @@ func (p *Predictor) SetConfig(config ForecastConfig) {
 	p.maxItems = config.HistoryDays * 24
 }
 
-// GetConfig 获取预测配置
+// GetConfig 获取预测配置.
 func (p *Predictor) GetConfig() ForecastConfig {
 	p.mu.RLock()
 	defer p.mu.RUnlock()

@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// CleanTask 清理任务（manager内部使用，与types.go的CleanupTask区分）
+// CleanTask 清理任务（manager内部使用，与types.go的CleanupTask区分）.
 type CleanTask struct {
 	ID          string     `json:"id"`
 	Status      TaskStatus `json:"status"`
@@ -28,7 +28,7 @@ type CleanTask struct {
 	Progress    float64    `json:"progress"`
 }
 
-// Manager AI文件清理管理器
+// Manager AI文件清理管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	config     *ScanConfig
@@ -37,7 +37,7 @@ type Manager struct {
 	duplicates map[string][]*DuplicateGroup
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(config *ScanConfig) *Manager {
 	if config == nil {
 		config = &ScanConfig{
@@ -54,7 +54,7 @@ func NewManager(config *ScanConfig) *Manager {
 	}
 }
 
-// Scan 扫描文件系统
+// Scan 扫描文件系统.
 func (m *Manager) Scan() (*ScanResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -114,7 +114,7 @@ func (m *Manager) Scan() (*ScanResult, error) {
 	return result, err
 }
 
-// FindDuplicates 查找重复文件
+// FindDuplicates 查找重复文件.
 func (m *Manager) FindDuplicates(paths []string) (map[string][]*DuplicateGroup, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -173,7 +173,7 @@ func (m *Manager) FindDuplicates(paths []string) (map[string][]*DuplicateGroup, 
 	return duplicates, nil
 }
 
-// CreateCleanTask 创建清理任务
+// CreateCleanTask 创建清理任务.
 func (m *Manager) CreateCleanTask(files []string, mode DeleteMode) (*CleanTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -205,7 +205,7 @@ func (m *Manager) CreateCleanTask(files []string, mode DeleteMode) (*CleanTask, 
 	return task, nil
 }
 
-// RunCleanTask 执行清理任务
+// RunCleanTask 执行清理任务.
 func (m *Manager) RunCleanTask(taskID string) error {
 	m.mu.Lock()
 	task, exists := m.tasks[taskID]
@@ -224,7 +224,7 @@ func (m *Manager) RunCleanTask(taskID string) error {
 	return nil
 }
 
-// executeCleanTask 执行清理任务
+// executeCleanTask 执行清理任务.
 func (m *Manager) executeCleanTask(task *CleanTask) {
 	for i, filePath := range task.Files {
 		m.mu.Lock()
@@ -269,7 +269,7 @@ func (m *Manager) executeCleanTask(task *CleanTask) {
 	m.mu.Unlock()
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (m *Manager) GetTask(taskID string) (*CleanTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -281,7 +281,7 @@ func (m *Manager) GetTask(taskID string) (*CleanTask, error) {
 	return task, nil
 }
 
-// ListTasks 列出所有任务
+// ListTasks 列出所有任务.
 func (m *Manager) ListTasks() []*CleanTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -293,7 +293,7 @@ func (m *Manager) ListTasks() []*CleanTask {
 	return tasks
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (m *Manager) CancelTask(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -310,7 +310,7 @@ func (m *Manager) CancelTask(taskID string) error {
 	return nil
 }
 
-// GetScanResult 获取扫描结果
+// GetScanResult 获取扫描结果.
 func (m *Manager) GetScanResult() (*ScanResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -321,7 +321,7 @@ func (m *Manager) GetScanResult() (*ScanResult, error) {
 	return m.results, nil
 }
 
-// fileHash 计算文件哈希
+// fileHash 计算文件哈希.
 func (m *Manager) fileHash(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -337,7 +337,7 @@ func (m *Manager) fileHash(path string) (string, error) {
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
-// moveToRecycle 移动到回收站
+// moveToRecycle 移动到回收站.
 func (m *Manager) moveToRecycle(path string) error {
 	recycleDir := filepath.Join(filepath.Dir(path), ".recycle")
 	if err := os.MkdirAll(recycleDir, 0755); err != nil {

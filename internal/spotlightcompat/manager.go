@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// Manager Spotlight 服务管理器
+// Manager Spotlight 服务管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	config     SpotlightConfig
@@ -24,7 +24,7 @@ type Manager struct {
 	sharePaths []string
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(cfg SpotlightConfig) *Manager {
 	return &Manager{
 		config:     cfg,
@@ -34,7 +34,7 @@ func NewManager(cfg SpotlightConfig) *Manager {
 	}
 }
 
-// Start 启动 Spotlight 服务
+// Start 启动 Spotlight 服务.
 func (m *Manager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -47,7 +47,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止服务
+// Stop 停止服务.
 func (m *Manager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -56,7 +56,7 @@ func (m *Manager) Stop() error {
 	return nil
 }
 
-// GetStatus 获取服务状态
+// GetStatus 获取服务状态.
 func (m *Manager) GetStatus() SpotlightStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -87,7 +87,7 @@ func (m *Manager) GetStatus() SpotlightStatus {
 	}
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *Manager) GetStats() SpotlightStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -104,7 +104,7 @@ func (m *Manager) GetStats() SpotlightStats {
 	return stats
 }
 
-// Search 执行搜索
+// Search 执行搜索.
 func (m *Manager) Search(req SpotlightSearchRequest) SpotlightSearchResponse {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -274,7 +274,7 @@ func (m *Manager) getFacets(results []SpotlightResult) map[string]int {
 	return facets
 }
 
-// IndexDirectory 索引目录
+// IndexDirectory 索引目录.
 func (m *Manager) IndexDirectory(sharePath string) (*IndexTask, error) {
 	m.mu.Lock()
 	task := &IndexTask{
@@ -327,7 +327,7 @@ func (m *Manager) doIndex(task *IndexTask, sharePath string) {
 	m.mu.Unlock()
 }
 
-// GetIndexTask 获取索引任务状态
+// GetIndexTask 获取索引任务状态.
 func (m *Manager) GetIndexTask(taskID string) (*IndexTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -338,7 +338,7 @@ func (m *Manager) GetIndexTask(taskID string) (*IndexTask, error) {
 	return task, nil
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(cfg SpotlightConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -347,14 +347,14 @@ func (m *Manager) UpdateConfig(cfg SpotlightConfig) error {
 	return nil
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() SpotlightConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (m *Manager) RebuildIndex() error {
 	m.mu.Lock()
 	m.index = make(map[string]*SpotlightIndex)
@@ -366,7 +366,7 @@ func (m *Manager) RebuildIndex() error {
 	return nil
 }
 
-// GetIndexEntries 获取索引条目列表
+// GetIndexEntries 获取索引条目列表.
 func (m *Manager) GetIndexEntries(page, pageSize int) ([]SpotlightIndex, int) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -391,7 +391,7 @@ func (m *Manager) GetIndexEntries(page, pageSize int) ([]SpotlightIndex, int) {
 	return entries[start:end], total
 }
 
-// RemoveFromIndex 从索引中移除
+// RemoveFromIndex 从索引中移除.
 func (m *Manager) RemoveFromIndex(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

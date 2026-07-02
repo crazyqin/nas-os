@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// MockVectorEncoder 模拟向量编码器
+// MockVectorEncoder 模拟向量编码器.
 type MockVectorEncoder struct {
 	dimension int
 }
@@ -36,7 +36,7 @@ func (m *MockVectorEncoder) Dimension() int {
 	return m.dimension
 }
 
-// MockContentExtractor 模拟内容提取器
+// MockContentExtractor 模拟内容提取器.
 type MockContentExtractor struct {
 }
 

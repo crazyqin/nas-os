@@ -8,17 +8,17 @@ import (
 	"time"
 )
 
-// Handler handles HTTP requests for photo enhancement
+// Handler handles HTTP requests for photo enhancement.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler creates a new photo enhancement handler
+// NewHandler creates a new photo enhancement handler.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes registers the HTTP routes
+// RegisterRoutes registers the HTTP routes.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/photo-enhance/enhance", h.handleEnhance)
 	mux.HandleFunc("/api/v1/photo-enhance/batch", h.handleBatch)
@@ -28,7 +28,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/photo-enhance/presets", h.handlePresets)
 }
 
-// handleEnhance handles single photo enhancement
+// handleEnhance handles single photo enhancement.
 func (h *Handler) handleEnhance(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -68,7 +68,7 @@ func (h *Handler) handleEnhance(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-// handleBatch handles batch enhancement requests
+// handleBatch handles batch enhancement requests.
 func (h *Handler) handleBatch(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -103,7 +103,7 @@ func (h *Handler) handleBatch(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(job)
 }
 
-// handleJob handles job status requests
+// handleJob handles job status requests.
 func (h *Handler) handleJob(w http.ResponseWriter, r *http.Request) {
 	jobID := r.URL.Query().Get("id")
 	if jobID == "" {
@@ -121,7 +121,7 @@ func (h *Handler) handleJob(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(job)
 }
 
-// handleJobs handles jobs listing requests
+// handleJobs handles jobs listing requests.
 func (h *Handler) handleJobs(w http.ResponseWriter, r *http.Request) {
 	jobs := h.manager.ListJobs()
 
@@ -132,7 +132,7 @@ func (h *Handler) handleJobs(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleStats handles statistics requests
+// handleStats handles statistics requests.
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	stats := h.manager.GetStats()
 
@@ -140,7 +140,7 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(stats)
 }
 
-// handlePresets returns available enhancement presets
+// handlePresets returns available enhancement presets.
 func (h *Handler) handlePresets(w http.ResponseWriter, r *http.Request) {
 	presets := []map[string]interface{}{
 		{

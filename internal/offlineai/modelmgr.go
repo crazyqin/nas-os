@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// ModelManager 模型管理器
+// ModelManager 模型管理器.
 type ModelManager struct {
 	mu     sync.RWMutex
 	logger *zap.Logger
@@ -17,7 +17,7 @@ type ModelManager struct {
 	models map[string]*ModelRegistry
 }
 
-// ModelRegistry 模型注册信息
+// ModelRegistry 模型注册信息.
 type ModelRegistry struct {
 	Model      *Model  `json:"model"`
 	LoadCount  int     `json:"load_count"` // 加载次数
@@ -25,7 +25,7 @@ type ModelRegistry struct {
 	Popularity float64 `json:"popularity"` // 热度评分
 }
 
-// NewModelManager 创建模型管理器
+// NewModelManager 创建模型管理器.
 func NewModelManager(logger *zap.Logger, engine *Engine) *ModelManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -37,7 +37,7 @@ func NewModelManager(logger *zap.Logger, engine *Engine) *ModelManager {
 	}
 }
 
-// Register 注册模型
+// Register 注册模型.
 func (mm *ModelManager) Register(model *Model) error {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()
@@ -60,7 +60,7 @@ func (mm *ModelManager) Register(model *Model) error {
 	return nil
 }
 
-// Unregister 注销模型
+// Unregister 注销模型.
 func (mm *ModelManager) Unregister(name string) error {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()
@@ -77,7 +77,7 @@ func (mm *ModelManager) Unregister(name string) error {
 	return nil
 }
 
-// Load 加载模型到内存
+// Load 加载模型到内存.
 func (mm *ModelManager) Load(name string) error {
 	mm.mu.RLock()
 	reg, exists := mm.models[name]
@@ -109,7 +109,7 @@ func (mm *ModelManager) Load(name string) error {
 	return nil
 }
 
-// Unload 从内存卸载模型
+// Unload 从内存卸载模型.
 func (mm *ModelManager) Unload(name string) error {
 	mm.mu.RLock()
 	_, exists := mm.models[name]
@@ -122,7 +122,7 @@ func (mm *ModelManager) Unload(name string) error {
 	return mm.engine.UnloadModel(name)
 }
 
-// SwitchTo 切换到指定模型
+// SwitchTo 切换到指定模型.
 func (mm *ModelManager) SwitchTo(name string) error {
 	mm.mu.RLock()
 	_, exists := mm.models[name]
@@ -140,7 +140,7 @@ func (mm *ModelManager) SwitchTo(name string) error {
 	return mm.engine.SwitchModel(name)
 }
 
-// GetModelInfo 获取模型信息
+// GetModelInfo 获取模型信息.
 func (mm *ModelManager) GetModelInfo(name string) (*ModelRegistry, error) {
 	mm.mu.RLock()
 	defer mm.mu.RUnlock()
@@ -152,7 +152,7 @@ func (mm *ModelManager) GetModelInfo(name string) (*ModelRegistry, error) {
 	return reg, nil
 }
 
-// ListModels 列出所有注册模型
+// ListModels 列出所有注册模型.
 func (mm *ModelManager) ListModels() []*ModelRegistry {
 	mm.mu.RLock()
 	defer mm.mu.RUnlock()
@@ -164,12 +164,12 @@ func (mm *ModelManager) ListModels() []*ModelRegistry {
 	return result
 }
 
-// ListLoadedModels 列出已加载模型
+// ListLoadedModels 列出已加载模型.
 func (mm *ModelManager) ListLoadedModels() []*Model {
 	return mm.engine.ListModels()
 }
 
-// GetModelsByFormat 按格式筛选模型
+// GetModelsByFormat 按格式筛选模型.
 func (mm *ModelManager) GetModelsByFormat(format ModelFormat) []*ModelRegistry {
 	mm.mu.RLock()
 	defer mm.mu.RUnlock()
@@ -183,7 +183,7 @@ func (mm *ModelManager) GetModelsByFormat(format ModelFormat) []*ModelRegistry {
 	return result
 }
 
-// GetModelsByQuant 按量化类型筛选模型
+// GetModelsByQuant 按量化类型筛选模型.
 func (mm *ModelManager) GetModelsByQuant(quant QuantType) []*ModelRegistry {
 	mm.mu.RLock()
 	defer mm.mu.RUnlock()
@@ -197,7 +197,7 @@ func (mm *ModelManager) GetModelsByQuant(quant QuantType) []*ModelRegistry {
 	return result
 }
 
-// GetPopularModels 获取热门模型（按加载次数排序）
+// GetPopularModels 获取热门模型（按加载次数排序）.
 func (mm *ModelManager) GetPopularModels(limit int) []*ModelRegistry {
 	mm.mu.RLock()
 	defer mm.mu.RUnlock()
@@ -217,7 +217,7 @@ func (mm *ModelManager) GetPopularModels(limit int) []*ModelRegistry {
 	return result
 }
 
-// GetSupportedQuantTypes 获取支持的量化类型
+// GetSupportedQuantTypes 获取支持的量化类型.
 func GetSupportedQuantTypes() []QuantType {
 	return []QuantType{
 		QuantNone,
@@ -231,7 +231,7 @@ func GetSupportedQuantTypes() []QuantType {
 	}
 }
 
-// EstimateVRAMEstimate 估算模型显存需求
+// EstimateVRAMEstimate 估算模型显存需求.
 func EstimateVRAMEstimate(params int64, quant QuantType) int64 {
 	// 每参数字节数
 	var bytesPerParam float64

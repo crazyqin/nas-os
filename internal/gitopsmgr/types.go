@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// SyncState represents the synchronization state
+// SyncState represents the synchronization state.
 type SyncState string
 
 const (
@@ -17,7 +17,7 @@ const (
 	SyncStateUnknown   SyncState = "unknown"
 )
 
-// DriftSeverity represents the severity of configuration drift
+// DriftSeverity represents the severity of configuration drift.
 type DriftSeverity string
 
 const (
@@ -28,7 +28,7 @@ const (
 	DriftSeverityCritical DriftSeverity = "critical"
 )
 
-// DeploymentStatus represents the state of a deployment
+// DeploymentStatus represents the state of a deployment.
 type DeploymentStatus string
 
 const (
@@ -39,7 +39,7 @@ const (
 	DeploymentStatusRolledBack DeploymentStatus = "rolled_back"
 )
 
-// GitRepo represents a connected Git repository
+// GitRepo represents a connected Git repository.
 type GitRepo struct {
 	ID         string     `json:"id"`
 	Name       string     `json:"name"`
@@ -55,7 +55,7 @@ type GitRepo struct {
 	UpdatedAt  time.Time  `json:"updated_at"`
 }
 
-// SyncPolicy defines synchronization behavior
+// SyncPolicy defines synchronization behavior.
 type SyncPolicy struct {
 	AutoSync    bool          `json:"auto_sync"`
 	Interval    time.Duration `json:"interval"`
@@ -66,7 +66,7 @@ type SyncPolicy struct {
 	IgnoreDiffs []string      `json:"ignore_diffs,omitempty"`
 }
 
-// DriftDetection represents a detected configuration drift
+// DriftDetection represents a detected configuration drift.
 type DriftDetection struct {
 	ID           string        `json:"id"`
 	RepoID       string        `json:"repo_id"`
@@ -80,7 +80,7 @@ type DriftDetection struct {
 	ResolvedAt   *time.Time    `json:"resolved_at,omitempty"`
 }
 
-// DeploymentState represents a deployment record
+// DeploymentState represents a deployment record.
 type DeploymentState struct {
 	ID           string           `json:"id"`
 	RepoID       string           `json:"repo_id"`
@@ -94,27 +94,27 @@ type DeploymentState struct {
 	Message      string           `json:"message,omitempty"`
 }
 
-// ResourceRef references a deployed resource
+// ResourceRef references a deployed resource.
 type ResourceRef struct {
 	Kind string `json:"kind"`
 	Name string `json:"name"`
 	NS   string `json:"namespace,omitempty"`
 }
 
-// SyncRequest is the request body for triggering sync
+// SyncRequest is the request body for triggering sync.
 type SyncRequest struct {
 	RepoID string `json:"repo_id" binding:"required"`
 	Force  bool   `json:"force"`
 	DryRun bool   `json:"dry_run"`
 }
 
-// RollbackRequest is the request body for rollback
+// RollbackRequest is the request body for rollback.
 type RollbackRequest struct {
 	DeploymentID string `json:"deployment_id" binding:"required"`
 	Reason       string `json:"reason"`
 }
 
-// DefaultSyncPolicy returns a sensible default sync policy
+// DefaultSyncPolicy returns a sensible default sync policy.
 func DefaultSyncPolicy() SyncPolicy {
 	return SyncPolicy{
 		AutoSync:   true,

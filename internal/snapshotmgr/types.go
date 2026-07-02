@@ -5,7 +5,7 @@ package snapshotmgr
 
 import "time"
 
-// Snapshot 系统配置快照
+// Snapshot 系统配置快照.
 type Snapshot struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -20,7 +20,7 @@ type Snapshot struct {
 	Items []SnapshotItem `json:"items"`
 }
 
-// SnapshotItem 快照中的单项配置
+// SnapshotItem 快照中的单项配置.
 type SnapshotItem struct {
 	Category string `json:"category"` // network / shares / users / services / system
 	Key      string `json:"key"`
@@ -29,7 +29,7 @@ type SnapshotItem struct {
 	Checksum string `json:"checksum"` // sha256
 }
 
-// SnapshotConfig 快照配置
+// SnapshotConfig 快照配置.
 type SnapshotConfig struct {
 	MaxSnapshots     int  `json:"max_snapshots"`      // 最多保留快照数，默认 20
 	AutoBeforeUpdate bool `json:"auto_before_update"` // 系统更新前自动创建

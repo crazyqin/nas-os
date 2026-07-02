@@ -16,15 +16,15 @@ import (
 // ========== 告警规则错误 ==========
 
 var (
-	// ErrAlertRuleNotFound 告警规则不存在
+	// ErrAlertRuleNotFound 告警规则不存在.
 	ErrAlertRuleNotFound = errors.New("告警规则不存在")
-	// ErrAlertRuleExists 告警规则已存在
+	// ErrAlertRuleExists 告警规则已存在.
 	ErrAlertRuleExists = errors.New("告警规则已存在")
-	// ErrInvalidThreshold 无效阈值
+	// ErrInvalidThreshold 无效阈值.
 	ErrInvalidThreshold = errors.New("无效的阈值")
 )
 
-// AlertRuleManager 告警规则管理器
+// AlertRuleManager 告警规则管理器.
 type AlertRuleManager struct {
 	mu         sync.RWMutex
 	rules      map[string]*AlertRule
@@ -38,7 +38,7 @@ type alertState struct {
 	AlertCount    int
 }
 
-// NewAlertRuleManager 创建告警规则管理器
+// NewAlertRuleManager 创建告警规则管理器.
 func NewAlertRuleManager(configPath string) (*AlertRuleManager, error) {
 	m := &AlertRuleManager{
 		rules:      make(map[string]*AlertRule),
@@ -55,7 +55,7 @@ func NewAlertRuleManager(configPath string) (*AlertRuleManager, error) {
 	return m, nil
 }
 
-// CreateRule 创建告警规则
+// CreateRule 创建告警规则.
 func (m *AlertRuleManager) CreateRule(input AlertRuleInput) (*AlertRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -102,7 +102,7 @@ func (m *AlertRuleManager) CreateRule(input AlertRuleInput) (*AlertRule, error) 
 	return rule, nil
 }
 
-// GetRule 获取告警规则
+// GetRule 获取告警规则.
 func (m *AlertRuleManager) GetRule(id string) (*AlertRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -114,7 +114,7 @@ func (m *AlertRuleManager) GetRule(id string) (*AlertRule, error) {
 	return rule, nil
 }
 
-// ListRules 列出所有告警规则
+// ListRules 列出所有告警规则.
 func (m *AlertRuleManager) ListRules() []*AlertRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -126,7 +126,7 @@ func (m *AlertRuleManager) ListRules() []*AlertRule {
 	return result
 }
 
-// UpdateRule 更新告警规则
+// UpdateRule 更新告警规则.
 func (m *AlertRuleManager) UpdateRule(id string, input AlertRuleInput) (*AlertRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -168,7 +168,7 @@ func (m *AlertRuleManager) UpdateRule(id string, input AlertRuleInput) (*AlertRu
 	return rule, nil
 }
 
-// DeleteRule 删除告警规则
+// DeleteRule 删除告警规则.
 func (m *AlertRuleManager) DeleteRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -182,7 +182,7 @@ func (m *AlertRuleManager) DeleteRule(id string) error {
 	return nil
 }
 
-// ShouldAlert 检查是否应该触发告警
+// ShouldAlert 检查是否应该触发告警.
 func (m *AlertRuleManager) ShouldAlert(targetType, targetID string, currentPercent float64) []*AlertRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -243,7 +243,7 @@ func (m *AlertRuleManager) ShouldAlert(targetType, targetID string, currentPerce
 	return matchedRules
 }
 
-// RecordAlert 记录告警已发送
+// RecordAlert 记录告警已发送.
 func (m *AlertRuleManager) RecordAlert(ruleID, targetID string, threshold int) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -260,7 +260,7 @@ func (m *AlertRuleManager) RecordAlert(ruleID, targetID string, threshold int) {
 	m.alertState[stateKey] = state
 }
 
-// isInScheduleWindow 检查是否在告警时间窗口内
+// isInScheduleWindow 检查是否在告警时间窗口内.
 func (m *AlertRuleManager) isInScheduleWindow(rule *AlertRule) bool {
 	if rule.ScheduleStart == "" || rule.ScheduleEnd == "" {
 		return true // 未设置时间窗口，始终允许
@@ -281,7 +281,7 @@ func (m *AlertRuleManager) isInScheduleWindow(rule *AlertRule) bool {
 	return currentTime >= startTime && currentTime <= endTime
 }
 
-// GetAlertStats 获取告警统计
+// GetAlertStats 获取告警统计.
 func (m *AlertRuleManager) GetAlertStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -376,7 +376,7 @@ func generateAlertRuleID() string {
 
 // ========== 预设告警规则 ==========
 
-// DefaultAlertRules 默认告警规则
+// DefaultAlertRules 默认告警规则.
 func DefaultAlertRules() []*AlertRuleInput {
 	return []*AlertRuleInput{
 		{
@@ -416,7 +416,7 @@ func DefaultAlertRules() []*AlertRuleInput {
 	}
 }
 
-// InitDefaultRules 初始化默认告警规则
+// InitDefaultRules 初始化默认告警规则.
 func (m *AlertRuleManager) InitDefaultRules() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

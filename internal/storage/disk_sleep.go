@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// DiskSleepPolicy 磁盘休眠策略配置
+// DiskSleepPolicy 磁盘休眠策略配置.
 type DiskSleepPolicy struct {
 	IdleTimeoutMinutes  int         `json:"idle_timeout_minutes"`  // 空闲超时（分钟）
 	ExcludeDisks        []string    `json:"exclude_disks"`         // 排除的磁盘
@@ -18,13 +18,13 @@ type DiskSleepPolicy struct {
 	Enabled             bool        `json:"enabled"`               // 是否启用
 }
 
-// TimeRange 时间范围
+// TimeRange 时间范围.
 type TimeRange struct {
 	StartHour int `json:"start_hour"` // 开始小时 (0-23)
 	EndHour   int `json:"end_hour"`   // 结束小时 (0-23)
 }
 
-// DiskSleepStatus 磁盘休眠状态
+// DiskSleepStatus 磁盘休眠状态.
 type DiskSleepStatus struct {
 	Device     string    `json:"device"`      // 设备路径
 	State      string    `json:"state"`       // active, idle, sleeping
@@ -33,7 +33,7 @@ type DiskSleepStatus struct {
 	CanSleep   bool      `json:"can_sleep"`   // 是否可以休眠
 }
 
-// DiskSleepManager 磁盘休眠管理器
+// DiskSleepManager 磁盘休眠管理器.
 type DiskSleepManager struct {
 	policy     DiskSleepPolicy
 	statuses   map[string]*DiskSleepStatus
@@ -44,14 +44,14 @@ type DiskSleepManager struct {
 	logger     *SleepEventLogger
 }
 
-// SleepEventLogger 休眠事件日志记录器
+// SleepEventLogger 休眠事件日志记录器.
 type SleepEventLogger struct {
 	events    []SleepEvent
 	mu        sync.Mutex
 	maxEvents int
 }
 
-// SleepEvent 休眠事件
+// SleepEvent 休眠事件.
 type SleepEvent struct {
 	Device    string    `json:"device"`
 	Event     string    `json:"event"` // sleep, wake, policy_change
@@ -59,7 +59,7 @@ type SleepEvent struct {
 	Reason    string    `json:"reason,omitempty"`
 }
 
-// NewDiskSleepManager 创建磁盘休眠管理器
+// NewDiskSleepManager 创建磁盘休眠管理器.
 func NewDiskSleepManager(configPath string) *DiskSleepManager {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &DiskSleepManager{
@@ -75,7 +75,7 @@ func NewDiskSleepManager(configPath string) *DiskSleepManager {
 	}
 }
 
-// Start 启动休眠管理器
+// Start 启动休眠管理器.
 func (m *DiskSleepManager) Start() error {
 	// 加载配置
 	if err := m.loadPolicy(); err != nil {
@@ -87,12 +87,12 @@ func (m *DiskSleepManager) Start() error {
 	return nil
 }
 
-// Stop 停止休眠管理器
+// Stop 停止休眠管理器.
 func (m *DiskSleepManager) Stop() {
 	m.cancel()
 }
 
-// loadPolicy 加载策略配置
+// loadPolicy 加载策略配置.
 func (m *DiskSleepManager) loadPolicy() error {
 	data, err := os.ReadFile(m.configPath)
 	if err != nil {
@@ -101,7 +101,7 @@ func (m *DiskSleepManager) loadPolicy() error {
 	return json.Unmarshal(data, &m.policy)
 }
 
-// SavePolicy 保存策略配置
+// SavePolicy 保存策略配置.
 func (m *DiskSleepManager) SavePolicy() error {
 	m.mu.RLock()
 	data, err := json.MarshalIndent(m.policy, "", "  ")
@@ -112,14 +112,14 @@ func (m *DiskSleepManager) SavePolicy() error {
 	return os.WriteFile(m.configPath, data, 0644)
 }
 
-// GetPolicy 获取当前策略
+// GetPolicy 获取当前策略.
 func (m *DiskSleepManager) GetPolicy() DiskSleepPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.policy
 }
 
-// SetSleepPolicy 设置休眠策略
+// SetSleepPolicy 设置休眠策略.
 func (m *DiskSleepManager) SetSleepPolicy(policy DiskSleepPolicy) error {
 	m.mu.Lock()
 	m.policy = policy
@@ -135,7 +135,7 @@ func (m *DiskSleepManager) SetSleepPolicy(policy DiskSleepPolicy) error {
 	return m.SavePolicy()
 }
 
-// GetSleepStatus 获取所有磁盘休眠状态
+// GetSleepStatus 获取所有磁盘休眠状态.
 func (m *DiskSleepManager) GetSleepStatus() []DiskSleepStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -147,14 +147,14 @@ func (m *DiskSleepManager) GetSleepStatus() []DiskSleepStatus {
 	return result
 }
 
-// GetDiskSleepStatus 获取单个磁盘休眠状态
+// GetDiskSleepStatus 获取单个磁盘休眠状态.
 func (m *DiskSleepManager) GetDiskSleepStatus(device string) *DiskSleepStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.statuses[device]
 }
 
-// ManualSleep 手动休眠磁盘
+// ManualSleep 手动休眠磁盘.
 func (m *DiskSleepManager) ManualSleep(device string) error {
 	// 检查是否在排除列表
 	m.mu.RLock()
@@ -189,7 +189,7 @@ func (m *DiskSleepManager) ManualSleep(device string) error {
 	return nil
 }
 
-// ManualWake 手动唤醒磁盘
+// ManualWake 手动唤醒磁盘.
 func (m *DiskSleepManager) ManualWake(device string) error {
 	// 执行唤醒（读取磁盘）
 	err := m.executeWake(device)
@@ -217,7 +217,7 @@ func (m *DiskSleepManager) ManualWake(device string) error {
 	return nil
 }
 
-// isExcluded 检查磁盘是否在排除列表
+// isExcluded 检查磁盘是否在排除列表.
 func (m *DiskSleepManager) isExcluded(device string) bool {
 	for _, excluded := range m.policy.ExcludeDisks {
 		if excluded == device {
@@ -227,7 +227,7 @@ func (m *DiskSleepManager) isExcluded(device string) bool {
 	return false
 }
 
-// isInExceptionTime 检查是否在例外时段
+// isInExceptionTime 检查是否在例外时段.
 func (m *DiskSleepManager) isInExceptionTime() bool {
 	now := time.Now()
 	hour := now.Hour()
@@ -240,7 +240,7 @@ func (m *DiskSleepManager) isInExceptionTime() bool {
 	return false
 }
 
-// executeSleep 执行休眠命令
+// executeSleep 执行休眠命令.
 func (m *DiskSleepManager) executeSleep(device string) error {
 	// 使用 hdparm -Y 使磁盘进入休眠状态
 	// 或使用 sdparm 对于 SCSI/SATA 设备
@@ -248,7 +248,7 @@ func (m *DiskSleepManager) executeSleep(device string) error {
 	return osExec(cmd)
 }
 
-// executeWake 执行唤醒命令
+// executeWake 执行唤醒命令.
 func (m *DiskSleepManager) executeWake(device string) error {
 	// 通过读取磁盘来唤醒
 	readPath := filepath.Join("/dev", filepath.Base(device))
@@ -257,7 +257,7 @@ func (m *DiskSleepManager) executeWake(device string) error {
 	return nil
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (m *DiskSleepManager) monitorLoop() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -272,7 +272,7 @@ func (m *DiskSleepManager) monitorLoop() {
 	}
 }
 
-// checkAndSleep 检查并自动休眠
+// checkAndSleep 检查并自动休眠.
 func (m *DiskSleepManager) checkAndSleep() {
 	if !m.policy.Enabled {
 		return
@@ -305,7 +305,7 @@ func (m *DiskSleepManager) checkAndSleep() {
 	}
 }
 
-// UpdateActivity 更新磁盘活动状态
+// UpdateActivity 更新磁盘活动状态.
 func (m *DiskSleepManager) UpdateActivity(device string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -335,12 +335,12 @@ func (m *DiskSleepManager) UpdateActivity(device string) {
 	}
 }
 
-// GetEvents 获取休眠事件日志
+// GetEvents 获取休眠事件日志.
 func (m *DiskSleepManager) GetEvents(limit int) []SleepEvent {
 	return m.logger.GetEvents(limit)
 }
 
-// SleepEventLogger 方法
+// SleepEventLogger 方法.
 func (l *SleepEventLogger) Log(event SleepEvent) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -361,7 +361,7 @@ func (l *SleepEventLogger) GetEvents(limit int) []SleepEvent {
 	return l.events[len(l.events)-limit:]
 }
 
-// osExec 简化的命令执行（避免导入 os/exec 导致编译问题）
+// osExec 简化的命令执行（避免导入 os/exec 导致编译问题）.
 func osExec(cmd string) error {
 	// 在实际实现中应使用 exec.Command
 	// 这里简化处理

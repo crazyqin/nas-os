@@ -105,7 +105,7 @@ func TestNewServiceWithConfig(t *testing.T) {
 	cfg := &Config{
 		ClusterName:        "test-cluster",
 		HealthCheckSeconds: 5,
-		NodeID:            "test-node-1",
+		NodeID:             "test-node-1",
 	}
 	svc := NewService(cfg)
 	if svc.config != cfg {
@@ -182,7 +182,7 @@ func TestRemoveNodeWithContainers(t *testing.T) {
 	_ = svc.RegisterNode(&HANode{ID: "node-1", Name: "node-1"})
 	_, _ = svc.RegisterContainer(&RegisterContainerRequest{
 		ContainerID: "lxc-100",
-		Policy:     PolicyAuto,
+		Policy:      PolicyAuto,
 	})
 	// 容器默认在 config.NodeID 上，手动设置
 	svc.mu.Lock()
@@ -242,7 +242,7 @@ func TestRegisterContainer(t *testing.T) {
 	svc := NewService(nil)
 	req := &RegisterContainerRequest{
 		ContainerID: "lxc-100",
-		Policy:     PolicyAuto,
+		Policy:      PolicyAuto,
 		Priority:    1,
 	}
 	container, err := svc.RegisterContainer(req)
@@ -292,7 +292,7 @@ func TestRegisterContainerWithIP(t *testing.T) {
 	svc := NewService(nil)
 	req := &RegisterContainerRequest{
 		ContainerID: "lxc-100",
-		Policy:     PolicyAuto,
+		Policy:      PolicyAuto,
 		IPConfigs: []*StaticIPConfig{
 			{Interface: "eth0", Address: "192.168.1.100/24", Gateway: "192.168.1.1"},
 		},
@@ -316,7 +316,7 @@ func TestUnregisterContainer(t *testing.T) {
 	svc := NewService(nil)
 	_, _ = svc.RegisterContainer(&RegisterContainerRequest{
 		ContainerID: "lxc-100",
-		Policy:     PolicyAuto,
+		Policy:      PolicyAuto,
 		IPConfigs: []*StaticIPConfig{
 			{Address: "192.168.1.100/24"},
 		},
@@ -387,7 +387,7 @@ func TestUpdatePolicy(t *testing.T) {
 
 	req := &UpdatePolicyRequest{
 		ContainerID:    "lxc-100",
-		Type:          PolicyManual,
+		Type:           PolicyManual,
 		PreferredNode:  "node-2",
 		MaxRetries:     5,
 		HealthCheckInt: 15,
@@ -420,7 +420,7 @@ func TestUpdatePolicyDisableHA(t *testing.T) {
 
 	_, err := svc.UpdatePolicy(&UpdatePolicyRequest{
 		ContainerID: "lxc-100",
-		Type:       PPolicyNone,
+		Type:        PPolicyNone,
 	})
 	if err != nil {
 		t.Fatalf("更新策略失败: %v", err)
@@ -440,7 +440,7 @@ func TestMigrateContainer(t *testing.T) {
 
 	_, _ = svc.RegisterContainer(&RegisterContainerRequest{
 		ContainerID: "lxc-100",
-		Policy:     PolicyAuto,
+		Policy:      PolicyAuto,
 		IPConfigs:   []*StaticIPConfig{{Address: "192.168.1.100/24"}},
 	})
 	// 设置容器在 node-1 上
@@ -533,7 +533,7 @@ func TestCheckNodeHealth(t *testing.T) {
 	svc := NewService(&Config{
 		ClusterName:        "test",
 		HealthCheckSeconds: 1,
-		NodeID:            "node-1",
+		NodeID:             "node-1",
 	})
 	_ = svc.RegisterNode(&HANode{ID: "node-1", Name: "node-1", State: NodeStateOnline})
 	_ = svc.RegisterNode(&HANode{ID: "node-2", Name: "node-2", State: NodeStateOnline})

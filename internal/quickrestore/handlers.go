@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	group := router.Group("/quick-restore")
 	{
@@ -32,13 +32,13 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	}
 }
 
-// ListPoints 获取恢复点列表
+// ListPoints 获取恢复点列表.
 func (h *Handler) ListPoints(c *gin.Context) {
 	points := h.manager.ListPoints()
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": points})
 }
 
-// CreatePoint 创建恢复点
+// CreatePoint 创建恢复点.
 func (h *Handler) CreatePoint(c *gin.Context) {
 	var req CreatePointRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -59,7 +59,7 @@ func (h *Handler) CreatePoint(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"success": true, "data": point})
 }
 
-// DeletePoint 删除恢复点
+// DeletePoint 删除恢复点.
 func (h *Handler) DeletePoint(c *gin.Context) {
 	id := c.Param("id")
 	if !h.manager.DeletePoint(id) {
@@ -70,7 +70,7 @@ func (h *Handler) DeletePoint(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
-// PreviewRestore 恢复预览
+// PreviewRestore 恢复预览.
 func (h *Handler) PreviewRestore(c *gin.Context) {
 	var req struct {
 		PointID    string   `json:"point_id" binding:"required"`
@@ -91,7 +91,7 @@ func (h *Handler) PreviewRestore(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": preview})
 }
 
-// ExecuteRestore 执行恢复
+// ExecuteRestore 执行恢复.
 func (h *Handler) ExecuteRestore(c *gin.Context) {
 	var req RestoreRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -108,13 +108,13 @@ func (h *Handler) ExecuteRestore(c *gin.Context) {
 	c.JSON(http.StatusAccepted, gin.H{"success": true, "data": task})
 }
 
-// GetHistory 获取恢复历史
+// GetHistory 获取恢复历史.
 func (h *Handler) GetHistory(c *gin.Context) {
 	history := h.manager.GetHistory()
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": history})
 }
 
-// BatchRestore 批量恢复
+// BatchRestore 批量恢复.
 func (h *Handler) BatchRestore(c *gin.Context) {
 	var req BatchRestoreRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -131,7 +131,7 @@ func (h *Handler) BatchRestore(c *gin.Context) {
 	c.JSON(http.StatusAccepted, gin.H{"success": true, "data": tasks})
 }
 
-// GetTaskStatus 获取恢复任务状态
+// GetTaskStatus 获取恢复任务状态.
 func (h *Handler) GetTaskStatus(c *gin.Context) {
 	id := c.Param("id")
 	task, err := h.manager.GetTask(id)

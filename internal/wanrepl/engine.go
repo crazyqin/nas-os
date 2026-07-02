@@ -17,7 +17,7 @@ var (
 	ErrInvalidConfig    = errors.New("无效配置")
 )
 
-// NewReplicationEngine 创建复制引擎
+// NewReplicationEngine 创建复制引擎.
 func NewReplicationEngine(config ReplConfig) *ReplicationEngine {
 	return &ReplicationEngine{
 		config:  config,
@@ -28,7 +28,7 @@ func NewReplicationEngine(config ReplConfig) *ReplicationEngine {
 	}
 }
 
-// Start 启动引擎
+// Start 启动引擎.
 func (e *ReplicationEngine) Start() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -36,7 +36,7 @@ func (e *ReplicationEngine) Start() error {
 	return nil
 }
 
-// Stop 停止引擎
+// Stop 停止引擎.
 func (e *ReplicationEngine) Stop() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -50,14 +50,14 @@ func (e *ReplicationEngine) Stop() error {
 	return nil
 }
 
-// IsRunning 引擎是否运行中
+// IsRunning 引擎是否运行中.
 func (e *ReplicationEngine) IsRunning() bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.running
 }
 
-// AddSite 添加远程站点
+// AddSite 添加远程站点.
 func (e *ReplicationEngine) AddSite(site *RemoteSite) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -75,7 +75,7 @@ func (e *ReplicationEngine) AddSite(site *RemoteSite) error {
 	return nil
 }
 
-// RemoveSite 移除远程站点
+// RemoveSite 移除远程站点.
 func (e *ReplicationEngine) RemoveSite(siteID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -86,7 +86,7 @@ func (e *ReplicationEngine) RemoveSite(siteID string) error {
 	return nil
 }
 
-// UpdateSiteStatus 更新站点状态
+// UpdateSiteStatus 更新站点状态.
 func (e *ReplicationEngine) UpdateSiteStatus(siteID string, status SiteStatus, latency int64) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -100,7 +100,7 @@ func (e *ReplicationEngine) UpdateSiteStatus(siteID string, status SiteStatus, l
 	return nil
 }
 
-// GetSite 获取站点信息
+// GetSite 获取站点信息.
 func (e *ReplicationEngine) GetSite(siteID string) (*RemoteSite, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -111,7 +111,7 @@ func (e *ReplicationEngine) GetSite(siteID string) (*RemoteSite, error) {
 	return site, nil
 }
 
-// ListSites 列出所有站点
+// ListSites 列出所有站点.
 func (e *ReplicationEngine) ListSites() []*RemoteSite {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -122,7 +122,7 @@ func (e *ReplicationEngine) ListSites() []*RemoteSite {
 	return list
 }
 
-// CreateJob 创建复制任务
+// CreateJob 创建复制任务.
 func (e *ReplicationEngine) CreateJob(job *ReplicationJob) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -164,7 +164,7 @@ func (e *ReplicationEngine) CreateJob(job *ReplicationJob) error {
 	return nil
 }
 
-// StartJob 启动复制任务
+// StartJob 启动复制任务.
 func (e *ReplicationEngine) StartJob(jobID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -188,7 +188,7 @@ func (e *ReplicationEngine) StartJob(jobID string) error {
 	return nil
 }
 
-// PauseJob 暂停任务
+// PauseJob 暂停任务.
 func (e *ReplicationEngine) PauseJob(jobID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -207,7 +207,7 @@ func (e *ReplicationEngine) PauseJob(jobID string) error {
 	return nil
 }
 
-// CompleteJob 完成任务
+// CompleteJob 完成任务.
 func (e *ReplicationEngine) CompleteJob(jobID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -230,7 +230,7 @@ func (e *ReplicationEngine) CompleteJob(jobID string) error {
 	return nil
 }
 
-// UpdateSyncProgress 更新同步进度
+// UpdateSyncProgress 更新同步进度.
 func (e *ReplicationEngine) UpdateSyncProgress(jobID string, progress float64, bytesTransferred int64, speedBps int64, currentFile string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -256,7 +256,7 @@ func (e *ReplicationEngine) UpdateSyncProgress(jobID string, progress float64, b
 	return nil
 }
 
-// ReportConflict 报告冲突
+// ReportConflict 报告冲突.
 func (e *ReplicationEngine) ReportConflict(jobID string, conflict ConflictRecord) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -277,7 +277,7 @@ func (e *ReplicationEngine) ReportConflict(jobID string, conflict ConflictRecord
 	return nil
 }
 
-// ResolveConflict 解决冲突
+// ResolveConflict 解决冲突.
 func (e *ReplicationEngine) ResolveConflict(jobID, conflictID string, resolution ConflictResolution) error {
 	e.mu.RLock()
 	state, ok := e.states[jobID]
@@ -301,7 +301,7 @@ func (e *ReplicationEngine) ResolveConflict(jobID, conflictID string, resolution
 	return fmt.Errorf("conflict %s not found", conflictID)
 }
 
-// GetSyncState 获取同步状态
+// GetSyncState 获取同步状态.
 func (e *ReplicationEngine) GetSyncState(jobID string) (*SyncState, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -317,7 +317,7 @@ func (e *ReplicationEngine) GetSyncState(jobID string) (*SyncState, error) {
 	return &s, nil
 }
 
-// GetTransferStats 获取传输统计
+// GetTransferStats 获取传输统计.
 func (e *ReplicationEngine) GetTransferStats(jobID string) (*TransferStats, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -333,7 +333,7 @@ func (e *ReplicationEngine) GetTransferStats(jobID string) (*TransferStats, erro
 	return &s, nil
 }
 
-// GetConflicts 获取冲突列表
+// GetConflicts 获取冲突列表.
 func (e *ReplicationEngine) GetConflicts(jobID string, unresolvedOnly bool) ([]ConflictRecord, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -356,7 +356,7 @@ func (e *ReplicationEngine) GetConflicts(jobID string, unresolvedOnly bool) ([]C
 	return result, nil
 }
 
-// GetJob 获取任务
+// GetJob 获取任务.
 func (e *ReplicationEngine) GetJob(jobID string) (*ReplicationJob, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -367,7 +367,7 @@ func (e *ReplicationEngine) GetJob(jobID string) (*ReplicationJob, error) {
 	return job, nil
 }
 
-// ListJobs 列出所有任务
+// ListJobs 列出所有任务.
 func (e *ReplicationEngine) ListJobs() []*ReplicationJob {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -378,7 +378,7 @@ func (e *ReplicationEngine) ListJobs() []*ReplicationJob {
 	return list
 }
 
-// RecordChangeSet 记录变更集
+// RecordChangeSet 记录变更集.
 func (e *ReplicationEngine) RecordChangeSet(cs ChangeSet) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()

@@ -8,53 +8,53 @@ import (
 	"time"
 )
 
-// SyncMode 同步模式
+// SyncMode 同步模式.
 type SyncMode string
 
 const (
-	// SyncModeBidirectional 双向同步
+	// SyncModeBidirectional 双向同步.
 	SyncModeBidirectional SyncMode = "bidirectional"
-	// SyncModeOneWay 单向同步
+	// SyncModeOneWay 单向同步.
 	SyncModeOneWay SyncMode = "one_way"
-	// SyncModeMirror 镜像同步
+	// SyncModeMirror 镜像同步.
 	SyncModeMirror SyncMode = "mirror"
-	// SyncModeIncremental 增量同步
+	// SyncModeIncremental 增量同步.
 	SyncModeIncremental SyncMode = "incremental"
 )
 
-// SyncStatus 同步状态
+// SyncStatus 同步状态.
 type SyncStatus string
 
 const (
-	// SyncStatusIdle 空闲
+	// SyncStatusIdle 空闲.
 	SyncStatusIdle SyncStatus = "idle"
-	// SyncStatusSyncing 同步中
+	// SyncStatusSyncing 同步中.
 	SyncStatusSyncing SyncStatus = "syncing"
-	// SyncStatusPaused 暂停
+	// SyncStatusPaused 暂停.
 	SyncStatusPaused SyncStatus = "paused"
-	// SyncStatusError 错误
+	// SyncStatusError 错误.
 	SyncStatusError SyncStatus = "error"
-	// SyncStatusConflict 冲突
+	// SyncStatusConflict 冲突.
 	SyncStatusConflict SyncStatus = "conflict"
 )
 
-// ConflictResolution 冲突解决策略
+// ConflictResolution 冲突解决策略.
 type ConflictResolution string
 
 const (
-	// ConflictKeepLocal 保留本地
+	// ConflictKeepLocal 保留本地.
 	ConflictKeepLocal ConflictResolution = "keep_local"
-	// ConflictKeepRemote 保留远程
+	// ConflictKeepRemote 保留远程.
 	ConflictKeepRemote ConflictResolution = "keep_remote"
-	// ConflictKeepBoth 保留两者
+	// ConflictKeepBoth 保留两者.
 	ConflictKeepBoth ConflictResolution = "keep_both"
-	// ConflictManual 手动解决
+	// ConflictManual 手动解决.
 	ConflictManual ConflictResolution = "manual"
-	// ConflictLatest 保留最新
+	// ConflictLatest 保留最新.
 	ConflictLatest ConflictResolution = "latest"
 )
 
-// SyncConfig 同步配置
+// SyncConfig 同步配置.
 type SyncConfig struct {
 	// ID 任务ID
 	ID string `json:"id"`
@@ -84,7 +84,7 @@ type SyncConfig struct {
 	Enabled bool `json:"enabled"`
 }
 
-// SyncTask 同步任务
+// SyncTask 同步任务.
 type SyncTask struct {
 	// Config 配置
 	Config SyncConfig `json:"config"`
@@ -112,7 +112,7 @@ type SyncTask struct {
 	ErrorMessage string `json:"errorMessage,omitempty"`
 }
 
-// SyncConflict 同步冲突
+// SyncConflict 同步冲突.
 type SyncConflict struct {
 	// ID 冲突ID
 	ID string `json:"id"`
@@ -136,7 +136,7 @@ type SyncConflict struct {
 	ResolvedAt time.Time `json:"resolvedAt,omitempty"`
 }
 
-// SyncHistory 同步历史
+// SyncHistory 同步历史.
 type SyncHistory struct {
 	// ID 历史ID
 	ID string `json:"id"`
@@ -160,7 +160,7 @@ type SyncHistory struct {
 	ErrorMessage string `json:"errorMessage,omitempty"`
 }
 
-// SyncEngine 同步引擎
+// SyncEngine 同步引擎.
 type SyncEngine struct {
 	mu        sync.RWMutex
 	tasks     map[string]*SyncTask
@@ -169,7 +169,7 @@ type SyncEngine struct {
 	running   bool
 }
 
-// NewSyncEngine 创建同步引擎
+// NewSyncEngine 创建同步引擎.
 func NewSyncEngine() *SyncEngine {
 	return &SyncEngine{
 		tasks:     make(map[string]*SyncTask),
@@ -177,7 +177,7 @@ func NewSyncEngine() *SyncEngine {
 	}
 }
 
-// AddTask 添加同步任务
+// AddTask 添加同步任务.
 func (e *SyncEngine) AddTask(config SyncConfig) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -190,7 +190,7 @@ func (e *SyncEngine) AddTask(config SyncConfig) error {
 	return nil
 }
 
-// RemoveTask 移除同步任务
+// RemoveTask 移除同步任务.
 func (e *SyncEngine) RemoveTask(taskID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -199,7 +199,7 @@ func (e *SyncEngine) RemoveTask(taskID string) error {
 	return nil
 }
 
-// StartTask 启动同步任务
+// StartTask 启动同步任务.
 func (e *SyncEngine) StartTask(taskID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -213,7 +213,7 @@ func (e *SyncEngine) StartTask(taskID string) error {
 	return nil
 }
 
-// StopTask 停止同步任务
+// StopTask 停止同步任务.
 func (e *SyncEngine) StopTask(taskID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -227,7 +227,7 @@ func (e *SyncEngine) StopTask(taskID string) error {
 	return nil
 }
 
-// GetTask 获取同步任务
+// GetTask 获取同步任务.
 func (e *SyncEngine) GetTask(taskID string) (*SyncTask, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -240,7 +240,7 @@ func (e *SyncEngine) GetTask(taskID string) (*SyncTask, error) {
 	return task, nil
 }
 
-// ListTasks 列出同步任务
+// ListTasks 列出同步任务.
 func (e *SyncEngine) ListTasks() []*SyncTask {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -252,7 +252,7 @@ func (e *SyncEngine) ListTasks() []*SyncTask {
 	return tasks
 }
 
-// GetConflicts 获取冲突列表
+// GetConflicts 获取冲突列表.
 func (e *SyncEngine) GetConflicts(taskID string) []*SyncConflict {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -266,7 +266,7 @@ func (e *SyncEngine) GetConflicts(taskID string) []*SyncConflict {
 	return conflicts
 }
 
-// ResolveConflict 解决冲突
+// ResolveConflict 解决冲突.
 func (e *SyncEngine) ResolveConflict(conflictID string, resolution ConflictResolution) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -282,7 +282,7 @@ func (e *SyncEngine) ResolveConflict(conflictID string, resolution ConflictResol
 	return nil
 }
 
-// GetHistory 获取同步历史
+// GetHistory 获取同步历史.
 func (e *SyncEngine) GetHistory(taskID string, limit int) []SyncHistory {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -300,7 +300,7 @@ func (e *SyncEngine) GetHistory(taskID string, limit int) []SyncHistory {
 	return history
 }
 
-// Start 启动引擎
+// Start 启动引擎.
 func (e *SyncEngine) Start() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -313,7 +313,7 @@ func (e *SyncEngine) Start() error {
 	return nil
 }
 
-// Stop 停止引擎
+// Stop 停止引擎.
 func (e *SyncEngine) Stop() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -322,7 +322,7 @@ func (e *SyncEngine) Stop() error {
 	return nil
 }
 
-// IsRunning 是否运行中
+// IsRunning 是否运行中.
 func (e *SyncEngine) IsRunning() bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()

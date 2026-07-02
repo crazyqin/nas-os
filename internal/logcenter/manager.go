@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 日志管理器
+// Manager 日志管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	config    *LogConfig
@@ -25,7 +25,7 @@ type Manager struct {
 	hostname  string
 }
 
-// NewManager 创建日志管理器
+// NewManager 创建日志管理器.
 func NewManager(logger *zap.Logger, config *LogConfig) *Manager {
 	if config == nil {
 		config = DefaultConfig()
@@ -53,7 +53,7 @@ func NewManager(logger *zap.Logger, config *LogConfig) *Manager {
 	return m
 }
 
-// Add 添加日志条目
+// Add 添加日志条目.
 func (m *Manager) Add(entry LogEntry) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -92,7 +92,7 @@ func (m *Manager) Add(entry LogEntry) {
 	)
 }
 
-// Query 查询日志
+// Query 查询日志.
 func (m *Manager) Query(query LogQuery) LogQueryResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -149,7 +149,7 @@ func (m *Manager) Query(query LogQuery) LogQueryResult {
 	}
 }
 
-// matchQuery 匹配查询条件
+// matchQuery 匹配查询条件.
 func (m *Manager) matchQuery(entry LogEntry, query LogQuery) bool {
 	if query.Level != "" && entry.Level != query.Level {
 		return false
@@ -181,7 +181,7 @@ func (m *Manager) matchQuery(entry LogEntry, query LogQuery) bool {
 	return true
 }
 
-// GetStats 获取日志统计
+// GetStats 获取日志统计.
 func (m *Manager) GetStats() LogStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -248,7 +248,7 @@ func (m *Manager) GetStats() LogStats {
 	return stats
 }
 
-// Subscribe 订阅实时日志流
+// Subscribe 订阅实时日志流.
 func (m *Manager) Subscribe() chan LogStreamMessage {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -258,7 +258,7 @@ func (m *Manager) Subscribe() chan LogStreamMessage {
 	return ch
 }
 
-// Unsubscribe 取消订阅
+// Unsubscribe 取消订阅.
 func (m *Manager) Unsubscribe(ch chan LogStreamMessage) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -272,7 +272,7 @@ func (m *Manager) Unsubscribe(ch chan LogStreamMessage) {
 	}
 }
 
-// Clear 清空日志
+// Clear 清空日志.
 func (m *Manager) Clear() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -281,7 +281,7 @@ func (m *Manager) Clear() {
 	m.logger.Info("日志已清空")
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config LogConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -290,7 +290,7 @@ func (m *Manager) UpdateConfig(config LogConfig) {
 	m.logger.Info("日志配置已更新")
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() LogConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -298,7 +298,7 @@ func (m *Manager) GetConfig() LogConfig {
 	return *m.config
 }
 
-// collectSyslog 收集系统日志
+// collectSyslog 收集系统日志.
 func (m *Manager) collectSyslog() {
 	logPaths := []string{
 		"/var/log/syslog",
@@ -313,7 +313,7 @@ func (m *Manager) collectSyslog() {
 	}
 }
 
-// collectAuthLog 收集认证日志
+// collectAuthLog 收集认证日志.
 func (m *Manager) collectAuthLog() {
 	logPaths := []string{
 		"/var/log/auth.log",
@@ -327,7 +327,7 @@ func (m *Manager) collectAuthLog() {
 	}
 }
 
-// tailLog 实时追踪日志文件
+// tailLog 实时追踪日志文件.
 func (m *Manager) tailLog(path string, source LogSource) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -358,7 +358,7 @@ func (m *Manager) tailLog(path string, source LogSource) {
 	}
 }
 
-// parseLogLevel 从日志行解析级别
+// parseLogLevel 从日志行解析级别.
 func (m *Manager) parseLogLevel(line string) LogLevel {
 	lower := strings.ToLower(line)
 	switch {
@@ -377,7 +377,7 @@ func (m *Manager) parseLogLevel(line string) LogLevel {
 	}
 }
 
-// cleanupLoop 定期清理过期日志
+// cleanupLoop 定期清理过期日志.
 func (m *Manager) cleanupLoop() {
 	ticker := time.NewTicker(1 * time.Hour)
 	defer ticker.Stop()
@@ -387,7 +387,7 @@ func (m *Manager) cleanupLoop() {
 	}
 }
 
-// cleanup 清理过期日志
+// cleanup 清理过期日志.
 func (m *Manager) cleanup() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -409,7 +409,7 @@ func (m *Manager) cleanup() {
 	}
 }
 
-// GetSources 获取所有日志来源
+// GetSources 获取所有日志来源.
 func (m *Manager) GetSources() []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -427,7 +427,7 @@ func (m *Manager) GetSources() []string {
 	return sources
 }
 
-// GetCategories 获取所有日志分类
+// GetCategories 获取所有日志分类.
 func (m *Manager) GetCategories() []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -447,7 +447,7 @@ func (m *Manager) GetCategories() []string {
 	return categories
 }
 
-// Export 导出日志
+// Export 导出日志.
 func (m *Manager) Export(query LogQuery, format string) ([]byte, error) {
 	result := m.Query(query)
 
@@ -461,7 +461,7 @@ func (m *Manager) Export(query LogQuery, format string) ([]byte, error) {
 	}
 }
 
-// exportJSON 导出为 JSON
+// exportJSON 导出为 JSON.
 func (m *Manager) exportJSON(logs []LogEntry) ([]byte, error) {
 	import_json := `{"logs":[`
 	for i, log := range logs {
@@ -475,7 +475,7 @@ func (m *Manager) exportJSON(logs []LogEntry) ([]byte, error) {
 	return []byte(import_json), nil
 }
 
-// exportCSV 导出为 CSV
+// exportCSV 导出为 CSV.
 func (m *Manager) exportCSV(logs []LogEntry) ([]byte, error) {
 	csv := "timestamp,level,source,category,message\n"
 	for _, log := range logs {

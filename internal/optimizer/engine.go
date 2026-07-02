@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// OptimizationEngine 优化引擎核心
+// OptimizationEngine 优化引擎核心.
 type OptimizationEngine struct {
 	mu             sync.RWMutex
 	logger         *zap.Logger
@@ -31,18 +31,18 @@ type OptimizationEngine struct {
 	maxHistorySize int
 }
 
-// MetricsCollector 指标收集器
+// MetricsCollector 指标收集器.
 type MetricsCollector struct {
 	mu      sync.RWMutex
 	metrics *ResourceMetrics
 }
 
-// NewMetricsCollector 创建指标收集器
+// NewMetricsCollector 创建指标收集器.
 func NewMetricsCollector() *MetricsCollector {
 	return &MetricsCollector{}
 }
 
-// Collect 收集当前系统指标
+// Collect 收集当前系统指标.
 func (mc *MetricsCollector) Collect() *ResourceMetrics {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
@@ -66,14 +66,14 @@ func (mc *MetricsCollector) Collect() *ResourceMetrics {
 	return metrics
 }
 
-// collectCPU 收集 CPU 使用率
+// collectCPU 收集 CPU 使用率.
 func (mc *MetricsCollector) collectCPU() float64 {
 	// 实际实现需要读取 /proc/stat 或使用 gopsutil
 	// 这里返回模拟值
 	return float64(runtime.NumGoroutine()) / float64(runtime.NumCPU()) * 10
 }
 
-// collectLoadAvg 收集系统负载
+// collectLoadAvg 收集系统负载.
 func (mc *MetricsCollector) collectLoadAvg() (float64, float64, float64) {
 	// 实际实现需要读取 /proc/loadavg
 	// 这里返回模拟值
@@ -81,7 +81,7 @@ func (mc *MetricsCollector) collectLoadAvg() (float64, float64, float64) {
 	return goroutines * 0.1, goroutines * 0.08, goroutines * 0.05
 }
 
-// AutoTuner 自动性能调优器
+// AutoTuner 自动性能调优器.
 type AutoTuner struct {
 	mu     sync.RWMutex
 	logger *zap.Logger
@@ -89,7 +89,7 @@ type AutoTuner struct {
 	engine *OptimizationEngine
 }
 
-// NewAutoTuner 创建自动调优器
+// NewAutoTuner 创建自动调优器.
 func NewAutoTuner(logger *zap.Logger, config *AutoTuneConfig, engine *OptimizationEngine) *AutoTuner {
 	return &AutoTuner{
 		logger: logger,
@@ -98,7 +98,7 @@ func NewAutoTuner(logger *zap.Logger, config *AutoTuneConfig, engine *Optimizati
 	}
 }
 
-// Tune 执行自动调优
+// Tune 执行自动调优.
 func (at *AutoTuner) Tune(ctx context.Context, metrics *ResourceMetrics) []*OptimizationRecord {
 	at.mu.RLock()
 	defer at.mu.RUnlock()
@@ -136,7 +136,7 @@ func (at *AutoTuner) Tune(ctx context.Context, metrics *ResourceMetrics) []*Opti
 	return records
 }
 
-// tuneCPU CPU 调优
+// tuneCPU CPU 调优.
 func (at *AutoTuner) tuneCPU(ctx context.Context, metrics *ResourceMetrics) *OptimizationRecord {
 	start := time.Now()
 
@@ -172,7 +172,7 @@ func (at *AutoTuner) tuneCPU(ctx context.Context, metrics *ResourceMetrics) *Opt
 	return record
 }
 
-// tuneMemory 内存调优
+// tuneMemory 内存调优.
 func (at *AutoTuner) tuneMemory(ctx context.Context, metrics *ResourceMetrics) *OptimizationRecord {
 	start := time.Now()
 
@@ -208,7 +208,7 @@ func (at *AutoTuner) tuneMemory(ctx context.Context, metrics *ResourceMetrics) *
 	return record
 }
 
-// tuneIO IO 调优
+// tuneIO IO 调优.
 func (at *AutoTuner) tuneIO(ctx context.Context, metrics *ResourceMetrics) *OptimizationRecord {
 	start := time.Now()
 
@@ -239,7 +239,7 @@ func (at *AutoTuner) tuneIO(ctx context.Context, metrics *ResourceMetrics) *Opti
 	return record
 }
 
-// ResourcePredictor 资源预测器
+// ResourcePredictor 资源预测器.
 type ResourcePredictor struct {
 	mu      sync.RWMutex
 	logger  *zap.Logger
@@ -247,7 +247,7 @@ type ResourcePredictor struct {
 	maxSize int
 }
 
-// NewResourcePredictor 创建资源预测器
+// NewResourcePredictor 创建资源预测器.
 func NewResourcePredictor(logger *zap.Logger, maxSize int) *ResourcePredictor {
 	return &ResourcePredictor{
 		logger:  logger,
@@ -256,7 +256,7 @@ func NewResourcePredictor(logger *zap.Logger, maxSize int) *ResourcePredictor {
 	}
 }
 
-// AddMetrics 添加指标数据
+// AddMetrics 添加指标数据.
 func (rp *ResourcePredictor) AddMetrics(metrics *ResourceMetrics) {
 	rp.mu.Lock()
 	defer rp.mu.Unlock()
@@ -267,7 +267,7 @@ func (rp *ResourcePredictor) AddMetrics(metrics *ResourceMetrics) {
 	}
 }
 
-// Predict 预测资源使用
+// Predict 预测资源使用.
 func (rp *ResourcePredictor) Predict() []*PredictionResult {
 	rp.mu.RLock()
 	defer rp.mu.RUnlock()
@@ -305,7 +305,7 @@ func (rp *ResourcePredictor) Predict() []*PredictionResult {
 	return results
 }
 
-// predictResource 预测单个资源
+// predictResource 预测单个资源.
 func (rp *ResourcePredictor) predictResource(resource string, history []*ResourceMetrics, extractor func(*ResourceMetrics) float64) *PredictionResult {
 	if len(history) < 2 {
 		return &PredictionResult{
@@ -382,14 +382,14 @@ func (rp *ResourcePredictor) predictResource(resource string, history []*Resourc
 	}
 }
 
-// BottleneckDetector 瓶颈检测器
+// BottleneckDetector 瓶颈检测器.
 type BottleneckDetector struct {
 	mu     sync.RWMutex
 	logger *zap.Logger
 	config *AutoTuneConfig
 }
 
-// NewBottleneckDetector 创建瓶颈检测器
+// NewBottleneckDetector 创建瓶颈检测器.
 func NewBottleneckDetector(logger *zap.Logger, config *AutoTuneConfig) *BottleneckDetector {
 	return &BottleneckDetector{
 		logger: logger,
@@ -397,7 +397,7 @@ func NewBottleneckDetector(logger *zap.Logger, config *AutoTuneConfig) *Bottlene
 	}
 }
 
-// Detect 检测瓶颈
+// Detect 检测瓶颈.
 func (bd *BottleneckDetector) Detect(metrics *ResourceMetrics) []*Bottleneck {
 	bd.mu.RLock()
 	defer bd.mu.RUnlock()
@@ -478,20 +478,20 @@ func (bd *BottleneckDetector) Detect(metrics *ResourceMetrics) []*Bottleneck {
 	return bottlenecks
 }
 
-// OptimizationAdvisor 优化建议器
+// OptimizationAdvisor 优化建议器.
 type OptimizationAdvisor struct {
 	mu     sync.RWMutex
 	logger *zap.Logger
 }
 
-// NewOptimizationAdvisor 创建优化建议器
+// NewOptimizationAdvisor 创建优化建议器.
 func NewOptimizationAdvisor(logger *zap.Logger) *OptimizationAdvisor {
 	return &OptimizationAdvisor{
 		logger: logger,
 	}
 }
 
-// GenerateSuggestions 生成优化建议
+// GenerateSuggestions 生成优化建议.
 func (oa *OptimizationAdvisor) GenerateSuggestions(metrics *ResourceMetrics, bottlenecks []*Bottleneck) []*OptimizationSuggestion {
 	oa.mu.RLock()
 	defer oa.mu.RUnlock()
@@ -516,7 +516,7 @@ func (oa *OptimizationAdvisor) GenerateSuggestions(metrics *ResourceMetrics, bot
 	return suggestions
 }
 
-// generateCPUSuggestions 生成 CPU 优化建议
+// generateCPUSuggestions 生成 CPU 优化建议.
 func (oa *OptimizationAdvisor) generateCPUSuggestions(bottleneck *Bottleneck) []*OptimizationSuggestion {
 	var suggestions []*OptimizationSuggestion
 
@@ -551,7 +551,7 @@ func (oa *OptimizationAdvisor) generateCPUSuggestions(bottleneck *Bottleneck) []
 	return suggestions
 }
 
-// generateMemorySuggestions 生成内存优化建议
+// generateMemorySuggestions 生成内存优化建议.
 func (oa *OptimizationAdvisor) generateMemorySuggestions(bottleneck *Bottleneck) []*OptimizationSuggestion {
 	var suggestions []*OptimizationSuggestion
 
@@ -584,7 +584,7 @@ func (oa *OptimizationAdvisor) generateMemorySuggestions(bottleneck *Bottleneck)
 	return suggestions
 }
 
-// generateIOSuggestions 生成 IO 优化建议
+// generateIOSuggestions 生成 IO 优化建议.
 func (oa *OptimizationAdvisor) generateIOSuggestions(bottleneck *Bottleneck) []*OptimizationSuggestion {
 	var suggestions []*OptimizationSuggestion
 
@@ -604,7 +604,7 @@ func (oa *OptimizationAdvisor) generateIOSuggestions(bottleneck *Bottleneck) []*
 	return suggestions
 }
 
-// generateGeneralSuggestions 生成通用优化建议
+// generateGeneralSuggestions 生成通用优化建议.
 func (oa *OptimizationAdvisor) generateGeneralSuggestions(metrics *ResourceMetrics) []*OptimizationSuggestion {
 	var suggestions []*OptimizationSuggestion
 
@@ -628,7 +628,7 @@ func (oa *OptimizationAdvisor) generateGeneralSuggestions(metrics *ResourceMetri
 	return suggestions
 }
 
-// ScheduledOptimizer 定时优化器
+// ScheduledOptimizer 定时优化器.
 type ScheduledOptimizer struct {
 	mu      sync.RWMutex
 	logger  *zap.Logger
@@ -638,7 +638,7 @@ type ScheduledOptimizer struct {
 	cancel  context.CancelFunc
 }
 
-// NewScheduledOptimizer 创建定时优化器
+// NewScheduledOptimizer 创建定时优化器.
 func NewScheduledOptimizer(logger *zap.Logger, engine *OptimizationEngine) *ScheduledOptimizer {
 	return &ScheduledOptimizer{
 		logger: logger,
@@ -647,7 +647,7 @@ func NewScheduledOptimizer(logger *zap.Logger, engine *OptimizationEngine) *Sche
 	}
 }
 
-// AddTask 添加定时任务
+// AddTask 添加定时任务.
 func (so *ScheduledOptimizer) AddTask(task *ScheduledTask) {
 	so.mu.Lock()
 	defer so.mu.Unlock()
@@ -659,7 +659,7 @@ func (so *ScheduledOptimizer) AddTask(task *ScheduledTask) {
 		zap.String("cron", task.CronExpr))
 }
 
-// RemoveTask 移除定时任务
+// RemoveTask 移除定时任务.
 func (so *ScheduledOptimizer) RemoveTask(taskID string) {
 	so.mu.Lock()
 	defer so.mu.Unlock()
@@ -668,7 +668,7 @@ func (so *ScheduledOptimizer) RemoveTask(taskID string) {
 	so.logger.Info("移除定时优化任务", zap.String("id", taskID))
 }
 
-// GetTasks 获取所有定时任务
+// GetTasks 获取所有定时任务.
 func (so *ScheduledOptimizer) GetTasks() []*ScheduledTask {
 	so.mu.RLock()
 	defer so.mu.RUnlock()
@@ -680,7 +680,7 @@ func (so *ScheduledOptimizer) GetTasks() []*ScheduledTask {
 	return tasks
 }
 
-// Start 启动定时优化器
+// Start 启动定时优化器.
 func (so *ScheduledOptimizer) Start(ctx context.Context) {
 	so.mu.Lock()
 	defer so.mu.Unlock()
@@ -696,7 +696,7 @@ func (so *ScheduledOptimizer) Start(ctx context.Context) {
 	so.logger.Info("定时优化器已启动")
 }
 
-// Stop 停止定时优化器
+// Stop 停止定时优化器.
 func (so *ScheduledOptimizer) Stop() {
 	so.mu.Lock()
 	defer so.mu.Unlock()
@@ -713,7 +713,7 @@ func (so *ScheduledOptimizer) Stop() {
 	so.logger.Info("定时优化器已停止")
 }
 
-// run 运行定时任务
+// run 运行定时任务.
 func (so *ScheduledOptimizer) run(ctx context.Context) {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -728,7 +728,7 @@ func (so *ScheduledOptimizer) run(ctx context.Context) {
 	}
 }
 
-// executeDueTasks 执行到期的任务
+// executeDueTasks 执行到期的任务.
 func (so *ScheduledOptimizer) executeDueTasks() {
 	so.mu.RLock()
 	tasks := make([]*ScheduledTask, 0)
@@ -744,7 +744,7 @@ func (so *ScheduledOptimizer) executeDueTasks() {
 	}
 }
 
-// isTaskDue 检查任务是否到期
+// isTaskDue 检查任务是否到期.
 func (so *ScheduledOptimizer) isTaskDue(task *ScheduledTask) bool {
 	if task.LastRun == nil {
 		return true
@@ -755,7 +755,7 @@ func (so *ScheduledOptimizer) isTaskDue(task *ScheduledTask) bool {
 	return time.Since(*task.LastRun) >= 1*time.Hour
 }
 
-// executeTask 执行任务
+// executeTask 执行任务.
 func (so *ScheduledOptimizer) executeTask(task *ScheduledTask) {
 	so.mu.Lock()
 	now := time.Now()
@@ -786,7 +786,7 @@ func (so *ScheduledOptimizer) executeTask(task *ScheduledTask) {
 	}
 }
 
-// NewOptimizationEngine 创建优化引擎
+// NewOptimizationEngine 创建优化引擎.
 func NewOptimizationEngine(logger *zap.Logger, config *AutoTuneConfig) *OptimizationEngine {
 	engine := &OptimizationEngine{
 		logger:         logger,
@@ -808,7 +808,7 @@ func NewOptimizationEngine(logger *zap.Logger, config *AutoTuneConfig) *Optimiza
 	return engine
 }
 
-// Start 启动优化引擎
+// Start 启动优化引擎.
 func (e *OptimizationEngine) Start(ctx context.Context) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -830,7 +830,7 @@ func (e *OptimizationEngine) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止优化引擎
+// Stop 停止优化引擎.
 func (e *OptimizationEngine) Stop() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -848,7 +848,7 @@ func (e *OptimizationEngine) Stop() {
 	e.logger.Info("优化引擎已停止")
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (e *OptimizationEngine) monitorLoop(ctx context.Context) {
 	ticker := time.NewTicker(time.Duration(e.config.TuneInterval) * time.Second)
 	defer ticker.Stop()
@@ -863,7 +863,7 @@ func (e *OptimizationEngine) monitorLoop(ctx context.Context) {
 	}
 }
 
-// monitorCycle 监控周期
+// monitorCycle 监控周期.
 func (e *OptimizationEngine) monitorCycle() {
 	// 收集指标
 	metrics := e.metrics.Collect()
@@ -901,7 +901,7 @@ func (e *OptimizationEngine) monitorCycle() {
 	}
 }
 
-// applySuggestion 应用优化建议
+// applySuggestion 应用优化建议.
 func (e *OptimizationEngine) applySuggestion(suggestion *OptimizationSuggestion) {
 	e.logger.Info("应用优化建议",
 		zap.String("id", suggestion.ID),
@@ -913,7 +913,7 @@ func (e *OptimizationEngine) applySuggestion(suggestion *OptimizationSuggestion)
 	// 实际的应用逻辑需要根据具体建议实现
 }
 
-// GetStats 获取引擎统计
+// GetStats 获取引擎统计.
 func (e *OptimizationEngine) GetStats() *EngineStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -926,47 +926,47 @@ func (e *OptimizationEngine) GetStats() *EngineStats {
 	return &stats
 }
 
-// GetPredictions 获取资源预测
+// GetPredictions 获取资源预测.
 func (e *OptimizationEngine) GetPredictions() []*PredictionResult {
 	return e.predictor.Predict()
 }
 
-// GetBottlenecks 获取当前瓶颈
+// GetBottlenecks 获取当前瓶颈.
 func (e *OptimizationEngine) GetBottlenecks() []*Bottleneck {
 	metrics := e.metrics.Collect()
 	return e.detector.Detect(metrics)
 }
 
-// GetSuggestions 获取优化建议
+// GetSuggestions 获取优化建议.
 func (e *OptimizationEngine) GetSuggestions() []*OptimizationSuggestion {
 	metrics := e.metrics.Collect()
 	bottlenecks := e.detector.Detect(metrics)
 	return e.advisor.GenerateSuggestions(metrics, bottlenecks)
 }
 
-// GetHistory 获取优化历史
+// GetHistory 获取优化历史.
 func (e *OptimizationEngine) GetHistory() []*OptimizationRecord {
 	return e.history.GetAll()
 }
 
-// GetScheduler 获取定时优化器
+// GetScheduler 获取定时优化器.
 func (e *OptimizationEngine) GetScheduler() *ScheduledOptimizer {
 	return e.scheduler
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (e *OptimizationEngine) GetConfig() *AutoTuneConfig {
 	return e.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (e *OptimizationEngine) UpdateConfig(config *AutoTuneConfig) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.config = config
 }
 
-// IsRunning 是否运行中
+// IsRunning 是否运行中.
 func (e *OptimizationEngine) IsRunning() bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()

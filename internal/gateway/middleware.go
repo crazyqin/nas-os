@@ -12,28 +12,28 @@ import (
 	"golang.org/x/time/rate"
 )
 
-// Middleware represents a middleware function
+// Middleware represents a middleware function.
 type Middleware func(http.Handler) http.Handler
 
-// Chain represents a middleware chain
+// Chain represents a middleware chain.
 type Chain struct {
 	middlewares []Middleware
 }
 
-// NewChain creates a new middleware chain
+// NewChain creates a new middleware chain.
 func NewChain(middlewares ...Middleware) *Chain {
 	return &Chain{
 		middlewares: middlewares,
 	}
 }
 
-// Add adds a middleware to the chain
+// Add adds a middleware to the chain.
 func (c *Chain) Add(middleware Middleware) *Chain {
 	c.middlewares = append(c.middlewares, middleware)
 	return c
 }
 
-// Then wraps the final handler with all middlewares
+// Then wraps the final handler with all middlewares.
 func (c *Chain) Then(handler http.Handler) http.Handler {
 	for i := len(c.middlewares) - 1; i >= 0; i-- {
 		handler = c.middlewares[i](handler)
@@ -41,7 +41,7 @@ func (c *Chain) Then(handler http.Handler) http.Handler {
 	return handler
 }
 
-// LoggingMiddleware logs incoming requests
+// LoggingMiddleware logs incoming requests.
 func LoggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
@@ -61,7 +61,7 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// responseWriter wraps http.ResponseWriter to capture status code
+// responseWriter wraps http.ResponseWriter to capture status code.
 type responseWriter struct {
 	http.ResponseWriter
 	statusCode int
@@ -72,7 +72,7 @@ func (rw *responseWriter) WriteHeader(code int) {
 	rw.ResponseWriter.WriteHeader(code)
 }
 
-// CORSConfig holds CORS configuration
+// CORSConfig holds CORS configuration.
 type CORSConfig struct {
 	AllowOrigins     []string `json:"allowOrigins"`
 	AllowMethods     []string `json:"allowMethods"`
@@ -82,7 +82,7 @@ type CORSConfig struct {
 	MaxAge           int      `json:"maxAge"`
 }
 
-// DefaultCORSConfig returns default CORS configuration
+// DefaultCORSConfig returns default CORS configuration.
 func DefaultCORSConfig() *CORSConfig {
 	return &CORSConfig{
 		AllowOrigins:     []string{"*"},
@@ -94,7 +94,7 @@ func DefaultCORSConfig() *CORSConfig {
 	}
 }
 
-// CORSMiddleware handles CORS requests
+// CORSMiddleware handles CORS requests.
 func CORSMiddleware(config *CORSConfig) Middleware {
 	if config == nil {
 		config = DefaultCORSConfig()
@@ -142,25 +142,25 @@ func CORSMiddleware(config *CORSConfig) Middleware {
 	}
 }
 
-// RateLimitConfig holds rate limit configuration
+// RateLimitConfig holds rate limit configuration.
 type RateLimitConfig struct {
-	Rate     rate.Limit `json:"rate"`     // requests per second
-	Burst    int        `json:"burst"`    // burst size
-	ByIP     bool       `json:"byIP"`     // rate limit by IP
-	ByUser   bool       `json:"byUser"`   // rate limit by user
+	Rate   rate.Limit `json:"rate"`   // requests per second
+	Burst  int        `json:"burst"`  // burst size
+	ByIP   bool       `json:"byIP"`   // rate limit by IP
+	ByUser bool       `json:"byUser"` // rate limit by user
 }
 
-// DefaultRateLimitConfig returns default rate limit configuration
+// DefaultRateLimitConfig returns default rate limit configuration.
 func DefaultRateLimitConfig() *RateLimitConfig {
 	return &RateLimitConfig{
-		Rate:  10, // 10 requests per second
-		Burst: 20,
-		ByIP:  true,
+		Rate:   10, // 10 requests per second
+		Burst:  20,
+		ByIP:   true,
 		ByUser: false,
 	}
 }
 
-// rateLimiter stores rate limiters per key
+// rateLimiter stores rate limiters per key.
 type rateLimiter struct {
 	limiters map[string]*rate.Limiter
 	mu       sync.RWMutex
@@ -168,7 +168,7 @@ type rateLimiter struct {
 	burst    int
 }
 
-// newRateLimiter creates a new rate limiter
+// newRateLimiter creates a new rate limiter.
 func newRateLimiter(rateLimit rate.Limit, burst int) *rateLimiter {
 	return &rateLimiter{
 		limiters: make(map[string]*rate.Limiter),
@@ -177,7 +177,7 @@ func newRateLimiter(rateLimit rate.Limit, burst int) *rateLimiter {
 	}
 }
 
-// getLimiter returns the rate limiter for the given key
+// getLimiter returns the rate limiter for the given key.
 func (rl *rateLimiter) getLimiter(key string) *rate.Limiter {
 	rl.mu.Lock()
 	defer rl.mu.Unlock()
@@ -191,7 +191,7 @@ func (rl *rateLimiter) getLimiter(key string) *rate.Limiter {
 	return limiter
 }
 
-// RateLimitMiddleware limits request rate
+// RateLimitMiddleware limits request rate.
 func RateLimitMiddleware(config *RateLimitConfig) Middleware {
 	if config == nil {
 		config = DefaultRateLimitConfig()
@@ -226,7 +226,7 @@ func RateLimitMiddleware(config *RateLimitConfig) Middleware {
 	}
 }
 
-// AuthConfig holds authentication configuration
+// AuthConfig holds authentication configuration.
 type AuthConfig struct {
 	Enabled     bool     `json:"enabled"`
 	Users       []User   `json:"users"`
@@ -234,14 +234,14 @@ type AuthConfig struct {
 	PublicPaths []string `json:"publicPaths"`
 }
 
-// User represents a user
+// User represents a user.
 type User struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Role     string `json:"role"`
 }
 
-// BasicAuthMiddleware provides basic authentication
+// BasicAuthMiddleware provides basic authentication.
 func BasicAuthMiddleware(config *AuthConfig) Middleware {
 	if config == nil || !config.Enabled {
 		return func(next http.Handler) http.Handler {
@@ -293,13 +293,13 @@ func BasicAuthMiddleware(config *AuthConfig) Middleware {
 	}
 }
 
-// RBACConfig holds RBAC configuration
+// RBACConfig holds RBAC configuration.
 type RBACConfig struct {
-	Roles       map[string][]string `json:"roles"`       // role -> allowed paths
+	Roles       map[string][]string `json:"roles"` // role -> allowed paths
 	DefaultRole string              `json:"defaultRole"`
 }
 
-// RBACMiddleware provides role-based access control
+// RBACMiddleware provides role-based access control.
 func RBACMiddleware(config *RBACConfig) Middleware {
 	if config == nil {
 		return func(next http.Handler) http.Handler {
@@ -344,7 +344,7 @@ func RBACMiddleware(config *RBACConfig) Middleware {
 	}
 }
 
-// SecurityHeadersMiddleware adds security headers
+// SecurityHeadersMiddleware adds security headers.
 func SecurityHeadersMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
@@ -357,7 +357,7 @@ func SecurityHeadersMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// RequestIDMiddleware adds a unique request ID
+// RequestIDMiddleware adds a unique request ID.
 func RequestIDMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requestID := r.Header.Get("X-Request-Id")
@@ -372,7 +372,7 @@ func RequestIDMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// CompressionMiddleware handles response compression
+// CompressionMiddleware handles response compression.
 func CompressionMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Check if client accepts gzip
@@ -390,7 +390,7 @@ func CompressionMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// RecoveryMiddleware recovers from panics
+// RecoveryMiddleware recovers from panics.
 func RecoveryMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
@@ -404,7 +404,7 @@ func RecoveryMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// HealthCheckMiddleware provides health check endpoint
+// HealthCheckMiddleware provides health check endpoint.
 func HealthCheckMiddleware(path string) Middleware {
 	if path == "" {
 		path = "/health"
@@ -424,7 +424,7 @@ func HealthCheckMiddleware(path string) Middleware {
 	}
 }
 
-// MetricsMiddleware collects request metrics
+// MetricsMiddleware collects request metrics.
 func MetricsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()

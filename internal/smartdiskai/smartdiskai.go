@@ -15,7 +15,7 @@ import (
 // SMARTCollector - SMART 数据采集与解析引擎
 // ============================================================
 
-// SMARTCollector SMART 数据采集与解析引擎
+// SMARTCollector SMART 数据采集与解析引擎.
 type SMARTCollector struct {
 	mu            sync.RWMutex
 	logger        *zap.Logger
@@ -25,7 +25,7 @@ type SMARTCollector struct {
 	maxHistoryLen int
 }
 
-// NewSMARTCollector 创建 SMART 采集引擎
+// NewSMARTCollector 创建 SMART 采集引擎.
 func NewSMARTCollector(logger *zap.Logger, maxHistory int) *SMARTCollector {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -42,7 +42,7 @@ func NewSMARTCollector(logger *zap.Logger, maxHistory int) *SMARTCollector {
 	}
 }
 
-// RecordData 记录 SMART 数据
+// RecordData 记录 SMART 数据.
 func (c *SMARTCollector) RecordData(data SMARTData) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -64,7 +64,7 @@ func (c *SMARTCollector) RecordData(data SMARTData) {
 	)
 }
 
-// GetLatestData 获取设备最新 SMART 数据
+// GetLatestData 获取设备最新 SMART 数据.
 func (c *SMARTCollector) GetLatestData(device string) (*SMARTData, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -77,7 +77,7 @@ func (c *SMARTCollector) GetLatestData(device string) (*SMARTData, error) {
 	return &latest, nil
 }
 
-// GetHistory 获取设备历史数据
+// GetHistory 获取设备历史数据.
 func (c *SMARTCollector) GetHistory(device string) []SMARTData {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -88,7 +88,7 @@ func (c *SMARTCollector) GetHistory(device string) []SMARTData {
 	return result
 }
 
-// GetDevices 获取所有设备列表
+// GetDevices 获取所有设备列表.
 func (c *SMARTCollector) GetDevices() []string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -105,7 +105,7 @@ func (c *SMARTCollector) GetDevices() []string {
 // SMART 分析器 - 线性回归与趋势分析
 // ============================================================
 
-// Analyze 对设备进行 SMART 分析（含线性回归）
+// Analyze 对设备进行 SMART 分析（含线性回归）.
 func (c *SMARTCollector) Analyze(device string) (*SMARTAnalysisResult, error) {
 	c.mu.RLock()
 	if cached, ok := c.analysisCache[device]; ok {
@@ -173,7 +173,7 @@ func (c *SMARTCollector) Analyze(device string) (*SMARTAnalysisResult, error) {
 	return result, nil
 }
 
-// LinearRegression 线性回归分析（导出供测试使用）
+// LinearRegression 线性回归分析（导出供测试使用）.
 func (c *SMARTCollector) LinearRegression(values []uint64) *LinearRegressionResult {
 	n := float64(len(values))
 	if n < 2 {
@@ -225,7 +225,7 @@ func (c *SMARTCollector) LinearRegression(values []uint64) *LinearRegressionResu
 	}
 }
 
-// DetermineTrend 根据属性类型和斜率确定趋势（导出供测试使用）
+// DetermineTrend 根据属性类型和斜率确定趋势（导出供测试使用）.
 func (c *SMARTCollector) DetermineTrend(attrID SMARTAttributeID, slope float64) TrendDirection {
 	// 值越低越好的属性
 	lowerIsBetter := map[SMARTAttributeID]bool{
@@ -264,7 +264,7 @@ func (c *SMARTCollector) DetermineTrend(attrID SMARTAttributeID, slope float64) 
 // 温度趋势分析引擎
 // ============================================================
 
-// AnalyzeTemperature 分析设备温度趋势
+// AnalyzeTemperature 分析设备温度趋势.
 func (c *SMARTCollector) AnalyzeTemperature(device string) (*TemperatureTrend, error) {
 	c.mu.RLock()
 	if cached, ok := c.tempCache[device]; ok {
@@ -347,7 +347,7 @@ func (c *SMARTCollector) AnalyzeTemperature(device string) (*TemperatureTrend, e
 	return result, nil
 }
 
-// determineTempTrend 确定温度趋势
+// determineTempTrend 确定温度趋势.
 func (c *SMARTCollector) determineTempTrend(slope float64) TrendDirection {
 	if slope > 0.5 {
 		return TrendDeclining // 温度上升 = 恶化
@@ -359,7 +359,7 @@ func (c *SMARTCollector) determineTempTrend(slope float64) TrendDirection {
 	return TrendStable
 }
 
-// generateTempAlerts 生成温度告警
+// generateTempAlerts 生成温度告警.
 func (c *SMARTCollector) generateTempAlerts(trend *TemperatureTrend) []TemperatureAlert {
 	var alerts []TemperatureAlert
 	now := time.Now()
@@ -386,9 +386,9 @@ func (c *SMARTCollector) generateTempAlerts(trend *TemperatureTrend) []Temperatu
 	// 温度趋势告警
 	if trend.Regression != nil && trend.Regression.Slope > 0.5 {
 		alerts = append(alerts, TemperatureAlert{
-			Level:   "warning",
-			Message: fmt.Sprintf("温度持续上升趋势 (斜率: %.2f℃/天)", trend.Regression.Slope),
-			Temp:    trend.CurrentTemp,
+			Level:     "warning",
+			Message:   fmt.Sprintf("温度持续上升趋势 (斜率: %.2f℃/天)", trend.Regression.Slope),
+			Temp:      trend.CurrentTemp,
 			CreatedAt: now,
 		})
 	}
@@ -396,9 +396,9 @@ func (c *SMARTCollector) generateTempAlerts(trend *TemperatureTrend) []Temperatu
 	// 温度波动告警
 	if trend.TempStdDev > 10 {
 		alerts = append(alerts, TemperatureAlert{
-			Level:   "warning",
-			Message: fmt.Sprintf("温度波动过大 (标准差: %.1f℃)", trend.TempStdDev),
-			Temp:    trend.CurrentTemp,
+			Level:     "warning",
+			Message:   fmt.Sprintf("温度波动过大 (标准差: %.1f℃)", trend.TempStdDev),
+			Temp:      trend.CurrentTemp,
 			CreatedAt: now,
 		})
 	}
@@ -421,7 +421,7 @@ func (c *SMARTCollector) generateTempAlerts(trend *TemperatureTrend) []Temperatu
 // 辅助函数
 // ============================================================
 
-// extractAttributeHistory 提取属性历史值
+// extractAttributeHistory 提取属性历史值.
 func (c *SMARTCollector) extractAttributeHistory(history []SMARTData, attrID SMARTAttributeID) []uint64 {
 	var values []uint64
 	for _, snapshot := range history {
@@ -435,7 +435,7 @@ func (c *SMARTCollector) extractAttributeHistory(history []SMARTData, attrID SMA
 	return values
 }
 
-// determineOverallTrend 确定整体趋势
+// determineOverallTrend 确定整体趋势.
 func (c *SMARTCollector) determineOverallTrend(trends []AttributeTrend) TrendDirection {
 	if len(trends) == 0 {
 		return TrendStable
@@ -458,7 +458,7 @@ func (c *SMARTCollector) determineOverallTrend(trends []AttributeTrend) TrendDir
 	return TrendStable
 }
 
-// GetAttributeName 获取 SMART 属性名称
+// GetAttributeName 获取 SMART 属性名称.
 func GetAttributeName(id SMARTAttributeID) string {
 	names := map[SMARTAttributeID]string{
 		SMARTIDReallocatedSectorCt: "Reallocated_Sector_Ct", SMARTIDSpinRetryCount: "Spin_Retry_Count",
@@ -469,7 +469,7 @@ func GetAttributeName(id SMARTAttributeID) string {
 		SMARTIDTotalLBAsWritten: "Total_LBAs_Written", SMARTIDTotalLBAsRead: "Total_LBAs_Read",
 		SMARTIDSeekErrorRate: "Seek_Error_Rate", SMARTIDSpinUpTime: "Spin_Up_Time",
 		SMARTIDStartStopCount: "Start_Stop_Count", SMARTIDReallocatedEventCount: "Reallocated_Event_Count",
-		SMARTIDUDMAErrorCount: "UDMA_Error_Count",
+		SMARTIDUDMAErrorCount:     "UDMA_Error_Count",
 		SMARTIDMultiZoneErrorRate: "Multi_Zone_Error_Rate", SMARTIDGSENSEErrorRate: "G_Sense_Error_Rate",
 		SMARTIDLoadUnloadCycleCount: "Load_Unload_Cycle_Count", SMARTIDHeadFlyingHours: "Head_Flying_Hours",
 		SMARTIDTotalHostWrites: "Total_Host_Writes", SMARTIDTotalHostReads: "Total_Host_Reads",
@@ -483,7 +483,7 @@ func GetAttributeName(id SMARTAttributeID) string {
 	return fmt.Sprintf("Unknown_%d", id)
 }
 
-// getAttributeValue 从 SMART 数据中获取属性原始值
+// getAttributeValue 从 SMART 数据中获取属性原始值.
 func getAttributeValue(data *SMARTData, attrID SMARTAttributeID) uint64 {
 	for _, attr := range data.Attributes {
 		if attr.ID == attrID {

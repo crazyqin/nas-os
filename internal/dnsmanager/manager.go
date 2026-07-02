@@ -16,7 +16,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Manager DNS 管理器
+// Manager DNS 管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	records   map[string]*DNSRecord
@@ -27,7 +27,7 @@ type Manager struct {
 	nextID    int64
 }
 
-// NewManager 创建新的 DNS 管理器
+// NewManager 创建新的 DNS 管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		records:   make(map[string]*DNSRecord),
@@ -46,7 +46,7 @@ func NewManager() *Manager {
 	return m
 }
 
-// addDefaultUpstreams 添加默认上游 DNS 服务器
+// addDefaultUpstreams 添加默认上游 DNS 服务器.
 func (m *Manager) addDefaultUpstreams() {
 	defaults := []UpstreamServer{
 		{ID: uuid.New().String(), Address: "8.8.8.8", Port: 53, Protocol: ProtocolUDP, Enabled: true},
@@ -59,7 +59,7 @@ func (m *Manager) addDefaultUpstreams() {
 	}
 }
 
-// addDefaultBlockRules 添加默认广告拦截规则
+// addDefaultBlockRules 添加默认广告拦截规则.
 func (m *Manager) addDefaultBlockRules() {
 	defaultRules := []DNSRule{
 		{ID: uuid.New().String(), Pattern: "ads.google.com", Action: ActionBlock, Enabled: true, Category: "ads"},
@@ -84,7 +84,7 @@ func (m *Manager) addDefaultBlockRules() {
 
 // ========== DNS 记录管理 ==========
 
-// AddRecord 添加 DNS 记录
+// AddRecord 添加 DNS 记录.
 func (m *Manager) AddRecord(zone string, record DNSRecord) (*DNSRecord, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -149,7 +149,7 @@ func (m *Manager) AddRecord(zone string, record DNSRecord) (*DNSRecord, error) {
 	return newRecord, nil
 }
 
-// UpdateRecord 更新 DNS 记录
+// UpdateRecord 更新 DNS 记录.
 func (m *Manager) UpdateRecord(id string, req UpdateRecordRequest) (*DNSRecord, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -182,7 +182,7 @@ func (m *Manager) UpdateRecord(id string, req UpdateRecordRequest) (*DNSRecord, 
 	return record, nil
 }
 
-// DeleteRecord 删除 DNS 记录
+// DeleteRecord 删除 DNS 记录.
 func (m *Manager) DeleteRecord(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -210,7 +210,7 @@ func (m *Manager) DeleteRecord(id string) error {
 	return nil
 }
 
-// ListRecords 列出指定区域的所有记录
+// ListRecords 列出指定区域的所有记录.
 func (m *Manager) ListRecords(zone string) ([]DNSRecord, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -240,7 +240,7 @@ func (m *Manager) ListRecords(zone string) ([]DNSRecord, error) {
 
 // ========== DNS 规则管理 ==========
 
-// AddRule 添加过滤规则
+// AddRule 添加过滤规则.
 func (m *Manager) AddRule(rule DNSRule) (*DNSRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -277,7 +277,7 @@ func (m *Manager) AddRule(rule DNSRule) (*DNSRule, error) {
 	return newRule, nil
 }
 
-// UpdateRule 更新过滤规则
+// UpdateRule 更新过滤规则.
 func (m *Manager) UpdateRule(id string, req UpdateRuleRequest) (*DNSRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -307,7 +307,7 @@ func (m *Manager) UpdateRule(id string, req UpdateRuleRequest) (*DNSRule, error)
 	return rule, nil
 }
 
-// DeleteRule 删除过滤规则
+// DeleteRule 删除过滤规则.
 func (m *Manager) DeleteRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -322,7 +322,7 @@ func (m *Manager) DeleteRule(id string) error {
 	return nil
 }
 
-// ListRules 列出所有过滤规则
+// ListRules 列出所有过滤规则.
 func (m *Manager) ListRules() ([]DNSRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -339,7 +339,7 @@ func (m *Manager) ListRules() ([]DNSRule, error) {
 	return rules, nil
 }
 
-// ToggleRule 切换规则启用状态
+// ToggleRule 切换规则启用状态.
 func (m *Manager) ToggleRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -356,7 +356,7 @@ func (m *Manager) ToggleRule(id string) error {
 
 // ========== DNS 解析 ==========
 
-// Resolve 解析 DNS 请求
+// Resolve 解析 DNS 请求.
 func (m *Manager) Resolve(domain, queryType string) (*DNSRecord, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -373,7 +373,7 @@ func (m *Manager) Resolve(domain, queryType string) (*DNSRecord, error) {
 	return nil, fmt.Errorf("未找到记录: %s (%s)", domain, queryType)
 }
 
-// ShouldBlock 检查域名是否应该被拦截
+// ShouldBlock 检查域名是否应该被拦截.
 func (m *Manager) ShouldBlock(domain string) (bool, string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -402,7 +402,7 @@ func (m *Manager) ShouldBlock(domain string) (bool, string, error) {
 	return false, "", nil
 }
 
-// matchDomain 匹配域名（支持通配符）
+// matchDomain 匹配域名（支持通配符）.
 func matchDomain(domain, pattern string) bool {
 	if domain == pattern {
 		return true
@@ -431,7 +431,7 @@ func matchDomain(domain, pattern string) bool {
 
 // ========== 查询日志 ==========
 
-// LogQuery 记录 DNS 查询
+// LogQuery 记录 DNS 查询.
 func (m *Manager) LogQuery(query DNSQuery) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -453,7 +453,7 @@ func (m *Manager) LogQuery(query DNSQuery) error {
 	return nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats(period string) (*DNSStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -536,7 +536,7 @@ func (m *Manager) GetStats(period string) (*DNSStats, error) {
 	return stats, nil
 }
 
-// GetQueryLog 获取查询日志（分页）
+// GetQueryLog 获取查询日志（分页）.
 func (m *Manager) GetQueryLog(limit, offset int) ([]DNSQuery, int, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -576,7 +576,7 @@ func (m *Manager) GetQueryLog(limit, offset int) ([]DNSQuery, int, error) {
 
 // ========== 上游服务器管理 ==========
 
-// AddUpstream 添加上游 DNS 服务器
+// AddUpstream 添加上游 DNS 服务器.
 func (m *Manager) AddUpstream(server UpstreamServer) (*UpstreamServer, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -609,7 +609,7 @@ func (m *Manager) AddUpstream(server UpstreamServer) (*UpstreamServer, error) {
 	return newServer, nil
 }
 
-// RemoveUpstream 删除上游 DNS 服务器
+// RemoveUpstream 删除上游 DNS 服务器.
 func (m *Manager) RemoveUpstream(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -624,7 +624,7 @@ func (m *Manager) RemoveUpstream(id string) error {
 	return nil
 }
 
-// TestUpstream 测试上游 DNS 服务器延迟
+// TestUpstream 测试上游 DNS 服务器延迟.
 func (m *Manager) TestUpstream(id string) (time.Duration, error) {
 	m.mu.RLock()
 	server, exists := m.upstreams[id]
@@ -650,7 +650,7 @@ func (m *Manager) TestUpstream(id string) (time.Duration, error) {
 
 // ========== 拦截列表导入 ==========
 
-// ImportBlockList 从 URL 导入拦截列表
+// ImportBlockList 从 URL 导入拦截列表.
 func (m *Manager) ImportBlockList(url string) (int, error) {
 	if url == "" {
 		return 0, fmt.Errorf("URL 不能为空")
@@ -707,7 +707,7 @@ func (m *Manager) ImportBlockList(url string) (int, error) {
 
 // ========== 配置导出 ==========
 
-// ExportConfig 导出配置为 JSON
+// ExportConfig 导出配置为 JSON.
 func (m *Manager) ExportConfig() ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

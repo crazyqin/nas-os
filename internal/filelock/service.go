@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Service 文件锁服务
+// Service 文件锁服务.
 type Service struct {
 	mu     sync.RWMutex
 	config *Config
@@ -23,7 +23,7 @@ type Service struct {
 	running bool
 }
 
-// NewService 创建文件锁服务
+// NewService 创建文件锁服务.
 func NewService(cfg *Config) *Service {
 	if cfg == nil {
 		cfg = DefaultConfig()
@@ -37,7 +37,7 @@ func NewService(cfg *Config) *Service {
 	}
 }
 
-// Start 启动服务，开始自动清理过期锁
+// Start 启动服务，开始自动清理过期锁.
 func (s *Service) Start() {
 	s.mu.Lock()
 	if s.running {
@@ -50,7 +50,7 @@ func (s *Service) Start() {
 	go s.cleanupLoop()
 }
 
-// Stop 停止服务
+// Stop 停止服务.
 func (s *Service) Stop() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -61,7 +61,7 @@ func (s *Service) Stop() {
 	close(s.stopChan)
 }
 
-// cleanupLoop 定期清理过期锁
+// cleanupLoop 定期清理过期锁.
 func (s *Service) cleanupLoop() {
 	interval := time.Duration(s.config.CleanupIntervalMinutes) * time.Minute
 	if interval <= 0 {
@@ -80,7 +80,7 @@ func (s *Service) cleanupLoop() {
 	}
 }
 
-// cleanupExpired 清理过期锁
+// cleanupExpired 清理过期锁.
 func (s *Service) cleanupExpired() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -96,7 +96,7 @@ func (s *Service) cleanupExpired() {
 	}
 }
 
-// Lock 获取文件锁
+// Lock 获取文件锁.
 func (s *Service) Lock(req *LockRequest) (*LockInfo, error) {
 	if !s.config.Enabled {
 		return nil, fmt.Errorf("文件锁定功能未启用")
@@ -132,7 +132,7 @@ func (s *Service) Lock(req *LockRequest) (*LockInfo, error) {
 }
 
 // Unlock 释放文件锁
-// 支持 by lockID 或 by filePath + userID
+// 支持 by lockID 或 by filePath + userID.
 func (s *Service) Unlock(req *UnlockRequest) (int, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -188,7 +188,7 @@ func (s *Service) Unlock(req *UnlockRequest) (int, error) {
 	return releasedCount, nil
 }
 
-// List 列出所有活跃锁
+// List 列出所有活跃锁.
 func (s *Service) List() *ListLocksResponse {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -206,7 +206,7 @@ func (s *Service) List() *ListLocksResponse {
 	}
 }
 
-// ListByUser 列出指定用户的活跃锁
+// ListByUser 列出指定用户的活跃锁.
 func (s *Service) ListByUser(userID string) []*LockInfo {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -220,7 +220,7 @@ func (s *Service) ListByUser(userID string) []*LockInfo {
 	return result
 }
 
-// ListByFile 列出指定文件的活跃锁
+// ListByFile 列出指定文件的活跃锁.
 func (s *Service) ListByFile(filePath string) []*LockInfo {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -234,7 +234,7 @@ func (s *Service) ListByFile(filePath string) []*LockInfo {
 	return result
 }
 
-// GetLock 获取锁详情
+// GetLock 获取锁详情.
 func (s *Service) GetLock(lockID string) (*LockInfo, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -246,7 +246,7 @@ func (s *Service) GetLock(lockID string) (*LockInfo, error) {
 	return lock, nil
 }
 
-// IsFileLocked 检查文件是否被锁定
+// IsFileLocked 检查文件是否被锁定.
 func (s *Service) IsFileLocked(filePath string) bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -259,7 +259,7 @@ func (s *Service) IsFileLocked(filePath string) bool {
 	return false
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (s *Service) GetConfig() *Config {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -267,24 +267,24 @@ func (s *Service) GetConfig() *Config {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (s *Service) UpdateConfig(cfg *Config) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.config = cfg
 }
 
-// Stats 统计信息
+// Stats 统计信息.
 type Stats struct {
-	ActiveLocks    int `json:"active_locks"`
-	ReleasedLocks  int `json:"released_locks"`
-	ExpiredLocks   int `json:"expired_locks"`
-	TotalLocks     int `json:"total_locks"`
-	ActiveUsers    int `json:"active_users"`
-	LockedFiles    int `json:"locked_files"`
+	ActiveLocks   int `json:"active_locks"`
+	ReleasedLocks int `json:"released_locks"`
+	ExpiredLocks  int `json:"expired_locks"`
+	TotalLocks    int `json:"total_locks"`
+	ActiveUsers   int `json:"active_users"`
+	LockedFiles   int `json:"locked_files"`
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (s *Service) GetStats() *Stats {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -314,7 +314,7 @@ func (s *Service) GetStats() *Stats {
 
 // ===== 内部辅助方法 =====
 
-// removeFromFileIndex 从文件索引中移除锁 ID
+// removeFromFileIndex 从文件索引中移除锁 ID.
 func (s *Service) removeFromFileIndex(filePath, lockID string) {
 	ids := s.fileLocks[filePath]
 	for i, id := range ids {
@@ -328,7 +328,7 @@ func (s *Service) removeFromFileIndex(filePath, lockID string) {
 	}
 }
 
-// removeFromUserIndex 从用户索引中移除锁 ID
+// removeFromUserIndex 从用户索引中移除锁 ID.
 func (s *Service) removeFromUserIndex(userID, lockID string) {
 	ids := s.userLocks[userID]
 	for i, id := range ids {
@@ -342,7 +342,7 @@ func (s *Service) removeFromUserIndex(userID, lockID string) {
 	}
 }
 
-// compactFileIndex 清理文件索引中已释放/过期的锁
+// compactFileIndex 清理文件索引中已释放/过期的锁.
 func (s *Service) compactFileIndex(filePath string) {
 	ids := s.fileLocks[filePath]
 	if len(ids) == 0 {

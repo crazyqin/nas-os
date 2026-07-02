@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 智能通知管理器
+// Manager 智能通知管理器.
 type Manager struct {
 	mu            sync.RWMutex
 	logger        *zap.Logger
@@ -27,7 +27,7 @@ type Manager struct {
 	running       bool
 }
 
-// NewManager 创建智能通知管理器
+// NewManager 创建智能通知管理器.
 func NewManager(logger *zap.Logger, config *SmartNotifyConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -55,14 +55,14 @@ func NewManager(logger *zap.Logger, config *SmartNotifyConfig) *Manager {
 	return m
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// initDefaultRules 初始化默认规则
+// initDefaultRules 初始化默认规则.
 func (m *Manager) initDefaultRules() {
 	defaultRules := []*NotifyRule{
 		{
@@ -147,7 +147,7 @@ func (m *Manager) initDefaultRules() {
 	}
 }
 
-// initDefaultTemplates 初始化默认模板
+// initDefaultTemplates 初始化默认模板.
 func (m *Manager) initDefaultTemplates() {
 	defaultTemplates := []*NotifyTemplate{
 		{
@@ -197,7 +197,7 @@ func (m *Manager) initDefaultTemplates() {
 	}
 }
 
-// SendNotification 发送通知
+// SendNotification 发送通知.
 func (m *Manager) SendNotification(notify *Notification) error {
 	if !m.config.Enabled {
 		return fmt.Errorf("notification system is disabled")
@@ -279,7 +279,7 @@ func (m *Manager) SendNotification(notify *Notification) error {
 	return nil
 }
 
-// isDuplicate 检查是否重复通知
+// isDuplicate 检查是否重复通知.
 func (m *Manager) isDuplicate(notify *Notification) bool {
 	key := m.dedupKey(notify)
 	if lastTime, ok := m.dedupCache[key]; ok {
@@ -290,12 +290,12 @@ func (m *Manager) isDuplicate(notify *Notification) bool {
 	return false
 }
 
-// dedupKey 生成去重 key
+// dedupKey 生成去重 key.
 func (m *Manager) dedupKey(notify *Notification) string {
 	return fmt.Sprintf("%s:%s:%s", notify.Title, notify.Content, notify.Source)
 }
 
-// updateDedupCache 更新去重缓存
+// updateDedupCache 更新去重缓存.
 func (m *Manager) updateDedupCache(notify *Notification) {
 	key := m.dedupKey(notify)
 	m.dedupCache[key] = time.Now()
@@ -308,7 +308,7 @@ func (m *Manager) updateDedupCache(notify *Notification) {
 	}
 }
 
-// matchRule 匹配通知规则
+// matchRule 匹配通知规则.
 func (m *Manager) matchRule(notify *Notification) *NotifyRule {
 	for _, rule := range m.rules {
 		if !rule.Enabled {
@@ -321,7 +321,7 @@ func (m *Manager) matchRule(notify *Notification) *NotifyRule {
 	return nil
 }
 
-// matchConditions 匹配规则条件
+// matchConditions 匹配规则条件.
 func (m *Manager) matchConditions(notify *Notification, conditions []RuleCondition) bool {
 	for _, cond := range conditions {
 		if !m.matchCondition(notify, cond) {
@@ -331,7 +331,7 @@ func (m *Manager) matchConditions(notify *Notification, conditions []RuleConditi
 	return true
 }
 
-// matchCondition 匹配单个条件
+// matchCondition 匹配单个条件.
 func (m *Manager) matchCondition(notify *Notification, cond RuleCondition) bool {
 	actualValue := m.getFieldValue(notify, cond.Field)
 
@@ -354,7 +354,7 @@ func (m *Manager) matchCondition(notify *Notification, cond RuleCondition) bool 
 	}
 }
 
-// getFieldValue 获取通知字段值
+// getFieldValue 获取通知字段值.
 func (m *Manager) getFieldValue(notify *Notification, field string) string {
 	switch field {
 	case "title":
@@ -379,7 +379,7 @@ func (m *Manager) getFieldValue(notify *Notification, field string) string {
 	}
 }
 
-// isInSilencePeriod 检查是否在免打扰时段
+// isInSilencePeriod 检查是否在免打扰时段.
 func (m *Manager) isInSilencePeriod(rule *NotifyRule) bool {
 	if !rule.Silence.Enabled {
 		return false
@@ -421,7 +421,7 @@ func (m *Manager) isInSilencePeriod(rule *NotifyRule) bool {
 	return false
 }
 
-// parseHHMM 解析 HH:MM 格式
+// parseHHMM 解析 HH:MM 格式.
 func parseHHMM(s string) (int, error) {
 	var h, m int
 	_, err := fmt.Sscanf(s, "%d:%d", &h, &m)
@@ -431,7 +431,7 @@ func parseHHMM(s string) (int, error) {
 	return h*60 + m, nil
 }
 
-// addHistory 添加历史记录
+// addHistory 添加历史记录.
 func (m *Manager) addHistory(notify *Notification, ruleID string, channel NotifyChannel, status NotifyStatus) {
 	history := &NotifyHistory{
 		ID:        generateID(),
@@ -453,7 +453,7 @@ func (m *Manager) addHistory(notify *Notification, ruleID string, channel Notify
 	}
 }
 
-// GetNotification 获取通知详情
+// GetNotification 获取通知详情.
 func (m *Manager) GetNotification(id string) (*Notification, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -465,7 +465,7 @@ func (m *Manager) GetNotification(id string) (*Notification, error) {
 	return notify, nil
 }
 
-// ListNotifications 列出通知
+// ListNotifications 列出通知.
 func (m *Manager) ListNotifications(limit int) []*Notification {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -482,7 +482,7 @@ func (m *Manager) ListNotifications(limit int) []*Notification {
 	return notifications
 }
 
-// CreateRule 创建通知规则
+// CreateRule 创建通知规则.
 func (m *Manager) CreateRule(rule *NotifyRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -503,7 +503,7 @@ func (m *Manager) CreateRule(rule *NotifyRule) error {
 	return nil
 }
 
-// GetRule 获取规则
+// GetRule 获取规则.
 func (m *Manager) GetRule(id string) (*NotifyRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -515,7 +515,7 @@ func (m *Manager) GetRule(id string) (*NotifyRule, error) {
 	return rule, nil
 }
 
-// ListRules 列出所有规则
+// ListRules 列出所有规则.
 func (m *Manager) ListRules() []*NotifyRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -527,7 +527,7 @@ func (m *Manager) ListRules() []*NotifyRule {
 	return rules
 }
 
-// UpdateRule 更新规则
+// UpdateRule 更新规则.
 func (m *Manager) UpdateRule(id string, rule *NotifyRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -549,7 +549,7 @@ func (m *Manager) UpdateRule(id string, rule *NotifyRule) error {
 	return nil
 }
 
-// DeleteRule 删除规则
+// DeleteRule 删除规则.
 func (m *Manager) DeleteRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -563,7 +563,7 @@ func (m *Manager) DeleteRule(id string) error {
 	return nil
 }
 
-// ToggleRule 启用/禁用规则
+// ToggleRule 启用/禁用规则.
 func (m *Manager) ToggleRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -583,7 +583,7 @@ func (m *Manager) ToggleRule(id string) error {
 	return nil
 }
 
-// CreateTemplate 创建通知模板
+// CreateTemplate 创建通知模板.
 func (m *Manager) CreateTemplate(tpl *NotifyTemplate) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -603,7 +603,7 @@ func (m *Manager) CreateTemplate(tpl *NotifyTemplate) error {
 	return nil
 }
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func (m *Manager) GetTemplate(id string) (*NotifyTemplate, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -615,7 +615,7 @@ func (m *Manager) GetTemplate(id string) (*NotifyTemplate, error) {
 	return tpl, nil
 }
 
-// ListTemplates 列出所有模板
+// ListTemplates 列出所有模板.
 func (m *Manager) ListTemplates() []*NotifyTemplate {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -627,7 +627,7 @@ func (m *Manager) ListTemplates() []*NotifyTemplate {
 	return templates
 }
 
-// UpdateTemplate 更新模板
+// UpdateTemplate 更新模板.
 func (m *Manager) UpdateTemplate(id string, tpl *NotifyTemplate) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -649,7 +649,7 @@ func (m *Manager) UpdateTemplate(id string, tpl *NotifyTemplate) error {
 	return nil
 }
 
-// DeleteTemplate 删除模板
+// DeleteTemplate 删除模板.
 func (m *Manager) DeleteTemplate(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -663,7 +663,7 @@ func (m *Manager) DeleteTemplate(id string) error {
 	return nil
 }
 
-// RenderTemplate 渲染模板
+// RenderTemplate 渲染模板.
 func (m *Manager) RenderTemplate(id string, variables map[string]string) (string, string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -685,7 +685,7 @@ func (m *Manager) RenderTemplate(id string, variables map[string]string) (string
 	return title, content, nil
 }
 
-// GetHistory 获取通知历史
+// GetHistory 获取通知历史.
 func (m *Manager) GetHistory(limit int) []*NotifyHistory {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -704,7 +704,7 @@ func (m *Manager) GetHistory(limit int) []*NotifyHistory {
 	return result
 }
 
-// GetStats 获取通知统计
+// GetStats 获取通知统计.
 func (m *Manager) GetStats() *NotifyStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -731,7 +731,7 @@ func (m *Manager) GetStats() *NotifyStats {
 	return stats
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *SmartNotifyConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -739,7 +739,7 @@ func (m *Manager) GetConfig() *SmartNotifyConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(cfg *SmartNotifyConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -748,7 +748,7 @@ func (m *Manager) UpdateConfig(cfg *SmartNotifyConfig) {
 	}
 }
 
-// channelsToStrings 渠道列表转字符串
+// channelsToStrings 渠道列表转字符串.
 func channelsToStrings(channels []NotifyChannel) []string {
 	result := make([]string, len(channels))
 	for i, ch := range channels {
@@ -757,7 +757,7 @@ func channelsToStrings(channels []NotifyChannel) []string {
 	return result
 }
 
-// compareNumeric 比较数值
+// compareNumeric 比较数值.
 func compareNumeric(a, b string) int {
 	var numA, numB float64
 	fmt.Sscanf(a, "%f", &numA)

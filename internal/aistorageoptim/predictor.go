@@ -5,12 +5,12 @@ import (
 	"time"
 )
 
-// Predictor 访问模式预测器
+// Predictor 访问模式预测器.
 type Predictor struct {
 	historySize int
 }
 
-// NewPredictor 创建预测器
+// NewPredictor 创建预测器.
 func NewPredictor(historySize int) *Predictor {
 	if historySize <= 0 {
 		historySize = 100
@@ -20,7 +20,7 @@ func NewPredictor(historySize int) *Predictor {
 	}
 }
 
-// PredictAccessPattern 预测访问模式
+// PredictAccessPattern 预测访问模式.
 func (p *Predictor) PredictAccessPattern(stats *FileAccessStats, now time.Time) AccessPattern {
 	if stats.AccessCount == 0 {
 		return PatternArchive
@@ -41,7 +41,7 @@ func (p *Predictor) PredictAccessPattern(stats *FileAccessStats, now time.Time) 
 	}
 }
 
-// calculateHotness 计算热度值 (0-100)
+// calculateHotness 计算热度值 (0-100).
 func (p *Predictor) calculateHotness(stats *FileAccessStats, now time.Time) float64 {
 	if stats.AccessCount == 0 {
 		return 0
@@ -67,7 +67,7 @@ func (p *Predictor) calculateHotness(stats *FileAccessStats, now time.Time) floa
 	return frequencyScore*0.4 + recencyScore*0.3 + regularityScore*0.2 + trendScore*0.1
 }
 
-// calculateFrequencyScore 计算频率分数
+// calculateFrequencyScore 计算频率分数.
 func (p *Predictor) calculateFrequencyScore(stats *FileAccessStats) float64 {
 	if stats.AccessFrequency <= 0 {
 		return 0
@@ -77,7 +77,7 @@ func (p *Predictor) calculateFrequencyScore(stats *FileAccessStats) float64 {
 	return math.Min(100, score)
 }
 
-// calculateRecencyScore 计算最近访问分数
+// calculateRecencyScore 计算最近访问分数.
 func (p *Predictor) calculateRecencyScore(stats *FileAccessStats, now time.Time) float64 {
 	if stats.LastAccessTime.IsZero() {
 		return 0
@@ -98,7 +98,7 @@ func (p *Predictor) calculateRecencyScore(stats *FileAccessStats, now time.Time)
 	}
 }
 
-// calculateRegularityScore 计算规律性分数
+// calculateRegularityScore 计算规律性分数.
 func (p *Predictor) calculateRegularityScore(stats *FileAccessStats) float64 {
 	if len(stats.Windows) < 2 {
 		return 50 // 数据不足，返回中等分数
@@ -139,7 +139,7 @@ func (p *Predictor) calculateRegularityScore(stats *FileAccessStats) float64 {
 	}
 }
 
-// calculateTrendScore 计算趋势分数
+// calculateTrendScore 计算趋势分数.
 func (p *Predictor) calculateTrendScore(stats *FileAccessStats, now time.Time) float64 {
 	if len(stats.Windows) < 4 {
 		return 50 // 数据不足
@@ -180,7 +180,7 @@ func (p *Predictor) calculateTrendScore(stats *FileAccessStats, now time.Time) f
 	}
 }
 
-// PredictNextAccessTime 预测下次访问时间
+// PredictNextAccessTime 预测下次访问时间.
 func (p *Predictor) PredictNextAccessTime(stats *FileAccessStats, now time.Time) (time.Time, float64) {
 	if len(stats.Windows) < 3 {
 		return time.Time{}, 0
@@ -228,7 +228,7 @@ func (p *Predictor) PredictNextAccessTime(stats *FileAccessStats, now time.Time)
 	return predicted, confidence
 }
 
-// DetectIOPattern 检测I/O模式
+// DetectIOPattern 检测I/O模式.
 func (p *Predictor) DetectIOPattern(stats *FileAccessStats) IOPattern {
 	if len(stats.Windows) < 3 {
 		return IOPatternRandom
@@ -270,7 +270,7 @@ func (p *Predictor) DetectIOPattern(stats *FileAccessStats) IOPattern {
 	}
 }
 
-// UpdateAccessStats 更新访问统计
+// UpdateAccessStats 更新访问统计.
 func (p *Predictor) UpdateAccessStats(stats *FileAccessStats, bytesRead, bytesWritten int64, now time.Time) {
 	stats.AccessCount++
 	stats.TotalBytesRead += bytesRead
@@ -311,7 +311,7 @@ func (p *Predictor) UpdateAccessStats(stats *FileAccessStats, bytesRead, bytesWr
 	stats.IOPattern = p.DetectIOPattern(stats)
 }
 
-// meanValue 计算平均值
+// meanValue 计算平均值.
 func meanValue(values []float64) float64 {
 	if len(values) == 0 {
 		return 0
@@ -323,7 +323,7 @@ func meanValue(values []float64) float64 {
 	return sum / float64(len(values))
 }
 
-// stdDev 计算标准差
+// stdDev 计算标准差.
 func stdDev(values []float64, mean float64) float64 {
 	if len(values) == 0 {
 		return 0

@@ -16,7 +16,7 @@ import (
 
 // ========== 常量定义 ==========
 
-// 协议类型
+// 协议类型.
 const (
 	ProtocolTCP   = "TCP"
 	ProtocolUDP   = "UDP"
@@ -30,14 +30,14 @@ const (
 	ProtocolOther = "OTHER"
 )
 
-// 告警级别
+// 告警级别.
 const (
 	AlertLevelInfo     = "info"
 	AlertLevelWarning  = "warning"
 	AlertLevelCritical = "critical"
 )
 
-// 时间粒度
+// 时间粒度.
 const (
 	GranularityHourly  = "hourly"
 	GranularityDaily   = "daily"
@@ -45,7 +45,7 @@ const (
 	GranularityMonthly = "monthly"
 )
 
-// 默认配置
+// 默认配置.
 const (
 	DefaultMaxRecords      = 100000
 	DefaultAlertCooldown   = 5 * time.Minute
@@ -69,7 +69,7 @@ var (
 
 // ========== 数据结构 ==========
 
-// FlowRecord 流量记录
+// FlowRecord 流量记录.
 type FlowRecord struct {
 	ID         string        `json:"id"`
 	Timestamp  time.Time     `json:"timestamp"`
@@ -86,7 +86,7 @@ type FlowRecord struct {
 	Duration   time.Duration `json:"duration"`    // 连接持续时间
 }
 
-// InterfaceStats 接口统计
+// InterfaceStats 接口统计.
 type InterfaceStats struct {
 	Name         string    `json:"name"`
 	BytesIn      uint64    `json:"bytes_in"`
@@ -99,7 +99,7 @@ type InterfaceStats struct {
 	LastUpdated  time.Time `json:"last_updated"`
 }
 
-// ConnectionInfo 连接信息
+// ConnectionInfo 连接信息.
 type ConnectionInfo struct {
 	SrcIP     string    `json:"src_ip"`
 	DstIP     string    `json:"dst_ip"`
@@ -112,7 +112,7 @@ type ConnectionInfo struct {
 	BytesOut  uint64    `json:"bytes_out"`
 }
 
-// ProtocolDistribution 协议分布
+// ProtocolDistribution 协议分布.
 type ProtocolDistribution struct {
 	Protocol string  `json:"protocol"`
 	Bytes    uint64  `json:"bytes"`
@@ -120,7 +120,7 @@ type ProtocolDistribution struct {
 	Percent  float64 `json:"percent"`
 }
 
-// TrafficSnapshot 实时流量快照
+// TrafficSnapshot 实时流量快照.
 type TrafficSnapshot struct {
 	Timestamp         time.Time                 `json:"timestamp"`
 	Interfaces        map[string]InterfaceStats `json:"interfaces"`
@@ -130,7 +130,7 @@ type TrafficSnapshot struct {
 	Protocols         []ProtocolDistribution    `json:"protocols"`
 }
 
-// TrafficStats 流量统计
+// TrafficStats 流量统计.
 type TrafficStats struct {
 	StartTime     time.Time    `json:"start_time"`
 	EndTime       time.Time    `json:"end_time"`
@@ -143,7 +143,7 @@ type TrafficStats struct {
 	Entries       []StatsEntry `json:"entries"`
 }
 
-// StatsEntry 统计条目
+// StatsEntry 统计条目.
 type StatsEntry struct {
 	Timestamp time.Time `json:"timestamp"`
 	BytesIn   uint64    `json:"bytes_in"`
@@ -152,7 +152,7 @@ type StatsEntry struct {
 	Bandwidth float64   `json:"bandwidth_bps"`
 }
 
-// GroupedStats 分组统计
+// GroupedStats 分组统计.
 type GroupedStats struct {
 	GroupKey string `json:"group_key"`
 	BytesIn  uint64 `json:"bytes_in"`
@@ -161,7 +161,7 @@ type GroupedStats struct {
 	Flows    int    `json:"flows"`
 }
 
-// TrafficAlert 流量告警
+// TrafficAlert 流量告警.
 type TrafficAlert struct {
 	ID        string    `json:"id"`
 	Type      string    `json:"type"`  // surge / connection_anomaly / ddos
@@ -174,7 +174,7 @@ type TrafficAlert struct {
 	Resolved  bool      `json:"resolved"`
 }
 
-// BandwidthPolicy 带宽策略
+// BandwidthPolicy 带宽策略.
 type BandwidthPolicy struct {
 	ID         string    `json:"id"`
 	Name       string    `json:"name"`
@@ -188,7 +188,7 @@ type BandwidthPolicy struct {
 	CreatedAt  time.Time `json:"created_at"`
 }
 
-// PolicyViolation 策略违规记录
+// PolicyViolation 策略违规记录.
 type PolicyViolation struct {
 	PolicyID   string    `json:"policy_id"`
 	PolicyName string    `json:"policy_name"`
@@ -200,7 +200,7 @@ type PolicyViolation struct {
 	Timestamp  time.Time `json:"timestamp"`
 }
 
-// TopNEntry Top N 条目
+// TopNEntry Top N 条目.
 type TopNEntry struct {
 	Rank   int    `json:"rank"`
 	Key    string `json:"key"`
@@ -209,7 +209,7 @@ type TopNEntry struct {
 	Detail string `json:"detail,omitempty"`
 }
 
-// TrafficReport 流量报表
+// TrafficReport 流量报表.
 type TrafficReport struct {
 	Title        string         `json:"title"`
 	GeneratedAt  time.Time      `json:"generated_at"`
@@ -223,7 +223,7 @@ type TrafficReport struct {
 	Alerts       []TrafficAlert `json:"alerts"`
 }
 
-// ReportSummary 报表摘要
+// ReportSummary 报表摘要.
 type ReportSummary struct {
 	TotalBytesIn  uint64  `json:"total_bytes_in"`
 	TotalBytesOut uint64  `json:"total_bytes_out"`
@@ -236,7 +236,7 @@ type ReportSummary struct {
 	AlertCount    int     `json:"alert_count"`
 }
 
-// TrendEntry 趋势条目
+// TrendEntry 趋势条目.
 type TrendEntry struct {
 	Timestamp   time.Time `json:"timestamp"`
 	BytesIn     uint64    `json:"bytes_in"`
@@ -245,7 +245,7 @@ type TrendEntry struct {
 	Bandwidth   float64   `json:"bandwidth_bps"`
 }
 
-// ExportFormat 导出格式
+// ExportFormat 导出格式.
 type ExportFormat string
 
 const (
@@ -255,7 +255,7 @@ const (
 
 // ========== 分析器主结构 ==========
 
-// NetflowAnalyzer 网络流量分析器
+// NetflowAnalyzer 网络流量分析器.
 type NetflowAnalyzer struct {
 	mu sync.RWMutex
 
@@ -289,10 +289,10 @@ type NetflowAnalyzer struct {
 	startTime time.Time
 }
 
-// Option 配置选项
+// Option 配置选项.
 type Option func(*NetflowAnalyzer)
 
-// WithMaxRecords 设置最大记录数
+// WithMaxRecords 设置最大记录数.
 func WithMaxRecords(n int) Option {
 	return func(a *NetflowAnalyzer) {
 		if n > 0 {
@@ -301,7 +301,7 @@ func WithMaxRecords(n int) Option {
 	}
 }
 
-// WithDDoSThreshold 设置DDoS检测阈值
+// WithDDoSThreshold 设置DDoS检测阈值.
 func WithDDoSThreshold(n int) Option {
 	return func(a *NetflowAnalyzer) {
 		if n > 0 {
@@ -310,7 +310,7 @@ func WithDDoSThreshold(n int) Option {
 	}
 }
 
-// WithSurgeMultiplier 设置流量突增倍数
+// WithSurgeMultiplier 设置流量突增倍数.
 func WithSurgeMultiplier(m float64) Option {
 	return func(a *NetflowAnalyzer) {
 		if m > 1.0 {
@@ -319,7 +319,7 @@ func WithSurgeMultiplier(m float64) Option {
 	}
 }
 
-// WithSampleInterval 设置采样间隔
+// WithSampleInterval 设置采样间隔.
 func WithSampleInterval(d time.Duration) Option {
 	return func(a *NetflowAnalyzer) {
 		if d > 0 {
@@ -328,7 +328,7 @@ func WithSampleInterval(d time.Duration) Option {
 	}
 }
 
-// WithAlertCooldown 设置告警冷却时间
+// WithAlertCooldown 设置告警冷却时间.
 func WithAlertCooldown(d time.Duration) Option {
 	return func(a *NetflowAnalyzer) {
 		if d > 0 {
@@ -339,7 +339,7 @@ func WithAlertCooldown(d time.Duration) Option {
 
 // ========== 构造函数 ==========
 
-// NewNetflowAnalyzer 创建新的流量分析器
+// NewNetflowAnalyzer 创建新的流量分析器.
 func NewNetflowAnalyzer(opts ...Option) *NetflowAnalyzer {
 	a := &NetflowAnalyzer{
 		maxRecords:      DefaultMaxRecords,
@@ -367,7 +367,7 @@ func NewNetflowAnalyzer(opts ...Option) *NetflowAnalyzer {
 
 // ========== 生命周期 ==========
 
-// Start 启动分析器
+// Start 启动分析器.
 func (a *NetflowAnalyzer) Start() error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -385,7 +385,7 @@ func (a *NetflowAnalyzer) Start() error {
 	return nil
 }
 
-// Stop 停止分析器
+// Stop 停止分析器.
 func (a *NetflowAnalyzer) Stop() error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -398,7 +398,7 @@ func (a *NetflowAnalyzer) Stop() error {
 	return nil
 }
 
-// IsRunning 是否正在运行
+// IsRunning 是否正在运行.
 func (a *NetflowAnalyzer) IsRunning() bool {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -407,7 +407,7 @@ func (a *NetflowAnalyzer) IsRunning() bool {
 
 // ========== 内部采样 ==========
 
-// sampleLoop 采样循环
+// sampleLoop 采样循环.
 func (a *NetflowAnalyzer) sampleLoop() {
 	ticker := time.NewTicker(a.sampleInterval)
 	defer ticker.Stop()
@@ -422,7 +422,7 @@ func (a *NetflowAnalyzer) sampleLoop() {
 	}
 }
 
-// collectSample 采集一次样本
+// collectSample 采集一次样本.
 func (a *NetflowAnalyzer) collectSample() {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -445,7 +445,7 @@ func (a *NetflowAnalyzer) collectSample() {
 
 // ========== 流量记录 ==========
 
-// RecordFlow 记录一条流量
+// RecordFlow 记录一条流量.
 func (a *NetflowAnalyzer) RecordFlow(record FlowRecord) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -479,7 +479,7 @@ func (a *NetflowAnalyzer) RecordFlow(record FlowRecord) {
 	a.checkAnomalies(record)
 }
 
-// RecordFlows 批量记录流量
+// RecordFlows 批量记录流量.
 func (a *NetflowAnalyzer) RecordFlows(records []FlowRecord) {
 	for i := range records {
 		a.RecordFlow(records[i])
@@ -488,7 +488,7 @@ func (a *NetflowAnalyzer) RecordFlows(records []FlowRecord) {
 
 // ========== 内部方法 ==========
 
-// updateInterfaceStats 更新接口统计（调用前需持有写锁）
+// updateInterfaceStats 更新接口统计（调用前需持有写锁）.
 func (a *NetflowAnalyzer) updateInterfaceStats(record FlowRecord) {
 	iface, exists := a.interfaces[record.Interface]
 	if !exists {
@@ -506,7 +506,7 @@ func (a *NetflowAnalyzer) updateInterfaceStats(record FlowRecord) {
 	iface.LastUpdated = record.Timestamp
 }
 
-// updateConnections 更新连接追踪（调用前需持有写锁）
+// updateConnections 更新连接追踪（调用前需持有写锁）.
 func (a *NetflowAnalyzer) updateConnections(record FlowRecord) {
 	key := fmt.Sprintf("%s:%d->%s:%d:%s",
 		record.SrcIP, record.SrcPort,
@@ -531,7 +531,7 @@ func (a *NetflowAnalyzer) updateConnections(record FlowRecord) {
 	conn.BytesOut += record.BytesOut
 }
 
-// checkBandwidthPolicy 检查带宽策略（调用前需持有写锁）
+// checkBandwidthPolicy 检查带宽策略（调用前需持有写锁）.
 func (a *NetflowAnalyzer) checkBandwidthPolicy(record FlowRecord) {
 	for _, policy := range a.policies {
 		if !policy.Enabled {
@@ -582,7 +582,7 @@ func (a *NetflowAnalyzer) checkBandwidthPolicy(record FlowRecord) {
 	}
 }
 
-// matchPolicy 检查流量是否匹配策略
+// matchPolicy 检查流量是否匹配策略.
 func matchPolicy(policy *BandwidthPolicy, record FlowRecord) bool {
 	// 检查IP
 	if policy.TargetIP != "" {
@@ -608,7 +608,7 @@ func matchPolicy(policy *BandwidthPolicy, record FlowRecord) bool {
 	return true
 }
 
-// checkAnomalies 检查流量异常（调用前需持有写锁）
+// checkAnomalies 检查流量异常（调用前需持有写锁）.
 func (a *NetflowAnalyzer) checkAnomalies(record FlowRecord) {
 	now := record.Timestamp
 
@@ -622,7 +622,7 @@ func (a *NetflowAnalyzer) checkAnomalies(record FlowRecord) {
 	a.checkDDoS(record, now)
 }
 
-// checkTrafficSurge 检查流量突增（调用前需持有写锁）
+// checkTrafficSurge 检查流量突增（调用前需持有写锁）.
 func (a *NetflowAnalyzer) checkTrafficSurge(record FlowRecord, now time.Time) {
 	iface, exists := a.interfaces[record.Interface]
 	if !exists {
@@ -658,7 +658,7 @@ func (a *NetflowAnalyzer) checkTrafficSurge(record FlowRecord, now time.Time) {
 	}
 }
 
-// checkConnectionAnomaly 检查连接数异常（调用前需持有写锁）
+// checkConnectionAnomaly 检查连接数异常（调用前需持有写锁）.
 func (a *NetflowAnalyzer) checkConnectionAnomaly(now time.Time) {
 	totalConns := int64(len(a.connections))
 
@@ -679,7 +679,7 @@ func (a *NetflowAnalyzer) checkConnectionAnomaly(now time.Time) {
 	}
 }
 
-// checkDDoS 检查DDoS攻击（调用前需持有写锁）
+// checkDDoS 检查DDoS攻击（调用前需持有写锁）.
 func (a *NetflowAnalyzer) checkDDoS(record FlowRecord, now time.Time) {
 	// 统计同一目标IP的连接数
 	targetConns := int64(0)
@@ -706,7 +706,7 @@ func (a *NetflowAnalyzer) checkDDoS(record FlowRecord, now time.Time) {
 	}
 }
 
-// canAlert 检查是否可以发送告警（冷却检查）
+// canAlert 检查是否可以发送告警（冷却检查）.
 func (a *NetflowAnalyzer) canAlert(key string, now time.Time) bool {
 	lastAlert, exists := a.alertTimers[key]
 	if !exists {
@@ -715,7 +715,7 @@ func (a *NetflowAnalyzer) canAlert(key string, now time.Time) bool {
 	return now.Sub(lastAlert) > a.alertCooldown
 }
 
-// addAlert 添加告警（调用前需持有写锁）
+// addAlert 添加告警（调用前需持有写锁）.
 func (a *NetflowAnalyzer) addAlert(alert TrafficAlert) {
 	a.alerts = append(a.alerts, alert)
 	a.alertTimers[alert.Type+"_"+alert.Interface] = alert.Timestamp
@@ -726,7 +726,7 @@ func (a *NetflowAnalyzer) addAlert(alert TrafficAlert) {
 	}
 }
 
-// checkAlerts 定期检查告警状态（调用前需持有写锁）
+// checkAlerts 定期检查告警状态（调用前需持有写锁）.
 func (a *NetflowAnalyzer) checkAlerts(now time.Time) {
 	// 检查连接数
 	totalConns := int64(len(a.connections))
@@ -748,7 +748,7 @@ func (a *NetflowAnalyzer) checkAlerts(now time.Time) {
 
 // ========== 查询接口 ==========
 
-// GetRealtimeSnapshot 获取实时流量快照
+// GetRealtimeSnapshot 获取实时流量快照.
 func (a *NetflowAnalyzer) GetRealtimeSnapshot() TrafficSnapshot {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -756,7 +756,7 @@ func (a *NetflowAnalyzer) GetRealtimeSnapshot() TrafficSnapshot {
 	return a.getRealtimeSnapshotUnsafe()
 }
 
-// getRealtimeSnapshotUnsafe 内部方法（调用前需持有读锁）
+// getRealtimeSnapshotUnsafe 内部方法（调用前需持有读锁）.
 func (a *NetflowAnalyzer) getRealtimeSnapshotUnsafe() TrafficSnapshot {
 	snapshot := TrafficSnapshot{
 		Timestamp:  time.Now(),
@@ -790,7 +790,7 @@ func (a *NetflowAnalyzer) getRealtimeSnapshotUnsafe() TrafficSnapshot {
 	return snapshot
 }
 
-// GetInterfaceStats 获取指定接口统计
+// GetInterfaceStats 获取指定接口统计.
 func (a *NetflowAnalyzer) GetInterfaceStats(name string) (InterfaceStats, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -813,7 +813,7 @@ func (a *NetflowAnalyzer) GetInterfaceStats(name string) (InterfaceStats, error)
 	}, nil
 }
 
-// GetAllInterfaceStats 获取所有接口统计
+// GetAllInterfaceStats 获取所有接口统计.
 func (a *NetflowAnalyzer) GetAllInterfaceStats() map[string]InterfaceStats {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -835,14 +835,14 @@ func (a *NetflowAnalyzer) GetAllInterfaceStats() map[string]InterfaceStats {
 	return result
 }
 
-// GetActiveConnections 获取活跃连接数
+// GetActiveConnections 获取活跃连接数.
 func (a *NetflowAnalyzer) GetActiveConnections() int64 {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	return int64(len(a.connections))
 }
 
-// GetConnectionList 获取连接列表
+// GetConnectionList 获取连接列表.
 func (a *NetflowAnalyzer) GetConnectionList() []ConnectionInfo {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -864,14 +864,14 @@ func (a *NetflowAnalyzer) GetConnectionList() []ConnectionInfo {
 	return result
 }
 
-// GetProtocolDistribution 获取协议分布
+// GetProtocolDistribution 获取协议分布.
 func (a *NetflowAnalyzer) GetProtocolDistribution() []ProtocolDistribution {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	return a.getProtocolDistribution()
 }
 
-// getProtocolDistribution 内部方法（调用前需持有读锁）
+// getProtocolDistribution 内部方法（调用前需持有读锁）.
 func (a *NetflowAnalyzer) getProtocolDistribution() []ProtocolDistribution {
 	protocolBytes := make(map[string]uint64)
 	protocolPackets := make(map[string]uint64)
@@ -906,7 +906,7 @@ func (a *NetflowAnalyzer) getProtocolDistribution() []ProtocolDistribution {
 
 // ========== 统计查询 ==========
 
-// GetTrafficStats 获取流量统计
+// GetTrafficStats 获取流量统计.
 func (a *NetflowAnalyzer) GetTrafficStats(granularity string, start, end time.Time) (TrafficStats, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -993,7 +993,7 @@ func (a *NetflowAnalyzer) GetTrafficStats(granularity string, start, end time.Ti
 	}, nil
 }
 
-// getInterval 获取时间间隔
+// getInterval 获取时间间隔.
 func getInterval(granularity string) time.Duration {
 	switch granularity {
 	case GranularityHourly:
@@ -1009,7 +1009,7 @@ func getInterval(granularity string) time.Duration {
 	}
 }
 
-// GetStatsByIP 按IP分组统计
+// GetStatsByIP 按IP分组统计.
 func (a *NetflowAnalyzer) GetStatsByIP(start, end time.Time, topN int) []GroupedStats {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -1057,7 +1057,7 @@ func (a *NetflowAnalyzer) GetStatsByIP(start, end time.Time, topN int) []Grouped
 	return result
 }
 
-// GetStatsByPort 按端口分组统计
+// GetStatsByPort 按端口分组统计.
 func (a *NetflowAnalyzer) GetStatsByPort(start, end time.Time, topN int) []GroupedStats {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -1096,7 +1096,7 @@ func (a *NetflowAnalyzer) GetStatsByPort(start, end time.Time, topN int) []Group
 	return result
 }
 
-// GetStatsByProtocol 按协议分组统计
+// GetStatsByProtocol 按协议分组统计.
 func (a *NetflowAnalyzer) GetStatsByProtocol(start, end time.Time) []GroupedStats {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -1133,7 +1133,7 @@ func (a *NetflowAnalyzer) GetStatsByProtocol(start, end time.Time) []GroupedStat
 
 // ========== 带宽策略管理 ==========
 
-// AddBandwidthPolicy 添加带宽策略
+// AddBandwidthPolicy 添加带宽策略.
 func (a *NetflowAnalyzer) AddBandwidthPolicy(policy BandwidthPolicy) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -1151,7 +1151,7 @@ func (a *NetflowAnalyzer) AddBandwidthPolicy(policy BandwidthPolicy) error {
 	return nil
 }
 
-// RemoveBandwidthPolicy 删除带宽策略
+// RemoveBandwidthPolicy 删除带宽策略.
 func (a *NetflowAnalyzer) RemoveBandwidthPolicy(id string) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -1163,7 +1163,7 @@ func (a *NetflowAnalyzer) RemoveBandwidthPolicy(id string) error {
 	return nil
 }
 
-// UpdateBandwidthPolicy 更新带宽策略
+// UpdateBandwidthPolicy 更新带宽策略.
 func (a *NetflowAnalyzer) UpdateBandwidthPolicy(policy BandwidthPolicy) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -1178,7 +1178,7 @@ func (a *NetflowAnalyzer) UpdateBandwidthPolicy(policy BandwidthPolicy) error {
 	return nil
 }
 
-// GetBandwidthPolicy 获取带宽策略
+// GetBandwidthPolicy 获取带宽策略.
 func (a *NetflowAnalyzer) GetBandwidthPolicy(id string) (BandwidthPolicy, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -1190,7 +1190,7 @@ func (a *NetflowAnalyzer) GetBandwidthPolicy(id string) (BandwidthPolicy, error)
 	return *policy, nil
 }
 
-// GetAllBandwidthPolicies 获取所有带宽策略
+// GetAllBandwidthPolicies 获取所有带宽策略.
 func (a *NetflowAnalyzer) GetAllBandwidthPolicies() []BandwidthPolicy {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -1205,7 +1205,7 @@ func (a *NetflowAnalyzer) GetAllBandwidthPolicies() []BandwidthPolicy {
 	return result
 }
 
-// EnablePolicy 启用策略
+// EnablePolicy 启用策略.
 func (a *NetflowAnalyzer) EnablePolicy(id string) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -1218,7 +1218,7 @@ func (a *NetflowAnalyzer) EnablePolicy(id string) error {
 	return nil
 }
 
-// DisablePolicy 禁用策略
+// DisablePolicy 禁用策略.
 func (a *NetflowAnalyzer) DisablePolicy(id string) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -1231,7 +1231,7 @@ func (a *NetflowAnalyzer) DisablePolicy(id string) error {
 	return nil
 }
 
-// GetPolicyViolations 获取策略违规记录
+// GetPolicyViolations 获取策略违规记录.
 func (a *NetflowAnalyzer) GetPolicyViolations(limit int) []PolicyViolation {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -1249,7 +1249,7 @@ func (a *NetflowAnalyzer) GetPolicyViolations(limit int) []PolicyViolation {
 
 // ========== 告警管理 ==========
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (a *NetflowAnalyzer) GetAlerts(limit int) []TrafficAlert {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -1264,7 +1264,7 @@ func (a *NetflowAnalyzer) GetAlerts(limit int) []TrafficAlert {
 	return result
 }
 
-// GetAlertsByType 按类型获取告警
+// GetAlertsByType 按类型获取告警.
 func (a *NetflowAnalyzer) GetAlertsByType(alertType string) []TrafficAlert {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -1278,7 +1278,7 @@ func (a *NetflowAnalyzer) GetAlertsByType(alertType string) []TrafficAlert {
 	return result
 }
 
-// GetAlertsByLevel 按级别获取告警
+// GetAlertsByLevel 按级别获取告警.
 func (a *NetflowAnalyzer) GetAlertsByLevel(level string) []TrafficAlert {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -1292,7 +1292,7 @@ func (a *NetflowAnalyzer) GetAlertsByLevel(level string) []TrafficAlert {
 	return result
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (a *NetflowAnalyzer) ResolveAlert(id string) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -1306,7 +1306,7 @@ func (a *NetflowAnalyzer) ResolveAlert(id string) error {
 	return fmt.Errorf("告警不存在: %s", id)
 }
 
-// ClearAlerts 清除已解决的告警
+// ClearAlerts 清除已解决的告警.
 func (a *NetflowAnalyzer) ClearAlerts() int {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -1324,7 +1324,7 @@ func (a *NetflowAnalyzer) ClearAlerts() int {
 
 // ========== 报表生成 ==========
 
-// GenerateReport 生成流量报表
+// GenerateReport 生成流量报表.
 func (a *NetflowAnalyzer) GenerateReport(title string, start, end time.Time, topN int) TrafficReport {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -1451,7 +1451,7 @@ func (a *NetflowAnalyzer) GenerateReport(title string, start, end time.Time, top
 	return report
 }
 
-// buildTopN 构建Top N列表
+// buildTopN 构建Top N列表.
 func buildTopN(stats map[string]uint64, topN int, unit string) []TopNEntry {
 	type kv struct {
 		Key   string
@@ -1483,7 +1483,7 @@ func buildTopN(stats map[string]uint64, topN int, unit string) []TopNEntry {
 
 // ========== 导出功能 ==========
 
-// ExportJSON 导出为JSON
+// ExportJSON 导出为JSON.
 func (a *NetflowAnalyzer) ExportJSON(start, end time.Time) ([]byte, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -1498,7 +1498,7 @@ func (a *NetflowAnalyzer) ExportJSON(start, end time.Time) ([]byte, error) {
 	return json.MarshalIndent(filtered, "", "  ")
 }
 
-// ExportCSV 导出为CSV
+// ExportCSV 导出为CSV.
 func (a *NetflowAnalyzer) ExportCSV(start, end time.Time) ([]byte, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -1543,19 +1543,19 @@ func (a *NetflowAnalyzer) ExportCSV(start, end time.Time) ([]byte, error) {
 	return []byte(buf.String()), writer.Error()
 }
 
-// ExportReportJSON 导出报表为JSON
+// ExportReportJSON 导出报表为JSON.
 func (a *NetflowAnalyzer) ExportReportJSON(report TrafficReport) ([]byte, error) {
 	return json.MarshalIndent(report, "", "  ")
 }
 
 // ========== IP验证工具 ==========
 
-// ValidateIP 验证IP地址
+// ValidateIP 验证IP地址.
 func ValidateIP(ip string) bool {
 	return net.ParseIP(ip) != nil
 }
 
-// NormalizeIP 标准化IP地址
+// NormalizeIP 标准化IP地址.
 func NormalizeIP(ip string) (string, error) {
 	parsed := net.ParseIP(ip)
 	if parsed == nil {
@@ -1564,7 +1564,7 @@ func NormalizeIP(ip string) (string, error) {
 	return parsed.String(), nil
 }
 
-// IsPrivateIP 判断是否为私有IP
+// IsPrivateIP 判断是否为私有IP.
 func IsPrivateIP(ip string) bool {
 	parsed := net.ParseIP(ip)
 	if parsed == nil {
@@ -1575,7 +1575,7 @@ func IsPrivateIP(ip string) bool {
 
 // ========== 流量计算工具 ==========
 
-// FormatBytes 格式化字节数
+// FormatBytes 格式化字节数.
 func FormatBytes(bytes uint64) string {
 	const (
 		KB = 1024
@@ -1598,7 +1598,7 @@ func FormatBytes(bytes uint64) string {
 	}
 }
 
-// FormatBandwidth 格式化带宽
+// FormatBandwidth 格式化带宽.
 func FormatBandwidth(bps float64) string {
 	const (
 		Kbps = 1000
@@ -1620,35 +1620,35 @@ func FormatBandwidth(bps float64) string {
 
 // ========== 状态查询 ==========
 
-// GetRecordCount 获取记录总数
+// GetRecordCount 获取记录总数.
 func (a *NetflowAnalyzer) GetRecordCount() int {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	return len(a.records)
 }
 
-// GetAlertCount 获取告警总数
+// GetAlertCount 获取告警总数.
 func (a *NetflowAnalyzer) GetAlertCount() int {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	return len(a.alerts)
 }
 
-// GetViolationCount 获取违规记录总数
+// GetViolationCount 获取违规记录总数.
 func (a *NetflowAnalyzer) GetViolationCount() int {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	return len(a.violations)
 }
 
-// GetPolicyCount 获取策略数
+// GetPolicyCount 获取策略数.
 func (a *NetflowAnalyzer) GetPolicyCount() int {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	return len(a.policies)
 }
 
-// Reset 重置分析器数据
+// Reset 重置分析器数据.
 func (a *NetflowAnalyzer) Reset() {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -1662,7 +1662,7 @@ func (a *NetflowAnalyzer) Reset() {
 	a.alertTimers = make(map[string]time.Time)
 }
 
-// GetUptime 获取运行时间
+// GetUptime 获取运行时间.
 func (a *NetflowAnalyzer) GetUptime() time.Duration {
 	a.mu.RLock()
 	defer a.mu.RUnlock()

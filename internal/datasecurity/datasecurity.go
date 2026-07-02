@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// DataSecurity 数据安全模块
+// DataSecurity 数据安全模块.
 type DataSecurity struct {
 	mu        sync.RWMutex
 	keys      map[string]*EncryptionKey
@@ -23,7 +23,7 @@ type DataSecurity struct {
 	config    *Config
 }
 
-// EncryptionKey 加密密钥
+// EncryptionKey 加密密钥.
 type EncryptionKey struct {
 	ID         string     `json:"id"`
 	Name       string     `json:"name"`
@@ -36,7 +36,7 @@ type EncryptionKey struct {
 	UsageCount int64      `json:"usage_count"`
 }
 
-// SecurityPolicy 安全策略
+// SecurityPolicy 安全策略.
 type SecurityPolicy struct {
 	ID                    string    `json:"id"`
 	Name                  string    `json:"name"`
@@ -51,7 +51,7 @@ type SecurityPolicy struct {
 	UpdatedAt             time.Time `json:"updated_at"`
 }
 
-// AuditEntry 审计条目
+// AuditEntry 审计条目.
 type AuditEntry struct {
 	ID        string                 `json:"id"`
 	UserID    string                 `json:"user_id"`
@@ -63,13 +63,13 @@ type AuditEntry struct {
 	Timestamp time.Time              `json:"timestamp"`
 }
 
-// IntegrityChecker 完整性检查器
+// IntegrityChecker 完整性检查器.
 type IntegrityChecker struct {
 	checksums map[string]string
 	algorithm string
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	DefaultAlgorithm      string        `json:"default_algorithm"`
 	KeyRotationDays       int           `json:"key_rotation_days"`
@@ -80,7 +80,7 @@ type Config struct {
 	AuditEnabled          bool          `json:"audit_enabled"`
 }
 
-// NewDataSecurity 创建数据安全模块
+// NewDataSecurity 创建数据安全模块.
 func NewDataSecurity(config *Config) *DataSecurity {
 	return &DataSecurity{
 		keys:     make(map[string]*EncryptionKey),
@@ -94,7 +94,7 @@ func NewDataSecurity(config *Config) *DataSecurity {
 	}
 }
 
-// CreateKey 创建加密密钥
+// CreateKey 创建加密密钥.
 func (ds *DataSecurity) CreateKey(ctx context.Context, key *EncryptionKey) error {
 	ds.mu.Lock()
 	defer ds.mu.Unlock()
@@ -118,7 +118,7 @@ func (ds *DataSecurity) CreateKey(ctx context.Context, key *EncryptionKey) error
 	return nil
 }
 
-// GetKey 获取密钥
+// GetKey 获取密钥.
 func (ds *DataSecurity) GetKey(ctx context.Context, id string) (*EncryptionKey, error) {
 	ds.mu.RLock()
 	defer ds.mu.RUnlock()
@@ -130,7 +130,7 @@ func (ds *DataSecurity) GetKey(ctx context.Context, id string) (*EncryptionKey, 
 	return key, nil
 }
 
-// ListKeys 列出密钥
+// ListKeys 列出密钥.
 func (ds *DataSecurity) ListKeys(ctx context.Context) []*EncryptionKey {
 	ds.mu.RLock()
 	defer ds.mu.RUnlock()
@@ -142,7 +142,7 @@ func (ds *DataSecurity) ListKeys(ctx context.Context) []*EncryptionKey {
 	return keys
 }
 
-// RotateKey 轮换密钥
+// RotateKey 轮换密钥.
 func (ds *DataSecurity) RotateKey(ctx context.Context, keyID string) error {
 	ds.mu.Lock()
 	defer ds.mu.Unlock()
@@ -168,7 +168,7 @@ func (ds *DataSecurity) RotateKey(ctx context.Context, keyID string) error {
 	return nil
 }
 
-// Encrypt 加密数据
+// Encrypt 加密数据.
 func (ds *DataSecurity) Encrypt(ctx context.Context, data []byte, keyID string) ([]byte, error) {
 	ds.mu.RLock()
 	defer ds.mu.RUnlock()
@@ -210,7 +210,7 @@ func (ds *DataSecurity) Encrypt(ctx context.Context, data []byte, keyID string) 
 	return ciphertext, nil
 }
 
-// Decrypt 解密数据
+// Decrypt 解密数据.
 func (ds *DataSecurity) Decrypt(ctx context.Context, ciphertext []byte, keyID string) ([]byte, error) {
 	ds.mu.RLock()
 	defer ds.mu.RUnlock()
@@ -257,7 +257,7 @@ func (ds *DataSecurity) Decrypt(ctx context.Context, ciphertext []byte, keyID st
 	return plaintext, nil
 }
 
-// AddPolicy 添加安全策略
+// AddPolicy 添加安全策略.
 func (ds *DataSecurity) AddPolicy(ctx context.Context, policy *SecurityPolicy) error {
 	ds.mu.Lock()
 	defer ds.mu.Unlock()
@@ -268,7 +268,7 @@ func (ds *DataSecurity) AddPolicy(ctx context.Context, policy *SecurityPolicy) e
 	return nil
 }
 
-// GetPolicy 获取策略
+// GetPolicy 获取策略.
 func (ds *DataSecurity) GetPolicy(ctx context.Context, id string) (*SecurityPolicy, error) {
 	ds.mu.RLock()
 	defer ds.mu.RUnlock()
@@ -280,7 +280,7 @@ func (ds *DataSecurity) GetPolicy(ctx context.Context, id string) (*SecurityPoli
 	return policy, nil
 }
 
-// ListPolicies 列出策略
+// ListPolicies 列出策略.
 func (ds *DataSecurity) ListPolicies(ctx context.Context) []*SecurityPolicy {
 	ds.mu.RLock()
 	defer ds.mu.RUnlock()
@@ -292,13 +292,13 @@ func (ds *DataSecurity) ListPolicies(ctx context.Context) []*SecurityPolicy {
 	return policies
 }
 
-// CalculateChecksum 计算校验和
+// CalculateChecksum 计算校验和.
 func (ds *DataSecurity) CalculateChecksum(ctx context.Context, data []byte) string {
 	hash := sha256.Sum256(data)
 	return hex.EncodeToString(hash[:])
 }
 
-// VerifyIntegrity 验证完整性
+// VerifyIntegrity 验证完整性.
 func (ds *DataSecurity) VerifyIntegrity(ctx context.Context, filePath string, data []byte) (bool, error) {
 	ds.mu.RLock()
 	defer ds.mu.RUnlock()
@@ -312,7 +312,7 @@ func (ds *DataSecurity) VerifyIntegrity(ctx context.Context, filePath string, da
 	return expectedChecksum == actualChecksum, nil
 }
 
-// StoreChecksum 存储校验和
+// StoreChecksum 存储校验和.
 func (ds *DataSecurity) StoreChecksum(ctx context.Context, filePath string, data []byte) {
 	ds.mu.Lock()
 	defer ds.mu.Unlock()
@@ -321,7 +321,7 @@ func (ds *DataSecurity) StoreChecksum(ctx context.Context, filePath string, data
 	ds.integrity.checksums[filePath] = checksum
 }
 
-// AddAudit 添加审计记录
+// AddAudit 添加审计记录.
 func (ds *DataSecurity) AddAudit(ctx context.Context, userID, action, resource string, details map[string]interface{}) {
 	ds.mu.Lock()
 	defer ds.mu.Unlock()
@@ -329,7 +329,7 @@ func (ds *DataSecurity) AddAudit(ctx context.Context, userID, action, resource s
 	ds.addAudit(action, userID, resource, details)
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (ds *DataSecurity) GetAuditLog(ctx context.Context, userID string, limit int) []*AuditEntry {
 	ds.mu.RLock()
 	defer ds.mu.RUnlock()
@@ -350,7 +350,7 @@ func (ds *DataSecurity) GetAuditLog(ctx context.Context, userID string, limit in
 	return entries
 }
 
-// CleanupAudit 清理审计日志
+// CleanupAudit 清理审计日志.
 func (ds *DataSecurity) CleanupAudit(ctx context.Context) error {
 	ds.mu.Lock()
 	defer ds.mu.Unlock()
@@ -368,7 +368,7 @@ func (ds *DataSecurity) CleanupAudit(ctx context.Context) error {
 	return nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (ds *DataSecurity) GetStats(ctx context.Context) map[string]interface{} {
 	ds.mu.RLock()
 	defer ds.mu.RUnlock()
@@ -381,7 +381,7 @@ func (ds *DataSecurity) GetStats(ctx context.Context) map[string]interface{} {
 	}
 }
 
-// 内部方法
+// 内部方法.
 func (ds *DataSecurity) addAudit(action, userID, resource string, details map[string]interface{}) {
 	entry := &AuditEntry{
 		ID:        generateID(),
@@ -394,7 +394,7 @@ func (ds *DataSecurity) addAudit(action, userID, resource string, details map[st
 	ds.auditLog = append(ds.auditLog, entry)
 }
 
-// 辅助函数
+// 辅助函数.
 func generateID() string {
 	return fmt.Sprintf("%d", time.Now().UnixNano())
 }

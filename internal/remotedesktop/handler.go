@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler handles HTTP requests for remote desktop
+// Handler handles HTTP requests for remote desktop.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler creates a new remote desktop handler
+// NewHandler creates a new remote desktop handler.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes registers the HTTP routes
+// RegisterRoutes registers the HTTP routes.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/rdp/sessions", h.handleSessions)
 	mux.HandleFunc("/api/v1/rdp/session", h.handleSession)
@@ -24,7 +24,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/rdp/stats", h.handleStats)
 }
 
-// handleSessions handles session listing
+// handleSessions handles session listing.
 func (h *Handler) handleSessions(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -35,7 +35,7 @@ func (h *Handler) handleSessions(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(sessions)
 }
 
-// handleSession handles session CRUD
+// handleSession handles session CRUD.
 func (h *Handler) handleSession(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -83,7 +83,7 @@ func (h *Handler) handleSession(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleHost handles host listing
+// handleHost handles host listing.
 func (h *Handler) handleHosts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -94,7 +94,7 @@ func (h *Handler) handleHosts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(hosts)
 }
 
-// handleHost handles host CRUD
+// handleHost handles host CRUD.
 func (h *Handler) handleHost(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
@@ -126,7 +126,7 @@ func (h *Handler) handleHost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleStats handles statistics
+// handleStats handles statistics.
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

@@ -53,7 +53,7 @@ type apiResp struct {
 }
 
 // listAlerts 获取告警列表.
-// GET /api/v1/smartalert/list?category=disk&severity=critical&state=active
+// GET /api/v1/smartalert/list?category=disk&severity=critical&state=active.
 func (h *Handler) listAlerts(c *gin.Context) {
 	var q ListQuery
 	_ = c.ShouldBindQuery(&q)
@@ -71,7 +71,7 @@ func (h *Handler) listAlerts(c *gin.Context) {
 }
 
 // getGuide 获取告警处置引导.
-// GET /api/v1/smartalert/:id/guide
+// GET /api/v1/smartalert/:id/guide.
 func (h *Handler) getGuide(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -93,7 +93,7 @@ func (h *Handler) getGuide(c *gin.Context) {
 }
 
 // acknowledge 确认告警.
-// POST /api/v1/smartalert/:id/acknowledge
+// POST /api/v1/smartalert/:id/acknowledge.
 func (h *Handler) acknowledge(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -119,7 +119,7 @@ func (h *Handler) acknowledge(c *gin.Context) {
 }
 
 // resolveAlert 解决告警.
-// POST /api/v1/smartalert/:id/resolve
+// POST /api/v1/smartalert/:id/resolve.
 func (h *Handler) resolveAlert(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -139,7 +139,7 @@ func (h *Handler) resolveAlert(c *gin.Context) {
 }
 
 // createSilence 创建静默规则.
-// POST /api/v1/smartalert/silence
+// POST /api/v1/smartalert/silence.
 func (h *Handler) createSilence(c *gin.Context) {
 	var req SilenceRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -157,7 +157,7 @@ func (h *Handler) createSilence(c *gin.Context) {
 }
 
 // listSilences 列出静默规则.
-// GET /api/v1/smartalert/silence
+// GET /api/v1/smartalert/silence.
 func (h *Handler) listSilences(c *gin.Context) {
 	rules := h.engine.ListSilences()
 
@@ -172,7 +172,7 @@ func (h *Handler) listSilences(c *gin.Context) {
 }
 
 // removeSilence 删除静默规则.
-// DELETE /api/v1/smartalert/silence/:id
+// DELETE /api/v1/smartalert/silence/:id.
 func (h *Handler) removeSilence(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {

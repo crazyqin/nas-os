@@ -3,7 +3,7 @@ package familydash
 
 import "time"
 
-// MemberRole 成员角色
+// MemberRole 成员角色.
 type MemberRole string
 
 const (
@@ -13,7 +13,7 @@ const (
 	RoleGuest  MemberRole = "guest"
 )
 
-// MemberStatus 成员状态
+// MemberStatus 成员状态.
 type MemberStatus string
 
 const (
@@ -23,7 +23,7 @@ const (
 	StatusBusy    MemberStatus = "busy"
 )
 
-// PermissionLevel 权限级别
+// PermissionLevel 权限级别.
 type PermissionLevel string
 
 const (
@@ -33,7 +33,7 @@ const (
 	PermissionCustom   PermissionLevel = "custom"
 )
 
-// ActivityType 活动类型
+// ActivityType 活动类型.
 type ActivityType string
 
 const (
@@ -47,7 +47,7 @@ const (
 	ActivityLogout       ActivityType = "logout"
 )
 
-// WidgetType 仪表板组件类型
+// WidgetType 仪表板组件类型.
 type WidgetType string
 
 const (
@@ -63,7 +63,7 @@ const (
 	WidgetSystem      WidgetType = "system"
 )
 
-// FamilyMember 家庭成员
+// FamilyMember 家庭成员.
 type FamilyMember struct {
 	ID         string       `json:"id"`
 	Name       string       `json:"name" binding:"required"`
@@ -78,7 +78,7 @@ type FamilyMember struct {
 	UpdatedAt  time.Time    `json:"updated_at"`
 }
 
-// MemberProfile 成员个人资料
+// MemberProfile 成员个人资料.
 type MemberProfile struct {
 	MemberID        string            `json:"member_id"`
 	DisplayName     string            `json:"display_name"`
@@ -96,7 +96,7 @@ type MemberProfile struct {
 	UpdatedAt       time.Time         `json:"updated_at"`
 }
 
-// DashboardWidget 仪表板组件
+// DashboardWidget 仪表板组件.
 type DashboardWidget struct {
 	ID       string                 `json:"id"`
 	Type     WidgetType             `json:"type" binding:"required"`
@@ -107,7 +107,7 @@ type DashboardWidget struct {
 	Visible  bool                   `json:"visible"`
 }
 
-// FavoriteItem 收藏项目
+// FavoriteItem 收藏项目.
 type FavoriteItem struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -116,7 +116,7 @@ type FavoriteItem struct {
 	Icon string `json:"icon,omitempty"`
 }
 
-// RecentFile 最近文件
+// RecentFile 最近文件.
 type RecentFile struct {
 	Path       string    `json:"path"`
 	Name       string    `json:"name"`
@@ -125,7 +125,7 @@ type RecentFile struct {
 	AccessedAt time.Time `json:"accessed_at"`
 }
 
-// Permissions 成员权限
+// Permissions 成员权限.
 type Permissions struct {
 	MemberID       string          `json:"member_id"`
 	Level          PermissionLevel `json:"level"`
@@ -143,13 +143,13 @@ type Permissions struct {
 	AllowedHours   *TimeRange      `json:"allowed_hours,omitempty"`
 }
 
-// TimeRange 时间范围
+// TimeRange 时间范围.
 type TimeRange struct {
 	Start string `json:"start"` // HH:MM
 	End   string `json:"end"`   // HH:MM
 }
 
-// ActivityEntry 活动记录
+// ActivityEntry 活动记录.
 type ActivityEntry struct {
 	ID        string       `json:"id"`
 	MemberID  string       `json:"member_id"`
@@ -162,7 +162,7 @@ type ActivityEntry struct {
 	Timestamp time.Time    `json:"timestamp"`
 }
 
-// ActivitySummary 活动摘要
+// ActivitySummary 活动摘要.
 type ActivitySummary struct {
 	MemberID       string          `json:"member_id"`
 	Period         string          `json:"period"`
@@ -175,13 +175,13 @@ type ActivitySummary struct {
 	TopActivities  []ActivityCount `json:"top_activities"`
 }
 
-// ActivityCount 活动计数
+// ActivityCount 活动计数.
 type ActivityCount struct {
 	Type  ActivityType `json:"type"`
 	Count int          `json:"count"`
 }
 
-// FamilyStats 家庭统计
+// FamilyStats 家庭统计.
 type FamilyStats struct {
 	FamilyID      string        `json:"family_id"`
 	TotalMembers  int           `json:"total_members"`
@@ -194,7 +194,7 @@ type FamilyStats struct {
 	GeneratedAt   time.Time     `json:"generated_at"`
 }
 
-// MemberStats 成员统计
+// MemberStats 成员统计.
 type MemberStats struct {
 	MemberID      string     `json:"member_id"`
 	Name          string     `json:"name"`
@@ -204,7 +204,7 @@ type MemberStats struct {
 	LastActive    *time.Time `json:"last_active"`
 }
 
-// CreateMemberRequest 创建成员请求
+// CreateMemberRequest 创建成员请求.
 type CreateMemberRequest struct {
 	Name      string     `json:"name" binding:"required"`
 	Email     string     `json:"email,omitempty"`
@@ -214,7 +214,7 @@ type CreateMemberRequest struct {
 	BirthYear int        `json:"birth_year,omitempty"`
 }
 
-// UpdateMemberRequest 更新成员请求
+// UpdateMemberRequest 更新成员请求.
 type UpdateMemberRequest struct {
 	Name      string     `json:"name,omitempty"`
 	Email     string     `json:"email,omitempty"`
@@ -223,7 +223,7 @@ type UpdateMemberRequest struct {
 	BirthYear int        `json:"birth_year,omitempty"`
 }
 
-// UpdateProfileRequest 更新个人资料请求
+// UpdateProfileRequest 更新个人资料请求.
 type UpdateProfileRequest struct {
 	DisplayName     string            `json:"display_name,omitempty"`
 	Bio             string            `json:"bio,omitempty"`
@@ -234,7 +234,7 @@ type UpdateProfileRequest struct {
 	DashboardLayout []DashboardWidget `json:"dashboard_layout,omitempty"`
 }
 
-// UpdatePermissionsRequest 更新权限请求
+// UpdatePermissionsRequest 更新权限请求.
 type UpdatePermissionsRequest struct {
 	Level          PermissionLevel `json:"level,omitempty"`
 	CanAccessFiles *bool           `json:"can_access_files,omitempty"`
@@ -251,7 +251,7 @@ type UpdatePermissionsRequest struct {
 	AllowedHours   *TimeRange      `json:"allowed_hours,omitempty"`
 }
 
-// AddFavoriteRequest 添加收藏请求
+// AddFavoriteRequest 添加收藏请求.
 type AddFavoriteRequest struct {
 	Name string `json:"name" binding:"required"`
 	Type string `json:"type" binding:"required"`
@@ -259,7 +259,7 @@ type AddFavoriteRequest struct {
 	Icon string `json:"icon,omitempty"`
 }
 
-// ActivityQuery 活动查询
+// ActivityQuery 活动查询.
 type ActivityQuery struct {
 	MemberID string       `json:"member_id"`
 	Type     ActivityType `json:"type,omitempty"`
@@ -268,7 +268,7 @@ type ActivityQuery struct {
 	Limit    int          `json:"limit,omitempty"`
 }
 
-// DefaultDashboardLayout 默认仪表板布局
+// DefaultDashboardLayout 默认仪表板布局.
 func DefaultDashboardLayout() []DashboardWidget {
 	return []DashboardWidget{
 		{ID: "w1", Type: WidgetStorage, Title: "存储空间", Position: 0, Size: "medium", Visible: true},
@@ -278,7 +278,7 @@ func DefaultDashboardLayout() []DashboardWidget {
 	}
 }
 
-// DefaultPermissions 默认权限
+// DefaultPermissions 默认权限.
 func DefaultPermissions(role MemberRole) *Permissions {
 	base := &Permissions{
 		Level:          PermissionLimited,

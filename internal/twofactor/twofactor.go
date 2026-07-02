@@ -13,17 +13,17 @@ import (
 	"time"
 )
 
-// Config 2FA配置
+// Config 2FA配置.
 type Config struct {
 	Issuer      string `json:"issuer"`       // 发行者名称
-	SecretSize  int    `json:"secret_size"`   // 密钥长度
-	BackupCodes int    `json:"backup_codes"`  // 备用码数量
-	CodeLength  int    `json:"code_length"`   // 验证码长度
-	Window      int    `json:"window"`        // 时间窗口
+	SecretSize  int    `json:"secret_size"`  // 密钥长度
+	BackupCodes int    `json:"backup_codes"` // 备用码数量
+	CodeLength  int    `json:"code_length"`  // 验证码长度
+	Window      int    `json:"window"`       // 时间窗口
 	Enabled     bool   `json:"enabled"`
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() Config {
 	return Config{
 		Issuer:      "NAS-OS",
@@ -35,14 +35,14 @@ func DefaultConfig() Config {
 	}
 }
 
-// TwoFactorAuth 双因素认证管理器
+// TwoFactorAuth 双因素认证管理器.
 type TwoFactorAuth struct {
 	mu     sync.RWMutex
 	config Config
 	users  map[string]*UserTwoFactor
 }
 
-// UserTwoFactor 用户2FA信息
+// UserTwoFactor 用户2FA信息.
 type UserTwoFactor struct {
 	UserID      string    `json:"user_id"`
 	Secret      string    `json:"secret"`
@@ -53,7 +53,7 @@ type UserTwoFactor struct {
 	LastUsed    time.Time `json:"last_used,omitempty"`
 }
 
-// New 创建2FA管理器
+// New 创建2FA管理器.
 func New(config Config) *TwoFactorAuth {
 	return &TwoFactorAuth{
 		config: config,
@@ -61,7 +61,7 @@ func New(config Config) *TwoFactorAuth {
 	}
 }
 
-// GenerateSecret 为用户生成TOTP密钥
+// GenerateSecret 为用户生成TOTP密钥.
 func (tfa *TwoFactorAuth) GenerateSecret(userID string) (secret string, qrURL string, err error) {
 	tfa.mu.Lock()
 	defer tfa.mu.Unlock()
@@ -94,7 +94,7 @@ func (tfa *TwoFactorAuth) GenerateSecret(userID string) (secret string, qrURL st
 	return secret, qrURL, nil
 }
 
-// VerifyCode 验证TOTP码
+// VerifyCode 验证TOTP码.
 func (tfa *TwoFactorAuth) VerifyCode(userID, code string) (bool, error) {
 	tfa.mu.RLock()
 	user, ok := tfa.users[userID]
@@ -129,7 +129,7 @@ func (tfa *TwoFactorAuth) VerifyCode(userID, code string) (bool, error) {
 	return false, nil
 }
 
-// generateTOTP 生成TOTP码
+// generateTOTP 生成TOTP码.
 func (tfa *TwoFactorAuth) generateTOTP(secret string, t time.Time) string {
 	// 解码密钥
 	key, err := base32.StdEncoding.WithPadding(base32.NoPadding).DecodeString(secret)
@@ -158,7 +158,7 @@ func (tfa *TwoFactorAuth) generateTOTP(secret string, t time.Time) string {
 	return fmt.Sprintf(format, uint64(code)%pow10(tfa.config.CodeLength))
 }
 
-// generateBackupCodes 生成备用码
+// generateBackupCodes 生成备用码.
 func (tfa *TwoFactorAuth) generateBackupCodes() []string {
 	codes := make([]string, tfa.config.BackupCodes)
 	for i := 0; i < tfa.config.BackupCodes; i++ {
@@ -169,7 +169,7 @@ func (tfa *TwoFactorAuth) generateBackupCodes() []string {
 	return codes
 }
 
-// verifyBackupCode 验证备用码
+// verifyBackupCode 验证备用码.
 func (tfa *TwoFactorAuth) verifyBackupCode(userID, code string) bool {
 	tfa.mu.Lock()
 	defer tfa.mu.Unlock()
@@ -191,7 +191,7 @@ func (tfa *TwoFactorAuth) verifyBackupCode(userID, code string) bool {
 	return false
 }
 
-// IsEnabled 检查用户是否启用2FA
+// IsEnabled 检查用户是否启用2FA.
 func (tfa *TwoFactorAuth) IsEnabled(userID string) bool {
 	tfa.mu.RLock()
 	defer tfa.mu.RUnlock()
@@ -200,7 +200,7 @@ func (tfa *TwoFactorAuth) IsEnabled(userID string) bool {
 	return ok && user.Enabled && user.Verified
 }
 
-// Disable 禁用用户2FA
+// Disable 禁用用户2FA.
 func (tfa *TwoFactorAuth) Disable(userID string) {
 	tfa.mu.Lock()
 	defer tfa.mu.Unlock()
@@ -210,7 +210,7 @@ func (tfa *TwoFactorAuth) Disable(userID string) {
 	}
 }
 
-// GetBackupCodes 获取剩余备用码数量
+// GetBackupCodes 获取剩余备用码数量.
 func (tfa *TwoFactorAuth) GetBackupCodes(userID string) int {
 	tfa.mu.RLock()
 	defer tfa.mu.RUnlock()

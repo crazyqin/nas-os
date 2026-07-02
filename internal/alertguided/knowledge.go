@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-// KnowledgeEntry 告警知识条目
+// KnowledgeEntry 告警知识条目.
 type KnowledgeEntry struct {
 	ID         string       `json:"id"`
 	Title      string       `json:"title"`
@@ -19,7 +19,7 @@ type KnowledgeEntry struct {
 	Tags       []string     `json:"tags,omitempty"`
 }
 
-// RepairStep 修复步骤
+// RepairStep 修复步骤.
 type RepairStep struct {
 	Order          int      `json:"order"`
 	Title          string   `json:"title"`
@@ -32,13 +32,13 @@ type RepairStep struct {
 	Alternatives   []string `json:"alternatives,omitempty"`
 }
 
-// KnowledgeBase 告警知识库
+// KnowledgeBase 告警知识库.
 type KnowledgeBase struct {
 	entries map[string]*KnowledgeEntry
 	mu      sync.RWMutex
 }
 
-// NewKnowledgeBase 创建知识库并加载内置条目
+// NewKnowledgeBase 创建知识库并加载内置条目.
 func NewKnowledgeBase() *KnowledgeBase {
 	kb := &KnowledgeBase{
 		entries: make(map[string]*KnowledgeEntry),
@@ -47,7 +47,7 @@ func NewKnowledgeBase() *KnowledgeBase {
 	return kb
 }
 
-// Get 根据ID获取知识条目
+// Get 根据ID获取知识条目.
 func (kb *KnowledgeBase) Get(id string) (*KnowledgeEntry, bool) {
 	kb.mu.RLock()
 	defer kb.mu.RUnlock()
@@ -55,7 +55,7 @@ func (kb *KnowledgeBase) Get(id string) (*KnowledgeEntry, bool) {
 	return entry, ok
 }
 
-// Search 按关键词搜索知识条目
+// Search 按关键词搜索知识条目.
 func (kb *KnowledgeBase) Search(keyword string) []*KnowledgeEntry {
 	kb.mu.RLock()
 	defer kb.mu.RUnlock()
@@ -69,7 +69,7 @@ func (kb *KnowledgeBase) Search(keyword string) []*KnowledgeEntry {
 	return results
 }
 
-// List 列出所有知识条目
+// List 列出所有知识条目.
 func (kb *KnowledgeBase) List() []*KnowledgeEntry {
 	kb.mu.RLock()
 	defer kb.mu.RUnlock()
@@ -80,14 +80,14 @@ func (kb *KnowledgeBase) List() []*KnowledgeEntry {
 	return result
 }
 
-// Add 添加自定义知识条目
+// Add 添加自定义知识条目.
 func (kb *KnowledgeBase) Add(entry *KnowledgeEntry) {
 	kb.mu.Lock()
 	defer kb.mu.Unlock()
 	kb.entries[entry.ID] = entry
 }
 
-// LookupByCategory 按类别查找
+// LookupByCategory 按类别查找.
 func (kb *KnowledgeBase) LookupByCategory(cat Category) []*KnowledgeEntry {
 	kb.mu.RLock()
 	defer kb.mu.RUnlock()
@@ -125,7 +125,7 @@ func matchEntry(entry *KnowledgeEntry, kw string) bool {
 	return false
 }
 
-// loadBuiltinEntries 加载内置告警知识条目
+// loadBuiltinEntries 加载内置告警知识条目.
 func (kb *KnowledgeBase) loadBuiltinEntries() {
 	entries := []*KnowledgeEntry{
 		{
@@ -435,31 +435,31 @@ func (kb *KnowledgeBase) loadBuiltinEntries() {
 	}
 }
 
-// FormatKnowledgeEntry 格式化知识条目为可读文本
+// FormatKnowledgeEntry 格式化知识条目为可读文本.
 func FormatKnowledgeEntry(entry *KnowledgeEntry) string {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("# %s\n\n", entry.Title))
-	sb.WriteString(fmt.Sprintf("分类: %s | 严重级别: %s\n\n", entry.Category, entry.Severity))
+	fmt.Fprintf(&sb, "# %s\n\n", entry.Title)
+	fmt.Fprintf(&sb, "分类: %s | 严重级别: %s\n\n", entry.Category, entry.Severity)
 
 	sb.WriteString("## 可能原因\n")
 	for _, cause := range entry.Causes {
-		sb.WriteString(fmt.Sprintf("- %s\n", cause))
+		fmt.Fprintf(&sb, "- %s\n", cause)
 	}
 
 	sb.WriteString("\n## 症状表现\n")
 	for _, symptom := range entry.Symptoms {
-		sb.WriteString(fmt.Sprintf("- %s\n", symptom))
+		fmt.Fprintf(&sb, "- %s\n", symptom)
 	}
 
 	sb.WriteString("\n## 修复步骤\n")
 	for _, step := range entry.Steps {
-		sb.WriteString(fmt.Sprintf("%d. **%s**\n", step.Order, step.Title))
-		sb.WriteString(fmt.Sprintf("   %s\n", step.Description))
+		fmt.Fprintf(&sb, "%d. **%s**\n", step.Order, step.Title)
+		fmt.Fprintf(&sb, "   %s\n", step.Description)
 		if step.Command != "" {
-			sb.WriteString(fmt.Sprintf("   ```\n   %s\n   ```\n", step.Command))
+			fmt.Fprintf(&sb, "   ```\n   %s\n   ```\n", step.Command)
 		}
 		if step.ExpectedResult != "" {
-			sb.WriteString(fmt.Sprintf("   预期结果: %s\n", step.ExpectedResult))
+			fmt.Fprintf(&sb, "   预期结果: %s\n", step.ExpectedResult)
 		}
 		if step.RiskLevel == "high" {
 			sb.WriteString("   ⚠️ 高风险操作，需要确认\n")
@@ -469,7 +469,7 @@ func FormatKnowledgeEntry(entry *KnowledgeEntry) string {
 	if len(entry.References) > 0 {
 		sb.WriteString("\n## 参考链接\n")
 		for _, ref := range entry.References {
-			sb.WriteString(fmt.Sprintf("- %s\n", ref))
+			fmt.Fprintf(&sb, "- %s\n", ref)
 		}
 	}
 	return sb.String()

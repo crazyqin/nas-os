@@ -8,13 +8,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handler 跨平台同步 HTTP handlers
+// Handler 跨平台同步 HTTP handlers.
 type Handler struct {
 	manager *Manager
 	logger  *zap.Logger
 }
 
-// NewHandler 创建跨平台同步 HTTP handler
+// NewHandler 创建跨平台同步 HTTP handler.
 func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -22,7 +22,7 @@ func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
 	return &Handler{manager: manager, logger: logger}
 }
 
-// RegisterRoutes 注册跨平台同步 API 路由
+// RegisterRoutes 注册跨平台同步 API 路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	sync := rg.Group("/crossplatformsync")
 	{
@@ -67,7 +67,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 // 设备管理 Handlers
 // ============================================================
 
-// CreateDevice 处理 POST /api/v1/crossplatformsync/devices
+// CreateDevice 处理 POST /api/v1/crossplatformsync/devices.
 func (h *Handler) CreateDevice(c *gin.Context) {
 	var req CreateDeviceRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -82,7 +82,7 @@ func (h *Handler) CreateDevice(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": device})
 }
 
-// GetDevice 处理 GET /api/v1/crossplatformsync/devices/:id
+// GetDevice 处理 GET /api/v1/crossplatformsync/devices/:id.
 func (h *Handler) GetDevice(c *gin.Context) {
 	id := c.Param("id")
 	device, err := h.manager.GetDevice(id)
@@ -93,13 +93,13 @@ func (h *Handler) GetDevice(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": device})
 }
 
-// ListDevices 处理 GET /api/v1/crossplatformsync/devices
+// ListDevices 处理 GET /api/v1/crossplatformsync/devices.
 func (h *Handler) ListDevices(c *gin.Context) {
 	devices := h.manager.ListDevices()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": devices, "total": len(devices)})
 }
 
-// UpdateDevice 处理 PUT /api/v1/crossplatformsync/devices/:id
+// UpdateDevice 处理 PUT /api/v1/crossplatformsync/devices/:id.
 func (h *Handler) UpdateDevice(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateDeviceRequest
@@ -115,7 +115,7 @@ func (h *Handler) UpdateDevice(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": device})
 }
 
-// DeleteDevice 处理 DELETE /api/v1/crossplatformsync/devices/:id
+// DeleteDevice 处理 DELETE /api/v1/crossplatformsync/devices/:id.
 func (h *Handler) DeleteDevice(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteDevice(id); err != nil {
@@ -125,7 +125,7 @@ func (h *Handler) DeleteDevice(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "deleted"})
 }
 
-// TestDeviceConnection 处理 POST /api/v1/crossplatformsync/devices/:id/test
+// TestDeviceConnection 处理 POST /api/v1/crossplatformsync/devices/:id/test.
 func (h *Handler) TestDeviceConnection(c *gin.Context) {
 	id := c.Param("id")
 	result, err := h.manager.TestDeviceConnection(id)
@@ -140,7 +140,7 @@ func (h *Handler) TestDeviceConnection(c *gin.Context) {
 // 同步任务管理 Handlers
 // ============================================================
 
-// CreateSyncTask 处理 POST /api/v1/crossplatformsync/tasks
+// CreateSyncTask 处理 POST /api/v1/crossplatformsync/tasks.
 func (h *Handler) CreateSyncTask(c *gin.Context) {
 	var req CreateSyncTaskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -155,7 +155,7 @@ func (h *Handler) CreateSyncTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": task})
 }
 
-// GetSyncTask 处理 GET /api/v1/crossplatformsync/tasks/:id
+// GetSyncTask 处理 GET /api/v1/crossplatformsync/tasks/:id.
 func (h *Handler) GetSyncTask(c *gin.Context) {
 	id := c.Param("id")
 	task, err := h.manager.GetSyncTask(id)
@@ -166,13 +166,13 @@ func (h *Handler) GetSyncTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": task})
 }
 
-// ListSyncTasks 处理 GET /api/v1/crossplatformsync/tasks
+// ListSyncTasks 处理 GET /api/v1/crossplatformsync/tasks.
 func (h *Handler) ListSyncTasks(c *gin.Context) {
 	tasks := h.manager.ListSyncTasks()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": tasks, "total": len(tasks)})
 }
 
-// UpdateSyncTask 处理 PUT /api/v1/crossplatformsync/tasks/:id
+// UpdateSyncTask 处理 PUT /api/v1/crossplatformsync/tasks/:id.
 func (h *Handler) UpdateSyncTask(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateSyncTaskRequest
@@ -188,7 +188,7 @@ func (h *Handler) UpdateSyncTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": task})
 }
 
-// DeleteSyncTask 处理 DELETE /api/v1/crossplatformsync/tasks/:id
+// DeleteSyncTask 处理 DELETE /api/v1/crossplatformsync/tasks/:id.
 func (h *Handler) DeleteSyncTask(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteSyncTask(id); err != nil {
@@ -202,7 +202,7 @@ func (h *Handler) DeleteSyncTask(c *gin.Context) {
 // 同步控制 Handlers
 // ============================================================
 
-// StartSync 处理 POST /api/v1/crossplatformsync/tasks/:id/start
+// StartSync 处理 POST /api/v1/crossplatformsync/tasks/:id/start.
 func (h *Handler) StartSync(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.StartSync(id); err != nil {
@@ -212,7 +212,7 @@ func (h *Handler) StartSync(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "sync started"})
 }
 
-// PauseSync 处理 POST /api/v1/crossplatformsync/tasks/:id/pause
+// PauseSync 处理 POST /api/v1/crossplatformsync/tasks/:id/pause.
 func (h *Handler) PauseSync(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.PauseSync(id); err != nil {
@@ -222,7 +222,7 @@ func (h *Handler) PauseSync(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "sync paused"})
 }
 
-// ResumeSync 处理 POST /api/v1/crossplatformsync/tasks/:id/resume
+// ResumeSync 处理 POST /api/v1/crossplatformsync/tasks/:id/resume.
 func (h *Handler) ResumeSync(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.ResumeSync(id); err != nil {
@@ -232,7 +232,7 @@ func (h *Handler) ResumeSync(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "sync resumed"})
 }
 
-// StopSync 处理 POST /api/v1/crossplatformsync/tasks/:id/stop
+// StopSync 处理 POST /api/v1/crossplatformsync/tasks/:id/stop.
 func (h *Handler) StopSync(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.StopSync(id); err != nil {
@@ -246,7 +246,7 @@ func (h *Handler) StopSync(c *gin.Context) {
 // 冲突管理 Handlers
 // ============================================================
 
-// GetConflicts 处理 GET /api/v1/crossplatformsync/tasks/:id/conflicts
+// GetConflicts 处理 GET /api/v1/crossplatformsync/tasks/:id/conflicts.
 func (h *Handler) GetConflicts(c *gin.Context) {
 	id := c.Param("id")
 	conflicts := h.manager.GetConflicts(id)
@@ -256,7 +256,7 @@ func (h *Handler) GetConflicts(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": conflicts, "total": len(conflicts)})
 }
 
-// ResolveConflict 处理 POST /api/v1/crossplatformsync/tasks/:id/conflicts/:conflictId/resolve
+// ResolveConflict 处理 POST /api/v1/crossplatformsync/tasks/:id/conflicts/:conflictId/resolve.
 func (h *Handler) ResolveConflict(c *gin.Context) {
 	taskID := c.Param("id")
 	conflictID := c.Param("conflictId")
@@ -272,7 +272,7 @@ func (h *Handler) ResolveConflict(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "conflict resolved"})
 }
 
-// ResolveAllConflicts 处理 POST /api/v1/crossplatformsync/tasks/:id/conflicts/resolve-all
+// ResolveAllConflicts 处理 POST /api/v1/crossplatformsync/tasks/:id/conflicts/resolve-all.
 func (h *Handler) ResolveAllConflicts(c *gin.Context) {
 	taskID := c.Param("id")
 	var req ResolveConflictRequest
@@ -291,7 +291,7 @@ func (h *Handler) ResolveAllConflicts(c *gin.Context) {
 // 状态和统计 Handlers
 // ============================================================
 
-// GetSyncStatus 处理 GET /api/v1/crossplatformsync/tasks/:id/status
+// GetSyncStatus 处理 GET /api/v1/crossplatformsync/tasks/:id/status.
 func (h *Handler) GetSyncStatus(c *gin.Context) {
 	id := c.Param("id")
 	status, err := h.manager.GetSyncStatus(id)
@@ -302,19 +302,19 @@ func (h *Handler) GetSyncStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": status})
 }
 
-// GetAllStatuses 处理 GET /api/v1/crossplatformsync/statuses
+// GetAllStatuses 处理 GET /api/v1/crossplatformsync/statuses.
 func (h *Handler) GetAllStatuses(c *gin.Context) {
 	statuses := h.manager.GetAllSyncStatuses()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": statuses, "total": len(statuses)})
 }
 
-// GetSyncStats 处理 GET /api/v1/crossplatformsync/stats
+// GetSyncStats 处理 GET /api/v1/crossplatformsync/stats.
 func (h *Handler) GetSyncStats(c *gin.Context) {
 	stats := h.manager.GetSyncStats()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": stats})
 }
 
-// GetSyncLogs 处理 GET /api/v1/crossplatformsync/logs
+// GetSyncLogs 处理 GET /api/v1/crossplatformsync/logs.
 func (h *Handler) GetSyncLogs(c *gin.Context) {
 	taskID := c.Query("task_id")
 	limitStr := c.DefaultQuery("limit", "100")
@@ -326,7 +326,7 @@ func (h *Handler) GetSyncLogs(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": logs, "total": len(logs)})
 }
 
-// LoadMockData 处理 POST /api/v1/crossplatformsync/mock
+// LoadMockData 处理 POST /api/v1/crossplatformsync/mock.
 func (h *Handler) LoadMockData(c *gin.Context) {
 	h.manager.LoadMockData()
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "mock data loaded"})

@@ -23,31 +23,31 @@ import (
 // ========== 常量 ==========
 
 const (
-	// Version 模块版本
+	// Version 模块版本.
 	Version = "1.0.0"
 
-	// MaxConcurrentDownloads 最大并发下载数
+	// MaxConcurrentDownloads 最大并发下载数.
 	MaxConcurrentDownloads = 10
 
-	// DefaultChunkSize 默认分块大小 (1MB)
+	// DefaultChunkSize 默认分块大小 (1MB).
 	DefaultChunkSize = 1024 * 1024
 
-	// MaxRetries 最大重试次数
+	// MaxRetries 最大重试次数.
 	MaxRetries = 3
 
-	// RetryDelay 重试延迟
+	// RetryDelay 重试延迟.
 	RetryDelay = 5 * time.Second
 
-	// ProgressUpdateInterval 进度更新间隔
+	// ProgressUpdateInterval 进度更新间隔.
 	ProgressUpdateInterval = 500 * time.Millisecond
 
-	// DownloadTimeout 下载超时时间
+	// DownloadTimeout 下载超时时间.
 	DownloadTimeout = 30 * time.Minute
 )
 
 // ========== 下载协议 ==========
 
-// DownloadProtocol 下载协议类型
+// DownloadProtocol 下载协议类型.
 type DownloadProtocol string
 
 const (
@@ -61,7 +61,7 @@ const (
 
 // ========== 下载状态 ==========
 
-// DownloadStatus 下载状态
+// DownloadStatus 下载状态.
 type DownloadStatus string
 
 const (
@@ -78,7 +78,7 @@ const (
 
 // ========== 下载优先级 ==========
 
-// DownloadPriority 下载优先级
+// DownloadPriority 下载优先级.
 type DownloadPriority int
 
 const (
@@ -90,7 +90,7 @@ const (
 
 // ========== 通知方式 ==========
 
-// NotifyMethod 通知方式
+// NotifyMethod 通知方式.
 type NotifyMethod string
 
 const (
@@ -101,7 +101,7 @@ const (
 
 // ========== 数据结构 ==========
 
-// DownloadItem 下载项
+// DownloadItem 下载项.
 type DownloadItem struct {
 	ID             string            `json:"id"`
 	URL            string            `json:"url"`
@@ -130,7 +130,7 @@ type DownloadItem struct {
 	Metadata       DownloadMetadata  `json:"metadata"`
 }
 
-// DownloadMetadata 下载元数据
+// DownloadMetadata 下载元数据.
 type DownloadMetadata struct {
 	Source    string            `json:"source,omitempty"`
 	Category  string            `json:"category,omitempty"`
@@ -140,7 +140,7 @@ type DownloadMetadata struct {
 	Extra     map[string]string `json:"extra,omitempty"`
 }
 
-// BTDownloadInfo BT下载信息
+// BTDownloadInfo BT下载信息.
 type BTDownloadInfo struct {
 	TorrentPath   string   `json:"torrent_path,omitempty"`
 	MagnetURI     string   `json:"magnet_uri,omitempty"`
@@ -159,14 +159,14 @@ type BTDownloadInfo struct {
 	Files         []BTFile `json:"files,omitempty"`
 }
 
-// BTFile BT文件信息
+// BTFile BT文件信息.
 type BTFile struct {
 	Name     string  `json:"name"`
 	Size     int64   `json:"size"`
 	Progress float64 `json:"progress"`
 }
 
-// TransmissionConfig Transmission配置
+// TransmissionConfig Transmission配置.
 type TransmissionConfig struct {
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
@@ -175,7 +175,7 @@ type TransmissionConfig struct {
 	RPCPath  string `json:"rpc_path"`
 }
 
-// SpeedLimitConfig 限速配置
+// SpeedLimitConfig 限速配置.
 type SpeedLimitConfig struct {
 	GlobalDownload int64  `json:"global_download"` // 全局下载限速 bytes/s
 	GlobalUpload   int64  `json:"global_upload"`   // 全局上传限速 bytes/s
@@ -185,7 +185,7 @@ type SpeedLimitConfig struct {
 	ScheduleLimit  int64  `json:"schedule_limit"`  // 限速时段限速 bytes/s
 }
 
-// ScheduleConfig 调度配置
+// ScheduleConfig 调度配置.
 type ScheduleConfig struct {
 	MaxConcurrent  int    `json:"max_concurrent"`   // 最大并发数
 	QueueSize      int    `json:"queue_size"`       // 队列大小
@@ -196,7 +196,7 @@ type ScheduleConfig struct {
 	TempPath       string `json:"temp_path"`        // 临时文件路径
 }
 
-// NotifyConfig 通知配置
+// NotifyConfig 通知配置.
 type NotifyConfig struct {
 	Enabled  bool           `json:"enabled"`
 	Methods  []NotifyMethod `json:"methods"`
@@ -205,14 +205,14 @@ type NotifyConfig struct {
 	Telegram TelegramConfig `json:"telegram"`
 }
 
-// WebhookConfig Webhook配置
+// WebhookConfig Webhook配置.
 type WebhookConfig struct {
 	URL     string            `json:"url"`
 	Method  string            `json:"method"`
 	Headers map[string]string `json:"headers,omitempty"`
 }
 
-// EmailConfig 邮件配置
+// EmailConfig 邮件配置.
 type EmailConfig struct {
 	SMTPHost string   `json:"smtp_host"`
 	SMTPPort int      `json:"smtp_port"`
@@ -222,13 +222,13 @@ type EmailConfig struct {
 	To       []string `json:"to"`
 }
 
-// TelegramConfig Telegram配置
+// TelegramConfig Telegram配置.
 type TelegramConfig struct {
 	BotToken string `json:"bot_token"`
 	ChatID   string `json:"chat_id"`
 }
 
-// DownloadRequest 下载请求
+// DownloadRequest 下载请求.
 type DownloadRequest struct {
 	URL         string            `json:"url"`
 	Protocol    DownloadProtocol  `json:"protocol"`
@@ -243,7 +243,7 @@ type DownloadRequest struct {
 	Metadata    DownloadMetadata  `json:"metadata,omitempty"`
 }
 
-// DownloadStats 下载统计
+// DownloadStats 下载统计.
 type DownloadStats struct {
 	TotalDownloads     int                      `json:"total_downloads"`
 	ActiveDownloads    int                      `json:"active_downloads"`
@@ -256,7 +256,7 @@ type DownloadStats struct {
 	ProtocolStats      map[DownloadProtocol]int `json:"protocol_stats"`
 }
 
-// DownloadHistory 下载历史
+// DownloadHistory 下载历史.
 type DownloadHistory struct {
 	ID           string           `json:"id"`
 	URL          string           `json:"url"`
@@ -274,7 +274,7 @@ type DownloadHistory struct {
 
 // ========== 管理器 ==========
 
-// DownloadManager 下载管理器
+// DownloadManager 下载管理器.
 type DownloadManager struct {
 	mu             sync.RWMutex
 	downloads      map[string]*DownloadItem
@@ -291,7 +291,7 @@ type DownloadManager struct {
 	activeWorkers  int
 }
 
-// NewDownloadManager 创建下载管理器
+// NewDownloadManager 创建下载管理器.
 func NewDownloadManager(scheduleConfig ScheduleConfig, speedLimit SpeedLimitConfig, notifyConfig NotifyConfig) *DownloadManager {
 	if scheduleConfig.MaxConcurrent <= 0 {
 		scheduleConfig.MaxConcurrent = MaxConcurrentDownloads
@@ -323,14 +323,14 @@ func NewDownloadManager(scheduleConfig ScheduleConfig, speedLimit SpeedLimitConf
 	return dm
 }
 
-// SetTransmissionConfig 设置Transmission配置
+// SetTransmissionConfig 设置Transmission配置.
 func (dm *DownloadManager) SetTransmissionConfig(config *TransmissionConfig) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
 	dm.transmission = config
 }
 
-// Start 启动下载管理器
+// Start 启动下载管理器.
 func (dm *DownloadManager) Start(ctx context.Context) error {
 	dm.mu.Lock()
 	if dm.running {
@@ -348,7 +348,7 @@ func (dm *DownloadManager) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止下载管理器
+// Stop 停止下载管理器.
 func (dm *DownloadManager) Stop() {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -359,14 +359,14 @@ func (dm *DownloadManager) Stop() {
 	dm.running = false
 }
 
-// IsRunning 是否运行中
+// IsRunning 是否运行中.
 func (dm *DownloadManager) IsRunning() bool {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 	return dm.running
 }
 
-// AddDownload 添加下载任务
+// AddDownload 添加下载任务.
 func (dm *DownloadManager) AddDownload(req DownloadRequest) (*DownloadItem, error) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -433,7 +433,7 @@ func (dm *DownloadManager) AddDownload(req DownloadRequest) (*DownloadItem, erro
 	return item, nil
 }
 
-// addBTDownload 添加BT/PT下载
+// addBTDownload 添加BT/PT下载.
 func (dm *DownloadManager) addBTDownload(req DownloadRequest) (*DownloadItem, error) {
 	if dm.transmission == nil {
 		return nil, errors.New("transmission not configured")
@@ -464,7 +464,7 @@ func (dm *DownloadManager) addBTDownload(req DownloadRequest) (*DownloadItem, er
 	return item, nil
 }
 
-// startBTDownload 启动BT下载
+// startBTDownload 启动BT下载.
 func (dm *DownloadManager) startBTDownload(item *DownloadItem) {
 	dm.mu.Lock()
 	item.Status = StatusConnecting
@@ -489,7 +489,7 @@ func (dm *DownloadManager) startBTDownload(item *DownloadItem) {
 	dm.mu.Unlock()
 }
 
-// transmissionAddTorrent 添加种子到Transmission
+// transmissionAddTorrent 添加种子到Transmission.
 func (dm *DownloadManager) transmissionAddTorrent(uri string) error {
 	if dm.transmission == nil {
 		return errors.New("transmission not configured")
@@ -530,14 +530,14 @@ func (dm *DownloadManager) transmissionAddTorrent(uri string) error {
 	return nil
 }
 
-// enqueue 入队
+// enqueue 入队.
 func (dm *DownloadManager) enqueue(item *DownloadItem) {
 	item.Status = StatusQueued
 	dm.queue = append(dm.queue, item)
 	dm.sortQueue()
 }
 
-// sortQueue 排序队列
+// sortQueue 排序队列.
 func (dm *DownloadManager) sortQueue() {
 	sort.Slice(dm.queue, func(i, j int) bool {
 		// 按优先级排序（高优先）
@@ -549,7 +549,7 @@ func (dm *DownloadManager) sortQueue() {
 	})
 }
 
-// processQueue 处理下载队列
+// processQueue 处理下载队列.
 func (dm *DownloadManager) processQueue(ctx context.Context) {
 	ticker := time.NewTicker(100 * time.Millisecond)
 	defer ticker.Stop()
@@ -564,7 +564,7 @@ func (dm *DownloadManager) processQueue(ctx context.Context) {
 	}
 }
 
-// processNext 处理下一个下载任务
+// processNext 处理下一个下载任务.
 func (dm *DownloadManager) processNext() {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -594,7 +594,7 @@ func (dm *DownloadManager) processNext() {
 	go dm.executeDownload(item)
 }
 
-// executeDownload 执行下载
+// executeDownload 执行下载.
 func (dm *DownloadManager) executeDownload(item *DownloadItem) {
 	defer func() {
 		<-dm.workerPool
@@ -646,7 +646,7 @@ func (dm *DownloadManager) executeDownload(item *DownloadItem) {
 	dm.sendNotification(item)
 }
 
-// doDownload 执行实际下载
+// doDownload 执行实际下载.
 func (dm *DownloadManager) doDownload(item *DownloadItem) error {
 	ctx, cancel := context.WithTimeout(context.Background(), DownloadTimeout)
 	defer cancel()
@@ -677,7 +677,7 @@ func (dm *DownloadManager) doDownload(item *DownloadItem) error {
 	return dm.singleThreadDownload(ctx, item)
 }
 
-// singleThreadDownload 单线程下载
+// singleThreadDownload 单线程下载.
 func (dm *DownloadManager) singleThreadDownload(ctx context.Context, item *DownloadItem) error {
 	req, _ := http.NewRequestWithContext(ctx, "GET", item.URL, nil)
 	for k, v := range item.Headers {
@@ -759,7 +759,7 @@ func (dm *DownloadManager) singleThreadDownload(ctx context.Context, item *Downl
 	return nil
 }
 
-// multiThreadDownload 多线程下载
+// multiThreadDownload 多线程下载.
 func (dm *DownloadManager) multiThreadDownload(ctx context.Context, item *DownloadItem) error {
 	segmentSize := item.FileSize / int64(item.Segments)
 	var wg sync.WaitGroup
@@ -807,7 +807,7 @@ func (dm *DownloadManager) multiThreadDownload(ctx context.Context, item *Downlo
 	return os.Rename(tmpPath, outPath)
 }
 
-// downloadSegment 下载分段
+// downloadSegment 下载分段.
 func (dm *DownloadManager) downloadSegment(ctx context.Context, item *DownloadItem, file *os.File, start, end int64) error {
 	req, _ := http.NewRequestWithContext(ctx, "GET", item.URL, nil)
 	req.Header.Set("Range", fmt.Sprintf("bytes=%d-%d", start, end))
@@ -863,7 +863,7 @@ func (dm *DownloadManager) downloadSegment(ctx context.Context, item *DownloadIt
 	return nil
 }
 
-// rateLimitedReader 限速读取器
+// rateLimitedReader 限速读取器.
 type rateLimitedReader struct {
 	reader    io.Reader
 	rateLimit int64 // bytes per second
@@ -901,7 +901,7 @@ func (r *rateLimitedReader) Read(p []byte) (int, error) {
 	return n, err
 }
 
-// monitorDownloads 监控下载状态
+// monitorDownloads 监控下载状态.
 func (dm *DownloadManager) monitorDownloads(ctx context.Context) {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
@@ -917,7 +917,7 @@ func (dm *DownloadManager) monitorDownloads(ctx context.Context) {
 	}
 }
 
-// checkBTDownloads 检查BT下载状态
+// checkBTDownloads 检查BT下载状态.
 func (dm *DownloadManager) checkBTDownloads() {
 	if dm.transmission == nil {
 		return
@@ -957,7 +957,7 @@ func (dm *DownloadManager) checkBTDownloads() {
 	}
 }
 
-// getBTStatus 获取BT下载状态
+// getBTStatus 获取BT下载状态.
 func (dm *DownloadManager) getBTStatus(hash string) (*BTDownloadInfo, error) {
 	if dm.transmission == nil {
 		return nil, errors.New("transmission not configured")
@@ -1013,7 +1013,7 @@ func (dm *DownloadManager) getBTStatus(hash string) (*BTDownloadInfo, error) {
 	return nil, errors.New("torrent not found")
 }
 
-// scheduleChecker 调度检查器
+// scheduleChecker 调度检查器.
 func (dm *DownloadManager) scheduleChecker(ctx context.Context) {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -1028,7 +1028,7 @@ func (dm *DownloadManager) scheduleChecker(ctx context.Context) {
 	}
 }
 
-// checkScheduledDownloads 检查定时下载
+// checkScheduledDownloads 检查定时下载.
 func (dm *DownloadManager) checkScheduledDownloads() {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -1041,7 +1041,7 @@ func (dm *DownloadManager) checkScheduledDownloads() {
 	}
 }
 
-// updateStats 更新统计信息
+// updateStats 更新统计信息.
 func (dm *DownloadManager) updateStats() {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -1079,7 +1079,7 @@ func (dm *DownloadManager) updateStats() {
 	dm.stats = stats
 }
 
-// addToHistory 添加到历史记录
+// addToHistory 添加到历史记录.
 func (dm *DownloadManager) addToHistory(item *DownloadItem) {
 	history := DownloadHistory{
 		ID:       item.ID,
@@ -1106,7 +1106,7 @@ func (dm *DownloadManager) addToHistory(item *DownloadItem) {
 	dm.history = append(dm.history, history)
 }
 
-// sendNotification 发送通知
+// sendNotification 发送通知.
 func (dm *DownloadManager) sendNotification(item *DownloadItem) {
 	if !dm.notifyConfig.Enabled {
 		return
@@ -1126,7 +1126,7 @@ func (dm *DownloadManager) sendNotification(item *DownloadItem) {
 	}
 }
 
-// buildNotificationMessage 构建通知消息
+// buildNotificationMessage 构建通知消息.
 func (dm *DownloadManager) buildNotificationMessage(item *DownloadItem) string {
 	var status string
 	if item.Status == StatusCompleted {
@@ -1143,7 +1143,7 @@ func (dm *DownloadManager) buildNotificationMessage(item *DownloadItem) string {
 	)
 }
 
-// sendWebhookNotification 发送Webhook通知
+// sendWebhookNotification 发送Webhook通知.
 func (dm *DownloadManager) sendWebhookNotification(message string) {
 	payload := map[string]interface{}{
 		"text":      message,
@@ -1166,13 +1166,13 @@ func (dm *DownloadManager) sendWebhookNotification(message string) {
 	client.Do(req)
 }
 
-// sendEmailNotification 发送邮件通知
+// sendEmailNotification 发送邮件通知.
 func (dm *DownloadManager) sendEmailNotification(message string) {
 	// 邮件发送实现
 	// 实际应使用 net/smtp 包
 }
 
-// sendTelegramNotification 发送Telegram通知
+// sendTelegramNotification 发送Telegram通知.
 func (dm *DownloadManager) sendTelegramNotification(message string) {
 	if dm.notifyConfig.Telegram.BotToken == "" {
 		return
@@ -1196,7 +1196,7 @@ func (dm *DownloadManager) sendTelegramNotification(message string) {
 
 // ========== 公共API方法 ==========
 
-// GetDownload 获取下载项
+// GetDownload 获取下载项.
 func (dm *DownloadManager) GetDownload(id string) (*DownloadItem, bool) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -1204,7 +1204,7 @@ func (dm *DownloadManager) GetDownload(id string) (*DownloadItem, bool) {
 	return item, ok
 }
 
-// ListDownloads 列出所有下载项
+// ListDownloads 列出所有下载项.
 func (dm *DownloadManager) ListDownloads() []*DownloadItem {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -1221,7 +1221,7 @@ func (dm *DownloadManager) ListDownloads() []*DownloadItem {
 	return items
 }
 
-// GetQueue 获取下载队列
+// GetQueue 获取下载队列.
 func (dm *DownloadManager) GetQueue() []*DownloadItem {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -1231,7 +1231,7 @@ func (dm *DownloadManager) GetQueue() []*DownloadItem {
 	return queue
 }
 
-// GetHistory 获取下载历史
+// GetHistory 获取下载历史.
 func (dm *DownloadManager) GetHistory() []DownloadHistory {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
@@ -1241,14 +1241,14 @@ func (dm *DownloadManager) GetHistory() []DownloadHistory {
 	return history
 }
 
-// GetStats 获取下载统计
+// GetStats 获取下载统计.
 func (dm *DownloadManager) GetStats() DownloadStats {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 	return dm.stats
 }
 
-// PauseDownload 暂停下载
+// PauseDownload 暂停下载.
 func (dm *DownloadManager) PauseDownload(id string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -1266,7 +1266,7 @@ func (dm *DownloadManager) PauseDownload(id string) error {
 	return nil
 }
 
-// ResumeDownload 恢复下载
+// ResumeDownload 恢复下载.
 func (dm *DownloadManager) ResumeDownload(id string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -1284,7 +1284,7 @@ func (dm *DownloadManager) ResumeDownload(id string) error {
 	return nil
 }
 
-// CancelDownload 取消下载
+// CancelDownload 取消下载.
 func (dm *DownloadManager) CancelDownload(id string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -1311,7 +1311,7 @@ func (dm *DownloadManager) CancelDownload(id string) error {
 	return nil
 }
 
-// DeleteDownload 删除下载记录
+// DeleteDownload 删除下载记录.
 func (dm *DownloadManager) DeleteDownload(id string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -1333,14 +1333,14 @@ func (dm *DownloadManager) DeleteDownload(id string) error {
 	return nil
 }
 
-// UpdateSpeedLimit 更新限速配置
+// UpdateSpeedLimit 更新限速配置.
 func (dm *DownloadManager) UpdateSpeedLimit(config SpeedLimitConfig) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
 	dm.speedLimit = config
 }
 
-// UpdateNotifyConfig 更新通知配置
+// UpdateNotifyConfig 更新通知配置.
 func (dm *DownloadManager) UpdateNotifyConfig(config NotifyConfig) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
@@ -1349,7 +1349,7 @@ func (dm *DownloadManager) UpdateNotifyConfig(config NotifyConfig) {
 
 // ========== 辅助方法 ==========
 
-// detectProtocol 检测协议
+// detectProtocol 检测协议.
 func (dm *DownloadManager) detectProtocol(rawURL string) DownloadProtocol {
 	u, err := url.Parse(rawURL)
 	if err != nil {
@@ -1371,7 +1371,7 @@ func (dm *DownloadManager) detectProtocol(rawURL string) DownloadProtocol {
 	}
 }
 
-// validateURL 验证URL
+// validateURL 验证URL.
 func (dm *DownloadManager) validateURL(rawURL string, protocol DownloadProtocol) error {
 	if protocol == ProtocolMagnet || strings.HasPrefix(rawURL, "magnet:") {
 		if !strings.HasPrefix(rawURL, "magnet:?xt=urn:") {
@@ -1392,7 +1392,7 @@ func (dm *DownloadManager) validateURL(rawURL string, protocol DownloadProtocol)
 	return nil
 }
 
-// extractFileName 从URL提取文件名
+// extractFileName 从URL提取文件名.
 func (dm *DownloadManager) extractFileName(rawURL string) string {
 	u, err := url.Parse(rawURL)
 	if err != nil {
@@ -1412,7 +1412,7 @@ func (dm *DownloadManager) extractFileName(rawURL string) string {
 	return fileName
 }
 
-// calculateChecksum 计算文件校验和
+// calculateChecksum 计算文件校验和.
 func (dm *DownloadManager) calculateChecksum(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -1428,7 +1428,7 @@ func (dm *DownloadManager) calculateChecksum(filePath string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// formatSize 格式化文件大小
+// formatSize 格式化文件大小.
 func formatSize(bytes int64) string {
 	const unit = 1024
 	if bytes < unit {
@@ -1442,12 +1442,12 @@ func formatSize(bytes int64) string {
 	return fmt.Sprintf("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }
 
-// generateID 生成唯一ID
+// generateID 生成唯一ID.
 func generateID() string {
 	return fmt.Sprintf("%d-%s", time.Now().UnixNano(), randomHex(8))
 }
 
-// randomHex 生成随机十六进制字符串
+// randomHex 生成随机十六进制字符串.
 func randomHex(n int) string {
 	b := make([]byte, n)
 	for i := range b {

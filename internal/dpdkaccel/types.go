@@ -20,7 +20,7 @@ var (
 	ErrRuleNotFound       = errors.New("rule not found")
 )
 
-// PortState 端口状态
+// PortState 端口状态.
 type PortState string
 
 const (
@@ -30,7 +30,7 @@ const (
 	PortStateError       PortState = "error"
 )
 
-// RSSMode RSS (Receive Side Scaling) 模式
+// RSSMode RSS (Receive Side Scaling) 模式.
 type RSSMode string
 
 const (
@@ -40,7 +40,7 @@ const (
 	RSSCustom    RSSMode = "custom"
 )
 
-// TrafficClass 流量分类
+// TrafficClass 流量分类.
 type TrafficClass string
 
 const (
@@ -50,7 +50,7 @@ const (
 	TrafficClassControl    TrafficClass = "control"
 )
 
-// QueueType 队列类型
+// QueueType 队列类型.
 type QueueType string
 
 const (
@@ -58,7 +58,7 @@ const (
 	QueueTypeTX QueueType = "tx"
 )
 
-// Port 网络端口
+// Port 网络端口.
 type Port struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -76,7 +76,7 @@ type Port struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// PortStats 端口统计
+// PortStats 端口统计.
 type PortStats struct {
 	RXPackets uint64 `json:"rx_packets"`
 	TXPackets uint64 `json:"tx_packets"`
@@ -88,7 +88,7 @@ type PortStats struct {
 	TXDropped uint64 `json:"tx_dropped"`
 }
 
-// Queue 队列配置
+// Queue 队列配置.
 type Queue struct {
 	ID        int       `json:"id"`
 	PortID    string    `json:"port_id"`
@@ -98,7 +98,7 @@ type Queue struct {
 	Enabled   bool      `json:"enabled"`
 }
 
-// FlowRule 流表规则
+// FlowRule 流表规则.
 type FlowRule struct {
 	ID           string       `json:"id"`
 	PortID       string       `json:"port_id"`
@@ -115,13 +115,13 @@ type FlowRule struct {
 	CreatedAt    time.Time    `json:"created_at"`
 }
 
-// FlowStats 流规则统计
+// FlowStats 流规则统计.
 type FlowStats struct {
 	MatchedPackets uint64 `json:"matched_packets"`
 	MatchedBytes   uint64 `json:"matched_bytes"`
 }
 
-// Manager DPDK 加速管理器
+// Manager DPDK 加速管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	ports     map[string]*Port
@@ -131,7 +131,7 @@ type Manager struct {
 	stopCh    chan struct{}
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		ports:     make(map[string]*Port),
@@ -141,7 +141,7 @@ func NewManager() *Manager {
 	}
 }
 
-// RegisterPort 注册端口
+// RegisterPort 注册端口.
 func (m *Manager) RegisterPort(port *Port) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -158,7 +158,7 @@ func (m *Manager) RegisterPort(port *Port) error {
 	return nil
 }
 
-// StartPort 启动端口
+// StartPort 启动端口.
 func (m *Manager) StartPort(portID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -174,7 +174,7 @@ func (m *Manager) StartPort(portID string) error {
 	return nil
 }
 
-// StopPort 停止端口
+// StopPort 停止端口.
 func (m *Manager) StopPort(portID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -187,7 +187,7 @@ func (m *Manager) StopPort(portID string) error {
 	return nil
 }
 
-// GetPort 获取端口
+// GetPort 获取端口.
 func (m *Manager) GetPort(portID string) (*Port, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -198,7 +198,7 @@ func (m *Manager) GetPort(portID string) (*Port, error) {
 	return port, nil
 }
 
-// AddFlowRule 添加流表规则
+// AddFlowRule 添加流表规则.
 func (m *Manager) AddFlowRule(rule *FlowRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -210,7 +210,7 @@ func (m *Manager) AddFlowRule(rule *FlowRule) error {
 	return nil
 }
 
-// RemoveFlowRule 移除流表规则
+// RemoveFlowRule 移除流表规则.
 func (m *Manager) RemoveFlowRule(ruleID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -221,7 +221,7 @@ func (m *Manager) RemoveFlowRule(ruleID string) error {
 	return nil
 }
 
-// ListFlowRules 列出端口的流规则
+// ListFlowRules 列出端口的流规则.
 func (m *Manager) ListFlowRules(portID string) []*FlowRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -234,7 +234,7 @@ func (m *Manager) ListFlowRules(portID string) []*FlowRule {
 	return rules
 }
 
-// GetStats 获取端口统计
+// GetStats 获取端口统计.
 func (m *Manager) GetStats(portID string) (*PortStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -245,7 +245,7 @@ func (m *Manager) GetStats(portID string) (*PortStats, error) {
 	return &port.Stats, nil
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *Manager) Close() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

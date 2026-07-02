@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// TieringCostAnalysis provides tiering cost-benefit analysis
+// TieringCostAnalysis provides tiering cost-benefit analysis.
 type TieringCostAnalysis struct {
 	HotStorageCost  float64 // cost per GB per month
 	WarmStorageCost float64
@@ -16,7 +16,7 @@ type TieringCostAnalysis struct {
 	ColdAccessCost  float64
 }
 
-// StorageTier represents a storage tier with its costs
+// StorageTier represents a storage tier with its costs.
 type StorageTier struct {
 	Name          string
 	CostPerGB     float64
@@ -26,7 +26,7 @@ type StorageTier struct {
 	MigrationCost float64 // cost to migrate data
 }
 
-// CostBenefitReport represents tiering analysis result
+// CostBenefitReport represents tiering analysis result.
 type CostBenefitReport struct {
 	CurrentCost     float64
 	OptimizedCost   float64
@@ -36,7 +36,7 @@ type CostBenefitReport struct {
 	GeneratedAt     time.Time
 }
 
-// TieringRecommendation represents a tiering recommendation
+// TieringRecommendation represents a tiering recommendation.
 type TieringRecommendation struct {
 	Path          string
 	CurrentTier   string
@@ -45,13 +45,13 @@ type TieringRecommendation struct {
 	Savings       float64
 }
 
-// TieringAnalyzer analyzes storage tiering options
+// TieringAnalyzer analyzes storage tiering options.
 type TieringAnalyzer struct {
 	tiers    []StorageTier
 	analysis TieringCostAnalysis
 }
 
-// NewTieringAnalyzer creates a new tiering analyzer
+// NewTieringAnalyzer creates a new tiering analyzer.
 func NewTieringAnalyzer(analysis TieringCostAnalysis) *TieringAnalyzer {
 	return &TieringAnalyzer{
 		analysis: analysis,
@@ -63,7 +63,7 @@ func NewTieringAnalyzer(analysis TieringCostAnalysis) *TieringAnalyzer {
 	}
 }
 
-// AnalyzeDataTiering analyzes optimal tiering for data
+// AnalyzeDataTiering analyzes optimal tiering for data.
 func (a *TieringAnalyzer) AnalyzeDataTiering(ctx context.Context, accessPatterns []AccessPattern) CostBenefitReport {
 	currentCost := 0.0
 	optimizedCost := 0.0
@@ -108,7 +108,7 @@ func (a *TieringAnalyzer) AnalyzeDataTiering(ctx context.Context, accessPatterns
 	}
 }
 
-// AccessPattern represents data access pattern
+// AccessPattern represents data access pattern.
 type AccessPattern struct {
 	Path         string
 	DataVolumeGB float64
@@ -118,7 +118,7 @@ type AccessPattern struct {
 	ContentType  string
 }
 
-// determineOptimalTier determines the best tier for data
+// determineOptimalTier determines the best tier for data.
 func (a *TieringAnalyzer) determineOptimalTier(pattern AccessPattern) string {
 	// High frequency: hot tier (>10 accesses/day)
 	if pattern.AccessFreq >= 10 {
@@ -132,7 +132,7 @@ func (a *TieringAnalyzer) determineOptimalTier(pattern AccessPattern) string {
 	return "cold"
 }
 
-// calculateTierCost calculates cost for a specific tier
+// calculateTierCost calculates cost for a specific tier.
 func (a *TieringAnalyzer) calculateTierCost(pattern AccessPattern, tier string) float64 {
 	var storageCost, accessCost float64
 	switch tier {
@@ -149,7 +149,7 @@ func (a *TieringAnalyzer) calculateTierCost(pattern AccessPattern, tier string) 
 	return storageCost + accessCost
 }
 
-// getReason explains why tiering is recommended
+// getReason explains why tiering is recommended.
 func (a *TieringAnalyzer) getReason(pattern AccessPattern, tier string) string {
 	switch tier {
 	case "cold":
@@ -162,7 +162,7 @@ func (a *TieringAnalyzer) getReason(pattern AccessPattern, tier string) string {
 	return "Optimal tiering based on access patterns"
 }
 
-// CompareCloudStorage compares local vs cloud storage costs
+// CompareCloudStorage compares local vs cloud storage costs.
 func (a *TieringAnalyzer) CompareCloudStorage(ctx context.Context, dataVolumeGB float64, localCostPerGB float64) CloudComparisonReport {
 	// Typical cloud storage costs (approximate)
 	cloudHotCost := 0.023   // AWS S3 Standard per GB/month
@@ -185,7 +185,7 @@ func (a *TieringAnalyzer) CompareCloudStorage(ctx context.Context, dataVolumeGB 
 	}
 }
 
-// CloudComparisonReport represents cloud storage comparison
+// CloudComparisonReport represents cloud storage comparison.
 type CloudComparisonReport struct {
 	LocalCost      float64
 	CloudHotCost   float64

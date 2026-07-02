@@ -25,7 +25,7 @@ func setupTestHandlers() (*Handlers, *Manager) {
 
 // ========== Manager 测试 ==========
 
-// TestNewManager 测试创建管理器
+// TestNewManager 测试创建管理器.
 func TestNewManager(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -36,7 +36,7 @@ func TestNewManager(t *testing.T) {
 	assert.True(t, len(mgr.rules) >= 10)
 }
 
-// TestAddRecord 测试添加记录
+// TestAddRecord 测试添加记录.
 func TestAddRecord(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -55,7 +55,7 @@ func TestAddRecord(t *testing.T) {
 	assert.True(t, record.Enabled)
 }
 
-// TestAddRecordValidation 测试记录验证
+// TestAddRecordValidation 测试记录验证.
 func TestAddRecordValidation(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -84,7 +84,7 @@ func TestAddRecordValidation(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestUpdateRecord 测试更新记录
+// TestUpdateRecord 测试更新记录.
 func TestUpdateRecord(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -103,7 +103,7 @@ func TestUpdateRecord(t *testing.T) {
 	assert.Equal(t, "2.2.2.2", updated.Value)
 }
 
-// TestDeleteRecord 测试删除记录
+// TestDeleteRecord 测试删除记录.
 func TestDeleteRecord(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -121,7 +121,7 @@ func TestDeleteRecord(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestListRecords 测试列出记录
+// TestListRecords 测试列出记录.
 func TestListRecords(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -133,7 +133,7 @@ func TestListRecords(t *testing.T) {
 	assert.Equal(t, 2, len(records))
 }
 
-// TestAddRule 测试添加规则
+// TestAddRule 测试添加规则.
 func TestAddRule(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -150,7 +150,7 @@ func TestAddRule(t *testing.T) {
 	assert.True(t, rule.Enabled)
 }
 
-// TestAddRuleValidation 测试规则验证
+// TestAddRuleValidation 测试规则验证.
 func TestAddRuleValidation(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -176,7 +176,7 @@ func TestAddRuleValidation(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestUpdateRule 测试更新规则
+// TestUpdateRule 测试更新规则.
 func TestUpdateRule(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -194,7 +194,7 @@ func TestUpdateRule(t *testing.T) {
 	assert.Equal(t, "newtest.com", updated.Pattern)
 }
 
-// TestDeleteRule 测试删除规则
+// TestDeleteRule 测试删除规则.
 func TestDeleteRule(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -212,7 +212,7 @@ func TestDeleteRule(t *testing.T) {
 	}
 }
 
-// TestListRules 测试列出规则
+// TestListRules 测试列出规则.
 func TestListRules(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -221,7 +221,7 @@ func TestListRules(t *testing.T) {
 	assert.True(t, len(rules) >= 10) // 默认规则
 }
 
-// TestToggleRule 测试切换规则状态
+// TestToggleRule 测试切换规则状态.
 func TestToggleRule(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -244,7 +244,7 @@ func TestToggleRule(t *testing.T) {
 	}
 }
 
-// TestResolve 测试解析
+// TestResolve 测试解析.
 func TestResolve(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -259,7 +259,7 @@ func TestResolve(t *testing.T) {
 	assert.Equal(t, "1.2.3.4", record.Value)
 }
 
-// TestResolveNotFound 测试解析未找到
+// TestResolveNotFound 测试解析未找到.
 func TestResolveNotFound(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -267,7 +267,7 @@ func TestResolveNotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestShouldBlock 测试拦截检查
+// TestShouldBlock 测试拦截检查.
 func TestShouldBlock(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -278,7 +278,7 @@ func TestShouldBlock(t *testing.T) {
 	assert.NotEmpty(t, rule)
 }
 
-// TestShouldNotBlock 测试放行检查
+// TestShouldNotBlock 测试放行检查.
 func TestShouldNotBlock(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -288,7 +288,7 @@ func TestShouldNotBlock(t *testing.T) {
 	assert.False(t, blocked)
 }
 
-// TestShouldBlockWithAllow 测试白名单规则
+// TestShouldBlockWithAllow 测试白名单规则.
 func TestShouldBlockWithAllow(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -303,7 +303,7 @@ func TestShouldBlockWithAllow(t *testing.T) {
 	assert.False(t, blocked)
 }
 
-// TestLogQuery 测试记录查询
+// TestLogQuery 测试记录查询.
 func TestLogQuery(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -321,7 +321,7 @@ func TestLogQuery(t *testing.T) {
 	assert.Equal(t, 1, len(logs))
 }
 
-// TestGetStats 测试获取统计
+// TestGetStats 测试获取统计.
 func TestGetStats(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -337,7 +337,7 @@ func TestGetStats(t *testing.T) {
 	assert.Equal(t, int64(2), stats.AllowedQueries)
 }
 
-// TestGetStatsWithPeriod 测试按时间段获取统计
+// TestGetStatsWithPeriod 测试按时间段获取统计.
 func TestGetStatsWithPeriod(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -359,7 +359,7 @@ func TestGetStatsWithPeriod(t *testing.T) {
 	assert.Equal(t, int64(1), stats.TotalQueries)
 }
 
-// TestAddUpstream 测试添加上游服务器
+// TestAddUpstream 测试添加上游服务器.
 func TestAddUpstream(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -375,7 +375,7 @@ func TestAddUpstream(t *testing.T) {
 	assert.True(t, server.Enabled)
 }
 
-// TestAddUpstreamValidation 测试上游服务器验证
+// TestAddUpstreamValidation 测试上游服务器验证.
 func TestAddUpstreamValidation(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -404,7 +404,7 @@ func TestAddUpstreamValidation(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestRemoveUpstream 测试删除上游服务器
+// TestRemoveUpstream 测试删除上游服务器.
 func TestRemoveUpstream(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -418,7 +418,7 @@ func TestRemoveUpstream(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-// TestTestUpstream 测试测试上游服务器
+// TestTestUpstream 测试测试上游服务器.
 func TestTestUpstream(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -434,7 +434,7 @@ func TestTestUpstream(t *testing.T) {
 	assert.True(t, latency > 0)
 }
 
-// TestMatchDomain 测试域名匹配
+// TestMatchDomain 测试域名匹配.
 func TestMatchDomain(t *testing.T) {
 	// 精确匹配
 	assert.True(t, matchDomain("example.com", "example.com"))
@@ -452,7 +452,7 @@ func TestMatchDomain(t *testing.T) {
 	assert.False(t, matchDomain("example.org", "example.com"))
 }
 
-// TestExportConfig 测试导出配置
+// TestExportConfig 测试导出配置.
 func TestExportConfig(t *testing.T) {
 	mgr := setupTestManager()
 
@@ -471,7 +471,7 @@ func TestExportConfig(t *testing.T) {
 
 // ========== Handlers 测试 ==========
 
-// TestHandlersCreateRecord 测试创建记录 API
+// TestHandlersCreateRecord 测试创建记录 API.
 func TestHandlersCreateRecord(t *testing.T) {
 	h, _ := setupTestHandlers()
 	mux := http.NewServeMux()
@@ -499,7 +499,7 @@ func TestHandlersCreateRecord(t *testing.T) {
 	assert.Equal(t, 0, resp.Code)
 }
 
-// TestHandlersListRecords 测试列出记录 API
+// TestHandlersListRecords 测试列出记录 API.
 func TestHandlersListRecords(t *testing.T) {
 	h, mgr := setupTestHandlers()
 	mux := http.NewServeMux()
@@ -519,7 +519,7 @@ func TestHandlersListRecords(t *testing.T) {
 	assert.Equal(t, 0, resp.Code)
 }
 
-// TestHandlersCreateRule 测试创建规则 API
+// TestHandlersCreateRule 测试创建规则 API.
 func TestHandlersCreateRule(t *testing.T) {
 	h, _ := setupTestHandlers()
 	mux := http.NewServeMux()
@@ -545,7 +545,7 @@ func TestHandlersCreateRule(t *testing.T) {
 	assert.Equal(t, 0, resp.Code)
 }
 
-// TestHandlersListRules 测试列出规则 API
+// TestHandlersListRules 测试列出规则 API.
 func TestHandlersListRules(t *testing.T) {
 	h, _ := setupTestHandlers()
 	mux := http.NewServeMux()
@@ -563,7 +563,7 @@ func TestHandlersListRules(t *testing.T) {
 	assert.Equal(t, 0, resp.Code)
 }
 
-// TestHandlersCreateUpstream 测试创建上游服务器 API
+// TestHandlersCreateUpstream 测试创建上游服务器 API.
 func TestHandlersCreateUpstream(t *testing.T) {
 	h, _ := setupTestHandlers()
 	mux := http.NewServeMux()
@@ -589,7 +589,7 @@ func TestHandlersCreateUpstream(t *testing.T) {
 	assert.Equal(t, 0, resp.Code)
 }
 
-// TestHandlersListUpstreams 测试列出上游服务器 API
+// TestHandlersListUpstreams 测试列出上游服务器 API.
 func TestHandlersListUpstreams(t *testing.T) {
 	h, _ := setupTestHandlers()
 	mux := http.NewServeMux()
@@ -607,7 +607,7 @@ func TestHandlersListUpstreams(t *testing.T) {
 	assert.Equal(t, 0, resp.Code)
 }
 
-// TestHandlersStats 测试统计 API
+// TestHandlersStats 测试统计 API.
 func TestHandlersStats(t *testing.T) {
 	h, _ := setupTestHandlers()
 	mux := http.NewServeMux()
@@ -625,7 +625,7 @@ func TestHandlersStats(t *testing.T) {
 	assert.Equal(t, 0, resp.Code)
 }
 
-// TestHandlersQueryLog 测试查询日志 API
+// TestHandlersQueryLog 测试查询日志 API.
 func TestHandlersQueryLog(t *testing.T) {
 	h, _ := setupTestHandlers()
 	mux := http.NewServeMux()
@@ -643,7 +643,7 @@ func TestHandlersQueryLog(t *testing.T) {
 	assert.Equal(t, 0, resp.Code)
 }
 
-// TestHandlersResolve 测试解析 API
+// TestHandlersResolve 测试解析 API.
 func TestHandlersResolve(t *testing.T) {
 	h, _ := setupTestHandlers()
 	mux := http.NewServeMux()
@@ -668,7 +668,7 @@ func TestHandlersResolve(t *testing.T) {
 	assert.Equal(t, 0, resp.Code)
 }
 
-// TestHandlersExport 测试导出 API
+// TestHandlersExport 测试导出 API.
 func TestHandlersExport(t *testing.T) {
 	h, _ := setupTestHandlers()
 	mux := http.NewServeMux()
@@ -682,7 +682,7 @@ func TestHandlersExport(t *testing.T) {
 	assert.Equal(t, "application/json", w.Header().Get("Content-Type"))
 }
 
-// TestHandlersMethodNotAllowed 测试方法不允许
+// TestHandlersMethodNotAllowed 测试方法不允许.
 func TestHandlersMethodNotAllowed(t *testing.T) {
 	h, _ := setupTestHandlers()
 	mux := http.NewServeMux()
@@ -695,7 +695,7 @@ func TestHandlersMethodNotAllowed(t *testing.T) {
 	assert.Equal(t, http.StatusMethodNotAllowed, w.Code)
 }
 
-// TestConcurrentAccess 测试并发访问
+// TestConcurrentAccess 测试并发访问.
 func TestConcurrentAccess(t *testing.T) {
 	mgr := setupTestManager()
 

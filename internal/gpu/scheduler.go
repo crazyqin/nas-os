@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Scheduler GPU调度器
+// Scheduler GPU调度器.
 type Scheduler struct {
 	manager *Manager
 	policy  string
@@ -19,7 +19,7 @@ type Scheduler struct {
 	mu      sync.RWMutex
 }
 
-// NewScheduler 创建GPU调度器
+// NewScheduler 创建GPU调度器.
 func NewScheduler(manager *Manager, policy string, logger *zap.Logger) *Scheduler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -36,7 +36,7 @@ func NewScheduler(manager *Manager, policy string, logger *zap.Logger) *Schedule
 	}
 }
 
-// SetPolicy 设置调度策略
+// SetPolicy 设置调度策略.
 func (s *Scheduler) SetPolicy(policy string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -45,14 +45,14 @@ func (s *Scheduler) SetPolicy(policy string) {
 	s.logger.Info("调度策略已更新", zap.String("policy", policy))
 }
 
-// GetPolicy 获取当前调度策略
+// GetPolicy 获取当前调度策略.
 func (s *Scheduler) GetPolicy() string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.policy
 }
 
-// SelectGPU 选择合适的GPU设备
+// SelectGPU 选择合适的GPU设备.
 func (s *Scheduler) SelectGPU(req *GPUAllocation) (*GPUDevice, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -98,7 +98,7 @@ func (s *Scheduler) SelectGPU(req *GPUAllocation) (*GPUDevice, error) {
 	}
 }
 
-// selectRoundRobin 轮询选择策略
+// selectRoundRobin 轮询选择策略.
 func (s *Scheduler) selectRoundRobin(gpus []*GPUDevice, req *GPUAllocation) (*GPUDevice, error) {
 	// 按ID排序以确保顺序一致
 	sort.Slice(gpus, func(i, j int) bool {
@@ -116,7 +116,7 @@ func (s *Scheduler) selectRoundRobin(gpus []*GPUDevice, req *GPUAllocation) (*GP
 	return selected, nil
 }
 
-// selectPriority 优先级选择策略
+// selectPriority 优先级选择策略.
 func (s *Scheduler) selectPriority(gpus []*GPUDevice, req *GPUAllocation) (*GPUDevice, error) {
 	// 高优先级任务优先选择高性能GPU
 	// 低优先级任务选择性能较低的GPU
@@ -162,7 +162,7 @@ func (s *Scheduler) selectPriority(gpus []*GPUDevice, req *GPUAllocation) (*GPUD
 	return selected, nil
 }
 
-// selectExclusive 独占选择策略
+// selectExclusive 独占选择策略.
 func (s *Scheduler) selectExclusive(gpus []*GPUDevice, req *GPUAllocation) (*GPUDevice, error) {
 	if !req.Exclusive {
 		return nil, fmt.Errorf("独占模式需要设置Exclusive标志")
@@ -186,7 +186,7 @@ func (s *Scheduler) selectExclusive(gpus []*GPUDevice, req *GPUAllocation) (*GPU
 	return selected, nil
 }
 
-// selectLeastLoaded 最小负载选择策略
+// selectLeastLoaded 最小负载选择策略.
 func (s *Scheduler) selectLeastLoaded(gpus []*GPUDevice, req *GPUAllocation) (*GPUDevice, error) {
 	// 综合考虑显存使用率和功耗
 	sort.Slice(gpus, func(i, j int) bool {
@@ -206,7 +206,7 @@ func (s *Scheduler) selectLeastLoaded(gpus []*GPUDevice, req *GPUAllocation) (*G
 	return selected, nil
 }
 
-// selectMostMemory 最大显存选择策略
+// selectMostMemory 最大显存选择策略.
 func (s *Scheduler) selectMostMemory(gpus []*GPUDevice, req *GPUAllocation) (*GPUDevice, error) {
 	// 按可用显存排序
 	sort.Slice(gpus, func(i, j int) bool {
@@ -223,7 +223,7 @@ func (s *Scheduler) selectMostMemory(gpus []*GPUDevice, req *GPUAllocation) (*GP
 	return selected, nil
 }
 
-// calculateLoadScore 计算GPU负载评分
+// calculateLoadScore 计算GPU负载评分.
 func (s *Scheduler) calculateLoadScore(gpu *GPUDevice) float64 {
 	// 考虑因素：
 	// 1. 显存使用率 (权重 0.4)
@@ -249,7 +249,7 @@ func (s *Scheduler) calculateLoadScore(gpu *GPUDevice) float64 {
 	return score
 }
 
-// AllocationPolicyRoundRobin 轮询分配策略实现
+// AllocationPolicyRoundRobin 轮询分配策略实现.
 type AllocationPolicyRoundRobin struct{}
 
 func (p *AllocationPolicyRoundRobin) SelectGPU(devices []*GPUDevice, req *GPUAllocation) (*GPUDevice, error) {
@@ -269,7 +269,7 @@ func (p *AllocationPolicyRoundRobin) Name() string {
 	return "round-robin"
 }
 
-// AllocationPolicyLeastLoaded 最小负载分配策略实现
+// AllocationPolicyLeastLoaded 最小负载分配策略实现.
 type AllocationPolicyLeastLoaded struct{}
 
 func (p *AllocationPolicyLeastLoaded) SelectGPU(devices []*GPUDevice, req *GPUAllocation) (*GPUDevice, error) {
@@ -291,7 +291,7 @@ func (p *AllocationPolicyLeastLoaded) Name() string {
 	return "least-loaded"
 }
 
-// AllocationPolicyPriority 优先级分配策略实现
+// AllocationPolicyPriority 优先级分配策略实现.
 type AllocationPolicyPriority struct{}
 
 func (p *AllocationPolicyPriority) SelectGPU(devices []*GPUDevice, req *GPUAllocation) (*GPUDevice, error) {
@@ -322,7 +322,7 @@ func (p *AllocationPolicyPriority) Name() string {
 	return "priority"
 }
 
-// AllocationPolicyExclusive 独占分配策略实现
+// AllocationPolicyExclusive 独占分配策略实现.
 type AllocationPolicyExclusive struct{}
 
 func (p *AllocationPolicyExclusive) SelectGPU(devices []*GPUDevice, req *GPUAllocation) (*GPUDevice, error) {

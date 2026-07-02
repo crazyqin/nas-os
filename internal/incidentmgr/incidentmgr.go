@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// IncidentSeverity 事件严重程度
+// IncidentSeverity 事件严重程度.
 type IncidentSeverity string
 
 const (
@@ -17,7 +17,7 @@ const (
 	Sev4Low      IncidentSeverity = "low"
 )
 
-// IncidentStatus 事件状态
+// IncidentStatus 事件状态.
 type IncidentStatus string
 
 const (
@@ -28,7 +28,7 @@ const (
 	StatusClosed        IncidentStatus = "closed"
 )
 
-// TimelineEvent 时间线事件类型
+// TimelineEvent 时间线事件类型.
 type TimelineEventType string
 
 const (
@@ -41,7 +41,7 @@ const (
 	TimelineEventResolved     TimelineEventType = "resolved"
 )
 
-// Incident 事件
+// Incident 事件.
 type Incident struct {
 	ID          string           `json:"id"`
 	Title       string           `json:"title"`
@@ -54,7 +54,7 @@ type Incident struct {
 	UpdatedAt   time.Time        `json:"updated_at"`
 }
 
-// TimelineEvent 时间线事件
+// TimelineEvent 时间线事件.
 type TimelineEvent struct {
 	ID          string            `json:"id"`
 	IncidentID  string            `json:"incident_id"`
@@ -64,7 +64,7 @@ type TimelineEvent struct {
 	CreatedAt   time.Time         `json:"created_at"`
 }
 
-// RCAReport 根因分析报告
+// RCAReport 根因分析报告.
 type RCAReport struct {
 	ID             string    `json:"id"`
 	IncidentID     string    `json:"incident_id"`
@@ -75,7 +75,7 @@ type RCAReport struct {
 	CreatedAt      time.Time `json:"created_at"`
 }
 
-// Manager 事件管理器
+// Manager 事件管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	incidents map[string]*Incident
@@ -84,7 +84,7 @@ type Manager struct {
 	counter   int
 }
 
-// NewManager 创建事件管理器
+// NewManager 创建事件管理器.
 func NewManager() *Manager {
 	return &Manager{
 		incidents: make(map[string]*Incident),
@@ -93,18 +93,18 @@ func NewManager() *Manager {
 	}
 }
 
-// generateIncidentID 生成事件编号: INC-YYYYMMDD-XXXX
+// generateIncidentID 生成事件编号: INC-YYYYMMDD-XXXX.
 func (m *Manager) generateIncidentID() string {
 	m.counter++
 	return fmt.Sprintf("INC-%s-%04d", time.Now().Format("20060102"), m.counter)
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	return fmt.Sprintf("%d", time.Now().UnixNano())
 }
 
-// CreateIncident 创建事件
+// CreateIncident 创建事件.
 func (m *Manager) CreateIncident(inc Incident) (*Incident, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -146,7 +146,7 @@ func (m *Manager) CreateIncident(inc Incident) (*Incident, error) {
 	return incident, nil
 }
 
-// GetIncident 获取事件
+// GetIncident 获取事件.
 func (m *Manager) GetIncident(id string) (*Incident, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -158,7 +158,7 @@ func (m *Manager) GetIncident(id string) (*Incident, error) {
 	return inc, nil
 }
 
-// ListIncidents 列出事件（按状态过滤）
+// ListIncidents 列出事件（按状态过滤）.
 func (m *Manager) ListIncidents(status IncidentStatus) ([]Incident, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -172,7 +172,7 @@ func (m *Manager) ListIncidents(status IncidentStatus) ([]Incident, error) {
 	return result, nil
 }
 
-// UpdateIncidentStatus 更新事件状态
+// UpdateIncidentStatus 更新事件状态.
 func (m *Manager) UpdateIncidentStatus(id string, status IncidentStatus) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -204,7 +204,7 @@ func (m *Manager) UpdateIncidentStatus(id string, status IncidentStatus) error {
 	return nil
 }
 
-// isValidStatusTransition 验证状态流转是否合法
+// isValidStatusTransition 验证状态流转是否合法.
 func isValidStatusTransition(from, to IncidentStatus) bool {
 	validTransitions := map[IncidentStatus][]IncidentStatus{
 		StatusOpen:          {StatusAcknowledged, StatusInvestigating, StatusClosed},
@@ -227,7 +227,7 @@ func isValidStatusTransition(from, to IncidentStatus) bool {
 	return false
 }
 
-// AssignIncident 分配事件负责人
+// AssignIncident 分配事件负责人.
 func (m *Manager) AssignIncident(id string, assignee string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -260,7 +260,7 @@ func (m *Manager) AssignIncident(id string, assignee string) error {
 	return nil
 }
 
-// AddTimelineEvent 添加时间线事件
+// AddTimelineEvent 添加时间线事件.
 func (m *Manager) AddTimelineEvent(incidentID string, event TimelineEvent) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -279,7 +279,7 @@ func (m *Manager) AddTimelineEvent(incidentID string, event TimelineEvent) error
 	return nil
 }
 
-// GetTimeline 获取事件时间线
+// GetTimeline 获取事件时间线.
 func (m *Manager) GetTimeline(incidentID string) ([]TimelineEvent, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -296,7 +296,7 @@ func (m *Manager) GetTimeline(incidentID string) ([]TimelineEvent, error) {
 	return result, nil
 }
 
-// CreateRCA 创建根因分析报告
+// CreateRCA 创建根因分析报告.
 func (m *Manager) CreateRCA(incidentID string, rca RCAReport) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -317,7 +317,7 @@ func (m *Manager) CreateRCA(incidentID string, rca RCAReport) error {
 	return nil
 }
 
-// GetRCA 获取根因分析报告
+// GetRCA 获取根因分析报告.
 func (m *Manager) GetRCA(incidentID string) (*RCAReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -329,7 +329,7 @@ func (m *Manager) GetRCA(incidentID string) (*RCAReport, error) {
 	return rca, nil
 }
 
-// GetIncidentStats 获取事件统计
+// GetIncidentStats 获取事件统计.
 func (m *Manager) GetIncidentStats() (map[string]int, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -381,7 +381,7 @@ func (m *Manager) GetIncidentStats() (map[string]int, error) {
 	return stats, nil
 }
 
-// EscalateIncident 升级事件（自动提升严重程度）
+// EscalateIncident 升级事件（自动提升严重程度）.
 func (m *Manager) EscalateIncident(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

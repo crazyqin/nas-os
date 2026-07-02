@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// EnergySource represents energy source types
+// EnergySource represents energy source types.
 type EnergySource string
 
 const (
@@ -19,7 +19,7 @@ const (
 	SourceBattery EnergySource = "battery"
 )
 
-// CarbonIntensity represents CO2 per kWh (gCO2/kWh)
+// CarbonIntensity represents CO2 per kWh (gCO2/kWh).
 type CarbonIntensity struct {
 	Source    EnergySource `json:"source"`
 	Intensity float64      `json:"intensity"`
@@ -27,7 +27,7 @@ type CarbonIntensity struct {
 	UpdatedAt time.Time    `json:"updated_at"`
 }
 
-// EnergyRecord represents energy consumption record
+// EnergyRecord represents energy consumption record.
 type EnergyRecord struct {
 	ID        string       `json:"id"`
 	Timestamp time.Time    `json:"timestamp"`
@@ -38,7 +38,7 @@ type EnergyRecord struct {
 	Cost      float64      `json:"cost"`
 }
 
-// CarbonFootprint represents carbon footprint calculation
+// CarbonFootprint represents carbon footprint calculation.
 type CarbonFootprint struct {
 	Period          string                   `json:"period"`
 	EnergyWh        float64                  `json:"energy_wh"`
@@ -49,7 +49,7 @@ type CarbonFootprint struct {
 	SourceBreakdown map[EnergySource]float64 `json:"source_breakdown"`
 }
 
-// GreenRecommendation represents optimization recommendation
+// GreenRecommendation represents optimization recommendation.
 type GreenRecommendation struct {
 	ID          string    `json:"id"`
 	Title       string    `json:"title"`
@@ -61,7 +61,7 @@ type GreenRecommendation struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// Manager manages carbon footprint tracking
+// Manager manages carbon footprint tracking.
 type Manager struct {
 	mu              sync.RWMutex
 	records         []*EnergyRecord
@@ -70,7 +70,7 @@ type Manager struct {
 	config          *Config
 }
 
-// Config represents manager configuration
+// Config represents manager configuration.
 type Config struct {
 	DefaultRegion    string  `json:"default_region"`
 	GridIntensity    float64 `json:"grid_intensity"`
@@ -80,7 +80,7 @@ type Config struct {
 	TreeAbsorptionKg float64 `json:"tree_absorption_kg"`
 }
 
-// DefaultConfig returns default configuration
+// DefaultConfig returns default configuration.
 func DefaultConfig() *Config {
 	return &Config{
 		DefaultRegion:    "US",
@@ -92,7 +92,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// NewManager creates a new carbon footprint manager
+// NewManager creates a new carbon footprint manager.
 func NewManager(config *Config) *Manager {
 	if config == nil {
 		config = DefaultConfig()
@@ -127,7 +127,7 @@ func NewManager(config *Config) *Manager {
 	return m
 }
 
-// RecordEnergy records energy consumption
+// RecordEnergy records energy consumption.
 func (m *Manager) RecordEnergy(record *EnergyRecord) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -143,7 +143,7 @@ func (m *Manager) RecordEnergy(record *EnergyRecord) error {
 	return nil
 }
 
-// CalculateFootprint calculates carbon footprint for a time period
+// CalculateFootprint calculates carbon footprint for a time period.
 func (m *Manager) CalculateFootprint(ctx context.Context, start, end time.Time) (*CarbonFootprint, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -173,7 +173,7 @@ func (m *Manager) CalculateFootprint(ctx context.Context, start, end time.Time) 
 	return footprint, nil
 }
 
-// getIntensity gets carbon intensity for a source
+// getIntensity gets carbon intensity for a source.
 func (m *Manager) getIntensity(source EnergySource) float64 {
 	if intensity, exists := m.intensities[source]; exists {
 		return intensity.Intensity
@@ -181,7 +181,7 @@ func (m *Manager) getIntensity(source EnergySource) float64 {
 	return m.config.GridIntensity
 }
 
-// GetRecommendations gets green recommendations
+// GetRecommendations gets green recommendations.
 func (m *Manager) GetRecommendations(ctx context.Context) ([]*GreenRecommendation, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -196,7 +196,7 @@ func (m *Manager) GetRecommendations(ctx context.Context) ([]*GreenRecommendatio
 	return recs, nil
 }
 
-// generateRecommendations generates optimization recommendations
+// generateRecommendations generates optimization recommendations.
 func (m *Manager) generateRecommendations() []*GreenRecommendation {
 	recs := make([]*GreenRecommendation, 0)
 
@@ -250,7 +250,7 @@ func (m *Manager) generateRecommendations() []*GreenRecommendation {
 	return recs
 }
 
-// GetRecords gets energy records
+// GetRecords gets energy records.
 func (m *Manager) GetRecords(start, end time.Time) []*EnergyRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -265,7 +265,7 @@ func (m *Manager) GetRecords(start, end time.Time) []*EnergyRecord {
 	return records
 }
 
-// UpdateIntensity updates carbon intensity for a source
+// UpdateIntensity updates carbon intensity for a source.
 func (m *Manager) UpdateIntensity(source EnergySource, intensity float64) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -278,7 +278,7 @@ func (m *Manager) UpdateIntensity(source EnergySource, intensity float64) {
 	}
 }
 
-// GetDailyFootprint gets carbon footprint for today
+// GetDailyFootprint gets carbon footprint for today.
 func (m *Manager) GetDailyFootprint(ctx context.Context) (*CarbonFootprint, error) {
 	now := time.Now()
 	start := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
@@ -286,7 +286,7 @@ func (m *Manager) GetDailyFootprint(ctx context.Context) (*CarbonFootprint, erro
 	return m.CalculateFootprint(ctx, start, end)
 }
 
-// GetWeeklyFootprint gets carbon footprint for this week
+// GetWeeklyFootprint gets carbon footprint for this week.
 func (m *Manager) GetWeeklyFootprint(ctx context.Context) (*CarbonFootprint, error) {
 	now := time.Now()
 	weekday := int(now.Weekday())
@@ -298,7 +298,7 @@ func (m *Manager) GetWeeklyFootprint(ctx context.Context) (*CarbonFootprint, err
 	return m.CalculateFootprint(ctx, start, end)
 }
 
-// GetMonthlyFootprint gets carbon footprint for this month
+// GetMonthlyFootprint gets carbon footprint for this month.
 func (m *Manager) GetMonthlyFootprint(ctx context.Context) (*CarbonFootprint, error) {
 	now := time.Now()
 	start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
@@ -306,7 +306,7 @@ func (m *Manager) GetMonthlyFootprint(ctx context.Context) (*CarbonFootprint, er
 	return m.CalculateFootprint(ctx, start, end)
 }
 
-// HandleHTTP registers HTTP handlers
+// HandleHTTP registers HTTP handlers.
 func (m *Manager) HandleHTTP(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/carbon/record", m.handleRecord)
 	mux.HandleFunc("/api/v1/carbon/footprint", m.handleFootprint)

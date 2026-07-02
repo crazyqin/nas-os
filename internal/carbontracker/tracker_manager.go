@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// TrackerManager 碳足迹追踪管理器
+// TrackerManager 碳足迹追踪管理器.
 type TrackerManager struct {
 	mu            sync.RWMutex
 	logger        *zap.Logger
@@ -24,7 +24,7 @@ type TrackerManager struct {
 	scores        map[string]*GreenScore // deviceID -> score
 }
 
-// NewTrackerManager 创建碳足迹追踪管理器
+// NewTrackerManager 创建碳足迹追踪管理器.
 func NewTrackerManager(logger *zap.Logger, config *CarbonTrackerManagerConfig) *TrackerManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -49,7 +49,7 @@ func NewTrackerManager(logger *zap.Logger, config *CarbonTrackerManagerConfig) *
 	return tm
 }
 
-// initDefaultEnergySources 初始化默认能源来源
+// initDefaultEnergySources 初始化默认能源来源.
 func (tm *TrackerManager) initDefaultEnergySources() {
 	tm.energySources["source-grid"] = &EnergySource{
 		ID:              "source-grid",
@@ -97,7 +97,7 @@ func (tm *TrackerManager) initDefaultEnergySources() {
 	}
 }
 
-// CalculateFootprint 计算碳足迹
+// CalculateFootprint 计算碳足迹.
 func (tm *TrackerManager) CalculateFootprint(deviceID string, deviceName string, consumption *EnergyConsumption, duration time.Duration) (*CarbonFootprint, error) {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -172,7 +172,7 @@ func (tm *TrackerManager) CalculateFootprint(deviceID string, deviceName string,
 	return footprint, nil
 }
 
-// calculateMixedIntensity 计算混合碳强度
+// calculateMixedIntensity 计算混合碳强度.
 func (tm *TrackerManager) calculateMixedIntensity() float64 {
 	totalPercentage := 0.0
 	weightedIntensity := 0.0
@@ -192,7 +192,7 @@ func (tm *TrackerManager) calculateMixedIntensity() float64 {
 	return weightedIntensity / totalPercentage
 }
 
-// GetGreenScore 获取绿色评分
+// GetGreenScore 获取绿色评分.
 func (tm *TrackerManager) GetGreenScore(deviceID string) (*GreenScore, error) {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -209,7 +209,7 @@ func (tm *TrackerManager) GetGreenScore(deviceID string) (*GreenScore, error) {
 	return score, nil
 }
 
-// calculateGreenScore 计算绿色评分
+// calculateGreenScore 计算绿色评分.
 func (tm *TrackerManager) calculateGreenScore(deviceID string) *GreenScore {
 	footprints, ok := tm.footprints[deviceID]
 	if !ok || len(footprints) == 0 {
@@ -289,7 +289,7 @@ func (tm *TrackerManager) calculateGreenScore(deviceID string) *GreenScore {
 	}
 }
 
-// getRenewablePercentage 获取可再生能源占比
+// getRenewablePercentage 获取可再生能源占比.
 func (tm *TrackerManager) getRenewablePercentage() float64 {
 	pct := 0.0
 	for _, source := range tm.energySources {
@@ -300,7 +300,7 @@ func (tm *TrackerManager) getRenewablePercentage() float64 {
 	return pct
 }
 
-// calculateGrade 计算等级
+// calculateGrade 计算等级.
 func (tm *TrackerManager) calculateGrade(score float64) string {
 	switch {
 	case score >= 90:
@@ -318,7 +318,7 @@ func (tm *TrackerManager) calculateGrade(score float64) string {
 	}
 }
 
-// generateGreenRecommendations 生成绿色建议
+// generateGreenRecommendations 生成绿色建议.
 func (tm *TrackerManager) generateGreenRecommendations(deviceID string, avgCarbonPerDay, renewablePct float64) []GreenRecommendation {
 	recommendations := make([]GreenRecommendation, 0)
 
@@ -356,7 +356,7 @@ func (tm *TrackerManager) generateGreenRecommendations(deviceID string, avgCarbo
 	return recommendations
 }
 
-// SetEnergySource 设置能源来源
+// SetEnergySource 设置能源来源.
 func (tm *TrackerManager) SetEnergySource(source *EnergySource) error {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -380,7 +380,7 @@ func (tm *TrackerManager) SetEnergySource(source *EnergySource) error {
 	return nil
 }
 
-// GetEnergySources 获取所有能源来源
+// GetEnergySources 获取所有能源来源.
 func (tm *TrackerManager) GetEnergySources() []*EnergySource {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -392,7 +392,7 @@ func (tm *TrackerManager) GetEnergySources() []*EnergySource {
 	return sources
 }
 
-// GetHistory 获取碳排放历史
+// GetHistory 获取碳排放历史.
 func (tm *TrackerManager) GetHistory(deviceID string, startTime, endTime time.Time, limit int) ([]*CarbonFootprint, error) {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -426,7 +426,7 @@ func (tm *TrackerManager) GetHistory(deviceID string, startTime, endTime time.Ti
 	return result, nil
 }
 
-// GetEmissions 获取排放记录
+// GetEmissions 获取排放记录.
 func (tm *TrackerManager) GetEmissions(startTime, endTime time.Time, limit int) []*EmissionRecord {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -455,7 +455,7 @@ func (tm *TrackerManager) GetEmissions(startTime, endTime time.Time, limit int) 
 	return result
 }
 
-// GetDeviceSummary 获取设备碳排放汇总
+// GetDeviceSummary 获取设备碳排放汇总.
 func (tm *TrackerManager) GetDeviceSummary(deviceID string, days int) (*DeviceSummary, error) {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -513,7 +513,7 @@ func (tm *TrackerManager) GetDeviceSummary(deviceID string, days int) (*DeviceSu
 	}, nil
 }
 
-// DeviceSummary 设备碳排放汇总
+// DeviceSummary 设备碳排放汇总.
 type DeviceSummary struct {
 	DeviceID       string      `json:"device_id"`
 	DeviceName     string      `json:"device_name"`
@@ -527,7 +527,7 @@ type DeviceSummary struct {
 	DataPoints     int         `json:"data_points"`
 }
 
-// GetDashboardData 获取仪表盘数据
+// GetDashboardData 获取仪表盘数据.
 func (tm *TrackerManager) GetDashboardData() *DashboardData {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -604,7 +604,7 @@ func (tm *TrackerManager) GetDashboardData() *DashboardData {
 	}
 }
 
-// DashboardData 仪表盘数据
+// DashboardData 仪表盘数据.
 type DashboardData struct {
 	TodayCarbonKg   float64     `json:"today_carbon_kg"`
 	TodayEnergyKWh  float64     `json:"today_energy_kwh"`
@@ -617,7 +617,7 @@ type DashboardData struct {
 	Timestamp       time.Time   `json:"timestamp"`
 }
 
-// TrendData 趋势数据
+// TrendData 趋势数据.
 type TrendData struct {
 	Date      time.Time `json:"date"`
 	EnergyKWh float64   `json:"energy_kwh"`

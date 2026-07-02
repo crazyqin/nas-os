@@ -8,13 +8,13 @@ import (
 	"strings"
 )
 
-// SGPIOController SGPIO 控制器
+// SGPIOController SGPIO 控制器.
 type SGPIOController struct {
 	// basePath sysfs 中 SGPIO 的基础路径
 	basePath string
 }
 
-// NewSGPIOController 创建 SGPIO 控制器
+// NewSGPIOController 创建 SGPIO 控制器.
 func NewSGPIOController(basePath string) *SGPIOController {
 	if basePath == "" {
 		basePath = "/sys/class/sgpio"
@@ -22,7 +22,7 @@ func NewSGPIOController(basePath string) *SGPIOController {
 	return &SGPIOController{basePath: basePath}
 }
 
-// DiscoverControllers 发现系统中的 SGPIO 控制器
+// DiscoverControllers 发现系统中的 SGPIO 控制器.
 func DiscoverControllers() ([]string, error) {
 	basePath := "/sys/class/sgpio"
 	entries, err := os.ReadDir(basePath)
@@ -44,7 +44,7 @@ func DiscoverControllers() ([]string, error) {
 	return controllers, nil
 }
 
-// SetLED 通过 SGPIO 控制 LED
+// SetLED 通过 SGPIO 控制 LED.
 func (s *SGPIOController) SetLED(slotID int, ledType LEDType, state LEDState) error {
 	gpioPath, err := s.findGPIOPath(slotID, ledType)
 	if err != nil {
@@ -52,9 +52,10 @@ func (s *SGPIOController) SetLED(slotID int, ledType LEDType, state LEDState) er
 	}
 
 	value := "0"
-	if state == LEDOn {
+	switch state {
+	case LEDOn:
 		value = "1"
-	} else if state == LEDBlink {
+	case LEDBlink:
 		// 对于闪烁，使用内核的定时器驱动
 		value = "2"
 	}
@@ -65,7 +66,7 @@ func (s *SGPIOController) SetLED(slotID int, ledType LEDType, state LEDState) er
 	return nil
 }
 
-// findGPIOPath 查找 SGPIO 路径
+// findGPIOPath 查找 SGPIO 路径.
 func (s *SGPIOController) findGPIOPath(slotID int, ledType LEDType) (string, error) {
 	var suffix string
 	switch ledType {
@@ -94,7 +95,7 @@ func (s *SGPIOController) findGPIOPath(slotID int, ledType LEDType) (string, err
 	return "", fmt.Errorf("未找到 SGPIO 路径: slot=%d, type=%s", slotID, ledType)
 }
 
-// GetLED 获取 SGPIO LED 状态
+// GetLED 获取 SGPIO LED 状态.
 func (s *SGPIOController) GetLED(slotID int, ledType LEDType) (LEDState, error) {
 	gpioPath, err := s.findGPIOPath(slotID, ledType)
 	if err != nil {
@@ -117,7 +118,7 @@ func (s *SGPIOController) GetLED(slotID int, ledType LEDType) (LEDState, error) 
 	}
 }
 
-// ScanSlots 扫描所有 SGPIO 槽位
+// ScanSlots 扫描所有 SGPIO 槽位.
 func (s *SGPIOController) ScanSlots() ([]int, error) {
 	entries, err := os.ReadDir(s.basePath)
 	if err != nil {
@@ -137,7 +138,7 @@ func (s *SGPIOController) ScanSlots() ([]int, error) {
 	return slots, nil
 }
 
-// ResetAllLEDs 重置所有 LED 到默认状态
+// ResetAllLEDs 重置所有 LED 到默认状态.
 func (s *SGPIOController) ResetAllLEDs() error {
 	slots, err := s.ScanSlots()
 	if err != nil {

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// OpsCenter 运维中心
+// OpsCenter 运维中心.
 type OpsCenter struct {
 	mu     sync.RWMutex
 	config Config
@@ -16,7 +16,7 @@ type OpsCenter struct {
 	checks map[string]*HealthCheck
 }
 
-// New 创建运维中心
+// New 创建运维中心.
 func New(config Config) *OpsCenter {
 	return &OpsCenter{
 		config: config,
@@ -26,7 +26,7 @@ func New(config Config) *OpsCenter {
 	}
 }
 
-// RegisterNode 注册NAS节点
+// RegisterNode 注册NAS节点.
 func (oc *OpsCenter) RegisterNode(node *NASNode) error {
 	oc.mu.Lock()
 	defer oc.mu.Unlock()
@@ -41,7 +41,7 @@ func (oc *OpsCenter) RegisterNode(node *NASNode) error {
 	return nil
 }
 
-// UpdateNodeStatus 更新节点状态
+// UpdateNodeStatus 更新节点状态.
 func (oc *OpsCenter) UpdateNodeStatus(id string, cpu, mem, temp float64) error {
 	oc.mu.Lock()
 	defer oc.mu.Unlock()
@@ -70,7 +70,7 @@ func (oc *OpsCenter) UpdateNodeStatus(id string, cpu, mem, temp float64) error {
 	return nil
 }
 
-// Heartbeat 节点心跳
+// Heartbeat 节点心跳.
 func (oc *OpsCenter) Heartbeat(nodeID string) error {
 	oc.mu.Lock()
 	defer oc.mu.Unlock()
@@ -89,7 +89,7 @@ func (oc *OpsCenter) Heartbeat(nodeID string) error {
 	return nil
 }
 
-// CheckOfflineNodes 检查离线节点
+// CheckOfflineNodes 检查离线节点.
 func (oc *OpsCenter) CheckOfflineNodes() {
 	oc.mu.Lock()
 	defer oc.mu.Unlock()
@@ -103,7 +103,7 @@ func (oc *OpsCenter) CheckOfflineNodes() {
 	}
 }
 
-// GetDashboard 获取运维仪表盘数据
+// GetDashboard 获取运维仪表盘数据.
 func (oc *OpsCenter) GetDashboard() *Dashboard {
 	oc.mu.RLock()
 	defer oc.mu.RUnlock()
@@ -151,7 +151,7 @@ func (oc *OpsCenter) GetDashboard() *Dashboard {
 	return dash
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (oc *OpsCenter) AcknowledgeAlert(alertID, ackedBy string) error {
 	oc.mu.Lock()
 	defer oc.mu.Unlock()
@@ -166,7 +166,7 @@ func (oc *OpsCenter) AcknowledgeAlert(alertID, ackedBy string) error {
 	return fmt.Errorf("alert %s not found", alertID)
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (oc *OpsCenter) ResolveAlert(alertID string) error {
 	oc.mu.Lock()
 	defer oc.mu.Unlock()
@@ -182,7 +182,7 @@ func (oc *OpsCenter) ResolveAlert(alertID string) error {
 	return fmt.Errorf("alert %s not found", alertID)
 }
 
-// GetNodes 获取所有节点
+// GetNodes 获取所有节点.
 func (oc *OpsCenter) GetNodes() []*NASNode {
 	oc.mu.RLock()
 	defer oc.mu.RUnlock()
@@ -194,7 +194,7 @@ func (oc *OpsCenter) GetNodes() []*NASNode {
 	return nodes
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (oc *OpsCenter) GetAlerts(severity Severity, unresolvedOnly bool) []*Alert {
 	oc.mu.RLock()
 	defer oc.mu.RUnlock()

@@ -123,9 +123,7 @@ func (dag *DAGWorkflow) GetTopologicalOrder() ([]string, error) {
 
 	// 从入度为 0 的节点开始
 	queue := make([]string, 0)
-	for _, entry := range dag.Entry {
-		queue = append(queue, entry)
-	}
+	queue = append(queue, dag.Entry...)
 
 	result := make([]string, 0, len(dag.Tasks))
 

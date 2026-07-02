@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// VoiceProvider 语音助手提供商
+// VoiceProvider 语音助手提供商.
 type VoiceProvider string
 
 const (
@@ -17,7 +17,7 @@ const (
 	ProviderCustom VoiceProvider = "custom"
 )
 
-// CommandType 语音命令类型
+// CommandType 语音命令类型.
 type CommandType string
 
 const (
@@ -33,7 +33,7 @@ const (
 	CmdUnknown       CommandType = "unknown"
 )
 
-// Intent 识别后的意图
+// Intent 识别后的意图.
 type Intent struct {
 	Command    CommandType       `json:"command"`
 	Parameters map[string]string `json:"parameters"`
@@ -42,7 +42,7 @@ type Intent struct {
 	Language   string            `json:"language"`
 }
 
-// VoiceCommand 语音命令
+// VoiceCommand 语音命令.
 type VoiceCommand struct {
 	ID          string         `json:"id"`
 	UserID      string         `json:"user_id"`
@@ -56,7 +56,7 @@ type VoiceCommand struct {
 	ProcessedAt *time.Time     `json:"processed_at,omitempty"`
 }
 
-// CommandResult 命令执行结果
+// CommandResult 命令执行结果.
 type CommandResult struct {
 	Success bool        `json:"success"`
 	Message string      `json:"message"`
@@ -64,7 +64,7 @@ type CommandResult struct {
 	Error   string      `json:"error,omitempty"`
 }
 
-// VoiceResponse 语音响应
+// VoiceResponse 语音响应.
 type VoiceResponse struct {
 	Text        string `json:"text"`
 	AudioURL    string `json:"audio_url,omitempty"`
@@ -72,7 +72,7 @@ type VoiceResponse struct {
 	ShouldSpeak bool   `json:"should_speak"`
 }
 
-// VoiceProfile 用户语音配置
+// VoiceProfile 用户语音配置.
 type VoiceProfile struct {
 	UserID          string        `json:"user_id"`
 	Language        string        `json:"language"`
@@ -84,7 +84,7 @@ type VoiceProfile struct {
 	UpdatedAt       time.Time     `json:"updated_at"`
 }
 
-// ConversationTurn 对话轮次
+// ConversationTurn 对话轮次.
 type ConversationTurn struct {
 	ID        string         `json:"id"`
 	UserID    string         `json:"user_id"`
@@ -94,7 +94,7 @@ type ConversationTurn struct {
 	CreatedAt time.Time      `json:"created_at"`
 }
 
-// Conversation 一次完整对话
+// Conversation 一次完整对话.
 type Conversation struct {
 	ID        string              `json:"id"`
 	UserID    string              `json:"user_id"`
@@ -104,7 +104,7 @@ type Conversation struct {
 	EndedAt   *time.Time          `json:"ended_at,omitempty"`
 }
 
-// Permission 语音操作权限
+// Permission 语音操作权限.
 type Permission struct {
 	UserID    string      `json:"user_id"`
 	Command   CommandType `json:"command"`
@@ -112,7 +112,7 @@ type Permission struct {
 	Resources []string    `json:"resources,omitempty"`
 }
 
-// Config 语音控制配置
+// Config 语音控制配置.
 type Config struct {
 	Enabled             bool            `json:"enabled"`
 	DefaultProvider     VoiceProvider   `json:"default_provider"`
@@ -122,7 +122,7 @@ type Config struct {
 	MaxAudioDurationSec int             `json:"max_audio_duration_sec"`
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() Config {
 	return Config{
 		Enabled:             true,

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Direction represents text direction
+// Direction represents text direction.
 type Direction string
 
 const (
@@ -17,7 +17,7 @@ const (
 	DirectionRTL Direction = "rtl"
 )
 
-// Language represents a supported language
+// Language represents a supported language.
 type Language struct {
 	Code       string    `json:"code"`
 	Name       string    `json:"name"`
@@ -25,7 +25,7 @@ type Language struct {
 	Direction  Direction `json:"direction"`
 }
 
-// PluralForm represents a plural form for a key
+// PluralForm represents a plural form for a key.
 type PluralForm struct {
 	Zero  string
 	One   string
@@ -35,14 +35,14 @@ type PluralForm struct {
 	Other string
 }
 
-// TranslationEntry represents a single translation entry
+// TranslationEntry represents a single translation entry.
 type TranslationEntry struct {
 	Key    string      `json:"key"`
 	Value  string      `json:"value"`
 	Plural *PluralForm `json:"plural,omitempty"`
 }
 
-// LocaleManager manages translations and locale settings
+// LocaleManager manages translations and locale settings.
 type LocaleManager struct {
 	mu           sync.RWMutex
 	defaultLang  string
@@ -52,7 +52,7 @@ type LocaleManager struct {
 	pluralFuncs  map[string]func(int) string             // lang -> plural rule function
 }
 
-// NewManager creates a new LocaleManager with a default language
+// NewManager creates a new LocaleManager with a default language.
 func NewManager(defaultLang string) *LocaleManager {
 	m := &LocaleManager{
 		defaultLang:  defaultLang,
@@ -65,7 +65,7 @@ func NewManager(defaultLang string) *LocaleManager {
 	return m
 }
 
-// registerDefaultPluralFuncs sets up built-in plural rules
+// registerDefaultPluralFuncs sets up built-in plural rules.
 func (m *LocaleManager) registerDefaultPluralFuncs() {
 	// English: 1 = one, else other
 	m.pluralFuncs["en"] = func(n int) string {
@@ -96,14 +96,14 @@ func (m *LocaleManager) registerDefaultPluralFuncs() {
 	}
 }
 
-// AddLanguage adds a language to the manager
+// AddLanguage adds a language to the manager.
 func (m *LocaleManager) AddLanguage(lang Language) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.languages[lang.Code] = lang
 }
 
-// GetAvailableLanguages returns all registered languages sorted by code
+// GetAvailableLanguages returns all registered languages sorted by code.
 func (m *LocaleManager) GetAvailableLanguages() []Language {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -117,7 +117,7 @@ func (m *LocaleManager) GetAvailableLanguages() []Language {
 	return langs
 }
 
-// LoadTranslations loads translations for a given language
+// LoadTranslations loads translations for a given language.
 func (m *LocaleManager) LoadTranslations(lang string, entries map[string]string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -133,7 +133,7 @@ func (m *LocaleManager) LoadTranslations(lang string, entries map[string]string)
 	return nil
 }
 
-// LoadTranslationsWithPlural loads translations including plural forms
+// LoadTranslationsWithPlural loads translations including plural forms.
 func (m *LocaleManager) LoadTranslationsWithPlural(lang string, entries map[string]*TranslationEntry) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -146,7 +146,7 @@ func (m *LocaleManager) LoadTranslationsWithPlural(lang string, entries map[stri
 	return nil
 }
 
-// SetLanguage sets the current language
+// SetLanguage sets the current language.
 func (m *LocaleManager) SetLanguage(lang string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -154,14 +154,14 @@ func (m *LocaleManager) SetLanguage(lang string) error {
 	return nil
 }
 
-// GetLanguage returns the current language code
+// GetLanguage returns the current language code.
 func (m *LocaleManager) GetLanguage() string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.currentLang
 }
 
-// resolveKey looks up a translation by key, falling back to default language
+// resolveKey looks up a translation by key, falling back to default language.
 func (m *LocaleManager) resolveKey(lang, key string) (*TranslationEntry, bool) {
 	// Try current language
 	if entries, ok := m.translations[lang]; ok {
@@ -182,7 +182,7 @@ func (m *LocaleManager) resolveKey(lang, key string) (*TranslationEntry, bool) {
 
 var placeholderRe = regexp.MustCompile(`\{(\d+)\}`)
 
-// formatMessage replaces {0}, {1}, etc. with positional args
+// formatMessage replaces {0}, {1}, etc. with positional args.
 func formatMessage(template string, args ...interface{}) string {
 	if len(args) == 0 {
 		return template
@@ -198,7 +198,7 @@ func formatMessage(template string, args ...interface{}) string {
 	})
 }
 
-// Translate translates a key with optional positional arguments
+// Translate translates a key with optional positional arguments.
 func (m *LocaleManager) Translate(key string, args ...interface{}) string {
 	m.mu.RLock()
 	lang := m.currentLang
@@ -214,12 +214,12 @@ func (m *LocaleManager) Translate(key string, args ...interface{}) string {
 	return formatMessage(entry.Value, args...)
 }
 
-// T is a shorthand for Translate
+// T is a shorthand for Translate.
 func (m *LocaleManager) T(key string, args ...interface{}) string {
 	return m.Translate(key, args...)
 }
 
-// TranslatePlural translates a key with plural form selection
+// TranslatePlural translates a key with plural form selection.
 func (m *LocaleManager) TranslatePlural(key string, count int, args ...interface{}) string {
 	m.mu.RLock()
 	lang := m.currentLang
@@ -274,7 +274,7 @@ func (m *LocaleManager) TranslatePlural(key string, count int, args ...interface
 	return formatMessage(template, args...)
 }
 
-// FormatDate formats a time.Time according to the current locale's conventions
+// FormatDate formats a time.Time according to the current locale's conventions.
 func (m *LocaleManager) FormatDate(t time.Time) string {
 	m.mu.RLock()
 	lang := m.currentLang
@@ -292,7 +292,7 @@ func (m *LocaleManager) FormatDate(t time.Time) string {
 	}
 }
 
-// FormatNumber formats a float64 according to locale conventions
+// FormatNumber formats a float64 according to locale conventions.
 func (m *LocaleManager) FormatNumber(n float64) string {
 	m.mu.RLock()
 	lang := m.currentLang
@@ -310,7 +310,7 @@ func (m *LocaleManager) FormatNumber(n float64) string {
 	}
 }
 
-// formatWithSeparator formats a number with given separators
+// formatWithSeparator formats a number with given separators.
 func formatWithSeparator(n float64, thousandsSep, decimalSep rune) string {
 	// Handle negative
 	sign := ""
@@ -347,7 +347,7 @@ func formatWithSeparator(n float64, thousandsSep, decimalSep rune) string {
 	return sign + intStr
 }
 
-// IsRTL returns true if the current language is right-to-left
+// IsRTL returns true if the current language is right-to-left.
 func (m *LocaleManager) IsRTL() bool {
 	m.mu.RLock()
 	lang := m.currentLang
@@ -363,7 +363,7 @@ func (m *LocaleManager) IsRTL() bool {
 	return l.Direction == DirectionRTL
 }
 
-// ExportTranslations returns all translations for a language as a flat map
+// ExportTranslations returns all translations for a language as a flat map.
 func (m *LocaleManager) ExportTranslations(lang string) (map[string]string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -380,7 +380,7 @@ func (m *LocaleManager) ExportTranslations(lang string) (map[string]string, erro
 	return result, nil
 }
 
-// RegisterPluralFunc registers a custom plural rule function for a language
+// RegisterPluralFunc registers a custom plural rule function for a language.
 func (m *LocaleManager) RegisterPluralFunc(lang string, fn func(int) string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

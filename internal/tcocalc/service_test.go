@@ -574,5 +574,5 @@ func TestMaintenanceNoReplacement(t *testing.T) {
 	}
 }
 
-// 保留 time 引用避免 unused import
+// 保留 time 引用避免 unused import.
 var _ = time.Now

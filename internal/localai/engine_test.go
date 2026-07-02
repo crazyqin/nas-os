@@ -89,10 +89,10 @@ func TestInference(t *testing.T) {
 	engine := NewEngine(10)
 
 	model := &Model{
-		ID:           "test-model-1",
-		Name:         "测试模型",
-		Type:         ModelTypeLLM,
-		Backend:      BackendCPU,
+		ID:            "test-model-1",
+		Name:          "测试模型",
+		Type:          ModelTypeLLM,
+		Backend:       BackendCPU,
 		ContextLength: 4096,
 	}
 

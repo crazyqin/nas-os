@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 文件同步 API 处理器
+// Handlers 文件同步 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	sync := r.Group("/filesync")
 	{
@@ -44,14 +44,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// registerClient 注册客户端
+// registerClient 注册客户端.
 func (h *Handlers) registerClient(c *gin.Context) {
 	var req RegisterClientRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -78,7 +78,7 @@ func (h *Handlers) registerClient(c *gin.Context) {
 	})
 }
 
-// listClients 列出客户端
+// listClients 列出客户端.
 func (h *Handlers) listClients(c *gin.Context) {
 	clients := h.manager.ListClients()
 	c.JSON(http.StatusOK, response{
@@ -88,7 +88,7 @@ func (h *Handlers) listClients(c *gin.Context) {
 	})
 }
 
-// removeClient 移除客户端
+// removeClient 移除客户端.
 func (h *Handlers) removeClient(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.RemoveClient(id); err != nil {
@@ -105,7 +105,7 @@ func (h *Handlers) removeClient(c *gin.Context) {
 	})
 }
 
-// createFolder 创建同步文件夹
+// createFolder 创建同步文件夹.
 func (h *Handlers) createFolder(c *gin.Context) {
 	var req CreateFolderRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -132,7 +132,7 @@ func (h *Handlers) createFolder(c *gin.Context) {
 	})
 }
 
-// listFolders 列出同步文件夹
+// listFolders 列出同步文件夹.
 func (h *Handlers) listFolders(c *gin.Context) {
 	folders := h.manager.ListFolders()
 	c.JSON(http.StatusOK, response{
@@ -142,7 +142,7 @@ func (h *Handlers) listFolders(c *gin.Context) {
 	})
 }
 
-// updateFolder 更新同步文件夹
+// updateFolder 更新同步文件夹.
 func (h *Handlers) updateFolder(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateFolderRequest
@@ -170,7 +170,7 @@ func (h *Handlers) updateFolder(c *gin.Context) {
 	})
 }
 
-// triggerSync 触发同步
+// triggerSync 触发同步.
 func (h *Handlers) triggerSync(c *gin.Context) {
 	folderID := c.Param("folderId")
 	if err := h.manager.TriggerSync(folderID); err != nil {
@@ -187,7 +187,7 @@ func (h *Handlers) triggerSync(c *gin.Context) {
 	})
 }
 
-// listConflicts 列出冲突
+// listConflicts 列出冲突.
 func (h *Handlers) listConflicts(c *gin.Context) {
 	conflicts := h.manager.ListConflicts()
 	c.JSON(http.StatusOK, response{
@@ -197,7 +197,7 @@ func (h *Handlers) listConflicts(c *gin.Context) {
 	})
 }
 
-// resolveConflict 解决冲突
+// resolveConflict 解决冲突.
 func (h *Handlers) resolveConflict(c *gin.Context) {
 	id := c.Param("id")
 	var req ResolveConflictRequest
@@ -223,7 +223,7 @@ func (h *Handlers) resolveConflict(c *gin.Context) {
 	})
 }
 
-// getStats 获取统计
+// getStats 获取统计.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, response{
@@ -233,7 +233,7 @@ func (h *Handlers) getStats(c *gin.Context) {
 	})
 }
 
-// getEvents 获取事件
+// getEvents 获取事件.
 func (h *Handlers) getEvents(c *gin.Context) {
 	clientID := c.Query("clientID")
 	events := h.manager.GetEvents(clientID)

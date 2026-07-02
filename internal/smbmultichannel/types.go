@@ -8,7 +8,7 @@ import (
 
 // ========== 会话与通道状态枚举 ==========
 
-// SessionState 会话状态
+// SessionState 会话状态.
 type SessionState string
 
 const (
@@ -18,7 +18,7 @@ const (
 	SessionStateClosed   SessionState = "closed"
 )
 
-// ChannelState 通道状态
+// ChannelState 通道状态.
 type ChannelState string
 
 const (
@@ -28,7 +28,7 @@ const (
 	ChannelStateClosed  ChannelState = "closed"
 )
 
-// LoadBalanceAlgo 负载均衡算法
+// LoadBalanceAlgo 负载均衡算法.
 type LoadBalanceAlgo string
 
 const (
@@ -39,11 +39,11 @@ const (
 	LoadBalanceAdaptive   LoadBalanceAlgo = "adaptive"
 )
 
-// ValidLoadBalanceModes 有效的负载均衡模式集合
+// ValidLoadBalanceModes 有效的负载均衡模式集合.
 var ValidLoadBalanceModes = map[string]bool{
-	"round-robin": true,
-	"weighted":    true,
-	"hash":        true,
+	"round-robin":                 true,
+	"weighted":                    true,
+	"hash":                        true,
 	string(LoadBalanceRoundRobin): true,
 	string(LoadBalanceLeastConn):  true,
 	string(LoadBalanceBandwidth):  true,
@@ -53,7 +53,7 @@ var ValidLoadBalanceModes = map[string]bool{
 
 // ========== 配置类型 ==========
 
-// ChannelConfig SMB Multichannel 配置
+// ChannelConfig SMB Multichannel 配置.
 type ChannelConfig struct {
 	Enabled         bool     `json:"enabled"`
 	MaxChannels     int      `json:"max_channels"`
@@ -65,7 +65,7 @@ type ChannelConfig struct {
 	RDMAEnabled     bool     `json:"rdma_enabled"`
 }
 
-// ManagerConfig 管理器扩展配置
+// ManagerConfig 管理器扩展配置.
 type ManagerConfig struct {
 	Enabled              bool            `json:"enabled"`
 	MaxChannelsPerClient int             `json:"max_channels_per_client"`
@@ -82,7 +82,7 @@ type ManagerConfig struct {
 	MinSMBVersion        string          `json:"min_smb_version"`
 }
 
-// UpdateConfigRequest 更新配置请求
+// UpdateConfigRequest 更新配置请求.
 type UpdateConfigRequest struct {
 	Enabled         *bool    `json:"enabled,omitempty"`
 	MaxChannels     *int     `json:"max_channels,omitempty"`
@@ -94,14 +94,14 @@ type UpdateConfigRequest struct {
 	RDMAEnabled     *bool    `json:"rdma_enabled,omitempty"`
 }
 
-// SetLoadBalanceModeRequest 设置负载均衡模式请求
+// SetLoadBalanceModeRequest 设置负载均衡模式请求.
 type SetLoadBalanceModeRequest struct {
 	Mode string `json:"mode"` // round-robin, weighted, hash, round_robin, least_conn, bandwidth, latency, adaptive
 }
 
 // ========== 通道类型 ==========
 
-// ChannelStatus 通道状态信息（面向外部API）
+// ChannelStatus 通道状态信息（面向外部API）.
 type ChannelStatus struct {
 	InterfaceName    string    `json:"interface_name"`
 	Speed            int       `json:"speed"` // Mbps
@@ -111,14 +111,14 @@ type ChannelStatus struct {
 	LastActive       time.Time `json:"last_active"`
 }
 
-// ChannelInfo 通道信息（内部使用）
+// ChannelInfo 通道信息（内部使用）.
 type ChannelInfo struct {
 	Status     ChannelStatus
 	Enabled    bool
 	TotalBytes int64
 }
 
-// Channel 详细通道信息（会话内使用）
+// Channel 详细通道信息（会话内使用）.
 type Channel struct {
 	ID            string       `json:"id"`
 	InterfaceName string       `json:"interface_name"`
@@ -130,14 +130,14 @@ type Channel struct {
 	LastActive    time.Time    `json:"last_active"`
 }
 
-// ChannelRef 会话中的通道引用（轻量级）
+// ChannelRef 会话中的通道引用（轻量级）.
 type ChannelRef struct {
 	InterfaceName string `json:"interface_name"`
 	Speed         int    `json:"speed"` // Mbps
 	Active        bool   `json:"active"`
 }
 
-// ChannelStats 通道统计信息
+// ChannelStats 通道统计信息.
 type ChannelStats struct {
 	ActiveChannels      int            `json:"active_channels"`
 	TotalBandwidth      int            `json:"total_bandwidth"` // Mbps
@@ -152,11 +152,11 @@ type ChannelStats struct {
 	ThroughputMBps      float64        `json:"throughput_mbps"`
 	Errors              int64          `json:"errors"`
 	LastActive          time.Time      `json:"last_active"`
-	LoadBalanceCount    int64          `json:"load_balance_count"`   // 负载均衡次数
-	FailoverCount       int64          `json:"failover_count"`       // 故障转移次数
+	LoadBalanceCount    int64          `json:"load_balance_count"` // 负载均衡次数
+	FailoverCount       int64          `json:"failover_count"`     // 故障转移次数
 }
 
-// ChannelHealth 通道健康状态
+// ChannelHealth 通道健康状态.
 type ChannelHealth struct {
 	ChannelID  string    `json:"channel_id"`
 	Status     string    `json:"status"`      // up, down, degraded
@@ -167,7 +167,7 @@ type ChannelHealth struct {
 
 // ========== 会话类型 ==========
 
-// MultichannelSession Multichannel 会话
+// MultichannelSession Multichannel 会话.
 type MultichannelSession struct {
 	ID               string            `json:"id"`
 	ClientIP         string            `json:"client_ip"`
@@ -185,7 +185,7 @@ type MultichannelSession struct {
 
 // ========== 统计类型 ==========
 
-// ThroughputStats 吞吐量统计
+// ThroughputStats 吞吐量统计.
 type ThroughputStats struct {
 	TotalDownload  int64     `json:"total_download"` // bytes
 	TotalUpload    int64     `json:"total_upload"`   // bytes
@@ -196,7 +196,7 @@ type ThroughputStats struct {
 	LastUpdated    time.Time `json:"last_updated"`
 }
 
-// BandwidthHistoryItem 带宽历史记录
+// BandwidthHistoryItem 带宽历史记录.
 type BandwidthHistoryItem struct {
 	Timestamp time.Time `json:"timestamp"`
 	Download  int64     `json:"download"` // bytes
@@ -205,7 +205,7 @@ type BandwidthHistoryItem struct {
 	Sessions  int       `json:"sessions"`
 }
 
-// SessionStats 会话统计
+// SessionStats 会话统计.
 type SessionStats struct {
 	SessionID       string `json:"session_id"`
 	ClientIP        string `json:"client_ip"`
@@ -215,7 +215,7 @@ type SessionStats struct {
 	Duration        int64  `json:"duration"`          // seconds
 }
 
-// ManagerStats 管理器全局统计
+// ManagerStats 管理器全局统计.
 type ManagerStats struct {
 	TotalSessions     int       `json:"total_sessions"`
 	ActiveSessions    int       `json:"active_sessions"`
@@ -230,7 +230,7 @@ type ManagerStats struct {
 
 // ========== 网络与重平衡类型 ==========
 
-// NetworkInterface 网络接口
+// NetworkInterface 网络接口.
 type NetworkInterface struct {
 	Name         string   `json:"name"`
 	MTU          int      `json:"mtu"`
@@ -239,7 +239,7 @@ type NetworkInterface struct {
 	Speed        int64    `json:"speed"` // Mbps
 }
 
-// RebalanceResult 重平衡结果
+// RebalanceResult 重平衡结果.
 type RebalanceResult struct {
 	Timestamp       time.Time         `json:"timestamp"`
 	RebalancedCount int               `json:"rebalanced_count"`
@@ -248,7 +248,7 @@ type RebalanceResult struct {
 
 // ========== 审计类型 ==========
 
-// AuditEntry 审计日志条目
+// AuditEntry 审计日志条目.
 type AuditEntry struct {
 	Timestamp time.Time `json:"timestamp"`
 	Action    string    `json:"action"`
@@ -259,23 +259,23 @@ type AuditEntry struct {
 
 // ========== 响应类型 ==========
 
-// ChannelStatsResponse 通道统计响应
+// ChannelStatsResponse 通道统计响应.
 type ChannelStatsResponse struct {
 	Stats *ChannelStats `json:"stats"`
 }
 
-// ChannelHealthResponse 通道健康响应
+// ChannelHealthResponse 通道健康响应.
 type ChannelHealthResponse struct {
 	Health []ChannelHealth `json:"health"`
 }
 
-// AuditLogResponse 审计日志响应
+// AuditLogResponse 审计日志响应.
 type AuditLogResponse struct {
 	Total   int          `json:"total"`
 	Entries []AuditEntry `json:"entries"`
 }
 
-// EnableDisableResponse 启用/禁用响应
+// EnableDisableResponse 启用/禁用响应.
 type EnableDisableResponse struct {
 	Enabled bool   `json:"enabled"`
 	Message string `json:"message"`

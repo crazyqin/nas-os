@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// IndexEntry 索引条目
+// IndexEntry 索引条目.
 type IndexEntry struct {
 	Path      string    `json:"path"`
 	Name      string    `json:"name"`
@@ -31,7 +31,7 @@ type IndexEntry struct {
 	Summary   string    `json:"summary,omitempty"`
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	Entry      IndexEntry `json:"entry"`
 	Score      float64    `json:"score"`
@@ -39,7 +39,7 @@ type SearchResult struct {
 	MatchCount int        `json:"matchCount"`
 }
 
-// SearchQuery 搜索查询
+// SearchQuery 搜索查询.
 type SearchQuery struct {
 	Keyword    string   `json:"keyword"`
 	Path       string   `json:"path"`
@@ -53,7 +53,7 @@ type SearchQuery struct {
 	Offset     int      `json:"offset"`
 }
 
-// IndexStats 索引统计
+// IndexStats 索引统计.
 type IndexStats struct {
 	TotalFiles int            `json:"totalFiles"`
 	TotalDirs  int            `json:"totalDirs"`
@@ -64,7 +64,7 @@ type IndexStats struct {
 	Extensions map[string]int `json:"extensions"`
 }
 
-// Indexer 文件索引器
+// Indexer 文件索引器.
 type Indexer struct {
 	logger   *zap.Logger
 	mu       sync.RWMutex
@@ -79,7 +79,7 @@ var (
 	ErrPathDenied = fmt.Errorf("路径不在允许范围内")
 )
 
-// NewIndexer 创建文件索引器
+// NewIndexer 创建文件索引器.
 func NewIndexer(logger *zap.Logger, basePath string) *Indexer {
 	return &Indexer{
 		logger:   logger,
@@ -96,7 +96,7 @@ func NewIndexer(logger *zap.Logger, basePath string) *Indexer {
 	}
 }
 
-// Build 构建索引
+// Build 构建索引.
 func (idx *Indexer) Build() (*IndexStats, error) {
 	start := time.Now()
 	idx.mu.Lock()
@@ -163,7 +163,7 @@ func (idx *Indexer) Build() (*IndexStats, error) {
 	return stats, err
 }
 
-// isTextFile 判断是否为文本文件
+// isTextFile 判断是否为文本文件.
 func (idx *Indexer) isTextFile(ext string) bool {
 	textExts := map[string]bool{
 		".txt": true, ".md": true, ".go": true, ".py": true,
@@ -179,7 +179,7 @@ func (idx *Indexer) isTextFile(ext string) bool {
 	return textExts[ext]
 }
 
-// indexFileContent 索引文件内容
+// indexFileContent 索引文件内容.
 func (idx *Indexer) indexFileContent(entry *IndexEntry) {
 	f, err := os.Open(entry.Path)
 	if err != nil {
@@ -213,7 +213,7 @@ func (idx *Indexer) indexFileContent(entry *IndexEntry) {
 	entry.Checksum = fmt.Sprintf("%x", hasher.Sum(nil))[:16]
 }
 
-// Search 搜索文件
+// Search 搜索文件.
 func (idx *Indexer) Search(query SearchQuery) []SearchResult {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()
@@ -270,7 +270,7 @@ func (idx *Indexer) Search(query SearchQuery) []SearchResult {
 	return results
 }
 
-// matchesQuery 检查条目是否匹配查询条件
+// matchesQuery 检查条目是否匹配查询条件.
 func (idx *Indexer) matchesQuery(entry *IndexEntry, query SearchQuery) bool {
 	// 路径前缀过滤
 	if query.Path != "" && !strings.HasPrefix(entry.Path, query.Path) {
@@ -302,7 +302,7 @@ func (idx *Indexer) matchesQuery(entry *IndexEntry, query SearchQuery) bool {
 	return true
 }
 
-// calcScore 计算搜索分数
+// calcScore 计算搜索分数.
 func (idx *Indexer) calcScore(entry *IndexEntry, keyword, searchType string) float64 {
 	if keyword == "" {
 		return 1.0
@@ -336,7 +336,7 @@ func (idx *Indexer) calcScore(entry *IndexEntry, keyword, searchType string) flo
 	return score
 }
 
-// extractSnippets 提取匹配片段
+// extractSnippets 提取匹配片段.
 func (idx *Indexer) extractSnippets(path, keyword string) []string {
 	f, err := os.Open(path)
 	if err != nil {
@@ -367,7 +367,7 @@ func (idx *Indexer) extractSnippets(path, keyword string) []string {
 	return snippets
 }
 
-// GetEntry 获取单个索引条目
+// GetEntry 获取单个索引条目.
 func (idx *Indexer) GetEntry(path string) (*IndexEntry, bool) {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()
@@ -375,7 +375,7 @@ func (idx *Indexer) GetEntry(path string) (*IndexEntry, bool) {
 	return entry, ok
 }
 
-// Stats 获取索引统计
+// Stats 获取索引统计.
 func (idx *Indexer) Stats() IndexStats {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()
@@ -399,7 +399,7 @@ func (idx *Indexer) Stats() IndexStats {
 	return stats
 }
 
-// ListRecent 最近修改的文件
+// ListRecent 最近修改的文件.
 func (idx *Indexer) ListRecent(limit int) []IndexEntry {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()
@@ -430,7 +430,7 @@ func (idx *Indexer) ListRecent(limit int) []IndexEntry {
 	return result
 }
 
-// ListLargest 最大的文件
+// ListLargest 最大的文件.
 func (idx *Indexer) ListLargest(limit int) []IndexEntry {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()
@@ -461,7 +461,7 @@ func (idx *Indexer) ListLargest(limit int) []IndexEntry {
 	return result
 }
 
-// SetExcludes 设置排除列表
+// SetExcludes 设置排除列表.
 func (idx *Indexer) SetExcludes(excludes []string) {
 	idx.mu.Lock()
 	defer idx.mu.Unlock()
@@ -471,7 +471,7 @@ func (idx *Indexer) SetExcludes(excludes []string) {
 	}
 }
 
-// Count 返回索引条目数
+// Count 返回索引条目数.
 func (idx *Indexer) Count() int {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()

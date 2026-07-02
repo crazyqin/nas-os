@@ -15,14 +15,14 @@ import (
 //
 // 结合 ML 预测、热度分析和成本模型，实现最优数据放置策略.
 type SmartDataPlacer struct {
-	mu              sync.RWMutex
-	logger          *zap.Logger
-	mlEngine        *MLTieringEngine
-	config          *PlacerConfig
-	migrationQueue  chan *PlacementDecision
-	activePlacements map[string]*PlacementDecision
+	mu                  sync.RWMutex
+	logger              *zap.Logger
+	mlEngine            *MLTieringEngine
+	config              *PlacerConfig
+	migrationQueue      chan *PlacementDecision
+	activePlacements    map[string]*PlacementDecision
 	completedPlacements []*PlacementDecision
-	placementStats  *PlacementStats
+	placementStats      *PlacementStats
 }
 
 // PlacerConfig 放置器配置.
@@ -67,19 +67,19 @@ func DefaultPlacerConfig() *PlacerConfig {
 
 // PlacementDecision 放置决策.
 type PlacementDecision struct {
-	ID              string         `json:"id"`
-	BlockID         string         `json:"blockId"`
-	CurrentTier     FlashType      `json:"currentTier"`
-	TargetTier      FlashType      `json:"targetTier"`
-	Reason          string         `json:"reason"`
-	PredictedBenefit float64       `json:"predictedBenefit"`
-	Cost            float64        `json:"cost"`
-	Confidence      float64        `json:"confidence"`
-	CreatedAt       time.Time      `json:"createdAt"`
-	StartedAt       time.Time      `json:"startedAt,omitempty"`
-	CompletedAt     time.Time      `json:"completedAt,omitempty"`
-	Status          PlacementStatus `json:"status"`
-	Prediction      *PredictionResult `json:"prediction,omitempty"`
+	ID               string            `json:"id"`
+	BlockID          string            `json:"blockId"`
+	CurrentTier      FlashType         `json:"currentTier"`
+	TargetTier       FlashType         `json:"targetTier"`
+	Reason           string            `json:"reason"`
+	PredictedBenefit float64           `json:"predictedBenefit"`
+	Cost             float64           `json:"cost"`
+	Confidence       float64           `json:"confidence"`
+	CreatedAt        time.Time         `json:"createdAt"`
+	StartedAt        time.Time         `json:"startedAt,omitempty"`
+	CompletedAt      time.Time         `json:"completedAt,omitempty"`
+	Status           PlacementStatus   `json:"status"`
+	Prediction       *PredictionResult `json:"prediction,omitempty"`
 }
 
 // PlacementStatus 放置状态.
@@ -115,13 +115,13 @@ func NewSmartDataPlacer(logger *zap.Logger, mlEngine *MLTieringEngine, config *P
 	}
 
 	return &SmartDataPlacer{
-		logger:           logger,
-		mlEngine:         mlEngine,
-		config:           config,
-		migrationQueue:   make(chan *PlacementDecision, 1000),
-		activePlacements: make(map[string]*PlacementDecision),
+		logger:              logger,
+		mlEngine:            mlEngine,
+		config:              config,
+		migrationQueue:      make(chan *PlacementDecision, 1000),
+		activePlacements:    make(map[string]*PlacementDecision),
 		completedPlacements: make([]*PlacementDecision, 0, 1000),
-		placementStats:   &PlacementStats{},
+		placementStats:      &PlacementStats{},
 	}
 }
 

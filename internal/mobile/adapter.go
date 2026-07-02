@@ -15,7 +15,7 @@ import (
 
 // ========== 数据结构 ==========
 
-// SyncState 同步状态记录
+// SyncState 同步状态记录.
 type SyncState struct {
 	mu        sync.RWMutex
 	lastSync  map[string]time.Time // 按资源类型记录最后同步时间
@@ -23,7 +23,7 @@ type SyncState struct {
 	maxLog    int                  // 最大日志条数
 }
 
-// ChangeRecord 变更记录
+// ChangeRecord 变更记录.
 type ChangeRecord struct {
 	ResourceType string    `json:"resourceType"` // 资源类型
 	ResourceID   string    `json:"resourceId"`   // 资源ID
@@ -32,7 +32,7 @@ type ChangeRecord struct {
 	Data         any       `json:"data,omitempty"`
 }
 
-// MobileResponse 移动端精简响应
+// MobileResponse 移动端精简响应.
 type MobileResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -40,7 +40,7 @@ type MobileResponse struct {
 	ETag    string `json:"etag,omitempty"` // 用于缓存验证
 }
 
-// PaginatedRequest 分页请求
+// PaginatedRequest 分页请求.
 type PaginatedRequest struct {
 	Limit  int    `json:"limit"`
 	Offset int    `json:"offset"`
@@ -49,7 +49,7 @@ type PaginatedRequest struct {
 	Order  string `json:"order"`
 }
 
-// PaginatedResponse 分页响应
+// PaginatedResponse 分页响应.
 type PaginatedResponse struct {
 	Items      any   `json:"items"`
 	Total      int   `json:"total"`
@@ -60,7 +60,7 @@ type PaginatedResponse struct {
 	ServerTime int64 `json:"serverTime"` // 服务器时间戳，用于下次增量同步
 }
 
-// OfflineAction 离线队列操作
+// OfflineAction 离线队列操作.
 type OfflineAction struct {
 	ID        string          `json:"id"`
 	Type      string          `json:"type"` // create/update/delete
@@ -70,7 +70,7 @@ type OfflineAction struct {
 	ClientID  string          `json:"clientId"`
 }
 
-// OfflineResult 离线操作结果
+// OfflineResult 离线操作结果.
 type OfflineResult struct {
 	ID      string `json:"id"`
 	Success bool   `json:"success"`
@@ -79,14 +79,14 @@ type OfflineResult struct {
 
 // ========== 适配器 ==========
 
-// Adapter 移动端API适配器
+// Adapter 移动端API适配器.
 type Adapter struct {
 	mu         sync.RWMutex
 	syncStates map[string]*SyncState // 按设备ID分组
 	actions    []OfflineAction       // 离线操作队列
 }
 
-// NewAdapter 创建移动端适配器
+// NewAdapter 创建移动端适配器.
 func NewAdapter() *Adapter {
 	return &Adapter{
 		syncStates: make(map[string]*SyncState),
@@ -94,7 +94,7 @@ func NewAdapter() *Adapter {
 	}
 }
 
-// NormalizePagination 标准化分页参数
+// NormalizePagination 标准化分页参数.
 func (a *Adapter) NormalizePagination(limit, offset int) (int, int) {
 	if limit <= 0 {
 		limit = 20
@@ -108,7 +108,7 @@ func (a *Adapter) NormalizePagination(limit, offset int) (int, int) {
 	return limit, offset
 }
 
-// BuildPaginatedResponse 构建分页响应
+// BuildPaginatedResponse 构建分页响应.
 func (a *Adapter) BuildPaginatedResponse(items any, total, limit, offset int) *PaginatedResponse {
 	hasMore := offset+limit < total
 	nextOffset := 0
@@ -126,7 +126,7 @@ func (a *Adapter) BuildPaginatedResponse(items any, total, limit, offset int) *P
 	}
 }
 
-// GenerateETag 生成ETag
+// GenerateETag 生成ETag.
 func (a *Adapter) GenerateETag(data any) string {
 	jsonBytes, err := json.Marshal(data)
 	if err != nil {
@@ -136,7 +136,7 @@ func (a *Adapter) GenerateETag(data any) string {
 	return fmt.Sprintf(`"%x"`, hash)
 }
 
-// RecordChange 记录变更（用于增量同步）
+// RecordChange 记录变更（用于增量同步）.
 func (a *Adapter) RecordChange(deviceID, resourceType, resourceID, action string, data any) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -168,7 +168,7 @@ func (a *Adapter) RecordChange(deviceID, resourceType, resourceID, action string
 	}
 }
 
-// GetChanges 获取增量变更
+// GetChanges 获取增量变更.
 func (a *Adapter) GetChanges(deviceID, resourceType string, since time.Time) []ChangeRecord {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -192,7 +192,7 @@ func (a *Adapter) GetChanges(deviceID, resourceType string, since time.Time) []C
 	return result
 }
 
-// UpdateLastSync 更新最后同步时间
+// UpdateLastSync 更新最后同步时间.
 func (a *Adapter) UpdateLastSync(deviceID, resourceType string) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -211,7 +211,7 @@ func (a *Adapter) UpdateLastSync(deviceID, resourceType string) {
 	state.lastSync[resourceType] = time.Now()
 }
 
-// SubmitOfflineActions 提交离线操作队列
+// SubmitOfflineActions 提交离线操作队列.
 func (a *Adapter) SubmitOfflineActions(actions []OfflineAction) []OfflineResult {
 	results := make([]OfflineResult, len(actions))
 
@@ -239,7 +239,7 @@ func (a *Adapter) SubmitOfflineActions(actions []OfflineAction) []OfflineResult 
 	return results
 }
 
-// GetPendingActions 获取待处理的离线操作
+// GetPendingActions 获取待处理的离线操作.
 func (a *Adapter) GetPendingActions(clientID string, limit int) []OfflineAction {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -258,26 +258,26 @@ func (a *Adapter) GetPendingActions(clientID string, limit int) []OfflineAction 
 
 // ========== HTTP Handler ==========
 
-// Handler 移动端API处理器
+// Handler 移动端API处理器.
 type Handler struct {
 	adapter *Adapter
 }
 
-// NewHandler 创建移动端处理器
+// NewHandler 创建移动端处理器.
 func NewHandler() *Handler {
 	return &Handler{
 		adapter: NewAdapter(),
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/mobile/sync", h.handleSync)
 	mux.HandleFunc("/api/v1/mobile/offline", h.handleOffline)
 	mux.HandleFunc("/api/v1/mobile/status", h.handleStatus)
 }
 
-// handleSync 增量同步端点
+// handleSync 增量同步端点.
 func (h *Handler) handleSync(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, MobileResponse{Code: 405, Message: "方法不允许"})
@@ -317,7 +317,7 @@ func (h *Handler) handleSync(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleOffline 离线操作提交端点
+// handleOffline 离线操作提交端点.
 func (h *Handler) handleOffline(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, MobileResponse{Code: 405, Message: "方法不允许"})
@@ -338,7 +338,7 @@ func (h *Handler) handleOffline(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleStatus 移动端状态端点
+// handleStatus 移动端状态端点.
 func (h *Handler) handleStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, MobileResponse{Code: 405, Message: "方法不允许"})
@@ -358,14 +358,14 @@ func (h *Handler) handleStatus(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// writeJSON 写入JSON响应
+// writeJSON 写入JSON响应.
 func writeJSON(w http.ResponseWriter, statusCode int, data any) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(data)
 }
 
-// SlimResponse 精简响应（移除空字段，减少流量）
+// SlimResponse 精简响应（移除空字段，减少流量）.
 func SlimResponse(data any) any {
 	jsonBytes, err := json.Marshal(data)
 	if err != nil {
@@ -382,7 +382,7 @@ func SlimResponse(data any) any {
 	return m
 }
 
-// removeEmptyFields 移除空值字段
+// removeEmptyFields 移除空值字段.
 func removeEmptyFields(m map[string]any) {
 	for k, v := range m {
 		if v == nil {
@@ -406,7 +406,7 @@ func removeEmptyFields(m map[string]any) {
 	}
 }
 
-// ParsePagination 从HTTP请求解析分页参数
+// ParsePagination 从HTTP请求解析分页参数.
 func ParsePagination(r *http.Request) (limit, offset int) {
 	limit = 20
 	offset = 0
@@ -428,7 +428,7 @@ func ParsePagination(r *http.Request) (limit, offset int) {
 	return
 }
 
-// ParseSince 从HTTP请求解析增量同步时间戳
+// ParseSince 从HTTP请求解析增量同步时间戳.
 func ParseSince(r *http.Request) time.Time {
 	if s := r.URL.Query().Get("since"); s != "" {
 		if ts, err := strconv.ParseInt(s, 10, 64); err == nil {
@@ -438,7 +438,7 @@ func ParseSince(r *http.Request) time.Time {
 	return time.Time{} // 零值表示全量
 }
 
-// IsMobileRequest 判断是否为移动端请求
+// IsMobileRequest 判断是否为移动端请求.
 func IsMobileRequest(r *http.Request) bool {
 	ua := strings.ToLower(r.UserAgent())
 	return strings.Contains(ua, "mobile") ||

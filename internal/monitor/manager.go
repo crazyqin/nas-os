@@ -556,7 +556,7 @@ func (m *Manager) GetHostname() string {
 
 // --- 告警增强系统集成 (Round228) ---
 
-// EnhancedAlertManager 增强版告警管理器（兼容原接口）
+// EnhancedAlertManager 增强版告警管理器（兼容原接口）.
 type EnhancedAlertManager struct {
 	// 原有的 AlertingManager
 	legacy *AlertingManager
@@ -566,7 +566,7 @@ type EnhancedAlertManager struct {
 	hostIP   string
 }
 
-// NewEnhancedAlertManager 创建增强告警管理器
+// NewEnhancedAlertManager 创建增强告警管理器.
 func NewEnhancedAlertManager() (*EnhancedAlertManager, error) {
 	hostname, _ := os.Hostname()
 	hostIP := getLocalIP()
@@ -601,7 +601,7 @@ func NewEnhancedAlertManager() (*EnhancedAlertManager, error) {
 	return am, nil
 }
 
-// setupDefaultRoutes 设置默认路由规则
+// setupDefaultRoutes 设置默认路由规则.
 func setupDefaultRoutes(m *alerting.Manager) {
 	router := m.GetRouter()
 
@@ -666,7 +666,7 @@ func setupDefaultRoutes(m *alerting.Manager) {
 	}
 }
 
-// SendAlert 发送告警（兼容原接口）
+// SendAlert 发送告警（兼容原接口）.
 func (am *EnhancedAlertManager) SendAlert(ctx context.Context, alertType, level, message, source string, extra map[string]interface{}) error {
 	vars := &alerting.AlertVars{
 		AlertID:   fmt.Sprintf("alert-%d", time.Now().UnixNano()),
@@ -703,22 +703,22 @@ func (am *EnhancedAlertManager) SendAlert(ctx context.Context, alertType, level,
 	return am.enhanced.ProcessAlert(ctx, vars)
 }
 
-// SendCriticalAlert 发送严重告警
+// SendCriticalAlert 发送严重告警.
 func (am *EnhancedAlertManager) SendCriticalAlert(ctx context.Context, alertType, message, source string) error {
 	return am.SendAlert(ctx, alertType, "critical", message, source, nil)
 }
 
-// SendWarningAlert 发送警告告警
+// SendWarningAlert 发送警告告警.
 func (am *EnhancedAlertManager) SendWarningAlert(ctx context.Context, alertType, message, source string) error {
 	return am.SendAlert(ctx, alertType, "warning", message, source, nil)
 }
 
-// SendInfoAlert 发送信息告警
+// SendInfoAlert 发送信息告警.
 func (am *EnhancedAlertManager) SendInfoAlert(ctx context.Context, alertType, message, source string) error {
 	return am.SendAlert(ctx, alertType, "info", message, source, nil)
 }
 
-// QuickNotify 快速通知（直接发送，不经过聚合）
+// QuickNotify 快速通知（直接发送，不经过聚合）.
 func (am *EnhancedAlertManager) QuickNotify(ctx context.Context, chType alerting.ChannelType, target, templateID string, level alerting.AlertLevel, alertName, message string) error {
 	vars := &alerting.AlertVars{
 		AlertID:   fmt.Sprintf("quick-%d", time.Now().UnixNano()),
@@ -735,7 +735,7 @@ func (am *EnhancedAlertManager) QuickNotify(ctx context.Context, chType alerting
 	return am.enhanced.QuickSend(ctx, chType, target, templateID, vars)
 }
 
-// GetAlertingStatus 获取告警系统状态
+// GetAlertingStatus 获取告警系统状态.
 func (am *EnhancedAlertManager) GetAlertingStatus() map[string]interface{} {
 	status := am.enhanced.GetStatus()
 	status["hostname"] = am.hostname
@@ -749,12 +749,12 @@ func (am *EnhancedAlertManager) GetAlertingStatus() map[string]interface{} {
 	return status
 }
 
-// Stop 停止告警管理器
+// Stop 停止告警管理器.
 func (am *EnhancedAlertManager) Stop() {
 	am.enhanced.Stop()
 }
 
-// getLocalIP 获取本机IP
+// getLocalIP 获取本机IP.
 func getLocalIP() string {
 	// 简单实现，返回第一个非lo的IP
 	cmd := exec.Command("hostname", "-I")

@@ -82,7 +82,7 @@ type Config struct {
 	Tags        map[string]string `json:"tags"`
 }
 
-// CreateVMRequest 创建虚拟机请求（兼容旧测试代码）
+// CreateVMRequest 创建虚拟机请求（兼容旧测试代码）.
 type CreateVMRequest = Config
 
 // Stats 虚拟机统计信息.

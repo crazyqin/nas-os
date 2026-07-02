@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// ServiceStatus 服务状态
+// ServiceStatus 服务状态.
 type ServiceStatus struct {
 	Name      string    `json:"name"`
 	Status    string    `json:"status"` // running/stopped/error
@@ -18,7 +18,7 @@ type ServiceStatus struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// StorageOverview 存储概览
+// StorageOverview 存储概览.
 type StorageOverview struct {
 	TotalSpace   int64   `json:"total_space"`
 	UsedSpace    int64   `json:"used_space"`
@@ -30,7 +30,7 @@ type StorageOverview struct {
 	LastScrub    string  `json:"last_scrub"`
 }
 
-// SystemInfo 系统信息
+// SystemInfo 系统信息.
 type SystemInfo struct {
 	Hostname     string     `json:"hostname"`
 	OS           string     `json:"os"`
@@ -43,7 +43,7 @@ type SystemInfo struct {
 	LoadAvg      [3]float64 `json:"load_avg"`
 }
 
-// RecentActivity 最近活动
+// RecentActivity 最近活动.
 type RecentActivity struct {
 	ID        string    `json:"id"`
 	Type      string    `json:"type"`
@@ -52,7 +52,7 @@ type RecentActivity struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// DashboardData 仪表盘数据
+// DashboardData 仪表盘数据.
 type DashboardData struct {
 	System     SystemInfo       `json:"system"`
 	Services   []ServiceStatus  `json:"services"`
@@ -62,7 +62,7 @@ type DashboardData struct {
 	UpdatedAt  time.Time        `json:"updated_at"`
 }
 
-// AlertItem 告警项
+// AlertItem 告警项.
 type AlertItem struct {
 	ID        string    `json:"id"`
 	Level     string    `json:"level"`
@@ -71,7 +71,7 @@ type AlertItem struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// Manager 仪表盘管理器
+// Manager 仪表盘管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	activities  []RecentActivity
@@ -79,7 +79,7 @@ type Manager struct {
 	maxActivity int
 }
 
-// NewManager 创建仪表盘管理器
+// NewManager 创建仪表盘管理器.
 func NewManager() *Manager {
 	return &Manager{
 		activities:  make([]RecentActivity, 0),
@@ -88,7 +88,7 @@ func NewManager() *Manager {
 	}
 }
 
-// GetDashboard 获取仪表盘数据
+// GetDashboard 获取仪表盘数据.
 func (m *Manager) GetDashboard() *DashboardData {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -103,7 +103,7 @@ func (m *Manager) GetDashboard() *DashboardData {
 	}
 }
 
-// AddActivity 添加活动记录
+// AddActivity 添加活动记录.
 func (m *Manager) AddActivity(activity RecentActivity) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -116,7 +116,7 @@ func (m *Manager) AddActivity(activity RecentActivity) {
 	}
 }
 
-// AddAlert 添加告警
+// AddAlert 添加告警.
 func (m *Manager) AddAlert(alert AlertItem) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -126,7 +126,7 @@ func (m *Manager) AddAlert(alert AlertItem) {
 	m.alerts = append([]AlertItem{alert}, m.alerts...)
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (m *Manager) ResolveAlert(alertID string) bool {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -140,7 +140,7 @@ func (m *Manager) ResolveAlert(alertID string) bool {
 	return false
 }
 
-// GetActivities 获取活动列表
+// GetActivities 获取活动列表.
 func (m *Manager) GetActivities(limit int) []RecentActivity {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -151,7 +151,7 @@ func (m *Manager) GetActivities(limit int) []RecentActivity {
 	return m.activities[:limit]
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (m *Manager) GetAlerts() []AlertItem {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

@@ -11,7 +11,7 @@ import (
 // IPv6CompatTestSuite tests IPv6 compatibility across the system
 // Focus: net.JoinHostPort behavior for IPv4 vs IPv6 addresses
 
-// TestJoinHostPortIPv4 tests standard IPv4 address formatting
+// TestJoinHostPortIPv4 tests standard IPv4 address formatting.
 func TestJoinHostPortIPv4(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -63,7 +63,7 @@ func TestJoinHostPortIPv4(t *testing.T) {
 }
 
 // TestJoinHostPortIPv6 tests IPv6 address formatting with brackets
-// net.JoinHostPort should automatically add brackets for IPv6 addresses
+// net.JoinHostPort should automatically add brackets for IPv6 addresses.
 func TestJoinHostPortIPv6(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -120,7 +120,7 @@ func TestJoinHostPortIPv6(t *testing.T) {
 	}
 }
 
-// TestJoinHostPortMixedScenarios tests edge cases and mixed scenarios
+// TestJoinHostPortMixedScenarios tests edge cases and mixed scenarios.
 func TestJoinHostPortMixedScenarios(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -171,7 +171,7 @@ func TestJoinHostPortMixedScenarios(t *testing.T) {
 	}
 }
 
-// TestSplitHostPortIPv6 tests that net.SplitHostPort correctly parses IPv6
+// TestSplitHostPortIPv6 tests that net.SplitHostPort correctly parses IPv6.
 func TestSplitHostPortIPv6(t *testing.T) {
 	tests := []struct {
 		name       string
@@ -247,7 +247,7 @@ func TestSplitHostPortIPv6(t *testing.T) {
 	}
 }
 
-// TestListenIPv6Compatibility tests that net.Listen works with IPv6 addresses
+// TestListenIPv6Compatibility tests that net.Listen works with IPv6 addresses.
 func TestListenIPv6Compatibility(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -298,7 +298,7 @@ func TestListenIPv6Compatibility(t *testing.T) {
 	}
 }
 
-// TestDialIPv6Compatibility tests that net.Dial works with IPv6 addresses
+// TestDialIPv6Compatibility tests that net.Dial works with IPv6 addresses.
 func TestDialIPv6Compatibility(t *testing.T) {
 	// Create a test server on IPv6 localhost
 	listener, err := net.Listen("tcp", "[::1]:0")
@@ -345,7 +345,7 @@ func TestDialIPv6Compatibility(t *testing.T) {
 	}
 }
 
-// TestJoinHostPortPortTypes tests port as int vs string
+// TestJoinHostPortPortTypes tests port as int vs string.
 func TestJoinHostPortPortTypes(t *testing.T) {
 	host := "2001:db8::1"
 	portInt := 8080
@@ -366,7 +366,7 @@ func TestJoinHostPortPortTypes(t *testing.T) {
 	}
 }
 
-// BenchmarkJoinHostPortIPv4 benchmarks IPv4 address formatting
+// BenchmarkJoinHostPortIPv4 benchmarks IPv4 address formatting.
 func BenchmarkJoinHostPortIPv4(b *testing.B) {
 	host := "192.168.1.100"
 	port := "8080"
@@ -375,7 +375,7 @@ func BenchmarkJoinHostPortIPv4(b *testing.B) {
 	}
 }
 
-// BenchmarkJoinHostPortIPv6 benchmarks IPv6 address formatting
+// BenchmarkJoinHostPortIPv6 benchmarks IPv6 address formatting.
 func BenchmarkJoinHostPortIPv6(b *testing.B) {
 	host := "2001:db8::1"
 	port := "8080"
@@ -384,7 +384,7 @@ func BenchmarkJoinHostPortIPv6(b *testing.B) {
 	}
 }
 
-// BenchmarkJoinHostPortIPv6WithZone benchmarks IPv6 with zone ID
+// BenchmarkJoinHostPortIPv6WithZone benchmarks IPv6 with zone ID.
 func BenchmarkJoinHostPortIPv6WithZone(b *testing.B) {
 	host := "fe80::1%eth0"
 	port := "8080"

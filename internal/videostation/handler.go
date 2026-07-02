@@ -7,17 +7,17 @@ import (
 	"strings"
 )
 
-// Handlers 视频站 API 处理器
+// Handlers 视频站 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册 HTTP 路由
+// RegisterRoutes 注册 HTTP 路由.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	// 视频
 	mux.HandleFunc("/api/v1/videostation/videos", h.handleVideos)
@@ -48,26 +48,26 @@ func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/videostation/stats", h.handleStats)
 }
 
-// apiResponse 标准 API 响应
+// apiResponse 标准 API 响应.
 type apiResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// writeJSON 写入 JSON 响应
+// writeJSON 写入 JSON 响应.
 func writeJSON(w http.ResponseWriter, status int, resp apiResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(resp)
 }
 
-// writeError 写入错误响应
+// writeError 写入错误响应.
 func writeError(w http.ResponseWriter, status int, msg string) {
 	writeJSON(w, status, apiResponse{Code: 1, Message: msg})
 }
 
-// extractID 从路径中提取 ID
+// extractID 从路径中提取 ID.
 func extractID(path, prefix string) string {
 	id := strings.TrimPrefix(path, prefix)
 	id = strings.TrimSuffix(id, "/")
@@ -77,7 +77,7 @@ func extractID(path, prefix string) string {
 	return id
 }
 
-// handleVideos 处理视频列表
+// handleVideos 处理视频列表.
 func (h *Handlers) handleVideos(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -96,7 +96,7 @@ func (h *Handlers) handleVideos(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleVideoByID 处理单个视频操作
+// handleVideoByID 处理单个视频操作.
 func (h *Handlers) handleVideoByID(w http.ResponseWriter, r *http.Request) {
 	id := extractID(r.URL.Path, "/api/v1/videostation/videos/")
 	if id == "" || id == "play" || id == "transcode" || id == "subtitles" {
@@ -149,7 +149,7 @@ func (h *Handlers) handleVideoByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handlePlayVideo 处理播放请求
+// handlePlayVideo 处理播放请求.
 func (h *Handlers) handlePlayVideo(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -189,7 +189,7 @@ func (h *Handlers) handlePlayVideo(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleTranscode 处理转码任务列表
+// handleTranscode 处理转码任务列表.
 func (h *Handlers) handleTranscode(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -205,7 +205,7 @@ func (h *Handlers) handleTranscode(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleTranscodeByID 处理转码任务操作
+// handleTranscodeByID 处理转码任务操作.
 func (h *Handlers) handleTranscodeByID(w http.ResponseWriter, r *http.Request) {
 	// 从路径中提取 video_id 和 job_id
 	path := strings.TrimPrefix(r.URL.Path, "/api/v1/videostation/videos/transcode/")
@@ -281,7 +281,7 @@ func (h *Handlers) handleTranscodeByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleSubtitles 处理字幕列表
+// handleSubtitles 处理字幕列表.
 func (h *Handlers) handleSubtitles(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -302,7 +302,7 @@ func (h *Handlers) handleSubtitles(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleSubtitleByID 处理字幕操作
+// handleSubtitleByID 处理字幕操作.
 func (h *Handlers) handleSubtitleByID(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/v1/videostation/videos/subtitles/")
 	parts := strings.SplitN(path, "/", 2)
@@ -353,7 +353,7 @@ func (h *Handlers) handleSubtitleByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleLibraries 处理视频库列表
+// handleLibraries 处理视频库列表.
 func (h *Handlers) handleLibraries(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -388,7 +388,7 @@ func (h *Handlers) handleLibraries(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleLibraryByID 处理视频库操作
+// handleLibraryByID 处理视频库操作.
 func (h *Handlers) handleLibraryByID(w http.ResponseWriter, r *http.Request) {
 	id := extractID(r.URL.Path, "/api/v1/videostation/libraries/")
 	if id == "" || id == "scan" {
@@ -423,7 +423,7 @@ func (h *Handlers) handleLibraryByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleScanLibrary 处理视频库扫描
+// handleScanLibrary 处理视频库扫描.
 func (h *Handlers) handleScanLibrary(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -456,7 +456,7 @@ func (h *Handlers) handleScanLibrary(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleSessions 处理播放会话
+// handleSessions 处理播放会话.
 func (h *Handlers) handleSessions(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -472,7 +472,7 @@ func (h *Handlers) handleSessions(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleSessionByID 处理会话更新
+// handleSessionByID 处理会话更新.
 func (h *Handlers) handleSessionByID(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -504,7 +504,7 @@ func (h *Handlers) handleSessionByID(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleRecent 处理最近播放
+// handleRecent 处理最近播放.
 func (h *Handlers) handleRecent(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -522,7 +522,7 @@ func (h *Handlers) handleRecent(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleStats 处理统计请求
+// handleStats 处理统计请求.
 func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")

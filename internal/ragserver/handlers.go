@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler RAG服务器API handler
+// Handler RAG服务器API handler.
 type Handler struct {
 	server *RAGServer
 }
 
-// NewHandler 创建handler
+// NewHandler 创建handler.
 func NewHandler(server *RAGServer) *Handler {
 	return &Handler{server: server}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	rag := rg.Group("/rag")
 	{

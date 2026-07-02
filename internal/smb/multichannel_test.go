@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestDefaultMultichannelConfig 测试默认配置
+// TestDefaultMultichannelConfig 测试默认配置.
 func TestDefaultMultichannelConfig(t *testing.T) {
 	config := DefaultMultichannelConfig()
 
@@ -24,7 +24,7 @@ func TestDefaultMultichannelConfig(t *testing.T) {
 	assert.Equal(t, 100, config.MinBandwidthMbps, "默认最低带宽100Mbps")
 }
 
-// TestNewMultichannelManager 测试创建多通道管理器
+// TestNewMultichannelManager 测试创建多通道管理器.
 func TestNewMultichannelManager(t *testing.T) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = false // 禁用，避免自动启动
@@ -36,7 +36,7 @@ func TestNewMultichannelManager(t *testing.T) {
 	assert.Empty(t, manager.channels, "初始无通道")
 }
 
-// TestMultichannelManager_StartStop 测试启动停止
+// TestMultichannelManager_StartStop 测试启动停止.
 func TestMultichannelManager_StartStop(t *testing.T) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = false
@@ -60,7 +60,7 @@ func TestMultichannelManager_StartStop(t *testing.T) {
 	assert.False(t, manager.running, "停止后不应运行")
 }
 
-// TestMultichannelManager_GetStatus 测试获取状态
+// TestMultichannelManager_GetStatus 测试获取状态.
 func TestMultichannelManager_GetStatus(t *testing.T) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = false
@@ -74,7 +74,7 @@ func TestMultichannelManager_GetStatus(t *testing.T) {
 	assert.Equal(t, 0, status.TotalChannels)
 }
 
-// TestNetworkInterface 测试网络接口结构
+// TestNetworkInterface 测试网络接口结构.
 func TestNetworkInterface(t *testing.T) {
 	iface := &NetworkInterface{
 		Name:        "eth0",
@@ -93,7 +93,7 @@ func TestNetworkInterface(t *testing.T) {
 	assert.True(t, iface.Up)
 }
 
-// TestSMBChannel 测试SMB通道结构
+// TestSMBChannel 测试SMB通道结构.
 func TestSMBChannel(t *testing.T) {
 	channel := &SMBChannel{
 		ID:            1,
@@ -113,7 +113,7 @@ func TestSMBChannel(t *testing.T) {
 	assert.Equal(t, 100, channel.HealthScore)
 }
 
-// TestGetInterfaceType 测试接口类型判断
+// TestGetInterfaceType 测试接口类型判断.
 func TestGetInterfaceType(t *testing.T) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = false
@@ -143,7 +143,7 @@ func TestGetInterfaceType(t *testing.T) {
 	}
 }
 
-// TestIsInterfaceSuitable 测试接口适配性检查
+// TestIsInterfaceSuitable 测试接口适配性检查.
 func TestIsInterfaceSuitable(t *testing.T) {
 	config := DefaultMultichannelConfig()
 	config.MinBandwidthMbps = 100
@@ -230,7 +230,7 @@ func TestIsInterfaceSuitable(t *testing.T) {
 	}
 }
 
-// TestSameSubnet 测试子网判断
+// TestSameSubnet 测试子网判断.
 func TestSameSubnet(t *testing.T) {
 	config := DefaultMultichannelConfig()
 	manager := NewMultichannelManager(config)
@@ -275,7 +275,7 @@ func TestSameSubnet(t *testing.T) {
 	}
 }
 
-// TestValidateMultichannelConfig 测试配置验证
+// TestValidateMultichannelConfig 测试配置验证.
 func TestValidateMultichannelConfig(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -358,7 +358,7 @@ func TestValidateMultichannelConfig(t *testing.T) {
 	}
 }
 
-// TestGenerateMultichannelConfig 测试配置生成
+// TestGenerateMultichannelConfig 测试配置生成.
 func TestGenerateMultichannelConfig(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -416,7 +416,7 @@ func TestGenerateMultichannelConfig(t *testing.T) {
 	}
 }
 
-// TestGetRoundRobinInterface 测试轮询接口选择
+// TestGetRoundRobinInterface 测试轮询接口选择.
 func TestGetRoundRobinInterface(t *testing.T) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = false
@@ -444,7 +444,7 @@ func TestGetRoundRobinInterface(t *testing.T) {
 	// 轮询应该交替返回不同接口（在健康状态下）
 }
 
-// TestEnableDisableChannel 测试启用禁用通道
+// TestEnableDisableChannel 测试启用禁用通道.
 func TestEnableDisableChannel(t *testing.T) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = false
@@ -479,7 +479,7 @@ func TestEnableDisableChannel(t *testing.T) {
 	assert.Contains(t, err.Error(), "通道不存在")
 }
 
-// TestGetActiveInterfaceIPs 测试获取活动接口IP
+// TestGetActiveInterfaceIPs 测试获取活动接口IP.
 func TestGetActiveInterfaceIPs(t *testing.T) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = false
@@ -502,7 +502,7 @@ func TestGetActiveInterfaceIPs(t *testing.T) {
 	assert.NotContains(t, ips, "192.168.1.101")
 }
 
-// TestGetMultichannelMetrics 测试获取性能指标
+// TestGetMultichannelMetrics 测试获取性能指标.
 func TestGetMultichannelMetrics(t *testing.T) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = false
@@ -526,7 +526,7 @@ func TestGetMultichannelMetrics(t *testing.T) {
 	assert.Len(t, metrics.ChannelMetrics, 2)
 }
 
-// TestUpdateConfig 测试配置更新
+// TestUpdateConfig 测试配置更新.
 func TestUpdateConfig(t *testing.T) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = false
@@ -544,7 +544,7 @@ func TestUpdateConfig(t *testing.T) {
 	assert.Equal(t, 60, manager.config.HealthCheckSec)
 }
 
-// TestMultichannelConnectionInfo 测试连接信息解析
+// TestMultichannelConnectionInfo 测试连接信息解析.
 func TestMultichannelConnectionInfo(t *testing.T) {
 	manager := NewMultichannelManager(DefaultMultichannelConfig())
 
@@ -566,7 +566,7 @@ share1       1235    192.168.1.101  (ipv4:192.168.1.2:445)  SMB3_02  AES-256-GCM
 	}
 }
 
-// TestChannelStatus 测试通道状态结构
+// TestChannelStatus 测试通道状态结构.
 func TestChannelStatus(t *testing.T) {
 	status := &ChannelStatus{
 		Enabled:          true,
@@ -583,7 +583,7 @@ func TestChannelStatus(t *testing.T) {
 	assert.Equal(t, 4000, status.TotalBandwidth)
 }
 
-// TestGetInterfaceSpeed_Mock 测试接口速度获取（模拟测试）
+// TestGetInterfaceSpeed_Mock 测试接口速度获取（模拟测试）.
 func TestGetInterfaceSpeed_Mock(t *testing.T) {
 	// 创建临时目录模拟sysfs
 	tmpDir := t.TempDir()
@@ -604,7 +604,7 @@ func TestGetInterfaceSpeed_Mock(t *testing.T) {
 	assert.GreaterOrEqual(t, speed, 0)
 }
 
-// TestCheckChannelHealth 测试通道健康检查逻辑
+// TestCheckChannelHealth 测试通道健康检查逻辑.
 func TestCheckChannelHealth(t *testing.T) {
 	config := DefaultMultichannelConfig()
 	config.MinBandwidthMbps = 100
@@ -625,7 +625,7 @@ func TestCheckChannelHealth(t *testing.T) {
 	assert.LessOrEqual(t, health, 100)
 }
 
-// TestSortInterfacesByPriority 测试接口优先级排序
+// TestSortInterfacesByPriority 测试接口优先级排序.
 func TestSortInterfacesByPriority(t *testing.T) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = false
@@ -648,7 +648,7 @@ func TestSortInterfacesByPriority(t *testing.T) {
 	assert.Equal(t, 1, manager.interfaces[0].Priority)
 }
 
-// BenchmarkGetRoundRobinInterface 性能基准测试
+// BenchmarkGetRoundRobinInterface 性能基准测试.
 func BenchmarkGetRoundRobinInterface(b *testing.B) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = false
@@ -671,7 +671,7 @@ func BenchmarkGetRoundRobinInterface(b *testing.B) {
 	}
 }
 
-// BenchmarkGetStatus 性能基准测试
+// BenchmarkGetStatus 性能基准测试.
 func BenchmarkGetStatus(b *testing.B) {
 	config := DefaultMultichannelConfig()
 	config.Enabled = false

@@ -4,17 +4,17 @@ import (
 	"time"
 )
 
-// Analyzer provides analysis of health scores
+// Analyzer provides analysis of health scores.
 type Analyzer struct {
 	hs *HealthScore
 }
 
-// NewAnalyzer creates a new analyzer
+// NewAnalyzer creates a new analyzer.
 func NewAnalyzer(hs *HealthScore) *Analyzer {
 	return &Analyzer{hs: hs}
 }
 
-// AnalyzeTrend analyzes the trend of health scores over time
+// AnalyzeTrend analyzes the trend of health scores over time.
 func (a *Analyzer) AnalyzeTrend(duration time.Duration) *TrendAnalysis {
 	a.hs.mu.RLock()
 	defer a.hs.mu.RUnlock()
@@ -60,7 +60,7 @@ func (a *Analyzer) AnalyzeTrend(duration time.Duration) *TrendAnalysis {
 	}
 }
 
-// GetWorstComponents returns the components with lowest scores
+// GetWorstComponents returns the components with lowest scores.
 func (a *Analyzer) GetWorstComponents(limit int) []ComponentScore {
 	a.hs.mu.RLock()
 	defer a.hs.mu.RUnlock()
@@ -87,7 +87,7 @@ func (a *Analyzer) GetWorstComponents(limit int) []ComponentScore {
 	return components[:limit]
 }
 
-// GetScoreDistribution returns the distribution of component scores
+// GetScoreDistribution returns the distribution of component scores.
 func (a *Analyzer) GetScoreDistribution() map[HealthStatus]int {
 	a.hs.mu.RLock()
 	defer a.hs.mu.RUnlock()
@@ -111,7 +111,7 @@ func (a *Analyzer) GetScoreDistribution() map[HealthStatus]int {
 	return distribution
 }
 
-// TrendAnalysis represents trend analysis results
+// TrendAnalysis represents trend analysis results.
 type TrendAnalysis struct {
 	Direction  string    `json:"direction"`
 	ChangeRate float64   `json:"change_rate"`
@@ -122,7 +122,7 @@ type TrendAnalysis struct {
 	EndTime    time.Time `json:"end_time"`
 }
 
-// averageScoreHistory calculates average score from history
+// averageScoreHistory calculates average score from history.
 func averageScoreHistory(history []ScoreHistory) float64 {
 	if len(history) == 0 {
 		return 0

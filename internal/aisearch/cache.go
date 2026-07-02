@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// NewSearchCache 创建搜索缓存
+// NewSearchCache 创建搜索缓存.
 func NewSearchCache(maxSize int, ttl time.Duration) *SearchCache {
 	cache := &SearchCache{
 		items:   make(map[string]*CacheItem),
@@ -20,7 +20,7 @@ func NewSearchCache(maxSize int, ttl time.Duration) *SearchCache {
 	return cache
 }
 
-// Get 获取缓存项
+// Get 获取缓存项.
 func (c *SearchCache) Get(key string) interface{} {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -41,7 +41,7 @@ func (c *SearchCache) Get(key string) interface{} {
 	return item.Value
 }
 
-// Set 设置缓存项
+// Set 设置缓存项.
 func (c *SearchCache) Set(key string, value interface{}) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -58,7 +58,7 @@ func (c *SearchCache) Set(key string, value interface{}) {
 	}
 }
 
-// Delete 删除缓存项
+// Delete 删除缓存项.
 func (c *SearchCache) Delete(key string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -66,7 +66,7 @@ func (c *SearchCache) Delete(key string) {
 	delete(c.items, key)
 }
 
-// Clear 清空缓存
+// Clear 清空缓存.
 func (c *SearchCache) Clear() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -76,7 +76,7 @@ func (c *SearchCache) Clear() {
 	c.misses = 0
 }
 
-// Size 获取缓存大小
+// Size 获取缓存大小.
 func (c *SearchCache) Size() int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -84,7 +84,7 @@ func (c *SearchCache) Size() int {
 	return len(c.items)
 }
 
-// Hits 获取命中次数
+// Hits 获取命中次数.
 func (c *SearchCache) Hits() int64 {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -92,7 +92,7 @@ func (c *SearchCache) Hits() int64 {
 	return c.hits
 }
 
-// Misses 获取未命中次数
+// Misses 获取未命中次数.
 func (c *SearchCache) Misses() int64 {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -100,7 +100,7 @@ func (c *SearchCache) Misses() int64 {
 	return c.misses
 }
 
-// HitRate 获取命中率
+// HitRate 获取命中率.
 func (c *SearchCache) HitRate() float64 {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -113,7 +113,7 @@ func (c *SearchCache) HitRate() float64 {
 	return float64(c.hits) / float64(total)
 }
 
-// evictOldest 驱逐最旧的项
+// evictOldest 驱逐最旧的项.
 func (c *SearchCache) evictOldest() {
 	var oldestKey string
 	var oldestTime time.Time
@@ -130,7 +130,7 @@ func (c *SearchCache) evictOldest() {
 	}
 }
 
-// cleanup 定期清理过期项
+// cleanup 定期清理过期项.
 func (c *SearchCache) cleanup() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -147,7 +147,7 @@ func (c *SearchCache) cleanup() {
 	}
 }
 
-// LRUCache LRU 缓存实现
+// LRUCache LRU 缓存实现.
 type LRUCache struct {
 	mu       sync.RWMutex
 	capacity int
@@ -158,7 +158,7 @@ type LRUCache struct {
 	misses   int64
 }
 
-// LRUNode LRU 节点
+// LRUNode LRU 节点.
 type LRUNode struct {
 	key       string
 	value     interface{}
@@ -167,7 +167,7 @@ type LRUNode struct {
 	next      *LRUNode
 }
 
-// NewLRUCache 创建 LRU 缓存
+// NewLRUCache 创建 LRU 缓存.
 func NewLRUCache(capacity int, ttl time.Duration) *LRUCache {
 	cache := &LRUCache{
 		capacity: capacity,
@@ -186,7 +186,7 @@ func NewLRUCache(capacity int, ttl time.Duration) *LRUCache {
 	return cache
 }
 
-// Get 获取缓存项
+// Get 获取缓存项.
 func (c *LRUCache) Get(key string) interface{} {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -212,7 +212,7 @@ func (c *LRUCache) Get(key string) interface{} {
 	return node.value
 }
 
-// Set 设置缓存项
+// Set 设置缓存项.
 func (c *LRUCache) Set(key string, value interface{}, ttl time.Duration) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -243,7 +243,7 @@ func (c *LRUCache) Set(key string, value interface{}, ttl time.Duration) {
 	c.addToHead(node)
 }
 
-// Delete 删除缓存项
+// Delete 删除缓存项.
 func (c *LRUCache) Delete(key string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -254,7 +254,7 @@ func (c *LRUCache) Delete(key string) {
 	}
 }
 
-// Clear 清空缓存
+// Clear 清空缓存.
 func (c *LRUCache) Clear() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -266,7 +266,7 @@ func (c *LRUCache) Clear() {
 	c.misses = 0
 }
 
-// Size 获取缓存大小
+// Size 获取缓存大小.
 func (c *LRUCache) Size() int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -274,7 +274,7 @@ func (c *LRUCache) Size() int {
 	return len(c.items)
 }
 
-// HitRate 获取命中率
+// HitRate 获取命中率.
 func (c *LRUCache) HitRate() float64 {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -287,7 +287,7 @@ func (c *LRUCache) HitRate() float64 {
 	return float64(c.hits) / float64(total)
 }
 
-// addToHead 添加到头部
+// addToHead 添加到头部.
 func (c *LRUCache) addToHead(node *LRUNode) {
 	node.prev = c.head
 	node.next = c.head.next
@@ -295,19 +295,19 @@ func (c *LRUCache) addToHead(node *LRUNode) {
 	c.head.next = node
 }
 
-// removeNode 移除节点
+// removeNode 移除节点.
 func (c *LRUCache) removeNode(node *LRUNode) {
 	node.prev.next = node.next
 	node.next.prev = node.prev
 }
 
-// moveToHead 移动到头部
+// moveToHead 移动到头部.
 func (c *LRUCache) moveToHead(node *LRUNode) {
 	c.removeNode(node)
 	c.addToHead(node)
 }
 
-// cleanup 定期清理过期项
+// cleanup 定期清理过期项.
 func (c *LRUCache) cleanup(ttl time.Duration) {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -325,14 +325,14 @@ func (c *LRUCache) cleanup(ttl time.Duration) {
 	}
 }
 
-// SearchCacheManager 搜索缓存管理器
+// SearchCacheManager 搜索缓存管理器.
 type SearchCacheManager struct {
 	queryCache  *SearchCache
 	resultCache *LRUCache
 	vectorCache *SearchCache
 }
 
-// NewSearchCacheManager 创建搜索缓存管理器
+// NewSearchCacheManager 创建搜索缓存管理器.
 func NewSearchCacheManager() *SearchCacheManager {
 	return &SearchCacheManager{
 		queryCache:  NewSearchCache(1000, 10*time.Minute),
@@ -341,29 +341,29 @@ func NewSearchCacheManager() *SearchCacheManager {
 	}
 }
 
-// GetQueryCache 获取查询缓存
+// GetQueryCache 获取查询缓存.
 func (m *SearchCacheManager) GetQueryCache() *SearchCache {
 	return m.queryCache
 }
 
-// GetResultCache 获取结果缓存
+// GetResultCache 获取结果缓存.
 func (m *SearchCacheManager) GetResultCache() *LRUCache {
 	return m.resultCache
 }
 
-// GetVectorCache 获取向量缓存
+// GetVectorCache 获取向量缓存.
 func (m *SearchCacheManager) GetVectorCache() *SearchCache {
 	return m.vectorCache
 }
 
-// ClearAll 清空所有缓存
+// ClearAll 清空所有缓存.
 func (m *SearchCacheManager) ClearAll() {
 	m.queryCache.Clear()
 	m.resultCache.Clear()
 	m.vectorCache.Clear()
 }
 
-// Stats 获取缓存统计
+// Stats 获取缓存统计.
 func (m *SearchCacheManager) Stats() map[string]interface{} {
 	return map[string]interface{}{
 		"queryCache": map[string]interface{}{

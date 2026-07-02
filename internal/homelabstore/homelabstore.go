@@ -19,7 +19,7 @@ const (
 
 // ========== 应用状态 ==========
 
-// AppStatus 应用状态
+// AppStatus 应用状态.
 type AppStatus string
 
 const (
@@ -33,7 +33,7 @@ const (
 
 // ========== 应用类别 ==========
 
-// AppCategory 应用类别
+// AppCategory 应用类别.
 type AppCategory string
 
 const (
@@ -54,7 +54,7 @@ const (
 
 // ========== 数据结构 ==========
 
-// App 应用信息
+// App 应用信息.
 type App struct {
 	ID            string      `json:"id"`
 	Name          string      `json:"name"`
@@ -90,7 +90,7 @@ type App struct {
 	HealthCheck   string      `json:"health_check"`
 }
 
-// EnvVar 环境变量
+// EnvVar 环境变量.
 type EnvVar struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -99,7 +99,7 @@ type EnvVar struct {
 	Secret      bool   `json:"secret"`
 }
 
-// Review 用户评价
+// Review 用户评价.
 type Review struct {
 	ID        string    `json:"id"`
 	AppID     string    `json:"app_id"`
@@ -112,7 +112,7 @@ type Review struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// InstallTask 安装任务
+// InstallTask 安装任务.
 type InstallTask struct {
 	ID        string     `json:"id"`
 	AppID     string     `json:"app_id"`
@@ -125,7 +125,7 @@ type InstallTask struct {
 	Error     string     `json:"error,omitempty"`
 }
 
-// StoreStats 商店统计
+// StoreStats 商店统计.
 type StoreStats struct {
 	TotalApps      int            `json:"total_apps"`
 	InstalledApps  int            `json:"installed_apps"`
@@ -137,7 +137,7 @@ type StoreStats struct {
 
 // ========== 管理器 ==========
 
-// AppStore 应用商店
+// AppStore 应用商店.
 type AppStore struct {
 	mu      sync.RWMutex
 	apps    map[string]*App
@@ -146,7 +146,7 @@ type AppStore struct {
 	catalog []*App // 预置目录
 }
 
-// NewAppStore 创建应用商店
+// NewAppStore 创建应用商店.
 func NewAppStore() *AppStore {
 	store := &AppStore{
 		apps:    make(map[string]*App),
@@ -157,7 +157,7 @@ func NewAppStore() *AppStore {
 	return store
 }
 
-// initCatalog 初始化应用目录
+// initCatalog 初始化应用目录.
 func (s *AppStore) initCatalog() {
 	s.catalog = []*App{
 		{
@@ -248,7 +248,7 @@ func (s *AppStore) initCatalog() {
 	}
 }
 
-// GetCatalog 获取应用目录
+// GetCatalog 获取应用目录.
 func (s *AppStore) GetCatalog() []*App {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -263,7 +263,7 @@ func (s *AppStore) GetCatalog() []*App {
 	return apps
 }
 
-// GetApp 获取应用详情
+// GetApp 获取应用详情.
 func (s *AppStore) GetApp(appID string) (*App, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -271,7 +271,7 @@ func (s *AppStore) GetApp(appID string) (*App, bool) {
 	return app, ok
 }
 
-// GetFeaturedApps 获取精选应用
+// GetFeaturedApps 获取精选应用.
 func (s *AppStore) GetFeaturedApps() []*App {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -288,7 +288,7 @@ func (s *AppStore) GetFeaturedApps() []*App {
 	return featured
 }
 
-// GetAppsByCategory 按类别获取应用
+// GetAppsByCategory 按类别获取应用.
 func (s *AppStore) GetAppsByCategory(category AppCategory) []*App {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -305,7 +305,7 @@ func (s *AppStore) GetAppsByCategory(category AppCategory) []*App {
 	return apps
 }
 
-// SearchApps 搜索应用
+// SearchApps 搜索应用.
 func (s *AppStore) SearchApps(query string) []*App {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -323,7 +323,7 @@ func (s *AppStore) SearchApps(query string) []*App {
 	return results
 }
 
-// InstallApp 安装应用
+// InstallApp 安装应用.
 func (s *AppStore) InstallApp(appID string) (*InstallTask, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -352,7 +352,7 @@ func (s *AppStore) InstallApp(appID string) (*InstallTask, error) {
 	return task, nil
 }
 
-// executeInstall 执行安装
+// executeInstall 执行安装.
 func (s *AppStore) executeInstall(task *InstallTask) {
 	s.mu.Lock()
 	task.Status = "running"
@@ -388,7 +388,7 @@ func (s *AppStore) executeInstall(task *InstallTask) {
 	}
 }
 
-// UpdateApp 更新应用
+// UpdateApp 更新应用.
 func (s *AppStore) UpdateApp(appID string) (*InstallTask, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -416,7 +416,7 @@ func (s *AppStore) UpdateApp(appID string) (*InstallTask, error) {
 	return task, nil
 }
 
-// executeUpdate 执行更新
+// executeUpdate 执行更新.
 func (s *AppStore) executeUpdate(task *InstallTask) {
 	s.mu.Lock()
 	task.Status = "running"
@@ -445,7 +445,7 @@ func (s *AppStore) executeUpdate(task *InstallTask) {
 	}
 }
 
-// RemoveApp 移除应用
+// RemoveApp 移除应用.
 func (s *AppStore) RemoveApp(appID string) (*InstallTask, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -473,7 +473,7 @@ func (s *AppStore) RemoveApp(appID string) (*InstallTask, error) {
 	return task, nil
 }
 
-// executeRemove 执行移除
+// executeRemove 执行移除.
 func (s *AppStore) executeRemove(task *InstallTask) {
 	s.mu.Lock()
 	task.Status = "running"
@@ -497,7 +497,7 @@ func (s *AppStore) executeRemove(task *InstallTask) {
 	}
 }
 
-// AddReview 添加评价
+// AddReview 添加评价.
 func (s *AppStore) AddReview(review *Review) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -527,14 +527,14 @@ func (s *AppStore) AddReview(review *Review) error {
 	return nil
 }
 
-// GetReviews 获取应用评价
+// GetReviews 获取应用评价.
 func (s *AppStore) GetReviews(appID string) []*Review {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.reviews[appID]
 }
 
-// GetInstalledApps 获取已安装应用
+// GetInstalledApps 获取已安装应用.
 func (s *AppStore) GetInstalledApps() []*App {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -548,7 +548,7 @@ func (s *AppStore) GetInstalledApps() []*App {
 	return installed
 }
 
-// GetStats 获取商店统计
+// GetStats 获取商店统计.
 func (s *AppStore) GetStats() *StoreStats {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -573,7 +573,7 @@ func (s *AppStore) GetStats() *StoreStats {
 	return stats
 }
 
-// GetTask 获取任务状态
+// GetTask 获取任务状态.
 func (s *AppStore) GetTask(taskID string) (*InstallTask, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -581,7 +581,7 @@ func (s *AppStore) GetTask(taskID string) (*InstallTask, bool) {
 	return task, ok
 }
 
-// 辅助函数
+// 辅助函数.
 func lowercase(s string) string {
 	result := make([]byte, len(s))
 	for i, c := range s {
@@ -609,17 +609,17 @@ func searchString(s, substr string) bool {
 
 // ========== HTTP API ==========
 
-// Handler HTTP API处理器
+// Handler HTTP API处理器.
 type Handler struct {
 	store *AppStore
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(store *AppStore) *Handler {
 	return &Handler{store: store}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux, prefix string) {
 	mux.HandleFunc(prefix+"/catalog", h.handleCatalog)
 	mux.HandleFunc(prefix+"/featured", h.handleFeatured)

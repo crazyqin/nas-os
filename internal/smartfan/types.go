@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// FanMode 风扇模式
+// FanMode 风扇模式.
 type FanMode string
 
 const (
@@ -20,7 +20,7 @@ const (
 	FanModeCustom FanMode = "custom"
 )
 
-// FanProfile 风扇配置曲线
+// FanProfile 风扇配置曲线.
 type FanProfile struct {
 	ID        string       `json:"id"`
 	Name      string       `json:"name"`
@@ -31,13 +31,13 @@ type FanProfile struct {
 	CreatedAt time.Time    `json:"created_at"`
 }
 
-// CurvePoint 温度-RPM曲线点
+// CurvePoint 温度-RPM曲线点.
 type CurvePoint struct {
 	Temperature float64 `json:"temperature"`
 	DutyPercent int     `json:"duty_percent"`
 }
 
-// FanStatus 风扇状态
+// FanStatus 风扇状态.
 type FanStatus struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -48,7 +48,7 @@ type FanStatus struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// TemperatureSensor 温度传感器
+// TemperatureSensor 温度传感器.
 type TemperatureSensor struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -58,7 +58,7 @@ type TemperatureSensor struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// FanAlert 风扇告警
+// FanAlert 风扇告警.
 type FanAlert struct {
 	ID        string    `json:"id"`
 	Type      string    `json:"type"`
@@ -69,7 +69,7 @@ type FanAlert struct {
 	Resolved  bool      `json:"resolved"`
 }
 
-// Manager 风扇管理器
+// Manager 风扇管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	fans     map[string]*FanStatus
@@ -80,7 +80,7 @@ type Manager struct {
 	stopCh   chan struct{}
 }
 
-// NewManager 创建风扇管理器
+// NewManager 创建风扇管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		fans:     make(map[string]*FanStatus),
@@ -122,12 +122,12 @@ func (m *Manager) initDefaults() {
 	m.activeID = "balanced"
 }
 
-// Start 启动监控
+// Start 启动监控.
 func (m *Manager) Start() {
 	go m.monitorLoop()
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (m *Manager) Stop() {
 	close(m.stopCh)
 }
@@ -214,7 +214,7 @@ func (m *Manager) calculateDuty(temp float64, profile *FanProfile) int {
 	return profile.Points[len(profile.Points)-1].DutyPercent
 }
 
-// GetFans 获取所有风扇状态
+// GetFans 获取所有风扇状态.
 func (m *Manager) GetFans() []*FanStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -225,7 +225,7 @@ func (m *Manager) GetFans() []*FanStatus {
 	return fans
 }
 
-// GetSensors 获取所有温度传感器
+// GetSensors 获取所有温度传感器.
 func (m *Manager) GetSensors() []*TemperatureSensor {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -236,7 +236,7 @@ func (m *Manager) GetSensors() []*TemperatureSensor {
 	return sensors
 }
 
-// GetProfiles 获取所有配置曲线
+// GetProfiles 获取所有配置曲线.
 func (m *Manager) GetProfiles() []*FanProfile {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -247,7 +247,7 @@ func (m *Manager) GetProfiles() []*FanProfile {
 	return profiles
 }
 
-// SetProfile 设置活跃配置
+// SetProfile 设置活跃配置.
 func (m *Manager) SetProfile(profileID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -258,7 +258,7 @@ func (m *Manager) SetProfile(profileID string) error {
 	return nil
 }
 
-// SetFanMode 设置风扇模式
+// SetFanMode 设置风扇模式.
 func (m *Manager) SetFanMode(fanID string, mode FanMode, dutyPercent int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -273,7 +273,7 @@ func (m *Manager) SetFanMode(fanID string, mode FanMode, dutyPercent int) error 
 	return nil
 }
 
-// GetAlerts 获取告警
+// GetAlerts 获取告警.
 func (m *Manager) GetAlerts(resolved bool) []FanAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

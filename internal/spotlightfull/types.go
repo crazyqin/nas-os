@@ -9,18 +9,18 @@ import (
 	"time"
 )
 
-// MatchType 匹配类型
+// MatchType 匹配类型.
 type MatchType string
 
 const (
-	MatchFileName  MatchType = "filename"  // 文件名匹配
-	MatchContent   MatchType = "content"   // 内容匹配
-	MatchMetadata  MatchType = "metadata"  // 元数据匹配
-	MatchFuzzy     MatchType = "fuzzy"     // 模糊匹配
-	MatchPath      MatchType = "path"      // 路径匹配
+	MatchFileName MatchType = "filename" // 文件名匹配
+	MatchContent  MatchType = "content"  // 内容匹配
+	MatchMetadata MatchType = "metadata" // 元数据匹配
+	MatchFuzzy    MatchType = "fuzzy"    // 模糊匹配
+	MatchPath     MatchType = "path"     // 路径匹配
 )
 
-// FileType 文件类型
+// FileType 文件类型.
 type FileType string
 
 const (
@@ -33,9 +33,9 @@ const (
 	FileTypeOther    FileType = "other"    // 其他
 )
 
-// SearchFilter 搜索过滤器
+// SearchFilter 搜索过滤器.
 type SearchFilter struct {
-	Query     string     `json:"query"`               // 搜索关键词
+	Query     string     `json:"query"`                // 搜索关键词
 	FileTypes []FileType `json:"file_types,omitempty"` // 文件类型过滤
 	MinSize   *int64     `json:"min_size,omitempty"`   // 最小文件大小(字节)
 	MaxSize   *int64     `json:"max_size,omitempty"`   // 最大文件大小(字节)
@@ -48,7 +48,7 @@ type SearchFilter struct {
 	SortOrder string     `json:"sort_order"`           // 排序方向: asc, desc
 }
 
-// SearchResult 单条搜索结果
+// SearchResult 单条搜索结果.
 type SearchResult struct {
 	ID         string    `json:"id"`                   // 文档ID
 	Path       string    `json:"path"`                 // 文件路径
@@ -65,18 +65,18 @@ type SearchResult struct {
 	IndexedAt  time.Time `json:"indexed_at"`           // 索引时间
 }
 
-// SearchResponse 搜索响应
+// SearchResponse 搜索响应.
 type SearchResponse struct {
-	Results  []SearchResult `json:"results"`            // 搜索结果
-	Total    int            `json:"total"`              // 总匹配数
-	Page     int            `json:"page"`               // 当前页
-	PageSize int            `json:"page_size"`          // 每页数量
-	Query    string         `json:"query"`              // 原始查询
-	Duration string         `json:"duration"`           // 搜索耗时
+	Results  []SearchResult `json:"results"`               // 搜索结果
+	Total    int            `json:"total"`                 // 总匹配数
+	Page     int            `json:"page"`                  // 当前页
+	PageSize int            `json:"page_size"`             // 每页数量
+	Query    string         `json:"query"`                 // 原始查询
+	Duration string         `json:"duration"`              // 搜索耗时
 	Suggests []string       `json:"suggestions,omitempty"` // 搜索建议
 }
 
-// IndexStats 索引统计信息
+// IndexStats 索引统计信息.
 type IndexStats struct {
 	TotalFiles   int64     `json:"total_files"`    // 索引文件总数
 	TotalTerms   int64     `json:"total_terms"`    // 索引词项总数
@@ -86,20 +86,20 @@ type IndexStats struct {
 	Progress     float64   `json:"progress"`       // 构建进度(0.0~1.0)
 }
 
-// RebuildRequest 索引重建请求
+// RebuildRequest 索引重建请求.
 type RebuildRequest struct {
-	Force   bool `json:"force"`   // 是否强制全量重建
-	Async   bool `json:"async"`   // 是否异步执行
+	Force bool `json:"force"` // 是否强制全量重建
+	Async bool `json:"async"` // 是否异步执行
 }
 
-// RebuildResponse 索引重建响应
+// RebuildResponse 索引重建响应.
 type RebuildResponse struct {
-	Status  string `json:"status"`  // 状态: started, completed, error
-	Message string `json:"message"` // 详细信息
+	Status  string `json:"status"`            // 状态: started, completed, error
+	Message string `json:"message"`           // 详细信息
 	TaskID  string `json:"task_id,omitempty"` // 异步任务ID
 }
 
-// IndexEntry 索引条目（内部使用）
+// IndexEntry 索引条目（内部使用）.
 type IndexEntry struct {
 	ID         string            `json:"id"`          // 唯一标识
 	Path       string            `json:"path"`        // 文件路径
@@ -115,72 +115,72 @@ type IndexEntry struct {
 	IndexedAt  time.Time         `json:"indexed_at"`  // 索引时间
 }
 
-// termPositions 词项在文档中的位置信息
+// termPositions 词项在文档中的位置信息.
 type termPositions struct {
 	Fields    []string `json:"fields"`    // 出现的字段列表
 	Count     int      `json:"count"`     // 出现次数
 	Positions []int    `json:"positions"` // 在内容中的位置偏移
 }
 
-// trieNode 前缀树节点（用于自动补全和模糊匹配）
+// trieNode 前缀树节点（用于自动补全和模糊匹配）.
 type trieNode struct {
 	children map[rune]*trieNode
 	isEnd    bool
 	terms    []string // 以该节点结尾的词项
 }
 
-// invertedIndex 倒排索引
+// invertedIndex 倒排索引.
 type invertedIndex struct {
-	mu       sync.RWMutex
-	index    map[string]map[string]*termPositions // term -> docID -> positions
-	docs     map[string]*IndexEntry               // docID -> IndexEntry
-	trieRoot *trieNode                            // 前缀树根节点
-	totalDocs int64                               // 文档总数
-	totalTerms int                                // 词项总数
+	mu         sync.RWMutex
+	index      map[string]map[string]*termPositions // term -> docID -> positions
+	docs       map[string]*IndexEntry               // docID -> IndexEntry
+	trieRoot   *trieNode                            // 前缀树根节点
+	totalDocs  int64                                // 文档总数
+	totalTerms int                                  // 词项总数
 }
 
-// SearchEngine 统一搜索引擎
+// SearchEngine 统一搜索引擎.
 type SearchEngine struct {
-	mu          sync.RWMutex
-	index       *invertedIndex
-	tokenizer   *cjkTokenizer
-	config      *EngineConfig
-	stopCh      chan struct{}
-	isBuilding  bool
-	progress    float64
-	lastUpdate  time.Time
+	mu         sync.RWMutex
+	index      *invertedIndex
+	tokenizer  *cjkTokenizer
+	config     *EngineConfig
+	stopCh     chan struct{}
+	isBuilding bool
+	progress   float64
+	lastUpdate time.Time
 }
 
-// EngineConfig 引擎配置
+// EngineConfig 引擎配置.
 type EngineConfig struct {
 	IndexDir       string `json:"index_dir"`       // 索引存储目录
 	MaxIndexSize   int64  `json:"max_index_size"`  // 最大索引大小(字节)
-	MinTermLength  int    `json:"min_term_length"`  // 最小词项长度
-	MaxTermLength  int    `json:"max_term_length"`  // 最大词项长度
-	EnableCJK      bool   `json:"enable_cjk"`       // 启用中文分词
-	BatchSize      int    `json:"batch_size"`       // 索引批次大小
-	MaxResults     int    `json:"max_results"`      // 最大返回结果数
-	ThumbnailWidth int    `json:"thumbnail_width"`  // 缩略图宽度
+	MinTermLength  int    `json:"min_term_length"` // 最小词项长度
+	MaxTermLength  int    `json:"max_term_length"` // 最大词项长度
+	EnableCJK      bool   `json:"enable_cjk"`      // 启用中文分词
+	BatchSize      int    `json:"batch_size"`      // 索引批次大小
+	MaxResults     int    `json:"max_results"`     // 最大返回结果数
+	ThumbnailWidth int    `json:"thumbnail_width"` // 缩略图宽度
 }
 
-// cjkTokenizer 中文分词器（简易实现）
+// cjkTokenizer 中文分词器（简易实现）.
 type cjkTokenizer struct {
 	dict     map[string]bool // 词典
 	stopWord map[string]bool // 停用词
 }
 
-// FileIndexer 文件索引器
+// FileIndexer 文件索引器.
 type FileIndexer struct {
-	mu          sync.RWMutex
-	engine      *SearchEngine
-	config      *IndexerConfig
-	isRunning   bool
-	stopCh      chan struct{}
-	lastIndexed time.Time
+	mu           sync.RWMutex
+	engine       *SearchEngine
+	config       *IndexerConfig
+	isRunning    bool
+	stopCh       chan struct{}
+	lastIndexed  time.Time
 	indexedCount int64
 }
 
-// IndexerConfig 索引器配置
+// IndexerConfig 索引器配置.
 type IndexerConfig struct {
 	ScanPaths       []string      `json:"scan_paths"`       // 扫描路径列表
 	ExcludePatterns []string      `json:"exclude_patterns"` // 排除模式
@@ -190,7 +190,7 @@ type IndexerConfig struct {
 	WorkerCount     int           `json:"worker_count"`     // 并发工作线程数
 }
 
-// APIError API 错误响应
+// APIError API 错误响应.
 type APIError struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -200,14 +200,14 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("[%d] %s", e.Code, e.Message)
 }
 
-// APIResponse 通用 API 响应
+// APIResponse 通用 API 响应.
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// DefaultEngineConfig 返回默认引擎配置
+// DefaultEngineConfig 返回默认引擎配置.
 func DefaultEngineConfig() *EngineConfig {
 	return &EngineConfig{
 		IndexDir:       "/var/lib/nas-os/spotlightfull/index",
@@ -221,7 +221,7 @@ func DefaultEngineConfig() *EngineConfig {
 	}
 }
 
-// DefaultIndexerConfig 返回默认索引器配置
+// DefaultIndexerConfig 返回默认索引器配置.
 func DefaultIndexerConfig() *IndexerConfig {
 	return &IndexerConfig{
 		ScanPaths:       []string{"/data"},

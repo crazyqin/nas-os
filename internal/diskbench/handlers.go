@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 磁盘性能测试 HTTP 处理器
+// Handlers 磁盘性能测试 HTTP 处理器.
 type Handlers struct {
 	mgr *BenchmarkManager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *BenchmarkManager) *Handlers {
 	return &Handlers{mgr: mgr}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	bench := api.Group("/diskbench")
 	{

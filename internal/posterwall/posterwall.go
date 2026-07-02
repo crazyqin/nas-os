@@ -91,11 +91,11 @@ type ScrapeRequest struct {
 type LayoutRequest struct {
 	Mode          LayoutMode `json:"mode"`
 	SortBy        SortOrder  `json:"sort_by"`
-	Category      string    `json:"category,omitempty"`
-	CategoryField string    `json:"category_field,omitempty"`
-	Filter        string    `json:"filter,omitempty"`
-	Page          int       `json:"page"`
-	PageSize      int       `json:"page_size"`
+	Category      string     `json:"category,omitempty"`
+	CategoryField string     `json:"category_field,omitempty"`
+	Filter        string     `json:"filter,omitempty"`
+	Page          int        `json:"page"`
+	PageSize      int        `json:"page_size"`
 }
 
 type LayoutPage struct {

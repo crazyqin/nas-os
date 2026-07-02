@@ -16,21 +16,21 @@ import (
 	"go.uber.org/zap"
 )
 
-// CDC 默认参数
+// CDC 默认参数.
 const (
 	DefaultCDCMinSize = 64 * 1024       // 64KB 最小块
 	DefaultCDCMaxSize = 8 * 1024 * 1024 // 8MB 最大块
 	CDCAverageBits    = 13              // 平均块大小约 2^13 = 8KB（目标值由 min/max 约束）
 )
 
-// Rabin 滑动窗口参数
+// Rabin 滑动窗口参数.
 const (
 	RabinWindowSize = 48        // 滑动窗口大小
 	RabinPrime      = 3         // Rabin 多项式质数
 	RabinMod        = 1<<63 - 1 // 大质数取模
 )
 
-// CDCEngine 内容定义分块去重引擎
+// CDCEngine 内容定义分块去重引擎.
 type CDCEngine struct {
 	mu           sync.RWMutex
 	minSize      int
@@ -46,7 +46,7 @@ type CDCEngine struct {
 	logger       *zap.Logger
 }
 
-// CDCChunk CDC 数据块
+// CDCChunk CDC 数据块.
 type CDCChunk struct {
 	Checksum  string    `json:"checksum"`   // SHA-256 校验和
 	Size      int       `json:"size"`       // 块大小
@@ -55,7 +55,7 @@ type CDCChunk struct {
 	StorePath string    `json:"store_path"` // 存储路径（可选）
 }
 
-// CDCStats CDC 统计信息
+// CDCStats CDC 统计信息.
 type CDCStats struct {
 	TotalChunks  int64   `json:"total_chunks"`
 	UniqueChunks int64   `json:"unique_chunks"`
@@ -65,7 +65,7 @@ type CDCStats struct {
 	DedupRatio   float64 `json:"dedup_ratio"`
 }
 
-// NewCDCEngine 创建 CDC 去重引擎
+// NewCDCEngine 创建 CDC 去重引擎.
 func NewCDCEngine(minSize, maxSize int, logger *zap.Logger) *CDCEngine {
 	if minSize <= 0 {
 		minSize = DefaultCDCMinSize
@@ -87,7 +87,7 @@ func NewCDCEngine(minSize, maxSize int, logger *zap.Logger) *CDCEngine {
 	}
 }
 
-// CDCResult CDC 分块结果
+// CDCResult CDC 分块结果.
 type CDCResult struct {
 	Chunks       []*CDCChunk `json:"chunks"`
 	TotalChunks  int         `json:"total_chunks"`
@@ -98,7 +98,7 @@ type CDCResult struct {
 }
 
 // Deduplicate 对数据流执行 CDC 分块并去重
-// 返回分块结果
+// 返回分块结果.
 func (e *CDCEngine) Deduplicate(reader io.Reader) (*CDCResult, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -178,7 +178,7 @@ func (e *CDCEngine) Deduplicate(reader io.Reader) (*CDCResult, error) {
 	return result, nil
 }
 
-// DeduplicateBytes 对字节切片执行 CDC 分块并去重
+// DeduplicateBytes 对字节切片执行 CDC 分块并去重.
 func (e *CDCEngine) DeduplicateBytes(data []byte) (*CDCResult, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -224,7 +224,7 @@ func (e *CDCEngine) DeduplicateBytes(data []byte) (*CDCResult, error) {
 }
 
 // cdcChunk 使用 CDC 算法将数据切分为变长块
-// 基于 Rabin fingerprint 的内容定义分块
+// 基于 Rabin fingerprint 的内容定义分块.
 func (e *CDCEngine) cdcChunk(data []byte) [][]byte {
 	if len(data) == 0 {
 		return nil
@@ -271,7 +271,7 @@ func (e *CDCEngine) cdcChunk(data []byte) [][]byte {
 }
 
 // isCutPoint 判断当前位置是否为 CDC 切分点
-// 使用简化的 Rabin fingerprint
+// 使用简化的 Rabin fingerprint.
 func (e *CDCEngine) isCutPoint(data []byte, pos int) bool {
 	if pos < RabinWindowSize {
 		return false
@@ -290,7 +290,7 @@ func (e *CDCEngine) isCutPoint(data []byte, pos int) bool {
 	return (hash & mask) == 0
 }
 
-// GetStats 获取 CDC 统计信息
+// GetStats 获取 CDC 统计信息.
 func (e *CDCEngine) GetStats() CDCStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -308,7 +308,7 @@ func (e *CDCEngine) GetStats() CDCStats {
 	return stats
 }
 
-// HasChunk 检查数据块是否已存在
+// HasChunk 检查数据块是否已存在.
 func (e *CDCEngine) HasChunk(checksum string) bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -316,7 +316,7 @@ func (e *CDCEngine) HasChunk(checksum string) bool {
 	return exists
 }
 
-// GetChunk 获取数据块信息
+// GetChunk 获取数据块信息.
 func (e *CDCEngine) GetChunk(checksum string) (*CDCChunk, bool) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -324,18 +324,18 @@ func (e *CDCEngine) GetChunk(checksum string) (*CDCChunk, bool) {
 	return chunk, exists
 }
 
-// ComputeChecksum 计算数据的 SHA-256 校验和
+// ComputeChecksum 计算数据的 SHA-256 校验和.
 func (e *CDCEngine) ComputeChecksum(data []byte) string {
 	return computeChecksum(data)
 }
 
-// computeChecksum 计算 SHA-256 校验和
+// computeChecksum 计算 SHA-256 校验和.
 func computeChecksum(data []byte) string {
 	h := sha256.Sum256(data)
 	return hex.EncodeToString(h[:])
 }
 
-// SaveIndex 保存 CDC 索引到磁盘
+// SaveIndex 保存 CDC 索引到磁盘.
 func (e *CDCEngine) SaveIndex(path string) error {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -358,7 +358,7 @@ func (e *CDCEngine) SaveIndex(path string) error {
 	return os.WriteFile(path, data, 0644)
 }
 
-// LoadIndex 从磁盘加载 CDC 索引
+// LoadIndex 从磁盘加载 CDC 索引.
 func (e *CDCEngine) LoadIndex(path string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -396,7 +396,7 @@ func (e *CDCEngine) LoadIndex(path string) error {
 	return nil
 }
 
-// DeduplicateFile 对文件执行 CDC 分块并去重
+// DeduplicateFile 对文件执行 CDC 分块并去重.
 func (e *CDCEngine) DeduplicateFile(path string) (*CDCResult, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -407,7 +407,7 @@ func (e *CDCEngine) DeduplicateFile(path string) (*CDCResult, error) {
 	return e.Deduplicate(f)
 }
 
-// Clear 清空去重索引
+// Clear 清空去重索引.
 func (e *CDCEngine) Clear() {
 	e.mu.Lock()
 	defer e.mu.Unlock()

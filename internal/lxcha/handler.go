@@ -8,18 +8,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler LXC HA 故障转移管理 API 处理器
+// Handler LXC HA 故障转移管理 API 处理器.
 type Handler struct {
 	service *Service
 }
 
-// NewHandler 创建 API 处理器
+// NewHandler 创建 API 处理器.
 func NewHandler(svc *Service) *Handler {
 	return &Handler{service: svc}
 }
 
 // RegisterRoutes 注册路由到指定路由组
-// 路由前缀: /api/v1/lxcha
+// 路由前缀: /api/v1/lxcha.
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	g := r.Group("/api/v1/lxcha")
 	{
@@ -69,14 +69,14 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 // ========== 节点管理 ==========
 
 // listNodes 列出所有 HA 节点
-// GET /api/v1/lxcha/nodes
+// GET /api/v1/lxcha/nodes.
 func (h *Handler) listNodes(c *gin.Context) {
 	nodes := h.service.GetNodes()
 	c.JSON(http.StatusOK, APIResponse{Success: true, Data: nodes})
 }
 
 // getNode 获取单个节点信息
-// GET /api/v1/lxcha/nodes/:nodeId
+// GET /api/v1/lxcha/nodes/:nodeId.
 func (h *Handler) getNode(c *gin.Context) {
 	nodeID := c.Param("nodeId")
 	node, err := h.service.GetNode(nodeID)
@@ -88,7 +88,7 @@ func (h *Handler) getNode(c *gin.Context) {
 }
 
 // registerNode 注册 HA 节点
-// POST /api/v1/lxcha/nodes
+// POST /api/v1/lxcha/nodes.
 func (h *Handler) registerNode(c *gin.Context) {
 	var node HANode
 	if err := c.ShouldBindJSON(&node); err != nil {
@@ -103,7 +103,7 @@ func (h *Handler) registerNode(c *gin.Context) {
 }
 
 // removeNode 移除 HA 节点
-// DELETE /api/v1/lxcha/nodes/:nodeId
+// DELETE /api/v1/lxcha/nodes/:nodeId.
 func (h *Handler) removeNode(c *gin.Context) {
 	nodeID := c.Param("nodeId")
 	if err := h.service.RemoveNode(nodeID); err != nil {
@@ -114,7 +114,7 @@ func (h *Handler) removeNode(c *gin.Context) {
 }
 
 // heartbeat 更新节点心跳
-// POST /api/v1/lxcha/nodes/:nodeId/heartbeat
+// POST /api/v1/lxcha/nodes/:nodeId/heartbeat.
 func (h *Handler) heartbeat(c *gin.Context) {
 	nodeID := c.Param("nodeId")
 	if err := h.service.UpdateNodeHeartbeat(nodeID); err != nil {
@@ -127,14 +127,14 @@ func (h *Handler) heartbeat(c *gin.Context) {
 // ========== 容器管理 ==========
 
 // listContainers 列出所有 HA 容器
-// GET /api/v1/lxcha/containers
+// GET /api/v1/lxcha/containers.
 func (h *Handler) listContainers(c *gin.Context) {
 	containers := h.service.GetContainers()
 	c.JSON(http.StatusOK, APIResponse{Success: true, Data: containers})
 }
 
 // getContainer 获取单个容器信息
-// GET /api/v1/lxcha/containers/:containerId
+// GET /api/v1/lxcha/containers/:containerId.
 func (h *Handler) getContainer(c *gin.Context) {
 	containerID := c.Param("containerId")
 	container, err := h.service.GetContainer(containerID)
@@ -146,7 +146,7 @@ func (h *Handler) getContainer(c *gin.Context) {
 }
 
 // registerContainer 注册容器到 HA 管理
-// POST /api/v1/lxcha/containers/register
+// POST /api/v1/lxcha/containers/register.
 func (h *Handler) registerContainer(c *gin.Context) {
 	var req RegisterContainerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -162,7 +162,7 @@ func (h *Handler) registerContainer(c *gin.Context) {
 }
 
 // unregisterContainer 取消容器 HA 注册
-// DELETE /api/v1/lxcha/containers/:containerId
+// DELETE /api/v1/lxcha/containers/:containerId.
 func (h *Handler) unregisterContainer(c *gin.Context) {
 	containerID := c.Param("containerId")
 	if err := h.service.UnregisterContainer(containerID); err != nil {
@@ -173,7 +173,7 @@ func (h *Handler) unregisterContainer(c *gin.Context) {
 }
 
 // updateState 更新容器运行状态
-// PUT /api/v1/lxcha/containers/:containerId/state
+// PUT /api/v1/lxcha/containers/:containerId/state.
 func (h *Handler) updateState(c *gin.Context) {
 	containerID := c.Param("containerId")
 	var body struct {
@@ -193,7 +193,7 @@ func (h *Handler) updateState(c *gin.Context) {
 // ========== 策略管理 ==========
 
 // getPolicy 获取容器故障转移策略
-// GET /api/v1/lxcha/containers/:containerId/policy
+// GET /api/v1/lxcha/containers/:containerId/policy.
 func (h *Handler) getPolicy(c *gin.Context) {
 	containerID := c.Param("containerId")
 	policy, err := h.service.GetPolicy(containerID)
@@ -205,7 +205,7 @@ func (h *Handler) getPolicy(c *gin.Context) {
 }
 
 // updatePolicy 更新故障转移策略
-// PUT /api/v1/lxcha/containers/:containerId/policy
+// PUT /api/v1/lxcha/containers/:containerId/policy.
 func (h *Handler) updatePolicy(c *gin.Context) {
 	var req UpdatePolicyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -224,7 +224,7 @@ func (h *Handler) updatePolicy(c *gin.Context) {
 // ========== 故障转移 ==========
 
 // triggerFailover 手动触发故障转移
-// POST /api/v1/lxcha/failover/trigger
+// POST /api/v1/lxcha/failover/trigger.
 func (h *Handler) triggerFailover(c *gin.Context) {
 	var req TriggerFailoverRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -240,7 +240,7 @@ func (h *Handler) triggerFailover(c *gin.Context) {
 }
 
 // getFailoverState 获取容器故障转移状态
-// GET /api/v1/lxcha/failover/state/:containerId
+// GET /api/v1/lxcha/failover/state/:containerId.
 func (h *Handler) getFailoverState(c *gin.Context) {
 	containerID := c.Param("containerId")
 	state, err := h.service.GetFailoverState(containerID)
@@ -252,14 +252,14 @@ func (h *Handler) getFailoverState(c *gin.Context) {
 }
 
 // listFailoverEvents 列出所有故障转移事件
-// GET /api/v1/lxcha/failover/events
+// GET /api/v1/lxcha/failover/events.
 func (h *Handler) listFailoverEvents(c *gin.Context) {
 	events := h.service.GetFailoverEvents("")
 	c.JSON(http.StatusOK, APIResponse{Success: true, Data: events})
 }
 
 // getContainerFailoverEvents 获取指定容器的故障转移事件
-// GET /api/v1/lxcha/failover/events/:containerId
+// GET /api/v1/lxcha/failover/events/:containerId.
 func (h *Handler) getContainerFailoverEvents(c *gin.Context) {
 	containerID := c.Param("containerId")
 	events := h.service.GetFailoverEvents(containerID)
@@ -267,14 +267,14 @@ func (h *Handler) getContainerFailoverEvents(c *gin.Context) {
 }
 
 // getHistory 获取故障转移历史
-// GET /api/v1/lxcha/failover/history
+// GET /api/v1/lxcha/failover/history.
 func (h *Handler) getHistory(c *gin.Context) {
 	history := h.service.GetHistory()
 	c.JSON(http.StatusOK, APIResponse{Success: true, Data: history})
 }
 
 // autoFailover 自动故障转移（内部触发）
-// POST /api/v1/lxcha/failover/auto
+// POST /api/v1/lxcha/failover/auto.
 func (h *Handler) autoFailover(c *gin.Context) {
 	var req struct {
 		ContainerID  string `json:"containerId" binding:"required"`
@@ -295,7 +295,7 @@ func (h *Handler) autoFailover(c *gin.Context) {
 // ========== 容器迁移 ==========
 
 // migrateContainer 执行容器迁移
-// POST /api/v1/lxcha/migrate
+// POST /api/v1/lxcha/migrate.
 func (h *Handler) migrateContainer(c *gin.Context) {
 	var req MigrateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -313,7 +313,7 @@ func (h *Handler) migrateContainer(c *gin.Context) {
 // ========== 健康检查 ==========
 
 // healthCheck 执行节点健康检查
-// GET /api/v1/lxcha/health/check
+// GET /api/v1/lxcha/health/check.
 func (h *Handler) healthCheck(c *gin.Context) {
 	failedNodes := h.service.CheckNodeHealth()
 	c.JSON(http.StatusOK, APIResponse{Success: true, Data: failedNodes})
@@ -322,14 +322,14 @@ func (h *Handler) healthCheck(c *gin.Context) {
 // ========== IP 管理 ==========
 
 // listIPReservations 列出所有 IP 预留
-// GET /api/v1/lxcha/ip/reservations
+// GET /api/v1/lxcha/ip/reservations.
 func (h *Handler) listIPReservations(c *gin.Context) {
 	reservations := h.service.GetIPReservations()
 	c.JSON(http.StatusOK, APIResponse{Success: true, Data: reservations})
 }
 
 // reserveIP 预留静态 IP
-// POST /api/v1/lxcha/ip/reserve
+// POST /api/v1/lxcha/ip/reserve.
 func (h *Handler) reserveIP(c *gin.Context) {
 	var req ReserveIPRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -345,7 +345,7 @@ func (h *Handler) reserveIP(c *gin.Context) {
 }
 
 // releaseIP 释放 IP 预留
-// DELETE /api/v1/lxcha/ip/release/:ip
+// DELETE /api/v1/lxcha/ip/release/:ip.
 func (h *Handler) releaseIP(c *gin.Context) {
 	ip := c.Param("ip")
 	if err := h.service.ReleaseIP(ip); err != nil {
@@ -372,7 +372,7 @@ func (h *Handler) checkIPConflict(c *gin.Context) {
 // ========== 状态总览 ==========
 
 // getStatus 获取 HA 集群状态总览
-// GET /api/v1/lxcha/status
+// GET /api/v1/lxcha/status.
 func (h *Handler) getStatus(c *gin.Context) {
 	status := h.service.GetStatus()
 	c.JSON(http.StatusOK, APIResponse{Success: true, Data: status})

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// DesktopIcon represents a desktop icon configuration
+// DesktopIcon represents a desktop icon configuration.
 type DesktopIcon struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -27,21 +27,21 @@ type DesktopIcon struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// DesktopGroup represents a group of desktop icons
+// DesktopGroup represents a group of desktop icons.
 type DesktopGroup struct {
-	ID        string         `json:"id"`
-	Name      string         `json:"name"`
-	X         int            `json:"x"`
-	Y         int            `json:"y"`
-	Width     int            `json:"width"`
-	Height    int            `json:"height"`
-	Collapsed bool           `json:"collapsed"`
-	Icons     []DesktopIcon  `json:"icons"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
+	ID        string        `json:"id"`
+	Name      string        `json:"name"`
+	X         int           `json:"x"`
+	Y         int           `json:"y"`
+	Width     int           `json:"width"`
+	Height    int           `json:"height"`
+	Collapsed bool          `json:"collapsed"`
+	Icons     []DesktopIcon `json:"icons"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
 }
 
-// Wallpaper 壁纸设置
+// Wallpaper 壁纸设置.
 type Wallpaper struct {
 	Path    string `json:"path,omitempty"`
 	Mode    string `json:"mode"` // fill, fit, stretch, tile, center
@@ -50,7 +50,7 @@ type Wallpaper struct {
 	Blur    int    `json:"blur"`
 }
 
-// DesktopLayout represents the complete desktop layout
+// DesktopLayout represents the complete desktop layout.
 type DesktopLayout struct {
 	Icons     []DesktopIcon  `json:"icons"`
 	Groups    []DesktopGroup `json:"groups"`
@@ -61,14 +61,14 @@ type DesktopLayout struct {
 	UpdatedAt time.Time      `json:"updated_at"`
 }
 
-// Manager handles desktop layout management
+// Manager handles desktop layout management.
 type Manager struct {
 	mu       sync.RWMutex
 	layout   DesktopLayout
 	gridSize int
 }
 
-// NewManager creates a new desktop manager
+// NewManager creates a new desktop manager.
 func NewManager(gridSize int) *Manager {
 	if gridSize <= 0 {
 		gridSize = 80
@@ -84,14 +84,14 @@ func NewManager(gridSize int) *Manager {
 	}
 }
 
-// GetLayout returns the current desktop layout
+// GetLayout returns the current desktop layout.
 func (m *Manager) GetLayout() DesktopLayout {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.layout
 }
 
-// UpdateIconPosition updates the position of an icon
+// UpdateIconPosition updates the position of an icon.
 func (m *Manager) UpdateIconPosition(id string, x, y int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -109,7 +109,7 @@ func (m *Manager) UpdateIconPosition(id string, x, y int) error {
 	return fmt.Errorf("icon not found: %s", id)
 }
 
-// AddIcon adds a new icon to the desktop
+// AddIcon adds a new icon to the desktop.
 func (m *Manager) AddIcon(icon DesktopIcon) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -122,7 +122,7 @@ func (m *Manager) AddIcon(icon DesktopIcon) error {
 	return nil
 }
 
-// RemoveIcon removes an icon from the desktop
+// RemoveIcon removes an icon from the desktop.
 func (m *Manager) RemoveIcon(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -137,7 +137,7 @@ func (m *Manager) RemoveIcon(id string) error {
 	return fmt.Errorf("icon not found: %s", id)
 }
 
-// CreateGroup creates a new group with the specified icons
+// CreateGroup creates a new group with the specified icons.
 func (m *Manager) CreateGroup(name string, iconIDs []string) (*DesktopGroup, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -180,7 +180,7 @@ func (m *Manager) CreateGroup(name string, iconIDs []string) (*DesktopGroup, err
 	return group, nil
 }
 
-// ToggleGroup toggles the collapsed state of a group
+// ToggleGroup toggles the collapsed state of a group.
 func (m *Manager) ToggleGroup(groupID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -196,7 +196,7 @@ func (m *Manager) ToggleGroup(groupID string) error {
 	return fmt.Errorf("group not found: %s", groupID)
 }
 
-// SetWallpaper sets the desktop wallpaper
+// SetWallpaper sets the desktop wallpaper.
 func (m *Manager) SetWallpaper(wp Wallpaper) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -205,7 +205,7 @@ func (m *Manager) SetWallpaper(wp Wallpaper) error {
 	return nil
 }
 
-// LockIcon locks an icon in place
+// LockIcon locks an icon in place.
 func (m *Manager) LockIcon(id string, locked bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -221,7 +221,7 @@ func (m *Manager) LockIcon(id string, locked bool) error {
 	return fmt.Errorf("icon not found: %s", id)
 }
 
-// RegisterRoutes registers desktop manager HTTP routes
+// RegisterRoutes registers desktop manager HTTP routes.
 func (m *Manager) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/desktop/layout", m.handleGetLayout)
 	mux.HandleFunc("/api/desktop/icon/move", m.handleMoveIcon)

@@ -8,29 +8,29 @@ import (
 
 // ========== 配额规则类型 ==========
 
-// TargetType 配额目标类型
+// TargetType 配额目标类型.
 type TargetType string
 
 const (
-	// TargetTypeUser 用户配额
+	// TargetTypeUser 用户配额.
 	TargetTypeUser TargetType = "user"
-	// TargetTypeGroup 用户组配额
+	// TargetTypeGroup 用户组配额.
 	TargetTypeGroup TargetType = "group"
-	// TargetTypeVolume 卷配额
+	// TargetTypeVolume 卷配额.
 	TargetTypeVolume TargetType = "volume"
 )
 
-// ActionType 配额超限动作
+// ActionType 配额超限动作.
 type ActionType string
 
 const (
-	// ActionNotify 仅通知
+	// ActionNotify 仅通知.
 	ActionNotify ActionType = "notify"
-	// ActionBlock 阻止写入
+	// ActionBlock 阻止写入.
 	ActionBlock ActionType = "block"
 )
 
-// QuotaRule 配额规则
+// QuotaRule 配额规则.
 type QuotaRule struct {
 	ID          string    `json:"id"`
 	TargetType  string    `json:"target_type"` // user, group, volume
@@ -43,7 +43,7 @@ type QuotaRule struct {
 	UpdatedAt   time.Time `json:"updated_at,omitempty"`
 }
 
-// QuotaUsage 配额使用情况
+// QuotaUsage 配额使用情况.
 type QuotaUsage struct {
 	RuleID    string  `json:"rule_id"`
 	TargetID  string  `json:"target_id"`
@@ -53,7 +53,7 @@ type QuotaUsage struct {
 	Status    string  `json:"status"` // normal, warning, exceeded
 }
 
-// Alert 告警信息
+// Alert 告警信息.
 type Alert struct {
 	ID        string    `json:"id"`
 	Type      string    `json:"type"` // quota_warning, quota_exceeded
@@ -64,31 +64,31 @@ type Alert struct {
 	Resolved  bool      `json:"resolved,omitempty"`
 }
 
-// UsageStatus 使用状态
+// UsageStatus 使用状态.
 type UsageStatus string
 
 const (
-	// StatusNormal 正常状态
+	// StatusNormal 正常状态.
 	StatusNormal UsageStatus = "normal"
-	// StatusWarning 警告状态（超过警告阈值）
+	// StatusWarning 警告状态（超过警告阈值）.
 	StatusWarning UsageStatus = "warning"
-	// StatusExceeded 超限状态（超过最大限制）
+	// StatusExceeded 超限状态（超过最大限制）.
 	StatusExceeded UsageStatus = "exceeded"
 )
 
-// AlertType 告警类型
+// AlertType 告警类型.
 type AlertType string
 
 const (
-	// AlertTypeWarning 配额警告
+	// AlertTypeWarning 配额警告.
 	AlertTypeWarning AlertType = "quota_warning"
-	// AlertTypeExceeded 配额超限
+	// AlertTypeExceeded 配额超限.
 	AlertTypeExceeded AlertType = "quota_exceeded"
 )
 
 // ========== 输入结构 ==========
 
-// QuotaRuleInput 创建/更新配额规则输入
+// QuotaRuleInput 创建/更新配额规则输入.
 type QuotaRuleInput struct {
 	TargetType  string `json:"target_type" binding:"required"`
 	TargetID    string `json:"target_id" binding:"required"`
@@ -98,7 +98,7 @@ type QuotaRuleInput struct {
 	Enabled     bool   `json:"enabled"`
 }
 
-// NotificationConfig 通知配置
+// NotificationConfig 通知配置.
 type NotificationConfig struct {
 	Enabled     bool     `json:"enabled"`
 	Channels    []string `json:"channels"` // email, webhook, slack, etc.
@@ -107,7 +107,7 @@ type NotificationConfig struct {
 	CoolDownMin int      `json:"cool_down_min"` // 冷却时间（分钟）
 }
 
-// DefaultNotificationConfig 默认通知配置
+// DefaultNotificationConfig 默认通知配置.
 func DefaultNotificationConfig() NotificationConfig {
 	return NotificationConfig{
 		Enabled:     true,
@@ -118,13 +118,13 @@ func DefaultNotificationConfig() NotificationConfig {
 
 // ========== 容量预测相关类型 ==========
 
-// UsageHistory 使用历史记录
+// UsageHistory 使用历史记录.
 type UsageHistory struct {
 	Timestamp time.Time `json:"timestamp"`
 	UsedBytes int64     `json:"used_bytes"`
 }
 
-// PredictionResult 容量预测结果
+// PredictionResult 容量预测结果.
 type PredictionResult struct {
 	RuleID            string  `json:"rule_id"`
 	TargetID          string  `json:"target_id"`
@@ -139,7 +139,7 @@ type PredictionResult struct {
 	WarningLevel      string  `json:"warning_level"`       // low, medium, high, critical
 }
 
-// AlertRule 告警规则配置
+// AlertRule 告警规则配置.
 type AlertRule struct {
 	ID            string    `json:"id"`
 	Name          string    `json:"name"`
@@ -155,7 +155,7 @@ type AlertRule struct {
 	CreatedAt     time.Time `json:"created_at"`
 }
 
-// AlertRuleInput 告警规则输入
+// AlertRuleInput 告警规则输入.
 type AlertRuleInput struct {
 	Name          string   `json:"name" binding:"required"`
 	TargetType    string   `json:"target_type"`
@@ -169,7 +169,7 @@ type AlertRuleInput struct {
 	RepeatHours   int      `json:"repeat_hours"`
 }
 
-// ForecastConfig 预测配置
+// ForecastConfig 预测配置.
 type ForecastConfig struct {
 	HistoryDays   int     `json:"history_days"`    // 使用的历史数据天数
 	Method        string  `json:"method"`          // linear, exponential, moving_average
@@ -178,7 +178,7 @@ type ForecastConfig struct {
 	MinDataPoints int     `json:"min_data_points"` // 最少数据点
 }
 
-// DefaultForecastConfig 默认预测配置
+// DefaultForecastConfig 默认预测配置.
 func DefaultForecastConfig() ForecastConfig {
 	return ForecastConfig{
 		HistoryDays:   30,
@@ -192,33 +192,33 @@ func DefaultForecastConfig() ForecastConfig {
 // ========== 告警规则相关常量 ==========
 
 const (
-	// ThresholdLow 低阈值
+	// ThresholdLow 低阈值.
 	ThresholdLow = 60
-	// ThresholdMedium 中阈值
+	// ThresholdMedium 中阈值.
 	ThresholdMedium = 80
-	// ThresholdHigh 高阈值
+	// ThresholdHigh 高阈值.
 	ThresholdHigh = 90
-	// ThresholdCritical 紧急阈值
+	// ThresholdCritical 紧急阈值.
 	ThresholdCritical = 95
 
-	// WarningLevelLow 低风险
+	// WarningLevelLow 低风险.
 	WarningLevelLow = "low"
-	// WarningLevelMedium 中风险
+	// WarningLevelMedium 中风险.
 	WarningLevelMedium = "medium"
-	// WarningLevelHigh 高风险
+	// WarningLevelHigh 高风险.
 	WarningLevelHigh = "high"
-	// WarningLevelCritical 紧急风险
+	// WarningLevelCritical 紧急风险.
 	WarningLevelCritical = "critical"
 
-	// TrendGrowing 增长趋势
+	// TrendGrowing 增长趋势.
 	TrendGrowing = "growing"
-	// TrendStable 稳定趋势
+	// TrendStable 稳定趋势.
 	TrendStable = "stable"
-	// TrendDeclining 下降趋势
+	// TrendDeclining 下降趋势.
 	TrendDeclining = "declining"
 )
 
-// GetWarningLevel 根据百分比获取警告级别
+// GetWarningLevel 根据百分比获取警告级别.
 func GetWarningLevel(percent float64) string {
 	switch {
 	case percent >= ThresholdCritical:

@@ -26,7 +26,7 @@ func TestUpdateWidget(t *testing.T) {
 	w := mgr.CreateWidget("Test", WidgetTypeStat, nil)
 	err := mgr.UpdateWidget(w.ID, &Position{X: 5, Y: 10}, &Size{Width: 8, Height: 6})
 	require.NoError(t, err)
-	updated, _ := mgr.widgets[w.ID]
+	updated := mgr.widgets[w.ID]
 	assert.Equal(t, 5, updated.Position.X)
 	assert.Equal(t, 8, updated.Size.Width)
 }

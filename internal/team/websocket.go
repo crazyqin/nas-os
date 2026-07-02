@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Notifier 通知管理器
+// Notifier 通知管理器.
 type Notifier struct {
 	mu            sync.RWMutex
 	notifications map[string][]*Notification               // userID -> notifications
@@ -15,7 +15,7 @@ type Notifier struct {
 	resourceRooms map[string]map[string]bool               // resourceID -> clientID set
 }
 
-// NewNotifier 创建通知管理器
+// NewNotifier 创建通知管理器.
 func NewNotifier() *Notifier {
 	return &Notifier{
 		notifications: make(map[string][]*Notification),
@@ -24,7 +24,7 @@ func NewNotifier() *Notifier {
 	}
 }
 
-// Notify 发送通知
+// Notify 发送通知.
 func (n *Notifier) Notify(notification *Notification) {
 	if notification == nil || notification.UserID == "" {
 		return
@@ -56,7 +56,7 @@ func (n *Notifier) Notify(notification *Notification) {
 	}
 }
 
-// Subscribe 订阅通知
+// Subscribe 订阅通知.
 func (n *Notifier) Subscribe(userID, clientID string) chan *Notification {
 	n.mu.Lock()
 	defer n.mu.Unlock()
@@ -71,7 +71,7 @@ func (n *Notifier) Subscribe(userID, clientID string) chan *Notification {
 	return ch
 }
 
-// Unsubscribe 取消订阅
+// Unsubscribe 取消订阅.
 func (n *Notifier) Unsubscribe(userID, clientID string) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
@@ -84,7 +84,7 @@ func (n *Notifier) Unsubscribe(userID, clientID string) {
 	}
 }
 
-// JoinResource 加入资源房间
+// JoinResource 加入资源房间.
 func (n *Notifier) JoinResource(resourceID, clientID string) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
@@ -95,7 +95,7 @@ func (n *Notifier) JoinResource(resourceID, clientID string) {
 	n.resourceRooms[resourceID][clientID] = true
 }
 
-// LeaveResource 离开资源房间
+// LeaveResource 离开资源房间.
 func (n *Notifier) LeaveResource(resourceID, clientID string) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
@@ -105,7 +105,7 @@ func (n *Notifier) LeaveResource(resourceID, clientID string) {
 	}
 }
 
-// BroadcastToResource 广播消息到资源房间
+// BroadcastToResource 广播消息到资源房间.
 func (n *Notifier) BroadcastToResource(resourceID string, message *WSMessage) {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
@@ -120,7 +120,7 @@ func (n *Notifier) BroadcastToResource(resourceID string, message *WSMessage) {
 	_ = data
 }
 
-// GetNotifications 获取用户通知
+// GetNotifications 获取用户通知.
 func (n *Notifier) GetNotifications(userID string, unreadOnly bool, limit int) []*Notification {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
@@ -140,7 +140,7 @@ func (n *Notifier) GetNotifications(userID string, unreadOnly bool, limit int) [
 	return result
 }
 
-// MarkAsRead 标记通知为已读
+// MarkAsRead 标记通知为已读.
 func (n *Notifier) MarkAsRead(userID, notificationID string) error {
 	n.mu.Lock()
 	defer n.mu.Unlock()
@@ -160,7 +160,7 @@ func (n *Notifier) MarkAsRead(userID, notificationID string) error {
 	return nil
 }
 
-// MarkAllAsRead 标记所有通知为已读
+// MarkAllAsRead 标记所有通知为已读.
 func (n *Notifier) MarkAllAsRead(userID string) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
@@ -171,7 +171,7 @@ func (n *Notifier) MarkAllAsRead(userID string) {
 	}
 }
 
-// GetUnreadCount 获取未读通知数
+// GetUnreadCount 获取未读通知数.
 func (n *Notifier) GetUnreadCount(userID string) int {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
@@ -187,7 +187,7 @@ func (n *Notifier) GetUnreadCount(userID string) int {
 	return count
 }
 
-// ClearNotifications 清除用户通知
+// ClearNotifications 清除用户通知.
 func (n *Notifier) ClearNotifications(userID string) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
@@ -195,7 +195,7 @@ func (n *Notifier) ClearNotifications(userID string) {
 	delete(n.notifications, userID)
 }
 
-// GetStats 获取通知统计
+// GetStats 获取通知统计.
 func (n *Notifier) GetStats() map[string]interface{} {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
@@ -221,7 +221,7 @@ func (n *Notifier) GetStats() map[string]interface{} {
 	}
 }
 
-// WebSocketHub WebSocket连接管理中心
+// WebSocketHub WebSocket连接管理中心.
 type WebSocketHub struct {
 	mu          sync.RWMutex
 	connections map[string]*WSConnection   // clientID -> connection
@@ -233,7 +233,7 @@ type WebSocketHub struct {
 	running     bool
 }
 
-// WSConnection WebSocket连接
+// WSConnection WebSocket连接.
 type WSConnection struct {
 	ClientID   string
 	UserID     string
@@ -243,7 +243,7 @@ type WSConnection struct {
 	send       chan []byte
 }
 
-// WSBroadcast 广播消息
+// WSBroadcast 广播消息.
 type WSBroadcast struct {
 	TeamID     string
 	ResourceID string
@@ -251,7 +251,7 @@ type WSBroadcast struct {
 	Exclude    []string
 }
 
-// NewWebSocketHub 创建WebSocket Hub
+// NewWebSocketHub 创建WebSocket Hub.
 func NewWebSocketHub() *WebSocketHub {
 	return &WebSocketHub{
 		connections: make(map[string]*WSConnection),
@@ -263,7 +263,7 @@ func NewWebSocketHub() *WebSocketHub {
 	}
 }
 
-// Run 运行Hub
+// Run 运行Hub.
 func (h *WebSocketHub) Run() {
 	h.mu.Lock()
 	h.running = true
@@ -329,7 +329,7 @@ func (h *WebSocketHub) Run() {
 	}
 }
 
-// Stop 停止Hub
+// Stop 停止Hub.
 func (h *WebSocketHub) Stop() {
 	h.mu.Lock()
 	h.running = false
@@ -338,17 +338,17 @@ func (h *WebSocketHub) Stop() {
 	close(h.stopChan)
 }
 
-// Register 注册连接
+// Register 注册连接.
 func (h *WebSocketHub) Register(conn *WSConnection) {
 	h.register <- conn
 }
 
-// Unregister 注销连接
+// Unregister 注销连接.
 func (h *WebSocketHub) Unregister(conn *WSConnection) {
 	h.unregister <- conn
 }
 
-// Broadcast 广播消息
+// Broadcast 广播消息.
 func (h *WebSocketHub) Broadcast(teamID, resourceID string, message []byte, exclude []string) {
 	h.broadcast <- &WSBroadcast{
 		TeamID:     teamID,
@@ -358,7 +358,7 @@ func (h *WebSocketHub) Broadcast(teamID, resourceID string, message []byte, excl
 	}
 }
 
-// SendToUser 发送消息给指定用户
+// SendToUser 发送消息给指定用户.
 func (h *WebSocketHub) SendToUser(userID string, message []byte) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -374,7 +374,7 @@ func (h *WebSocketHub) SendToUser(userID string, message []byte) {
 	}
 }
 
-// GetOnlineUsers 获取在线用户
+// GetOnlineUsers 获取在线用户.
 func (h *WebSocketHub) GetOnlineUsers(teamID string) []string {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -393,14 +393,14 @@ func (h *WebSocketHub) GetOnlineUsers(teamID string) []string {
 	return result
 }
 
-// GetConnectionCount 获取连接数
+// GetConnectionCount 获取连接数.
 func (h *WebSocketHub) GetConnectionCount() int {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 	return len(h.connections)
 }
 
-// IsOnline 检查用户是否在线
+// IsOnline 检查用户是否在线.
 func (h *WebSocketHub) IsOnline(userID string) bool {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -409,7 +409,7 @@ func (h *WebSocketHub) IsOnline(userID string) bool {
 	return len(clients) > 0
 }
 
-// NotifyTeamMembers 通知团队成员
+// NotifyTeamMembers 通知团队成员.
 func (n *Notifier) NotifyTeamMembers(teamID string, notification *Notification, excludeUserID string) {
 	// 实际实现需要结合团队管理器获取成员列表
 	// 这里只提供接口

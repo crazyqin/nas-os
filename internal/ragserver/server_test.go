@@ -41,8 +41,8 @@ func TestRAGServer_AddDocument(t *testing.T) {
 	server.CreateCollection(context.Background(), "test", 100, 10)
 
 	doc := &Document{
-		ID:      "doc1",
-		Content: "This is a test document with some content for testing chunking",
+		ID:       "doc1",
+		Content:  "This is a test document with some content for testing chunking",
 		Metadata: map[string]string{"source": "test"},
 	}
 

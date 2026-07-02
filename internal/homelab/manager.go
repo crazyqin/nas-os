@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Manager 管理器
+// Manager 管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	services  map[string]*Service
@@ -19,7 +19,7 @@ type Manager struct {
 	dataFile  string
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(dataFile string) *Manager {
 	return &Manager{
 		services:  make(map[string]*Service),
@@ -35,7 +35,7 @@ func NewManager(dataFile string) *Manager {
 	}
 }
 
-// Initialize 初始化
+// Initialize 初始化.
 func (m *Manager) Initialize() error {
 	m.loadDefaultTemplates()
 	return m.load()
@@ -57,7 +57,7 @@ func (m *Manager) loadDefaultTemplates() {
 	}
 }
 
-// CreateService 创建服务
+// CreateService 创建服务.
 func (m *Manager) CreateService(svc *Service) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -79,7 +79,7 @@ func (m *Manager) CreateService(svc *Service) error {
 	return m.save()
 }
 
-// StartService 启动服务
+// StartService 启动服务.
 func (m *Manager) StartService(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -93,7 +93,7 @@ func (m *Manager) StartService(id string) error {
 	return m.save()
 }
 
-// StopService 停止服务
+// StopService 停止服务.
 func (m *Manager) StopService(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -107,7 +107,7 @@ func (m *Manager) StopService(id string) error {
 	return m.save()
 }
 
-// RestartService 重启服务
+// RestartService 重启服务.
 func (m *Manager) RestartService(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -124,7 +124,7 @@ func (m *Manager) RestartService(id string) error {
 	return m.save()
 }
 
-// DeleteService 删除服务
+// DeleteService 删除服务.
 func (m *Manager) DeleteService(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -136,7 +136,7 @@ func (m *Manager) DeleteService(id string) error {
 	return m.save()
 }
 
-// GetService 获取服务
+// GetService 获取服务.
 func (m *Manager) GetService(id string) (*Service, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -148,7 +148,7 @@ func (m *Manager) GetService(id string) (*Service, error) {
 	return svc, nil
 }
 
-// ListServices 列出服务
+// ListServices 列出服务.
 func (m *Manager) ListServices(svcType ServiceType, status ServiceStatus) []*Service {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -166,7 +166,7 @@ func (m *Manager) ListServices(svcType ServiceType, status ServiceStatus) []*Ser
 	return result
 }
 
-// CreateStack 创建编排栈
+// CreateStack 创建编排栈.
 func (m *Manager) CreateStack(stack *Stack) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -177,7 +177,7 @@ func (m *Manager) CreateStack(stack *Stack) error {
 	return m.save()
 }
 
-// StartStack 启动编排栈
+// StartStack 启动编排栈.
 func (m *Manager) StartStack(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -196,7 +196,7 @@ func (m *Manager) StartStack(id string) error {
 	return m.save()
 }
 
-// StopStack 停止编排栈
+// StopStack 停止编排栈.
 func (m *Manager) StopStack(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -215,7 +215,7 @@ func (m *Manager) StopStack(id string) error {
 	return m.save()
 }
 
-// GetStack 获取编排栈
+// GetStack 获取编排栈.
 func (m *Manager) GetStack(id string) (*Stack, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -227,7 +227,7 @@ func (m *Manager) GetStack(id string) (*Stack, error) {
 	return stack, nil
 }
 
-// ListStacks 列出编排栈
+// ListStacks 列出编排栈.
 func (m *Manager) ListStacks() []*Stack {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -239,7 +239,7 @@ func (m *Manager) ListStacks() []*Stack {
 	return result
 }
 
-// ListTemplates 列出模板
+// ListTemplates 列出模板.
 func (m *Manager) ListTemplates(category string) []*Template {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -254,7 +254,7 @@ func (m *Manager) ListTemplates(category string) []*Template {
 	return result
 }
 
-// DeployFromTemplate 从模板部署
+// DeployFromTemplate 从模板部署.
 func (m *Manager) DeployFromTemplate(templateID string, name string, env map[string]string) (*Service, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -282,7 +282,7 @@ func (m *Manager) DeployFromTemplate(templateID string, name string, env map[str
 	return svc, m.save()
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

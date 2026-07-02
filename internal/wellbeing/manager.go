@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 数字健康管理器
+// Manager 数字健康管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	logger    *zap.Logger
@@ -22,7 +22,7 @@ type Manager struct {
 	running   bool
 }
 
-// NewManager 创建数字健康管理器
+// NewManager 创建数字健康管理器.
 func NewManager(logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -41,12 +41,12 @@ func NewManager(logger *zap.Logger) *Manager {
 	return m
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	return fmt.Sprintf("wb-%d", time.Now().UnixNano())
 }
 
-// TrackUsage 开始追踪使用会话
+// TrackUsage 开始追踪使用会话.
 func (m *Manager) TrackUsage(userID string, sessionType SessionType, appName string) (*UsageSession, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -70,7 +70,7 @@ func (m *Manager) TrackUsage(userID string, sessionType SessionType, appName str
 	return session, nil
 }
 
-// PauseTracking 暂停追踪
+// PauseTracking 暂停追踪.
 func (m *Manager) PauseTracking(sessionID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -90,7 +90,7 @@ func (m *Manager) PauseTracking(sessionID string) error {
 	return nil
 }
 
-// ResumeTracking 恢复追踪
+// ResumeTracking 恢复追踪.
 func (m *Manager) ResumeTracking(sessionID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -110,7 +110,7 @@ func (m *Manager) ResumeTracking(sessionID string) error {
 	return nil
 }
 
-// EndTracking 结束追踪
+// EndTracking 结束追踪.
 func (m *Manager) EndTracking(sessionID string) (*UsageSession, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -138,7 +138,7 @@ func (m *Manager) EndTracking(sessionID string) (*UsageSession, error) {
 	return session, nil
 }
 
-// GetActiveSessions 获取活跃会话
+// GetActiveSessions 获取活跃会话.
 func (m *Manager) GetActiveSessions(userID string) []*UsageSession {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -152,7 +152,7 @@ func (m *Manager) GetActiveSessions(userID string) []*UsageSession {
 	return sessions
 }
 
-// GetSessionHistory 获取会话历史
+// GetSessionHistory 获取会话历史.
 func (m *Manager) GetSessionHistory(userID string, limit int) []*UsageSession {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -180,7 +180,7 @@ func (m *Manager) GetSessionHistory(userID string, limit int) []*UsageSession {
 	return sessions
 }
 
-// SetReminder 设置休息提醒
+// SetReminder 设置休息提醒.
 func (m *Manager) SetReminder(userID string, req *CreateReminderRequest) (*BreakReminder, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -214,7 +214,7 @@ func (m *Manager) SetReminder(userID string, req *CreateReminderRequest) (*Break
 	return reminder, nil
 }
 
-// GetReminder 获取提醒
+// GetReminder 获取提醒.
 func (m *Manager) GetReminder(reminderID string) (*BreakReminder, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -226,7 +226,7 @@ func (m *Manager) GetReminder(reminderID string) (*BreakReminder, error) {
 	return reminder, nil
 }
 
-// ListReminders 列出用户的所有提醒
+// ListReminders 列出用户的所有提醒.
 func (m *Manager) ListReminders(userID string) []*BreakReminder {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -240,7 +240,7 @@ func (m *Manager) ListReminders(userID string) []*BreakReminder {
 	return reminders
 }
 
-// UpdateReminder 更新提醒
+// UpdateReminder 更新提醒.
 func (m *Manager) UpdateReminder(reminderID string, req *UpdateReminderRequest) (*BreakReminder, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -276,7 +276,7 @@ func (m *Manager) UpdateReminder(reminderID string, req *UpdateReminderRequest) 
 	return reminder, nil
 }
 
-// DeleteReminder 删除提醒
+// DeleteReminder 删除提醒.
 func (m *Manager) DeleteReminder(reminderID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -289,7 +289,7 @@ func (m *Manager) DeleteReminder(reminderID string) error {
 	return nil
 }
 
-// TriggerReminder 触发提醒
+// TriggerReminder 触发提醒.
 func (m *Manager) TriggerReminder(reminderID string) (*BreakReminder, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -309,7 +309,7 @@ func (m *Manager) TriggerReminder(reminderID string) (*BreakReminder, error) {
 	return reminder, nil
 }
 
-// SnoozeReminder 贪睡提醒
+// SnoozeReminder 贪睡提醒.
 func (m *Manager) SnoozeReminder(reminderID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -328,7 +328,7 @@ func (m *Manager) SnoozeReminder(reminderID string) error {
 	return nil
 }
 
-// DismissReminder 忽略提醒
+// DismissReminder 忽略提醒.
 func (m *Manager) DismissReminder(reminderID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -347,7 +347,7 @@ func (m *Manager) DismissReminder(reminderID string) error {
 	return nil
 }
 
-// SetUsageLimit 设置使用限制
+// SetUsageLimit 设置使用限制.
 func (m *Manager) SetUsageLimit(userID string, req *CreateUsageLimitRequest) (*UsageLimit, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -379,7 +379,7 @@ func (m *Manager) SetUsageLimit(userID string, req *CreateUsageLimitRequest) (*U
 	return limit, nil
 }
 
-// GetUsageLimits 获取用户的使用限制
+// GetUsageLimits 获取用户的使用限制.
 func (m *Manager) GetUsageLimits(userID string) []*UsageLimit {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -393,7 +393,7 @@ func (m *Manager) GetUsageLimits(userID string) []*UsageLimit {
 	return limits
 }
 
-// UpdateUsageLimit 更新使用限制
+// UpdateUsageLimit 更新使用限制.
 func (m *Manager) UpdateUsageLimit(limitID string, req *UpdateUsageLimitRequest) (*UsageLimit, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -420,7 +420,7 @@ func (m *Manager) UpdateUsageLimit(limitID string, req *UpdateUsageLimitRequest)
 	return limit, nil
 }
 
-// DeleteUsageLimit 删除使用限制
+// DeleteUsageLimit 删除使用限制.
 func (m *Manager) DeleteUsageLimit(limitID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -433,7 +433,7 @@ func (m *Manager) DeleteUsageLimit(limitID string) error {
 	return nil
 }
 
-// CheckUsageLimit 检查使用限制
+// CheckUsageLimit 检查使用限制.
 func (m *Manager) CheckUsageLimit(userID, appName string) (bool, string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -454,7 +454,7 @@ func (m *Manager) CheckUsageLimit(userID, appName string) (bool, string, error) 
 	return false, "", nil
 }
 
-// GenerateReport 生成健康报告
+// GenerateReport 生成健康报告.
 func (m *Manager) GenerateReport(req *ReportRequest) (*WellnessReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -532,7 +532,7 @@ func (m *Manager) GenerateReport(req *ReportRequest) (*WellnessReport, error) {
 	return report, nil
 }
 
-// generateInsights 生成洞察
+// generateInsights 生成洞察.
 func (m *Manager) generateInsights(userID string, totalMinutes int, topApps []AppUsage) []WellnessInsight {
 	insights := make([]WellnessInsight, 0)
 
@@ -563,7 +563,7 @@ func (m *Manager) generateInsights(userID string, totalMinutes int, topApps []Ap
 	return insights
 }
 
-// GetInsights 获取健康洞察
+// GetInsights 获取健康洞察.
 func (m *Manager) GetInsights(userID string) []WellnessInsight {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -577,7 +577,7 @@ func (m *Manager) GetInsights(userID string) []WellnessInsight {
 	return insights
 }
 
-// MarkInsightRead 标记洞察已读
+// MarkInsightRead 标记洞察已读.
 func (m *Manager) MarkInsightRead(insightID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -591,7 +591,7 @@ func (m *Manager) MarkInsightRead(insightID string) error {
 	return nil
 }
 
-// GetScreenTime 获取屏幕时间统计
+// GetScreenTime 获取屏幕时间统计.
 func (m *Manager) GetScreenTime(userID, date string) (*ScreenTime, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -656,7 +656,7 @@ func (m *Manager) GetScreenTime(userID, date string) (*ScreenTime, error) {
 	return screenTime, nil
 }
 
-// calculateWellnessScore 计算健康分数
+// calculateWellnessScore 计算健康分数.
 func calculateWellnessScore(totalMinutes int, appCount int) int {
 	// 基础分 100
 	score := 100
@@ -678,7 +678,7 @@ func calculateWellnessScore(totalMinutes int, appCount int) int {
 	return score
 }
 
-// daysBetween 计算两个日期之间的天数
+// daysBetween 计算两个日期之间的天数.
 func daysBetween(a, b time.Time) int {
 	if b.After(a) {
 		a, b = b, a

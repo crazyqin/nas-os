@@ -14,7 +14,7 @@ import (
 	"github.com/shirou/gopsutil/v3/net"
 )
 
-// Collector 系统指标采集器
+// Collector 系统指标采集器.
 type Collector struct {
 	mu          sync.RWMutex
 	config      CollectorConfig
@@ -25,7 +25,7 @@ type Collector struct {
 	subscribers []chan SystemMetrics
 }
 
-// NewCollector 创建采集器
+// NewCollector 创建采集器.
 func NewCollector(cfg CollectorConfig) *Collector {
 	return &Collector{
 		config:      cfg,
@@ -35,7 +35,7 @@ func NewCollector(cfg CollectorConfig) *Collector {
 	}
 }
 
-// Start 启动采集器
+// Start 启动采集器.
 func (c *Collector) Start() {
 	c.mu.Lock()
 	if c.running {
@@ -48,7 +48,7 @@ func (c *Collector) Start() {
 	go c.collectLoop()
 }
 
-// Stop 停止采集器
+// Stop 停止采集器.
 func (c *Collector) Stop() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -59,7 +59,7 @@ func (c *Collector) Stop() {
 	}
 }
 
-// collectLoop 采集循环
+// collectLoop 采集循环.
 func (c *Collector) collectLoop() {
 	ticker := time.NewTicker(c.config.Interval)
 	defer ticker.Stop()
@@ -77,7 +77,7 @@ func (c *Collector) collectLoop() {
 	}
 }
 
-// collect 执行一次采集
+// collect 执行一次采集.
 func (c *Collector) collect() {
 	metrics, err := c.CollectNow()
 	if err != nil {
@@ -97,7 +97,7 @@ func (c *Collector) collect() {
 	c.notifySubscribers(*metrics)
 }
 
-// CollectNow 立即采集当前指标
+// CollectNow 立即采集当前指标.
 func (c *Collector) CollectNow() (*SystemMetrics, error) {
 	metrics := &SystemMetrics{
 		Timestamp: time.Now(),
@@ -157,7 +157,7 @@ func (c *Collector) CollectNow() (*SystemMetrics, error) {
 	return metrics, nil
 }
 
-// collectCPU 采集CPU指标
+// collectCPU 采集CPU指标.
 func (c *Collector) collectCPU() (CPUMetrics, error) {
 	metrics := CPUMetrics{}
 
@@ -190,7 +190,7 @@ func (c *Collector) collectCPU() (CPUMetrics, error) {
 	return metrics, nil
 }
 
-// collectMemory 采集内存指标
+// collectMemory 采集内存指标.
 func (c *Collector) collectMemory() (MemoryMetrics, error) {
 	metrics := MemoryMetrics{}
 
@@ -218,7 +218,7 @@ func (c *Collector) collectMemory() (MemoryMetrics, error) {
 	return metrics, nil
 }
 
-// collectDisk 采集磁盘指标
+// collectDisk 采集磁盘指标.
 func (c *Collector) collectDisk() (DiskMetrics, error) {
 	metrics := DiskMetrics{}
 
@@ -263,7 +263,7 @@ func (c *Collector) collectDisk() (DiskMetrics, error) {
 	return metrics, nil
 }
 
-// collectNetwork 采集网络指标
+// collectNetwork 采集网络指标.
 func (c *Collector) collectNetwork() (NetworkMetrics, error) {
 	metrics := NetworkMetrics{}
 
@@ -318,7 +318,7 @@ func (c *Collector) collectNetwork() (NetworkMetrics, error) {
 	return metrics, nil
 }
 
-// GetHistory 获取历史指标
+// GetHistory 获取历史指标.
 func (c *Collector) GetHistory(limit int) []SystemMetrics {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -333,7 +333,7 @@ func (c *Collector) GetHistory(limit int) []SystemMetrics {
 	return result
 }
 
-// GetLatest 获取最新指标
+// GetLatest 获取最新指标.
 func (c *Collector) GetLatest() *SystemMetrics {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -346,7 +346,7 @@ func (c *Collector) GetLatest() *SystemMetrics {
 	return &latest
 }
 
-// GetHistoryByTimeRange 按时间范围获取历史
+// GetHistoryByTimeRange 按时间范围获取历史.
 func (c *Collector) GetHistoryByTimeRange(start, end time.Time) []SystemMetrics {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -360,7 +360,7 @@ func (c *Collector) GetHistoryByTimeRange(start, end time.Time) []SystemMetrics 
 	return result
 }
 
-// Subscribe 订阅指标更新
+// Subscribe 订阅指标更新.
 func (c *Collector) Subscribe() chan SystemMetrics {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -370,7 +370,7 @@ func (c *Collector) Subscribe() chan SystemMetrics {
 	return ch
 }
 
-// Unsubscribe 取消订阅
+// Unsubscribe 取消订阅.
 func (c *Collector) Unsubscribe(ch chan SystemMetrics) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -384,7 +384,7 @@ func (c *Collector) Unsubscribe(ch chan SystemMetrics) {
 	}
 }
 
-// notifySubscribers 通知订阅者
+// notifySubscribers 通知订阅者.
 func (c *Collector) notifySubscribers(metrics SystemMetrics) {
 	c.mu.RLock()
 	subscribers := make([]chan SystemMetrics, len(c.subscribers))
@@ -400,7 +400,7 @@ func (c *Collector) notifySubscribers(metrics SystemMetrics) {
 	}
 }
 
-// CalculateCPUAverage 计算CPU平均使用率
+// CalculateCPUAverage 计算CPU平均使用率.
 func CalculateCPUAverage(metrics []SystemMetrics) float64 {
 	if len(metrics) == 0 {
 		return 0
@@ -413,7 +413,7 @@ func CalculateCPUAverage(metrics []SystemMetrics) float64 {
 	return total / float64(len(metrics))
 }
 
-// CalculateMemoryAverage 计算内存平均使用率
+// CalculateMemoryAverage 计算内存平均使用率.
 func CalculateMemoryAverage(metrics []SystemMetrics) float64 {
 	if len(metrics) == 0 {
 		return 0
@@ -426,7 +426,7 @@ func CalculateMemoryAverage(metrics []SystemMetrics) float64 {
 	return total / float64(len(metrics))
 }
 
-// FindPeakCPUUsage 查找CPU峰值
+// FindPeakCPUUsage 查找CPU峰值.
 func FindPeakCPUUsage(metrics []SystemMetrics) (time.Time, float64) {
 	if len(metrics) == 0 {
 		return time.Time{}, 0
@@ -445,7 +445,7 @@ func FindPeakCPUUsage(metrics []SystemMetrics) (time.Time, float64) {
 	return peakTime, peakUsage
 }
 
-// CalculateStandardDeviation 计算标准差
+// CalculateStandardDeviation 计算标准差.
 func CalculateStandardDeviation(values []float64) float64 {
 	if len(values) == 0 {
 		return 0

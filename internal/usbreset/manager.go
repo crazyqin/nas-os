@@ -11,7 +11,7 @@ import (
 
 // ========== 核心类型 ==========
 
-// DeviceType USB 设备类型
+// DeviceType USB 设备类型.
 type DeviceType string
 
 const (
@@ -23,7 +23,7 @@ const (
 	DeviceTypeUnknown DeviceType = "unknown" // 未知设备
 )
 
-// PolicyAction 策略动作
+// PolicyAction 策略动作.
 type PolicyAction string
 
 const (
@@ -32,7 +32,7 @@ const (
 	PolicyReadOnly PolicyAction = "readonly" // 只读
 )
 
-// EventType 事件类型
+// EventType 事件类型.
 type EventType string
 
 const (
@@ -42,7 +42,7 @@ const (
 	EventError  EventType = "error"  // 错误
 )
 
-// USBDevice USB 设备信息
+// USBDevice USB 设备信息.
 type USBDevice struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
@@ -56,7 +56,7 @@ type USBDevice struct {
 	ConnectedAt time.Time  `json:"connectedAt"`
 }
 
-// USBPort USB 端口
+// USBPort USB 端口.
 type USBPort struct {
 	ID         string `json:"id"`
 	Path       string `json:"path"`
@@ -67,7 +67,7 @@ type USBPort struct {
 	PortNumber int    `json:"portNumber"`
 }
 
-// USBPolicy USB 策略
+// USBPolicy USB 策略.
 type USBPolicy struct {
 	ID         string       `json:"id"`
 	DeviceType DeviceType   `json:"deviceType"`
@@ -80,7 +80,7 @@ type USBPolicy struct {
 	CreatedAt  time.Time    `json:"createdAt"`
 }
 
-// USBEvent USB 事件
+// USBEvent USB 事件.
 type USBEvent struct {
 	ID        string    `json:"id"`
 	DeviceID  string    `json:"deviceId"`
@@ -90,7 +90,7 @@ type USBEvent struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// USBBandwidth USB 带宽信息
+// USBBandwidth USB 带宽信息.
 type USBBandwidth struct {
 	PortID    string   `json:"portId"`
 	UsedMbps  int      `json:"usedMbps"`
@@ -98,7 +98,7 @@ type USBBandwidth struct {
 	DeviceIDs []string `json:"deviceIds,omitempty"`
 }
 
-// AutoMountPolicy 自动挂载策略
+// AutoMountPolicy 自动挂载策略.
 type AutoMountPolicy struct {
 	Enabled    bool   `json:"enabled"`
 	Policy     string `json:"policy"` // readonly/readwrite/deny
@@ -107,7 +107,7 @@ type AutoMountPolicy struct {
 
 // ========== Manager ==========
 
-// Manager USB 设备管理器
+// Manager USB 设备管理器.
 type Manager struct {
 	mu           sync.RWMutex
 	devices      map[string]*USBDevice
@@ -120,7 +120,7 @@ type Manager struct {
 	nextEventID  int
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		devices:      make(map[string]*USBDevice),
@@ -135,7 +135,7 @@ func NewManager() *Manager {
 	return m
 }
 
-// initDefaults 初始化默认配置
+// initDefaults 初始化默认配置.
 func (m *Manager) initDefaults() {
 	// 默认 USB 端口
 	m.ports["usb-1-1"] = &USBPort{
@@ -207,7 +207,7 @@ func (m *Manager) initDefaults() {
 
 // ========== 设备管理 ==========
 
-// ListDevices 列出所有 USB 设备
+// ListDevices 列出所有 USB 设备.
 func (m *Manager) ListDevices() []USBDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -219,7 +219,7 @@ func (m *Manager) ListDevices() []USBDevice {
 	return devices
 }
 
-// GetDevice 获取 USB 设备
+// GetDevice 获取 USB 设备.
 func (m *Manager) GetDevice(id string) *USBDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -233,7 +233,7 @@ func (m *Manager) GetDevice(id string) *USBDevice {
 
 // ========== 重置操作 ==========
 
-// ResetDevice 重置 USB 设备
+// ResetDevice 重置 USB 设备.
 func (m *Manager) ResetDevice(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -252,7 +252,7 @@ func (m *Manager) ResetDevice(id string) error {
 	return nil
 }
 
-// ResetPort 重置 USB 端口
+// ResetPort 重置 USB 端口.
 func (m *Manager) ResetPort(portID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -273,7 +273,7 @@ func (m *Manager) ResetPort(portID string) error {
 	return nil
 }
 
-// SetPortPower 设置端口电源
+// SetPortPower 设置端口电源.
 func (m *Manager) SetPortPower(portID string, on bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -293,7 +293,7 @@ func (m *Manager) SetPortPower(portID string, on bool) error {
 	return nil
 }
 
-// ListPorts 列出所有端口
+// ListPorts 列出所有端口.
 func (m *Manager) ListPorts() []USBPort {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -307,7 +307,7 @@ func (m *Manager) ListPorts() []USBPort {
 
 // ========== 策略管理 ==========
 
-// AddPolicy 添加策略
+// AddPolicy 添加策略.
 func (m *Manager) AddPolicy(policy *USBPolicy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -323,7 +323,7 @@ func (m *Manager) AddPolicy(policy *USBPolicy) error {
 	return nil
 }
 
-// RemovePolicy 删除策略
+// RemovePolicy 删除策略.
 func (m *Manager) RemovePolicy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -337,7 +337,7 @@ func (m *Manager) RemovePolicy(id string) error {
 	return nil
 }
 
-// ListPolicies 列出所有策略
+// ListPolicies 列出所有策略.
 func (m *Manager) ListPolicies() []USBPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -349,7 +349,7 @@ func (m *Manager) ListPolicies() []USBPolicy {
 	return policies
 }
 
-// CheckPolicy 检查设备策略
+// CheckPolicy 检查设备策略.
 func (m *Manager) CheckPolicy(deviceID string) (string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -393,7 +393,7 @@ func (m *Manager) CheckPolicy(deviceID string) (string, error) {
 
 // ========== 事件管理 ==========
 
-// addEvent 添加事件
+// addEvent 添加事件.
 func (m *Manager) addEvent(deviceID string, eventType EventType, port, message string) {
 	event := USBEvent{
 		ID:        fmt.Sprintf("evt-%d", m.nextEventID),
@@ -407,7 +407,7 @@ func (m *Manager) addEvent(deviceID string, eventType EventType, port, message s
 	m.nextEventID++
 }
 
-// GetEvents 获取事件列表
+// GetEvents 获取事件列表.
 func (m *Manager) GetEvents(since time.Time, deviceID string) []USBEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -427,7 +427,7 @@ func (m *Manager) GetEvents(since time.Time, deviceID string) []USBEvent {
 
 // ========== 带宽监控 ==========
 
-// GetBandwidth 获取端口带宽
+// GetBandwidth 获取端口带宽.
 func (m *Manager) GetBandwidth(portID string) (*USBBandwidth, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -441,7 +441,7 @@ func (m *Manager) GetBandwidth(portID string) (*USBBandwidth, error) {
 
 // ========== 自动挂载 ==========
 
-// SetAutoMount 设置自动挂载策略
+// SetAutoMount 设置自动挂载策略.
 func (m *Manager) SetAutoMount(enable bool, policy string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

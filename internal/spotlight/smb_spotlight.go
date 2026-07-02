@@ -12,14 +12,14 @@ import (
 )
 
 // SMBSpotlightProtocol SMB Spotlight 协议处理器
-// 基于 Netatalk Spotlight 协议实现 macOS 原生搜索兼容
+// 基于 Netatalk Spotlight 协议实现 macOS 原生搜索兼容.
 type SMBSpotlightProtocol struct {
 	engine *Engine
 	mu     sync.RWMutex
 	cache  map[uint64][]SpotlightResult
 }
 
-// NewSMBSpotlightProtocol 创建 SMB Spotlight 协议处理器
+// NewSMBSpotlightProtocol 创建 SMB Spotlight 协议处理器.
 func NewSMBSpotlightProtocol(engine *Engine) *SMBSpotlightProtocol {
 	return &SMBSpotlightProtocol{
 		engine: engine,
@@ -27,7 +27,7 @@ func NewSMBSpotlightProtocol(engine *Engine) *SMBSpotlightProtocol {
 	}
 }
 
-// SpotlightMessage Spotlight 协议消息类型
+// SpotlightMessage Spotlight 协议消息类型.
 type SpotlightMessage struct {
 	Command    SpotlightCommand
 	Flags      uint32
@@ -37,7 +37,7 @@ type SpotlightMessage struct {
 	MaxResults uint32
 }
 
-// SpotlightCommand Spotlight 命令类型
+// SpotlightCommand Spotlight 命令类型.
 type SpotlightCommand uint32
 
 const (
@@ -49,7 +49,7 @@ const (
 	CmdUnregister SpotlightCommand = 0x06 // 取消注册
 )
 
-// SpotlightResponse Spotlight 协议响应
+// SpotlightResponse Spotlight 协议响应.
 type SpotlightResponse struct {
 	Command    SpotlightCommand
 	Status     uint32
@@ -59,20 +59,20 @@ type SpotlightResponse struct {
 	HasMore    bool
 }
 
-// SpotlightResult Spotlight 单条结果
+// SpotlightResult Spotlight 单条结果.
 type SpotlightResult struct {
 	Path       string
 	Attributes map[string]interface{}
 }
 
-// SpotlightAttribute Spotlight 文件属性
+// SpotlightAttribute Spotlight 文件属性.
 type SpotlightAttribute struct {
 	Name      string
 	ValueType uint32
 	Value     interface{}
 }
 
-// kMDQuery 属性常量
+// kMDQuery 属性常量.
 const (
 	kMDItemDisplayName         = "kMDItemDisplayName"
 	kMDItemPath                = "kMDItemPath"
@@ -92,7 +92,7 @@ const (
 	kMDItemPixelWidth          = "kMDItemPixelWidth"
 )
 
-// HandleRequest 处理 Spotlight 请求
+// HandleRequest 处理 Spotlight 请求.
 func (s *SMBSpotlightProtocol) HandleRequest(reader io.Reader) (*SpotlightResponse, error) {
 	// 读取消息头
 	header := make([]byte, 16)
@@ -119,7 +119,7 @@ func (s *SMBSpotlightProtocol) HandleRequest(reader io.Reader) (*SpotlightRespon
 	}
 }
 
-// handleQuery 处理查询请求
+// handleQuery 处理查询请求.
 func (s *SMBSpotlightProtocol) handleQuery(reader io.Reader, flags uint32, queryID uint64) (*SpotlightResponse, error) {
 	// 读取查询长度
 	queryLen := make([]byte, 4)
@@ -194,7 +194,7 @@ func (s *SMBSpotlightProtocol) handleQuery(reader io.Reader, flags uint32, query
 	}, nil
 }
 
-// handleFetch 处理获取更多结果
+// handleFetch 处理获取更多结果.
 func (s *SMBSpotlightProtocol) handleFetch(reader io.Reader, queryID uint64) (*SpotlightResponse, error) {
 	// 读取偏移量和限制
 	offsetBuf := make([]byte, 8)
@@ -229,7 +229,7 @@ func (s *SMBSpotlightProtocol) handleFetch(reader io.Reader, queryID uint64) (*S
 	}, nil
 }
 
-// handleClose 处理关闭查询
+// handleClose 处理关闭查询.
 func (s *SMBSpotlightProtocol) handleClose(queryID uint64) (*SpotlightResponse, error) {
 	s.mu.Lock()
 	delete(s.cache, queryID)
@@ -241,7 +241,7 @@ func (s *SMBSpotlightProtocol) handleClose(queryID uint64) (*SpotlightResponse, 
 	}, nil
 }
 
-// handlePing 处理心跳
+// handlePing 处理心跳.
 func (s *SMBSpotlightProtocol) handlePing() *SpotlightResponse {
 	return &SpotlightResponse{
 		Command: CmdPing,
@@ -249,7 +249,7 @@ func (s *SMBSpotlightProtocol) handlePing() *SpotlightResponse {
 	}
 }
 
-// convertQuery 将 kMDQuery 转换为内部查询格式
+// convertQuery 将 kMDQuery 转换为内部查询格式.
 func (s *SMBSpotlightProtocol) convertQuery(kmdQuery string, maxResults uint32) EngineSearchRequest {
 	req := EngineSearchRequest{
 		Query: kmdQuery,
@@ -294,7 +294,7 @@ func (s *SMBSpotlightProtocol) convertQuery(kmdQuery string, maxResults uint32) 
 	return req
 }
 
-// parseKMDQueryAttributes 解析 kMDQuery 属性
+// parseKMDQueryAttributes 解析 kMDQuery 属性.
 func parseKMDQueryAttributes(query string) map[string]string {
 	attributes := make(map[string]string)
 
@@ -327,7 +327,7 @@ func parseKMDQueryAttributes(query string) map[string]string {
 	return attributes
 }
 
-// isValidKMDAttribute 检查是否为有效的 kMD 属性
+// isValidKMDAttribute 检查是否为有效的 kMD 属性.
 func isValidKMDAttribute(attr string) bool {
 	validAttrs := map[string]bool{
 		kMDItemDisplayName:         true,
@@ -345,7 +345,7 @@ func isValidKMDAttribute(attr string) bool {
 	return validAttrs[attr]
 }
 
-// parseSizeValue 解析大小值
+// parseSizeValue 解析大小值.
 func parseSizeValue(value string) int64 {
 	value = strings.TrimPrefix(value, ">")
 	value = strings.TrimPrefix(value, "<")
@@ -368,7 +368,7 @@ func parseSizeValue(value string) int64 {
 	return size * multiplier
 }
 
-// parseDateValue 解析日期值
+// parseDateValue 解析日期值.
 func parseDateValue(value string) time.Time {
 	value = strings.TrimPrefix(value, ">")
 	value = strings.TrimPrefix(value, "<")
@@ -392,7 +392,7 @@ func parseDateValue(value string) time.Time {
 	return time.Time{}
 }
 
-// convertResults 将搜索结果转换为 Spotlight 格式
+// convertResults 将搜索结果转换为 Spotlight 格式.
 func (s *SMBSpotlightProtocol) convertResults(resp *SearchResponse, requestedAttrs []string) []SpotlightResult {
 	results := make([]SpotlightResult, 0, len(resp.Results))
 
@@ -444,7 +444,7 @@ func (s *SMBSpotlightProtocol) convertResults(resp *SearchResponse, requestedAtt
 	return results
 }
 
-// getFileKind 获取文件类型描述
+// getFileKind 获取文件类型描述.
 func getFileKind(ext string) string {
 	kindMap := map[string]string{
 		".txt":  "纯文本文档",
@@ -483,7 +483,7 @@ func getFileKind(ext string) string {
 	return "文件"
 }
 
-// EncodeResponse 编码 Spotlight 响应为二进制格式
+// EncodeResponse 编码 Spotlight 响应为二进制格式.
 func EncodeResponse(resp *SpotlightResponse) ([]byte, error) {
 	buf := make([]byte, 0, 1024)
 
@@ -541,7 +541,7 @@ func EncodeResponse(resp *SpotlightResponse) ([]byte, error) {
 	return buf, nil
 }
 
-// DecodeRequest 解码 Spotlight 请求
+// DecodeRequest 解码 Spotlight 请求.
 func DecodeRequest(data []byte) (*SpotlightMessage, error) {
 	if len(data) < 16 {
 		return nil, fmt.Errorf("数据太短")

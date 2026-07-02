@@ -11,7 +11,7 @@ import (
 )
 
 // Pool GPU资源池
-// 管理多个GPU设备的统一调度和分配
+// 管理多个GPU设备的统一调度和分配.
 type Pool struct {
 	manager   *Manager
 	config    *PoolConfig
@@ -24,7 +24,7 @@ type Pool struct {
 	cancel    context.CancelFunc
 }
 
-// PoolConfig 资源池配置
+// PoolConfig 资源池配置.
 type PoolConfig struct {
 	// 资源池名称
 	Name string `json:"name"`
@@ -48,7 +48,7 @@ type PoolConfig struct {
 	ScaleDownThreshold int `json:"scaleDownThreshold"`
 }
 
-// DefaultPoolConfig 默认资源池配置
+// DefaultPoolConfig 默认资源池配置.
 func DefaultPoolConfig() *PoolConfig {
 	return &PoolConfig{
 		Name:               "default",
@@ -64,7 +64,7 @@ func DefaultPoolConfig() *PoolConfig {
 	}
 }
 
-// PoolDevice 资源池中的GPU设备
+// PoolDevice 资源池中的GPU设备.
 type PoolDevice struct {
 	Device       *GPUDevice
 	Allocated    bool
@@ -78,7 +78,7 @@ type PoolDevice struct {
 	HealthStatus string
 }
 
-// NewPool 创建GPU资源池
+// NewPool 创建GPU资源池.
 func NewPool(manager *Manager, config *PoolConfig, logger *zap.Logger) (*Pool, error) {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -120,7 +120,7 @@ func NewPool(manager *Manager, config *PoolConfig, logger *zap.Logger) (*Pool, e
 	return pool, nil
 }
 
-// AddDevice 添加GPU设备到资源池
+// AddDevice 添加GPU设备到资源池.
 func (p *Pool) AddDevice(gpu *GPUDevice) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -144,7 +144,7 @@ func (p *Pool) AddDevice(gpu *GPUDevice) error {
 	return nil
 }
 
-// RemoveDevice 从资源池移除GPU设备
+// RemoveDevice 从资源池移除GPU设备.
 func (p *Pool) RemoveDevice(gpuID string) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -168,7 +168,7 @@ func (p *Pool) RemoveDevice(gpuID string) error {
 	return nil
 }
 
-// SubmitTask 提交GPU任务到队列
+// SubmitTask 提交GPU任务到队列.
 func (p *Pool) SubmitTask(task *GPUTask) (*TaskResult, error) {
 	if task == nil {
 		return nil, ErrInvalidTask
@@ -206,7 +206,7 @@ func (p *Pool) SubmitTask(task *GPUTask) (*TaskResult, error) {
 	}, nil
 }
 
-// validateTask 验证任务参数
+// validateTask 验证任务参数.
 func (p *Pool) validateTask(task *GPUTask) error {
 	if task.Type == "" {
 		return ErrInvalidTaskType
@@ -237,7 +237,7 @@ func (p *Pool) validateTask(task *GPUTask) error {
 	return nil
 }
 
-// tryAllocateTask 尝试分配任务
+// tryAllocateTask 尝试分配任务.
 func (p *Pool) tryAllocateTask() {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -267,7 +267,7 @@ func (p *Pool) tryAllocateTask() {
 	go p.executeTask(task, device)
 }
 
-// allocateDeviceInternal 内部设备分配（已持有锁）
+// allocateDeviceInternal 内部设备分配（已持有锁）.
 func (p *Pool) allocateDeviceInternal(deviceID string, task *GPUTask) {
 	device := p.devices[deviceID]
 	device.Allocated = true
@@ -287,7 +287,7 @@ func (p *Pool) allocateDeviceInternal(deviceID string, task *GPUTask) {
 		zap.String("gpuId", deviceID))
 }
 
-// releaseDeviceInternal 内部设备释放（已持有锁）
+// releaseDeviceInternal 内部设备释放（已持有锁）.
 func (p *Pool) releaseDeviceInternal(deviceID string) {
 	device := p.devices[deviceID]
 	device.Allocated = false
@@ -297,7 +297,7 @@ func (p *Pool) releaseDeviceInternal(deviceID string) {
 	device.LastUpdate = time.Now()
 }
 
-// executeTask 执行任务
+// executeTask 执行任务.
 func (p *Pool) executeTask(task *GPUTask, device *PoolDevice) {
 	// 设置超时
 	timeout := time.Duration(p.config.TaskTimeout) * time.Second
@@ -347,7 +347,7 @@ func (p *Pool) executeTask(task *GPUTask, device *PoolDevice) {
 	go p.tryAllocateTask()
 }
 
-// GetPoolStatus 获取资源池状态
+// GetPoolStatus 获取资源池状态.
 func (p *Pool) GetPoolStatus() *PoolStatus {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -401,7 +401,7 @@ func (p *Pool) GetPoolStatus() *PoolStatus {
 	return status
 }
 
-// startMonitoring 启动监控
+// startMonitoring 启动监控.
 func (p *Pool) startMonitoring(ctx context.Context) {
 	if p.config.MonitorInterval <= 0 {
 		p.config.MonitorInterval = 5
@@ -420,7 +420,7 @@ func (p *Pool) startMonitoring(ctx context.Context) {
 	}
 }
 
-// updateDeviceStatus 更新设备状态
+// updateDeviceStatus 更新设备状态.
 func (p *Pool) updateDeviceStatus() {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -442,7 +442,7 @@ func (p *Pool) updateDeviceStatus() {
 	}
 }
 
-// calculateHealthStatus 计算健康状态
+// calculateHealthStatus 计算健康状态.
 func (p *Pool) calculateHealthStatus(gpu *GPUDevice) string {
 	if gpu.Status == GPUStatusError {
 		return "critical"
@@ -459,7 +459,7 @@ func (p *Pool) calculateHealthStatus(gpu *GPUDevice) string {
 	return "healthy"
 }
 
-// calculateLoadScore 计算负载评分
+// calculateLoadScore 计算负载评分.
 func (p *Pool) calculateLoadScore(device *PoolDevice) float64 {
 	gpu := device.Device
 
@@ -481,7 +481,7 @@ func (p *Pool) calculateLoadScore(device *PoolDevice) float64 {
 	return score
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (p *Pool) CancelTask(taskID string) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -507,7 +507,7 @@ func (p *Pool) CancelTask(taskID string) error {
 	return ErrTaskNotFound
 }
 
-// Close 关闭资源池
+// Close 关闭资源池.
 func (p *Pool) Close() error {
 	p.cancel()
 
@@ -527,7 +527,7 @@ func (p *Pool) Close() error {
 	return nil
 }
 
-// PoolStatus 资源池状态
+// PoolStatus 资源池状态.
 type PoolStatus struct {
 	Name           string             `json:"name"`
 	DeviceCount    int                `json:"deviceCount"`
@@ -541,7 +541,7 @@ type PoolStatus struct {
 	Devices        []PoolDeviceStatus `json:"devices"`
 }
 
-// PoolDeviceStatus 设备状态
+// PoolDeviceStatus 设备状态.
 type PoolDeviceStatus struct {
 	ID          string  `json:"id"`
 	Name        string  `json:"name"`
@@ -555,7 +555,7 @@ type PoolDeviceStatus struct {
 	Health      string  `json:"health"`
 }
 
-// GPUTask GPU任务
+// GPUTask GPU任务.
 type GPUTask struct {
 	ID              string             `json:"id"`
 	Type            string             `json:"type"` // compute, inference, encode, decode
@@ -574,7 +574,7 @@ type GPUTask struct {
 	Params          map[string]string  `json:"params"` // 任务参数
 }
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -586,7 +586,7 @@ const (
 	TaskStatusCancelled TaskStatus = "cancelled"
 )
 
-// TaskResult 任务结果
+// TaskResult 任务结果.
 type TaskResult struct {
 	TaskID     string        `json:"taskId"`
 	GPUID      string        `json:"gpuId"`
@@ -599,7 +599,7 @@ type TaskResult struct {
 	Output     string        `json:"output"`
 }
 
-// 错误定义
+// 错误定义.
 var (
 	ErrInvalidTask        = NewPoolError("invalid_task", "无效的任务")
 	ErrInvalidTaskType    = NewPoolError("invalid_task_type", "无效的任务类型")
@@ -608,7 +608,7 @@ var (
 	ErrDeviceNotAvailable = NewPoolError("device_not_available", "设备不可用")
 )
 
-// PoolError 资源池错误
+// PoolError 资源池错误.
 type PoolError struct {
 	Code    string
 	Message string
@@ -622,7 +622,7 @@ func (e *PoolError) Error() string {
 	return e.Message
 }
 
-// generateTaskID 生成任务ID
+// generateTaskID 生成任务ID.
 func generateTaskID() string {
 	return "gpu-task-" + time.Now().Format("20060102-150405")
 }

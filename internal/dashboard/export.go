@@ -20,7 +20,7 @@ const (
 // ExportRequest 导出请求.
 type ExportRequest struct {
 	Format    ExportFormat `json:"format"`
-	Metrics   []string     `json:"metrics"`   // cpu/memory/disk/network/all
+	Metrics   []string     `json:"metrics"` // cpu/memory/disk/network/all
 	StartTime time.Time    `json:"startTime"`
 	EndTime   time.Time    `json:"endTime"`
 	Limit     int          `json:"limit"`
@@ -44,9 +44,9 @@ type ExportResult struct {
 
 // MetricsExporter 指标数据导出器.
 type MetricsExporter struct {
-	mu       sync.RWMutex
-	samples  []MetricSample
-	maxSize  int
+	mu      sync.RWMutex
+	samples []MetricSample
+	maxSize int
 }
 
 // NewMetricsExporter 创建指标导出器.

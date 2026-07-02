@@ -270,7 +270,7 @@ func (m *Manager) StartSync(ctx context.Context, taskID string) error {
 	m.mu.RLock()
 	task, ok := m.tasks[taskID]
 	provider, pOk := m.providers[taskID]
-	limiter, _ := m.limiters[taskID]
+	limiter := m.limiters[taskID]
 	m.mu.RUnlock()
 
 	if !ok {

@@ -11,15 +11,15 @@ import (
 	"time"
 )
 
-// SystemLoadProvider 系统负载数据提供者
+// SystemLoadProvider 系统负载数据提供者.
 type SystemLoadProvider struct{}
 
-// NewSystemLoadProvider 创建系统负载Provider
+// NewSystemLoadProvider 创建系统负载Provider.
 func NewSystemLoadProvider() *SystemLoadProvider {
 	return &SystemLoadProvider{}
 }
 
-// GetData 获取系统负载数据
+// GetData 获取系统负载数据.
 func (p *SystemLoadProvider) GetData() (*SystemLoadWidgetData, error) {
 	data := &SystemLoadWidgetData{
 		Timestamp: time.Now(),
@@ -42,7 +42,7 @@ func (p *SystemLoadProvider) GetData() (*SystemLoadWidgetData, error) {
 	return data, nil
 }
 
-// readLoadAvg 读取系统负载
+// readLoadAvg 读取系统负载.
 func (p *SystemLoadProvider) readLoadAvg(data *SystemLoadWidgetData) error {
 	loadavg, err := os.ReadFile("/proc/loadavg")
 	if err != nil {
@@ -67,7 +67,7 @@ func (p *SystemLoadProvider) readLoadAvg(data *SystemLoadWidgetData) error {
 	return nil
 }
 
-// readProcessCount 读取进程数
+// readProcessCount 读取进程数.
 func (p *SystemLoadProvider) readProcessCount(data *SystemLoadWidgetData) error {
 	stat, err := os.ReadFile("/proc/stat")
 	if err != nil {
@@ -98,7 +98,7 @@ func (p *SystemLoadProvider) readProcessCount(data *SystemLoadWidgetData) error 
 	return nil
 }
 
-// calculateStatus 计算负载状态
+// calculateStatus 计算负载状态.
 func (p *SystemLoadProvider) calculateStatus(data *SystemLoadWidgetData) string {
 	if data.CPUCount == 0 {
 		data.CPUCount = 1 // 默认假设单核
@@ -114,15 +114,15 @@ func (p *SystemLoadProvider) calculateStatus(data *SystemLoadWidgetData) string 
 	return "normal"
 }
 
-// StorageIOProvider 存储IO数据提供者
+// StorageIOProvider 存储IO数据提供者.
 type StorageIOProvider struct{}
 
-// NewStorageIOProvider 创建存储IO Provider
+// NewStorageIOProvider 创建存储IO Provider.
 func NewStorageIOProvider() *StorageIOProvider {
 	return &StorageIOProvider{}
 }
 
-// GetData 获取存储IO数据
+// GetData 获取存储IO数据.
 func (p *StorageIOProvider) GetData() (*StorageIOWidgetData, error) {
 	data := &StorageIOWidgetData{
 		Timestamp: time.Now(),
@@ -182,15 +182,15 @@ func (p *StorageIOProvider) GetData() (*StorageIOWidgetData, error) {
 	return data, nil
 }
 
-// NetworkTrafficProvider 网络流量数据提供者
+// NetworkTrafficProvider 网络流量数据提供者.
 type NetworkTrafficProvider struct{}
 
-// NewNetworkTrafficProvider 创建网络流量Provider
+// NewNetworkTrafficProvider 创建网络流量Provider.
 func NewNetworkTrafficProvider() *NetworkTrafficProvider {
 	return &NetworkTrafficProvider{}
 }
 
-// GetData 获取网络流量数据
+// GetData 获取网络流量数据.
 func (p *NetworkTrafficProvider) GetData() (*NetworkTrafficWidgetData, error) {
 	data := &NetworkTrafficWidgetData{
 		Timestamp:  time.Now(),
@@ -249,7 +249,7 @@ func (p *NetworkTrafficProvider) GetData() (*NetworkTrafficWidgetData, error) {
 	return data, nil
 }
 
-// getInterfaceSpeed 获取接口速度
+// getInterfaceSpeed 获取接口速度.
 func (p *NetworkTrafficProvider) getInterfaceSpeed(iface string) uint64 {
 	speedPath := fmt.Sprintf("/sys/class/net/%s/speed", iface)
 	data, err := os.ReadFile(speedPath)
@@ -265,19 +265,19 @@ func (p *NetworkTrafficProvider) getInterfaceSpeed(iface string) uint64 {
 	return speed
 }
 
-// AlertSummaryProvider 告警汇总数据提供者
+// AlertSummaryProvider 告警汇总数据提供者.
 type AlertSummaryProvider struct {
 	alerts []AlertEntry
 }
 
-// NewAlertSummaryProvider 创建告警汇总Provider
+// NewAlertSummaryProvider 创建告警汇总Provider.
 func NewAlertSummaryProvider() *AlertSummaryProvider {
 	return &AlertSummaryProvider{
 		alerts: make([]AlertEntry, 0),
 	}
 }
 
-// GetData 获取告警汇总数据
+// GetData 获取告警汇总数据.
 func (p *AlertSummaryProvider) GetData() (*AlertSummaryWidgetData, error) {
 	data := &AlertSummaryWidgetData{
 		Timestamp:    time.Now(),
@@ -328,17 +328,17 @@ func (p *AlertSummaryProvider) GetData() (*AlertSummaryWidgetData, error) {
 	return data, nil
 }
 
-// AddAlert 添加告警
+// AddAlert 添加告警.
 func (p *AlertSummaryProvider) AddAlert(alert AlertEntry) {
 	p.alerts = append(p.alerts, alert)
 }
 
-// ClearAlerts 清除告警
+// ClearAlerts 清除告警.
 func (p *AlertSummaryProvider) ClearAlerts() {
 	p.alerts = make([]AlertEntry, 0)
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (p *AlertSummaryProvider) ResolveAlert(id string) {
 	for i, alert := range p.alerts {
 		if alert.ID == id {

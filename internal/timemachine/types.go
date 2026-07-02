@@ -8,7 +8,7 @@ import (
 
 // ========== Time Machine 共享 ==========
 
-// TimeMachineShare Time Machine 共享配置
+// TimeMachineShare Time Machine 共享配置.
 type TimeMachineShare struct {
 	ID        string    `json:"id"`        // 唯一标识
 	Name      string    `json:"name"`      // 共享名称
@@ -20,7 +20,7 @@ type TimeMachineShare struct {
 	UpdatedAt time.Time `json:"updatedAt"` // 更新时间
 }
 
-// Protocol 共享协议
+// Protocol 共享协议.
 type Protocol string
 
 const (
@@ -30,7 +30,7 @@ const (
 
 // ========== 备份配额 ==========
 
-// BackupQuota 设备备份配额
+// BackupQuota 设备备份配额.
 type BackupQuota struct {
 	DeviceID   string `json:"deviceId"`   // 设备 ID
 	QuotaBytes int64  `json:"quotaBytes"` // 配额大小 (字节)
@@ -40,7 +40,7 @@ type BackupQuota struct {
 
 // ========== 备份设备 ==========
 
-// BackupDevice 备份设备
+// BackupDevice 备份设备.
 type BackupDevice struct {
 	ID         string    `json:"id"`         // 唯一标识
 	Hostname   string    `json:"hostname"`   // 主机名
@@ -54,7 +54,7 @@ type BackupDevice struct {
 
 // ========== 备份任务 ==========
 
-// BackupJob 备份任务
+// BackupJob 备份任务.
 type BackupJob struct {
 	ID        string       `json:"id"`        // 唯一标识
 	DeviceID  string       `json:"deviceId"`  // 设备 ID
@@ -65,7 +65,7 @@ type BackupJob struct {
 	Duration  int64        `json:"duration"`  // 持续时间 (秒)
 }
 
-// BackupStatus 备份状态
+// BackupStatus 备份状态.
 type BackupStatus string
 
 const (
@@ -77,7 +77,7 @@ const (
 
 // ========== 备份快照 ==========
 
-// BackupSnapshot 备份快照
+// BackupSnapshot 备份快照.
 type BackupSnapshot struct {
 	ID         string    `json:"id"`         // 唯一标识
 	DeviceID   string    `json:"deviceId"`   // 设备 ID
@@ -89,7 +89,7 @@ type BackupSnapshot struct {
 
 // ========== 保留策略 ==========
 
-// RetentionPolicy 备份保留策略
+// RetentionPolicy 备份保留策略.
 type RetentionPolicy struct {
 	RetentionDays int  `json:"retentionDays"` // 保留天数
 	MinKeep       int  `json:"minKeep"`       // 最小保留数
@@ -99,7 +99,7 @@ type RetentionPolicy struct {
 
 // ========== 流量限制 ==========
 
-// TrafficLimit 流量限制配置
+// TrafficLimit 流量限制配置.
 type TrafficLimit struct {
 	BandwidthKBps int    `json:"bandwidthKBps"` // 带宽限制 (KB/s)
 	TimeWindow    string `json:"timeWindow"`    // 时间窗口 (如 "08:00-22:00")
@@ -108,7 +108,7 @@ type TrafficLimit struct {
 
 // ========== 广播配置 ==========
 
-// BroadcastConfig mDNS 广播配置
+// BroadcastConfig mDNS 广播配置.
 type BroadcastConfig struct {
 	ServiceName string            `json:"serviceName"` // 服务名称
 	Port        int               `json:"port"`        // 端口
@@ -118,7 +118,7 @@ type BroadcastConfig struct {
 
 // ========== 统计数据 ==========
 
-// TimeMachineStats Time Machine 统计
+// TimeMachineStats Time Machine 统计.
 type TimeMachineStats struct {
 	TotalDevices    int   `json:"totalDevices"`    // 总设备数
 	ActiveDevices   int   `json:"activeDevices"`   // 活跃设备数
@@ -128,7 +128,7 @@ type TimeMachineStats struct {
 
 // ========== 服务状态 ==========
 
-// ServiceStatus 服务状态
+// ServiceStatus 服务状态.
 type ServiceStatus struct {
 	Running   bool      `json:"running"`   // 是否运行
 	Shares    int       `json:"shares"`    // 共享数

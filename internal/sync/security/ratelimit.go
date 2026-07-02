@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// RateLimiter controls concurrent sync tasks and bandwidth
+// RateLimiter controls concurrent sync tasks and bandwidth.
 type RateLimiter struct {
 	mu             sync.Mutex
 	maxConcurrent  int
@@ -14,7 +14,7 @@ type RateLimiter struct {
 	bandwidthLimit int64 // bytes per second, 0 = unlimited
 }
 
-// NewRateLimiter creates a new rate limiter
+// NewRateLimiter creates a new rate limiter.
 func NewRateLimiter(maxConcurrent int, bandwidthLimitBps int64) *RateLimiter {
 	return &RateLimiter{
 		maxConcurrent:  maxConcurrent,
@@ -34,7 +34,7 @@ func (rl *RateLimiter) AcquireSlot() error {
 	return nil
 }
 
-// ReleaseSlot releases a sync slot
+// ReleaseSlot releases a sync slot.
 func (rl *RateLimiter) ReleaseSlot() {
 	rl.mu.Lock()
 	defer rl.mu.Unlock()
@@ -43,14 +43,14 @@ func (rl *RateLimiter) ReleaseSlot() {
 	}
 }
 
-// ActiveCount returns the number of currently active syncs
+// ActiveCount returns the number of currently active syncs.
 func (rl *RateLimiter) ActiveCount() int {
 	rl.mu.Lock()
 	defer rl.mu.Unlock()
 	return rl.activeCount
 }
 
-// TokenBucket for bandwidth limiting
+// TokenBucket for bandwidth limiting.
 type TokenBucket struct {
 	mu         sync.Mutex
 	tokens     int64
@@ -59,7 +59,7 @@ type TokenBucket struct {
 	lastRefill time.Time
 }
 
-// NewTokenBucket creates a bandwidth token bucket
+// NewTokenBucket creates a bandwidth token bucket.
 func NewTokenBucket(rateBps int64) *TokenBucket {
 	return &TokenBucket{
 		tokens:     rateBps, // start full
@@ -69,7 +69,7 @@ func NewTokenBucket(rateBps int64) *TokenBucket {
 	}
 }
 
-// Allow checks if n bytes can be transferred, consuming tokens if allowed
+// Allow checks if n bytes can be transferred, consuming tokens if allowed.
 func (tb *TokenBucket) Allow(n int64) bool {
 	tb.mu.Lock()
 	defer tb.mu.Unlock()
@@ -82,7 +82,7 @@ func (tb *TokenBucket) Allow(n int64) bool {
 	return false
 }
 
-// Wait blocks until n bytes can be transferred
+// Wait blocks until n bytes can be transferred.
 func (tb *TokenBucket) Wait(n int64) {
 	for {
 		if tb.Allow(n) {

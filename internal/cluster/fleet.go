@@ -16,7 +16,7 @@ import (
 
 // ========== 舰队管理器 ==========
 
-// Fleet 多节点统一管理器
+// Fleet 多节点统一管理器.
 type Fleet struct {
 	mu         sync.RWMutex
 	nodes      map[string]*FleetNode
@@ -30,7 +30,7 @@ type Fleet struct {
 	alertAgg   *AlertAggregator
 }
 
-// FleetConfig 舰队配置
+// FleetConfig 舰队配置.
 type FleetConfig struct {
 	NodeID             string        `json:"nodeId"`
 	NodeName           string        `json:"nodeName"`
@@ -45,7 +45,7 @@ type FleetConfig struct {
 	EnableAutoDiscover bool          `json:"enableAutoDiscover"`
 }
 
-// DefaultFleetConfig 默认舰队配置
+// DefaultFleetConfig 默认舰队配置.
 func DefaultFleetConfig() *FleetConfig {
 	return &FleetConfig{
 		HeartbeatInterval:  10 * time.Second,
@@ -57,7 +57,7 @@ func DefaultFleetConfig() *FleetConfig {
 	}
 }
 
-// FleetNode 舰队节点
+// FleetNode 舰队节点.
 type FleetNode struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -78,7 +78,7 @@ type FleetNode struct {
 	Uptime        int64             `json:"uptime"`
 }
 
-// FleetNodeRole 节点角色
+// FleetNodeRole 节点角色.
 type FleetNodeRole string
 
 const (
@@ -87,7 +87,7 @@ const (
 	FleetRoleStandby FleetNodeRole = "standby"
 )
 
-// FleetNodeState 节点状态
+// FleetNodeState 节点状态.
 type FleetNodeState string
 
 const (
@@ -99,7 +99,7 @@ const (
 	FleetStateLeaving     FleetNodeState = "leaving"
 )
 
-// StoragePoolInfo 存储池信息
+// StoragePoolInfo 存储池信息.
 type StoragePoolInfo struct {
 	Name        string `json:"name"`
 	Type        string `json:"type"`
@@ -110,7 +110,7 @@ type StoragePoolInfo struct {
 	RaidLevel   string `json:"raidLevel"`
 }
 
-// NodeGroup 节点分组
+// NodeGroup 节点分组.
 type NodeGroup struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -120,7 +120,7 @@ type NodeGroup struct {
 	CreatedAt   time.Time `json:"createdAt"`
 }
 
-// NewFleet 创建舰队管理器
+// NewFleet 创建舰队管理器.
 func NewFleet(config *FleetConfig) *Fleet {
 	if config == nil {
 		config = DefaultFleetConfig()
@@ -162,7 +162,7 @@ func NewFleet(config *FleetConfig) *Fleet {
 	return f
 }
 
-// Start 启动舰队管理
+// Start 启动舰队管理.
 func (f *Fleet) Start() error {
 	// 启动心跳循环
 	go f.heartbeatLoop()
@@ -176,7 +176,7 @@ func (f *Fleet) Start() error {
 	return nil
 }
 
-// Stop 停止舰队管理
+// Stop 停止舰队管理.
 func (f *Fleet) Stop() {
 	f.cancel()
 	f.saveData()
@@ -184,7 +184,7 @@ func (f *Fleet) Stop() {
 
 // ========== 节点管理 ==========
 
-// RegisterNode 注册节点
+// RegisterNode 注册节点.
 func (f *Fleet) RegisterNode(node *FleetNode) error {
 	if node.ID == "" {
 		return fmt.Errorf("节点ID不能为空")
@@ -224,7 +224,7 @@ func (f *Fleet) RegisterNode(node *FleetNode) error {
 	return nil
 }
 
-// UnregisterNode 注销节点
+// UnregisterNode 注销节点.
 func (f *Fleet) UnregisterNode(nodeID string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -249,7 +249,7 @@ func (f *Fleet) UnregisterNode(nodeID string) error {
 	return nil
 }
 
-// GetNode 获取节点信息
+// GetNode 获取节点信息.
 func (f *Fleet) GetNode(nodeID string) (*FleetNode, bool) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
@@ -257,7 +257,7 @@ func (f *Fleet) GetNode(nodeID string) (*FleetNode, bool) {
 	return node, ok
 }
 
-// ListNodes 列出所有节点
+// ListNodes 列出所有节点.
 func (f *Fleet) ListNodes(filter *NodeFilter) []*FleetNode {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
@@ -298,14 +298,14 @@ func (f *Fleet) ListNodes(filter *NodeFilter) []*FleetNode {
 	return result
 }
 
-// NodeFilter 节点过滤器
+// NodeFilter 节点过滤器.
 type NodeFilter struct {
 	Role  FleetNodeRole  `json:"role"`
 	State FleetNodeState `json:"state"`
 	Tag   string         `json:"tag"`
 }
 
-// UpdateNodeMetrics 更新节点指标
+// UpdateNodeMetrics 更新节点指标.
 func (f *Fleet) UpdateNodeMetrics(nodeID string, metrics *NodeMetrics) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -325,7 +325,7 @@ func (f *Fleet) UpdateNodeMetrics(nodeID string, metrics *NodeMetrics) error {
 	return nil
 }
 
-// UpdateNodeState 更新节点状态
+// UpdateNodeState 更新节点状态.
 func (f *Fleet) UpdateNodeState(nodeID string, state FleetNodeState) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -339,7 +339,7 @@ func (f *Fleet) UpdateNodeState(nodeID string, state FleetNodeState) error {
 	return nil
 }
 
-// SetNodeRole 设置节点角色
+// SetNodeRole 设置节点角色.
 func (f *Fleet) SetNodeRole(nodeID string, role FleetNodeRole) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -355,7 +355,7 @@ func (f *Fleet) SetNodeRole(nodeID string, role FleetNodeRole) error {
 
 // ========== 节点分组管理 ==========
 
-// CreateGroup 创建节点分组
+// CreateGroup 创建节点分组.
 func (f *Fleet) CreateGroup(group *NodeGroup) error {
 	if group.ID == "" {
 		return fmt.Errorf("分组ID不能为空")
@@ -381,7 +381,7 @@ func (f *Fleet) CreateGroup(group *NodeGroup) error {
 	return nil
 }
 
-// DeleteGroup 删除节点分组
+// DeleteGroup 删除节点分组.
 func (f *Fleet) DeleteGroup(groupID string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -394,7 +394,7 @@ func (f *Fleet) DeleteGroup(groupID string) error {
 	return nil
 }
 
-// AddNodeToGroup 将节点加入分组
+// AddNodeToGroup 将节点加入分组.
 func (f *Fleet) AddNodeToGroup(groupID, nodeID string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -418,7 +418,7 @@ func (f *Fleet) AddNodeToGroup(groupID, nodeID string) error {
 	return nil
 }
 
-// RemoveNodeFromGroup 将节点从分组移除
+// RemoveNodeFromGroup 将节点从分组移除.
 func (f *Fleet) RemoveNodeFromGroup(groupID, nodeID string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -439,7 +439,7 @@ func (f *Fleet) RemoveNodeFromGroup(groupID, nodeID string) error {
 	return nil
 }
 
-// ListGroups 列出所有分组
+// ListGroups 列出所有分组.
 func (f *Fleet) ListGroups() []*NodeGroup {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
@@ -451,7 +451,7 @@ func (f *Fleet) ListGroups() []*NodeGroup {
 	return result
 }
 
-// GetGroup 获取分组
+// GetGroup 获取分组.
 func (f *Fleet) GetGroup(groupID string) (*NodeGroup, bool) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
@@ -461,7 +461,7 @@ func (f *Fleet) GetGroup(groupID string) (*NodeGroup, bool) {
 
 // ========== 跨节点任务调度 ==========
 
-// ScheduleTask 调度跨节点任务
+// ScheduleTask 调度跨节点任务.
 func (f *Fleet) ScheduleTask(task *CrossNodeTask) error {
 	if task.ID == "" {
 		task.ID = fmt.Sprintf("task-%d-%d", time.Now().UnixNano(), f.taskQueue.Len())
@@ -501,22 +501,22 @@ func (f *Fleet) ScheduleTask(task *CrossNodeTask) error {
 	return nil
 }
 
-// GetTask 获取任务状态
+// GetTask 获取任务状态.
 func (f *Fleet) GetTask(taskID string) (*CrossNodeTask, bool) {
 	return f.taskQueue.Get(taskID)
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (f *Fleet) ListTasks(filter *TaskFilter) []*CrossNodeTask {
 	return f.taskQueue.List(filter)
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (f *Fleet) CancelTask(taskID string) error {
 	return f.taskQueue.Cancel(taskID)
 }
 
-// selectTargetNodes 选择目标节点
+// selectTargetNodes 选择目标节点.
 func (f *Fleet) selectTargetNodes(task *CrossNodeTask) []string {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
@@ -557,7 +557,7 @@ func (f *Fleet) selectTargetNodes(task *CrossNodeTask) []string {
 	return candidates
 }
 
-// nodeLoadScore 计算节点负载分数（越低越好）
+// nodeLoadScore 计算节点负载分数（越低越好）.
 func nodeLoadScore(node *FleetNode) float64 {
 	if node.Metrics == nil {
 		return 100 // 无指标视为高负载
@@ -567,7 +567,7 @@ func nodeLoadScore(node *FleetNode) float64 {
 
 // ========== 跨节点任务类型 ==========
 
-// CrossNodeTask 跨节点任务
+// CrossNodeTask 跨节点任务.
 type CrossNodeTask struct {
 	ID                 string            `json:"id"`
 	Type               CrossNodeTaskType `json:"type"`
@@ -590,7 +590,7 @@ type CrossNodeTask struct {
 	MaxRetries         int               `json:"maxRetries"`
 }
 
-// CrossNodeTaskType 跨节点任务类型
+// CrossNodeTaskType 跨节点任务类型.
 type CrossNodeTaskType string
 
 const (
@@ -603,7 +603,7 @@ const (
 	FleetTaskDataReplication  CrossNodeTaskType = "data_replication"  // 数据复制
 )
 
-// TaskNodeResult 节点任务结果
+// TaskNodeResult 节点任务结果.
 type TaskNodeResult struct {
 	NodeID    string    `json:"nodeId"`
 	Status    string    `json:"status"`
@@ -614,7 +614,7 @@ type TaskNodeResult struct {
 	Duration  int64     `json:"duration"` // ms
 }
 
-// TaskFilter 任务过滤器
+// TaskFilter 任务过滤器.
 type TaskFilter struct {
 	Type   CrossNodeTaskType `json:"type"`
 	Status string            `json:"status"`
@@ -622,7 +622,7 @@ type TaskFilter struct {
 
 // ========== 跨节点任务队列 ==========
 
-// CrossNodeTaskQueue 跨节点任务队列
+// CrossNodeTaskQueue 跨节点任务队列.
 type CrossNodeTaskQueue struct {
 	mu       sync.RWMutex
 	tasks    map[string]*CrossNodeTask
@@ -630,7 +630,7 @@ type CrossNodeTaskQueue struct {
 	maxTasks int
 }
 
-// NewCrossNodeTaskQueue 创建任务队列
+// NewCrossNodeTaskQueue 创建任务队列.
 func NewCrossNodeTaskQueue() *CrossNodeTaskQueue {
 	return &CrossNodeTaskQueue{
 		tasks:    make(map[string]*CrossNodeTask),
@@ -639,7 +639,7 @@ func NewCrossNodeTaskQueue() *CrossNodeTaskQueue {
 	}
 }
 
-// Enqueue 入队
+// Enqueue 入队.
 func (q *CrossNodeTaskQueue) Enqueue(task *CrossNodeTask) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
@@ -658,7 +658,7 @@ func (q *CrossNodeTaskQueue) Enqueue(task *CrossNodeTask) {
 	}
 }
 
-// Dequeue 出队
+// Dequeue 出队.
 func (q *CrossNodeTaskQueue) Dequeue() *CrossNodeTask {
 	q.mu.Lock()
 	defer q.mu.Unlock()
@@ -673,7 +673,7 @@ func (q *CrossNodeTaskQueue) Dequeue() *CrossNodeTask {
 	return task
 }
 
-// Get 获取任务
+// Get 获取任务.
 func (q *CrossNodeTaskQueue) Get(taskID string) (*CrossNodeTask, bool) {
 	q.mu.RLock()
 	defer q.mu.RUnlock()
@@ -681,7 +681,7 @@ func (q *CrossNodeTaskQueue) Get(taskID string) (*CrossNodeTask, bool) {
 	return task, ok
 }
 
-// List 列出任务
+// List 列出任务.
 func (q *CrossNodeTaskQueue) List(filter *TaskFilter) []*CrossNodeTask {
 	q.mu.RLock()
 	defer q.mu.RUnlock()
@@ -706,14 +706,14 @@ func (q *CrossNodeTaskQueue) List(filter *TaskFilter) []*CrossNodeTask {
 	return result
 }
 
-// Len 队列长度
+// Len 队列长度.
 func (q *CrossNodeTaskQueue) Len() int {
 	q.mu.RLock()
 	defer q.mu.RUnlock()
 	return len(q.tasks)
 }
 
-// Cancel 取消任务
+// Cancel 取消任务.
 func (q *CrossNodeTaskQueue) Cancel(taskID string) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
@@ -733,14 +733,14 @@ func (q *CrossNodeTaskQueue) Cancel(taskID string) error {
 
 // ========== 集群健康聚合 ==========
 
-// HealthAggregator 健康聚合器
+// HealthAggregator 健康聚合器.
 type HealthAggregator struct {
 	mu            sync.RWMutex
 	nodeHealths   map[string]*NodeHealth
 	clusterHealth *ClusterHealth
 }
 
-// NodeHealth 节点健康状态
+// NodeHealth 节点健康状态.
 type NodeHealth struct {
 	NodeID       string    `json:"nodeId"`
 	Status       string    `json:"status"` // "healthy", "degraded", "unhealthy"
@@ -753,7 +753,7 @@ type NodeHealth struct {
 	Issues       []string  `json:"issues,omitempty"`
 }
 
-// ClusterHealth 集群整体健康
+// ClusterHealth 集群整体健康.
 type ClusterHealth struct {
 	Status        string    `json:"status"` // "healthy", "degraded", "critical"
 	TotalNodes    int       `json:"totalNodes"`
@@ -765,7 +765,7 @@ type ClusterHealth struct {
 	LastUpdated   time.Time `json:"lastUpdated"`
 }
 
-// NewHealthAggregator 创建健康聚合器
+// NewHealthAggregator 创建健康聚合器.
 func NewHealthAggregator() *HealthAggregator {
 	return &HealthAggregator{
 		nodeHealths: make(map[string]*NodeHealth),
@@ -775,7 +775,7 @@ func NewHealthAggregator() *HealthAggregator {
 	}
 }
 
-// UpdateNode 更新节点健康
+// UpdateNode 更新节点健康.
 func (ha *HealthAggregator) UpdateNode(nodeID string, metrics *NodeMetrics) {
 	ha.mu.Lock()
 	defer ha.mu.Unlock()
@@ -818,7 +818,7 @@ func (ha *HealthAggregator) UpdateNode(nodeID string, metrics *NodeMetrics) {
 	ha.nodeHealths[nodeID] = health
 }
 
-// GetClusterHealth 获取集群整体健康
+// GetClusterHealth 获取集群整体健康.
 func (ha *HealthAggregator) GetClusterHealth(nodes map[string]*FleetNode) *ClusterHealth {
 	ha.mu.RLock()
 	defer ha.mu.RUnlock()
@@ -875,7 +875,7 @@ func (ha *HealthAggregator) GetClusterHealth(nodes map[string]*FleetNode) *Clust
 	return ch
 }
 
-// GetNodeHealth 获取节点健康
+// GetNodeHealth 获取节点健康.
 func (ha *HealthAggregator) GetNodeHealth(nodeID string) (*NodeHealth, bool) {
 	ha.mu.RLock()
 	defer ha.mu.RUnlock()
@@ -885,13 +885,13 @@ func (ha *HealthAggregator) GetNodeHealth(nodeID string) (*NodeHealth, bool) {
 
 // ========== 告警聚合 ==========
 
-// AlertAggregator 告警聚合器
+// AlertAggregator 告警聚合器.
 type AlertAggregator struct {
 	mu     sync.RWMutex
 	alerts map[string]*ClusterAlert
 }
 
-// ClusterAlert 集群告警
+// ClusterAlert 集群告警.
 type ClusterAlert struct {
 	ID         string    `json:"id"`
 	NodeID     string    `json:"nodeId"`
@@ -908,14 +908,14 @@ type ClusterAlert struct {
 	ResolvedAt time.Time `json:"resolvedAt,omitempty"`
 }
 
-// NewAlertAggregator 创建告警聚合器
+// NewAlertAggregator 创建告警聚合器.
 func NewAlertAggregator() *AlertAggregator {
 	return &AlertAggregator{
 		alerts: make(map[string]*ClusterAlert),
 	}
 }
 
-// AddAlert 添加告警
+// AddAlert 添加告警.
 func (aa *AlertAggregator) AddAlert(alert *ClusterAlert) {
 	aa.mu.Lock()
 	defer aa.mu.Unlock()
@@ -927,7 +927,7 @@ func (aa *AlertAggregator) AddAlert(alert *ClusterAlert) {
 	aa.alerts[alert.ID] = alert
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (aa *AlertAggregator) GetAlerts(filter *AlertFilter) []*ClusterAlert {
 	aa.mu.RLock()
 	defer aa.mu.RUnlock()
@@ -958,7 +958,7 @@ func (aa *AlertAggregator) GetAlerts(filter *AlertFilter) []*ClusterAlert {
 	return result
 }
 
-// AlertFilter 告警过滤器
+// AlertFilter 告警过滤器.
 type AlertFilter struct {
 	Level          string `json:"level"`
 	NodeID         string `json:"nodeId"`
@@ -966,7 +966,7 @@ type AlertFilter struct {
 	UnresolvedOnly bool   `json:"unresolvedOnly"`
 }
 
-// AckAlert 确认告警
+// AckAlert 确认告警.
 func (aa *AlertAggregator) AckAlert(alertID, ackedBy string) error {
 	aa.mu.Lock()
 	defer aa.mu.Unlock()
@@ -983,7 +983,7 @@ func (aa *AlertAggregator) AckAlert(alertID, ackedBy string) error {
 	return nil
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (aa *AlertAggregator) ResolveAlert(alertID string) error {
 	aa.mu.Lock()
 	defer aa.mu.Unlock()
@@ -1001,7 +1001,7 @@ func (aa *AlertAggregator) ResolveAlert(alertID string) error {
 
 // ========== 内部循环 ==========
 
-// heartbeatLoop 心跳循环
+// heartbeatLoop 心跳循环.
 func (f *Fleet) heartbeatLoop() {
 	ticker := time.NewTicker(f.config.HeartbeatInterval)
 	defer ticker.Stop()
@@ -1016,7 +1016,7 @@ func (f *Fleet) heartbeatLoop() {
 	}
 }
 
-// checkNodeTimeouts 检查节点超时
+// checkNodeTimeouts 检查节点超时.
 func (f *Fleet) checkNodeTimeouts() {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -1052,7 +1052,7 @@ func (f *Fleet) checkNodeTimeouts() {
 	}
 }
 
-// healthAggregationLoop 健康聚合循环
+// healthAggregationLoop 健康聚合循环.
 func (f *Fleet) healthAggregationLoop() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
@@ -1074,7 +1074,7 @@ func (f *Fleet) healthAggregationLoop() {
 	}
 }
 
-// taskSchedulingLoop 任务调度循环（后台清理已完成任务）
+// taskSchedulingLoop 任务调度循环（后台清理已完成任务）.
 func (f *Fleet) taskSchedulingLoop() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
@@ -1091,7 +1091,7 @@ func (f *Fleet) taskSchedulingLoop() {
 
 // ========== 数据持久化 ==========
 
-// loadData 加载持久化数据
+// loadData 加载持久化数据.
 func (f *Fleet) loadData() {
 	if f.dataDir == "" {
 		return
@@ -1121,7 +1121,7 @@ func (f *Fleet) loadData() {
 	}
 }
 
-// saveData 保存持久化数据
+// saveData 保存持久化数据.
 func (f *Fleet) saveData() {
 	if f.dataDir == "" {
 		return
@@ -1148,7 +1148,7 @@ func (f *Fleet) saveData() {
 	os.WriteFile(filepath.Join(f.dataDir, "fleet-data.json"), data, 0644)
 }
 
-// GetFleetSummary 获取舰队摘要
+// GetFleetSummary 获取舰队摘要.
 func (f *Fleet) GetFleetSummary() *FleetSummary {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
@@ -1186,7 +1186,7 @@ func (f *Fleet) GetFleetSummary() *FleetSummary {
 	return summary
 }
 
-// FleetSummary 舰队摘要
+// FleetSummary 舰队摘要.
 type FleetSummary struct {
 	TotalNodes       int              `json:"totalNodes"`
 	OnlineNodes      int              `json:"onlineNodes"`

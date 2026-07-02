@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// MDNSServer mDNS 服务广播器
+// MDNSServer mDNS 服务广播器.
 type MDNSServer struct {
 	serviceName string
 	port        int
@@ -23,7 +23,7 @@ type MDNSServer struct {
 	mu          sync.Mutex
 }
 
-// NewMDNSServer 创建 mDNS 服务器
+// NewMDNSServer 创建 mDNS 服务器.
 func NewMDNSServer(serviceName string, port int, node *NodeInfo, logger *zap.Logger) *MDNSServer {
 	return &MDNSServer{
 		serviceName: serviceName,
@@ -33,7 +33,7 @@ func NewMDNSServer(serviceName string, port int, node *NodeInfo, logger *zap.Log
 	}
 }
 
-// Start 启动 mDNS 广播
+// Start 启动 mDNS 广播.
 func (s *MDNSServer) Start() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -69,7 +69,7 @@ func (s *MDNSServer) Start() error {
 	return nil
 }
 
-// Stop 停止 mDNS 广播
+// Stop 停止 mDNS 广播.
 func (s *MDNSServer) Stop() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -80,7 +80,7 @@ func (s *MDNSServer) Stop() {
 	}
 }
 
-// UpdateText 更新服务文本记录
+// UpdateText 更新服务文本记录.
 func (s *MDNSServer) UpdateText(node *NodeInfo) {
 	s.mu.Lock()
 	s.node = node
@@ -91,7 +91,7 @@ func (s *MDNSServer) UpdateText(node *NodeInfo) {
 	_ = s.Start()
 }
 
-// MDNSResolver mDNS 服务解析器
+// MDNSResolver mDNS 服务解析器.
 type MDNSResolver struct {
 	serviceName string
 	resolver    *zeroconf.Resolver
@@ -102,12 +102,12 @@ type MDNSResolver struct {
 	logger      *zap.Logger
 }
 
-// MDNSResolverCallbacks mDNS 解析回调
+// MDNSResolverCallbacks mDNS 解析回调.
 type MDNSResolverCallbacks struct {
 	OnNodeFound func(node *NodeInfo)
 }
 
-// NewMDNSResolver 创建 mDNS 解析器
+// NewMDNSResolver 创建 mDNS 解析器.
 func NewMDNSResolver(serviceName string, logger *zap.Logger) *MDNSResolver {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &MDNSResolver{
@@ -118,7 +118,7 @@ func NewMDNSResolver(serviceName string, logger *zap.Logger) *MDNSResolver {
 	}
 }
 
-// Start 启动 mDNS 发现
+// Start 启动 mDNS 发现.
 func (r *MDNSResolver) Start(ctx context.Context) error {
 	r.ctx = ctx
 
@@ -144,14 +144,14 @@ func (r *MDNSResolver) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止 mDNS 发现
+// Stop 停止 mDNS 发现.
 func (r *MDNSResolver) Stop() {
 	if r.cancel != nil {
 		r.cancel()
 	}
 }
 
-// processEntries 处理发现的条目
+// processEntries 处理发现的条目.
 func (r *MDNSResolver) processEntries() {
 	for {
 		select {
@@ -166,7 +166,7 @@ func (r *MDNSResolver) processEntries() {
 	}
 }
 
-// handleEntry 处理单个服务条目
+// handleEntry 处理单个服务条目.
 func (r *MDNSResolver) handleEntry(entry *zeroconf.ServiceEntry) {
 	if len(entry.AddrIPv4) == 0 {
 		return
@@ -217,12 +217,12 @@ func (r *MDNSResolver) handleEntry(entry *zeroconf.ServiceEntry) {
 	}
 }
 
-// SetCallbacks 设置回调
+// SetCallbacks 设置回调.
 func (r *MDNSResolver) SetCallbacks(callbacks MDNSResolverCallbacks) {
 	r.callbacks = callbacks
 }
 
-// DiscoverOnce 执行一次性发现
+// DiscoverOnce 执行一次性发现.
 func (r *MDNSResolver) DiscoverOnce(timeout time.Duration) []*NodeInfo {
 	ctx, cancel := context.WithTimeout(r.ctx, timeout)
 	defer cancel()
@@ -253,7 +253,7 @@ func (r *MDNSResolver) DiscoverOnce(timeout time.Duration) []*NodeInfo {
 	}
 }
 
-// parseEntry 解析服务条目
+// parseEntry 解析服务条目.
 func (r *MDNSResolver) parseEntry(entry *zeroconf.ServiceEntry) *NodeInfo {
 	if len(entry.AddrIPv4) == 0 {
 		return nil
@@ -289,29 +289,29 @@ func (r *MDNSResolver) parseEntry(entry *zeroconf.ServiceEntry) *NodeInfo {
 	return node
 }
 
-// StaticDiscovery 静态节点发现器
+// StaticDiscovery 静态节点发现器.
 type StaticDiscovery struct {
 	nodes []NodeEndpoint
 }
 
-// NewStaticDiscovery 创建静态发现器
+// NewStaticDiscovery 创建静态发现器.
 func NewStaticDiscovery(nodes []NodeEndpoint) *StaticDiscovery {
 	return &StaticDiscovery{
 		nodes: nodes,
 	}
 }
 
-// Discover 返回静态节点列表
+// Discover 返回静态节点列表.
 func (s *StaticDiscovery) Discover() []NodeEndpoint {
 	return s.nodes
 }
 
-// AddNode 添加静态节点
+// AddNode 添加静态节点.
 func (s *StaticDiscovery) AddNode(node NodeEndpoint) {
 	s.nodes = append(s.nodes, node)
 }
 
-// RemoveNode 移除静态节点
+// RemoveNode 移除静态节点.
 func (s *StaticDiscovery) RemoveNode(nodeID string) {
 	for i, node := range s.nodes {
 		if node.ID == nodeID {
@@ -321,19 +321,19 @@ func (s *StaticDiscovery) RemoveNode(nodeID string) {
 	}
 }
 
-// APIDiscovery API 节点发现器
+// APIDiscovery API 节点发现器.
 type APIDiscovery struct {
 	endpoint   string
 	httpClient HTTPClient
 	logger     *zap.Logger
 }
 
-// HTTPClient HTTP 客户端接口
+// HTTPClient HTTP 客户端接口.
 type HTTPClient interface {
 	Do(req interface{}) (interface{}, error)
 }
 
-// NewAPIDiscovery 创建 API 发现器
+// NewAPIDiscovery 创建 API 发现器.
 func NewAPIDiscovery(endpoint string, logger *zap.Logger) *APIDiscovery {
 	return &APIDiscovery{
 		endpoint: endpoint,
@@ -341,7 +341,7 @@ func NewAPIDiscovery(endpoint string, logger *zap.Logger) *APIDiscovery {
 	}
 }
 
-// Discover 从 API 发现节点
+// Discover 从 API 发现节点.
 func (a *APIDiscovery) Discover() ([]*NodeInfo, error) {
 	// 简化实现：返回空列表
 	// 实际实现应调用 API 端点获取节点列表
@@ -350,7 +350,7 @@ func (a *APIDiscovery) Discover() ([]*NodeInfo, error) {
 
 // Helper functions
 
-// parsePort 从字符串解析端口
+// parsePort 从字符串解析端口.
 func parsePort(s string) int {
 	port, err := strconv.Atoi(s)
 	if err != nil {

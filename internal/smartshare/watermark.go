@@ -9,13 +9,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// WatermarkEngine 水印引擎
+// WatermarkEngine 水印引擎.
 type WatermarkEngine struct {
 	mu     sync.RWMutex
 	logger *zap.Logger
 }
 
-// NewWatermarkEngine 创建水印引擎
+// NewWatermarkEngine 创建水印引擎.
 func NewWatermarkEngine(logger *zap.Logger) *WatermarkEngine {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -26,7 +26,7 @@ func NewWatermarkEngine(logger *zap.Logger) *WatermarkEngine {
 	}
 }
 
-// WatermarkRequest 水印请求
+// WatermarkRequest 水印请求.
 type WatermarkRequest struct {
 	FilePath   string           `json:"file_path"`
 	Config     *WatermarkConfig `json:"config"`
@@ -35,14 +35,14 @@ type WatermarkRequest struct {
 	CustomText string           `json:"custom_text,omitempty"`
 }
 
-// UserInfo 用户信息
+// UserInfo 用户信息.
 type UserInfo struct {
 	UserID   string `json:"user_id"`
 	Username string `json:"username"`
 	IP       string `json:"ip"`
 }
 
-// WatermarkResult 水印结果
+// WatermarkResult 水印结果.
 type WatermarkResult struct {
 	OutputPath   string    `json:"output_path"`
 	OriginalSize int64     `json:"original_size"`
@@ -51,7 +51,7 @@ type WatermarkResult struct {
 	CreatedAt    time.Time `json:"created_at"`
 }
 
-// AddTextWatermark 添加文本水印
+// AddTextWatermark 添加文本水印.
 func (we *WatermarkEngine) AddTextWatermark(req *WatermarkRequest) (*WatermarkResult, error) {
 	we.mu.Lock()
 	defer we.mu.Unlock()
@@ -89,7 +89,7 @@ func (we *WatermarkEngine) AddTextWatermark(req *WatermarkRequest) (*WatermarkRe
 	return result, nil
 }
 
-// AddImageWatermark 添加图片水印
+// AddImageWatermark 添加图片水印.
 func (we *WatermarkEngine) AddImageWatermark(req *WatermarkRequest) (*WatermarkResult, error) {
 	we.mu.Lock()
 	defer we.mu.Unlock()
@@ -114,7 +114,7 @@ func (we *WatermarkEngine) AddImageWatermark(req *WatermarkRequest) (*WatermarkR
 	return result, nil
 }
 
-// AddDynamicWatermark 添加动态水印（包含用户信息、时间戳等）
+// AddDynamicWatermark 添加动态水印（包含用户信息、时间戳等）.
 func (we *WatermarkEngine) AddDynamicWatermark(req *WatermarkRequest) (*WatermarkResult, error) {
 	we.mu.Lock()
 	defer we.mu.Unlock()
@@ -141,7 +141,7 @@ func (we *WatermarkEngine) AddDynamicWatermark(req *WatermarkRequest) (*Watermar
 	return result, nil
 }
 
-// buildWatermarkText 构建水印文本
+// buildWatermarkText 构建水印文本.
 func (we *WatermarkEngine) buildWatermarkText(req *WatermarkRequest) string {
 	text := req.Config.Text
 
@@ -156,7 +156,7 @@ func (we *WatermarkEngine) buildWatermarkText(req *WatermarkRequest) string {
 	return text
 }
 
-// buildDynamicText 构建动态水印文本
+// buildDynamicText 构建动态水印文本.
 func (we *WatermarkEngine) buildDynamicText(req *WatermarkRequest) string {
 	parts := make([]string, 0)
 
@@ -192,7 +192,7 @@ func (we *WatermarkEngine) buildDynamicText(req *WatermarkRequest) string {
 	return result
 }
 
-// validateConfig 验证水印配置
+// validateConfig 验证水印配置.
 func (we *WatermarkEngine) validateConfig(config *WatermarkConfig) error {
 	if config.FontSize <= 0 {
 		return fmt.Errorf("invalid font size: %d", config.FontSize)
@@ -209,13 +209,13 @@ func (we *WatermarkEngine) validateConfig(config *WatermarkConfig) error {
 	return nil
 }
 
-// generateOutputPath 生成输出文件路径
+// generateOutputPath 生成输出文件路径.
 func (we *WatermarkEngine) generateOutputPath(inputPath string) string {
 	// 简单实现：在原文件名后添加 _watermarked
 	return inputPath + "_watermarked"
 }
 
-// GetDefaultConfig 获取默认水印配置
+// GetDefaultConfig 获取默认水印配置.
 func (we *WatermarkEngine) GetDefaultConfig() *WatermarkConfig {
 	return DefaultWatermarkConfig()
 }

@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Search 执行搜索
+// Search 执行搜索.
 func (m *Manager) Search(req *SearchRequest) (*SearchResult, error) {
 	start := time.Now()
 
@@ -104,7 +104,7 @@ func (m *Manager) Search(req *SearchRequest) (*SearchResult, error) {
 	return result, nil
 }
 
-// Suggest 获取搜索建议
+// Suggest 获取搜索建议.
 func (m *Manager) Suggest(req *SuggestRequest) (*SuggestResponse, error) {
 	m.index.mu.RLock()
 	defer m.index.mu.RUnlock()
@@ -142,12 +142,12 @@ func (m *Manager) Suggest(req *SuggestRequest) (*SuggestResponse, error) {
 	}, nil
 }
 
-// tokenizeQuery 分词查询
+// tokenizeQuery 分词查询.
 func (m *Manager) tokenizeQuery(query string) []string {
 	return m.tokenizer.tokenize(query)
 }
 
-// findCandidates 查找候选文档
+// findCandidates 查找候选文档.
 func (m *Manager) findCandidates(queryTokens []string) map[string]float64 {
 	candidates := make(map[string]float64)
 
@@ -174,7 +174,7 @@ func (m *Manager) findCandidates(queryTokens []string) map[string]float64 {
 	return candidates
 }
 
-// scoreDocuments 计算文档分数
+// scoreDocuments 计算文档分数.
 func (m *Manager) scoreDocuments(candidates map[string]float64, queryTokens []string, req *SearchRequest) []ScoredDocument {
 	var results []ScoredDocument
 
@@ -209,7 +209,7 @@ func (m *Manager) scoreDocuments(candidates map[string]float64, queryTokens []st
 	return results
 }
 
-// matchesFilters 检查文档是否匹配过滤器
+// matchesFilters 检查文档是否匹配过滤器.
 func (m *Manager) matchesFilters(doc *Document, req *SearchRequest) bool {
 	// 路径过滤
 	if req.Path != "" && !strings.HasPrefix(doc.Path, req.Path) {
@@ -264,7 +264,7 @@ func (m *Manager) matchesFilters(doc *Document, req *SearchRequest) bool {
 	return true
 }
 
-// calculateScore 计算文档分数
+// calculateScore 计算文档分数.
 func (m *Manager) calculateScore(doc *Document, queryTokens []string, baseScore float64) float64 {
 	score := baseScore
 
@@ -330,7 +330,7 @@ func (m *Manager) calculateScore(doc *Document, queryTokens []string, baseScore 
 	return score
 }
 
-// generateHighlights 生成高亮片段
+// generateHighlights 生成高亮片段.
 func (m *Manager) generateHighlights(doc *Document, queryTokens []string) []string {
 	var highlights []string
 
@@ -349,7 +349,7 @@ func (m *Manager) generateHighlights(doc *Document, queryTokens []string) []stri
 	return highlights
 }
 
-// highlightText 高亮文本
+// highlightText 高亮文本.
 func (m *Manager) highlightText(text string, queryTokens []string) string {
 	result := text
 	for _, token := range queryTokens {
@@ -365,7 +365,7 @@ func (m *Manager) highlightText(text string, queryTokens []string) string {
 	return result
 }
 
-// highlightContent 高亮内容片段
+// highlightContent 高亮内容片段.
 func (m *Manager) highlightContent(content string, queryTokens []string, maxSnippets int) []string {
 	var snippets []string
 	lower := strings.ToLower(content)
@@ -400,7 +400,7 @@ func (m *Manager) highlightContent(content string, queryTokens []string, maxSnip
 	return snippets
 }
 
-// getMatchReason 获取匹配原因
+// getMatchReason 获取匹配原因.
 func (m *Manager) getMatchReason(doc *Document, queryTokens []string) string {
 	var reasons []string
 
@@ -439,7 +439,7 @@ func (m *Manager) getMatchReason(doc *Document, queryTokens []string) string {
 	return strings.Join(reasons, ", ")
 }
 
-// sortResults 排序结果
+// sortResults 排序结果.
 func (m *Manager) sortResults(results []ScoredDocument, sortBy, sortOrder string) {
 	sort.Slice(results, func(i, j int) bool {
 		var less bool
@@ -462,7 +462,7 @@ func (m *Manager) sortResults(results []ScoredDocument, sortBy, sortOrder string
 	})
 }
 
-// generateSuggestions 生成搜索建议
+// generateSuggestions 生成搜索建议.
 func (m *Manager) generateSuggestions(query string) []string {
 	query = strings.ToLower(strings.TrimSpace(query))
 
@@ -479,7 +479,7 @@ func (m *Manager) generateSuggestions(query string) []string {
 	return result
 }
 
-// spellCorrect 拼写纠正
+// spellCorrect 拼写纠正.
 func (m *Manager) spellCorrect(query string, limit int) []Suggestion {
 	var suggestions []Suggestion
 
@@ -505,7 +505,7 @@ func (m *Manager) spellCorrect(query string, limit int) []Suggestion {
 	return suggestions
 }
 
-// editDistance 计算编辑距离
+// editDistance 计算编辑距离.
 func editDistance(s1, s2 string) int {
 	r1 := []rune(s1)
 	r2 := []rune(s2)
@@ -538,7 +538,7 @@ func editDistance(s1, s2 string) int {
 	return dp[m][n]
 }
 
-// min 返回最小值
+// min 返回最小值.
 func min(a, b, c int) int {
 	if a < b {
 		if a < c {
@@ -552,7 +552,7 @@ func min(a, b, c int) int {
 	return c
 }
 
-// deduplicateSuggestions 去重建议
+// deduplicateSuggestions 去重建议.
 func deduplicateSuggestions(suggestions []Suggestion) []Suggestion {
 	seen := make(map[string]bool)
 	var result []Suggestion
@@ -567,7 +567,7 @@ func deduplicateSuggestions(suggestions []Suggestion) []Suggestion {
 	return result
 }
 
-// SearchByPath 按路径搜索
+// SearchByPath 按路径搜索.
 func (m *Manager) SearchByPath(path string, limit int) []*Document {
 	m.index.mu.RLock()
 	defer m.index.mu.RUnlock()
@@ -587,7 +587,7 @@ func (m *Manager) SearchByPath(path string, limit int) []*Document {
 	return results
 }
 
-// SearchByTags 按标签搜索
+// SearchByTags 按标签搜索.
 func (m *Manager) SearchByTags(tags []string, limit int) []*Document {
 	m.index.mu.RLock()
 	defer m.index.mu.RUnlock()
@@ -613,7 +613,7 @@ func (m *Manager) SearchByTags(tags []string, limit int) []*Document {
 	return results
 }
 
-// GetPopularSearches 获取热门搜索
+// GetPopularSearches 获取热门搜索.
 func (m *Manager) GetPopularSearches(limit int) []Suggestion {
 	m.index.mu.RLock()
 	defer m.index.mu.RUnlock()
@@ -641,7 +641,7 @@ func (m *Manager) GetPopularSearches(limit int) []Suggestion {
 	return suggestions
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (m *Manager) RebuildIndex() error {
 	m.index.mu.Lock()
 	defer m.index.mu.Unlock()

@@ -10,13 +10,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handler 成本预测 HTTP 处理器
+// Handler 成本预测 HTTP 处理器.
 type Handler struct {
 	manager *Manager
 	logger  *zap.Logger
 }
 
-// NewHandler 创建新的 HTTP 处理器
+// NewHandler 创建新的 HTTP 处理器.
 func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -27,7 +27,7 @@ func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
 	}
 }
 
-// RegisterRoutes 注册 API 路由
+// RegisterRoutes 注册 API 路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	costpredict := rg.Group("/costpredict")
 	{
@@ -39,7 +39,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 }
 
 // GetForecast 获取成本预测
-// GET /api/costpredict/forecast
+// GET /api/costpredict/forecast.
 func (h *Handler) GetForecast(c *gin.Context) {
 	h.logger.Info("Getting cost forecast")
 
@@ -65,7 +65,7 @@ func (h *Handler) GetForecast(c *gin.Context) {
 }
 
 // GetGrowthForecast 获取存储增长趋势
-// GET /api/costpredict/growth
+// GET /api/costpredict/growth.
 func (h *Handler) GetGrowthForecast(c *gin.Context) {
 	h.logger.Info("Getting growth forecast")
 
@@ -94,7 +94,7 @@ func (h *Handler) GetGrowthForecast(c *gin.Context) {
 }
 
 // SetAlert 设置预算告警
-// POST /api/costpredict/alert
+// POST /api/costpredict/alert.
 func (h *Handler) SetAlert(c *gin.Context) {
 	h.logger.Info("Setting budget alert")
 
@@ -125,7 +125,7 @@ func (h *Handler) SetAlert(c *gin.Context) {
 }
 
 // GetReport 获取预测报告
-// GET /api/costpredict/report
+// GET /api/costpredict/report.
 func (h *Handler) GetReport(c *gin.Context) {
 	h.logger.Info("Getting prediction report")
 

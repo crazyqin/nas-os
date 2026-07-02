@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-// CollectManager 文件收集管理器
+// CollectManager 文件收集管理器.
 type CollectManager struct {
 	mu          sync.RWMutex
 	config      CollectConfig
@@ -25,7 +25,7 @@ type CollectManager struct {
 	fileHashes  map[string]string            // 文件哈希 -> 提交ID (用于去重)
 }
 
-// NewCollectManager 创建收集管理器
+// NewCollectManager 创建收集管理器.
 func NewCollectManager(config *CollectConfig) *CollectManager {
 	cfg := DefaultCollectConfig()
 	if config != nil {
@@ -40,7 +40,7 @@ func NewCollectManager(config *CollectConfig) *CollectManager {
 	}
 }
 
-// CreateCollectRequest 创建收集请求
+// CreateCollectRequest 创建收集请求.
 func (m *CollectManager) CreateCollectRequest(req *CreateCollectRequest, creatorID, creatorName string) (*CollectRequest, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -112,7 +112,7 @@ func (m *CollectManager) CreateCollectRequest(req *CreateCollectRequest, creator
 	return collectReq, nil
 }
 
-// GetCollectRequest 获取收集请求
+// GetCollectRequest 获取收集请求.
 func (m *CollectManager) GetCollectRequest(id string) (*CollectRequest, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -130,7 +130,7 @@ func (m *CollectManager) GetCollectRequest(id string) (*CollectRequest, error) {
 	return req, nil
 }
 
-// ListCollectRequests 列出收集请求
+// ListCollectRequests 列出收集请求.
 func (m *CollectManager) ListCollectRequests(creatorID string) []CollectRequest {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -149,7 +149,7 @@ func (m *CollectManager) ListCollectRequests(creatorID string) []CollectRequest 
 	return requests
 }
 
-// UpdateCollectRequest 更新收集请求
+// UpdateCollectRequest 更新收集请求.
 func (m *CollectManager) UpdateCollectRequest(id string, updates map[string]interface{}) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -173,7 +173,7 @@ func (m *CollectManager) UpdateCollectRequest(id string, updates map[string]inte
 	return nil
 }
 
-// DeleteCollectRequest 删除收集请求
+// DeleteCollectRequest 删除收集请求.
 func (m *CollectManager) DeleteCollectRequest(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -188,7 +188,7 @@ func (m *CollectManager) DeleteCollectRequest(id string) error {
 	return nil
 }
 
-// SubmitFile 提交文件
+// SubmitFile 提交文件.
 func (m *CollectManager) SubmitFile(collectID string, file io.Reader, fileName string, req *SubmitFileRequest, clientIP string) (*FileSubmission, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -336,7 +336,7 @@ func (m *CollectManager) SubmitFile(collectID string, file io.Reader, fileName s
 	return submission, nil
 }
 
-// GetSubmission 获取提交
+// GetSubmission 获取提交.
 func (m *CollectManager) GetSubmission(collectID, submissionID string) (*FileSubmission, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -355,7 +355,7 @@ func (m *CollectManager) GetSubmission(collectID, submissionID string) (*FileSub
 	return nil, fmt.Errorf("提交不存在")
 }
 
-// ListSubmissions 列出提交
+// ListSubmissions 列出提交.
 func (m *CollectManager) ListSubmissions(collectID string) ([]FileSubmission, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -372,7 +372,7 @@ func (m *CollectManager) ListSubmissions(collectID string) ([]FileSubmission, er
 	return result, nil
 }
 
-// UpdateSubmissionStatus 更新提交状态
+// UpdateSubmissionStatus 更新提交状态.
 func (m *CollectManager) UpdateSubmissionStatus(collectID, submissionID string, status SubmissionStatus, reason string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -395,7 +395,7 @@ func (m *CollectManager) UpdateSubmissionStatus(collectID, submissionID string, 
 	return fmt.Errorf("提交不存在")
 }
 
-// UpdateVirusScanResult 更新病毒扫描结果
+// UpdateVirusScanResult 更新病毒扫描结果.
 func (m *CollectManager) UpdateVirusScanResult(collectID, submissionID string, result *VirusScanResult) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -423,7 +423,7 @@ func (m *CollectManager) UpdateVirusScanResult(collectID, submissionID string, r
 	return fmt.Errorf("提交不存在")
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *CollectManager) GetStats(creatorID string) *CollectStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -456,28 +456,28 @@ func (m *CollectManager) GetStats(creatorID string) *CollectStats {
 	return stats
 }
 
-// PauseCollectRequest 暂停收集请求
+// PauseCollectRequest 暂停收集请求.
 func (m *CollectManager) PauseCollectRequest(id string) error {
 	return m.UpdateCollectRequest(id, map[string]interface{}{
 		"status": CollectStatusPaused,
 	})
 }
 
-// ResumeCollectRequest 恢复收集请求
+// ResumeCollectRequest 恢复收集请求.
 func (m *CollectManager) ResumeCollectRequest(id string) error {
 	return m.UpdateCollectRequest(id, map[string]interface{}{
 		"status": CollectStatusActive,
 	})
 }
 
-// CloseCollectRequest 关闭收集请求
+// CloseCollectRequest 关闭收集请求.
 func (m *CollectManager) CloseCollectRequest(id string) error {
 	return m.UpdateCollectRequest(id, map[string]interface{}{
 		"status": CollectStatusClosed,
 	})
 }
 
-// ValidateAccessToken 验证访问令牌
+// ValidateAccessToken 验证访问令牌.
 func (m *CollectManager) ValidateAccessToken(id, token string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -490,7 +490,7 @@ func (m *CollectManager) ValidateAccessToken(id, token string) bool {
 	return req.AccessToken == token
 }
 
-// isAllowedExt 检查扩展名是否允许
+// isAllowedExt 检查扩展名是否允许.
 func (m *CollectManager) isAllowedExt(ext string, allowed, blocked []string) bool {
 	// 检查黑名单
 	for _, b := range blocked {
@@ -514,7 +514,7 @@ func (m *CollectManager) isAllowedExt(ext string, allowed, blocked []string) boo
 	return false
 }
 
-// classifyFile 根据扩展名分类文件
+// classifyFile 根据扩展名分类文件.
 func (m *CollectManager) classifyFile(ext string) FileCategory {
 	ext = strings.ToLower(ext)
 
@@ -565,21 +565,21 @@ func (m *CollectManager) classifyFile(ext string) FileCategory {
 	}
 }
 
-// generateID 生成随机ID
+// generateID 生成随机ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// generateToken 生成访问令牌
+// generateToken 生成访问令牌.
 func generateToken() string {
 	b := make([]byte, 32)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// GetCollectRequestByLink 通过链接获取收集请求
+// GetCollectRequestByLink 通过链接获取收集请求.
 func (m *CollectManager) GetCollectRequestByLink(link string) (*CollectRequest, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

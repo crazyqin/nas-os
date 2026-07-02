@@ -617,36 +617,36 @@ func (t *CloudflareTunnel) jsonToYAML(data map[string]interface{}) []byte {
 	for key, value := range data {
 		switch v := value.(type) {
 		case string:
-			yaml.WriteString(fmt.Sprintf("%s: %s\n", key, v))
+			fmt.Fprintf(&yaml, "%s: %s\n", key, v)
 		case int:
-			yaml.WriteString(fmt.Sprintf("%s: %d\n", key, v))
+			fmt.Fprintf(&yaml, "%s: %d\n", key, v)
 		case bool:
-			yaml.WriteString(fmt.Sprintf("%s: %v\n", key, v))
+			fmt.Fprintf(&yaml, "%s: %v\n", key, v)
 		case []map[string]interface{}:
-			yaml.WriteString(fmt.Sprintf("%s:\n", key))
+			fmt.Fprintf(&yaml, "%s:\n", key)
 			for _, item := range v {
 				yaml.WriteString("  - ")
 				for ik, iv := range item {
 					switch iiv := iv.(type) {
 					case string:
-						yaml.WriteString(fmt.Sprintf("%s: %s\n", ik, iiv))
+						fmt.Fprintf(&yaml, "%s: %s\n", ik, iiv)
 					case map[string]interface{}:
-						yaml.WriteString(fmt.Sprintf("%s:\n", ik))
+						fmt.Fprintf(&yaml, "%s:\n", ik)
 						for sik, siv := range iiv {
-							yaml.WriteString(fmt.Sprintf("      %s: %v\n", sik, siv))
+							fmt.Fprintf(&yaml, "      %s: %v\n", sik, siv)
 						}
 					default:
-						yaml.WriteString(fmt.Sprintf("%s: %v\n", ik, iiv))
+						fmt.Fprintf(&yaml, "%s: %v\n", ik, iiv)
 					}
 				}
 			}
 		case map[string]interface{}:
-			yaml.WriteString(fmt.Sprintf("%s:\n", key))
+			fmt.Fprintf(&yaml, "%s:\n", key)
 			for ik, iv := range v {
-				yaml.WriteString(fmt.Sprintf("  %s: %v\n", ik, iv))
+				fmt.Fprintf(&yaml, "  %s: %v\n", ik, iv)
 			}
 		default:
-			yaml.WriteString(fmt.Sprintf("%s: %v\n", key, v))
+			fmt.Fprintf(&yaml, "%s: %v\n", key, v)
 		}
 	}
 

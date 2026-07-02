@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// NodeStatus represents the status of a node
+// NodeStatus represents the status of a node.
 type NodeStatus string
 
 const (
@@ -21,7 +21,7 @@ const (
 	NodeStatusError   NodeStatus = "error"
 )
 
-// NodeType represents the type of node
+// NodeType represents the type of node.
 type NodeType string
 
 const (
@@ -31,35 +31,35 @@ const (
 	NodeTypeWorker    NodeType = "worker"
 )
 
-// Node represents a monitored node
+// Node represents a monitored node.
 type Node struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Hostname    string            `json:"hostname"`
-	IPAddress   string            `json:"ip_address"`
-	Type        NodeType          `json:"type"`
-	Status      NodeStatus        `json:"status"`
-	CPU         CPUInfo           `json:"cpu"`
-	Memory      MemoryInfo        `json:"memory"`
-	Disks       []DiskInfo        `json:"disks"`
-	Network     NetworkInfo       `json:"network"`
-	Uptime      time.Duration     `json:"uptime"`
-	LastSeen    time.Time         `json:"last_seen"`
-	Metadata    map[string]string `json:"metadata"`
-	Tags        []string          `json:"tags"`
+	ID        string            `json:"id"`
+	Name      string            `json:"name"`
+	Hostname  string            `json:"hostname"`
+	IPAddress string            `json:"ip_address"`
+	Type      NodeType          `json:"type"`
+	Status    NodeStatus        `json:"status"`
+	CPU       CPUInfo           `json:"cpu"`
+	Memory    MemoryInfo        `json:"memory"`
+	Disks     []DiskInfo        `json:"disks"`
+	Network   NetworkInfo       `json:"network"`
+	Uptime    time.Duration     `json:"uptime"`
+	LastSeen  time.Time         `json:"last_seen"`
+	Metadata  map[string]string `json:"metadata"`
+	Tags      []string          `json:"tags"`
 }
 
-// CPUInfo represents CPU information
+// CPUInfo represents CPU information.
 type CPUInfo struct {
-	Model       string    `json:"model"`
-	Cores       int       `json:"cores"`
-	Threads     int       `json:"threads"`
-	Usage       float64   `json:"usage"`       // 0-100
-	Temperature float64   `json:"temperature"` // Celsius
-	LoadAvg     [3]float64 `json:"load_avg"`   // 1, 5, 15 min
+	Model       string     `json:"model"`
+	Cores       int        `json:"cores"`
+	Threads     int        `json:"threads"`
+	Usage       float64    `json:"usage"`       // 0-100
+	Temperature float64    `json:"temperature"` // Celsius
+	LoadAvg     [3]float64 `json:"load_avg"`    // 1, 5, 15 min
 }
 
-// MemoryInfo represents memory information
+// MemoryInfo represents memory information.
 type MemoryInfo struct {
 	Total     uint64  `json:"total"`      // bytes
 	Used      uint64  `json:"used"`       // bytes
@@ -69,7 +69,7 @@ type MemoryInfo struct {
 	SwapUsed  uint64  `json:"swap_used"`  // bytes
 }
 
-// DiskInfo represents disk information
+// DiskInfo represents disk information.
 type DiskInfo struct {
 	Device      string  `json:"device"`
 	MountPoint  string  `json:"mount_point"`
@@ -82,67 +82,67 @@ type DiskInfo struct {
 	Health      string  `json:"health"`
 }
 
-// NetworkInfo represents network information
+// NetworkInfo represents network information.
 type NetworkInfo struct {
 	Interfaces  []NetworkInterface `json:"interfaces"`
-	TotalRx     uint64             `json:"total_rx"`     // bytes
-	TotalTx     uint64             `json:"total_tx"`     // bytes
+	TotalRx     uint64             `json:"total_rx"` // bytes
+	TotalTx     uint64             `json:"total_tx"` // bytes
 	Connections int                `json:"connections"`
 }
 
-// NetworkInterface represents a network interface
+// NetworkInterface represents a network interface.
 type NetworkInterface struct {
 	Name    string `json:"name"`
 	IP      string `json:"ip"`
 	MAC     string `json:"mac"`
-	Speed   uint64 `json:"speed"`   // Mbps
+	Speed   uint64 `json:"speed"` // Mbps
 	RxBytes uint64 `json:"rx_bytes"`
 	TxBytes uint64 `json:"tx_bytes"`
 	Status  string `json:"status"`
 }
 
-// AlertLevel represents the severity of an alert
+// AlertLevel represents the severity of an alert.
 type AlertLevel string
 
 const (
-	AlertLevelInfo    AlertLevel = "info"
-	AlertLevelWarning AlertLevel = "warning"
-	AlertLevelError   AlertLevel = "error"
+	AlertLevelInfo     AlertLevel = "info"
+	AlertLevelWarning  AlertLevel = "warning"
+	AlertLevelError    AlertLevel = "error"
 	AlertLevelCritical AlertLevel = "critical"
 )
 
-// Alert represents a monitoring alert
+// Alert represents a monitoring alert.
 type Alert struct {
-	ID        string     `json:"id"`
-	NodeID    string     `json:"node_id"`
-	Level     AlertLevel `json:"level"`
-	Category  string     `json:"category"`
-	Message   string     `json:"message"`
-	Details   string     `json:"details,omitempty"`
-	Timestamp time.Time  `json:"timestamp"`
-	Resolved  bool       `json:"resolved"`
+	ID         string     `json:"id"`
+	NodeID     string     `json:"node_id"`
+	Level      AlertLevel `json:"level"`
+	Category   string     `json:"category"`
+	Message    string     `json:"message"`
+	Details    string     `json:"details,omitempty"`
+	Timestamp  time.Time  `json:"timestamp"`
+	Resolved   bool       `json:"resolved"`
 	ResolvedAt *time.Time `json:"resolved_at,omitempty"`
 }
 
-// ClusterStats represents cluster-level statistics
+// ClusterStats represents cluster-level statistics.
 type ClusterStats struct {
-	TotalNodes      int            `json:"total_nodes"`
-	OnlineNodes     int            `json:"online_nodes"`
-	OfflineNodes    int            `json:"offline_nodes"`
-	WarningNodes    int            `json:"warning_nodes"`
-	TotalCPU        int            `json:"total_cpu"`
-	AvgCPUUsage     float64        `json:"avg_cpu_usage"`
-	TotalMemory     uint64         `json:"total_memory"`
-	TotalMemoryUsed uint64         `json:"total_memory_used"`
-	AvgMemoryUsage  float64        `json:"avg_memory_usage"`
-	TotalStorage    uint64         `json:"total_storage"`
+	TotalNodes       int           `json:"total_nodes"`
+	OnlineNodes      int           `json:"online_nodes"`
+	OfflineNodes     int           `json:"offline_nodes"`
+	WarningNodes     int           `json:"warning_nodes"`
+	TotalCPU         int           `json:"total_cpu"`
+	AvgCPUUsage      float64       `json:"avg_cpu_usage"`
+	TotalMemory      uint64        `json:"total_memory"`
+	TotalMemoryUsed  uint64        `json:"total_memory_used"`
+	AvgMemoryUsage   float64       `json:"avg_memory_usage"`
+	TotalStorage     uint64        `json:"total_storage"`
 	TotalStorageUsed uint64        `json:"total_storage_used"`
-	AvgStorageUsage float64        `json:"avg_storage_usage"`
-	ActiveAlerts    int            `json:"active_alerts"`
-	Uptime          time.Duration  `json:"uptime"`
+	AvgStorageUsage  float64       `json:"avg_storage_usage"`
+	ActiveAlerts     int           `json:"active_alerts"`
+	Uptime           time.Duration `json:"uptime"`
 }
 
-// Monitor manages fleet monitoring
+// Monitor manages fleet monitoring.
 type Monitor struct {
 	nodes     map[string]*Node
 	alerts    map[string]*Alert
@@ -152,7 +152,7 @@ type Monitor struct {
 	hooks     []func(*Alert)
 }
 
-// NewMonitor creates a new monitor instance
+// NewMonitor creates a new monitor instance.
 func NewMonitor() *Monitor {
 	m := &Monitor{
 		nodes:     make(map[string]*Node),
@@ -165,7 +165,7 @@ func NewMonitor() *Monitor {
 	return m
 }
 
-// RegisterNode registers a new node for monitoring
+// RegisterNode registers a new node for monitoring.
 func (m *Monitor) RegisterNode(node *Node) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -184,7 +184,7 @@ func (m *Monitor) RegisterNode(node *Node) error {
 	return nil
 }
 
-// UnregisterNode removes a node from monitoring
+// UnregisterNode removes a node from monitoring.
 func (m *Monitor) UnregisterNode(nodeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -198,7 +198,7 @@ func (m *Monitor) UnregisterNode(nodeID string) error {
 	return nil
 }
 
-// UpdateNodeStatus updates a node's status and metrics
+// UpdateNodeStatus updates a node's status and metrics.
 func (m *Monitor) UpdateNodeStatus(nodeID string, node *Node) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -220,11 +220,11 @@ func (m *Monitor) UpdateNodeStatus(nodeID string, node *Node) error {
 	return nil
 }
 
-// checkNodeAlerts checks for alert conditions on a node
+// checkNodeAlerts checks for alert conditions on a node.
 func (m *Monitor) checkNodeAlerts(node *Node) {
 	// CPU alert
 	if node.CPU.Usage > 90 {
-		m.createAlert(node.ID, AlertLevelWarning, "cpu", 
+		m.createAlert(node.ID, AlertLevelWarning, "cpu",
 			fmt.Sprintf("High CPU usage on %s: %.1f%%", node.Name, node.CPU.Usage))
 	}
 
@@ -247,7 +247,7 @@ func (m *Monitor) checkNodeAlerts(node *Node) {
 	}
 }
 
-// createAlert creates a new alert
+// createAlert creates a new alert.
 func (m *Monitor) createAlert(nodeID string, level AlertLevel, category, message string) {
 	alert := &Alert{
 		ID:        fmt.Sprintf("%s-%s-%d", nodeID, category, time.Now().UnixNano()),
@@ -267,14 +267,14 @@ func (m *Monitor) createAlert(nodeID string, level AlertLevel, category, message
 	}
 }
 
-// AddAlertHook adds a hook for alert notifications
+// AddAlertHook adds a hook for alert notifications.
 func (m *Monitor) AddAlertHook(hook func(*Alert)) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.hooks = append(m.hooks, hook)
 }
 
-// GetNode returns a node by ID
+// GetNode returns a node by ID.
 func (m *Monitor) GetNode(nodeID string) (*Node, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -286,7 +286,7 @@ func (m *Monitor) GetNode(nodeID string) (*Node, error) {
 	return node, nil
 }
 
-// ListNodes returns all monitored nodes
+// ListNodes returns all monitored nodes.
 func (m *Monitor) ListNodes() []*Node {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -298,7 +298,7 @@ func (m *Monitor) ListNodes() []*Node {
 	return nodes
 }
 
-// GetAlerts returns alerts for a node or all alerts
+// GetAlerts returns alerts for a node or all alerts.
 func (m *Monitor) GetAlerts(nodeID string, resolved bool) []*Alert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -312,7 +312,7 @@ func (m *Monitor) GetAlerts(nodeID string, resolved bool) []*Alert {
 	return alerts
 }
 
-// ResolveAlert marks an alert as resolved
+// ResolveAlert marks an alert as resolved.
 func (m *Monitor) ResolveAlert(alertID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -328,7 +328,7 @@ func (m *Monitor) ResolveAlert(alertID string) error {
 	return nil
 }
 
-// collectStats periodically collects cluster statistics
+// collectStats periodically collects cluster statistics.
 func (m *Monitor) collectStats() {
 	ticker := time.NewTicker(time.Second * 10)
 	defer ticker.Stop()
@@ -392,14 +392,14 @@ func (m *Monitor) collectStats() {
 	}
 }
 
-// GetStats returns cluster statistics
+// GetStats returns cluster statistics.
 func (m *Monitor) GetStats() *ClusterStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.stats
 }
 
-// RegisterRoutes registers HTTP routes for the monitor API
+// RegisterRoutes registers HTTP routes for the monitor API.
 func RegisterRoutes(mux *http.ServeMux, monitor *Monitor) {
 	mux.HandleFunc("/api/fleet/nodes", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {

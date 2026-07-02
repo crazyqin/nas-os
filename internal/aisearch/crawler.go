@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// Crawler 文件系统爬虫
+// Crawler 文件系统爬虫.
 type Crawler struct {
 	mu       sync.RWMutex
 	roots    []string
@@ -24,7 +24,7 @@ type Crawler struct {
 	stats    *CrawlerStats
 }
 
-// CrawlerStats 爬虫统计
+// CrawlerStats 爬虫统计.
 type CrawlerStats struct {
 	TotalDirs  int64         `json:"totalDirs"`
 	TotalFiles int64         `json:"totalFiles"`
@@ -36,7 +36,7 @@ type CrawlerStats struct {
 	LastError  string        `json:"lastError,omitempty"`
 }
 
-// NewCrawler 创建爬虫
+// NewCrawler 创建爬虫.
 func NewCrawler(roots []string, excludes []string) *Crawler {
 	return &Crawler{
 		roots:    roots,
@@ -46,7 +46,7 @@ func NewCrawler(roots []string, excludes []string) *Crawler {
 	}
 }
 
-// Crawl 遍历目录
+// Crawl 遍历目录.
 func (c *Crawler) Crawl(rootPath string, callback func(*FileInfo) error) error {
 	c.mu.Lock()
 	if c.running {
@@ -83,7 +83,7 @@ func (c *Crawler) Crawl(rootPath string, callback func(*FileInfo) error) error {
 	return c.walkDirectory(ctx, rootPath)
 }
 
-// CrawlAll 遍历所有根目录
+// CrawlAll 遍历所有根目录.
 func (c *Crawler) CrawlAll(callback func(*FileInfo) error) error {
 	c.mu.Lock()
 	if c.running {
@@ -136,7 +136,7 @@ func (c *Crawler) CrawlAll(callback func(*FileInfo) error) error {
 	return nil
 }
 
-// CrawlAsync 异步遍历目录
+// CrawlAsync 异步遍历目录.
 func (c *Crawler) CrawlAsync(callback func(*FileInfo) error) {
 	c.wg.Add(1)
 	go func() {
@@ -147,14 +147,14 @@ func (c *Crawler) CrawlAsync(callback func(*FileInfo) error) {
 	}()
 }
 
-// Stop 停止爬虫
+// Stop 停止爬虫.
 func (c *Crawler) Stop() error {
 	close(c.stopCh)
 	c.wg.Wait()
 	return nil
 }
 
-// GetStats 获取爬虫统计
+// GetStats 获取爬虫统计.
 func (c *Crawler) GetStats() *CrawlerStats {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -162,14 +162,14 @@ func (c *Crawler) GetStats() *CrawlerStats {
 	return &stats
 }
 
-// IsRunning 是否正在运行
+// IsRunning 是否正在运行.
 func (c *Crawler) IsRunning() bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.running
 }
 
-// walkDirectory 递归遍历目录
+// walkDirectory 递归遍历目录.
 func (c *Crawler) walkDirectory(ctx context.Context, dirPath string) error {
 	select {
 	case <-ctx.Done():
@@ -247,7 +247,7 @@ func (c *Crawler) walkDirectory(ctx context.Context, dirPath string) error {
 	return nil
 }
 
-// isExcluded 检查是否排除
+// isExcluded 检查是否排除.
 func (c *Crawler) isExcluded(path string) bool {
 	for _, exclude := range c.excludes {
 		if strings.HasPrefix(path, exclude) {
@@ -274,7 +274,7 @@ func (c *Crawler) isExcluded(path string) bool {
 	return false
 }
 
-// FileWatcher 文件监听器
+// FileWatcher 文件监听器.
 type FileWatcher struct {
 	mu       sync.RWMutex
 	paths    []string
@@ -286,7 +286,7 @@ type FileWatcher struct {
 	snapshot map[string]time.Time
 }
 
-// NewFileWatcher 创建文件监听器
+// NewFileWatcher 创建文件监听器.
 func NewFileWatcher(paths []string, interval time.Duration) *FileWatcher {
 	if interval <= 0 {
 		interval = 30 * time.Second
@@ -299,7 +299,7 @@ func NewFileWatcher(paths []string, interval time.Duration) *FileWatcher {
 	}
 }
 
-// Watch 监听文件变化
+// Watch 监听文件变化.
 func (fw *FileWatcher) Watch(callback func(*FileEvent) error) error {
 	fw.mu.Lock()
 	if fw.running {
@@ -319,21 +319,21 @@ func (fw *FileWatcher) Watch(callback func(*FileEvent) error) error {
 	return nil
 }
 
-// Stop 停止监听
+// Stop 停止监听.
 func (fw *FileWatcher) Stop() error {
 	close(fw.stopCh)
 	fw.wg.Wait()
 	return nil
 }
 
-// IsRunning 是否正在运行
+// IsRunning 是否正在运行.
 func (fw *FileWatcher) IsRunning() bool {
 	fw.mu.RLock()
 	defer fw.mu.RUnlock()
 	return fw.running
 }
 
-// initSnapshot 初始化快照
+// initSnapshot 初始化快照.
 func (fw *FileWatcher) initSnapshot() {
 	fw.mu.Lock()
 	defer fw.mu.Unlock()
@@ -351,7 +351,7 @@ func (fw *FileWatcher) initSnapshot() {
 	}
 }
 
-// watchLoop 监听循环
+// watchLoop 监听循环.
 func (fw *FileWatcher) watchLoop() {
 	defer fw.wg.Done()
 
@@ -371,7 +371,7 @@ func (fw *FileWatcher) watchLoop() {
 	}
 }
 
-// detectChanges 检测变化
+// detectChanges 检测变化.
 func (fw *FileWatcher) detectChanges() {
 	fw.mu.Lock()
 	defer fw.mu.Unlock()

@@ -4,7 +4,7 @@ package spotlightcompat
 
 import "time"
 
-// SpotlightConfig Spotlight 服务配置
+// SpotlightConfig Spotlight 服务配置.
 type SpotlightConfig struct {
 	Enabled         bool     `json:"enabled"`
 	IndexPath       string   `json:"indexPath"`
@@ -16,7 +16,7 @@ type SpotlightConfig struct {
 	ProtocolVersion string   `json:"protocolVersion"` // SMB2/SMB3
 }
 
-// SpotlightIndex 索引条目
+// SpotlightIndex 索引条目.
 type SpotlightIndex struct {
 	ID          string            `json:"id"`
 	FilePath    string            `json:"filePath"`
@@ -35,7 +35,7 @@ type SpotlightIndex struct {
 	Permissions string            `json:"permissions"`
 }
 
-// SpotlightSearchRequest 搜索请求
+// SpotlightSearchRequest 搜索请求.
 type SpotlightSearchRequest struct {
 	Query         string            `json:"query"`
 	FileType      string            `json:"fileType,omitempty"`
@@ -54,7 +54,7 @@ type SpotlightSearchRequest struct {
 	ContentSearch bool              `json:"contentSearch,omitempty"`
 }
 
-// SpotlightSearchResponse 搜索响应
+// SpotlightSearchResponse 搜索响应.
 type SpotlightSearchResponse struct {
 	Results     []SpotlightResult `json:"results"`
 	TotalCount  int               `json:"totalCount"`
@@ -65,7 +65,7 @@ type SpotlightSearchResponse struct {
 	Facets      map[string]int    `json:"facets,omitempty"`
 }
 
-// SpotlightResult 搜索结果
+// SpotlightResult 搜索结果.
 type SpotlightResult struct {
 	Index      SpotlightIndex `json:"index"`
 	Score      float64        `json:"score"`
@@ -73,7 +73,7 @@ type SpotlightResult struct {
 	Preview    string         `json:"preview,omitempty"`
 }
 
-// SpotlightStatus 服务状态
+// SpotlightStatus 服务状态.
 type SpotlightStatus struct {
 	Running        bool      `json:"running"`
 	TotalIndexed   int       `json:"totalIndexed"`
@@ -88,7 +88,7 @@ type SpotlightStatus struct {
 	ShareCount     int       `json:"shareCount"`
 }
 
-// SpotlightStats 统计信息
+// SpotlightStats 统计信息.
 type SpotlightStats struct {
 	TotalSearches  int64         `json:"totalSearches"`
 	AvgResponseMs  int64         `json:"avgResponseMs"`
@@ -100,7 +100,7 @@ type SpotlightStats struct {
 	HourlySearches []int64       `json:"hourlySearches"`
 }
 
-// QueryStat 查询统计
+// QueryStat 查询统计.
 type QueryStat struct {
 	Query    string    `json:"query"`
 	Count    int64     `json:"count"`
@@ -108,7 +108,7 @@ type QueryStat struct {
 	LastUsed time.Time `json:"lastUsed"`
 }
 
-// IndexStats 索引统计
+// IndexStats 索引统计.
 type IndexStats struct {
 	TotalFiles    int            `json:"totalFiles"`
 	TotalDirs     int            `json:"totalDirs"`
@@ -118,7 +118,7 @@ type IndexStats struct {
 	IndexErrors   int            `json:"indexErrors"`
 }
 
-// ProtocolStats 协议统计
+// ProtocolStats 协议统计.
 type ProtocolStats struct {
 	SMB2Connections  int   `json:"smb2Connections"`
 	SMB3Connections  int   `json:"smb3Connections"`
@@ -126,7 +126,7 @@ type ProtocolStats struct {
 	FailedQueries    int64 `json:"failedQueries"`
 }
 
-// IndexTask 索引任务
+// IndexTask 索引任务.
 type IndexTask struct {
 	ID         string    `json:"id"`
 	SharePath  string    `json:"sharePath"`

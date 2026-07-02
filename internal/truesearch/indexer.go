@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Indexer 文档索引器
+// Indexer 文档索引器.
 type Indexer struct {
 	mu          sync.RWMutex
 	logger      *zap.Logger
@@ -29,7 +29,7 @@ type Indexer struct {
 	indexedAt   map[string]time.Time // docID -> index time (用于增量更新)
 }
 
-// NewIndexer 创建索引器
+// NewIndexer 创建索引器.
 func NewIndexer(logger *zap.Logger, config *TrueSearchConfig) *Indexer {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -49,7 +49,7 @@ func NewIndexer(logger *zap.Logger, config *TrueSearchConfig) *Indexer {
 	}
 }
 
-// tokenize 分词，返回小写词列表
+// tokenize 分词，返回小写词列表.
 func (idx *Indexer) tokenize(text string) []string {
 	if text == "" {
 		return nil
@@ -73,13 +73,13 @@ func (idx *Indexer) tokenize(text string) []string {
 	return result
 }
 
-// generateDocID 生成文档 ID
+// generateDocID 生成文档 ID.
 func (idx *Indexer) generateDocID(path string) string {
 	hash := sha256.Sum256([]byte(path))
 	return fmt.Sprintf("%x", hash[:16])
 }
 
-// IndexDocument 索引单个文档
+// IndexDocument 索引单个文档.
 func (idx *Indexer) IndexDocument(doc *Document) error {
 	if doc == nil {
 		return fmt.Errorf("document cannot be nil")
@@ -128,7 +128,7 @@ func (idx *Indexer) IndexDocument(doc *Document) error {
 	return nil
 }
 
-// updateDocFreq 更新文档频率
+// updateDocFreq 更新文档频率.
 func (idx *Indexer) updateDocFreq(doc *Document) {
 	// 收集文件名和内容的所有词项
 	nameTokens := idx.tokenize(doc.Name)
@@ -179,7 +179,7 @@ func (idx *Indexer) updateDocFreq(doc *Document) {
 	}
 }
 
-// buildPositions 构建词项位置映射
+// buildPositions 构建词项位置映射.
 func (idx *Indexer) buildPositions(tokens []string) map[string][]int {
 	positions := make(map[string][]int)
 	for i, token := range tokens {
@@ -188,7 +188,7 @@ func (idx *Indexer) buildPositions(tokens []string) map[string][]int {
 	return positions
 }
 
-// RemoveDocument 从索引中移除文档
+// RemoveDocument 从索引中移除文档.
 func (idx *Indexer) RemoveDocument(docID string) error {
 	idx.idx.mu.Lock()
 	doc, exists := idx.idx.docs[docID]
@@ -237,7 +237,7 @@ func (idx *Indexer) RemoveDocument(docID string) error {
 	return nil
 }
 
-// GetDocument 获取文档
+// GetDocument 获取文档.
 func (idx *Indexer) GetDocument(docID string) (*Document, error) {
 	idx.idx.mu.RLock()
 	defer idx.idx.mu.RUnlock()
@@ -251,7 +251,7 @@ func (idx *Indexer) GetDocument(docID string) (*Document, error) {
 	return &docCopy, nil
 }
 
-// GetPostings 获取词项的倒排列表
+// GetPostings 获取词项的倒排列表.
 func (idx *Indexer) GetPostings(term string) []*Posting {
 	term = strings.ToLower(term)
 
@@ -269,7 +269,7 @@ func (idx *Indexer) GetPostings(term string) []*Posting {
 	return result
 }
 
-// calculateTFIDF 计算 TF-IDF 分数
+// calculateTFIDF 计算 TF-IDF 分数.
 func (idx *Indexer) calculateTFIDF(termFreq int, docFreq int, totalDocs int) float64 {
 	if totalDocs == 0 || docFreq == 0 {
 		return 0
@@ -287,7 +287,7 @@ func (idx *Indexer) calculateTFIDF(termFreq int, docFreq int, totalDocs int) flo
 	return tf * idf
 }
 
-// GetStats 获取索引统计
+// GetStats 获取索引统计.
 func (idx *Indexer) GetStats() *IndexStats {
 	idx.idx.mu.RLock()
 	docCount := idx.idx.docCount
@@ -311,7 +311,7 @@ func (idx *Indexer) GetStats() *IndexStats {
 	}
 }
 
-// ListDocuments 列出所有文档
+// ListDocuments 列出所有文档.
 func (idx *Indexer) ListDocuments(limit int) []*Document {
 	idx.idx.mu.RLock()
 	defer idx.idx.mu.RUnlock()
@@ -332,12 +332,12 @@ func (idx *Indexer) ListDocuments(limit int) []*Document {
 	return docs
 }
 
-// GetFileExtension 获取文件扩展名
+// GetFileExtension 获取文件扩展名.
 func GetFileExtension(path string) string {
 	return strings.ToLower(filepath.Ext(path))
 }
 
-// ClassifyFileType 根据扩展名分类文件类型
+// ClassifyFileType 根据扩展名分类文件类型.
 func ClassifyFileType(ext string) FileType {
 	ext = strings.ToLower(ext)
 	switch ext {
@@ -358,7 +358,7 @@ func ClassifyFileType(ext string) FileType {
 	}
 }
 
-// sortResults 排序搜索结果
+// sortResults 排序搜索结果.
 func sortResults(results []SearchResult, order SortOrder) {
 	switch order {
 	case SortByDate:

@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handlers 快照 HTTP API 处理器
+// Handlers 快照 HTTP API 处理器.
 type Handlers struct {
 	manager      *Manager
 	zfsManager   *ZFSSnapshotManager
@@ -17,7 +17,7 @@ type Handlers struct {
 	logger       *zap.Logger
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager, logger *zap.Logger) *Handlers {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -33,27 +33,27 @@ func NewHandlers(manager *Manager, logger *zap.Logger) *Handlers {
 	return h
 }
 
-// SetZFSSnapshotManager 设置 ZFS 快照管理器（可选注入）
+// SetZFSSnapshotManager 设置 ZFS 快照管理器（可选注入）.
 func (h *Handlers) SetZFSSnapshotManager(zfs *ZFSSnapshotManager) {
 	h.zfsManager = zfs
 }
 
-// SetTeamSnapshotManager 设置团队快照管理器（可选注入）
+// SetTeamSnapshotManager 设置团队快照管理器（可选注入）.
 func (h *Handlers) SetTeamSnapshotManager(team *TeamSnapshotManager) {
 	h.teamManager = team
 }
 
-// SetQuotaManager 设置配额管理器（可选注入）
+// SetQuotaManager 设置配额管理器（可选注入）.
 func (h *Handlers) SetQuotaManager(qm *QuotaManager) {
 	h.quotaManager = qm
 }
 
-// SetPolicyStore 设置策略存储（可选注入）
+// SetPolicyStore 设置策略存储（可选注入）.
 func (h *Handlers) SetPolicyStore(ps *PolicyStore) {
 	h.policyStore = ps
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	snap := rg.Group("/snapshots")
 	{
@@ -96,7 +96,7 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// createSnapshotReq 创建快照请求
+// createSnapshotReq 创建快照请求.
 type createSnapshotReq struct {
 	Name        string         `json:"name" binding:"required"`
 	Description string         `json:"description"`
@@ -104,7 +104,7 @@ type createSnapshotReq struct {
 	Items       []SnapshotItem `json:"items"`
 }
 
-// CreateSnapshot POST /api/v1/snapshots
+// CreateSnapshot POST /api/v1/snapshots.
 func (h *Handlers) CreateSnapshot(c *gin.Context) {
 	var req createSnapshotReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -127,13 +127,13 @@ func (h *Handlers) CreateSnapshot(c *gin.Context) {
 	c.JSON(http.StatusCreated, snap)
 }
 
-// ListSnapshots GET /api/v1/snapshots
+// ListSnapshots GET /api/v1/snapshots.
 func (h *Handlers) ListSnapshots(c *gin.Context) {
 	snapshots := h.manager.ListSnapshots()
 	c.JSON(http.StatusOK, gin.H{"snapshots": snapshots})
 }
 
-// GetSnapshot GET /api/v1/snapshots/:id
+// GetSnapshot GET /api/v1/snapshots/:id.
 func (h *Handlers) GetSnapshot(c *gin.Context) {
 	id := c.Param("id")
 	snap, err := h.manager.GetSnapshot(id)
@@ -144,7 +144,7 @@ func (h *Handlers) GetSnapshot(c *gin.Context) {
 	c.JSON(http.StatusOK, snap)
 }
 
-// DeleteSnapshot DELETE /api/v1/snapshots/:id
+// DeleteSnapshot DELETE /api/v1/snapshots/:id.
 func (h *Handlers) DeleteSnapshot(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteSnapshot(id); err != nil {
@@ -154,7 +154,7 @@ func (h *Handlers) DeleteSnapshot(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "snapshot deleted"})
 }
 
-// RestoreSnapshot POST /api/v1/snapshots/:id/restore
+// RestoreSnapshot POST /api/v1/snapshots/:id/restore.
 func (h *Handlers) RestoreSnapshot(c *gin.Context) {
 	id := c.Param("id")
 	items, err := h.manager.RestoreSnapshot(id)
@@ -168,7 +168,7 @@ func (h *Handlers) RestoreSnapshot(c *gin.Context) {
 	})
 }
 
-// GetStats GET /api/v1/snapshots/stats
+// GetStats GET /api/v1/snapshots/stats.
 func (h *Handlers) GetStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, stats)
@@ -176,7 +176,7 @@ func (h *Handlers) GetStats(c *gin.Context) {
 
 // ==================== 保留策略 ====================
 
-// createPolicyReq 创建保留策略请求
+// createPolicyReq 创建保留策略请求.
 type createPolicyReq struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description"`
@@ -191,7 +191,7 @@ type createPolicyReq struct {
 	Yearly      int    `json:"yearly"`
 }
 
-// CreatePolicy POST /api/v1/snapshots/policies
+// CreatePolicy POST /api/v1/snapshots/policies.
 func (h *Handlers) CreatePolicy(c *gin.Context) {
 	var req createPolicyReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -223,7 +223,7 @@ func (h *Handlers) CreatePolicy(c *gin.Context) {
 	c.JSON(http.StatusCreated, created)
 }
 
-// ListPolicies GET /api/v1/snapshots/policies
+// ListPolicies GET /api/v1/snapshots/policies.
 func (h *Handlers) ListPolicies(c *gin.Context) {
 	targetScope := c.Query("target_scope")
 	targetRef := c.Query("target_ref")
@@ -234,7 +234,7 @@ func (h *Handlers) ListPolicies(c *gin.Context) {
 
 // ==================== ZFS Bookmark ====================
 
-// createBookmarkReq 创建 ZFS bookmark 请求
+// createBookmarkReq 创建 ZFS bookmark 请求.
 type createBookmarkReq struct {
 	Pool         string `json:"pool" binding:"required"`
 	Dataset      string `json:"dataset"`
@@ -242,7 +242,7 @@ type createBookmarkReq struct {
 	BookmarkName string `json:"bookmark_name" binding:"required"`
 }
 
-// CreateZFSBookmark POST /api/v1/snapshots/zfs/bookmark
+// CreateZFSBookmark POST /api/v1/snapshots/zfs/bookmark.
 func (h *Handlers) CreateZFSBookmark(c *gin.Context) {
 	var req createBookmarkReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -260,7 +260,7 @@ func (h *Handlers) CreateZFSBookmark(c *gin.Context) {
 	c.JSON(http.StatusCreated, bm)
 }
 
-// ListZFSBookmarks GET /api/v1/snapshots/zfs/bookmarks
+// ListZFSBookmarks GET /api/v1/snapshots/zfs/bookmarks.
 func (h *Handlers) ListZFSBookmarks(c *gin.Context) {
 	pool := c.Query("pool")
 	dataset := c.Query("dataset")
@@ -269,7 +269,7 @@ func (h *Handlers) ListZFSBookmarks(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"bookmarks": bookmarks})
 }
 
-// DeleteZFSBookmark DELETE /api/v1/snapshots/zfs/bookmarks/:name
+// DeleteZFSBookmark DELETE /api/v1/snapshots/zfs/bookmarks/:name.
 func (h *Handlers) DeleteZFSBookmark(c *gin.Context) {
 	name := c.Param("name")
 	pool := c.Query("pool")
@@ -285,7 +285,7 @@ func (h *Handlers) DeleteZFSBookmark(c *gin.Context) {
 
 // ==================== ZFS Hold ====================
 
-// addHoldReq 添加 ZFS hold 请求
+// addHoldReq 添加 ZFS hold 请求.
 type addHoldReq struct {
 	SnapshotID string `json:"snapshot_id" binding:"required"`
 	Tag        string `json:"tag" binding:"required"`
@@ -293,13 +293,13 @@ type addHoldReq struct {
 	HolderRef  string `json:"holder_ref"`
 }
 
-// removeHoldReq 移除 ZFS hold 请求
+// removeHoldReq 移除 ZFS hold 请求.
 type removeHoldReq struct {
 	SnapshotID string `json:"snapshot_id" binding:"required"`
 	Tag        string `json:"tag" binding:"required"`
 }
 
-// AddZFSHold POST /api/v1/snapshots/zfs/hold
+// AddZFSHold POST /api/v1/snapshots/zfs/hold.
 func (h *Handlers) AddZFSHold(c *gin.Context) {
 	var req addHoldReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -316,7 +316,7 @@ func (h *Handlers) AddZFSHold(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "hold added"})
 }
 
-// RemoveZFSHold DELETE /api/v1/snapshots/zfs/hold
+// RemoveZFSHold DELETE /api/v1/snapshots/zfs/hold.
 func (h *Handlers) RemoveZFSHold(c *gin.Context) {
 	var req removeHoldReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -332,7 +332,7 @@ func (h *Handlers) RemoveZFSHold(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "hold removed"})
 }
 
-// ListZFSHolds GET /api/v1/snapshots/zfs/holds
+// ListZFSHolds GET /api/v1/snapshots/zfs/holds.
 func (h *Handlers) ListZFSHolds(c *gin.Context) {
 	snapshotID := c.Query("snapshot_id")
 	if snapshotID == "" {
@@ -346,7 +346,7 @@ func (h *Handlers) ListZFSHolds(c *gin.Context) {
 
 // ==================== 快照差异对比 ====================
 
-// GetSnapshotDiff GET /api/v1/snapshots/diff
+// GetSnapshotDiff GET /api/v1/snapshots/diff.
 func (h *Handlers) GetSnapshotDiff(c *gin.Context) {
 	pool := c.Query("pool")
 	dataset := c.Query("dataset")
@@ -370,19 +370,19 @@ func (h *Handlers) GetSnapshotDiff(c *gin.Context) {
 
 // ==================== 配额管理 ====================
 
-// GetQuotaStatus GET /api/v1/snapshots/quota
+// GetQuotaStatus GET /api/v1/snapshots/quota.
 func (h *Handlers) GetQuotaStatus(c *gin.Context) {
 	status := h.quotaManager.GetStatus()
 	c.JSON(http.StatusOK, status)
 }
 
-// updateQuotaReq 更新配额请求
+// updateQuotaReq 更新配额请求.
 type updateQuotaReq struct {
 	MaxPercent float64 `json:"max_percent" binding:"required"`
 	TotalBytes int64   `json:"total_bytes"`
 }
 
-// UpdateQuota PUT /api/v1/snapshots/quota
+// UpdateQuota PUT /api/v1/snapshots/quota.
 func (h *Handlers) UpdateQuota(c *gin.Context) {
 	var req updateQuotaReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -398,7 +398,7 @@ func (h *Handlers) UpdateQuota(c *gin.Context) {
 	c.JSON(http.StatusOK, h.quotaManager.GetStatus())
 }
 
-// EnforceQuota POST /api/v1/snapshots/quota/enforce
+// EnforceQuota POST /api/v1/snapshots/quota/enforce.
 func (h *Handlers) EnforceQuota(c *gin.Context) {
 	h.quotaManager.EnforceQuota()
 	c.JSON(http.StatusOK, gin.H{"message": "quota enforcement completed"})
@@ -406,7 +406,7 @@ func (h *Handlers) EnforceQuota(c *gin.Context) {
 
 // ==================== 团队快照 ====================
 
-// createTeamPolicyReq 创建团队快照策略请求
+// createTeamPolicyReq 创建团队快照策略请求.
 type createTeamPolicyReq struct {
 	TeamID           string `json:"team_id" binding:"required"`
 	FolderPath       string `json:"folder_path" binding:"required"`
@@ -426,7 +426,7 @@ type createTeamPolicyReq struct {
 	DeleteAdminOnly  bool   `json:"delete_admin_only"`
 }
 
-// CreateTeamPolicy POST /api/v1/snapshots/team/policies
+// CreateTeamPolicy POST /api/v1/snapshots/team/policies.
 func (h *Handlers) CreateTeamPolicy(c *gin.Context) {
 	var req createTeamPolicyReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -466,7 +466,7 @@ func (h *Handlers) CreateTeamPolicy(c *gin.Context) {
 	c.JSON(http.StatusCreated, created)
 }
 
-// ListTeamPolicies GET /api/v1/snapshots/team/policies
+// ListTeamPolicies GET /api/v1/snapshots/team/policies.
 func (h *Handlers) ListTeamPolicies(c *gin.Context) {
 	teamID := c.Query("team_id")
 	if teamID == "" {
@@ -478,7 +478,7 @@ func (h *Handlers) ListTeamPolicies(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"policies": policies})
 }
 
-// createTeamSnapshotReq 创建团队快照请求
+// createTeamSnapshotReq 创建团队快照请求.
 type createTeamSnapshotReq struct {
 	TeamID     string `json:"team_id" binding:"required"`
 	FolderPath string `json:"folder_path" binding:"required"`
@@ -486,7 +486,7 @@ type createTeamSnapshotReq struct {
 	Source     string `json:"source"`
 }
 
-// CreateTeamSnapshot POST /api/v1/snapshots/team/snapshots
+// CreateTeamSnapshot POST /api/v1/snapshots/team/snapshots.
 func (h *Handlers) CreateTeamSnapshot(c *gin.Context) {
 	var req createTeamSnapshotReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -509,7 +509,7 @@ func (h *Handlers) CreateTeamSnapshot(c *gin.Context) {
 	c.JSON(http.StatusCreated, snap)
 }
 
-// ListTeamSnapshots GET /api/v1/snapshots/team/snapshots
+// ListTeamSnapshots GET /api/v1/snapshots/team/snapshots.
 func (h *Handlers) ListTeamSnapshots(c *gin.Context) {
 	teamID := c.Query("team_id")
 	userID := c.Query("user_id")
@@ -524,7 +524,7 @@ func (h *Handlers) ListTeamSnapshots(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"snapshots": snapshots})
 }
 
-// RestoreTeamSnapshot POST /api/v1/snapshots/team/snapshots/:id/restore
+// RestoreTeamSnapshot POST /api/v1/snapshots/team/snapshots/:id/restore.
 func (h *Handlers) RestoreTeamSnapshot(c *gin.Context) {
 	id := c.Param("id")
 	userID := c.Query("user_id")
@@ -543,7 +543,7 @@ func (h *Handlers) RestoreTeamSnapshot(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "team snapshot restore initiated"})
 }
 
-// DeleteTeamSnapshot DELETE /api/v1/snapshots/team/snapshots/:id
+// DeleteTeamSnapshot DELETE /api/v1/snapshots/team/snapshots/:id.
 func (h *Handlers) DeleteTeamSnapshot(c *gin.Context) {
 	id := c.Param("id")
 	userID := c.Query("user_id")
@@ -562,7 +562,7 @@ func (h *Handlers) DeleteTeamSnapshot(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "team snapshot deleted"})
 }
 
-// LockTeamSnapshot POST /api/v1/snapshots/team/snapshots/:id/lock
+// LockTeamSnapshot POST /api/v1/snapshots/team/snapshots/:id/lock.
 func (h *Handlers) LockTeamSnapshot(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.teamManager.LockSnapshot(id); err != nil {
@@ -572,7 +572,7 @@ func (h *Handlers) LockTeamSnapshot(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "team snapshot locked"})
 }
 
-// UnlockTeamSnapshot POST /api/v1/snapshots/team/snapshots/:id/unlock
+// UnlockTeamSnapshot POST /api/v1/snapshots/team/snapshots/:id/unlock.
 func (h *Handlers) UnlockTeamSnapshot(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.teamManager.UnlockSnapshot(id); err != nil {

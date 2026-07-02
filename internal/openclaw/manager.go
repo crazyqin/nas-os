@@ -6,17 +6,17 @@ import (
 	"time"
 )
 
-// AppStatus 应用状态
+// AppStatus 应用状态.
 type AppStatus string
 
 const (
-	StatusRunning  AppStatus = "running"
-	StatusStopped  AppStatus = "stopped"
-	StatusError    AppStatus = "error"
+	StatusRunning   AppStatus = "running"
+	StatusStopped   AppStatus = "stopped"
+	StatusError     AppStatus = "error"
 	StatusDeploying AppStatus = "deploying"
 )
 
-// OpenClawApp OpenClaw应用
+// OpenClawApp OpenClaw应用.
 type OpenClawApp struct {
 	Name        string
 	Version     string
@@ -26,7 +26,7 @@ type OpenClawApp struct {
 	LastUpdated time.Time
 }
 
-// Workflow 工作流
+// Workflow 工作流.
 type Workflow struct {
 	ID          string
 	Name        string
@@ -38,7 +38,7 @@ type Workflow struct {
 	NextRun     time.Time
 }
 
-// WorkflowStep 工作流步骤
+// WorkflowStep 工作流步骤.
 type WorkflowStep struct {
 	Name       string
 	Type       string // http, script, ai, condition
@@ -47,7 +47,7 @@ type WorkflowStep struct {
 	RetryCount int
 }
 
-// OpenClawManager OpenClaw管理器
+// OpenClawManager OpenClaw管理器.
 type OpenClawManager struct {
 	apps      map[string]*OpenClawApp
 	workflows map[string]*Workflow
@@ -55,7 +55,7 @@ type OpenClawManager struct {
 	config    ManagerConfig
 }
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
 	DataDir       string
 	MaxApps       int
@@ -63,7 +63,7 @@ type ManagerConfig struct {
 	EnableLogs    bool
 }
 
-// NewOpenClawManager 创建OpenClaw管理器
+// NewOpenClawManager 创建OpenClaw管理器.
 func NewOpenClawManager(config ManagerConfig) *OpenClawManager {
 	return &OpenClawManager{
 		apps:      make(map[string]*OpenClawApp),
@@ -72,7 +72,7 @@ func NewOpenClawManager(config ManagerConfig) *OpenClawManager {
 	}
 }
 
-// DeployApp 部署应用
+// DeployApp 部署应用.
 func (m *OpenClawManager) DeployApp(name, version string, config map[string]interface{}) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -100,7 +100,7 @@ func (m *OpenClawManager) DeployApp(name, version string, config map[string]inte
 	return nil
 }
 
-// deployAppAsync 异步部署应用
+// deployAppAsync 异步部署应用.
 func (m *OpenClawManager) deployAppAsync(app *OpenClawApp) {
 	time.Sleep(5 * time.Second) // 模拟部署时间
 
@@ -111,7 +111,7 @@ func (m *OpenClawManager) deployAppAsync(app *OpenClawApp) {
 	app.LastUpdated = time.Now()
 }
 
-// StopApp 停止应用
+// StopApp 停止应用.
 func (m *OpenClawManager) StopApp(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -127,7 +127,7 @@ func (m *OpenClawManager) StopApp(name string) error {
 	return nil
 }
 
-// StartApp 启动应用
+// StartApp 启动应用.
 func (m *OpenClawManager) StartApp(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -143,7 +143,7 @@ func (m *OpenClawManager) StartApp(name string) error {
 	return nil
 }
 
-// GetApp 获取应用信息
+// GetApp 获取应用信息.
 func (m *OpenClawManager) GetApp(name string) (*OpenClawApp, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -156,7 +156,7 @@ func (m *OpenClawManager) GetApp(name string) (*OpenClawApp, error) {
 	return app, nil
 }
 
-// ListApps 列出所有应用
+// ListApps 列出所有应用.
 func (m *OpenClawManager) ListApps() []*OpenClawApp {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -169,7 +169,7 @@ func (m *OpenClawManager) ListApps() []*OpenClawApp {
 	return apps
 }
 
-// RemoveApp 移除应用
+// RemoveApp 移除应用.
 func (m *OpenClawManager) RemoveApp(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -182,7 +182,7 @@ func (m *OpenClawManager) RemoveApp(name string) error {
 	return nil
 }
 
-// CreateWorkflow 创建工作流
+// CreateWorkflow 创建工作流.
 func (m *OpenClawManager) CreateWorkflow(workflow *Workflow) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -195,7 +195,7 @@ func (m *OpenClawManager) CreateWorkflow(workflow *Workflow) error {
 	return nil
 }
 
-// ExecuteWorkflow 执行工作流
+// ExecuteWorkflow 执行工作流.
 func (m *OpenClawManager) ExecuteWorkflow(workflowID string) error {
 	m.mu.RLock()
 	workflow, exists := m.workflows[workflowID]
@@ -215,7 +215,7 @@ func (m *OpenClawManager) ExecuteWorkflow(workflowID string) error {
 	return nil
 }
 
-// executeWorkflowAsync 异步执行工作流
+// executeWorkflowAsync 异步执行工作流.
 func (m *OpenClawManager) executeWorkflowAsync(workflow *Workflow) {
 	workflow.LastRun = time.Now()
 
@@ -228,7 +228,7 @@ func (m *OpenClawManager) executeWorkflowAsync(workflow *Workflow) {
 	workflow.NextRun = time.Now().Add(time.Hour) // 简化实现
 }
 
-// executeStep 执行工作流步骤
+// executeStep 执行工作流步骤.
 func (m *OpenClawManager) executeStep(step WorkflowStep) {
 	// 根据步骤类型执行
 	switch step.Type {
@@ -243,7 +243,7 @@ func (m *OpenClawManager) executeStep(step WorkflowStep) {
 	}
 }
 
-// GetWorkflow 获取工作流
+// GetWorkflow 获取工作流.
 func (m *OpenClawManager) GetWorkflow(id string) (*Workflow, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -256,7 +256,7 @@ func (m *OpenClawManager) GetWorkflow(id string) (*Workflow, error) {
 	return workflow, nil
 }
 
-// ListWorkflows 列出所有工作流
+// ListWorkflows 列出所有工作流.
 func (m *OpenClawManager) ListWorkflows() []*Workflow {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -269,7 +269,7 @@ func (m *OpenClawManager) ListWorkflows() []*Workflow {
 	return workflows
 }
 
-// UpdateWorkflow 更新工作流
+// UpdateWorkflow 更新工作流.
 func (m *OpenClawManager) UpdateWorkflow(workflow *Workflow) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -282,7 +282,7 @@ func (m *OpenClawManager) UpdateWorkflow(workflow *Workflow) error {
 	return nil
 }
 
-// DeleteWorkflow 删除工作流
+// DeleteWorkflow 删除工作流.
 func (m *OpenClawManager) DeleteWorkflow(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -295,7 +295,7 @@ func (m *OpenClawManager) DeleteWorkflow(id string) error {
 	return nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *OpenClawManager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -315,9 +315,9 @@ func (m *OpenClawManager) GetStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_apps":         len(m.apps),
-		"running_apps":       runningApps,
-		"total_workflows":    len(m.workflows),
-		"enabled_workflows":  enabledWorkflows,
+		"total_apps":        len(m.apps),
+		"running_apps":      runningApps,
+		"total_workflows":   len(m.workflows),
+		"enabled_workflows": enabledWorkflows,
 	}
 }

@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-// Manager 同步管理器
+// Manager 同步管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	files       map[string]*SyncFile
@@ -32,7 +32,7 @@ type Manager struct {
 	wsListeners map[string][]chan WebSocketMessage // filePath -> listeners
 }
 
-// NewManager 创建同步管理器
+// NewManager 创建同步管理器.
 func NewManager(storagePath string) *Manager {
 	m := &Manager{
 		files:       make(map[string]*SyncFile),
@@ -55,7 +55,7 @@ func NewManager(storagePath string) *Manager {
 	return m
 }
 
-// AddSyncPath 添加同步目录
+// AddSyncPath 添加同步目录.
 func (m *Manager) AddSyncPath(ctx context.Context, path string, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -74,7 +74,7 @@ func (m *Manager) AddSyncPath(ctx context.Context, path string, userID string) e
 	return m.scanDirectory(path, userID)
 }
 
-// SyncFile 同步单个文件
+// SyncFile 同步单个文件.
 func (m *Manager) SyncFile(ctx context.Context, filePath string, targetPath string) (*SyncTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -107,7 +107,7 @@ func (m *Manager) SyncFile(ctx context.Context, filePath string, targetPath stri
 	return task, nil
 }
 
-// SyncDirectory 同步整个目录
+// SyncDirectory 同步整个目录.
 func (m *Manager) SyncDirectory(ctx context.Context, sourcePath string, targetPath string) (*SyncTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -137,7 +137,7 @@ func (m *Manager) SyncDirectory(ctx context.Context, sourcePath string, targetPa
 	return task, nil
 }
 
-// GetSyncStatus 获取同步状态
+// GetSyncStatus 获取同步状态.
 func (m *Manager) GetSyncStatus(ctx context.Context, taskID string) (*SyncTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -150,7 +150,7 @@ func (m *Manager) GetSyncStatus(ctx context.Context, taskID string) (*SyncTask, 
 	return task, nil
 }
 
-// ListConflicts 列出冲突
+// ListConflicts 列出冲突.
 func (m *Manager) ListConflicts(ctx context.Context) ([]FileConflict, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -165,7 +165,7 @@ func (m *Manager) ListConflicts(ctx context.Context) ([]FileConflict, error) {
 	return conflicts, nil
 }
 
-// ResolveConflict 解决冲突
+// ResolveConflict 解决冲突.
 func (m *Manager) ResolveConflict(ctx context.Context, conflictID string, resolution string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -193,7 +193,7 @@ func (m *Manager) ResolveConflict(ctx context.Context, conflictID string, resolu
 	return nil
 }
 
-// GetFileVersions 获取文件版本历史
+// GetFileVersions 获取文件版本历史.
 func (m *Manager) GetFileVersions(ctx context.Context, filePath string) ([]SyncFile, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -207,7 +207,7 @@ func (m *Manager) GetFileVersions(ctx context.Context, filePath string) ([]SyncF
 	return versions, nil
 }
 
-// SetPolicy 设置同步策略
+// SetPolicy 设置同步策略.
 func (m *Manager) SetPolicy(ctx context.Context, policy SyncPolicy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -216,7 +216,7 @@ func (m *Manager) SetPolicy(ctx context.Context, policy SyncPolicy) error {
 	return nil
 }
 
-// GetStats 获取同步统计
+// GetStats 获取同步统计.
 func (m *Manager) GetStats(ctx context.Context) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -419,7 +419,7 @@ func generateID() string {
 	return fmt.Sprintf("%d", time.Now().UnixNano())
 }
 
-// Export 导出同步文件列表
+// Export 导出同步文件列表.
 func (m *Manager) Export(ctx context.Context) ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -432,7 +432,7 @@ func (m *Manager) Export(ctx context.Context) ([]byte, error) {
 	return json.MarshalIndent(files, "", "  ")
 }
 
-// GetActivities 获取活动记录列表
+// GetActivities 获取活动记录列表.
 func (m *Manager) GetActivities(limit int) []*Activity {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -450,7 +450,7 @@ func (m *Manager) GetActivities(limit int) []*Activity {
 	return result
 }
 
-// addActivity 添加活动记录
+// addActivity 添加活动记录.
 func (m *Manager) addActivity(actType ActivityType, filePath, userID, userName, details string) {
 	activity := &Activity{
 		ID:        fmt.Sprintf("%d", time.Now().UnixNano()),
@@ -468,7 +468,7 @@ func (m *Manager) addActivity(actType ActivityType, filePath, userID, userName, 
 	}
 }
 
-// LockFile 锁定文件
+// LockFile 锁定文件.
 func (m *Manager) LockFile(filePath string, input FileLockInput) (*FileLock, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -506,7 +506,7 @@ func (m *Manager) LockFile(filePath string, input FileLockInput) (*FileLock, err
 	return lock, nil
 }
 
-// UnlockFile 解锁文件
+// UnlockFile 解锁文件.
 func (m *Manager) UnlockFile(filePath, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -526,7 +526,7 @@ func (m *Manager) UnlockFile(filePath, userID string) error {
 	return nil
 }
 
-// AddComment 添加评论
+// AddComment 添加评论.
 func (m *Manager) AddComment(filePath string, input CommentInput) *Comment {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -548,7 +548,7 @@ func (m *Manager) AddComment(filePath string, input CommentInput) *Comment {
 	return comment
 }
 
-// broadcastWS 广播 WebSocket 消息
+// broadcastWS 广播 WebSocket 消息.
 func (m *Manager) broadcastWS(msg WebSocketMessage) {
 	// 不锁 mu，调用方需保证线程安全
 	filePath, _ := msg.Payload.(map[string]interface{})["file_path"].(string)

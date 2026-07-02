@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// ProviderType represents SSO provider type
+// ProviderType represents SSO provider type.
 type ProviderType string
 
 const (
@@ -22,7 +22,7 @@ const (
 	ProviderLocal ProviderType = "local"
 )
 
-// MFAType represents MFA type
+// MFAType represents MFA type.
 type MFAType string
 
 const (
@@ -32,7 +32,7 @@ const (
 	MFAEmail    MFAType = "email"
 )
 
-// SessionStatus represents session status
+// SessionStatus represents session status.
 type SessionStatus string
 
 const (
@@ -41,7 +41,7 @@ const (
 	SessionRevoked SessionStatus = "revoked"
 )
 
-// IdentityProvider represents an SSO identity provider
+// IdentityProvider represents an SSO identity provider.
 type IdentityProvider struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -57,7 +57,7 @@ type IdentityProvider struct {
 	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
-// User represents a federated user
+// User represents a federated user.
 type User struct {
 	ID          string    `json:"id"`
 	Username    string    `json:"username"`
@@ -72,7 +72,7 @@ type User struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// MFA represents a multi-factor authentication method
+// MFA represents a multi-factor authentication method.
 type MFA struct {
 	ID        string    `json:"id"`
 	UserID    string    `json:"user_id"`
@@ -84,7 +84,7 @@ type MFA struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// Session represents a federated SSO session
+// Session represents a federated SSO session.
 type Session struct {
 	ID           string        `json:"id"`
 	UserID       string        `json:"user_id"`
@@ -97,7 +97,7 @@ type Session struct {
 	CreatedAt    time.Time     `json:"created_at"`
 }
 
-// Role represents a user role
+// Role represents a user role.
 type Role struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -106,7 +106,7 @@ type Role struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// SSOStats represents SSO hub statistics
+// SSOStats represents SSO hub statistics.
 type SSOStats struct {
 	TotalProviders  int `json:"total_providers"`
 	ActiveProviders int `json:"active_providers"`
@@ -118,7 +118,7 @@ type SSOStats struct {
 	EnabledMFAs     int `json:"enabled_mfas"`
 }
 
-// Config holds SSO hub configuration
+// Config holds SSO hub configuration.
 type Config struct {
 	Enabled           bool   `json:"enabled"`
 	SessionTimeoutMin int    `json:"session_timeout_minutes"`
@@ -130,7 +130,7 @@ type Config struct {
 	TokenExpiryMin    int    `json:"token_expiry_minutes"`
 }
 
-// Manager manages SSO hub
+// Manager manages SSO hub.
 type Manager struct {
 	config    *Config
 	providers map[string]*IdentityProvider
@@ -142,7 +142,7 @@ type Manager struct {
 	cancel    context.CancelFunc
 }
 
-// NewManager creates a new SSO hub manager
+// NewManager creates a new SSO hub manager.
 func NewManager(config *Config) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Manager{
@@ -156,7 +156,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// Start starts the SSO hub
+// Start starts the SSO hub.
 func (m *Manager) Start() error {
 	if !m.config.Enabled {
 		return fmt.Errorf("SSO hub is disabled")
@@ -164,12 +164,12 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop stops the SSO hub
+// Stop stops the SSO hub.
 func (m *Manager) Stop() {
 	m.cancel()
 }
 
-// AddProvider adds an identity provider
+// AddProvider adds an identity provider.
 func (m *Manager) AddProvider(provider *IdentityProvider) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -180,7 +180,7 @@ func (m *Manager) AddProvider(provider *IdentityProvider) error {
 	return nil
 }
 
-// ListProviders returns all identity providers
+// ListProviders returns all identity providers.
 func (m *Manager) ListProviders() []*IdentityProvider {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -191,7 +191,7 @@ func (m *Manager) ListProviders() []*IdentityProvider {
 	return providers
 }
 
-// DeleteProvider deletes an identity provider
+// DeleteProvider deletes an identity provider.
 func (m *Manager) DeleteProvider(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -202,7 +202,7 @@ func (m *Manager) DeleteProvider(id string) error {
 	return nil
 }
 
-// AddUser adds a user
+// AddUser adds a user.
 func (m *Manager) AddUser(user *User) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -212,7 +212,7 @@ func (m *Manager) AddUser(user *User) error {
 	return nil
 }
 
-// GetUser returns a user by ID
+// GetUser returns a user by ID.
 func (m *Manager) GetUser(id string) (*User, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -223,7 +223,7 @@ func (m *Manager) GetUser(id string) (*User, error) {
 	return user, nil
 }
 
-// ListUsers returns all users
+// ListUsers returns all users.
 func (m *Manager) ListUsers() []*User {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -234,7 +234,7 @@ func (m *Manager) ListUsers() []*User {
 	return users
 }
 
-// CreateSession creates a new SSO session
+// CreateSession creates a new SSO session.
 func (m *Manager) CreateSession(userID, ip, ua string) (*Session, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -272,7 +272,7 @@ func (m *Manager) CreateSession(userID, ip, ua string) (*Session, error) {
 	return session, nil
 }
 
-// RevokeSession revokes a session
+// RevokeSession revokes a session.
 func (m *Manager) RevokeSession(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -284,7 +284,7 @@ func (m *Manager) RevokeSession(id string) error {
 	return nil
 }
 
-// ListSessions returns all sessions
+// ListSessions returns all sessions.
 func (m *Manager) ListSessions() []*Session {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -295,7 +295,7 @@ func (m *Manager) ListSessions() []*Session {
 	return sessions
 }
 
-// AddMFA adds an MFA method to a user
+// AddMFA adds an MFA method to a user.
 func (m *Manager) AddMFA(userID string, mfa *MFA) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -310,7 +310,7 @@ func (m *Manager) AddMFA(userID string, mfa *MFA) error {
 	return nil
 }
 
-// AddRole adds a role
+// AddRole adds a role.
 func (m *Manager) AddRole(role *Role) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -319,7 +319,7 @@ func (m *Manager) AddRole(role *Role) {
 	m.roles[role.ID] = role
 }
 
-// ListRoles returns all roles
+// ListRoles returns all roles.
 func (m *Manager) ListRoles() []*Role {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -330,7 +330,7 @@ func (m *Manager) ListRoles() []*Role {
 	return roles
 }
 
-// GetStats returns SSO statistics
+// GetStats returns SSO statistics.
 func (m *Manager) GetStats() *SSOStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

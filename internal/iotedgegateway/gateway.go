@@ -12,7 +12,7 @@ import (
 
 // ========== 核心类型 ==========
 
-// DeviceProtocol 设备协议
+// DeviceProtocol 设备协议.
 type DeviceProtocol string
 
 const (
@@ -24,7 +24,7 @@ const (
 	ProtocolBLE    DeviceProtocol = "ble"
 )
 
-// DeviceStatus 设备状态
+// DeviceStatus 设备状态.
 type DeviceStatus string
 
 const (
@@ -34,7 +34,7 @@ const (
 	DeviceStatusError        DeviceStatus = "error"
 )
 
-// IoTDevice IoT设备
+// IoTDevice IoT设备.
 type IoTDevice struct {
 	ID         string            `json:"id"`
 	Name       string            `json:"name"`
@@ -49,7 +49,7 @@ type IoTDevice struct {
 	Tags       []string          `json:"tags"`
 }
 
-// DataPoint 数据点
+// DataPoint 数据点.
 type DataPoint struct {
 	DeviceID  string                 `json:"device_id"`
 	Timestamp time.Time              `json:"timestamp"`
@@ -58,7 +58,7 @@ type DataPoint struct {
 	Tags      map[string]string      `json:"tags"`
 }
 
-// Rule 规则
+// Rule 规则.
 type Rule struct {
 	ID           string       `json:"id"`
 	Name         string       `json:"name"`
@@ -72,7 +72,7 @@ type Rule struct {
 	TriggerCount int          `json:"trigger_count"`
 }
 
-// RuleTrigger 规则触发器
+// RuleTrigger 规则触发器.
 type RuleTrigger struct {
 	Type     string `json:"type"` // data, schedule, event
 	DeviceID string `json:"device_id,omitempty"`
@@ -80,20 +80,20 @@ type RuleTrigger struct {
 	Schedule string `json:"schedule,omitempty"`
 }
 
-// Condition 条件
+// Condition 条件.
 type Condition struct {
 	Field    string      `json:"field"`
 	Operator string      `json:"operator"`
 	Value    interface{} `json:"value"`
 }
 
-// RuleAction 规则动作
+// RuleAction 规则动作.
 type RuleAction struct {
 	Type   string                 `json:"type"` // alert, store, forward, transform
 	Params map[string]interface{} `json:"params"`
 }
 
-// EdgeFunction 边缘函数
+// EdgeFunction 边缘函数.
 type EdgeFunction struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -107,7 +107,7 @@ type EdgeFunction struct {
 	RunCount    int64             `json:"run_count"`
 }
 
-// DataPipeline 数据管道
+// DataPipeline 数据管道.
 type DataPipeline struct {
 	ID         string         `json:"id"`
 	Name       string         `json:"name"`
@@ -119,26 +119,26 @@ type DataPipeline struct {
 	LastError  string         `json:"last_error,omitempty"`
 }
 
-// PipelineSource 管道源
+// PipelineSource 管道源.
 type PipelineSource struct {
 	Type     string            `json:"type"`
 	DeviceID string            `json:"device_id,omitempty"`
 	Params   map[string]string `json:"params"`
 }
 
-// Processor 处理器
+// Processor 处理器.
 type Processor struct {
 	Type   string            `json:"type"`
 	Params map[string]string `json:"params"`
 }
 
-// PipelineSink 管道汇
+// PipelineSink 管道汇.
 type PipelineSink struct {
 	Type   string            `json:"type"`
 	Params map[string]string `json:"params"`
 }
 
-// Manager IoT边缘网关管理器
+// Manager IoT边缘网关管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	devices     map[string]*IoTDevice
@@ -151,7 +151,7 @@ type Manager struct {
 	gatewayName string
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(gatewayName string) *Manager {
 	return &Manager{
 		devices:     make(map[string]*IoTDevice),
@@ -165,7 +165,7 @@ func NewManager(gatewayName string) *Manager {
 	}
 }
 
-// RegisterDevice 注册设备
+// RegisterDevice 注册设备.
 func (m *Manager) RegisterDevice(device *IoTDevice) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -182,7 +182,7 @@ func (m *Manager) RegisterDevice(device *IoTDevice) error {
 	return nil
 }
 
-// IngestData 接入数据
+// IngestData 接入数据.
 func (m *Manager) IngestData(data DataPoint) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -203,7 +203,7 @@ func (m *Manager) IngestData(data DataPoint) error {
 	return nil
 }
 
-// CreateRule 创建规则
+// CreateRule 创建规则.
 func (m *Manager) CreateRule(rule *Rule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -212,7 +212,7 @@ func (m *Manager) CreateRule(rule *Rule) error {
 	return nil
 }
 
-// DeployFunction 部署边缘函数
+// DeployFunction 部署边缘函数.
 func (m *Manager) DeployFunction(function *EdgeFunction) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -222,7 +222,7 @@ func (m *Manager) DeployFunction(function *EdgeFunction) error {
 	return nil
 }
 
-// CreatePipeline 创建数据管道
+// CreatePipeline 创建数据管道.
 func (m *Manager) CreatePipeline(pipeline *DataPipeline) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -232,7 +232,7 @@ func (m *Manager) CreatePipeline(pipeline *DataPipeline) error {
 	return nil
 }
 
-// GetDevice 获取设备
+// GetDevice 获取设备.
 func (m *Manager) GetDevice(deviceID string) (*IoTDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -245,7 +245,7 @@ func (m *Manager) GetDevice(deviceID string) (*IoTDevice, error) {
 	return device, nil
 }
 
-// ListDevices 列出设备
+// ListDevices 列出设备.
 func (m *Manager) ListDevices(protocol DeviceProtocol, status DeviceStatus) []*IoTDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -260,7 +260,7 @@ func (m *Manager) ListDevices(protocol DeviceProtocol, status DeviceStatus) []*I
 	return devices
 }
 
-// GetDataBuffer 获取数据缓冲
+// GetDataBuffer 获取数据缓冲.
 func (m *Manager) GetDataBuffer(deviceID string, limit int) []DataPoint {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -275,7 +275,7 @@ func (m *Manager) GetDataBuffer(deviceID string, limit int) []DataPoint {
 	return data
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -300,7 +300,7 @@ func (m *Manager) GetStats() map[string]interface{} {
 	return stats
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *Manager) Close() error {
 	return nil
 }

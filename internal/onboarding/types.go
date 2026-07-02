@@ -7,7 +7,7 @@ import "time"
 // 新手引导相关类型
 // ============================================================
 
-// Wizard 配置向导
+// Wizard 配置向导.
 type Wizard struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -18,7 +18,7 @@ type Wizard struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// Step 向导步骤
+// Step 向导步骤.
 type Step struct {
 	ID          string    `json:"id"`
 	WizardID    string    `json:"wizard_id"`
@@ -31,7 +31,7 @@ type Step struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// Guide 功能引导
+// Guide 功能引导.
 type Guide struct {
 	ID          string    `json:"id"`
 	Title       string    `json:"title"`
@@ -44,7 +44,7 @@ type Guide struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// BestPractice 最佳实践
+// BestPractice 最佳实践.
 type BestPractice struct {
 	ID          string    `json:"id"`
 	Title       string    `json:"title"`
@@ -56,7 +56,7 @@ type BestPractice struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// Progress 进度
+// Progress 进度.
 type Progress struct {
 	UserID         string     `json:"user_id"`
 	WizardID       string     `json:"wizard_id"`
@@ -74,13 +74,13 @@ type Progress struct {
 // 请求类型
 // ============================================================
 
-// CompleteStepRequest 完成步骤请求
+// CompleteStepRequest 完成步骤请求.
 type CompleteStepRequest struct {
 	UserID string `json:"user_id" binding:"required"`
 	StepID string `json:"step_id" binding:"required"`
 }
 
-// GetGuidesRequest 获取引导请求
+// GetGuidesRequest 获取引导请求.
 type GetGuidesRequest struct {
 	Category string   `json:"category"`
 	Tags     []string `json:"tags"`

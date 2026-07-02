@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// AISysAdmin AI系统管理员
+// AISysAdmin AI系统管理员.
 type AISysAdmin struct {
 	mu        sync.RWMutex
 	config    *Config
@@ -22,7 +22,7 @@ type AISysAdmin struct {
 	cancel    context.CancelFunc
 }
 
-// Config AI系统管理员配置
+// Config AI系统管理员配置.
 type Config struct {
 	MaxHistory     int           `json:"max_history"`
 	AutoRepair     bool          `json:"auto_repair"`
@@ -32,7 +32,7 @@ type Config struct {
 	LogRetention   int           `json:"log_retention_days"`
 }
 
-// Command 命令结构
+// Command 命令结构.
 type Command struct {
 	ID          string            `json:"id"`
 	Input       string            `json:"input"`
@@ -46,7 +46,7 @@ type Command struct {
 	CompletedAt *time.Time        `json:"completed_at,omitempty"`
 }
 
-// CommandStatus 命令状态
+// CommandStatus 命令状态.
 type CommandStatus string
 
 const (
@@ -56,7 +56,7 @@ const (
 	CommandStatusFailed    CommandStatus = "failed"
 )
 
-// DiagnosisResult 诊断结果
+// DiagnosisResult 诊断结果.
 type DiagnosisResult struct {
 	ID         string          `json:"id"`
 	Category   string          `json:"category"`
@@ -69,7 +69,7 @@ type DiagnosisResult struct {
 	Timestamp  time.Time       `json:"timestamp"`
 }
 
-// DiagnosisStatus 诊断状态
+// DiagnosisStatus 诊断状态.
 type DiagnosisStatus string
 
 const (
@@ -79,7 +79,7 @@ const (
 	DiagnosisStatusUnknown  DiagnosisStatus = "unknown"
 )
 
-// Severity 严重程度
+// Severity 严重程度.
 type Severity string
 
 const (
@@ -89,7 +89,7 @@ const (
 	SeverityCritical Severity = "critical"
 )
 
-// OperationLog 操作日志
+// OperationLog 操作日志.
 type OperationLog struct {
 	ID        string    `json:"id"`
 	Action    string    `json:"action"`
@@ -100,7 +100,7 @@ type OperationLog struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// AutomationRule 自动化规则
+// AutomationRule 自动化规则.
 type AutomationRule struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -114,7 +114,7 @@ type AutomationRule struct {
 	RunCount    int               `json:"run_count"`
 }
 
-// SystemSummary 系统摘要
+// SystemSummary 系统摘要.
 type SystemSummary struct {
 	TotalCommands   int           `json:"total_commands"`
 	SuccessCommands int           `json:"success_commands"`
@@ -129,7 +129,7 @@ type SystemSummary struct {
 	Uptime          time.Duration `json:"uptime"`
 }
 
-// New 创建AI系统管理员
+// New 创建AI系统管理员.
 func New(config *Config) *AISysAdmin {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &AISysAdmin{
@@ -143,7 +143,7 @@ func New(config *Config) *AISysAdmin {
 	}
 }
 
-// Start 启动AI系统管理员
+// Start 启动AI系统管理员.
 func (a *AISysAdmin) Start() error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -164,7 +164,7 @@ func (a *AISysAdmin) Start() error {
 	return nil
 }
 
-// Stop 停止AI系统管理员
+// Stop 停止AI系统管理员.
 func (a *AISysAdmin) Stop() error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -178,7 +178,7 @@ func (a *AISysAdmin) Stop() error {
 	return nil
 }
 
-// ExecuteCommand 执行自然语言命令
+// ExecuteCommand 执行自然语言命令.
 func (a *AISysAdmin) ExecuteCommand(ctx context.Context, naturalLanguageInput string) (*Command, error) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -215,7 +215,7 @@ func (a *AISysAdmin) ExecuteCommand(ctx context.Context, naturalLanguageInput st
 	return cmd, nil
 }
 
-// DiagnoseSystem 系统诊断
+// DiagnoseSystem 系统诊断.
 func (a *AISysAdmin) DiagnoseSystem(ctx context.Context) ([]*DiagnosisResult, error) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -255,7 +255,7 @@ func (a *AISysAdmin) DiagnoseSystem(ctx context.Context) ([]*DiagnosisResult, er
 	return results, nil
 }
 
-// AutoRepair 自动修复
+// AutoRepair 自动修复.
 func (a *AISysAdmin) AutoRepair(ctx context.Context, issue *DiagnosisResult) (*OperationLog, error) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -281,7 +281,7 @@ func (a *AISysAdmin) AutoRepair(ctx context.Context, issue *DiagnosisResult) (*O
 	return log, nil
 }
 
-// GetOperationHistory 获取操作历史
+// GetOperationHistory 获取操作历史.
 func (a *AISysAdmin) GetOperationHistory(limit int) []*OperationLog {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -300,7 +300,7 @@ func (a *AISysAdmin) GetOperationHistory(limit int) []*OperationLog {
 	return result
 }
 
-// GetSystemSummary 获取系统摘要
+// GetSystemSummary 获取系统摘要.
 func (a *AISysAdmin) GetSystemSummary() *SystemSummary {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -313,9 +313,10 @@ func (a *AISysAdmin) GetSystemSummary() *SystemSummary {
 	}
 
 	for _, cmd := range a.commands {
-		if cmd.Status == CommandStatusCompleted {
+		switch cmd.Status {
+		case CommandStatusCompleted:
 			summary.SuccessCommands++
-		} else if cmd.Status == CommandStatusFailed {
+		case CommandStatusFailed:
 			summary.FailedCommands++
 		}
 	}
@@ -338,7 +339,7 @@ func (a *AISysAdmin) GetSystemSummary() *SystemSummary {
 	return summary
 }
 
-// AddRule 添加自动化规则
+// AddRule 添加自动化规则.
 func (a *AISysAdmin) AddRule(rule *AutomationRule) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -355,7 +356,7 @@ func (a *AISysAdmin) AddRule(rule *AutomationRule) error {
 	return nil
 }
 
-// EvaluateRules 评估自动化规则
+// EvaluateRules 评估自动化规则.
 func (a *AISysAdmin) EvaluateRules(ctx context.Context) ([]*OperationLog, error) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -388,7 +389,7 @@ func (a *AISysAdmin) EvaluateRules(ctx context.Context) ([]*OperationLog, error)
 	return results, nil
 }
 
-// GetCommands 获取命令列表
+// GetCommands 获取命令列表.
 func (a *AISysAdmin) GetCommands(status CommandStatus, limit int) []*Command {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -407,7 +408,7 @@ func (a *AISysAdmin) GetCommands(status CommandStatus, limit int) []*Command {
 	return filtered
 }
 
-// GetRules 获取规则列表
+// GetRules 获取规则列表.
 func (a *AISysAdmin) GetRules() []*AutomationRule {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -417,7 +418,7 @@ func (a *AISysAdmin) GetRules() []*AutomationRule {
 	return rules
 }
 
-// RemoveRule 移除规则
+// RemoveRule 移除规则.
 func (a *AISysAdmin) RemoveRule(ruleID string) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -432,7 +433,7 @@ func (a *AISysAdmin) RemoveRule(ruleID string) error {
 	return fmt.Errorf("rule %s not found", ruleID)
 }
 
-// GetDiagnoses 获取诊断历史
+// GetDiagnoses 获取诊断历史.
 func (a *AISysAdmin) GetDiagnoses(category string, limit int) []*DiagnosisResult {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -453,7 +454,7 @@ func (a *AISysAdmin) GetDiagnoses(category string, limit int) []*DiagnosisResult
 
 // 内部方法
 
-// parseCommand 解析自然语言命令
+// parseCommand 解析自然语言命令.
 func (a *AISysAdmin) parseCommand(input string) *Command {
 	cmd := &Command{
 		ID:         fmt.Sprintf("cmd_%d", time.Now().UnixNano()),
@@ -491,7 +492,7 @@ func (a *AISysAdmin) parseCommand(input string) *Command {
 	return cmd
 }
 
-// extractTarget 提取目标
+// extractTarget 提取目标.
 func extractTarget(input string, keywords []string) string {
 	for _, keyword := range keywords {
 		if strings.Contains(input, keyword) {
@@ -501,7 +502,7 @@ func extractTarget(input string, keywords []string) string {
 	return "system"
 }
 
-// executeParsedCommand 执行解析后的命令
+// executeParsedCommand 执行解析后的命令.
 func (a *AISysAdmin) executeParsedCommand(ctx context.Context, cmd *Command) (string, error) {
 	// 模拟命令执行
 	select {
@@ -528,7 +529,7 @@ func (a *AISysAdmin) executeParsedCommand(ctx context.Context, cmd *Command) (st
 	}
 }
 
-// logOperation 记录操作日志
+// logOperation 记录操作日志.
 func (a *AISysAdmin) logOperation(action, target string, success bool, message string) *OperationLog {
 	log := &OperationLog{
 		ID:        fmt.Sprintf("log_%d", time.Now().UnixNano()),
@@ -547,7 +548,7 @@ func (a *AISysAdmin) logOperation(action, target string, success bool, message s
 	return log
 }
 
-// diagnoseCPU 诊断CPU
+// diagnoseCPU 诊断CPU.
 func (a *AISysAdmin) diagnoseCPU() *DiagnosisResult {
 	return &DiagnosisResult{
 		ID:         fmt.Sprintf("diag_%d", time.Now().UnixNano()),
@@ -561,7 +562,7 @@ func (a *AISysAdmin) diagnoseCPU() *DiagnosisResult {
 	}
 }
 
-// diagnoseMemory 诊断内存
+// diagnoseMemory 诊断内存.
 func (a *AISysAdmin) diagnoseMemory() *DiagnosisResult {
 	return &DiagnosisResult{
 		ID:         fmt.Sprintf("diag_%d", time.Now().UnixNano()+1),
@@ -575,7 +576,7 @@ func (a *AISysAdmin) diagnoseMemory() *DiagnosisResult {
 	}
 }
 
-// diagnoseDisk 诊断磁盘
+// diagnoseDisk 诊断磁盘.
 func (a *AISysAdmin) diagnoseDisk() *DiagnosisResult {
 	return &DiagnosisResult{
 		ID:         fmt.Sprintf("diag_%d", time.Now().UnixNano()+2),
@@ -589,7 +590,7 @@ func (a *AISysAdmin) diagnoseDisk() *DiagnosisResult {
 	}
 }
 
-// diagnoseNetwork 诊断网络
+// diagnoseNetwork 诊断网络.
 func (a *AISysAdmin) diagnoseNetwork() *DiagnosisResult {
 	return &DiagnosisResult{
 		ID:         fmt.Sprintf("diag_%d", time.Now().UnixNano()+3),
@@ -603,7 +604,7 @@ func (a *AISysAdmin) diagnoseNetwork() *DiagnosisResult {
 	}
 }
 
-// diagnoseServices 诊断服务
+// diagnoseServices 诊断服务.
 func (a *AISysAdmin) diagnoseServices() *DiagnosisResult {
 	return &DiagnosisResult{
 		ID:         fmt.Sprintf("diag_%d", time.Now().UnixNano()+4),
@@ -617,7 +618,7 @@ func (a *AISysAdmin) diagnoseServices() *DiagnosisResult {
 	}
 }
 
-// performRepair 执行修复
+// performRepair 执行修复.
 func (a *AISysAdmin) performRepair(ctx context.Context, issue *DiagnosisResult) *OperationLog {
 	success := true
 	message := fmt.Sprintf("已修复 %s 问题: %s", issue.Component, issue.Message)
@@ -639,7 +640,7 @@ func (a *AISysAdmin) performRepair(ctx context.Context, issue *DiagnosisResult) 
 	}
 }
 
-// evaluateCondition 评估规则条件
+// evaluateCondition 评估规则条件.
 func (a *AISysAdmin) evaluateCondition(condition string) bool {
 	// 简化的条件评估
 	condition = strings.ToLower(strings.TrimSpace(condition))
@@ -658,7 +659,7 @@ func (a *AISysAdmin) evaluateCondition(condition string) bool {
 	}
 }
 
-// executeRuleAction 执行规则动作
+// executeRuleAction 执行规则动作.
 func (a *AISysAdmin) executeRuleAction(ctx context.Context, rule *AutomationRule) *OperationLog {
 	return &OperationLog{
 		ID:        fmt.Sprintf("log_%d", time.Now().UnixNano()),
@@ -670,7 +671,7 @@ func (a *AISysAdmin) executeRuleAction(ctx context.Context, rule *AutomationRule
 	}
 }
 
-// runDiagnostics 运行定时诊断
+// runDiagnostics 运行定时诊断.
 func (a *AISysAdmin) runDiagnostics() {
 	ticker := time.NewTicker(a.config.DiagInterval)
 	defer ticker.Stop()
@@ -685,7 +686,7 @@ func (a *AISysAdmin) runDiagnostics() {
 	}
 }
 
-// runRuleEvaluation 运行规则评估
+// runRuleEvaluation 运行规则评估.
 func (a *AISysAdmin) runRuleEvaluation() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()

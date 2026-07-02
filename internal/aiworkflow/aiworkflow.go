@@ -21,21 +21,21 @@ import (
 	"time"
 )
 
-// WorkflowEngine manages workflow definitions and executions
+// WorkflowEngine manages workflow definitions and executions.
 type WorkflowEngine struct {
-	mu          sync.RWMutex
-	workflows   map[string]*Workflow
-	executions  map[string]*Execution
-	templates   map[string]*Template
-	triggers    map[string]*Trigger
+	mu         sync.RWMutex
+	workflows  map[string]*Workflow
+	executions map[string]*Execution
+	templates  map[string]*Template
+	triggers   map[string]*Trigger
 	aiPlanner  *AIPlanner
-	metrics     *EngineMetrics
-	logger      *slog.Logger
-	ctx         context.Context
-	cancel      context.CancelFunc
+	metrics    *EngineMetrics
+	logger     *slog.Logger
+	ctx        context.Context
+	cancel     context.CancelFunc
 }
 
-// Workflow represents a workflow definition
+// Workflow represents a workflow definition.
 type Workflow struct {
 	ID          string                 `json:"id"`
 	Name        string                 `json:"name"`
@@ -51,43 +51,43 @@ type Workflow struct {
 	Tags        []string               `json:"tags,omitempty"`
 }
 
-// Step represents a single workflow step
+// Step represents a single workflow step.
 type Step struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Type        StepType               `json:"type"`
-	Action      string                 `json:"action"`
-	Parameters  map[string]interface{} `json:"parameters,omitempty"`
-	Conditions  []*Condition           `json:"conditions,omitempty"`
-	OnSuccess   string                 `json:"onSuccess,omitempty"`
-	OnFailure   string                 `json:"onFailure,omitempty"`
-	Timeout     time.Duration          `json:"timeout,omitempty"`
-	Retries     int                    `json:"retries,omitempty"`
-	Parallel    bool                   `json:"parallel,omitempty"`
+	ID         string                 `json:"id"`
+	Name       string                 `json:"name"`
+	Type       StepType               `json:"type"`
+	Action     string                 `json:"action"`
+	Parameters map[string]interface{} `json:"parameters,omitempty"`
+	Conditions []*Condition           `json:"conditions,omitempty"`
+	OnSuccess  string                 `json:"onSuccess,omitempty"`
+	OnFailure  string                 `json:"onFailure,omitempty"`
+	Timeout    time.Duration          `json:"timeout,omitempty"`
+	Retries    int                    `json:"retries,omitempty"`
+	Parallel   bool                   `json:"parallel,omitempty"`
 }
 
-// StepType defines the type of workflow step
+// StepType defines the type of workflow step.
 type StepType string
 
 const (
-	StepTypeAction     StepType = "action"
-	StepTypeCondition  StepType = "condition"
-	StepTypeLoop       StepType = "loop"
-	StepTypeParallel   StepType = "parallel"
-	StepTypeApproval   StepType = "approval"
-	StepTypeDelay      StepType = "delay"
-	StepTypeScript     StepType = "script"
-	StepTypeAI         StepType = "ai"
+	StepTypeAction    StepType = "action"
+	StepTypeCondition StepType = "condition"
+	StepTypeLoop      StepType = "loop"
+	StepTypeParallel  StepType = "parallel"
+	StepTypeApproval  StepType = "approval"
+	StepTypeDelay     StepType = "delay"
+	StepTypeScript    StepType = "script"
+	StepTypeAI        StepType = "ai"
 )
 
-// Condition defines a step condition
+// Condition defines a step condition.
 type Condition struct {
 	Field    string      `json:"field"`
 	Operator string      `json:"operator"`
 	Value    interface{} `json:"value"`
 }
 
-// Execution represents a workflow execution instance
+// Execution represents a workflow execution instance.
 type Execution struct {
 	ID          string                 `json:"id"`
 	WorkflowID  string                 `json:"workflowId"`
@@ -100,7 +100,7 @@ type Execution struct {
 	TriggerType string                 `json:"triggerType"`
 }
 
-// ExecutionStatus defines execution states
+// ExecutionStatus defines execution states.
 type ExecutionStatus string
 
 const (
@@ -112,7 +112,7 @@ const (
 	StatusPaused    ExecutionStatus = "paused"
 )
 
-// StepExecution tracks a single step's execution
+// StepExecution tracks a single step's execution.
 type StepExecution struct {
 	StepID      string                 `json:"stepId"`
 	Status      ExecutionStatus        `json:"status"`
@@ -123,7 +123,7 @@ type StepExecution struct {
 	RetryCount  int                    `json:"retryCount"`
 }
 
-// Template represents a reusable workflow template
+// Template represents a reusable workflow template.
 type Template struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -134,16 +134,16 @@ type Template struct {
 	Rating      float64   `json:"rating"`
 }
 
-// Trigger defines when a workflow should execute
+// Trigger defines when a workflow should execute.
 type Trigger struct {
-	ID         string            `json:"id"`
-	Type       TriggerType        `json:"type"`
-	WorkflowID string            `json:"workflowId"`
+	ID         string                 `json:"id"`
+	Type       TriggerType            `json:"type"`
+	WorkflowID string                 `json:"workflowId"`
 	Config     map[string]interface{} `json:"config"`
-	Enabled    bool              `json:"enabled"`
+	Enabled    bool                   `json:"enabled"`
 }
 
-// TriggerType defines trigger types
+// TriggerType defines trigger types.
 type TriggerType string
 
 const (
@@ -153,13 +153,13 @@ const (
 	TriggerTypeManual  TriggerType = "manual"
 )
 
-// AIPlanner provides AI-driven workflow planning
+// AIPlanner provides AI-driven workflow planning.
 type AIPlanner struct {
 	modelName string
 	enabled   bool
 }
 
-// EngineMetrics tracks workflow engine performance
+// EngineMetrics tracks workflow engine performance.
 type EngineMetrics struct {
 	mu               sync.Mutex
 	TotalWorkflows   int       `json:"totalWorkflows"`
@@ -171,25 +171,25 @@ type EngineMetrics struct {
 	LastExecutionAt  time.Time `json:"lastExecutionAt"`
 }
 
-// EngineConfig holds workflow engine configuration
+// EngineConfig holds workflow engine configuration.
 type EngineConfig struct {
 	AIModel     string `json:"aiModel"`
 	AIEnabled   bool   `json:"aiEnabled"`
 	MaxParallel int    `json:"maxParallel"`
 }
 
-// ActionHandler is the function signature for step action execution
+// ActionHandler is the function signature for step action execution.
 type ActionHandler func(ctx context.Context, params map[string]interface{}, vars map[string]interface{}) (map[string]interface{}, error)
 
-// actionHandlers stores registered action handlers
+// actionHandlers stores registered action handlers.
 var actionHandlers = make(map[string]ActionHandler)
 
-// RegisterActionHandler registers a global action handler
+// RegisterActionHandler registers a global action handler.
 func RegisterActionHandler(action string, handler ActionHandler) {
 	actionHandlers[action] = handler
 }
 
-// NewWorkflowEngine creates a new workflow engine
+// NewWorkflowEngine creates a new workflow engine.
 func NewWorkflowEngine(config *EngineConfig, logger *slog.Logger) *WorkflowEngine {
 	if logger == nil {
 		logger = slog.Default()
@@ -224,7 +224,7 @@ func NewWorkflowEngine(config *EngineConfig, logger *slog.Logger) *WorkflowEngin
 	return engine
 }
 
-// CreateWorkflow creates a new workflow definition
+// CreateWorkflow creates a new workflow definition.
 func (e *WorkflowEngine) CreateWorkflow(wf *Workflow) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -252,7 +252,7 @@ func (e *WorkflowEngine) CreateWorkflow(wf *Workflow) error {
 	return nil
 }
 
-// Execute starts a workflow execution
+// Execute starts a workflow execution.
 func (e *WorkflowEngine) Execute(ctx context.Context, workflowID string, variables map[string]interface{}) (*Execution, error) {
 	e.mu.RLock()
 	wf, exists := e.workflows[workflowID]
@@ -437,7 +437,7 @@ func (e *WorkflowEngine) evaluateConditions(conditions []*Condition, vars map[st
 	return true
 }
 
-// GetExecution returns an execution by ID
+// GetExecution returns an execution by ID.
 func (e *WorkflowEngine) GetExecution(execID string) (*Execution, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -449,7 +449,7 @@ func (e *WorkflowEngine) GetExecution(execID string) (*Execution, error) {
 	return exec, nil
 }
 
-// GetWorkflow returns a workflow by ID
+// GetWorkflow returns a workflow by ID.
 func (e *WorkflowEngine) GetWorkflow(workflowID string) (*Workflow, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -461,7 +461,7 @@ func (e *WorkflowEngine) GetWorkflow(workflowID string) (*Workflow, error) {
 	return wf, nil
 }
 
-// ListWorkflows returns all workflows
+// ListWorkflows returns all workflows.
 func (e *WorkflowEngine) ListWorkflows() []*Workflow {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -473,7 +473,7 @@ func (e *WorkflowEngine) ListWorkflows() []*Workflow {
 	return workflows
 }
 
-// ListExecutions returns all executions
+// ListExecutions returns all executions.
 func (e *WorkflowEngine) ListExecutions() []*Execution {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -485,7 +485,7 @@ func (e *WorkflowEngine) ListExecutions() []*Execution {
 	return executions
 }
 
-// CancelExecution cancels a running execution
+// CancelExecution cancels a running execution.
 func (e *WorkflowEngine) CancelExecution(execID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -505,7 +505,7 @@ func (e *WorkflowEngine) CancelExecution(execID string) error {
 	return nil
 }
 
-// GetMetrics returns engine metrics
+// GetMetrics returns engine metrics.
 func (e *WorkflowEngine) GetMetrics() *EngineMetrics {
 	e.metrics.mu.Lock()
 	defer e.metrics.mu.Unlock()
@@ -520,7 +520,7 @@ func (e *WorkflowEngine) GetMetrics() *EngineMetrics {
 	}
 }
 
-// Stop gracefully stops the engine
+// Stop gracefully stops the engine.
 func (e *WorkflowEngine) Stop() {
 	e.cancel()
 	e.logger.Info("Workflow engine stopped")

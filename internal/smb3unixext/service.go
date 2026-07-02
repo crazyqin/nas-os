@@ -8,20 +8,20 @@ import (
 	"time"
 )
 
-// Service SMB3 Unix 扩展管理服务
+// Service SMB3 Unix 扩展管理服务.
 type Service struct {
 	mu      sync.RWMutex
 	configs map[string]*UnixExtensionConfig
 }
 
-// NewService 创建 SMB3 Unix 扩展管理服务
+// NewService 创建 SMB3 Unix 扩展管理服务.
 func NewService() *Service {
 	return &Service{
 		configs: make(map[string]*UnixExtensionConfig),
 	}
 }
 
-// SetExtension 设置共享的 Unix 扩展配置
+// SetExtension 设置共享的 Unix 扩展配置.
 func (s *Service) SetExtension(req *SetExtensionRequest) (*UnixExtensionConfig, error) {
 	if req == nil {
 		return nil, fmt.Errorf("请求不能为空")
@@ -57,7 +57,7 @@ func (s *Service) SetExtension(req *SetExtensionRequest) (*UnixExtensionConfig, 
 	return cfg, nil
 }
 
-// GetExtension 获取共享的 Unix 扩展配置
+// GetExtension 获取共享的 Unix 扩展配置.
 func (s *Service) GetExtension(shareName string) (*UnixExtensionConfig, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -69,7 +69,7 @@ func (s *Service) GetExtension(shareName string) (*UnixExtensionConfig, error) {
 	return cfg, nil
 }
 
-// GetExtensionStatus 获取扩展状态响应
+// GetExtensionStatus 获取扩展状态响应.
 func (s *Service) GetExtensionStatus(shareName string) (*ExtensionStatusResponse, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -85,18 +85,18 @@ func (s *Service) GetExtensionStatus(shareName string) (*ExtensionStatusResponse
 	}
 
 	return &ExtensionStatusResponse{
-		ShareName:             cfg.ShareName,
-		Enabled:               cfg.Enabled,
-		Protocol:              cfg.Protocol,
-		IsMultiProtocol:       cfg.IsMultiProtocol,
-		Status:                status,
-		Capabilities:          cfg.Capabilities,
-		ClientNegotiated:      cfg.ClientNegotiated,
+		ShareName:              cfg.ShareName,
+		Enabled:                cfg.Enabled,
+		Protocol:               cfg.Protocol,
+		IsMultiProtocol:        cfg.IsMultiProtocol,
+		Status:                 status,
+		Capabilities:           cfg.Capabilities,
+		ClientNegotiated:       cfg.ClientNegotiated,
 		NegotiatedCapabilities: cfg.NegotiatedCapabilities,
 	}, nil
 }
 
-// ListExtensions 列出所有扩展配置
+// ListExtensions 列出所有扩展配置.
 func (s *Service) ListExtensions() []*UnixExtensionConfig {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -108,7 +108,7 @@ func (s *Service) ListExtensions() []*UnixExtensionConfig {
 	return result
 }
 
-// RemoveExtension 移除共享的扩展配置
+// RemoveExtension 移除共享的扩展配置.
 func (s *Service) RemoveExtension(shareName string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -120,7 +120,7 @@ func (s *Service) RemoveExtension(shareName string) error {
 	return nil
 }
 
-// IsMultiProtocol 检查共享是否为多协议模式
+// IsMultiProtocol 检查共享是否为多协议模式.
 func (s *Service) IsMultiProtocol(shareName string) bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -133,7 +133,7 @@ func (s *Service) IsMultiProtocol(shareName string) bool {
 }
 
 // CanEnableUnixExtensions 检查是否可以启用 Unix 扩展
-// 只有启用的共享才支持
+// 只有启用的共享才支持.
 func (s *Service) CanEnableUnixExtensions(shareName string) (bool, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -146,7 +146,7 @@ func (s *Service) CanEnableUnixExtensions(shareName string) (bool, error) {
 }
 
 // NegotiateClientCapabilities 客户端能力协商
-// 检测客户端能力，自动协商支持的 Unix 扩展
+// 检测客户端能力，自动协商支持的 Unix 扩展.
 func (s *Service) NegotiateClientCapabilities(req *ClientCapabilityRequest) (*ExtensionStatusResponse, error) {
 	if req == nil {
 		return nil, fmt.Errorf("请求不能为空")
@@ -193,18 +193,18 @@ func (s *Service) NegotiateClientCapabilities(req *ClientCapabilityRequest) (*Ex
 	}
 
 	return &ExtensionStatusResponse{
-		ShareName:             cfg.ShareName,
-		Enabled:               cfg.Enabled,
-		Protocol:              cfg.Protocol,
-		IsMultiProtocol:       cfg.IsMultiProtocol,
-		Status:                status,
-		Capabilities:          cfg.Capabilities,
-		ClientNegotiated:      cfg.ClientNegotiated,
+		ShareName:              cfg.ShareName,
+		Enabled:                cfg.Enabled,
+		Protocol:               cfg.Protocol,
+		IsMultiProtocol:        cfg.IsMultiProtocol,
+		Status:                 status,
+		Capabilities:           cfg.Capabilities,
+		ClientNegotiated:       cfg.ClientNegotiated,
 		NegotiatedCapabilities: cfg.NegotiatedCapabilities,
 	}, nil
 }
 
-// GetSupportStatus 获取全局支持状态
+// GetSupportStatus 获取全局支持状态.
 func (s *Service) GetSupportStatus() *SupportStatusResponse {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -225,7 +225,7 @@ func (s *Service) GetSupportStatus() *SupportStatusResponse {
 	}
 }
 
-// EnableAll 为所有已配置的共享启用 Unix 扩展
+// EnableAll 为所有已配置的共享启用 Unix 扩展.
 func (s *Service) EnableAll() int {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -243,7 +243,7 @@ func (s *Service) EnableAll() int {
 	return count
 }
 
-// DisableAll 为所有已配置的共享禁用 Unix 扩展
+// DisableAll 为所有已配置的共享禁用 Unix 扩展.
 func (s *Service) DisableAll() int {
 	s.mu.Lock()
 	defer s.mu.Unlock()

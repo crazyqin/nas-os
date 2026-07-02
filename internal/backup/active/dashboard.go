@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// DashboardHandler 仪表板数据处理器
+// DashboardHandler 仪表板数据处理器.
 type DashboardHandler struct {
 	mu        sync.RWMutex
 	engine    *Engine
@@ -25,14 +25,14 @@ type DashboardHandler struct {
 	upgrader  websocket.Upgrader
 }
 
-// DashboardEvent 仪表板事件
+// DashboardEvent 仪表板事件.
 type DashboardEvent struct {
 	Type      string      `json:"type"` // "progress", "task_update", "storage_update", "alert"
 	Timestamp time.Time   `json:"timestamp"`
 	Payload   interface{} `json:"payload"`
 }
 
-// BackupSummary 备份状态汇总
+// BackupSummary 备份状态汇总.
 type BackupSummary struct {
 	TotalJobs      int              `json:"total_jobs"`
 	RunningJobs    int              `json:"running_jobs"`
@@ -50,7 +50,7 @@ type BackupSummary struct {
 	StorageByJob   []JobStorageInfo `json:"storage_by_job"` // 每个任务的存储使用
 }
 
-// JobStorageInfo 任务存储信息
+// JobStorageInfo 任务存储信息.
 type JobStorageInfo struct {
 	JobID         string `json:"job_id"`
 	JobName       string `json:"job_name"`
@@ -59,12 +59,12 @@ type JobStorageInfo struct {
 	LastBackup    string `json:"last_backup"`
 }
 
-// StorageTrend 存储使用趋势
+// StorageTrend 存储使用趋势.
 type StorageTrend struct {
 	Points []StorageTrendPoint `json:"points"`
 }
 
-// StorageTrendPoint 存储趋势数据点
+// StorageTrendPoint 存储趋势数据点.
 type StorageTrendPoint struct {
 	Timestamp     time.Time `json:"timestamp"`
 	TotalSize     int64     `json:"total_size"`
@@ -73,7 +73,7 @@ type StorageTrendPoint struct {
 	SnapshotCount int       `json:"snapshot_count"`
 }
 
-// BackupProgressEvent 备份进度事件（WebSocket 推送用）
+// BackupProgressEvent 备份进度事件（WebSocket 推送用）.
 type BackupProgressEvent struct {
 	JobID      string  `json:"job_id"`
 	TaskRunID  string  `json:"task_run_id"`
@@ -89,7 +89,7 @@ type BackupProgressEvent struct {
 	Message    string  `json:"message"`
 }
 
-// NewDashboardHandler 创建仪表板处理器
+// NewDashboardHandler 创建仪表板处理器.
 func NewDashboardHandler(engine *Engine, manager *BackupManager, restore *RestoreManager, logger *zap.Logger) *DashboardHandler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -118,19 +118,19 @@ func NewDashboardHandler(engine *Engine, manager *BackupManager, restore *Restor
 	return dh
 }
 
-// GetSummary 获取备份状态汇总
+// GetSummary 获取备份状态汇总.
 func (dh *DashboardHandler) GetSummary(c *gin.Context) {
 	summary := dh.buildSummary()
 	c.JSON(http.StatusOK, summary)
 }
 
-// GetStorageTrend 获取存储使用趋势
+// GetStorageTrend 获取存储使用趋势.
 func (dh *DashboardHandler) GetStorageTrend(c *gin.Context) {
 	trend := dh.buildStorageTrend()
 	c.JSON(http.StatusOK, trend)
 }
 
-// GetRestorePoints 获取恢复点列表
+// GetRestorePoints 获取恢复点列表.
 func (dh *DashboardHandler) GetRestorePoints(c *gin.Context) {
 	jobID := c.Query("job_id")
 	points := dh.restore.ListRestorePoints(jobID)
@@ -140,7 +140,7 @@ func (dh *DashboardHandler) GetRestorePoints(c *gin.Context) {
 	})
 }
 
-// HandleWebSocket 处理 WebSocket 连接
+// HandleWebSocket 处理 WebSocket 连接.
 func (dh *DashboardHandler) HandleWebSocket(c *gin.Context) {
 	conn, err := dh.upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -185,7 +185,7 @@ func (dh *DashboardHandler) HandleWebSocket(c *gin.Context) {
 	}
 }
 
-// BroadcastProgress 广播备份进度
+// BroadcastProgress 广播备份进度.
 func (dh *DashboardHandler) BroadcastProgress(progress BackupProgressEvent) {
 	dh.broadcast <- DashboardEvent{
 		Type:      "progress",
@@ -194,7 +194,7 @@ func (dh *DashboardHandler) BroadcastProgress(progress BackupProgressEvent) {
 	}
 }
 
-// onEngineEvent 引擎事件回调
+// onEngineEvent 引擎事件回调.
 func (dh *DashboardHandler) onEngineEvent(event EngineEvent) {
 	dh.broadcast <- DashboardEvent{
 		Type:      "task_update",
@@ -203,7 +203,7 @@ func (dh *DashboardHandler) onEngineEvent(event EngineEvent) {
 	}
 }
 
-// broadcastLoop 广播循环
+// broadcastLoop 广播循环.
 func (dh *DashboardHandler) broadcastLoop() {
 	for event := range dh.broadcast {
 		data, err := json.Marshal(event)
@@ -231,7 +231,7 @@ func (dh *DashboardHandler) broadcastLoop() {
 	}
 }
 
-// buildSummary 构建备份状态汇总
+// buildSummary 构建备份状态汇总.
 func (dh *DashboardHandler) buildSummary() *BackupSummary {
 	jobs := dh.manager.ListJobs()
 	snapshots := dh.manager.ListSnapshots("")
@@ -316,7 +316,7 @@ func (dh *DashboardHandler) buildSummary() *BackupSummary {
 	return summary
 }
 
-// buildStorageTrend 构建存储使用趋势
+// buildStorageTrend 构建存储使用趋势.
 func (dh *DashboardHandler) buildStorageTrend() *StorageTrend {
 	snapshots := dh.manager.ListSnapshots("")
 

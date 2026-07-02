@@ -15,7 +15,7 @@ import (
 
 // ==================== 类型定义 ====================
 
-// VerificationStatus 校验状态
+// VerificationStatus 校验状态.
 type VerificationStatus string
 
 const (
@@ -27,7 +27,7 @@ const (
 	VerifySkipped  VerificationStatus = "skipped"
 )
 
-// RepairMode 修复模式
+// RepairMode 修复模式.
 type RepairMode string
 
 const (
@@ -36,7 +36,7 @@ const (
 	RepairDisabled RepairMode = "disabled" // 不修复
 )
 
-// ChecksumType 校验和类型
+// ChecksumType 校验和类型.
 type ChecksumType string
 
 const (
@@ -46,7 +46,7 @@ const (
 	ChecksumBlake2b ChecksumType = "blake2b"
 )
 
-// FileRecord 文件完整性记录
+// FileRecord 文件完整性记录.
 type FileRecord struct {
 	ID           string             `json:"id"`
 	Path         string             `json:"path"`
@@ -61,7 +61,7 @@ type FileRecord struct {
 	UpdatedAt    time.Time          `json:"updatedAt"`
 }
 
-// VerificationResult 校验结果
+// VerificationResult 校验结果.
 type VerificationResult struct {
 	FilePath  string             `json:"filePath"`
 	Status    VerificationStatus `json:"status"`
@@ -73,7 +73,7 @@ type VerificationResult struct {
 	CheckedAt time.Time          `json:"checkedAt"`
 }
 
-// VerificationJob 校验任务
+// VerificationJob 校验任务.
 type VerificationJob struct {
 	ID            string                `json:"id"`
 	Name          string                `json:"name"`
@@ -90,7 +90,7 @@ type VerificationJob struct {
 	ErrorMsg      string                `json:"errorMsg,omitempty"`
 }
 
-// IntegrityReport 完整性报告
+// IntegrityReport 完整性报告.
 type IntegrityReport struct {
 	GeneratedAt    time.Time             `json:"generatedAt"`
 	TotalFiles     int                   `json:"totalFiles"`
@@ -104,7 +104,7 @@ type IntegrityReport struct {
 	TopFailedPaths []string              `json:"topFailedPaths,omitempty"`
 }
 
-// ScrubSchedule 校验调度
+// ScrubSchedule 校验调度.
 type ScrubSchedule struct {
 	ID         string        `json:"id"`
 	Name       string        `json:"name"`
@@ -120,7 +120,7 @@ type ScrubSchedule struct {
 
 // ==================== 校验器 ====================
 
-// Verifier 数据完整性校验器
+// Verifier 数据完整性校验器.
 type Verifier struct {
 	mu sync.RWMutex
 
@@ -142,7 +142,7 @@ type Verifier struct {
 	maxConcurrent int
 }
 
-// NewVerifier 创建完整性校验器
+// NewVerifier 创建完整性校验器.
 func NewVerifier() *Verifier {
 	return &Verifier{
 		records:       make(map[string]*FileRecord),
@@ -156,7 +156,7 @@ func NewVerifier() *Verifier {
 
 // ==================== 文件注册 ====================
 
-// RegisterFile 注册文件完整性记录
+// RegisterFile 注册文件完整性记录.
 func (v *Verifier) RegisterFile(path string) (*FileRecord, error) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
@@ -191,7 +191,7 @@ func (v *Verifier) RegisterFile(path string) (*FileRecord, error) {
 	return record, nil
 }
 
-// UnregisterFile 注销文件
+// UnregisterFile 注销文件.
 func (v *Verifier) UnregisterFile(path string) error {
 	v.mu.Lock()
 	defer v.mu.Unlock()
@@ -207,7 +207,7 @@ func (v *Verifier) UnregisterFile(path string) error {
 
 // ==================== 校验操作 ====================
 
-// VerifyFile 校验单个文件
+// VerifyFile 校验单个文件.
 func (v *Verifier) VerifyFile(path string) (*VerificationResult, error) {
 	v.mu.RLock()
 	record, exists := v.records[path]
@@ -278,7 +278,7 @@ func (v *Verifier) VerifyFile(path string) (*VerificationResult, error) {
 	return result, nil
 }
 
-// VerifyAll 校验所有已注册文件
+// VerifyAll 校验所有已注册文件.
 func (v *Verifier) VerifyAll() *VerificationJob {
 	v.mu.RLock()
 	paths := make([]string, 0, len(v.records))
@@ -306,7 +306,7 @@ func (v *Verifier) VerifyAll() *VerificationJob {
 	return job
 }
 
-// executeJob 执行校验任务
+// executeJob 执行校验任务.
 func (v *Verifier) executeJob(job *VerificationJob) {
 	for _, path := range job.Paths {
 		result, err := v.VerifyFile(path)
@@ -340,7 +340,7 @@ func (v *Verifier) executeJob(job *VerificationJob) {
 
 // ==================== 修复操作 ====================
 
-// attemptRepair 尝试修复文件
+// attemptRepair 尝试修复文件.
 func (v *Verifier) attemptRepair(path string, record *FileRecord) bool {
 	// 这里应该实现实际的修复逻辑
 	// 例如：从备份恢复、从 RAID 重建、从副本复制等
@@ -370,7 +370,7 @@ func (v *Verifier) attemptRepair(path string, record *FileRecord) bool {
 
 // ==================== 调度管理 ====================
 
-// CreateSchedule 创建校验调度
+// CreateSchedule 创建校验调度.
 func (v *Verifier) CreateSchedule(schedule *ScrubSchedule) error {
 	v.mu.Lock()
 	defer v.mu.Unlock()
@@ -395,7 +395,7 @@ func (v *Verifier) CreateSchedule(schedule *ScrubSchedule) error {
 	return nil
 }
 
-// DeleteSchedule 删除校验调度
+// DeleteSchedule 删除校验调度.
 func (v *Verifier) DeleteSchedule(id string) error {
 	v.mu.Lock()
 	defer v.mu.Unlock()
@@ -409,7 +409,7 @@ func (v *Verifier) DeleteSchedule(id string) error {
 	return nil
 }
 
-// ListSchedules 列出校验调度
+// ListSchedules 列出校验调度.
 func (v *Verifier) ListSchedules() []*ScrubSchedule {
 	v.mu.RLock()
 	defer v.mu.RUnlock()
@@ -421,7 +421,7 @@ func (v *Verifier) ListSchedules() []*ScrubSchedule {
 	return schedules
 }
 
-// GetPendingSchedules 获取待执行的调度
+// GetPendingSchedules 获取待执行的调度.
 func (v *Verifier) GetPendingSchedules() []*ScrubSchedule {
 	v.mu.RLock()
 	defer v.mu.RUnlock()
@@ -438,7 +438,7 @@ func (v *Verifier) GetPendingSchedules() []*ScrubSchedule {
 
 // ==================== 报告生成 ====================
 
-// GenerateReport 生成完整性报告
+// GenerateReport 生成完整性报告.
 func (v *Verifier) GenerateReport() *IntegrityReport {
 	v.mu.RLock()
 	defer v.mu.RUnlock()
@@ -509,7 +509,7 @@ func (v *Verifier) GenerateReport() *IntegrityReport {
 	return report
 }
 
-// GetJob 获取校验任务
+// GetJob 获取校验任务.
 func (v *Verifier) GetJob(id string) (*VerificationJob, error) {
 	v.mu.RLock()
 	defer v.mu.RUnlock()
@@ -521,7 +521,7 @@ func (v *Verifier) GetJob(id string) (*VerificationJob, error) {
 	return job, nil
 }
 
-// ListJobs 列出校验任务
+// ListJobs 列出校验任务.
 func (v *Verifier) ListJobs(limit int) []*VerificationJob {
 	v.mu.RLock()
 	defer v.mu.RUnlock()
@@ -539,21 +539,21 @@ func (v *Verifier) ListJobs(limit int) []*VerificationJob {
 
 // ==================== 配置 ====================
 
-// SetChecksumType 设置校验和类型
+// SetChecksumType 设置校验和类型.
 func (v *Verifier) SetChecksumType(ctype ChecksumType) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 	v.checksumType = ctype
 }
 
-// SetRepairMode 设置修复模式
+// SetRepairMode 设置修复模式.
 func (v *Verifier) SetRepairMode(mode RepairMode) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 	v.repairMode = mode
 }
 
-// GetRegisteredFiles 获取已注册文件列表
+// GetRegisteredFiles 获取已注册文件列表.
 func (v *Verifier) GetRegisteredFiles() []string {
 	v.mu.RLock()
 	defer v.mu.RUnlock()
@@ -565,7 +565,7 @@ func (v *Verifier) GetRegisteredFiles() []string {
 	return files
 }
 
-// GetFileRecord 获取文件记录
+// GetFileRecord 获取文件记录.
 func (v *Verifier) GetFileRecord(path string) (*FileRecord, error) {
 	v.mu.RLock()
 	defer v.mu.RUnlock()
@@ -579,7 +579,7 @@ func (v *Verifier) GetFileRecord(path string) (*FileRecord, error) {
 
 // ==================== 辅助方法 ====================
 
-// calculateChecksum 计算文件校验和
+// calculateChecksum 计算文件校验和.
 func (v *Verifier) calculateChecksum(path string) (string, int64, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -606,7 +606,7 @@ func timePtr(t time.Time) *time.Time {
 	return &t
 }
 
-// EstimateVerificationTime 估算校验时间
+// EstimateVerificationTime 估算校验时间.
 func (v *Verifier) EstimateVerificationTime(fileCount int, avgSizeMB float64) time.Duration {
 	// 假设校验速度: ~500MB/s
 	speedMBps := 500.0

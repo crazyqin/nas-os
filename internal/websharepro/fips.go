@@ -20,7 +20,7 @@ import (
 	"time"
 )
 
-// FIPSComplianceLevel FIPS 合规等级
+// FIPSComplianceLevel FIPS 合规等级.
 type FIPSComplianceLevel int
 
 const (
@@ -28,11 +28,11 @@ const (
 	FIPSLevel140_3                            // FIPS 140-3
 )
 
-// FIPSCipherSuite FIPS 认证密码套件
+// FIPSCipherSuite FIPS 认证密码套件.
 type FIPSCipherSuite string
 
 const (
-	// FIPS 140-2/140-3 认证算法
+	// FIPS 140-2/140-3 认证算法.
 	SuiteAES256GCM  FIPSCipherSuite = "AES-256-GCM"  // NIST SP 800-38D
 	SuiteAES128GCM  FIPSCipherSuite = "AES-128-GCM"  // NIST SP 800-38D
 	SuiteAES256CBC  FIPSCipherSuite = "AES-256-CBC"  // NIST SP 800-38A
@@ -45,7 +45,7 @@ const (
 	SuiteSHAKE256   FIPSCipherSuite = "SHAKE-256"    // FIPS 202
 )
 
-// FIPSConfig FIPS 配置
+// FIPSConfig FIPS 配置.
 type FIPSConfig struct {
 	Enabled         bool                `json:"enabled"`
 	ComplianceLevel FIPSComplianceLevel `json:"complianceLevel"`
@@ -56,7 +56,7 @@ type FIPSConfig struct {
 	ModulePath      string              `json:"modulePath"`      // FIPS 模块路径
 }
 
-// FIPSKey FIPS 密钥材料
+// FIPSKey FIPS 密钥材料.
 type FIPSKey struct {
 	ID        string    `json:"id"`
 	Algorithm string    `json:"algorithm"`
@@ -67,7 +67,7 @@ type FIPSKey struct {
 	Rotation  int       `json:"rotation"` // 轮换计数
 }
 
-// FIPSTransport FIPS 加密传输器
+// FIPSTransport FIPS 加密传输器.
 type FIPSTransport struct {
 	mu        sync.RWMutex
 	config    *FIPSConfig
@@ -76,7 +76,7 @@ type FIPSTransport struct {
 	auditLog  []FIPSAuditEntry
 }
 
-// FIPSAuditEntry FIPS 审计条目
+// FIPSAuditEntry FIPS 审计条目.
 type FIPSAuditEntry struct {
 	Timestamp time.Time `json:"timestamp"`
 	Operation string    `json:"operation"`
@@ -86,7 +86,7 @@ type FIPSAuditEntry struct {
 	Detail    string    `json:"detail,omitempty"`
 }
 
-// FIPSEncryptResult 加密结果
+// FIPSEncryptResult 加密结果.
 type FIPSEncryptResult struct {
 	Ciphertext []byte `json:"ciphertext"`
 	IV         []byte `json:"iv"`
@@ -95,7 +95,7 @@ type FIPSEncryptResult struct {
 	Algorithm  string `json:"algorithm"`
 }
 
-// NewFIPSTransport 创建 FIPS 传输器
+// NewFIPSTransport 创建 FIPS 传输器.
 func NewFIPSTransport(config *FIPSConfig) *FIPSTransport {
 	if config == nil {
 		config = &FIPSConfig{
@@ -125,7 +125,7 @@ func NewFIPSTransport(config *FIPSConfig) *FIPSTransport {
 	return t
 }
 
-// generateKey 生成 FIPS 认证密钥
+// generateKey 生成 FIPS 认证密钥.
 func (t *FIPSTransport) generateKey(purpose string) *FIPSKey {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -149,7 +149,7 @@ func (t *FIPSTransport) generateKey(purpose string) *FIPSKey {
 	return key
 }
 
-// Encrypt 加密数据（FIPS 140-2/3 认证算法）
+// Encrypt 加密数据（FIPS 140-2/3 认证算法）.
 func (t *FIPSTransport) Encrypt(plaintext []byte) (*FIPSEncryptResult, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -187,7 +187,7 @@ func (t *FIPSTransport) Encrypt(plaintext []byte) (*FIPSEncryptResult, error) {
 	}
 }
 
-// encryptGCM 使用 AES-GCM 加密
+// encryptGCM 使用 AES-GCM 加密.
 func (t *FIPSTransport) encryptGCM(block cipher.Block, key *FIPSKey, plaintext []byte) (*FIPSEncryptResult, error) {
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
@@ -215,7 +215,7 @@ func (t *FIPSTransport) encryptGCM(block cipher.Block, key *FIPSKey, plaintext [
 	}, nil
 }
 
-// encryptCBC 使用 AES-CBC 加密
+// encryptCBC 使用 AES-CBC 加密.
 func (t *FIPSTransport) encryptCBC(block cipher.Block, key *FIPSKey, plaintext []byte) (*FIPSEncryptResult, error) {
 	iv := make([]byte, aes.BlockSize)
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
@@ -251,7 +251,7 @@ func (t *FIPSTransport) encryptCBC(block cipher.Block, key *FIPSKey, plaintext [
 	}, nil
 }
 
-// Decrypt 解密数据
+// Decrypt 解密数据.
 func (t *FIPSTransport) Decrypt(result *FIPSEncryptResult) ([]byte, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -277,7 +277,7 @@ func (t *FIPSTransport) Decrypt(result *FIPSEncryptResult) ([]byte, error) {
 	}
 }
 
-// decryptGCM 解密 GCM 数据
+// decryptGCM 解密 GCM 数据.
 func (t *FIPSTransport) decryptGCM(block cipher.Block, key *FIPSKey, result *FIPSEncryptResult) ([]byte, error) {
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
@@ -299,7 +299,7 @@ func (t *FIPSTransport) decryptGCM(block cipher.Block, key *FIPSKey, result *FIP
 	return plaintext, nil
 }
 
-// decryptCBC 解密 CBC 数据
+// decryptCBC 解密 CBC 数据.
 func (t *FIPSTransport) decryptCBC(block cipher.Block, key *FIPSKey, result *FIPSEncryptResult) ([]byte, error) {
 	// 验证 HMAC
 	mac := hmac.New(sha256.New, key.KeyData)
@@ -331,7 +331,7 @@ func (t *FIPSTransport) decryptCBC(block cipher.Block, key *FIPSKey, result *FIP
 	return plaintext, nil
 }
 
-// Sign 数据签名（ECDSA）
+// Sign 数据签名（ECDSA）.
 func (t *FIPSTransport) Sign(data []byte) ([]byte, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -347,7 +347,7 @@ func (t *FIPSTransport) Sign(data []byte) ([]byte, error) {
 	return sig, nil
 }
 
-// Verify 验证签名
+// Verify 验证签名.
 func (t *FIPSTransport) Verify(data, sig []byte) bool {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -358,7 +358,7 @@ func (t *FIPSTransport) Verify(data, sig []byte) bool {
 	return ok
 }
 
-// RotateKeys 密钥轮换
+// RotateKeys 密钥轮换.
 func (t *FIPSTransport) RotateKeys() int {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -392,7 +392,7 @@ func (t *FIPSTransport) RotateKeys() int {
 	return count
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (t *FIPSTransport) GetAuditLog() []FIPSAuditEntry {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -402,7 +402,7 @@ func (t *FIPSTransport) GetAuditLog() []FIPSAuditEntry {
 	return log
 }
 
-// GetKeyInfo 获取密钥信息（不含密钥数据）
+// GetKeyInfo 获取密钥信息（不含密钥数据）.
 func (t *FIPSTransport) GetKeyInfo() []map[string]any {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -421,7 +421,7 @@ func (t *FIPSTransport) GetKeyInfo() []map[string]any {
 	return infos
 }
 
-// IsCompliant 检查是否符合 FIPS 标准
+// IsCompliant 检查是否符合 FIPS 标准.
 func (t *FIPSTransport) IsCompliant() bool {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -446,7 +446,7 @@ func (t *FIPSTransport) IsCompliant() bool {
 	return validSuites[t.config.CipherSuite]
 }
 
-// Hash FIPS 认证哈希
+// Hash FIPS 认证哈希.
 func (t *FIPSTransport) Hash(data []byte, algo string) []byte {
 	switch algo {
 	case "SHA-256":
@@ -471,7 +471,7 @@ func (t *FIPSTransport) Hash(data []byte, algo string) []byte {
 	}
 }
 
-// GenerateHMAC 生成 HMAC
+// GenerateHMAC 生成 HMAC.
 func (t *FIPSTransport) GenerateHMAC(data []byte) []byte {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -489,13 +489,13 @@ func (t *FIPSTransport) GenerateHMAC(data []byte) []byte {
 	return mac.Sum(nil)
 }
 
-// VerifyHMAC 验证 HMAC
+// VerifyHMAC 验证 HMAC.
 func (t *FIPSTransport) VerifyHMAC(data, expectedMAC []byte) bool {
 	actual := t.GenerateHMAC(data)
 	return hmac.Equal(actual, expectedMAC)
 }
 
-// audit 记录审计日志
+// audit 记录审计日志.
 func (t *FIPSTransport) audit(operation, algorithm, keyID string, success bool, detail string) {
 	if !t.config.AuditEnabled {
 		return
@@ -512,7 +512,7 @@ func (t *FIPSTransport) audit(operation, algorithm, keyID string, success bool, 
 	t.auditLog = append(t.auditLog, entry)
 }
 
-// GenerateRandomKey 生成随机密钥
+// GenerateRandomKey 生成随机密钥.
 func GenerateRandomKey(length int) ([]byte, error) {
 	key := make([]byte, length)
 	if _, err := rand.Read(key); err != nil {
@@ -521,12 +521,12 @@ func GenerateRandomKey(length int) ([]byte, error) {
 	return key, nil
 }
 
-// HexEncode 十六进制编码
+// HexEncode 十六进制编码.
 func HexEncode(data []byte) string {
 	return hex.EncodeToString(data)
 }
 
-// HexDecode 十六进制解码
+// HexDecode 十六进制解码.
 func HexDecode(s string) ([]byte, error) {
 	return hex.DecodeString(s)
 }

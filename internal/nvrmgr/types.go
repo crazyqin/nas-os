@@ -6,7 +6,7 @@ import "time"
 
 // ========== 摄像头相关 ==========
 
-// CameraProtocol 摄像头协议
+// CameraProtocol 摄像头协议.
 type CameraProtocol string
 
 const (
@@ -15,7 +15,7 @@ const (
 	ProtocolHTTP  CameraProtocol = "HTTP"
 )
 
-// CameraStatus 摄像头状态
+// CameraStatus 摄像头状态.
 type CameraStatus string
 
 const (
@@ -24,7 +24,7 @@ const (
 	CameraStatusError   CameraStatus = "error"
 )
 
-// Camera 摄像头配置
+// Camera 摄像头配置.
 type Camera struct {
 	ID         string         `json:"id"`
 	Name       string         `json:"name"`
@@ -43,7 +43,7 @@ type Camera struct {
 
 // ========== 录像相关 ==========
 
-// Recording 录像记录
+// Recording 录像记录.
 type Recording struct {
 	ID            string    `json:"id"`
 	CameraID      string    `json:"cameraId"`
@@ -60,7 +60,7 @@ type Recording struct {
 
 // ========== 移动侦测 ==========
 
-// MotionEvent 移动侦测事件
+// MotionEvent 移动侦测事件.
 type MotionEvent struct {
 	ID           string    `json:"id"`
 	CameraID     string    `json:"cameraId"`
@@ -72,7 +72,7 @@ type MotionEvent struct {
 	RecordingID  string    `json:"recordingId,omitempty"`
 }
 
-// MotionRule 移动侦测规则
+// MotionRule 移动侦测规则.
 type MotionRule struct {
 	CameraID    string    `json:"cameraId"`
 	Zone        string    `json:"zone"`
@@ -83,7 +83,7 @@ type MotionRule struct {
 
 // ========== 告警相关 ==========
 
-// AlertType 告警类型
+// AlertType 告警类型.
 type AlertType string
 
 const (
@@ -93,7 +93,7 @@ const (
 	AlertObject  AlertType = "object"
 )
 
-// Alert 告警
+// Alert 告警.
 type Alert struct {
 	ID           string    `json:"id"`
 	CameraID     string    `json:"cameraId"`
@@ -108,7 +108,7 @@ type Alert struct {
 
 // ========== 存储策略 ==========
 
-// StoragePlan 存储策略
+// StoragePlan 存储策略.
 type StoragePlan struct {
 	ID            string    `json:"id"`
 	Name          string    `json:"name"`
@@ -123,7 +123,7 @@ type StoragePlan struct {
 
 // ========== 时间线 ==========
 
-// TimelineSegment 时间线片段
+// TimelineSegment 时间线片段.
 type TimelineSegment struct {
 	StartTime    time.Time `json:"startTime"`
 	EndTime      time.Time `json:"endTime"`
@@ -131,7 +131,7 @@ type TimelineSegment struct {
 	HasMotion    bool      `json:"hasMotion"`
 }
 
-// Timeline 时间线
+// Timeline 时间线.
 type Timeline struct {
 	CameraID string            `json:"cameraId"`
 	Date     string            `json:"date"` // YYYY-MM-DD
@@ -140,7 +140,7 @@ type Timeline struct {
 
 // ========== 存储统计 ==========
 
-// StorageUsage 存储使用情况
+// StorageUsage 存储使用情况.
 type StorageUsage struct {
 	CameraID       string `json:"cameraId"`
 	UsedBytes      int64  `json:"usedBytes"`

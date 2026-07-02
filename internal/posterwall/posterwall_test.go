@@ -1072,7 +1072,7 @@ func TestPosterWall_ScrapeBatch(t *testing.T) {
 func TestRatingBucket(t *testing.T) {
 	cases := []struct {
 		rating float64
-		bucket  string
+		bucket string
 	}{
 		{9.5, "9+"},
 		{8.5, "8-9"},

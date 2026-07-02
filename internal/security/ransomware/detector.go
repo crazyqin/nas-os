@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-// Detector detects ransomware activity based on file behavior patterns
+// Detector detects ransomware activity based on file behavior patterns.
 type Detector struct {
 	config          DetectorConfig
 	monitor         *FileMonitor
@@ -33,7 +33,7 @@ type Detector struct {
 	snapshotManager    *AutoSnapshotManager
 }
 
-// DetectorConfig for ransomware detection (internal use)
+// DetectorConfig for ransomware detection (internal use).
 type DetectorConfig struct {
 	EnableDetection      bool          `json:"enableDetection"`
 	MonitorPaths         []string      `json:"monitorPaths"`
@@ -56,7 +56,7 @@ type DetectorConfig struct {
 	MaxFileSizeToAnalyze  int64              `json:"maxFileSizeToAnalyze"`  // 最大分析文件大小
 }
 
-// DefaultDetectorConfig returns default detector configuration
+// DefaultDetectorConfig returns default detector configuration.
 func DefaultDetectorConfig() *DetectorConfig {
 	return &DetectorConfig{
 		EnableDetection: true,
@@ -79,7 +79,7 @@ func DefaultDetectorConfig() *DetectorConfig {
 	}
 }
 
-// DetectorFileEvent represents a file system event
+// DetectorFileEvent represents a file system event.
 type DetectorFileEvent struct {
 	ID           string    `json:"id"`
 	Type         string    `json:"type"`
@@ -97,7 +97,7 @@ type DetectorFileEvent struct {
 	Reason       string    `json:"reason,omitempty"`
 }
 
-// DetectorAlert represents a ransomware alert
+// DetectorAlert represents a ransomware alert.
 type DetectorAlert struct {
 	ID              string              `json:"id"`
 	Type            string              `json:"type"`
@@ -111,7 +111,7 @@ type DetectorAlert struct {
 	Acknowledged    bool                `json:"acknowledged"`
 }
 
-// NewDetector creates a new ransomware detector
+// NewDetector creates a new ransomware detector.
 func NewDetector(config *DetectorConfig) (*Detector, error) {
 	if config == nil {
 		config = DefaultDetectorConfig()
@@ -137,7 +137,7 @@ func NewDetector(config *DetectorConfig) (*Detector, error) {
 	return d, nil
 }
 
-// loadSignatures loads known ransomware signatures
+// loadSignatures loads known ransomware signatures.
 func (d *Detector) loadSignatures() {
 	for _, ext := range d.config.SuspiciousExtensions {
 		d.ransomwareSigns[strings.ToLower(ext)] = true
@@ -153,7 +153,7 @@ func (d *Detector) loadSignatures() {
 	}
 }
 
-// Start begins monitoring for ransomware activity
+// Start begins monitoring for ransomware activity.
 func (d *Detector) Start(ctx context.Context) error {
 	d.mu.Lock()
 	d.running = true
@@ -181,7 +181,7 @@ func (d *Detector) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop stops the detector
+// Stop stops the detector.
 func (d *Detector) Stop() {
 	d.mu.Lock()
 	d.running = false
@@ -189,7 +189,7 @@ func (d *Detector) Stop() {
 	d.monitor.Stop()
 }
 
-// processEvent processes a file event
+// processEvent processes a file event.
 func (d *Detector) processEvent(event DetectorFileEvent) {
 	event = d.analyzeEvent(event)
 	d.logEvent(event)
@@ -199,7 +199,7 @@ func (d *Detector) processEvent(event DetectorFileEvent) {
 	}
 }
 
-// analyzeEvent determines if an event is suspicious
+// analyzeEvent determines if an event is suspicious.
 func (d *Detector) analyzeEvent(event DetectorFileEvent) DetectorFileEvent {
 	event.Suspicious = false
 	event.Reason = ""
@@ -243,12 +243,12 @@ func (d *Detector) analyzeEvent(event DetectorFileEvent) DetectorFileEvent {
 	return event
 }
 
-// isRansomwareExtension checks if extension is a known ransomware extension
+// isRansomwareExtension checks if extension is a known ransomware extension.
 func (d *Detector) isRansomwareExtension(ext string) bool {
 	return d.ransomwareSigns[strings.ToLower(ext)]
 }
 
-// isProtectedExtension checks if extension should be protected
+// isProtectedExtension checks if extension should be protected.
 func (d *Detector) isProtectedExtension(ext string) bool {
 	ext = strings.ToLower(ext)
 	for _, protected := range d.config.ProtectedExtensions {
@@ -259,7 +259,7 @@ func (d *Detector) isProtectedExtension(ext string) bool {
 	return false
 }
 
-// logEvent logs an event
+// logEvent logs an event.
 func (d *Detector) logEvent(event DetectorFileEvent) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -269,7 +269,7 @@ func (d *Detector) logEvent(event DetectorFileEvent) {
 	}
 }
 
-// handleAlert handles a ransomware alert
+// handleAlert handles a ransomware alert.
 func (d *Detector) handleAlert(alert DetectorAlert) {
 	select {
 	case d.alerts <- alert:
@@ -280,7 +280,7 @@ func (d *Detector) handleAlert(alert DetectorAlert) {
 	}
 }
 
-// quarantineFiles moves suspicious files to quarantine
+// quarantineFiles moves suspicious files to quarantine.
 func (d *Detector) quarantineFiles(events []DetectorFileEvent) {
 	for _, event := range events {
 		if !event.Suspicious {
@@ -306,12 +306,12 @@ func (d *Detector) quarantineFiles(events []DetectorFileEvent) {
 	}
 }
 
-// Alerts returns the alert channel
+// Alerts returns the alert channel.
 func (d *Detector) Alerts() <-chan DetectorAlert {
 	return d.alerts
 }
 
-// GetEventLog returns recent events
+// GetEventLog returns recent events.
 func (d *Detector) GetEventLog(limit int) []DetectorFileEvent {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -327,7 +327,7 @@ func (d *Detector) GetEventLog(limit int) []DetectorFileEvent {
 	return result
 }
 
-// ScanResult represents the result of a ransomware scan
+// ScanResult represents the result of a ransomware scan.
 type ScanResult struct {
 	Path            string        `json:"path"`
 	InfectedFiles   []string      `json:"infectedFiles"`
@@ -337,7 +337,7 @@ type ScanResult struct {
 	Duration        time.Duration `json:"duration"`
 }
 
-// ScanDirectory scans a directory for ransomware
+// ScanDirectory scans a directory for ransomware.
 func (d *Detector) ScanDirectory(path string) (*ScanResult, error) {
 	result := &ScanResult{
 		Path:      path,
@@ -394,13 +394,13 @@ func (d *Detector) ScanDirectory(path string) (*ScanResult, error) {
 	return result, err
 }
 
-// looksEncrypted checks if data appears to be encrypted
+// looksEncrypted checks if data appears to be encrypted.
 func (d *Detector) looksEncrypted(data []byte) bool {
 	entropy := calculateEntropy(data)
 	return entropy > 7.5
 }
 
-// calculateEntropy calculates Shannon entropy
+// calculateEntropy calculates Shannon entropy.
 func calculateEntropy(data []byte) float64 {
 	if len(data) == 0 {
 		return 0
@@ -441,7 +441,7 @@ func nativeLog(x float64) float64 {
 
 var ransomNotePattern = regexp.MustCompile(`(?i)(decrypt|bitcoin|ransom|payment|encrypted|\.onion)`)
 
-// CheckRansomNoteContent checks if file content looks like a ransom note
+// CheckRansomNoteContent checks if file content looks like a ransom note.
 func CheckRansomNoteContent(r io.Reader) bool {
 	data, err := io.ReadAll(io.LimitReader(r, 10240))
 	if err != nil {
@@ -452,7 +452,7 @@ func CheckRansomNoteContent(r io.Reader) bool {
 	return len(matches) >= 3
 }
 
-// FileMonitor monitors file system for changes
+// FileMonitor monitors file system for changes.
 type FileMonitor struct {
 	paths    []string
 	excludes []string
@@ -461,7 +461,7 @@ type FileMonitor struct {
 	mu       sync.Mutex
 }
 
-// NewFileMonitor creates a new file monitor
+// NewFileMonitor creates a new file monitor.
 func NewFileMonitor(paths, excludes []string) *FileMonitor {
 	return &FileMonitor{
 		paths:    paths,
@@ -470,7 +470,7 @@ func NewFileMonitor(paths, excludes []string) *FileMonitor {
 	}
 }
 
-// Start begins monitoring
+// Start begins monitoring.
 func (m *FileMonitor) Start(ctx context.Context) (<-chan DetectorFileEvent, error) {
 	m.mu.Lock()
 	m.running = true
@@ -481,7 +481,7 @@ func (m *FileMonitor) Start(ctx context.Context) (<-chan DetectorFileEvent, erro
 	return m.events, nil
 }
 
-// Stop stops monitoring
+// Stop stops monitoring.
 func (m *FileMonitor) Stop() {
 	m.mu.Lock()
 	m.running = false
@@ -489,7 +489,7 @@ func (m *FileMonitor) Stop() {
 	close(m.events)
 }
 
-// monitorLoop is the main monitoring loop
+// monitorLoop is the main monitoring loop.
 func (m *FileMonitor) monitorLoop(ctx context.Context) {
 	ticker := time.NewTicker(time.Second * 5)
 	defer ticker.Stop()
@@ -504,7 +504,7 @@ func (m *FileMonitor) monitorLoop(ctx context.Context) {
 	}
 }
 
-// isExcluded checks if a path is excluded
+// isExcluded checks if a path is excluded.
 func (m *FileMonitor) isExcluded(path string) bool {
 	for _, exclude := range m.excludes {
 		if strings.HasPrefix(path, exclude) {
@@ -514,7 +514,7 @@ func (m *FileMonitor) isExcluded(path string) bool {
 	return false
 }
 
-// BehaviorAnalyzer analyzes file events for ransomware patterns
+// BehaviorAnalyzer analyzes file events for ransomware patterns.
 type BehaviorAnalyzer struct {
 	threshold int
 	window    time.Duration
@@ -522,7 +522,7 @@ type BehaviorAnalyzer struct {
 	mu        sync.Mutex
 }
 
-// NewBehaviorAnalyzer creates a new behavior analyzer
+// NewBehaviorAnalyzer creates a new behavior analyzer.
 func NewBehaviorAnalyzer(threshold int, window time.Duration) *BehaviorAnalyzer {
 	return &BehaviorAnalyzer{
 		threshold: threshold,
@@ -531,7 +531,7 @@ func NewBehaviorAnalyzer(threshold int, window time.Duration) *BehaviorAnalyzer 
 	}
 }
 
-// Analyze analyzes events and returns alerts if ransomware activity detected
+// Analyze analyzes events and returns alerts if ransomware activity detected.
 func (ba *BehaviorAnalyzer) Analyze(event DetectorFileEvent) *DetectorAlert {
 	ba.mu.Lock()
 	defer ba.mu.Unlock()
@@ -574,7 +574,7 @@ func (ba *BehaviorAnalyzer) Analyze(event DetectorFileEvent) *DetectorAlert {
 	return nil
 }
 
-// calculateRiskScore calculates a risk score (0-100)
+// calculateRiskScore calculates a risk score (0-100).
 func (ba *BehaviorAnalyzer) calculateRiskScore(events []DetectorFileEvent) int {
 	if len(events) == 0 {
 		return 0
@@ -604,7 +604,7 @@ func (ba *BehaviorAnalyzer) calculateRiskScore(events []DetectorFileEvent) int {
 	return score
 }
 
-// getAlertType returns alert type based on risk score
+// getAlertType returns alert type based on risk score.
 func (ba *BehaviorAnalyzer) getAlertType(score int) string {
 	if score >= 70 {
 		return "emergency"
@@ -614,7 +614,7 @@ func (ba *BehaviorAnalyzer) getAlertType(score int) string {
 	return "warning"
 }
 
-// identifyThreatType identifies the likely threat type
+// identifyThreatType identifies the likely threat type.
 func (ba *BehaviorAnalyzer) identifyThreatType(events []DetectorFileEvent) string {
 	for _, e := range events {
 		if strings.Contains(e.Reason, "Ransomware extension") {
@@ -630,7 +630,7 @@ func (ba *BehaviorAnalyzer) identifyThreatType(events []DetectorFileEvent) strin
 	return "suspicious_activity"
 }
 
-// getRecommendations returns recommended actions
+// getRecommendations returns recommended actions.
 func (ba *BehaviorAnalyzer) getRecommendations(score int) []string {
 	recommendations := []string{
 		"Review suspicious file events immediately",

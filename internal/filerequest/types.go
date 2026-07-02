@@ -17,7 +17,7 @@ import (
 
 // ========== 状态定义 ==========
 
-// RequestStatus 文件请求状态
+// RequestStatus 文件请求状态.
 type RequestStatus string
 
 const (
@@ -26,7 +26,7 @@ const (
 	RequestStatusClosed  RequestStatus = "closed"  // 已关闭
 )
 
-// UploadStatus 上传状态
+// UploadStatus 上传状态.
 type UploadStatus string
 
 const (
@@ -36,39 +36,39 @@ const (
 
 // ========== 核心数据结构 ==========
 
-// FileRequest 文件收集请求
+// FileRequest 文件收集请求.
 type FileRequest struct {
-	ID                string        `json:"id"`                  // 唯一标识
-	Title             string        `json:"title"`               // 请求标题
-	Description       string        `json:"description"`         // 请求描述
-	CreatorID         string        `json:"creator_id"`          // 创建者ID
-	CreatorName       string        `json:"creator_name"`        // 创建者名称
-	DestinationPath   string        `json:"destination_path"`    // 文件保存目录
-	Status            RequestStatus `json:"status"`              // 请求状态
-	ExpiresAt         *time.Time    `json:"expires_at"`          // 过期时间
-	AllowAnonymous    bool          `json:"allow_anonymous"`     // 是否允许匿名上传
-	MaxFileCount      int           `json:"max_file_count"`      // 最大文件数（0不限制）
-	MaxFileSize       int64         `json:"max_file_size"`       // 单文件最大大小（0不限制）
-	AllowedExtensions []string      `json:"allowed_extensions"`  // 允许的扩展名
-	HasPassword       bool          `json:"has_password"`        // 是否有密码保护
+	ID                string        `json:"id"`                 // 唯一标识
+	Title             string        `json:"title"`              // 请求标题
+	Description       string        `json:"description"`        // 请求描述
+	CreatorID         string        `json:"creator_id"`         // 创建者ID
+	CreatorName       string        `json:"creator_name"`       // 创建者名称
+	DestinationPath   string        `json:"destination_path"`   // 文件保存目录
+	Status            RequestStatus `json:"status"`             // 请求状态
+	ExpiresAt         *time.Time    `json:"expires_at"`         // 过期时间
+	AllowAnonymous    bool          `json:"allow_anonymous"`    // 是否允许匿名上传
+	MaxFileCount      int           `json:"max_file_count"`     // 最大文件数（0不限制）
+	MaxFileSize       int64         `json:"max_file_size"`      // 单文件最大大小（0不限制）
+	AllowedExtensions []string      `json:"allowed_extensions"` // 允许的扩展名
+	HasPassword       bool          `json:"has_password"`       // 是否有密码保护
 	password          string        // 内部密码字段
-	CreatedAt         time.Time     `json:"created_at"`          // 创建时间
-	UpdatedAt         time.Time     `json:"updated_at"`          // 更新时间
+	CreatedAt         time.Time     `json:"created_at"` // 创建时间
+	UpdatedAt         time.Time     `json:"updated_at"` // 更新时间
 }
 
-// RequestLink 分享链接
+// RequestLink 分享链接.
 type RequestLink struct {
-	ID            string     `json:"id"`             // 唯一标识
-	RequestID     string     `json:"request_id"`     // 关联请求ID
-	Token         string     `json:"token"`          // 访问令牌
-	IsActive      bool       `json:"is_active"`      // 是否启用
-	MaxAccessCount int       `json:"max_access_count"` // 最大访问次数（0不限制）
-	AccessCount   int        `json:"access_count"`   // 已访问次数
-	ExpiresAt     *time.Time `json:"expires_at"`     // 过期时间
-	CreatedAt     time.Time  `json:"created_at"`     // 创建时间
+	ID             string     `json:"id"`               // 唯一标识
+	RequestID      string     `json:"request_id"`       // 关联请求ID
+	Token          string     `json:"token"`            // 访问令牌
+	IsActive       bool       `json:"is_active"`        // 是否启用
+	MaxAccessCount int        `json:"max_access_count"` // 最大访问次数（0不限制）
+	AccessCount    int        `json:"access_count"`     // 已访问次数
+	ExpiresAt      *time.Time `json:"expires_at"`       // 过期时间
+	CreatedAt      time.Time  `json:"created_at"`       // 创建时间
 }
 
-// UploadInfo 上传文件信息
+// UploadInfo 上传文件信息.
 type UploadInfo struct {
 	ID           string       `json:"id"`            // 唯一标识
 	RequestID    string       `json:"request_id"`    // 关联请求ID
@@ -82,34 +82,34 @@ type UploadInfo struct {
 	UploadedAt   time.Time    `json:"uploaded_at"`   // 上传时间
 }
 
-// RequestStats 请求统计
+// RequestStats 请求统计.
 type RequestStats struct {
-	TotalRequests    int   `json:"total_requests"`    // 总请求数
-	ActiveRequests   int   `json:"active_requests"`   // 活跃请求数
-	ExpiredRequests  int   `json:"expired_requests"`  // 过期请求数
-	ClosedRequests   int   `json:"closed_requests"`   // 已关闭请求数
-	TotalUploads     int   `json:"total_uploads"`     // 总上传数
-	TotalUploadSize  int64 `json:"total_upload_size"` // 总上传大小
+	TotalRequests   int   `json:"total_requests"`    // 总请求数
+	ActiveRequests  int   `json:"active_requests"`   // 活跃请求数
+	ExpiredRequests int   `json:"expired_requests"`  // 过期请求数
+	ClosedRequests  int   `json:"closed_requests"`   // 已关闭请求数
+	TotalUploads    int   `json:"total_uploads"`     // 总上传数
+	TotalUploadSize int64 `json:"total_upload_size"` // 总上传大小
 }
 
 // ========== 请求/响应结构 ==========
 
-// CreateRequestRequest 创建文件请求
+// CreateRequestRequest 创建文件请求.
 type CreateRequestRequest struct {
-	Title             string     `json:"title" binding:"required"`              // 请求标题
-	Description       string     `json:"description"`                           // 请求描述
-	CreatorID         string     `json:"creator_id" binding:"required"`         // 创建者ID
-	CreatorName       string     `json:"creator_name" binding:"required"`       // 创建者名称
-	DestinationPath   string     `json:"destination_path" binding:"required"`   // 文件保存目录
-	ExpiresAt         *time.Time `json:"expires_at"`                            // 过期时间
-	AllowAnonymous    bool       `json:"allow_anonymous"`                       // 允许匿名上传
-	MaxFileCount      int        `json:"max_file_count"`                        // 最大文件数
-	MaxFileSize       int64      `json:"max_file_size"`                         // 单文件最大大小
-	AllowedExtensions []string   `json:"allowed_extensions"`                    // 允许的扩展名
-	Password          string     `json:"password"`                              // 访问密码
+	Title             string     `json:"title" binding:"required"`            // 请求标题
+	Description       string     `json:"description"`                         // 请求描述
+	CreatorID         string     `json:"creator_id" binding:"required"`       // 创建者ID
+	CreatorName       string     `json:"creator_name" binding:"required"`     // 创建者名称
+	DestinationPath   string     `json:"destination_path" binding:"required"` // 文件保存目录
+	ExpiresAt         *time.Time `json:"expires_at"`                          // 过期时间
+	AllowAnonymous    bool       `json:"allow_anonymous"`                     // 允许匿名上传
+	MaxFileCount      int        `json:"max_file_count"`                      // 最大文件数
+	MaxFileSize       int64      `json:"max_file_size"`                       // 单文件最大大小
+	AllowedExtensions []string   `json:"allowed_extensions"`                  // 允许的扩展名
+	Password          string     `json:"password"`                            // 访问密码
 }
 
-// UploadFileRequest 上传文件请求
+// UploadFileRequest 上传文件请求.
 type UploadFileRequest struct {
 	OriginalName string `json:"original_name" binding:"required"` // 原始文件名
 	FileSize     int64  `json:"file_size" binding:"required"`     // 文件大小
@@ -117,25 +117,25 @@ type UploadFileRequest struct {
 	UploaderName string `json:"uploader_name"`                    // 上传者名称
 }
 
-// ListRequestsQuery 列出请求查询参数
+// ListRequestsQuery 列出请求查询参数.
 type ListRequestsQuery struct {
-	CreatorID string        `form:"creator_id"`                   // 按创建者过滤
-	Status    RequestStatus `form:"status"`                       // 按状态过滤
-	Page      int           `form:"page"`                         // 页码
-	PageSize  int           `form:"page_size"`                    // 每页数量
+	CreatorID string        `form:"creator_id"` // 按创建者过滤
+	Status    RequestStatus `form:"status"`     // 按状态过滤
+	Page      int           `form:"page"`       // 页码
+	PageSize  int           `form:"page_size"`  // 每页数量
 }
 
 // ========== 服务层 ==========
 
-// Service 文件请求服务
+// Service 文件请求服务.
 type Service struct {
 	mu       sync.RWMutex
-	requests map[string]*FileRequest   // 请求集合
-	links    map[string]*RequestLink   // token -> 链接
-	uploads  map[string][]*UploadInfo  // requestID -> 上传列表
+	requests map[string]*FileRequest  // 请求集合
+	links    map[string]*RequestLink  // token -> 链接
+	uploads  map[string][]*UploadInfo // requestID -> 上传列表
 }
 
-// NewService 创建文件请求服务
+// NewService 创建文件请求服务.
 func NewService() *Service {
 	return &Service{
 		requests: make(map[string]*FileRequest),
@@ -144,7 +144,7 @@ func NewService() *Service {
 	}
 }
 
-// CreateRequest 创建文件请求
+// CreateRequest 创建文件请求.
 func (s *Service) CreateRequest(ctx context.Context, req CreateRequestRequest) (*FileRequest, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -184,7 +184,7 @@ func (s *Service) CreateRequest(ctx context.Context, req CreateRequestRequest) (
 	return fr, nil
 }
 
-// ListRequests 列出文件请求
+// ListRequests 列出文件请求.
 func (s *Service) ListRequests(ctx context.Context, creatorID string, status RequestStatus, page, pageSize int) ([]*FileRequest, int, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -220,7 +220,7 @@ func (s *Service) ListRequests(ctx context.Context, creatorID string, status Req
 	return result[start:end], total, nil
 }
 
-// GetRequest 获取请求详情
+// GetRequest 获取请求详情.
 func (s *Service) GetRequest(ctx context.Context, id string) (*FileRequest, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -232,7 +232,7 @@ func (s *Service) GetRequest(ctx context.Context, id string) (*FileRequest, erro
 	return req, nil
 }
 
-// GetRequestByToken 通过令牌获取请求
+// GetRequestByToken 通过令牌获取请求.
 func (s *Service) GetRequestByToken(ctx context.Context, token string) (*FileRequest, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -250,7 +250,7 @@ func (s *Service) GetRequestByToken(ctx context.Context, token string) (*FileReq
 	return req, nil
 }
 
-// GetLinkByToken 通过令牌获取链接
+// GetLinkByToken 通过令牌获取链接.
 func (s *Service) GetLinkByToken(ctx context.Context, token string) (*RequestLink, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -262,7 +262,7 @@ func (s *Service) GetLinkByToken(ctx context.Context, token string) (*RequestLin
 	return link, nil
 }
 
-// VerifyPassword 验证访问密码
+// VerifyPassword 验证访问密码.
 func (s *Service) VerifyPassword(ctx context.Context, token, password string) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -288,7 +288,7 @@ func (s *Service) VerifyPassword(ctx context.Context, token, password string) er
 	return nil
 }
 
-// RecordUpload 记录上传
+// RecordUpload 记录上传.
 func (s *Service) RecordUpload(ctx context.Context, token string, info *UploadFileRequest, uploaderIP string) (*UploadInfo, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -359,7 +359,7 @@ func (s *Service) RecordUpload(ctx context.Context, token string, info *UploadFi
 	return upload, nil
 }
 
-// GetUploads 获取请求的上传列表
+// GetUploads 获取请求的上传列表.
 func (s *Service) GetUploads(ctx context.Context, requestID string) ([]*UploadInfo, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -371,7 +371,7 @@ func (s *Service) GetUploads(ctx context.Context, requestID string) ([]*UploadIn
 	return uploads, nil
 }
 
-// DeleteRequest 删除文件请求
+// DeleteRequest 删除文件请求.
 func (s *Service) DeleteRequest(ctx context.Context, id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -396,7 +396,7 @@ func (s *Service) DeleteRequest(ctx context.Context, id string) error {
 	return nil
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (s *Service) GetStats(ctx context.Context) (*RequestStats, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -420,7 +420,7 @@ func (s *Service) GetStats(ctx context.Context) (*RequestStats, error) {
 	return stats, nil
 }
 
-// CloseRequest 关闭请求
+// CloseRequest 关闭请求.
 func (s *Service) CloseRequest(ctx context.Context, id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -437,14 +437,14 @@ func (s *Service) CloseRequest(ctx context.Context, id string) error {
 
 // ========== 辅助函数 ==========
 
-// generateToken 生成随机访问令牌
+// generateToken 生成随机访问令牌.
 func generateToken() string {
 	b := make([]byte, 32)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// getExtension 获取文件扩展名
+// getExtension 获取文件扩展名.
 func getExtension(filename string) string {
 	idx := strings.LastIndex(filename, ".")
 	if idx < 0 {

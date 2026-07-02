@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Engine 服务网格引擎
+// Engine 服务网格引擎.
 type Engine struct {
 	mu       sync.RWMutex
 	logger   *zap.Logger
@@ -26,7 +26,7 @@ type Engine struct {
 	running  bool
 }
 
-// NewEngine 创建服务网格引擎
+// NewEngine 创建服务网格引擎.
 func NewEngine(logger *zap.Logger, config *Config) *Engine {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -50,7 +50,7 @@ func NewEngine(logger *zap.Logger, config *Config) *Engine {
 	return e
 }
 
-// Start 启动引擎
+// Start 启动引擎.
 func (e *Engine) Start(ctx context.Context) error {
 	e.mu.Lock()
 	if e.running {
@@ -72,7 +72,7 @@ func (e *Engine) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止引擎
+// Stop 停止引擎.
 func (e *Engine) Stop() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -86,14 +86,14 @@ func (e *Engine) Stop() {
 	e.logger.Info("service mesh engine stopped")
 }
 
-// IsRunning 是否运行中
+// IsRunning 是否运行中.
 func (e *Engine) IsRunning() bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.running
 }
 
-// RegisterService 注册服务
+// RegisterService 注册服务.
 func (e *Engine) RegisterService(svc *Service) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -146,7 +146,7 @@ func (e *Engine) RegisterService(svc *Service) error {
 	return nil
 }
 
-// DeregisterService 注销服务
+// DeregisterService 注销服务.
 func (e *Engine) DeregisterService(name, namespace string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -163,7 +163,7 @@ func (e *Engine) DeregisterService(name, namespace string) error {
 	return nil
 }
 
-// GetService 获取服务
+// GetService 获取服务.
 func (e *Engine) GetService(name, namespace string) (*Service, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -176,7 +176,7 @@ func (e *Engine) GetService(name, namespace string) (*Service, error) {
 	return svc, nil
 }
 
-// ListServices 列出所有服务
+// ListServices 列出所有服务.
 func (e *Engine) ListServices(namespace string) []*Service {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -190,7 +190,7 @@ func (e *Engine) ListServices(namespace string) []*Service {
 	return result
 }
 
-// AddEndpoint 添加端点
+// AddEndpoint 添加端点.
 func (e *Engine) AddEndpoint(serviceName, namespace string, ep *Endpoint) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -226,7 +226,7 @@ func (e *Engine) AddEndpoint(serviceName, namespace string, ep *Endpoint) error 
 	return nil
 }
 
-// RemoveEndpoint 移除端点
+// RemoveEndpoint 移除端点.
 func (e *Engine) RemoveEndpoint(serviceName, namespace, endpointID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -248,7 +248,7 @@ func (e *Engine) RemoveEndpoint(serviceName, namespace, endpointID string) error
 	return fmt.Errorf("endpoint %s not found", endpointID)
 }
 
-// AddRoute 添加路由规则
+// AddRoute 添加路由规则.
 func (e *Engine) AddRoute(serviceName, namespace string, route *Route) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -273,12 +273,12 @@ func (e *Engine) AddRoute(serviceName, namespace string, route *Route) error {
 	return nil
 }
 
-// ProxyRequest 代理请求
+// ProxyRequest 代理请求.
 func (e *Engine) ProxyRequest(ctx context.Context, req *ProxyRequest) (*ProxyResponse, error) {
 	return e.proxy.HandleRequest(ctx, req)
 }
 
-// GetCircuitBreakerState 获取熔断器状态
+// GetCircuitBreakerState 获取熔断器状态.
 func (e *Engine) GetCircuitBreakerState(serviceName, namespace string) (CircuitState, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -292,7 +292,7 @@ func (e *Engine) GetCircuitBreakerState(serviceName, namespace string) (CircuitS
 	return cb.State(), nil
 }
 
-// healthCheckLoop 健康检查循环
+// healthCheckLoop 健康检查循环.
 func (e *Engine) healthCheckLoop(ctx context.Context) {
 	interval := time.Duration(e.config.HealthCheckInterval) * time.Second
 	if interval <= 0 {
@@ -313,7 +313,7 @@ func (e *Engine) healthCheckLoop(ctx context.Context) {
 	}
 }
 
-// runHealthChecks 运行所有服务的健康检查
+// runHealthChecks 运行所有服务的健康检查.
 func (e *Engine) runHealthChecks() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -331,7 +331,7 @@ func (e *Engine) runHealthChecks() {
 	}
 }
 
-// GetStats 获取引擎统计
+// GetStats 获取引擎统计.
 func (e *Engine) GetStats() map[string]interface{} {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -350,7 +350,7 @@ func (e *Engine) GetStats() map[string]interface{} {
 	}
 }
 
-// serviceKey 生成服务键
+// serviceKey 生成服务键.
 func (e *Engine) serviceKey(name, namespace string) string {
 	if namespace == "" {
 		namespace = "default"
@@ -358,7 +358,7 @@ func (e *Engine) serviceKey(name, namespace string) string {
 	return namespace + "/" + name
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)

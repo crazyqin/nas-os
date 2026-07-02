@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler WebShare HTTP处理器
+// Handler WebShare HTTP处理器.
 type Handler struct {
 	manager *WebShareManager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *WebShareManager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	group := rg.Group("/webshare")
 	{
@@ -30,7 +30,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// CreateLinkRequest 创建链接请求
+// CreateLinkRequest 创建链接请求.
 type CreateLinkRequest struct {
 	Path        string          `json:"path" binding:"required"`
 	Name        string          `json:"name" binding:"required"`
@@ -40,7 +40,7 @@ type CreateLinkRequest struct {
 	Password    string          `json:"password"`
 }
 
-// ListLinks 列出链接
+// ListLinks 列出链接.
 func (h *Handler) ListLinks(c *gin.Context) {
 	createdBy := c.Query("createdBy")
 	activeOnly := c.Query("active") == "true"
@@ -49,7 +49,7 @@ func (h *Handler) ListLinks(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"links": links})
 }
 
-// GetLink 获取链接详情
+// GetLink 获取链接详情.
 func (h *Handler) GetLink(c *gin.Context) {
 	id := c.Param("id")
 	link, ok := h.manager.GetShareLink(id)
@@ -60,7 +60,7 @@ func (h *Handler) GetLink(c *gin.Context) {
 	c.JSON(http.StatusOK, link)
 }
 
-// CreateLink 创建链接
+// CreateLink 创建链接.
 func (h *Handler) CreateLink(c *gin.Context) {
 	var req CreateLinkRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -81,7 +81,7 @@ func (h *Handler) CreateLink(c *gin.Context) {
 	c.JSON(http.StatusCreated, link)
 }
 
-// DeleteLink 删除链接
+// DeleteLink 删除链接.
 func (h *Handler) DeleteLink(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteShareLink(id); err != nil {
@@ -91,7 +91,7 @@ func (h *Handler) DeleteLink(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "link deleted"})
 }
 
-// GetAccessLog 获取访问日志
+// GetAccessLog 获取访问日志.
 func (h *Handler) GetAccessLog(c *gin.Context) {
 	id := c.Param("id")
 	link, ok := h.manager.GetShareLink(id)
@@ -102,13 +102,13 @@ func (h *Handler) GetAccessLog(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"accessLog": link.AccessLog})
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (h *Handler) GetStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, stats)
 }
 
-// CleanupExpired 清理过期链接
+// CleanupExpired 清理过期链接.
 func (h *Handler) CleanupExpired(c *gin.Context) {
 	count := h.manager.CleanupExpired()
 	c.JSON(http.StatusOK, gin.H{"cleaned": count})

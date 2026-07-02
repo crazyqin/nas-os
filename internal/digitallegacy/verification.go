@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// AddEmergencyContact 添加紧急联系人
+// AddEmergencyContact 添加紧急联系人.
 func (m *Manager) AddEmergencyContact(planID string, req *EmergencyContactRequest) (*EmergencyContact, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -59,7 +59,7 @@ func (m *Manager) AddEmergencyContact(planID string, req *EmergencyContactReques
 	return contact, nil
 }
 
-// UpdateEmergencyContact 更新紧急联系人
+// UpdateEmergencyContact 更新紧急联系人.
 func (m *Manager) UpdateEmergencyContact(planID, contactID string, req *EmergencyContactRequest) (*EmergencyContact, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -95,7 +95,7 @@ func (m *Manager) UpdateEmergencyContact(planID, contactID string, req *Emergenc
 	return nil, fmt.Errorf("emergency contact not found: %s", contactID)
 }
 
-// RemoveEmergencyContact 移除紧急联系人
+// RemoveEmergencyContact 移除紧急联系人.
 func (m *Manager) RemoveEmergencyContact(planID, contactID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -118,7 +118,7 @@ func (m *Manager) RemoveEmergencyContact(planID, contactID string) error {
 	return fmt.Errorf("emergency contact not found: %s", contactID)
 }
 
-// ListEmergencyContacts 列出紧急联系人
+// ListEmergencyContacts 列出紧急联系人.
 func (m *Manager) ListEmergencyContacts(planID string) ([]*EmergencyContact, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -131,7 +131,7 @@ func (m *Manager) ListEmergencyContacts(planID string) ([]*EmergencyContact, err
 	return plan.EmergencyContacts, nil
 }
 
-// VerifyEmergencyContact 验证紧急联系人
+// VerifyEmergencyContact 验证紧急联系人.
 func (m *Manager) VerifyEmergencyContact(planID, contactID string, method VerificationMethod, code string) (*VerificationRequest, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -197,7 +197,7 @@ func (m *Manager) VerifyEmergencyContact(planID, contactID string, method Verifi
 	return vr, nil
 }
 
-// GetVerificationStatus 获取验证状态
+// GetVerificationStatus 获取验证状态.
 func (m *Manager) GetVerificationStatus(planID string) (map[string]bool, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -215,7 +215,7 @@ func (m *Manager) GetVerificationStatus(planID string) (map[string]bool, error) 
 	return status, nil
 }
 
-// CheckVerificationLevel 检查是否满足验证级别要求
+// CheckVerificationLevel 检查是否满足验证级别要求.
 func (m *Manager) CheckVerificationLevel(planID string, requiredLevel VerificationLevel) (bool, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -243,7 +243,7 @@ func (m *Manager) CheckVerificationLevel(planID string, requiredLevel Verificati
 	return true, nil
 }
 
-// StartDeathVerification 启动死亡验证流程
+// StartDeathVerification 启动死亡验证流程.
 func (m *Manager) StartDeathVerification(planID string, req *DeathVerificationRequest) (*DeathVerification, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -300,7 +300,7 @@ func (m *Manager) StartDeathVerification(planID string, req *DeathVerificationRe
 	return dv, nil
 }
 
-// ConfirmDeath 确认死亡
+// ConfirmDeath 确认死亡.
 func (m *Manager) ConfirmDeath(planID string, verificationID string, confirmerLevel VerificationLevel, evidence string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -383,7 +383,7 @@ func (m *Manager) ConfirmDeath(planID string, verificationID string, confirmerLe
 	return nil
 }
 
-// RecordHeartbeat 记录心跳
+// RecordHeartbeat 记录心跳.
 func (m *Manager) RecordHeartbeat(ownerID string, note string) *HeartbeatRecord {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -412,7 +412,7 @@ func (m *Manager) RecordHeartbeat(ownerID string, note string) *HeartbeatRecord 
 	return record
 }
 
-// CheckHeartbeatStatus 检查心跳状态
+// CheckHeartbeatStatus 检查心跳状态.
 func (m *Manager) CheckHeartbeatStatus(ownerID string) (*HeartbeatStatus, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -440,7 +440,7 @@ func (m *Manager) CheckHeartbeatStatus(ownerID string) (*HeartbeatStatus, error)
 	return &status, nil
 }
 
-// ProcessMissingHeartbeats 处理缺失心跳
+// ProcessMissingHeartbeats 处理缺失心跳.
 func (m *Manager) ProcessMissingHeartbeats() []string {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -513,7 +513,7 @@ func (m *Manager) ProcessMissingHeartbeats() []string {
 	return triggeredPlans
 }
 
-// AddTrustContact 添加信任联系人
+// AddTrustContact 添加信任联系人.
 func (m *Manager) AddTrustContact(ownerID string, contact *TrustContact) (*TrustContact, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -533,7 +533,7 @@ func (m *Manager) AddTrustContact(ownerID string, contact *TrustContact) (*Trust
 	return contact, nil
 }
 
-// RemoveTrustContact 移除信任联系人
+// RemoveTrustContact 移除信任联系人.
 func (m *Manager) RemoveTrustContact(contactID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -547,7 +547,7 @@ func (m *Manager) RemoveTrustContact(contactID string) error {
 	return nil
 }
 
-// GetTrustContacts 获取信任联系人列表
+// GetTrustContacts 获取信任联系人列表.
 func (m *Manager) GetTrustContacts(ownerID string) []*TrustContact {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -561,7 +561,7 @@ func (m *Manager) GetTrustContacts(ownerID string) []*TrustContact {
 	return contacts
 }
 
-// SetTimeLock 设置时间锁
+// SetTimeLock 设置时间锁.
 func (m *Manager) SetTimeLock(planID string, req *TimeLockRequest) (*TimeLock, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -605,7 +605,7 @@ func (m *Manager) SetTimeLock(planID string, req *TimeLockRequest) (*TimeLock, e
 	return tl, nil
 }
 
-// CheckTimeLock 检查时间锁状态
+// CheckTimeLock 检查时间锁状态.
 func (m *Manager) CheckTimeLock(planID string) (bool, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -634,7 +634,7 @@ func (m *Manager) CheckTimeLock(planID string) (bool, error) {
 	return true, nil // 时间锁已到期
 }
 
-// UnlockTimeLock 解锁时间锁
+// UnlockTimeLock 解锁时间锁.
 func (m *Manager) UnlockTimeLock(planID string, verificationLevel VerificationLevel) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

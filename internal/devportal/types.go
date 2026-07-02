@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// APIKeyStatus API密钥状态
+// APIKeyStatus API密钥状态.
 type APIKeyStatus string
 
 const (
@@ -16,7 +16,7 @@ const (
 	KeyDisabled APIKeyStatus = "disabled"
 )
 
-// WebhookStatus Webhook状态
+// WebhookStatus Webhook状态.
 type WebhookStatus string
 
 const (
@@ -25,7 +25,7 @@ const (
 	WebhookFailed   WebhookStatus = "failed"
 )
 
-// WebhookEvent Webhook事件类型
+// WebhookEvent Webhook事件类型.
 type WebhookEvent string
 
 const (
@@ -38,7 +38,7 @@ const (
 	EventBackupComplete WebhookEvent = "backup.complete"
 )
 
-// DeliveryStatus 投递状态
+// DeliveryStatus 投递状态.
 type DeliveryStatus string
 
 const (
@@ -48,7 +48,7 @@ const (
 	DeliveryRetrying DeliveryStatus = "retrying"
 )
 
-// AppStatus 应用状态
+// AppStatus 应用状态.
 type AppStatus string
 
 const (
@@ -58,7 +58,7 @@ const (
 	AppDisabled AppStatus = "disabled"
 )
 
-// OAuthGrantType OAuth2授权类型
+// OAuthGrantType OAuth2授权类型.
 type OAuthGrantType string
 
 const (
@@ -67,7 +67,7 @@ const (
 	GrantRefresh    OAuthGrantType = "refresh_token"
 )
 
-// SDKLanguage SDK语言
+// SDKLanguage SDK语言.
 type SDKLanguage string
 
 const (
@@ -76,7 +76,7 @@ const (
 	SDKJavaScript SDKLanguage = "javascript"
 )
 
-// APIScope API权限范围
+// APIScope API权限范围.
 type APIScope string
 
 const (
@@ -88,7 +88,7 @@ const (
 	ScopeDevPortal APIScope = "devportal"
 )
 
-// APIKey API密钥
+// APIKey API密钥.
 type APIKey struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -108,7 +108,7 @@ type APIKey struct {
 	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
-// WebhookEndpoint Webhook端点
+// WebhookEndpoint Webhook端点.
 type WebhookEndpoint struct {
 	ID              string            `json:"id"`
 	Name            string            `json:"name"`
@@ -128,7 +128,7 @@ type WebhookEndpoint struct {
 	UpdatedAt       time.Time         `json:"updated_at"`
 }
 
-// WebhookDelivery Webhook投递记录
+// WebhookDelivery Webhook投递记录.
 type WebhookDelivery struct {
 	ID           string         `json:"id"`
 	WebhookID    string         `json:"webhook_id"`
@@ -145,7 +145,7 @@ type WebhookDelivery struct {
 	NextRetryAt  *time.Time     `json:"next_retry_at,omitempty"`
 }
 
-// DeveloperApp 开发者应用
+// DeveloperApp 开发者应用.
 type DeveloperApp struct {
 	ID           string           `json:"id"`
 	Name         string           `json:"name"`
@@ -164,7 +164,7 @@ type DeveloperApp struct {
 	UpdatedAt    time.Time        `json:"updated_at"`
 }
 
-// OAuthToken OAuth2令牌
+// OAuthToken OAuth2令牌.
 type OAuthToken struct {
 	AccessToken  string    `json:"access_token"`
 	TokenType    string    `json:"token_type"`
@@ -175,7 +175,7 @@ type OAuthToken struct {
 	CreatedAt    time.Time `json:"created_at"`
 }
 
-// UsageRecord 使用量记录
+// UsageRecord 使用量记录.
 type UsageRecord struct {
 	Date       string `json:"date"` // YYYY-MM-DD
 	Total      int    `json:"total"`
@@ -184,7 +184,7 @@ type UsageRecord struct {
 	AvgLatency int64  `json:"avg_latency_ms"`
 }
 
-// QuotaConfig 配额配置
+// QuotaConfig 配额配置.
 type QuotaConfig struct {
 	DefaultRateLimit  int `json:"default_rate_limit"`  // 默认每分钟请求
 	DefaultDailyQuota int `json:"default_daily_quota"` // 默认每日配额
@@ -194,7 +194,7 @@ type QuotaConfig struct {
 	MaxAPIKeys        int `json:"max_api_keys"`        // 最大API密钥数
 }
 
-// OpenAPISpec 简化的OpenAPI规范
+// OpenAPISpec 简化的OpenAPI规范.
 type OpenAPISpec struct {
 	OpenAPI    string                 `json:"openapi"`
 	Info       map[string]interface{} `json:"info"`
@@ -203,7 +203,7 @@ type OpenAPISpec struct {
 	Servers    []map[string]string    `json:"servers,omitempty"`
 }
 
-// DevPortalConfig 开发者门户配置
+// DevPortalConfig 开发者门户配置.
 type DevPortalConfig struct {
 	Quota             QuotaConfig `json:"quota"`
 	WebhookMaxRetries int         `json:"webhook_max_retries"`

@@ -287,7 +287,7 @@ func TestNegotiateClientCapabilities(t *testing.T) {
 
 	t.Run("空能力列表", func(t *testing.T) {
 		req := &ClientCapabilityRequest{
-			ShareName:         "share1",
+			ShareName:          "share1",
 			ClientCapabilities: []ClientCapability{},
 		}
 		_, err := s.NegotiateClientCapabilities(req)
@@ -299,7 +299,7 @@ func TestNegotiateClientCapabilities(t *testing.T) {
 	t.Run("未启用的共享", func(t *testing.T) {
 		s.SetExtension(&SetExtensionRequest{ShareName: "disabled", Enabled: false})
 		req := &ClientCapabilityRequest{
-			ShareName:         "disabled",
+			ShareName:          "disabled",
 			ClientCapabilities: []ClientCapability{CapabilityPosixPath},
 		}
 		_, err := s.NegotiateClientCapabilities(req)
@@ -310,7 +310,7 @@ func TestNegotiateClientCapabilities(t *testing.T) {
 
 	t.Run("不存在的共享", func(t *testing.T) {
 		req := &ClientCapabilityRequest{
-			ShareName:         "nonexistent",
+			ShareName:          "nonexistent",
 			ClientCapabilities: []ClientCapability{CapabilityPosixPath},
 		}
 		_, err := s.NegotiateClientCapabilities(req)

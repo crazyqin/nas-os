@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// ContentAnalysis represents analysis results
+// ContentAnalysis represents analysis results.
 type ContentAnalysis struct {
 	ID           string    `json:"id"`
 	FilePath     string    `json:"file_path"`
@@ -21,7 +21,7 @@ type ContentAnalysis struct {
 	ProcessingMs int64     `json:"processing_ms"`
 }
 
-// AnalysisConfig defines analysis behavior
+// AnalysisConfig defines analysis behavior.
 type AnalysisConfig struct {
 	EnableOCR       bool    `json:"enable_ocr"`
 	EnableSummary   bool    `json:"enable_summary"`
@@ -32,7 +32,7 @@ type AnalysisConfig struct {
 }
 
 // AIContentAnalyzer provides AI-powered content analysis
-// Inspired by Synology Photos AI and AI Office
+// Inspired by Synology Photos AI and AI Office.
 type AIContentAnalyzer struct {
 	mu       sync.RWMutex
 	analyses map[string]*ContentAnalysis
@@ -43,7 +43,7 @@ type AIContentAnalyzer struct {
 	queue    chan string
 }
 
-// NewAIContentAnalyzer creates a new AIContentAnalyzer instance
+// NewAIContentAnalyzer creates a new AIContentAnalyzer instance.
 func NewAIContentAnalyzer(workers int) *AIContentAnalyzer {
 	if workers <= 0 {
 		workers = 4
@@ -64,14 +64,14 @@ func NewAIContentAnalyzer(workers int) *AIContentAnalyzer {
 	}
 }
 
-// SetConfig updates the analysis configuration
+// SetConfig updates the analysis configuration.
 func (aca *AIContentAnalyzer) SetConfig(config AnalysisConfig) {
 	aca.mu.Lock()
 	defer aca.mu.Unlock()
 	aca.config = config
 }
 
-// AnalyzeFile queues a file for analysis
+// AnalyzeFile queues a file for analysis.
 func (aca *AIContentAnalyzer) AnalyzeFile(ctx context.Context, filePath string) error {
 	aca.mu.RLock()
 	if !aca.running {
@@ -88,7 +88,7 @@ func (aca *AIContentAnalyzer) AnalyzeFile(ctx context.Context, filePath string) 
 	}
 }
 
-// GetAnalysis returns the analysis result for a file
+// GetAnalysis returns the analysis result for a file.
 func (aca *AIContentAnalyzer) GetAnalysis(filePath string) (*ContentAnalysis, error) {
 	aca.mu.RLock()
 	defer aca.mu.RUnlock()
@@ -100,7 +100,7 @@ func (aca *AIContentAnalyzer) GetAnalysis(filePath string) (*ContentAnalysis, er
 	return analysis, nil
 }
 
-// ListAnalyses returns all analysis results
+// ListAnalyses returns all analysis results.
 func (aca *AIContentAnalyzer) ListAnalyses() []*ContentAnalysis {
 	aca.mu.RLock()
 	defer aca.mu.RUnlock()
@@ -112,7 +112,7 @@ func (aca *AIContentAnalyzer) ListAnalyses() []*ContentAnalysis {
 	return results
 }
 
-// SearchByTag searches analyses by tag
+// SearchByTag searches analyses by tag.
 func (aca *AIContentAnalyzer) SearchByTag(tag string) []*ContentAnalysis {
 	aca.mu.RLock()
 	defer aca.mu.RUnlock()
@@ -129,7 +129,7 @@ func (aca *AIContentAnalyzer) SearchByTag(tag string) []*ContentAnalysis {
 	return results
 }
 
-// SearchByCategory searches analyses by category
+// SearchByCategory searches analyses by category.
 func (aca *AIContentAnalyzer) SearchByCategory(category string) []*ContentAnalysis {
 	aca.mu.RLock()
 	defer aca.mu.RUnlock()
@@ -143,7 +143,7 @@ func (aca *AIContentAnalyzer) SearchByCategory(category string) []*ContentAnalys
 	return results
 }
 
-// Start begins the analysis workers
+// Start begins the analysis workers.
 func (aca *AIContentAnalyzer) Start(ctx context.Context) error {
 	aca.mu.Lock()
 	if aca.running {
@@ -159,7 +159,7 @@ func (aca *AIContentAnalyzer) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop stops the analysis workers
+// Stop stops the analysis workers.
 func (aca *AIContentAnalyzer) Stop() {
 	aca.mu.Lock()
 	defer aca.mu.Unlock()
@@ -169,7 +169,7 @@ func (aca *AIContentAnalyzer) Stop() {
 	}
 }
 
-// GetStats returns analyzer statistics
+// GetStats returns analyzer statistics.
 func (aca *AIContentAnalyzer) GetStats() map[string]interface{} {
 	aca.mu.RLock()
 	defer aca.mu.RUnlock()

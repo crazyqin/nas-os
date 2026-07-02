@@ -8,17 +8,17 @@ import (
 	"github.com/google/uuid"
 )
 
-// Manager 文件标签管理器
+// Manager 文件标签管理器.
 type Manager struct {
-	mu          sync.RWMutex
-	tags        map[string]*Tag        // tagID -> Tag
-	fileTags    map[string][]*FileTag  // filePath -> []*FileTag
-	tagFiles    map[string][]*FileTag  // tagID -> []*FileTag
-	categories  map[string]*TagCategory
-	stats       map[string]*TagStats   // tagID -> stats
+	mu         sync.RWMutex
+	tags       map[string]*Tag       // tagID -> Tag
+	fileTags   map[string][]*FileTag // filePath -> []*FileTag
+	tagFiles   map[string][]*FileTag // tagID -> []*FileTag
+	categories map[string]*TagCategory
+	stats      map[string]*TagStats // tagID -> stats
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		tags:       make(map[string]*Tag),
@@ -29,7 +29,7 @@ func NewManager() *Manager {
 	}
 }
 
-// CreateTag 创建标签
+// CreateTag 创建标签.
 func (m *Manager) CreateTag(name, color, description, category, createdBy string) (*Tag, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -75,7 +75,7 @@ func (m *Manager) CreateTag(name, color, description, category, createdBy string
 	return tag, nil
 }
 
-// GetTag 获取标签
+// GetTag 获取标签.
 func (m *Manager) GetTag(tagID string) (*Tag, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -87,7 +87,7 @@ func (m *Manager) GetTag(tagID string) (*Tag, error) {
 	return tag, nil
 }
 
-// ListTags 列出所有标签
+// ListTags 列出所有标签.
 func (m *Manager) ListTags(category string) []*Tag {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -101,7 +101,7 @@ func (m *Manager) ListTags(category string) []*Tag {
 	return tags
 }
 
-// UpdateTag 更新标签
+// UpdateTag 更新标签.
 func (m *Manager) UpdateTag(tagID, name, color, description, category string) (*Tag, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -161,7 +161,7 @@ func (m *Manager) UpdateTag(tagID, name, color, description, category string) (*
 	return tag, nil
 }
 
-// DeleteTag 删除标签
+// DeleteTag 删除标签.
 func (m *Manager) DeleteTag(tagID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -203,7 +203,7 @@ func (m *Manager) DeleteTag(tagID string) error {
 	return nil
 }
 
-// TagFile 为文件添加标签
+// TagFile 为文件添加标签.
 func (m *Manager) TagFile(filePath, tagID, taggedBy, note string) (*FileTag, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -245,7 +245,7 @@ func (m *Manager) TagFile(filePath, tagID, taggedBy, note string) (*FileTag, err
 	return fileTag, nil
 }
 
-// UntagFile 移除文件标签
+// UntagFile 移除文件标签.
 func (m *Manager) UntagFile(filePath, tagID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -296,7 +296,7 @@ func (m *Manager) UntagFile(filePath, tagID string) error {
 	return nil
 }
 
-// GetFileTags 获取文件的所有标签
+// GetFileTags 获取文件的所有标签.
 func (m *Manager) GetFileTags(filePath string) []*FileTag {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -304,7 +304,7 @@ func (m *Manager) GetFileTags(filePath string) []*FileTag {
 	return m.fileTags[filePath]
 }
 
-// GetTagFiles 获取标签关联的所有文件
+// GetTagFiles 获取标签关联的所有文件.
 func (m *Manager) GetTagFiles(tagID string) []*FileTag {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -312,7 +312,7 @@ func (m *Manager) GetTagFiles(tagID string) []*FileTag {
 	return m.tagFiles[tagID]
 }
 
-// SearchFiles 搜索文件
+// SearchFiles 搜索文件.
 func (m *Manager) SearchFiles(req *SearchRequest) *SearchResponse {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -326,7 +326,7 @@ func (m *Manager) SearchFiles(req *SearchRequest) *SearchResponse {
 
 	// 收集所有匹配的文件
 	fileSet := make(map[string]bool)
-	
+
 	if len(req.Tags) > 0 || len(req.TagNames) > 0 {
 		// 按标签搜索
 		tagIDSet := make(map[string]bool)
@@ -418,7 +418,7 @@ func (m *Manager) SearchFiles(req *SearchRequest) *SearchResponse {
 	}
 }
 
-// BatchTag 批量打标签
+// BatchTag 批量打标签.
 func (m *Manager) BatchTag(req *BatchTagRequest) ([]*FileTag, error) {
 	var results []*FileTag
 	for _, filePath := range req.FilePaths {
@@ -434,7 +434,7 @@ func (m *Manager) BatchTag(req *BatchTagRequest) ([]*FileTag, error) {
 	return results, nil
 }
 
-// BatchUntag 批量移除标签
+// BatchUntag 批量移除标签.
 func (m *Manager) BatchUntag(req *BatchUntagRequest) error {
 	for _, filePath := range req.FilePaths {
 		if len(req.TagIDs) == 0 {
@@ -452,7 +452,7 @@ func (m *Manager) BatchUntag(req *BatchUntagRequest) error {
 	return nil
 }
 
-// GetTagStats 获取标签统计
+// GetTagStats 获取标签统计.
 func (m *Manager) GetTagStats(tagID string) (*TagStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -464,7 +464,7 @@ func (m *Manager) GetTagStats(tagID string) (*TagStats, error) {
 	return stat, nil
 }
 
-// GetAllStats 获取所有标签统计
+// GetAllStats 获取所有标签统计.
 func (m *Manager) GetAllStats() []*TagStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -476,7 +476,7 @@ func (m *Manager) GetAllStats() []*TagStats {
 	return stats
 }
 
-// GetCategories 获取所有分类
+// GetCategories 获取所有分类.
 func (m *Manager) GetCategories() []*TagCategory {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

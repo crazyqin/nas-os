@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// ForecastModel 预测模型
+// ForecastModel 预测模型.
 type ForecastModel struct {
 	ID          string             `json:"id"`
 	Name        string             `json:"name"`
@@ -18,7 +18,7 @@ type ForecastModel struct {
 	Description string             `json:"description"`
 }
 
-// CostTrend 成本趋势
+// CostTrend 成本趋势.
 type CostTrend struct {
 	ID           string           `json:"id"`
 	ResourceType string           `json:"resource_type"` // storage, compute, network
@@ -31,7 +31,7 @@ type CostTrend struct {
 	Forecast     []TrendDataPoint `json:"forecast,omitempty"`
 }
 
-// TrendDataPoint 趋势数据点
+// TrendDataPoint 趋势数据点.
 type TrendDataPoint struct {
 	Date     time.Time `json:"date"`
 	Value    float64   `json:"value"`
@@ -39,7 +39,7 @@ type TrendDataPoint struct {
 	IsActual bool      `json:"is_actual"` // true=实际值, false=预测值
 }
 
-// BudgetConfig 预算配置
+// BudgetConfig 预算配置.
 type BudgetConfig struct {
 	ID              string           `json:"id"`
 	Name            string           `json:"name"`
@@ -52,14 +52,14 @@ type BudgetConfig struct {
 	IsActive        bool             `json:"is_active"`
 }
 
-// AlertThreshold 告警阈值
+// AlertThreshold 告警阈值.
 type AlertThreshold struct {
 	Percentage float64 `json:"percentage"` // 80, 90, 100
 	Severity   string  `json:"severity"`   // info, warning, critical
 	Enabled    bool    `json:"enabled"`
 }
 
-// ExportFormat 导出格式
+// ExportFormat 导出格式.
 type ExportFormat string
 
 const (
@@ -69,7 +69,7 @@ const (
 	ExportXLSX ExportFormat = "xlsx"
 )
 
-// ExportRequest 导出请求
+// ExportRequest 导出请求.
 type ExportRequest struct {
 	Format          ExportFormat `json:"format"`
 	StartDate       time.Time    `json:"start_date"`
@@ -78,7 +78,7 @@ type ExportRequest struct {
 	IncludeForecast bool         `json:"include_forecast"`
 }
 
-// ExportResponse 导出响应
+// ExportResponse 导出响应.
 type ExportResponse struct {
 	ID          string       `json:"id"`
 	Format      ExportFormat `json:"format"`

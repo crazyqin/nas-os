@@ -8,17 +8,17 @@ import (
 	"strings"
 )
 
-// Handlers 智能相册 API 处理器
+// Handlers 智能相册 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册 HTTP 路由
+// RegisterRoutes 注册 HTTP 路由.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	// 照片管理
 	mux.HandleFunc("/api/v1/smartgallery/photos", h.handlePhotos)
@@ -51,27 +51,27 @@ func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/smartgallery/stats", h.handleStats)
 }
 
-// apiResponse 标准 API 响应
+// apiResponse 标准 API 响应.
 type apiResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// writeJSON 写入 JSON 响应
+// writeJSON 写入 JSON 响应.
 func writeJSON(w http.ResponseWriter, status int, resp apiResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(resp)
 }
 
-// writeError 写入错误响应
+// writeError 写入错误响应.
 func writeError(w http.ResponseWriter, status int, msg string) {
 	writeJSON(w, status, apiResponse{Code: 1, Message: msg})
 }
 
 // extractIDFromPath 从路径中提取 ID
-// 例如 /api/v1/smartgallery/photos/xxx -> xxx
+// 例如 /api/v1/smartgallery/photos/xxx -> xxx.
 func extractIDFromPath(path, prefix string) string {
 	trimmed := strings.TrimPrefix(path, prefix)
 	trimmed = strings.TrimSuffix(trimmed, "/")
@@ -85,7 +85,7 @@ func extractIDFromPath(path, prefix string) string {
 
 // ---------- 照片 ----------
 
-// handlePhotos 处理照片列表 (GET /api/v1/smartgallery/photos)
+// handlePhotos 处理照片列表 (GET /api/v1/smartgallery/photos).
 func (h *Handlers) handlePhotos(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -115,7 +115,7 @@ func (h *Handlers) handlePhotos(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handlePhotoByID 处理单个照片操作 (GET/PUT/DELETE /api/v1/smartgallery/photos/:id)
+// handlePhotoByID 处理单个照片操作 (GET/PUT/DELETE /api/v1/smartgallery/photos/:id).
 func (h *Handlers) handlePhotoByID(w http.ResponseWriter, r *http.Request) {
 	id := extractIDFromPath(r.URL.Path, "/api/v1/smartgallery/photos/")
 	if id == "" {
@@ -184,7 +184,7 @@ func (h *Handlers) handlePhotoByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handlePhotoTags 处理照片标签 (POST/DELETE /api/v1/smartgallery/photos/:id/tags)
+// handlePhotoTags 处理照片标签 (POST/DELETE /api/v1/smartgallery/photos/:id/tags).
 func (h *Handlers) handlePhotoTags(w http.ResponseWriter, r *http.Request, photoID string) {
 	switch r.Method {
 	case http.MethodPost:
@@ -234,7 +234,7 @@ func (h *Handlers) handlePhotoTags(w http.ResponseWriter, r *http.Request, photo
 	}
 }
 
-// handlePhotoFavorite 处理照片收藏 (POST /api/v1/smartgallery/photos/:id/favorite)
+// handlePhotoFavorite 处理照片收藏 (POST /api/v1/smartgallery/photos/:id/favorite).
 func (h *Handlers) handlePhotoFavorite(w http.ResponseWriter, r *http.Request, photoID string) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -253,7 +253,7 @@ func (h *Handlers) handlePhotoFavorite(w http.ResponseWriter, r *http.Request, p
 	})
 }
 
-// handlePhotoRating 处理照片评分 (POST /api/v1/smartgallery/photos/:id/rating)
+// handlePhotoRating 处理照片评分 (POST /api/v1/smartgallery/photos/:id/rating).
 func (h *Handlers) handlePhotoRating(w http.ResponseWriter, r *http.Request, photoID string) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -282,7 +282,7 @@ func (h *Handlers) handlePhotoRating(w http.ResponseWriter, r *http.Request, pho
 
 // ---------- 相册 ----------
 
-// handleAlbums 处理相册列表和创建 (GET/POST /api/v1/smartgallery/albums)
+// handleAlbums 处理相册列表和创建 (GET/POST /api/v1/smartgallery/albums).
 func (h *Handlers) handleAlbums(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -322,7 +322,7 @@ func (h *Handlers) handleAlbums(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleAlbumByID 处理单个相册操作 (GET/PUT/DELETE /api/v1/smartgallery/albums/:id)
+// handleAlbumByID 处理单个相册操作 (GET/PUT/DELETE /api/v1/smartgallery/albums/:id).
 func (h *Handlers) handleAlbumByID(w http.ResponseWriter, r *http.Request) {
 	id := extractIDFromPath(r.URL.Path, "/api/v1/smartgallery/albums/")
 	if id == "" {
@@ -387,7 +387,7 @@ func (h *Handlers) handleAlbumByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleAlbumPhotos 处理相册照片管理 (POST/DELETE /api/v1/smartgallery/albums/:id/photos)
+// handleAlbumPhotos 处理相册照片管理 (POST/DELETE /api/v1/smartgallery/albums/:id/photos).
 func (h *Handlers) handleAlbumPhotos(w http.ResponseWriter, r *http.Request, albumID string) {
 	switch r.Method {
 	case http.MethodPost:
@@ -439,7 +439,7 @@ func (h *Handlers) handleAlbumPhotos(w http.ResponseWriter, r *http.Request, alb
 
 // ---------- 人脸/人物 ----------
 
-// handleFaces 处理人脸列表和聚类 (GET/POST /api/v1/smartgallery/faces)
+// handleFaces 处理人脸列表和聚类 (GET/POST /api/v1/smartgallery/faces).
 func (h *Handlers) handleFaces(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -470,7 +470,7 @@ func (h *Handlers) handleFaces(w http.ResponseWriter, r *http.Request) {
 
 // handleFaceByID 处理单个人物操作
 // GET/PUT /api/v1/smartgallery/faces/:id
-// POST /api/v1/smartgallery/faces/:id/person (分配人脸给人物)
+// POST /api/v1/smartgallery/faces/:id/person (分配人脸给人物).
 func (h *Handlers) handleFaceByID(w http.ResponseWriter, r *http.Request) {
 	id := extractIDFromPath(r.URL.Path, "/api/v1/smartgallery/faces/")
 	if id == "" {
@@ -530,7 +530,7 @@ func (h *Handlers) handleFaceByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleAssignFaceToPerson 分配人脸给人物 (POST /api/v1/smartgallery/faces/:id/person)
+// handleAssignFaceToPerson 分配人脸给人物 (POST /api/v1/smartgallery/faces/:id/person).
 func (h *Handlers) handleAssignFaceToPerson(w http.ResponseWriter, r *http.Request, faceID string) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -559,7 +559,7 @@ func (h *Handlers) handleAssignFaceToPerson(w http.ResponseWriter, r *http.Reque
 	})
 }
 
-// handlePersonPhotos 获取人物照片 (GET /api/v1/smartgallery/faces/:id/photos)
+// handlePersonPhotos 获取人物照片 (GET /api/v1/smartgallery/faces/:id/photos).
 func (h *Handlers) handlePersonPhotos(w http.ResponseWriter, r *http.Request, personID string) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -580,7 +580,7 @@ func (h *Handlers) handlePersonPhotos(w http.ResponseWriter, r *http.Request, pe
 
 // ---------- 场景 ----------
 
-// handleScenes 处理场景查询 (GET /api/v1/smartgallery/scenes)
+// handleScenes 处理场景查询 (GET /api/v1/smartgallery/scenes).
 func (h *Handlers) handleScenes(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -610,7 +610,7 @@ func (h *Handlers) handleScenes(w http.ResponseWriter, r *http.Request) {
 
 // ---------- 搜索 ----------
 
-// handleSearch 处理照片搜索 (GET/POST /api/v1/smartgallery/search)
+// handleSearch 处理照片搜索 (GET/POST /api/v1/smartgallery/search).
 func (h *Handlers) handleSearch(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -668,7 +668,7 @@ func (h *Handlers) handleSearch(w http.ResponseWriter, r *http.Request) {
 
 // ---------- 时间线 ----------
 
-// handleTimeline 处理时间线查询 (GET /api/v1/smartgallery/timeline)
+// handleTimeline 处理时间线查询 (GET /api/v1/smartgallery/timeline).
 func (h *Handlers) handleTimeline(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -693,7 +693,7 @@ func (h *Handlers) handleTimeline(w http.ResponseWriter, r *http.Request) {
 
 // ---------- 标签 ----------
 
-// handleTags 处理标签操作 (GET /api/v1/smartgallery/tags)
+// handleTags 处理标签操作 (GET /api/v1/smartgallery/tags).
 func (h *Handlers) handleTags(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -710,7 +710,7 @@ func (h *Handlers) handleTags(w http.ResponseWriter, r *http.Request) {
 
 // ---------- 导入 ----------
 
-// handleImport 处理照片导入 (GET/POST /api/v1/smartgallery/import)
+// handleImport 处理照片导入 (GET/POST /api/v1/smartgallery/import).
 func (h *Handlers) handleImport(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -772,7 +772,7 @@ func (h *Handlers) handleImport(w http.ResponseWriter, r *http.Request) {
 
 // ---------- 统计 ----------
 
-// handleStats 处理统计请求 (GET /api/v1/smartgallery/stats)
+// handleStats 处理统计请求 (GET /api/v1/smartgallery/stats).
 func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")

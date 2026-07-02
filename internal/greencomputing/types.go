@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// EnergyReading represents a real-time energy reading
+// EnergyReading represents a real-time energy reading.
 type EnergyReading struct {
 	Timestamp    time.Time `json:"timestamp"`
 	TotalWatts   float64   `json:"total_watts"`
@@ -16,7 +16,7 @@ type EnergyReading struct {
 	Source       string    `json:"source"`
 }
 
-// CarbonFootprint represents carbon emission data
+// CarbonFootprint represents carbon emission data.
 type CarbonFootprint struct {
 	Period      string             `json:"period"`
 	EnergyKWh   float64            `json:"energy_kwh"`
@@ -27,7 +27,7 @@ type CarbonFootprint struct {
 	Breakdown   map[string]float64 `json:"breakdown"`
 }
 
-// SleepStrategy represents an intelligent sleep strategy
+// SleepStrategy represents an intelligent sleep strategy.
 type SleepStrategy struct {
 	ID             string        `json:"id"`
 	Name           string        `json:"name"`
@@ -44,7 +44,7 @@ type SleepStrategy struct {
 	UpdatedAt      time.Time     `json:"updated_at"`
 }
 
-// EfficiencyReport represents an energy efficiency report
+// EfficiencyReport represents an energy efficiency report.
 type EfficiencyReport struct {
 	Period          string            `json:"period"`
 	GeneratedAt     time.Time         `json:"generated_at"`
@@ -59,7 +59,7 @@ type EfficiencyReport struct {
 	Trends          *EfficiencyTrends `json:"trends"`
 }
 
-// Recommendation represents an optimization recommendation
+// Recommendation represents an optimization recommendation.
 type Recommendation struct {
 	ID           string    `json:"id"`
 	Title        string    `json:"title"`
@@ -73,7 +73,7 @@ type Recommendation struct {
 	CreatedAt    time.Time `json:"created_at"`
 }
 
-// EfficiencyTrends represents efficiency trends
+// EfficiencyTrends represents efficiency trends.
 type EfficiencyTrends struct {
 	EnergyTrend     string  `json:"energy_trend"`
 	CarbonTrend     string  `json:"carbon_trend"`
@@ -82,7 +82,7 @@ type EfficiencyTrends struct {
 	MonthOverMonth  float64 `json:"month_over_month"`
 }
 
-// GreenScore represents the overall green computing score
+// GreenScore represents the overall green computing score.
 type GreenScore struct {
 	Score     float64            `json:"score"`
 	Grade     string             `json:"grade"`
@@ -90,22 +90,22 @@ type GreenScore struct {
 	UpdatedAt time.Time          `json:"updated_at"`
 }
 
-// EnergySource constants
+// EnergySource constants.
 const (
 	SourceGrid  = "grid"
 	SourceSolar = "solar"
 	SourceWind  = "wind"
 )
 
-// Carbon intensity constants (gCO2/kWh)
+// Carbon intensity constants (gCO2/kWh).
 const (
 	DefaultGridIntensity  = 400.0
 	DefaultSolarIntensity = 50.0
 	DefaultWindIntensity  = 10.0
 )
 
-// Carbon offset cost (USD per kg CO2)
+// Carbon offset cost (USD per kg CO2).
 const DefaultCarbonOffsetCost = 0.02
 
-// Tree absorption rate (kg CO2 per tree per year)
+// Tree absorption rate (kg CO2 per tree per year).
 const DefaultTreeAbsorptionKg = 22.0

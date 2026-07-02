@@ -8,73 +8,73 @@ import (
 	"time"
 )
 
-// TaskType 任务类型
+// TaskType 任务类型.
 type TaskType string
 
 const (
-	// TaskTypeBackup 备份任务
+	// TaskTypeBackup 备份任务.
 	TaskTypeBackup TaskType = "backup"
-	// TaskTypeSync 同步任务
+	// TaskTypeSync 同步任务.
 	TaskTypeSync TaskType = "sync"
-	// TaskTypeClean 清理任务
+	// TaskTypeClean 清理任务.
 	TaskTypeClean TaskType = "clean"
-	// TaskTypeScan 扫描任务
+	// TaskTypeScan 扫描任务.
 	TaskTypeScan TaskType = "scan"
-	// TaskTypeReport 报告任务
+	// TaskTypeReport 报告任务.
 	TaskTypeReport TaskType = "report"
-	// TaskTypeCustom 自定义任务
+	// TaskTypeCustom 自定义任务.
 	TaskTypeCustom TaskType = "custom"
 )
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
-	// TaskStatusPending 待执行
+	// TaskStatusPending 待执行.
 	TaskStatusPending TaskStatus = "pending"
-	// TaskStatusRunning 执行中
+	// TaskStatusRunning 执行中.
 	TaskStatusRunning TaskStatus = "running"
-	// TaskStatusCompleted 已完成
+	// TaskStatusCompleted 已完成.
 	TaskStatusCompleted TaskStatus = "completed"
-	// TaskStatusFailed 失败
+	// TaskStatusFailed 失败.
 	TaskStatusFailed TaskStatus = "failed"
-	// TaskStatusCancelled 已取消
+	// TaskStatusCancelled 已取消.
 	TaskStatusCancelled TaskStatus = "cancelled"
-	// TaskStatusSkipped 已跳过
+	// TaskStatusSkipped 已跳过.
 	TaskStatusSkipped TaskStatus = "skipped"
-	// TaskStatusWaiting 等待依赖
+	// TaskStatusWaiting 等待依赖.
 	TaskStatusWaiting TaskStatus = "waiting"
 )
 
-// TaskPriority 任务优先级
+// TaskPriority 任务优先级.
 type TaskPriority int
 
 const (
-	// TaskPriorityLow 低优先级
+	// TaskPriorityLow 低优先级.
 	TaskPriorityLow TaskPriority = 1
-	// TaskPriorityNormal 普通优先级
+	// TaskPriorityNormal 普通优先级.
 	TaskPriorityNormal TaskPriority = 5
-	// TaskPriorityHigh 高优先级
+	// TaskPriorityHigh 高优先级.
 	TaskPriorityHigh TaskPriority = 10
-	// TaskPriorityCritical 紧急优先级
+	// TaskPriorityCritical 紧急优先级.
 	TaskPriorityCritical TaskPriority = 15
 )
 
-// ScheduleType 调度类型
+// ScheduleType 调度类型.
 type ScheduleType string
 
 const (
-	// ScheduleTypeOnce 一次性
+	// ScheduleTypeOnce 一次性.
 	ScheduleTypeOnce ScheduleType = "once"
-	// ScheduleTypeRecurring 重复执行
+	// ScheduleTypeRecurring 重复执行.
 	ScheduleTypeRecurring ScheduleType = "recurring"
-	// ScheduleTypeCron Cron表达式
+	// ScheduleTypeCron Cron表达式.
 	ScheduleTypeCron ScheduleType = "cron"
-	// ScheduleTypeEvent 事件触发
+	// ScheduleTypeEvent 事件触发.
 	ScheduleTypeEvent ScheduleType = "event"
 )
 
-// Task 任务
+// Task 任务.
 type Task struct {
 	// ID 任务ID
 	ID string `json:"id"`
@@ -116,7 +116,7 @@ type Task struct {
 	Enabled bool `json:"enabled"`
 }
 
-// ScheduleConfig 调度配置
+// ScheduleConfig 调度配置.
 type ScheduleConfig struct {
 	// Type 调度类型
 	Type ScheduleType `json:"type"`
@@ -138,7 +138,7 @@ type ScheduleConfig struct {
 	TimeZone string `json:"timeZone,omitempty"`
 }
 
-// TaskResult 任务结果
+// TaskResult 任务结果.
 type TaskResult struct {
 	// Success 是否成功
 	Success bool `json:"success"`
@@ -156,7 +156,7 @@ type TaskResult struct {
 	Metrics map[string]interface{} `json:"metrics,omitempty"`
 }
 
-// TaskLog 任务日志
+// TaskLog 任务日志.
 type TaskLog struct {
 	// ID 日志ID
 	ID string `json:"id"`
@@ -172,7 +172,7 @@ type TaskLog struct {
 	Details map[string]interface{} `json:"details,omitempty"`
 }
 
-// TaskExecution 任务执行记录
+// TaskExecution 任务执行记录.
 type TaskExecution struct {
 	// ID 执行ID
 	ID string `json:"id"`
@@ -194,7 +194,7 @@ type TaskExecution struct {
 	RetryCount int `json:"retryCount"`
 }
 
-// TaskGroup 任务组
+// TaskGroup 任务组.
 type TaskGroup struct {
 	// ID 组ID
 	ID string `json:"id"`
@@ -210,7 +210,7 @@ type TaskGroup struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-// TaskTemplate 任务模板
+// TaskTemplate 任务模板.
 type TaskTemplate struct {
 	// ID 模板ID
 	ID string `json:"id"`
@@ -228,7 +228,7 @@ type TaskTemplate struct {
 	Category string `json:"category"`
 }
 
-// TaskCenter 任务中心
+// TaskCenter 任务中心.
 type TaskCenter struct {
 	mu         sync.RWMutex
 	tasks      map[string]*Task
@@ -238,7 +238,7 @@ type TaskCenter struct {
 	logs       []TaskLog
 }
 
-// NewTaskCenter 创建任务中心
+// NewTaskCenter 创建任务中心.
 func NewTaskCenter() *TaskCenter {
 	return &TaskCenter{
 		tasks:      make(map[string]*Task),
@@ -248,7 +248,7 @@ func NewTaskCenter() *TaskCenter {
 	}
 }
 
-// CreateTask 创建任务
+// CreateTask 创建任务.
 func (tc *TaskCenter) CreateTask(task Task) error {
 	tc.mu.Lock()
 	defer tc.mu.Unlock()
@@ -260,7 +260,7 @@ func (tc *TaskCenter) CreateTask(task Task) error {
 	return nil
 }
 
-// UpdateTask 更新任务
+// UpdateTask 更新任务.
 func (tc *TaskCenter) UpdateTask(task Task) error {
 	tc.mu.Lock()
 	defer tc.mu.Unlock()
@@ -276,7 +276,7 @@ func (tc *TaskCenter) UpdateTask(task Task) error {
 	return nil
 }
 
-// DeleteTask 删除任务
+// DeleteTask 删除任务.
 func (tc *TaskCenter) DeleteTask(taskID string) error {
 	tc.mu.Lock()
 	defer tc.mu.Unlock()
@@ -285,7 +285,7 @@ func (tc *TaskCenter) DeleteTask(taskID string) error {
 	return nil
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (tc *TaskCenter) GetTask(taskID string) (*Task, error) {
 	tc.mu.RLock()
 	defer tc.mu.RUnlock()
@@ -298,7 +298,7 @@ func (tc *TaskCenter) GetTask(taskID string) (*Task, error) {
 	return task, nil
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (tc *TaskCenter) ListTasks(taskType TaskType, status TaskStatus) []*Task {
 	tc.mu.RLock()
 	defer tc.mu.RUnlock()
@@ -313,7 +313,7 @@ func (tc *TaskCenter) ListTasks(taskType TaskType, status TaskStatus) []*Task {
 	return tasks
 }
 
-// ExecuteTask 执行任务
+// ExecuteTask 执行任务.
 func (tc *TaskCenter) ExecuteTask(taskID string) error {
 	tc.mu.Lock()
 	defer tc.mu.Unlock()
@@ -350,7 +350,7 @@ func (tc *TaskCenter) ExecuteTask(taskID string) error {
 	return nil
 }
 
-// CompleteTask 完成任务
+// CompleteTask 完成任务.
 func (tc *TaskCenter) CompleteTask(taskID string, result TaskResult) error {
 	tc.mu.Lock()
 	defer tc.mu.Unlock()
@@ -383,7 +383,7 @@ func (tc *TaskCenter) CompleteTask(taskID string, result TaskResult) error {
 	return nil
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (tc *TaskCenter) CancelTask(taskID string) error {
 	tc.mu.Lock()
 	defer tc.mu.Unlock()
@@ -398,7 +398,7 @@ func (tc *TaskCenter) CancelTask(taskID string) error {
 	return nil
 }
 
-// RetryTask 重试任务
+// RetryTask 重试任务.
 func (tc *TaskCenter) RetryTask(taskID string) error {
 	tc.mu.Lock()
 	defer tc.mu.Unlock()
@@ -418,7 +418,7 @@ func (tc *TaskCenter) RetryTask(taskID string) error {
 	return nil
 }
 
-// GetExecution 获取执行记录
+// GetExecution 获取执行记录.
 func (tc *TaskCenter) GetExecution(execID string) (*TaskExecution, error) {
 	tc.mu.RLock()
 	defer tc.mu.RUnlock()
@@ -431,7 +431,7 @@ func (tc *TaskCenter) GetExecution(execID string) (*TaskExecution, error) {
 	return exec, nil
 }
 
-// ListExecutions 列出执行记录
+// ListExecutions 列出执行记录.
 func (tc *TaskCenter) ListExecutions(taskID string) []*TaskExecution {
 	tc.mu.RLock()
 	defer tc.mu.RUnlock()
@@ -445,7 +445,7 @@ func (tc *TaskCenter) ListExecutions(taskID string) []*TaskExecution {
 	return executions
 }
 
-// CreateGroup 创建任务组
+// CreateGroup 创建任务组.
 func (tc *TaskCenter) CreateGroup(group TaskGroup) error {
 	tc.mu.Lock()
 	defer tc.mu.Unlock()
@@ -455,7 +455,7 @@ func (tc *TaskCenter) CreateGroup(group TaskGroup) error {
 	return nil
 }
 
-// GetGroup 获取任务组
+// GetGroup 获取任务组.
 func (tc *TaskCenter) GetGroup(groupID string) (*TaskGroup, error) {
 	tc.mu.RLock()
 	defer tc.mu.RUnlock()
@@ -468,7 +468,7 @@ func (tc *TaskCenter) GetGroup(groupID string) (*TaskGroup, error) {
 	return group, nil
 }
 
-// ListGroups 列出任务组
+// ListGroups 列出任务组.
 func (tc *TaskCenter) ListGroups() []*TaskGroup {
 	tc.mu.RLock()
 	defer tc.mu.RUnlock()
@@ -480,7 +480,7 @@ func (tc *TaskCenter) ListGroups() []*TaskGroup {
 	return groups
 }
 
-// AddTemplate 添加模板
+// AddTemplate 添加模板.
 func (tc *TaskCenter) AddTemplate(template TaskTemplate) error {
 	tc.mu.Lock()
 	defer tc.mu.Unlock()
@@ -489,7 +489,7 @@ func (tc *TaskCenter) AddTemplate(template TaskTemplate) error {
 	return nil
 }
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func (tc *TaskCenter) GetTemplate(templateID string) (*TaskTemplate, error) {
 	tc.mu.RLock()
 	defer tc.mu.RUnlock()
@@ -502,7 +502,7 @@ func (tc *TaskCenter) GetTemplate(templateID string) (*TaskTemplate, error) {
 	return template, nil
 }
 
-// ListTemplates 列出模板
+// ListTemplates 列出模板.
 func (tc *TaskCenter) ListTemplates(taskType TaskType) []*TaskTemplate {
 	tc.mu.RLock()
 	defer tc.mu.RUnlock()
@@ -516,7 +516,7 @@ func (tc *TaskCenter) ListTemplates(taskType TaskType) []*TaskTemplate {
 	return templates
 }
 
-// AddLog 添加日志
+// AddLog 添加日志.
 func (tc *TaskCenter) AddLog(log TaskLog) {
 	tc.mu.Lock()
 	defer tc.mu.Unlock()
@@ -530,7 +530,7 @@ func (tc *TaskCenter) AddLog(log TaskLog) {
 	}
 }
 
-// GetLogs 获取日志
+// GetLogs 获取日志.
 func (tc *TaskCenter) GetLogs(taskID string, limit int) []TaskLog {
 	tc.mu.RLock()
 	defer tc.mu.RUnlock()

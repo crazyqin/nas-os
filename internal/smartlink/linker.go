@@ -19,7 +19,7 @@ var (
 	ErrPolicyViolation   = errors.New("policy violation")
 )
 
-// Linker manages share links
+// Linker manages share links.
 type Linker struct {
 	links    map[string]*ShareLink
 	byToken  map[string]*ShareLink
@@ -30,7 +30,7 @@ type Linker struct {
 	mu       sync.RWMutex
 }
 
-// NewLinker creates a new Linker instance
+// NewLinker creates a new Linker instance.
 func NewLinker(policy SharePolicy) *Linker {
 	return &Linker{
 		links:    make(map[string]*ShareLink),
@@ -42,7 +42,7 @@ func NewLinker(policy SharePolicy) *Linker {
 	}
 }
 
-// generateToken generates a random 8-character base62 token
+// generateToken generates a random 8-character base62 token.
 func generateToken() (string, error) {
 	b := make([]byte, 6)
 	if _, err := rand.Read(b); err != nil {
@@ -57,7 +57,7 @@ func generateToken() (string, error) {
 	return string(token), nil
 }
 
-// CreateLink creates a new share link
+// CreateLink creates a new share link.
 func (l *Linker) CreateLink(creatorID string, req CreateLinkRequest) (*ShareLink, error) {
 	if !isValidPermission(req.Permission) {
 		return nil, ErrInvalidPermission
@@ -150,7 +150,7 @@ func (l *Linker) CreateLink(creatorID string, req CreateLinkRequest) (*ShareLink
 	return link, nil
 }
 
-// AccessLink accesses a share link by token
+// AccessLink accesses a share link by token.
 func (l *Linker) AccessLink(token, password, ip, userAgent string) (*ShareLink, error) {
 	l.mu.RLock()
 	link, exists := l.byToken[token]
@@ -218,7 +218,7 @@ func (l *Linker) AccessLink(token, password, ip, userAgent string) (*ShareLink, 
 	return link, nil
 }
 
-// GetLink retrieves a link by ID
+// GetLink retrieves a link by ID.
 func (l *Linker) GetLink(id string) (*ShareLink, error) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -230,7 +230,7 @@ func (l *Linker) GetLink(id string) (*ShareLink, error) {
 	return link, nil
 }
 
-// GetLinkByToken retrieves a link by token
+// GetLinkByToken retrieves a link by token.
 func (l *Linker) GetLinkByToken(token string) (*ShareLink, error) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -242,7 +242,7 @@ func (l *Linker) GetLinkByToken(token string) (*ShareLink, error) {
 	return link, nil
 }
 
-// ListLinksByFileID lists all links for a file
+// ListLinksByFileID lists all links for a file.
 func (l *Linker) ListLinksByFileID(fileID string) []*ShareLink {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -253,7 +253,7 @@ func (l *Linker) ListLinksByFileID(fileID string) []*ShareLink {
 	return result
 }
 
-// ListLinksByCreator lists all links created by a user
+// ListLinksByCreator lists all links created by a user.
 func (l *Linker) ListLinksByCreator(creatorID string) []*ShareLink {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -267,7 +267,7 @@ func (l *Linker) ListLinksByCreator(creatorID string) []*ShareLink {
 	return result
 }
 
-// DeactivateLink deactivates a share link
+// DeactivateLink deactivates a share link.
 func (l *Linker) DeactivateLink(id, creatorID string) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -289,7 +289,7 @@ func (l *Linker) DeactivateLink(id, creatorID string) error {
 	return nil
 }
 
-// GetLinkStats returns statistics for a link
+// GetLinkStats returns statistics for a link.
 func (l *Linker) GetLinkStats(linkID string) (*LinkStats, error) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -301,7 +301,7 @@ func (l *Linker) GetLinkStats(linkID string) (*LinkStats, error) {
 	return stats, nil
 }
 
-// GetAccessLogs returns access logs for a link
+// GetAccessLogs returns access logs for a link.
 func (l *Linker) GetAccessLogs(linkID string, limit, offset int) []AccessLog {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -324,7 +324,7 @@ func (l *Linker) GetAccessLogs(linkID string, limit, offset int) []AccessLog {
 	return result[offset:end]
 }
 
-// CleanupExpiredLinks removes expired and inactive links
+// CleanupExpiredLinks removes expired and inactive links.
 func (l *Linker) CleanupExpiredLinks() int {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -350,7 +350,7 @@ func (l *Linker) CleanupExpiredLinks() int {
 	return removed
 }
 
-// logAccess logs an access attempt
+// logAccess logs an access attempt.
 func (l *Linker) logAccess(linkID, ip, userAgent string, success bool, reason string) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -367,7 +367,7 @@ func (l *Linker) logAccess(linkID, ip, userAgent string, success bool, reason st
 	l.logs = append(l.logs, log)
 }
 
-// isValidPermission checks if permission is valid
+// isValidPermission checks if permission is valid.
 func isValidPermission(p SharePermission) bool {
 	switch p {
 	case PermissionReadOnly, PermissionReadWrite, PermissionPreview:

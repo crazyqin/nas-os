@@ -2,7 +2,7 @@ package lxcmkt
 
 import "time"
 
-// Template represents an LXC container template
+// Template represents an LXC container template.
 type Template struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -22,7 +22,7 @@ type Template struct {
 	Versions    []TemplateVersion `json:"versions"`
 }
 
-// TemplateConfig represents template customization options
+// TemplateConfig represents template customization options.
 type TemplateConfig struct {
 	Hostname      string            `json:"hostname,omitempty"`
 	Network       NetworkConfig     `json:"network"`
@@ -34,7 +34,7 @@ type TemplateConfig struct {
 	Features      []string          `json:"features,omitempty"` // nesting, fuse, etc.
 }
 
-// NetworkConfig represents container network configuration
+// NetworkConfig represents container network configuration.
 type NetworkConfig struct {
 	Interface string   `json:"interface"`        // eth0, etc.
 	Type      string   `json:"type"`             // bridge, macvlan, physical
@@ -46,7 +46,7 @@ type NetworkConfig struct {
 	VLAN      int      `json:"vlan,omitempty"`
 }
 
-// StorageMapping represents host-to-container path mapping
+// StorageMapping represents host-to-container path mapping.
 type StorageMapping struct {
 	HostPath      string `json:"host_path"`
 	ContainerPath string `json:"container_path"`
@@ -54,7 +54,7 @@ type StorageMapping struct {
 	Size          string `json:"size,omitempty"` // e.g., "10GB"
 }
 
-// ResourceLimits represents container resource constraints
+// ResourceLimits represents container resource constraints.
 type ResourceLimits struct {
 	CPUs    string `json:"cpus,omitempty"`   // e.g., "2" or "50%"
 	Memory  string `json:"memory,omitempty"` // e.g., "512MB", "2GB"
@@ -63,7 +63,7 @@ type ResourceLimits struct {
 	ProcMax int    `json:"proc_max,omitempty"` // max processes
 }
 
-// TemplateVersion represents a specific version of a template
+// TemplateVersion represents a specific version of a template.
 type TemplateVersion struct {
 	Version   string    `json:"version"`
 	ImageURL  string    `json:"image_url"`
@@ -73,7 +73,7 @@ type TemplateVersion struct {
 	Changelog string    `json:"changelog,omitempty"`
 }
 
-// DeployRequest represents a request to deploy an LXC container
+// DeployRequest represents a request to deploy an LXC container.
 type DeployRequest struct {
 	TemplateID string         `json:"template_id" binding:"required"`
 	Version    string         `json:"version,omitempty"` // empty = latest
@@ -82,7 +82,7 @@ type DeployRequest struct {
 	AutoStart  bool           `json:"auto_start"`
 }
 
-// DeployResponse represents the response after deploying a container
+// DeployResponse represents the response after deploying a container.
 type DeployResponse struct {
 	ContainerID   string    `json:"container_id"`
 	ContainerName string    `json:"container_name"`
@@ -93,7 +93,7 @@ type DeployResponse struct {
 	CreatedAt     time.Time `json:"created_at"`
 }
 
-// SearchQuery represents template search parameters
+// SearchQuery represents template search parameters.
 type SearchQuery struct {
 	Query     string   `form:"q"`
 	Distro    string   `form:"distro"`
@@ -105,7 +105,7 @@ type SearchQuery struct {
 	PageSize  int      `form:"page_size"`
 }
 
-// SearchResults represents paginated search results
+// SearchResults represents paginated search results.
 type SearchResults struct {
 	Templates  []Template `json:"templates"`
 	Total      int        `json:"total"`
@@ -114,21 +114,21 @@ type SearchResults struct {
 	TotalPages int        `json:"total_pages"`
 }
 
-// RatingRequest represents a user rating submission
+// RatingRequest represents a user rating submission.
 type RatingRequest struct {
 	TemplateID string `json:"template_id" binding:"required"`
 	Score      int    `json:"score" binding:"required,min=1,max=5"`
 	Comment    string `json:"comment,omitempty"`
 }
 
-// RatingResponse represents the updated rating info
+// RatingResponse represents the updated rating info.
 type RatingResponse struct {
 	TemplateID  string  `json:"template_id"`
 	AverageRate float64 `json:"average_rate"`
 	TotalRates  int     `json:"total_rates"`
 }
 
-// StatsResponse represents template statistics
+// StatsResponse represents template statistics.
 type StatsResponse struct {
 	TotalTemplates int            `json:"total_templates"`
 	TotalDownloads int64          `json:"totalDownloads"`

@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 家庭仪表板管理器
+// Manager 家庭仪表板管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	logger      *zap.Logger
@@ -21,7 +21,7 @@ type Manager struct {
 	running     bool
 }
 
-// NewManager 创建家庭仪表板管理器
+// NewManager 创建家庭仪表板管理器.
 func NewManager(logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -39,12 +39,12 @@ func NewManager(logger *zap.Logger) *Manager {
 	return m
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	return fmt.Sprintf("family-%d", time.Now().UnixNano())
 }
 
-// CreateMember 创建家庭成员
+// CreateMember 创建家庭成员.
 func (m *Manager) CreateMember(req *CreateMemberRequest) (*FamilyMember, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -98,7 +98,7 @@ func (m *Manager) CreateMember(req *CreateMemberRequest) (*FamilyMember, error) 
 	return member, nil
 }
 
-// GetMember 获取家庭成员
+// GetMember 获取家庭成员.
 func (m *Manager) GetMember(memberID string) (*FamilyMember, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -110,7 +110,7 @@ func (m *Manager) GetMember(memberID string) (*FamilyMember, error) {
 	return member, nil
 }
 
-// ListMembers 列出所有家庭成员
+// ListMembers 列出所有家庭成员.
 func (m *Manager) ListMembers() []*FamilyMember {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -122,7 +122,7 @@ func (m *Manager) ListMembers() []*FamilyMember {
 	return members
 }
 
-// UpdateMember 更新家庭成员
+// UpdateMember 更新家庭成员.
 func (m *Manager) UpdateMember(memberID string, req *UpdateMemberRequest) (*FamilyMember, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -152,7 +152,7 @@ func (m *Manager) UpdateMember(memberID string, req *UpdateMemberRequest) (*Fami
 	return member, nil
 }
 
-// DeleteMember 删除家庭成员
+// DeleteMember 删除家庭成员.
 func (m *Manager) DeleteMember(memberID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -169,7 +169,7 @@ func (m *Manager) DeleteMember(memberID string) error {
 	return nil
 }
 
-// GetProfile 获取成员个人资料
+// GetProfile 获取成员个人资料.
 func (m *Manager) GetProfile(memberID string) (*MemberProfile, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -181,7 +181,7 @@ func (m *Manager) GetProfile(memberID string) (*MemberProfile, error) {
 	return profile, nil
 }
 
-// UpdateProfile 更新成员个人资料
+// UpdateProfile 更新成员个人资料.
 func (m *Manager) UpdateProfile(memberID string, req *UpdateProfileRequest) (*MemberProfile, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -217,7 +217,7 @@ func (m *Manager) UpdateProfile(memberID string, req *UpdateProfileRequest) (*Me
 	return profile, nil
 }
 
-// GetPermissions 获取成员权限
+// GetPermissions 获取成员权限.
 func (m *Manager) GetPermissions(memberID string) (*Permissions, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -229,7 +229,7 @@ func (m *Manager) GetPermissions(memberID string) (*Permissions, error) {
 	return perms, nil
 }
 
-// SetPermissions 设置成员权限
+// SetPermissions 设置成员权限.
 func (m *Manager) SetPermissions(memberID string, req *UpdatePermissionsRequest) (*Permissions, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -286,7 +286,7 @@ func (m *Manager) SetPermissions(memberID string, req *UpdatePermissionsRequest)
 	return perms, nil
 }
 
-// AddFavorite 添加收藏
+// AddFavorite 添加收藏.
 func (m *Manager) AddFavorite(memberID string, req *AddFavoriteRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -310,7 +310,7 @@ func (m *Manager) AddFavorite(memberID string, req *AddFavoriteRequest) error {
 	return nil
 }
 
-// RemoveFavorite 移除收藏
+// RemoveFavorite 移除收藏.
 func (m *Manager) RemoveFavorite(memberID, favoriteID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -331,7 +331,7 @@ func (m *Manager) RemoveFavorite(memberID, favoriteID string) error {
 	return fmt.Errorf("favorite not found: %s", favoriteID)
 }
 
-// RecordActivity 记录活动
+// RecordActivity 记录活动.
 func (m *Manager) RecordActivity(memberID string, activityType ActivityType, action, resource, details string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -354,7 +354,7 @@ func (m *Manager) RecordActivity(memberID string, activityType ActivityType, act
 	}
 }
 
-// GetActivity 获取活动记录
+// GetActivity 获取活动记录.
 func (m *Manager) GetActivity(query *ActivityQuery) []*ActivityEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -400,7 +400,7 @@ func (m *Manager) GetActivity(query *ActivityQuery) []*ActivityEntry {
 	return result
 }
 
-// GetActivitySummary 获取活动摘要
+// GetActivitySummary 获取活动摘要.
 func (m *Manager) GetActivitySummary(memberID, period string) *ActivitySummary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -467,7 +467,7 @@ func (m *Manager) GetActivitySummary(memberID, period string) *ActivitySummary {
 	return summary
 }
 
-// GenerateStats 生成家庭统计
+// GenerateStats 生成家庭统计.
 func (m *Manager) GenerateStats() *FamilyStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -513,7 +513,7 @@ func (m *Manager) GenerateStats() *FamilyStats {
 	return stats
 }
 
-// UpdateMemberStatus 更新成员状态
+// UpdateMemberStatus 更新成员状态.
 func (m *Manager) UpdateMemberStatus(memberID string, status MemberStatus) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -531,7 +531,7 @@ func (m *Manager) UpdateMemberStatus(memberID string, status MemberStatus) error
 	return nil
 }
 
-// GetOnlineMembers 获取在线成员
+// GetOnlineMembers 获取在线成员.
 func (m *Manager) GetOnlineMembers() []*FamilyMember {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -545,7 +545,7 @@ func (m *Manager) GetOnlineMembers() []*FamilyMember {
 	return online
 }
 
-// GetChildMembers 获取子成员（儿童）
+// GetChildMembers 获取子成员（儿童）.
 func (m *Manager) GetChildMembers() []*FamilyMember {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -559,7 +559,7 @@ func (m *Manager) GetChildMembers() []*FamilyMember {
 	return children
 }
 
-// CheckPermission 检查成员权限
+// CheckPermission 检查成员权限.
 func (m *Manager) CheckPermission(memberID string, action string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

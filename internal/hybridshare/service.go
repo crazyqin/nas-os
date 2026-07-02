@@ -21,7 +21,7 @@ import (
 // CloudBackend 云端存储后端接口
 // ============================================================
 
-// CloudProvider 云存储提供商接口
+// CloudProvider 云存储提供商接口.
 type CloudProvider interface {
 	// Upload 上传文件到云端
 	Upload(localPath, cloudPath string) error
@@ -37,7 +37,7 @@ type CloudProvider interface {
 	GetURL(cloudPath string, expireDuration time.Duration) (string, error)
 }
 
-// CloudFileInfo 云端文件信息
+// CloudFileInfo 云端文件信息.
 type CloudFileInfo struct {
 	Path    string    `json:"path"`
 	Size    int64     `json:"size"`
@@ -50,7 +50,7 @@ type CloudFileInfo struct {
 // Service 服务层
 // ============================================================
 
-// Service 混合共享服务
+// Service 混合共享服务.
 type Service struct {
 	mu             sync.RWMutex
 	configs        map[string]*HybridShareConfig       // id -> config
@@ -66,7 +66,7 @@ type Service struct {
 	pinnedFiles map[string]map[string]bool // shareID -> filePath -> pinned
 }
 
-// NewService 创建新的混合共享服务
+// NewService 创建新的混合共享服务.
 func NewService() *Service {
 	return &Service{
 		configs:        make(map[string]*HybridShareConfig),
@@ -85,7 +85,7 @@ func NewService() *Service {
 // 混合共享 CRUD
 // ============================================================
 
-// CreateShare 创建混合共享
+// CreateShare 创建混合共享.
 func (s *Service) CreateShare(req CreateShareRequest) (*HybridShareConfig, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -167,7 +167,7 @@ func (s *Service) CreateShare(req CreateShareRequest) (*HybridShareConfig, error
 	return &config, nil
 }
 
-// GetShare 获取混合共享配置
+// GetShare 获取混合共享配置.
 func (s *Service) GetShare(id string) (*HybridShareConfig, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -179,7 +179,7 @@ func (s *Service) GetShare(id string) (*HybridShareConfig, error) {
 	return config, nil
 }
 
-// ListShares 列出所有混合共享
+// ListShares 列出所有混合共享.
 func (s *Service) ListShares() []ShareSummary {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -218,7 +218,7 @@ func (s *Service) ListShares() []ShareSummary {
 	return summaries
 }
 
-// UpdateShare 更新混合共享配置
+// UpdateShare 更新混合共享配置.
 func (s *Service) UpdateShare(id string, req UpdateShareRequest) (*HybridShareConfig, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -304,7 +304,7 @@ func (s *Service) UpdateShare(id string, req UpdateShareRequest) (*HybridShareCo
 	return config, nil
 }
 
-// DeleteShare 删除混合共享
+// DeleteShare 删除混合共享.
 func (s *Service) DeleteShare(id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -341,7 +341,7 @@ func (s *Service) DeleteShare(id string) error {
 // 文件操作
 // ============================================================
 
-// ListFiles 列出文件
+// ListFiles 列出文件.
 func (s *Service) ListFiles(shareID string, path string) ([]FileMetadata, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -374,7 +374,7 @@ func (s *Service) ListFiles(shareID string, path string) ([]FileMetadata, error)
 				// 检查是否已经添加了这个目录
 				found := false
 				for _, f := range files {
-					if f.FileName == dir && f.IsCached == false {
+					if f.FileName == dir && !f.IsCached {
 						found = true
 						break
 					}
@@ -423,7 +423,7 @@ func (s *Service) ListFiles(shareID string, path string) ([]FileMetadata, error)
 	return files, nil
 }
 
-// GetFileMetadata 获取文件元数据
+// GetFileMetadata 获取文件元数据.
 func (s *Service) GetFileMetadata(shareID, filePath string) (*FileMetadata, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -446,7 +446,7 @@ func (s *Service) GetFileMetadata(shareID, filePath string) (*FileMetadata, erro
 	return meta, nil
 }
 
-// AddFile 添加文件元数据
+// AddFile 添加文件元数据.
 func (s *Service) AddFile(shareID string, meta *FileMetadata) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -477,7 +477,7 @@ func (s *Service) AddFile(shareID string, meta *FileMetadata) error {
 // 缓存操作
 // ============================================================
 
-// CacheFile 缓存文件到本地
+// CacheFile 缓存文件到本地.
 func (s *Service) CacheFile(shareID, filePath string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -531,7 +531,7 @@ func (s *Service) CacheFile(shareID, filePath string) error {
 	return nil
 }
 
-// EvictFromCache 从缓存驱逐文件
+// EvictFromCache 从缓存驱逐文件.
 func (s *Service) EvictFromCache(shareID, filePath string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -583,7 +583,7 @@ func (s *Service) EvictFromCache(shareID, filePath string) error {
 	return nil
 }
 
-// PinFile 固定文件到缓存(不会被驱逐)
+// PinFile 固定文件到缓存(不会被驱逐).
 func (s *Service) PinFile(shareID, filePath string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -602,7 +602,7 @@ func (s *Service) PinFile(shareID, filePath string) error {
 	return nil
 }
 
-// UnpinFile 取消固定文件
+// UnpinFile 取消固定文件.
 func (s *Service) UnpinFile(shareID, filePath string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -618,7 +618,7 @@ func (s *Service) UnpinFile(shareID, filePath string) error {
 	return nil
 }
 
-// evictCache 驱逐缓存(内部方法，调用时需要持有锁)
+// evictCache 驱逐缓存(内部方法，调用时需要持有锁).
 func (s *Service) evictCache(shareID string, needBytes int64) error {
 	config := s.configs[shareID]
 	metaMap := s.metadata[shareID]
@@ -720,7 +720,7 @@ func (s *Service) evictCache(shareID string, needBytes int64) error {
 // 同步操作
 // ============================================================
 
-// StartSync 启动同步
+// StartSync 启动同步.
 func (s *Service) StartSync(req SyncRequest) (*SyncTask, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -757,7 +757,7 @@ func (s *Service) StartSync(req SyncRequest) (*SyncTask, error) {
 	return task, nil
 }
 
-// GetSyncTask 获取同步任务
+// GetSyncTask 获取同步任务.
 func (s *Service) GetSyncTask(taskID string) (*SyncTask, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -769,7 +769,7 @@ func (s *Service) GetSyncTask(taskID string) (*SyncTask, error) {
 	return task, nil
 }
 
-// ListSyncTasks 列出同步任务
+// ListSyncTasks 列出同步任务.
 func (s *Service) ListSyncTasks(shareID string) []*SyncTask {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -788,7 +788,7 @@ func (s *Service) ListSyncTasks(shareID string) []*SyncTask {
 	return tasks
 }
 
-// CancelSyncTask 取消同步任务
+// CancelSyncTask 取消同步任务.
 func (s *Service) CancelSyncTask(taskID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -809,7 +809,7 @@ func (s *Service) CancelSyncTask(taskID string) error {
 	return nil
 }
 
-// UpdateSyncTaskProgress 更新同步任务进度
+// UpdateSyncTaskProgress 更新同步任务进度.
 func (s *Service) UpdateSyncTaskProgress(taskID string, progress float64, bytesSynced int64, speedBps int64) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -832,7 +832,7 @@ func (s *Service) UpdateSyncTaskProgress(taskID string, progress float64, bytesS
 	return nil
 }
 
-// CompleteSyncTask 完成同步任务
+// CompleteSyncTask 完成同步任务.
 func (s *Service) CompleteSyncTask(taskID string, success bool, errMsg string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -867,7 +867,7 @@ func (s *Service) CompleteSyncTask(taskID string, success bool, errMsg string) e
 // 容量统计
 // ============================================================
 
-// GetCapacityStats 获取容量统计
+// GetCapacityStats 获取容量统计.
 func (s *Service) GetCapacityStats(shareID string) (*CapacityStats, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -880,7 +880,7 @@ func (s *Service) GetCapacityStats(shareID string) (*CapacityStats, error) {
 	return stats, nil
 }
 
-// GetBandwidthStats 获取带宽统计
+// GetBandwidthStats 获取带宽统计.
 func (s *Service) GetBandwidthStats(shareID string) (*BandwidthStats, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -893,7 +893,7 @@ func (s *Service) GetBandwidthStats(shareID string) (*BandwidthStats, error) {
 	return stats, nil
 }
 
-// updateCapacityStats 更新容量统计(内部方法，调用时需要持有锁)
+// updateCapacityStats 更新容量统计(内部方法，调用时需要持有锁).
 func (s *Service) updateCapacityStats(shareID string) {
 	config, ok := s.configs[shareID]
 	if !ok {
@@ -950,7 +950,7 @@ func (s *Service) updateCapacityStats(shareID string) {
 	stats.UpdatedAt = time.Now()
 }
 
-// updateBandwidthStats 更新带宽统计(内部方法，调用时需要持有锁)
+// updateBandwidthStats 更新带宽统计(内部方法，调用时需要持有锁).
 func (s *Service) updateBandwidthStats(shareID string, speedBps int64, direction SyncDirection) {
 	stats, ok := s.bandwidthStats[shareID]
 	if !ok {
@@ -987,7 +987,7 @@ func (s *Service) updateBandwidthStats(shareID string, speedBps int64, direction
 // 日志
 // ============================================================
 
-// GetSyncLogs 获取同步日志
+// GetSyncLogs 获取同步日志.
 func (s *Service) GetSyncLogs(shareID string, limit int) []SyncLog {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -1004,7 +1004,7 @@ func (s *Service) GetSyncLogs(shareID string, limit int) []SyncLog {
 	return logs
 }
 
-// GetEventLogs 获取事件日志
+// GetEventLogs 获取事件日志.
 func (s *Service) GetEventLogs(shareID string, limit int) []EventLog {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -1021,7 +1021,7 @@ func (s *Service) GetEventLogs(shareID string, limit int) []EventLog {
 	return logs
 }
 
-// addSyncLog 添加同步日志(内部方法，调用时需要持有锁)
+// addSyncLog 添加同步日志(内部方法，调用时需要持有锁).
 func (s *Service) addSyncLog(shareID, taskID string, level SyncLogLevel, message, filePath, errMsg string) {
 	log := SyncLog{
 		ID:        uuid.New().String(),
@@ -1041,7 +1041,7 @@ func (s *Service) addSyncLog(shareID, taskID string, level SyncLogLevel, message
 	}
 }
 
-// addEventLog 添加事件日志(内部方法，调用时需要持有锁)
+// addEventLog 添加事件日志(内部方法，调用时需要持有锁).
 func (s *Service) addEventLog(shareID, eventType, message, details string) {
 	log := EventLog{
 		ID:        uuid.New().String(),
@@ -1063,7 +1063,7 @@ func (s *Service) addEventLog(shareID, eventType, message, details string) {
 // 文件哈希工具
 // ============================================================
 
-// CalculateFileMD5 计算文件MD5
+// CalculateFileMD5 计算文件MD5.
 func CalculateFileMD5(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -1079,7 +1079,7 @@ func CalculateFileMD5(filePath string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// CalculateFileSHA256 计算文件SHA256
+// CalculateFileSHA256 计算文件SHA256.
 func CalculateFileSHA256(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -1095,7 +1095,7 @@ func CalculateFileSHA256(filePath string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// FormatBytes 格式化字节数为人类可读格式
+// FormatBytes 格式化字节数为人类可读格式.
 func FormatBytes(bytes int64) string {
 	const unit = 1024
 	if bytes < unit {

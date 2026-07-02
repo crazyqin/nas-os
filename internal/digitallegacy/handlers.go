@@ -8,17 +8,17 @@ import (
 	"strings"
 )
 
-// Handlers 数字遗产 API 处理器
+// Handlers 数字遗产 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux, prefix string) {
 	if prefix == "" {
 		prefix = "/api/v1/legacy"
@@ -67,21 +67,21 @@ func (h *Handlers) RegisterRoutes(mux *http.ServeMux, prefix string) {
 	mux.HandleFunc(prefix+"/config", h.handleConfig)
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// writeJSON 写入 JSON 响应
+// writeJSON 写入 JSON 响应.
 func writeJSON(w http.ResponseWriter, status int, resp response) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(resp)
 }
 
-// writeError 写入错误响应
+// writeError 写入错误响应.
 func writeError(w http.ResponseWriter, status int, message string) {
 	writeJSON(w, status, response{
 		Code:    status,
@@ -89,7 +89,7 @@ func writeError(w http.ResponseWriter, status int, message string) {
 	})
 }
 
-// getUserID 获取用户ID
+// getUserID 获取用户ID.
 func getUserID(r *http.Request) string {
 	// 从请求头或上下文获取用户ID
 	if userID := r.Header.Get("X-User-ID"); userID != "" {
@@ -98,7 +98,7 @@ func getUserID(r *http.Request) string {
 	return "user-001"
 }
 
-// parseIDFromPath 从路径中解析 ID
+// parseIDFromPath 从路径中解析 ID.
 func parseIDFromPath(path, prefix string) string {
 	// 移除前缀，获取 ID
 	id := strings.TrimPrefix(path, prefix)
@@ -111,7 +111,7 @@ func parseIDFromPath(path, prefix string) string {
 	return id
 }
 
-// parseIDsFromPath 从路径中解析多个 ID
+// parseIDsFromPath 从路径中解析多个 ID.
 func parseIDsFromPath(path, prefix string) (string, string) {
 	id := strings.TrimPrefix(path, prefix)
 	id = strings.TrimSuffix(id, "/")
@@ -125,7 +125,7 @@ func parseIDsFromPath(path, prefix string) (string, string) {
 	return "", ""
 }
 
-// handlePlans 处理遗产计划列表和创建
+// handlePlans 处理遗产计划列表和创建.
 func (h *Handlers) handlePlans(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -162,7 +162,7 @@ func (h *Handlers) handlePlans(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handlePlanByID 处理单个遗产计划的 CRUD
+// handlePlanByID 处理单个遗产计划的 CRUD.
 func (h *Handlers) handlePlanByID(w http.ResponseWriter, r *http.Request) {
 	// 解析 ID：/plans/{id}
 	path := strings.TrimPrefix(r.URL.Path, "/api/v1/legacy/plans/")
@@ -226,7 +226,7 @@ func (h *Handlers) handlePlanByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handlePlanSubResource 处理计划子资源
+// handlePlanSubResource 处理计划子资源.
 func (h *Handlers) handlePlanSubResource(w http.ResponseWriter, r *http.Request, planID string, subParts []string) {
 	if len(subParts) == 0 {
 		writeError(w, http.StatusBadRequest, "sub-resource required")
@@ -258,7 +258,7 @@ func (h *Handlers) handlePlanSubResource(w http.ResponseWriter, r *http.Request,
 	}
 }
 
-// handleActivatePlan 处理激活计划
+// handleActivatePlan 处理激活计划.
 func (h *Handlers) handleActivatePlan(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -277,7 +277,7 @@ func (h *Handlers) handleActivatePlan(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleTriggerPlan 处理触发计划
+// handleTriggerPlan 处理触发计划.
 func (h *Handlers) handleTriggerPlan(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -304,7 +304,7 @@ func (h *Handlers) handleTriggerPlan(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleBeneficiaries 处理受益人路由
+// handleBeneficiaries 处理受益人路由.
 func (h *Handlers) handleBeneficiaries(w http.ResponseWriter, r *http.Request) {
 	// 解析 planID 和 beneficiaryID
 	path := strings.TrimPrefix(r.URL.Path, "/api/v1/legacy/plans/beneficiaries/")
@@ -320,7 +320,7 @@ func (h *Handlers) handleBeneficiaries(w http.ResponseWriter, r *http.Request) {
 	h.handleBeneficiariesByPlan(w, r, planID, parts[1:])
 }
 
-// handleBeneficiariesByPlan 处理计划受益人
+// handleBeneficiariesByPlan 处理计划受益人.
 func (h *Handlers) handleBeneficiariesByPlan(w http.ResponseWriter, r *http.Request, planID string, subParts []string) {
 	switch r.Method {
 	case http.MethodGet:
@@ -399,7 +399,7 @@ func (h *Handlers) handleBeneficiariesByPlan(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-// handleAssets 处理资产路由
+// handleAssets 处理资产路由.
 func (h *Handlers) handleAssets(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/v1/legacy/plans/assets/")
 	path = strings.TrimSuffix(path, "/")
@@ -414,7 +414,7 @@ func (h *Handlers) handleAssets(w http.ResponseWriter, r *http.Request) {
 	h.handleAssetsByPlan(w, r, planID, parts[1:])
 }
 
-// handleAssetsByPlan 处理计划资产
+// handleAssetsByPlan 处理计划资产.
 func (h *Handlers) handleAssetsByPlan(w http.ResponseWriter, r *http.Request, planID string, subParts []string) {
 	switch r.Method {
 	case http.MethodGet:
@@ -493,7 +493,7 @@ func (h *Handlers) handleAssetsByPlan(w http.ResponseWriter, r *http.Request, pl
 	}
 }
 
-// handleDecryptAsset 处理解密资产
+// handleDecryptAsset 处理解密资产.
 func (h *Handlers) handleDecryptAsset(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -519,7 +519,7 @@ func (h *Handlers) handleDecryptAsset(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleEmergencyContacts 处理紧急联系人路由
+// handleEmergencyContacts 处理紧急联系人路由.
 func (h *Handlers) handleEmergencyContacts(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/v1/legacy/plans/contacts/")
 	path = strings.TrimSuffix(path, "/")
@@ -534,7 +534,7 @@ func (h *Handlers) handleEmergencyContacts(w http.ResponseWriter, r *http.Reques
 	h.handleEmergencyContactsByPlan(w, r, planID, parts[1:])
 }
 
-// handleEmergencyContactsByPlan 处理计划紧急联系人
+// handleEmergencyContactsByPlan 处理计划紧急联系人.
 func (h *Handlers) handleEmergencyContactsByPlan(w http.ResponseWriter, r *http.Request, planID string, subParts []string) {
 	switch r.Method {
 	case http.MethodGet:
@@ -589,7 +589,7 @@ func (h *Handlers) handleEmergencyContactsByPlan(w http.ResponseWriter, r *http.
 	}
 }
 
-// handleDeathVerification 处理死亡验证
+// handleDeathVerification 处理死亡验证.
 func (h *Handlers) handleDeathVerification(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -621,7 +621,7 @@ func (h *Handlers) handleDeathVerification(w http.ResponseWriter, r *http.Reques
 	})
 }
 
-// handleDeathVerificationByPlan 处理计划死亡验证
+// handleDeathVerificationByPlan 处理计划死亡验证.
 func (h *Handlers) handleDeathVerificationByPlan(w http.ResponseWriter, r *http.Request, planID string) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -647,7 +647,7 @@ func (h *Handlers) handleDeathVerificationByPlan(w http.ResponseWriter, r *http.
 	})
 }
 
-// handleConfirmDeath 处理确认死亡
+// handleConfirmDeath 处理确认死亡.
 func (h *Handlers) handleConfirmDeath(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -681,7 +681,7 @@ func (h *Handlers) handleConfirmDeath(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleConfirmDeathByPlan 处理计划确认死亡
+// handleConfirmDeathByPlan 处理计划确认死亡.
 func (h *Handlers) handleConfirmDeathByPlan(w http.ResponseWriter, r *http.Request, planID string) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -709,7 +709,7 @@ func (h *Handlers) handleConfirmDeathByPlan(w http.ResponseWriter, r *http.Reque
 	})
 }
 
-// handleTimeLock 处理时间锁
+// handleTimeLock 处理时间锁.
 func (h *Handlers) handleTimeLock(w http.ResponseWriter, r *http.Request) {
 	planID := parseIDFromPath(r.URL.Path, "/api/v1/legacy/plans/timelock/")
 	if planID == "" {
@@ -720,7 +720,7 @@ func (h *Handlers) handleTimeLock(w http.ResponseWriter, r *http.Request) {
 	h.handleTimeLockByPlan(w, r, planID)
 }
 
-// handleTimeLockByPlan 处理计划时间锁
+// handleTimeLockByPlan 处理计划时间锁.
 func (h *Handlers) handleTimeLockByPlan(w http.ResponseWriter, r *http.Request, planID string) {
 	switch r.Method {
 	case http.MethodGet:
@@ -778,7 +778,7 @@ func (h *Handlers) handleTimeLockByPlan(w http.ResponseWriter, r *http.Request, 
 	}
 }
 
-// handleHeartbeat 处理心跳
+// handleHeartbeat 处理心跳.
 func (h *Handlers) handleHeartbeat(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -800,7 +800,7 @@ func (h *Handlers) handleHeartbeat(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleHeartbeatStatus 处理心跳状态查询
+// handleHeartbeatStatus 处理心跳状态查询.
 func (h *Handlers) handleHeartbeatStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -825,7 +825,7 @@ func (h *Handlers) handleHeartbeatStatus(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-// handleTrustContacts 处理信任联系人
+// handleTrustContacts 处理信任联系人.
 func (h *Handlers) handleTrustContacts(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -862,7 +862,7 @@ func (h *Handlers) handleTrustContacts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleAccessGrants 处理访问授权
+// handleAccessGrants 处理访问授权.
 func (h *Handlers) handleAccessGrants(w http.ResponseWriter, r *http.Request) {
 	// 解析 grant ID
 	grantID := parseIDFromPath(r.URL.Path, "/api/v1/legacy/access-grants/")
@@ -889,7 +889,7 @@ func (h *Handlers) handleAccessGrants(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleAccessGrantsByPlan 处理计划访问授权
+// handleAccessGrantsByPlan 处理计划访问授权.
 func (h *Handlers) handleAccessGrantsByPlan(w http.ResponseWriter, r *http.Request, planID string) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -904,13 +904,13 @@ func (h *Handlers) handleAccessGrantsByPlan(w http.ResponseWriter, r *http.Reque
 	})
 }
 
-// handleAuditLogs 处理审计日志
+// handleAuditLogs 处理审计日志.
 func (h *Handlers) handleAuditLogs(w http.ResponseWriter, r *http.Request) {
 	planID := parseIDFromPath(r.URL.Path, "/api/v1/legacy/audit-logs/")
 	h.handleAuditLogsByPlan(w, r, planID)
 }
 
-// handleAuditLogsByPlan 处理计划审计日志
+// handleAuditLogsByPlan 处理计划审计日志.
 func (h *Handlers) handleAuditLogsByPlan(w http.ResponseWriter, r *http.Request, planID string) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -930,7 +930,7 @@ func (h *Handlers) handleAuditLogsByPlan(w http.ResponseWriter, r *http.Request,
 	})
 }
 
-// handleCheckInactivity 处理不活跃检查
+// handleCheckInactivity 处理不活跃检查.
 func (h *Handlers) handleCheckInactivity(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -945,7 +945,7 @@ func (h *Handlers) handleCheckInactivity(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-// handleConfig 处理配置
+// handleConfig 处理配置.
 func (h *Handlers) handleConfig(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -974,7 +974,7 @@ func (h *Handlers) handleConfig(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleWillByPlan 处理遗嘱文档
+// handleWillByPlan 处理遗嘱文档.
 func (h *Handlers) handleWillByPlan(w http.ResponseWriter, r *http.Request, planID string) {
 	switch r.Method {
 	case http.MethodGet:

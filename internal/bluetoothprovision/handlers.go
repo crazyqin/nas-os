@@ -10,14 +10,14 @@ import (
 	"github.com/google/uuid"
 )
 
-// Handler 蓝牙配网HTTP处理器
+// Handler 蓝牙配网HTTP处理器.
 type Handler struct {
 	manager     *Manager
 	scanner     *DefaultScanner
 	provisioner *DefaultProvisioner
 }
 
-// NewHandler 创建HTTP处理器
+// NewHandler 创建HTTP处理器.
 func NewHandler(manager *Manager, scanner *DefaultScanner, provisioner *DefaultProvisioner) *Handler {
 	return &Handler{
 		manager:     manager,
@@ -26,7 +26,7 @@ func NewHandler(manager *Manager, scanner *DefaultScanner, provisioner *DefaultP
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	bt := rg.Group("/bluetooth")
 	{
@@ -53,7 +53,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 // @Produce json
 // @Param request body ScanRequest false "扫描配置"
 // @Success 200 {object} Response{data=[]BLEDevice}
-// @Router /api/v1/bluetooth/scan [post]
+// @Router /api/v1/bluetooth/scan [post].
 func (h *Handler) ScanDevices(c *gin.Context) {
 	var req ScanRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -91,7 +91,7 @@ func (h *Handler) ScanDevices(c *gin.Context) {
 	})
 }
 
-// ScanStatus 获取扫描状态
+// ScanStatus 获取扫描状态.
 func (h *Handler) ScanStatus(c *gin.Context) {
 	devices := h.scanner.GetDevices()
 	c.JSON(http.StatusOK, Response{
@@ -104,7 +104,7 @@ func (h *Handler) ScanStatus(c *gin.Context) {
 	})
 }
 
-// StopScan 停止扫描
+// StopScan 停止扫描.
 func (h *Handler) StopScan(c *gin.Context) {
 	if err := h.scanner.StopScan(); err != nil {
 		c.JSON(http.StatusBadRequest, Response{
@@ -128,7 +128,7 @@ func (h *Handler) StopScan(c *gin.Context) {
 // @Produce json
 // @Param request body ProvisionRequest true "配网请求"
 // @Success 200 {object} Response{data=ProvisionSession}
-// @Router /api/v1/bluetooth/provision [post]
+// @Router /api/v1/bluetooth/provision [post].
 func (h *Handler) StartProvision(c *gin.Context) {
 	var req ProvisionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -163,7 +163,7 @@ func (h *Handler) StartProvision(c *gin.Context) {
 	})
 }
 
-// GetProvisionStatus 获取配网状态
+// GetProvisionStatus 获取配网状态.
 func (h *Handler) GetProvisionStatus(c *gin.Context) {
 	sessionID := c.Param("sessionId")
 	if sessionID == "" {
@@ -189,7 +189,7 @@ func (h *Handler) GetProvisionStatus(c *gin.Context) {
 	})
 }
 
-// CancelProvision 取消配网
+// CancelProvision 取消配网.
 func (h *Handler) CancelProvision(c *gin.Context) {
 	sessionID := c.Param("sessionId")
 	if sessionID == "" {
@@ -214,7 +214,7 @@ func (h *Handler) CancelProvision(c *gin.Context) {
 	})
 }
 
-// GetNetworks 获取已保存的网络列表
+// GetNetworks 获取已保存的网络列表.
 func (h *Handler) GetNetworks(c *gin.Context) {
 	h.manager.mu.RLock()
 	networks := make([]WiFiConfig, len(h.manager.networks))
@@ -227,7 +227,7 @@ func (h *Handler) GetNetworks(c *gin.Context) {
 	})
 }
 
-// SaveNetwork 保存网络配置
+// SaveNetwork 保存网络配置.
 func (h *Handler) SaveNetwork(c *gin.Context) {
 	var config WiFiConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -268,7 +268,7 @@ func (h *Handler) SaveNetwork(c *gin.Context) {
 	})
 }
 
-// DeleteNetwork 删除网络配置
+// DeleteNetwork 删除网络配置.
 func (h *Handler) DeleteNetwork(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -306,7 +306,7 @@ func (h *Handler) DeleteNetwork(c *gin.Context) {
 // @Produce json
 // @Param limit query int false "返回数量限制" default(20)
 // @Success 200 {object} Response{data=[]ProvisionHistory}
-// @Router /api/v1/bluetooth/history [get]
+// @Router /api/v1/bluetooth/history [get].
 func (h *Handler) GetHistory(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "20")
 	limit, err := strconv.Atoi(limitStr)
@@ -329,7 +329,7 @@ func (h *Handler) GetHistory(c *gin.Context) {
 	})
 }
 
-// ClearHistory 清空配网历史
+// ClearHistory 清空配网历史.
 func (h *Handler) ClearHistory(c *gin.Context) {
 	if err := h.provisioner.ClearHistory(); err != nil {
 		c.JSON(http.StatusInternalServerError, Response{
@@ -345,7 +345,7 @@ func (h *Handler) ClearHistory(c *gin.Context) {
 	})
 }
 
-// SubscribeEvents SSE事件订阅
+// SubscribeEvents SSE事件订阅.
 func (h *Handler) SubscribeEvents(c *gin.Context) {
 	subscriberID := uuid.New().String()
 	events := h.manager.Subscribe(subscriberID)
@@ -373,26 +373,26 @@ func (h *Handler) SubscribeEvents(c *gin.Context) {
 	}
 }
 
-// Response 统一API响应结构
+// Response 统一API响应结构.
 type Response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message,omitempty"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// SetDevice 设置扫描器中的设备（用于测试）
+// SetDevice 设置扫描器中的设备（用于测试）.
 func (h *Handler) SetDevice(device *BLEDevice) {
 	h.scanner.mu.Lock()
 	defer h.scanner.mu.Unlock()
 	h.scanner.devices[device.ID] = device
 }
 
-// GetProvisionSession 获取配网会话（用于测试）
+// GetProvisionSession 获取配网会话（用于测试）.
 func (h *Handler) GetProvisionSession(sessionID string) (*ProvisionSession, error) {
 	return h.provisioner.GetSession(sessionID)
 }
 
-// SetProvisionSession 设置配网会话（用于测试）
+// SetProvisionSession 设置配网会话（用于测试）.
 func (h *Handler) SetProvisionSession(session *ProvisionSession) {
 	h.provisioner.mu.Lock()
 	defer h.provisioner.mu.Unlock()

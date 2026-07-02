@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler 动态照片 HTTP 处理器
+// Handler 动态照片 HTTP 处理器.
 type Handler struct {
 	parser *Parser
 }
 
-// NewHandler 创建动态照片处理器
+// NewHandler 创建动态照片处理器.
 func NewHandler(parser *Parser) *Handler {
 	return &Handler{parser: parser}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(api *gin.RouterGroup) {
 	mp := api.Group("/motionphoto")
 	{
@@ -31,7 +31,7 @@ func (h *Handler) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// handleParse 解析动态照片
+// handleParse 解析动态照片.
 func (h *Handler) handleParse(c *gin.Context) {
 	var req struct {
 		FilePath string `json:"filePath" binding:"required"`
@@ -62,7 +62,7 @@ func (h *Handler) handleParse(c *gin.Context) {
 	})
 }
 
-// handleExtract 提取静态帧和视频
+// handleExtract 提取静态帧和视频.
 func (h *Handler) handleExtract(c *gin.Context) {
 	var req struct {
 		ID       string `json:"id" binding:"required"`
@@ -102,7 +102,7 @@ func (h *Handler) handleExtract(c *gin.Context) {
 	})
 }
 
-// handleParseAndExtract 解析并提取
+// handleParseAndExtract 解析并提取.
 func (h *Handler) handleParseAndExtract(c *gin.Context) {
 	var req struct {
 		FilePath string `json:"filePath" binding:"required"`
@@ -132,7 +132,7 @@ func (h *Handler) handleParseAndExtract(c *gin.Context) {
 	})
 }
 
-// handleDetectVendor 检测文件厂商类型
+// handleDetectVendor 检测文件厂商类型.
 func (h *Handler) handleDetectVendor(c *gin.Context) {
 	var req struct {
 		FilePath string `json:"filePath" binding:"required"`
@@ -154,7 +154,7 @@ func (h *Handler) handleDetectVendor(c *gin.Context) {
 	})
 }
 
-// handleConvertWebP 将静态帧转换为 WebP
+// handleConvertWebP 将静态帧转换为 WebP.
 func (h *Handler) handleConvertWebP(c *gin.Context) {
 	var req struct {
 		PhotoPath string   `json:"photoPath" binding:"required"`
@@ -194,7 +194,7 @@ func (h *Handler) handleConvertWebP(c *gin.Context) {
 	})
 }
 
-// handleStatus 返回模块状态
+// handleStatus 返回模块状态.
 func (h *Handler) handleStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"module":    "motionphoto",

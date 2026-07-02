@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// ConfigManager 配置管理器
+// ConfigManager 配置管理器.
 type ConfigManager struct {
 	config     LBConfig
 	configPath string
@@ -19,27 +19,27 @@ type ConfigManager struct {
 	mu sync.RWMutex
 }
 
-// ConfigWatcher 配置变更监听器
+// ConfigWatcher 配置变更监听器.
 type ConfigWatcher interface {
 	OnConfigChange(config LBConfig)
 }
 
-// ConfigWatcherFunc 配置变更监听函数
+// ConfigWatcherFunc 配置变更监听函数.
 type ConfigWatcherFunc struct {
 	fn func(config LBConfig)
 }
 
-// NewConfigWatcherFunc 创建配置变更监听函数
+// NewConfigWatcherFunc 创建配置变更监听函数.
 func NewConfigWatcherFunc(fn func(config LBConfig)) *ConfigWatcherFunc {
 	return &ConfigWatcherFunc{fn: fn}
 }
 
-// OnConfigChange 配置变更回调
+// OnConfigChange 配置变更回调.
 func (f *ConfigWatcherFunc) OnConfigChange(config LBConfig) {
 	f.fn(config)
 }
 
-// NewConfigManager 创建配置管理器
+// NewConfigManager 创建配置管理器.
 func NewConfigManager(configPath string, initialConfig LBConfig) *ConfigManager {
 	return &ConfigManager{
 		config:     initialConfig,
@@ -48,14 +48,14 @@ func NewConfigManager(configPath string, initialConfig LBConfig) *ConfigManager 
 	}
 }
 
-// GetConfig 获取当前配置
+// GetConfig 获取当前配置.
 func (cm *ConfigManager) GetConfig() LBConfig {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 	return cm.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (cm *ConfigManager) UpdateConfig(config LBConfig) {
 	cm.mu.Lock()
 	cm.config = config
@@ -66,14 +66,14 @@ func (cm *ConfigManager) UpdateConfig(config LBConfig) {
 	cm.notifyWatchers(config)
 }
 
-// AddWatcher 添加配置监听器
+// AddWatcher 添加配置监听器.
 func (cm *ConfigManager) AddWatcher(watcher ConfigWatcher) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	cm.watchers = append(cm.watchers, watcher)
 }
 
-// RemoveWatcher 移除配置监听器
+// RemoveWatcher 移除配置监听器.
 func (cm *ConfigManager) RemoveWatcher(watcher ConfigWatcher) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -86,7 +86,7 @@ func (cm *ConfigManager) RemoveWatcher(watcher ConfigWatcher) {
 	}
 }
 
-// notifyWatchers 通知所有监听器
+// notifyWatchers 通知所有监听器.
 func (cm *ConfigManager) notifyWatchers(config LBConfig) {
 	cm.mu.RLock()
 	watchers := make([]ConfigWatcher, len(cm.watchers))
@@ -98,7 +98,7 @@ func (cm *ConfigManager) notifyWatchers(config LBConfig) {
 	}
 }
 
-// LoadFromFile 从文件加载配置
+// LoadFromFile 从文件加载配置.
 func (cm *ConfigManager) LoadFromFile() error {
 	if cm.configPath == "" {
 		return fmt.Errorf("config path not set")
@@ -118,7 +118,7 @@ func (cm *ConfigManager) LoadFromFile() error {
 	return nil
 }
 
-// SaveToFile 保存配置到文件
+// SaveToFile 保存配置到文件.
 func (cm *ConfigManager) SaveToFile() error {
 	if cm.configPath == "" {
 		return fmt.Errorf("config path not set")
@@ -140,12 +140,12 @@ func (cm *ConfigManager) SaveToFile() error {
 	return nil
 }
 
-// StartWatching 启动配置文件监听
+// StartWatching 启动配置文件监听.
 func (cm *ConfigManager) StartWatching(interval time.Duration) {
 	go cm.watchLoop(interval)
 }
 
-// watchLoop 配置文件监听循环
+// watchLoop 配置文件监听循环.
 func (cm *ConfigManager) watchLoop(interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
@@ -178,7 +178,7 @@ func (cm *ConfigManager) watchLoop(interval time.Duration) {
 // 配置热加载器
 // ============================================================
 
-// HotReloader 配置热加载器
+// HotReloader 配置热加载器.
 type HotReloader struct {
 	configManager *ConfigManager
 	balancer      *Balancer
@@ -186,7 +186,7 @@ type HotReloader struct {
 	rateLimiter   RateLimiter
 }
 
-// NewHotReloader 创建配置热加载器
+// NewHotReloader 创建配置热加载器.
 func NewHotReloader(configManager *ConfigManager, balancer *Balancer, healthChecker *HealthChecker, rateLimiter RateLimiter) *HotReloader {
 	return &HotReloader{
 		configManager: configManager,
@@ -196,18 +196,18 @@ func NewHotReloader(configManager *ConfigManager, balancer *Balancer, healthChec
 	}
 }
 
-// Start 启动热加载
+// Start 启动热加载.
 func (hr *HotReloader) Start() {
 	// 注册配置变更监听
 	hr.configManager.AddWatcher(NewConfigWatcherFunc(hr.onConfigChange))
 }
 
-// Stop 停止热加载
+// Stop 停止热加载.
 func (hr *HotReloader) Stop() {
 	hr.configManager.RemoveWatcher(NewConfigWatcherFunc(hr.onConfigChange))
 }
 
-// onConfigChange 配置变更处理
+// onConfigChange 配置变更处理.
 func (hr *HotReloader) onConfigChange(config LBConfig) {
 	// 更新负载均衡算法
 	hr.balancer.UpdateAlgorithm(config.Algorithm)
@@ -229,7 +229,7 @@ func (hr *HotReloader) onConfigChange(config LBConfig) {
 	fmt.Println("Configuration hot-reloaded successfully")
 }
 
-// updateBackends 更新后端列表
+// updateBackends 更新后端列表.
 func (hr *HotReloader) updateBackends(configs []BackendConfig) {
 	// 获取当前后端列表
 	currentBackends := hr.balancer.GetBackends()
@@ -276,7 +276,7 @@ func (hr *HotReloader) updateBackends(configs []BackendConfig) {
 	}
 }
 
-// SetConfig 设置健康检查配置
+// SetConfig 设置健康检查配置.
 func (hc *HealthChecker) SetConfig(config HealthCheckConfig) {
 	hc.mu.Lock()
 	defer hc.mu.Unlock()
@@ -287,7 +287,7 @@ func (hc *HealthChecker) SetConfig(config HealthCheckConfig) {
 // 配置验证
 // ============================================================
 
-// ValidateConfig 验证配置
+// ValidateConfig 验证配置.
 func ValidateConfig(config LBConfig) error {
 	// 验证监听地址
 	if config.ListenAddr == "" {
@@ -359,7 +359,7 @@ func ValidateConfig(config LBConfig) error {
 	return nil
 }
 
-// MergeConfig 合并配置
+// MergeConfig 合并配置.
 func MergeConfig(base, override LBConfig) LBConfig {
 	result := base
 

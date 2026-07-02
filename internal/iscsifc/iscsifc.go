@@ -12,7 +12,7 @@ import (
 
 // ========== iSCSI 目标管理 ==========
 
-// ISCSITarget iSCSI 目标
+// ISCSITarget iSCSI 目标.
 type ISCSITarget struct {
 	ID                 string            `json:"id"`
 	Name               string            `json:"name"`
@@ -36,7 +36,7 @@ type ISCSITarget struct {
 	UpdatedAt          time.Time         `json:"updated_at"`
 }
 
-// AuthMethod 认证方法
+// AuthMethod 认证方法.
 type AuthMethod string
 
 const (
@@ -45,7 +45,7 @@ const (
 	AuthMethodCHAPMutual AuthMethod = "chap_mutual"
 )
 
-// TargetStats 目标统计
+// TargetStats 目标统计.
 type TargetStats struct {
 	ActiveSessions    int       `json:"active_sessions"`
 	TotalSessions     int64     `json:"total_sessions"`
@@ -58,7 +58,7 @@ type TargetStats struct {
 
 // ========== iSCSI 门户管理 ==========
 
-// ISCSIPortal iSCSI 门户
+// ISCSIPortal iSCSI 门户.
 type ISCSIPortal struct {
 	ID             string            `json:"id"`
 	Tag            int               `json:"tag"`
@@ -72,7 +72,7 @@ type ISCSIPortal struct {
 	CreatedAt      time.Time         `json:"created_at"`
 }
 
-// PortalProtocol 门户协议
+// PortalProtocol 门户协议.
 type PortalProtocol string
 
 const (
@@ -82,7 +82,7 @@ const (
 
 // ========== iSCSI LUN 管理 ==========
 
-// ISCSILun iSCSI LUN
+// ISCSILun iSCSI LUN.
 type ISCSILun struct {
 	ID              string            `json:"id"`
 	TargetID        string            `json:"target_id"`
@@ -104,7 +104,7 @@ type ISCSILun struct {
 	UpdatedAt       time.Time         `json:"updated_at"`
 }
 
-// LUNType LUN 类型
+// LUNType LUN 类型.
 type LUNType string
 
 const (
@@ -114,7 +114,7 @@ const (
 	LUNTypePassthrough LUNType = "passthrough"
 )
 
-// LUNStats LUN 统计
+// LUNStats LUN 统计.
 type LUNStats struct {
 	ReadOps        int64     `json:"read_ops"`
 	WriteOps       int64     `json:"write_ops"`
@@ -128,7 +128,7 @@ type LUNStats struct {
 
 // ========== 光纤通道管理 ==========
 
-// FCPort 光纤通道端口
+// FCPort 光纤通道端口.
 type FCPort struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -147,7 +147,7 @@ type FCPort struct {
 	CreatedAt     time.Time         `json:"created_at"`
 }
 
-// FCPortType FC 端口类型
+// FCPortType FC 端口类型.
 type FCPortType string
 
 const (
@@ -158,7 +158,7 @@ const (
 	FCPortTypeFLPort FCPortType = "fl_port" // 交换环路
 )
 
-// FCPortState FC 端口状态
+// FCPortState FC 端口状态.
 type FCPortState string
 
 const (
@@ -169,7 +169,7 @@ const (
 	FCPortStateDiag    FCPortState = "diag"
 )
 
-// FCTopology FC 拓扑
+// FCTopology FC 拓扑.
 type FCTopology string
 
 const (
@@ -178,7 +178,7 @@ const (
 	FCTopologySwitchedFabric FCTopology = "switched_fabric"
 )
 
-// FCPortStats FC 端口统计
+// FCPortStats FC 端口统计.
 type FCPortStats struct {
 	RxBytes       int64     `json:"rx_bytes"`
 	TxBytes       int64     `json:"tx_bytes"`
@@ -192,7 +192,7 @@ type FCPortStats struct {
 
 // ========== iSCSI/FC 管理器 ==========
 
-// ISCSIFCManager iSCSI/FC 管理器
+// ISCSIFCManager iSCSI/FC 管理器.
 type ISCSIFCManager struct {
 	mu      sync.RWMutex
 	targets map[string]*ISCSITarget
@@ -203,7 +203,7 @@ type ISCSIFCManager struct {
 	stats   ManagerStats
 }
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
 	ISCSIEnabled       bool       `json:"iscsi_enabled"`
 	FCEnabled          bool       `json:"fc_enabled"`
@@ -221,7 +221,7 @@ type ManagerConfig struct {
 	FirstBurstLength   int        `json:"first_burst_length"`
 }
 
-// ManagerStats 管理器统计
+// ManagerStats 管理器统计.
 type ManagerStats struct {
 	TotalTargets      int       `json:"total_targets"`
 	EnabledTargets    int       `json:"enabled_targets"`
@@ -235,7 +235,7 @@ type ManagerStats struct {
 	LastActivity      time.Time `json:"last_activity"`
 }
 
-// NewISCSIFCManager 创建 iSCSI/FC 管理器
+// NewISCSIFCManager 创建 iSCSI/FC 管理器.
 func NewISCSIFCManager(config ManagerConfig) *ISCSIFCManager {
 	// 设置默认值
 	if config.DefaultPortalPort == 0 {
@@ -277,7 +277,7 @@ func NewISCSIFCManager(config ManagerConfig) *ISCSIFCManager {
 
 // ========== iSCSI 目标管理 ==========
 
-// CreateTarget 创建 iSCSI 目标
+// CreateTarget 创建 iSCSI 目标.
 func (m *ISCSIFCManager) CreateTarget(target ISCSITarget) (*ISCSITarget, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -325,7 +325,7 @@ func (m *ISCSIFCManager) CreateTarget(target ISCSITarget) (*ISCSITarget, error) 
 	return &target, nil
 }
 
-// DeleteTarget 删除 iSCSI 目标
+// DeleteTarget 删除 iSCSI 目标.
 func (m *ISCSIFCManager) DeleteTarget(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -352,7 +352,7 @@ func (m *ISCSIFCManager) DeleteTarget(id string) error {
 	return nil
 }
 
-// GetTarget 获取 iSCSI 目标
+// GetTarget 获取 iSCSI 目标.
 func (m *ISCSIFCManager) GetTarget(id string) (*ISCSITarget, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -365,7 +365,7 @@ func (m *ISCSIFCManager) GetTarget(id string) (*ISCSITarget, error) {
 	return target, nil
 }
 
-// ListTargets 列出所有 iSCSI 目标
+// ListTargets 列出所有 iSCSI 目标.
 func (m *ISCSIFCManager) ListTargets() []*ISCSITarget {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -380,7 +380,7 @@ func (m *ISCSIFCManager) ListTargets() []*ISCSITarget {
 
 // ========== 门户管理 ==========
 
-// CreatePortal 创建门户
+// CreatePortal 创建门户.
 func (m *ISCSIFCManager) CreatePortal(portal ISCSIPortal) (*ISCSIPortal, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -409,7 +409,7 @@ func (m *ISCSIFCManager) CreatePortal(portal ISCSIPortal) (*ISCSIPortal, error) 
 	return &portal, nil
 }
 
-// DeletePortal 删除门户
+// DeletePortal 删除门户.
 func (m *ISCSIFCManager) DeletePortal(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -424,7 +424,7 @@ func (m *ISCSIFCManager) DeletePortal(id string) error {
 	return nil
 }
 
-// ListPortals 列出所有门户
+// ListPortals 列出所有门户.
 func (m *ISCSIFCManager) ListPortals() []*ISCSIPortal {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -439,7 +439,7 @@ func (m *ISCSIFCManager) ListPortals() []*ISCSIPortal {
 
 // ========== LUN 管理 ==========
 
-// CreateLUN 创建 LUN
+// CreateLUN 创建 LUN.
 func (m *ISCSIFCManager) CreateLUN(lun ISCSILun) (*ISCSILun, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -493,7 +493,7 @@ func (m *ISCSIFCManager) CreateLUN(lun ISCSILun) (*ISCSILun, error) {
 	return &lun, nil
 }
 
-// DeleteLUN 删除 LUN
+// DeleteLUN 删除 LUN.
 func (m *ISCSIFCManager) DeleteLUN(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -508,7 +508,7 @@ func (m *ISCSIFCManager) DeleteLUN(id string) error {
 	return nil
 }
 
-// ListLUNs 列出所有 LUN
+// ListLUNs 列出所有 LUN.
 func (m *ISCSIFCManager) ListLUNs() []*ISCSILun {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -521,7 +521,7 @@ func (m *ISCSIFCManager) ListLUNs() []*ISCSILun {
 	return result
 }
 
-// ListLUNsByTarget 列出目标的所有 LUN
+// ListLUNsByTarget 列出目标的所有 LUN.
 func (m *ISCSIFCManager) ListLUNsByTarget(targetID string) []*ISCSILun {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -538,7 +538,7 @@ func (m *ISCSIFCManager) ListLUNsByTarget(targetID string) []*ISCSILun {
 
 // ========== 光纤通道管理 ==========
 
-// RegisterFCPort 注册 FC 端口
+// RegisterFCPort 注册 FC 端口.
 func (m *ISCSIFCManager) RegisterFCPort(port FCPort) (*FCPort, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -569,7 +569,7 @@ func (m *ISCSIFCManager) RegisterFCPort(port FCPort) (*FCPort, error) {
 	return &port, nil
 }
 
-// UnregisterFCPort 注销 FC 端口
+// UnregisterFCPort 注销 FC 端口.
 func (m *ISCSIFCManager) UnregisterFCPort(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -584,7 +584,7 @@ func (m *ISCSIFCManager) UnregisterFCPort(id string) error {
 	return nil
 }
 
-// GetFCPort 获取 FC 端口
+// GetFCPort 获取 FC 端口.
 func (m *ISCSIFCManager) GetFCPort(id string) (*FCPort, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -597,7 +597,7 @@ func (m *ISCSIFCManager) GetFCPort(id string) (*FCPort, error) {
 	return port, nil
 }
 
-// ListFCPorts 列出所有 FC 端口
+// ListFCPorts 列出所有 FC 端口.
 func (m *ISCSIFCManager) ListFCPorts() []*FCPort {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -610,7 +610,7 @@ func (m *ISCSIFCManager) ListFCPorts() []*FCPort {
 	return result
 }
 
-// UpdateFCPortState 更新 FC 端口状态
+// UpdateFCPortState 更新 FC 端口状态.
 func (m *ISCSIFCManager) UpdateFCPortState(id string, state FCPortState) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -629,7 +629,7 @@ func (m *ISCSIFCManager) UpdateFCPortState(id string, state FCPortState) error {
 
 // ========== 辅助方法 ==========
 
-// updateStats 更新统计
+// updateStats 更新统计.
 func (m *ISCSIFCManager) updateStats() {
 	m.stats.TotalTargets = len(m.targets)
 	m.stats.EnabledTargets = 0
@@ -653,14 +653,14 @@ func (m *ISCSIFCManager) updateStats() {
 	}
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *ISCSIFCManager) GetStats() ManagerStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.stats
 }
 
-// SaveConfig 保存配置
+// SaveConfig 保存配置.
 func (m *ISCSIFCManager) SaveConfig(path string) error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -673,7 +673,7 @@ func (m *ISCSIFCManager) SaveConfig(path string) error {
 	return os.WriteFile(path, data, 0640)
 }
 
-// LoadConfig 加载配置
+// LoadConfig 加载配置.
 func (m *ISCSIFCManager) LoadConfig(path string) error {
 	data, err := os.ReadFile(path)
 	if err != nil {

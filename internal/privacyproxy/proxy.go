@@ -18,18 +18,18 @@ import (
 // 设计理念：拦截出站 AI API 请求 → 本地脱敏 → 转发至目标 API → 响应回传
 // =========================================================================
 
-// ProxyServer AI 隐私代理服务器
+// ProxyServer AI 隐私代理服务器.
 type ProxyServer struct {
-	config   *MaskConfig
-	masker   *Masker
-	auditor  *Auditor
-	server   *http.Server
-	mu       sync.RWMutex
-	running  bool
-	client   *http.Client
+	config  *MaskConfig
+	masker  *Masker
+	auditor *Auditor
+	server  *http.Server
+	mu      sync.RWMutex
+	running bool
+	client  *http.Client
 }
 
-// NewProxyServer 创建代理服务器
+// NewProxyServer 创建代理服务器.
 func NewProxyServer(cfg *MaskConfig, masker *Masker, auditor *Auditor) *ProxyServer {
 	if cfg == nil {
 		cfg = DefaultMaskConfig()
@@ -62,7 +62,7 @@ func NewProxyServer(cfg *MaskConfig, masker *Masker, auditor *Auditor) *ProxySer
 	}
 }
 
-// Start 启动代理服务器
+// Start 启动代理服务器.
 func (p *ProxyServer) Start() error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -90,7 +90,7 @@ func (p *ProxyServer) Start() error {
 	return nil
 }
 
-// Stop 停止代理服务器
+// Stop 停止代理服务器.
 func (p *ProxyServer) Stop() error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -103,7 +103,7 @@ func (p *ProxyServer) Stop() error {
 	return p.server.Shutdown(ctx)
 }
 
-// IsRunning 返回服务器运行状态
+// IsRunning 返回服务器运行状态.
 func (p *ProxyServer) IsRunning() bool {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -114,14 +114,14 @@ func (p *ProxyServer) IsRunning() bool {
 // HTTP 处理函数
 // =========================================================================
 
-// handleHealth 健康检查
+// handleHealth 健康检查.
 func (p *ProxyServer) handleHealth(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"status":"ok","service":"privacyproxy"}`))
 }
 
-// handleRules 规则管理接口
+// handleRules 规则管理接口.
 func (p *ProxyServer) handleRules(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -132,7 +132,7 @@ func (p *ProxyServer) handleRules(w http.ResponseWriter, r *http.Request) {
 			if i > 0 {
 				w.Write([]byte(","))
 			}
-			w.Write([]byte(fmt.Sprintf(`{"id":"%s","name":"%s","enabled":%t}`, rule.ID, rule.Name, rule.Enabled)))
+			fmt.Fprintf(w, `{"id":"%s","name":"%s","enabled":%t}`, rule.ID, rule.Name, rule.Enabled)
 		}
 		w.Write([]byte("]"))
 	default:
@@ -140,7 +140,7 @@ func (p *ProxyServer) handleRules(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleProxy 核心代理处理
+// handleProxy 核心代理处理.
 func (p *ProxyServer) handleProxy(w http.ResponseWriter, r *http.Request) {
 	// 1. 解析目标 URL
 	targetURL, err := p.extractTargetURL(r)
@@ -231,8 +231,8 @@ func (p *ProxyServer) handleProxy(w http.ResponseWriter, r *http.Request) {
 
 // extractTargetURL 从请求中提取目标 URL
 // 支持两种模式：
-//   1. 标准 HTTP 代理模式：请求行为完整 URL
-//   2. 反向代理模式：通过 X-Target-URL 头指定目标
+//  1. 标准 HTTP 代理模式：请求行为完整 URL
+//  2. 反向代理模式：通过 X-Target-URL 头指定目标
 func (p *ProxyServer) extractTargetURL(r *http.Request) (*url.URL, error) {
 	// 模式 1：X-Target-URL 头
 	if target := r.Header.Get("X-Target-URL"); target != "" {
@@ -265,9 +265,9 @@ func (p *ProxyServer) extractTargetURL(r *http.Request) (*url.URL, error) {
 				path += parts[1]
 			}
 			u := &url.URL{
-				Scheme: "https",
-				Host:   target,
-				Path:   path,
+				Scheme:   "https",
+				Host:     target,
+				Path:     path,
 				RawQuery: r.URL.RawQuery,
 			}
 			return u, nil
@@ -277,7 +277,7 @@ func (p *ProxyServer) extractTargetURL(r *http.Request) (*url.URL, error) {
 	return nil, fmt.Errorf("无法确定目标 URL，请使用 X-Target-URL 头或标准代理模式")
 }
 
-// providerToHost 将提供商名称映射到 API 主机
+// providerToHost 将提供商名称映射到 API 主机.
 func (p *ProxyServer) providerToHost(provider string) string {
 	switch strings.ToLower(provider) {
 	case "openai":
@@ -297,7 +297,7 @@ func (p *ProxyServer) providerToHost(provider string) string {
 	}
 }
 
-// isDomainAllowed 检查域名是否允许转发
+// isDomainAllowed 检查域名是否允许转发.
 func (p *ProxyServer) isDomainAllowed(host string) bool {
 	// 去掉端口号
 	if h, _, err := net.SplitHostPort(host); err == nil {
@@ -324,7 +324,7 @@ func (p *ProxyServer) isDomainAllowed(host string) bool {
 	return false
 }
 
-// matchDomain 域名匹配（支持通配符前缀 *.example.com）
+// matchDomain 域名匹配（支持通配符前缀 *.example.com）.
 func matchDomain(host, pattern string) bool {
 	if strings.HasPrefix(pattern, "*.") {
 		suffix := pattern[1:] // .example.com
@@ -333,7 +333,7 @@ func matchDomain(host, pattern string) bool {
 	return host == pattern
 }
 
-// isStreamingResponse 判断是否为流式响应
+// isStreamingResponse 判断是否为流式响应.
 func isStreamingResponse(resp *http.Response) bool {
 	contentType := resp.Header.Get("Content-Type")
 	if strings.Contains(contentType, "text/event-stream") {
@@ -345,7 +345,7 @@ func isStreamingResponse(resp *http.Response) bool {
 	return false
 }
 
-// streamResponse 流式转发响应体
+// streamResponse 流式转发响应体.
 func (p *ProxyServer) streamResponse(w http.ResponseWriter, resp *http.Response) {
 	flusher, ok := w.(http.Flusher)
 	if !ok {
@@ -379,7 +379,7 @@ func (p *ProxyServer) streamResponse(w http.ResponseWriter, resp *http.Response)
 	}
 }
 
-// copyHeaders 复制 HTTP 头
+// copyHeaders 复制 HTTP 头.
 func copyHeaders(dst, src http.Header) {
 	for key, values := range src {
 		for _, v := range values {
@@ -388,7 +388,7 @@ func copyHeaders(dst, src http.Header) {
 	}
 }
 
-// generateID 生成简单唯一 ID（时间戳 + 计数器）
+// generateID 生成简单唯一 ID（时间戳 + 计数器）.
 var idCounter uint64
 var idMu sync.Mutex
 

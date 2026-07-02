@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// EventType 变更事件类型
+// EventType 变更事件类型.
 type EventType string
 
 const (
@@ -16,7 +16,7 @@ const (
 	EventRename EventType = "rename" // 文件重命名
 )
 
-// StorageType 存储后端类型
+// StorageType 存储后端类型.
 type StorageType string
 
 const (
@@ -27,7 +27,7 @@ const (
 	StorageMinIO  StorageType = "minio"  // MinIO对象存储
 )
 
-// CompressionType 压缩类型
+// CompressionType 压缩类型.
 type CompressionType string
 
 const (
@@ -38,7 +38,7 @@ const (
 	CompressSnappy CompressionType = "snappy" // Snappy压缩
 )
 
-// ReplicationMode 复制模式
+// ReplicationMode 复制模式.
 type ReplicationMode string
 
 const (
@@ -47,7 +47,7 @@ const (
 	ReplicationSemi  ReplicationMode = "semi"  // 半同步复制
 )
 
-// RetentionMode 保留策略模式
+// RetentionMode 保留策略模式.
 type RetentionMode string
 
 const (
@@ -57,7 +57,7 @@ const (
 	RetentionSmart   RetentionMode = "smart" // 智能保留（综合策略）
 )
 
-// ChangeEvent 变更事件
+// ChangeEvent 变更事件.
 type ChangeEvent struct {
 	ID           string            `json:"id"`                  // 事件唯一标识
 	EventType    EventType         `json:"event_type"`          // 事件类型
@@ -74,7 +74,7 @@ type ChangeEvent struct {
 	Timestamp    time.Time         `json:"timestamp"`           // 事件发生时间
 }
 
-// RecoveryPoint 恢复点（精确到秒级）
+// RecoveryPoint 恢复点（精确到秒级）.
 type RecoveryPoint struct {
 	ID             string            `json:"id"`                  // 恢复点唯一标识
 	Timestamp      time.Time         `json:"timestamp"`           // 恢复点时间
@@ -88,7 +88,7 @@ type RecoveryPoint struct {
 	Metadata       map[string]string `json:"metadata,omitempty"`  // 扩展元数据
 }
 
-// CDPolicy 保护策略（文件类型过滤、目录白名单、大小限制）
+// CDPolicy 保护策略（文件类型过滤、目录白名单、大小限制）.
 type CDPolicy struct {
 	ID                 string          `json:"id"`                    // 策略ID
 	Name               string          `json:"name"`                  // 策略名称
@@ -111,7 +111,7 @@ type CDPolicy struct {
 	UpdatedAt          time.Time       `json:"updated_at"`            // 更新时间
 }
 
-// StorageBackend 存储后端（本地/远程/对象存储）
+// StorageBackend 存储后端（本地/远程/对象存储）.
 type StorageBackend struct {
 	ID          string            `json:"id"`                   // 后端ID
 	Name        string            `json:"name"`                 // 后端名称
@@ -131,7 +131,7 @@ type StorageBackend struct {
 	Metadata    map[string]string `json:"metadata,omitempty"`   // 扩展配置
 }
 
-// RetentionManager 保留策略（按时间/数量/空间）
+// RetentionManager 保留策略（按时间/数量/空间）.
 type RetentionManager struct {
 	ID              string        `json:"id"`               // 保留策略ID
 	Name            string        `json:"name"`             // 策略名称
@@ -145,7 +145,7 @@ type RetentionManager struct {
 	Enabled         bool          `json:"enabled"`          // 是否启用
 }
 
-// PointInTimeRecovery 时间点恢复
+// PointInTimeRecovery 时间点恢复.
 type PointInTimeRecovery struct {
 	ID            string           `json:"id"`                       // 恢复任务ID
 	TargetTime    time.Time        `json:"target_time"`              // 目标恢复时间点
@@ -164,7 +164,7 @@ type PointInTimeRecovery struct {
 	Options       *RecoveryOptions `json:"options,omitempty"`        // 恢复选项
 }
 
-// RecoveryStatus 恢复状态
+// RecoveryStatus 恢复状态.
 type RecoveryStatus string
 
 const (
@@ -175,7 +175,7 @@ const (
 	RecoveryCancelled  RecoveryStatus = "cancelled"   // 已取消
 )
 
-// RecoveryOptions 恢复选项
+// RecoveryOptions 恢复选项.
 type RecoveryOptions struct {
 	Overwrite    bool     `json:"overwrite"`               // 是否覆盖已存在文件
 	PreserveACL  bool     `json:"preserve_acl"`            // 保留ACL权限
@@ -186,7 +186,7 @@ type RecoveryOptions struct {
 	VerifyOnly   bool     `json:"verify_only"`             // 仅验证完整性
 }
 
-// ReplicationManager 异地复制管理
+// ReplicationManager 异地复制管理.
 type ReplicationManager struct {
 	ID             string            `json:"id"`              // 复制管理器ID
 	Name           string            `json:"name"`            // 名称
@@ -203,7 +203,7 @@ type ReplicationManager struct {
 	EncryptData    bool              `json:"encrypt_data"`    // 传输时加密
 }
 
-// ReplicationStatus 复制状态
+// ReplicationStatus 复制状态.
 type ReplicationStatus string
 
 const (
@@ -213,7 +213,7 @@ const (
 	ReplicationPaused  ReplicationStatus = "paused"  // 暂停
 )
 
-// DedupStats 去重统计
+// DedupStats 去重统计.
 type DedupStats struct {
 	TotalChunks     int64   `json:"total_chunks"`     // 总数据块数
 	UniqueChunks    int64   `json:"unique_chunks"`    // 唯一数据块数
@@ -224,7 +224,7 @@ type DedupStats struct {
 	DedupRatio      float64 `json:"dedup_ratio"`      // 去重率
 }
 
-// PerformanceStats 性能统计
+// PerformanceStats 性能统计.
 type PerformanceStats struct {
 	EventsPerSecond float64       `json:"events_per_second"` // 每秒事件数
 	BytesPerSecond  int64         `json:"bytes_per_second"`  // 每秒字节数
@@ -238,7 +238,7 @@ type PerformanceStats struct {
 	LastEventTime   time.Time     `json:"last_event_time"`   // 最后事件时间
 }
 
-// CDPEngine CDP引擎
+// CDPEngine CDP引擎.
 type CDPEngine struct {
 	ID              string              `json:"id"`                    // 引擎ID
 	Name            string              `json:"name"`                  // 引擎名称
@@ -254,7 +254,7 @@ type CDPEngine struct {
 	LastHealthCheck time.Time           `json:"last_health_check"`     // 上次健康检查
 }
 
-// EngineConfig 引擎配置
+// EngineConfig 引擎配置.
 type EngineConfig struct {
 	WatchPaths          []string        `json:"watch_paths"`           // 监控路径列表
 	ExcludePaths        []string        `json:"exclude_paths"`         // 排除路径列表
@@ -271,7 +271,7 @@ type EngineConfig struct {
 	HealthCheckInterval time.Duration   `json:"health_check_interval"` // 健康检查间隔
 }
 
-// EngineStatus 引擎状态
+// EngineStatus 引擎状态.
 type EngineStatus string
 
 const (
@@ -281,7 +281,7 @@ const (
 	EngineStatusPaused  EngineStatus = "paused"  // 暂停
 )
 
-// 预定义错误
+// 预定义错误.
 var (
 	ErrEngineNotRunning      = errors.New("engine is not running")
 	ErrEngineAlreadyRunning  = errors.New("engine is already running")

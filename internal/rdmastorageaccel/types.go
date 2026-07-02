@@ -4,7 +4,7 @@ package rdmastorageaccel
 
 import "time"
 
-// RDMAProtocol RDMA 协议类型
+// RDMAProtocol RDMA 协议类型.
 type RDMAProtocol string
 
 const (
@@ -12,7 +12,7 @@ const (
 	ProtocolIWARP  RDMAProtocol = "iwarp"
 )
 
-// DeviceStatus RDMA 设备状态
+// DeviceStatus RDMA 设备状态.
 type DeviceStatus string
 
 const (
@@ -22,7 +22,7 @@ const (
 	DeviceStatusUnknown  DeviceStatus = "unknown"
 )
 
-// StorageTargetType 存储目标类型
+// StorageTargetType 存储目标类型.
 type StorageTargetType string
 
 const (
@@ -31,7 +31,7 @@ const (
 	TargetTypeNVMe  StorageTargetType = "nvme"
 )
 
-// TargetStatus 存储目标状态
+// TargetStatus 存储目标状态.
 type TargetStatus string
 
 const (
@@ -41,7 +41,7 @@ const (
 	TargetStatusError      TargetStatus = "error"
 )
 
-// ConnectionStatus 连接状态
+// ConnectionStatus 连接状态.
 type ConnectionStatus string
 
 const (
@@ -51,7 +51,7 @@ const (
 	ConnectionStatusError        ConnectionStatus = "error"
 )
 
-// TuningProfileType 性能调优预设类型
+// TuningProfileType 性能调优预设类型.
 type TuningProfileType string
 
 const (
@@ -61,7 +61,7 @@ const (
 	ProfileCustom         TuningProfileType = "custom"
 )
 
-// CongestionAlgorithm 拥塞控制算法
+// CongestionAlgorithm 拥塞控制算法.
 type CongestionAlgorithm string
 
 const (
@@ -71,7 +71,7 @@ const (
 	CongestionNone  CongestionAlgorithm = "none"
 )
 
-// RDMADevice RDMA 设备信息
+// RDMADevice RDMA 设备信息.
 type RDMADevice struct {
 	ID           string       `json:"id"`
 	Name         string       `json:"name"`
@@ -88,7 +88,7 @@ type RDMADevice struct {
 	UpdatedAt    time.Time    `json:"updated_at"`
 }
 
-// RDMAPort RDMA 端口信息
+// RDMAPort RDMA 端口信息.
 type RDMAPort struct {
 	PortNum   int    `json:"port_num"`
 	LID       int    `json:"lid"`
@@ -101,7 +101,7 @@ type RDMAPort struct {
 	CapMask   int    `json:"cap_mask,omitempty"`
 }
 
-// RDMAConfig RDMA 配置
+// RDMAConfig RDMA 配置.
 type RDMAConfig struct {
 	ID                string              `json:"id"`
 	Protocol          RDMAProtocol        `json:"protocol"`
@@ -114,7 +114,7 @@ type RDMAConfig struct {
 	UpdatedAt         time.Time           `json:"updated_at"`
 }
 
-// QoSConfig QoS 配置
+// QoSConfig QoS 配置.
 type QoSConfig struct {
 	Enabled       bool `json:"enabled"`
 	Priority      int  `json:"priority"`        // 0-7
@@ -127,7 +127,7 @@ type QoSConfig struct {
 	RNRRetry      int  `json:"rnr_retry"`       // RNR 重试次数
 }
 
-// NetworkDetection 网络拓扑检测配置
+// NetworkDetection 网络拓扑检测配置.
 type NetworkDetection struct {
 	Enabled          bool `json:"enabled"`
 	AutoDetectMTU    bool `json:"auto_detect_mtu"`
@@ -135,7 +135,7 @@ type NetworkDetection struct {
 	DetectionTimeout int  `json:"detection_timeout"` // 秒
 }
 
-// AdvancedConfig 高级配置
+// AdvancedConfig 高级配置.
 type AdvancedConfig struct {
 	MaxQueuePairs     int  `json:"max_queue_pairs"`
 	MaxCQEntries      int  `json:"max_cq_entries"`
@@ -148,7 +148,7 @@ type AdvancedConfig struct {
 	MaxRDMAReadAtomic int  `json:"max_rdma_read_atomic"`
 }
 
-// StorageTarget 存储目标
+// StorageTarget 存储目标.
 type StorageTarget struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -166,7 +166,7 @@ type StorageTarget struct {
 	UpdatedAt     time.Time         `json:"updated_at"`
 }
 
-// LUNMapping LUN 映射
+// LUNMapping LUN 映射.
 type LUNMapping struct {
 	LUN        int    `json:"lun"`
 	DevicePath string `json:"device_path"`
@@ -176,7 +176,7 @@ type LUNMapping struct {
 	ReadOnly   bool   `json:"read_only"`
 }
 
-// NFSSettings NFS 特定配置
+// NFSSettings NFS 特定配置.
 type NFSSettings struct {
 	Version      string `json:"version"` // "3", "4.0", "4.1", "4.2"
 	ExportPath   string `json:"export_path"`
@@ -185,7 +185,7 @@ type NFSSettings struct {
 	RDMAPort     int    `json:"rdma_port"`
 }
 
-// ISCSISettings iSCSI 特定配置
+// ISCSISettings iSCSI 特定配置.
 type ISCSISettings struct {
 	TargetIQN     string `json:"target_iqn"`
 	InitiatorIQN  string `json:"initiator_iqn"`
@@ -200,7 +200,7 @@ type ISCSISettings struct {
 	RDMAEnabled   bool   `json:"rdma_enabled"`
 }
 
-// PerfMetrics 性能指标
+// PerfMetrics 性能指标.
 type PerfMetrics struct {
 	ID                string    `json:"id"`
 	DeviceID          string    `json:"device_id"`
@@ -223,7 +223,7 @@ type PerfMetrics struct {
 	Timestamp         time.Time `json:"timestamp"`
 }
 
-// ConnectionInfo 连接信息
+// ConnectionInfo 连接信息.
 type ConnectionInfo struct {
 	ID              string           `json:"id"`
 	SourceDeviceID  string           `json:"source_device_id"`
@@ -246,7 +246,7 @@ type ConnectionInfo struct {
 	LastActivity    time.Time        `json:"last_activity"`
 }
 
-// TuningProfile 性能调优预设
+// TuningProfile 性能调优预设.
 type TuningProfile struct {
 	ID          string              `json:"id"`
 	Name        string              `json:"name"`
@@ -263,7 +263,7 @@ type TuningProfile struct {
 	CreatedAt   time.Time           `json:"created_at"`
 }
 
-// BenchmarkConfig 基准测试配置
+// BenchmarkConfig 基准测试配置.
 type BenchmarkConfig struct {
 	ID         string `json:"id"`
 	DeviceID   string `json:"device_id"`
@@ -276,7 +276,7 @@ type BenchmarkConfig struct {
 	ReadWrite  string `json:"read_write"` // "read", "write", "randread", "randwrite", "rw"
 }
 
-// BenchmarkResult 基准测试结果
+// BenchmarkResult 基准测试结果.
 type BenchmarkResult struct {
 	ID                string          `json:"id"`
 	Config            BenchmarkConfig `json:"config"`
@@ -294,7 +294,7 @@ type BenchmarkResult struct {
 	Duration          time.Duration   `json:"duration"`
 }
 
-// HealthCheckResult 健康检查结果
+// HealthCheckResult 健康检查结果.
 type HealthCheckResult struct {
 	DeviceID    string            `json:"device_id"`
 	TargetID    string            `json:"target_id,omitempty"`
@@ -306,14 +306,14 @@ type HealthCheckResult struct {
 	Details     map[string]string `json:"details,omitempty"`
 }
 
-// APIResponse 统一 API 响应格式
+// APIResponse 统一 API 响应格式.
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// DefaultRDMAConfig 默认 RDMA 配置
+// DefaultRDMAConfig 默认 RDMA 配置.
 func DefaultRDMAConfig() *RDMAConfig {
 	return &RDMAConfig{
 		ID:                "default",
@@ -353,7 +353,7 @@ func DefaultRDMAConfig() *RDMAConfig {
 	}
 }
 
-// DefaultTuningProfiles 默认性能调优预设
+// DefaultTuningProfiles 默认性能调优预设.
 func DefaultTuningProfiles() []TuningProfile {
 	return []TuningProfile{
 		{
@@ -434,22 +434,22 @@ func DefaultTuningProfiles() []TuningProfile {
 	}
 }
 
-// IsValidProtocol 检查协议是否有效
+// IsValidProtocol 检查协议是否有效.
 func IsValidProtocol(p RDMAProtocol) bool {
 	return p == ProtocolRoCEv2 || p == ProtocolIWARP
 }
 
-// IsValidTargetType 检查存储目标类型是否有效
+// IsValidTargetType 检查存储目标类型是否有效.
 func IsValidTargetType(t StorageTargetType) bool {
 	return t == TargetTypeISCSI || t == TargetTypeNFS || t == TargetTypeNVMe
 }
 
-// IsValidCongestionAlgorithm 检查拥塞控制算法是否有效
+// IsValidCongestionAlgorithm 检查拥塞控制算法是否有效.
 func IsValidCongestionAlgorithm(a CongestionAlgorithm) bool {
 	return a == CongestionECN || a == CongestionDCTCP || a == CongestionDCQCN || a == CongestionNone
 }
 
-// IsValidProfileType 检查调优预设类型是否有效
+// IsValidProfileType 检查调优预设类型是否有效.
 func IsValidProfileType(p TuningProfileType) bool {
 	return p == ProfileLowLatency || p == ProfileHighThroughput || p == ProfileBalanced || p == ProfileCustom
 }

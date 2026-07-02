@@ -19,7 +19,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// StateSyncer 状态同步器
+// StateSyncer 状态同步器.
 type StateSyncer struct {
 	config     *HAConfig
 	syncQueue  []SyncTask
@@ -32,7 +32,7 @@ type StateSyncer struct {
 	logger     *zap.Logger
 }
 
-// SyncTask 同步任务
+// SyncTask 同步任务.
 type SyncTask struct {
 	ID          string    `json:"id"`
 	Type        SyncType  `json:"type"`
@@ -48,7 +48,7 @@ type SyncTask struct {
 	RetryCount  int       `json:"retry_count"`
 }
 
-// SyncType 同步类型
+// SyncType 同步类型.
 type SyncType string
 
 const (
@@ -61,7 +61,7 @@ const (
 	SyncTypeFullSync    SyncType = "full_sync"    // 全量同步
 )
 
-// SyncStatus 同步状态
+// SyncStatus 同步状态.
 type SyncStatus struct {
 	NodeID          string        `json:"node_id"`
 	LastSync        time.Time     `json:"last_sync"`
@@ -75,7 +75,7 @@ type SyncStatus struct {
 }
 
 // SMBState SMB状态数据
-// 参考 TrueNAS SMB Stateful Failover 的状态结构
+// 参考 TrueNAS SMB Stateful Failover 的状态结构.
 type SMBState struct {
 	Config         *SMBConfigState  `json:"config"`
 	Sessions       []*SMBSession    `json:"sessions"`
@@ -87,7 +87,7 @@ type SMBState struct {
 	LastUpdate     time.Time        `json:"last_update"`
 }
 
-// SMBConfigState SMB配置状态
+// SMBConfigState SMB配置状态.
 type SMBConfigState struct {
 	Workgroup    string            `json:"workgroup"`
 	ServerString string            `json:"server_string"`
@@ -98,7 +98,7 @@ type SMBConfigState struct {
 }
 
 // SMBSession SMB会话状态
-// 参考 TrueNAS 的会话保持机制
+// 参考 TrueNAS 的会话保持机制.
 type SMBSession struct {
 	SessionID       string    `json:"session_id"`
 	Username        string    `json:"username"`
@@ -113,7 +113,7 @@ type SMBSession struct {
 	ServerChallenge []byte    `json:"server_challenge,omitempty"`
 }
 
-// SMBShareState SMB共享状态
+// SMBShareState SMB共享状态.
 type SMBShareState struct {
 	Name              string    `json:"name"`
 	Path              string    `json:"path"`
@@ -123,7 +123,7 @@ type SMBShareState struct {
 	Status            string    `json:"status"`
 }
 
-// SMBLockState SMB锁定状态
+// SMBLockState SMB锁定状态.
 type SMBLockState struct {
 	FileID       string    `json:"file_id"`
 	ShareName    string    `json:"share_name"`
@@ -135,7 +135,7 @@ type SMBLockState struct {
 	ExpiryTime   time.Time `json:"expiry_time,omitempty"`
 }
 
-// SMBOpenFile SMB打开文件状态
+// SMBOpenFile SMB打开文件状态.
 type SMBOpenFile struct {
 	FileID       string    `json:"file_id"`
 	ShareName    string    `json:"share_name"`
@@ -147,7 +147,7 @@ type SMBOpenFile struct {
 	LockCount    int       `json:"lock_count"`
 }
 
-// NewStateSyncer 创建状态同步器
+// NewStateSyncer 创建状态同步器.
 func NewStateSyncer(config *HAConfig, logger *zap.Logger) *StateSyncer {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -161,7 +161,7 @@ func NewStateSyncer(config *HAConfig, logger *zap.Logger) *StateSyncer {
 	}
 }
 
-// Start 启动状态同步器
+// Start 启动状态同步器.
 func (ss *StateSyncer) Start(ctx context.Context) error {
 	ss.ctx, ss.cancel = context.WithCancel(ctx)
 
@@ -189,14 +189,14 @@ func (ss *StateSyncer) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止状态同步器
+// Stop 停止状态同步器.
 func (ss *StateSyncer) Stop() {
 	ss.cancel()
 	ss.wg.Wait()
 	ss.logger.Info("State syncer stopped")
 }
 
-// syncWorkerLoop 同步工作循环
+// syncWorkerLoop 同步工作循环.
 func (ss *StateSyncer) syncWorkerLoop() {
 	defer ss.wg.Done()
 
@@ -213,7 +213,7 @@ func (ss *StateSyncer) syncWorkerLoop() {
 	}
 }
 
-// stateCollectLoop 状态收集循环
+// stateCollectLoop 状态收集循环.
 func (ss *StateSyncer) stateCollectLoop() {
 	defer ss.wg.Done()
 
@@ -248,7 +248,7 @@ func (ss *StateSyncer) stateCollectLoop() {
 	}
 }
 
-// processSyncQueue 处理同步队列
+// processSyncQueue 处理同步队列.
 func (ss *StateSyncer) processSyncQueue() {
 	ss.mu.Lock()
 	if len(ss.syncQueue) == 0 {
@@ -294,7 +294,7 @@ func (ss *StateSyncer) processSyncQueue() {
 	)
 }
 
-// executeSync 执行同步
+// executeSync 执行同步.
 func (ss *StateSyncer) executeSync(task *SyncTask) error {
 	// 收集要同步的数据
 	data, err := ss.collectSyncData(task.Type)
@@ -325,7 +325,7 @@ func (ss *StateSyncer) executeSync(task *SyncTask) error {
 	return nil
 }
 
-// collectSyncData 收集同步数据
+// collectSyncData 收集同步数据.
 func (ss *StateSyncer) collectSyncData(syncType SyncType) ([]byte, error) {
 	switch syncType {
 	case SyncTypeSMBConfig:
@@ -343,7 +343,7 @@ func (ss *StateSyncer) collectSyncData(syncType SyncType) ([]byte, error) {
 	}
 }
 
-// collectLocalSMBState 收集本地 SMB 状态
+// collectLocalSMBState 收集本地 SMB 状态.
 func (ss *StateSyncer) collectLocalSMBState() (*SMBState, error) {
 	state := &SMBState{
 		LastUpdate: time.Now(),
@@ -388,7 +388,7 @@ func (ss *StateSyncer) collectLocalSMBState() (*SMBState, error) {
 	return state, nil
 }
 
-// collectSMBConfig 收集 SMB 配置
+// collectSMBConfig 收集 SMB 配置.
 func (ss *StateSyncer) collectSMBConfig() ([]byte, error) {
 	// 在实际实现中，这里需要读取 smb.conf 文件
 	// 使用 smbstatus 获取当前状态
@@ -412,7 +412,7 @@ func (ss *StateSyncer) collectSMBConfig() ([]byte, error) {
 	return json.Marshal(config)
 }
 
-// collectSMBSessions 收集 SMB 会话
+// collectSMBSessions 收集 SMB 会话.
 func (ss *StateSyncer) collectSMBSessions() ([]byte, error) {
 	// 在实际实现中，使用 smbstatus -S 获取会话信息
 	// 或读取 session.tdb 文件
@@ -430,7 +430,7 @@ func (ss *StateSyncer) collectSMBSessions() ([]byte, error) {
 	return json.Marshal(sessions)
 }
 
-// collectSMBShares 收集 SMB 共享状态
+// collectSMBShares 收集 SMB 共享状态.
 func (ss *StateSyncer) collectSMBShares() ([]byte, error) {
 	shares := make([]*SMBShareState, 0)
 
@@ -439,7 +439,7 @@ func (ss *StateSyncer) collectSMBShares() ([]byte, error) {
 	return json.Marshal(shares)
 }
 
-// collectSMBLocks 收集 SMB 锁定状态
+// collectSMBLocks 收集 SMB 锁定状态.
 func (ss *StateSyncer) collectSMBLocks() ([]byte, error) {
 	locks := make([]*SMBLockState, 0)
 
@@ -449,7 +449,7 @@ func (ss *StateSyncer) collectSMBLocks() ([]byte, error) {
 	return json.Marshal(locks)
 }
 
-// collectFullState 收集完整状态
+// collectFullState 收集完整状态.
 func (ss *StateSyncer) collectFullState() ([]byte, error) {
 	state, err := ss.collectLocalSMBState()
 	if err != nil {
@@ -459,7 +459,7 @@ func (ss *StateSyncer) collectFullState() ([]byte, error) {
 	return json.Marshal(state)
 }
 
-// sendSyncData 发送同步数据到目标节点
+// sendSyncData 发送同步数据到目标节点.
 func (ss *StateSyncer) sendSyncData(peer PeerNode, task *SyncTask) error {
 	ctx, cancel := context.WithTimeout(ss.ctx, ss.config.SyncTimeout)
 	defer cancel()
@@ -496,7 +496,7 @@ func (ss *StateSyncer) sendSyncData(peer PeerNode, task *SyncTask) error {
 	return nil
 }
 
-// ReceiveSyncData 接收同步数据
+// ReceiveSyncData 接收同步数据.
 func (ss *StateSyncer) ReceiveSyncData(task *SyncTask) error {
 	ss.logger.Info("Received sync data",
 		zap.String("type", string(task.Type)),
@@ -520,7 +520,7 @@ func (ss *StateSyncer) ReceiveSyncData(task *SyncTask) error {
 	}
 }
 
-// applySMBConfig 应用 SMB 配置
+// applySMBConfig 应用 SMB 配置.
 func (ss *StateSyncer) applySMBConfig(data []byte) error {
 	var config SMBConfigState
 	if err := json.Unmarshal(data, &config); err != nil {
@@ -536,7 +536,7 @@ func (ss *StateSyncer) applySMBConfig(data []byte) error {
 	return nil
 }
 
-// applySMBSessions 应用 SMB 会话状态
+// applySMBSessions 应用 SMB 会话状态.
 func (ss *StateSyncer) applySMBSessions(data []byte) error {
 	var sessions []*SMBSession
 	if err := json.Unmarshal(data, &sessions); err != nil {
@@ -554,7 +554,7 @@ func (ss *StateSyncer) applySMBSessions(data []byte) error {
 	return nil
 }
 
-// applySMBShares 应用 SMB 共享状态
+// applySMBShares 应用 SMB 共享状态.
 func (ss *StateSyncer) applySMBShares(data []byte) error {
 	var shares []*SMBShareState
 	if err := json.Unmarshal(data, &shares); err != nil {
@@ -567,7 +567,7 @@ func (ss *StateSyncer) applySMBShares(data []byte) error {
 	return nil
 }
 
-// applySMBLocks 应用 SMB 锁定状态
+// applySMBLocks 应用 SMB 锁定状态.
 func (ss *StateSyncer) applySMBLocks(data []byte) error {
 	var locks []*SMBLockState
 	if err := json.Unmarshal(data, &locks); err != nil {
@@ -585,7 +585,7 @@ func (ss *StateSyncer) applySMBLocks(data []byte) error {
 	return nil
 }
 
-// applyFullState 应用完整状态
+// applyFullState 应用完整状态.
 func (ss *StateSyncer) applyFullState(data []byte) error {
 	var state SMBState
 	if err := json.Unmarshal(data, &state); err != nil {
@@ -617,7 +617,7 @@ func (ss *StateSyncer) applyFullState(data []byte) error {
 	return nil
 }
 
-// EnqueueSyncTask 添加同步任务到队列
+// EnqueueSyncTask 添加同步任务到队列.
 func (ss *StateSyncer) EnqueueSyncTask(task SyncTask) {
 	ss.mu.Lock()
 	defer ss.mu.Unlock()
@@ -630,7 +630,7 @@ func (ss *StateSyncer) EnqueueSyncTask(task SyncTask) {
 	// })
 }
 
-// updateProgress 更新进度
+// updateProgress 更新进度.
 func (ss *StateSyncer) updateProgress() {
 	if len(ss.syncQueue) == 0 {
 		ss.progress = 100.0
@@ -640,21 +640,21 @@ func (ss *StateSyncer) updateProgress() {
 	}
 }
 
-// Progress 获取同步进度
+// Progress 获取同步进度.
 func (ss *StateSyncer) Progress() float64 {
 	ss.mu.RLock()
 	defer ss.mu.RUnlock()
 	return ss.progress
 }
 
-// GetSyncStatus 获取同步状态
+// GetSyncStatus 获取同步状态.
 func (ss *StateSyncer) GetSyncStatus(nodeID string) *SyncStatus {
 	ss.mu.RLock()
 	defer ss.mu.RUnlock()
 	return ss.syncStatus[nodeID]
 }
 
-// GetAllSyncStatus 获取所有同步状态
+// GetAllSyncStatus 获取所有同步状态.
 func (ss *StateSyncer) GetAllSyncStatus() map[string]*SyncStatus {
 	ss.mu.RLock()
 	defer ss.mu.RUnlock()
@@ -666,7 +666,7 @@ func (ss *StateSyncer) GetAllSyncStatus() map[string]*SyncStatus {
 	return result
 }
 
-// updateSyncStatus 更新同步状态
+// updateSyncStatus 更新同步状态.
 func (ss *StateSyncer) updateSyncStatus(nodeID string, success bool) {
 	ss.mu.Lock()
 	defer ss.mu.Unlock()
@@ -689,7 +689,7 @@ func (ss *StateSyncer) updateSyncStatus(nodeID string, success bool) {
 	}
 }
 
-// saveLocalState 保存本地状态
+// saveLocalState 保存本地状态.
 func (ss *StateSyncer) saveLocalState(state *SMBState) error {
 	data, err := json.MarshalIndent(state, "", "  ")
 	if err != nil {
@@ -700,7 +700,7 @@ func (ss *StateSyncer) saveLocalState(state *SMBState) error {
 	return os.WriteFile(stateFile, data, 0600)
 }
 
-// loadLocalState 加载本地状态
+// loadLocalState 加载本地状态.
 func (ss *StateSyncer) loadLocalState() (*SMBState, error) {
 	stateFile := filepath.Join(ss.config.DataDir, "smb_state.json")
 

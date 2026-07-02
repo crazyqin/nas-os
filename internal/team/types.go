@@ -8,7 +8,7 @@ import (
 
 // ========== 团队管理 ==========
 
-// Team 团队信息
+// Team 团队信息.
 type Team struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -19,7 +19,7 @@ type Team struct {
 	Settings    TeamSettings `json:"settings,omitempty"`
 }
 
-// TeamSettings 团队设置
+// TeamSettings 团队设置.
 type TeamSettings struct {
 	MaxMembers       int   `json:"max_members,omitempty"`        // 最大成员数
 	AllowPublicShare bool  `json:"allow_public_share,omitempty"` // 允许公开分享
@@ -27,7 +27,7 @@ type TeamSettings struct {
 	DefaultQuota     int64 `json:"default_quota,omitempty"`      // 默认配额(字节)
 }
 
-// TeamMember 团队成员
+// TeamMember 团队成员.
 type TeamMember struct {
 	TeamID    string     `json:"team_id"`
 	UserID    string     `json:"user_id"`
@@ -37,7 +37,7 @@ type TeamMember struct {
 	InvitedBy string     `json:"invited_by,omitempty"`
 }
 
-// MemberRole 成员角色
+// MemberRole 成员角色.
 type MemberRole string
 
 const (
@@ -48,17 +48,17 @@ const (
 	RoleGuest  MemberRole = "guest"  // 访客
 )
 
-// CanManage 检查角色是否有管理权限
+// CanManage 检查角色是否有管理权限.
 func (r MemberRole) CanManage() bool {
 	return r == RoleOwner || r == RoleAdmin
 }
 
-// CanEdit 检查角色是否有编辑权限
+// CanEdit 检查角色是否有编辑权限.
 func (r MemberRole) CanEdit() bool {
 	return r == RoleOwner || r == RoleAdmin || r == RoleEditor
 }
 
-// TeamInput 创建/更新团队输入
+// TeamInput 创建/更新团队输入.
 type TeamInput struct {
 	Name        string       `json:"name" binding:"required"`
 	Description string       `json:"description"`
@@ -66,7 +66,7 @@ type TeamInput struct {
 	Settings    TeamSettings `json:"settings,omitempty"`
 }
 
-// MemberInput 添加成员输入
+// MemberInput 添加成员输入.
 type MemberInput struct {
 	UserID string     `json:"user_id" binding:"required"`
 	Role   MemberRole `json:"role"`
@@ -74,7 +74,7 @@ type MemberInput struct {
 
 // ========== 团队文件夹 ==========
 
-// TeamFolder 团队文件夹
+// TeamFolder 团队文件夹.
 type TeamFolder struct {
 	ID          string            `json:"id"`
 	TeamID      string            `json:"team_id"`
@@ -89,13 +89,13 @@ type TeamFolder struct {
 	UsedSize    int64             `json:"used_size"`       // 已使用(字节)
 }
 
-// FolderPermissions 文件夹权限
+// FolderPermissions 文件夹权限.
 type FolderPermissions struct {
 	DefaultRole MemberRole            `json:"default_role"`        // 默认角色
 	Overrides   map[string]MemberRole `json:"overrides,omitempty"` // 用户特定权限
 }
 
-// FolderInput 创建/更新文件夹输入
+// FolderInput 创建/更新文件夹输入.
 type FolderInput struct {
 	Name        string            `json:"name" binding:"required"`
 	Path        string            `json:"path,omitempty"`
@@ -106,7 +106,7 @@ type FolderInput struct {
 
 // ========== 外链分享 ==========
 
-// ShareLink 分享链接
+// ShareLink 分享链接.
 type ShareLink struct {
 	ID           string          `json:"id"`
 	Token        string          `json:"token"`         // 分享Token
@@ -124,7 +124,7 @@ type ShareLink struct {
 	IsActive     bool            `json:"is_active"`
 }
 
-// ResourceType 资源类型
+// ResourceType 资源类型.
 type ResourceType string
 
 const (
@@ -133,7 +133,7 @@ const (
 	ResourceTeam   ResourceType = "team"
 )
 
-// SharePermission 分享权限
+// SharePermission 分享权限.
 type SharePermission string
 
 const (
@@ -143,7 +143,7 @@ const (
 	ShareAdmin    SharePermission = "admin"    // 完全控制
 )
 
-// ShareInput 创建分享输入
+// ShareInput 创建分享输入.
 type ShareInput struct {
 	ResourceType ResourceType    `json:"resource_type" binding:"required"`
 	ResourceID   string          `json:"resource_id" binding:"required"`
@@ -154,7 +154,7 @@ type ShareInput struct {
 	Permission   SharePermission `json:"permission"`
 }
 
-// ShareAccess 分享访问记录
+// ShareAccess 分享访问记录.
 type ShareAccess struct {
 	ID        string    `json:"id"`
 	ShareID   string    `json:"share_id"`
@@ -167,7 +167,7 @@ type ShareAccess struct {
 
 // ========== 协同编辑 ==========
 
-// EditSession 编辑会话
+// EditSession 编辑会话.
 type EditSession struct {
 	ID           string       `json:"id"`
 	ResourceType ResourceType `json:"resource_type"`
@@ -178,7 +178,7 @@ type EditSession struct {
 	IsActive     bool         `json:"is_active"`
 }
 
-// EditOperation 编辑操作
+// EditOperation 编辑操作.
 type EditOperation struct {
 	ID         string        `json:"id"`
 	SessionID  string        `json:"session_id"`
@@ -193,7 +193,7 @@ type EditOperation struct {
 	Version    int64         `json:"version"` // 文档版本号
 }
 
-// OperationType 操作类型
+// OperationType 操作类型.
 type OperationType string
 
 const (
@@ -205,7 +205,7 @@ const (
 	OpCreate  OperationType = "create"  // 创建
 )
 
-// CursorPosition 光标位置
+// CursorPosition 光标位置.
 type CursorPosition struct {
 	SessionID  string     `json:"session_id"`
 	UserID     string     `json:"user_id"`
@@ -216,7 +216,7 @@ type CursorPosition struct {
 	UpdatedAt  time.Time  `json:"updated_at"`
 }
 
-// Selection 选区
+// Selection 选区.
 type Selection struct {
 	Start int64 `json:"start"`
 	End   int64 `json:"end"`
@@ -224,7 +224,7 @@ type Selection struct {
 
 // ========== 评论系统 ==========
 
-// Comment 评论
+// Comment 评论.
 type Comment struct {
 	ID           string         `json:"id"`
 	ResourceType ResourceType   `json:"resource_type"`
@@ -242,14 +242,14 @@ type Comment struct {
 	Reactions    map[string]int `json:"reactions,omitempty"` // emoji -> count
 }
 
-// Mention @提及
+// Mention @提及.
 type Mention struct {
 	UserID   string `json:"user_id"`
 	Username string `json:"username"`
 	Position int    `json:"position"` // 在评论中的位置
 }
 
-// CommentInput 评论输入
+// CommentInput 评论输入.
 type CommentInput struct {
 	ResourceType ResourceType `json:"resource_type" binding:"required"`
 	ResourceID   string       `json:"resource_id" binding:"required"`
@@ -260,7 +260,7 @@ type CommentInput struct {
 
 // ========== 审计日志 ==========
 
-// TeamAuditLog 团队审计日志
+// TeamAuditLog 团队审计日志.
 type TeamAuditLog struct {
 	ID           string                 `json:"id"`
 	TeamID       string                 `json:"team_id,omitempty"`
@@ -276,11 +276,11 @@ type TeamAuditLog struct {
 	Timestamp    time.Time              `json:"timestamp"`
 }
 
-// TeamAuditAction 团队审计操作
+// TeamAuditAction 团队审计操作.
 type TeamAuditAction string
 
 const (
-	// 团队操作
+	// 团队操作.
 	AuditTeamCreate       TeamAuditAction = "team_create"
 	AuditTeamUpdate       TeamAuditAction = "team_update"
 	AuditTeamDelete       TeamAuditAction = "team_delete"
@@ -288,13 +288,13 @@ const (
 	AuditTeamMemberRemove TeamAuditAction = "team_member_remove"
 	AuditTeamMemberRole   TeamAuditAction = "team_member_role"
 
-	// 文件夹操作
+	// 文件夹操作.
 	AuditFolderCreate TeamAuditAction = "folder_create"
 	AuditFolderUpdate TeamAuditAction = "folder_update"
 	AuditFolderDelete TeamAuditAction = "folder_delete"
 	AuditFolderMove   TeamAuditAction = "folder_move"
 
-	// 文件操作
+	// 文件操作.
 	AuditFileUpload   TeamAuditAction = "file_upload"
 	AuditFileDownload TeamAuditAction = "file_download"
 	AuditFileDelete   TeamAuditAction = "file_delete"
@@ -302,24 +302,24 @@ const (
 	AuditFileCopy     TeamAuditAction = "file_copy"
 	AuditFileRename   TeamAuditAction = "file_rename"
 
-	// 分享操作
+	// 分享操作.
 	AuditShareCreate TeamAuditAction = "share_create"
 	AuditShareAccess TeamAuditAction = "share_access"
 	AuditShareRevoke TeamAuditAction = "share_revoke"
 
-	// 协同编辑
+	// 协同编辑.
 	AuditEditStart    TeamAuditAction = "edit_start"
 	AuditEditEnd      TeamAuditAction = "edit_end"
 	AuditEditSave     TeamAuditAction = "edit_save"
 	AuditEditConflict TeamAuditAction = "edit_conflict"
 
-	// 评论操作
+	// 评论操作.
 	AuditCommentCreate TeamAuditAction = "comment_create"
 	AuditCommentUpdate TeamAuditAction = "comment_update"
 	AuditCommentDelete TeamAuditAction = "comment_delete"
 )
 
-// AuditQueryOptions 审计查询选项
+// AuditQueryOptions 审计查询选项.
 type AuditQueryOptions struct {
 	TeamID       string          `json:"team_id,omitempty"`
 	UserID       string          `json:"user_id,omitempty"`
@@ -334,7 +334,7 @@ type AuditQueryOptions struct {
 
 // ========== 通知消息 ==========
 
-// NotificationType 通知类型
+// NotificationType 通知类型.
 type NotificationType string
 
 const (
@@ -348,7 +348,7 @@ const (
 	NotifyFileChanged   NotificationType = "file_changed"
 )
 
-// Notification 通知
+// Notification 通知.
 type Notification struct {
 	ID        string                 `json:"id"`
 	Type      NotificationType       `json:"type"`
@@ -363,14 +363,14 @@ type Notification struct {
 
 // ========== WebSocket消息 ==========
 
-// WSMessage WebSocket消息
+// WSMessage WebSocket消息.
 type WSMessage struct {
 	Type      string      `json:"type"`
 	Data      interface{} `json:"data"`
 	Timestamp time.Time   `json:"timestamp"`
 }
 
-// WSEventType WebSocket事件类型
+// WSEventType WebSocket事件类型.
 type WSEventType string
 
 const (
@@ -386,7 +386,7 @@ const (
 
 // ========== 错误定义 ==========
 
-// TeamError 团队错误
+// TeamError 团队错误.
 type TeamError struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -396,7 +396,7 @@ func (e *TeamError) Error() string {
 	return e.Message
 }
 
-// 预定义错误
+// 预定义错误.
 var (
 	ErrTeamNotFound    = &TeamError{Code: 404, Message: "团队不存在"}
 	ErrTeamExists      = &TeamError{Code: 409, Message: "团队已存在"}

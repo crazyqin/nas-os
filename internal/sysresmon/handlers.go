@@ -6,13 +6,13 @@ import (
 	"time"
 )
 
-// Handler HTTP API 处理器
+// Handler HTTP API 处理器.
 type Handler struct {
 	monitor   *ResourceMonitor
 	dashboard *Dashboard
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(monitor *ResourceMonitor) *Handler {
 	return &Handler{
 		monitor:   monitor,
@@ -20,14 +20,14 @@ func NewHandler(monitor *ResourceMonitor) *Handler {
 	}
 }
 
-// APIResponse 通用 API 响应
+// APIResponse 通用 API 响应.
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/system/resources", h.handleResources)
 	mux.HandleFunc("/api/v1/system/resources/history", h.handleHistory)
@@ -36,7 +36,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 }
 
 // handleResources 处理实时资源概览
-// GET /api/v1/system/resources
+// GET /api/v1/system/resources.
 func (h *Handler) handleResources(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, APIResponse{
@@ -63,7 +63,7 @@ func (h *Handler) handleResources(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleHistory 处理历史趋势查询
-// GET /api/v1/system/resources/history?range=1h
+// GET /api/v1/system/resources/history?range=1h.
 func (h *Handler) handleHistory(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, APIResponse{
@@ -102,7 +102,7 @@ func (h *Handler) handleHistory(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleBottleneck 处理性能瓶颈分析
-// GET /api/v1/system/resources/bottleneck
+// GET /api/v1/system/resources/bottleneck.
 func (h *Handler) handleBottleneck(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, APIResponse{
@@ -123,7 +123,7 @@ func (h *Handler) handleBottleneck(w http.ResponseWriter, r *http.Request) {
 }
 
 // handlePredict 处理资源使用预测
-// GET /api/v1/system/resources/predict
+// GET /api/v1/system/resources/predict.
 func (h *Handler) handlePredict(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, APIResponse{
@@ -143,14 +143,14 @@ func (h *Handler) handlePredict(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// writeJSON 写入 JSON 响应
+// writeJSON 写入 JSON 响应.
 func writeJSON(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(data)
 }
 
-// HealthCheck 健康检查处理器
+// HealthCheck 健康检查处理器.
 func (h *Handler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	status := map[string]interface{}{
 		"status":    "ok",

@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler HTTP处理器
+// Handler HTTP处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	group := rg.Group("/storage-setup")
 	{
@@ -35,7 +35,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// CreateSession 创建设置会话
+// CreateSession 创建设置会话.
 func (h *Handler) CreateSession(c *gin.Context) {
 	var req struct {
 		Disks []DiskInfo `json:"disks" binding:"required"`
@@ -54,13 +54,13 @@ func (h *Handler) CreateSession(c *gin.Context) {
 	c.JSON(http.StatusCreated, session)
 }
 
-// ListSessions 列出会话
+// ListSessions 列出会话.
 func (h *Handler) ListSessions(c *gin.Context) {
 	sessions := h.manager.ListSessions()
 	c.JSON(http.StatusOK, gin.H{"sessions": sessions})
 }
 
-// GetSession 获取会话
+// GetSession 获取会话.
 func (h *Handler) GetSession(c *gin.Context) {
 	id := c.Param("id")
 	session, err := h.manager.GetSession(id)
@@ -71,7 +71,7 @@ func (h *Handler) GetSession(c *gin.Context) {
 	c.JSON(http.StatusOK, session)
 }
 
-// DeleteSession 删除会话
+// DeleteSession 删除会话.
 func (h *Handler) DeleteSession(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteSession(id); err != nil {
@@ -81,7 +81,7 @@ func (h *Handler) DeleteSession(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "会话已删除"})
 }
 
-// UpdateStep 更新步骤
+// UpdateStep 更新步骤.
 func (h *Handler) UpdateStep(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
@@ -100,7 +100,7 @@ func (h *Handler) UpdateStep(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "步骤已更新"})
 }
 
-// SetPoolConfig 设置存储池配置
+// SetPoolConfig 设置存储池配置.
 func (h *Handler) SetPoolConfig(c *gin.Context) {
 	id := c.Param("id")
 	var config PoolConfig
@@ -117,7 +117,7 @@ func (h *Handler) SetPoolConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "存储池配置已保存"})
 }
 
-// SetVolumeConfig 设置卷配置
+// SetVolumeConfig 设置卷配置.
 func (h *Handler) SetVolumeConfig(c *gin.Context) {
 	id := c.Param("id")
 	var config VolumeConfig
@@ -134,7 +134,7 @@ func (h *Handler) SetVolumeConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "卷配置已保存"})
 }
 
-// SetShareConfig 设置共享配置
+// SetShareConfig 设置共享配置.
 func (h *Handler) SetShareConfig(c *gin.Context) {
 	id := c.Param("id")
 	var config ShareConfig
@@ -151,7 +151,7 @@ func (h *Handler) SetShareConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "共享配置已保存"})
 }
 
-// CompleteSession 完成会话
+// CompleteSession 完成会话.
 func (h *Handler) CompleteSession(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.CompleteSession(id); err != nil {
@@ -161,7 +161,7 @@ func (h *Handler) CompleteSession(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "设置完成"})
 }
 
-// GetRecommendations 获取RAID推荐
+// GetRecommendations 获取RAID推荐.
 func (h *Handler) GetRecommendations(c *gin.Context) {
 	id := c.Param("id")
 	priority := c.DefaultQuery("priority", "balanced")
@@ -175,7 +175,7 @@ func (h *Handler) GetRecommendations(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"recommendations": recommendations})
 }
 
-// EstimateCapacity 估算容量
+// EstimateCapacity 估算容量.
 func (h *Handler) EstimateCapacity(c *gin.Context) {
 	id := c.Param("id")
 	raidType := RAIDType(c.DefaultQuery("raid_type", "raid1"))

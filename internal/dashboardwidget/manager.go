@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// WidgetType 组件类型
+// WidgetType 组件类型.
 type WidgetType string
 
 const (
@@ -25,33 +25,33 @@ const (
 	WidgetTypeMap      WidgetType = "map"
 )
 
-// Widget 组件
+// Widget 组件.
 type Widget struct {
-	ID        string            `json:"id"`
-	Name      string            `json:"name"`
-	Type      WidgetType        `json:"type"`
-	Position  Position          `json:"position"`
-	Size      Size              `json:"size"`
-	Config    map[string]string `json:"config"`
-	DataSource string           `json:"data_source"`
-	RefreshSec int              `json:"refresh_sec"`
-	CreatedAt time.Time         `json:"created_at"`
-	UpdatedAt time.Time         `json:"updated_at"`
+	ID         string            `json:"id"`
+	Name       string            `json:"name"`
+	Type       WidgetType        `json:"type"`
+	Position   Position          `json:"position"`
+	Size       Size              `json:"size"`
+	Config     map[string]string `json:"config"`
+	DataSource string            `json:"data_source"`
+	RefreshSec int               `json:"refresh_sec"`
+	CreatedAt  time.Time         `json:"created_at"`
+	UpdatedAt  time.Time         `json:"updated_at"`
 }
 
-// Position 位置
+// Position 位置.
 type Position struct {
 	X int `json:"x"`
 	Y int `json:"y"`
 }
 
-// Size 尺寸
+// Size 尺寸.
 type Size struct {
 	Width  int `json:"width"`
 	Height int `json:"height"`
 }
 
-// Dashboard 仪表盘
+// Dashboard 仪表盘.
 type Dashboard struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -63,16 +63,16 @@ type Dashboard struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// Manager 仪表盘管理器
+// Manager 仪表盘管理器.
 type Manager struct {
-	mu          sync.RWMutex
-	logger      *zap.Logger
-	widgets     map[string]*Widget
-	dashboards  map[string]*Dashboard
-	dataPath    string
+	mu         sync.RWMutex
+	logger     *zap.Logger
+	widgets    map[string]*Widget
+	dashboards map[string]*Dashboard
+	dataPath   string
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(logger *zap.Logger, dataPath string) *Manager {
 	m := &Manager{
 		logger:     logger,
@@ -84,26 +84,26 @@ func NewManager(logger *zap.Logger, dataPath string) *Manager {
 	return m
 }
 
-// CreateWidget 创建组件
+// CreateWidget 创建组件.
 func (m *Manager) CreateWidget(name string, wType WidgetType, config map[string]string) *Widget {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	widget := &Widget{
-		ID:        genID(),
-		Name:      name,
-		Type:      wType,
-		Size:      Size{Width: 4, Height: 3},
-		Config:    config,
+		ID:         genID(),
+		Name:       name,
+		Type:       wType,
+		Size:       Size{Width: 4, Height: 3},
+		Config:     config,
 		RefreshSec: 30,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
 	}
 	m.widgets[widget.ID] = widget
 	_ = m.saveData()
 	return widget
 }
 
-// UpdateWidget 更新组件
+// UpdateWidget 更新组件.
 func (m *Manager) UpdateWidget(id string, pos *Position, size *Size) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -122,7 +122,7 @@ func (m *Manager) UpdateWidget(id string, pos *Position, size *Size) error {
 	return nil
 }
 
-// DeleteWidget 删除组件
+// DeleteWidget 删除组件.
 func (m *Manager) DeleteWidget(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -143,7 +143,7 @@ func (m *Manager) DeleteWidget(id string) error {
 	return nil
 }
 
-// CreateDashboard 创建仪表盘
+// CreateDashboard 创建仪表盘.
 func (m *Manager) CreateDashboard(name, desc, layout string) *Dashboard {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -163,7 +163,7 @@ func (m *Manager) CreateDashboard(name, desc, layout string) *Dashboard {
 	return d
 }
 
-// AddWidgetToDashboard 添加组件到仪表盘
+// AddWidgetToDashboard 添加组件到仪表盘.
 func (m *Manager) AddWidgetToDashboard(dashboardID, widgetID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -185,7 +185,7 @@ func (m *Manager) AddWidgetToDashboard(dashboardID, widgetID string) error {
 	return nil
 }
 
-// ListDashboards 列出仪表盘
+// ListDashboards 列出仪表盘.
 func (m *Manager) ListDashboards() []*Dashboard {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -196,7 +196,7 @@ func (m *Manager) ListDashboards() []*Dashboard {
 	return result
 }
 
-// GetDashboard 获取仪表盘详情
+// GetDashboard 获取仪表盘详情.
 func (m *Manager) GetDashboard(id string) (*Dashboard, map[string]*Widget, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -213,7 +213,7 @@ func (m *Manager) GetDashboard(id string) (*Dashboard, map[string]*Widget, error
 	return d, widgets, nil
 }
 
-// GetSystemWidgets 获取系统预置组件数据
+// GetSystemWidgets 获取系统预置组件数据.
 func (m *Manager) GetSystemWidgets() []map[string]interface{} {
 	return []map[string]interface{}{
 		{"name": "CPU使用率", "type": "gauge", "data_source": "system.cpu"},
@@ -273,7 +273,7 @@ func genID() string {
 	return fmt.Sprintf("%x", time.Now().UnixNano())
 }
 
-// Handlers API
+// Handlers API.
 type Handlers struct {
 	mgr *Manager
 }

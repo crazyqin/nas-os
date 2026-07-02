@@ -3,7 +3,7 @@ package quotaalert
 
 import "time"
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 const (
@@ -12,7 +12,7 @@ const (
 	AlertExceeded AlertLevel = "exceeded"
 )
 
-// TrendDirection 趋势方向
+// TrendDirection 趋势方向.
 type TrendDirection string
 
 const (
@@ -21,7 +21,7 @@ const (
 	TrendShrinking TrendDirection = "shrinking"
 )
 
-// SuggestionType 清理建议类型
+// SuggestionType 清理建议类型.
 type SuggestionType string
 
 const (
@@ -31,7 +31,7 @@ const (
 	SuggestionLargeFiles SuggestionType = "large_files"
 )
 
-// QuotaRule 配额规则定义
+// QuotaRule 配额规则定义.
 type QuotaRule struct {
 	ID                string    `json:"id"`
 	Path              string    `json:"path"`
@@ -44,7 +44,7 @@ type QuotaRule struct {
 	CreatedAt         time.Time `json:"created_at"`
 }
 
-// QuotaUsage 配额使用量
+// QuotaUsage 配额使用量.
 type QuotaUsage struct {
 	UserID       string    `json:"user_id"`
 	Path         string    `json:"path"`
@@ -56,7 +56,7 @@ type QuotaUsage struct {
 	LastUpdated  time.Time `json:"last_updated"`
 }
 
-// QuotaAlert 配额告警
+// QuotaAlert 配额告警.
 type QuotaAlert struct {
 	ID           string     `json:"id"`
 	UserID       string     `json:"user_id"`
@@ -69,7 +69,7 @@ type QuotaAlert struct {
 	CreatedAt    time.Time  `json:"created_at"`
 }
 
-// UsageTrend 使用量趋势
+// UsageTrend 使用量趋势.
 type UsageTrend struct {
 	UserID            string         `json:"user_id"`
 	Path              string         `json:"path"`
@@ -80,7 +80,7 @@ type UsageTrend struct {
 	TrendDirection    TrendDirection `json:"trend_direction"`
 }
 
-// CleanupSuggestion 清理建议
+// CleanupSuggestion 清理建议.
 type CleanupSuggestion struct {
 	ID                    string         `json:"id"`
 	UserID                string         `json:"user_id"`
@@ -91,13 +91,13 @@ type CleanupSuggestion struct {
 	Files                 []string       `json:"files"`
 }
 
-// QuotaReport 全局配额报告
+// QuotaReport 全局配额报告.
 type QuotaReport struct {
 	GeneratedAt time.Time          `json:"generated_at"`
 	Users       []UserQuotaSummary `json:"users"`
 }
 
-// UserQuotaSummary 用户配额摘要
+// UserQuotaSummary 用户配额摘要.
 type UserQuotaSummary struct {
 	UserID       string              `json:"user_id"`
 	UserName     string              `json:"user_name"`

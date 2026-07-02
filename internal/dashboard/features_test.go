@@ -228,13 +228,13 @@ func TestAlertManagerAddRule(t *testing.T) {
 	am := NewAlertManager(100)
 
 	err := am.AddRule(&AlertRule{
-		ID:       "cpu-high",
-		Name:     "CPU 过高",
-		Metric:   "cpu",
-		Operator: OpGT,
-		Enabled:  true,
+		ID:        "cpu-high",
+		Name:      "CPU 过高",
+		Metric:    "cpu",
+		Operator:  OpGT,
+		Enabled:   true,
 		Threshold: 80.0,
-		Severity: AlertWarning,
+		Severity:  AlertWarning,
 	})
 	if err != nil {
 		t.Fatalf("添加规则失败: %v", err)

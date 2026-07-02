@@ -6,14 +6,14 @@ import (
 	"time"
 )
 
-// Manager 管理所有 Compose 项目
+// Manager 管理所有 Compose 项目.
 type Manager struct {
 	mu        sync.RWMutex
 	projects  map[string]*ComposeProject
 	templates map[string]*ComposeTemplate
 }
 
-// ComposeProject Compose 项目
+// ComposeProject Compose 项目.
 type ComposeProject struct {
 	ID          string                    `json:"id"`
 	Name        string                    `json:"name"`
@@ -31,7 +31,7 @@ type ComposeProject struct {
 	Tags        []string                  `json:"tags"`
 }
 
-// ProjectStatus 项目状态
+// ProjectStatus 项目状态.
 type ProjectStatus string
 
 const (
@@ -41,7 +41,7 @@ const (
 	StatusError    ProjectStatus = "error"
 )
 
-// ServiceNode 服务节点
+// ServiceNode 服务节点.
 type ServiceNode struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -63,7 +63,7 @@ type ServiceNode struct {
 	Status        ServiceStatus     `json:"status"`
 }
 
-// ServiceStatus 服务状态
+// ServiceStatus 服务状态.
 type ServiceStatus string
 
 const (
@@ -73,7 +73,7 @@ const (
 	ServiceError   ServiceStatus = "error"
 )
 
-// PortMapping 端口映射
+// PortMapping 端口映射.
 type PortMapping struct {
 	HostPort      int    `json:"hostPort"`
 	ContainerPort int    `json:"containerPort"`
@@ -81,7 +81,7 @@ type PortMapping struct {
 	IP            string `json:"ip,omitempty"`
 }
 
-// VolumeMapping 卷映射
+// VolumeMapping 卷映射.
 type VolumeMapping struct {
 	Type     string `json:"type"`
 	Source   string `json:"source"`
@@ -89,7 +89,7 @@ type VolumeMapping struct {
 	ReadOnly bool   `json:"readOnly"`
 }
 
-// ResourceLimits 资源限制
+// ResourceLimits 资源限制.
 type ResourceLimits struct {
 	CPUs         string               `json:"cpus,omitempty"`
 	Memory       string               `json:"memory,omitempty"`
@@ -97,13 +97,13 @@ type ResourceLimits struct {
 	Reservations *ResourceReservation `json:"reservations,omitempty"`
 }
 
-// ResourceReservation 资源预留
+// ResourceReservation 资源预留.
 type ResourceReservation struct {
 	CPUs   string `json:"cpus,omitempty"`
 	Memory string `json:"memory,omitempty"`
 }
 
-// HealthCheck 健康检查
+// HealthCheck 健康检查.
 type HealthCheck struct {
 	Test        []string `json:"test"`
 	Interval    string   `json:"interval"`
@@ -112,7 +112,7 @@ type HealthCheck struct {
 	StartPeriod string   `json:"startPeriod"`
 }
 
-// NetworkConfig 网络配置
+// NetworkConfig 网络配置.
 type NetworkConfig struct {
 	Driver     string            `json:"driver"`
 	DriverOpts map[string]string `json:"driverOpts,omitempty"`
@@ -121,20 +121,20 @@ type NetworkConfig struct {
 	Labels     map[string]string `json:"labels,omitempty"`
 }
 
-// IPAMConfig IPAM 配置
+// IPAMConfig IPAM 配置.
 type IPAMConfig struct {
 	Driver string     `json:"driver"`
 	Config []IPAMPool `json:"config,omitempty"`
 }
 
-// IPAMPool IPAM 地址池
+// IPAMPool IPAM 地址池.
 type IPAMPool struct {
 	Subnet  string `json:"subnet"`
 	Gateway string `json:"gateway,omitempty"`
 	IPRange string `json:"ipRange,omitempty"`
 }
 
-// VolumeConfig 卷配置
+// VolumeConfig 卷配置.
 type VolumeConfig struct {
 	Driver     string            `json:"driver"`
 	DriverOpts map[string]string `json:"driverOpts,omitempty"`
@@ -142,7 +142,7 @@ type VolumeConfig struct {
 	Labels     map[string]string `json:"labels,omitempty"`
 }
 
-// VisualLayout 可视化布局
+// VisualLayout 可视化布局.
 type VisualLayout struct {
 	CanvasWidth  int                      `json:"canvasWidth"`
 	CanvasHeight int                      `json:"canvasHeight"`
@@ -150,7 +150,7 @@ type VisualLayout struct {
 	Connections  []Connection             `json:"connections"`
 }
 
-// NodePosition 节点位置
+// NodePosition 节点位置.
 type NodePosition struct {
 	X      int `json:"x"`
 	Y      int `json:"y"`
@@ -158,7 +158,7 @@ type NodePosition struct {
 	Height int `json:"height"`
 }
 
-// Connection 连接关系
+// Connection 连接关系.
 type Connection struct {
 	From     string `json:"from"`
 	To       string `json:"to"`
@@ -167,7 +167,7 @@ type Connection struct {
 	Animated bool   `json:"animated"`
 }
 
-// TopologyData 拓扑图数据
+// TopologyData 拓扑图数据.
 type TopologyData struct {
 	Nodes  []TopologyNode  `json:"nodes"`
 	Edges  []TopologyEdge  `json:"edges"`
@@ -175,7 +175,7 @@ type TopologyData struct {
 	Layers []string        `json:"layers"`
 }
 
-// TopologyNode 拓扑节点
+// TopologyNode 拓扑节点.
 type TopologyNode struct {
 	ID       string        `json:"id"`
 	Label    string        `json:"label"`
@@ -187,7 +187,7 @@ type TopologyNode struct {
 	Tier     int           `json:"tier"`
 }
 
-// TopologyEdge 拓扑边
+// TopologyEdge 拓扑边.
 type TopologyEdge struct {
 	ID     string `json:"id"`
 	Source string `json:"source"`
@@ -196,14 +196,14 @@ type TopologyEdge struct {
 	Label  string `json:"label,omitempty"`
 }
 
-// TopologyGroup 拓扑分组
+// TopologyGroup 拓扑分组.
 type TopologyGroup struct {
 	ID      string   `json:"id"`
 	Label   string   `json:"label"`
 	NodeIDs []string `json:"nodeIds"`
 }
 
-// ComposeTemplate Compose 模板
+// ComposeTemplate Compose 模板.
 type ComposeTemplate struct {
 	ID          string                    `json:"id"`
 	Name        string                    `json:"name"`
@@ -224,7 +224,7 @@ type ComposeTemplate struct {
 	CreatedAt   time.Time                 `json:"createdAt"`
 }
 
-// TemplateCategory 模板分类
+// TemplateCategory 模板分类.
 type TemplateCategory string
 
 const (
@@ -242,7 +242,7 @@ const (
 
 // ========== 请求/响应结构体 ==========
 
-// CreateProjectRequest 创建项目请求
+// CreateProjectRequest 创建项目请求.
 type CreateProjectRequest struct {
 	Name        string            `json:"name" binding:"required"`
 	Description string            `json:"description"`
@@ -250,7 +250,7 @@ type CreateProjectRequest struct {
 	Tags        []string          `json:"tags"`
 }
 
-// UpdateProjectRequest 更新项目请求
+// UpdateProjectRequest 更新项目请求.
 type UpdateProjectRequest struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
@@ -258,7 +258,7 @@ type UpdateProjectRequest struct {
 	Tags        []string          `json:"tags"`
 }
 
-// AddServiceRequest 添加服务请求
+// AddServiceRequest 添加服务请求.
 type AddServiceRequest struct {
 	Name          string            `json:"name" binding:"required"`
 	Image         string            `json:"image" binding:"required"`
@@ -273,7 +273,7 @@ type AddServiceRequest struct {
 	Restart       string            `json:"restart"`
 }
 
-// UpdateServiceRequest 更新服务请求
+// UpdateServiceRequest 更新服务请求.
 type UpdateServiceRequest struct {
 	Name          string            `json:"name"`
 	Image         string            `json:"image"`
@@ -290,32 +290,32 @@ type UpdateServiceRequest struct {
 	HealthCheck   *HealthCheck      `json:"healthCheck"`
 }
 
-// ConnectServicesRequest 连接服务请求
+// ConnectServicesRequest 连接服务请求.
 type ConnectServicesRequest struct {
 	From string `json:"from" binding:"required"`
 	To   string `json:"to" binding:"required"`
 	Type string `json:"type"`
 }
 
-// ImportComposeRequest 导入 Compose 请求
+// ImportComposeRequest 导入 Compose 请求.
 type ImportComposeRequest struct {
 	Content string `json:"content" binding:"required"`
 	Name    string `json:"name"`
 }
 
-// InstantiateTemplateRequest 从模板创建请求
+// InstantiateTemplateRequest 从模板创建请求.
 type InstantiateTemplateRequest struct {
 	Name        string            `json:"name" binding:"required"`
 	Description string            `json:"description"`
 	EnvVars     map[string]string `json:"envVars"`
 }
 
-// ExportComposeResponse 导出 Compose 响应
+// ExportComposeResponse 导出 Compose 响应.
 type ExportComposeResponse struct {
 	Content string `json:"content"`
 }
 
-// TopologyResponse 拓扑图响应
+// TopologyResponse 拓扑图响应.
 type TopologyResponse struct {
 	Topology    *TopologyData `json:"topology"`
 	StartOrder  [][]string    `json:"startOrder"`
@@ -323,7 +323,7 @@ type TopologyResponse struct {
 	TotalCPU    string        `json:"totalCPU"`
 }
 
-// DeployResult 部署结果
+// DeployResult 部署结果.
 type DeployResult struct {
 	ProjectID string   `json:"projectId"`
 	Status    string   `json:"status"`
@@ -332,7 +332,7 @@ type DeployResult struct {
 	Error     string   `json:"error,omitempty"`
 }
 
-// TemplateSearchResponse 模板搜索响应
+// TemplateSearchResponse 模板搜索响应.
 type TemplateSearchResponse struct {
 	Templates []*ComposeTemplate `json:"templates"`
 	Total     int                `json:"total"`

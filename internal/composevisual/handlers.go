@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func RegisterRoutes(rg *gin.RouterGroup, mgr *Manager) {
 	h := &handler{mgr: mgr}
 
@@ -39,13 +39,13 @@ type handler struct {
 	mgr *Manager
 }
 
-// listProjects 列出项目
+// listProjects 列出项目.
 func (h *handler) listProjects(c *gin.Context) {
 	projects := h.mgr.ListProjects()
 	c.JSON(http.StatusOK, gin.H{"projects": projects, "total": len(projects)})
 }
 
-// createProject 创建项目
+// createProject 创建项目.
 func (h *handler) createProject(c *gin.Context) {
 	var req CreateProjectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -56,7 +56,7 @@ func (h *handler) createProject(c *gin.Context) {
 	c.JSON(http.StatusCreated, project)
 }
 
-// getProject 获取项目详情
+// getProject 获取项目详情.
 func (h *handler) getProject(c *gin.Context) {
 	id := c.Param("id")
 	project, err := h.mgr.GetProject(id)
@@ -67,7 +67,7 @@ func (h *handler) getProject(c *gin.Context) {
 	c.JSON(http.StatusOK, project)
 }
 
-// updateProject 更新项目
+// updateProject 更新项目.
 func (h *handler) updateProject(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateProjectRequest
@@ -83,7 +83,7 @@ func (h *handler) updateProject(c *gin.Context) {
 	c.JSON(http.StatusOK, project)
 }
 
-// deleteProject 删除项目
+// deleteProject 删除项目.
 func (h *handler) deleteProject(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.mgr.DeleteProject(id); err != nil {
@@ -93,7 +93,7 @@ func (h *handler) deleteProject(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "项目已删除"})
 }
 
-// addService 添加服务
+// addService 添加服务.
 func (h *handler) addService(c *gin.Context) {
 	projectID := c.Param("id")
 	var req AddServiceRequest
@@ -109,7 +109,7 @@ func (h *handler) addService(c *gin.Context) {
 	c.JSON(http.StatusCreated, service)
 }
 
-// updateService 更新服务
+// updateService 更新服务.
 func (h *handler) updateService(c *gin.Context) {
 	projectID := c.Param("id")
 	serviceName := c.Param("sid")
@@ -126,7 +126,7 @@ func (h *handler) updateService(c *gin.Context) {
 	c.JSON(http.StatusOK, service)
 }
 
-// deleteService 删除服务
+// deleteService 删除服务.
 func (h *handler) deleteService(c *gin.Context) {
 	projectID := c.Param("id")
 	serviceName := c.Param("sid")
@@ -137,7 +137,7 @@ func (h *handler) deleteService(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "服务已删除"})
 }
 
-// connectServices 连接服务
+// connectServices 连接服务.
 func (h *handler) connectServices(c *gin.Context) {
 	projectID := c.Param("id")
 	var req ConnectServicesRequest
@@ -152,7 +152,7 @@ func (h *handler) connectServices(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "连接已建立"})
 }
 
-// exportCompose 导出 compose
+// exportCompose 导出 compose.
 func (h *handler) exportCompose(c *gin.Context) {
 	projectID := c.Param("id")
 	content, err := h.mgr.ExportCompose(projectID)
@@ -163,7 +163,7 @@ func (h *handler) exportCompose(c *gin.Context) {
 	c.JSON(http.StatusOK, ExportComposeResponse{Content: content})
 }
 
-// deploy 部署
+// deploy 部署.
 func (h *handler) deploy(c *gin.Context) {
 	projectID := c.Param("id")
 	result, err := h.mgr.Deploy(projectID)
@@ -174,7 +174,7 @@ func (h *handler) deploy(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// getTopology 获取拓扑图
+// getTopology 获取拓扑图.
 func (h *handler) getTopology(c *gin.Context) {
 	projectID := c.Param("id")
 	topology, startOrder, err := h.mgr.GenerateTopology(projectID)
@@ -188,7 +188,7 @@ func (h *handler) getTopology(c *gin.Context) {
 	})
 }
 
-// listTemplates 列出模板
+// listTemplates 列出模板.
 func (h *handler) listTemplates(c *gin.Context) {
 	query := c.Query("query")
 	category := c.DefaultQuery("category", "all")
@@ -201,7 +201,7 @@ func (h *handler) listTemplates(c *gin.Context) {
 	c.JSON(http.StatusOK, TemplateSearchResponse{Templates: templates, Total: len(templates)})
 }
 
-// instantiateTemplate 从模板创建
+// instantiateTemplate 从模板创建.
 func (h *handler) instantiateTemplate(c *gin.Context) {
 	templateID := c.Param("id")
 	var req InstantiateTemplateRequest
@@ -217,7 +217,7 @@ func (h *handler) instantiateTemplate(c *gin.Context) {
 	c.JSON(http.StatusCreated, project)
 }
 
-// importCompose 导入 compose
+// importCompose 导入 compose.
 func (h *handler) importCompose(c *gin.Context) {
 	var req ImportComposeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

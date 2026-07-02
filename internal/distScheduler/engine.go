@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Engine 调度引擎
+// Engine 调度引擎.
 type Engine struct {
 	mu       sync.RWMutex
 	logger   *zap.Logger
@@ -28,7 +28,7 @@ type Engine struct {
 	running  bool
 }
 
-// NewEngine 创建调度引擎
+// NewEngine 创建调度引擎.
 func NewEngine(logger *zap.Logger, config *Config) *Engine {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -54,7 +54,7 @@ func NewEngine(logger *zap.Logger, config *Config) *Engine {
 	return e
 }
 
-// Start 启动调度引擎
+// Start 启动调度引擎.
 func (e *Engine) Start(ctx context.Context) error {
 	e.mu.Lock()
 	if e.running {
@@ -77,7 +77,7 @@ func (e *Engine) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止调度引擎
+// Stop 停止调度引擎.
 func (e *Engine) Stop() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -91,14 +91,14 @@ func (e *Engine) Stop() {
 	e.logger.Info("distributed scheduler stopped")
 }
 
-// IsRunning 是否运行中
+// IsRunning 是否运行中.
 func (e *Engine) IsRunning() bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.running
 }
 
-// RegisterNode 注册节点
+// RegisterNode 注册节点.
 func (e *Engine) RegisterNode(node *Node) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -118,7 +118,7 @@ func (e *Engine) RegisterNode(node *Node) error {
 	return nil
 }
 
-// UnregisterNode 注销节点
+// UnregisterNode 注销节点.
 func (e *Engine) UnregisterNode(nodeID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -132,7 +132,7 @@ func (e *Engine) UnregisterNode(nodeID string) error {
 	return nil
 }
 
-// GetNode 获取节点
+// GetNode 获取节点.
 func (e *Engine) GetNode(nodeID string) (*Node, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -144,7 +144,7 @@ func (e *Engine) GetNode(nodeID string) (*Node, error) {
 	return node, nil
 }
 
-// ListNodes 列出所有节点
+// ListNodes 列出所有节点.
 func (e *Engine) ListNodes(status NodeStatus) []*Node {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -158,7 +158,7 @@ func (e *Engine) ListNodes(status NodeStatus) []*Node {
 	return result
 }
 
-// Heartbeat 更新节点心跳
+// Heartbeat 更新节点心跳.
 func (e *Engine) Heartbeat(nodeID string, resources *NodeResources) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -175,7 +175,7 @@ func (e *Engine) Heartbeat(nodeID string, resources *NodeResources) error {
 	return nil
 }
 
-// SubmitTask 提交任务
+// SubmitTask 提交任务.
 func (e *Engine) SubmitTask(task *Task) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -223,7 +223,7 @@ func (e *Engine) SubmitTask(task *Task) error {
 	return nil
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (e *Engine) CancelTask(taskID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -249,7 +249,7 @@ func (e *Engine) CancelTask(taskID string) error {
 	return nil
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (e *Engine) GetTask(taskID string) (*Task, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -261,7 +261,7 @@ func (e *Engine) GetTask(taskID string) (*Task, error) {
 	return task, nil
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (e *Engine) ListTasks(status TaskStatus) []*Task {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -275,7 +275,7 @@ func (e *Engine) ListTasks(status TaskStatus) []*Task {
 	return result
 }
 
-// Schedule 调度任务到节点
+// Schedule 调度任务到节点.
 func (e *Engine) Schedule(ctx context.Context) ([]*ScheduleResult, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -329,7 +329,7 @@ func (e *Engine) Schedule(ctx context.Context) ([]*ScheduleResult, error) {
 	return results, nil
 }
 
-// CompleteTask 完成任务
+// CompleteTask 完成任务.
 func (e *Engine) CompleteTask(taskID string, result interface{}) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -353,7 +353,7 @@ func (e *Engine) CompleteTask(taskID string, result interface{}) error {
 	return nil
 }
 
-// FailTask 标记任务失败
+// FailTask 标记任务失败.
 func (e *Engine) FailTask(taskID string, err error) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -373,7 +373,7 @@ func (e *Engine) FailTask(taskID string, err error) error {
 	return e.recovery.handleFailure(task)
 }
 
-// checkDependencies 检查任务依赖是否满足
+// checkDependencies 检查任务依赖是否满足.
 func (e *Engine) checkDependencies(taskID string) bool {
 	deps, exists := e.graph.Edges[taskID]
 	if !exists {
@@ -389,7 +389,7 @@ func (e *Engine) checkDependencies(taskID string) bool {
 	return true
 }
 
-// heartbeatChecker 心跳检查
+// heartbeatChecker 心跳检查.
 func (e *Engine) heartbeatChecker(ctx context.Context) {
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -406,7 +406,7 @@ func (e *Engine) heartbeatChecker(ctx context.Context) {
 	}
 }
 
-// checkHeartbeats 检查所有节点心跳
+// checkHeartbeats 检查所有节点心跳.
 func (e *Engine) checkHeartbeats() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -427,7 +427,7 @@ func (e *Engine) checkHeartbeats() {
 	}
 }
 
-// cronScheduler Cron 调度
+// cronScheduler Cron 调度.
 func (e *Engine) cronScheduler(ctx context.Context) {
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
@@ -444,7 +444,7 @@ func (e *Engine) cronScheduler(ctx context.Context) {
 	}
 }
 
-// checkCronTasks 检查 Cron 任务
+// checkCronTasks 检查 Cron 任务.
 func (e *Engine) checkCronTasks() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -490,7 +490,7 @@ func (e *Engine) checkCronTasks() {
 	}
 }
 
-// GetStats 获取引擎统计
+// GetStats 获取引擎统计.
 func (e *Engine) GetStats() map[string]interface{} {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -542,14 +542,14 @@ func (e *Engine) GetStats() map[string]interface{} {
 	}
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// parseCronNext 解析 Cron 表达式的下次执行时间（简化实现）
+// parseCronNext 解析 Cron 表达式的下次执行时间（简化实现）.
 func parseCronNext(expr string) (time.Time, error) {
 	// 简化实现：支持 "* * * * *" 格式
 	// 实际应使用 cron 库解析

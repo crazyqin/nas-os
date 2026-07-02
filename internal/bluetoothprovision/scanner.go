@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// DefaultScanner 实现BLE扫描器
+// DefaultScanner 实现BLE扫描器.
 type DefaultScanner struct {
 	mu       sync.RWMutex
 	scanning bool
@@ -19,20 +19,20 @@ type DefaultScanner struct {
 	onDevice func(BLEDevice) // 设备发现回调
 }
 
-// NewDefaultScanner 创建默认BLE扫描器
+// NewDefaultScanner 创建默认BLE扫描器.
 func NewDefaultScanner() *DefaultScanner {
 	return &DefaultScanner{
 		devices: make(map[string]*BLEDevice),
 	}
 }
 
-// WithOnDeviceCallback 设置设备发现回调
+// WithOnDeviceCallback 设置设备发现回调.
 func (s *DefaultScanner) WithOnDeviceCallback(fn func(BLEDevice)) *DefaultScanner {
 	s.onDevice = fn
 	return s
 }
 
-// Scan 执行BLE设备扫描
+// Scan 执行BLE设备扫描.
 func (s *DefaultScanner) Scan(req ScanRequest) ([]BLEDevice, error) {
 	s.mu.Lock()
 	if s.scanning {
@@ -86,7 +86,7 @@ func (s *DefaultScanner) Scan(req ScanRequest) ([]BLEDevice, error) {
 	return result, nil
 }
 
-// simulateScan 模拟BLE扫描（实际实现需要调用系统BLE API）
+// simulateScan 模拟BLE扫描（实际实现需要调用系统BLE API）.
 func (s *DefaultScanner) simulateScan(ctx context.Context, req ScanRequest) error {
 	// 模拟发现设备
 	mockDevices := []BLEDevice{
@@ -148,7 +148,7 @@ func (s *DefaultScanner) simulateScan(ctx context.Context, req ScanRequest) erro
 	return nil
 }
 
-// StopScan 停止扫描
+// StopScan 停止扫描.
 func (s *DefaultScanner) StopScan() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -164,7 +164,7 @@ func (s *DefaultScanner) StopScan() error {
 	return nil
 }
 
-// Connect 连接到BLE设备
+// Connect 连接到BLE设备.
 func (s *DefaultScanner) Connect(deviceID string) error {
 	s.mu.RLock()
 	device, ok := s.devices[deviceID]
@@ -186,7 +186,7 @@ func (s *DefaultScanner) Connect(deviceID string) error {
 	return nil
 }
 
-// Disconnect 断开BLE设备连接
+// Disconnect 断开BLE设备连接.
 func (s *DefaultScanner) Disconnect(deviceID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -201,14 +201,14 @@ func (s *DefaultScanner) Disconnect(deviceID string) error {
 	return nil
 }
 
-// IsScanning 是否正在扫描
+// IsScanning 是否正在扫描.
 func (s *DefaultScanner) IsScanning() bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.scanning
 }
 
-// GetDevices 获取已发现设备列表
+// GetDevices 获取已发现设备列表.
 func (s *DefaultScanner) GetDevices() []BLEDevice {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -220,7 +220,7 @@ func (s *DefaultScanner) GetDevices() []BLEDevice {
 	return result
 }
 
-// GetDevice 获取指定设备
+// GetDevice 获取指定设备.
 func (s *DefaultScanner) GetDevice(deviceID string) (*BLEDevice, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -232,7 +232,7 @@ func (s *DefaultScanner) GetDevice(deviceID string) (*BLEDevice, error) {
 	return device, nil
 }
 
-// matchServices 检查设备服务是否匹配过滤条件
+// matchServices 检查设备服务是否匹配过滤条件.
 func matchServices(deviceServices, filter []string) bool {
 	if len(filter) == 0 {
 		return true

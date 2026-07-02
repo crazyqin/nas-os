@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 配额预警 API 处理器
+// Handlers 配额预警 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	quota := r.Group("/quotaalert")
 	{
@@ -49,14 +49,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// setQuotaRuleRequest 设置配额规则请求
+// setQuotaRuleRequest 设置配额规则请求.
 type setQuotaRuleRequest struct {
 	Path              string  `json:"path" binding:"required"`
 	UserID            string  `json:"user_id" binding:"required"`
@@ -67,7 +67,7 @@ type setQuotaRuleRequest struct {
 	Enabled           bool    `json:"enabled"`
 }
 
-// setQuotaRule 设置配额规则
+// setQuotaRule 设置配额规则.
 func (h *Handlers) setQuotaRule(c *gin.Context) {
 	var req setQuotaRuleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -103,7 +103,7 @@ func (h *Handlers) setQuotaRule(c *gin.Context) {
 	})
 }
 
-// getQuotaRule 获取配额规则
+// getQuotaRule 获取配额规则.
 func (h *Handlers) getQuotaRule(c *gin.Context) {
 	path := c.Param("path")
 	userID := c.Query("user_id")
@@ -131,7 +131,7 @@ func (h *Handlers) getQuotaRule(c *gin.Context) {
 	})
 }
 
-// getUsage 获取使用量
+// getUsage 获取使用量.
 func (h *Handlers) getUsage(c *gin.Context) {
 	userID := c.Param("userid")
 	path := c.Query("path")
@@ -176,7 +176,7 @@ func (h *Handlers) getUsage(c *gin.Context) {
 	})
 }
 
-// checkQuota 检查配额
+// checkQuota 检查配额.
 func (h *Handlers) checkQuota(c *gin.Context) {
 	userID := c.Param("userid")
 	path := c.Query("path")
@@ -225,7 +225,7 @@ func (h *Handlers) checkQuota(c *gin.Context) {
 	})
 }
 
-// predictFullDate 预测用满日期
+// predictFullDate 预测用满日期.
 func (h *Handlers) predictFullDate(c *gin.Context) {
 	userID := c.Param("userid")
 	path := c.Query("path")
@@ -254,7 +254,7 @@ func (h *Handlers) predictFullDate(c *gin.Context) {
 	})
 }
 
-// getSuggestions 获取清理建议
+// getSuggestions 获取清理建议.
 func (h *Handlers) getSuggestions(c *gin.Context) {
 	userID := c.Param("userid")
 	path := c.Query("path")
@@ -283,7 +283,7 @@ func (h *Handlers) getSuggestions(c *gin.Context) {
 	})
 }
 
-// getAlerts 获取告警列表
+// getAlerts 获取告警列表.
 func (h *Handlers) getAlerts(c *gin.Context) {
 	userID := c.Query("user_id")
 	unacknowledgedOnly := c.Query("unacknowledged") == "true"
@@ -297,7 +297,7 @@ func (h *Handlers) getAlerts(c *gin.Context) {
 	})
 }
 
-// acknowledgeAlert 确认告警
+// acknowledgeAlert 确认告警.
 func (h *Handlers) acknowledgeAlert(c *gin.Context) {
 	alertID := c.Param("id")
 
@@ -315,7 +315,7 @@ func (h *Handlers) acknowledgeAlert(c *gin.Context) {
 	})
 }
 
-// generateReport 生成全局报告
+// generateReport 生成全局报告.
 func (h *Handlers) generateReport(c *gin.Context) {
 	report, err := h.manager.GenerateReport(c.Request.Context())
 	if err != nil {
@@ -333,7 +333,7 @@ func (h *Handlers) generateReport(c *gin.Context) {
 	})
 }
 
-// autoCleanup 自动清理
+// autoCleanup 自动清理.
 func (h *Handlers) autoCleanup(c *gin.Context) {
 	userID := c.Param("userid")
 

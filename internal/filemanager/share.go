@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Share 文件分享管理器
+// Share 文件分享管理器.
 type Share struct {
 	mu       sync.RWMutex
 	rootPath string
@@ -23,7 +23,7 @@ type Share struct {
 	logger   *zap.Logger
 }
 
-// NewShare 创建文件分享管理器
+// NewShare 创建文件分享管理器.
 func NewShare(rootPath string, logger *zap.Logger) *Share {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -36,7 +36,7 @@ func NewShare(rootPath string, logger *zap.Logger) *Share {
 	}
 }
 
-// CreateLink 创建分享链接
+// CreateLink 创建分享链接.
 func (s *Share) CreateLink(req CreateShareRequest, userID string) (*ShareLink, error) {
 	// 验证路径
 	cleanPath, err := s.validatePath(req.Path)
@@ -99,7 +99,7 @@ func (s *Share) CreateLink(req CreateShareRequest, userID string) (*ShareLink, e
 	return link, nil
 }
 
-// GetLink 获取分享链接
+// GetLink 获取分享链接.
 func (s *Share) GetLink(id string) (*ShareLink, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -112,7 +112,7 @@ func (s *Share) GetLink(id string) (*ShareLink, error) {
 	return link, nil
 }
 
-// GetLinkByToken 通过token获取分享链接
+// GetLinkByToken 通过token获取分享链接.
 func (s *Share) GetLinkByToken(token string) (*ShareLink, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -140,7 +140,7 @@ func (s *Share) GetLinkByToken(token string) (*ShareLink, error) {
 	return link, nil
 }
 
-// VerifyPassword 验证分享密码
+// VerifyPassword 验证分享密码.
 func (s *Share) VerifyPassword(token, password string) (bool, error) {
 	link, err := s.GetLinkByToken(token)
 	if err != nil {
@@ -154,7 +154,7 @@ func (s *Share) VerifyPassword(token, password string) (bool, error) {
 	return link.Password == hashPassword(password), nil
 }
 
-// RecordDownload 记录下载
+// RecordDownload 记录下载.
 func (s *Share) RecordDownload(token string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -178,7 +178,7 @@ func (s *Share) RecordDownload(token string) error {
 	return nil
 }
 
-// DeleteLink 删除分享链接
+// DeleteLink 删除分享链接.
 func (s *Share) DeleteLink(id string, userID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -203,7 +203,7 @@ func (s *Share) DeleteLink(id string, userID string) error {
 	return nil
 }
 
-// UpdateLink 更新分享链接
+// UpdateLink 更新分享链接.
 func (s *Share) UpdateLink(id string, updates map[string]interface{}, userID string) (*ShareLink, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -251,7 +251,7 @@ func (s *Share) UpdateLink(id string, updates map[string]interface{}, userID str
 	return link, nil
 }
 
-// ListLinks 列出用户的所有分享链接
+// ListLinks 列出用户的所有分享链接.
 func (s *Share) ListLinks(userID string) []*ShareLink {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -266,7 +266,7 @@ func (s *Share) ListLinks(userID string) []*ShareLink {
 	return result
 }
 
-// ListAllLinks 列出所有分享链接（管理员）
+// ListAllLinks 列出所有分享链接（管理员）.
 func (s *Share) ListAllLinks() []*ShareLink {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -279,7 +279,7 @@ func (s *Share) ListAllLinks() []*ShareLink {
 	return result
 }
 
-// GetStats 获取分享统计
+// GetStats 获取分享统计.
 func (s *Share) GetStats() ShareStats {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -301,7 +301,7 @@ func (s *Share) GetStats() ShareStats {
 	return stats
 }
 
-// CleanupExpired 清理过期链接
+// CleanupExpired 清理过期链接.
 func (s *Share) CleanupExpired() int {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -324,7 +324,7 @@ func (s *Share) CleanupExpired() int {
 	return count
 }
 
-// GetShareablePath 获取可分享的文件路径
+// GetShareablePath 获取可分享的文件路径.
 func (s *Share) GetShareablePath(token, password string) (string, error) {
 	// 验证链接
 	link, err := s.GetLinkByToken(token)
@@ -345,7 +345,7 @@ func (s *Share) GetShareablePath(token, password string) (string, error) {
 	return link.Path, nil
 }
 
-// validatePath 验证路径
+// validatePath 验证路径.
 func (s *Share) validatePath(path string) (string, error) {
 	if path == "" {
 		return "", fmt.Errorf("路径不能为空")
@@ -366,7 +366,7 @@ func (s *Share) validatePath(path string) (string, error) {
 	return cleanPath, nil
 }
 
-// isSubpath 检查是否是子路径
+// isSubpath 检查是否是子路径.
 func isSubpath(path, parent string) bool {
 	rel, err := filepath.Rel(parent, path)
 	if err != nil {
@@ -375,7 +375,7 @@ func isSubpath(path, parent string) bool {
 	return rel != ".." && !filepath.IsAbs(rel) && len(rel) > 0 && rel[0] != '.'
 }
 
-// generateToken 生成随机token
+// generateToken 生成随机token.
 func generateToken() (string, error) {
 	bytes := make([]byte, 32)
 	if _, err := rand.Read(bytes); err != nil {
@@ -384,7 +384,7 @@ func generateToken() (string, error) {
 	return hex.EncodeToString(bytes), nil
 }
 
-// hashPassword 哈希密码
+// hashPassword 哈希密码.
 func hashPassword(password string) string {
 	hash := sha256.Sum256([]byte(password))
 	return hex.EncodeToString(hash[:])

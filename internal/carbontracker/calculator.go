@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-// Calculator 碳排放计算器
+// Calculator 碳排放计算器.
 type Calculator struct {
 	regionIntensities map[string]float64
 	defaultRegion     string
 }
 
-// NewCalculator 创建碳排放计算器
+// NewCalculator 创建碳排放计算器.
 func NewCalculator(regionIntensities map[string]float64, defaultRegion string) *Calculator {
 	if regionIntensities == nil {
 		regionIntensities = map[string]float64{
@@ -37,7 +37,7 @@ func NewCalculator(regionIntensities map[string]float64, defaultRegion string) *
 // CalculateCarbon 计算碳排放量
 // energyKWh: 能耗 (kWh)
 // intensity: 碳强度 (gCO2/kWh)
-// 返回碳排放 (kg CO2)
+// 返回碳排放 (kg CO2).
 func (c *Calculator) CalculateCarbon(energyKWh, intensity float64) float64 {
 	if energyKWh < 0 || intensity < 0 {
 		return 0
@@ -53,7 +53,7 @@ func (c *Calculator) CalculateCarbonByRegion(energyKWh float64, region string) f
 	return c.CalculateCarbon(energyKWh, intensity)
 }
 
-// GetIntensity 获取地区碳强度
+// GetIntensity 获取地区碳强度.
 func (c *Calculator) GetIntensity(region string) float64 {
 	if intensity, ok := c.regionIntensities[region]; ok {
 		return intensity
@@ -61,7 +61,7 @@ func (c *Calculator) GetIntensity(region string) float64 {
 	return c.regionIntensities[c.defaultRegion]
 }
 
-// SetIntensity 设置地区碳强度
+// SetIntensity 设置地区碳强度.
 func (c *Calculator) SetIntensity(region string, intensity float64) {
 	c.regionIntensities[region] = intensity
 }
@@ -73,7 +73,7 @@ func (c *Calculator) WattsToKWh(watts, hours float64) float64 {
 	return watts * hours / 1000.0
 }
 
-// CalculateDeviceCarbon 计算设备碳排放
+// CalculateDeviceCarbon 计算设备碳排放.
 func (c *Calculator) CalculateDeviceCarbon(device *EnergyConsumption, region string, duration time.Duration) []DeviceCarbonStat {
 	if device == nil {
 		return nil
@@ -147,7 +147,7 @@ func (c *Calculator) CalculateIntensity(gridPct, solarPct, windPct float64, regi
 
 // EstimateTreeEquivalent 计算等效树木数量
 // carbonKg: 碳排放量 (kg CO2)
-// 一棵树一年吸收约 21.77 kg CO2
+// 一棵树一年吸收约 21.77 kg CO2.
 func (c *Calculator) EstimateTreeEquivalent(carbonKg float64) int {
 	if carbonKg <= 0 {
 		return 0
@@ -157,7 +157,7 @@ func (c *Calculator) EstimateTreeEquivalent(carbonKg float64) int {
 
 // CalculatePUE 计算 PUE (Power Usage Effectiveness)
 // totalPower: 总功耗
-// itPower: IT 设备功耗
+// itPower: IT 设备功耗.
 func (c *Calculator) CalculatePUE(totalPower, itPower float64) float64 {
 	if itPower <= 0 {
 		return 0
@@ -166,14 +166,14 @@ func (c *Calculator) CalculatePUE(totalPower, itPower float64) float64 {
 }
 
 // EstimateAnnualCarbon 预估年碳排放
-// currentMonthlyKg: 当前月排放 (kg)
+// currentMonthlyKg: 当前月排放 (kg).
 func (c *Calculator) EstimateAnnualCarbon(currentMonthlyKg float64) float64 {
 	return currentMonthlyKg * 12 / 1000.0 // 转换为吨
 }
 
 // CalculateReduction 计算减排量
 // baselineKg: 基准排放 (kg)
-// currentKg: 当前排放 (kg)
+// currentKg: 当前排放 (kg).
 func (c *Calculator) CalculateReduction(baselineKg, currentKg float64) (float64, float64) {
 	if baselineKg <= 0 {
 		return 0, 0
@@ -183,7 +183,7 @@ func (c *Calculator) CalculateReduction(baselineKg, currentKg float64) (float64,
 	return math.Round(reduction*100) / 100, math.Round(percentage*100) / 100
 }
 
-// CalculateTargetProgress 计算目标进度
+// CalculateTargetProgress 计算目标进度.
 func (c *Calculator) CalculateTargetProgress(target *CarbonTarget) float64 {
 	if target == nil || target.BaselineCarbonT <= 0 {
 		return 0
@@ -206,7 +206,7 @@ func (c *Calculator) CalculateTargetProgress(target *CarbonTarget) float64 {
 
 // ClassifyIntensity 分类碳强度等级
 // intensity: 碳强度 (gCO2/kWh)
-// 返回: "very_low", "low", "medium", "high", "very_high"
+// 返回: "very_low", "low", "medium", "high", "very_high".
 func (c *Calculator) ClassifyIntensity(intensity float64) string {
 	switch {
 	case intensity < 50:
@@ -222,7 +222,7 @@ func (c *Calculator) ClassifyIntensity(intensity float64) string {
 	}
 }
 
-// CalculateESGScore 计算 ESG 评分
+// CalculateESGScore 计算 ESG 评分.
 func (c *Calculator) CalculateESGScore(
 	totalCarbonT float64,
 	greenEnergyPct float64,
@@ -283,7 +283,7 @@ func (c *Calculator) CalculateESGScore(
 	}
 }
 
-// GenerateReductionTips 生成碳减排建议
+// GenerateReductionTips 生成碳减排建议.
 func (c *Calculator) GenerateReductionTips(
 	avgDailyCarbonKg float64,
 	deviceStats []DeviceCarbonStat,
@@ -352,7 +352,7 @@ func (c *Calculator) GenerateReductionTips(
 	return tips
 }
 
-// GenerateGreenSuggestions 生成绿色能源调度建议
+// GenerateGreenSuggestions 生成绿色能源调度建议.
 func (c *Calculator) GenerateGreenSuggestions(
 	currentIntensity float64,
 	region string,

@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// TagType 标签类型
+// TagType 标签类型.
 type TagType string
 
 const (
@@ -19,7 +19,7 @@ const (
 	TagSystem TagType = "system" // 系统标签
 )
 
-// Tag 标签
+// Tag 标签.
 type Tag struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -30,7 +30,7 @@ type Tag struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// FileTag 文件标签关联
+// FileTag 文件标签关联.
 type FileTag struct {
 	FilePath  string    `json:"file_path"`
 	TagIDs    []string  `json:"tag_ids"`
@@ -39,7 +39,7 @@ type FileTag struct {
 	TaggedBy  string    `json:"tagged_by"` // "ai" or user id
 }
 
-// ClassificationRule 分类规则
+// ClassificationRule 分类规则.
 type ClassificationRule struct {
 	ID         string   `json:"id"`
 	Name       string   `json:"name"`
@@ -50,7 +50,7 @@ type ClassificationRule struct {
 	Enabled    bool     `json:"enabled"`
 }
 
-// AISuggestion AI建议
+// AISuggestion AI建议.
 type AISuggestion struct {
 	FilePath string   `json:"file_path"`
 	TagIDs   []string `json:"tag_ids"`
@@ -58,7 +58,7 @@ type AISuggestion struct {
 	Reason   string   `json:"reason"`
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	AutoTag       bool    `json:"auto_tag"`
 	AIEnabled     bool    `json:"ai_enabled"`
@@ -67,7 +67,7 @@ type Config struct {
 	MaxTags       int     `json:"max_tags_per_file"`
 }
 
-// Manager 管理器
+// Manager 管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	tags     map[string]*Tag
@@ -83,7 +83,7 @@ var (
 	ErrDuplicateTag  = errors.New("tag already exists")
 )
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(dataFile string) *Manager {
 	return &Manager{
 		tags:     make(map[string]*Tag),
@@ -98,7 +98,7 @@ func NewManager(dataFile string) *Manager {
 	}
 }
 
-// Initialize 初始化
+// Initialize 初始化.
 func (m *Manager) Initialize() error {
 	m.loadDefaultTags()
 	m.loadDefaultRules()
@@ -134,7 +134,7 @@ func (m *Manager) loadDefaultRules() {
 	}
 }
 
-// CreateTag 创建标签
+// CreateTag 创建标签.
 func (m *Manager) CreateTag(tag *Tag) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -147,7 +147,7 @@ func (m *Manager) CreateTag(tag *Tag) error {
 	return m.save()
 }
 
-// DeleteTag 删除标签
+// DeleteTag 删除标签.
 func (m *Manager) DeleteTag(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -158,7 +158,7 @@ func (m *Manager) DeleteTag(id string) error {
 	return m.save()
 }
 
-// GetTag 获取标签
+// GetTag 获取标签.
 func (m *Manager) GetTag(id string) (*Tag, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -169,7 +169,7 @@ func (m *Manager) GetTag(id string) (*Tag, error) {
 	return tag, nil
 }
 
-// ListTags 列出标签
+// ListTags 列出标签.
 func (m *Manager) ListTags(tagType TagType) []*Tag {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -182,7 +182,7 @@ func (m *Manager) ListTags(tagType TagType) []*Tag {
 	return result
 }
 
-// TagFile 标记文件
+// TagFile 标记文件.
 func (m *Manager) TagFile(filePath string, tagIDs []string, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -203,7 +203,7 @@ func (m *Manager) TagFile(filePath string, tagIDs []string, userID string) error
 	return m.save()
 }
 
-// UntagFile 移除文件标签
+// UntagFile 移除文件标签.
 func (m *Manager) UntagFile(filePath string, tagIDs []string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -225,14 +225,14 @@ func (m *Manager) UntagFile(filePath string, tagIDs []string) error {
 	return m.save()
 }
 
-// GetFileTags 获取文件标签
+// GetFileTags 获取文件标签.
 func (m *Manager) GetFileTags(filePath string) *FileTag {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.fileTags[filePath]
 }
 
-// ClassifyFile AI分类文件
+// ClassifyFile AI分类文件.
 func (m *Manager) ClassifyFile(filePath string) *AISuggestion {
 	ext := getExtension(filePath)
 	for _, rule := range m.rules {
@@ -253,7 +253,7 @@ func (m *Manager) ClassifyFile(filePath string) *AISuggestion {
 	return &AISuggestion{FilePath: filePath, TagIDs: []string{}, Score: 0, Reason: "无法分类"}
 }
 
-// BatchClassify 批量分类
+// BatchClassify 批量分类.
 func (m *Manager) BatchClassify(filePaths []string) []*AISuggestion {
 	var results []*AISuggestion
 	for _, fp := range filePaths {
@@ -262,7 +262,7 @@ func (m *Manager) BatchClassify(filePaths []string) []*AISuggestion {
 	return results
 }
 
-// SearchByTag 按标签搜索
+// SearchByTag 按标签搜索.
 func (m *Manager) SearchByTag(tagIDs []string) []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -282,7 +282,7 @@ func (m *Manager) SearchByTag(tagIDs []string) []string {
 	return result
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

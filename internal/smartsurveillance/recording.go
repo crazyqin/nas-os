@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// RecordingManager 录像管理器
+// RecordingManager 录像管理器.
 type RecordingManager struct {
 	mu            sync.RWMutex
 	logger        *zap.Logger
@@ -20,7 +20,7 @@ type RecordingManager struct {
 	retentionDays int
 }
 
-// NewRecordingManager 创建录像管理器
+// NewRecordingManager 创建录像管理器.
 func NewRecordingManager(logger *zap.Logger, engine *SurveillanceEngine, storagePath string) *RecordingManager {
 	return &RecordingManager{
 		logger:        logger,
@@ -30,41 +30,41 @@ func NewRecordingManager(logger *zap.Logger, engine *SurveillanceEngine, storage
 	}
 }
 
-// SetRetention 设置录像保留天数
+// SetRetention 设置录像保留天数.
 func (rm *RecordingManager) SetRetention(days int) {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
 	rm.retentionDays = days
 }
 
-// GetRetention 获取录像保留天数
+// GetRetention 获取录像保留天数.
 func (rm *RecordingManager) GetRetention() int {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
 	return rm.retentionDays
 }
 
-// StartContinuousRecording 开始连续录像
+// StartContinuousRecording 开始连续录像.
 func (rm *RecordingManager) StartContinuousRecording(cameraID string) error {
 	return rm.engine.StartRecording(cameraID)
 }
 
-// StopContinuousRecording 停止连续录像
+// StopContinuousRecording 停止连续录像.
 func (rm *RecordingManager) StopContinuousRecording(cameraID string) error {
 	return rm.engine.StopRecording(cameraID)
 }
 
-// GetRecordingTimeline 获取录像时间线
+// GetRecordingTimeline 获取录像时间线.
 func (rm *RecordingManager) GetRecordingTimeline(cameraID string, date time.Time) (*TimelineData, error) {
 	return rm.engine.GetTimeline(cameraID, date)
 }
 
-// SearchRecordings 搜索录像
+// SearchRecordings 搜索录像.
 func (rm *RecordingManager) SearchRecordings(query RecordingQuery) []*Recording {
 	return rm.engine.GetRecordings(query)
 }
 
-// GetRecordingsByTimeRange 按时间范围获取录像
+// GetRecordingsByTimeRange 按时间范围获取录像.
 func (rm *RecordingManager) GetRecordingsByTimeRange(cameraID string, start, end time.Time) []*Recording {
 	query := RecordingQuery{
 		CameraID:  cameraID,
@@ -76,7 +76,7 @@ func (rm *RecordingManager) GetRecordingsByTimeRange(cameraID string, start, end
 	return rm.engine.GetRecordings(query)
 }
 
-// GetRecordingStats 获取录像统计
+// GetRecordingStats 获取录像统计.
 func (rm *RecordingManager) GetRecordingStats(cameraID string) map[string]interface{} {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -108,7 +108,7 @@ func (rm *RecordingManager) GetRecordingStats(cameraID string) map[string]interf
 	}
 }
 
-// CleanupExpiredRecordings 清理过期录像
+// CleanupExpiredRecordings 清理过期录像.
 func (rm *RecordingManager) CleanupExpiredRecordings() int {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -135,7 +135,7 @@ func (rm *RecordingManager) CleanupExpiredRecordings() int {
 	return cleaned
 }
 
-// ExportRecording 导出录像
+// ExportRecording 导出录像.
 func (rm *RecordingManager) ExportRecording(recordingID string, format string) (string, error) {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -157,7 +157,7 @@ func (rm *RecordingManager) ExportRecording(recordingID string, format string) (
 	return "", ErrRecordingNotFound
 }
 
-// GetEventRecordings 获取包含事件的录像
+// GetEventRecordings 获取包含事件的录像.
 func (rm *RecordingManager) GetEventRecordings(cameraID string, start, end time.Time) []*Recording {
 	query := RecordingQuery{
 		CameraID:  cameraID,
@@ -170,7 +170,7 @@ func (rm *RecordingManager) GetEventRecordings(cameraID string, start, end time.
 	return rm.engine.GetRecordings(query)
 }
 
-// GetRecordingPlaybackURL 获取回放URL
+// GetRecordingPlaybackURL 获取回放URL.
 func (rm *RecordingManager) GetRecordingPlaybackURL(recordingID string, timestamp time.Time) (string, error) {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -188,7 +188,7 @@ func (rm *RecordingManager) GetRecordingPlaybackURL(recordingID string, timestam
 	return "", ErrRecordingNotFound
 }
 
-// GetTimeRangePlayback 获取时间段回放
+// GetTimeRangePlayback 获取时间段回放.
 func (rm *RecordingManager) GetTimeRangePlayback(cameraID string, start, end time.Time) ([]PlaybackSegment, error) {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -224,7 +224,7 @@ func (rm *RecordingManager) GetTimeRangePlayback(cameraID string, start, end tim
 	return segments, nil
 }
 
-// PlaybackSegment 回放片段
+// PlaybackSegment 回放片段.
 type PlaybackSegment struct {
 	RecordingID string    `json:"recording_id"`
 	StartTime   time.Time `json:"start_time"`
@@ -234,7 +234,7 @@ type PlaybackSegment struct {
 	FilePath    string    `json:"file_path"`
 }
 
-// boolPtr 返回bool指针
+// boolPtr 返回bool指针.
 func boolPtr(b bool) *bool {
 	return &b
 }

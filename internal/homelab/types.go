@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// ServiceType 服务类型
+// ServiceType 服务类型.
 type ServiceType string
 
 const (
@@ -17,7 +17,7 @@ const (
 	ServiceSystemd ServiceType = "systemd"
 )
 
-// ServiceStatus 服务状态
+// ServiceStatus 服务状态.
 type ServiceStatus string
 
 const (
@@ -28,7 +28,7 @@ const (
 	StatusStopping ServiceStatus = "stopping"
 )
 
-// Service 服务定义
+// Service 服务定义.
 type Service struct {
 	ID           string            `json:"id"`
 	Name         string            `json:"name"`
@@ -52,7 +52,7 @@ type Service struct {
 	UpdatedAt    time.Time         `json:"updated_at"`
 }
 
-// Stack 编排栈
+// Stack 编排栈.
 type Stack struct {
 	ID        string            `json:"id"`
 	Name      string            `json:"name"`
@@ -64,7 +64,7 @@ type Stack struct {
 	UpdatedAt time.Time         `json:"updated_at"`
 }
 
-// Template 服务模板
+// Template 服务模板.
 type Template struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -79,7 +79,7 @@ type Template struct {
 	Rating      float64           `json:"rating"`
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	DockerHost     string `json:"docker_host"`
 	K3sConfig      string `json:"k3s_config"`
@@ -88,7 +88,7 @@ type Config struct {
 	MaxServices    int    `json:"max_services"`
 }
 
-// 预定义错误
+// 预定义错误.
 var (
 	ErrServiceNotFound  = errors.New("service not found")
 	ErrStackNotFound    = errors.New("stack not found")

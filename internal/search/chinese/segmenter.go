@@ -8,7 +8,7 @@ import (
 )
 
 // Segmenter 中文分词器
-// 实现基于词典的中文分词，支持正向最大匹配和逆向最大匹配算法
+// 实现基于词典的中文分词，支持正向最大匹配和逆向最大匹配算法.
 type Segmenter struct {
 	dict       *Dictionary
 	maxWordLen int
@@ -16,14 +16,14 @@ type Segmenter struct {
 	mu         sync.RWMutex
 }
 
-// Dictionary 分词词典
+// Dictionary 分词词典.
 type Dictionary struct {
 	words    map[string]bool
 	weights  map[string]float64  // 词权重
 	synonyms map[string][]string // 同义词
 }
 
-// NewSegmenter 创建分词器
+// NewSegmenter 创建分词器.
 func NewSegmenter() *Segmenter {
 	s := &Segmenter{
 		dict:       NewDefaultDictionary(),
@@ -33,7 +33,7 @@ func NewSegmenter() *Segmenter {
 	return s
 }
 
-// NewDefaultDictionary 创建默认词典
+// NewDefaultDictionary 创建默认词典.
 func NewDefaultDictionary() *Dictionary {
 	dict := &Dictionary{
 		words:    make(map[string]bool),
@@ -47,7 +47,7 @@ func NewDefaultDictionary() *Dictionary {
 	return dict
 }
 
-// loadDefaultWords 加载默认词汇
+// loadDefaultWords 加载默认词汇.
 func (d *Dictionary) loadDefaultWords() {
 	// 常用中文词汇
 	commonWords := []string{
@@ -110,7 +110,7 @@ func (d *Dictionary) loadDefaultWords() {
 	d.synonyms["任务"] = []string{"作业", "task", "job", "work"}
 }
 
-// AddWord 添加自定义词汇
+// AddWord 添加自定义词汇.
 func (d *Dictionary) AddWord(word string, weight float64) {
 	d.words[word] = true
 	if weight > 0 {
@@ -120,17 +120,17 @@ func (d *Dictionary) AddWord(word string, weight float64) {
 	}
 }
 
-// AddSynonym 添加同义词
+// AddSynonym 添加同义词.
 func (d *Dictionary) AddSynonym(word string, synonyms []string) {
 	d.synonyms[word] = synonyms
 }
 
-// HasWord 检查词汇是否存在
+// HasWord 检查词汇是否存在.
 func (d *Dictionary) HasWord(word string) bool {
 	return d.words[word]
 }
 
-// GetWeight 获取词汇权重
+// GetWeight 获取词汇权重.
 func (d *Dictionary) GetWeight(word string) float64 {
 	if w, ok := d.weights[word]; ok {
 		return w
@@ -138,7 +138,7 @@ func (d *Dictionary) GetWeight(word string) float64 {
 	return 0.5 // 默认权重
 }
 
-// GetSynonyms 获取同义词
+// GetSynonyms 获取同义词.
 func (d *Dictionary) GetSynonyms(word string) []string {
 	if syns, ok := d.synonyms[word]; ok {
 		return syns
@@ -146,7 +146,7 @@ func (d *Dictionary) GetSynonyms(word string) []string {
 	return nil
 }
 
-// Segment 分词 - 正向最大匹配算法
+// Segment 分词 - 正向最大匹配算法.
 func (s *Segmenter) Segment(text string) []string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -211,7 +211,7 @@ func (s *Segmenter) Segment(text string) []string {
 	return result
 }
 
-// segmentChinese 中文分词 - 正向最大匹配
+// segmentChinese 中文分词 - 正向最大匹配.
 func (s *Segmenter) segmentChinese(text string) []string {
 	var result []string
 	runes := []rune(text)
@@ -249,7 +249,7 @@ func (s *Segmenter) segmentChinese(text string) []string {
 	return result
 }
 
-// SegmentReverse 逆向最大匹配分词
+// SegmentReverse 逆向最大匹配分词.
 func (s *Segmenter) SegmentReverse(text string) []string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -292,7 +292,7 @@ func (s *Segmenter) SegmentReverse(text string) []string {
 }
 
 // SegmentBidirectional 双向最大匹配分词
-// 结合正向和逆向匹配，选择切分数量较少的结果
+// 结合正向和逆向匹配，选择切分数量较少的结果.
 func (s *Segmenter) SegmentBidirectional(text string) []string {
 	forward := s.Segment(text)
 	reverse := s.SegmentReverse(text)
@@ -304,7 +304,7 @@ func (s *Segmenter) SegmentBidirectional(text string) []string {
 	return reverse
 }
 
-// SegmentWithPosition 分词并返回位置信息
+// SegmentWithPosition 分词并返回位置信息.
 func (s *Segmenter) SegmentWithPosition(text string) []Token {
 	words := s.Segment(text)
 	tokens := make([]Token, 0, len(words))
@@ -324,7 +324,7 @@ func (s *Segmenter) SegmentWithPosition(text string) []Token {
 	return tokens
 }
 
-// Token 分词结果
+// Token 分词结果.
 type Token struct {
 	Text   string  `json:"text"`
 	Start  int     `json:"start"`
@@ -334,7 +334,7 @@ type Token struct {
 }
 
 // ExpandQuery 查询扩展
-// 根据同义词扩展搜索词，提高召回率
+// 根据同义词扩展搜索词，提高召回率.
 func (s *Segmenter) ExpandQuery(query string) []string {
 	words := s.Segment(query)
 	var expanded []string
@@ -357,7 +357,7 @@ func (s *Segmenter) ExpandQuery(query string) []string {
 	return uniqueStrings(expanded)
 }
 
-// uniqueStrings 字符串去重
+// uniqueStrings 字符串去重.
 func uniqueStrings(s []string) []string {
 	seen := make(map[string]bool)
 	var result []string
@@ -372,7 +372,7 @@ func uniqueStrings(s []string) []string {
 	return result
 }
 
-// isChineseChar 判断是否为中文字符
+// isChineseChar 判断是否为中文字符.
 func isChineseChar(c byte) bool {
 	// UTF-8中文字符的范围
 	// 中文字符的第一个字节在 0x81-0xFE 范围内
@@ -380,7 +380,7 @@ func isChineseChar(c byte) bool {
 	return c >= 0x80
 }
 
-// isChineseRune 判断rune是否为中文字符
+// isChineseRune 判断rune是否为中文字符.
 func isChineseRune(r rune) bool {
 	// CJK统一汉字范围
 	// 0x4E00-0x9FFF: CJK统一汉字
@@ -389,7 +389,7 @@ func isChineseRune(r rune) bool {
 	return r >= 0x4E00 && r <= 0x9FFF || r >= 0x3400 && r <= 0x4DBF
 }
 
-// NormalizeText 文本规范化
+// NormalizeText 文本规范化.
 func (s *Segmenter) NormalizeText(text string) string {
 	// 转小写
 	text = strings.ToLower(text)
@@ -420,7 +420,7 @@ func (s *Segmenter) NormalizeText(text string) string {
 }
 
 // ExtractKeywords 关键词提取
-// 从文本中提取关键词，用于索引
+// 从文本中提取关键词，用于索引.
 func (s *Segmenter) ExtractKeywords(text string, topN int) []Keyword {
 	tokens := s.SegmentWithPosition(text)
 
@@ -454,14 +454,14 @@ func (s *Segmenter) ExtractKeywords(text string, topN int) []Keyword {
 	return keywords
 }
 
-// Keyword 关键词
+// Keyword 关键词.
 type Keyword struct {
 	Text   string  `json:"text"`
 	Count  int     `json:"count"`
 	Weight float64 `json:"weight"`
 }
 
-// sortKeywords 关键词排序
+// sortKeywords 关键词排序.
 func sortKeywords(keywords []Keyword) {
 	// 按权重降序排序
 	for i := 0; i < len(keywords)-1; i++ {
@@ -473,7 +473,7 @@ func sortKeywords(keywords []Keyword) {
 	}
 }
 
-// LoadCustomDictionary 加载自定义词典
+// LoadCustomDictionary 加载自定义词典.
 func (s *Segmenter) LoadCustomDictionary(words []string, weights map[string]float64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -483,7 +483,7 @@ func (s *Segmenter) LoadCustomDictionary(words []string, weights map[string]floa
 	}
 }
 
-// LoadSynonyms 加载同义词词典
+// LoadSynonyms 加载同义词词典.
 func (s *Segmenter) LoadSynonyms(synonyms map[string][]string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -493,19 +493,19 @@ func (s *Segmenter) LoadSynonyms(synonyms map[string][]string) {
 	}
 }
 
-// GetDictionary 获取词典
+// GetDictionary 获取词典.
 func (s *Segmenter) GetDictionary() *Dictionary {
 	return s.dict
 }
 
-// SetMaxWordLen 设置最大词长度
+// SetMaxWordLen 设置最大词长度.
 func (s *Segmenter) SetMaxWordLen(len int) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.maxWordLen = len
 }
 
-// GetMaxWordLen 获取最大词长度
+// GetMaxWordLen 获取最大词长度.
 func (s *Segmenter) GetMaxWordLen() int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

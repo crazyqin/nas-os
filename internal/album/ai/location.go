@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// LocationClusterer provides geographic clustering for photos
+// LocationClusterer provides geographic clustering for photos.
 type LocationClusterer struct {
 	geocodingProvider string
 	geocodingAPIKey   string
@@ -21,7 +21,7 @@ type LocationClusterer struct {
 	cacheMu           sync.RWMutex
 }
 
-// NewLocationClusterer creates a new location clusterer
+// NewLocationClusterer creates a new location clusterer.
 func NewLocationClusterer(provider, apiKey string) *LocationClusterer {
 	return &LocationClusterer{
 		geocodingProvider: provider,
@@ -33,7 +33,7 @@ func NewLocationClusterer(provider, apiKey string) *LocationClusterer {
 	}
 }
 
-// PhotoLocation represents a photo with GPS data
+// PhotoLocation represents a photo with GPS data.
 type PhotoLocation struct {
 	PhotoID string
 	Lat     float64
@@ -41,7 +41,7 @@ type PhotoLocation struct {
 	TakenAt time.Time
 }
 
-// ClusterPhotos clusters photos by geographic location
+// ClusterPhotos clusters photos by geographic location.
 func (lc *LocationClusterer) ClusterPhotos(ctx context.Context, photos []PhotoLocation, radiusMeters float64) ([]*LocationCluster, error) {
 	if len(photos) == 0 {
 		return []*LocationCluster{}, nil
@@ -63,7 +63,7 @@ func (lc *LocationClusterer) ClusterPhotos(ctx context.Context, photos []PhotoLo
 	return clusters, nil
 }
 
-// dbscanClustering performs DBSCAN clustering on photo locations
+// dbscanClustering performs DBSCAN clustering on photo locations.
 func (lc *LocationClusterer) dbscanClustering(photos []PhotoLocation, radiusMeters float64) []*LocationCluster {
 	n := len(photos)
 	visited := make([]bool, n)
@@ -147,7 +147,7 @@ func (lc *LocationClusterer) dbscanClustering(photos []PhotoLocation, radiusMete
 	return result
 }
 
-// getNeighbors returns indices of photos within radius
+// getNeighbors returns indices of photos within radius.
 func (lc *LocationClusterer) getNeighbors(photos []PhotoLocation, idx int, radiusMeters float64) []int {
 	neighbors := make([]int, 0)
 	for i, p := range photos {
@@ -162,7 +162,7 @@ func (lc *LocationClusterer) getNeighbors(photos []PhotoLocation, idx int, radiu
 	return neighbors
 }
 
-// calculateClusterStats calculates cluster center and date range
+// calculateClusterStats calculates cluster center and date range.
 func (lc *LocationClusterer) calculateClusterStats(cluster *LocationCluster, photos []PhotoLocation, labels []int) {
 	var sumLat, sumLng float64
 	var minTime, maxTime time.Time
@@ -201,7 +201,7 @@ func (lc *LocationClusterer) calculateClusterStats(cluster *LocationCluster, pho
 	}
 }
 
-// ReverseGeocode performs reverse geocoding
+// ReverseGeocode performs reverse geocoding.
 func (lc *LocationClusterer) ReverseGeocode(ctx context.Context, lat, lng float64) (*PlaceInfo, error) {
 	// Check cache
 	cacheKey := fmt.Sprintf("%.4f,%.4f", lat, lng)
@@ -235,7 +235,7 @@ func (lc *LocationClusterer) ReverseGeocode(ctx context.Context, lat, lng float6
 	return placeInfo, err
 }
 
-// nominatimReverseGeocode uses OpenStreetMap Nominatim
+// nominatimReverseGeocode uses OpenStreetMap Nominatim.
 func (lc *LocationClusterer) nominatimReverseGeocode(ctx context.Context, lat, lng float64) (*PlaceInfo, error) {
 	url := fmt.Sprintf("https://nominatim.openstreetmap.org/reverse?format=json&lat=%f&lon=%f&zoom=14", lat, lng)
 
@@ -294,7 +294,7 @@ func (lc *LocationClusterer) nominatimReverseGeocode(ctx context.Context, lat, l
 	}, nil
 }
 
-// googleReverseGeocode uses Google Maps Geocoding API
+// googleReverseGeocode uses Google Maps Geocoding API.
 func (lc *LocationClusterer) googleReverseGeocode(ctx context.Context, lat, lng float64) (*PlaceInfo, error) {
 	if lc.geocodingAPIKey == "" {
 		return nil, fmt.Errorf("google API key not configured")
@@ -351,7 +351,7 @@ func (lc *LocationClusterer) googleReverseGeocode(ctx context.Context, lat, lng 
 	return placeInfo, nil
 }
 
-// baiduReverseGeocode uses Baidu Maps API
+// baiduReverseGeocode uses Baidu Maps API.
 func (lc *LocationClusterer) baiduReverseGeocode(ctx context.Context, lat, lng float64) (*PlaceInfo, error) {
 	if lc.geocodingAPIKey == "" {
 		return nil, fmt.Errorf("baidu API key not configured")
@@ -402,7 +402,7 @@ func (lc *LocationClusterer) baiduReverseGeocode(ctx context.Context, lat, lng f
 	}, nil
 }
 
-// generateClusterName generates a human-readable cluster name
+// generateClusterName generates a human-readable cluster name.
 func (lc *LocationClusterer) generateClusterName(placeInfo *PlaceInfo) string {
 	if placeInfo == nil {
 		return "Unknown Location"
@@ -425,7 +425,7 @@ func (lc *LocationClusterer) generateClusterName(placeInfo *PlaceInfo) string {
 	return "Unknown Location"
 }
 
-// GroupPhotosByCity groups photos by city
+// GroupPhotosByCity groups photos by city.
 func (lc *LocationClusterer) GroupPhotosByCity(ctx context.Context, photos []PhotoLocation) (map[string][]string, error) {
 	cityMap := make(map[string][]string)
 
@@ -446,7 +446,7 @@ func (lc *LocationClusterer) GroupPhotosByCity(ctx context.Context, photos []Pho
 	return cityMap, nil
 }
 
-// GroupPhotosByCountry groups photos by country
+// GroupPhotosByCountry groups photos by country.
 func (lc *LocationClusterer) GroupPhotosByCountry(ctx context.Context, photos []PhotoLocation) (map[string][]string, error) {
 	countryMap := make(map[string][]string)
 
@@ -467,7 +467,7 @@ func (lc *LocationClusterer) GroupPhotosByCountry(ctx context.Context, photos []
 	return countryMap, nil
 }
 
-// SearchLocation searches for locations by name
+// SearchLocation searches for locations by name.
 func (lc *LocationClusterer) SearchLocation(ctx context.Context, query string) ([]PlaceInfo, error) {
 	switch lc.geocodingProvider {
 	case "nominatim":
@@ -479,7 +479,7 @@ func (lc *LocationClusterer) SearchLocation(ctx context.Context, query string) (
 	}
 }
 
-// nominatimSearch uses Nominatim for location search
+// nominatimSearch uses Nominatim for location search.
 func (lc *LocationClusterer) nominatimSearch(ctx context.Context, query string) ([]PlaceInfo, error) {
 	url := fmt.Sprintf("https://nominatim.openstreetmap.org/search?format=json&q=%s&limit=5", url.QueryEscape(query))
 
@@ -518,7 +518,7 @@ func (lc *LocationClusterer) nominatimSearch(ctx context.Context, query string) 
 	return places, nil
 }
 
-// googleSearch uses Google Places API for location search
+// googleSearch uses Google Places API for location search.
 func (lc *LocationClusterer) googleSearch(ctx context.Context, query string) ([]PlaceInfo, error) {
 	if lc.geocodingAPIKey == "" {
 		return nil, fmt.Errorf("google API key not configured")
@@ -560,7 +560,7 @@ func (lc *LocationClusterer) googleSearch(ctx context.Context, query string) ([]
 	return places, nil
 }
 
-// haversineDistance calculates distance between two GPS coordinates in meters
+// haversineDistance calculates distance between two GPS coordinates in meters.
 func haversineDistance(lat1, lng1, lat2, lng2 float64) float64 {
 	const earthRadius = 6371000 // meters
 
@@ -576,7 +576,7 @@ func haversineDistance(lat1, lng1, lat2, lng2 float64) float64 {
 	return earthRadius * c
 }
 
-// Close releases resources
+// Close releases resources.
 func (lc *LocationClusterer) Close() error {
 	return nil
 }

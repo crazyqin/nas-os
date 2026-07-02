@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// NewChatPlusManager 创建 ChatPlus 管理器
+// NewChatPlusManager 创建 ChatPlus 管理器.
 func NewChatPlusManager(config *ChatPlusConfig) *ChatPlusManager {
 	if config == nil {
 		config = DefaultChatPlusConfig()
@@ -26,7 +26,7 @@ func NewChatPlusManager(config *ChatPlusConfig) *ChatPlusManager {
 	}
 }
 
-// Start 启动 ChatPlus 管理器
+// Start 启动 ChatPlus 管理器.
 func (m *ChatPlusManager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -47,7 +47,7 @@ func (m *ChatPlusManager) Start() error {
 	return nil
 }
 
-// Stop 停止 ChatPlus 管理器
+// Stop 停止 ChatPlus 管理器.
 func (m *ChatPlusManager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -61,14 +61,14 @@ func (m *ChatPlusManager) Stop() {
 	log.Println("[ChatPlus] 企业即时通讯管理器停止")
 }
 
-// IsRunning 检查是否运行中
+// IsRunning 检查是否运行中.
 func (m *ChatPlusManager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.running
 }
 
-// CreateUser 创建用户
+// CreateUser 创建用户.
 func (m *ChatPlusManager) CreateUser(username, fullName, email string) (*ChatUser, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -95,7 +95,7 @@ func (m *ChatPlusManager) CreateUser(username, fullName, email string) (*ChatUse
 	return user, nil
 }
 
-// GetUser 获取用户
+// GetUser 获取用户.
 func (m *ChatPlusManager) GetUser(userID string) (*ChatUser, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -108,7 +108,7 @@ func (m *ChatPlusManager) GetUser(userID string) (*ChatUser, error) {
 	return user, nil
 }
 
-// UpdateUserStatus 更新用户状态
+// UpdateUserStatus 更新用户状态.
 func (m *ChatPlusManager) UpdateUserStatus(userID string, status UserStatus) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -130,7 +130,7 @@ func (m *ChatPlusManager) UpdateUserStatus(userID string, status UserStatus) err
 	return nil
 }
 
-// ListUsers 列出所有用户
+// ListUsers 列出所有用户.
 func (m *ChatPlusManager) ListUsers() []*ChatUser {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -142,7 +142,7 @@ func (m *ChatPlusManager) ListUsers() []*ChatUser {
 	return users
 }
 
-// CreateChannel 创建频道
+// CreateChannel 创建频道.
 func (m *ChatPlusManager) CreateChannel(name, description string, channelType ChannelType, creatorID string, isPrivate bool) (*ChatChannel, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -172,7 +172,7 @@ func (m *ChatPlusManager) CreateChannel(name, description string, channelType Ch
 	return channel, nil
 }
 
-// GetChannel 获取频道
+// GetChannel 获取频道.
 func (m *ChatPlusManager) GetChannel(channelID string) (*ChatChannel, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -185,7 +185,7 @@ func (m *ChatPlusManager) GetChannel(channelID string) (*ChatChannel, error) {
 	return channel, nil
 }
 
-// ListChannels 列出用户可见的频道
+// ListChannels 列出用户可见的频道.
 func (m *ChatPlusManager) ListChannels(userID string) []*ChatChannel {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -204,7 +204,7 @@ func (m *ChatPlusManager) ListChannels(userID string) []*ChatChannel {
 	return channels
 }
 
-// JoinChannel 加入频道
+// JoinChannel 加入频道.
 func (m *ChatPlusManager) JoinChannel(channelID, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -233,7 +233,7 @@ func (m *ChatPlusManager) JoinChannel(channelID, userID string) error {
 	return nil
 }
 
-// LeaveChannel 离开频道
+// LeaveChannel 离开频道.
 func (m *ChatPlusManager) LeaveChannel(channelID, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -266,7 +266,7 @@ func (m *ChatPlusManager) LeaveChannel(channelID, userID string) error {
 	return nil
 }
 
-// SendMessage 发送消息
+// SendMessage 发送消息.
 func (m *ChatPlusManager) SendMessage(channelID, senderID, content string, msgType MessageType) (*ChatMessage, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -331,7 +331,7 @@ func (m *ChatPlusManager) SendMessage(channelID, senderID, content string, msgTy
 	return message, nil
 }
 
-// GetMessages 获取频道消息
+// GetMessages 获取频道消息.
 func (m *ChatPlusManager) GetMessages(channelID string, limit int, before *time.Time) ([]*ChatMessage, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -363,7 +363,7 @@ func (m *ChatPlusManager) GetMessages(channelID string, limit int, before *time.
 	return filtered, nil
 }
 
-// SearchMessages 搜索消息
+// SearchMessages 搜索消息.
 func (m *ChatPlusManager) SearchMessages(query string, channelID string, userID string) *SearchResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -416,7 +416,7 @@ func (m *ChatPlusManager) SearchMessages(query string, channelID string, userID 
 	}
 }
 
-// EditMessage 编辑消息
+// EditMessage 编辑消息.
 func (m *ChatPlusManager) EditMessage(messageID, channelID, userID, newContent string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -447,7 +447,7 @@ func (m *ChatPlusManager) EditMessage(messageID, channelID, userID, newContent s
 	return fmt.Errorf("消息不存在: %s", messageID)
 }
 
-// DeleteMessage 删除消息
+// DeleteMessage 删除消息.
 func (m *ChatPlusManager) DeleteMessage(messageID, channelID, userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -483,7 +483,7 @@ func (m *ChatPlusManager) DeleteMessage(messageID, channelID, userID string) err
 	return fmt.Errorf("消息不存在: %s", messageID)
 }
 
-// SetOnMessageCallback 设置消息回调
+// SetOnMessageCallback 设置消息回调.
 func (m *ChatPlusManager) SetOnMessageCallback(callback func(msg *ChatMessage)) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -491,7 +491,7 @@ func (m *ChatPlusManager) SetOnMessageCallback(callback func(msg *ChatMessage)) 
 	m.onMessage = callback
 }
 
-// SetOnTypingCallback 设置输入回调
+// SetOnTypingCallback 设置输入回调.
 func (m *ChatPlusManager) SetOnTypingCallback(callback func(channelID, userID string)) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -499,7 +499,7 @@ func (m *ChatPlusManager) SetOnTypingCallback(callback func(channelID, userID st
 	m.onTyping = callback
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *ChatPlusManager) GetStats() *ChatStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -518,7 +518,7 @@ func (m *ChatPlusManager) GetStats() *ChatStats {
 	}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *ChatPlusManager) GetConfig() *ChatPlusConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -526,7 +526,7 @@ func (m *ChatPlusManager) GetConfig() *ChatPlusConfig {
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *ChatPlusManager) UpdateConfig(config *ChatPlusConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -535,7 +535,7 @@ func (m *ChatPlusManager) UpdateConfig(config *ChatPlusConfig) {
 	log.Printf("[ChatPlus] 配置已更新")
 }
 
-// messageCleaner 消息清理器
+// messageCleaner 消息清理器.
 func (m *ChatPlusManager) messageCleaner() {
 	ticker := time.NewTicker(24 * time.Hour)
 	defer ticker.Stop()
@@ -550,7 +550,7 @@ func (m *ChatPlusManager) messageCleaner() {
 	}
 }
 
-// cleanOldMessages 清理旧消息
+// cleanOldMessages 清理旧消息.
 func (m *ChatPlusManager) cleanOldMessages() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -568,7 +568,7 @@ func (m *ChatPlusManager) cleanOldMessages() {
 	}
 }
 
-// onlineStatusMonitor 在线状态监控
+// onlineStatusMonitor 在线状态监控.
 func (m *ChatPlusManager) onlineStatusMonitor() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
@@ -583,7 +583,7 @@ func (m *ChatPlusManager) onlineStatusMonitor() {
 	}
 }
 
-// checkOnlineStatus 检查在线状态
+// checkOnlineStatus 检查在线状态.
 func (m *ChatPlusManager) checkOnlineStatus() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -600,7 +600,7 @@ func (m *ChatPlusManager) checkOnlineStatus() {
 	}
 }
 
-// GetOnlineUsers 获取在线用户列表
+// GetOnlineUsers 获取在线用户列表.
 func (m *ChatPlusManager) GetOnlineUsers() []*ChatUser {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -615,7 +615,7 @@ func (m *ChatPlusManager) GetOnlineUsers() []*ChatUser {
 	return users
 }
 
-// AddChannelAdmin 添加频道管理员
+// AddChannelAdmin 添加频道管理员.
 func (m *ChatPlusManager) AddChannelAdmin(channelID, userID, adminID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -664,7 +664,7 @@ func (m *ChatPlusManager) AddChannelAdmin(channelID, userID, adminID string) err
 	return nil
 }
 
-// RemoveChannelAdmin 移除频道管理员
+// RemoveChannelAdmin 移除频道管理员.
 func (m *ChatPlusManager) RemoveChannelAdmin(channelID, userID, adminID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

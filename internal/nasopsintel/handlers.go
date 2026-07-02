@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 运维智能 API 处理器
+// Handlers 运维智能 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	ops := rg.Group("/ops")
 	{
@@ -45,7 +45,7 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// ingestEvent 接收事件请求
+// ingestEvent 接收事件请求.
 type ingestEventRequest struct {
 	Source      EventSource            `json:"source" binding:"required"`
 	Severity    Severity               `json:"severity" binding:"required"`
@@ -56,7 +56,7 @@ type ingestEventRequest struct {
 	Service     string                 `json:"service,omitempty"`
 }
 
-// ingestEvent 接收事件
+// ingestEvent 接收事件.
 func (h *Handlers) ingestEvent(c *gin.Context) {
 	var req ingestEventRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -78,7 +78,7 @@ func (h *Handlers) ingestEvent(c *gin.Context) {
 	c.JSON(http.StatusAccepted, gin.H{"status": "accepted"})
 }
 
-// listEvents 列出事件
+// listEvents 列出事件.
 func (h *Handlers) listEvents(c *gin.Context) {
 	limit := parseIntParam(c, "limit", 100)
 	source := EventSource(c.Query("source"))
@@ -88,14 +88,14 @@ func (h *Handlers) listEvents(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"events": events, "total": len(events)})
 }
 
-// listIncidents 列出运维事件
+// listIncidents 列出运维事件.
 func (h *Handlers) listIncidents(c *gin.Context) {
 	status := IncidentStatus(c.Query("status"))
 	incidents := h.manager.ListIncidents(status)
 	c.JSON(http.StatusOK, gin.H{"incidents": incidents, "total": len(incidents)})
 }
 
-// getIncident 获取运维事件
+// getIncident 获取运维事件.
 func (h *Handlers) getIncident(c *gin.Context) {
 	id := c.Param("id")
 	inc, err := h.manager.GetIncident(id)
@@ -106,13 +106,13 @@ func (h *Handlers) getIncident(c *gin.Context) {
 	c.JSON(http.StatusOK, inc)
 }
 
-// resolveIncidentRequest 解决事件请求
+// resolveIncidentRequest 解决事件请求.
 type resolveIncidentRequest struct {
 	RootCause   string `json:"root_cause" binding:"required"`
 	Remediation string `json:"remediation"`
 }
 
-// resolveIncident 解决事件
+// resolveIncident 解决事件.
 func (h *Handlers) resolveIncident(c *gin.Context) {
 	id := c.Param("id")
 	var req resolveIncidentRequest
@@ -128,26 +128,26 @@ func (h *Handlers) resolveIncident(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "resolved"})
 }
 
-// listAnomalies 列出异常
+// listAnomalies 列出异常.
 func (h *Handlers) listAnomalies(c *gin.Context) {
 	limit := parseIntParam(c, "limit", 50)
 	anomalies := h.manager.ListAnomalies(limit)
 	c.JSON(http.StatusOK, gin.H{"anomalies": anomalies, "total": len(anomalies)})
 }
 
-// getHealth 获取健康评分
+// getHealth 获取健康评分.
 func (h *Handlers) getHealth(c *gin.Context) {
 	health := h.manager.GetHealthScore()
 	c.JSON(http.StatusOK, health)
 }
 
-// getMetrics 获取运维指标
+// getMetrics 获取运维指标.
 func (h *Handlers) getMetrics(c *gin.Context) {
 	metrics := h.manager.GetMetrics()
 	c.JSON(http.StatusOK, metrics)
 }
 
-// addRuleRequest 添加规则请求
+// addRuleRequest 添加规则请求.
 type addRuleRequest struct {
 	ID          string      `json:"id" binding:"required"`
 	Name        string      `json:"name" binding:"required"`
@@ -159,7 +159,7 @@ type addRuleRequest struct {
 	Actions     []string    `json:"actions"`
 }
 
-// addRule 添加规则
+// addRule 添加规则.
 func (h *Handlers) addRule(c *gin.Context) {
 	var req addRuleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -185,7 +185,7 @@ func (h *Handlers) addRule(c *gin.Context) {
 	c.JSON(http.StatusCreated, rule)
 }
 
-// listRules 列出规则
+// listRules 列出规则.
 func (h *Handlers) listRules(c *gin.Context) {
 	rules := h.manager.ListRules()
 	c.JSON(http.StatusOK, gin.H{"rules": rules, "total": len(rules)})

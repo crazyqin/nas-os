@@ -148,5 +148,5 @@ func writeJSON(w http.ResponseWriter, code int, v interface{}) {
 	json.NewEncoder(w).Encode(v)
 }
 
-// suppress unused import warning
+// suppress unused import warning.
 var _ = strconv.Itoa

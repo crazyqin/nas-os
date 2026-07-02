@@ -16,7 +16,7 @@ import (
 // 能耗记录
 // ============================================================
 
-// RecordEnergyReading 记录能耗读数
+// RecordEnergyReading 记录能耗读数.
 func (m *Manager) RecordEnergyReading(reading EnergyReading) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -41,7 +41,7 @@ func (m *Manager) RecordEnergyReading(reading EnergyReading) error {
 	return nil
 }
 
-// GetDeviceReadings 获取设备能耗原始读数
+// GetDeviceReadings 获取设备能耗原始读数.
 func (m *Manager) GetDeviceReadings(deviceID string, since time.Time) ([]EnergyReading, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -64,7 +64,7 @@ func (m *Manager) GetDeviceReadings(deviceID string, since time.Time) ([]EnergyR
 	return result, nil
 }
 
-// ClearDeviceReadings 清除设备能耗数据
+// ClearDeviceReadings 清除设备能耗数据.
 func (m *Manager) ClearDeviceReadings(deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -81,7 +81,7 @@ func (m *Manager) ClearDeviceReadings(deviceID string) error {
 // 配置导出/导入
 // ============================================================
 
-// ExportConfig 导出智能家居完整配置
+// ExportConfig 导出智能家居完整配置.
 func (m *Manager) ExportConfig() ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -105,7 +105,7 @@ func (m *Manager) ExportConfig() ([]byte, error) {
 	return json.MarshalIndent(config, "", "  ")
 }
 
-// ImportConfig 导入智能家居配置
+// ImportConfig 导入智能家居配置.
 func (m *Manager) ImportConfig(data []byte, merge bool) error {
 	var config struct {
 		Devices map[string]*Device        `json:"devices"`
@@ -164,7 +164,7 @@ func (m *Manager) ImportConfig(data []byte, merge bool) error {
 // 批量操作
 // ============================================================
 
-// BatchControlDevice 批量控制设备（同类型操作）
+// BatchControlDevice 批量控制设备（同类型操作）.
 func (m *Manager) BatchControlDevice(deviceIDs []string, state map[string]any) []error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -197,7 +197,7 @@ func (m *Manager) BatchControlDevice(deviceIDs []string, state map[string]any) [
 	return errs
 }
 
-// BatchMoveToRoom 批量移动设备到房间
+// BatchMoveToRoom 批量移动设备到房间.
 func (m *Manager) BatchMoveToRoom(deviceIDs []string, roomID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -240,7 +240,7 @@ func (m *Manager) BatchMoveToRoom(deviceIDs []string, roomID string) error {
 // ============================================================
 
 // DeviceAdapter 设备协议适配器接口
-// 各协议（Zigbee/Z-Wave/WiFi/BLE）实现此接口即可接入智能家居系统
+// 各协议（Zigbee/Z-Wave/WiFi/BLE）实现此接口即可接入智能家居系统.
 type DeviceAdapter interface {
 	// Protocol 返回协议类型
 	Protocol() Protocol
@@ -256,7 +256,7 @@ type DeviceAdapter interface {
 	ReadState(deviceID string) (map[string]any, error)
 }
 
-// adapterEntry 适配器注册项
+// adapterEntry 适配器注册项.
 type adapterEntry struct {
 	adapter DeviceAdapter
 	enabled bool
@@ -266,13 +266,13 @@ type adapterEntry struct {
 // Manager 扩展：适配器注册
 // ============================================================
 
-// 全局适配器注册表（进程内单例）
+// 全局适配器注册表（进程内单例）.
 var (
 	adapterRegistry = make(map[Protocol]*adapterEntry)
 	adapterMu       sync.RWMutex
 )
 
-// RegisterAdapter 注册设备协议适配器
+// RegisterAdapter 注册设备协议适配器.
 func RegisterAdapter(adapter DeviceAdapter) {
 	adapterMu.Lock()
 	defer adapterMu.Unlock()
@@ -282,7 +282,7 @@ func RegisterAdapter(adapter DeviceAdapter) {
 	}
 }
 
-// GetAdapter 获取指定协议的适配器
+// GetAdapter 获取指定协议的适配器.
 func GetAdapter(protocol Protocol) (DeviceAdapter, error) {
 	adapterMu.RLock()
 	defer adapterMu.RUnlock()
@@ -297,7 +297,7 @@ func GetAdapter(protocol Protocol) (DeviceAdapter, error) {
 	return entry.adapter, nil
 }
 
-// ListAdapters 列出已注册的适配器
+// ListAdapters 列出已注册的适配器.
 func ListAdapters() []Protocol {
 	adapterMu.RLock()
 	defer adapterMu.RUnlock()
@@ -315,7 +315,7 @@ func ListAdapters() []Protocol {
 // Manager 扩展：按协议发现设备
 // ============================================================
 
-// DiscoverByProtocol 使用指定协议适配器发现设备
+// DiscoverByProtocol 使用指定协议适配器发现设备.
 func (m *Manager) DiscoverByProtocol(protocol Protocol) ([]*Device, error) {
 	adapter, err := GetAdapter(protocol)
 	if err != nil {
@@ -373,7 +373,7 @@ func (m *Manager) DiscoverByProtocol(protocol Protocol) ([]*Device, error) {
 // Manager 扩展：设备控制
 // ============================================================
 
-// ControlDevice 向设备发送控制命令
+// ControlDevice 向设备发送控制命令.
 func (m *Manager) ControlDevice(deviceID string, command map[string]any) error {
 	m.mu.RLock()
 	device, ok := m.devices[deviceID]
@@ -417,7 +417,7 @@ func (m *Manager) ControlDevice(deviceID string, command map[string]any) error {
 	return nil
 }
 
-// SyncDeviceState 从设备同步最新状态
+// SyncDeviceState 从设备同步最新状态.
 func (m *Manager) SyncDeviceState(deviceID string) error {
 	m.mu.RLock()
 	device, ok := m.devices[deviceID]
@@ -445,7 +445,7 @@ func (m *Manager) SyncDeviceState(deviceID string) error {
 // Manager 扩展：搜索与过滤
 // ============================================================
 
-// DeviceFilter 设备过滤条件
+// DeviceFilter 设备过滤条件.
 type DeviceFilter struct {
 	Name     string       `json:"name,omitempty"` // 模糊匹配
 	Type     DeviceType   `json:"type,omitempty"`
@@ -454,7 +454,7 @@ type DeviceFilter struct {
 	Status   DeviceStatus `json:"status,omitempty"`
 }
 
-// SearchDevices 按条件搜索设备
+// SearchDevices 按条件搜索设备.
 func (m *Manager) SearchDevices(filter DeviceFilter) []*Device {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -481,7 +481,7 @@ func (m *Manager) SearchDevices(filter DeviceFilter) []*Device {
 	return result
 }
 
-// containsIgnoreCase 不区分大小写检查子串
+// containsIgnoreCase 不区分大小写检查子串.
 func containsIgnoreCase(s, substr string) bool {
 	return len(s) >= len(substr) && findSubstring(toLower(s), toLower(substr))
 }
@@ -502,7 +502,7 @@ func toLower(s string) string {
 // Manager 扩展：场景历史与统计
 // ============================================================
 
-// SceneExecution 场景执行记录
+// SceneExecution 场景执行记录.
 type SceneExecution struct {
 	SceneID   string    `json:"scene_id"`
 	SceneName string    `json:"scene_name"`
@@ -512,7 +512,7 @@ type SceneExecution struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// GetSceneHistory 获取场景执行历史（从事件中提取）
+// GetSceneHistory 获取场景执行历史（从事件中提取）.
 func (m *Manager) GetSceneHistory(limit int) []SceneExecution {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -536,14 +536,14 @@ func (m *Manager) GetSceneHistory(limit int) []SceneExecution {
 // Manager 扩展：统计概览
 // ============================================================
 
-// ProtocolStats 协议统计
+// ProtocolStats 协议统计.
 type ProtocolStats struct {
 	Protocol Protocol `json:"protocol"`
 	Count    int      `json:"count"`
 	Online   int      `json:"online"`
 }
 
-// GetProtocolStats 获取各协议设备统计
+// GetProtocolStats 获取各协议设备统计.
 func (m *Manager) GetProtocolStats() []ProtocolStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -568,7 +568,7 @@ func (m *Manager) GetProtocolStats() []ProtocolStats {
 	return result
 }
 
-// GetRoomStats 获取房间设备统计
+// GetRoomStats 获取房间设备统计.
 func (m *Manager) GetRoomStats() map[string]int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -586,7 +586,7 @@ func (m *Manager) GetRoomStats() map[string]int {
 // 设备分组批量操作
 // ============================================================
 
-// ExecuteGroup 执行分组内所有设备的控制命令
+// ExecuteGroup 执行分组内所有设备的控制命令.
 func (m *Manager) ExecuteGroup(groupID string, state map[string]any) error {
 	m.mu.RLock()
 	group, ok := m.groups[groupID]
@@ -609,7 +609,7 @@ func (m *Manager) ExecuteGroup(groupID string, state map[string]any) error {
 // Manager 扩展：设备能力查询
 // ============================================================
 
-// GetDeviceCapabilities 获取设备支持的能力列表
+// GetDeviceCapabilities 获取设备支持的能力列表.
 func (m *Manager) GetDeviceCapabilities(deviceID string) ([]string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -621,7 +621,7 @@ func (m *Manager) GetDeviceCapabilities(deviceID string) ([]string, error) {
 	return device.Capabilities, nil
 }
 
-// SetDeviceCapabilities 设置设备能力
+// SetDeviceCapabilities 设置设备能力.
 func (m *Manager) SetDeviceCapabilities(deviceID string, capabilities []string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

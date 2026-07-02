@@ -13,13 +13,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// ScheduleManager 备份调度管理器
+// ScheduleManager 备份调度管理器.
 type ScheduleManager struct {
 	mu     sync.RWMutex
 	logger *zap.Logger
 }
 
-// NewScheduleManager 创建调度管理器
+// NewScheduleManager 创建调度管理器.
 func NewScheduleManager(logger *zap.Logger) (*ScheduleManager, error) {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -29,13 +29,13 @@ func NewScheduleManager(logger *zap.Logger) (*ScheduleManager, error) {
 	}, nil
 }
 
-// TimeWindow 时间窗口
+// TimeWindow 时间窗口.
 type TimeWindow struct {
 	Start string `json:"start"` // HH:MM
 	End   string `json:"end"`   // HH:MM
 }
 
-// RetentionPolicy 保留策略
+// RetentionPolicy 保留策略.
 type RetentionPolicy struct {
 	MaxCount    int `json:"max_count"`    // 最大保留份数
 	MaxDays     int `json:"max_days"`     // 最大保留天数
@@ -44,14 +44,14 @@ type RetentionPolicy struct {
 	KeepMonthly int `json:"keep_monthly"` // 保留最近 N 月每月一份
 }
 
-// BandwidthLimit 带宽限制
+// BandwidthLimit 带宽限制.
 type BandwidthLimit struct {
 	MaxMBps  int          `json:"max_mbps"` // 最大带宽 MB/s（0=不限）
 	Schedule []TimeWindow `json:"schedule"` // 限速时间段
 	Priority int          `json:"priority"` // 优先级（1-10，10最高）
 }
 
-// IsWithinTimeWindow 检查当前时间是否在允许备份的时间窗口内
+// IsWithinTimeWindow 检查当前时间是否在允许备份的时间窗口内.
 func (sm *ScheduleManager) IsWithinTimeWindow(schedule ScheduleConfig, now time.Time) bool {
 	if schedule.StartTime == "" || schedule.EndTime == "" {
 		return true // 无时间窗口限制
@@ -76,7 +76,7 @@ func (sm *ScheduleManager) IsWithinTimeWindow(schedule ScheduleConfig, now time.
 	return now.After(start) && now.Before(end)
 }
 
-// CalculateNextRun 计算下次执行时间
+// CalculateNextRun 计算下次执行时间.
 func (sm *ScheduleManager) CalculateNextRun(schedule ScheduleConfig) time.Time {
 	if schedule.Cron == "" {
 		// 默认每天同一时间
@@ -86,7 +86,7 @@ func (sm *ScheduleManager) CalculateNextRun(schedule ScheduleConfig) time.Time {
 	return sm.parseCronNextRun(schedule.Cron, time.Now())
 }
 
-// ApplyRetentionPolicy 应用保留策略，返回应该删除的快照 ID 列表
+// ApplyRetentionPolicy 应用保留策略，返回应该删除的快照 ID 列表.
 func (sm *ScheduleManager) ApplyRetentionPolicy(policy RetentionPolicy, snapshots []*BackupSnapshot) []string {
 	if len(snapshots) == 0 {
 		return nil
@@ -173,7 +173,7 @@ func (sm *ScheduleManager) ApplyRetentionPolicy(policy RetentionPolicy, snapshot
 	return result
 }
 
-// CalculateBandwidth 计算当前允许的带宽限制
+// CalculateBandwidth 计算当前允许的带宽限制.
 func (sm *ScheduleManager) CalculateBandwidth(limit BandwidthLimit, now time.Time) int {
 	if limit.MaxMBps <= 0 {
 		return 0 // 不限速
@@ -194,7 +194,7 @@ func (sm *ScheduleManager) CalculateBandwidth(limit BandwidthLimit, now time.Tim
 }
 
 // parseCronNextRun 简易 cron 解析器，计算下次执行时间
-// 支持格式: "分 时 日 月 周" (标准5位cron)
+// 支持格式: "分 时 日 月 周" (标准5位cron).
 func (sm *ScheduleManager) parseCronNextRun(expr string, from time.Time) time.Time {
 	fields := strings.Fields(expr)
 	if len(fields) != 5 {
@@ -231,7 +231,7 @@ func (sm *ScheduleManager) parseCronNextRun(expr string, from time.Time) time.Ti
 	return from.Add(24 * time.Hour)
 }
 
-// parseCronField 解析 cron 字段，返回所有匹配值
+// parseCronField 解析 cron 字段，返回所有匹配值.
 func parseCronField(field string, min, max int) []int {
 	if field == "*" {
 		result := make([]int, max-min+1)
@@ -329,7 +329,7 @@ func isInTimeWindow(window TimeWindow, now time.Time) bool {
 	return now.After(start) && now.Before(end)
 }
 
-// sortSnapshots 按创建时间排序（最新在前）
+// sortSnapshots 按创建时间排序（最新在前）.
 func sortSnapshots(snapshots []*BackupSnapshot) {
 	for i := 1; i < len(snapshots); i++ {
 		key := snapshots[i]

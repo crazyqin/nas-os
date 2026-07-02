@@ -15,7 +15,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Container 容器信息
+// Container 容器信息.
 type Container struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -37,7 +37,7 @@ type Container struct {
 	Logs          []LogEntry        `json:"logs,omitempty"`
 }
 
-// PortMapping 端口映射
+// PortMapping 端口映射.
 type PortMapping struct {
 	HostPort      int    `json:"host_port"`
 	ContainerPort int    `json:"container_port"`
@@ -45,7 +45,7 @@ type PortMapping struct {
 	HostIP        string `json:"host_ip,omitempty"`
 }
 
-// VolumeMount 卷挂载
+// VolumeMount 卷挂载.
 type VolumeMount struct {
 	HostPath      string `json:"host_path"`
 	ContainerPath string `json:"container_path"`
@@ -53,7 +53,7 @@ type VolumeMount struct {
 	VolumeName    string `json:"volume_name,omitempty"`
 }
 
-// ResourceLimits 资源限制
+// ResourceLimits 资源限制.
 type ResourceLimits struct {
 	CPUShares   int64 `json:"cpu_shares"`
 	MemoryLimit int64 `json:"memory_limit"` // bytes
@@ -63,7 +63,7 @@ type ResourceLimits struct {
 	BlkioWeight int   `json:"blkio_weight"`
 }
 
-// HealthCheck 健康检查
+// HealthCheck 健康检查.
 type HealthCheck struct {
 	Test        []string      `json:"test"`
 	Interval    time.Duration `json:"interval"`
@@ -72,14 +72,14 @@ type HealthCheck struct {
 	StartPeriod time.Duration `json:"start_period"`
 }
 
-// LogEntry 日志条目
+// LogEntry 日志条目.
 type LogEntry struct {
 	Timestamp time.Time `json:"timestamp"`
 	Stream    string    `json:"stream"` // stdout, stderr
 	Message   string    `json:"message"`
 }
 
-// Stack Compose 栈
+// Stack Compose 栈.
 type Stack struct {
 	ID          string             `json:"id"`
 	Name        string             `json:"name"`
@@ -92,7 +92,7 @@ type Stack struct {
 	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
-// Service 服务定义
+// Service 服务定义.
 type Service struct {
 	Name          string            `json:"name"`
 	Image         string            `json:"image"`
@@ -107,7 +107,7 @@ type Service struct {
 	RestartPolicy string            `json:"restart_policy"`
 }
 
-// Network 网络定义
+// Network 网络定义.
 type Network struct {
 	Name     string            `json:"name"`
 	Driver   string            `json:"driver"`
@@ -116,20 +116,20 @@ type Network struct {
 	External bool              `json:"external"`
 }
 
-// IPAM IP 地址管理
+// IPAM IP 地址管理.
 type IPAM struct {
 	Driver string       `json:"driver"`
 	Config []IPAMConfig `json:"config"`
 }
 
-// IPAMConfig IPAM 配置
+// IPAMConfig IPAM 配置.
 type IPAMConfig struct {
 	Subnet  string `json:"subnet"`
 	Gateway string `json:"gateway"`
 	IPRange string `json:"ip_range,omitempty"`
 }
 
-// Volume 卷定义
+// Volume 卷定义.
 type Volume struct {
 	Name       string            `json:"name"`
 	Driver     string            `json:"driver"`
@@ -138,7 +138,7 @@ type Volume struct {
 	External   bool              `json:"external"`
 }
 
-// AppTemplate 应用模板（应用商店）
+// AppTemplate 应用模板（应用商店）.
 type AppTemplate struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -161,7 +161,7 @@ type AppTemplate struct {
 	Downloads   int               `json:"downloads"`
 }
 
-// EnvTemplate 环境变量模板
+// EnvTemplate 环境变量模板.
 type EnvTemplate struct {
 	Name        string `json:"name"`
 	Label       string `json:"label"`
@@ -171,7 +171,7 @@ type EnvTemplate struct {
 	Type        string `json:"type"` // string, number, boolean, password
 }
 
-// Manager Docker 管理器
+// Manager Docker 管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	containers map[string]*Container
@@ -181,7 +181,7 @@ type Manager struct {
 	volumes    map[string]*Volume
 }
 
-// NewManager 创建 Docker 管理器
+// NewManager 创建 Docker 管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		containers: make(map[string]*Container),
@@ -194,7 +194,7 @@ func NewManager() *Manager {
 	return m
 }
 
-// ListContainers 列出容器
+// ListContainers 列出容器.
 func (m *Manager) ListContainers(ctx context.Context, all bool) ([]Container, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -209,7 +209,7 @@ func (m *Manager) ListContainers(ctx context.Context, all bool) ([]Container, er
 	return containers, nil
 }
 
-// GetContainer 获取容器详情
+// GetContainer 获取容器详情.
 func (m *Manager) GetContainer(ctx context.Context, id string) (*Container, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -222,7 +222,7 @@ func (m *Manager) GetContainer(ctx context.Context, id string) (*Container, erro
 	return container, nil
 }
 
-// CreateContainer 创建容器
+// CreateContainer 创建容器.
 func (m *Manager) CreateContainer(ctx context.Context, name, image, tag string, opts ...ContainerOption) (*Container, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -258,7 +258,7 @@ func (m *Manager) CreateContainer(ctx context.Context, name, image, tag string, 
 	return container, nil
 }
 
-// StartContainer 启动容器
+// StartContainer 启动容器.
 func (m *Manager) StartContainer(ctx context.Context, id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -279,7 +279,7 @@ func (m *Manager) StartContainer(ctx context.Context, id string) error {
 	return nil
 }
 
-// StopContainer 停止容器
+// StopContainer 停止容器.
 func (m *Manager) StopContainer(ctx context.Context, id string, timeout time.Duration) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -300,7 +300,7 @@ func (m *Manager) StopContainer(ctx context.Context, id string, timeout time.Dur
 	return nil
 }
 
-// RestartContainer 重启容器
+// RestartContainer 重启容器.
 func (m *Manager) RestartContainer(ctx context.Context, id string, timeout time.Duration) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -317,7 +317,7 @@ func (m *Manager) RestartContainer(ctx context.Context, id string, timeout time.
 	return nil
 }
 
-// RemoveContainer 删除容器
+// RemoveContainer 删除容器.
 func (m *Manager) RemoveContainer(ctx context.Context, id string, force bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -337,7 +337,7 @@ func (m *Manager) RemoveContainer(ctx context.Context, id string, force bool) er
 	return nil
 }
 
-// GetContainerLogs 获取容器日志
+// GetContainerLogs 获取容器日志.
 func (m *Manager) GetContainerLogs(ctx context.Context, id string, tail int) ([]LogEntry, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -354,7 +354,7 @@ func (m *Manager) GetContainerLogs(ctx context.Context, id string, tail int) ([]
 	return container.Logs[len(container.Logs)-tail:], nil
 }
 
-// DeployStack 部署 Compose 栈
+// DeployStack 部署 Compose 栈.
 func (m *Manager) DeployStack(ctx context.Context, name, composeContent string) (*Stack, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -386,7 +386,7 @@ func (m *Manager) DeployStack(ctx context.Context, name, composeContent string) 
 	return stack, nil
 }
 
-// ListStacks 列出栈
+// ListStacks 列出栈.
 func (m *Manager) ListStacks(ctx context.Context) ([]Stack, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -399,7 +399,7 @@ func (m *Manager) ListStacks(ctx context.Context) ([]Stack, error) {
 	return stacks, nil
 }
 
-// RemoveStack 删除栈
+// RemoveStack 删除栈.
 func (m *Manager) RemoveStack(ctx context.Context, id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -415,7 +415,7 @@ func (m *Manager) RemoveStack(ctx context.Context, id string) error {
 	return nil
 }
 
-// ListTemplates 列出应用模板
+// ListTemplates 列出应用模板.
 func (m *Manager) ListTemplates(ctx context.Context, category string) ([]AppTemplate, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -430,7 +430,7 @@ func (m *Manager) ListTemplates(ctx context.Context, category string) ([]AppTemp
 	return templates, nil
 }
 
-// InstallTemplate 安装应用模板
+// InstallTemplate 安装应用模板.
 func (m *Manager) InstallTemplate(ctx context.Context, templateID string, envVars map[string]string) (*Stack, error) {
 	m.mu.RLock()
 	template, exists := m.templates[templateID]
@@ -475,7 +475,7 @@ func (m *Manager) InstallTemplate(ctx context.Context, templateID string, envVar
 	return stack, nil
 }
 
-// CreateNetwork 创建网络
+// CreateNetwork 创建网络.
 func (m *Manager) CreateNetwork(ctx context.Context, name, driver string) (*Network, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -532,7 +532,7 @@ func (m *Manager) ListVolumes(ctx context.Context) ([]Volume, error) {
 	return volumes, nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats(ctx context.Context) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -557,24 +557,24 @@ func (m *Manager) GetStats(ctx context.Context) (map[string]interface{}, error) 
 	}, nil
 }
 
-// ContainerOption 容器选项函数
+// ContainerOption 容器选项函数.
 type ContainerOption func(*Container)
 
-// WithPorts 设置端口映射
+// WithPorts 设置端口映射.
 func WithPorts(ports []PortMapping) ContainerOption {
 	return func(c *Container) {
 		c.Ports = ports
 	}
 }
 
-// WithVolumes 设置卷挂载
+// WithVolumes 设置卷挂载.
 func WithVolumes(volumes []VolumeMount) ContainerOption {
 	return func(c *Container) {
 		c.Volumes = volumes
 	}
 }
 
-// WithEnv 设置环境变量
+// WithEnv 设置环境变量.
 func WithEnv(env map[string]string) ContainerOption {
 	return func(c *Container) {
 		for k, v := range env {
@@ -583,14 +583,14 @@ func WithEnv(env map[string]string) ContainerOption {
 	}
 }
 
-// WithResourceLimits 设置资源限制
+// WithResourceLimits 设置资源限制.
 func WithResourceLimits(limits ResourceLimits) ContainerOption {
 	return func(c *Container) {
 		c.Resources = limits
 	}
 }
 
-// WithRestartPolicy 设置重启策略
+// WithRestartPolicy 设置重启策略.
 func WithRestartPolicy(policy string) ContainerOption {
 	return func(c *Container) {
 		c.RestartPolicy = policy
@@ -647,7 +647,7 @@ func generateID() string {
 	return fmt.Sprintf("%d", time.Now().UnixNano())
 }
 
-// Export 导出容器和栈信息
+// Export 导出容器和栈信息.
 func (m *Manager) Export(ctx context.Context) ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

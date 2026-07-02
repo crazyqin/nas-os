@@ -10,26 +10,26 @@ import (
 	"go.uber.org/zap"
 )
 
-// RAGServer RAG知识库服务器
+// RAGServer RAG知识库服务器.
 type RAGServer struct {
-	logger   *zap.Logger
+	logger      *zap.Logger
 	collections map[string]*Collection
 	vectorStore VectorStore
-	chunker   *Chunker
-	embedder  Embedder
-	mu        sync.RWMutex
+	chunker     *Chunker
+	embedder    Embedder
+	mu          sync.RWMutex
 }
 
-// Collection 文档集合
+// Collection 文档集合.
 type Collection struct {
-	Name        string    `json:"name"`
-	Documents   []*Document `json:"documents"`
-	EmbedModel  string    `json:"embed_model"`
-	ChunkSize   int       `json:"chunk_size"`
-	ChunkOverlap int      `json:"chunk_overlap"`
+	Name         string      `json:"name"`
+	Documents    []*Document `json:"documents"`
+	EmbedModel   string      `json:"embed_model"`
+	ChunkSize    int         `json:"chunk_size"`
+	ChunkOverlap int         `json:"chunk_overlap"`
 }
 
-// Document 文档
+// Document 文档.
 type Document struct {
 	ID       string            `json:"id"`
 	Content  string            `json:"content"`
@@ -37,7 +37,7 @@ type Document struct {
 	Chunks   []*Chunk          `json:"chunks"`
 }
 
-// Chunk 文本块
+// Chunk 文本块.
 type Chunk struct {
 	ID        string    `json:"id"`
 	Content   string    `json:"content"`
@@ -46,47 +46,47 @@ type Chunk struct {
 	EndIdx    int       `json:"end_idx"`
 }
 
-// VectorStore 向量存储接口
+// VectorStore 向量存储接口.
 type VectorStore interface {
 	Insert(ctx context.Context, collection string, chunks []*Chunk) error
 	Search(ctx context.Context, collection string, query []float32, topK int) ([]SearchResult, error)
 	Delete(ctx context.Context, collection string, ids []string) error
 }
 
-// Embedder 向量化接口
+// Embedder 向量化接口.
 type Embedder interface {
 	Embed(ctx context.Context, text string) ([]float32, error)
 	EmbedBatch(ctx context.Context, texts []string) ([][]float32, error)
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	Chunk    *Chunk  `json:"chunk"`
 	Score    float64 `json:"score"`
 	Document string  `json:"document"`
 }
 
-// Chunker 文本分块器
+// Chunker 文本分块器.
 type Chunker struct {
 	Size    int
 	Overlap int
 }
 
-// QueryRequest 查询请求
+// QueryRequest 查询请求.
 type QueryRequest struct {
-	Collection string `json:"collection"`
-	Query      string `json:"query"`
-	TopK       int    `json:"top_k"`
+	Collection string  `json:"collection"`
+	Query      string  `json:"query"`
+	TopK       int     `json:"top_k"`
 	Threshold  float64 `json:"threshold"`
 }
 
-// QueryResponse 查询响应
+// QueryResponse 查询响应.
 type QueryResponse struct {
 	Results []SearchResult `json:"results"`
 	Context string         `json:"context"`
 }
 
-// NewRAGServer 创建RAG服务器
+// NewRAGServer 创建RAG服务器.
 func NewRAGServer(logger *zap.Logger, vectorStore VectorStore, embedder Embedder) *RAGServer {
 	return &RAGServer{
 		logger:      logger,
@@ -97,7 +97,7 @@ func NewRAGServer(logger *zap.Logger, vectorStore VectorStore, embedder Embedder
 	}
 }
 
-// CreateCollection 创建集合
+// CreateCollection 创建集合.
 func (rs *RAGServer) CreateCollection(ctx context.Context, name string, chunkSize, chunkOverlap int) error {
 	rs.mu.Lock()
 	defer rs.mu.Unlock()
@@ -117,7 +117,7 @@ func (rs *RAGServer) CreateCollection(ctx context.Context, name string, chunkSiz
 	return nil
 }
 
-// AddDocument 添加文档
+// AddDocument 添加文档.
 func (rs *RAGServer) AddDocument(ctx context.Context, collection string, doc *Document) error {
 	rs.mu.Lock()
 	col, exists := rs.collections[collection]
@@ -165,7 +165,7 @@ func (rs *RAGServer) AddDocument(ctx context.Context, collection string, doc *Do
 	return nil
 }
 
-// Query 查询
+// Query 查询.
 func (rs *RAGServer) Query(ctx context.Context, req *QueryRequest) (*QueryResponse, error) {
 	rs.mu.RLock()
 	_, exists := rs.collections[req.Collection]
@@ -212,7 +212,7 @@ func (rs *RAGServer) Query(ctx context.Context, req *QueryRequest) (*QueryRespon
 	}, nil
 }
 
-// Chunk 分块
+// Chunk 分块.
 func (c *Chunker) Chunk(text string, size, overlap int) []*Chunk {
 	if size <= 0 {
 		size = c.Size
@@ -245,7 +245,7 @@ func (c *Chunker) Chunk(text string, size, overlap int) []*Chunk {
 	return chunks
 }
 
-// CosineSimilarity 余弦相似度
+// CosineSimilarity 余弦相似度.
 func CosineSimilarity(a, b []float32) float64 {
 	if len(a) != len(b) {
 		return 0
@@ -265,13 +265,13 @@ func CosineSimilarity(a, b []float32) float64 {
 	return dot / (math.Sqrt(normA) * math.Sqrt(normB))
 }
 
-// SimpleVectorStore 简单向量存储(内存)
+// SimpleVectorStore 简单向量存储(内存).
 type SimpleVectorStore struct {
 	data map[string]map[string]*Chunk // collection -> id -> chunk
 	mu   sync.RWMutex
 }
 
-// NewSimpleVectorStore 创建简单向量存储
+// NewSimpleVectorStore 创建简单向量存储.
 func NewSimpleVectorStore() *SimpleVectorStore {
 	return &SimpleVectorStore{
 		data: make(map[string]map[string]*Chunk),

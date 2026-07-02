@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// FailoverConfig 故障转移配置
+// FailoverConfig 故障转移配置.
 type FailoverConfig struct {
 	Enabled             bool   `json:"enabled"`                // 是否启用故障转移
 	Mode                string `json:"mode"`                   // "primary_standby" | "load_balance"
@@ -26,7 +26,7 @@ type FailoverConfig struct {
 	StateFilePath       string `json:"state_file_path"`        // 会话状态文件路径
 }
 
-// NodeState 节点状态
+// NodeState 节点状态.
 type NodeState struct {
 	NodeID        string    `json:"node_id"`
 	Host          string    `json:"host"`
@@ -38,7 +38,7 @@ type NodeState struct {
 	IsLocal       bool      `json:"is_local"`
 }
 
-// SMBSession SMB会话信息（用于状态追踪）
+// SMBSession SMB会话信息（用于状态追踪）.
 type SMBSession struct {
 	SessionID     string            `json:"session_id"`
 	ClientIP      string            `json:"client_ip"`
@@ -58,7 +58,7 @@ type SMBSession struct {
 	Metadata      map[string]string `json:"metadata,omitempty"` // 额外元数据
 }
 
-// FileLock 文件锁信息
+// FileLock 文件锁信息.
 type FileLock struct {
 	FilePath string    `json:"file_path"`
 	PID      int       `json:"pid"`
@@ -66,7 +66,7 @@ type FileLock struct {
 	Acquired time.Time `json:"acquired"`
 }
 
-// SessionRegistry 会话注册表
+// SessionRegistry 会话注册表.
 type SessionRegistry struct {
 	mu           sync.RWMutex
 	sessions     map[string]*SMBSession // key: session_id
@@ -75,7 +75,7 @@ type SessionRegistry struct {
 	indexByShare map[string][]string    // key: share_name -> session_ids
 }
 
-// FailoverState 故障转移状态管理器
+// FailoverState 故障转移状态管理器.
 type FailoverState struct {
 	mu              sync.RWMutex
 	config          *FailoverConfig
@@ -94,7 +94,7 @@ type FailoverState struct {
 	stateSyncChan   chan stateSyncMsg
 }
 
-// heartbeatMsg 心跳消息
+// heartbeatMsg 心跳消息.
 type heartbeatMsg struct {
 	FromNodeID  string
 	Timestamp   time.Time
@@ -102,7 +102,7 @@ type heartbeatMsg struct {
 	Status      string
 }
 
-// stateSyncMsg 状态同步消息
+// stateSyncMsg 状态同步消息.
 type stateSyncMsg struct {
 	Type      string      `json:"type"` // "session_update" | "node_update" | "full_sync"
 	Session   *SMBSession `json:"session,omitempty"`
@@ -110,7 +110,7 @@ type stateSyncMsg struct {
 	Timestamp time.Time   `json:"timestamp"`
 }
 
-// FailoverStatus 故障转移状态（用于API查询）
+// FailoverStatus 故障转移状态（用于API查询）.
 type FailoverStatus struct {
 	Enabled        bool            `json:"enabled"`
 	Mode           string          `json:"mode"`
@@ -126,7 +126,7 @@ type FailoverStatus struct {
 	Config         *FailoverConfig `json:"config"`
 }
 
-// FailoverEvent 故障转移事件（用于事件通知）
+// FailoverEvent 故障转移事件（用于事件通知）.
 type FailoverEvent struct {
 	Type      string      `json:"type"` // "heartbeat_timeout" | "failover_start" | "failover_complete" | "session_recovery"
 	NodeID    string      `json:"node_id,omitempty"`
@@ -138,7 +138,7 @@ type FailoverEvent struct {
 
 // -------------------- 会话注册表 --------------------
 
-// NewSessionRegistry 创建会话注册表
+// NewSessionRegistry 创建会话注册表.
 func NewSessionRegistry() *SessionRegistry {
 	return &SessionRegistry{
 		sessions:     make(map[string]*SMBSession),
@@ -148,7 +148,7 @@ func NewSessionRegistry() *SessionRegistry {
 	}
 }
 
-// Add 添加会话到注册表
+// Add 添加会话到注册表.
 func (r *SessionRegistry) Add(session *SMBSession) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -166,7 +166,7 @@ func (r *SessionRegistry) Add(session *SMBSession) {
 	}
 }
 
-// Get 根据会话ID获取会话
+// Get 根据会话ID获取会话.
 func (r *SessionRegistry) Get(sessionID string) (*SMBSession, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -178,7 +178,7 @@ func (r *SessionRegistry) Get(sessionID string) (*SMBSession, error) {
 	return session, nil
 }
 
-// Remove 根据会话ID移除会话
+// Remove 根据会话ID移除会话.
 func (r *SessionRegistry) Remove(sessionID string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -201,7 +201,7 @@ func (r *SessionRegistry) Remove(sessionID string) {
 	}
 }
 
-// ListAll 返回所有会话
+// ListAll 返回所有会话.
 func (r *SessionRegistry) ListAll() []*SMBSession {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -213,7 +213,7 @@ func (r *SessionRegistry) ListAll() []*SMBSession {
 	return result
 }
 
-// GetByClient 按客户端IP查询
+// GetByClient 按客户端IP查询.
 func (r *SessionRegistry) GetByClient(clientIP string) []*SMBSession {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -222,7 +222,7 @@ func (r *SessionRegistry) GetByClient(clientIP string) []*SMBSession {
 	return r.getByIDsLocked(ids)
 }
 
-// GetByUser 按用户名查询
+// GetByUser 按用户名查询.
 func (r *SessionRegistry) GetByUser(username string) []*SMBSession {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -231,7 +231,7 @@ func (r *SessionRegistry) GetByUser(username string) []*SMBSession {
 	return r.getByIDsLocked(ids)
 }
 
-// GetByShare 按共享名查询
+// GetByShare 按共享名查询.
 func (r *SessionRegistry) GetByShare(shareName string) []*SMBSession {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -250,7 +250,7 @@ func (r *SessionRegistry) getByIDsLocked(ids []string) []*SMBSession {
 	return result
 }
 
-// Size 返回会话总数
+// Size 返回会话总数.
 func (r *SessionRegistry) Size() int {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -259,7 +259,7 @@ func (r *SessionRegistry) Size() int {
 
 // -------------------- 故障转移核心 --------------------
 
-// NewFailoverState 创建故障转移状态管理器
+// NewFailoverState 创建故障转移状态管理器.
 func NewFailoverState(config *FailoverConfig) (*FailoverState, error) {
 	if config == nil {
 		config = DefaultFailoverConfig()
@@ -302,7 +302,7 @@ func NewFailoverState(config *FailoverConfig) (*FailoverState, error) {
 	return state, nil
 }
 
-// DefaultFailoverConfig 返回默认配置
+// DefaultFailoverConfig 返回默认配置.
 func DefaultFailoverConfig() *FailoverConfig {
 	return &FailoverConfig{
 		Enabled:             false,
@@ -318,7 +318,7 @@ func DefaultFailoverConfig() *FailoverConfig {
 	}
 }
 
-// ValidateFailoverConfig 验证故障转移配置
+// ValidateFailoverConfig 验证故障转移配置.
 func ValidateFailoverConfig(config *FailoverConfig) error {
 	if config.HeartbeatIntervalMs < 100 {
 		return fmt.Errorf("心跳间隔至少100ms")
@@ -338,7 +338,7 @@ func ValidateFailoverConfig(config *FailoverConfig) error {
 	return nil
 }
 
-// Start 启动故障转移管理
+// Start 启动故障转移管理.
 func (s *FailoverState) Start() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -364,7 +364,7 @@ func (s *FailoverState) Start() error {
 	return nil
 }
 
-// Stop 停止故障转移管理
+// Stop 停止故障转移管理.
 func (s *FailoverState) Stop() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -384,7 +384,7 @@ func (s *FailoverState) Stop() error {
 	return nil
 }
 
-// RegisterSession 注册一个SMB会话
+// RegisterSession 注册一个SMB会话.
 func (s *FailoverState) RegisterSession(session *SMBSession) error {
 	if session == nil {
 		return fmt.Errorf("会话不能为空")
@@ -409,7 +409,7 @@ func (s *FailoverState) RegisterSession(session *SMBSession) error {
 	return nil
 }
 
-// UnregisterSession 注销一个SMB会话
+// UnregisterSession 注销一个SMB会话.
 func (s *FailoverState) UnregisterSession(sessionID string) error {
 	session, err := s.sessionRegistry.Get(sessionID)
 	if err != nil {
@@ -433,32 +433,32 @@ func (s *FailoverState) UnregisterSession(sessionID string) error {
 	return nil
 }
 
-// GetSession 获取会话信息
+// GetSession 获取会话信息.
 func (s *FailoverState) GetSession(sessionID string) (*SMBSession, error) {
 	return s.sessionRegistry.Get(sessionID)
 }
 
-// ListSessions 列出所有会话
+// ListSessions 列出所有会话.
 func (s *FailoverState) ListSessions() []*SMBSession {
 	return s.sessionRegistry.ListAll()
 }
 
-// GetSessionsByClient 获取客户端的所有会话
+// GetSessionsByClient 获取客户端的所有会话.
 func (s *FailoverState) GetSessionsByClient(clientIP string) []*SMBSession {
 	return s.sessionRegistry.GetByClient(clientIP)
 }
 
-// GetSessionsByUser 获取用户的所有会话
+// GetSessionsByUser 获取用户的所有会话.
 func (s *FailoverState) GetSessionsByUser(username string) []*SMBSession {
 	return s.sessionRegistry.GetByUser(username)
 }
 
-// GetSessionsByShare 获取共享的所有会话
+// GetSessionsByShare 获取共享的所有会话.
 func (s *FailoverState) GetSessionsByShare(shareName string) []*SMBSession {
 	return s.sessionRegistry.GetByShare(shareName)
 }
 
-// UpdateSession 更新会话信息
+// UpdateSession 更新会话信息.
 func (s *FailoverState) UpdateSession(sessionID string, updater func(*SMBSession) error) error {
 	session, err := s.sessionRegistry.Get(sessionID)
 	if err != nil {
@@ -476,7 +476,7 @@ func (s *FailoverState) UpdateSession(sessionID string, updater func(*SMBSession
 	return nil
 }
 
-// UpdateNodeHealth 更新节点健康状态
+// UpdateNodeHealth 更新节点健康状态.
 func (s *FailoverState) UpdateNodeHealth(nodeID string, healthScore int, status string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -492,7 +492,7 @@ func (s *FailoverState) UpdateNodeHealth(nodeID string, healthScore int, status 
 	}
 }
 
-// GetStatus 获取故障转移状态（API查询用）
+// GetStatus 获取故障转移状态（API查询用）.
 func (s *FailoverState) GetStatus() *FailoverStatus {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -529,7 +529,7 @@ func (s *FailoverState) GetStatus() *FailoverStatus {
 	}
 }
 
-// heartbeatLoop 心跳循环
+// heartbeatLoop 心跳循环.
 func (s *FailoverState) heartbeatLoop() {
 	interval := time.Duration(s.config.HeartbeatIntervalMs) * time.Millisecond
 	ticker := time.NewTicker(interval)
@@ -545,7 +545,7 @@ func (s *FailoverState) heartbeatLoop() {
 	}
 }
 
-// performHeartbeat 执行一次心跳检测
+// performHeartbeat 执行一次心跳检测.
 func (s *FailoverState) performHeartbeat() {
 	s.mu.Lock()
 	s.localNode.LastHeartbeat = time.Now()
@@ -568,7 +568,7 @@ func (s *FailoverState) performHeartbeat() {
 	s.broadcastHeartbeat()
 }
 
-// checkLocalHealth 检查本地健康状态，返回 0-100
+// checkLocalHealth 检查本地健康状态，返回 0-100.
 func (s *FailoverState) checkLocalHealth() int {
 	score := 100
 
@@ -669,7 +669,7 @@ func (s *FailoverState) checkMemoryPressure() int {
 	return 100
 }
 
-// handleHeartbeatTimeout 处理心跳超时
+// handleHeartbeatTimeout 处理心跳超时.
 func (s *FailoverState) handleHeartbeatTimeout(nodeID string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -686,7 +686,7 @@ func (s *FailoverState) handleHeartbeatTimeout(nodeID string) {
 	}
 }
 
-// triggerFailoverLocked 触发故障转移（调用者须持有锁）
+// triggerFailoverLocked 触发故障转移（调用者须持有锁）.
 func (s *FailoverState) triggerFailoverLocked(failedNodeID string) {
 	if s.isPrimary {
 		return
@@ -719,14 +719,14 @@ func (s *FailoverState) triggerFailoverLocked(failedNodeID string) {
 	logInfo("故障转移完成", "new_primary", s.localNode.NodeID)
 }
 
-// triggerFailover 触发故障转移（公开方法）
+// triggerFailover 触发故障转移（公开方法）.
 func (s *FailoverState) triggerFailover(failedNodeID string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.triggerFailoverLocked(failedNodeID)
 }
 
-// recoverSessions 恢复会话（Stateful reconnect）
+// recoverSessions 恢复会话（Stateful reconnect）.
 func (s *FailoverState) recoverSessions() error {
 	sessions := s.sessionRegistry.ListAll()
 	recovered, failed := 0, 0
@@ -747,7 +747,7 @@ func (s *FailoverState) recoverSessions() error {
 	return nil
 }
 
-// recoverSession 恢复单个会话
+// recoverSession 恢复单个会话.
 func (s *FailoverState) recoverSession(session *SMBSession) error {
 	// 1. 验证客户端是否仍然连接
 	if !s.isClientConnected(session.ClientIP) {
@@ -777,7 +777,7 @@ func (s *FailoverState) recoverSession(session *SMBSession) error {
 	return nil
 }
 
-// isClientConnected 检查客户端是否仍然活跃
+// isClientConnected 检查客户端是否仍然活跃.
 func (s *FailoverState) isClientConnected(clientIP string) bool {
 	cmd := exec.CommandContext(context.Background(), "ss", "-tnp")
 	out, err := cmd.Output()
@@ -793,7 +793,7 @@ func (s *FailoverState) isClientConnected(clientIP string) bool {
 	return false
 }
 
-// reacquireLock 重新获取文件锁
+// reacquireLock 重新获取文件锁.
 func (s *FailoverState) reacquireLock(lock FileLock) error {
 	// 通知smbd重新获取锁
 	cmd := exec.CommandContext(context.Background(), "smbcontrol", "smbd", "debug", "reacquire-lock")
@@ -801,7 +801,7 @@ func (s *FailoverState) reacquireLock(lock FileLock) error {
 	return nil
 }
 
-// stateSyncLoop 状态同步循环
+// stateSyncLoop 状态同步循环.
 func (s *FailoverState) stateSyncLoop() {
 	interval := time.Duration(s.config.StateSyncIntervalMs) * time.Millisecond
 	ticker := time.NewTicker(interval)
@@ -819,7 +819,7 @@ func (s *FailoverState) stateSyncLoop() {
 	}
 }
 
-// performStateSync 执行状态同步
+// performStateSync 执行状态同步.
 func (s *FailoverState) performStateSync() {
 	s.mu.Lock()
 	s.lastStateSync = time.Now()
@@ -830,7 +830,7 @@ func (s *FailoverState) performStateSync() {
 	}
 }
 
-// handleStateSync 处理状态同步消息
+// handleStateSync 处理状态同步消息.
 func (s *FailoverState) handleStateSync(msg stateSyncMsg) {
 	switch msg.Type {
 	case "session_update":
@@ -850,7 +850,7 @@ func (s *FailoverState) handleStateSync(msg stateSyncMsg) {
 	}
 }
 
-// broadcastHeartbeat 向集群广播心跳
+// broadcastHeartbeat 向集群广播心跳.
 func (s *FailoverState) broadcastHeartbeat() {
 	msg := heartbeatMsg{
 		FromNodeID:  s.localNode.NodeID,
@@ -865,7 +865,7 @@ func (s *FailoverState) broadcastHeartbeat() {
 	}
 }
 
-// sessionCleanupLoop 会话清理循环
+// sessionCleanupLoop 会话清理循环.
 func (s *FailoverState) sessionCleanupLoop() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
@@ -880,7 +880,7 @@ func (s *FailoverState) sessionCleanupLoop() {
 	}
 }
 
-// cleanupExpiredSessions 清理过期的会话
+// cleanupExpiredSessions 清理过期的会话.
 func (s *FailoverState) cleanupExpiredSessions() {
 	sessions := s.sessionRegistry.ListAll()
 	now := time.Now()
@@ -905,7 +905,7 @@ func (s *FailoverState) cleanupExpiredSessions() {
 	}
 }
 
-// saveState 保存状态到文件
+// saveState 保存状态到文件.
 func (s *FailoverState) saveState() error {
 	if s.config.StateFilePath == "" {
 		return nil
@@ -952,7 +952,7 @@ func (s *FailoverState) saveState() error {
 	return nil
 }
 
-// loadState 从文件加载状态
+// loadState 从文件加载状态.
 func (s *FailoverState) loadState() error {
 	if s.config.StateFilePath == "" {
 		return nil
@@ -995,7 +995,7 @@ func (s *FailoverState) loadState() error {
 	return nil
 }
 
-// UpdateConfig 更新故障转移配置
+// UpdateConfig 更新故障转移配置.
 func (s *FailoverState) UpdateConfig(config *FailoverConfig) error {
 	if err := ValidateFailoverConfig(config); err != nil {
 		return err
@@ -1015,21 +1015,21 @@ func (s *FailoverState) UpdateConfig(config *FailoverConfig) error {
 	return nil
 }
 
-// IsPrimary 检查本地节点是否为主节点
+// IsPrimary 检查本地节点是否为主节点.
 func (s *FailoverState) IsPrimary() bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.isPrimary
 }
 
-// GetActiveSessions 返回当前活跃会话数
+// GetActiveSessions 返回当前活跃会话数.
 func (s *FailoverState) GetActiveSessions() int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.activeSessions
 }
 
-// GetFailoverCount 返回累计故障转移次数
+// GetFailoverCount 返回累计故障转移次数.
 func (s *FailoverState) GetFailoverCount() int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -1038,7 +1038,7 @@ func (s *FailoverState) GetFailoverCount() int {
 
 // -------------------- 工具函数 --------------------
 
-// getLocalNodeID 获取本地节点唯一ID
+// getLocalNodeID 获取本地节点唯一ID.
 func getLocalNodeID() string {
 	hostname, err := os.Hostname()
 	if err == nil && hostname != "" {
@@ -1059,7 +1059,7 @@ func getLocalNodeID() string {
 	return fmt.Sprintf("node-%d", time.Now().UnixNano())
 }
 
-// filterStrings 从字符串切片中移除指定元素
+// filterStrings 从字符串切片中移除指定元素.
 func filterStrings(src []string, target string) []string {
 	result := make([]string, 0, len(src))
 	for _, s := range src {
@@ -1070,7 +1070,7 @@ func filterStrings(src []string, target string) []string {
 	return result
 }
 
-// max returns the larger of two ints
+// max returns the larger of two ints.
 func max(a, b int) int {
 	if a > b {
 		return a
@@ -1078,7 +1078,7 @@ func max(a, b int) int {
 	return b
 }
 
-// min returns the smaller of two ints
+// min returns the smaller of two ints.
 func min(a, b int) int {
 	if a < b {
 		return a

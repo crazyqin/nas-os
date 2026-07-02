@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// ComplianceConfig 合规配置
+// ComplianceConfig 合规配置.
 type ComplianceConfig struct {
 	Enabled           bool                  `json:"enabled"`
 	EnabledFrameworks []ComplianceFramework `json:"enabledFrameworks"`
@@ -19,7 +19,7 @@ type ComplianceConfig struct {
 	RetentionDays     int                   `json:"retentionDays"`
 }
 
-// ComplianceReport 合规报告
+// ComplianceReport 合规报告.
 type ComplianceReport struct {
 	ID               string              `json:"id"`
 	Framework        ComplianceFramework `json:"framework"`
@@ -37,7 +37,7 @@ type ComplianceReport struct {
 	GeneratedBy      string              `json:"generatedBy"`
 }
 
-// CategoryScore 分类分数
+// CategoryScore 分类分数.
 type CategoryScore struct {
 	Name     string  `json:"name"`
 	Score    float64 `json:"score"`
@@ -46,7 +46,7 @@ type CategoryScore struct {
 	Passed   int     `json:"passed"`
 }
 
-// Finding 发现项
+// Finding 发现项.
 type Finding struct {
 	ID          string              `json:"id"`
 	Framework   ComplianceFramework `json:"framework"`
@@ -61,7 +61,7 @@ type Finding struct {
 	ResolvedAt  *time.Time          `json:"resolvedAt,omitempty"`
 }
 
-// AuditEvent 审计事件
+// AuditEvent 审计事件.
 type AuditEvent struct {
 	ID         string    `json:"id"`
 	Timestamp  time.Time `json:"timestamp"`
@@ -77,7 +77,7 @@ type AuditEvent struct {
 	RiskLevel  string    `json:"riskLevel"` // low/medium/high/critical
 }
 
-// ComplianceStats 合规统计
+// ComplianceStats 合规统计.
 type ComplianceStats struct {
 	OverallScore      float64                         `json:"overallScore"`
 	FrameworkScores   map[ComplianceFramework]float64 `json:"frameworkScores"`
@@ -92,13 +92,13 @@ type ComplianceStats struct {
 	RecentAuditEvents []AuditEvent                    `json:"recentAuditEvents"`
 }
 
-// ScorePoint 分数趋势点
+// ScorePoint 分数趋势点.
 type ScorePoint struct {
 	Date  time.Time `json:"date"`
 	Score float64   `json:"score"`
 }
 
-// Manager 合规管理器
+// Manager 合规管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	config   ComplianceConfig
@@ -109,7 +109,7 @@ type Manager struct {
 	running  bool
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(cfg ComplianceConfig) *Manager {
 	return &Manager{
 		config:   cfg,
@@ -119,7 +119,7 @@ func NewManager(cfg ComplianceConfig) *Manager {
 	}
 }
 
-// Start 启动合规引擎
+// Start 启动合规引擎.
 func (m *Manager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -131,7 +131,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止
+// Stop 停止.
 func (m *Manager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -158,7 +158,7 @@ func (m *Manager) initDefaultChecks() {
 	}
 }
 
-// RunScan 执行合规扫描
+// RunScan 执行合规扫描.
 func (m *Manager) RunScan(framework ComplianceFramework) (*ComplianceReport, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -235,7 +235,7 @@ func (m *Manager) RunScan(framework ComplianceFramework) (*ComplianceReport, err
 	return report, nil
 }
 
-// GetReport 获取报告
+// GetReport 获取报告.
 func (m *Manager) GetReport(id string) (*ComplianceReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -246,7 +246,7 @@ func (m *Manager) GetReport(id string) (*ComplianceReport, error) {
 	return rpt, nil
 }
 
-// ListReports 列出报告
+// ListReports 列出报告.
 func (m *Manager) ListReports(framework ComplianceFramework, page, pageSize int) ([]ComplianceReport, int) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -268,7 +268,7 @@ func (m *Manager) ListReports(framework ComplianceFramework, page, pageSize int)
 	return result[start:end], total
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (m *Manager) GetStats() ComplianceStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -284,9 +284,10 @@ func (m *Manager) GetStats() ComplianceStats {
 		stats.TotalChecks++
 		totalScore += check.Score
 		maxScore += check.MaxScore
-		if check.Status == StatusCompliant {
+		switch check.Status {
+		case StatusCompliant:
 			stats.PassedChecks++
-		} else if check.Status == StatusNonCompliant {
+		case StatusNonCompliant:
 			stats.FailedChecks++
 		}
 	}
@@ -311,7 +312,7 @@ func (m *Manager) GetStats() ComplianceStats {
 	return stats
 }
 
-// LogAuditEvent 记录审计事件
+// LogAuditEvent 记录审计事件.
 func (m *Manager) LogAuditEvent(event AuditEvent) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -323,7 +324,7 @@ func (m *Manager) LogAuditEvent(event AuditEvent) {
 	}
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (m *Manager) GetAuditLog(userID, action string, page, pageSize int) ([]AuditEvent, int) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -346,7 +347,7 @@ func (m *Manager) GetAuditLog(userID, action string, page, pageSize int) ([]Audi
 	return result[start:end], total
 }
 
-// GetChecks 获取检查项列表
+// GetChecks 获取检查项列表.
 func (m *Manager) GetChecks(framework ComplianceFramework, status ComplianceStatus) []ComplianceCheck {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -360,7 +361,7 @@ func (m *Manager) GetChecks(framework ComplianceFramework, status ComplianceStat
 	return result
 }
 
-// GetFindings 获取发现项
+// GetFindings 获取发现项.
 func (m *Manager) GetFindings(status string) []Finding {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -373,14 +374,14 @@ func (m *Manager) GetFindings(status string) []Finding {
 	return result
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() ComplianceConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(cfg ComplianceConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

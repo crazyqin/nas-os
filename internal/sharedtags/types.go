@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// TagCategoryType represents the type of tag category
+// TagCategoryType represents the type of tag category.
 type TagCategoryType string
 
 const (
@@ -16,7 +16,7 @@ const (
 	CategoryCustom     TagCategoryType = "custom"     // 自定义分类
 )
 
-// TagPriority represents tag priority levels
+// TagPriority represents tag priority levels.
 type TagPriority string
 
 const (
@@ -26,7 +26,7 @@ const (
 	PriorityUrgent TagPriority = "urgent" // 紧急
 )
 
-// TagSharePermission represents sharing permission levels
+// TagSharePermission represents sharing permission levels.
 type TagSharePermission string
 
 const (
@@ -36,7 +36,7 @@ const (
 	ShareManage TagSharePermission = "manage" // 管理权限
 )
 
-// SearchOperator represents search combination operators
+// SearchOperator represents search combination operators.
 type SearchOperator string
 
 const (
@@ -45,7 +45,7 @@ const (
 	OpNot SearchOperator = "NOT" // 非运算
 )
 
-// Tag represents a single tag entity
+// Tag represents a single tag entity.
 type Tag struct {
 	ID          string         `json:"id"`          // 标签唯一标识
 	Name        string         `json:"name"`        // 标签名称
@@ -62,34 +62,34 @@ type Tag struct {
 	Metadata    map[string]any `json:"metadata"`    // 扩展元数据
 }
 
-// TagCategory represents a tag category with hierarchical support
+// TagCategory represents a tag category with hierarchical support.
 type TagCategory struct {
-	ID          string         `json:"id"`          // 分类唯一标识
-	Name        string         `json:"name"`        // 分类名称
-	Type        TagCategoryType `json:"type"`       // 分类类型
-	Description string         `json:"description"` // 分类描述
-	ParentID    string         `json:"parentId"`    // 父分类ID（支持多级分类）
-	Level       int            `json:"level"`       // 层级深度
-	SortOrder   int            `json:"sortOrder"`   // 排序顺序
-	IsSystem    bool           `json:"isSystem"`    // 是否系统分类
-	Owner       string         `json:"owner"`       // 创建者
-	CreatedAt   time.Time      `json:"createdAt"`   // 创建时间
-	UpdatedAt   time.Time      `json:"updatedAt"`   // 更新时间
+	ID          string          `json:"id"`          // 分类唯一标识
+	Name        string          `json:"name"`        // 分类名称
+	Type        TagCategoryType `json:"type"`        // 分类类型
+	Description string          `json:"description"` // 分类描述
+	ParentID    string          `json:"parentId"`    // 父分类ID（支持多级分类）
+	Level       int             `json:"level"`       // 层级深度
+	SortOrder   int             `json:"sortOrder"`   // 排序顺序
+	IsSystem    bool            `json:"isSystem"`    // 是否系统分类
+	Owner       string          `json:"owner"`       // 创建者
+	CreatedAt   time.Time       `json:"createdAt"`   // 创建时间
+	UpdatedAt   time.Time       `json:"updatedAt"`   // 更新时间
 }
 
-// FileTag represents the association between a file and a tag
+// FileTag represents the association between a file and a tag.
 type FileTag struct {
-	ID        string    `json:"id"`        // 关联唯一标识
-	FilePath  string    `json:"filePath"`  // 文件路径
-	TagID     string    `json:"tagId"`     // 标签ID
-	TagName   string    `json:"tagName"`   // 标签名称（冗余字段，便于查询）
-	TaggedBy  string    `json:"taggedBy"`  // 打标签的用户
-	IsAuto    bool      `json:"isAuto"`    // 是否自动打标
-	Confidence float64  `json:"confidence"` // 自动打标置信度
-	CreatedAt time.Time `json:"createdAt"` // 关联创建时间
+	ID         string    `json:"id"`         // 关联唯一标识
+	FilePath   string    `json:"filePath"`   // 文件路径
+	TagID      string    `json:"tagId"`      // 标签ID
+	TagName    string    `json:"tagName"`    // 标签名称（冗余字段，便于查询）
+	TaggedBy   string    `json:"taggedBy"`   // 打标签的用户
+	IsAuto     bool      `json:"isAuto"`     // 是否自动打标
+	Confidence float64   `json:"confidence"` // 自动打标置信度
+	CreatedAt  time.Time `json:"createdAt"`  // 关联创建时间
 }
 
-// TagShare represents a tag sharing configuration
+// TagShare represents a tag sharing configuration.
 type TagShare struct {
 	ID         string             `json:"id"`         // 共享唯一标识
 	TagID      string             `json:"tagId"`      // 标签ID
@@ -103,27 +103,27 @@ type TagShare struct {
 	ExpiresAt  *time.Time         `json:"expiresAt"`  // 过期时间（可选）
 }
 
-// TagStatsResult represents tag usage statistics
+// TagStatsResult represents tag usage statistics.
 type TagStatsResult struct {
-	TagID       string    `json:"tagId"`       // 标签ID
-	TagName     string    `json:"tagName"`     // 标签名称
-	FileCount   int64     `json:"fileCount"`   // 关联文件数
-	UsageCount  int64     `json:"usageCount"`  // 使用次数
-	LastUsedAt  time.Time `json:"lastUsedAt"`  // 最后使用时间
-	TrendScore  float64   `json:"trendScore"`  // 趋势分数
-	CategoryName string   `json:"categoryName"` // 所属分类名称
+	TagID        string    `json:"tagId"`        // 标签ID
+	TagName      string    `json:"tagName"`      // 标签名称
+	FileCount    int64     `json:"fileCount"`    // 关联文件数
+	UsageCount   int64     `json:"usageCount"`   // 使用次数
+	LastUsedAt   time.Time `json:"lastUsedAt"`   // 最后使用时间
+	TrendScore   float64   `json:"trendScore"`   // 趋势分数
+	CategoryName string    `json:"categoryName"` // 所属分类名称
 }
 
-// TagTrendPoint represents a point in tag usage trend
+// TagTrendPoint represents a point in tag usage trend.
 type TagTrendPoint struct {
-	Date      time.Time `json:"date"`      // 日期
-	TagID     string    `json:"tagId"`     // 标签ID
-	TagName   string    `json:"tagName"`   // 标签名称
-	NewFiles  int64     `json:"newFiles"`  // 新增文件数
-	TotalFiles int64    `json:"totalFiles"` // 累计文件数
+	Date       time.Time `json:"date"`       // 日期
+	TagID      string    `json:"tagId"`      // 标签ID
+	TagName    string    `json:"tagName"`    // 标签名称
+	NewFiles   int64     `json:"newFiles"`   // 新增文件数
+	TotalFiles int64     `json:"totalFiles"` // 累计文件数
 }
 
-// SearchQuery represents a tag-based search query
+// SearchQuery represents a tag-based search query.
 type SearchQuery struct {
 	Operator   SearchOperator `json:"operator"`   // 组合运算符
 	Tags       []string       `json:"tags"`       // 标签ID列表
@@ -136,15 +136,15 @@ type SearchQuery struct {
 	Offset     int            `json:"offset"`     // 分页偏移
 }
 
-// SearchResult represents search results
+// SearchResult represents search results.
 type SearchResult struct {
-	Files      []FileTag `json:"files"`      // 匹配的文件标签关联
-	Total      int64     `json:"total"`      // 总匹配数
-	HasMore    bool      `json:"hasMore"`    // 是否有更多结果
-	Query      SearchQuery `json:"query"`    // 原始查询
+	Files   []FileTag   `json:"files"`   // 匹配的文件标签关联
+	Total   int64       `json:"total"`   // 总匹配数
+	HasMore bool        `json:"hasMore"` // 是否有更多结果
+	Query   SearchQuery `json:"query"`   // 原始查询
 }
 
-// AutoTagSuggestion represents an automatic tag suggestion
+// AutoTagSuggestion represents an automatic tag suggestion.
 type AutoTagSuggestion struct {
 	TagID      string  `json:"tagId"`      // 建议的标签ID
 	TagName    string  `json:"tagName"`    // 建议的标签名称
@@ -152,7 +152,7 @@ type AutoTagSuggestion struct {
 	Reason     string  `json:"reason"`     // 建议原因
 }
 
-// CreateTagRequest represents a request to create a tag
+// CreateTagRequest represents a request to create a tag.
 type CreateTagRequest struct {
 	Name        string         `json:"name"`        // 标签名称
 	Description string         `json:"description"` // 标签描述
@@ -163,7 +163,7 @@ type CreateTagRequest struct {
 	Metadata    map[string]any `json:"metadata"`    // 扩展元数据
 }
 
-// UpdateTagRequest represents a request to update a tag
+// UpdateTagRequest represents a request to update a tag.
 type UpdateTagRequest struct {
 	Name        *string        `json:"name"`        // 标签名称
 	Description *string        `json:"description"` // 标签描述
@@ -173,7 +173,7 @@ type UpdateTagRequest struct {
 	Metadata    map[string]any `json:"metadata"`    // 扩展元数据
 }
 
-// CreateCategoryRequest represents a request to create a tag category
+// CreateCategoryRequest represents a request to create a tag category.
 type CreateCategoryRequest struct {
 	Name        string          `json:"name"`        // 分类名称
 	Type        TagCategoryType `json:"type"`        // 分类类型
@@ -183,21 +183,21 @@ type CreateCategoryRequest struct {
 	Owner       string          `json:"owner"`       // 创建者
 }
 
-// UpdateCategoryRequest represents a request to update a tag category
+// UpdateCategoryRequest represents a request to update a tag category.
 type UpdateCategoryRequest struct {
 	Name        *string `json:"name"`        // 分类名称
 	Description *string `json:"description"` // 分类描述
 	SortOrder   *int    `json:"sortOrder"`   // 排序顺序
 }
 
-// BatchTagRequest represents a batch tagging request
+// BatchTagRequest represents a batch tagging request.
 type BatchTagRequest struct {
-	Files  []string `json:"files"`  // 文件路径列表
-	Tags   []string `json:"tags"`   // 标签ID列表
-	TaggedBy string `json:"taggedBy"` // 操作用户
+	Files    []string `json:"files"`    // 文件路径列表
+	Tags     []string `json:"tags"`     // 标签ID列表
+	TaggedBy string   `json:"taggedBy"` // 操作用户
 }
 
-// ShareTagRequest represents a request to share a tag
+// ShareTagRequest represents a request to share a tag.
 type ShareTagRequest struct {
 	TagID      string             `json:"tagId"`      // 标签ID
 	SharedWith string             `json:"sharedWith"` // 共享目标
@@ -207,32 +207,32 @@ type ShareTagRequest struct {
 	ExpiresAt  *time.Time         `json:"expiresAt"`  // 过期时间
 }
 
-// ValidationError represents a validation error
+// ValidationError represents a validation error.
 type ValidationError struct {
 	Field   string `json:"field"`   // 出错字段
 	Message string `json:"message"` // 错误信息
 }
 
-// Error implements the error interface
+// Error implements the error interface.
 func (e *ValidationError) Error() string {
 	return fmt.Sprintf("validation error: %s - %s", e.Field, e.Message)
 }
 
-// TagError represents a tag operation error
+// TagError represents a tag operation error.
 type TagError struct {
 	Code    string `json:"code"`    // 错误代码
 	Message string `json:"message"` // 错误信息
 }
 
-// Error implements the error interface
+// Error implements the error interface.
 func (e *TagError) Error() string {
 	return fmt.Sprintf("[%s] %s", e.Code, e.Message)
 }
 
-// Predefined errors
+// Predefined errors.
 var (
-	ErrTagNotFound = &TagError{Code: "TAG_NOT_FOUND", Message: "标签不存在"}
-	ErrTagExists   = &TagError{Code: "TAG_EXISTS", Message: "标签已存在"}
+	ErrTagNotFound      = &TagError{Code: "TAG_NOT_FOUND", Message: "标签不存在"}
+	ErrTagExists        = &TagError{Code: "TAG_EXISTS", Message: "标签已存在"}
 	ErrCategoryNotFound = &TagError{Code: "CATEGORY_NOT_FOUND", Message: "分类不存在"}
 	ErrCategoryExists   = &TagError{Code: "CATEGORY_EXISTS", Message: "分类已存在"}
 	ErrInvalidInput     = &TagError{Code: "INVALID_INPUT", Message: "输入参数无效"}
@@ -243,7 +243,7 @@ var (
 	ErrSystemTag        = &TagError{Code: "SYSTEM_TAG", Message: "系统标签不可删除"}
 )
 
-// Validate validates CreateTagRequest
+// Validate validates CreateTagRequest.
 func (r *CreateTagRequest) Validate() error {
 	if strings.TrimSpace(r.Name) == "" {
 		return &ValidationError{Field: "name", Message: "标签名称不能为空"}
@@ -257,7 +257,7 @@ func (r *CreateTagRequest) Validate() error {
 	return nil
 }
 
-// Validate validates UpdateTagRequest
+// Validate validates UpdateTagRequest.
 func (r *UpdateTagRequest) Validate() error {
 	if r.Name != nil {
 		if strings.TrimSpace(*r.Name) == "" {
@@ -270,7 +270,7 @@ func (r *UpdateTagRequest) Validate() error {
 	return nil
 }
 
-// Validate validates CreateCategoryRequest
+// Validate validates CreateCategoryRequest.
 func (r *CreateCategoryRequest) Validate() error {
 	if strings.TrimSpace(r.Name) == "" {
 		return &ValidationError{Field: "name", Message: "分类名称不能为空"}
@@ -291,7 +291,7 @@ func (r *CreateCategoryRequest) Validate() error {
 	return nil
 }
 
-// Validate validates BatchTagRequest
+// Validate validates BatchTagRequest.
 func (r *BatchTagRequest) Validate() error {
 	if len(r.Files) == 0 {
 		return &ValidationError{Field: "files", Message: "文件列表不能为空"}
@@ -305,7 +305,7 @@ func (r *BatchTagRequest) Validate() error {
 	return nil
 }
 
-// Validate validates ShareTagRequest
+// Validate validates ShareTagRequest.
 func (r *ShareTagRequest) Validate() error {
 	if strings.TrimSpace(r.TagID) == "" {
 		return &ValidationError{Field: "tagId", Message: "标签ID不能为空"}
@@ -332,7 +332,7 @@ func (r *ShareTagRequest) Validate() error {
 	return nil
 }
 
-// Validate validates SearchQuery
+// Validate validates SearchQuery.
 func (q *SearchQuery) Validate() error {
 	switch q.Operator {
 	case OpAnd, OpOr, OpNot:

@@ -6,17 +6,17 @@ import (
 	"net/http"
 )
 
-// Handler handles HTTP requests for unified search
+// Handler handles HTTP requests for unified search.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler creates a new unified search handler
+// NewHandler creates a new unified search handler.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes registers the HTTP routes
+// RegisterRoutes registers the HTTP routes.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/search", h.handleSearch)
 	mux.HandleFunc("/api/v1/search/index", h.handleIndex)
@@ -25,7 +25,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/search/suggestions", h.handleSuggestions)
 }
 
-// handleSearch handles search requests
+// handleSearch handles search requests.
 func (h *Handler) handleSearch(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet && r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -65,7 +65,7 @@ func (h *Handler) handleSearch(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-// handleIndex handles index operations
+// handleIndex handles index operations.
 func (h *Handler) handleIndex(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
@@ -96,7 +96,7 @@ func (h *Handler) handleIndex(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleStats returns search index statistics
+// handleStats returns search index statistics.
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -107,7 +107,7 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(stats)
 }
 
-// handleRebuild triggers a full index rebuild
+// handleRebuild triggers a full index rebuild.
 func (h *Handler) handleRebuild(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -120,7 +120,7 @@ func (h *Handler) handleRebuild(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "rebuilt"})
 }
 
-// handleSuggestions returns search suggestions
+// handleSuggestions returns search suggestions.
 func (h *Handler) handleSuggestions(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

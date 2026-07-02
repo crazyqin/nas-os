@@ -16,7 +16,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// ChangeType 变更类型
+// ChangeType 变更类型.
 type ChangeType string
 
 const (
@@ -26,7 +26,7 @@ const (
 	ChangeTypeRename ChangeType = "rename" // 重命名
 )
 
-// FileChange 文件变更记录
+// FileChange 文件变更记录.
 type FileChange struct {
 	Path      string     `json:"path"`      // 文件路径
 	OldPath   string     `json:"old_path"`  // 原路径（重命名时）
@@ -36,7 +36,7 @@ type FileChange struct {
 	Timestamp time.Time  `json:"timestamp"` // 变更时间
 }
 
-// BlockInfo 数据块信息
+// BlockInfo 数据块信息.
 type BlockInfo struct {
 	Index     int    `json:"index"`      // 块序号
 	Offset    int64  `json:"offset"`     // 文件内偏移量
@@ -47,7 +47,7 @@ type BlockInfo struct {
 }
 
 // ChangeTracker 变更追踪器
-// 监控文件系统变更，为增量备份提供变更清单
+// 监控文件系统变更，为增量备份提供变更清单.
 type ChangeTracker struct {
 	mu           sync.RWMutex
 	basePath     string            // 被监控的根路径
@@ -59,7 +59,7 @@ type ChangeTracker struct {
 	dbPath       string // 追踪数据库路径
 }
 
-// NewChangeTracker 创建变更追踪器
+// NewChangeTracker 创建变更追踪器.
 func NewChangeTracker(basePath, dbPath string, blockSize int, logger *zap.Logger) (*ChangeTracker, error) {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -86,7 +86,7 @@ func NewChangeTracker(basePath, dbPath string, blockSize int, logger *zap.Logger
 	return ct, nil
 }
 
-// Scan 扫描文件系统变更
+// Scan 扫描文件系统变更.
 func (ct *ChangeTracker) Scan() ([]FileChange, error) {
 	ct.mu.Lock()
 	defer ct.mu.Unlock()
@@ -161,7 +161,7 @@ func (ct *ChangeTracker) Scan() ([]FileChange, error) {
 	return ct.changes, nil
 }
 
-// Commit 将当前状态保存为新基线
+// Commit 将当前状态保存为新基线.
 func (ct *ChangeTracker) Commit() error {
 	ct.mu.Lock()
 	defer ct.mu.Unlock()
@@ -175,7 +175,7 @@ func (ct *ChangeTracker) Commit() error {
 	return ct.saveState()
 }
 
-// GetChanges 获取当前变更列表
+// GetChanges 获取当前变更列表.
 func (ct *ChangeTracker) GetChanges() []FileChange {
 	ct.mu.RLock()
 	defer ct.mu.RUnlock()
@@ -185,7 +185,7 @@ func (ct *ChangeTracker) GetChanges() []FileChange {
 	return result
 }
 
-// computeFileChecksum 计算文件 SHA256 校验和
+// computeFileChecksum 计算文件 SHA256 校验和.
 func (ct *ChangeTracker) computeFileChecksum(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -201,7 +201,7 @@ func (ct *ChangeTracker) computeFileChecksum(path string) (string, error) {
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
-// loadState 加载追踪状态
+// loadState 加载追踪状态.
 func (ct *ChangeTracker) loadState() error {
 	data, err := os.ReadFile(ct.dbPath)
 	if err != nil {
@@ -223,7 +223,7 @@ func (ct *ChangeTracker) loadState() error {
 	return nil
 }
 
-// saveState 保存追踪状态
+// saveState 保存追踪状态.
 func (ct *ChangeTracker) saveState() error {
 	data, err := json.MarshalIndent(struct {
 		LastSnapshot map[string]string `json:"last_snapshot"`
@@ -247,7 +247,7 @@ func (ct *ChangeTracker) saveState() error {
 // ==================== 块级增量备份 ====================
 
 // BlockLevelBackupEngine 块级增量备份引擎
-// 将文件切分为固定大小的数据块，仅备份变更的块
+// 将文件切分为固定大小的数据块，仅备份变更的块.
 type BlockLevelBackupEngine struct {
 	mu         sync.RWMutex
 	blockSize  int                   // 块大小（字节）
@@ -256,7 +256,7 @@ type BlockLevelBackupEngine struct {
 	logger     *zap.Logger
 }
 
-// NewBlockLevelBackupEngine 创建块级备份引擎
+// NewBlockLevelBackupEngine 创建块级备份引擎.
 func NewBlockLevelBackupEngine(blockSize int, logger *zap.Logger) *BlockLevelBackupEngine {
 	if blockSize == 0 {
 		blockSize = 4 * 1024 * 1024 // 4MB
@@ -274,7 +274,7 @@ func NewBlockLevelBackupEngine(blockSize int, logger *zap.Logger) *BlockLevelBac
 }
 
 // Backup 执行块级增量备份
-// 返回新增/变更的块数量和总大小
+// 返回新增/变更的块数量和总大小.
 func (be *BlockLevelBackupEngine) Backup(filePath, outputDir string) (int, int64, error) {
 	be.mu.Lock()
 	defer be.mu.Unlock()
@@ -348,7 +348,7 @@ func (be *BlockLevelBackupEngine) Backup(filePath, outputDir string) (int, int64
 // ==================== 去重引擎 ====================
 
 // DedupEngine 去重引擎
-// 使用滚动哈希 + 强校验实现数据块级去重
+// 使用滚动哈希 + 强校验实现数据块级去重.
 type DedupEngine struct {
 	mu         sync.RWMutex
 	blockSize  int
@@ -357,7 +357,7 @@ type DedupEngine struct {
 	logger     *zap.Logger
 }
 
-// ChunkEntry 数据块条目
+// ChunkEntry 数据块条目.
 type ChunkEntry struct {
 	Checksum  string    `json:"checksum"`
 	Size      int       `json:"size"`
@@ -366,7 +366,7 @@ type ChunkEntry struct {
 	StorePath string    `json:"store_path"`
 }
 
-// DedupStats 去重统计
+// DedupStats 去重统计.
 type DedupStats struct {
 	TotalChunks     int   `json:"total_chunks"`     // 总处理块数
 	UniqueChunks    int   `json:"unique_chunks"`    // 唯一块数
@@ -375,7 +375,7 @@ type DedupStats struct {
 	SavedBytes      int64 `json:"saved_bytes"`      // 节省字节数
 }
 
-// NewDedupEngine 创建去重引擎
+// NewDedupEngine 创建去重引擎.
 func NewDedupEngine(blockSize int, logger *zap.Logger) *DedupEngine {
 	if blockSize == 0 {
 		blockSize = 4 * 1024 * 1024
@@ -392,7 +392,7 @@ func NewDedupEngine(blockSize int, logger *zap.Logger) *DedupEngine {
 }
 
 // Dedup 对数据块进行去重检查
-// 返回：是否为新块、校验和
+// 返回：是否为新块、校验和.
 func (de *DedupEngine) Dedup(data []byte) (bool, string) {
 	de.mu.Lock()
 	defer de.mu.Unlock()
@@ -421,20 +421,20 @@ func (de *DedupEngine) Dedup(data []byte) (bool, string) {
 	return true, checksum
 }
 
-// ComputeChecksum 计算数据块的 SHA256 校验和
+// ComputeChecksum 计算数据块的 SHA256 校验和.
 func (de *DedupEngine) ComputeChecksum(data []byte) string {
 	h := sha256.Sum256(data)
 	return hex.EncodeToString(h[:])
 }
 
-// GetStats 获取去重统计信息
+// GetStats 获取去重统计信息.
 func (de *DedupEngine) GetStats() DedupStats {
 	de.mu.RLock()
 	defer de.mu.RUnlock()
 	return de.stats
 }
 
-// GetDedupRatio 获取去重率（0.0 ~ 1.0）
+// GetDedupRatio 获取去重率（0.0 ~ 1.0）.
 func (de *DedupEngine) GetDedupRatio() float64 {
 	de.mu.RLock()
 	defer de.mu.RUnlock()
@@ -445,7 +445,7 @@ func (de *DedupEngine) GetDedupRatio() float64 {
 	return float64(de.stats.SavedBytes) / float64(de.stats.TotalBytes)
 }
 
-// SaveIndex 保存去重索引到磁盘
+// SaveIndex 保存去重索引到磁盘.
 func (de *DedupEngine) SaveIndex(indexPath string) error {
 	de.mu.RLock()
 	defer de.mu.RUnlock()
@@ -471,7 +471,7 @@ func (de *DedupEngine) SaveIndex(indexPath string) error {
 	return os.WriteFile(indexPath, data, 0644)
 }
 
-// LoadIndex 从磁盘加载去重索引
+// LoadIndex 从磁盘加载去重索引.
 func (de *DedupEngine) LoadIndex(indexPath string) error {
 	de.mu.Lock()
 	defer de.mu.Unlock()

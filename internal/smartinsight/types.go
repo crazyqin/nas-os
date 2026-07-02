@@ -3,7 +3,7 @@ package smartinsight
 
 import "time"
 
-// InsightCategory 洞察类别
+// InsightCategory 洞察类别.
 type InsightCategory string
 
 const (
@@ -14,7 +14,7 @@ const (
 	CategorySecurity InsightCategory = "security"
 )
 
-// InsightSeverity 洞察严重程度
+// InsightSeverity 洞察严重程度.
 type InsightSeverity string
 
 const (
@@ -23,7 +23,7 @@ const (
 	SeverityCritical InsightSeverity = "critical"
 )
 
-// AnomalyType 异常类型
+// AnomalyType 异常类型.
 type AnomalyType string
 
 const (
@@ -34,7 +34,7 @@ const (
 	AnomalyDiskActivity  AnomalyType = "disk_activity"
 )
 
-// RecommendationType 推荐类型
+// RecommendationType 推荐类型.
 type RecommendationType string
 
 const (
@@ -46,7 +46,7 @@ const (
 	RecCleanup         RecommendationType = "cleanup"
 )
 
-// Insight 单条洞察
+// Insight 单条洞察.
 type Insight struct {
 	ID        string          `json:"id"`
 	Category  InsightCategory `json:"category"`
@@ -58,7 +58,7 @@ type Insight struct {
 	CreatedAt time.Time       `json:"created_at"`
 }
 
-// Recommendation 智能推荐
+// Recommendation 智能推荐.
 type Recommendation struct {
 	ID          string             `json:"id"`
 	Type        RecommendationType `json:"type"`
@@ -70,7 +70,7 @@ type Recommendation struct {
 	CreatedAt   time.Time          `json:"created_at"`
 }
 
-// UsageTrend 使用趋势
+// UsageTrend 使用趋势.
 type UsageTrend struct {
 	ID        string       `json:"id"`
 	Category  string       `json:"category"`
@@ -82,13 +82,13 @@ type UsageTrend struct {
 	TrendData []TrendPoint `json:"trend_data,omitempty"`
 }
 
-// TrendPoint 趋势数据点
+// TrendPoint 趋势数据点.
 type TrendPoint struct {
 	Timestamp time.Time `json:"timestamp"`
 	Value     float64   `json:"value"`
 }
 
-// CostAnalysis 成本分析
+// CostAnalysis 成本分析.
 type CostAnalysis struct {
 	ID               string     `json:"id"`
 	StorageUsedGB    float64    `json:"storage_used_gb"`
@@ -101,14 +101,14 @@ type CostAnalysis struct {
 	CreatedAt        time.Time  `json:"created_at"`
 }
 
-// CostItem 成本明细项
+// CostItem 成本明细项.
 type CostItem struct {
 	Category string  `json:"category"`
 	Cost     float64 `json:"cost"`
 	Percent  float64 `json:"percent"`
 }
 
-// Anomaly 异常事件
+// Anomaly 异常事件.
 type Anomaly struct {
 	ID          string      `json:"id"`
 	Type        AnomalyType `json:"type"`
@@ -120,7 +120,7 @@ type Anomaly struct {
 	DetectedAt  time.Time   `json:"detected_at"`
 }
 
-// InsightReport 系统洞察报告
+// InsightReport 系统洞察报告.
 type InsightReport struct {
 	ID              string            `json:"id"`
 	Title           string            `json:"title"`
@@ -134,7 +134,7 @@ type InsightReport struct {
 	GeneratedAt     time.Time         `json:"generated_at"`
 }
 
-// StatsOverview 系统统计概览
+// StatsOverview 系统统计概览.
 type StatsOverview struct {
 	TotalInsights        int     `json:"total_insights"`
 	TotalRecommendations int     `json:"total_recommendations"`
@@ -143,7 +143,7 @@ type StatsOverview struct {
 	LastReportTime       string  `json:"last_report_time"`
 }
 
-// AnalyzeRequest 分析请求参数
+// AnalyzeRequest 分析请求参数.
 type AnalyzeRequest struct {
 	Category string `json:"category,omitempty"`
 	Period   string `json:"period,omitempty"` // 1h, 6h, 24h, 7d, 30d

@@ -9,14 +9,14 @@ import (
 )
 
 // RepairTracker 修复状态追踪器
-// 追踪告警修复进度，支持多步骤修复流程
+// 追踪告警修复进度，支持多步骤修复流程.
 type RepairTracker struct {
 	repairs map[string]*RepairRecord // alertID -> record
 	mu      sync.RWMutex
 	logger  *zap.Logger
 }
 
-// NewRepairTracker 创建修复追踪器
+// NewRepairTracker 创建修复追踪器.
 func NewRepairTracker(logger *zap.Logger) *RepairTracker {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -27,7 +27,7 @@ func NewRepairTracker(logger *zap.Logger) *RepairTracker {
 	}
 }
 
-// RepairRecord 修复记录
+// RepairRecord 修复记录.
 type RepairRecord struct {
 	AlertID     string              `json:"alertId"`
 	KnowledgeID string              `json:"knowledgeId"`
@@ -43,7 +43,7 @@ type RepairRecord struct {
 	Notes       []RepairNote        `json:"notes,omitempty"`
 }
 
-// StepRecord 步骤记录
+// StepRecord 步骤记录.
 type StepRecord struct {
 	Order       int        `json:"order"`
 	Title       string     `json:"title"`
@@ -54,14 +54,14 @@ type StepRecord struct {
 	Error       string     `json:"error,omitempty"`
 }
 
-// RepairNote 修复备注
+// RepairNote 修复备注.
 type RepairNote struct {
 	Content   string    `json:"content"`
 	Author    string    `json:"author,omitempty"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-// RepairStatus 修复状态
+// RepairStatus 修复状态.
 type RepairStatus string
 
 const (
@@ -72,7 +72,7 @@ const (
 	RepairStatusAbandoned  RepairStatus = "ABANDONED"
 )
 
-// Start 开始修复
+// Start 开始修复.
 func (rt *RepairTracker) Start(alertID, knowledgeID, title string, totalSteps int, assignee string) *RepairRecord {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
@@ -105,7 +105,7 @@ func (rt *RepairTracker) Start(alertID, knowledgeID, title string, totalSteps in
 	return record
 }
 
-// CompleteStep 完成步骤
+// CompleteStep 完成步骤.
 func (rt *RepairTracker) CompleteStep(alertID string, stepOrder int, output string) error {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
@@ -138,7 +138,7 @@ func (rt *RepairTracker) CompleteStep(alertID string, stepOrder int, output stri
 	return nil
 }
 
-// FailStep 标记步骤失败
+// FailStep 标记步骤失败.
 func (rt *RepairTracker) FailStep(alertID string, stepOrder int, errMsg string) error {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
@@ -167,7 +167,7 @@ func (rt *RepairTracker) FailStep(alertID string, stepOrder int, errMsg string) 
 	return nil
 }
 
-// SkipStep 跳过步骤
+// SkipStep 跳过步骤.
 func (rt *RepairTracker) SkipStep(alertID string, stepOrder int) error {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
@@ -194,7 +194,7 @@ func (rt *RepairTracker) SkipStep(alertID string, stepOrder int) error {
 	return nil
 }
 
-// AddNote 添加备注
+// AddNote 添加备注.
 func (rt *RepairTracker) AddNote(alertID, content, author string) error {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
@@ -212,7 +212,7 @@ func (rt *RepairTracker) AddNote(alertID, content, author string) error {
 	return nil
 }
 
-// Get 获取修复记录
+// Get 获取修复记录.
 func (rt *RepairTracker) Get(alertID string) (*RepairRecord, bool) {
 	rt.mu.RLock()
 	defer rt.mu.RUnlock()
@@ -220,7 +220,7 @@ func (rt *RepairTracker) Get(alertID string) (*RepairRecord, bool) {
 	return r, ok
 }
 
-// Abandon 放弃修复
+// Abandon 放弃修复.
 func (rt *RepairTracker) Abandon(alertID string) error {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
@@ -233,7 +233,7 @@ func (rt *RepairTracker) Abandon(alertID string) error {
 	return nil
 }
 
-// ProgressPercent 完成百分比
+// ProgressPercent 完成百分比.
 func (rt *RepairTracker) ProgressPercent(alertID string) float64 {
 	rt.mu.RLock()
 	defer rt.mu.RUnlock()
@@ -250,7 +250,7 @@ func (rt *RepairTracker) ProgressPercent(alertID string) float64 {
 	return float64(done) / float64(record.TotalSteps) * 100
 }
 
-// ListActive 列出进行中的修复
+// ListActive 列出进行中的修复.
 func (rt *RepairTracker) ListActive() []*RepairRecord {
 	rt.mu.RLock()
 	defer rt.mu.RUnlock()
@@ -263,7 +263,7 @@ func (rt *RepairTracker) ListActive() []*RepairRecord {
 	return result
 }
 
-// ListAll 列出所有修复记录
+// ListAll 列出所有修复记录.
 func (rt *RepairTracker) ListAll() []*RepairRecord {
 	rt.mu.RLock()
 	defer rt.mu.RUnlock()
@@ -274,14 +274,14 @@ func (rt *RepairTracker) ListAll() []*RepairRecord {
 	return result
 }
 
-// Remove 移除修复记录
+// Remove 移除修复记录.
 func (rt *RepairTracker) Remove(alertID string) {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
 	delete(rt.repairs, alertID)
 }
 
-// isAllDone 检查是否所有步骤都已完成
+// isAllDone 检查是否所有步骤都已完成.
 func (rt *RepairTracker) isAllDone(record *RepairRecord) bool {
 	if record.TotalSteps == 0 {
 		return false

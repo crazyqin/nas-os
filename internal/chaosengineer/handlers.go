@@ -7,13 +7,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handler 混沌工程HTTP处理器
+// Handler 混沌工程HTTP处理器.
 type Handler struct {
 	manager *Manager
 	logger  *zap.Logger
 }
 
-// NewHandler 创建混沌工程HTTP处理器
+// NewHandler 创建混沌工程HTTP处理器.
 func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -21,7 +21,7 @@ func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
 	return &Handler{manager: manager, logger: logger}
 }
 
-// RegisterRoutes 注册混沌工程API路由
+// RegisterRoutes 注册混沌工程API路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	chaos := rg.Group("/chaos")
 	{
@@ -46,7 +46,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// CreateExperiment handles POST /api/v1/chaos/experiments
+// CreateExperiment handles POST /api/v1/chaos/experiments.
 func (h *Handler) CreateExperiment(c *gin.Context) {
 	var exp Experiment
 	if err := c.ShouldBindJSON(&exp); err != nil {
@@ -68,7 +68,7 @@ func (h *Handler) CreateExperiment(c *gin.Context) {
 	c.JSON(http.StatusCreated, created)
 }
 
-// GetExperiment handles GET /api/v1/chaos/experiments/:id
+// GetExperiment handles GET /api/v1/chaos/experiments/:id.
 func (h *Handler) GetExperiment(c *gin.Context) {
 	id := c.Param("id")
 	exp, err := h.manager.GetExperiment(id)
@@ -80,7 +80,7 @@ func (h *Handler) GetExperiment(c *gin.Context) {
 	c.JSON(http.StatusOK, exp)
 }
 
-// ListExperiments handles GET /api/v1/chaos/experiments
+// ListExperiments handles GET /api/v1/chaos/experiments.
 func (h *Handler) ListExperiments(c *gin.Context) {
 	experiments := h.manager.ListExperiments()
 	c.JSON(http.StatusOK, gin.H{
@@ -89,7 +89,7 @@ func (h *Handler) ListExperiments(c *gin.Context) {
 	})
 }
 
-// UpdateExperiment handles PUT /api/v1/chaos/experiments/:id
+// UpdateExperiment handles PUT /api/v1/chaos/experiments/:id.
 func (h *Handler) UpdateExperiment(c *gin.Context) {
 	id := c.Param("id")
 	var update Experiment
@@ -100,13 +100,14 @@ func (h *Handler) UpdateExperiment(c *gin.Context) {
 
 	updated, err := h.manager.UpdateExperiment(id, &update)
 	if err != nil {
-		if err == ErrExperimentNotFound {
+		switch err {
+		case ErrExperimentNotFound:
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		} else if err == ErrExperimentRunning {
+		case ErrExperimentRunning:
 			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		} else if err == ErrInvalidFaultType || err == ErrInvalidSeverity {
+		case ErrInvalidFaultType, ErrInvalidSeverity:
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		} else {
+		default:
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
 		return
@@ -116,15 +117,16 @@ func (h *Handler) UpdateExperiment(c *gin.Context) {
 	c.JSON(http.StatusOK, updated)
 }
 
-// DeleteExperiment handles DELETE /api/v1/chaos/experiments/:id
+// DeleteExperiment handles DELETE /api/v1/chaos/experiments/:id.
 func (h *Handler) DeleteExperiment(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteExperiment(id); err != nil {
-		if err == ErrExperimentNotFound {
+		switch err {
+		case ErrExperimentNotFound:
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		} else if err == ErrExperimentRunning {
+		case ErrExperimentRunning:
 			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		} else {
+		default:
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
 		return
@@ -134,17 +136,18 @@ func (h *Handler) DeleteExperiment(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "experiment deleted"})
 }
 
-// StartExperiment handles POST /api/v1/chaos/experiments/:id/start
+// StartExperiment handles POST /api/v1/chaos/experiments/:id/start.
 func (h *Handler) StartExperiment(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.StartExperiment(id); err != nil {
-		if err == ErrExperimentNotFound {
+		switch err {
+		case ErrExperimentNotFound:
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		} else if err == ErrExperimentRunning {
+		case ErrExperimentRunning:
 			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		} else if err == ErrSafetyViolation {
+		case ErrSafetyViolation:
 			c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
-		} else {
+		default:
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
 		return
@@ -154,15 +157,16 @@ func (h *Handler) StartExperiment(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "experiment started"})
 }
 
-// StopExperiment handles POST /api/v1/chaos/experiments/:id/stop
+// StopExperiment handles POST /api/v1/chaos/experiments/:id/stop.
 func (h *Handler) StopExperiment(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.StopExperiment(id); err != nil {
-		if err == ErrExperimentNotFound {
+		switch err {
+		case ErrExperimentNotFound:
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		} else if err == ErrExperimentNotRun {
+		case ErrExperimentNotRun:
 			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		} else {
+		default:
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
 		return
@@ -172,7 +176,7 @@ func (h *Handler) StopExperiment(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "experiment stopped"})
 }
 
-// GenerateReport handles POST /api/v1/chaos/reports/generate
+// GenerateReport handles POST /api/v1/chaos/reports/generate.
 func (h *Handler) GenerateReport(c *gin.Context) {
 	report := h.manager.GenerateReport()
 
@@ -180,7 +184,7 @@ func (h *Handler) GenerateReport(c *gin.Context) {
 	c.JSON(http.StatusCreated, report)
 }
 
-// ListReports handles GET /api/v1/chaos/reports
+// ListReports handles GET /api/v1/chaos/reports.
 func (h *Handler) ListReports(c *gin.Context) {
 	reports := h.manager.ListReports()
 	c.JSON(http.StatusOK, gin.H{
@@ -189,7 +193,7 @@ func (h *Handler) ListReports(c *gin.Context) {
 	})
 }
 
-// GetReport handles GET /api/v1/chaos/reports/:id
+// GetReport handles GET /api/v1/chaos/reports/:id.
 func (h *Handler) GetReport(c *gin.Context) {
 	id := c.Param("id")
 	report, err := h.manager.GetReport(id)
@@ -201,7 +205,7 @@ func (h *Handler) GetReport(c *gin.Context) {
 	c.JSON(http.StatusOK, report)
 }
 
-// GetDashboard handles GET /api/v1/chaos/dashboard
+// GetDashboard handles GET /api/v1/chaos/dashboard.
 func (h *Handler) GetDashboard(c *gin.Context) {
 	dashboard := h.manager.GetDashboard()
 	c.JSON(http.StatusOK, dashboard)

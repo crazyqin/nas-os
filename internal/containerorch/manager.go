@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-// MaxInstances 最大实例数限制
+// MaxInstances 最大实例数限制.
 const MaxInstances = 100
 
-// NotFoundError 资源未找到错误
+// NotFoundError 资源未找到错误.
 type NotFoundError struct {
 	Resource string
 	ID       string
@@ -20,7 +20,7 @@ func (e *NotFoundError) Error() string {
 	return fmt.Sprintf("%s不存在: %s", e.Resource, e.ID)
 }
 
-// ScaleError 扩缩容错误
+// ScaleError 扩缩容错误.
 type ScaleError struct {
 	Service string
 	Message string
@@ -30,7 +30,7 @@ func (e *ScaleError) Error() string {
 	return fmt.Sprintf("扩缩容失败[%s]: %s", e.Service, e.Message)
 }
 
-// DependencyError 依赖错误
+// DependencyError 依赖错误.
 type DependencyError struct {
 	Service string
 	Message string
@@ -40,7 +40,7 @@ func (e *DependencyError) Error() string {
 	return fmt.Sprintf("依赖错误[%s]: %s", e.Service, e.Message)
 }
 
-// Manager 容器编排管理器
+// Manager 容器编排管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	projects map[string]*OrchestrationProject
@@ -49,7 +49,7 @@ type Manager struct {
 	logs     map[string][]LogEntry // projectID -> logs
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		projects: make(map[string]*OrchestrationProject),
@@ -59,7 +59,7 @@ func NewManager() *Manager {
 	}
 }
 
-// CreateProject 创建项目
+// CreateProject 创建项目.
 func (m *Manager) CreateProject(req CreateProjectRequest) (*OrchestrationProject, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -114,7 +114,7 @@ func (m *Manager) CreateProject(req CreateProjectRequest) (*OrchestrationProject
 	return project, nil
 }
 
-// GetProject 获取项目
+// GetProject 获取项目.
 func (m *Manager) GetProject(id string) (*OrchestrationProject, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -126,7 +126,7 @@ func (m *Manager) GetProject(id string) (*OrchestrationProject, error) {
 	return p, nil
 }
 
-// ListProjects 列出项目
+// ListProjects 列出项目.
 func (m *Manager) ListProjects(namespace string) []*OrchestrationProject {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -140,7 +140,7 @@ func (m *Manager) ListProjects(namespace string) []*OrchestrationProject {
 	return result
 }
 
-// UpdateProject 更新项目
+// UpdateProject 更新项目.
 func (m *Manager) UpdateProject(id string, req UpdateProjectRequest) (*OrchestrationProject, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -174,7 +174,7 @@ func (m *Manager) UpdateProject(id string, req UpdateProjectRequest) (*Orchestra
 	return p, nil
 }
 
-// DeleteProject 删除项目
+// DeleteProject 删除项目.
 func (m *Manager) DeleteProject(id string, force bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -192,7 +192,7 @@ func (m *Manager) DeleteProject(id string, force bool) error {
 	return nil
 }
 
-// StartProject 启动项目
+// StartProject 启动项目.
 func (m *Manager) StartProject(id string) (*OrchestrationProject, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -221,7 +221,7 @@ func (m *Manager) StartProject(id string) (*OrchestrationProject, error) {
 	return p, nil
 }
 
-// StopProject 停止项目
+// StopProject 停止项目.
 func (m *Manager) StopProject(id string) (*OrchestrationProject, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -241,7 +241,7 @@ func (m *Manager) StopProject(id string) (*OrchestrationProject, error) {
 	return p, nil
 }
 
-// RestartProject 重启项目
+// RestartProject 重启项目.
 func (m *Manager) RestartProject(id string) (*OrchestrationProject, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -261,7 +261,7 @@ func (m *Manager) RestartProject(id string) (*OrchestrationProject, error) {
 	return p, nil
 }
 
-// ScaleService 扩缩容服务
+// ScaleService 扩缩容服务.
 func (m *Manager) ScaleService(projectID, serviceName string, replicas int) (*ServiceConfig, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -325,7 +325,7 @@ func (m *Manager) ScaleService(projectID, serviceName string, replicas int) (*Se
 	return svc, nil
 }
 
-// GetStartupOrder 获取启动顺序
+// GetStartupOrder 获取启动顺序.
 func (m *Manager) GetStartupOrder(id string) (*StartupOrder, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -361,7 +361,7 @@ func (m *Manager) GetStartupOrder(id string) (*StartupOrder, error) {
 	}, nil
 }
 
-// GetHealthReport 获取健康报告
+// GetHealthReport 获取健康报告.
 func (m *Manager) GetHealthReport(id string) (*HealthReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -394,7 +394,7 @@ func (m *Manager) GetHealthReport(id string) (*HealthReport, error) {
 	return report, nil
 }
 
-// UpdateServiceHealthCheck 更新服务健康检查
+// UpdateServiceHealthCheck 更新服务健康检查.
 func (m *Manager) UpdateServiceHealthCheck(projectID, serviceName string, hc *HealthCheckConfig) (*ServiceConfig, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -414,7 +414,7 @@ func (m *Manager) UpdateServiceHealthCheck(projectID, serviceName string, hc *He
 	return svc, nil
 }
 
-// UpdateServiceResources 更新服务资源限制
+// UpdateServiceResources 更新服务资源限制.
 func (m *Manager) UpdateServiceResources(projectID, serviceName string, res *ResourceLimits) (*ServiceConfig, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -434,7 +434,7 @@ func (m *Manager) UpdateServiceResources(projectID, serviceName string, res *Res
 	return svc, nil
 }
 
-// UpdateAutoScalePolicy 更新自动扩缩容策略
+// UpdateAutoScalePolicy 更新自动扩缩容策略.
 func (m *Manager) UpdateAutoScalePolicy(projectID, serviceName string, as *AutoScalePolicy) (*ServiceConfig, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -456,7 +456,7 @@ func (m *Manager) UpdateAutoScalePolicy(projectID, serviceName string, as *AutoS
 	return svc, nil
 }
 
-// EvaluateAutoScale 评估自动扩缩容
+// EvaluateAutoScale 评估自动扩缩容.
 func (m *Manager) EvaluateAutoScale(projectID, serviceName string, metrics *ContainerMetrics) (*AutoScaleEvent, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -508,7 +508,7 @@ func (m *Manager) EvaluateAutoScale(projectID, serviceName string, metrics *Cont
 	return nil, fmt.Errorf("无需扩缩容")
 }
 
-// GetAutoScaleEvents 获取扩缩容事件
+// GetAutoScaleEvents 获取扩缩容事件.
 func (m *Manager) GetAutoScaleEvents(id string, limit int) []AutoScaleEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -526,7 +526,7 @@ func (m *Manager) GetAutoScaleEvents(id string, limit int) []AutoScaleEvent {
 	return result
 }
 
-// GetServiceLogs 获取服务日志
+// GetServiceLogs 获取服务日志.
 func (m *Manager) GetServiceLogs(id string, query LogQuery) ([]LogEntry, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -571,7 +571,7 @@ func (m *Manager) GetServiceLogs(id string, query LogQuery) ([]LogEntry, error) 
 	return logs, nil
 }
 
-// StreamServiceLogs 流式获取服务日志
+// StreamServiceLogs 流式获取服务日志.
 func (m *Manager) StreamServiceLogs(id string, query LogQuery) (*LogStream, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -589,7 +589,7 @@ func (m *Manager) StreamServiceLogs(id string, query LogQuery) (*LogStream, erro
 	return stream, nil
 }
 
-// GetProjectStats 获取项目统计
+// GetProjectStats 获取项目统计.
 func (m *Manager) GetProjectStats(id string) (*ProjectStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -625,7 +625,7 @@ func (m *Manager) GetProjectStats(id string) (*ProjectStats, error) {
 	return stats, nil
 }
 
-// ListStacks 列出 Compose 栈
+// ListStacks 列出 Compose 栈.
 func (m *Manager) ListStacks() []*ComposeStack {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -637,7 +637,7 @@ func (m *Manager) ListStacks() []*ComposeStack {
 	return result
 }
 
-// DeployStack 部署 Compose 栈
+// DeployStack 部署 Compose 栈.
 func (m *Manager) DeployStack(req DeployStackRequest) (*ComposeStack, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -662,7 +662,7 @@ func (m *Manager) DeployStack(req DeployStackRequest) (*ComposeStack, error) {
 	return stack, nil
 }
 
-// GetContainerHealth 获取容器健康状态
+// GetContainerHealth 获取容器健康状态.
 func (m *Manager) GetContainerHealth(id string) (*ContainerHealth, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -678,7 +678,7 @@ func (m *Manager) GetContainerHealth(id string) (*ContainerHealth, error) {
 	}, nil
 }
 
-// SetAutoScale 设置自动扩缩容
+// SetAutoScale 设置自动扩缩容.
 func (m *Manager) SetAutoScale(stackID string, req SetAutoScaleRequest) (*AutoScaleRule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -704,7 +704,7 @@ func (m *Manager) SetAutoScale(stackID string, req SetAutoScaleRequest) (*AutoSc
 	return rule, nil
 }
 
-// CacheImage 缓存镜像
+// CacheImage 缓存镜像.
 func (m *Manager) CacheImage(req CacheImageRequest) (*ImageCache, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -719,7 +719,7 @@ func (m *Manager) CacheImage(req CacheImageRequest) (*ImageCache, error) {
 	return cache, nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -728,7 +728,7 @@ func (m *Manager) Stop() {
 	m.stacks = make(map[string]*ComposeStack)
 }
 
-// isValidServiceName 验证服务名是否有效
+// isValidServiceName 验证服务名是否有效.
 func isValidServiceName(name string) bool {
 	if len(name) == 0 || len(name) > 63 {
 		return false
@@ -746,7 +746,7 @@ func isValidServiceName(name string) bool {
 	return true
 }
 
-// detectCircularDeps 检测循环依赖
+// detectCircularDeps 检测循环依赖.
 func detectCircularDeps(services map[string]*ServiceConfig) error {
 	// 构建依赖图
 	graph := make(map[string][]string)
@@ -792,7 +792,7 @@ func detectCircularDeps(services map[string]*ServiceConfig) error {
 	return nil
 }
 
-// SetRecovery 设置恢复策略
+// SetRecovery 设置恢复策略.
 func (m *Manager) SetRecovery(stackID string, req SetRecoveryRequest) (*RecoveryPolicy, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

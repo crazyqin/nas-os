@@ -13,7 +13,7 @@ import (
 
 // RootlessAdminManager 无Root管理员管理器
 // 对标 TrueNAS SCALE 25.10 的 Rootless Admin 功能
-// 允许管理员在不使用 root 权限的情况下执行管理操作
+// 允许管理员在不使用 root 权限的情况下执行管理操作.
 type RootlessAdminManager struct {
 	mu       sync.RWMutex
 	config   *RootlessConfig
@@ -24,7 +24,7 @@ type RootlessAdminManager struct {
 	wg       sync.WaitGroup
 }
 
-// RootlessConfig 无Root管理配置
+// RootlessConfig 无Root管理配置.
 type RootlessConfig struct {
 	Enabled         bool     `json:"enabled"`
 	AdminGroup      string   `json:"admin_group"`      // 管理员组名
@@ -35,7 +35,7 @@ type RootlessConfig struct {
 	SudoersDir      string   `json:"sudoers_dir"`
 }
 
-// AdminProfile 管理员配置文件
+// AdminProfile 管理员配置文件.
 type AdminProfile struct {
 	UserID       string      `json:"user_id"`
 	Username     string      `json:"username"`
@@ -50,14 +50,14 @@ type AdminProfile struct {
 	CurrSessions int         `json:"current_sessions"`
 }
 
-// Privilege 权限
+// Privilege 权限.
 type Privilege struct {
 	Resource   string   `json:"resource"`   // 资源类型: storage, network, docker, etc.
 	Actions    []string `json:"actions"`    // 允许的操作: read, write, delete, admin
 	Exceptions []string `json:"exceptions"` // 例外情况
 }
 
-// AuditLogEntry 审计日志条目
+// AuditLogEntry 审计日志条目.
 type AuditLogEntry struct {
 	Timestamp time.Time `json:"timestamp"`
 	UserID    string    `json:"user_id"`
@@ -71,7 +71,7 @@ type AuditLogEntry struct {
 	SessionID string    `json:"session_id"`
 }
 
-// AuditLogger 审计日志记录器
+// AuditLogger 审计日志记录器.
 type AuditLogger struct {
 	mu      sync.Mutex
 	logFile string
@@ -79,7 +79,7 @@ type AuditLogger struct {
 	maxSize int
 }
 
-// NewRootlessAdminManager 创建无Root管理员管理器
+// NewRootlessAdminManager 创建无Root管理员管理器.
 func NewRootlessAdminManager(cfg *RootlessConfig) *RootlessAdminManager {
 	if cfg == nil {
 		cfg = &RootlessConfig{
@@ -118,7 +118,7 @@ func NewRootlessAdminManager(cfg *RootlessConfig) *RootlessAdminManager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *RootlessAdminManager) Start() error {
 	if !m.config.Enabled {
 		return nil
@@ -140,14 +140,14 @@ func (m *RootlessAdminManager) Start() error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *RootlessAdminManager) Stop() error {
 	m.cancel()
 	m.wg.Wait()
 	return nil
 }
 
-// RegisterAdmin 注册管理员
+// RegisterAdmin 注册管理员.
 func (m *RootlessAdminManager) RegisterAdmin(username string, privileges []Privilege) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -190,7 +190,7 @@ func (m *RootlessAdminManager) RegisterAdmin(username string, privileges []Privi
 	return nil
 }
 
-// RevokeAdmin 撤销管理员权限
+// RevokeAdmin 撤销管理员权限.
 func (m *RootlessAdminManager) RevokeAdmin(username string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -223,7 +223,7 @@ func (m *RootlessAdminManager) RevokeAdmin(username string) error {
 	return nil
 }
 
-// CheckPrivilege 检查用户是否有特定权限
+// CheckPrivilege 检查用户是否有特定权限.
 func (m *RootlessAdminManager) CheckPrivilege(username, resource, action string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -246,7 +246,7 @@ func (m *RootlessAdminManager) CheckPrivilege(username, resource, action string)
 	return false
 }
 
-// ExecuteCommand 以无root方式执行管理命令
+// ExecuteCommand 以无root方式执行管理命令.
 func (m *RootlessAdminManager) ExecuteCommand(username string, cmd string, args ...string) (string, error) {
 	m.mu.RLock()
 	profile, exists := m.admins[username]
@@ -309,7 +309,7 @@ func (m *RootlessAdminManager) ExecuteCommand(username string, cmd string, args 
 	return string(output), err
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (m *RootlessAdminManager) GetAuditLog(limit int) []AuditLogEntry {
 	m.auditLog.mu.Lock()
 	defer m.auditLog.mu.Unlock()
@@ -409,7 +409,7 @@ func (l *AuditLogger) Log(entry AuditLogEntry) {
 	}
 }
 
-// GetAdminCount 获取管理员数量
+// GetAdminCount 获取管理员数量.
 func (m *RootlessAdminManager) GetAdminCount() int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -422,7 +422,7 @@ func (m *RootlessAdminManager) GetAdminCount() int {
 	return count
 }
 
-// ListAdmins 列出所有管理员
+// ListAdmins 列出所有管理员.
 func (m *RootlessAdminManager) ListAdmins() []*AdminProfile {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

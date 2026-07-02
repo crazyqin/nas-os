@@ -21,31 +21,31 @@ import (
 // ========== 常量 ==========
 
 const (
-	// Version 模块版本
+	// Version 模块版本.
 	Version = "1.0.0"
 
-	// DefaultSnapshotDir 默认快照存储目录
+	// DefaultSnapshotDir 默认快照存储目录.
 	DefaultSnapshotDir = "/var/lib/nas-os/snapshots"
 
-	// MaxSnapshots 最大快照数量
+	// MaxSnapshots 最大快照数量.
 	MaxSnapshots = 100
 
-	// MaxSnapshotSize 单个快照最大大小 (100MB)
+	// MaxSnapshotSize 单个快照最大大小 (100MB).
 	MaxSnapshotSize = 100 * 1024 * 1024
 
-	// DefaultRetentionDays 默认保留天数
+	// DefaultRetentionDays 默认保留天数.
 	DefaultRetentionDays = 30
 
-	// CleanupInterval 清理检查间隔
+	// CleanupInterval 清理检查间隔.
 	CleanupInterval = 24 * time.Hour
 
-	// ConfigVersion 配置格式版本
+	// ConfigVersion 配置格式版本.
 	ConfigVersion = "1.0"
 )
 
 // ========== 快照类型 ==========
 
-// SnapshotType 快照类型
+// SnapshotType 快照类型.
 type SnapshotType string
 
 const (
@@ -58,7 +58,7 @@ const (
 
 // ========== 快照状态 ==========
 
-// SnapshotStatus 快照状态
+// SnapshotStatus 快照状态.
 type SnapshotStatus string
 
 const (
@@ -73,7 +73,7 @@ const (
 
 // ========== 配置类别 ==========
 
-// ConfigCategory 配置类别
+// ConfigCategory 配置类别.
 type ConfigCategory string
 
 const (
@@ -91,7 +91,7 @@ const (
 
 // ========== 变更类型 ==========
 
-// ChangeType 变更类型
+// ChangeType 变更类型.
 type ChangeType string
 
 const (
@@ -102,7 +102,7 @@ const (
 
 // ========== 数据结构 ==========
 
-// Snapshot 系统快照
+// Snapshot 系统快照.
 type Snapshot struct {
 	ID          string           `json:"id"`
 	Name        string           `json:"name"`
@@ -121,7 +121,7 @@ type Snapshot struct {
 	Error       string           `json:"error,omitempty"`
 }
 
-// ConfigItem 配置项
+// ConfigItem 配置项.
 type ConfigItem struct {
 	Category   ConfigCategory `json:"category"`
 	Path       string         `json:"path"`
@@ -133,7 +133,7 @@ type ConfigItem struct {
 	Size       int64          `json:"size"`
 }
 
-// SnapshotMetadata 快照元数据
+// SnapshotMetadata 快照元数据.
 type SnapshotMetadata struct {
 	Hostname      string            `json:"hostname"`
 	OSVersion     string            `json:"os_version"`
@@ -143,7 +143,7 @@ type SnapshotMetadata struct {
 	Labels        map[string]string `json:"labels,omitempty"`
 }
 
-// SnapshotDiff 快照差异
+// SnapshotDiff 快照差异.
 type SnapshotDiff struct {
 	ID           string       `json:"id"`
 	SnapshotA    string       `json:"snapshot_a"`
@@ -154,7 +154,7 @@ type SnapshotDiff struct {
 	Summary      DiffSummary  `json:"summary"`
 }
 
-// ConfigDiff 配置差异
+// ConfigDiff 配置差异.
 type ConfigDiff struct {
 	Category    ConfigCategory `json:"category"`
 	Path        string         `json:"path"`
@@ -166,14 +166,14 @@ type ConfigDiff struct {
 	DiffLines   []DiffLine     `json:"diff_lines,omitempty"`
 }
 
-// DiffLine 差异行
+// DiffLine 差异行.
 type DiffLine struct {
 	LineNum int    `json:"line_num"`
 	Type    string `json:"type"` // "add", "delete", "context"
 	Content string `json:"content"`
 }
 
-// DiffSummary 差异摘要
+// DiffSummary 差异摘要.
 type DiffSummary struct {
 	Added     int `json:"added"`
 	Modified  int `json:"modified"`
@@ -181,7 +181,7 @@ type DiffSummary struct {
 	Unchanged int `json:"unchanged"`
 }
 
-// RestoreRequest 恢复请求
+// RestoreRequest 恢复请求.
 type RestoreRequest struct {
 	SnapshotID   string           `json:"snapshot_id"`
 	Categories   []ConfigCategory `json:"categories,omitempty"`
@@ -190,7 +190,7 @@ type RestoreRequest struct {
 	CreateBackup bool             `json:"create_backup"`
 }
 
-// RestoreResult 恢复结果
+// RestoreResult 恢复结果.
 type RestoreResult struct {
 	RequestID     string         `json:"request_id"`
 	SnapshotID    string         `json:"snapshot_id"`
@@ -205,14 +205,14 @@ type RestoreResult struct {
 	DryRun        bool           `json:"dry_run"`
 }
 
-// RestoreError 恢复错误
+// RestoreError 恢复错误.
 type RestoreError struct {
 	Path    string `json:"path"`
 	Error   string `json:"error"`
 	Details string `json:"details,omitempty"`
 }
 
-// CleanupPolicy 清理策略
+// CleanupPolicy 清理策略.
 type CleanupPolicy struct {
 	Enabled         bool          `json:"enabled"`
 	MaxAge          time.Duration `json:"max_age"`
@@ -223,7 +223,7 @@ type CleanupPolicy struct {
 	CleanupSchedule string        `json:"cleanup_schedule"`
 }
 
-// AutoSnapshotConfig 自动快照配置
+// AutoSnapshotConfig 自动快照配置.
 type AutoSnapshotConfig struct {
 	Enabled          bool     `json:"enabled"`
 	OnUpdate         bool     `json:"on_update"`
@@ -233,7 +233,7 @@ type AutoSnapshotConfig struct {
 	Tags             []string `json:"tags"`
 }
 
-// PreviewResult 预览结果
+// PreviewResult 预览结果.
 type PreviewResult struct {
 	SnapshotID   string            `json:"snapshot_id"`
 	Valid        bool              `json:"valid"`
@@ -244,7 +244,7 @@ type PreviewResult struct {
 	Preview      []ConfigItem      `json:"preview"`
 }
 
-// ValidationIssue 验证问题
+// ValidationIssue 验证问题.
 type ValidationIssue struct {
 	Path     string `json:"path"`
 	Category string `json:"category"`
@@ -252,7 +252,7 @@ type ValidationIssue struct {
 	Message  string `json:"message"`
 }
 
-// ListOptions 列表选项
+// ListOptions 列表选项.
 type ListOptions struct {
 	Type     SnapshotType   `json:"type,omitempty"`
 	Status   SnapshotStatus `json:"status,omitempty"`
@@ -265,7 +265,7 @@ type ListOptions struct {
 
 // ========== 管理器 ==========
 
-// SnapshotManager 快照管理器
+// SnapshotManager 快照管理器.
 type SnapshotManager struct {
 	mu            sync.RWMutex
 	snapshots     map[string]*Snapshot
@@ -277,14 +277,14 @@ type SnapshotManager struct {
 	stopCleanup   chan struct{}
 }
 
-// SnapshotManagerConfig 快照管理器配置
+// SnapshotManagerConfig 快照管理器配置.
 type SnapshotManagerConfig struct {
 	BaseDir       string             `json:"base_dir"`
 	CleanupPolicy CleanupPolicy      `json:"cleanup_policy"`
 	AutoConfig    AutoSnapshotConfig `json:"auto_config"`
 }
 
-// NewSnapshotManager 创建快照管理器
+// NewSnapshotManager 创建快照管理器.
 func NewSnapshotManager(config SnapshotManagerConfig) *SnapshotManager {
 	if config.BaseDir == "" {
 		config.BaseDir = DefaultSnapshotDir
@@ -309,7 +309,7 @@ func NewSnapshotManager(config SnapshotManagerConfig) *SnapshotManager {
 	return sm
 }
 
-// CreateSnapshot 创建快照（同步）
+// CreateSnapshot 创建快照（同步）.
 func (sm *SnapshotManager) CreateSnapshot(ctx context.Context, name, description string, snapType SnapshotType, categories []ConfigCategory, tags []string) (*Snapshot, error) {
 	sm.mu.Lock()
 
@@ -338,7 +338,7 @@ func (sm *SnapshotManager) CreateSnapshot(ctx context.Context, name, description
 	return snapshot, nil
 }
 
-// CreateSnapshotAsync 异步创建快照
+// CreateSnapshotAsync 异步创建快照.
 func (sm *SnapshotManager) CreateSnapshotAsync(ctx context.Context, name, description string, snapType SnapshotType, categories []ConfigCategory, tags []string) (*Snapshot, error) {
 	sm.mu.Lock()
 
@@ -367,14 +367,14 @@ func (sm *SnapshotManager) CreateSnapshotAsync(ctx context.Context, name, descri
 	return snapshot, nil
 }
 
-// CreatePreUpdateSnapshot 创建更新前自动快照
+// CreatePreUpdateSnapshot 创建更新前自动快照.
 func (sm *SnapshotManager) CreatePreUpdateSnapshot(ctx context.Context) (*Snapshot, error) {
 	name := fmt.Sprintf("pre-update-%s", time.Now().Format("20060102-150405"))
 	tags := []string{"auto", "pre-update"}
 	return sm.CreateSnapshot(ctx, name, "系统更新前自动快照", SnapshotTypePreUpdate, nil, tags)
 }
 
-// CreatePreChangeSnapshot 创建配置变更前自动快照
+// CreatePreChangeSnapshot 创建配置变更前自动快照.
 func (sm *SnapshotManager) CreatePreChangeSnapshot(ctx context.Context, category ConfigCategory) (*Snapshot, error) {
 	name := fmt.Sprintf("pre-change-%s-%s", string(category), time.Now().Format("20060102-150405"))
 	tags := []string{"auto", "pre-change", string(category)}
@@ -382,7 +382,7 @@ func (sm *SnapshotManager) CreatePreChangeSnapshot(ctx context.Context, category
 	return sm.CreateSnapshot(ctx, name, fmt.Sprintf("配置变更前自动快照 (%s)", category), SnapshotTypePreChange, categories, tags)
 }
 
-// collectConfigs 收集系统配置
+// collectConfigs 收集系统配置.
 func (sm *SnapshotManager) collectConfigs(ctx context.Context, snapshot *Snapshot, categories []ConfigCategory) {
 	var configs []ConfigItem
 	var totalSize int64
@@ -428,7 +428,7 @@ func (sm *SnapshotManager) collectConfigs(ctx context.Context, snapshot *Snapsho
 	sm.saveSnapshot(snapshot)
 }
 
-// collectCategoryConfigs 收集指定类别的配置
+// collectCategoryConfigs 收集指定类别的配置.
 func (sm *SnapshotManager) collectCategoryConfigs(category ConfigCategory) ([]ConfigItem, error) {
 	var items []ConfigItem
 	configPaths := sm.getConfigPaths(category)
@@ -441,7 +441,7 @@ func (sm *SnapshotManager) collectCategoryConfigs(category ConfigCategory) ([]Co
 	return items, nil
 }
 
-// collectConfigFiles 收集配置文件（支持通配符）
+// collectConfigFiles 收集配置文件（支持通配符）.
 func (sm *SnapshotManager) collectConfigFiles(pathPattern string, category ConfigCategory) []ConfigItem {
 	var items []ConfigItem
 
@@ -467,7 +467,7 @@ func (sm *SnapshotManager) collectConfigFiles(pathPattern string, category Confi
 	return append(items, *item)
 }
 
-// collectConfigFile 收集单个配置文件
+// collectConfigFile 收集单个配置文件.
 func (sm *SnapshotManager) collectConfigFile(path string, category ConfigCategory) (*ConfigItem, error) {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -497,7 +497,7 @@ func (sm *SnapshotManager) collectConfigFile(path string, category ConfigCategor
 	}, nil
 }
 
-// getConfigPaths 获取配置文件路径
+// getConfigPaths 获取配置文件路径.
 func (sm *SnapshotManager) getConfigPaths(category ConfigCategory) []string {
 	switch category {
 	case CategoryNetwork:
@@ -564,7 +564,7 @@ func (sm *SnapshotManager) getConfigPaths(category ConfigCategory) []string {
 	}
 }
 
-// collectMetadata 收集系统元数据
+// collectMetadata 收集系统元数据.
 func (sm *SnapshotManager) collectMetadata() SnapshotMetadata {
 	hostname, _ := os.Hostname()
 	return SnapshotMetadata{
@@ -576,7 +576,7 @@ func (sm *SnapshotManager) collectMetadata() SnapshotMetadata {
 	}
 }
 
-// RollbackToSnapshot 回滚到指定快照
+// RollbackToSnapshot 回滚到指定快照.
 func (sm *SnapshotManager) RollbackToSnapshot(ctx context.Context, req RestoreRequest) (*RestoreResult, error) {
 	sm.mu.RLock()
 	snapshot, exists := sm.snapshots[req.SnapshotID]
@@ -651,7 +651,7 @@ func (sm *SnapshotManager) RollbackToSnapshot(ctx context.Context, req RestoreRe
 	return result, nil
 }
 
-// filterConfigs 过滤配置
+// filterConfigs 过滤配置.
 func (sm *SnapshotManager) filterConfigs(configs []ConfigItem, categories []ConfigCategory) []ConfigItem {
 	if len(categories) == 0 {
 		return configs
@@ -671,7 +671,7 @@ func (sm *SnapshotManager) filterConfigs(configs []ConfigItem, categories []Conf
 	return filtered
 }
 
-// restoreConfigItem 恢复单个配置项
+// restoreConfigItem 恢复单个配置项.
 func (sm *SnapshotManager) restoreConfigItem(item ConfigItem) error {
 	dir := filepath.Dir(item.Path)
 	if err := os.MkdirAll(dir, 0755); err != nil {
@@ -686,7 +686,7 @@ func (sm *SnapshotManager) restoreConfigItem(item ConfigItem) error {
 	return nil
 }
 
-// CompareSnapshots 对比两个快照
+// CompareSnapshots 对比两个快照.
 func (sm *SnapshotManager) CompareSnapshots(snapshotA, snapshotB string) (*SnapshotDiff, error) {
 	sm.mu.RLock()
 	snapA, existsA := sm.snapshots[snapshotA]
@@ -774,7 +774,7 @@ func (sm *SnapshotManager) CompareSnapshots(snapshotA, snapshotB string) (*Snaps
 	return diff, nil
 }
 
-// calculateDiff 计算文本差异（行级对比）
+// calculateDiff 计算文本差异（行级对比）.
 func calculateDiff(oldContent, newContent string) []DiffLine {
 	oldLines := strings.Split(oldContent, "\n")
 	newLines := strings.Split(newContent, "\n")
@@ -801,7 +801,7 @@ func calculateDiff(oldContent, newContent string) []DiffLine {
 	return diffLines
 }
 
-// GetDiff 获取差异记录
+// GetDiff 获取差异记录.
 func (sm *SnapshotManager) GetDiff(diffID string) (*SnapshotDiff, error) {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -812,7 +812,7 @@ func (sm *SnapshotManager) GetDiff(diffID string) (*SnapshotDiff, error) {
 	return diff, nil
 }
 
-// PreviewSnapshot 预览快照
+// PreviewSnapshot 预览快照.
 func (sm *SnapshotManager) PreviewSnapshot(snapshotID string) (*PreviewResult, error) {
 	sm.mu.RLock()
 	snapshot, exists := sm.snapshots[snapshotID]
@@ -842,7 +842,7 @@ func (sm *SnapshotManager) PreviewSnapshot(snapshotID string) (*PreviewResult, e
 	return result, nil
 }
 
-// validateConfigItem 验证配置项
+// validateConfigItem 验证配置项.
 func (sm *SnapshotManager) validateConfigItem(item ConfigItem) *ValidationIssue {
 	if _, err := os.Stat(item.Path); os.IsNotExist(err) {
 		return &ValidationIssue{
@@ -876,7 +876,7 @@ func (sm *SnapshotManager) validateConfigItem(item ConfigItem) *ValidationIssue 
 	return nil
 }
 
-// GetSnapshot 获取快照
+// GetSnapshot 获取快照.
 func (sm *SnapshotManager) GetSnapshot(snapshotID string) (*Snapshot, error) {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -887,7 +887,7 @@ func (sm *SnapshotManager) GetSnapshot(snapshotID string) (*Snapshot, error) {
 	return snapshot, nil
 }
 
-// ListSnapshots 列出快照
+// ListSnapshots 列出快照.
 func (sm *SnapshotManager) ListSnapshots(opts ListOptions) []*Snapshot {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -928,7 +928,7 @@ func (sm *SnapshotManager) ListSnapshots(opts ListOptions) []*Snapshot {
 	return snapshots
 }
 
-// matchesFilter 匹配过滤条件
+// matchesFilter 匹配过滤条件.
 func (sm *SnapshotManager) matchesFilter(s *Snapshot, opts ListOptions) bool {
 	if opts.Type != "" && s.Type != opts.Type {
 		return false
@@ -953,7 +953,7 @@ func (sm *SnapshotManager) matchesFilter(s *Snapshot, opts ListOptions) bool {
 	return true
 }
 
-// DeleteSnapshot 删除快照
+// DeleteSnapshot 删除快照.
 func (sm *SnapshotManager) DeleteSnapshot(snapshotID string) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -972,7 +972,7 @@ func (sm *SnapshotManager) DeleteSnapshot(snapshotID string) error {
 	return nil
 }
 
-// isProtected 检查快照是否受保护
+// isProtected 检查快照是否受保护.
 func (sm *SnapshotManager) isProtected(s *Snapshot) bool {
 	for _, tag := range s.Tags {
 		for _, keepTag := range sm.cleanupPolicy.KeepTags {
@@ -984,7 +984,7 @@ func (sm *SnapshotManager) isProtected(s *Snapshot) bool {
 	return false
 }
 
-// CleanupSnapshots 清理过期快照
+// CleanupSnapshots 清理过期快照.
 func (sm *SnapshotManager) CleanupSnapshots() (int, error) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -1027,7 +1027,7 @@ func (sm *SnapshotManager) CleanupSnapshots() (int, error) {
 	return deleted, nil
 }
 
-// getSortedSnapshots 获取排序后的快照列表（按时间降序）
+// getSortedSnapshots 获取排序后的快照列表（按时间降序）.
 func (sm *SnapshotManager) getSortedSnapshots() []*Snapshot {
 	snapshots := make([]*Snapshot, 0, len(sm.snapshots))
 	for _, s := range sm.snapshots {
@@ -1039,7 +1039,7 @@ func (sm *SnapshotManager) getSortedSnapshots() []*Snapshot {
 	return snapshots
 }
 
-// UpdateCleanupPolicy 更新清理策略
+// UpdateCleanupPolicy 更新清理策略.
 func (sm *SnapshotManager) UpdateCleanupPolicy(policy CleanupPolicy) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -1052,14 +1052,14 @@ func (sm *SnapshotManager) UpdateCleanupPolicy(policy CleanupPolicy) {
 	}
 }
 
-// UpdateAutoSnapshotConfig 更新自动快照配置
+// UpdateAutoSnapshotConfig 更新自动快照配置.
 func (sm *SnapshotManager) UpdateAutoSnapshotConfig(config AutoSnapshotConfig) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
 	sm.autoConfig = config
 }
 
-// GetStats 获取快照统计信息
+// GetStats 获取快照统计信息.
 func (sm *SnapshotManager) GetStats() map[string]interface{} {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
@@ -1085,7 +1085,7 @@ func (sm *SnapshotManager) GetStats() map[string]interface{} {
 	}
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (sm *SnapshotManager) Close() {
 	if sm.cleanupTicker != nil {
 		sm.cleanupTicker.Stop()
@@ -1095,7 +1095,7 @@ func (sm *SnapshotManager) Close() {
 
 // ========== 内部辅助方法 ==========
 
-// startAutoCleanup 启动自动清理
+// startAutoCleanup 启动自动清理.
 func (sm *SnapshotManager) startAutoCleanup() {
 	if sm.cleanupTicker != nil {
 		sm.cleanupTicker.Stop()
@@ -1114,7 +1114,7 @@ func (sm *SnapshotManager) startAutoCleanup() {
 	}()
 }
 
-// updateSnapshotStatus 更新快照状态
+// updateSnapshotStatus 更新快照状态.
 func (sm *SnapshotManager) updateSnapshotStatus(snapshotID string, status SnapshotStatus, errMsg string) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -1128,7 +1128,7 @@ func (sm *SnapshotManager) updateSnapshotStatus(snapshotID string, status Snapsh
 	}
 }
 
-// saveSnapshot 持久化快照到文件
+// saveSnapshot 持久化快照到文件.
 func (sm *SnapshotManager) saveSnapshot(snapshot *Snapshot) error {
 	data, err := json.MarshalIndent(snapshot, "", "  ")
 	if err != nil {
@@ -1139,7 +1139,7 @@ func (sm *SnapshotManager) saveSnapshot(snapshot *Snapshot) error {
 	return os.WriteFile(path, data, 0644)
 }
 
-// loadSnapshots 从文件加载快照
+// loadSnapshots 从文件加载快照.
 func (sm *SnapshotManager) loadSnapshots() {
 	entries, err := os.ReadDir(sm.baseDir)
 	if err != nil {
@@ -1168,7 +1168,7 @@ func (sm *SnapshotManager) loadSnapshots() {
 
 // ========== 系统信息辅助函数 ==========
 
-// getOSVersion 获取操作系统版本
+// getOSVersion 获取操作系统版本.
 func getOSVersion() string {
 	data, err := os.ReadFile("/etc/os-release")
 	if err != nil {
@@ -1183,7 +1183,7 @@ func getOSVersion() string {
 	return "unknown"
 }
 
-// getKernelVersion 获取内核版本
+// getKernelVersion 获取内核版本.
 func getKernelVersion() string {
 	data, err := os.ReadFile("/proc/version")
 	if err != nil {
@@ -1196,7 +1196,7 @@ func getKernelVersion() string {
 	return "unknown"
 }
 
-// getOwner 获取文件所有者
+// getOwner 获取文件所有者.
 func getOwner(path string) string {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -1208,7 +1208,7 @@ func getOwner(path string) string {
 	return "root"
 }
 
-// generateID 生成唯一ID
+// generateID 生成唯一ID.
 func generateID() string {
 	b := make([]byte, 16)
 	for i := range b {

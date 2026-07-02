@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// ContentType 内容类型
+// ContentType 内容类型.
 type ContentType string
 
 const (
@@ -17,7 +17,7 @@ const (
 	ContentTypeWidget ContentType = "widget" // 组件
 )
 
-// ContentStatus 内容状态
+// ContentStatus 内容状态.
 type ContentStatus string
 
 const (
@@ -26,7 +26,7 @@ const (
 	ContentStatusExpired  ContentStatus = "expired"
 )
 
-// Content 内容定义
+// Content 内容定义.
 type Content struct {
 	ID        string        `json:"id"`
 	Name      string        `json:"name"`
@@ -46,7 +46,7 @@ type Content struct {
 	ExpiresAt *time.Time    `json:"expires_at,omitempty"` // 过期时间
 }
 
-// PlaylistStatus 播放列表状态
+// PlaylistStatus 播放列表状态.
 type PlaylistStatus string
 
 const (
@@ -54,7 +54,7 @@ const (
 	PlaylistStatusInactive PlaylistStatus = "inactive"
 )
 
-// PlaylistItem 播放列表项
+// PlaylistItem 播放列表项.
 type PlaylistItem struct {
 	ContentID  string        `json:"content_id"`
 	Order      int           `json:"order"`
@@ -62,7 +62,7 @@ type PlaylistItem struct {
 	Transition string        `json:"transition,omitempty"` // 过渡效果: fade, slide, none
 }
 
-// Playlist 播放列表
+// Playlist 播放列表.
 type Playlist struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
@@ -74,7 +74,7 @@ type Playlist struct {
 	UpdatedAt   time.Time      `json:"updated_at"`
 }
 
-// ScheduleType 排程类型
+// ScheduleType 排程类型.
 type ScheduleType string
 
 const (
@@ -83,7 +83,7 @@ const (
 	ScheduleTypeUrgent ScheduleType = "urgent" // 紧急插播
 )
 
-// Schedule 排程定义
+// Schedule 排程定义.
 type Schedule struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -100,7 +100,7 @@ type Schedule struct {
 	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
-// DeviceStatus 设备状态
+// DeviceStatus 设备状态.
 type DeviceStatus string
 
 const (
@@ -109,7 +109,7 @@ const (
 	DeviceStatusError   DeviceStatus = "error"
 )
 
-// Device 设备定义
+// Device 设备定义.
 type Device struct {
 	ID              string       `json:"id"`
 	Name            string       `json:"name"`
@@ -129,7 +129,7 @@ type Device struct {
 	UpdatedAt       time.Time    `json:"updated_at"`
 }
 
-// DeviceGroup 设备组
+// DeviceGroup 设备组.
 type DeviceGroup struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -139,7 +139,7 @@ type DeviceGroup struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// LayoutType 布局类型
+// LayoutType 布局类型.
 type LayoutType string
 
 const (
@@ -150,7 +150,7 @@ const (
 	LayoutTypeCustom     LayoutType = "custom"     // 自定义
 )
 
-// LayoutZone 布局区域
+// LayoutZone 布局区域.
 type LayoutZone struct {
 	ID     string `json:"id"`
 	X      int    `json:"x"`      // 左上角X坐标
@@ -159,7 +159,7 @@ type LayoutZone struct {
 	Height int    `json:"height"` // 高度百分比 0-100
 }
 
-// Template 布局模板
+// Template 布局模板.
 type Template struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -171,7 +171,7 @@ type Template struct {
 	CreatedAt   time.Time    `json:"created_at"`
 }
 
-// PlaybackStatus 播放状态
+// PlaybackStatus 播放状态.
 type PlaybackStatus struct {
 	DeviceID     string    `json:"device_id"`
 	PlaylistID   string    `json:"playlist_id"`

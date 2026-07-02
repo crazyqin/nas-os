@@ -20,7 +20,7 @@ func (m *mockProvider) Embed(ctx context.Context, text string) ([]float32, error
 	return []float32{0.1, 0.2, 0.3}, nil
 }
 func (m *mockProvider) ListModels() []string { return []string{"model-1", "model-2"} }
-func (m *mockProvider) IsAvailable() bool     { return m.available }
+func (m *mockProvider) IsAvailable() bool    { return m.available }
 
 func TestNewAIPlatform(t *testing.T) {
 	logger, _ := zap.NewDevelopment()

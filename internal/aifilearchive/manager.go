@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// ArchiveRule defines file archiving rules
+// ArchiveRule defines file archiving rules.
 type ArchiveRule struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -24,14 +24,14 @@ type ArchiveRule struct {
 	Metadata    map[string]string `json:"metadata,omitempty"`
 }
 
-// Condition represents a rule condition
+// Condition represents a rule condition.
 type Condition struct {
 	Type     ConditionType `json:"type"`
 	Operator string        `json:"operator"`
 	Value    interface{}   `json:"value"`
 }
 
-// ConditionType defines condition types
+// ConditionType defines condition types.
 type ConditionType string
 
 const (
@@ -44,7 +44,7 @@ const (
 	ConditionAIAnalysis ConditionType = "ai_analysis"
 )
 
-// ArchiveAction defines what happens when rule matches
+// ArchiveAction defines what happens when rule matches.
 type ArchiveAction struct {
 	Type          ActionType `json:"type"`
 	TargetPath    string     `json:"target_path,omitempty"`
@@ -55,7 +55,7 @@ type ArchiveAction struct {
 	RetentionDays int        `json:"retention_days,omitempty"`
 }
 
-// ActionType defines action types
+// ActionType defines action types.
 type ActionType string
 
 const (
@@ -66,7 +66,7 @@ const (
 	ActionTag      ActionType = "tag"
 )
 
-// ArchiveJob represents an archiving job
+// ArchiveJob represents an archiving job.
 type ArchiveJob struct {
 	ID          string        `json:"id"`
 	RuleID      string        `json:"rule_id"`
@@ -81,7 +81,7 @@ type ArchiveJob struct {
 	Duration    time.Duration `json:"duration,omitempty"`
 }
 
-// JobStatus defines job statuses
+// JobStatus defines job statuses.
 type JobStatus string
 
 const (
@@ -92,7 +92,7 @@ const (
 	JobCancelled JobStatus = "cancelled"
 )
 
-// AIClassification represents AI file classification result
+// AIClassification represents AI file classification result.
 type AIClassification struct {
 	Category    string   `json:"category"`
 	Confidence  float64  `json:"confidence"`
@@ -100,7 +100,7 @@ type AIClassification struct {
 	Suggestions []string `json:"suggestions"`
 }
 
-// Manager manages AI file archiving
+// Manager manages AI file archiving.
 type Manager struct {
 	mu          sync.RWMutex
 	rules       map[string]*ArchiveRule
@@ -109,13 +109,13 @@ type Manager struct {
 	stats       *ArchiveStats
 }
 
-// Classifier interface for AI classification
+// Classifier interface for AI classification.
 type Classifier interface {
 	Classify(ctx context.Context, filePath string) (*AIClassification, error)
 	Name() string
 }
 
-// ArchiveStats tracks archiving statistics
+// ArchiveStats tracks archiving statistics.
 type ArchiveStats struct {
 	TotalArchived   int64     `json:"total_archived"`
 	TotalSize       int64     `json:"total_size"`
@@ -124,7 +124,7 @@ type ArchiveStats struct {
 	LastArchiveTime time.Time `json:"last_archive_time"`
 }
 
-// NewManager creates a new archive manager
+// NewManager creates a new archive manager.
 func NewManager() *Manager {
 	return &Manager{
 		rules: make(map[string]*ArchiveRule),
@@ -133,7 +133,7 @@ func NewManager() *Manager {
 	}
 }
 
-// AddRule adds an archiving rule
+// AddRule adds an archiving rule.
 func (m *Manager) AddRule(rule *ArchiveRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -148,7 +148,7 @@ func (m *Manager) AddRule(rule *ArchiveRule) error {
 	return nil
 }
 
-// UpdateRule updates an existing rule
+// UpdateRule updates an existing rule.
 func (m *Manager) UpdateRule(rule *ArchiveRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -162,7 +162,7 @@ func (m *Manager) UpdateRule(rule *ArchiveRule) error {
 	return nil
 }
 
-// DeleteRule deletes a rule
+// DeleteRule deletes a rule.
 func (m *Manager) DeleteRule(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -175,7 +175,7 @@ func (m *Manager) DeleteRule(id string) error {
 	return nil
 }
 
-// GetRule gets a rule by ID
+// GetRule gets a rule by ID.
 func (m *Manager) GetRule(id string) (*ArchiveRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -188,7 +188,7 @@ func (m *Manager) GetRule(id string) (*ArchiveRule, error) {
 	return rule, nil
 }
 
-// ListRules lists all rules
+// ListRules lists all rules.
 func (m *Manager) ListRules() []*ArchiveRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -200,7 +200,7 @@ func (m *Manager) ListRules() []*ArchiveRule {
 	return rules
 }
 
-// RunArchive runs archiving job
+// RunArchive runs archiving job.
 func (m *Manager) RunArchive(ctx context.Context, ruleID string) (*ArchiveJob, error) {
 	m.mu.Lock()
 
@@ -229,7 +229,7 @@ func (m *Manager) RunArchive(ctx context.Context, ruleID string) (*ArchiveJob, e
 	return job, nil
 }
 
-// executeJob executes an archive job
+// executeJob executes an archive job.
 func (m *Manager) executeJob(ctx context.Context, job *ArchiveJob, rule *ArchiveRule) {
 	m.mu.Lock()
 	job.Status = JobRunning
@@ -263,7 +263,7 @@ func (m *Manager) executeJob(ctx context.Context, job *ArchiveJob, rule *Archive
 	}
 }
 
-// GetJob gets a job by ID
+// GetJob gets a job by ID.
 func (m *Manager) GetJob(id string) (*ArchiveJob, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -276,7 +276,7 @@ func (m *Manager) GetJob(id string) (*ArchiveJob, error) {
 	return job, nil
 }
 
-// ListJobs lists all jobs
+// ListJobs lists all jobs.
 func (m *Manager) ListJobs() []*ArchiveJob {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -288,7 +288,7 @@ func (m *Manager) ListJobs() []*ArchiveJob {
 	return jobs
 }
 
-// GetStats gets archive statistics
+// GetStats gets archive statistics.
 func (m *Manager) GetStats() *ArchiveStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -296,7 +296,7 @@ func (m *Manager) GetStats() *ArchiveStats {
 	return m.stats
 }
 
-// RegisterClassifier registers an AI classifier
+// RegisterClassifier registers an AI classifier.
 func (m *Manager) RegisterClassifier(c Classifier) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -304,7 +304,7 @@ func (m *Manager) RegisterClassifier(c Classifier) {
 	m.classifiers = append(m.classifiers, c)
 }
 
-// ClassifyFile classifies a file using AI
+// ClassifyFile classifies a file using AI.
 func (m *Manager) ClassifyFile(ctx context.Context, filePath string) ([]*AIClassification, error) {
 	m.mu.RLock()
 	classifiers := make([]Classifier, len(m.classifiers))
@@ -323,7 +323,7 @@ func (m *Manager) ClassifyFile(ctx context.Context, filePath string) ([]*AIClass
 	return results, nil
 }
 
-// HandleHTTP registers HTTP handlers
+// HandleHTTP registers HTTP handlers.
 func (m *Manager) HandleHTTP(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/archive/rules", m.handleRules)
 	mux.HandleFunc("/api/v1/archive/jobs", m.handleJobs)

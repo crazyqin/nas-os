@@ -13,37 +13,37 @@ import (
 	"time"
 )
 
-// CloudProvider 云服务提供商类型
+// CloudProvider 云服务提供商类型.
 type CloudProvider string
 
 const (
-	// ProviderAWS 亚马逊云 S3
+	// ProviderAWS 亚马逊云 S3.
 	ProviderAWS CloudProvider = "aws_s3"
-	// ProviderAzure 微软云 Azure Blob Storage
+	// ProviderAzure 微软云 Azure Blob Storage.
 	ProviderAzure CloudProvider = "azure_blob"
-	// ProviderGCP 谷歌云 Cloud Storage
+	// ProviderGCP 谷歌云 Cloud Storage.
 	ProviderGCP CloudProvider = "google_cloud_storage"
-	// ProviderAlibaba 阿里云 OSS
+	// ProviderAlibaba 阿里云 OSS.
 	ProviderAlibaba CloudProvider = "alibaba_oss"
-	// ProviderLocal 本地存储
+	// ProviderLocal 本地存储.
 	ProviderLocal CloudProvider = "local_storage"
 )
 
-// StorageTier 存储层级
+// StorageTier 存储层级.
 type StorageTier string
 
 const (
-	// TierHot 热存储 - 频繁访问
+	// TierHot 热存储 - 频繁访问.
 	TierHot StorageTier = "hot"
-	// TierWarm 温存储 - 偶尔访问
+	// TierWarm 温存储 - 偶尔访问.
 	TierWarm StorageTier = "warm"
-	// TierCold 冷存储 - 归档
+	// TierCold 冷存储 - 归档.
 	TierCold StorageTier = "cold"
-	// TierArchive 归档存储 - 极少访问
+	// TierArchive 归档存储 - 极少访问.
 	TierArchive StorageTier = "archive"
 )
 
-// CostRecord 历史成本记录
+// CostRecord 历史成本记录.
 type CostRecord struct {
 	Timestamp    time.Time     `json:"timestamp"`     // 记录时间戳
 	StorageGB    float64       `json:"storage_gb"`    // 存储容量(GB)
@@ -54,7 +54,7 @@ type CostRecord struct {
 	RequestCount int64         `json:"request_count"` // 请求次数
 }
 
-// ForecastResult 预测结果
+// ForecastResult 预测结果.
 type ForecastResult struct {
 	Timestamp       time.Time     `json:"timestamp"`        // 预测时间点
 	PredictedGB     float64       `json:"predicted_gb"`     // 预测存储容量(GB)
@@ -64,7 +64,7 @@ type ForecastResult struct {
 	GrowthRate      float64       `json:"growth_rate"`      // 月增长率
 }
 
-// CloudCostComparison 多云成本对比结果
+// CloudCostComparison 多云成本对比结果.
 type CloudCostComparison struct {
 	Provider      CloudProvider `json:"provider"`       // 云服务商
 	StorageCost   float64       `json:"storage_cost"`   // 存储成本(元)
@@ -74,7 +74,7 @@ type CloudCostComparison struct {
 	Rank          int           `json:"rank"`           // 排名(1最便宜)
 }
 
-// TCOResult 总拥有成本计算结果
+// TCOResult 总拥有成本计算结果.
 type TCOResult struct {
 	HardwareCost    float64 `json:"hardware_cost"`    // 硬件成本(元)
 	ElectricityCost float64 `json:"electricity_cost"` // 电力成本(元)
@@ -85,7 +85,7 @@ type TCOResult struct {
 	DurationMonths  int     `json:"duration_months"`  // 预测周期(月)
 }
 
-// OptimizationAdvice 成本优化建议
+// OptimizationAdvice 成本优化建议.
 type OptimizationAdvice struct {
 	Category    string  `json:"category"`    // 建议类别
 	Description string  `json:"description"` // 建议描述
@@ -93,7 +93,7 @@ type OptimizationAdvice struct {
 	Priority    int     `json:"priority"`    // 优先级(1最高)
 }
 
-// BudgetAlert 预算告警
+// BudgetAlert 预算告警.
 type BudgetAlert struct {
 	Timestamp   time.Time `json:"timestamp"`    // 告警时间
 	BudgetLimit float64   `json:"budget_limit"` // 预算上限(元)
@@ -103,7 +103,7 @@ type BudgetAlert struct {
 	Message     string    `json:"message"`      // 告警消息
 }
 
-// TrendDataPoint 趋势图表数据点
+// TrendDataPoint 趋势图表数据点.
 type TrendDataPoint struct {
 	Timestamp time.Time `json:"timestamp"`  // 时间点
 	Actual    float64   `json:"actual"`     // 实际成本(元)
@@ -111,7 +111,7 @@ type TrendDataPoint struct {
 	StorageGB float64   `json:"storage_gb"` // 存储容量(GB)
 }
 
-// ROIResult 投资回报率分析结果
+// ROIResult 投资回报率分析结果.
 type ROIResult struct {
 	InvestmentCost   float64 `json:"investment_cost"`    // 投资成本(元)
 	AnnualSavings    float64 `json:"annual_savings"`     // 年度节省(元)
@@ -120,7 +120,7 @@ type ROIResult struct {
 	ThreeYearSavings float64 `json:"three_year_savings"` // 三年累计节省(元)
 }
 
-// PriceConfig 云服务价格配置
+// PriceConfig 云服务价格配置.
 type PriceConfig struct {
 	StoragePerGB   float64 // 每GB存储月费(元)
 	BandwidthPerGB float64 // 每GB带宽费(元)
@@ -129,7 +129,7 @@ type PriceConfig struct {
 }
 
 // CostForecastEngine 存储成本预测引擎
-// 提供存储成本预测、多云对比、TCO计算、优化建议等核心功能
+// 提供存储成本预测、多云对比、TCO计算、优化建议等核心功能.
 type CostForecastEngine struct {
 	mu               sync.Mutex                                    // 并发保护锁
 	records          []CostRecord                                  // 历史成本记录
@@ -142,13 +142,13 @@ type CostForecastEngine struct {
 	alertCallback    func(BudgetAlert)                             // 告警回调函数
 }
 
-// init 模块初始化，注册存储成本预测引擎
+// init 模块初始化，注册存储成本预测引擎.
 func init() {
 	log.Println("[storagecostforecast] 存储成本预测引擎模块已加载")
 }
 
 // New 创建新的存储成本预测引擎实例
-// 返回初始化完成的 CostForecastEngine 指针
+// 返回初始化完成的 CostForecastEngine 指针.
 func New() *CostForecastEngine {
 	engine := &CostForecastEngine{
 		records:          make([]CostRecord, 0),
@@ -160,7 +160,7 @@ func New() *CostForecastEngine {
 }
 
 // initDefaultPrices 初始化默认云服务价格配置
-// 返回各云服务商各存储层级的价格配置映射
+// 返回各云服务商各存储层级的价格配置映射.
 func initDefaultPrices() map[CloudProvider]map[StorageTier]PriceConfig {
 	configs := make(map[CloudProvider]map[StorageTier]PriceConfig)
 
@@ -251,7 +251,7 @@ func (e *CostForecastEngine) AddRecords(records []CostRecord) {
 }
 
 // Start 启动成本预测引擎
-// 启动后台预测任务和告警监控
+// 启动后台预测任务和告警监控.
 func (e *CostForecastEngine) Start() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -271,7 +271,7 @@ func (e *CostForecastEngine) Start() {
 	log.Println("[storagecostforecast] 成本预测引擎已启动")
 }
 
-// Stop 停止成本预测引擎
+// Stop 停止成本预测引擎.
 func (e *CostForecastEngine) Stop() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -288,7 +288,7 @@ func (e *CostForecastEngine) Stop() {
 	log.Println("[storagecostforecast] 成本预测引擎已停止")
 }
 
-// IsRunning 检查引擎是否运行中
+// IsRunning 检查引擎是否运行中.
 func (e *CostForecastEngine) IsRunning() bool {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -298,7 +298,7 @@ func (e *CostForecastEngine) IsRunning() bool {
 // GetForecast 获取存储成本预测
 // provider: 云服务商
 // tier: 存储层级
-// 返回预测结果切片，按时间排序
+// 返回预测结果切片，按时间排序.
 func (e *CostForecastEngine) GetForecast(provider CloudProvider, tier StorageTier) []ForecastResult {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -346,7 +346,7 @@ func (e *CostForecastEngine) GetForecast(provider CloudProvider, tier StorageTie
 // bandwidthGB: 月带宽使用量(GB)
 // requestCount: 月请求次数
 // tier: 存储层级
-// 返回各云服务商成本对比结果，按总成本升序排列
+// 返回各云服务商成本对比结果，按总成本升序排列.
 func (e *CostForecastEngine) GetMultiCloudComparison(storageGB, bandwidthGB float64, requestCount int64, tier StorageTier) []CloudCostComparison {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -391,7 +391,7 @@ func (e *CostForecastEngine) GetMultiCloudComparison(storageGB, bandwidthGB floa
 // CalculateTCO 计算总拥有成本
 // storageGB: 存储容量(GB)
 // durationMonths: 预测周期(月)
-// 返回本地存储的TCO计算结果
+// 返回本地存储的TCO计算结果.
 func (e *CostForecastEngine) CalculateTCO(storageGB float64, durationMonths int) TCOResult {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -432,7 +432,7 @@ func (e *CostForecastEngine) CalculateTCO(storageGB float64, durationMonths int)
 // provider: 当前使用的云服务商
 // tier: 当前存储层级
 // storageGB: 当前存储容量(GB)
-// 返回优化建议列表，按优先级排序
+// 返回优化建议列表，按优先级排序.
 func (e *CostForecastEngine) GetOptimizationAdvice(provider CloudProvider, tier StorageTier, storageGB float64) []OptimizationAdvice {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -515,7 +515,7 @@ func (e *CostForecastEngine) GetOptimizationAdvice(provider CloudProvider, tier 
 }
 
 // GetBudgetAlerts 获取预算告警历史
-// 返回告警列表，按时间降序排列
+// 返回告警列表，按时间降序排列.
 func (e *CostForecastEngine) GetBudgetAlerts() []BudgetAlert {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -533,7 +533,7 @@ func (e *CostForecastEngine) GetBudgetAlerts() []BudgetAlert {
 // GenerateTrendData 生成成本趋势图表数据
 // provider: 云服务商
 // tier: 存储层级
-// 返回趋势数据点列表
+// 返回趋势数据点列表.
 func (e *CostForecastEngine) GenerateTrendData(provider CloudProvider, tier StorageTier) []TrendDataPoint {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -585,7 +585,7 @@ func (e *CostForecastEngine) GenerateTrendData(provider CloudProvider, tier Stor
 // currentMonthlyCost: 当前月成本(元)
 // optimizedMonthlyCost: 优化后月成本(元)
 // investmentCost: 优化投资成本(元)
-// 返回ROI分析结果
+// 返回ROI分析结果.
 func (e *CostForecastEngine) CalculateROI(currentMonthlyCost, optimizedMonthlyCost, investmentCost float64) ROIResult {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -612,7 +612,7 @@ func (e *CostForecastEngine) CalculateROI(currentMonthlyCost, optimizedMonthlyCo
 // filterRecords 过滤指定条件的历史记录
 // provider: 云服务商
 // tier: 存储层级
-// 返回过滤后的记录切片
+// 返回过滤后的记录切片.
 func (e *CostForecastEngine) filterRecords(provider CloudProvider, tier StorageTier) []CostRecord {
 	filtered := make([]CostRecord, 0)
 	for _, record := range e.records {
@@ -631,7 +631,7 @@ func (e *CostForecastEngine) filterRecords(provider CloudProvider, tier StorageT
 
 // calculateLinearRegression 计算线性回归参数
 // records: 历史记录（已按时间排序）
-// 返回增长率、基础成本、基础存储容量
+// 返回增长率、基础成本、基础存储容量.
 func (e *CostForecastEngine) calculateLinearRegression(records []CostRecord) (growthRate, baseCost, baseGB float64) {
 	n := float64(len(records))
 	if n < 2 {
@@ -666,10 +666,10 @@ func (e *CostForecastEngine) calculateLinearRegression(records []CostRecord) (gr
 
 // findCheapestProvider 找到指定存储层级最便宜的云服务商
 // tier: 存储层级
-// 返回最便宜的云服务商和每GB存储价格
+// 返回最便宜的云服务商和每GB存储价格.
 func (e *CostForecastEngine) findCheapestProvider(tier StorageTier) (CloudProvider, float64) {
 	var cheapestProvider CloudProvider
-	var cheapestPrice float64 = math.MaxFloat64
+	var cheapestPrice = math.MaxFloat64
 
 	for provider, tierConfigs := range e.priceConfigs {
 		if config, exists := tierConfigs[tier]; exists {
@@ -686,7 +686,7 @@ func (e *CostForecastEngine) findCheapestProvider(tier StorageTier) (CloudProvid
 // getProviderPrice 获取指定云服务商存储层级的价格
 // provider: 云服务商
 // tier: 存储层级
-// 返回每GB存储价格
+// 返回每GB存储价格.
 func (e *CostForecastEngine) getProviderPrice(provider CloudProvider, tier StorageTier) float64 {
 	if tierConfigs, exists := e.priceConfigs[provider]; exists {
 		if config, exists := tierConfigs[tier]; exists {
@@ -697,7 +697,7 @@ func (e *CostForecastEngine) getProviderPrice(provider CloudProvider, tier Stora
 }
 
 // checkBudgetAlert 检查预算告警
-// predictedCost: 预测成本(元)
+// predictedCost: 预测成本(元).
 func (e *CostForecastEngine) checkBudgetAlert(predictedCost float64) {
 	if e.budgetLimit <= 0 {
 		return
@@ -747,7 +747,7 @@ func (e *CostForecastEngine) runPredictionLoop(ctx context.Context) {
 }
 
 // runBudgetCheck 执行预算检查
-// 扫描所有云服务商的预测成本，检查是否超出预算
+// 扫描所有云服务商的预测成本，检查是否超出预算.
 func (e *CostForecastEngine) runBudgetCheck() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -772,14 +772,14 @@ func (e *CostForecastEngine) runBudgetCheck() {
 	}
 }
 
-// GetRecordCount 获取历史记录数量
+// GetRecordCount 获取历史记录数量.
 func (e *CostForecastEngine) GetRecordCount() int {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	return len(e.records)
 }
 
-// ClearRecords 清空历史记录
+// ClearRecords 清空历史记录.
 func (e *CostForecastEngine) ClearRecords() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -806,7 +806,7 @@ func (e *CostForecastEngine) UpdatePriceConfig(provider CloudProvider, tier Stor
 // GetPriceConfig 获取云服务商价格配置
 // provider: 云服务商
 // tier: 存储层级
-// 返回价格配置和是否存在标志
+// 返回价格配置和是否存在标志.
 func (e *CostForecastEngine) GetPriceConfig(provider CloudProvider, tier StorageTier) (PriceConfig, bool) {
 	e.mu.Lock()
 	defer e.mu.Unlock()

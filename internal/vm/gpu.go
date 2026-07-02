@@ -13,7 +13,7 @@ import (
 
 // ========== GPU直通配置 ==========
 
-// GPUType GPU类型
+// GPUType GPU类型.
 type GPUType string
 
 const (
@@ -22,7 +22,7 @@ const (
 	GPUTypeIntel  GPUType = "intel"
 )
 
-// GPUDevice GPU设备
+// GPUDevice GPU设备.
 type GPUDevice struct {
 	ID           string  `json:"id"`
 	PCIAddress   string  `json:"pci_address"`
@@ -36,7 +36,7 @@ type GPUDevice struct {
 	Status       string  `json:"status"`
 }
 
-// GPUPassthroughConfig GPU直通配置
+// GPUPassthroughConfig GPU直通配置.
 type GPUPassthroughConfig struct {
 	DeviceID      string `json:"device_id"`
 	VMID          string `json:"vm_id"`
@@ -49,14 +49,14 @@ type GPUPassthroughConfig struct {
 	MultiFunction bool   `json:"multi_function"`
 }
 
-// GPUPassthroughManager GPU直通管理器
+// GPUPassthroughManager GPU直通管理器.
 type GPUPassthroughManager struct {
 	mu   sync.RWMutex
 	gpus map[string]*GPUDevice
 	vms  map[string]*VMConfig
 }
 
-// VMConfig 虚拟机配置
+// VMConfig 虚拟机配置.
 type VMConfig struct {
 	ID        string                 `json:"id"`
 	Name      string                 `json:"name"`
@@ -65,7 +65,7 @@ type VMConfig struct {
 	CreatedAt time.Time              `json:"created_at"`
 }
 
-// NewGPUPassthroughManager 创建GPU直通管理器
+// NewGPUPassthroughManager 创建GPU直通管理器.
 func NewGPUPassthroughManager() *GPUPassthroughManager {
 	return &GPUPassthroughManager{
 		gpus: make(map[string]*GPUDevice),
@@ -73,7 +73,7 @@ func NewGPUPassthroughManager() *GPUPassthroughManager {
 	}
 }
 
-// ScanGPUs 扫描GPU设备
+// ScanGPUs 扫描GPU设备.
 func (m *GPUPassthroughManager) ScanGPUs(ctx context.Context) ([]GPUDevice, error) {
 	// 使用lspci扫描GPU
 	cmd := exec.CommandContext(ctx, "lspci", "-nn", "-d", "::0300")
@@ -124,7 +124,7 @@ func (m *GPUPassthroughManager) ScanGPUs(ctx context.Context) ([]GPUDevice, erro
 	return gpus, nil
 }
 
-// ListGPUs 列出GPU设备
+// ListGPUs 列出GPU设备.
 func (m *GPUPassthroughManager) ListGPUs() []GPUDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -136,7 +136,7 @@ func (m *GPUPassthroughManager) ListGPUs() []GPUDevice {
 	return gpus
 }
 
-// AttachGPU 将GPU直通给VM
+// AttachGPU 将GPU直通给VM.
 func (m *GPUPassthroughManager) AttachGPU(config GPUPassthroughConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -172,7 +172,7 @@ func (m *GPUPassthroughManager) AttachGPU(config GPUPassthroughConfig) error {
 	return nil
 }
 
-// DetachGPU 从VM分离GPU
+// DetachGPU 从VM分离GPU.
 func (m *GPUPassthroughManager) DetachGPU(deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -197,7 +197,7 @@ func (m *GPUPassthroughManager) DetachGPU(deviceID string) error {
 	return nil
 }
 
-// GetGPUPerformance 获取GPU性能指标
+// GetGPUPerformance 获取GPU性能指标.
 func (m *GPUPassthroughManager) GetGPUPerformance(deviceID string) (GPUPerformance, error) {
 	m.mu.RLock()
 	gpu, ok := m.gpus[deviceID]
@@ -226,7 +226,7 @@ func (m *GPUPassthroughManager) GetGPUPerformance(deviceID string) (GPUPerforman
 	return perf, nil
 }
 
-// GPUPerformance GPU性能数据
+// GPUPerformance GPU性能数据.
 type GPUPerformance struct {
 	DeviceID    string    `json:"device_id"`
 	Timestamp   time.Time `json:"timestamp"`
@@ -237,7 +237,7 @@ type GPUPerformance struct {
 	PowerDraw   float64   `json:"power_draw"`
 }
 
-// 内部方法
+// 内部方法.
 func (m *GPUPassthroughManager) checkIOMMU() error {
 	// 检查IOMMU是否在内核启动参数中启用
 	cmd := exec.Command("grep", "-q", "iommu=on", "/proc/cmdline")
@@ -292,7 +292,7 @@ func (m *GPUPassthroughManager) getAMDMetrics(pciAddr string, perf *GPUPerforman
 	cmd.Run() // 简化实现
 }
 
-// Export 导出配置
+// Export 导出配置.
 func (m *GPUPassthroughManager) Export() ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

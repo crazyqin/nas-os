@@ -16,24 +16,24 @@ import (
 	"time"
 )
 
-// ModuleVersion 模块版本
+// ModuleVersion 模块版本.
 const ModuleVersion = "1.0.0"
 
-// ModuleName 模块名称
+// ModuleName 模块名称.
 const ModuleName = "digitallegacy"
 
-// NewLegacyService 创建数字遗产服务（便捷入口）
+// NewLegacyService 创建数字遗产服务（便捷入口）.
 func NewLegacyService(encryptionKey []byte) *Manager {
 	config := GetDefaultConfig()
 	return NewManager(config, encryptionKey)
 }
 
-// NewLegacyServiceWithConfig 使用自定义配置创建数字遗产服务
+// NewLegacyServiceWithConfig 使用自定义配置创建数字遗产服务.
 func NewLegacyServiceWithConfig(config *DefaultLegacyConfig, encryptionKey []byte) *Manager {
 	return NewManager(config, encryptionKey)
 }
 
-// SetWillDocument 设置遗嘱文档
+// SetWillDocument 设置遗嘱文档.
 func (m *Manager) SetWillDocument(planID string, req *WillDocumentRequest) (*WillDocument, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -87,7 +87,7 @@ func (m *Manager) SetWillDocument(planID string, req *WillDocumentRequest) (*Wil
 	return doc, nil
 }
 
-// GetWillDocument 获取遗嘱文档
+// GetWillDocument 获取遗嘱文档.
 func (m *Manager) GetWillDocument(planID string, decrypt bool) (*WillDocument, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -114,7 +114,7 @@ func (m *Manager) GetWillDocument(planID string, decrypt bool) (*WillDocument, e
 	return &doc, nil
 }
 
-// GetModuleInfo 获取模块信息
+// GetModuleInfo 获取模块信息.
 func GetModuleInfo() map[string]interface{} {
 	return map[string]interface{}{
 		"name":        ModuleName,

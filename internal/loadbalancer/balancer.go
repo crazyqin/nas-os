@@ -9,17 +9,17 @@ import (
 	"time"
 )
 
-// ErrNoHealthyBackend 没有健康后端错误
+// ErrNoHealthyBackend 没有健康后端错误.
 var ErrNoHealthyBackend = &NoHealthyBackendError{}
 
-// NoHealthyBackendError 没有健康后端错误类型
+// NoHealthyBackendError 没有健康后端错误类型.
 type NoHealthyBackendError struct{}
 
 func (e *NoHealthyBackendError) Error() string {
 	return "no healthy backend available"
 }
 
-// Balancer 负载均衡器核心
+// Balancer 负载均衡器核心.
 type Balancer struct {
 	config    LBConfig
 	backends  []*Backend
@@ -34,7 +34,7 @@ type Balancer struct {
 	mu sync.RWMutex
 }
 
-// weightedRoundRobinState 加权轮询状态
+// weightedRoundRobinState 加权轮询状态.
 type weightedRoundRobinState struct {
 	currentWeight int
 	index         int
@@ -42,7 +42,7 @@ type weightedRoundRobinState struct {
 	maxWeight     int
 }
 
-// NewBalancer 创建负载均衡器
+// NewBalancer 创建负载均衡器.
 func NewBalancer(config LBConfig) *Balancer {
 	b := &Balancer{
 		config:    config,
@@ -75,7 +75,7 @@ func NewBalancer(config LBConfig) *Balancer {
 	return b
 }
 
-// initWeightedRoundRobin 初始化加权轮询
+// initWeightedRoundRobin 初始化加权轮询.
 func (b *Balancer) initWeightedRoundRobin() {
 	if len(b.backends) == 0 {
 		return
@@ -104,7 +104,7 @@ func (b *Balancer) initWeightedRoundRobin() {
 	}
 }
 
-// Select 选择后端
+// Select 选择后端.
 func (b *Balancer) Select(r *http.Request) (*Backend, error) {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -129,7 +129,7 @@ func (b *Balancer) Select(r *http.Request) (*Backend, error) {
 	}
 }
 
-// getHealthyBackends 获取健康后端列表
+// getHealthyBackends 获取健康后端列表.
 func (b *Balancer) getHealthyBackends() []*Backend {
 	var healthy []*Backend
 	for _, backend := range b.backends {
@@ -144,13 +144,13 @@ func (b *Balancer) getHealthyBackends() []*Backend {
 	return healthy
 }
 
-// selectRoundRobin 轮询选择
+// selectRoundRobin 轮询选择.
 func (b *Balancer) selectRoundRobin(backends []*Backend) *Backend {
 	index := atomic.AddUint64(&b.roundRobinIndex, 1)
 	return backends[index%uint64(len(backends))]
 }
 
-// selectWeightedRoundRobin 加权轮询选择 (平滑加权轮询 - Nginx算法)
+// selectWeightedRoundRobin 加权轮询选择 (平滑加权轮询 - Nginx算法).
 func (b *Balancer) selectWeightedRoundRobin(backends []*Backend) *Backend {
 	if len(backends) == 0 {
 		return nil
@@ -185,7 +185,7 @@ func (b *Balancer) selectWeightedRoundRobin(backends []*Backend) *Backend {
 	return backends[0]
 }
 
-// selectLeastConn 最少连接选择
+// selectLeastConn 最少连接选择.
 func (b *Balancer) selectLeastConn(backends []*Backend) *Backend {
 	var selected *Backend
 	minConns := int64(^uint64(0) >> 1) // MaxInt64
@@ -201,7 +201,7 @@ func (b *Balancer) selectLeastConn(backends []*Backend) *Backend {
 	return selected
 }
 
-// selectIPHash IP哈希选择
+// selectIPHash IP哈希选择.
 func (b *Balancer) selectIPHash(backends []*Backend, r *http.Request) *Backend {
 	ip := getClientIP(r)
 	hash := fnv.New32a()
@@ -210,7 +210,7 @@ func (b *Balancer) selectIPHash(backends []*Backend, r *http.Request) *Backend {
 	return backends[index]
 }
 
-// getClientIP 获取客户端IP
+// getClientIP 获取客户端IP.
 func getClientIP(r *http.Request) string {
 	// 优先从X-Forwarded-For获取
 	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
@@ -232,7 +232,7 @@ func getClientIP(r *http.Request) string {
 	return r.RemoteAddr
 }
 
-// AddBackend 添加后端
+// AddBackend 添加后端.
 func (b *Balancer) AddBackend(backend *Backend) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -243,7 +243,7 @@ func (b *Balancer) AddBackend(backend *Backend) {
 	}
 }
 
-// RemoveBackend 移除后端
+// RemoveBackend 移除后端.
 func (b *Balancer) RemoveBackend(id string) bool {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -260,7 +260,7 @@ func (b *Balancer) RemoveBackend(id string) bool {
 	return false
 }
 
-// GetBackend 获取后端
+// GetBackend 获取后端.
 func (b *Balancer) GetBackend(id string) *Backend {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -273,7 +273,7 @@ func (b *Balancer) GetBackend(id string) *Backend {
 	return nil
 }
 
-// GetBackends 获取所有后端
+// GetBackends 获取所有后端.
 func (b *Balancer) GetBackends() []*Backend {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -283,14 +283,14 @@ func (b *Balancer) GetBackends() []*Backend {
 	return result
 }
 
-// GetHealthyBackends 获取所有健康后端
+// GetHealthyBackends 获取所有健康后端.
 func (b *Balancer) GetHealthyBackends() []*Backend {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
 	return b.getHealthyBackends()
 }
 
-// UpdateAlgorithm 更新负载均衡算法
+// UpdateAlgorithm 更新负载均衡算法.
 func (b *Balancer) UpdateAlgorithm(algo Algorithm) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -301,7 +301,7 @@ func (b *Balancer) UpdateAlgorithm(algo Algorithm) {
 	}
 }
 
-// UpdateBackendWeight 更新后端权重
+// UpdateBackendWeight 更新后端权重.
 func (b *Balancer) UpdateBackendWeight(id string, weight int) bool {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -321,7 +321,7 @@ func (b *Balancer) UpdateBackendWeight(id string, weight int) bool {
 	return false
 }
 
-// gcdInt 计算最大公约数
+// gcdInt 计算最大公约数.
 func gcdInt(a, b int) int {
 	for b != 0 {
 		a, b = b, a%b

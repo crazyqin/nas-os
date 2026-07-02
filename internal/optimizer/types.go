@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// ResourceMetrics 资源使用指标
+// ResourceMetrics 资源使用指标.
 type ResourceMetrics struct {
 	Timestamp    time.Time `json:"timestamp"`
 	CPUPercent   float64   `json:"cpu_percent"`
@@ -23,7 +23,7 @@ type ResourceMetrics struct {
 	LoadAvg15    float64   `json:"load_avg_15"`
 }
 
-// Bottleneck 瓶颈信息
+// Bottleneck 瓶颈信息.
 type Bottleneck struct {
 	ID          string    `json:"id"`
 	Type        string    `json:"type"`     // cpu, memory, io, network
@@ -36,7 +36,7 @@ type Bottleneck struct {
 	Suggestions []string  `json:"suggestions"`
 }
 
-// OptimizationSuggestion 优化建议
+// OptimizationSuggestion 优化建议.
 type OptimizationSuggestion struct {
 	ID             string     `json:"id"`
 	Category       string     `json:"category"` // cpu, memory, io, network, general
@@ -52,7 +52,7 @@ type OptimizationSuggestion struct {
 	ActualGain     *float64   `json:"actual_gain,omitempty"`
 }
 
-// OptimizationRecord 优化记录
+// OptimizationRecord 优化记录.
 type OptimizationRecord struct {
 	ID            string                 `json:"id"`
 	Type          string                 `json:"type"`     // auto, manual, scheduled
@@ -69,7 +69,7 @@ type OptimizationRecord struct {
 	ExecutedBy    string                 `json:"executed_by"` // system, user, scheduler
 }
 
-// ScheduledTask 定时优化任务
+// ScheduledTask 定时优化任务.
 type ScheduledTask struct {
 	ID        string     `json:"id"`
 	Name      string     `json:"name"`
@@ -85,7 +85,7 @@ type ScheduledTask struct {
 	UpdatedAt time.Time  `json:"updated_at"`
 }
 
-// PredictionResult 预测结果
+// PredictionResult 预测结果.
 type PredictionResult struct {
 	Resource     string  `json:"resource"` // cpu, memory, disk, network
 	CurrentValue float64 `json:"current_value"`
@@ -98,7 +98,7 @@ type PredictionResult struct {
 	WarningMsg   string  `json:"warning_msg,omitempty"`
 }
 
-// AutoTuneConfig 自动调优配置
+// AutoTuneConfig 自动调优配置.
 type AutoTuneConfig struct {
 	Enabled       bool    `json:"enabled"`
 	CPUThreshold  float64 `json:"cpu_threshold"`  // CPU 使用率阈值
@@ -111,7 +111,7 @@ type AutoTuneConfig struct {
 	NotifyOnTune  bool    `json:"notify_on_tune"` // 调优时发送通知
 }
 
-// DefaultAutoTuneConfig 默认自动调优配置
+// DefaultAutoTuneConfig 默认自动调优配置.
 func DefaultAutoTuneConfig() AutoTuneConfig {
 	return AutoTuneConfig{
 		Enabled:       true,
@@ -126,7 +126,7 @@ func DefaultAutoTuneConfig() AutoTuneConfig {
 	}
 }
 
-// EngineStats 引擎统计
+// EngineStats 引擎统计.
 type EngineStats struct {
 	TotalOptimizations  int64         `json:"total_optimizations"`
 	SuccessfulTunes     int64         `json:"successful_tunes"`
@@ -140,14 +140,14 @@ type EngineStats struct {
 	ScheduledRuns       int           `json:"scheduled_runs"`
 }
 
-// OptimizationHistory 优化历史管理器
+// OptimizationHistory 优化历史管理器.
 type OptimizationHistory struct {
 	mu      sync.RWMutex
 	records []*OptimizationRecord
 	maxSize int
 }
 
-// NewOptimizationHistory 创建优化历史管理器
+// NewOptimizationHistory 创建优化历史管理器.
 func NewOptimizationHistory(maxSize int) *OptimizationHistory {
 	return &OptimizationHistory{
 		records: make([]*OptimizationRecord, 0),
@@ -155,7 +155,7 @@ func NewOptimizationHistory(maxSize int) *OptimizationHistory {
 	}
 }
 
-// Add 添加记录
+// Add 添加记录.
 func (h *OptimizationHistory) Add(record *OptimizationRecord) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -168,7 +168,7 @@ func (h *OptimizationHistory) Add(record *OptimizationRecord) {
 	}
 }
 
-// GetAll 获取所有记录
+// GetAll 获取所有记录.
 func (h *OptimizationHistory) GetAll() []*OptimizationRecord {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -178,7 +178,7 @@ func (h *OptimizationHistory) GetAll() []*OptimizationRecord {
 	return result
 }
 
-// GetByType 按类型获取记录
+// GetByType 按类型获取记录.
 func (h *OptimizationHistory) GetByType(recordType string) []*OptimizationRecord {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -192,7 +192,7 @@ func (h *OptimizationHistory) GetByType(recordType string) []*OptimizationRecord
 	return result
 }
 
-// GetByCategory 按类别获取记录
+// GetByCategory 按类别获取记录.
 func (h *OptimizationHistory) GetByCategory(category string) []*OptimizationRecord {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -206,7 +206,7 @@ func (h *OptimizationHistory) GetByCategory(category string) []*OptimizationReco
 	return result
 }
 
-// GetRecent 获取最近的记录
+// GetRecent 获取最近的记录.
 func (h *OptimizationHistory) GetRecent(limit int) []*OptimizationRecord {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -221,7 +221,7 @@ func (h *OptimizationHistory) GetRecent(limit int) []*OptimizationRecord {
 	return result
 }
 
-// Clear 清空历史
+// Clear 清空历史.
 func (h *OptimizationHistory) Clear() {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -229,7 +229,7 @@ func (h *OptimizationHistory) Clear() {
 	h.records = make([]*OptimizationRecord, 0)
 }
 
-// Count 记录数量
+// Count 记录数量.
 func (h *OptimizationHistory) Count() int {
 	h.mu.RLock()
 	defer h.mu.RUnlock()

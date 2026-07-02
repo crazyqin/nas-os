@@ -13,17 +13,17 @@ type response struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// Handlers HTTP 处理器
+// Handlers HTTP 处理器.
 type Handlers struct {
 	engine *Engine
 }
 
-// NewHandlers 创建处理器实例
+// NewHandlers 创建处理器实例.
 func NewHandlers(engine *Engine) *Handlers {
 	return &Handlers{engine: engine}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	seo := r.Group("/contentseo")
 	{
@@ -34,7 +34,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// Search 全文搜索
+// Search 全文搜索.
 func (h *Handlers) Search(c *gin.Context) {
 	var query SearchQuery
 	if err := c.ShouldBindJSON(&query); err != nil {
@@ -60,7 +60,7 @@ func (h *Handlers) Search(c *gin.Context) {
 	})
 }
 
-// GetStats 获取搜索统计
+// GetStats 获取搜索统计.
 func (h *Handlers) GetStats(c *gin.Context) {
 	stats := h.engine.GetStats()
 	c.JSON(http.StatusOK, response{
@@ -69,7 +69,7 @@ func (h *Handlers) GetStats(c *gin.Context) {
 	})
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (h *Handlers) RebuildIndex(c *gin.Context) {
 	var req RebuildRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -91,7 +91,7 @@ func (h *Handlers) RebuildIndex(c *gin.Context) {
 	})
 }
 
-// GetIndexStatus 获取索引状态
+// GetIndexStatus 获取索引状态.
 func (h *Handlers) GetIndexStatus(c *gin.Context) {
 	status := h.engine.GetIndexStatus()
 	c.JSON(http.StatusOK, response{

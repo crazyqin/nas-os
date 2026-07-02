@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler 功能路线图HTTP处理器
+// Handler 功能路线图HTTP处理器.
 type Handler struct {
 	rm *FeatureRoadmap
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(rm *FeatureRoadmap) *Handler {
 	return &Handler{rm: rm}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	group := rg.Group("/featureroadmap")
 	{
@@ -29,22 +29,22 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// GetFeatures 获取功能列表
+// GetFeatures 获取功能列表.
 func (h *Handler) GetFeatures(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "data": h.rm.GetFeatures()})
 }
 
-// GetMilestones 获取里程碑
+// GetMilestones 获取里程碑.
 func (h *Handler) GetMilestones(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "data": h.rm.GetMilestones()})
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (h *Handler) GetStats(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "data": h.rm.GetStats()})
 }
 
-// AddFeature 添加功能
+// AddFeature 添加功能.
 func (h *Handler) AddFeature(c *gin.Context) {
 	var feature Feature
 	if err := c.ShouldBindJSON(&feature); err != nil {
@@ -55,7 +55,7 @@ func (h *Handler) AddFeature(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "data": result})
 }
 
-// UpdateFeature 更新功能
+// UpdateFeature 更新功能.
 func (h *Handler) UpdateFeature(c *gin.Context) {
 	id := c.Param("id")
 	var updates map[string]interface{}
@@ -70,7 +70,7 @@ func (h *Handler) UpdateFeature(c *gin.Context) {
 	}
 }
 
-// AddMilestone 添加里程碑
+// AddMilestone 添加里程碑.
 func (h *Handler) AddMilestone(c *gin.Context) {
 	var ms Milestone
 	if err := c.ShouldBindJSON(&ms); err != nil {

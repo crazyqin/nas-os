@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// ThreatLevel 威胁等级
+// ThreatLevel 威胁等级.
 type ThreatLevel int
 
 const (
@@ -36,21 +36,21 @@ func (l ThreatLevel) String() string {
 	}
 }
 
-// EventType 事件类型
+// EventType 事件类型.
 type EventType string
 
 const (
-	EventBruteForce       EventType = "brute_force"        // 暴力破解
-	EventRansomware       EventType = "ransomware"         // 勒索软件
-	EventDataExfil        EventType = "data_exfiltration"  // 数据外泄
-	EventBulkDelete       EventType = "bulk_delete"        // 批量删除
+	EventBruteForce        EventType = "brute_force"          // 暴力破解
+	EventRansomware        EventType = "ransomware"           // 勒索软件
+	EventDataExfil         EventType = "data_exfiltration"    // 数据外泄
+	EventBulkDelete        EventType = "bulk_delete"          // 批量删除
 	EventPrivilegeEscalate EventType = "privilege_escalation" // 权限提升
-	EventAnomalousAccess  EventType = "anomalous_access"   // 异常访问
-	EventMalwareDetected  EventType = "malware_detected"   // 恶意软件
-	EventUnusualLogin     EventType = "unusual_login"      // 异常登录
+	EventAnomalousAccess   EventType = "anomalous_access"     // 异常访问
+	EventMalwareDetected   EventType = "malware_detected"     // 恶意软件
+	EventUnusualLogin      EventType = "unusual_login"        // 异常登录
 )
 
-// SecurityEvent 安全事件
+// SecurityEvent 安全事件.
 type SecurityEvent struct {
 	ID          string                 `json:"id"`
 	Type        EventType              `json:"type"`
@@ -68,7 +68,7 @@ type SecurityEvent struct {
 	Quarantine  bool                   `json:"quarantine"`
 }
 
-// DetectionRule 检测规则
+// DetectionRule 检测规则.
 type DetectionRule struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -81,7 +81,7 @@ type DetectionRule struct {
 	Description string      `json:"description"`
 }
 
-// QuarantineEntry 隔离条目
+// QuarantineEntry 隔离条目.
 type QuarantineEntry struct {
 	ID           string     `json:"id"`
 	Path         string     `json:"path"`
@@ -94,18 +94,18 @@ type QuarantineEntry struct {
 	Size         int64      `json:"size"`
 }
 
-// ThreatMetrics 威胁指标
+// ThreatMetrics 威胁指标.
 type ThreatMetrics struct {
-	TotalEvents      int64                `json:"total_events"`
+	TotalEvents      int64                 `json:"total_events"`
 	EventsByLevel    map[ThreatLevel]int64 `json:"events_by_level"`
 	EventsByType     map[EventType]int64   `json:"events_by_type"`
-	ResolvedEvents   int64                `json:"resolved_events"`
-	QuarantinedItems int64                `json:"quarantined_items"`
-	ActiveRules      int                  `json:"active_rules"`
-	FalsePositives   int64                `json:"false_positives"`
+	ResolvedEvents   int64                 `json:"resolved_events"`
+	QuarantinedItems int64                 `json:"quarantined_items"`
+	ActiveRules      int                   `json:"active_rules"`
+	FalsePositives   int64                 `json:"false_positives"`
 }
 
-// ThreatDetector 威胁检测器
+// ThreatDetector 威胁检测器.
 type ThreatDetector struct {
 	mu         sync.RWMutex
 	events     []*SecurityEvent
@@ -116,7 +116,7 @@ type ThreatDetector struct {
 	logger     *slog.Logger
 }
 
-// NewThreatDetector 创建威胁检测器
+// NewThreatDetector 创建威胁检测器.
 func NewThreatDetector(logger *slog.Logger) *ThreatDetector {
 	if logger == nil {
 		logger = slog.Default()
@@ -138,7 +138,7 @@ func NewThreatDetector(logger *slog.Logger) *ThreatDetector {
 	return td
 }
 
-// registerDefaultRules 注册默认检测规则
+// registerDefaultRules 注册默认检测规则.
 func (td *ThreatDetector) registerDefaultRules() {
 	defaults := []*DetectionRule{
 		{
@@ -178,7 +178,7 @@ func (td *ThreatDetector) registerDefaultRules() {
 	}
 }
 
-// AddRule 添加检测规则
+// AddRule 添加检测规则.
 func (td *ThreatDetector) AddRule(rule *DetectionRule) error {
 	if rule == nil || rule.ID == "" {
 		return errors.New("invalid rule")
@@ -191,7 +191,7 @@ func (td *ThreatDetector) AddRule(rule *DetectionRule) error {
 	return nil
 }
 
-// RemoveRule 移除检测规则
+// RemoveRule 移除检测规则.
 func (td *ThreatDetector) RemoveRule(ruleID string) error {
 	td.mu.Lock()
 	defer td.mu.Unlock()
@@ -203,7 +203,7 @@ func (td *ThreatDetector) RemoveRule(ruleID string) error {
 	return nil
 }
 
-// ProcessEvent 处理安全事件
+// ProcessEvent 处理安全事件.
 func (td *ThreatDetector) ProcessEvent(event *SecurityEvent) error {
 	if event == nil {
 		return errors.New("event cannot be nil")
@@ -239,7 +239,7 @@ func (td *ThreatDetector) ProcessEvent(event *SecurityEvent) error {
 	return nil
 }
 
-// DetectBruteForce 检测暴力破解
+// DetectBruteForce 检测暴力破解.
 func (td *ThreatDetector) DetectBruteForce(ip string, success bool) *SecurityEvent {
 	if success {
 		return nil
@@ -275,7 +275,7 @@ func (td *ThreatDetector) DetectBruteForce(ip string, success bool) *SecurityEve
 	return nil
 }
 
-// DetectRansomware 检测勒索软件行为
+// DetectRansomware 检测勒索软件行为.
 func (td *ThreatDetector) DetectRansomware(user string, renamedFiles int) *SecurityEvent {
 	if renamedFiles >= 10 {
 		return &SecurityEvent{
@@ -291,7 +291,7 @@ func (td *ThreatDetector) DetectRansomware(user string, renamedFiles int) *Secur
 	return nil
 }
 
-// DetectBulkDelete 检测批量删除
+// DetectBulkDelete 检测批量删除.
 func (td *ThreatDetector) DetectBulkDelete(user string, deletedCount int) *SecurityEvent {
 	if deletedCount >= 50 {
 		return &SecurityEvent{
@@ -306,7 +306,7 @@ func (td *ThreatDetector) DetectBulkDelete(user string, deletedCount int) *Secur
 	return nil
 }
 
-// ScanFile 扫描文件（启发式检测）
+// ScanFile 扫描文件（启发式检测）.
 func (td *ThreatDetector) ScanFile(path string, content []byte) *SecurityEvent {
 	suspiciousExts := []string{".encrypted", ".locked", ".crypto", ".enc"}
 	for _, ext := range suspiciousExts {
@@ -324,7 +324,7 @@ func (td *ThreatDetector) ScanFile(path string, content []byte) *SecurityEvent {
 	return nil
 }
 
-// quarantineFile 隔离文件
+// quarantineFile 隔离文件.
 func (td *ThreatDetector) quarantineFile(path string, reason string, eventID string) {
 	entry := &QuarantineEntry{
 		ID:           fmt.Sprintf("q-%d", time.Now().UnixNano()),
@@ -338,7 +338,7 @@ func (td *ThreatDetector) quarantineFile(path string, reason string, eventID str
 	td.logger.Warn("文件已隔离", "path", path, "reason", reason)
 }
 
-// ReleaseQuarantine 释放隔离文件
+// ReleaseQuarantine 释放隔离文件.
 func (td *ThreatDetector) ReleaseQuarantine(entryID string, releasedBy string) error {
 	td.mu.Lock()
 	defer td.mu.Unlock()
@@ -358,7 +358,7 @@ func (td *ThreatDetector) ReleaseQuarantine(entryID string, releasedBy string) e
 	return nil
 }
 
-// ResolveEvent 解决安全事件
+// ResolveEvent 解决安全事件.
 func (td *ThreatDetector) ResolveEvent(eventID string, resolvedBy string, falsePositive bool) error {
 	td.mu.Lock()
 	defer td.mu.Unlock()
@@ -379,7 +379,7 @@ func (td *ThreatDetector) ResolveEvent(eventID string, resolvedBy string, falseP
 	return errors.New("event not found")
 }
 
-// GetEvents 获取安全事件
+// GetEvents 获取安全事件.
 func (td *ThreatDetector) GetEvents(level ThreatLevel, resolved bool, limit int) []*SecurityEvent {
 	td.mu.RLock()
 	defer td.mu.RUnlock()
@@ -398,7 +398,7 @@ func (td *ThreatDetector) GetEvents(level ThreatLevel, resolved bool, limit int)
 	return result
 }
 
-// GetQuarantineList 获取隔离列表
+// GetQuarantineList 获取隔离列表.
 func (td *ThreatDetector) GetQuarantineList(includeReleased bool) []*QuarantineEntry {
 	td.mu.RLock()
 	defer td.mu.RUnlock()
@@ -413,7 +413,7 @@ func (td *ThreatDetector) GetQuarantineList(includeReleased bool) []*QuarantineE
 	return result
 }
 
-// GetMetrics 获取威胁指标
+// GetMetrics 获取威胁指标.
 func (td *ThreatDetector) GetMetrics() *ThreatMetrics {
 	td.mu.RLock()
 	defer td.mu.RUnlock()

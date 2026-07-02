@@ -7,55 +7,55 @@ import (
 	"time"
 )
 
-// EventType 文件活动事件类型
+// EventType 文件活动事件类型.
 type EventType string
 
 const (
-	// EventCreate 文件创建
+	// EventCreate 文件创建.
 	EventCreate EventType = "create"
-	// EventModify 文件修改
+	// EventModify 文件修改.
 	EventModify EventType = "modify"
-	// EventDelete 文件删除
+	// EventDelete 文件删除.
 	EventDelete EventType = "delete"
-	// EventAccess 文件访问（读取）
+	// EventAccess 文件访问（读取）.
 	EventAccess EventType = "access"
-	// EventRename 文件重命名
+	// EventRename 文件重命名.
 	EventRename EventType = "rename"
-	// EventMove 文件移动
+	// EventMove 文件移动.
 	EventMove EventType = "move"
-	// EventCopy 文件复制
+	// EventCopy 文件复制.
 	EventCopy EventType = "copy"
-	// EventPermissionChange 权限变更
+	// EventPermissionChange 权限变更.
 	EventPermissionChange EventType = "permission_change"
 )
 
-// Severity 事件严重程度
+// Severity 事件严重程度.
 type Severity string
 
 const (
-	// SeverityInfo 信息级别
+	// SeverityInfo 信息级别.
 	SeverityInfo Severity = "info"
-	// SeverityWarning 警告级别
+	// SeverityWarning 警告级别.
 	SeverityWarning Severity = "warning"
-	// SeverityCritical 严重级别
+	// SeverityCritical 严重级别.
 	SeverityCritical Severity = "critical"
 )
 
-// AccessType 访问类型
+// AccessType 访问类型.
 type AccessType string
 
 const (
-	// AccessTypeNormal 正常访问
+	// AccessTypeNormal 正常访问.
 	AccessTypeNormal AccessType = "normal"
-	// AccessTypeAnomaly 异常访问
+	// AccessTypeAnomaly 异常访问.
 	AccessTypeAnomaly AccessType = "anomaly"
-	// AccessTypeSuspicious 可疑访问
+	// AccessTypeSuspicious 可疑访问.
 	AccessTypeSuspicious AccessType = "suspicious"
-	// AccessTypeUnauthorized 未授权访问
+	// AccessTypeUnauthorized 未授权访问.
 	AccessTypeUnauthorized AccessType = "unauthorized"
 )
 
-// FileActivityEvent 文件活动事件
+// FileActivityEvent 文件活动事件.
 type FileActivityEvent struct {
 	// ID 事件唯一标识
 	ID string `json:"id"`
@@ -121,7 +121,7 @@ type FileActivityEvent struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// FileActivityFilter 文件活动过滤条件
+// FileActivityFilter 文件活动过滤条件.
 type FileActivityFilter struct {
 	// UserID 按用户过滤
 	UserID string `json:"userId,omitempty"`
@@ -175,7 +175,7 @@ type FileActivityFilter struct {
 	Offset int `json:"offset,omitempty"`
 }
 
-// SecurityAlert 安全告警
+// SecurityAlert 安全告警.
 type SecurityAlert struct {
 	// ID 告警ID
 	ID string `json:"id"`
@@ -226,7 +226,7 @@ type SecurityAlert struct {
 	Actions []AlertAction `json:"actions,omitempty"`
 }
 
-// AlertAction 告警响应动作
+// AlertAction 告警响应动作.
 type AlertAction struct {
 	// Type 动作类型
 	Type string `json:"type"`
@@ -241,7 +241,7 @@ type AlertAction struct {
 	Priority int `json:"priority"`
 }
 
-// AnomalyDetectionRule 异常检测规则
+// AnomalyDetectionRule 异常检测规则.
 type AnomalyDetectionRule struct {
 	// ID 规则ID
 	ID string `json:"id"`
@@ -274,7 +274,7 @@ type AnomalyDetectionRule struct {
 	Conditions []RuleCondition `json:"conditions"`
 }
 
-// RuleCondition 规则条件
+// RuleCondition 规则条件.
 type RuleCondition struct {
 	// Field 字段名
 	Field string `json:"field"`
@@ -286,7 +286,7 @@ type RuleCondition struct {
 	Value interface{} `json:"value"`
 }
 
-// MonitorStatus 监控器状态
+// MonitorStatus 监控器状态.
 type MonitorStatus struct {
 	// IsRunning 是否运行中
 	IsRunning bool `json:"isRunning"`
@@ -325,7 +325,7 @@ type MonitorStatus struct {
 	Statistics EventStatistics `json:"statistics"`
 }
 
-// EventStatistics 事件统计
+// EventStatistics 事件统计.
 type EventStatistics struct {
 	// ByType 按类型统计
 	ByType map[EventType]int64 `json:"byType"`
@@ -352,7 +352,7 @@ type EventStatistics struct {
 	SuspiciousFiles int64 `json:"suspiciousFiles"`
 }
 
-// MonitorConfig 监控配置
+// MonitorConfig 监控配置.
 type MonitorConfig struct {
 	// Enabled 是否启用监控
 	Enabled bool `json:"enabled"`
@@ -391,7 +391,7 @@ type MonitorConfig struct {
 	Rules []AnomalyDetectionRule `json:"rules"`
 }
 
-// MonitorConfigRequest 配置更新请求
+// MonitorConfigRequest 配置更新请求.
 type MonitorConfigRequest struct {
 	// Enabled 是否启用监控
 	Enabled bool `json:"enabled"`
@@ -418,7 +418,7 @@ type MonitorConfigRequest struct {
 	NotificationChannels []string `json:"notificationChannels"`
 }
 
-// AlertQueryRequest 告警查询请求
+// AlertQueryRequest 告警查询请求.
 type AlertQueryRequest struct {
 	// Severity 严重程度过滤
 	Severity Severity `json:"severity,omitempty"`
@@ -448,7 +448,7 @@ type AlertQueryRequest struct {
 	Offset int `json:"offset,omitempty"`
 }
 
-// AlertHandleRequest 告警处理请求
+// AlertHandleRequest 告警处理请求.
 type AlertHandleRequest struct {
 	// HandledBy 处理人
 	HandledBy string `json:"handledBy"`
@@ -460,7 +460,7 @@ type AlertHandleRequest struct {
 	Notes string `json:"notes"`
 }
 
-// RuleCreateRequest 规则创建请求
+// RuleCreateRequest 规则创建请求.
 type RuleCreateRequest struct {
 	// Name 规则名称
 	Name string `json:"name" binding:"required"`

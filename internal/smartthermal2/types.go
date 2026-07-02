@@ -8,7 +8,7 @@ import (
 
 // ==================== 传感器相关 ====================
 
-// SensorType 传感器类型
+// SensorType 传感器类型.
 type SensorType string
 
 const (
@@ -21,7 +21,7 @@ const (
 	SensorAmbient SensorType = "ambient"
 )
 
-// Sensor 传感器
+// Sensor 传感器.
 type Sensor struct {
 	ID        string       `json:"id"`
 	Name      string       `json:"name"`
@@ -35,7 +35,7 @@ type Sensor struct {
 	UpdatedAt time.Time    `json:"updatedAt"`
 }
 
-// SensorStatus 传感器状态
+// SensorStatus 传感器状态.
 type SensorStatus string
 
 const (
@@ -45,7 +45,7 @@ const (
 	SensorEmergency SensorStatus = "emergency"
 )
 
-// SensorHistory 传感器历史记录
+// SensorHistory 传感器历史记录.
 type SensorHistory struct {
 	Timestamp time.Time `json:"timestamp"`
 	Temp      float64   `json:"temp"`
@@ -53,7 +53,7 @@ type SensorHistory struct {
 
 // ==================== 温控区域相关 ====================
 
-// ThermalZone 温控区域
+// ThermalZone 温控区域.
 type ThermalZone struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -67,7 +67,7 @@ type ThermalZone struct {
 
 // ==================== 风扇相关 ====================
 
-// FanInfo 风扇信息
+// FanInfo 风扇信息.
 type FanInfo struct {
 	ID         string         `json:"id"`
 	Name       string         `json:"name"`
@@ -83,7 +83,7 @@ type FanInfo struct {
 	UpdatedAt  time.Time      `json:"updatedAt"`
 }
 
-// FanStatus 风扇状态
+// FanStatus 风扇状态.
 type FanStatus string
 
 const (
@@ -93,7 +93,7 @@ const (
 	FanStatusDisabled FanStatus = "disabled"
 )
 
-// FanProfileType 风扇曲线类型
+// FanProfileType 风扇曲线类型.
 type FanProfileType string
 
 const (
@@ -104,19 +104,19 @@ const (
 	FanProfileAdaptive    FanProfileType = "adaptive"    // AI自适应
 )
 
-// FanCurvePoint 风扇曲线控制点
+// FanCurvePoint 风扇曲线控制点.
 type FanCurvePoint struct {
 	Temp float64 `json:"temp"` // 温度（摄氏度）
 	PWM  float64 `json:"pwm"`  // PWM 百分比 (0-100)
 }
 
-// FanCurve 风扇曲线
+// FanCurve 风扇曲线.
 type FanCurve struct {
 	Type   FanProfileType  `json:"type"`
 	Points []FanCurvePoint `json:"points"`
 }
 
-// FanUpdateRequest 风扇更新请求
+// FanUpdateRequest 风扇更新请求.
 type FanUpdateRequest struct {
 	PWM     *float64        `json:"pwm,omitempty"`
 	Profile *FanProfileType `json:"profile,omitempty"`
@@ -124,7 +124,7 @@ type FanUpdateRequest struct {
 
 // ==================== 噪音优化相关 ====================
 
-// NoiseLevel 噪音级别
+// NoiseLevel 噪音级别.
 type NoiseLevel string
 
 const (
@@ -135,7 +135,7 @@ const (
 	NoiseVeryLoud NoiseLevel = "very_loud" // > 55 dBA
 )
 
-// NoiseAssessment 噪音评估
+// NoiseAssessment 噪音评估.
 type NoiseAssessment struct {
 	TotalDBA       float64    `json:"totalDba"`       // 总噪音 (dBA)
 	Level          NoiseLevel `json:"level"`          // 噪音级别
@@ -145,7 +145,7 @@ type NoiseAssessment struct {
 	Recommendation string     `json:"recommendation"` // 建议
 }
 
-// FanNoise 单个风扇噪音
+// FanNoise 单个风扇噪音.
 type FanNoise struct {
 	FanID string  `json:"fanId"`
 	Name  string  `json:"name"`
@@ -153,7 +153,7 @@ type FanNoise struct {
 	RPM   int     `json:"rpm"`
 }
 
-// NoiseSettings 噪音设置
+// NoiseSettings 噪音设置.
 type NoiseSettings struct {
 	MaxDBA          float64 `json:"maxDba"`          // 最大允许噪音
 	ScheduleEnabled bool    `json:"scheduleEnabled"` // 启用时间调度
@@ -165,7 +165,7 @@ type NoiseSettings struct {
 
 // ==================== 温度预测相关 ====================
 
-// PredictionResult 温度预测结果
+// PredictionResult 温度预测结果.
 type PredictionResult struct {
 	SensorID          string  `json:"sensorId"`
 	CurrentTemp       float64 `json:"currentTemp"`
@@ -179,7 +179,7 @@ type PredictionResult struct {
 	MinutesToOverheat int     `json:"minutesToOverheat"` // 距过热分钟数
 }
 
-// SeasonalCompensation 季节性温度补偿
+// SeasonalCompensation 季节性温度补偿.
 type SeasonalCompensation struct {
 	Month        int     `json:"month"`        // 月份
 	Compensation float64 `json:"compensation"` // 补偿值（摄氏度）
@@ -187,7 +187,7 @@ type SeasonalCompensation struct {
 
 // ==================== 散热方案相关 ====================
 
-// CoolingProfile 散热方案
+// CoolingProfile 散热方案.
 type CoolingProfile struct {
 	ID          string          `json:"id"`
 	Name        string          `json:"name"`
@@ -203,7 +203,7 @@ type CoolingProfile struct {
 	CreatedAt   time.Time       `json:"createdAt"`
 }
 
-// ScheduleConfig 定时切换配置
+// ScheduleConfig 定时切换配置.
 type ScheduleConfig struct {
 	Enabled      bool   `json:"enabled"`
 	DayProfile   string `json:"dayProfile"`   // 白天方案ID
@@ -212,12 +212,12 @@ type ScheduleConfig struct {
 	DayEnd       int    `json:"dayEnd"`       // 白天结束小时
 }
 
-// ProfileSwitchRequest 方案切换请求
+// ProfileSwitchRequest 方案切换请求.
 type ProfileSwitchRequest struct {
 	ProfileID string `json:"profileId" binding:"required"`
 }
 
-// ProfileCreateRequest 方案创建请求
+// ProfileCreateRequest 方案创建请求.
 type ProfileCreateRequest struct {
 	Name        string          `json:"name" binding:"required"`
 	Description string          `json:"description"`
@@ -230,7 +230,7 @@ type ProfileCreateRequest struct {
 
 // ==================== 告警相关 ====================
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 const (
@@ -239,7 +239,7 @@ const (
 	AlertEmergency AlertLevel = "emergency" // 紧急
 )
 
-// ThermalAlert 温控告警
+// ThermalAlert 温控告警.
 type ThermalAlert struct {
 	ID         string     `json:"id"`
 	Level      AlertLevel `json:"level"`
@@ -253,7 +253,7 @@ type ThermalAlert struct {
 	ResolvedAt *time.Time `json:"resolvedAt,omitempty"`
 }
 
-// AlertSettings 告警设置
+// AlertSettings 告警设置.
 type AlertSettings struct {
 	WarningTemp   float64 `json:"warningTemp"`   // 警告温度
 	CriticalTemp  float64 `json:"criticalTemp"`  // 危险温度
@@ -266,7 +266,7 @@ type AlertSettings struct {
 
 // ==================== 全局设置 ====================
 
-// GlobalSettings 全局设置
+// GlobalSettings 全局设置.
 type GlobalSettings struct {
 	PollIntervalSec int           `json:"pollIntervalSec"` // 采样间隔（秒）
 	WindowSize      int           `json:"windowSize"`      // 滑动窗口大小
@@ -277,7 +277,7 @@ type GlobalSettings struct {
 
 // ==================== Dashboard ====================
 
-// Dashboard 温控仪表板
+// Dashboard 温控仪表板.
 type Dashboard struct {
 	OverallStatus  SensorStatus       `json:"overallStatus"`
 	CurrentProfile string             `json:"currentProfile"`
@@ -292,7 +292,7 @@ type Dashboard struct {
 
 // ==================== EWMA 相关 ====================
 
-// EWMAData 指数加权移动平均数据
+// EWMAData 指数加权移动平均数据.
 type EWMAData struct {
 	Value float64
 	Alpha float64 // 平滑因子
@@ -300,24 +300,24 @@ type EWMAData struct {
 
 // ==================== 请求/响应通用 ====================
 
-// APIResponse 通用 API 响应
+// APIResponse 通用 API 响应.
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message,omitempty"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// HistoryQuery 历史查询参数
+// HistoryQuery 历史查询参数.
 type HistoryQuery struct {
 	Minutes int `form:"minutes"`
 }
 
-// LimitQuery 分页查询
+// LimitQuery 分页查询.
 type LimitQuery struct {
 	Limit int `form:"limit"`
 }
 
-// PredictQuery 预测查询参数
+// PredictQuery 预测查询参数.
 type PredictQuery struct {
 	Minutes int `form:"minutes"` // 预测未来几分钟
 }

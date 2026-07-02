@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Manager AI存储优化管理器
+// Manager AI存储优化管理器.
 type Manager struct {
 	policy    TieringPolicy
 	optimizer *Optimizer
@@ -37,14 +37,14 @@ type Manager struct {
 	onMigrate func(decision OptimizationDecision) error
 }
 
-// ManagerConfig 管理器配置
+// ManagerConfig 管理器配置.
 type ManagerConfig struct {
 	Policy      TieringPolicy `json:"policy"`
 	Tiers       []TierConfig  `json:"tiers"`
 	HistorySize int           `json:"historySize"` // 预测器历史大小
 }
 
-// DefaultManagerConfig 返回默认配置
+// DefaultManagerConfig 返回默认配置.
 func DefaultManagerConfig() ManagerConfig {
 	return ManagerConfig{
 		Policy:      DefaultTieringPolicy(),
@@ -53,7 +53,7 @@ func DefaultManagerConfig() ManagerConfig {
 	}
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(config ManagerConfig) *Manager {
 	m := &Manager{
 		policy:     config.Policy,
@@ -73,12 +73,12 @@ func NewManager(config ManagerConfig) *Manager {
 	return m
 }
 
-// SetMigrateCallback 设置迁移回调
+// SetMigrateCallback 设置迁移回调.
 func (m *Manager) SetMigrateCallback(fn func(decision OptimizationDecision) error) {
 	m.onMigrate = fn
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() {
 	m.mu.Lock()
 	if m.running {
@@ -92,7 +92,7 @@ func (m *Manager) Start() {
 	log.Printf("[AIStorageOptim] manager started, interval=%v", m.policy.AnalysisInterval)
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -104,14 +104,14 @@ func (m *Manager) Stop() {
 	log.Printf("[AIStorageOptim] manager stopped")
 }
 
-// IsRunning 返回是否运行中
+// IsRunning 返回是否运行中.
 func (m *Manager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.running
 }
 
-// RecordAccess 记录文件访问
+// RecordAccess 记录文件访问.
 func (m *Manager) RecordAccess(filePath string, fileSize int64, fileType string, bytesRead, bytesWritten int64) {
 	m.statsMu.Lock()
 	defer m.statsMu.Unlock()
@@ -133,7 +133,7 @@ func (m *Manager) RecordAccess(filePath string, fileSize int64, fileType string,
 	stats.AccessPattern = m.predictor.PredictAccessPattern(stats, time.Now())
 }
 
-// SetFileTier 设置文件当前层级
+// SetFileTier 设置文件当前层级.
 func (m *Manager) SetFileTier(filePath string, tier StorageTier) {
 	m.statsMu.Lock()
 	defer m.statsMu.Unlock()
@@ -143,7 +143,7 @@ func (m *Manager) SetFileTier(filePath string, tier StorageTier) {
 	}
 }
 
-// AnalyzeAndOptimize 分析并生成优化决策
+// AnalyzeAndOptimize 分析并生成优化决策.
 func (m *Manager) AnalyzeAndOptimize(path string, dryRun bool) ([]OptimizationDecision, OptimizationStats) {
 	m.statsMu.RLock()
 	// 复制统计数据
@@ -169,7 +169,7 @@ func (m *Manager) AnalyzeAndOptimize(path string, dryRun bool) ([]OptimizationDe
 	return decisions, stats
 }
 
-// GetOptimizationScores 获取所有文件的优化评分
+// GetOptimizationScores 获取所有文件的优化评分.
 func (m *Manager) GetOptimizationScores() []OptimizationScore {
 	m.statsMu.RLock()
 	defer m.statsMu.RUnlock()
@@ -185,7 +185,7 @@ func (m *Manager) GetOptimizationScores() []OptimizationScore {
 	return scores
 }
 
-// GetStats 获取优化统计
+// GetStats 获取优化统计.
 func (m *Manager) GetStats() OptimizationStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -212,7 +212,7 @@ func (m *Manager) GetStats() OptimizationStats {
 	return stats
 }
 
-// GetFileStats 获取文件统计
+// GetFileStats 获取文件统计.
 func (m *Manager) GetFileStats(filePath string) *FileAccessStats {
 	m.statsMu.RLock()
 	defer m.statsMu.RUnlock()
@@ -225,7 +225,7 @@ func (m *Manager) GetFileStats(filePath string) *FileAccessStats {
 	return nil
 }
 
-// GetAllFileStats 获取所有文件统计
+// GetAllFileStats 获取所有文件统计.
 func (m *Manager) GetAllFileStats() map[string]*FileAccessStats {
 	m.statsMu.RLock()
 	defer m.statsMu.RUnlock()
@@ -238,7 +238,7 @@ func (m *Manager) GetAllFileStats() map[string]*FileAccessStats {
 	return result
 }
 
-// GetMigrationHistory 获取迁移历史
+// GetMigrationHistory 获取迁移历史.
 func (m *Manager) GetMigrationHistory() []MigrationRecord {
 	m.migrationMu.RLock()
 	defer m.migrationMu.RUnlock()
@@ -248,7 +248,7 @@ func (m *Manager) GetMigrationHistory() []MigrationRecord {
 	return result
 }
 
-// UpdatePolicy 更新分层策略
+// UpdatePolicy 更新分层策略.
 func (m *Manager) UpdatePolicy(policy TieringPolicy) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -256,14 +256,14 @@ func (m *Manager) UpdatePolicy(policy TieringPolicy) {
 	m.optimizer = NewOptimizer(policy)
 }
 
-// GetPolicy 获取当前策略
+// GetPolicy 获取当前策略.
 func (m *Manager) GetPolicy() TieringPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.policy
 }
 
-// executeDecisions 执行优化决策
+// executeDecisions 执行优化决策.
 func (m *Manager) executeDecisions(decisions []OptimizationDecision) {
 	for _, decision := range decisions {
 		if decision.Action == "keep" {
@@ -313,7 +313,7 @@ func (m *Manager) executeDecisions(decisions []OptimizationDecision) {
 	}
 }
 
-// calculateTierUsage 计算存储层使用率
+// calculateTierUsage 计算存储层使用率.
 func (m *Manager) calculateTierUsage(tier StorageTier) float64 {
 	var totalSize int64
 	for _, stats := range m.fileStats {
@@ -330,7 +330,7 @@ func (m *Manager) calculateTierUsage(tier StorageTier) float64 {
 	return float64(totalSize) / float64(config.Capacity) * 100
 }
 
-// analysisLoop 分析循环
+// analysisLoop 分析循环.
 func (m *Manager) analysisLoop() {
 	ticker := time.NewTicker(m.policy.AnalysisInterval)
 	defer ticker.Stop()
@@ -345,7 +345,7 @@ func (m *Manager) analysisLoop() {
 	}
 }
 
-// runAnalysis 运行分析
+// runAnalysis 运行分析.
 func (m *Manager) runAnalysis() {
 	decisions, stats := m.AnalyzeAndOptimize("", false)
 

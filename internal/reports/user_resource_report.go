@@ -621,7 +621,7 @@ func (g *UserResourceReportGenerator) generateCharts() []UserResourceChart {
 	return charts
 }
 
-// 排序并限制数量
+// 排序并限制数量.
 func sortAndLimit(items []UserRankingItem, limit int) []UserRankingItem {
 	if len(items) == 0 {
 		return items

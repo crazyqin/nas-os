@@ -6,17 +6,17 @@ import (
 	"strconv"
 )
 
-// Handler WORM 合规引擎 HTTP handler
+// Handler WORM 合规引擎 HTTP handler.
 type Handler struct {
 	engine *Engine
 }
 
-// NewHandler 创建 handler
+// NewHandler 创建 handler.
 func NewHandler(engine *Engine) *Handler {
 	return &Handler{engine: engine}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/wormcomply/policies", h.handlePolicies)
 	mux.HandleFunc("/api/v1/wormcomply/policies/", h.handlePolicyByID)

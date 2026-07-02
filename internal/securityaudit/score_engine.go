@@ -180,9 +180,9 @@ func (e *ScoreEngine) GetScoreTrend(days int) map[string]interface{} {
 	history := e.GetHistory(days)
 	if len(history) < 2 {
 		return map[string]interface{}{
-			"trend":    "stable",
-			"change":   0,
-			"history":  history,
+			"trend":   "stable",
+			"change":  0,
+			"history": history,
 		}
 	}
 

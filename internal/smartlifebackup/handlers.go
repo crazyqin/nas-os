@@ -10,19 +10,19 @@ import (
 	"time"
 )
 
-// Handlers HTTP API 处理器
+// Handlers HTTP API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{
 		manager: manager,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/backup/lifecycle", h.handleLifecycle)
 	mux.HandleFunc("/api/v1/backup/lifecycle/policies", h.handlePolicies)
@@ -34,7 +34,7 @@ func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/backup/lifecycle/health", h.handleHealth)
 }
 
-// handleLifecycle 处理生命周期主端点
+// handleLifecycle 处理生命周期主端点.
 func (h *Handlers) handleLifecycle(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -46,7 +46,7 @@ func (h *Handlers) handleLifecycle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getLifecycleStatus 获取生命周期状态
+// getLifecycleStatus 获取生命周期状态.
 func (h *Handlers) getLifecycleStatus(w http.ResponseWriter, r *http.Request) {
 	policy, err := h.manager.GetActivePolicy()
 	if err != nil {
@@ -64,7 +64,7 @@ func (h *Handlers) getLifecycleStatus(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, response)
 }
 
-// executeLifecycle 执行生命周期管理
+// executeLifecycle 执行生命周期管理.
 func (h *Handlers) executeLifecycle(w http.ResponseWriter, r *http.Request) {
 	var req LifecycleRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -125,7 +125,7 @@ func (h *Handlers) executeLifecycle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handlePolicies 处理策略相关请求
+// handlePolicies 处理策略相关请求.
 func (h *Handlers) handlePolicies(w http.ResponseWriter, r *http.Request) {
 	// 提取策略ID（如果有）
 	path := strings.TrimPrefix(r.URL.Path, "/api/v1/backup/lifecycle/policies")
@@ -191,7 +191,7 @@ func (h *Handlers) handlePolicies(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleBackups 处理备份项相关请求
+// handleBackups 处理备份项相关请求.
 func (h *Handlers) handleBackups(w http.ResponseWriter, r *http.Request) {
 	// 提取备份ID（如果有）
 	path := strings.TrimPrefix(r.URL.Path, "/api/v1/backup/lifecycle/backups")
@@ -239,7 +239,7 @@ func (h *Handlers) handleBackups(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleTasks 处理任务相关请求
+// handleTasks 处理任务相关请求.
 func (h *Handlers) handleTasks(w http.ResponseWriter, r *http.Request) {
 	// 提取任务ID（如果有）
 	path := strings.TrimPrefix(r.URL.Path, "/api/v1/backup/lifecycle/tasks")
@@ -275,7 +275,7 @@ func (h *Handlers) handleTasks(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleStats 处理统计信息请求
+// handleStats 处理统计信息请求.
 func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "方法不允许")
@@ -286,7 +286,7 @@ func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, stats)
 }
 
-// handleCost 处理成本相关请求
+// handleCost 处理成本相关请求.
 func (h *Handlers) handleCost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "方法不允许")
@@ -297,7 +297,7 @@ func (h *Handlers) handleCost(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, report)
 }
 
-// handleSchedule 处理调度配置请求
+// handleSchedule 处理调度配置请求.
 func (h *Handlers) handleSchedule(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -321,7 +321,7 @@ func (h *Handlers) handleSchedule(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleHealth 处理健康检查请求
+// handleHealth 处理健康检查请求.
 func (h *Handlers) handleHealth(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "方法不允许")
@@ -336,7 +336,7 @@ func (h *Handlers) handleHealth(w http.ResponseWriter, r *http.Request) {
 // 辅助函数
 // ============================================================================
 
-// writeJSON 写入JSON响应
+// writeJSON 写入JSON响应.
 func writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
@@ -345,7 +345,7 @@ func writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	}
 }
 
-// writeError 写入错误响应
+// writeError 写入错误响应.
 func writeError(w http.ResponseWriter, status int, message string) {
 	writeJSON(w, status, map[string]interface{}{
 		"error":     true,
@@ -354,7 +354,7 @@ func writeError(w http.ResponseWriter, status int, message string) {
 	})
 }
 
-// writeValidationError 写入验证错误响应
+// writeValidationError 写入验证错误响应.
 func writeValidationError(w http.ResponseWriter, field string) {
 	writeJSON(w, http.StatusBadRequest, map[string]interface{}{
 		"error":   true,

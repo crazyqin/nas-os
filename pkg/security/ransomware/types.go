@@ -8,7 +8,7 @@ import (
 
 // ========== 威胁等级定义 ==========
 
-// ThreatLevel 威胁等级
+// ThreatLevel 威胁等级.
 type ThreatLevel string
 
 const (
@@ -19,7 +19,7 @@ const (
 	ThreatLevelCritical ThreatLevel = "critical"
 )
 
-// ThreatLevelValue 威胁等级数值
+// ThreatLevelValue 威胁等级数值.
 var ThreatLevelValue = map[ThreatLevel]int{
 	ThreatLevelNone:     0,
 	ThreatLevelLow:      25,
@@ -30,7 +30,7 @@ var ThreatLevelValue = map[ThreatLevel]int{
 
 // ========== 检测类型 ==========
 
-// DetectionType 检测类型
+// DetectionType 检测类型.
 type DetectionType string
 
 const (
@@ -45,7 +45,7 @@ const (
 
 // ========== 文件事件 ==========
 
-// FileEvent 文件操作事件
+// FileEvent 文件操作事件.
 type FileEvent struct {
 	ID           string                 `json:"id"`
 	Timestamp    time.Time              `json:"timestamp"`
@@ -65,7 +65,7 @@ type FileEvent struct {
 	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// FileOperation 文件操作类型
+// FileOperation 文件操作类型.
 type FileOperation string
 
 const (
@@ -82,7 +82,7 @@ const (
 
 // ========== 检测结果 ==========
 
-// DetectionResult 检测结果
+// DetectionResult 检测结果.
 type DetectionResult struct {
 	ID              string                 `json:"id"`
 	Timestamp       time.Time              `json:"timestamp"`
@@ -109,7 +109,7 @@ type DetectionResult struct {
 	FactorScores FactorScores `json:"factor_scores"`
 }
 
-// FactorScores 各因子评分贡献
+// FactorScores 各因子评分贡献.
 type FactorScores struct {
 	BehaviorScore  int `json:"behavior_score"`  // 行为因子 0-100
 	EntropyScore   int `json:"entropy_score"`   // 熵值因子 0-100
@@ -120,7 +120,7 @@ type FactorScores struct {
 	UserScore      int `json:"user_score"`      // 用户行为因子 0-100
 }
 
-// ProcessInfo 进程信息
+// ProcessInfo 进程信息.
 type ProcessInfo struct {
 	PID          int      `json:"pid"`
 	Name         string   `json:"name"`
@@ -134,7 +134,7 @@ type ProcessInfo struct {
 
 // ========== 勒索软件签名 ==========
 
-// RansomwareSignature 勒索软件特征签名
+// RansomwareSignature 勒索软件特征签名.
 type RansomwareSignature struct {
 	ID              string      `json:"id"`
 	Name            string      `json:"name"`
@@ -151,7 +151,7 @@ type RansomwareSignature struct {
 	References      []string    `json:"references"`
 }
 
-// IOC 威胁指标
+// IOC 威胁指标.
 type IOC struct {
 	Type  string `json:"type"` // ip, domain, url, hash, email
 	Value string `json:"value"`
@@ -159,7 +159,7 @@ type IOC struct {
 
 // ========== 行为模式 ==========
 
-// BehaviorPattern 行为模式定义
+// BehaviorPattern 行为模式定义.
 type BehaviorPattern struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -171,7 +171,7 @@ type BehaviorPattern struct {
 	Enabled     bool        `json:"enabled"`
 }
 
-// Condition 行为条件
+// Condition 行为条件.
 type Condition struct {
 	Type       string      `json:"type"`
 	Field      string      `json:"field"`
@@ -183,7 +183,7 @@ type Condition struct {
 
 // ========== 告警 ==========
 
-// Alert 勒索软件告警
+// Alert 勒索软件告警.
 type Alert struct {
 	ID              string                 `json:"id"`
 	Timestamp       time.Time              `json:"timestamp"`
@@ -207,7 +207,7 @@ type Alert struct {
 	Details         map[string]interface{} `json:"details,omitempty"`
 }
 
-// AlertStatus 告警状态
+// AlertStatus 告警状态.
 type AlertStatus string
 
 const (
@@ -218,7 +218,7 @@ const (
 	AlertStatusFalsePositive AlertStatus = "false_positive"
 )
 
-// AttackSource 攻击来源
+// AttackSource 攻击来源.
 type AttackSource struct {
 	Process   *ProcessInfo `json:"process,omitempty"`
 	User      string       `json:"user,omitempty"`
@@ -230,7 +230,7 @@ type AttackSource struct {
 
 // ========== 隔离 ==========
 
-// QuarantineEntry 隔离条目
+// QuarantineEntry 隔离条目.
 type QuarantineEntry struct {
 	ID             string                 `json:"id"`
 	OriginalPath   string                 `json:"original_path"`
@@ -252,7 +252,7 @@ type QuarantineEntry struct {
 
 // ========== SMB审计事件 ==========
 
-// SMBAuditEvent SMB审计事件
+// SMBAuditEvent SMB审计事件.
 type SMBAuditEvent struct {
 	EventID       string                 `json:"event_id"`
 	Timestamp     time.Time              `json:"timestamp"`
@@ -277,7 +277,7 @@ type SMBAuditEvent struct {
 
 // ========== 统计 ==========
 
-// Statistics 模块统计
+// Statistics 模块统计.
 type Statistics struct {
 	TotalEvents       int64                   `json:"total_events"`
 	TotalDetections   int64                   `json:"total_detections"`
@@ -294,7 +294,7 @@ type Statistics struct {
 
 // ========== 配置 ==========
 
-// Config 勒索软件防护配置
+// Config 勒索软件防护配置.
 type Config struct {
 	Enabled       bool                `json:"enabled"`
 	Monitor       MonitorConfig       `json:"monitor"`
@@ -307,7 +307,7 @@ type Config struct {
 	SMBAudit      SMBAuditConfig      `json:"smb_audit"`
 }
 
-// MonitorConfig 监控配置
+// MonitorConfig 监控配置.
 type MonitorConfig struct {
 	Enabled         bool          `json:"enabled"`
 	WatchPaths      []string      `json:"watch_paths"`
@@ -318,7 +318,7 @@ type MonitorConfig struct {
 	EventBufferSize int           `json:"event_buffer_size"`
 }
 
-// SignatureConfig 签名库配置
+// SignatureConfig 签名库配置.
 type SignatureConfig struct {
 	Enabled        bool          `json:"enabled"`
 	AutoUpdate     bool          `json:"auto_update"`
@@ -327,7 +327,7 @@ type SignatureConfig struct {
 	LastUpdated    time.Time     `json:"last_updated"`
 }
 
-// HoneypotConfig 诱饵文件配置
+// HoneypotConfig 诱饵文件配置.
 type HoneypotConfig struct {
 	Enabled        bool          `json:"enabled"`
 	DeployPaths    []string      `json:"deploy_paths"`
@@ -345,7 +345,7 @@ type HoneypotConfig struct {
 	ContentPattern string        `json:"content_pattern"` // random, structured, realistic
 }
 
-// ThreatScoringConfig 威胁评分配置（多因子检测）
+// ThreatScoringConfig 威胁评分配置（多因子检测）.
 type ThreatScoringConfig struct {
 	Enabled                bool    `json:"enabled"`
 	BehaviorWeight         float64 `json:"behavior_weight"`          // 行为因子权重
@@ -369,7 +369,7 @@ type ThreatScoringConfig struct {
 	MultipleFactorBoost float64 `json:"multiple_factor_boost"` // 多因子匹配加成
 }
 
-// QuarantineConfig 隔离配置
+// QuarantineConfig 隔离配置.
 type QuarantineConfig struct {
 	Enabled       bool          `json:"enabled"`
 	QuarantineDir string        `json:"quarantine_dir"`
@@ -378,7 +378,7 @@ type QuarantineConfig struct {
 	AutoDelete    bool          `json:"auto_delete"`
 }
 
-// IsolationConfig 自动隔离配置
+// IsolationConfig 自动隔离配置.
 type IsolationConfig struct {
 	Enabled              bool          `json:"enabled"`
 	AutoIsolateThreshold int           `json:"auto_isolate_threshold"` // 自动隔离评分阈值
@@ -392,7 +392,7 @@ type IsolationConfig struct {
 	MaxIsolationDuration time.Duration `json:"max_isolation_duration"` // 最大隔离时长
 }
 
-// AlertConfig 告警配置
+// AlertConfig 告警配置.
 type AlertConfig struct {
 	Enabled        bool           `json:"enabled"`
 	Channels       []AlertChannel `json:"channels"`
@@ -401,14 +401,14 @@ type AlertConfig struct {
 	MaxAlerts      int            `json:"max_alerts"`
 }
 
-// AlertChannel 告警渠道
+// AlertChannel 告警渠道.
 type AlertChannel struct {
 	Type    string                 `json:"type"` // email, webhook, sms, push, discord
 	Enabled bool                   `json:"enabled"`
 	Config  map[string]interface{} `json:"config"`
 }
 
-// SMBAuditConfig SMB审计配置
+// SMBAuditConfig SMB审计配置.
 type SMBAuditConfig struct {
 	Enabled                  bool     `json:"enabled"`
 	AuditLevel               string   `json:"audit_level"` // minimal, standard, detailed, full
@@ -426,7 +426,7 @@ type SMBAuditConfig struct {
 	ExcludeUsers             []string `json:"exclude_users"`
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() Config {
 	return Config{
 		Enabled: true,

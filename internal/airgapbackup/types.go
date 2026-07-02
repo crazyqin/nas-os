@@ -25,7 +25,7 @@ var (
 	ErrConnectionNotActive = errors.New("connection is not active")
 )
 
-// VaultState 保险库状态
+// VaultState 保险库状态.
 type VaultState string
 
 const (
@@ -36,7 +36,7 @@ const (
 	VaultStateError         VaultState = "error"
 )
 
-// WORMPolicy WORM (Write Once Read Many) 策略
+// WORMPolicy WORM (Write Once Read Many) 策略.
 type WORMPolicy string
 
 const (
@@ -45,7 +45,7 @@ const (
 	WORMGovernance WORMPolicy = "governance" // 管理模式，管理员可删
 )
 
-// BackupStatus 备份状态
+// BackupStatus 备份状态.
 type BackupStatus string
 
 const (
@@ -56,7 +56,7 @@ const (
 	BackupStatusVerified  BackupStatus = "verified"
 )
 
-// Vault 气隙备份保险库
+// Vault 气隙备份保险库.
 type Vault struct {
 	ID              string        `json:"id"`
 	Name            string        `json:"name"`
@@ -74,7 +74,7 @@ type Vault struct {
 	UpdatedAt       time.Time     `json:"updated_at"`
 }
 
-// Backup 备份记录
+// Backup 备份记录.
 type Backup struct {
 	ID          string       `json:"id"`
 	VaultID     string       `json:"vault_id"`
@@ -91,7 +91,7 @@ type Backup struct {
 	CompletedAt *time.Time   `json:"completed_at,omitempty"`
 }
 
-// RestoreJob 恢复任务
+// RestoreJob 恢复任务.
 type RestoreJob struct {
 	ID         string    `json:"id"`
 	BackupID   string    `json:"backup_id"`
@@ -102,7 +102,7 @@ type RestoreJob struct {
 	CreatedAt  time.Time `json:"created_at"`
 }
 
-// Manager 气隙备份管理器
+// Manager 气隙备份管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	vaults   map[string]*Vault
@@ -113,7 +113,7 @@ type Manager struct {
 	stopCh   chan struct{}
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	return &Manager{
 		vaults:   make(map[string]*Vault),
@@ -124,7 +124,7 @@ func NewManager() *Manager {
 	}
 }
 
-// CreateVault 创建保险库
+// CreateVault 创建保险库.
 func (m *Manager) CreateVault(name, devicePath string, wormPolicy WORMPolicy, autoDisconnect bool) (*Vault, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -146,7 +146,7 @@ func (m *Manager) CreateVault(name, devicePath string, wormPolicy WORMPolicy, au
 	return vault, nil
 }
 
-// GetVault 获取保险库
+// GetVault 获取保险库.
 func (m *Manager) GetVault(id string) (*Vault, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -157,7 +157,7 @@ func (m *Manager) GetVault(id string) (*Vault, error) {
 	return v, nil
 }
 
-// Disconnect 断开保险库（进入气隙状态）
+// Disconnect 断开保险库（进入气隙状态）.
 func (m *Manager) Disconnect(vaultID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -173,7 +173,7 @@ func (m *Manager) Disconnect(vaultID string) error {
 	return nil
 }
 
-// Connect 连接保险库
+// Connect 连接保险库.
 func (m *Manager) Connect(vaultID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -189,7 +189,7 @@ func (m *Manager) Connect(vaultID string) error {
 	return nil
 }
 
-// CreateBackup 创建备份
+// CreateBackup 创建备份.
 func (m *Manager) CreateBackup(vaultID, name string, size uint64, fileCount int64, data []byte) (*Backup, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -229,7 +229,7 @@ func (m *Manager) CreateBackup(vaultID, name string, size uint64, fileCount int6
 	return backup, nil
 }
 
-// VerifyBackup 验证备份完整性
+// VerifyBackup 验证备份完整性.
 func (m *Manager) VerifyBackup(backupID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -247,7 +247,7 @@ func (m *Manager) VerifyBackup(backupID string) error {
 	return nil
 }
 
-// DeleteBackup 删除备份（WORM检查）
+// DeleteBackup 删除备份（WORM检查）.
 func (m *Manager) DeleteBackup(backupID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -265,7 +265,7 @@ func (m *Manager) DeleteBackup(backupID string) error {
 	return nil
 }
 
-// ListBackups 列出保险库的备份
+// ListBackups 列出保险库的备份.
 func (m *Manager) ListBackups(vaultID string) []*Backup {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -278,7 +278,7 @@ func (m *Manager) ListBackups(vaultID string) []*Backup {
 	return result
 }
 
-// GetBackupByID 根据ID获取备份
+// GetBackupByID 根据ID获取备份.
 func (m *Manager) GetBackupByID(id string) (*Backup, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -289,7 +289,7 @@ func (m *Manager) GetBackupByID(id string) (*Backup, error) {
 	return b, nil
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *Manager) Close() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

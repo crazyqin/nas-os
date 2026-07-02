@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// APIHandler HTTP API处理器
+// APIHandler HTTP API处理器.
 type APIHandler struct {
 	engine *FastDedupEngine
 }
 
-// NewAPIHandler 创建API处理器
+// NewAPIHandler 创建API处理器.
 func NewAPIHandler(engine *FastDedupEngine) *APIHandler {
 	return &APIHandler{engine: engine}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *APIHandler) RegisterRoutes(mux *http.ServeMux, prefix string) {
 	mux.HandleFunc(prefix+"/fastdedup/status", h.handleStatus)
 	mux.HandleFunc(prefix+"/fastdedup/stats", h.handleStats)

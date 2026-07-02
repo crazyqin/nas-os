@@ -396,9 +396,9 @@ func TestCheckAccess(t *testing.T) {
 
 	// Create ACL and ACE
 	manager.CreateACL(CreateACLRequest{
-		Path:          "/test",
-		EntryType:     EntryDirectory,
-		Owner:         "admin",
+		Path:           "/test",
+		EntryType:      EntryDirectory,
+		Owner:          "admin",
 		InheritEnabled: true,
 	})
 
@@ -559,25 +559,25 @@ func TestPropagateInheritance(t *testing.T) {
 
 	// Create parent ACL with ACE
 	manager.CreateACL(CreateACLRequest{
-		Path:          "/parent",
-		EntryType:     EntryDirectory,
-		Owner:         "admin",
+		Path:           "/parent",
+		EntryType:      EntryDirectory,
+		Owner:          "admin",
 		InheritEnabled: true,
 	})
 
 	manager.AddACE("/parent", AddACERequest{
-		Subject:     "user1",
-		SubjectType: SubjectUser,
-		Permissions: []Permission{PermRead},
-		Allowed:     true,
+		Subject:      "user1",
+		SubjectType:  SubjectUser,
+		Permissions:  []Permission{PermRead},
+		Allowed:      true,
 		InheritFlags: []InheritanceType{InheritFull},
 	})
 
 	// Create child ACL (should inherit)
 	manager.CreateACL(CreateACLRequest{
-		Path:          "/parent/child",
-		EntryType:     EntryDirectory,
-		Owner:         "admin",
+		Path:           "/parent/child",
+		EntryType:      EntryDirectory,
+		Owner:          "admin",
 		InheritEnabled: true,
 	})
 

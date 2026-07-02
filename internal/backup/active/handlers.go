@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handler Active Backup API 处理器
+// Handler Active Backup API 处理器.
 type Handler struct {
 	engine    *Engine
 	manager   *BackupManager
@@ -18,7 +18,7 @@ type Handler struct {
 	logger    *zap.Logger
 }
 
-// NewHandler 创建 Active Backup API 处理器
+// NewHandler 创建 Active Backup API 处理器.
 func NewHandler(engine *Engine, manager *BackupManager, restore *RestoreManager, dashboard *DashboardHandler, logger *zap.Logger) *Handler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -32,7 +32,7 @@ func NewHandler(engine *Engine, manager *BackupManager, restore *RestoreManager,
 	}
 }
 
-// RegisterRoutes 注册 Active Backup API 路由
+// RegisterRoutes 注册 Active Backup API 路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	active := rg.Group("/backup/active")
 	{

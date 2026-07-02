@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// GenerateText 生成文本
+// GenerateText 生成文本.
 func (m *Manager) GenerateText(req *WriteRequest) (*WriteResult, error) {
 	if req.Content == "" {
 		return nil, ErrInvalidInput
@@ -57,7 +57,7 @@ func (m *Manager) GenerateText(req *WriteRequest) (*WriteResult, error) {
 	return writeResult, nil
 }
 
-// FillTemplate 填充模板
+// FillTemplate 填充模板.
 func (m *Manager) FillTemplate(req *TemplateRequest) (*WriteResult, error) {
 	tmpl := m.getTemplate(req.TemplateID)
 	if tmpl == nil {
@@ -172,12 +172,12 @@ func (m *Manager) getTemplate(id string) *Template {
 	return nil
 }
 
-// ListTemplates 列出模板
+// ListTemplates 列出模板.
 func (m *Manager) ListTemplates() []*Template {
 	return m.templates
 }
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func (m *Manager) GetTemplate(id string) (*Template, error) {
 	tmpl := m.getTemplate(id)
 	if tmpl == nil {
@@ -186,14 +186,14 @@ func (m *Manager) GetTemplate(id string) (*Template, error) {
 	return tmpl, nil
 }
 
-// GetHistory 获取历史记录
+// GetHistory 获取历史记录.
 func (m *Manager) GetHistory() []*WriteResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.history
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

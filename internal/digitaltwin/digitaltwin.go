@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// TwinState 孪生状态
+// TwinState 孪生状态.
 type TwinState string
 
 const (
@@ -18,7 +18,7 @@ const (
 	StateOptimizing TwinState = "optimizing"
 )
 
-// ComponentType 组件类型
+// ComponentType 组件类型.
 type ComponentType string
 
 const (
@@ -28,7 +28,7 @@ const (
 	ComponentNetwork ComponentType = "network"
 )
 
-// SimulationScenario 模拟场景
+// SimulationScenario 模拟场景.
 type SimulationScenario struct {
 	ID          string                 `json:"id"`
 	Name        string                 `json:"name"`
@@ -38,7 +38,7 @@ type SimulationScenario struct {
 	CreatedAt   time.Time              `json:"created_at"`
 }
 
-// SimulationResult 模拟结果
+// SimulationResult 模拟结果.
 type SimulationResult struct {
 	ScenarioID      string             `json:"scenario_id"`
 	StartTime       time.Time          `json:"start_time"`
@@ -49,7 +49,7 @@ type SimulationResult struct {
 	Success         bool               `json:"success"`
 }
 
-// Component 系统组件
+// Component 系统组件.
 type Component struct {
 	ID        string            `json:"id"`
 	Type      ComponentType     `json:"type"`
@@ -60,7 +60,7 @@ type Component struct {
 	UpdatedAt time.Time         `json:"updated_at"`
 }
 
-// Prediction 预测
+// Prediction 预测.
 type Prediction struct {
 	ID          string        `json:"id"`
 	ComponentID string        `json:"component_id"`
@@ -71,7 +71,7 @@ type Prediction struct {
 	CreatedAt   time.Time     `json:"created_at"`
 }
 
-// DigitalTwin 数字孪生
+// DigitalTwin 数字孪生.
 type DigitalTwin struct {
 	mu          sync.RWMutex
 	state       TwinState
@@ -82,10 +82,10 @@ type DigitalTwin struct {
 	lastSync    time.Time
 }
 
-// Config 配置
+// Config 配置.
 type Config struct{}
 
-// New 创建数字孪生
+// New 创建数字孪生.
 func New(cfg Config) *DigitalTwin {
 	return &DigitalTwin{
 		state:       StateIdle,
@@ -96,7 +96,7 @@ func New(cfg Config) *DigitalTwin {
 	}
 }
 
-// RegisterComponent 注册组件
+// RegisterComponent 注册组件.
 func (dt *DigitalTwin) RegisterComponent(comp *Component) error {
 	dt.mu.Lock()
 	defer dt.mu.Unlock()
@@ -110,7 +110,7 @@ func (dt *DigitalTwin) RegisterComponent(comp *Component) error {
 	return nil
 }
 
-// UpdateComponentUsage 更新组件使用率
+// UpdateComponentUsage 更新组件使用率.
 func (dt *DigitalTwin) UpdateComponentUsage(id string, usage float64) error {
 	dt.mu.Lock()
 	defer dt.mu.Unlock()
@@ -125,7 +125,7 @@ func (dt *DigitalTwin) UpdateComponentUsage(id string, usage float64) error {
 	return nil
 }
 
-// CreateScenario 创建模拟场景
+// CreateScenario 创建模拟场景.
 func (dt *DigitalTwin) CreateScenario(scenario *SimulationScenario) error {
 	dt.mu.Lock()
 	defer dt.mu.Unlock()
@@ -139,7 +139,7 @@ func (dt *DigitalTwin) CreateScenario(scenario *SimulationScenario) error {
 	return nil
 }
 
-// RunSimulation 运行模拟
+// RunSimulation 运行模拟.
 func (dt *DigitalTwin) RunSimulation(scenarioID string) (*SimulationResult, error) {
 	dt.mu.Lock()
 	scenario, exists := dt.scenarios[scenarioID]
@@ -174,7 +174,7 @@ func (dt *DigitalTwin) RunSimulation(scenarioID string) (*SimulationResult, erro
 	return result, nil
 }
 
-// PredictMetric 预测指标
+// PredictMetric 预测指标.
 func (dt *DigitalTwin) PredictMetric(componentID, metric string, horizon time.Duration) (*Prediction, error) {
 	dt.mu.RLock()
 	comp, exists := dt.components[componentID]
@@ -205,7 +205,7 @@ func (dt *DigitalTwin) PredictMetric(componentID, metric string, horizon time.Du
 	return prediction, nil
 }
 
-// GetBottlenecks 获取瓶颈
+// GetBottlenecks 获取瓶颈.
 func (dt *DigitalTwin) GetBottlenecks() []string {
 	dt.mu.RLock()
 	defer dt.mu.RUnlock()
@@ -221,14 +221,14 @@ func (dt *DigitalTwin) GetBottlenecks() []string {
 	return bottlenecks
 }
 
-// GetState 获取孪生状态
+// GetState 获取孪生状态.
 func (dt *DigitalTwin) GetState() TwinState {
 	dt.mu.RLock()
 	defer dt.mu.RUnlock()
 	return dt.state
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (dt *DigitalTwin) GetStats() map[string]interface{} {
 	dt.mu.RLock()
 	defer dt.mu.RUnlock()
@@ -243,7 +243,7 @@ func (dt *DigitalTwin) GetStats() map[string]interface{} {
 	}
 }
 
-// Sync 同步真实系统状态
+// Sync 同步真实系统状态.
 func (dt *DigitalTwin) Sync() {
 	dt.mu.Lock()
 	defer dt.mu.Unlock()

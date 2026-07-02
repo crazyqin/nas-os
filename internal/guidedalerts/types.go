@@ -4,7 +4,7 @@ package guidedalerts
 
 import "time"
 
-// AlertSeverity 告警严重级别
+// AlertSeverity 告警严重级别.
 type AlertSeverity int
 
 const (
@@ -26,7 +26,7 @@ func (s AlertSeverity) String() string {
 	}
 }
 
-// ParseSeverity 解析严重级别字符串
+// ParseSeverity 解析严重级别字符串.
 func ParseSeverity(s string) AlertSeverity {
 	switch s {
 	case "info":
@@ -40,7 +40,7 @@ func ParseSeverity(s string) AlertSeverity {
 	}
 }
 
-// AlertCategory 告警分类
+// AlertCategory 告警分类.
 type AlertCategory string
 
 const (
@@ -54,7 +54,7 @@ const (
 	CategorySystem   AlertCategory = "system"
 )
 
-// AlertStatus 告警状态
+// AlertStatus 告警状态.
 type AlertStatus string
 
 const (
@@ -65,7 +65,7 @@ const (
 	StatusEscalated    AlertStatus = "escalated"
 )
 
-// Alert 告警实例
+// Alert 告警实例.
 type Alert struct {
 	ID           string            `json:"id"`
 	RuleID       string            `json:"ruleId"`
@@ -88,7 +88,7 @@ type Alert struct {
 	ResolvedAt   *time.Time        `json:"resolvedAt,omitempty"`
 }
 
-// Guidance 引导式修复指引
+// Guidance 引导式修复指引.
 type Guidance struct {
 	Steps        []RepairStep `json:"steps"`
 	DocURL       string       `json:"docUrl,omitempty"`
@@ -97,7 +97,7 @@ type Guidance struct {
 	EstimatedMin int          `json:"estimatedMin"`
 }
 
-// RepairStep 修复步骤
+// RepairStep 修复步骤.
 type RepairStep struct {
 	Order       int    `json:"order"`
 	Title       string `json:"title"`
@@ -106,7 +106,7 @@ type RepairStep struct {
 	NeedsRoot   bool   `json:"needsRoot,omitempty"`
 }
 
-// MenuHint 菜单提示
+// MenuHint 菜单提示.
 type MenuHint struct {
 	MenuItem   string `json:"menuItem"`
 	MenuPath   string `json:"menuPath"`
@@ -114,7 +114,7 @@ type MenuHint struct {
 	BadgeCount int    `json:"badgeCount"`
 }
 
-// AutoFix 自动修复
+// AutoFix 自动修复.
 type AutoFix struct {
 	Available bool     `json:"available"`
 	Commands  []string `json:"commands,omitempty"`
@@ -123,7 +123,7 @@ type AutoFix struct {
 	AutoApply bool     `json:"autoApply"` // 是否自动应用
 }
 
-// Escalation 升级策略
+// Escalation 升级策略.
 type Escalation struct {
 	Enabled        bool          `json:"enabled"`
 	Timeout        time.Duration `json:"timeout"`        // 未处理多久后升级
@@ -133,7 +133,7 @@ type Escalation struct {
 	EscalatedTo    []string      `json:"escalatedTo"`    // 已通知的升级目标
 }
 
-// SilenceRule 静默规则
+// SilenceRule 静默规则.
 type SilenceRule struct {
 	ID        string         `json:"id"`
 	Name      string         `json:"name"`
@@ -145,7 +145,7 @@ type SilenceRule struct {
 	Enabled   bool           `json:"enabled"`
 }
 
-// LabelMatcher 标签匹配器
+// LabelMatcher 标签匹配器.
 type LabelMatcher struct {
 	Name    string `json:"name"`
 	Value   string `json:"value"`
@@ -153,7 +153,7 @@ type LabelMatcher struct {
 	IsEqual bool   `json:"isEqual"` // true=正匹配, false=取反
 }
 
-// InhibitionRule 抑制规则
+// InhibitionRule 抑制规则.
 type InhibitionRule struct {
 	ID             string         `json:"id"`
 	Name           string         `json:"name"`
@@ -163,7 +163,7 @@ type InhibitionRule struct {
 	Enabled        bool           `json:"enabled"`
 }
 
-// AlertHistory 告警历史记录
+// AlertHistory 告警历史记录.
 type AlertHistory struct {
 	AlertID   string    `json:"alertId"`
 	Action    string    `json:"action"` // created, acknowledged, silenced, resolved, escalated
@@ -172,7 +172,7 @@ type AlertHistory struct {
 	Details   string    `json:"details,omitempty"`
 }
 
-// AlertStats 告警统计
+// AlertStats 告警统计.
 type AlertStats struct {
 	Total         int            `json:"total"`
 	BySeverity    map[string]int `json:"bySeverity"`
@@ -184,7 +184,7 @@ type AlertStats struct {
 	AvgResolveMin float64        `json:"avgResolveMin"` // 平均解决时间（分钟）
 }
 
-// RouteChannel 路由通道
+// RouteChannel 路由通道.
 type RouteChannel struct {
 	ID      string        `json:"id"`
 	Name    string        `json:"name"`
@@ -193,7 +193,7 @@ type RouteChannel struct {
 	Enabled bool          `json:"enabled"`
 }
 
-// ChannelConfig 通道配置
+// ChannelConfig 通道配置.
 type ChannelConfig struct {
 	Endpoint string            `json:"endpoint,omitempty"`
 	Headers  map[string]string `json:"headers,omitempty"`
@@ -201,7 +201,7 @@ type ChannelConfig struct {
 	Timeout  time.Duration     `json:"timeout,omitempty"`
 }
 
-// RouteRule 路由规则
+// RouteRule 路由规则.
 type RouteRule struct {
 	ID       string         `json:"id"`
 	Name     string         `json:"name"`

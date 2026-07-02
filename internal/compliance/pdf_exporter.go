@@ -32,11 +32,11 @@ func (e *PDFExporter) ExportToText(report *ComplianceReport) string {
 	b.WriteString("══════════════════════════════════════════════════\n\n")
 
 	// 基本信息
-	b.WriteString(fmt.Sprintf("报告 ID:     %s\n", report.ID))
-	b.WriteString(fmt.Sprintf("合规标准:    %s\n", stdName))
-	b.WriteString(fmt.Sprintf("生成时间:    %s\n", report.CreatedAt.Format("2006-01-02 15:04:05")))
+	fmt.Fprintf(&b, "报告 ID:     %s\n", report.ID)
+	fmt.Fprintf(&b, "合规标准:    %s\n", stdName)
+	fmt.Fprintf(&b, "生成时间:    %s\n", report.CreatedAt.Format("2006-01-02 15:04:05"))
 	if report.CompletedAt != nil {
-		b.WriteString(fmt.Sprintf("完成时间:    %s\n", report.CompletedAt.Format("2006-01-02 15:04:05")))
+		fmt.Fprintf(&b, "完成时间:    %s\n", report.CompletedAt.Format("2006-01-02 15:04:05"))
 	}
 	b.WriteString("\n")
 
@@ -44,13 +44,13 @@ func (e *PDFExporter) ExportToText(report *ComplianceReport) string {
 	b.WriteString("──────────────────────────────────────────────────\n")
 	b.WriteString("  合规评分\n")
 	b.WriteString("──────────────────────────────────────────────────\n")
-	b.WriteString(fmt.Sprintf("  得分:       %d / 100\n", report.Score))
-	b.WriteString(fmt.Sprintf("  状态:       %s\n", e.formatStatus(report.ComplianceStatus)))
-	b.WriteString(fmt.Sprintf("  总检查项:   %d\n", report.TotalChecks))
-	b.WriteString(fmt.Sprintf("  通过:       %d\n", report.Passed))
-	b.WriteString(fmt.Sprintf("  失败:       %d\n", report.Failed))
-	b.WriteString(fmt.Sprintf("  警告:       %d\n", report.Warnings))
-	b.WriteString(fmt.Sprintf("  跳过:       %d\n", report.Skipped))
+	fmt.Fprintf(&b, "  得分:       %d / 100\n", report.Score)
+	fmt.Fprintf(&b, "  状态:       %s\n", e.formatStatus(report.ComplianceStatus))
+	fmt.Fprintf(&b, "  总检查项:   %d\n", report.TotalChecks)
+	fmt.Fprintf(&b, "  通过:       %d\n", report.Passed)
+	fmt.Fprintf(&b, "  失败:       %d\n", report.Failed)
+	fmt.Fprintf(&b, "  警告:       %d\n", report.Warnings)
+	fmt.Fprintf(&b, "  跳过:       %d\n", report.Skipped)
 	b.WriteString("\n")
 
 	// 扫描结果
@@ -59,15 +59,16 @@ func (e *PDFExporter) ExportToText(report *ComplianceReport) string {
 	b.WriteString("──────────────────────────────────────────────────\n")
 	for _, r := range report.Results {
 		statusIcon := "✓"
-		if r.Status == CheckItemFail {
+		switch r.Status {
+		case CheckItemFail:
 			statusIcon = "✗"
-		} else if r.Status == CheckItemWarning {
+		case CheckItemWarning:
 			statusIcon = "⚠"
 		}
-		b.WriteString(fmt.Sprintf("  %s [%s] %s\n", statusIcon, r.Category, r.Name))
-		b.WriteString(fmt.Sprintf("    %s\n", r.Message))
+		fmt.Fprintf(&b, "  %s [%s] %s\n", statusIcon, r.Category, r.Name)
+		fmt.Fprintf(&b, "    %s\n", r.Message)
 		if r.Details != "" {
-			b.WriteString(fmt.Sprintf("    详情: %s\n", r.Details))
+			fmt.Fprintf(&b, "    详情: %s\n", r.Details)
 		}
 		b.WriteString("\n")
 	}
@@ -78,11 +79,11 @@ func (e *PDFExporter) ExportToText(report *ComplianceReport) string {
 		b.WriteString("  整改建议\n")
 		b.WriteString("──────────────────────────────────────────────────\n")
 		for i, rem := range report.Remediations {
-			b.WriteString(fmt.Sprintf("\n  %d. [%s] %s\n", i+1, rem.Priority, rem.Title))
-			b.WriteString(fmt.Sprintf("     %s\n", rem.Description))
+			fmt.Fprintf(&b, "\n  %d. [%s] %s\n", i+1, rem.Priority, rem.Title)
+			fmt.Fprintf(&b, "     %s\n", rem.Description)
 			b.WriteString("     处置步骤:\n")
 			for _, step := range rem.Steps {
-				b.WriteString(fmt.Sprintf("       %s\n", step))
+				fmt.Fprintf(&b, "       %s\n", step)
 			}
 		}
 		b.WriteString("\n")
@@ -92,9 +93,9 @@ func (e *PDFExporter) ExportToText(report *ComplianceReport) string {
 	b.WriteString("──────────────────────────────────────────────────\n")
 	b.WriteString("  摘要\n")
 	b.WriteString("──────────────────────────────────────────────────\n")
-	b.WriteString(fmt.Sprintf("  %s\n", report.Summary))
+	fmt.Fprintf(&b, "  %s\n", report.Summary)
 	b.WriteString("\n══════════════════════════════════════════════════\n")
-	b.WriteString(fmt.Sprintf("  报告由 NAS-OS 合规引擎自动生成 | %s\n", time.Now().Format("2006-01-02 15:04:05")))
+	fmt.Fprintf(&b, "  报告由 NAS-OS 合规引擎自动生成 | %s\n", time.Now().Format("2006-01-02 15:04:05"))
 	b.WriteString("══════════════════════════════════════════════════\n")
 
 	return b.String()
@@ -149,31 +150,32 @@ func (e *PDFExporter) ExportToHTML(report *ComplianceReport) string {
 	// 元信息
 	b.WriteString(`<div class="meta"><table>
 `)
-	b.WriteString(fmt.Sprintf("<tr><td>报告 ID</td><td>%s</td></tr>\n", report.ID))
-	b.WriteString(fmt.Sprintf("<tr><td>合规标准</td><td>%s</td></tr>\n", stdName))
-	b.WriteString(fmt.Sprintf("<tr><td>生成时间</td><td>%s</td></tr>\n", report.CreatedAt.Format("2006-01-02 15:04:05")))
+	fmt.Fprintf(&b, "<tr><td>报告 ID</td><td>%s</td></tr>\n", report.ID)
+	fmt.Fprintf(&b, "<tr><td>合规标准</td><td>%s</td></tr>\n", stdName)
+	fmt.Fprintf(&b, "<tr><td>生成时间</td><td>%s</td></tr>\n", report.CreatedAt.Format("2006-01-02 15:04:05"))
 	b.WriteString("</table></div>\n")
 
 	// 评分
 	scoreClass := "score-compliant"
-	if report.ComplianceStatus == StatusNonCompliant {
+	switch report.ComplianceStatus {
+	case StatusNonCompliant:
 		scoreClass = "score-noncompliant"
-	} else if report.ComplianceStatus == StatusPendingReview {
+	case StatusPendingReview:
 		scoreClass = "score-pending"
 	}
-	b.WriteString(fmt.Sprintf(`<div class="score-box %s">
+	fmt.Fprintf(&b, `<div class="score-box %s">
   <div class="score-value">%d</div>
   <div>合规得分 (满分 100) | 状态: %s</div>
 </div>
-`, scoreClass, report.Score, e.formatStatus(report.ComplianceStatus)))
+`, scoreClass, report.Score, e.formatStatus(report.ComplianceStatus))
 
 	// 统计
 	b.WriteString(`<div class="stats">
 `)
-	b.WriteString(fmt.Sprintf(`<div class="stat-item"><div class="stat-value">%d</div><div class="stat-label">总检查项</div></div>`, report.TotalChecks))
-	b.WriteString(fmt.Sprintf(`<div class="stat-item"><div class="stat-value" style="color:#4caf50">%d</div><div class="stat-label">通过</div></div>`, report.Passed))
-	b.WriteString(fmt.Sprintf(`<div class="stat-item"><div class="stat-value" style="color:#f44336">%d</div><div class="stat-label">失败</div></div>`, report.Failed))
-	b.WriteString(fmt.Sprintf(`<div class="stat-item"><div class="stat-value" style="color:#ff9800">%d</div><div class="stat-label">警告</div></div>`, report.Warnings))
+	fmt.Fprintf(&b, `<div class="stat-item"><div class="stat-value">%d</div><div class="stat-label">总检查项</div></div>`, report.TotalChecks)
+	fmt.Fprintf(&b, `<div class="stat-item"><div class="stat-value" style="color:#4caf50">%d</div><div class="stat-label">通过</div></div>`, report.Passed)
+	fmt.Fprintf(&b, `<div class="stat-item"><div class="stat-value" style="color:#f44336">%d</div><div class="stat-label">失败</div></div>`, report.Failed)
+	fmt.Fprintf(&b, `<div class="stat-item"><div class="stat-value" style="color:#ff9800">%d</div><div class="stat-label">警告</div></div>`, report.Warnings)
 	b.WriteString("</div>\n")
 
 	// 详细结果表格
@@ -184,15 +186,16 @@ func (e *PDFExporter) ExportToHTML(report *ComplianceReport) string {
 	for _, r := range report.Results {
 		statusClass := "status-pass"
 		statusText := "通过"
-		if r.Status == CheckItemFail {
+		switch r.Status {
+		case CheckItemFail:
 			statusClass = "status-fail"
 			statusText = "失败"
-		} else if r.Status == CheckItemWarning {
+		case CheckItemWarning:
 			statusClass = "status-warning"
 			statusText = "警告"
 		}
-		b.WriteString(fmt.Sprintf("<tr><td class=\"%s\">%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n",
-			statusClass, statusText, FormatCategoryName(r.Category), r.Name, r.Severity, r.Message))
+		fmt.Fprintf(&b, "<tr><td class=\"%s\">%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n",
+			statusClass, statusText, FormatCategoryName(r.Category), r.Name, r.Severity, r.Message)
 	}
 	b.WriteString("</table>\n")
 
@@ -200,24 +203,24 @@ func (e *PDFExporter) ExportToHTML(report *ComplianceReport) string {
 	if len(report.Remediations) > 0 {
 		b.WriteString("<h2>整改建议</h2>\n")
 		for _, rem := range report.Remediations {
-			b.WriteString(fmt.Sprintf(`<div class="remediation">
+			fmt.Fprintf(&b, `<div class="remediation">
 <h4>[%s] %s</h4>
 <p>%s</p>
 <ol>
-`, rem.Priority, rem.Title, rem.Description))
+`, rem.Priority, rem.Title, rem.Description)
 			for _, step := range rem.Steps {
-				b.WriteString(fmt.Sprintf("<li>%s</li>\n", step))
+				fmt.Fprintf(&b, "<li>%s</li>\n", step)
 			}
 			b.WriteString("</ol></div>\n")
 		}
 	}
 
 	// 页脚
-	b.WriteString(fmt.Sprintf(`<div class="footer">
+	fmt.Fprintf(&b, `<div class="footer">
 <p>报告由 NAS-OS 合规引擎自动生成 | %s</p>
 </div>
 </body>
-</html>`, time.Now().Format("2006-01-02 15:04:05")))
+</html>`, time.Now().Format("2006-01-02 15:04:05"))
 
 	return b.String()
 }

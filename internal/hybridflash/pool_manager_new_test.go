@@ -101,11 +101,11 @@ func TestRecommendTierHybrid(t *testing.T) {
 	mgr := NewHybridFlashPoolManager()
 
 	tests := []struct {
-		name      string
-		sizeKB    int64
-		freq      float64
-		metadata  bool
-		expected  TierType
+		name     string
+		sizeKB   int64
+		freq     float64
+		metadata bool
+		expected TierType
 	}{
 		{"metadata", 100, 0, true, TierNVMe},
 		{"small file", 100, 0.5, false, TierSSD},
@@ -129,12 +129,12 @@ func TestUpdateTieringPolicyHybrid(t *testing.T) {
 	mgr.CreatePool(FlashPool{ID: "pool1", Name: "Pool"})
 
 	policy := TieringPolicy{
-		Enabled:         true,
-		HotThreshold:    10.0,
-		ColdThreshold:   1.0,
-		MetadataOnFlash: true,
+		Enabled:          true,
+		HotThreshold:     10.0,
+		ColdThreshold:    1.0,
+		MetadataOnFlash:  true,
 		SmallFileOnFlash: true,
-		SmallFileMaxKB:  256,
+		SmallFileMaxKB:   256,
 	}
 
 	err := mgr.UpdateTieringPolicy("pool1", policy)

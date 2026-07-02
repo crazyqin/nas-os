@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// TriggerType 触发器类型
+// TriggerType 触发器类型.
 type TriggerType string
 
 const (
@@ -20,7 +20,7 @@ const (
 	TriggerManual  TriggerType = "manual"  // 手动触发
 )
 
-// NodeType 节点类型
+// NodeType 节点类型.
 type NodeType string
 
 const (
@@ -38,7 +38,7 @@ const (
 	NodeEnd       NodeType = "end"       // 结束节点
 )
 
-// ExecutionStatus 执行状态
+// ExecutionStatus 执行状态.
 type ExecutionStatus string
 
 const (
@@ -50,7 +50,7 @@ const (
 	ExecSkipped   ExecutionStatus = "skipped"
 )
 
-// WorkflowStatus 工作流状态
+// WorkflowStatus 工作流状态.
 type WorkflowStatus string
 
 const (
@@ -59,20 +59,20 @@ const (
 	WfDraft    WorkflowStatus = "draft"
 )
 
-// Trigger 触发器定义
+// Trigger 触发器定义.
 type Trigger struct {
 	Type    TriggerType       `json:"type"`
 	Config  map[string]string `json:"config"`
 	Enabled bool              `json:"enabled"`
 }
 
-// NodePosition 节点位置（用于可视化DAG）
+// NodePosition 节点位置（用于可视化DAG）.
 type NodePosition struct {
 	X float64 `json:"x"`
 	Y float64 `json:"y"`
 }
 
-// Edge DAG边
+// Edge DAG边.
 type Edge struct {
 	From      string `json:"from"`
 	To        string `json:"to"`
@@ -80,7 +80,7 @@ type Edge struct {
 	Condition string `json:"condition,omitempty"` // 条件边，条件节点使用
 }
 
-// Node 工作流节点
+// Node 工作流节点.
 type Node struct {
 	ID         string            `json:"id"`
 	Name       string            `json:"name"`
@@ -92,7 +92,7 @@ type Node struct {
 	RetryDelay int               `json:"retry_delay"` // 重试间隔秒数
 }
 
-// Version 工作流版本
+// Version 工作流版本.
 type Version struct {
 	Version     int       `json:"version"`
 	Description string    `json:"description"`
@@ -103,7 +103,7 @@ type Version struct {
 	CreatedBy   string    `json:"created_by"`
 }
 
-// Workflow 工作流定义
+// Workflow 工作流定义.
 type Workflow struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -119,7 +119,7 @@ type Workflow struct {
 	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
-// NodeExecution 节点执行记录
+// NodeExecution 节点执行记录.
 type NodeExecution struct {
 	NodeID    string          `json:"node_id"`
 	Status    ExecutionStatus `json:"status"`
@@ -132,7 +132,7 @@ type NodeExecution struct {
 	RetryNum  int             `json:"retry_num"`
 }
 
-// Execution 工作流执行记录
+// Execution 工作流执行记录.
 type Execution struct {
 	ID          string          `json:"id"`
 	WorkflowID  string          `json:"workflow_id"`
@@ -148,7 +148,7 @@ type Execution struct {
 	Duration    int64           `json:"duration"` // 毫秒
 }
 
-// Template 工作流模板
+// Template 工作流模板.
 type Template struct {
 	ID          string   `json:"id"`
 	Name        string   `json:"name"`
@@ -161,7 +161,7 @@ type Template struct {
 	Author      string   `json:"author"`
 }
 
-// Stats 工作流统计
+// Stats 工作流统计.
 type Stats struct {
 	TotalWorkflows  int     `json:"total_workflows"`
 	ActiveWorkflows int     `json:"active_workflows"`
@@ -171,7 +171,7 @@ type Stats struct {
 	TotalTemplates  int     `json:"total_templates"`
 }
 
-// Manager 工作流管理器
+// Manager 工作流管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	workflows  map[string]*Workflow
@@ -182,7 +182,7 @@ type Manager struct {
 	dataFile   string
 }
 
-// Config 管理器配置
+// Config 管理器配置.
 type Config struct {
 	MaxWorkflows  int `json:"max_workflows"`
 	MaxExecutions int `json:"max_executions"`

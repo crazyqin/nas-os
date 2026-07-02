@@ -2,7 +2,7 @@ package composevisual
 
 import "time"
 
-// initTemplates 初始化预设模板
+// initTemplates 初始化预设模板.
 func (m *Manager) initTemplates() {
 	now := time.Now()
 
@@ -221,12 +221,12 @@ func (m *Manager) initTemplates() {
 				HealthCheck: &HealthCheck{Test: []string{"CMD", "curl", "-f", "http://localhost:8123/"}, Interval: "30s", Timeout: "10s", Retries: 3, StartPeriod: "60s"},
 			},
 			"mqtt": {
-				Name: "mqtt", Image: "eclipse-mosquitto:2",
+				Name: "mqtt", Image: "eclipse-mosquito:2",
 				Ports: []PortMapping{{HostPort: 1883, ContainerPort: 1883, Protocol: "tcp"}},
 				Volumes: []VolumeMapping{
-					{Type: "volume", Source: "mqtt_config", Target: "/mosquitto/config"},
-					{Type: "volume", Source: "mqtt_data", Target: "/mosquitto/data"},
-					{Type: "volume", Source: "mqtt_log", Target: "/mosquitto/log"},
+					{Type: "volume", Source: "mqtt_config", Target: "/mosquito/config"},
+					{Type: "volume", Source: "mqtt_data", Target: "/mosquito/data"},
+					{Type: "volume", Source: "mqtt_log", Target: "/mosquito/log"},
 				},
 				Restart: "unless-stopped",
 			},

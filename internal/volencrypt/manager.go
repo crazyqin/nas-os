@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-// VolumeStatus 卷状态
+// VolumeStatus 卷状态.
 type VolumeStatus string
 
 const (
@@ -28,7 +28,7 @@ const (
 	StatusLocked      VolumeStatus = "locked"
 )
 
-// KeySource 密钥来源
+// KeySource 密钥来源.
 type KeySource string
 
 const (
@@ -39,7 +39,7 @@ const (
 	KeySourceTang  KeySource = "tang"  // Tang 网络密钥服务器 (Clevis)
 )
 
-// EncryptConfig 加密配置
+// EncryptConfig 加密配置.
 type EncryptConfig struct {
 	Algorithm    string    `json:"algorithm"`     // 加密算法
 	KeySize      int       `json:"key_size"`      // 密钥大小（位）
@@ -50,7 +50,7 @@ type EncryptConfig struct {
 	AuditLog     bool      `json:"audit_log"`     // 审计日志
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() EncryptConfig {
 	return EncryptConfig{
 		Algorithm:    "AES-256-XTS",
@@ -63,7 +63,7 @@ func DefaultConfig() EncryptConfig {
 	}
 }
 
-// Volume 加密卷
+// Volume 加密卷.
 type Volume struct {
 	ID         string       `json:"id"`
 	Name       string       `json:"name"`
@@ -81,7 +81,7 @@ type Volume struct {
 	Progress   float64      `json:"progress"` // 0-100
 }
 
-// EncryptionKey 加密密钥
+// EncryptionKey 加密密钥.
 type EncryptionKey struct {
 	ID        string     `json:"id"`
 	Algorithm string     `json:"algorithm"`
@@ -93,7 +93,7 @@ type EncryptionKey struct {
 	Revoked   bool       `json:"revoked"`
 }
 
-// AuditEntry 审计条目
+// AuditEntry 审计条目.
 type AuditEntry struct {
 	Timestamp time.Time `json:"timestamp"`
 	Action    string    `json:"action"`
@@ -104,7 +104,7 @@ type AuditEntry struct {
 	Message   string    `json:"message"`
 }
 
-// Manager 卷加密管理器
+// Manager 卷加密管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	config   EncryptConfig
@@ -114,7 +114,7 @@ type Manager struct {
 	stopCh   chan struct{}
 }
 
-// NewManager 创建卷加密管理器
+// NewManager 创建卷加密管理器.
 func NewManager(config EncryptConfig) *Manager {
 	return &Manager{
 		config:  config,
@@ -124,19 +124,19 @@ func NewManager(config EncryptConfig) *Manager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start(ctx context.Context) error {
 	// 启动后台任务
 	go m.backgroundTasks(ctx)
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	close(m.stopCh)
 }
 
-// CreateVolume 创建加密卷
+// CreateVolume 创建加密卷.
 func (m *Manager) CreateVolume(name, path string, size int64) (*Volume, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -173,7 +173,7 @@ func (m *Manager) CreateVolume(name, path string, size int64) (*Volume, error) {
 	return volume, nil
 }
 
-// EncryptVolume 加密卷
+// EncryptVolume 加密卷.
 func (m *Manager) EncryptVolume(ctx context.Context, volumeID string) error {
 	m.mu.Lock()
 	volume, exists := m.volumes[volumeID]
@@ -197,7 +197,7 @@ func (m *Manager) EncryptVolume(ctx context.Context, volumeID string) error {
 	return nil
 }
 
-// DecryptVolume 解密卷
+// DecryptVolume 解密卷.
 func (m *Manager) DecryptVolume(ctx context.Context, volumeID string) error {
 	m.mu.Lock()
 	volume, exists := m.volumes[volumeID]
@@ -221,7 +221,7 @@ func (m *Manager) DecryptVolume(ctx context.Context, volumeID string) error {
 	return nil
 }
 
-// LockVolume 锁定卷（卸载并锁定密钥）
+// LockVolume 锁定卷（卸载并锁定密钥）.
 func (m *Manager) LockVolume(volumeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -243,7 +243,7 @@ func (m *Manager) LockVolume(volumeID string) error {
 	return nil
 }
 
-// UnlockVolume 解锁卷
+// UnlockVolume 解锁卷.
 func (m *Manager) UnlockVolume(volumeID, mountPoint string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -275,7 +275,7 @@ func (m *Manager) UnlockVolume(volumeID, mountPoint string) error {
 	return nil
 }
 
-// GetVolume 获取卷信息
+// GetVolume 获取卷信息.
 func (m *Manager) GetVolume(volumeID string) (*Volume, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -288,7 +288,7 @@ func (m *Manager) GetVolume(volumeID string) (*Volume, error) {
 	return volume, nil
 }
 
-// ListVolumes 列出所有卷
+// ListVolumes 列出所有卷.
 func (m *Manager) ListVolumes() []Volume {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -300,7 +300,7 @@ func (m *Manager) ListVolumes() []Volume {
 	return volumes
 }
 
-// RotateKey 轮换密钥
+// RotateKey 轮换密钥.
 func (m *Manager) RotateKey(volumeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -329,7 +329,7 @@ func (m *Manager) RotateKey(volumeID string) error {
 	return nil
 }
 
-// RevokeKey 吊销密钥
+// RevokeKey 吊销密钥.
 func (m *Manager) RevokeKey(keyID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -344,7 +344,7 @@ func (m *Manager) RevokeKey(keyID string) error {
 	return nil
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (m *Manager) GetAuditLog(limit int) []AuditEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -361,7 +361,7 @@ func (m *Manager) GetAuditLog(limit int) []AuditEntry {
 	return m.auditLog[start:]
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -397,7 +397,7 @@ func (m *Manager) GetStats() map[string]interface{} {
 	return stats
 }
 
-// generateKey 生成加密密钥
+// generateKey 生成加密密钥.
 func (m *Manager) generateKey(source KeySource) (*EncryptionKey, error) {
 	keyBytes := make([]byte, m.config.KeySize/8)
 	if _, err := io.ReadFull(rand.Reader, keyBytes); err != nil {
@@ -418,7 +418,7 @@ func (m *Manager) generateKey(source KeySource) (*EncryptionKey, error) {
 	return key, nil
 }
 
-// doEncryption 执行加密
+// doEncryption 执行加密.
 func (m *Manager) doEncryption(ctx context.Context, volume *Volume) {
 	// 模拟加密进度
 	for i := 0; i <= 100; i += 5 {
@@ -445,7 +445,7 @@ func (m *Manager) doEncryption(ctx context.Context, volume *Volume) {
 	m.mu.Unlock()
 }
 
-// doDecryption 执行解密
+// doDecryption 执行解密.
 func (m *Manager) doDecryption(ctx context.Context, volume *Volume) {
 	// 模拟解密进度
 	for i := 0; i <= 100; i += 5 {
@@ -472,7 +472,7 @@ func (m *Manager) doDecryption(ctx context.Context, volume *Volume) {
 	m.mu.Unlock()
 }
 
-// addAudit 添加审计记录
+// addAudit 添加审计记录.
 func (m *Manager) addAudit(action, volumeID, keyID string, success bool, message string) {
 	entry := AuditEntry{
 		Timestamp: time.Now(),
@@ -491,7 +491,7 @@ func (m *Manager) addAudit(action, volumeID, keyID string, success bool, message
 	}
 }
 
-// backgroundTasks 后台任务
+// backgroundTasks 后台任务.
 func (m *Manager) backgroundTasks(ctx context.Context) {
 	ticker := time.NewTicker(1 * time.Hour)
 	defer ticker.Stop()
@@ -508,7 +508,7 @@ func (m *Manager) backgroundTasks(ctx context.Context) {
 	}
 }
 
-// checkKeyExpiry 检查密钥过期
+// checkKeyExpiry 检查密钥过期.
 func (m *Manager) checkKeyExpiry() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -522,14 +522,14 @@ func (m *Manager) checkKeyExpiry() {
 	}
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// EncryptData 使用 AES-256-GCM 加密数据
+// EncryptData 使用 AES-256-GCM 加密数据.
 func EncryptData(key, plaintext []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -549,7 +549,7 @@ func EncryptData(key, plaintext []byte) ([]byte, error) {
 	return gcm.Seal(nonce, nonce, plaintext, nil), nil
 }
 
-// DecryptData 使用 AES-256-GCM 解密数据
+// DecryptData 使用 AES-256-GCM 解密数据.
 func DecryptData(key, ciphertext []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {

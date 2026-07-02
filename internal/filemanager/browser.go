@@ -12,13 +12,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// Browser 文件浏览器
+// Browser 文件浏览器.
 type Browser struct {
 	rootPath string
 	logger   *zap.Logger
 }
 
-// NewBrowser 创建文件浏览器
+// NewBrowser 创建文件浏览器.
 func NewBrowser(rootPath string, logger *zap.Logger) *Browser {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -29,7 +29,7 @@ func NewBrowser(rootPath string, logger *zap.Logger) *Browser {
 	}
 }
 
-// ListDirectory 列出目录内容
+// ListDirectory 列出目录内容.
 func (b *Browser) ListDirectory(path string, showHidden bool) (*DirectoryListing, error) {
 	// 验证并清理路径
 	cleanPath, err := b.validatePath(path)
@@ -104,7 +104,7 @@ func (b *Browser) ListDirectory(path string, showHidden bool) (*DirectoryListing
 	}, nil
 }
 
-// GetTree 获取目录树
+// GetTree 获取目录树.
 func (b *Browser) GetTree(path string, opts TreeOptions) (*FileNode, error) {
 	cleanPath, err := b.validatePath(path)
 	if err != nil {
@@ -127,7 +127,7 @@ func (b *Browser) GetTree(path string, opts TreeOptions) (*FileNode, error) {
 	return node, nil
 }
 
-// buildTree 递归构建目录树
+// buildTree 递归构建目录树.
 func (b *Browser) buildTree(path string, opts TreeOptions, depth int) (*FileNode, error) {
 	if depth > opts.MaxDepth {
 		return nil, nil
@@ -205,7 +205,7 @@ func (b *Browser) buildTree(path string, opts TreeOptions, depth int) (*FileNode
 	return node, nil
 }
 
-// GetFileNode 获取单个文件节点信息
+// GetFileNode 获取单个文件节点信息.
 func (b *Browser) GetFileNode(path string) (*FileNode, error) {
 	cleanPath, err := b.validatePath(path)
 	if err != nil {
@@ -249,7 +249,7 @@ func (b *Browser) GetFileNode(path string) (*FileNode, error) {
 	return node, nil
 }
 
-// GetFileAttributes 获取文件详细属性
+// GetFileAttributes 获取文件详细属性.
 func (b *Browser) GetFileAttributes(path string) (*FileAttributes, error) {
 	cleanPath, err := b.validatePath(path)
 	if err != nil {
@@ -304,7 +304,7 @@ func (b *Browser) GetFileAttributes(path string) (*FileAttributes, error) {
 	return attrs, nil
 }
 
-// validatePath 验证并清理路径
+// validatePath 验证并清理路径.
 func (b *Browser) validatePath(path string) (string, error) {
 	if path == "" {
 		path = b.rootPath
@@ -326,7 +326,7 @@ func (b *Browser) validatePath(path string) (string, error) {
 	return cleanPath, nil
 }
 
-// buildFileNode 构建文件节点
+// buildFileNode 构建文件节点.
 func (b *Browser) buildFileNode(parentPath string, entry os.DirEntry) (*FileNode, error) {
 	fullPath := filepath.Join(parentPath, entry.Name())
 	info, err := entry.Info()
@@ -366,7 +366,7 @@ func (b *Browser) buildFileNode(parentPath string, entry os.DirEntry) (*FileNode
 	return node, nil
 }
 
-// calculateDirSize 计算目录大小
+// calculateDirSize 计算目录大小.
 func (b *Browser) calculateDirSize(path string, maxDepth int) int64 {
 	if maxDepth <= 0 {
 		return 0
@@ -392,7 +392,7 @@ func (b *Browser) calculateDirSize(path string, maxDepth int) int64 {
 	return size
 }
 
-// getDiskUsage 获取磁盘使用情况
+// getDiskUsage 获取磁盘使用情况.
 func (b *Browser) getDiskUsage(path string) (*DiskUsage, error) {
 	var stat syscall.Statfs_t
 	if err := syscall.Statfs(path, &stat); err != nil {
@@ -417,7 +417,7 @@ func (b *Browser) getDiskUsage(path string) (*DiskUsage, error) {
 	}, nil
 }
 
-// getMIMEType 根据扩展名获取MIME类型
+// getMIMEType 根据扩展名获取MIME类型.
 func getMIMEType(path string) string {
 	ext := strings.ToLower(filepath.Ext(path))
 	mimeTypes := map[string]string{
@@ -503,13 +503,13 @@ func getMIMEType(path string) string {
 	return "application/octet-stream"
 }
 
-// getUserName 根据UID获取用户名
+// getUserName 根据UID获取用户名.
 func getUserName(uid uint32) string {
 	// 简化实现，返回UID字符串
 	return fmt.Sprintf("%d", uid)
 }
 
-// getGroupName 根据GID获取组名
+// getGroupName 根据GID获取组名.
 func getGroupName(gid uint32) string {
 	// 简化实现，返回GID字符串
 	return fmt.Sprintf("%d", gid)

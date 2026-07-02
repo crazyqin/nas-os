@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler 资源预测HTTP处理器
+// Handler 资源预测HTTP处理器.
 type Handler struct {
 	predictor *ResourcePredictor
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(predictor *ResourcePredictor) *Handler {
 	return &Handler{predictor: predictor}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	group := rg.Group("/resourcepredict")
 	{
@@ -30,13 +30,13 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// RecordRequest 记录请求
+// RecordRequest 记录请求.
 type RecordRequest struct {
 	ResourceType string  `json:"resourceType" binding:"required"`
 	Value        float64 `json:"value" binding:"required"`
 }
 
-// ThresholdUpdate 阈值更新请求
+// ThresholdUpdate 阈值更新请求.
 type ThresholdUpdate struct {
 	WarningDays  *int     `json:"warningDays"`
 	CriticalDays *int     `json:"criticalDays"`
@@ -44,7 +44,7 @@ type ThresholdUpdate struct {
 	MinR2        *float64 `json:"minR2"`
 }
 
-// GetPredictions 获取预测结果
+// GetPredictions 获取预测结果.
 func (h *Handler) GetPredictions(c *gin.Context) {
 	predictions := h.predictor.GetLatest()
 	if len(predictions) == 0 {
@@ -64,7 +64,7 @@ func (h *Handler) GetPredictions(c *gin.Context) {
 	})
 }
 
-// GetMetrics 获取资源指标
+// GetMetrics 获取资源指标.
 func (h *Handler) GetMetrics(c *gin.Context) {
 	metrics := h.predictor.GetMetrics()
 	result := make(map[string]interface{})
@@ -77,7 +77,7 @@ func (h *Handler) GetMetrics(c *gin.Context) {
 	})
 }
 
-// RecordValue 记录资源值
+// RecordValue 记录资源值.
 func (h *Handler) RecordValue(c *gin.Context) {
 	var req RecordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -92,7 +92,7 @@ func (h *Handler) RecordValue(c *gin.Context) {
 	})
 }
 
-// PredictNow 立即预测
+// PredictNow 立即预测.
 func (h *Handler) PredictNow(c *gin.Context) {
 	report := h.predictor.PredictNow()
 	c.JSON(http.StatusOK, gin.H{
@@ -101,7 +101,7 @@ func (h *Handler) PredictNow(c *gin.Context) {
 	})
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (h *Handler) GetConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":     "ok",
@@ -111,7 +111,7 @@ func (h *Handler) GetConfig(c *gin.Context) {
 	})
 }
 
-// UpdateThresholds 更新阈值
+// UpdateThresholds 更新阈值.
 func (h *Handler) UpdateThresholds(c *gin.Context) {
 	var req ThresholdUpdate
 	if err := c.ShouldBindJSON(&req); err != nil {

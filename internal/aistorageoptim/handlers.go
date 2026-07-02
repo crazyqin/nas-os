@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler AI存储优化HTTP处理器
+// Handler AI存储优化HTTP处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	group := rg.Group("/storage/optimization")
 	{
@@ -36,7 +36,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// RecordAccessRequest 访问记录请求
+// RecordAccessRequest 访问记录请求.
 type RecordAccessRequest struct {
 	FilePath     string `json:"filePath" binding:"required"`
 	FileSize     int64  `json:"fileSize"`
@@ -45,14 +45,14 @@ type RecordAccessRequest struct {
 	BytesWritten int64  `json:"bytesWritten"`
 }
 
-// OptimizationRequest 优化请求
+// OptimizationRequest 优化请求.
 type OptimizationRequest struct {
 	Path   string `json:"path"`
 	Force  bool   `json:"force"`
 	DryRun bool   `json:"dryRun"`
 }
 
-// PolicyUpdateRequest 策略更新请求
+// PolicyUpdateRequest 策略更新请求.
 type PolicyUpdateRequest struct {
 	AccessFrequencyWeight *float64 `json:"accessFrequencyWeight"`
 	FileSizeWeight        *float64 `json:"fileSizeWeight"`
@@ -67,7 +67,7 @@ type PolicyUpdateRequest struct {
 	LargeFileThreshold    *int64   `json:"largeFileThreshold"`
 }
 
-// GetOptimization GET /api/v1/storage/optimization
+// GetOptimization GET /api/v1/storage/optimization.
 func (h *Handler) GetOptimization(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, gin.H{
@@ -80,7 +80,7 @@ func (h *Handler) GetOptimization(c *gin.Context) {
 	})
 }
 
-// PostOptimization POST /api/v1/storage/optimization
+// PostOptimization POST /api/v1/storage/optimization.
 func (h *Handler) PostOptimization(c *gin.Context) {
 	var req OptimizationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -102,7 +102,7 @@ func (h *Handler) PostOptimization(c *gin.Context) {
 	})
 }
 
-// GetStats GET /api/v1/storage/optimization/stats
+// GetStats GET /api/v1/storage/optimization/stats.
 func (h *Handler) GetStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, gin.H{
@@ -111,7 +111,7 @@ func (h *Handler) GetStats(c *gin.Context) {
 	})
 }
 
-// GetScores GET /api/v1/storage/optimization/scores
+// GetScores GET /api/v1/storage/optimization/scores.
 func (h *Handler) GetScores(c *gin.Context) {
 	scores := h.manager.GetOptimizationScores()
 	c.JSON(http.StatusOK, gin.H{
@@ -121,7 +121,7 @@ func (h *Handler) GetScores(c *gin.Context) {
 	})
 }
 
-// GetAllFiles GET /api/v1/storage/optimization/files
+// GetAllFiles GET /api/v1/storage/optimization/files.
 func (h *Handler) GetAllFiles(c *gin.Context) {
 	files := h.manager.GetAllFileStats()
 	c.JSON(http.StatusOK, gin.H{
@@ -131,7 +131,7 @@ func (h *Handler) GetAllFiles(c *gin.Context) {
 	})
 }
 
-// GetFileStats GET /api/v1/storage/optimization/files/:path
+// GetFileStats GET /api/v1/storage/optimization/files/:path.
 func (h *Handler) GetFileStats(c *gin.Context) {
 	filePath := c.Param("path")
 	stats := h.manager.GetFileStats(filePath)
@@ -145,7 +145,7 @@ func (h *Handler) GetFileStats(c *gin.Context) {
 	})
 }
 
-// RecordAccess POST /api/v1/storage/optimization/record
+// RecordAccess POST /api/v1/storage/optimization/record.
 func (h *Handler) RecordAccess(c *gin.Context) {
 	var req RecordAccessRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -161,7 +161,7 @@ func (h *Handler) RecordAccess(c *gin.Context) {
 	})
 }
 
-// GetMigrations GET /api/v1/storage/optimization/migrations
+// GetMigrations GET /api/v1/storage/optimization/migrations.
 func (h *Handler) GetMigrations(c *gin.Context) {
 	migrations := h.manager.GetMigrationHistory()
 	c.JSON(http.StatusOK, gin.H{
@@ -171,7 +171,7 @@ func (h *Handler) GetMigrations(c *gin.Context) {
 	})
 }
 
-// GetPolicy GET /api/v1/storage/optimization/policy
+// GetPolicy GET /api/v1/storage/optimization/policy.
 func (h *Handler) GetPolicy(c *gin.Context) {
 	policy := h.manager.GetPolicy()
 	c.JSON(http.StatusOK, gin.H{
@@ -180,7 +180,7 @@ func (h *Handler) GetPolicy(c *gin.Context) {
 	})
 }
 
-// UpdatePolicy POST /api/v1/storage/optimization/policy
+// UpdatePolicy POST /api/v1/storage/optimization/policy.
 func (h *Handler) UpdatePolicy(c *gin.Context) {
 	var req PolicyUpdateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -232,7 +232,7 @@ func (h *Handler) UpdatePolicy(c *gin.Context) {
 	})
 }
 
-// Start POST /api/v1/storage/optimization/start
+// Start POST /api/v1/storage/optimization/start.
 func (h *Handler) Start(c *gin.Context) {
 	h.manager.Start()
 	c.JSON(http.StatusOK, gin.H{
@@ -241,7 +241,7 @@ func (h *Handler) Start(c *gin.Context) {
 	})
 }
 
-// Stop POST /api/v1/storage/optimization/stop
+// Stop POST /api/v1/storage/optimization/stop.
 func (h *Handler) Stop(c *gin.Context) {
 	h.manager.Stop()
 	c.JSON(http.StatusOK, gin.H{

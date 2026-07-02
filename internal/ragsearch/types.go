@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// DocumentType defines the type of document
+// DocumentType defines the type of document.
 type DocumentType string
 
 const (
@@ -24,7 +24,7 @@ const (
 	DocTypeArchive DocumentType = "archive"
 )
 
-// SearchMode defines search algorithm
+// SearchMode defines search algorithm.
 type SearchMode string
 
 const (
@@ -34,7 +34,7 @@ const (
 	ModeAuto     SearchMode = "auto"     // Auto-select best mode
 )
 
-// SortOrder defines result sorting
+// SortOrder defines result sorting.
 type SortOrder string
 
 const (
@@ -45,7 +45,7 @@ const (
 	SortScore     SortOrder = "score"
 )
 
-// SearchQuery represents a search query with filters
+// SearchQuery represents a search query with filters.
 type SearchQuery struct {
 	Query     string        `json:"query"`
 	Mode      SearchMode    `json:"mode"`
@@ -57,7 +57,7 @@ type SearchQuery struct {
 	Facets    bool          `json:"facets"`
 }
 
-// SearchFilter defines filters for search queries
+// SearchFilter defines filters for search queries.
 type SearchFilter struct {
 	DocTypes   []DocumentType `json:"doc_types,omitempty"`
 	Tags       []string       `json:"tags,omitempty"`
@@ -70,7 +70,7 @@ type SearchFilter struct {
 	PathPrefix string         `json:"path_prefix,omitempty"`
 }
 
-// SearchResult represents a single search result
+// SearchResult represents a single search result.
 type SearchResult struct {
 	ID         string                 `json:"id"`
 	Title      string                 `json:"title"`
@@ -89,7 +89,7 @@ type SearchResult struct {
 	ModifiedAt time.Time              `json:"modified_at"`
 }
 
-// RankScore represents detailed ranking scores
+// RankScore represents detailed ranking scores.
 type RankScore struct {
 	BM25Score      float64 `json:"bm25_score"`
 	SemanticScore  float64 `json:"semantic_score"`
@@ -98,7 +98,7 @@ type RankScore struct {
 	CombinedScore  float64 `json:"combined_score"`
 }
 
-// SearchResponse represents search results
+// SearchResponse represents search results.
 type SearchResponse struct {
 	Query       string          `json:"query"`
 	TotalHits   int             `json:"total_hits"`
@@ -111,7 +111,7 @@ type SearchResponse struct {
 	HasMore     bool            `json:"has_more"`
 }
 
-// Document represents a document to be indexed
+// Document represents a document to be indexed.
 type Document struct {
 	ID         string                 `json:"id"`
 	Title      string                 `json:"title"`
@@ -127,7 +127,7 @@ type Document struct {
 	ModifiedAt time.Time              `json:"modified_at"`
 }
 
-// IndexEntry represents an indexed document with computed fields
+// IndexEntry represents an indexed document with computed fields.
 type IndexEntry struct {
 	Document
 	IndexedAt     time.Time      `json:"indexed_at"`
@@ -137,7 +137,7 @@ type IndexEntry struct {
 	ContentLength int            `json:"content_length"`
 }
 
-// IndexStats represents index statistics
+// IndexStats represents index statistics.
 type IndexStats struct {
 	TotalEntries    int64            `json:"total_entries"`
 	EntriesByType   map[string]int64 `json:"entries_by_type"`
@@ -147,41 +147,41 @@ type IndexStats struct {
 	VectorDimension int              `json:"vector_dimension"`
 }
 
-// SearchHistory represents a search history entry
+// SearchHistory represents a search history entry.
 type SearchHistory struct {
 	Query     string    `json:"query"`
 	Timestamp time.Time `json:"timestamp"`
 	HitCount  int       `json:"hit_count"`
 }
 
-// SuggestionRequest represents a suggestion/autocomplete request
+// SuggestionRequest represents a suggestion/autocomplete request.
 type SuggestionRequest struct {
 	Prefix   string         `json:"prefix"`
 	Limit    int            `json:"limit"`
 	DocTypes []DocumentType `json:"doc_types,omitempty"`
 }
 
-// SuggestionResponse represents suggestion results
+// SuggestionResponse represents suggestion results.
 type SuggestionResponse struct {
 	Suggestions []Suggestion `json:"suggestions"`
 	Query       string       `json:"query"`
 }
 
-// Suggestion represents a single suggestion
+// Suggestion represents a single suggestion.
 type Suggestion struct {
 	Text      string  `json:"text"`
 	Score     float64 `json:"score"`
 	Frequency int     `json:"frequency"`
 }
 
-// HotQuery represents a popular/trending query
+// HotQuery represents a popular/trending query.
 type HotQuery struct {
 	Query    string    `json:"query"`
 	Count    int       `json:"count"`
 	LastUsed time.Time `json:"last_used"`
 }
 
-// Config holds RAG search configuration
+// Config holds RAG search configuration.
 type Config struct {
 	Enabled         bool    `json:"enabled"`
 	IndexPath       string  `json:"index_path"`
@@ -197,7 +197,7 @@ type Config struct {
 	FullTextWeight  float64 `json:"fulltext_weight"`
 }
 
-// DefaultConfig returns default configuration
+// DefaultConfig returns default configuration.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:         true,

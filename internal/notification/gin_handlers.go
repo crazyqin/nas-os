@@ -70,7 +70,7 @@ func (h *GinHandler) RegisterRoutes(rg *gin.RouterGroup) {
 // @Param request body SendRequest true "通知内容"
 // @Success 200 {object} SendResponse
 // @Failure 400 {object} map[string]string
-// @Router /api/v1/notifications [post]
+// @Router /api/v1/notifications [post].
 func (h *GinHandler) SendNotification(c *gin.Context) {
 	var req SendRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -99,7 +99,7 @@ func (h *GinHandler) SendNotification(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// ListHistory 获取历史记录列表
+// ListHistory 获取历史记录列表.
 func (h *GinHandler) ListHistory(c *gin.Context) {
 	filter := &HistoryFilter{
 		Level:    Level(c.Query("level")),
@@ -137,7 +137,7 @@ func (h *GinHandler) ListHistory(c *gin.Context) {
 	})
 }
 
-// GetHistoryRecord 获取单条历史记录
+// GetHistoryRecord 获取单条历史记录.
 func (h *GinHandler) GetHistoryRecord(c *gin.Context) {
 	id := c.Param("id")
 	histMgr := h.service.GetHistoryManager()
@@ -149,7 +149,7 @@ func (h *GinHandler) GetHistoryRecord(c *gin.Context) {
 	c.JSON(http.StatusOK, record)
 }
 
-// DeleteHistoryRecord 删除历史记录
+// DeleteHistoryRecord 删除历史记录.
 func (h *GinHandler) DeleteHistoryRecord(c *gin.Context) {
 	id := c.Param("id")
 	histMgr := h.service.GetHistoryManager()
@@ -160,7 +160,7 @@ func (h *GinHandler) DeleteHistoryRecord(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
 }
 
-// RetryRecord 重试失败的记录
+// RetryRecord 重试失败的记录.
 func (h *GinHandler) RetryRecord(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.service.RetryFailed(id); err != nil {
@@ -170,7 +170,7 @@ func (h *GinHandler) RetryRecord(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "retrying"})
 }
 
-// ClearHistory 清除历史记录
+// ClearHistory 清除历史记录.
 func (h *GinHandler) ClearHistory(c *gin.Context) {
 	histMgr := h.service.GetHistoryManager()
 	before := histMgr.Count()
@@ -184,7 +184,7 @@ func (h *GinHandler) ClearHistory(c *gin.Context) {
 	})
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (h *GinHandler) GetStats(c *gin.Context) {
 	var startTime, endTime *time.Time
 
@@ -203,7 +203,7 @@ func (h *GinHandler) GetStats(c *gin.Context) {
 	c.JSON(http.StatusOK, stats)
 }
 
-// ListChannels 获取渠道列表
+// ListChannels 获取渠道列表.
 func (h *GinHandler) ListChannels(c *gin.Context) {
 	cm := h.service.GetChannelManager()
 	channelType := ChannelType(c.Query("type"))
@@ -218,7 +218,7 @@ func (h *GinHandler) ListChannels(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"channels": channels})
 }
 
-// AddChannel 添加渠道
+// AddChannel 添加渠道.
 func (h *GinHandler) AddChannel(c *gin.Context) {
 	var config ChannelConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -234,7 +234,7 @@ func (h *GinHandler) AddChannel(c *gin.Context) {
 	c.JSON(http.StatusCreated, config)
 }
 
-// UpdateChannel 更新渠道
+// UpdateChannel 更新渠道.
 func (h *GinHandler) UpdateChannel(c *gin.Context) {
 	id := c.Param("id")
 	var config ChannelConfig
@@ -252,7 +252,7 @@ func (h *GinHandler) UpdateChannel(c *gin.Context) {
 	c.JSON(http.StatusOK, config)
 }
 
-// DeleteChannel 删除渠道
+// DeleteChannel 删除渠道.
 func (h *GinHandler) DeleteChannel(c *gin.Context) {
 	id := c.Param("id")
 	cm := h.service.GetChannelManager()
@@ -263,7 +263,7 @@ func (h *GinHandler) DeleteChannel(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
 }
 
-// TestChannel 测试渠道
+// TestChannel 测试渠道.
 func (h *GinHandler) TestChannel(c *gin.Context) {
 	id := c.Param("id")
 	cm := h.service.GetChannelManager()
@@ -297,14 +297,14 @@ func (h *GinHandler) TestChannel(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "test_sent"})
 }
 
-// ListRules 获取规则列表
+// ListRules 获取规则列表.
 func (h *GinHandler) ListRules(c *gin.Context) {
 	re := h.service.GetRuleEngine()
 	rules := re.ListRules()
 	c.JSON(http.StatusOK, gin.H{"rules": rules})
 }
 
-// CreateRule 创建规则
+// CreateRule 创建规则.
 func (h *GinHandler) CreateRule(c *gin.Context) {
 	var rule Rule
 	if err := c.ShouldBindJSON(&rule); err != nil {
@@ -321,7 +321,7 @@ func (h *GinHandler) CreateRule(c *gin.Context) {
 	c.JSON(http.StatusCreated, rule)
 }
 
-// UpdateRule 更新规则
+// UpdateRule 更新规则.
 func (h *GinHandler) UpdateRule(c *gin.Context) {
 	id := c.Param("id")
 	var rule Rule
@@ -340,7 +340,7 @@ func (h *GinHandler) UpdateRule(c *gin.Context) {
 	c.JSON(http.StatusOK, rule)
 }
 
-// DeleteRule 删除规则
+// DeleteRule 删除规则.
 func (h *GinHandler) DeleteRule(c *gin.Context) {
 	id := c.Param("id")
 	re := h.service.GetRuleEngine()
@@ -351,7 +351,7 @@ func (h *GinHandler) DeleteRule(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
 }
 
-// ToggleRule 切换规则启用状态
+// ToggleRule 切换规则启用状态.
 func (h *GinHandler) ToggleRule(c *gin.Context) {
 	id := c.Param("id")
 	re := h.service.GetRuleEngine()
@@ -370,7 +370,7 @@ func (h *GinHandler) ToggleRule(c *gin.Context) {
 	c.JSON(http.StatusOK, rule)
 }
 
-// TestRule 测试规则
+// TestRule 测试规则.
 func (h *GinHandler) TestRule(c *gin.Context) {
 	var req struct {
 		Rule         *Rule         `json:"rule"`
@@ -391,7 +391,7 @@ func (h *GinHandler) TestRule(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// ListTemplates 获取模板列表
+// ListTemplates 获取模板列表.
 func (h *GinHandler) ListTemplates(c *gin.Context) {
 	tm := h.service.GetTemplateManager()
 	category := c.Query("category")
@@ -406,7 +406,7 @@ func (h *GinHandler) ListTemplates(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"templates": templates})
 }
 
-// CreateTemplate 创建模板
+// CreateTemplate 创建模板.
 func (h *GinHandler) CreateTemplate(c *gin.Context) {
 	var template Template
 	if err := c.ShouldBindJSON(&template); err != nil {
@@ -423,7 +423,7 @@ func (h *GinHandler) CreateTemplate(c *gin.Context) {
 	c.JSON(http.StatusCreated, template)
 }
 
-// GetTemplate 获取模板详情
+// GetTemplate 获取模板详情.
 func (h *GinHandler) GetTemplate(c *gin.Context) {
 	id := c.Param("id")
 	tm := h.service.GetTemplateManager()
@@ -435,7 +435,7 @@ func (h *GinHandler) GetTemplate(c *gin.Context) {
 	c.JSON(http.StatusOK, template)
 }
 
-// UpdateTemplate 更新模板
+// UpdateTemplate 更新模板.
 func (h *GinHandler) UpdateTemplate(c *gin.Context) {
 	id := c.Param("id")
 	var template Template
@@ -454,7 +454,7 @@ func (h *GinHandler) UpdateTemplate(c *gin.Context) {
 	c.JSON(http.StatusOK, template)
 }
 
-// DeleteTemplate 删除模板
+// DeleteTemplate 删除模板.
 func (h *GinHandler) DeleteTemplate(c *gin.Context) {
 	id := c.Param("id")
 	tm := h.service.GetTemplateManager()
@@ -465,7 +465,7 @@ func (h *GinHandler) DeleteTemplate(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
 }
 
-// RenderTemplate 渲染模板
+// RenderTemplate 渲染模板.
 func (h *GinHandler) RenderTemplate(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {

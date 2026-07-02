@@ -13,31 +13,31 @@ import (
 // ========== 常量 ==========
 
 const (
-	// Version 模块版本
+	// Version 模块版本.
 	Version = "1.0.0"
 
-	// MaxMembers 最大成员数
+	// MaxMembers 最大成员数.
 	MaxMembers = 50
 
-	// MaxTasks 最大任务数
+	// MaxTasks 最大任务数.
 	MaxTasks = 1000
 
-	// MaxAnnouncements 最大公告数
+	// MaxAnnouncements 最大公告数.
 	MaxAnnouncements = 500
 
-	// MaxActivities 最大活动记录数
+	// MaxActivities 最大活动记录数.
 	MaxActivities = 5000
 
-	// MaxAchievements 最大成就数
+	// MaxAchievements 最大成就数.
 	MaxAchievements = 200
 
-	// DefaultReminderMinutes 默认提前提醒时间（分钟）
+	// DefaultReminderMinutes 默认提前提醒时间（分钟）.
 	DefaultReminderMinutes = 30
 )
 
 // ========== 活动类型 ==========
 
-// ActivityType 活动类型
+// ActivityType 活动类型.
 type ActivityType string
 
 const (
@@ -55,7 +55,7 @@ const (
 
 // ========== 任务状态 ==========
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -68,7 +68,7 @@ const (
 
 // ========== 任务优先级 ==========
 
-// TaskPriority 任务优先级
+// TaskPriority 任务优先级.
 type TaskPriority string
 
 const (
@@ -80,7 +80,7 @@ const (
 
 // ========== 公告类型 ==========
 
-// AnnouncementType 公告类型
+// AnnouncementType 公告类型.
 type AnnouncementType string
 
 const (
@@ -93,7 +93,7 @@ const (
 
 // ========== 成就等级 ==========
 
-// AchievementLevel 成就等级
+// AchievementLevel 成就等级.
 type AchievementLevel string
 
 const (
@@ -106,7 +106,7 @@ const (
 
 // ========== 奖励类型 ==========
 
-// RewardType 奖励类型
+// RewardType 奖励类型.
 type RewardType string
 
 const (
@@ -118,7 +118,7 @@ const (
 
 // ========== 数据结构 ==========
 
-// Member 家庭成员
+// Member 家庭成员.
 type Member struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -133,7 +133,7 @@ type Member struct {
 	IsActive    bool              `json:"is_active"`
 }
 
-// MemberPreferences 成员偏好
+// MemberPreferences 成员偏好.
 type MemberPreferences struct {
 	FavoriteActivities []ActivityType `json:"favorite_activities,omitempty"`
 	ReminderEnabled    bool           `json:"reminder_enabled"`
@@ -141,7 +141,7 @@ type MemberPreferences struct {
 	NotificationEmail  string         `json:"notification_email,omitempty"`
 }
 
-// Activity 活动记录
+// Activity 活动记录.
 type Activity struct {
 	ID          string         `json:"id"`
 	Title       string         `json:"title"`
@@ -162,7 +162,7 @@ type Activity struct {
 	UpdatedAt   time.Time      `json:"updated_at"`
 }
 
-// Task 家庭任务
+// Task 家庭任务.
 type Task struct {
 	ID          string       `json:"id"`
 	Title       string       `json:"title"`
@@ -183,7 +183,7 @@ type Task struct {
 	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
-// Recurrence 重复规则
+// Recurrence 重复规则.
 type Recurrence struct {
 	Frequency  string     `json:"frequency"`
 	Interval   int        `json:"interval"`
@@ -192,7 +192,7 @@ type Recurrence struct {
 	EndDate    *time.Time `json:"end_date,omitempty"`
 }
 
-// Achievement 成就
+// Achievement 成就.
 type Achievement struct {
 	ID          string              `json:"id"`
 	Name        string              `json:"name"`
@@ -206,7 +206,7 @@ type Achievement struct {
 	CreatedAt   time.Time           `json:"created_at"`
 }
 
-// AchievementCriteria 成就条件
+// AchievementCriteria 成就条件.
 type AchievementCriteria struct {
 	Type         string        `json:"type"`
 	Target       int64         `json:"target"`
@@ -214,7 +214,7 @@ type AchievementCriteria struct {
 	Category     string        `json:"category,omitempty"`
 }
 
-// MemberAchievement 成员已获得成就
+// MemberAchievement 成员已获得成就.
 type MemberAchievement struct {
 	MemberID      string    `json:"member_id"`
 	AchievementID string    `json:"achievement_id"`
@@ -222,7 +222,7 @@ type MemberAchievement struct {
 	Progress      float64   `json:"progress"`
 }
 
-// Reward 奖励
+// Reward 奖励.
 type Reward struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
@@ -232,7 +232,7 @@ type Reward struct {
 	Icon        string     `json:"icon,omitempty"`
 }
 
-// Announcement 公告
+// Announcement 公告.
 type Announcement struct {
 	ID        string           `json:"id"`
 	Title     string           `json:"title"`
@@ -246,7 +246,7 @@ type Announcement struct {
 	UpdatedAt time.Time        `json:"updated_at"`
 }
 
-// CalendarEvent 日历事件
+// CalendarEvent 日历事件.
 type CalendarEvent struct {
 	ID           string        `json:"id"`
 	Title        string        `json:"title"`
@@ -265,7 +265,7 @@ type CalendarEvent struct {
 	CreatedAt    time.Time     `json:"created_at"`
 }
 
-// FamilyStats 家庭统计
+// FamilyStats 家庭统计.
 type FamilyStats struct {
 	Period             string               `json:"period"`
 	TotalActivities    int                  `json:"total_activities"`
@@ -278,7 +278,7 @@ type FamilyStats struct {
 	AchievementsEarned int                  `json:"achievements_earned"`
 }
 
-// MemberStats 成员统计
+// MemberStats 成员统计.
 type MemberStats struct {
 	MemberID         string               `json:"member_id"`
 	MemberName       string               `json:"member_name"`
@@ -290,7 +290,7 @@ type MemberStats struct {
 	ActivityByType   map[ActivityType]int `json:"activity_by_type"`
 }
 
-// ActivitySummary 活动摘要
+// ActivitySummary 活动摘要.
 type ActivitySummary struct {
 	Type      ActivityType  `json:"type"`
 	Count     int           `json:"count"`
@@ -300,7 +300,7 @@ type ActivitySummary struct {
 
 // ========== 请求结构 ==========
 
-// AddMemberRequest 添加成员请求
+// AddMemberRequest 添加成员请求.
 type AddMemberRequest struct {
 	Name               string         `json:"name"`
 	Avatar             string         `json:"avatar,omitempty"`
@@ -310,7 +310,7 @@ type AddMemberRequest struct {
 	NotificationEmail  string         `json:"notification_email,omitempty"`
 }
 
-// UpdateMemberRequest 更新成员请求
+// UpdateMemberRequest 更新成员请求.
 type UpdateMemberRequest struct {
 	Name     string     `json:"name,omitempty"`
 	Avatar   string     `json:"avatar,omitempty"`
@@ -319,7 +319,7 @@ type UpdateMemberRequest struct {
 	IsActive *bool      `json:"is_active,omitempty"`
 }
 
-// RecordActivityRequest 记录活动请求
+// RecordActivityRequest 记录活动请求.
 type RecordActivityRequest struct {
 	Title       string       `json:"title"`
 	Description string       `json:"description,omitempty"`
@@ -336,7 +336,7 @@ type RecordActivityRequest struct {
 	CreatedBy   string       `json:"created_by"`
 }
 
-// ActivityFilter 活动过滤器
+// ActivityFilter 活动过滤器.
 type ActivityFilter struct {
 	MemberID  string       `json:"member_id,omitempty"`
 	Type      ActivityType `json:"type,omitempty"`
@@ -347,7 +347,7 @@ type ActivityFilter struct {
 	Limit     int          `json:"limit,omitempty"`
 }
 
-// CreateTaskRequest 创建任务请求
+// CreateTaskRequest 创建任务请求.
 type CreateTaskRequest struct {
 	Title       string       `json:"title"`
 	Description string       `json:"description,omitempty"`
@@ -362,7 +362,7 @@ type CreateTaskRequest struct {
 	Tags        []string     `json:"tags,omitempty"`
 }
 
-// TaskFilter 任务过滤器
+// TaskFilter 任务过滤器.
 type TaskFilter struct {
 	Status     TaskStatus   `json:"status,omitempty"`
 	Priority   TaskPriority `json:"priority,omitempty"`
@@ -372,7 +372,7 @@ type TaskFilter struct {
 	Limit      int          `json:"limit,omitempty"`
 }
 
-// CreateAnnouncementRequest 创建公告请求
+// CreateAnnouncementRequest 创建公告请求.
 type CreateAnnouncementRequest struct {
 	Title     string           `json:"title"`
 	Content   string           `json:"content"`
@@ -383,7 +383,7 @@ type CreateAnnouncementRequest struct {
 	Tags      []string         `json:"tags,omitempty"`
 }
 
-// CreateCalendarEventRequest 创建日历事件请求
+// CreateCalendarEventRequest 创建日历事件请求.
 type CreateCalendarEventRequest struct {
 	Title           string        `json:"title"`
 	Description     string        `json:"description,omitempty"`
@@ -401,7 +401,7 @@ type CreateCalendarEventRequest struct {
 
 // ========== 管理器 ==========
 
-// Hub 家庭活动中心管理器
+// Hub 家庭活动中心管理器.
 type Hub struct {
 	mu             sync.RWMutex
 	members        map[string]*Member
@@ -414,7 +414,7 @@ type Hub struct {
 	rewards        map[string]*Reward
 }
 
-// NewHub 创建家庭活动中心
+// NewHub 创建家庭活动中心.
 func NewHub() *Hub {
 	h := &Hub{
 		members:        make(map[string]*Member),
@@ -433,7 +433,7 @@ func NewHub() *Hub {
 
 // ========== 成员管理 ==========
 
-// AddMember 添加家庭成员
+// AddMember 添加家庭成员.
 func (h *Hub) AddMember(req *AddMemberRequest) (*Member, error) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -475,7 +475,7 @@ func (h *Hub) AddMember(req *AddMemberRequest) (*Member, error) {
 	return member, nil
 }
 
-// GetMember 获取成员
+// GetMember 获取成员.
 func (h *Hub) GetMember(memberID string) (*Member, error) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -487,7 +487,7 @@ func (h *Hub) GetMember(memberID string) (*Member, error) {
 	return member, nil
 }
 
-// UpdateMember 更新成员
+// UpdateMember 更新成员.
 func (h *Hub) UpdateMember(memberID string, req *UpdateMemberRequest) (*Member, error) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -516,7 +516,7 @@ func (h *Hub) UpdateMember(memberID string, req *UpdateMemberRequest) (*Member, 
 	return member, nil
 }
 
-// RemoveMember 移除成员
+// RemoveMember 移除成员.
 func (h *Hub) RemoveMember(memberID string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -530,7 +530,7 @@ func (h *Hub) RemoveMember(memberID string) error {
 	return nil
 }
 
-// ListMembers 列出所有成员
+// ListMembers 列出所有成员.
 func (h *Hub) ListMembers() []*Member {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -549,7 +549,7 @@ func (h *Hub) ListMembers() []*Member {
 
 // ========== 活动记录 ==========
 
-// RecordActivity 记录活动
+// RecordActivity 记录活动.
 func (h *Hub) RecordActivity(req *RecordActivityRequest) (*Activity, error) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -606,7 +606,7 @@ func (h *Hub) RecordActivity(req *RecordActivityRequest) (*Activity, error) {
 	return activity, nil
 }
 
-// GetActivity 获取活动
+// GetActivity 获取活动.
 func (h *Hub) GetActivity(activityID string) (*Activity, error) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -619,7 +619,7 @@ func (h *Hub) GetActivity(activityID string) (*Activity, error) {
 	return nil, fmt.Errorf("活动 %s 不存在", activityID)
 }
 
-// ListActivities 列出活动
+// ListActivities 列出活动.
 func (h *Hub) ListActivities(filter *ActivityFilter) []*Activity {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -644,7 +644,7 @@ func (h *Hub) ListActivities(filter *ActivityFilter) []*Activity {
 
 // ========== 任务管理 ==========
 
-// CreateTask 创建任务
+// CreateTask 创建任务.
 func (h *Hub) CreateTask(req *CreateTaskRequest) (*Task, error) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -694,7 +694,7 @@ func (h *Hub) CreateTask(req *CreateTaskRequest) (*Task, error) {
 	return task, nil
 }
 
-// UpdateTaskStatus 更新任务状态
+// UpdateTaskStatus 更新任务状态.
 func (h *Hub) UpdateTaskStatus(taskID string, status TaskStatus, completedBy string) (*Task, error) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -725,7 +725,7 @@ func (h *Hub) UpdateTaskStatus(taskID string, status TaskStatus, completedBy str
 	return task, nil
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (h *Hub) GetTask(taskID string) (*Task, error) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -737,7 +737,7 @@ func (h *Hub) GetTask(taskID string) (*Task, error) {
 	return task, nil
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (h *Hub) ListTasks(filter *TaskFilter) []*Task {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -774,7 +774,7 @@ func (h *Hub) ListTasks(filter *TaskFilter) []*Task {
 
 // ========== 成就系统 ==========
 
-// GetAchievements 获取所有成就
+// GetAchievements 获取所有成就.
 func (h *Hub) GetAchievements() []*Achievement {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -791,7 +791,7 @@ func (h *Hub) GetAchievements() []*Achievement {
 	return achievements
 }
 
-// GetMemberAchievements 获取成员成就
+// GetMemberAchievements 获取成员成就.
 func (h *Hub) GetMemberAchievements(memberID string) []*MemberAchievement {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -799,7 +799,7 @@ func (h *Hub) GetMemberAchievements(memberID string) []*MemberAchievement {
 	return h.memberAchvs[memberID]
 }
 
-// GetMemberRewards 获取成员奖励
+// GetMemberRewards 获取成员奖励.
 func (h *Hub) GetMemberRewards(memberID string) []*Reward {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -821,7 +821,7 @@ func (h *Hub) GetMemberRewards(memberID string) []*Reward {
 	return rewards
 }
 
-// checkAchievements 检查并授予成就
+// checkAchievements 检查并授予成就.
 func (h *Hub) checkAchievements(memberID string) {
 	member, exists := h.members[memberID]
 	if !exists {
@@ -856,7 +856,7 @@ func (h *Hub) checkAchievements(memberID string) {
 	}
 }
 
-// checkAchievementCriteria 检查成就条件
+// checkAchievementCriteria 检查成就条件.
 func (h *Hub) checkAchievementCriteria(member *Member, achv *Achievement) bool {
 	criteria := achv.Criteria
 
@@ -876,7 +876,7 @@ func (h *Hub) checkAchievementCriteria(member *Member, achv *Achievement) bool {
 
 // ========== 公告板 ==========
 
-// CreateAnnouncement 创建公告
+// CreateAnnouncement 创建公告.
 func (h *Hub) CreateAnnouncement(req *CreateAnnouncementRequest) (*Announcement, error) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -907,7 +907,7 @@ func (h *Hub) CreateAnnouncement(req *CreateAnnouncementRequest) (*Announcement,
 	return announcement, nil
 }
 
-// GetAnnouncements 获取公告列表
+// GetAnnouncements 获取公告列表.
 func (h *Hub) GetAnnouncements(includeExpired bool) []*Announcement {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -934,7 +934,7 @@ func (h *Hub) GetAnnouncements(includeExpired bool) []*Announcement {
 
 // ========== 日历和提醒 ==========
 
-// CreateCalendarEvent 创建日历事件
+// CreateCalendarEvent 创建日历事件.
 func (h *Hub) CreateCalendarEvent(req *CreateCalendarEventRequest) (*CalendarEvent, error) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -971,7 +971,7 @@ func (h *Hub) CreateCalendarEvent(req *CreateCalendarEventRequest) (*CalendarEve
 	return event, nil
 }
 
-// GetUpcomingEvents 获取即将到来的事件
+// GetUpcomingEvents 获取即将到来的事件.
 func (h *Hub) GetUpcomingEvents(memberID string, hours int) []*CalendarEvent {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -995,7 +995,7 @@ func (h *Hub) GetUpcomingEvents(memberID string, hours int) []*CalendarEvent {
 	return events
 }
 
-// GetPendingReminders 获取待发送提醒
+// GetPendingReminders 获取待发送提醒.
 func (h *Hub) GetPendingReminders() []*CalendarEvent {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -1012,7 +1012,7 @@ func (h *Hub) GetPendingReminders() []*CalendarEvent {
 	return reminders
 }
 
-// MarkReminderSent 标记提醒已发送
+// MarkReminderSent 标记提醒已发送.
 func (h *Hub) MarkReminderSent(eventID string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -1028,7 +1028,7 @@ func (h *Hub) MarkReminderSent(eventID string) error {
 
 // ========== 统计报表 ==========
 
-// GetFamilyStats 获取家庭统计
+// GetFamilyStats 获取家庭统计.
 func (h *Hub) GetFamilyStats(period string, startDate, endDate time.Time) *FamilyStats {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -1093,7 +1093,7 @@ func (h *Hub) GetFamilyStats(period string, startDate, endDate time.Time) *Famil
 
 // ========== 过滤匹配 ==========
 
-// matchActivityFilter 匹配活动过滤器
+// matchActivityFilter 匹配活动过滤器.
 func (h *Hub) matchActivityFilter(activity *Activity, filter *ActivityFilter) bool {
 	if filter == nil {
 		return true
@@ -1135,7 +1135,7 @@ func (h *Hub) matchActivityFilter(activity *Activity, filter *ActivityFilter) bo
 	return true
 }
 
-// matchTaskFilter 匹配任务过滤器
+// matchTaskFilter 匹配任务过滤器.
 func (h *Hub) matchTaskFilter(task *Task, filter *TaskFilter) bool {
 	if filter == nil {
 		return true
@@ -1166,7 +1166,7 @@ func (h *Hub) matchTaskFilter(task *Task, filter *TaskFilter) bool {
 
 // ========== 内部方法 ==========
 
-// updateMemberLevel 更新成员等级
+// updateMemberLevel 更新成员等级.
 func (h *Hub) updateMemberLevel(member *Member) {
 	newLevel := int(member.Points/100) + 1
 	if newLevel > member.Level {
@@ -1174,7 +1174,7 @@ func (h *Hub) updateMemberLevel(member *Member) {
 	}
 }
 
-// countMemberActivities 统计成员活动数
+// countMemberActivities 统计成员活动数.
 func (h *Hub) countMemberActivities(memberID string, activityType *ActivityType) int {
 	count := 0
 	for _, a := range h.activities {
@@ -1187,7 +1187,7 @@ func (h *Hub) countMemberActivities(memberID string, activityType *ActivityType)
 	return count
 }
 
-// countMemberCompletedTasks 统计成员完成任务数
+// countMemberCompletedTasks 统计成员完成任务数.
 func (h *Hub) countMemberCompletedTasks(memberID string) int {
 	count := 0
 	for _, t := range h.tasks {
@@ -1198,7 +1198,7 @@ func (h *Hub) countMemberCompletedTasks(memberID string) int {
 	return count
 }
 
-// grantReward 授予奖励
+// grantReward 授予奖励.
 func (h *Hub) grantReward(memberID string, reward *Reward, points int64) {
 	member, exists := h.members[memberID]
 	if !exists {
@@ -1218,7 +1218,7 @@ func (h *Hub) grantReward(memberID string, reward *Reward, points int64) {
 	h.updateMemberLevel(member)
 }
 
-// createAchievementAnnouncement 创建成就公告
+// createAchievementAnnouncement 创建成就公告.
 func (h *Hub) createAchievementAnnouncement(member *Member, achv *Achievement) {
 	if len(h.announcements) >= MaxAnnouncements {
 		h.announcements = h.announcements[1:]
@@ -1238,7 +1238,7 @@ func (h *Hub) createAchievementAnnouncement(member *Member, achv *Achievement) {
 	h.announcements = append(h.announcements, announcement)
 }
 
-// createTaskReminder 创建任务提醒
+// createTaskReminder 创建任务提醒.
 func (h *Hub) createTaskReminder(task *Task) {
 	if task.DueDate == nil {
 		return
@@ -1266,7 +1266,7 @@ func (h *Hub) createTaskReminder(task *Task) {
 	h.calendarEvents[event.ID] = event
 }
 
-// calculateTopActivities 计算热门活动
+// calculateTopActivities 计算热门活动.
 func (h *Hub) calculateTopActivities(startDate, endDate time.Time) []ActivitySummary {
 	typeMap := make(map[ActivityType]*ActivitySummary)
 
@@ -1304,7 +1304,7 @@ func (h *Hub) calculateTopActivities(startDate, endDate time.Time) []ActivitySum
 	return result
 }
 
-// initDefaultAchievements 初始化默认成就
+// initDefaultAchievements 初始化默认成就.
 func (h *Hub) initDefaultAchievements() {
 	defaultAchvs := []*Achievement{
 		{
@@ -1415,7 +1415,7 @@ func (h *Hub) initDefaultAchievements() {
 	}
 }
 
-// initDefaultRewards 初始化默认奖励
+// initDefaultRewards 初始化默认奖励.
 func (h *Hub) initDefaultRewards() {
 	defaultRewards := []*Reward{
 		{ID: "badge-newcomer", Name: "新人徽章", Description: "欢迎加入家庭活动中心", Type: RewardTypeBadge, Value: 0, Icon: "🎖️"},
@@ -1432,12 +1432,12 @@ func (h *Hub) initDefaultRewards() {
 
 // ========== 工具函数 ==========
 
-// generateID 生成唯一ID
+// generateID 生成唯一ID.
 func generateID() string {
 	return fmt.Sprintf("%d-%s", time.Now().UnixNano(), randomHex(8))
 }
 
-// randomHex 生成随机十六进制字符串
+// randomHex 生成随机十六进制字符串.
 func randomHex(n int) string {
 	b := make([]byte, n)
 	for i := range b {
@@ -1447,7 +1447,7 @@ func randomHex(n int) string {
 	return string(b)
 }
 
-// containsString 检查字符串切片是否包含指定字符串
+// containsString 检查字符串切片是否包含指定字符串.
 func containsString(slice []string, item string) bool {
 	for _, s := range slice {
 		if s == item {
@@ -1457,7 +1457,7 @@ func containsString(slice []string, item string) bool {
 	return false
 }
 
-// ptrActivityType 返回ActivityType的指针
+// ptrActivityType 返回ActivityType的指针.
 func ptrActivityType(t ActivityType) *ActivityType {
 	return &t
 }

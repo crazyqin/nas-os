@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Manager 数字标牌管理器
+// Manager 数字标牌管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	contents  map[string]*Content
@@ -25,14 +25,14 @@ type Manager struct {
 	wg        sync.WaitGroup
 }
 
-// Logger 日志接口
+// Logger 日志接口.
 type Logger interface {
 	Info(msg string, args ...interface{})
 	Error(msg string, args ...interface{})
 	Debug(msg string, args ...interface{})
 }
 
-// NewManager 创建数字标牌管理器
+// NewManager 创建数字标牌管理器.
 func NewManager(logger Logger) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	m := &Manager{
@@ -62,7 +62,7 @@ func NewManager(logger Logger) *Manager {
 	return m
 }
 
-// initDefaultTemplates 初始化默认模板
+// initDefaultTemplates 初始化默认模板.
 func (m *Manager) initDefaultTemplates() {
 	defaultTemplates := []*Template{
 		{
@@ -115,7 +115,7 @@ func (m *Manager) initDefaultTemplates() {
 
 // ==================== 内容管理 ====================
 
-// CreateContent 创建内容
+// CreateContent 创建内容.
 func (m *Manager) CreateContent(content *Content) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -132,7 +132,7 @@ func (m *Manager) CreateContent(content *Content) error {
 	return nil
 }
 
-// UpdateContent 更新内容
+// UpdateContent 更新内容.
 func (m *Manager) UpdateContent(content *Content) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -149,7 +149,7 @@ func (m *Manager) UpdateContent(content *Content) error {
 	return nil
 }
 
-// DeleteContent 删除内容
+// DeleteContent 删除内容.
 func (m *Manager) DeleteContent(contentID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -163,7 +163,7 @@ func (m *Manager) DeleteContent(contentID string) error {
 	return nil
 }
 
-// GetContent 获取内容
+// GetContent 获取内容.
 func (m *Manager) GetContent(contentID string) (*Content, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -175,7 +175,7 @@ func (m *Manager) GetContent(contentID string) (*Content, error) {
 	return content, nil
 }
 
-// ListContents 列出所有内容
+// ListContents 列出所有内容.
 func (m *Manager) ListContents(contentType *ContentType) []*Content {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -192,7 +192,7 @@ func (m *Manager) ListContents(contentType *ContentType) []*Content {
 
 // ==================== 播放列表管理 ====================
 
-// CreatePlaylist 创建播放列表
+// CreatePlaylist 创建播放列表.
 func (m *Manager) CreatePlaylist(playlist *Playlist) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -209,7 +209,7 @@ func (m *Manager) CreatePlaylist(playlist *Playlist) error {
 	return nil
 }
 
-// UpdatePlaylist 更新播放列表
+// UpdatePlaylist 更新播放列表.
 func (m *Manager) UpdatePlaylist(playlist *Playlist) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -226,7 +226,7 @@ func (m *Manager) UpdatePlaylist(playlist *Playlist) error {
 	return nil
 }
 
-// DeletePlaylist 删除播放列表
+// DeletePlaylist 删除播放列表.
 func (m *Manager) DeletePlaylist(playlistID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -240,7 +240,7 @@ func (m *Manager) DeletePlaylist(playlistID string) error {
 	return nil
 }
 
-// GetPlaylist 获取播放列表
+// GetPlaylist 获取播放列表.
 func (m *Manager) GetPlaylist(playlistID string) (*Playlist, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -252,7 +252,7 @@ func (m *Manager) GetPlaylist(playlistID string) (*Playlist, error) {
 	return playlist, nil
 }
 
-// ListPlaylists 列出所有播放列表
+// ListPlaylists 列出所有播放列表.
 func (m *Manager) ListPlaylists() []*Playlist {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -266,7 +266,7 @@ func (m *Manager) ListPlaylists() []*Playlist {
 
 // ==================== 排程管理 ====================
 
-// CreateSchedule 创建排程
+// CreateSchedule 创建排程.
 func (m *Manager) CreateSchedule(schedule *Schedule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -283,7 +283,7 @@ func (m *Manager) CreateSchedule(schedule *Schedule) error {
 	return nil
 }
 
-// UpdateSchedule 更新排程
+// UpdateSchedule 更新排程.
 func (m *Manager) UpdateSchedule(schedule *Schedule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -300,7 +300,7 @@ func (m *Manager) UpdateSchedule(schedule *Schedule) error {
 	return nil
 }
 
-// DeleteSchedule 删除排程
+// DeleteSchedule 删除排程.
 func (m *Manager) DeleteSchedule(scheduleID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -314,7 +314,7 @@ func (m *Manager) DeleteSchedule(scheduleID string) error {
 	return nil
 }
 
-// GetSchedule 获取排程
+// GetSchedule 获取排程.
 func (m *Manager) GetSchedule(scheduleID string) (*Schedule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -326,7 +326,7 @@ func (m *Manager) GetSchedule(scheduleID string) (*Schedule, error) {
 	return schedule, nil
 }
 
-// ListSchedules 列出所有排程
+// ListSchedules 列出所有排程.
 func (m *Manager) ListSchedules() []*Schedule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -338,7 +338,7 @@ func (m *Manager) ListSchedules() []*Schedule {
 	return schedules
 }
 
-// UrgentInsert 紧急插播
+// UrgentInsert 紧急插播.
 func (m *Manager) UrgentInsert(playlistID string, deviceIDs []string, duration time.Duration) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -372,7 +372,7 @@ func (m *Manager) UrgentInsert(playlistID string, deviceIDs []string, duration t
 
 // ==================== 设备管理 ====================
 
-// RegisterDevice 注册设备
+// RegisterDevice 注册设备.
 func (m *Manager) RegisterDevice(device *Device) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -391,7 +391,7 @@ func (m *Manager) RegisterDevice(device *Device) error {
 	return nil
 }
 
-// UpdateDevice 更新设备
+// UpdateDevice 更新设备.
 func (m *Manager) UpdateDevice(device *Device) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -408,7 +408,7 @@ func (m *Manager) UpdateDevice(device *Device) error {
 	return nil
 }
 
-// DeleteDevice 删除设备
+// DeleteDevice 删除设备.
 func (m *Manager) DeleteDevice(deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -423,7 +423,7 @@ func (m *Manager) DeleteDevice(deviceID string) error {
 	return nil
 }
 
-// GetDevice 获取设备
+// GetDevice 获取设备.
 func (m *Manager) GetDevice(deviceID string) (*Device, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -435,7 +435,7 @@ func (m *Manager) GetDevice(deviceID string) (*Device, error) {
 	return device, nil
 }
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (m *Manager) ListDevices(group *string) []*Device {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -450,7 +450,7 @@ func (m *Manager) ListDevices(group *string) []*Device {
 	return devices
 }
 
-// CreateDeviceGroup 创建设备组
+// CreateDeviceGroup 创建设备组.
 func (m *Manager) CreateDeviceGroup(group *DeviceGroup) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -466,7 +466,7 @@ func (m *Manager) CreateDeviceGroup(group *DeviceGroup) error {
 	return nil
 }
 
-// ListDeviceGroups 列出所有设备组
+// ListDeviceGroups 列出所有设备组.
 func (m *Manager) ListDeviceGroups() []*DeviceGroup {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -478,7 +478,7 @@ func (m *Manager) ListDeviceGroups() []*DeviceGroup {
 	return groups
 }
 
-// DeviceHeartbeat 设备心跳
+// DeviceHeartbeat 设备心跳.
 func (m *Manager) DeviceHeartbeat(deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -497,7 +497,7 @@ func (m *Manager) DeviceHeartbeat(deviceID string) error {
 
 // ==================== 模板管理 ====================
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func (m *Manager) GetTemplate(templateID string) (*Template, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -509,7 +509,7 @@ func (m *Manager) GetTemplate(templateID string) (*Template, error) {
 	return tpl, nil
 }
 
-// ListTemplates 列出所有模板
+// ListTemplates 列出所有模板.
 func (m *Manager) ListTemplates() []*Template {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -523,7 +523,7 @@ func (m *Manager) ListTemplates() []*Template {
 
 // ==================== 播放控制 ====================
 
-// PushToDevice 推送内容到设备
+// PushToDevice 推送内容到设备.
 func (m *Manager) PushToDevice(deviceID string, playlistID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -558,7 +558,7 @@ func (m *Manager) PushToDevice(deviceID string, playlistID string) error {
 	return nil
 }
 
-// StopDevice 停止设备播放
+// StopDevice 停止设备播放.
 func (m *Manager) StopDevice(deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -577,7 +577,7 @@ func (m *Manager) StopDevice(deviceID string) error {
 	return nil
 }
 
-// GetPlaybackStatus 获取播放状态
+// GetPlaybackStatus 获取播放状态.
 func (m *Manager) GetPlaybackStatus(deviceID string) (*PlaybackStatus, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -589,7 +589,7 @@ func (m *Manager) GetPlaybackStatus(deviceID string) (*PlaybackStatus, error) {
 	return status, nil
 }
 
-// SetDeviceVolume 设置设备音量
+// SetDeviceVolume 设置设备音量.
 func (m *Manager) SetDeviceVolume(deviceID string, volume int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -609,7 +609,7 @@ func (m *Manager) SetDeviceVolume(deviceID string, volume int) error {
 	return nil
 }
 
-// SetDeviceBrightness 设置设备亮度
+// SetDeviceBrightness 设置设备亮度.
 func (m *Manager) SetDeviceBrightness(deviceID string, brightness int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -728,7 +728,7 @@ func (m *Manager) checkDeviceHealth() {
 	}
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.cancel()
 	m.wg.Wait()

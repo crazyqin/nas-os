@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 量子安全加密 API 处理器
+// Handlers 量子安全加密 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	qs := r.Group("/quantumsafe")
 	{
@@ -63,14 +63,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// generateKey 生成密钥
+// generateKey 生成密钥.
 func (h *Handlers) generateKey(c *gin.Context) {
 	var req struct {
 		Name          string        `json:"name" binding:"required"`
@@ -102,7 +102,7 @@ func (h *Handlers) generateKey(c *gin.Context) {
 	})
 }
 
-// listKeys 列出密钥
+// listKeys 列出密钥.
 func (h *Handlers) listKeys(c *gin.Context) {
 	keys := h.manager.ListKeys()
 	c.JSON(http.StatusOK, response{
@@ -112,7 +112,7 @@ func (h *Handlers) listKeys(c *gin.Context) {
 	})
 }
 
-// getKey 获取密钥
+// getKey 获取密钥.
 func (h *Handlers) getKey(c *gin.Context) {
 	id := c.Param("id")
 	key, err := h.manager.GetKey(id)
@@ -131,7 +131,7 @@ func (h *Handlers) getKey(c *gin.Context) {
 	})
 }
 
-// revokeKey 吊销密钥
+// revokeKey 吊销密钥.
 func (h *Handlers) revokeKey(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.RevokeKey(id); err != nil {
@@ -148,7 +148,7 @@ func (h *Handlers) revokeKey(c *gin.Context) {
 	})
 }
 
-// rotateKey 轮换密钥
+// rotateKey 轮换密钥.
 func (h *Handlers) rotateKey(c *gin.Context) {
 	id := c.Param("id")
 	var req KeyRotationRequest
@@ -178,7 +178,7 @@ func (h *Handlers) rotateKey(c *gin.Context) {
 	})
 }
 
-// encrypt 加密
+// encrypt 加密.
 func (h *Handlers) encrypt(c *gin.Context) {
 	var req EncryptRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -205,7 +205,7 @@ func (h *Handlers) encrypt(c *gin.Context) {
 	})
 }
 
-// decrypt 解密
+// decrypt 解密.
 func (h *Handlers) decrypt(c *gin.Context) {
 	var req DecryptRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -230,7 +230,7 @@ func (h *Handlers) decrypt(c *gin.Context) {
 	})
 }
 
-// sign 签名
+// sign 签名.
 func (h *Handlers) sign(c *gin.Context) {
 	var req SignRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -273,7 +273,7 @@ func (h *Handlers) sign(c *gin.Context) {
 	})
 }
 
-// verify 验证
+// verify 验证.
 func (h *Handlers) verify(c *gin.Context) {
 	var req VerifyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -315,7 +315,7 @@ func (h *Handlers) verify(c *gin.Context) {
 	})
 }
 
-// listCiphers 列出加密器
+// listCiphers 列出加密器.
 func (h *Handlers) listCiphers(c *gin.Context) {
 	ciphers := h.manager.ListCiphers()
 	c.JSON(http.StatusOK, response{
@@ -325,7 +325,7 @@ func (h *Handlers) listCiphers(c *gin.Context) {
 	})
 }
 
-// createCipher 创建加密器
+// createCipher 创建加密器.
 func (h *Handlers) createCipher(c *gin.Context) {
 	var req HybridCipher
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -352,7 +352,7 @@ func (h *Handlers) createCipher(c *gin.Context) {
 	})
 }
 
-// getCipher 获取加密器
+// getCipher 获取加密器.
 func (h *Handlers) getCipher(c *gin.Context) {
 	id := c.Param("id")
 	cipher, err := h.manager.GetCipher(id)
@@ -371,7 +371,7 @@ func (h *Handlers) getCipher(c *gin.Context) {
 	})
 }
 
-// listMigrations 列出迁移计划
+// listMigrations 列出迁移计划.
 func (h *Handlers) listMigrations(c *gin.Context) {
 	migrations := h.manager.ListMigrations()
 	c.JSON(http.StatusOK, response{
@@ -381,7 +381,7 @@ func (h *Handlers) listMigrations(c *gin.Context) {
 	})
 }
 
-// migrateKeys 迁移密钥
+// migrateKeys 迁移密钥.
 func (h *Handlers) migrateKeys(c *gin.Context) {
 	var req struct {
 		SourceKeyID     string    `json:"source_key_id" binding:"required"`
@@ -412,7 +412,7 @@ func (h *Handlers) migrateKeys(c *gin.Context) {
 	})
 }
 
-// getMigration 获取迁移计划
+// getMigration 获取迁移计划.
 func (h *Handlers) getMigration(c *gin.Context) {
 	id := c.Param("id")
 	plan, err := h.manager.GetMigration(id)
@@ -431,7 +431,7 @@ func (h *Handlers) getMigration(c *gin.Context) {
 	})
 }
 
-// getAuditLog 获取审计日志
+// getAuditLog 获取审计日志.
 func (h *Handlers) getAuditLog(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "100")
 	limit, err := strconv.Atoi(limitStr)
@@ -447,7 +447,7 @@ func (h *Handlers) getAuditLog(c *gin.Context) {
 	})
 }
 
-// getStats 获取统计信息
+// getStats 获取统计信息.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, response{
@@ -457,7 +457,7 @@ func (h *Handlers) getStats(c *gin.Context) {
 	})
 }
 
-// getConfig 获取配置
+// getConfig 获取配置.
 func (h *Handlers) getConfig(c *gin.Context) {
 	cfg := h.manager.GetConfig()
 	c.JSON(http.StatusOK, response{
@@ -467,7 +467,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 	})
 }
 
-// updateConfig 更新配置
+// updateConfig 更新配置.
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var cfg QuantumSafeConfig
 	if err := c.ShouldBindJSON(&cfg); err != nil {
@@ -485,7 +485,7 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 	})
 }
 
-// listAlgorithms 列出算法
+// listAlgorithms 列出算法.
 func (h *Handlers) listAlgorithms(c *gin.Context) {
 	algos := h.manager.ListAlgorithms()
 	c.JSON(http.StatusOK, response{
@@ -495,7 +495,7 @@ func (h *Handlers) listAlgorithms(c *gin.Context) {
 	})
 }
 
-// getAlgorithmInfo 获取算法信息
+// getAlgorithmInfo 获取算法信息.
 func (h *Handlers) getAlgorithmInfo(c *gin.Context) {
 	name := c.Param("name")
 	algo := Algorithm(name)
@@ -516,7 +516,7 @@ func (h *Handlers) getAlgorithmInfo(c *gin.Context) {
 	})
 }
 
-// min 返回两个整数中较小的一个
+// min 返回两个整数中较小的一个.
 func min(a, b int) int {
 	if a < b {
 		return a

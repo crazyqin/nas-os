@@ -7,19 +7,19 @@ import (
 	"strings"
 )
 
-// Handlers 统一备份 HTTP 处理器
+// Handlers 统一备份 HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{
 		manager: mgr,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/unifiedbackup/tasks", h.handleTasks)
 	mux.HandleFunc("/api/unifiedbackup/tasks/", h.handleTaskByID)
@@ -34,29 +34,29 @@ func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 
 // ========== 辅助方法 ==========
 
-// writeJSON 写入JSON响应
+// writeJSON 写入JSON响应.
 func writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(data)
 }
 
-// writeSuccess 写入成功响应
+// writeSuccess 写入成功响应.
 func writeSuccess(w http.ResponseWriter, data interface{}) {
 	writeJSON(w, http.StatusOK, APIResponse{Success: true, Data: data})
 }
 
-// writeCreated 写入创建成功响应
+// writeCreated 写入创建成功响应.
 func writeCreated(w http.ResponseWriter, data interface{}) {
 	writeJSON(w, http.StatusCreated, APIResponse{Success: true, Data: data})
 }
 
-// writeError 写入错误响应
+// writeError 写入错误响应.
 func writeError(w http.ResponseWriter, status int, msg string) {
 	writeJSON(w, status, APIResponse{Success: false, Error: msg})
 }
 
-// extractIDFromPath 从路径中提取ID
+// extractIDFromPath 从路径中提取ID.
 func extractIDFromPath(path, prefix string) string {
 	id := strings.TrimPrefix(path, prefix)
 	id = strings.TrimSuffix(id, "/")
@@ -65,7 +65,7 @@ func extractIDFromPath(path, prefix string) string {
 
 // ========== 任务管理 Handlers ==========
 
-// handleTasks 处理 /api/unifiedbackup/tasks
+// handleTasks 处理 /api/unifiedbackup/tasks.
 func (h *Handlers) handleTasks(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -172,7 +172,7 @@ func (h *Handlers) deleteTask(w http.ResponseWriter, _ *http.Request, id string)
 
 // ========== 任务操作 Handlers ==========
 
-// handleRunTask 处理运行任务
+// handleRunTask 处理运行任务.
 func (h *Handlers) handleRunTask(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "不支持的请求方法")
@@ -196,7 +196,7 @@ func (h *Handlers) handleRunTask(w http.ResponseWriter, r *http.Request) {
 	writeSuccess(w, map[string]string{"status": "started"})
 }
 
-// handlePauseTask 处理暂停任务
+// handlePauseTask 处理暂停任务.
 func (h *Handlers) handlePauseTask(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "不支持的请求方法")
@@ -218,7 +218,7 @@ func (h *Handlers) handlePauseTask(w http.ResponseWriter, r *http.Request) {
 	writeSuccess(w, map[string]string{"status": "paused"})
 }
 
-// handleResumeTask 处理恢复任务
+// handleResumeTask 处理恢复任务.
 func (h *Handlers) handleResumeTask(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "不支持的请求方法")
@@ -242,7 +242,7 @@ func (h *Handlers) handleResumeTask(w http.ResponseWriter, r *http.Request) {
 
 // ========== 恢复点 Handlers ==========
 
-// handleRestorePoints 处理 /api/unifiedbackup/restorepoints
+// handleRestorePoints 处理 /api/unifiedbackup/restorepoints.
 func (h *Handlers) handleRestorePoints(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "不支持的请求方法")
@@ -265,7 +265,7 @@ func (h *Handlers) handleRestorePoints(w http.ResponseWriter, r *http.Request) {
 
 // ========== 恢复任务 Handlers ==========
 
-// handleRestore 处理 /api/unifiedbackup/restore
+// handleRestore 处理 /api/unifiedbackup/restore.
 func (h *Handlers) handleRestore(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "不支持的请求方法")
@@ -296,7 +296,7 @@ func (h *Handlers) handleRestore(w http.ResponseWriter, r *http.Request) {
 	writeCreated(w, job)
 }
 
-// handleRestoreJob 处理 /api/unifiedbackup/restore/jobs/{id}
+// handleRestoreJob 处理 /api/unifiedbackup/restore/jobs/{id}.
 func (h *Handlers) handleRestoreJob(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "不支持的请求方法")
@@ -323,7 +323,7 @@ func (h *Handlers) handleRestoreJob(w http.ResponseWriter, r *http.Request) {
 
 // ========== 统计 Handlers ==========
 
-// handleStats 处理 /api/unifiedbackup/stats
+// handleStats 处理 /api/unifiedbackup/stats.
 func (h *Handlers) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "不支持的请求方法")

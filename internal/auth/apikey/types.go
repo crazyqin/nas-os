@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// APIKey API 密钥结构
+// APIKey API 密钥结构.
 type APIKey struct {
 	ID          string     `json:"id"`           // 密钥唯一标识
 	Name        string     `json:"name"`         // 密钥名称（用户可读）
@@ -26,13 +26,13 @@ type APIKey struct {
 	SourceIPs   []string   `json:"source_ips"`   // 允许的源 IP（可选，空表示不限制）
 }
 
-// Scope API 访问范围
+// Scope API 访问范围.
 type Scope struct {
 	Resource string   `json:"resource"` // 资源类型：storage, user, system, container, vm
 	Actions  []string `json:"actions"`  // 操作：read, write, delete, admin
 }
 
-// APIKeyCreateRequest 创建密钥请求
+// APIKeyCreateRequest 创建密钥请求.
 type APIKeyCreateRequest struct {
 	Name        string     `json:"name" binding:"required,min=3,max=64"`
 	Permissions []string   `json:"permissions"`
@@ -43,7 +43,7 @@ type APIKeyCreateRequest struct {
 	SourceIPs   []string   `json:"source_ips"` // CIDR 格式
 }
 
-// APIKeyCreateResponse 创建密钥响应
+// APIKeyCreateResponse 创建密钥响应.
 type APIKeyCreateResponse struct {
 	ID        string     `json:"id"`
 	Name      string     `json:"name"`
@@ -54,13 +54,13 @@ type APIKeyCreateResponse struct {
 	Warning   string     `json:"warning"` // 安全警告
 }
 
-// APIKeyListResponse 密钥列表响应
+// APIKeyListResponse 密钥列表响应.
 type APIKeyListResponse struct {
 	Keys  []APIKeySummary `json:"keys"`
 	Total int             `json:"total"`
 }
 
-// APIKeySummary 密钥摘要（不含敏感信息）
+// APIKeySummary 密钥摘要（不含敏感信息）.
 type APIKeySummary struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
@@ -75,7 +75,7 @@ type APIKeySummary struct {
 	IsExpired   bool       `json:"is_expired"`
 }
 
-// APIKeyUpdateRequest 更新密钥请求
+// APIKeyUpdateRequest 更新密钥请求.
 type APIKeyUpdateRequest struct {
 	Name        *string    `json:"name"`
 	Permissions []string   `json:"permissions"`
@@ -87,7 +87,7 @@ type APIKeyUpdateRequest struct {
 	SourceIPs   []string   `json:"source_ips"`
 }
 
-// APIKeyUsage 使用记录
+// APIKeyUsage 使用记录.
 type APIKeyUsage struct {
 	KeyID      string    `json:"key_id"`
 	Timestamp  time.Time `json:"timestamp"`
@@ -98,7 +98,7 @@ type APIKeyUsage struct {
 	ResponseMs int       `json:"response_ms"`
 }
 
-// APIKeyPolicy 密钥策略（STIG 要求）
+// APIKeyPolicy 密钥策略（STIG 要求）.
 type APIKeyPolicy struct {
 	MinKeyLength       int  `json:"min_key_length"`       // 最小密钥长度，默认 32
 	MaxKeysPerUser     int  `json:"max_keys_per_user"`    // 每用户最大密钥数，默认 10
@@ -110,7 +110,7 @@ type APIKeyPolicy struct {
 	AutoDisableExpired bool `json:"auto_disable_expired"` // 自动禁用过期密钥
 }
 
-// DefaultAPIKeyPolicy 默认密钥策略（符合 STIG 要求）
+// DefaultAPIKeyPolicy 默认密钥策略（符合 STIG 要求）.
 var DefaultAPIKeyPolicy = APIKeyPolicy{
 	MinKeyLength:       32,
 	MaxKeysPerUser:     10,
@@ -122,7 +122,7 @@ var DefaultAPIKeyPolicy = APIKeyPolicy{
 	AutoDisableExpired: true,
 }
 
-// 错误定义
+// 错误定义.
 var (
 	ErrKeyNotFound       = "API 密钥不存在"
 	ErrKeyExpired        = "API 密钥已过期"

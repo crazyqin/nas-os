@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 审计追踪管理器
+// Manager 审计追踪管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	logger     *zap.Logger
@@ -21,7 +21,7 @@ type Manager struct {
 	rules      []DetectionRule
 }
 
-// DetectionRule 检测规则
+// DetectionRule 检测规则.
 type DetectionRule struct {
 	ID         string   `json:"id"`
 	Name       string   `json:"name"`
@@ -32,7 +32,7 @@ type DetectionRule struct {
 	Enabled    bool     `json:"enabled"`
 }
 
-// NewManager 创建审计追踪管理器
+// NewManager 创建审计追踪管理器.
 func NewManager(logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -55,7 +55,7 @@ func NewManager(logger *zap.Logger) *Manager {
 	return m
 }
 
-// initDetectionRules 初始化检测规则
+// initDetectionRules 初始化检测规则.
 func (m *Manager) initDetectionRules() {
 	m.rules = []DetectionRule{
 		{
@@ -76,7 +76,7 @@ func (m *Manager) initDetectionRules() {
 	}
 }
 
-// initDefaultPolicies 初始化默认保留策略
+// initDefaultPolicies 初始化默认保留策略.
 func (m *Manager) initDefaultPolicies() {
 	defaultPolicies := []*RetentionPolicy{
 		{
@@ -97,7 +97,7 @@ func (m *Manager) initDefaultPolicies() {
 	}
 }
 
-// RecordEvent 记录审计事件
+// RecordEvent 记录审计事件.
 func (m *Manager) RecordEvent(event *AuditEvent) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -120,7 +120,7 @@ func (m *Manager) RecordEvent(event *AuditEvent) {
 	go m.detectSuspiciousActivity(event)
 }
 
-// ListEvents 获取事件列表
+// ListEvents 获取事件列表.
 func (m *Manager) ListEvents(filter *EventFilter) ([]AuditEvent, int) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -147,7 +147,7 @@ func (m *Manager) ListEvents(filter *EventFilter) ([]AuditEvent, int) {
 	return events, total
 }
 
-// GetEvent 获取单个事件
+// GetEvent 获取单个事件.
 func (m *Manager) GetEvent(id string) (*AuditEvent, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -159,7 +159,7 @@ func (m *Manager) GetEvent(id string) (*AuditEvent, error) {
 	return event, nil
 }
 
-// matchesFilter 检查事件是否匹配过滤器
+// matchesFilter 检查事件是否匹配过滤器.
 func (m *Manager) matchesFilter(event *AuditEvent, filter *EventFilter) bool {
 	if filter == nil {
 		return true
@@ -211,7 +211,7 @@ func (m *Manager) matchesFilter(event *AuditEvent, filter *EventFilter) bool {
 	return true
 }
 
-// detectSuspiciousActivity 检测可疑行为
+// detectSuspiciousActivity 检测可疑行为.
 func (m *Manager) detectSuspiciousActivity(event *AuditEvent) {
 	// 简化的检测逻辑
 	for _, rule := range m.rules {
@@ -257,7 +257,7 @@ func (m *Manager) detectSuspiciousActivity(event *AuditEvent) {
 	}
 }
 
-// DetectSuspicious 获取可疑行为列表
+// DetectSuspicious 获取可疑行为列表.
 func (m *Manager) DetectSuspicious(filter *SuspiciousFilter) ([]SuspiciousActivity, int) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -278,7 +278,7 @@ func (m *Manager) DetectSuspicious(filter *SuspiciousFilter) ([]SuspiciousActivi
 	return activities, total
 }
 
-// matchesSuspiciousFilter 检查可疑行为是否匹配过滤器
+// matchesSuspiciousFilter 检查可疑行为是否匹配过滤器.
 func (m *Manager) matchesSuspiciousFilter(activity *SuspiciousActivity, filter *SuspiciousFilter) bool {
 	if filter == nil {
 		return true
@@ -321,7 +321,7 @@ func (m *Manager) matchesSuspiciousFilter(activity *SuspiciousActivity, filter *
 	return true
 }
 
-// UpdateSuspiciousStatus 更新可疑行为状态
+// UpdateSuspiciousStatus 更新可疑行为状态.
 func (m *Manager) UpdateSuspiciousStatus(id, status, assignedTo, notes string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -346,7 +346,7 @@ func (m *Manager) UpdateSuspiciousStatus(id, status, assignedTo, notes string) e
 	return nil
 }
 
-// GenerateReport 生成审计报告
+// GenerateReport 生成审计报告.
 func (m *Manager) GenerateReport(title, reportType string, period ReportPeriod, generatedBy string) (*AuditReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -428,7 +428,7 @@ func (m *Manager) GenerateReport(title, reportType string, period ReportPeriod, 
 	return report, nil
 }
 
-// GetReport 获取报告
+// GetReport 获取报告.
 func (m *Manager) GetReport(id string) (*AuditReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -440,7 +440,7 @@ func (m *Manager) GetReport(id string) (*AuditReport, error) {
 	return report, nil
 }
 
-// ListReports 获取报告列表
+// ListReports 获取报告列表.
 func (m *Manager) ListReports(reportType string) []*AuditReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -454,7 +454,7 @@ func (m *Manager) ListReports(reportType string) []*AuditReport {
 	return reports
 }
 
-// SetRetention 设置保留策略
+// SetRetention 设置保留策略.
 func (m *Manager) SetRetention(policy *RetentionPolicy) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -476,7 +476,7 @@ func (m *Manager) SetRetention(policy *RetentionPolicy) error {
 	return nil
 }
 
-// GetRetention 获取保留策略
+// GetRetention 获取保留策略.
 func (m *Manager) GetRetention(id string) (*RetentionPolicy, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -488,7 +488,7 @@ func (m *Manager) GetRetention(id string) (*RetentionPolicy, error) {
 	return policy, nil
 }
 
-// ListRetentions 获取保留策略列表
+// ListRetentions 获取保留策略列表.
 func (m *Manager) ListRetentions() []*RetentionPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -500,7 +500,7 @@ func (m *Manager) ListRetentions() []*RetentionPolicy {
 	return policies
 }
 
-// GetRetentionStats 获取保留统计
+// GetRetentionStats 获取保留统计.
 func (m *Manager) GetRetentionStats(policyID string) (*RetentionStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -519,7 +519,7 @@ func (m *Manager) GetRetentionStats(policyID string) (*RetentionStats, error) {
 	return stats, nil
 }
 
-// ExportAudit 导出审计数据
+// ExportAudit 导出审计数据.
 func (m *Manager) ExportAudit(req *ExportRequest) (*AuditExport, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -555,7 +555,7 @@ func (m *Manager) ExportAudit(req *ExportRequest) (*AuditExport, error) {
 	return export, nil
 }
 
-// GetExport 获取导出状态
+// GetExport 获取导出状态.
 func (m *Manager) GetExport(id string) (*AuditExport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -567,7 +567,7 @@ func (m *Manager) GetExport(id string) (*AuditExport, error) {
 	return export, nil
 }
 
-// ListExports 获取导出列表
+// ListExports 获取导出列表.
 func (m *Manager) ListExports() []*AuditExport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

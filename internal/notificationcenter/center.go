@@ -18,7 +18,7 @@ import (
 
 // ========== 通知中心 ==========
 
-// Center 通知中心
+// Center 通知中心.
 type Center struct {
 	mu            sync.RWMutex
 	logger        *zap.Logger
@@ -32,27 +32,27 @@ type Center struct {
 	handlers      map[Channel][]NotificationHandler
 }
 
-// NotificationHandler 通知投递处理函数
+// NotificationHandler 通知投递处理函数.
 type NotificationHandler func(ctx context.Context, notif *Notification, address string) error
 
-// CenterOption 通知中心配置选项
+// CenterOption 通知中心配置选项.
 type CenterOption func(*Center)
 
-// WithAggWindow 设置聚合窗口
+// WithAggWindow 设置聚合窗口.
 func WithAggWindow(d time.Duration) CenterOption {
 	return func(c *Center) {
 		c.aggWindow = d
 	}
 }
 
-// WithLogger 设置日志器
+// WithLogger 设置日志器.
 func WithLogger(l *zap.Logger) CenterOption {
 	return func(c *Center) {
 		c.logger = l
 	}
 }
 
-// NewCenter 创建通知中心
+// NewCenter 创建通知中心.
 func NewCenter(opts ...CenterOption) *Center {
 	c := &Center{
 		logger:        zap.NewNop(),
@@ -71,7 +71,7 @@ func NewCenter(opts ...CenterOption) *Center {
 	return c
 }
 
-// RegisterHandler 注册渠道投递处理函数
+// RegisterHandler 注册渠道投递处理函数.
 func (c *Center) RegisterHandler(ch Channel, h NotificationHandler) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -80,7 +80,7 @@ func (c *Center) RegisterHandler(ch Channel, h NotificationHandler) {
 
 // ========== 通知发送 ==========
 
-// SendRequest 发送通知请求
+// SendRequest 发送通知请求.
 type SendRequest struct {
 	Title      string                 `json:"title"`
 	Content    string                 `json:"content"`
@@ -95,7 +95,7 @@ type SendRequest struct {
 	TmplVars   map[string]interface{} `json:"template_vars,omitempty"`
 }
 
-// Send 发送通知
+// Send 发送通知.
 func (c *Center) Send(ctx context.Context, req *SendRequest) (*Notification, error) {
 	// 使用模板
 	if req.TemplateID != "" {
@@ -165,7 +165,7 @@ func (c *Center) Send(ctx context.Context, req *SendRequest) (*Notification, err
 	return notif, nil
 }
 
-// applyTemplate 应用通知模板
+// applyTemplate 应用通知模板.
 func (c *Center) applyTemplate(req *SendRequest) error {
 	c.mu.RLock()
 	tmpl, ok := c.templates[req.TemplateID]
@@ -219,7 +219,7 @@ func renderTemplate(tmplStr string, vars map[string]interface{}) (string, error)
 	return buf.String(), nil
 }
 
-// checkAggregation 检查通知聚合，如果在窗口内已有相同 key 的通知，返回合并后的通知
+// checkAggregation 检查通知聚合，如果在窗口内已有相同 key 的通知，返回合并后的通知.
 func (c *Center) checkAggregation(req *SendRequest) *Notification {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -243,7 +243,7 @@ func (c *Center) checkAggregation(req *SendRequest) *Notification {
 	return entry.LastNotif
 }
 
-// deliver 投递通知到各渠道
+// deliver 投递通知到各渠道.
 func (c *Center) deliver(ctx context.Context, notif *Notification) {
 	c.mu.RLock()
 	handlers := c.handlers
@@ -274,7 +274,7 @@ func (c *Center) deliver(ctx context.Context, notif *Notification) {
 	}
 }
 
-// resolveAddresses 解析渠道投递地址
+// resolveAddresses 解析渠道投递地址.
 func (c *Center) resolveAddresses(ch Channel, prefs map[string]*UserPreference) []string {
 	var addrs []string
 	for _, pref := range prefs {
@@ -291,7 +291,7 @@ func (c *Center) resolveAddresses(ch Channel, prefs map[string]*UserPreference) 
 	return addrs
 }
 
-// isSilenced 检查是否在静默时段
+// isSilenced 检查是否在静默时段.
 func (c *Center) isSilenced(prio Priority, labels map[string]string) bool {
 	if prio == PriorityCritical {
 		return false
@@ -314,7 +314,7 @@ func (c *Center) isSilenced(prio Priority, labels map[string]string) bool {
 
 // ========== 通知读取与管理 ==========
 
-// Get 获取通知
+// Get 获取通知.
 func (c *Center) Get(id string) (*Notification, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -325,7 +325,7 @@ func (c *Center) Get(id string) (*Notification, error) {
 	return notif, nil
 }
 
-// List 列出通知
+// List 列出通知.
 func (c *Center) List(filter *ListFilter) []*Notification {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -343,7 +343,7 @@ func (c *Center) List(filter *ListFilter) []*Notification {
 	return result
 }
 
-// MarkAsRead 标记为已读
+// MarkAsRead 标记为已读.
 func (c *Center) MarkAsRead(id string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -357,7 +357,7 @@ func (c *Center) MarkAsRead(id string) error {
 	return nil
 }
 
-// MarkAllAsRead 全部标记已读
+// MarkAllAsRead 全部标记已读.
 func (c *Center) MarkAllAsRead() int {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -373,7 +373,7 @@ func (c *Center) MarkAllAsRead() int {
 	return count
 }
 
-// Archive 归档通知
+// Archive 归档通知.
 func (c *Center) Archive(id string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -385,7 +385,7 @@ func (c *Center) Archive(id string) error {
 	return nil
 }
 
-// Delete 删除通知
+// Delete 删除通知.
 func (c *Center) Delete(id string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -396,7 +396,7 @@ func (c *Center) Delete(id string) error {
 	return nil
 }
 
-// Summary 获取通知摘要
+// Summary 获取通知摘要.
 func (c *Center) Summary() *NotificationSummary {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -422,7 +422,7 @@ func (c *Center) Summary() *NotificationSummary {
 
 // ========== 模板管理 ==========
 
-// AddTemplate 添加模板
+// AddTemplate 添加模板.
 func (c *Center) AddTemplate(tmpl *NotificationTemplate) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -433,7 +433,7 @@ func (c *Center) AddTemplate(tmpl *NotificationTemplate) {
 	c.templates[tmpl.ID] = tmpl
 }
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func (c *Center) GetTemplate(id string) (*NotificationTemplate, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -444,7 +444,7 @@ func (c *Center) GetTemplate(id string) (*NotificationTemplate, error) {
 	return t, nil
 }
 
-// ListTemplates 列出模板
+// ListTemplates 列出模板.
 func (c *Center) ListTemplates() []*NotificationTemplate {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -455,7 +455,7 @@ func (c *Center) ListTemplates() []*NotificationTemplate {
 	return result
 }
 
-// DeleteTemplate 删除模板
+// DeleteTemplate 删除模板.
 func (c *Center) DeleteTemplate(id string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -468,7 +468,7 @@ func (c *Center) DeleteTemplate(id string) error {
 
 // ========== 规则管理 ==========
 
-// AddRule 添加规则
+// AddRule 添加规则.
 func (c *Center) AddRule(rule *NotificationRule) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -486,7 +486,7 @@ func (c *Center) AddRule(rule *NotificationRule) error {
 	return nil
 }
 
-// GetRule 获取规则
+// GetRule 获取规则.
 func (c *Center) GetRule(id string) (*NotificationRule, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -497,7 +497,7 @@ func (c *Center) GetRule(id string) (*NotificationRule, error) {
 	return r, nil
 }
 
-// ListRules 列出规则
+// ListRules 列出规则.
 func (c *Center) ListRules() []*NotificationRule {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -508,7 +508,7 @@ func (c *Center) ListRules() []*NotificationRule {
 	return result
 }
 
-// UpdateRule 更新规则
+// UpdateRule 更新规则.
 func (c *Center) UpdateRule(rule *NotificationRule) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -526,7 +526,7 @@ func (c *Center) UpdateRule(rule *NotificationRule) error {
 	return nil
 }
 
-// DeleteRule 删除规则
+// DeleteRule 删除规则.
 func (c *Center) DeleteRule(id string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -537,7 +537,7 @@ func (c *Center) DeleteRule(id string) error {
 	return nil
 }
 
-// EvaluateRules 评估所有规则，对输入事件进行匹配
+// EvaluateRules 评估所有规则，对输入事件进行匹配.
 func (c *Center) EvaluateRules(ctx context.Context, event map[string]interface{}) ([]*Notification, error) {
 	c.mu.RLock()
 	var rules []*NotificationRule
@@ -579,7 +579,7 @@ func (c *Center) EvaluateRules(ctx context.Context, event map[string]interface{}
 	return fired, nil
 }
 
-// matchRule 检查事件是否匹配规则条件
+// matchRule 检查事件是否匹配规则条件.
 func (c *Center) matchRule(rule *NotificationRule, event map[string]interface{}) bool {
 	if len(rule.Conditions) == 0 {
 		return false
@@ -612,7 +612,7 @@ func (c *Center) matchRule(rule *NotificationRule, event map[string]interface{})
 	return matchCount == len(rule.Conditions)
 }
 
-// matchCondition 匹配单个条件
+// matchCondition 匹配单个条件.
 func matchCondition(cond RuleCondition, actual interface{}) bool {
 	switch cond.Operator {
 	case "==":
@@ -634,7 +634,7 @@ func matchCondition(cond RuleCondition, actual interface{}) bool {
 	}
 }
 
-// compareNumeric 数值比较
+// compareNumeric 数值比较.
 func compareNumeric(a, b interface{}, op string) bool {
 	af, okA := toFloat(a)
 	bf, okB := toFloat(b)
@@ -677,7 +677,7 @@ func toFloat(v interface{}) (float64, bool) {
 
 // ========== 静默时段管理 ==========
 
-// AddSilentPeriod 添加静默时段
+// AddSilentPeriod 添加静默时段.
 func (c *Center) AddSilentPeriod(sp *SilentPeriod) error {
 	if sp.StartHour < 0 || sp.StartHour > 23 || sp.EndHour < 0 || sp.EndHour > 23 {
 		return ErrInvalidSilentPeriod
@@ -695,7 +695,7 @@ func (c *Center) AddSilentPeriod(sp *SilentPeriod) error {
 	return nil
 }
 
-// ListSilentPeriods 列出静默时段
+// ListSilentPeriods 列出静默时段.
 func (c *Center) ListSilentPeriods() []*SilentPeriod {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -706,7 +706,7 @@ func (c *Center) ListSilentPeriods() []*SilentPeriod {
 	return result
 }
 
-// DeleteSilentPeriod 删除静默时段
+// DeleteSilentPeriod 删除静默时段.
 func (c *Center) DeleteSilentPeriod(id string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -719,7 +719,7 @@ func (c *Center) DeleteSilentPeriod(id string) error {
 
 // ========== 用户偏好管理 ==========
 
-// GetPreference 获取用户偏好
+// GetPreference 获取用户偏好.
 func (c *Center) GetPreference(userID string) *UserPreference {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -730,7 +730,7 @@ func (c *Center) GetPreference(userID string) *UserPreference {
 	return p
 }
 
-// SetPreference 设置用户偏好
+// SetPreference 设置用户偏好.
 func (c *Center) SetPreference(pref *UserPreference) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -740,7 +740,7 @@ func (c *Center) SetPreference(pref *UserPreference) {
 
 // ========== 列表过滤 ==========
 
-// ListFilter 通知列表过滤器
+// ListFilter 通知列表过滤器.
 type ListFilter struct {
 	Status   *NotificationStatus `json:"status,omitempty"`
 	Priority *Priority           `json:"priority,omitempty"`
@@ -750,7 +750,7 @@ type ListFilter struct {
 	Offset   int                 `json:"offset,omitempty"`
 }
 
-// Match 检查通知是否匹配过滤器
+// Match 检查通知是否匹配过滤器.
 func (f *ListFilter) Match(n *Notification) bool {
 	if f == nil {
 		return true
@@ -782,7 +782,7 @@ func generateID() string {
 	return hex.EncodeToString(b)
 }
 
-// sortNotifications 按创建时间倒序排列
+// sortNotifications 按创建时间倒序排列.
 func sortNotifications(list []*Notification) {
 	for i := 1; i < len(list); i++ {
 		key := list[i]

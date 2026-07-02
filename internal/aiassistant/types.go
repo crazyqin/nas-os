@@ -4,7 +4,7 @@ package aiassistant
 
 import "time"
 
-// QueryType 查询类型
+// QueryType 查询类型.
 type QueryType string
 
 const (
@@ -17,7 +17,7 @@ const (
 	QueryTypeGeneral QueryType = "general"   // 通用查询
 )
 
-// QueryStatus 查询状态
+// QueryStatus 查询状态.
 type QueryStatus string
 
 const (
@@ -27,7 +27,7 @@ const (
 	QueryStatusFailed     QueryStatus = "failed"
 )
 
-// QueryRequest 查询请求
+// QueryRequest 查询请求.
 type QueryRequest struct {
 	Query     string            `json:"query" binding:"required"`
 	QueryType QueryType         `json:"query_type,omitempty"`
@@ -35,7 +35,7 @@ type QueryRequest struct {
 	SessionID string            `json:"session_id,omitempty"`
 }
 
-// QueryResponse 查询响应
+// QueryResponse 查询响应.
 type QueryResponse struct {
 	ID          string         `json:"id"`
 	Query       string         `json:"query"`
@@ -49,7 +49,7 @@ type QueryResponse struct {
 	Duration    time.Duration  `json:"duration"`
 }
 
-// QueryMetadata 查询元数据
+// QueryMetadata 查询元数据.
 type QueryMetadata struct {
 	Model      string   `json:"model,omitempty"`       // 使用的 AI 模型
 	TokensUsed int      `json:"tokens_used,omitempty"` // 消耗的 token 数
@@ -57,7 +57,7 @@ type QueryMetadata struct {
 	Sources    []string `json:"sources,omitempty"`     // 数据来源
 }
 
-// SystemStatus 系统状态信息
+// SystemStatus 系统状态信息.
 type SystemStatus struct {
 	Hostname    string        `json:"hostname"`
 	Uptime      time.Duration `json:"uptime"`
@@ -72,7 +72,7 @@ type SystemStatus struct {
 	Timestamp   time.Time     `json:"timestamp"`
 }
 
-// CPUInfo CPU 信息
+// CPUInfo CPU 信息.
 type CPUInfo struct {
 	Model       string  `json:"model"`
 	Cores       int     `json:"cores"`
@@ -82,7 +82,7 @@ type CPUInfo struct {
 	Frequency   float64 `json:"frequency"`   // MHz
 }
 
-// MemoryInfo 内存信息
+// MemoryInfo 内存信息.
 type MemoryInfo struct {
 	Total     int64   `json:"total"` // 字节
 	Used      int64   `json:"used"`
@@ -92,7 +92,7 @@ type MemoryInfo struct {
 	Usage     float64 `json:"usage"` // 百分比
 }
 
-// DiskInfo 磁盘信息
+// DiskInfo 磁盘信息.
 type DiskInfo struct {
 	Device      string  `json:"device"`
 	MountPoint  string  `json:"mount_point"`
@@ -105,7 +105,7 @@ type DiskInfo struct {
 	Temperature float64 `json:"temperature,omitempty"`
 }
 
-// NetworkInfo 网络信息
+// NetworkInfo 网络信息.
 type NetworkInfo struct {
 	Interface  string `json:"interface"`
 	IPAddress  string `json:"ip_address"`
@@ -116,7 +116,7 @@ type NetworkInfo struct {
 	TxBytes    int64  `json:"tx_bytes"`
 }
 
-// DiagnosisResult 诊断结果
+// DiagnosisResult 诊断结果.
 type DiagnosisResult struct {
 	ID         string     `json:"id"`
 	Problem    string     `json:"problem"`
@@ -129,7 +129,7 @@ type DiagnosisResult struct {
 	CreatedAt  time.Time  `json:"created_at"`
 }
 
-// Severity 严重程度
+// Severity 严重程度.
 type Severity string
 
 const (
@@ -139,7 +139,7 @@ const (
 	SeverityCritical Severity = "critical"
 )
 
-// Solution 解决方案
+// Solution 解决方案.
 type Solution struct {
 	Title       string   `json:"title"`
 	Description string   `json:"description"`
@@ -149,7 +149,7 @@ type Solution struct {
 	Automated   bool     `json:"automated"` // 是否可自动执行
 }
 
-// FileSearchRequest 文件搜索请求
+// FileSearchRequest 文件搜索请求.
 type FileSearchRequest struct {
 	Query      string   `json:"query" binding:"required"`
 	Path       string   `json:"path,omitempty"`        // 搜索路径
@@ -158,7 +158,7 @@ type FileSearchRequest struct {
 	SearchMode string   `json:"search_mode,omitempty"` // name, content, both
 }
 
-// FileSearchResult 文件搜索结果
+// FileSearchResult 文件搜索结果.
 type FileSearchResult struct {
 	TotalFound int           `json:"total_found"`
 	Files      []FileInfo    `json:"files"`
@@ -166,7 +166,7 @@ type FileSearchResult struct {
 	Duration   time.Duration `json:"duration"`
 }
 
-// FileInfo 文件信息
+// FileInfo 文件信息.
 type FileInfo struct {
 	Path        string    `json:"path"`
 	Name        string    `json:"name"`
@@ -178,7 +178,7 @@ type FileInfo struct {
 	Relevance   float64   `json:"relevance"`              // 相关度评分
 }
 
-// DiagnosisRequest 诊断请求
+// DiagnosisRequest 诊断请求.
 type DiagnosisRequest struct {
 	Problem    string   `json:"problem" binding:"required"`
 	Category   string   `json:"category,omitempty"` // 硬件、软件、网络等
@@ -186,14 +186,14 @@ type DiagnosisRequest struct {
 	SystemLogs bool     `json:"system_logs"` // 是否分析系统日志
 }
 
-// ConversationMessage 对话消息
+// ConversationMessage 对话消息.
 type ConversationMessage struct {
 	Role      string    `json:"role"` // user, assistant, system
 	Content   string    `json:"content"`
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// Conversation 对话会话
+// Conversation 对话会话.
 type Conversation struct {
 	ID        string                 `json:"id"`
 	Messages  []ConversationMessage  `json:"messages"`
@@ -202,7 +202,7 @@ type Conversation struct {
 	UpdatedAt time.Time              `json:"updated_at"`
 }
 
-// AIConfig AI 助手配置
+// AIConfig AI 助手配置.
 type AIConfig struct {
 	Enabled         bool     `json:"enabled"`
 	DefaultModel    string   `json:"default_model"`
@@ -215,7 +215,7 @@ type AIConfig struct {
 	CacheTTLMinutes int      `json:"cache_ttl_minutes"`
 }
 
-// DefaultAIConfig 默认配置
+// DefaultAIConfig 默认配置.
 func DefaultAIConfig() *AIConfig {
 	return &AIConfig{
 		Enabled:         true,

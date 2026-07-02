@@ -23,7 +23,7 @@ import (
 // 蜜罐文件系统管理器
 // ============================================================
 
-// HoneypotManager 蜜罐文件系统管理器
+// HoneypotManager 蜜罐文件系统管理器.
 type HoneypotManager struct {
 	mu sync.RWMutex
 
@@ -56,7 +56,7 @@ type HoneypotManager struct {
 	stopChan chan struct{}
 }
 
-// HoneypotLayer 蜜罐部署层
+// HoneypotLayer 蜜罐部署层.
 type HoneypotLayer struct {
 	Name      string   `json:"name"`       // 层名称
 	Path      string   `json:"path"`       // 部署路径
@@ -67,7 +67,7 @@ type HoneypotLayer struct {
 	Weight    int      `json:"weight"`     // 触发权重
 }
 
-// DecoyTemplate 诱饵文件模板
+// DecoyTemplate 诱饵文件模板.
 type DecoyTemplate struct {
 	Name        string `json:"name"`        // 模板名
 	Extension   string `json:"extension"`   // 扩展名
@@ -77,7 +77,7 @@ type DecoyTemplate struct {
 	HeaderBytes []byte `json:"-"`           // 文件头（模拟真实格式）
 }
 
-// HoneypotAccessEvent 蜜罐访问事件
+// HoneypotAccessEvent 蜜罐访问事件.
 type HoneypotAccessEvent struct {
 	ID          string      `json:"id"`
 	HoneypotID  string      `json:"honeypot_id"`
@@ -91,7 +91,7 @@ type HoneypotAccessEvent struct {
 	SourceIP    string      `json:"source_ip,omitempty"`
 }
 
-// HoneypotStats 蜜罐统计
+// HoneypotStats 蜜罐统计.
 type HoneypotStats struct {
 	TotalDeployed   int       `json:"total_deployed"`
 	TotalTriggered  int64     `json:"total_triggered"`
@@ -106,7 +106,7 @@ type HoneypotStats struct {
 // 构造与生命周期
 // ============================================================
 
-// NewHoneypotManager 创建蜜罐管理器
+// NewHoneypotManager 创建蜜罐管理器.
 func NewHoneypotManager(config HoneypotConfig) *HoneypotManager {
 	hm := &HoneypotManager{
 		config:    config,
@@ -121,7 +121,7 @@ func NewHoneypotManager(config HoneypotConfig) *HoneypotManager {
 	return hm
 }
 
-// initTemplates 初始化诱饵模板
+// initTemplates 初始化诱饵模板.
 func (hm *HoneypotManager) initTemplates() {
 	hm.templates = []DecoyTemplate{
 		{Name: "财务报表", Extension: ".xlsx", MinSizeKB: 10, MaxSizeKB: 500, Category: "financial",
@@ -144,7 +144,7 @@ func (hm *HoneypotManager) initTemplates() {
 	}
 }
 
-// initLayers 初始化分层蜜罐
+// initLayers 初始化分层蜜罐.
 func (hm *HoneypotManager) initLayers() {
 	if len(hm.config.BasePaths) == 0 {
 		return
@@ -171,14 +171,14 @@ func (hm *HoneypotManager) initLayers() {
 	}
 }
 
-// SetTriggerCallback 设置触发回调
+// SetTriggerCallback 设置触发回调.
 func (hm *HoneypotManager) SetTriggerCallback(fn func(event HoneypotAccessEvent)) {
 	hm.mu.Lock()
 	hm.onTrigger = fn
 	hm.mu.Unlock()
 }
 
-// Start 启动蜜罐管理器
+// Start 启动蜜罐管理器.
 func (hm *HoneypotManager) Start() error {
 	hm.mu.Lock()
 	if hm.running {
@@ -199,7 +199,7 @@ func (hm *HoneypotManager) Start() error {
 	return nil
 }
 
-// Stop 停止蜜罐管理器
+// Stop 停止蜜罐管理器.
 func (hm *HoneypotManager) Stop() {
 	hm.mu.Lock()
 	defer hm.mu.Unlock()
@@ -215,7 +215,7 @@ func (hm *HoneypotManager) Stop() {
 // 部署
 // ============================================================
 
-// DeployAll 部署所有层的蜜罐
+// DeployAll 部署所有层的蜜罐.
 func (hm *HoneypotManager) DeployAll() error {
 	hm.mu.Lock()
 	defer hm.mu.Unlock()
@@ -249,7 +249,7 @@ func (hm *HoneypotManager) DeployAll() error {
 	return nil
 }
 
-// deployLayer 部署单层蜜罐
+// deployLayer 部署单层蜜罐.
 func (hm *HoneypotManager) deployLayer(layer HoneypotLayer) (int, error) {
 	if err := os.MkdirAll(layer.Path, 0755); err != nil {
 		return 0, fmt.Errorf("创建目录 %s: %w", layer.Path, err)
@@ -277,7 +277,7 @@ func (hm *HoneypotManager) deployLayer(layer HoneypotLayer) (int, error) {
 	return count, nil
 }
 
-// deployToPath 部署蜜罐到指定路径
+// deployToPath 部署蜜罐到指定路径.
 func (hm *HoneypotManager) deployToPath(dir string, count int) (int, error) {
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return 0, err
@@ -292,7 +292,7 @@ func (hm *HoneypotManager) deployToPath(dir string, count int) (int, error) {
 	return deployed, nil
 }
 
-// createDecoyFile 创建诱饵文件
+// createDecoyFile 创建诱饵文件.
 func (hm *HoneypotManager) createDecoyFile(dir string, categories []string, weight int) error {
 	// 选择模板
 	tmpl := hm.selectTemplate(categories)
@@ -345,7 +345,7 @@ func (hm *HoneypotManager) createDecoyFile(dir string, categories []string, weig
 	return nil
 }
 
-// selectTemplate 选择诱饵模板
+// selectTemplate 选择诱饵模板.
 func (hm *HoneypotManager) selectTemplate(categories []string) DecoyTemplate {
 	if len(categories) == 0 {
 		return hm.templates[mrand.Intn(len(hm.templates))]
@@ -368,7 +368,7 @@ func (hm *HoneypotManager) selectTemplate(categories []string) DecoyTemplate {
 	return matched[mrand.Intn(len(matched))]
 }
 
-// generateFilename 生成逼真的文件名
+// generateFilename 生成逼真的文件名.
 func (hm *HoneypotManager) generateFilename(tmpl DecoyTemplate) string {
 	prefixes := map[string][]string{
 		"financial":  {"2024年度", "Q4季度", "12月份", "年度汇总"},
@@ -393,7 +393,7 @@ func (hm *HoneypotManager) generateFilename(tmpl DecoyTemplate) string {
 	return prefix + suffix + tmpl.Extension
 }
 
-// generateFileContent 生成文件内容
+// generateFileContent 生成文件内容.
 func (hm *HoneypotManager) generateFileContent(tmpl DecoyTemplate, size int) ([]byte, error) {
 	data := make([]byte, size)
 
@@ -414,7 +414,7 @@ func (hm *HoneypotManager) generateFileContent(tmpl DecoyTemplate, size int) ([]
 // 访问监控
 // ============================================================
 
-// RecordAccess 记录蜜罐访问
+// RecordAccess 记录蜜罐访问.
 func (hm *HoneypotManager) RecordAccess(path string, accessMode string, procName string, procID int, userID int, sourceIP string) *HoneypotAccessEvent {
 	hm.mu.Lock()
 	defer hm.mu.Unlock()
@@ -477,7 +477,7 @@ func (hm *HoneypotManager) RecordAccess(path string, accessMode string, procName
 	return &event
 }
 
-// evaluateAccessThreat 评估蜜罐访问的威胁级别
+// evaluateAccessThreat 评估蜜罐访问的威胁级别.
 func (hm *HoneypotManager) evaluateAccessThreat(hp *HoneypotFile, accessMode string) ThreatLevel {
 	// 写入/删除蜜罐 = 严重威胁
 	switch accessMode {
@@ -498,7 +498,7 @@ func (hm *HoneypotManager) evaluateAccessThreat(hp *HoneypotFile, accessMode str
 // 查询
 // ============================================================
 
-// GetAll 获取所有蜜罐文件
+// GetAll 获取所有蜜罐文件.
 func (hm *HoneypotManager) GetAll() []HoneypotFile {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -510,7 +510,7 @@ func (hm *HoneypotManager) GetAll() []HoneypotFile {
 	return result
 }
 
-// GetTriggered 获取已触发的蜜罐
+// GetTriggered 获取已触发的蜜罐.
 func (hm *HoneypotManager) GetTriggered() []HoneypotFile {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -524,7 +524,7 @@ func (hm *HoneypotManager) GetTriggered() []HoneypotFile {
 	return result
 }
 
-// GetAccessLog 获取访问日志
+// GetAccessLog 获取访问日志.
 func (hm *HoneypotManager) GetAccessLog(limit int) []HoneypotAccessEvent {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -539,7 +539,7 @@ func (hm *HoneypotManager) GetAccessLog(limit int) []HoneypotAccessEvent {
 	return result
 }
 
-// IsHoneypot 检查路径是否为蜜罐
+// IsHoneypot 检查路径是否为蜜罐.
 func (hm *HoneypotManager) IsHoneypot(path string) bool {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -555,7 +555,7 @@ func (hm *HoneypotManager) IsHoneypot(path string) bool {
 	return false
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (hm *HoneypotManager) GetStats() HoneypotStats {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
@@ -583,7 +583,7 @@ func (hm *HoneypotManager) GetStats() HoneypotStats {
 // 维护循环
 // ============================================================
 
-// refreshLoop 定期刷新蜜罐
+// refreshLoop 定期刷新蜜罐.
 func (hm *HoneypotManager) refreshLoop() {
 	interval := time.Duration(hm.config.RefreshIntervalMin) * time.Minute
 	ticker := time.NewTicker(interval)
@@ -599,7 +599,7 @@ func (hm *HoneypotManager) refreshLoop() {
 	}
 }
 
-// refresh 刷新蜜罐文件
+// refresh 刷新蜜罐文件.
 func (hm *HoneypotManager) refresh() {
 	hm.mu.Lock()
 	defer hm.mu.Unlock()
@@ -624,7 +624,7 @@ func (hm *HoneypotManager) refresh() {
 	log.Println("[Honeypot] 蜜罐刷新完成")
 }
 
-// monitorLoop 监控蜜罐文件完整性
+// monitorLoop 监控蜜罐文件完整性.
 func (hm *HoneypotManager) monitorLoop() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
@@ -639,7 +639,7 @@ func (hm *HoneypotManager) monitorLoop() {
 	}
 }
 
-// checkIntegrity 检查蜜罐文件完整性
+// checkIntegrity 检查蜜罐文件完整性.
 func (hm *HoneypotManager) checkIntegrity() {
 	hm.mu.RLock()
 	files := make(map[string]*HoneypotFile)
@@ -681,7 +681,7 @@ func (hm *HoneypotManager) checkIntegrity() {
 	}
 }
 
-// GenerateRandomInt 生成安全的随机整数 [0, max)
+// GenerateRandomInt 生成安全的随机整数 [0, max).
 func GenerateRandomInt(max int) int {
 	n, err := rand.Int(rand.Reader, big.NewInt(int64(max)))
 	if err != nil {

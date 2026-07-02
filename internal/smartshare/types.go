@@ -3,7 +3,7 @@ package smartshare
 
 import "time"
 
-// ShareMode 分享模式
+// ShareMode 分享模式.
 type ShareMode string
 
 const (
@@ -13,7 +13,7 @@ const (
 	ShareModeOnce     ShareMode = "once"     // 一次性链接
 )
 
-// ShareStatus 分享链接状态
+// ShareStatus 分享链接状态.
 type ShareStatus string
 
 const (
@@ -23,7 +23,7 @@ const (
 	ShareStatusExhausted ShareStatus = "exhausted" // 下载次数已用完
 )
 
-// DeviceType 设备类型
+// DeviceType 设备类型.
 type DeviceType string
 
 const (
@@ -34,7 +34,7 @@ const (
 	DeviceUnknown DeviceType = "unknown"
 )
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 const (
@@ -43,7 +43,7 @@ const (
 	AlertLevelCritical AlertLevel = "critical"
 )
 
-// WatermarkPosition 水印位置
+// WatermarkPosition 水印位置.
 type WatermarkPosition string
 
 const (
@@ -55,7 +55,7 @@ const (
 	WatermarkTiled       WatermarkPosition = "tiled" // 平铺
 )
 
-// ShareLink 分享链接
+// ShareLink 分享链接.
 type ShareLink struct {
 	ID              string           `json:"id"`
 	Token           string           `json:"token"`
@@ -87,7 +87,7 @@ type ShareLink struct {
 	LastAccessAt    *time.Time       `json:"last_access_at,omitempty"`
 }
 
-// SharePolicy 分享策略
+// SharePolicy 分享策略.
 type SharePolicy struct {
 	ID                  string        `json:"id"`
 	Name                string        `json:"name"`
@@ -109,7 +109,7 @@ type SharePolicy struct {
 	UpdatedAt           time.Time     `json:"updated_at"`
 }
 
-// AccessLog 访问日志
+// AccessLog 访问日志.
 type AccessLog struct {
 	ID         string     `json:"id"`
 	ShareID    string     `json:"share_id"`
@@ -130,7 +130,7 @@ type AccessLog struct {
 	Timestamp  time.Time  `json:"timestamp"`
 }
 
-// ShareAnalytics 分享统计分析
+// ShareAnalytics 分享统计分析.
 type ShareAnalytics struct {
 	ShareID           string             `json:"share_id"`
 	TotalViews        int                `json:"total_views"`
@@ -151,13 +151,13 @@ type ShareAnalytics struct {
 	GeneratedAt       time.Time          `json:"generated_at"`
 }
 
-// RefererStat 来源统计
+// RefererStat 来源统计.
 type RefererStat struct {
 	Referer string `json:"referer"`
 	Count   int    `json:"count"`
 }
 
-// WatermarkConfig 水印配置
+// WatermarkConfig 水印配置.
 type WatermarkConfig struct {
 	Text      string            `json:"text"`
 	FontSize  int               `json:"font_size"`
@@ -169,7 +169,7 @@ type WatermarkConfig struct {
 	ImageURL  string            `json:"image_url,omitempty"` // 图片水印
 }
 
-// BrandingConfig 品牌化配置
+// BrandingConfig 品牌化配置.
 type BrandingConfig struct {
 	CompanyName     string `json:"company_name,omitempty"`
 	LogoURL         string `json:"logo_url,omitempty"`
@@ -184,7 +184,7 @@ type BrandingConfig struct {
 	BannerImageURL  string `json:"banner_image_url,omitempty"`
 }
 
-// PreviewConfig 预览配置
+// PreviewConfig 预览配置.
 type PreviewConfig struct {
 	AllowDownload    bool `json:"allow_download"`
 	AllowPrint       bool `json:"allow_print"`
@@ -194,7 +194,7 @@ type PreviewConfig struct {
 	PreviewQuality   int  `json:"preview_quality,omitempty"`   // 预览质量 1-100
 }
 
-// NotifyConfig 通知配置
+// NotifyConfig 通知配置.
 type NotifyConfig struct {
 	OnView        bool   `json:"on_view"`
 	OnDownload    bool   `json:"on_download"`
@@ -206,7 +206,7 @@ type NotifyConfig struct {
 	MaxPerHour    int    `json:"max_per_hour"` // 每小时最大通知数
 }
 
-// NotifyEvent 通知事件
+// NotifyEvent 通知事件.
 type NotifyEvent struct {
 	ID        string     `json:"id"`
 	ShareID   string     `json:"share_id"`
@@ -219,7 +219,7 @@ type NotifyEvent struct {
 	Timestamp time.Time  `json:"timestamp"`
 }
 
-// BatchShareRequest 批量分享请求
+// BatchShareRequest 批量分享请求.
 type BatchShareRequest struct {
 	FilePaths    []string      `json:"file_paths" binding:"required,min=1"`
 	Mode         ShareMode     `json:"mode"`
@@ -229,20 +229,20 @@ type BatchShareRequest struct {
 	Tags         []string      `json:"tags,omitempty"`
 }
 
-// BatchShareResult 批量分享结果
+// BatchShareResult 批量分享结果.
 type BatchShareResult struct {
 	Success []*ShareLink `json:"success"`
 	Failed  []BatchError `json:"failed,omitempty"`
 	Total   int          `json:"total"`
 }
 
-// BatchError 批量操作错误
+// BatchError 批量操作错误.
 type BatchError struct {
 	FilePath string `json:"file_path"`
 	Error    string `json:"error"`
 }
 
-// DefaultSharePolicy 默认分享策略
+// DefaultSharePolicy 默认分享策略.
 func DefaultSharePolicy() *SharePolicy {
 	return &SharePolicy{
 		ID:                  "policy-default",
@@ -265,7 +265,7 @@ func DefaultSharePolicy() *SharePolicy {
 	}
 }
 
-// DefaultWatermarkConfig 默认水印配置
+// DefaultWatermarkConfig 默认水印配置.
 func DefaultWatermarkConfig() *WatermarkConfig {
 	return &WatermarkConfig{
 		Text:      "Confidential",
@@ -278,7 +278,7 @@ func DefaultWatermarkConfig() *WatermarkConfig {
 	}
 }
 
-// DefaultBrandingConfig 默认品牌配置
+// DefaultBrandingConfig 默认品牌配置.
 func DefaultBrandingConfig() *BrandingConfig {
 	return &BrandingConfig{
 		CompanyName:     "NAS-OS",
@@ -290,7 +290,7 @@ func DefaultBrandingConfig() *BrandingConfig {
 	}
 }
 
-// DefaultNotifyConfig 默认通知配置
+// DefaultNotifyConfig 默认通知配置.
 func DefaultNotifyConfig() *NotifyConfig {
 	return &NotifyConfig{
 		OnView:        false,
@@ -302,7 +302,7 @@ func DefaultNotifyConfig() *NotifyConfig {
 	}
 }
 
-// DefaultPreviewConfig 默认预览配置
+// DefaultPreviewConfig 默认预览配置.
 func DefaultPreviewConfig() *PreviewConfig {
 	return &PreviewConfig{
 		AllowDownload:    false,

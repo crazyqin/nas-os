@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// MetricsCollector 指标收集器
+// MetricsCollector 指标收集器.
 type MetricsCollector struct {
 	// 流量窗口
 	windows    []*TrafficWindow
@@ -25,7 +25,7 @@ type MetricsCollector struct {
 	mu sync.RWMutex
 }
 
-// BackendMetrics 后端指标
+// BackendMetrics 后端指标.
 type BackendMetrics struct {
 	BackendID     string        `json:"backend_id"`
 	Requests      int64         `json:"requests"`
@@ -45,7 +45,7 @@ type BackendMetrics struct {
 	mu             sync.RWMutex
 }
 
-// NewMetricsCollector 创建指标收集器
+// NewMetricsCollector 创建指标收集器.
 func NewMetricsCollector() *MetricsCollector {
 	return &MetricsCollector{
 		windowSize:     1 * time.Minute,
@@ -55,7 +55,7 @@ func NewMetricsCollector() *MetricsCollector {
 	}
 }
 
-// RecordRequest 记录请求
+// RecordRequest 记录请求.
 func (mc *MetricsCollector) RecordRequest(backendID string, latency time.Duration, bytesSent, bytesRecv int64, err error) {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
@@ -68,7 +68,7 @@ func (mc *MetricsCollector) RecordRequest(backendID string, latency time.Duratio
 	mc.updateWindow(1, bytesSent, bytesRecv, err != nil, latency)
 }
 
-// getOrCreateBackendMetrics 获取或创建后端指标
+// getOrCreateBackendMetrics 获取或创建后端指标.
 func (mc *MetricsCollector) getOrCreateBackendMetrics(backendID string) *BackendMetrics {
 	bm, exists := mc.backendMetrics[backendID]
 	if !exists {
@@ -81,7 +81,7 @@ func (mc *MetricsCollector) getOrCreateBackendMetrics(backendID string) *Backend
 	return bm
 }
 
-// record 记录后端请求
+// record 记录后端请求.
 func (bm *BackendMetrics) record(latency time.Duration, bytesSent, bytesRecv int64, err error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -136,7 +136,7 @@ func (bm *BackendMetrics) record(latency time.Duration, bytesSent, bytesRecv int
 	}
 }
 
-// updateWindow 更新流量窗口
+// updateWindow 更新流量窗口.
 func (mc *MetricsCollector) updateWindow(requests int64, bytesSent, bytesRecv int64, isError bool, latency time.Duration) {
 	now := time.Now()
 
@@ -171,7 +171,7 @@ func (mc *MetricsCollector) updateWindow(requests int64, bytesSent, bytesRecv in
 	}
 }
 
-// GetMetrics 获取指标快照
+// GetMetrics 获取指标快照.
 func (mc *MetricsCollector) GetMetrics() TrafficMetrics {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -218,7 +218,7 @@ func (mc *MetricsCollector) GetMetrics() TrafficMetrics {
 	return metrics
 }
 
-// GetBackendMetrics 获取后端指标
+// GetBackendMetrics 获取后端指标.
 func (mc *MetricsCollector) GetBackendMetrics(backendID string) *BackendMetrics {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -251,7 +251,7 @@ func (mc *MetricsCollector) GetBackendMetrics(backendID string) *BackendMetrics 
 	return result
 }
 
-// GetAllBackendMetrics 获取所有后端指标
+// GetAllBackendMetrics 获取所有后端指标.
 func (mc *MetricsCollector) GetAllBackendMetrics() map[string]*BackendMetrics {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -280,7 +280,7 @@ func (mc *MetricsCollector) GetAllBackendMetrics() map[string]*BackendMetrics {
 	return result
 }
 
-// GetTrafficWindows 获取流量窗口
+// GetTrafficWindows 获取流量窗口.
 func (mc *MetricsCollector) GetTrafficWindows(duration time.Duration) []TrafficWindow {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -309,7 +309,7 @@ func (mc *MetricsCollector) GetTrafficWindows(duration time.Duration) []TrafficW
 	return result
 }
 
-// Reset 重置指标
+// Reset 重置指标.
 func (mc *MetricsCollector) Reset() {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
@@ -322,7 +322,7 @@ func (mc *MetricsCollector) Reset() {
 // Prometheus格式指标
 // ============================================================
 
-// ToPrometheusMetrics 导出Prometheus格式指标
+// ToPrometheusMetrics 导出Prometheus格式指标.
 func (mc *MetricsCollector) ToPrometheusMetrics() string {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()

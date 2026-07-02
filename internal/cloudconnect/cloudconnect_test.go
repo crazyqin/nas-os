@@ -23,10 +23,10 @@ func TestAddCloudConnection(t *testing.T) {
 	cm := NewCloudManager()
 
 	config := &CloudConfig{
-		ID:       "aws-1",
-		Name:     "AWS Main",
-		Provider: ProviderAWS,
-		Region:   "us-east-1",
+		ID:        "aws-1",
+		Name:      "AWS Main",
+		Provider:  ProviderAWS,
+		Region:    "us-east-1",
 		AccessKey: "AKIAIOSFODNN7EXAMPLE",
 		SecretKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
 	}

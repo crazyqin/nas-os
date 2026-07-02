@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// IndexStatus 索引状态
+// IndexStatus 索引状态.
 type IndexStatus string
 
 const (
@@ -18,7 +18,7 @@ const (
 	IndexStatusUpdating IndexStatus = "updating"
 )
 
-// FileType 文件类型
+// FileType 文件类型.
 type FileType string
 
 const (
@@ -31,7 +31,7 @@ const (
 	FileTypeOther    FileType = "other"
 )
 
-// SearchMode 搜索模式
+// SearchMode 搜索模式.
 type SearchMode string
 
 const (
@@ -40,7 +40,7 @@ const (
 	SearchModeAll      SearchMode = "all"
 )
 
-// SortOrder 排序方式
+// SortOrder 排序方式.
 type SortOrder string
 
 const (
@@ -50,7 +50,7 @@ const (
 	SortByName      SortOrder = "name"
 )
 
-// Document 索引文档
+// Document 索引文档.
 type Document struct {
 	ID        string            `json:"id"`
 	Path      string            `json:"path"`
@@ -66,14 +66,14 @@ type Document struct {
 	Metadata  map[string]string `json:"metadata,omitempty"`
 }
 
-// IndexEntry 倒排索引条目
+// IndexEntry 倒排索引条目.
 type IndexEntry struct {
 	Term      string   `json:"term"`
 	DocIDs    []string `json:"doc_ids"`
 	Frequency int      `json:"frequency"` // 文档频率
 }
 
-// Posting 倒排列表项
+// Posting 倒排列表项.
 type Posting struct {
 	DocID     string  `json:"doc_id"`
 	TermFreq  int     `json:"term_freq"` // 词频
@@ -81,7 +81,7 @@ type Posting struct {
 	Score     float64 `json:"score"`     // TF-IDF 分数
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	DocID          string            `json:"doc_id"`
 	Path           string            `json:"path"`
@@ -100,7 +100,7 @@ type SearchResult struct {
 	Metadata       map[string]string `json:"metadata,omitempty"`
 }
 
-// MatchPosition 匹配位置
+// MatchPosition 匹配位置.
 type MatchPosition struct {
 	Field string `json:"field"` // "filename" 或 "content"
 	Start int    `json:"start"`
@@ -108,7 +108,7 @@ type MatchPosition struct {
 	Term  string `json:"term"`
 }
 
-// SearchQuery 搜索查询
+// SearchQuery 搜索查询.
 type SearchQuery struct {
 	Query     string     `json:"query" binding:"required"`
 	Mode      SearchMode `json:"mode,omitempty"`
@@ -123,7 +123,7 @@ type SearchQuery struct {
 	MaxSize   *int64     `json:"max_size,omitempty"`
 }
 
-// SearchResponse 搜索响应
+// SearchResponse 搜索响应.
 type SearchResponse struct {
 	Query      string         `json:"query"`
 	TotalHits  int            `json:"total_hits"`
@@ -132,7 +132,7 @@ type SearchResponse struct {
 	Suggestion string         `json:"suggestion,omitempty"`
 }
 
-// IndexStats 索引统计
+// IndexStats 索引统计.
 type IndexStats struct {
 	TotalDocuments int64         `json:"total_documents"`
 	TotalTerms     int64         `json:"total_terms"`
@@ -142,7 +142,7 @@ type IndexStats struct {
 	IndexDuration  time.Duration `json:"index_duration"`
 }
 
-// TrueSearchConfig 搜索引擎配置
+// TrueSearchConfig 搜索引擎配置.
 type TrueSearchConfig struct {
 	Enabled         bool   `json:"enabled"`
 	IndexDir        string `json:"index_dir"`        // SSD 索引存储目录
@@ -156,7 +156,7 @@ type TrueSearchConfig struct {
 	IncrementalMode bool   `json:"incremental_mode"` // 增量更新模式
 }
 
-// DefaultTrueSearchConfig 默认配置
+// DefaultTrueSearchConfig 默认配置.
 func DefaultTrueSearchConfig() *TrueSearchConfig {
 	return &TrueSearchConfig{
 		Enabled:         true,
@@ -172,7 +172,7 @@ func DefaultTrueSearchConfig() *TrueSearchConfig {
 	}
 }
 
-// invertedIndex 倒排索引核心结构
+// invertedIndex 倒排索引核心结构.
 type invertedIndex struct {
 	mu        sync.RWMutex
 	index     map[string][]*Posting // term -> postings
@@ -181,7 +181,7 @@ type invertedIndex struct {
 	termCount int64
 }
 
-// newInvertedIndex 创建倒排索引
+// newInvertedIndex 创建倒排索引.
 func newInvertedIndex() *invertedIndex {
 	return &invertedIndex{
 		index: make(map[string][]*Posting),

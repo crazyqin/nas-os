@@ -9,14 +9,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// Allocator 资源分配器
+// Allocator 资源分配器.
 type Allocator struct {
 	mu     sync.RWMutex
 	logger *zap.Logger
 	config *Config
 }
 
-// NewAllocator 创建资源分配器
+// NewAllocator 创建资源分配器.
 func NewAllocator(logger *zap.Logger, config *Config) *Allocator {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -30,7 +30,7 @@ func NewAllocator(logger *zap.Logger, config *Config) *Allocator {
 	}
 }
 
-// AllocateNode 根据资源需求分配最佳节点
+// AllocateNode 根据资源需求分配最佳节点.
 func (a *Allocator) AllocateNode(nodes map[string]*Node, req *ResourceReq) (string, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -57,7 +57,7 @@ func (a *Allocator) AllocateNode(nodes map[string]*Node, req *ResourceReq) (stri
 	return best.ID, nil
 }
 
-// filterEligible 过滤满足资源需求的节点
+// filterEligible 过滤满足资源需求的节点.
 func (a *Allocator) filterEligible(nodes map[string]*Node, req *ResourceReq) []*Node {
 	result := make([]*Node, 0)
 	for _, node := range nodes {
@@ -78,7 +78,7 @@ func (a *Allocator) filterEligible(nodes map[string]*Node, req *ResourceReq) []*
 	return result
 }
 
-// hasCapacity 检查节点是否有足够容量
+// hasCapacity 检查节点是否有足够容量.
 func (a *Allocator) hasCapacity(node *Node, req *ResourceReq) bool {
 	res := node.Resources
 
@@ -97,7 +97,7 @@ func (a *Allocator) hasCapacity(node *Node, req *ResourceReq) bool {
 	return true
 }
 
-// scoreNode 计算节点评分
+// scoreNode 计算节点评分.
 func (a *Allocator) scoreNode(node *Node, req *ResourceReq) float64 {
 	if node.Resources == nil {
 		return 0.5
@@ -141,7 +141,7 @@ func (a *Allocator) scoreNode(node *Node, req *ResourceReq) float64 {
 	return score
 }
 
-// ReserveResources 在节点上预留资源
+// ReserveResources 在节点上预留资源.
 func (a *Allocator) ReserveResources(node *Node, req *ResourceReq) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -170,7 +170,7 @@ func (a *Allocator) ReserveResources(node *Node, req *ResourceReq) error {
 	return nil
 }
 
-// ReleaseResources 释放节点上的资源
+// ReleaseResources 释放节点上的资源.
 func (a *Allocator) ReleaseResources(node *Node, req *ResourceReq) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -193,7 +193,7 @@ func (a *Allocator) ReleaseResources(node *Node, req *ResourceReq) {
 	}
 }
 
-// GetResourceUtilization 获取节点资源利用率
+// GetResourceUtilization 获取节点资源利用率.
 func (a *Allocator) GetResourceUtilization(node *Node) map[string]float64 {
 	a.mu.RLock()
 	defer a.mu.RUnlock()

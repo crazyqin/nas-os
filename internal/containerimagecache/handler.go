@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler 容器镜像缓存 HTTP 处理器
+// Handler 容器镜像缓存 HTTP 处理器.
 type Handler struct {
 	mgr *ImageCacheManager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(mgr *ImageCacheManager) *Handler {
 	return &Handler{mgr: mgr}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/containerimagecache/stats", h.handleStats)
 	mux.HandleFunc("/api/v1/containerimagecache/images", h.handleImages)

@@ -8,22 +8,22 @@ import (
 	"time"
 )
 
-// HealthMonitor GPU健康监控器
+// HealthMonitor GPU健康监控器.
 type HealthMonitor struct {
-	mu         sync.RWMutex
-	logger     *slog.Logger
-	config     *HealthThresholds
-	devices    map[string]*GPUDevice
-	statuses   map[string]*GPUHealthStatus
-	warnings   []string
-	errors     []string
-	interval   time.Duration
-	lastCheck  time.Time
-	ctx        context.Context
-	cancel     context.CancelFunc
+	mu        sync.RWMutex
+	logger    *slog.Logger
+	config    *HealthThresholds
+	devices   map[string]*GPUDevice
+	statuses  map[string]*GPUHealthStatus
+	warnings  []string
+	errors    []string
+	interval  time.Duration
+	lastCheck time.Time
+	ctx       context.Context
+	cancel    context.CancelFunc
 }
 
-// NewHealthMonitor 创建健康监控器
+// NewHealthMonitor 创建健康监控器.
 func NewHealthMonitor(config *HealthThresholds, interval time.Duration, logger *slog.Logger) *HealthMonitor {
 	if logger == nil {
 		logger = slog.Default()
@@ -48,7 +48,7 @@ func NewHealthMonitor(config *HealthThresholds, interval time.Duration, logger *
 	}
 }
 
-// Start 启动健康监控
+// Start 启动健康监控.
 func (m *HealthMonitor) Start(devices map[string]*GPUDevice) {
 	m.mu.Lock()
 	m.devices = devices
@@ -70,19 +70,19 @@ func (m *HealthMonitor) Start(devices map[string]*GPUDevice) {
 	}
 }
 
-// Stop 停止健康监控
+// Stop 停止健康监控.
 func (m *HealthMonitor) Stop() {
 	m.cancel()
 }
 
-// UpdateDevices 更新设备列表
+// UpdateDevices 更新设备列表.
 func (m *HealthMonitor) UpdateDevices(devices map[string]*GPUDevice) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.devices = devices
 }
 
-// CheckAll 检查所有GPU健康状态
+// CheckAll 检查所有GPU健康状态.
 func (m *HealthMonitor) CheckAll() *GPUHealthReport {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -124,7 +124,7 @@ func (m *HealthMonitor) CheckAll() *GPUHealthReport {
 	return report
 }
 
-// checkDevice 检查单个GPU设备健康状态
+// checkDevice 检查单个GPU设备健康状态.
 func (m *HealthMonitor) checkDevice(device *GPUDevice) *GPUHealthStatus {
 	status := &GPUHealthStatus{
 		DeviceID:    device.ID,
@@ -167,7 +167,7 @@ func (m *HealthMonitor) checkDevice(device *GPUDevice) *GPUHealthStatus {
 	return status
 }
 
-// checkTemperature 检查温度
+// checkTemperature 检查温度.
 func (m *HealthMonitor) checkTemperature(temp int, status *GPUHealthStatus) string {
 	if temp <= 0 {
 		return "unknown"
@@ -192,7 +192,7 @@ func (m *HealthMonitor) checkTemperature(temp int, status *GPUHealthStatus) stri
 	return "normal"
 }
 
-// checkPower 检查功耗
+// checkPower 检查功耗.
 func (m *HealthMonitor) checkPower(usage, limit uint64, status *GPUHealthStatus) string {
 	if limit == 0 {
 		return "unknown"
@@ -215,7 +215,7 @@ func (m *HealthMonitor) checkPower(usage, limit uint64, status *GPUHealthStatus)
 	return "normal"
 }
 
-// checkMemory 检查显存
+// checkMemory 检查显存.
 func (m *HealthMonitor) checkMemory(used, total uint64, status *GPUHealthStatus) string {
 	if total == 0 {
 		return "unknown"
@@ -238,7 +238,7 @@ func (m *HealthMonitor) checkMemory(used, total uint64, status *GPUHealthStatus)
 	return "normal"
 }
 
-// GetDeviceStatus 获取单个设备健康状态
+// GetDeviceStatus 获取单个设备健康状态.
 func (m *HealthMonitor) GetDeviceStatus(deviceID string) (*GPUHealthStatus, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -246,35 +246,35 @@ func (m *HealthMonitor) GetDeviceStatus(deviceID string) (*GPUHealthStatus, bool
 	return status, ok
 }
 
-// GetWarnings 获取当前警告
+// GetWarnings 获取当前警告.
 func (m *HealthMonitor) GetWarnings() []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.warnings
 }
 
-// GetErrors 获取当前错误
+// GetErrors 获取当前错误.
 func (m *HealthMonitor) GetErrors() []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.errors
 }
 
-// SetThresholds 更新阈值
+// SetThresholds 更新阈值.
 func (m *HealthMonitor) SetThresholds(config *HealthThresholds) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.config = config
 }
 
-// SetInterval 更新检查间隔
+// SetInterval 更新检查间隔.
 func (m *HealthMonitor) SetInterval(interval time.Duration) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.interval = interval
 }
 
-// GetLastCheckTime 获取最后检查时间
+// GetLastCheckTime 获取最后检查时间.
 func (m *HealthMonitor) GetLastCheckTime() time.Time {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

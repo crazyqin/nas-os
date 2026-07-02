@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// RetentionMode defines how long files are protected
+// RetentionMode defines how long files are protected.
 type RetentionMode string
 
 const (
@@ -13,7 +13,7 @@ const (
 	RetentionModeUnlocked RetentionMode = "unlocked" // Not yet locked
 )
 
-// PolicyMode defines the WORM policy enforcement level
+// PolicyMode defines the WORM policy enforcement level.
 type PolicyMode string
 
 const (
@@ -21,7 +21,7 @@ const (
 	PolicyModeCompliance PolicyMode = "compliance" // Regulatory compliance mode (stricter)
 )
 
-// FolderState represents the current state of a WriteOnce folder
+// FolderState represents the current state of a WriteOnce folder.
 type FolderState string
 
 const (
@@ -30,7 +30,7 @@ const (
 	FolderStateExpired FolderState = "expired" // Retention period expired
 )
 
-// WriteOnceConfig represents the configuration for WriteOnce feature
+// WriteOnceConfig represents the configuration for WriteOnce feature.
 type WriteOnceConfig struct {
 	Enabled              bool `json:"enabled"`
 	DefaultRetentionDays int  `json:"default_retention_days"`
@@ -41,7 +41,7 @@ type WriteOnceConfig struct {
 	AuditLogEnabled      bool `json:"audit_log_enabled"`
 }
 
-// WriteOnceFolder represents a WriteOnce protected folder
+// WriteOnceFolder represents a WriteOnce protected folder.
 type WriteOnceFolder struct {
 	ID             string        `json:"id"`
 	Name           string        `json:"name"`
@@ -61,7 +61,7 @@ type WriteOnceFolder struct {
 	Tags           []string      `json:"tags,omitempty"`
 }
 
-// WriteOnceFile represents a file inside a WriteOnce folder
+// WriteOnceFile represents a file inside a WriteOnce folder.
 type WriteOnceFile struct {
 	ID         string    `json:"id"`
 	FolderID   string    `json:"folder_id"`
@@ -74,7 +74,7 @@ type WriteOnceFile struct {
 	UploadedBy string    `json:"uploaded_by"`
 }
 
-// AuditEntry represents an audit log entry
+// AuditEntry represents an audit log entry.
 type AuditEntry struct {
 	ID        string    `json:"id"`
 	FolderID  string    `json:"folder_id"`
@@ -86,7 +86,7 @@ type AuditEntry struct {
 	ErrorMsg  string    `json:"error_msg,omitempty"`
 }
 
-// CreateFolderRequest represents a request to create a WriteOnce folder
+// CreateFolderRequest represents a request to create a WriteOnce folder.
 type CreateFolderRequest struct {
 	Name          string        `json:"name"`
 	Path          string        `json:"path"`
@@ -98,13 +98,13 @@ type CreateFolderRequest struct {
 	CreatedBy     string        `json:"created_by"`
 }
 
-// LockFolderRequest represents a request to lock a folder
+// LockFolderRequest represents a request to lock a folder.
 type LockFolderRequest struct {
 	FolderID string `json:"folder_id"`
 	UserID   string `json:"user_id"`
 }
 
-// AddFileRequest represents a request to add a file to a folder
+// AddFileRequest represents a request to add a file to a folder.
 type AddFileRequest struct {
 	FolderID   string `json:"folder_id"`
 	FilePath   string `json:"file_path"`

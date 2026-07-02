@@ -6,41 +6,41 @@ import (
 	"time"
 )
 
-// Extended permission types (13 granular permissions, inspired by 飞牛fnOS ACL)
+// Extended permission types (13 granular permissions, inspired by 飞牛fnOS ACL).
 const (
-	PermReadFile      = "read_file"
-	PermWriteFile     = "write_file"
-	PermDeleteFile    = "delete_file"
-	PermCreateDir     = "create_dir"
-	PermListDir       = "list_dir"
-	PermShareExternal = "share_external"
-	PermManageACL     = "manage_acl"
-	PermViewMetadata  = "view_metadata"
+	PermReadFile       = "read_file"
+	PermWriteFile      = "write_file"
+	PermDeleteFile     = "delete_file"
+	PermCreateDir      = "create_dir"
+	PermListDir        = "list_dir"
+	PermShareExternal  = "share_external"
+	PermManageACL      = "manage_acl"
+	PermViewMetadata   = "view_metadata"
 	PermModifyMetadata = "modify_metadata"
-	PermExecuteScript = "execute_script"
-	PermMountRemote   = "mount_remote"
-	PermBackup        = "backup"
-	PermRestore       = "restore"
+	PermExecuteScript  = "execute_script"
+	PermMountRemote    = "mount_remote"
+	PermBackup         = "backup"
+	PermRestore        = "restore"
 )
 
 // Role represents a named collection of permissions.
 type Role struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Permissions []string `json:"permissions"`
-	Builtin     bool     `json:"builtin"` // system roles cannot be deleted
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Permissions []string  `json:"permissions"`
+	Builtin     bool      `json:"builtin"` // system roles cannot be deleted
 	CreatedAt   time.Time `json:"created_at"`
 }
 
 // UserRoleAssignment maps users to roles with optional path scope.
 type UserRoleAssignment struct {
-	UserID    string `json:"user_id"`
-	RoleID    string `json:"role_id"`
-	Path      string `json:"path"`      // empty = global scope
-	Recursive bool   `json:"recursive"`
-	GrantedBy string `json:"granted_by"`
-	GrantedAt time.Time `json:"granted_at"`
+	UserID    string     `json:"user_id"`
+	RoleID    string     `json:"role_id"`
+	Path      string     `json:"path"` // empty = global scope
+	Recursive bool       `json:"recursive"`
+	GrantedBy string     `json:"granted_by"`
+	GrantedAt time.Time  `json:"granted_at"`
 	ExpiresAt *time.Time `json:"expires_at,omitempty"` // nil = never expires
 }
 

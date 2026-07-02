@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// MilestoneManager 里程碑管理器
+// MilestoneManager 里程碑管理器.
 type MilestoneManager struct {
 	mu         sync.RWMutex
 	milestones map[string]*Milestone
@@ -15,7 +15,7 @@ type MilestoneManager struct {
 	nextID     int
 }
 
-// NewMilestoneManager 创建里程碑管理器
+// NewMilestoneManager 创建里程碑管理器.
 func NewMilestoneManager(taskMgr *TaskManager) *MilestoneManager {
 	return &MilestoneManager{
 		milestones: make(map[string]*Milestone),
@@ -24,7 +24,7 @@ func NewMilestoneManager(taskMgr *TaskManager) *MilestoneManager {
 	}
 }
 
-// CreateMilestone 创建里程碑
+// CreateMilestone 创建里程碑.
 func (m *MilestoneManager) CreateMilestone(projectID string, req CreateMilestoneRequest) (*Milestone, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -54,7 +54,7 @@ func (m *MilestoneManager) CreateMilestone(projectID string, req CreateMilestone
 	return milestone, nil
 }
 
-// GetMilestone 获取里程碑
+// GetMilestone 获取里程碑.
 func (m *MilestoneManager) GetMilestone(milestoneID string) (*Milestone, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -66,7 +66,7 @@ func (m *MilestoneManager) GetMilestone(milestoneID string) (*Milestone, error) 
 	return ms, nil
 }
 
-// UpdateMilestone 更新里程碑
+// UpdateMilestone 更新里程碑.
 func (m *MilestoneManager) UpdateMilestone(milestoneID string, name, description string, dueDate *time.Time) (*Milestone, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -90,7 +90,7 @@ func (m *MilestoneManager) UpdateMilestone(milestoneID string, name, description
 	return ms, nil
 }
 
-// DeleteMilestone 删除里程碑
+// DeleteMilestone 删除里程碑.
 func (m *MilestoneManager) DeleteMilestone(milestoneID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -103,7 +103,7 @@ func (m *MilestoneManager) DeleteMilestone(milestoneID string) error {
 	return nil
 }
 
-// AddTaskToMilestone 添加任务到里程碑
+// AddTaskToMilestone 添加任务到里程碑.
 func (m *MilestoneManager) AddTaskToMilestone(milestoneID, taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -133,7 +133,7 @@ func (m *MilestoneManager) AddTaskToMilestone(milestoneID, taskID string) error 
 	return nil
 }
 
-// RemoveTaskFromMilestone 从里程碑移除任务
+// RemoveTaskFromMilestone 从里程碑移除任务.
 func (m *MilestoneManager) RemoveTaskFromMilestone(milestoneID, taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -157,7 +157,7 @@ func (m *MilestoneManager) RemoveTaskFromMilestone(milestoneID, taskID string) e
 	return nil
 }
 
-// CompleteMilestone 标记里程碑完成
+// CompleteMilestone 标记里程碑完成.
 func (m *MilestoneManager) CompleteMilestone(milestoneID string) (*Milestone, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -176,7 +176,7 @@ func (m *MilestoneManager) CompleteMilestone(milestoneID string) (*Milestone, er
 	return ms, nil
 }
 
-// RefreshProgress 刷新里程碑进度
+// RefreshProgress 刷新里程碑进度.
 func (m *MilestoneManager) RefreshProgress(milestoneID string) (float64, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -190,7 +190,7 @@ func (m *MilestoneManager) RefreshProgress(milestoneID string) (float64, error) 
 	return ms.Progress, nil
 }
 
-// updateMilestoneStatus 内部：更新里程碑状态和进度
+// updateMilestoneStatus 内部：更新里程碑状态和进度.
 func (m *MilestoneManager) updateMilestoneStatus(ms *Milestone) {
 	if len(ms.TaskIDs) == 0 {
 		ms.Progress = 0
@@ -232,7 +232,7 @@ func (m *MilestoneManager) updateMilestoneStatus(ms *Milestone) {
 	}
 }
 
-// ListProjectMilestones 列出项目里程碑
+// ListProjectMilestones 列出项目里程碑.
 func (m *MilestoneManager) ListProjectMilestones(projectID string) []*Milestone {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -257,7 +257,7 @@ func (m *MilestoneManager) ListProjectMilestones(projectID string) []*Milestone 
 	return milestones
 }
 
-// GetMilestoneTasks 获取里程碑关联的任务
+// GetMilestoneTasks 获取里程碑关联的任务.
 func (m *MilestoneManager) GetMilestoneTasks(milestoneID string) ([]*Task, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -276,7 +276,7 @@ func (m *MilestoneManager) GetMilestoneTasks(milestoneID string) ([]*Task, error
 	return tasks, nil
 }
 
-// GetMilestoneProgress 获取里程碑进度详情
+// GetMilestoneProgress 获取里程碑进度详情.
 func (m *MilestoneManager) GetMilestoneProgress(milestoneID string) (*MilestoneProgress, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -315,7 +315,7 @@ func (m *MilestoneManager) GetMilestoneProgress(milestoneID string) (*MilestoneP
 	return progress, nil
 }
 
-// MilestoneProgress 里程碑进度详情
+// MilestoneProgress 里程碑进度详情.
 type MilestoneProgress struct {
 	MilestoneID     string         `json:"milestone_id"`
 	Name            string         `json:"name"`
@@ -327,7 +327,7 @@ type MilestoneProgress struct {
 	TasksByStatus   map[string]int `json:"tasks_by_status"`
 }
 
-// GetTimeline 获取里程碑时间线
+// GetTimeline 获取里程碑时间线.
 func (m *MilestoneManager) GetTimeline(projectID string) []*MilestoneTimelineItem {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -377,7 +377,7 @@ func (m *MilestoneManager) GetTimeline(projectID string) []*MilestoneTimelineIte
 	return items
 }
 
-// MilestoneTimelineItem 里程碑时间线项
+// MilestoneTimelineItem 里程碑时间线项.
 type MilestoneTimelineItem struct {
 	ID        string     `json:"id"`
 	Name      string     `json:"name"`

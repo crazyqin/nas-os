@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// BrandingEngine 品牌定制引擎主入口
+// BrandingEngine 品牌定制引擎主入口.
 type BrandingEngine struct {
 	mu              sync.Mutex             // 并发保护
 	config          *BrandingConfig        // 当前品牌配置
@@ -27,7 +27,7 @@ type BrandingEngine struct {
 	maxHistory      int                    // 最大历史记录数
 }
 
-// BrandingConfig 品牌配置
+// BrandingConfig 品牌配置.
 type BrandingConfig struct {
 	Name      string            `json:"name"`       // 品牌名称
 	Logo      LogoConfig        `json:"logo"`       // Logo 配置
@@ -41,7 +41,7 @@ type BrandingConfig struct {
 	Version   int               `json:"version"`    // 配置版本
 }
 
-// LogoConfig Logo 配置
+// LogoConfig Logo 配置.
 type LogoConfig struct {
 	Primary   string `json:"primary"`   // 主 Logo 路径
 	Secondary string `json:"secondary"` // 备用 Logo
@@ -52,7 +52,7 @@ type LogoConfig struct {
 	DarkMode  string `json:"dark_mode"` // 暗色模式 Logo
 }
 
-// ColorScheme 颜色方案
+// ColorScheme 颜色方案.
 type ColorScheme struct {
 	Primary    string `json:"primary"`    // 主色
 	Secondary  string `json:"secondary"`  // 次色
@@ -68,7 +68,7 @@ type ColorScheme struct {
 	Info       string `json:"info"`       // 信息色
 }
 
-// FontConfig 字体配置
+// FontConfig 字体配置.
 type FontConfig struct {
 	Primary    string `json:"primary"`     // 主字体
 	Secondary  string `json:"secondary"`   // 备用字体
@@ -78,7 +78,7 @@ type FontConfig struct {
 	Weight     string `json:"weight"`      // 字重
 }
 
-// SplashConfig 启动画面配置
+// SplashConfig 启动画面配置.
 type SplashConfig struct {
 	Enabled   bool   `json:"enabled"`    // 是否启用
 	Image     string `json:"image"`      // 启动图片
@@ -89,7 +89,7 @@ type SplashConfig struct {
 	Message   string `json:"message"`    // 启动消息
 }
 
-// Theme 主题定义
+// Theme 主题定义.
 type Theme struct {
 	ID          string         `json:"id"`          // 主题 ID
 	Name        string         `json:"name"`        // 主题名称
@@ -102,7 +102,7 @@ type Theme struct {
 	Thumbnail   string         `json:"thumbnail"`   // 缩略图
 }
 
-// BrandAsset 品牌资产
+// BrandAsset 品牌资产.
 type BrandAsset struct {
 	ID         string    `json:"id"`          // 资产 ID
 	Name       string    `json:"name"`        // 资产名称
@@ -117,7 +117,7 @@ type BrandAsset struct {
 	Tags       []string  `json:"tags"`        // 标签
 }
 
-// Template 品牌模板
+// Template 品牌模板.
 type Template struct {
 	ID          string         `json:"id"`          // 模板 ID
 	Name        string         `json:"name"`        // 模板名称
@@ -127,7 +127,7 @@ type Template struct {
 	Preview     string         `json:"preview"`     // 预览图
 }
 
-// Locale 多语言配置
+// Locale 多语言配置.
 type Locale struct {
 	Code       string            `json:"code"`        // 语言代码
 	Name       string            `json:"name"`        // 语言名称
@@ -137,20 +137,20 @@ type Locale struct {
 	DateFormat string            `json:"date_format"` // 日期格式
 }
 
-// ConfigSnapshot 配置快照
+// ConfigSnapshot 配置快照.
 type ConfigSnapshot struct {
 	Timestamp time.Time      `json:"timestamp"` // 快照时间
 	Config    BrandingConfig `json:"config"`    // 配置快照
 	Reason    string         `json:"reason"`    // 变更原因
 }
 
-// init 注册模块初始化
+// init 注册模块初始化.
 func init() {
 	// 模块加载时自动注册到 nas-os 模块系统
 	fmt.Println("[custombranding] 品牌定制引擎模块已加载")
 }
 
-// New 创建品牌定制引擎实例
+// New 创建品牌定制引擎实例.
 func New() *BrandingEngine {
 	engine := &BrandingEngine{
 		themes:     make(map[string]*Theme),
@@ -177,7 +177,7 @@ func New() *BrandingEngine {
 	return engine
 }
 
-// Start 启动品牌定制引擎
+// Start 启动品牌定制引擎.
 func (e *BrandingEngine) Start() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -203,7 +203,7 @@ func (e *BrandingEngine) Start() error {
 	return nil
 }
 
-// Stop 停止品牌定制引擎
+// Stop 停止品牌定制引擎.
 func (e *BrandingEngine) Stop() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -222,7 +222,7 @@ func (e *BrandingEngine) Stop() error {
 	return nil
 }
 
-// ApplyTheme 应用主题
+// ApplyTheme 应用主题.
 func (e *BrandingEngine) ApplyTheme(themeID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -255,7 +255,7 @@ func (e *BrandingEngine) ApplyTheme(themeID string) error {
 	return nil
 }
 
-// GetThemes 获取所有主题列表
+// GetThemes 获取所有主题列表.
 func (e *BrandingEngine) GetThemes() map[string]*Theme {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -267,7 +267,7 @@ func (e *BrandingEngine) GetThemes() map[string]*Theme {
 	return result
 }
 
-// ExportConfig 导出品牌配置
+// ExportConfig 导出品牌配置.
 func (e *BrandingEngine) ExportConfig() ([]byte, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -298,7 +298,7 @@ func (e *BrandingEngine) ExportConfig() ([]byte, error) {
 	return data, nil
 }
 
-// ImportConfig 导入品牌配置
+// ImportConfig 导入品牌配置.
 func (e *BrandingEngine) ImportConfig(data []byte) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -339,7 +339,7 @@ func (e *BrandingEngine) ImportConfig(data []byte) error {
 	return nil
 }
 
-// UpdateConfig 更新品牌配置
+// UpdateConfig 更新品牌配置.
 func (e *BrandingEngine) UpdateConfig(updates *BrandingConfig) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -379,7 +379,7 @@ func (e *BrandingEngine) UpdateConfig(updates *BrandingConfig) error {
 	return nil
 }
 
-// UploadAsset 上传品牌资产
+// UploadAsset 上传品牌资产.
 func (e *BrandingEngine) UploadAsset(name, assetType, path, mimeType, uploadedBy string, data []byte) (*BrandAsset, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -405,7 +405,7 @@ func (e *BrandingEngine) UploadAsset(name, assetType, path, mimeType, uploadedBy
 	return asset, nil
 }
 
-// GetAsset 获取品牌资产
+// GetAsset 获取品牌资产.
 func (e *BrandingEngine) GetAsset(assetID string) (*BrandAsset, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -418,7 +418,7 @@ func (e *BrandingEngine) GetAsset(assetID string) (*BrandAsset, error) {
 	return asset, nil
 }
 
-// ListAssets 列出所有品牌资产
+// ListAssets 列出所有品牌资产.
 func (e *BrandingEngine) ListAssets() map[string]*BrandAsset {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -430,7 +430,7 @@ func (e *BrandingEngine) ListAssets() map[string]*BrandAsset {
 	return result
 }
 
-// SetPreviewCallback 设置预览回调
+// SetPreviewCallback 设置预览回调.
 func (e *BrandingEngine) SetPreviewCallback(callback func(*BrandingConfig)) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -438,7 +438,7 @@ func (e *BrandingEngine) SetPreviewCallback(callback func(*BrandingConfig)) {
 	e.previewCallback = callback
 }
 
-// GetCSSVars 获取 CSS 变量
+// GetCSSVars 获取 CSS 变量.
 func (e *BrandingEngine) GetCSSVars() map[string]string {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -450,7 +450,7 @@ func (e *BrandingEngine) GetCSSVars() map[string]string {
 	return result
 }
 
-// SetCSSVar 设置 CSS 变量
+// SetCSSVar 设置 CSS 变量.
 func (e *BrandingEngine) SetCSSVar(key, value string) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -458,7 +458,7 @@ func (e *BrandingEngine) SetCSSVar(key, value string) {
 	e.cssVars[key] = value
 }
 
-// GetLocale 获取语言配置
+// GetLocale 获取语言配置.
 func (e *BrandingEngine) GetLocale(code string) (*Locale, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -471,7 +471,7 @@ func (e *BrandingEngine) GetLocale(code string) (*Locale, error) {
 	return locale, nil
 }
 
-// CreateTheme 从当前配置创建自定义主题
+// CreateTheme 从当前配置创建自定义主题.
 func (e *BrandingEngine) CreateTheme(name, description string, tags []string) (*Theme, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -494,7 +494,7 @@ func (e *BrandingEngine) CreateTheme(name, description string, tags []string) (*
 	return theme, nil
 }
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func (e *BrandingEngine) GetTemplate(templateID string) (*Template, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -507,7 +507,7 @@ func (e *BrandingEngine) GetTemplate(templateID string) (*Template, error) {
 	return template, nil
 }
 
-// GetTemplatesByCategory 按分类获取模板
+// GetTemplatesByCategory 按分类获取模板.
 func (e *BrandingEngine) GetTemplatesByCategory(category string) []*Template {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -521,7 +521,7 @@ func (e *BrandingEngine) GetTemplatesByCategory(category string) []*Template {
 	return result
 }
 
-// ApplyTemplate 应用模板
+// ApplyTemplate 应用模板.
 func (e *BrandingEngine) ApplyTemplate(templateID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -548,7 +548,7 @@ func (e *BrandingEngine) ApplyTemplate(templateID string) error {
 	return nil
 }
 
-// GetConfig 获取当前配置
+// GetConfig 获取当前配置.
 func (e *BrandingEngine) GetConfig() *BrandingConfig {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -556,7 +556,7 @@ func (e *BrandingEngine) GetConfig() *BrandingConfig {
 	return e.config
 }
 
-// GetHistory 获取配置历史
+// GetHistory 获取配置历史.
 func (e *BrandingEngine) GetHistory() []*ConfigSnapshot {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -568,7 +568,7 @@ func (e *BrandingEngine) GetHistory() []*ConfigSnapshot {
 
 // 内部方法
 
-// defaultConfig 生成默认配置
+// defaultConfig 生成默认配置.
 func (e *BrandingEngine) defaultConfig() *BrandingConfig {
 	return &BrandingConfig{
 		Name: "NAS-OS",
@@ -617,7 +617,7 @@ func (e *BrandingEngine) defaultConfig() *BrandingConfig {
 	}
 }
 
-// loadPresetThemes 加载预设主题
+// loadPresetThemes 加载预设主题.
 func (e *BrandingEngine) loadPresetThemes() {
 	// 默认主题
 	e.themes["default"] = &Theme{
@@ -709,7 +709,7 @@ func (e *BrandingEngine) loadPresetThemes() {
 	}
 }
 
-// loadPresetTemplates 加载预设模板
+// loadPresetTemplates 加载预设模板.
 func (e *BrandingEngine) loadPresetTemplates() {
 	// 企业模板
 	e.templates["enterprise"] = &Template{
@@ -762,7 +762,7 @@ func (e *BrandingEngine) loadPresetTemplates() {
 	}
 }
 
-// initDefaultLocales 初始化默认语言
+// initDefaultLocales 初始化默认语言.
 func (e *BrandingEngine) initDefaultLocales() {
 	e.locales["zh-CN"] = &Locale{
 		Code:      "zh-CN",
@@ -804,7 +804,7 @@ func (e *BrandingEngine) initDefaultLocales() {
 	}
 }
 
-// compileCSSVars 编译 CSS 变量
+// compileCSSVars 编译 CSS 变量.
 func (e *BrandingEngine) compileCSSVars() error {
 	// 基础颜色变量
 	e.cssVars["--color-primary"] = e.config.Colors.Primary
@@ -840,7 +840,7 @@ func (e *BrandingEngine) compileCSSVars() error {
 	return nil
 }
 
-// createSnapshot 创建配置快照
+// createSnapshot 创建配置快照.
 func (e *BrandingEngine) createSnapshot(reason string) {
 	snapshot := &ConfigSnapshot{
 		Timestamp: time.Now(),
@@ -856,20 +856,20 @@ func (e *BrandingEngine) createSnapshot(reason string) {
 	}
 }
 
-// loadConfig 加载持久化配置 (简化实现)
+// loadConfig 加载持久化配置 (简化实现).
 func (e *BrandingEngine) loadConfig() error {
 	// 实际实现中从文件或数据库加载
 	// 这里使用默认配置
 	return nil
 }
 
-// saveConfig 保存配置到持久化存储 (简化实现)
+// saveConfig 保存配置到持久化存储 (简化实现).
 func (e *BrandingEngine) saveConfig() error {
 	// 实际实现中保存到文件或数据库
 	return nil
 }
 
-// Clone 克隆配置
+// Clone 克隆配置.
 func (c *BrandingConfig) Clone() *BrandingConfig {
 	clone := *c
 	clone.CustomCSS = make(map[string]string)

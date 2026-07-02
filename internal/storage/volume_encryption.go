@@ -40,7 +40,7 @@ const (
 
 // ========== 类型 ==========
 
-// VolumeEncryptionState 加密卷状态
+// VolumeEncryptionState 加密卷状态.
 type VolumeEncryptionState string
 
 const (
@@ -51,7 +51,7 @@ const (
 	VolumeStateRekeying VolumeEncryptionState = "rekeying"
 )
 
-// VolumeEncryptionAlgorithm 加密算法
+// VolumeEncryptionAlgorithm 加密算法.
 type VolumeEncryptionAlgorithm string
 
 const (
@@ -60,7 +60,7 @@ const (
 	AlgoAES256CBC VolumeEncryptionAlgorithm = "aes-256-cbc"
 )
 
-// EncryptedVolume 加密卷定义
+// EncryptedVolume 加密卷定义.
 type EncryptedVolume struct {
 	ID            string                    `json:"id"`
 	Name          string                    `json:"name"`
@@ -81,7 +81,7 @@ type EncryptedVolume struct {
 	Metadata      map[string]string         `json:"metadata,omitempty"`
 }
 
-// VolumeKey 卷加密密钥
+// VolumeKey 卷加密密钥.
 type VolumeKey struct {
 	ID           string                    `json:"id"`
 	VolumeID     string                    `json:"volume_id"`
@@ -92,7 +92,7 @@ type VolumeKey struct {
 	CreatedAt    time.Time                 `json:"created_at"`
 }
 
-// KMIPConfig KMIP远程密钥管理配置
+// KMIPConfig KMIP远程密钥管理配置.
 type KMIPConfig struct {
 	Enabled  bool   `json:"enabled"`
 	Endpoint string `json:"endpoint"`
@@ -102,7 +102,7 @@ type KMIPConfig struct {
 	CAPath   string `json:"ca_path"`
 }
 
-// CreateEncryptedVolumeRequest 创建加密卷请求
+// CreateEncryptedVolumeRequest 创建加密卷请求.
 type CreateEncryptedVolumeRequest struct {
 	Name       string                    `json:"name"`
 	DevicePath string                    `json:"device_path"`
@@ -112,7 +112,7 @@ type CreateEncryptedVolumeRequest struct {
 	Metadata   map[string]string         `json:"metadata,omitempty"`
 }
 
-// VolumeEncryptionManager 全卷加密管理器
+// VolumeEncryptionManager 全卷加密管理器.
 type VolumeEncryptionManager struct {
 	mu         sync.RWMutex
 	volumes    map[string]*EncryptedVolume
@@ -123,7 +123,7 @@ type VolumeEncryptionManager struct {
 	masterKey  []byte // 运行时主密钥
 }
 
-// NewVolumeEncryptionManager 创建全卷加密管理器
+// NewVolumeEncryptionManager 创建全卷加密管理器.
 func NewVolumeEncryptionManager(baseDir string, kmipConfig KMIPConfig) (*VolumeEncryptionManager, error) {
 	if err := os.MkdirAll(baseDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建加密卷目录失败: %w", err)
@@ -153,7 +153,7 @@ func NewVolumeEncryptionManager(baseDir string, kmipConfig KMIPConfig) (*VolumeE
 	return mgr, nil
 }
 
-// detectAESNI 检测CPU是否支持AES-NI硬件加速
+// detectAESNI 检测CPU是否支持AES-NI硬件加速.
 func detectAESNI() bool {
 	// 通过 /proc/cpuinfo 检测 AES-NI 支持
 	data, err := os.ReadFile("/proc/cpuinfo")
@@ -174,7 +174,7 @@ func detectAESNI() bool {
 	return false
 }
 
-// CreateVolume 创建加密卷
+// CreateVolume 创建加密卷.
 func (m *VolumeEncryptionManager) CreateVolume(req CreateEncryptedVolumeRequest) (*EncryptedVolume, error) {
 	if req.Name == "" {
 		return nil, fmt.Errorf("卷名不能为空")
@@ -276,7 +276,7 @@ func (m *VolumeEncryptionManager) CreateVolume(req CreateEncryptedVolumeRequest)
 	return vol, nil
 }
 
-// UnlockVolume 解锁加密卷
+// UnlockVolume 解锁加密卷.
 func (m *VolumeEncryptionManager) UnlockVolume(volumeID, password string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -323,7 +323,7 @@ func (m *VolumeEncryptionManager) UnlockVolume(volumeID, password string) error 
 	return m.saveVolumes()
 }
 
-// LockVolume 锁定加密卷
+// LockVolume 锁定加密卷.
 func (m *VolumeEncryptionManager) LockVolume(volumeID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -344,7 +344,7 @@ func (m *VolumeEncryptionManager) LockVolume(volumeID string) error {
 	return m.saveVolumes()
 }
 
-// DeleteVolume 删除加密卷
+// DeleteVolume 删除加密卷.
 func (m *VolumeEncryptionManager) DeleteVolume(volumeID string, password string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -383,7 +383,7 @@ func (m *VolumeEncryptionManager) DeleteVolume(volumeID string, password string)
 	return m.saveVolumes()
 }
 
-// RekeyVolume 轮换密钥
+// RekeyVolume 轮换密钥.
 func (m *VolumeEncryptionManager) RekeyVolume(volumeID, oldPassword, newPassword string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -451,7 +451,7 @@ func (m *VolumeEncryptionManager) RekeyVolume(volumeID, oldPassword, newPassword
 	return m.saveVolumes()
 }
 
-// GetVolume 获取加密卷信息
+// GetVolume 获取加密卷信息.
 func (m *VolumeEncryptionManager) GetVolume(volumeID string) (*EncryptedVolume, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -463,7 +463,7 @@ func (m *VolumeEncryptionManager) GetVolume(volumeID string) (*EncryptedVolume, 
 	return vol, nil
 }
 
-// ListVolumes 列出所有加密卷
+// ListVolumes 列出所有加密卷.
 func (m *VolumeEncryptionManager) ListVolumes() []*EncryptedVolume {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -475,7 +475,7 @@ func (m *VolumeEncryptionManager) ListVolumes() []*EncryptedVolume {
 	return result
 }
 
-// GetStats 获取加密卷统计信息
+// GetStats 获取加密卷统计信息.
 func (m *VolumeEncryptionManager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -504,7 +504,7 @@ func (m *VolumeEncryptionManager) GetStats() map[string]interface{} {
 
 // ========== KMIP ==========
 
-// syncToKMIP 同步密钥到KMIP远程服务器
+// syncToKMIP 同步密钥到KMIP远程服务器.
 func (m *VolumeEncryptionManager) syncToKMIP(key *VolumeKey) {
 	if !m.kmipConfig.Enabled {
 		return
@@ -515,7 +515,7 @@ func (m *VolumeEncryptionManager) syncToKMIP(key *VolumeKey) {
 
 // ========== 辅助函数 ==========
 
-// VolumeHeader 卷头结构
+// VolumeHeader 卷头结构.
 type VolumeHeader struct {
 	Magic     string    `json:"magic"`
 	Version   int       `json:"version"`
@@ -604,7 +604,7 @@ func decryptWithAESGCM(key, ciphertext []byte) ([]byte, error) {
 	return gcm.Open(nil, nonce, ct, nil)
 }
 
-// secureWipeFile 安全擦除文件（覆写后删除）
+// secureWipeFile 安全擦除文件（覆写后删除）.
 func secureWipeFile(path string) error {
 	info, err := os.Stat(path)
 	if err != nil {

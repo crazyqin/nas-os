@@ -9,31 +9,31 @@ import (
 	"strings"
 )
 
-// Handler 远程访问 API 处理器
+// Handler 远程访问 API 处理器.
 type Handler struct {
 	manager *RemoteAccessManager
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(manager *RemoteAccessManager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// writeJSON 写入JSON响应
+// writeJSON 写入JSON响应.
 func writeJSON(w http.ResponseWriter, status int, resp response) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(resp)
 }
 
-// writeError 写入错误响应
+// writeError 写入错误响应.
 func writeError(w http.ResponseWriter, status int, message string) {
 	writeJSON(w, status, response{
 		Code:    1,
@@ -41,7 +41,7 @@ func writeError(w http.ResponseWriter, status int, message string) {
 	})
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	// 活跃会话列表
 	mux.HandleFunc("/api/remote/sessions", h.handleSessions)
@@ -71,7 +71,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/remote/access-log", h.handleAccessLog)
 }
 
-// handleSessions 处理会话相关请求
+// handleSessions 处理会话相关请求.
 func (h *Handler) handleSessions(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -81,7 +81,7 @@ func (h *Handler) handleSessions(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// listSessions 列出活跃会话
+// listSessions 列出活跃会话.
 func (h *Handler) listSessions(w http.ResponseWriter, r *http.Request) {
 	sessions := h.manager.ListActiveSessions()
 	writeJSON(w, http.StatusOK, response{
@@ -91,7 +91,7 @@ func (h *Handler) listSessions(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleConnect 处理连接请求
+// handleConnect 处理连接请求.
 func (h *Handler) handleConnect(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -141,7 +141,7 @@ func (h *Handler) handleConnect(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleSessionByID 处理单个会话操作
+// handleSessionByID 处理单个会话操作.
 func (h *Handler) handleSessionByID(w http.ResponseWriter, r *http.Request) {
 	// 提取会话ID：/api/remote/sessions/{id}
 	path := r.URL.Path
@@ -167,7 +167,7 @@ func (h *Handler) handleSessionByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getSession 获取会话详情
+// getSession 获取会话详情.
 func (h *Handler) getSession(w http.ResponseWriter, r *http.Request, sessionID string) {
 	session, err := h.manager.GetSession(sessionID)
 	if err != nil {
@@ -182,7 +182,7 @@ func (h *Handler) getSession(w http.ResponseWriter, r *http.Request, sessionID s
 	})
 }
 
-// closeSession 关闭会话
+// closeSession 关闭会话.
 func (h *Handler) closeSession(w http.ResponseWriter, r *http.Request, sessionID string) {
 	if err := h.manager.CloseSession(sessionID); err != nil {
 		if strings.Contains(err.Error(), "not found") {
@@ -199,7 +199,7 @@ func (h *Handler) closeSession(w http.ResponseWriter, r *http.Request, sessionID
 	})
 }
 
-// handleStatus 处理状态请求
+// handleStatus 处理状态请求.
 func (h *Handler) handleStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -214,7 +214,7 @@ func (h *Handler) handleStatus(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleConfig 处理配置请求
+// handleConfig 处理配置请求.
 func (h *Handler) handleConfig(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -226,7 +226,7 @@ func (h *Handler) handleConfig(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getConfig 获取配置
+// getConfig 获取配置.
 func (h *Handler) getConfig(w http.ResponseWriter, r *http.Request) {
 	config := h.manager.GetConfig()
 	writeJSON(w, http.StatusOK, response{
@@ -236,7 +236,7 @@ func (h *Handler) getConfig(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// updateConfig 更新配置
+// updateConfig 更新配置.
 func (h *Handler) updateConfig(w http.ResponseWriter, r *http.Request) {
 	var config RemoteAccessConfig
 	if err := json.NewDecoder(r.Body).Decode(&config); err != nil {
@@ -251,7 +251,7 @@ func (h *Handler) updateConfig(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleDDNS 处理DDNS请求
+// handleDDNS 处理DDNS请求.
 func (h *Handler) handleDDNS(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -263,7 +263,7 @@ func (h *Handler) handleDDNS(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getDDNSStatus 获取DDNS状态
+// getDDNSStatus 获取DDNS状态.
 func (h *Handler) getDDNSStatus(w http.ResponseWriter, r *http.Request) {
 	status := h.manager.GetDDNSStatus()
 	writeJSON(w, http.StatusOK, response{
@@ -273,7 +273,7 @@ func (h *Handler) getDDNSStatus(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// updateDDNS 更新DDNS配置
+// updateDDNS 更新DDNS配置.
 func (h *Handler) updateDDNS(w http.ResponseWriter, r *http.Request) {
 	var config DDNSConfig
 	if err := json.NewDecoder(r.Body).Decode(&config); err != nil {
@@ -292,7 +292,7 @@ func (h *Handler) updateDDNS(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleCertificates 处理证书请求
+// handleCertificates 处理证书请求.
 func (h *Handler) handleCertificates(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -307,7 +307,7 @@ func (h *Handler) handleCertificates(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleCertificateRenew 处理证书续期请求
+// handleCertificateRenew 处理证书续期请求.
 func (h *Handler) handleCertificateRenew(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -325,7 +325,7 @@ func (h *Handler) handleCertificateRenew(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-// handleAccessLog 处理访问日志请求
+// handleAccessLog 处理访问日志请求.
 func (h *Handler) handleAccessLog(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
@@ -348,7 +348,7 @@ func (h *Handler) handleAccessLog(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// StartServer 启动HTTP服务器
+// StartServer 启动HTTP服务器.
 func (h *Handler) StartServer(addr string) error {
 	mux := http.NewServeMux()
 	h.RegisterRoutes(mux)
@@ -357,7 +357,7 @@ func (h *Handler) StartServer(addr string) error {
 	return http.ListenAndServe(addr, mux)
 }
 
-// StartTLSServer 启动HTTPS服务器
+// StartTLSServer 启动HTTPS服务器.
 func (h *Handler) StartTLSServer(addr, certFile, keyFile string) error {
 	mux := http.NewServeMux()
 	h.RegisterRoutes(mux)

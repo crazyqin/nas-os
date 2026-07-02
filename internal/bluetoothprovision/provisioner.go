@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// DefaultProvisioner 实现默认配网引擎
+// DefaultProvisioner 实现默认配网引擎.
 type DefaultProvisioner struct {
 	mu         sync.RWMutex
 	sessions   map[string]*ProvisionSession
@@ -20,7 +20,7 @@ type DefaultProvisioner struct {
 	onEvent    func(ProvisionEvent)
 }
 
-// NewDefaultProvisioner 创建默认配网引擎
+// NewDefaultProvisioner 创建默认配网引擎.
 func NewDefaultProvisioner(opts ...ProvisionerOption) *DefaultProvisioner {
 	p := &DefaultProvisioner{
 		sessions:   make(map[string]*ProvisionSession),
@@ -34,31 +34,31 @@ func NewDefaultProvisioner(opts ...ProvisionerOption) *DefaultProvisioner {
 	return p
 }
 
-// ProvisionerOption 配网器配置选项
+// ProvisionerOption 配网器配置选项.
 type ProvisionerOption func(*DefaultProvisioner)
 
-// WithProvisionerTimeout 设置配网超时
+// WithProvisionerTimeout 设置配网超时.
 func WithProvisionerTimeout(d time.Duration) ProvisionerOption {
 	return func(p *DefaultProvisioner) {
 		p.timeout = d
 	}
 }
 
-// WithProvisionerMaxHistory 设置最大历史记录数
+// WithProvisionerMaxHistory 设置最大历史记录数.
 func WithProvisionerMaxHistory(n int) ProvisionerOption {
 	return func(p *DefaultProvisioner) {
 		p.maxHistory = n
 	}
 }
 
-// WithProvisionerEventCallback 设置事件回调
+// WithProvisionerEventCallback 设置事件回调.
 func WithProvisionerEventCallback(fn func(ProvisionEvent)) ProvisionerOption {
 	return func(p *DefaultProvisioner) {
 		p.onEvent = fn
 	}
 }
 
-// StartProvision 启动配网流程
+// StartProvision 启动配网流程.
 func (p *DefaultProvisioner) StartProvision(req ProvisionRequest) (*ProvisionSession, error) {
 	// 参数校验
 	if req.DeviceID == "" {
@@ -99,7 +99,7 @@ func (p *DefaultProvisioner) StartProvision(req ProvisionRequest) (*ProvisionSes
 	return session, nil
 }
 
-// executeProvision 执行配网流程
+// executeProvision 执行配网流程.
 func (p *DefaultProvisioner) executeProvision(session *ProvisionSession, timeout time.Duration, retryCount int) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
@@ -190,7 +190,7 @@ func (p *DefaultProvisioner) executeProvision(session *ProvisionSession, timeout
 		session.DeviceName, session.WiFiConfig.SSID, endTime.Sub(startTime))
 }
 
-// CancelProvision 取消配网
+// CancelProvision 取消配网.
 func (p *DefaultProvisioner) CancelProvision(sessionID string) error {
 	p.mu.Lock()
 	session, ok := p.sessions[sessionID]
@@ -219,7 +219,7 @@ func (p *DefaultProvisioner) CancelProvision(sessionID string) error {
 	return nil
 }
 
-// GetSession 获取配网会话
+// GetSession 获取配网会话.
 func (p *DefaultProvisioner) GetSession(sessionID string) (*ProvisionSession, error) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -231,7 +231,7 @@ func (p *DefaultProvisioner) GetSession(sessionID string) (*ProvisionSession, er
 	return session, nil
 }
 
-// GetHistory 获取配网历史记录
+// GetHistory 获取配网历史记录.
 func (p *DefaultProvisioner) GetHistory(limit int) ([]ProvisionHistory, error) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -251,7 +251,7 @@ func (p *DefaultProvisioner) GetHistory(limit int) ([]ProvisionHistory, error) {
 	return result, nil
 }
 
-// ClearHistory 清空历史记录
+// ClearHistory 清空历史记录.
 func (p *DefaultProvisioner) ClearHistory() error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -259,7 +259,7 @@ func (p *DefaultProvisioner) ClearHistory() error {
 	return nil
 }
 
-// updateStep 更新配网步骤状态
+// updateStep 更新配网步骤状态.
 func (p *DefaultProvisioner) updateStep(session *ProvisionSession, index int, status, errMsg string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -279,7 +279,7 @@ func (p *DefaultProvisioner) updateStep(session *ProvisionSession, index int, st
 	}
 }
 
-// updateStatus 更新会话状态
+// updateStatus 更新会话状态.
 func (p *DefaultProvisioner) updateStatus(session *ProvisionSession, status ProvisionStatus, progress int) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -287,14 +287,14 @@ func (p *DefaultProvisioner) updateStatus(session *ProvisionSession, status Prov
 	session.Progress = progress
 }
 
-// updateProgress 更新进度
+// updateProgress 更新进度.
 func (p *DefaultProvisioner) updateProgress(session *ProvisionSession, progress int) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	session.Progress = progress
 }
 
-// failSession 标记会话失败
+// failSession 标记会话失败.
 func (p *DefaultProvisioner) failSession(session *ProvisionSession, errMsg string, startTime time.Time) {
 	endTime := time.Now()
 	p.mu.Lock()
@@ -308,7 +308,7 @@ func (p *DefaultProvisioner) failSession(session *ProvisionSession, errMsg strin
 	log.Printf("[Provisioner] 配网失败: 设备=%s, 错误=%s", session.DeviceName, errMsg)
 }
 
-// addHistory 添加历史记录
+// addHistory 添加历史记录.
 func (p *DefaultProvisioner) addHistory(session *ProvisionSession, startTime time.Time) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -332,7 +332,7 @@ func (p *DefaultProvisioner) addHistory(session *ProvisionSession, startTime tim
 	}
 }
 
-// publishEvent 发布事件
+// publishEvent 发布事件.
 func (p *DefaultProvisioner) publishEvent(session *ProvisionSession, eventType, message string) {
 	if p.onEvent == nil {
 		return

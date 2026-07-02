@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// ACMEHandler ACME证书HTTP处理器
+// ACMEHandler ACME证书HTTP处理器.
 type ACMEHandler struct {
 	manager *ACMEManager
 }
 
-// NewACMEHandler 创建处理器
+// NewACMEHandler 创建处理器.
 func NewACMEHandler(manager *ACMEManager) *ACMEHandler {
 	return &ACMEHandler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *ACMEHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/acme/account/create", h.handleCreateAccount)
 	mux.HandleFunc("/api/acme/account/get", h.handleGetAccount)
@@ -29,7 +29,7 @@ func (h *ACMEHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/acme/stats", h.handleGetStats)
 }
 
-// handleCreateAccount 处理创建账户请求
+// handleCreateAccount 处理创建账户请求.
 func (h *ACMEHandler) handleCreateAccount(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -53,7 +53,7 @@ func (h *ACMEHandler) handleCreateAccount(w http.ResponseWriter, r *http.Request
 	respondJSON(w, account)
 }
 
-// handleGetAccount 处理获取账户请求
+// handleGetAccount 处理获取账户请求.
 func (h *ACMEHandler) handleGetAccount(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -70,13 +70,13 @@ func (h *ACMEHandler) handleGetAccount(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, account)
 }
 
-// handleListAccounts 处理列出账户请求
+// handleListAccounts 处理列出账户请求.
 func (h *ACMEHandler) handleListAccounts(w http.ResponseWriter, r *http.Request) {
 	accounts := h.manager.ListAccounts()
 	respondJSON(w, accounts)
 }
 
-// handleRequestCertificate 处理请求证书请求
+// handleRequestCertificate 处理请求证书请求.
 func (h *ACMEHandler) handleRequestCertificate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -100,7 +100,7 @@ func (h *ACMEHandler) handleRequestCertificate(w http.ResponseWriter, r *http.Re
 	respondJSON(w, cert)
 }
 
-// handleGetCertificate 处理获取证书请求
+// handleGetCertificate 处理获取证书请求.
 func (h *ACMEHandler) handleGetCertificate(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -117,13 +117,13 @@ func (h *ACMEHandler) handleGetCertificate(w http.ResponseWriter, r *http.Reques
 	respondJSON(w, cert)
 }
 
-// handleListCertificates 处理列出证书请求
+// handleListCertificates 处理列出证书请求.
 func (h *ACMEHandler) handleListCertificates(w http.ResponseWriter, r *http.Request) {
 	certs := h.manager.ListCertificates()
 	respondJSON(w, certs)
 }
 
-// handleRevokeCertificate 处理吊销证书请求
+// handleRevokeCertificate 处理吊销证书请求.
 func (h *ACMEHandler) handleRevokeCertificate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -146,7 +146,7 @@ func (h *ACMEHandler) handleRevokeCertificate(w http.ResponseWriter, r *http.Req
 	respondJSON(w, map[string]string{"status": "revoked"})
 }
 
-// handleRenewCertificate 处理续期证书请求
+// handleRenewCertificate 处理续期证书请求.
 func (h *ACMEHandler) handleRenewCertificate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -169,20 +169,20 @@ func (h *ACMEHandler) handleRenewCertificate(w http.ResponseWriter, r *http.Requ
 	respondJSON(w, map[string]string{"status": "renewing"})
 }
 
-// handleCheckExpiring 处理检查即将过期证书请求
+// handleCheckExpiring 处理检查即将过期证书请求.
 func (h *ACMEHandler) handleCheckExpiring(w http.ResponseWriter, r *http.Request) {
 	days := 30
 	certs := h.manager.CheckExpiring(days)
 	respondJSON(w, certs)
 }
 
-// handleGetStats 处理获取统计请求
+// handleGetStats 处理获取统计请求.
 func (h *ACMEHandler) handleGetStats(w http.ResponseWriter, r *http.Request) {
 	stats := h.manager.GetStats()
 	respondJSON(w, stats)
 }
 
-// respondJSON 响应JSON
+// respondJSON 响应JSON.
 func respondJSON(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data)

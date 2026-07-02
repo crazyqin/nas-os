@@ -8,13 +8,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handlers provides HTTP handlers for the template market
+// Handlers provides HTTP handlers for the template market.
 type Handlers struct {
 	logger *zap.Logger
 	mgr    *Manager
 }
 
-// NewHandlers creates new template market handlers
+// NewHandlers creates new template market handlers.
 func NewHandlers(logger *zap.Logger, mgr *Manager) *Handlers {
 	return &Handlers{
 		logger: logger,
@@ -22,7 +22,7 @@ func NewHandlers(logger *zap.Logger, mgr *Manager) *Handlers {
 	}
 }
 
-// RegisterRoutes registers template market routes
+// RegisterRoutes registers template market routes.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	templates := rg.Group("/templates")
 	{
@@ -35,7 +35,7 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// ListTemplates returns all templates
+// ListTemplates returns all templates.
 func (h *Handlers) ListTemplates(c *gin.Context) {
 	templates := h.mgr.GetAll()
 	c.JSON(http.StatusOK, gin.H{
@@ -44,7 +44,7 @@ func (h *Handlers) ListTemplates(c *gin.Context) {
 	})
 }
 
-// SearchTemplates searches templates by query parameters
+// SearchTemplates searches templates by query parameters.
 func (h *Handlers) SearchTemplates(c *gin.Context) {
 	var q SearchQuery
 	if err := c.ShouldBindQuery(&q); err != nil {
@@ -56,7 +56,7 @@ func (h *Handlers) SearchTemplates(c *gin.Context) {
 	c.JSON(http.StatusOK, results)
 }
 
-// GetTemplate returns a single template by ID
+// GetTemplate returns a single template by ID.
 func (h *Handlers) GetTemplate(c *gin.Context) {
 	id := c.Param("id")
 
@@ -69,7 +69,7 @@ func (h *Handlers) GetTemplate(c *gin.Context) {
 	c.JSON(http.StatusOK, t)
 }
 
-// DeployContainer deploys an LXC container from a template
+// DeployContainer deploys an LXC container from a template.
 func (h *Handlers) DeployContainer(c *gin.Context) {
 	templateID := c.Param("id")
 
@@ -119,7 +119,7 @@ func (h *Handlers) DeployContainer(c *gin.Context) {
 	c.JSON(http.StatusCreated, response)
 }
 
-// RateTemplate rates a template
+// RateTemplate rates a template.
 func (h *Handlers) RateTemplate(c *gin.Context) {
 	templateID := c.Param("id")
 
@@ -147,13 +147,13 @@ func (h *Handlers) RateTemplate(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// GetStats returns catalog statistics
+// GetStats returns catalog statistics.
 func (h *Handlers) GetStats(c *gin.Context) {
 	stats := h.mgr.GetStats()
 	c.JSON(http.StatusOK, stats)
 }
 
-// Helper to parse pagination params
+// Helper to parse pagination params.
 func parsePagination(c *gin.Context) (page, pageSize int) {
 	page, _ = strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ = strconv.Atoi(c.DefaultQuery("page_size", "20"))

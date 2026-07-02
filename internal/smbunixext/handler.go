@@ -6,22 +6,22 @@ import (
 	"net/http"
 )
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	manager *ExtensionManager
 }
 
-// NewHandler 创建 HTTP 处理器
+// NewHandler 创建 HTTP 处理器.
 func NewHandler(manager *ExtensionManager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/smb/unix-extensions", h.UnixExtensions)
 }
 
-// UnixExtensions 处理 GET/POST /api/smb/unix-extensions
+// UnixExtensions 处理 GET/POST /api/smb/unix-extensions.
 func (h *Handler) UnixExtensions(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -33,7 +33,7 @@ func (h *Handler) UnixExtensions(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getExtensions 获取所有扩展配置或指定共享的配置
+// getExtensions 获取所有扩展配置或指定共享的配置.
 func (h *Handler) getExtensions(w http.ResponseWriter, r *http.Request) {
 	shareName := r.URL.Query().Get("share")
 	if shareName != "" {
@@ -53,7 +53,7 @@ func (h *Handler) getExtensions(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// setExtension 设置共享的 Unix Extensions 配置
+// setExtension 设置共享的 Unix Extensions 配置.
 func (h *Handler) setExtension(w http.ResponseWriter, r *http.Request) {
 	var req SetExtensionRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

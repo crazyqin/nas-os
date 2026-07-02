@@ -11,17 +11,17 @@ import (
 
 // ========== 核心类型定义 ==========
 
-// ShareStatus 分享状态
+// ShareStatus 分享状态.
 type ShareStatus string
 
 const (
-	ShareStatusActive    ShareStatus = "active"     // 活跃
-	ShareStatusExpired   ShareStatus = "expired"    // 已过期
-	ShareStatusRevoked   ShareStatus = "revoked"    // 已撤销
-	ShareStatusDisabled  ShareStatus = "disabled"   // 已禁用
+	ShareStatusActive   ShareStatus = "active"   // 活跃
+	ShareStatusExpired  ShareStatus = "expired"  // 已过期
+	ShareStatusRevoked  ShareStatus = "revoked"  // 已撤销
+	ShareStatusDisabled ShareStatus = "disabled" // 已禁用
 )
 
-// AccessMode 访问模式
+// AccessMode 访问模式.
 type AccessMode string
 
 const (
@@ -31,7 +31,7 @@ const (
 	AccessModeFull      AccessMode = "full"       // 完全控制
 )
 
-// SharePermission 分享权限
+// SharePermission 分享权限.
 type SharePermission struct {
 	// 是否允许浏览
 	CanBrowse bool `json:"can_browse"`
@@ -51,20 +51,20 @@ type SharePermission struct {
 	MaxUploadSize int64 `json:"max_upload_size,omitempty"`
 }
 
-// DefaultReadOnlyPermission 默认只读权限
+// DefaultReadOnlyPermission 默认只读权限.
 func DefaultReadOnlyPermission() *SharePermission {
 	return &SharePermission{
 		CanBrowse:   true,
 		CanDownload: true,
-		CanUpload:    false,
-		CanMkdir:     false,
-		CanDelete:    false,
-		CanRename:    false,
-		CanShare:     false,
+		CanUpload:   false,
+		CanMkdir:    false,
+		CanDelete:   false,
+		CanRename:   false,
+		CanShare:    false,
 	}
 }
 
-// DefaultReadWritePermission 默认读写权限
+// DefaultReadWritePermission 默认读写权限.
 func DefaultReadWritePermission() *SharePermission {
 	return &SharePermission{
 		CanBrowse:   true,
@@ -72,12 +72,12 @@ func DefaultReadWritePermission() *SharePermission {
 		CanUpload:   true,
 		CanMkdir:    true,
 		CanDelete:   false,
-		CanRename:    false,
-		CanShare:     false,
+		CanRename:   false,
+		CanShare:    false,
 	}
 }
 
-// DefaultFullPermission 默认完全控制权限
+// DefaultFullPermission 默认完全控制权限.
 func DefaultFullPermission() *SharePermission {
 	return &SharePermission{
 		CanBrowse:   true,
@@ -90,7 +90,7 @@ func DefaultFullPermission() *SharePermission {
 	}
 }
 
-// WebShare Web 文件分享
+// WebShare Web 文件分享.
 type WebShare struct {
 	// 分享唯一标识
 	ID string `json:"id"`
@@ -128,7 +128,7 @@ type WebShare struct {
 	PasswordHash string `json:"-"`
 }
 
-// BrowserSession 浏览器访问会话
+// BrowserSession 浏览器访问会话.
 type BrowserSession struct {
 	// 会话唯一标识
 	ID string `json:"id"`
@@ -150,7 +150,7 @@ type BrowserSession struct {
 	IsActive bool `json:"is_active"`
 }
 
-// FileEntry 目录条目
+// FileEntry 目录条目.
 type FileEntry struct {
 	// 文件/文件夹名称
 	Name string `json:"name"`
@@ -168,7 +168,7 @@ type FileEntry struct {
 
 // ========== 配置 ==========
 
-// WebShareConfig WebShare 配置
+// WebShareConfig WebShare 配置.
 type WebShareConfig struct {
 	// 是否启用 WebShare 功能
 	Enabled bool `json:"enabled"`
@@ -188,7 +188,7 @@ type WebShareConfig struct {
 	TokenLength int `json:"token_length"`
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *WebShareConfig {
 	return &WebShareConfig{
 		Enabled:                      true,
@@ -204,13 +204,13 @@ func DefaultConfig() *WebShareConfig {
 
 // ========== 请求/响应结构 ==========
 
-// CreateShareRequest 创建分享请求
+// CreateShareRequest 创建分享请求.
 type CreateShareRequest struct {
-	Name        string `json:"name" binding:"required"`
-	RootPath    string `json:"root_path" binding:"required"`
+	Name        string     `json:"name" binding:"required"`
+	RootPath    string     `json:"root_path" binding:"required"`
 	AccessMode  AccessMode `json:"access_mode"`
-	Description string `json:"description"`
-	CreatedBy   string `json:"created_by" binding:"required"`
+	Description string     `json:"description"`
+	CreatedBy   string     `json:"created_by" binding:"required"`
 	// 过期小时数，0 表示永不过期
 	ExpiryHours int `json:"expiry_hours,omitempty"`
 	// 是否启用 FIPS 加密（nil 表示使用默认值）
@@ -223,7 +223,7 @@ type CreateShareRequest struct {
 	Permission *SharePermission `json:"permission,omitempty"`
 }
 
-// CreateFolderRequest 创建文件夹请求
+// CreateFolderRequest 创建文件夹请求.
 type CreateFolderRequest struct {
 	// 会话令牌
 	SessionToken string `json:"session_token" binding:"required"`
@@ -231,7 +231,7 @@ type CreateFolderRequest struct {
 	Path string `json:"path" binding:"required"`
 }
 
-// UploadFileRequest 上传文件请求
+// UploadFileRequest 上传文件请求.
 type UploadFileRequest struct {
 	// 会话令牌
 	SessionToken string `json:"session_token" binding:"required"`
@@ -241,7 +241,7 @@ type UploadFileRequest struct {
 	Overwrite bool `json:"overwrite,omitempty"`
 }
 
-// ListFilesRequest 浏览文件请求
+// ListFilesRequest 浏览文件请求.
 type ListFilesRequest struct {
 	// 会话令牌
 	SessionToken string `json:"session_token" binding:"required"`
@@ -249,7 +249,7 @@ type ListFilesRequest struct {
 	Path string `json:"path,omitempty"`
 }
 
-// ShareLinkResponse 分享链接响应
+// ShareLinkResponse 分享链接响应.
 type ShareLinkResponse struct {
 	// 分享 URL
 	URL string `json:"url"`
@@ -257,7 +257,7 @@ type ShareLinkResponse struct {
 	Token string `json:"token"`
 }
 
-// FileListResponse 文件列表响应
+// FileListResponse 文件列表响应.
 type FileListResponse struct {
 	// 当前路径
 	Path string `json:"path"`
@@ -267,27 +267,27 @@ type FileListResponse struct {
 	Total int `json:"total"`
 }
 
-// SessionResponse 会话响应
+// SessionResponse 会话响应.
 type SessionResponse struct {
-	SessionToken string `json:"session_token"`
+	SessionToken string    `json:"session_token"`
 	ExpiresAt    time.Time `json:"expires_at"`
 }
 
-// ShareStats 分享统计
+// ShareStats 分享统计.
 type ShareStats struct {
-	TotalShares        int `json:"total_shares"`
-	ActiveShares       int `json:"active_shares"`
-	ExpiredShares      int `json:"expired_shares"`
-	RevokedShares      int `json:"revoked_shares"`
-	TotalSessions      int `json:"total_sessions"`
-	ActiveSessions     int `json:"active_sessions"`
-	FIPSEnabledShares  int `json:"fips_enabled_shares"`
-	PasswordProtected  int `json:"password_protected"`
+	TotalShares       int `json:"total_shares"`
+	ActiveShares      int `json:"active_shares"`
+	ExpiredShares     int `json:"expired_shares"`
+	RevokedShares     int `json:"revoked_shares"`
+	TotalSessions     int `json:"total_sessions"`
+	ActiveSessions    int `json:"active_sessions"`
+	FIPSEnabledShares int `json:"fips_enabled_shares"`
+	PasswordProtected int `json:"password_protected"`
 }
 
 // ========== 内部辅助函数 ==========
 
-// newWebShare 创建 WebShare 实例（内部辅助函数）
+// newWebShare 创建 WebShare 实例（内部辅助函数）.
 func newWebShare(req *CreateShareRequest, cfg *WebShareConfig) *WebShare {
 	now := time.Now()
 
@@ -341,7 +341,7 @@ func newWebShare(req *CreateShareRequest, cfg *WebShareConfig) *WebShare {
 	return share
 }
 
-// permissionForMode 根据访问模式返回默认权限
+// permissionForMode 根据访问模式返回默认权限.
 func permissionForMode(mode AccessMode) *SharePermission {
 	switch mode {
 	case AccessModeReadOnly:
@@ -365,7 +365,7 @@ func permissionForMode(mode AccessMode) *SharePermission {
 	}
 }
 
-// generateToken 生成访问令牌
+// generateToken 生成访问令牌.
 func generateToken(length int) string {
 	if length <= 0 {
 		length = 32
@@ -373,18 +373,18 @@ func generateToken(length int) string {
 	return uuid.New().String() + uuid.New().String()
 }
 
-// hashPassword 简单密码哈希（实际生产应使用 bcrypt/argon2）
+// hashPassword 简单密码哈希（实际生产应使用 bcrypt/argon2）.
 func hashPassword(password string) string {
 	// 简单实现：实际应使用安全哈希算法
 	return "sha256:" + password
 }
 
-// verifyPassword 验证密码
+// verifyPassword 验证密码.
 func verifyPassword(hash, password string) bool {
 	return hash == "sha256:"+password
 }
 
-// newSession 创建浏览器会话
+// newSession 创建浏览器会话.
 func newSession(shareID, clientIP, userAgent, currentPath string, timeoutMinutes int) *BrowserSession {
 	now := time.Now()
 	if timeoutMinutes <= 0 {
@@ -397,7 +397,7 @@ func newSession(shareID, clientIP, userAgent, currentPath string, timeoutMinutes
 		UserAgent:    userAgent,
 		CreatedAt:    now,
 		LastActiveAt: now,
-		ExpiresAt:     now.Add(time.Duration(timeoutMinutes) * time.Minute),
+		ExpiresAt:    now.Add(time.Duration(timeoutMinutes) * time.Minute),
 		CurrentPath:  currentPath,
 		IsActive:     true,
 	}

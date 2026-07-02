@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Config 系统监控配置
+// Config 系统监控配置.
 type Config struct {
 	Enabled         bool    `json:"enabled"`
 	Interval        int     `json:"interval"`
@@ -28,7 +28,7 @@ type Config struct {
 	TopProcessCount int     `json:"top_process_count"`
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig 返回默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:         true,
@@ -41,7 +41,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// Manager 系统监控管理器
+// Manager 系统监控管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	config    *Config
@@ -58,7 +58,7 @@ type Manager struct {
 	history   []HistoryPoint
 }
 
-// SystemOverview 系统概览
+// SystemOverview 系统概览.
 type SystemOverview struct {
 	Hostname    string  `json:"hostname"`
 	OS          string  `json:"os"`
@@ -80,7 +80,7 @@ type SystemOverview struct {
 	Timestamp   int64   `json:"timestamp"`
 }
 
-// ProcessInfo 进程信息
+// ProcessInfo 进程信息.
 type ProcessInfo struct {
 	PID        int32   `json:"pid"`
 	Name       string  `json:"name"`
@@ -94,7 +94,7 @@ type ProcessInfo struct {
 	Cmdline    string  `json:"cmdline"`
 }
 
-// DiskUsageInfo 磁盘使用信息
+// DiskUsageInfo 磁盘使用信息.
 type DiskUsageInfo struct {
 	MountPoint  string  `json:"mount_point"`
 	Device      string  `json:"device"`
@@ -108,7 +108,7 @@ type DiskUsageInfo struct {
 	InodesFree  uint64  `json:"inodes_free"`
 }
 
-// NetworkInfo 网络连接信息
+// NetworkInfo 网络连接信息.
 type NetworkInfo struct {
 	Connections      []ConnectionInfo `json:"connections"`
 	TCPCount         int              `json:"tcp_count"`
@@ -122,7 +122,7 @@ type NetworkInfo struct {
 	Timestamp        int64            `json:"timestamp"`
 }
 
-// ConnectionInfo 连接信息
+// ConnectionInfo 连接信息.
 type ConnectionInfo struct {
 	Family     uint32 `json:"family"`
 	Type       uint32 `json:"type"`
@@ -134,7 +134,7 @@ type ConnectionInfo struct {
 	PID        int32  `json:"pid"`
 }
 
-// LoadInfo 系统负载信息
+// LoadInfo 系统负载信息.
 type LoadInfo struct {
 	Load1     float64 `json:"load1"`
 	Load5     float64 `json:"load5"`
@@ -143,7 +143,7 @@ type LoadInfo struct {
 	Timestamp int64   `json:"timestamp"`
 }
 
-// UptimeInfo 运行时间信息
+// UptimeInfo 运行时间信息.
 type UptimeInfo struct {
 	Uptime      uint64 `json:"uptime"`
 	BootTime    uint64 `json:"boot_time"`
@@ -153,7 +153,7 @@ type UptimeInfo struct {
 	Timestamp   int64  `json:"timestamp"`
 }
 
-// UserInfo 用户会话信息
+// UserInfo 用户会话信息.
 type UserInfo struct {
 	User     string `json:"user"`
 	Terminal string `json:"terminal"`
@@ -161,7 +161,7 @@ type UserInfo struct {
 	Started  int    `json:"started"`
 }
 
-// Alert 告警信息
+// Alert 告警信息.
 type Alert struct {
 	Type      string  `json:"type"`
 	Level     string  `json:"level"`
@@ -171,7 +171,7 @@ type Alert struct {
 	Timestamp int64   `json:"timestamp"`
 }
 
-// HistoryPoint 历史数据点
+// HistoryPoint 历史数据点.
 type HistoryPoint struct {
 	Timestamp   int64   `json:"timestamp"`
 	CPUPercent  float64 `json:"cpu_percent"`
@@ -182,7 +182,7 @@ type HistoryPoint struct {
 	Load15      float64 `json:"load15"`
 }
 
-// NewManager 创建监控管理器
+// NewManager 创建监控管理器.
 func NewManager(cfg *Config, logger *zap.Logger) *Manager {
 	if cfg == nil {
 		cfg = DefaultConfig()
@@ -198,7 +198,7 @@ func NewManager(cfg *Config, logger *zap.Logger) *Manager {
 	}
 }
 
-// Start 启动监控
+// Start 启动监控.
 func (m *Manager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -221,7 +221,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止监控
+// Stop 停止监控.
 func (m *Manager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -236,14 +236,14 @@ func (m *Manager) Stop() error {
 	return nil
 }
 
-// IsRunning 运行状态
+// IsRunning 运行状态.
 func (m *Manager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.running
 }
 
-// run 定时采集循环
+// run 定时采集循环.
 func (m *Manager) run(ctx context.Context) {
 	ticker := time.NewTicker(time.Duration(m.config.Interval) * time.Second)
 	defer ticker.Stop()
@@ -258,7 +258,7 @@ func (m *Manager) run(ctx context.Context) {
 	}
 }
 
-// collect 执行一次完整采集
+// collect 执行一次完整采集.
 func (m *Manager) collect(ctx context.Context) {
 	var wg sync.WaitGroup
 
@@ -278,7 +278,7 @@ func (m *Manager) collect(ctx context.Context) {
 	m.recordHistory()
 }
 
-// collectOverview 采集系统概览
+// collectOverview 采集系统概览.
 func (m *Manager) collectOverview(ctx context.Context) {
 	info, err := host.InfoWithContext(ctx)
 	if err != nil {
@@ -344,7 +344,7 @@ func (m *Manager) collectOverview(ctx context.Context) {
 	m.mu.Unlock()
 }
 
-// collectProcesses 采集进程信息
+// collectProcesses 采集进程信息.
 func (m *Manager) collectProcesses(ctx context.Context) {
 	pids, err := process.PidsWithContext(ctx)
 	if err != nil {
@@ -409,7 +409,7 @@ func (m *Manager) collectProcesses(ctx context.Context) {
 	m.mu.Unlock()
 }
 
-// collectDiskUsage 采集磁盘使用信息
+// collectDiskUsage 采集磁盘使用信息.
 func (m *Manager) collectDiskUsage(ctx context.Context) {
 	partitions, err := disk.PartitionsWithContext(ctx, false)
 	if err != nil {
@@ -447,7 +447,7 @@ func (m *Manager) collectDiskUsage(ctx context.Context) {
 	m.mu.Unlock()
 }
 
-// collectNetwork 采集网络信息
+// collectNetwork 采集网络信息.
 func (m *Manager) collectNetwork(ctx context.Context) {
 	conns, err := net.ConnectionsWithContext(ctx, "all")
 	if err != nil {
@@ -478,14 +478,16 @@ func (m *Manager) collectNetwork(ctx context.Context) {
 		connections = append(connections, ci)
 
 		// 统计
-		if c.Type == 1 { // TCP
+		switch c.Type {
+		case 1: // TCP
 			tcpCount++
-		} else if c.Type == 2 { // UDP
+		case 2: // UDP
 			udpCount++
 		}
-		if c.Status == "LISTEN" {
+		switch c.Status {
+		case "LISTEN":
 			listenCount++
-		} else if c.Status == "ESTABLISHED" {
+		case "ESTABLISHED":
 			establishedCount++
 		}
 	}
@@ -518,7 +520,7 @@ func (m *Manager) collectNetwork(ctx context.Context) {
 	m.mu.Unlock()
 }
 
-// collectLoad 采集系统负载
+// collectLoad 采集系统负载.
 func (m *Manager) collectLoad(ctx context.Context) {
 	loadAvg, err := load.AvgWithContext(ctx)
 	if err != nil {
@@ -541,7 +543,7 @@ func (m *Manager) collectLoad(ctx context.Context) {
 	m.mu.Unlock()
 }
 
-// collectUptime 采集运行时间信息
+// collectUptime 采集运行时间信息.
 func (m *Manager) collectUptime(ctx context.Context) {
 	info, err := host.InfoWithContext(ctx)
 	if err != nil {
@@ -571,7 +573,7 @@ func (m *Manager) collectUptime(ctx context.Context) {
 	m.mu.Unlock()
 }
 
-// checkAlerts 检查告警
+// checkAlerts 检查告警.
 func (m *Manager) checkAlerts(ctx context.Context) {
 	var alerts []Alert
 	now := time.Now().Unix()
@@ -629,7 +631,7 @@ func (m *Manager) checkAlerts(ctx context.Context) {
 	m.mu.Unlock()
 }
 
-// recordHistory 记录历史数据点
+// recordHistory 记录历史数据点.
 func (m *Manager) recordHistory() {
 	m.mu.RLock()
 	overview := m.overview
@@ -671,14 +673,14 @@ func (m *Manager) recordHistory() {
 	m.mu.Unlock()
 }
 
-// GetOverview 获取系统概览
+// GetOverview 获取系统概览.
 func (m *Manager) GetOverview() *SystemOverview {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.overview
 }
 
-// GetProcesses 获取进程列表
+// GetProcesses 获取进程列表.
 func (m *Manager) GetProcesses() []ProcessInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -687,7 +689,7 @@ func (m *Manager) GetProcesses() []ProcessInfo {
 	return result
 }
 
-// GetDiskUsage 获取磁盘使用
+// GetDiskUsage 获取磁盘使用.
 func (m *Manager) GetDiskUsage() []DiskUsageInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -696,28 +698,28 @@ func (m *Manager) GetDiskUsage() []DiskUsageInfo {
 	return result
 }
 
-// GetNetwork 获取网络信息
+// GetNetwork 获取网络信息.
 func (m *Manager) GetNetwork() NetworkInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.network
 }
 
-// GetLoad 获取系统负载
+// GetLoad 获取系统负载.
 func (m *Manager) GetLoad() LoadInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.loadInfo
 }
 
-// GetUptime 获取运行时间
+// GetUptime 获取运行时间.
 func (m *Manager) GetUptime() UptimeInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.uptime
 }
 
-// GetAlerts 获取当前告警
+// GetAlerts 获取当前告警.
 func (m *Manager) GetAlerts() []Alert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -726,7 +728,7 @@ func (m *Manager) GetAlerts() []Alert {
 	return result
 }
 
-// GetHistory 获取历史数据
+// GetHistory 获取历史数据.
 func (m *Manager) GetHistory() []HistoryPoint {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -735,7 +737,7 @@ func (m *Manager) GetHistory() []HistoryPoint {
 	return result
 }
 
-// formatDuration 格式化时长
+// formatDuration 格式化时长.
 func formatDuration(d time.Duration) string {
 	days := int(d.Hours()) / 24
 	hours := int(d.Hours()) % 24

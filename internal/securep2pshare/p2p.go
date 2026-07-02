@@ -15,7 +15,7 @@ import (
 
 // ========== 核心类型 ==========
 
-// ShareStatus 共享状态
+// ShareStatus 共享状态.
 type ShareStatus string
 
 const (
@@ -27,7 +27,7 @@ const (
 	ShareStatusError     ShareStatus = "error"
 )
 
-// PeerRole 对等节点角色
+// PeerRole 对等节点角色.
 type PeerRole string
 
 const (
@@ -36,7 +36,7 @@ const (
 	PeerRoleViewer PeerRole = "viewer"
 )
 
-// ConnectionType 连接类型
+// ConnectionType 连接类型.
 type ConnectionType string
 
 const (
@@ -46,7 +46,7 @@ const (
 	ConnectionWAN    ConnectionType = "wan"
 )
 
-// Share 共享定义
+// Share 共享定义.
 type Share struct {
 	ID             string            `json:"id"`
 	Name           string            `json:"name"`
@@ -68,7 +68,7 @@ type Share struct {
 	Metadata       map[string]string `json:"metadata"`
 }
 
-// Peer 对等节点
+// Peer 对等节点.
 type Peer struct {
 	ID             string         `json:"id"`
 	Name           string         `json:"name"`
@@ -82,7 +82,7 @@ type Peer struct {
 	SyncStatus     string         `json:"sync_status"`
 }
 
-// SharePermissions 共享权限
+// SharePermissions 共享权限.
 type SharePermissions struct {
 	AllowRead     bool     `json:"allow_read"`
 	AllowWrite    bool     `json:"allow_write"`
@@ -93,7 +93,7 @@ type SharePermissions struct {
 	AllowedTypes  []string `json:"allowed_types"`
 }
 
-// Transfer 传输记录
+// Transfer 传输记录.
 type Transfer struct {
 	ID          string        `json:"id"`
 	ShareID     string        `json:"share_id"`
@@ -109,7 +109,7 @@ type Transfer struct {
 	Progress    float64       `json:"progress"`
 }
 
-// SyncEvent 同步事件
+// SyncEvent 同步事件.
 type SyncEvent struct {
 	ID        string    `json:"id"`
 	ShareID   string    `json:"share_id"`
@@ -120,7 +120,7 @@ type SyncEvent struct {
 	Details   string    `json:"details"`
 }
 
-// Manager P2P共享管理器
+// Manager P2P共享管理器.
 type Manager struct {
 	mu           sync.RWMutex
 	shares       map[string]*Share
@@ -136,7 +136,7 @@ type Manager struct {
 	dedup        bool
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(nodeName string, listenPort int) *Manager {
 	hash := sha256.Sum256([]byte(fmt.Sprintf("%s:%d", nodeName, listenPort)))
 	return &Manager{
@@ -154,7 +154,7 @@ func NewManager(nodeName string, listenPort int) *Manager {
 	}
 }
 
-// CreateShare 创建共享
+// CreateShare 创建共享.
 func (m *Manager) CreateShare(name, path string, owner string, permissions SharePermissions) (*Share, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -194,7 +194,7 @@ func (m *Manager) CreateShare(name, path string, owner string, permissions Share
 	return share, nil
 }
 
-// AddPeer 添加对等节点
+// AddPeer 添加对等节点.
 func (m *Manager) AddPeer(shareID string, peer Peer) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -216,7 +216,7 @@ func (m *Manager) AddPeer(shareID string, peer Peer) error {
 	return nil
 }
 
-// GetShare 获取共享信息
+// GetShare 获取共享信息.
 func (m *Manager) GetShare(shareID string) (*Share, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -229,7 +229,7 @@ func (m *Manager) GetShare(shareID string) (*Share, error) {
 	return share, nil
 }
 
-// ListShares 列出所有共享
+// ListShares 列出所有共享.
 func (m *Manager) ListShares(owner string) []*Share {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -244,7 +244,7 @@ func (m *Manager) ListShares(owner string) []*Share {
 	return shares
 }
 
-// GetTransfers 获取传输列表
+// GetTransfers 获取传输列表.
 func (m *Manager) GetTransfers(shareID string) []*Transfer {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -259,7 +259,7 @@ func (m *Manager) GetTransfers(shareID string) []*Transfer {
 	return transfers
 }
 
-// GetEvents 获取同步事件
+// GetEvents 获取同步事件.
 func (m *Manager) GetEvents(shareID string, limit int) []SyncEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -274,7 +274,7 @@ func (m *Manager) GetEvents(shareID string, limit int) []SyncEvent {
 	return events
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -306,7 +306,7 @@ func (m *Manager) GetStats() map[string]interface{} {
 	return stats
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *Manager) Close() error {
 	return nil
 }

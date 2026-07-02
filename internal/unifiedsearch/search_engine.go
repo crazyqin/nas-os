@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// EngineSearchType 搜索源类型
+// EngineSearchType 搜索源类型.
 type EngineSearchType string
 
 const (
@@ -26,7 +26,7 @@ const (
 	SourceMusic    EngineSearchType = "music"
 )
 
-// SearchEngine 统一搜索引擎，基于 bleve 倒排索引
+// SearchEngine 统一搜索引擎，基于 bleve 倒排索引.
 type SearchEngine struct {
 	index      bleve.Index
 	logger     *zap.Logger
@@ -37,7 +37,7 @@ type SearchEngine struct {
 	indexReady bool
 }
 
-// NewSearchEngine 创建搜索引擎
+// NewSearchEngine 创建搜索引擎.
 func NewSearchEngine(logger *zap.Logger, indexDir string) (*SearchEngine, error) {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -53,7 +53,7 @@ func NewSearchEngine(logger *zap.Logger, indexDir string) (*SearchEngine, error)
 	return engine, nil
 }
 
-// createIndex 创建 bleve 索引
+// createIndex 创建 bleve 索引.
 func (e *SearchEngine) createIndex() (bleve.Index, error) {
 	// 定义映射
 	mapping := bleve.NewIndexMapping()
@@ -121,7 +121,7 @@ func (e *SearchEngine) createIndex() (bleve.Index, error) {
 	return index, nil
 }
 
-// openIndex 打开现有索引或创建新索引
+// openIndex 打开现有索引或创建新索引.
 func (e *SearchEngine) openIndex() (bleve.Index, error) {
 	// 尝试打开现有索引
 	index, err := bleve.Open(e.indexPath)
@@ -133,7 +133,7 @@ func (e *SearchEngine) openIndex() (bleve.Index, error) {
 	return index, nil
 }
 
-// Start 启动搜索引擎
+// Start 启动搜索引擎.
 func (e *SearchEngine) Start() error {
 	if e.running {
 		return fmt.Errorf("search engine is already running")
@@ -156,7 +156,7 @@ func (e *SearchEngine) Start() error {
 	return nil
 }
 
-// Stop 停止搜索引擎
+// Stop 停止搜索引擎.
 func (e *SearchEngine) Stop() error {
 	if !e.running {
 		return nil
@@ -183,12 +183,12 @@ func (e *SearchEngine) Stop() error {
 	return nil
 }
 
-// IsRunning 检查是否运行中
+// IsRunning 检查是否运行中.
 func (e *SearchEngine) IsRunning() bool {
 	return e.running
 }
 
-// IndexDocument 索引单个文档
+// IndexDocument 索引单个文档.
 func (e *SearchEngine) IndexDocument(doc *SearchIndex) error {
 	if !e.running || e.index == nil {
 		return fmt.Errorf("search engine is not running")
@@ -247,7 +247,7 @@ func (e *SearchEngine) IndexDocument(doc *SearchIndex) error {
 	return nil
 }
 
-// IndexBatch 批量索引文档
+// IndexBatch 批量索引文档.
 func (e *SearchEngine) IndexBatch(docs []*SearchIndex) (int, error) {
 	if !e.running || e.index == nil {
 		return 0, fmt.Errorf("search engine is not running")
@@ -271,7 +271,7 @@ func (e *SearchEngine) IndexBatch(docs []*SearchIndex) (int, error) {
 	return indexed, nil
 }
 
-// RemoveDocument 从索引中移除文档
+// RemoveDocument 从索引中移除文档.
 func (e *SearchEngine) RemoveDocument(docID string) error {
 	if !e.running || e.index == nil {
 		return fmt.Errorf("search engine is not running")
@@ -286,7 +286,7 @@ func (e *SearchEngine) RemoveDocument(docID string) error {
 	return nil
 }
 
-// Search 执行搜索
+// Search 执行搜索.
 func (e *SearchEngine) Search(query *SearchQuery) (*SearchResponse, error) {
 	if !e.running || e.index == nil {
 		return nil, fmt.Errorf("search engine is not running")
@@ -411,7 +411,7 @@ func (e *SearchEngine) Search(query *SearchQuery) (*SearchResponse, error) {
 	}, nil
 }
 
-// buildBleveQuery 构建 bleve 查询
+// buildBleveQuery 构建 bleve 查询.
 func (e *SearchEngine) buildBleveQuery(q *SearchQuery) query.Query {
 	queryStr := q.Query
 
@@ -528,7 +528,7 @@ func (e *SearchEngine) buildBleveQuery(q *SearchQuery) query.Query {
 	return disjunction
 }
 
-// GetSuggestions 获取搜索建议
+// GetSuggestions 获取搜索建议.
 func (e *SearchEngine) GetSuggestions(prefix string, limit int) ([]string, error) {
 	if !e.running || e.index == nil {
 		return nil, fmt.Errorf("search engine is not running")
@@ -566,7 +566,7 @@ func (e *SearchEngine) GetSuggestions(prefix string, limit int) ([]string, error
 	return suggestions, nil
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (e *SearchEngine) RebuildIndex() error {
 	if !e.running {
 		return fmt.Errorf("search engine is not running")
@@ -602,13 +602,13 @@ func (e *SearchEngine) RebuildIndex() error {
 	return nil
 }
 
-// GetStats 获取索引统计
+// GetStats 获取索引统计.
 func (e *SearchEngine) GetStats() *IndexStats {
 	e.updateStats()
 	return e.stats
 }
 
-// updateStats 更新统计信息
+// updateStats 更新统计信息.
 func (e *SearchEngine) updateStats() {
 	if e.index == nil {
 		return
@@ -625,7 +625,7 @@ func (e *SearchEngine) updateStats() {
 	e.stats.LastIndexedAt = &now
 }
 
-// getSortField 获取排序字段
+// getSortField 获取排序字段.
 func (e *SearchEngine) getSortField(sortBy SortOrder) string {
 	switch sortBy {
 	case SortDateDesc, SortDateAsc:
@@ -639,7 +639,7 @@ func (e *SearchEngine) getSortField(sortBy SortOrder) string {
 	}
 }
 
-// generateSummary 生成内容摘要
+// generateSummary 生成内容摘要.
 func generateSummary(content, query string, maxLen int) string {
 	if content == "" {
 		return ""
@@ -689,7 +689,7 @@ func generateSummary(content, query string, maxLen int) string {
 	return summary
 }
 
-// generateDocID 生成文档 ID（基于路径的哈希）
+// generateDocID 生成文档 ID（基于路径的哈希）.
 func generateDocID(path string) string {
 	// 使用简单的路径转换作为 ID
 	// 实际生产环境中应使用更健壮的哈希算法
@@ -697,7 +697,7 @@ func generateDocID(path string) string {
 	return re.ReplaceAllString(path, "_")
 }
 
-// applyQueryDefaults 应用查询默认值
+// applyQueryDefaults 应用查询默认值.
 func applyQueryDefaults(query *SearchQuery) {
 	if query.Page <= 0 {
 		query.Page = 1

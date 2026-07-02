@@ -11,38 +11,38 @@ import (
 	"go.uber.org/zap"
 )
 
-// Executor 步骤执行引擎
+// Executor 步骤执行引擎.
 type Executor struct {
-	mu           sync.Mutex
-	manager      *Manager
-	logger       *zap.Logger
-	commandFunc  CommandFunc
-	scriptFunc   ScriptFunc
-	checkFunc    CheckFunc
-	notifyFunc   NotifyFunc
+	mu            sync.Mutex
+	manager       *Manager
+	logger        *zap.Logger
+	commandFunc   CommandFunc
+	scriptFunc    ScriptFunc
+	checkFunc     CheckFunc
+	notifyFunc    NotifyFunc
 	maxConcurrent int
-	semaphore    chan struct{}
+	semaphore     chan struct{}
 }
 
-// CommandFunc 命令执行函数
+// CommandFunc 命令执行函数.
 type CommandFunc func(ctx context.Context, cmd string, vars map[string]string) (string, error)
 
-// ScriptFunc 脚本执行函数
+// ScriptFunc 脚本执行函数.
 type ScriptFunc func(ctx context.Context, script string, vars map[string]string) (string, error)
 
-// CheckFunc 健康检查函数
+// CheckFunc 健康检查函数.
 type CheckFunc func(ctx context.Context, check string, vars map[string]string) (bool, string, error)
 
-// NotifyFunc 通知函数
+// NotifyFunc 通知函数.
 type NotifyFunc func(ctx context.Context, message string, severity Severity) error
 
-// ExecutorConfig 执行器配置
+// ExecutorConfig 执行器配置.
 type ExecutorConfig struct {
-	MaxConcurrent int           `json:"max_concurrent"`
+	MaxConcurrent  int           `json:"max_concurrent"`
 	CommandTimeout time.Duration `json:"command_timeout"`
 }
 
-// NewExecutor 创建执行器
+// NewExecutor 创建执行器.
 func NewExecutor(manager *Manager, logger *zap.Logger, config ExecutorConfig) *Executor {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -70,27 +70,27 @@ func NewExecutor(manager *Manager, logger *zap.Logger, config ExecutorConfig) *E
 	return e
 }
 
-// SetCommandFunc 设置命令执行函数
+// SetCommandFunc 设置命令执行函数.
 func (e *Executor) SetCommandFunc(fn CommandFunc) {
 	e.commandFunc = fn
 }
 
-// SetScriptFunc 设置脚本执行函数
+// SetScriptFunc 设置脚本执行函数.
 func (e *Executor) SetScriptFunc(fn ScriptFunc) {
 	e.scriptFunc = fn
 }
 
-// SetCheckFunc 设置健康检查函数
+// SetCheckFunc 设置健康检查函数.
 func (e *Executor) SetCheckFunc(fn CheckFunc) {
 	e.checkFunc = fn
 }
 
-// SetNotifyFunc 设置通知函数
+// SetNotifyFunc 设置通知函数.
 func (e *Executor) SetNotifyFunc(fn NotifyFunc) {
 	e.notifyFunc = fn
 }
 
-// Execute 执行运维手册
+// Execute 执行运维手册.
 func (e *Executor) Execute(ctx context.Context, runbookID string, trigger TriggerType, triggerRef string, vars map[string]string, operator string) (*Execution, error) {
 	e.manager.mu.Lock()
 	rb, ok := e.manager.runbooks[runbookID]
@@ -222,7 +222,7 @@ func (e *Executor) Execute(ctx context.Context, runbookID string, trigger Trigge
 	return execution, nil
 }
 
-// executeStep 执行单个步骤
+// executeStep 执行单个步骤.
 func (e *Executor) executeStep(ctx context.Context, step *Step, vars map[string]string) *StepResult {
 	result := &StepResult{
 		StepID:    step.ID,
@@ -323,7 +323,7 @@ func (e *Executor) executeStep(ctx context.Context, step *Step, vars map[string]
 	return result
 }
 
-// rollback 回滚已执行的步骤
+// rollback 回滚已执行的步骤.
 func (e *Executor) rollback(ctx context.Context, exec *Execution, rb *Runbook) {
 	e.logger.Info("starting rollback", zap.String("execution", exec.ID))
 	exec.Rollbacked = true
@@ -355,7 +355,7 @@ func (e *Executor) rollback(ctx context.Context, exec *Execution, rb *Runbook) {
 	}
 }
 
-// executeCommand 执行命令
+// executeCommand 执行命令.
 func (e *Executor) executeCommand(ctx context.Context, cmd string, vars map[string]string) (string, error) {
 	if e.commandFunc != nil {
 		return e.commandFunc(ctx, cmd, vars)
@@ -363,7 +363,7 @@ func (e *Executor) executeCommand(ctx context.Context, cmd string, vars map[stri
 	return e.defaultCommandFunc(ctx, cmd, vars)
 }
 
-// defaultCommandFunc 默认命令执行
+// defaultCommandFunc 默认命令执行.
 func (e *Executor) defaultCommandFunc(ctx context.Context, cmd string, vars map[string]string) (string, error) {
 	// 替换变量
 	for k, v := range vars {
@@ -383,7 +383,7 @@ func (e *Executor) defaultCommandFunc(ctx context.Context, cmd string, vars map[
 	return string(output), nil
 }
 
-// executeScript 执行脚本
+// executeScript 执行脚本.
 func (e *Executor) executeScript(ctx context.Context, script string, vars map[string]string) (string, error) {
 	if e.scriptFunc != nil {
 		return e.scriptFunc(ctx, script, vars)
@@ -391,7 +391,7 @@ func (e *Executor) executeScript(ctx context.Context, script string, vars map[st
 	return e.defaultScriptFunc(ctx, script, vars)
 }
 
-// defaultScriptFunc 默认脚本执行
+// defaultScriptFunc 默认脚本执行.
 func (e *Executor) defaultScriptFunc(ctx context.Context, script string, vars map[string]string) (string, error) {
 	// 替换变量
 	for k, v := range vars {
@@ -406,7 +406,7 @@ func (e *Executor) defaultScriptFunc(ctx context.Context, script string, vars ma
 	return string(output), nil
 }
 
-// executeCheck 执行健康检查
+// executeCheck 执行健康检查.
 func (e *Executor) executeCheck(ctx context.Context, check string, vars map[string]string) (bool, string, error) {
 	if e.checkFunc != nil {
 		return e.checkFunc(ctx, check, vars)
@@ -414,7 +414,7 @@ func (e *Executor) executeCheck(ctx context.Context, check string, vars map[stri
 	return e.defaultCheckFunc(ctx, check, vars)
 }
 
-// defaultCheckFunc 默认健康检查
+// defaultCheckFunc 默认健康检查.
 func (e *Executor) defaultCheckFunc(ctx context.Context, check string, vars map[string]string) (bool, string, error) {
 	for k, v := range vars {
 		check = strings.ReplaceAll(check, fmt.Sprintf("${%s}", k), v)
@@ -433,13 +433,13 @@ func (e *Executor) defaultCheckFunc(ctx context.Context, check string, vars map[
 	return true, string(output), nil
 }
 
-// defaultNotifyFunc 默认通知函数
+// defaultNotifyFunc 默认通知函数.
 func (e *Executor) defaultNotifyFunc(_ context.Context, message string, _ Severity) error {
 	e.logger.Info("notification", zap.String("message", message))
 	return nil
 }
 
-// executeWait 执行等待
+// executeWait 执行等待.
 func (e *Executor) executeWait(ctx context.Context, condition string, vars map[string]string) (string, error) {
 	for k, v := range vars {
 		condition = strings.ReplaceAll(condition, fmt.Sprintf("${%s}", k), v)
@@ -492,7 +492,7 @@ func (e *Executor) executeWait(ctx context.Context, condition string, vars map[s
 	}
 }
 
-// executeApproval 执行审批
+// executeApproval 执行审批.
 func (e *Executor) executeApproval(ctx context.Context, step *Step, vars map[string]string) (string, error) {
 	if step.AutoApprove {
 		return "auto-approved", nil
@@ -536,7 +536,7 @@ func (e *Executor) executeApproval(ctx context.Context, step *Step, vars map[str
 	}
 }
 
-// executeCondition 执行条件分支
+// executeCondition 执行条件分支.
 func (e *Executor) executeCondition(ctx context.Context, condition string, vars map[string]string) (string, error) {
 	for k, v := range vars {
 		condition = strings.ReplaceAll(condition, fmt.Sprintf("${%s}", k), v)
@@ -551,7 +551,7 @@ func (e *Executor) executeCondition(ctx context.Context, condition string, vars 
 	return strings.TrimSpace(string(output)), nil
 }
 
-// emitEvent 发送执行事件
+// emitEvent 发送执行事件.
 func (e *Executor) emitEvent(eventType, execID, stepID string, status StepStatus, message string) {
 	event := &ExecutionEvent{
 		Type:        eventType,

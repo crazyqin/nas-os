@@ -261,7 +261,7 @@ func (p *CapacityPlanner) determineRecommendation(
 		}
 	}
 
-	return
+	return action, recommendedCapacity, urgency, rationale, timeline, steps
 }
 
 // ForecastCapacity 预测容量使用.

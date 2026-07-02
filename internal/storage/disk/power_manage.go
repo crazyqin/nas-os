@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// PowerMode represents disk power states
+// PowerMode represents disk power states.
 type PowerMode string
 
 const (
@@ -18,7 +18,7 @@ const (
 	PowerModeSleep   PowerMode = "sleep"   // Disk is in sleep mode
 )
 
-// PowerPolicy defines disk power management policy
+// PowerPolicy defines disk power management policy.
 type PowerPolicy struct {
 	// IdleTimeout is the time before disk enters idle state
 	IdleTimeout time.Duration `json:"idle_timeout"`
@@ -39,7 +39,7 @@ type PowerPolicy struct {
 	EnableSMART bool `json:"enable_smart"`
 }
 
-// DefaultPowerPolicy returns the default power policy
+// DefaultPowerPolicy returns the default power policy.
 func DefaultPowerPolicy() *PowerPolicy {
 	return &PowerPolicy{
 		IdleTimeout:    5 * time.Minute,
@@ -51,7 +51,7 @@ func DefaultPowerPolicy() *PowerPolicy {
 	}
 }
 
-// DiskPowerManager manages disk power states
+// DiskPowerManager manages disk power states.
 type DiskPowerManager struct {
 	policy    *PowerPolicy
 	disks     map[string]*DiskPowerState
@@ -59,7 +59,7 @@ type DiskPowerManager struct {
 	configDir string
 }
 
-// DiskPowerState tracks individual disk power state
+// DiskPowerState tracks individual disk power state.
 type DiskPowerState struct {
 	DiskID        string        `json:"disk_id"`
 	CurrentMode   PowerMode     `json:"current_mode"`
@@ -69,13 +69,13 @@ type DiskPowerState struct {
 	TotalIdleTime time.Duration `json:"total_idle_time"`
 }
 
-// PowerMonitor monitors disk activity
+// PowerMonitor monitors disk activity.
 type PowerMonitor struct {
 	checkInterval     time.Duration
 	activityThreshold int // IO operations threshold
 }
 
-// NewDiskPowerManager creates a new disk power manager
+// NewDiskPowerManager creates a new disk power manager.
 func NewDiskPowerManager(policy *PowerPolicy, configDir string) *DiskPowerManager {
 	if policy == nil {
 		policy = DefaultPowerPolicy()
@@ -89,7 +89,7 @@ func NewDiskPowerManager(policy *PowerPolicy, configDir string) *DiskPowerManage
 	}
 }
 
-// RegisterDisk registers a disk for power management
+// RegisterDisk registers a disk for power management.
 func (m *DiskPowerManager) RegisterDisk(diskID string) error {
 	if _, exists := m.disks[diskID]; exists {
 		return fmt.Errorf("disk %s already registered", diskID)
@@ -107,7 +107,7 @@ func (m *DiskPowerManager) RegisterDisk(diskID string) error {
 	return nil
 }
 
-// UnregisterDisk removes a disk from power management
+// UnregisterDisk removes a disk from power management.
 func (m *DiskPowerManager) UnregisterDisk(diskID string) error {
 	if _, exists := m.disks[diskID]; !exists {
 		return fmt.Errorf("disk %s not registered", diskID)
@@ -117,7 +117,7 @@ func (m *DiskPowerManager) UnregisterDisk(diskID string) error {
 	return nil
 }
 
-// UpdateActivity updates disk activity timestamp
+// UpdateActivity updates disk activity timestamp.
 func (m *DiskPowerManager) UpdateActivity(diskID string) error {
 	state, exists := m.disks[diskID]
 	if !exists {
@@ -135,7 +135,7 @@ func (m *DiskPowerManager) UpdateActivity(diskID string) error {
 	return nil
 }
 
-// CheckPowerStates checks all disks and updates power states
+// CheckPowerStates checks all disks and updates power states.
 func (m *DiskPowerManager) CheckPowerStates(ctx context.Context) error {
 	now := time.Now()
 
@@ -173,7 +173,7 @@ func (m *DiskPowerManager) CheckPowerStates(ctx context.Context) error {
 	return nil
 }
 
-// spindownDisk sends spindown command to disk
+// spindownDisk sends spindown command to disk.
 func (m *DiskPowerManager) spindownDisk(diskID string) error {
 	// Implementation depends on disk type (HDD/SSD)
 	// For HDD: use hdparm -y or SCSI SYNCHRONIZE CACHE
@@ -182,13 +182,13 @@ func (m *DiskPowerManager) spindownDisk(diskID string) error {
 	return nil
 }
 
-// sleepDisk sends sleep command to disk
+// sleepDisk sends sleep command to disk.
 func (m *DiskPowerManager) sleepDisk(diskID string) error {
 	fmt.Printf("Putting disk %s to sleep\n", diskID)
 	return nil
 }
 
-// SpinupDisk manually spins up a disk
+// SpinupDisk manually spins up a disk.
 func (m *DiskPowerManager) SpinupDisk(diskID string) error {
 	state, exists := m.disks[diskID]
 	if !exists {
@@ -203,7 +203,7 @@ func (m *DiskPowerManager) SpinupDisk(diskID string) error {
 	return nil
 }
 
-// GetDiskPowerState returns the power state of a disk
+// GetDiskPowerState returns the power state of a disk.
 func (m *DiskPowerManager) GetDiskPowerState(diskID string) (*DiskPowerState, error) {
 	state, exists := m.disks[diskID]
 	if !exists {
@@ -213,12 +213,12 @@ func (m *DiskPowerManager) GetDiskPowerState(diskID string) (*DiskPowerState, er
 	return state, nil
 }
 
-// GetAllDiskPowerStates returns all disk power states
+// GetAllDiskPowerStates returns all disk power states.
 func (m *DiskPowerManager) GetAllDiskPowerStates() map[string]*DiskPowerState {
 	return m.disks
 }
 
-// SetPowerPolicy updates the power policy
+// SetPowerPolicy updates the power policy.
 func (m *DiskPowerManager) SetPowerPolicy(policy *PowerPolicy) error {
 	if policy == nil {
 		return fmt.Errorf("policy cannot be nil")
@@ -228,12 +228,12 @@ func (m *DiskPowerManager) SetPowerPolicy(policy *PowerPolicy) error {
 	return nil
 }
 
-// GetPowerPolicy returns the current power policy
+// GetPowerPolicy returns the current power policy.
 func (m *DiskPowerManager) GetPowerPolicy() *PowerPolicy {
 	return m.policy
 }
 
-// PowerStats returns aggregate power statistics
+// PowerStats returns aggregate power statistics.
 type PowerStats struct {
 	TotalDisks       int `json:"total_disks"`
 	ActiveDisks      int `json:"active_disks"`
@@ -245,10 +245,10 @@ type PowerStats struct {
 	EstimatedSavings kWh `json:"estimated_savings"` // Estimated energy savings
 }
 
-// kWh represents kilowatt-hours
+// kWh represents kilowatt-hours.
 type kWh float64
 
-// GetPowerStats returns aggregate power statistics
+// GetPowerStats returns aggregate power statistics.
 func (m *DiskPowerManager) GetPowerStats() *PowerStats {
 	stats := &PowerStats{TotalDisks: len(m.disks)}
 
@@ -276,7 +276,7 @@ func (m *DiskPowerManager) GetPowerStats() *PowerStats {
 	return stats
 }
 
-// StartPowerMonitoring starts periodic power state monitoring
+// StartPowerMonitoring starts periodic power state monitoring.
 func (m *DiskPowerManager) StartPowerMonitoring(ctx context.Context) {
 	ticker := time.NewTicker(m.monitor.checkInterval)
 

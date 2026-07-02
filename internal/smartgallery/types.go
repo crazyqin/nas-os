@@ -4,7 +4,7 @@ package smartgallery
 
 import "time"
 
-// Photo 照片
+// Photo 照片.
 type Photo struct {
 	ID         string     `json:"id"`
 	FilePath   string     `json:"file_path"`
@@ -25,7 +25,7 @@ type Photo struct {
 	Rating     int        `json:"rating,omitempty"` // 1-5
 }
 
-// GPSInfo GPS 信息
+// GPSInfo GPS 信息.
 type GPSInfo struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
@@ -33,7 +33,7 @@ type GPSInfo struct {
 	Address   string  `json:"address,omitempty"`
 }
 
-// Face 人脸
+// Face 人脸.
 type Face struct {
 	ID          string      `json:"id"`
 	PhotoID     string      `json:"photo_id"`
@@ -43,7 +43,7 @@ type Face struct {
 	Confidence  float64     `json:"confidence"` // 0-1
 }
 
-// BoundingBox 边界框
+// BoundingBox 边界框.
 type BoundingBox struct {
 	X      int `json:"x"`
 	Y      int `json:"y"`
@@ -51,7 +51,7 @@ type BoundingBox struct {
 	Height int `json:"height"`
 }
 
-// Scene 场景
+// Scene 场景.
 type Scene struct {
 	ID         string  `json:"id"`
 	PhotoID    string  `json:"photo_id"`
@@ -60,7 +60,7 @@ type Scene struct {
 	Confidence float64 `json:"confidence"` // 0-1
 }
 
-// SmartTag 智能标签
+// SmartTag 智能标签.
 type SmartTag struct {
 	ID         string  `json:"id"`
 	Name       string  `json:"name"`
@@ -68,7 +68,7 @@ type SmartTag struct {
 	Confidence float64 `json:"confidence"` // 0-1
 }
 
-// DuplicateGroup 重复照片组
+// DuplicateGroup 重复照片组.
 type DuplicateGroup struct {
 	ID         string   `json:"id"`
 	PhotoIDs   []string `json:"photo_ids"`
@@ -77,7 +77,7 @@ type DuplicateGroup struct {
 	SavedSize  int64    `json:"saved_size"` // 去重后可节省的空间
 }
 
-// Timeline 时间线
+// Timeline 时间线.
 type Timeline struct {
 	Date      string  `json:"date"` // YYYY-MM-DD
 	Photos    []Photo `json:"photos"`
@@ -85,7 +85,7 @@ type Timeline struct {
 	Highlight *Photo  `json:"highlight,omitempty"` // 当日精选
 }
 
-// Person 人物
+// Person 人物.
 type Person struct {
 	ID         string   `json:"id"`
 	Name       string   `json:"name"`
@@ -94,7 +94,7 @@ type Person struct {
 	FaceIDs    []string `json:"face_ids"`
 }
 
-// PhotoSearchRequest 搜索请求
+// PhotoSearchRequest 搜索请求.
 type PhotoSearchRequest struct {
 	Query      string   `json:"query,omitempty"`
 	DateFrom   string   `json:"date_from,omitempty"` // YYYY-MM-DD
@@ -107,7 +107,7 @@ type PhotoSearchRequest struct {
 	PageSize   int      `json:"page_size,omitempty"`
 }
 
-// PhotoSearchResult 搜索结果
+// PhotoSearchResult 搜索结果.
 type PhotoSearchResult struct {
 	Photos   []Photo `json:"photos"`
 	Total    int     `json:"total"`
@@ -115,7 +115,7 @@ type PhotoSearchResult struct {
 	PageSize int     `json:"page_size"`
 }
 
-// PhotoGallery 相册（照片集合）
+// PhotoGallery 相册（照片集合）.
 type PhotoGallery struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`

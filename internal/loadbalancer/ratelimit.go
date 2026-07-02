@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// RateLimiter 请求限流器接口
+// RateLimiter 请求限流器接口.
 type RateLimiter interface {
 	// Allow 检查请求是否允许
 	Allow(key string) bool
@@ -29,14 +29,14 @@ type RateLimiter interface {
 // 令牌桶限流器
 // ============================================================
 
-// TokenBucketLimiter 令牌桶限流器
+// TokenBucketLimiter 令牌桶限流器.
 type TokenBucketLimiter struct {
 	config  RateLimitConfig
 	buckets map[string]*tokenBucket
 	mu      sync.RWMutex
 }
 
-// tokenBucket 令牌桶
+// tokenBucket 令牌桶.
 type tokenBucket struct {
 	tokens    float64
 	maxTokens float64
@@ -45,7 +45,7 @@ type tokenBucket struct {
 	mu        sync.Mutex
 }
 
-// NewTokenBucketLimiter 创建令牌桶限流器
+// NewTokenBucketLimiter 创建令牌桶限流器.
 func NewTokenBucketLimiter(config RateLimitConfig) *TokenBucketLimiter {
 	return &TokenBucketLimiter{
 		config:  config,
@@ -53,7 +53,7 @@ func NewTokenBucketLimiter(config RateLimitConfig) *TokenBucketLimiter {
 	}
 }
 
-// getBucket 获取或创建令牌桶
+// getBucket 获取或创建令牌桶.
 func (tbl *TokenBucketLimiter) getBucket(key string) *tokenBucket {
 	tbl.mu.RLock()
 	bucket, exists := tbl.buckets[key]
@@ -81,12 +81,12 @@ func (tbl *TokenBucketLimiter) getBucket(key string) *tokenBucket {
 	return bucket
 }
 
-// Allow 检查请求是否允许
+// Allow 检查请求是否允许.
 func (tbl *TokenBucketLimiter) Allow(key string) bool {
 	return tbl.AllowN(key, 1)
 }
 
-// AllowN 检查n个请求是否允许
+// AllowN 检查n个请求是否允许.
 func (tbl *TokenBucketLimiter) AllowN(key string, n int) bool {
 	bucket := tbl.getBucket(key)
 	bucket.mu.Lock()
@@ -110,7 +110,7 @@ func (tbl *TokenBucketLimiter) AllowN(key string, n int) bool {
 	return false
 }
 
-// Reserve 预留令牌
+// Reserve 预留令牌.
 func (tbl *TokenBucketLimiter) Reserve(key string) time.Duration {
 	bucket := tbl.getBucket(key)
 	bucket.mu.Lock()
@@ -139,7 +139,7 @@ func (tbl *TokenBucketLimiter) Reserve(key string) time.Duration {
 	return waitTime
 }
 
-// GetLimit 获取限流结果
+// GetLimit 获取限流结果.
 func (tbl *TokenBucketLimiter) GetLimit(key string) RateLimitResult {
 	bucket := tbl.getBucket(key)
 	bucket.mu.Lock()
@@ -159,14 +159,14 @@ func (tbl *TokenBucketLimiter) GetLimit(key string) RateLimitResult {
 	}
 }
 
-// Reset 重置指定key的限流
+// Reset 重置指定key的限流.
 func (tbl *TokenBucketLimiter) Reset(key string) {
 	tbl.mu.Lock()
 	defer tbl.mu.Unlock()
 	delete(tbl.buckets, key)
 }
 
-// ResetAll 重置所有限流
+// ResetAll 重置所有限流.
 func (tbl *TokenBucketLimiter) ResetAll() {
 	tbl.mu.Lock()
 	defer tbl.mu.Unlock()
@@ -177,14 +177,14 @@ func (tbl *TokenBucketLimiter) ResetAll() {
 // 滑动窗口限流器
 // ============================================================
 
-// SlidingWindowLimiter 滑动窗口限流器
+// SlidingWindowLimiter 滑动窗口限流器.
 type SlidingWindowLimiter struct {
 	config  RateLimitConfig
 	windows map[string]*slidingWindow
 	mu      sync.RWMutex
 }
 
-// slidingWindow 滑动窗口
+// slidingWindow 滑动窗口.
 type slidingWindow struct {
 	currentCount int
 	prevCount    int
@@ -194,7 +194,7 @@ type slidingWindow struct {
 	mu           sync.Mutex
 }
 
-// NewSlidingWindowLimiter 创建滑动窗口限流器
+// NewSlidingWindowLimiter 创建滑动窗口限流器.
 func NewSlidingWindowLimiter(config RateLimitConfig) *SlidingWindowLimiter {
 	return &SlidingWindowLimiter{
 		config:  config,
@@ -202,7 +202,7 @@ func NewSlidingWindowLimiter(config RateLimitConfig) *SlidingWindowLimiter {
 	}
 }
 
-// getWindow 获取或创建滑动窗口
+// getWindow 获取或创建滑动窗口.
 func (swl *SlidingWindowLimiter) getWindow(key string) *slidingWindow {
 	swl.mu.RLock()
 	window, exists := swl.windows[key]
@@ -231,12 +231,12 @@ func (swl *SlidingWindowLimiter) getWindow(key string) *slidingWindow {
 	return window
 }
 
-// Allow 检查请求是否允许
+// Allow 检查请求是否允许.
 func (swl *SlidingWindowLimiter) Allow(key string) bool {
 	return swl.AllowN(key, 1)
 }
 
-// AllowN 检查n个请求是否允许
+// AllowN 检查n个请求是否允许.
 func (swl *SlidingWindowLimiter) AllowN(key string, n int) bool {
 	window := swl.getWindow(key)
 	window.mu.Lock()
@@ -261,7 +261,7 @@ func (swl *SlidingWindowLimiter) AllowN(key string, n int) bool {
 	return true
 }
 
-// updateWindow 更新窗口
+// updateWindow 更新窗口.
 func (swl *SlidingWindowLimiter) updateWindow(window *slidingWindow) {
 	now := time.Now()
 	elapsed := now.Sub(window.windowStart)
@@ -274,7 +274,7 @@ func (swl *SlidingWindowLimiter) updateWindow(window *slidingWindow) {
 	}
 }
 
-// Reserve 预留请求
+// Reserve 预留请求.
 func (swl *SlidingWindowLimiter) Reserve(key string) time.Duration {
 	if swl.Allow(key) {
 		return 0
@@ -287,7 +287,7 @@ func (swl *SlidingWindowLimiter) Reserve(key string) time.Duration {
 	return window.windowSize - time.Since(window.windowStart)
 }
 
-// GetLimit 获取限流结果
+// GetLimit 获取限流结果.
 func (swl *SlidingWindowLimiter) GetLimit(key string) RateLimitResult {
 	window := swl.getWindow(key)
 	window.mu.Lock()
@@ -313,14 +313,14 @@ func (swl *SlidingWindowLimiter) GetLimit(key string) RateLimitResult {
 	}
 }
 
-// Reset 重置指定key的限流
+// Reset 重置指定key的限流.
 func (swl *SlidingWindowLimiter) Reset(key string) {
 	swl.mu.Lock()
 	defer swl.mu.Unlock()
 	delete(swl.windows, key)
 }
 
-// ResetAll 重置所有限流
+// ResetAll 重置所有限流.
 func (swl *SlidingWindowLimiter) ResetAll() {
 	swl.mu.Lock()
 	defer swl.mu.Unlock()
@@ -331,13 +331,13 @@ func (swl *SlidingWindowLimiter) ResetAll() {
 // HTTP限流中间件
 // ============================================================
 
-// RateLimitMiddleware HTTP限流中间件
+// RateLimitMiddleware HTTP限流中间件.
 type RateLimitMiddleware struct {
 	limiter RateLimiter
 	config  RateLimitConfig
 }
 
-// NewRateLimitMiddleware 创建HTTP限流中间件
+// NewRateLimitMiddleware 创建HTTP限流中间件.
 func NewRateLimitMiddleware(config RateLimitConfig) *RateLimitMiddleware {
 	var limiter RateLimiter
 
@@ -354,7 +354,7 @@ func NewRateLimitMiddleware(config RateLimitConfig) *RateLimitMiddleware {
 	}
 }
 
-// Handler HTTP中间件
+// Handler HTTP中间件.
 func (rlm *RateLimitMiddleware) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !rlm.config.Enabled {
@@ -386,7 +386,7 @@ func (rlm *RateLimitMiddleware) Handler(next http.Handler) http.Handler {
 	})
 }
 
-// getKey 获取限流key
+// getKey 获取限流key.
 func (rlm *RateLimitMiddleware) getKey(r *http.Request) string {
 	if rlm.config.ByIP {
 		ip, _, _ := net.SplitHostPort(r.RemoteAddr)
@@ -402,7 +402,7 @@ func (rlm *RateLimitMiddleware) getKey(r *http.Request) string {
 // 限流器工厂
 // ============================================================
 
-// NewRateLimiter 创建限流器
+// NewRateLimiter 创建限流器.
 func NewRateLimiter(config RateLimitConfig) RateLimiter {
 	switch config.Algorithm {
 	case RateLimitSlidingWindow:
@@ -416,7 +416,7 @@ func NewRateLimiter(config RateLimitConfig) RateLimiter {
 // IP限流器 (防DDoS)
 // ============================================================
 
-// IPRateLimiter IP限流器
+// IPRateLimiter IP限流器.
 type IPRateLimiter struct {
 	limiter   RateLimiter
 	config    RateLimitConfig
@@ -424,7 +424,7 @@ type IPRateLimiter struct {
 	mu        sync.RWMutex
 }
 
-// NewIPRateLimiter 创建IP限流器
+// NewIPRateLimiter 创建IP限流器.
 func NewIPRateLimiter(config RateLimitConfig) *IPRateLimiter {
 	return &IPRateLimiter{
 		limiter:   NewRateLimiter(config),
@@ -433,7 +433,7 @@ func NewIPRateLimiter(config RateLimitConfig) *IPRateLimiter {
 	}
 }
 
-// Allow 检查IP请求是否允许
+// Allow 检查IP请求是否允许.
 func (irl *IPRateLimiter) Allow(ip string) bool {
 	// 检查黑名单
 	irl.mu.RLock()
@@ -454,21 +454,21 @@ func (irl *IPRateLimiter) Allow(ip string) bool {
 	return irl.limiter.Allow(ip)
 }
 
-// BanIP 封禁IP
+// BanIP 封禁IP.
 func (irl *IPRateLimiter) BanIP(ip string, duration time.Duration) {
 	irl.mu.Lock()
 	defer irl.mu.Unlock()
 	irl.blacklist[ip] = time.Now().Add(duration)
 }
 
-// UnbanIP 解封IP
+// UnbanIP 解封IP.
 func (irl *IPRateLimiter) UnbanIP(ip string) {
 	irl.mu.Lock()
 	defer irl.mu.Unlock()
 	delete(irl.blacklist, ip)
 }
 
-// IsBanned 检查IP是否被封禁
+// IsBanned 检查IP是否被封禁.
 func (irl *IPRateLimiter) IsBanned(ip string) bool {
 	irl.mu.RLock()
 	defer irl.mu.RUnlock()
@@ -487,7 +487,7 @@ func (irl *IPRateLimiter) IsBanned(ip string) bool {
 	return false
 }
 
-// GetBlacklist 获取黑名单
+// GetBlacklist 获取黑名单.
 func (irl *IPRateLimiter) GetBlacklist() map[string]time.Time {
 	irl.mu.RLock()
 	defer irl.mu.RUnlock()

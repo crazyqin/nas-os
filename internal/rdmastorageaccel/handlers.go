@@ -7,19 +7,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler HTTP API 处理器
+// Handler HTTP API 处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建新的处理器实例
+// NewHandler 创建新的处理器实例.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{
 		manager: manager,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	rdmaGroup := router.Group("/rdmastorage")
 	{
@@ -51,7 +51,7 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	}
 }
 
-// ListDevices 列出 RDMA 设备
+// ListDevices 列出 RDMA 设备.
 func (h *Handler) ListDevices(c *gin.Context) {
 	devices := h.manager.GetDevices()
 
@@ -62,7 +62,7 @@ func (h *Handler) ListDevices(c *gin.Context) {
 	})
 }
 
-// GetDevice 获取设备详情
+// GetDevice 获取设备详情.
 func (h *Handler) GetDevice(c *gin.Context) {
 	id := c.Param("id")
 
@@ -82,7 +82,7 @@ func (h *Handler) GetDevice(c *gin.Context) {
 	})
 }
 
-// GetConfig 获取 RDMA 配置
+// GetConfig 获取 RDMA 配置.
 func (h *Handler) GetConfig(c *gin.Context) {
 	config := h.manager.GetConfig()
 
@@ -93,7 +93,7 @@ func (h *Handler) GetConfig(c *gin.Context) {
 	})
 }
 
-// UpdateConfig 更新 RDMA 配置
+// UpdateConfig 更新 RDMA 配置.
 func (h *Handler) UpdateConfig(c *gin.Context) {
 	var config RDMAConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -119,7 +119,7 @@ func (h *Handler) UpdateConfig(c *gin.Context) {
 	})
 }
 
-// CreateTarget 创建存储目标
+// CreateTarget 创建存储目标.
 func (h *Handler) CreateTarget(c *gin.Context) {
 	var req StorageTarget
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -146,7 +146,7 @@ func (h *Handler) CreateTarget(c *gin.Context) {
 	})
 }
 
-// ListTargets 列出存储目标
+// ListTargets 列出存储目标.
 func (h *Handler) ListTargets(c *gin.Context) {
 	targets := h.manager.GetTargets()
 
@@ -157,7 +157,7 @@ func (h *Handler) ListTargets(c *gin.Context) {
 	})
 }
 
-// DeleteTarget 删除存储目标
+// DeleteTarget 删除存储目标.
 func (h *Handler) DeleteTarget(c *gin.Context) {
 	id := c.Param("id")
 
@@ -175,7 +175,7 @@ func (h *Handler) DeleteTarget(c *gin.Context) {
 	})
 }
 
-// GetMetrics 获取性能指标
+// GetMetrics 获取性能指标.
 func (h *Handler) GetMetrics(c *gin.Context) {
 	deviceID := c.Query("device_id")
 	limitStr := c.Query("limit")
@@ -215,7 +215,7 @@ func (h *Handler) GetMetrics(c *gin.Context) {
 	})
 }
 
-// RunBenchmark 运行基准测试
+// RunBenchmark 运行基准测试.
 func (h *Handler) RunBenchmark(c *gin.Context) {
 	var config BenchmarkConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -242,7 +242,7 @@ func (h *Handler) RunBenchmark(c *gin.Context) {
 	})
 }
 
-// GetTuningProfiles 获取调优预设
+// GetTuningProfiles 获取调优预设.
 func (h *Handler) GetTuningProfiles(c *gin.Context) {
 	profiles := h.manager.GetTuningProfiles()
 
@@ -253,7 +253,7 @@ func (h *Handler) GetTuningProfiles(c *gin.Context) {
 	})
 }
 
-// ApplyTuningProfile 应用调优预设
+// ApplyTuningProfile 应用调优预设.
 func (h *Handler) ApplyTuningProfile(c *gin.Context) {
 	var req struct {
 		ProfileID string `json:"profile_id" binding:"required"`
@@ -281,7 +281,7 @@ func (h *Handler) ApplyTuningProfile(c *gin.Context) {
 	})
 }
 
-// HealthCheck 执行健康检查
+// HealthCheck 执行健康检查.
 func (h *Handler) HealthCheck(c *gin.Context) {
 	deviceID := c.Query("device_id")
 	targetID := c.Query("target_id")

@@ -11,7 +11,7 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
-// ZFSExecutor 定义 ZFS scrub 执行的接口，便于测试时注入 mock
+// ZFSExecutor 定义 ZFS scrub 执行的接口，便于测试时注入 mock.
 type ZFSExecutor interface {
 	// StartScrub 启动指定池的 scrub
 	StartScrub(ctx context.Context, pool string) error
@@ -21,7 +21,7 @@ type ZFSExecutor interface {
 	GetScrubProgress(ctx context.Context, pool string) (float64, ScrubState, error)
 }
 
-// ScrubScheduler 是 ZFS Scrub 定时调度器
+// ScrubScheduler 是 ZFS Scrub 定时调度器.
 type ScrubScheduler struct {
 	mu          sync.RWMutex
 	logger      *slog.Logger
@@ -37,7 +37,7 @@ type ScrubScheduler struct {
 	running     bool
 }
 
-// NewScheduler 创建调度器
+// NewScheduler 创建调度器.
 func NewScheduler(logger *slog.Logger, config *ScrubSchedulerConfig, executor ZFSExecutor) *ScrubScheduler {
 	if logger == nil {
 		logger = slog.Default()
@@ -61,7 +61,7 @@ func NewScheduler(logger *slog.Logger, config *ScrubSchedulerConfig, executor ZF
 	}
 }
 
-// Start 启动调度器
+// Start 启动调度器.
 func (s *ScrubScheduler) Start() {
 	s.mu.Lock()
 	if s.running {
@@ -87,7 +87,7 @@ func (s *ScrubScheduler) Start() {
 	s.logger.Info("scrub scheduler started")
 }
 
-// Stop 停止调度器
+// Stop 停止调度器.
 func (s *ScrubScheduler) Stop() {
 	s.mu.Lock()
 	if !s.running {
@@ -104,7 +104,7 @@ func (s *ScrubScheduler) Stop() {
 	s.logger.Info("scrub scheduler stopped")
 }
 
-// monitorLoop 定期检查所有运行中的 scrub 状态
+// monitorLoop 定期检查所有运行中的 scrub 状态.
 func (s *ScrubScheduler) monitorLoop() {
 	interval := time.Duration(s.config.PollIntervalSeconds) * time.Second
 	ticker := time.NewTicker(interval)
@@ -120,7 +120,7 @@ func (s *ScrubScheduler) monitorLoop() {
 	}
 }
 
-// pollAllStatuses 轮询所有运行中的 scrub 状态
+// pollAllStatuses 轮询所有运行中的 scrub 状态.
 func (s *ScrubScheduler) pollAllStatuses() {
 	s.mu.RLock()
 	runningPools := make([]string, 0)
@@ -136,7 +136,7 @@ func (s *ScrubScheduler) pollAllStatuses() {
 	}
 }
 
-// pollPoolStatus 查询单个池的 scrub 状态
+// pollPoolStatus 查询单个池的 scrub 状态.
 func (s *ScrubScheduler) pollPoolStatus(pool string) {
 	ctx := context.Background()
 	progress, state, err := s.executor.GetScrubProgress(ctx, pool)
@@ -169,7 +169,7 @@ func (s *ScrubScheduler) pollPoolStatus(pool string) {
 	}
 }
 
-// handleRetry 处理失败重试逻辑
+// handleRetry 处理失败重试逻辑.
 func (s *ScrubScheduler) handleRetry(pool string) {
 	st, ok := s.statuses[pool]
 	if !ok {
@@ -203,7 +203,7 @@ func (s *ScrubScheduler) handleRetry(pool string) {
 	}
 }
 
-// recordHistory 记录 scrub 历史
+// recordHistory 记录 scrub 历史.
 func (s *ScrubScheduler) recordHistory(st *ScrubStatus, pool string) {
 	var scheduleID string
 	for _, sch := range s.schedules {
@@ -241,7 +241,7 @@ func (s *ScrubScheduler) recordHistory(st *ScrubStatus, pool string) {
 		"duration", duration)
 }
 
-// inMaintenanceWindow 判断当前时间是否在维护窗口内
+// inMaintenanceWindow 判断当前时间是否在维护窗口内.
 func (s *ScrubScheduler) inMaintenanceWindow(window MaintenanceWindow) bool {
 	if window.Start == "" || window.End == "" {
 		return true // 未配置窗口则随时可以执行
@@ -264,7 +264,7 @@ func (s *ScrubScheduler) inMaintenanceWindow(window MaintenanceWindow) bool {
 	return currentMinutes >= startParts || currentMinutes < endParts
 }
 
-// parseHHMM 解析 HH:MM 格式为分钟数
+// parseHHMM 解析 HH:MM 格式为分钟数.
 func parseHHMM(s string) int {
 	var h, m int
 	_, err := fmt.Sscanf(s, "%d:%d", &h, &m)
@@ -274,7 +274,7 @@ func parseHHMM(s string) int {
 	return h*60 + m
 }
 
-// AddSchedule 添加调度
+// AddSchedule 添加调度.
 func (s *ScrubScheduler) AddSchedule(sch *ScrubSchedule) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -306,7 +306,7 @@ func (s *ScrubScheduler) AddSchedule(sch *ScrubSchedule) error {
 	return nil
 }
 
-// registerCronJob 注册 cron 定时任务
+// registerCronJob 注册 cron 定时任务.
 func (s *ScrubScheduler) registerCronJob(sch *ScrubSchedule) {
 	// 先移除旧的
 	if entryID, ok := s.cronEntries[sch.ID]; ok {
@@ -323,7 +323,7 @@ func (s *ScrubScheduler) registerCronJob(sch *ScrubSchedule) {
 	s.cronEntries[sch.ID] = entryID
 }
 
-// onScheduleTrigger 定时触发回调
+// onScheduleTrigger 定时触发回调.
 func (s *ScrubScheduler) onScheduleTrigger(scheduleID string) {
 	s.mu.RLock()
 	sch, ok := s.schedules[scheduleID]
@@ -349,7 +349,7 @@ func (s *ScrubScheduler) onScheduleTrigger(scheduleID string) {
 	s.startScrubForPool(context.Background(), sch.PoolName)
 }
 
-// startScrubForPool 启动指定池的 scrub
+// startScrubForPool 启动指定池的 scrub.
 func (s *ScrubScheduler) startScrubForPool(ctx context.Context, pool string) {
 	// 检查是否已在运行
 	s.mu.RLock()
@@ -391,7 +391,7 @@ func (s *ScrubScheduler) startScrubForPool(ctx context.Context, pool string) {
 	}
 }
 
-// getScheduleForPool 获取池对应的调度配置
+// getScheduleForPool 获取池对应的调度配置.
 func (s *ScrubScheduler) getScheduleForPool(pool string) *ScrubSchedule {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -403,7 +403,7 @@ func (s *ScrubScheduler) getScheduleForPool(pool string) *ScrubSchedule {
 	return nil
 }
 
-// watchTimeout 监控 scrub 是否超时
+// watchTimeout 监控 scrub 是否超时.
 func (s *ScrubScheduler) watchTimeout(pool string, maxDuration int) {
 	select {
 	case <-s.stopCh:
@@ -433,7 +433,7 @@ func (s *ScrubScheduler) watchTimeout(pool string, maxDuration int) {
 	}
 }
 
-// UpdateSchedule 更新调度
+// UpdateSchedule 更新调度.
 func (s *ScrubScheduler) UpdateSchedule(id string, req *UpdateScheduleRequest) (*ScrubSchedule, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -477,7 +477,7 @@ func (s *ScrubScheduler) UpdateSchedule(id string, req *UpdateScheduleRequest) (
 	return sch, nil
 }
 
-// DeleteSchedule 删除调度
+// DeleteSchedule 删除调度.
 func (s *ScrubScheduler) DeleteSchedule(id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -497,7 +497,7 @@ func (s *ScrubScheduler) DeleteSchedule(id string) error {
 	return nil
 }
 
-// GetSchedule 获取单个调度
+// GetSchedule 获取单个调度.
 func (s *ScrubScheduler) GetSchedule(id string) (*ScrubSchedule, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -509,7 +509,7 @@ func (s *ScrubScheduler) GetSchedule(id string) (*ScrubSchedule, error) {
 	return sch, nil
 }
 
-// ListSchedules 列出所有调度
+// ListSchedules 列出所有调度.
 func (s *ScrubScheduler) ListSchedules() []*ScrubSchedule {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -521,7 +521,7 @@ func (s *ScrubScheduler) ListSchedules() []*ScrubSchedule {
 	return result
 }
 
-// StartScrub 手动触发指定池的 scrub
+// StartScrub 手动触发指定池的 scrub.
 func (s *ScrubScheduler) StartScrub(ctx context.Context, pool string) error {
 	s.startScrubForPool(ctx, pool)
 	s.mu.RLock()
@@ -533,7 +533,7 @@ func (s *ScrubScheduler) StartScrub(ctx context.Context, pool string) error {
 	return nil
 }
 
-// GetPoolStatus 获取指定池的 scrub 状态
+// GetPoolStatus 获取指定池的 scrub 状态.
 func (s *ScrubScheduler) GetPoolStatus(pool string) (*ScrubStatus, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -549,7 +549,7 @@ func (s *ScrubScheduler) GetPoolStatus(pool string) (*ScrubStatus, error) {
 	return st, nil
 }
 
-// GetHistory 获取 scrub 历史记录
+// GetHistory 获取 scrub 历史记录.
 func (s *ScrubScheduler) GetHistory(limit int) []*ScrubHistory {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

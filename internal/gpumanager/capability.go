@@ -10,13 +10,13 @@ import (
 	"time"
 )
 
-// CapabilityChecker GPU能力检测器
+// CapabilityChecker GPU能力检测器.
 type CapabilityChecker struct {
 	mu     sync.RWMutex
 	logger *slog.Logger
 }
 
-// NewCapabilityChecker 创建能力检测器
+// NewCapabilityChecker 创建能力检测器.
 func NewCapabilityChecker(logger *slog.Logger) *CapabilityChecker {
 	if logger == nil {
 		logger = slog.Default()
@@ -24,7 +24,7 @@ func NewCapabilityChecker(logger *slog.Logger) *CapabilityChecker {
 	return &CapabilityChecker{logger: logger}
 }
 
-// CheckTranscodeCapabilities 检测硬件转码能力
+// CheckTranscodeCapabilities 检测硬件转码能力.
 func (cc *CapabilityChecker) CheckTranscodeCapabilities(ctx context.Context, device *GPUDevice) *TranscodeCapability {
 	cc.mu.Lock()
 	defer cc.mu.Unlock()
@@ -49,7 +49,7 @@ func (cc *CapabilityChecker) CheckTranscodeCapabilities(ctx context.Context, dev
 	return result
 }
 
-// checkNVIDIATranscode 检测NVIDIA转码能力
+// checkNVIDIATranscode 检测NVIDIA转码能力.
 func (cc *CapabilityChecker) checkNVIDIATranscode(ctx context.Context, device *GPUDevice, result *TranscodeCapability) {
 	// NVIDIA使用NVENC/NVDEC
 	result.Engine = "NVENC/NVDEC"
@@ -96,7 +96,7 @@ func (cc *CapabilityChecker) checkNVIDIATranscode(ctx context.Context, device *G
 	result.BitDepth10 = true
 }
 
-// checkAMDTranscode 检测AMD转码能力
+// checkAMDTranscode 检测AMD转码能力.
 func (cc *CapabilityChecker) checkAMDTranscode(ctx context.Context, device *GPUDevice, result *TranscodeCapability) {
 	// AMD使用AMF (Advanced Media Framework)
 	result.Engine = "AMF"
@@ -128,7 +128,7 @@ func (cc *CapabilityChecker) checkAMDTranscode(ctx context.Context, device *GPUD
 	result.BitDepth10 = true
 }
 
-// checkIntelTranscode 检测Intel转码能力
+// checkIntelTranscode 检测Intel转码能力.
 func (cc *CapabilityChecker) checkIntelTranscode(ctx context.Context, device *GPUDevice, result *TranscodeCapability) {
 	// Intel使用QSV (Quick Sync Video) 或VA-API
 	result.Engine = "QSV/VA-API"
@@ -164,7 +164,7 @@ func (cc *CapabilityChecker) checkIntelTranscode(ctx context.Context, device *GP
 	result.BitDepth10 = true
 }
 
-// CheckInferenceCapabilities 检测AI推理能力
+// CheckInferenceCapabilities 检测AI推理能力.
 func (cc *CapabilityChecker) CheckInferenceCapabilities(ctx context.Context, device *GPUDevice) *InferenceCapability {
 	cc.mu.Lock()
 	defer cc.mu.Unlock()
@@ -190,7 +190,7 @@ func (cc *CapabilityChecker) CheckInferenceCapabilities(ctx context.Context, dev
 	return result
 }
 
-// checkNVIDIAInference 检测NVIDIA AI推理能力
+// checkNVIDIAInference 检测NVIDIA AI推理能力.
 func (cc *CapabilityChecker) checkNVIDIAInference(ctx context.Context, device *GPUDevice, result *InferenceCapability) {
 	result.Capable = true
 	result.Backend = "CUDA"
@@ -235,7 +235,7 @@ func (cc *CapabilityChecker) checkNVIDIAInference(ctx context.Context, device *G
 	}
 }
 
-// checkAMDInference 检测AMD AI推理能力
+// checkAMDInference 检测AMD AI推理能力.
 func (cc *CapabilityChecker) checkAMDInference(ctx context.Context, device *GPUDevice, result *InferenceCapability) {
 	// 检查ROCm是否可用
 	if _, err := exec.LookPath("rocm-smi"); err != nil {
@@ -278,7 +278,7 @@ func (cc *CapabilityChecker) checkAMDInference(ctx context.Context, device *GPUD
 	}
 }
 
-// checkIntelInference 检测Intel AI推理能力
+// checkIntelInference 检测Intel AI推理能力.
 func (cc *CapabilityChecker) checkIntelInference(ctx context.Context, device *GPUDevice, result *InferenceCapability) {
 	result.Capable = true
 	result.Backend = "OpenVINO"
@@ -312,7 +312,7 @@ func (cc *CapabilityChecker) checkIntelInference(ctx context.Context, device *GP
 	}
 }
 
-// estimateNVIDIATOPS 估算NVIDIA GPU算力
+// estimateNVIDIATOPS 估算NVIDIA GPU算力.
 func estimateNVIDIATOPS(name string) float64 {
 	name = strings.ToLower(name)
 
@@ -347,7 +347,7 @@ func estimateNVIDIATOPS(name string) float64 {
 	return 20.0 // 默认估算
 }
 
-// GenerateCapabilityReport 生成GPU能力报告
+// GenerateCapabilityReport 生成GPU能力报告.
 func (cc *CapabilityChecker) GenerateCapabilityReport(ctx context.Context, devices []*GPUDevice) *GPUCapabilityReport {
 	cc.mu.Lock()
 	defer cc.mu.Unlock()
@@ -413,7 +413,7 @@ func (cc *CapabilityChecker) GenerateCapabilityReport(ctx context.Context, devic
 	return report
 }
 
-// calculateTranscodeScore 计算转码评分
+// calculateTranscodeScore 计算转码评分.
 func calculateTranscodeScore(device *GPUDevice) int {
 	score := 0
 
@@ -450,7 +450,7 @@ func calculateTranscodeScore(device *GPUDevice) int {
 	return score
 }
 
-// calculateInferenceScore 计算推理评分
+// calculateInferenceScore 计算推理评分.
 func calculateInferenceScore(device *GPUDevice) int {
 	score := 0
 
@@ -483,7 +483,7 @@ func calculateInferenceScore(device *GPUDevice) int {
 	return score
 }
 
-// generateRecommendations 生成建议
+// generateRecommendations 生成建议.
 func generateRecommendations(report *GPUCapabilityReport) []string {
 	var recs []string
 

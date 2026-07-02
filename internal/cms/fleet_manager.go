@@ -22,7 +22,7 @@ import (
 // ================== FleetManager 核心接口 ==================
 
 // FleetManager 集群舰队管理器
-// 负责多节点集中管理、任务调度、状态聚合
+// 负责多节点集中管理、任务调度、状态聚合.
 type FleetManager struct {
 	registry       *DeviceRegistry
 	nodeManager    *NodeManagementService
@@ -35,7 +35,7 @@ type FleetManager struct {
 	cancel         context.CancelFunc
 }
 
-// FleetConfig 舰队配置
+// FleetConfig 舰队配置.
 type FleetConfig struct {
 	ClusterName        string        `json:"clusterName"`        // 集群名称
 	FleetID            string        `json:"fleetId"`            // 舰队ID
@@ -47,7 +47,7 @@ type FleetConfig struct {
 	EnableAutoDiscover bool          `json:"enableAutoDiscover"` // 启用自动发现
 }
 
-// DefaultFleetConfig 默认舰队配置
+// DefaultFleetConfig 默认舰队配置.
 func DefaultFleetConfig() FleetConfig {
 	return FleetConfig{
 		ClusterName:        "nas-fleet",
@@ -59,7 +59,7 @@ func DefaultFleetConfig() FleetConfig {
 	}
 }
 
-// NewFleetManager 创建舰队管理器
+// NewFleetManager 创建舰队管理器.
 func NewFleetManager(config FleetConfig, logger *zap.Logger) (*FleetManager, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -118,7 +118,7 @@ func NewFleetManager(config FleetConfig, logger *zap.Logger) (*FleetManager, err
 	return fm, nil
 }
 
-// Start 启动舰队管理器
+// Start 启动舰队管理器.
 func (fm *FleetManager) Start() error {
 	fm.registry.Start()
 	fm.nodeManager.Start()
@@ -135,7 +135,7 @@ func (fm *FleetManager) Start() error {
 	return nil
 }
 
-// Stop 停止舰队管理器
+// Stop 停止舰队管理器.
 func (fm *FleetManager) Stop() {
 	fm.cancel()
 	fm.registry.Stop()
@@ -148,7 +148,7 @@ func (fm *FleetManager) Stop() {
 
 // ================== 节点注册机制 ==================
 
-// NodeRegistrationRequest 节点注册请求
+// NodeRegistrationRequest 节点注册请求.
 type NodeRegistrationRequest struct {
 	Name            string            `json:"name"`            // 节点名称
 	Type            DeviceType        `json:"type"`            // 节点类型
@@ -164,7 +164,7 @@ type NodeRegistrationRequest struct {
 	AuthToken       string            `json:"authToken"`       // 认证令牌（用于重新注册）
 }
 
-// NodeRegistrationResponse 节点注册响应
+// NodeRegistrationResponse 节点注册响应.
 type NodeRegistrationResponse struct {
 	DeviceID       string    `json:"deviceId"`       // 设备ID
 	RegisterToken  string    `json:"registerToken"`  // 注册确认令牌
@@ -178,7 +178,7 @@ type NodeRegistrationResponse struct {
 	Message        string    `json:"message"`        // 消息
 }
 
-// RegisterNode 注册新节点
+// RegisterNode 注册新节点.
 func (fm *FleetManager) RegisterNode(req NodeRegistrationRequest, registeredBy string) (*NodeRegistrationResponse, error) {
 	fm.mu.Lock()
 	defer fm.mu.Unlock()
@@ -246,7 +246,7 @@ func (fm *FleetManager) RegisterNode(req NodeRegistrationRequest, registeredBy s
 	return fm.buildRegistrationResponse(device, true), nil
 }
 
-// ConfirmNodeRegistration 确认节点注册
+// ConfirmNodeRegistration 确认节点注册.
 func (fm *FleetManager) ConfirmNodeRegistration(deviceID, token string) (*Device, error) {
 	device, err := fm.registry.ConfirmRegistration(deviceID, token)
 	if err != nil {
@@ -259,7 +259,7 @@ func (fm *FleetManager) ConfirmNodeRegistration(deviceID, token string) (*Device
 	return device, nil
 }
 
-// UnregisterNode 注销节点
+// UnregisterNode 注销节点.
 func (fm *FleetManager) UnregisterNode(deviceID string) error {
 	err := fm.registry.UnregisterDevice(deviceID)
 	if err != nil {
@@ -272,7 +272,7 @@ func (fm *FleetManager) UnregisterNode(deviceID string) error {
 	return nil
 }
 
-// buildRegistrationResponse 构建注册响应
+// buildRegistrationResponse 构建注册响应.
 func (fm *FleetManager) buildRegistrationResponse(device *Device, isNew bool) *NodeRegistrationResponse {
 	controllerAddr := fm.config.ControllerNode
 	if controllerAddr == "" {
@@ -300,46 +300,46 @@ func (fm *FleetManager) buildRegistrationResponse(device *Device, isNew bool) *N
 
 // ================== 状态查询接口 ==================
 
-// GetNode 获取节点信息
+// GetNode 获取节点信息.
 func (fm *FleetManager) GetNode(deviceID string) (*Device, error) {
 	return fm.registry.GetDevice(deviceID)
 }
 
-// ListNodes 列出所有节点
+// ListNodes 列出所有节点.
 func (fm *FleetManager) ListNodes(filter DeviceFilter) []*Device {
 	return fm.registry.ListDevices(filter)
 }
 
-// GetNodeStatus 获取节点详细状态
+// GetNodeStatus 获取节点详细状态.
 func (fm *FleetManager) GetNodeStatus(deviceID string) (*NodeDetailedStatus, error) {
 	return fm.statusAggr.GetNodeStatus(deviceID)
 }
 
-// GetFleetStatus 获取舰队整体状态
+// GetFleetStatus 获取舰队整体状态.
 func (fm *FleetManager) GetFleetStatus() *FleetStatus {
 	return fm.statusAggr.GetFleetStatus()
 }
 
 // ================== 任务调度接口 ==================
 
-// DispatchTask 分发任务到节点
+// DispatchTask 分发任务到节点.
 func (fm *FleetManager) DispatchTask(req TaskDispatchRequest) (*TaskDispatchResult, error) {
 	return fm.taskDispatcher.Dispatch(req)
 }
 
-// GetNodeTasks 获取节点任务列表
+// GetNodeTasks 获取节点任务列表.
 func (fm *FleetManager) GetNodeTasks(deviceID string) ([]NodeTask, error) {
 	return fm.taskDispatcher.GetNodeTasks(deviceID)
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (fm *FleetManager) CancelTask(taskID string) error {
 	return fm.taskDispatcher.CancelTask(taskID)
 }
 
 // ================== 心跳处理 ==================
 
-// HeartbeatRequest 心跳请求
+// HeartbeatRequest 心跳请求.
 type HeartbeatRequest struct {
 	DeviceID  string                 `json:"deviceId"`
 	Token     string                 `json:"token"`
@@ -349,7 +349,7 @@ type HeartbeatRequest struct {
 	Timestamp time.Time              `json:"timestamp"`
 }
 
-// TaskProgress 任务进度
+// TaskProgress 任务进度.
 type TaskProgress struct {
 	TaskID    string    `json:"taskId"`
 	Status    string    `json:"status"`
@@ -358,7 +358,7 @@ type TaskProgress struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-// HeartbeatResponse 心跳响应
+// HeartbeatResponse 心跳响应.
 type HeartbeatResponse struct {
 	Success       bool              `json:"success"`
 	Message       string            `json:"message"`
@@ -367,7 +367,7 @@ type HeartbeatResponse struct {
 	ServerTime    time.Time         `json:"serverTime"`
 }
 
-// NodeCommand 节点命令
+// NodeCommand 节点命令.
 type NodeCommand struct {
 	Command   string                 `json:"command"`   // 命令类型
 	Params    map[string]interface{} `json:"params"`    // 参数
@@ -375,7 +375,7 @@ type NodeCommand struct {
 	ExpiresAt time.Time              `json:"expiresAt"` // 过期时间
 }
 
-// ProcessHeartbeat 处理节点心跳
+// ProcessHeartbeat 处理节点心跳.
 func (fm *FleetManager) ProcessHeartbeat(req HeartbeatRequest) (*HeartbeatResponse, error) {
 	// 验证设备
 	_, err := fm.registry.GetDevice(req.DeviceID)
@@ -416,7 +416,7 @@ func (fm *FleetManager) ProcessHeartbeat(req HeartbeatRequest) (*HeartbeatRespon
 
 // ================== 内部方法 ==================
 
-// syncLoop 状态同步循环
+// syncLoop 状态同步循环.
 func (fm *FleetManager) syncLoop() {
 	ticker := time.NewTicker(fm.config.SyncInterval)
 	defer ticker.Stop()
@@ -431,7 +431,7 @@ func (fm *FleetManager) syncLoop() {
 	}
 }
 
-// syncFleetStatus 同步舰队状态
+// syncFleetStatus 同步舰队状态.
 func (fm *FleetManager) syncFleetStatus() {
 	nodes := fm.ListNodes(DeviceFilter{})
 
@@ -445,7 +445,7 @@ func (fm *FleetManager) syncFleetStatus() {
 	}
 }
 
-// pullNodeStatus 拉取节点状态
+// pullNodeStatus 拉取节点状态.
 func (fm *FleetManager) pullNodeStatus(node *Device) {
 	url := fmt.Sprintf("http://%s:%d/api/v1/status", node.IPAddress, node.Port)
 
@@ -478,7 +478,7 @@ func (fm *FleetManager) pullNodeStatus(node *Device) {
 	}
 }
 
-// loadState 加载状态
+// loadState 加载状态.
 func (fm *FleetManager) loadState() error {
 	stateFile := filepath.Join(fm.config.DataDir, "fleet_state.json")
 
@@ -504,7 +504,7 @@ func (fm *FleetManager) loadState() error {
 	return nil
 }
 
-// saveState 保存状态
+// saveState 保存状态.
 func (fm *FleetManager) saveState() {
 	state := map[string]interface{}{
 		"fleetId":     fm.config.FleetID,
@@ -526,7 +526,7 @@ func (fm *FleetManager) saveState() {
 
 // ================== 辅助函数 ==================
 
-// GenerateToken 生成随机令牌
+// GenerateToken 生成随机令牌.
 func GenerateToken() string {
 	b := make([]byte, 32)
 	_, _ = rand.Read(b)

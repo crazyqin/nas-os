@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Manager 多厂商GPU管理器
+// Manager 多厂商GPU管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	config      *GPUManagerConfig
@@ -23,7 +23,7 @@ type Manager struct {
 	cancel      context.CancelFunc
 }
 
-// NewManager 创建GPU管理器
+// NewManager 创建GPU管理器.
 func NewManager(config *GPUManagerConfig, logger *slog.Logger) (*Manager, error) {
 	if logger == nil {
 		logger = slog.Default()
@@ -56,7 +56,7 @@ func NewManager(config *GPUManagerConfig, logger *slog.Logger) (*Manager, error)
 	return mgr, nil
 }
 
-// Initialize 初始化GPU管理器
+// Initialize 初始化GPU管理器.
 func (m *Manager) Initialize() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -102,7 +102,7 @@ func (m *Manager) Initialize() error {
 	return nil
 }
 
-// applyFilter 应用设备过滤器
+// applyFilter 应用设备过滤器.
 func (m *Manager) applyFilter(devices []*GPUDevice) []*GPUDevice {
 	if len(m.config.DeviceFilter) == 0 {
 		return devices
@@ -123,7 +123,7 @@ func (m *Manager) applyFilter(devices []*GPUDevice) []*GPUDevice {
 	return filtered
 }
 
-// startPeriodicScan 启动定期扫描
+// startPeriodicScan 启动定期扫描.
 func (m *Manager) startPeriodicScan() {
 	if m.config.ScanInterval <= 0 {
 		return
@@ -142,7 +142,7 @@ func (m *Manager) startPeriodicScan() {
 	}
 }
 
-// refreshDevices 刷新设备列表
+// refreshDevices 刷新设备列表.
 func (m *Manager) refreshDevices() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -177,7 +177,7 @@ func (m *Manager) refreshDevices() {
 	m.logger.Debug("GPU设备刷新完成", "devices", len(newDevices))
 }
 
-// Stop 停止GPU管理器
+// Stop 停止GPU管理器.
 func (m *Manager) Stop() {
 	m.cancel()
 
@@ -188,7 +188,7 @@ func (m *Manager) Stop() {
 	m.logger.Info("GPU管理器已停止")
 }
 
-// ListDevices 列出所有GPU设备
+// ListDevices 列出所有GPU设备.
 func (m *Manager) ListDevices() []*GPUDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -200,7 +200,7 @@ func (m *Manager) ListDevices() []*GPUDevice {
 	return devices
 }
 
-// GetDevice 获取单个GPU设备
+// GetDevice 获取单个GPU设备.
 func (m *Manager) GetDevice(id string) (*GPUDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -212,7 +212,7 @@ func (m *Manager) GetDevice(id string) (*GPUDevice, error) {
 	return device, nil
 }
 
-// GetDeviceByVendor 按厂商获取GPU设备
+// GetDeviceByVendor 按厂商获取GPU设备.
 func (m *Manager) GetDeviceByVendor(vendor GPUVendor) []*GPUDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -226,7 +226,7 @@ func (m *Manager) GetDeviceByVendor(vendor GPUVendor) []*GPUDevice {
 	return result
 }
 
-// GetHealthReport 获取健康报告
+// GetHealthReport 获取健康报告.
 func (m *Manager) GetHealthReport() *GPUHealthReport {
 	if m.healthMon == nil {
 		return &GPUHealthReport{
@@ -239,7 +239,7 @@ func (m *Manager) GetHealthReport() *GPUHealthReport {
 	return m.healthMon.CheckAll()
 }
 
-// GetCapabilityReport 获取能力报告
+// GetCapabilityReport 获取能力报告.
 func (m *Manager) GetCapabilityReport() *GPUCapabilityReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -252,7 +252,7 @@ func (m *Manager) GetCapabilityReport() *GPUCapabilityReport {
 	return m.capChecker.GenerateCapabilityReport(m.ctx, devices)
 }
 
-// CheckTranscodeCapabilities 检测转码能力
+// CheckTranscodeCapabilities 检测转码能力.
 func (m *Manager) CheckTranscodeCapabilities(deviceID string) (*TranscodeCapability, error) {
 	m.mu.RLock()
 	device, ok := m.devices[deviceID]
@@ -265,7 +265,7 @@ func (m *Manager) CheckTranscodeCapabilities(deviceID string) (*TranscodeCapabil
 	return m.capChecker.CheckTranscodeCapabilities(m.ctx, device), nil
 }
 
-// CheckInferenceCapabilities 检测AI推理能力
+// CheckInferenceCapabilities 检测AI推理能力.
 func (m *Manager) CheckInferenceCapabilities(deviceID string) (*InferenceCapability, error) {
 	m.mu.RLock()
 	device, ok := m.devices[deviceID]
@@ -278,7 +278,7 @@ func (m *Manager) CheckInferenceCapabilities(deviceID string) (*InferenceCapabil
 	return m.capChecker.CheckInferenceCapabilities(m.ctx, device), nil
 }
 
-// GetAllTranscodeCapabilities 获取所有设备转码能力
+// GetAllTranscodeCapabilities 获取所有设备转码能力.
 func (m *Manager) GetAllTranscodeCapabilities() []*TranscodeCapability {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -291,7 +291,7 @@ func (m *Manager) GetAllTranscodeCapabilities() []*TranscodeCapability {
 	return result
 }
 
-// GetAllInferenceCapabilities 获取所有设备推理能力
+// GetAllInferenceCapabilities 获取所有设备推理能力.
 func (m *Manager) GetAllInferenceCapabilities() []*InferenceCapability {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -304,18 +304,18 @@ func (m *Manager) GetAllInferenceCapabilities() []*InferenceCapability {
 	return result
 }
 
-// Refresh 手动刷新设备列表
+// Refresh 手动刷新设备列表.
 func (m *Manager) Refresh() error {
 	m.refreshDevices()
 	return nil
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *GPUManagerConfig {
 	return m.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config *GPUManagerConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -327,7 +327,7 @@ func (m *Manager) UpdateConfig(config *GPUManagerConfig) {
 	}
 }
 
-// ExportJSON 导出设备信息为JSON
+// ExportJSON 导出设备信息为JSON.
 func (m *Manager) ExportJSON() ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -340,36 +340,36 @@ func (m *Manager) ExportJSON() ([]byte, error) {
 	return json.MarshalIndent(devices, "", "  ")
 }
 
-// IsInitialized 检查是否已初始化
+// IsInitialized 检查是否已初始化.
 func (m *Manager) IsInitialized() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.initialized
 }
 
-// DeviceCount 获取设备数量
+// DeviceCount 获取设备数量.
 func (m *Manager) DeviceCount() int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return len(m.devices)
 }
 
-// HasNVIDIA 检查是否有NVIDIA GPU
+// HasNVIDIA 检查是否有NVIDIA GPU.
 func (m *Manager) HasNVIDIA() bool {
 	return countVendor(m.devices, VendorNVIDIA) > 0
 }
 
-// HasAMD 检查是否有AMD GPU
+// HasAMD 检查是否有AMD GPU.
 func (m *Manager) HasAMD() bool {
 	return countVendor(m.devices, VendorAMD) > 0
 }
 
-// HasIntel 检查是否有Intel GPU
+// HasIntel 检查是否有Intel GPU.
 func (m *Manager) HasIntel() bool {
 	return countVendor(m.devices, VendorIntel) > 0
 }
 
-// HasTranscodeCapable 检查是否有转码能力的GPU
+// HasTranscodeCapable 检查是否有转码能力的GPU.
 func (m *Manager) HasTranscodeCapable() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -382,7 +382,7 @@ func (m *Manager) HasTranscodeCapable() bool {
 	return false
 }
 
-// HasInferenceCapable 检查是否有推理能力的GPU
+// HasInferenceCapable 检查是否有推理能力的GPU.
 func (m *Manager) HasInferenceCapable() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

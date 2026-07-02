@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Manager 沙箱管理器
+// Manager 沙箱管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	sandboxes map[string]*Sandbox
@@ -15,7 +15,7 @@ type Manager struct {
 	snapshots *SnapshotManager
 }
 
-// NewManager 创建沙箱管理器
+// NewManager 创建沙箱管理器.
 func NewManager(basePath string) *Manager {
 	return &Manager{
 		sandboxes: make(map[string]*Sandbox),
@@ -24,7 +24,7 @@ func NewManager(basePath string) *Manager {
 	}
 }
 
-// Create 创建沙箱
+// Create 创建沙箱.
 func (m *Manager) Create(req *CreateSandboxRequest) (*Sandbox, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -77,7 +77,7 @@ func (m *Manager) Create(req *CreateSandboxRequest) (*Sandbox, error) {
 	return sandbox, nil
 }
 
-// Get 获取沙箱
+// Get 获取沙箱.
 func (m *Manager) Get(id string) (*Sandbox, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -89,7 +89,7 @@ func (m *Manager) Get(id string) (*Sandbox, error) {
 	return sandbox, nil
 }
 
-// List 列出所有沙箱
+// List 列出所有沙箱.
 func (m *Manager) List() []*Sandbox {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -101,7 +101,7 @@ func (m *Manager) List() []*Sandbox {
 	return list
 }
 
-// Update 更新沙箱配置
+// Update 更新沙箱配置.
 func (m *Manager) Update(id string, req *UpdateSandboxRequest) (*Sandbox, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -135,7 +135,7 @@ func (m *Manager) Update(id string, req *UpdateSandboxRequest) (*Sandbox, error)
 	return sandbox, nil
 }
 
-// Delete 删除沙箱
+// Delete 删除沙箱.
 func (m *Manager) Delete(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -164,7 +164,7 @@ func (m *Manager) Delete(id string) error {
 	return nil
 }
 
-// Start 启动沙箱
+// Start 启动沙箱.
 func (m *Manager) Start(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -201,7 +201,7 @@ func (m *Manager) Start(id string) error {
 	return nil
 }
 
-// Stop 停止沙箱
+// Stop 停止沙箱.
 func (m *Manager) Stop(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -230,7 +230,7 @@ func (m *Manager) Stop(id string) error {
 	return nil
 }
 
-// Pause 暂停沙箱
+// Pause 暂停沙箱.
 func (m *Manager) Pause(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -252,7 +252,7 @@ func (m *Manager) Pause(id string) error {
 	return nil
 }
 
-// Resume 恢复沙箱
+// Resume 恢复沙箱.
 func (m *Manager) Resume(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -274,7 +274,7 @@ func (m *Manager) Resume(id string) error {
 	return nil
 }
 
-// GetResourceUsage 获取资源使用情况
+// GetResourceUsage 获取资源使用情况.
 func (m *Manager) GetResourceUsage(id string) (*ResourceUsage, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -297,7 +297,7 @@ func (m *Manager) GetResourceUsage(id string) (*ResourceUsage, error) {
 	return usage, nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() *SandboxStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -322,7 +322,7 @@ func (m *Manager) GetStats() *SandboxStats {
 	return stats
 }
 
-// validateConfig 验证配置
+// validateConfig 验证配置.
 func (m *Manager) validateConfig(config *SandboxConfig) error {
 	if config.Name == "" {
 		return fmt.Errorf("沙箱名称不能为空")
@@ -337,7 +337,7 @@ func (m *Manager) validateConfig(config *SandboxConfig) error {
 	return nil
 }
 
-// validateResourceLimit 验证资源限制
+// validateResourceLimit 验证资源限制.
 func (m *Manager) validateResourceLimit(limit *ResourceLimit) error {
 	if limit.CPUCores < 0 {
 		return fmt.Errorf("%w: CPU核心数不能为负数", ErrInvalidResourceLimit)
@@ -357,7 +357,7 @@ func (m *Manager) validateResourceLimit(limit *ResourceLimit) error {
 	return nil
 }
 
-// SnapshotCount 获取快照数量（用于统计）
+// SnapshotCount 获取快照数量（用于统计）.
 func (m *Manager) SnapshotCount() int {
 	return m.snapshots.Count()
 }

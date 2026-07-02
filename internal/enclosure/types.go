@@ -5,43 +5,43 @@ import (
 	"time"
 )
 
-// EnclosureStatus 机箱状态
+// EnclosureStatus 机箱状态.
 type EnclosureStatus string
 
 const (
-	// StatusOnline 机箱在线
+	// StatusOnline 机箱在线.
 	StatusOnline EnclosureStatus = "online"
-	// StatusDegraded 机箱降级
+	// StatusDegraded 机箱降级.
 	StatusDegraded EnclosureStatus = "degraded"
-	// StatusOffline 机箱离线
+	// StatusOffline 机箱离线.
 	StatusOffline EnclosureStatus = "offline"
 )
 
-// LEDState 指示灯状态
+// LEDState 指示灯状态.
 type LEDState string
 
 const (
-	// LEDOff 关闭
+	// LEDOff 关闭.
 	LEDOff LEDState = "off"
-	// LEDOn 常亮
+	// LEDOn 常亮.
 	LEDOn LEDState = "on"
-	// LEDBlink 闪烁
+	// LEDBlink 闪烁.
 	LEDBlink LEDState = "blink"
 )
 
-// LEDType 指示灯类型
+// LEDType 指示灯类型.
 type LEDType string
 
 const (
-	// LEDLocate 定位灯
+	// LEDLocate 定位灯.
 	LEDLocate LEDType = "locate"
-	// LEDFault 故障灯
+	// LEDFault 故障灯.
 	LEDFault LEDType = "fault"
-	// LEDActivity 活动灯
+	// LEDActivity 活动灯.
 	LEDActivity LEDType = "activity"
 )
 
-// Enclosure 机箱信息
+// Enclosure 机箱信息.
 type Enclosure struct {
 	// ID 机箱唯一标识
 	ID string `json:"id"`
@@ -67,7 +67,7 @@ type Enclosure struct {
 	LastSeen time.Time `json:"lastSeen"`
 }
 
-// Slot 硬盘槽位
+// Slot 硬盘槽位.
 type Slot struct {
 	// ID 槽位编号
 	ID int `json:"id"`
@@ -85,21 +85,21 @@ type Slot struct {
 	DiskInfo *SlotDiskInfo `json:"diskInfo,omitempty"`
 }
 
-// SlotStatus 槽位状态
+// SlotStatus 槽位状态.
 type SlotStatus string
 
 const (
-	// SlotEmpty 空槽位
+	// SlotEmpty 空槽位.
 	SlotEmpty SlotStatus = "empty"
-	// SlotActive 正常工作
+	// SlotActive 正常工作.
 	SlotActive SlotStatus = "active"
-	// SlotFault 故障
+	// SlotFault 故障.
 	SlotFault SlotStatus = "fault"
-	// SlotDisabled 禁用
+	// SlotDisabled 禁用.
 	SlotDisabled SlotStatus = "disabled"
 )
 
-// SlotDiskInfo 槽位中的磁盘信息
+// SlotDiskInfo 槽位中的磁盘信息.
 type SlotDiskInfo struct {
 	// Model 型号
 	Model string `json:"model"`
@@ -111,7 +111,7 @@ type SlotDiskInfo struct {
 	Temperature float64 `json:"temperature"`
 }
 
-// Sensor 传感器
+// Sensor 传感器.
 type Sensor struct {
 	// ID 传感器编号
 	ID int `json:"id"`
@@ -131,31 +131,31 @@ type Sensor struct {
 	Status SensorStatus `json:"status"`
 }
 
-// SensorType 传感器类型
+// SensorType 传感器类型.
 type SensorType string
 
 const (
-	// SensorTemperature 温度传感器
+	// SensorTemperature 温度传感器.
 	SensorTemperature SensorType = "temperature"
-	// SensorVoltage 电压传感器
+	// SensorVoltage 电压传感器.
 	SensorVoltage SensorType = "voltage"
-	// SensorCurrent 电流传感器
+	// SensorCurrent 电流传感器.
 	SensorCurrent SensorType = "current"
 )
 
-// SensorStatus 传感器状态
+// SensorStatus 传感器状态.
 type SensorStatus string
 
 const (
-	// SensorNormal 正常
+	// SensorNormal 正常.
 	SensorNormal SensorStatus = "normal"
-	// SensorWarning 警告
+	// SensorWarning 警告.
 	SensorWarning SensorStatus = "warning"
-	// SensorCritical 严重
+	// SensorCritical 严重.
 	SensorCritical SensorStatus = "critical"
 )
 
-// PowerSupply 电源
+// PowerSupply 电源.
 type PowerSupply struct {
 	// ID 电源编号
 	ID int `json:"id"`
@@ -173,21 +173,21 @@ type PowerSupply struct {
 	Current float64 `json:"current"`
 }
 
-// PowerStatus 电源状态
+// PowerStatus 电源状态.
 type PowerStatus string
 
 const (
-	// PowerOn 开启
+	// PowerOn 开启.
 	PowerOn PowerStatus = "on"
-	// PowerOff 关闭
+	// PowerOff 关闭.
 	PowerOff PowerStatus = "off"
-	// PowerFault 故障
+	// PowerFault 故障.
 	PowerFault PowerStatus = "fault"
-	// PowerStandby 待机
+	// PowerStandby 待机.
 	PowerStandby PowerStatus = "standby"
 )
 
-// Fan 风扇
+// Fan 风扇.
 type Fan struct {
 	// ID 风扇编号
 	ID int `json:"id"`
@@ -201,19 +201,19 @@ type Fan struct {
 	Status FanStatus `json:"status"`
 }
 
-// FanStatus 风扇状态
+// FanStatus 风扇状态.
 type FanStatus string
 
 const (
-	// FanNormal 正常
+	// FanNormal 正常.
 	FanNormal FanStatus = "normal"
-	// FanSlow 转速过低
+	// FanSlow 转速过低.
 	FanSlow FanStatus = "slow"
-	// FanFailed 故障
+	// FanFailed 故障.
 	FanFailed FanStatus = "failed"
 )
 
-// EnclosureTopology 机箱拓扑（用于可视化）
+// EnclosureTopology 机箱拓扑（用于可视化）.
 type EnclosureTopology struct {
 	// Enclosures 机箱列表
 	Enclosures []*Enclosure `json:"enclosures"`
@@ -221,7 +221,7 @@ type EnclosureTopology struct {
 	GeneratedAt time.Time `json:"generatedAt"`
 }
 
-// LEDControlRequest LED 控制请求
+// LEDControlRequest LED 控制请求.
 type LEDControlRequest struct {
 	// SlotID 槽位编号
 	SlotID int `json:"slotId"`
@@ -231,7 +231,7 @@ type LEDControlRequest struct {
 	State LEDState `json:"state"`
 }
 
-// PowerControlRequest 电源控制请求
+// PowerControlRequest 电源控制请求.
 type PowerControlRequest struct {
 	// PowerSupplyID 电源编号
 	PowerSupplyID int `json:"powerSupplyId"`

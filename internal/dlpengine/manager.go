@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager DLP引擎管理器
+// Manager DLP引擎管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	logger     *zap.Logger
@@ -24,7 +24,7 @@ type Manager struct {
 	stats      *ScanStats
 }
 
-// NewManager 创建DLP引擎管理器
+// NewManager 创建DLP引擎管理器.
 func NewManager(logger *zap.Logger, config *DLPConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -54,14 +54,14 @@ func NewManager(logger *zap.Logger, config *DLPConfig) *Manager {
 	return m
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// initDefaultPatterns 初始化默认敏感数据模式
+// initDefaultPatterns 初始化默认敏感数据模式.
 func (m *Manager) initDefaultPatterns() {
 	defaultPatterns := []*SensitivePattern{
 		{
@@ -183,7 +183,7 @@ func (m *Manager) initDefaultPatterns() {
 	}
 }
 
-// ScanContent 扫描内容
+// ScanContent 扫描内容.
 func (m *Manager) ScanContent(req *ScanRequest) (*ScanResult, error) {
 	if !m.config.Enabled {
 		return &ScanResult{
@@ -291,7 +291,7 @@ func (m *Manager) ScanContent(req *ScanRequest) (*ScanResult, error) {
 	return result, nil
 }
 
-// SetPolicy 设置策略
+// SetPolicy 设置策略.
 func (m *Manager) SetPolicy(policy *DLPPolicy) (*DLPPolicy, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -319,7 +319,7 @@ func (m *Manager) SetPolicy(policy *DLPPolicy) (*DLPPolicy, error) {
 	return policy, nil
 }
 
-// GetViolations 获取违规记录
+// GetViolations 获取违规记录.
 func (m *Manager) GetViolations(limit int, level SensitivityLevel, userID string) []*Violation {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -345,7 +345,7 @@ func (m *Manager) GetViolations(limit int, level SensitivityLevel, userID string
 	return result
 }
 
-// BlockTransfer 阻断传输
+// BlockTransfer 阻断传输.
 func (m *Manager) BlockTransfer(resource string, userID string, reason string) error {
 	if !m.config.AutoBlock {
 		return fmt.Errorf("auto-block is disabled")
@@ -376,7 +376,7 @@ func (m *Manager) BlockTransfer(resource string, userID string, reason string) e
 	return nil
 }
 
-// matchPattern 匹配模式
+// matchPattern 匹配模式.
 func (m *Manager) matchPattern(pattern *SensitivePattern, content string) []MatchedContent {
 	matches := make([]MatchedContent, 0)
 
@@ -448,7 +448,7 @@ func (m *Manager) matchPattern(pattern *SensitivePattern, content string) []Matc
 	return matches
 }
 
-// isHighConfidenceMatch 检查是否为高置信度匹配
+// isHighConfidenceMatch 检查是否为高置信度匹配.
 func (m *Manager) isHighConfidenceMatch(pattern *SensitivePattern, match string) bool {
 	if pattern.Confidence >= m.config.MinConfidence {
 		return true
@@ -470,7 +470,7 @@ func (m *Manager) isHighConfidenceMatch(pattern *SensitivePattern, match string)
 	return true
 }
 
-// luhnCheck Luhn校验算法
+// luhnCheck Luhn校验算法.
 func (m *Manager) luhnCheck(number string) bool {
 	// 移除分隔符
 	cleaned := strings.ReplaceAll(strings.ReplaceAll(number, "-", ""), " ", "")
@@ -496,7 +496,7 @@ func (m *Manager) luhnCheck(number string) bool {
 	return sum%10 == 0
 }
 
-// createViolation 创建违规记录
+// createViolation 创建违规记录.
 func (m *Manager) createViolation(req *ScanRequest, pattern *SensitivePattern, matches []MatchedContent) *Violation {
 	// 匹配策略
 	policy := m.findMatchingPolicy(pattern, req)
@@ -540,7 +540,7 @@ func (m *Manager) createViolation(req *ScanRequest, pattern *SensitivePattern, m
 	}
 }
 
-// findMatchingPolicy 查找匹配的策略
+// findMatchingPolicy 查找匹配的策略.
 func (m *Manager) findMatchingPolicy(pattern *SensitivePattern, req *ScanRequest) *DLPPolicy {
 	var matchedPolicy *DLPPolicy
 
@@ -589,7 +589,7 @@ func (m *Manager) findMatchingPolicy(pattern *SensitivePattern, req *ScanRequest
 	return matchedPolicy
 }
 
-// determineAction 确定动作
+// determineAction 确定动作.
 func (m *Manager) determineAction(violations []*Violation) PolicyAction {
 	if len(violations) == 0 {
 		return ActionLog
@@ -620,7 +620,7 @@ func (m *Manager) determineAction(violations []*Violation) PolicyAction {
 	return maxAction
 }
 
-// configToAction 根据配置确定动作
+// configToAction 根据配置确定动作.
 func (m *Manager) configToAction() PolicyAction {
 	if m.config.AutoBlock {
 		return ActionBlock
@@ -628,7 +628,7 @@ func (m *Manager) configToAction() PolicyAction {
 	return ActionWarn
 }
 
-// sensitivityValue 敏感级别数值
+// sensitivityValue 敏感级别数值.
 func (m *Manager) sensitivityValue(level SensitivityLevel) int {
 	switch level {
 	case SensitivityCritical:
@@ -646,7 +646,7 @@ func (m *Manager) sensitivityValue(level SensitivityLevel) int {
 	}
 }
 
-// trimViolations 裁剪违规记录
+// trimViolations 裁剪违规记录.
 func (m *Manager) trimViolations() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -657,7 +657,7 @@ func (m *Manager) trimViolations() {
 	}
 }
 
-// containsStr 检查字符串切片是否包含元素
+// containsStr 检查字符串切片是否包含元素.
 func containsStr(slice []string, item string) bool {
 	for _, s := range slice {
 		if s == item {
@@ -667,7 +667,7 @@ func containsStr(slice []string, item string) bool {
 	return false
 }
 
-// CreatePattern 创建敏感数据模式
+// CreatePattern 创建敏感数据模式.
 func (m *Manager) CreatePattern(pattern *SensitivePattern) (*SensitivePattern, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -689,7 +689,7 @@ func (m *Manager) CreatePattern(pattern *SensitivePattern) (*SensitivePattern, e
 	return pattern, nil
 }
 
-// GetPattern 获取模式
+// GetPattern 获取模式.
 func (m *Manager) GetPattern(id string) (*SensitivePattern, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -701,7 +701,7 @@ func (m *Manager) GetPattern(id string) (*SensitivePattern, error) {
 	return pattern, nil
 }
 
-// ListPatterns 列出所有模式
+// ListPatterns 列出所有模式.
 func (m *Manager) ListPatterns() []*SensitivePattern {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -713,7 +713,7 @@ func (m *Manager) ListPatterns() []*SensitivePattern {
 	return patterns
 }
 
-// UpdatePattern 更新模式
+// UpdatePattern 更新模式.
 func (m *Manager) UpdatePattern(id string, pattern *SensitivePattern) (*SensitivePattern, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -743,7 +743,7 @@ func (m *Manager) UpdatePattern(id string, pattern *SensitivePattern) (*Sensitiv
 	return existing, nil
 }
 
-// DeletePattern 删除模式
+// DeletePattern 删除模式.
 func (m *Manager) DeletePattern(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -755,7 +755,7 @@ func (m *Manager) DeletePattern(id string) error {
 	return nil
 }
 
-// GetPolicy 获取策略
+// GetPolicy 获取策略.
 func (m *Manager) GetPolicy(id string) (*DLPPolicy, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -767,7 +767,7 @@ func (m *Manager) GetPolicy(id string) (*DLPPolicy, error) {
 	return policy, nil
 }
 
-// ListPolicies 列出所有策略
+// ListPolicies 列出所有策略.
 func (m *Manager) ListPolicies() []*DLPPolicy {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -779,7 +779,7 @@ func (m *Manager) ListPolicies() []*DLPPolicy {
 	return policies
 }
 
-// UpdatePolicy 更新策略
+// UpdatePolicy 更新策略.
 func (m *Manager) UpdatePolicy(id string, policy *DLPPolicy) (*DLPPolicy, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -807,7 +807,7 @@ func (m *Manager) UpdatePolicy(id string, policy *DLPPolicy) (*DLPPolicy, error)
 	return existing, nil
 }
 
-// DeletePolicy 删除策略
+// DeletePolicy 删除策略.
 func (m *Manager) DeletePolicy(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -819,7 +819,7 @@ func (m *Manager) DeletePolicy(id string) error {
 	return nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() *ScanStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -828,7 +828,7 @@ func (m *Manager) GetStats() *ScanStats {
 	return &stats
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *DLPConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -836,7 +836,7 @@ func (m *Manager) GetConfig() *DLPConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(cfg *DLPConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-// MediaType 媒体类型
+// MediaType 媒体类型.
 type MediaType string
 
 const (
@@ -24,7 +24,7 @@ const (
 	MediaTypeMusic  MediaType = "music"
 )
 
-// MediaItem 媒体项目
+// MediaItem 媒体项目.
 type MediaItem struct {
 	ID         string            `json:"id"`
 	Title      string            `json:"title"`
@@ -49,14 +49,14 @@ type MediaItem struct {
 	Metadata   map[string]string `json:"metadata,omitempty"`
 }
 
-// TVSeason 电视剧季
+// TVSeason 电视剧季.
 type TVSeason struct {
 	SeasonNumber int         `json:"season_number"`
 	Episodes     []TVEpisode `json:"episodes"`
 	Poster       string      `json:"poster,omitempty"`
 }
 
-// TVEpisode 电视剧集
+// TVEpisode 电视剧集.
 type TVEpisode struct {
 	EpisodeNumber int       `json:"episode_number"`
 	Title         string    `json:"title"`
@@ -66,7 +66,7 @@ type TVEpisode struct {
 	AddedAt       time.Time `json:"added_at"`
 }
 
-// Library 媒体库
+// Library 媒体库.
 type Library struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -77,7 +77,7 @@ type Library struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// SearchRequest 搜索请求
+// SearchRequest 搜索请求.
 type SearchRequest struct {
 	Query     string    `json:"query"`
 	Type      MediaType `json:"type,omitempty"`
@@ -90,7 +90,7 @@ type SearchRequest struct {
 	PageSize  int       `json:"page_size,omitempty"`
 }
 
-// SearchResponse 搜索响应
+// SearchResponse 搜索响应.
 type SearchResponse struct {
 	Items      []MediaItem `json:"items"`
 	Total      int         `json:"total"`
@@ -99,7 +99,7 @@ type SearchResponse struct {
 	TotalPages int         `json:"total_pages"`
 }
 
-// PosterWallConfig 海报墙配置
+// PosterWallConfig 海报墙配置.
 type PosterWallConfig struct {
 	Libraries       []Library `json:"libraries"`
 	AutoScan        bool      `json:"auto_scan"`
@@ -111,7 +111,7 @@ type PosterWallConfig struct {
 	ThumbnailSize   string    `json:"thumbnail_size"` // small, medium, large
 }
 
-// Service 海报墙服务
+// Service 海报墙服务.
 type Service struct {
 	mu         sync.RWMutex
 	config     *PosterWallConfig
@@ -121,7 +121,7 @@ type Service struct {
 	httpClient *http.Client
 }
 
-// NewService 创建海报墙服务
+// NewService 创建海报墙服务.
 func NewService(config *PosterWallConfig) *Service {
 	if config == nil {
 		config = &PosterWallConfig{
@@ -142,7 +142,7 @@ func NewService(config *PosterWallConfig) *Service {
 	}
 }
 
-// AddLibrary 添加媒体库
+// AddLibrary 添加媒体库.
 func (s *Service) AddLibrary(ctx context.Context, lib *Library) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -157,7 +157,7 @@ func (s *Service) AddLibrary(ctx context.Context, lib *Library) error {
 	return nil
 }
 
-// RemoveLibrary 移除媒体库
+// RemoveLibrary 移除媒体库.
 func (s *Service) RemoveLibrary(ctx context.Context, id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -170,7 +170,7 @@ func (s *Service) RemoveLibrary(ctx context.Context, id string) error {
 	return nil
 }
 
-// GetLibrary 获取媒体库
+// GetLibrary 获取媒体库.
 func (s *Service) GetLibrary(ctx context.Context, id string) (*Library, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -182,7 +182,7 @@ func (s *Service) GetLibrary(ctx context.Context, id string) (*Library, error) {
 	return lib, nil
 }
 
-// ListLibraries 列出所有媒体库
+// ListLibraries 列出所有媒体库.
 func (s *Service) ListLibraries(ctx context.Context) []*Library {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -194,7 +194,7 @@ func (s *Service) ListLibraries(ctx context.Context) []*Library {
 	return libs
 }
 
-// ScanLibrary 扫描媒体库
+// ScanLibrary 扫描媒体库.
 func (s *Service) ScanLibrary(ctx context.Context, libraryID string) error {
 	s.mu.Lock()
 	lib, exists := s.libraries[libraryID]
@@ -248,7 +248,7 @@ func (s *Service) ScanLibrary(ctx context.Context, libraryID string) error {
 	return nil
 }
 
-// Search 搜索媒体
+// Search 搜索媒体.
 func (s *Service) Search(ctx context.Context, req *SearchRequest) (*SearchResponse, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -325,7 +325,7 @@ func (s *Service) Search(ctx context.Context, req *SearchRequest) (*SearchRespon
 	}, nil
 }
 
-// GetMediaItem 获取媒体详情
+// GetMediaItem 获取媒体详情.
 func (s *Service) GetMediaItem(ctx context.Context, id string) (*MediaItem, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -337,7 +337,7 @@ func (s *Service) GetMediaItem(ctx context.Context, id string) (*MediaItem, erro
 	return item, nil
 }
 
-// UpdateMetadata 更新元数据
+// UpdateMetadata 更新元数据.
 func (s *Service) UpdateMetadata(ctx context.Context, id string, metadata map[string]string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -359,7 +359,7 @@ func (s *Service) UpdateMetadata(ctx context.Context, id string, metadata map[st
 	return nil
 }
 
-// GetGenres 获取所有类型
+// GetGenres 获取所有类型.
 func (s *Service) GetGenres(ctx context.Context) []string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -371,7 +371,7 @@ func (s *Service) GetGenres(ctx context.Context) []string {
 	return genres
 }
 
-// GetRecentAdded 获取最近添加
+// GetRecentAdded 获取最近添加.
 func (s *Service) GetRecentAdded(ctx context.Context, limit int) []MediaItem {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

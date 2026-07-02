@@ -110,9 +110,9 @@ func TestArchivePolicy_Fields(t *testing.T) {
 
 func TestRetentionPeriod(t *testing.T) {
 	periods := []time.Duration{
-		30 * 24 * time.Hour,   // 30天
-		90 * 24 * time.Hour,   // 90天
-		365 * 24 * time.Hour,  // 1年
+		30 * 24 * time.Hour,  // 30天
+		90 * 24 * time.Hour,  // 90天
+		365 * 24 * time.Hour, // 1年
 	}
 
 	for _, p := range periods {

@@ -5,7 +5,7 @@ package immusnap
 
 import "time"
 
-// ThreatLevel 威胁等级
+// ThreatLevel 威胁等级.
 type ThreatLevel string
 
 const (
@@ -14,7 +14,7 @@ const (
 	ThreatLevelCritical   ThreatLevel = "critical"   // 危急
 )
 
-// SnapshotStatus 快照状态
+// SnapshotStatus 快照状态.
 type SnapshotStatus string
 
 const (
@@ -24,7 +24,7 @@ const (
 	StatusVerified SnapshotStatus = "verified" // 已验证
 )
 
-// ImmutableSnapshot 不可变快照
+// ImmutableSnapshot 不可变快照.
 type ImmutableSnapshot struct {
 	ID          string         `json:"id"`
 	DatasetName string         `json:"dataset_name"` // 数据集/卷名
@@ -40,14 +40,14 @@ type ImmutableSnapshot struct {
 	ThreatLevel ThreatLevel    `json:"threat_level"`           // 触发时的威胁等级
 }
 
-// RetentionPolicy 快照保留策略
+// RetentionPolicy 快照保留策略.
 type RetentionPolicy struct {
 	MinRetentionHours int  `json:"min_retention_hours"` // 最小保留时长（小时）
 	MaxSnapshots      int  `json:"max_snapshots"`       // 最大快照数量
 	AutoLockOnThreat  bool `json:"auto_lock_on_threat"` // 威胁时自动锁定
 }
 
-// DefaultRetentionPolicy 返回默认保留策略
+// DefaultRetentionPolicy 返回默认保留策略.
 func DefaultRetentionPolicy() RetentionPolicy {
 	return RetentionPolicy{
 		MinRetentionHours: 24,
@@ -56,7 +56,7 @@ func DefaultRetentionPolicy() RetentionPolicy {
 	}
 }
 
-// IntegrityResult 完整性验证结果
+// IntegrityResult 完整性验证结果.
 type IntegrityResult struct {
 	SnapshotID   string    `json:"snapshot_id"`
 	Valid        bool      `json:"valid"`
@@ -66,7 +66,7 @@ type IntegrityResult struct {
 	Details      string    `json:"details,omitempty"`
 }
 
-// ThreatEvent 威胁事件
+// ThreatEvent 威胁事件.
 type ThreatEvent struct {
 	Timestamp    time.Time   `json:"timestamp"`
 	Level        ThreatLevel `json:"level"`
@@ -75,7 +75,7 @@ type ThreatEvent struct {
 	SnapshotID   string      `json:"snapshot_id,omitempty"` // 自动创建的快照 ID
 }
 
-// Stats 不可变快照统计
+// Stats 不可变快照统计.
 type Stats struct {
 	TotalSnapshots   int     `json:"total_snapshots"`
 	LockedSnapshots  int     `json:"locked_snapshots"`

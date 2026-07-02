@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// StateBackend 状态同步后端接口
+// StateBackend 状态同步后端接口.
 type StateBackend interface {
 	// Save 保存状态数据
 	Save(key string, value []byte) error
@@ -30,14 +30,14 @@ type EtcdSimBackend struct {
 	data map[string][]byte
 }
 
-// NewEtcdSimBackend 创建 etcd 模拟后端
+// NewEtcdSimBackend 创建 etcd 模拟后端.
 func NewEtcdSimBackend() *EtcdSimBackend {
 	return &EtcdSimBackend{
 		data: make(map[string][]byte),
 	}
 }
 
-// Save 保存状态数据
+// Save 保存状态数据.
 func (e *EtcdSimBackend) Save(key string, value []byte) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -47,7 +47,7 @@ func (e *EtcdSimBackend) Save(key string, value []byte) error {
 	return nil
 }
 
-// Load 读取状态数据
+// Load 读取状态数据.
 func (e *EtcdSimBackend) Load(key string) ([]byte, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -60,7 +60,7 @@ func (e *EtcdSimBackend) Load(key string) ([]byte, error) {
 	return cp, nil
 }
 
-// Delete 删除状态数据
+// Delete 删除状态数据.
 func (e *EtcdSimBackend) Delete(key string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -68,7 +68,7 @@ func (e *EtcdSimBackend) Delete(key string) error {
 	return nil
 }
 
-// List 列出指定前缀下所有 key
+// List 列出指定前缀下所有 key.
 func (e *EtcdSimBackend) List(prefix string) ([]string, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -98,7 +98,7 @@ type StateSync struct {
 	running bool
 }
 
-// NewStateSync 创建状态同步管理器
+// NewStateSync 创建状态同步管理器.
 func NewStateSync(backend StateBackend, localNode string) *StateSync {
 	return &StateSync{
 		backend:      backend,
@@ -108,14 +108,14 @@ func NewStateSync(backend StateBackend, localNode string) *StateSync {
 	}
 }
 
-// SetSyncInterval 设置同步间隔
+// SetSyncInterval 设置同步间隔.
 func (s *StateSync) SetSyncInterval(d time.Duration) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.syncInterval = d
 }
 
-// Start 启动周期性状态同步
+// Start 启动周期性状态同步.
 func (s *StateSync) Start() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -128,7 +128,7 @@ func (s *StateSync) Start() error {
 	return nil
 }
 
-// Stop 停止状态同步
+// Stop 停止状态同步.
 func (s *StateSync) Stop() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -140,14 +140,14 @@ func (s *StateSync) Stop() error {
 	return nil
 }
 
-// IsRunning 是否正在同步
+// IsRunning 是否正在同步.
 func (s *StateSync) IsRunning() bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.running
 }
 
-// run 同步循环
+// run 同步循环.
 func (s *StateSync) run() {
 	ticker := time.NewTicker(s.syncInterval)
 	defer ticker.Stop()
@@ -163,7 +163,7 @@ func (s *StateSync) run() {
 	}
 }
 
-// heartbeat 写入节点心跳到后端
+// heartbeat 写入节点心跳到后端.
 func (s *StateSync) heartbeat() error {
 	key := fmt.Sprintf("/containerfailover/nodes/%s/heartbeat", s.localNode)
 	val, _ := json.Marshal(map[string]interface{}{
@@ -173,7 +173,7 @@ func (s *StateSync) heartbeat() error {
 	return s.backend.Save(key, val)
 }
 
-// SyncContainer 同步容器状态到后端
+// SyncContainer 同步容器状态到后端.
 func (s *StateSync) SyncContainer(c *Container) error {
 	key := fmt.Sprintf("/containerfailover/containers/%s", c.ID)
 	data, err := json.Marshal(c)
@@ -183,7 +183,7 @@ func (s *StateSync) SyncContainer(c *Container) error {
 	return s.backend.Save(key, data)
 }
 
-// LoadContainer 从后端加载容器状态
+// LoadContainer 从后端加载容器状态.
 func (s *StateSync) LoadContainer(containerID string) (*Container, error) {
 	key := fmt.Sprintf("/containerfailover/containers/%s", containerID)
 	data, err := s.backend.Load(key)
@@ -197,13 +197,13 @@ func (s *StateSync) LoadContainer(containerID string) (*Container, error) {
 	return &c, nil
 }
 
-// DeleteContainer 从后端删除容器状态
+// DeleteContainer 从后端删除容器状态.
 func (s *StateSync) DeleteContainer(containerID string) error {
 	key := fmt.Sprintf("/containerfailover/containers/%s", containerID)
 	return s.backend.Delete(key)
 }
 
-// ListContainers 列出后端中所有容器 ID
+// ListContainers 列出后端中所有容器 ID.
 func (s *StateSync) ListContainers() ([]string, error) {
 	keys, err := s.backend.List("/containerfailover/containers/")
 	if err != nil {
@@ -218,7 +218,7 @@ func (s *StateSync) ListContainers() ([]string, error) {
 	return ids, nil
 }
 
-// SyncNode 同步节点状态到后端
+// SyncNode 同步节点状态到后端.
 func (s *StateSync) SyncNode(n *ClusterNode) error {
 	key := fmt.Sprintf("/containerfailover/nodes/%s", n.ID)
 	data, err := json.Marshal(n)
@@ -228,7 +228,7 @@ func (s *StateSync) SyncNode(n *ClusterNode) error {
 	return s.backend.Save(key, data)
 }
 
-// LoadNode 从后端加载节点状态
+// LoadNode 从后端加载节点状态.
 func (s *StateSync) LoadNode(nodeID string) (*ClusterNode, error) {
 	key := fmt.Sprintf("/containerfailover/nodes/%s", nodeID)
 	data, err := s.backend.Load(key)
@@ -242,7 +242,7 @@ func (s *StateSync) LoadNode(nodeID string) (*ClusterNode, error) {
 	return &n, nil
 }
 
-// SyncIPAllocation 同步 IP 分配记录到后端
+// SyncIPAllocation 同步 IP 分配记录到后端.
 func (s *StateSync) SyncIPAllocation(alloc *IPAllocation) error {
 	key := fmt.Sprintf("/containerfailover/ip/%s", alloc.IP)
 	data, err := json.Marshal(alloc)
@@ -252,7 +252,7 @@ func (s *StateSync) SyncIPAllocation(alloc *IPAllocation) error {
 	return s.backend.Save(key, data)
 }
 
-// LoadIPAllocation 从后端加载 IP 分配记录
+// LoadIPAllocation 从后端加载 IP 分配记录.
 func (s *StateSync) LoadIPAllocation(ip string) (*IPAllocation, error) {
 	key := fmt.Sprintf("/containerfailover/ip/%s", ip)
 	data, err := s.backend.Load(key)
@@ -266,7 +266,7 @@ func (s *StateSync) LoadIPAllocation(ip string) (*IPAllocation, error) {
 	return &alloc, nil
 }
 
-// SyncFailoverEvent 同步故障转移事件到后端
+// SyncFailoverEvent 同步故障转移事件到后端.
 func (s *StateSync) SyncFailoverEvent(event *FailoverEvent) error {
 	key := fmt.Sprintf("/containerfailover/events/%s", event.ID)
 	data, err := json.Marshal(event)
@@ -276,7 +276,7 @@ func (s *StateSync) SyncFailoverEvent(event *FailoverEvent) error {
 	return s.backend.Save(key, data)
 }
 
-// ListFailoverEvents 列出后端中所有故障转移事件
+// ListFailoverEvents 列出后端中所有故障转移事件.
 func (s *StateSync) ListFailoverEvents() ([]*FailoverEvent, error) {
 	keys, err := s.backend.List("/containerfailover/events/")
 	if err != nil {
@@ -299,7 +299,7 @@ func (s *StateSync) ListFailoverEvents() ([]*FailoverEvent, error) {
 	return events, nil
 }
 
-// SyncAll 全量同步容器列表
+// SyncAll 全量同步容器列表.
 func (s *StateSync) SyncAll(containers []*Container) error {
 	for _, c := range containers {
 		if err := s.SyncContainer(c); err != nil {

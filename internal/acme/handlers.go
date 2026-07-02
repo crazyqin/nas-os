@@ -7,19 +7,19 @@ import (
 	"time"
 )
 
-// Handler handles ACME HTTP requests
+// Handler handles ACME HTTP requests.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler creates a new ACME handler
+// NewHandler creates a new ACME handler.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{
 		manager: manager,
 	}
 }
 
-// RegisterRoutes registers ACME API routes
+// RegisterRoutes registers ACME API routes.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/acme/certificates", h.handleCertificates)
 	mux.HandleFunc("/api/v1/acme/certificates/", h.handleCertificateByID)

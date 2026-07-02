@@ -16,7 +16,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// 错误定义
+// 错误定义.
 var (
 	ErrNotLeader          = errors.New("current node is not leader")
 	ErrNodeNotFound       = errors.New("node not found")
@@ -28,7 +28,7 @@ var (
 	ErrInvalidState       = errors.New("invalid state for operation")
 )
 
-// HAState 高可用状态
+// HAState 高可用状态.
 type HAState string
 
 const (
@@ -41,7 +41,7 @@ const (
 	HAStateUnknown  HAState = "unknown"  // 未知状态
 )
 
-// HARole 高可用角色
+// HARole 高可用角色.
 type HARole string
 
 const (
@@ -50,7 +50,7 @@ const (
 	HARoleNone      HARole = "none"      // 无角色
 )
 
-// NodeHAInfo 节点HA信息
+// NodeHAInfo 节点HA信息.
 type NodeHAInfo struct {
 	ID            string            `json:"id"`
 	Name          string            `json:"name"`
@@ -65,7 +65,7 @@ type NodeHAInfo struct {
 	Metadata      map[string]string `json:"metadata,omitempty"`
 }
 
-// HAConfig 高可用配置
+// HAConfig 高可用配置.
 type HAConfig struct {
 	// 集群配置
 	ClusterName string     `json:"cluster_name"`
@@ -104,7 +104,7 @@ type HAConfig struct {
 	DataDir string `json:"data_dir"`
 }
 
-// PeerNode 对等节点配置
+// PeerNode 对等节点配置.
 type PeerNode struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
@@ -113,7 +113,7 @@ type PeerNode struct {
 	Priority int    `json:"priority"`
 }
 
-// HAStatus 高可用状态
+// HAStatus 高可用状态.
 type HAStatus struct {
 	LocalNode      *NodeHAInfo   `json:"local_node"`
 	PrimaryNode    *NodeHAInfo   `json:"primary_node"`
@@ -127,7 +127,7 @@ type HAStatus struct {
 	QuorumStatus   string        `json:"quorum_status"`
 }
 
-// HAEvent 高可用事件
+// HAEvent 高可用事件.
 type HAEvent struct {
 	ID        string    `json:"id"`
 	Type      string    `json:"type"`
@@ -142,7 +142,7 @@ type HAEvent struct {
 	Duration  string    `json:"duration,omitempty"`
 }
 
-// HAEventType 事件类型
+// HAEventType 事件类型.
 type HAEventType string
 
 const (
@@ -162,7 +162,7 @@ const (
 	HAEventQuorumRestore    HAEventType = "quorum_restore"
 )
 
-// HAManager 高可用管理器
+// HAManager 高可用管理器.
 type HAManager struct {
 	config    *HAConfig
 	localNode *NodeHAInfo
@@ -194,12 +194,12 @@ type HAManager struct {
 	logger *zap.Logger
 }
 
-// HAEventHandler 事件处理器接口
+// HAEventHandler 事件处理器接口.
 type HAEventHandler interface {
 	OnHAEvent(event HAEvent)
 }
 
-// NewHAManager 创建高可用管理器
+// NewHAManager 创建高可用管理器.
 func NewHAManager(config *HAConfig, logger *zap.Logger) (*HAManager, error) {
 	if err := ValidateHAConfig(config); err != nil {
 		return nil, fmt.Errorf("invalid config: %w", err)
@@ -266,7 +266,7 @@ func NewHAManager(config *HAConfig, logger *zap.Logger) (*HAManager, error) {
 	return mgr, nil
 }
 
-// ValidateHAConfig 验证配置
+// ValidateHAConfig 验证配置.
 func ValidateHAConfig(config *HAConfig) error {
 	if config.NodeID == "" {
 		return errors.New("node_id required")
@@ -280,7 +280,7 @@ func ValidateHAConfig(config *HAConfig) error {
 	return nil
 }
 
-// ApplyHADefaults 应用默认配置
+// ApplyHADefaults 应用默认配置.
 func ApplyHADefaults(config *HAConfig) *HAConfig {
 	if config.HeartbeatInterval == 0 {
 		config.HeartbeatInterval = 3 * time.Second
@@ -318,7 +318,7 @@ func ApplyHADefaults(config *HAConfig) *HAConfig {
 	return config
 }
 
-// Start 启动高可用管理器
+// Start 启动高可用管理器.
 func (mgr *HAManager) Start() error {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
@@ -364,7 +364,7 @@ func (mgr *HAManager) Start() error {
 	return nil
 }
 
-// Stop 停止高可用管理器
+// Stop 停止高可用管理器.
 func (mgr *HAManager) Stop() error {
 	mgr.logger.Info("HA manager stopping")
 
@@ -383,7 +383,7 @@ func (mgr *HAManager) Stop() error {
 	return nil
 }
 
-// performInitialElection 执行初始选举
+// performInitialElection 执行初始选举.
 func (mgr *HAManager) performInitialElection() {
 	// 收集所有活跃节点
 	var activeNodes []*NodeHAInfo
@@ -432,7 +432,7 @@ func (mgr *HAManager) performInitialElection() {
 	})
 }
 
-// eventLoop 事件处理循环
+// eventLoop 事件处理循环.
 func (mgr *HAManager) eventLoop() {
 	defer mgr.wg.Done()
 
@@ -446,7 +446,7 @@ func (mgr *HAManager) eventLoop() {
 	}
 }
 
-// handleEvent 处理事件
+// handleEvent 处理事件.
 func (mgr *HAManager) handleEvent(event HAEvent) {
 	// 保存事件
 	mgr.mu.Lock()
@@ -468,7 +468,7 @@ func (mgr *HAManager) handleEvent(event HAEvent) {
 	)
 }
 
-// stateMonitorLoop 状态监控循环
+// stateMonitorLoop 状态监控循环.
 func (mgr *HAManager) stateMonitorLoop() {
 	defer mgr.wg.Done()
 
@@ -485,7 +485,7 @@ func (mgr *HAManager) stateMonitorLoop() {
 	}
 }
 
-// checkNodesState 检查节点状态
+// checkNodesState 检查节点状态.
 func (mgr *HAManager) checkNodesState() {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
@@ -539,7 +539,7 @@ func (mgr *HAManager) checkNodesState() {
 	}
 }
 
-// splitBrainCheckLoop 脑裂检测循环
+// splitBrainCheckLoop 脑裂检测循环.
 func (mgr *HAManager) splitBrainCheckLoop() {
 	defer mgr.wg.Done()
 
@@ -556,7 +556,7 @@ func (mgr *HAManager) splitBrainCheckLoop() {
 	}
 }
 
-// checkSplitBrain 检查脑裂
+// checkSplitBrain 检查脑裂.
 func (mgr *HAManager) checkSplitBrain() {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
@@ -598,7 +598,7 @@ func (mgr *HAManager) checkSplitBrain() {
 	}
 }
 
-// sendEvent 发送事件
+// sendEvent 发送事件.
 func (mgr *HAManager) sendEvent(event HAEvent) {
 	select {
 	case mgr.eventChan <- event:
@@ -607,7 +607,7 @@ func (mgr *HAManager) sendEvent(event HAEvent) {
 	}
 }
 
-// recordEvent 记录事件
+// recordEvent 记录事件.
 func (mgr *HAManager) recordEvent(event HAEvent) {
 	mgr.mu.Lock()
 	mgr.events = append(mgr.events, event)
@@ -617,21 +617,21 @@ func (mgr *HAManager) recordEvent(event HAEvent) {
 	mgr.mu.Unlock()
 }
 
-// IsPrimary 检查是否是主节点
+// IsPrimary 检查是否是主节点.
 func (mgr *HAManager) IsPrimary() bool {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
 	return mgr.localNode.Role == HARolePrimary
 }
 
-// GetPrimary 获取主节点
+// GetPrimary 获取主节点.
 func (mgr *HAManager) GetPrimary() *NodeHAInfo {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
 	return mgr.primary
 }
 
-// GetStatus 获取HA状态
+// GetStatus 获取HA状态.
 func (mgr *HAManager) GetStatus() *HAStatus {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
@@ -656,7 +656,7 @@ func (mgr *HAManager) GetStatus() *HAStatus {
 	}
 }
 
-// getQuorumStatus 获取法定人数状态
+// getQuorumStatus 获取法定人数状态.
 func (mgr *HAManager) getQuorumStatus() string {
 	activeCount := 0
 	for _, node := range mgr.nodes {
@@ -671,7 +671,7 @@ func (mgr *HAManager) getQuorumStatus() string {
 	return "degraded"
 }
 
-// GetNodes 获取所有节点
+// GetNodes 获取所有节点.
 func (mgr *HAManager) GetNodes() []*NodeHAInfo {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
@@ -683,7 +683,7 @@ func (mgr *HAManager) GetNodes() []*NodeHAInfo {
 	return nodes
 }
 
-// GetEvents 获取事件历史
+// GetEvents 获取事件历史.
 func (mgr *HAManager) GetEvents(limit int) []HAEvent {
 	mgr.mu.RLock()
 	defer mgr.mu.RUnlock()
@@ -700,14 +700,14 @@ func (mgr *HAManager) GetEvents(limit int) []HAEvent {
 	return mgr.events[start:]
 }
 
-// RegisterEventHandler 注册事件处理器
+// RegisterEventHandler 注册事件处理器.
 func (mgr *HAManager) RegisterEventHandler(handler HAEventHandler) {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
 	mgr.eventHandlers = append(mgr.eventHandlers, handler)
 }
 
-// ManualFailover 手动故障转移
+// ManualFailover 手动故障转移.
 func (mgr *HAManager) ManualFailover(targetNodeID string) error {
 	mgr.mu.RLock()
 	if mgr.localNode.Role != HARolePrimary {
@@ -728,7 +728,7 @@ func (mgr *HAManager) ManualFailover(targetNodeID string) error {
 	return mgr.failoverMgr.ExecuteManualFailover(target)
 }
 
-// UpdateNodeHeartbeat 更新节点心跳
+// UpdateNodeHeartbeat 更新节点心跳.
 func (mgr *HAManager) UpdateNodeHeartbeat(nodeID string) {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
@@ -757,7 +757,7 @@ func (mgr *HAManager) UpdateNodeHeartbeat(nodeID string) {
 	}
 }
 
-// 持久化
+// 持久化.
 func (mgr *HAManager) saveState() error {
 	state := map[string]interface{}{
 		"local_role":    mgr.localNode.Role,

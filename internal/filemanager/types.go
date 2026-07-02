@@ -11,7 +11,7 @@ import (
 // 文件浏览类型
 // ============================================================
 
-// FileType 文件类型
+// FileType 文件类型.
 type FileType string
 
 const (
@@ -20,7 +20,7 @@ const (
 	FileTypeSymlink   FileType = "symlink"
 )
 
-// FileNode 文件节点（树形结构）
+// FileNode 文件节点（树形结构）.
 type FileNode struct {
 	Name          string      `json:"name"`
 	Path          string      `json:"path"`
@@ -38,7 +38,7 @@ type FileNode struct {
 	SymlinkTarget string      `json:"symlink_target,omitempty"`
 }
 
-// DirectoryListing 目录列表
+// DirectoryListing 目录列表.
 type DirectoryListing struct {
 	Path      string      `json:"path"`
 	Parent    string      `json:"parent,omitempty"`
@@ -49,14 +49,14 @@ type DirectoryListing struct {
 	UsedSpace int64       `json:"used_space"`
 }
 
-// TreeOptions 树形目录选项
+// TreeOptions 树形目录选项.
 type TreeOptions struct {
 	MaxDepth    int  `json:"max_depth"`    // 最大深度，默认3
 	ShowHidden  bool `json:"show_hidden"`  // 显示隐藏文件
 	IncludeSize bool `json:"include_size"` // 包含大小信息
 }
 
-// DefaultTreeOptions 默认树形选项
+// DefaultTreeOptions 默认树形选项.
 func DefaultTreeOptions() TreeOptions {
 	return TreeOptions{
 		MaxDepth:    3,
@@ -69,7 +69,7 @@ func DefaultTreeOptions() TreeOptions {
 // 文件操作类型
 // ============================================================
 
-// OperationType 操作类型
+// OperationType 操作类型.
 type OperationType string
 
 const (
@@ -81,7 +81,7 @@ const (
 	OpExtract  OperationType = "extract"
 )
 
-// OperationStatus 操作状态
+// OperationStatus 操作状态.
 type OperationStatus string
 
 const (
@@ -92,7 +92,7 @@ const (
 	StatusCancelled OperationStatus = "cancelled"
 )
 
-// FileOperation 文件操作记录
+// FileOperation 文件操作记录.
 type FileOperation struct {
 	ID          string          `json:"id"`
 	Type        OperationType   `json:"type"`
@@ -109,7 +109,7 @@ type FileOperation struct {
 	CreatedBy   string          `json:"created_by"`
 }
 
-// BatchOperation 批量操作请求
+// BatchOperation 批量操作请求.
 type BatchOperation struct {
 	Operation   OperationType `json:"operation" binding:"required"`
 	Sources     []string      `json:"sources" binding:"required,min=1"`
@@ -117,7 +117,7 @@ type BatchOperation struct {
 	Overwrite   bool          `json:"overwrite"`
 }
 
-// CompressOptions 压缩选项
+// CompressOptions 压缩选项.
 type CompressOptions struct {
 	Format   string   `json:"format"` // zip, tar.gz, tar.bz2, 7z
 	Level    int      `json:"level"`  // 压缩级别 1-9
@@ -126,7 +126,7 @@ type CompressOptions struct {
 	Target   string   `json:"target" binding:"required"`
 }
 
-// ExtractOptions 解压选项
+// ExtractOptions 解压选项.
 type ExtractOptions struct {
 	Source      string `json:"source" binding:"required"`
 	Destination string `json:"destination" binding:"required"`
@@ -138,7 +138,7 @@ type ExtractOptions struct {
 // 文件预览类型
 // ============================================================
 
-// PreviewType 预览类型
+// PreviewType 预览类型.
 type PreviewType string
 
 const (
@@ -153,7 +153,7 @@ const (
 	PreviewNone     PreviewType = "none"
 )
 
-// PreviewInfo 预览信息
+// PreviewInfo 预览信息.
 type PreviewInfo struct {
 	Path     string      `json:"path"`
 	Name     string      `json:"name"`
@@ -183,7 +183,7 @@ type PreviewInfo struct {
 	Thumbnail string `json:"thumbnail,omitempty"` // base64 或 URL
 }
 
-// ThumbnailConfig 缩略图配置
+// ThumbnailConfig 缩略图配置.
 type ThumbnailConfig struct {
 	Enabled     bool `json:"enabled"`
 	MaxWidth    int  `json:"max_width"`     // 默认 256
@@ -192,7 +192,7 @@ type ThumbnailConfig struct {
 	CacheMaxAge int  `json:"cache_max_age"` // 缓存时间（秒），默认 3600
 }
 
-// DefaultThumbnailConfig 默认缩略图配置
+// DefaultThumbnailConfig 默认缩略图配置.
 func DefaultThumbnailConfig() ThumbnailConfig {
 	return ThumbnailConfig{
 		Enabled:     true,
@@ -207,7 +207,7 @@ func DefaultThumbnailConfig() ThumbnailConfig {
 // 文件分享类型
 // ============================================================
 
-// ShareLink 分享链接
+// ShareLink 分享链接.
 type ShareLink struct {
 	ID            string     `json:"id"`
 	Path          string     `json:"path"`
@@ -224,7 +224,7 @@ type ShareLink struct {
 	Enabled       bool       `json:"enabled"`
 }
 
-// CreateShareRequest 创建分享请求
+// CreateShareRequest 创建分享请求.
 type CreateShareRequest struct {
 	Path         string     `json:"path" binding:"required"`
 	Password     string     `json:"password,omitempty"`
@@ -233,7 +233,7 @@ type CreateShareRequest struct {
 	Permission   string     `json:"permission"` // "view", "download"
 }
 
-// ShareStats 分享统计
+// ShareStats 分享统计.
 type ShareStats struct {
 	TotalLinks     int `json:"total_links"`
 	ActiveLinks    int `json:"active_links"`
@@ -245,7 +245,7 @@ type ShareStats struct {
 // 文件搜索类型
 // ============================================================
 
-// SearchQuery 搜索查询
+// SearchQuery 搜索查询.
 type SearchQuery struct {
 	Keyword       string     `json:"keyword" binding:"required"`
 	Path          string     `json:"path"`           // 搜索根目录
@@ -261,7 +261,7 @@ type SearchQuery struct {
 	SortOrder     string     `json:"sort_order"`     // "asc", "desc"
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	Items     []*FileNode `json:"items"`
 	Total     int         `json:"total"`
@@ -274,7 +274,7 @@ type SearchResult struct {
 // 文件版本管理
 // ============================================================
 
-// FileVersion 文件版本
+// FileVersion 文件版本.
 type FileVersion struct {
 	ID        string    `json:"id"`
 	FilePath  string    `json:"file_path"`
@@ -286,7 +286,7 @@ type FileVersion struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// VersionConfig 版本管理配置
+// VersionConfig 版本管理配置.
 type VersionConfig struct {
 	Enabled        bool `json:"enabled"`
 	MaxVersions    int  `json:"max_versions"`      // 每文件最大版本数，默认10
@@ -294,7 +294,7 @@ type VersionConfig struct {
 	AutoVersion    bool `json:"auto_version"`      // 自动版本管理
 }
 
-// DefaultVersionConfig 默认版本管理配置
+// DefaultVersionConfig 默认版本管理配置.
 func DefaultVersionConfig() VersionConfig {
 	return VersionConfig{
 		Enabled:        true,
@@ -308,7 +308,7 @@ func DefaultVersionConfig() VersionConfig {
 // 收藏夹和快捷方式
 // ============================================================
 
-// Favorite 收藏项
+// Favorite 收藏项.
 type Favorite struct {
 	ID        string    `json:"id"`
 	Path      string    `json:"path"`
@@ -319,7 +319,7 @@ type Favorite struct {
 	OrderBy   int       `json:"order_by"` // 排序顺序
 }
 
-// Shortcut 快捷方式
+// Shortcut 快捷方式.
 type Shortcut struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -332,7 +332,7 @@ type Shortcut struct {
 // 拖拽操作
 // ============================================================
 
-// DragDropRequest 拖拽请求
+// DragDropRequest 拖拽请求.
 type DragDropRequest struct {
 	Sources     []string `json:"sources" binding:"required,min=1"`
 	Destination string   `json:"destination" binding:"required"`
@@ -343,7 +343,7 @@ type DragDropRequest struct {
 // 文件属性
 // ============================================================
 
-// FileAttributes 文件属性
+// FileAttributes 文件属性.
 type FileAttributes struct {
 	Path          string    `json:"path"`
 	Name          string    `json:"name"`
@@ -367,7 +367,7 @@ type FileAttributes struct {
 	Links         uint64    `json:"links,omitempty"`
 }
 
-// DiskUsage 磁盘使用情况
+// DiskUsage 磁盘使用情况.
 type DiskUsage struct {
 	Path        string  `json:"path"`
 	Total       int64   `json:"total"`
@@ -380,7 +380,7 @@ type DiskUsage struct {
 // 管理器配置
 // ============================================================
 
-// Config 文件管理器配置
+// Config 文件管理器配置.
 type Config struct {
 	RootPath       string          `json:"root_path"`       // 根目录路径
 	MaxUploadSize  int64           `json:"max_upload_size"` // 最大上传大小（字节）
@@ -395,7 +395,7 @@ type Config struct {
 	EnableSearch   bool            `json:"enable_search"`
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig(rootPath string) Config {
 	return Config{
 		RootPath:       rootPath,

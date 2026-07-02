@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers NAS Copilot HTTP 处理器
+// Handlers NAS Copilot HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器实例
+// NewHandlers 创建处理器实例.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	copilot := r.Group("/copilot")
 	{
@@ -38,7 +38,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// handleChat 发送聊天消息
+// handleChat 发送聊天消息.
 func (h *Handlers) handleChat(c *gin.Context) {
 	var req ChatRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -62,14 +62,14 @@ func (h *Handlers) handleChat(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// handleListConversations 获取对话列表
+// handleListConversations 获取对话列表.
 func (h *Handlers) handleListConversations(c *gin.Context) {
 	userID := c.Query("userId")
 	conversations := h.manager.ListConversations(userID)
 	c.JSON(http.StatusOK, gin.H{"conversations": conversations})
 }
 
-// handleGetConversation 获取对话详情
+// handleGetConversation 获取对话详情.
 func (h *Handlers) handleGetConversation(c *gin.Context) {
 	id := c.Param("id")
 	conv, messages, err := h.manager.GetConversation(id)
@@ -83,7 +83,7 @@ func (h *Handlers) handleGetConversation(c *gin.Context) {
 	})
 }
 
-// handleDeleteConversation 删除对话
+// handleDeleteConversation 删除对话.
 func (h *Handlers) handleDeleteConversation(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteConversation(id); err != nil {
@@ -93,7 +93,7 @@ func (h *Handlers) handleDeleteConversation(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "对话已删除"})
 }
 
-// handleParse 解析意图
+// handleParse 解析意图.
 func (h *Handlers) handleParse(c *gin.Context) {
 	var req ParseRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -105,7 +105,7 @@ func (h *Handlers) handleParse(c *gin.Context) {
 	c.JSON(http.StatusOK, ParseResponse{Intent: *intent})
 }
 
-// handleExecute 执行命令
+// handleExecute 执行命令.
 func (h *Handlers) handleExecute(c *gin.Context) {
 	var req ExecuteRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -117,7 +117,7 @@ func (h *Handlers) handleExecute(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"result": result})
 }
 
-// handleAddKnowledge 添加知识条目
+// handleAddKnowledge 添加知识条目.
 func (h *Handlers) handleAddKnowledge(c *gin.Context) {
 	var req AddKnowledgeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -134,13 +134,13 @@ func (h *Handlers) handleAddKnowledge(c *gin.Context) {
 	c.JSON(http.StatusCreated, entry)
 }
 
-// handleListKnowledge 列出知识条目
+// handleListKnowledge 列出知识条目.
 func (h *Handlers) handleListKnowledge(c *gin.Context) {
 	entries := h.manager.ListKnowledge()
 	c.JSON(http.StatusOK, gin.H{"knowledge": entries})
 }
 
-// handleSearchKnowledge 搜索知识库
+// handleSearchKnowledge 搜索知识库.
 func (h *Handlers) handleSearchKnowledge(c *gin.Context) {
 	query := c.Query("q")
 	if query == "" {
@@ -151,7 +151,7 @@ func (h *Handlers) handleSearchKnowledge(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"results": results})
 }
 
-// handleCreateTask 创建定时任务
+// handleCreateTask 创建定时任务.
 func (h *Handlers) handleCreateTask(c *gin.Context) {
 	var req CreateTaskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -168,13 +168,13 @@ func (h *Handlers) handleCreateTask(c *gin.Context) {
 	c.JSON(http.StatusCreated, task)
 }
 
-// handleListTasks 列出定时任务
+// handleListTasks 列出定时任务.
 func (h *Handlers) handleListTasks(c *gin.Context) {
 	tasks := h.manager.ListScheduledTasks()
 	c.JSON(http.StatusOK, gin.H{"tasks": tasks})
 }
 
-// handleUpdateTask 更新定时任务
+// handleUpdateTask 更新定时任务.
 func (h *Handlers) handleUpdateTask(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateTaskRequest
@@ -191,7 +191,7 @@ func (h *Handlers) handleUpdateTask(c *gin.Context) {
 	c.JSON(http.StatusOK, task)
 }
 
-// handleDeleteTask 删除定时任务
+// handleDeleteTask 删除定时任务.
 func (h *Handlers) handleDeleteTask(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteScheduledTask(id); err != nil {
@@ -201,13 +201,13 @@ func (h *Handlers) handleDeleteTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "任务已删除"})
 }
 
-// handleGetStats 获取统计
+// handleGetStats 获取统计.
 func (h *Handlers) handleGetStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, stats)
 }
 
-// handleListAudit 获取审计日志
+// handleListAudit 获取审计日志.
 func (h *Handlers) handleListAudit(c *gin.Context) {
 	entries := h.manager.ListAuditEntries()
 	c.JSON(http.StatusOK, gin.H{"audit": entries})

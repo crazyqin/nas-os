@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 数字健康管理器
+// Manager 数字健康管理器.
 type Manager struct {
 	mu            sync.RWMutex
 	logger        *zap.Logger
@@ -22,7 +22,7 @@ type Manager struct {
 	limits        map[string]*AppLimit
 }
 
-// NewManager 创建数字健康管理器
+// NewManager 创建数字健康管理器.
 func NewManager(logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -37,14 +37,14 @@ func NewManager(logger *zap.Logger) *Manager {
 	}
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// GetScreenTime 获取屏幕时间
+// GetScreenTime 获取屏幕时间.
 func (m *Manager) GetScreenTime(userID, date string) (*ScreenTime, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -63,7 +63,7 @@ func (m *Manager) GetScreenTime(userID, date string) (*ScreenTime, error) {
 	return nil, fmt.Errorf("no screen time data for date %s", date)
 }
 
-// GetScreenTimeRange 获取时间段内的屏幕时间
+// GetScreenTimeRange 获取时间段内的屏幕时间.
 func (m *Manager) GetScreenTimeRange(userID, startDate, endDate string) ([]*ScreenTime, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -82,7 +82,7 @@ func (m *Manager) GetScreenTimeRange(userID, startDate, endDate string) ([]*Scre
 	return result, nil
 }
 
-// AnalyzePatterns 分析使用模式
+// AnalyzePatterns 分析使用模式.
 func (m *Manager) AnalyzePatterns(userID, period string) (*UsagePattern, error) {
 	m.mu.RLock()
 	times, ok := m.screenTimes[userID]
@@ -157,7 +157,7 @@ func (m *Manager) AnalyzePatterns(userID, period string) (*UsagePattern, error) 
 	return pattern, nil
 }
 
-// StartFocus 开始专注会话
+// StartFocus 开始专注会话.
 func (m *Manager) StartFocus(userID, name string, durationMin int, blockedApps []string) (*FocusSession, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -192,7 +192,7 @@ func (m *Manager) StartFocus(userID, name string, durationMin int, blockedApps [
 	return session, nil
 }
 
-// StopFocus 停止专注会话
+// StopFocus 停止专注会话.
 func (m *Manager) StopFocus(sessionID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -213,7 +213,7 @@ func (m *Manager) StopFocus(sessionID string) error {
 	return nil
 }
 
-// GetFocusSession 获取专注会话
+// GetFocusSession 获取专注会话.
 func (m *Manager) GetFocusSession(sessionID string) (*FocusSession, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -225,7 +225,7 @@ func (m *Manager) GetFocusSession(sessionID string) (*FocusSession, error) {
 	return session, nil
 }
 
-// ListFocusSessions 获取用户的专注会话列表
+// ListFocusSessions 获取用户的专注会话列表.
 func (m *Manager) ListFocusSessions(userID string) []*FocusSession {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -239,7 +239,7 @@ func (m *Manager) ListFocusSessions(userID string) []*FocusSession {
 	return result
 }
 
-// ListMembers 获取家庭成员列表
+// ListMembers 获取家庭成员列表.
 func (m *Manager) ListMembers() []*FamilyMember {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -251,7 +251,7 @@ func (m *Manager) ListMembers() []*FamilyMember {
 	return result
 }
 
-// AddMember 添加家庭成员
+// AddMember 添加家庭成员.
 func (m *Manager) AddMember(name, role, ageGroup string) *FamilyMember {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -267,7 +267,7 @@ func (m *Manager) AddMember(name, role, ageGroup string) *FamilyMember {
 	return member
 }
 
-// UpdateMember 更新家庭成员
+// UpdateMember 更新家庭成员.
 func (m *Manager) UpdateMember(id string, name, role string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -286,7 +286,7 @@ func (m *Manager) UpdateMember(id string, name, role string) error {
 	return nil
 }
 
-// RemoveMember 移除家庭成员
+// RemoveMember 移除家庭成员.
 func (m *Manager) RemoveMember(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -298,7 +298,7 @@ func (m *Manager) RemoveMember(id string) error {
 	return nil
 }
 
-// GetReport 获取健康报告
+// GetReport 获取健康报告.
 func (m *Manager) GetReport(userID, period, startDate, endDate string) (*WellbeingReport, error) {
 	m.mu.RLock()
 	times, ok := m.screenTimes[userID]
@@ -368,7 +368,7 @@ func (m *Manager) GetReport(userID, period, startDate, endDate string) (*Wellbei
 	return report, nil
 }
 
-// SetDowntimeSchedule 设置停机时间计划
+// SetDowntimeSchedule 设置停机时间计划.
 func (m *Manager) SetDowntimeSchedule(userID string, schedule *DowntimeSchedule) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -378,7 +378,7 @@ func (m *Manager) SetDowntimeSchedule(userID string, schedule *DowntimeSchedule)
 	m.schedules[schedule.ID] = schedule
 }
 
-// GetDowntimeSchedule 获取停机时间计划
+// GetDowntimeSchedule 获取停机时间计划.
 func (m *Manager) GetDowntimeSchedule(userID string) *DowntimeSchedule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -391,7 +391,7 @@ func (m *Manager) GetDowntimeSchedule(userID string) *DowntimeSchedule {
 	return nil
 }
 
-// SetAppLimit 设置应用限制
+// SetAppLimit 设置应用限制.
 func (m *Manager) SetAppLimit(userID, appName, appID string, dailyMin int) *AppLimit {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -408,7 +408,7 @@ func (m *Manager) SetAppLimit(userID, appName, appID string, dailyMin int) *AppL
 	return limit
 }
 
-// GetAppLimits 获取应用限制列表
+// GetAppLimits 获取应用限制列表.
 func (m *Manager) GetAppLimits(userID string) []*AppLimit {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

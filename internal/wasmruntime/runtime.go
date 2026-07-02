@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// WasmModule WebAssembly模块
+// WasmModule WebAssembly模块.
 type WasmModule struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -26,7 +26,7 @@ type WasmModule struct {
 	UpdatedAt   time.Time         `json:"updatedAt"`
 }
 
-// WasmInstance WebAssembly实例
+// WasmInstance WebAssembly实例.
 type WasmInstance struct {
 	ID        string        `json:"id"`
 	ModuleID  string        `json:"moduleId"`
@@ -40,7 +40,7 @@ type WasmInstance struct {
 	TotalTime time.Duration `json:"totalTime"`
 }
 
-// WasmFunction 调用请求
+// WasmFunction 调用请求.
 type WasmFunction struct {
 	ModuleID string        `json:"moduleId"`
 	Function string        `json:"function"`
@@ -48,7 +48,7 @@ type WasmFunction struct {
 	Timeout  time.Duration `json:"timeout"`
 }
 
-// WasmResult 调用结果
+// WasmResult 调用结果.
 type WasmResult struct {
 	InstanceID string        `json:"instanceID"`
 	Function   string        `json:"function"`
@@ -58,7 +58,7 @@ type WasmResult struct {
 	GasUsed    int64         `json:"gasUsed"`
 }
 
-// WasmStats 运行时统计
+// WasmStats 运行时统计.
 type WasmStats struct {
 	TotalModules    int           `json:"totalModules"`
 	TotalInstances  int           `json:"totalInstances"`
@@ -69,7 +69,7 @@ type WasmStats struct {
 	AvgCallTime     time.Duration `json:"avgCallTime"`
 }
 
-// WasmConfig WebAssembly运行时配置
+// WasmConfig WebAssembly运行时配置.
 type WasmConfig struct {
 	Enabled        bool          `json:"enabled"`
 	MaxModules     int           `json:"maxModules"`
@@ -81,7 +81,7 @@ type WasmConfig struct {
 	EnableSandbox  bool          `json:"enableSandbox"`
 }
 
-// WasmRuntime WebAssembly运行时
+// WasmRuntime WebAssembly运行时.
 type WasmRuntime struct {
 	config    WasmConfig
 	logger    *slog.Logger
@@ -94,7 +94,7 @@ type WasmRuntime struct {
 	running   bool
 }
 
-// NewWasmRuntime 创建WebAssembly运行时
+// NewWasmRuntime 创建WebAssembly运行时.
 func NewWasmRuntime(config WasmConfig, logger *slog.Logger) *WasmRuntime {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -108,7 +108,7 @@ func NewWasmRuntime(config WasmConfig, logger *slog.Logger) *WasmRuntime {
 	}
 }
 
-// Start 启动运行时
+// Start 启动运行时.
 func (r *WasmRuntime) Start() error {
 	if !r.config.Enabled {
 		r.logger.Info("WebAssembly运行时未启用")
@@ -125,7 +125,7 @@ func (r *WasmRuntime) Start() error {
 	return nil
 }
 
-// Stop 停止运行时
+// Stop 停止运行时.
 func (r *WasmRuntime) Stop() {
 	r.cancel()
 
@@ -144,7 +144,7 @@ func (r *WasmRuntime) Stop() {
 	r.logger.Info("WebAssembly运行时已停止")
 }
 
-// LoadModule 加载模块
+// LoadModule 加载模块.
 func (r *WasmRuntime) LoadModule(name string, data []byte) (*WasmModule, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -171,7 +171,7 @@ func (r *WasmRuntime) LoadModule(name string, data []byte) (*WasmModule, error) 
 	return module, nil
 }
 
-// UnloadModule 卸载模块
+// UnloadModule 卸载模块.
 func (r *WasmRuntime) UnloadModule(moduleID string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -196,7 +196,7 @@ func (r *WasmRuntime) UnloadModule(moduleID string) error {
 	return nil
 }
 
-// GetModule 获取模块
+// GetModule 获取模块.
 func (r *WasmRuntime) GetModule(moduleID string) (*WasmModule, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -209,7 +209,7 @@ func (r *WasmRuntime) GetModule(moduleID string) (*WasmModule, error) {
 	return module, nil
 }
 
-// ListModules 列出模块
+// ListModules 列出模块.
 func (r *WasmRuntime) ListModules() []*WasmModule {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -222,7 +222,7 @@ func (r *WasmRuntime) ListModules() []*WasmModule {
 	return modules
 }
 
-// CreateInstance 创建实例
+// CreateInstance 创建实例.
 func (r *WasmRuntime) CreateInstance(moduleID string, memoryLimit int64) (*WasmInstance, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -264,7 +264,7 @@ func (r *WasmRuntime) CreateInstance(moduleID string, memoryLimit int64) (*WasmI
 	return instance, nil
 }
 
-// DestroyInstance 销毁实例
+// DestroyInstance 销毁实例.
 func (r *WasmRuntime) DestroyInstance(instanceID string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -290,7 +290,7 @@ func (r *WasmRuntime) DestroyInstance(instanceID string) error {
 	return nil
 }
 
-// CallFunction 调用函数
+// CallFunction 调用函数.
 func (r *WasmRuntime) CallFunction(req *WasmFunction) (*WasmResult, error) {
 	r.mu.Lock()
 
@@ -367,7 +367,7 @@ func (r *WasmRuntime) CallFunction(req *WasmFunction) (*WasmResult, error) {
 	return result, nil
 }
 
-// GetInstance 获取实例
+// GetInstance 获取实例.
 func (r *WasmRuntime) GetInstance(instanceID string) (*WasmInstance, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -380,7 +380,7 @@ func (r *WasmRuntime) GetInstance(instanceID string) (*WasmInstance, error) {
 	return instance, nil
 }
 
-// ListInstances 列出实例
+// ListInstances 列出实例.
 func (r *WasmRuntime) ListInstances(state string) []*WasmInstance {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -395,14 +395,14 @@ func (r *WasmRuntime) ListInstances(state string) []*WasmInstance {
 	return instances
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (r *WasmRuntime) GetStats() WasmStats {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	return r.stats
 }
 
-// PauseInstance 暂停实例
+// PauseInstance 暂停实例.
 func (r *WasmRuntime) PauseInstance(instanceID string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -422,7 +422,7 @@ func (r *WasmRuntime) PauseInstance(instanceID string) error {
 	return nil
 }
 
-// ResumeInstance 恢复实例
+// ResumeInstance 恢复实例.
 func (r *WasmRuntime) ResumeInstance(instanceID string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -442,7 +442,7 @@ func (r *WasmRuntime) ResumeInstance(instanceID string) error {
 	return nil
 }
 
-// IsRunning 是否运行中
+// IsRunning 是否运行中.
 func (r *WasmRuntime) IsRunning() bool {
 	return r.running
 }

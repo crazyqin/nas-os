@@ -2,7 +2,7 @@ package systemcopilot
 
 import "time"
 
-// CommandType represents the type of system command
+// CommandType represents the type of system command.
 type CommandType string
 
 const (
@@ -18,7 +18,7 @@ const (
 	CommandTypeUnknown  CommandType = "unknown"
 )
 
-// CommandStatus represents the execution status of a command
+// CommandStatus represents the execution status of a command.
 type CommandStatus string
 
 const (
@@ -30,7 +30,7 @@ const (
 	StatusCancelled CommandStatus = "cancelled"
 )
 
-// SensitivityLevel represents how sensitive an operation is
+// SensitivityLevel represents how sensitive an operation is.
 type SensitivityLevel string
 
 const (
@@ -40,7 +40,7 @@ const (
 	SensitivityCritical SensitivityLevel = "critical"
 )
 
-// Command represents a parsed user command
+// Command represents a parsed user command.
 type Command struct {
 	ID           string            `json:"id"`
 	RawInput     string            `json:"raw_input"`
@@ -53,7 +53,7 @@ type Command struct {
 	CreatedAt    time.Time         `json:"created_at"`
 }
 
-// CommandResult represents the result of executing a command
+// CommandResult represents the result of executing a command.
 type CommandResult struct {
 	CommandID  string        `json:"command_id"`
 	Status     CommandStatus `json:"status"`
@@ -63,7 +63,7 @@ type CommandResult struct {
 	Duration   time.Duration `json:"duration_ms"`
 }
 
-// Suggestion represents an AI-generated suggestion
+// Suggestion represents an AI-generated suggestion.
 type Suggestion struct {
 	ID          string    `json:"id"`
 	Title       string    `json:"title"`
@@ -74,7 +74,7 @@ type Suggestion struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// CopilotSession represents a conversation session with the copilot
+// CopilotSession represents a conversation session with the copilot.
 type CopilotSession struct {
 	ID        string           `json:"id"`
 	Commands  []*Command       `json:"commands"`
@@ -83,7 +83,7 @@ type CopilotSession struct {
 	EndedAt   *time.Time       `json:"ended_at,omitempty"`
 }
 
-// CopilotStats contains statistics about copilot usage
+// CopilotStats contains statistics about copilot usage.
 type CopilotStats struct {
 	TotalCommands int                 `json:"total_commands"`
 	SuccessCount  int                 `json:"success_count"`
@@ -95,14 +95,14 @@ type CopilotStats struct {
 	UptimeHours   float64             `json:"uptime_hours"`
 }
 
-// ProcessRequest is the HTTP request body for processing a command
+// ProcessRequest is the HTTP request body for processing a command.
 type ProcessRequest struct {
 	Input         string `json:"input"`
 	ConfirmAction bool   `json:"confirm_action,omitempty"`
 	SessionID     string `json:"session_id,omitempty"`
 }
 
-// ProcessResponse is the HTTP response for a processed command
+// ProcessResponse is the HTTP response for a processed command.
 type ProcessResponse struct {
 	Command     *Command       `json:"command"`
 	Result      *CommandResult `json:"result,omitempty"`
@@ -110,7 +110,7 @@ type ProcessResponse struct {
 	NeedConfirm bool           `json:"need_confirm,omitempty"`
 }
 
-// HistoryResponse is the HTTP response for command history
+// HistoryResponse is the HTTP response for command history.
 type HistoryResponse struct {
 	Commands []*Command       `json:"commands"`
 	Results  []*CommandResult `json:"results"`

@@ -8,14 +8,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// PolicyStore 保留策略存储
+// PolicyStore 保留策略存储.
 type PolicyStore struct {
 	mu       sync.RWMutex
 	logger   *zap.Logger
 	policies map[string]*RetentionPolicy
 }
 
-// NewPolicyStore 创建策略存储
+// NewPolicyStore 创建策略存储.
 func NewPolicyStore(logger *zap.Logger) *PolicyStore {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -26,7 +26,7 @@ func NewPolicyStore(logger *zap.Logger) *PolicyStore {
 	}
 }
 
-// Create 创建保留策略
+// Create 创建保留策略.
 func (ps *PolicyStore) Create(policy *RetentionPolicy) (*RetentionPolicy, error) {
 	ps.mu.Lock()
 	defer ps.mu.Unlock()
@@ -56,7 +56,7 @@ func (ps *PolicyStore) Create(policy *RetentionPolicy) (*RetentionPolicy, error)
 	return policy, nil
 }
 
-// Get 获取策略
+// Get 获取策略.
 func (ps *PolicyStore) Get(id string) (*RetentionPolicy, error) {
 	ps.mu.RLock()
 	defer ps.mu.RUnlock()
@@ -68,7 +68,7 @@ func (ps *PolicyStore) Get(id string) (*RetentionPolicy, error) {
 	return p, nil
 }
 
-// List 列出策略（可按 scope 和 ref 过滤）
+// List 列出策略（可按 scope 和 ref 过滤）.
 func (ps *PolicyStore) List(targetScope, targetRef string) []RetentionPolicy {
 	ps.mu.RLock()
 	defer ps.mu.RUnlock()
@@ -86,7 +86,7 @@ func (ps *PolicyStore) List(targetScope, targetRef string) []RetentionPolicy {
 	return result
 }
 
-// Update 更新策略
+// Update 更新策略.
 func (ps *PolicyStore) Update(id string, policy *RetentionPolicy) (*RetentionPolicy, error) {
 	ps.mu.Lock()
 	defer ps.mu.Unlock()
@@ -118,7 +118,7 @@ func (ps *PolicyStore) Update(id string, policy *RetentionPolicy) (*RetentionPol
 	return existing, nil
 }
 
-// Delete 删除策略
+// Delete 删除策略.
 func (ps *PolicyStore) Delete(id string) error {
 	ps.mu.Lock()
 	defer ps.mu.Unlock()

@@ -2,7 +2,7 @@ package fedcluster
 
 import "time"
 
-// ClusterInfo 集群信息摘要
+// ClusterInfo 集群信息摘要.
 type ClusterInfo struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -14,7 +14,7 @@ type ClusterInfo struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// NodeInfo 节点信息摘要
+// NodeInfo 节点信息摘要.
 type NodeInfo struct {
 	ID        string      `json:"id"`
 	Name      string      `json:"name"`
@@ -24,7 +24,7 @@ type NodeInfo struct {
 	Usage     float64     `json:"usage_percent"`
 }
 
-// SyncRequest 同步请求
+// SyncRequest 同步请求.
 type SyncRequest struct {
 	ClusterID    string `json:"cluster_id" binding:"required"`
 	SourceNode   string `json:"source_node" binding:"required"`
@@ -35,7 +35,7 @@ type SyncRequest struct {
 	DeleteExcess bool   `json:"delete_excess"`
 }
 
-// ClusterCreateRequest 创建集群请求
+// ClusterCreateRequest 创建集群请求.
 type ClusterCreateRequest struct {
 	Name        string     `json:"name" binding:"required"`
 	Description string     `json:"description"`
@@ -44,7 +44,7 @@ type ClusterCreateRequest struct {
 	LoadBalance bool       `json:"load_balance"`
 }
 
-// NodeJoinRequest 节点加入请求
+// NodeJoinRequest 节点加入请求.
 type NodeJoinRequest struct {
 	Hostname string      `json:"hostname" binding:"required"`
 	Port     int         `json:"port"`
@@ -53,7 +53,7 @@ type NodeJoinRequest struct {
 	Tags     []string    `json:"tags"`
 }
 
-// FailoverRequest 故障转移请求
+// FailoverRequest 故障转移请求.
 type FailoverRequest struct {
 	ClusterID  string `json:"cluster_id" binding:"required"`
 	FailedNode string `json:"failed_node" binding:"required"`
@@ -61,13 +61,13 @@ type FailoverRequest struct {
 	AutoSelect bool   `json:"auto_select"`
 }
 
-// RebalanceRequest 重新平衡请求
+// RebalanceRequest 重新平衡请求.
 type RebalanceRequest struct {
 	ClusterID string `json:"cluster_id" binding:"required"`
 	DryRun    bool   `json:"dry_run"`
 }
 
-// RebalanceResult 重新平衡结果
+// RebalanceResult 重新平衡结果.
 type RebalanceResult struct {
 	ClusterID     string             `json:"cluster_id"`
 	DryRun        bool               `json:"dry_run"`
@@ -75,7 +75,7 @@ type RebalanceResult struct {
 	EstimatedTime int                `json:"estimated_time_seconds"`
 }
 
-// RebalanceAction 重新平衡动作
+// RebalanceAction 重新平衡动作.
 type RebalanceAction struct {
 	Type       string `json:"type"` // migrate, replicate, cleanup
 	SourceNode string `json:"source_node"`
@@ -85,7 +85,7 @@ type RebalanceAction struct {
 	Priority   int    `json:"priority"`
 }
 
-// ClusterHealth 集群健康状态
+// ClusterHealth 集群健康状态.
 type ClusterHealth struct {
 	ClusterID     string          `json:"cluster_id"`
 	OverallStatus string          `json:"overall_status"` // healthy, degraded, critical
@@ -95,7 +95,7 @@ type ClusterHealth struct {
 	Issues        []string        `json:"issues,omitempty"`
 }
 
-// ClusterMetrics 集群指标
+// ClusterMetrics 集群指标.
 type ClusterMetrics struct {
 	ClusterID      string    `json:"cluster_id"`
 	TotalStorage   float64   `json:"total_storage_tb"`
@@ -110,7 +110,7 @@ type ClusterMetrics struct {
 	Timestamp      time.Time `json:"timestamp"`
 }
 
-// ClusterAlert 集群告警
+// ClusterAlert 集群告警.
 type ClusterAlert struct {
 	ID         string     `json:"id"`
 	ClusterID  string     `json:"cluster_id"`

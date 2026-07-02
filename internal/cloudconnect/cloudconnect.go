@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// ConnectionStatus represents the status of a cloud connection
+// ConnectionStatus represents the status of a cloud connection.
 type ConnectionStatus string
 
 const (
@@ -21,49 +21,49 @@ const (
 	StatusError        ConnectionStatus = "error"
 )
 
-// CloudProvider represents supported cloud providers
+// CloudProvider represents supported cloud providers.
 type CloudProvider string
 
 const (
-	ProviderAWS      CloudProvider = "aws"
-	ProviderAzure    CloudProvider = "azure"
-	ProviderGCP      CloudProvider = "gcp"
-	ProviderAlibaba  CloudProvider = "alibaba"
-	ProviderTencent  CloudProvider = "tencent"
-	ProviderHuawei   CloudProvider = "huawei"
-	ProviderCustom   CloudProvider = "custom"
+	ProviderAWS     CloudProvider = "aws"
+	ProviderAzure   CloudProvider = "azure"
+	ProviderGCP     CloudProvider = "gcp"
+	ProviderAlibaba CloudProvider = "alibaba"
+	ProviderTencent CloudProvider = "tencent"
+	ProviderHuawei  CloudProvider = "huawei"
+	ProviderCustom  CloudProvider = "custom"
 )
 
-// DeviceType represents the type of managed device
+// DeviceType represents the type of managed device.
 type DeviceType string
 
 const (
-	DeviceTypeNAS      DeviceType = "nas"
-	DeviceTypeServer   DeviceType = "server"
-	DeviceTypeRouter   DeviceType = "router"
-	DeviceTypeSwitch   DeviceType = "switch"
-	DeviceTypeStorage  DeviceType = "storage"
+	DeviceTypeNAS     DeviceType = "nas"
+	DeviceTypeServer  DeviceType = "server"
+	DeviceTypeRouter  DeviceType = "router"
+	DeviceTypeSwitch  DeviceType = "switch"
+	DeviceTypeStorage DeviceType = "storage"
 )
 
-// RemoteDevice represents a remotely managed device
+// RemoteDevice represents a remotely managed device.
 type RemoteDevice struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Type        DeviceType        `json:"type"`
-	Hostname    string            `json:"hostname"`
-	IPAddress   string            `json:"ip_address"`
-	PublicIP    string            `json:"public_ip,omitempty"`
-	Port        int               `json:"port"`
-	Status      ConnectionStatus  `json:"status"`
-	Version     string            `json:"version"`
-	LastSeen    time.Time         `json:"last_seen"`
-	LastSync    time.Time         `json:"last_sync"`
-	Metadata    map[string]string `json:"metadata"`
-	Tags        []string          `json:"tags"`
-	CloudID     string            `json:"cloud_id,omitempty"`
+	ID        string            `json:"id"`
+	Name      string            `json:"name"`
+	Type      DeviceType        `json:"type"`
+	Hostname  string            `json:"hostname"`
+	IPAddress string            `json:"ip_address"`
+	PublicIP  string            `json:"public_ip,omitempty"`
+	Port      int               `json:"port"`
+	Status    ConnectionStatus  `json:"status"`
+	Version   string            `json:"version"`
+	LastSeen  time.Time         `json:"last_seen"`
+	LastSync  time.Time         `json:"last_sync"`
+	Metadata  map[string]string `json:"metadata"`
+	Tags      []string          `json:"tags"`
+	CloudID   string            `json:"cloud_id,omitempty"`
 }
 
-// CloudConfig represents cloud connection configuration
+// CloudConfig represents cloud connection configuration.
 type CloudConfig struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -78,46 +78,46 @@ type CloudConfig struct {
 	Metadata    map[string]string `json:"metadata"`
 }
 
-// SyncJob represents a synchronization job
+// SyncJob represents a synchronization job.
 type SyncJob struct {
-	ID          string    `json:"id"`
-	Source      string    `json:"source"`
-	Destination string    `json:"destination"`
-	Status      string    `json:"status"` // pending, running, completed, failed
-	Progress    float64   `json:"progress"` // 0-100
-	FilesTotal  int       `json:"files_total"`
-	FilesSynced int       `json:"files_synced"`
-	BytesTotal  uint64    `json:"bytes_total"`
-	BytesSynced uint64    `json:"bytes_synced"`
-	Error       string    `json:"error,omitempty"`
-	StartedAt   time.Time `json:"started_at"`
+	ID          string     `json:"id"`
+	Source      string     `json:"source"`
+	Destination string     `json:"destination"`
+	Status      string     `json:"status"`   // pending, running, completed, failed
+	Progress    float64    `json:"progress"` // 0-100
+	FilesTotal  int        `json:"files_total"`
+	FilesSynced int        `json:"files_synced"`
+	BytesTotal  uint64     `json:"bytes_total"`
+	BytesSynced uint64     `json:"bytes_synced"`
+	Error       string     `json:"error,omitempty"`
+	StartedAt   time.Time  `json:"started_at"`
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
 }
 
-// Command represents a remote command
+// Command represents a remote command.
 type Command struct {
-	ID        string    `json:"id"`
-	DeviceID  string    `json:"device_id"`
-	Command   string    `json:"command"`
-	Status    string    `json:"status"` // pending, running, completed, failed
-	Output    string    `json:"output"`
-	Error     string    `json:"error,omitempty"`
-	ExitCode  int       `json:"exit_code"`
-	StartedAt time.Time `json:"started_at"`
+	ID        string     `json:"id"`
+	DeviceID  string     `json:"device_id"`
+	Command   string     `json:"command"`
+	Status    string     `json:"status"` // pending, running, completed, failed
+	Output    string     `json:"output"`
+	Error     string     `json:"error,omitempty"`
+	ExitCode  int        `json:"exit_code"`
+	StartedAt time.Time  `json:"started_at"`
 	EndedAt   *time.Time `json:"ended_at,omitempty"`
 }
 
-// CloudManager manages cloud connections and remote devices
+// CloudManager manages cloud connections and remote devices.
 type CloudManager struct {
-	clouds    map[string]*CloudConfig
-	devices   map[string]*RemoteDevice
-	syncJobs  map[string]*SyncJob
-	commands  map[string]*Command
-	mu        sync.RWMutex
-	webhooks  []func(event string, data interface{})
+	clouds   map[string]*CloudConfig
+	devices  map[string]*RemoteDevice
+	syncJobs map[string]*SyncJob
+	commands map[string]*Command
+	mu       sync.RWMutex
+	webhooks []func(event string, data interface{})
 }
 
-// NewCloudManager creates a new cloud manager
+// NewCloudManager creates a new cloud manager.
 func NewCloudManager() *CloudManager {
 	return &CloudManager{
 		clouds:   make(map[string]*CloudConfig),
@@ -128,7 +128,7 @@ func NewCloudManager() *CloudManager {
 	}
 }
 
-// AddCloudConnection adds a cloud connection
+// AddCloudConnection adds a cloud connection.
 func (cm *CloudManager) AddCloudConnection(config *CloudConfig) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -143,7 +143,7 @@ func (cm *CloudManager) AddCloudConnection(config *CloudConfig) error {
 	return nil
 }
 
-// ConnectCloud establishes connection to a cloud provider
+// ConnectCloud establishes connection to a cloud provider.
 func (cm *CloudManager) ConnectCloud(cloudID string) error {
 	cm.mu.Lock()
 	config, exists := cm.clouds[cloudID]
@@ -169,7 +169,7 @@ func (cm *CloudManager) ConnectCloud(cloudID string) error {
 	return nil
 }
 
-// DisconnectCloud disconnects from a cloud provider
+// DisconnectCloud disconnects from a cloud provider.
 func (cm *CloudManager) DisconnectCloud(cloudID string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -185,7 +185,7 @@ func (cm *CloudManager) DisconnectCloud(cloudID string) error {
 	return nil
 }
 
-// RegisterDevice registers a remote device
+// RegisterDevice registers a remote device.
 func (cm *CloudManager) RegisterDevice(device *RemoteDevice) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -200,7 +200,7 @@ func (cm *CloudManager) RegisterDevice(device *RemoteDevice) error {
 	return nil
 }
 
-// ConnectDevice connects to a remote device
+// ConnectDevice connects to a remote device.
 func (cm *CloudManager) ConnectDevice(deviceID string) error {
 	cm.mu.Lock()
 	device, exists := cm.devices[deviceID]
@@ -225,7 +225,7 @@ func (cm *CloudManager) ConnectDevice(deviceID string) error {
 	return nil
 }
 
-// SendCommand sends a command to a remote device
+// SendCommand sends a command to a remote device.
 func (cm *CloudManager) SendCommand(deviceID, command string) (*Command, error) {
 	cm.mu.RLock()
 	device, exists := cm.devices[deviceID]
@@ -257,7 +257,7 @@ func (cm *CloudManager) SendCommand(deviceID, command string) (*Command, error) 
 	return cmd, nil
 }
 
-// executeCommand simulates command execution
+// executeCommand simulates command execution.
 func (cm *CloudManager) executeCommand(cmd *Command) {
 	cm.mu.Lock()
 	cmd.Status = "running"
@@ -278,7 +278,7 @@ func (cm *CloudManager) executeCommand(cmd *Command) {
 	cm.notifyWebhook("command.completed", map[string]string{"id": cmd.ID})
 }
 
-// CreateSyncJob creates a synchronization job
+// CreateSyncJob creates a synchronization job.
 func (cm *CloudManager) CreateSyncJob(source, destination string) (*SyncJob, error) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -300,7 +300,7 @@ func (cm *CloudManager) CreateSyncJob(source, destination string) (*SyncJob, err
 	return job, nil
 }
 
-// executeSyncJob simulates synchronization
+// executeSyncJob simulates synchronization.
 func (cm *CloudManager) executeSyncJob(job *SyncJob) {
 	cm.mu.Lock()
 	job.Status = "running"
@@ -331,7 +331,7 @@ func (cm *CloudManager) executeSyncJob(job *SyncJob) {
 	cm.notifyWebhook("sync.completed", map[string]string{"id": job.ID})
 }
 
-// GetCloudStatus returns cloud connection status
+// GetCloudStatus returns cloud connection status.
 func (cm *CloudManager) GetCloudStatus(cloudID string) (*CloudConfig, error) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -343,7 +343,7 @@ func (cm *CloudManager) GetCloudStatus(cloudID string) (*CloudConfig, error) {
 	return config, nil
 }
 
-// ListClouds returns all cloud connections
+// ListClouds returns all cloud connections.
 func (cm *CloudManager) ListClouds() []*CloudConfig {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -355,7 +355,7 @@ func (cm *CloudManager) ListClouds() []*CloudConfig {
 	return clouds
 }
 
-// GetDeviceStatus returns device status
+// GetDeviceStatus returns device status.
 func (cm *CloudManager) GetDeviceStatus(deviceID string) (*RemoteDevice, error) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -367,7 +367,7 @@ func (cm *CloudManager) GetDeviceStatus(deviceID string) (*RemoteDevice, error) 
 	return device, nil
 }
 
-// ListDevices returns all registered devices
+// ListDevices returns all registered devices.
 func (cm *CloudManager) ListDevices() []*RemoteDevice {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -379,7 +379,7 @@ func (cm *CloudManager) ListDevices() []*RemoteDevice {
 	return devices
 }
 
-// GetCommandStatus returns command status
+// GetCommandStatus returns command status.
 func (cm *CloudManager) GetCommandStatus(commandID string) (*Command, error) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -391,7 +391,7 @@ func (cm *CloudManager) GetCommandStatus(commandID string) (*Command, error) {
 	return cmd, nil
 }
 
-// GetSyncJobStatus returns sync job status
+// GetSyncJobStatus returns sync job status.
 func (cm *CloudManager) GetSyncJobStatus(jobID string) (*SyncJob, error) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -403,21 +403,21 @@ func (cm *CloudManager) GetSyncJobStatus(jobID string) (*SyncJob, error) {
 	return job, nil
 }
 
-// AddWebhook adds a webhook for events
+// AddWebhook adds a webhook for events.
 func (cm *CloudManager) AddWebhook(hook func(event string, data interface{})) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	cm.webhooks = append(cm.webhooks, hook)
 }
 
-// notifyWebhook notifies all webhooks
+// notifyWebhook notifies all webhooks.
 func (cm *CloudManager) notifyWebhook(event string, data interface{}) {
 	for _, hook := range cm.webhooks {
 		go hook(event, data)
 	}
 }
 
-// GetStats returns cloud manager statistics
+// GetStats returns cloud manager statistics.
 func (cm *CloudManager) GetStats() map[string]interface{} {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -454,7 +454,7 @@ func (cm *CloudManager) GetStats() map[string]interface{} {
 	}
 }
 
-// RegisterRoutes registers HTTP routes for the cloud manager API
+// RegisterRoutes registers HTTP routes for the cloud manager API.
 func RegisterRoutes(mux *http.ServeMux, manager *CloudManager) {
 	mux.HandleFunc("/api/cloud/connections", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {

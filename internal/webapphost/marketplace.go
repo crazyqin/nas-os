@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Marketplace 应用市场
+// Marketplace 应用市场.
 type Marketplace struct {
 	mu         sync.RWMutex
 	templates  *TemplateManager
@@ -18,7 +18,7 @@ type Marketplace struct {
 	categories map[string]*MarketCategory
 }
 
-// InstalledApp 已安装应用
+// InstalledApp 已安装应用.
 type InstalledApp struct {
 	TemplateID  string    `json:"template_id"`
 	AppID       string    `json:"app_id"`
@@ -28,7 +28,7 @@ type InstalledApp struct {
 	AutoUpdate  bool      `json:"auto_update"`
 }
 
-// UpdateInfo 更新信息
+// UpdateInfo 更新信息.
 type UpdateInfo struct {
 	TemplateID     string `json:"template_id"`
 	CurrentVersion string `json:"current_version"`
@@ -38,7 +38,7 @@ type UpdateInfo struct {
 	Critical       bool   `json:"critical"`
 }
 
-// MarketSearchParams 市场搜索参数
+// MarketSearchParams 市场搜索参数.
 type MarketSearchParams struct {
 	Query    string `json:"query"`
 	Category string `json:"category"`
@@ -51,7 +51,7 @@ type MarketSearchParams struct {
 	Offset   int    `json:"offset"`
 }
 
-// NewMarketplace 创建应用市场
+// NewMarketplace 创建应用市场.
 func NewMarketplace(templates *TemplateManager, manager *WebAppManager) *Marketplace {
 	return &Marketplace{
 		templates:  templates,
@@ -62,7 +62,7 @@ func NewMarketplace(templates *TemplateManager, manager *WebAppManager) *Marketp
 	}
 }
 
-// BrowseApps 浏览应用
+// BrowseApps 浏览应用.
 func (mp *Marketplace) BrowseApps(params *MarketSearchParams) []*MarketApp {
 	mp.mu.RLock()
 	defer mp.mu.RUnlock()
@@ -118,7 +118,7 @@ func (mp *Marketplace) BrowseApps(params *MarketSearchParams) []*MarketApp {
 	return apps
 }
 
-// GetApp 获取应用详情
+// GetApp 获取应用详情.
 func (mp *Marketplace) GetApp(templateID string) (*MarketApp, error) {
 	mp.mu.RLock()
 	defer mp.mu.RUnlock()
@@ -156,12 +156,12 @@ func (mp *Marketplace) GetApp(templateID string) (*MarketApp, error) {
 	return app, nil
 }
 
-// GetCategories 获取分类列表
+// GetCategories 获取分类列表.
 func (mp *Marketplace) GetCategories() []*MarketCategory {
 	return mp.templates.ListCategories()
 }
 
-// InstallApp 安装应用
+// InstallApp 安装应用.
 func (mp *Marketplace) InstallApp(templateID string, config *DeployConfig) (*WebApp, error) {
 	mp.mu.Lock()
 	defer mp.mu.Unlock()
@@ -222,7 +222,7 @@ func (mp *Marketplace) InstallApp(templateID string, config *DeployConfig) (*Web
 	return app, nil
 }
 
-// UninstallApp 卸载应用
+// UninstallApp 卸载应用.
 func (mp *Marketplace) UninstallApp(templateID string) error {
 	mp.mu.Lock()
 	defer mp.mu.Unlock()
@@ -248,7 +248,7 @@ func (mp *Marketplace) UninstallApp(templateID string) error {
 	return nil
 }
 
-// UpdateApp 更新应用
+// UpdateApp 更新应用.
 func (mp *Marketplace) UpdateApp(templateID string) error {
 	mp.mu.Lock()
 	defer mp.mu.Unlock()
@@ -282,7 +282,7 @@ func (mp *Marketplace) UpdateApp(templateID string) error {
 	return nil
 }
 
-// CheckUpdates 检查更新
+// CheckUpdates 检查更新.
 func (mp *Marketplace) CheckUpdates() []*UpdateInfo {
 	mp.mu.Lock()
 	defer mp.mu.Unlock()
@@ -313,7 +313,7 @@ func (mp *Marketplace) CheckUpdates() []*UpdateInfo {
 	return updates
 }
 
-// GetInstalledApps 获取已安装应用列表
+// GetInstalledApps 获取已安装应用列表.
 func (mp *Marketplace) GetInstalledApps() []*InstalledApp {
 	mp.mu.RLock()
 	defer mp.mu.RUnlock()
@@ -330,7 +330,7 @@ func (mp *Marketplace) GetInstalledApps() []*InstalledApp {
 	return apps
 }
 
-// IsInstalled 检查应用是否已安装
+// IsInstalled 检查应用是否已安装.
 func (mp *Marketplace) IsInstalled(templateID string) bool {
 	mp.mu.RLock()
 	defer mp.mu.RUnlock()
@@ -339,7 +339,7 @@ func (mp *Marketplace) IsInstalled(templateID string) bool {
 	return exists
 }
 
-// SetAutoUpdate 设置自动更新
+// SetAutoUpdate 设置自动更新.
 func (mp *Marketplace) SetAutoUpdate(templateID string, enabled bool) error {
 	mp.mu.Lock()
 	defer mp.mu.Unlock()
@@ -353,7 +353,7 @@ func (mp *Marketplace) SetAutoUpdate(templateID string, enabled bool) error {
 	return nil
 }
 
-// GetMarketStats 获取市场统计
+// GetMarketStats 获取市场统计.
 func (mp *Marketplace) GetMarketStats() *MarketStats {
 	mp.mu.RLock()
 	defer mp.mu.RUnlock()
@@ -373,7 +373,7 @@ func (mp *Marketplace) GetMarketStats() *MarketStats {
 	return stats
 }
 
-// MarketStats 市场统计
+// MarketStats 市场统计.
 type MarketStats struct {
 	TotalTemplates int      `json:"total_templates"`
 	InstalledApps  int      `json:"installed_apps"`
@@ -381,7 +381,7 @@ type MarketStats struct {
 	Categories     []string `json:"categories"`
 }
 
-// GetFeaturedApps 获取推荐应用
+// GetFeaturedApps 获取推荐应用.
 func (mp *Marketplace) GetFeaturedApps(limit int) []*MarketApp {
 	return mp.BrowseApps(&MarketSearchParams{
 		Featured: true,
@@ -391,7 +391,7 @@ func (mp *Marketplace) GetFeaturedApps(limit int) []*MarketApp {
 	})
 }
 
-// GetPopularApps 获取热门应用
+// GetPopularApps 获取热门应用.
 func (mp *Marketplace) GetPopularApps(limit int) []*MarketApp {
 	return mp.BrowseApps(&MarketSearchParams{
 		SortBy:   "downloads",
@@ -400,7 +400,7 @@ func (mp *Marketplace) GetPopularApps(limit int) []*MarketApp {
 	})
 }
 
-// GetTopRatedApps 获取高评分应用
+// GetTopRatedApps 获取高评分应用.
 func (mp *Marketplace) GetTopRatedApps(limit int) []*MarketApp {
 	return mp.BrowseApps(&MarketSearchParams{
 		SortBy:   "rating",

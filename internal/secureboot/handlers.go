@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler Secure Boot HTTP 处理器
+// Handler Secure Boot HTTP 处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建 Secure Boot 处理器
+// NewHandler 创建 Secure Boot 处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	sb := rg.Group("/secureboot")
 	{
@@ -41,7 +41,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 }
 
 // GetStatus 获取安全启动状态
-// GET /api/v1/secureboot/status
+// GET /api/v1/secureboot/status.
 func (h *Handler) GetStatus(c *gin.Context) {
 	status := h.manager.GetStatus()
 	c.JSON(http.StatusOK, gin.H{
@@ -52,7 +52,7 @@ func (h *Handler) GetStatus(c *gin.Context) {
 }
 
 // GetTPMInfo 获取 TPM 信息
-// GET /api/v1/secureboot/tpm
+// GET /api/v1/secureboot/tpm.
 func (h *Handler) GetTPMInfo(c *gin.Context) {
 	info := h.manager.GetTPMInfo()
 	c.JSON(http.StatusOK, gin.H{
@@ -63,7 +63,7 @@ func (h *Handler) GetTPMInfo(c *gin.Context) {
 }
 
 // DetectTPM 检测 TPM
-// POST /api/v1/secureboot/tpm/detect
+// POST /api/v1/secureboot/tpm/detect.
 func (h *Handler) DetectTPM(c *gin.Context) {
 	info, err := h.manager.DetectTPM(c.Request.Context())
 	if err != nil {
@@ -81,7 +81,7 @@ func (h *Handler) DetectTPM(c *gin.Context) {
 }
 
 // GetPolicy 获取启动策略
-// GET /api/v1/secureboot/policy
+// GET /api/v1/secureboot/policy.
 func (h *Handler) GetPolicy(c *gin.Context) {
 	policy := h.manager.GetBootPolicy()
 	c.JSON(http.StatusOK, gin.H{
@@ -92,7 +92,7 @@ func (h *Handler) GetPolicy(c *gin.Context) {
 }
 
 // SetPolicy 设置启动策略
-// PUT /api/v1/secureboot/policy
+// PUT /api/v1/secureboot/policy.
 func (h *Handler) SetPolicy(c *gin.Context) {
 	var req struct {
 		Policy BootPolicy `json:"policy"`
@@ -118,7 +118,7 @@ func (h *Handler) SetPolicy(c *gin.Context) {
 }
 
 // GetConfig 获取安全启动配置
-// GET /api/v1/secureboot/config
+// GET /api/v1/secureboot/config.
 func (h *Handler) GetConfig(c *gin.Context) {
 	cfg := h.manager.GetSecureBootConfig()
 	c.JSON(http.StatusOK, gin.H{
@@ -129,7 +129,7 @@ func (h *Handler) GetConfig(c *gin.Context) {
 }
 
 // ListTrustedKeys 列出信任密钥
-// GET /api/v1/secureboot/keys
+// GET /api/v1/secureboot/keys.
 func (h *Handler) ListTrustedKeys(c *gin.Context) {
 	cfg := h.manager.GetSecureBootConfig()
 	c.JSON(http.StatusOK, gin.H{
@@ -140,7 +140,7 @@ func (h *Handler) ListTrustedKeys(c *gin.Context) {
 }
 
 // AddTrustedKey 添加信任密钥
-// POST /api/v1/secureboot/keys
+// POST /api/v1/secureboot/keys.
 func (h *Handler) AddTrustedKey(c *gin.Context) {
 	var key KeyInfo
 	if err := c.ShouldBindJSON(&key); err != nil {
@@ -164,7 +164,7 @@ func (h *Handler) AddTrustedKey(c *gin.Context) {
 }
 
 // RemoveTrustedKey 移除信任密钥
-// DELETE /api/v1/secureboot/keys/:fingerprint
+// DELETE /api/v1/secureboot/keys/:fingerprint.
 func (h *Handler) RemoveTrustedKey(c *gin.Context) {
 	fp := c.Param("fingerprint")
 	if err := h.manager.RemoveTrustedKey(fp); err != nil {
@@ -181,7 +181,7 @@ func (h *Handler) RemoveTrustedKey(c *gin.Context) {
 }
 
 // AddTrustedHash 添加信任哈希
-// POST /api/v1/secureboot/hashes
+// POST /api/v1/secureboot/hashes.
 func (h *Handler) AddTrustedHash(c *gin.Context) {
 	var req struct {
 		Hash string `json:"hash"`
@@ -207,7 +207,7 @@ func (h *Handler) AddTrustedHash(c *gin.Context) {
 }
 
 // ListBootEntries 列出启动项
-// GET /api/v1/secureboot/entries
+// GET /api/v1/secureboot/entries.
 func (h *Handler) ListBootEntries(c *gin.Context) {
 	entries := h.manager.ListBootEntries()
 	c.JSON(http.StatusOK, gin.H{
@@ -218,7 +218,7 @@ func (h *Handler) ListBootEntries(c *gin.Context) {
 }
 
 // RegisterBootEntry 注册启动项
-// POST /api/v1/secureboot/entries
+// POST /api/v1/secureboot/entries.
 func (h *Handler) RegisterBootEntry(c *gin.Context) {
 	var entry BootEntry
 	if err := c.ShouldBindJSON(&entry); err != nil {
@@ -242,7 +242,7 @@ func (h *Handler) RegisterBootEntry(c *gin.Context) {
 }
 
 // VerifySignature 验证签名
-// POST /api/v1/secureboot/verify
+// POST /api/v1/secureboot/verify.
 func (h *Handler) VerifySignature(c *gin.Context) {
 	var req struct {
 		Component string `json:"component"`

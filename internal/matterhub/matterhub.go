@@ -34,7 +34,7 @@ var (
 // 中枢生命周期
 // ============================================================
 
-// Start 启动中枢
+// Start 启动中枢.
 func (h *Hub) Start() error {
 	if !h.config.Enabled {
 		return nil
@@ -46,7 +46,7 @@ func (h *Hub) Start() error {
 	return nil
 }
 
-// Stop 停止中枢
+// Stop 停止中枢.
 func (h *Hub) Stop() {
 	h.cancel()
 }
@@ -81,7 +81,7 @@ func (h *Hub) runAutomationEngine() {
 // Matter 设备配对
 // ============================================================
 
-// CommissionDevice 配对 Matter 设备
+// CommissionDevice 配对 Matter 设备.
 func (h *Hub) CommissionDevice(req CommissionRequest) (*CommissionResult, error) {
 	if req.SetupCode == "" && req.SetupPIN == 0 {
 		return nil, fmt.Errorf("setup_code or setup_pin is required")
@@ -136,7 +136,7 @@ func (h *Hub) CommissionDevice(req CommissionRequest) (*CommissionResult, error)
 	return result, nil
 }
 
-// GetCommissionStatus 获取配对状态
+// GetCommissionStatus 获取配对状态.
 func (h *Hub) GetCommissionStatus(taskID string) (*CommissionResult, error) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -147,7 +147,7 @@ func (h *Hub) GetCommissionStatus(taskID string) (*CommissionResult, error) {
 	return result, nil
 }
 
-// DecommissionDevice 移除已配对设备
+// DecommissionDevice 移除已配对设备.
 func (h *Hub) DecommissionDevice(deviceID string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -182,7 +182,7 @@ func (h *Hub) DecommissionDevice(deviceID string) error {
 // Thread 边界路由器管理
 // ============================================================
 
-// AddBorderRouter 添加 Thread 边界路由器
+// AddBorderRouter 添加 Thread 边界路由器.
 func (h *Hub) AddBorderRouter(br *ThreadBorderRouter) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -210,7 +210,7 @@ func (h *Hub) AddBorderRouter(br *ThreadBorderRouter) error {
 	return nil
 }
 
-// GetBorderRouter 获取边界路由器
+// GetBorderRouter 获取边界路由器.
 func (h *Hub) GetBorderRouter(id string) (*ThreadBorderRouter, error) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -221,7 +221,7 @@ func (h *Hub) GetBorderRouter(id string) (*ThreadBorderRouter, error) {
 	return br, nil
 }
 
-// ListBorderRouters 列出所有边界路由器
+// ListBorderRouters 列出所有边界路由器.
 func (h *Hub) ListBorderRouters() []*ThreadBorderRouter {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -232,7 +232,7 @@ func (h *Hub) ListBorderRouters() []*ThreadBorderRouter {
 	return brs
 }
 
-// UpdateBorderRouter 更新边界路由器
+// UpdateBorderRouter 更新边界路由器.
 func (h *Hub) UpdateBorderRouter(id string, update *ThreadBorderRouter) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -262,7 +262,7 @@ func (h *Hub) UpdateBorderRouter(id string, update *ThreadBorderRouter) error {
 	return nil
 }
 
-// DeleteBorderRouter 删除边界路由器
+// DeleteBorderRouter 删除边界路由器.
 func (h *Hub) DeleteBorderRouter(id string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -284,7 +284,7 @@ func (h *Hub) DeleteBorderRouter(id string) error {
 // 设备管理
 // ============================================================
 
-// AddDevice 添加设备
+// AddDevice 添加设备.
 func (h *Hub) AddDevice(device *MatterDevice) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -316,7 +316,7 @@ func (h *Hub) AddDevice(device *MatterDevice) error {
 	return nil
 }
 
-// GetDevice 获取设备
+// GetDevice 获取设备.
 func (h *Hub) GetDevice(id string) (*MatterDevice, error) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -327,7 +327,7 @@ func (h *Hub) GetDevice(id string) (*MatterDevice, error) {
 	return device, nil
 }
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (h *Hub) ListDevices() []*MatterDevice {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -338,7 +338,7 @@ func (h *Hub) ListDevices() []*MatterDevice {
 	return devices
 }
 
-// ListDevicesByType 按类型列出设备
+// ListDevicesByType 按类型列出设备.
 func (h *Hub) ListDevicesByType(deviceType DeviceType) []*MatterDevice {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -351,7 +351,7 @@ func (h *Hub) ListDevicesByType(deviceType DeviceType) []*MatterDevice {
 	return devices
 }
 
-// ListDevicesByRoom 按房间列出设备
+// ListDevicesByRoom 按房间列出设备.
 func (h *Hub) ListDevicesByRoom(roomID string) []*MatterDevice {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -364,7 +364,7 @@ func (h *Hub) ListDevicesByRoom(roomID string) []*MatterDevice {
 	return devices
 }
 
-// UpdateDevice 更新设备信息
+// UpdateDevice 更新设备信息.
 func (h *Hub) UpdateDevice(id string, update *MatterDevice) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -402,7 +402,7 @@ func (h *Hub) UpdateDevice(id string, update *MatterDevice) error {
 	return nil
 }
 
-// DeleteDevice 删除设备
+// DeleteDevice 删除设备.
 func (h *Hub) DeleteDevice(id string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -433,7 +433,7 @@ func (h *Hub) DeleteDevice(id string) error {
 	return nil
 }
 
-// SetDeviceOnline 设置设备在线状态
+// SetDeviceOnline 设置设备在线状态.
 func (h *Hub) SetDeviceOnline(id string, online bool) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -458,17 +458,17 @@ func (h *Hub) SetDeviceOnline(id string, online bool) error {
 // 设备控制
 // ============================================================
 
-// TurnOn 打开设备
+// TurnOn 打开设备.
 func (h *Hub) TurnOn(deviceID string) error {
 	return h.setAttribute(deviceID, "on_off", true)
 }
 
-// TurnOff 关闭设备
+// TurnOff 关闭设备.
 func (h *Hub) TurnOff(deviceID string) error {
 	return h.setAttribute(deviceID, "on_off", false)
 }
 
-// SetBrightness 设置亮度 (0-254)
+// SetBrightness 设置亮度 (0-254).
 func (h *Hub) SetBrightness(deviceID string, level uint8) error {
 	if level > 254 {
 		return ErrInvalidAttribute
@@ -476,7 +476,7 @@ func (h *Hub) SetBrightness(deviceID string, level uint8) error {
 	return h.setAttribute(deviceID, "brightness", level)
 }
 
-// SetColor 设置颜色 (Hue 0-360, Saturation 0-254)
+// SetColor 设置颜色 (Hue 0-360, Saturation 0-254).
 func (h *Hub) SetColor(deviceID string, hue uint16, saturation uint8) error {
 	if hue > 360 {
 		return ErrInvalidAttribute
@@ -490,7 +490,7 @@ func (h *Hub) SetColor(deviceID string, hue uint16, saturation uint8) error {
 	})
 }
 
-// SetColorTemperature 设置色温 (Kelvin: 1000-10000)
+// SetColorTemperature 设置色温 (Kelvin: 1000-10000).
 func (h *Hub) SetColorTemperature(deviceID string, kelvin uint16) error {
 	if kelvin < 1000 || kelvin > 10000 {
 		return ErrInvalidAttribute
@@ -498,22 +498,22 @@ func (h *Hub) SetColorTemperature(deviceID string, kelvin uint16) error {
 	return h.setAttribute(deviceID, "color_temperature", kelvin)
 }
 
-// SetTargetTemperature 设置目标温度 (摄氏度 * 100)
+// SetTargetTemperature 设置目标温度 (摄氏度 * 100).
 func (h *Hub) SetTargetTemperature(deviceID string, temp int16) error {
 	return h.setAttribute(deviceID, "target_temperature", temp)
 }
 
-// LockDoor 锁门
+// LockDoor 锁门.
 func (h *Hub) LockDoor(deviceID string) error {
 	return h.setAttribute(deviceID, "lock_state", "locked")
 }
 
-// UnlockDoor 开门
+// UnlockDoor 开门.
 func (h *Hub) UnlockDoor(deviceID string) error {
 	return h.setAttribute(deviceID, "lock_state", "unlocked")
 }
 
-// SetWindowPosition 设置窗帘位置 (0-100)
+// SetWindowPosition 设置窗帘位置 (0-100).
 func (h *Hub) SetWindowPosition(deviceID string, position uint8) error {
 	if position > 100 {
 		return ErrInvalidAttribute
@@ -521,7 +521,7 @@ func (h *Hub) SetWindowPosition(deviceID string, position uint8) error {
 	return h.setAttribute(deviceID, "current_position", position)
 }
 
-// SetFanSpeed 设置风扇速度 (0-100)
+// SetFanSpeed 设置风扇速度 (0-100).
 func (h *Hub) SetFanSpeed(deviceID string, speed uint8) error {
 	if speed > 100 {
 		return ErrInvalidAttribute
@@ -529,7 +529,7 @@ func (h *Hub) SetFanSpeed(deviceID string, speed uint8) error {
 	return h.setAttribute(deviceID, "fan_speed", speed)
 }
 
-// GetAttribute 获取设备属性
+// GetAttribute 获取设备属性.
 func (h *Hub) GetAttribute(deviceID, attribute string) (any, error) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -546,12 +546,12 @@ func (h *Hub) GetAttribute(deviceID, attribute string) (any, error) {
 	return val, nil
 }
 
-// setAttribute 设置单个属性（需在锁外调用）
+// setAttribute 设置单个属性（需在锁外调用）.
 func (h *Hub) setAttribute(deviceID, key string, value any) error {
 	return h.setAttributes(deviceID, map[string]any{key: value})
 }
 
-// setAttributes 批量设置属性
+// setAttributes 批量设置属性.
 func (h *Hub) setAttributes(deviceID string, attrs map[string]any) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -585,7 +585,7 @@ func (h *Hub) setAttributes(deviceID string, attrs map[string]any) error {
 // 场景管理
 // ============================================================
 
-// AddScene 添加场景
+// AddScene 添加场景.
 func (h *Hub) AddScene(scene *Scene) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -617,7 +617,7 @@ func (h *Hub) AddScene(scene *Scene) error {
 	return nil
 }
 
-// GetScene 获取场景
+// GetScene 获取场景.
 func (h *Hub) GetScene(id string) (*Scene, error) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -628,7 +628,7 @@ func (h *Hub) GetScene(id string) (*Scene, error) {
 	return scene, nil
 }
 
-// ListScenes 列出所有场景
+// ListScenes 列出所有场景.
 func (h *Hub) ListScenes() []*Scene {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -639,7 +639,7 @@ func (h *Hub) ListScenes() []*Scene {
 	return scenes
 }
 
-// UpdateScene 更新场景
+// UpdateScene 更新场景.
 func (h *Hub) UpdateScene(id string, update *Scene) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -677,7 +677,7 @@ func (h *Hub) UpdateScene(id string, update *Scene) error {
 	return nil
 }
 
-// DeleteScene 删除场景
+// DeleteScene 删除场景.
 func (h *Hub) DeleteScene(id string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -698,7 +698,7 @@ func (h *Hub) DeleteScene(id string) error {
 	return nil
 }
 
-// ActivateScene 激活/执行场景
+// ActivateScene 激活/执行场景.
 func (h *Hub) ActivateScene(id string) error {
 	h.mu.Lock()
 	scene, ok := h.scenes[id]
@@ -726,7 +726,7 @@ func (h *Hub) ActivateScene(id string) error {
 	return h.executeActions(actions)
 }
 
-// EnableScene 启用场景
+// EnableScene 启用场景.
 func (h *Hub) EnableScene(id string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -739,7 +739,7 @@ func (h *Hub) EnableScene(id string) error {
 	return nil
 }
 
-// DisableScene 禁用场景
+// DisableScene 禁用场景.
 func (h *Hub) DisableScene(id string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -756,7 +756,7 @@ func (h *Hub) DisableScene(id string) error {
 // 自动化规则引擎
 // ============================================================
 
-// AddAutomation 添加自动化规则
+// AddAutomation 添加自动化规则.
 func (h *Hub) AddAutomation(auto *Automation) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -788,7 +788,7 @@ func (h *Hub) AddAutomation(auto *Automation) error {
 	return nil
 }
 
-// GetAutomation 获取自动化规则
+// GetAutomation 获取自动化规则.
 func (h *Hub) GetAutomation(id string) (*Automation, error) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -799,7 +799,7 @@ func (h *Hub) GetAutomation(id string) (*Automation, error) {
 	return auto, nil
 }
 
-// ListAutomations 列出所有自动化规则
+// ListAutomations 列出所有自动化规则.
 func (h *Hub) ListAutomations() []*Automation {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -810,7 +810,7 @@ func (h *Hub) ListAutomations() []*Automation {
 	return autos
 }
 
-// UpdateAutomation 更新自动化规则
+// UpdateAutomation 更新自动化规则.
 func (h *Hub) UpdateAutomation(id string, update *Automation) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -848,7 +848,7 @@ func (h *Hub) UpdateAutomation(id string, update *Automation) error {
 	return nil
 }
 
-// DeleteAutomation 删除自动化规则
+// DeleteAutomation 删除自动化规则.
 func (h *Hub) DeleteAutomation(id string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -859,7 +859,7 @@ func (h *Hub) DeleteAutomation(id string) error {
 	return nil
 }
 
-// evaluateAutomations 评估所有自动化规则
+// evaluateAutomations 评估所有自动化规则.
 func (h *Hub) evaluateAutomations() {
 	h.mu.RLock()
 	var toExecute []Action
@@ -883,7 +883,7 @@ func (h *Hub) evaluateAutomations() {
 	}
 }
 
-// evaluateConditionsLocked 评估条件列表（需持有锁）
+// evaluateConditionsLocked 评估条件列表（需持有锁）.
 func (h *Hub) evaluateConditionsLocked(conditions []Condition) bool {
 	for _, cond := range conditions {
 		device, ok := h.devices[cond.DeviceID]
@@ -905,7 +905,7 @@ func (h *Hub) evaluateConditionsLocked(conditions []Condition) bool {
 // 设备分组管理
 // ============================================================
 
-// AddGroup 添加设备分组
+// AddGroup 添加设备分组.
 func (h *Hub) AddGroup(group *DeviceGroup) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -927,7 +927,7 @@ func (h *Hub) AddGroup(group *DeviceGroup) error {
 	return nil
 }
 
-// GetGroup 获取分组
+// GetGroup 获取分组.
 func (h *Hub) GetGroup(id string) (*DeviceGroup, error) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -938,7 +938,7 @@ func (h *Hub) GetGroup(id string) (*DeviceGroup, error) {
 	return group, nil
 }
 
-// ListGroups 列出所有分组
+// ListGroups 列出所有分组.
 func (h *Hub) ListGroups() []*DeviceGroup {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -949,7 +949,7 @@ func (h *Hub) ListGroups() []*DeviceGroup {
 	return groups
 }
 
-// UpdateGroup 更新分组
+// UpdateGroup 更新分组.
 func (h *Hub) UpdateGroup(id string, update *DeviceGroup) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -968,7 +968,7 @@ func (h *Hub) UpdateGroup(id string, update *DeviceGroup) error {
 	return nil
 }
 
-// DeleteGroup 删除分组
+// DeleteGroup 删除分组.
 func (h *Hub) DeleteGroup(id string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -994,7 +994,7 @@ func (h *Hub) DeleteGroup(id string) error {
 	return nil
 }
 
-// AddDeviceToGroup 将设备添加到分组
+// AddDeviceToGroup 将设备添加到分组.
 func (h *Hub) AddDeviceToGroup(deviceID, groupID string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -1021,7 +1021,7 @@ func (h *Hub) AddDeviceToGroup(deviceID, groupID string) error {
 	return nil
 }
 
-// RemoveDeviceFromGroup 从分组移除设备
+// RemoveDeviceFromGroup 从分组移除设备.
 func (h *Hub) RemoveDeviceFromGroup(deviceID, groupID string) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -1057,7 +1057,7 @@ func (h *Hub) RemoveDeviceFromGroup(deviceID, groupID string) error {
 // 事件与统计
 // ============================================================
 
-// addEventLocked 记录事件（需持有写锁）
+// addEventLocked 记录事件（需持有写锁）.
 func (h *Hub) addEventLocked(event DeviceEvent) {
 	h.events = append(h.events, event)
 	if len(h.events) > h.config.MaxEvents {
@@ -1065,7 +1065,7 @@ func (h *Hub) addEventLocked(event DeviceEvent) {
 	}
 }
 
-// GetEvents 获取最近事件
+// GetEvents 获取最近事件.
 func (h *Hub) GetEvents(limit int) []DeviceEvent {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -1079,7 +1079,7 @@ func (h *Hub) GetEvents(limit int) []DeviceEvent {
 	return events
 }
 
-// GetDeviceCount 获取设备统计
+// GetDeviceCount 获取设备统计.
 func (h *Hub) GetDeviceCount() (total, online, offline int) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -1095,7 +1095,7 @@ func (h *Hub) GetDeviceCount() (total, online, offline int) {
 	return
 }
 
-// GetDashboardSummary 获取仪表盘摘要
+// GetDashboardSummary 获取仪表盘摘要.
 func (h *Hub) GetDashboardSummary() DashboardSummary {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -1152,7 +1152,7 @@ func (h *Hub) GetDashboardSummary() DashboardSummary {
 // 辅助函数
 // ============================================================
 
-// compareValues 比较值
+// compareValues 比较值.
 func compareValues(current, expected any, op ComparisonOperator) bool {
 	switch op {
 	case OpEqual:
@@ -1195,7 +1195,7 @@ func toFloat64(v any) float64 {
 	}
 }
 
-// executeActions 执行动作列表
+// executeActions 执行动作列表.
 func (h *Hub) executeActions(actions []Action) error {
 	for _, a := range actions {
 		if err := h.executeAction(a); err != nil {
@@ -1205,7 +1205,7 @@ func (h *Hub) executeActions(actions []Action) error {
 	return nil
 }
 
-// executeAction 执行单个动作
+// executeAction 执行单个动作.
 func (h *Hub) executeAction(action Action) error {
 	switch action.Type {
 	case ActionTypeDeviceControl:

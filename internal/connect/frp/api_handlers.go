@@ -14,7 +14,7 @@ import (
 )
 
 // APIHandlers FRP WebUI API处理器
-// 提供隧道列表/状态查询、配置CRUD、WebSocket状态推送
+// 提供隧道列表/状态查询、配置CRUD、WebSocket状态推送.
 type APIHandlers struct {
 	manager     *ClientManager
 	logger      *zap.Logger
@@ -24,14 +24,14 @@ type APIHandlers struct {
 	wsBroadcast chan ClientEvent
 }
 
-// wsClient WebSocket客户端连接
+// wsClient WebSocket客户端连接.
 type wsClient struct {
 	conn      *websocket.Conn
 	send      chan []byte
 	closeChan chan struct{}
 }
 
-// NewAPIHandlers 创建API处理器
+// NewAPIHandlers 创建API处理器.
 func NewAPIHandlers(manager *ClientManager, logger *zap.Logger) *APIHandlers {
 	h := &APIHandlers{
 		manager: manager,
@@ -56,7 +56,7 @@ func NewAPIHandlers(manager *ClientManager, logger *zap.Logger) *APIHandlers {
 	return h
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *APIHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	frpg := r.Group("/frp")
 	{
@@ -92,7 +92,7 @@ func (h *APIHandlers) RegisterRoutes(r *gin.RouterGroup) {
 
 // ================== 隧道列表/状态查询 ==================
 
-// ListTunnelsRequest 请求结构
+// ListTunnelsRequest 请求结构.
 type ListTunnelsRequest struct {
 	ClientID string `form:"client_id"` // 可选：按客户端过滤
 	Status   string `form:"status"`    // 可选：按状态过滤
@@ -101,13 +101,13 @@ type ListTunnelsRequest struct {
 	Offset   int    `form:"offset"`
 }
 
-// ListTunnelsResponse 响应结构
+// ListTunnelsResponse 响应结构.
 type ListTunnelsResponse struct {
 	Total   int               `json:"total"`
 	Tunnels []TunnelListEntry `json:"tunnels"`
 }
 
-// TunnelListEntry 隧道列表条目
+// TunnelListEntry 隧道列表条目.
 type TunnelListEntry struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
@@ -134,7 +134,7 @@ type TunnelListEntry struct {
 // @Param status query string false "状态过滤"
 // @Param type query string false "类型过滤"
 // @Success 200 {object} ListTunnelsResponse
-// @Router /api/v1/frp/tunnels [get]
+// @Router /api/v1/frp/tunnels [get].
 func (h *APIHandlers) ListTunnels(c *gin.Context) {
 	var req ListTunnelsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -216,7 +216,7 @@ func (h *APIHandlers) ListTunnels(c *gin.Context) {
 // @Produce json
 // @Param id path string true "隧道ID"
 // @Success 200 {object} TunnelDetailResponse
-// @Router /api/v1/frp/tunnels/{id} [get]
+// @Router /api/v1/frp/tunnels/{id} [get].
 func (h *APIHandlers) GetTunnel(c *gin.Context) {
 	tunnelID := c.Param("id")
 	if tunnelID == "" {
@@ -253,7 +253,7 @@ func (h *APIHandlers) GetTunnel(c *gin.Context) {
 	})
 }
 
-// TunnelDetailResponse 隧道详情响应
+// TunnelDetailResponse 隧道详情响应.
 type TunnelDetailResponse struct {
 	Tunnel     TunnelStatus `json:"tunnel"`
 	ClientID   string       `json:"client_id"`
@@ -268,7 +268,7 @@ type TunnelDetailResponse struct {
 // @Produce json
 // @Param id path string true "隧道ID"
 // @Success 200 {object} TunnelStatus
-// @Router /api/v1/frp/tunnels/{id}/status [get]
+// @Router /api/v1/frp/tunnels/{id}/status [get].
 func (h *APIHandlers) GetTunnelStatus(c *gin.Context) {
 	tunnelID := c.Param("id")
 
@@ -298,7 +298,7 @@ func (h *APIHandlers) GetTunnelStatus(c *gin.Context) {
 // @Tags frp
 // @Produce json
 // @Success 200 {object} ClientStatusListResponse
-// @Router /api/v1/frp/clients/status [get]
+// @Router /api/v1/frp/clients/status [get].
 func (h *APIHandlers) GetAllClientStatus(c *gin.Context) {
 	statuses := h.manager.GetAllClientStatus()
 
@@ -312,7 +312,7 @@ func (h *APIHandlers) GetAllClientStatus(c *gin.Context) {
 	})
 }
 
-// ClientStatusListResponse 客户端状态列表响应
+// ClientStatusListResponse 客户端状态列表响应.
 type ClientStatusListResponse struct {
 	Total   int                 `json:"total"`
 	Clients []*ClientStatusInfo `json:"clients"`
@@ -325,7 +325,7 @@ type ClientStatusListResponse struct {
 // @Produce json
 // @Param id path string true "客户端ID"
 // @Success 200 {object} ClientStatusInfo
-// @Router /api/v1/frp/clients/{id}/status [get]
+// @Router /api/v1/frp/clients/{id}/status [get].
 func (h *APIHandlers) GetClientStatus(c *gin.Context) {
 	clientID := c.Param("id")
 	status := h.manager.GetClientStatus(clientID)
@@ -347,7 +347,7 @@ func (h *APIHandlers) GetClientStatus(c *gin.Context) {
 
 // ================== 隧道配置CRUD ==================
 
-// CreateTunnelRequest 创建隧道请求
+// CreateTunnelRequest 创建隧道请求.
 type CreateTunnelRequest struct {
 	ClientID      string     `json:"client_id" binding:"required"` // 使用指定客户端
 	NodeID        string     `json:"node_id"`                      // 或指定节点自动创建
@@ -370,7 +370,7 @@ type CreateTunnelRequest struct {
 // @Produce json
 // @Param request body CreateTunnelRequest true "创建请求"
 // @Success 200 {object} CreateTunnelResponse
-// @Router /api/v1/frp/tunnels [post]
+// @Router /api/v1/frp/tunnels [post].
 func (h *APIHandlers) CreateTunnel(c *gin.Context) {
 	var req CreateTunnelRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -471,7 +471,7 @@ func (h *APIHandlers) CreateTunnel(c *gin.Context) {
 	})
 }
 
-// CreateTunnelResponse 创建隧道响应
+// CreateTunnelResponse 创建隧道响应.
 type CreateTunnelResponse struct {
 	TunnelID  string    `json:"tunnel_id"`
 	ClientID  string    `json:"client_id"`
@@ -480,7 +480,7 @@ type CreateTunnelResponse struct {
 	Node      *FreeNode `json:"node,omitempty"`
 }
 
-// UpdateTunnelRequest 更新隧道请求
+// UpdateTunnelRequest 更新隧道请求.
 type UpdateTunnelRequest struct {
 	Name          string     `json:"name,omitempty"`
 	Type          TunnelType `json:"type,omitempty"`
@@ -502,7 +502,7 @@ type UpdateTunnelRequest struct {
 // @Param id path string true "隧道ID"
 // @Param request body UpdateTunnelRequest true "更新请求"
 // @Success 200 {object} TunnelStatus
-// @Router /api/v1/frp/tunnels/{id} [put]
+// @Router /api/v1/frp/tunnels/{id} [put].
 func (h *APIHandlers) UpdateTunnel(c *gin.Context) {
 	tunnelID := c.Param("id")
 	var req UpdateTunnelRequest
@@ -600,7 +600,7 @@ func (h *APIHandlers) UpdateTunnel(c *gin.Context) {
 // @Produce json
 // @Param id path string true "隧道ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/frp/tunnels/{id} [delete]
+// @Router /api/v1/frp/tunnels/{id} [delete].
 func (h *APIHandlers) DeleteTunnel(c *gin.Context) {
 	tunnelID := c.Param("id")
 
@@ -659,7 +659,7 @@ func (h *APIHandlers) DeleteTunnel(c *gin.Context) {
 // @Produce json
 // @Param id path string true "隧道ID"
 // @Success 200 {object} TunnelStatus
-// @Router /api/v1/frp/tunnels/{id}/start [post]
+// @Router /api/v1/frp/tunnels/{id}/start [post].
 func (h *APIHandlers) StartTunnel(c *gin.Context) {
 	tunnelID := c.Param("id")
 
@@ -722,7 +722,7 @@ func (h *APIHandlers) StartTunnel(c *gin.Context) {
 // @Produce json
 // @Param id path string true "隧道ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/frp/tunnels/{id}/stop [post]
+// @Router /api/v1/frp/tunnels/{id}/stop [post].
 func (h *APIHandlers) StopTunnel(c *gin.Context) {
 	tunnelID := c.Param("id")
 
@@ -778,7 +778,7 @@ func (h *APIHandlers) StopTunnel(c *gin.Context) {
 
 // ================== 一键连接 ==================
 
-// QuickConnectRequest 一键连接请求
+// QuickConnectRequest 一键连接请求.
 type QuickConnectRequest struct {
 	NodeID     string     `json:"node_id"` // 可选：指定节点
 	Region     NodeRegion `json:"region"`  // 可选：指定区域
@@ -796,7 +796,7 @@ type QuickConnectRequest struct {
 // @Produce json
 // @Param request body QuickConnectRequest true "连接请求"
 // @Success 200 {object} QuickConnectResult
-// @Router /api/v1/frp/quick-connect [post]
+// @Router /api/v1/frp/quick-connect [post].
 func (h *APIHandlers) QuickConnect(c *gin.Context) {
 	var req QuickConnectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -812,14 +812,7 @@ func (h *APIHandlers) QuickConnect(c *gin.Context) {
 		req.TunnelType = TunnelTypeTCP
 	}
 
-	config := QuickConnectConfig{
-		NodeID:     req.NodeID,
-		Region:     req.Region,
-		LocalPort:  req.LocalPort,
-		RemotePort: req.RemotePort,
-		TunnelName: req.TunnelName,
-		TunnelType: req.TunnelType,
-	}
+	config := QuickConnectConfig(req)
 
 	result, err := h.manager.QuickConnect(&config)
 	if err != nil {
@@ -844,7 +837,7 @@ func (h *APIHandlers) QuickConnect(c *gin.Context) {
 // @Produce json
 // @Param id path string true "客户端ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/frp/disconnect/{id} [post]
+// @Router /api/v1/frp/disconnect/{id} [post].
 func (h *APIHandlers) DisconnectClient(c *gin.Context) {
 	clientID := c.Param("id")
 
@@ -871,7 +864,7 @@ func (h *APIHandlers) DisconnectClient(c *gin.Context) {
 // @Tags frp
 // @Produce json
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/frp/disconnect-all [post]
+// @Router /api/v1/frp/disconnect-all [post].
 func (h *APIHandlers) DisconnectAll(c *gin.Context) {
 	if err := h.manager.DisconnectAll(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -895,7 +888,7 @@ func (h *APIHandlers) DisconnectAll(c *gin.Context) {
 // @Tags frp
 // @Produce json
 // @Success 200 {object} NodesListResponse
-// @Router /api/v1/frp/nodes [get]
+// @Router /api/v1/frp/nodes [get].
 func (h *APIHandlers) GetNodes(c *gin.Context) {
 	nodes := h.manager.GetNodes()
 
@@ -909,7 +902,7 @@ func (h *APIHandlers) GetNodes(c *gin.Context) {
 	})
 }
 
-// NodesListResponse 节点列表响应
+// NodesListResponse 节点列表响应.
 type NodesListResponse struct {
 	Total int         `json:"total"`
 	Nodes []*FreeNode `json:"nodes"`
@@ -922,7 +915,7 @@ type NodesListResponse struct {
 // @Produce json
 // @Param region path string true "区域(cn/us/eu)"
 // @Success 200 {object} NodesListResponse
-// @Router /api/v1/frp/nodes/{region} [get]
+// @Router /api/v1/frp/nodes/{region} [get].
 func (h *APIHandlers) GetNodesByRegion(c *gin.Context) {
 	region := NodeRegion(c.Param("region"))
 	nodes := h.manager.GetNodesByRegion(region)
@@ -944,7 +937,7 @@ func (h *APIHandlers) GetNodesByRegion(c *gin.Context) {
 // @Produce json
 // @Param region query string false "可选区域限制"
 // @Success 200 {object} FreeNode
-// @Router /api/v1/frp/nodes/best [get]
+// @Router /api/v1/frp/nodes/best [get].
 func (h *APIHandlers) GetBestNode(c *gin.Context) {
 	regionStr := c.Query("region")
 	var node *FreeNode
@@ -976,7 +969,7 @@ func (h *APIHandlers) GetBestNode(c *gin.Context) {
 // @Tags frp
 // @Produce json
 // @Success 200 {object} HealthCheckResponse
-// @Router /api/v1/frp/nodes/health-check [post]
+// @Router /api/v1/frp/nodes/health-check [post].
 func (h *APIHandlers) HealthCheckNodes(c *gin.Context) {
 	results := h.manager.HealthCheck(c.Request.Context())
 
@@ -990,7 +983,7 @@ func (h *APIHandlers) HealthCheckNodes(c *gin.Context) {
 	})
 }
 
-// HealthCheckResponse 健康检查响应
+// HealthCheckResponse 健康检查响应.
 type HealthCheckResponse struct {
 	Total   int                          `json:"total"`
 	Results map[string]*NodeHealthResult `json:"results"`
@@ -1003,7 +996,7 @@ type HealthCheckResponse struct {
 // @Description 实时推送FRP隧道状态变化
 // @Tags frp
 // @Success 101 "Switching Protocols"
-// @Router /api/v1/frp/ws [get]
+// @Router /api/v1/frp/ws [get].
 func (h *APIHandlers) WebSocketHandler(c *gin.Context) {
 	conn, err := h.wsUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -1065,7 +1058,7 @@ func (h *APIHandlers) WebSocketHandler(c *gin.Context) {
 	}()
 }
 
-// subscribeEvents 订阅管理器事件
+// subscribeEvents 订阅管理器事件.
 func (h *APIHandlers) subscribeEvents() {
 	events := h.manager.Events()
 	for event := range events {
@@ -1073,7 +1066,7 @@ func (h *APIHandlers) subscribeEvents() {
 	}
 }
 
-// broadcastLoop 广播事件到所有WebSocket客户端
+// broadcastLoop 广播事件到所有WebSocket客户端.
 func (h *APIHandlers) broadcastLoop() {
 	for event := range h.wsBroadcast {
 		data, err := encodeJSON(event)
@@ -1093,7 +1086,7 @@ func (h *APIHandlers) broadcastLoop() {
 	}
 }
 
-// encodeJSON JSON编码辅助函数
+// encodeJSON JSON编码辅助函数.
 func encodeJSON(v interface{}) ([]byte, error) {
 	return json.Marshal(v)
 }

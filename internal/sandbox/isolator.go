@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Isolator 资源隔离器
+// Isolator 资源隔离器.
 type Isolator struct {
 	mu       sync.RWMutex
 	running  map[string]bool // sandboxID -> running
@@ -15,7 +15,7 @@ type Isolator struct {
 	pidCount map[string]int  // sandboxID -> pid count
 }
 
-// NewIsolator 创建资源隔离器
+// NewIsolator 创建资源隔离器.
 func NewIsolator() *Isolator {
 	return &Isolator{
 		running:  make(map[string]bool),
@@ -24,7 +24,7 @@ func NewIsolator() *Isolator {
 	}
 }
 
-// SetupIsolation 设置隔离环境
+// SetupIsolation 设置隔离环境.
 func (i *Isolator) SetupIsolation(sandbox *Sandbox) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
@@ -51,7 +51,7 @@ func (i *Isolator) SetupIsolation(sandbox *Sandbox) error {
 	return nil
 }
 
-// CleanupIsolation 清理隔离资源
+// CleanupIsolation 清理隔离资源.
 func (i *Isolator) CleanupIsolation(sandbox *Sandbox) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
@@ -82,7 +82,7 @@ func (i *Isolator) CleanupIsolation(sandbox *Sandbox) error {
 	return nil
 }
 
-// ApplyResourceLimit 应用资源限制
+// ApplyResourceLimit 应用资源限制.
 func (i *Isolator) ApplyResourceLimit(sandbox *Sandbox) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
@@ -131,7 +131,7 @@ func (i *Isolator) ApplyResourceLimit(sandbox *Sandbox) error {
 	return nil
 }
 
-// StartProcess 启动沙箱进程
+// StartProcess 启动沙箱进程.
 func (i *Isolator) StartProcess(sandbox *Sandbox) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
@@ -150,7 +150,7 @@ func (i *Isolator) StartProcess(sandbox *Sandbox) error {
 	return nil
 }
 
-// StopProcess 停止沙箱进程
+// StopProcess 停止沙箱进程.
 func (i *Isolator) StopProcess(sandbox *Sandbox) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
@@ -158,7 +158,7 @@ func (i *Isolator) StopProcess(sandbox *Sandbox) error {
 	return i.stopSandboxProcess(sandbox)
 }
 
-// PauseProcess 暂停沙箱进程
+// PauseProcess 暂停沙箱进程.
 func (i *Isolator) PauseProcess(sandbox *Sandbox) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
@@ -172,7 +172,7 @@ func (i *Isolator) PauseProcess(sandbox *Sandbox) error {
 	return nil
 }
 
-// ResumeProcess 恢复沙箱进程
+// ResumeProcess 恢复沙箱进程.
 func (i *Isolator) ResumeProcess(sandbox *Sandbox) error {
 	i.mu.Lock()
 	defer i.mu.Unlock()
@@ -190,7 +190,7 @@ func (i *Isolator) ResumeProcess(sandbox *Sandbox) error {
 	return nil
 }
 
-// GetResourceUsage 获取资源使用情况
+// GetResourceUsage 获取资源使用情况.
 func (i *Isolator) GetResourceUsage(sandbox *Sandbox) (*ResourceUsage, error) {
 	i.mu.RLock()
 	defer i.mu.RUnlock()
@@ -216,7 +216,7 @@ func (i *Isolator) GetResourceUsage(sandbox *Sandbox) (*ResourceUsage, error) {
 	return usage, nil
 }
 
-// stopSandboxProcess 停止沙箱进程（内部方法，需要调用者持有锁）
+// stopSandboxProcess 停止沙箱进程（内部方法，需要调用者持有锁）.
 func (i *Isolator) stopSandboxProcess(sandbox *Sandbox) error {
 	if !i.running[sandbox.ID] {
 		return ErrSandboxStopped
@@ -232,14 +232,14 @@ func (i *Isolator) stopSandboxProcess(sandbox *Sandbox) error {
 	return nil
 }
 
-// createSandboxRoot 创建沙箱根目录
+// createSandboxRoot 创建沙箱根目录.
 func (i *Isolator) createSandboxRoot(rootPath string) error {
 	// 模拟创建目录
 	// 在实际实现中，这里会使用 os.MkdirAll
 	return nil
 }
 
-// setupFilesystemIsolation 设置文件系统隔离
+// setupFilesystemIsolation 设置文件系统隔离.
 func (i *Isolator) setupFilesystemIsolation(sandbox *Sandbox) error {
 	// 模拟文件系统隔离设置
 	// 在实际实现中，这里会：
@@ -250,14 +250,14 @@ func (i *Isolator) setupFilesystemIsolation(sandbox *Sandbox) error {
 	return nil
 }
 
-// cleanupFilesystemIsolation 清理文件系统隔离
+// cleanupFilesystemIsolation 清理文件系统隔离.
 func (i *Isolator) cleanupFilesystemIsolation(sandbox *Sandbox) error {
 	// 模拟清理文件系统
 	// 在实际实现中，这里会卸载文件系统并删除目录
 	return nil
 }
 
-// setupNetworkIsolation 设置网络隔离
+// setupNetworkIsolation 设置网络隔离.
 func (i *Isolator) setupNetworkIsolation(sandbox *Sandbox) error {
 	// 模拟网络隔离设置
 	// 在实际实现中，这里会：
@@ -268,42 +268,42 @@ func (i *Isolator) setupNetworkIsolation(sandbox *Sandbox) error {
 	return nil
 }
 
-// cleanupNetworkIsolation 清理网络隔离
+// cleanupNetworkIsolation 清理网络隔离.
 func (i *Isolator) cleanupNetworkIsolation(sandbox *Sandbox) error {
 	// 模拟清理网络
 	// 在实际实现中，这里会删除网络命名空间和 veth
 	return nil
 }
 
-// applyCPULimit 应用CPU限制
+// applyCPULimit 应用CPU限制.
 func (i *Isolator) applyCPULimit(sandbox *Sandbox, cores float64, shares int) error {
 	// 模拟应用CPU限制
 	// 在实际实现中，这里会设置 cgroup cpu.shares 和 cpu.cfs_quota_us
 	return nil
 }
 
-// applyMemoryLimit 应用内存限制
+// applyMemoryLimit 应用内存限制.
 func (i *Isolator) applyMemoryLimit(sandbox *Sandbox, memMB int, swapMB int) error {
 	// 模拟应用内存限制
 	// 在实际实现中，这里会设置 cgroup memory.limit_in_bytes
 	return nil
 }
 
-// applyDiskIOLimit 应用磁盘IO限制
+// applyDiskIOLimit 应用磁盘IO限制.
 func (i *Isolator) applyDiskIOLimit(sandbox *Sandbox, mbps float64, iops int) error {
 	// 模拟应用磁盘IO限制
 	// 在实际实现中，这里会设置 cgroup blkio.throttle.read_bps_device
 	return nil
 }
 
-// applyNetworkBandwidthLimit 应用网络带宽限制
+// applyNetworkBandwidthLimit 应用网络带宽限制.
 func (i *Isolator) applyNetworkBandwidthLimit(sandbox *Sandbox, mbps float64) error {
 	// 模拟应用网络带宽限制
 	// 在实际实现中，这里会使用 tc (traffic control)
 	return nil
 }
 
-// applyPIDLimit 应用进程数限制
+// applyPIDLimit 应用进程数限制.
 func (i *Isolator) applyPIDLimit(sandbox *Sandbox, limit int) error {
 	// 模拟应用进程数限制
 	// 在实际实现中，这里会设置 cgroup pids.max

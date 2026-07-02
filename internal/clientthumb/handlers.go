@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler 客户端缩略图引擎 HTTP 处理器
+// Handler 客户端缩略图引擎 HTTP 处理器.
 type Handler struct {
 	engine *Engine
 }
 
-// NewHandler 创建处理器
+// NewHandler 创建处理器.
 func NewHandler(engine *Engine) *Handler {
 	return &Handler{engine: engine}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(api *gin.RouterGroup) {
 	ct := api.Group("/clientthumb")
 	{
@@ -39,7 +39,7 @@ func (h *Handler) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// handleSubmit 提交缩略图生成任务
+// handleSubmit 提交缩略图生成任务.
 func (h *Handler) handleSubmit(c *gin.Context) {
 	var req struct {
 		FileID   string `json:"fileId" binding:"required"`
@@ -75,7 +75,7 @@ func (h *Handler) handleSubmit(c *gin.Context) {
 	})
 }
 
-// handleGetTask 获取任务状态
+// handleGetTask 获取任务状态.
 func (h *Handler) handleGetTask(c *gin.Context) {
 	taskID := c.Param("id")
 	task, ok := h.engine.GetTask(taskID)
@@ -108,7 +108,7 @@ func (h *Handler) handleGetTask(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// handleReportResult 客户端上报生成结果
+// handleReportResult 客户端上报生成结果.
 func (h *Handler) handleReportResult(c *gin.Context) {
 	var req struct {
 		TaskID        string `json:"taskId" binding:"required"`
@@ -141,7 +141,7 @@ func (h *Handler) handleReportResult(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
-// handleReportFailure 客户端上报生成失败
+// handleReportFailure 客户端上报生成失败.
 func (h *Handler) handleReportFailure(c *gin.Context) {
 	var req struct {
 		TaskID  string `json:"taskId" binding:"required"`
@@ -160,7 +160,7 @@ func (h *Handler) handleReportFailure(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
-// handleRegisterClient 注册客户端
+// handleRegisterClient 注册客户端.
 func (h *Handler) handleRegisterClient(c *gin.Context) {
 	var req struct {
 		ClientID  string   `json:"clientId" binding:"required"`
@@ -197,7 +197,7 @@ func (h *Handler) handleRegisterClient(c *gin.Context) {
 	})
 }
 
-// handleUnregisterClient 注销客户端
+// handleUnregisterClient 注销客户端.
 func (h *Handler) handleUnregisterClient(c *gin.Context) {
 	var req struct {
 		ClientID string `json:"clientId" binding:"required"`
@@ -211,7 +211,7 @@ func (h *Handler) handleUnregisterClient(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
-// handleHeartbeat 客户端心跳
+// handleHeartbeat 客户端心跳.
 func (h *Handler) handleHeartbeat(c *gin.Context) {
 	var req struct {
 		ClientID string `json:"clientId" binding:"required"`
@@ -228,7 +228,7 @@ func (h *Handler) handleHeartbeat(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
-// handleListClients 列出所有客户端
+// handleListClients 列出所有客户端.
 func (h *Handler) handleListClients(c *gin.Context) {
 	clients := h.engine.ListClients()
 	result := make([]gin.H, 0, len(clients))
@@ -248,7 +248,7 @@ func (h *Handler) handleListClients(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"clients": result})
 }
 
-// handleStats 获取性能统计
+// handleStats 获取性能统计.
 func (h *Handler) handleStats(c *gin.Context) {
 	stats := h.engine.GetStats()
 	c.JSON(http.StatusOK, gin.H{
@@ -263,7 +263,7 @@ func (h *Handler) handleStats(c *gin.Context) {
 	})
 }
 
-// handlePruneClients 清理超时客户端
+// handlePruneClients 清理超时客户端.
 func (h *Handler) handlePruneClients(c *gin.Context) {
 	pruned := h.engine.PruneStaleClients()
 	c.JSON(http.StatusOK, gin.H{"pruned": pruned})

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// VoiceControl 语音控制引擎
+// VoiceControl 语音控制引擎.
 type VoiceControl struct {
 	mu            sync.RWMutex
 	config        Config
@@ -19,7 +19,7 @@ type VoiceControl struct {
 	intentEngine  *IntentEngine
 }
 
-// New 创建语音控制引擎
+// New 创建语音控制引擎.
 func New(config Config) *VoiceControl {
 	return &VoiceControl{
 		config:        config,
@@ -31,7 +31,7 @@ func New(config Config) *VoiceControl {
 	}
 }
 
-// ProcessTextCommand 处理文本形式的语音命令
+// ProcessTextCommand 处理文本形式的语音命令.
 func (vc *VoiceControl) ProcessTextCommand(userID, text string) (*VoiceResponse, error) {
 	vc.mu.Lock()
 	defer vc.mu.Unlock()
@@ -70,7 +70,7 @@ func (vc *VoiceControl) ProcessTextCommand(userID, text string) (*VoiceResponse,
 	return vc.generateResponse(result), nil
 }
 
-// RegisterProfile 注册用户语音配置
+// RegisterProfile 注册用户语音配置.
 func (vc *VoiceControl) RegisterProfile(profile *VoiceProfile) error {
 	vc.mu.Lock()
 	defer vc.mu.Unlock()
@@ -81,7 +81,7 @@ func (vc *VoiceControl) RegisterProfile(profile *VoiceProfile) error {
 	return nil
 }
 
-// GetProfile 获取用户语音配置
+// GetProfile 获取用户语音配置.
 func (vc *VoiceControl) GetProfile(userID string) (*VoiceProfile, bool) {
 	vc.mu.RLock()
 	defer vc.mu.RUnlock()
@@ -89,14 +89,14 @@ func (vc *VoiceControl) GetProfile(userID string) (*VoiceProfile, bool) {
 	return p, ok
 }
 
-// SetPermission 设置用户操作权限
+// SetPermission 设置用户操作权限.
 func (vc *VoiceControl) SetPermission(perm *Permission) {
 	vc.mu.Lock()
 	defer vc.mu.Unlock()
 	vc.permissions[perm.UserID] = append(vc.permissions[perm.UserID], perm)
 }
 
-// GetCommandHistory 获取命令历史
+// GetCommandHistory 获取命令历史.
 func (vc *VoiceControl) GetCommandHistory(userID string, limit int) []*VoiceCommand {
 	vc.mu.RLock()
 	defer vc.mu.RUnlock()
@@ -113,7 +113,7 @@ func (vc *VoiceControl) GetCommandHistory(userID string, limit int) []*VoiceComm
 	return result
 }
 
-// GetStats 获取语音控制统计
+// GetStats 获取语音控制统计.
 func (vc *VoiceControl) GetStats() map[string]interface{} {
 	vc.mu.RLock()
 	defer vc.mu.RUnlock()
@@ -134,7 +134,7 @@ func (vc *VoiceControl) GetStats() map[string]interface{} {
 	}
 }
 
-// isAllowed 检查用户是否有权限执行命令
+// isAllowed 检查用户是否有权限执行命令.
 func (vc *VoiceControl) isAllowed(userID, text string) bool {
 	// 管理员命令需要额外验证
 	lowerText := strings.ToLower(text)
@@ -156,7 +156,7 @@ func (vc *VoiceControl) isAllowed(userID, text string) bool {
 	return true
 }
 
-// executeCommand 执行已识别的命令
+// executeCommand 执行已识别的命令.
 func (vc *VoiceControl) executeCommand(cmd *VoiceCommand) *CommandResult {
 	switch cmd.Intent.Command {
 	case CmdStorageStatus:
@@ -209,7 +209,7 @@ func (vc *VoiceControl) executeCommand(cmd *VoiceCommand) *CommandResult {
 	}
 }
 
-// generateResponse 根据执行结果生成语音响应
+// generateResponse 根据执行结果生成语音响应.
 func (vc *VoiceControl) generateResponse(result *CommandResult) *VoiceResponse {
 	return &VoiceResponse{
 		Text:        result.Message,
@@ -217,12 +217,12 @@ func (vc *VoiceControl) generateResponse(result *CommandResult) *VoiceResponse {
 	}
 }
 
-// IntentEngine 意图识别引擎
+// IntentEngine 意图识别引擎.
 type IntentEngine struct {
 	keywords map[CommandType][]string
 }
 
-// NewIntentEngine 创建意图识别引擎
+// NewIntentEngine 创建意图识别引擎.
 func NewIntentEngine() *IntentEngine {
 	return &IntentEngine{
 		keywords: map[CommandType][]string{
@@ -238,7 +238,7 @@ func NewIntentEngine() *IntentEngine {
 	}
 }
 
-// Parse 解析文本为意图
+// Parse 解析文本为意图.
 func (ie *IntentEngine) Parse(text string) *Intent {
 	lowerText := strings.ToLower(text)
 	bestCmd := CmdUnknown
@@ -273,7 +273,7 @@ func (ie *IntentEngine) Parse(text string) *Intent {
 	}
 }
 
-// extractParameters 从文本中提取参数
+// extractParameters 从文本中提取参数.
 func extractParameters(text string) map[string]string {
 	params := make(map[string]string)
 

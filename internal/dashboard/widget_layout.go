@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// WidgetLayoutManager Widget布局管理器
+// WidgetLayoutManager Widget布局管理器.
 type WidgetLayoutManager struct {
 	mu       sync.RWMutex
 	layouts  map[string]*UserWidgetLayout // userID -> layout
@@ -19,7 +19,7 @@ type WidgetLayoutManager struct {
 	saveMode SaveMode
 }
 
-// UserWidgetLayout 用户Widget布局配置
+// UserWidgetLayout 用户Widget布局配置.
 type UserWidgetLayout struct {
 	UserID     string                      `json:"userId"`
 	Dashboards map[string]*DashboardLayout `json:"dashboards"` // dashboardID -> layout
@@ -28,7 +28,7 @@ type UserWidgetLayout struct {
 	Settings   LayoutSettings              `json:"settings"`
 }
 
-// DashboardLayout 单个Dashboard的布局配置
+// DashboardLayout 单个Dashboard的布局配置.
 type DashboardLayout struct {
 	DashboardID string              `json:"dashboardId"`
 	Widgets     []WidgetLayoutEntry `json:"widgets"`
@@ -37,7 +37,7 @@ type DashboardLayout struct {
 	UpdatedAt   time.Time           `json:"updatedAt"`
 }
 
-// WidgetLayoutEntry Widget布局条目
+// WidgetLayoutEntry Widget布局条目.
 type WidgetLayoutEntry struct {
 	WidgetID   string         `json:"widgetId"`
 	WidgetType WidgetType     `json:"widgetType"`
@@ -48,7 +48,7 @@ type WidgetLayoutEntry struct {
 	Collapsed  bool           `json:"collapsed"` // 是否折叠
 }
 
-// GridLayoutConfig 网格布局配置
+// GridLayoutConfig 网格布局配置.
 type GridLayoutConfig struct {
 	Columns    int `json:"columns"`    // 列数
 	Rows       int `json:"rows"`       // 行数（可选，0表示自动）
@@ -59,7 +59,7 @@ type GridLayoutConfig struct {
 	Breakpoint int `json:"breakpoint"` // 响应式断点(px)
 }
 
-// LayoutSettings 全局布局设置
+// LayoutSettings 全局布局设置.
 type LayoutSettings struct {
 	AutoArrange    bool   `json:"autoArrange"`    // 自动排列
 	SnapToGrid     bool   `json:"snapToGrid"`     // 吸附网格
@@ -69,19 +69,19 @@ type LayoutSettings struct {
 	Theme          string `json:"theme"`          // 布局主题
 }
 
-// SaveMode 保存模式
+// SaveMode 保存模式.
 type SaveMode string
 
 const (
-	// SaveModeImmediate 立即保存
+	// SaveModeImmediate 立即保存.
 	SaveModeImmediate SaveMode = "immediate"
-	// SaveModeDelayed 延迟保存（批量保存）
+	// SaveModeDelayed 延迟保存（批量保存）.
 	SaveModeDelayed SaveMode = "delayed"
-	// SaveModeManual 手动保存
+	// SaveModeManual 手动保存.
 	SaveModeManual SaveMode = "manual"
 )
 
-// NewWidgetLayoutManager 创建布局管理器
+// NewWidgetLayoutManager 创建布局管理器.
 func NewWidgetLayoutManager() *WidgetLayoutManager {
 	return &WidgetLayoutManager{
 		layouts:  make(map[string]*UserWidgetLayout),
@@ -89,7 +89,7 @@ func NewWidgetLayoutManager() *WidgetLayoutManager {
 	}
 }
 
-// SetDataDir 设置数据目录
+// SetDataDir 设置数据目录.
 func (m *WidgetLayoutManager) SetDataDir(dir string) error {
 	m.mu.Lock()
 	m.dataDir = dir
@@ -105,7 +105,7 @@ func (m *WidgetLayoutManager) SetDataDir(dir string) error {
 	return nil
 }
 
-// GetLayout 获取用户布局
+// GetLayout 获取用户布局.
 func (m *WidgetLayoutManager) GetLayout(userID string) (*UserWidgetLayout, error) {
 	m.mu.RLock()
 	layout, ok := m.layouts[userID]
@@ -119,7 +119,7 @@ func (m *WidgetLayoutManager) GetLayout(userID string) (*UserWidgetLayout, error
 	return m.createDefaultLayout(userID)
 }
 
-// createDefaultLayout 创建默认布局
+// createDefaultLayout 创建默认布局.
 func (m *WidgetLayoutManager) createDefaultLayout(userID string) (*UserWidgetLayout, error) {
 	now := time.Now()
 	layout := &UserWidgetLayout{
@@ -148,7 +148,7 @@ func (m *WidgetLayoutManager) createDefaultLayout(userID string) (*UserWidgetLay
 	return layout, nil
 }
 
-// SaveLayout 保存用户布局
+// SaveLayout 保存用户布局.
 func (m *WidgetLayoutManager) SaveLayout(userID string, layout *UserWidgetLayout) error {
 	m.mu.Lock()
 	layout.UpdatedAt = time.Now()
@@ -161,7 +161,7 @@ func (m *WidgetLayoutManager) SaveLayout(userID string, layout *UserWidgetLayout
 	return nil
 }
 
-// UpdateWidgetPosition 更新Widget位置
+// UpdateWidgetPosition 更新Widget位置.
 func (m *WidgetLayoutManager) UpdateWidgetPosition(userID, dashboardID, widgetID string, pos WidgetPosition) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -212,7 +212,7 @@ func (m *WidgetLayoutManager) UpdateWidgetPosition(userID, dashboardID, widgetID
 	return nil
 }
 
-// ReorderWidgets 重排序Widgets
+// ReorderWidgets 重排序Widgets.
 func (m *WidgetLayoutManager) ReorderWidgets(userID, dashboardID string, widgetOrder []string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -265,7 +265,7 @@ func (m *WidgetLayoutManager) ReorderWidgets(userID, dashboardID string, widgetO
 	return nil
 }
 
-// GetDashboardLayout 获取Dashboard布局
+// GetDashboardLayout 获取Dashboard布局.
 func (m *WidgetLayoutManager) GetDashboardLayout(userID, dashboardID string) (*DashboardLayout, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -283,7 +283,7 @@ func (m *WidgetLayoutManager) GetDashboardLayout(userID, dashboardID string) (*D
 	return dashLayout, nil
 }
 
-// SaveDashboardLayout 保存Dashboard布局
+// SaveDashboardLayout 保存Dashboard布局.
 func (m *WidgetLayoutManager) SaveDashboardLayout(userID string, dashLayout *DashboardLayout) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -309,7 +309,7 @@ func (m *WidgetLayoutManager) SaveDashboardLayout(userID string, dashLayout *Das
 	return nil
 }
 
-// ExportLayout 导出布局为JSON
+// ExportLayout 导出布局为JSON.
 func (m *WidgetLayoutManager) ExportLayout(userID string) ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -322,7 +322,7 @@ func (m *WidgetLayoutManager) ExportLayout(userID string) ([]byte, error) {
 	return json.MarshalIndent(layout, "", "  ")
 }
 
-// ImportLayout 导入布局
+// ImportLayout 导入布局.
 func (m *WidgetLayoutManager) ImportLayout(userID string, data []byte) error {
 	var layout UserWidgetLayout
 	if err := json.Unmarshal(data, &layout); err != nil {
@@ -342,7 +342,7 @@ func (m *WidgetLayoutManager) ImportLayout(userID string, data []byte) error {
 	return nil
 }
 
-// DeleteLayout 删除用户布局
+// DeleteLayout 删除用户布局.
 func (m *WidgetLayoutManager) DeleteLayout(userID string) error {
 	m.mu.Lock()
 	delete(m.layouts, userID)
@@ -355,7 +355,7 @@ func (m *WidgetLayoutManager) DeleteLayout(userID string) error {
 	return nil
 }
 
-// saveLayout 保存布局到文件
+// saveLayout 保存布局到文件.
 func (m *WidgetLayoutManager) saveLayout(userID string) error {
 	if m.dataDir == "" {
 		return nil
@@ -378,7 +378,7 @@ func (m *WidgetLayoutManager) saveLayout(userID string) error {
 	return os.WriteFile(path, data, 0640)
 }
 
-// loadAllLayouts 加载所有布局
+// loadAllLayouts 加载所有布局.
 func (m *WidgetLayoutManager) loadAllLayouts() error {
 	if m.dataDir == "" {
 		return nil
@@ -408,7 +408,7 @@ func (m *WidgetLayoutManager) loadAllLayouts() error {
 	return nil
 }
 
-// DefaultGridConfig 默认网格配置
+// DefaultGridConfig 默认网格配置.
 func DefaultGridConfig() GridLayoutConfig {
 	return GridLayoutConfig{
 		Columns:    4,
@@ -421,7 +421,7 @@ func DefaultGridConfig() GridLayoutConfig {
 	}
 }
 
-// CompactGridConfig 紧凑网格配置
+// CompactGridConfig 紧凑网格配置.
 func CompactGridConfig() GridLayoutConfig {
 	return GridLayoutConfig{
 		Columns:    6,
@@ -434,7 +434,7 @@ func CompactGridConfig() GridLayoutConfig {
 	}
 }
 
-// WidgetSizeToDimensions 将WidgetSize转换为具体尺寸
+// WidgetSizeToDimensions 将WidgetSize转换为具体尺寸.
 func WidgetSizeToDimensions(size WidgetSize, config GridLayoutConfig) (width, height int) {
 	switch size {
 	case WidgetSizeSmall:
@@ -448,7 +448,7 @@ func WidgetSizeToDimensions(size WidgetSize, config GridLayoutConfig) (width, he
 	}
 }
 
-// CalculatePosition 计算Widget在网格中的实际位置
+// CalculatePosition 计算Widget在网格中的实际位置.
 func CalculatePosition(entry WidgetLayoutEntry, config GridLayoutConfig) (x, y, width, height int) {
 	width, height = WidgetSizeToDimensions(entry.Size, config)
 	x = entry.Position.X * (config.CellWidth + config.Gap)
@@ -456,7 +456,7 @@ func CalculatePosition(entry WidgetLayoutEntry, config GridLayoutConfig) (x, y, 
 	return x, y, width, height
 }
 
-// ValidatePosition 验证位置是否有效
+// ValidatePosition 验证位置是否有效.
 func ValidatePosition(pos WidgetPosition, config GridLayoutConfig) bool {
 	return pos.X >= 0 && pos.X < config.Columns && pos.Y >= 0
 }

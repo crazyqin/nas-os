@@ -9,19 +9,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// APIResponse 统一API响应格式
+// APIResponse 统一API响应格式.
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// Handler HTTP处理器
+// Handler HTTP处理器.
 type Handler struct {
 	mgr *Manager
 }
 
-// RegisterRoutes 注册HTTP路由
+// RegisterRoutes 注册HTTP路由.
 func RegisterRoutes(r *gin.RouterGroup, mgr *Manager) {
 	h := &Handler{mgr: mgr}
 
@@ -58,7 +58,7 @@ func RegisterRoutes(r *gin.RouterGroup, mgr *Manager) {
 
 // ========== 任务管理 ==========
 
-// CreateJobRequest 创建任务请求
+// CreateJobRequest 创建任务请求.
 type CreateJobRequest struct {
 	PoolName    string     `json:"pool_name" binding:"required"`
 	TargetDisk  DiskInfo   `json:"target_disk" binding:"required"`
@@ -123,7 +123,7 @@ func (h *Handler) CancelJob(c *gin.Context) {
 	c.JSON(http.StatusOK, APIResponse{Code: 0, Message: "job cancelled"})
 }
 
-// UpdateProgressRequest 更新进度请求
+// UpdateProgressRequest 更新进度请求.
 type UpdateProgressRequest struct {
 	RebuiltBytes int64 `json:"rebuilt_bytes"`
 	CurrentSpeed int64 `json:"current_speed"`
@@ -148,7 +148,7 @@ func (h *Handler) UpdateProgress(c *gin.Context) {
 
 // ========== 智能优先级 ==========
 
-// PrioritizeRequest 优先级排序请求
+// PrioritizeRequest 优先级排序请求.
 type PrioritizeRequest struct {
 	Segments []DataSegment `json:"segments" binding:"required"`
 }
@@ -164,7 +164,7 @@ func (h *Handler) PrioritizeSegments(c *gin.Context) {
 	c.JSON(http.StatusOK, APIResponse{Code: 0, Message: "ok", Data: result})
 }
 
-// UpdateHotScoreRequest 更新热度请求
+// UpdateHotScoreRequest 更新热度请求.
 type UpdateHotScoreRequest struct {
 	Score float64 `json:"score" binding:"required,min=0,max=1"`
 }
@@ -183,7 +183,7 @@ func (h *Handler) UpdateHotScore(c *gin.Context) {
 
 // ========== 并行调度 ==========
 
-// ScheduleParallelRequest 并行调度请求
+// ScheduleParallelRequest 并行调度请求.
 type ScheduleParallelRequest struct {
 	JobIDs []string `json:"job_ids" binding:"required,min=1"`
 }
@@ -227,7 +227,7 @@ func (h *Handler) GetProgressSnapshot(c *gin.Context) {
 
 // ========== 性能保护 ==========
 
-// ThrottleRequest 限速请求
+// ThrottleRequest 限速请求.
 type ThrottleRequest struct {
 	BusinessIOPS int64 `json:"business_iops"`
 }
@@ -311,7 +311,7 @@ func (h *Handler) DeleteSchedule(c *gin.Context) {
 
 // ========== 辅助函数 ==========
 
-// parseIDParam 解析ID参数
+// parseIDParam 解析ID参数.
 func parseIDParam(c *gin.Context, param string) (string, error) {
 	id := c.Param(param)
 	if id == "" {
@@ -320,7 +320,7 @@ func parseIDParam(c *gin.Context, param string) (string, error) {
 	return id, nil
 }
 
-// parseIntParam 解析整数参数
+// parseIntParam 解析整数参数.
 func parseIntParam(c *gin.Context, param string, defaultVal int) int {
 	val := c.Query(param)
 	if val == "" {

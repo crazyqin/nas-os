@@ -101,7 +101,7 @@ test-all: test test-integration
 # ========== 代码质量 ==========
 lint:
 	@echo "🔍 代码检查..."
-	golangci-lint run --timeout 5m
+	golangci-lint run --timeout 10m
 
 fmt:
 	@echo "📐 格式化代码..."

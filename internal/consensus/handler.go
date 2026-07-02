@@ -7,17 +7,17 @@ import (
 	"net/http"
 )
 
-// HTTPHandler 共识引擎 HTTP 处理器
+// HTTPHandler 共识引擎 HTTP 处理器.
 type HTTPHandler struct {
 	engine *ConsensusEngine
 }
 
-// NewHTTPHandler 创建 HTTP 处理器
+// NewHTTPHandler 创建 HTTP 处理器.
 func NewHTTPHandler(engine *ConsensusEngine) *HTTPHandler {
 	return &HTTPHandler{engine: engine}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *HTTPHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/consensus/status", h.handleStatus)
 	mux.HandleFunc("/api/consensus/members", h.handleMembers)

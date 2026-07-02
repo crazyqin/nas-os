@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// lruCache LRU 缓存实现
+// lruCache LRU 缓存实现.
 type lruCache struct {
 	mu       sync.RWMutex
 	capacity int
@@ -14,13 +14,13 @@ type lruCache struct {
 	order    *list.List // 最近访问的在前面
 }
 
-// lruItem LRU 列表元素
+// lruItem LRU 列表元素.
 type lruItem struct {
 	key   string
 	entry *CacheEntry
 }
 
-// newLRUCache 创建 LRU 缓存
+// newLRUCache 创建 LRU 缓存.
 func newLRUCache(capacity int) *lruCache {
 	return &lruCache{
 		capacity: capacity,
@@ -29,7 +29,7 @@ func newLRUCache(capacity int) *lruCache {
 	}
 }
 
-// Get 获取缓存条目
+// Get 获取缓存条目.
 func (c *lruCache) Get(key string) (*CacheEntry, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -48,7 +48,7 @@ func (c *lruCache) Get(key string) (*CacheEntry, bool) {
 	return item.entry, true
 }
 
-// Put 放入缓存条目
+// Put 放入缓存条目.
 func (c *lruCache) Put(key string, entry *CacheEntry) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -71,7 +71,7 @@ func (c *lruCache) Put(key string, entry *CacheEntry) {
 	c.items[key] = elem
 }
 
-// Delete 删除缓存条目
+// Delete 删除缓存条目.
 func (c *lruCache) Delete(key string) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -85,7 +85,7 @@ func (c *lruCache) Delete(key string) bool {
 	return true
 }
 
-// evict 淘汰最久未访问的条目
+// evict 淘汰最久未访问的条目.
 func (c *lruCache) evict() *CacheEntry {
 	elem := c.order.Back()
 	if elem == nil {
@@ -97,21 +97,21 @@ func (c *lruCache) evict() *CacheEntry {
 	return item.entry
 }
 
-// removeElement 移除元素
+// removeElement 移除元素.
 func (c *lruCache) removeElement(elem *list.Element) {
 	item := elem.Value.(*lruItem)
 	c.order.Remove(elem)
 	delete(c.items, item.key)
 }
 
-// Len 返回缓存条目数
+// Len 返回缓存条目数.
 func (c *lruCache) Len() int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.order.Len()
 }
 
-// Contains 检查是否包含键
+// Contains 检查是否包含键.
 func (c *lruCache) Contains(key string) bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -119,7 +119,7 @@ func (c *lruCache) Contains(key string) bool {
 	return ok
 }
 
-// Peek 查看但不更新访问顺序
+// Peek 查看但不更新访问顺序.
 func (c *lruCache) Peek(key string) (*CacheEntry, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -133,7 +133,7 @@ func (c *lruCache) Peek(key string) (*CacheEntry, bool) {
 	return item.entry, true
 }
 
-// Keys 返回所有键（按访问顺序）
+// Keys 返回所有键（按访问顺序）.
 func (c *lruCache) Keys() []string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -145,7 +145,7 @@ func (c *lruCache) Keys() []string {
 	return keys
 }
 
-// lfuCache LFU 缓存实现
+// lfuCache LFU 缓存实现.
 type lfuCache struct {
 	mu       sync.RWMutex
 	capacity int
@@ -154,7 +154,7 @@ type lfuCache struct {
 	minFreq  int        // 最小频率
 }
 
-// lfuItem LFU 缓存条目
+// lfuItem LFU 缓存条目.
 type lfuItem struct {
 	key      string
 	entry    *CacheEntry
@@ -162,13 +162,13 @@ type lfuItem struct {
 	freqElem *list.Element // 在频率链表中的位置
 }
 
-// freqNode 频率节点
+// freqNode 频率节点.
 type freqNode struct {
 	freq  int
 	items *list.List // 该频率下的所有条目
 }
 
-// newLFUCache 创建 LFU 缓存
+// newLFUCache 创建 LFU 缓存.
 func newLFUCache(capacity int) *lfuCache {
 	c := &lfuCache{
 		capacity: capacity,
@@ -179,7 +179,7 @@ func newLFUCache(capacity int) *lfuCache {
 	return c
 }
 
-// Get 获取缓存条目
+// Get 获取缓存条目.
 func (c *lfuCache) Get(key string) (*CacheEntry, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -197,7 +197,7 @@ func (c *lfuCache) Get(key string) (*CacheEntry, bool) {
 	return item.entry, true
 }
 
-// Put 放入缓存条目
+// Put 放入缓存条目.
 func (c *lfuCache) Put(key string, entry *CacheEntry) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -229,7 +229,7 @@ func (c *lfuCache) Put(key string, entry *CacheEntry) {
 	c.minFreq = 1
 }
 
-// Delete 删除缓存条目
+// Delete 删除缓存条目.
 func (c *lfuCache) Delete(key string) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -243,7 +243,7 @@ func (c *lfuCache) Delete(key string) bool {
 	return true
 }
 
-// incrementFreq 增加条目频率
+// incrementFreq 增加条目频率.
 func (c *lfuCache) incrementFreq(item *lfuItem) {
 	oldFreq := item.freq
 	newFreq := oldFreq + 1
@@ -269,7 +269,7 @@ func (c *lfuCache) incrementFreq(item *lfuItem) {
 	item.freqElem = newFreqNode.items.PushBack(item)
 }
 
-// evict 淘汰频率最低的条目
+// evict 淘汰频率最低的条目.
 func (c *lfuCache) evict() *CacheEntry {
 	freqNode := c.getFreqNode(c.minFreq)
 	if freqNode == nil || freqNode.items.Len() == 0 {
@@ -284,7 +284,7 @@ func (c *lfuCache) evict() *CacheEntry {
 	return item.entry
 }
 
-// removeItem 移除条目
+// removeItem 移除条目.
 func (c *lfuCache) removeItem(item *lfuItem) {
 	freqNode := c.getFreqNode(item.freq)
 	if freqNode != nil {
@@ -296,7 +296,7 @@ func (c *lfuCache) removeItem(item *lfuItem) {
 	delete(c.items, item.key)
 }
 
-// getFreqNode 获取频率节点
+// getFreqNode 获取频率节点.
 func (c *lfuCache) getFreqNode(freq int) *freqNode {
 	for elem := c.freqList.Front(); elem != nil; elem = elem.Next() {
 		fn := elem.Value.(*freqNode)
@@ -307,7 +307,7 @@ func (c *lfuCache) getFreqNode(freq int) *freqNode {
 	return nil
 }
 
-// getOrCreateFreqNode 获取或创建频率节点
+// getOrCreateFreqNode 获取或创建频率节点.
 func (c *lfuCache) getOrCreateFreqNode(freq int) *freqNode {
 	fn := c.getFreqNode(freq)
 	if fn != nil {
@@ -336,7 +336,7 @@ func (c *lfuCache) getOrCreateFreqNode(freq int) *freqNode {
 	return fn
 }
 
-// removeFreqNode 移除频率节点
+// removeFreqNode 移除频率节点.
 func (c *lfuCache) removeFreqNode(fn *freqNode) {
 	for elem := c.freqList.Front(); elem != nil; elem = elem.Next() {
 		if elem.Value.(*freqNode) == fn {
@@ -346,14 +346,14 @@ func (c *lfuCache) removeFreqNode(fn *freqNode) {
 	}
 }
 
-// Len 返回缓存条目数
+// Len 返回缓存条目数.
 func (c *lfuCache) Len() int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return len(c.items)
 }
 
-// Contains 检查是否包含键
+// Contains 检查是否包含键.
 func (c *lfuCache) Contains(key string) bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -361,7 +361,7 @@ func (c *lfuCache) Contains(key string) bool {
 	return ok
 }
 
-// Peek 查看但不更新频率
+// Peek 查看但不更新频率.
 func (c *lfuCache) Peek(key string) (*CacheEntry, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -374,7 +374,7 @@ func (c *lfuCache) Peek(key string) (*CacheEntry, bool) {
 	return item.entry, true
 }
 
-// Keys 返回所有键
+// Keys 返回所有键.
 func (c *lfuCache) Keys() []string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -386,7 +386,7 @@ func (c *lfuCache) Keys() []string {
 	return keys
 }
 
-// hybridCache LRU/LFU 混合缓存
+// hybridCache LRU/LFU 混合缓存.
 type hybridCache struct {
 	mu        sync.RWMutex
 	capacity  int
@@ -396,7 +396,7 @@ type hybridCache struct {
 	order     *list.List // 按混合分数排序
 }
 
-// hybridItem 混合缓存条目
+// hybridItem 混合缓存条目.
 type hybridItem struct {
 	key      string
 	entry    *CacheEntry
@@ -406,7 +406,7 @@ type hybridItem struct {
 	elem     *list.Element
 }
 
-// newHybridCache 创建混合缓存
+// newHybridCache 创建混合缓存.
 func newHybridCache(capacity int, lruWeight, lfuWeight float64) *hybridCache {
 	return &hybridCache{
 		capacity:  capacity,
@@ -417,7 +417,7 @@ func newHybridCache(capacity int, lruWeight, lfuWeight float64) *hybridCache {
 	}
 }
 
-// Get 获取缓存条目
+// Get 获取缓存条目.
 func (c *hybridCache) Get(key string) (*CacheEntry, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -438,7 +438,7 @@ func (c *hybridCache) Get(key string) (*CacheEntry, bool) {
 	return item.entry, true
 }
 
-// Put 放入缓存条目
+// Put 放入缓存条目.
 func (c *hybridCache) Put(key string, entry *CacheEntry) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -469,7 +469,7 @@ func (c *hybridCache) Put(key string, entry *CacheEntry) {
 	c.reorder(item)
 }
 
-// Delete 删除缓存条目
+// Delete 删除缓存条目.
 func (c *hybridCache) Delete(key string) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -484,7 +484,7 @@ func (c *hybridCache) Delete(key string) bool {
 	return true
 }
 
-// evict 淘汰分数最低的条目
+// evict 淘汰分数最低的条目.
 func (c *hybridCache) evict() *CacheEntry {
 	elem := c.order.Front()
 	if elem == nil {
@@ -498,7 +498,7 @@ func (c *hybridCache) evict() *CacheEntry {
 	return item.entry
 }
 
-// updateScore 更新混合分数
+// updateScore 更新混合分数.
 func (c *hybridCache) updateScore(item *hybridItem) {
 	now := time.Now()
 
@@ -521,7 +521,7 @@ func (c *hybridCache) updateScore(item *hybridItem) {
 	item.entry.score = item.score
 }
 
-// reorder 重新排序
+// reorder 重新排序.
 func (c *hybridCache) reorder(item *hybridItem) {
 	// 从当前位置移除
 	c.order.Remove(item.elem)
@@ -542,14 +542,14 @@ func (c *hybridCache) reorder(item *hybridItem) {
 	}
 }
 
-// Len 返回缓存条目数
+// Len 返回缓存条目数.
 func (c *hybridCache) Len() int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return len(c.items)
 }
 
-// Contains 检查是否包含键
+// Contains 检查是否包含键.
 func (c *hybridCache) Contains(key string) bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -557,7 +557,7 @@ func (c *hybridCache) Contains(key string) bool {
 	return ok
 }
 
-// Peek 查看但不更新分数
+// Peek 查看但不更新分数.
 func (c *hybridCache) Peek(key string) (*CacheEntry, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -570,7 +570,7 @@ func (c *hybridCache) Peek(key string) (*CacheEntry, bool) {
 	return item.entry, true
 }
 
-// Keys 返回所有键（按分数排序）
+// Keys 返回所有键（按分数排序）.
 func (c *hybridCache) Keys() []string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()

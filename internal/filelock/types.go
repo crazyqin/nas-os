@@ -9,19 +9,19 @@ import (
 	"github.com/google/uuid"
 )
 
-// LockStatus 锁状态
+// LockStatus 锁状态.
 type LockStatus string
 
 const (
-	// LockStatusActive 活跃
+	// LockStatusActive 活跃.
 	LockStatusActive LockStatus = "active"
-	// LockStatusReleased 已释放
+	// LockStatusReleased 已释放.
 	LockStatusReleased LockStatus = "released"
-	// LockStatusExpired 已过期
+	// LockStatusExpired 已过期.
 	LockStatusExpired LockStatus = "expired"
 )
 
-// LockInfo 文件锁信息
+// LockInfo 文件锁信息.
 type LockInfo struct {
 	// 锁唯一标识
 	ID string `json:"id"`
@@ -48,7 +48,7 @@ type LockInfo struct {
 }
 
 // LockRequest 锁定请求
-// API: POST /api/v1/filelock/lock
+// API: POST /api/v1/filelock/lock.
 type LockRequest struct {
 	// 文件路径
 	FilePath string `json:"file_path" binding:"required"`
@@ -63,7 +63,7 @@ type LockRequest struct {
 }
 
 // UnlockRequest 解锁请求
-// API: POST /api/v1/filelock/unlock
+// API: POST /api/v1/filelock/unlock.
 type UnlockRequest struct {
 	// 锁 ID（与 file_path 二选一）
 	LockID string `json:"lock_id,omitempty"`
@@ -74,7 +74,7 @@ type UnlockRequest struct {
 }
 
 // ListLocksResponse 锁定列表响应
-// API: GET /api/v1/filelock/list
+// API: GET /api/v1/filelock/list.
 type ListLocksResponse struct {
 	// 活跃锁列表
 	Locks []*LockInfo `json:"locks"`
@@ -82,7 +82,7 @@ type ListLocksResponse struct {
 	Total int `json:"total"`
 }
 
-// LockResponse 锁定操作响应
+// LockResponse 锁定操作响应.
 type LockResponse struct {
 	// 锁信息
 	Lock *LockInfo `json:"lock"`
@@ -90,7 +90,7 @@ type LockResponse struct {
 	Success bool `json:"success"`
 }
 
-// UnlockResponse 解锁操作响应
+// UnlockResponse 解锁操作响应.
 type UnlockResponse struct {
 	// 已释放的锁数量
 	ReleasedCount int `json:"released_count"`
@@ -98,7 +98,7 @@ type UnlockResponse struct {
 	Success bool `json:"success"`
 }
 
-// Config 文件锁配置
+// Config 文件锁配置.
 type Config struct {
 	// 是否启用文件锁定
 	Enabled bool `json:"enabled"`
@@ -110,7 +110,7 @@ type Config struct {
 	MaxLocksPerUser int `json:"max_locks_per_user"`
 }
 
-// DefaultConfig 默认配置
+// DefaultConfig 默认配置.
 func DefaultConfig() *Config {
 	return &Config{
 		Enabled:                true,
@@ -120,7 +120,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// newLockInfo 创建锁信息（内部辅助函数）
+// newLockInfo 创建锁信息（内部辅助函数）.
 func newLockInfo(req *LockRequest, cfg *Config) *LockInfo {
 	now := time.Now()
 	duration := cfg.DefaultDurationMinutes
@@ -129,15 +129,15 @@ func newLockInfo(req *LockRequest, cfg *Config) *LockInfo {
 	}
 
 	return &LockInfo{
-		ID:          uuid.New().String(),
-		FilePath:    req.FilePath,
-		UserID:      req.UserID,
-		UserName:    req.UserName,
-		Status:      LockStatusActive,
-		AcquiredAt:  now,
-		ExpiresAt:   now.Add(time.Duration(duration) * time.Minute),
-		Comment:     req.Comment,
-		CreatedAt:   now,
-		UpdatedAt:   now,
+		ID:         uuid.New().String(),
+		FilePath:   req.FilePath,
+		UserID:     req.UserID,
+		UserName:   req.UserName,
+		Status:     LockStatusActive,
+		AcquiredAt: now,
+		ExpiresAt:  now.Add(time.Duration(duration) * time.Minute),
+		Comment:    req.Comment,
+		CreatedAt:  now,
+		UpdatedAt:  now,
 	}
 }

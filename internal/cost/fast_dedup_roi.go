@@ -11,7 +11,7 @@ import (
 
 // ========== Fast Dedup配置与数据结构 ==========
 
-// FastDedupConfig Fast Dedup配置参数
+// FastDedupConfig Fast Dedup配置参数.
 type FastDedupConfig struct {
 	// 传统DDT条目内存占用（字节）- 约320字节/条目
 	TraditionalDDTEntryBytes uint64 `json:"traditional_ddt_entry_bytes"`
@@ -47,7 +47,7 @@ type FastDedupConfig struct {
 	OpsComplexityFactor float64 `json:"ops_complexity_factor"`
 }
 
-// DefaultFastDedupConfig 默认Fast Dedup配置
+// DefaultFastDedupConfig 默认Fast Dedup配置.
 func DefaultFastDedupConfig() FastDedupConfig {
 	return FastDedupConfig{
 		TraditionalDDTEntryBytes: 320,                            // 传统ZFS DDT条目大小
@@ -64,7 +64,7 @@ func DefaultFastDedupConfig() FastDedupConfig {
 	}
 }
 
-// FastDedupAnalysis Fast Dedup分析结果
+// FastDedupAnalysis Fast Dedup分析结果.
 type FastDedupAnalysis struct {
 	// 分析ID
 	ID string `json:"id"`
@@ -174,7 +174,7 @@ type FastDedupAnalysis struct {
 	CostBreakdown map[string]float64 `json:"cost_breakdown"`
 }
 
-// FastDedupScenarioResult 场景分析结果
+// FastDedupScenarioResult 场景分析结果.
 type FastDedupScenarioResult struct {
 	// 场景名称
 	Scenario string `json:"scenario"`
@@ -210,7 +210,7 @@ type FastDedupScenarioResult struct {
 	Recommendation string `json:"recommendation"`
 }
 
-// FastDedupComparison Fast Dedup与传统去重对比
+// FastDedupComparison Fast Dedup与传统去重对比.
 type FastDedupComparison struct {
 	// 各场景对比结果
 	Scenarios []FastDedupScenarioResult `json:"scenarios"`
@@ -235,7 +235,7 @@ type FastDedupComparison struct {
 	OverallRecommendation string `json:"overall_recommendation"`
 }
 
-// MemorySavingPoint 内存节省曲线数据点
+// MemorySavingPoint 内存节省曲线数据点.
 type MemorySavingPoint struct {
 	// 数据量（TB）
 	DataSizeTB float64 `json:"data_size_tb"`
@@ -255,17 +255,17 @@ type MemorySavingPoint struct {
 
 // ========== Fast Dedup ROI计算器 ==========
 
-// FastDedupROICalculator Fast Dedup ROI计算器
+// FastDedupROICalculator Fast Dedup ROI计算器.
 type FastDedupROICalculator struct {
 	config FastDedupConfig
 }
 
-// NewFastDedupROICalculator 创建Fast Dedup ROI计算器
+// NewFastDedupROICalculator 创建Fast Dedup ROI计算器.
 func NewFastDedupROICalculator(config FastDedupConfig) *FastDedupROICalculator {
 	return &FastDedupROICalculator{config: config}
 }
 
-// Analyze 执行Fast Dedup分析
+// Analyze 执行Fast Dedup分析.
 func (c *FastDedupROICalculator) Analyze() *FastDedupAnalysis {
 	now := time.Now()
 	analysis := &FastDedupAnalysis{
@@ -414,7 +414,7 @@ func (c *FastDedupROICalculator) Analyze() *FastDedupAnalysis {
 	return analysis
 }
 
-// AnalyzeScenario 分析特定场景
+// AnalyzeScenario 分析特定场景.
 func (c *FastDedupROICalculator) AnalyzeScenario(dataSizeTB float64, dedupRate float64) *FastDedupScenarioResult {
 	// 临时调整配置
 	originalData := c.config.TotalDataBytes
@@ -455,7 +455,7 @@ func (c *FastDedupROICalculator) AnalyzeScenario(dataSizeTB float64, dedupRate f
 	return result
 }
 
-// CompareScenarios 对比多场景
+// CompareScenarios 对比多场景.
 func (c *FastDedupROICalculator) CompareScenarios() *FastDedupComparison {
 	comparison := &FastDedupComparison{
 		Scenarios:             make([]FastDedupScenarioResult, 0),
@@ -527,7 +527,7 @@ func (c *FastDedupROICalculator) CompareScenarios() *FastDedupComparison {
 
 // ========== 私有方法 ==========
 
-// calculateBenefitScore 计算效益评分
+// calculateBenefitScore 计算效益评分.
 func (c *FastDedupROICalculator) calculateBenefitScore(analysis *FastDedupAnalysis) float64 {
 	score := 0.0
 
@@ -580,7 +580,7 @@ func (c *FastDedupROICalculator) calculateBenefitScore(analysis *FastDedupAnalys
 	return fastDedupRound(score, 1)
 }
 
-// generateRisks 生成风险提示
+// generateRisks 生成风险提示.
 func (c *FastDedupROICalculator) generateRisks(analysis *FastDedupAnalysis) []string {
 	risks := make([]string, 0)
 
@@ -618,7 +618,7 @@ func (c *FastDedupROICalculator) generateRisks(analysis *FastDedupAnalysis) []st
 	return risks
 }
 
-// generateSuggestions 生成优化建议
+// generateSuggestions 生成优化建议.
 func (c *FastDedupROICalculator) generateSuggestions(analysis *FastDedupAnalysis) []string {
 	suggestions := make([]string, 0)
 
@@ -661,7 +661,7 @@ func (c *FastDedupROICalculator) generateSuggestions(analysis *FastDedupAnalysis
 
 // ========== 工具方法 ==========
 
-// EstimateFastDedupMemory 估算Fast Dedup内存需求
+// EstimateFastDedupMemory 估算Fast Dedup内存需求.
 func EstimateFastDedupMemory(totalDataTB float64, blockSizeKB uint64, dedupRate float64) float64 {
 	totalDataBytes := totalDataTB * 1024 * 1024 * 1024 * 1024
 	totalBlocks := uint64(totalDataBytes) / (blockSizeKB * 1024)
@@ -670,7 +670,7 @@ func EstimateFastDedupMemory(totalDataTB float64, blockSizeKB uint64, dedupRate 
 	return float64(fastDedupBytes) / (1024 * 1024 * 1024)
 }
 
-// EstimateTraditionalMemory 估算传统DDT内存需求
+// EstimateTraditionalMemory 估算传统DDT内存需求.
 func EstimateTraditionalMemory(totalDataTB float64, blockSizeKB uint64, dedupRate float64) float64 {
 	totalDataBytes := totalDataTB * 1024 * 1024 * 1024 * 1024
 	totalBlocks := uint64(totalDataBytes) / (blockSizeKB * 1024)
@@ -679,7 +679,7 @@ func EstimateTraditionalMemory(totalDataTB float64, blockSizeKB uint64, dedupRat
 	return float64(traditionalBytes) / (1024 * 1024 * 1024)
 }
 
-// QuickMemoryCheck 快速内存需求检查
+// QuickMemoryCheck 快速内存需求检查.
 func QuickMemoryCheck(dataSizeTB float64, dedupRate float64) string {
 	traditionalMem := EstimateTraditionalMemory(dataSizeTB, 128, dedupRate)
 	fastDedupMem := EstimateFastDedupMemory(dataSizeTB, 128, dedupRate)
@@ -689,7 +689,7 @@ func QuickMemoryCheck(dataSizeTB float64, dedupRate float64) string {
 		dataSizeTB, dedupRate, traditionalMem, fastDedupMem, savingRate)
 }
 
-// GenerateFastDedupReport 生成Fast Dedup报告
+// GenerateFastDedupReport 生成Fast Dedup报告.
 func GenerateFastDedupReport(config FastDedupConfig) string {
 	calc := NewFastDedupROICalculator(config)
 	analysis := calc.Analyze()

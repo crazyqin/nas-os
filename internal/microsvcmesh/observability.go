@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Tracer 分布式追踪器
+// Tracer 分布式追踪器.
 type Tracer struct {
 	mu         sync.RWMutex
 	logger     *zap.Logger
@@ -19,7 +19,7 @@ type Tracer struct {
 	maxSpans   int
 }
 
-// NewTracer 创建追踪器
+// NewTracer 创建追踪器.
 func NewTracer(logger *zap.Logger, sampleRate float64) *Tracer {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -35,7 +35,7 @@ func NewTracer(logger *zap.Logger, sampleRate float64) *Tracer {
 	}
 }
 
-// StartSpan 开始一个追踪跨度
+// StartSpan 开始一个追踪跨度.
 func (t *Tracer) StartSpan(name, service string) *TraceSpan {
 	return &TraceSpan{
 		TraceID:   generateTraceID(),
@@ -48,7 +48,7 @@ func (t *Tracer) StartSpan(name, service string) *TraceSpan {
 	}
 }
 
-// StartChildSpan 开始子跨度
+// StartChildSpan 开始子跨度.
 func (t *Tracer) StartChildSpan(parent *TraceSpan, name, service string) *TraceSpan {
 	return &TraceSpan{
 		TraceID:   parent.TraceID,
@@ -62,7 +62,7 @@ func (t *Tracer) StartChildSpan(parent *TraceSpan, name, service string) *TraceS
 	}
 }
 
-// RecordSpan 记录追踪跨度
+// RecordSpan 记录追踪跨度.
 func (t *Tracer) RecordSpan(span *TraceSpan) {
 	// 采样判断
 	if !t.shouldSample() {
@@ -80,7 +80,7 @@ func (t *Tracer) RecordSpan(span *TraceSpan) {
 	t.spans = append(t.spans, span)
 }
 
-// shouldSample 是否采样
+// shouldSample 是否采样.
 func (t *Tracer) shouldSample() bool {
 	if t.sampleRate >= 1.0 {
 		return true
@@ -94,7 +94,7 @@ func (t *Tracer) shouldSample() bool {
 	return float64(b[0])/255.0 < t.sampleRate
 }
 
-// GetTrace 获取完整追踪链
+// GetTrace 获取完整追踪链.
 func (t *Tracer) GetTrace(traceID string) []*TraceSpan {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -108,7 +108,7 @@ func (t *Tracer) GetTrace(traceID string) []*TraceSpan {
 	return result
 }
 
-// GetRecentSpans 获取最近的跨度
+// GetRecentSpans 获取最近的跨度.
 func (t *Tracer) GetRecentSpans(limit int) []*TraceSpan {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -123,7 +123,7 @@ func (t *Tracer) GetRecentSpans(limit int) []*TraceSpan {
 	return result
 }
 
-// AddEvent 添加追踪事件
+// AddEvent 添加追踪事件.
 func (t *Tracer) AddEvent(span *TraceSpan, name string, fields map[string]string) {
 	span.Events = append(span.Events, TraceEvent{
 		Name:      name,
@@ -132,7 +132,7 @@ func (t *Tracer) AddEvent(span *TraceSpan, name string, fields map[string]string
 	})
 }
 
-// GetStats 获取追踪统计
+// GetStats 获取追踪统计.
 func (t *Tracer) GetStats() map[string]interface{} {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -143,14 +143,14 @@ func (t *Tracer) GetStats() map[string]interface{} {
 	}
 }
 
-// ClearSpans 清除所有跨度
+// ClearSpans 清除所有跨度.
 func (t *Tracer) ClearSpans() {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	t.spans = t.spans[:0]
 }
 
-// MetricsCollector 指标收集器
+// MetricsCollector 指标收集器.
 type MetricsCollector struct {
 	mu      sync.RWMutex
 	logger  *zap.Logger
@@ -158,7 +158,7 @@ type MetricsCollector struct {
 	maxSize int
 }
 
-// NewMetricsCollector 创建指标收集器
+// NewMetricsCollector 创建指标收集器.
 func NewMetricsCollector(logger *zap.Logger) *MetricsCollector {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -170,7 +170,7 @@ func NewMetricsCollector(logger *zap.Logger) *MetricsCollector {
 	}
 }
 
-// Record 记录指标
+// Record 记录指标.
 func (mc *MetricsCollector) Record(point MetricPoint) {
 	if point.Timestamp.IsZero() {
 		point.Timestamp = time.Now()
@@ -186,7 +186,7 @@ func (mc *MetricsCollector) Record(point MetricPoint) {
 	mc.metrics = append(mc.metrics, point)
 }
 
-// GetMetrics 获取所有指标
+// GetMetrics 获取所有指标.
 func (mc *MetricsCollector) GetMetrics(name string) []MetricPoint {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -200,7 +200,7 @@ func (mc *MetricsCollector) GetMetrics(name string) []MetricPoint {
 	return result
 }
 
-// GetMetricsSummary 获取指标摘要
+// GetMetricsSummary 获取指标摘要.
 func (mc *MetricsCollector) GetMetricsSummary() map[string]interface{} {
 	mc.mu.RLock()
 	defer mc.mu.RUnlock()
@@ -216,7 +216,7 @@ func (mc *MetricsCollector) GetMetricsSummary() map[string]interface{} {
 	}
 }
 
-// RecordRequestMetrics 记录请求级指标
+// RecordRequestMetrics 记录请求级指标.
 func (mc *MetricsCollector) RecordRequestMetrics(service string, status int, duration time.Duration) {
 	mc.Record(MetricPoint{
 		Name:  "http_requests_total",
@@ -238,21 +238,21 @@ func (mc *MetricsCollector) RecordRequestMetrics(service string, status int, dur
 	})
 }
 
-// Clear 清除所有指标
+// Clear 清除所有指标.
 func (mc *MetricsCollector) Clear() {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
 	mc.metrics = mc.metrics[:0]
 }
 
-// generateTraceID 生成追踪 ID
+// generateTraceID 生成追踪 ID.
 func generateTraceID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// httpStatusClass HTTP 状态码分类
+// httpStatusClass HTTP 状态码分类.
 func httpStatusClass(status int) string {
 	switch {
 	case status >= 200 && status < 300:

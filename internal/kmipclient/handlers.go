@@ -7,18 +7,18 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handlers provides HTTP handlers for KMIPClient
+// Handlers provides HTTP handlers for KMIPClient.
 type Handlers struct {
 	client *Client
 	logger *zap.Logger
 }
 
-// NewHandlers creates new KMIPClient handlers
+// NewHandlers creates new KMIPClient handlers.
 func NewHandlers(client *Client, logger *zap.Logger) *Handlers {
 	return &Handlers{client: client, logger: logger}
 }
 
-// RegisterRoutes registers KMIPClient API routes
+// RegisterRoutes registers KMIPClient API routes.
 func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	kmip := rg.Group("/kmip")
 	{

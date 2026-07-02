@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// TicketStatus 工单状态
+// TicketStatus 工单状态.
 type TicketStatus string
 
 const (
@@ -15,7 +15,7 @@ const (
 	TicketResolved TicketStatus = "resolved"
 )
 
-// TicketType 工单类型
+// TicketType 工单类型.
 type TicketType string
 
 const (
@@ -25,7 +25,7 @@ const (
 	TicketTypeIssue  TicketType = "issue"
 )
 
-// ApprovalStatus 审批状态
+// ApprovalStatus 审批状态.
 type ApprovalStatus string
 
 const (
@@ -34,7 +34,7 @@ const (
 	ApprovalRejected ApprovalStatus = "rejected"
 )
 
-// PermissionType 权限类型
+// PermissionType 权限类型.
 type PermissionType string
 
 const (
@@ -43,7 +43,7 @@ const (
 	PermAdmin PermissionType = "admin"
 )
 
-// QuotaRequest 配额申请
+// QuotaRequest 配额申请.
 type QuotaRequest struct {
 	ID          string       `json:"id"`
 	UserID      string       `json:"user_id"`
@@ -55,7 +55,7 @@ type QuotaRequest struct {
 	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
-// PermissionRequest 权限申请
+// PermissionRequest 权限申请.
 type PermissionRequest struct {
 	ID        string         `json:"id"`
 	UserID    string         `json:"user_id"`
@@ -69,7 +69,7 @@ type PermissionRequest struct {
 	UpdatedAt time.Time      `json:"updated_at"`
 }
 
-// RestorePoint 恢复点
+// RestorePoint 恢复点.
 type RestorePoint struct {
 	ID        string    `json:"id"`
 	UserID    string    `json:"user_id"`
@@ -79,7 +79,7 @@ type RestorePoint struct {
 	ExpiresAt time.Time `json:"expires_at"`
 }
 
-// RestoreRequest 恢复请求
+// RestoreRequest 恢复请求.
 type RestoreRequest struct {
 	ID           string       `json:"id"`
 	UserID       string       `json:"user_id"`
@@ -90,7 +90,7 @@ type RestoreRequest struct {
 	UpdatedAt    time.Time    `json:"updated_at"`
 }
 
-// IssueTicket 问题工单
+// IssueTicket 问题工单.
 type IssueTicket struct {
 	ID          string       `json:"id"`
 	UserID      string       `json:"user_id"`
@@ -105,7 +105,7 @@ type IssueTicket struct {
 	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
-// Approval 审批记录
+// Approval 审批记录.
 type Approval struct {
 	ID         string         `json:"id"`
 	TicketID   string         `json:"ticket_id"`
@@ -116,7 +116,7 @@ type Approval struct {
 	CreatedAt  time.Time      `json:"created_at"`
 }
 
-// UserStats 用户统计
+// UserStats 用户统计.
 type UserStats struct {
 	UserID          string  `json:"user_id"`
 	TotalQuotaGB    int64   `json:"total_quota_gb"`
@@ -128,7 +128,7 @@ type UserStats struct {
 	SharedFolders   int     `json:"shared_folders"`
 }
 
-// Notification 通知
+// Notification 通知.
 type Notification struct {
 	ID        string    `json:"id"`
 	UserID    string    `json:"user_id"`
@@ -138,7 +138,7 @@ type Notification struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// AutoApprovalRule 自动审批规则
+// AutoApprovalRule 自动审批规则.
 type AutoApprovalRule struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -150,7 +150,7 @@ type AutoApprovalRule struct {
 	Enabled             bool    `json:"enabled"`
 }
 
-// Portal 自助门户
+// Portal 自助门户.
 type Portal struct {
 	mu                sync.RWMutex
 	quotaRequests     map[string]*QuotaRequest

@@ -4,7 +4,7 @@ package knowledgemap
 
 import "time"
 
-// NodeType 知识节点类型
+// NodeType 知识节点类型.
 type NodeType string
 
 const (
@@ -19,7 +19,7 @@ const (
 	NodeTypeCustom  NodeType = "custom"  // 自定义
 )
 
-// RelationType 关联关系类型
+// RelationType 关联关系类型.
 type RelationType string
 
 const (
@@ -34,7 +34,7 @@ const (
 	RelationCustom      RelationType = "custom"      // 自定义
 )
 
-// ClassificationDimension 分类维度
+// ClassificationDimension 分类维度.
 type ClassificationDimension string
 
 const (
@@ -43,7 +43,7 @@ const (
 	DimensionProject ClassificationDimension = "project" // 项目
 )
 
-// KnowledgeNode 知识节点
+// KnowledgeNode 知识节点.
 type KnowledgeNode struct {
 	ID          string     `json:"id"`
 	Title       string     `json:"title" binding:"required"`
@@ -60,7 +60,7 @@ type KnowledgeNode struct {
 	LastReview  *time.Time `json:"last_review,omitempty"`
 }
 
-// NodeRelation 节点关联关系
+// NodeRelation 节点关联关系.
 type NodeRelation struct {
 	ID          string       `json:"id"`
 	SourceID    string       `json:"source_id" binding:"required"`
@@ -71,7 +71,7 @@ type NodeRelation struct {
 	CreatedAt   time.Time    `json:"created_at"`
 }
 
-// Classification 知识分类
+// Classification 知识分类.
 type Classification struct {
 	ID        string                  `json:"id"`
 	Name      string                  `json:"name" binding:"required"`
@@ -81,13 +81,13 @@ type Classification struct {
 	CreatedAt time.Time               `json:"created_at"`
 }
 
-// GraphData 图谱可视化数据
+// GraphData 图谱可视化数据.
 type GraphData struct {
 	Nodes []GraphNode `json:"nodes"`
 	Edges []GraphEdge `json:"edges"`
 }
 
-// GraphNode 图谱节点
+// GraphNode 图谱节点.
 type GraphNode struct {
 	ID    string   `json:"id"`
 	Label string   `json:"label"`
@@ -97,7 +97,7 @@ type GraphNode struct {
 	Tags  []string `json:"tags,omitempty"`
 }
 
-// GraphEdge 图谱边
+// GraphEdge 图谱边.
 type GraphEdge struct {
 	Source string       `json:"source"`
 	Target string       `json:"target"`
@@ -106,7 +106,7 @@ type GraphEdge struct {
 	Label  string       `json:"label,omitempty"`
 }
 
-// SearchQuery 搜索查询
+// SearchQuery 搜索查询.
 type SearchQuery struct {
 	Keyword    string   `json:"keyword,omitempty"`
 	Tags       []string `json:"tags,omitempty"`
@@ -117,14 +117,14 @@ type SearchQuery struct {
 	Offset     int      `json:"offset,omitempty"`
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	Nodes     []*KnowledgeNode `json:"nodes"`
 	Total     int              `json:"total"`
 	Relevance []float64        `json:"relevance,omitempty"` // 相关度得分
 }
 
-// LearningStats 学习统计
+// LearningStats 学习统计.
 type LearningStats struct {
 	TotalNodes     int              `json:"total_nodes"`
 	TotalRelations int              `json:"total_relations"`
@@ -136,33 +136,33 @@ type LearningStats struct {
 	ReviewPending  int              `json:"review_pending"`
 }
 
-// DailyGrowth 每日增长
+// DailyGrowth 每日增长.
 type DailyGrowth struct {
 	Date     string `json:"date"`
 	NewNodes int    `json:"new_nodes"`
 	Reviews  int    `json:"reviews"`
 }
 
-// ImportData 导入数据
+// ImportData 导入数据.
 type ImportData struct {
 	Format    string `json:"format" binding:"required"` // markdown, json
 	Content   string `json:"content" binding:"required"`
 	Overwrite bool   `json:"overwrite,omitempty"`
 }
 
-// ExportData 导出数据
+// ExportData 导出数据.
 type ExportData struct {
 	Format  string   `json:"format" binding:"required"` // markdown, json
 	NodeIDs []string `json:"node_ids,omitempty"`        // 为空则导出全部
 }
 
-// MarkdownExport Markdown导出格式
+// MarkdownExport Markdown导出格式.
 type MarkdownExport struct {
 	Title   string `json:"title"`
 	Content string `json:"content"` // Markdown内容
 }
 
-// NodeCreateRequest 创建节点请求
+// NodeCreateRequest 创建节点请求.
 type NodeCreateRequest struct {
 	Title      string   `json:"title" binding:"required"`
 	Content    string   `json:"content,omitempty"`
@@ -173,7 +173,7 @@ type NodeCreateRequest struct {
 	Importance int      `json:"importance,omitempty"`
 }
 
-// NodeUpdateRequest 更新节点请求
+// NodeUpdateRequest 更新节点请求.
 type NodeUpdateRequest struct {
 	Title      string   `json:"title,omitempty"`
 	Content    string   `json:"content,omitempty"`
@@ -185,7 +185,7 @@ type NodeUpdateRequest struct {
 	Mastery    int      `json:"mastery,omitempty"`
 }
 
-// RelationCreateRequest 创建关联请求
+// RelationCreateRequest 创建关联请求.
 type RelationCreateRequest struct {
 	SourceID    string       `json:"source_id" binding:"required"`
 	TargetID    string       `json:"target_id" binding:"required"`
@@ -194,26 +194,26 @@ type RelationCreateRequest struct {
 	Description string       `json:"description,omitempty"`
 }
 
-// ClassificationCreateRequest 创建分类请求
+// ClassificationCreateRequest 创建分类请求.
 type ClassificationCreateRequest struct {
 	Name      string                  `json:"name" binding:"required"`
 	Dimension ClassificationDimension `json:"dimension" binding:"required"`
 	ParentID  string                  `json:"parent_id,omitempty"`
 }
 
-// NodeAddToClassification 添加节点到分类请求
+// NodeAddToClassification 添加节点到分类请求.
 type NodeAddToClassification struct {
 	NodeID string `json:"node_id" binding:"required"`
 }
 
-// ApiResponse 标准API响应
+// ApiResponse 标准API响应.
 type ApiResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// DefaultNodeTypes 默认节点类型列表
+// DefaultNodeTypes 默认节点类型列表.
 func DefaultNodeTypes() []NodeType {
 	return []NodeType{
 		NodeTypeConcept, NodeTypeArticle, NodeTypeNote,
@@ -222,7 +222,7 @@ func DefaultNodeTypes() []NodeType {
 	}
 }
 
-// DefaultRelationTypes 默认关联类型列表
+// DefaultRelationTypes 默认关联类型列表.
 func DefaultRelationTypes() []RelationType {
 	return []RelationType{
 		RelationReference, RelationDependency, RelationSimilar,
@@ -231,7 +231,7 @@ func DefaultRelationTypes() []RelationType {
 	}
 }
 
-// IsValidNodeType 检查节点类型是否有效
+// IsValidNodeType 检查节点类型是否有效.
 func IsValidNodeType(t NodeType) bool {
 	for _, nt := range DefaultNodeTypes() {
 		if nt == t {
@@ -241,7 +241,7 @@ func IsValidNodeType(t NodeType) bool {
 	return false
 }
 
-// IsValidRelationType 检查关联类型是否有效
+// IsValidRelationType 检查关联类型是否有效.
 func IsValidRelationType(t RelationType) bool {
 	for _, rt := range DefaultRelationTypes() {
 		if rt == t {

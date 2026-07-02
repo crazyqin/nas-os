@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// MessageType 消息类型
+// MessageType 消息类型.
 type MessageType string
 
 const (
@@ -15,7 +15,7 @@ const (
 	MessageTypeSystem    MessageType = "system"
 )
 
-// IntentType 意图类型
+// IntentType 意图类型.
 type IntentType string
 
 const (
@@ -30,7 +30,7 @@ const (
 	IntentUnknown           IntentType = "unknown"
 )
 
-// Language 语言
+// Language 语言.
 type Language string
 
 const (
@@ -39,7 +39,7 @@ const (
 	LangJapanese Language = "ja"
 )
 
-// Message 对话消息
+// Message 对话消息.
 type Message struct {
 	ID        string                 `json:"id"`
 	SessionID string                 `json:"session_id"`
@@ -50,7 +50,7 @@ type Message struct {
 	CreatedAt time.Time              `json:"created_at"`
 }
 
-// Session 对话会话
+// Session 对话会话.
 type Session struct {
 	ID        string                 `json:"id"`
 	UserID    string                 `json:"user_id"`
@@ -62,14 +62,14 @@ type Session struct {
 	UpdatedAt time.Time              `json:"updated_at"`
 }
 
-// Intent 意图识别结果
+// Intent 意图识别结果.
 type Intent struct {
 	Type       IntentType             `json:"type"`
 	Confidence float64                `json:"confidence"`
 	Parameters map[string]interface{} `json:"parameters,omitempty"`
 }
 
-// Plugin 插件定义
+// Plugin 插件定义.
 type Plugin struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
@@ -80,10 +80,10 @@ type Plugin struct {
 	CreatedAt   time.Time     `json:"created_at"`
 }
 
-// PluginHandler 插件处理函数
+// PluginHandler 插件处理函数.
 type PluginHandler func(ctx *PluginContext) (*PluginResponse, error)
 
-// PluginContext 插件上下文
+// PluginContext 插件上下文.
 type PluginContext struct {
 	Session  *Session `json:"session"`
 	Intent   *Intent  `json:"intent"`
@@ -91,14 +91,14 @@ type PluginContext struct {
 	Language Language `json:"language"`
 }
 
-// PluginResponse 插件响应
+// PluginResponse 插件响应.
 type PluginResponse struct {
 	Content  string                 `json:"content"`
 	Actions  []*Action              `json:"actions,omitempty"`
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// Action 执行动作
+// Action 执行动作.
 type Action struct {
 	Type       string                 `json:"type"`
 	Parameters map[string]interface{} `json:"parameters"`
@@ -106,7 +106,7 @@ type Action struct {
 	Result     string                 `json:"result,omitempty"`
 }
 
-// ScheduledTask 定时任务
+// ScheduledTask 定时任务.
 type ScheduledTask struct {
 	ID          string     `json:"id"`
 	UserID      string     `json:"user_id"`
@@ -120,7 +120,7 @@ type ScheduledTask struct {
 	CreatedAt   time.Time  `json:"created_at"`
 }
 
-// ChatStats 聊天统计
+// ChatStats 聊天统计.
 type ChatStats struct {
 	TotalSessions    int            `json:"total_sessions"`
 	TotalMessages    int            `json:"total_messages"`
@@ -130,7 +130,7 @@ type ChatStats struct {
 	InstalledPlugins int            `json:"installed_plugins"`
 }
 
-// AIChatbot 智能助手
+// AIChatbot 智能助手.
 type AIChatbot struct {
 	mu             sync.RWMutex
 	sessions       map[string]*Session
@@ -140,7 +140,7 @@ type AIChatbot struct {
 	langTemplates  map[Language]map[string]string
 }
 
-// NewAIChatbot 创建智能助手
+// NewAIChatbot 创建智能助手.
 func NewAIChatbot() *AIChatbot {
 	bot := &AIChatbot{
 		sessions:       make(map[string]*Session),
@@ -153,7 +153,7 @@ func NewAIChatbot() *AIChatbot {
 	return bot
 }
 
-// initLanguageTemplates 初始化语言模板
+// initLanguageTemplates 初始化语言模板.
 func (bot *AIChatbot) initLanguageTemplates() {
 	bot.langTemplates[LangChinese] = map[string]string{
 		"greeting":          "你好！我是 NAS AI 助手，有什么可以帮您的？",
@@ -195,7 +195,7 @@ func (bot *AIChatbot) initLanguageTemplates() {
 	}
 }
 
-// CreateSession 创建对话会话
+// CreateSession 创建对话会话.
 func (bot *AIChatbot) CreateSession(sessionID, userID string, lang Language) (*Session, error) {
 	bot.mu.Lock()
 	defer bot.mu.Unlock()
@@ -219,7 +219,7 @@ func (bot *AIChatbot) CreateSession(sessionID, userID string, lang Language) (*S
 	return session, nil
 }
 
-// GetSession 获取会话
+// GetSession 获取会话.
 func (bot *AIChatbot) GetSession(sessionID string) (*Session, error) {
 	bot.mu.RLock()
 	defer bot.mu.RUnlock()
@@ -231,7 +231,7 @@ func (bot *AIChatbot) GetSession(sessionID string) (*Session, error) {
 	return session, nil
 }
 
-// CloseSession 关闭会话
+// CloseSession 关闭会话.
 func (bot *AIChatbot) CloseSession(sessionID string) error {
 	bot.mu.Lock()
 	defer bot.mu.Unlock()
@@ -246,7 +246,7 @@ func (bot *AIChatbot) CloseSession(sessionID string) error {
 	return nil
 }
 
-// ListSessions 列出用户会话
+// ListSessions 列出用户会话.
 func (bot *AIChatbot) ListSessions(userID string, activeOnly bool) []*Session {
 	bot.mu.RLock()
 	defer bot.mu.RUnlock()
@@ -264,7 +264,7 @@ func (bot *AIChatbot) ListSessions(userID string, activeOnly bool) []*Session {
 	return sessions
 }
 
-// SendMessage 发送消息
+// SendMessage 发送消息.
 func (bot *AIChatbot) SendMessage(sessionID, content string, msgType MessageType) (*Message, error) {
 	bot.mu.Lock()
 	defer bot.mu.Unlock()
@@ -290,7 +290,7 @@ func (bot *AIChatbot) SendMessage(sessionID, content string, msgType MessageType
 	return msg, nil
 }
 
-// GetMessages 获取会话消息
+// GetMessages 获取会话消息.
 func (bot *AIChatbot) GetMessages(sessionID string, limit int) ([]*Message, error) {
 	bot.mu.RLock()
 	defer bot.mu.RUnlock()
@@ -306,7 +306,7 @@ func (bot *AIChatbot) GetMessages(sessionID string, limit int) ([]*Message, erro
 	return msgs, nil
 }
 
-// RecognizeIntent 识别意图
+// RecognizeIntent 识别意图.
 func (bot *AIChatbot) RecognizeIntent(content string) *Intent {
 	// 简单的关键字匹配（实际应使用 NLP 模型）
 	intent := &Intent{
@@ -368,7 +368,7 @@ func (bot *AIChatbot) RecognizeIntent(content string) *Intent {
 	return intent
 }
 
-// ProcessMessage 处理消息并返回响应
+// ProcessMessage 处理消息并返回响应.
 func (bot *AIChatbot) ProcessMessage(sessionID, content string) (*Message, error) {
 	bot.mu.Lock()
 	session, exists := bot.sessions[sessionID]
@@ -391,7 +391,7 @@ func (bot *AIChatbot) ProcessMessage(sessionID, content string) (*Message, error
 	return bot.SendMessage(sessionID, response.Content, MessageTypeAssistant)
 }
 
-// executePlugin 执行插件
+// executePlugin 执行插件.
 func (bot *AIChatbot) executePlugin(session *Session, intent *Intent, content string) *PluginResponse {
 	bot.mu.RLock()
 	defer bot.mu.RUnlock()
@@ -427,7 +427,7 @@ func (bot *AIChatbot) executePlugin(session *Session, intent *Intent, content st
 	}
 }
 
-// InstallPlugin 安装插件
+// InstallPlugin 安装插件.
 func (bot *AIChatbot) InstallPlugin(plugin *Plugin) error {
 	bot.mu.Lock()
 	defer bot.mu.Unlock()
@@ -442,7 +442,7 @@ func (bot *AIChatbot) InstallPlugin(plugin *Plugin) error {
 	return nil
 }
 
-// UninstallPlugin 卸载插件
+// UninstallPlugin 卸载插件.
 func (bot *AIChatbot) UninstallPlugin(pluginID string) error {
 	bot.mu.Lock()
 	defer bot.mu.Unlock()
@@ -455,7 +455,7 @@ func (bot *AIChatbot) UninstallPlugin(pluginID string) error {
 	return nil
 }
 
-// EnablePlugin 启用插件
+// EnablePlugin 启用插件.
 func (bot *AIChatbot) EnablePlugin(pluginID string) error {
 	bot.mu.Lock()
 	defer bot.mu.Unlock()
@@ -469,7 +469,7 @@ func (bot *AIChatbot) EnablePlugin(pluginID string) error {
 	return nil
 }
 
-// DisablePlugin 禁用插件
+// DisablePlugin 禁用插件.
 func (bot *AIChatbot) DisablePlugin(pluginID string) error {
 	bot.mu.Lock()
 	defer bot.mu.Unlock()
@@ -483,7 +483,7 @@ func (bot *AIChatbot) DisablePlugin(pluginID string) error {
 	return nil
 }
 
-// ListPlugins 列出插件
+// ListPlugins 列出插件.
 func (bot *AIChatbot) ListPlugins(enabledOnly bool) []*Plugin {
 	bot.mu.RLock()
 	defer bot.mu.RUnlock()
@@ -498,7 +498,7 @@ func (bot *AIChatbot) ListPlugins(enabledOnly bool) []*Plugin {
 	return plugins
 }
 
-// CreateScheduledTask 创建定时任务
+// CreateScheduledTask 创建定时任务.
 func (bot *AIChatbot) CreateScheduledTask(task *ScheduledTask) error {
 	bot.mu.Lock()
 	defer bot.mu.Unlock()
@@ -513,7 +513,7 @@ func (bot *AIChatbot) CreateScheduledTask(task *ScheduledTask) error {
 	return nil
 }
 
-// DeleteScheduledTask 删除定时任务
+// DeleteScheduledTask 删除定时任务.
 func (bot *AIChatbot) DeleteScheduledTask(taskID string) error {
 	bot.mu.Lock()
 	defer bot.mu.Unlock()
@@ -526,7 +526,7 @@ func (bot *AIChatbot) DeleteScheduledTask(taskID string) error {
 	return nil
 }
 
-// GetScheduledTask 获取定时任务
+// GetScheduledTask 获取定时任务.
 func (bot *AIChatbot) GetScheduledTask(taskID string) (*ScheduledTask, error) {
 	bot.mu.RLock()
 	defer bot.mu.RUnlock()
@@ -538,7 +538,7 @@ func (bot *AIChatbot) GetScheduledTask(taskID string) (*ScheduledTask, error) {
 	return task, nil
 }
 
-// ListScheduledTasks 列出定时任务
+// ListScheduledTasks 列出定时任务.
 func (bot *AIChatbot) ListScheduledTasks(userID string, activeOnly bool) []*ScheduledTask {
 	bot.mu.RLock()
 	defer bot.mu.RUnlock()
@@ -556,7 +556,7 @@ func (bot *AIChatbot) ListScheduledTasks(userID string, activeOnly bool) []*Sche
 	return tasks
 }
 
-// SetSessionLanguage 设置会话语言
+// SetSessionLanguage 设置会话语言.
 func (bot *AIChatbot) SetSessionLanguage(sessionID string, lang Language) error {
 	bot.mu.Lock()
 	defer bot.mu.Unlock()
@@ -571,7 +571,7 @@ func (bot *AIChatbot) SetSessionLanguage(sessionID string, lang Language) error 
 	return nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (bot *AIChatbot) GetStats() *ChatStats {
 	bot.mu.RLock()
 	defer bot.mu.RUnlock()
@@ -598,7 +598,7 @@ func (bot *AIChatbot) GetStats() *ChatStats {
 	return stats
 }
 
-// getTemplate 获取语言模板
+// getTemplate 获取语言模板.
 func (bot *AIChatbot) getTemplate(lang Language, key string) string {
 	if templates, ok := bot.langTemplates[lang]; ok {
 		if tmpl, ok := templates[key]; ok {
@@ -614,7 +614,7 @@ func (bot *AIChatbot) getTemplate(lang Language, key string) string {
 	return key
 }
 
-// containsAny 检查是否包含任意关键字
+// containsAny 检查是否包含任意关键字.
 func containsAny(s string, keywords []string) bool {
 	for _, kw := range keywords {
 		if containsIgnoreCase(s, kw) {
@@ -624,7 +624,7 @@ func containsAny(s string, keywords []string) bool {
 	return false
 }
 
-// containsIgnoreCase 忽略大小写检查
+// containsIgnoreCase 忽略大小写检查.
 func containsIgnoreCase(s, substr string) bool {
 	return len(s) >= len(substr) && (s == substr || len(substr) == 0 || containsStr(toLower(s), toLower(substr)))
 }
@@ -650,13 +650,13 @@ func toLower(s string) string {
 	return string(result)
 }
 
-// extractFolderName 提取文件夹名
+// extractFolderName 提取文件夹名.
 func extractFolderName(content string) string {
 	// 简单提取，实际应使用 NLP
 	return "new_folder"
 }
 
-// extractServiceName 提取服务名
+// extractServiceName 提取服务名.
 func extractServiceName(content string) string {
 	// 简单提取，实际应使用 NLP
 	return ""

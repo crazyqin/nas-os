@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// ShutdownTrigger 关机触发条件
+// ShutdownTrigger 关机触发条件.
 type ShutdownTrigger string
 
 const (
@@ -22,7 +22,7 @@ const (
 	TriggerManual     ShutdownTrigger = "manual"      // 手动触发
 )
 
-// ShutdownPhase 关机阶段
+// ShutdownPhase 关机阶段.
 type ShutdownPhase string
 
 const (
@@ -32,7 +32,7 @@ const (
 	PhaseShutdown     ShutdownPhase = "shutdown"      // 关机阶段
 )
 
-// ShutdownPolicy 关机策略配置
+// ShutdownPolicy 关机策略配置.
 type ShutdownPolicy struct {
 	BatteryThreshold  int           `json:"battery_threshold"`   // 电量阈值百分比（默认20%）
 	RuntimeThreshold  time.Duration `json:"runtime_threshold"`   // 剩余运行时间阈值（默认5分钟）
@@ -45,7 +45,7 @@ type ShutdownPolicy struct {
 	GracefulTimeout   time.Duration `json:"graceful_timeout"`    // 优雅关闭超时（默认60秒）
 }
 
-// DefaultShutdownPolicy 返回默认关机策略
+// DefaultShutdownPolicy 返回默认关机策略.
 func DefaultShutdownPolicy() ShutdownPolicy {
 	return ShutdownPolicy{
 		BatteryThreshold:  20,
@@ -60,7 +60,7 @@ func DefaultShutdownPolicy() ShutdownPolicy {
 	}
 }
 
-// SystemSnapshot 系统状态快照
+// SystemSnapshot 系统状态快照.
 type SystemSnapshot struct {
 	Timestamp  time.Time              `json:"timestamp"`
 	Hostname   string                 `json:"hostname"`
@@ -74,14 +74,14 @@ type SystemSnapshot struct {
 	CustomData map[string]interface{} `json:"custom_data"`
 }
 
-// ServiceStatus 服务状态
+// ServiceStatus 服务状态.
 type ServiceStatus struct {
 	Name   string `json:"name"`
 	Status string `json:"status"` // running, stopped, error
 	PID    int    `json:"pid"`
 }
 
-// ShutdownManager 关机管理器
+// ShutdownManager 关机管理器.
 type ShutdownManager struct {
 	mu           sync.RWMutex
 	policy       ShutdownPolicy
@@ -93,7 +93,7 @@ type ShutdownManager struct {
 	shutdownOnce sync.Once
 }
 
-// NewShutdownManager 创建关机管理器
+// NewShutdownManager 创建关机管理器.
 func NewShutdownManager(upsManager *UPSManager, policy ShutdownPolicy) *ShutdownManager {
 	return &ShutdownManager{
 		policy:     policy,
@@ -104,7 +104,7 @@ func NewShutdownManager(upsManager *UPSManager, policy ShutdownPolicy) *Shutdown
 	}
 }
 
-// Start 启动关机管理器
+// Start 启动关机管理器.
 func (sm *ShutdownManager) Start() {
 	sm.mu.Lock()
 	if sm.running {
@@ -124,7 +124,7 @@ func (sm *ShutdownManager) Start() {
 	log.Println("✅ 关机管理器已启动")
 }
 
-// Stop 停止关机管理器
+// Stop 停止关机管理器.
 func (sm *ShutdownManager) Stop() {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -138,14 +138,14 @@ func (sm *ShutdownManager) Stop() {
 	log.Println("关机管理器已停止")
 }
 
-// GetPolicy 获取当前关机策略
+// GetPolicy 获取当前关机策略.
 func (sm *ShutdownManager) GetPolicy() ShutdownPolicy {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
 	return sm.policy
 }
 
-// UpdatePolicy 更新关机策略
+// UpdatePolicy 更新关机策略.
 func (sm *ShutdownManager) UpdatePolicy(policy ShutdownPolicy) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
@@ -154,12 +154,12 @@ func (sm *ShutdownManager) UpdatePolicy(policy ShutdownPolicy) {
 		policy.BatteryThreshold, policy.RuntimeThreshold, policy.LoadThreshold)
 }
 
-// TriggerShutdown 手动触发关机
+// TriggerShutdown 手动触发关机.
 func (sm *ShutdownManager) TriggerShutdown() {
 	sm.shutdownCh <- TriggerManual
 }
 
-// handleUPSEvent 处理 UPS 事件
+// handleUPSEvent 处理 UPS 事件.
 func (sm *ShutdownManager) handleUPSEvent(event PowerEventRecord) {
 	sm.mu.RLock()
 	policy := sm.policy
@@ -201,7 +201,7 @@ func (sm *ShutdownManager) handleUPSEvent(event PowerEventRecord) {
 	}
 }
 
-// monitorLoop 持续监控 UPS 状态
+// monitorLoop 持续监控 UPS 状态.
 func (sm *ShutdownManager) monitorLoop() {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
@@ -216,7 +216,7 @@ func (sm *ShutdownManager) monitorLoop() {
 	}
 }
 
-// checkThresholds 检查所有阈值
+// checkThresholds 检查所有阈值.
 func (sm *ShutdownManager) checkThresholds() {
 	sm.mu.RLock()
 	policy := sm.policy
@@ -246,7 +246,7 @@ func (sm *ShutdownManager) checkThresholds() {
 	}
 }
 
-// shutdownLoop 处理关机请求
+// shutdownLoop 处理关机请求.
 func (sm *ShutdownManager) shutdownLoop() {
 	for {
 		select {
@@ -258,7 +258,7 @@ func (sm *ShutdownManager) shutdownLoop() {
 	}
 }
 
-// executeShutdown 执行优雅关机流程
+// executeShutdown 执行优雅关机流程.
 func (sm *ShutdownManager) executeShutdown(trigger ShutdownTrigger) {
 	sm.shutdownOnce.Do(func() {
 		log.Printf("🔌 开始优雅关机流程 (触发原因: %s)", trigger)
@@ -289,7 +289,7 @@ func (sm *ShutdownManager) executeShutdown(trigger ShutdownTrigger) {
 	})
 }
 
-// phaseNotify 通知阶段
+// phaseNotify 通知阶段.
 func (sm *ShutdownManager) phaseNotify(trigger ShutdownTrigger, policy ShutdownPolicy) {
 	log.Printf("📢 阶段1: 通知用户 (触发原因: %s)", trigger)
 
@@ -308,7 +308,7 @@ func (sm *ShutdownManager) phaseNotify(trigger ShutdownTrigger, policy ShutdownP
 	time.Sleep(5 * time.Second)
 }
 
-// phaseSnapshot 系统快照阶段
+// phaseSnapshot 系统快照阶段.
 func (sm *ShutdownManager) phaseSnapshot(trigger ShutdownTrigger, policy ShutdownPolicy) {
 	log.Println("📸 阶段2: 创建系统快照")
 
@@ -338,7 +338,7 @@ func (sm *ShutdownManager) phaseSnapshot(trigger ShutdownTrigger, policy Shutdow
 	log.Printf("✅ 系统快照已保存: %s", filepath)
 }
 
-// createSnapshot 创建系统快照
+// createSnapshot 创建系统快照.
 func (sm *ShutdownManager) createSnapshot(trigger ShutdownTrigger) SystemSnapshot {
 	// 获取主机名
 	hostname, _ := os.Hostname()
@@ -369,7 +369,7 @@ func (sm *ShutdownManager) createSnapshot(trigger ShutdownTrigger) SystemSnapsho
 	}
 }
 
-// getServiceStatus 获取服务状态（模拟实现）
+// getServiceStatus 获取服务状态（模拟实现）.
 func (sm *ShutdownManager) getServiceStatus() []ServiceStatus {
 	sm.mu.RLock()
 	services := sm.policy.StopServices
@@ -385,7 +385,7 @@ func (sm *ShutdownManager) getServiceStatus() []ServiceStatus {
 	return result
 }
 
-// getDiskUsage 获取磁盘使用率（模拟实现）
+// getDiskUsage 获取磁盘使用率（模拟实现）.
 func (sm *ShutdownManager) getDiskUsage() map[string]int {
 	return map[string]int{
 		"/":     45,
@@ -393,12 +393,12 @@ func (sm *ShutdownManager) getDiskUsage() map[string]int {
 	}
 }
 
-// getLoadAvg 获取负载平均值（模拟实现）
+// getLoadAvg 获取负载平均值（模拟实现）.
 func (sm *ShutdownManager) getLoadAvg() [3]float64 {
 	return [3]float64{1.2, 1.5, 1.8}
 }
 
-// phaseStopServices 停止服务阶段
+// phaseStopServices 停止服务阶段.
 func (sm *ShutdownManager) phaseStopServices(policy ShutdownPolicy) {
 	log.Println("⏹️ 阶段3: 停止服务")
 
@@ -415,7 +415,7 @@ func (sm *ShutdownManager) phaseStopServices(policy ShutdownPolicy) {
 	time.Sleep(policy.GracefulTimeout)
 }
 
-// phaseShutdown 执行关机
+// phaseShutdown 执行关机.
 func (sm *ShutdownManager) phaseShutdown() {
 	log.Println("🔌 阶段4: 执行系统关机")
 
@@ -425,7 +425,7 @@ func (sm *ShutdownManager) phaseShutdown() {
 	}
 }
 
-// runCommand 执行系统命令
+// runCommand 执行系统命令.
 func runCommand(name string, args ...string) error {
 	cmd := exec.Command(name, args...)
 	cmd.Stdout = os.Stdout
@@ -433,7 +433,7 @@ func runCommand(name string, args ...string) error {
 	return cmd.Run()
 }
 
-// String 返回关机管理器摘要
+// String 返回关机管理器摘要.
 func (sm *ShutdownManager) String() string {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()

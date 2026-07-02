@@ -245,12 +245,10 @@ func (pe *PolicyEngine) evaluatePolicy(policy *ArchivePolicy, metadata *FileMeta
 	}
 
 	conditions := &policy.Conditions
-	matched := true
+	matched := !(conditions.MinAccessCount > 0 && metadata.AccessCount < conditions.MinAccessCount)
 
 	// 检查访问频率条件
-	if conditions.MinAccessCount > 0 && metadata.AccessCount < conditions.MinAccessCount {
-		matched = false
-	}
+
 	if conditions.MaxAccessCount > 0 && metadata.AccessCount > conditions.MaxAccessCount {
 		matched = false
 	}

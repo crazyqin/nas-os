@@ -7,18 +7,18 @@ import (
 	"strings"
 )
 
-// SESClient SES 协议客户端
+// SESClient SES 协议客户端.
 type SESClient struct {
 	// device SES 设备路径（如 /dev/sg0）
 	device string
 }
 
-// NewSESClient 创建 SES 客户端
+// NewSESClient 创建 SES 客户端.
 func NewSESClient(device string) *SESClient {
 	return &SESClient{device: device}
 }
 
-// DiscoverEnclosures 发现系统中的 SES 设备
+// DiscoverEnclosures 发现系统中的 SES 设备.
 func DiscoverEnclosures() ([]string, error) {
 	// 使用 sg_ses 工具发现 SES 设备
 	out, err := exec.Command("sg_ses", "--list").CombinedOutput()
@@ -38,7 +38,7 @@ func DiscoverEnclosures() ([]string, error) {
 	return devices, nil
 }
 
-// discoverByScanning 扫描 /dev/sg* 设备
+// discoverByScanning 扫描 /dev/sg* 设备.
 func discoverByScanning() ([]string, error) {
 	out, err := exec.Command("ls", "/dev/sg*").CombinedOutput()
 	if err != nil {
@@ -55,7 +55,7 @@ func discoverByScanning() ([]string, error) {
 	return devices, nil
 }
 
-// isSESDevice 检查设备是否为 SES 设备
+// isSESDevice 检查设备是否为 SES 设备.
 func isSESDevice(device string) bool {
 	// 通过 sg_inq 检查设备类型
 	out, err := exec.Command("sg_inq", device).CombinedOutput()
@@ -66,7 +66,7 @@ func isSESDevice(device string) bool {
 	return strings.Contains(string(out), "Enclosure services device")
 }
 
-// GetEnclosureInfo 获取机箱信息
+// GetEnclosureInfo 获取机箱信息.
 func (s *SESClient) GetEnclosureInfo() (*Enclosure, error) {
 	if s.device == "" {
 		return nil, fmt.Errorf("SES 设备路径为空")
@@ -85,7 +85,7 @@ func (s *SESClient) GetEnclosureInfo() (*Enclosure, error) {
 	return enc, nil
 }
 
-// parseStatusPage 解析 SES 状态页面
+// parseStatusPage 解析 SES 状态页面.
 func (s *SESClient) parseStatusPage(enc *Enclosure) error {
 	// 使用 sg_ses 获取状态
 	out, err := exec.Command("sg_ses", "--page=status", s.device).CombinedOutput()
@@ -111,7 +111,7 @@ func (s *SESClient) parseStatusPage(enc *Enclosure) error {
 	return nil
 }
 
-// SetSlotLED 设置槽位 LED 状态
+// SetSlotLED 设置槽位 LED 状态.
 func (s *SESClient) SetSlotLED(slotID int, ledType LEDType, state LEDState) error {
 	if s.device == "" {
 		return fmt.Errorf("SES 设备路径为空")
@@ -128,7 +128,7 @@ func (s *SESClient) SetSlotLED(slotID int, ledType LEDType, state LEDState) erro
 	return nil
 }
 
-// buildControlByte 构建 SES 控制字节
+// buildControlByte 构建 SES 控制字节.
 func buildControlByte(ledType LEDType, state LEDState) string {
 	switch ledType {
 	case LEDLocate:
@@ -146,7 +146,7 @@ func buildControlByte(ledType LEDType, state LEDState) string {
 	}
 }
 
-// GetSensors 获取 SES 传感器信息
+// GetSensors 获取 SES 传感器信息.
 func (s *SESClient) GetSensors() ([]*Sensor, error) {
 	if s.device == "" {
 		return nil, fmt.Errorf("SES 设备路径为空")

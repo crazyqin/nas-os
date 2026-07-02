@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Classification represents data classification level
+// Classification represents data classification level.
 type Classification string
 
 const (
@@ -21,7 +21,7 @@ const (
 	ClassTopSecret    Classification = "top_secret"
 )
 
-// SensitivityLevel represents data sensitivity
+// SensitivityLevel represents data sensitivity.
 type SensitivityLevel string
 
 const (
@@ -31,7 +31,7 @@ const (
 	SensitivityCritical SensitivityLevel = "critical"
 )
 
-// DataType represents the type of data
+// DataType represents the type of data.
 type DataType string
 
 const (
@@ -48,7 +48,7 @@ const (
 	DataTypePersonal  DataType = "personal"
 )
 
-// PIIType represents types of PII detected
+// PIIType represents types of PII detected.
 type PIIType string
 
 const (
@@ -62,7 +62,7 @@ const (
 	PIIDOB        PIIType = "date_of_birth"
 )
 
-// ClassifiedFile represents a classified file
+// ClassifiedFile represents a classified file.
 type ClassifiedFile struct {
 	ID             string            `json:"id"`
 	Path           string            `json:"path"`
@@ -82,7 +82,7 @@ type ClassifiedFile struct {
 	Metadata       map[string]string `json:"metadata"`
 }
 
-// PIIDetection represents detected PII
+// PIIDetection represents detected PII.
 type PIIDetection struct {
 	Type       PIIType `json:"type"`
 	Value      string  `json:"value"` // Masked value
@@ -91,7 +91,7 @@ type PIIDetection struct {
 	EndPos     int     `json:"end_pos"`
 }
 
-// ClassificationRule represents an auto-classification rule
+// ClassificationRule represents an auto-classification rule.
 type ClassificationRule struct {
 	ID             string           `json:"id"`
 	Name           string           `json:"name"`
@@ -105,14 +105,14 @@ type ClassificationRule struct {
 	CreatedAt      time.Time        `json:"created_at"`
 }
 
-// Condition represents a rule condition
+// Condition represents a rule condition.
 type Condition struct {
 	Field    string   `json:"field"`    // path, mime_type, size, content
 	Operator string   `json:"operator"` // contains, matches, gt, lt, eq
 	Values   []string `json:"values"`
 }
 
-// ScanConfig represents a scan configuration
+// ScanConfig represents a scan configuration.
 type ScanConfig struct {
 	Paths        []string `json:"paths"`
 	ExcludePaths []string `json:"exclude_paths"`
@@ -125,7 +125,7 @@ type ScanConfig struct {
 	Concurrent   int      `json:"concurrent"`
 }
 
-// ScanResult represents scan results
+// ScanResult represents scan results.
 type ScanResult struct {
 	ScanID           string         `json:"scan_id"`
 	StartTime        time.Time      `json:"start_time"`
@@ -141,13 +141,13 @@ type ScanResult struct {
 	Errors           []string       `json:"errors"`
 }
 
-// TagCount represents a tag and its count
+// TagCount represents a tag and its count.
 type TagCount struct {
 	Tag   string `json:"tag"`
 	Count int    `json:"count"`
 }
 
-// ClassificationStats represents classification statistics
+// ClassificationStats represents classification statistics.
 type ClassificationStats struct {
 	TotalFiles       int            `json:"total_files"`
 	ByClassification map[string]int `json:"by_classification"`
@@ -159,7 +159,7 @@ type ClassificationStats struct {
 	ComplianceScore  float64        `json:"compliance_score"`
 }
 
-// Config holds data classification configuration
+// Config holds data classification configuration.
 type Config struct {
 	Enabled               bool   `json:"enabled"`
 	AutoClassify          bool   `json:"auto_classify"`
@@ -171,7 +171,7 @@ type Config struct {
 	DefaultClassification string `json:"default_classification"`
 }
 
-// Manager manages data classification
+// Manager manages data classification.
 type Manager struct {
 	config *Config
 	files  map[string]*ClassifiedFile
@@ -183,7 +183,7 @@ type Manager struct {
 	cancel context.CancelFunc
 }
 
-// NewManager creates a new data classification manager
+// NewManager creates a new data classification manager.
 func NewManager(config *Config) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Manager{
@@ -201,7 +201,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// ClassifyFile classifies a file
+// ClassifyFile classifies a file.
 func (m *Manager) ClassifyFile(file *ClassifiedFile) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -221,7 +221,7 @@ func (m *Manager) ClassifyFile(file *ClassifiedFile) error {
 	return nil
 }
 
-// AddRule adds a classification rule
+// AddRule adds a classification rule.
 func (m *Manager) AddRule(rule *ClassificationRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -230,7 +230,7 @@ func (m *Manager) AddRule(rule *ClassificationRule) error {
 	return nil
 }
 
-// GetFile returns classification info for a file
+// GetFile returns classification info for a file.
 func (m *Manager) GetFile(id string) (*ClassifiedFile, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -241,14 +241,14 @@ func (m *Manager) GetFile(id string) (*ClassifiedFile, error) {
 	return file, nil
 }
 
-// GetStats returns classification statistics
+// GetStats returns classification statistics.
 func (m *Manager) GetStats() *ClassificationStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.stats
 }
 
-// SearchByClassification finds files by classification level
+// SearchByClassification finds files by classification level.
 func (m *Manager) SearchByClassification(class Classification) []*ClassifiedFile {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -262,7 +262,7 @@ func (m *Manager) SearchByClassification(class Classification) []*ClassifiedFile
 	return results
 }
 
-// SearchByTag finds files by tag
+// SearchByTag finds files by tag.
 func (m *Manager) SearchByTag(tag string) []*ClassifiedFile {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -279,7 +279,7 @@ func (m *Manager) SearchByTag(tag string) []*ClassifiedFile {
 	return results
 }
 
-// SearchPII finds files containing PII
+// SearchPII finds files containing PII.
 func (m *Manager) SearchPII() []*ClassifiedFile {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -293,7 +293,7 @@ func (m *Manager) SearchPII() []*ClassifiedFile {
 	return results
 }
 
-// Stop stops the classification manager
+// Stop stops the classification manager.
 func (m *Manager) Stop() {
 	m.cancel()
 }

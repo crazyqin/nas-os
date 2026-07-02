@@ -4,7 +4,7 @@ package disk
 
 import "strings"
 
-// ManufacturerTBWSpec 厂商TBW规格
+// ManufacturerTBWSpec 厂商TBW规格.
 type ManufacturerTBWSpec struct {
 	Manufacturer          string             `json:"manufacturer"`
 	ModelPattern          string             `json:"modelPattern"`
@@ -18,7 +18,7 @@ type ManufacturerTBWSpec struct {
 	EnduranceRating       string             `json:"enduranceRating"`
 }
 
-// TBWSpec TBW规格详情
+// TBWSpec TBW规格详情.
 type TBWSpec struct {
 	CapacityGB    uint64  `json:"capacityGB"`
 	TBWTotal      float64 `json:"tbwTotal"`
@@ -27,7 +27,7 @@ type TBWSpec struct {
 	WriteSpeedMax float64 `json:"writeSpeedMax"`
 }
 
-// ManufacturerTBWDatabase 厂商TBW数据库
+// ManufacturerTBWDatabase 厂商TBW数据库.
 var ManufacturerTBWDatabase = []ManufacturerTBWSpec{
 	{
 		Manufacturer: "Samsung",
@@ -166,12 +166,12 @@ var ManufacturerTBWDatabase = []ManufacturerTBWSpec{
 	},
 }
 
-// LookupTBWSpec 根据型号和容量查找TBW规格
+// LookupTBWSpec 根据型号和容量查找TBW规格.
 func LookupTBWSpec(model string, capacityBytes uint64) *TBWSpec {
 	for _, spec := range ManufacturerTBWDatabase {
 		if strings.Contains(strings.ToUpper(model), strings.ToUpper(spec.ModelPattern)) || spec.ModelPattern == ".*" {
 			var closestTBW *TBWSpec
-			var minDiff uint64 = uint64(1<<63 - 1)
+			var minDiff = uint64(1<<63 - 1)
 
 			for capBytes, tbwSpec := range spec.TBWByCapacity {
 				diff := absDiff(capacityBytes, capBytes)
@@ -197,7 +197,7 @@ func LookupTBWSpec(model string, capacityBytes uint64) *TBWSpec {
 	}
 }
 
-// GetManufacturerSpec 获取完整厂商规格
+// GetManufacturerSpec 获取完整厂商规格.
 func GetManufacturerSpec(model string) *ManufacturerTBWSpec {
 	for _, spec := range ManufacturerTBWDatabase {
 		if strings.Contains(strings.ToUpper(model), strings.ToUpper(spec.ModelPattern)) {
@@ -207,7 +207,7 @@ func GetManufacturerSpec(model string) *ManufacturerTBWSpec {
 	return nil
 }
 
-// absDiff 计算绝对差值
+// absDiff 计算绝对差值.
 func absDiff(a, b uint64) uint64 {
 	if a > b {
 		return a - b

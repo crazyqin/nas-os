@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// ThreatLevel represents threat levels
+// ThreatLevel represents threat levels.
 type ThreatLevel string
 
 const (
@@ -19,7 +19,7 @@ const (
 	ThreatCritical ThreatLevel = "critical"
 )
 
-// PostureScore represents security posture score
+// PostureScore represents security posture score.
 type PostureScore struct {
 	Overall    int            `json:"overall"`
 	Network    int            `json:"network"`
@@ -32,7 +32,7 @@ type PostureScore struct {
 	Breakdown  map[string]int `json:"breakdown"`
 }
 
-// Threat represents a detected threat
+// Threat represents a detected threat.
 type Threat struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -48,7 +48,7 @@ type Threat struct {
 	Mitigation  string      `json:"mitigation,omitempty"`
 }
 
-// Vulnerability represents a security vulnerability
+// Vulnerability represents a security vulnerability.
 type Vulnerability struct {
 	ID          string     `json:"id"`
 	CVE         string     `json:"cve"`
@@ -63,7 +63,7 @@ type Vulnerability struct {
 	Status      string     `json:"status"`
 }
 
-// AttackSurface represents attack surface analysis
+// AttackSurface represents attack surface analysis.
 type AttackSurface struct {
 	OpenPorts       []Port     `json:"open_ports"`
 	Services        []Service  `json:"services"`
@@ -74,7 +74,7 @@ type AttackSurface struct {
 	AnalyzedAt      time.Time  `json:"analyzed_at"`
 }
 
-// Port represents an open port
+// Port represents an open port.
 type Port struct {
 	Number   int    `json:"number"`
 	Protocol string `json:"protocol"`
@@ -82,7 +82,7 @@ type Port struct {
 	Risk     string `json:"risk"`
 }
 
-// Service represents a running service
+// Service represents a running service.
 type Service struct {
 	Name    string `json:"name"`
 	Version string `json:"version"`
@@ -91,7 +91,7 @@ type Service struct {
 	Risk    string `json:"risk"`
 }
 
-// Endpoint represents a network endpoint
+// Endpoint represents a network endpoint.
 type Endpoint struct {
 	URL     string `json:"url"`
 	Type    string `json:"type"`
@@ -100,7 +100,7 @@ type Endpoint struct {
 	Risk    string `json:"risk"`
 }
 
-// SecurityEvent represents a security event
+// SecurityEvent represents a security event.
 type SecurityEvent struct {
 	ID        string                 `json:"id"`
 	Type      string                 `json:"type"`
@@ -111,7 +111,7 @@ type SecurityEvent struct {
 	Timestamp time.Time              `json:"timestamp"`
 }
 
-// Manager manages cybersecurity posture
+// Manager manages cybersecurity posture.
 type Manager struct {
 	mu              sync.RWMutex
 	threats         map[string]*Threat
@@ -122,7 +122,7 @@ type Manager struct {
 	config          *Config
 }
 
-// Config represents manager configuration
+// Config represents manager configuration.
 type Config struct {
 	ScanInterval   time.Duration `json:"scan_interval"`
 	AlertThreshold ThreatLevel   `json:"alert_threshold"`
@@ -130,7 +130,7 @@ type Config struct {
 	MaxEvents      int           `json:"max_events"`
 }
 
-// DefaultConfig returns default configuration
+// DefaultConfig returns default configuration.
 func DefaultConfig() *Config {
 	return &Config{
 		ScanInterval:   1 * time.Hour,
@@ -140,7 +140,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// NewManager creates a new cyber posture manager
+// NewManager creates a new cyber posture manager.
 func NewManager(config *Config) *Manager {
 	if config == nil {
 		config = DefaultConfig()
@@ -157,7 +157,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// ScanThreats performs threat scanning
+// ScanThreats performs threat scanning.
 func (m *Manager) ScanThreats(ctx context.Context) ([]*Threat, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -192,7 +192,7 @@ func (m *Manager) ScanThreats(ctx context.Context) ([]*Threat, error) {
 	return threats, nil
 }
 
-// ScanVulnerabilities performs vulnerability scanning
+// ScanVulnerabilities performs vulnerability scanning.
 func (m *Manager) ScanVulnerabilities(ctx context.Context) ([]*Vulnerability, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -226,7 +226,7 @@ func (m *Manager) ScanVulnerabilities(ctx context.Context) ([]*Vulnerability, er
 	return vulns, nil
 }
 
-// AnalyzeAttackSurface performs attack surface analysis
+// AnalyzeAttackSurface performs attack surface analysis.
 func (m *Manager) AnalyzeAttackSurface(ctx context.Context) (*AttackSurface, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -263,7 +263,7 @@ func (m *Manager) AnalyzeAttackSurface(ctx context.Context) (*AttackSurface, err
 	return m.surface, nil
 }
 
-// GetScore gets security posture score
+// GetScore gets security posture score.
 func (m *Manager) GetScore(ctx context.Context) (*PostureScore, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -291,7 +291,7 @@ func (m *Manager) GetScore(ctx context.Context) (*PostureScore, error) {
 	return m.score, nil
 }
 
-// AddEvent adds a security event
+// AddEvent adds a security event.
 func (m *Manager) AddEvent(event *SecurityEvent) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -313,7 +313,7 @@ func (m *Manager) AddEvent(event *SecurityEvent) error {
 	return nil
 }
 
-// GetEvents gets security events
+// GetEvents gets security events.
 func (m *Manager) GetEvents(level ThreatLevel, limit int) []*SecurityEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -332,7 +332,7 @@ func (m *Manager) GetEvents(level ThreatLevel, limit int) []*SecurityEvent {
 	return events
 }
 
-// ResolveThreat resolves a threat
+// ResolveThreat resolves a threat.
 func (m *Manager) ResolveThreat(threatID, mitigation string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -350,7 +350,7 @@ func (m *Manager) ResolveThreat(threatID, mitigation string) error {
 	return nil
 }
 
-// FixVulnerability marks a vulnerability as fixed
+// FixVulnerability marks a vulnerability as fixed.
 func (m *Manager) FixVulnerability(vulnID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -367,7 +367,7 @@ func (m *Manager) FixVulnerability(vulnID string) error {
 	return nil
 }
 
-// GetThreats gets all threats
+// GetThreats gets all threats.
 func (m *Manager) GetThreats(level ThreatLevel) []*Threat {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -383,7 +383,7 @@ func (m *Manager) GetThreats(level ThreatLevel) []*Threat {
 	return threats
 }
 
-// GetVulnerabilities gets all vulnerabilities
+// GetVulnerabilities gets all vulnerabilities.
 func (m *Manager) GetVulnerabilities(status string) []*Vulnerability {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -399,7 +399,7 @@ func (m *Manager) GetVulnerabilities(status string) []*Vulnerability {
 	return vulns
 }
 
-// GenerateReport generates a security report
+// GenerateReport generates a security report.
 func (m *Manager) GenerateReport(ctx context.Context) (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -449,7 +449,7 @@ func (m *Manager) GenerateReport(ctx context.Context) (map[string]interface{}, e
 	return report, nil
 }
 
-// HandleHTTP registers HTTP handlers
+// HandleHTTP registers HTTP handlers.
 func (m *Manager) HandleHTTP(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/cyber/score", m.handleScore)
 	mux.HandleFunc("/api/v1/cyber/threats", m.handleThreats)

@@ -6,17 +6,17 @@ import (
 	"strconv"
 )
 
-// Handlers 提供 VLAN HTTP API
+// Handlers 提供 VLAN HTTP API.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建 VLAN API 处理器
+// NewHandlers 创建 VLAN API 处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/vlans", h.handleVLANs)
 	mux.HandleFunc("/api/v1/vlans/", h.handleVLANByID)

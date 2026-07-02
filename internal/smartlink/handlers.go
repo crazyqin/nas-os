@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler provides HTTP handlers for smartlink
+// Handler provides HTTP handlers for smartlink.
 type Handler struct {
 	linker *Linker
 }
 
-// NewHandler creates a new Handler
+// NewHandler creates a new Handler.
 func NewHandler(linker *Linker) *Handler {
 	return &Handler{linker: linker}
 }
 
-// RegisterRoutes registers smartlink routes on a router group
+// RegisterRoutes registers smartlink routes on a router group.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	smartlink := rg.Group("/smartlink")
 	{
@@ -42,7 +42,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 }
 
 // CreateLink creates a new share link
-// POST /smartlink/links
+// POST /smartlink/links.
 func (h *Handler) CreateLink(c *gin.Context) {
 	var req CreateLinkRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -73,7 +73,7 @@ func (h *Handler) CreateLink(c *gin.Context) {
 }
 
 // BatchCreateLinks creates multiple share links
-// POST /smartlink/links/batch
+// POST /smartlink/links/batch.
 func (h *Handler) BatchCreateLinks(c *gin.Context) {
 	var req BatchCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -105,7 +105,7 @@ func (h *Handler) BatchCreateLinks(c *gin.Context) {
 }
 
 // GetLink retrieves a share link by ID
-// GET /smartlink/links/:id
+// GET /smartlink/links/:id.
 func (h *Handler) GetLink(c *gin.Context) {
 	id := c.Param("id")
 
@@ -123,7 +123,7 @@ func (h *Handler) GetLink(c *gin.Context) {
 }
 
 // ListLinksByFile lists all links for a file
-// GET /smartlink/links/file/:fileId
+// GET /smartlink/links/file/:fileId.
 func (h *Handler) ListLinksByFile(c *gin.Context) {
 	fileID := c.Param("fileId")
 
@@ -138,7 +138,7 @@ func (h *Handler) ListLinksByFile(c *gin.Context) {
 }
 
 // DeactivateLink deactivates a share link
-// DELETE /smartlink/links/:id
+// DELETE /smartlink/links/:id.
 func (h *Handler) DeactivateLink(c *gin.Context) {
 	id := c.Param("id")
 	creatorID := c.GetString("user_id")
@@ -161,7 +161,7 @@ func (h *Handler) DeactivateLink(c *gin.Context) {
 }
 
 // AccessLink accesses a share link
-// POST /smartlink/access/:token
+// POST /smartlink/access/:token.
 func (h *Handler) AccessLink(c *gin.Context) {
 	token := c.Param("token")
 
@@ -194,7 +194,7 @@ func (h *Handler) AccessLink(c *gin.Context) {
 }
 
 // GetLinkByToken retrieves link info by token
-// GET /smartlink/access/:token/info
+// GET /smartlink/access/:token/info.
 func (h *Handler) GetLinkByToken(c *gin.Context) {
 	token := c.Param("token")
 
@@ -212,7 +212,7 @@ func (h *Handler) GetLinkByToken(c *gin.Context) {
 }
 
 // GetLinkStats returns statistics for a link
-// GET /smartlink/links/:id/stats
+// GET /smartlink/links/:id/stats.
 func (h *Handler) GetLinkStats(c *gin.Context) {
 	id := c.Param("id")
 
@@ -230,7 +230,7 @@ func (h *Handler) GetLinkStats(c *gin.Context) {
 }
 
 // GetAccessLogs returns access logs for a link
-// GET /smartlink/links/:id/logs
+// GET /smartlink/links/:id/logs.
 func (h *Handler) GetAccessLogs(c *gin.Context) {
 	id := c.Param("id")
 
@@ -249,13 +249,13 @@ func (h *Handler) GetAccessLogs(c *gin.Context) {
 }
 
 // CleanupExpired removes expired links
-// POST /smartlink/cleanup
+// POST /smartlink/cleanup.
 func (h *Handler) CleanupExpired(c *gin.Context) {
 	removed := h.linker.CleanupExpiredLinks()
 	c.JSON(http.StatusOK, gin.H{"removed": removed})
 }
 
-// toLinkResponse converts ShareLink to LinkResponse
+// toLinkResponse converts ShareLink to LinkResponse.
 func (h *Handler) toLinkResponse(link *ShareLink) LinkResponse {
 	return LinkResponse{
 		ID:          link.ID,

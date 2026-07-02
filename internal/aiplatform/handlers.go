@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler AI平台API handler
+// Handler AI平台API handler.
 type Handler struct {
 	platform *AIPlatform
 }
 
-// NewHandler 创建handler
+// NewHandler 创建handler.
 func NewHandler(platform *AIPlatform) *Handler {
 	return &Handler{platform: platform}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	ai := rg.Group("/ai/platform")
 	{

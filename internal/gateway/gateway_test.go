@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// TestReverseProxy tests the reverse proxy functionality
+// TestReverseProxy tests the reverse proxy functionality.
 func TestReverseProxy(t *testing.T) {
 	t.Run("NewReverseProxy", func(t *testing.T) {
 		proxy := NewReverseProxy(nil)
@@ -95,7 +95,7 @@ func TestReverseProxy(t *testing.T) {
 	})
 }
 
-// TestRouter tests the router functionality
+// TestRouter tests the router functionality.
 func TestRouter(t *testing.T) {
 	t.Run("NewRouter", func(t *testing.T) {
 		router := NewRouter()
@@ -283,7 +283,7 @@ func TestRouter(t *testing.T) {
 	})
 }
 
-// TestMiddleware tests the middleware functionality
+// TestMiddleware tests the middleware functionality.
 func TestMiddleware(t *testing.T) {
 	t.Run("LoggingMiddleware", func(t *testing.T) {
 		handler := LoggingMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -458,7 +458,7 @@ func TestMiddleware(t *testing.T) {
 	})
 }
 
-// TestGatewayAPI tests the API endpoints
+// TestGatewayAPI tests the API endpoints.
 func TestGatewayAPI(t *testing.T) {
 	t.Run("HandleRoutes", func(t *testing.T) {
 		gw := NewGateway(nil)
@@ -608,7 +608,7 @@ func TestGatewayAPI(t *testing.T) {
 	})
 }
 
-// TestGateway tests the gateway functionality
+// TestGateway tests the gateway functionality.
 func TestGateway(t *testing.T) {
 	t.Run("NewGateway", func(t *testing.T) {
 		gw := NewGateway(nil)
@@ -674,7 +674,7 @@ func TestGateway(t *testing.T) {
 	})
 }
 
-// TestCertificateManager tests the certificate manager
+// TestCertificateManager tests the certificate manager.
 func TestCertificateManager(t *testing.T) {
 	t.Run("AddGetRemove", func(t *testing.T) {
 		cm := NewCertificateManager()
@@ -718,7 +718,7 @@ func TestCertificateManager(t *testing.T) {
 	})
 }
 
-// TestAccessLogger tests the access logger
+// TestAccessLogger tests the access logger.
 func TestAccessLogger(t *testing.T) {
 	t.Run("LogAndFilter", func(t *testing.T) {
 		logger := NewAccessLogger()
@@ -764,7 +764,7 @@ func TestAccessLogger(t *testing.T) {
 	})
 }
 
-// TestGatewayManager tests the gateway manager
+// TestGatewayManager tests the gateway manager.
 func TestGatewayManager(t *testing.T) {
 	t.Run("AddGetRemove", func(t *testing.T) {
 		manager := NewGatewayManager()
@@ -804,7 +804,7 @@ func TestGatewayManager(t *testing.T) {
 	})
 }
 
-// TestRBACMiddleware tests the RBAC middleware
+// TestRBACMiddleware tests the RBAC middleware.
 func TestRBACMiddleware(t *testing.T) {
 	config := &RBACConfig{
 		Roles: map[string][]string{
@@ -877,7 +877,7 @@ func TestRBACMiddleware(t *testing.T) {
 	})
 }
 
-// TestBasicAuthMiddleware tests the basic auth middleware
+// TestBasicAuthMiddleware tests the basic auth middleware.
 func TestBasicAuthMiddleware(t *testing.T) {
 	config := &AuthConfig{
 		Enabled: true,
@@ -939,7 +939,7 @@ func TestBasicAuthMiddleware(t *testing.T) {
 	})
 }
 
-// TestSSLManager tests the SSL manager
+// TestSSLManager tests the SSL manager.
 func TestSSLManager(t *testing.T) {
 	config := &SSLConfig{
 		Enabled:  true,
@@ -968,7 +968,7 @@ func TestSSLManager(t *testing.T) {
 	}
 }
 
-// TestLoadBalancer tests the load balancer
+// TestLoadBalancer tests the load balancer.
 func TestLoadBalancer(t *testing.T) {
 	config := &LoadBalancerConfig{
 		Algorithm: "round-robin",
@@ -986,7 +986,7 @@ func TestLoadBalancer(t *testing.T) {
 	}
 }
 
-// TestAccessLogMiddleware tests the access log middleware
+// TestAccessLogMiddleware tests the access log middleware.
 func TestAccessLogMiddleware(t *testing.T) {
 	logger := NewAccessLogger()
 

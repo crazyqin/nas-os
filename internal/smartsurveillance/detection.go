@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// DetectionEngine AI检测引擎
+// DetectionEngine AI检测引擎.
 type DetectionEngine struct {
 	mu     sync.RWMutex
 	logger *zap.Logger
@@ -17,7 +17,7 @@ type DetectionEngine struct {
 	models map[string]*AIModel
 }
 
-// NewDetectionEngine 创建AI检测引擎
+// NewDetectionEngine 创建AI检测引擎.
 func NewDetectionEngine(logger *zap.Logger, engine *SurveillanceEngine) *DetectionEngine {
 	de := &DetectionEngine{
 		logger: logger,
@@ -30,7 +30,7 @@ func NewDetectionEngine(logger *zap.Logger, engine *SurveillanceEngine) *Detecti
 	return de
 }
 
-// initDefaultModels 初始化默认AI模型
+// initDefaultModels 初始化默认AI模型.
 func (de *DetectionEngine) initDefaultModels() {
 	defaultModels := []*AIModel{
 		{
@@ -80,7 +80,7 @@ func (de *DetectionEngine) initDefaultModels() {
 	}
 }
 
-// ProcessFrame 处理视频帧
+// ProcessFrame 处理视频帧.
 func (de *DetectionEngine) ProcessFrame(cameraID string, frameData []byte) (*AIAnalysisResult, error) {
 	de.mu.RLock()
 	defer de.mu.RUnlock()
@@ -132,7 +132,7 @@ func (de *DetectionEngine) ProcessFrame(cameraID string, frameData []byte) (*AIA
 	return result, nil
 }
 
-// isDetectionEnabled 检查摄像头是否启用该检测类型
+// isDetectionEnabled 检查摄像头是否启用该检测类型.
 func (de *DetectionEngine) isDetectionEnabled(camera *Camera, detectType DetectionType) bool {
 	for _, dt := range camera.DetectionTypes {
 		if dt == detectType {
@@ -142,7 +142,7 @@ func (de *DetectionEngine) isDetectionEnabled(camera *Camera, detectType Detecti
 	return false
 }
 
-// detectFaces 人脸识别（模拟）
+// detectFaces 人脸识别（模拟）.
 func (de *DetectionEngine) detectFaces(frameData []byte, model *AIModel) []DetectedFace {
 	// 模拟人脸识别结果
 	return []DetectedFace{
@@ -155,7 +155,7 @@ func (de *DetectionEngine) detectFaces(frameData []byte, model *AIModel) []Detec
 	}
 }
 
-// detectObjects 物体检测（模拟）
+// detectObjects 物体检测（模拟）.
 func (de *DetectionEngine) detectObjects(frameData []byte, model *AIModel) []DetectedObject {
 	// 模拟物体检测结果
 	return []DetectedObject{
@@ -168,7 +168,7 @@ func (de *DetectionEngine) detectObjects(frameData []byte, model *AIModel) []Det
 	}
 }
 
-// detectPlates 车牌识别（模拟）
+// detectPlates 车牌识别（模拟）.
 func (de *DetectionEngine) detectPlates(frameData []byte, model *AIModel) []DetectedPlate {
 	// 模拟车牌识别结果
 	return []DetectedPlate{
@@ -181,13 +181,13 @@ func (de *DetectionEngine) detectPlates(frameData []byte, model *AIModel) []Dete
 	}
 }
 
-// detectBehaviors 行为分析（模拟）
+// detectBehaviors 行为分析（模拟）.
 func (de *DetectionEngine) detectBehaviors(frameData []byte, model *AIModel) []DetectedBehavior {
 	// 模拟行为分析结果
 	return nil // 默认无异常行为
 }
 
-// GetModels 获取所有AI模型
+// GetModels 获取所有AI模型.
 func (de *DetectionEngine) GetModels() []*AIModel {
 	de.mu.RLock()
 	defer de.mu.RUnlock()
@@ -199,7 +199,7 @@ func (de *DetectionEngine) GetModels() []*AIModel {
 	return models
 }
 
-// GetModel 获取指定AI模型
+// GetModel 获取指定AI模型.
 func (de *DetectionEngine) GetModel(modelID string) (*AIModel, error) {
 	de.mu.RLock()
 	defer de.mu.RUnlock()
@@ -211,7 +211,7 @@ func (de *DetectionEngine) GetModel(modelID string) (*AIModel, error) {
 	return model, nil
 }
 
-// UpdateModel 更新AI模型配置
+// UpdateModel 更新AI模型配置.
 func (de *DetectionEngine) UpdateModel(model *AIModel) error {
 	de.mu.Lock()
 	defer de.mu.Unlock()
@@ -225,7 +225,7 @@ func (de *DetectionEngine) UpdateModel(model *AIModel) error {
 	return nil
 }
 
-// RegisterFace 注册人脸
+// RegisterFace 注册人脸.
 func (de *DetectionEngine) RegisterFace(personID, name string, embedding []float64) error {
 	de.logger.Info("人脸已注册",
 		zap.String("person_id", personID),
@@ -233,7 +233,7 @@ func (de *DetectionEngine) RegisterFace(personID, name string, embedding []float
 	return nil
 }
 
-// RecognizeFace 识别陌生人脸并告警
+// RecognizeFace 识别陌生人脸并告警.
 func (de *DetectionEngine) RecognizeFace(cameraID string, face DetectedFace) (*Event, error) {
 	if face.Name == "" || face.Confidence < 0.5 {
 		// 陌生人，触发告警

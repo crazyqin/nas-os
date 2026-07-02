@@ -15,99 +15,99 @@ import (
 // 数据模型
 // ============================================================
 
-// Review 评价结构
+// Review 评价结构.
 type Review struct {
-	ID             string            `json:"id"`              // 评价 ID
-	AppID          string            `json:"app_id"`          // 应用 ID
-	UserID         string            `json:"user_id"`         // 用户 ID
-	UserName       string            `json:"user_name"`       // 用户名
-	Rating         int               `json:"rating"`          // 评分 1-5 星
-	Content        string            `json:"content"`         // 评论内容
-	Title          string            `json:"title,omitempty"` // 评论标题
-	CreatedAt      time.Time         `json:"created_at"`      // 创建时间
-	UpdatedAt      time.Time         `json:"updated_at"`      // 更新时间
-	Helpful        int               `json:"helpful"`         // 有用数
-	NotHelpful     int               `json:"not_helpful"`      // 无用数
-	Version        string            `json:"version"`        // 评价时的应用版本
-	Verified       bool              `json:"verified"`        // 是否已验证安装
-	DeveloperReply *DeveloperReply   `json:"developer_reply,omitempty"` // 开发者回复
-	Reports        []*ReviewReport   `json:"reports,omitempty"`        // 举报记录
-	Hidden         bool              `json:"hidden"`          // 是否被隐藏
-	HiddenReason   string            `json:"hidden_reason,omitempty"`   // 隐藏原因
+	ID             string          `json:"id"`                        // 评价 ID
+	AppID          string          `json:"app_id"`                    // 应用 ID
+	UserID         string          `json:"user_id"`                   // 用户 ID
+	UserName       string          `json:"user_name"`                 // 用户名
+	Rating         int             `json:"rating"`                    // 评分 1-5 星
+	Content        string          `json:"content"`                   // 评论内容
+	Title          string          `json:"title,omitempty"`           // 评论标题
+	CreatedAt      time.Time       `json:"created_at"`                // 创建时间
+	UpdatedAt      time.Time       `json:"updated_at"`                // 更新时间
+	Helpful        int             `json:"helpful"`                   // 有用数
+	NotHelpful     int             `json:"not_helpful"`               // 无用数
+	Version        string          `json:"version"`                   // 评价时的应用版本
+	Verified       bool            `json:"verified"`                  // 是否已验证安装
+	DeveloperReply *DeveloperReply `json:"developer_reply,omitempty"` // 开发者回复
+	Reports        []*ReviewReport `json:"reports,omitempty"`         // 举报记录
+	Hidden         bool            `json:"hidden"`                    // 是否被隐藏
+	HiddenReason   string          `json:"hidden_reason,omitempty"`   // 隐藏原因
 }
 
-// DeveloperReply 开发者回复评价
+// DeveloperReply 开发者回复评价.
 type DeveloperReply struct {
-	ReviewID  string    `json:"review_id"`   // 关联评价 ID
-	Content   string    `json:"content"`    // 回复内容
-	AuthorID  string    `json:"author_id"`  // 开发者 ID
-	AuthorName string  `json:"author_name"`// 开发者名称
-	CreatedAt time.Time `json:"created_at"` // 回复时间
-	UpdatedAt time.Time `json:"updated_at"` // 更新时间
+	ReviewID   string    `json:"review_id"`   // 关联评价 ID
+	Content    string    `json:"content"`     // 回复内容
+	AuthorID   string    `json:"author_id"`   // 开发者 ID
+	AuthorName string    `json:"author_name"` // 开发者名称
+	CreatedAt  time.Time `json:"created_at"`  // 回复时间
+	UpdatedAt  time.Time `json:"updated_at"`  // 更新时间
 }
 
-// ReviewReport 评价举报
+// ReviewReport 评价举报.
 type ReviewReport struct {
 	ReviewID string    `json:"review_id"` // 评价 ID
-	UserID   string    `json:"user_id"`  // 举报用户 ID
+	UserID   string    `json:"user_id"`   // 举报用户 ID
 	Reason   string    `json:"reason"`    // 举报原因
 	Detail   string    `json:"detail"`    // 详细说明
 	At       time.Time `json:"at"`        // 举报时间
 }
 
-// ReviewStats 应用评价统计
+// ReviewStats 应用评价统计.
 type ReviewStats struct {
-	AppID          string  `json:"app_id"`            // 应用 ID
-	AverageRating  float64 `json:"average_rating"`   // 平均分
-	TotalReviews   int     `json:"total_reviews"`     // 评价总数
-	Distribution   map[int]int `json:"distribution"`  // 评分分布 {1: n, 2: n, ...5: n}
-	VerifiedCount  int     `json:"verified_count"`    // 已验证用户评价数
-	RepliedCount   int     `json:"replied_count"`     // 已有开发者回复的评价数
+	AppID         string      `json:"app_id"`         // 应用 ID
+	AverageRating float64     `json:"average_rating"` // 平均分
+	TotalReviews  int         `json:"total_reviews"`  // 评价总数
+	Distribution  map[int]int `json:"distribution"`   // 评分分布 {1: n, 2: n, ...5: n}
+	VerifiedCount int         `json:"verified_count"` // 已验证用户评价数
+	RepliedCount  int         `json:"replied_count"`  // 已有开发者回复的评价数
 }
 
-// ReviewSortMode 评价排序模式
+// ReviewSortMode 评价排序模式.
 type ReviewSortMode string
 
 const (
-	SortNewest    ReviewSortMode = "newest"     // 最新
-	SortOldest    ReviewSortMode = "oldest"     // 最早
-	SortHighest   ReviewSortMode = "highest"    // 评分最高
-	SortLowest    ReviewSortMode = "lowest"     // 评分最低
-	SortHelpful   ReviewSortMode = "helpful"    // 最有用
+	SortNewest  ReviewSortMode = "newest"  // 最新
+	SortOldest  ReviewSortMode = "oldest"  // 最早
+	SortHighest ReviewSortMode = "highest" // 评分最高
+	SortLowest  ReviewSortMode = "lowest"  // 评分最低
+	SortHelpful ReviewSortMode = "helpful" // 最有用
 )
 
-// ReviewFilter 评价筛选条件
+// ReviewFilter 评价筛选条件.
 type ReviewFilter struct {
-	AppID    string         `json:"app_id,omitempty"`    // 按应用筛选
-	UserID   string         `json:"user_id,omitempty"`   // 按用户筛选
-	Rating   *int           `json:"rating,omitempty"`    // 按评分筛选
-	MinRating int           `json:"min_rating,omitempty"`// 最低评分
-	MaxRating int           `json:"max_rating,omitempty"`// 最高评分
-	HasReply  *bool         `json:"has_reply,omitempty"` // 是否有开发者回复
-	Verified *bool          `json:"verified,omitempty"`  // 仅已验证
-	Hidden   *bool          `json:"hidden,omitempty"`    // 是否包含隐藏（管理员用）
-	Sort     ReviewSortMode `json:"sort,omitempty"`      // 排序方式
-	Keyword  string         `json:"keyword,omitempty"`   // 关键词搜索
+	AppID     string         `json:"app_id,omitempty"`     // 按应用筛选
+	UserID    string         `json:"user_id,omitempty"`    // 按用户筛选
+	Rating    *int           `json:"rating,omitempty"`     // 按评分筛选
+	MinRating int            `json:"min_rating,omitempty"` // 最低评分
+	MaxRating int            `json:"max_rating,omitempty"` // 最高评分
+	HasReply  *bool          `json:"has_reply,omitempty"`  // 是否有开发者回复
+	Verified  *bool          `json:"verified,omitempty"`   // 仅已验证
+	Hidden    *bool          `json:"hidden,omitempty"`     // 是否包含隐藏（管理员用）
+	Sort      ReviewSortMode `json:"sort,omitempty"`       // 排序方式
+	Keyword   string         `json:"keyword,omitempty"`    // 关键词搜索
 }
 
 // ============================================================
 // ReviewManager 评价管理器
 // ============================================================
 
-// ReviewManager 评价管理器，管理所有评价的增删改查
+// ReviewManager 评价管理器，管理所有评价的增删改查.
 type ReviewManager struct {
 	mu      sync.RWMutex
 	reviews map[string]*Review // reviewID -> Review
 }
 
-// NewReviewManager 创建评价管理器
+// NewReviewManager 创建评价管理器.
 func NewReviewManager() *ReviewManager {
 	return &ReviewManager{
 		reviews: make(map[string]*Review),
 	}
 }
 
-// CreateReview 创建评价
+// CreateReview 创建评价.
 func (rm *ReviewManager) CreateReview(appID, userID, userName, title, content, version string, rating int) (*Review, error) {
 	if appID == "" {
 		return nil, ErrEmptyAppID
@@ -151,7 +151,7 @@ func (rm *ReviewManager) CreateReview(appID, userID, userName, title, content, v
 	return review, nil
 }
 
-// GetReview 获取单条评价
+// GetReview 获取单条评价.
 func (rm *ReviewManager) GetReview(reviewID string) (*Review, error) {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -163,7 +163,7 @@ func (rm *ReviewManager) GetReview(reviewID string) (*Review, error) {
 	return r, nil
 }
 
-// UpdateReview 更新评价内容
+// UpdateReview 更新评价内容.
 func (rm *ReviewManager) UpdateReview(reviewID, userID, content string, rating int) (*Review, error) {
 	if rating < 1 || rating > 5 {
 		return nil, ErrInvalidRating
@@ -189,7 +189,7 @@ func (rm *ReviewManager) UpdateReview(reviewID, userID, content string, rating i
 	return r, nil
 }
 
-// DeleteReview 删除评价
+// DeleteReview 删除评价.
 func (rm *ReviewManager) DeleteReview(reviewID, userID string, isAdmin bool) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -205,7 +205,7 @@ func (rm *ReviewManager) DeleteReview(reviewID, userID string, isAdmin bool) err
 	return nil
 }
 
-// GetReviewsByApp 获取应用的所有评价
+// GetReviewsByApp 获取应用的所有评价.
 func (rm *ReviewManager) GetReviewsByApp(appID string, includeHidden bool) []*Review {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -223,7 +223,7 @@ func (rm *ReviewManager) GetReviewsByApp(appID string, includeHidden bool) []*Re
 	return result
 }
 
-// GetReviewsByUser 获取用户的所有评价
+// GetReviewsByUser 获取用户的所有评价.
 func (rm *ReviewManager) GetReviewsByUser(userID string) []*Review {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -237,7 +237,7 @@ func (rm *ReviewManager) GetReviewsByUser(userID string) []*Review {
 	return result
 }
 
-// VoteHelpful 标记评价有用/无用
+// VoteHelpful 标记评价有用/无用.
 func (rm *ReviewManager) VoteHelpful(reviewID string, helpful bool) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -254,7 +254,7 @@ func (rm *ReviewManager) VoteHelpful(reviewID string, helpful bool) error {
 	return nil
 }
 
-// SetDeveloperReply 设置开发者回复
+// SetDeveloperReply 设置开发者回复.
 func (rm *ReviewManager) SetDeveloperReply(reviewID, devID, devName, content string) error {
 	if strings.TrimSpace(content) == "" {
 		return ErrEmptyContent
@@ -271,12 +271,12 @@ func (rm *ReviewManager) SetDeveloperReply(reviewID, devID, devName, content str
 	now := time.Now()
 	if r.DeveloperReply == nil {
 		r.DeveloperReply = &DeveloperReply{
-			ReviewID:  reviewID,
-			Content:   content,
-			AuthorID:  devID,
+			ReviewID:   reviewID,
+			Content:    content,
+			AuthorID:   devID,
 			AuthorName: devName,
-			CreatedAt: now,
-			UpdatedAt: now,
+			CreatedAt:  now,
+			UpdatedAt:  now,
 		}
 	} else {
 		r.DeveloperReply.Content = content
@@ -287,7 +287,7 @@ func (rm *ReviewManager) SetDeveloperReply(reviewID, devID, devName, content str
 	return nil
 }
 
-// GetAllReviews 获取所有评价（管理员）
+// GetAllReviews 获取所有评价（管理员）.
 func (rm *ReviewManager) GetAllReviews() []*Review {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -299,7 +299,7 @@ func (rm *ReviewManager) GetAllReviews() []*Review {
 	return result
 }
 
-// Count 返回评价总数
+// Count 返回评价总数.
 func (rm *ReviewManager) Count() int {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -310,16 +310,16 @@ func (rm *ReviewManager) Count() int {
 // ReviewModerator 评价审核
 // ============================================================
 
-// ReviewModerator 评价审核器，处理举报和隐藏不当评价
+// ReviewModerator 评价审核器，处理举报和隐藏不当评价.
 type ReviewModerator struct {
-	mu         sync.Mutex
-	manager    *ReviewManager
-	reports    map[string][]*ReviewReport // reviewID -> reports
+	mu          sync.Mutex
+	manager     *ReviewManager
+	reports     map[string][]*ReviewReport // reviewID -> reports
 	reportCount map[string]int             // reviewID -> report count
-	threshold   int                         // 自动隐藏的举报阈值
+	threshold   int                        // 自动隐藏的举报阈值
 }
 
-// NewReviewModerator 创建评价审核器
+// NewReviewModerator 创建评价审核器.
 func NewReviewModerator(manager *ReviewManager, autoHideThreshold int) *ReviewModerator {
 	if autoHideThreshold <= 0 {
 		autoHideThreshold = 5
@@ -332,7 +332,7 @@ func NewReviewModerator(manager *ReviewManager, autoHideThreshold int) *ReviewMo
 	}
 }
 
-// ReportReview 举报评价
+// ReportReview 举报评价.
 func (mod *ReviewModerator) ReportReview(reviewID, userID, reason, detail string) error {
 	if reason == "" {
 		return ErrEmptyReason
@@ -370,7 +370,7 @@ func (mod *ReviewModerator) ReportReview(reviewID, userID, reason, detail string
 	return nil
 }
 
-// HideReview 隐藏评价（管理员操作）
+// HideReview 隐藏评价（管理员操作）.
 func (rm *ReviewManager) HideReview(reviewID, reason string) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -384,7 +384,7 @@ func (rm *ReviewManager) HideReview(reviewID, reason string) error {
 	return nil
 }
 
-// UnhideReview 取消隐藏评价（管理员操作）
+// UnhideReview 取消隐藏评价（管理员操作）.
 func (rm *ReviewManager) UnhideReview(reviewID string) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -398,21 +398,21 @@ func (rm *ReviewManager) UnhideReview(reviewID string) error {
 	return nil
 }
 
-// GetReports 获取评价的举报记录
+// GetReports 获取评价的举报记录.
 func (mod *ReviewModerator) GetReports(reviewID string) []*ReviewReport {
 	mod.mu.Lock()
 	defer mod.mu.Unlock()
 	return mod.reports[reviewID]
 }
 
-// GetReportCount 获取评价的举报次数
+// GetReportCount 获取评价的举报次数.
 func (mod *ReviewModerator) GetReportCount(reviewID string) int {
 	mod.mu.Lock()
 	defer mod.mu.Unlock()
 	return mod.reportCount[reviewID]
 }
 
-// SetThreshold 设置自动隐藏举报阈值
+// SetThreshold 设置自动隐藏举报阈值.
 func (mod *ReviewModerator) SetThreshold(threshold int) {
 	mod.mu.Lock()
 	defer mod.mu.Unlock()
@@ -423,17 +423,17 @@ func (mod *ReviewModerator) SetThreshold(threshold int) {
 // ReviewSearcher 评价搜索和排序
 // ============================================================
 
-// ReviewSearcher 评价搜索与排序器
+// ReviewSearcher 评价搜索与排序器.
 type ReviewSearcher struct {
 	manager *ReviewManager
 }
 
-// NewReviewSearcher 创建评价搜索器
+// NewReviewSearcher 创建评价搜索器.
 func NewReviewSearcher(manager *ReviewManager) *ReviewSearcher {
 	return &ReviewSearcher{manager: manager}
 }
 
-// Search 根据筛选条件搜索评价
+// Search 根据筛选条件搜索评价.
 func (rs *ReviewSearcher) Search(filter ReviewFilter) []*Review {
 	var candidates []*Review
 
@@ -465,7 +465,7 @@ func (rs *ReviewSearcher) Search(filter ReviewFilter) []*Review {
 	return result
 }
 
-// matchFilter 检查评价是否匹配筛选条件
+// matchFilter 检查评价是否匹配筛选条件.
 func matchFilter(r *Review, f *ReviewFilter) bool {
 	if f.UserID != "" && r.UserID != f.UserID {
 		return false
@@ -498,7 +498,7 @@ func matchFilter(r *Review, f *ReviewFilter) bool {
 	return true
 }
 
-// sortReviews 按指定方式排序评价
+// sortReviews 按指定方式排序评价.
 func sortReviews(reviews []*Review, mode ReviewSortMode) {
 	switch mode {
 	case SortNewest:
@@ -533,17 +533,17 @@ func sortReviews(reviews []*Review, mode ReviewSortMode) {
 // ReviewAggregator 应用中心评价聚合
 // ============================================================
 
-// ReviewAggregator 评价聚合器，计算应用评价统计
+// ReviewAggregator 评价聚合器，计算应用评价统计.
 type ReviewAggregator struct {
 	manager *ReviewManager
 }
 
-// NewReviewAggregator 创建评价聚合器
+// NewReviewAggregator 创建评价聚合器.
 func NewReviewAggregator(manager *ReviewManager) *ReviewAggregator {
 	return &ReviewAggregator{manager: manager}
 }
 
-// GetStats 获取应用评价统计
+// GetStats 获取应用评价统计.
 func (ra *ReviewAggregator) GetStats(appID string) *ReviewStats {
 	reviews := ra.manager.GetReviewsByApp(appID, false)
 
@@ -574,7 +574,7 @@ func (ra *ReviewAggregator) GetStats(appID string) *ReviewStats {
 	return stats
 }
 
-// GetTopRatedApps 获取评分最高的应用列表
+// GetTopRatedApps 获取评分最高的应用列表.
 func (ra *ReviewAggregator) GetTopRatedApps(appIDs []string, limit int) []*ReviewStats {
 	var statsList []*ReviewStats
 	for _, appID := range appIDs {
@@ -601,7 +601,7 @@ func (ra *ReviewAggregator) GetTopRatedApps(appIDs []string, limit int) []*Revie
 // RESTful API 接口处理器（标准库 net/http）
 // ============================================================
 
-// APIHandler RESTful API 处理器
+// APIHandler RESTful API 处理器.
 type APIHandler struct {
 	manager   *ReviewManager
 	moderator *ReviewModerator
@@ -609,7 +609,7 @@ type APIHandler struct {
 	agg       *ReviewAggregator
 }
 
-// NewAPIHandler 创建 API 处理器
+// NewAPIHandler 创建 API 处理器.
 func NewAPIHandler(rm *ReviewManager) *APIHandler {
 	return &APIHandler{
 		manager:   rm,
@@ -619,7 +619,7 @@ func NewAPIHandler(rm *ReviewManager) *APIHandler {
 	}
 }
 
-// CreateReviewRequest 创建评价请求
+// CreateReviewRequest 创建评价请求.
 type CreateReviewRequest struct {
 	AppID    string `json:"app_id"`
 	UserID   string `json:"user_id"`
@@ -630,15 +630,15 @@ type CreateReviewRequest struct {
 	Rating   int    `json:"rating"`
 }
 
-// ReplyReviewRequest 开发者回复请求
+// ReplyReviewRequest 开发者回复请求.
 type ReplyReviewRequest struct {
-	ReviewID  string `json:"review_id"`
-	AuthorID  string `json:"author_id"`
+	ReviewID   string `json:"review_id"`
+	AuthorID   string `json:"author_id"`
 	AuthorName string `json:"author_name"`
-	Content   string `json:"content"`
+	Content    string `json:"content"`
 }
 
-// ReportReviewRequest 举报评价请求
+// ReportReviewRequest 举报评价请求.
 type ReportReviewRequest struct {
 	ReviewID string `json:"review_id"`
 	UserID   string `json:"user_id"`
@@ -646,7 +646,7 @@ type ReportReviewRequest struct {
 	Detail   string `json:"detail"`
 }
 
-// APIResponse 标准 API 响应
+// APIResponse 标准 API 响应.
 type APIResponse struct {
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data,omitempty"`
@@ -654,7 +654,7 @@ type APIResponse struct {
 }
 
 // HandleCreateReview 创建评价 API
-// POST /api/appreview/reviews
+// POST /api/appreview/reviews.
 func (h *APIHandler) HandleCreateReview(req CreateReviewRequest) APIResponse {
 	review, err := h.manager.CreateReview(
 		req.AppID, req.UserID, req.UserName,
@@ -667,21 +667,21 @@ func (h *APIHandler) HandleCreateReview(req CreateReviewRequest) APIResponse {
 }
 
 // HandleGetReviews 获取评价列表 API
-// GET /api/appreview/reviews?app_id=xxx&sort=newest
+// GET /api/appreview/reviews?app_id=xxx&sort=newest.
 func (h *APIHandler) HandleGetReviews(filter ReviewFilter) APIResponse {
 	reviews := h.searcher.Search(filter)
 	return APIResponse{Success: true, Data: reviews}
 }
 
 // HandleGetReviewStats 获取应用评价统计 API
-// GET /api/appreview/stats?app_id=xxx
+// GET /api/appreview/stats?app_id=xxx.
 func (h *APIHandler) HandleGetReviewStats(appID string) APIResponse {
 	stats := h.agg.GetStats(appID)
 	return APIResponse{Success: true, Data: stats}
 }
 
 // HandleReplyReview 开发者回复评价 API
-// POST /api/appreview/reviews/reply
+// POST /api/appreview/reviews/reply.
 func (h *APIHandler) HandleReplyReview(req ReplyReviewRequest) APIResponse {
 	err := h.manager.SetDeveloperReply(req.ReviewID, req.AuthorID, req.AuthorName, req.Content)
 	if err != nil {
@@ -695,7 +695,7 @@ func (h *APIHandler) HandleReplyReview(req ReplyReviewRequest) APIResponse {
 }
 
 // HandleReportReview 举报评价 API
-// POST /api/appreview/reviews/report
+// POST /api/appreview/reviews/report.
 func (h *APIHandler) HandleReportReview(req ReportReviewRequest) APIResponse {
 	err := h.moderator.ReportReview(req.ReviewID, req.UserID, req.Reason, req.Detail)
 	if err != nil {
@@ -705,7 +705,7 @@ func (h *APIHandler) HandleReportReview(req ReportReviewRequest) APIResponse {
 }
 
 // HandleDeleteReview 删除评价 API
-// DELETE /api/appreview/reviews/{id}
+// DELETE /api/appreview/reviews/{id}.
 func (h *APIHandler) HandleDeleteReview(reviewID, userID string, isAdmin bool) APIResponse {
 	err := h.manager.DeleteReview(reviewID, userID, isAdmin)
 	if err != nil {
@@ -715,7 +715,7 @@ func (h *APIHandler) HandleDeleteReview(reviewID, userID string, isAdmin bool) A
 }
 
 // HandleVoteHelpful 标记有用/无用 API
-// POST /api/appreview/reviews/{id}/vote
+// POST /api/appreview/reviews/{id}/vote.
 func (h *APIHandler) HandleVoteHelpful(reviewID string, helpful bool) APIResponse {
 	err := h.manager.VoteHelpful(reviewID, helpful)
 	if err != nil {
@@ -737,10 +737,10 @@ var (
 	ErrReviewNotFound  = reviewError("评价不存在")
 	ErrNotReviewOwner  = reviewError("无权操作此评价")
 	ErrDuplicateReview = reviewError("用户已评价过该应用")
-	ErrDuplicateReport  = reviewError("用户已举报过该评价")
+	ErrDuplicateReport = reviewError("用户已举报过该评价")
 )
 
-// reviewError 自定义错误类型
+// reviewError 自定义错误类型.
 type reviewError string
 
 func (e reviewError) Error() string { return string(e) }
@@ -749,7 +749,7 @@ func (e reviewError) Error() string { return string(e) }
 // 辅助函数
 // ============================================================
 
-// generateReviewID 生成评价 ID
+// generateReviewID 生成评价 ID.
 func generateReviewID() string {
 	b := make([]byte, 16)
 	rand.Read(b)

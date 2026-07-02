@@ -9,7 +9,7 @@ import (
 
 // ========== 应用模板类型 ==========
 
-// Template 应用模板 - 定义应用的基础配置
+// Template 应用模板 - 定义应用的基础配置.
 type Template struct {
 	ID          string          `json:"id"`          // 模板唯一标识
 	Name        string          `json:"name"`        // 应用名称
@@ -29,7 +29,7 @@ type Template struct {
 	Downloads   int64           `json:"downloads"`   // 下载次数
 }
 
-// ContainerSpec 容器规格 - 定义单个容器的配置
+// ContainerSpec 容器规格 - 定义单个容器的配置.
 type ContainerSpec struct {
 	Name            string            `json:"name"`            // 容器名称
 	Image           string            `json:"image"`           // 镜像名称
@@ -45,7 +45,7 @@ type ContainerSpec struct {
 	ComposeTemplate string            `json:"composeTemplate"` // 自定义Compose模板（可选）
 }
 
-// PortSpec 端口规格
+// PortSpec 端口规格.
 type PortSpec struct {
 	Name            string `json:"name"`            // 端口名称
 	ContainerPort   int    `json:"containerPort"`   // 容器端口
@@ -55,7 +55,7 @@ type PortSpec struct {
 	Required        bool   `json:"required"`        // 是否必须映射
 }
 
-// VolumeSpec 卷规格
+// VolumeSpec 卷规格.
 type VolumeSpec struct {
 	Name            string `json:"name"`            // 卷名称
 	ContainerPath   string `json:"containerPath"`   // 容器路径
@@ -65,7 +65,7 @@ type VolumeSpec struct {
 	Required        bool   `json:"required"`        // 是否必须挂载
 }
 
-// HealthCheckSpec 健康检查规格
+// HealthCheckSpec 健康检查规格.
 type HealthCheckSpec struct {
 	Test        []string `json:"test"`        // 检查命令
 	Interval    int      `json:"interval"`    // 检查间隔(秒)
@@ -74,7 +74,7 @@ type HealthCheckSpec struct {
 	Retries     int      `json:"retries"`     // 重试次数
 }
 
-// Validate 验证模板
+// Validate 验证模板.
 func (t *Template) Validate() error {
 	if t.ID == "" {
 		return fmt.Errorf("模板ID不能为空")
@@ -111,7 +111,7 @@ const (
 
 // ========== 安装配置类型 ==========
 
-// InstallOptions 安装选项 - 用户安装应用时的自定义配置
+// InstallOptions 安装选项 - 用户安装应用时的自定义配置.
 type InstallOptions struct {
 	InstanceName string            `json:"instanceName"` // 实例名称（多实例安装）
 	PortMappings map[string]int    `json:"portMappings"` // 端口映射（按名称）
@@ -123,14 +123,14 @@ type InstallOptions struct {
 	SkipStart    bool              `json:"skipStart"`    // 安装后不启动
 }
 
-// UninstallOptions 卸载选项
+// UninstallOptions 卸载选项.
 type UninstallOptions struct {
 	Force         bool `json:"force"`         // 强制卸载（忽略错误）
 	RemoveVolumes bool `json:"removeVolumes"` // 删除数据卷
 	RemoveConfig  bool `json:"removeConfig"`  // 删除配置文件
 }
 
-// InstallConfig 安装配置记录（保存到文件）
+// InstallConfig 安装配置记录（保存到文件）.
 type InstallConfig struct {
 	TemplateID  string          `json:"templateId"`
 	Options     *InstallOptions `json:"options"`
@@ -140,7 +140,7 @@ type InstallConfig struct {
 
 // ========== 已安装应用类型 ==========
 
-// InstalledApp 已安装应用记录
+// InstalledApp 已安装应用记录.
 type InstalledApp struct {
 	ID             string            `json:"id"`             // 应用ID
 	Name           string            `json:"name"`           // 应用名称
@@ -158,7 +158,7 @@ type InstalledApp struct {
 	Services       []ComposeService  `json:"services"`       // 服务列表
 }
 
-// PortMapping 端口映射记录
+// PortMapping 端口映射记录.
 type PortMapping struct {
 	Name          string `json:"name"`          // 端口名称
 	HostPort      int    `json:"hostPort"`      // 主机端口
@@ -167,7 +167,7 @@ type PortMapping struct {
 	Description   string `json:"description"`   // 说明
 }
 
-// VolumeMapping 卷映射记录
+// VolumeMapping 卷映射记录.
 type VolumeMapping struct {
 	Name          string `json:"name"`          // 卷名称
 	HostPath      string `json:"hostPath"`      // 主机路径
@@ -178,7 +178,7 @@ type VolumeMapping struct {
 
 // ========== 应用状态类型 ==========
 
-// AppState 应用状态常量
+// AppState 应用状态常量.
 const (
 	AppStateRunning  = "running"  // 运行中
 	AppStateStopped  = "stopped"  // 已停止
@@ -188,7 +188,7 @@ const (
 	AppStateUnknown  = "unknown"  // 未知
 )
 
-// AppStatus 应用状态
+// AppStatus 应用状态.
 type AppStatus struct {
 	State     string           `json:"state"`     // 状态
 	Message   string           `json:"message"`   // 状态消息
@@ -196,7 +196,7 @@ type AppStatus struct {
 	UpdatedAt time.Time        `json:"updatedAt"` // 更新时间
 }
 
-// AppStatusRunning 运行状态常量
+// AppStatusRunning 运行状态常量.
 const (
 	AppStatusRunning = "running"
 	AppStatusStopped = "stopped"
@@ -204,7 +204,7 @@ const (
 	AppStatusError   = "error"
 )
 
-// ComposeService Compose 服务状态
+// ComposeService Compose 服务状态.
 type ComposeService struct {
 	Name    string `json:"name"`    // 服务名称
 	State   string `json:"state"`   // 状态
@@ -217,7 +217,7 @@ type ComposeService struct {
 
 // ========== 容器操作类型 ==========
 
-// ContainerConfig 容器创建配置
+// ContainerConfig 容器创建配置.
 type ContainerConfig struct {
 	Name        string            `json:"name"`        // 容器名称
 	Image       string            `json:"image"`       // 镜像
@@ -233,7 +233,7 @@ type ContainerConfig struct {
 	Privileged  bool              `json:"privileged"`  // 特权模式
 }
 
-// ContainerStatus 容器状态
+// ContainerStatus 容器状态.
 type ContainerStatus struct {
 	ID       string            `json:"id"`       // 容器ID
 	Name     string            `json:"name"`     // 容器名称
@@ -254,7 +254,7 @@ type ContainerStatus struct {
 
 // ========== 仓库类型 ==========
 
-// RepositorySource 仓库源
+// RepositorySource 仓库源.
 type RepositorySource struct {
 	Name      string `json:"name"`      // 仓库名称
 	URL       string `json:"url"`       // 仓库URL
@@ -264,7 +264,7 @@ type RepositorySource struct {
 	UpdatedAt string `json:"updatedAt"` // 更新时间
 }
 
-// RepositoryConfig 仓库配置
+// RepositoryConfig 仓库配置.
 type RepositoryConfig struct {
 	Sources []RepositorySource `json:"sources"` // 仓库源列表
 }

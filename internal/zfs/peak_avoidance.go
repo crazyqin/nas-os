@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// PeakWindow 业务高峰窗口
+// PeakWindow 业务高峰窗口.
 type PeakWindow struct {
 	Name      string `json:"name"`      // 窗口名称，如"上午高峰"
 	StartHour int    `json:"startHour"` // 开始小时 (0-23)
@@ -18,7 +18,7 @@ type PeakWindow struct {
 	Priority  int    `json:"priority"`  // 优先级，数字越小优先级越高
 }
 
-// PeakAvoidanceConfig 避峰配置
+// PeakAvoidanceConfig 避峰配置.
 type PeakAvoidanceConfig struct {
 	Enabled         bool          `json:"enabled"`         // 启用避峰
 	PeakWindows     []PeakWindow  `json:"peakWindows"`     // 高峰窗口列表
@@ -32,7 +32,7 @@ type PeakAvoidanceConfig struct {
 	QuietHoursEnd   int           `json:"quietHoursEnd"`   // 安静时段结束 (默认早上6点)
 }
 
-// DefaultPeakAvoidanceConfig 默认避峰配置
+// DefaultPeakAvoidanceConfig 默认避峰配置.
 func DefaultPeakAvoidanceConfig() PeakAvoidanceConfig {
 	return PeakAvoidanceConfig{
 		Enabled: true,
@@ -52,7 +52,7 @@ func DefaultPeakAvoidanceConfig() PeakAvoidanceConfig {
 	}
 }
 
-// PeakAvoidanceManager 避峰管理器
+// PeakAvoidanceManager 避峰管理器.
 type PeakAvoidanceManager struct {
 	config      PeakAvoidanceConfig
 	schedulers  map[string]*ScrubScheduler // poolName -> scheduler
@@ -62,7 +62,7 @@ type PeakAvoidanceManager struct {
 	lastCheck   time.Time
 }
 
-// NewPeakAvoidanceManager 创建避峰管理器
+// NewPeakAvoidanceManager 创建避峰管理器.
 func NewPeakAvoidanceManager(config PeakAvoidanceConfig) *PeakAvoidanceManager {
 	return &PeakAvoidanceManager{
 		config:      config,
@@ -72,14 +72,14 @@ func NewPeakAvoidanceManager(config PeakAvoidanceConfig) *PeakAvoidanceManager {
 	}
 }
 
-// RegisterScheduler 注册Scrub调度器
+// RegisterScheduler 注册Scrub调度器.
 func (m *PeakAvoidanceManager) RegisterScheduler(poolName string, scheduler *ScrubScheduler) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.schedulers[poolName] = scheduler
 }
 
-// UnregisterScheduler 注销调度器
+// UnregisterScheduler 注销调度器.
 func (m *PeakAvoidanceManager) UnregisterScheduler(poolName string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -88,7 +88,7 @@ func (m *PeakAvoidanceManager) UnregisterScheduler(poolName string) {
 	delete(m.delayCount, poolName)
 }
 
-// ShouldAllowScrub 判断当前是否允许执行Scrub
+// ShouldAllowScrub 判断当前是否允许执行Scrub.
 func (m *PeakAvoidanceManager) ShouldAllowScrub() (bool, string) {
 	if !m.config.Enabled {
 		return true, "避峰未启用"
@@ -110,7 +110,7 @@ func (m *PeakAvoidanceManager) ShouldAllowScrub() (bool, string) {
 	return true, "当前非高峰时段"
 }
 
-// CheckAndPause 检查并在需要时暂停Scrub
+// CheckAndPause 检查并在需要时暂停Scrub.
 func (m *PeakAvoidanceManager) CheckAndPause() []string {
 	if !m.config.Enabled || !m.config.AutoPause {
 		return nil
@@ -152,7 +152,7 @@ func (m *PeakAvoidanceManager) CheckAndPause() []string {
 	return paused
 }
 
-// GetStatus 获取避峰状态
+// GetStatus 获取避峰状态.
 func (m *PeakAvoidanceManager) GetStatus() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -169,7 +169,7 @@ func (m *PeakAvoidanceManager) GetStatus() map[string]interface{} {
 	}
 }
 
-// isInQuietHours 判断是否在安静时段
+// isInQuietHours 判断是否在安静时段.
 func (m *PeakAvoidanceManager) isInQuietHours(now time.Time) bool {
 	hour := now.Hour()
 	start := m.config.QuietHoursStart
@@ -181,7 +181,7 @@ func (m *PeakAvoidanceManager) isInQuietHours(now time.Time) bool {
 	return hour >= start || hour < end
 }
 
-// isInPeakWindow 判断是否在指定高峰窗口
+// isInPeakWindow 判断是否在指定高峰窗口.
 func (m *PeakAvoidanceManager) isInPeakWindow(now time.Time, window PeakWindow) bool {
 	hour := now.Hour()
 	weekday := int(now.Weekday())
@@ -205,7 +205,7 @@ func (m *PeakAvoidanceManager) isInPeakWindow(now time.Time, window PeakWindow) 
 	return hour >= window.StartHour || hour < window.EndHour
 }
 
-// shouldAllowScrubInternal 内部判断（不加锁）
+// shouldAllowScrubInternal 内部判断（不加锁）.
 func (m *PeakAvoidanceManager) shouldAllowScrubInternal() (bool, string) {
 	if !m.config.Enabled {
 		return true, "避峰未启用"

@@ -42,7 +42,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 // @Tags perfmon
 // @Produce json
 // @Success 200 {object} IOPSStats
-// @Router /api/v1/perf/iops [get]
+// @Router /api/v1/perf/iops [get].
 func (h *Handler) GetIOPS(c *gin.Context) {
 	stats := h.manager.GetIOPSStats()
 	c.JSON(http.StatusOK, stats)
@@ -54,7 +54,7 @@ func (h *Handler) GetIOPS(c *gin.Context) {
 // @Tags perfmon
 // @Produce json
 // @Success 200 {object} LatencyStats
-// @Router /api/v1/perf/latency [get]
+// @Router /api/v1/perf/latency [get].
 func (h *Handler) GetLatency(c *gin.Context) {
 	stats := h.manager.GetLatencyStats()
 	c.JSON(http.StatusOK, stats)
@@ -66,7 +66,7 @@ func (h *Handler) GetLatency(c *gin.Context) {
 // @Tags perfmon
 // @Produce json
 // @Success 200 {object} BandwidthStats
-// @Router /api/v1/perf/bandwidth [get]
+// @Router /api/v1/perf/bandwidth [get].
 func (h *Handler) GetBandwidth(c *gin.Context) {
 	stats := h.manager.GetBandwidthStats()
 	c.JSON(http.StatusOK, stats)
@@ -78,7 +78,7 @@ func (h *Handler) GetBandwidth(c *gin.Context) {
 // @Tags perfmon
 // @Produce json
 // @Success 200 {array} DiskIOStats
-// @Router /api/v1/perf/diskio [get]
+// @Router /api/v1/perf/diskio [get].
 func (h *Handler) GetDiskIO(c *gin.Context) {
 	stats := h.manager.GetDiskIOStats()
 	c.JSON(http.StatusOK, stats)
@@ -90,7 +90,7 @@ func (h *Handler) GetDiskIO(c *gin.Context) {
 // @Tags perfmon
 // @Produce json
 // @Success 200 {array} NetIOStats
-// @Router /api/v1/perf/netio [get]
+// @Router /api/v1/perf/netio [get].
 func (h *Handler) GetNetIO(c *gin.Context) {
 	stats := h.manager.GetNetIOStats()
 	c.JSON(http.StatusOK, stats)
@@ -102,7 +102,7 @@ func (h *Handler) GetNetIO(c *gin.Context) {
 // @Tags perfmon
 // @Produce json
 // @Success 200 {object} CPUDetailStats
-// @Router /api/v1/perf/cpu [get]
+// @Router /api/v1/perf/cpu [get].
 func (h *Handler) GetCPU(c *gin.Context) {
 	stats := h.manager.GetCPUDetailStats()
 	c.JSON(http.StatusOK, stats)
@@ -114,7 +114,7 @@ func (h *Handler) GetCPU(c *gin.Context) {
 // @Tags perfmon
 // @Produce json
 // @Success 200 {object} MemoryDetailStats
-// @Router /api/v1/perf/memory [get]
+// @Router /api/v1/perf/memory [get].
 func (h *Handler) GetMemory(c *gin.Context) {
 	stats := h.manager.GetMemoryDetailStats()
 	c.JSON(http.StatusOK, stats)
@@ -126,7 +126,7 @@ func (h *Handler) GetMemory(c *gin.Context) {
 // @Tags perfmon
 // @Produce json
 // @Success 200 {object} PerfSummary
-// @Router /api/v1/perf/summary [get]
+// @Router /api/v1/perf/summary [get].
 func (h *Handler) GetSummary(c *gin.Context) {
 	summary := h.manager.GetSummary()
 	c.JSON(http.StatusOK, summary)

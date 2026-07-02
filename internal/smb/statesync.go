@@ -12,22 +12,22 @@ import (
 	"time"
 )
 
-// StateSyncConfig 状态同步配置
+// StateSyncConfig 状态同步配置.
 type StateSyncConfig struct {
 	Enabled            bool   `json:"enabled"`
 	SyncIntervalMs     int    `json:"sync_interval_ms"`      // 同步间隔(毫秒)
-	BatchSize          int    `json:"batch_size"`             // 批量同步大小
-	MaxConcurrentSyncs int    `json:"max_concurrent_syncs"`   // 最大并发同步数
-	CompressionEnabled bool   `json:"compression_enabled"`    // 是否启用压缩
-	CompressionLevel   int    `json:"compression_level"`      // 压缩级别 (1-9)
-	RetryAttempts      int    `json:"retry_attempts"`         // 重试次数
-	RetryDelayMs       int    `json:"retry_delay_ms"`         // 重试延迟(毫秒)
-	TimeoutMs          int    `json:"timeout_ms"`             // 同步超时(毫秒)
-	FullSyncIntervalMs int    `json:"full_sync_interval_ms"`  // 全量同步间隔(毫秒)
-	Endpoint           string `json:"endpoint"`               // 同步端点URL
+	BatchSize          int    `json:"batch_size"`            // 批量同步大小
+	MaxConcurrentSyncs int    `json:"max_concurrent_syncs"`  // 最大并发同步数
+	CompressionEnabled bool   `json:"compression_enabled"`   // 是否启用压缩
+	CompressionLevel   int    `json:"compression_level"`     // 压缩级别 (1-9)
+	RetryAttempts      int    `json:"retry_attempts"`        // 重试次数
+	RetryDelayMs       int    `json:"retry_delay_ms"`        // 重试延迟(毫秒)
+	TimeoutMs          int    `json:"timeout_ms"`            // 同步超时(毫秒)
+	FullSyncIntervalMs int    `json:"full_sync_interval_ms"` // 全量同步间隔(毫秒)
+	Endpoint           string `json:"endpoint"`              // 同步端点URL
 }
 
-// DefaultStateSyncConfig 返回默认状态同步配置
+// DefaultStateSyncConfig 返回默认状态同步配置.
 func DefaultStateSyncConfig() *StateSyncConfig {
 	return &StateSyncConfig{
 		Enabled:            true,
@@ -43,7 +43,7 @@ func DefaultStateSyncConfig() *StateSyncConfig {
 	}
 }
 
-// SyncType 同步类型
+// SyncType 同步类型.
 type SyncType string
 
 const (
@@ -52,7 +52,7 @@ const (
 	SyncTypeDelta       SyncType = "delta"       // 差异同步
 )
 
-// SyncState 同步状态
+// SyncState 同步状态.
 type SyncState string
 
 const (
@@ -62,7 +62,7 @@ const (
 	SyncStateFailed     SyncState = "failed"
 )
 
-// SyncRequest 同步请求
+// SyncRequest 同步请求.
 type SyncRequest struct {
 	ID          string            `json:"id"`
 	Type        SyncType          `json:"type"`
@@ -73,7 +73,7 @@ type SyncRequest struct {
 	Timestamp   time.Time         `json:"timestamp"`
 }
 
-// SyncResponse 同步响应
+// SyncResponse 同步响应.
 type SyncResponse struct {
 	ID           string    `json:"id"`
 	Success      bool      `json:"success"`
@@ -83,7 +83,7 @@ type SyncResponse struct {
 	SequenceNum  uint64    `json:"sequence_num"`
 }
 
-// SyncEndpoint 同步端点信息
+// SyncEndpoint 同步端点信息.
 type SyncEndpoint struct {
 	mu          sync.RWMutex
 	NodeID      string        `json:"node_id"`
@@ -97,7 +97,7 @@ type SyncEndpoint struct {
 	Failures    int           `json:"failures"`
 }
 
-// SyncOperation 同步操作
+// SyncOperation 同步操作.
 type SyncOperation struct {
 	mu        sync.RWMutex
 	ID        string      `json:"id"`
@@ -110,7 +110,7 @@ type SyncOperation struct {
 	BytesSent int64       `json:"bytes_sent"`
 }
 
-// SyncMetrics 同步指标
+// SyncMetrics 同步指标.
 type SyncMetrics struct {
 	mu               sync.RWMutex
 	TotalSyncs       int64         `json:"total_syncs"`
@@ -122,7 +122,7 @@ type SyncMetrics struct {
 	CompressionRatio float64       `json:"compression_ratio"`
 }
 
-// SyncNodeStatus 节点同步状态
+// SyncNodeStatus 节点同步状态.
 type SyncNodeStatus struct {
 	NodeID      string        `json:"node_id"`
 	Hostname    string        `json:"hostname"`
@@ -135,7 +135,7 @@ type SyncNodeStatus struct {
 	Failures    int           `json:"failures"`
 }
 
-// StateSynchronizer 状态同步器
+// StateSynchronizer 状态同步器.
 type StateSynchronizer struct {
 	mu              sync.RWMutex
 	config          *StateSyncConfig
@@ -151,7 +151,7 @@ type StateSynchronizer struct {
 	stopChan        chan struct{}
 }
 
-// NewStateSynchronizer 创建状态同步器
+// NewStateSynchronizer 创建状态同步器.
 func NewStateSynchronizer(config *StateSyncConfig, registry *SessionRegistry) *StateSynchronizer {
 	if config == nil {
 		config = DefaultStateSyncConfig()
@@ -175,14 +175,14 @@ func NewStateSynchronizer(config *StateSyncConfig, registry *SessionRegistry) *S
 	return ss
 }
 
-// SetLocalNode 设置本地节点ID
+// SetLocalNode 设置本地节点ID.
 func (ss *StateSynchronizer) SetLocalNode(nodeID string) {
 	ss.mu.Lock()
 	defer ss.mu.Unlock()
 	ss.localNodeID = nodeID
 }
 
-// AddNode 添加同步节点
+// AddNode 添加同步节点.
 func (ss *StateSynchronizer) AddNode(nodeID, hostname, address string, port int) {
 	ss.mu.Lock()
 	defer ss.mu.Unlock()
@@ -198,7 +198,7 @@ func (ss *StateSynchronizer) AddNode(nodeID, hostname, address string, port int)
 	logInfo("同步节点已添加", "node_id", nodeID, "address", fmt.Sprintf("%s:%d", address, port))
 }
 
-// RemoveNode 移除同步节点
+// RemoveNode 移除同步节点.
 func (ss *StateSynchronizer) RemoveNode(nodeID string) {
 	ss.mu.Lock()
 	defer ss.mu.Unlock()
@@ -206,7 +206,7 @@ func (ss *StateSynchronizer) RemoveNode(nodeID string) {
 	logInfo("同步节点已移除", "node_id", nodeID)
 }
 
-// Start 启动状态同步器
+// Start 启动状态同步器.
 func (ss *StateSynchronizer) Start() error {
 	ss.mu.Lock()
 	defer ss.mu.Unlock()
@@ -229,7 +229,7 @@ func (ss *StateSynchronizer) Start() error {
 	return nil
 }
 
-// Stop 停止状态同步器
+// Stop 停止状态同步器.
 func (ss *StateSynchronizer) Stop() {
 	ss.mu.Lock()
 	defer ss.mu.Unlock()
@@ -243,7 +243,7 @@ func (ss *StateSynchronizer) Stop() {
 	logInfo("状态同步器已停止")
 }
 
-// SyncSessions 同步会话到目标节点
+// SyncSessions 同步会话到目标节点.
 func (ss *StateSynchronizer) SyncSessions(ctx context.Context, targetNodeID string, sessions map[string][]byte) error {
 	ss.mu.RLock()
 	endpoint, ok := ss.nodes[targetNodeID]
@@ -276,7 +276,7 @@ func (ss *StateSynchronizer) SyncSessions(ctx context.Context, targetNodeID stri
 	return ss.executeSync(ctx, endpoint, request)
 }
 
-// SyncIncremental 同步增量变更
+// SyncIncremental 同步增量变更.
 func (ss *StateSynchronizer) SyncIncremental(ctx context.Context, targetNodeID string, changes map[string][]byte) error {
 	ss.mu.RLock()
 	endpoint, ok := ss.nodes[targetNodeID]
@@ -298,7 +298,7 @@ func (ss *StateSynchronizer) SyncIncremental(ctx context.Context, targetNodeID s
 	return ss.executeSync(ctx, endpoint, request)
 }
 
-// executeSync 执行同步请求
+// executeSync 执行同步请求.
 func (ss *StateSynchronizer) executeSync(ctx context.Context, endpoint *SyncEndpoint, request SyncRequest) error {
 	// 创建同步操作
 	operation := &SyncOperation{
@@ -363,7 +363,7 @@ func (ss *StateSynchronizer) executeSync(ctx context.Context, endpoint *SyncEndp
 	return lastErr
 }
 
-// sendSyncRequest 发送同步请求到端点
+// sendSyncRequest 发送同步请求到端点.
 func (ss *StateSynchronizer) sendSyncRequest(ctx context.Context, endpoint *SyncEndpoint, request SyncRequest) (*SyncResponse, error) {
 	// 序列化请求
 	data, err := json.Marshal(request)
@@ -413,7 +413,7 @@ func (ss *StateSynchronizer) sendSyncRequest(ctx context.Context, endpoint *Sync
 	return &syncResp, nil
 }
 
-// HandleSyncRequest 处理接收到的同步请求
+// HandleSyncRequest 处理接收到的同步请求.
 func (ss *StateSynchronizer) HandleSyncRequest(request SyncRequest) (*SyncResponse, error) {
 	logInfo("处理同步请求", "operation_id", request.ID, "source", request.SourceNode, "type", string(request.Type))
 
@@ -447,7 +447,7 @@ func (ss *StateSynchronizer) HandleSyncRequest(request SyncRequest) (*SyncRespon
 	}, nil
 }
 
-// compressSessions 压缩会话数据
+// compressSessions 压缩会话数据.
 func (ss *StateSynchronizer) compressSessions(sessions map[string][]byte) (map[string][]byte, error) {
 	result := make(map[string][]byte, len(sessions))
 
@@ -472,7 +472,7 @@ func (ss *StateSynchronizer) compressSessions(sessions map[string][]byte) (map[s
 	return result, nil
 }
 
-// decompressSessions 解压会话数据
+// decompressSessions 解压会话数据.
 func (ss *StateSynchronizer) decompressSessions(sessions map[string][]byte) (map[string][]byte, error) {
 	result := make(map[string][]byte, len(sessions))
 
@@ -494,7 +494,7 @@ func (ss *StateSynchronizer) decompressSessions(sessions map[string][]byte) (map
 	return result, nil
 }
 
-// periodicSync 周期性同步
+// periodicSync 周期性同步.
 func (ss *StateSynchronizer) periodicSync() {
 	interval := time.Duration(ss.config.SyncIntervalMs) * time.Millisecond
 	ticker := time.NewTicker(interval)
@@ -510,7 +510,7 @@ func (ss *StateSynchronizer) periodicSync() {
 	}
 }
 
-// syncAllNodes 同步到所有节点
+// syncAllNodes 同步到所有节点.
 func (ss *StateSynchronizer) syncAllNodes() {
 	ss.mu.RLock()
 	nodes := make([]*SyncEndpoint, 0, len(ss.nodes))
@@ -553,7 +553,7 @@ func (ss *StateSynchronizer) syncAllNodes() {
 	ss.mu.Unlock()
 }
 
-// syncWorker 同步工作线程
+// syncWorker 同步工作线程.
 func (ss *StateSynchronizer) syncWorker() {
 	for {
 		select {
@@ -578,7 +578,7 @@ func (ss *StateSynchronizer) syncWorker() {
 	}
 }
 
-// QueueSync 排队同步请求
+// QueueSync 排队同步请求.
 func (ss *StateSynchronizer) QueueSync(request SyncRequest) {
 	select {
 	case ss.syncQueue <- request:
@@ -588,7 +588,7 @@ func (ss *StateSynchronizer) QueueSync(request SyncRequest) {
 	}
 }
 
-// updateMetrics 更新同步指标
+// updateMetrics 更新同步指标.
 func (ss *StateSynchronizer) updateMetrics(successful bool, duration time.Duration, bytes int64) {
 	ss.syncMetrics.mu.Lock()
 	defer ss.syncMetrics.mu.Unlock()
@@ -610,7 +610,7 @@ func (ss *StateSynchronizer) updateMetrics(successful bool, duration time.Durati
 	}
 }
 
-// GetSyncMetrics 返回同步指标
+// GetSyncMetrics 返回同步指标.
 func (ss *StateSynchronizer) GetSyncMetrics() *SyncMetrics {
 	ss.syncMetrics.mu.RLock()
 	defer ss.syncMetrics.mu.RUnlock()
@@ -626,7 +626,7 @@ func (ss *StateSynchronizer) GetSyncMetrics() *SyncMetrics {
 	return metrics
 }
 
-// GetActiveSyncs 返回当前活跃的同步操作
+// GetActiveSyncs 返回当前活跃的同步操作.
 func (ss *StateSynchronizer) GetActiveSyncs() map[string]*SyncOperation {
 	ss.mu.RLock()
 	defer ss.mu.RUnlock()
@@ -650,7 +650,7 @@ func (ss *StateSynchronizer) GetActiveSyncs() map[string]*SyncOperation {
 	return result
 }
 
-// GetNodeSyncStatus 返回所有节点的同步状态
+// GetNodeSyncStatus 返回所有节点的同步状态.
 func (ss *StateSynchronizer) GetNodeSyncStatus() map[string]*SyncNodeStatus {
 	ss.mu.RLock()
 	defer ss.mu.RUnlock()
@@ -674,7 +674,7 @@ func (ss *StateSynchronizer) GetNodeSyncStatus() map[string]*SyncNodeStatus {
 	return result
 }
 
-// IsNodeInSync 检查节点是否已同步
+// IsNodeInSync 检查节点是否已同步.
 func (ss *StateSynchronizer) IsNodeInSync(nodeID string, maxLag time.Duration) bool {
 	ss.mu.RLock()
 	node, ok := ss.nodes[nodeID]
@@ -690,14 +690,14 @@ func (ss *StateSynchronizer) IsNodeInSync(nodeID string, maxLag time.Duration) b
 	return node.Connected && node.SyncLag <= maxLag
 }
 
-// GetLastSyncTime 返回最后同步时间
+// GetLastSyncTime 返回最后同步时间.
 func (ss *StateSynchronizer) GetLastSyncTime() time.Time {
 	ss.mu.RLock()
 	defer ss.mu.RUnlock()
 	return ss.lastSync
 }
 
-// IsRunning 检查同步器是否在运行
+// IsRunning 检查同步器是否在运行.
 func (ss *StateSynchronizer) IsRunning() bool {
 	ss.mu.RLock()
 	defer ss.mu.RUnlock()

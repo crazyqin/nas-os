@@ -23,7 +23,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 文件完整性监控管理器
+// Manager 文件完整性监控管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	logger      *zap.Logger
@@ -39,7 +39,7 @@ type Manager struct {
 	watchers    map[string]context.CancelFunc
 }
 
-// NewManager 创建文件完整性监控管理器
+// NewManager 创建文件完整性监控管理器.
 func NewManager(logger *zap.Logger, config *MonitorConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -67,7 +67,7 @@ func generateID() string {
 	return hex.EncodeToString(b)
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -93,7 +93,7 @@ func (m *Manager) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -112,14 +112,14 @@ func (m *Manager) Stop() {
 	m.addAuditLog("stop", "system", "FIM manager stopped")
 }
 
-// IsRunning 是否运行中
+// IsRunning 是否运行中.
 func (m *Manager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.running
 }
 
-// GetStatus 获取监控状态
+// GetStatus 获取监控状态.
 func (m *Manager) GetStatus() MonitorStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -132,7 +132,7 @@ func (m *Manager) GetStatus() MonitorStatus {
 	return MonitorStatusIdle
 }
 
-// CreateBaseline 创建基线
+// CreateBaseline 创建基线.
 func (m *Manager) CreateBaseline(ctx context.Context, name, desc string, paths []string, algo HashAlgorithm) (*Baseline, error) {
 	if len(paths) == 0 {
 		return nil, fmt.Errorf("at least one path is required")
@@ -179,7 +179,7 @@ func (m *Manager) CreateBaseline(ctx context.Context, name, desc string, paths [
 	return baseline, nil
 }
 
-// GetBaseline 获取基线
+// GetBaseline 获取基线.
 func (m *Manager) GetBaseline(id string) (*Baseline, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -190,7 +190,7 @@ func (m *Manager) GetBaseline(id string) (*Baseline, error) {
 	return b, nil
 }
 
-// ListBaselines 列出基线
+// ListBaselines 列出基线.
 func (m *Manager) ListBaselines(page, pageSize int) *PaginatedResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -215,7 +215,7 @@ func (m *Manager) ListBaselines(page, pageSize int) *PaginatedResult {
 	return &PaginatedResult{Total: total, Page: page, PageSize: pageSize, Items: all[start:end]}
 }
 
-// DeleteBaseline 删除基线
+// DeleteBaseline 删除基线.
 func (m *Manager) DeleteBaseline(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -227,7 +227,7 @@ func (m *Manager) DeleteBaseline(id string) error {
 	return nil
 }
 
-// AddRule 添加监控规则
+// AddRule 添加监控规则.
 func (m *Manager) AddRule(rule *MonitorRule) error {
 	if rule.Name == "" {
 		return fmt.Errorf("rule name is required")
@@ -265,7 +265,7 @@ func (m *Manager) AddRule(rule *MonitorRule) error {
 	return nil
 }
 
-// UpdateRule 更新监控规则
+// UpdateRule 更新监控规则.
 func (m *Manager) UpdateRule(rule *MonitorRule) error {
 	m.mu.Lock()
 	existing, ok := m.rules[rule.ID]
@@ -288,7 +288,7 @@ func (m *Manager) UpdateRule(rule *MonitorRule) error {
 	return nil
 }
 
-// DeleteRule 删除监控规则
+// DeleteRule 删除监控规则.
 func (m *Manager) DeleteRule(id string) error {
 	m.mu.Lock()
 	if _, ok := m.rules[id]; !ok {
@@ -303,7 +303,7 @@ func (m *Manager) DeleteRule(id string) error {
 	return nil
 }
 
-// GetRule 获取监控规则
+// GetRule 获取监控规则.
 func (m *Manager) GetRule(id string) (*MonitorRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -314,7 +314,7 @@ func (m *Manager) GetRule(id string) (*MonitorRule, error) {
 	return r, nil
 }
 
-// ListRules 列出监控规则
+// ListRules 列出监控规则.
 func (m *Manager) ListRules() []*MonitorRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -328,7 +328,7 @@ func (m *Manager) ListRules() []*MonitorRule {
 	return all
 }
 
-// RunScan 执行扫描
+// RunScan 执行扫描.
 func (m *Manager) RunScan(ctx context.Context, req *ScanRequest) (*ScanResult, error) {
 	start := time.Now()
 	result := &ScanResult{
@@ -425,7 +425,7 @@ func (m *Manager) RunScan(ctx context.Context, req *ScanRequest) (*ScanResult, e
 	return result, nil
 }
 
-// GenerateReport 生成完整性校验报告
+// GenerateReport 生成完整性校验报告.
 func (m *Manager) GenerateReport(ctx context.Context, baselineID string) (*IntegrityReport, error) {
 	start := time.Now()
 
@@ -518,7 +518,7 @@ func (m *Manager) GenerateReport(ctx context.Context, baselineID string) (*Integ
 	return report, nil
 }
 
-// ListChanges 列出变更
+// ListChanges 列出变更.
 func (m *Manager) ListChanges(req *ListChangesRequest) *PaginatedResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -564,7 +564,7 @@ func (m *Manager) ListChanges(req *ListChangesRequest) *PaginatedResult {
 	return &PaginatedResult{Total: total, Page: page, PageSize: pageSize, Items: filtered[start:end]}
 }
 
-// AcknowledgeChange 确认变更
+// AcknowledgeChange 确认变更.
 func (m *Manager) AcknowledgeChange(changeID, notes string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -579,7 +579,7 @@ func (m *Manager) AcknowledgeChange(changeID, notes string) error {
 	return fmt.Errorf("change %s not found", changeID)
 }
 
-// GetRepairSuggestions 获取修复建议
+// GetRepairSuggestions 获取修复建议.
 func (m *Manager) GetRepairSuggestions(changeID string) ([]*RepairSuggestion, error) {
 	m.mu.RLock()
 	var change *FileChange
@@ -669,7 +669,7 @@ func (m *Manager) GetRepairSuggestions(changeID string) ([]*RepairSuggestion, er
 	return suggestions, nil
 }
 
-// ExportAuditLog 导出审计日志
+// ExportAuditLog 导出审计日志.
 func (m *Manager) ExportAuditLog(req *ExportAuditLogRequest) ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -698,7 +698,7 @@ func (m *Manager) ExportAuditLog(req *ExportAuditLogRequest) ([]byte, error) {
 	}
 }
 
-// GetScanResults 获取扫描结果列表
+// GetScanResults 获取扫描结果列表.
 func (m *Manager) GetScanResults(limit int) []*ScanResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -714,7 +714,7 @@ func (m *Manager) GetScanResults(limit int) []*ScanResult {
 	return result
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (m *Manager) GetAlerts(limit int) []*Alert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -730,7 +730,7 @@ func (m *Manager) GetAlerts(limit int) []*Alert {
 	return result
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *MonitorConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -738,7 +738,7 @@ func (m *Manager) GetConfig() *MonitorConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(cfg *MonitorConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

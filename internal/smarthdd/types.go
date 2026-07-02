@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// SmartHDDManager 磁盘健康管理器
+// SmartHDDManager 磁盘健康管理器.
 type SmartHDDManager struct {
 	mu     sync.RWMutex
 	disks  map[string]*DiskInfo
@@ -14,7 +14,7 @@ type SmartHDDManager struct {
 	config *SmartConfig
 }
 
-// SmartConfig 配置
+// SmartConfig 配置.
 type SmartConfig struct {
 	TempThreshold    int  `json:"temp_threshold_celsius"`
 	ReallocThreshold int  `json:"realloc_threshold"`
@@ -23,7 +23,7 @@ type SmartConfig struct {
 	AlertEnabled     bool `json:"alert_enabled"`
 }
 
-// DiskInfo 磁盘信息
+// DiskInfo 磁盘信息.
 type DiskInfo struct {
 	ID             string            `json:"id"`
 	Device         string            `json:"device"`
@@ -46,7 +46,7 @@ type DiskInfo struct {
 	Attributes     []*SMARTAttribute `json:"attributes"`
 }
 
-// SMARTAttribute SMART属性
+// SMARTAttribute SMART属性.
 type SMARTAttribute struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`
@@ -57,7 +57,7 @@ type SMARTAttribute struct {
 	Status    string `json:"status"`
 }
 
-// HealthStatus 健康状态
+// HealthStatus 健康状态.
 type HealthStatus string
 
 const (
@@ -67,7 +67,7 @@ const (
 	HealthUnknown  HealthStatus = "unknown"
 )
 
-// HealthAlert 健康告警
+// HealthAlert 健康告警.
 type HealthAlert struct {
 	ID         string      `json:"id"`
 	DiskID     string      `json:"disk_id"`
@@ -81,7 +81,7 @@ type HealthAlert struct {
 	ResolvedAt *time.Time  `json:"resolved_at,omitempty"`
 }
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 const (
@@ -90,7 +90,7 @@ const (
 	LevelCritical AlertLevel = "critical"
 )
 
-// DiskStats 磁盘统计
+// DiskStats 磁盘统计.
 type DiskStats struct {
 	TotalDisks    int            `json:"total_disks"`
 	HealthyDisks  int            `json:"healthy_disks"`
@@ -104,7 +104,7 @@ type DiskStats struct {
 	ByHealth      map[string]int `json:"by_health"`
 }
 
-// NewSmartHDDManager 创建管理器
+// NewSmartHDDManager 创建管理器.
 func NewSmartHDDManager(config *SmartConfig) *SmartHDDManager {
 	if config == nil {
 		config = &SmartConfig{
@@ -122,7 +122,7 @@ func NewSmartHDDManager(config *SmartConfig) *SmartHDDManager {
 	}
 }
 
-// RegisterDisk 注册磁盘
+// RegisterDisk 注册磁盘.
 func (m *SmartHDDManager) RegisterDisk(disk *DiskInfo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -144,7 +144,7 @@ func (m *SmartHDDManager) RegisterDisk(disk *DiskInfo) error {
 	return nil
 }
 
-// UnregisterDisk 注销磁盘
+// UnregisterDisk 注销磁盘.
 func (m *SmartHDDManager) UnregisterDisk(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -157,7 +157,7 @@ func (m *SmartHDDManager) UnregisterDisk(id string) error {
 	return nil
 }
 
-// GetDisk 获取磁盘信息
+// GetDisk 获取磁盘信息.
 func (m *SmartHDDManager) GetDisk(id string) (*DiskInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -170,7 +170,7 @@ func (m *SmartHDDManager) GetDisk(id string) (*DiskInfo, error) {
 	return disk, nil
 }
 
-// ListDisks 列出所有磁盘
+// ListDisks 列出所有磁盘.
 func (m *SmartHDDManager) ListDisks() []*DiskInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -182,7 +182,7 @@ func (m *SmartHDDManager) ListDisks() []*DiskInfo {
 	return disks
 }
 
-// UpdateDiskStats 更新磁盘状态
+// UpdateDiskStats 更新磁盘状态.
 func (m *SmartHDDManager) UpdateDiskStats(id string, stats *DiskInfo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -213,7 +213,7 @@ func (m *SmartHDDManager) UpdateDiskStats(id string, stats *DiskInfo) error {
 	return nil
 }
 
-// ScanDisk 扫描磁盘
+// ScanDisk 扫描磁盘.
 func (m *SmartHDDManager) ScanDisk(id string) (*DiskInfo, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -229,7 +229,7 @@ func (m *SmartHDDManager) ScanDisk(id string) (*DiskInfo, error) {
 	return disk, nil
 }
 
-// ScanAll 扫描所有磁盘
+// ScanAll 扫描所有磁盘.
 func (m *SmartHDDManager) ScanAll() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -240,7 +240,7 @@ func (m *SmartHDDManager) ScanAll() {
 	}
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *SmartHDDManager) GetStats() *DiskStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -285,7 +285,7 @@ func (m *SmartHDDManager) GetStats() *DiskStats {
 	return stats
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (m *SmartHDDManager) GetAlerts(resolved bool) []*HealthAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -299,7 +299,7 @@ func (m *SmartHDDManager) GetAlerts(resolved bool) []*HealthAlert {
 	return alerts
 }
 
-// ResolveAlert 解决告警
+// ResolveAlert 解决告警.
 func (m *SmartHDDManager) ResolveAlert(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -316,7 +316,7 @@ func (m *SmartHDDManager) ResolveAlert(id string) error {
 	return fmt.Errorf("告警不存在或已解决: %s", id)
 }
 
-// checkDiskHealth 检查磁盘健康
+// checkDiskHealth 检查磁盘健康.
 func (m *SmartHDDManager) checkDiskHealth(disk *DiskInfo) {
 	// 检查温度
 	if disk.Temperature >= m.config.TempThreshold {
@@ -356,7 +356,7 @@ func (m *SmartHDDManager) checkDiskHealth(disk *DiskInfo) {
 	}
 }
 
-// addAlert 添加告警
+// addAlert 添加告警.
 func (m *SmartHDDManager) addAlert(disk *DiskInfo, level AlertLevel, message string, value, threshold interface{}) {
 	if !m.config.AlertEnabled {
 		return

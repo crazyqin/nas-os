@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// BatteryCondition 电池状况
+// BatteryCondition 电池状况.
 type BatteryCondition string
 
 const (
@@ -20,7 +20,7 @@ const (
 	ConditionReplace   BatteryCondition = "replace"   // 需要更换
 )
 
-// BatteryTestResult 电池测试结果
+// BatteryTestResult 电池测试结果.
 type BatteryTestResult string
 
 const (
@@ -30,7 +30,7 @@ const (
 	TestPending BatteryTestResult = "pending" // 待测试
 )
 
-// BatteryHealth 电池健康数据
+// BatteryHealth 电池健康数据.
 type BatteryHealth struct {
 	UPSID              string            `json:"ups_id"`              // UPS 设备 ID
 	InstalledDate      time.Time         `json:"installed_date"`      // 安装日期
@@ -51,7 +51,7 @@ type BatteryHealth struct {
 	LastUpdated        time.Time         `json:"last_updated"`        // 最后更新时间
 }
 
-// BatteryHealthConfig 电池健康管理配置
+// BatteryHealthConfig 电池健康管理配置.
 type BatteryHealthConfig struct {
 	ReplacementAgeMonths  int           `json:"replacement_age_months"`  // 更换年龄阈值（月）
 	ReplacementCycleCount int           `json:"replacement_cycle_count"` // 更换充放电次数阈值
@@ -62,7 +62,7 @@ type BatteryHealthConfig struct {
 	HealthyTempMax        float64       `json:"healthy_temp_max"`        // 健康温度最大值
 }
 
-// DefaultBatteryHealthConfig 返回默认配置
+// DefaultBatteryHealthConfig 返回默认配置.
 func DefaultBatteryHealthConfig() BatteryHealthConfig {
 	return BatteryHealthConfig{
 		ReplacementAgeMonths:  36,                 // 3年
@@ -75,7 +75,7 @@ func DefaultBatteryHealthConfig() BatteryHealthConfig {
 	}
 }
 
-// BatteryManager 电池健康管理器
+// BatteryManager 电池健康管理器.
 type BatteryManager struct {
 	mu         sync.RWMutex
 	config     BatteryHealthConfig
@@ -87,7 +87,7 @@ type BatteryManager struct {
 	onAlert    func(string, *BatteryHealth) // 告警回调
 }
 
-// NewBatteryManager 创建电池管理器
+// NewBatteryManager 创建电池管理器.
 func NewBatteryManager(upsManager *UPSManager, config BatteryHealthConfig) *BatteryManager {
 	return &BatteryManager{
 		config:     config,
@@ -98,14 +98,14 @@ func NewBatteryManager(upsManager *UPSManager, config BatteryHealthConfig) *Batt
 	}
 }
 
-// RegisterAlertCallback 注册告警回调
+// RegisterAlertCallback 注册告警回调.
 func (bm *BatteryManager) RegisterAlertCallback(fn func(string, *BatteryHealth)) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
 	bm.onAlert = fn
 }
 
-// InitBatteryHealth 初始化电池健康数据
+// InitBatteryHealth 初始化电池健康数据.
 func (bm *BatteryManager) InitBatteryHealth(upsID string, installedDate time.Time, designCapacity int) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -132,7 +132,7 @@ func (bm *BatteryManager) InitBatteryHealth(upsID string, installedDate time.Tim
 	log.Printf("✅ 初始化电池健康数据: %s (安装于 %s)", upsID, installedDate.Format("2006-01-02"))
 }
 
-// Start 启动电池管理器
+// Start 启动电池管理器.
 func (bm *BatteryManager) Start() {
 	bm.mu.Lock()
 	if bm.running {
@@ -148,7 +148,7 @@ func (bm *BatteryManager) Start() {
 	log.Println("✅ 电池健康管理器已启动")
 }
 
-// Stop 停止电池管理器
+// Stop 停止电池管理器.
 func (bm *BatteryManager) Stop() {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -162,7 +162,7 @@ func (bm *BatteryManager) Stop() {
 	log.Println("电池健康管理器已停止")
 }
 
-// GetBatteryHealth 获取电池健康数据
+// GetBatteryHealth 获取电池健康数据.
 func (bm *BatteryManager) GetBatteryHealth(upsID string) (*BatteryHealth, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -175,7 +175,7 @@ func (bm *BatteryManager) GetBatteryHealth(upsID string) (*BatteryHealth, error)
 	return health, nil
 }
 
-// GetAllBatteryHealth 获取所有电池健康数据
+// GetAllBatteryHealth 获取所有电池健康数据.
 func (bm *BatteryManager) GetAllBatteryHealth() []*BatteryHealth {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -187,7 +187,7 @@ func (bm *BatteryManager) GetAllBatteryHealth() []*BatteryHealth {
 	return result
 }
 
-// TriggerBatteryTest 触发电池测试
+// TriggerBatteryTest 触发电池测试.
 func (bm *BatteryManager) TriggerBatteryTest(upsID string) error {
 	bm.mu.RLock()
 	_, exists := bm.healthMap[upsID]
@@ -206,7 +206,7 @@ func (bm *BatteryManager) TriggerBatteryTest(upsID string) error {
 	}
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (bm *BatteryManager) monitorLoop() {
 	ticker := time.NewTicker(1 * time.Hour) // 每小时更新一次
 	defer ticker.Stop()
@@ -221,7 +221,7 @@ func (bm *BatteryManager) monitorLoop() {
 	}
 }
 
-// testLoop 测试循环
+// testLoop 测试循环.
 func (bm *BatteryManager) testLoop() {
 	for {
 		select {
@@ -233,7 +233,7 @@ func (bm *BatteryManager) testLoop() {
 	}
 }
 
-// updateAllHealth 更新所有电池健康数据
+// updateAllHealth 更新所有电池健康数据.
 func (bm *BatteryManager) updateAllHealth() {
 	bm.mu.RLock()
 	upsIDs := make([]string, 0, len(bm.healthMap))
@@ -247,7 +247,7 @@ func (bm *BatteryManager) updateAllHealth() {
 	}
 }
 
-// updateHealth 更新单个电池健康数据
+// updateHealth 更新单个电池健康数据.
 func (bm *BatteryManager) updateHealth(upsID string) {
 	// 获取 UPS 状态
 	device, err := bm.upsManager.GetDevice(upsID)
@@ -294,7 +294,7 @@ func (bm *BatteryManager) updateHealth(upsID string) {
 	bm.checkAlerts(upsID, health)
 }
 
-// calculateHealthScore 计算健康评分
+// calculateHealthScore 计算健康评分.
 func (bm *BatteryManager) calculateHealthScore(health *BatteryHealth, status UPSStatus) int {
 	score := 100.0
 
@@ -322,16 +322,17 @@ func (bm *BatteryManager) calculateHealthScore(health *BatteryHealth, status UPS
 	}
 
 	// 测试结果因子
-	if health.LastTestResult == TestFailed {
+	switch health.LastTestResult {
+	case TestFailed:
 		score -= 20
-	} else if health.LastTestResult == TestWarning {
+	case TestWarning:
 		score -= 10
 	}
 
 	return int(math.Max(0, math.Min(100, score)))
 }
 
-// determineCondition 确定电池状况
+// determineCondition 确定电池状况.
 func (bm *BatteryManager) determineCondition(health *BatteryHealth) BatteryCondition {
 	score := health.HealthScore
 
@@ -349,7 +350,7 @@ func (bm *BatteryManager) determineCondition(health *BatteryHealth) BatteryCondi
 	}
 }
 
-// shouldReplace 判断是否需要更换
+// shouldReplace 判断是否需要更换.
 func (bm *BatteryManager) shouldReplace(health *BatteryHealth) bool {
 	bm.mu.RLock()
 	config := bm.config
@@ -383,7 +384,7 @@ func (bm *BatteryManager) shouldReplace(health *BatteryHealth) bool {
 	return false
 }
 
-// calculateReplaceDeadline 计算建议更换日期
+// calculateReplaceDeadline 计算建议更换日期.
 func (bm *BatteryManager) calculateReplaceDeadline(health *BatteryHealth) time.Time {
 	// 基于健康评分估算剩余时间
 	switch {
@@ -398,7 +399,7 @@ func (bm *BatteryManager) calculateReplaceDeadline(health *BatteryHealth) time.T
 	}
 }
 
-// estimateRemainingLife 估算电池剩余寿命
+// estimateRemainingLife 估算电池剩余寿命.
 func (bm *BatteryManager) estimateRemainingLife(health *BatteryHealth) time.Duration {
 	// 基于充放电次数和年龄估算
 	avgCyclesPerMonth := float64(health.CycleCount) / math.Max(1, float64(health.AgeMonths))
@@ -416,7 +417,7 @@ func (bm *BatteryManager) estimateRemainingLife(health *BatteryHealth) time.Dura
 	return time.Duration(remainingMonths*30*24) * time.Hour
 }
 
-// runBatteryTest 运行电池测试
+// runBatteryTest 运行电池测试.
 func (bm *BatteryManager) runBatteryTest(upsID string) {
 	log.Printf("🔋 开始电池测试: UPS %s", upsID)
 
@@ -460,7 +461,7 @@ func (bm *BatteryManager) runBatteryTest(upsID string) {
 	bm.updateHealth(upsID)
 }
 
-// checkAlerts 检查告警条件
+// checkAlerts 检查告警条件.
 func (bm *BatteryManager) checkAlerts(upsID string, health *BatteryHealth) {
 	bm.mu.RLock()
 	alertOnReplace := bm.config.AlertOnReplace
@@ -495,7 +496,7 @@ func (bm *BatteryManager) checkAlerts(upsID string, health *BatteryHealth) {
 	}
 }
 
-// String 返回电池管理器摘要
+// String 返回电池管理器摘要.
 func (bm *BatteryManager) String() string {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()

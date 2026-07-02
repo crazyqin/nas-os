@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// NewNVMeOFManager 创建NVMe-oF管理器
+// NewNVMeOFManager 创建NVMe-oF管理器.
 func NewNVMeOFManager(config ManagerConfig) *NVMeOFManager {
 	return &NVMeOFManager{
 		subsystems:      make(map[string]*NVMeSubsystem),
@@ -18,65 +18,65 @@ func NewNVMeOFManager(config ManagerConfig) *NVMeOFManager {
 	}
 }
 
-// CreateSubsystem 创建NVMe子系统
+// CreateSubsystem 创建NVMe子系统.
 func (m *NVMeOFManager) CreateSubsystem(subsystem *NVMeSubsystem) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if _, exists := m.subsystems[subsystem.ID]; exists {
 		return ErrSubsystemExists
 	}
-	
+
 	if len(m.subsystems) >= m.config.MaxSubsystems {
 		return ErrMaxSubsystems
 	}
-	
+
 	subsystem.CreatedAt = time.Now()
 	subsystem.UpdatedAt = time.Now()
 	subsystem.IsOnline = true
 	m.subsystems[subsystem.ID] = subsystem
-	
+
 	return nil
 }
 
-// GetSubsystem 获取NVMe子系统
+// GetSubsystem 获取NVMe子系统.
 func (m *NVMeOFManager) GetSubsystem(subsystemID string) (*NVMeSubsystem, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	subsystem, exists := m.subsystems[subsystemID]
 	if !exists {
 		return nil, ErrSubsystemNotFound
 	}
-	
+
 	return subsystem, nil
 }
 
-// ListSubsystems 列出所有NVMe子系统
+// ListSubsystems 列出所有NVMe子系统.
 func (m *NVMeOFManager) ListSubsystems(transport TransportType) []*NVMeSubsystem {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	subsystems := make([]*NVMeSubsystem, 0)
 	for _, subsystem := range m.subsystems {
 		if transport == "" || subsystem.Transport == transport {
 			subsystems = append(subsystems, subsystem)
 		}
 	}
-	
+
 	return subsystems
 }
 
-// UpdateSubsystem 更新NVMe子系统
+// UpdateSubsystem 更新NVMe子系统.
 func (m *NVMeOFManager) UpdateSubsystem(subsystemID string, updates map[string]interface{}) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	subsystem, exists := m.subsystems[subsystemID]
 	if !exists {
 		return ErrSubsystemNotFound
 	}
-	
+
 	if alias, ok := updates["alias"].(string); ok {
 		subsystem.Alias = alias
 	}
@@ -86,49 +86,49 @@ func (m *NVMeOFManager) UpdateSubsystem(subsystemID string, updates map[string]i
 	if online, ok := updates["is_online"].(bool); ok {
 		subsystem.IsOnline = online
 	}
-	
+
 	subsystem.UpdatedAt = time.Now()
-	
+
 	return nil
 }
 
-// DeleteSubsystem 删除NVMe子系统
+// DeleteSubsystem 删除NVMe子系统.
 func (m *NVMeOFManager) DeleteSubsystem(subsystemID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if _, exists := m.subsystems[subsystemID]; !exists {
 		return ErrSubsystemNotFound
 	}
-	
+
 	// 删除关联的命名空间和控制器
 	for nsID, ns := range m.namespaces {
 		if ns.SubsystemID == subsystemID {
 			delete(m.namespaces, nsID)
 		}
 	}
-	
+
 	for ctrlID, ctrl := range m.controllers {
 		if ctrl.SubsystemID == subsystemID {
 			delete(m.controllers, ctrlID)
 		}
 	}
-	
+
 	delete(m.subsystems, subsystemID)
-	
+
 	return nil
 }
 
-// CreateNamespace 创建NVMe命名空间
+// CreateNamespace 创建NVMe命名空间.
 func (m *NVMeOFManager) CreateNamespace(namespace *NVMeNamespace) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	// 检查子系统是否存在
 	if _, exists := m.subsystems[namespace.SubsystemID]; !exists {
 		return ErrSubsystemNotFound
 	}
-	
+
 	// 检查命名空间数量限制
 	count := 0
 	for _, ns := range m.namespaces {
@@ -139,67 +139,67 @@ func (m *NVMeOFManager) CreateNamespace(namespace *NVMeNamespace) error {
 	if count >= m.config.MaxNamespacesPerSub {
 		return ErrMaxNamespaces
 	}
-	
+
 	namespace.CreatedAt = time.Now()
 	namespace.UpdatedAt = time.Now()
 	namespace.IsOnline = true
 	m.namespaces[namespace.ID] = namespace
-	
+
 	return nil
 }
 
-// GetNamespace 获取NVMe命名空间
+// GetNamespace 获取NVMe命名空间.
 func (m *NVMeOFManager) GetNamespace(namespaceID string) (*NVMeNamespace, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	namespace, exists := m.namespaces[namespaceID]
 	if !exists {
 		return nil, ErrNamespaceNotFound
 	}
-	
+
 	return namespace, nil
 }
 
-// ListNamespaces 列出所有NVMe命名空间
+// ListNamespaces 列出所有NVMe命名空间.
 func (m *NVMeOFManager) ListNamespaces(subsystemID string) []*NVMeNamespace {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	namespaces := make([]*NVMeNamespace, 0)
 	for _, ns := range m.namespaces {
 		if subsystemID == "" || ns.SubsystemID == subsystemID {
 			namespaces = append(namespaces, ns)
 		}
 	}
-	
+
 	return namespaces
 }
 
-// DeleteNamespace 删除NVMe命名空间
+// DeleteNamespace 删除NVMe命名空间.
 func (m *NVMeOFManager) DeleteNamespace(namespaceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if _, exists := m.namespaces[namespaceID]; !exists {
 		return ErrNamespaceNotFound
 	}
-	
+
 	delete(m.namespaces, namespaceID)
-	
+
 	return nil
 }
 
-// ConnectController 连接NVMe控制器
+// ConnectController 连接NVMe控制器.
 func (m *NVMeOFManager) ConnectController(controller *NVMeController) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	// 检查子系统是否存在
 	if _, exists := m.subsystems[controller.SubsystemID]; !exists {
 		return ErrSubsystemNotFound
 	}
-	
+
 	// 检查控制器数量限制
 	count := 0
 	for _, ctrl := range m.controllers {
@@ -210,107 +210,107 @@ func (m *NVMeOFManager) ConnectController(controller *NVMeController) error {
 	if count >= m.config.MaxControllersPerSub {
 		return ErrMaxControllers
 	}
-	
+
 	controller.ConnectedAt = time.Now()
 	controller.IsOnline = true
 	m.controllers[controller.ID] = controller
-	
+
 	return nil
 }
 
-// GetController 获取NVMe控制器
+// GetController 获取NVMe控制器.
 func (m *NVMeOFManager) GetController(controllerID string) (*NVMeController, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	controller, exists := m.controllers[controllerID]
 	if !exists {
 		return nil, ErrControllerNotFound
 	}
-	
+
 	return controller, nil
 }
 
-// ListControllers 列出所有NVMe控制器
+// ListControllers 列出所有NVMe控制器.
 func (m *NVMeOFManager) ListControllers(subsystemID string) []*NVMeController {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	controllers := make([]*NVMeController, 0)
 	for _, ctrl := range m.controllers {
 		if subsystemID == "" || ctrl.SubsystemID == subsystemID {
 			controllers = append(controllers, ctrl)
 		}
 	}
-	
+
 	return controllers
 }
 
-// DisconnectController 断开NVMe控制器
+// DisconnectController 断开NVMe控制器.
 func (m *NVMeOFManager) DisconnectController(controllerID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	controller, exists := m.controllers[controllerID]
 	if !exists {
 		return ErrControllerNotFound
 	}
-	
+
 	controller.IsOnline = false
 	delete(m.controllers, controllerID)
-	
+
 	return nil
 }
 
-// AddNetworkInterface 添加网络接口
+// AddNetworkInterface 添加网络接口.
 func (m *NVMeOFManager) AddNetworkInterface(iface *NetworkInterface) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	iface.UpdatedAt = time.Now()
 	m.interfaces[iface.ID] = iface
-	
+
 	return nil
 }
 
-// GetNetworkInterface 获取网络接口
+// GetNetworkInterface 获取网络接口.
 func (m *NVMeOFManager) GetNetworkInterface(ifaceID string) (*NetworkInterface, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	iface, exists := m.interfaces[ifaceID]
 	if !exists {
 		return nil, ErrInterfaceNotFound
 	}
-	
+
 	return iface, nil
 }
 
-// ListNetworkInterfaces 列出所有网络接口
+// ListNetworkInterfaces 列出所有网络接口.
 func (m *NVMeOFManager) ListNetworkInterfaces(speed NetworkSpeed) []*NetworkInterface {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	interfaces := make([]*NetworkInterface, 0)
 	for _, iface := range m.interfaces {
 		if speed == "" || iface.Speed == speed {
 			interfaces = append(interfaces, iface)
 		}
 	}
-	
+
 	return interfaces
 }
 
-// UpdateNetworkInterface 更新网络接口
+// UpdateNetworkInterface 更新网络接口.
 func (m *NVMeOFManager) UpdateNetworkInterface(ifaceID string, updates map[string]interface{}) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	iface, exists := m.interfaces[ifaceID]
 	if !exists {
 		return ErrInterfaceNotFound
 	}
-	
+
 	if ip, ok := updates["ip_address"].(string); ok {
 		iface.IPAddress = ip
 	}
@@ -326,75 +326,75 @@ func (m *NVMeOFManager) UpdateNetworkInterface(ifaceID string, updates map[strin
 	if online, ok := updates["is_online"].(bool); ok {
 		iface.IsOnline = online
 	}
-	
+
 	iface.UpdatedAt = time.Now()
-	
+
 	return nil
 }
 
-// ConfigureRDMA 配置RDMA
+// ConfigureRDMA 配置RDMA.
 func (m *NVMeOFManager) ConfigureRDMA(config RDMAConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if !m.config.EnableRDMA {
 		return ErrRDMANotSupported
 	}
-	
+
 	m.rdmaConfig = config
-	
+
 	return nil
 }
 
-// GetRDMAConfig 获取RDMA配置
+// GetRDMAConfig 获取RDMA配置.
 func (m *NVMeOFManager) GetRDMAConfig() RDMAConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	return m.rdmaConfig
 }
 
-// UpdateMetrics 更新性能指标
+// UpdateMetrics 更新性能指标.
 func (m *NVMeOFManager) UpdateMetrics(subsystemID string, metrics *PerformanceMetrics) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	metrics.Timestamp = time.Now()
 	m.metrics[subsystemID] = metrics
-	
+
 	return nil
 }
 
-// GetMetrics 获取性能指标
+// GetMetrics 获取性能指标.
 func (m *NVMeOFManager) GetMetrics(subsystemID string) (*PerformanceMetrics, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	metrics, exists := m.metrics[subsystemID]
 	if !exists {
 		return nil, ErrSubsystemNotFound
 	}
-	
+
 	return metrics, nil
 }
 
-// GetSubsystemStats 获取子系统统计
+// GetSubsystemStats 获取子系统统计.
 func (m *NVMeOFManager) GetSubsystemStats(subsystemID string) map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	stats := make(map[string]interface{})
-	
+
 	subsystem, exists := m.subsystems[subsystemID]
 	if !exists {
 		return stats
 	}
-	
+
 	stats["id"] = subsystem.ID
 	stats["nqn"] = subsystem.NQN
 	stats["transport"] = subsystem.Transport
 	stats["is_online"] = subsystem.IsOnline
-	
+
 	// 统计命名空间数量
 	nsCount := 0
 	for _, ns := range m.namespaces {
@@ -403,7 +403,7 @@ func (m *NVMeOFManager) GetSubsystemStats(subsystemID string) map[string]interfa
 		}
 	}
 	stats["namespace_count"] = nsCount
-	
+
 	// 统计控制器数量
 	ctrlCount := 0
 	for _, ctrl := range m.controllers {
@@ -412,7 +412,7 @@ func (m *NVMeOFManager) GetSubsystemStats(subsystemID string) map[string]interfa
 		}
 	}
 	stats["controller_count"] = ctrlCount
-	
+
 	// 获取性能指标
 	if metrics, exists := m.metrics[subsystemID]; exists {
 		stats["read_iops"] = metrics.ReadIOPS
@@ -422,29 +422,29 @@ func (m *NVMeOFManager) GetSubsystemStats(subsystemID string) map[string]interfa
 		stats["write_throughput_mbps"] = metrics.WriteThroughputMBps
 		stats["avg_latency_us"] = metrics.AvgLatencyUs
 	}
-	
+
 	return stats
 }
 
-// GetGlobalStats 获取全局统计
+// GetGlobalStats 获取全局统计.
 func (m *NVMeOFManager) GetGlobalStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	stats := make(map[string]interface{})
-	
+
 	stats["total_subsystems"] = len(m.subsystems)
 	stats["total_namespaces"] = len(m.namespaces)
 	stats["total_controllers"] = len(m.controllers)
 	stats["total_interfaces"] = len(m.interfaces)
-	
+
 	// 统计各传输类型的子系统数量
 	transportStats := make(map[string]int)
 	for _, subsystem := range m.subsystems {
 		transportStats[string(subsystem.Transport)]++
 	}
 	stats["transport_stats"] = transportStats
-	
+
 	// 统计在线子系统数量
 	onlineCount := 0
 	for _, subsystem := range m.subsystems {
@@ -453,7 +453,7 @@ func (m *NVMeOFManager) GetGlobalStats() map[string]interface{} {
 		}
 	}
 	stats["online_subsystems"] = onlineCount
-	
+
 	// 统计400GbE接口数量
 	speed400gCount := 0
 	for _, iface := range m.interfaces {
@@ -462,11 +462,11 @@ func (m *NVMeOFManager) GetGlobalStats() map[string]interface{} {
 		}
 	}
 	stats["400gbe_interfaces"] = speed400gCount
-	
+
 	return stats
 }
 
-// FormatSpeed 格式化网络速度
+// FormatSpeed 格式化网络速度.
 func FormatSpeed(speed NetworkSpeed) string {
 	switch speed {
 	case Speed10G:
@@ -486,7 +486,7 @@ func FormatSpeed(speed NetworkSpeed) string {
 	}
 }
 
-// FormatTransport 格式化传输类型
+// FormatTransport 格式化传输类型.
 func FormatTransport(transport TransportType) string {
 	switch transport {
 	case TransportTCP:

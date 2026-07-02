@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Notifier 通知器
+// Notifier 通知器.
 type Notifier struct {
 	mu           sync.RWMutex
 	logger       *zap.Logger
@@ -23,7 +23,7 @@ type Notifier struct {
 	running      bool
 }
 
-// NewNotifier 创建通知器
+// NewNotifier 创建通知器.
 func NewNotifier(logger *zap.Logger, config *NotifyConfig) *Notifier {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -42,7 +42,7 @@ func NewNotifier(logger *zap.Logger, config *NotifyConfig) *Notifier {
 	}
 }
 
-// Start 启动通知器
+// Start 启动通知器.
 func (n *Notifier) Start() {
 	n.mu.Lock()
 	if n.running {
@@ -58,7 +58,7 @@ func (n *Notifier) Start() {
 	n.logger.Info("notifier started")
 }
 
-// Stop 停止通知器
+// Stop 停止通知器.
 func (n *Notifier) Stop() {
 	n.mu.Lock()
 	defer n.mu.Unlock()
@@ -72,7 +72,7 @@ func (n *Notifier) Stop() {
 	n.logger.Info("notifier stopped")
 }
 
-// SendEvent 发送通知事件
+// SendEvent 发送通知事件.
 func (n *Notifier) SendEvent(event *NotifyEvent) {
 	n.mu.Lock()
 	n.events = append(n.events, event)
@@ -112,7 +112,7 @@ func (n *Notifier) SendEvent(event *NotifyEvent) {
 		zap.String("share_id", event.ShareID))
 }
 
-// shouldNotify 判断是否应该发送通知
+// shouldNotify 判断是否应该发送通知.
 func (n *Notifier) shouldNotify(event *NotifyEvent) bool {
 	switch event.EventType {
 	case "view":
@@ -130,7 +130,7 @@ func (n *Notifier) shouldNotify(event *NotifyEvent) bool {
 	}
 }
 
-// isRateLimited 检查是否被速率限制
+// isRateLimited 检查是否被速率限制.
 func (n *Notifier) isRateLimited() bool {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
@@ -153,7 +153,7 @@ func (n *Notifier) isRateLimited() bool {
 	return count >= n.config.MaxPerHour
 }
 
-// processWebhookQueue 处理 webhook 队列
+// processWebhookQueue 处理 webhook 队列.
 func (n *Notifier) processWebhookQueue() {
 	for {
 		select {
@@ -165,7 +165,7 @@ func (n *Notifier) processWebhookQueue() {
 	}
 }
 
-// processEmailQueue 处理邮件队列
+// processEmailQueue 处理邮件队列.
 func (n *Notifier) processEmailQueue() {
 	for {
 		select {
@@ -177,7 +177,7 @@ func (n *Notifier) processEmailQueue() {
 	}
 }
 
-// sendWebhook 发送 webhook 通知
+// sendWebhook 发送 webhook 通知.
 func (n *Notifier) sendWebhook(event *NotifyEvent) {
 	n.logger.Info("sending webhook notification",
 		zap.String("url", n.config.WebhookURL),
@@ -188,7 +188,7 @@ func (n *Notifier) sendWebhook(event *NotifyEvent) {
 	// 这里只是模拟
 }
 
-// sendEmail 发送邮件通知
+// sendEmail 发送邮件通知.
 func (n *Notifier) sendEmail(event *NotifyEvent) {
 	n.logger.Info("sending email notification",
 		zap.String("to", n.config.EmailTo),
@@ -199,7 +199,7 @@ func (n *Notifier) sendEmail(event *NotifyEvent) {
 	// 这里只是模拟
 }
 
-// DetectAnomaly 检测异常访问
+// DetectAnomaly 检测异常访问.
 func (n *Notifier) DetectAnomaly(log *AccessLog, shareLink *ShareLink) *NotifyEvent {
 	// 检测异常情况
 
@@ -252,7 +252,7 @@ func (n *Notifier) DetectAnomaly(log *AccessLog, shareLink *ShareLink) *NotifyEv
 	return nil
 }
 
-// detectRapidAccess 检测短时间内大量访问
+// detectRapidAccess 检测短时间内大量访问.
 func (n *Notifier) detectRapidAccess(shareID string) bool {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
@@ -271,7 +271,7 @@ func (n *Notifier) detectRapidAccess(shareID string) bool {
 	return count > 20
 }
 
-// detectSuspiciousUA 检测可疑 User-Agent
+// detectSuspiciousUA 检测可疑 User-Agent.
 func (n *Notifier) detectSuspiciousUA(ua string) bool {
 	suspiciousKeywords := []string{
 		"curl", "wget", "python", "java", "go-http",
@@ -287,7 +287,7 @@ func (n *Notifier) detectSuspiciousUA(ua string) bool {
 	return false
 }
 
-// GetEvents 获取通知事件列表
+// GetEvents 获取通知事件列表.
 func (n *Notifier) GetEvents(limit int) []*NotifyEvent {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
@@ -301,7 +301,7 @@ func (n *Notifier) GetEvents(limit int) []*NotifyEvent {
 	return events
 }
 
-// GetEventsByShareID 根据分享ID获取事件
+// GetEventsByShareID 根据分享ID获取事件.
 func (n *Notifier) GetEventsByShareID(shareID string, limit int) []*NotifyEvent {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
@@ -319,19 +319,19 @@ func (n *Notifier) GetEventsByShareID(shareID string, limit int) []*NotifyEvent 
 	return result
 }
 
-// UpdateConfig 更新通知配置
+// UpdateConfig 更新通知配置.
 func (n *Notifier) UpdateConfig(config *NotifyConfig) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 	n.config = config
 }
 
-// contains 检查字符串是否包含子串
+// contains 检查字符串是否包含子串.
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && searchString(s, substr)
 }
 
-// searchString 搜索子串
+// searchString 搜索子串.
 func searchString(s, substr string) bool {
 	for i := 0; i <= len(s)-len(substr); i++ {
 		if s[i:i+len(substr)] == substr {
@@ -341,7 +341,7 @@ func searchString(s, substr string) bool {
 	return false
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	b := make([]byte, 16)
 	rand.Read(b)

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// DesktopStatus 虚拟桌面状态
+// DesktopStatus 虚拟桌面状态.
 type DesktopStatus string
 
 const (
@@ -18,7 +18,7 @@ const (
 	StatusError    DesktopStatus = "error"
 )
 
-// DesktopType 桌面类型
+// DesktopType 桌面类型.
 type DesktopType string
 
 const (
@@ -28,7 +28,7 @@ const (
 	TypeCustom  DesktopType = "custom"
 )
 
-// VirtualDesktop 虚拟桌面
+// VirtualDesktop 虚拟桌面.
 type VirtualDesktop struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
@@ -50,7 +50,7 @@ type VirtualDesktop struct {
 	StartedAt   *time.Time    `json:"started_at,omitempty"`
 }
 
-// DesktopTemplate 桌面模板
+// DesktopTemplate 桌面模板.
 type DesktopTemplate struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -64,7 +64,7 @@ type DesktopTemplate struct {
 	Tags        []string    `json:"tags,omitempty"`
 }
 
-// Snapshot 快照
+// Snapshot 快照.
 type Snapshot struct {
 	ID          string    `json:"id"`
 	DesktopID   string    `json:"desktop_id"`
@@ -74,7 +74,7 @@ type Snapshot struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// Session 会话
+// Session 会话.
 type Session struct {
 	ID        string     `json:"id"`
 	DesktopID string     `json:"desktop_id"`
@@ -86,7 +86,7 @@ type Session struct {
 	Active    bool       `json:"active"`
 }
 
-// VirtualDesktopManager 虚拟桌面管理器
+// VirtualDesktopManager 虚拟桌面管理器.
 type VirtualDesktopManager struct {
 	mu        sync.RWMutex
 	desktops  map[string]*VirtualDesktop
@@ -95,7 +95,7 @@ type VirtualDesktopManager struct {
 	sessions  map[string][]*Session
 }
 
-// NewVirtualDesktopManager 创建管理器
+// NewVirtualDesktopManager 创建管理器.
 func NewVirtualDesktopManager() *VirtualDesktopManager {
 	m := &VirtualDesktopManager{
 		desktops:  make(map[string]*VirtualDesktop),
@@ -148,7 +148,7 @@ func (m *VirtualDesktopManager) initDefaultTemplates() {
 	}
 }
 
-// CreateDesktop 创建虚拟桌面
+// CreateDesktop 创建虚拟桌面.
 func (m *VirtualDesktopManager) CreateDesktop(ctx context.Context, desktop *VirtualDesktop) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -180,7 +180,7 @@ func (m *VirtualDesktopManager) CreateDesktop(ctx context.Context, desktop *Virt
 	return nil
 }
 
-// StartDesktop 启动桌面
+// StartDesktop 启动桌面.
 func (m *VirtualDesktopManager) StartDesktop(ctx context.Context, id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -202,7 +202,7 @@ func (m *VirtualDesktopManager) StartDesktop(ctx context.Context, id string) err
 	return nil
 }
 
-// StopDesktop 停止桌面
+// StopDesktop 停止桌面.
 func (m *VirtualDesktopManager) StopDesktop(ctx context.Context, id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -219,7 +219,7 @@ func (m *VirtualDesktopManager) StopDesktop(ctx context.Context, id string) erro
 	return nil
 }
 
-// GetDesktop 获取桌面
+// GetDesktop 获取桌面.
 func (m *VirtualDesktopManager) GetDesktop(ctx context.Context, id string) (*VirtualDesktop, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -231,7 +231,7 @@ func (m *VirtualDesktopManager) GetDesktop(ctx context.Context, id string) (*Vir
 	return desktop, nil
 }
 
-// ListDesktops 列出桌面
+// ListDesktops 列出桌面.
 func (m *VirtualDesktopManager) ListDesktops(ctx context.Context, owner string) []*VirtualDesktop {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -246,7 +246,7 @@ func (m *VirtualDesktopManager) ListDesktops(ctx context.Context, owner string) 
 	return result
 }
 
-// DeleteDesktop 删除桌面
+// DeleteDesktop 删除桌面.
 func (m *VirtualDesktopManager) DeleteDesktop(ctx context.Context, id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -262,7 +262,7 @@ func (m *VirtualDesktopManager) DeleteDesktop(ctx context.Context, id string) er
 	return nil
 }
 
-// CreateSnapshot 创建快照
+// CreateSnapshot 创建快照.
 func (m *VirtualDesktopManager) CreateSnapshot(ctx context.Context, desktopID, name string) (*Snapshot, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -282,7 +282,7 @@ func (m *VirtualDesktopManager) CreateSnapshot(ctx context.Context, desktopID, n
 	return snapshot, nil
 }
 
-// ListSnapshots 列出快照
+// ListSnapshots 列出快照.
 func (m *VirtualDesktopManager) ListSnapshots(ctx context.Context, desktopID string) []*Snapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -290,7 +290,7 @@ func (m *VirtualDesktopManager) ListSnapshots(ctx context.Context, desktopID str
 	return m.snapshots[desktopID]
 }
 
-// ListTemplates 列出模板
+// ListTemplates 列出模板.
 func (m *VirtualDesktopManager) ListTemplates(ctx context.Context) []*DesktopTemplate {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -302,7 +302,7 @@ func (m *VirtualDesktopManager) ListTemplates(ctx context.Context) []*DesktopTem
 	return result
 }
 
-// CreateSession 创建会话
+// CreateSession 创建会话.
 func (m *VirtualDesktopManager) CreateSession(ctx context.Context, desktopID, user, protocol, ip string) (*Session, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

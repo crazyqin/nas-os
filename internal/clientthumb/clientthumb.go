@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// Format 缩略图格式
+// Format 缩略图格式.
 type Format string
 
 const (
@@ -21,7 +21,7 @@ const (
 	FormatAVIF Format = "avif"
 )
 
-// Size 预定义缩略图尺寸
+// Size 预定义缩略图尺寸.
 type Size string
 
 const (
@@ -31,7 +31,7 @@ const (
 	SizeXLarge Size = "xlarge" // 1200x1200
 )
 
-// SizeDimensions 尺寸到像素的映射
+// SizeDimensions 尺寸到像素的映射.
 var SizeDimensions = map[Size][2]int{
 	SizeSmall:  {200, 200},
 	SizeMedium: {400, 400},
@@ -39,7 +39,7 @@ var SizeDimensions = map[Size][2]int{
 	SizeXLarge: {1200, 1200},
 }
 
-// Task 缩略图生成任务
+// Task 缩略图生成任务.
 type Task struct {
 	ID          string        // 任务 ID
 	FileID      string        // 源文件 ID
@@ -58,7 +58,7 @@ type Task struct {
 	Result      *TaskResult   // 生成结果
 }
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -69,7 +69,7 @@ const (
 	TaskFailed    TaskStatus = "failed"
 )
 
-// TaskResult 任务结果
+// TaskResult 任务结果.
 type TaskResult struct {
 	ThumbnailPath string // 生成的缩略图路径
 	FileSize      int64  // 缩略图文件大小
@@ -79,7 +79,7 @@ type TaskResult struct {
 	Checksum      string // 文件校验和
 }
 
-// Client 注册的客户端
+// Client 注册的客户端.
 type Client struct {
 	ID             string        // 客户端唯一 ID
 	Capabilities   ClientCaps    // 客户端能力
@@ -91,7 +91,7 @@ type Client struct {
 	mu             sync.Mutex
 }
 
-// ClientCaps 客户端能力声明
+// ClientCaps 客户端能力声明.
 type ClientCaps struct {
 	Formats   []Format // 支持的格式
 	MaxSize   int      // 最大短边像素
@@ -101,7 +101,7 @@ type ClientCaps struct {
 	GPUMemMB  int      // GPU 显存 MB
 }
 
-// PerfStats 性能统计
+// PerfStats 性能统计.
 type PerfStats struct {
 	TotalTasks       int64         // 总任务数
 	CompletedTasks   int64         // 完成任务数
@@ -113,7 +113,7 @@ type PerfStats struct {
 	SpeedupFactor    float64       // 相比纯服务端生成的加速比
 }
 
-// EngineConfig 引擎配置
+// EngineConfig 引擎配置.
 type EngineConfig struct {
 	DefaultFormat   Format        // 默认格式
 	DefaultQuality  int           // 默认质量
@@ -124,7 +124,7 @@ type EngineConfig struct {
 	PrefetchSizes   []Size        // 预取尺寸列表
 }
 
-// Engine 客户端缩略图引擎
+// Engine 客户端缩略图引擎.
 type Engine struct {
 	mu           sync.RWMutex
 	config       *EngineConfig
@@ -135,7 +135,7 @@ type Engine struct {
 	totalGenTime atomic.Int64       // 纳-累加生成耗时 ns
 }
 
-// NewEngine 创建客户端缩略图引擎
+// NewEngine 创建客户端缩略图引擎.
 func NewEngine(config *EngineConfig) *Engine {
 	if config == nil {
 		config = &EngineConfig{
@@ -156,7 +156,7 @@ func NewEngine(config *EngineConfig) *Engine {
 	}
 }
 
-// RegisterClient 注册客户端
+// RegisterClient 注册客户端.
 func (e *Engine) RegisterClient(id string, caps ClientCaps) *Client {
 	client := &Client{
 		ID:            id,
@@ -170,7 +170,7 @@ func (e *Engine) RegisterClient(id string, caps ClientCaps) *Client {
 	return client
 }
 
-// UnregisterClient 注销客户端
+// UnregisterClient 注销客户端.
 func (e *Engine) UnregisterClient(id string) {
 	e.mu.Lock()
 	delete(e.clients, id)
@@ -191,7 +191,7 @@ func (e *Engine) Heartbeat(id string) bool {
 	return true
 }
 
-// SubmitTask 提交缩略图生成任务
+// SubmitTask 提交缩略图生成任务.
 func (e *Engine) SubmitTask(ctx context.Context, fileID, filePath string, format Format, size Size) (*Task, error) {
 	if format == "" {
 		format = e.config.DefaultFormat
@@ -238,7 +238,7 @@ func (e *Engine) SubmitTask(ctx context.Context, fileID, filePath string, format
 	return task, nil
 }
 
-// ReportResult 客户端上报生成结果
+// ReportResult 客户端上报生成结果.
 func (e *Engine) ReportResult(taskID string, result *TaskResult) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -277,7 +277,7 @@ func (e *Engine) ReportResult(taskID string, result *TaskResult) error {
 	return nil
 }
 
-// ReportFailure 客户端上报生成失败
+// ReportFailure 客户端上报生成失败.
 func (e *Engine) ReportFailure(taskID string, errMsg string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -301,7 +301,7 @@ func (e *Engine) ReportFailure(taskID string, errMsg string) error {
 	return nil
 }
 
-// GetStats 获取性能统计
+// GetStats 获取性能统计.
 func (e *Engine) GetStats() PerfStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -313,7 +313,7 @@ func (e *Engine) GetStats() PerfStats {
 	return stats
 }
 
-// ListClients 列出所有注册客户端
+// ListClients 列出所有注册客户端.
 func (e *Engine) ListClients() []*Client {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -324,7 +324,7 @@ func (e *Engine) ListClients() []*Client {
 	return result
 }
 
-// GetTask 获取任务状态
+// GetTask 获取任务状态.
 func (e *Engine) GetTask(taskID string) (*Task, bool) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -332,7 +332,7 @@ func (e *Engine) GetTask(taskID string) (*Task, bool) {
 	return t, ok
 }
 
-// PruneStaleClients 清理超时客户端
+// PruneStaleClients 清理超时客户端.
 func (e *Engine) PruneStaleClients() int {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -350,7 +350,7 @@ func (e *Engine) PruneStaleClients() int {
 
 // --- 内部方法 ---
 
-// pickClient 选择最适合的客户端
+// pickClient 选择最适合的客户端.
 func (e *Engine) pickClient(format Format) *Client {
 	e.mu.RLock()
 	defer e.mu.RUnlock()

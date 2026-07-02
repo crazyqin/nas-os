@@ -20,26 +20,26 @@ import (
 	"time"
 )
 
-// ShareLink 共享链接
+// ShareLink 共享链接.
 type ShareLink struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	FilePath    string    `json:"file_path"`
-	FileSize    int64     `json:"file_size"`
-	FileType    string    `json:"file_type"`
-	ShareURL    string    `json:"share_url"`
-	Password    string    `json:"-"` // 不返回给客户端
-	HasPassword bool      `json:"has_password"`
-	MaxDownloads int      `json:"max_downloads"`
-	DownloadCount int     `json:"download_count"`
-	ExpiresAt   time.Time `json:"expires_at"`
-	CreatedAt   time.Time `json:"created_at"`
-	CreatedBy   string    `json:"created_by"`
-	Enabled     bool      `json:"enabled"`
-	Note        string    `json:"note,omitempty"`
+	ID            string    `json:"id"`
+	Name          string    `json:"name"`
+	FilePath      string    `json:"file_path"`
+	FileSize      int64     `json:"file_size"`
+	FileType      string    `json:"file_type"`
+	ShareURL      string    `json:"share_url"`
+	Password      string    `json:"-"` // 不返回给客户端
+	HasPassword   bool      `json:"has_password"`
+	MaxDownloads  int       `json:"max_downloads"`
+	DownloadCount int       `json:"download_count"`
+	ExpiresAt     time.Time `json:"expires_at"`
+	CreatedAt     time.Time `json:"created_at"`
+	CreatedBy     string    `json:"created_by"`
+	Enabled       bool      `json:"enabled"`
+	Note          string    `json:"note,omitempty"`
 }
 
-// ShareRequest 创建共享请求
+// ShareRequest 创建共享请求.
 type ShareRequest struct {
 	FilePath     string `json:"file_path"`
 	Name         string `json:"name,omitempty"`
@@ -49,7 +49,7 @@ type ShareRequest struct {
 	Note         string `json:"note,omitempty"`
 }
 
-// ShareStats 共享统计
+// ShareStats 共享统计.
 type ShareStats struct {
 	TotalLinks      int       `json:"total_links"`
 	ActiveLinks     int       `json:"active_links"`
@@ -59,7 +59,7 @@ type ShareStats struct {
 	UpdatedAt       time.Time `json:"updated_at"`
 }
 
-// DownloadLog 下载日志
+// DownloadLog 下载日志.
 type DownloadLog struct {
 	ShareID    string    `json:"share_id"`
 	ShareName  string    `json:"share_name"`
@@ -69,7 +69,7 @@ type DownloadLog struct {
 	FileSize   int64     `json:"file_size"`
 }
 
-// Manager P2P 文件共享管理器
+// Manager P2P 文件共享管理器.
 type Manager struct {
 	mu      sync.RWMutex
 	links   map[string]*ShareLink
@@ -78,7 +78,7 @@ type Manager struct {
 	baseURL string
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(baseURL string, logger *slog.Logger) *Manager {
 	if logger == nil {
 		logger = slog.Default()
@@ -94,7 +94,7 @@ func NewManager(baseURL string, logger *slog.Logger) *Manager {
 	}
 }
 
-// CreateShareLink 创建共享链接
+// CreateShareLink 创建共享链接.
 func (m *Manager) CreateShareLink(req ShareRequest, createdBy string) (*ShareLink, error) {
 	if req.FilePath == "" {
 		return nil, fmt.Errorf("文件路径不能为空")
@@ -146,7 +146,7 @@ func (m *Manager) CreateShareLink(req ShareRequest, createdBy string) (*ShareLin
 	return link, nil
 }
 
-// GetShareLink 获取共享链接
+// GetShareLink 获取共享链接.
 func (m *Manager) GetShareLink(id string) (*ShareLink, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -167,7 +167,7 @@ func (m *Manager) GetShareLink(id string) (*ShareLink, error) {
 	return link, nil
 }
 
-// VerifyPassword 验证密码
+// VerifyPassword 验证密码.
 func (m *Manager) VerifyPassword(id, password string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -184,7 +184,7 @@ func (m *Manager) VerifyPassword(id, password string) bool {
 	return link.Password == password
 }
 
-// RecordDownload 记录下载
+// RecordDownload 记录下载.
 func (m *Manager) RecordDownload(id, clientIP, userAgent string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -214,7 +214,7 @@ func (m *Manager) RecordDownload(id, clientIP, userAgent string) error {
 	return nil
 }
 
-// DeleteShareLink 删除共享链接
+// DeleteShareLink 删除共享链接.
 func (m *Manager) DeleteShareLink(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -228,7 +228,7 @@ func (m *Manager) DeleteShareLink(id string) error {
 	return nil
 }
 
-// DisableShareLink 禁用共享链接
+// DisableShareLink 禁用共享链接.
 func (m *Manager) DisableShareLink(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -243,7 +243,7 @@ func (m *Manager) DisableShareLink(id string) error {
 	return nil
 }
 
-// ListShareLinks 列出共享链接
+// ListShareLinks 列出共享链接.
 func (m *Manager) ListShareLinks(createdBy string) []*ShareLink {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -258,7 +258,7 @@ func (m *Manager) ListShareLinks(createdBy string) []*ShareLink {
 	return result
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() ShareStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -283,7 +283,7 @@ func (m *Manager) GetStats() ShareStats {
 	return stats
 }
 
-// GetDownloadLogs 获取下载日志
+// GetDownloadLogs 获取下载日志.
 func (m *Manager) GetDownloadLogs(limit int) []DownloadLog {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -303,7 +303,7 @@ func (m *Manager) GetDownloadLogs(limit int) []DownloadLog {
 	return result
 }
 
-// CleanupExpired 清理过期链接
+// CleanupExpired 清理过期链接.
 func (m *Manager) CleanupExpired() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -323,7 +323,7 @@ func (m *Manager) CleanupExpired() int {
 	return count
 }
 
-// RegisterRoutes 注册 HTTP 路由
+// RegisterRoutes 注册 HTTP 路由.
 func (m *Manager) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/p2p/share", m.handleShare)
 	mux.HandleFunc("/api/v1/p2p/share/list", m.handleList)

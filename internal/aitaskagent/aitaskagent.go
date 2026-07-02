@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-// Task represents an AI-managed task
+// Task represents an AI-managed task.
 type Task struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
-	Type        string            `json:"type"` // backup, cleanup, monitor, optimize, custom
-	Status      string            `json:"status"` // pending, scheduled, running, completed, failed
+	Type        string            `json:"type"`     // backup, cleanup, monitor, optimize, custom
+	Status      string            `json:"status"`   // pending, scheduled, running, completed, failed
 	Priority    int               `json:"priority"` // 1-10, 10 highest
 	Schedule    string            `json:"schedule"` // cron expression
 	Enabled     bool              `json:"enabled"`
@@ -28,19 +28,19 @@ type Task struct {
 	Tags        []string          `json:"tags,omitempty"`
 }
 
-// TaskExecution represents a single task execution
+// TaskExecution represents a single task execution.
 type TaskExecution struct {
-	ID        string    `json:"id"`
-	TaskID    string    `json:"task_id"`
-	Status    string    `json:"status"` // running, completed, failed
-	StartTime time.Time `json:"start_time"`
-	EndTime   *time.Time `json:"end_time,omitempty"`
+	ID        string        `json:"id"`
+	TaskID    string        `json:"task_id"`
+	Status    string        `json:"status"` // running, completed, failed
+	StartTime time.Time     `json:"start_time"`
+	EndTime   *time.Time    `json:"end_time,omitempty"`
 	Duration  time.Duration `json:"duration"`
-	Output    string    `json:"output"`
-	Error     string    `json:"error,omitempty"`
+	Output    string        `json:"output"`
+	Error     string        `json:"error,omitempty"`
 }
 
-// AgentWorkflow represents an AI agent workflow
+// AgentWorkflow represents an AI agent workflow.
 type AgentWorkflow struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
@@ -51,16 +51,16 @@ type AgentWorkflow struct {
 	RunCount    int            `json:"run_count"`
 }
 
-// WorkflowStep represents a step in a workflow
+// WorkflowStep represents a step in a workflow.
 type WorkflowStep struct {
-	Name       string            `json:"name"`
-	Type       string            `json:"type"` // task, condition, wait, notify
-	Config     map[string]string `json:"config"`
-	NextStep   string            `json:"next_step,omitempty"`
-	OnFailure  string            `json:"on_failure,omitempty"`
+	Name      string            `json:"name"`
+	Type      string            `json:"type"` // task, condition, wait, notify
+	Config    map[string]string `json:"config"`
+	NextStep  string            `json:"next_step,omitempty"`
+	OnFailure string            `json:"on_failure,omitempty"`
 }
 
-// AgentCapability represents what the AI agent can do
+// AgentCapability represents what the AI agent can do.
 type AgentCapability struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
@@ -68,7 +68,7 @@ type AgentCapability struct {
 	Parameters  []string `json:"parameters"`
 }
 
-// AgentStats aggregates agent statistics
+// AgentStats aggregates agent statistics.
 type AgentStats struct {
 	TotalTasks      int     `json:"total_tasks"`
 	ActiveTasks     int     `json:"active_tasks"`
@@ -79,7 +79,7 @@ type AgentStats struct {
 	WorkflowsActive int     `json:"workflows_active"`
 }
 
-// AITaskAgent manages automated tasks and workflows
+// AITaskAgent manages automated tasks and workflows.
 type AITaskAgent struct {
 	mu           sync.RWMutex
 	tasks        map[string]*Task
@@ -88,7 +88,7 @@ type AITaskAgent struct {
 	capabilities []AgentCapability
 }
 
-// NewAITaskAgent creates a new AI task agent
+// NewAITaskAgent creates a new AI task agent.
 func NewAITaskAgent() *AITaskAgent {
 	agent := &AITaskAgent{
 		tasks:      make(map[string]*Task),
@@ -105,7 +105,7 @@ func NewAITaskAgent() *AITaskAgent {
 	return agent
 }
 
-// CreateTask creates a new task
+// CreateTask creates a new task.
 func (agent *AITaskAgent) CreateTask(ctx context.Context, task *Task) error {
 	agent.mu.Lock()
 	defer agent.mu.Unlock()
@@ -123,7 +123,7 @@ func (agent *AITaskAgent) CreateTask(ctx context.Context, task *Task) error {
 	return nil
 }
 
-// UpdateTask updates an existing task
+// UpdateTask updates an existing task.
 func (agent *AITaskAgent) UpdateTask(ctx context.Context, taskID string, updates map[string]interface{}) error {
 	agent.mu.Lock()
 	defer agent.mu.Unlock()
@@ -153,7 +153,7 @@ func (agent *AITaskAgent) UpdateTask(ctx context.Context, taskID string, updates
 	return nil
 }
 
-// DeleteTask deletes a task
+// DeleteTask deletes a task.
 func (agent *AITaskAgent) DeleteTask(ctx context.Context, taskID string) error {
 	agent.mu.Lock()
 	defer agent.mu.Unlock()
@@ -166,7 +166,7 @@ func (agent *AITaskAgent) DeleteTask(ctx context.Context, taskID string) error {
 	return nil
 }
 
-// RunTask executes a task
+// RunTask executes a task.
 func (agent *AITaskAgent) RunTask(ctx context.Context, taskID string) (*TaskExecution, error) {
 	agent.mu.Lock()
 	defer agent.mu.Unlock()
@@ -194,7 +194,7 @@ func (agent *AITaskAgent) RunTask(ctx context.Context, taskID string) (*TaskExec
 	return execution, nil
 }
 
-// CompleteTask marks a task execution as complete
+// CompleteTask marks a task execution as complete.
 func (agent *AITaskAgent) CompleteTask(ctx context.Context, executionID string, output string) error {
 	agent.mu.Lock()
 	defer agent.mu.Unlock()
@@ -221,7 +221,7 @@ func (agent *AITaskAgent) CompleteTask(ctx context.Context, executionID string, 
 	return fmt.Errorf("execution %s not found", executionID)
 }
 
-// FailTask marks a task execution as failed
+// FailTask marks a task execution as failed.
 func (agent *AITaskAgent) FailTask(ctx context.Context, executionID string, errMsg string) error {
 	agent.mu.Lock()
 	defer agent.mu.Unlock()
@@ -248,7 +248,7 @@ func (agent *AITaskAgent) FailTask(ctx context.Context, executionID string, errM
 	return fmt.Errorf("execution %s not found", executionID)
 }
 
-// CreateWorkflow creates a new agent workflow
+// CreateWorkflow creates a new agent workflow.
 func (agent *AITaskAgent) CreateWorkflow(ctx context.Context, workflow *AgentWorkflow) error {
 	agent.mu.Lock()
 	defer agent.mu.Unlock()
@@ -263,7 +263,7 @@ func (agent *AITaskAgent) CreateWorkflow(ctx context.Context, workflow *AgentWor
 	return nil
 }
 
-// GetTask returns a task by ID
+// GetTask returns a task by ID.
 func (agent *AITaskAgent) GetTask(ctx context.Context, taskID string) (*Task, error) {
 	agent.mu.RLock()
 	defer agent.mu.RUnlock()
@@ -276,7 +276,7 @@ func (agent *AITaskAgent) GetTask(ctx context.Context, taskID string) (*Task, er
 	return task, nil
 }
 
-// ListTasks returns all tasks
+// ListTasks returns all tasks.
 func (agent *AITaskAgent) ListTasks(ctx context.Context, taskType string) []*Task {
 	agent.mu.RLock()
 	defer agent.mu.RUnlock()
@@ -290,7 +290,7 @@ func (agent *AITaskAgent) ListTasks(ctx context.Context, taskType string) []*Tas
 	return tasks
 }
 
-// GetExecutions returns execution history
+// GetExecutions returns execution history.
 func (agent *AITaskAgent) GetExecutions(ctx context.Context, taskID string) []TaskExecution {
 	agent.mu.RLock()
 	defer agent.mu.RUnlock()
@@ -308,7 +308,7 @@ func (agent *AITaskAgent) GetExecutions(ctx context.Context, taskID string) []Ta
 	return result
 }
 
-// GetWorkflows returns all workflows
+// GetWorkflows returns all workflows.
 func (agent *AITaskAgent) GetWorkflows(ctx context.Context) []*AgentWorkflow {
 	agent.mu.RLock()
 	defer agent.mu.RUnlock()
@@ -320,12 +320,12 @@ func (agent *AITaskAgent) GetWorkflows(ctx context.Context) []*AgentWorkflow {
 	return workflows
 }
 
-// GetCapabilities returns agent capabilities
+// GetCapabilities returns agent capabilities.
 func (agent *AITaskAgent) GetCapabilities(ctx context.Context) []AgentCapability {
 	return agent.capabilities
 }
 
-// GetStats returns agent statistics
+// GetStats returns agent statistics.
 func (agent *AITaskAgent) GetStats(ctx context.Context) *AgentStats {
 	agent.mu.RLock()
 	defer agent.mu.RUnlock()

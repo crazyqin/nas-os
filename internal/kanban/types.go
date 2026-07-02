@@ -7,7 +7,7 @@ import "time"
 // 看板相关类型
 // ============================================================
 
-// Board 看板
+// Board 看板.
 type Board struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -21,7 +21,7 @@ type Board struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// Column 看板列
+// Column 看板列.
 type Column struct {
 	ID        string    `json:"id"`
 	BoardID   string    `json:"board_id"`
@@ -32,7 +32,7 @@ type Column struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// Card 卡片
+// Card 卡片.
 type Card struct {
 	ID          string     `json:"id"`
 	ColumnID    string     `json:"column_id"`
@@ -49,7 +49,7 @@ type Card struct {
 	UpdatedAt   time.Time  `json:"updated_at"`
 }
 
-// Label 标签
+// Label 标签.
 type Label struct {
 	ID      string `json:"id"`
 	BoardID string `json:"board_id"`
@@ -57,7 +57,7 @@ type Label struct {
 	Color   string `json:"color"`
 }
 
-// Member 成员
+// Member 成员.
 type Member struct {
 	UserID   string    `json:"user_id"`
 	Username string    `json:"username"`
@@ -65,7 +65,7 @@ type Member struct {
 	JoinedAt time.Time `json:"joined_at"`
 }
 
-// Activity 活动记录
+// Activity 活动记录.
 type Activity struct {
 	ID        string    `json:"id"`
 	BoardID   string    `json:"board_id"`
@@ -80,14 +80,14 @@ type Activity struct {
 // 请求类型
 // ============================================================
 
-// CreateBoardRequest 创建看板请求
+// CreateBoardRequest 创建看板请求.
 type CreateBoardRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description"`
 	OwnerID     string `json:"owner_id" binding:"required"`
 }
 
-// AddCardRequest 创建卡片请求
+// AddCardRequest 创建卡片请求.
 type AddCardRequest struct {
 	ColumnID    string     `json:"column_id" binding:"required"`
 	Title       string     `json:"title" binding:"required"`
@@ -99,19 +99,19 @@ type AddCardRequest struct {
 	CreatedBy   string     `json:"created_by"`
 }
 
-// MoveCardRequest 移动卡片请求
+// MoveCardRequest 移动卡片请求.
 type MoveCardRequest struct {
 	TargetColumnID string `json:"target_column_id" binding:"required"`
 	Position       int    `json:"position"`
 }
 
-// AddLabelRequest 添加标签请求
+// AddLabelRequest 添加标签请求.
 type AddLabelRequest struct {
 	Name  string `json:"name" binding:"required"`
 	Color string `json:"color" binding:"required"`
 }
 
-// AssignMemberRequest 分配成员请求
+// AssignMemberRequest 分配成员请求.
 type AssignMemberRequest struct {
 	UserID   string `json:"user_id" binding:"required"`
 	Username string `json:"username" binding:"required"`

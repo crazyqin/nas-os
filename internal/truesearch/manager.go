@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager TrueSearch 全文搜索引擎管理器
+// Manager TrueSearch 全文搜索引擎管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	logger   *zap.Logger
@@ -21,7 +21,7 @@ type Manager struct {
 	running  bool
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(logger *zap.Logger, config *TrueSearchConfig) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -42,7 +42,7 @@ func NewManager(logger *zap.Logger, config *TrueSearchConfig) *Manager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -62,7 +62,7 @@ func (m *Manager) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -78,14 +78,14 @@ func (m *Manager) Stop() error {
 	return nil
 }
 
-// IsRunning 检查是否运行中
+// IsRunning 检查是否运行中.
 func (m *Manager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.running
 }
 
-// IndexDocument 索引文档
+// IndexDocument 索引文档.
 func (m *Manager) IndexDocument(doc *Document) error {
 	if !m.IsRunning() {
 		return fmt.Errorf("manager is not running")
@@ -94,7 +94,7 @@ func (m *Manager) IndexDocument(doc *Document) error {
 	return m.indexer.IndexDocument(doc)
 }
 
-// IndexBatch 批量索引文档
+// IndexBatch 批量索引文档.
 func (m *Manager) IndexBatch(docs []*Document) (int, error) {
 	if !m.IsRunning() {
 		return 0, fmt.Errorf("manager is not running")
@@ -118,7 +118,7 @@ func (m *Manager) IndexBatch(docs []*Document) (int, error) {
 	return indexed, nil
 }
 
-// RemoveDocument 移除文档
+// RemoveDocument 移除文档.
 func (m *Manager) RemoveDocument(docID string) error {
 	if !m.IsRunning() {
 		return fmt.Errorf("manager is not running")
@@ -127,7 +127,7 @@ func (m *Manager) RemoveDocument(docID string) error {
 	return m.indexer.RemoveDocument(docID)
 }
 
-// Search 执行搜索
+// Search 执行搜索.
 func (m *Manager) Search(query *SearchQuery) (*SearchResponse, error) {
 	if !m.IsRunning() {
 		return nil, fmt.Errorf("manager is not running")
@@ -136,7 +136,7 @@ func (m *Manager) Search(query *SearchQuery) (*SearchResponse, error) {
 	return m.searcher.Search(query)
 }
 
-// SearchFilename 搜索文件名
+// SearchFilename 搜索文件名.
 func (m *Manager) SearchFilename(query string, limit int) (*SearchResponse, error) {
 	return m.Search(&SearchQuery{
 		Query: query,
@@ -145,7 +145,7 @@ func (m *Manager) SearchFilename(query string, limit int) (*SearchResponse, erro
 	})
 }
 
-// SearchContent 搜索内容
+// SearchContent 搜索内容.
 func (m *Manager) SearchContent(query string, limit int) (*SearchResponse, error) {
 	return m.Search(&SearchQuery{
 		Query: query,
@@ -154,7 +154,7 @@ func (m *Manager) SearchContent(query string, limit int) (*SearchResponse, error
 	})
 }
 
-// AutoComplete 自动补全
+// AutoComplete 自动补全.
 func (m *Manager) AutoComplete(prefix string, limit int) []string {
 	if !m.IsRunning() {
 		return nil
@@ -163,17 +163,17 @@ func (m *Manager) AutoComplete(prefix string, limit int) []string {
 	return m.searcher.AutoComplete(prefix, limit)
 }
 
-// GetDocument 获取文档
+// GetDocument 获取文档.
 func (m *Manager) GetDocument(docID string) (*Document, error) {
 	return m.indexer.GetDocument(docID)
 }
 
-// ListDocuments 列出文档
+// ListDocuments 列出文档.
 func (m *Manager) ListDocuments(limit int) []*Document {
 	return m.indexer.ListDocuments(limit)
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() *IndexStats {
 	stats := m.indexer.GetStats()
 	stats.Status = IndexStatusReady
@@ -183,7 +183,7 @@ func (m *Manager) GetStats() *IndexStats {
 	return stats
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (m *Manager) GetConfig() *TrueSearchConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -191,7 +191,7 @@ func (m *Manager) GetConfig() *TrueSearchConfig {
 	return &cfg
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config *TrueSearchConfig) error {
 	if config == nil {
 		return fmt.Errorf("config cannot be nil")
@@ -206,7 +206,7 @@ func (m *Manager) UpdateConfig(config *TrueSearchConfig) error {
 	return nil
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (m *Manager) RebuildIndex(ctx context.Context, docs []*Document) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -245,12 +245,12 @@ func (m *Manager) RebuildIndex(ctx context.Context, docs []*Document) error {
 	return nil
 }
 
-// GetIndexer 获取索引器
+// GetIndexer 获取索引器.
 func (m *Manager) GetIndexer() *Indexer {
 	return m.indexer
 }
 
-// GetSearcher 获取搜索引擎
+// GetSearcher 获取搜索引擎.
 func (m *Manager) GetSearcher() *Searcher {
 	return m.searcher
 }

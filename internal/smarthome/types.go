@@ -13,7 +13,7 @@ import (
 // 协议与设备类型
 // ============================================================
 
-// Protocol represents smart home protocol
+// Protocol represents smart home protocol.
 type Protocol string
 
 const (
@@ -27,7 +27,7 @@ const (
 	ProtocolBluetooth Protocol = "bluetooth"
 )
 
-// DeviceType represents the type of smart device
+// DeviceType represents the type of smart device.
 type DeviceType string
 
 const (
@@ -44,7 +44,7 @@ const (
 	DeviceTypeOther      DeviceType = "other"
 )
 
-// DeviceStatus represents device online status
+// DeviceStatus represents device online status.
 type DeviceStatus string
 
 const (
@@ -57,7 +57,7 @@ const (
 // 触发器与动作类型
 // ============================================================
 
-// TriggerType represents the type of automation trigger
+// TriggerType represents the type of automation trigger.
 type TriggerType string
 
 const (
@@ -68,7 +68,7 @@ const (
 	TriggerTypeManual  TriggerType = "manual"
 )
 
-// ActionType represents the type of automation action
+// ActionType represents the type of automation action.
 type ActionType string
 
 const (
@@ -78,7 +78,7 @@ const (
 	ActionTypeScene         ActionType = "scene"
 )
 
-// ComparisonOperator represents a comparison operator for conditions
+// ComparisonOperator represents a comparison operator for conditions.
 type ComparisonOperator string
 
 const (
@@ -95,7 +95,7 @@ const (
 // 数据结构
 // ============================================================
 
-// Device represents a smart home device
+// Device represents a smart home device.
 type Device struct {
 	ID           string            `json:"id"`
 	Name         string            `json:"name"`
@@ -117,7 +117,7 @@ type Device struct {
 	UpdatedAt    time.Time         `json:"updated_at"`
 }
 
-// Room represents a room in the house
+// Room represents a room in the house.
 type Room struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -127,7 +127,7 @@ type Room struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// Group represents a device group
+// Group represents a device group.
 type Group struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -137,7 +137,7 @@ type Group struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// Trigger represents an automation trigger
+// Trigger represents an automation trigger.
 type Trigger struct {
 	Type     TriggerType `json:"type"`
 	DeviceID string      `json:"device_id,omitempty"`
@@ -146,7 +146,7 @@ type Trigger struct {
 	TimeStr  string      `json:"time_str,omitempty"`
 }
 
-// Condition represents an automation condition
+// Condition represents an automation condition.
 type Condition struct {
 	DeviceID string             `json:"device_id"`
 	Field    string             `json:"field"`
@@ -154,7 +154,7 @@ type Condition struct {
 	Operator ComparisonOperator `json:"operator"`
 }
 
-// Action represents an automation action
+// Action represents an automation action.
 type Action struct {
 	Type       ActionType     `json:"type"`
 	DeviceID   string         `json:"device_id,omitempty"`
@@ -164,7 +164,7 @@ type Action struct {
 	DelayMs    int64          `json:"delay_ms,omitempty"`
 }
 
-// Scene represents a smart home scene/automation
+// Scene represents a smart home scene/automation.
 type Scene struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
@@ -179,7 +179,7 @@ type Scene struct {
 	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
-// ScheduledTask represents a scheduled automation task
+// ScheduledTask represents a scheduled automation task.
 type ScheduledTask struct {
 	ID        string     `json:"id"`
 	Name      string     `json:"name"`
@@ -233,7 +233,7 @@ type DashboardSummary struct {
 	UpdatedAt      time.Time      `json:"updated_at"`
 }
 
-// DeviceEvent represents a device event
+// DeviceEvent represents a device event.
 type DeviceEvent struct {
 	DeviceID   string         `json:"device_id"`
 	DeviceName string         `json:"device_name,omitempty"`
@@ -242,7 +242,7 @@ type DeviceEvent struct {
 	Timestamp  time.Time      `json:"timestamp"`
 }
 
-// Config represents smart home configuration
+// Config represents smart home configuration.
 type Config struct {
 	Enabled          bool   `json:"enabled"`
 	MatterEnabled    bool   `json:"matter_enabled"`
@@ -258,7 +258,7 @@ type Config struct {
 	MaxEvents        int    `json:"max_events"`
 }
 
-// Manager manages smart home devices and automations
+// Manager manages smart home devices and automations.
 type Manager struct {
 	config      *Config
 	devices     map[string]*Device
@@ -274,12 +274,12 @@ type Manager struct {
 	cancel      context.CancelFunc
 }
 
-// Automation represents a smart home automation (alias for Scene)
+// Automation represents a smart home automation (alias for Scene).
 type Automation = Scene
 
 // Manager lifecycle methods
 
-// Start starts the smart home manager
+// Start starts the smart home manager.
 func (m *Manager) Start() error {
 	if !m.config.Enabled {
 		return nil
@@ -292,7 +292,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop stops the smart home manager
+// Stop stops the smart home manager.
 func (m *Manager) Stop() {
 	m.cancel()
 }
@@ -353,7 +353,7 @@ func (m *Manager) evaluateAutomations() {
 	}
 }
 
-// NewManager creates a new smart home manager
+// NewManager creates a new smart home manager.
 func NewManager(config *Config) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	if config.MaxEvents <= 0 {

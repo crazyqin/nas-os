@@ -9,17 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers JSON-RPC HTTP处理器
+// Handlers JSON-RPC HTTP处理器.
 type Handlers struct {
 	server *Server
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(server *Server) *Handlers {
 	return &Handlers{server: server}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	rpcGroup := api.Group("/jsonrpc")
 	{
@@ -45,7 +45,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// handleRPC 处理JSON-RPC请求
+// handleRPC 处理JSON-RPC请求.
 func (h *Handlers) handleRPC(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
@@ -95,7 +95,7 @@ func (h *Handlers) handleRPC(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// createAPIKey 创建API密钥
+// createAPIKey 创建API密钥.
 func (h *Handlers) createAPIKey(c *gin.Context) {
 	var key APIKey
 	if err := c.ShouldBindJSON(&key); err != nil {
@@ -114,7 +114,7 @@ func (h *Handlers) createAPIKey(c *gin.Context) {
 	})
 }
 
-// listAPIKeys 列出API密钥
+// listAPIKeys 列出API密钥.
 func (h *Handlers) listAPIKeys(c *gin.Context) {
 	userID := c.Query("user_id")
 	keys := h.server.ListAPIKeys(userID)
@@ -124,7 +124,7 @@ func (h *Handlers) listAPIKeys(c *gin.Context) {
 	})
 }
 
-// getAPIKey 获取API密钥
+// getAPIKey 获取API密钥.
 func (h *Handlers) getAPIKey(c *gin.Context) {
 	id := c.Param("id")
 	key, err := h.server.GetAPIKey(id)
@@ -135,7 +135,7 @@ func (h *Handlers) getAPIKey(c *gin.Context) {
 	c.JSON(http.StatusOK, key)
 }
 
-// revokeAPIKey 撤销API密钥
+// revokeAPIKey 撤销API密钥.
 func (h *Handlers) revokeAPIKey(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.server.RevokeAPIKey(id); err != nil {
@@ -145,7 +145,7 @@ func (h *Handlers) revokeAPIKey(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "API密钥已撤销"})
 }
 
-// listMethods 列出方法
+// listMethods 列出方法.
 func (h *Handlers) listMethods(c *gin.Context) {
 	stats := h.server.GetStats()
 	c.JSON(http.StatusOK, gin.H{
@@ -154,7 +154,7 @@ func (h *Handlers) listMethods(c *gin.Context) {
 	})
 }
 
-// getVersions 获取版本信息
+// getVersions 获取版本信息.
 func (h *Handlers) getVersions(c *gin.Context) {
 	versions := h.server.GetVersions()
 	c.JSON(http.StatusOK, gin.H{
@@ -163,17 +163,17 @@ func (h *Handlers) getVersions(c *gin.Context) {
 	})
 }
 
-// getStats 获取统计
+// getStats 获取统计.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.server.GetStats()
 	c.JSON(http.StatusOK, stats)
 }
 
-// healthCheck 健康检查
+// healthCheck 健康检查.
 func (h *Handlers) healthCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"status": "healthy",
-		"api":    "JSON-RPC 2.0",
+		"status":  "healthy",
+		"api":     "JSON-RPC 2.0",
 		"version": h.server.currentVersion,
 	})
 }

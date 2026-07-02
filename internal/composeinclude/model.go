@@ -5,13 +5,13 @@ package composeinclude
 
 import "time"
 
-// IncludeDirective Compose 文件中的 include 指令
+// IncludeDirective Compose 文件中的 include 指令.
 type IncludeDirective struct {
 	// 引用的外部 Compose 文件路径列表
 	Paths []string `json:"paths"`
 }
 
-// ComposeFile Compose 文件结构（简化）
+// ComposeFile Compose 文件结构（简化）.
 type ComposeFile struct {
 	// 服务定义
 	Services map[string]ServiceDefinition `json:"services"`
@@ -23,7 +23,7 @@ type ComposeFile struct {
 	Networks map[string]interface{} `json:"networks,omitempty"`
 }
 
-// ServiceDefinition 服务定义
+// ServiceDefinition 服务定义.
 type ServiceDefinition struct {
 	// 镜像
 	Image string `json:"image,omitempty"`
@@ -43,7 +43,7 @@ type ServiceDefinition struct {
 	Networks []string `json:"networks,omitempty"`
 }
 
-// ParseResult 解析结果
+// ParseResult 解析结果.
 type ParseResult struct {
 	// 解析结果唯一标识
 	ID string `json:"id"`
@@ -63,7 +63,7 @@ type ParseResult struct {
 	ParsedAt time.Time `json:"parsed_at"`
 }
 
-// ParseRequest 解析请求
+// ParseRequest 解析请求.
 type ParseRequest struct {
 	// Compose 文件内容
 	Content string `json:"content"`

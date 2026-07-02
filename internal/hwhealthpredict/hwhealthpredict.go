@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// 设备类型常量
+// 设备类型常量.
 const (
 	DeviceTypeHDD    = "HDD"    // 机械硬盘
 	DeviceTypeSSD    = "SSD"    // 固态硬盘
@@ -24,7 +24,7 @@ const (
 	DeviceTypeRAID   = "RAID"   // RAID卡
 )
 
-// 健康状态常量
+// 健康状态常量.
 const (
 	HealthStatusExcellent = "excellent" // 优秀 90-100
 	HealthStatusGood      = "good"      // 良好 70-89
@@ -33,7 +33,7 @@ const (
 	HealthStatusCritical  = "critical"  // 严重 0-29
 )
 
-// 告警级别常量
+// 告警级别常量.
 const (
 	AlertLevelInfo     = "info"     // 信息
 	AlertLevelWarning  = "warning"  // 警告
@@ -41,14 +41,14 @@ const (
 	AlertLevelFatal    = "fatal"    // 致命
 )
 
-// 默认阈值配置
+// 默认阈值配置.
 const (
 	DefaultWarningThreshold  = 50 // 健康分低于此值发出警告
 	DefaultCriticalThreshold = 30 // 健康分低于此值发出严重告警
 	DefaultFatalThreshold    = 10 // 健康分低于此值发出致命告警
 )
 
-// 错误定义
+// 错误定义.
 var (
 	ErrDeviceNotFound    = errors.New("设备未找到")
 	ErrDeviceExists      = errors.New("设备已存在")
@@ -57,7 +57,7 @@ var (
 	ErrNoHistoryData     = errors.New("没有历史数据")
 )
 
-// Device 硬件设备信息
+// Device 硬件设备信息.
 type Device struct {
 	ID           string            `json:"id"`           // 设备唯一标识
 	Name         string            `json:"name"`         // 设备名称
@@ -74,7 +74,7 @@ type Device struct {
 	UpdatedAt    time.Time         `json:"updated_at"`   // 更新时间
 }
 
-// SMARTData SMART监控数据
+// SMARTData SMART监控数据.
 type SMARTData struct {
 	DeviceID         string    `json:"device_id"`          // 设备ID
 	Timestamp        time.Time `json:"timestamp"`          // 采集时间
@@ -103,7 +103,7 @@ type SMARTData struct {
 	RawData          string    `json:"raw_data,omitempty"` // 原始数据JSON
 }
 
-// HealthScore 健康评分
+// HealthScore 健康评分.
 type HealthScore struct {
 	DeviceID    string             `json:"device_id"`    // 设备ID
 	Score       int                `json:"score"`        // 总分(0-100)
@@ -114,7 +114,7 @@ type HealthScore struct {
 	RiskFactors []string           `json:"risk_factors"` // 风险因素
 }
 
-// LifePrediction 寿命预测
+// LifePrediction 寿命预测.
 type LifePrediction struct {
 	DeviceID          string    `json:"device_id"`           // 设备ID
 	PredictedLifeDays int       `json:"predicted_life_days"` // 预测剩余寿命(天)
@@ -125,7 +125,7 @@ type LifePrediction struct {
 	Timestamp         time.Time `json:"timestamp"`           // 预测时间
 }
 
-// Alert 告警信息
+// Alert 告警信息.
 type Alert struct {
 	ID           string    `json:"id"`           // 告警ID
 	DeviceID     string    `json:"device_id"`    // 设备ID
@@ -139,7 +139,7 @@ type Alert struct {
 	Acknowledged bool      `json:"acknowledged"` // 是否已确认
 }
 
-// MaintenancePlan 维护计划
+// MaintenancePlan 维护计划.
 type MaintenancePlan struct {
 	DeviceID    string            `json:"device_id"`    // 设备ID
 	DeviceName  string            `json:"device_name"`  // 设备名称
@@ -151,7 +151,7 @@ type MaintenancePlan struct {
 	GeneratedAt time.Time         `json:"generated_at"` // 生成时间
 }
 
-// MaintenanceItem 维护项目
+// MaintenanceItem 维护项目.
 type MaintenanceItem struct {
 	ID          string    `json:"id"`          // 项目ID
 	Type        string    `json:"type"`        // 类型(inspection/clean/replace/upgrade)
@@ -162,7 +162,7 @@ type MaintenanceItem struct {
 	Urgency     string    `json:"urgency"`     // 紧急程度
 }
 
-// ReplacementPlan 更换计划
+// ReplacementPlan 更换计划.
 type ReplacementPlan struct {
 	Recommended   bool      `json:"recommended"`   // 是否建议更换
 	Reason        string    `json:"reason"`        // 更换原因
@@ -171,7 +171,7 @@ type ReplacementPlan struct {
 	Compatibility []string  `json:"compatibility"` // 兼容型号
 }
 
-// HealthHistory 历史记录查询结果
+// HealthHistory 历史记录查询结果.
 type HealthHistory struct {
 	DeviceID string        `json:"device_id"` // 设备ID
 	Records  []HealthScore `json:"records"`   // 历史记录
@@ -180,7 +180,7 @@ type HealthHistory struct {
 	To       time.Time     `json:"to"`        // 结束时间
 }
 
-// Config 硬件健康预测配置
+// Config 硬件健康预测配置.
 type Config struct {
 	WarningThreshold  int  // 警告阈值
 	CriticalThreshold int  // 严重告警阈值
@@ -189,7 +189,7 @@ type Config struct {
 	EnablePrediction  bool // 启用寿命预测
 }
 
-// HardwareHealthPredictor 硬件健康预测器
+// HardwareHealthPredictor 硬件健康预测器.
 type HardwareHealthPredictor struct {
 	devices      map[string]*Device
 	smartData    map[string][]*SMARTData
@@ -200,7 +200,7 @@ type HardwareHealthPredictor struct {
 	mu           sync.RWMutex
 }
 
-// NewHardwareHealthPredictor 创建硬件健康预测器
+// NewHardwareHealthPredictor 创建硬件健康预测器.
 func NewHardwareHealthPredictor(config *Config) *HardwareHealthPredictor {
 	if config == nil {
 		config = &Config{
@@ -220,14 +220,14 @@ func NewHardwareHealthPredictor(config *Config) *HardwareHealthPredictor {
 	}
 }
 
-// SetAlertHandler 设置告警回调函数
+// SetAlertHandler 设置告警回调函数.
 func (p *HardwareHealthPredictor) SetAlertHandler(handler func(*Alert)) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.alertHandler = handler
 }
 
-// RegisterDevice 注册硬件设备
+// RegisterDevice 注册硬件设备.
 func (p *HardwareHealthPredictor) RegisterDevice(device *Device) error {
 	if device == nil {
 		return errors.New("设备信息不能为空")
@@ -257,7 +257,7 @@ func (p *HardwareHealthPredictor) RegisterDevice(device *Device) error {
 	return nil
 }
 
-// UnregisterDevice 注销硬件设备
+// UnregisterDevice 注销硬件设备.
 func (p *HardwareHealthPredictor) UnregisterDevice(deviceID string) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -272,7 +272,7 @@ func (p *HardwareHealthPredictor) UnregisterDevice(deviceID string) error {
 	return nil
 }
 
-// GetDevice 获取设备信息
+// GetDevice 获取设备信息.
 func (p *HardwareHealthPredictor) GetDevice(deviceID string) (*Device, error) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -284,7 +284,7 @@ func (p *HardwareHealthPredictor) GetDevice(deviceID string) (*Device, error) {
 	return device, nil
 }
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (p *HardwareHealthPredictor) ListDevices() []*Device {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -296,7 +296,7 @@ func (p *HardwareHealthPredictor) ListDevices() []*Device {
 	return devices
 }
 
-// ListDevicesByType 按类型列出设备
+// ListDevicesByType 按类型列出设备.
 func (p *HardwareHealthPredictor) ListDevicesByType(deviceType string) []*Device {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -310,7 +310,7 @@ func (p *HardwareHealthPredictor) ListDevicesByType(deviceType string) []*Device
 	return devices
 }
 
-// RecordSMARTData 记录SMART数据
+// RecordSMARTData 记录SMART数据.
 func (p *HardwareHealthPredictor) RecordSMARTData(data *SMARTData) error {
 	if data == nil {
 		return ErrInvalidSMARTData
@@ -342,7 +342,7 @@ func (p *HardwareHealthPredictor) RecordSMARTData(data *SMARTData) error {
 	return nil
 }
 
-// GetLatestSMARTData 获取最新SMART数据
+// GetLatestSMARTData 获取最新SMART数据.
 func (p *HardwareHealthPredictor) GetLatestSMARTData(deviceID string) (*SMARTData, error) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -354,7 +354,7 @@ func (p *HardwareHealthPredictor) GetLatestSMARTData(deviceID string) (*SMARTDat
 	return dataList[len(dataList)-1], nil
 }
 
-// GetSMARTHistory 获取SMART历史数据
+// GetSMARTHistory 获取SMART历史数据.
 func (p *HardwareHealthPredictor) GetSMARTHistory(deviceID string, from, to time.Time) ([]*SMARTData, error) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -378,7 +378,7 @@ func (p *HardwareHealthPredictor) GetSMARTHistory(deviceID string, from, to time
 	return result, nil
 }
 
-// CalculateHealthScore 计算设备健康评分
+// CalculateHealthScore 计算设备健康评分.
 func (p *HardwareHealthPredictor) CalculateHealthScore(deviceID string) (*HealthScore, error) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -396,7 +396,7 @@ func (p *HardwareHealthPredictor) CalculateHealthScore(deviceID string) (*Health
 	return p.calculateHealthScore(latest), nil
 }
 
-// GetHealthHistory 获取健康评分历史
+// GetHealthHistory 获取健康评分历史.
 func (p *HardwareHealthPredictor) GetHealthHistory(deviceID string, from, to time.Time) (*HealthHistory, error) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -431,7 +431,7 @@ func (p *HardwareHealthPredictor) GetHealthHistory(deviceID string, from, to tim
 	}, nil
 }
 
-// PredictLifespan 预测设备剩余寿命
+// PredictLifespan 预测设备剩余寿命.
 func (p *HardwareHealthPredictor) PredictLifespan(deviceID string) (*LifePrediction, error) {
 	if !p.config.EnablePrediction {
 		return nil, errors.New("寿命预测功能未启用")
@@ -452,7 +452,7 @@ func (p *HardwareHealthPredictor) PredictLifespan(deviceID string) (*LifePredict
 	return p.predictLifespan(deviceID, dataList), nil
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (p *HardwareHealthPredictor) GetAlerts(deviceID string, unacknowledgedOnly bool) []*Alert {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -470,7 +470,7 @@ func (p *HardwareHealthPredictor) GetAlerts(deviceID string, unacknowledgedOnly 
 	return result
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (p *HardwareHealthPredictor) AcknowledgeAlert(alertID string) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -484,7 +484,7 @@ func (p *HardwareHealthPredictor) AcknowledgeAlert(alertID string) error {
 	return errors.New("告警未找到")
 }
 
-// GenerateMaintenancePlan 生成维护计划
+// GenerateMaintenancePlan 生成维护计划.
 func (p *HardwareHealthPredictor) GenerateMaintenancePlan(deviceID string) (*MaintenancePlan, error) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -505,7 +505,7 @@ func (p *HardwareHealthPredictor) GenerateMaintenancePlan(deviceID string) (*Mai
 	return p.generateMaintenancePlan(device, latest, score), nil
 }
 
-// ExportData 导出设备数据为JSON
+// ExportData 导出设备数据为JSON.
 func (p *HardwareHealthPredictor) ExportData(deviceID string) ([]byte, error) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -535,7 +535,7 @@ func (p *HardwareHealthPredictor) ExportData(deviceID string) ([]byte, error) {
 	return json.MarshalIndent(export, "", "  ")
 }
 
-// GetSummary 获取设备健康摘要
+// GetSummary 获取设备健康摘要.
 func (p *HardwareHealthPredictor) GetSummary() map[string]interface{} {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -588,7 +588,7 @@ func (p *HardwareHealthPredictor) GetSummary() map[string]interface{} {
 
 // ========== 内部方法 ==========
 
-// isValidDeviceType 验证设备类型
+// isValidDeviceType 验证设备类型.
 func isValidDeviceType(deviceType string) bool {
 	validTypes := []string{
 		DeviceTypeHDD, DeviceTypeSSD, DeviceTypeCPU,
@@ -603,7 +603,7 @@ func isValidDeviceType(deviceType string) bool {
 	return false
 }
 
-// calculateHealthScore 计算健康评分（内部方法，需要持有锁）
+// calculateHealthScore 计算健康评分（内部方法，需要持有锁）.
 func (p *HardwareHealthPredictor) calculateHealthScore(data *SMARTData) *HealthScore {
 	score := &HealthScore{
 		DeviceID:    data.DeviceID,
@@ -640,7 +640,7 @@ func (p *HardwareHealthPredictor) calculateHealthScore(data *SMARTData) *HealthS
 	return score
 }
 
-// calculateDiskHealthScore 计算磁盘健康评分
+// calculateDiskHealthScore 计算磁盘健康评分.
 func (p *HardwareHealthPredictor) calculateDiskHealthScore(data *SMARTData, score *HealthScore, isHDD bool) {
 	totalScore := 0.0
 	weightSum := 0.0
@@ -730,7 +730,7 @@ func (p *HardwareHealthPredictor) calculateDiskHealthScore(data *SMARTData, scor
 	}
 }
 
-// calculateCPUHealthScore 计算CPU健康评分
+// calculateCPUHealthScore 计算CPU健康评分.
 func (p *HardwareHealthPredictor) calculateCPUHealthScore(data *SMARTData, score *HealthScore) {
 	totalScore := 0.0
 
@@ -768,7 +768,7 @@ func (p *HardwareHealthPredictor) calculateCPUHealthScore(data *SMARTData, score
 	score.Score = int(totalScore)
 }
 
-// calculateMemoryHealthScore 计算内存健康评分
+// calculateMemoryHealthScore 计算内存健康评分.
 func (p *HardwareHealthPredictor) calculateMemoryHealthScore(data *SMARTData, score *HealthScore) {
 	totalScore := 0.0
 
@@ -807,7 +807,7 @@ func (p *HardwareHealthPredictor) calculateMemoryHealthScore(data *SMARTData, sc
 	score.Score = int(totalScore)
 }
 
-// calculatePSUHealthScore 计算电源健康评分
+// calculatePSUHealthScore 计算电源健康评分.
 func (p *HardwareHealthPredictor) calculatePSUHealthScore(data *SMARTData, score *HealthScore) {
 	totalScore := 0.0
 
@@ -849,7 +849,7 @@ func (p *HardwareHealthPredictor) calculatePSUHealthScore(data *SMARTData, score
 	score.Score = int(totalScore)
 }
 
-// calculateGenericHealthScore 计算通用设备健康评分
+// calculateGenericHealthScore 计算通用设备健康评分.
 func (p *HardwareHealthPredictor) calculateGenericHealthScore(data *SMARTData, score *HealthScore) {
 	totalScore := 100.0
 
@@ -866,7 +866,7 @@ func (p *HardwareHealthPredictor) calculateGenericHealthScore(data *SMARTData, s
 	score.Score = int(totalScore)
 }
 
-// getHealthStatus 获取健康状态文本
+// getHealthStatus 获取健康状态文本.
 func getHealthStatus(score int) string {
 	switch {
 	case score >= 90:
@@ -882,7 +882,7 @@ func getHealthStatus(score int) string {
 	}
 }
 
-// checkAndCreateAlert 检查并创建告警（内部方法，需要持有锁）
+// checkAndCreateAlert 检查并创建告警（内部方法，需要持有锁）.
 func (p *HardwareHealthPredictor) checkAndCreateAlert(deviceID string, score *HealthScore) {
 	device := p.devices[deviceID]
 	if device == nil {
@@ -926,7 +926,7 @@ func (p *HardwareHealthPredictor) checkAndCreateAlert(deviceID string, score *He
 	}
 }
 
-// predictLifespan 预测设备寿命（内部方法，需要持有锁）
+// predictLifespan 预测设备寿命（内部方法，需要持有锁）.
 func (p *HardwareHealthPredictor) predictLifespan(deviceID string, dataList []*SMARTData) *LifePrediction {
 	device := p.devices[deviceID]
 	prediction := &LifePrediction{
@@ -1017,7 +1017,7 @@ func (p *HardwareHealthPredictor) predictLifespan(deviceID string, dataList []*S
 	return prediction
 }
 
-// generateMaintenancePlan 生成维护计划（内部方法，需要持有锁）
+// generateMaintenancePlan 生成维护计划（内部方法，需要持有锁）.
 func (p *HardwareHealthPredictor) generateMaintenancePlan(device *Device, data *SMARTData, score *HealthScore) *MaintenancePlan {
 	plan := &MaintenancePlan{
 		DeviceID:    device.ID,
@@ -1164,7 +1164,7 @@ func (p *HardwareHealthPredictor) generateMaintenancePlan(device *Device, data *
 	return plan
 }
 
-// generateReplacementPlan 生成更换计划（内部方法，需要持有锁）
+// generateReplacementPlan 生成更换计划（内部方法，需要持有锁）.
 func (p *HardwareHealthPredictor) generateReplacementPlan(device *Device, data *SMARTData, score *HealthScore) *ReplacementPlan {
 	rp := &ReplacementPlan{
 		Compatibility: make([]string, 0),
@@ -1205,6 +1205,6 @@ func (p *HardwareHealthPredictor) generateReplacementPlan(device *Device, data *
 	return rp
 }
 
-// unused import guard
+// unused import guard.
 var _ = strings.Contains
 var _ = sort.Slice

@@ -15,7 +15,7 @@ import (
 // HealthScorer - 健康评分系统 (0-100)
 // ============================================================
 
-// HealthScorer 健康评分系统
+// HealthScorer 健康评分系统.
 type HealthScorer struct {
 	mu           sync.RWMutex
 	logger       *zap.Logger
@@ -24,7 +24,7 @@ type HealthScorer struct {
 	weights      map[SMARTAttributeID]float64
 }
 
-// NewHealthScorer 创建健康评分系统
+// NewHealthScorer 创建健康评分系统.
 func NewHealthScorer(logger *zap.Logger, collector *SMARTCollector) *HealthScorer {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -55,7 +55,7 @@ func NewHealthScorer(logger *zap.Logger, collector *SMARTCollector) *HealthScore
 	}
 }
 
-// Calculate 计算设备健康评分
+// Calculate 计算设备健康评分.
 func (h *HealthScorer) Calculate(device string) (*HealthScore, error) {
 	data, err := h.collector.GetLatestData(device)
 	if err != nil {
@@ -148,7 +148,7 @@ func (h *HealthScorer) Calculate(device string) (*HealthScore, error) {
 	return score, nil
 }
 
-// scoreAttribute 为单个属性评分
+// scoreAttribute 为单个属性评分.
 func (h *HealthScorer) scoreAttribute(attrID SMARTAttributeID, value uint64, data *SMARTData) float64 {
 	switch attrID {
 	case SMARTIDReallocatedSectorCt:
@@ -229,7 +229,7 @@ func (h *HealthScorer) scoreAttribute(attrID SMARTAttributeID, value uint64, dat
 // FailurePredictor - 故障预测器（线性回归 + 阈值报警）
 // ============================================================
 
-// FailurePredictor 故障预测器
+// FailurePredictor 故障预测器.
 type FailurePredictor struct {
 	mu        sync.RWMutex
 	logger    *zap.Logger
@@ -244,7 +244,7 @@ type FailurePredictor struct {
 	tempCritThreshold  uint64
 }
 
-// NewFailurePredictor 创建故障预测器
+// NewFailurePredictor 创建故障预测器.
 func NewFailurePredictor(logger *zap.Logger, collector *SMARTCollector, scorer *HealthScorer) *FailurePredictor {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -261,7 +261,7 @@ func NewFailurePredictor(logger *zap.Logger, collector *SMARTCollector, scorer *
 	}
 }
 
-// Predict 对设备进行故障预测
+// Predict 对设备进行故障预测.
 func (f *FailurePredictor) Predict(device string) (*FailurePrediction, error) {
 	healthScore, err := f.scorer.Calculate(device)
 	if err != nil {
@@ -342,7 +342,7 @@ func (f *FailurePredictor) Predict(device string) (*FailurePrediction, error) {
 	return prediction, nil
 }
 
-// checkThresholdViolations 检查阈值违规
+// checkThresholdViolations 检查阈值违规.
 func (f *FailurePredictor) checkThresholdViolations(data *SMARTData) []ThresholdViolation {
 	var violations []ThresholdViolation
 
@@ -414,7 +414,7 @@ func (f *FailurePredictor) checkThresholdViolations(data *SMARTData) []Threshold
 	return violations
 }
 
-// estimateRemainingLife 估算剩余寿命
+// estimateRemainingLife 估算剩余寿命.
 func (f *FailurePredictor) estimateRemainingLife(data *SMARTData, score float64, analysis *SMARTAnalysisResult) int {
 	// 基础寿命估算：评分 * 18.25 天
 	days := int(score * 18.25)
@@ -463,7 +463,7 @@ func (f *FailurePredictor) estimateRemainingLife(data *SMARTData, score float64,
 	return days
 }
 
-// calculateConfidence 计算置信度
+// calculateConfidence 计算置信度.
 func (f *FailurePredictor) calculateConfidence(analysis *SMARTAnalysisResult) float64 {
 	confidence := 0.5
 
@@ -490,7 +490,7 @@ func (f *FailurePredictor) calculateConfidence(analysis *SMARTAnalysisResult) fl
 	return math.Min(1.0, confidence)
 }
 
-// identifyRiskFactors 识别风险因素
+// identifyRiskFactors 识别风险因素.
 func (f *FailurePredictor) identifyRiskFactors(data *SMARTData, score *HealthScore, analysis *SMARTAnalysisResult) []string {
 	var factors []string
 
@@ -542,7 +542,7 @@ func (f *FailurePredictor) identifyRiskFactors(data *SMARTData, score *HealthSco
 // LifecycleManager - 磁盘生命周期管理
 // ============================================================
 
-// LifecycleManager 磁盘生命周期管理
+// LifecycleManager 磁盘生命周期管理.
 type LifecycleManager struct {
 	mu        sync.RWMutex
 	logger    *zap.Logger
@@ -553,16 +553,16 @@ type LifecycleManager struct {
 	warrantyInfo map[string]*WarrantyInfo
 }
 
-// WarrantyInfo 保修信息
+// WarrantyInfo 保修信息.
 type WarrantyInfo struct {
-	Device         string     `json:"device"`
+	Device          string     `json:"device"`
 	ManufactureDate *time.Time `json:"manufacture_date,omitempty"`
 	WarrantyStart   *time.Time `json:"warranty_start,omitempty"`
 	WarrantyEnd     *time.Time `json:"warranty_end,omitempty"`
 	WarrantyYears   int        `json:"warranty_years"`
 }
 
-// NewLifecycleManager 创建生命周期管理器
+// NewLifecycleManager 创建生命周期管理器.
 func NewLifecycleManager(logger *zap.Logger, collector *SMARTCollector, scorer *HealthScorer) *LifecycleManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -575,14 +575,14 @@ func NewLifecycleManager(logger *zap.Logger, collector *SMARTCollector, scorer *
 	}
 }
 
-// SetWarrantyInfo 设置磁盘保修信息
+// SetWarrantyInfo 设置磁盘保修信息.
 func (l *LifecycleManager) SetWarrantyInfo(info *WarrantyInfo) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.warrantyInfo[info.Device] = info
 }
 
-// GetDiskLifecycle 获取磁盘生命周期信息
+// GetDiskLifecycle 获取磁盘生命周期信息.
 func (l *LifecycleManager) GetDiskLifecycle(device string) (*DiskLifecycle, error) {
 	data, err := l.collector.GetLatestData(device)
 	if err != nil {
@@ -655,7 +655,7 @@ func (l *LifecycleManager) GetDiskLifecycle(device string) (*DiskLifecycle, erro
 	return lifecycle, nil
 }
 
-// calculateWearLevel 计算 SSD 磨损均衡信息
+// calculateWearLevel 计算 SSD 磨损均衡信息.
 func (l *LifecycleManager) calculateWearLevel(data *SMARTData) *WearLevelInfo {
 	wearLevel := getAttributeValue(data, SMARTIDWearLevelingCount)
 	nandWrites := getAttributeValue(data, SMARTIDNANDWrites)
@@ -689,7 +689,7 @@ func (l *LifecycleManager) calculateWearLevel(data *SMARTData) *WearLevelInfo {
 	return info
 }
 
-// GetLifecycleSummary 获取所有磁盘生命周期摘要
+// GetLifecycleSummary 获取所有磁盘生命周期摘要.
 func (l *LifecycleManager) GetLifecycleSummary() ([]*DiskLifecycle, error) {
 	devices := l.collector.GetDevices()
 	if len(devices) == 0 {
@@ -712,7 +712,7 @@ func (l *LifecycleManager) GetLifecycleSummary() ([]*DiskLifecycle, error) {
 // 辅助函数
 // ============================================================
 
-// ScoreToGrade 评分转等级
+// ScoreToGrade 评分转等级.
 func ScoreToGrade(score float64) HealthGrade {
 	switch {
 	case score >= 90:
@@ -728,7 +728,7 @@ func ScoreToGrade(score float64) HealthGrade {
 	}
 }
 
-// ScoreToStatus 评分转状态
+// ScoreToStatus 评分转状态.
 func ScoreToStatus(score float64) DiskStatus {
 	switch {
 	case score >= 70:
@@ -742,7 +742,7 @@ func ScoreToStatus(score float64) DiskStatus {
 	}
 }
 
-// probabilityToRiskLevel 故障概率转风险等级
+// probabilityToRiskLevel 故障概率转风险等级.
 func probabilityToRiskLevel(prob float64) RiskLevel {
 	switch {
 	case prob >= 0.7:

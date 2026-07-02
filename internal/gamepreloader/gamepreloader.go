@@ -16,7 +16,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Platform 游戏平台
+// Platform 游戏平台.
 type Platform string
 
 const (
@@ -31,7 +31,7 @@ const (
 	PlatformSwitch  Platform = "switch"
 )
 
-// GameStatus 游戏状态
+// GameStatus 游戏状态.
 type GameStatus string
 
 const (
@@ -42,7 +42,7 @@ const (
 	StatusError      GameStatus = "error"
 )
 
-// ScheduleMode 调度模式
+// ScheduleMode 调度模式.
 type ScheduleMode string
 
 const (
@@ -52,7 +52,7 @@ const (
 	ScheduleSmart     ScheduleMode = "smart"     // AI 智能调度
 )
 
-// DeviceType 设备类型
+// DeviceType 设备类型.
 type DeviceType string
 
 const (
@@ -62,7 +62,7 @@ const (
 	DeviceTV     DeviceType = "tv"
 )
 
-// Game 游戏信息
+// Game 游戏信息.
 type Game struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
@@ -86,7 +86,7 @@ type Game struct {
 	UpdatedAt   time.Time  `json:"updatedAt"`
 }
 
-// Device 局域网设备
+// Device 局域网设备.
 type Device struct {
 	ID        string     `json:"id"`
 	Name      string     `json:"name"`
@@ -100,7 +100,7 @@ type Device struct {
 	Games     []string   `json:"games"`     // 已安装的游戏 ID
 }
 
-// PreloadTask 预加载任务
+// PreloadTask 预加载任务.
 type PreloadTask struct {
 	ID          string       `json:"id"`
 	GameID      string       `json:"gameId"`
@@ -116,7 +116,7 @@ type PreloadTask struct {
 	Error       string       `json:"error,omitempty"`
 }
 
-// ScheduleConfig 调度配置
+// ScheduleConfig 调度配置.
 type ScheduleConfig struct {
 	Mode          ScheduleMode `json:"mode"`
 	OffPeakStart  string       `json:"offPeakStart"`  // "02:00"
@@ -126,7 +126,7 @@ type ScheduleConfig struct {
 	SmartEnabled  bool         `json:"smartEnabled"`  // AI 智能调度
 }
 
-// Manager 预加载管理器
+// Manager 预加载管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	config   *Config
@@ -137,7 +137,7 @@ type Manager struct {
 	stopCh   chan struct{}
 }
 
-// Config 管理器配置
+// Config 管理器配置.
 type Config struct {
 	Enabled             bool            `json:"enabled"`
 	StoragePath         string          `json:"storagePath"` // NAS 存储根路径
@@ -147,7 +147,7 @@ type Config struct {
 	UpdateCheckInterval time.Duration   `json:"updateCheckInterval"` // 更新检查间隔
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(config *Config) *Manager {
 	if config.ScheduleConfig == nil {
 		config.ScheduleConfig = &ScheduleConfig{
@@ -171,7 +171,7 @@ func NewManager(config *Config) *Manager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() error {
 	if !m.config.Enabled {
 		return nil
@@ -182,12 +182,12 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	close(m.stopCh)
 }
 
-// AddGame 添加游戏
+// AddGame 添加游戏.
 func (m *Manager) AddGame(game *Game) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -208,7 +208,7 @@ func (m *Manager) AddGame(game *Game) error {
 	return nil
 }
 
-// RemoveGame 移除游戏
+// RemoveGame 移除游戏.
 func (m *Manager) RemoveGame(gameID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -220,7 +220,7 @@ func (m *Manager) RemoveGame(gameID string) error {
 	return nil
 }
 
-// RegisterDevice 注册设备
+// RegisterDevice 注册设备.
 func (m *Manager) RegisterDevice(device *Device) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -235,7 +235,7 @@ func (m *Manager) RegisterDevice(device *Device) error {
 	return nil
 }
 
-// StartPreload 启动预加载
+// StartPreload 启动预加载.
 func (m *Manager) StartPreload(gameID, deviceID string, schedule ScheduleMode) (*PreloadTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -264,7 +264,7 @@ func (m *Manager) StartPreload(gameID, deviceID string, schedule ScheduleMode) (
 	return task, nil
 }
 
-// GetGame 获取游戏信息
+// GetGame 获取游戏信息.
 func (m *Manager) GetGame(gameID string) (*Game, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -276,7 +276,7 @@ func (m *Manager) GetGame(gameID string) (*Game, error) {
 	return game, nil
 }
 
-// ListGames 列出所有游戏
+// ListGames 列出所有游戏.
 func (m *Manager) ListGames() []*Game {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -288,7 +288,7 @@ func (m *Manager) ListGames() []*Game {
 	return result
 }
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (m *Manager) ListDevices() []*Device {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -300,7 +300,7 @@ func (m *Manager) ListDevices() []*Device {
 	return result
 }
 
-// GetTasks 获取任务列表
+// GetTasks 获取任务列表.
 func (m *Manager) GetTasks() []*PreloadTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -310,7 +310,7 @@ func (m *Manager) GetTasks() []*PreloadTask {
 	return result
 }
 
-// GetStorageUsage 获取存储使用情况
+// GetStorageUsage 获取存储使用情况.
 func (m *Manager) GetStorageUsage() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -333,7 +333,7 @@ func (m *Manager) GetStorageUsage() map[string]interface{} {
 	}
 }
 
-// GetSmartRecommendations 获取智能推荐
+// GetSmartRecommendations 获取智能推荐.
 func (m *Manager) GetSmartRecommendations() []map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -516,7 +516,7 @@ func (m *Manager) scheduleCheck() {
 	}
 }
 
-// Handler HTTP 处理器
+// Handler HTTP 处理器.
 type Handler struct {
 	manager *Manager
 }

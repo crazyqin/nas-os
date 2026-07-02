@@ -10,10 +10,10 @@ import (
 	"time"
 )
 
-// FailoverCallback 故障转移回调
+// FailoverCallback 故障转移回调.
 type FailoverCallback func(event FailoverEvent)
 
-// TransparentReconnectConfig 透明重连配置
+// TransparentReconnectConfig 透明重连配置.
 type TransparentReconnectConfig struct {
 	MaxRetries      int           // 最大重试次数
 	RetryInterval   time.Duration // 重试间隔
@@ -22,7 +22,7 @@ type TransparentReconnectConfig struct {
 }
 
 // FailoverIntegration 故障转移集成器
-// Phase3: 负责与HA模块深度集成、故障检测、自动切换、会话回归
+// Phase3: 负责与HA模块深度集成、故障检测、自动切换、会话回归.
 type FailoverIntegration struct {
 	manager *StatefulFailoverManager
 	lb      *SMBClientLoadBalancer
@@ -38,7 +38,7 @@ type FailoverIntegration struct {
 	cancel context.CancelFunc
 }
 
-// FailoverConfig 故障转移配置
+// FailoverConfig 故障转移配置.
 type FailoverConfig struct {
 	Enabled                 bool          `json:"enabled"`
 	AutoFailover            bool          `json:"auto_failover"`
@@ -55,7 +55,7 @@ type FailoverConfig struct {
 	AutoReturnThreshold     int           `json:"auto_return_threshold"`     // 自动回归判定次数
 }
 
-// DefaultFailoverConfig 默认配置
+// DefaultFailoverConfig 默认配置.
 func DefaultFailoverConfig() *FailoverConfig {
 	return &FailoverConfig{
 		Enabled:                 true,
@@ -74,7 +74,7 @@ func DefaultFailoverConfig() *FailoverConfig {
 	}
 }
 
-// NewFailoverIntegration 创建故障转移集成器
+// NewFailoverIntegration 创建故障转移集成器.
 func NewFailoverIntegration(manager *StatefulFailoverManager, lb *SMBClientLoadBalancer, cfg *FailoverConfig) *FailoverIntegration {
 	if cfg == nil {
 		cfg = DefaultFailoverConfig()
@@ -97,14 +97,14 @@ func NewFailoverIntegration(manager *StatefulFailoverManager, lb *SMBClientLoadB
 	return fi
 }
 
-// RegisterCallback 注册故障转移事件回调
+// RegisterCallback 注册故障转移事件回调.
 func (fi *FailoverIntegration) RegisterCallback(cb FailoverCallback) {
 	fi.mu.Lock()
 	defer fi.mu.Unlock()
 	fi.callbacks = append(fi.callbacks, cb)
 }
 
-// Start 启动故障转移集成器
+// Start 启动故障转移集成器.
 func (fi *FailoverIntegration) Start() error {
 	if !fi.config.Enabled {
 		return nil
@@ -115,14 +115,14 @@ func (fi *FailoverIntegration) Start() error {
 	return nil
 }
 
-// Stop 停止故障转移集成器
+// Stop 停止故障转移集成器.
 func (fi *FailoverIntegration) Stop() error {
 	fi.cancel()
 	return nil
 }
 
 // TriggerFailoverWithReconnect 触发故障转移并等待客户端透明重连
-// 返回: 迁移成功的会话数、失败的会话数、错误
+// 返回: 迁移成功的会话数、失败的会话数、错误.
 func (fi *FailoverIntegration) TriggerFailoverWithReconnect(failedNodeID string) (int, int, error) {
 	if !fi.config.AutoFailover {
 		return 0, 0, fmt.Errorf("自动故障转移已禁用")
@@ -164,7 +164,7 @@ func (fi *FailoverIntegration) TriggerFailoverWithReconnect(failedNodeID string)
 	return recovered, failed, nil
 }
 
-// migrateSessionsWithRetry 带重试的会话迁移
+// migrateSessionsWithRetry 带重试的会话迁移.
 func (fi *FailoverIntegration) migrateSessionsWithRetry(sessions []*SessionState, target *FailoverNode) (int, int) {
 	recovered, failed := 0, 0
 	concurrency := fi.manager.config.RecoveryConcurrency
@@ -212,7 +212,7 @@ func (fi *FailoverIntegration) migrateSessionsWithRetry(sessions []*SessionState
 	return recovered, failed
 }
 
-// waitForClientReconnect 等待客户端重连
+// waitForClientReconnect 等待客户端重连.
 func (fi *FailoverIntegration) waitForClientReconnect(failedNodeID string, target *FailoverNode, sessions []*SessionState) {
 	timeout := time.After(fi.config.FailoverTimeout)
 	ticker := time.NewTicker(fi.config.HealthCheckInterval)
@@ -239,7 +239,7 @@ func (fi *FailoverIntegration) waitForClientReconnect(failedNodeID string, targe
 	}
 }
 
-// notifyHAForSwitchover 通知HA模块执行切换
+// notifyHAForSwitchover 通知HA模块执行切换.
 func (fi *FailoverIntegration) notifyHAForSwitchover(fromNode, toNode string) {
 	// Phase3: 与外部HA模块（如keepalived, CTDB）集成的钩子
 	// 当前实现触发内部事件，实际生产环境应调用外部API或发送网络消息
@@ -251,7 +251,7 @@ func (fi *FailoverIntegration) notifyHAForSwitchover(fromNode, toNode string) {
 	}
 }
 
-// failoverDetectionLoop 故障检测循环
+// failoverDetectionLoop 故障检测循环.
 func (fi *FailoverIntegration) failoverDetectionLoop() {
 	ticker := time.NewTicker(fi.config.HealthCheckInterval)
 	defer ticker.Stop()
@@ -268,7 +268,7 @@ func (fi *FailoverIntegration) failoverDetectionLoop() {
 	}
 }
 
-// checkAndHandleFailover 检查并处理故障
+// checkAndHandleFailover 检查并处理故障.
 func (fi *FailoverIntegration) checkAndHandleFailover(failureCount map[string]int) {
 	fi.manager.mu.RLock()
 	defer fi.manager.mu.RUnlock()
@@ -294,7 +294,7 @@ func (fi *FailoverIntegration) checkAndHandleFailover(failureCount map[string]in
 	}
 }
 
-// isNodeUnhealthy 判断节点是否不健康
+// isNodeUnhealthy 判断节点是否不健康.
 func (fi *FailoverIntegration) isNodeUnhealthy(node *FailoverNode) bool {
 	// 检查节点状态
 	if node.Status == NodeStatusOffline || node.Status == NodeStatusFailing {
@@ -321,7 +321,7 @@ func (fi *FailoverIntegration) isNodeUnhealthy(node *FailoverNode) bool {
 	return false
 }
 
-// tcpProbeNode TCP探活节点
+// tcpProbeNode TCP探活节点.
 func (fi *FailoverIntegration) tcpProbeNode(node *FailoverNode) bool {
 	addr := net.JoinHostPort(node.Address, fmt.Sprintf("%d", node.Port))
 	ctx, cancel := context.WithTimeout(fi.ctx, 3*time.Second)
@@ -336,7 +336,7 @@ func (fi *FailoverIntegration) tcpProbeNode(node *FailoverNode) bool {
 	return true
 }
 
-// recoveryDetectionLoop 恢复检测循环（节点恢复后触发会话回归）
+// recoveryDetectionLoop 恢复检测循环（节点恢复后触发会话回归）.
 func (fi *FailoverIntegration) recoveryDetectionLoop() {
 	if !fi.config.EnableAutoReturn {
 		return
@@ -356,7 +356,7 @@ func (fi *FailoverIntegration) recoveryDetectionLoop() {
 	}
 }
 
-// checkAndHandleRecovery 检查并处理节点恢复
+// checkAndHandleRecovery 检查并处理节点恢复.
 func (fi *FailoverIntegration) checkAndHandleRecovery(recoveryCount map[string]int) {
 	fi.manager.mu.RLock()
 	defer fi.manager.mu.RUnlock()
@@ -380,7 +380,7 @@ func (fi *FailoverIntegration) checkAndHandleRecovery(recoveryCount map[string]i
 	}
 }
 
-// isNodeHealthy 判断节点是否健康
+// isNodeHealthy 判断节点是否健康.
 func (fi *FailoverIntegration) isNodeHealthy(node *FailoverNode) bool {
 	if node.Status == NodeStatusActive || node.Status == NodeStatusStandby {
 		if time.Since(node.LastHB) < fi.config.HealthCheckInterval*3 {
@@ -392,7 +392,7 @@ func (fi *FailoverIntegration) isNodeHealthy(node *FailoverNode) bool {
 	return false
 }
 
-// triggerSessionReturn 触发会话回归到恢复的节点
+// triggerSessionReturn 触发会话回归到恢复的节点.
 func (fi *FailoverIntegration) triggerSessionReturn(nodeID string) {
 	// 获取当前归属本节点但不在此节点上的会话
 	allSessions := fi.manager.registry.ListAll()
@@ -425,7 +425,7 @@ func (fi *FailoverIntegration) triggerSessionReturn(nodeID string) {
 	}
 }
 
-// failoverEventWatcher 监听故障转移事件并通知回调
+// failoverEventWatcher 监听故障转移事件并通知回调.
 func (fi *FailoverIntegration) failoverEventWatcher() {
 	for {
 		select {
@@ -440,7 +440,7 @@ func (fi *FailoverIntegration) failoverEventWatcher() {
 	}
 }
 
-// notifyCallbacks 通知所有回调
+// notifyCallbacks 通知所有回调.
 func (fi *FailoverIntegration) notifyCallbacks(event FailoverEvent) {
 	fi.mu.RLock()
 	cbs := fi.callbacks
@@ -451,12 +451,12 @@ func (fi *FailoverIntegration) notifyCallbacks(event FailoverEvent) {
 	}
 }
 
-// GetFailoverCount 获取累计故障转移次数
+// GetFailoverCount 获取累计故障转移次数.
 func (fi *FailoverIntegration) GetFailoverCount() int64 {
 	return fi.failoverCount.Load()
 }
 
-// GetPendingFailovers 获取正在进行的故障转移
+// GetPendingFailovers 获取正在进行的故障转移.
 func (fi *FailoverIntegration) GetPendingFailovers() []string {
 	var keys []string
 	fi.pendingFailover.Range(func(key, _ interface{}) bool {
@@ -466,7 +466,7 @@ func (fi *FailoverIntegration) GetPendingFailovers() []string {
 	return keys
 }
 
-// TransparentReconnectInfo 透明重连信息
+// TransparentReconnectInfo 透明重连信息.
 type TransparentReconnectInfo struct {
 	SessionID   string    `json:"session_id"`
 	ClientIP    string    `json:"client_ip"`
@@ -476,7 +476,7 @@ type TransparentReconnectInfo struct {
 	ConnectedAt time.Time `json:"connected_at"`
 }
 
-// PrepareTransparentReconnect 准备透明重连（为客户端生成重连令牌）
+// PrepareTransparentReconnect 准备透明重连（为客户端生成重连令牌）.
 func (fi *FailoverIntegration) PrepareTransparentReconnect(sessionID, clientIP, oldNodeID, newNodeID string) (*TransparentReconnectInfo, error) {
 	info := &TransparentReconnectInfo{
 		SessionID:   sessionID,
@@ -503,7 +503,7 @@ func (fi *FailoverIntegration) PrepareTransparentReconnect(sessionID, clientIP, 
 	return info, nil
 }
 
-// CompleteTransparentReconnect 完成透明重连
+// CompleteTransparentReconnect 完成透明重连.
 func (fi *FailoverIntegration) CompleteTransparentReconnect(sessionID string) error {
 	session := fi.manager.registry.Get(sessionID)
 	if session == nil {
@@ -517,7 +517,7 @@ func (fi *FailoverIntegration) CompleteTransparentReconnect(sessionID string) er
 	return nil
 }
 
-// HAIntegrationInterface HA模块集成接口（供外部HA系统调用）
+// HAIntegrationInterface HA模块集成接口（供外部HA系统调用）.
 type HAIntegrationInterface interface {
 	// GetCurrentMaster 获取当前主节点
 	GetCurrentMaster() (string, error)
@@ -527,14 +527,14 @@ type HAIntegrationInterface interface {
 	GetClusterHealth() (*ClusterHealth, error)
 }
 
-// ClusterHealth 集群健康状态
+// ClusterHealth 集群健康状态.
 type ClusterHealth struct {
 	ClusterName string                     `json:"cluster_name"`
 	Nodes       map[string]*NodeHealthInfo `json:"nodes"`
 	Overall     string                     `json:"overall"` // "healthy", "degraded", "critical"
 }
 
-// NodeHealthInfo 节点健康信息
+// NodeHealthInfo 节点健康信息.
 type NodeHealthInfo struct {
 	NodeID      string     `json:"node_id"`
 	Status      NodeStatus `json:"status"`
@@ -544,7 +544,7 @@ type NodeHealthInfo struct {
 	CPUUsage    float64    `json:"cpu_usage"`
 }
 
-// GetClusterHealth 获取集群健康状态
+// GetClusterHealth 获取集群健康状态.
 func (fi *FailoverIntegration) GetClusterHealth() (*ClusterHealth, error) {
 	fi.manager.mu.RLock()
 	defer fi.manager.mu.RUnlock()

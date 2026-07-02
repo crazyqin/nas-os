@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 零信任安全 API 处理器
+// Handlers 零信任安全 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	zt := r.Group("/zerotrust")
 	{
@@ -54,14 +54,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// evaluateTrust 评估信任
+// evaluateTrust 评估信任.
 func (h *Handlers) evaluateTrust(c *gin.Context) {
 	deviceID := c.Param("device_id")
 	score, err := h.manager.EvaluateTrust(deviceID)
@@ -80,7 +80,7 @@ func (h *Handlers) evaluateTrust(c *gin.Context) {
 	})
 }
 
-// getTrustScore 获取信任评分
+// getTrustScore 获取信任评分.
 func (h *Handlers) getTrustScore(c *gin.Context) {
 	deviceID := c.Param("device_id")
 	score, ok := h.manager.trustScores[deviceID]
@@ -104,7 +104,7 @@ func (h *Handlers) getTrustScore(c *gin.Context) {
 	})
 }
 
-// registerDevice 注册设备
+// registerDevice 注册设备.
 func (h *Handlers) registerDevice(c *gin.Context) {
 	var device DeviceTrust
 	if err := c.ShouldBindJSON(&device); err != nil {
@@ -130,7 +130,7 @@ func (h *Handlers) registerDevice(c *gin.Context) {
 	})
 }
 
-// listDevices 获取设备列表
+// listDevices 获取设备列表.
 func (h *Handlers) listDevices(c *gin.Context) {
 	filter := &DeviceFilter{
 		Status:     c.Query("status"),
@@ -146,7 +146,7 @@ func (h *Handlers) listDevices(c *gin.Context) {
 	})
 }
 
-// getDevice 获取设备信息
+// getDevice 获取设备信息.
 func (h *Handlers) getDevice(c *gin.Context) {
 	id := c.Param("id")
 	device, err := h.manager.GetDeviceTrust(id)
@@ -165,7 +165,7 @@ func (h *Handlers) getDevice(c *gin.Context) {
 	})
 }
 
-// setPolicy 设置策略
+// setPolicy 设置策略.
 func (h *Handlers) setPolicy(c *gin.Context) {
 	var policy AccessPolicy
 	if err := c.ShouldBindJSON(&policy); err != nil {
@@ -191,7 +191,7 @@ func (h *Handlers) setPolicy(c *gin.Context) {
 	})
 }
 
-// listPolicies 获取策略列表
+// listPolicies 获取策略列表.
 func (h *Handlers) listPolicies(c *gin.Context) {
 	policies := h.manager.ListPolicies()
 	c.JSON(http.StatusOK, response{
@@ -201,7 +201,7 @@ func (h *Handlers) listPolicies(c *gin.Context) {
 	})
 }
 
-// getPolicy 获取策略详情
+// getPolicy 获取策略详情.
 func (h *Handlers) getPolicy(c *gin.Context) {
 	id := c.Param("id")
 	policy, err := h.manager.GetPolicy(id)
@@ -220,7 +220,7 @@ func (h *Handlers) getPolicy(c *gin.Context) {
 	})
 }
 
-// deletePolicy 删除策略
+// deletePolicy 删除策略.
 func (h *Handlers) deletePolicy(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeletePolicy(id); err != nil {
@@ -237,7 +237,7 @@ func (h *Handlers) deletePolicy(c *gin.Context) {
 	})
 }
 
-// checkAccess 检查访问权限
+// checkAccess 检查访问权限.
 func (h *Handlers) checkAccess(c *gin.Context) {
 	var req struct {
 		SubjectType  string `json:"subject_type"`
@@ -264,7 +264,7 @@ func (h *Handlers) checkAccess(c *gin.Context) {
 	})
 }
 
-// createSession 创建会话
+// createSession 创建会话.
 func (h *Handlers) createSession(c *gin.Context) {
 	var session AuthSession
 	if err := c.ShouldBindJSON(&session); err != nil {
@@ -290,7 +290,7 @@ func (h *Handlers) createSession(c *gin.Context) {
 	})
 }
 
-// listSessions 获取会话列表
+// listSessions 获取会话列表.
 func (h *Handlers) listSessions(c *gin.Context) {
 	filter := &SessionFilter{
 		UserID:   c.Query("user_id"),
@@ -306,7 +306,7 @@ func (h *Handlers) listSessions(c *gin.Context) {
 	})
 }
 
-// getSession 获取会话详情
+// getSession 获取会话详情.
 func (h *Handlers) getSession(c *gin.Context) {
 	id := c.Param("id")
 	session, err := h.manager.GetSession(id)
@@ -325,7 +325,7 @@ func (h *Handlers) getSession(c *gin.Context) {
 	})
 }
 
-// revokeSession 撤销会话
+// revokeSession 撤销会话.
 func (h *Handlers) revokeSession(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.RevokeSession(id); err != nil {
@@ -342,7 +342,7 @@ func (h *Handlers) revokeSession(c *gin.Context) {
 	})
 }
 
-// blockThreat 阻断威胁
+// blockThreat 阻断威胁.
 func (h *Handlers) blockThreat(c *gin.Context) {
 	var threat ThreatEvent
 	if err := c.ShouldBindJSON(&threat); err != nil {
@@ -368,7 +368,7 @@ func (h *Handlers) blockThreat(c *gin.Context) {
 	})
 }
 
-// listThreats 获取威胁列表
+// listThreats 获取威胁列表.
 func (h *Handlers) listThreats(c *gin.Context) {
 	filter := &ThreatFilter{}
 	if types := c.QueryArray("type"); len(types) > 0 {
@@ -389,7 +389,7 @@ func (h *Handlers) listThreats(c *gin.Context) {
 	})
 }
 
-// getThreat 获取威胁详情
+// getThreat 获取威胁详情.
 func (h *Handlers) getThreat(c *gin.Context) {
 	id := c.Param("id")
 	threat, err := h.manager.GetThreat(id)
@@ -408,7 +408,7 @@ func (h *Handlers) getThreat(c *gin.Context) {
 	})
 }
 
-// resolveThreat 解决威胁
+// resolveThreat 解决威胁.
 func (h *Handlers) resolveThreat(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
@@ -436,7 +436,7 @@ func (h *Handlers) resolveThreat(c *gin.Context) {
 	})
 }
 
-// getStats 获取统计信息
+// getStats 获取统计信息.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, response{

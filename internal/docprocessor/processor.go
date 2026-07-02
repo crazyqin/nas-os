@@ -12,7 +12,7 @@ import (
 	"unicode/utf8"
 )
 
-// DocType 文档类型枚举
+// DocType 文档类型枚举.
 type DocType int
 
 const (
@@ -27,7 +27,7 @@ const (
 	DocTypeCSV
 )
 
-// DocTypeNames 文档类型名称映射
+// DocTypeNames 文档类型名称映射.
 var DocTypeNames = map[DocType]string{
 	DocTypeUnknown:  "unknown",
 	DocTypePDF:      "pdf",
@@ -40,7 +40,7 @@ var DocTypeNames = map[DocType]string{
 	DocTypeCSV:      "csv",
 }
 
-// String 返回文档类型字符串
+// String 返回文档类型字符串.
 func (d DocType) String() string {
 	if name, ok := DocTypeNames[d]; ok {
 		return name
@@ -48,7 +48,7 @@ func (d DocType) String() string {
 	return "unknown"
 }
 
-// Document 表示一个文档
+// Document 表示一个文档.
 type Document struct {
 	ID        string            `json:"id"`
 	Name      string            `json:"name"`
@@ -64,7 +64,7 @@ type Document struct {
 	Hash      string            `json:"hash"`
 }
 
-// AnalysisResult 文档分析结果
+// AnalysisResult 文档分析结果.
 type AnalysisResult struct {
 	DocumentID string            `json:"document_id"`
 	Type       DocType           `json:"type"`
@@ -80,7 +80,7 @@ type AnalysisResult struct {
 	AnalyzedAt time.Time         `json:"analyzed_at"`
 }
 
-// ClassifyResult 文档分类结果
+// ClassifyResult 文档分类结果.
 type ClassifyResult struct {
 	DocumentID  string   `json:"document_id"`
 	Category    string   `json:"category"`
@@ -90,7 +90,7 @@ type ClassifyResult struct {
 	Labels      []string `json:"labels"`
 }
 
-// SummaryResult 文档摘要结果
+// SummaryResult 文档摘要结果.
 type SummaryResult struct {
 	DocumentID       string   `json:"document_id"`
 	Summary          string   `json:"summary"`
@@ -99,7 +99,7 @@ type SummaryResult struct {
 	CompressionRatio float64  `json:"compression_ratio"`
 }
 
-// DiffResult 文档对比结果
+// DiffResult 文档对比结果.
 type DiffResult struct {
 	Doc1ID     string     `json:"doc1_id"`
 	Doc2ID     string     `json:"doc2_id"`
@@ -110,14 +110,14 @@ type DiffResult struct {
 	DiffLines  []DiffLine `json:"diff_lines"`
 }
 
-// DiffLine 对比行
+// DiffLine 对比行.
 type DiffLine struct {
 	Type    string `json:"type"` // "add", "delete", "same"
 	LineNum int    `json:"line_num"`
 	Content string `json:"content"`
 }
 
-// SearchResult 搜索结果
+// SearchResult 搜索结果.
 type SearchResult struct {
 	DocumentID string   `json:"document_id"`
 	Score      float64  `json:"score"`
@@ -125,13 +125,13 @@ type SearchResult struct {
 	Highlights []string `json:"highlights"`
 }
 
-// Processor 文档处理器
+// Processor 文档处理器.
 type Processor struct {
 	documents map[string]*Document
 	index     map[string][]string // 倒排索引: word -> docIDs
 }
 
-// NewProcessor 创建新的处理器实例
+// NewProcessor 创建新的处理器实例.
 func NewProcessor() *Processor {
 	return &Processor{
 		documents: make(map[string]*Document),
@@ -139,7 +139,7 @@ func NewProcessor() *Processor {
 	}
 }
 
-// DetectType 检测文档类型
+// DetectType 检测文档类型.
 func (p *Processor) DetectType(filename string, content []byte) DocType {
 	ext := strings.ToLower(filepath.Ext(filename))
 
@@ -170,7 +170,7 @@ func (p *Processor) DetectType(filename string, content []byte) DocType {
 	return detectByContent(content)
 }
 
-// detectByContent 基于内容检测类型
+// detectByContent 基于内容检测类型.
 func detectByContent(content []byte) DocType {
 	if len(content) == 0 {
 		return DocTypeText
@@ -204,7 +204,7 @@ func detectByContent(content []byte) DocType {
 	return DocTypeText
 }
 
-// AnalyzeDocument 分析文档
+// AnalyzeDocument 分析文档.
 func (p *Processor) AnalyzeDocument(doc *Document) *AnalysisResult {
 	result := &AnalysisResult{
 		DocumentID: doc.ID,
@@ -233,7 +233,7 @@ func (p *Processor) AnalyzeDocument(doc *Document) *AnalysisResult {
 	return result
 }
 
-// ClassifyDocument 分类文档
+// ClassifyDocument 分类文档.
 func (p *Processor) ClassifyDocument(doc *Document) *ClassifyResult {
 	result := &ClassifyResult{
 		DocumentID: doc.ID,
@@ -299,7 +299,7 @@ func (p *Processor) ClassifyDocument(doc *Document) *ClassifyResult {
 	return result
 }
 
-// SummarizeDocument 生成文档摘要
+// SummarizeDocument 生成文档摘要.
 func (p *Processor) SummarizeDocument(doc *Document, maxLength int) *SummaryResult {
 	result := &SummaryResult{
 		DocumentID: doc.ID,
@@ -319,7 +319,7 @@ func (p *Processor) SummarizeDocument(doc *Document, maxLength int) *SummaryResu
 	return result
 }
 
-// DiffDocuments 对比两个文档
+// DiffDocuments 对比两个文档.
 func (p *Processor) DiffDocuments(doc1, doc2 *Document) *DiffResult {
 	result := &DiffResult{
 		Doc1ID: doc1.ID,
@@ -390,7 +390,7 @@ func (p *Processor) DiffDocuments(doc1, doc2 *Document) *DiffResult {
 	return result
 }
 
-// SearchDocuments 搜索文档
+// SearchDocuments 搜索文档.
 func (p *Processor) SearchDocuments(query string, maxResults int) []SearchResult {
 	var results []SearchResult
 
@@ -435,7 +435,7 @@ func (p *Processor) SearchDocuments(query string, maxResults int) []SearchResult
 	return results
 }
 
-// IndexDocument 索引文档
+// IndexDocument 索引文档.
 func (p *Processor) IndexDocument(doc *Document) {
 	p.documents[doc.ID] = doc
 
@@ -461,13 +461,13 @@ func (p *Processor) IndexDocument(doc *Document) {
 	}
 }
 
-// GetDocument 获取文档
+// GetDocument 获取文档.
 func (p *Processor) GetDocument(id string) (*Document, bool) {
 	doc, exists := p.documents[id]
 	return doc, exists
 }
 
-// RemoveDocument 移除文档
+// RemoveDocument 移除文档.
 func (p *Processor) RemoveDocument(id string) {
 	if doc, exists := p.documents[id]; exists {
 		// 从倒排索引中移除
@@ -492,7 +492,7 @@ func (p *Processor) RemoveDocument(id string) {
 	}
 }
 
-// ListDocuments 列出所有文档
+// ListDocuments 列出所有文档.
 func (p *Processor) ListDocuments() []*Document {
 	docs := make([]*Document, 0, len(p.documents))
 	for _, doc := range p.documents {
@@ -503,12 +503,12 @@ func (p *Processor) ListDocuments() []*Document {
 
 // 辅助函数
 
-// countWords 计算单词数
+// countWords 计算单词数.
 func countWords(text string) int {
 	return len(strings.Fields(text))
 }
 
-// countLines 计算行数
+// countLines 计算行数.
 func countLines(text string) int {
 	if text == "" {
 		return 0
@@ -516,7 +516,7 @@ func countLines(text string) int {
 	return strings.Count(text, "\n") + 1
 }
 
-// detectLanguage 检测语言（简单实现）
+// detectLanguage 检测语言（简单实现）.
 func detectLanguage(text string) string {
 	// 简单的中英文检测
 	chinesePattern := regexp.MustCompile(`[\x{4e00}-\x{9fff}]`)
@@ -526,7 +526,7 @@ func detectLanguage(text string) string {
 	return "en"
 }
 
-// extractKeywords 提取关键词
+// extractKeywords 提取关键词.
 func extractKeywords(text string) []string {
 	// 移除标点符号
 	cleaner := regexp.MustCompile(`[^\w\s\x{4e00}-\x{9fff}]`)
@@ -565,7 +565,7 @@ func extractKeywords(text string) []string {
 	return keywords
 }
 
-// tokenize 分词
+// tokenize 分词.
 func tokenize(text string) []string {
 	// 简单的空格分词
 	words := strings.Fields(text)
@@ -585,13 +585,13 @@ func tokenize(text string) []string {
 	return result
 }
 
-// computeHash 计算内容哈希
+// computeHash 计算内容哈希.
 func computeHash(content string) string {
 	h := sha256.Sum256([]byte(content))
 	return fmt.Sprintf("%x", h[:8])
 }
 
-// extractMetadata 提取元数据
+// extractMetadata 提取元数据.
 func extractMetadata(doc *Document) map[string]string {
 	metadata := make(map[string]string)
 
@@ -604,7 +604,7 @@ func extractMetadata(doc *Document) map[string]string {
 	return metadata
 }
 
-// extractSummary 提取摘要
+// extractSummary 提取摘要.
 func extractSummary(content string, maxLength int) string {
 	// 按段落分割
 	paragraphs := strings.Split(content, "\n\n")
@@ -640,7 +640,7 @@ func extractSummary(content string, maxLength int) string {
 	return summary.String()
 }
 
-// extractSnippets 提取匹配片段
+// extractSnippets 提取匹配片段.
 func extractSnippets(content string, keywords []string, maxSnippets int) []string {
 	var snippets []string
 	lines := strings.Split(content, "\n")
@@ -661,7 +661,7 @@ func extractSnippets(content string, keywords []string, maxSnippets int) []strin
 	return snippets
 }
 
-// highlightMatches 高亮匹配
+// highlightMatches 高亮匹配.
 func highlightMatches(snippets []string, keywords []string) []string {
 	var highlighted []string
 	for _, snippet := range snippets {
@@ -675,7 +675,7 @@ func highlightMatches(snippets []string, keywords []string) []string {
 	return highlighted
 }
 
-// generateTags 生成标签
+// generateTags 生成标签.
 func generateTags(doc *Document) []string {
 	var tags []string
 
@@ -699,7 +699,7 @@ func generateTags(doc *Document) []string {
 	return tags
 }
 
-// generateLabels 生成标签
+// generateLabels 生成标签.
 func generateLabels(doc *Document) []string {
 	var labels []string
 
@@ -735,7 +735,7 @@ func generateLabels(doc *Document) []string {
 	return labels
 }
 
-// countKeywordMatches 计算关键词匹配数
+// countKeywordMatches 计算关键词匹配数.
 func countKeywordMatches(content string, keywords []string) int {
 	count := 0
 	for _, kw := range keywords {
@@ -746,7 +746,7 @@ func countKeywordMatches(content string, keywords []string) int {
 	return count
 }
 
-// maxInt 返回两个整数中较大的一个
+// maxInt 返回两个整数中较大的一个.
 func maxInt(a, b int) int {
 	if a > b {
 		return a

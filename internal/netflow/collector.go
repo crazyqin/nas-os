@@ -11,7 +11,7 @@ import (
 )
 
 // Collector 流量收集器
-// 负责接收sFlow/NetFlow数据包，解析并缓存流量记录
+// 负责接收sFlow/NetFlow数据包，解析并缓存流量记录.
 type Collector struct {
 	mu      sync.RWMutex
 	config  CollectorConfig
@@ -32,7 +32,7 @@ type Collector struct {
 	startTime time.Time
 }
 
-// NewCollector 创建流量收集器
+// NewCollector 创建流量收集器.
 func NewCollector(config CollectorConfig, logger *zap.Logger) *Collector {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -48,7 +48,7 @@ func NewCollector(config CollectorConfig, logger *zap.Logger) *Collector {
 	}
 }
 
-// Start 启动流量收集
+// Start 启动流量收集.
 func (c *Collector) Start() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -73,7 +73,7 @@ func (c *Collector) Start() error {
 	return nil
 }
 
-// Stop 停止流量收集
+// Stop 停止流量收集.
 func (c *Collector) Stop() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -88,14 +88,14 @@ func (c *Collector) Stop() {
 	c.logger.Info("流量收集器已停止")
 }
 
-// IsRunning 检查收集器是否运行中
+// IsRunning 检查收集器是否运行中.
 func (c *Collector) IsRunning() bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.running
 }
 
-// IngestFlow 注入一条流量记录（供sFlow/NetFlow解析器调用）
+// IngestFlow 注入一条流量记录（供sFlow/NetFlow解析器调用）.
 func (c *Collector) IngestFlow(record FlowRecord) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -110,7 +110,7 @@ func (c *Collector) IngestFlow(record FlowRecord) {
 	c.updateStats(record)
 }
 
-// IngestBatch 批量注入流量记录
+// IngestBatch 批量注入流量记录.
 func (c *Collector) IngestBatch(records []FlowRecord) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -124,7 +124,7 @@ func (c *Collector) IngestBatch(records []FlowRecord) {
 	}
 }
 
-// updateStats 更新统计数据（需持有写锁）
+// updateStats 更新统计数据（需持有写锁）.
 func (c *Collector) updateStats(record FlowRecord) {
 	// 更新总流量统计
 	switch record.Direction {
@@ -169,7 +169,7 @@ func (c *Collector) updateStats(record FlowRecord) {
 	hostStats.LastSeen = record.Timestamp
 }
 
-// GetRecentRecords 获取最近N条记录
+// GetRecentRecords 获取最近N条记录.
 func (c *Collector) GetRecentRecords(n int) []FlowRecord {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -183,7 +183,7 @@ func (c *Collector) GetRecentRecords(n int) []FlowRecord {
 	return result
 }
 
-// GetTrafficStats 获取流量统计
+// GetTrafficStats 获取流量统计.
 func (c *Collector) GetTrafficStats() TrafficStats {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -194,7 +194,7 @@ func (c *Collector) GetTrafficStats() TrafficStats {
 	return stats
 }
 
-// GetProtocolStats 获取协议统计
+// GetProtocolStats 获取协议统计.
 func (c *Collector) GetProtocolStats() []ProtocolStats {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -213,7 +213,7 @@ func (c *Collector) GetProtocolStats() []ProtocolStats {
 	return stats
 }
 
-// GetTopHosts 获取Top N主机流量
+// GetTopHosts 获取Top N主机流量.
 func (c *Collector) GetTopHosts(n int) []HostTraffic {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -238,7 +238,7 @@ func (c *Collector) GetTopHosts(n int) []HostTraffic {
 	return hosts[:n]
 }
 
-// GetBandwidthHistory 获取带宽历史
+// GetBandwidthHistory 获取带宽历史.
 func (c *Collector) GetBandwidthHistory() []BandwidthUsage {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -248,7 +248,7 @@ func (c *Collector) GetBandwidthHistory() []BandwidthUsage {
 	return result
 }
 
-// estimateActiveConnections 估算活跃连接数
+// estimateActiveConnections 估算活跃连接数.
 func (c *Collector) estimateActiveConnections() int {
 	// 基于最近5分钟内的唯一(src,dst,port)组合估算
 	cutoff := time.Now().Add(-5 * time.Minute)
@@ -266,7 +266,7 @@ func (c *Collector) estimateActiveConnections() int {
 	return len(seen)
 }
 
-// Clear 清空所有数据
+// Clear 清空所有数据.
 func (c *Collector) Clear() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -278,7 +278,7 @@ func (c *Collector) Clear() {
 	c.stats = TrafficStats{}
 }
 
-// flushLoop 定期刷新带宽历史
+// flushLoop 定期刷新带宽历史.
 func (c *Collector) flushLoop() {
 	ticker := time.NewTicker(time.Duration(c.config.FlushIntervalSec) * time.Second)
 	defer ticker.Stop()
@@ -293,7 +293,7 @@ func (c *Collector) flushLoop() {
 	}
 }
 
-// flushBandwidth 记录带宽使用快照
+// flushBandwidth 记录带宽使用快照.
 func (c *Collector) flushBandwidth() {
 	c.mu.Lock()
 	defer c.mu.Unlock()

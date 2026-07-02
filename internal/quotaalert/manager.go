@@ -15,17 +15,17 @@ import (
 )
 
 var (
-	// ErrQuotaNotFound 配额规则不存在
+	// ErrQuotaNotFound 配额规则不存在.
 	ErrQuotaNotFound = errors.New("配额规则不存在")
-	// ErrAlertNotFound 告警不存在
+	// ErrAlertNotFound 告警不存在.
 	ErrAlertNotFound = errors.New("告警不存在")
-	// ErrInvalidThreshold 阈值无效
+	// ErrInvalidThreshold 阈值无效.
 	ErrInvalidThreshold = errors.New("阈值必须在 0 到 1 之间")
-	// ErrQuotaExceeded 配额已超限
+	// ErrQuotaExceeded 配额已超限.
 	ErrQuotaExceeded = errors.New("配额已超限")
 )
 
-// Manager 配额预警管理器
+// Manager 配额预警管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	logger      *zap.Logger
@@ -36,14 +36,14 @@ type Manager struct {
 	history     map[string][]UsageHistory // key: userID:path, 历史记录
 }
 
-// UsageHistory 使用量历史记录
+// UsageHistory 使用量历史记录.
 type UsageHistory struct {
 	UsedBytes int64
 	UsedFiles int64
 	Timestamp time.Time
 }
 
-// NewManager 创建配额预警管理器
+// NewManager 创建配额预警管理器.
 func NewManager(storagePath string) *Manager {
 	m := &Manager{
 		logger:      zap.NewNop(),
@@ -62,17 +62,17 @@ func NewManager(storagePath string) *Manager {
 	return m
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	return fmt.Sprintf("%d", time.Now().UnixNano())
 }
 
-// ruleKey 生成规则存储 key
+// ruleKey 生成规则存储 key.
 func ruleKey(userID, path string) string {
 	return userID + ":" + path
 }
 
-// SetQuota 设置配额规则
+// SetQuota 设置配额规则.
 func (m *Manager) SetQuota(ctx context.Context, rule QuotaRule) error {
 	// 验证阈值
 	if rule.WarnThreshold <= 0 || rule.WarnThreshold >= 1 {
@@ -105,7 +105,7 @@ func (m *Manager) SetQuota(ctx context.Context, rule QuotaRule) error {
 	return nil
 }
 
-// GetQuota 获取配额规则
+// GetQuota 获取配额规则.
 func (m *Manager) GetQuota(ctx context.Context, userID, path string) (*QuotaRule, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -119,7 +119,7 @@ func (m *Manager) GetQuota(ctx context.Context, userID, path string) (*QuotaRule
 	return rule, nil
 }
 
-// UpdateUsage 更新使用量
+// UpdateUsage 更新使用量.
 func (m *Manager) UpdateUsage(ctx context.Context, userID, path string, usedBytes, usedFiles int64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -170,7 +170,7 @@ func (m *Manager) UpdateUsage(ctx context.Context, userID, path string, usedByte
 	return nil
 }
 
-// CheckQuota 检查配额，返回告警
+// CheckQuota 检查配额，返回告警.
 func (m *Manager) CheckQuota(ctx context.Context, userID, path string) (*QuotaAlert, error) {
 	m.mu.RLock()
 	key := ruleKey(userID, path)
@@ -230,7 +230,7 @@ func (m *Manager) CheckQuota(ctx context.Context, userID, path string) (*QuotaAl
 	return alert, nil
 }
 
-// PredictFullDate 预测磁盘用满日期（基于历史增长）
+// PredictFullDate 预测磁盘用满日期（基于历史增长）.
 func (m *Manager) PredictFullDate(ctx context.Context, userID, path string) (*UsageTrend, error) {
 	m.mu.RLock()
 	key := ruleKey(userID, path)
@@ -293,7 +293,7 @@ func (m *Manager) PredictFullDate(ctx context.Context, userID, path string) (*Us
 	return trend, nil
 }
 
-// GenerateCleanupSuggestions 生成清理建议
+// GenerateCleanupSuggestions 生成清理建议.
 func (m *Manager) GenerateCleanupSuggestions(ctx context.Context, userID, path string) ([]CleanupSuggestion, error) {
 	m.mu.RLock()
 	key := ruleKey(userID, path)
@@ -377,7 +377,7 @@ func (m *Manager) GenerateCleanupSuggestions(ctx context.Context, userID, path s
 	return suggestions, nil
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (m *Manager) GetAlerts(ctx context.Context, userID string, unacknowledgedOnly bool) []QuotaAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -398,7 +398,7 @@ func (m *Manager) GetAlerts(ctx context.Context, userID string, unacknowledgedOn
 	return alerts
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (m *Manager) AcknowledgeAlert(ctx context.Context, alertID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -414,7 +414,7 @@ func (m *Manager) AcknowledgeAlert(ctx context.Context, alertID string) error {
 	return nil
 }
 
-// GenerateReport 生成全局配额报告
+// GenerateReport 生成全局配额报告.
 func (m *Manager) GenerateReport(ctx context.Context) (*QuotaReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -473,7 +473,7 @@ func (m *Manager) GenerateReport(ctx context.Context) (*QuotaReport, error) {
 	return report, nil
 }
 
-// AutoCleanup 自动清理临时文件
+// AutoCleanup 自动清理临时文件.
 func (m *Manager) AutoCleanup(ctx context.Context, userID string) (int64, error) {
 	m.mu.RLock()
 	// 收集用户的所有规则
@@ -528,7 +528,7 @@ func (m *Manager) AutoCleanup(ctx context.Context, userID string) (int64, error)
 	return totalCleaned, nil
 }
 
-// cleanupTempFiles 清理临时文件
+// cleanupTempFiles 清理临时文件.
 func (m *Manager) cleanupTempFiles(path string) (int64, error) {
 	var cleaned int64
 

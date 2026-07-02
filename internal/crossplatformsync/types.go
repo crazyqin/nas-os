@@ -13,7 +13,7 @@ import (
 // 设备信息
 // ============================================================
 
-// DeviceStatus 设备状态
+// DeviceStatus 设备状态.
 type DeviceStatus string
 
 const (
@@ -23,7 +23,7 @@ const (
 	DeviceStatusError   DeviceStatus = "error"
 )
 
-// NASDevice NAS 设备信息
+// NASDevice NAS 设备信息.
 type NASDevice struct {
 	ID           string       `json:"id"`
 	Name         string       `json:"name"`
@@ -39,7 +39,7 @@ type NASDevice struct {
 	UpdatedAt    time.Time    `json:"updated_at"`
 }
 
-// Validate 验证设备信息
+// Validate 验证设备信息.
 func (d *NASDevice) Validate() error {
 	if d.Name == "" {
 		return fmt.Errorf("device name is required")
@@ -57,7 +57,7 @@ func (d *NASDevice) Validate() error {
 // 同步模式
 // ============================================================
 
-// SyncMode 同步模式
+// SyncMode 同步模式.
 type SyncMode string
 
 const (
@@ -66,7 +66,7 @@ const (
 	SyncModeOneWay        SyncMode = "one_way"       // 单向同步（仅新增/更新）
 )
 
-// IsValid 检查同步模式是否有效
+// IsValid 检查同步模式是否有效.
 func (m SyncMode) IsValid() bool {
 	switch m {
 	case SyncModeBidirectional, SyncModeMirror, SyncModeOneWay:
@@ -79,7 +79,7 @@ func (m SyncMode) IsValid() bool {
 // 冲突策略
 // ============================================================
 
-// ConflictStrategy 冲突解决策略
+// ConflictStrategy 冲突解决策略.
 type ConflictStrategy string
 
 const (
@@ -91,7 +91,7 @@ const (
 	ConflictStrategyManual   ConflictStrategy = "manual"    // 手动解决
 )
 
-// IsValid 检查冲突策略是否有效
+// IsValid 检查冲突策略是否有效.
 func (s ConflictStrategy) IsValid() bool {
 	switch s {
 	case ConflictStrategySource, ConflictStrategyTarget, ConflictStrategyNewer,
@@ -105,7 +105,7 @@ func (s ConflictStrategy) IsValid() bool {
 // 同步任务状态
 // ============================================================
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -121,7 +121,7 @@ const (
 // 文件冲突信息
 // ============================================================
 
-// FileConflict 文件冲突信息
+// FileConflict 文件冲突信息.
 type FileConflict struct {
 	ID            string     `json:"id"`
 	TaskID        string     `json:"task_id"`
@@ -144,7 +144,7 @@ type FileConflict struct {
 // 同步任务
 // ============================================================
 
-// SyncTask 同步任务
+// SyncTask 同步任务.
 type SyncTask struct {
 	ID               string           `json:"id"`
 	Name             string           `json:"name"`
@@ -192,7 +192,7 @@ type SyncTask struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// Validate 验证同步任务
+// Validate 验证同步任务.
 func (t *SyncTask) Validate() error {
 	if t.Name == "" {
 		return fmt.Errorf("task name is required")
@@ -225,7 +225,7 @@ func (t *SyncTask) Validate() error {
 // 同步状态
 // ============================================================
 
-// SyncStatus 同步状态
+// SyncStatus 同步状态.
 type SyncStatus struct {
 	TaskID         string      `json:"task_id"`
 	TaskName       string      `json:"task_name"`
@@ -248,7 +248,7 @@ type SyncStatus struct {
 	Errors         []SyncError `json:"errors,omitempty"`
 }
 
-// SyncError 同步错误
+// SyncError 同步错误.
 type SyncError struct {
 	FilePath  string    `json:"file_path"`
 	Error     string    `json:"error"`
@@ -259,7 +259,7 @@ type SyncError struct {
 // 同步日志
 // ============================================================
 
-// SyncLog 同步日志条目
+// SyncLog 同步日志条目.
 type SyncLog struct {
 	TaskID       string    `json:"task_id"`
 	Timestamp    time.Time `json:"timestamp"`
@@ -274,7 +274,7 @@ type SyncLog struct {
 // 同步统计
 // ============================================================
 
-// SyncStats 同步统计汇总
+// SyncStats 同步统计汇总.
 type SyncStats struct {
 	TotalDevices   int64     `json:"total_devices"`
 	OnlineDevices  int64     `json:"online_devices"`
@@ -295,7 +295,7 @@ type SyncStats struct {
 // 创建/更新请求
 // ============================================================
 
-// CreateDeviceRequest 创建设备请求
+// CreateDeviceRequest 创建设备请求.
 type CreateDeviceRequest struct {
 	Name     string `json:"name" binding:"required"`
 	Address  string `json:"address" binding:"required"`
@@ -304,7 +304,7 @@ type CreateDeviceRequest struct {
 	Platform string `json:"platform,omitempty"`
 }
 
-// UpdateDeviceRequest 更新设备请求
+// UpdateDeviceRequest 更新设备请求.
 type UpdateDeviceRequest struct {
 	Name    string `json:"name,omitempty"`
 	Address string `json:"address,omitempty"`
@@ -312,7 +312,7 @@ type UpdateDeviceRequest struct {
 	APIKey  string `json:"api_key,omitempty"`
 }
 
-// CreateSyncTaskRequest 创建同步任务请求
+// CreateSyncTaskRequest 创建同步任务请求.
 type CreateSyncTaskRequest struct {
 	Name             string           `json:"name" binding:"required"`
 	SourceDeviceID   string           `json:"source_device_id" binding:"required"`
@@ -336,7 +336,7 @@ type CreateSyncTaskRequest struct {
 	CronExpr         string           `json:"cron_expr,omitempty"`
 }
 
-// UpdateSyncTaskRequest 更新同步任务请求
+// UpdateSyncTaskRequest 更新同步任务请求.
 type UpdateSyncTaskRequest struct {
 	Name             string            `json:"name,omitempty"`
 	SourcePath       string            `json:"source_path,omitempty"`
@@ -359,7 +359,7 @@ type UpdateSyncTaskRequest struct {
 	Enabled          *bool             `json:"enabled,omitempty"`
 }
 
-// ResolveConflictRequest 解决冲突请求
+// ResolveConflictRequest 解决冲突请求.
 type ResolveConflictRequest struct {
 	Resolution ConflictStrategy `json:"resolution" binding:"required"` // source/target/newer/larger/keep_both
 }
@@ -368,7 +368,7 @@ type ResolveConflictRequest struct {
 // 设备连接测试结果
 // ============================================================
 
-// ConnectionTestResult 连接测试结果
+// ConnectionTestResult 连接测试结果.
 type ConnectionTestResult struct {
 	Success bool   `json:"success"`
 	Latency int64  `json:"latency_ms"` // 延迟毫秒

@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// CircuitBreaker 熔断器
+// CircuitBreaker 熔断器.
 type CircuitBreaker struct {
 	mu            sync.RWMutex
 	logger        *zap.Logger
@@ -23,13 +23,13 @@ type CircuitBreaker struct {
 	window        []requestRecord // 滑动窗口
 }
 
-// requestRecord 请求记录
+// requestRecord 请求记录.
 type requestRecord struct {
 	success   bool
 	timestamp time.Time
 }
 
-// NewCircuitBreaker 创建熔断器
+// NewCircuitBreaker 创建熔断器.
 func NewCircuitBreaker(logger *zap.Logger, name string, config *CircuitBreakerConfig) *CircuitBreaker {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -48,14 +48,14 @@ func NewCircuitBreaker(logger *zap.Logger, name string, config *CircuitBreakerCo
 	}
 }
 
-// State 获取熔断器状态
+// State 获取熔断器状态.
 func (cb *CircuitBreaker) State() CircuitState {
 	cb.mu.RLock()
 	defer cb.mu.RUnlock()
 	return cb.state
 }
 
-// Allow 检查是否允许请求通过
+// Allow 检查是否允许请求通过.
 func (cb *CircuitBreaker) Allow() bool {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
@@ -78,7 +78,7 @@ func (cb *CircuitBreaker) Allow() bool {
 	return false
 }
 
-// RecordSuccess 记录请求成功
+// RecordSuccess 记录请求成功.
 func (cb *CircuitBreaker) RecordSuccess() {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
@@ -96,7 +96,7 @@ func (cb *CircuitBreaker) RecordSuccess() {
 	}
 }
 
-// RecordFailure 记录请求失败
+// RecordFailure 记录请求失败.
 func (cb *CircuitBreaker) RecordFailure() {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
@@ -118,7 +118,7 @@ func (cb *CircuitBreaker) RecordFailure() {
 	}
 }
 
-// shouldTrip 检查是否应该触发熔断
+// shouldTrip 检查是否应该触发熔断.
 func (cb *CircuitBreaker) shouldTrip() bool {
 	// 条件1：连续失败超过阈值
 	if cb.failures >= cb.config.FailureThreshold {
@@ -136,21 +136,22 @@ func (cb *CircuitBreaker) shouldTrip() bool {
 	return false
 }
 
-// transitionTo 状态转换
+// transitionTo 状态转换.
 func (cb *CircuitBreaker) transitionTo(state CircuitState) {
 	old := cb.state
 	cb.state = state
 	cb.stateChanged = time.Now()
 
 	// 重置计数器
-	if state == CircuitClosed {
+	switch state {
+	case CircuitClosed:
 		cb.failures = 0
 		cb.successes = 0
 		cb.totalRequests = 0
 		cb.window = cb.window[:0]
-	} else if state == CircuitOpen {
+	case CircuitOpen:
 		cb.successes = 0
-	} else if state == CircuitHalfOpen {
+	case CircuitHalfOpen:
 		cb.failures = 0
 		cb.successes = 0
 		cb.totalRequests = 0
@@ -163,7 +164,7 @@ func (cb *CircuitBreaker) transitionTo(state CircuitState) {
 	)
 }
 
-// trimWindow 裁剪滑动窗口
+// trimWindow 裁剪滑动窗口.
 func (cb *CircuitBreaker) trimWindow() {
 	if cb.config.WindowSize <= 0 {
 		return
@@ -184,7 +185,7 @@ func (cb *CircuitBreaker) trimWindow() {
 	}
 }
 
-// GetStats 获取熔断器统计
+// GetStats 获取熔断器统计.
 func (cb *CircuitBreaker) GetStats() map[string]interface{} {
 	cb.mu.RLock()
 	defer cb.mu.RUnlock()
@@ -200,7 +201,7 @@ func (cb *CircuitBreaker) GetStats() map[string]interface{} {
 	}
 }
 
-// Reset 重置熔断器
+// Reset 重置熔断器.
 func (cb *CircuitBreaker) Reset() {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()

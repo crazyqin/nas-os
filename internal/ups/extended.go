@@ -11,7 +11,7 @@ import (
 
 // ========== 事件类型 ==========
 
-// Event UPS 事件
+// Event UPS 事件.
 type Event struct {
 	ID           string      `json:"id"`
 	DeviceID     string      `json:"device_id"`
@@ -22,23 +22,23 @@ type Event struct {
 	Acknowledged bool        `json:"acknowledged"`
 }
 
-// EventType 事件类型
+// EventType 事件类型.
 type EventType string
 
 const (
-	EventPowerFailure      EventType = "power_failure"
-	EventPowerRestored     EventType = "power_restored"
-	EventBatteryLow        EventType = "battery_low"
-	EventBatteryCritical   EventType = "battery_critical"
-	EventDeviceConnected   EventType = "device_connected"
+	EventPowerFailure       EventType = "power_failure"
+	EventPowerRestored      EventType = "power_restored"
+	EventBatteryLow         EventType = "battery_low"
+	EventBatteryCritical    EventType = "battery_critical"
+	EventDeviceConnected    EventType = "device_connected"
 	EventDeviceDisconnected EventType = "device_disconnected"
-	EventShutdownInitiated EventType = "shutdown_initiated"
-	EventDeviceFault       EventType = "device_fault"
+	EventShutdownInitiated  EventType = "shutdown_initiated"
+	EventDeviceFault        EventType = "device_fault"
 )
 
 // ========== 设备类型 ==========
 
-// Device UPS 设备信息
+// Device UPS 设备信息.
 type Device struct {
 	ID           string       `json:"id"`
 	Name         string       `json:"name"`
@@ -51,7 +51,7 @@ type Device struct {
 	LastSeen     time.Time    `json:"last_seen"`
 }
 
-// DeviceStatus 设备状态
+// DeviceStatus 设备状态.
 type DeviceStatus string
 
 const (
@@ -65,7 +65,7 @@ const (
 
 // ========== 关机任务类型 ==========
 
-// ShutdownTask 关机任务
+// ShutdownTask 关机任务.
 type ShutdownTask struct {
 	ID          string     `json:"id"`
 	DeviceID    string     `json:"device_id"`
@@ -78,7 +78,7 @@ type ShutdownTask struct {
 	CancelledAt *time.Time `json:"cancelled_at,omitempty"`
 }
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -92,25 +92,25 @@ const (
 // ========== 扩展管理器 ==========
 
 var (
-	ErrDeviceNotFound    = errors.New("设备未找到")
-	ErrDeviceExists      = errors.New("设备已存在")
-	ErrTaskNotFound      = errors.New("任务未找到")
+	ErrDeviceNotFound     = errors.New("设备未找到")
+	ErrDeviceExists       = errors.New("设备已存在")
+	ErrTaskNotFound       = errors.New("任务未找到")
 	ErrTaskNotCancellable = errors.New("任务无法取消")
 )
 
-// ExtendedManager 扩展的 UPS 管理器
+// ExtendedManager 扩展的 UPS 管理器.
 type ExtendedManager struct {
-	mu       sync.RWMutex
-	config   UPSConfig
-	devices  map[string]*Device
-	events   []Event
-	tasks    []*ShutdownTask
-	stopCh   chan struct{}
-	running  bool
+	mu        sync.RWMutex
+	config    UPSConfig
+	devices   map[string]*Device
+	events    []Event
+	tasks     []*ShutdownTask
+	stopCh    chan struct{}
+	running   bool
 	callbacks []func(Event)
 }
 
-// NewExtendedManager 创建扩展管理器
+// NewExtendedManager 创建扩展管理器.
 func NewExtendedManager(config UPSConfig) *ExtendedManager {
 	return &ExtendedManager{
 		config:  config,
@@ -121,7 +121,7 @@ func NewExtendedManager(config UPSConfig) *ExtendedManager {
 	}
 }
 
-// AddDevice 添加设备
+// AddDevice 添加设备.
 func (m *ExtendedManager) AddDevice(device *Device) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -143,7 +143,7 @@ func (m *ExtendedManager) AddDevice(device *Device) error {
 	return nil
 }
 
-// RemoveDevice 移除设备
+// RemoveDevice 移除设备.
 func (m *ExtendedManager) RemoveDevice(deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -166,7 +166,7 @@ func (m *ExtendedManager) RemoveDevice(deviceID string) error {
 	return nil
 }
 
-// GetDevice 获取设备
+// GetDevice 获取设备.
 func (m *ExtendedManager) GetDevice(deviceID string) (*Device, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -178,7 +178,7 @@ func (m *ExtendedManager) GetDevice(deviceID string) (*Device, error) {
 	return device, nil
 }
 
-// ListDevices 列出所有设备
+// ListDevices 列出所有设备.
 func (m *ExtendedManager) ListDevices() []*Device {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -190,7 +190,7 @@ func (m *ExtendedManager) ListDevices() []*Device {
 	return devices
 }
 
-// CreateShutdownTask 创建关机任务
+// CreateShutdownTask 创建关机任务.
 func (m *ExtendedManager) CreateShutdownTask(deviceID, reason string, delay int) (*ShutdownTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -218,7 +218,7 @@ func (m *ExtendedManager) CreateShutdownTask(deviceID, reason string, delay int)
 	return task, nil
 }
 
-// GetTask 获取任务
+// GetTask 获取任务.
 func (m *ExtendedManager) GetTask(taskID string) (*ShutdownTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -231,7 +231,7 @@ func (m *ExtendedManager) GetTask(taskID string) (*ShutdownTask, error) {
 	return nil, ErrTaskNotFound
 }
 
-// ListTasks 列出任务
+// ListTasks 列出任务.
 func (m *ExtendedManager) ListTasks() []*ShutdownTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -241,7 +241,7 @@ func (m *ExtendedManager) ListTasks() []*ShutdownTask {
 	return tasks
 }
 
-// CancelTask 取消任务
+// CancelTask 取消任务.
 func (m *ExtendedManager) CancelTask(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -260,7 +260,7 @@ func (m *ExtendedManager) CancelTask(taskID string) error {
 	return ErrTaskNotFound
 }
 
-// GetEvents 获取事件
+// GetEvents 获取事件.
 func (m *ExtendedManager) GetEvents(limit int) []Event {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -276,7 +276,7 @@ func (m *ExtendedManager) GetEvents(limit int) []Event {
 	return events
 }
 
-// AcknowledgeEvent 确认事件
+// AcknowledgeEvent 确认事件.
 func (m *ExtendedManager) AcknowledgeEvent(eventID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -290,7 +290,7 @@ func (m *ExtendedManager) AcknowledgeEvent(eventID string) error {
 	return errors.New("事件未找到")
 }
 
-// addEvent 添加事件
+// addEvent 添加事件.
 func (m *ExtendedManager) addEvent(eventType EventType, deviceID, message string, details interface{}) {
 	event := Event{
 		ID:        uuid.New().String(),
@@ -308,14 +308,14 @@ func (m *ExtendedManager) addEvent(eventType EventType, deviceID, message string
 	}
 }
 
-// RegisterEventCallback 注册事件回调
+// RegisterEventCallback 注册事件回调.
 func (m *ExtendedManager) RegisterEventCallback(fn func(Event)) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.callbacks = append(m.callbacks, fn)
 }
 
-// RunSelfTest 运行设备自检
+// RunSelfTest 运行设备自检.
 func (m *ExtendedManager) RunSelfTest(deviceID string) (*SelfTestResult, error) {
 	m.mu.RLock()
 	device, exists := m.devices[deviceID]
@@ -331,7 +331,7 @@ func (m *ExtendedManager) RunSelfTest(deviceID string) (*SelfTestResult, error) 
 	}, nil
 }
 
-// SelfTestResult 自检结果
+// SelfTestResult 自检结果.
 type SelfTestResult struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`

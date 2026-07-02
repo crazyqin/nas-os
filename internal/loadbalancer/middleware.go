@@ -14,22 +14,22 @@ import (
 // 中间件链
 // ============================================================
 
-// Middleware HTTP中间件函数类型
+// Middleware HTTP中间件函数类型.
 type Middleware func(http.Handler) http.Handler
 
-// Chain 中间件链
+// Chain 中间件链.
 type Chain struct {
 	middlewares []Middleware
 }
 
-// NewChain 创建中间件链
+// NewChain 创建中间件链.
 func NewChain(middlewares ...Middleware) *Chain {
 	return &Chain{
 		middlewares: middlewares,
 	}
 }
 
-// Append 追加中间件
+// Append 追加中间件.
 func (c *Chain) Append(middlewares ...Middleware) *Chain {
 	newChain := &Chain{
 		middlewares: make([]Middleware, len(c.middlewares)+len(middlewares)),
@@ -39,7 +39,7 @@ func (c *Chain) Append(middlewares ...Middleware) *Chain {
 	return newChain
 }
 
-// Then 包装处理器
+// Then 包装处理器.
 func (c *Chain) Then(handler http.Handler) http.Handler {
 	for i := len(c.middlewares) - 1; i >= 0; i-- {
 		handler = c.middlewares[i](handler)
@@ -47,7 +47,7 @@ func (c *Chain) Then(handler http.Handler) http.Handler {
 	return handler
 }
 
-// ThenFunc 包装处理函数
+// ThenFunc 包装处理函数.
 func (c *Chain) ThenFunc(fn http.HandlerFunc) http.Handler {
 	return c.Then(fn)
 }
@@ -56,17 +56,17 @@ func (c *Chain) ThenFunc(fn http.HandlerFunc) http.Handler {
 // 日志中间件
 // ============================================================
 
-// LoggingMiddleware 日志中间件
+// LoggingMiddleware 日志中间件.
 type LoggingMiddleware struct {
 	config LoggingConfig
 }
 
-// NewLoggingMiddleware 创建日志中间件
+// NewLoggingMiddleware 创建日志中间件.
 func NewLoggingMiddleware(config LoggingConfig) *LoggingMiddleware {
 	return &LoggingMiddleware{config: config}
 }
 
-// Handler HTTP中间件
+// Handler HTTP中间件.
 func (lm *LoggingMiddleware) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !lm.config.Enabled {
@@ -90,7 +90,7 @@ func (lm *LoggingMiddleware) Handler(next http.Handler) http.Handler {
 	})
 }
 
-// logAccess 记录访问日志
+// logAccess 记录访问日志.
 func (lm *LoggingMiddleware) logAccess(r *http.Request, statusCode int, duration time.Duration) {
 	clientIP := getClientIP(r)
 	method := r.Method
@@ -122,14 +122,14 @@ func (lm *LoggingMiddleware) logAccess(r *http.Request, statusCode int, duration
 	}
 }
 
-// responseWriter 包装ResponseWriter以捕获状态码
+// responseWriter 包装ResponseWriter以捕获状态码.
 type responseWriter struct {
 	http.ResponseWriter
 	statusCode int
 	written    bool
 }
 
-// WriteHeader 写入状态码
+// WriteHeader 写入状态码.
 func (rw *responseWriter) WriteHeader(code int) {
 	if !rw.written {
 		rw.statusCode = code
@@ -138,7 +138,7 @@ func (rw *responseWriter) WriteHeader(code int) {
 	rw.ResponseWriter.WriteHeader(code)
 }
 
-// Write 写入响应
+// Write 写入响应.
 func (rw *responseWriter) Write(b []byte) (int, error) {
 	if !rw.written {
 		rw.written = true
@@ -150,17 +150,17 @@ func (rw *responseWriter) Write(b []byte) (int, error) {
 // CORS中间件
 // ============================================================
 
-// CORSMiddleware CORS中间件
+// CORSMiddleware CORS中间件.
 type CORSMiddleware struct {
 	config CORSConfig
 }
 
-// NewCORSMiddleware 创建CORS中间件
+// NewCORSMiddleware 创建CORS中间件.
 func NewCORSMiddleware(config CORSConfig) *CORSMiddleware {
 	return &CORSMiddleware{config: config}
 }
 
-// Handler HTTP中间件
+// Handler HTTP中间件.
 func (cm *CORSMiddleware) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !cm.config.Enabled {
@@ -204,7 +204,7 @@ func (cm *CORSMiddleware) Handler(next http.Handler) http.Handler {
 	})
 }
 
-// isAllowedOrigin 检查是否允许该源
+// isAllowedOrigin 检查是否允许该源.
 func (cm *CORSMiddleware) isAllowedOrigin(origin string) bool {
 	for _, allowed := range cm.config.AllowedOrigins {
 		if allowed == "*" || allowed == origin {
@@ -225,13 +225,13 @@ func (cm *CORSMiddleware) isAllowedOrigin(origin string) bool {
 // 压缩中间件
 // ============================================================
 
-// CompressionMiddleware 压缩中间件
+// CompressionMiddleware 压缩中间件.
 type CompressionMiddleware struct {
 	config CompressionConfig
 	pool   sync.Pool
 }
 
-// NewCompressionMiddleware 创建压缩中间件
+// NewCompressionMiddleware 创建压缩中间件.
 func NewCompressionMiddleware(config CompressionConfig) *CompressionMiddleware {
 	return &CompressionMiddleware{
 		config: config,
@@ -244,7 +244,7 @@ func NewCompressionMiddleware(config CompressionConfig) *CompressionMiddleware {
 	}
 }
 
-// Handler HTTP中间件
+// Handler HTTP中间件.
 func (cwm *CompressionMiddleware) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !cwm.config.Enabled {
@@ -274,7 +274,7 @@ func (cwm *CompressionMiddleware) Handler(next http.Handler) http.Handler {
 	})
 }
 
-// gzipResponseWriter gzip响应写入器
+// gzipResponseWriter gzip响应写入器.
 type gzipResponseWriter struct {
 	http.ResponseWriter
 	config    CompressionConfig
@@ -284,7 +284,7 @@ type gzipResponseWriter struct {
 	sniffDone bool
 }
 
-// Write 写入响应
+// Write 写入响应.
 func (gw *gzipResponseWriter) Write(b []byte) (int, error) {
 	if !gw.sniffDone {
 		gw.sniffDone = true
@@ -305,7 +305,7 @@ func (gw *gzipResponseWriter) Write(b []byte) (int, error) {
 	return gw.writer.Write(b)
 }
 
-// Close 关闭gzip写入器
+// Close 关闭gzip写入器.
 func (gw *gzipResponseWriter) Close() {
 	if gw.writer != nil {
 		gw.writer.Close()
@@ -313,7 +313,7 @@ func (gw *gzipResponseWriter) Close() {
 	}
 }
 
-// shouldCompress 是否应该压缩
+// shouldCompress 是否应该压缩.
 func (gw *gzipResponseWriter) shouldCompress(contentType string) bool {
 	// 检查最小大小
 	// 注意：这里无法获取响应大小，所以跳过大小检查
@@ -332,14 +332,14 @@ func (gw *gzipResponseWriter) shouldCompress(contentType string) bool {
 // 缓存中间件
 // ============================================================
 
-// CacheMiddleware 缓存中间件
+// CacheMiddleware 缓存中间件.
 type CacheMiddleware struct {
 	config CacheConfig
 	cache  map[string]*cacheEntry
 	mu     sync.RWMutex
 }
 
-// cacheEntry 缓存条目
+// cacheEntry 缓存条目.
 type cacheEntry struct {
 	statusCode int
 	headers    http.Header
@@ -348,7 +348,7 @@ type cacheEntry struct {
 	expiresAt  time.Time
 }
 
-// NewCacheMiddleware 创建缓存中间件
+// NewCacheMiddleware 创建缓存中间件.
 func NewCacheMiddleware(config CacheConfig) *CacheMiddleware {
 	cm := &CacheMiddleware{
 		config: config,
@@ -361,7 +361,7 @@ func NewCacheMiddleware(config CacheConfig) *CacheMiddleware {
 	return cm
 }
 
-// Handler HTTP中间件
+// Handler HTTP中间件.
 func (cm *CacheMiddleware) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !cm.config.Enabled {
@@ -420,12 +420,12 @@ func (cm *CacheMiddleware) Handler(next http.Handler) http.Handler {
 	})
 }
 
-// generateKey 生成缓存key
+// generateKey 生成缓存key.
 func (cm *CacheMiddleware) generateKey(r *http.Request) string {
 	return fmt.Sprintf("%s:%s:%s", r.Method, r.URL.Path, r.URL.RawQuery)
 }
 
-// isCacheableMethod 检查是否可缓存的方法
+// isCacheableMethod 检查是否可缓存的方法.
 func (cm *CacheMiddleware) isCacheableMethod(method string) bool {
 	for _, m := range cm.config.Methods {
 		if m == method {
@@ -435,7 +435,7 @@ func (cm *CacheMiddleware) isCacheableMethod(method string) bool {
 	return false
 }
 
-// isCacheableStatus 检查是否可缓存的状态码
+// isCacheableStatus 检查是否可缓存的状态码.
 func (cm *CacheMiddleware) isCacheableStatus(status int) bool {
 	for _, s := range cm.config.StatusCodes {
 		if s == status {
@@ -445,7 +445,7 @@ func (cm *CacheMiddleware) isCacheableStatus(status int) bool {
 	return false
 }
 
-// serveFromCache 从缓存提供响应
+// serveFromCache 从缓存提供响应.
 func (cm *CacheMiddleware) serveFromCache(w http.ResponseWriter, entry *cacheEntry) {
 	for key, values := range entry.headers {
 		for _, value := range values {
@@ -457,7 +457,7 @@ func (cm *CacheMiddleware) serveFromCache(w http.ResponseWriter, entry *cacheEnt
 	w.Write(entry.body)
 }
 
-// evictOldest 淘汰最旧的缓存
+// evictOldest 淘汰最旧的缓存.
 func (cm *CacheMiddleware) evictOldest() {
 	var oldestKey string
 	var oldestTime time.Time
@@ -474,7 +474,7 @@ func (cm *CacheMiddleware) evictOldest() {
 	}
 }
 
-// cleanup 清理过期缓存
+// cleanup 清理过期缓存.
 func (cm *CacheMiddleware) cleanup() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -490,20 +490,20 @@ func (cm *CacheMiddleware) cleanup() {
 	}
 }
 
-// cacheResponseWriter 缓存响应写入器
+// cacheResponseWriter 缓存响应写入器.
 type cacheResponseWriter struct {
 	http.ResponseWriter
 	statusCode int
 	body       *strings.Builder
 }
 
-// WriteHeader 写入状态码
+// WriteHeader 写入状态码.
 func (crw *cacheResponseWriter) WriteHeader(code int) {
 	crw.statusCode = code
 	crw.ResponseWriter.WriteHeader(code)
 }
 
-// Write 写入响应
+// Write 写入响应.
 func (crw *cacheResponseWriter) Write(b []byte) (int, error) {
 	crw.body.Write(b)
 	return crw.ResponseWriter.Write(b)
@@ -513,7 +513,7 @@ func (crw *cacheResponseWriter) Write(b []byte) (int, error) {
 // 中间件工厂
 // ============================================================
 
-// NewMiddlewareChain 创建默认中间件链
+// NewMiddlewareChain 创建默认中间件链.
 func NewMiddlewareChain(config MiddlewareConfig) *Chain {
 	var middlewares []Middleware
 
@@ -548,7 +548,7 @@ func NewMiddlewareChain(config MiddlewareConfig) *Chain {
 // 工具函数
 // ============================================================
 
-// WrapHandler 用中间件包装处理器
+// WrapHandler 用中间件包装处理器.
 func WrapHandler(handler http.Handler, middlewares ...Middleware) http.Handler {
 	for i := len(middlewares) - 1; i >= 0; i-- {
 		handler = middlewares[i](handler)
@@ -556,7 +556,7 @@ func WrapHandler(handler http.Handler, middlewares ...Middleware) http.Handler {
 	return handler
 }
 
-// WrapHandlerFunc 用中间件包装处理函数
+// WrapHandlerFunc 用中间件包装处理函数.
 func WrapHandlerFunc(fn http.HandlerFunc, middlewares ...Middleware) http.Handler {
 	return WrapHandler(fn, middlewares...)
 }

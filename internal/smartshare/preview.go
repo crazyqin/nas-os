@@ -11,14 +11,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// PreviewEngine 预览引擎
+// PreviewEngine 预览引擎.
 type PreviewEngine struct {
 	mu     sync.RWMutex
 	logger *zap.Logger
 	config *PreviewConfig
 }
 
-// NewPreviewEngine 创建预览引擎
+// NewPreviewEngine 创建预览引擎.
 func NewPreviewEngine(logger *zap.Logger, config *PreviewConfig) *PreviewEngine {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -33,7 +33,7 @@ func NewPreviewEngine(logger *zap.Logger, config *PreviewConfig) *PreviewEngine 
 	}
 }
 
-// PreviewRequest 预览请求
+// PreviewRequest 预览请求.
 type PreviewRequest struct {
 	FilePath  string `json:"file_path"`
 	ShareID   string `json:"share_id"`
@@ -45,7 +45,7 @@ type PreviewRequest struct {
 	Watermark bool   `json:"watermark"`         // 是否添加水印
 }
 
-// PreviewResponse 预览响应
+// PreviewResponse 预览响应.
 type PreviewResponse struct {
 	PreviewURL   string        `json:"preview_url"`
 	ContentType  string        `json:"content_type"`
@@ -59,7 +59,7 @@ type PreviewResponse struct {
 	CreatedAt    time.Time     `json:"created_at"`
 }
 
-// FileType 文件类型
+// FileType 文件类型.
 type FileType string
 
 const (
@@ -74,7 +74,7 @@ const (
 	FileTypeUnknown FileType = "unknown"
 )
 
-// SecurityInfo 安全信息
+// SecurityInfo 安全信息.
 type SecurityInfo struct {
 	AllowDownload    bool `json:"allow_download"`
 	AllowPrint       bool `json:"allow_print"`
@@ -83,7 +83,7 @@ type SecurityInfo struct {
 	DRMEnabled       bool `json:"drm_enabled"`
 }
 
-// CreatePreview 创建安全预览
+// CreatePreview 创建安全预览.
 func (pe *PreviewEngine) CreatePreview(req *PreviewRequest) (*PreviewResponse, error) {
 	pe.mu.RLock()
 	defer pe.mu.RUnlock()
@@ -136,7 +136,7 @@ func (pe *PreviewEngine) CreatePreview(req *PreviewRequest) (*PreviewResponse, e
 	return response, nil
 }
 
-// detectFileType 检测文件类型
+// detectFileType 检测文件类型.
 func (pe *PreviewEngine) detectFileType(filePath string) FileType {
 	ext := strings.ToLower(filepath.Ext(filePath))
 
@@ -193,7 +193,7 @@ func (pe *PreviewEngine) detectFileType(filePath string) FileType {
 	return FileTypeUnknown
 }
 
-// isPreviewSupported 检查是否支持预览
+// isPreviewSupported 检查是否支持预览.
 func (pe *PreviewEngine) isPreviewSupported(fileType FileType) bool {
 	supportedTypes := []FileType{
 		FileTypeImage,
@@ -213,7 +213,7 @@ func (pe *PreviewEngine) isPreviewSupported(fileType FileType) bool {
 	return false
 }
 
-// getContentType 获取内容类型
+// getContentType 获取内容类型.
 func (pe *PreviewEngine) getContentType(fileType FileType) string {
 	contentTypes := map[FileType]string{
 		FileTypeImage:  "image/*",
@@ -231,7 +231,7 @@ func (pe *PreviewEngine) getContentType(fileType FileType) string {
 	return "application/octet-stream"
 }
 
-// estimatePages 估算页数
+// estimatePages 估算页数.
 func (pe *PreviewEngine) estimatePages(filePath string, fileType FileType) int {
 	switch fileType {
 	case FileTypePDF:
@@ -243,19 +243,19 @@ func (pe *PreviewEngine) estimatePages(filePath string, fileType FileType) int {
 	}
 }
 
-// generatePreviewURL 生成预览 URL
+// generatePreviewURL 生成预览 URL.
 func (pe *PreviewEngine) generatePreviewURL(shareID, filePath string) string {
 	return fmt.Sprintf("/api/v1/smartshare/preview/%s?file=%s", shareID, filePath)
 }
 
-// UpdateConfig 更新预览配置
+// UpdateConfig 更新预览配置.
 func (pe *PreviewEngine) UpdateConfig(config *PreviewConfig) {
 	pe.mu.Lock()
 	defer pe.mu.Unlock()
 	pe.config = config
 }
 
-// GetConfig 获取预览配置
+// GetConfig 获取预览配置.
 func (pe *PreviewEngine) GetConfig() *PreviewConfig {
 	pe.mu.RLock()
 	defer pe.mu.RUnlock()

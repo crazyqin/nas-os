@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// TestGPUDevice 测试GPU设备类型
+// TestGPUDevice 测试GPU设备类型.
 func TestGPUDevice(t *testing.T) {
 	device := &GPUDevice{
 		ID:          "nvidia0",
@@ -31,7 +31,7 @@ func TestGPUDevice(t *testing.T) {
 	assert.Equal(t, GPUStatusAvailable, device.Status)
 }
 
-// TestGPUStatus 测试GPU状态常量
+// TestGPUStatus 测试GPU状态常量.
 func TestGPUStatus(t *testing.T) {
 	assert.Equal(t, GPUStatus("available"), GPUStatusAvailable)
 	assert.Equal(t, GPUStatus("allocated"), GPUStatusAllocated)
@@ -40,7 +40,7 @@ func TestGPUStatus(t *testing.T) {
 	assert.Equal(t, GPUStatus("offline"), GPUStatusOffline)
 }
 
-// TestAllocationPriority 测试分配优先级
+// TestAllocationPriority 测试分配优先级.
 func TestAllocationPriority(t *testing.T) {
 	assert.Equal(t, AllocationPriority("low"), PriorityLow)
 	assert.Equal(t, AllocationPriority("normal"), PriorityNormal)
@@ -48,7 +48,7 @@ func TestAllocationPriority(t *testing.T) {
 	assert.Equal(t, AllocationPriority("critical"), PriorityCritical)
 }
 
-// TestDefaultGPUConfig 测试默认配置
+// TestDefaultGPUConfig 测试默认配置.
 func TestDefaultGPUConfig(t *testing.T) {
 	config := DefaultGPUConfig()
 
@@ -61,7 +61,7 @@ func TestDefaultGPUConfig(t *testing.T) {
 	assert.Equal(t, 5, config.MonitorInterval)
 }
 
-// TestGPUAllocation 测试GPU分配请求
+// TestGPUAllocation 测试GPU分配请求.
 func TestGPUAllocation(t *testing.T) {
 	req := &GPUAllocation{
 		ContainerID: "container-123",
@@ -78,7 +78,7 @@ func TestGPUAllocation(t *testing.T) {
 	assert.False(t, req.Exclusive)
 }
 
-// TestGPUDeviceFilter 测试GPU设备过滤器
+// TestGPUDeviceFilter 测试GPU设备过滤器.
 func TestGPUDeviceFilter(t *testing.T) {
 	filter := &GPUDeviceFilter{
 		Vendor:       "nvidia",
@@ -93,7 +93,7 @@ func TestGPUDeviceFilter(t *testing.T) {
 	assert.True(t, filter.OnlyFree)
 }
 
-// TestManager 测试GPU管理器创建
+// TestManager 测试GPU管理器创建.
 func TestManager(t *testing.T) {
 	logger := zap.NewNop()
 	config := DefaultGPUConfig()
@@ -112,7 +112,7 @@ func TestManager(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-// TestManagerWithMockDevices 测试带模拟设备的管理器
+// TestManagerWithMockDevices 测试带模拟设备的管理器.
 func TestManagerWithMockDevices(t *testing.T) {
 	logger := zap.NewNop()
 	config := DefaultGPUConfig()
@@ -174,7 +174,7 @@ func TestManagerWithMockDevices(t *testing.T) {
 	mgr.Close()
 }
 
-// TestAllocateGPU 测试GPU分配
+// TestAllocateGPU 测试GPU分配.
 func TestAllocateGPU(t *testing.T) {
 	logger := zap.NewNop()
 	config := DefaultGPUConfig()
@@ -236,7 +236,7 @@ func TestAllocateGPU(t *testing.T) {
 	assert.Equal(t, GPUStatusAvailable, device.Status)
 }
 
-// TestAllocateGPUExclusive 测试独占分配
+// TestAllocateGPUExclusive 测试独占分配.
 func TestAllocateGPUExclusive(t *testing.T) {
 	logger := zap.NewNop()
 	config := DefaultGPUConfig()
@@ -284,7 +284,7 @@ func TestAllocateGPUExclusive(t *testing.T) {
 	assert.Error(t, err) // 应该失败，没有可用GPU
 }
 
-// TestScheduler 测试调度器
+// TestScheduler 测试调度器.
 func TestScheduler(t *testing.T) {
 	logger := zap.NewNop()
 	config := DefaultGPUConfig()
@@ -335,7 +335,7 @@ func TestScheduler(t *testing.T) {
 	assert.NotNil(t, device)
 }
 
-// TestSchedulerPolicies 测试不同调度策略
+// TestSchedulerPolicies 测试不同调度策略.
 func TestSchedulerPolicies(t *testing.T) {
 	logger := zap.NewNop()
 	config := DefaultGPUConfig()
@@ -390,7 +390,7 @@ func TestSchedulerPolicies(t *testing.T) {
 	assert.Equal(t, "nvidia0", device.ID)
 }
 
-// TestAllocationPolicyRoundRobin 测试轮询策略
+// TestAllocationPolicyRoundRobin 测试轮询策略.
 func TestAllocationPolicyRoundRobin(t *testing.T) {
 	policy := &AllocationPolicyRoundRobin{}
 
@@ -409,7 +409,7 @@ func TestAllocationPolicyRoundRobin(t *testing.T) {
 	assert.Equal(t, "round-robin", policy.Name())
 }
 
-// TestAllocationPolicyLeastLoaded 测试最小负载策略
+// TestAllocationPolicyLeastLoaded 测试最小负载策略.
 func TestAllocationPolicyLeastLoaded(t *testing.T) {
 	policy := &AllocationPolicyLeastLoaded{}
 
@@ -429,7 +429,7 @@ func TestAllocationPolicyLeastLoaded(t *testing.T) {
 	assert.Equal(t, "least-loaded", policy.Name())
 }
 
-// TestAllocationPolicyPriority 测试优先级策略
+// TestAllocationPolicyPriority 测试优先级策略.
 func TestAllocationPolicyPriority(t *testing.T) {
 	policy := &AllocationPolicyPriority{}
 
@@ -454,7 +454,7 @@ func TestAllocationPolicyPriority(t *testing.T) {
 	assert.Equal(t, "priority", policy.Name())
 }
 
-// TestAllocationPolicyExclusive 测试独占策略
+// TestAllocationPolicyExclusive 测试独占策略.
 func TestAllocationPolicyExclusive(t *testing.T) {
 	policy := &AllocationPolicyExclusive{}
 
@@ -476,7 +476,7 @@ func TestAllocationPolicyExclusive(t *testing.T) {
 	assert.Equal(t, "exclusive", policy.Name())
 }
 
-// TestGPUStats 测试GPU统计
+// TestGPUStats 测试GPU统计.
 func TestGPUStats(t *testing.T) {
 	logger := zap.NewNop()
 	config := DefaultGPUConfig()
@@ -527,7 +527,7 @@ func TestGPUStats(t *testing.T) {
 	assert.Len(t, stats.Allocations, 1)
 }
 
-// TestContainerGPUConfig 测试容器GPU配置
+// TestContainerGPUConfig 测试容器GPU配置.
 func TestContainerGPUConfig(t *testing.T) {
 	config := DefaultContainerGPUConfig()
 
@@ -550,7 +550,7 @@ func TestContainerGPUConfig(t *testing.T) {
 	assert.Equal(t, uint64(50), customConfig.ComputeLimit)
 }
 
-// TestGenerateDockerGPUArgs 测试生成Docker GPU参数
+// TestGenerateDockerGPUArgs 测试生成Docker GPU参数.
 func TestGenerateDockerGPUArgs(t *testing.T) {
 	// 测试全部GPU
 	config := &ContainerGPUConfig{
@@ -593,7 +593,7 @@ func TestGenerateDockerGPUArgs(t *testing.T) {
 	assert.Contains(t, args, "--gpus")
 }
 
-// TestGenerateDockerComposeGPUConfig 测试生成Docker Compose配置
+// TestGenerateDockerComposeGPUConfig 测试生成Docker Compose配置.
 func TestGenerateDockerComposeGPUConfig(t *testing.T) {
 	config := &ContainerGPUConfig{
 		GPUAll:        true,
@@ -609,7 +609,7 @@ func TestGenerateDockerComposeGPUConfig(t *testing.T) {
 	assert.NotNil(t, deploy)
 }
 
-// TestValidateGPUConfig 测试验证GPU配置
+// TestValidateGPUConfig 测试验证GPU配置.
 func TestValidateGPUConfig(t *testing.T) {
 	logger := zap.NewNop()
 	config := DefaultGPUConfig()
@@ -663,7 +663,7 @@ func TestValidateGPUConfig(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestMergeContainerGPUConfig 测试合并GPU配置
+// TestMergeContainerGPUConfig 测试合并GPU配置.
 func TestMergeContainerGPUConfig(t *testing.T) {
 	base := &ContainerGPUConfig{
 		GPUIndices:    []int{0},
@@ -687,7 +687,7 @@ func TestMergeContainerGPUConfig(t *testing.T) {
 	assert.True(t, result.IncludeUVM)
 }
 
-// TestParseMemoryLimit 测试解析内存限制
+// TestParseMemoryLimit 测试解析内存限制.
 func TestParseMemoryLimit(t *testing.T) {
 	assert.Equal(t, uint64(1024), parseMemoryLimit("1g"))
 	assert.Equal(t, uint64(512), parseMemoryLimit("512m"))
@@ -697,7 +697,7 @@ func TestParseMemoryLimit(t *testing.T) {
 	assert.Equal(t, uint64(0), parseMemoryLimit("1kb")) // kb转为MB会除以1024，1kb = 0MB
 }
 
-// TestMonitor 测试监控器
+// TestMonitor 测试监控器.
 func TestMonitor(t *testing.T) {
 	logger := zap.NewNop()
 	config := DefaultGPUConfig()
@@ -719,7 +719,7 @@ func TestMonitor(t *testing.T) {
 	assert.False(t, monitor.IsRunning())
 }
 
-// TestGetGPUContainerRuntime 测试获取容器运行时
+// TestGetGPUContainerRuntime 测试获取容器运行时.
 func TestGetGPUContainerRuntime(t *testing.T) {
 	// 无GPU配置
 	assert.Equal(t, "runc", GetGPUContainerRuntime(nil))
@@ -733,7 +733,7 @@ func TestGetGPUContainerRuntime(t *testing.T) {
 	assert.Equal(t, "nvidia-cdi", GetGPUContainerRuntime(config))
 }
 
-// TestIsGPUConfigured 测试检查GPU配置
+// TestIsGPUConfigured 测试检查GPU配置.
 func TestIsGPUConfigured(t *testing.T) {
 	// 无配置
 	assert.False(t, IsGPUConfigured(nil))
@@ -750,7 +750,7 @@ func TestIsGPUConfigured(t *testing.T) {
 	assert.True(t, IsGPUConfigured(config))
 }
 
-// TestCalculateLoadScore 测试负载评分计算
+// TestCalculateLoadScore 测试负载评分计算.
 func TestCalculateLoadScore(t *testing.T) {
 	logger := zap.NewNop()
 	scheduler := NewScheduler(nil, "least-loaded", logger)
@@ -781,7 +781,7 @@ func TestCalculateLoadScore(t *testing.T) {
 	assert.Less(t, lowScore, highScore)
 }
 
-// TestGenerateRequestID 测试请求ID生成
+// TestGenerateRequestID 测试请求ID生成.
 func TestGenerateRequestID(t *testing.T) {
 	id1 := generateRequestID()
 	id2 := generateRequestID()
@@ -791,7 +791,7 @@ func TestGenerateRequestID(t *testing.T) {
 	assert.NotEqual(t, id1, id2) // 应该唯一
 }
 
-// TestReleaseGPUByContainer 测试通过容器ID释放GPU
+// TestReleaseGPUByContainer 测试通过容器ID释放GPU.
 func TestReleaseGPUByContainer(t *testing.T) {
 	logger := zap.NewNop()
 	config := DefaultGPUConfig()
@@ -843,7 +843,7 @@ func TestReleaseGPUByContainer(t *testing.T) {
 	}
 }
 
-// TestGetContainerGPUAllocations 测试获取容器GPU分配
+// TestGetContainerGPUAllocations 测试获取容器GPU分配.
 func TestGetContainerGPUAllocations(t *testing.T) {
 	logger := zap.NewNop()
 	config := DefaultGPUConfig()
@@ -880,7 +880,7 @@ func TestGetContainerGPUAllocations(t *testing.T) {
 	assert.Len(t, allocations, 0)
 }
 
-// TestConfigImportExport 测试配置导入导出
+// TestConfigImportExport 测试配置导入导出.
 func TestConfigImportExport(t *testing.T) {
 	logger := zap.NewNop()
 	config := DefaultGPUConfig()

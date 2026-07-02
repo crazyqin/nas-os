@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// CollabManager 协同编辑管理器
+// CollabManager 协同编辑管理器.
 type CollabManager struct {
 	mu            sync.RWMutex
 	sessions      map[string]*EditSession               // sessionID -> EditSession
@@ -22,7 +22,7 @@ type CollabManager struct {
 	notifier      *Notifier
 }
 
-// NewCollabManager 创建协同编辑管理器
+// NewCollabManager 创建协同编辑管理器.
 func NewCollabManager(configPath string, manager *Manager) *CollabManager {
 	cm := &CollabManager{
 		sessions:      make(map[string]*EditSession),
@@ -43,7 +43,7 @@ func NewCollabManager(configPath string, manager *Manager) *CollabManager {
 	return cm
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (cm *CollabManager) loadConfig() error {
 	if _, err := os.Stat(cm.configPath); os.IsNotExist(err) {
 		return nil
@@ -77,7 +77,7 @@ func (cm *CollabManager) loadConfig() error {
 	return nil
 }
 
-// saveConfig 保存配置
+// saveConfig 保存配置.
 func (cm *CollabManager) saveConfig() error {
 	if cm.configPath == "" {
 		return nil
@@ -105,7 +105,7 @@ func (cm *CollabManager) saveConfig() error {
 	return os.WriteFile(cm.configPath, data, 0600)
 }
 
-// StartSession 开始编辑会话
+// StartSession 开始编辑会话.
 func (cm *CollabManager) StartSession(resourceType ResourceType, resourceID, resourcePath, userID, username string) (*EditSession, error) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -160,7 +160,7 @@ func (cm *CollabManager) StartSession(resourceType ResourceType, resourceID, res
 	return session, nil
 }
 
-// EndSession 结束编辑会话
+// EndSession 结束编辑会话.
 func (cm *CollabManager) EndSession(sessionID, userID, username string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -194,7 +194,7 @@ func (cm *CollabManager) EndSession(sessionID, userID, username string) error {
 	return nil
 }
 
-// ApplyOperation 应用编辑操作
+// ApplyOperation 应用编辑操作.
 func (cm *CollabManager) ApplyOperation(sessionID, userID, username string, op EditOperation) (*EditOperation, error) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -247,7 +247,7 @@ func (cm *CollabManager) ApplyOperation(sessionID, userID, username string, op E
 	return &op, nil
 }
 
-// UpdateCursor 更新光标位置
+// UpdateCursor 更新光标位置.
 func (cm *CollabManager) UpdateCursor(sessionID, userID, username string, position int64, selection *Selection) (*CursorPosition, error) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -281,7 +281,7 @@ func (cm *CollabManager) UpdateCursor(sessionID, userID, username string, positi
 	return cursor, nil
 }
 
-// GetCursors 获取资源上所有用户的光标位置
+// GetCursors 获取资源上所有用户的光标位置.
 func (cm *CollabManager) GetCursors(resourceID string) []*CursorPosition {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -299,7 +299,7 @@ func (cm *CollabManager) GetCursors(resourceID string) []*CursorPosition {
 	return result
 }
 
-// GetActiveEditors 获取资源的活跃编辑者
+// GetActiveEditors 获取资源的活跃编辑者.
 func (cm *CollabManager) GetActiveEditors(resourceID string) []string {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -328,7 +328,7 @@ func (cm *CollabManager) GetActiveEditors(resourceID string) []string {
 	return editors
 }
 
-// GetSession 获取编辑会话
+// GetSession 获取编辑会话.
 func (cm *CollabManager) GetSession(sessionID string) (*EditSession, error) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -340,7 +340,7 @@ func (cm *CollabManager) GetSession(sessionID string) (*EditSession, error) {
 	return session, nil
 }
 
-// GetResourceVersion 获取资源当前版本
+// GetResourceVersion 获取资源当前版本.
 func (cm *CollabManager) GetResourceVersion(resourceID string) int64 {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -348,7 +348,7 @@ func (cm *CollabManager) GetResourceVersion(resourceID string) int64 {
 	return cm.versions[resourceID]
 }
 
-// SyncDocument 同步文档状态
+// SyncDocument 同步文档状态.
 func (cm *CollabManager) SyncDocument(sessionID, userID, username string) (map[string]interface{}, error) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -377,7 +377,7 @@ func (cm *CollabManager) SyncDocument(sessionID, userID, username string) (map[s
 	}, nil
 }
 
-// SaveDocument 保存文档
+// SaveDocument 保存文档.
 func (cm *CollabManager) SaveDocument(sessionID, userID, username string, content []byte) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -409,7 +409,7 @@ func (cm *CollabManager) SaveDocument(sessionID, userID, username string, conten
 	return nil
 }
 
-// ResolveConflict 解决冲突
+// ResolveConflict 解决冲突.
 func (cm *CollabManager) ResolveConflict(sessionID, userID, username string, resolution string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -436,7 +436,7 @@ func (cm *CollabManager) ResolveConflict(sessionID, userID, username string, res
 	return nil
 }
 
-// GetStats 获取协同编辑统计
+// GetStats 获取协同编辑统计.
 func (cm *CollabManager) GetStats() map[string]interface{} {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
@@ -462,7 +462,7 @@ func (cm *CollabManager) GetStats() map[string]interface{} {
 	}
 }
 
-// BroadcastEdit 广播编辑操作（用于WebSocket）
+// BroadcastEdit 广播编辑操作（用于WebSocket）.
 func (cm *CollabManager) BroadcastEdit(sessionID string, op *EditOperation) {
 	if cm.notifier != nil {
 		cm.notifier.BroadcastToResource(sessionID, &WSMessage{
@@ -473,7 +473,7 @@ func (cm *CollabManager) BroadcastEdit(sessionID string, op *EditOperation) {
 	}
 }
 
-// BroadcastCursor 广播光标位置（用于WebSocket）
+// BroadcastCursor 广播光标位置（用于WebSocket）.
 func (cm *CollabManager) BroadcastCursor(sessionID string, cursor *CursorPosition) {
 	if cm.notifier != nil {
 		cm.notifier.BroadcastToResource(cursor.ResourceID, &WSMessage{
@@ -484,7 +484,7 @@ func (cm *CollabManager) BroadcastCursor(sessionID string, cursor *CursorPositio
 	}
 }
 
-// CleanupInactiveSessions 清理不活跃会话
+// CleanupInactiveSessions 清理不活跃会话.
 func (cm *CollabManager) CleanupInactiveSessions(timeout time.Duration) int {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
@@ -508,7 +508,7 @@ func (cm *CollabManager) CleanupInactiveSessions(timeout time.Duration) int {
 	return count
 }
 
-// logSessionCleanup 记录会话清理
+// logSessionCleanup 记录会话清理.
 func (cm *CollabManager) logSessionCleanup(sessionID string) {
 	// 记录清理日志
 }

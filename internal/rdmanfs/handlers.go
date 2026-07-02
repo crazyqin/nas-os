@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler NFS over RDMA HTTP 处理器
+// Handler NFS over RDMA HTTP 处理器.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler 创建 NFS over RDMA 处理器
+// NewHandler 创建 NFS over RDMA 处理器.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	nfsrdma := rg.Group("/nfsrdma")
 	{
@@ -41,7 +41,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 }
 
 // GetStatus 获取整体状态
-// GET /api/v1/nfsrdma/status
+// GET /api/v1/nfsrdma/status.
 func (h *Handler) GetStatus(c *gin.Context) {
 	status := h.manager.GetStatus()
 	c.JSON(http.StatusOK, gin.H{
@@ -52,7 +52,7 @@ func (h *Handler) GetStatus(c *gin.Context) {
 }
 
 // ListDevices 列出 RDMA 设备
-// GET /api/v1/nfsrdma/devices
+// GET /api/v1/nfsrdma/devices.
 func (h *Handler) ListDevices(c *gin.Context) {
 	devices := h.manager.GetDevices()
 	c.JSON(http.StatusOK, gin.H{
@@ -63,7 +63,7 @@ func (h *Handler) ListDevices(c *gin.Context) {
 }
 
 // DetectDevices 检测 RDMA 设备
-// POST /api/v1/nfsrdma/devices/detect
+// POST /api/v1/nfsrdma/devices/detect.
 func (h *Handler) DetectDevices(c *gin.Context) {
 	devices, err := h.manager.DetectRDMADevices(c.Request.Context())
 	if err != nil {
@@ -81,7 +81,7 @@ func (h *Handler) DetectDevices(c *gin.Context) {
 }
 
 // GetDevice 获取单个设备
-// GET /api/v1/nfsrdma/devices/:name
+// GET /api/v1/nfsrdma/devices/:name.
 func (h *Handler) GetDevice(c *gin.Context) {
 	name := c.Param("name")
 	dev, err := h.manager.GetDeviceByName(name)
@@ -100,7 +100,7 @@ func (h *Handler) GetDevice(c *gin.Context) {
 }
 
 // GetConfig 获取 NFS RDMA 配置
-// GET /api/v1/nfsrdma/config
+// GET /api/v1/nfsrdma/config.
 func (h *Handler) GetConfig(c *gin.Context) {
 	cfg := h.manager.GetNFSRDMAConfig()
 	c.JSON(http.StatusOK, gin.H{
@@ -111,7 +111,7 @@ func (h *Handler) GetConfig(c *gin.Context) {
 }
 
 // UpdateConfig 更新 NFS RDMA 配置
-// PUT /api/v1/nfsrdma/config
+// PUT /api/v1/nfsrdma/config.
 func (h *Handler) UpdateConfig(c *gin.Context) {
 	var cfg NFSRDMAConfig
 	if err := c.ShouldBindJSON(&cfg); err != nil {
@@ -135,7 +135,7 @@ func (h *Handler) UpdateConfig(c *gin.Context) {
 }
 
 // StartService 启动 NFS RDMA 服务
-// POST /api/v1/nfsrdma/start
+// POST /api/v1/nfsrdma/start.
 func (h *Handler) StartService(c *gin.Context) {
 	if err := h.manager.StartService(c.Request.Context()); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -151,7 +151,7 @@ func (h *Handler) StartService(c *gin.Context) {
 }
 
 // StopService 停止 NFS RDMA 服务
-// POST /api/v1/nfsrdma/stop
+// POST /api/v1/nfsrdma/stop.
 func (h *Handler) StopService(c *gin.Context) {
 	if err := h.manager.StopService(c.Request.Context()); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -167,7 +167,7 @@ func (h *Handler) StopService(c *gin.Context) {
 }
 
 // ListExports 列出 NFS 导出
-// GET /api/v1/nfsrdma/exports
+// GET /api/v1/nfsrdma/exports.
 func (h *Handler) ListExports(c *gin.Context) {
 	exports := h.manager.ListExports()
 	c.JSON(http.StatusOK, gin.H{
@@ -178,7 +178,7 @@ func (h *Handler) ListExports(c *gin.Context) {
 }
 
 // AddExport 添加 NFS 导出
-// POST /api/v1/nfsrdma/exports
+// POST /api/v1/nfsrdma/exports.
 func (h *Handler) AddExport(c *gin.Context) {
 	var export NFSExport
 	if err := c.ShouldBindJSON(&export); err != nil {
@@ -202,7 +202,7 @@ func (h *Handler) AddExport(c *gin.Context) {
 }
 
 // RemoveExport 移除 NFS 导出
-// DELETE /api/v1/nfsrdma/exports?path=/export/data
+// DELETE /api/v1/nfsrdma/exports?path=/export/data.
 func (h *Handler) RemoveExport(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {
@@ -226,7 +226,7 @@ func (h *Handler) RemoveExport(c *gin.Context) {
 }
 
 // GetStats 获取性能统计
-// GET /api/v1/nfsrdma/stats
+// GET /api/v1/nfsrdma/stats.
 func (h *Handler) GetStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, gin.H{
@@ -237,7 +237,7 @@ func (h *Handler) GetStats(c *gin.Context) {
 }
 
 // CollectStats 触发性能统计采集
-// POST /api/v1/nfsrdma/stats/collect
+// POST /api/v1/nfsrdma/stats/collect.
 func (h *Handler) CollectStats(c *gin.Context) {
 	stats, err := h.manager.CollectStats(c.Request.Context())
 	if err != nil {

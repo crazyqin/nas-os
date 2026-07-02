@@ -18,21 +18,21 @@ import (
 
 // ========== 拓扑类型定义 ==========
 
-// TopologyType 拓扑类型
+// TopologyType 拓扑类型.
 type TopologyType string
 
 const (
-	// TopologyActiveActive 双活复制 - 两个节点同时活跃
+	// TopologyActiveActive 双活复制 - 两个节点同时活跃.
 	TopologyActiveActive TopologyType = "active_active"
-	// TopologyHubToSpoke 中心到边缘 - 中心节点向多个边缘节点复制
+	// TopologyHubToSpoke 中心到边缘 - 中心节点向多个边缘节点复制.
 	TopologyHubToSpoke TopologyType = "hub_to_spoke"
-	// TopologyOneToMany 一对多复制 - 单源向多目标复制
+	// TopologyOneToMany 一对多复制 - 单源向多目标复制.
 	TopologyOneToMany TopologyType = "one_to_many"
-	// TopologyExtended 级联复制 - A→B→C链式复制
+	// TopologyExtended 级联复制 - A→B→C链式复制.
 	TopologyExtended TopologyType = "extended"
 )
 
-// TopologyConfig 拓扑配置
+// TopologyConfig 拓扑配置.
 type TopologyConfig struct {
 	ID              string              `json:"id"`
 	Name            string              `json:"name"`
@@ -49,7 +49,7 @@ type TopologyConfig struct {
 	UpdatedAt       time.Time           `json:"updatedAt"`
 }
 
-// TopologyNode 拓扑节点
+// TopologyNode 拓扑节点.
 type TopologyNode struct {
 	NodeID     string     `json:"nodeId"`
 	Name       string     `json:"name"`
@@ -64,7 +64,7 @@ type TopologyNode struct {
 	LatencyMs  int        `json:"latencyMs"` // 网络延迟(ms)
 }
 
-// NodeRole 节点角色
+// NodeRole 节点角色.
 type NodeRole string
 
 const (
@@ -77,7 +77,7 @@ const (
 
 // ========== Grandfather-Father-Son保留策略 ==========
 
-// GFSRetentionPolicy GFS保留策略
+// GFSRetentionPolicy GFS保留策略.
 type GFSRetentionPolicy struct {
 	// Grandfather (月备份)
 	GrandfatherRetention int `json:"grandfatherRetention"` // 保留月数
@@ -97,7 +97,7 @@ type GFSRetentionPolicy struct {
 	ManualRetention int `json:"manualRetention"` // 保留数量
 }
 
-// DefaultGFSPolicy 默认GFS策略
+// DefaultGFSPolicy 默认GFS策略.
 func DefaultGFSPolicy() *GFSRetentionPolicy {
 	return &GFSRetentionPolicy{
 		GrandfatherRetention: 12, // 保留12个月
@@ -110,7 +110,7 @@ func DefaultGFSPolicy() *GFSRetentionPolicy {
 	}
 }
 
-// GFSClassification GFS分类
+// GFSClassification GFS分类.
 type GFSClassification string
 
 const (
@@ -121,7 +121,7 @@ const (
 	GFSManual      GFSClassification = "manual"
 )
 
-// ClassifySnapshot 分类快照到GFS层级
+// ClassifySnapshot 分类快照到GFS层级.
 func (p *GFSRetentionPolicy) ClassifySnapshot(snapshotTime time.Time, isManual bool) GFSClassification {
 	if isManual {
 		return GFSManual
@@ -148,7 +148,7 @@ func (p *GFSRetentionPolicy) ClassifySnapshot(snapshotTime time.Time, isManual b
 
 // ========== 拓扑管理器 ==========
 
-// TopologyManager 拓扑管理器
+// TopologyManager 拓扑管理器.
 type TopologyManager struct {
 	mu       sync.RWMutex
 	configs  map[string]*TopologyConfig
@@ -156,7 +156,7 @@ type TopologyManager struct {
 	client   *http.Client
 }
 
-// TopologyStatus 拓扑状态
+// TopologyStatus 拓扑状态.
 type TopologyStatus struct {
 	ConfigID      string                       `json:"configId"`
 	OverallStatus string                       `json:"overallStatus"` // healthy, degraded, failed
@@ -167,7 +167,7 @@ type TopologyStatus struct {
 	Errors        []TopologyError              `json:"errors,omitempty"`
 }
 
-// NodeStatusDetail 节点状态详情
+// NodeStatusDetail 节点状态详情.
 type NodeStatusDetail struct {
 	NodeID       string    `json:"nodeId"`
 	Status       string    `json:"status"` // online, offline, syncing, error
@@ -178,7 +178,7 @@ type NodeStatusDetail struct {
 	LastError    string    `json:"lastError,omitempty"`
 }
 
-// TopologyError 拓扑错误
+// TopologyError 拓扑错误.
 type TopologyError struct {
 	Timestamp time.Time `json:"timestamp"`
 	NodeID    string    `json:"nodeId"`
@@ -186,7 +186,7 @@ type TopologyError struct {
 	Severity  string    `json:"severity"` // warning, critical
 }
 
-// NewTopologyManager 创建拓扑管理器
+// NewTopologyManager 创建拓扑管理器.
 func NewTopologyManager() *TopologyManager {
 	return &TopologyManager{
 		configs:  make(map[string]*TopologyConfig),
@@ -199,7 +199,7 @@ func NewTopologyManager() *TopologyManager {
 
 // ========== 拓扑配置管理 ==========
 
-// CreateTopology 创建拓扑配置
+// CreateTopology 创建拓扑配置.
 func (m *TopologyManager) CreateTopology(config *TopologyConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -230,7 +230,7 @@ func (m *TopologyManager) CreateTopology(config *TopologyConfig) error {
 	return nil
 }
 
-// GetTopology 获取拓扑配置
+// GetTopology 获取拓扑配置.
 func (m *TopologyManager) GetTopology(id string) (*TopologyConfig, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -243,7 +243,7 @@ func (m *TopologyManager) GetTopology(id string) (*TopologyConfig, error) {
 	return config, nil
 }
 
-// ListTopologies 列出拓扑配置
+// ListTopologies 列出拓扑配置.
 func (m *TopologyManager) ListTopologies() []*TopologyConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -256,7 +256,7 @@ func (m *TopologyManager) ListTopologies() []*TopologyConfig {
 	return result
 }
 
-// UpdateTopology 更新拓扑配置
+// UpdateTopology 更新拓扑配置.
 func (m *TopologyManager) UpdateTopology(id string, updates *TopologyConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -296,7 +296,7 @@ func (m *TopologyManager) UpdateTopology(id string, updates *TopologyConfig) err
 	return nil
 }
 
-// DeleteTopology 删除拓扑配置
+// DeleteTopology 删除拓扑配置.
 func (m *TopologyManager) DeleteTopology(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -311,7 +311,7 @@ func (m *TopologyManager) DeleteTopology(id string) error {
 	return nil
 }
 
-// validateTopology 验证拓扑配置
+// validateTopology 验证拓扑配置.
 func (m *TopologyManager) validateTopology(config *TopologyConfig) error {
 	switch config.Type {
 	case TopologyActiveActive:
@@ -349,7 +349,7 @@ func (m *TopologyManager) validateTopology(config *TopologyConfig) error {
 
 // ========== 复制任务执行 ==========
 
-// ReplicationTask 复制任务
+// ReplicationTask 复制任务.
 type ReplicationTask struct {
 	ID           string            `json:"id"`
 	ConfigID     string            `json:"configId"`
@@ -367,7 +367,7 @@ type ReplicationTask struct {
 	Errors       []TaskError       `json:"errors,omitempty"`
 }
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -378,14 +378,14 @@ const (
 	TaskStatusCancelled TaskStatus = "cancelled"
 )
 
-// TaskError 任务错误
+// TaskError 任务错误.
 type TaskError struct {
 	NodeID    string    `json:"nodeId"`
 	Error     string    `json:"error"`
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// CreateReplicationTask 创建复制任务
+// CreateReplicationTask 创建复制任务.
 func (m *TopologyManager) CreateReplicationTask(ctx context.Context, configID, snapshotID string) (*ReplicationTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -414,7 +414,7 @@ func (m *TopologyManager) CreateReplicationTask(ctx context.Context, configID, s
 	return task, nil
 }
 
-// getTargetNodes 获取目标节点列表
+// getTargetNodes 获取目标节点列表.
 func (m *TopologyManager) getTargetNodes(config *TopologyConfig) []string {
 	targets := make([]string, 0)
 
@@ -442,7 +442,7 @@ func (m *TopologyManager) getTargetNodes(config *TopologyConfig) []string {
 	return targets
 }
 
-// ExecuteReplicationTask 执行复制任务
+// ExecuteReplicationTask 执行复制任务.
 func (m *TopologyManager) ExecuteReplicationTask(ctx context.Context, task *ReplicationTask, snapshotData []byte) error {
 	m.mu.Lock()
 	config, exists := m.configs[task.ConfigID]
@@ -531,7 +531,7 @@ func (m *TopologyManager) ExecuteReplicationTask(ctx context.Context, task *Repl
 	return nil
 }
 
-// findNode 查找节点
+// findNode 查找节点.
 func (m *TopologyManager) findNode(config *TopologyConfig, nodeID string) *TopologyNode {
 	if config.PrimaryNode != nil && config.PrimaryNode.NodeID == nodeID {
 		return config.PrimaryNode
@@ -548,7 +548,7 @@ func (m *TopologyManager) findNode(config *TopologyConfig, nodeID string) *Topol
 
 // ========== 加密复制 ==========
 
-// encryptData 加密数据 (AES-256-GCM)
+// encryptData 加密数据 (AES-256-GCM).
 func (m *TopologyManager) encryptData(data []byte, key string) ([]byte, error) {
 	if len(key) != 32 {
 		return nil, fmt.Errorf("加密密钥长度必须为32字节")
@@ -573,7 +573,7 @@ func (m *TopologyManager) encryptData(data []byte, key string) ([]byte, error) {
 	return encrypted, nil
 }
 
-// decryptData 解密数据
+// decryptData 解密数据.
 func (m *TopologyManager) decryptData(encrypted []byte, key string) ([]byte, error) {
 	if len(key) != 32 {
 		return nil, fmt.Errorf("加密密钥长度必须为32字节")
@@ -605,7 +605,7 @@ func (m *TopologyManager) decryptData(encrypted []byte, key string) ([]byte, err
 
 // ========== 网络传输 ==========
 
-// sendToNode 发送数据到节点
+// sendToNode 发送数据到节点.
 func (m *TopologyManager) sendToNode(ctx context.Context, node *TopologyNode, snapshotID string, data []byte, bandwidthLimit int) error {
 	// 构建请求URL
 	url := fmt.Sprintf("http://%s:%d/api/v1/snapshot/receive", node.Address, node.Port)
@@ -652,7 +652,7 @@ func (m *TopologyManager) sendToNode(ctx context.Context, node *TopologyNode, sn
 
 // ========== 带宽限制 ==========
 
-// ThrottledTransport 带宽限制传输
+// ThrottledTransport 带宽限制传输.
 type ThrottledTransport struct {
 	transport    *http.Transport
 	bytesPerSec  int64 // 每秒字节数
@@ -660,7 +660,7 @@ type ThrottledTransport struct {
 	lastReset    time.Time
 }
 
-// NewThrottledTransport 创建带宽限制传输
+// NewThrottledTransport 创建带宽限制传输.
 func NewThrottledTransport(bytesPerSec int64) *ThrottledTransport {
 	return &ThrottledTransport{
 		transport:   &http.Transport{},
@@ -671,7 +671,7 @@ func NewThrottledTransport(bytesPerSec int64) *ThrottledTransport {
 
 // ========== 状态监控 ==========
 
-// GetTopologyStatus 获取拓扑状态
+// GetTopologyStatus 获取拓扑状态.
 func (m *TopologyManager) GetTopologyStatus(id string) (*TopologyStatus, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -684,7 +684,7 @@ func (m *TopologyManager) GetTopologyStatus(id string) (*TopologyStatus, error) 
 	return status, nil
 }
 
-// updateNodeStatus 更新节点状态
+// updateNodeStatus 更新节点状态.
 func (m *TopologyManager) updateNodeStatus(configID, nodeID, status string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -708,7 +708,7 @@ func (m *TopologyManager) updateNodeStatus(configID, nodeID, status string) {
 	m.calculateOverallStatus(topologyStatus)
 }
 
-// calculateOverallStatus 计算整体状态
+// calculateOverallStatus 计算整体状态.
 func (m *TopologyManager) calculateOverallStatus(status *TopologyStatus) {
 	healthyCount := 0
 	offlineCount := 0
@@ -740,7 +740,7 @@ func (m *TopologyManager) calculateOverallStatus(status *TopologyStatus) {
 	}
 }
 
-// CheckNodeHealth 检查节点健康状态
+// CheckNodeHealth 检查节点健康状态.
 func (m *TopologyManager) CheckNodeHealth(ctx context.Context, node *TopologyNode) error {
 	url := fmt.Sprintf("http://%s:%d/api/v1/health", node.Address, node.Port)
 
@@ -782,20 +782,20 @@ func generateTaskID() string {
 
 // ========== API响应结构 ==========
 
-// TopologyAPIResponse API响应
+// TopologyAPIResponse API响应.
 type TopologyAPIResponse struct {
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data,omitempty"`
 	Error   string      `json:"error,omitempty"`
 }
 
-// ReplicationTaskListResponse 复制任务列表响应
+// ReplicationTaskListResponse 复制任务列表响应.
 type ReplicationTaskListResponse struct {
 	Total int                `json:"total"`
 	Tasks []*ReplicationTask `json:"tasks"`
 }
 
-// TopologyListResponse 拓扑列表响应
+// TopologyListResponse 拓扑列表响应.
 type TopologyListResponse struct {
 	Total      int               `json:"total"`
 	Topologies []*TopologyConfig `json:"topologies"`

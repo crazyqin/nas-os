@@ -4,12 +4,12 @@ import (
 	"fmt"
 )
 
-// ScoreCalculator calculates the overall health score
+// ScoreCalculator calculates the overall health score.
 type ScoreCalculator struct {
 	hs *HealthScore
 }
 
-// NewScoreCalculator creates a new score calculator
+// NewScoreCalculator creates a new score calculator.
 func NewScoreCalculator(hs *HealthScore) *ScoreCalculator {
 	return &ScoreCalculator{hs: hs}
 }
@@ -34,7 +34,7 @@ func (sc *ScoreCalculator) CalculateOverallScore(components []ComponentScore) fl
 	return weightedSum / totalWeight
 }
 
-// DetermineStatus determines the health status from score
+// DetermineStatus determines the health status from score.
 func (sc *ScoreCalculator) DetermineStatus(score float64) HealthStatus {
 	switch {
 	case score >= 90:
@@ -50,7 +50,7 @@ func (sc *ScoreCalculator) DetermineStatus(score float64) HealthStatus {
 	}
 }
 
-// DetermineTrend determines the trend from historical data
+// DetermineTrend determines the trend from historical data.
 func (sc *ScoreCalculator) DetermineTrend(history []ScoreHistory) string {
 	if len(history) < 6 {
 		return "stable"
@@ -76,7 +76,7 @@ func (sc *ScoreCalculator) DetermineTrend(history []ScoreHistory) string {
 	return "stable"
 }
 
-// GenerateRecommendations generates recommendations based on component scores
+// GenerateRecommendations generates recommendations based on component scores.
 func (sc *ScoreCalculator) GenerateRecommendations(components []ComponentScore) []Recommendation {
 	var recommendations []Recommendation
 
@@ -90,7 +90,7 @@ func (sc *ScoreCalculator) GenerateRecommendations(components []ComponentScore) 
 	return recommendations
 }
 
-// getWeight returns the weight for a component type
+// getWeight returns the weight for a component type.
 func (sc *ScoreCalculator) getWeight(compType ComponentType) float64 {
 	if weight, exists := sc.hs.weights[compType]; exists {
 		return weight
@@ -101,7 +101,7 @@ func (sc *ScoreCalculator) getWeight(compType ComponentType) float64 {
 	return 0.1 // Default weight
 }
 
-// generateComponentRecommendation generates a recommendation for a component
+// generateComponentRecommendation generates a recommendation for a component.
 func (sc *ScoreCalculator) generateComponentRecommendation(comp ComponentScore) Recommendation {
 	priority := "low"
 	if comp.Score < 40 {
@@ -123,7 +123,7 @@ func (sc *ScoreCalculator) generateComponentRecommendation(comp ComponentScore) 
 	}
 }
 
-// getRecommendationDetails returns recommendation details for a component
+// getRecommendationDetails returns recommendation details for a component.
 func getRecommendationDetails(compType ComponentType, score float64) (string, string, string) {
 	switch compType {
 	case ComponentDisk:
@@ -161,7 +161,7 @@ func getRecommendationDetails(compType ComponentType, score float64) (string, st
 	}
 }
 
-// averageScores calculates the average score from history
+// averageScores calculates the average score from history.
 func averageScores(history []ScoreHistory) float64 {
 	if len(history) == 0 {
 		return 0

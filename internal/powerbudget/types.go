@@ -3,7 +3,7 @@ package powerbudget
 
 import "time"
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 const (
@@ -12,7 +12,7 @@ const (
 	AlertCritical AlertLevel = "critical"
 )
 
-// AlertType 告警类型
+// AlertType 告警类型.
 type AlertType string
 
 const (
@@ -22,7 +22,7 @@ const (
 	AlertCostThreshold AlertType = "cost_threshold" // 成本阈值
 )
 
-// SavingsType 节能类型
+// SavingsType 节能类型.
 type SavingsType string
 
 const (
@@ -32,7 +32,7 @@ const (
 	SavingsPeakShift  SavingsType = "peak_shift" // 峰值转移
 )
 
-// PowerReading 功率读数
+// PowerReading 功率读数.
 type PowerReading struct {
 	ID          string    `json:"id"`
 	DeviceID    string    `json:"device_id"`
@@ -46,7 +46,7 @@ type PowerReading struct {
 	Timestamp   time.Time `json:"timestamp"`
 }
 
-// PowerBudget 功率预算
+// PowerBudget 功率预算.
 type PowerBudget struct {
 	ID               string    `json:"id"`
 	Name             string    `json:"name"`
@@ -63,7 +63,7 @@ type PowerBudget struct {
 	UpdatedAt        time.Time `json:"updated_at"`
 }
 
-// EnergyCost 能源成本
+// EnergyCost 能源成本.
 type EnergyCost struct {
 	ID              string    `json:"id"`
 	Period          string    `json:"period"` // daily, weekly, monthly
@@ -81,7 +81,7 @@ type EnergyCost struct {
 	CreatedAt       time.Time `json:"created_at"`
 }
 
-// SavingsPlan 节能计划
+// SavingsPlan 节能计划.
 type SavingsPlan struct {
 	ID                  string      `json:"id"`
 	Name                string      `json:"name"`
@@ -97,7 +97,7 @@ type SavingsPlan struct {
 	UpdatedAt           time.Time   `json:"updated_at"`
 }
 
-// Schedule 调度配置
+// Schedule 调度配置.
 type Schedule struct {
 	Enabled    bool     `json:"enabled"`
 	StartTime  string   `json:"start_time"` // HH:MM
@@ -106,7 +106,7 @@ type Schedule struct {
 	Action     string   `json:"action"` // power_off, reduce_power, standby
 }
 
-// PowerAlert 功率告警
+// PowerAlert 功率告警.
 type PowerAlert struct {
 	ID             string     `json:"id"`
 	Level          AlertLevel `json:"level"`
@@ -121,7 +121,7 @@ type PowerAlert struct {
 	CreatedAt      time.Time  `json:"created_at"`
 }
 
-// PowerBudgetConfig 功率预算配置
+// PowerBudgetConfig 功率预算配置.
 type PowerBudgetConfig struct {
 	Enabled            bool    `json:"enabled"`
 	DefaultCurrency    string  `json:"default_currency"`
@@ -133,7 +133,7 @@ type PowerBudgetConfig struct {
 	MaxAlerts          int     `json:"max_alerts"`
 }
 
-// DefaultPowerBudgetConfig 默认配置
+// DefaultPowerBudgetConfig 默认配置.
 func DefaultPowerBudgetConfig() *PowerBudgetConfig {
 	return &PowerBudgetConfig{
 		Enabled:            true,

@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// 错误定义
+// 错误定义.
 var (
 	ErrNotConnected      = errors.New("frp client not connected")
 	ErrAlreadyConnected  = errors.New("frp client already connected")
@@ -27,7 +27,7 @@ var (
 	ErrInvalidConfig     = errors.New("invalid frp configuration")
 )
 
-// Client FRP客户端
+// Client FRP客户端.
 type Client struct {
 	config  *ClientConfig
 	conn    net.Conn
@@ -47,7 +47,7 @@ type Client struct {
 	onTunnelChange func(string, string)
 }
 
-// TunnelSession 隧道会话
+// TunnelSession 隧道会话.
 type TunnelSession struct {
 	config     TunnelConfig
 	status     string
@@ -59,7 +59,7 @@ type TunnelSession struct {
 	mu         sync.Mutex
 }
 
-// ClientStats 客户端统计
+// ClientStats 客户端统计.
 type ClientStats struct {
 	BytesSent     uint64    `json:"bytes_sent"`
 	BytesReceived uint64    `json:"bytes_received"`
@@ -70,7 +70,7 @@ type ClientStats struct {
 	ConnectedAt   time.Time `json:"connected_at"`
 }
 
-// NewClient 创建FRP客户端
+// NewClient 创建FRP客户端.
 func NewClient(config *ClientConfig, logger *zap.Logger) (*Client, error) {
 	if config.Common.ServerAddr == "" {
 		return nil, ErrInvalidConfig
@@ -93,7 +93,7 @@ func NewClient(config *ClientConfig, logger *zap.Logger) (*Client, error) {
 	}, nil
 }
 
-// Start 启动客户端
+// Start 启动客户端.
 func (c *Client) Start() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -144,7 +144,7 @@ func (c *Client) Start() error {
 	return nil
 }
 
-// connectServer 连接到FRP服务器
+// connectServer 连接到FRP服务器.
 func (c *Client) connectServer() error {
 	addr := fmt.Sprintf("%s:%d", c.config.Common.ServerAddr, c.config.Common.ServerPort)
 
@@ -188,7 +188,7 @@ func (c *Client) connectServer() error {
 	return nil
 }
 
-// authenticate 认证
+// authenticate 认证.
 func (c *Client) authenticate() error {
 	// 发送认证请求
 	authReq := AuthRequest{
@@ -235,7 +235,7 @@ func (c *Client) authenticate() error {
 	return nil
 }
 
-// readResponse 读取服务器响应
+// readResponse 读取服务器响应.
 func (c *Client) readResponse() (*Message, error) {
 	header := make([]byte, 8)
 	if _, err := io.ReadFull(c.conn, header); err != nil {
@@ -261,7 +261,7 @@ func (c *Client) readResponse() (*Message, error) {
 	}, nil
 }
 
-// startTunnel 启动隧道
+// startTunnel 启动隧道.
 func (c *Client) startTunnel(cfg TunnelConfig) error {
 	session := &TunnelSession{
 		config:     cfg,
@@ -313,7 +313,7 @@ func (c *Client) startTunnel(cfg TunnelConfig) error {
 	return nil
 }
 
-// Stop 停止客户端
+// Stop 停止客户端.
 func (c *Client) Stop() error {
 	c.cancel()
 	c.wg.Wait()
@@ -347,7 +347,7 @@ func (c *Client) Stop() error {
 	return nil
 }
 
-// heartbeatLoop 心跳循环
+// heartbeatLoop 心跳循环.
 func (c *Client) heartbeatLoop() {
 	defer c.wg.Done()
 
@@ -390,7 +390,7 @@ func (c *Client) heartbeatLoop() {
 	}
 }
 
-// sendHeartbeat 发送心跳
+// sendHeartbeat 发送心跳.
 func (c *Client) sendHeartbeat() error {
 	c.mu.RLock()
 	conn := c.conn
@@ -419,7 +419,7 @@ func (c *Client) sendHeartbeat() error {
 	return nil
 }
 
-// connectionLoop 连接监听循环
+// connectionLoop 连接监听循环.
 func (c *Client) connectionLoop() {
 	defer c.wg.Done()
 
@@ -452,7 +452,7 @@ func (c *Client) connectionLoop() {
 	}
 }
 
-// handleMessage 处理服务器消息
+// handleMessage 处理服务器消息.
 func (c *Client) handleMessage(msg *Message) {
 	switch msg.Type {
 	case MsgTypePong:
@@ -503,7 +503,7 @@ func (c *Client) handleMessage(msg *Message) {
 	}
 }
 
-// handleData 处理数据传输
+// handleData 处理数据传输.
 func (c *Client) handleData(msg *Message) {
 	data, err := DecodeMessage(msg)
 	if err != nil {
@@ -528,7 +528,7 @@ func (c *Client) handleData(msg *Message) {
 	go c.forwardData(session, dataMsg)
 }
 
-// forwardData 转发数据
+// forwardData 转发数据.
 func (c *Client) forwardData(session *TunnelSession, dataMsg DataMessage) {
 	cfg := session.config
 	localAddr := net.JoinHostPort(cfg.LocalIP, strconv.Itoa(cfg.LocalPort))
@@ -582,7 +582,7 @@ func (c *Client) forwardData(session *TunnelSession, dataMsg DataMessage) {
 	}
 }
 
-// reconnect 重连服务器
+// reconnect 重连服务器.
 func (c *Client) reconnect() error {
 	c.logger.Info("Attempting to reconnect...")
 
@@ -624,14 +624,14 @@ func (c *Client) reconnect() error {
 	return nil
 }
 
-// GetStatus 获取状态
+// GetStatus 获取状态.
 func (c *Client) GetStatus() string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.status
 }
 
-// GetStats 获取统计
+// GetStats 获取统计.
 func (c *Client) GetStats() ClientStats {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -643,7 +643,7 @@ func (c *Client) GetStats() ClientStats {
 	return *c.stats
 }
 
-// GetTunnelStatus 获取隧道状态
+// GetTunnelStatus 获取隧道状态.
 func (c *Client) GetTunnelStatus(id string) *TunnelStatus {
 	c.mu.RLock()
 	session, exists := c.tunnels[id]
@@ -680,7 +680,7 @@ func (c *Client) GetTunnelStatus(id string) *TunnelStatus {
 	return status
 }
 
-// ListTunnelStatus 列出所有隧道状态
+// ListTunnelStatus 列出所有隧道状态.
 func (c *Client) ListTunnelStatus() []TunnelStatus {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -694,7 +694,7 @@ func (c *Client) ListTunnelStatus() []TunnelStatus {
 	return statuses
 }
 
-// AddTunnel 添加并启动隧道
+// AddTunnel 添加并启动隧道.
 func (c *Client) AddTunnel(cfg TunnelConfig) error {
 	cfg.ID = generateTunnelID()
 	cfg.CreatedAt = time.Now()
@@ -709,7 +709,7 @@ func (c *Client) AddTunnel(cfg TunnelConfig) error {
 	return nil
 }
 
-// RemoveTunnel 移除隧道
+// RemoveTunnel 移除隧道.
 func (c *Client) RemoveTunnel(id string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -734,21 +734,21 @@ func (c *Client) RemoveTunnel(id string) error {
 	return nil
 }
 
-// SetOnConnect 设置连接回调
+// SetOnConnect 设置连接回调.
 func (c *Client) SetOnConnect(fn func()) {
 	c.mu.Lock()
 	c.onConnect = fn
 	c.mu.Unlock()
 }
 
-// SetOnDisconnect 设置断开回调
+// SetOnDisconnect 设置断开回调.
 func (c *Client) SetOnDisconnect(fn func(error)) {
 	c.mu.Lock()
 	c.onDisconnect = fn
 	c.mu.Unlock()
 }
 
-// generateRunID 生成运行ID
+// generateRunID 生成运行ID.
 func generateRunID() string {
 	return fmt.Sprintf("run_%d", time.Now().UnixNano())
 }

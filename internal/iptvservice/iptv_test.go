@@ -8,10 +8,10 @@ func TestAddChannel(t *testing.T) {
 	svc := NewIPTVService()
 
 	ch := &Channel{
-		Name:    "CCTV-1",
-		Group:   "央视",
-		Type:    ChannelTypeLive,
-		URL:     "http://example.com/live/cctv1.m3u8",
+		Name:  "CCTV-1",
+		Group: "央视",
+		Type:  ChannelTypeLive,
+		URL:   "http://example.com/live/cctv1.m3u8",
 	}
 
 	err := svc.AddChannel(ch)

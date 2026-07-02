@@ -9,7 +9,7 @@ import (
 
 // ========== AI Provider 数据模型 ==========
 
-// AIProvider 描述一个 AI 服务提供者（云端或本地）
+// AIProvider 描述一个 AI 服务提供者（云端或本地）.
 type AIProvider struct {
 	// ID 唯一标识
 	ID string `json:"id"`
@@ -35,7 +35,7 @@ type AIProvider struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-// ProviderHealth provider 健康状态
+// ProviderHealth provider 健康状态.
 type ProviderHealth struct {
 	ProviderID  string    `json:"providerId"`
 	Healthy     bool      `json:"healthy"`
@@ -47,7 +47,7 @@ type ProviderHealth struct {
 
 // ========== AI 请求/响应模型 ==========
 
-// AIRequest 统一的 AI 请求结构
+// AIRequest 统一的 AI 请求结构.
 type AIRequest struct {
 	// Model 模型名称，如 "gpt-4"、"llama3"
 	Model string `json:"model"`
@@ -65,13 +65,13 @@ type AIRequest struct {
 	Stop []string `json:"stop,omitempty"`
 }
 
-// Message OpenAI 兼容的对话消息
+// Message OpenAI 兼容的对话消息.
 type Message struct {
-	Role    string `json:"role"`    // system / user / assistant / tool
+	Role    string `json:"role"` // system / user / assistant / tool
 	Content string `json:"content"`
 }
 
-// AIResponse 非流式 AI 响应（OpenAI 兼容格式）
+// AIResponse 非流式 AI 响应（OpenAI 兼容格式）.
 type AIResponse struct {
 	ID      string   `json:"id"`
 	Object  string   `json:"object"` // "chat.completion"
@@ -81,39 +81,39 @@ type AIResponse struct {
 	Usage   Usage    `json:"usage"`
 }
 
-// Choice 响应选项
+// Choice 响应选项.
 type Choice struct {
 	Index        int     `json:"index"`
 	Message      Message `json:"message"`
 	FinishReason string  `json:"finish_reason"`
 }
 
-// Usage token 用量统计
+// Usage token 用量统计.
 type Usage struct {
 	PromptTokens     int `json:"prompt_tokens"`
 	CompletionTokens int `json:"completion_tokens"`
 	TotalTokens      int `json:"total_tokens"`
 }
 
-// StreamChunk 流式响应块（OpenAI SSE 格式）
+// StreamChunk 流式响应块（OpenAI SSE 格式）.
 type StreamChunk struct {
-	ID      string        `json:"id"`
-	Object  string        `json:"object"` // "chat.completion.chunk"
-	Created int64         `json:"created"`
-	Model   string        `json:"model"`
+	ID      string         `json:"id"`
+	Object  string         `json:"object"` // "chat.completion.chunk"
+	Created int64          `json:"created"`
+	Model   string         `json:"model"`
 	Choices []StreamChoice `json:"choices"`
 }
 
-// StreamChoice 流式响应选项
+// StreamChoice 流式响应选项.
 type StreamChoice struct {
-	Index        int          `json:"index"`
-	Delta        Message      `json:"delta"`
-	FinishReason *string      `json:"finish_reason"` // 可能为 null
+	Index        int     `json:"index"`
+	Delta        Message `json:"delta"`
+	FinishReason *string `json:"finish_reason"` // 可能为 null
 }
 
 // ========== API Key 管理模型 ==========
 
-// APIKeyConfig API Key 配置
+// APIKeyConfig API Key 配置.
 type APIKeyConfig struct {
 	// Key 完整 API Key（仅在创建时返回，后续不可见）
 	Key string `json:"key,omitempty"`
@@ -143,7 +143,7 @@ type APIKeyConfig struct {
 	LastUsedAt *time.Time `json:"lastUsedAt,omitempty"`
 }
 
-// KeyUsageStat Key 使用统计
+// KeyUsageStat Key 使用统计.
 type KeyUsageStat struct {
 	KeyID            string    `json:"keyId"`
 	TodayTokens      int       `json:"todayTokens"`
@@ -156,7 +156,7 @@ type KeyUsageStat struct {
 
 // ========== OpenAI 兼容请求体 ==========
 
-// ChatCompletionRequest OpenAI /v1/chat/completions 请求体
+// ChatCompletionRequest OpenAI /v1/chat/completions 请求体.
 type ChatCompletionRequest struct {
 	Model       string    `json:"model"`
 	Messages    []Message `json:"messages"`
@@ -167,15 +167,15 @@ type ChatCompletionRequest struct {
 	Stop        []string  `json:"stop,omitempty"`
 }
 
-// ChatCompletionResponse OpenAI /v1/chat/completions 响应体
+// ChatCompletionResponse OpenAI /v1/chat/completions 响应体.
 type ChatCompletionResponse = AIResponse
 
-// ErrorResponse 错误响应（OpenAI 兼容格式）
+// ErrorResponse 错误响应（OpenAI 兼容格式）.
 type ErrorResponse struct {
 	Error ErrorBody `json:"error"`
 }
 
-// ErrorBody 错误内容
+// ErrorBody 错误内容.
 type ErrorBody struct {
 	Message string `json:"message"`
 	Type    string `json:"type"`

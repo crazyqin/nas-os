@@ -10,23 +10,23 @@ import (
 
 // ========== 容器相关数据模型 ==========
 
-// ContainerStatus 容器运行状态
+// ContainerStatus 容器运行状态.
 type ContainerStatus string
 
 const (
-	// ContainerRunning 运行中
+	// ContainerRunning 运行中.
 	ContainerRunning ContainerStatus = "running"
-	// ContainerStopped 已停止
+	// ContainerStopped 已停止.
 	ContainerStopped ContainerStatus = "stopped"
-	// ContainerFailed 故障
+	// ContainerFailed 故障.
 	ContainerFailed ContainerStatus = "failed"
-	// ContainerFailingOver 故障转移中
+	// ContainerFailingOver 故障转移中.
 	ContainerFailingOver ContainerStatus = "failing-over"
-	// ContainerPending 等待中
+	// ContainerPending 等待中.
 	ContainerPending ContainerStatus = "pending"
 )
 
-// Container 容器信息
+// Container 容器信息.
 type Container struct {
 	// ID 容器唯一标识
 	ID string `json:"id"`
@@ -54,7 +54,7 @@ type Container struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// PortMapping 端口映射
+// PortMapping 端口映射.
 type PortMapping struct {
 	// HostPort 宿主机端口
 	HostPort int `json:"host_port"`
@@ -64,7 +64,7 @@ type PortMapping struct {
 	Protocol string `json:"protocol"`
 }
 
-// VolumeMount 数据卷挂载
+// VolumeMount 数据卷挂载.
 type VolumeMount struct {
 	// HostPath 宿主机路径
 	HostPath string `json:"host_path"`
@@ -76,17 +76,17 @@ type VolumeMount struct {
 
 // ========== 故障转移策略 ==========
 
-// FailoverMode 故障转移模式
+// FailoverMode 故障转移模式.
 type FailoverMode string
 
 const (
-	// ModeActivePassive 主备模式：同一时刻仅一个节点运行容器
+	// ModeActivePassive 主备模式：同一时刻仅一个节点运行容器.
 	ModeActivePassive FailoverMode = "active-passive"
-	// ModeActiveActive 双活模式：容器可在多个节点同时运行，IP 随迁移
+	// ModeActiveActive 双活模式：容器可在多个节点同时运行，IP 随迁移.
 	ModeActiveActive FailoverMode = "active-active"
 )
 
-// FailoverPolicy 故障转移策略
+// FailoverPolicy 故障转移策略.
 type FailoverPolicy struct {
 	// Mode 故障转移模式
 	Mode FailoverMode `json:"mode"`
@@ -104,7 +104,7 @@ type FailoverPolicy struct {
 	SMBHA bool `json:"smb_ha"`
 }
 
-// DefaultFailoverPolicy 默认故障转移策略
+// DefaultFailoverPolicy 默认故障转移策略.
 func DefaultFailoverPolicy() *FailoverPolicy {
 	return &FailoverPolicy{
 		Mode:                ModeActivePassive,
@@ -119,19 +119,19 @@ func DefaultFailoverPolicy() *FailoverPolicy {
 
 // ========== 故障转移事件 ==========
 
-// FailoverTrigger 触发方式
+// FailoverTrigger 触发方式.
 type FailoverTrigger string
 
 const (
-	// TriggerAuto 自动触发
+	// TriggerAuto 自动触发.
 	TriggerAuto FailoverTrigger = "auto"
-	// TriggerManual 手动触发
+	// TriggerManual 手动触发.
 	TriggerManual FailoverTrigger = "manual"
-	// TriggerHealthCheck 健康检查触发
+	// TriggerHealthCheck 健康检查触发.
 	TriggerHealthCheck FailoverTrigger = "health-check"
 )
 
-// FailoverEvent 故障转移事件记录
+// FailoverEvent 故障转移事件记录.
 type FailoverEvent struct {
 	// ID 事件唯一标识
 	ID string `json:"id"`
@@ -165,19 +165,19 @@ type FailoverEvent struct {
 
 // ========== 集群节点 ==========
 
-// NodeStatus 节点状态
+// NodeStatus 节点状态.
 type NodeStatus string
 
 const (
-	// NodeOnline 在线
+	// NodeOnline 在线.
 	NodeOnline NodeStatus = "online"
-	// NodeOffline 离线
+	// NodeOffline 离线.
 	NodeOffline NodeStatus = "offline"
-	// NodeDegraded 降级
+	// NodeDegraded 降级.
 	NodeDegraded NodeStatus = "degraded"
 )
 
-// ClusterNode HA 集群节点
+// ClusterNode HA 集群节点.
 type ClusterNode struct {
 	// ID 节点唯一标识
 	ID string `json:"id"`
@@ -199,7 +199,7 @@ type ClusterNode struct {
 
 // ========== IP 分配记录 ==========
 
-// IPAllocation IP 分配记录
+// IPAllocation IP 分配记录.
 type IPAllocation struct {
 	// IP 静态 IP 地址
 	IP string `json:"ip"`

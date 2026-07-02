@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Manager 监控中心管理器
+// Manager 监控中心管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	cameras     map[string]*Camera
@@ -29,7 +29,7 @@ type Manager struct {
 	onAlert     func(*Alert) // 告警回调
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		cameras:     make(map[string]*Camera),
@@ -52,12 +52,12 @@ func NewManager() *Manager {
 	return m
 }
 
-// generateID 生成唯一ID
+// generateID 生成唯一ID.
 func generateID(prefix string) string {
 	return fmt.Sprintf("%s_%d_%04x", prefix, time.Now().UnixNano(), rand.Intn(0xffff))
 }
 
-// initMockData 初始化模拟数据
+// initMockData 初始化模拟数据.
 func (m *Manager) initMockData() {
 	// 添加模拟摄像头
 	mockCameras := []Camera{
@@ -112,7 +112,7 @@ func (m *Manager) initMockData() {
 
 // ========== 摄像头管理 ==========
 
-// AddCamera 添加摄像头
+// AddCamera 添加摄像头.
 func (m *Manager) AddCamera(cam *Camera) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -134,7 +134,7 @@ func (m *Manager) AddCamera(cam *Camera) error {
 	return nil
 }
 
-// RemoveCamera 删除摄像头
+// RemoveCamera 删除摄像头.
 func (m *Manager) RemoveCamera(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -152,7 +152,7 @@ func (m *Manager) RemoveCamera(id string) error {
 	return nil
 }
 
-// UpdateCamera 更新摄像头配置
+// UpdateCamera 更新摄像头配置.
 func (m *Manager) UpdateCamera(cam *Camera) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -168,7 +168,7 @@ func (m *Manager) UpdateCamera(cam *Camera) error {
 	return nil
 }
 
-// GetCamera 获取摄像头
+// GetCamera 获取摄像头.
 func (m *Manager) GetCamera(id string) (*Camera, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -180,7 +180,7 @@ func (m *Manager) GetCamera(id string) (*Camera, error) {
 	return cam, nil
 }
 
-// ListCameras 列出所有摄像头
+// ListCameras 列出所有摄像头.
 func (m *Manager) ListCameras() []*Camera {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -192,7 +192,7 @@ func (m *Manager) ListCameras() []*Camera {
 	return cameras
 }
 
-// UpdateCameraStatus 更新摄像头状态
+// UpdateCameraStatus 更新摄像头状态.
 func (m *Manager) UpdateCameraStatus(id string, status CameraStatus) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -220,7 +220,7 @@ func (m *Manager) UpdateCameraStatus(id string, status CameraStatus) error {
 
 // ========== 实时流管理 ==========
 
-// StartStream 开始实时流（模拟）
+// StartStream 开始实时流（模拟）.
 func (m *Manager) StartStream(cameraID string) (*CameraStream, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -253,7 +253,7 @@ func (m *Manager) StartStream(cameraID string) (*CameraStream, error) {
 	return stream, nil
 }
 
-// StopStream 停止实时流
+// StopStream 停止实时流.
 func (m *Manager) StopStream(cameraID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -262,7 +262,7 @@ func (m *Manager) StopStream(cameraID string) {
 	log.Printf("[surveillance] stream stopped: %s", cameraID)
 }
 
-// GetStream 获取实时流信息
+// GetStream 获取实时流信息.
 func (m *Manager) GetStream(cameraID string) (*CameraStream, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -274,7 +274,7 @@ func (m *Manager) GetStream(cameraID string) (*CameraStream, error) {
 	return stream, nil
 }
 
-// ListStreams 列出所有活动流
+// ListStreams 列出所有活动流.
 func (m *Manager) ListStreams() []*CameraStream {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -288,7 +288,7 @@ func (m *Manager) ListStreams() []*CameraStream {
 
 // ========== 录像管理 ==========
 
-// StartRecording 开始录像
+// StartRecording 开始录像.
 func (m *Manager) StartRecording(cameraID string, mode RecordingMode) (*Recording, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -314,7 +314,7 @@ func (m *Manager) StartRecording(cameraID string, mode RecordingMode) (*Recordin
 	return recording, nil
 }
 
-// StopRecording 停止录像
+// StopRecording 停止录像.
 func (m *Manager) StopRecording(recordingID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -331,7 +331,7 @@ func (m *Manager) StopRecording(recordingID string) error {
 	return fmt.Errorf("recording %s not found or already stopped", recordingID)
 }
 
-// ListRecordings 列出录像
+// ListRecordings 列出录像.
 func (m *Manager) ListRecordings(cameraID string) []*Recording {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -345,7 +345,7 @@ func (m *Manager) ListRecordings(cameraID string) []*Recording {
 	return result
 }
 
-// GetRecording 获取录像详情
+// GetRecording 获取录像详情.
 func (m *Manager) GetRecording(id string) (*Recording, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -360,7 +360,7 @@ func (m *Manager) GetRecording(id string) (*Recording, error) {
 
 // ========== 录像计划 ==========
 
-// AddSchedule 添加录像计划
+// AddSchedule 添加录像计划.
 func (m *Manager) AddSchedule(schedule *RecordingSchedule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -378,7 +378,7 @@ func (m *Manager) AddSchedule(schedule *RecordingSchedule) error {
 	return nil
 }
 
-// ListSchedules 列出录像计划
+// ListSchedules 列出录像计划.
 func (m *Manager) ListSchedules(cameraID string) []*RecordingSchedule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -394,7 +394,7 @@ func (m *Manager) ListSchedules(cameraID string) []*RecordingSchedule {
 
 // ========== 移动侦测和AI检测 ==========
 
-// SetMotionDetection 配置移动侦测
+// SetMotionDetection 配置移动侦测.
 func (m *Manager) SetMotionDetection(config *MotionDetection) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -409,7 +409,7 @@ func (m *Manager) SetMotionDetection(config *MotionDetection) error {
 	return nil
 }
 
-// GetMotionDetection 获取移动侦测配置
+// GetMotionDetection 获取移动侦测配置.
 func (m *Manager) GetMotionDetection(cameraID string) (*MotionDetection, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -421,7 +421,7 @@ func (m *Manager) GetMotionDetection(cameraID string) (*MotionDetection, error) 
 	return config, nil
 }
 
-// SimulateMotionEvent 模拟移动侦测事件（用于演示）
+// SimulateMotionEvent 模拟移动侦测事件（用于演示）.
 func (m *Manager) SimulateMotionEvent(cameraID string) (*MotionEvent, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -476,7 +476,7 @@ func (m *Manager) SimulateMotionEvent(cameraID string) (*MotionEvent, error) {
 	return event, nil
 }
 
-// GetMotionEvents 获取移动侦测事件列表
+// GetMotionEvents 获取移动侦测事件列表.
 func (m *Manager) GetMotionEvents(cameraID string, limit int) []*MotionEvent {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -494,7 +494,7 @@ func (m *Manager) GetMotionEvents(cameraID string, limit int) []*MotionEvent {
 
 // ========== 告警管理 ==========
 
-// generateAlert 生成告警（内部方法，调用者需持有锁）
+// generateAlert 生成告警（内部方法，调用者需持有锁）.
 func (m *Manager) generateAlert(cameraID string, eventType EventType, level AlertLevel, message string) {
 	cam, exists := m.cameras[cameraID]
 	camName := cameraID
@@ -522,7 +522,7 @@ func (m *Manager) generateAlert(cameraID string, eventType EventType, level Aler
 	}
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (m *Manager) GetAlerts(cameraID string, status AlertStatus, limit int) []*Alert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -543,7 +543,7 @@ func (m *Manager) GetAlerts(cameraID string, status AlertStatus, limit int) []*A
 	return result
 }
 
-// AckAlert 确认告警
+// AckAlert 确认告警.
 func (m *Manager) AckAlert(alertID, ackedBy string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -560,7 +560,7 @@ func (m *Manager) AckAlert(alertID, ackedBy string) error {
 	return fmt.Errorf("alert %s not found", alertID)
 }
 
-// SetAlertCallback 设置告警回调
+// SetAlertCallback 设置告警回调.
 func (m *Manager) SetAlertCallback(callback func(*Alert)) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -570,7 +570,7 @@ func (m *Manager) SetAlertCallback(callback func(*Alert)) {
 
 // ========== 联动规则 ==========
 
-// AddActionRule 添加联动规则
+// AddActionRule 添加联动规则.
 func (m *Manager) AddActionRule(rule *ActionRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -587,7 +587,7 @@ func (m *Manager) AddActionRule(rule *ActionRule) error {
 	return nil
 }
 
-// ListActionRules 列出联动规则
+// ListActionRules 列出联动规则.
 func (m *Manager) ListActionRules(cameraID string) []*ActionRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -603,7 +603,7 @@ func (m *Manager) ListActionRules(cameraID string) []*ActionRule {
 
 // ========== 快照 ==========
 
-// TakeSnapshot 抓取快照（模拟）
+// TakeSnapshot 抓取快照（模拟）.
 func (m *Manager) TakeSnapshot(cameraID string) (*Snapshot, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -632,7 +632,7 @@ func (m *Manager) TakeSnapshot(cameraID string) (*Snapshot, error) {
 	return snapshot, nil
 }
 
-// GetSnapshots 获取快照列表
+// GetSnapshots 获取快照列表.
 func (m *Manager) GetSnapshots(cameraID string, limit int) []*Snapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -650,7 +650,7 @@ func (m *Manager) GetSnapshots(cameraID string, limit int) []*Snapshot {
 
 // ========== 分组管理 ==========
 
-// CreateGroup 创建摄像头分组
+// CreateGroup 创建摄像头分组.
 func (m *Manager) CreateGroup(group *CameraGroup) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -675,7 +675,7 @@ func (m *Manager) CreateGroup(group *CameraGroup) error {
 	return nil
 }
 
-// UpdateGroup 更新分组
+// UpdateGroup 更新分组.
 func (m *Manager) UpdateGroup(group *CameraGroup) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -695,7 +695,7 @@ func (m *Manager) UpdateGroup(group *CameraGroup) error {
 	return nil
 }
 
-// DeleteGroup 删除分组
+// DeleteGroup 删除分组.
 func (m *Manager) DeleteGroup(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -708,7 +708,7 @@ func (m *Manager) DeleteGroup(id string) error {
 	return nil
 }
 
-// GetGroup 获取分组
+// GetGroup 获取分组.
 func (m *Manager) GetGroup(id string) (*CameraGroup, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -720,7 +720,7 @@ func (m *Manager) GetGroup(id string) (*CameraGroup, error) {
 	return group, nil
 }
 
-// ListGroups 列出所有分组
+// ListGroups 列出所有分组.
 func (m *Manager) ListGroups() []*CameraGroup {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -734,7 +734,7 @@ func (m *Manager) ListGroups() []*CameraGroup {
 
 // ========== 存储管理 ==========
 
-// SetStorageQuota 设置存储配额
+// SetStorageQuota 设置存储配额.
 func (m *Manager) SetStorageQuota(quota *StorageQuota) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -748,7 +748,7 @@ func (m *Manager) SetStorageQuota(quota *StorageQuota) error {
 	return nil
 }
 
-// GetStorageQuota 获取存储配额
+// GetStorageQuota 获取存储配额.
 func (m *Manager) GetStorageQuota(cameraID string) (*StorageQuota, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -760,7 +760,7 @@ func (m *Manager) GetStorageQuota(cameraID string) (*StorageQuota, error) {
 	return quota, nil
 }
 
-// CheckAndCleanStorage 检查并清理存储（循环录像）
+// CheckAndCleanStorage 检查并清理存储（循环录像）.
 func (m *Manager) CheckAndCleanStorage() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -780,7 +780,7 @@ func (m *Manager) CheckAndCleanStorage() {
 
 // ========== 统计 ==========
 
-// GetStats 获取监控系统统计
+// GetStats 获取监控系统统计.
 func (m *Manager) GetStats() *SurveillanceStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -821,7 +821,7 @@ func (m *Manager) GetStats() *SurveillanceStats {
 
 // ========== 系统管理 ==========
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -838,7 +838,7 @@ func (m *Manager) Start() {
 	go m.monitorLoop()
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -852,7 +852,7 @@ func (m *Manager) Stop() {
 	log.Println("[surveillance] manager stopped")
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (m *Manager) monitorLoop() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
@@ -868,7 +868,7 @@ func (m *Manager) monitorLoop() {
 	}
 }
 
-// checkCameraStatus 检查摄像头状态
+// checkCameraStatus 检查摄像头状态.
 func (m *Manager) checkCameraStatus() {
 	m.mu.Lock()
 	defer m.mu.Unlock()

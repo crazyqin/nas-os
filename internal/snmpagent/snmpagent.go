@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// SNMPConfig 定义 SNMP 代理配置
+// SNMPConfig 定义 SNMP 代理配置.
 type SNMPConfig struct {
 	ListenAddr string `json:"listen_addr"`        // 监听地址，默认 ":161"
 	Community  string `json:"community"`          // SNMP v2c community 字符串
@@ -18,7 +18,7 @@ type SNMPConfig struct {
 	Enabled    bool   `json:"enabled"`            // 是否启用
 }
 
-// SNMPMetric 定义 SNMP 指标结构
+// SNMPMetric 定义 SNMP 指标结构.
 type SNMPMetric struct {
 	OID       string            `json:"oid"`        // OID 标识符
 	Name      string            `json:"name"`       // 指标名称
@@ -28,7 +28,7 @@ type SNMPMetric struct {
 	UpdatedAt time.Time         `json:"updated_at"` // 更新时间
 }
 
-// Agent 是 SNMP 监控代理
+// Agent 是 SNMP 监控代理.
 type Agent struct {
 	mu      sync.RWMutex
 	config  SNMPConfig
@@ -37,7 +37,7 @@ type Agent struct {
 	running bool
 }
 
-// NewAgent 创建一个新的 SNMP 代理
+// NewAgent 创建一个新的 SNMP 代理.
 func NewAgent(cfg *SNMPConfig) *Agent {
 	if cfg == nil {
 		cfg = &SNMPConfig{
@@ -67,7 +67,7 @@ func NewAgent(cfg *SNMPConfig) *Agent {
 	return a
 }
 
-// Start 启动 SNMP 代理（模拟模式）
+// Start 启动 SNMP 代理（模拟模式）.
 func (a *Agent) Start() error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -82,7 +82,7 @@ func (a *Agent) Start() error {
 	return nil
 }
 
-// Stop 停止 SNMP 代理
+// Stop 停止 SNMP 代理.
 func (a *Agent) Stop() error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -97,7 +97,7 @@ func (a *Agent) Stop() error {
 	return nil
 }
 
-// RegisterMetric 注册一个新的 SNMP 指标
+// RegisterMetric 注册一个新的 SNMP 指标.
 func (a *Agent) RegisterMetric(oid, name string, value interface{}, metricType string, labels map[string]string) error {
 	if oid == "" {
 		return fmt.Errorf("OID cannot be empty")
@@ -124,7 +124,7 @@ func (a *Agent) RegisterMetric(oid, name string, value interface{}, metricType s
 	return nil
 }
 
-// UpdateMetric 更新指定 OID 的指标值
+// UpdateMetric 更新指定 OID 的指标值.
 func (a *Agent) UpdateMetric(oid string, value interface{}) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -139,7 +139,7 @@ func (a *Agent) UpdateMetric(oid string, value interface{}) error {
 	return nil
 }
 
-// GetMetric 获取指定 OID 的指标
+// GetMetric 获取指定 OID 的指标.
 func (a *Agent) GetMetric(oid string) (*SNMPMetric, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -153,7 +153,7 @@ func (a *Agent) GetMetric(oid string) (*SNMPMetric, error) {
 	return &cp, nil
 }
 
-// ListMetrics 列出所有已注册的指标
+// ListMetrics 列出所有已注册的指标.
 func (a *Agent) ListMetrics() []SNMPMetric {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -165,7 +165,7 @@ func (a *Agent) ListMetrics() []SNMPMetric {
 	return result
 }
 
-// UnregisterMetric 注销指定 OID 的指标
+// UnregisterMetric 注销指定 OID 的指标.
 func (a *Agent) UnregisterMetric(oid string) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -178,7 +178,7 @@ func (a *Agent) UnregisterMetric(oid string) error {
 	return nil
 }
 
-// GetStatus 返回 SNMP 代理的运行状态
+// GetStatus 返回 SNMP 代理的运行状态.
 func (a *Agent) GetStatus() map[string]interface{} {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -192,21 +192,21 @@ func (a *Agent) GetStatus() map[string]interface{} {
 	}
 }
 
-// GetConfig 返回当前 SNMP 配置
+// GetConfig 返回当前 SNMP 配置.
 func (a *Agent) GetConfig() SNMPConfig {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	return a.config
 }
 
-// UpdateConfig 更新 SNMP 配置
+// UpdateConfig 更新 SNMP 配置.
 func (a *Agent) UpdateConfig(cfg SNMPConfig) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.config = cfg
 }
 
-// registerDefaultMetrics 预注册常用的 NAS SNMP 指标
+// registerDefaultMetrics 预注册常用的 NAS SNMP 指标.
 func (a *Agent) registerDefaultMetrics() {
 	defaults := []struct {
 		oid    string

@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// SystemLoadWidgetData 系统负载Widget数据
+// SystemLoadWidgetData 系统负载Widget数据.
 type SystemLoadWidgetData struct {
 	Timestamp    time.Time `json:"timestamp"`
 	LoadAvg1     float64   `json:"loadAvg1"`
@@ -19,7 +19,7 @@ type SystemLoadWidgetData struct {
 	Status       string    `json:"status"` // normal, warning, critical
 }
 
-// StorageIOWidgetData 存储IO Widget数据
+// StorageIOWidgetData 存储IO Widget数据.
 type StorageIOWidgetData struct {
 	Timestamp  time.Time         `json:"timestamp"`
 	Devices    []StorageIODevice `json:"devices"`
@@ -29,7 +29,7 @@ type StorageIOWidgetData struct {
 	WriteRate  float64           `json:"writeRate"` // MB/s
 }
 
-// StorageIODevice 存储设备IO数据
+// StorageIODevice 存储设备IO数据.
 type StorageIODevice struct {
 	Device      string  `json:"device"`
 	ReadBytes   uint64  `json:"readBytes"`
@@ -40,7 +40,7 @@ type StorageIODevice struct {
 	Utilization float64 `json:"utilization"` // % 利用率
 }
 
-// NetworkTrafficWidgetData 网络流量Widget数据
+// NetworkTrafficWidgetData 网络流量Widget数据.
 type NetworkTrafficWidgetData struct {
 	Timestamp  time.Time                 `json:"timestamp"`
 	Interfaces []NetworkTrafficInterface `json:"interfaces"`
@@ -51,7 +51,7 @@ type NetworkTrafficWidgetData struct {
 	Trend      []TrafficTrendPoint       `json:"trend,omitempty"`
 }
 
-// NetworkTrafficInterface 网络接口流量数据
+// NetworkTrafficInterface 网络接口流量数据.
 type NetworkTrafficInterface struct {
 	Name    string  `json:"name"`
 	RXBytes uint64  `json:"rxBytes"`
@@ -61,14 +61,14 @@ type NetworkTrafficInterface struct {
 	Speed   uint64  `json:"speed"`  // Mbps (链路速度)
 }
 
-// TrafficTrendPoint 流量趋势点
+// TrafficTrendPoint 流量趋势点.
 type TrafficTrendPoint struct {
 	Timestamp time.Time `json:"timestamp"`
 	RXRate    float64   `json:"rxRate"`
 	TXRate    float64   `json:"txRate"`
 }
 
-// AlertSummaryWidgetData 告警汇总Widget数据
+// AlertSummaryWidgetData 告警汇总Widget数据.
 type AlertSummaryWidgetData struct {
 	Timestamp     time.Time    `json:"timestamp"`
 	TotalAlerts   int          `json:"totalAlerts"`
@@ -81,7 +81,7 @@ type AlertSummaryWidgetData struct {
 	LastAlertTime time.Time    `json:"lastAlertTime,omitempty"`
 }
 
-// AlertEntry 告警条目
+// AlertEntry 告警条目.
 type AlertEntry struct {
 	ID         string    `json:"id"`
 	Level      string    `json:"level"`  // critical, warning, info

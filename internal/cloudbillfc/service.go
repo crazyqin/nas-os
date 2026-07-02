@@ -7,19 +7,19 @@ import (
 	"time"
 )
 
-// Service 云存储成本预测服务
+// Service 云存储成本预测服务.
 type Service struct {
 	providers []ProviderPricing
 }
 
-// NewService 创建云存储成本预测服务
+// NewService 创建云存储成本预测服务.
 func NewService() *Service {
 	return &Service{
 		providers: defaultProviders(),
 	}
 }
 
-// Forecast 预测云存储成本
+// Forecast 预测云存储成本.
 func (s *Service) Forecast(config ForecastConfig) (*CloudBillingForecast, error) {
 	if config.Months <= 0 {
 		config.Months = 12 // 默认12个月
@@ -72,7 +72,7 @@ func (s *Service) Forecast(config ForecastConfig) (*CloudBillingForecast, error)
 	return report, nil
 }
 
-// forecastSingle 预测单个服务商
+// forecastSingle 预测单个服务商.
 func (s *Service) forecastSingle(provider ProviderPricing, config ForecastConfig) MonthlyForecast {
 	trends := make([]CostTrend, 0, config.Months+1)
 
@@ -153,19 +153,19 @@ func (s *Service) forecastSingle(provider ProviderPricing, config ForecastConfig
 	}
 
 	return MonthlyForecast{
-		ProviderName:        provider.ProviderName,
-		Config:              config,
-		Trends:              trends,
-		TotalCost:           roundToTwo(totalCost),
-		AvgMonthly:          roundToTwo(avgMonthly),
-		PeakMonthly:         roundToTwo(peakMonthly),
-		GrowthPercent:       roundToTwo(growthPercent),
-		FinalMonthlyCost:    roundToTwo(finalCost),
-		InitialMonthlyCost:  roundToTwo(initialCost),
+		ProviderName:       provider.ProviderName,
+		Config:             config,
+		Trends:             trends,
+		TotalCost:          roundToTwo(totalCost),
+		AvgMonthly:         roundToTwo(avgMonthly),
+		PeakMonthly:        roundToTwo(peakMonthly),
+		GrowthPercent:      roundToTwo(growthPercent),
+		FinalMonthlyCost:   roundToTwo(finalCost),
+		InitialMonthlyCost: roundToTwo(initialCost),
 	}
 }
 
-// calcStorageCost 计算存储费用（支持分级定价）
+// calcStorageCost 计算存储费用（支持分级定价）.
 func (s *Service) calcStorageCost(provider ProviderPricing, storageGB float64) float64 {
 	if provider.TieredPricing && len(provider.Tiers) > 0 {
 		return s.calcTieredStorageCost(provider.Tiers, storageGB)
@@ -173,7 +173,7 @@ func (s *Service) calcStorageCost(provider ProviderPricing, storageGB float64) f
 	return storageGB * provider.StoragePerGB
 }
 
-// calcTieredStorageCost 分级存储费用计算
+// calcTieredStorageCost 分级存储费用计算.
 func (s *Service) calcTieredStorageCost(tiers []PriceTier, storageGB float64) float64 {
 	total := 0.0
 	remaining := storageGB
@@ -200,7 +200,7 @@ func (s *Service) calcTieredStorageCost(tiers []PriceTier, storageGB float64) fl
 	return total
 }
 
-// CompareProviders 对比多个服务商
+// CompareProviders 对比多个服务商.
 func (s *Service) CompareProviders(storageGB, monthlyEgressGB, monthlyAPI10K float64) []ProviderComparison {
 	var results []ProviderComparison
 
@@ -241,7 +241,7 @@ func (s *Service) CompareProviders(storageGB, monthlyEgressGB, monthlyAPI10K flo
 	return results
 }
 
-// generateOptimizations 生成优化建议
+// generateOptimizations 生成优化建议.
 func (s *Service) generateOptimizations(config ForecastConfig, forecasts []MonthlyForecast) []OptimizationTip {
 	var tips []OptimizationTip
 
@@ -301,17 +301,17 @@ func (s *Service) generateOptimizations(config ForecastConfig, forecasts []Month
 	return tips
 }
 
-// GetProviders 获取服务商列表
+// GetProviders 获取服务商列表.
 func (s *Service) GetProviders() []ProviderPricing {
 	return s.providers
 }
 
-// roundToTwo 保留两位小数
+// roundToTwo 保留两位小数.
 func roundToTwo(v float64) float64 {
 	return math.Round(v*100) / 100
 }
 
-// defaultProviders 预置云服务商定价
+// defaultProviders 预置云服务商定价.
 func defaultProviders() []ProviderPricing {
 	return []ProviderPricing{
 		{

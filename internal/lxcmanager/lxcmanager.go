@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// ContainerStatus 容器状态
+// ContainerStatus 容器状态.
 type ContainerStatus string
 
 const (
@@ -20,7 +20,7 @@ const (
 	StatusMigrating ContainerStatus = "migrating"
 )
 
-// NetworkType 网络类型
+// NetworkType 网络类型.
 type NetworkType string
 
 const (
@@ -31,7 +31,7 @@ const (
 	NetNone     NetworkType = "none"
 )
 
-// ContainerConfig 容器配置
+// ContainerConfig 容器配置.
 type ContainerConfig struct {
 	Name        string            `json:"name"`
 	Template    string            `json:"template"`
@@ -49,7 +49,7 @@ type ContainerConfig struct {
 	Labels      map[string]string `json:"labels"`
 }
 
-// NetworkConfig 网络配置
+// NetworkConfig 网络配置.
 type NetworkConfig struct {
 	Type      NetworkType `json:"type"`
 	Bridge    string      `json:"bridge"`
@@ -61,7 +61,7 @@ type NetworkConfig struct {
 	MAC       string      `json:"mac"`
 }
 
-// ResourceLimits 资源限制
+// ResourceLimits 资源限制.
 type ResourceLimits struct {
 	CPUQuota    int64  `json:"cpuQuota"`
 	CPUPeriod   int64  `json:"cpuPeriod"`
@@ -71,7 +71,7 @@ type ResourceLimits struct {
 	BlkioWeight uint16 `json:"blkioWeight"`
 }
 
-// ContainerInfo 容器信息
+// ContainerInfo 容器信息.
 type ContainerInfo struct {
 	ID        string          `json:"id"`
 	Name      string          `json:"name"`
@@ -83,7 +83,7 @@ type ContainerInfo struct {
 	Usage     ResourceUsage   `json:"usage"`
 }
 
-// ResourceUsage 资源使用量
+// ResourceUsage 资源使用量.
 type ResourceUsage struct {
 	CPUPercent  float64 `json:"cpuPercent"`
 	MemoryUsed  int64   `json:"memoryUsed"`
@@ -94,7 +94,7 @@ type ResourceUsage struct {
 	NetOutBytes int64   `json:"netOutBytes"`
 }
 
-// TemplateInfo 模板信息
+// TemplateInfo 模板信息.
 type TemplateInfo struct {
 	Name        string    `json:"name"`
 	Alias       string    `json:"alias"`
@@ -105,7 +105,7 @@ type TemplateInfo struct {
 	Description string    `json:"description"`
 }
 
-// ManagerConfig 管器配置
+// ManagerConfig 管器配置.
 type ManagerConfig struct {
 	StoragePath   string `json:"storagePath"`
 	BridgeName    string `json:"bridgeName"`
@@ -115,7 +115,7 @@ type ManagerConfig struct {
 	LogPath       string `json:"logPath"`
 }
 
-// DefaultManagerConfig 默认管理器配置
+// DefaultManagerConfig 默认管理器配置.
 func DefaultManagerConfig() *ManagerConfig {
 	return &ManagerConfig{
 		StoragePath:   "/var/lib/nas-os/lxcmanager",
@@ -127,7 +127,7 @@ func DefaultManagerConfig() *ManagerConfig {
 	}
 }
 
-// Manager LXC 容器管理器
+// Manager LXC 容器管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	config     *ManagerConfig
@@ -135,7 +135,7 @@ type Manager struct {
 	templates  map[string]*TemplateInfo
 }
 
-// NewManager 创建 LXC 容器管理器
+// NewManager 创建 LXC 容器管理器.
 func NewManager(config *ManagerConfig) *Manager {
 	if config == nil {
 		config = DefaultManagerConfig()
@@ -147,7 +147,7 @@ func NewManager(config *ManagerConfig) *Manager {
 	}
 }
 
-// CreateContainer 创建容器
+// CreateContainer 创建容器.
 func (m *Manager) CreateContainer(ctx context.Context, cfg ContainerConfig) (*ContainerInfo, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -186,7 +186,7 @@ func (m *Manager) CreateContainer(ctx context.Context, cfg ContainerConfig) (*Co
 	return info, nil
 }
 
-// DestroyContainer 销毁容器
+// DestroyContainer 销毁容器.
 func (m *Manager) DestroyContainer(ctx context.Context, name string) error {
 	if err := ctx.Err(); err != nil {
 		return err
@@ -206,7 +206,7 @@ func (m *Manager) DestroyContainer(ctx context.Context, name string) error {
 	return nil
 }
 
-// StartContainer 启动容器
+// StartContainer 启动容器.
 func (m *Manager) StartContainer(ctx context.Context, name string) error {
 	if err := ctx.Err(); err != nil {
 		return err
@@ -228,7 +228,7 @@ func (m *Manager) StartContainer(ctx context.Context, name string) error {
 	return nil
 }
 
-// StopContainer 停止容器
+// StopContainer 停止容器.
 func (m *Manager) StopContainer(ctx context.Context, name string) error {
 	if err := ctx.Err(); err != nil {
 		return err
@@ -248,7 +248,7 @@ func (m *Manager) StopContainer(ctx context.Context, name string) error {
 	return nil
 }
 
-// PauseContainer 暂停容器
+// PauseContainer 暂停容器.
 func (m *Manager) PauseContainer(ctx context.Context, name string) error {
 	if err := ctx.Err(); err != nil {
 		return err
@@ -268,7 +268,7 @@ func (m *Manager) PauseContainer(ctx context.Context, name string) error {
 	return nil
 }
 
-// GetContainer 获取容器信息
+// GetContainer 获取容器信息.
 func (m *Manager) GetContainer(name string) (*ContainerInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -280,7 +280,7 @@ func (m *Manager) GetContainer(name string) (*ContainerInfo, error) {
 	return info, nil
 }
 
-// ListContainers 列出所有容器
+// ListContainers 列出所有容器.
 func (m *Manager) ListContainers() []*ContainerInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -292,7 +292,7 @@ func (m *Manager) ListContainers() []*ContainerInfo {
 	return result
 }
 
-// SetResourceLimits 设置资源限制
+// SetResourceLimits 设置资源限制.
 func (m *Manager) SetResourceLimits(ctx context.Context, name string, limits ResourceLimits) error {
 	if err := ctx.Err(); err != nil {
 		return err
@@ -315,7 +315,7 @@ func (m *Manager) SetResourceLimits(ctx context.Context, name string, limits Res
 	return nil
 }
 
-// ConfigureNetwork 配置容器网络
+// ConfigureNetwork 配置容器网络.
 func (m *Manager) ConfigureNetwork(ctx context.Context, name string, netCfg NetworkConfig) error {
 	if err := ctx.Err(); err != nil {
 		return err
@@ -332,7 +332,7 @@ func (m *Manager) ConfigureNetwork(ctx context.Context, name string, netCfg Netw
 	return nil
 }
 
-// ListTemplates 列出可用模板
+// ListTemplates 列出可用模板.
 func (m *Manager) ListTemplates() []*TemplateInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -344,7 +344,7 @@ func (m *Manager) ListTemplates() []*TemplateInfo {
 	return result
 }
 
-// RegisterTemplate 注册模板
+// RegisterTemplate 注册模板.
 func (m *Manager) RegisterTemplate(info TemplateInfo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -356,7 +356,7 @@ func (m *Manager) RegisterTemplate(info TemplateInfo) error {
 	return nil
 }
 
-// DeleteTemplate 删除模板
+// DeleteTemplate 删除模板.
 func (m *Manager) DeleteTemplate(name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -368,7 +368,7 @@ func (m *Manager) DeleteTemplate(name string) error {
 	return nil
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	return fmt.Sprintf("lxc-%d", time.Now().UnixNano())
 }

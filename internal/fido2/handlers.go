@@ -9,18 +9,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers FIDO2 API 处理器
+// Handlers FIDO2 API 处理器.
 type Handlers struct {
-	credManager    *CredentialManager
+	credManager     *CredentialManager
 	recoveryManager *RecoveryCodeManager
-	authenticator  *Authenticator
-	sessions       map[string]*Session
-	pendingRegs    map[string]*pendingRegistration
-	pendingAuths   map[string]*pendingAuthentication
-	config         *Config
+	authenticator   *Authenticator
+	sessions        map[string]*Session
+	pendingRegs     map[string]*pendingRegistration
+	pendingAuths    map[string]*pendingAuthentication
+	config          *Config
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(
 	credManager *CredentialManager,
 	recoveryManager *RecoveryCodeManager,
@@ -40,17 +40,17 @@ func NewHandlers(
 	}
 
 	return &Handlers{
-		credManager:    credManager,
+		credManager:     credManager,
 		recoveryManager: recoveryManager,
-		authenticator:  authenticator,
-		sessions:       make(map[string]*Session),
-		pendingRegs:    make(map[string]*pendingRegistration),
-		pendingAuths:   make(map[string]*pendingAuthentication),
-		config:         config,
+		authenticator:   authenticator,
+		sessions:        make(map[string]*Session),
+		pendingRegs:     make(map[string]*pendingRegistration),
+		pendingAuths:    make(map[string]*pendingAuthentication),
+		config:          config,
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	fido2 := r.Group("/fido2")
 	{
@@ -72,7 +72,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
@@ -81,14 +81,14 @@ type response struct {
 
 // ==================== 注册流程 ====================
 
-// beginRegistrationRequest 开始注册请求
+// beginRegistrationRequest 开始注册请求.
 type beginRegistrationRequest struct {
 	UserID      string `json:"user_id" binding:"required"`      // 用户 ID
 	UserName    string `json:"user_name" binding:"required"`    // 用户名
 	DisplayName string `json:"display_name" binding:"required"` // 显示名称
 }
 
-// beginRegistration 开始注册
+// beginRegistration 开始注册.
 func (h *Handlers) beginRegistration(c *gin.Context) {
 	var req beginRegistrationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -138,14 +138,14 @@ func (h *Handlers) beginRegistration(c *gin.Context) {
 	})
 }
 
-// finishRegistrationRequest 完成注册请求
+// finishRegistrationRequest 完成注册请求.
 type finishRegistrationRequest struct {
-	UserID   string              `json:"user_id" binding:"required"`   // 用户 ID
-	Name     string              `json:"name" binding:"required"`      // 凭据名称
+	UserID   string               `json:"user_id" binding:"required"`  // 用户 ID
+	Name     string               `json:"name" binding:"required"`     // 凭据名称
 	Response RegistrationResponse `json:"response" binding:"required"` // 注册响应
 }
 
-// finishRegistration 完成注册
+// finishRegistration 完成注册.
 func (h *Handlers) finishRegistration(c *gin.Context) {
 	var req finishRegistrationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -231,12 +231,12 @@ func (h *Handlers) finishRegistration(c *gin.Context) {
 
 // ==================== 登录流程 ====================
 
-// beginLoginRequest 开始登录请求
+// beginLoginRequest 开始登录请求.
 type beginLoginRequest struct {
 	UserID string `json:"user_id" binding:"required"` // 用户 ID
 }
 
-// beginLogin 开始登录
+// beginLogin 开始登录.
 func (h *Handlers) beginLogin(c *gin.Context) {
 	var req beginLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -287,13 +287,13 @@ func (h *Handlers) beginLogin(c *gin.Context) {
 	})
 }
 
-// finishLoginRequest 完成登录请求
+// finishLoginRequest 完成登录请求.
 type finishLoginRequest struct {
-	UserID   string                `json:"user_id" binding:"required"`   // 用户 ID
+	UserID   string                 `json:"user_id" binding:"required"`  // 用户 ID
 	Response AuthenticationResponse `json:"response" binding:"required"` // 认证响应
 }
 
-// finishLogin 完成登录
+// finishLogin 完成登录.
 func (h *Handlers) finishLogin(c *gin.Context) {
 	var req finishLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -419,7 +419,7 @@ func (h *Handlers) finishLogin(c *gin.Context) {
 
 // ==================== 凭据管理 ====================
 
-// listCredentials 列出用户凭据
+// listCredentials 列出用户凭据.
 func (h *Handlers) listCredentials(c *gin.Context) {
 	userID := c.Query("user_id")
 	if userID == "" {
@@ -446,7 +446,7 @@ func (h *Handlers) listCredentials(c *gin.Context) {
 	})
 }
 
-// deleteCredential 删除凭据
+// deleteCredential 删除凭据.
 func (h *Handlers) deleteCredential(c *gin.Context) {
 	credID := c.Param("id")
 	if credID == "" {
@@ -494,13 +494,13 @@ func (h *Handlers) deleteCredential(c *gin.Context) {
 
 // ==================== 恢复码 ====================
 
-// generateRecoveryCodesRequest 生成恢复码请求
+// generateRecoveryCodesRequest 生成恢复码请求.
 type generateRecoveryCodesRequest struct {
 	UserID string `json:"user_id" binding:"required"` // 用户 ID
-	Count  int    `json:"count"`                       // 恢复码数量（默认 8）
+	Count  int    `json:"count"`                      // 恢复码数量（默认 8）
 }
 
-// generateRecoveryCodes 生成恢复码
+// generateRecoveryCodes 生成恢复码.
 func (h *Handlers) generateRecoveryCodes(c *gin.Context) {
 	var req generateRecoveryCodesRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -529,20 +529,20 @@ func (h *Handlers) generateRecoveryCodes(c *gin.Context) {
 		Code:    http.StatusOK,
 		Message: "恢复码已生成",
 		Data: map[string]interface{}{
-			"codes": codes,
-			"count": len(codes),
+			"codes":   codes,
+			"count":   len(codes),
 			"warning": "请妥善保管恢复码，每个恢复码只能使用一次",
 		},
 	})
 }
 
-// verifyRecoveryCodeRequest 验证恢复码请求
+// verifyRecoveryCodeRequest 验证恢复码请求.
 type verifyRecoveryCodeRequest struct {
 	UserID string `json:"user_id" binding:"required"` // 用户 ID
 	Code   string `json:"code" binding:"required"`    // 恢复码
 }
 
-// verifyRecoveryCode 验证恢复码
+// verifyRecoveryCode 验证恢复码.
 func (h *Handlers) verifyRecoveryCode(c *gin.Context) {
 	var req verifyRecoveryCodeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -576,7 +576,7 @@ func (h *Handlers) verifyRecoveryCode(c *gin.Context) {
 	})
 }
 
-// base64URLEncodeDecode Base64 URL 解码
+// base64URLEncodeDecode Base64 URL 解码.
 func base64URLEncodeDecode(s string) ([]byte, error) {
 	return base64.URLEncoding.DecodeString(s)
 }

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Manager 智能洞察管理器
+// Manager 智能洞察管理器.
 type Manager struct {
 	mu              sync.RWMutex
 	insights        map[string]*Insight
@@ -19,7 +19,7 @@ type Manager struct {
 	lastReport      *InsightReport
 }
 
-// NewManager 创建智能洞察管理器
+// NewManager 创建智能洞察管理器.
 func NewManager() *Manager {
 	m := &Manager{
 		insights:        make(map[string]*Insight),
@@ -33,12 +33,12 @@ func NewManager() *Manager {
 	return m
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	return fmt.Sprintf("%d-%04d", time.Now().UnixNano(), rand.Intn(10000))
 }
 
-// seedData 初始化模拟数据
+// seedData 初始化模拟数据.
 func (m *Manager) seedData() {
 	now := time.Now()
 
@@ -80,7 +80,7 @@ func (m *Manager) seedData() {
 	}
 }
 
-// AnalyzeUsage 分析系统使用趋势
+// AnalyzeUsage 分析系统使用趋势.
 func (m *Manager) AnalyzeUsage(category string, period string) []*UsageTrend {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -141,7 +141,7 @@ func (m *Manager) AnalyzeUsage(category string, period string) []*UsageTrend {
 	return trends
 }
 
-// GetRecommendations 获取智能推荐
+// GetRecommendations 获取智能推荐.
 func (m *Manager) GetRecommendations(category string) []*Recommendation {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -155,7 +155,7 @@ func (m *Manager) GetRecommendations(category string) []*Recommendation {
 	return result
 }
 
-// DetectAnomalies 检测异常行为
+// DetectAnomalies 检测异常行为.
 func (m *Manager) DetectAnomalies(anomalyType string) []*Anomaly {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -169,7 +169,7 @@ func (m *Manager) DetectAnomalies(anomalyType string) []*Anomaly {
 	return result
 }
 
-// GenerateReport 生成系统洞察报告
+// GenerateReport 生成系统洞察报告.
 func (m *Manager) GenerateReport() *InsightReport {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -222,7 +222,7 @@ func (m *Manager) GenerateReport() *InsightReport {
 	return report
 }
 
-// analyzeUsageInternal 内部分析使用趋势（不加锁）
+// analyzeUsageInternal 内部分析使用趋势（不加锁）.
 func (m *Manager) analyzeUsageInternal(category string, _ string) []*UsageTrend {
 	trends := make([]*UsageTrend, 0)
 
@@ -265,7 +265,7 @@ func (m *Manager) analyzeUsageInternal(category string, _ string) []*UsageTrend 
 	return trends
 }
 
-// analyzeCostInternal 内部成本分析（不加锁）
+// analyzeCostInternal 内部成本分析（不加锁）.
 func (m *Manager) analyzeCostInternal() *CostAnalysis {
 	storageUsed := 780.0
 	storageTotal := 1000.0
@@ -291,14 +291,14 @@ func (m *Manager) analyzeCostInternal() *CostAnalysis {
 	}
 }
 
-// AnalyzeCost 成本效益分析
+// AnalyzeCost 成本效益分析.
 func (m *Manager) AnalyzeCost() *CostAnalysis {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.analyzeCostInternal()
 }
 
-// calculateHealthScore 计算系统健康分数
+// calculateHealthScore 计算系统健康分数.
 func (m *Manager) calculateHealthScore(insights []*Insight, anomalies []*Anomaly) float64 {
 	baseScore := 85.0
 
@@ -334,14 +334,14 @@ func (m *Manager) calculateHealthScore(insights []*Insight, anomalies []*Anomaly
 	return math.Round(baseScore*10) / 10
 }
 
-// GetLatestReport 获取最新报告
+// GetLatestReport 获取最新报告.
 func (m *Manager) GetLatestReport() *InsightReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.lastReport
 }
 
-// GetAllReports 获取所有历史报告
+// GetAllReports 获取所有历史报告.
 func (m *Manager) GetAllReports() []*InsightReport {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -353,7 +353,7 @@ func (m *Manager) GetAllReports() []*InsightReport {
 	return result
 }
 
-// GetStats 获取系统统计概览
+// GetStats 获取系统统计概览.
 func (m *Manager) GetStats() *StatsOverview {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

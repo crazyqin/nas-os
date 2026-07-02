@@ -6,17 +6,17 @@ import (
 	"sync"
 )
 
-// Deployer 应用部署器
+// Deployer 应用部署器.
 type Deployer struct {
 	mu       sync.RWMutex
 	manager  *WebAppManager
 	registry map[string]DeployFunc
 }
 
-// DeployFunc 部署函数类型
+// DeployFunc 部署函数类型.
 type DeployFunc func(app *WebApp) error
 
-// NewDeployer 创建部署器
+// NewDeployer 创建部署器.
 func NewDeployer(manager *WebAppManager) *Deployer {
 	d := &Deployer{
 		manager:  manager,
@@ -31,14 +31,14 @@ func NewDeployer(manager *WebAppManager) *Deployer {
 	return d
 }
 
-// RegisterDeployer 注册自定义部署器
+// RegisterDeployer 注册自定义部署器.
 func (d *Deployer) RegisterDeployer(appType string, fn DeployFunc) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	d.registry[appType] = fn
 }
 
-// Deploy 部署应用
+// Deploy 部署应用.
 func (d *Deployer) Deploy(config *DeployConfig) (*WebApp, error) {
 	// 创建应用
 	app, err := d.manager.CreateApp(config)
@@ -65,7 +65,7 @@ func (d *Deployer) Deploy(config *DeployConfig) (*WebApp, error) {
 	return app, nil
 }
 
-// deployDocker 部署 Docker 应用
+// deployDocker 部署 Docker 应用.
 func (d *Deployer) deployDocker(app *WebApp) error {
 	log.Printf("Deploying Docker app: %s (image: %s)", app.Name, app.Image)
 
@@ -91,28 +91,28 @@ func (d *Deployer) deployDocker(app *WebApp) error {
 	return nil
 }
 
-// pullImage 拉取 Docker 镜像
+// pullImage 拉取 Docker 镜像.
 func (d *Deployer) pullImage(image string) error {
 	log.Printf("Pulling image: %s", image)
 	// 实际实现：调用 Docker API 拉取镜像
 	return nil
 }
 
-// createContainer 创建 Docker 容器
+// createContainer 创建 Docker 容器.
 func (d *Deployer) createContainer(app *WebApp) error {
 	log.Printf("Creating container for app: %s", app.Name)
 	// 实际实现：调用 Docker API 创建容器
 	return nil
 }
 
-// startContainer 启动 Docker 容器
+// startContainer 启动 Docker 容器.
 func (d *Deployer) startContainer(app *WebApp) error {
 	log.Printf("Starting container for app: %s", app.Name)
 	// 实际实现：调用 Docker API 启动容器
 	return nil
 }
 
-// deployStatic 部署静态应用
+// deployStatic 部署静态应用.
 func (d *Deployer) deployStatic(app *WebApp) error {
 	log.Printf("Deploying static app: %s", app.Name)
 
@@ -132,7 +132,7 @@ func (d *Deployer) deployStatic(app *WebApp) error {
 	return nil
 }
 
-// deployProxy 部署反向代理应用
+// deployProxy 部署反向代理应用.
 func (d *Deployer) deployProxy(app *WebApp) error {
 	log.Printf("Deploying proxy app: %s", app.Name)
 
@@ -151,7 +151,7 @@ func (d *Deployer) deployProxy(app *WebApp) error {
 	return nil
 }
 
-// Undeploy 卸载应用
+// Undeploy 卸载应用.
 func (d *Deployer) Undeploy(appID string) error {
 	app, err := d.manager.GetApp(appID)
 	if err != nil {
@@ -185,28 +185,28 @@ func (d *Deployer) Undeploy(appID string) error {
 	return d.manager.DeleteApp(appID)
 }
 
-// cleanupDocker 清理 Docker 资源
+// cleanupDocker 清理 Docker 资源.
 func (d *Deployer) cleanupDocker(app *WebApp) error {
 	log.Printf("Cleaning up Docker resources for app: %s", app.Name)
 	// 实际实现：删除容器、卷等
 	return nil
 }
 
-// cleanupStatic 清理静态应用资源
+// cleanupStatic 清理静态应用资源.
 func (d *Deployer) cleanupStatic(app *WebApp) error {
 	log.Printf("Cleaning up static app resources: %s", app.Name)
 	// 实际实现：删除静态文件目录
 	return nil
 }
 
-// cleanupProxy 清理代理配置
+// cleanupProxy 清理代理配置.
 func (d *Deployer) cleanupProxy(app *WebApp) error {
 	log.Printf("Cleaning up proxy configuration: %s", app.Name)
 	// 实际实现：删除代理配置
 	return nil
 }
 
-// UpdateApp 更新已部署的应用
+// UpdateApp 更新已部署的应用.
 func (d *Deployer) UpdateApp(appID string, newVersion string) error {
 	app, err := d.manager.GetApp(appID)
 	if err != nil {
@@ -228,7 +228,7 @@ func (d *Deployer) UpdateApp(appID string, newVersion string) error {
 	}
 }
 
-// updateDockerApp 更新 Docker 应用
+// updateDockerApp 更新 Docker 应用.
 func (d *Deployer) updateDockerApp(app *WebApp, newVersion string) error {
 	// 1. 拉取新镜像
 	newImage := app.Image
@@ -249,14 +249,14 @@ func (d *Deployer) updateDockerApp(app *WebApp, newVersion string) error {
 	return d.manager.StartApp(app.ID)
 }
 
-// updateStaticApp 更新静态应用
+// updateStaticApp 更新静态应用.
 func (d *Deployer) updateStaticApp(app *WebApp) error {
 	log.Printf("Updating static app: %s", app.Name)
 	// 实际实现：更新静态文件
 	return nil
 }
 
-// updateProxyApp 更新代理应用
+// updateProxyApp 更新代理应用.
 func (d *Deployer) updateProxyApp(app *WebApp) error {
 	log.Printf("Updating proxy app: %s", app.Name)
 	// 实际实现：更新代理配置

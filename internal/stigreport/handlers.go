@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers STIG合规报告HTTP处理器
+// Handlers STIG合规报告HTTP处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	stigGroup := api.Group("/stig")
 	{
@@ -45,7 +45,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// addRule 添加规则
+// addRule 添加规则.
 func (h *Handlers) addRule(c *gin.Context) {
 	var rule STIGRule
 	if err := c.ShouldBindJSON(&rule); err != nil {
@@ -64,7 +64,7 @@ func (h *Handlers) addRule(c *gin.Context) {
 	})
 }
 
-// listRules 列出规则
+// listRules 列出规则.
 func (h *Handlers) listRules(c *gin.Context) {
 	var category *CheckCategory
 	if cat := c.Query("category"); cat != "" {
@@ -79,7 +79,7 @@ func (h *Handlers) listRules(c *gin.Context) {
 	})
 }
 
-// getRule 获取规则
+// getRule 获取规则.
 func (h *Handlers) getRule(c *gin.Context) {
 	id := c.Param("id")
 	rule, err := h.manager.GetRule(id)
@@ -90,7 +90,7 @@ func (h *Handlers) getRule(c *gin.Context) {
 	c.JSON(http.StatusOK, rule)
 }
 
-// runCheck 执行检查
+// runCheck 执行检查.
 func (h *Handlers) runCheck(c *gin.Context) {
 	ruleID := c.Param("ruleId")
 	var req struct {
@@ -110,7 +110,7 @@ func (h *Handlers) runCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "检查完成"})
 }
 
-// runAutomatedScan 运行自动扫描
+// runAutomatedScan 运行自动扫描.
 func (h *Handlers) runAutomatedScan(c *gin.Context) {
 	results := h.manager.RunAutomatedScan()
 	c.JSON(http.StatusOK, gin.H{
@@ -120,7 +120,7 @@ func (h *Handlers) runAutomatedScan(c *gin.Context) {
 	})
 }
 
-// generateReport 生成报告
+// generateReport 生成报告.
 func (h *Handlers) generateReport(c *gin.Context) {
 	var req struct {
 		Title  string `json:"title" binding:"required"`
@@ -138,7 +138,7 @@ func (h *Handlers) generateReport(c *gin.Context) {
 	})
 }
 
-// getReports 获取报告
+// getReports 获取报告.
 func (h *Handlers) getReports(c *gin.Context) {
 	reports := h.manager.GetReports(10)
 	c.JSON(http.StatusOK, gin.H{
@@ -147,7 +147,7 @@ func (h *Handlers) getReports(c *gin.Context) {
 	})
 }
 
-// scheduleScan 调度扫描
+// scheduleScan 调度扫描.
 func (h *Handlers) scheduleScan(c *gin.Context) {
 	var schedule ScheduledScan
 	if err := c.ShouldBindJSON(&schedule); err != nil {
@@ -166,7 +166,7 @@ func (h *Handlers) scheduleScan(c *gin.Context) {
 	})
 }
 
-// getSchedules 获取调度
+// getSchedules 获取调度.
 func (h *Handlers) getSchedules(c *gin.Context) {
 	schedules := h.manager.GetSchedules()
 	c.JSON(http.StatusOK, gin.H{
@@ -175,13 +175,13 @@ func (h *Handlers) getSchedules(c *gin.Context) {
 	})
 }
 
-// getStats 获取统计
+// getStats 获取统计.
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, stats)
 }
 
-// getComplianceRate 获取合规率
+// getComplianceRate 获取合规率.
 func (h *Handlers) getComplianceRate(c *gin.Context) {
 	rate := h.manager.GetComplianceRate()
 	c.JSON(http.StatusOK, gin.H{
@@ -189,7 +189,7 @@ func (h *Handlers) getComplianceRate(c *gin.Context) {
 	})
 }
 
-// getFindings 获取发现
+// getFindings 获取发现.
 func (h *Handlers) getFindings(c *gin.Context) {
 	findings := h.manager.GetFindingsBySeverity()
 	c.JSON(http.StatusOK, gin.H{

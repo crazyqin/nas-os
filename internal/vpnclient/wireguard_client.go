@@ -272,15 +272,15 @@ func (c *WireGuardClient) GeneratePeerConfig(privateKey, publicKey, endpoint str
 	var sb strings.Builder
 
 	sb.WriteString("[Interface]\n")
-	sb.WriteString(fmt.Sprintf("PrivateKey = %s\n", privateKey))
+	fmt.Fprintf(&sb, "PrivateKey = %s\n", privateKey)
 	sb.WriteString("DNS = 1.1.1.1, 1.0.0.1\n\n")
 
 	sb.WriteString("[Peer]\n")
-	sb.WriteString(fmt.Sprintf("PublicKey = %s\n", publicKey))
-	sb.WriteString(fmt.Sprintf("Endpoint = %s\n", endpoint))
+	fmt.Fprintf(&sb, "PublicKey = %s\n", publicKey)
+	fmt.Fprintf(&sb, "Endpoint = %s\n", endpoint)
 
 	if len(allowedIPs) > 0 {
-		sb.WriteString(fmt.Sprintf("AllowedIPs = %s\n", strings.Join(allowedIPs, ", ")))
+		fmt.Fprintf(&sb, "AllowedIPs = %s\n", strings.Join(allowedIPs, ", "))
 	} else {
 		sb.WriteString("AllowedIPs = 0.0.0.0/0\n")
 	}
@@ -403,31 +403,31 @@ func generateWireGuardConfig(config *WireGuardConfig) string {
 	var sb strings.Builder
 
 	sb.WriteString("[Interface]\n")
-	sb.WriteString(fmt.Sprintf("PrivateKey = %s\n", config.PrivateKey))
-	sb.WriteString(fmt.Sprintf("Address = %s\n", config.Address))
+	fmt.Fprintf(&sb, "PrivateKey = %s\n", config.PrivateKey)
+	fmt.Fprintf(&sb, "Address = %s\n", config.Address)
 
 	if len(config.DNS) > 0 {
-		sb.WriteString(fmt.Sprintf("DNS = %s\n", strings.Join(config.DNS, ", ")))
+		fmt.Fprintf(&sb, "DNS = %s\n", strings.Join(config.DNS, ", "))
 	}
 
 	if config.MTU > 0 {
-		sb.WriteString(fmt.Sprintf("MTU = %d\n", config.MTU))
+		fmt.Fprintf(&sb, "MTU = %d\n", config.MTU)
 	}
 
 	sb.WriteString("\n[Peer]\n")
-	sb.WriteString(fmt.Sprintf("PublicKey = %s\n", config.PublicKey))
-	sb.WriteString(fmt.Sprintf("Endpoint = %s\n", config.Endpoint))
+	fmt.Fprintf(&sb, "PublicKey = %s\n", config.PublicKey)
+	fmt.Fprintf(&sb, "Endpoint = %s\n", config.Endpoint)
 
 	if len(config.AllowedIPs) > 0 {
-		sb.WriteString(fmt.Sprintf("AllowedIPs = %s\n", strings.Join(config.AllowedIPs, ", ")))
+		fmt.Fprintf(&sb, "AllowedIPs = %s\n", strings.Join(config.AllowedIPs, ", "))
 	}
 
 	if config.Keepalive > 0 {
-		sb.WriteString(fmt.Sprintf("PersistentKeepalive = %d\n", config.Keepalive))
+		fmt.Fprintf(&sb, "PersistentKeepalive = %d\n", config.Keepalive)
 	}
 
 	if config.PresharedKey != "" {
-		sb.WriteString(fmt.Sprintf("PresharedKey = %s\n", config.PresharedKey))
+		fmt.Fprintf(&sb, "PresharedKey = %s\n", config.PresharedKey)
 	}
 
 	return sb.String()

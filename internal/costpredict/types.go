@@ -10,7 +10,7 @@ import (
 // 预测模型类型
 // ============================================================
 
-// PredictionMethod 预测方法
+// PredictionMethod 预测方法.
 type PredictionMethod string
 
 const (
@@ -19,7 +19,7 @@ const (
 	MethodMovingAverage        PredictionMethod = "moving_average"        // 移动平均
 )
 
-// ConfidenceLevel 置信度水平
+// ConfidenceLevel 置信度水平.
 type ConfidenceLevel string
 
 const (
@@ -28,7 +28,7 @@ const (
 	ConfidenceLow    ConfidenceLevel = "low"
 )
 
-// ForecastHorizon 预测时间范围
+// ForecastHorizon 预测时间范围.
 type ForecastHorizon string
 
 const (
@@ -42,7 +42,7 @@ const (
 // 历史数据类型
 // ============================================================
 
-// GrowthRecord 增长记录
+// GrowthRecord 增长记录.
 type GrowthRecord struct {
 	ID         string    `json:"id"`
 	Date       time.Time `json:"date"`
@@ -58,7 +58,7 @@ type GrowthRecord struct {
 // 预测结果类型
 // ============================================================
 
-// ForecastPoint 预测点
+// ForecastPoint 预测点.
 type ForecastPoint struct {
 	Date       time.Time       `json:"date"`
 	StorageGB  float64         `json:"storage_gb"`
@@ -68,7 +68,7 @@ type ForecastPoint struct {
 	LowerBound float64         `json:"lower_bound"` // 下界
 }
 
-// ForecastResult 预测结果
+// ForecastResult 预测结果.
 type ForecastResult struct {
 	ID             string           `json:"id"`
 	Method         PredictionMethod `json:"method"`
@@ -82,7 +82,7 @@ type ForecastResult struct {
 	GeneratedAt    time.Time        `json:"generated_at"`
 }
 
-// GrowthForecast 增长预测
+// GrowthForecast 增长预测.
 type GrowthForecast struct {
 	ID              string        `json:"id"`
 	CurrentStorage  float64       `json:"current_storage_gb"`
@@ -93,7 +93,7 @@ type GrowthForecast struct {
 	GeneratedAt     time.Time     `json:"generated_at"`
 }
 
-// GrowthPoint 增长预测点
+// GrowthPoint 增长预测点.
 type GrowthPoint struct {
 	Date      time.Time `json:"date"`
 	StorageGB float64   `json:"storage_gb"`
@@ -104,7 +104,7 @@ type GrowthPoint struct {
 // 预算告警类型
 // ============================================================
 
-// AlertType 告警类型
+// AlertType 告警类型.
 type AlertType string
 
 const (
@@ -114,7 +114,7 @@ const (
 	AlertCostAnomaly    AlertType = "cost_anomaly"    // 成本异常
 )
 
-// AlertSeverity 告警严重程度
+// AlertSeverity 告警严重程度.
 type AlertSeverity string
 
 const (
@@ -123,7 +123,7 @@ const (
 	SeverityInfo     AlertSeverity = "info"
 )
 
-// AlertConfig 告警配置
+// AlertConfig 告警配置.
 type AlertConfig struct {
 	ID                string    `json:"id"`
 	Name              string    `json:"name"`
@@ -138,7 +138,7 @@ type AlertConfig struct {
 	UpdatedAt         time.Time `json:"updated_at"`
 }
 
-// AlertConfigRequest 告警配置请求
+// AlertConfigRequest 告警配置请求.
 type AlertConfigRequest struct {
 	Name              string    `json:"name" binding:"required"`
 	Type              AlertType `json:"type" binding:"required"`
@@ -154,7 +154,7 @@ type AlertConfigRequest struct {
 // 报告类型
 // ============================================================
 
-// PredictionReport 预测报告
+// PredictionReport 预测报告.
 type PredictionReport struct {
 	ID              string         `json:"id"`
 	Title           string         `json:"title"`
@@ -167,7 +167,7 @@ type PredictionReport struct {
 	ValidUntil      time.Time      `json:"valid_until"`
 }
 
-// ReportSummary 报告摘要
+// ReportSummary 报告摘要.
 type ReportSummary struct {
 	CurrentMonthlyCost float64 `json:"current_monthly_cost"`
 	ForecastedCost     float64 `json:"forecasted_cost"`
@@ -183,7 +183,7 @@ type ReportSummary struct {
 // 配置类型
 // ============================================================
 
-// CostPredictConfig 成本预测配置
+// CostPredictConfig 成本预测配置.
 type CostPredictConfig struct {
 	Enabled             bool             `json:"enabled"`
 	DefaultMethod       PredictionMethod `json:"default_method"`
@@ -194,7 +194,7 @@ type CostPredictConfig struct {
 	UpdateIntervalHours int              `json:"update_interval_hours"`
 }
 
-// DefaultCostPredictConfig 默认配置
+// DefaultCostPredictConfig 默认配置.
 func DefaultCostPredictConfig() CostPredictConfig {
 	return CostPredictConfig{
 		Enabled:             true,

@@ -16,18 +16,18 @@ import (
 	"time"
 )
 
-// EncryptedPDFManager 加密 PDF 管理器
+// EncryptedPDFManager 加密 PDF 管理器.
 type EncryptedPDFManager struct {
 	mu sync.RWMutex
 
 	// 密码尝试限制
-	maxAttempts    int
-	blockDuration  time.Duration
-	attempts       map[string]int    // fileHash → 尝试次数
-	blocked        map[string]time.Time // fileHash → 封锁截止时间
+	maxAttempts   int
+	blockDuration time.Duration
+	attempts      map[string]int       // fileHash → 尝试次数
+	blocked       map[string]time.Time // fileHash → 封锁截止时间
 }
 
-// NewEncryptedPDFManager 创建加密 PDF 管理器
+// NewEncryptedPDFManager 创建加密 PDF 管理器.
 func NewEncryptedPDFManager() *EncryptedPDFManager {
 	return &EncryptedPDFManager{
 		maxAttempts:   5,
@@ -37,22 +37,22 @@ func NewEncryptedPDFManager() *EncryptedPDFManager {
 	}
 }
 
-// PDFOwnerPassword PDF 所有者密码错误
+// PDFOwnerPassword PDF 所有者密码错误.
 var ErrPDFOwnerPassword = fmt.Errorf("所有者密码错误")
 
-// PDFPasswordRequired 需要密码
+// PDFPasswordRequired 需要密码.
 var ErrPDFPasswordRequired = fmt.Errorf("PDF 文件已加密，需要密码")
 
-// PDFPasswordIncorrect 密码错误
+// PDFPasswordIncorrect 密码错误.
 var ErrPDFPasswordIncorrect = fmt.Errorf("密码错误")
 
-// PDFAttemptsExceeded 尝试次数过多
+// PDFAttemptsExceeded 尝试次数过多.
 var ErrPDFAttemptsExceeded = fmt.Errorf("密码尝试次数过多，已封锁")
 
-// PDFNotEncrypted PDF 未加密
+// PDFNotEncrypted PDF 未加密.
 var ErrPDFNotEncrypted = fmt.Errorf("PDF 文件未加密")
 
-// IsEncryptedPDF 检测 PDF 文件是否加密
+// IsEncryptedPDF 检测 PDF 文件是否加密.
 func (m *EncryptedPDFManager) IsEncryptedPDF(ctx context.Context, filePath string) (bool, error) {
 	// 读取 PDF 文件头部
 	data, err := os.ReadFile(filePath)
@@ -63,14 +63,14 @@ func (m *EncryptedPDFManager) IsEncryptedPDF(ctx context.Context, filePath strin
 	return IsEncryptedPDFBytes(data), nil
 }
 
-// IsEncryptedPDFBytes 检测 PDF 字节流是否加密
+// IsEncryptedPDFBytes 检测 PDF 字节流是否加密.
 func IsEncryptedPDFBytes(data []byte) bool {
 	content := string(data)
 	// 检查 /Encrypt 字典标记
 	return strings.Contains(content, "/Encrypt")
 }
 
-// UnlockPDF 用密码解锁加密 PDF 并生成预览
+// UnlockPDF 用密码解锁加密 PDF 并生成预览.
 func (m *EncryptedPDFManager) UnlockPDF(ctx context.Context, filePath, password string) (string, error) {
 	// 获取文件哈希用于追踪
 	fileHash, err := getFileHash(filePath)
@@ -124,7 +124,7 @@ func (m *EncryptedPDFManager) UnlockPDF(ctx context.Context, filePath, password 
 	return decryptedPath, nil
 }
 
-// GenerateEncryptedPDFPreview 生成加密 PDF 的预览
+// GenerateEncryptedPDFPreview 生成加密 PDF 的预览.
 func (m *EncryptedPDFManager) GenerateEncryptedPDFPreview(ctx context.Context, filePath, password string, pageNum int) (*PreviewResult, error) {
 	if pageNum <= 0 {
 		pageNum = 1
@@ -184,7 +184,7 @@ func (m *EncryptedPDFManager) GenerateEncryptedPDFPreview(ctx context.Context, f
 	}, nil
 }
 
-// VerifyPassword 验证密码是否正确（不生成预览）
+// VerifyPassword 验证密码是否正确（不生成预览）.
 func (m *EncryptedPDFManager) VerifyPassword(ctx context.Context, filePath, password string) error {
 	// 先检查是否加密
 	encrypted, err := m.IsEncryptedPDF(ctx, filePath)
@@ -230,7 +230,7 @@ func (m *EncryptedPDFManager) VerifyPassword(ctx context.Context, filePath, pass
 	return nil
 }
 
-// SetMaxAttempts 设置最大尝试次数和封锁时长
+// SetMaxAttempts 设置最大尝试次数和封锁时长.
 func (m *EncryptedPDFManager) SetMaxAttempts(max int, blockDuration time.Duration) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -238,7 +238,7 @@ func (m *EncryptedPDFManager) SetMaxAttempts(max int, blockDuration time.Duratio
 	m.blockDuration = blockDuration
 }
 
-// ClearExpiredBlocks 清理过期的封锁记录
+// ClearExpiredBlocks 清理过期的封锁记录.
 func (m *EncryptedPDFManager) ClearExpiredBlocks() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -252,7 +252,7 @@ func (m *EncryptedPDFManager) ClearExpiredBlocks() {
 	}
 }
 
-// isBlocked 检查文件是否被封锁
+// isBlocked 检查文件是否被封锁.
 func (m *EncryptedPDFManager) isBlocked(fileHash string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -264,7 +264,7 @@ func (m *EncryptedPDFManager) isBlocked(fileHash string) bool {
 	return time.Now().Before(until)
 }
 
-// recordFailedAttempt 记录失败尝试
+// recordFailedAttempt 记录失败尝试.
 func (m *EncryptedPDFManager) recordFailedAttempt(fileHash string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -275,7 +275,7 @@ func (m *EncryptedPDFManager) recordFailedAttempt(fileHash string) {
 	}
 }
 
-// resetAttempts 重置尝试次数
+// resetAttempts 重置尝试次数.
 func (m *EncryptedPDFManager) resetAttempts(fileHash string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -283,7 +283,7 @@ func (m *EncryptedPDFManager) resetAttempts(fileHash string) {
 	delete(m.blocked, fileHash)
 }
 
-// getFileHash 计算文件内容的 SHA256 哈希
+// getFileHash 计算文件内容的 SHA256 哈希.
 func getFileHash(filePath string) (string, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {

@@ -252,7 +252,7 @@ func TestProgressReader(t *testing.T) {
 	}
 }
 
-// simpleReader 简单的 reader 实现
+// simpleReader 简单的 reader 实现.
 type simpleReader struct {
 	data   []byte
 	offset int

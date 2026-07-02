@@ -11,7 +11,7 @@ import (
 
 // --- Enums ---
 
-// AuthResult represents the outcome of a Kerberos authentication attempt
+// AuthResult represents the outcome of a Kerberos authentication attempt.
 type AuthResult string
 
 const (
@@ -21,19 +21,19 @@ const (
 	AuthRejected AuthResult = "rejected"
 )
 
-// EncryptionType represents the Kerberos encryption type used in a service ticket
+// EncryptionType represents the Kerberos encryption type used in a service ticket.
 type EncryptionType string
 
 const (
-	EncAES256     EncryptionType = "aes256-cts-hmac-sha1-96"
-	EncAES128     EncryptionType = "aes128-cts-hmac-sha1-96"
-	EncDES3       EncryptionType = "des3-cbc-sha1"
-	EncRC4        EncryptionType = "rc4-hmac"
-	EncDES        EncryptionType = "des-cbc-crc"
-	EncUnknown    EncryptionType = "unknown"
+	EncAES256  EncryptionType = "aes256-cts-hmac-sha1-96"
+	EncAES128  EncryptionType = "aes128-cts-hmac-sha1-96"
+	EncDES3    EncryptionType = "des3-cbc-sha1"
+	EncRC4     EncryptionType = "rc4-hmac"
+	EncDES     EncryptionType = "des-cbc-crc"
+	EncUnknown EncryptionType = "unknown"
 )
 
-// AlertSeverity represents the severity level of an alert
+// AlertSeverity represents the severity level of an alert.
 type AlertSeverity string
 
 const (
@@ -43,34 +43,34 @@ const (
 	SeverityCritical AlertSeverity = "critical"
 )
 
-// ComplianceFramework represents a compliance standard
+// ComplianceFramework represents a compliance standard.
 type ComplianceFramework string
 
 const (
-	FrameworkSOC2   ComplianceFramework = "SOC2"
-	FrameworkGDPR   ComplianceFramework = "GDPR"
+	FrameworkSOC2     ComplianceFramework = "SOC2"
+	FrameworkGDPR     ComplianceFramework = "GDPR"
 	FrameworkISO27001 ComplianceFramework = "ISO27001"
 )
 
 // --- Data Structures ---
 
-// AuthEvent represents a single NFS Kerberos authentication event
+// AuthEvent represents a single NFS Kerberos authentication event.
 type AuthEvent struct {
-	ID            string            `json:"id"`
-	Timestamp     time.Time         `json:"timestamp"`
-	ClientPrincipal string          `json:"client_principal"`
-	ClientIP      string            `json:"client_ip"`
-	ServerPrincipal string         `json:"server_principal"`
-	ServiceTicket  string            `json:"service_ticket"`
-	EncryptionType EncryptionType   `json:"encryption_type"`
-	Result        AuthResult        `json:"result"`
-	Reason        string            `json:"reason,omitempty"`
-	SessionID     string            `json:"session_id,omitempty"`
-	NFSExport     string            `json:"nfs_export,omitempty"`
-	Metadata      map[string]string `json:"metadata,omitempty"`
+	ID              string            `json:"id"`
+	Timestamp       time.Time         `json:"timestamp"`
+	ClientPrincipal string            `json:"client_principal"`
+	ClientIP        string            `json:"client_ip"`
+	ServerPrincipal string            `json:"server_principal"`
+	ServiceTicket   string            `json:"service_ticket"`
+	EncryptionType  EncryptionType    `json:"encryption_type"`
+	Result          AuthResult        `json:"result"`
+	Reason          string            `json:"reason,omitempty"`
+	SessionID       string            `json:"session_id,omitempty"`
+	NFSExport       string            `json:"nfs_export,omitempty"`
+	Metadata        map[string]string `json:"metadata,omitempty"`
 }
 
-// AuditTrailEntry represents a single link in the audit trail chain
+// AuditTrailEntry represents a single link in the audit trail chain.
 type AuditTrailEntry struct {
 	ID        string    `json:"id"`
 	Timestamp time.Time `json:"timestamp"`
@@ -79,7 +79,7 @@ type AuditTrailEntry struct {
 	UserID    string    `json:"user_id"`
 }
 
-// AuditTrail represents the complete authentication → access → operation chain
+// AuditTrail represents the complete authentication → access → operation chain.
 type AuditTrail struct {
 	SessionID string            `json:"session_id"`
 	Entries   []AuditTrailEntry `json:"entries"`
@@ -87,17 +87,17 @@ type AuditTrail struct {
 	EndTime   time.Time         `json:"end_time"`
 }
 
-// SecurityAssessment represents the result of security analysis
+// SecurityAssessment represents the result of security analysis.
 type SecurityAssessment struct {
-	ID                string          `json:"id"`
-	Timestamp         time.Time       `json:"timestamp"`
-	WeakTickets       []WeakTicket    `json:"weak_tickets"`
-	ReplayAttacks     []ReplayAttack  `json:"replay_attacks"`
-	RiskScore         float64         `json:"risk_score"` // 0-100
-	Recommendations   []string        `json:"recommendations"`
+	ID              string         `json:"id"`
+	Timestamp       time.Time      `json:"timestamp"`
+	WeakTickets     []WeakTicket   `json:"weak_tickets"`
+	ReplayAttacks   []ReplayAttack `json:"replay_attacks"`
+	RiskScore       float64        `json:"risk_score"` // 0-100
+	Recommendations []string       `json:"recommendations"`
 }
 
-// WeakTicket represents a weak or insecure service ticket
+// WeakTicket represents a weak or insecure service ticket.
 type WeakTicket struct {
 	TicketID        string         `json:"ticket_id"`
 	ClientPrincipal string         `json:"client_principal"`
@@ -105,7 +105,7 @@ type WeakTicket struct {
 	Reason          string         `json:"reason"`
 }
 
-// ReplayAttack represents a detected replay attack indicator
+// ReplayAttack represents a detected replay attack indicator.
 type ReplayAttack struct {
 	ID              string    `json:"id"`
 	Timestamp       time.Time `json:"timestamp"`
@@ -115,49 +115,49 @@ type ReplayAttack struct {
 	Description     string    `json:"description"`
 }
 
-// Alert represents a triggered audit alert
+// Alert represents a triggered audit alert.
 type Alert struct {
-	ID          string         `json:"id"`
-	Timestamp   time.Time      `json:"timestamp"`
-	RuleName    string         `json:"rule_name"`
-	Severity    AlertSeverity  `json:"severity"`
-	Description string         `json:"description"`
-	ClientPrincipal string     `json:"client_principal,omitempty"`
-	ClientIP    string         `json:"client_ip,omitempty"`
-	EventIDs    []string       `json:"event_ids"`
+	ID              string        `json:"id"`
+	Timestamp       time.Time     `json:"timestamp"`
+	RuleName        string        `json:"rule_name"`
+	Severity        AlertSeverity `json:"severity"`
+	Description     string        `json:"description"`
+	ClientPrincipal string        `json:"client_principal,omitempty"`
+	ClientIP        string        `json:"client_ip,omitempty"`
+	EventIDs        []string      `json:"event_ids"`
 }
 
-// ComplianceReport represents a compliance audit report
+// ComplianceReport represents a compliance audit report.
 type ComplianceReport struct {
 	ID              string              `json:"id"`
 	Framework       ComplianceFramework `json:"framework"`
 	Period          string              `json:"period"`
-	StartTime       time.Time          `json:"start_time"`
-	EndTime         time.Time          `json:"end_time"`
-	TotalAuthEvents int                `json:"total_auth_events"`
-	SuccessCount    int                `json:"success_count"`
-	FailureCount    int                `json:"failure_count"`
-	ExpiredCount    int                `json:"expired_count"`
-	RejectedCount    int                `json:"rejected_count"`
-	UniqueClients   int                `json:"unique_clients"`
-	UniqueExports   int                `json:"unique_exports"`
-	AlertCount      int                `json:"alert_count"`
-	SecurityScore   float64            `json:"security_score"`
+	StartTime       time.Time           `json:"start_time"`
+	EndTime         time.Time           `json:"end_time"`
+	TotalAuthEvents int                 `json:"total_auth_events"`
+	SuccessCount    int                 `json:"success_count"`
+	FailureCount    int                 `json:"failure_count"`
+	ExpiredCount    int                 `json:"expired_count"`
+	RejectedCount   int                 `json:"rejected_count"`
+	UniqueClients   int                 `json:"unique_clients"`
+	UniqueExports   int                 `json:"unique_exports"`
+	AlertCount      int                 `json:"alert_count"`
+	SecurityScore   float64             `json:"security_score"`
 	Findings        []ComplianceFinding `json:"findings"`
-	GeneratedAt     time.Time          `json:"generated_at"`
+	GeneratedAt     time.Time           `json:"generated_at"`
 }
 
-// ComplianceFinding represents a compliance finding or observation
+// ComplianceFinding represents a compliance finding or observation.
 type ComplianceFinding struct {
-	ID          string         `json:"id"`
-	Category    string         `json:"category"`
-	Severity    AlertSeverity  `json:"severity"`
-	Title       string         `json:"title"`
-	Description string         `json:"description"`
-	Controls    []string       `json:"controls"`
+	ID          string        `json:"id"`
+	Category    string        `json:"category"`
+	Severity    AlertSeverity `json:"severity"`
+	Title       string        `json:"title"`
+	Description string        `json:"description"`
+	Controls    []string      `json:"controls"`
 }
 
-// AuditFilter represents filter criteria for querying audit logs
+// AuditFilter represents filter criteria for querying audit logs.
 type AuditFilter struct {
 	ClientPrincipal string
 	ClientIP        string
@@ -170,27 +170,27 @@ type AuditFilter struct {
 
 // --- Core Components ---
 
-// AuditLogStore stores and queries audit log entries
+// AuditLogStore stores and queries audit log entries.
 type AuditLogStore struct {
 	mu     sync.RWMutex
 	events []AuthEvent
 }
 
-// NewAuditLogStore creates a new AuditLogStore
+// NewAuditLogStore creates a new AuditLogStore.
 func NewAuditLogStore() *AuditLogStore {
 	return &AuditLogStore{
 		events: make([]AuthEvent, 0),
 	}
 }
 
-// Store stores an authentication event
+// Store stores an authentication event.
 func (s *AuditLogStore) Store(event AuthEvent) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.events = append(s.events, event)
 }
 
-// Query queries audit events matching the filter
+// Query queries audit events matching the filter.
 func (s *AuditLogStore) Query(filter AuditFilter) []AuthEvent {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -223,7 +223,7 @@ func (s *AuditLogStore) Query(filter AuditFilter) []AuthEvent {
 	return results
 }
 
-// GetAll returns all events
+// GetAll returns all events.
 func (s *AuditLogStore) GetAll() []AuthEvent {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -232,27 +232,27 @@ func (s *AuditLogStore) GetAll() []AuthEvent {
 	return out
 }
 
-// Count returns the total event count
+// Count returns the total event count.
 func (s *AuditLogStore) Count() int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return len(s.events)
 }
 
-// Export exports all events as JSON
+// Export exports all events as JSON.
 func (s *AuditLogStore) Export() ([]byte, error) {
 	return json.MarshalIndent(s.GetAll(), "", "  ")
 }
 
 // --- SecurityAssessor ---
 
-// SecurityAssessor evaluates Kerberos authentication security
+// SecurityAssessor evaluates Kerberos authentication security.
 type SecurityAssessor struct {
-	store    *AuditLogStore
+	store           *AuditLogStore
 	weakEncryptions map[EncryptionType]bool
 }
 
-// NewSecurityAssessor creates a new SecurityAssessor
+// NewSecurityAssessor creates a new SecurityAssessor.
 func NewSecurityAssessor(store *AuditLogStore) *SecurityAssessor {
 	return &SecurityAssessor{
 		store: store,
@@ -264,7 +264,7 @@ func NewSecurityAssessor(store *AuditLogStore) *SecurityAssessor {
 	}
 }
 
-// Assess performs security analysis on stored events
+// Assess performs security analysis on stored events.
 func (sa *SecurityAssessor) Assess(ctx context.Context) SecurityAssessment {
 	events := sa.store.GetAll()
 
@@ -333,7 +333,7 @@ func (sa *SecurityAssessor) calculateRiskScore(a *SecurityAssessment) float64 {
 
 // --- AlertRules ---
 
-// AlertRule represents a rule for triggering alerts
+// AlertRule represents a rule for triggering alerts.
 type AlertRule struct {
 	Name        string
 	Severity    AlertSeverity
@@ -341,19 +341,19 @@ type AlertRule struct {
 	Evaluate    func(events []AuthEvent) Alert
 }
 
-// AlertRules manages alert rules and evaluation
+// AlertRules manages alert rules and evaluation.
 type AlertRules struct {
 	rules []AlertRule
 }
 
-// NewAlertRules creates a new AlertRules with default rules
+// NewAlertRules creates a new AlertRules with default rules.
 func NewAlertRules() *AlertRules {
 	ar := &AlertRules{}
 	ar.RegisterDefaults()
 	return ar
 }
 
-// RegisterDefaults registers the default alert rules
+// RegisterDefaults registers the default alert rules.
 func (ar *AlertRules) RegisterDefaults() {
 	ar.rules = append(ar.rules, AlertRule{
 		Name:        "consecutive_auth_failures",
@@ -459,7 +459,7 @@ func (ar *AlertRules) RegisterDefaults() {
 	})
 }
 
-// Evaluate runs all rules against the provided events and returns triggered alerts
+// Evaluate runs all rules against the provided events and returns triggered alerts.
 func (ar *AlertRules) Evaluate(events []AuthEvent) []Alert {
 	var alerts []Alert
 	for _, rule := range ar.rules {
@@ -473,13 +473,13 @@ func (ar *AlertRules) Evaluate(events []AuthEvent) []Alert {
 
 // --- ComplianceReporter ---
 
-// ComplianceReporter generates compliance audit reports
+// ComplianceReporter generates compliance audit reports.
 type ComplianceReporter struct {
 	store *AuditLogStore
 	rules *AlertRules
 }
 
-// NewComplianceReporter creates a new ComplianceReporter
+// NewComplianceReporter creates a new ComplianceReporter.
 func NewComplianceReporter(store *AuditLogStore, rules *AlertRules) *ComplianceReporter {
 	return &ComplianceReporter{
 		store: store,
@@ -487,7 +487,7 @@ func NewComplianceReporter(store *AuditLogStore, rules *AlertRules) *ComplianceR
 	}
 }
 
-// GenerateReport generates a compliance report for the given framework and period
+// GenerateReport generates a compliance report for the given framework and period.
 func (cr *ComplianceReporter) GenerateReport(ctx context.Context, framework ComplianceFramework, period time.Duration) ComplianceReport {
 	end := time.Now()
 	start := end.Add(-period)
@@ -595,7 +595,7 @@ func (cr *ComplianceReporter) generateFindings(report *ComplianceReport, alerts 
 
 // --- NFSKerberosAuditor ---
 
-// NFSKerberosAuditor is the main auditor orchestrating all NFS Kerberos audit operations
+// NFSKerberosAuditor is the main auditor orchestrating all NFS Kerberos audit operations.
 type NFSKerberosAuditor struct {
 	mu       sync.RWMutex
 	store    *AuditLogStore
@@ -605,7 +605,7 @@ type NFSKerberosAuditor struct {
 	alerts   []Alert
 }
 
-// NewNFSKerberosAuditor creates a new NFSKerberosAuditor with default components
+// NewNFSKerberosAuditor creates a new NFSKerberosAuditor with default components.
 func NewNFSKerberosAuditor() *NFSKerberosAuditor {
 	store := NewAuditLogStore()
 	rules := NewAlertRules()
@@ -618,7 +618,7 @@ func NewNFSKerberosAuditor() *NFSKerberosAuditor {
 	}
 }
 
-// RecordEvent records an authentication event and evaluates alerts
+// RecordEvent records an authentication event and evaluates alerts.
 func (a *NFSKerberosAuditor) RecordEvent(event AuthEvent) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -631,7 +631,7 @@ func (a *NFSKerberosAuditor) RecordEvent(event AuthEvent) {
 	}
 }
 
-// GetAuditTrail builds an audit trail for a given session ID
+// GetAuditTrail builds an audit trail for a given session ID.
 func (a *NFSKerberosAuditor) GetAuditTrail(sessionID string) AuditTrail {
 	events := a.store.Query(AuditFilter{})
 
@@ -665,12 +665,12 @@ func (a *NFSKerberosAuditor) GetAuditTrail(sessionID string) AuditTrail {
 	}
 }
 
-// GetComplianceReport generates a compliance report for the given framework
+// GetComplianceReport generates a compliance report for the given framework.
 func (a *NFSKerberosAuditor) GetComplianceReport(ctx context.Context, framework ComplianceFramework, period time.Duration) ComplianceReport {
 	return a.reporter.GenerateReport(ctx, framework, period)
 }
 
-// GetAlerts returns all triggered alerts since the given time
+// GetAlerts returns all triggered alerts since the given time.
 func (a *NFSKerberosAuditor) GetAlerts(since time.Time) []Alert {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -684,34 +684,34 @@ func (a *NFSKerberosAuditor) GetAlerts(since time.Time) []Alert {
 	return results
 }
 
-// GetSecurityAssessment performs security assessment
+// GetSecurityAssessment performs security assessment.
 func (a *NFSKerberosAuditor) GetSecurityAssessment(ctx context.Context) SecurityAssessment {
 	return a.assessor.Assess(ctx)
 }
 
-// QueryEvents queries audit events with a filter
+// QueryEvents queries audit events with a filter.
 func (a *NFSKerberosAuditor) QueryEvents(filter AuditFilter) []AuthEvent {
 	return a.store.Query(filter)
 }
 
-// GetStore returns the underlying audit log store
+// GetStore returns the underlying audit log store.
 func (a *NFSKerberosAuditor) GetStore() *AuditLogStore {
 	return a.store
 }
 
 // --- RESTful API Handlers ---
 
-// APIHandler provides RESTful API endpoints for the audit module
+// APIHandler provides RESTful API endpoints for the audit module.
 type APIHandler struct {
 	auditor *NFSKerberosAuditor
 }
 
-// NewAPIHandler creates a new APIHandler
+// NewAPIHandler creates a new APIHandler.
 func NewAPIHandler(auditor *NFSKerberosAuditor) *APIHandler {
 	return &APIHandler{auditor: auditor}
 }
 
-// GetAuditTrail handler: GET /api/nfspkaudit/trail?session_id=xxx
+// GetAuditTrail handler: GET /api/nfspkaudit/trail?session_id=xxx.
 func (h *APIHandler) GetAuditTrail(w http.ResponseWriter, r *http.Request) {
 	sessionID := r.URL.Query().Get("session_id")
 	if sessionID == "" {
@@ -724,7 +724,7 @@ func (h *APIHandler) GetAuditTrail(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(trail)
 }
 
-// GetComplianceReportHandler: GET /api/nfspkaudit/report?framework=SOC2&period=24h
+// GetComplianceReportHandler: GET /api/nfspkaudit/report?framework=SOC2&period=24h.
 func (h *APIHandler) GetComplianceReportHandler(w http.ResponseWriter, r *http.Request) {
 	frameworkStr := r.URL.Query().Get("framework")
 	if frameworkStr == "" {
@@ -748,7 +748,7 @@ func (h *APIHandler) GetComplianceReportHandler(w http.ResponseWriter, r *http.R
 	json.NewEncoder(w).Encode(report)
 }
 
-// GetAlertsHandler: GET /api/nfspkaudit/alerts?since=2024-01-01T00:00:00Z
+// GetAlertsHandler: GET /api/nfspkaudit/alerts?since=2024-01-01T00:00:00Z.
 func (h *APIHandler) GetAlertsHandler(w http.ResponseWriter, r *http.Request) {
 	sinceStr := r.URL.Query().Get("since")
 	var since time.Time
@@ -768,14 +768,14 @@ func (h *APIHandler) GetAlertsHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(alerts)
 }
 
-// GetSecurityAssessmentHandler: GET /api/nfspkaudit/assessment
+// GetSecurityAssessmentHandler: GET /api/nfspkaudit/assessment.
 func (h *APIHandler) GetSecurityAssessmentHandler(w http.ResponseWriter, r *http.Request) {
 	assessment := h.auditor.GetSecurityAssessment(r.Context())
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(assessment)
 }
 
-// RegisterRoutes registers the API routes on the given mux
+// RegisterRoutes registers the API routes on the given mux.
 func (h *APIHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/nfspkaudit/trail", h.GetAuditTrail)
 	mux.HandleFunc("/api/nfspkaudit/report", h.GetComplianceReportHandler)

@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// 迁移类型
+// 迁移类型.
 const (
 	MigrationTypeReplace = "replace" // 替换：旧盘换新盘
 	MigrationTypeExpand  = "expand"  // 扩容：添加新盘扩展存储池
@@ -19,7 +19,7 @@ const (
 	MigrationTypeShrink  = "shrink"  // 缩容：移除磁盘
 )
 
-// 迁移状态
+// 迁移状态.
 const (
 	StatusPending    = "pending"    // 等待中
 	StatusPreparing  = "preparing"  // 准备中
@@ -31,7 +31,7 @@ const (
 	StatusCancelled  = "cancelled"  // 已取消
 )
 
-// RAID类型
+// RAID类型.
 const (
 	RAIDTypeBasic  = "basic"  // Basic/单盘
 	RAIDTypeRAID0  = "raid0"  // RAID 0
@@ -55,7 +55,7 @@ var (
 	ErrMigrationRunning  = errors.New("迁移正在进行中")
 )
 
-// Disk 磁盘信息
+// Disk 磁盘信息.
 type Disk struct {
 	ID          string    `json:"id"`          // 磁盘ID
 	Device      string    `json:"device"`      // 设备路径（如/dev/sda）
@@ -75,7 +75,7 @@ type Disk struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// StoragePool 存储池
+// StoragePool 存储池.
 type StoragePool struct {
 	ID          string    `json:"id"`           // 池ID
 	Name        string    `json:"name"`         // 池名称
@@ -92,7 +92,7 @@ type StoragePool struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// MigrationTask 迁移任务
+// MigrationTask 迁移任务.
 type MigrationTask struct {
 	ID             string    `json:"id"`              // 任务ID
 	Type           string    `json:"type"`            // 迁移类型
@@ -113,7 +113,7 @@ type MigrationTask struct {
 	CreatedAt      time.Time `json:"created_at"`
 }
 
-// MigrationManager 磁盘迁移管理器
+// MigrationManager 磁盘迁移管理器.
 type MigrationManager struct {
 	mu          sync.RWMutex
 	disks       map[string]*Disk
@@ -122,7 +122,7 @@ type MigrationManager struct {
 	taskCounter int64
 }
 
-// NewMigrationManager 创建迁移管理器
+// NewMigrationManager 创建迁移管理器.
 func NewMigrationManager() *MigrationManager {
 	return &MigrationManager{
 		disks: make(map[string]*Disk),
@@ -131,7 +131,7 @@ func NewMigrationManager() *MigrationManager {
 	}
 }
 
-// RegisterDisk 注册磁盘
+// RegisterDisk 注册磁盘.
 func (m *MigrationManager) RegisterDisk(disk *Disk) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -143,7 +143,7 @@ func (m *MigrationManager) RegisterDisk(disk *Disk) error {
 	return nil
 }
 
-// CreatePool 创建存储池
+// CreatePool 创建存储池.
 func (m *MigrationManager) CreatePool(pool *StoragePool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -157,7 +157,7 @@ func (m *MigrationManager) CreatePool(pool *StoragePool) error {
 	return nil
 }
 
-// StartMigration 启动迁移任务
+// StartMigration 启动迁移任务.
 func (m *MigrationManager) StartMigration(task *MigrationTask) (*MigrationTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -199,7 +199,7 @@ func (m *MigrationManager) StartMigration(task *MigrationTask) (*MigrationTask, 
 	return task, nil
 }
 
-// UpdateProgress 更新迁移进度
+// UpdateProgress 更新迁移进度.
 func (m *MigrationManager) UpdateProgress(taskID string, progress float64, bytesCopied int64, speedMBps float64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -228,7 +228,7 @@ func (m *MigrationManager) UpdateProgress(taskID string, progress float64, bytes
 	return nil
 }
 
-// GetMigration 获取迁移任务详情
+// GetMigration 获取迁移任务详情.
 func (m *MigrationManager) GetMigration(taskID string) (*MigrationTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -239,7 +239,7 @@ func (m *MigrationManager) GetMigration(taskID string) (*MigrationTask, error) {
 	return task, nil
 }
 
-// ListMigrations 列出所有迁移任务
+// ListMigrations 列出所有迁移任务.
 func (m *MigrationManager) ListMigrations() []*MigrationTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -250,7 +250,7 @@ func (m *MigrationManager) ListMigrations() []*MigrationTask {
 	return list
 }
 
-// ListDisks 列出所有磁盘
+// ListDisks 列出所有磁盘.
 func (m *MigrationManager) ListDisks() []*Disk {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -261,7 +261,7 @@ func (m *MigrationManager) ListDisks() []*Disk {
 	return list
 }
 
-// GetPool 获取存储池信息
+// GetPool 获取存储池信息.
 func (m *MigrationManager) GetPool(poolID string) (*StoragePool, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -272,7 +272,7 @@ func (m *MigrationManager) GetPool(poolID string) (*StoragePool, error) {
 	return pool, nil
 }
 
-// ExportReport 导出迁移报告
+// ExportReport 导出迁移报告.
 func (m *MigrationManager) ExportReport() ([]byte, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

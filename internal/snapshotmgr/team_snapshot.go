@@ -34,7 +34,7 @@ type TeamSnapshotPolicy struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// TeamSnapshotVisibility 跨用户快照可见性管理
+// TeamSnapshotVisibility 跨用户快照可见性管理.
 type TeamSnapshotVisibility struct {
 	// OwnerVisible 团队所有者是否可见
 	OwnerVisible bool `json:"owner_visible"`
@@ -50,7 +50,7 @@ type TeamSnapshotVisibility struct {
 	DeleteAdminOnly bool `json:"delete_admin_only"`
 }
 
-// TeamSnapshot 团队快照记录
+// TeamSnapshot 团队快照记录.
 type TeamSnapshot struct {
 	SnapshotID string    `json:"snapshot_id"` // 关联的系统快照 ID
 	TeamID     string    `json:"team_id"`     // 团队 ID
@@ -62,7 +62,7 @@ type TeamSnapshot struct {
 	CreatedAt  time.Time `json:"created_at"`
 }
 
-// TeamSnapshotManager 团队快照管理器
+// TeamSnapshotManager 团队快照管理器.
 type TeamSnapshotManager struct {
 	mu        sync.RWMutex
 	logger    *zap.Logger
@@ -73,7 +73,7 @@ type TeamSnapshotManager struct {
 	visibilityCache map[string][]string // key: userID, value: snapshot IDs
 }
 
-// NewTeamSnapshotManager 创建团队快照管理器
+// NewTeamSnapshotManager 创建团队快照管理器.
 func NewTeamSnapshotManager(logger *zap.Logger, manager *Manager) *TeamSnapshotManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -87,7 +87,7 @@ func NewTeamSnapshotManager(logger *zap.Logger, manager *Manager) *TeamSnapshotM
 	}
 }
 
-// CreatePolicy 创建团队快照策略
+// CreatePolicy 创建团队快照策略.
 func (t *TeamSnapshotManager) CreatePolicy(policy *TeamSnapshotPolicy) (*TeamSnapshotPolicy, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -119,7 +119,7 @@ func (t *TeamSnapshotManager) CreatePolicy(policy *TeamSnapshotPolicy) (*TeamSna
 	return policy, nil
 }
 
-// GetPolicy 获取团队快照策略
+// GetPolicy 获取团队快照策略.
 func (t *TeamSnapshotManager) GetPolicy(id string) (*TeamSnapshotPolicy, error) {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -131,7 +131,7 @@ func (t *TeamSnapshotManager) GetPolicy(id string) (*TeamSnapshotPolicy, error) 
 	return p, nil
 }
 
-// ListPoliciesByTeam 列出团队的所有策略
+// ListPoliciesByTeam 列出团队的所有策略.
 func (t *TeamSnapshotManager) ListPoliciesByTeam(teamID string) []TeamSnapshotPolicy {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -145,7 +145,7 @@ func (t *TeamSnapshotManager) ListPoliciesByTeam(teamID string) []TeamSnapshotPo
 	return result
 }
 
-// UpdatePolicy 更新团队快照策略
+// UpdatePolicy 更新团队快照策略.
 func (t *TeamSnapshotManager) UpdatePolicy(id string, updates *TeamSnapshotPolicy) (*TeamSnapshotPolicy, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -178,7 +178,7 @@ func (t *TeamSnapshotManager) UpdatePolicy(id string, updates *TeamSnapshotPolic
 	return p, nil
 }
 
-// DeletePolicy 删除团队快照策略
+// DeletePolicy 删除团队快照策略.
 func (t *TeamSnapshotManager) DeletePolicy(id string) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -192,7 +192,7 @@ func (t *TeamSnapshotManager) DeletePolicy(id string) error {
 	return nil
 }
 
-// CreateTeamSnapshot 创建团队快照
+// CreateTeamSnapshot 创建团队快照.
 func (t *TeamSnapshotManager) CreateTeamSnapshot(teamID, folderPath, createdBy, source string) (*TeamSnapshot, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -240,7 +240,7 @@ func (t *TeamSnapshotManager) CreateTeamSnapshot(teamID, folderPath, createdBy, 
 	return teamSnap, nil
 }
 
-// ListTeamSnapshots 列出团队可见快照
+// ListTeamSnapshots 列出团队可见快照.
 func (t *TeamSnapshotManager) ListTeamSnapshots(teamID, userID, userRole string) []TeamSnapshot {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -257,7 +257,7 @@ func (t *TeamSnapshotManager) ListTeamSnapshots(teamID, userID, userRole string)
 	return result
 }
 
-// RestoreTeamSnapshot 恢复团队快照
+// RestoreTeamSnapshot 恢复团队快照.
 func (t *TeamSnapshotManager) RestoreTeamSnapshot(snapshotID, userID, userRole string) error {
 	t.mu.RLock()
 	ts, ok := t.snapshots[snapshotID]
@@ -298,7 +298,7 @@ func (t *TeamSnapshotManager) RestoreTeamSnapshot(snapshotID, userID, userRole s
 	return nil
 }
 
-// DeleteTeamSnapshot 删除团队快照
+// DeleteTeamSnapshot 删除团队快照.
 func (t *TeamSnapshotManager) DeleteTeamSnapshot(snapshotID, userID, userRole string) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -343,7 +343,7 @@ func (t *TeamSnapshotManager) DeleteTeamSnapshot(snapshotID, userID, userRole st
 	return nil
 }
 
-// canView 检查用户是否可以查看快照
+// canView 检查用户是否可以查看快照.
 func (t *TeamSnapshotManager) canView(ts *TeamSnapshot, userID, userRole string) bool {
 	policies := t.getPoliciesForFolder(ts.TeamID, ts.FolderPath)
 
@@ -371,7 +371,7 @@ func (t *TeamSnapshotManager) canView(ts *TeamSnapshot, userID, userRole string)
 	return false
 }
 
-// getPoliciesForFolder 获取文件夹的策略（RLock 已持有）
+// getPoliciesForFolder 获取文件夹的策略（RLock 已持有）.
 func (t *TeamSnapshotManager) getPoliciesForFolder(teamID, folderPath string) []*TeamSnapshotPolicy {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -379,7 +379,7 @@ func (t *TeamSnapshotManager) getPoliciesForFolder(teamID, folderPath string) []
 	return t.getPoliciesForFolderLocked(teamID, folderPath)
 }
 
-// getPoliciesForFolderLocked 获取文件夹的策略（调用方已持有锁）
+// getPoliciesForFolderLocked 获取文件夹的策略（调用方已持有锁）.
 func (t *TeamSnapshotManager) getPoliciesForFolderLocked(teamID, folderPath string) []*TeamSnapshotPolicy {
 	var result []*TeamSnapshotPolicy
 	for _, p := range t.policies {
@@ -390,13 +390,13 @@ func (t *TeamSnapshotManager) getPoliciesForFolderLocked(teamID, folderPath stri
 	return result
 }
 
-// invalidateVisibilityCache 使可见性缓存失效
+// invalidateVisibilityCache 使可见性缓存失效.
 func (t *TeamSnapshotManager) invalidateVisibilityCache(teamID string) {
 	// 简单实现：清空整个缓存
 	t.visibilityCache = make(map[string][]string)
 }
 
-// LockSnapshot 锁定团队快照
+// LockSnapshot 锁定团队快照.
 func (t *TeamSnapshotManager) LockSnapshot(snapshotID string) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -410,7 +410,7 @@ func (t *TeamSnapshotManager) LockSnapshot(snapshotID string) error {
 	return nil
 }
 
-// UnlockSnapshot 解锁团队快照
+// UnlockSnapshot 解锁团队快照.
 func (t *TeamSnapshotManager) UnlockSnapshot(snapshotID string) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()

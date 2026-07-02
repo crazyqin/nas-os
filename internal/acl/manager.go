@@ -11,28 +11,28 @@ import (
 	"github.com/google/uuid"
 )
 
-// Manager manages ACLs and handles inheritance
+// Manager manages ACLs and handles inheritance.
 type Manager struct {
-	mu      sync.RWMutex
-	acls    map[string]*ACL        // path -> ACL
-	rules   map[string]*ACLRule    // id -> rule (backward compat)
+	mu       sync.RWMutex
+	acls     map[string]*ACL     // path -> ACL
+	rules    map[string]*ACLRule // id -> rule (backward compat)
 	auditLog []AuditEntry
 }
 
-// AuditEntry represents an audit log entry
+// AuditEntry represents an audit log entry.
 type AuditEntry struct {
-	Timestamp   time.Time `json:"timestamp"`
-	User        string    `json:"user"`
-	Action      string    `json:"action"`
-	Path        string    `json:"path"`
-	Subject     string    `json:"subject"`
-	Permission  string    `json:"permission"`
-	Allowed     bool      `json:"allowed"`
-	Source      string    `json:"source"`
-	Details     string    `json:"details"`
+	Timestamp  time.Time `json:"timestamp"`
+	User       string    `json:"user"`
+	Action     string    `json:"action"`
+	Path       string    `json:"path"`
+	Subject    string    `json:"subject"`
+	Permission string    `json:"permission"`
+	Allowed    bool      `json:"allowed"`
+	Source     string    `json:"source"`
+	Details    string    `json:"details"`
 }
 
-// NewManager creates a new ACL manager
+// NewManager creates a new ACL manager.
 func NewManager() *Manager {
 	return &Manager{
 		acls:  make(map[string]*ACL),
@@ -40,13 +40,13 @@ func NewManager() *Manager {
 	}
 }
 
-// CreateACL creates a new ACL for a path
+// CreateACL creates a new ACL for a path.
 func (m *Manager) CreateACL(req CreateACLRequest) (*ACL, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	path := NormalizePath(req.Path)
-	
+
 	if _, exists := m.acls[path]; exists {
 		return nil, fmt.Errorf("ACL already exists for path: %s", path)
 	}
@@ -67,13 +67,13 @@ func (m *Manager) CreateACL(req CreateACLRequest) (*ACL, error) {
 
 	m.acls[path] = acl
 	log.Printf("ACL已创建: %s (owner: %s)", path, req.Owner)
-	
+
 	m.addAuditEntry("system", "create_acl", path, "", "", true, "system", fmt.Sprintf("ACL created for %s", path))
-	
+
 	return acl, nil
 }
 
-// GetACL returns the ACL for a path
+// GetACL returns the ACL for a path.
 func (m *Manager) GetACL(path string) (*ACL, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -87,7 +87,7 @@ func (m *Manager) GetACL(path string) (*ACL, error) {
 	return acl, nil
 }
 
-// UpdateACL updates an existing ACL
+// UpdateACL updates an existing ACL.
 func (m *Manager) UpdateACL(path string, req UpdateACLRequest) (*ACL, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -117,11 +117,11 @@ func (m *Manager) UpdateACL(path string, req UpdateACLRequest) (*ACL, error) {
 
 	log.Printf("ACL已更新: %s", path)
 	m.addAuditEntry("system", "update_acl", path, "", "", true, "system", "ACL updated")
-	
+
 	return acl, nil
 }
 
-// DeleteACL deletes an ACL
+// DeleteACL deletes an ACL.
 func (m *Manager) DeleteACL(path string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -134,11 +134,11 @@ func (m *Manager) DeleteACL(path string) error {
 	delete(m.acls, path)
 	log.Printf("ACL已删除: %s", path)
 	m.addAuditEntry("system", "delete_acl", path, "", "", true, "system", "ACL deleted")
-	
+
 	return nil
 }
 
-// ListACLs returns all ACLs
+// ListACLs returns all ACLs.
 func (m *Manager) ListACLs() []*ACL {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -147,15 +147,15 @@ func (m *Manager) ListACLs() []*ACL {
 	for _, acl := range m.acls {
 		result = append(result, acl)
 	}
-	
+
 	sort.Slice(result, func(i, j int) bool {
 		return result[i].Path < result[j].Path
 	})
-	
+
 	return result
 }
 
-// AddACE adds an Access Control Entry to an ACL
+// AddACE adds an Access Control Entry to an ACL.
 func (m *Manager) AddACE(path string, req AddACERequest) (*ACE, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -193,28 +193,28 @@ func (m *Manager) AddACE(path string, req AddACERequest) (*ACE, error) {
 	}
 
 	ace := ACE{
-		ID:              uuid.New().String(),
-		Subject:         req.Subject,
-		SubjectType:     req.SubjectType,
-		Permissions:     req.Permissions,
-		AccessType:      AccessExplicit,
-		Allowed:         req.Allowed,
-		AppliesTo:       req.AppliesTo,
-		InheritFlags:    req.InheritFlags,
-		EffectiveFrom:   "",
+		ID:            uuid.New().String(),
+		Subject:       req.Subject,
+		SubjectType:   req.SubjectType,
+		Permissions:   req.Permissions,
+		AccessType:    AccessExplicit,
+		Allowed:       req.Allowed,
+		AppliesTo:     req.AppliesTo,
+		InheritFlags:  req.InheritFlags,
+		EffectiveFrom: "",
 	}
 
 	acl.ACES = append(acl.ACES, ace)
 	acl.UpdatedAt = time.Now()
 
 	log.Printf("ACE已添加: %s -> %s (%s)", req.Subject, path, req.Permissions)
-	m.addAuditEntry("system", "add_ace", path, req.Subject, string(req.Permissions[0]), true, "system", 
+	m.addAuditEntry("system", "add_ace", path, req.Subject, string(req.Permissions[0]), true, "system",
 		fmt.Sprintf("ACE added for %s with permissions %v", req.Subject, req.Permissions))
 
 	return &ace, nil
 }
 
-// UpdateACE updates an existing ACE
+// UpdateACE updates an existing ACE.
 func (m *Manager) UpdateACE(path, aceID string, req UpdateACERequest) (*ACE, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -250,10 +250,10 @@ func (m *Manager) UpdateACE(path, aceID string, req UpdateACERequest) (*ACE, err
 				acl.ACES[i].InheritFlags = req.InheritFlags
 			}
 			acl.UpdatedAt = time.Now()
-			
+
 			log.Printf("ACE已更新: %s", aceID)
 			m.addAuditEntry("system", "update_ace", path, ace.Subject, "", true, "system", "ACE updated")
-			
+
 			return &acl.ACES[i], nil
 		}
 	}
@@ -261,7 +261,7 @@ func (m *Manager) UpdateACE(path, aceID string, req UpdateACERequest) (*ACE, err
 	return nil, fmt.Errorf("ACE not found: %s", aceID)
 }
 
-// RemoveACE removes an ACE from an ACL
+// RemoveACE removes an ACE from an ACL.
 func (m *Manager) RemoveACE(path, aceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -276,10 +276,10 @@ func (m *Manager) RemoveACE(path, aceID string) error {
 		if ace.ID == aceID {
 			acl.ACES = append(acl.ACES[:i], acl.ACES[i+1:]...)
 			acl.UpdatedAt = time.Now()
-			
+
 			log.Printf("ACE已删除: %s", aceID)
 			m.addAuditEntry("system", "remove_ace", path, ace.Subject, "", true, "system", "ACE removed")
-			
+
 			return nil
 		}
 	}
@@ -287,7 +287,7 @@ func (m *Manager) RemoveACE(path, aceID string) error {
 	return fmt.Errorf("ACE not found: %s", aceID)
 }
 
-// CheckAccess checks if a subject has a specific permission on a path
+// CheckAccess checks if a subject has a specific permission on a path.
 func (m *Manager) CheckAccess(req CheckAccessRequest) *CheckAccessResponse {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -366,7 +366,7 @@ func (m *Manager) CheckAccess(req CheckAccessRequest) *CheckAccessResponse {
 	}
 }
 
-// GetEffectivePermissions returns all effective permissions for a subject on a path
+// GetEffectivePermissions returns all effective permissions for a subject on a path.
 func (m *Manager) GetEffectivePermissions(subject, path string) *EffectivePermissionsResponse {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -399,10 +399,10 @@ func (m *Manager) GetEffectivePermissions(subject, path string) *EffectivePermis
 	}
 }
 
-// collectEffectiveACEs collects all effective ACEs for a subject on a path
+// collectEffectiveACEs collects all effective ACEs for a subject on a path.
 func (m *Manager) collectEffectiveACEs(subject, path string) []ACE {
 	var result []ACE
-	
+
 	// Start from the path and walk up to root
 	currentPath := path
 	for {
@@ -419,13 +419,13 @@ func (m *Manager) collectEffectiveACEs(subject, path string) []ACE {
 					result = append(result, newACE)
 				}
 			}
-			
+
 			// If inheritance is disabled, stop here
 			if !acl.InheritEnabled {
 				break
 			}
 		}
-		
+
 		// Move to parent
 		parent := PathParent(currentPath)
 		if parent == "" || parent == currentPath {
@@ -433,11 +433,11 @@ func (m *Manager) collectEffectiveACEs(subject, path string) []ACE {
 		}
 		currentPath = parent
 	}
-	
+
 	return result
 }
 
-// PropagateInheritance propagates inherited permissions to child paths
+// PropagateInheritance propagates inherited permissions to child paths.
 func (m *Manager) PropagateInheritance(parentPath string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -487,8 +487,8 @@ func (m *Manager) PropagateInheritance(parentPath string) error {
 			// Check if ACE already exists for this subject
 			aceExists := false
 			for _, childACE := range childACL.ACES {
-				if childACE.Subject == parentACE.Subject && 
-				   childACE.SubjectType == parentACE.SubjectType {
+				if childACE.Subject == parentACE.Subject &&
+					childACE.SubjectType == parentACE.SubjectType {
 					aceExists = true
 					break
 				}
@@ -515,7 +515,7 @@ func (m *Manager) PropagateInheritance(parentPath string) error {
 	return nil
 }
 
-// shouldInherit checks if an ACE should be inherited to a child entry type
+// shouldInherit checks if an ACE should be inherited to a child entry type.
 func (m *Manager) shouldInherit(ace ACE, childType EntryType) bool {
 	// Check inherit flags
 	for _, flag := range ace.InheritFlags {
@@ -545,11 +545,11 @@ func (m *Manager) shouldInherit(ace ACE, childType EntryType) bool {
 	return true
 }
 
-// findChildPaths finds all direct child paths in the ACL store
+// findChildPaths finds all direct child paths in the ACL store.
 func (m *Manager) findChildPaths(parentPath string) []string {
 	var children []string
 	parentPath = strings.TrimSuffix(parentPath, "/")
-	
+
 	for path := range m.acls {
 		if strings.HasPrefix(path, parentPath+"/") {
 			// Check if it's a direct child (no intermediate /)
@@ -559,11 +559,11 @@ func (m *Manager) findChildPaths(parentPath string) []string {
 			}
 		}
 	}
-	
+
 	return children
 }
 
-// SetOwner sets the owner of an ACL
+// SetOwner sets the owner of an ACL.
 func (m *Manager) SetOwner(path, owner string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -576,14 +576,14 @@ func (m *Manager) SetOwner(path, owner string) error {
 
 	acl.Owner = owner
 	acl.UpdatedAt = time.Now()
-	
+
 	log.Printf("所有者已设置: %s -> %s", path, owner)
 	m.addAuditEntry("system", "set_owner", path, owner, "", true, "system", fmt.Sprintf("Owner set to %s", owner))
-	
+
 	return nil
 }
 
-// SetGroup sets the group of an ACL
+// SetGroup sets the group of an ACL.
 func (m *Manager) SetGroup(path, group string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -596,14 +596,14 @@ func (m *Manager) SetGroup(path, group string) error {
 
 	acl.Group = group
 	acl.UpdatedAt = time.Now()
-	
+
 	log.Printf("组已设置: %s -> %s", path, group)
 	m.addAuditEntry("system", "set_group", path, group, "", true, "system", fmt.Sprintf("Group set to %s", group))
-	
+
 	return nil
 }
 
-// GetAuditLog returns the audit log
+// GetAuditLog returns the audit log.
 func (m *Manager) GetAuditLog(limit int) []AuditEntry {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -611,17 +611,17 @@ func (m *Manager) GetAuditLog(limit int) []AuditEntry {
 	if limit <= 0 || limit > len(m.auditLog) {
 		limit = len(m.auditLog)
 	}
-	
+
 	// Return most recent entries
 	start := len(m.auditLog) - limit
 	if start < 0 {
 		start = 0
 	}
-	
+
 	return m.auditLog[start:]
 }
 
-// addAuditEntry adds an entry to the audit log
+// addAuditEntry adds an entry to the audit log.
 func (m *Manager) addAuditEntry(user, action, path, subject, permission string, allowed bool, source, details string) {
 	entry := AuditEntry{
 		Timestamp:  time.Now(),
@@ -637,7 +637,7 @@ func (m *Manager) addAuditEntry(user, action, path, subject, permission string, 
 	m.auditLog = append(m.auditLog, entry)
 }
 
-// AddRule adds an ACL rule (backward compatibility)
+// AddRule adds an ACL rule (backward compatibility).
 func (m *Manager) AddRule(rule ACLRule) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -646,14 +646,14 @@ func (m *Manager) AddRule(rule ACLRule) {
 	log.Printf("ACL规则已添加: %s -> %s (%s)", rule.Subject, rule.Path, rule.Permissions)
 }
 
-// RemoveRule removes an ACL rule (backward compatibility)
+// RemoveRule removes an ACL rule (backward compatibility).
 func (m *Manager) RemoveRule(id string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	delete(m.rules, id)
 }
 
-// UpdateRule updates an existing ACL rule (backward compatibility)
+// UpdateRule updates an existing ACL rule (backward compatibility).
 func (m *Manager) UpdateRule(rule ACLRule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -664,7 +664,7 @@ func (m *Manager) UpdateRule(rule ACLRule) error {
 	return nil
 }
 
-// ListRules returns all ACL rules (backward compatibility)
+// ListRules returns all ACL rules (backward compatibility).
 func (m *Manager) ListRules() []ACLRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -675,7 +675,7 @@ func (m *Manager) ListRules() []ACLRule {
 	return result
 }
 
-// GetPermissionGroups returns predefined permission groups
+// GetPermissionGroups returns predefined permission groups.
 func GetPermissionGroups() []PermissionGroup {
 	return []PermissionGroup{
 		{

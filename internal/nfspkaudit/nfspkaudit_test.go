@@ -10,16 +10,16 @@ import (
 
 func makeEventPast(id, principal, ip, ticket string, enc EncryptionType, result AuthResult, sessionID, nfsExport string, offset time.Duration) AuthEvent {
 	return AuthEvent{
-		ID:             id,
-		Timestamp:      time.Now().Add(-offset),
+		ID:              id,
+		Timestamp:       time.Now().Add(-offset),
 		ClientPrincipal: principal,
-		ClientIP:       ip,
+		ClientIP:        ip,
 		ServerPrincipal: "nfs/server@REALM",
-		ServiceTicket:  ticket,
+		ServiceTicket:   ticket,
 		EncryptionType:  enc,
-		Result:         result,
-		SessionID:      sessionID,
-		NFSExport:      nfsExport,
+		Result:          result,
+		SessionID:       sessionID,
+		NFSExport:       nfsExport,
 	}
 }
 

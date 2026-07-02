@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// CloudProvider 云提供商类型
+// CloudProvider 云提供商类型.
 type CloudProvider string
 
 const (
@@ -19,7 +19,7 @@ const (
 	ProviderMinIO   CloudProvider = "minio"
 )
 
-// ProviderStatus 云提供商连接状态
+// ProviderStatus 云提供商连接状态.
 type ProviderStatus string
 
 const (
@@ -28,7 +28,7 @@ const (
 	ProviderStatusError   ProviderStatus = "error"
 )
 
-// PlacementStrategy 数据放置策略
+// PlacementStrategy 数据放置策略.
 type PlacementStrategy string
 
 const (
@@ -39,7 +39,7 @@ const (
 	StrategyBalanced         PlacementStrategy = "balanced"
 )
 
-// SyncStatus 同步状态
+// SyncStatus 同步状态.
 type SyncStatus string
 
 const (
@@ -49,7 +49,7 @@ const (
 	SyncStatusFailed     SyncStatus = "failed"
 )
 
-// MigrationStatus 迁移状态
+// MigrationStatus 迁移状态.
 type MigrationStatus string
 
 const (
@@ -60,7 +60,7 @@ const (
 	MigrationStatusCancelled  MigrationStatus = "cancelled"
 )
 
-// CloudProviderConfig 云提供商配置
+// CloudProviderConfig 云提供商配置.
 type CloudProviderConfig struct {
 	ID        string            `json:"id"`
 	Name      string            `json:"name"`
@@ -78,7 +78,7 @@ type CloudProviderConfig struct {
 	UpdatedAt time.Time         `json:"updated_at"`
 }
 
-// Namespace 统一存储命名空间
+// Namespace 统一存储命名空间.
 type Namespace struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -93,7 +93,7 @@ type Namespace struct {
 	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
-// StorageObject 统一存储对象
+// StorageObject 统一存储对象.
 type StorageObject struct {
 	ID        string            `json:"id"`
 	Namespace string            `json:"namespace"`
@@ -108,7 +108,7 @@ type StorageObject struct {
 	UpdatedAt time.Time         `json:"updated_at"`
 }
 
-// SyncTask 同步任务
+// SyncTask 同步任务.
 type SyncTask struct {
 	ID             string     `json:"id"`
 	Namespace      string     `json:"namespace"`
@@ -128,7 +128,7 @@ type SyncTask struct {
 	CreatedAt      time.Time  `json:"created_at"`
 }
 
-// MigrationTask 迁移任务
+// MigrationTask 迁移任务.
 type MigrationTask struct {
 	ID              string          `json:"id"`
 	Namespace       string          `json:"namespace"`
@@ -149,7 +149,7 @@ type MigrationTask struct {
 	CreatedAt       time.Time       `json:"created_at"`
 }
 
-// CostReport 成本报告
+// CostReport 成本报告.
 type CostReport struct {
 	Provider     string    `json:"provider"`
 	StorageCost  float64   `json:"storage_cost"`
@@ -163,7 +163,7 @@ type CostReport struct {
 	GeneratedAt  time.Time `json:"generated_at"`
 }
 
-// CostAnalysis 多云成本分析
+// CostAnalysis 多云成本分析.
 type CostAnalysis struct {
 	Period        string        `json:"period"`
 	Reports       []*CostReport `json:"reports"`
@@ -172,7 +172,7 @@ type CostAnalysis struct {
 	GeneratedAt   time.Time     `json:"generated_at"`
 }
 
-// FederationConfig 联邦配置
+// FederationConfig 联邦配置.
 type FederationConfig struct {
 	DefaultStrategy    PlacementStrategy `json:"default_strategy"`
 	AutoSync           bool              `json:"auto_sync"`
@@ -182,7 +182,7 @@ type FederationConfig struct {
 	CostAlertThreshold float64           `json:"cost_alert_threshold"`
 }
 
-// 错误定义
+// 错误定义.
 var (
 	ErrProviderNotFound  = errors.New("cloud provider not found")
 	ErrProviderExists    = errors.New("cloud provider already exists")

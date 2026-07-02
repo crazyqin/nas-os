@@ -3,7 +3,7 @@ package threathunter
 
 import "time"
 
-// ThreatLevel 威胁等级
+// ThreatLevel 威胁等级.
 type ThreatLevel string
 
 const (
@@ -13,7 +13,7 @@ const (
 	ThreatLevelCritical ThreatLevel = "critical"
 )
 
-// ThreatCategory 威胁分类
+// ThreatCategory 威胁分类.
 type ThreatCategory string
 
 const (
@@ -27,7 +27,7 @@ const (
 	CategoryUnauthorized ThreatCategory = "unauthorized_access"
 )
 
-// ThreatStatus 威胁状态
+// ThreatStatus 威胁状态.
 type ThreatStatus string
 
 const (
@@ -39,7 +39,7 @@ const (
 	StatusFalsePositive ThreatStatus = "false_positive"
 )
 
-// IncidentSeverity 事件严重性
+// IncidentSeverity 事件严重性.
 type IncidentSeverity string
 
 const (
@@ -49,7 +49,7 @@ const (
 	SeverityCritical IncidentSeverity = "critical"
 )
 
-// IncidentStatus 事件状态
+// IncidentStatus 事件状态.
 type IncidentStatus string
 
 const (
@@ -60,7 +60,7 @@ const (
 	IncidentStatusClosed     IncidentStatus = "closed"
 )
 
-// ResponseActionType 响应动作类型
+// ResponseActionType 响应动作类型.
 type ResponseActionType string
 
 const (
@@ -74,7 +74,7 @@ const (
 	ActionIsolateHost ResponseActionType = "isolate_host"
 )
 
-// Threat 威胁检测结果
+// Threat 威胁检测结果.
 type Threat struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
@@ -94,7 +94,7 @@ type Threat struct {
 	Tags        []string       `json:"tags,omitempty"`
 }
 
-// Evidence 威胁证据
+// Evidence 威胁证据.
 type Evidence struct {
 	Type      string    `json:"type"`
 	Value     string    `json:"value"`
@@ -103,7 +103,7 @@ type Evidence struct {
 	Context   string    `json:"context,omitempty"`
 }
 
-// BehaviorPattern 行为模式定义
+// BehaviorPattern 行为模式定义.
 type BehaviorPattern struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
@@ -119,7 +119,7 @@ type BehaviorPattern struct {
 	UpdatedAt   time.Time      `json:"updated_at"`
 }
 
-// BehaviorRule 行为规则
+// BehaviorRule 行为规则.
 type BehaviorRule struct {
 	Field    string  `json:"field"`
 	Operator string  `json:"operator"` // eq, ne, gt, lt, contains, regex
@@ -127,7 +127,7 @@ type BehaviorRule struct {
 	Weight   float64 `json:"weight"`
 }
 
-// BehaviorEvent 行为事件
+// BehaviorEvent 行为事件.
 type BehaviorEvent struct {
 	ID        string                 `json:"id"`
 	UserID    string                 `json:"user_id,omitempty"`
@@ -139,7 +139,7 @@ type BehaviorEvent struct {
 	RiskScore float64                `json:"risk_score"`
 }
 
-// BehaviorAnalysisResult 行为分析结果
+// BehaviorAnalysisResult 行为分析结果.
 type BehaviorAnalysisResult struct {
 	Events       []*BehaviorEvent `json:"events"`
 	MatchedRules []MatchedRule    `json:"matched_rules"`
@@ -148,7 +148,7 @@ type BehaviorAnalysisResult struct {
 	AnalyzedAt   time.Time        `json:"analyzed_at"`
 }
 
-// MatchedRule 匹配的规则
+// MatchedRule 匹配的规则.
 type MatchedRule struct {
 	PatternID   string  `json:"pattern_id"`
 	PatternName string  `json:"pattern_name"`
@@ -157,7 +157,7 @@ type MatchedRule struct {
 	EventID     string  `json:"event_id"`
 }
 
-// Anomaly 异常行为
+// Anomaly 异常行为.
 type Anomaly struct {
 	Type        string      `json:"type"`
 	Description string      `json:"description"`
@@ -166,7 +166,7 @@ type Anomaly struct {
 	Timestamp   time.Time   `json:"timestamp"`
 }
 
-// ThreatIntel 威胁情报条目
+// ThreatIntel 威胁情报条目.
 type ThreatIntel struct {
 	ID          string      `json:"id"`
 	IOCType     string      `json:"ioc_type"` // ip, domain, hash, url, email
@@ -182,7 +182,7 @@ type ThreatIntel struct {
 	IsActive    bool        `json:"is_active"`
 }
 
-// IntelFeed 威胁情报源
+// IntelFeed 威胁情报源.
 type IntelFeed struct {
 	ID         string    `json:"id"`
 	Name       string    `json:"name"`
@@ -194,7 +194,7 @@ type IntelFeed struct {
 	Interval   int       `json:"interval_min"` // 同步间隔（分钟）
 }
 
-// Incident 安全事件
+// Incident 安全事件.
 type Incident struct {
 	ID          string           `json:"id"`
 	Title       string           `json:"title"`
@@ -210,7 +210,7 @@ type Incident struct {
 	ResolvedAt  *time.Time       `json:"resolved_at,omitempty"`
 }
 
-// ResponseAction 响应动作
+// ResponseAction 响应动作.
 type ResponseAction struct {
 	ID         string                 `json:"id"`
 	Type       ResponseActionType     `json:"type"`
@@ -221,7 +221,7 @@ type ResponseAction struct {
 	ExecutedAt *time.Time             `json:"executed_at,omitempty"`
 }
 
-// IncidentEvent 事件时间线
+// IncidentEvent 事件时间线.
 type IncidentEvent struct {
 	Timestamp   time.Time `json:"timestamp"`
 	Description string    `json:"description"`
@@ -229,7 +229,7 @@ type IncidentEvent struct {
 	EventType   string    `json:"event_type"`
 }
 
-// SecurityScore 安全评分
+// SecurityScore 安全评分.
 type SecurityScore struct {
 	Overall         float64            `json:"overall"`   // 0-100
 	Grade           string             `json:"grade"`     // A, B, C, D, F
@@ -239,13 +239,13 @@ type SecurityScore struct {
 	ScoredAt        time.Time          `json:"scored_at"`
 }
 
-// ScoreTrend 评分趋势
+// ScoreTrend 评分趋势.
 type ScoreTrend struct {
 	Timestamp time.Time `json:"timestamp"`
 	Score     float64   `json:"score"`
 }
 
-// Recommendation 安全建议
+// Recommendation 安全建议.
 type Recommendation struct {
 	ID          string      `json:"id"`
 	Category    string      `json:"category"`
@@ -255,14 +255,14 @@ type Recommendation struct {
 	Impact      float64     `json:"impact"` // 对评分的潜在提升
 }
 
-// ScanRequest 扫描请求
+// ScanRequest 扫描请求.
 type ScanRequest struct {
 	ScanType   string           `json:"scan_type"` // quick, full, targeted
 	Targets    []string         `json:"targets,omitempty"`
 	Categories []ThreatCategory `json:"categories,omitempty"`
 }
 
-// ScanResult 扫描结果
+// ScanResult 扫描结果.
 type ScanResult struct {
 	ID           string    `json:"id"`
 	ScanType     string    `json:"scan_type"`
@@ -274,7 +274,7 @@ type ScanResult struct {
 	CompletedAt  time.Time `json:"completed_at"`
 }
 
-// IncidentRequest 创建事件请求
+// IncidentRequest 创建事件请求.
 type IncidentRequest struct {
 	Title       string           `json:"title" binding:"required"`
 	Description string           `json:"description"`
@@ -283,7 +283,7 @@ type IncidentRequest struct {
 	Assignee    string           `json:"assignee,omitempty"`
 }
 
-// ThreatHunterConfig 威胁猎手配置
+// ThreatHunterConfig 威胁猎手配置.
 type ThreatHunterConfig struct {
 	Enabled            bool               `json:"enabled"`
 	ScanIntervalMin    int                `json:"scan_interval_min"`
@@ -294,7 +294,7 @@ type ThreatHunterConfig struct {
 	AlertThreshold     float64            `json:"alert_threshold"`
 }
 
-// DefaultThreatHunterConfig 默认配置
+// DefaultThreatHunterConfig 默认配置.
 func DefaultThreatHunterConfig() *ThreatHunterConfig {
 	return &ThreatHunterConfig{
 		Enabled:         true,
@@ -313,12 +313,12 @@ func DefaultThreatHunterConfig() *ThreatHunterConfig {
 	}
 }
 
-// String 等级转字符串
+// String 等级转字符串.
 func (l ThreatLevel) String() string {
 	return string(l)
 }
 
-// IsValidThreatLevel 校验威胁等级
+// IsValidThreatLevel 校验威胁等级.
 func IsValidThreatLevel(level ThreatLevel) bool {
 	switch level {
 	case ThreatLevelLow, ThreatLevelMedium, ThreatLevelHigh, ThreatLevelCritical:

@@ -4,27 +4,27 @@ import (
 	"sync"
 )
 
-// 磁盘基准测试模块 - 顺序/随机读写测试
+// 磁盘基准测试模块 - 顺序/随机读写测试.
 type Manager struct {
 	mu      sync.RWMutex
 	config  *Config
 	running bool
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	Enabled  bool `json:"enabled"`
 	Interval int  `json:"interval"`
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(cfg *Config) *Manager {
 	return &Manager{
 		config: cfg,
 	}
 }
 
-// Start 启动
+// Start 启动.
 func (m *Manager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -35,7 +35,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop 停止
+// Stop 停止.
 func (m *Manager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -43,7 +43,7 @@ func (m *Manager) Stop() error {
 	return nil
 }
 
-// IsRunning 运行状态
+// IsRunning 运行状态.
 func (m *Manager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Manager 多云联邦管理器
+// Manager 多云联邦管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	providers  map[string]*CloudProviderConfig
@@ -21,7 +21,7 @@ type Manager struct {
 	dataFile   string
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(dataFile string) *Manager {
 	return &Manager{
 		providers:  make(map[string]*CloudProviderConfig),
@@ -41,12 +41,12 @@ func NewManager(dataFile string) *Manager {
 	}
 }
 
-// Initialize 初始化
+// Initialize 初始化.
 func (m *Manager) Initialize() error {
 	return m.load()
 }
 
-// RegisterProvider 注册云提供商
+// RegisterProvider 注册云提供商.
 func (m *Manager) RegisterProvider(cfg *CloudProviderConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -66,7 +66,7 @@ func (m *Manager) RegisterProvider(cfg *CloudProviderConfig) error {
 	return m.save()
 }
 
-// UpdateProvider 更新云提供商
+// UpdateProvider 更新云提供商.
 func (m *Manager) UpdateProvider(id string, cfg *CloudProviderConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -85,7 +85,7 @@ func (m *Manager) UpdateProvider(id string, cfg *CloudProviderConfig) error {
 	return m.save()
 }
 
-// DeleteProvider 删除云提供商
+// DeleteProvider 删除云提供商.
 func (m *Manager) DeleteProvider(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -107,7 +107,7 @@ func (m *Manager) DeleteProvider(id string) error {
 	return m.save()
 }
 
-// GetProvider 获取云提供商
+// GetProvider 获取云提供商.
 func (m *Manager) GetProvider(id string) (*CloudProviderConfig, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -119,7 +119,7 @@ func (m *Manager) GetProvider(id string) (*CloudProviderConfig, error) {
 	return provider, nil
 }
 
-// ListProviders 列出云提供商
+// ListProviders 列出云提供商.
 func (m *Manager) ListProviders(providerType CloudProvider) []*CloudProviderConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -134,7 +134,7 @@ func (m *Manager) ListProviders(providerType CloudProvider) []*CloudProviderConf
 	return result
 }
 
-// CheckProviderHealth 检查提供商健康状态
+// CheckProviderHealth 检查提供商健康状态.
 func (m *Manager) CheckProviderHealth(id string) (*ProviderStatus, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -156,7 +156,7 @@ func (m *Manager) CheckProviderHealth(id string) (*ProviderStatus, error) {
 	return &status, nil
 }
 
-// CreateNamespace 创建命名空间
+// CreateNamespace 创建命名空间.
 func (m *Manager) CreateNamespace(ns *Namespace) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -188,7 +188,7 @@ func (m *Manager) CreateNamespace(ns *Namespace) error {
 	return m.save()
 }
 
-// GetNamespace 获取命名空间
+// GetNamespace 获取命名空间.
 func (m *Manager) GetNamespace(id string) (*Namespace, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -200,7 +200,7 @@ func (m *Manager) GetNamespace(id string) (*Namespace, error) {
 	return ns, nil
 }
 
-// ListNamespaces 列出命名空间
+// ListNamespaces 列出命名空间.
 func (m *Manager) ListNamespaces() []*Namespace {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -212,7 +212,7 @@ func (m *Manager) ListNamespaces() []*Namespace {
 	return result
 }
 
-// DeleteNamespace 删除命名空间
+// DeleteNamespace 删除命名空间.
 func (m *Manager) DeleteNamespace(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -226,7 +226,7 @@ func (m *Manager) DeleteNamespace(id string) error {
 	return m.save()
 }
 
-// PlaceObject 智能放置对象
+// PlaceObject 智能放置对象.
 func (m *Manager) PlaceObject(nsID string, obj *StorageObject) (string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -261,7 +261,7 @@ func (m *Manager) PlaceObject(nsID string, obj *StorageObject) (string, error) {
 	return providerID, m.save()
 }
 
-// GetObject 获取对象
+// GetObject 获取对象.
 func (m *Manager) GetObject(nsID, key string) (*StorageObject, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -277,7 +277,7 @@ func (m *Manager) GetObject(nsID, key string) (*StorageObject, error) {
 	return obj, nil
 }
 
-// ListObjects 列出对象
+// ListObjects 列出对象.
 func (m *Manager) ListObjects(nsID, prefix string, limit int) ([]*StorageObject, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -300,7 +300,7 @@ func (m *Manager) ListObjects(nsID, prefix string, limit int) ([]*StorageObject,
 	return result, nil
 }
 
-// DeleteObject 删除对象
+// DeleteObject 删除对象.
 func (m *Manager) DeleteObject(nsID, key string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -325,7 +325,7 @@ func (m *Manager) DeleteObject(nsID, key string) error {
 	return m.save()
 }
 
-// selectProvider 根据策略选择提供商
+// selectProvider 根据策略选择提供商.
 func (m *Manager) selectProvider(ns *Namespace, obj *StorageObject) string {
 	switch ns.Strategy {
 	case StrategyCostOptimized:
@@ -341,7 +341,7 @@ func (m *Manager) selectProvider(ns *Namespace, obj *StorageObject) string {
 	}
 }
 
-// selectCheapestProvider 选择成本最低的提供商
+// selectCheapestProvider 选择成本最低的提供商.
 func (m *Manager) selectCheapestProvider(providers []string) string {
 	// 简化实现：返回第一个可用的提供商
 	for _, pid := range providers {
@@ -352,7 +352,7 @@ func (m *Manager) selectCheapestProvider(providers []string) string {
 	return providers[0]
 }
 
-// selectNearestProvider 选择延迟最低的提供商
+// selectNearestProvider 选择延迟最低的提供商.
 func (m *Manager) selectNearestProvider(providers []string, location string) string {
 	// 简化实现：根据位置匹配区域
 	for _, pid := range providers {
@@ -365,12 +365,12 @@ func (m *Manager) selectNearestProvider(providers []string, location string) str
 	return providers[0]
 }
 
-// selectGeoProvider 选择地理位置匹配的提供商
+// selectGeoProvider 选择地理位置匹配的提供商.
 func (m *Manager) selectGeoProvider(providers []string, location string) string {
 	return m.selectNearestProvider(providers, location)
 }
 
-// selectCompliantProvider 选择符合合规要求的提供商
+// selectCompliantProvider 选择符合合规要求的提供商.
 func (m *Manager) selectCompliantProvider(providers []string, compliance []string) string {
 	// 简化实现：返回第一个可用的提供商
 	for _, pid := range providers {
@@ -381,7 +381,7 @@ func (m *Manager) selectCompliantProvider(providers []string, compliance []strin
 	return providers[0]
 }
 
-// CreateSyncTask 创建同步任务
+// CreateSyncTask 创建同步任务.
 func (m *Manager) CreateSyncTask(task *SyncTask) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -414,7 +414,7 @@ func (m *Manager) CreateSyncTask(task *SyncTask) error {
 	return m.save()
 }
 
-// GetSyncTask 获取同步任务
+// GetSyncTask 获取同步任务.
 func (m *Manager) GetSyncTask(id string) (*SyncTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -426,7 +426,7 @@ func (m *Manager) GetSyncTask(id string) (*SyncTask, error) {
 	return task, nil
 }
 
-// ListSyncTasks 列出同步任务
+// ListSyncTasks 列出同步任务.
 func (m *Manager) ListSyncTasks(status SyncStatus) []*SyncTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -441,7 +441,7 @@ func (m *Manager) ListSyncTasks(status SyncStatus) []*SyncTask {
 	return result
 }
 
-// CreateMigrationTask 创建迁移任务
+// CreateMigrationTask 创建迁移任务.
 func (m *Manager) CreateMigrationTask(task *MigrationTask) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -472,7 +472,7 @@ func (m *Manager) CreateMigrationTask(task *MigrationTask) error {
 	return m.save()
 }
 
-// GetMigrationTask 获取迁移任务
+// GetMigrationTask 获取迁移任务.
 func (m *Manager) GetMigrationTask(id string) (*MigrationTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -484,7 +484,7 @@ func (m *Manager) GetMigrationTask(id string) (*MigrationTask, error) {
 	return task, nil
 }
 
-// ListMigrationTasks 列出迁移任务
+// ListMigrationTasks 列出迁移任务.
 func (m *Manager) ListMigrationTasks(status MigrationStatus) []*MigrationTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -499,7 +499,7 @@ func (m *Manager) ListMigrationTasks(status MigrationStatus) []*MigrationTask {
 	return result
 }
 
-// CancelMigrationTask 取消迁移任务
+// CancelMigrationTask 取消迁移任务.
 func (m *Manager) CancelMigrationTask(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -518,7 +518,7 @@ func (m *Manager) CancelMigrationTask(id string) error {
 	return m.save()
 }
 
-// AnalyzeCosts 分析多云成本
+// AnalyzeCosts 分析多云成本.
 func (m *Manager) AnalyzeCosts(period string) (*CostAnalysis, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -555,7 +555,7 @@ func (m *Manager) AnalyzeCosts(period string) (*CostAnalysis, error) {
 	return analysis, nil
 }
 
-// GetFederationStats 获取联邦统计
+// GetFederationStats 获取联邦统计.
 func (m *Manager) GetFederationStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -583,7 +583,7 @@ func (m *Manager) GetFederationStats() map[string]interface{} {
 	}
 }
 
-// runSyncTask 运行同步任务
+// runSyncTask 运行同步任务.
 func (m *Manager) runSyncTask(taskID string) {
 	m.mu.Lock()
 	task, ok := m.syncTasks[taskID]
@@ -614,7 +614,7 @@ func (m *Manager) runSyncTask(taskID string) {
 	_ = m.save()
 }
 
-// runMigrationTask 运行迁移任务
+// runMigrationTask 运行迁移任务.
 func (m *Manager) runMigrationTask(taskID string) {
 	m.mu.Lock()
 	task, ok := m.migTasks[taskID]
@@ -648,7 +648,7 @@ func (m *Manager) runMigrationTask(taskID string) {
 	_ = m.save()
 }
 
-// countActiveSyncs 统计活跃同步数
+// countActiveSyncs 统计活跃同步数.
 func (m *Manager) countActiveSyncs() int {
 	count := 0
 	for _, task := range m.syncTasks {
@@ -659,7 +659,7 @@ func (m *Manager) countActiveSyncs() int {
 	return count
 }
 
-// countActiveMigrations 统计活跃迁移数
+// countActiveMigrations 统计活跃迁移数.
 func (m *Manager) countActiveMigrations() int {
 	count := 0
 	for _, task := range m.migTasks {
@@ -670,7 +670,7 @@ func (m *Manager) countActiveMigrations() int {
 	return count
 }
 
-// load 加载数据
+// load 加载数据.
 func (m *Manager) load() error {
 	if m.dataFile == "" {
 		return nil
@@ -710,7 +710,7 @@ func (m *Manager) load() error {
 	return nil
 }
 
-// save 保存数据
+// save 保存数据.
 func (m *Manager) save() error {
 	if m.dataFile == "" {
 		return nil
@@ -728,7 +728,7 @@ func (m *Manager) save() error {
 	return os.WriteFile(m.dataFile, data, 0644)
 }
 
-// isValidProvider 验证提供商类型
+// isValidProvider 验证提供商类型.
 func isValidProvider(p CloudProvider) bool {
 	switch p {
 	case ProviderAWS, ProviderAzure, ProviderGCS, ProviderAliyun,
@@ -738,7 +738,7 @@ func isValidProvider(p CloudProvider) bool {
 	return false
 }
 
-// isValidStrategy 验证放置策略
+// isValidStrategy 验证放置策略.
 func isValidStrategy(s PlacementStrategy) bool {
 	switch s {
 	case StrategyCostOptimized, StrategyLatencyOptimized, StrategyCompliance,

@@ -14,7 +14,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Manager 照片AI管理器
+// Manager 照片AI管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	config   *PhotoAIConfig
@@ -27,7 +27,7 @@ type Manager struct {
 	scanning bool
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(cfg *PhotoAIConfig) *Manager {
 	if cfg == nil {
 		cfg = DefaultPhotoAIConfig()
@@ -45,7 +45,7 @@ func NewManager(cfg *PhotoAIConfig) *Manager {
 
 // ========== 照片管理 ==========
 
-// AddPhoto 添加照片
+// AddPhoto 添加照片.
 func (m *Manager) AddPhoto(photo *Photo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -71,7 +71,7 @@ func (m *Manager) AddPhoto(photo *Photo) error {
 	return nil
 }
 
-// GetPhoto 获取照片
+// GetPhoto 获取照片.
 func (m *Manager) GetPhoto(id string) (*Photo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -83,7 +83,7 @@ func (m *Manager) GetPhoto(id string) (*Photo, error) {
 	return photo, nil
 }
 
-// ListPhotos 列出照片（分页）
+// ListPhotos 列出照片（分页）.
 func (m *Manager) ListPhotos(page, pageSize int) ([]*Photo, int) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -102,7 +102,7 @@ func (m *Manager) ListPhotos(page, pageSize int) ([]*Photo, int) {
 	return all[start:end], total
 }
 
-// UpdatePhoto 更新照片信息
+// UpdatePhoto 更新照片信息.
 func (m *Manager) UpdatePhoto(photo *Photo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -116,7 +116,7 @@ func (m *Manager) UpdatePhoto(photo *Photo) error {
 	return nil
 }
 
-// DeletePhoto 删除照片
+// DeletePhoto 删除照片.
 func (m *Manager) DeletePhoto(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -139,7 +139,7 @@ func (m *Manager) DeletePhoto(id string) error {
 	return nil
 }
 
-// SetFavorite 设置收藏
+// SetFavorite 设置收藏.
 func (m *Manager) SetFavorite(id string, isFav bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -154,7 +154,7 @@ func (m *Manager) SetFavorite(id string, isFav bool) error {
 	return nil
 }
 
-// BatchTag 批量标签操作
+// BatchTag 批量标签操作.
 func (m *Manager) BatchTag(req *BatchTagRequest) (int, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -181,7 +181,7 @@ func (m *Manager) BatchTag(req *BatchTagRequest) (int, error) {
 
 // ========== 扫描 ==========
 
-// Scan 扫描目录
+// Scan 扫描目录.
 func (m *Manager) Scan(req *ScanRequest) (*ScanResult, error) {
 	if req.Directory == "" {
 		return nil, fmt.Errorf("directory is required")
@@ -216,7 +216,7 @@ func (m *Manager) Scan(req *ScanRequest) (*ScanResult, error) {
 	return result, nil
 }
 
-// ImportPhotos 导入照片
+// ImportPhotos 导入照片.
 func (m *Manager) ImportPhotos(req *ImportRequest) (*ImportResult, error) {
 	if len(req.Paths) == 0 {
 		return nil, fmt.Errorf("paths is required")
@@ -262,7 +262,7 @@ func (m *Manager) ImportPhotos(req *ImportRequest) (*ImportResult, error) {
 
 // ========== AI 分析 ==========
 
-// AnalyzePhoto 分析单张照片
+// AnalyzePhoto 分析单张照片.
 func (m *Manager) AnalyzePhoto(photoID string) (*AIAnalysisResult, error) {
 	m.mu.RLock()
 	photo, exists := m.photos[photoID]
@@ -298,7 +298,7 @@ func (m *Manager) AnalyzePhoto(photoID string) (*AIAnalysisResult, error) {
 	return result, nil
 }
 
-// AnalyzePending 分析所有待处理照片
+// AnalyzePending 分析所有待处理照片.
 func (m *Manager) AnalyzePending() (int, int, error) {
 	m.mu.RLock()
 	var pending []string
@@ -328,7 +328,7 @@ func (m *Manager) AnalyzePending() (int, int, error) {
 
 // ========== 人脸识别 & 聚类 ==========
 
-// GetPersons 获取所有人物列表
+// GetPersons 获取所有人物列表.
 func (m *Manager) GetPersons() []*Person {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -343,7 +343,7 @@ func (m *Manager) GetPersons() []*Person {
 	return persons
 }
 
-// GetPerson 获取人物信息
+// GetPerson 获取人物信息.
 func (m *Manager) GetPerson(id string) (*Person, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -355,7 +355,7 @@ func (m *Manager) GetPerson(id string) (*Person, error) {
 	return person, nil
 }
 
-// RenamePerson 重命名人物
+// RenamePerson 重命名人物.
 func (m *Manager) RenamePerson(id, name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -370,7 +370,7 @@ func (m *Manager) RenamePerson(id, name string) error {
 	return nil
 }
 
-// MergePersons 合并两个人物
+// MergePersons 合并两个人物.
 func (m *Manager) MergePersons(targetID, sourceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -416,7 +416,7 @@ func (m *Manager) MergePersons(targetID, sourceID string) error {
 	return nil
 }
 
-// RunFaceClustering 运行人脸聚类
+// RunFaceClustering 运行人脸聚类.
 func (m *Manager) RunFaceClustering() (int, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -431,7 +431,7 @@ func (m *Manager) RunFaceClustering() (int, error) {
 
 // ========== 搜索 ==========
 
-// SearchPhotos 搜索照片
+// SearchPhotos 搜索照片.
 func (m *Manager) SearchPhotos(query *SearchQuery) *SearchResult {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -578,7 +578,7 @@ func (m *Manager) sortPhotos(photos []*Photo, sortBy, order string) {
 
 // ========== 智能相册 ==========
 
-// CreateAlbum 创建智能相册
+// CreateAlbum 创建智能相册.
 func (m *Manager) CreateAlbum(req *AlbumRequest) (*SmartAlbum, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -606,7 +606,7 @@ func (m *Manager) CreateAlbum(req *AlbumRequest) (*SmartAlbum, error) {
 	return album, nil
 }
 
-// GetAlbum 获取相册
+// GetAlbum 获取相册.
 func (m *Manager) GetAlbum(id string) (*SmartAlbum, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -618,7 +618,7 @@ func (m *Manager) GetAlbum(id string) (*SmartAlbum, error) {
 	return album, nil
 }
 
-// ListAlbums 列出所有相册
+// ListAlbums 列出所有相册.
 func (m *Manager) ListAlbums() []*SmartAlbum {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -633,7 +633,7 @@ func (m *Manager) ListAlbums() []*SmartAlbum {
 	return albums
 }
 
-// UpdateAlbum 更新相册
+// UpdateAlbum 更新相册.
 func (m *Manager) UpdateAlbum(id string, req *AlbumRequest) (*SmartAlbum, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -660,7 +660,7 @@ func (m *Manager) UpdateAlbum(id string, req *AlbumRequest) (*SmartAlbum, error)
 	return album, nil
 }
 
-// DeleteAlbum 删除相册
+// DeleteAlbum 删除相册.
 func (m *Manager) DeleteAlbum(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -678,7 +678,7 @@ func (m *Manager) DeleteAlbum(id string) error {
 	return nil
 }
 
-// RefreshAlbums 刷新所有智能相册（重新匹配规则）
+// RefreshAlbums 刷新所有智能相册（重新匹配规则）.
 func (m *Manager) RefreshAlbums() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -717,7 +717,7 @@ func (m *Manager) matchAlbumRules(photo *Photo, rules []AlbumRule) bool {
 
 // ========== 去重 ==========
 
-// DetectDuplicates 检测重复照片
+// DetectDuplicates 检测重复照片.
 func (m *Manager) DetectDuplicates() []*DuplicateGroup {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -757,7 +757,7 @@ func (m *Manager) DetectDuplicates() []*DuplicateGroup {
 
 // ========== 分享 ==========
 
-// CreateShareLink 创建分享链接
+// CreateShareLink 创建分享链接.
 func (m *Manager) CreateShareLink(req *ShareRequest) (*ShareLink, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -786,7 +786,7 @@ func (m *Manager) CreateShareLink(req *ShareRequest) (*ShareLink, error) {
 	return link, nil
 }
 
-// GetShareLink 获取分享链接
+// GetShareLink 获取分享链接.
 func (m *Manager) GetShareLink(token string) (*ShareLink, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -808,7 +808,7 @@ func (m *Manager) GetShareLink(token string) (*ShareLink, error) {
 
 // ========== 统计 ==========
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -858,7 +858,7 @@ func (m *Manager) GetStats() map[string]interface{} {
 	}
 }
 
-// GetCategoryStats 获取分类统计
+// GetCategoryStats 获取分类统计.
 func (m *Manager) GetCategoryStats() map[PhotoCategory]int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -872,7 +872,7 @@ func (m *Manager) GetCategoryStats() map[PhotoCategory]int {
 	return categories
 }
 
-// GetTimeline 获取时间线统计（按月）
+// GetTimeline 获取时间线统计（按月）.
 func (m *Manager) GetTimeline() map[string]int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -1037,7 +1037,7 @@ func toFloat(v interface{}) (float64, bool) {
 	return 0, false
 }
 
-// haversineKm 计算两点之间的距离（公里）
+// haversineKm 计算两点之间的距离（公里）.
 func haversineKm(lat1, lon1, lat2, lon2 float64) float64 {
 	const R = 6371.0 // 地球半径（公里）
 	dLat := (lat2 - lat1) * math.Pi / 180

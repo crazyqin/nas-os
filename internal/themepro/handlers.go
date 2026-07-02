@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 主题 API 处理器
+// Handlers 主题 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	theme := r.Group("/theme")
 	{
@@ -43,14 +43,14 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// listThemes 列出所有主题
+// listThemes 列出所有主题.
 func (h *Handlers) listThemes(c *gin.Context) {
 	themes := h.manager.ListThemes()
 	c.JSON(http.StatusOK, response{
@@ -60,7 +60,7 @@ func (h *Handlers) listThemes(c *gin.Context) {
 	})
 }
 
-// getActiveTheme 获取当前活跃主题
+// getActiveTheme 获取当前活跃主题.
 func (h *Handlers) getActiveTheme(c *gin.Context) {
 	theme, err := h.manager.GetActiveTheme()
 	if err != nil {
@@ -78,7 +78,7 @@ func (h *Handlers) getActiveTheme(c *gin.Context) {
 	})
 }
 
-// getTheme 获取主题
+// getTheme 获取主题.
 func (h *Handlers) getTheme(c *gin.Context) {
 	id := c.Param("id")
 	theme, err := h.manager.GetTheme(id)
@@ -97,7 +97,7 @@ func (h *Handlers) getTheme(c *gin.Context) {
 	})
 }
 
-// createTheme 创建主题
+// createTheme 创建主题.
 func (h *Handlers) createTheme(c *gin.Context) {
 	var req CreateThemeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -124,7 +124,7 @@ func (h *Handlers) createTheme(c *gin.Context) {
 	})
 }
 
-// updateTheme 更新主题
+// updateTheme 更新主题.
 func (h *Handlers) updateTheme(c *gin.Context) {
 	id := c.Param("id")
 	var req UpdateThemeRequest
@@ -152,7 +152,7 @@ func (h *Handlers) updateTheme(c *gin.Context) {
 	})
 }
 
-// deleteTheme 删除主题
+// deleteTheme 删除主题.
 func (h *Handlers) deleteTheme(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteTheme(id); err != nil {
@@ -169,7 +169,7 @@ func (h *Handlers) deleteTheme(c *gin.Context) {
 	})
 }
 
-// applyTheme 应用主题
+// applyTheme 应用主题.
 func (h *Handlers) applyTheme(c *gin.Context) {
 	id := c.Param("id")
 	theme, err := h.manager.ApplyTheme(id)
@@ -188,7 +188,7 @@ func (h *Handlers) applyTheme(c *gin.Context) {
 	})
 }
 
-// duplicateTheme 复制主题
+// duplicateTheme 复制主题.
 func (h *Handlers) duplicateTheme(c *gin.Context) {
 	id := c.Param("id")
 
@@ -219,7 +219,7 @@ func (h *Handlers) duplicateTheme(c *gin.Context) {
 	})
 }
 
-// getBuiltinThemes 获取内置主题
+// getBuiltinThemes 获取内置主题.
 func (h *Handlers) getBuiltinThemes(c *gin.Context) {
 	themes := h.manager.GetBuiltinThemes()
 	c.JSON(http.StatusOK, response{
@@ -229,7 +229,7 @@ func (h *Handlers) getBuiltinThemes(c *gin.Context) {
 	})
 }
 
-// getCustomThemes 获取自定义主题
+// getCustomThemes 获取自定义主题.
 func (h *Handlers) getCustomThemes(c *gin.Context) {
 	themes := h.manager.GetCustomThemes()
 	c.JSON(http.StatusOK, response{
@@ -239,7 +239,7 @@ func (h *Handlers) getCustomThemes(c *gin.Context) {
 	})
 }
 
-// getDefaultThemes 获取默认主题
+// getDefaultThemes 获取默认主题.
 func (h *Handlers) getDefaultThemes(c *gin.Context) {
 	themes := h.manager.GetDefaultThemes()
 	c.JSON(http.StatusOK, response{
@@ -249,7 +249,7 @@ func (h *Handlers) getDefaultThemes(c *gin.Context) {
 	})
 }
 
-// exportTheme 导出主题
+// exportTheme 导出主题.
 func (h *Handlers) exportTheme(c *gin.Context) {
 	var req struct {
 		ThemeIDs []string `json:"theme_ids" binding:"required,min=1"`
@@ -278,7 +278,7 @@ func (h *Handlers) exportTheme(c *gin.Context) {
 	})
 }
 
-// importTheme 导入主题
+// importTheme 导入主题.
 func (h *Handlers) importTheme(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {

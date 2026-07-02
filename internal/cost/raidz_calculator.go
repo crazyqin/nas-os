@@ -9,23 +9,23 @@ import (
 
 // ========== RAIDZ类型定义 ==========
 
-// RAIDZLevel RAIDZ级别
+// RAIDZLevel RAIDZ级别.
 type RAIDZLevel string
 
 const (
-	// RAIDZ1 单盘冗余（类似RAID5）
+	// RAIDZ1 单盘冗余（类似RAID5）.
 	RAIDZ1 RAIDZLevel = "raidz1"
-	// RAIDZ2 双盘冗余（类似RAID6）
+	// RAIDZ2 双盘冗余（类似RAID6）.
 	RAIDZ2 RAIDZLevel = "raidz2"
-	// RAIDZ3 三盘冗余
+	// RAIDZ3 三盘冗余.
 	RAIDZ3 RAIDZLevel = "raidz3"
-	// Stripe 无冗余（条带化）
+	// Stripe 无冗余（条带化）.
 	Stripe RAIDZLevel = "stripe"
-	// Mirror 镜像（类似RAID1）
+	// Mirror 镜像（类似RAID1）.
 	Mirror RAIDZLevel = "mirror"
 )
 
-// RAIDZConfig RAIDZ配置
+// RAIDZConfig RAIDZ配置.
 type RAIDZConfig struct {
 	// RAIDZ级别
 	Level RAIDZLevel `json:"level"`
@@ -40,7 +40,7 @@ type RAIDZConfig struct {
 	DiskPrice float64 `json:"disk_price"`
 }
 
-// RAIDZCapacityResult 容量计算结果
+// RAIDZCapacityResult 容量计算结果.
 type RAIDZCapacityResult struct {
 	// 配置信息
 	Config RAIDZConfig `json:"config"`
@@ -76,7 +76,7 @@ type RAIDZCapacityResult struct {
 	CostPerTB float64 `json:"cost_per_tb"`
 }
 
-// ExpansionPlan 扩容方案
+// ExpansionPlan 扩容方案.
 type ExpansionPlan struct {
 	// 方案ID
 	ID string `json:"id"`
@@ -121,7 +121,7 @@ type ExpansionPlan struct {
 	Priority int `json:"priority"`
 }
 
-// ExpansionAnalysis 扩容分析结果
+// ExpansionAnalysis 扩容分析结果.
 type ExpansionAnalysis struct {
 	// 分析ID
 	ID string `json:"id"`
@@ -145,7 +145,7 @@ type ExpansionAnalysis struct {
 	Suggestions []string `json:"suggestions"`
 }
 
-// RAIDZCalculator RAIDZ计算器
+// RAIDZCalculator RAIDZ计算器.
 type RAIDZCalculator struct {
 	// 存储单价（元/GB/月）
 	StorageCostPerGB float64 `json:"storage_cost_per_gb"`
@@ -160,7 +160,7 @@ type RAIDZCalculator struct {
 	MinDiskRecommendations map[RAIDZLevel]int `json:"min_disk_recommendations"`
 }
 
-// DefaultRAIDZCalculator 默认计算器配置
+// DefaultRAIDZCalculator 默认计算器配置.
 func DefaultRAIDZCalculator() *RAIDZCalculator {
 	return &RAIDZCalculator{
 		StorageCostPerGB:    0.05, // 0.05元/GB/月
@@ -178,7 +178,7 @@ func DefaultRAIDZCalculator() *RAIDZCalculator {
 
 // ========== 容量计算核心逻辑 ==========
 
-// CalculateCapacity 计算RAIDZ配置的可用容量
+// CalculateCapacity 计算RAIDZ配置的可用容量.
 func (c *RAIDZCalculator) CalculateCapacity(config RAIDZConfig) *RAIDZCapacityResult {
 	result := &RAIDZCapacityResult{
 		Config: config,
@@ -224,7 +224,7 @@ func (c *RAIDZCalculator) CalculateCapacity(config RAIDZConfig) *RAIDZCapacityRe
 	return result
 }
 
-// getParityDisks 获取冗余盘数
+// getParityDisks 获取冗余盘数.
 func (c *RAIDZCalculator) getParityDisks(level RAIDZLevel) int {
 	switch level {
 	case RAIDZ1:
@@ -243,7 +243,7 @@ func (c *RAIDZCalculator) getParityDisks(level RAIDZLevel) int {
 	}
 }
 
-// CalculateMirrorCapacity 计算镜像容量（特殊处理）
+// CalculateMirrorCapacity 计算镜像容量（特殊处理）.
 func (c *RAIDZCalculator) CalculateMirrorCapacity(config RAIDZConfig) *RAIDZCapacityResult {
 	result := &RAIDZCapacityResult{
 		Config:      config,
@@ -276,7 +276,7 @@ func (c *RAIDZCalculator) CalculateMirrorCapacity(config RAIDZConfig) *RAIDZCapa
 	return result
 }
 
-// calculateEfficiencyScore 计算效率评分
+// calculateEfficiencyScore 计算效率评分.
 func (c *RAIDZCalculator) calculateEfficiencyScore(config RAIDZConfig, utilization float64) float64 {
 	score := 100.0
 
@@ -312,7 +312,7 @@ func (c *RAIDZCalculator) calculateEfficiencyScore(config RAIDZConfig, utilizati
 	return round(score, 1)
 }
 
-// getOptimalUtilization 获取最优利用率参考值
+// getOptimalUtilization 获取最优利用率参考值.
 func (c *RAIDZCalculator) getOptimalUtilization(level RAIDZLevel) float64 {
 	switch level {
 	case RAIDZ1:
@@ -332,7 +332,7 @@ func (c *RAIDZCalculator) getOptimalUtilization(level RAIDZLevel) float64 {
 
 // ========== 扩容方案计算 ==========
 
-// AnalyzeExpansion 分析扩容方案
+// AnalyzeExpansion 分析扩容方案.
 func (c *RAIDZCalculator) AnalyzeExpansion(currentConfig RAIDZConfig, targetCapacityGB float64) *ExpansionAnalysis {
 	analysis := &ExpansionAnalysis{
 		ID:               fmt.Sprintf("expansion_%d", currentConfig.DiskCount),
@@ -389,7 +389,7 @@ func (c *RAIDZCalculator) AnalyzeExpansion(currentConfig RAIDZConfig, targetCapa
 	return analysis
 }
 
-// generateSameLevelPlan 生成同级别扩容方案
+// generateSameLevelPlan 生成同级别扩容方案.
 func (c *RAIDZCalculator) generateSameLevelPlan(currentConfig RAIDZConfig, targetCapacityGB float64) *ExpansionPlan {
 	currentResult := c.CalculateCapacity(currentConfig)
 	currentCapacityGB := currentResult.UsableCapacityGB
@@ -467,7 +467,7 @@ func (c *RAIDZCalculator) generateSameLevelPlan(currentConfig RAIDZConfig, targe
 	return plan
 }
 
-// generateUpgradePlan 生成升级RAID级别方案
+// generateUpgradePlan 生成升级RAID级别方案.
 func (c *RAIDZCalculator) generateUpgradePlan(currentConfig RAIDZConfig, targetCapacityGB float64) *ExpansionPlan {
 	// 只有RAIDZ1可以升级到RAIDZ2/3（需要足够盘数）
 	if currentConfig.Level != RAIDZ1 {
@@ -538,7 +538,7 @@ func (c *RAIDZCalculator) generateUpgradePlan(currentConfig RAIDZConfig, targetC
 	return plan
 }
 
-// generateReplaceDiskPlan 生成更换更大磁盘方案
+// generateReplaceDiskPlan 生成更换更大磁盘方案.
 func (c *RAIDZCalculator) generateReplaceDiskPlan(currentConfig RAIDZConfig, targetCapacityGB float64) *ExpansionPlan {
 	// 计算需要的单盘容量
 	parity := c.getParityDisks(currentConfig.Level)
@@ -598,7 +598,7 @@ func (c *RAIDZCalculator) generateReplaceDiskPlan(currentConfig RAIDZConfig, tar
 	return plan
 }
 
-// calculateROIScore 计算ROI评分
+// calculateROIScore 计算ROI评分.
 func (c *RAIDZCalculator) calculateROIScore(plan *ExpansionPlan) float64 {
 	score := 100.0
 
@@ -633,7 +633,7 @@ func (c *RAIDZCalculator) calculateROIScore(plan *ExpansionPlan) float64 {
 	return round(score, 1)
 }
 
-// selectBestPlan 选择最优方案
+// selectBestPlan 选择最优方案.
 func (c *RAIDZCalculator) selectBestPlan(plans []ExpansionPlan) *ExpansionPlan {
 	if len(plans) == 0 {
 		return nil
@@ -653,7 +653,7 @@ func (c *RAIDZCalculator) selectBestPlan(plans []ExpansionPlan) *ExpansionPlan {
 	return best
 }
 
-// generateExpansionSuggestions 生成扩容建议
+// generateExpansionSuggestions 生成扩容建议.
 func (c *RAIDZCalculator) generateExpansionSuggestions(analysis *ExpansionAnalysis) []string {
 	suggestions := make([]string, 0)
 
@@ -701,7 +701,7 @@ func (c *RAIDZCalculator) generateExpansionSuggestions(analysis *ExpansionAnalys
 
 // ========== 辅助方法 ==========
 
-// CompareRAIDZLevels 对比不同RAIDZ级别的成本效益
+// CompareRAIDZLevels 对比不同RAIDZ级别的成本效益.
 func (c *RAIDZCalculator) CompareRAIDZLevels(diskCount int, diskCapacityBytes uint64, diskPrice float64) map[RAIDZLevel]*RAIDZCapacityResult {
 	results := make(map[RAIDZLevel]*RAIDZCapacityResult)
 
@@ -726,7 +726,7 @@ func (c *RAIDZCalculator) CompareRAIDZLevels(diskCount int, diskCapacityBytes ui
 	return results
 }
 
-// GetRecommendedConfig 获取推荐配置
+// GetRecommendedConfig 获取推荐配置.
 func (c *RAIDZCalculator) GetRecommendedConfig(targetCapacityGB float64, maxBudget float64, preferredLevel RAIDZLevel) *RAIDZConfig {
 	// 基于目标容量和预算计算最优配置
 
@@ -771,7 +771,7 @@ func (c *RAIDZCalculator) GetRecommendedConfig(targetCapacityGB float64, maxBudg
 	return config
 }
 
-// ValidateConfig 验证RAIDZ配置合理性
+// ValidateConfig 验证RAIDZ配置合理性.
 func (c *RAIDZCalculator) ValidateConfig(config RAIDZConfig) []string {
 	issues := make([]string, 0)
 

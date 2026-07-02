@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Manager 文档管理器
+// Manager 文档管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	documents  map[string]*Document
@@ -20,7 +20,7 @@ type Manager struct {
 	nextTagID  int
 }
 
-// NewManager 创建新的文档管理器
+// NewManager 创建新的文档管理器.
 func NewManager() *Manager {
 	return &Manager{
 		documents:  make(map[string]*Document),
@@ -32,7 +32,7 @@ func NewManager() *Manager {
 	}
 }
 
-// CreateDocument 创建文档
+// CreateDocument 创建文档.
 func (m *Manager) CreateDocument(req CreateDocumentRequest) (*Document, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -64,7 +64,7 @@ func (m *Manager) CreateDocument(req CreateDocumentRequest) (*Document, error) {
 	return doc, nil
 }
 
-// GetDocument 获取文档
+// GetDocument 获取文档.
 func (m *Manager) GetDocument(id string) (*Document, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -76,7 +76,7 @@ func (m *Manager) GetDocument(id string) (*Document, error) {
 	return doc, nil
 }
 
-// UpdateDocument 更新文档
+// UpdateDocument 更新文档.
 func (m *Manager) UpdateDocument(id string, req UpdateDocumentRequest) (*Document, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -116,7 +116,7 @@ func (m *Manager) UpdateDocument(id string, req UpdateDocumentRequest) (*Documen
 	return doc, nil
 }
 
-// DeleteDocument 删除文档
+// DeleteDocument 删除文档.
 func (m *Manager) DeleteDocument(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -130,7 +130,7 @@ func (m *Manager) DeleteDocument(id string) error {
 	return nil
 }
 
-// ListDocuments 列出文档（分页）
+// ListDocuments 列出文档（分页）.
 func (m *Manager) ListDocuments(page, pageSize int) ([]Document, int, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -162,7 +162,7 @@ func (m *Manager) ListDocuments(page, pageSize int) ([]Document, int, error) {
 	return allDocs[start:end], total, nil
 }
 
-// SearchDocuments 搜索文档
+// SearchDocuments 搜索文档.
 func (m *Manager) SearchDocuments(query SearchQuery) (*SearchResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -207,7 +207,7 @@ func (m *Manager) SearchDocuments(query SearchQuery) (*SearchResult, error) {
 	}, nil
 }
 
-// matchDocument 检查文档是否匹配搜索条件
+// matchDocument 检查文档是否匹配搜索条件.
 func matchDocument(doc *Document, query SearchQuery) bool {
 	// 关键词匹配（标题、内容、OCR文本）
 	if query.Query != "" {
@@ -254,7 +254,7 @@ func matchDocument(doc *Document, query SearchQuery) bool {
 	return true
 }
 
-// AddTag 给文档添加标签
+// AddTag 给文档添加标签.
 func (m *Manager) AddTag(docID, tagID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -282,7 +282,7 @@ func (m *Manager) AddTag(docID, tagID string) error {
 	return nil
 }
 
-// RemoveTag 移除文档标签
+// RemoveTag 移除文档标签.
 func (m *Manager) RemoveTag(docID, tagID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -309,7 +309,7 @@ func (m *Manager) RemoveTag(docID, tagID string) error {
 	return fmt.Errorf("文档 %s 未包含标签: %s", docID, tag.Name)
 }
 
-// SetCategory 设置文档分类
+// SetCategory 设置文档分类.
 func (m *Manager) SetCategory(docID, catID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -330,7 +330,7 @@ func (m *Manager) SetCategory(docID, catID string) error {
 	return nil
 }
 
-// ProcessOCR 处理文档OCR
+// ProcessOCR 处理文档OCR.
 func (m *Manager) ProcessOCR(docID string) (*OCRResult, error) {
 	m.mu.RLock()
 	doc, exists := m.documents[docID]
@@ -358,7 +358,7 @@ func (m *Manager) ProcessOCR(docID string) (*OCRResult, error) {
 	return ocrResult, nil
 }
 
-// AutoClassify 自动分类文档
+// AutoClassify 自动分类文档.
 func (m *Manager) AutoClassify(docID string) (string, error) {
 	m.mu.RLock()
 	doc, exists := m.documents[docID]
@@ -393,7 +393,7 @@ func (m *Manager) AutoClassify(docID string) (string, error) {
 	return category, nil
 }
 
-// GetCategories 获取所有分类
+// GetCategories 获取所有分类.
 func (m *Manager) GetCategories() ([]Category, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -405,7 +405,7 @@ func (m *Manager) GetCategories() ([]Category, error) {
 	return cats, nil
 }
 
-// CreateCategory 创建分类
+// CreateCategory 创建分类.
 func (m *Manager) CreateCategory(req CreateCategoryRequest) (*Category, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -443,7 +443,7 @@ func (m *Manager) CreateCategory(req CreateCategoryRequest) (*Category, error) {
 	return cat, nil
 }
 
-// GetTags 获取所有标签
+// GetTags 获取所有标签.
 func (m *Manager) GetTags() ([]Tag, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -455,7 +455,7 @@ func (m *Manager) GetTags() ([]Tag, error) {
 	return tags, nil
 }
 
-// CreateTag 创建标签
+// CreateTag 创建标签.
 func (m *Manager) CreateTag(req CreateTagRequest) (*Tag, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -485,7 +485,7 @@ func (m *Manager) CreateTag(req CreateTagRequest) (*Tag, error) {
 	return tag, nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() (map[string]interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

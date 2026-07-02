@@ -22,7 +22,7 @@ import (
 // 取证分析引擎
 // ============================================================
 
-// ForensicsEngine 取证分析引擎
+// ForensicsEngine 取证分析引擎.
 type ForensicsEngine struct {
 	mu sync.RWMutex
 
@@ -36,7 +36,7 @@ type ForensicsEngine struct {
 	stopChan      chan struct{}
 }
 
-// SecurityIncident 安全事件
+// SecurityIncident 安全事件.
 type SecurityIncident struct {
 	ID            string      `json:"id"`
 	Title         string      `json:"title"`
@@ -54,7 +54,7 @@ type SecurityIncident struct {
 	ResolvedAt    *time.Time  `json:"resolved_at,omitempty"`
 }
 
-// Evidence 证据
+// Evidence 证据.
 type Evidence struct {
 	ID             string         `json:"id"`
 	IncidentID     string         `json:"incident_id"`
@@ -70,7 +70,7 @@ type Evidence struct {
 	CreatedAt      time.Time      `json:"created_at"`
 }
 
-// CustodyEntry 证据保管链
+// CustodyEntry 证据保管链.
 type CustodyEntry struct {
 	Action    string    `json:"action"`
 	Officer   string    `json:"officer"`
@@ -78,7 +78,7 @@ type CustodyEntry struct {
 	Notes     string    `json:"notes"`
 }
 
-// Timeline 事件时间线
+// Timeline 事件时间线.
 type Timeline struct {
 	ID         string          `json:"id"`
 	IncidentID string          `json:"incident_id"`
@@ -88,7 +88,7 @@ type Timeline struct {
 	CreatedAt  time.Time       `json:"created_at"`
 }
 
-// TimelineEvent 时间线事件
+// TimelineEvent 时间线事件.
 type TimelineEvent struct {
 	ID          string                 `json:"id"`
 	Timestamp   time.Time              `json:"timestamp"`
@@ -101,7 +101,7 @@ type TimelineEvent struct {
 	Confidence  float64                `json:"confidence"`
 }
 
-// AttackChain 攻击链
+// AttackChain 攻击链.
 type AttackChain struct {
 	ID         string       `json:"id"`
 	IncidentID string       `json:"incident_id"`
@@ -116,7 +116,7 @@ type AttackChain struct {
 	CreatedAt  time.Time    `json:"created_at"`
 }
 
-// ChainPhase 攻击链阶段
+// ChainPhase 攻击链阶段.
 type ChainPhase struct {
 	Phase       AttackPhase `json:"phase"`
 	Description string      `json:"description"`
@@ -126,7 +126,7 @@ type ChainPhase struct {
 	Confidence  float64     `json:"confidence"`
 }
 
-// ForensicsReport 取证报告
+// ForensicsReport 取证报告.
 type ForensicsReport struct {
 	ID              string       `json:"id"`
 	IncidentID      string       `json:"incident_id"`
@@ -142,7 +142,7 @@ type ForensicsReport struct {
 	Format          string       `json:"format"`
 }
 
-// ForensicsStats 取证统计
+// ForensicsStats 取证统计.
 type ForensicsStats struct {
 	TotalIncidents    int       `json:"total_incidents"`
 	OpenIncidents     int       `json:"open_incidents"`
@@ -157,7 +157,7 @@ type ForensicsStats struct {
 // 构造与生命周期
 // ============================================================
 
-// NewForensicsEngine 创建取证分析引擎
+// NewForensicsEngine 创建取证分析引擎.
 func NewForensicsEngine(reportDir string) *ForensicsEngine {
 	fe := &ForensicsEngine{
 		incidents:     make(map[string]*SecurityIncident),
@@ -171,7 +171,7 @@ func NewForensicsEngine(reportDir string) *ForensicsEngine {
 	return fe
 }
 
-// Start 启动取证引擎
+// Start 启动取证引擎.
 func (fe *ForensicsEngine) Start() {
 	fe.mu.Lock()
 	if fe.running {
@@ -183,7 +183,7 @@ func (fe *ForensicsEngine) Start() {
 	log.Println("[Forensics] 取证分析引擎已启动")
 }
 
-// Stop 停止取证引擎
+// Stop 停止取证引擎.
 func (fe *ForensicsEngine) Stop() {
 	fe.mu.Lock()
 	defer fe.mu.Unlock()
@@ -199,7 +199,7 @@ func (fe *ForensicsEngine) Stop() {
 // 事件管理
 // ============================================================
 
-// CreateIncident 创建安全事件
+// CreateIncident 创建安全事件.
 func (fe *ForensicsEngine) CreateIncident(title, description string, severity ThreatLevel, threatIDs []string) *SecurityIncident {
 	fe.mu.Lock()
 	defer fe.mu.Unlock()
@@ -224,7 +224,7 @@ func (fe *ForensicsEngine) CreateIncident(title, description string, severity Th
 	return incident
 }
 
-// UpdateIncidentStatus 更新事件状态
+// UpdateIncidentStatus 更新事件状态.
 func (fe *ForensicsEngine) UpdateIncidentStatus(id, status string) error {
 	fe.mu.Lock()
 	defer fe.mu.Unlock()
@@ -247,7 +247,7 @@ func (fe *ForensicsEngine) UpdateIncidentStatus(id, status string) error {
 	return nil
 }
 
-// GetIncident 获取事件
+// GetIncident 获取事件.
 func (fe *ForensicsEngine) GetIncident(id string) (*SecurityIncident, bool) {
 	fe.mu.RLock()
 	defer fe.mu.RUnlock()
@@ -259,7 +259,7 @@ func (fe *ForensicsEngine) GetIncident(id string) (*SecurityIncident, bool) {
 	return &result, true
 }
 
-// ListIncidents 列出事件
+// ListIncidents 列出事件.
 func (fe *ForensicsEngine) ListIncidents(status string, limit int) []SecurityIncident {
 	fe.mu.RLock()
 	defer fe.mu.RUnlock()
@@ -286,7 +286,7 @@ func (fe *ForensicsEngine) ListIncidents(status string, limit int) []SecurityInc
 // 证据收集
 // ============================================================
 
-// CollectEvidence 收集证据
+// CollectEvidence 收集证据.
 func (fe *ForensicsEngine) CollectEvidence(incidentID, evidenceType, name, path, description string) (*Evidence, error) {
 	var hash string
 	var size int64
@@ -329,7 +329,7 @@ func (fe *ForensicsEngine) CollectEvidence(incidentID, evidenceType, name, path,
 	return evidence, nil
 }
 
-// CollectProcessEvidence 收集进程证据
+// CollectProcessEvidence 收集进程证据.
 func (fe *ForensicsEngine) CollectProcessEvidence(incidentID string, event ThreatEvent) *Evidence {
 	evidence := &Evidence{
 		ID:          uuid.New().String(),
@@ -373,7 +373,7 @@ func (fe *ForensicsEngine) CollectProcessEvidence(incidentID string, event Threa
 	return evidence
 }
 
-// CollectFileEvidence 收集文件证据（隔离副本）
+// CollectFileEvidence 收集文件证据（隔离副本）.
 func (fe *ForensicsEngine) CollectFileEvidence(incidentID, filePath string) *Evidence {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -419,7 +419,7 @@ func (fe *ForensicsEngine) CollectFileEvidence(incidentID, filePath string) *Evi
 // 时间线构建
 // ============================================================
 
-// BuildTimeline 构建事件时间线
+// BuildTimeline 构建事件时间线.
 func (fe *ForensicsEngine) BuildTimeline(incidentID string, events []FileOpRecord, threats []ThreatEvent) *Timeline {
 	var timelineEvents []TimelineEvent
 
@@ -514,7 +514,7 @@ func (fe *ForensicsEngine) BuildTimeline(incidentID string, events []FileOpRecor
 // 攻击链分析
 // ============================================================
 
-// AnalyzeAttackChain 分析攻击链
+// AnalyzeAttackChain 分析攻击链.
 func (fe *ForensicsEngine) AnalyzeAttackChain(incidentID string, timeline *Timeline) *AttackChain {
 	if timeline == nil || len(timeline.Events) == 0 {
 		return nil
@@ -593,7 +593,7 @@ func (fe *ForensicsEngine) AnalyzeAttackChain(incidentID string, timeline *Timel
 	return chain
 }
 
-// calculatePhaseConfidence 计算阶段置信度
+// calculatePhaseConfidence 计算阶段置信度.
 func calculatePhaseConfidence(events []TimelineEvent) float64 {
 	if len(events) == 0 {
 		return 0
@@ -615,7 +615,7 @@ func calculatePhaseConfidence(events []TimelineEvent) float64 {
 	return confidence
 }
 
-// calculateChainConfidence 计算攻击链总体置信度
+// calculateChainConfidence 计算攻击链总体置信度.
 func calculateChainConfidence(phases []ChainPhase) float64 {
 	if len(phases) == 0 {
 		return 0
@@ -637,7 +637,7 @@ func calculateChainConfidence(phases []ChainPhase) float64 {
 	return confidence
 }
 
-// identifyRansomwareFamily 识别勒索软件家族
+// identifyRansomwareFamily 识别勒索软件家族.
 func identifyRansomwareFamily(timeline *Timeline) string {
 	familyKeywords := map[string][]string{
 		"WannaCry":         {"wncry", "wannacry", "wanacry", "wcry"},
@@ -677,7 +677,7 @@ func identifyRansomwareFamily(timeline *Timeline) string {
 	return "未知"
 }
 
-// identifyTTPs 识别 MITRE ATT&CK TTPs
+// identifyTTPs 识别 MITRE ATT&CK TTPs.
 func identifyTTPs(phases []ChainPhase) []string {
 	var ttps []string
 	seen := make(map[string]bool)
@@ -728,7 +728,7 @@ func identifyTTPs(phases []ChainPhase) []string {
 // 取证报告生成
 // ============================================================
 
-// GenerateReport 生成取证报告
+// GenerateReport 生成取证报告.
 func (fe *ForensicsEngine) GenerateReport(incidentID string) (*ForensicsReport, error) {
 	fe.mu.RLock()
 	incident, ok := fe.incidents[incidentID]
@@ -790,25 +790,25 @@ func (fe *ForensicsEngine) GenerateReport(incidentID string) (*ForensicsReport, 
 	return report, nil
 }
 
-// generateSummary 生成报告摘要
+// generateSummary 生成报告摘要.
 func generateSummary(incident *SecurityIncident, chain *AttackChain) string {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("安全事件: %s\n", incident.Title))
-	sb.WriteString(fmt.Sprintf("严重级别: %s\n", incident.Severity.String()))
-	sb.WriteString(fmt.Sprintf("事件状态: %s\n", incident.Status))
+	fmt.Fprintf(&sb, "安全事件: %s\n", incident.Title)
+	fmt.Fprintf(&sb, "严重级别: %s\n", incident.Severity.String())
+	fmt.Fprintf(&sb, "事件状态: %s\n", incident.Status)
 
 	if chain != nil {
-		sb.WriteString(fmt.Sprintf("攻击家族: %s\n", chain.Family))
-		sb.WriteString(fmt.Sprintf("攻击阶段: %d\n", len(chain.Phases)))
-		sb.WriteString(fmt.Sprintf("分析置信度: %.0f%%\n", chain.Confidence*100))
+		fmt.Fprintf(&sb, "攻击家族: %s\n", chain.Family)
+		fmt.Fprintf(&sb, "攻击阶段: %d\n", len(chain.Phases))
+		fmt.Fprintf(&sb, "分析置信度: %.0f%%\n", chain.Confidence*100)
 	}
 
-	sb.WriteString(fmt.Sprintf("关联证据: %d 份\n", len(incident.EvidenceIDs)))
-	sb.WriteString(fmt.Sprintf("描述: %s", incident.Description))
+	fmt.Fprintf(&sb, "关联证据: %d 份\n", len(incident.EvidenceIDs))
+	fmt.Fprintf(&sb, "描述: %s", incident.Description)
 	return sb.String()
 }
 
-// generateRecommendations 生成响应建议
+// generateRecommendations 生成响应建议.
 func generateRecommendations(incident *SecurityIncident, chain *AttackChain) []string {
 	var recs []string
 
@@ -849,7 +849,7 @@ func generateRecommendations(incident *SecurityIncident, chain *AttackChain) []s
 // 查询接口
 // ============================================================
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (fe *ForensicsEngine) GetStats() ForensicsStats {
 	fe.mu.RLock()
 	defer fe.mu.RUnlock()
@@ -859,7 +859,7 @@ func (fe *ForensicsEngine) GetStats() ForensicsStats {
 	return stats
 }
 
-// GetEvidence 获取证据
+// GetEvidence 获取证据.
 func (fe *ForensicsEngine) GetEvidence(id string) (*Evidence, bool) {
 	fe.mu.RLock()
 	defer fe.mu.RUnlock()
@@ -871,7 +871,7 @@ func (fe *ForensicsEngine) GetEvidence(id string) (*Evidence, bool) {
 	return &result, true
 }
 
-// GetTimeline 获取时间线
+// GetTimeline 获取时间线.
 func (fe *ForensicsEngine) GetTimeline(id string) (*Timeline, bool) {
 	fe.mu.RLock()
 	defer fe.mu.RUnlock()
@@ -883,7 +883,7 @@ func (fe *ForensicsEngine) GetTimeline(id string) (*Timeline, bool) {
 	return &result, true
 }
 
-// GetAttackChain 获取攻击链
+// GetAttackChain 获取攻击链.
 func (fe *ForensicsEngine) GetAttackChain(id string) (*AttackChain, bool) {
 	fe.mu.RLock()
 	defer fe.mu.RUnlock()
@@ -895,7 +895,7 @@ func (fe *ForensicsEngine) GetAttackChain(id string) (*AttackChain, bool) {
 	return &result, true
 }
 
-// AddCustodyEntry 添加证据保管链记录
+// AddCustodyEntry 添加证据保管链记录.
 func (fe *ForensicsEngine) AddCustodyEntry(evidenceID, action, officer, notes string) error {
 	fe.mu.Lock()
 	defer fe.mu.Unlock()

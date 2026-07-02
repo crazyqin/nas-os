@@ -16,7 +16,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Manager 设备发现管理器
+// Manager 设备发现管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	storagePath string
@@ -27,7 +27,7 @@ type Manager struct {
 	DeviceChan chan *NASDevice
 }
 
-// NewManager 创建设备发现管理器
+// NewManager 创建设备发现管理器.
 func NewManager(storagePath string) *Manager {
 	m := &Manager{
 		storagePath: storagePath,
@@ -54,7 +54,7 @@ func NewManager(storagePath string) *Manager {
 	return m
 }
 
-// StartDiscovery 启动设备发现
+// StartDiscovery 启动设备发现.
 func (m *Manager) StartDiscovery(ctx context.Context) error {
 	m.mu.Lock()
 	if m.scanCancel != nil {
@@ -78,7 +78,7 @@ func (m *Manager) StartDiscovery(ctx context.Context) error {
 	return nil
 }
 
-// StopDiscovery 停止设备发现
+// StopDiscovery 停止设备发现.
 func (m *Manager) StopDiscovery() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -89,7 +89,7 @@ func (m *Manager) StopDiscovery() {
 	}
 }
 
-// ScanNow 立即执行一次扫描
+// ScanNow 立即执行一次扫描.
 func (m *Manager) ScanNow(ctx context.Context) (*ScanResult, error) {
 	startTime := time.Now()
 	result := &ScanResult{
@@ -170,7 +170,7 @@ func (m *Manager) ScanNow(ctx context.Context) (*ScanResult, error) {
 	return result, nil
 }
 
-// scanSubnet 扫描子网中的设备
+// scanSubnet 扫描子网中的设备.
 func (m *Manager) scanSubnet(ctx context.Context, ipNet *net.IPNet, localMAC net.HardwareAddr) []*NASDevice {
 	var devices []*NASDevice
 
@@ -208,7 +208,7 @@ func (m *Manager) scanSubnet(ctx context.Context, ipNet *net.IPNet, localMAC net
 	return devices
 }
 
-// probeDevice 探测单个设备
+// probeDevice 探测单个设备.
 func (m *Manager) probeDevice(ctx context.Context, ip string) *NASDevice {
 	// 检测常见 NAS 端口
 	ports := []int{80, 443, 5000, 5001, 8080, 8443, 9090, 22}
@@ -257,7 +257,7 @@ func (m *Manager) probeDevice(ctx context.Context, ip string) *NASDevice {
 	return device
 }
 
-// isLikelyNAS 判断是否为 NAS 设备
+// isLikelyNAS 判断是否为 NAS 设备.
 func (m *Manager) isLikelyNAS(ports []int) bool {
 	// NAS 常见端口组合
 	nasPorts := map[int]bool{
@@ -277,7 +277,7 @@ func (m *Manager) isLikelyNAS(ports []int) bool {
 	return matchCount > 0
 }
 
-// GetDevices 获取所有已知设备
+// GetDevices 获取所有已知设备.
 func (m *Manager) GetDevices() []*NASDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -289,7 +289,7 @@ func (m *Manager) GetDevices() []*NASDevice {
 	return devices
 }
 
-// GetDevice 获取单个设备
+// GetDevice 获取单个设备.
 func (m *Manager) GetDevice(deviceID string) (*NASDevice, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -302,7 +302,7 @@ func (m *Manager) GetDevice(deviceID string) (*NASDevice, error) {
 	return nil, ErrDeviceNotFound
 }
 
-// RemoveDevice 移除设备
+// RemoveDevice 移除设备.
 func (m *Manager) RemoveDevice(deviceID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -317,7 +317,7 @@ func (m *Manager) RemoveDevice(deviceID string) error {
 	return ErrDeviceNotFound
 }
 
-// UpdateDeviceConfig 更新设备发现配置
+// UpdateDeviceConfig 更新设备发现配置.
 func (m *Manager) UpdateDeviceConfig(config DiscoveryConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -338,14 +338,14 @@ func (m *Manager) UpdateDeviceConfig(config DiscoveryConfig) {
 	}
 }
 
-// GetConfig 获取当前配置
+// GetConfig 获取当前配置.
 func (m *Manager) GetConfig() *DiscoveryConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// MarkTrusted 标记设备为受信任
+// MarkTrusted 标记设备为受信任.
 func (m *Manager) MarkTrusted(deviceID string, trusted bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -360,7 +360,7 @@ func (m *Manager) MarkTrusted(deviceID string, trusted bool) error {
 	return ErrDeviceNotFound
 }
 
-// AddManualDevice 手动添加设备
+// AddManualDevice 手动添加设备.
 func (m *Manager) AddManualDevice(ctx context.Context, ip, name string) (*NASDevice, error) {
 	device := &NASDevice{
 		ID:        uuid.New().String(),
@@ -381,7 +381,7 @@ func (m *Manager) AddManualDevice(ctx context.Context, ip, name string) (*NASDev
 	return device, nil
 }
 
-// GetOnlineDevices 获取在线设备
+// GetOnlineDevices 获取在线设备.
 func (m *Manager) GetOnlineDevices() []*NASDevice {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -395,7 +395,7 @@ func (m *Manager) GetOnlineDevices() []*NASDevice {
 	return online
 }
 
-// udpBroadcastLoop UDP 广播循环
+// udpBroadcastLoop UDP 广播循环.
 func (m *Manager) udpBroadcastLoop(ctx context.Context) {
 	ticker := time.NewTicker(time.Duration(m.config.ScanInterval) * time.Second)
 	defer ticker.Stop()
@@ -413,7 +413,7 @@ func (m *Manager) udpBroadcastLoop(ctx context.Context) {
 	}
 }
 
-// sendBroadcast 发送 UDP 广播
+// sendBroadcast 发送 UDP 广播.
 func (m *Manager) sendBroadcast() {
 	addr := net.JoinHostPort(m.config.BroadcastAddr, fmt.Sprintf("%d", m.config.UDPPort))
 	conn, err := net.DialTimeout("udp", addr, 2*time.Second)
@@ -433,7 +433,7 @@ func (m *Manager) sendBroadcast() {
 	conn.Write(data)
 }
 
-// udpListenLoop UDP 监听循环
+// udpListenLoop UDP 监听循环.
 func (m *Manager) udpListenLoop(ctx context.Context) {
 	addr := fmt.Sprintf(":%d", m.config.UDPPort)
 	listener, err := net.ListenPacket("udp4", addr)
@@ -461,10 +461,11 @@ func (m *Manager) udpListenLoop(ctx context.Context) {
 			continue
 		}
 
-		if msg.Type == "discovery" {
+		switch msg.Type {
+		case "discovery":
 			// 收到其他设备的发现请求，发送响应
 			m.sendResponse(remoteAddr.String())
-		} else if msg.Type == "response" {
+		case "response":
 			// 收到响应，添加设备
 			ip, _, _ := net.SplitHostPort(remoteAddr.String())
 			m.handleDiscoveryResponse(ip, msg)
@@ -472,7 +473,7 @@ func (m *Manager) udpListenLoop(ctx context.Context) {
 	}
 }
 
-// sendResponse 发送发现响应
+// sendResponse 发送发现响应.
 func (m *Manager) sendResponse(target string) {
 	conn, err := net.DialTimeout("udp", target, 2*time.Second)
 	if err != nil {
@@ -491,7 +492,7 @@ func (m *Manager) sendResponse(target string) {
 	conn.Write(data)
 }
 
-// handleDiscoveryResponse 处理发现响应
+// handleDiscoveryResponse 处理发现响应.
 func (m *Manager) handleDiscoveryResponse(ip string, msg DiscoveryMessage) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -521,7 +522,7 @@ func (m *Manager) handleDiscoveryResponse(ip string, msg DiscoveryMessage) {
 	}
 }
 
-// activeScanLoop 主动扫描循环
+// activeScanLoop 主动扫描循环.
 func (m *Manager) activeScanLoop(ctx context.Context) {
 	ticker := time.NewTicker(time.Duration(m.config.ScanInterval) * time.Second)
 	defer ticker.Stop()
@@ -536,7 +537,7 @@ func (m *Manager) activeScanLoop(ctx context.Context) {
 	}
 }
 
-// checkDeviceStatus 检查设备状态
+// checkDeviceStatus 检查设备状态.
 func (m *Manager) checkDeviceStatus() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -572,7 +573,7 @@ func (m *Manager) checkDeviceStatus() {
 	}
 }
 
-// saveDevices 保存设备列表到文件
+// saveDevices 保存设备列表到文件.
 func (m *Manager) saveDevices() error {
 	data, err := json.MarshalIndent(m.devices, "", "  ")
 	if err != nil {
@@ -582,7 +583,7 @@ func (m *Manager) saveDevices() error {
 	return os.WriteFile(path, data, 0644)
 }
 
-// loadDevices 从文件加载设备列表
+// loadDevices 从文件加载设备列表.
 func (m *Manager) loadDevices() error {
 	path := filepath.Join(m.storagePath, "discovery", "devices.json")
 	data, err := os.ReadFile(path)
@@ -595,7 +596,7 @@ func (m *Manager) loadDevices() error {
 	return json.Unmarshal(data, &m.devices)
 }
 
-// getHostname 获取本机主机名
+// getHostname 获取本机主机名.
 func getHostname() string {
 	name, err := os.Hostname()
 	if err != nil {

@@ -10,7 +10,7 @@ import (
 
 // ========== 去重成本效益数据结构 ==========
 
-// DedupCostConfig 去重成本配置
+// DedupCostConfig 去重成本配置.
 type DedupCostConfig struct {
 	// 内存成本（元/GB/月）
 	MemoryCostPerGBMonthly float64 `json:"memory_cost_per_gb_monthly"`
@@ -46,7 +46,7 @@ type DedupCostConfig struct {
 	DDTEntryMemoryBytes uint64 `json:"ddt_entry_memory_bytes"`
 }
 
-// DefaultDedupCostConfig 默认去重成本配置
+// DefaultDedupCostConfig 默认去重成本配置.
 func DefaultDedupCostConfig() DedupCostConfig {
 	return DedupCostConfig{
 		MemoryCostPerGBMonthly:   0.15,                           // 云内存价格参考
@@ -63,7 +63,7 @@ func DefaultDedupCostConfig() DedupCostConfig {
 	}
 }
 
-// DedupCostAnalysis 去重成本分析结果
+// DedupCostAnalysis 去重成本分析结果.
 type DedupCostAnalysis struct {
 	// 分析ID
 	ID string `json:"id"`
@@ -149,7 +149,7 @@ type DedupCostAnalysis struct {
 	BenefitBreakdown map[string]float64 `json:"benefit_breakdown"`
 }
 
-// DedupROIResult ROI计算结果
+// DedupROIResult ROI计算结果.
 type DedupROIResult struct {
 	// 场景名称
 	Scenario string `json:"scenario"`
@@ -179,7 +179,7 @@ type DedupROIResult struct {
 	Recommendation string `json:"recommendation"`
 }
 
-// DedupScenarioAnalysis 场景分析
+// DedupScenarioAnalysis 场景分析.
 type DedupScenarioAnalysis struct {
 	// 各场景结果
 	Scenarios []DedupROIResult `json:"scenarios"`
@@ -197,7 +197,7 @@ type DedupScenarioAnalysis struct {
 	CostBenefitCurve []CostBenefitPoint `json:"cost_benefit_curve"`
 }
 
-// CostBenefitPoint 成本效益曲线点
+// CostBenefitPoint 成本效益曲线点.
 type CostBenefitPoint struct {
 	// 去重率（%）
 	DedupRate float64 `json:"dedup_rate"`
@@ -217,17 +217,17 @@ type CostBenefitPoint struct {
 
 // ========== 去重ROI计算器 ==========
 
-// DedupROICalculator 去重ROI计算器
+// DedupROICalculator 去重ROI计算器.
 type DedupROICalculator struct {
 	config DedupCostConfig
 }
 
-// NewDedupROICalculator 创建去重ROI计算器
+// NewDedupROICalculator 创建去重ROI计算器.
 func NewDedupROICalculator(config DedupCostConfig) *DedupROICalculator {
 	return &DedupROICalculator{config: config}
 }
 
-// Analyze 执行成本效益分析
+// Analyze 执行成本效益分析.
 func (c *DedupROICalculator) Analyze() *DedupCostAnalysis {
 	now := time.Now()
 	analysis := &DedupCostAnalysis{
@@ -345,7 +345,7 @@ func (c *DedupROICalculator) Analyze() *DedupCostAnalysis {
 	return analysis
 }
 
-// AnalyzeScenario 分析特定场景
+// AnalyzeScenario 分析特定场景.
 func (c *DedupROICalculator) AnalyzeScenario(dataSizeTB float64, dedupRate float64) *DedupROIResult {
 	// 临时调整配置
 	originalData := c.config.TotalDataBytes
@@ -388,7 +388,7 @@ func (c *DedupROICalculator) AnalyzeScenario(dataSizeTB float64, dedupRate float
 	return result
 }
 
-// AnalyzeMultipleScenarios 分析多场景
+// AnalyzeMultipleScenarios 分析多场景.
 func (c *DedupROICalculator) AnalyzeMultipleScenarios() *DedupScenarioAnalysis {
 	scenarioAnalysis := &DedupScenarioAnalysis{
 		Scenarios:         make([]DedupROIResult, 0),
@@ -443,7 +443,7 @@ func (c *DedupROICalculator) AnalyzeMultipleScenarios() *DedupScenarioAnalysis {
 
 // ========== 私有方法 ==========
 
-// calculateBenefitScore 计算效益评分
+// calculateBenefitScore 计算效益评分.
 func (c *DedupROICalculator) calculateBenefitScore(analysis *DedupCostAnalysis) float64 {
 	score := 0.0
 
@@ -496,7 +496,7 @@ func (c *DedupROICalculator) calculateBenefitScore(analysis *DedupCostAnalysis) 
 	return dedupRound(score, 1)
 }
 
-// calculateThreshold 计算推荐阈值
+// calculateThreshold 计算推荐阈值.
 func (c *DedupROICalculator) calculateThreshold(analysis *DedupCostAnalysis) float64 {
 	// 基于ROI反推最小去重率
 	// 简化计算：成本固定时，去重率需要达到多少才能收支平衡
@@ -517,7 +517,7 @@ func (c *DedupROICalculator) calculateThreshold(analysis *DedupCostAnalysis) flo
 	return 20.0 // 默认阈值
 }
 
-// calculateEnableThreshold 计算启用阈值
+// calculateEnableThreshold 计算启用阈值.
 func (c *DedupROICalculator) calculateEnableThreshold(sa *DedupScenarioAnalysis) float64 {
 	// 找出ROI首次大于0的去重率
 	minPositiveRate := 100.0
@@ -535,7 +535,7 @@ func (c *DedupROICalculator) calculateEnableThreshold(sa *DedupScenarioAnalysis)
 	return dedupRound(minPositiveRate, 1)
 }
 
-// generateRisks 生成风险提示
+// generateRisks 生成风险提示.
 func (c *DedupROICalculator) generateRisks(analysis *DedupCostAnalysis, ddtMemoryGB float64) []string {
 	risks := make([]string, 0)
 
@@ -575,7 +575,7 @@ func (c *DedupROICalculator) generateRisks(analysis *DedupCostAnalysis, ddtMemor
 	return risks
 }
 
-// generateSuggestions 生成优化建议
+// generateSuggestions 生成优化建议.
 func (c *DedupROICalculator) generateSuggestions(analysis *DedupCostAnalysis) []string {
 	suggestions := make([]string, 0)
 
@@ -619,21 +619,21 @@ func (c *DedupROICalculator) generateSuggestions(analysis *DedupCostAnalysis) []
 
 // ========== 工具方法 ==========
 
-// EstimateDDTSize 估算DDT表大小
+// EstimateDDTSize 估算DDT表大小.
 func EstimateDDTSize(totalDataBytes uint64, avgChunkSize uint64, dedupRate float64) uint64 {
 	totalChunks := totalDataBytes / avgChunkSize
 	uniqueChunks := totalChunks * uint64(100-dedupRate) / 100
 	return uniqueChunks * 80 // 每条目约80字节
 }
 
-// EstimateMemoryRequirement 估算内存需求（GB）
+// EstimateMemoryRequirement 估算内存需求（GB）.
 func EstimateMemoryRequirement(totalDataTB float64, avgChunkSizeKB uint64, dedupRate float64) float64 {
 	totalDataBytes := totalDataTB * 1024 * 1024 * 1024 * 1024
 	ddtSize := EstimateDDTSize(uint64(totalDataBytes), avgChunkSizeKB*1024, dedupRate)
 	return float64(ddtSize) / (1024 * 1024 * 1024)
 }
 
-// QuickROICheck 快速ROI检查
+// QuickROICheck 快速ROI检查.
 func QuickROICheck(dataSizeTB float64, dedupRate float64) string {
 	config := DefaultDedupCostConfig()
 	calc := NewDedupROICalculator(config)
@@ -643,7 +643,7 @@ func QuickROICheck(dataSizeTB float64, dedupRate float64) string {
 		dataSizeTB, dedupRate, result.MonthlyCost, result.MonthlyBenefit, result.ROI, result.Recommendation)
 }
 
-// CompareDedupStrategies 对比去重策略
+// CompareDedupStrategies 对比去重策略.
 func CompareDedupStrategies(dataSizeTB float64) map[string]DedupROIResult {
 	config := DefaultDedupCostConfig()
 	calc := NewDedupROICalculator(config)
@@ -658,7 +658,7 @@ func CompareDedupStrategies(dataSizeTB float64) map[string]DedupROIResult {
 	return strategies
 }
 
-// AnalyzeFastDedupScenario 分析Fast Dedup场景
+// AnalyzeFastDedupScenario 分析Fast Dedup场景.
 func (c *DedupROICalculator) AnalyzeFastDedupScenario(dataSizeTB float64, dedupRate float64) *DedupROIResult {
 	// Fast Dedup配置：内存占用减少约50%，但SSD缓存成本增加
 	fastConfig := c.config
@@ -670,7 +670,7 @@ func (c *DedupROICalculator) AnalyzeFastDedupScenario(dataSizeTB float64, dedupR
 	return fastCalc.AnalyzeScenario(dataSizeTB, dedupRate)
 }
 
-// GenerateDedupReport 生成去重成本报告
+// GenerateDedupReport 生成去重成本报告.
 func GenerateDedupReport(config DedupCostConfig) string {
 	calc := NewDedupROICalculator(config)
 	analysis := calc.Analyze()
@@ -765,7 +765,7 @@ func stringsJoin(strs []string, sep string) string {
 	return result
 }
 
-// dedupRound 去重ROI计算专用round函数
+// dedupRound 去重ROI计算专用round函数.
 func dedupRound(val float64, precision int) float64 {
 	factor := math.Pow10(precision)
 	return math.Round(val*factor) / factor

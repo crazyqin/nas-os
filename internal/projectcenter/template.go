@@ -7,14 +7,14 @@ import (
 	"time"
 )
 
-// TemplateManager 项目模板管理器
+// TemplateManager 项目模板管理器.
 type TemplateManager struct {
 	mu        sync.RWMutex
 	templates map[string]*ProjectTemplate
 	nextID    int
 }
 
-// NewTemplateManager 创建模板管理器
+// NewTemplateManager 创建模板管理器.
 func NewTemplateManager() *TemplateManager {
 	m := &TemplateManager{
 		templates: make(map[string]*ProjectTemplate),
@@ -26,7 +26,7 @@ func NewTemplateManager() *TemplateManager {
 	return m
 }
 
-// loadBuiltinTemplates 加载内置模板
+// loadBuiltinTemplates 加载内置模板.
 func (m *TemplateManager) loadBuiltinTemplates() {
 	builtinTemplates := []ProjectTemplate{
 		{
@@ -123,7 +123,7 @@ func (m *TemplateManager) loadBuiltinTemplates() {
 	}
 }
 
-// CreateTemplate 创建自定义模板
+// CreateTemplate 创建自定义模板.
 func (m *TemplateManager) CreateTemplate(req ProjectTemplate) (*ProjectTemplate, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -143,7 +143,7 @@ func (m *TemplateManager) CreateTemplate(req ProjectTemplate) (*ProjectTemplate,
 	return &req, nil
 }
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func (m *TemplateManager) GetTemplate(templateID string) (*ProjectTemplate, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -155,7 +155,7 @@ func (m *TemplateManager) GetTemplate(templateID string) (*ProjectTemplate, erro
 	return tmpl, nil
 }
 
-// UpdateTemplate 更新模板
+// UpdateTemplate 更新模板.
 func (m *TemplateManager) UpdateTemplate(templateID string, req ProjectTemplate) (*ProjectTemplate, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -187,7 +187,7 @@ func (m *TemplateManager) UpdateTemplate(templateID string, req ProjectTemplate)
 	return tmpl, nil
 }
 
-// DeleteTemplate 删除模板
+// DeleteTemplate 删除模板.
 func (m *TemplateManager) DeleteTemplate(templateID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -205,7 +205,7 @@ func (m *TemplateManager) DeleteTemplate(templateID string) error {
 	return nil
 }
 
-// ListTemplates 列出模板
+// ListTemplates 列出模板.
 func (m *TemplateManager) ListTemplates(category string) []*ProjectTemplate {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -224,7 +224,7 @@ func (m *TemplateManager) ListTemplates(category string) []*ProjectTemplate {
 	return templates
 }
 
-// GetTemplateCategories 获取模板分类列表
+// GetTemplateCategories 获取模板分类列表.
 func (m *TemplateManager) GetTemplateCategories() []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -242,7 +242,7 @@ func (m *TemplateManager) GetTemplateCategories() []string {
 	return categories
 }
 
-// IncrementUsage 增加模板使用次数
+// IncrementUsage 增加模板使用次数.
 func (m *TemplateManager) IncrementUsage(templateID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -252,7 +252,7 @@ func (m *TemplateManager) IncrementUsage(templateID string) {
 	}
 }
 
-// CloneTemplate 克隆模板
+// CloneTemplate 克隆模板.
 func (m *TemplateManager) CloneTemplate(templateID, newName string) (*ProjectTemplate, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -286,7 +286,7 @@ func (m *TemplateManager) CloneTemplate(templateID, newName string) (*ProjectTem
 	return cloned, nil
 }
 
-// GetDefaultTemplate 获取默认模板
+// GetDefaultTemplate 获取默认模板.
 func (m *TemplateManager) GetDefaultTemplate(category string) (*ProjectTemplate, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -299,7 +299,7 @@ func (m *TemplateManager) GetDefaultTemplate(category string) (*ProjectTemplate,
 	return nil, fmt.Errorf("no default template found for category %s", category)
 }
 
-// SearchTemplates 搜索模板
+// SearchTemplates 搜索模板.
 func (m *TemplateManager) SearchTemplates(keyword string) []*ProjectTemplate {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// VerifyStatus 验证状态
+// VerifyStatus 验证状态.
 type VerifyStatus string
 
 const (
@@ -21,7 +21,7 @@ const (
 	VerifySkipped VerifyStatus = "skipped"
 )
 
-// VerifyMode 验证模式
+// VerifyMode 验证模式.
 type VerifyMode string
 
 const (
@@ -30,7 +30,7 @@ const (
 	ModeRestore  VerifyMode = "restore"  // 测试恢复验证
 )
 
-// VerifyTask 验证任务
+// VerifyTask 验证任务.
 type VerifyTask struct {
 	ID           string        `json:"id"`
 	BackupID     string        `json:"backup_id"`
@@ -47,7 +47,7 @@ type VerifyTask struct {
 	CompletedAt  *time.Time    `json:"completed_at"`
 }
 
-// VerifyError 验证错误
+// VerifyError 验证错误.
 type VerifyError struct {
 	File     string `json:"file"`
 	Error    string `json:"error"`
@@ -55,7 +55,7 @@ type VerifyError struct {
 	Actual   string `json:"actual,omitempty"`
 }
 
-// VerifySchedule 验证计划
+// VerifySchedule 验证计划.
 type VerifySchedule struct {
 	ID        string     `json:"id"`
 	BackupID  string     `json:"backup_id"`
@@ -67,7 +67,7 @@ type VerifySchedule struct {
 	CreatedAt time.Time  `json:"created_at"`
 }
 
-// IntegrityReport 完整性报告
+// IntegrityReport 完整性报告.
 type IntegrityReport struct {
 	BackupID      string    `json:"backup_id"`
 	TotalChecks   int       `json:"total_checks"`
@@ -78,7 +78,7 @@ type IntegrityReport struct {
 	HealthScore   int       `json:"health_score"` // 0-100
 }
 
-// Manager 备份验证管理器
+// Manager 备份验证管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	tasks     map[string]*VerifyTask
@@ -86,7 +86,7 @@ type Manager struct {
 	reports   map[string]*IntegrityReport
 }
 
-// NewManager 创建备份验证管理器
+// NewManager 创建备份验证管理器.
 func NewManager() *Manager {
 	return &Manager{
 		tasks:     make(map[string]*VerifyTask),
@@ -95,7 +95,7 @@ func NewManager() *Manager {
 	}
 }
 
-// RunVerification 运行验证
+// RunVerification 运行验证.
 func (m *Manager) RunVerification(backupID, backupPath string, mode VerifyMode) (*VerifyTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -164,7 +164,7 @@ func (m *Manager) runVerify(task *VerifyTask) {
 	m.mu.Unlock()
 }
 
-// GetTask 获取验证任务
+// GetTask 获取验证任务.
 func (m *Manager) GetTask(taskID string) (*VerifyTask, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -175,7 +175,7 @@ func (m *Manager) GetTask(taskID string) (*VerifyTask, error) {
 	return task, nil
 }
 
-// ListTasks 列出验证任务
+// ListTasks 列出验证任务.
 func (m *Manager) ListTasks() []*VerifyTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -186,7 +186,7 @@ func (m *Manager) ListTasks() []*VerifyTask {
 	return tasks
 }
 
-// AddSchedule 添加验证计划
+// AddSchedule 添加验证计划.
 func (m *Manager) AddSchedule(schedule *VerifySchedule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -198,7 +198,7 @@ func (m *Manager) AddSchedule(schedule *VerifySchedule) error {
 	return nil
 }
 
-// GetSchedules 获取验证计划
+// GetSchedules 获取验证计划.
 func (m *Manager) GetSchedules() []*VerifySchedule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -209,7 +209,7 @@ func (m *Manager) GetSchedules() []*VerifySchedule {
 	return schedules
 }
 
-// GetReport 获取完整性报告
+// GetReport 获取完整性报告.
 func (m *Manager) GetReport(backupID string) (*IntegrityReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -220,7 +220,7 @@ func (m *Manager) GetReport(backupID string) (*IntegrityReport, error) {
 	return report, nil
 }
 
-// GenerateChecksum 生成校验和
+// GenerateChecksum 生成校验和.
 func GenerateChecksum(data []byte) string {
 	hash := sha256.Sum256(data)
 	return fmt.Sprintf("%x", hash)

@@ -6,12 +6,12 @@ import (
 	"net/http"
 )
 
-// Handlers AI 代码助手 API 处理器
+// Handlers AI 代码助手 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
@@ -32,7 +32,7 @@ func decodeJSON(r *http.Request, v interface{}) error {
 	return json.NewDecoder(r.Body).Decode(v)
 }
 
-// HandleCodeCompletion 代码补全
+// HandleCodeCompletion 代码补全.
 func (h *Handlers) HandleCodeCompletion(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 1, Message: "method not allowed"})
@@ -51,7 +51,7 @@ func (h *Handlers) HandleCodeCompletion(w http.ResponseWriter, r *http.Request) 
 	writeJSON(w, http.StatusOK, response{Code: 0, Message: "success", Data: resp})
 }
 
-// HandleReviewCode 代码审查
+// HandleReviewCode 代码审查.
 func (h *Handlers) HandleReviewCode(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 1, Message: "method not allowed"})
@@ -70,7 +70,7 @@ func (h *Handlers) HandleReviewCode(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, response{Code: 0, Message: "success", Data: resp})
 }
 
-// HandleRefactorCode 代码重构建议
+// HandleRefactorCode 代码重构建议.
 func (h *Handlers) HandleRefactorCode(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 1, Message: "method not allowed"})
@@ -89,7 +89,7 @@ func (h *Handlers) HandleRefactorCode(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, response{Code: 0, Message: "success", Data: resp})
 }
 
-// HandleGenerateTests 测试用例生成
+// HandleGenerateTests 测试用例生成.
 func (h *Handlers) HandleGenerateTests(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 1, Message: "method not allowed"})
@@ -108,7 +108,7 @@ func (h *Handlers) HandleGenerateTests(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, response{Code: 0, Message: "success", Data: resp})
 }
 
-// HandleExplainCode 代码解释
+// HandleExplainCode 代码解释.
 func (h *Handlers) HandleExplainCode(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 1, Message: "method not allowed"})
@@ -127,7 +127,7 @@ func (h *Handlers) HandleExplainCode(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, response{Code: 0, Message: "success", Data: resp})
 }
 
-// HandleAnalyzeGitDiff Git diff 分析
+// HandleAnalyzeGitDiff Git diff 分析.
 func (h *Handlers) HandleAnalyzeGitDiff(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 1, Message: "method not allowed"})
@@ -146,7 +146,7 @@ func (h *Handlers) HandleAnalyzeGitDiff(w http.ResponseWriter, r *http.Request) 
 	writeJSON(w, http.StatusOK, response{Code: 0, Message: "success", Data: resp})
 }
 
-// HandleGenerateCommitMessage commit message 生成
+// HandleGenerateCommitMessage commit message 生成.
 func (h *Handlers) HandleGenerateCommitMessage(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 1, Message: "method not allowed"})
@@ -165,7 +165,7 @@ func (h *Handlers) HandleGenerateCommitMessage(w http.ResponseWriter, r *http.Re
 	writeJSON(w, http.StatusOK, response{Code: 0, Message: "success", Data: resp})
 }
 
-// HandleGetConfig 获取配置
+// HandleGetConfig 获取配置.
 func (h *Handlers) HandleGetConfig(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 1, Message: "method not allowed"})
@@ -177,7 +177,7 @@ func (h *Handlers) HandleGetConfig(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, response{Code: 0, Message: "success", Data: cfg})
 }
 
-// HandleGetSupportedLanguages 获取支持的编程语言
+// HandleGetSupportedLanguages 获取支持的编程语言.
 func (h *Handlers) HandleGetSupportedLanguages(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, response{Code: 1, Message: "method not allowed"})

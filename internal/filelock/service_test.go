@@ -72,9 +72,9 @@ func TestLock(t *testing.T) {
 
 	t.Run("自定义锁定时长", func(t *testing.T) {
 		req := &LockRequest{
-			FilePath:       "/docs/custom.txt",
-			UserID:         "user-002",
-			UserName:       "李四",
+			FilePath:        "/docs/custom.txt",
+			UserID:          "user-002",
+			UserName:        "李四",
 			DurationMinutes: 60,
 		}
 		lock, err := s.Lock(req)
@@ -427,9 +427,9 @@ func TestCleanupExpired(t *testing.T) {
 	s := setupTestService(t)
 	// 手动创建一个已过期的锁
 	lock, _ := s.Lock(&LockRequest{
-		FilePath: "/docs/expired.txt",
-		UserID:   "user-001",
-		UserName: "张三",
+		FilePath:        "/docs/expired.txt",
+		UserID:          "user-001",
+		UserName:        "张三",
 		DurationMinutes: 1,
 	})
 

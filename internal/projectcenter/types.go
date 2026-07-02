@@ -5,7 +5,7 @@ import "time"
 
 // ========== 项目类型 ==========
 
-// Project 项目
+// Project 项目.
 type Project struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name" binding:"required"`
@@ -22,7 +22,7 @@ type Project struct {
 
 // ========== 任务类型 ==========
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
@@ -33,7 +33,7 @@ const (
 	TaskStatusBlocked    TaskStatus = "blocked"
 )
 
-// TaskPriority 任务优先级
+// TaskPriority 任务优先级.
 type TaskPriority string
 
 const (
@@ -43,7 +43,7 @@ const (
 	PriorityUrgent TaskPriority = "urgent"
 )
 
-// Task 任务
+// Task 任务.
 type Task struct {
 	ID            string       `json:"id"`
 	ProjectID     string       `json:"project_id"`
@@ -66,7 +66,7 @@ type Task struct {
 	UpdatedAt     time.Time    `json:"updated_at"`
 }
 
-// Comment 任务评论
+// Comment 任务评论.
 type Comment struct {
 	ID        string    `json:"id"`
 	TaskID    string    `json:"task_id"`
@@ -80,7 +80,7 @@ type Comment struct {
 
 // ========== 看板类型 ==========
 
-// KanbanBoard 看板
+// KanbanBoard 看板.
 type KanbanBoard struct {
 	ID        string         `json:"id"`
 	ProjectID string         `json:"project_id"`
@@ -90,7 +90,7 @@ type KanbanBoard struct {
 	CreatedAt time.Time      `json:"created_at"`
 }
 
-// KanbanColumn 看板列
+// KanbanColumn 看板列.
 type KanbanColumn struct {
 	ID       string     `json:"id"`
 	Name     string     `json:"name"`
@@ -99,7 +99,7 @@ type KanbanColumn struct {
 	WIPLimit int        `json:"wip_limit"` // 在制品限制
 }
 
-// KanbanFilters 看板过滤条件
+// KanbanFilters 看板过滤条件.
 type KanbanFilters struct {
 	AssigneeIDs []string `json:"assignee_ids,omitempty"`
 	Priorities  []string `json:"priorities,omitempty"`
@@ -108,7 +108,7 @@ type KanbanFilters struct {
 
 // ========== 里程碑类型 ==========
 
-// Milestone 里程碑
+// Milestone 里程碑.
 type Milestone struct {
 	ID          string     `json:"id"`
 	ProjectID   string     `json:"project_id"`
@@ -125,7 +125,7 @@ type Milestone struct {
 
 // ========== 甘特图类型 ==========
 
-// GanttTask 甘特图任务数据
+// GanttTask 甘特图任务数据.
 type GanttTask struct {
 	TaskID       string    `json:"task_id"`
 	Title        string    `json:"title"`
@@ -137,7 +137,7 @@ type GanttTask struct {
 	Level        int       `json:"level"` // 层级（用于子任务缩进）
 }
 
-// GanttData 甘特图数据
+// GanttData 甘特图数据.
 type GanttData struct {
 	ProjectID string      `json:"project_id"`
 	StartDate time.Time   `json:"start_date"`
@@ -147,7 +147,7 @@ type GanttData struct {
 
 // ========== 项目模板类型 ==========
 
-// ProjectTemplate 项目模板
+// ProjectTemplate 项目模板.
 type ProjectTemplate struct {
 	ID          string           `json:"id"`
 	Name        string           `json:"name" binding:"required"`
@@ -161,14 +161,14 @@ type ProjectTemplate struct {
 	CreatedAt   time.Time        `json:"created_at"`
 }
 
-// TemplateColumn 模板列定义
+// TemplateColumn 模板列定义.
 type TemplateColumn struct {
 	Name   string     `json:"name"`
 	Status TaskStatus `json:"status"`
 	Order  int        `json:"order"`
 }
 
-// TemplateTask 模板任务定义
+// TemplateTask 模板任务定义.
 type TemplateTask struct {
 	Title         string       `json:"title"`
 	Description   string       `json:"description"`
@@ -181,7 +181,7 @@ type TemplateTask struct {
 
 // ========== 统计类型 ==========
 
-// ProjectStats 项目统计
+// ProjectStats 项目统计.
 type ProjectStats struct {
 	ProjectID       string         `json:"project_id"`
 	TotalTasks      int            `json:"total_tasks"`
@@ -196,7 +196,7 @@ type ProjectStats struct {
 	TimelineStats   TimelineStats  `json:"timeline_stats"`
 }
 
-// MilestoneStats 里程碑统计
+// MilestoneStats 里程碑统计.
 type MilestoneStats struct {
 	Total          int     `json:"total"`
 	Completed      int     `json:"completed"`
@@ -204,7 +204,7 @@ type MilestoneStats struct {
 	CompletionRate float64 `json:"completion_rate"`
 }
 
-// TimelineStats 时间线统计
+// TimelineStats 时间线统计.
 type TimelineStats struct {
 	StartDate     time.Time `json:"start_date"`
 	EndDate       time.Time `json:"end_date"`
@@ -214,7 +214,7 @@ type TimelineStats struct {
 	Progress      float64   `json:"progress"` // 0-100
 }
 
-// MemberWorkload 成员工作量
+// MemberWorkload 成员工作量.
 type MemberWorkload struct {
 	UserID         string  `json:"user_id"`
 	TotalTasks     int     `json:"total_tasks"`
@@ -226,7 +226,7 @@ type MemberWorkload struct {
 
 // ========== 请求/响应类型 ==========
 
-// CreateProjectRequest 创建项目请求
+// CreateProjectRequest 创建项目请求.
 type CreateProjectRequest struct {
 	Name        string   `json:"name" binding:"required"`
 	Description string   `json:"description"`
@@ -236,7 +236,7 @@ type CreateProjectRequest struct {
 	TemplateID  string   `json:"template_id"`
 }
 
-// CreateTaskRequest 创建任务请求
+// CreateTaskRequest 创建任务请求.
 type CreateTaskRequest struct {
 	Title         string       `json:"title" binding:"required"`
 	Description   string       `json:"description"`
@@ -250,7 +250,7 @@ type CreateTaskRequest struct {
 	DueDate       *time.Time   `json:"due_date"`
 }
 
-// UpdateTaskRequest 更新任务请求
+// UpdateTaskRequest 更新任务请求.
 type UpdateTaskRequest struct {
 	Title         string       `json:"title"`
 	Description   string       `json:"description"`
@@ -265,26 +265,26 @@ type UpdateTaskRequest struct {
 	DueDate       *time.Time   `json:"due_date"`
 }
 
-// MoveTaskRequest 移动任务请求
+// MoveTaskRequest 移动任务请求.
 type MoveTaskRequest struct {
 	Status   TaskStatus `json:"status" binding:"required"`
 	Position int        `json:"position"`
 }
 
-// CreateMilestoneRequest 创建里程碑请求
+// CreateMilestoneRequest 创建里程碑请求.
 type CreateMilestoneRequest struct {
 	Name        string     `json:"name" binding:"required"`
 	Description string     `json:"description"`
 	DueDate     *time.Time `json:"due_date"`
 }
 
-// CreateCommentRequest 创建评论请求
+// CreateCommentRequest 创建评论请求.
 type CreateCommentRequest struct {
 	Content  string `json:"content" binding:"required"`
 	ParentID string `json:"parent_id"`
 }
 
-// ListOptions 列表查询选项
+// ListOptions 列表查询选项.
 type ListOptions struct {
 	Page     int    `json:"page"`
 	PageSize int    `json:"page_size"`
@@ -293,7 +293,7 @@ type ListOptions struct {
 	Order    string `json:"order"` // asc, desc
 }
 
-// PaginatedResponse 分页响应
+// PaginatedResponse 分页响应.
 type PaginatedResponse struct {
 	Items      interface{} `json:"items"`
 	Total      int         `json:"total"`

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// MediaType 媒体类型
+// MediaType 媒体类型.
 type MediaType string
 
 const (
@@ -18,7 +18,7 @@ const (
 	MediaTypePhoto  MediaType = "photo"
 )
 
-// PosterStatus 海报状态
+// PosterStatus 海报状态.
 type PosterStatus string
 
 const (
@@ -28,7 +28,7 @@ const (
 	PosterStatusFailed   PosterStatus = "failed"
 )
 
-// MediaItem 媒体项
+// MediaItem 媒体项.
 type MediaItem struct {
 	ID           string            `json:"id"`
 	Title        string            `json:"title"`
@@ -51,7 +51,7 @@ type MediaItem struct {
 	UpdatedAt    time.Time         `json:"updated_at"`
 }
 
-// GalleryConfig 画廊配置
+// GalleryConfig 画廊配置.
 type GalleryConfig struct {
 	AutoFetchPoster   bool     `json:"auto_fetch_poster"`
 	PosterLanguage    string   `json:"poster_language"` // zh-CN, en-US
@@ -62,7 +62,7 @@ type GalleryConfig struct {
 	EnableAIRecommend bool     `json:"enable_ai_recommend"`
 }
 
-// DefaultGalleryConfig 默认画廊配置
+// DefaultGalleryConfig 默认画廊配置.
 func DefaultGalleryConfig() *GalleryConfig {
 	return &GalleryConfig{
 		AutoFetchPoster:   true,
@@ -73,7 +73,7 @@ func DefaultGalleryConfig() *GalleryConfig {
 	}
 }
 
-// Gallery 海报墙管理器
+// Gallery 海报墙管理器.
 type Gallery struct {
 	mu       sync.RWMutex
 	config   *GalleryConfig
@@ -82,7 +82,7 @@ type Gallery struct {
 	scanning bool
 }
 
-// NewGallery 创建海报墙管理器
+// NewGallery 创建海报墙管理器.
 func NewGallery(config *GalleryConfig) *Gallery {
 	if config == nil {
 		config = DefaultGalleryConfig()
@@ -95,7 +95,7 @@ func NewGallery(config *GalleryConfig) *Gallery {
 	}
 }
 
-// Add 添加媒体项
+// Add 添加媒体项.
 func (g *Gallery) Add(item *MediaItem) error {
 	if item == nil {
 		return errors.New("item is nil")
@@ -129,7 +129,7 @@ func (g *Gallery) Add(item *MediaItem) error {
 	return nil
 }
 
-// Get 获取媒体项
+// Get 获取媒体项.
 func (g *Gallery) Get(id string) (*MediaItem, bool) {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -138,7 +138,7 @@ func (g *Gallery) Get(id string) (*MediaItem, bool) {
 	return item, exists
 }
 
-// GetByPath 通过路径获取
+// GetByPath 通过路径获取.
 func (g *Gallery) GetByPath(path string) (*MediaItem, bool) {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -151,7 +151,7 @@ func (g *Gallery) GetByPath(path string) (*MediaItem, bool) {
 	return g.items[id], true
 }
 
-// Update 更新媒体项
+// Update 更新媒体项.
 func (g *Gallery) Update(id string, update func(*MediaItem)) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -167,7 +167,7 @@ func (g *Gallery) Update(id string, update func(*MediaItem)) error {
 	return nil
 }
 
-// Delete 删除媒体项
+// Delete 删除媒体项.
 func (g *Gallery) Delete(id string) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -183,7 +183,7 @@ func (g *Gallery) Delete(id string) error {
 	return nil
 }
 
-// List 列出媒体项
+// List 列出媒体项.
 func (g *Gallery) List(filter *MediaFilter) []*MediaItem {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -200,7 +200,7 @@ func (g *Gallery) List(filter *MediaFilter) []*MediaItem {
 	return result
 }
 
-// MediaFilter 媒体过滤器
+// MediaFilter 媒体过滤器.
 type MediaFilter struct {
 	Type      *MediaType `json:"type,omitempty"`
 	Genre     string     `json:"genre,omitempty"`
@@ -209,7 +209,7 @@ type MediaFilter struct {
 	Search    string     `json:"search,omitempty"`
 }
 
-// Match 检查是否匹配
+// Match 检查是否匹配.
 func (f *MediaFilter) Match(item *MediaItem) bool {
 	if f == nil {
 		return true
@@ -252,7 +252,7 @@ func (f *MediaFilter) Match(item *MediaItem) bool {
 	return true
 }
 
-// containsIgnoreCase 忽略大小写包含检查
+// containsIgnoreCase 忽略大小写包含检查.
 func containsIgnoreCase(s, substr string) bool {
 	if len(substr) == 0 {
 		return true
@@ -285,7 +285,7 @@ func containsIgnoreCase(s, substr string) bool {
 	return false
 }
 
-// Count 统计数量
+// Count 统计数量.
 func (g *Gallery) Count() int {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -293,7 +293,7 @@ func (g *Gallery) Count() int {
 	return len(g.items)
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (g *Gallery) GetStats() map[string]interface{} {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -315,7 +315,7 @@ func (g *Gallery) GetStats() map[string]interface{} {
 	return stats
 }
 
-// GetGenres 获取所有类型
+// GetGenres 获取所有类型.
 func (g *Gallery) GetGenres() []string {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -335,7 +335,7 @@ func (g *Gallery) GetGenres() []string {
 	return genres
 }
 
-// GetRecent 获取最近添加
+// GetRecent 获取最近添加.
 func (g *Gallery) GetRecent(limit int) []*MediaItem {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
@@ -361,7 +361,7 @@ func (g *Gallery) GetRecent(limit int) []*MediaItem {
 	return items
 }
 
-// GetTopRated 获取评分最高
+// GetTopRated 获取评分最高.
 func (g *Gallery) GetTopRated(limit int) []*MediaItem {
 	g.mu.RLock()
 	defer g.mu.RUnlock()

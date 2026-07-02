@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// DuplicateType 重复类型
+// DuplicateType 重复类型.
 type DuplicateType string
 
 const (
@@ -15,7 +15,7 @@ const (
 	DupSimilar DuplicateType = "similar" // 相似图片（pHash 相似度 > 阈值）
 )
 
-// KeepStrategy 保留策略
+// KeepStrategy 保留策略.
 type KeepStrategy string
 
 const (
@@ -25,7 +25,7 @@ const (
 	KeepFirst   KeepStrategy = "first"   // 保留路径字典序第一个
 )
 
-// DedupAction 去重动作类型
+// DedupAction 去重动作类型.
 type DedupAction string
 
 const (
@@ -36,7 +36,7 @@ const (
 	ActionReport   DedupAction = "report"   // 仅报告，不操作
 )
 
-// FileFingerprint 文件指纹
+// FileFingerprint 文件指纹.
 type FileFingerprint struct {
 	Path        string    `json:"path"`        // 文件路径
 	Size        int64     `json:"size"`        // 文件大小（字节）
@@ -46,7 +46,7 @@ type FileFingerprint struct {
 	IsImage     bool      `json:"isImage"`     // 是否为图片文件
 }
 
-// DuplicateGroup 重复文件组
+// DuplicateGroup 重复文件组.
 type DuplicateGroup struct {
 	ID        string             `json:"id"`        // 组 ID
 	Type      DuplicateType      `json:"type"`      // 重复类型
@@ -57,7 +57,7 @@ type DuplicateGroup struct {
 	Recommend *FileFingerprint   `json:"recommend"` // 推荐保留的文件
 }
 
-// ScanConfig 扫描配置
+// ScanConfig 扫描配置.
 type ScanConfig struct {
 	Paths           []string     `json:"paths"`           // 扫描路径
 	ExcludePatterns []string     `json:"excludePatterns"` // 排除模式（glob）
@@ -71,7 +71,7 @@ type ScanConfig struct {
 	MaxWorkers      int          `json:"maxWorkers"`      // 最大并行数
 }
 
-// DefaultScanConfig 返回默认扫描配置
+// DefaultScanConfig 返回默认扫描配置.
 func DefaultScanConfig() *ScanConfig {
 	return &ScanConfig{
 		MinFileSize:  1024, // 1KB
@@ -85,7 +85,7 @@ func DefaultScanConfig() *ScanConfig {
 	}
 }
 
-// ScanResult 扫描结果
+// ScanResult 扫描结果.
 type ScanResult struct {
 	mu sync.RWMutex
 
@@ -101,7 +101,7 @@ type ScanResult struct {
 	Error          string            `json:"error,omitempty"` // 错误信息
 }
 
-// AddGroup 添加重复组（线程安全）
+// AddGroup 添加重复组（线程安全）.
 func (r *ScanResult) AddGroup(g *DuplicateGroup) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -110,7 +110,7 @@ func (r *ScanResult) AddGroup(g *DuplicateGroup) {
 	r.SavingsTotal += g.Savings
 }
 
-// GetGroups 获取所有重复组（线程安全）
+// GetGroups 获取所有重复组（线程安全）.
 func (r *ScanResult) GetGroups() []*DuplicateGroup {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -119,7 +119,7 @@ func (r *ScanResult) GetGroups() []*DuplicateGroup {
 	return result
 }
 
-// BatchDedupRequest 批量去重请求
+// BatchDedupRequest 批量去重请求.
 type BatchDedupRequest struct {
 	GroupIDs []string     `json:"groupIds"` // 要处理的组 ID 列表
 	Action   DedupAction  `json:"action"`   // 去重动作
@@ -127,7 +127,7 @@ type BatchDedupRequest struct {
 	DryRun   bool         `json:"dryRun"`   // 试运行
 }
 
-// BatchDedupResult 批量去重结果
+// BatchDedupResult 批量去重结果.
 type BatchDedupResult struct {
 	ProcessedGroups int      `json:"processedGroups"`  // 处理的组数
 	DeletedFiles    int      `json:"deletedFiles"`     // 删除的文件数
@@ -137,14 +137,14 @@ type BatchDedupResult struct {
 	Errors          []string `json:"errors,omitempty"` // 错误列表
 }
 
-// APIResponse 通用 API 响应
+// APIResponse 通用 API 响应.
 type APIResponse struct {
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data,omitempty"`
 	Error   string      `json:"error,omitempty"`
 }
 
-// 图片文件扩展名
+// 图片文件扩展名.
 var imageExtensions = map[string]bool{
 	".jpg": true, ".jpeg": true, ".png": true, ".gif": true,
 	".bmp": true, ".tiff": true, ".tif": true, ".webp": true,
@@ -152,7 +152,7 @@ var imageExtensions = map[string]bool{
 	".raw": true, ".cr2": true, ".nef": true, ".arw": true,
 }
 
-// IsImageFile 判断是否为图片文件
+// IsImageFile 判断是否为图片文件.
 func IsImageFile(path string) bool {
 	for ext := range imageExtensions {
 		if len(path) >= len(ext) {

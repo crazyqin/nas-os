@@ -619,7 +619,7 @@ func TestTemplateEngine_ConcurrentAccess(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		go func(idx int) {
 			tmpl := &AlertTemplate{
-				ID:   "concurrent-" + strings.Replace(time.Now().Format("150405.000"), ".", "", -1),
+				ID:   "concurrent-" + strings.ReplaceAll(time.Now().Format("150405.000"), ".", ""),
 				Name: "Concurrent Test",
 				Type: TemplateTypeEmail,
 				Body: "Test body",

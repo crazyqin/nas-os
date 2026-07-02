@@ -1,8 +1,6 @@
 // Package batchrename 提供批量文件重命名功能，对标群晖File Station批量重命名
 package batchrename
 
-import ()
-
 // RenameMode 重命名模式.
 type RenameMode string
 

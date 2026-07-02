@@ -8,7 +8,7 @@ import (
 
 // ========== 对话系统 ==========
 
-// Conversation 对话会话
+// Conversation 对话会话.
 type Conversation struct {
 	ID           string       `json:"id"`           // 唯一标识
 	UserID       string       `json:"userId"`       // 用户 ID
@@ -19,7 +19,7 @@ type Conversation struct {
 	Status       ConverStatus `json:"status"`       // 状态
 }
 
-// ConverStatus 对话状态
+// ConverStatus 对话状态.
 type ConverStatus string
 
 const (
@@ -27,7 +27,7 @@ const (
 	ConverStatusArchived ConverStatus = "archived" // 已归档
 )
 
-// Message 消息
+// Message 消息.
 type Message struct {
 	ID             string        `json:"id"`             // 唯一标识
 	ConversationID string        `json:"conversationId"` // 对话 ID
@@ -37,7 +37,7 @@ type Message struct {
 	CommandResult  *ActionResult `json:"commandResult"`  // 操作结果 (仅命令执行时)
 }
 
-// MessageRole 消息角色
+// MessageRole 消息角色.
 type MessageRole string
 
 const (
@@ -48,14 +48,14 @@ const (
 
 // ========== 意图识别 ==========
 
-// Intent 识别出的用户意图
+// Intent 识别出的用户意图.
 type Intent struct {
 	Type       IntentType        `json:"type"`       // 意图类型
 	Confidence float64           `json:"confidence"` // 置信度 (0-1)
 	Parameters map[string]string `json:"parameters"` // 提取的参数
 }
 
-// IntentType 意图类型
+// IntentType 意图类型.
 type IntentType string
 
 const (
@@ -71,7 +71,7 @@ const (
 
 // ========== 命令系统 ==========
 
-// Command 解析出的命令
+// Command 解析出的命令.
 type Command struct {
 	Verb         CommandType       `json:"verb"`         // 动词
 	ResourceType string            `json:"resourceType"` // 资源类型
@@ -79,7 +79,7 @@ type Command struct {
 	Status       CommandStatus     `json:"status"`       // 状态
 }
 
-// CommandType 命令动词类型
+// CommandType 命令动词类型.
 type CommandType string
 
 const (
@@ -92,7 +92,7 @@ const (
 	CommandRestore CommandType = "restore" // 恢复
 )
 
-// CommandStatus 命令状态
+// CommandStatus 命令状态.
 type CommandStatus string
 
 const (
@@ -105,7 +105,7 @@ const (
 
 // ========== 操作结果 ==========
 
-// ActionResult 操作执行结果
+// ActionResult 操作执行结果.
 type ActionResult struct {
 	Success  bool   `json:"success"`  // 是否成功
 	Message  string `json:"message"`  // 输出信息
@@ -115,7 +115,7 @@ type ActionResult struct {
 
 // ========== 知识库 ==========
 
-// KnowledgeEntry 知识条目
+// KnowledgeEntry 知识条目.
 type KnowledgeEntry struct {
 	ID       string       `json:"id"`       // 唯一标识
 	Category KnowledgeCat `json:"category"` // 分类
@@ -124,7 +124,7 @@ type KnowledgeEntry struct {
 	Tags     []string     `json:"tags"`     // 标签
 }
 
-// KnowledgeCat 知识分类
+// KnowledgeCat 知识分类.
 type KnowledgeCat string
 
 const (
@@ -136,7 +136,7 @@ const (
 
 // ========== 定时任务 ==========
 
-// ScheduledTask 定时任务
+// ScheduledTask 定时任务.
 type ScheduledTask struct {
 	ID          string    `json:"id"`          // 唯一标识
 	Description string    `json:"description"` // 描述
@@ -149,7 +149,7 @@ type ScheduledTask struct {
 
 // ========== 用户偏好 ==========
 
-// UserPreference 用户偏好设置
+// UserPreference 用户偏好设置.
 type UserPreference struct {
 	UserID       string       `json:"userId"`       // 用户 ID
 	Language     string       `json:"language"`     // 语言
@@ -157,7 +157,7 @@ type UserPreference struct {
 	OutputFormat string       `json:"outputFormat"` // 输出格式
 }
 
-// ConfirmLevel 操作确认级别
+// ConfirmLevel 操作确认级别.
 type ConfirmLevel string
 
 const (
@@ -168,7 +168,7 @@ const (
 
 // ========== 审计日志 ==========
 
-// AuditEntry 审计日志条目
+// AuditEntry 审计日志条目.
 type AuditEntry struct {
 	ID        string    `json:"id"`        // 唯一标识
 	UserID    string    `json:"userId"`    // 用户 ID
@@ -181,7 +181,7 @@ type AuditEntry struct {
 
 // ========== 统计数据 ==========
 
-// CopilotStats 助手统计
+// CopilotStats 助手统计.
 type CopilotStats struct {
 	TotalConversations int     `json:"totalConversations"` // 总会话数
 	TotalMessages      int     `json:"totalMessages"`      // 总消息数
@@ -192,37 +192,37 @@ type CopilotStats struct {
 
 // ========== 请求/响应结构 ==========
 
-// ChatRequest 聊天请求
+// ChatRequest 聊天请求.
 type ChatRequest struct {
 	ConversationID string `json:"conversationId"`             // 对话 ID (为空则自动创建)
 	Message        string `json:"message" binding:"required"` // 消息内容
 	UserID         string `json:"userId"`                     // 用户 ID
 }
 
-// ChatResponse 聊天响应
+// ChatResponse 聊天响应.
 type ChatResponse struct {
 	ConversationID string  `json:"conversationId"` // 对话 ID
 	Message        Message `json:"message"`        // 助手回复
 	Intent         *Intent `json:"intent"`         // 识别的意图
 }
 
-// ParseRequest 解析请求
+// ParseRequest 解析请求.
 type ParseRequest struct {
 	Text string `json:"text" binding:"required"`
 }
 
-// ParseResponse 解析响应
+// ParseResponse 解析响应.
 type ParseResponse struct {
 	Intent  Intent   `json:"intent"`  // 识别的意图
 	Command *Command `json:"command"` // 解析的命令
 }
 
-// ExecuteRequest 执行请求
+// ExecuteRequest 执行请求.
 type ExecuteRequest struct {
 	Command Command `json:"command" binding:"required"`
 }
 
-// CreateTaskRequest 创建定时任务请求
+// CreateTaskRequest 创建定时任务请求.
 type CreateTaskRequest struct {
 	Description string `json:"description" binding:"required"`
 	CronExpr    string `json:"cronExpr" binding:"required"`
@@ -230,7 +230,7 @@ type CreateTaskRequest struct {
 	Enabled     *bool  `json:"enabled"` // 指针以区分零值和未设置
 }
 
-// UpdateTaskRequest 更新定时任务请求
+// UpdateTaskRequest 更新定时任务请求.
 type UpdateTaskRequest struct {
 	Description string `json:"description"`
 	CronExpr    string `json:"cronExpr"`
@@ -238,7 +238,7 @@ type UpdateTaskRequest struct {
 	Enabled     *bool  `json:"enabled"`
 }
 
-// AddKnowledgeRequest 添加知识条目请求
+// AddKnowledgeRequest 添加知识条目请求.
 type AddKnowledgeRequest struct {
 	Category KnowledgeCat `json:"category" binding:"required"`
 	Title    string       `json:"title" binding:"required"`

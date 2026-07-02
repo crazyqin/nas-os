@@ -15,15 +15,15 @@ import (
 // 一、内置脱敏规则
 // =========================================================================
 
-// builtinRules 内置规则定义（编译后的正则表达式在 init 中生成）
+// builtinRules 内置规则定义（编译后的正则表达式在 init 中生成）.
 var builtinRuleDefs = []struct {
-	id       string
-	name     string
-	pattern  string
-	action   MaskAction
-	keepPre  int
-	keepSuf  int
-	desc     string
+	id      string
+	name    string
+	pattern string
+	action  MaskAction
+	keepPre int
+	keepSuf int
+	desc    string
 }{
 	{"builtin-id-card", "身份证号", `[1-9]\d{5}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx]`, ActionMask, 6, 2, "中国大陆居民身份证号（18位）"},
 	{"builtin-phone", "手机号", `1[3-9]\d{9}`, ActionMask, 3, 2, "中国大陆手机号（11位）"},
@@ -39,21 +39,21 @@ var builtinRuleDefs = []struct {
 // 二、脱敏引擎
 // =========================================================================
 
-// compiledRule 编译后的规则（正则已预编译，避免每次重新编译）
+// compiledRule 编译后的规则（正则已预编译，避免每次重新编译）.
 type compiledRule struct {
 	rule   *MaskRule
 	regexp *regexp.Regexp
 }
 
-// Masker 脱敏引擎
+// Masker 脱敏引擎.
 type Masker struct {
-	mu          sync.RWMutex
-	rules       []*compiledRule // 按优先级排序后的规则列表
-	config      *MaskConfig
-	ruleIndex   map[string]*compiledRule // 按规则 ID 索引
+	mu        sync.RWMutex
+	rules     []*compiledRule // 按优先级排序后的规则列表
+	config    *MaskConfig
+	ruleIndex map[string]*compiledRule // 按规则 ID 索引
 }
 
-// NewMasker 创建脱敏引擎实例
+// NewMasker 创建脱敏引擎实例.
 func NewMasker(cfg *MaskConfig) *Masker {
 	if cfg == nil {
 		cfg = DefaultMaskConfig()
@@ -66,7 +66,7 @@ func NewMasker(cfg *MaskConfig) *Masker {
 	return m
 }
 
-// loadBuiltinRules 加载内置规则
+// loadBuiltinRules 加载内置规则.
 func (m *Masker) loadBuiltinRules() {
 	for _, def := range builtinRuleDefs {
 		re, err := regexp.Compile(def.pattern)
@@ -93,7 +93,7 @@ func (m *Masker) loadBuiltinRules() {
 	}
 }
 
-// AddRule 添加自定义脱敏规则
+// AddRule 添加自定义脱敏规则.
 func (m *Masker) AddRule(rule *MaskRule) error {
 	if rule == nil {
 		return fmt.Errorf("规则不能为空")
@@ -135,7 +135,7 @@ func (m *Masker) AddRule(rule *MaskRule) error {
 	return nil
 }
 
-// RemoveRule 移除规则（内置规则不可移除）
+// RemoveRule 移除规则（内置规则不可移除）.
 func (m *Masker) RemoveRule(ruleID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -158,7 +158,7 @@ func (m *Masker) RemoveRule(ruleID string) error {
 	return nil
 }
 
-// EnableRule 启用/禁用规则
+// EnableRule 启用/禁用规则.
 func (m *Masker) EnableRule(ruleID string, enabled bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -172,7 +172,7 @@ func (m *Masker) EnableRule(ruleID string, enabled bool) error {
 	return nil
 }
 
-// ListRules 返回所有规则的副本
+// ListRules 返回所有规则的副本.
 func (m *Masker) ListRules() []*MaskRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -185,7 +185,7 @@ func (m *Masker) ListRules() []*MaskRule {
 	return result
 }
 
-// GetRule 按 ID 获取规则
+// GetRule 按 ID 获取规则.
 func (m *Masker) GetRule(ruleID string) (*MaskRule, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -198,7 +198,7 @@ func (m *Masker) GetRule(ruleID string) (*MaskRule, bool) {
 	return &cp, true
 }
 
-// sortRulesLocked 按优先级排序（调用方需持有写锁）
+// sortRulesLocked 按优先级排序（调用方需持有写锁）.
 func (m *Masker) sortRulesLocked() {
 	sort.SliceStable(m.rules, func(i, j int) bool {
 		return m.rules[i].rule.Priority < m.rules[j].rule.Priority
@@ -209,7 +209,7 @@ func (m *Masker) sortRulesLocked() {
 // 三、脱敏核心逻辑
 // =========================================================================
 
-// MaskResult 单次脱敏匹配结果
+// MaskResult 单次脱敏匹配结果.
 type MaskResult struct {
 	RuleID   string `json:"rule_id"`
 	RuleName string `json:"rule_name"`
@@ -219,7 +219,7 @@ type MaskResult struct {
 	End      int    `json:"end"`
 }
 
-// MaskOutcome 脱敏整体结果
+// MaskOutcome 脱敏整体结果.
 type MaskOutcome struct {
 	MaskedText string       `json:"masked_text"`
 	Matches    []MaskResult `json:"matches"`
@@ -257,13 +257,13 @@ func (m *Masker) Mask(text string) *MaskOutcome {
 	return outcome
 }
 
-// applyRuleResult 规则应用中间结果
+// applyRuleResult 规则应用中间结果.
 type applyRuleResult struct {
 	text    string
 	matches []MaskResult
 }
 
-// applyRule 对文本应用单条规则
+// applyRule 对文本应用单条规则.
 func (m *Masker) applyRule(text string, cr *compiledRule) applyRuleResult {
 	matches := cr.regexp.FindAllStringIndex(text, -1)
 	if len(matches) == 0 {
@@ -300,7 +300,7 @@ func (m *Masker) applyRule(text string, cr *compiledRule) applyRuleResult {
 	return applyRuleResult{text: result, matches: matchResults}
 }
 
-// applyAction 按规则动作对单个匹配项执行脱敏
+// applyAction 按规则动作对单个匹配项执行脱敏.
 func (m *Masker) applyAction(text string, rule *MaskRule) string {
 	switch rule.Action {
 	case ActionReplace:
@@ -326,7 +326,7 @@ func (m *Masker) applyAction(text string, rule *MaskRule) string {
 }
 
 // maskString 对字符串执行掩码：保留前 keepPrefix 和后 keepSuffix 字符，中间用 * 代替
-// 如果字符串长度不足以保留首尾，则全部掩码
+// 如果字符串长度不足以保留首尾，则全部掩码.
 func maskString(s string, keepPrefix, keepSuffix int) string {
 	runes := []rune(s)
 	n := len(runes)
@@ -354,7 +354,7 @@ func maskString(s string, keepPrefix, keepSuffix int) string {
 	return string(runes[:keepPrefix]) + strings.Repeat("*", maskLen) + string(runes[n-keepSuffix:])
 }
 
-// truncate 截断字符串到最大长度
+// truncate 截断字符串到最大长度.
 func truncate(s string, maxLen int) string {
 	runes := []rune(s)
 	if len(runes) <= maxLen {

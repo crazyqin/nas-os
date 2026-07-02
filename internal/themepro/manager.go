@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 主题管理器
+// Manager 主题管理器.
 type Manager struct {
 	mu          sync.RWMutex
 	logger      *zap.Logger
@@ -20,7 +20,7 @@ type Manager struct {
 	running     bool
 }
 
-// NewManager 创建主题管理器
+// NewManager 创建主题管理器.
 func NewManager(logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -38,12 +38,12 @@ func NewManager(logger *zap.Logger) *Manager {
 	return m
 }
 
-// generateID 生成唯一 ID
+// generateID 生成唯一 ID.
 func generateID() string {
 	return fmt.Sprintf("theme-%d", time.Now().UnixNano())
 }
 
-// initBuiltinThemes 初始化内置主题
+// initBuiltinThemes 初始化内置主题.
 func (m *Manager) initBuiltinThemes() {
 	// 亮色主题
 	lightTheme := &Theme{
@@ -145,7 +145,7 @@ func (m *Manager) initBuiltinThemes() {
 	m.logger.Info("builtin themes initialized", zap.Int("count", len(m.themes)))
 }
 
-// ListThemes 列出所有主题
+// ListThemes 列出所有主题.
 func (m *Manager) ListThemes() []*Theme {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -157,7 +157,7 @@ func (m *Manager) ListThemes() []*Theme {
 	return themes
 }
 
-// GetTheme 获取主题
+// GetTheme 获取主题.
 func (m *Manager) GetTheme(id string) (*Theme, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -169,7 +169,7 @@ func (m *Manager) GetTheme(id string) (*Theme, error) {
 	return theme, nil
 }
 
-// GetActiveTheme 获取当前活跃主题
+// GetActiveTheme 获取当前活跃主题.
 func (m *Manager) GetActiveTheme() (*Theme, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -181,7 +181,7 @@ func (m *Manager) GetActiveTheme() (*Theme, error) {
 	return theme, nil
 }
 
-// ApplyTheme 应用主题
+// ApplyTheme 应用主题.
 func (m *Manager) ApplyTheme(themeID string) (*Theme, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -197,7 +197,7 @@ func (m *Manager) ApplyTheme(themeID string) (*Theme, error) {
 	return theme, nil
 }
 
-// CreateCustomTheme 创建自定义主题
+// CreateCustomTheme 创建自定义主题.
 func (m *Manager) CreateCustomTheme(req *CreateThemeRequest) (*Theme, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -233,7 +233,7 @@ func (m *Manager) CreateCustomTheme(req *CreateThemeRequest) (*Theme, error) {
 	return theme, nil
 }
 
-// UpdateTheme 更新主题
+// UpdateTheme 更新主题.
 func (m *Manager) UpdateTheme(id string, req *UpdateThemeRequest) (*Theme, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -274,7 +274,7 @@ func (m *Manager) UpdateTheme(id string, req *UpdateThemeRequest) (*Theme, error
 	return theme, nil
 }
 
-// DeleteTheme 删除主题
+// DeleteTheme 删除主题.
 func (m *Manager) DeleteTheme(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -298,7 +298,7 @@ func (m *Manager) DeleteTheme(id string) error {
 	return nil
 }
 
-// ExportTheme 导出主题包
+// ExportTheme 导出主题包.
 func (m *Manager) ExportTheme(themeIDs []string) (*ThemePack, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -327,7 +327,7 @@ func (m *Manager) ExportTheme(themeIDs []string) (*ThemePack, error) {
 	return pack, nil
 }
 
-// ImportTheme 导入主题包
+// ImportTheme 导入主题包.
 func (m *Manager) ImportTheme(data []byte) ([]*Theme, error) {
 	var pack ThemePack
 	if err := json.Unmarshal(data, &pack); err != nil {
@@ -355,7 +355,7 @@ func (m *Manager) ImportTheme(data []byte) ([]*Theme, error) {
 	return imported, nil
 }
 
-// GetDefaultThemes 获取默认主题列表
+// GetDefaultThemes 获取默认主题列表.
 func (m *Manager) GetDefaultThemes() []*Theme {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -369,7 +369,7 @@ func (m *Manager) GetDefaultThemes() []*Theme {
 	return defaults
 }
 
-// GetBuiltinThemes 获取内置主题列表
+// GetBuiltinThemes 获取内置主题列表.
 func (m *Manager) GetBuiltinThemes() []*Theme {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -383,7 +383,7 @@ func (m *Manager) GetBuiltinThemes() []*Theme {
 	return builtins
 }
 
-// GetCustomThemes 获取自定义主题列表
+// GetCustomThemes 获取自定义主题列表.
 func (m *Manager) GetCustomThemes() []*Theme {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -397,7 +397,7 @@ func (m *Manager) GetCustomThemes() []*Theme {
 	return customs
 }
 
-// DuplicateTheme 复制主题
+// DuplicateTheme 复制主题.
 func (m *Manager) DuplicateTheme(id string, newName string) (*Theme, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

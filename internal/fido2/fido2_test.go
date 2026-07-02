@@ -885,7 +885,7 @@ func TestAuthenticator_VerifyAuthentication_InvalidChallenge(t *testing.T) {
 	clientDataJSON, _ := json.Marshal(clientData)
 
 	resp := &AuthenticationResponse{
-		ID:    base64.URLEncoding.EncodeToString([]byte("cred-id")),
+		ID: base64.URLEncoding.EncodeToString([]byte("cred-id")),
 		Response: AuthenticationResponseData{
 			AuthenticatorData: base64.URLEncoding.EncodeToString(make([]byte, 37)),
 			ClientDataJSON:    base64.URLEncoding.EncodeToString(clientDataJSON),
@@ -917,7 +917,7 @@ func TestAuthenticator_VerifyAuthentication_UserNotPresent(t *testing.T) {
 	clientDataJSON, _ := json.Marshal(clientData)
 
 	resp := &AuthenticationResponse{
-		ID:    base64.URLEncoding.EncodeToString([]byte("cred-id")),
+		ID: base64.URLEncoding.EncodeToString([]byte("cred-id")),
 		Response: AuthenticationResponseData{
 			AuthenticatorData: base64.URLEncoding.EncodeToString(authData),
 			ClientDataJSON:    base64.URLEncoding.EncodeToString(clientDataJSON),
@@ -950,7 +950,7 @@ func TestAuthenticator_VerifyAuthentication_ReplayAttack(t *testing.T) {
 	clientDataJSON, _ := json.Marshal(clientData)
 
 	resp := &AuthenticationResponse{
-		ID:    base64.URLEncoding.EncodeToString([]byte("cred-id")),
+		ID: base64.URLEncoding.EncodeToString([]byte("cred-id")),
 		Response: AuthenticationResponseData{
 			AuthenticatorData: base64.URLEncoding.EncodeToString(authData),
 			ClientDataJSON:    base64.URLEncoding.EncodeToString(clientDataJSON),
@@ -1320,11 +1320,11 @@ func TestHandlers_BeginRegistration(t *testing.T) {
 
 func TestHandlers_Config(t *testing.T) {
 	config := &Config{
-		RPID:          "example.com",
-		RPName:        "Test App",
-		RPOrigin:      "https://example.com",
-		ChallengeLen:  64,
-		Timeout:       120000,
+		RPID:           "example.com",
+		RPName:         "Test App",
+		RPOrigin:       "https://example.com",
+		ChallengeLen:   64,
+		Timeout:        120000,
 		MaxCredentials: 5,
 	}
 
@@ -1604,11 +1604,11 @@ func TestHandlers_RegisterRoutesWithGin(t *testing.T) {
 
 	// 验证路由路径
 	expectedPaths := map[string]bool{
-		"/api/v1/auth/fido2/register/begin":  false,
-		"/api/v1/auth/fido2/register/finish": false,
-		"/api/v1/auth/fido2/login/begin":     false,
-		"/api/v1/auth/fido2/login/finish":    false,
-		"/api/v1/auth/fido2/credentials":      false,
+		"/api/v1/auth/fido2/register/begin":    false,
+		"/api/v1/auth/fido2/register/finish":   false,
+		"/api/v1/auth/fido2/login/begin":       false,
+		"/api/v1/auth/fido2/login/finish":      false,
+		"/api/v1/auth/fido2/credentials":       false,
 		"/api/v1/auth/fido2/recovery/generate": false,
 		"/api/v1/auth/fido2/recovery/verify":   false,
 	}
@@ -1995,8 +1995,8 @@ func TestHandlers_FinishLoginEndpoint_NoPendingAuth(t *testing.T) {
 	clientDataJSON, _ := json.Marshal(clientData)
 
 	resp := AuthenticationResponse{
-		ID:    base64.URLEncoding.EncodeToString([]byte("cred-id")),
-		Type:  "public-key",
+		ID:   base64.URLEncoding.EncodeToString([]byte("cred-id")),
+		Type: "public-key",
 		Response: AuthenticationResponseData{
 			AuthenticatorData: base64.URLEncoding.EncodeToString(make([]byte, 37)),
 			ClientDataJSON:    base64.URLEncoding.EncodeToString(clientDataJSON),
@@ -2058,8 +2058,8 @@ func TestHandlers_FinishRegistrationEndpoint_NoPending(t *testing.T) {
 	clientDataJSON, _ := json.Marshal(clientData)
 
 	resp := RegistrationResponse{
-		ID:    base64.URLEncoding.EncodeToString([]byte("cred-id")),
-		Type:  "public-key",
+		ID:   base64.URLEncoding.EncodeToString([]byte("cred-id")),
+		Type: "public-key",
 		Response: RegistrationResponseData{
 			AttestationObject: base64.URLEncoding.EncodeToString([]byte("att")),
 			ClientDataJSON:    base64.URLEncoding.EncodeToString(clientDataJSON),
@@ -2204,8 +2204,8 @@ func TestHandlers_FinishLoginEndpoint_ExpiredChallenge(t *testing.T) {
 	clientDataJSON, _ := json.Marshal(clientData)
 
 	resp := AuthenticationResponse{
-		ID:    base64.URLEncoding.EncodeToString([]byte("cred-id")),
-		Type:  "public-key",
+		ID:   base64.URLEncoding.EncodeToString([]byte("cred-id")),
+		Type: "public-key",
 		Response: AuthenticationResponseData{
 			AuthenticatorData: base64.URLEncoding.EncodeToString(make([]byte, 37)),
 			ClientDataJSON:    base64.URLEncoding.EncodeToString(clientDataJSON),
@@ -2254,8 +2254,8 @@ func TestHandlers_FinishLoginEndpoint_UserMismatch(t *testing.T) {
 	clientDataJSON, _ := json.Marshal(clientData)
 
 	resp := AuthenticationResponse{
-		ID:    base64.URLEncoding.EncodeToString([]byte("cred-id")),
-		Type:  "public-key",
+		ID:   base64.URLEncoding.EncodeToString([]byte("cred-id")),
+		Type: "public-key",
 		Response: AuthenticationResponseData{
 			AuthenticatorData: base64.URLEncoding.EncodeToString(make([]byte, 37)),
 			ClientDataJSON:    base64.URLEncoding.EncodeToString(clientDataJSON),
@@ -2304,8 +2304,8 @@ func TestHandlers_FinishRegistrationEndpoint_ExpiredChallenge(t *testing.T) {
 	clientDataJSON, _ := json.Marshal(clientData)
 
 	resp := RegistrationResponse{
-		ID:    base64.URLEncoding.EncodeToString([]byte("cred-id")),
-		Type:  "public-key",
+		ID:   base64.URLEncoding.EncodeToString([]byte("cred-id")),
+		Type: "public-key",
 		Response: RegistrationResponseData{
 			AttestationObject: base64.URLEncoding.EncodeToString([]byte("att")),
 			ClientDataJSON:    base64.URLEncoding.EncodeToString(clientDataJSON),
@@ -2354,8 +2354,8 @@ func TestHandlers_FinishRegistrationEndpoint_UserMismatch(t *testing.T) {
 	clientDataJSON, _ := json.Marshal(clientData)
 
 	resp := RegistrationResponse{
-		ID:    base64.URLEncoding.EncodeToString([]byte("cred-id")),
-		Type:  "public-key",
+		ID:   base64.URLEncoding.EncodeToString([]byte("cred-id")),
+		Type: "public-key",
 		Response: RegistrationResponseData{
 			AttestationObject: base64.URLEncoding.EncodeToString([]byte("att")),
 			ClientDataJSON:    base64.URLEncoding.EncodeToString(clientDataJSON),
@@ -2404,8 +2404,8 @@ func TestHandlers_FinishLoginEndpoint_CredNotFound(t *testing.T) {
 	clientDataJSON, _ := json.Marshal(clientData)
 
 	resp := AuthenticationResponse{
-		ID:    base64.URLEncoding.EncodeToString([]byte("nonexistent-cred")),
-		Type:  "public-key",
+		ID:   base64.URLEncoding.EncodeToString([]byte("nonexistent-cred")),
+		Type: "public-key",
 		Response: AuthenticationResponseData{
 			AuthenticatorData: base64.URLEncoding.EncodeToString(make([]byte, 37)),
 			ClientDataJSON:    base64.URLEncoding.EncodeToString(clientDataJSON),
@@ -2463,8 +2463,8 @@ func TestHandlers_FinishLoginEndpoint_CredBelongsToOtherUser(t *testing.T) {
 	clientDataJSON, _ := json.Marshal(clientData)
 
 	resp := AuthenticationResponse{
-		ID:    base64.URLEncoding.EncodeToString(webauthnID),
-		Type:  "public-key",
+		ID:   base64.URLEncoding.EncodeToString(webauthnID),
+		Type: "public-key",
 		Response: AuthenticationResponseData{
 			AuthenticatorData: base64.URLEncoding.EncodeToString(make([]byte, 37)),
 			ClientDataJSON:    base64.URLEncoding.EncodeToString(clientDataJSON),

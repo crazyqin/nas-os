@@ -11,19 +11,19 @@ import (
 	"time"
 )
 
-// Client FreeIPA LDAP 客户端
+// Client FreeIPA LDAP 客户端.
 type Client struct {
-	config     DirectoryConfig
-	conn       net.Conn
-	mu         sync.RWMutex
-	logger     *slog.Logger
-	stats      DirectoryStats
-	startTime  time.Time
-	usersCache []LDAPUser
+	config      DirectoryConfig
+	conn        net.Conn
+	mu          sync.RWMutex
+	logger      *slog.Logger
+	stats       DirectoryStats
+	startTime   time.Time
+	usersCache  []LDAPUser
 	groupsCache []LDAPGroup
 }
 
-// NewClient 创建 FreeIPA 客户端
+// NewClient 创建 FreeIPA 客户端.
 func NewClient(config DirectoryConfig, logger *slog.Logger) *Client {
 	if logger == nil {
 		logger = slog.Default()
@@ -38,7 +38,7 @@ func NewClient(config DirectoryConfig, logger *slog.Logger) *Client {
 	}
 }
 
-// Connect 连接到 FreeIPA LDAP 服务器
+// Connect 连接到 FreeIPA LDAP 服务器.
 func (c *Client) Connect(ctx context.Context) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -72,7 +72,7 @@ func (c *Client) Connect(ctx context.Context) error {
 	return nil
 }
 
-// Disconnect 断开连接
+// Disconnect 断开连接.
 func (c *Client) Disconnect() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -86,14 +86,14 @@ func (c *Client) Disconnect() error {
 	return nil
 }
 
-// IsConnected 检查连接状态
+// IsConnected 检查连接状态.
 func (c *Client) IsConnected() bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.conn != nil && c.stats.Status == StatusConnected
 }
 
-// Authenticate 用户认证
+// Authenticate 用户认证.
 func (c *Client) Authenticate(ctx context.Context, username, password string) (*AuthResult, error) {
 	start := time.Now()
 
@@ -152,7 +152,7 @@ func (c *Client) Authenticate(ctx context.Context, username, password string) (*
 	}, nil
 }
 
-// FindUser 查找用户
+// FindUser 查找用户.
 func (c *Client) FindUser(ctx context.Context, username string) (*LDAPUser, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -167,7 +167,7 @@ func (c *Client) FindUser(ctx context.Context, username string) (*LDAPUser, erro
 	return nil, nil
 }
 
-// SearchUsers 搜索用户
+// SearchUsers 搜索用户.
 func (c *Client) SearchUsers(ctx context.Context, filter UserSearchFilter) ([]LDAPUser, int, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -195,7 +195,7 @@ func (c *Client) SearchUsers(ctx context.Context, filter UserSearchFilter) ([]LD
 	return results[start:end], total, nil
 }
 
-// SearchGroups 搜索组
+// SearchGroups 搜索组.
 func (c *Client) SearchGroups(ctx context.Context, filter GroupSearchFilter) ([]LDAPGroup, int, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -222,7 +222,7 @@ func (c *Client) SearchGroups(ctx context.Context, filter GroupSearchFilter) ([]
 	return results[start:end], total, nil
 }
 
-// SyncUsers 同步用户
+// SyncUsers 同步用户.
 func (c *Client) SyncUsers(ctx context.Context) (*SyncResult, error) {
 	start := time.Now()
 	result := &SyncResult{SyncedAt: start}
@@ -253,7 +253,7 @@ func (c *Client) SyncUsers(ctx context.Context) (*SyncResult, error) {
 	return result, nil
 }
 
-// SyncGroups 同步组
+// SyncGroups 同步组.
 func (c *Client) SyncGroups(ctx context.Context) (*SyncResult, error) {
 	start := time.Now()
 	result := &SyncResult{SyncedAt: start}
@@ -283,7 +283,7 @@ func (c *Client) SyncGroups(ctx context.Context) (*SyncResult, error) {
 	return result, nil
 }
 
-// FullSync 完整同步（用户+组）
+// FullSync 完整同步（用户+组）.
 func (c *Client) FullSync(ctx context.Context) (*SyncResult, error) {
 	start := time.Now()
 
@@ -311,7 +311,7 @@ func (c *Client) FullSync(ctx context.Context) (*SyncResult, error) {
 	return result, nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (c *Client) GetStats() DirectoryStats {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -333,21 +333,21 @@ func (c *Client) GetStats() DirectoryStats {
 	return stats
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (c *Client) UpdateConfig(config DirectoryConfig) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.config = config
 }
 
-// GetConfig 获取当前配置
+// GetConfig 获取当前配置.
 func (c *Client) GetConfig() DirectoryConfig {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.config
 }
 
-// matchUserFilter 用户过滤匹配
+// matchUserFilter 用户过滤匹配.
 func matchUserFilter(user LDAPUser, filter UserSearchFilter) bool {
 	if filter.Username != "" && !strings.Contains(strings.ToLower(user.Username), strings.ToLower(filter.Username)) {
 		return false
@@ -379,7 +379,7 @@ func matchUserFilter(user LDAPUser, filter UserSearchFilter) bool {
 	return true
 }
 
-// matchGroupFilter 组过滤匹配
+// matchGroupFilter 组过滤匹配.
 func matchGroupFilter(group LDAPGroup, filter GroupSearchFilter) bool {
 	if filter.Name != "" && !strings.Contains(strings.ToLower(group.CN), strings.ToLower(filter.Name)) {
 		return false

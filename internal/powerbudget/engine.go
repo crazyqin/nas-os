@@ -12,22 +12,22 @@ import (
 
 // ==================== 类型定义 ====================
 
-// Engine 功率预算引擎（测试兼容层）
+// Engine 功率预算引擎（测试兼容层）.
 type Engine struct {
-	mu       sync.RWMutex
-	logger   *zap.Logger
-	config   *PowerBudgetConfig
-	running  bool
+	mu        sync.RWMutex
+	logger    *zap.Logger
+	config    *PowerBudgetConfig
+	running   bool
 	budgetSet bool
-	records  []*PowerRecord
-	alerts   []*Alert
-	devices  map[string]*DeviceProfile
-	tracker  *Tracker
-	analyzer *Analyzer
-	alertMgr *AlertManager
+	records   []*PowerRecord
+	alerts    []*Alert
+	devices   map[string]*DeviceProfile
+	tracker   *Tracker
+	analyzer  *Analyzer
+	alertMgr  *AlertManager
 }
 
-// RecordPowerRequest 记录功率请求
+// RecordPowerRequest 记录功率请求.
 type RecordPowerRequest struct {
 	DeviceID    string            `json:"deviceId"`
 	DeviceName  string            `json:"deviceName"`
@@ -37,7 +37,7 @@ type RecordPowerRequest struct {
 	Metadata    map[string]string `json:"metadata,omitempty"`
 }
 
-// PowerRecord 功率记录
+// PowerRecord 功率记录.
 type PowerRecord struct {
 	ID         string    `json:"id"`
 	DeviceID   string    `json:"deviceId"`
@@ -50,7 +50,7 @@ type PowerRecord struct {
 	Timestamp  time.Time `json:"timestamp"`
 }
 
-// SetBudgetRequest 设置预算请求
+// SetBudgetRequest 设置预算请求.
 type SetBudgetRequest struct {
 	Name              string  `json:"name"`
 	MonthlyAmount     float64 `json:"monthlyAmount"`
@@ -59,7 +59,7 @@ type SetBudgetRequest struct {
 	CriticalThreshold float64 `json:"criticalThreshold"`
 }
 
-// Budget 预算配置
+// Budget 预算配置.
 type Budget struct {
 	Name              string  `json:"name"`
 	MonthlyAmount     float64 `json:"monthlyAmount"`
@@ -69,7 +69,7 @@ type Budget struct {
 	Enabled           bool    `json:"enabled"`
 }
 
-// BudgetStatus 预算状态
+// BudgetStatus 预算状态.
 type BudgetStatus struct {
 	Budget        *Budget     `json:"budget"`
 	UsedEnergy    float64     `json:"usedEnergy"`
@@ -79,7 +79,7 @@ type BudgetStatus struct {
 	Trend         *TrendPoint `json:"trend"`
 }
 
-// MonthlyReport 月度报告
+// MonthlyReport 月度报告.
 type MonthlyReport struct {
 	ID          string        `json:"id"`
 	Period      ReportPeriod  `json:"period"`
@@ -91,13 +91,13 @@ type MonthlyReport struct {
 	Prediction  *Prediction   `json:"prediction"`
 }
 
-// ReportRequest 报告请求
+// ReportRequest 报告请求.
 type ReportRequest struct {
 	Period   ReportPeriod `json:"period"`
 	DeviceID string       `json:"deviceId,omitempty"`
 }
 
-// Report 报告
+// Report 报告.
 type Report struct {
 	Period      ReportPeriod  `json:"period"`
 	TotalEnergy float64       `json:"totalEnergy"`
@@ -105,7 +105,7 @@ type Report struct {
 	TopDevices  []DevicePower `json:"topDevices"`
 }
 
-// Alert 告警
+// Alert 告警.
 type Alert struct {
 	ID     string     `json:"id"`
 	Level  AlertLevel `json:"level"`
@@ -113,7 +113,7 @@ type Alert struct {
 	Active bool       `json:"active"`
 }
 
-// DeviceProfile 设备画像
+// DeviceProfile 设备画像.
 type DeviceProfile struct {
 	DeviceID      string    `json:"deviceId"`
 	DeviceName    string    `json:"deviceName"`
@@ -123,20 +123,20 @@ type DeviceProfile struct {
 	HourlyProfile []float64 `json:"hourlyProfile"`
 }
 
-// DevicePower 设备功率
+// DevicePower 设备功率.
 type DevicePower struct {
 	DeviceID   string  `json:"deviceId"`
 	DeviceName string  `json:"deviceName"`
 	TotalPower float64 `json:"totalPower"`
 }
 
-// TrendPoint 趋势点
+// TrendPoint 趋势点.
 type TrendPoint struct {
 	Date   time.Time `json:"date"`
 	Energy float64   `json:"energy"`
 }
 
-// Prediction 预测
+// Prediction 预测.
 type Prediction struct {
 	Method       string      `json:"method"`
 	DaysLeft     int         `json:"daysLeft"`
@@ -147,7 +147,7 @@ type Prediction struct {
 
 // ==================== 测试兼容常量 ====================
 
-// 测试中使用的告警级别常量（兼容 powerbudget_test.go）
+// 测试中使用的告警级别常量（兼容 powerbudget_test.go）.
 const (
 	AlertLevelInfo      = AlertInfo
 	AlertLevelWarning   = AlertWarning
@@ -155,7 +155,7 @@ const (
 	AlertLevelEmergency = AlertLevel("emergency")
 )
 
-// 测试中使用的告警类型常量（兼容 powerbudget_test.go）
+// 测试中使用的告警类型常量（兼容 powerbudget_test.go）.
 const (
 	AlertTypeBudgetExceeded = AlertType("budget_exceeded")
 	AlertTypeBudgetWarning  = AlertType("budget_warning")
@@ -163,7 +163,7 @@ const (
 	AlertTypeDeviceOverload = AlertType("device_overload")
 )
 
-// ReportPeriod 报告周期
+// ReportPeriod 报告周期.
 type ReportPeriod string
 
 const (
@@ -172,7 +172,7 @@ const (
 	PeriodMonthly ReportPeriod = "monthly"
 )
 
-// TrendDirection 趋势方向
+// TrendDirection 趋势方向.
 type TrendDirection string
 
 const (
@@ -193,7 +193,7 @@ var (
 	ErrDeviceNotFound          = &PowerBudgetError{Code: "DEVICE_NOT_FOUND", Message: "device not found"}
 )
 
-// PowerBudgetError 功率预算错误
+// PowerBudgetError 功率预算错误.
 type PowerBudgetError struct {
 	Code    string
 	Message string
@@ -216,13 +216,13 @@ const (
 
 // Tracker 功率追踪器
 // powerReading 存储单次功率读数
-// Tracker 功率追踪器
+// Tracker 功率追踪器.
 type Tracker struct {
 	mu       sync.RWMutex
 	readings map[string][]float64
 }
 
-// GetRealtimePower 获取实时功率（每个设备最新读数）
+// GetRealtimePower 获取实时功率（每个设备最新读数）.
 func (t *Tracker) GetRealtimePower() map[string]float64 {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -235,7 +235,7 @@ func (t *Tracker) GetRealtimePower() map[string]float64 {
 	return result
 }
 
-// GetCurrentPower 获取当前总功率（所有设备最新读数之和）
+// GetCurrentPower 获取当前总功率（所有设备最新读数之和）.
 func (t *Tracker) GetCurrentPower() float64 {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
@@ -248,17 +248,17 @@ func (t *Tracker) GetCurrentPower() float64 {
 	return total
 }
 
-// AggregateDaily 聚合每日数据
+// AggregateDaily 聚合每日数据.
 func (t *Tracker) AggregateDaily(start, end time.Time) []TrendPoint {
 	return []TrendPoint{{Date: time.Now(), Energy: 100.0}}
 }
 
-// AggregateHourly 聚合每小时数据
+// AggregateHourly 聚合每小时数据.
 func (t *Tracker) AggregateHourly(t2 time.Time) []float64 {
 	return make([]float64, 24)
 }
 
-// AggregateByDevice 按设备聚合（返回每个设备最新读数）
+// AggregateByDevice 按设备聚合（返回每个设备最新读数）.
 func (t *Tracker) AggregateByDevice(start, end time.Time) map[string]float64 {
 	result := make(map[string]float64)
 	for k, v := range t.readings {
@@ -269,7 +269,7 @@ func (t *Tracker) AggregateByDevice(start, end time.Time) map[string]float64 {
 	return result
 }
 
-// GetPeakPower 获取峰值功率（所有设备所有读数中的最大值）
+// GetPeakPower 获取峰值功率（所有设备所有读数中的最大值）.
 func (t *Tracker) GetPeakPower(start, end time.Time) (float64, error) {
 	peak := 0.0
 	found := false
@@ -284,7 +284,7 @@ func (t *Tracker) GetPeakPower(start, end time.Time) (float64, error) {
 	return peak, nil
 }
 
-// GetAveragePower 获取平均功率（所有设备所有读数的平均值）
+// GetAveragePower 获取平均功率（所有设备所有读数的平均值）.
 func (t *Tracker) GetAveragePower(start, end time.Time) float64 {
 	total := 0.0
 	count := 0
@@ -300,7 +300,7 @@ func (t *Tracker) GetAveragePower(start, end time.Time) float64 {
 	return total / float64(count)
 }
 
-// GetMinPower 获取最小功率（所有设备所有读数中的最小值）
+// GetMinPower 获取最小功率（所有设备所有读数中的最小值）.
 func (t *Tracker) GetMinPower(start, end time.Time) float64 {
 	min := 0.0
 	first := true
@@ -315,22 +315,22 @@ func (t *Tracker) GetMinPower(start, end time.Time) float64 {
 	return min
 }
 
-// Analyzer 功率分析器
+// Analyzer 功率分析器.
 type Analyzer struct {
 	engine *Engine
 }
 
-// CalculateTrend 计算趋势
+// CalculateTrend 计算趋势.
 func (a *Analyzer) CalculateTrend(days int) TrendDirection {
 	return TrendStable
 }
 
-// AnalyzeDailyTrend 分析每日趋势
+// AnalyzeDailyTrend 分析每日趋势.
 func (a *Analyzer) AnalyzeDailyTrend(days int) []TrendPoint {
 	return []TrendPoint{{Date: time.Now(), Energy: 100.0}}
 }
 
-// DetectAnomalies 检测异常（基于标准差）
+// DetectAnomalies 检测异常（基于标准差）.
 func (a *Analyzer) DetectAnomalies(days int) []interface{} {
 	a.engine.mu.RLock()
 	defer a.engine.mu.RUnlock()
@@ -365,14 +365,14 @@ func (a *Analyzer) DetectAnomalies(days int) []interface{} {
 	return anomalies
 }
 
-// GetOptimizationSuggestions 获取优化建议
+// GetOptimizationSuggestions 获取优化建议.
 func (a *Analyzer) GetOptimizationSuggestions() []interface{} {
 	a.engine.mu.RLock()
 	defer a.engine.mu.RUnlock()
 	return []interface{}{}
 }
 
-// PredictMonthly 预测月度
+// PredictMonthly 预测月度.
 func (a *Analyzer) PredictMonthly() *Prediction {
 	a.engine.mu.RLock()
 	defer a.engine.mu.RUnlock()
@@ -388,7 +388,7 @@ func (a *Analyzer) PredictMonthly() *Prediction {
 	now := time.Now()
 	startOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
 	daysInMonth := time.Date(now.Year(), now.Month()+1, 0, 0, 0, 0, 0, now.Location()).Day()
-	daysElapsed := int(now.Sub(startOfMonth).Hours()/24)
+	daysElapsed := int(now.Sub(startOfMonth).Hours() / 24)
 	if daysElapsed == 0 {
 		daysElapsed = 1
 	}
@@ -403,7 +403,7 @@ func (a *Analyzer) PredictMonthly() *Prediction {
 	}
 }
 
-// PredictDevicePredict 预测设备能耗
+// PredictDevicePredict 预测设备能耗.
 func (a *Analyzer) PredictDevicePredict(deviceID string, days int) float64 {
 	a.engine.mu.RLock()
 	defer a.engine.mu.RUnlock()
@@ -423,16 +423,16 @@ func (a *Analyzer) PredictDevicePredict(deviceID string, days int) float64 {
 	return dailyAvg * float64(days)
 }
 
-// AlertManager 告警管理器
+// AlertManager 告警管理器.
 type AlertManager struct {
 	engine          *Engine
 	cooldownMinutes int
 }
 
-// CheckBudgetAlerts 检查预算告警
+// CheckBudgetAlerts 检查预算告警.
 func (am *AlertManager) CheckBudgetAlerts() {}
 
-// GetAlertsByLevel 按级别获取告警
+// GetAlertsByLevel 按级别获取告警.
 func (am *AlertManager) GetAlertsByLevel(level AlertLevel) []*Alert {
 	am.engine.mu.RLock()
 	defer am.engine.mu.RUnlock()
@@ -445,7 +445,7 @@ func (am *AlertManager) GetAlertsByLevel(level AlertLevel) []*Alert {
 	return result
 }
 
-// GetAlertsByType 按类型获取告警
+// GetAlertsByType 按类型获取告警.
 func (am *AlertManager) GetAlertsByType(atype AlertType) []*Alert {
 	am.engine.mu.RLock()
 	defer am.engine.mu.RUnlock()
@@ -458,7 +458,7 @@ func (am *AlertManager) GetAlertsByType(atype AlertType) []*Alert {
 	return result
 }
 
-// GetAlertStats 获取告警统计
+// GetAlertStats 获取告警统计.
 func (am *AlertManager) GetAlertStats() map[string]int {
 	am.engine.mu.RLock()
 	defer am.engine.mu.RUnlock()
@@ -485,14 +485,14 @@ func (am *AlertManager) GetAlertStats() map[string]int {
 	return stats
 }
 
-// SetCooldownMinutes 设置冷却时间
+// SetCooldownMinutes 设置冷却时间.
 func (am *AlertManager) SetCooldownMinutes(minutes int) {
 	am.cooldownMinutes = minutes
 }
 
 // ==================== Engine 方法 ====================
 
-// NewEngine 创建新的功率预算引擎
+// NewEngine 创建新的功率预算引擎.
 func NewEngine(logger *zap.Logger) *Engine {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -510,7 +510,7 @@ func NewEngine(logger *zap.Logger) *Engine {
 	return e
 }
 
-// Start 启动引擎
+// Start 启动引擎.
 func (e *Engine) Start() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -518,7 +518,7 @@ func (e *Engine) Start() error {
 	return nil
 }
 
-// Stop 停止引擎
+// Stop 停止引擎.
 func (e *Engine) Stop() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -526,14 +526,14 @@ func (e *Engine) Stop() error {
 	return nil
 }
 
-// IsRunning 检查是否运行中
+// IsRunning 检查是否运行中.
 func (e *Engine) IsRunning() bool {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.running
 }
 
-// RecordPower 记录功率
+// RecordPower 记录功率.
 func (e *Engine) RecordPower(req RecordPowerRequest) (*PowerRecord, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -590,7 +590,7 @@ func (e *Engine) RecordPower(req RecordPowerRequest) (*PowerRecord, error) {
 	return record, nil
 }
 
-// SetBudget 设置预算
+// SetBudget 设置预算.
 func (e *Engine) SetBudget(req SetBudgetRequest) (*Budget, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -627,7 +627,7 @@ func (e *Engine) SetBudget(req SetBudgetRequest) (*Budget, error) {
 	return budget, nil
 }
 
-// GetBudgetStatus 获取预算状态
+// GetBudgetStatus 获取预算状态.
 func (e *Engine) GetBudgetStatus() (*BudgetStatus, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -671,7 +671,7 @@ func (e *Engine) GetBudgetStatus() (*BudgetStatus, error) {
 	}, nil
 }
 
-// GetMonthlyReport 获取月度报告
+// GetMonthlyReport 获取月度报告.
 func (e *Engine) GetMonthlyReport() (*MonthlyReport, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -717,7 +717,7 @@ func (e *Engine) GetMonthlyReport() (*MonthlyReport, error) {
 	return report, nil
 }
 
-// GetReport 获取报告
+// GetReport 获取报告.
 func (e *Engine) GetReport(req ReportRequest) (*Report, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -740,7 +740,7 @@ func (e *Engine) GetReport(req ReportRequest) (*Report, error) {
 	}, nil
 }
 
-// GetActiveAlerts 获取活跃告警
+// GetActiveAlerts 获取活跃告警.
 func (e *Engine) GetActiveAlerts() []*Alert {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -753,7 +753,7 @@ func (e *Engine) GetActiveAlerts() []*Alert {
 	return result
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (e *Engine) AcknowledgeAlert(id string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -766,7 +766,7 @@ func (e *Engine) AcknowledgeAlert(id string) error {
 	return ErrRecordNotFound
 }
 
-// GetDeviceProfile 获取设备画像
+// GetDeviceProfile 获取设备画像.
 func (e *Engine) GetDeviceProfile(deviceID string) (*DeviceProfile, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -777,7 +777,7 @@ func (e *Engine) GetDeviceProfile(deviceID string) (*DeviceProfile, error) {
 	return profile, nil
 }
 
-// GetAllDeviceProfiles 获取所有设备画像
+// GetAllDeviceProfiles 获取所有设备画像.
 func (e *Engine) GetAllDeviceProfiles() []*DeviceProfile {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -798,12 +798,12 @@ func (e *Engine) GetAllDeviceProfiles() []*DeviceProfile {
 
 // ==================== 辅助函数 ====================
 
-// FormatCost 格式化成本
+// FormatCost 格式化成本.
 func FormatCost(cents int64) string {
 	return fmt.Sprintf("%.2f", float64(cents)/100)
 }
 
-// DefaultBudgetConfig 默认预算配置
+// DefaultBudgetConfig 默认预算配置.
 func DefaultBudgetConfig() *Budget {
 	return &Budget{
 		Name:              "默认用电预算",
@@ -815,7 +815,7 @@ func DefaultBudgetConfig() *Budget {
 	}
 }
 
-// calculateStats 计算统计
+// calculateStats 计算统计.
 func calculateStats(data []float64) (mean, stddev float64) {
 	if len(data) == 0 {
 		return 0, 0
@@ -839,7 +839,7 @@ func calculateStats(data []float64) (mean, stddev float64) {
 	return mean, stddev
 }
 
-// sqrt 平方根
+// sqrt 平方根.
 func sqrt(x float64) float64 {
 	if x == 0 {
 		return 0
@@ -851,7 +851,7 @@ func sqrt(x float64) float64 {
 	return z
 }
 
-// sortTrendPoints 排序趋势点
+// sortTrendPoints 排序趋势点.
 func sortTrendPoints(points []TrendPoint) {
 	for i := 0; i < len(points)-1; i++ {
 		for j := i + 1; j < len(points); j++ {

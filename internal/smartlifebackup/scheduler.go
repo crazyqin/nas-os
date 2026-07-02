@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Scheduler 备份调度器
+// Scheduler 备份调度器.
 type Scheduler struct {
 	mu sync.RWMutex
 
@@ -22,7 +22,7 @@ type Scheduler struct {
 	stopped bool
 }
 
-// ScheduledTask 调度任务
+// ScheduledTask 调度任务.
 type ScheduledTask struct {
 	ID       string
 	Schedule string
@@ -32,7 +32,7 @@ type ScheduledTask struct {
 	Enabled  bool
 }
 
-// NewScheduler 创建调度器
+// NewScheduler 创建调度器.
 func NewScheduler(config *ScheduleConfig) *Scheduler {
 	if config == nil {
 		config = DefaultScheduleConfig()
@@ -50,7 +50,7 @@ func NewScheduler(config *ScheduleConfig) *Scheduler {
 	return s
 }
 
-// Stop 停止调度器
+// Stop 停止调度器.
 func (s *Scheduler) Stop() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -61,7 +61,7 @@ func (s *Scheduler) Stop() {
 	}
 }
 
-// ScheduleTask 调度任务
+// ScheduleTask 调度任务.
 func (s *Scheduler) ScheduleTask(schedule string, taskFunc func()) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -88,7 +88,7 @@ func (s *Scheduler) ScheduleTask(schedule string, taskFunc func()) error {
 	return nil
 }
 
-// UnscheduleTask 取消调度任务
+// UnscheduleTask 取消调度任务.
 func (s *Scheduler) UnscheduleTask(id string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -97,14 +97,14 @@ func (s *Scheduler) UnscheduleTask(id string) {
 	log.Printf("[Scheduler] 任务已取消：%s", id)
 }
 
-// GetConfig 获取调度配置
+// GetConfig 获取调度配置.
 func (s *Scheduler) GetConfig() *ScheduleConfig {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.config
 }
 
-// UpdateConfig 更新调度配置
+// UpdateConfig 更新调度配置.
 func (s *Scheduler) UpdateConfig(config *ScheduleConfig) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -113,7 +113,7 @@ func (s *Scheduler) UpdateConfig(config *ScheduleConfig) error {
 	return nil
 }
 
-// IsWithinAllowedWindow 检查当前时间是否在允许执行的窗口内
+// IsWithinAllowedWindow 检查当前时间是否在允许执行的窗口内.
 func (s *Scheduler) IsWithinAllowedWindow() bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -150,7 +150,7 @@ func (s *Scheduler) IsWithinAllowedWindow() bool {
 	return false
 }
 
-// GetNextAllowedWindow 获取下一个允许执行的时间窗口
+// GetNextAllowedWindow 获取下一个允许执行的时间窗口.
 func (s *Scheduler) GetNextAllowedWindow() time.Time {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -202,7 +202,7 @@ func (s *Scheduler) GetNextAllowedWindow() time.Time {
 	return time.Date(tomorrow.Year(), tomorrow.Month(), tomorrow.Day(), 2, 0, 0, 0, now.Location())
 }
 
-// isInTimeRange 检查小时是否在时间范围内（支持跨天）
+// isInTimeRange 检查小时是否在时间范围内（支持跨天）.
 func (s *Scheduler) isInTimeRange(hour, start, end int) bool {
 	if start <= end {
 		return hour >= start && hour < end
@@ -211,7 +211,7 @@ func (s *Scheduler) isInTimeRange(hour, start, end int) bool {
 	return hour >= start || hour < end
 }
 
-// run 运行调度循环
+// run 运行调度循环.
 func (s *Scheduler) run() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -226,7 +226,7 @@ func (s *Scheduler) run() {
 	}
 }
 
-// checkAndExecuteTasks 检查并执行任务
+// checkAndExecuteTasks 检查并执行任务.
 func (s *Scheduler) checkAndExecuteTasks() {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -280,7 +280,7 @@ func (s *Scheduler) checkAndExecuteTasks() {
 // - "@daily" - 每天
 // - "@weekly" - 每周
 // - "@monthly" - 每月
-// - "H:M" - 每天指定时间（如 "02:00"）
+// - "H:M" - 每天指定时间（如 "02:00"）.
 func (s *Scheduler) parseSchedule(schedule string) (time.Time, error) {
 	now := time.Now()
 
@@ -329,7 +329,7 @@ func (s *Scheduler) parseSchedule(schedule string) (time.Time, error) {
 	}
 }
 
-// GetScheduledTasks 获取所有调度任务
+// GetScheduledTasks 获取所有调度任务.
 func (s *Scheduler) GetScheduledTasks() map[string]*ScheduledTask {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -341,7 +341,7 @@ func (s *Scheduler) GetScheduledTasks() map[string]*ScheduledTask {
 	return tasks
 }
 
-// EnableTask 启用任务
+// EnableTask 启用任务.
 func (s *Scheduler) EnableTask(id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -355,7 +355,7 @@ func (s *Scheduler) EnableTask(id string) error {
 	return nil
 }
 
-// DisableTask 禁用任务
+// DisableTask 禁用任务.
 func (s *Scheduler) DisableTask(id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -369,7 +369,7 @@ func (s *Scheduler) DisableTask(id string) error {
 	return nil
 }
 
-// GetStats 获取调度器统计
+// GetStats 获取调度器统计.
 func (s *Scheduler) GetStats() map[string]interface{} {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

@@ -6,19 +6,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 资源监控处理器
+// Handlers 资源监控处理器.
 type Handlers struct {
 	collector *Collector
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers() *Handlers {
 	return &Handlers{
 		collector: NewCollector(),
 	}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	resmonpro := r.Group("/resmonpro")
 	{
@@ -38,7 +38,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Produce json
 // @Success 200 {object} ResmonProResponse
 // @Failure 500 {object} ResmonProResponse
-// @Router /resmonpro/processes [get]
+// @Router /resmonpro/processes [get].
 func (h *Handlers) getProcesses(c *gin.Context) {
 	processes, err := h.collector.CollectProcesses()
 	if err != nil {
@@ -64,7 +64,7 @@ func (h *Handlers) getProcesses(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} ResmonProResponse
 // @Failure 500 {object} ResmonProResponse
-// @Router /resmonpro/gpu [get]
+// @Router /resmonpro/gpu [get].
 func (h *Handlers) getGPU(c *gin.Context) {
 	gpus, err := h.collector.CollectGPU()
 	if err != nil {
@@ -90,7 +90,7 @@ func (h *Handlers) getGPU(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} ResmonProResponse
 // @Failure 500 {object} ResmonProResponse
-// @Router /resmonpro/network [get]
+// @Router /resmonpro/network [get].
 func (h *Handlers) getNetwork(c *gin.Context) {
 	flows, err := h.collector.CollectNetworkFlow()
 	if err != nil {
@@ -116,7 +116,7 @@ func (h *Handlers) getNetwork(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} ResmonProResponse
 // @Failure 500 {object} ResmonProResponse
-// @Router /resmonpro/diskio [get]
+// @Router /resmonpro/diskio [get].
 func (h *Handlers) getDiskIO(c *gin.Context) {
 	disks, err := h.collector.CollectDiskIO()
 	if err != nil {
@@ -142,7 +142,7 @@ func (h *Handlers) getDiskIO(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} ResmonProResponse
 // @Failure 500 {object} ResmonProResponse
-// @Router /resmonpro/bottleneck [get]
+// @Router /resmonpro/bottleneck [get].
 func (h *Handlers) getBottleneck(c *gin.Context) {
 	diagnoses, err := h.collector.DiagnoseBottlenecks()
 	if err != nil {

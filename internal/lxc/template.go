@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// TemplateCategory 模板分类
+// TemplateCategory 模板分类.
 type TemplateCategory string
 
 const (
@@ -19,7 +19,7 @@ const (
 	CategoryCustom     TemplateCategory = "custom"
 )
 
-// Template 容器模板
+// Template 容器模板.
 type Template struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -40,13 +40,13 @@ type Template struct {
 	UpdatedAt   time.Time         `json:"updatedAt"`
 }
 
-// TemplateManager 模板管理器
+// TemplateManager 模板管理器.
 type TemplateManager struct {
 	mu        sync.RWMutex
 	templates map[string]*Template
 }
 
-// NewTemplateManager 创建模板管理器
+// NewTemplateManager 创建模板管理器.
 func NewTemplateManager() *TemplateManager {
 	tm := &TemplateManager{
 		templates: make(map[string]*Template),
@@ -55,7 +55,7 @@ func NewTemplateManager() *TemplateManager {
 	return tm
 }
 
-// loadBuiltinTemplates 加载内置模板
+// loadBuiltinTemplates 加载内置模板.
 func (tm *TemplateManager) loadBuiltinTemplates() {
 	builtins := []*Template{
 		// 基础系统模板
@@ -227,7 +227,7 @@ func (tm *TemplateManager) loadBuiltinTemplates() {
 	}
 }
 
-// Register 注册新模板
+// Register 注册新模板.
 func (tm *TemplateManager) Register(t *Template) error {
 	if t.Name == "" {
 		return fmt.Errorf("模板名称不能为空")
@@ -255,7 +255,7 @@ func (tm *TemplateManager) Register(t *Template) error {
 	return nil
 }
 
-// Get 获取模板
+// Get 获取模板.
 func (tm *TemplateManager) Get(name string) (*Template, error) {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -267,7 +267,7 @@ func (tm *TemplateManager) Get(name string) (*Template, error) {
 	return t, nil
 }
 
-// List 列出所有模板
+// List 列出所有模板.
 func (tm *TemplateManager) List() []*Template {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -279,7 +279,7 @@ func (tm *TemplateManager) List() []*Template {
 	return result
 }
 
-// ListByCategory 按分类列出模板
+// ListByCategory 按分类列出模板.
 func (tm *TemplateManager) ListByCategory(category TemplateCategory) []*Template {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -293,7 +293,7 @@ func (tm *TemplateManager) ListByCategory(category TemplateCategory) []*Template
 	return result
 }
 
-// ListByDistro 按发行版列出模板
+// ListByDistro 按发行版列出模板.
 func (tm *TemplateManager) ListByDistro(distro string) []*Template {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -307,7 +307,7 @@ func (tm *TemplateManager) ListByDistro(distro string) []*Template {
 	return result
 }
 
-// Update 更新模板
+// Update 更新模板.
 func (tm *TemplateManager) Update(name string, t *Template) error {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -330,7 +330,7 @@ func (tm *TemplateManager) Update(name string, t *Template) error {
 	return nil
 }
 
-// Delete 删除模板
+// Delete 删除模板.
 func (tm *TemplateManager) Delete(name string) error {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -347,7 +347,7 @@ func (tm *TemplateManager) Delete(name string) error {
 	return nil
 }
 
-// Exists 检查模板是否存在
+// Exists 检查模板是否存在.
 func (tm *TemplateManager) Exists(name string) bool {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -356,7 +356,7 @@ func (tm *TemplateManager) Exists(name string) bool {
 	return ok
 }
 
-// Count 返回模板数量
+// Count 返回模板数量.
 func (tm *TemplateManager) Count() int {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -364,7 +364,7 @@ func (tm *TemplateManager) Count() int {
 	return len(tm.templates)
 }
 
-// GetDefaultResources 获取模板默认资源限制
+// GetDefaultResources 获取模板默认资源限制.
 func (tm *TemplateManager) GetDefaultResources(name string) (ResourceLimit, error) {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()

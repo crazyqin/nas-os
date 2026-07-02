@@ -410,18 +410,18 @@ const (
 
 // DedupConfig 去重配置.
 type DedupConfig struct {
-	Enabled        bool          `json:"enabled"`
-	Mode           DedupMode     `json:"mode"`
-	MinFileSize    int64         `json:"minFileSize"`
-	MaxFileSize    int64         `json:"maxFileSize"`
-	ScanInterval   time.Duration `json:"scanInterval"`
-	MaxConcurrency int           `json:"maxConcurrency"`
-	DryRun         bool          `json:"dryRun"`
-	AutoDedup      bool          `json:"autoDedup"`
-	DataDir        string        `json:"dataDir"`
-	ScanPaths      []string      `json:"scanPaths"`
-	ExcludePaths   []string      `json:"excludePaths"`
-	ExcludePatterns []string     `json:"excludePatterns"`
+	Enabled         bool          `json:"enabled"`
+	Mode            DedupMode     `json:"mode"`
+	MinFileSize     int64         `json:"minFileSize"`
+	MaxFileSize     int64         `json:"maxFileSize"`
+	ScanInterval    time.Duration `json:"scanInterval"`
+	MaxConcurrency  int           `json:"maxConcurrency"`
+	DryRun          bool          `json:"dryRun"`
+	AutoDedup       bool          `json:"autoDedup"`
+	DataDir         string        `json:"dataDir"`
+	ScanPaths       []string      `json:"scanPaths"`
+	ExcludePaths    []string      `json:"excludePaths"`
+	ExcludePatterns []string      `json:"excludePatterns"`
 }
 
 // FileHash 文件哈希信息.

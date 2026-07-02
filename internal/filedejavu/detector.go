@@ -19,7 +19,7 @@ const (
 	chunkSize = 64 * 1024 // 64KB 分块读取
 )
 
-// Detector 重复文件检测器
+// Detector 重复文件检测器.
 type Detector struct {
 	mu     sync.RWMutex
 	config *ScanConfig
@@ -27,7 +27,7 @@ type Detector struct {
 	cancel context.CancelFunc
 }
 
-// NewDetector 创建检测器
+// NewDetector 创建检测器.
 func NewDetector(config *ScanConfig) *Detector {
 	if config == nil {
 		config = DefaultScanConfig()
@@ -43,21 +43,21 @@ func NewDetector(config *ScanConfig) *Detector {
 	}
 }
 
-// Config 返回当前配置
+// Config 返回当前配置.
 func (d *Detector) Config() *ScanConfig {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
 	return d.config
 }
 
-// Result 返回扫描结果
+// Result 返回扫描结果.
 func (d *Detector) Result() *ScanResult {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
 	return d.result
 }
 
-// Scan 执行扫描
+// Scan 执行扫描.
 func (d *Detector) Scan(ctx context.Context) (*ScanResult, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	d.mu.Lock()
@@ -118,7 +118,7 @@ func (d *Detector) Scan(ctx context.Context) (*ScanResult, error) {
 	return d.result, nil
 }
 
-// Cancel 取消扫描
+// Cancel 取消扫描.
 func (d *Detector) Cancel() {
 	d.mu.RLock()
 	cancel := d.cancel
@@ -133,7 +133,7 @@ func (d *Detector) Cancel() {
 	}
 }
 
-// collectFiles 收集文件信息
+// collectFiles 收集文件信息.
 func (d *Detector) collectFiles(ctx context.Context) ([]*FileFingerprint, error) {
 	var files []*FileFingerprint
 	var mu sync.Mutex
@@ -189,7 +189,7 @@ func (d *Detector) collectFiles(ctx context.Context) ([]*FileFingerprint, error)
 	return files, nil
 }
 
-// isExcluded 检查是否匹配排除模式
+// isExcluded 检查是否匹配排除模式.
 func (d *Detector) isExcluded(path string) bool {
 	for _, pattern := range d.config.ExcludePatterns {
 		matched, err := filepath.Match(pattern, filepath.Base(path))
@@ -200,7 +200,7 @@ func (d *Detector) isExcluded(path string) bool {
 	return false
 }
 
-// groupBySize 按文件大小分组（快速预筛）
+// groupBySize 按文件大小分组（快速预筛）.
 func (d *Detector) groupBySize(files []*FileFingerprint) map[int64][]*FileFingerprint {
 	groups := make(map[int64][]*FileFingerprint)
 	for _, f := range files {
@@ -215,7 +215,7 @@ func (d *Detector) groupBySize(files []*FileFingerprint) map[int64][]*FileFinger
 	return groups
 }
 
-// groupByHash 计算 SHA-256 并分组
+// groupByHash 计算 SHA-256 并分组.
 func (d *Detector) groupByHash(ctx context.Context, sizeGroups map[int64][]*FileFingerprint) map[string][]*FileFingerprint {
 	hashGroups := make(map[string][]*FileFingerprint)
 	var mu sync.Mutex
@@ -274,7 +274,7 @@ func (d *Detector) groupByHash(ctx context.Context, sizeGroups map[int64][]*File
 	return hashGroups
 }
 
-// detectSimilarImages 检测相似图片
+// detectSimilarImages 检测相似图片.
 func (d *Detector) detectSimilarImages(ctx context.Context, files []*FileFingerprint, hashGroups map[string][]*FileFingerprint) {
 	// 收集所有图片文件
 	var images []*FileFingerprint
@@ -360,7 +360,7 @@ func (d *Detector) detectSimilarImages(ctx context.Context, files []*FileFingerp
 	}
 }
 
-// buildDuplicateGroups 构建重复组
+// buildDuplicateGroups 构建重复组.
 func (d *Detector) buildDuplicateGroups(hashGroups map[string][]*FileFingerprint) {
 	for hash, files := range hashGroups {
 		if len(files) < 2 {
@@ -393,7 +393,7 @@ func (d *Detector) buildDuplicateGroups(hashGroups map[string][]*FileFingerprint
 	}
 }
 
-// recommendKeep 推荐保留的文件
+// recommendKeep 推荐保留的文件.
 func (d *Detector) recommendKeep(files []*FileFingerprint) *FileFingerprint {
 	if len(files) == 0 {
 		return nil
@@ -440,7 +440,7 @@ func (d *Detector) recommendKeep(files []*FileFingerprint) *FileFingerprint {
 	}
 }
 
-// ComputeSHA256 计算文件 SHA-256（分块读取，避免内存溢出）
+// ComputeSHA256 计算文件 SHA-256（分块读取，避免内存溢出）.
 func ComputeSHA256(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -468,7 +468,7 @@ func ComputeSHA256(path string) (string, error) {
 }
 
 // ComputePHash 计算图片感知哈希
-// 这是一个简化实现，生产环境应使用图像处理库
+// 这是一个简化实现，生产环境应使用图像处理库.
 func ComputePHash(path string) (string, error) {
 	// 读取文件前 8KB 作为简化的感知哈希输入
 	// 实际实现应该：缩放图片 → 灰度化 → DCT → 提取低频 → 生成 64-bit 哈希
@@ -489,7 +489,7 @@ func ComputePHash(path string) (string, error) {
 }
 
 // ComparePHash 比较两个感知哈希的相似度
-// 返回 0-1 之间的相似度分数
+// 返回 0-1 之间的相似度分数.
 func ComparePHash(hash1, hash2 string) float64 {
 	if hash1 == hash2 {
 		return 1.0
@@ -517,7 +517,7 @@ func ComparePHash(hash1, hash2 string) float64 {
 	return float64(same) / float64(len(bits1))
 }
 
-// hexToBits 将十六进制字符串转换为比特数组
+// hexToBits 将十六进制字符串转换为比特数组.
 func hexToBits(s string) []byte {
 	b, err := hex.DecodeString(s)
 	if err != nil {
@@ -532,7 +532,7 @@ func hexToBits(s string) []byte {
 	return bits
 }
 
-// BatchDedup 批量去重操作
+// BatchDedup 批量去重操作.
 func (d *Detector) BatchDedup(ctx context.Context, req *BatchDedupRequest) (*BatchDedupResult, error) {
 	d.mu.RLock()
 	result := d.result
@@ -612,7 +612,7 @@ func (d *Detector) BatchDedup(ctx context.Context, req *BatchDedupRequest) (*Bat
 	return res, nil
 }
 
-// executeAction 执行去重动作
+// executeAction 执行去重动作.
 func (d *Detector) executeAction(action DedupAction, target, source string) error {
 	switch action {
 	case ActionDelete:

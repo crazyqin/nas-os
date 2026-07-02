@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// TemplateType 模板类型
+// TemplateType 模板类型.
 type TemplateType string
 
 const (
@@ -26,7 +26,7 @@ const (
 	TemplateTypeSlack    TemplateType = "slack"
 )
 
-// AlertLevel 告警级别
+// AlertLevel 告警级别.
 type AlertLevel string
 
 const (
@@ -36,7 +36,7 @@ const (
 	AlertLevelDebug    AlertLevel = "debug"
 )
 
-// AlertVars 告警变量，用于模板渲染
+// AlertVars 告警变量，用于模板渲染.
 type AlertVars struct {
 	AlertID     string                 `json:"alertId"`
 	AlertName   string                 `json:"alertName"`
@@ -55,7 +55,7 @@ type AlertVars struct {
 	Timestamp   time.Time              `json:"timestamp"`
 }
 
-// AlertTemplate 告警模板
+// AlertTemplate 告警模板.
 type AlertTemplate struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -70,14 +70,14 @@ type AlertTemplate struct {
 	UpdatedAt   time.Time    `json:"updatedAt"`
 }
 
-// TemplateEngine 告警模板引擎
+// TemplateEngine 告警模板引擎.
 type TemplateEngine struct {
 	mu        sync.RWMutex
 	templates map[string]*AlertTemplate
 	funcMap   ttemplate.FuncMap // text template funcMap (no escaping)
 }
 
-// NewTemplateEngine 创建模板引擎
+// NewTemplateEngine 创建模板引擎.
 func NewTemplateEngine() *TemplateEngine {
 	te := &TemplateEngine{
 		templates: make(map[string]*AlertTemplate),
@@ -88,7 +88,7 @@ func NewTemplateEngine() *TemplateEngine {
 	return te
 }
 
-// registerFuncs 注册自定义函数
+// registerFuncs 注册自定义函数.
 func (te *TemplateEngine) registerFuncs() {
 	te.funcMap["upper"] = func(v interface{}) string { return strings.ToUpper(fmt.Sprint(v)) }
 	te.funcMap["lower"] = func(v interface{}) string { return strings.ToLower(fmt.Sprint(v)) }
@@ -188,7 +188,7 @@ func (te *TemplateEngine) levelIcon(level AlertLevel) string {
 	}
 }
 
-// registerDefaultTemplates 注册默认模板
+// registerDefaultTemplates 注册默认模板.
 func (te *TemplateEngine) registerDefaultTemplates() {
 	defaults := []*AlertTemplate{
 		// Email 模板
@@ -424,7 +424,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
 	}
 }
 
-// AddTemplate 添加模板
+// AddTemplate 添加模板.
 func (te *TemplateEngine) AddTemplate(tmpl *AlertTemplate) error {
 	te.mu.Lock()
 	defer te.mu.Unlock()
@@ -445,7 +445,7 @@ func (te *TemplateEngine) AddTemplate(tmpl *AlertTemplate) error {
 	return nil
 }
 
-// UpdateTemplate 更新模板
+// UpdateTemplate 更新模板.
 func (te *TemplateEngine) UpdateTemplate(tmpl *AlertTemplate) error {
 	te.mu.Lock()
 	defer te.mu.Unlock()
@@ -459,7 +459,7 @@ func (te *TemplateEngine) UpdateTemplate(tmpl *AlertTemplate) error {
 	return nil
 }
 
-// DeleteTemplate 删除模板
+// DeleteTemplate 删除模板.
 func (te *TemplateEngine) DeleteTemplate(id string) error {
 	te.mu.Lock()
 	defer te.mu.Unlock()
@@ -472,7 +472,7 @@ func (te *TemplateEngine) DeleteTemplate(id string) error {
 	return nil
 }
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func (te *TemplateEngine) GetTemplate(id string) (*AlertTemplate, bool) {
 	te.mu.RLock()
 	defer te.mu.RUnlock()
@@ -481,7 +481,7 @@ func (te *TemplateEngine) GetTemplate(id string) (*AlertTemplate, bool) {
 	return tmpl, ok
 }
 
-// ListTemplates 列出所有模板
+// ListTemplates 列出所有模板.
 func (te *TemplateEngine) ListTemplates() []*AlertTemplate {
 	te.mu.RLock()
 	defer te.mu.RUnlock()
@@ -493,7 +493,7 @@ func (te *TemplateEngine) ListTemplates() []*AlertTemplate {
 	return result
 }
 
-// ListTemplatesByType 按类型列出模板
+// ListTemplatesByType 按类型列出模板.
 func (te *TemplateEngine) ListTemplatesByType(typ TemplateType) []*AlertTemplate {
 	te.mu.RLock()
 	defer te.mu.RUnlock()
@@ -507,7 +507,7 @@ func (te *TemplateEngine) ListTemplatesByType(typ TemplateType) []*AlertTemplate
 	return result
 }
 
-// Render 渲染模板
+// Render 渲染模板.
 func (te *TemplateEngine) Render(tmplID string, vars *AlertVars) (subject string, body string, err error) {
 	te.mu.RLock()
 	tmpl, ok := te.templates[tmplID]
@@ -532,7 +532,7 @@ func (te *TemplateEngine) Render(tmplID string, vars *AlertVars) (subject string
 	return subject, body, nil
 }
 
-// RenderToBytes 渲染模板为字节
+// RenderToBytes 渲染模板为字节.
 func (te *TemplateEngine) RenderToBytes(tmplID string, vars *AlertVars) ([]byte, error) {
 	_, body, err := te.Render(tmplID, vars)
 	if err != nil {
@@ -541,7 +541,7 @@ func (te *TemplateEngine) RenderToBytes(tmplID string, vars *AlertVars) ([]byte,
 	return []byte(body), nil
 }
 
-// renderString 渲染单个字符串模板
+// renderString 渲染单个字符串模板.
 func (te *TemplateEngine) renderString(tmplStr string, vars *AlertVars) (string, error) {
 	tmpl, err := ttemplate.New("alert").Funcs(te.funcMap).Parse(tmplStr)
 	if err != nil {
@@ -567,7 +567,7 @@ type MonitorAlert interface {
 	GetTimestamp() time.Time
 }
 
-// RenderAlertVarsFromMonitor 从监控Alert转换为渲染变量
+// RenderAlertVarsFromMonitor 从监控Alert转换为渲染变量.
 func RenderAlertVarsFromMonitor(alert MonitorAlert, hostName, hostIP string, extra map[string]interface{}) *AlertVars {
 	vars := &AlertVars{
 		AlertID:   alert.GetID(),
@@ -603,7 +603,7 @@ func RenderAlertVarsFromMonitor(alert MonitorAlert, hostName, hostIP string, ext
 	return vars
 }
 
-// RenderToJSON 将渲染结果转为JSON（用于Webhook等）
+// RenderToJSON 将渲染结果转为JSON（用于Webhook等）.
 func (te *TemplateEngine) RenderToJSON(tmplID string, vars *AlertVars) (map[string]interface{}, error) {
 	te.mu.RLock()
 	tmpl, ok := te.templates[tmplID]
@@ -630,7 +630,7 @@ func (te *TemplateEngine) RenderToJSON(tmplID string, vars *AlertVars) (map[stri
 	return result, nil
 }
 
-// SendEmail 发送邮件（模拟实现）
+// SendEmail 发送邮件（模拟实现）.
 func SendEmail(ctx context.Context, to, subject, body string, isHTML bool) error {
 	// 这里应该接入实际的邮件发送服务
 	// 暂时打印到日志
@@ -638,7 +638,7 @@ func SendEmail(ctx context.Context, to, subject, body string, isHTML bool) error
 	return nil
 }
 
-// SendWebhook 发送Webhook
+// SendWebhook 发送Webhook.
 func SendWebhook(ctx context.Context, url string, payload map[string]interface{}) error {
 	jsonData, err := json.Marshal(payload)
 	if err != nil {

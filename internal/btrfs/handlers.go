@@ -7,18 +7,18 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handler Btrfs API handler
+// Handler Btrfs API handler.
 type Handler struct {
 	manager *BtrfsManager
 	logger  *zap.Logger
 }
 
-// NewHandler 创建handler
+// NewHandler 创建handler.
 func NewHandler(manager *BtrfsManager, logger *zap.Logger) *Handler {
 	return &Handler{manager: manager, logger: logger}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	btrfs := rg.Group("/btrfs")
 	{
@@ -55,9 +55,9 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 }
 
 type CreatePoolRequest struct {
-	Label    string   `json:"label" binding:"required"`
-	Devices  []string `json:"devices" binding:"required"`
-	Profile  string   `json:"profile"` // single, raid1, raid5, raid6, raid10
+	Label   string   `json:"label" binding:"required"`
+	Devices []string `json:"devices" binding:"required"`
+	Profile string   `json:"profile"` // single, raid1, raid5, raid6, raid10
 }
 
 func (h *Handler) CreatePool(c *gin.Context) {

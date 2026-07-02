@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// StatusAggregator 状态聚合器
+// StatusAggregator 状态聚合器.
 type StatusAggregator struct {
 	config      FleetConfig
 	nodeStatus  map[string]*NodeDetailedStatus
@@ -25,7 +25,7 @@ type StatusAggregator struct {
 	dataFile    string
 }
 
-// NodeDetailedStatus 节点详细状态
+// NodeDetailedStatus 节点详细状态.
 type NodeDetailedStatus struct {
 	DeviceID        string                 `json:"deviceId"`
 	Name            string                 `json:"name"`
@@ -44,7 +44,7 @@ type NodeDetailedStatus struct {
 	Temperature     float64                `json:"temperature"` // 设备温度
 }
 
-// ServiceHealth 服务健康状态
+// ServiceHealth 服务健康状态.
 type ServiceHealth struct {
 	Name   string        `json:"name"`
 	Status string        `json:"status"` // running, stopped, error
@@ -52,7 +52,7 @@ type ServiceHealth struct {
 	Uptime time.Duration `json:"uptime"`
 }
 
-// AlertInfo 告警信息
+// AlertInfo 告警信息.
 type AlertInfo struct {
 	AlertID   string    `json:"alertId"`
 	Type      string    `json:"type"`  // cpu, memory, disk, network, temperature
@@ -62,7 +62,7 @@ type AlertInfo struct {
 	Resolved  bool      `json:"resolved"`
 }
 
-// FleetStatus 舰队整体状态
+// FleetStatus 舰队整体状态.
 type FleetStatus struct {
 	FleetID          string            `json:"fleetId"`
 	ClusterName      string            `json:"clusterName"`
@@ -80,7 +80,7 @@ type FleetStatus struct {
 	NodeSummary      map[string]string `json:"nodeSummary"` // nodeID -> status
 }
 
-// NewStatusAggregator 创建状态聚合器
+// NewStatusAggregator 创建状态聚合器.
 func NewStatusAggregator(config FleetConfig, logger *zap.Logger) (*StatusAggregator, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -102,19 +102,19 @@ func NewStatusAggregator(config FleetConfig, logger *zap.Logger) (*StatusAggrega
 	return sa, nil
 }
 
-// Start 启动状态聚合器
+// Start 启动状态聚合器.
 func (sa *StatusAggregator) Start() {
 	sa.logger.Info("状态聚合器启动")
 }
 
-// Stop 停止状态聚合器
+// Stop 停止状态聚合器.
 func (sa *StatusAggregator) Stop() {
 	sa.cancel()
 	sa.saveState()
 	sa.logger.Info("状态聚合器停止")
 }
 
-// GetNodeStatus 获取节点详细状态
+// GetNodeStatus 获取节点详细状态.
 func (sa *StatusAggregator) GetNodeStatus(deviceID string) (*NodeDetailedStatus, error) {
 	sa.mu.RLock()
 	defer sa.mu.RUnlock()
@@ -127,7 +127,7 @@ func (sa *StatusAggregator) GetNodeStatus(deviceID string) (*NodeDetailedStatus,
 	return status, nil
 }
 
-// GetFleetStatus 获取舰队整体状态
+// GetFleetStatus 获取舰队整体状态.
 func (sa *StatusAggregator) GetFleetStatus() *FleetStatus {
 	sa.mu.RLock()
 	defer sa.mu.RUnlock()
@@ -135,7 +135,7 @@ func (sa *StatusAggregator) GetFleetStatus() *FleetStatus {
 	return sa.fleetStatus
 }
 
-// UpdateNodeMetrics 更新节点指标
+// UpdateNodeMetrics 更新节点指标.
 func (sa *StatusAggregator) UpdateNodeMetrics(deviceID string, metrics map[string]interface{}) {
 	sa.mu.Lock()
 	defer sa.mu.Unlock()
@@ -184,7 +184,7 @@ func (sa *StatusAggregator) UpdateNodeMetrics(deviceID string, metrics map[strin
 	sa.updateFleetStatus()
 }
 
-// SetNodeStatus 设置节点状态
+// SetNodeStatus 设置节点状态.
 func (sa *StatusAggregator) SetNodeStatus(deviceID string, status *NodeDetailedStatus) {
 	sa.mu.Lock()
 	defer sa.mu.Unlock()
@@ -193,7 +193,7 @@ func (sa *StatusAggregator) SetNodeStatus(deviceID string, status *NodeDetailedS
 	sa.updateFleetStatus()
 }
 
-// RemoveNode 移除节点状态
+// RemoveNode 移除节点状态.
 func (sa *StatusAggregator) RemoveNode(deviceID string) {
 	sa.mu.Lock()
 	defer sa.mu.Unlock()
@@ -202,7 +202,7 @@ func (sa *StatusAggregator) RemoveNode(deviceID string) {
 	sa.updateFleetStatus()
 }
 
-// calculateHealthScore 计算健康分数
+// calculateHealthScore 计算健康分数.
 func (sa *StatusAggregator) calculateHealthScore(status *NodeDetailedStatus) int {
 	score := 100
 
@@ -260,7 +260,7 @@ func (sa *StatusAggregator) calculateHealthScore(status *NodeDetailedStatus) int
 	return score
 }
 
-// updateFleetStatus 更新舰队状态
+// updateFleetStatus 更新舰队状态.
 func (sa *StatusAggregator) updateFleetStatus() {
 	sa.fleetStatus.TotalNodes = len(sa.nodeStatus)
 	sa.fleetStatus.ActiveNodes = 0
@@ -310,7 +310,7 @@ func (sa *StatusAggregator) updateFleetStatus() {
 	sa.fleetStatus.LastUpdated = time.Now()
 }
 
-// calculateFleetHealth 计算舰队整体健康分数
+// calculateFleetHealth 计算舰队整体健康分数.
 func (sa *StatusAggregator) calculateFleetHealth() int {
 	if len(sa.nodeStatus) == 0 {
 		return 100
@@ -324,7 +324,7 @@ func (sa *StatusAggregator) calculateFleetHealth() int {
 	return totalScore / len(sa.nodeStatus)
 }
 
-// loadState 加载持久化状态
+// loadState 加载持久化状态.
 func (sa *StatusAggregator) loadState() error {
 	data, err := os.ReadFile(sa.dataFile)
 	if err != nil {
@@ -337,7 +337,7 @@ func (sa *StatusAggregator) loadState() error {
 	return json.Unmarshal(data, &sa.nodeStatus)
 }
 
-// saveState 保存持久化状态
+// saveState 保存持久化状态.
 func (sa *StatusAggregator) saveState() error {
 	sa.mu.RLock()
 	defer sa.mu.RUnlock()

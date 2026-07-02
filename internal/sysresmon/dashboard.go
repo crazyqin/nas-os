@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// DashboardData 仪表盘数据聚合
+// DashboardData 仪表盘数据聚合.
 type DashboardData struct {
 	// 当前快照
 	Current *ResourceSnapshot `json:"current"`
@@ -29,7 +29,7 @@ type DashboardData struct {
 	Prediction ResourcePrediction `json:"prediction"`
 }
 
-// CPUStats CPU 统计数据
+// CPUStats CPU 统计数据.
 type CPUStats struct {
 	// 平均使用率
 	AvgUsage float64 `json:"avgUsage"`
@@ -47,7 +47,7 @@ type CPUStats struct {
 	AvgLoad float64 `json:"avgLoad"`
 }
 
-// MemoryStats 内存统计数据
+// MemoryStats 内存统计数据.
 type MemoryStats struct {
 	// 平均使用率
 	AvgUsage float64 `json:"avgUsage"`
@@ -61,7 +61,7 @@ type MemoryStats struct {
 	AvgSwapUsage float64 `json:"avgSwapUsage"`
 }
 
-// DiskIOStats 磁盘 I/O 统计
+// DiskIOStats 磁盘 I/O 统计.
 type DiskIOStats struct {
 	// 平均读取速率（字节/秒）
 	AvgReadBytesPerSec uint64 `json:"avgReadBytesPerSec"`
@@ -77,7 +77,7 @@ type DiskIOStats struct {
 	AvgWriteIOPS uint64 `json:"avgWriteIOPS"`
 }
 
-// NetworkStats 网络统计数据
+// NetworkStats 网络统计数据.
 type NetworkStats struct {
 	// 平均上行速率
 	AvgUploadPerSec uint64 `json:"avgUploadPerSec"`
@@ -93,7 +93,7 @@ type NetworkStats struct {
 	TotalErrors uint64 `json:"totalErrors"`
 }
 
-// GPUStats GPU 统计
+// GPUStats GPU 统计.
 type GPUStats struct {
 	// 是否可用
 	Available bool `json:"available"`
@@ -107,7 +107,7 @@ type GPUStats struct {
 	MaxTemp float64 `json:"maxTemp"`
 }
 
-// BottleneckAnalysis 性能瓶颈分析
+// BottleneckAnalysis 性能瓶颈分析.
 type BottleneckAnalysis struct {
 	// 瓶颈类型：cpu/memory/disk/network/none
 	Type string `json:"type"`
@@ -119,7 +119,7 @@ type BottleneckAnalysis struct {
 	Suggestions []string `json:"suggestions"`
 }
 
-// ResourcePrediction 资源使用预测
+// ResourcePrediction 资源使用预测.
 type ResourcePrediction struct {
 	// 预测时间
 	PredictedAt time.Time `json:"predictedAt"`
@@ -135,7 +135,7 @@ type ResourcePrediction struct {
 	Network PredictionItem `json:"network"`
 }
 
-// PredictionItem 预测项
+// PredictionItem 预测项.
 type PredictionItem struct {
 	// 预测值
 	Value float64 `json:"value"`
@@ -145,7 +145,7 @@ type PredictionItem struct {
 	Trend string `json:"trend"`
 }
 
-// TimeRange 时间范围枚举
+// TimeRange 时间范围枚举.
 type TimeRange string
 
 const (
@@ -155,19 +155,19 @@ const (
 	Range7D  TimeRange = "7d"
 )
 
-// Dashboard 仪表盘
+// Dashboard 仪表盘.
 type Dashboard struct {
 	monitor *ResourceMonitor
 }
 
-// NewDashboard 创建仪表盘
+// NewDashboard 创建仪表盘.
 func NewDashboard(monitor *ResourceMonitor) *Dashboard {
 	return &Dashboard{
 		monitor: monitor,
 	}
 }
 
-// GetDashboardData 获取仪表盘数据
+// GetDashboardData 获取仪表盘数据.
 func (d *Dashboard) GetDashboardData(rangeType TimeRange) *DashboardData {
 	// 获取历史数据
 	duration := d.parseRange(rangeType)
@@ -191,7 +191,7 @@ func (d *Dashboard) GetDashboardData(rangeType TimeRange) *DashboardData {
 	return data
 }
 
-// parseRange 解析时间范围
+// parseRange 解析时间范围.
 func (d *Dashboard) parseRange(rangeType TimeRange) time.Duration {
 	switch rangeType {
 	case Range1H:
@@ -207,7 +207,7 @@ func (d *Dashboard) parseRange(rangeType TimeRange) time.Duration {
 	}
 }
 
-// calcCPUStats 计算 CPU 统计
+// calcCPUStats 计算 CPU 统计.
 func (d *Dashboard) calcCPUStats(history []ResourceSnapshot) CPUStats {
 	stats := CPUStats{}
 	if len(history) == 0 {
@@ -242,7 +242,7 @@ func (d *Dashboard) calcCPUStats(history []ResourceSnapshot) CPUStats {
 	return stats
 }
 
-// calcMemoryStats 计算内存统计
+// calcMemoryStats 计算内存统计.
 func (d *Dashboard) calcMemoryStats(history []ResourceSnapshot) MemoryStats {
 	stats := MemoryStats{}
 	if len(history) == 0 {
@@ -265,7 +265,7 @@ func (d *Dashboard) calcMemoryStats(history []ResourceSnapshot) MemoryStats {
 	return stats
 }
 
-// calcDiskIOStats 计算磁盘 I/O 统计
+// calcDiskIOStats 计算磁盘 I/O 统计.
 func (d *Dashboard) calcDiskIOStats(history []ResourceSnapshot) DiskIOStats {
 	stats := DiskIOStats{}
 	if len(history) == 0 {
@@ -292,7 +292,7 @@ func (d *Dashboard) calcDiskIOStats(history []ResourceSnapshot) DiskIOStats {
 	return stats
 }
 
-// calcNetworkStats 计算网络统计
+// calcNetworkStats 计算网络统计.
 func (d *Dashboard) calcNetworkStats(history []ResourceSnapshot) NetworkStats {
 	stats := NetworkStats{}
 	if len(history) == 0 {
@@ -320,7 +320,7 @@ func (d *Dashboard) calcNetworkStats(history []ResourceSnapshot) NetworkStats {
 	return stats
 }
 
-// calcGPUStats 计算 GPU 统计
+// calcGPUStats 计算 GPU 统计.
 func (d *Dashboard) calcGPUStats(history []ResourceSnapshot) GPUStats {
 	stats := GPUStats{}
 	if len(history) == 0 {
@@ -351,7 +351,7 @@ func (d *Dashboard) calcGPUStats(history []ResourceSnapshot) GPUStats {
 	return stats
 }
 
-// analyzeBottleneck 分析性能瓶颈
+// analyzeBottleneck 分析性能瓶颈.
 func (d *Dashboard) analyzeBottleneck(history []ResourceSnapshot) BottleneckAnalysis {
 	if len(history) < 10 {
 		return BottleneckAnalysis{
@@ -426,7 +426,7 @@ func (d *Dashboard) analyzeBottleneck(history []ResourceSnapshot) BottleneckAnal
 	return analysis
 }
 
-// predict 资源使用预测（基于移动平均）
+// predict 资源使用预测（基于移动平均）.
 func (d *Dashboard) predict(history []ResourceSnapshot, rangeType TimeRange) ResourcePrediction {
 	prediction := ResourcePrediction{
 		PredictedAt: time.Now(),
@@ -461,7 +461,7 @@ func (d *Dashboard) predict(history []ResourceSnapshot, rangeType TimeRange) Res
 	return prediction
 }
 
-// predictionDuration 预测时长
+// predictionDuration 预测时长.
 func (d *Dashboard) predictionDuration(rangeType TimeRange) string {
 	switch rangeType {
 	case Range1H:
@@ -477,7 +477,7 @@ func (d *Dashboard) predictionDuration(rangeType TimeRange) string {
 	}
 }
 
-// predictItem 预测单项资源
+// predictItem 预测单项资源.
 func (d *Dashboard) predictItem(history []ResourceSnapshot, extractor func(ResourceSnapshot) float64) PredictionItem {
 	if len(history) < 5 {
 		return PredictionItem{}
@@ -520,7 +520,7 @@ func (d *Dashboard) predictItem(history []ResourceSnapshot, extractor func(Resou
 	}
 }
 
-// calcMean 计算平均值
+// calcMean 计算平均值.
 func calcMean(data []float64) float64 {
 	if len(data) == 0 {
 		return 0
@@ -532,7 +532,7 @@ func calcMean(data []float64) float64 {
 	return math.Round(sum/float64(len(data))*100) / 100
 }
 
-// calcMax 计算最大值
+// calcMax 计算最大值.
 func calcMax(data []float64) float64 {
 	if len(data) == 0 {
 		return 0
@@ -546,7 +546,7 @@ func calcMax(data []float64) float64 {
 	return math.Round(max*100) / 100
 }
 
-// calcMin 计算最小值
+// calcMin 计算最小值.
 func calcMin(data []float64) float64 {
 	if len(data) == 0 {
 		return 0
@@ -560,7 +560,7 @@ func calcMin(data []float64) float64 {
 	return math.Round(min*100) / 100
 }
 
-// calcStdDev 计算标准差
+// calcStdDev 计算标准差.
 func calcStdDev(data []float64) float64 {
 	if len(data) == 0 {
 		return 0
@@ -575,7 +575,7 @@ func calcStdDev(data []float64) float64 {
 	return math.Round(math.Sqrt(variance)*100) / 100
 }
 
-// calcMovingAverage 计算移动平均
+// calcMovingAverage 计算移动平均.
 func calcMovingAverage(data []float64, window int) []float64 {
 	if len(data) < window {
 		return data
@@ -592,7 +592,7 @@ func calcMovingAverage(data []float64, window int) []float64 {
 	return result
 }
 
-// calcSlope 计算线性回归斜率
+// calcSlope 计算线性回归斜率.
 func calcSlope(data []float64) float64 {
 	if len(data) < 2 {
 		return 0
@@ -617,7 +617,7 @@ func calcSlope(data []float64) float64 {
 	return (n*sumXY - sumX*sumY) / denominator
 }
 
-// calcConfidence 计算预测置信度
+// calcConfidence 计算预测置信度.
 func calcConfidence(actual, smoothed []float64) float64 {
 	if len(actual) < 2 || len(smoothed) < 2 {
 		return 50
@@ -651,7 +651,7 @@ func calcConfidence(actual, smoothed []float64) float64 {
 	return confidence
 }
 
-// GetTrendData 获取趋势数据（用于绘图）
+// GetTrendData 获取趋势数据（用于绘图）.
 func (d *Dashboard) GetTrendData(rangeType TimeRange) []TrendPoint {
 	duration := d.parseRange(rangeType)
 	history := d.monitor.GetHistory(duration)
@@ -698,7 +698,7 @@ func (d *Dashboard) GetTrendData(rangeType TimeRange) []TrendPoint {
 	return result
 }
 
-// TrendPoint 趋势数据点
+// TrendPoint 趋势数据点.
 type TrendPoint struct {
 	Timestamp   time.Time `json:"timestamp"`
 	CPU         float64   `json:"cpu"`
@@ -736,7 +736,7 @@ func (d *Dashboard) GetTopProcesses(limit int) []ProcessInfo {
 	return result
 }
 
-// ProcessInfo 进程信息
+// ProcessInfo 进程信息.
 type ProcessInfo struct {
 	PID        int32   `json:"pid"`
 	Name       string  `json:"name"`
@@ -745,7 +745,7 @@ type ProcessInfo struct {
 	Status     string  `json:"status"`
 }
 
-// percentile 计算百分位数
+// percentile 计算百分位数.
 func percentile(data []float64, p float64) float64 {
 	if len(data) == 0 {
 		return 0

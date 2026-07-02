@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// TerminalSession 终端会话
+// TerminalSession 终端会话.
 type TerminalSession struct {
 	ID             string          `json:"id"`
 	User           string          `json:"user"`
@@ -28,7 +28,7 @@ type TerminalSession struct {
 	Recording      *Recording      `json:"recording,omitempty"` // 录制状态
 }
 
-// CommandRecord 命令记录
+// CommandRecord 命令记录.
 type CommandRecord struct {
 	Command   string    `json:"command"`
 	Timestamp time.Time `json:"timestamp"`
@@ -36,7 +36,7 @@ type CommandRecord struct {
 	ExitCode  int       `json:"exitCode"`
 }
 
-// Recording 终端录制
+// Recording 终端录制.
 type Recording struct {
 	ID        string           `json:"id"`
 	StartTime time.Time        `json:"startTime"`
@@ -44,14 +44,14 @@ type Recording struct {
 	Events    []RecordingEvent `json:"events"`
 }
 
-// RecordingEvent 录制事件
+// RecordingEvent 录制事件.
 type RecordingEvent struct {
 	Timestamp time.Time `json:"timestamp"`
 	Type      string    `json:"type"` // input, output, resize
 	Data      []byte    `json:"data"`
 }
 
-// TerminalConfig 终端配置
+// TerminalConfig 终端配置.
 type TerminalConfig struct {
 	MaxSessions      int           `json:"maxSessions"`
 	MaxTabsPerUser   int           `json:"maxTabsPerUser"`
@@ -67,14 +67,14 @@ type TerminalConfig struct {
 	BufferSize       int           `json:"bufferSize"`
 }
 
-// OutputBuffer 终端输出缓冲
+// OutputBuffer 终端输出缓冲.
 type OutputBuffer struct {
 	mu      sync.RWMutex
 	data    []byte
 	maxSize int
 }
 
-// NewOutputBuffer 创建输出缓冲
+// NewOutputBuffer 创建输出缓冲.
 func NewOutputBuffer(maxSize int) *OutputBuffer {
 	return &OutputBuffer{
 		data:    make([]byte, 0, maxSize),
@@ -82,7 +82,7 @@ func NewOutputBuffer(maxSize int) *OutputBuffer {
 	}
 }
 
-// Write 写入缓冲
+// Write 写入缓冲.
 func (b *OutputBuffer) Write(p []byte) (int, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -96,7 +96,7 @@ func (b *OutputBuffer) Write(p []byte) (int, error) {
 	return len(p), nil
 }
 
-// Read 读取缓冲
+// Read 读取缓冲.
 func (b *OutputBuffer) Read() []byte {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
@@ -106,14 +106,14 @@ func (b *OutputBuffer) Read() []byte {
 	return result
 }
 
-// Clear 清空缓冲
+// Clear 清空缓冲.
 func (b *OutputBuffer) Clear() {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	b.data = b.data[:0]
 }
 
-// Manager 终端管理器
+// Manager 终端管理器.
 type Manager struct {
 	mu       sync.RWMutex
 	sessions map[string]*TerminalSession
@@ -123,7 +123,7 @@ type Manager struct {
 	stopCh   chan struct{}
 }
 
-// NewManager 创建终端管理器
+// NewManager 创建终端管理器.
 func NewManager() *Manager {
 	return &Manager{
 		sessions: make(map[string]*TerminalSession),
@@ -142,14 +142,14 @@ func NewManager() *Manager {
 	}
 }
 
-// SetAuthFunc 设置认证函数
+// SetAuthFunc 设置认证函数.
 func (m *Manager) SetAuthFunc(authFunc func(r *http.Request) (string, error)) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.authFunc = authFunc
 }
 
-// Authenticate 认证请求
+// Authenticate 认证请求.
 func (m *Manager) Authenticate(r *http.Request) (string, error) {
 	m.mu.RLock()
 	authFunc := m.authFunc
@@ -166,7 +166,7 @@ func (m *Manager) Authenticate(r *http.Request) (string, error) {
 	return authFunc(r)
 }
 
-// CheckAuthorization 检查用户授权
+// CheckAuthorization 检查用户授权.
 func (m *Manager) CheckAuthorization(user string) error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -188,7 +188,7 @@ func (m *Manager) CheckAuthorization(user string) error {
 	return nil
 }
 
-// CheckCommandAllowed 检查命令是否允许执行
+// CheckCommandAllowed 检查命令是否允许执行.
 func (m *Manager) CheckCommandAllowed(command string) error {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -217,7 +217,7 @@ func (m *Manager) CheckCommandAllowed(command string) error {
 	return nil
 }
 
-// matchPattern 简单模式匹配
+// matchPattern 简单模式匹配.
 func matchPattern(s, pattern string) (bool, error) {
 	// 简单实现：支持 * 通配符
 	if pattern == "*" {
@@ -230,7 +230,7 @@ func matchPattern(s, pattern string) (bool, error) {
 	return s == pattern, nil
 }
 
-// ListSessions 列出所有活跃会话
+// ListSessions 列出所有活跃会话.
 func (m *Manager) ListSessions() []TerminalSession {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -244,7 +244,7 @@ func (m *Manager) ListSessions() []TerminalSession {
 	return sessions
 }
 
-// ListUserSessions 列出用户的会话
+// ListUserSessions 列出用户的会话.
 func (m *Manager) ListUserSessions(user string) []TerminalSession {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -258,7 +258,7 @@ func (m *Manager) ListUserSessions(user string) []TerminalSession {
 	return sessions
 }
 
-// GetUserTabCount 获取用户的标签页数量
+// GetUserTabCount 获取用户的标签页数量.
 func (m *Manager) GetUserTabCount(user string) int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -275,7 +275,7 @@ func (m *Manager) GetUserTabCount(user string) int {
 	return 0
 }
 
-// CreateSession 创建新会话
+// CreateSession 创建新会话.
 func (m *Manager) CreateSession(user, tabID, remote string) (*TerminalSession, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -330,7 +330,7 @@ func (m *Manager) CreateSession(user, tabID, remote string) (*TerminalSession, e
 	return session, nil
 }
 
-// GetSession 获取会话信息
+// GetSession 获取会话信息.
 func (m *Manager) GetSession(id string) (*TerminalSession, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -342,7 +342,7 @@ func (m *Manager) GetSession(id string) (*TerminalSession, error) {
 	return session, nil
 }
 
-// GetSessionByTab 根据标签页获取会话
+// GetSessionByTab 根据标签页获取会话.
 func (m *Manager) GetSessionByTab(user, tabID string) (*TerminalSession, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -355,7 +355,7 @@ func (m *Manager) GetSessionByTab(user, tabID string) (*TerminalSession, error) 
 	return nil, fmt.Errorf("用户 %s 的标签页 %s 不存在", user, tabID)
 }
 
-// UpdateSessionActivity 更新会话活动时间
+// UpdateSessionActivity 更新会话活动时间.
 func (m *Manager) UpdateSessionActivity(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -368,7 +368,7 @@ func (m *Manager) UpdateSessionActivity(id string) error {
 	return nil
 }
 
-// CloseSession 关闭终端会话
+// CloseSession 关闭终端会话.
 func (m *Manager) CloseSession(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -394,21 +394,21 @@ func (m *Manager) CloseSession(id string) error {
 	return nil
 }
 
-// GetConfig 获取终端配置
+// GetConfig 获取终端配置.
 func (m *Manager) GetConfig() TerminalConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig 更新终端配置
+// UpdateConfig 更新终端配置.
 func (m *Manager) UpdateConfig(config TerminalConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.config = config
 }
 
-// AddCommandHistory 添加命令历史
+// AddCommandHistory 添加命令历史.
 func (m *Manager) AddCommandHistory(sessionID string, record CommandRecord) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -432,7 +432,7 @@ func (m *Manager) AddCommandHistory(sessionID string, record CommandRecord) erro
 	return nil
 }
 
-// GetCommandHistory 获取命令历史
+// GetCommandHistory 获取命令历史.
 func (m *Manager) GetCommandHistory(sessionID string) ([]CommandRecord, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -447,7 +447,7 @@ func (m *Manager) GetCommandHistory(sessionID string) ([]CommandRecord, error) {
 	return result, nil
 }
 
-// StartRecording 开始录制
+// StartRecording 开始录制.
 func (m *Manager) StartRecording(sessionID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -475,7 +475,7 @@ func (m *Manager) StartRecording(sessionID string) error {
 	return nil
 }
 
-// StopRecording 停止录制
+// StopRecording 停止录制.
 func (m *Manager) StopRecording(sessionID string) (*Recording, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -496,7 +496,7 @@ func (m *Manager) StopRecording(sessionID string) (*Recording, error) {
 	return session.Recording, nil
 }
 
-// AddRecordingEvent 添加录制事件
+// AddRecordingEvent 添加录制事件.
 func (m *Manager) AddRecordingEvent(sessionID string, event RecordingEvent) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -514,7 +514,7 @@ func (m *Manager) AddRecordingEvent(sessionID string, event RecordingEvent) erro
 	return nil
 }
 
-// GetRecording 获取录制内容
+// GetRecording 获取录制内容.
 func (m *Manager) GetRecording(sessionID string) (*Recording, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -531,7 +531,7 @@ func (m *Manager) GetRecording(sessionID string) (*Recording, error) {
 	return session.Recording, nil
 }
 
-// CleanupIdle 清理空闲会话
+// CleanupIdle 清理空闲会话.
 func (m *Manager) CleanupIdle() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -559,7 +559,7 @@ func (m *Manager) CleanupIdle() int {
 	return cleaned
 }
 
-// ActiveCount 活跃会话数
+// ActiveCount 活跃会话数.
 func (m *Manager) ActiveCount() int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -573,7 +573,7 @@ func (m *Manager) ActiveCount() int {
 	return count
 }
 
-// GetUserStats 获取用户统计
+// GetUserStats 获取用户统计.
 func (m *Manager) GetUserStats(user string) map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -598,12 +598,12 @@ func (m *Manager) GetUserStats(user string) map[string]interface{} {
 	return stats
 }
 
-// Cleanup 清理所有资源
+// Cleanup 清理所有资源.
 func (m *Manager) Cleanup() {
 	close(m.stopCh)
 }
 
-// ValidateSessionToken 验证会话令牌
+// ValidateSessionToken 验证会话令牌.
 func (m *Manager) ValidateSessionToken(sessionID, token string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -615,7 +615,7 @@ func (m *Manager) ValidateSessionToken(sessionID, token string) bool {
 	return session.AuthToken == token
 }
 
-// UpdateSessionSize 更新终端大小
+// UpdateSessionSize 更新终端大小.
 func (m *Manager) UpdateSessionSize(sessionID string, cols, rows int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -630,12 +630,12 @@ func (m *Manager) UpdateSessionSize(sessionID string, cols, rows int) error {
 	return nil
 }
 
-// ToJSON 序列化为 JSON
+// ToJSON 序列化为 JSON.
 func (s *TerminalSession) ToJSON() ([]byte, error) {
 	return json.Marshal(s)
 }
 
-// GetDefaultShell 获取默认 Shell
+// GetDefaultShell 获取默认 Shell.
 func (m *Manager) GetDefaultShell() string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -650,13 +650,13 @@ func (m *Manager) GetDefaultShell() string {
 	return shell
 }
 
-// CreateShellCommand 创建 Shell 命令
+// CreateShellCommand 创建 Shell 命令.
 func (m *Manager) CreateShellCommand(session *TerminalSession) (*exec.Cmd, error) {
 	shell := m.GetDefaultShell()
 
 	cmd := exec.Command(shell)
 	cmd.Env = append(os.Environ(),
-		fmt.Sprintf("TERM=xterm-256color"),
+		"TERM=xterm-256color",
 		fmt.Sprintf("COLUMNS=%d", session.Cols),
 		fmt.Sprintf("LINES=%d", session.Rows),
 		fmt.Sprintf("USER=%s", session.User),
@@ -665,7 +665,7 @@ func (m *Manager) CreateShellCommand(session *TerminalSession) (*exec.Cmd, error
 	return cmd, nil
 }
 
-// Stats 管理器统计
+// Stats 管理器统计.
 type Stats struct {
 	TotalSessions   int `json:"totalSessions"`
 	ActiveSessions  int `json:"activeSessions"`
@@ -674,7 +674,7 @@ type Stats struct {
 	TotalRecordings int `json:"totalRecordings"`
 }
 
-// GetStats 获取管理器统计
+// GetStats 获取管理器统计.
 func (m *Manager) GetStats() Stats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

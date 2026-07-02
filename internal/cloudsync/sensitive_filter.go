@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// SensitiveFileFilter 敏感文件过滤器
+// SensitiveFileFilter 敏感文件过滤器.
 type SensitiveFileFilter struct {
 	config       SensitiveFilterConfig
 	rules        []SensitiveFileRule
@@ -22,7 +22,7 @@ type SensitiveFileFilter struct {
 	mu           sync.RWMutex
 }
 
-// SensitiveFilterConfig 敏感文件过滤配置
+// SensitiveFilterConfig 敏感文件过滤配置.
 type SensitiveFilterConfig struct {
 	Enabled           bool          `json:"enabled"`
 	DefaultAction     FilterAction  `json:"default_action"`        // block, warn, allow
@@ -37,7 +37,7 @@ type SensitiveFilterConfig struct {
 	NotifyOnBlock     bool          `json:"notify_on_block"`       // 阻止时通知
 }
 
-// FilterAction 过滤动作
+// FilterAction 过滤动作.
 type FilterAction string
 
 const (
@@ -47,7 +47,7 @@ const (
 	FilterReview FilterAction = "review" // 需人工审核
 )
 
-// AuditLevel 审计级别
+// AuditLevel 审计级别.
 type AuditLevel string
 
 const (
@@ -56,7 +56,7 @@ const (
 	AuditLevelDetailed AuditLevel = "detailed" // 详细审计
 )
 
-// SensitiveFileRule 敏感文件规则
+// SensitiveFileRule 敏感文件规则.
 type SensitiveFileRule struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -82,7 +82,7 @@ type SensitiveFileRule struct {
 	Override  bool      `json:"override,omitempty"` // 用户覆盖
 }
 
-// ContentDetectionRule 内容检测规则
+// ContentDetectionRule 内容检测规则.
 type ContentDetectionRule struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -100,7 +100,7 @@ type ContentDetectionRule struct {
 	Enabled bool `json:"enabled"`
 }
 
-// SensitiveCategory 敏感文件类别
+// SensitiveCategory 敏感文件类别.
 type SensitiveCategory string
 
 const (
@@ -116,7 +116,7 @@ const (
 	CategoryCustom      SensitiveCategory = "custom"      // 自定义
 )
 
-// SeverityLevel 严重程度
+// SeverityLevel 严重程度.
 type SeverityLevel string
 
 const (
@@ -126,7 +126,7 @@ const (
 	SeverityLow      SeverityLevel = "low"      // 低
 )
 
-// FilterResult 过滤结果
+// FilterResult 过滤结果.
 type FilterResult struct {
 	Path           string             `json:"path"`
 	Action         FilterAction       `json:"action"`
@@ -140,7 +140,7 @@ type FilterResult struct {
 	ReviewTime     *time.Time         `json:"review_time,omitempty"`
 }
 
-// ContentMatch 内容匹配结果
+// ContentMatch 内容匹配结果.
 type ContentMatch struct {
 	RuleID     string `json:"rule_id"`
 	RuleName   string `json:"rule_name"`
@@ -149,7 +149,7 @@ type ContentMatch struct {
 	Context    string `json:"context"`
 }
 
-// FilterAuditLog 过滤审计日志
+// FilterAuditLog 过滤审计日志.
 type FilterAuditLog struct {
 	ID          string                 `json:"id"`
 	Timestamp   time.Time              `json:"timestamp"`
@@ -167,14 +167,14 @@ type FilterAuditLog struct {
 	Details     map[string]interface{} `json:"details,omitempty"`
 }
 
-// FilterAuditLogger 过滤审计日志接口
+// FilterAuditLogger 过滤审计日志接口.
 type FilterAuditLogger interface {
 	LogFilterDecision(log *FilterAuditLog)
 	LogBlockedFile(path string, reason string, rule *SensitiveFileRule)
 	GetFilterHistory(taskID string, limit int) ([]*FilterAuditLog, error)
 }
 
-// DefaultSensitiveFilterConfig 默认敏感文件过滤配置
+// DefaultSensitiveFilterConfig 默认敏感文件过滤配置.
 func DefaultSensitiveFilterConfig() SensitiveFilterConfig {
 	return SensitiveFilterConfig{
 		Enabled:           true,
@@ -199,7 +199,7 @@ func DefaultSensitiveFilterConfig() SensitiveFilterConfig {
 	}
 }
 
-// NewSensitiveFileFilter 创建敏感文件过滤器
+// NewSensitiveFileFilter 创建敏感文件过滤器.
 func NewSensitiveFileFilter(config SensitiveFilterConfig, auditLogger FilterAuditLogger) (*SensitiveFileFilter, error) {
 	filter := &SensitiveFileFilter{
 		config:      config,
@@ -226,7 +226,7 @@ func NewSensitiveFileFilter(config SensitiveFilterConfig, auditLogger FilterAudi
 	return filter, nil
 }
 
-// initDefaultRules 初始化默认敏感文件规则
+// initDefaultRules 初始化默认敏感文件规则.
 func (f *SensitiveFileFilter) initDefaultRules() error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -377,7 +377,7 @@ func (f *SensitiveFileFilter) initDefaultRules() error {
 	return nil
 }
 
-// initContentRules 初始化内容检测规则
+// initContentRules 初始化内容检测规则.
 func (f *SensitiveFileFilter) initContentRules() error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -518,7 +518,7 @@ func (f *SensitiveFileFilter) initContentRules() error {
 	return nil
 }
 
-// addCustomRules 添加自定义规则
+// addCustomRules 添加自定义规则.
 func (f *SensitiveFileFilter) addCustomRules(patterns []string) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -543,7 +543,7 @@ func (f *SensitiveFileFilter) addCustomRules(patterns []string) {
 
 // ==================== 核心过滤方法 ====================
 
-// CheckFile 检查文件是否敏感
+// CheckFile 检查文件是否敏感.
 func (f *SensitiveFileFilter) CheckFile(ctx context.Context, filePath string, fileInfo os.FileInfo) *FilterResult {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
@@ -613,7 +613,7 @@ func (f *SensitiveFileFilter) CheckFile(ctx context.Context, filePath string, fi
 	return result
 }
 
-// matchesRule 检查文件是否匹配规则
+// matchesRule 检查文件是否匹配规则.
 func (f *SensitiveFileFilter) matchesRule(filePath string, rule SensitiveFileRule) bool {
 	fileName := filepath.Base(filePath)
 	ext := strings.ToLower(filepath.Ext(filePath))
@@ -650,7 +650,7 @@ func (f *SensitiveFileFilter) matchesRule(filePath string, rule SensitiveFileRul
 	return false
 }
 
-// scanFileContent 扫描文件内容
+// scanFileContent 扫描文件内容.
 func (f *SensitiveFileFilter) scanFileContent(ctx context.Context, filePath string) ([]ContentMatch, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -711,7 +711,7 @@ func (f *SensitiveFileFilter) scanFileContent(ctx context.Context, filePath stri
 
 // ==================== 批量检查 ====================
 
-// CheckDirectory 检查目录中的所有文件
+// CheckDirectory 检查目录中的所有文件.
 func (f *SensitiveFileFilter) CheckDirectory(ctx context.Context, dirPath string, recursive bool) ([]*FilterResult, error) {
 	results := []*FilterResult{}
 
@@ -737,7 +737,7 @@ func (f *SensitiveFileFilter) CheckDirectory(ctx context.Context, dirPath string
 	return results, err
 }
 
-// FilterSyncFiles 过滤同步文件列表
+// FilterSyncFiles 过滤同步文件列表.
 func (f *SensitiveFileFilter) FilterSyncFiles(ctx context.Context, taskID string, files []FileInfo) ([]FileInfo, []*FilterResult, error) {
 	allowedFiles := []FileInfo{}
 	blockedResults := []*FilterResult{}
@@ -794,7 +794,7 @@ func (f *SensitiveFileFilter) FilterSyncFiles(ctx context.Context, taskID string
 
 // ==================== 审计报告 ====================
 
-// GenerateFilterReport 生成过滤报告
+// GenerateFilterReport 生成过滤报告.
 func (f *SensitiveFileFilter) GenerateFilterReport(taskID string, startTime, endTime time.Time) (*FilterReport, error) {
 	if f.auditLogger == nil {
 		return nil, fmt.Errorf("审计日志未配置")
@@ -851,7 +851,7 @@ func (f *SensitiveFileFilter) GenerateFilterReport(taskID string, startTime, end
 	return report, nil
 }
 
-// FilterReport 过滤报告
+// FilterReport 过滤报告.
 type FilterReport struct {
 	TaskID       string                    `json:"task_id"`
 	StartTime    time.Time                 `json:"start_time"`
@@ -863,7 +863,7 @@ type FilterReport struct {
 	BlockedFiles []BlockedFileInfo         `json:"blocked_files"`
 }
 
-// FilterStatistics 过滤统计
+// FilterStatistics 过滤统计.
 type FilterStatistics struct {
 	TotalFiles          int `json:"total_files"`
 	AllowedFiles        int `json:"allowed_files"`
@@ -873,7 +873,7 @@ type FilterStatistics struct {
 	ContentHits         int `json:"content_hits"`
 }
 
-// BlockedFileInfo 被阻止文件信息
+// BlockedFileInfo 被阻止文件信息.
 type BlockedFileInfo struct {
 	Path     string            `json:"path"`
 	Reason   string            `json:"reason"`
@@ -885,7 +885,7 @@ type BlockedFileInfo struct {
 
 // ==================== 规则管理 ====================
 
-// AddRule 添加规则
+// AddRule 添加规则.
 func (f *SensitiveFileFilter) AddRule(rule SensitiveFileRule) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -900,7 +900,7 @@ func (f *SensitiveFileFilter) AddRule(rule SensitiveFileRule) error {
 	return nil
 }
 
-// RemoveRule 删除规则
+// RemoveRule 删除规则.
 func (f *SensitiveFileFilter) RemoveRule(ruleID string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -914,7 +914,7 @@ func (f *SensitiveFileFilter) RemoveRule(ruleID string) error {
 	return fmt.Errorf("规则不存在: %s", ruleID)
 }
 
-// GetRules 获取所有规则
+// GetRules 获取所有规则.
 func (f *SensitiveFileFilter) GetRules() []SensitiveFileRule {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
@@ -949,14 +949,14 @@ func generateAuditID() string {
 	return fmt.Sprintf("audit_%d", time.Now().UnixNano())
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (f *SensitiveFileFilter) GetConfig() SensitiveFilterConfig {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 	return f.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (f *SensitiveFileFilter) UpdateConfig(config SensitiveFilterConfig) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -964,14 +964,14 @@ func (f *SensitiveFileFilter) UpdateConfig(config SensitiveFilterConfig) error {
 	return nil
 }
 
-// Enable 启用过滤
+// Enable 启用过滤.
 func (f *SensitiveFileFilter) Enable() {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.config.Enabled = true
 }
 
-// Disable 禁用过滤
+// Disable 禁用过滤.
 func (f *SensitiveFileFilter) Disable() {
 	f.mu.Lock()
 	defer f.mu.Unlock()

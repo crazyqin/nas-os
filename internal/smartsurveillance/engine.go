@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// SurveillanceEngine 监控引擎
+// SurveillanceEngine 监控引擎.
 type SurveillanceEngine struct {
 	mu          sync.RWMutex
 	logger      *zap.Logger
@@ -23,7 +23,7 @@ type SurveillanceEngine struct {
 	cancel      context.CancelFunc
 }
 
-// NewSurveillanceEngine 创建监控引擎
+// NewSurveillanceEngine 创建监控引擎.
 func NewSurveillanceEngine(logger *zap.Logger, storagePath string) *SurveillanceEngine {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &SurveillanceEngine{
@@ -39,7 +39,7 @@ func NewSurveillanceEngine(logger *zap.Logger, storagePath string) *Surveillance
 
 // ========== 摄像头管理 ==========
 
-// AddCamera 添加摄像头
+// AddCamera 添加摄像头.
 func (e *SurveillanceEngine) AddCamera(camera *Camera) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -64,7 +64,7 @@ func (e *SurveillanceEngine) AddCamera(camera *Camera) error {
 	return nil
 }
 
-// UpdateCamera 更新摄像头
+// UpdateCamera 更新摄像头.
 func (e *SurveillanceEngine) UpdateCamera(camera *Camera) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -81,7 +81,7 @@ func (e *SurveillanceEngine) UpdateCamera(camera *Camera) error {
 	return nil
 }
 
-// RemoveCamera 移除摄像头
+// RemoveCamera 移除摄像头.
 func (e *SurveillanceEngine) RemoveCamera(cameraID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -98,7 +98,7 @@ func (e *SurveillanceEngine) RemoveCamera(cameraID string) error {
 	return nil
 }
 
-// GetCamera 获取摄像头
+// GetCamera 获取摄像头.
 func (e *SurveillanceEngine) GetCamera(cameraID string) (*Camera, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -110,7 +110,7 @@ func (e *SurveillanceEngine) GetCamera(cameraID string) (*Camera, error) {
 	return camera, nil
 }
 
-// ListCameras 列出所有摄像头
+// ListCameras 列出所有摄像头.
 func (e *SurveillanceEngine) ListCameras() []*Camera {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -122,7 +122,7 @@ func (e *SurveillanceEngine) ListCameras() []*Camera {
 	return cameras
 }
 
-// UpdateCameraStatus 更新摄像头状态
+// UpdateCameraStatus 更新摄像头状态.
 func (e *SurveillanceEngine) UpdateCameraStatus(cameraID string, status CameraStatus) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -139,7 +139,7 @@ func (e *SurveillanceEngine) UpdateCameraStatus(cameraID string, status CameraSt
 
 // ========== 录像管理 ==========
 
-// StartRecording 开始录像
+// StartRecording 开始录像.
 func (e *SurveillanceEngine) StartRecording(cameraID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -163,7 +163,7 @@ func (e *SurveillanceEngine) StartRecording(cameraID string) error {
 	return nil
 }
 
-// StopRecording 停止录像
+// StopRecording 停止录像.
 func (e *SurveillanceEngine) StopRecording(cameraID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -189,7 +189,7 @@ func (e *SurveillanceEngine) StopRecording(cameraID string) error {
 	return nil
 }
 
-// GetRecordings 获取录像列表
+// GetRecordings 获取录像列表.
 func (e *SurveillanceEngine) GetRecordings(query RecordingQuery) []*Recording {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -227,7 +227,7 @@ func (e *SurveillanceEngine) GetRecordings(query RecordingQuery) []*Recording {
 	return result[start:end]
 }
 
-// matchRecording 匹配录像记录
+// matchRecording 匹配录像记录.
 func matchRecording(rec *Recording, query RecordingQuery) bool {
 	if query.StartTime != nil && rec.StartTime.Before(*query.StartTime) {
 		return false
@@ -243,7 +243,7 @@ func matchRecording(rec *Recording, query RecordingQuery) bool {
 
 // ========== 事件管理 ==========
 
-// ReportEvent 上报事件
+// ReportEvent 上报事件.
 func (e *SurveillanceEngine) ReportEvent(event *Event) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -278,7 +278,7 @@ func (e *SurveillanceEngine) ReportEvent(event *Event) error {
 	return nil
 }
 
-// GetEvents 获取事件列表
+// GetEvents 获取事件列表.
 func (e *SurveillanceEngine) GetEvents(query EventQuery) []*Event {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -314,7 +314,7 @@ func (e *SurveillanceEngine) GetEvents(query EventQuery) []*Event {
 	return result[start:end]
 }
 
-// matchEvent 匹配事件
+// matchEvent 匹配事件.
 func matchEvent(event *Event, query EventQuery) bool {
 	if query.StartTime != nil && event.Timestamp.Before(*query.StartTime) {
 		return false
@@ -343,7 +343,7 @@ func matchEvent(event *Event, query EventQuery) bool {
 	return true
 }
 
-// GetTimeline 获取时间线数据
+// GetTimeline 获取时间线数据.
 func (e *SurveillanceEngine) GetTimeline(cameraID string, date time.Time) (*TimelineData, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -393,7 +393,7 @@ func (e *SurveillanceEngine) GetTimeline(cameraID string, date time.Time) (*Time
 	return timeline, nil
 }
 
-// GetSystemStatus 获取系统状态
+// GetSystemStatus 获取系统状态.
 func (e *SurveillanceEngine) GetSystemStatus() *SystemStatus {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -420,7 +420,7 @@ func (e *SurveillanceEngine) GetSystemStatus() *SystemStatus {
 	return status
 }
 
-// Stop 停止引擎
+// Stop 停止引擎.
 func (e *SurveillanceEngine) Stop() {
 	e.cancel()
 	e.logger.Info("监控引擎已停止")

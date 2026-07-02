@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers K3s 模块 API 处理器
+// Handlers K3s 模块 API 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由到 /api/v1/k3s 路由组
+// RegisterRoutes 注册路由到 /api/v1/k3s 路由组.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	k := r.Group("/k3s")
 	{
@@ -82,13 +82,13 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 
 // ========== 集群管理 Handlers ==========
 
-// getClusterInfo 获取集群信息
+// getClusterInfo 获取集群信息.
 func (h *Handlers) getClusterInfo(c *gin.Context) {
 	info := h.manager.GetClusterInfo()
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: info})
 }
 
-// getClusterHealth 获取集群健康状态
+// getClusterHealth 获取集群健康状态.
 func (h *Handlers) getClusterHealth(c *gin.Context) {
 	health := h.manager.GetClusterHealth()
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: health})
@@ -96,7 +96,7 @@ func (h *Handlers) getClusterHealth(c *gin.Context) {
 
 // ========== 节点管理 Handlers ==========
 
-// listNodes 列出节点
+// listNodes 列出节点.
 func (h *Handlers) listNodes(c *gin.Context) {
 	nodes := h.manager.ListNodes()
 	c.JSON(http.StatusOK, response{
@@ -109,7 +109,7 @@ func (h *Handlers) listNodes(c *gin.Context) {
 	})
 }
 
-// getNode 获取节点详情
+// getNode 获取节点详情.
 func (h *Handlers) getNode(c *gin.Context) {
 	name := c.Param("name")
 	node, err := h.manager.GetNode(name)
@@ -120,7 +120,7 @@ func (h *Handlers) getNode(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: node})
 }
 
-// updateNodeStatus 更新节点状态
+// updateNodeStatus 更新节点状态.
 func (h *Handlers) updateNodeStatus(c *gin.Context) {
 	name := c.Param("name")
 	var req struct {
@@ -139,7 +139,7 @@ func (h *Handlers) updateNodeStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "状态已更新"})
 }
 
-// removeNode 移除节点
+// removeNode 移除节点.
 func (h *Handlers) removeNode(c *gin.Context) {
 	name := c.Param("name")
 	if err := h.manager.RemoveNode(name); err != nil {
@@ -151,7 +151,7 @@ func (h *Handlers) removeNode(c *gin.Context) {
 
 // ========== Helm Chart Handlers ==========
 
-// deployChart 部署 Chart
+// deployChart 部署 Chart.
 func (h *Handlers) deployChart(c *gin.Context) {
 	var req DeployChartRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -172,7 +172,7 @@ func (h *Handlers) deployChart(c *gin.Context) {
 	c.JSON(http.StatusCreated, response{Code: 0, Message: "部署成功", Data: release})
 }
 
-// listHelmReleases 列出 Helm Release
+// listHelmReleases 列出 Helm Release.
 func (h *Handlers) listHelmReleases(c *gin.Context) {
 	namespace := c.Query("namespace")
 	releases := h.manager.ListHelmReleases(namespace)
@@ -186,7 +186,7 @@ func (h *Handlers) listHelmReleases(c *gin.Context) {
 	})
 }
 
-// getHelmRelease 获取 Helm Release
+// getHelmRelease 获取 Helm Release.
 func (h *Handlers) getHelmRelease(c *gin.Context) {
 	namespace := c.Param("namespace")
 	name := c.Param("name")
@@ -198,7 +198,7 @@ func (h *Handlers) getHelmRelease(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: release})
 }
 
-// upgradeHelmRelease 升级 Helm Release
+// upgradeHelmRelease 升级 Helm Release.
 func (h *Handlers) upgradeHelmRelease(c *gin.Context) {
 	namespace := c.Param("namespace")
 	name := c.Param("name")
@@ -217,7 +217,7 @@ func (h *Handlers) upgradeHelmRelease(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "升级成功", Data: release})
 }
 
-// rollbackHelmRelease 回滚 Helm Release
+// rollbackHelmRelease 回滚 Helm Release.
 func (h *Handlers) rollbackHelmRelease(c *gin.Context) {
 	namespace := c.Param("namespace")
 	name := c.Param("name")
@@ -239,7 +239,7 @@ func (h *Handlers) rollbackHelmRelease(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "回滚成功"})
 }
 
-// uninstallHelmRelease 卸载 Helm Release
+// uninstallHelmRelease 卸载 Helm Release.
 func (h *Handlers) uninstallHelmRelease(c *gin.Context) {
 	namespace := c.Param("namespace")
 	name := c.Param("name")
@@ -252,7 +252,7 @@ func (h *Handlers) uninstallHelmRelease(c *gin.Context) {
 
 // ========== 工作负载管理 Handlers ==========
 
-// listDeployments 列出 Deployment
+// listDeployments 列出 Deployment.
 func (h *Handlers) listDeployments(c *gin.Context) {
 	namespace := c.Query("namespace")
 	deps := h.manager.ListDeployments(namespace)
@@ -266,7 +266,7 @@ func (h *Handlers) listDeployments(c *gin.Context) {
 	})
 }
 
-// getDeployment 获取 Deployment
+// getDeployment 获取 Deployment.
 func (h *Handlers) getDeployment(c *gin.Context) {
 	namespace := c.Param("namespace")
 	name := c.Param("name")
@@ -278,7 +278,7 @@ func (h *Handlers) getDeployment(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: dep})
 }
 
-// listServices 列出 Service
+// listServices 列出 Service.
 func (h *Handlers) listServices(c *gin.Context) {
 	namespace := c.Query("namespace")
 	svcs := h.manager.ListServices(namespace)
@@ -292,7 +292,7 @@ func (h *Handlers) listServices(c *gin.Context) {
 	})
 }
 
-// getService 获取 Service
+// getService 获取 Service.
 func (h *Handlers) getService(c *gin.Context) {
 	namespace := c.Param("namespace")
 	name := c.Param("name")
@@ -304,7 +304,7 @@ func (h *Handlers) getService(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: svc})
 }
 
-// listPods 列出 Pod
+// listPods 列出 Pod.
 func (h *Handlers) listPods(c *gin.Context) {
 	namespace := c.Query("namespace")
 	pods := h.manager.ListPods(namespace)
@@ -318,7 +318,7 @@ func (h *Handlers) listPods(c *gin.Context) {
 	})
 }
 
-// getPod 获取 Pod
+// getPod 获取 Pod.
 func (h *Handlers) getPod(c *gin.Context) {
 	namespace := c.Param("namespace")
 	name := c.Param("name")
@@ -330,7 +330,7 @@ func (h *Handlers) getPod(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: pod})
 }
 
-// getPodLogs 获取 Pod 日志
+// getPodLogs 获取 Pod 日志.
 func (h *Handlers) getPodLogs(c *gin.Context) {
 	var req PodLogRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -349,13 +349,13 @@ func (h *Handlers) getPodLogs(c *gin.Context) {
 
 // ========== 服务网格 Handlers ==========
 
-// getServiceMeshConfig 获取服务网格配置
+// getServiceMeshConfig 获取服务网格配置.
 func (h *Handlers) getServiceMeshConfig(c *gin.Context) {
 	cfg := h.manager.GetServiceMeshConfig()
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: cfg})
 }
 
-// enableServiceMesh 启用服务网格
+// enableServiceMesh 启用服务网格.
 func (h *Handlers) enableServiceMesh(c *gin.Context) {
 	var req struct {
 		Type      ServiceMeshType `json:"type" binding:"required"`
@@ -379,7 +379,7 @@ func (h *Handlers) enableServiceMesh(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "服务网格已启用"})
 }
 
-// disableServiceMesh 禁用服务网格
+// disableServiceMesh 禁用服务网格.
 func (h *Handlers) disableServiceMesh(c *gin.Context) {
 	if err := h.manager.DisableServiceMesh(); err != nil {
 		c.JSON(http.StatusInternalServerError, response{Code: 1, Message: err.Error()})
@@ -388,7 +388,7 @@ func (h *Handlers) disableServiceMesh(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "服务网格已禁用"})
 }
 
-// updateServiceMeshConfig 更新服务网格配置
+// updateServiceMeshConfig 更新服务网格配置.
 func (h *Handlers) updateServiceMeshConfig(c *gin.Context) {
 	var req ServiceMeshConfig
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -406,7 +406,7 @@ func (h *Handlers) updateServiceMeshConfig(c *gin.Context) {
 
 // ========== HPA Handlers ==========
 
-// createHPA 创建 HPA
+// createHPA 创建 HPA.
 func (h *Handlers) createHPA(c *gin.Context) {
 	var req CreateHPARequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -418,7 +418,7 @@ func (h *Handlers) createHPA(c *gin.Context) {
 	c.JSON(http.StatusCreated, response{Code: 0, Message: "创建成功", Data: hpa})
 }
 
-// listHPAs 列出 HPA
+// listHPAs 列出 HPA.
 func (h *Handlers) listHPAs(c *gin.Context) {
 	namespace := c.Query("namespace")
 	hpas := h.manager.ListHPAs(namespace)
@@ -432,7 +432,7 @@ func (h *Handlers) listHPAs(c *gin.Context) {
 	})
 }
 
-// getHPA 获取 HPA
+// getHPA 获取 HPA.
 func (h *Handlers) getHPA(c *gin.Context) {
 	namespace := c.Param("namespace")
 	name := c.Param("name")
@@ -444,7 +444,7 @@ func (h *Handlers) getHPA(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: hpa})
 }
 
-// updateHPA 更新 HPA
+// updateHPA 更新 HPA.
 func (h *Handlers) updateHPA(c *gin.Context) {
 	namespace := c.Param("namespace")
 	name := c.Param("name")
@@ -463,7 +463,7 @@ func (h *Handlers) updateHPA(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "更新成功", Data: hpa})
 }
 
-// deleteHPA 删除 HPA
+// deleteHPA 删除 HPA.
 func (h *Handlers) deleteHPA(c *gin.Context) {
 	namespace := c.Param("namespace")
 	name := c.Param("name")
@@ -476,7 +476,7 @@ func (h *Handlers) deleteHPA(c *gin.Context) {
 
 // ========== 应用商店集成 Handlers ==========
 
-// listAppStoreApps 列出可部署应用
+// listAppStoreApps 列出可部署应用.
 func (h *Handlers) listAppStoreApps(c *gin.Context) {
 	apps := h.manager.ListAppStoreApps()
 	c.JSON(http.StatusOK, response{
@@ -489,7 +489,7 @@ func (h *Handlers) listAppStoreApps(c *gin.Context) {
 	})
 }
 
-// deployFromAppStore 从应用商店部署
+// deployFromAppStore 从应用商店部署.
 func (h *Handlers) deployFromAppStore(c *gin.Context) {
 	var req AppStoreDeployRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -508,7 +508,7 @@ func (h *Handlers) deployFromAppStore(c *gin.Context) {
 
 // ========== 资源配额 Handlers ==========
 
-// createQuota 创建配额
+// createQuota 创建配额.
 func (h *Handlers) createQuota(c *gin.Context) {
 	var req CreateQuotaRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -520,7 +520,7 @@ func (h *Handlers) createQuota(c *gin.Context) {
 	c.JSON(http.StatusCreated, response{Code: 0, Message: "创建成功", Data: quota})
 }
 
-// listQuotas 列出配额
+// listQuotas 列出配额.
 func (h *Handlers) listQuotas(c *gin.Context) {
 	namespace := c.Query("namespace")
 	quotas := h.manager.ListQuotas(namespace)
@@ -534,7 +534,7 @@ func (h *Handlers) listQuotas(c *gin.Context) {
 	})
 }
 
-// getQuota 获取配额
+// getQuota 获取配额.
 func (h *Handlers) getQuota(c *gin.Context) {
 	namespace := c.Param("namespace")
 	name := c.Param("name")
@@ -546,7 +546,7 @@ func (h *Handlers) getQuota(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "success", Data: quota})
 }
 
-// updateQuota 更新配额
+// updateQuota 更新配额.
 func (h *Handlers) updateQuota(c *gin.Context) {
 	namespace := c.Param("namespace")
 	name := c.Param("name")
@@ -565,7 +565,7 @@ func (h *Handlers) updateQuota(c *gin.Context) {
 	c.JSON(http.StatusOK, response{Code: 0, Message: "更新成功", Data: quota})
 }
 
-// deleteQuota 删除配额
+// deleteQuota 删除配额.
 func (h *Handlers) deleteQuota(c *gin.Context) {
 	namespace := c.Param("namespace")
 	name := c.Param("name")
@@ -578,7 +578,7 @@ func (h *Handlers) deleteQuota(c *gin.Context) {
 
 // ========== 集群事件 Handlers ==========
 
-// listEvents 列出事件
+// listEvents 列出事件.
 func (h *Handlers) listEvents(c *gin.Context) {
 	namespace := c.Query("namespace")
 	limitStr := c.DefaultQuery("limit", "50")
@@ -598,7 +598,7 @@ func (h *Handlers) listEvents(c *gin.Context) {
 	})
 }
 
-// getEventsBySeverity 按严重级别获取事件
+// getEventsBySeverity 按严重级别获取事件.
 func (h *Handlers) getEventsBySeverity(c *gin.Context) {
 	severity := EventSeverity(c.Param("severity"))
 	events := h.manager.GetEventsBySeverity(severity)
@@ -613,7 +613,7 @@ func (h *Handlers) getEventsBySeverity(c *gin.Context) {
 	})
 }
 
-// clearEvents 清除事件
+// clearEvents 清除事件.
 func (h *Handlers) clearEvents(c *gin.Context) {
 	namespace := c.Query("namespace")
 	removed := h.manager.ClearEvents(namespace)

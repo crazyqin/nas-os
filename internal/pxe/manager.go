@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Manager manages PXE boot services (TFTP + HTTP boot)
+// Manager manages PXE boot services (TFTP + HTTP boot).
 type Manager struct {
 	mu           sync.RWMutex
 	server       PXEServer
@@ -20,7 +20,7 @@ type Manager struct {
 	successBoots int
 }
 
-// NewPXEManager creates a new PXE manager with default mock data
+// NewPXEManager creates a new PXE manager with default mock data.
 func NewPXEManager() *Manager {
 	m := &Manager{
 		clients: make(map[string]PXEClient),
@@ -109,7 +109,7 @@ func (m *Manager) addMockImages() {
 	}
 }
 
-// Start starts the PXE services (TFTP + HTTP boot)
+// Start starts the PXE services (TFTP + HTTP boot).
 func (m *Manager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -123,7 +123,7 @@ func (m *Manager) Start() error {
 	return nil
 }
 
-// Stop stops the PXE services
+// Stop stops the PXE services.
 func (m *Manager) Stop() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -137,14 +137,14 @@ func (m *Manager) Stop() error {
 	return nil
 }
 
-// GetConfig returns the current PXE configuration
+// GetConfig returns the current PXE configuration.
 func (m *Manager) GetConfig() PXEConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// UpdateConfig updates PXE configuration fields
+// UpdateConfig updates PXE configuration fields.
 func (m *Manager) UpdateConfig(req CreatePXEConfigRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -164,7 +164,7 @@ func (m *Manager) UpdateConfig(req CreatePXEConfigRequest) error {
 	return nil
 }
 
-// ConfigureTFTP sets the TFTP root path
+// ConfigureTFTP sets the TFTP root path.
 func (m *Manager) ConfigureTFTP(path string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -176,7 +176,7 @@ func (m *Manager) ConfigureTFTP(path string) error {
 	return nil
 }
 
-// ConfigureDHCP sets the DHCP address range
+// ConfigureDHCP sets the DHCP address range.
 func (m *Manager) ConfigureDHCP(startIP, endIP string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -188,7 +188,7 @@ func (m *Manager) ConfigureDHCP(startIP, endIP string) error {
 	return nil
 }
 
-// AddBootImage registers a new boot image
+// AddBootImage registers a new boot image.
 func (m *Manager) AddBootImage(image PXEImage) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -216,7 +216,7 @@ func (m *Manager) AddBootImage(image PXEImage) error {
 	return nil
 }
 
-// RemoveBootImage removes a boot image by ID
+// RemoveBootImage removes a boot image by ID.
 func (m *Manager) RemoveBootImage(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -228,7 +228,7 @@ func (m *Manager) RemoveBootImage(id string) error {
 	return nil
 }
 
-// ListImages returns all registered boot images
+// ListImages returns all registered boot images.
 func (m *Manager) ListImages() []PXEImage {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -240,7 +240,7 @@ func (m *Manager) ListImages() []PXEImage {
 	return images
 }
 
-// GetImage returns a boot image by ID
+// GetImage returns a boot image by ID.
 func (m *Manager) GetImage(id string) (*PXEImage, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -252,7 +252,7 @@ func (m *Manager) GetImage(id string) (*PXEImage, error) {
 	return &img, nil
 }
 
-// ListClients returns all known PXE clients
+// ListClients returns all known PXE clients.
 func (m *Manager) ListClients() []PXEClient {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -264,7 +264,7 @@ func (m *Manager) ListClients() []PXEClient {
 	return clients
 }
 
-// GetClientByMAC returns a client by MAC address
+// GetClientByMAC returns a client by MAC address.
 func (m *Manager) GetClientByMAC(mac string) (*PXEClient, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -276,7 +276,7 @@ func (m *Manager) GetClientByMAC(mac string) (*PXEClient, error) {
 	return &c, nil
 }
 
-// UpdateClient updates an existing PXE client
+// UpdateClient updates an existing PXE client.
 func (m *Manager) UpdateClient(mac string, req UpdateClientRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -300,7 +300,7 @@ func (m *Manager) UpdateClient(mac string, req UpdateClientRequest) error {
 	return nil
 }
 
-// SetBootMenu replaces the entire boot menu
+// SetBootMenu replaces the entire boot menu.
 func (m *Manager) SetBootMenu(menu []BootMenuItem) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -309,7 +309,7 @@ func (m *Manager) SetBootMenu(menu []BootMenuItem) error {
 	return nil
 }
 
-// GetStats returns aggregated PXE statistics
+// GetStats returns aggregated PXE statistics.
 func (m *Manager) GetStats() PXEStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

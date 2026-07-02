@@ -10,7 +10,7 @@ import (
 // 协议定义
 // ============================================================
 
-// Protocol 网络协议类型
+// Protocol 网络协议类型.
 type Protocol string
 
 const (
@@ -28,7 +28,7 @@ const (
 	ProtocolOther Protocol = "OTHER"
 )
 
-// FlowDirection 流量方向
+// FlowDirection 流量方向.
 type FlowDirection string
 
 const (
@@ -41,7 +41,7 @@ const (
 // ============================================================
 
 // FlowRecord 单条流量记录
-// 对标sFlow/NetFlow v5/v9采样记录
+// 对标sFlow/NetFlow v5/v9采样记录.
 type FlowRecord struct {
 	// SrcIP 源IP
 	SrcIP string `json:"src_ip"`
@@ -72,7 +72,7 @@ type FlowRecord struct {
 // ============================================================
 
 // TrafficStats 流量统计汇总
-// 对标群晖"资源监控"中的网络流量面板
+// 对标群晖"资源监控"中的网络流量面板.
 type TrafficStats struct {
 	// TotalBytesIn 总入站字节
 	TotalBytesIn int64 `json:"total_bytes_in"`
@@ -96,7 +96,7 @@ type TrafficStats struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// ProtocolStats 协议流量统计
+// ProtocolStats 协议流量统计.
 type ProtocolStats struct {
 	// Protocol 协议名称
 	Protocol Protocol `json:"protocol"`
@@ -111,7 +111,7 @@ type ProtocolStats struct {
 }
 
 // HostTraffic 主机流量统计
-// 对标群晖"谁在连接"功能
+// 对标群晖"谁在连接"功能.
 type HostTraffic struct {
 	// IP 主机IP
 	IP string `json:"ip"`
@@ -130,7 +130,7 @@ type HostTraffic struct {
 }
 
 // BandwidthUsage 带宽使用情况
-// 按时间窗口统计的带宽使用
+// 按时间窗口统计的带宽使用.
 type BandwidthUsage struct {
 	// Timestamp 时间点
 	Timestamp time.Time `json:"timestamp"`
@@ -148,23 +148,23 @@ type BandwidthUsage struct {
 // 异常检测类型
 // ============================================================
 
-// AnomalyType 异常类型
+// AnomalyType 异常类型.
 type AnomalyType string
 
 const (
-	// AnomalyTrafficSpike 流量突增
+	// AnomalyTrafficSpike 流量突增.
 	AnomalyTrafficSpike AnomalyType = "traffic_spike"
-	// AnomalyPortScan 端口扫描
+	// AnomalyPortScan 端口扫描.
 	AnomalyPortScan AnomalyType = "port_scan"
-	// AnomalyDNSFlood DNS洪泛
+	// AnomalyDNSFlood DNS洪泛.
 	AnomalyDNSFlood AnomalyType = "dns_flood"
-	// AnomalyUnusualProtocol 异常协议
+	// AnomalyUnusualProtocol 异常协议.
 	AnomalyUnusualProtocol AnomalyType = "unusual_protocol"
-	// AnomalyHighConnectionRate 高连接速率
+	// AnomalyHighConnectionRate 高连接速率.
 	AnomalyHighConnectionRate AnomalyType = "high_connection_rate"
 )
 
-// AnomalyAlert 流量异常告警
+// AnomalyAlert 流量异常告警.
 type AnomalyAlert struct {
 	// ID 告警ID
 	ID string `json:"id"`
@@ -188,7 +188,7 @@ type AnomalyAlert struct {
 // TopN分析
 // ============================================================
 
-// TopNEntry TopN条目
+// TopNEntry TopN条目.
 type TopNEntry struct {
 	// Key 排名键（IP、端口、协议等）
 	Key string `json:"key"`
@@ -198,7 +198,7 @@ type TopNEntry struct {
 	Label string `json:"label,omitempty"`
 }
 
-// TopNResult TopN分析结果
+// TopNResult TopN分析结果.
 type TopNResult struct {
 	// Category 分类: "hosts", "ports", "protocols", "conversations"
 	Category string `json:"category"`
@@ -214,7 +214,7 @@ type TopNResult struct {
 // 采集器配置
 // ============================================================
 
-// CollectorConfig 流量采集器配置
+// CollectorConfig 流量采集器配置.
 type CollectorConfig struct {
 	// ListenAddress 监听地址
 	ListenAddress string `json:"listen_address"`
@@ -230,7 +230,7 @@ type CollectorConfig struct {
 	FlushIntervalSec int `json:"flush_interval_sec"`
 }
 
-// DefaultCollectorConfig 默认采集器配置
+// DefaultCollectorConfig 默认采集器配置.
 func DefaultCollectorConfig() CollectorConfig {
 	return CollectorConfig{
 		ListenAddress:    "0.0.0.0",
@@ -246,14 +246,14 @@ func DefaultCollectorConfig() CollectorConfig {
 // 请求/响应类型
 // ============================================================
 
-// TrafficStatsResponse 流量统计响应
+// TrafficStatsResponse 流量统计响应.
 type TrafficStatsResponse struct {
 	Stats     TrafficStats    `json:"stats"`
 	Protocols []ProtocolStats `json:"protocols"`
 	TopHosts  []HostTraffic   `json:"top_hosts"`
 }
 
-// BandwidthHistoryRequest 带宽历史查询请求
+// BandwidthHistoryRequest 带宽历史查询请求.
 type BandwidthHistoryRequest struct {
 	Interface string `form:"interface"`
 	From      string `form:"from"`
@@ -261,7 +261,7 @@ type BandwidthHistoryRequest struct {
 	Interval  string `form:"interval"` // "1m", "5m", "1h", "1d"
 }
 
-// AlertListResponse 告警列表响应
+// AlertListResponse 告警列表响应.
 type AlertListResponse struct {
 	Alerts []AnomalyAlert `json:"alerts"`
 	Total  int            `json:"total"`

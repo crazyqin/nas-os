@@ -5,19 +5,19 @@ import (
 	"time"
 )
 
-// Optimizer 存储优化器
+// Optimizer 存储优化器.
 type Optimizer struct {
 	policy TieringPolicy
 }
 
-// NewOptimizer 创建优化器
+// NewOptimizer 创建优化器.
 func NewOptimizer(policy TieringPolicy) *Optimizer {
 	return &Optimizer{
 		policy: policy,
 	}
 }
 
-// CalculateScore 计算文件优化评分
+// CalculateScore 计算文件优化评分.
 func (o *Optimizer) CalculateScore(stats *FileAccessStats, now time.Time) OptimizationScore {
 	score := OptimizationScore{
 		FilePath:    stats.FilePath,
@@ -48,7 +48,7 @@ func (o *Optimizer) CalculateScore(stats *FileAccessStats, now time.Time) Optimi
 	return score
 }
 
-// calculateAccessFrequencyScore 计算访问频率分数 (0-100)
+// calculateAccessFrequencyScore 计算访问频率分数 (0-100).
 func (o *Optimizer) calculateAccessFrequencyScore(stats *FileAccessStats) float64 {
 	// 使用对数函数平滑高频访问
 	if stats.AccessFrequency <= 0 {
@@ -60,7 +60,7 @@ func (o *Optimizer) calculateAccessFrequencyScore(stats *FileAccessStats) float6
 }
 
 // calculateFileSizeScore 计算文件大小分数 (0-100)
-// 小文件更适合高速存储，大文件适合大容量存储
+// 小文件更适合高速存储，大文件适合大容量存储.
 func (o *Optimizer) calculateFileSizeScore(stats *FileAccessStats) float64 {
 	if stats.FileSize <= 0 {
 		return 50 // 默认中等分数
@@ -82,7 +82,7 @@ func (o *Optimizer) calculateFileSizeScore(stats *FileAccessStats) float64 {
 	return 90 - ratio*70
 }
 
-// calculateIOPatternScore 计算IO模式分数 (0-100)
+// calculateIOPatternScore 计算IO模式分数 (0-100).
 func (o *Optimizer) calculateIOPatternScore(stats *FileAccessStats) float64 {
 	switch stats.IOPattern {
 	case IOPatternRandom:
@@ -99,7 +99,7 @@ func (o *Optimizer) calculateIOPatternScore(stats *FileAccessStats) float64 {
 }
 
 // calculateTimeDecayScore 计算时间衰减分数 (0-100)
-// 最近访问的数据得分高
+// 最近访问的数据得分高.
 func (o *Optimizer) calculateTimeDecayScore(stats *FileAccessStats, now time.Time) float64 {
 	if stats.LastAccessTime.IsZero() {
 		return 0
@@ -112,7 +112,7 @@ func (o *Optimizer) calculateTimeDecayScore(stats *FileAccessStats, now time.Tim
 	return decay * 100
 }
 
-// recommendTier 根据分数推荐存储层级
+// recommendTier 根据分数推荐存储层级.
 func (o *Optimizer) recommendTier(score float64) StorageTier {
 	if score >= o.policy.NVMePromoteThreshold {
 		return TierNVMe
@@ -123,7 +123,7 @@ func (o *Optimizer) recommendTier(score float64) StorageTier {
 	return TierHDD
 }
 
-// calculatePriority 计算迁移优先级
+// calculatePriority 计算迁移优先级.
 func (o *Optimizer) calculatePriority(score float64, currentTier, recommendedTier StorageTier) int {
 	if currentTier == recommendedTier {
 		return 1 // 无需迁移
@@ -155,7 +155,7 @@ func (o *Optimizer) calculatePriority(score float64, currentTier, recommendedTie
 	return priority
 }
 
-// generateReason 生成优化原因
+// generateReason 生成优化原因.
 func (o *Optimizer) generateReason(score OptimizationScore, stats *FileAccessStats) string {
 	reason := ""
 
@@ -183,7 +183,7 @@ func (o *Optimizer) generateReason(score OptimizationScore, stats *FileAccessSta
 	return reason
 }
 
-// MakeDecision 生成优化决策
+// MakeDecision 生成优化决策.
 func (o *Optimizer) MakeDecision(score OptimizationScore) OptimizationDecision {
 	decision := OptimizationDecision{
 		FilePath: score.FilePath,
@@ -211,7 +211,7 @@ func (o *Optimizer) MakeDecision(score OptimizationScore) OptimizationDecision {
 	return decision
 }
 
-// estimateBenefit 估算性能提升
+// estimateBenefit 估算性能提升.
 func (o *Optimizer) estimateBenefit(score OptimizationScore) float64 {
 	// 基于分数差估算性能提升
 	scoreDiff := score.Score - o.getTierBaseScore(score.CurrentTier)
@@ -221,7 +221,7 @@ func (o *Optimizer) estimateBenefit(score OptimizationScore) float64 {
 	return math.Min(100, scoreDiff*1.5)
 }
 
-// getTierBaseScore 获取层级基础分数
+// getTierBaseScore 获取层级基础分数.
 func (o *Optimizer) getTierBaseScore(tier StorageTier) float64 {
 	switch tier {
 	case TierNVMe:
@@ -235,7 +235,7 @@ func (o *Optimizer) getTierBaseScore(tier StorageTier) float64 {
 	}
 }
 
-// BatchOptimize 批量优化分析
+// BatchOptimize 批量优化分析.
 func (o *Optimizer) BatchOptimize(statsList []*FileAccessStats, now time.Time) ([]OptimizationDecision, OptimizationStats) {
 	var decisions []OptimizationDecision
 	var totalScore float64
@@ -275,7 +275,7 @@ func (o *Optimizer) BatchOptimize(statsList []*FileAccessStats, now time.Time) (
 	return decisions, optStats
 }
 
-// sortDecisions 按优先级排序（高优先级在前）
+// sortDecisions 按优先级排序（高优先级在前）.
 func sortDecisions(decisions []OptimizationDecision) {
 	for i := 1; i < len(decisions); i++ {
 		for j := i; j > 0 && decisions[j].Priority > decisions[j-1].Priority; j-- {

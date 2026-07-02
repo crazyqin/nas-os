@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers 团队文件协作 HTTP 处理器
+// Handlers 团队文件协作 HTTP 处理器.
 type Handlers struct {
 	manager *Manager
 }
 
-// NewHandlers 创建处理器
+// NewHandlers 创建处理器.
 func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{manager: manager}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	teams := r.Group("/teams")
 	{
@@ -36,7 +36,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// response 标准响应
+// response 标准响应.
 type response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
@@ -44,7 +44,7 @@ type response struct {
 }
 
 // createTeam 创建团队
-// POST /teams
+// POST /teams.
 func (h *Handlers) createTeam(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -68,7 +68,7 @@ func (h *Handlers) createTeam(c *gin.Context) {
 }
 
 // listTeams 列出用户参与的所有团队
-// GET /teams
+// GET /teams.
 func (h *Handlers) listTeams(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -81,7 +81,7 @@ func (h *Handlers) listTeams(c *gin.Context) {
 }
 
 // getTeam 获取团队详情
-// GET /teams/:id
+// GET /teams/:id.
 func (h *Handlers) getTeam(c *gin.Context) {
 	teamID := c.Param("id")
 
@@ -95,7 +95,7 @@ func (h *Handlers) getTeam(c *gin.Context) {
 }
 
 // addMember 添加团队成员
-// POST /teams/:id/members
+// POST /teams/:id/members.
 func (h *Handlers) addMember(c *gin.Context) {
 	operatorID := c.GetString("user_id")
 	teamID := c.Param("id")
@@ -108,9 +108,10 @@ func (h *Handlers) addMember(c *gin.Context) {
 
 	if err := h.manager.AddMember(operatorID, teamID, &req); err != nil {
 		status := http.StatusBadRequest
-		if err == ErrPermissionDenied {
+		switch err {
+		case ErrPermissionDenied:
 			status = http.StatusForbidden
-		} else if err == ErrTeamNotFound {
+		case ErrTeamNotFound:
 			status = http.StatusNotFound
 		}
 		c.JSON(status, response{Code: status, Message: err.Error()})
@@ -121,7 +122,7 @@ func (h *Handlers) addMember(c *gin.Context) {
 }
 
 // removeMember 移除团队成员
-// DELETE /teams/:id/members/:uid
+// DELETE /teams/:id/members/:uid.
 func (h *Handlers) removeMember(c *gin.Context) {
 	operatorID := c.GetString("user_id")
 	teamID := c.Param("id")
@@ -143,7 +144,7 @@ func (h *Handlers) removeMember(c *gin.Context) {
 }
 
 // updateMemberRole 更新成员角色
-// PUT /teams/:id/members/:uid/role
+// PUT /teams/:id/members/:uid/role.
 func (h *Handlers) updateMemberRole(c *gin.Context) {
 	operatorID := c.GetString("user_id")
 	teamID := c.Param("id")
@@ -173,7 +174,7 @@ func (h *Handlers) updateMemberRole(c *gin.Context) {
 }
 
 // shareFile 在团队中共享文件
-// POST /teams/:id/files
+// POST /teams/:id/files.
 func (h *Handlers) shareFile(c *gin.Context) {
 	userID := c.GetString("user_id")
 	teamID := c.Param("id")
@@ -187,9 +188,10 @@ func (h *Handlers) shareFile(c *gin.Context) {
 	sf, err := h.manager.ShareFile(userID, teamID, &req)
 	if err != nil {
 		status := http.StatusBadRequest
-		if err == ErrPermissionDenied {
+		switch err {
+		case ErrPermissionDenied:
 			status = http.StatusForbidden
-		} else if err == ErrTeamNotFound {
+		case ErrTeamNotFound:
 			status = http.StatusNotFound
 		}
 		c.JSON(status, response{Code: status, Message: err.Error()})
@@ -200,7 +202,7 @@ func (h *Handlers) shareFile(c *gin.Context) {
 }
 
 // lockFile 锁定文件
-// POST /teams/:id/files/:fid/lock
+// POST /teams/:id/files/:fid/lock.
 func (h *Handlers) lockFile(c *gin.Context) {
 	userID := c.GetString("user_id")
 	teamID := c.Param("id")
@@ -228,7 +230,7 @@ func (h *Handlers) lockFile(c *gin.Context) {
 }
 
 // unlockFile 解锁文件
-// POST /teams/:id/files/:fid/unlock
+// POST /teams/:id/files/:fid/unlock.
 func (h *Handlers) unlockFile(c *gin.Context) {
 	userID := c.GetString("user_id")
 	teamID := c.Param("id")

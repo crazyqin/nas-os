@@ -338,7 +338,7 @@ func TestEncryptionPerformance(t *testing.T) {
 	}
 }
 
-// 辅助函数
+// 辅助函数.
 func formatBytes(bytes int64) string {
 	units := []string{"B", "KB", "MB", "GB"}
 	unit := 0

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// PrivilegeLevel 权限级别
+// PrivilegeLevel 权限级别.
 type PrivilegeLevel int
 
 const (
@@ -18,7 +18,7 @@ const (
 	PrivilegeSuperAdmin PrivilegeLevel = 4 // 超级管理员
 )
 
-// Permission 权限
+// Permission 权限.
 type Permission string
 
 const (
@@ -40,7 +40,7 @@ const (
 	PermManageSecurity Permission = "MANAGE_SECURITY"
 )
 
-// AdminUser 管理员用户
+// AdminUser 管理员用户.
 type AdminUser struct {
 	ID           string         `json:"id"`
 	Username     string         `json:"username"`
@@ -55,7 +55,7 @@ type AdminUser struct {
 	IPWhitelist  []string       `json:"ip_whitelist,omitempty"`
 }
 
-// AuditAction 审计动作
+// AuditAction 审计动作.
 type AuditAction struct {
 	ID        string    `json:"id"`
 	UserID    string    `json:"user_id"`
@@ -67,7 +67,7 @@ type AuditAction struct {
 	Success   bool      `json:"success"`
 }
 
-// RoleTemplate 角色模板
+// RoleTemplate 角色模板.
 type RoleTemplate struct {
 	Name        string         `json:"name"`
 	Level       PrivilegeLevel `json:"level"`
@@ -75,7 +75,7 @@ type RoleTemplate struct {
 	Description string         `json:"description"`
 }
 
-// AdminPrivilegeManager 权限管理器
+// AdminPrivilegeManager 权限管理器.
 type AdminPrivilegeManager struct {
 	users    map[string]*AdminUser
 	actions  []*AuditAction
@@ -84,7 +84,7 @@ type AdminPrivilegeManager struct {
 	mu       sync.RWMutex
 }
 
-// NewAdminPrivilegeManager 创建权限管理器
+// NewAdminPrivilegeManager 创建权限管理器.
 func NewAdminPrivilegeManager(dataPath string) *AdminPrivilegeManager {
 	os.MkdirAll(dataPath, 0755)
 	m := &AdminPrivilegeManager{
@@ -96,7 +96,7 @@ func NewAdminPrivilegeManager(dataPath string) *AdminPrivilegeManager {
 	return m
 }
 
-// CreateUser 创建用户
+// CreateUser 创建用户.
 func (m *AdminPrivilegeManager) CreateUser(username, displayName string, level PrivilegeLevel) (*AdminUser, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -119,7 +119,7 @@ func (m *AdminPrivilegeManager) CreateUser(username, displayName string, level P
 	return user, nil
 }
 
-// UpdateUserLevel 更新用户级别
+// UpdateUserLevel 更新用户级别.
 func (m *AdminPrivilegeManager) UpdateUserLevel(userID string, level PrivilegeLevel) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -133,7 +133,7 @@ func (m *AdminPrivilegeManager) UpdateUserLevel(userID string, level PrivilegeLe
 	return nil
 }
 
-// GrantPermission 授予权限
+// GrantPermission 授予权限.
 func (m *AdminPrivilegeManager) GrantPermission(userID string, perm Permission) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -151,7 +151,7 @@ func (m *AdminPrivilegeManager) GrantPermission(userID string, perm Permission) 
 	return nil
 }
 
-// RevokePermission 撤销权限
+// RevokePermission 撤销权限.
 func (m *AdminPrivilegeManager) RevokePermission(userID string, perm Permission) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -169,7 +169,7 @@ func (m *AdminPrivilegeManager) RevokePermission(userID string, perm Permission)
 	return nil
 }
 
-// CheckPermission 检查权限
+// CheckPermission 检查权限.
 func (m *AdminPrivilegeManager) CheckPermission(userID string, perm Permission) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -185,7 +185,7 @@ func (m *AdminPrivilegeManager) CheckPermission(userID string, perm Permission) 
 	return false
 }
 
-// DisableUser 禁用用户
+// DisableUser 禁用用户.
 func (m *AdminPrivilegeManager) DisableUser(userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -198,7 +198,7 @@ func (m *AdminPrivilegeManager) DisableUser(userID string) error {
 	return nil
 }
 
-// EnableUser 启用用户
+// EnableUser 启用用户.
 func (m *AdminPrivilegeManager) EnableUser(userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -212,7 +212,7 @@ func (m *AdminPrivilegeManager) EnableUser(userID string) error {
 	return nil
 }
 
-// RecordLogin 记录登录
+// RecordLogin 记录登录.
 func (m *AdminPrivilegeManager) RecordLogin(userID string, success bool, ip string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -233,14 +233,14 @@ func (m *AdminPrivilegeManager) RecordLogin(userID string, success bool, ip stri
 	m.logAction(userID, "LOGIN", "", fmt.Sprintf("ip=%s success=%v", ip, success), ip, success)
 }
 
-// LogAction 记录操作
+// LogAction 记录操作.
 func (m *AdminPrivilegeManager) LogAction(userID, action, resource, details, ip string, success bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.logAction(userID, action, resource, details, ip, success)
 }
 
-// GetUsers 获取用户列表
+// GetUsers 获取用户列表.
 func (m *AdminPrivilegeManager) GetUsers() []*AdminUser {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -251,7 +251,7 @@ func (m *AdminPrivilegeManager) GetUsers() []*AdminUser {
 	return users
 }
 
-// GetUser 获取用户
+// GetUser 获取用户.
 func (m *AdminPrivilegeManager) GetUser(userID string) (*AdminUser, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -259,7 +259,7 @@ func (m *AdminPrivilegeManager) GetUser(userID string) (*AdminUser, bool) {
 	return u, ok
 }
 
-// GetAuditLog 获取审计日志
+// GetAuditLog 获取审计日志.
 func (m *AdminPrivilegeManager) GetAuditLog(limit int) []*AuditAction {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -273,7 +273,7 @@ func (m *AdminPrivilegeManager) GetAuditLog(limit int) []*AuditAction {
 	return m.actions[start:]
 }
 
-// GetRoles 获取角色模板
+// GetRoles 获取角色模板.
 func (m *AdminPrivilegeManager) GetRoles() []*RoleTemplate {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

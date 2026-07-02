@@ -529,7 +529,7 @@ func (m *Manager) SearchNotesAdvanced(query, notebookID, tag string) []*Note {
 		if tag != "" {
 			hasTag := false
 			for _, t := range note.Tags {
-				if strings.ToLower(t) == strings.ToLower(tag) {
+				if strings.EqualFold(t, tag) {
 					hasTag = true
 					break
 				}

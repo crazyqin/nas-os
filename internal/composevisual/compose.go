@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// ExportCompose 导出为 docker-compose.yml
+// ExportCompose 导出为 docker-compose.yml.
 func (m *Manager) ExportCompose(projectID string) (string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -24,10 +24,10 @@ func (m *Manager) ExportCompose(projectID string) (string, error) {
 	sort.Strings(svcNames)
 	for _, name := range svcNames {
 		svc := project.Services[name]
-		sb.WriteString(fmt.Sprintf("  %s:\n", name))
-		sb.WriteString(fmt.Sprintf("    image: %s\n", svc.Image))
+		fmt.Fprintf(&sb, "  %s:\n", name)
+		fmt.Fprintf(&sb, "    image: %s\n", svc.Image)
 		if svc.ContainerName != "" {
-			sb.WriteString(fmt.Sprintf("    container_name: %s\n", svc.ContainerName))
+			fmt.Fprintf(&sb, "    container_name: %s\n", svc.ContainerName)
 		}
 		if len(svc.Ports) > 0 {
 			sb.WriteString("    ports:\n")
@@ -37,9 +37,9 @@ func (m *Manager) ExportCompose(projectID string) (string, error) {
 					proto = "tcp"
 				}
 				if p.IP != "" {
-					sb.WriteString(fmt.Sprintf("      - \"%s:%d:%d/%s\"\n", p.IP, p.HostPort, p.ContainerPort, proto))
+					fmt.Fprintf(&sb, "      - \"%s:%d:%d/%s\"\n", p.IP, p.HostPort, p.ContainerPort, proto)
 				} else {
-					sb.WriteString(fmt.Sprintf("      - \"%d:%d/%s\"\n", p.HostPort, p.ContainerPort, proto))
+					fmt.Fprintf(&sb, "      - \"%d:%d/%s\"\n", p.HostPort, p.ContainerPort, proto)
 				}
 			}
 		}
@@ -50,7 +50,7 @@ func (m *Manager) ExportCompose(projectID string) (string, error) {
 				if v.ReadOnly {
 					ro = ":ro"
 				}
-				sb.WriteString(fmt.Sprintf("      - %s:%s%s\n", v.Source, v.Target, ro))
+				fmt.Fprintf(&sb, "      - %s:%s%s\n", v.Source, v.Target, ro)
 			}
 		}
 		if len(svc.Environment) > 0 {
@@ -61,52 +61,52 @@ func (m *Manager) ExportCompose(projectID string) (string, error) {
 			}
 			sort.Strings(keys)
 			for _, k := range keys {
-				sb.WriteString(fmt.Sprintf("      - %s=%s\n", k, svc.Environment[k]))
+				fmt.Fprintf(&sb, "      - %s=%s\n", k, svc.Environment[k])
 			}
 		}
 		if len(svc.DependsOn) > 0 {
 			sb.WriteString("    depends_on:\n")
 			for _, dep := range svc.DependsOn {
-				sb.WriteString(fmt.Sprintf("      - %s\n", dep))
+				fmt.Fprintf(&sb, "      - %s\n", dep)
 			}
 		}
 		if len(svc.Command) > 0 {
 			sb.WriteString("    command:\n")
 			for _, c := range svc.Command {
-				sb.WriteString(fmt.Sprintf("      - \"%s\"\n", c))
+				fmt.Fprintf(&sb, "      - \"%s\"\n", c)
 			}
 		}
 		if svc.Restart != "" {
-			sb.WriteString(fmt.Sprintf("    restart: %s\n", svc.Restart))
+			fmt.Fprintf(&sb, "    restart: %s\n", svc.Restart)
 		}
 		if svc.Resources != nil {
 			sb.WriteString("    deploy:\n      resources:\n")
 			if svc.Resources.CPUs != "" || svc.Resources.Memory != "" {
 				sb.WriteString("        limits:\n")
 				if svc.Resources.CPUs != "" {
-					sb.WriteString(fmt.Sprintf("          cpus: '%s'\n", svc.Resources.CPUs))
+					fmt.Fprintf(&sb, "          cpus: '%s'\n", svc.Resources.CPUs)
 				}
 				if svc.Resources.Memory != "" {
-					sb.WriteString(fmt.Sprintf("          memory: %s\n", svc.Resources.Memory))
+					fmt.Fprintf(&sb, "          memory: %s\n", svc.Resources.Memory)
 				}
 			}
 		}
 		if svc.HealthCheck != nil {
 			sb.WriteString("    healthcheck:\n      test:\n")
 			for _, t := range svc.HealthCheck.Test {
-				sb.WriteString(fmt.Sprintf("        - \"%s\"\n", t))
+				fmt.Fprintf(&sb, "        - \"%s\"\n", t)
 			}
 			if svc.HealthCheck.Interval != "" {
-				sb.WriteString(fmt.Sprintf("      interval: %s\n", svc.HealthCheck.Interval))
+				fmt.Fprintf(&sb, "      interval: %s\n", svc.HealthCheck.Interval)
 			}
 			if svc.HealthCheck.Timeout != "" {
-				sb.WriteString(fmt.Sprintf("      timeout: %s\n", svc.HealthCheck.Timeout))
+				fmt.Fprintf(&sb, "      timeout: %s\n", svc.HealthCheck.Timeout)
 			}
 			if svc.HealthCheck.Retries > 0 {
-				sb.WriteString(fmt.Sprintf("      retries: %d\n", svc.HealthCheck.Retries))
+				fmt.Fprintf(&sb, "      retries: %d\n", svc.HealthCheck.Retries)
 			}
 			if svc.HealthCheck.StartPeriod != "" {
-				sb.WriteString(fmt.Sprintf("      start_period: %s\n", svc.HealthCheck.StartPeriod))
+				fmt.Fprintf(&sb, "      start_period: %s\n", svc.HealthCheck.StartPeriod)
 			}
 		}
 		sb.WriteString("\n")
@@ -120,9 +120,9 @@ func (m *Manager) ExportCompose(projectID string) (string, error) {
 		sort.Strings(netNames)
 		for _, name := range netNames {
 			net := project.Networks[name]
-			sb.WriteString(fmt.Sprintf("  %s:\n", name))
+			fmt.Fprintf(&sb, "  %s:\n", name)
 			if net.Driver != "" {
-				sb.WriteString(fmt.Sprintf("    driver: %s\n", net.Driver))
+				fmt.Fprintf(&sb, "    driver: %s\n", net.Driver)
 			}
 			if net.External {
 				sb.WriteString("    external: true\n")
@@ -139,9 +139,9 @@ func (m *Manager) ExportCompose(projectID string) (string, error) {
 		sort.Strings(volNames)
 		for _, name := range volNames {
 			vol := project.Volumes[name]
-			sb.WriteString(fmt.Sprintf("  %s:\n", name))
+			fmt.Fprintf(&sb, "  %s:\n", name)
 			if vol.Driver != "" {
-				sb.WriteString(fmt.Sprintf("    driver: %s\n", vol.Driver))
+				fmt.Fprintf(&sb, "    driver: %s\n", vol.Driver)
 			}
 			if vol.External {
 				sb.WriteString("    external: true\n")
@@ -151,7 +151,7 @@ func (m *Manager) ExportCompose(projectID string) (string, error) {
 	return sb.String(), nil
 }
 
-// ImportCompose 导入 docker-compose.yml
+// ImportCompose 导入 docker-compose.yml.
 func (m *Manager) ImportCompose(content, name string) (*ComposeProject, error) {
 	lines := strings.Split(content, "\n")
 	if len(lines) == 0 {
@@ -296,7 +296,7 @@ func (m *Manager) ImportCompose(content, name string) (*ComposeProject, error) {
 	return project, nil
 }
 
-// GenerateTopology 生成拓扑图
+// GenerateTopology 生成拓扑图.
 func (m *Manager) GenerateTopology(projectID string) (*TopologyData, [][]string, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -360,7 +360,7 @@ func (m *Manager) GenerateTopology(projectID string) (*TopologyData, [][]string,
 	return topology, startOrder, nil
 }
 
-// ListTemplates 列出模板
+// ListTemplates 列出模板.
 func (m *Manager) ListTemplates(query, category string, minRating float64, sortBy string) []*ComposeTemplate {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -393,7 +393,7 @@ func (m *Manager) ListTemplates(query, category string, minRating float64, sortB
 	return templates
 }
 
-// InstantiateTemplate 从模板创建项目
+// InstantiateTemplate 从模板创建项目.
 func (m *Manager) InstantiateTemplate(templateID, projectName, description string, envVars map[string]string) (*ComposeProject, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -460,7 +460,7 @@ func (m *Manager) InstantiateTemplate(templateID, projectName, description strin
 	return project, nil
 }
 
-// Deploy 部署项目（模拟）
+// Deploy 部署项目（模拟）.
 func (m *Manager) Deploy(projectID string) (*DeployResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

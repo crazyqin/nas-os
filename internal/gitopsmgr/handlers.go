@@ -10,13 +10,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handler provides HTTP handlers for GitOps management
+// Handler provides HTTP handlers for GitOps management.
 type Handler struct {
 	manager *Manager
 	logger  *zap.Logger
 }
 
-// NewHandler creates a new GitOps manager HTTP handler
+// NewHandler creates a new GitOps manager HTTP handler.
 func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -27,7 +27,7 @@ func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
 	}
 }
 
-// RegisterRoutes registers GitOps manager API routes
+// RegisterRoutes registers GitOps manager API routes.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	gitopsmgr := rg.Group("/gitopsmgr")
 	{
@@ -55,13 +55,13 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// ListRepos handles GET /api/v1/gitopsmgr/repos
+// ListRepos handles GET /api/v1/gitopsmgr/repos.
 func (h *Handler) ListRepos(c *gin.Context) {
 	repos := h.manager.ListRepos()
 	c.JSON(http.StatusOK, gin.H{"repos": repos})
 }
 
-// ConnectRepo handles POST /api/v1/gitopsmgr/repos
+// ConnectRepo handles POST /api/v1/gitopsmgr/repos.
 func (h *Handler) ConnectRepo(c *gin.Context) {
 	var repo GitRepo
 	if err := c.ShouldBindJSON(&repo); err != nil {
@@ -77,7 +77,7 @@ func (h *Handler) ConnectRepo(c *gin.Context) {
 	c.JSON(http.StatusCreated, repo)
 }
 
-// GetRepo handles GET /api/v1/gitopsmgr/repos/:id
+// GetRepo handles GET /api/v1/gitopsmgr/repos/:id.
 func (h *Handler) GetRepo(c *gin.Context) {
 	id := c.Param("id")
 	repo := h.manager.GetRepo(id)
@@ -88,7 +88,7 @@ func (h *Handler) GetRepo(c *gin.Context) {
 	c.JSON(http.StatusOK, repo)
 }
 
-// DeleteRepo handles DELETE /api/v1/gitopsmgr/repos/:id
+// DeleteRepo handles DELETE /api/v1/gitopsmgr/repos/:id.
 func (h *Handler) DeleteRepo(c *gin.Context) {
 	id := c.Param("id")
 	if !h.manager.DeleteRepo(id) {
@@ -98,7 +98,7 @@ func (h *Handler) DeleteRepo(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "repo disconnected"})
 }
 
-// TriggerSync handles POST /api/v1/gitopsmgr/sync
+// TriggerSync handles POST /api/v1/gitopsmgr/sync.
 func (h *Handler) TriggerSync(c *gin.Context) {
 	var req SyncRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -115,7 +115,7 @@ func (h *Handler) TriggerSync(c *gin.Context) {
 	c.JSON(http.StatusAccepted, deployment)
 }
 
-// GetDrift handles GET /api/v1/gitopsmgr/drift/:repo_id
+// GetDrift handles GET /api/v1/gitopsmgr/drift/:repo_id.
 func (h *Handler) GetDrift(c *gin.Context) {
 	repoID := c.Param("repo_id")
 	drifts, err := h.manager.DetectDrift(c.Request.Context(), repoID)
@@ -127,7 +127,7 @@ func (h *Handler) GetDrift(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"drifts": drifts, "total": len(drifts)})
 }
 
-// DetectDrift handles POST /api/v1/gitopsmgr/drift/:repo_id/detect
+// DetectDrift handles POST /api/v1/gitopsmgr/drift/:repo_id/detect.
 func (h *Handler) DetectDrift(c *gin.Context) {
 	repoID := c.Param("repo_id")
 	drifts, err := h.manager.DetectDrift(c.Request.Context(), repoID)
@@ -144,7 +144,7 @@ func (h *Handler) DetectDrift(c *gin.Context) {
 	})
 }
 
-// ResolveDrift handles POST /api/v1/gitopsmgr/drift/:repo_id/:drift_id/resolve
+// ResolveDrift handles POST /api/v1/gitopsmgr/drift/:repo_id/:drift_id/resolve.
 func (h *Handler) ResolveDrift(c *gin.Context) {
 	repoID := c.Param("repo_id")
 	driftID := c.Param("drift_id")
@@ -157,13 +157,13 @@ func (h *Handler) ResolveDrift(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "drift resolved"})
 }
 
-// ListDeployments handles GET /api/v1/gitopsmgr/deployments
+// ListDeployments handles GET /api/v1/gitopsmgr/deployments.
 func (h *Handler) ListDeployments(c *gin.Context) {
 	deployments := h.manager.ListDeployments()
 	c.JSON(http.StatusOK, gin.H{"deployments": deployments})
 }
 
-// GetDeployment handles GET /api/v1/gitopsmgr/deployments/:id
+// GetDeployment handles GET /api/v1/gitopsmgr/deployments/:id.
 func (h *Handler) GetDeployment(c *gin.Context) {
 	id := c.Param("id")
 	deployment := h.manager.GetDeployment(id)
@@ -174,7 +174,7 @@ func (h *Handler) GetDeployment(c *gin.Context) {
 	c.JSON(http.StatusOK, deployment)
 }
 
-// Rollback handles POST /api/v1/gitopsmgr/rollback
+// Rollback handles POST /api/v1/gitopsmgr/rollback.
 func (h *Handler) Rollback(c *gin.Context) {
 	var req RollbackRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -191,7 +191,7 @@ func (h *Handler) Rollback(c *gin.Context) {
 	c.JSON(http.StatusOK, deployment)
 }
 
-// GetHistory handles GET /api/v1/gitopsmgr/history/:repo_id
+// GetHistory handles GET /api/v1/gitopsmgr/history/:repo_id.
 func (h *Handler) GetHistory(c *gin.Context) {
 	repoID := c.Param("repo_id")
 	limitStr := c.DefaultQuery("limit", "50")

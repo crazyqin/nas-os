@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// RestoreMode 恢复模式
+// RestoreMode 恢复模式.
 type RestoreMode string
 
 const (
@@ -25,7 +25,7 @@ const (
 	RestoreModeDirectory  RestoreMode = "directory"   // 目录恢复
 )
 
-// RestoreStatus 恢复任务状态
+// RestoreStatus 恢复任务状态.
 type RestoreStatus string
 
 const (
@@ -36,7 +36,7 @@ const (
 	RestoreStatusCancelled RestoreStatus = "cancelled"
 )
 
-// RestoreTask 恢复任务
+// RestoreTask 恢复任务.
 type RestoreTask struct {
 	ID            string             `json:"id"`
 	JobID         string             `json:"job_id"`      // 源备份任务 ID
@@ -56,7 +56,7 @@ type RestoreTask struct {
 	CompletedAt   *time.Time         `json:"completed_at,omitempty"`
 }
 
-// RestoreExecOptions 恢复执行选项
+// RestoreExecOptions 恢复执行选项.
 type RestoreExecOptions struct {
 	OverwriteExisting  bool `json:"overwrite_existing"`   // 覆盖已存在的文件
 	RestoreACL         bool `json:"restore_acl"`          // 恢复 ACL 权限
@@ -65,7 +65,7 @@ type RestoreExecOptions struct {
 	DryRun             bool `json:"dry_run"`              // 试运行（不实际写入）
 }
 
-// RestoreManager 恢复管理器
+// RestoreManager 恢复管理器.
 type RestoreManager struct {
 	mu      sync.RWMutex
 	manager *BackupManager
@@ -73,7 +73,7 @@ type RestoreManager struct {
 	logger  *zap.Logger
 }
 
-// NewRestoreManager 创建恢复管理器
+// NewRestoreManager 创建恢复管理器.
 func NewRestoreManager(manager *BackupManager, logger *zap.Logger) *RestoreManager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -85,7 +85,7 @@ func NewRestoreManager(manager *BackupManager, logger *zap.Logger) *RestoreManag
 	}
 }
 
-// CreateSingleFileRestore 创建单文件恢复任务
+// CreateSingleFileRestore 创建单文件恢复任务.
 func (rm *RestoreManager) CreateSingleFileRestore(ctx context.Context, jobID, snapshotID string, files []string, targetPath string, opts RestoreExecOptions) (*RestoreTask, error) {
 	// 验证快照存在
 	if _, err := rm.manager.GetSnapshot(snapshotID); err != nil {
@@ -116,7 +116,7 @@ func (rm *RestoreManager) CreateSingleFileRestore(ctx context.Context, jobID, sn
 	return task, nil
 }
 
-// CreateFullRestore 创建整机恢复任务
+// CreateFullRestore 创建整机恢复任务.
 func (rm *RestoreManager) CreateFullRestore(ctx context.Context, jobID, snapshotID string, targetPath string, opts RestoreExecOptions) (*RestoreTask, error) {
 	snap, err := rm.manager.GetSnapshot(snapshotID)
 	if err != nil {
@@ -147,7 +147,7 @@ func (rm *RestoreManager) CreateFullRestore(ctx context.Context, jobID, snapshot
 	return task, nil
 }
 
-// ExecuteRestore 执行恢复任务
+// ExecuteRestore 执行恢复任务.
 func (rm *RestoreManager) ExecuteRestore(ctx context.Context, taskID string) error {
 	rm.mu.Lock()
 	task, exists := rm.tasks[taskID]
@@ -198,7 +198,7 @@ func (rm *RestoreManager) ExecuteRestore(ctx context.Context, taskID string) err
 	return err
 }
 
-// GetRestoreTask 获取恢复任务
+// GetRestoreTask 获取恢复任务.
 func (rm *RestoreManager) GetRestoreTask(taskID string) (*RestoreTask, error) {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -210,7 +210,7 @@ func (rm *RestoreManager) GetRestoreTask(taskID string) (*RestoreTask, error) {
 	return task, nil
 }
 
-// ListRestoreTasks 列出恢复任务
+// ListRestoreTasks 列出恢复任务.
 func (rm *RestoreManager) ListRestoreTasks(jobID string) []*RestoreTask {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -224,7 +224,7 @@ func (rm *RestoreManager) ListRestoreTasks(jobID string) []*RestoreTask {
 	return result
 }
 
-// CancelRestore 取消恢复任务
+// CancelRestore 取消恢复任务.
 func (rm *RestoreManager) CancelRestore(taskID string) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
@@ -241,7 +241,7 @@ func (rm *RestoreManager) CancelRestore(taskID string) error {
 	return nil
 }
 
-// ListRestorePoints 列出可用的恢复点（快照）
+// ListRestorePoints 列出可用的恢复点（快照）.
 func (rm *RestoreManager) ListRestorePoints(jobID string) []RestorePoint {
 	snapshots := rm.manager.ListSnapshots(jobID)
 	points := make([]RestorePoint, 0, len(snapshots))
@@ -261,7 +261,7 @@ func (rm *RestoreManager) ListRestorePoints(jobID string) []RestorePoint {
 	return points
 }
 
-// RestorePoint 恢复点
+// RestorePoint 恢复点.
 type RestorePoint struct {
 	SnapshotID string     `json:"snapshot_id"`
 	JobID      string     `json:"job_id"`
@@ -271,7 +271,7 @@ type RestorePoint struct {
 	CreatedAt  time.Time  `json:"created_at"`
 }
 
-// executeSingleFileRestore 执行单文件恢复
+// executeSingleFileRestore 执行单文件恢复.
 func (rm *RestoreManager) executeSingleFileRestore(ctx context.Context, task *RestoreTask) error {
 	rm.logger.Info("开始单文件恢复",
 		zap.String("task_id", task.ID),
@@ -310,7 +310,7 @@ func (rm *RestoreManager) executeSingleFileRestore(ctx context.Context, task *Re
 	return nil
 }
 
-// executeFullRestore 执行整机恢复
+// executeFullRestore 执行整机恢复.
 func (rm *RestoreManager) executeFullRestore(ctx context.Context, task *RestoreTask) error {
 	rm.logger.Info("开始整机恢复",
 		zap.String("task_id", task.ID),
@@ -330,7 +330,7 @@ func (rm *RestoreManager) executeFullRestore(ctx context.Context, task *RestoreT
 	return nil
 }
 
-// executeDirectoryRestore 执行目录恢复
+// executeDirectoryRestore 执行目录恢复.
 func (rm *RestoreManager) executeDirectoryRestore(ctx context.Context, task *RestoreTask) error {
 	rm.logger.Info("开始目录恢复",
 		zap.String("task_id", task.ID))
@@ -354,7 +354,7 @@ func (rm *RestoreManager) executeDirectoryRestore(ctx context.Context, task *Res
 	return nil
 }
 
-// restoreFile 恢复单个文件
+// restoreFile 恢复单个文件.
 func (rm *RestoreManager) restoreFile(ctx context.Context, chain []*BackupSnapshot, fileName, targetDir string, opts RestoreExecOptions) error {
 	targetPath := filepath.Join(targetDir, fileName)
 
@@ -399,7 +399,7 @@ func (rm *RestoreManager) restoreFile(ctx context.Context, chain []*BackupSnapsh
 	return fmt.Errorf("文件 %s 在恢复链中未找到", fileName)
 }
 
-// restoreSnapshotToDir 恢复快照内容到目录
+// restoreSnapshotToDir 恢复快照内容到目录.
 func (rm *RestoreManager) restoreSnapshotToDir(ctx context.Context, snap *BackupSnapshot, targetDir string, opts RestoreExecOptions) error {
 	entries, err := os.ReadDir(snap.Path)
 	if err != nil {
@@ -438,7 +438,7 @@ func (rm *RestoreManager) restoreSnapshotToDir(ctx context.Context, snap *Backup
 }
 
 // GetSnapshot 获取快照（代理 BackupManager 方法）
-// 这是 BackupManager 上的方法，此处为引用
+// 这是 BackupManager 上的方法，此处为引用.
 func (bm *BackupManager) GetSnapshot(snapshotID string) (*BackupSnapshot, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -450,7 +450,7 @@ func (bm *BackupManager) GetSnapshot(snapshotID string) (*BackupSnapshot, error)
 	return snap, nil
 }
 
-// copyFile 复制文件
+// copyFile 复制文件.
 func copyFile(src, dst string) error {
 	sourceFile, err := os.Open(src)
 	if err != nil {
@@ -482,7 +482,7 @@ func copyFile(src, dst string) error {
 	return nil
 }
 
-// SaveTasks 保存恢复任务到磁盘
+// SaveTasks 保存恢复任务到磁盘.
 func (rm *RestoreManager) SaveTasks(path string) error {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
@@ -494,7 +494,7 @@ func (rm *RestoreManager) SaveTasks(path string) error {
 	return os.WriteFile(path, data, 0644)
 }
 
-// LoadTasks 从磁盘加载恢复任务
+// LoadTasks 从磁盘加载恢复任务.
 func (rm *RestoreManager) LoadTasks(path string) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()

@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// BudgetManager 预算管理器
+// BudgetManager 预算管理器.
 type BudgetManager struct {
 	mu      sync.RWMutex
 	logger  *zap.Logger
@@ -19,7 +19,7 @@ type BudgetManager struct {
 	budgets map[string]*Budget
 }
 
-// NewBudgetManager 创建预算管理器
+// NewBudgetManager 创建预算管理器.
 func NewBudgetManager(logger *zap.Logger, engine *FinanceEngine) *BudgetManager {
 	return &BudgetManager{
 		logger:  logger,
@@ -28,7 +28,7 @@ func NewBudgetManager(logger *zap.Logger, engine *FinanceEngine) *BudgetManager 
 	}
 }
 
-// CreateBudget 创建预算
+// CreateBudget 创建预算.
 func (bm *BudgetManager) CreateBudget(input *Budget) error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -59,7 +59,7 @@ func (bm *BudgetManager) CreateBudget(input *Budget) error {
 	return nil
 }
 
-// UpdateBudget 更新预算
+// UpdateBudget 更新预算.
 func (bm *BudgetManager) UpdateBudget(budget *Budget) error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -77,7 +77,7 @@ func (bm *BudgetManager) UpdateBudget(budget *Budget) error {
 	return nil
 }
 
-// DeleteBudget 删除预算
+// DeleteBudget 删除预算.
 func (bm *BudgetManager) DeleteBudget(budgetID string) error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -91,7 +91,7 @@ func (bm *BudgetManager) DeleteBudget(budgetID string) error {
 	return nil
 }
 
-// GetBudget 获取预算
+// GetBudget 获取预算.
 func (bm *BudgetManager) GetBudget(budgetID string) (*Budget, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -103,7 +103,7 @@ func (bm *BudgetManager) GetBudget(budgetID string) (*Budget, error) {
 	return budget, nil
 }
 
-// ListBudgets 列出所有预算
+// ListBudgets 列出所有预算.
 func (bm *BudgetManager) ListBudgets() []*Budget {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -115,7 +115,7 @@ func (bm *BudgetManager) ListBudgets() []*Budget {
 	return budgets
 }
 
-// RecordExpense 记录支出到预算
+// RecordExpense 记录支出到预算.
 func (bm *BudgetManager) RecordExpense(categoryID string, amount float64) (bool, error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -146,7 +146,7 @@ func (bm *BudgetManager) RecordExpense(categoryID string, amount float64) (bool,
 	return alertTriggered, nil
 }
 
-// recalculate 重新计算预算状态
+// recalculate 重新计算预算状态.
 func (bm *BudgetManager) recalculate(budget *Budget) {
 	budget.Remaining = budget.Amount - budget.Spent
 	if budget.Amount > 0 {
@@ -157,7 +157,7 @@ func (bm *BudgetManager) recalculate(budget *Budget) {
 	}
 }
 
-// GetBudgetStatus 获取预算状态汇总
+// GetBudgetStatus 获取预算状态汇总.
 func (bm *BudgetManager) GetBudgetStatus() map[string]interface{} {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
@@ -187,7 +187,7 @@ func (bm *BudgetManager) GetBudgetStatus() map[string]interface{} {
 	}
 }
 
-// ResetBudgets 重置周期性预算
+// ResetBudgets 重置周期性预算.
 func (bm *BudgetManager) ResetBudgets() {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
@@ -219,7 +219,7 @@ func (bm *BudgetManager) ResetBudgets() {
 	}
 }
 
-// GetCategoryBudgets 获取分类预算详情
+// GetCategoryBudgets 获取分类预算详情.
 func (bm *BudgetManager) GetCategoryBudgets() []map[string]interface{} {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()

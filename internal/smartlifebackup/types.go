@@ -10,7 +10,7 @@ import (
 // 备份策略类型
 // ============================================================================
 
-// BackupPolicy 备份策略配置
+// BackupPolicy 备份策略配置.
 type BackupPolicy struct {
 	ID              string          `json:"id"`
 	Name            string          `json:"name"`
@@ -25,7 +25,7 @@ type BackupPolicy struct {
 	UpdatedAt       time.Time       `json:"updated_at"`
 }
 
-// RetentionRule 备份保留规则
+// RetentionRule 备份保留规则.
 type RetentionRule struct {
 	Name        string       `json:"name"`
 	Priority    int          `json:"priority"`
@@ -37,45 +37,45 @@ type RetentionRule struct {
 	Encrypt     bool         `json:"encrypt"`      // 是否加密
 }
 
-// TimeInterval 时间间隔类型
+// TimeInterval 时间间隔类型.
 type TimeInterval string
 
 const (
-	// TimeIntervalDaily 每日间隔
+	// TimeIntervalDaily 每日间隔.
 	TimeIntervalDaily TimeInterval = "daily"
-	// TimeIntervalWeekly 每周间隔
+	// TimeIntervalWeekly 每周间隔.
 	TimeIntervalWeekly TimeInterval = "weekly"
-	// TimeIntervalMonthly 每月间隔
+	// TimeIntervalMonthly 每月间隔.
 	TimeIntervalMonthly TimeInterval = "monthly"
-	// TimeIntervalYearly 每年间隔
+	// TimeIntervalYearly 每年间隔.
 	TimeIntervalYearly TimeInterval = "yearly"
 )
 
-// StorageTier 存储层级
+// StorageTier 存储层级.
 type StorageTier string
 
 const (
-	// StorageTierHot 热存储 - 快速访问，成本较高
+	// StorageTierHot 热存储 - 快速访问，成本较高.
 	StorageTierHot StorageTier = "hot"
-	// StorageTierWarm 温存储 - 中等访问速度，成本适中
+	// StorageTierWarm 温存储 - 中等访问速度，成本适中.
 	StorageTierWarm StorageTier = "warm"
-	// StorageTierCold 冷存储 - 慢速访问，成本最低
+	// StorageTierCold 冷存储 - 慢速访问，成本最低.
 	StorageTierCold StorageTier = "cold"
-	// StorageTierArchive 归档存储 - 最低成本，需要时可检索
+	// StorageTierArchive 归档存储 - 最低成本，需要时可检索.
 	StorageTierArchive StorageTier = "archive"
 )
 
-// CompressionType 压缩类型
+// CompressionType 压缩类型.
 type CompressionType string
 
 const (
-	// CompressionNone 不压缩
+	// CompressionNone 不压缩.
 	CompressionNone CompressionType = "none"
-	// CompressionGzip Gzip压缩
+	// CompressionGzip Gzip压缩.
 	CompressionGzip CompressionType = "gzip"
-	// CompressionZstd Zstandard压缩 (高效)
+	// CompressionZstd Zstandard压缩 (高效).
 	CompressionZstd CompressionType = "zstd"
-	// CompressionLz4 LZ4压缩 (快速)
+	// CompressionLz4 LZ4压缩 (快速).
 	CompressionLz4 CompressionType = "lz4"
 )
 
@@ -83,7 +83,7 @@ const (
 // 备份任务相关类型
 // ============================================================================
 
-// BackupItem 备份项
+// BackupItem 备份项.
 type BackupItem struct {
 	ID           string      `json:"id"`
 	Name         string      `json:"name"`
@@ -102,7 +102,7 @@ type BackupItem struct {
 	Deduplicated bool        `json:"deduplicated"`
 }
 
-// LifecycleTask 生命周期任务
+// LifecycleTask 生命周期任务.
 type LifecycleTask struct {
 	ID         string                 `json:"id"`
 	Type       TaskType               `json:"type"`
@@ -117,37 +117,37 @@ type LifecycleTask struct {
 	Metadata   map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// TaskType 任务类型
+// TaskType 任务类型.
 type TaskType string
 
 const (
-	// TaskTypeRetention 保留策略执行
+	// TaskTypeRetention 保留策略执行.
 	TaskTypeRetention TaskType = "retention"
-	// TaskTypeTierMigration 存储层级迁移
+	// TaskTypeTierMigration 存储层级迁移.
 	TaskTypeTierMigration TaskType = "tier_migration"
-	// TaskTypeCompression 压缩任务
+	// TaskTypeCompression 压缩任务.
 	TaskTypeCompression TaskType = "compression"
-	// TaskTypeDeduplication 去重任务
+	// TaskTypeDeduplication 去重任务.
 	TaskTypeDeduplication TaskType = "deduplication"
-	// TaskTypeArchive 归档任务
+	// TaskTypeArchive 归档任务.
 	TaskTypeArchive TaskType = "archive"
-	// TaskTypeCleanup 清理任务
+	// TaskTypeCleanup 清理任务.
 	TaskTypeCleanup TaskType = "cleanup"
 )
 
-// TaskStatus 任务状态
+// TaskStatus 任务状态.
 type TaskStatus string
 
 const (
-	// TaskStatusPending 待执行
+	// TaskStatusPending 待执行.
 	TaskStatusPending TaskStatus = "pending"
-	// TaskStatusRunning 执行中
+	// TaskStatusRunning 执行中.
 	TaskStatusRunning TaskStatus = "running"
-	// TaskStatusCompleted 已完成
+	// TaskStatusCompleted 已完成.
 	TaskStatusCompleted TaskStatus = "completed"
-	// TaskStatusFailed 失败
+	// TaskStatusFailed 失败.
 	TaskStatusFailed TaskStatus = "failed"
-	// TaskStatusCancelled 已取消
+	// TaskStatusCancelled 已取消.
 	TaskStatusCancelled TaskStatus = "cancelled"
 )
 
@@ -155,7 +155,7 @@ const (
 // 存储成本相关类型
 // ============================================================================
 
-// StorageCost 存储成本配置
+// StorageCost 存储成本配置.
 type StorageCost struct {
 	// 各层级每GB每月成本
 	HotCostPerGB     float64 `json:"hot_cost_per_gb"`
@@ -170,7 +170,7 @@ type StorageCost struct {
 	RequestCostPer1000 float64 `json:"request_cost_per_1000"`
 }
 
-// CostReport 成本报告
+// CostReport 成本报告.
 type CostReport struct {
 	GeneratedAt time.Time `json:"generated_at"`
 	Period      string    `json:"period"`
@@ -186,7 +186,7 @@ type CostReport struct {
 	Suggestions []CostSuggestion `json:"suggestions,omitempty"`
 }
 
-// TierCost 各层级成本
+// TierCost 各层级成本.
 type TierCost struct {
 	Tier        StorageTier `json:"tier"`
 	StorageGB   float64     `json:"storage_gb"`
@@ -194,7 +194,7 @@ type TierCost struct {
 	BackupCount int         `json:"backup_count"`
 }
 
-// CostSuggestion 成本优化建议
+// CostSuggestion 成本优化建议.
 type CostSuggestion struct {
 	Type        string  `json:"type"`
 	Description string  `json:"description"`
@@ -206,7 +206,7 @@ type CostSuggestion struct {
 // 调度相关类型
 // ============================================================================
 
-// ScheduleConfig 调度配置
+// ScheduleConfig 调度配置.
 type ScheduleConfig struct {
 	// 避开的高峰时段
 	PeakHours []PeakHour `json:"peak_hours"`
@@ -221,14 +221,14 @@ type ScheduleConfig struct {
 	DefaultPriority int `json:"default_priority"`
 }
 
-// PeakHour 高峰时段
+// PeakHour 高峰时段.
 type PeakHour struct {
 	StartHour int   `json:"start_hour"` // 0-23
 	EndHour   int   `json:"end_hour"`   // 0-23
 	Days      []int `json:"days"`       // 0=周日, 1=周一, ..., 6=周六
 }
 
-// TimeWindow 时间窗口
+// TimeWindow 时间窗口.
 type TimeWindow struct {
 	StartHour int `json:"start_hour"`
 	EndHour   int `json:"end_hour"`
@@ -239,7 +239,7 @@ type TimeWindow struct {
 // 统计和监控类型
 // ============================================================================
 
-// LifecycleStats 生命周期统计
+// LifecycleStats 生命周期统计.
 type LifecycleStats struct {
 	TotalBackups       int64                 `json:"total_backups"`
 	ActiveBackups      int64                 `json:"active_backups"`
@@ -256,7 +256,7 @@ type LifecycleStats struct {
 // API请求/响应类型
 // ============================================================================
 
-// LifecycleRequest 生命周期API请求
+// LifecycleRequest 生命周期API请求.
 type LifecycleRequest struct {
 	Action    string          `json:"action"` // create, update, execute, dry_run
 	Policy    *BackupPolicy   `json:"policy,omitempty"`
@@ -264,7 +264,7 @@ type LifecycleRequest struct {
 	Options   *ExecuteOptions `json:"options,omitempty"`
 }
 
-// LifecycleResponse 生命周期API响应
+// LifecycleResponse 生命周期API响应.
 type LifecycleResponse struct {
 	Success bool        `json:"success"`
 	Message string      `json:"message,omitempty"`
@@ -272,7 +272,7 @@ type LifecycleResponse struct {
 	TaskID  string      `json:"task_id,omitempty"`
 }
 
-// ExecuteOptions 执行选项
+// ExecuteOptions 执行选项.
 type ExecuteOptions struct {
 	DryRun    bool          `json:"dry_run"`
 	ForceTier *StorageTier  `json:"force_tier,omitempty"`
@@ -284,7 +284,7 @@ type ExecuteOptions struct {
 // 辅助方法
 // ============================================================================
 
-// DefaultBackupPolicy 返回默认备份策略
+// DefaultBackupPolicy 返回默认备份策略.
 func DefaultBackupPolicy() *BackupPolicy {
 	now := time.Now()
 	return &BackupPolicy{
@@ -343,7 +343,7 @@ func DefaultBackupPolicy() *BackupPolicy {
 	}
 }
 
-// DefaultStorageCost 返回默认存储成本配置
+// DefaultStorageCost 返回默认存储成本配置.
 func DefaultStorageCost() *StorageCost {
 	return &StorageCost{
 		HotCostPerGB:       0.023,   // $0.023/GB/月
@@ -355,7 +355,7 @@ func DefaultStorageCost() *StorageCost {
 	}
 }
 
-// DefaultScheduleConfig 返回默认调度配置
+// DefaultScheduleConfig 返回默认调度配置.
 func DefaultScheduleConfig() *ScheduleConfig {
 	return &ScheduleConfig{
 		PeakHours: []PeakHour{

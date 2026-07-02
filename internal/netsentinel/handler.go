@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-// Handler handles HTTP requests for network sentinel
+// Handler handles HTTP requests for network sentinel.
 type Handler struct {
 	manager *Manager
 }
 
-// NewHandler creates a new network sentinel handler
+// NewHandler creates a new network sentinel handler.
 func NewHandler(manager *Manager) *Handler {
 	return &Handler{manager: manager}
 }
 
-// RegisterRoutes registers the HTTP routes
+// RegisterRoutes registers the HTTP routes.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/netsentinel/alerts", h.handleAlerts)
 	mux.HandleFunc("/api/v1/netsentinel/alert/ack", h.handleAckAlert)

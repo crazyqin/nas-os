@@ -10,14 +10,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// BrandingEngine 品牌化引擎
+// BrandingEngine 品牌化引擎.
 type BrandingEngine struct {
 	mu      sync.RWMutex
 	logger  *zap.Logger
 	configs map[string]*BrandingConfig // ID -> config
 }
 
-// NewBrandingEngine 创建品牌化引擎
+// NewBrandingEngine 创建品牌化引擎.
 func NewBrandingEngine(logger *zap.Logger) *BrandingEngine {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -29,13 +29,13 @@ func NewBrandingEngine(logger *zap.Logger) *BrandingEngine {
 	}
 }
 
-// BrandingRequest 品牌化请求
+// BrandingRequest 品牌化请求.
 type BrandingRequest struct {
 	ShareID string          `json:"share_id"`
 	Config  *BrandingConfig `json:"config"`
 }
 
-// BrandingResponse 品牌化响应
+// BrandingResponse 品牌化响应.
 type BrandingResponse struct {
 	HTML        string    `json:"html"`
 	CSS         string    `json:"css"`
@@ -44,7 +44,7 @@ type BrandingResponse struct {
 	GeneratedAt time.Time `json:"generated_at"`
 }
 
-// CreateBranding 创建品牌配置
+// CreateBranding 创建品牌配置.
 func (be *BrandingEngine) CreateBranding(id string, config *BrandingConfig) *BrandingConfig {
 	be.mu.Lock()
 	defer be.mu.Unlock()
@@ -58,7 +58,7 @@ func (be *BrandingEngine) CreateBranding(id string, config *BrandingConfig) *Bra
 	return config
 }
 
-// GetBranding 获取品牌配置
+// GetBranding 获取品牌配置.
 func (be *BrandingEngine) GetBranding(id string) (*BrandingConfig, error) {
 	be.mu.RLock()
 	defer be.mu.RUnlock()
@@ -71,7 +71,7 @@ func (be *BrandingEngine) GetBranding(id string) (*BrandingConfig, error) {
 	return config, nil
 }
 
-// UpdateBranding 更新品牌配置
+// UpdateBranding 更新品牌配置.
 func (be *BrandingEngine) UpdateBranding(id string, config *BrandingConfig) (*BrandingConfig, error) {
 	be.mu.Lock()
 	defer be.mu.Unlock()
@@ -88,7 +88,7 @@ func (be *BrandingEngine) UpdateBranding(id string, config *BrandingConfig) (*Br
 	return config, nil
 }
 
-// DeleteBranding 删除品牌配置
+// DeleteBranding 删除品牌配置.
 func (be *BrandingEngine) DeleteBranding(id string) error {
 	be.mu.Lock()
 	defer be.mu.Unlock()
@@ -101,7 +101,7 @@ func (be *BrandingEngine) DeleteBranding(id string) error {
 	return nil
 }
 
-// GenerateBrandedPage 生成品牌化分享页面
+// GenerateBrandedPage 生成品牌化分享页面.
 func (be *BrandingEngine) GenerateBrandedPage(req *BrandingRequest) (*BrandingResponse, error) {
 	be.mu.RLock()
 	defer be.mu.RUnlock()
@@ -129,7 +129,7 @@ func (be *BrandingEngine) GenerateBrandedPage(req *BrandingRequest) (*BrandingRe
 	}, nil
 }
 
-// generateCSS 生成 CSS
+// generateCSS 生成 CSS.
 func (be *BrandingEngine) generateCSS(config *BrandingConfig) string {
 	css := `
 /* NAS-OS SmartShare Brand Styles */
@@ -276,21 +276,21 @@ func (be *BrandingEngine) generateCSS(config *BrandingConfig) string {
 	)
 }
 
-// generateHTML 生成 HTML
+// generateHTML 生成 HTML.
 func (be *BrandingEngine) generateHTML(config *BrandingConfig) string {
 	var html strings.Builder
 
 	// Banner
 	if config.BannerImageURL != "" {
-		html.WriteString(fmt.Sprintf(`<img src="%s" alt="Banner" class="smartshare-banner">`, config.BannerImageURL))
+		fmt.Fprintf(&html, `<img src="%s" alt="Banner" class="smartshare-banner">`, config.BannerImageURL)
 	}
 
 	// Header
 	html.WriteString(`<div class="smartshare-header">`)
 	if config.LogoURL != "" {
-		html.WriteString(fmt.Sprintf(`<img src="%s" alt="Logo" class="smartshare-logo">`, config.LogoURL))
+		fmt.Fprintf(&html, `<img src="%s" alt="Logo" class="smartshare-logo">`, config.LogoURL)
 	}
-	html.WriteString(fmt.Sprintf(`<span class="smartshare-company-name">%s</span>`, config.CompanyName))
+	fmt.Fprintf(&html, `<span class="smartshare-company-name">%s</span>`, config.CompanyName)
 	html.WriteString(`</div>`)
 
 	// Body
@@ -314,12 +314,12 @@ func (be *BrandingEngine) generateHTML(config *BrandingConfig) string {
 	html.WriteString(`</div>`)
 
 	// Footer
-	html.WriteString(fmt.Sprintf(`<div class="smartshare-footer">%s</div>`, config.FooterText))
+	fmt.Fprintf(&html, `<div class="smartshare-footer">%s</div>`, config.FooterText)
 
 	return html.String()
 }
 
-// wrapFullPage 包装完整页面
+// wrapFullPage 包装完整页面.
 func (be *BrandingEngine) wrapFullPage(css, html string, config *BrandingConfig) string {
 	page := fmt.Sprintf(`<!DOCTYPE html>
 <html lang="zh-CN">
@@ -357,7 +357,7 @@ func (be *BrandingEngine) wrapFullPage(css, html string, config *BrandingConfig)
 	return page
 }
 
-// generateFaviconLink 生成 favicon 链接
+// generateFaviconLink 生成 favicon 链接.
 func (be *BrandingEngine) generateFaviconLink(faviconURL string) string {
 	if faviconURL == "" {
 		return ""
@@ -365,7 +365,7 @@ func (be *BrandingEngine) generateFaviconLink(faviconURL string) string {
 	return fmt.Sprintf(`<link rel="icon" href="%s">`, faviconURL)
 }
 
-// generateCustomCSS 生成自定义 CSS
+// generateCustomCSS 生成自定义 CSS.
 func (be *BrandingEngine) generateCustomCSS(customCSS string) string {
 	if customCSS == "" {
 		return ""
@@ -373,7 +373,7 @@ func (be *BrandingEngine) generateCustomCSS(customCSS string) string {
 	return fmt.Sprintf(`<style>%s</style>`, customCSS)
 }
 
-// GetDefaultBranding 获取默认品牌配置
+// GetDefaultBranding 获取默认品牌配置.
 func (be *BrandingEngine) GetDefaultBranding() *BrandingConfig {
 	return DefaultBrandingConfig()
 }

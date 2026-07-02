@@ -7,14 +7,14 @@ import (
 	"sync"
 )
 
-// TemplateManager 模板管理器
+// TemplateManager 模板管理器.
 type TemplateManager struct {
 	mu         sync.RWMutex
 	templates  map[string]*AppTemplate
 	categories map[string]*MarketCategory
 }
 
-// NewTemplateManager 创建模板管理器
+// NewTemplateManager 创建模板管理器.
 func NewTemplateManager() *TemplateManager {
 	tm := &TemplateManager{
 		templates:  make(map[string]*AppTemplate),
@@ -30,7 +30,7 @@ func NewTemplateManager() *TemplateManager {
 	return tm
 }
 
-// registerDefaultCategories 注册默认分类
+// registerDefaultCategories 注册默认分类.
 func (tm *TemplateManager) registerDefaultCategories() {
 	categories := []*MarketCategory{
 		{ID: "web", Name: "Web 服务", Description: "Web 应用和服务", Icon: "web", AppCount: 0},
@@ -48,7 +48,7 @@ func (tm *TemplateManager) registerDefaultCategories() {
 	}
 }
 
-// registerBuiltinTemplates 注册内置模板
+// registerBuiltinTemplates 注册内置模板.
 func (tm *TemplateManager) registerBuiltinTemplates() {
 	templates := []*AppTemplate{
 		// Web 服务
@@ -279,7 +279,7 @@ func (tm *TemplateManager) registerBuiltinTemplates() {
 	}
 }
 
-// GetTemplate 获取模板
+// GetTemplate 获取模板.
 func (tm *TemplateManager) GetTemplate(id string) (*AppTemplate, error) {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -291,7 +291,7 @@ func (tm *TemplateManager) GetTemplate(id string) (*AppTemplate, error) {
 	return tmpl, nil
 }
 
-// ListTemplates 列出所有模板
+// ListTemplates 列出所有模板.
 func (tm *TemplateManager) ListTemplates(opts *TemplateListOptions) []*AppTemplate {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -343,7 +343,7 @@ func (tm *TemplateManager) ListTemplates(opts *TemplateListOptions) []*AppTempla
 	return templates
 }
 
-// TemplateListOptions 模板列表选项
+// TemplateListOptions 模板列表选项.
 type TemplateListOptions struct {
 	Category string `json:"category,omitempty"`
 	Type     string `json:"type,omitempty"`
@@ -356,7 +356,7 @@ type TemplateListOptions struct {
 	Offset   int    `json:"offset,omitempty"`
 }
 
-// sortTemplates 排序模板
+// sortTemplates 排序模板.
 func sortTemplates(templates []*AppTemplate, sortBy string, desc bool) {
 	sort.Slice(templates, func(i, j int) bool {
 		switch sortBy {
@@ -381,7 +381,7 @@ func sortTemplates(templates []*AppTemplate, sortBy string, desc bool) {
 	})
 }
 
-// contains 检查字符串是否包含子串
+// contains 检查字符串是否包含子串.
 func contains(s, substr string) bool {
 	return len(substr) > 0 && len(s) >= len(substr) && (s == substr || len(s) > 0 && containsIgnoreCase(s, substr))
 }
@@ -410,7 +410,7 @@ func toLower(b byte) byte {
 	return b
 }
 
-// ListCategories 列出所有分类
+// ListCategories 列出所有分类.
 func (tm *TemplateManager) ListCategories() []*MarketCategory {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
@@ -427,7 +427,7 @@ func (tm *TemplateManager) ListCategories() []*MarketCategory {
 	return categories
 }
 
-// RegisterTemplate 注册自定义模板
+// RegisterTemplate 注册自定义模板.
 func (tm *TemplateManager) RegisterTemplate(tmpl *AppTemplate) error {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -451,7 +451,7 @@ func (tm *TemplateManager) RegisterTemplate(tmpl *AppTemplate) error {
 	return nil
 }
 
-// UnregisterTemplate 注销模板
+// UnregisterTemplate 注销模板.
 func (tm *TemplateManager) UnregisterTemplate(id string) error {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
@@ -471,14 +471,14 @@ func (tm *TemplateManager) UnregisterTemplate(id string) error {
 	return nil
 }
 
-// GetTemplateCount 获取模板数量
+// GetTemplateCount 获取模板数量.
 func (tm *TemplateManager) GetTemplateCount() int {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
 	return len(tm.templates)
 }
 
-// SearchTemplates 搜索模板
+// SearchTemplates 搜索模板.
 func (tm *TemplateManager) SearchTemplates(query string) []*AppTemplate {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()

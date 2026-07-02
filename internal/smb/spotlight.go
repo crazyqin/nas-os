@@ -32,7 +32,7 @@ import (
 // ================== RPC 接口定义 ==================
 
 // SpotlightServiceRPC Spotlight RPC 服务接口
-// 定义所有 Spotlight 相关的 RPC 方法
+// 定义所有 Spotlight 相关的 RPC 方法.
 type SpotlightServiceRPC interface {
 	// Search 执行 Spotlight 搜索
 	// 参数：
@@ -81,7 +81,7 @@ type SpotlightServiceRPC interface {
 
 // ================== RPC 请求/响应类型 ==================
 
-// SpotlightSearchRequest Spotlight 搜索请求
+// SpotlightSearchRequest Spotlight 搜索请求.
 type SpotlightSearchRequest struct {
 	// Query Spotlight 查询语法
 	// 支持格式：
@@ -146,7 +146,7 @@ type SpotlightSearchRequest struct {
 	Extensions []string `json:"extensions"`
 }
 
-// SpotlightSearchResponse Spotlight 搜索响应
+// SpotlightSearchResponse Spotlight 搜索响应.
 type SpotlightSearchResponse struct {
 	// Query 原始查询
 	Query string `json:"query"`
@@ -174,7 +174,7 @@ type SpotlightSearchResponse struct {
 }
 
 // SpotlightFileResult Spotlight 文件搜索结果
-// 对应 macOS Spotlight 的 kMDItem 属性
+// 对应 macOS Spotlight 的 kMDItem 属性.
 type SpotlightFileResult struct {
 	// Path 文件完整路径
 	Path string `json:"path"`
@@ -234,7 +234,7 @@ type SpotlightFileResult struct {
 	Title string `json:"title,omitempty"`
 }
 
-// SpotlightIndexStatus Spotlight 索引状态
+// SpotlightIndexStatus Spotlight 索引状态.
 type SpotlightIndexStatus struct {
 	// Enabled Spotlight 是否启用
 	Enabled bool `json:"enabled"`
@@ -271,7 +271,7 @@ type SpotlightIndexStatus struct {
 	Error string `json:"error,omitempty"`
 }
 
-// ShareSpotlightConfig 共享 Spotlight 配置
+// ShareSpotlightConfig 共享 Spotlight 配置.
 type ShareSpotlightConfig struct {
 	// ShareName SMB 共享名称
 	ShareName string `json:"shareName"`
@@ -301,7 +301,7 @@ type ShareSpotlightConfig struct {
 	CacheSize int `json:"cacheSize"`
 }
 
-// SpotlightShareInfo Spotlight 共享信息
+// SpotlightShareInfo Spotlight 共享信息.
 type SpotlightShareInfo struct {
 	// ShareName SMB 共享名称
 	ShareName string `json:"shareName"`
@@ -328,14 +328,14 @@ type SpotlightShareInfo struct {
 // ================== Spotlight 服务实现骨架 ==================
 
 // SpotlightService Spotlight 服务
-// 实现 SpotlightServiceRPC 接口
+// 实现 SpotlightServiceRPC 接口.
 type SpotlightService struct {
 	rpc         SpotlightServiceRPC
 	integration *SpotlightIntegration
 	manager     *Manager
 }
 
-// NewSpotlightService 创建 Spotlight 服务
+// NewSpotlightService 创建 Spotlight 服务.
 func NewSpotlightService(integration *SpotlightIntegration, manager *Manager) *SpotlightService {
 	return &SpotlightService{
 		integration: integration,
@@ -343,7 +343,7 @@ func NewSpotlightService(integration *SpotlightIntegration, manager *Manager) *S
 	}
 }
 
-// Search 执行 Spotlight 搜索
+// Search 执行 Spotlight 搜索.
 func (s *SpotlightService) Search(ctx context.Context, req *SpotlightSearchRequest) (*SpotlightSearchResponse, error) {
 	// 转换为内部查询格式
 	query := SpotlightQuery{
@@ -394,7 +394,7 @@ func (s *SpotlightService) Search(ctx context.Context, req *SpotlightSearchReque
 	}, nil
 }
 
-// GetIndexStatus 获取索引状态
+// GetIndexStatus 获取索引状态.
 func (s *SpotlightService) GetIndexStatus(ctx context.Context) (*SpotlightIndexStatus, error) {
 	stats := s.integration.GetIndexStatus()
 
@@ -411,7 +411,7 @@ func (s *SpotlightService) GetIndexStatus(ctx context.Context) (*SpotlightIndexS
 	}, nil
 }
 
-// EnableForShare 为共享启用 Spotlight
+// EnableForShare 为共享启用 Spotlight.
 func (s *SpotlightService) EnableForShare(ctx context.Context, shareName string) error {
 	share, err := s.manager.GetShare(shareName)
 	if err != nil {
@@ -421,7 +421,7 @@ func (s *SpotlightService) EnableForShare(ctx context.Context, shareName string)
 	return s.integration.EnableForShare(share.Path)
 }
 
-// DisableForShare 为共享禁用 Spotlight
+// DisableForShare 为共享禁用 Spotlight.
 func (s *SpotlightService) DisableForShare(ctx context.Context, shareName string) error {
 	share, err := s.manager.GetShare(shareName)
 	if err != nil {
@@ -431,12 +431,12 @@ func (s *SpotlightService) DisableForShare(ctx context.Context, shareName string
 	return s.integration.DisableForShare(share.Path)
 }
 
-// RebuildIndex 重建索引
+// RebuildIndex 重建索引.
 func (s *SpotlightService) RebuildIndex(ctx context.Context, path string) error {
 	return s.integration.RebuildIndex(ctx, path)
 }
 
-// GetShareSpotlightConfig 获取共享 Spotlight 配置
+// GetShareSpotlightConfig 获取共享 Spotlight 配置.
 func (s *SpotlightService) GetShareSpotlightConfig(ctx context.Context, shareName string) (*ShareSpotlightConfig, error) {
 	share, err := s.manager.GetShare(shareName)
 	if err != nil {
@@ -459,7 +459,7 @@ func (s *SpotlightService) GetShareSpotlightConfig(ctx context.Context, shareNam
 	}, nil
 }
 
-// UpdateShareSpotlightConfig 更新共享 Spotlight 配置
+// UpdateShareSpotlightConfig 更新共享 Spotlight 配置.
 func (s *SpotlightService) UpdateShareSpotlightConfig(ctx context.Context, shareName string, config *ShareSpotlightConfig) error {
 	if config.Enabled {
 		return s.EnableForShare(ctx, shareName)
@@ -467,7 +467,7 @@ func (s *SpotlightService) UpdateShareSpotlightConfig(ctx context.Context, share
 	return s.DisableForShare(ctx, shareName)
 }
 
-// ListSpotlightShares 列出 Spotlight 共享
+// ListSpotlightShares 列出 Spotlight 共享.
 func (s *SpotlightService) ListSpotlightShares(ctx context.Context) ([]*SpotlightShareInfo, error) {
 	shares, err := s.manager.ListShares()
 	if err != nil {
@@ -500,13 +500,13 @@ func (s *SpotlightService) ListSpotlightShares(ctx context.Context) ([]*Spotligh
 	return result, nil
 }
 
-// ClearIndex 清除索引
+// ClearIndex 清除索引.
 func (s *SpotlightService) ClearIndex(ctx context.Context, path string) error {
 	s.integration.indexer.ClearIndex(path)
 	return nil
 }
 
-// PauseIndexing 暂停索引
+// PauseIndexing 暂停索引.
 func (s *SpotlightService) PauseIndexing(ctx context.Context) error {
 	s.integration.mu.Lock()
 	s.integration.indexer.mu.Lock()
@@ -516,7 +516,7 @@ func (s *SpotlightService) PauseIndexing(ctx context.Context) error {
 	return nil
 }
 
-// ResumeIndexing 恢复索引
+// ResumeIndexing 恢复索引.
 func (s *SpotlightService) ResumeIndexing(ctx context.Context) error {
 	s.integration.mu.Lock()
 	s.integration.indexer.mu.Lock()
@@ -528,7 +528,7 @@ func (s *SpotlightService) ResumeIndexing(ctx context.Context) error {
 
 // ================== 辅助函数 ==================
 
-// filepathExt 获取文件扩展名
+// filepathExt 获取文件扩展名.
 func filepathExt(path string) string {
 	if path == "" {
 		return ""

@@ -10,13 +10,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// Handler 智能定价分析 HTTP 处理器
+// Handler 智能定价分析 HTTP 处理器.
 type Handler struct {
 	manager *Manager
 	logger  *zap.Logger
 }
 
-// NewHandler 创建新的 HTTP 处理器
+// NewHandler 创建新的 HTTP 处理器.
 func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -27,7 +27,7 @@ func NewHandler(manager *Manager, logger *zap.Logger) *Handler {
 	}
 }
 
-// RegisterRoutes 注册 API 路由
+// RegisterRoutes 注册 API 路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	smartpricing := rg.Group("/smartpricing")
 	{
@@ -39,7 +39,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 }
 
 // GetPlans 获取存储方案列表
-// GET /api/smartpricing/plans
+// GET /api/smartpricing/plans.
 func (h *Handler) GetPlans(c *gin.Context) {
 	h.logger.Info("Getting storage plans")
 
@@ -56,7 +56,7 @@ func (h *Handler) GetPlans(c *gin.Context) {
 }
 
 // CompareCost 成本对比
-// POST /api/smartpricing/compare
+// POST /api/smartpricing/compare.
 func (h *Handler) CompareCost(c *gin.Context) {
 	h.logger.Info("Comparing storage costs")
 
@@ -87,7 +87,7 @@ func (h *Handler) CompareCost(c *gin.Context) {
 }
 
 // GetRecommendations 获取优化建议
-// GET /api/smartpricing/recommendations
+// GET /api/smartpricing/recommendations.
 func (h *Handler) GetRecommendations(c *gin.Context) {
 	h.logger.Info("Getting optimization recommendations")
 
@@ -125,7 +125,7 @@ func (h *Handler) GetRecommendations(c *gin.Context) {
 }
 
 // GetCostTrends 获取成本趋势
-// GET /api/smartpricing/trends
+// GET /api/smartpricing/trends.
 func (h *Handler) GetCostTrends(c *gin.Context) {
 	h.logger.Info("Getting cost trends")
 

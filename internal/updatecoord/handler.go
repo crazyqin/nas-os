@@ -23,11 +23,11 @@ func NewHandler(service *Service) *Handler {
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	g := rg.Group("/updatecoord")
 	{
-		g.GET("/check", h.check)             // 检查可用更新
-		g.POST("/precheck", h.precheck)      // 更新前预检
-		g.POST("/apply", h.apply)            // 应用更新
-		g.GET("/history", h.history)         // 更新历史
-		g.POST("/rollback", h.rollback)      // 回滚更新
+		g.GET("/check", h.check)        // 检查可用更新
+		g.POST("/precheck", h.precheck) // 更新前预检
+		g.POST("/apply", h.apply)       // 应用更新
+		g.GET("/history", h.history)    // 更新历史
+		g.POST("/rollback", h.rollback) // 回滚更新
 	}
 }
 

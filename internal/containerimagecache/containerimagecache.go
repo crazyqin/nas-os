@@ -13,38 +13,38 @@ import (
 )
 
 // init 注册容器镜像缓存模块
-// 模块启动时自动初始化，提供镜像缓存加速服务
+// 模块启动时自动初始化，提供镜像缓存加速服务.
 func init() {
 	log.Println("[ContainerImageCache] 模块已注册，提供容器镜像缓存加速服务")
 }
 
-// RegistryType 镜像仓库类型
+// RegistryType 镜像仓库类型.
 type RegistryType string
 
 const (
-	// RegistryDockerHub Docker Hub 官方仓库
+	// RegistryDockerHub Docker Hub 官方仓库.
 	RegistryDockerHub RegistryType = "dockerhub"
-	// RegistryGHCR GitHub Container Registry
+	// RegistryGHCR GitHub Container Registry.
 	RegistryGHCR RegistryType = "ghcr"
-	// RegistryAliyun 阿里云容器镜像服务
+	// RegistryAliyun 阿里云容器镜像服务.
 	RegistryAliyun RegistryType = "aliyun"
-	// RegistryCustom 自定义仓库
+	// RegistryCustom 自定义仓库.
 	RegistryCustom RegistryType = "custom"
 )
 
-// CacheStrategy 缓存策略类型
+// CacheStrategy 缓存策略类型.
 type CacheStrategy string
 
 const (
-	// StrategyLRU 最近最少使用策略
+	// StrategyLRU 最近最少使用策略.
 	StrategyLRU CacheStrategy = "lru"
-	// StrategyLFU 最不经常使用策略
+	// StrategyLFU 最不经常使用策略.
 	StrategyLFU CacheStrategy = "lfu"
-	// StrategyFIFO 先进先出策略
+	// StrategyFIFO 先进先出策略.
 	StrategyFIFO CacheStrategy = "fifo"
 )
 
-// ImageInfo 镜像信息
+// ImageInfo 镜像信息.
 type ImageInfo struct {
 	// Name 镜像名称（如 nginx:latest）
 	Name string `json:"name"`
@@ -66,7 +66,7 @@ type ImageInfo struct {
 	IsPinned bool `json:"is_pinned"`
 }
 
-// RegistryConfig 仓库配置
+// RegistryConfig 仓库配置.
 type RegistryConfig struct {
 	// Type 仓库类型
 	Type RegistryType `json:"type"`
@@ -82,7 +82,7 @@ type RegistryConfig struct {
 	Priority int `json:"priority"`
 }
 
-// CacheStats 缓存统计信息
+// CacheStats 缓存统计信息.
 type CacheStats struct {
 	// TotalImages 缓存镜像总数
 	TotalImages int `json:"total_images"`
@@ -106,7 +106,7 @@ type CacheStats struct {
 	Uptime time.Duration `json:"uptime"`
 }
 
-// PrefetchRule 预取规则
+// PrefetchRule 预取规则.
 type PrefetchRule struct {
 	// Name 规则名称
 	Name string `json:"name"`
@@ -121,7 +121,7 @@ type PrefetchRule struct {
 }
 
 // ImageCacheManager 容器镜像缓存管理器
-// 提供完整的镜像缓存加速服务，包括多仓库代理、智能预取、缓存策略管理等功能
+// 提供完整的镜像缓存加速服务，包括多仓库代理、智能预取、缓存策略管理等功能.
 type ImageCacheManager struct {
 	mu sync.RWMutex
 
@@ -154,7 +154,7 @@ type ImageCacheManager struct {
 	startTime time.Time
 }
 
-// CacheConfig 缓存配置
+// CacheConfig 缓存配置.
 type CacheConfig struct {
 	// MaxSize 最大缓存大小（字节）
 	MaxSize int64 `json:"max_size"`
@@ -176,7 +176,7 @@ type CacheConfig struct {
 	StoragePath string `json:"storage_path"`
 }
 
-// DefaultCacheConfig 返回默认缓存配置
+// DefaultCacheConfig 返回默认缓存配置.
 func DefaultCacheConfig() *CacheConfig {
 	return &CacheConfig{
 		MaxSize:         50 * 1024 * 1024 * 1024, // 50GB
@@ -191,7 +191,7 @@ func DefaultCacheConfig() *CacheConfig {
 	}
 }
 
-// BandwidthLimiter 带宽限制器
+// BandwidthLimiter 带宽限制器.
 type BandwidthLimiter struct {
 	mu sync.Mutex
 
@@ -220,7 +220,7 @@ func NewBandwidthLimiter(limit int64) *BandwidthLimiter {
 }
 
 // Acquire 获取指定字节数的带宽令牌
-// 如果令牌不足，将阻塞等待
+// 如果令牌不足，将阻塞等待.
 func (bl *BandwidthLimiter) Acquire(bytes int64) {
 	if bl.limit <= 0 {
 		return // 不限制
@@ -258,7 +258,7 @@ func (bl *BandwidthLimiter) Acquire(bytes int64) {
 	bl.tokens -= bytes
 }
 
-// SetLimit 更新带宽限制
+// SetLimit 更新带宽限制.
 func (bl *BandwidthLimiter) SetLimit(limit int64) {
 	bl.mu.Lock()
 	defer bl.mu.Unlock()
@@ -297,7 +297,7 @@ func New(config *CacheConfig) *ImageCacheManager {
 	return manager
 }
 
-// initDefaultRegistries 初始化默认仓库配置
+// initDefaultRegistries 初始化默认仓库配置.
 func (m *ImageCacheManager) initDefaultRegistries() {
 	m.registries[RegistryDockerHub] = &RegistryConfig{
 		Type:     RegistryDockerHub,
@@ -322,7 +322,7 @@ func (m *ImageCacheManager) initDefaultRegistries() {
 }
 
 // Start 启动镜像缓存管理器
-// 启动后台任务：垃圾回收、预取调度、统计更新
+// 启动后台任务：垃圾回收、预取调度、统计更新.
 func (m *ImageCacheManager) Start() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -348,7 +348,7 @@ func (m *ImageCacheManager) Start() error {
 	return nil
 }
 
-// Stop 停止镜像缓存管理器
+// Stop 停止镜像缓存管理器.
 func (m *ImageCacheManager) Stop() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -360,7 +360,7 @@ func (m *ImageCacheManager) Stop() {
 
 // Pull 拉取镜像到本地缓存
 // imageName: 镜像名称（如 "nginx:latest"、"ghcr.io/owner/repo:tag"）
-// 返回缓存的镜像信息和错误
+// 返回缓存的镜像信息和错误.
 func (m *ImageCacheManager) Pull(imageName string) (*ImageInfo, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -412,7 +412,7 @@ func (m *ImageCacheManager) Pull(imageName string) (*ImageInfo, error) {
 	return imageInfo, nil
 }
 
-// GetStats 获取缓存统计信息
+// GetStats 获取缓存统计信息.
 func (m *ImageCacheManager) GetStats() *CacheStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -425,7 +425,7 @@ func (m *ImageCacheManager) GetStats() *CacheStats {
 	return &stats
 }
 
-// AddRegistry 添加自定义仓库配置
+// AddRegistry 添加自定义仓库配置.
 func (m *ImageCacheManager) AddRegistry(config *RegistryConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -443,7 +443,7 @@ func (m *ImageCacheManager) AddRegistry(config *RegistryConfig) error {
 	return nil
 }
 
-// RemoveRegistry 移除仓库配置
+// RemoveRegistry 移除仓库配置.
 func (m *ImageCacheManager) RemoveRegistry(registryType RegistryType) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -457,7 +457,7 @@ func (m *ImageCacheManager) RemoveRegistry(registryType RegistryType) error {
 	return nil
 }
 
-// AddPrefetchRule 添加预取规则
+// AddPrefetchRule 添加预取规则.
 func (m *ImageCacheManager) AddPrefetchRule(rule *PrefetchRule) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -477,7 +477,7 @@ func (m *ImageCacheManager) SetBandwidthLimit(limit int64) {
 	log.Printf("[ContainerImageCache] 设置带宽限制: %d MB/s", limit/(1024*1024))
 }
 
-// Pin 固定镜像（不参与垃圾回收）
+// Pin 固定镜像（不参与垃圾回收）.
 func (m *ImageCacheManager) Pin(imageName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -491,7 +491,7 @@ func (m *ImageCacheManager) Pin(imageName string) error {
 	return fmt.Errorf("镜像不存在: %s", imageName)
 }
 
-// Unpin 取消固定镜像
+// Unpin 取消固定镜像.
 func (m *ImageCacheManager) Unpin(imageName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -505,7 +505,7 @@ func (m *ImageCacheManager) Unpin(imageName string) error {
 	return fmt.Errorf("镜像不存在: %s", imageName)
 }
 
-// Delete 删除指定镜像
+// Delete 删除指定镜像.
 func (m *ImageCacheManager) Delete(imageName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -522,7 +522,7 @@ func (m *ImageCacheManager) Delete(imageName string) error {
 	return fmt.Errorf("镜像不存在: %s", imageName)
 }
 
-// ListCachedImages 列出所有缓存的镜像
+// ListCachedImages 列出所有缓存的镜像.
 func (m *ImageCacheManager) ListCachedImages() []*ImageInfo {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -541,7 +541,7 @@ func (m *ImageCacheManager) ListCachedImages() []*ImageInfo {
 }
 
 // parseImageName 解析镜像名称
-// 返回仓库类型和标准化的镜像名称
+// 返回仓库类型和标准化的镜像名称.
 func (m *ImageCacheManager) parseImageName(imageName string) (RegistryType, string) {
 	// 简化解析，实际实现需要更复杂的解析逻辑
 	if len(imageName) > 8 && imageName[:8] == "ghcr.io/" {
@@ -557,7 +557,7 @@ func (m *ImageCacheManager) parseImageName(imageName string) (RegistryType, stri
 }
 
 // fetchFromUpstream 从上游仓库拉取镜像
-// 这里是模拟实现，实际需要调用 Docker Registry API
+// 这里是模拟实现，实际需要调用 Docker Registry API.
 func (m *ImageCacheManager) fetchFromUpstream(registry RegistryType, imageName string) (*ImageInfo, error) {
 	// 应用带宽限制
 	// 模拟镜像大小：100MB
@@ -589,7 +589,7 @@ func (m *ImageCacheManager) fetchFromUpstream(registry RegistryType, imageName s
 	}, nil
 }
 
-// ensureCacheSpace 确保缓存有足够空间
+// ensureCacheSpace 确保缓存有足够空间.
 func (m *ImageCacheManager) ensureCacheSpace(requiredSize int64) error {
 	// 检查镜像数量限制
 	if len(m.cache) >= m.config.MaxImages {
@@ -608,7 +608,7 @@ func (m *ImageCacheManager) ensureCacheSpace(requiredSize int64) error {
 	return nil
 }
 
-// evictImages 驱逐指定数量的镜像
+// evictImages 驱逐指定数量的镜像.
 func (m *ImageCacheManager) evictImages(count int) error {
 	if len(m.cache) == 0 {
 		return fmt.Errorf("缓存为空，无法驱逐")
@@ -658,7 +658,7 @@ func (m *ImageCacheManager) evictImages(count int) error {
 	return nil
 }
 
-// runGarbageCollector 运行垃圾回收
+// runGarbageCollector 运行垃圾回收.
 func (m *ImageCacheManager) runGarbageCollector() {
 	ticker := time.NewTicker(m.config.GCInterval)
 	defer ticker.Stop()
@@ -673,7 +673,7 @@ func (m *ImageCacheManager) runGarbageCollector() {
 	}
 }
 
-// runGC 执行一次垃圾回收
+// runGC 执行一次垃圾回收.
 func (m *ImageCacheManager) runGC() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -717,7 +717,7 @@ func (m *ImageCacheManager) runGC() {
 	}
 }
 
-// runPrefetchScheduler 运行预取调度器
+// runPrefetchScheduler 运行预取调度器.
 func (m *ImageCacheManager) runPrefetchScheduler() {
 	ticker := time.NewTicker(5 * time.Minute) // 每5分钟检查一次
 	defer ticker.Stop()
@@ -732,7 +732,7 @@ func (m *ImageCacheManager) runPrefetchScheduler() {
 	}
 }
 
-// runPrefetch 执行预取
+// runPrefetch 执行预取.
 func (m *ImageCacheManager) runPrefetch() {
 	m.mu.RLock()
 	rules := make([]*PrefetchRule, len(m.prefetchRules))
@@ -750,7 +750,7 @@ func (m *ImageCacheManager) runPrefetch() {
 	}
 }
 
-// runStatsUpdater 运行统计更新器
+// runStatsUpdater 运行统计更新器.
 func (m *ImageCacheManager) runStatsUpdater() {
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -765,7 +765,7 @@ func (m *ImageCacheManager) runStatsUpdater() {
 	}
 }
 
-// updateStats 更新统计信息
+// updateStats 更新统计信息.
 func (m *ImageCacheManager) updateStats() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -774,7 +774,7 @@ func (m *ImageCacheManager) updateStats() {
 	m.updateHitRate()
 }
 
-// updateHitRate 更新命中率
+// updateHitRate 更新命中率.
 func (m *ImageCacheManager) updateHitRate() {
 	total := m.stats.HitCount + m.stats.MissCount
 	if total > 0 {
@@ -782,7 +782,7 @@ func (m *ImageCacheManager) updateHitRate() {
 	}
 }
 
-// runBandwidthMonitor 运行带宽监控
+// runBandwidthMonitor 运行带宽监控.
 func (m *ImageCacheManager) runBandwidthMonitor() {
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
@@ -805,7 +805,7 @@ func (m *ImageCacheManager) runBandwidthMonitor() {
 	}
 }
 
-// GetCacheConfig 获取当前缓存配置
+// GetCacheConfig 获取当前缓存配置.
 func (m *ImageCacheManager) GetCacheConfig() *CacheConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -814,7 +814,7 @@ func (m *ImageCacheManager) GetCacheConfig() *CacheConfig {
 	return &config
 }
 
-// UpdateCacheConfig 更新缓存配置
+// UpdateCacheConfig 更新缓存配置.
 func (m *ImageCacheManager) UpdateCacheConfig(config *CacheConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -827,7 +827,7 @@ func (m *ImageCacheManager) UpdateCacheConfig(config *CacheConfig) {
 	log.Printf("[ContainerImageCache] 更新缓存配置")
 }
 
-// GetRegistries 获取所有仓库配置
+// GetRegistries 获取所有仓库配置.
 func (m *ImageCacheManager) GetRegistries() map[RegistryType]*RegistryConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -841,7 +841,7 @@ func (m *ImageCacheManager) GetRegistries() map[RegistryType]*RegistryConfig {
 	return registries
 }
 
-// GetPrefetchRules 获取所有预取规则
+// GetPrefetchRules 获取所有预取规则.
 func (m *ImageCacheManager) GetPrefetchRules() []*PrefetchRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -851,7 +851,7 @@ func (m *ImageCacheManager) GetPrefetchRules() []*PrefetchRule {
 	return rules
 }
 
-// ClearCache 清空所有缓存
+// ClearCache 清空所有缓存.
 func (m *ImageCacheManager) ClearCache() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -864,7 +864,7 @@ func (m *ImageCacheManager) ClearCache() {
 	log.Println("[ContainerImageCache] 缓存已清空")
 }
 
-// GetImageInfo 获取指定镜像信息
+// GetImageInfo 获取指定镜像信息.
 func (m *ImageCacheManager) GetImageInfo(imageName string) (*ImageInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -877,7 +877,7 @@ func (m *ImageCacheManager) GetImageInfo(imageName string) (*ImageInfo, error) {
 	return nil, fmt.Errorf("镜像不存在: %s", imageName)
 }
 
-// IsCached 检查镜像是否已缓存
+// IsCached 检查镜像是否已缓存.
 func (m *ImageCacheManager) IsCached(imageName string) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -886,7 +886,7 @@ func (m *ImageCacheManager) IsCached(imageName string) bool {
 	return exists
 }
 
-// GetCacheSize 获取当前缓存大小
+// GetCacheSize 获取当前缓存大小.
 func (m *ImageCacheManager) GetCacheSize() int64 {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -894,7 +894,7 @@ func (m *ImageCacheManager) GetCacheSize() int64 {
 	return m.stats.TotalSize
 }
 
-// GetCacheImageCount 获取缓存镜像数量
+// GetCacheImageCount 获取缓存镜像数量.
 func (m *ImageCacheManager) GetCacheImageCount() int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

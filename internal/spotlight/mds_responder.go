@@ -10,7 +10,7 @@ import (
 )
 
 // MDNSResponder mDNS/Bonjour 响应器
-// 支持 macOS 客户端通过 mDNS 发现 NAS 上的 Spotlight 服务
+// 支持 macOS 客户端通过 mDNS 发现 NAS 上的 Spotlight 服务.
 type MDNSResponder struct {
 	serviceName string
 	port        int
@@ -22,7 +22,7 @@ type MDNSResponder struct {
 	entries     map[string]*MDNSEntry
 }
 
-// MDNSEntry mDNS 条目
+// MDNSEntry mDNS 条目.
 type MDNSEntry struct {
 	Name string            `json:"name"`
 	Type string            `json:"type"`
@@ -32,7 +32,7 @@ type MDNSEntry struct {
 	TTL  uint32            `json:"ttl"`
 }
 
-// NewMDNSResponder 创建 mDNS 响应器
+// NewMDNSResponder 创建 mDNS 响应器.
 func NewMDNSResponder(serviceName string, port int, logger *zap.Logger) *MDNSResponder {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -52,7 +52,7 @@ func NewMDNSResponder(serviceName string, port int, logger *zap.Logger) *MDNSRes
 	}
 }
 
-// Start 启动 mDNS 响应器
+// Start 启动 mDNS 响应器.
 func (r *MDNSResponder) Start(ctx context.Context) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -81,7 +81,7 @@ func (r *MDNSResponder) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止 mDNS 响应器
+// Stop 停止 mDNS 响应器.
 func (r *MDNSResponder) Stop() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -96,7 +96,7 @@ func (r *MDNSResponder) Stop() {
 	r.logger.Info("mDNS 响应器已停止")
 }
 
-// registerSpotlightService 注册 Spotlight 服务
+// registerSpotlightService 注册 Spotlight 服务.
 func (r *MDNSResponder) registerSpotlightService() error {
 	// 获取本机 IP
 	ips, err := getLocalIPs()
@@ -132,13 +132,13 @@ func (r *MDNSResponder) registerSpotlightService() error {
 	return nil
 }
 
-// respondLoop 响应循环
+// respondLoop 响应循环.
 func (r *MDNSResponder) respondLoop() {
 	for {
 		select {
 		case <-r.ctx.Done():
 			return
-		default:
+
 			// mDNS 通常使用 UDP 多播，这里简化实现
 			// 实际生产环境应使用 github.com/hashicorp/go-mdns 或类似库
 			// 这里提供基本的服务发现能力
@@ -146,7 +146,7 @@ func (r *MDNSResponder) respondLoop() {
 	}
 }
 
-// GetRegisteredServices 获取已注册的服务列表
+// GetRegisteredServices 获取已注册的服务列表.
 func (r *MDNSResponder) GetRegisteredServices() []MDNSEntry {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -158,14 +158,14 @@ func (r *MDNSResponder) GetRegisteredServices() []MDNSEntry {
 	return services
 }
 
-// IsRunning 是否在运行
+// IsRunning 是否在运行.
 func (r *MDNSResponder) IsRunning() bool {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	return r.running
 }
 
-// GetServiceInfo 获取服务信息
+// GetServiceInfo 获取服务信息.
 func (r *MDNSResponder) GetServiceInfo() map[string]interface{} {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -178,7 +178,7 @@ func (r *MDNSResponder) GetServiceInfo() map[string]interface{} {
 	}
 }
 
-// getLocalIPs 获取本机 IP 地址
+// getLocalIPs 获取本机 IP 地址.
 func getLocalIPs() ([]net.IP, error) {
 	var ips []net.IP
 

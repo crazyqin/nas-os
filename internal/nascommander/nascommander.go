@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// NodeStatus 节点状态
+// NodeStatus 节点状态.
 type NodeStatus string
 
 const (
@@ -21,7 +21,7 @@ const (
 	NodeStatusMaintenance NodeStatus = "maintenance" // 维护中
 )
 
-// NodeRole 节点角色
+// NodeRole 节点角色.
 type NodeRole string
 
 const (
@@ -31,7 +31,7 @@ const (
 	RoleArchive   NodeRole = "archive"   // 归档节点
 )
 
-// ClusterStatus 集群状态
+// ClusterStatus 集群状态.
 type ClusterStatus string
 
 const (
@@ -41,7 +41,7 @@ const (
 	ClusterUnknown  ClusterStatus = "unknown"  // 未知
 )
 
-// NASNode NAS节点
+// NASNode NAS节点.
 type NASNode struct {
 	ID           string       `json:"id"`
 	Name         string       `json:"name"`
@@ -59,7 +59,7 @@ type NASNode struct {
 	RegisteredAt time.Time    `json:"registered_at"`
 }
 
-// NodeMetrics 节点指标
+// NodeMetrics 节点指标.
 type NodeMetrics struct {
 	CPUUsage    float64 `json:"cpu_usage"`    // CPU使用率 0-100
 	MemoryUsage float64 `json:"memory_usage"` // 内存使用率 0-100
@@ -77,7 +77,7 @@ type NodeMetrics struct {
 	UsedMemory  int64   `json:"used_memory"`  // 已用内存
 }
 
-// NodeConfig 节点配置
+// NodeConfig 节点配置.
 type NodeConfig struct {
 	AutoUpdate    bool              `json:"auto_update"`
 	AlertEmail    string            `json:"alert_email,omitempty"`
@@ -88,7 +88,7 @@ type NodeConfig struct {
 	CustomOptions map[string]string `json:"custom_options,omitempty"`
 }
 
-// Cluster 集群
+// Cluster 集群.
 type Cluster struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
@@ -100,7 +100,7 @@ type Cluster struct {
 	UpdatedAt   time.Time      `json:"updated_at"`
 }
 
-// ClusterConfig 集群配置
+// ClusterConfig 集群配置.
 type ClusterConfig struct {
 	LoadBalance    bool    `json:"load_balance"`    // 负载均衡
 	Failover       bool    `json:"failover"`        // 自动故障转移
@@ -109,7 +109,7 @@ type ClusterConfig struct {
 	AlertThreshold float64 `json:"alert_threshold"` // 告警阈值
 }
 
-// SyncTask 同步任务
+// SyncTask 同步任务.
 type SyncTask struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -122,7 +122,7 @@ type SyncTask struct {
 	Error       string    `json:"error,omitempty"`
 }
 
-// Alert 聚合告警
+// Alert 聚合告警.
 type Alert struct {
 	ID        string     `json:"id"`
 	NodeID    string     `json:"node_id"`
@@ -136,7 +136,7 @@ type Alert struct {
 	AckedAt   *time.Time `json:"acked_at,omitempty"`
 }
 
-// Commander 舰队指挥官
+// Commander 舰队指挥官.
 type Commander struct {
 	mu       sync.RWMutex
 	config   *Config
@@ -149,7 +149,7 @@ type Commander struct {
 	cancel   context.CancelFunc
 }
 
-// Config 指挥官配置
+// Config 指挥官配置.
 type Config struct {
 	DiscoveryInterval time.Duration `json:"discovery_interval"` // 节点发现间隔
 	HealthInterval    time.Duration `json:"health_interval"`    // 健康检查间隔
@@ -160,7 +160,7 @@ type Config struct {
 	EnableFailover    bool          `json:"enable_failover"`    // 自动故障转移
 }
 
-// NewCommander 创建新的指挥官
+// NewCommander 创建新的指挥官.
 func NewCommander(config *Config) *Commander {
 	if config == nil {
 		config = &Config{
@@ -185,7 +185,7 @@ func NewCommander(config *Config) *Commander {
 	}
 }
 
-// RegisterNode 注册节点
+// RegisterNode 注册节点.
 func (c *Commander) RegisterNode(node *NASNode) error {
 	if node == nil {
 		return errors.New("node cannot be nil")
@@ -206,7 +206,7 @@ func (c *Commander) RegisterNode(node *NASNode) error {
 	return nil
 }
 
-// UnregisterNode 注销节点
+// UnregisterNode 注销节点.
 func (c *Commander) UnregisterNode(nodeID string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -219,7 +219,7 @@ func (c *Commander) UnregisterNode(nodeID string) error {
 	return nil
 }
 
-// GetNode 获取节点
+// GetNode 获取节点.
 func (c *Commander) GetNode(nodeID string) (*NASNode, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -231,7 +231,7 @@ func (c *Commander) GetNode(nodeID string) (*NASNode, error) {
 	return node, nil
 }
 
-// ListNodes 列出所有节点
+// ListNodes 列出所有节点.
 func (c *Commander) ListNodes() []*NASNode {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -243,7 +243,7 @@ func (c *Commander) ListNodes() []*NASNode {
 	return nodes
 }
 
-// UpdateNodeMetrics 更新节点指标
+// UpdateNodeMetrics 更新节点指标.
 func (c *Commander) UpdateNodeMetrics(nodeID string, metrics *NodeMetrics) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -258,7 +258,7 @@ func (c *Commander) UpdateNodeMetrics(nodeID string, metrics *NodeMetrics) error
 	return nil
 }
 
-// CreateCluster 创建集群
+// CreateCluster 创建集群.
 func (c *Commander) CreateCluster(cluster *Cluster) error {
 	if cluster == nil {
 		return errors.New("cluster cannot be nil")
@@ -276,7 +276,7 @@ func (c *Commander) CreateCluster(cluster *Cluster) error {
 	return nil
 }
 
-// GetCluster 获取集群
+// GetCluster 获取集群.
 func (c *Commander) GetCluster(clusterID string) (*Cluster, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -288,7 +288,7 @@ func (c *Commander) GetCluster(clusterID string) (*Cluster, error) {
 	return cluster, nil
 }
 
-// AddAlert 添加告警
+// AddAlert 添加告警.
 func (c *Commander) AddAlert(alert *Alert) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -297,7 +297,7 @@ func (c *Commander) AddAlert(alert *Alert) {
 	c.alerts = append(c.alerts, alert)
 }
 
-// GetAlerts 获取告警列表
+// GetAlerts 获取告警列表.
 func (c *Commander) GetAlerts(acked bool) []*Alert {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -311,7 +311,7 @@ func (c *Commander) GetAlerts(acked bool) []*Alert {
 	return alerts
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (c *Commander) AcknowledgeAlert(alertID, ackedBy string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -328,7 +328,7 @@ func (c *Commander) AcknowledgeAlert(alertID, ackedBy string) error {
 	return fmt.Errorf("alert %s not found", alertID)
 }
 
-// GetClusterStatus 获取集群整体状态
+// GetClusterStatus 获取集群整体状态.
 func (c *Commander) GetClusterStatus() ClusterStatus {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -353,7 +353,7 @@ func (c *Commander) GetClusterStatus() ClusterStatus {
 	return ClusterCritical
 }
 
-// Start 启动指挥官
+// Start 启动指挥官.
 func (c *Commander) Start() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -365,7 +365,7 @@ func (c *Commander) Start() error {
 	return nil
 }
 
-// Stop 停止指挥官
+// Stop 停止指挥官.
 func (c *Commander) Stop() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()

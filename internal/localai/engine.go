@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// 错误定义
+// 错误定义.
 var (
 	ErrModelNotFound      = errors.New("模型不存在")
 	ErrModelNotLoaded     = errors.New("模型未加载")
@@ -18,7 +18,7 @@ var (
 	ErrResourceExhausted  = errors.New("GPU/内存资源不足")
 )
 
-// ModelType 模型类型
+// ModelType 模型类型.
 type ModelType string
 
 const (
@@ -29,7 +29,7 @@ const (
 	ModelTypeCustom    ModelType = "custom"    // 自定义模型
 )
 
-// ModelStatus 模型状态
+// ModelStatus 模型状态.
 type ModelStatus string
 
 const (
@@ -40,7 +40,7 @@ const (
 	StatusUnloading ModelStatus = "unloading" // 卸载中
 )
 
-// InferenceBackend 推理后端
+// InferenceBackend 推理后端.
 type InferenceBackend string
 
 const (
@@ -53,7 +53,7 @@ const (
 	BackendAuto     InferenceBackend = "auto"     // 自动选择
 )
 
-// Quantization 量化类型
+// Quantization 量化类型.
 type Quantization string
 
 const (
@@ -64,30 +64,30 @@ const (
 	QuantBF16 Quantization = "bf16" // BF16
 )
 
-// Model 模型定义
+// Model 模型定义.
 type Model struct {
-	ID            string            `json:"id"`
-	Name          string            `json:"name"`
-	Description   string            `json:"description,omitempty"`
-	Type          ModelType         `json:"type"`
-	Status        ModelStatus       `json:"status"`
-	Backend       InferenceBackend  `json:"backend"`
-	Quantization  Quantization      `json:"quantization"`
-	ModelPath     string            `json:"model_path"`
-	ConfigPath    string            `json:"config_path,omitempty"`
-	Parameters    int64             `json:"parameters"`     // 参数量 (B)
-	ContextLength int               `json:"context_length"` // 上下文长度
-	MaxBatchSize  int               `json:"max_batch_size"`
-	GPUMemoryMB   int64             `json:"gpu_memory_mb"` // GPU显存需求
-	SystemMemoryMB int64            `json:"system_memory_mb"` // 系统内存需求
-	VRAMUsageMB   int64             `json:"vram_usage_mb"` // 当前显存占用
-	Metadata      map[string]string `json:"metadata,omitempty"`
-	LoadedAt      *time.Time        `json:"loaded_at,omitempty"`
-	CreatedAt     time.Time         `json:"created_at"`
-	UpdatedAt     time.Time         `json:"updated_at"`
+	ID             string            `json:"id"`
+	Name           string            `json:"name"`
+	Description    string            `json:"description,omitempty"`
+	Type           ModelType         `json:"type"`
+	Status         ModelStatus       `json:"status"`
+	Backend        InferenceBackend  `json:"backend"`
+	Quantization   Quantization      `json:"quantization"`
+	ModelPath      string            `json:"model_path"`
+	ConfigPath     string            `json:"config_path,omitempty"`
+	Parameters     int64             `json:"parameters"`     // 参数量 (B)
+	ContextLength  int               `json:"context_length"` // 上下文长度
+	MaxBatchSize   int               `json:"max_batch_size"`
+	GPUMemoryMB    int64             `json:"gpu_memory_mb"`    // GPU显存需求
+	SystemMemoryMB int64             `json:"system_memory_mb"` // 系统内存需求
+	VRAMUsageMB    int64             `json:"vram_usage_mb"`    // 当前显存占用
+	Metadata       map[string]string `json:"metadata,omitempty"`
+	LoadedAt       *time.Time        `json:"loaded_at,omitempty"`
+	CreatedAt      time.Time         `json:"created_at"`
+	UpdatedAt      time.Time         `json:"updated_at"`
 }
 
-// InferenceRequest 推理请求
+// InferenceRequest 推理请求.
 type InferenceRequest struct {
 	ModelID       string            `json:"model_id" binding:"required"`
 	Prompt        string            `json:"prompt" binding:"required"`
@@ -103,7 +103,7 @@ type InferenceRequest struct {
 	Metadata      map[string]string `json:"metadata,omitempty"`
 }
 
-// InferenceResponse 推理响应
+// InferenceResponse 推理响应.
 type InferenceResponse struct {
 	ID           string        `json:"id"`
 	ModelID      string        `json:"model_id"`
@@ -117,31 +117,31 @@ type InferenceResponse struct {
 	Error        string        `json:"error,omitempty"`
 }
 
-// StreamChunk 流式推理块
+// StreamChunk 流式推理块.
 type StreamChunk struct {
-	ID      string `json:"id"`
-	Text    string `json:"text"`
-	Done    bool   `json:"done"`
-	Error   string `json:"error,omitempty"`
+	ID    string `json:"id"`
+	Text  string `json:"text"`
+	Done  bool   `json:"done"`
+	Error string `json:"error,omitempty"`
 }
 
-// EmbeddingRequest 嵌入请求
+// EmbeddingRequest 嵌入请求.
 type EmbeddingRequest struct {
-	ModelID  string   `json:"model_id" binding:"required"`
-	Texts    []string `json:"texts" binding:"required,min=1"`
+	ModelID  string            `json:"model_id" binding:"required"`
+	Texts    []string          `json:"texts" binding:"required,min=1"`
 	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
-// EmbeddingResponse 嵌入响应
+// EmbeddingResponse 嵌入响应.
 type EmbeddingResponse struct {
-	ModelID    string      `json:"model_id"`
-	Embeddings [][]float64 `json:"embeddings"`
-	Dimensions int         `json:"dimensions"`
-	Tokens     int         `json:"tokens"`
+	ModelID    string        `json:"model_id"`
+	Embeddings [][]float64   `json:"embeddings"`
+	Dimensions int           `json:"dimensions"`
+	Tokens     int           `json:"tokens"`
 	Duration   time.Duration `json:"duration"`
 }
 
-// ResourceInfo 资源信息
+// ResourceInfo 资源信息.
 type ResourceInfo struct {
 	GPUTotalMB     int64   `json:"gpu_total_mb"`
 	GPUUsedMB      int64   `json:"gpu_used_mb"`
@@ -153,41 +153,41 @@ type ResourceInfo struct {
 	CPUUtilization float64 `json:"cpu_utilization"`
 }
 
-// EngineStats 引擎统计
+// EngineStats 引擎统计.
 type EngineStats struct {
-	TotalModels      int           `json:"total_models"`
-	LoadedModels     int           `json:"loaded_models"`
-	TotalInferences  int64         `json:"total_inferences"`
-	TotalTokens      int64         `json:"total_tokens"`
-	AvgLatencyMs     float64       `json:"avg_latency_ms"`
-	AvgTokensPerSec  float64       `json:"avg_tokens_per_sec"`
-	UptimeSeconds    int64         `json:"uptime_seconds"`
-	LastInferenceAt  *time.Time    `json:"last_inference_at,omitempty"`
+	TotalModels     int        `json:"total_models"`
+	LoadedModels    int        `json:"loaded_models"`
+	TotalInferences int64      `json:"total_inferences"`
+	TotalTokens     int64      `json:"total_tokens"`
+	AvgLatencyMs    float64    `json:"avg_latency_ms"`
+	AvgTokensPerSec float64    `json:"avg_tokens_per_sec"`
+	UptimeSeconds   int64      `json:"uptime_seconds"`
+	LastInferenceAt *time.Time `json:"last_inference_at,omitempty"`
 }
 
-// Engine 本地AI推理引擎
+// Engine 本地AI推理引擎.
 type Engine struct {
-	mu           sync.RWMutex
-	models       map[string]*Model
-	inferences   []*InferenceRecord
-	stats        EngineStats
-	startTime    time.Time
-	maxModels    int
-	gpuDevices   []GPUDevice
+	mu         sync.RWMutex
+	models     map[string]*Model
+	inferences []*InferenceRecord
+	stats      EngineStats
+	startTime  time.Time
+	maxModels  int
+	gpuDevices []GPUDevice
 }
 
-// GPUDevice GPU设备信息
+// GPUDevice GPU设备信息.
 type GPUDevice struct {
-	Index      int    `json:"index"`
-	Name       string `json:"name"`
-	MemoryMB   int64  `json:"memory_mb"`
-	UsedMB     int64  `json:"used_mb"`
-	FreeMB     int64  `json:"free_mb"`
-	Temperature int   `json:"temperature"`
+	Index       int     `json:"index"`
+	Name        string  `json:"name"`
+	MemoryMB    int64   `json:"memory_mb"`
+	UsedMB      int64   `json:"used_mb"`
+	FreeMB      int64   `json:"free_mb"`
+	Temperature int     `json:"temperature"`
 	Utilization float64 `json:"utilization"`
 }
 
-// InferenceRecord 推理记录
+// InferenceRecord 推理记录.
 type InferenceRecord struct {
 	RequestID string        `json:"request_id"`
 	ModelID   string        `json:"model_id"`
@@ -198,7 +198,7 @@ type InferenceRecord struct {
 	Timestamp time.Time     `json:"timestamp"`
 }
 
-// NewEngine 创建推理引擎
+// NewEngine 创建推理引擎.
 func NewEngine(maxModels int) *Engine {
 	if maxModels <= 0 {
 		maxModels = 10
@@ -212,7 +212,7 @@ func NewEngine(maxModels int) *Engine {
 	}
 }
 
-// RegisterModel 注册模型
+// RegisterModel 注册模型.
 func (e *Engine) RegisterModel(model *Model) error {
 	if model == nil || model.ID == "" || model.Name == "" {
 		return ErrInvalidInput
@@ -238,7 +238,7 @@ func (e *Engine) RegisterModel(model *Model) error {
 	return nil
 }
 
-// UnregisterModel 注销模型
+// UnregisterModel 注销模型.
 func (e *Engine) UnregisterModel(modelID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -257,7 +257,7 @@ func (e *Engine) UnregisterModel(modelID string) error {
 	return nil
 }
 
-// LoadModel 加载模型到内存/GPU
+// LoadModel 加载模型到内存/GPU.
 func (e *Engine) LoadModel(modelID string) error {
 	e.mu.Lock()
 	model, exists := e.models[modelID]
@@ -289,7 +289,7 @@ func (e *Engine) LoadModel(modelID string) error {
 	return nil
 }
 
-// UnloadModel 卸载模型
+// UnloadModel 卸载模型.
 func (e *Engine) UnloadModel(modelID string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -317,7 +317,7 @@ func (e *Engine) UnloadModel(modelID string) error {
 	return nil
 }
 
-// GetModel 获取模型信息
+// GetModel 获取模型信息.
 func (e *Engine) GetModel(modelID string) (*Model, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -329,7 +329,7 @@ func (e *Engine) GetModel(modelID string) (*Model, error) {
 	return model, nil
 }
 
-// ListModels 列出所有模型
+// ListModels 列出所有模型.
 func (e *Engine) ListModels(modelType *ModelType) []*Model {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -343,7 +343,7 @@ func (e *Engine) ListModels(modelType *ModelType) []*Model {
 	return result
 }
 
-// Inference 执行推理
+// Inference 执行推理.
 func (e *Engine) Inference(req *InferenceRequest) (*InferenceResponse, error) {
 	if req == nil || req.ModelID == "" || req.Prompt == "" {
 		return nil, ErrInvalidInput
@@ -405,7 +405,7 @@ func (e *Engine) Inference(req *InferenceRequest) (*InferenceResponse, error) {
 	return resp, nil
 }
 
-// Embedding 计算嵌入向量
+// Embedding 计算嵌入向量.
 func (e *Engine) Embedding(req *EmbeddingRequest) (*EmbeddingResponse, error) {
 	if req == nil || req.ModelID == "" || len(req.Texts) == 0 {
 		return nil, ErrInvalidInput
@@ -457,7 +457,7 @@ func (e *Engine) Embedding(req *EmbeddingRequest) (*EmbeddingResponse, error) {
 	}, nil
 }
 
-// GetResourceInfo 获取资源信息
+// GetResourceInfo 获取资源信息.
 func (e *Engine) GetResourceInfo() *ResourceInfo {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -482,7 +482,7 @@ func (e *Engine) GetResourceInfo() *ResourceInfo {
 	return info
 }
 
-// GetStats 获取引擎统计
+// GetStats 获取引擎统计.
 func (e *Engine) GetStats() *EngineStats {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -506,7 +506,7 @@ func (e *Engine) GetStats() *EngineStats {
 	return &stats
 }
 
-// GetInferenceHistory 获取推理历史
+// GetInferenceHistory 获取推理历史.
 func (e *Engine) GetInferenceHistory(modelID string, limit int) []*InferenceRecord {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -523,7 +523,7 @@ func (e *Engine) GetInferenceHistory(modelID string, limit int) []*InferenceReco
 	return result
 }
 
-// SetGPUDevice 设置GPU设备信息
+// SetGPUDevice 设置GPU设备信息.
 func (e *Engine) SetGPUDevice(device GPUDevice) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -541,7 +541,7 @@ func (e *Engine) SetGPUDevice(device GPUDevice) {
 	}
 }
 
-// GetGPUDevices 获取GPU设备列表
+// GetGPUDevices 获取GPU设备列表.
 func (e *Engine) GetGPUDevices() []GPUDevice {
 	e.mu.RLock()
 	defer e.mu.RUnlock()

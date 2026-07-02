@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler HTTP API处理器
+// Handler HTTP API处理器.
 type Handler struct {
 	warehouse *Warehouse
 }
 
-// NewHandler 创建Handler
+// NewHandler 创建Handler.
 func NewHandler(warehouse *Warehouse) *Handler {
 	return &Handler{warehouse: warehouse}
 }
 
-// RegisterRoutes 注册路由
+// RegisterRoutes 注册路由.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	dw := rg.Group("/datawarehouse")
 	{
@@ -33,7 +33,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	}
 }
 
-// IngestRequest 数据采集请求
+// IngestRequest 数据采集请求.
 type IngestRequest struct {
 	Source     DataSource         `json:"source" binding:"required"`
 	Timestamp  time.Time          `json:"timestamp" binding:"required"`
@@ -41,7 +41,7 @@ type IngestRequest struct {
 	Measures   map[string]float64 `json:"measures" binding:"required"`
 }
 
-// Ingest 数据采集
+// Ingest 数据采集.
 func (h *Handler) Ingest(c *gin.Context) {
 	var req IngestRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -60,7 +60,7 @@ func (h *Handler) Ingest(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
-// Query 执行查询
+// Query 执行查询.
 func (h *Handler) Query(c *gin.Context) {
 	var req Query
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -77,7 +77,7 @@ func (h *Handler) Query(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// RollupRequest 时间聚合请求
+// RollupRequest 时间聚合请求.
 type RollupRequestHTTP struct {
 	Source    DataSource        `json:"source" binding:"required"`
 	StartTime time.Time         `json:"start_time" binding:"required"`
@@ -87,12 +87,12 @@ type RollupRequestHTTP struct {
 	Filters   map[string]string `json:"filters"`
 }
 
-// Duration 自定义Duration类型支持JSON解析
+// Duration 自定义Duration类型支持JSON解析.
 type Duration struct {
 	time.Duration
 }
 
-// UnmarshalJSON 实现JSON反序列化
+// UnmarshalJSON 实现JSON反序列化.
 func (d *Duration) UnmarshalJSON(b []byte) error {
 	var s string
 	if err := json.Unmarshal(b, &s); err != nil {
@@ -106,7 +106,7 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Rollup 时间聚合
+// Rollup 时间聚合.
 func (h *Handler) Rollup(c *gin.Context) {
 	var req RollupRequestHTTP
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -132,7 +132,7 @@ func (h *Handler) Rollup(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// DrillDownRequestHTTP 钻取请求
+// DrillDownRequestHTTP 钻取请求.
 type DrillDownRequestHTTP struct {
 	Source    DataSource        `json:"source" binding:"required"`
 	StartTime time.Time         `json:"start_time" binding:"required"`
@@ -144,7 +144,7 @@ type DrillDownRequestHTTP struct {
 	Filters   map[string]string `json:"filters"`
 }
 
-// DrillDown 钻取查询
+// DrillDown 钻取查询.
 func (h *Handler) DrillDown(c *gin.Context) {
 	var req DrillDownRequestHTTP
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -152,16 +152,7 @@ func (h *Handler) DrillDown(c *gin.Context) {
 		return
 	}
 
-	drillReq := DrillDownRequest{
-		Source:    req.Source,
-		StartTime: req.StartTime,
-		EndTime:   req.EndTime,
-		Dimension: req.Dimension,
-		Value:     req.Value,
-		DrillDims: req.DrillDims,
-		Measures:  req.Measures,
-		Filters:   req.Filters,
-	}
+	drillReq := DrillDownRequest(req)
 
 	result, err := h.warehouse.DrillDown(drillReq)
 	if err != nil {
@@ -172,7 +163,7 @@ func (h *Handler) DrillDown(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// PivotRequestHTTP 旋转请求
+// PivotRequestHTTP 旋转请求.
 type PivotRequestHTTP struct {
 	Source    DataSource        `json:"source" binding:"required"`
 	StartTime time.Time         `json:"start_time" binding:"required"`
@@ -183,7 +174,7 @@ type PivotRequestHTTP struct {
 	Filters   map[string]string `json:"filters"`
 }
 
-// Pivot 旋转查询
+// Pivot 旋转查询.
 func (h *Handler) Pivot(c *gin.Context) {
 	var req PivotRequestHTTP
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -191,15 +182,7 @@ func (h *Handler) Pivot(c *gin.Context) {
 		return
 	}
 
-	pivotReq := PivotRequest{
-		Source:    req.Source,
-		StartTime: req.StartTime,
-		EndTime:   req.EndTime,
-		RowDims:   req.RowDims,
-		ColDims:   req.ColDims,
-		Measures:  req.Measures,
-		Filters:   req.Filters,
-	}
+	pivotReq := PivotRequest(req)
 
 	result, err := h.warehouse.Pivot(pivotReq)
 	if err != nil {
@@ -210,19 +193,19 @@ func (h *Handler) Pivot(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// Stats 统计信息
+// Stats 统计信息.
 func (h *Handler) Stats(c *gin.Context) {
 	stats := h.warehouse.Stats()
 	c.JSON(http.StatusOK, stats)
 }
 
-// Metrics 获取所有指标
+// Metrics 获取所有指标.
 func (h *Handler) Metrics(c *gin.Context) {
 	metrics := h.warehouse.timeSeries.Metrics()
 	c.JSON(http.StatusOK, gin.H{"metrics": metrics})
 }
 
-// TimeSeries 查询时间序列
+// TimeSeries 查询时间序列.
 func (h *Handler) TimeSeries(c *gin.Context) {
 	metric := c.Param("metric")
 	startStr := c.Query("start")

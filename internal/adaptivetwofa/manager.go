@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// AdaptiveManager 自适应MFA管理器
+// AdaptiveManager 自适应MFA管理器.
 type AdaptiveManager struct {
 	mu             sync.RWMutex
 	config         *AdaptiveConfig
@@ -22,7 +22,7 @@ type AdaptiveManager struct {
 	configPath     string
 }
 
-// NewAdaptiveManager 创建自适应MFA管理器
+// NewAdaptiveManager 创建自适应MFA管理器.
 func NewAdaptiveManager(configPath string, config *AdaptiveConfig) (*AdaptiveManager, error) {
 	if config == nil {
 		config = DefaultConfig()
@@ -47,7 +47,7 @@ func NewAdaptiveManager(configPath string, config *AdaptiveConfig) (*AdaptiveMan
 	return mgr, nil
 }
 
-// loadConfig 加载配置
+// loadConfig 加载配置.
 func (am *AdaptiveManager) loadConfig() error {
 	if _, err := os.Stat(am.configPath); os.IsNotExist(err) {
 		return nil
@@ -80,7 +80,7 @@ func (am *AdaptiveManager) loadConfig() error {
 	return nil
 }
 
-// saveConfig 保存配置
+// saveConfig 保存配置.
 func (am *AdaptiveManager) saveConfig() error {
 	if am.configPath == "" {
 		return nil
@@ -112,7 +112,7 @@ func (am *AdaptiveManager) saveConfig() error {
 	return nil
 }
 
-// EvaluateLogin 评估登录请求
+// EvaluateLogin 评估登录请求.
 func (am *AdaptiveManager) EvaluateLogin(ctx *LoginContext) *AdaptiveAuthResult {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -181,7 +181,7 @@ func (am *AdaptiveManager) EvaluateLogin(ctx *LoginContext) *AdaptiveAuthResult 
 	return result
 }
 
-// findTrustedDevice 查找信任设备
+// findTrustedDevice 查找信任设备.
 func (am *AdaptiveManager) findTrustedDevice(userID, fingerprint string) *TrustedDevice {
 	devices, exists := am.trustedDevices[userID]
 	if !exists {
@@ -200,7 +200,7 @@ func (am *AdaptiveManager) findTrustedDevice(userID, fingerprint string) *Truste
 	return nil
 }
 
-// createChallenge 创建认证挑战
+// createChallenge 创建认证挑战.
 func (am *AdaptiveManager) createChallenge(userID, challengeType string) *AuthChallenge {
 	challengeID, _ := generateID()
 
@@ -217,7 +217,7 @@ func (am *AdaptiveManager) createChallenge(userID, challengeType string) *AuthCh
 	return challenge
 }
 
-// TrustDevice 信任设备
+// TrustDevice 信任设备.
 func (am *AdaptiveManager) TrustDevice(userID, deviceFingerprint, ip, userAgent string, geoLocation *GeoLocation) (*TrustedDevice, error) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -264,7 +264,7 @@ func (am *AdaptiveManager) TrustDevice(userID, deviceFingerprint, ip, userAgent 
 	return device, nil
 }
 
-// RevokeTrust 撤销设备信任
+// RevokeTrust 撤销设备信任.
 func (am *AdaptiveManager) RevokeTrust(userID, deviceID string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -284,7 +284,7 @@ func (am *AdaptiveManager) RevokeTrust(userID, deviceID string) error {
 	return fmt.Errorf("未找到设备 %s", deviceID)
 }
 
-// RevokeAllTrust 撤销用户所有信任设备
+// RevokeAllTrust 撤销用户所有信任设备.
 func (am *AdaptiveManager) RevokeAllTrust(userID string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -293,7 +293,7 @@ func (am *AdaptiveManager) RevokeAllTrust(userID string) error {
 	return am.saveConfig()
 }
 
-// GetTrustedDevices 获取用户信任设备列表
+// GetTrustedDevices 获取用户信任设备列表.
 func (am *AdaptiveManager) GetTrustedDevices(userID string) []*TrustedDevice {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -315,7 +315,7 @@ func (am *AdaptiveManager) GetTrustedDevices(userID string) []*TrustedDevice {
 	return validDevices
 }
 
-// VerifyChallenge 验证挑战
+// VerifyChallenge 验证挑战.
 func (am *AdaptiveManager) VerifyChallenge(challengeID string) (*AuthChallenge, error) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -333,7 +333,7 @@ func (am *AdaptiveManager) VerifyChallenge(challengeID string) (*AuthChallenge, 
 	return challenge, nil
 }
 
-// CompleteChallenge 完成挑战
+// CompleteChallenge 完成挑战.
 func (am *AdaptiveManager) CompleteChallenge(challengeID string) error {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -354,7 +354,7 @@ func (am *AdaptiveManager) CompleteChallenge(challengeID string) error {
 	return am.saveConfig()
 }
 
-// CleanupExpired 清理过期数据
+// CleanupExpired 清理过期数据.
 func (am *AdaptiveManager) CleanupExpired() (devicesRemoved, challengesRemoved int) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
@@ -388,7 +388,7 @@ func (am *AdaptiveManager) CleanupExpired() (devicesRemoved, challengesRemoved i
 	return devicesRemoved, challengesRemoved
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (am *AdaptiveManager) GetStats() map[string]interface{} {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
@@ -406,31 +406,31 @@ func (am *AdaptiveManager) GetStats() map[string]interface{} {
 	}
 }
 
-// GetConfig 获取配置
+// GetConfig 获取配置.
 func (am *AdaptiveManager) GetConfig() *AdaptiveConfig {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
 	return am.config
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (am *AdaptiveManager) UpdateConfig(config *AdaptiveConfig) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
 	am.config = config
 }
 
-// GetRiskEngine 获取风险引擎
+// GetRiskEngine 获取风险引擎.
 func (am *AdaptiveManager) GetRiskEngine() *RiskEngine {
 	return am.riskEngine
 }
 
-// GetFingerprintGenerator 获取指纹生成器
+// GetFingerprintGenerator 获取指纹生成器.
 func (am *AdaptiveManager) GetFingerprintGenerator() *FingerprintGenerator {
 	return am.fingerprintGen
 }
 
-// generateID 生成随机ID
+// generateID 生成随机ID.
 func generateID() (string, error) {
 	bytes := make([]byte, 16)
 	if _, err := rand.Read(bytes); err != nil {

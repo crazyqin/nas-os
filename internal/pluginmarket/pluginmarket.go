@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// PluginMarket 插件市场
+// PluginMarket 插件市场.
 type PluginMarket struct {
 	mu         sync.RWMutex
 	plugins    map[string]*Plugin
@@ -17,7 +17,7 @@ type PluginMarket struct {
 	config     *Config
 }
 
-// Plugin 插件
+// Plugin 插件.
 type Plugin struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -42,7 +42,7 @@ type Plugin struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// Installation 安装记录
+// Installation 安装记录.
 type Installation struct {
 	PluginID    string                 `json:"plugin_id"`
 	Version     string                 `json:"version"`
@@ -52,7 +52,7 @@ type Installation struct {
 	UpdatedAt   time.Time              `json:"updated_at"`
 }
 
-// Category 分类
+// Category 分类.
 type Category struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -61,7 +61,7 @@ type Category struct {
 	Count       int    `json:"count"`
 }
 
-// Review 评价
+// Review 评价.
 type Review struct {
 	ID        string    `json:"id"`
 	UserID    string    `json:"user_id"`
@@ -72,7 +72,7 @@ type Review struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	RepositoryURL  string        `json:"repository_url"`
 	AutoUpdate     bool          `json:"auto_update"`
@@ -82,7 +82,7 @@ type Config struct {
 	AllowBeta      bool          `json:"allow_beta"`
 }
 
-// NewPluginMarket 创建插件市场
+// NewPluginMarket 创建插件市场.
 func NewPluginMarket(config *Config) *PluginMarket {
 	return &PluginMarket{
 		plugins:    make(map[string]*Plugin),
@@ -93,7 +93,7 @@ func NewPluginMarket(config *Config) *PluginMarket {
 	}
 }
 
-// RegisterPlugin 注册插件
+// RegisterPlugin 注册插件.
 func (pm *PluginMarket) RegisterPlugin(ctx context.Context, plugin *Plugin) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -104,7 +104,7 @@ func (pm *PluginMarket) RegisterPlugin(ctx context.Context, plugin *Plugin) erro
 	return nil
 }
 
-// GetPlugin 获取插件
+// GetPlugin 获取插件.
 func (pm *PluginMarket) GetPlugin(ctx context.Context, id string) (*Plugin, error) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -116,7 +116,7 @@ func (pm *PluginMarket) GetPlugin(ctx context.Context, id string) (*Plugin, erro
 	return plugin, nil
 }
 
-// ListPlugins 列出插件
+// ListPlugins 列出插件.
 func (pm *PluginMarket) ListPlugins(ctx context.Context, category string, limit int) []*Plugin {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -137,7 +137,7 @@ func (pm *PluginMarket) ListPlugins(ctx context.Context, category string, limit 
 	return plugins
 }
 
-// SearchPlugins 搜索插件
+// SearchPlugins 搜索插件.
 func (pm *PluginMarket) SearchPlugins(ctx context.Context, query string, limit int) []*Plugin {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -158,7 +158,7 @@ func (pm *PluginMarket) SearchPlugins(ctx context.Context, query string, limit i
 	return results
 }
 
-// InstallPlugin 安装插件
+// InstallPlugin 安装插件.
 func (pm *PluginMarket) InstallPlugin(ctx context.Context, pluginID string, config map[string]interface{}) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -190,7 +190,7 @@ func (pm *PluginMarket) InstallPlugin(ctx context.Context, pluginID string, conf
 	return nil
 }
 
-// UninstallPlugin 卸载插件
+// UninstallPlugin 卸载插件.
 func (pm *PluginMarket) UninstallPlugin(ctx context.Context, pluginID string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -203,7 +203,7 @@ func (pm *PluginMarket) UninstallPlugin(ctx context.Context, pluginID string) er
 	return nil
 }
 
-// EnablePlugin 启用插件
+// EnablePlugin 启用插件.
 func (pm *PluginMarket) EnablePlugin(ctx context.Context, pluginID string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -218,7 +218,7 @@ func (pm *PluginMarket) EnablePlugin(ctx context.Context, pluginID string) error
 	return nil
 }
 
-// DisablePlugin 禁用插件
+// DisablePlugin 禁用插件.
 func (pm *PluginMarket) DisablePlugin(ctx context.Context, pluginID string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -233,7 +233,7 @@ func (pm *PluginMarket) DisablePlugin(ctx context.Context, pluginID string) erro
 	return nil
 }
 
-// GetInstallation 获取安装信息
+// GetInstallation 获取安装信息.
 func (pm *PluginMarket) GetInstallation(ctx context.Context, pluginID string) (*Installation, error) {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -245,7 +245,7 @@ func (pm *PluginMarket) GetInstallation(ctx context.Context, pluginID string) (*
 	return installation, nil
 }
 
-// ListInstalled 列出已安装插件
+// ListInstalled 列出已安装插件.
 func (pm *PluginMarket) ListInstalled(ctx context.Context) []*Installation {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -257,7 +257,7 @@ func (pm *PluginMarket) ListInstalled(ctx context.Context) []*Installation {
 	return installations
 }
 
-// AddReview 添加评价
+// AddReview 添加评价.
 func (pm *PluginMarket) AddReview(ctx context.Context, review *Review) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -271,7 +271,7 @@ func (pm *PluginMarket) AddReview(ctx context.Context, review *Review) error {
 	return nil
 }
 
-// GetReviews 获取评价
+// GetReviews 获取评价.
 func (pm *PluginMarket) GetReviews(ctx context.Context, pluginID string, limit int) []*Review {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -283,7 +283,7 @@ func (pm *PluginMarket) GetReviews(ctx context.Context, pluginID string, limit i
 	return reviews
 }
 
-// AddCategory 添加分类
+// AddCategory 添加分类.
 func (pm *PluginMarket) AddCategory(ctx context.Context, category *Category) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -292,7 +292,7 @@ func (pm *PluginMarket) AddCategory(ctx context.Context, category *Category) err
 	return nil
 }
 
-// ListCategories 列出分类
+// ListCategories 列出分类.
 func (pm *PluginMarket) ListCategories(ctx context.Context) []*Category {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -304,7 +304,7 @@ func (pm *PluginMarket) ListCategories(ctx context.Context) []*Category {
 	return categories
 }
 
-// GetFeatured 获取推荐插件
+// GetFeatured 获取推荐插件.
 func (pm *PluginMarket) GetFeatured(ctx context.Context, limit int) []*Plugin {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -322,7 +322,7 @@ func (pm *PluginMarket) GetFeatured(ctx context.Context, limit int) []*Plugin {
 	return featured
 }
 
-// GetPopular 获取热门插件
+// GetPopular 获取热门插件.
 func (pm *PluginMarket) GetPopular(ctx context.Context, limit int) []*Plugin {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -341,7 +341,7 @@ func (pm *PluginMarket) GetPopular(ctx context.Context, limit int) []*Plugin {
 	return plugins
 }
 
-// UpdatePlugin 更新插件
+// UpdatePlugin 更新插件.
 func (pm *PluginMarket) UpdatePlugin(ctx context.Context, pluginID, newVersion string) error {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -363,7 +363,7 @@ func (pm *PluginMarket) UpdatePlugin(ctx context.Context, pluginID, newVersion s
 	return nil
 }
 
-// CheckUpdates 检查更新
+// CheckUpdates 检查更新.
 func (pm *PluginMarket) CheckUpdates(ctx context.Context) map[string]string {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -378,7 +378,7 @@ func (pm *PluginMarket) CheckUpdates(ctx context.Context) map[string]string {
 	return updates
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (pm *PluginMarket) GetStats(ctx context.Context) map[string]interface{} {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
@@ -396,7 +396,7 @@ func (pm *PluginMarket) GetStats(ctx context.Context) map[string]interface{} {
 	}
 }
 
-// 内部方法
+// 内部方法.
 func (pm *PluginMarket) updatePluginRating(pluginID string) {
 	reviews := pm.reviews[pluginID]
 	if len(reviews) == 0 {
@@ -415,7 +415,7 @@ func (pm *PluginMarket) updatePluginRating(pluginID string) {
 	}
 }
 
-// 辅助函数
+// 辅助函数.
 func matchPlugin(plugin *Plugin, query string) bool {
 	// 检查名称
 	if contains(plugin.Name, query) {

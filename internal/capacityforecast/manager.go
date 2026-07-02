@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Manager 容量预测管理器
+// Manager 容量预测管理器.
 type Manager struct {
 	mu        sync.RWMutex
 	config    ForecastConfig
@@ -18,7 +18,7 @@ type Manager struct {
 	stopCh    chan struct{}
 }
 
-// NewManager 创建容量预测管理器
+// NewManager 创建容量预测管理器.
 func NewManager(config ForecastConfig) *Manager {
 	return &Manager{
 		config:    config,
@@ -28,7 +28,7 @@ func NewManager(config ForecastConfig) *Manager {
 	}
 }
 
-// Start 启动管理器
+// Start 启动管理器.
 func (m *Manager) Start(ctx context.Context) error {
 	if !m.config.Enabled {
 		return nil
@@ -37,7 +37,7 @@ func (m *Manager) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop 停止管理器
+// Stop 停止管理器.
 func (m *Manager) Stop() {
 	select {
 	case <-m.stopCh:
@@ -46,21 +46,21 @@ func (m *Manager) Stop() {
 	}
 }
 
-// UpdateConfig 更新配置
+// UpdateConfig 更新配置.
 func (m *Manager) UpdateConfig(config ForecastConfig) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.config = config
 }
 
-// GetConfig 获取当前配置
+// GetConfig 获取当前配置.
 func (m *Manager) GetConfig() ForecastConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
-// AddSnapshot 添加容量快照
+// AddSnapshot 添加容量快照.
 func (m *Manager) AddSnapshot(snapshot CapacitySnapshot) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -81,7 +81,7 @@ func (m *Manager) AddSnapshot(snapshot CapacitySnapshot) {
 	m.checkAlerts(snapshot)
 }
 
-// GetSnapshots 获取快照列表
+// GetSnapshots 获取快照列表.
 func (m *Manager) GetSnapshots(duration time.Duration) []CapacitySnapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -96,7 +96,7 @@ func (m *Manager) GetSnapshots(duration time.Duration) []CapacitySnapshot {
 	return result
 }
 
-// PredictCapacity 预测容量
+// PredictCapacity 预测容量.
 func (m *Manager) PredictCapacity(targetDays int) (*Forecast, error) {
 	m.mu.RLock()
 	snapshots := m.snapshots
@@ -169,7 +169,7 @@ func (m *Manager) PredictCapacity(targetDays int) (*Forecast, error) {
 	}, nil
 }
 
-// AnalyzeGrowth 分析增长率
+// AnalyzeGrowth 分析增长率.
 func (m *Manager) AnalyzeGrowth() (*GrowthAnalysis, error) {
 	m.mu.RLock()
 	snapshots := m.snapshots
@@ -251,7 +251,7 @@ func (m *Manager) AnalyzeGrowth() (*GrowthAnalysis, error) {
 	}, nil
 }
 
-// CheckAlerts 获取当前告警
+// CheckAlerts 获取当前告警.
 func (m *Manager) CheckAlerts(dismissed bool) []CapacityAlert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -265,7 +265,7 @@ func (m *Manager) CheckAlerts(dismissed bool) []CapacityAlert {
 	return alerts
 }
 
-// DismissAlert 忽略告警
+// DismissAlert 忽略告警.
 func (m *Manager) DismissAlert(alertID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -279,7 +279,7 @@ func (m *Manager) DismissAlert(alertID string) error {
 	return fmt.Errorf("告警 %s 不存在", alertID)
 }
 
-// AcknowledgeAlert 确认告警
+// AcknowledgeAlert 确认告警.
 func (m *Manager) AcknowledgeAlert(alertID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -293,7 +293,7 @@ func (m *Manager) AcknowledgeAlert(alertID string) error {
 	return fmt.Errorf("告警 %s 不存在", alertID)
 }
 
-// SimulateWhatIf What-If 模拟
+// SimulateWhatIf What-If 模拟.
 func (m *Manager) SimulateWhatIf(scenario WhatIfScenario) (*WhatIfScenario, error) {
 	m.mu.RLock()
 	snapshots := m.snapshots
@@ -381,7 +381,7 @@ func (m *Manager) SimulateWhatIf(scenario WhatIfScenario) (*WhatIfScenario, erro
 	return &scenario, nil
 }
 
-// GetScenario 获取模拟场景
+// GetScenario 获取模拟场景.
 func (m *Manager) GetScenario(id string) (*WhatIfScenario, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -393,7 +393,7 @@ func (m *Manager) GetScenario(id string) (*WhatIfScenario, error) {
 	return scenario, nil
 }
 
-// ListScenarios 列出所有模拟场景
+// ListScenarios 列出所有模拟场景.
 func (m *Manager) ListScenarios() []*WhatIfScenario {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -405,7 +405,7 @@ func (m *Manager) ListScenarios() []*WhatIfScenario {
 	return scenarios
 }
 
-// RecommendExpansion 推荐扩容方案
+// RecommendExpansion 推荐扩容方案.
 func (m *Manager) RecommendExpansion() (*ExpansionRecommendation, error) {
 	m.mu.RLock()
 	snapshots := m.snapshots
@@ -480,7 +480,7 @@ func (m *Manager) RecommendExpansion() (*ExpansionRecommendation, error) {
 	}, nil
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -502,7 +502,7 @@ func (m *Manager) GetStats() map[string]interface{} {
 
 // --- 内部方法 ---
 
-// checkAlerts 检查告警
+// checkAlerts 检查告警.
 func (m *Manager) checkAlerts(snapshot CapacitySnapshot) {
 	level := m.determineAlertLevel(snapshot.UsedPercent)
 	if level == AlertInfo {
@@ -536,7 +536,7 @@ func (m *Manager) checkAlerts(snapshot CapacitySnapshot) {
 	m.alerts = append(m.alerts, alert)
 }
 
-// linearRegression 线性回归
+// linearRegression 线性回归.
 func (m *Manager) linearRegression(snapshots []CapacitySnapshot) (float64, float64) {
 	if len(snapshots) < 2 {
 		return 0, 0
@@ -588,7 +588,7 @@ func (m *Manager) linearRegression(snapshots []CapacitySnapshot) (float64, float
 	return slope * 24, confidence // 转换为每日
 }
 
-// movingAverageForecast 移动平均预测
+// movingAverageForecast 移动平均预测.
 func (m *Manager) movingAverageForecast(snapshots []CapacitySnapshot) (float64, float64) {
 	if len(snapshots) < m.config.MovingAverageWindow*2 {
 		return 0, 0
@@ -652,7 +652,7 @@ func (m *Manager) movingAverageForecast(snapshots []CapacitySnapshot) (float64, 
 	return slope, confidence
 }
 
-// bucketByDay 按天分桶
+// bucketByDay 按天分桶.
 func (m *Manager) bucketByDay(snapshots []CapacitySnapshot) []float64 {
 	if len(snapshots) == 0 {
 		return nil
@@ -709,7 +709,7 @@ func (m *Manager) bucketByDay(snapshots []CapacitySnapshot) []float64 {
 	return buckets
 }
 
-// determineTrend 确定趋势方向
+// determineTrend 确定趋势方向.
 func (m *Manager) determineTrend(rate float64) TrendDirection {
 	threshold := 0.01
 	if rate > threshold {
@@ -720,7 +720,7 @@ func (m *Manager) determineTrend(rate float64) TrendDirection {
 	return TrendStable
 }
 
-// determineAlertLevel 确定告警级别
+// determineAlertLevel 确定告警级别.
 func (m *Manager) determineAlertLevel(usage float64) AlertLevel {
 	if usage >= m.config.EmergencyThreshold {
 		return AlertEmergency
@@ -734,7 +734,7 @@ func (m *Manager) determineAlertLevel(usage float64) AlertLevel {
 	return AlertInfo
 }
 
-// getThreshold 获取阈值
+// getThreshold 获取阈值.
 func (m *Manager) getThreshold(level AlertLevel) float64 {
 	switch level {
 	case AlertEmergency:
@@ -748,7 +748,7 @@ func (m *Manager) getThreshold(level AlertLevel) float64 {
 	}
 }
 
-// generateAddDiskPlan 生成添加硬盘方案
+// generateAddDiskPlan 生成添加硬盘方案.
 func (m *Manager) generateAddDiskPlan(latest CapacitySnapshot, dailyGrowth int64, config ForecastConfig) ExpansionPlan {
 	neededBytes := dailyGrowth * int64(config.ExpansionTargetDays)
 	bufferBytes := neededBytes / 10
@@ -792,7 +792,7 @@ func (m *Manager) generateAddDiskPlan(latest CapacitySnapshot, dailyGrowth int64
 	}
 }
 
-// generateMultiDiskPlan 生成多硬盘方案
+// generateMultiDiskPlan 生成多硬盘方案.
 func (m *Manager) generateMultiDiskPlan(latest CapacitySnapshot, dailyGrowth int64, config ForecastConfig) ExpansionPlan {
 	neededBytes := dailyGrowth * int64(config.ExpansionTargetDays)
 	bufferBytes := neededBytes / 10
@@ -837,7 +837,7 @@ func (m *Manager) generateMultiDiskPlan(latest CapacitySnapshot, dailyGrowth int
 	}
 }
 
-// generateCloudTierPlan 生成云分层方案
+// generateCloudTierPlan 生成云分层方案.
 func (m *Manager) generateCloudTierPlan(latest CapacitySnapshot, dailyGrowth int64, config ForecastConfig) ExpansionPlan {
 	neededBytes := dailyGrowth * int64(config.ExpansionTargetDays)
 	tbNeeded := float64(neededBytes) / 1099511627776
@@ -863,7 +863,7 @@ func (m *Manager) generateCloudTierPlan(latest CapacitySnapshot, dailyGrowth int
 	}
 }
 
-// generateReplaceAllPlan 生成全部替换方案
+// generateReplaceAllPlan 生成全部替换方案.
 func (m *Manager) generateReplaceAllPlan(latest CapacitySnapshot, dailyGrowth int64, config ForecastConfig) ExpansionPlan {
 	// 假设当前是 4TB x 4 的配置
 	currentDiskCount := 4
@@ -902,7 +902,7 @@ func (m *Manager) generateReplaceAllPlan(latest CapacitySnapshot, dailyGrowth in
 	}
 }
 
-// monitorLoop 监控循环
+// monitorLoop 监控循环.
 func (m *Manager) monitorLoop(ctx context.Context) {
 	ticker := time.NewTicker(m.config.SnapshotInterval)
 	defer ticker.Stop()
@@ -919,7 +919,7 @@ func (m *Manager) monitorLoop(ctx context.Context) {
 	}
 }
 
-// FormatBytes 格式化字节数
+// FormatBytes 格式化字节数.
 func FormatBytes(bytes int64) string {
 	const unit = 1024
 	if bytes < unit {

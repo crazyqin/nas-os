@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// 常见错误
+// 常见错误.
 var (
 	ErrTeamNotFound     = errors.New("team not found")
 	ErrMemberNotFound   = errors.New("member not found")
@@ -24,7 +24,7 @@ var (
 	ErrRoleNotAllowed   = errors.New("role not allowed for this operation")
 )
 
-// Role 成员角色
+// Role 成员角色.
 type Role string
 
 const (
@@ -33,17 +33,17 @@ const (
 	RoleViewer Role = "viewer" // 只读：仅查看
 )
 
-// CanEdit 判断角色是否有编辑权限
+// CanEdit 判断角色是否有编辑权限.
 func (r Role) CanEdit() bool {
 	return r == RoleAdmin || r == RoleEditor
 }
 
-// CanAdmin 判断角色是否有管理员权限
+// CanAdmin 判断角色是否有管理员权限.
 func (r Role) CanAdmin() bool {
 	return r == RoleAdmin
 }
 
-// Member 团队成员
+// Member 团队成员.
 type Member struct {
 	UserID    string    `json:"user_id"`
 	Role      Role      `json:"role"`
@@ -51,14 +51,14 @@ type Member struct {
 	InvitedBy string    `json:"invited_by,omitempty"`
 }
 
-// FileLock 文件锁定信息
+// FileLock 文件锁定信息.
 type FileLock struct {
 	LockedBy  string     `json:"locked_by"`
 	LockedAt  time.Time  `json:"locked_at"`
 	ExpiresAt *time.Time `json:"expires_at,omitempty"`
 }
 
-// SharedFile 共享文件
+// SharedFile 共享文件.
 type SharedFile struct {
 	ID          string    `json:"id"`
 	TeamID      string    `json:"team_id"`
@@ -69,7 +69,7 @@ type SharedFile struct {
 	Description string    `json:"description,omitempty"`
 }
 
-// Team 团队
+// Team 团队.
 type Team struct {
 	ID          string       `json:"id"`
 	Name        string       `json:"name"`
@@ -81,43 +81,43 @@ type Team struct {
 	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
-// CreateTeamRequest 创建团队请求
+// CreateTeamRequest 创建团队请求.
 type CreateTeamRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description,omitempty"`
 }
 
-// AddMemberRequest 添加成员请求
+// AddMemberRequest 添加成员请求.
 type AddMemberRequest struct {
 	UserID string `json:"user_id" binding:"required"`
 	Role   Role   `json:"role" binding:"required"`
 }
 
-// ShareFileRequest 共享文件请求
+// ShareFileRequest 共享文件请求.
 type ShareFileRequest struct {
 	Path        string `json:"path" binding:"required"`
 	Description string `json:"description,omitempty"`
 }
 
-// LockFileRequest 锁定文件请求
+// LockFileRequest 锁定文件请求.
 type LockFileRequest struct {
 	Duration *time.Duration `json:"duration,omitempty"` // 锁定持续时间
 }
 
-// Manager 团队文件管理器
+// Manager 团队文件管理器.
 type Manager struct {
 	mu    sync.RWMutex
 	teams map[string]*Team // teamID -> Team; persistence can be added by exporting/importing this state.
 }
 
-// NewManager 创建团队文件管理器
+// NewManager 创建团队文件管理器.
 func NewManager() *Manager {
 	return &Manager{
 		teams: make(map[string]*Team),
 	}
 }
 
-// CreateTeam 创建团队
+// CreateTeam 创建团队.
 func (m *Manager) CreateTeam(ownerID string, req *CreateTeamRequest) (*Team, error) {
 	if ownerID == "" || req.Name == "" {
 		return nil, ErrInvalidInput
@@ -145,7 +145,7 @@ func (m *Manager) CreateTeam(ownerID string, req *CreateTeamRequest) (*Team, err
 	return team, nil
 }
 
-// AddMember 添加团队成员（需要管理员权限）
+// AddMember 添加团队成员（需要管理员权限）.
 func (m *Manager) AddMember(operatorID, teamID string, req *AddMemberRequest) error {
 	if req.UserID == "" {
 		return ErrInvalidInput
@@ -186,7 +186,7 @@ func (m *Manager) AddMember(operatorID, teamID string, req *AddMemberRequest) er
 	return nil
 }
 
-// RemoveMember 移除团队成员（需要管理员权限）
+// RemoveMember 移除团队成员（需要管理员权限）.
 func (m *Manager) RemoveMember(operatorID, teamID, memberUserID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -215,7 +215,7 @@ func (m *Manager) RemoveMember(operatorID, teamID, memberUserID string) error {
 	return ErrMemberNotFound
 }
 
-// UpdateMemberRole 更新成员角色（需要管理员权限）
+// UpdateMemberRole 更新成员角色（需要管理员权限）.
 func (m *Manager) UpdateMemberRole(operatorID, teamID, memberUserID string, newRole Role) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -244,7 +244,7 @@ func (m *Manager) UpdateMemberRole(operatorID, teamID, memberUserID string, newR
 	return ErrMemberNotFound
 }
 
-// ShareFile 在团队中共享文件（需要编辑权限）
+// ShareFile 在团队中共享文件（需要编辑权限）.
 func (m *Manager) ShareFile(operatorID, teamID string, req *ShareFileRequest) (*SharedFile, error) {
 	if req.Path == "" {
 		return nil, ErrInvalidInput
@@ -282,7 +282,7 @@ func (m *Manager) ShareFile(operatorID, teamID string, req *ShareFileRequest) (*
 	return &sf, nil
 }
 
-// LockFile 锁定文件（需要编辑权限）
+// LockFile 锁定文件（需要编辑权限）.
 func (m *Manager) LockFile(operatorID, teamID, fileID string, req *LockFileRequest) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -324,7 +324,7 @@ func (m *Manager) LockFile(operatorID, teamID, fileID string, req *LockFileReque
 	return ErrFileNotFound
 }
 
-// UnlockFile 解锁文件
+// UnlockFile 解锁文件.
 func (m *Manager) UnlockFile(operatorID, teamID, fileID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -352,7 +352,7 @@ func (m *Manager) UnlockFile(operatorID, teamID, fileID string) error {
 	return ErrFileNotFound
 }
 
-// GetTeam 获取团队详情
+// GetTeam 获取团队详情.
 func (m *Manager) GetTeam(teamID string) (*Team, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -364,7 +364,7 @@ func (m *Manager) GetTeam(teamID string) (*Team, error) {
 	return team, nil
 }
 
-// ListUserTeams 列出用户参与的所有团队
+// ListUserTeams 列出用户参与的所有团队.
 func (m *Manager) ListUserTeams(userID string) []*Team {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -381,7 +381,7 @@ func (m *Manager) ListUserTeams(userID string) []*Team {
 	return result
 }
 
-// hasAdminRole 检查用户是否是团队管理员
+// hasAdminRole 检查用户是否是团队管理员.
 func (m *Manager) hasAdminRole(team *Team, userID string) bool {
 	for _, member := range team.Members {
 		if member.UserID == userID && member.Role.CanAdmin() {
@@ -391,7 +391,7 @@ func (m *Manager) hasAdminRole(team *Team, userID string) bool {
 	return false
 }
 
-// hasEditRole 检查用户是否有编辑权限
+// hasEditRole 检查用户是否有编辑权限.
 func (m *Manager) hasEditRole(team *Team, userID string) bool {
 	for _, member := range team.Members {
 		if member.UserID == userID && member.Role.CanEdit() {

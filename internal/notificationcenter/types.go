@@ -9,7 +9,7 @@ import (
 
 // ========== 通知优先级 ==========
 
-// Priority 通知优先级
+// Priority 通知优先级.
 type Priority string
 
 const (
@@ -19,7 +19,7 @@ const (
 	PriorityLow      Priority = "low"      // 低：信息性通知
 )
 
-// PriorityWeight 返回优先级权重（用于排序）
+// PriorityWeight 返回优先级权重（用于排序）.
 func PriorityWeight(p Priority) int {
 	switch p {
 	case PriorityCritical:
@@ -37,7 +37,7 @@ func PriorityWeight(p Priority) int {
 
 // ========== 通知渠道 ==========
 
-// Channel 通知渠道类型
+// Channel 通知渠道类型.
 type Channel string
 
 const (
@@ -50,7 +50,7 @@ const (
 
 // ========== 通知状态 ==========
 
-// NotificationStatus 通知状态
+// NotificationStatus 通知状态.
 type NotificationStatus string
 
 const (
@@ -72,7 +72,7 @@ var (
 
 // ========== 通知实体 ==========
 
-// Notification 通知
+// Notification 通知.
 type Notification struct {
 	ID        string                 `json:"id"`
 	Title     string                 `json:"title"`
@@ -93,7 +93,7 @@ type Notification struct {
 
 // ========== 通知模板 ==========
 
-// NotificationTemplate 通知模板
+// NotificationTemplate 通知模板.
 type NotificationTemplate struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -110,14 +110,14 @@ type NotificationTemplate struct {
 
 // ========== 通知规则 ==========
 
-// RuleCondition 规则条件
+// RuleCondition 规则条件.
 type RuleCondition struct {
 	Field    string      `json:"field"`    // 字段名
 	Operator string      `json:"operator"` // ==, !=, >, <, >=, <=, contains, regex
 	Value    interface{} `json:"value"`    // 比较值
 }
 
-// NotificationRule 通知规则
+// NotificationRule 通知规则.
 type NotificationRule struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -140,7 +140,7 @@ type NotificationRule struct {
 
 // ========== 通知聚合 ==========
 
-// AggregationEntry 聚合条目
+// AggregationEntry 聚合条目.
 type AggregationEntry struct {
 	AggKey    string        `json:"agg_key"`
 	Count     int           `json:"count"`
@@ -152,7 +152,7 @@ type AggregationEntry struct {
 
 // ========== 静默时段 ==========
 
-// SilentPeriod 静默时段
+// SilentPeriod 静默时段.
 type SilentPeriod struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -168,7 +168,7 @@ type SilentPeriod struct {
 	UpdatedAt   time.Time         `json:"updated_at"`
 }
 
-// IsActive 检查当前是否在静默时段内
+// IsActive 检查当前是否在静默时段内.
 func (sp *SilentPeriod) IsActive(now time.Time) bool {
 	if !sp.Enabled {
 		return false
@@ -197,7 +197,7 @@ func (sp *SilentPeriod) IsActive(now time.Time) bool {
 	return current >= start || current < end
 }
 
-// IsPrioritySilent 检查某优先级是否被静默
+// IsPrioritySilent 检查某优先级是否被静默.
 func (sp *SilentPeriod) IsPrioritySilent(p Priority) bool {
 	if p == PriorityCritical {
 		return false // 紧急通知不可静默
@@ -212,7 +212,7 @@ func (sp *SilentPeriod) IsPrioritySilent(p Priority) bool {
 
 // ========== 用户通知偏好 ==========
 
-// UserPreference 用户通知偏好
+// UserPreference 用户通知偏好.
 type UserPreference struct {
 	UserID      string                  `json:"user_id"`
 	Channels    map[Channel]ChannelPref `json:"channels"`
@@ -223,13 +223,13 @@ type UserPreference struct {
 	UpdatedAt   time.Time               `json:"updated_at"`
 }
 
-// ChannelPref 单渠道偏好
+// ChannelPref 单渠道偏好.
 type ChannelPref struct {
 	Enabled bool   `json:"enabled"`
 	Address string `json:"address,omitempty"` // 邮箱、webhook URL、chat ID 等
 }
 
-// DefaultUserPreference 默认用户偏好
+// DefaultUserPreference 默认用户偏好.
 func DefaultUserPreference(userID string) *UserPreference {
 	now := time.Now()
 	return &UserPreference{
@@ -249,7 +249,7 @@ func DefaultUserPreference(userID string) *UserPreference {
 
 // ========== 汇总统计 ==========
 
-// NotificationSummary 通知摘要
+// NotificationSummary 通知摘要.
 type NotificationSummary struct {
 	TotalUnread int              `json:"total_unread"`
 	TotalRead   int              `json:"total_read"`

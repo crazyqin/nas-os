@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-// EnvManager 环境变量管理器
+// EnvManager 环境变量管理器.
 type EnvManager struct {
 	mu        sync.RWMutex
 	appEnv    map[string]map[string]string // appID -> env vars
@@ -14,7 +14,7 @@ type EnvManager struct {
 	templates map[string][]EnvVarDef       // templateID -> env var definitions
 }
 
-// NewEnvManager 创建环境变量管理器
+// NewEnvManager 创建环境变量管理器.
 func NewEnvManager() *EnvManager {
 	return &EnvManager{
 		appEnv:    make(map[string]map[string]string),
@@ -23,7 +23,7 @@ func NewEnvManager() *EnvManager {
 	}
 }
 
-// SetEnv 设置应用环境变量
+// SetEnv 设置应用环境变量.
 func (em *EnvManager) SetEnv(appID, key, value string) error {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -44,7 +44,7 @@ func (em *EnvManager) SetEnv(appID, key, value string) error {
 	return nil
 }
 
-// GetEnv 获取应用环境变量
+// GetEnv 获取应用环境变量.
 func (em *EnvManager) GetEnv(appID, key string) (string, error) {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
@@ -62,7 +62,7 @@ func (em *EnvManager) GetEnv(appID, key string) (string, error) {
 	return value, nil
 }
 
-// GetAllEnv 获取应用所有环境变量
+// GetAllEnv 获取应用所有环境变量.
 func (em *EnvManager) GetAllEnv(appID string) map[string]string {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
@@ -80,7 +80,7 @@ func (em *EnvManager) GetAllEnv(appID string) map[string]string {
 	return result
 }
 
-// DeleteEnv 删除应用环境变量
+// DeleteEnv 删除应用环境变量.
 func (em *EnvManager) DeleteEnv(appID, key string) error {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -99,7 +99,7 @@ func (em *EnvManager) DeleteEnv(appID, key string) error {
 	return nil
 }
 
-// BatchSetEnv 批量设置环境变量
+// BatchSetEnv 批量设置环境变量.
 func (em *EnvManager) BatchSetEnv(appID string, vars map[string]string) error {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -120,7 +120,7 @@ func (em *EnvManager) BatchSetEnv(appID string, vars map[string]string) error {
 	return nil
 }
 
-// SetSecret 设置密钥
+// SetSecret 设置密钥.
 func (em *EnvManager) SetSecret(appID, key, value string) error {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -142,7 +142,7 @@ func (em *EnvManager) SetSecret(appID, key, value string) error {
 	return nil
 }
 
-// GetSecret 获取密钥
+// GetSecret 获取密钥.
 func (em *EnvManager) GetSecret(appID, key string) (string, error) {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
@@ -160,7 +160,7 @@ func (em *EnvManager) GetSecret(appID, key string) (string, error) {
 	return value, nil
 }
 
-// DeleteSecret 删除密钥
+// DeleteSecret 删除密钥.
 func (em *EnvManager) DeleteSecret(appID, key string) error {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -179,7 +179,7 @@ func (em *EnvManager) DeleteSecret(appID, key string) error {
 	return nil
 }
 
-// DeleteAllEnv 删除应用所有环境变量
+// DeleteAllEnv 删除应用所有环境变量.
 func (em *EnvManager) DeleteAllEnv(appID string) {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -189,7 +189,7 @@ func (em *EnvManager) DeleteAllEnv(appID string) {
 	log.Printf("All environment variables deleted for app: %s", appID)
 }
 
-// RegisterTemplate 注册模板环境变量定义
+// RegisterTemplate 注册模板环境变量定义.
 func (em *EnvManager) RegisterTemplate(templateID string, vars []EnvVarDef) error {
 	em.mu.Lock()
 	defer em.mu.Unlock()
@@ -203,7 +203,7 @@ func (em *EnvManager) RegisterTemplate(templateID string, vars []EnvVarDef) erro
 	return nil
 }
 
-// GetTemplateVars 获取模板环境变量定义
+// GetTemplateVars 获取模板环境变量定义.
 func (em *EnvManager) GetTemplateVars(templateID string) ([]EnvVarDef, error) {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
@@ -216,7 +216,7 @@ func (em *EnvManager) GetTemplateVars(templateID string) ([]EnvVarDef, error) {
 	return vars, nil
 }
 
-// ValidateEnv 验证环境变量是否符合模板定义
+// ValidateEnv 验证环境变量是否符合模板定义.
 func (em *EnvManager) ValidateEnv(templateID string, vars map[string]string) error {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
@@ -258,7 +258,7 @@ func (em *EnvManager) ValidateEnv(templateID string, vars map[string]string) err
 	return nil
 }
 
-// ApplyDefaults 应用默认值
+// ApplyDefaults 应用默认值.
 func (em *EnvManager) ApplyDefaults(templateID string, vars map[string]string) map[string]string {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
@@ -282,7 +282,7 @@ func (em *EnvManager) ApplyDefaults(templateID string, vars map[string]string) m
 	return result
 }
 
-// MergeEnv 合并环境变量（覆盖）
+// MergeEnv 合并环境变量（覆盖）.
 func MergeEnv(base, overlay map[string]string) map[string]string {
 	result := make(map[string]string)
 	for k, v := range base {
@@ -294,7 +294,7 @@ func MergeEnv(base, overlay map[string]string) map[string]string {
 	return result
 }
 
-// FilterSecrets 过滤掉密钥（返回脱敏版本）
+// FilterSecrets 过滤掉密钥（返回脱敏版本）.
 func FilterSecrets(vars map[string]string, secretKeys []string) map[string]string {
 	secretSet := make(map[string]bool)
 	for _, key := range secretKeys {
@@ -312,7 +312,7 @@ func FilterSecrets(vars map[string]string, secretKeys []string) map[string]strin
 	return result
 }
 
-// GetEnvCount 获取应用环境变量数量
+// GetEnvCount 获取应用环境变量数量.
 func (em *EnvManager) GetEnvCount(appID string) int {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
@@ -324,7 +324,7 @@ func (em *EnvManager) GetEnvCount(appID string) int {
 	return len(env)
 }
 
-// GetSecretCount 获取应用密钥数量
+// GetSecretCount 获取应用密钥数量.
 func (em *EnvManager) GetSecretCount(appID string) int {
 	em.mu.RLock()
 	defer em.mu.RUnlock()

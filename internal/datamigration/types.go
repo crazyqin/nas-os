@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Migration 迁移任务
+// Migration 迁移任务.
 type Migration struct {
 	ID          string           `json:"id"`
 	Name        string           `json:"name"`
@@ -29,7 +29,7 @@ type Migration struct {
 	UpdatedAt   time.Time        `json:"updated_at"`
 }
 
-// Source 迁移源
+// Source 迁移源.
 type Source struct {
 	Type     string            `json:"type"` // local, nfs, smb, s3, rsync, synology, truenas
 	Host     string            `json:"host,omitempty"`
@@ -40,7 +40,7 @@ type Source struct {
 	Params   map[string]string `json:"params,omitempty"`
 }
 
-// Target 迁移目标
+// Target 迁移目标.
 type Target struct {
 	Type     string            `json:"type"` // local, nfs, smb, s3
 	Host     string            `json:"host,omitempty"`
@@ -51,7 +51,7 @@ type Target struct {
 	Params   map[string]string `json:"params,omitempty"`
 }
 
-// MigrationOptions 迁移选项
+// MigrationOptions 迁移选项.
 type MigrationOptions struct {
 	Bandwidth    int      `json:"bandwidth"`         // MB/s, 0=无限制
 	Parallel     int      `json:"parallel"`          // 并发数
@@ -66,7 +66,7 @@ type MigrationOptions struct {
 	RetryDelay   int      `json:"retry_delay"` // 秒
 }
 
-// Progress 进度
+// Progress 进度.
 type Progress struct {
 	TotalFiles     int64   `json:"total_files"`
 	CompletedFiles int64   `json:"completed_files"`
@@ -80,7 +80,7 @@ type Progress struct {
 	CurrentFile    string  `json:"current_file,omitempty"`
 }
 
-// Plan 迁移计划
+// Plan 迁移计划.
 type Plan struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -92,7 +92,7 @@ type Plan struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// Step 迁移步骤
+// Step 迁移步骤.
 type Step struct {
 	Order       int    `json:"order"`
 	Name        string `json:"name"`
@@ -101,14 +101,14 @@ type Step struct {
 	Action      string `json:"action"`
 }
 
-// Estimate 估算
+// Estimate 估算.
 type Estimate struct {
 	TotalFiles int64 `json:"total_files"`
 	TotalBytes int64 `json:"total_bytes"`
 	Duration   int   `json:"duration"` // 秒
 }
 
-// CreateMigrationRequest 创建迁移请求
+// CreateMigrationRequest 创建迁移请求.
 type CreateMigrationRequest struct {
 	Name        string           `json:"name"`
 	Description string           `json:"description,omitempty"`
@@ -119,7 +119,7 @@ type CreateMigrationRequest struct {
 	Options     MigrationOptions `json:"options"`
 }
 
-// CreatePlanRequest 创建计划请求
+// CreatePlanRequest 创建计划请求.
 type CreatePlanRequest struct {
 	Name       string `json:"name"`
 	SourceType string `json:"source_type"`
@@ -128,7 +128,7 @@ type CreatePlanRequest struct {
 	Target     Target `json:"target"`
 }
 
-// Manager 管理器
+// Manager 管理器.
 type Manager struct {
 	mu         sync.RWMutex
 	migrations map[string]*Migration
@@ -137,7 +137,7 @@ type Manager struct {
 	dataFile   string
 }
 
-// Config 配置
+// Config 配置.
 type Config struct {
 	MaxMigrations   int  `json:"max_migrations"`
 	MaxBandwidth    int  `json:"max_bandwidth"` // MB/s
@@ -146,7 +146,7 @@ type Config struct {
 	AllowRemote     bool `json:"allow_remote"`
 }
 
-// NewManager 创建管理器
+// NewManager 创建管理器.
 func NewManager(dataFile string) *Manager {
 	return &Manager{
 		migrations: make(map[string]*Migration),
@@ -162,7 +162,7 @@ func NewManager(dataFile string) *Manager {
 	}
 }
 
-// Initialize 初始化
+// Initialize 初始化.
 func (m *Manager) Initialize() error {
 	m.loadDefaultPlans()
 	return m.load()
@@ -215,7 +215,7 @@ func (m *Manager) loadDefaultPlans() {
 	}
 }
 
-// CreateMigration 创建迁移任务
+// CreateMigration 创建迁移任务.
 func (m *Manager) CreateMigration(req CreateMigrationRequest) (*Migration, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -252,7 +252,7 @@ func (m *Manager) CreateMigration(req CreateMigrationRequest) (*Migration, error
 	return migration, m.save()
 }
 
-// StartMigration 开始迁移
+// StartMigration 开始迁移.
 func (m *Manager) StartMigration(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -274,7 +274,7 @@ func (m *Manager) StartMigration(id string) error {
 	return m.save()
 }
 
-// PauseMigration 暂停迁移
+// PauseMigration 暂停迁移.
 func (m *Manager) PauseMigration(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -293,7 +293,7 @@ func (m *Manager) PauseMigration(id string) error {
 	return m.save()
 }
 
-// ResumeMigration 恢复迁移
+// ResumeMigration 恢复迁移.
 func (m *Manager) ResumeMigration(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -312,7 +312,7 @@ func (m *Manager) ResumeMigration(id string) error {
 	return m.save()
 }
 
-// CancelMigration 取消迁移
+// CancelMigration 取消迁移.
 func (m *Manager) CancelMigration(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -331,7 +331,7 @@ func (m *Manager) CancelMigration(id string) error {
 	return m.save()
 }
 
-// GetMigration 获取迁移任务
+// GetMigration 获取迁移任务.
 func (m *Manager) GetMigration(id string) (*Migration, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -343,7 +343,7 @@ func (m *Manager) GetMigration(id string) (*Migration, error) {
 	return migration, nil
 }
 
-// ListMigrations 列出迁移任务
+// ListMigrations 列出迁移任务.
 func (m *Manager) ListMigrations(status string) []*Migration {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -357,7 +357,7 @@ func (m *Manager) ListMigrations(status string) []*Migration {
 	return result
 }
 
-// UpdateProgress 更新进度
+// UpdateProgress 更新进度.
 func (m *Manager) UpdateProgress(id string, progress Progress) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -379,7 +379,7 @@ func (m *Manager) UpdateProgress(id string, progress Progress) {
 	}
 }
 
-// CompleteMigration 完成迁移
+// CompleteMigration 完成迁移.
 func (m *Manager) CompleteMigration(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -398,7 +398,7 @@ func (m *Manager) CompleteMigration(id string) error {
 	return m.save()
 }
 
-// FailMigration 迁移失败
+// FailMigration 迁移失败.
 func (m *Manager) FailMigration(id, errMsg string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -415,7 +415,7 @@ func (m *Manager) FailMigration(id, errMsg string) error {
 	return m.save()
 }
 
-// CreatePlan 创建迁移计划
+// CreatePlan 创建迁移计划.
 func (m *Manager) CreatePlan(req CreatePlanRequest) (*Plan, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -439,7 +439,7 @@ func (m *Manager) CreatePlan(req CreatePlanRequest) (*Plan, error) {
 	return plan, m.save()
 }
 
-// GetPlan 获取迁移计划
+// GetPlan 获取迁移计划.
 func (m *Manager) GetPlan(id string) (*Plan, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -451,7 +451,7 @@ func (m *Manager) GetPlan(id string) (*Plan, error) {
 	return plan, nil
 }
 
-// ListPlans 列出迁移计划
+// ListPlans 列出迁移计划.
 func (m *Manager) ListPlans() []*Plan {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -471,7 +471,7 @@ func (m *Manager) save() error {
 	return nil
 }
 
-// RegisterHandlers 注册HTTP处理器
+// RegisterHandlers 注册HTTP处理器.
 func (m *Manager) RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/api/v1/migration/tasks", m.handleMigrations)
 	mux.HandleFunc("/api/v1/migration/tasks/", m.handleMigrationByID)

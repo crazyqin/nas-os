@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// TestNewUnifiedAIAssistant 测试创建统一AI助手
+// TestNewUnifiedAIAssistant 测试创建统一AI助手.
 func TestNewUnifiedAIAssistant(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -31,7 +31,7 @@ func TestNewUnifiedAIAssistant(t *testing.T) {
 	}
 }
 
-// TestRegisterProvider 测试注册AI后端
+// TestRegisterProvider 测试注册AI后端.
 func TestRegisterProvider(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -48,7 +48,7 @@ func TestRegisterProvider(t *testing.T) {
 	}
 }
 
-// TestSetDefaultProvider 测试设置默认AI后端
+// TestSetDefaultProvider 测试设置默认AI后端.
 func TestSetDefaultProvider(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -70,7 +70,7 @@ func TestSetDefaultProvider(t *testing.T) {
 	}
 }
 
-// TestUpdateSystemStatus 测试更新系统状态
+// TestUpdateSystemStatus 测试更新系统状态.
 func TestUpdateSystemStatus(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -99,7 +99,7 @@ func TestUpdateSystemStatus(t *testing.T) {
 	}
 }
 
-// TestUpdateStorageStatus 测试更新存储状态
+// TestUpdateStorageStatus 测试更新存储状态.
 func TestUpdateStorageStatus(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -127,7 +127,7 @@ func TestUpdateStorageStatus(t *testing.T) {
 	}
 }
 
-// TestQuery 测试查询功能
+// TestQuery 测试查询功能.
 func TestQuery(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -163,7 +163,7 @@ func TestQuery(t *testing.T) {
 	}
 }
 
-// TestQueryWithSystemContext 测试带系统上下文的查询
+// TestQueryWithSystemContext 测试带系统上下文的查询.
 func TestQueryWithSystemContext(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -195,7 +195,7 @@ func TestQueryWithSystemContext(t *testing.T) {
 	}
 }
 
-// TestQueryNoProvider 测试无AI后端的查询
+// TestQueryNoProvider 测试无AI后端的查询.
 func TestQueryNoProvider(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -205,7 +205,7 @@ func TestQueryNoProvider(t *testing.T) {
 	}
 }
 
-// TestDiagnose 测试诊断功能
+// TestDiagnose 测试诊断功能.
 func TestDiagnose(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -251,7 +251,7 @@ func TestDiagnose(t *testing.T) {
 	}
 }
 
-// TestDiagnoseMemory 测试内存诊断
+// TestDiagnoseMemory 测试内存诊断.
 func TestDiagnoseMemory(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -272,7 +272,7 @@ func TestDiagnoseMemory(t *testing.T) {
 	}
 }
 
-// TestDiagnoseTemperature 测试温度诊断
+// TestDiagnoseTemperature 测试温度诊断.
 func TestDiagnoseTemperature(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -297,7 +297,7 @@ func TestDiagnoseTemperature(t *testing.T) {
 	}
 }
 
-// TestDiagnoseNetwork 测试网络诊断
+// TestDiagnoseNetwork 测试网络诊断.
 func TestDiagnoseNetwork(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -318,7 +318,7 @@ func TestDiagnoseNetwork(t *testing.T) {
 	}
 }
 
-// TestDiagnoseStorage 测试存储诊断
+// TestDiagnoseStorage 测试存储诊断.
 func TestDiagnoseStorage(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -338,7 +338,7 @@ func TestDiagnoseStorage(t *testing.T) {
 	}
 }
 
-// TestDiagnosePerformance 测试性能诊断
+// TestDiagnosePerformance 测试性能诊断.
 func TestDiagnosePerformance(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -359,7 +359,7 @@ func TestDiagnosePerformance(t *testing.T) {
 	}
 }
 
-// TestDiagnoseHardware 测试硬件诊断
+// TestDiagnoseHardware 测试硬件诊断.
 func TestDiagnoseHardware(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -370,7 +370,7 @@ func TestDiagnoseHardware(t *testing.T) {
 	}
 }
 
-// TestDiagnoseUnknown 测试未知诊断
+// TestDiagnoseUnknown 测试未知诊断.
 func TestDiagnoseUnknown(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -385,7 +385,7 @@ func TestDiagnoseUnknown(t *testing.T) {
 	}
 }
 
-// TestSuggest 测试建议功能
+// TestSuggest 测试建议功能.
 func TestSuggest(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -421,7 +421,7 @@ func TestSuggest(t *testing.T) {
 	}
 }
 
-// TestSuggestPerformance 测试性能优化建议
+// TestSuggestPerformance 测试性能优化建议.
 func TestSuggestPerformance(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -440,7 +440,7 @@ func TestSuggestPerformance(t *testing.T) {
 	}
 }
 
-// TestSuggestSecurity 测试安全建议
+// TestSuggestSecurity 测试安全建议.
 func TestSuggestSecurity(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -459,7 +459,7 @@ func TestSuggestSecurity(t *testing.T) {
 	}
 }
 
-// TestSuggestStorage 测试存储建议
+// TestSuggestStorage 测试存储建议.
 func TestSuggestStorage(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -478,7 +478,7 @@ func TestSuggestStorage(t *testing.T) {
 	}
 }
 
-// TestSuggestDefault 测试默认建议
+// TestSuggestDefault 测试默认建议.
 func TestSuggestDefault(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -493,7 +493,7 @@ func TestSuggestDefault(t *testing.T) {
 	}
 }
 
-// TestGetStatus 测试获取状态
+// TestGetStatus 测试获取状态.
 func TestGetStatus(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -527,7 +527,7 @@ func TestGetStatus(t *testing.T) {
 	}
 }
 
-// TestConversationHistory 测试对话历史
+// TestConversationHistory 测试对话历史.
 func TestConversationHistory(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -563,7 +563,7 @@ func TestConversationHistory(t *testing.T) {
 	}
 }
 
-// TestClearConversationHistory 测试清空对话历史
+// TestClearConversationHistory 测试清空对话历史.
 func TestClearConversationHistory(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -585,7 +585,7 @@ func TestClearConversationHistory(t *testing.T) {
 	}
 }
 
-// TestConversationHistoryLimit 测试对话历史限制
+// TestConversationHistoryLimit 测试对话历史限制.
 func TestConversationHistoryLimit(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 	assistant.maxHistory = 5 // 设置较小的限制用于测试
@@ -607,7 +607,7 @@ func TestConversationHistoryLimit(t *testing.T) {
 	}
 }
 
-// TestExecuteCommand 测试命令执行
+// TestExecuteCommand 测试命令执行.
 func TestExecuteCommand(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -645,7 +645,7 @@ func TestExecuteCommand(t *testing.T) {
 	}
 }
 
-// TestExecuteCommandDiagnose 测试诊断命令
+// TestExecuteCommandDiagnose 测试诊断命令.
 func TestExecuteCommandDiagnose(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -662,7 +662,7 @@ func TestExecuteCommandDiagnose(t *testing.T) {
 	}
 }
 
-// TestExecuteCommandSuggest 测试建议命令
+// TestExecuteCommandSuggest 测试建议命令.
 func TestExecuteCommandSuggest(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -679,7 +679,7 @@ func TestExecuteCommandSuggest(t *testing.T) {
 	}
 }
 
-// TestExecuteCommandExecute 测试执行命令（需要权限）
+// TestExecuteCommandExecute 测试执行命令（需要权限）.
 func TestExecuteCommandExecute(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -692,7 +692,7 @@ func TestExecuteCommandExecute(t *testing.T) {
 	}
 }
 
-// TestClassifyQuery 测试查询分类
+// TestClassifyQuery 测试查询分类.
 func TestClassifyQuery(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -721,7 +721,7 @@ func TestClassifyQuery(t *testing.T) {
 	}
 }
 
-// TestParseCommand 测试命令解析
+// TestParseCommand 测试命令解析.
 func TestParseCommand(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -750,7 +750,7 @@ func TestParseCommand(t *testing.T) {
 	}
 }
 
-// TestGetStats 测试获取统计信息
+// TestGetStats 测试获取统计信息.
 func TestGetStats(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -784,7 +784,7 @@ func TestGetStats(t *testing.T) {
 	}
 }
 
-// TestLocalProvider 测试本地LLM提供者
+// TestLocalProvider 测试本地LLM提供者.
 func TestLocalProvider(t *testing.T) {
 	provider := NewLocalProvider("test-local", "test-model")
 
@@ -818,7 +818,7 @@ func TestLocalProvider(t *testing.T) {
 	}
 }
 
-// TestRemoteProvider 测试远程API提供者
+// TestRemoteProvider 测试远程API提供者.
 func TestRemoteProvider(t *testing.T) {
 	provider := NewRemoteProvider("test-remote", "http://api.test.com", "test-key")
 
@@ -852,7 +852,7 @@ func TestRemoteProvider(t *testing.T) {
 	}
 }
 
-// TestFormatDiagnosisResponse 测试诊断响应格式化
+// TestFormatDiagnosisResponse 测试诊断响应格式化.
 func TestFormatDiagnosisResponse(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -880,7 +880,7 @@ func TestFormatDiagnosisResponse(t *testing.T) {
 	}
 }
 
-// TestFormatSuggestionsResponse 测试建议响应格式化
+// TestFormatSuggestionsResponse 测试建议响应格式化.
 func TestFormatSuggestionsResponse(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -909,7 +909,7 @@ func TestFormatSuggestionsResponse(t *testing.T) {
 	}
 }
 
-// TestFormatStatusResponse 测试状态响应格式化
+// TestFormatStatusResponse 测试状态响应格式化.
 func TestFormatStatusResponse(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -934,7 +934,7 @@ func TestFormatStatusResponse(t *testing.T) {
 	}
 }
 
-// TestFormatHelpResponse 测试帮助响应格式化
+// TestFormatHelpResponse 测试帮助响应格式化.
 func TestFormatHelpResponse(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -949,7 +949,7 @@ func TestFormatHelpResponse(t *testing.T) {
 	}
 }
 
-// TestGetSystemContext 测试获取系统上下文
+// TestGetSystemContext 测试获取系统上下文.
 func TestGetSystemContext(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -998,7 +998,7 @@ func TestGetSystemContext(t *testing.T) {
 	}
 }
 
-// TestConcurrentAccess 测试并发访问
+// TestConcurrentAccess 测试并发访问.
 func TestConcurrentAccess(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -1028,7 +1028,7 @@ func TestConcurrentAccess(t *testing.T) {
 	}
 }
 
-// TestMultipleSessions 测试多会话
+// TestMultipleSessions 测试多会话.
 func TestMultipleSessions(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -1067,7 +1067,7 @@ func TestMultipleSessions(t *testing.T) {
 	}
 }
 
-// TestQueryClassificationIntegration 测试查询分类集成
+// TestQueryClassificationIntegration 测试查询分类集成.
 func TestQueryClassificationIntegration(t *testing.T) {
 	assistant := NewUnifiedAIAssistant()
 
@@ -1100,7 +1100,7 @@ func TestQueryClassificationIntegration(t *testing.T) {
 	}
 }
 
-// contains 辅助函数：检查字符串是否包含子串
+// contains 辅助函数：检查字符串是否包含子串.
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && (s == substr || len(s) > 0 && containsSubstring(s, substr))
 }
