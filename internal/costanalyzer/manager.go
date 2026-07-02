@@ -262,6 +262,29 @@ func (m *Manager) DetectColdData() []*ColdDataInfo {
 	return m.analyzer.DetectColdData(assets, time.Now())
 }
 
+// AnalyzeBudgetCapacity 生成预算容量与资源 ROI 分析。
+func (m *Manager) AnalyzeBudgetCapacity(input *BudgetCapacityInput) (*BudgetCapacityReport, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	assets := make([]*StorageAsset, 0, len(m.assets))
+	for _, a := range m.assets {
+		assets = append(assets, a)
+	}
+
+	report, err := m.analyzer.AnalyzeBudgetCapacity(assets, input)
+	if err != nil {
+		return nil, err
+	}
+
+	m.logger.Info("budget capacity analyzed",
+		zap.String("status", report.BudgetStatus),
+		zap.Float64("projected_monthly_cost", report.ProjectedMonthlyCost),
+		zap.Float64("expansion_needed_gb", report.ExpansionNeededGB))
+
+	return report, nil
+}
+
 // ============================================================
 // ROI 计算
 // ============================================================

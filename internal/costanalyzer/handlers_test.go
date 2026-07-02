@@ -761,3 +761,53 @@ func TestManagerRemoveAssetNotFound(t *testing.T) {
 	err := mgr.RemoveAsset("nonexistent")
 	assert.Error(t, err)
 }
+
+func TestAnalyzeBudgetCapacityHandler(t *testing.T) {
+	_, mgr, router := setupTestEnv(t)
+
+	require.NoError(t, mgr.AddAsset(&StorageAsset{
+		ID:            "budget-ssd",
+		Name:          "Budget SSD",
+		Type:          StorageTypeSSD,
+		CapacityBytes: 1000 << 30,
+		UsedBytes:     800 << 30,
+		MonthlyOpex:   25,
+		PurchaseDate:  time.Now().AddDate(-1, 0, 0),
+	}))
+
+	body := `{
+		"monthly_budget": 600,
+		"monthly_growth_gb": 50,
+		"planning_months": 6,
+		"target_utilization_pct": 80,
+		"expansion_cost_per_gb": 1.2
+	}`
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/smart-cost/budget-capacity", bytes.NewBufferString(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	require.Equal(t, http.StatusOK, w.Code)
+	var resp apiResponse
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
+	assert.Equal(t, 0, resp.Code)
+
+	data, _ := json.Marshal(resp.Data)
+	var report BudgetCapacityReport
+	require.NoError(t, json.Unmarshal(data, &report))
+	assert.Equal(t, 1000.0, report.TotalCapacityGB)
+	assert.Equal(t, "warning", report.BudgetStatus)
+	assert.Greater(t, report.ExpansionNeededGB, 0.0)
+}
+
+func TestAnalyzeBudgetCapacityHandlerInvalidInput(t *testing.T) {
+	_, _, router := setupTestEnv(t)
+
+	body := `{"monthly_growth_gb": -1}`
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/smart-cost/budget-capacity", bytes.NewBufferString(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}

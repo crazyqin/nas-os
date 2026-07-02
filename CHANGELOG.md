@@ -9,9 +9,20 @@
 - 应用中心评价系统（appreview）— 评分评论、开发者回复、评价举报审核、统计聚合，参考群晖 DSM 套件中心评价。
 - NFS Kerberos 认证审计（nfspkaudit）— 认证事件记录、加密类型识别、风险告警、合规报告，参考企业 NFS 安全审计。
 
+### 增量增强
+- 应用中心新增生命周期 Dry Run 计划接口：安装/更新/卸载/启停前展示依赖、阻塞项、端口冲突和执行步骤。
+- 成本分析新增预算容量规划：结合月预算、增长率、目标利用率预测扩容需求、预算状态和快速 ROI。
+- 容器仪表盘新增运维洞察：按健康、状态、资源占用、重启次数生成优先级行动清单。
+- 智能海报墙新增 Discovery Digest：首页 Hero、内容架、类型统计和媒体库概览。
+- RAIDZ 扩展新增预飞计划：容量增益、重排数据量、预计耗时和风险分级。
+- 新增 Security Advisor 轻量安全体检：SSH/MFA/防火墙/审计/备份/补丁等评分建议。
+
 ### 验证
 - `go test ./internal/raidzexpand ./internal/storageroi ./internal/posterwall ./internal/appreview ./internal/nfspkaudit` 通过。
+- `go test ./internal/appcenter ./internal/containerdashboard ./internal/costanalyzer ./internal/mediascraper ./internal/raidzexpand ./internal/securityadvisor` 通过。
 - `go test ./...` 通过。
+- `go vet ./...` 通过。
+- `go build ./...` 通过。
 - GitHub Actions：CI/CD、Security Scan、Docker Publish、Compatibility Check 全部成功。
 
 ### 竞品对标
