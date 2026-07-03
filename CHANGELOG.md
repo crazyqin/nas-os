@@ -1,5 +1,21 @@
 # NAS-OS 变更日志
 
+## v3.9.0 (2026-07-03) - 安全与运维体验增强
+
+### 新功能与增强
+- 重启原因运维闭环：Log Center 新增重启原因处理与历史记录能力，覆盖用户触发、系统异常、计划维护等场景，并补充 handler 测试。
+- WebShare 交互增强：优化文件分享前端逻辑，提升分享状态展示与用户操作一致性。
+- 登录与用户管理界面优化：调整登录页和用户管理页交互细节，改善权限管理与日常运维体验。
+- 版本推进：同步 `VERSION` 与 `internal/version/version.go` 到 v3.9.0。
+
+### 文档与竞品对标
+- 新增 2026-06-29 竞品分析文档，补充 Synology DSM、TrueNAS、飞牛 fnOS、QNAP 等方向的功能对照。
+- 重构 `docs/competitive-analysis.md`，沉淀安全、存储效率、AI、本地化数据服务与运维体验路线。
+- 更新 `docs/resource-stats.md`，记录 v3.9.0 工作区状态、资源统计与产品收益分析。
+
+### 验证
+- `go test ./internal/logcenter ./internal/version` 通过。
+
 ## v3.8.0 (2026-07-02) - 智能运维与本地 AI 治理
 
 ### 新功能

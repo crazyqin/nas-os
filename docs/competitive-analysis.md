@@ -1,7 +1,7 @@
 # NAS-OS 竞品分析报告
 
 **更新日期**: 2026-07-03
-**版本**: v3.8.0
+**版本**: v3.9.0
 
 ## 概述
 
@@ -163,15 +163,15 @@
 
 ---
 
-## v3.8.0 对标结论
+## v3.9.0 对标结论
 
 | 方向 | 本轮公开竞品信号 | NAS-OS 文档定位 |
 |------|------------------|----------------|
 | 本地 AI | DSM 7.4 强调本地 AI、AI Console、私有化数据处理 | 强调本地 LLM + CLIP + MCP + 语义搜索治理，突出 local-only 和脱敏审计 |
 | 存储效率 | DSM/QNAP 持续推进分层、压缩、去重和容量优化 | 将存储效率统计、Smart Dedup、生命周期、ROI/预算统一描述 |
 | RBAC/身份 | DSM 强化 RBAC，QNAP 推 passkeys | 公开文档突出 RBAC/MFA/设备信任，并把 passkeys/WebAuthn 标为演进路线 |
-| TrueNAS 26 | WebShare、TrueSearch、LXC、FEC、重启原因 | v3.8.0 已写入 FEC、重启原因、本地 AI 搜索治理和 LXC 迁移计划 |
-| fnOS | 媒体中心、远程访问、易用体验 | README 和矩阵突出智能海报墙、P2P 远程访问、AI 相册 |
+| TrueNAS 26 | WebShare、TrueSearch、LXC、FEC、重启原因 | v3.9.0 延续 FEC、本地 AI 搜索治理和 LXC 迁移计划，并增强 Log Center 重启原因运维闭环与 WebShare 体验 |
+| fnOS | 媒体中心、远程访问、易用体验 | README 和矩阵突出智能海报墙、P2P 远程访问、AI 相册，并补充 WebShare/用户管理体验 |
 | QNAP h6.0 | passkeys、immutable snapshots、FileTiers | 突出不可变快照/WORM/合规链与智能分层，passkeys 作为规划补齐项 |
 
 ---
