@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.9.0 Stable (2026-07-03)
+> **最新版本**: v3.10.0 Stable (2026-07-04)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -35,6 +35,17 @@
 ## 特性
 
 
+
+
+### 🚀 v3.10.0 体验顾问与智能推荐 ✅
+
+| 模块 | 说明 | 状态 |
+|------|------|------|
+| 🧭 体验顾问引擎 | 新增 experienceadvisor，根据照片、媒体、备份、远程访问、应用、存储等本地聚合信号生成下一步建议 | ✅ v3.10.0 新增 |
+| 🖼️ AI 相册建议 | 大型照片库自动建议人物聚类、动态照片解析、重复照片清理，对标飞牛 AI 相册与 Synology Photos | ✅ v3.10.0 新增 |
+| 🎬 媒体体验建议 | 针对大媒体库建议海报墙刮削、字幕匹配、转码预设和跨端播放进度同步 | ✅ v3.10.0 新增 |
+| 🔐 备份与快照建议 | 根据备份规模和存储异常建议生命周期分层、恢复校验、不可变快照与 scrub | ✅ v3.10.0 新增 |
+| 🌐 远程访问健康建议 | 多设备/异常连接场景建议 NAT 穿透、DDNS、证书续期与公网入口收敛 | ✅ v3.10.0 新增 |
 
 ### 🚀 v3.9.0 安全与运维体验增强 ✅
 
@@ -548,7 +559,7 @@ nas-os/
 
 详细里程碑请查看 GitHub Milestones
 
-### 当前状态 (2026-07-03) - v3.9.0 Stable ✅
+### 当前状态 (2026-07-04) - v3.10.0 Stable ✅
 
 **8/8 里程碑全部完成**
 
