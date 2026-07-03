@@ -55,6 +55,10 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 
 		// 实时日志流 (WebSocket)
 		lg.GET("/stream", h.streamLogs)
+
+		// 重启历史（对标 TrueNAS 26 reboot reason / DSM Log Center 审计）
+		lg.GET("/reboots", h.listReboots)
+		lg.POST("/reboots", h.addReboot)
 	}
 }
 
@@ -216,6 +220,31 @@ func (h *Handlers) streamLogs(c *gin.Context) {
 			}
 		}
 	}
+}
+
+// listReboots 获取重启历史，按时间倒序返回.
+func (h *Handlers) listReboots(c *gin.Context) {
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	if limit < 0 {
+		limit = 0
+	}
+	if limit > 500 {
+		limit = 500
+	}
+
+	c.JSON(http.StatusOK, gin.H{"reboots": h.manager.ListRebootEvents(limit)})
+}
+
+// addReboot 记录一个重启事件，用于安装器、升级器或 watchdog 回填审计线索.
+func (h *Handlers) addReboot(c *gin.Context) {
+	var event RebootEvent
+	if err := c.ShouldBindJSON(&event); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "参数错误: " + err.Error()})
+		return
+	}
+
+	stored := h.manager.AddRebootEvent(event)
+	c.JSON(http.StatusCreated, stored)
 }
 
 // parseQueryParams 解析查询参数.

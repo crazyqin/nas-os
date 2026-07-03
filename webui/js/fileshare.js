@@ -141,13 +141,19 @@ class FileShareManager {
         }
     }
 
+    secureRandomString(length, chars) {
+        const cryptoObj = window.crypto || window.msCrypto;
+        if (!cryptoObj || !cryptoObj.getRandomValues) {
+            throw new Error('当前浏览器不支持安全随机数生成');
+        }
+        const values = new Uint32Array(length);
+        cryptoObj.getRandomValues(values);
+        return Array.from(values, value => chars[value % chars.length]).join('');
+    }
+
     generatePassword() {
         const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-        let password = '';
-        for (let i = 0; i < 8; i++) {
-            password += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        document.getElementById('share-password').value = password;
+        document.getElementById('share-password').value = this.secureRandomString(12, chars);
     }
 
     async createShare() {
@@ -239,11 +245,7 @@ class FileShareManager {
 
     generateShareId() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let result = '';
-        for (let i = 0; i < 12; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return result;
+        return this.secureRandomString(24, chars);
     }
 
     showToast(message, type = 'info') {

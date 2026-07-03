@@ -527,7 +527,7 @@
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const eyeIcon = document.getElementById('eye-icon');
-            
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 eyeIcon.innerHTML = `
@@ -545,18 +545,18 @@
         // 处理登录
         async function handleLogin(event) {
             event.preventDefault();
-            
+
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const remember = document.getElementById('remember').checked;
             const alertBox = document.getElementById('alert-box');
             const alertMessage = document.getElementById('alert-message');
             const loginBtn = document.getElementById('login-btn');
-            
+
             // 显示加载状态
             loginBtn.classList.add('loading');
             loginBtn.innerHTML = '<div class="spinner"></div><span>登录中...</span>';
-            
+
             try {
                 // 尝试调用实际 API
                 const response = await fetch('/api/v1/auth/login', {
@@ -566,18 +566,20 @@
                     },
                     body: JSON.stringify({ username, password, remember })
                 });
-                
+
                 const data = await response.json();
-                
-                if (data.code === 0 || response.ok) {
-                    // 登录成功
-                    localStorage.setItem('nasos_token', data.data?.token || 'demo_token');
-                    
+
+                const token = data.data?.token;
+                if ((data.code === 0 || response.ok) && token) {
+                    // 登录成功：只接受服务端签发的真实 token，避免前端演示凭据绕过认证。
+                    localStorage.setItem('nasos_token', token);
+                    localStorage.setItem('token', token.startsWith('Bearer ') ? token : `Bearer ${token}`);
+
                     alertBox.classList.remove('alert-error');
                     alertBox.classList.add('alert-success');
                     alertMessage.textContent = '登录成功，正在跳转...';
                     alertBox.classList.add('show');
-                    
+
                     setTimeout(() => {
                         window.location.href = '../index.html';
                     }, 500);
@@ -585,34 +587,20 @@
                     throw new Error(data.message || '登录失败');
                 }
             } catch (error) {
-                // API 不可用时使用演示模式
-                if (username === 'admin' && password === 'admin123') {
-                    localStorage.setItem('nasos_token', 'demo_token');
-                    
-                    alertBox.classList.remove('alert-error');
-                    alertBox.classList.add('alert-success');
-                    alertMessage.textContent = '登录成功，正在跳转...';
-                    alertBox.classList.add('show');
-                    
-                    setTimeout(() => {
-                        window.location.href = '../index.html';
-                    }, 500);
-                } else {
-                    // 登录失败
-                    alertBox.classList.remove('alert-success');
-                    alertBox.classList.add('alert-error');
-                    alertMessage.textContent = '用户名或密码错误，请重试';
-                    alertBox.classList.add('show');
-                    
-                    // 恢复按钮
-                    loginBtn.classList.remove('loading');
-                    loginBtn.innerHTML = '<span>登 录</span><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>';
-                    
-                    // 3 秒后隐藏错误
-                    setTimeout(() => {
-                        alertBox.classList.remove('show');
-                    }, 3000);
-                }
+                // 登录失败：不要在生产前端保留默认账号或演示 token 回退。
+                alertBox.classList.remove('alert-success');
+                alertBox.classList.add('alert-error');
+                alertMessage.textContent = error.message || '用户名或密码错误，请重试';
+                alertBox.classList.add('show');
+
+                // 恢复按钮
+                loginBtn.classList.remove('loading');
+                loginBtn.innerHTML = '<span>登 录</span><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>';
+
+                // 3 秒后隐藏错误
+                setTimeout(() => {
+                    alertBox.classList.remove('show');
+                }, 3000);
             }
         }
 
@@ -623,7 +611,7 @@
 
         // 显示帮助
         function showHelp() {
-            alert('默认登录凭据：\n用户名：admin\n密码：admin123\n\n⚠️ 首次登录后请立即修改密码！');
+            alert('如无法登录，请联系系统管理员重置密码，或使用命令行工具进行账户维护。');
         }
 
         // 检查是否已登录

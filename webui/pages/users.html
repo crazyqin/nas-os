@@ -1459,24 +1459,61 @@
             // 仅在创建用户时标记是否需要 2FA
         }
 
-        function show2FASetup() {
-            // 模拟 2FA 设置
-            document.getElementById('2fa-secret').value = 'JBSWY3DPEHPK3PXP';
-            document.getElementById('2fa-qr-code').src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=otpauth://totp/NAS-OS:' + editingUser + '?secret=JBSWY3DPEHPK3PXP&issuer=NAS-OS';
-            document.getElementById('2fa-modal').classList.add('active');
+        async function show2FASetup() {
+            if (!editingUser) {
+                showError('请先选择用户');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/mfa/totp/setup`, {
+                    method: 'POST',
+                    headers: { 'Authorization': localStorage.getItem('token') }
+                });
+                const data = await response.json();
+                if (!response.ok || data.code !== 0 || !data.data?.secret || !data.data?.uri) {
+                    throw new Error(data.message || '初始化 2FA 失败');
+                }
+
+                document.getElementById('2fa-secret').value = data.data.secret;
+                if (!data.data.qr_code) {
+                    throw new Error('后端未返回本地二维码，已阻止向第三方泄露 2FA 密钥');
+                }
+                document.getElementById('2fa-qr-code').src = data.data.qr_code;
+                document.getElementById('2fa-modal').classList.add('active');
+            } catch (error) {
+                showError(error.message || '初始化 2FA 失败');
+            }
         }
 
-        function verify2FA() {
+        async function verify2FA() {
             const code = document.getElementById('2fa-code').value;
-            if (code.length !== 6) {
+            if (!/^\d{6}$/.test(code)) {
                 alert('请输入 6 位验证码');
                 return;
             }
-            // 模拟验证
-            showSuccess('2FA 已启用');
-            closeModal('2fa-modal');
-            closeModal('edit-user-modal');
-            loadUsers();
+
+            try {
+                const response = await fetch(`${API_BASE}/mfa/totp/enable`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('token')
+                    },
+                    body: JSON.stringify({ code })
+                });
+                const data = await response.json();
+                if (!response.ok || data.code !== 0) {
+                    throw new Error(data.message || '验证码错误');
+                }
+
+                showSuccess('2FA 已启用');
+                closeModal('2fa-modal');
+                closeModal('edit-user-modal');
+                loadUsers();
+            } catch (error) {
+                showError(error.message || '验证码错误');
+            }
         }
 
         function disable2FA() {
