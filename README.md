@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.8.0 Stable (2026-07-02)
+> **最新版本**: v3.9.0 Stable (2026-07-03)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -36,12 +36,15 @@
 
 
 
-### 🚀 v3.8.0 智能运维与本地 AI 治理 ✅
+### 🚀 v3.9.0 安全与运维体验增强 ✅
 
 | 模块 | 说明 | 状态 |
 |------|------|------|
+| 📋 重启原因运维闭环 | Log Center 增强重启原因处理、历史记录与 handler 测试，覆盖用户触发、异常、计划维护等复盘场景 | ✅ v3.9.0 增强 |
+| 🌐 WebShare 交互增强 | 优化文件分享前端逻辑、分享状态展示与用户操作一致性 | ✅ v3.9.0 增强 |
+| 👥 登录与用户管理体验 | 调整登录页和用户管理页交互细节，改善权限管理与日常运维体验 | ✅ v3.9.0 增强 |
+| 📚 竞品分析与资源统计 | 新增 2026-06-29 竞品分析，刷新 competitive-analysis 与 resource-stats 文档 | ✅ v3.9.0 更新 |
 | 🌐 网络 FEC 管理 | 25G/100G 链路 FEC 模式推荐、配置意图与审计记录，对标 TrueNAS 26 高速网络可用性 | ✅ v3.8.0 新增 |
-| 📋 重启原因历史 | 记录用户、内核、计划更新、电源异常等重启原因，便于故障复盘 | ✅ v3.8.0 新增 |
 | 🔎 本地 AI 语义搜索治理 | local-only 查询、脱敏返回、请求人/用途审计，对标 DSM 7.4 私有 AI 与 TrueSearch 体验 | ✅ v3.8.0 新增 |
 | 🐧 LXC 迁移计划 | 冷/热/在线迁移步骤生成，含预检、快照、同步、回滚，对标 TrueNAS 26 LXC 运维 | ✅ v3.8.0 新增 |
 | 🧊 不可变快照策略 | WORM/合规快照/审计链组合，覆盖 QNAP h6.0 immutable snapshots 类场景 | ✅ 已支持 |
@@ -545,7 +548,7 @@ nas-os/
 
 详细里程碑请查看 GitHub Milestones
 
-### 当前状态 (2026-03-20) - v2.490.61 Stable ✅
+### 当前状态 (2026-07-03) - v3.9.0 Stable ✅
 
 **8/8 里程碑全部完成**
 
