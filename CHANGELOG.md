@@ -12,9 +12,14 @@
 - `go test ./internal/network ./internal/logcenter ./internal/semanticsearch ./internal/lxc ./internal/version` 通过。
 
 ### 竞品对标
-- TrueNAS 26: FEC、重启原因、LXC、WebShare/TrueSearch、本地化数据服务。
-- Synology DSM 7.4/Computex 2026: DSM Agent、本地 AI、Cluster Manager、Log Center。
-- 飞牛 fnOS: 易用媒体与远程访问体验。
+- Synology DSM 7.4/Computex 2026: 本地 AI、存储效率、RBAC、Cluster Manager、Log Center。
+- TrueNAS 26: WebShare、TrueSearch、LXC、网络 FEC、重启原因历史与本地化数据服务。
+- 飞牛 fnOS: 媒体中心、海报墙、AI 相册与远程访问体验。
+- QNAP QuTS hero h6.0: passkeys、immutable snapshots、FileTiers 等身份安全/不可变保护/分层方向。
+
+### 文档
+- README 补充 v3.8.0 对标说明：FEC、重启原因、本地 AI 语义搜索治理、LXC 迁移计划、不可变快照、存储效率与媒体/远程访问体验。
+- 竞品分析文档更新到 2026-07-03，加入 DSM 7.4、TrueNAS 26、fnOS、QNAP h6.0 的公开功能对照与下一步路线。
 
 ## v3.7.0 (2026-07-02) - 存储与应用生态增强
 

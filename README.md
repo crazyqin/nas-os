@@ -8,7 +8,7 @@
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
-## 🌟 四大独家功能（竞品均无）
+## 🌟 五大差异化能力
 
 | # | 功能 | 说明 | 价值 |
 |---|------|------|------|
@@ -18,7 +18,7 @@
 | 4 | ☁️ **多云存储挂载** | 阿里云/腾讯云/AWS/GDrive/OneDrive统一挂载 | **云本地化** - 6+平台透明读写，覆盖最广 |
 | 5 | 🔗 **MCP服务器集成** | Model Context Protocol，AI工具标准化连接 | **AI生态开放** - 对标群晖AI Console，标准化AI工具链 |
 
-> 💡 **竞品对标**: 群晖DSM、飞牛fnOS、TrueNAS均无上述四大功能 → [详细分析](docs/competitive-analysis.md)
+> 💡 **竞品对标**: 持续对标 Synology DSM 7.4、TrueNAS 26、飞牛 fnOS、QNAP QuTS hero h6.0，并以开源、本地 AI、不可变存储和多云挂载形成差异化 → [详细分析](docs/competitive-analysis.md)
 
 ### 💾 企业级存储核心
 
@@ -40,10 +40,14 @@
 
 | 模块 | 说明 | 状态 |
 |------|------|------|
-| 🌐 网络 FEC 管理 | 25G/100G 链路 FEC 模式推荐、配置意图与审计记录 | ✅ v3.8.0 新增 |
-| 📋 重启原因历史 | 记录用户、内核、计划更新、电源异常等重启原因 | ✅ v3.8.0 新增 |
-| 🔎 本地 AI 语义搜索治理 | local-only 查询、脱敏返回、请求人/用途审计 | ✅ v3.8.0 新增 |
-| 🐧 LXC 迁移计划 | 冷/热/在线迁移步骤生成，含预检、快照、同步、回滚 | ✅ v3.8.0 新增 |
+| 🌐 网络 FEC 管理 | 25G/100G 链路 FEC 模式推荐、配置意图与审计记录，对标 TrueNAS 26 高速网络可用性 | ✅ v3.8.0 新增 |
+| 📋 重启原因历史 | 记录用户、内核、计划更新、电源异常等重启原因，便于故障复盘 | ✅ v3.8.0 新增 |
+| 🔎 本地 AI 语义搜索治理 | local-only 查询、脱敏返回、请求人/用途审计，对标 DSM 7.4 私有 AI 与 TrueSearch 体验 | ✅ v3.8.0 新增 |
+| 🐧 LXC 迁移计划 | 冷/热/在线迁移步骤生成，含预检、快照、同步、回滚，对标 TrueNAS 26 LXC 运维 | ✅ v3.8.0 新增 |
+| 🧊 不可变快照策略 | WORM/合规快照/审计链组合，覆盖 QNAP h6.0 immutable snapshots 类场景 | ✅ 已支持 |
+| 🗂️ 存储效率与分层 | 压缩/去重/生命周期/冷热数据策略，回应 DSM 存储效率与 QNAP FileTiers 方向 | ✅ 已支持 |
+| 🔑 现代身份安全 | RBAC/MFA/设备信任/审计，预留 passkeys 等无密码登录演进路线 | ✅ 已支持 |
+| 🎬 媒体与远程访问 | 智能海报墙、P2P 远程访问、WebShare 与多端体验，对标 fnOS 家庭场景 | ✅ 已支持 |
 
 ### 🚀 v3.7.0 存储与应用生态增强 ✅
 

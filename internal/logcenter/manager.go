@@ -17,12 +17,13 @@ import (
 
 // Manager 日志管理器.
 type Manager struct {
-	mu        sync.RWMutex
-	config    *LogConfig
-	logger    *zap.Logger
-	entries   []LogEntry
-	listeners []chan LogStreamMessage
-	hostname  string
+	mu            sync.RWMutex
+	config        *LogConfig
+	logger        *zap.Logger
+	entries       []LogEntry
+	listeners     []chan LogStreamMessage
+	hostname      string
+	rebootHistory *RebootHistory
 }
 
 // NewManager 创建日志管理器.
@@ -33,10 +34,11 @@ func NewManager(logger *zap.Logger, config *LogConfig) *Manager {
 	hostname, _ := os.Hostname()
 
 	m := &Manager{
-		config:   config,
-		logger:   logger,
-		entries:  make([]LogEntry, 0, config.MaxEntries),
-		hostname: hostname,
+		config:        config,
+		logger:        logger,
+		entries:       make([]LogEntry, 0, config.MaxEntries),
+		hostname:      hostname,
+		rebootHistory: NewRebootHistory(256),
 	}
 
 	// 启动日志收集
@@ -51,6 +53,32 @@ func NewManager(logger *zap.Logger, config *LogConfig) *Manager {
 	go m.cleanupLoop()
 
 	return m
+}
+
+// AddRebootEvent records an auditable reboot event and mirrors it into Log Center.
+func (m *Manager) AddRebootEvent(event RebootEvent) RebootEvent {
+	if event.Node == "" {
+		event.Node = m.hostname
+	}
+	stored := m.rebootHistory.Add(event)
+
+	m.Add(LogEntry{
+		Timestamp: stored.Timestamp,
+		Level:     LogLevelInfo,
+		Source:    SourceSystem,
+		Category:  "reboot_history",
+		Message:   "reboot recorded: " + string(stored.Reason),
+		Details:   stored.Details,
+		Hostname:  stored.Node,
+		Service:   stored.Source,
+	})
+
+	return stored
+}
+
+// ListRebootEvents returns reboot history newest first.
+func (m *Manager) ListRebootEvents(limit int) []RebootEvent {
+	return m.rebootHistory.List(limit)
 }
 
 // Add 添加日志条目.
