@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.11.0 Stable (2026-07-04)
+> **最新版本**: v3.12.0 Stable (2026-07-05)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -36,6 +36,17 @@
 
 
 
+
+### 🚀 v3.12.0 文件洞察与媒体整理建议 ✅
+
+本轮参考 DSM 7.4 的本地 AI/语义搜索、飞牛的相册与影视易用性、TrueNAS 26 的 WebShare/TrueSearch 与数据治理体验，新增文件洞察引擎：把智能文件夹结果转换成可执行的清理、相册索引和媒体库整理建议。
+
+| 亮点 | 用户收益 | 状态 |
+|------|----------|------|
+| 🧠 **文件洞察 Advisor** | 自动识别大文件、照片库和视频库，给出清理、归档、索引、刮削与转码建议 | ✅ v3.12.0 新增 |
+| 🖼️ **照片整理触发器** | 当照片积累到阈值时提示 EXIF 时间线、人脸聚合和本地以文搜图索引 | ✅ v3.12.0 新增 |
+| 🎬 **媒体库体验建议** | 视频库达到规模后提示海报墙、字幕匹配和跨端续播准备 | ✅ v3.12.0 新增 |
+| 🧹 **容量治理动作化** | 大文件占用转化为 warning/info 级别建议，便于前端和通知系统直接展示 | ✅ v3.12.0 新增 |
 
 ### 🚀 v3.11.0 智能文件夹与治理状态同步 ✅
 
