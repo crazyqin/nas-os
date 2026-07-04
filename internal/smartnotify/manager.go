@@ -409,6 +409,11 @@ func (m *Manager) isInSilencePeriod(rule *NotifyRule) bool {
 		if err1 == nil && err2 == nil {
 			currentMinutes := now.Hour()*60 + now.Minute()
 
+			if startTime == endTime {
+				// 相同起止时间表示全天免打扰，避免 00:00-23:59 在最后一分钟失效。
+				return true
+			}
+
 			if startTime <= endTime {
 				// 同一天内
 				return currentMinutes >= startTime && currentMinutes < endTime

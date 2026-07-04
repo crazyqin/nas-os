@@ -110,7 +110,7 @@ jobs:
 
       - name: 测试检查
         run: |
-          go test -short ./...
+          go test ./...
           echo "✅ 测试通过"
 
       - name: Docker Compose 验证

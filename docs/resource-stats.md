@@ -1,9 +1,9 @@
 # 📊 NAS-OS 项目资源统计报告
 
-> **统计日期**: 2026-07-03
-> **统计版本**: v3.9.0 Stable
-> **最新提交基线**: `07869417` (`feat: prepare v3.9.0 security and operations updates`)
-> **当前状态**: v3.9.0 文档、版本号、安全与运维体验增强已同步；本轮补齐 CHANGELOG、README、竞品分析与资源统计。
+> **统计日期**: 2026-07-04
+> **统计版本**: v3.11.0 Stable
+> **最新提交基线**: `0745473d` (`feat: add NAS experience advisor`)
+> **当前状态**: v3.11.0 版本号、CHANGELOG、README、竞品分析与资源统计已同步；本轮补齐智能文件夹、成本/容量治理和发布安全护栏叙事。
 
 ---
 
@@ -11,13 +11,13 @@
 
 | 指标 | 数值 |
 |------|------|
-| **Git 跟踪文件总数** | 3,977 个 |
-| **Git 跟踪内容体积** | 45.5 MB |
-| **工作区总占用** | 658 MB |
-| **项目总行数（Git 跟踪）** | 1,789,117 行 |
-| **Go 源码总行数** | 1,631,831 行 |
-| **源代码行数（不含测试）** | 1,213,178 行 |
-| **测试代码行数** | 418,653 行 |
+| **工作区文件总数（不含 .git）** | 3,997 个 |
+| **Git 跟踪内容体积** | 54 MB |
+| **工作区总占用** | 659 MB |
+| **项目总行数（工作区）** | 1,789,384 行 |
+| **Go 源码总行数** | 1,632,680 行 |
+| **源代码行数（不含测试）** | 1,213,706 行 |
+| **测试代码行数** | 418,974 行 |
 | **测试代码占比** | 25.7% |
 
 ---
@@ -26,10 +26,10 @@
 
 | 指标 | 数值 |
 |------|------|
-| **Go 文件总数** | 3,662 个 |
-| **Go 源代码文件** | 2,703 个 |
-| **Go 测试文件** | 959 个 |
-| **internal/ 顶层模块数量** | 736 个 |
+| **Go 文件总数** | 3,668 个 |
+| **Go 源代码文件** | 2,706 个 |
+| **Go 测试文件** | 962 个 |
+| **internal/ 顶层模块数量** | 738 个 |
 | **cmd/ 应用数量** | 3 个（backup、nasctl、nasd） |
 | **Dockerfile 数量** | 7 个 |
 | **docker-compose 配置数量** | 10 个 |
@@ -41,14 +41,14 @@
 
 | 类型 | 文件数 | 行数 |
 |------|------:|------:|
-| Go | 3,662 | 1,631,831 |
+| Go | 3,668 | 1,632,680 |
 | HTML | 63 | 54,245 |
 | Shell | 50 | 24,508 |
 | JSON | 19 | 18,417 |
 | YAML | 24 | 16,472 |
 | YML | 54 | 11,163 |
 | JavaScript | 13 | 8,197 |
-| Markdown | 21 | 7,648 |
+| Markdown | 20 | 7,489 |
 | CSS | 9 | 6,495 |
 | TSX | 12 | 4,550 |
 | TypeScript | 14 | 1,756 |
@@ -73,25 +73,25 @@
 
 ## 四、本轮功能价值与资源成本摘要
 
-本轮变更集中在 `CHANGELOG.md`、`README.md`、`docs/competitive-analysis.md`、`docs/competitive-analysis-2026-06-29.md`、`docs/resource-stats.md` 与 v3.9.0 版本标识，补齐安全与运维体验增强的发布叙事。
+本轮变更集中在 v3.11.0 发布材料一致性、`internal/smartfolders`、`internal/costgovernance`、CI 发布安全护栏和项目资源统计，确保版本/里程碑叙事与当前工作区能力一致。
 
 ### 功能/市场价值
 
-- **CHANGELOG 补齐**：新增 v3.9.0 条目，覆盖 Log Center 重启原因、WebShare、登录/用户管理体验、竞品分析与资源统计。
-- **README 同步**：顶部版本更新到 v3.9.0，并新增 v3.9.0 安全与运维体验增强模块说明。
-- **竞品对标更完整**：新增/强化 Synology DSM 7.4、TrueNAS 26、飞牛 fnOS、QNAP QuTS hero h6.0 对照。
-- **价值表达更清晰**：README 从“四大独家功能”调整为“五大差异化能力”，覆盖本地 AI、多云挂载、MCP、不可变存储等长期差异化。
-- **v3.8.0 能力沉淀**：网络 FEC、本地 AI 语义搜索治理、LXC 迁移计划已在文档中形成可传播说明；v3.9.0 进一步补强重启原因运维闭环和 WebShare 体验。
+- **发布材料一致性**：`VERSION`、`internal/version`、README、CHANGELOG、竞品分析和资源统计统一到 v3.11.0。
+- **智能文件夹**：新增规则化虚拟文件夹能力，覆盖最近文件、大文件、照片、视频、文档等常用整理入口。
+- **成本/容量护栏**：新增容量风险评估，统一输出存储利用率、闲置日成本、过载资源数与月化浪费估算。
+- **发布安全护栏**：Trivy Action 固定版本，新增 GitHub Actions 安全基线测试，降低供应链漂移风险。
+- **资源统计刷新**：按当前工作区文件、Go/测试行数、依赖和 Docker 配置重新校准统计口径。
 
 ### 资源/成本评估
 
 | 项目 | 评估 |
 |------|------|
-| **代码增量成本** | 低。本轮主要是文档、版本标识与轻量前端/Log Center 增强。 |
-| **依赖成本** | 低。本轮文档修订不新增第三方依赖。 |
-| **维护成本** | 中。文档承诺覆盖多个竞品方向，后续需要保持 README、CHANGELOG、竞争分析与实际模块一致。 |
-| **测试成本** | 低到中。已验证 `internal/logcenter` 与 `internal/version`，发布前可按需补全全量测试。 |
-| **产品收益** | 高。以较低工程成本强化 v3.9.0 的安全、运维、竞品对标和市场叙事。 |
+| **代码增量成本** | 低。新增纯内存分析逻辑与只读 HTTP 接口，不引入后台任务。 |
+| **依赖成本** | 低。不新增第三方依赖。 |
+| **维护成本** | 低到中。阈值规则集中在 Analyzer，后续可按真实容量策略调整。 |
+| **测试成本** | 低到中。建议发布前验证 `internal/version`、`internal/smartfolders`、`internal/costgovernance`、`internal/compliance`、`internal/smartnotify`。 |
+| **产品收益** | 中到高。把体验顾问后的“下一步”延伸到文件整理、容量治理和可审计发布。 |
 
 ---
 
@@ -108,9 +108,9 @@
 
 ## 六、验证与风险记录
 
-- 已完成 Markdown 全量扫描：共 21 个 `.md` 文件，重点同步 `README.md`、`CHANGELOG.md`、`docs/competitive-analysis.md`、`docs/resource-stats.md`。
-- 已完成资源统计：Git 跟踪文件、行数、Go 源码/测试、依赖、Docker 配置、模块数量。
-- 已完成验证：`go test ./internal/logcenter ./internal/version` 通过。
+- 已完成 Markdown 扫描：共 20 个工作区 `.md` 文件，重点同步 README、CHANGELOG、`docs/competitive-analysis.md`、`docs/resource-stats.md`。
+- 已完成资源统计：工作区文件、行数、Go 源码/测试、依赖、Docker 配置、模块数量。
+- 验证建议：发布前执行 `go test ./internal/version ./internal/smartfolders ./internal/costgovernance ./internal/compliance ./internal/smartnotify`。
 - 建议发布后继续关注 GitHub Actions：CI/CD、Security Scan、Docker Publish、Compatibility Check、Release 流程。
 
 ---

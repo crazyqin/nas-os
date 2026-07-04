@@ -163,6 +163,83 @@ func (a *Analyzer) AnalyzeResourceUtilization(provider CloudProvider) map[string
 	}
 }
 
+// AnalyzeCapacityRisk 汇总容量水位与低利用成本风险.
+func (a *Analyzer) AnalyzeCapacityRisk(provider CloudProvider) *CapacityRiskSummary {
+	usages := a.manager.ListResourceUsages(provider)
+	summary := &CapacityRiskSummary{
+		Provider:        provider,
+		TotalResources:  len(usages),
+		Recommendations: make([]string, 0),
+	}
+	if len(usages) == 0 {
+		summary.Recommendations = append(summary.Recommendations, "暂无资源数据，建议先接入资源使用采集")
+		return summary
+	}
+
+	var totalStorageUtilization float64
+	for _, u := range usages {
+		storageUtilization := 0.0
+		if u.StorageTotalGB > 0 {
+			storageUtilization = clampRatio(u.StorageUsedGB / u.StorageTotalGB)
+			summary.StorageTrackedResources++
+			totalStorageUtilization += storageUtilization
+
+			if storageUtilization < 0.2 {
+				summary.LowStorageUtilizationResources++
+				if u.DailyCost > 0 {
+					summary.DailyWasteEstimate += u.DailyCost * 0.2
+				}
+			}
+			if storageUtilization >= 0.85 {
+				summary.HighStorageUtilizationResources++
+			}
+		}
+
+		idle := u.DailyCost > 0 && u.CPUPercent < 15 && u.MemoryPercent < 25
+		if idle {
+			summary.IdleResources++
+			summary.DailyWasteEstimate += u.DailyCost * 0.3
+		}
+
+		if u.CPUPercent >= 85 || u.MemoryPercent >= 90 || storageUtilization >= 0.85 {
+			summary.OverloadedResources++
+		}
+	}
+
+	if summary.StorageTrackedResources > 0 {
+		summary.AvgStorageUtilizationPercent = math.Round((totalStorageUtilization/float64(summary.StorageTrackedResources))*10000) / 100
+	}
+	summary.DailyWasteEstimate = math.Round(summary.DailyWasteEstimate*100) / 100
+	summary.MonthlyWasteEstimate = math.Round(summary.DailyWasteEstimate*30*100) / 100
+
+	if summary.IdleResources > 0 {
+		summary.Recommendations = append(summary.Recommendations, "存在低CPU/内存且仍计费资源，建议缩容、关停或迁移到低成本层")
+	}
+	if summary.LowStorageUtilizationResources > 0 {
+		summary.Recommendations = append(summary.Recommendations, "存在存储利用率低于20%的资源，建议回收空闲容量")
+	}
+	if summary.HighStorageUtilizationResources > 0 {
+		summary.Recommendations = append(summary.Recommendations, "存在存储水位超过85%的资源，建议扩容或启用冷热分层")
+	}
+	if summary.OverloadedResources > 0 {
+		summary.Recommendations = append(summary.Recommendations, "存在接近容量上限的资源，建议纳入容量预警")
+	}
+	if len(summary.Recommendations) == 0 {
+		summary.Recommendations = append(summary.Recommendations, "当前容量与成本风险可控")
+	}
+	return summary
+}
+
+func clampRatio(ratio float64) float64 {
+	if ratio < 0 {
+		return 0
+	}
+	if ratio > 1 {
+		return 1
+	}
+	return ratio
+}
+
 // GenerateOptimizationSuggestions 生成成本优化建议.
 func (a *Analyzer) GenerateOptimizationSuggestions(provider CloudProvider) []string {
 	usages := a.manager.ListResourceUsages(provider)

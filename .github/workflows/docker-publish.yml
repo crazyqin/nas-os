@@ -460,7 +460,7 @@ jobs:
           fi
       
       - name: 运行 Trivy 扫描
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SHORT_SHA }}
           format: 'sarif'

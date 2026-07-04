@@ -137,7 +137,7 @@ func TestSilencePeriod(t *testing.T) {
 		Silence: SilenceConfig{
 			Enabled:   true,
 			StartTime: "00:00",
-			EndTime:   "23:59", // 全天免打扰
+			EndTime:   "00:00", // 全天免打扰
 		},
 	}
 	m.CreateRule(rule)

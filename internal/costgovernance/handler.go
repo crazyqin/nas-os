@@ -49,6 +49,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 
 		// 分析
 		costGroup.GET("/analysis/utilization", h.getResourceUtilization)
+		costGroup.GET("/analysis/capacity-risk", h.getCapacityRisk)
 		costGroup.GET("/analysis/suggestions", h.getOptimizationSuggestions)
 		costGroup.GET("/analysis/anomalies", h.detectAnomalies)
 		costGroup.POST("/analysis/predict", h.predictCost)
@@ -204,6 +205,13 @@ func (h *Handlers) getResourceUtilization(c *gin.Context) {
 	provider := CloudProvider(c.Query("provider"))
 	result := h.analyzer.AnalyzeResourceUtilization(provider)
 	c.JSON(http.StatusOK, result)
+}
+
+// getCapacityRisk 获取容量与成本风险摘要.
+func (h *Handlers) getCapacityRisk(c *gin.Context) {
+	provider := CloudProvider(c.Query("provider"))
+	summary := h.analyzer.AnalyzeCapacityRisk(provider)
+	c.JSON(http.StatusOK, summary)
 }
 
 // getOptimizationSuggestions 获取优化建议.
