@@ -193,6 +193,62 @@ func TestAnalyzerResourceUtilization(t *testing.T) {
 	assert.Equal(t, 1, result["total"])
 }
 
+func TestAnalyzerCapacityRisk(t *testing.T) {
+	m := newTestManager()
+	m.UpdateResourceUsage(&ResourceUsage{
+		ID:             "usage-idle",
+		ResourceID:     "i-idle",
+		ResourceName:   "idle-vm",
+		ResourceType:   ResourceCompute,
+		Provider:       ProviderAWS,
+		Region:         "us-east-1",
+		CPUPercent:     4,
+		MemoryPercent:  12,
+		StorageUsedGB:  10,
+		StorageTotalGB: 200,
+		DailyCost:      80,
+	})
+	m.UpdateResourceUsage(&ResourceUsage{
+		ID:             "usage-hot",
+		ResourceID:     "vol-hot",
+		ResourceName:   "hot-volume",
+		ResourceType:   ResourceStorage,
+		Provider:       ProviderAWS,
+		Region:         "us-east-1",
+		CPUPercent:     30,
+		MemoryPercent:  40,
+		StorageUsedGB:  930,
+		StorageTotalGB: 1000,
+		DailyCost:      20,
+	})
+	m.UpdateResourceUsage(&ResourceUsage{
+		ID:             "usage-negative-cost",
+		ResourceID:     "credit-adjusted-volume",
+		ResourceName:   "credit-adjusted-volume",
+		ResourceType:   ResourceStorage,
+		Provider:       ProviderAWS,
+		Region:         "us-east-1",
+		CPUPercent:     10,
+		MemoryPercent:  10,
+		StorageUsedGB:  -50,
+		StorageTotalGB: 100,
+		DailyCost:      -10,
+	})
+
+	a := NewAnalyzer(m)
+	summary := a.AnalyzeCapacityRisk(ProviderAWS)
+	assert.Equal(t, ProviderAWS, summary.Provider)
+	assert.Equal(t, 4, summary.TotalResources)
+	assert.Equal(t, 4, summary.StorageTrackedResources)
+	assert.Equal(t, 2, summary.LowStorageUtilizationResources)
+	assert.Equal(t, 1, summary.HighStorageUtilizationResources)
+	assert.Equal(t, 1, summary.IdleResources)
+	assert.Equal(t, 1, summary.OverloadedResources)
+	assert.Equal(t, 40.0, summary.DailyWasteEstimate)
+	assert.Equal(t, 1200.0, summary.MonthlyWasteEstimate)
+	assert.NotEmpty(t, summary.Recommendations)
+}
+
 func TestAnalyzerOptimizationSuggestions(t *testing.T) {
 	m := newTestManager()
 	// 添加低使用率资源
@@ -311,6 +367,16 @@ func TestHandlerGetResourceUtilization(t *testing.T) {
 	r.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Contains(t, w.Body.String(), "total")
+}
+
+func TestHandlerGetCapacityRisk(t *testing.T) {
+	r, _ := setupRouter()
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/api/v1/costgovernance/analysis/capacity-risk?provider=aws", nil)
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Contains(t, w.Body.String(), "monthly_waste_estimate")
+	assert.Contains(t, w.Body.String(), "recommendations")
 }
 
 func TestHandlerGetOptimizationSuggestions(t *testing.T) {

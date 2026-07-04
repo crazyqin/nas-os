@@ -195,3 +195,27 @@ type AnomalyDetection struct {
 	Deviation    float64   `json:"deviation"` // 偏差百分比
 	Description  string    `json:"description"`
 }
+
+// CapacityRiskSummary 容量与成本风险摘要.
+type CapacityRiskSummary struct {
+	Provider CloudProvider `json:"provider"`
+	// TotalResources 参与评估的资源数.
+	TotalResources int `json:"total_resources"`
+	// StorageTrackedResources 带存储容量数据的资源数.
+	StorageTrackedResources int `json:"storage_tracked_resources"`
+	// AvgStorageUtilizationPercent 平均存储利用率百分比.
+	AvgStorageUtilizationPercent float64 `json:"avg_storage_utilization_percent"`
+	// LowStorageUtilizationResources 存储利用率低于阈值的资源数.
+	LowStorageUtilizationResources int `json:"low_storage_utilization_resources"`
+	// HighStorageUtilizationResources 存储利用率高于阈值的资源数.
+	HighStorageUtilizationResources int `json:"high_storage_utilization_resources"`
+	// IdleResources CPU和内存都偏低且仍产生费用的资源数.
+	IdleResources int `json:"idle_resources"`
+	// OverloadedResources CPU、内存或存储接近容量上限的资源数.
+	OverloadedResources int `json:"overloaded_resources"`
+	// DailyWasteEstimate 低利用资源的日浪费估算（元）.
+	DailyWasteEstimate float64 `json:"daily_waste_estimate"`
+	// MonthlyWasteEstimate 低利用资源的月浪费估算（元）.
+	MonthlyWasteEstimate float64  `json:"monthly_waste_estimate"`
+	Recommendations      []string `json:"recommendations"`
+}
