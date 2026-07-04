@@ -1,7 +1,7 @@
 package version
 
 // Version is the current version of the application.
-const Version = "3.11.0"
+const Version = "3.12.0"
 
 // BuildTime is the time when the application was built.
 var BuildTime = "unknown"
