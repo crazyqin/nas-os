@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.12.0 Stable (2026-07-05)
+> **最新版本**: v3.13.0 Stable (2026-07-05)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -35,6 +35,18 @@
 ## 特性
 
 
+
+
+### 🚀 v3.13.0 WebShare 搜索顾问 ✅
+
+本轮继续对标 TrueNAS 26 WebShare/TrueSearch、群晖 DSM 的移动端分享体验和飞牛家庭媒体易用性，新增 WebShare 搜索顾问：把文件规模、索引覆盖、外链安全和快照保护转化为可执行建议。
+
+| 亮点 | 用户收益 | 状态 |
+|------|----------|------|
+| 🌐 **WebShare 启用建议** | 文件库存在但未开放浏览器访问时，自动提示开启上传、下载、筛选和可撤销外链 | ✅ v3.13.0 新增 |
+| 🔎 **搜索索引覆盖率** | 计算本地索引覆盖率，提示 SSD 索引缓存、文档内容索引和加密数据集说明 | ✅ v3.13.0 新增 |
+| 🔐 **外链安全加固** | 对外部分享建议 passkey/一次性访问码、过期时间、下载次数和审计记录 | ✅ v3.13.0 新增 |
+| 📸 **分享前快照保护** | 共享协作场景自动提示只读快照与时间线入口，降低误删覆盖风险 | ✅ v3.13.0 新增 |
 
 
 ### 🚀 v3.12.0 文件洞察与媒体整理建议 ✅

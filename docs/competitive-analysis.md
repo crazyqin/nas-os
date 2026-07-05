@@ -211,3 +211,11 @@ NAS-OS 已在 TrueNAS 26 的 WebShare/TrueSearch/LXC/FEC/重启原因方向、DS
 ## v3.12.0 文件洞察与媒体整理建议（2026-07-05）
 - 对标 DSM 7.4 本地 AI/语义搜索、飞牛相册影视、TrueNAS 26 WebShare/TrueSearch。
 - 新增 fileinsights：把智能文件夹扫描结果转换为大文件治理、照片索引、媒体库整理建议。
+
+
+## 2026-07-05 对标补充：WebShare 与桌面级搜索
+
+- **TrueNAS 26**：WebShare 提供浏览器文件访问、可分享链接、快照时间线与 TrueSearch 秒级搜索；NAS-OS v3.13.0 新增 sharesearchadvisor，把索引覆盖率、慢查询和分享状态转成治理建议。
+- **Synology DSM 7.4**：强调移动端文件、相册和本地 AI 搜索体验；NAS-OS 对应补强移动媒体筛选、预览链接和本地索引建议。
+- **飞牛 fnOS**：家庭用户重视相册/影视开箱易用；NAS-OS 在照片、视频规模达到阈值时提示时间线、海报墙、字幕与续播准备。
+- **差异化**：建议引擎保持本地可审计，不依赖云端索引；外链安全默认提示 passkey/一次性访问码、过期策略和快照保护。
