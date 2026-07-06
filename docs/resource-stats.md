@@ -1,9 +1,16 @@
+## v3.14.0 资源与功能增量（2026-07-06）
+
+- 新增 `internal/backuphealthadvisor`：轻量 Go Advisor 模块，面向仪表盘、通知和新手向导输出备份保护建议。
+- 关键输入信号：设备保护率、最近备份小时数、失败备份、增量/去重、快照、不可变恢复点、异地副本、恢复演练、恢复介质、勒索告警和关键共享数量。
+- 验证范围：`go test ./internal/backuphealthadvisor ./internal/sharesearchadvisor ./internal/fileinsights ./internal/version`，发布前另执行 `go test ./...`。
+- 运维状态：根分区约 75% 使用、约 7.5G 可用；内存约 6.4G 可用，本轮无需清理磁盘。
+
 # 📊 NAS-OS 项目资源统计报告
 
-> **统计日期**: 2026-07-04
-> **统计版本**: v3.12.0 Stable
-> **最新提交基线**: `0745473d` (`feat: add NAS experience advisor`)
-> **当前状态**: v3.12.0 版本号、CHANGELOG、README、竞品分析与资源统计已同步；本轮补齐智能文件夹、成本/容量治理和发布安全护栏叙事。
+> **统计日期**: 2026-07-06
+> **统计版本**: v3.14.0 Stable
+> **最新提交基线**: `5abc6150` (`feat: add share search advisor`)
+> **当前状态**: v3.14.0 版本号、CHANGELOG、README、竞品分析与资源统计已同步；本轮新增备份健康顾问与恢复闭环建议。
 
 ---
 

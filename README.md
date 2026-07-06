@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.13.0 Stable (2026-07-05)
+> **最新版本**: v3.14.0 Stable (2026-07-06)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -35,6 +35,18 @@
 ## 特性
 
 
+
+
+### 🚀 v3.14.0 备份健康顾问 ✅
+
+本轮参考群晖 Active Backup 的集中备份与自助恢复、TrueNAS 的快照/校验/不可变保护，以及飞牛家庭 NAS 的低门槛灾备体验，新增备份健康顾问：把终端保护、备份新鲜度、恢复演练和灾备准备转化为可执行建议。
+
+| 亮点 | 用户收益 | 状态 |
+|------|----------|------|
+| 🛡️ **终端保护率** | 自动识别未纳入备份的电脑/移动设备，提示下发代理、套用模板和展示未保护清单 | ✅ v3.14.0 新增 |
+| 🔁 **备份失败修复** | 对过期备份和失败任务给出重试、错误定位、容量/凭据/任务锁检查建议 | ✅ v3.14.0 新增 |
+| 🔒 **快照与不可变恢复点** | 关键共享缺少快照或出现勒索告警时，提示只读快照、时间线恢复和不可变保留 | ✅ v3.14.0 新增 |
+| 🧪 **恢复演练与灾备介质** | 最近 30 天无演练、缺少异地副本或恢复介质时，提示自动试恢复和 RPO/RTO 预估 | ✅ v3.14.0 新增 |
 
 
 ### 🚀 v3.13.0 WebShare 搜索顾问 ✅
