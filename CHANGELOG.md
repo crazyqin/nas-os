@@ -1,5 +1,31 @@
 # Changelog
 
+## v3.16.0 (2026-07-09) - 智能调度与数据主权
+
+### 新增模块（6个）
+
+#### 兵部（工程）
+- **SSD 缓存智能调度器** (ssdcacheschedule): 对标 Synology SSD Cache Advisor 和 TrueNAS L2ARC，支持缓存命中率分析、磨损预警、温度监控、读写放大治理、预热调度和 NVMe 升级建议
+
+#### 户部（财务）
+- **云存储成本审计器** (cloudcostaudit): 对标 Synology CloudRep 和 TrueNAS 云同步成本追踪，支持预算超支检测、休眠账户识别、出口流量优化、生命周期分层缺失检测、R2 迁移建议和 API 调用优化
+
+#### 礼部（内容）
+- **多媒体海报智能刮削器** (posterscraper): 对标 Synology Video Station 和飞牛影视墙，支持批量海报缺失检测、文件名解析失败修复、字幕获取建议、低置信度匹配审核、自动刮削调度和缓存清理
+
+#### 工部（运维）
+- **电源管理调度器** (powermanager): 对标 Synology Power Schedule 和 TrueNAS 电源管理，支持空闲模式切换、待机调度、磁盘转速策略、高功耗检测、夜间计划、太阳能对齐和 WoL 配置
+
+#### 吏部（管理）
+- **多 NAS 集群编排器** (clusterops): 对标 Synology CMS 和 TrueNAS Cluster，支持 HA 启用建议、故障转移验证、脑裂检测、见证节点状态、存储重分布、复制延迟和集群健康评分
+
+#### 刑部（合规）
+- **数据主权审计器** (datasovereigntyaudit): 对标 GDPR/CCPA/PIPL/HIPAA 合规要求，支持 PII 加密检测、跨境复制审查、访问日志缺失、保留策略缺失、数据处理清单和 DPA 缺失审计
+
+### 测试
+- 全部 6 个新模块编译通过，单元测试 100% 通过
+
+
 ## v3.15.0 (2026-07-08) - 存储效率与合规审计
 
 ### 新增模块（9个）
