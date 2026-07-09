@@ -253,3 +253,27 @@ NAS-OS 已在 TrueNAS 26 的 WebShare/TrueSearch/LXC/FEC/重启原因方向、DS
 ### 数据保留策略引擎
 - Synology WORM 合规存储支持不可变性；本轮实现了财务/HR/法务/医疗/通用五类保留策略推荐。
 - TrueNAS 不可变快照提供数据韧性；本轮将保留策略与 WORM 联动，支持法律保留和合规审计调度。
+
+
+## v3.16.0 竞品对标补充
+
+### Synology DSM 7.4 新发现
+
+- **Website AI Advisor**: 站内 AI 助手帮助用户查找产品信息；NAS-OS 已有 AI 助手和搜索治理，本轮新增云成本审计进一步覆盖云存储决策场景。
+- **SSD Cache Advisor**: Synology 提供缓存建议；NAS-OS 新增 ssdcacheschedule 模块覆盖命中率、磨损、温度、读写放大全维度。
+- **Power Schedule**: DSM 支持定时开关机；NAS-OS 新增 powermanager 模块覆盖空闲切换、待机调度、太阳能对齐等更细粒度策略。
+
+### TrueNAS 26 新发现
+
+- **L2ARC Tiering**: TrueNAS 支持 L2ARC 分层缓存；NAS-OS ssdcacheschedule 模块对标缓存命中率分析和 NVMe 升级建议。
+- **Cluster**: TrueNAS 集群能力；NAS-OS clusterops 模块覆盖 HA 启用、脑裂检测、见证节点、复制延迟等。
+- **Cloud Sync Cost**: TrueNAS 云同步成本追踪；NAS-OS cloudcostaudit 模块覆盖预算、休眠、出口、API 成本全链路。
+
+### 飞牛 fnOS 新发现
+
+- **影视墙刮削**: 飞牛海报墙和刮削体验；NAS-OS posterscraper 模块对标批量海报缺失检测和文件名解析修复。
+- **多设备管理**: 飞牛多设备支持；NAS-OS clusterops 模块覆盖多 NAS 集群编排和故障转移。
+
+### 数据主权合规
+
+- **GDPR / PIPL / HIPAA**: 对标企业合规要求，NAS-OS 新增 datasovereigntyaudit 模块覆盖 PII 加密、跨境复制、访问日志、保留策略和 DPA 审计。

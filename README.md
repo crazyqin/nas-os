@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.14.0 Stable (2026-07-06)
+> **最新版本**: v3.16.0 Stable (2026-07-09)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -35,6 +35,20 @@
 ## 特性
 
 
+
+
+### 🚀 v3.16.0 智能调度与数据主权 ✅
+
+本轮对标 Synology SSD Cache Advisor/Power Schedule/CMS、TrueNAS L2ARC/Cluster/Cloud Sync Cost 和飞牛影视墙，新增 6 个模块覆盖 SSD 缓存调度、云成本审计、海报刮削、电源管理、集群编排和数据主权合规。
+
+| 亮点 | 用户收益 | 状态 |
+|------|----------|------|
+| 💾 **SSD 缓存智能调度** | 分析缓存命中率、磨损、温度和读写放大，给出扩容、预热和 NVMe 升级建议 | ✅ v3.16.0 新增 |
+| ☁️ **云存储成本审计** | 检测预算超支、休眠账户、高出口流量和缺失分层策略，建议 R2 迁移节省出口费 | ✅ v3.16.0 新增 |
+| 🎬 **多媒体海报刮削** | 批量检测缺失海报、文件名解析失败、字幕缺失，建议自动刮削和缓存清理 | ✅ v3.16.0 新增 |
+| ⚡ **电源管理调度** | 空闲切换、待机调度、磁盘转速策略、夜间计划和太阳能对齐，降低功耗 | ✅ v3.16.0 新增 |
+| 🔗 **多 NAS 集群编排** | HA 启用建议、故障转移验证、脑裂检测、复制延迟监控和集群健康评分 | ✅ v3.16.0 新增 |
+| 🌐 **数据主权审计** | PII 加密检测、跨境复制审查、访问日志和保留策略缺失审计，覆盖 GDPR/PIPL/HIPAA | ✅ v3.16.0 新增 |
 
 
 ### 🚀 v3.14.0 备份健康顾问 ✅
