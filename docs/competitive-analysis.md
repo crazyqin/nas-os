@@ -277,3 +277,29 @@ NAS-OS 已在 TrueNAS 26 的 WebShare/TrueSearch/LXC/FEC/重启原因方向、DS
 ### 数据主权合规
 
 - **GDPR / PIPL / HIPAA**: 对标企业合规要求，NAS-OS 新增 datasovereigntyaudit 模块覆盖 PII 加密、跨境复制、访问日志、保留策略和 DPA 审计。
+
+
+## v3.17.0 对标补充
+
+### TrueNAS 26 BETA.2 新增对标
+
+| 功能 | TrueNAS 26 | NAS-OS 对标 |
+|------|------------|-------------|
+| **OpenZFS 2.4 Dataset Tiering** | 闪存与HDD间数据集分层，降低每TB成本 | ✅ datasettier: 冷热数据自动分层、预测式分层、容量预警 |
+| **FEC 网络纠错** | 高速链路FEC配置，提升可靠性 | ✅ fecconfig: RS/Hamming/BCH/LDPC编码推荐、存储接口保护 |
+| **TrueSearch 十亿文件搜索** | 亚秒级全文搜索、Spotlight集成 | 已有 truesearch 模块对标 |
+| **LXC 原生容器** | 轻量Linux工作负载 | 已有 lxc/lxcmanager/lxcmkt 模块对标 |
+| **勒索恢复 Clean Restore Confidence** | 恢复点可信度验证 | ✅ restoreconfidence: 恢复演练追踪、RTO/RPO达标、置信度评分 |
+
+### Synology/Synology Photos 新增对标
+
+| 功能 | Synology | NAS-OS 对标 |
+|------|----------|-------------|
+| **TCO Calculator** | 5年总拥有成本计算 | ✅ tcodashboard: 电力/云/人工成本拆解、竞品对比 |
+| **Photos Memories** | AI自动生成照片故事 | ✅ photostory: 7种主题、自动聚类、人脸/位置/场景分组 |
+
+### 多标准合规对标
+
+| 标准 | 要求 | NAS-OS 对标 |
+|------|------|-------------|
+| **GDPR/PIPL/HIPAA/SOC2/ISO27001/PCI-DSS** | 多标准并行合规审计 | ✅ complianceflow: 6阶段审计流程编排、PII/PHI/支付数据自动检测 |
