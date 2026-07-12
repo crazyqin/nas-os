@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.16.0 Stable (2026-07-09)
+> **最新版本**: v3.17.0 Stable (2026-07-12)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
@@ -35,6 +35,20 @@
 ## 特性
 
 
+
+
+### 🚀 v3.17.0 数据分层与恢复置信 ✅
+
+本轮对标 TrueNAS 26 OpenZFS 2.4 dataset tiering、Synology TCO Calculator、TrueNAS FEC 网络纠错、TrueNAS Clean Restore Confidence 勒索恢复、GDPR/PIPL/HIPAA 多标准合规审计和 Apple Memories/Synology Photos 故事生成，新增 6 个模块覆盖数据集冷热分层、5年TCO可视化、AI照片故事、FEC网络纠错、合规工作流编排和恢复置信度评估。
+
+| 亮点 | 用户收益 | 状态 |
+|------|----------|------|
+| 💾 **ZFS 数据集分层调度** | 冷热数据自动分层、预测式分层、闪存容量预警、归档层启用 | ✅ v3.17.0 新增 |
+| 💰 **TCO 可视化仪表板** | 5年总拥有成本分析、电力/云/人工成本拆解、竞品对比 | ✅ v3.17.0 新增 |
+| 📸 **AI 照片故事生成** | 7种故事主题（旅行/家庭/季节/冒险/回溯/精选/日常）、自动聚类 | ✅ v3.17.0 新增 |
+| 🔧 **FEC 网络纠错配置** | RS/Hamming/BCH/LDPC 编码推荐、存储接口保护、长距离纠错 | ✅ v3.17.0 新增 |
+| 📋 **合规审计工作流** | GDPR/PIPL/HIPAA/SOC2/ISO27001/PCI-DSS 6阶段审计流程编排 | ✅ v3.17.0 新增 |
+| 🛡️ **勒索恢复置信度** | 恢复演练追踪、RTO/RPO达标、不可变/异地检查、Clean Restore评分 | ✅ v3.17.0 新增 |
 
 
 ### 🚀 v3.16.0 智能调度与数据主权 ✅

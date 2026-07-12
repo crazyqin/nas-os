@@ -1,5 +1,32 @@
 # Changelog
 
+## v3.17.0 (2026-07-12) - 数据分层与恢复置信
+
+### 新增模块（6个）
+
+#### 兵部（工程）
+- **ZFS 数据集分层调度器** (datasettier): 对标 TrueNAS 26 OpenZFS 2.4 dataset tiering 和 Synology 存储效率分层，支持自动分层策略、预测式分层、冷热数据迁移、闪存容量管理、HDD 过载检测和归档层启用建议
+
+#### 户部（财务）
+- **TCO 可视化仪表板** (tcodashboard): 对标 Synology TCO Calculator 和 TrueNAS 成本智能，支持 5 年总拥有成本计算、电力/云存储/人工成本分析、与竞品 TCO 对比、NVMe 投资比例检测和维护预算建议
+
+#### 礼部（内容）
+- **AI 照片故事生成器** (photostory): 对标 Synology Photos Memories、飞牛 AI 相册和 Apple Memories，支持旅行/家庭/季节/冒险/回溯/精选 7 种故事主题、日期聚类、位置/人脸/场景标签分组和高质量精选集
+
+#### 工部（运维）
+- **FEC 网络纠错配置器** (fecconfig): 对标 TrueNAS 26 FEC 配置，支持 Reed-Solomon/Hamming/BCH/LDPC 编码推荐、高速链路纠错、存储接口保护、长距离信号完整性、WiFi 存储风险检测和协议错误诊断
+
+#### 吏部（管理）
+- **合规审计工作流编排器** (complianceflow): 对标 GDPR/PIPL/HIPAA/SOC2/ISO 27001/PCI-DSS 合规标准，支持 6 阶段审计流程（发现→差距分析→修复→取证→报告→审查）、PII/PHI/支付数据自动检测、加密/审计日志缺口识别和多标准并行编排
+
+#### 刑部（合规）
+- **勒索恢复置信度评估器** (restoreconfidence): 对标 TrueNAS 数据层勒索恢复和 Clean Restore Confidence 标准，支持恢复演练追踪、RTO/RPO 达标验证、不可变备份/异地副本检查、快照扫描验证、TFA 查验和恢复信心评分
+
+### 测试
+- 全部 6 个新模块编译通过，单元测试 100% 通过
+
+# Changelog
+
 ## v3.16.0 (2026-07-09) - 智能调度与数据主权
 
 ### 新增模块（6个）
