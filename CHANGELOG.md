@@ -1,5 +1,54 @@
 # Changelog
 
+## v3.18.0 (2026-07-13)
+
+### 新增模块 (27)
+
+#### 兵部（软件工程）
+- **NFS over RDMA** (`nfsrdma`) — InfiniBand/RoCE NFS 传输，对标 TrueNAS 25.04 NFS over RDMA
+- **iSCSI Target Offload** (`iscsitgtoffload`) — iSCSI Target 硬件卸载到智能网卡/DPU/HBA
+- **ActiveProtect** (`activeprotect`) — 集中备份保护控制台，对标 Synology ActiveProtect
+- **AI Media Tagger** (`aimediatag`) — AI 媒体自动标签
+- **Audio Quality** (`audioquality`) — 音频质量检测与增强
+- **DRAID2** (`draid2`) — 分布式 RAID 增强
+- **NetShield** (`netshield`) — 网络安全防护
+- **Forensics2** (`forensics2`) — 存储取证增强
+
+#### 工部（DevOps/运维）
+- **LXC Manager** (`lxcmanager`) — LXC 系统容器管理，对标 TrueNAS 25.04 Containers
+- **VM Restore** (`vmrestore`) — 虚拟机快照恢复管理，对标 TrueNAS 经典虚拟化恢复
+- **TrueCloud Backup** (`truecloudbk`) — 混合云备份
+- **USB Smart Mount** (`usbsmartmount`) — USB 智能挂载，对标 Synology USB Copy
+- **Update Director** (`updatedirector`) — 智能更新管理
+
+#### 户部（财务/电商）
+- **API Level Meter** (`apilevelmeter`) — API 使用量监控与配额，对标 TrueNAS API Keys
+- **Cost Benchmark** (`costbenchmark`) — 存储成本基准分析
+- **Storage Budget** (`storagebudget`) — 存储预算管理
+- **Storage Cost Predict** (`storagecostpredict`) — 存储成本预测
+
+#### 礼部（品牌/内容）
+- **SSO Center** (`ssocenter`) — 统一身份认证，对标 Synology SSO Server
+- **Brand Insight** (`brandinsight`) — 品牌洞察分析
+- **Poster Wall Pro** (`posterwallpro`) — 海报墙增强
+- **Note Sync** (`notesync`) — 笔记同步
+
+#### 吏部（项目管理）
+- **Release Track** (`releasetrack`) — 版本通道管理，对标群晖/TrueNAS 通道
+- **Release Manager** (`releasemanager`) — 发布管理器
+- **Team Workspace** (`teamworkspace`) — 团队工作区，对标 Synology Drive
+- **Feature Matrix** (`featurematrix`) — 功能矩阵
+
+#### 刑部（法务/合规）
+- **Data Sovereignty2** (`datasovereignty2`) — 数据主权增强
+- **Destruction Audit** (`destructionaudit`) — 数据销毁审计
+- **SafeAccess** (`safeaccess`) — 安全访问控制
+
+### 竞品功能对标
+- **TrueNAS 25.04**: NFS over RDMA, LXC 容器, ZFS Fast Dedup, API Keys, 虚拟化恢复
+- **Synology DSM**: ActiveProtect, SSO Server, USB Copy, Drive 团队空间
+- **飞牛 NAS**: 智能挂载, 媁破备份
+
 ## v3.17.0 (2026-07-12) - 数据分层与恢复置信
 
 ### 新增模块（6个）
