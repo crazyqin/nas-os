@@ -2,7 +2,9 @@ package arch
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"sort"
 	"sync"
 
 	"go.uber.org/zap"
@@ -67,74 +69,98 @@ func (c *Container) MustGet(name string) interface{} {
 }
 
 // RegisterModule 注册模块.
-func (c *Container) RegisterModule(mod Module) {
+func (c *Container) RegisterModule(mod Module) error {
+	if mod == nil {
+		return fmt.Errorf("module is nil")
+	}
+	name := mod.Name()
+	if name == "" {
+		return fmt.Errorf("module name is empty")
+	}
+
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	c.modules[mod.Name()] = mod
-	c.logger.Info("Registered module", zap.String("name", mod.Name()))
+	if _, exists := c.modules[name]; exists {
+		return fmt.Errorf("module %s already registered", name)
+	}
+	c.modules[name] = mod
+	c.logger.Info("Registered module", zap.String("name", name))
+	return nil
 }
 
 // InitAll 按依赖顺序初始化所有模块.
 func (c *Container) InitAll(ctx context.Context) error {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	// 拓扑排序
-	sorted, err := c.topoSort()
+	modules, sorted, err := c.lifecycleSnapshot()
 	if err != nil {
 		return err
 	}
-
 	for _, name := range sorted {
-		mod := c.modules[name]
 		c.logger.Info("Initializing module", zap.String("name", name))
-		if err := mod.Init(ctx); err != nil {
+		if err := modules[name].Init(ctx); err != nil {
 			return fmt.Errorf("init module %s failed: %w", name, err)
 		}
 	}
 	return nil
 }
 
-// StartAll 按依赖顺序启动所有模块.
+// StartAll 按依赖顺序启动所有模块；启动失败时逆序回滚已启动模块.
 func (c *Container) StartAll(ctx context.Context) error {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	sorted, err := c.topoSort()
+	modules, sorted, err := c.lifecycleSnapshot()
 	if err != nil {
 		return err
 	}
 
+	started := make([]string, 0, len(sorted))
 	for _, name := range sorted {
-		mod := c.modules[name]
 		c.logger.Info("Starting module", zap.String("name", name))
-		if err := mod.Start(ctx); err != nil {
-			return fmt.Errorf("start module %s failed: %w", name, err)
+		if err := modules[name].Start(ctx); err != nil {
+			errs := []error{fmt.Errorf("start module %s failed: %w", name, err)}
+			for i := len(started) - 1; i >= 0; i-- {
+				startedName := started[i]
+				if stopErr := modules[startedName].Stop(ctx); stopErr != nil {
+					errs = append(errs, fmt.Errorf("rollback module %s failed: %w", startedName, stopErr))
+				}
+			}
+			return errors.Join(errs...)
 		}
+		started = append(started, name)
 	}
 	return nil
 }
 
-// StopAll 按依赖逆序停止所有模块.
+// StopAll 按依赖逆序停止所有模块并聚合错误.
 func (c *Container) StopAll(ctx context.Context) error {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	sorted, err := c.topoSort()
+	modules, sorted, err := c.lifecycleSnapshot()
 	if err != nil {
 		return err
 	}
 
-	// 逆序停止
+	var errs []error
 	for i := len(sorted) - 1; i >= 0; i-- {
 		name := sorted[i]
-		mod := c.modules[name]
 		c.logger.Info("Stopping module", zap.String("name", name))
-		if err := mod.Stop(ctx); err != nil {
+		if err := modules[name].Stop(ctx); err != nil {
+			wrapped := fmt.Errorf("stop module %s failed: %w", name, err)
+			errs = append(errs, wrapped)
 			c.logger.Error("Stop module failed", zap.String("name", name), zap.Error(err))
 		}
 	}
-	return nil
+	return errors.Join(errs...)
+}
+
+func (c *Container) lifecycleSnapshot() (map[string]Module, []string, error) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	sorted, err := c.topoSortLocked()
+	if err != nil {
+		return nil, nil, err
+	}
+	modules := make(map[string]Module, len(c.modules))
+	for name, mod := range c.modules {
+		modules[name] = mod
+	}
+	return modules, sorted, nil
 }
 
 // HealthAll 检查所有模块健康状态.
@@ -151,40 +177,52 @@ func (c *Container) HealthAll(ctx context.Context) map[string]error {
 
 // topoSort 拓扑排序.
 func (c *Container) topoSort() ([]string, error) {
-	inDegree := make(map[string]int)
-	graph := make(map[string][]string)
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.topoSortLocked()
+}
+
+func (c *Container) topoSortLocked() ([]string, error) {
+	inDegree := make(map[string]int, len(c.modules))
+	graph := make(map[string][]string, len(c.modules))
 
 	for name := range c.modules {
-		if _, ok := inDegree[name]; !ok {
-			inDegree[name] = 0
-		}
-		for _, dep := range c.modules[name].Dependencies() {
+		inDegree[name] = 0
+	}
+	for name, mod := range c.modules {
+		for _, dep := range mod.Dependencies() {
+			if _, exists := c.modules[dep]; !exists {
+				return nil, fmt.Errorf("module %s depends on missing module %s", name, dep)
+			}
 			graph[dep] = append(graph[dep], name)
 			inDegree[name]++
 		}
 	}
+	for dep := range graph {
+		sort.Strings(graph[dep])
+	}
 
-	var queue []string
-	for name, deg := range inDegree {
-		if deg == 0 {
+	queue := make([]string, 0, len(inDegree))
+	for name, degree := range inDegree {
+		if degree == 0 {
 			queue = append(queue, name)
 		}
 	}
+	sort.Strings(queue)
 
-	var sorted []string
+	sorted := make([]string, 0, len(c.modules))
 	for len(queue) > 0 {
 		node := queue[0]
 		queue = queue[1:]
 		sorted = append(sorted, node)
-
 		for _, next := range graph[node] {
 			inDegree[next]--
 			if inDegree[next] == 0 {
 				queue = append(queue, next)
+				sort.Strings(queue)
 			}
 		}
 	}
-
 	if len(sorted) != len(c.modules) {
 		return nil, fmt.Errorf("circular dependency detected")
 	}

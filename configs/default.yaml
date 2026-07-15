@@ -1,14 +1,35 @@
 # NAS-OS 默认配置
+# 强类型加载路径见 internal/config。可通过 --config 指定，
+# 也可用环境变量 NAS_OS_* 覆盖运行时字段。
 
 server:
-  port: 8080
   host: 0.0.0.0
+  port: 8080
+
+paths:
+  mount_base: /mnt
+  config_dir: /etc/nas-os
+  data_dir: /var/lib/nas-os
+  samba_config: /etc/samba/smb.conf
+  nfs_exports: /etc/exports
 
 storage:
-  mount_base: /mnt
   default_profile: single
   auto_scrub: true
   scrub_schedule: "0 2 * * 0"  # 每周日凌晨 2 点
+
+auth:
+  session_ttl_hours: 24
+  # initial_password 请勿写入版本控制，建议通过环境变量注入
+  initial_password: ""
+
+modules:
+  docker:
+    enabled: false
+    data_root: /mnt/docker
+
+# ==================== 兼容旧字段（未接入 config 包） ====================
+# 以下字段保留自旧版配置，后续按模块迁移到 config 包表达。
 
 smb:
   enabled: true
@@ -20,16 +41,7 @@ nfs:
   allowed_networks:
     - 192.168.1.0/24
 
-users:
-  admin:
-    password_hash: ""  # 首次启动时设置
-    role: admin
-
 monitor:
-  disk_check_interval: 60  # 秒
+  disk_check_interval: 60      # 秒
   space_warning_threshold: 80  # %
-  space_critical_threshold: 95  # %
-
-docker:
-  enabled: false
-  data_root: /mnt/docker
+  space_critical_threshold: 95 # %

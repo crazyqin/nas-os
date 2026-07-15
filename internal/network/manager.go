@@ -1,6 +1,7 @@
 package network
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -26,6 +27,9 @@ type Manager struct {
 
 	// 配置文件路径
 	configPath string
+
+	ddnsWorkerMu     sync.Mutex
+	ddnsWorkerCancel context.CancelFunc
 }
 
 // Interface 网络接口.

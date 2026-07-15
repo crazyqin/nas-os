@@ -2,10 +2,13 @@
 package users
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"path/filepath"
 	"testing"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -212,14 +215,69 @@ func TestManager_ValidateToken(t *testing.T) {
 	})
 	token, _ := mgr.Authenticate("testuser", "password123")
 
-	// 验证 token
-	user, err := mgr.ValidateToken(token.Token)
-	assert.NoError(t, err)
-	assert.Equal(t, "testuser", user.Username)
+	// 同时兼容标准 Bearer 头和旧版裸 token。
+	for _, tokenValue := range []string{token.Token, "Bearer " + token.Token} {
+		user, err := mgr.ValidateToken(tokenValue)
+		assert.NoError(t, err)
+		assert.Equal(t, "testuser", user.Username)
+	}
 
 	// 无效 token
-	_, err = mgr.ValidateToken("invalid-token")
+	_, err := mgr.ValidateToken("invalid-token")
 	assert.Error(t, err)
+}
+
+func TestProtectedRoutesRequireAuthenticationAndAdmin(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	now := time.Now()
+	mgr := &Manager{
+		users: map[string]*User{
+			"admin": {ID: "admin-id", Username: "admin", Role: RoleAdmin},
+			"user":  {ID: "user-id", Username: "user", Role: RoleUser},
+		},
+		groups: map[string]*Group{},
+		tokens: map[string]*Token{
+			"admin-token": {UserID: "admin-id", Token: "admin-token", ExpiresAt: now.Add(time.Hour)},
+			"user-token":  {UserID: "user-id", Token: "user-token", ExpiresAt: now.Add(time.Hour)},
+		},
+	}
+
+	router := gin.New()
+	api := router.Group("/api/v1")
+	handlers := NewHandlers(mgr, nil)
+	handlers.RegisterPublicRoutes(api.Group("/auth"))
+	protected := api.Group("")
+	protected.Use(AuthMiddleware(mgr))
+	handlers.RegisterProtectedRoutes(protected)
+
+	tests := []struct {
+		name       string
+		path       string
+		authHeader string
+		wantStatus int
+	}{
+		{name: "login is public", path: "/api/v1/auth/login", wantStatus: http.StatusBadRequest},
+		{name: "users require token", path: "/api/v1/users", wantStatus: http.StatusUnauthorized},
+		{name: "query token is rejected", path: "/api/v1/users?token=admin-token", wantStatus: http.StatusUnauthorized},
+		{name: "regular user is forbidden", path: "/api/v1/users", authHeader: "Bearer user-token", wantStatus: http.StatusForbidden},
+		{name: "admin is allowed", path: "/api/v1/users", authHeader: "Bearer admin-token", wantStatus: http.StatusOK},
+		{name: "regular user can read self", path: "/api/v1/me", authHeader: "Bearer user-token", wantStatus: http.StatusOK},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, tt.path, nil)
+			if tt.path == "/api/v1/auth/login" {
+				req = httptest.NewRequest(http.MethodPost, tt.path, nil)
+			}
+			if tt.authHeader != "" {
+				req.Header.Set("Authorization", tt.authHeader)
+			}
+			resp := httptest.NewRecorder()
+			router.ServeHTTP(resp, req)
+			assert.Equal(t, tt.wantStatus, resp.Code)
+		})
+	}
 }
 
 func TestManager_Logout(t *testing.T) {

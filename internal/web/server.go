@@ -2,9 +2,12 @@ package web
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"sync"
 	"time"
 
 	"nas-os/internal/acl"
@@ -12,10 +15,12 @@ import (
 	"nas-os/internal/ai"
 	"nas-os/internal/ai_classify"
 	alertremediation "nas-os/internal/alertremediation"
+	"nas-os/internal/arch"
 	"nas-os/internal/audiostation"
 	"nas-os/internal/auth"
 	"nas-os/internal/backup"
 	"nas-os/internal/cloudsync"
+	"nas-os/internal/config"
 	"nas-os/internal/dedup"
 	"nas-os/internal/diskbench"
 	"nas-os/internal/docker"
@@ -141,8 +146,13 @@ import (
 
 // Server Web 服务器.
 type Server struct {
+	cfg           *config.Config
+	modules       []arch.Module
 	engine        *gin.Engine
 	httpSrv       *http.Server
+	lifecycleMu   sync.Mutex
+	started       bool
+	stopping      bool
 	logger        *zap.Logger
 	storageMgr    *storage.Manager
 	userMgr       *users.Manager
@@ -285,7 +295,12 @@ type Server struct {
 }
 
 // NewServer 创建 Web 服务器.
-func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Manager, nfsMgr *nfs.Manager, netMgr *network.Manager, downloadMgr *downloader.Manager, logger *zap.Logger) *Server {
+func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manager, userMgr *users.Manager, mfaMgr *auth.MFAManager, smbMgr *smb.Manager, nfsMgr *nfs.Manager, netMgr *network.Manager, downloadMgr *downloader.Manager, logger *zap.Logger) *Server {
+	// 如果未提供配置，回退到默认值，确保过渡期兼容。
+	if cfg == nil {
+		cfg = config.Default()
+	}
+
 	// 如果未提供 logger，使用 nop logger
 	if logger == nil {
 		logger = zap.NewNop()
@@ -333,8 +348,8 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	// 初始化插件管理器
 	pluginMgr, err := plugin.NewManager(plugin.ManagerConfig{
 		PluginDir: "/opt/nas/plugins",
-		ConfigDir: "/etc/nas-os/plugins",
-		DataDir:   "/var/lib/nas-os/plugins",
+		ConfigDir: cfg.ConfigPath("plugins"),
+		DataDir:   cfg.DataPath("plugins"),
 	})
 	if err != nil {
 		// 插件系统不可用时继续运行
@@ -348,7 +363,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 
 	// 初始化配额管理器
 	var quotaMgr *quota.Manager
-	quotaMgr, err = quota.NewManager("/etc/nas-os/quota.json",
+	quotaMgr, err = quota.NewManager(cfg.ConfigPath("quota.json"),
 		quota.NewStorageAdapter(storMgr),
 		quota.NewUserAdapter(userMgr))
 	if err != nil {
@@ -360,7 +375,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	filesMgr := files.NewManager(files.PreviewConfig{
 		ThumbnailSize:    256,
 		MaxPreviewSize:   50 * 1024 * 1024, // 50MB
-		CacheDir:         "/var/cache/nas-os/thumbnails",
+		CacheDir:         cfg.DataPath("cache", "thumbnails"),
 		CacheExpiry:      24 * time.Hour,
 		EnableVideoThumb: true,
 		EnableDocPreview: true,
@@ -368,26 +383,17 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 
 	// 初始化通知管理器
 	notifyMgr := notify.NewManager()
-	notify.NewHandlers(notifyMgr, "/etc/nas-os/notify-config.json")
+	notify.NewHandlers(notifyMgr, cfg.ConfigPath("notify-config.json"))
 
-	// 初始化 MFA 管理器
-	mfaMgr, err := auth.NewMFAManager(
-		"/etc/nas-os/mfa-config.json",
-		"NAS-OS",
-		nil, // 短信提供商，生产环境配置为 AliyunSMSProvider 或 TencentSMSProvider
-	)
-	if err != nil {
-		// MFA 不可用时继续运行（记录日志）
-		mfaMgr = nil
-	}
+	// MFA 管理器由 Application 构造并注入，身份模块拥有唯一实例。
 
 	// 初始化相册管理器
-	photosMgr := photos.NewManager("/var/lib/nas-os/photos")
+	photosMgr := photos.NewManager(cfg.DataPath("photos"))
 
 	// 初始化 AI 相册管理器
 	var photosAIMgr *photos.AIManager
 	if photosMgr != nil {
-		photosAIMgr, err = photos.NewAIManager(photosMgr, "/var/lib/nas-os/photos/models")
+		photosAIMgr, err = photos.NewAIManager(photosMgr, cfg.DataPath("photos", "models"))
 		if err != nil {
 			log.Printf("⚠️ AI 相册管理初始化警告：%v", err)
 		} else {
@@ -396,7 +402,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化备份管理器
-	backupMgr := backup.NewManager("/etc/nas-os/backup-config.json", "/mnt/backups")
+	backupMgr := backup.NewManager(cfg.ConfigPath("backup-config.json"), cfg.MountPath("backups"))
 	if err := backupMgr.Initialize(); err != nil {
 		log.Printf("⚠️ 备份管理初始化警告：%v", err)
 	} else {
@@ -404,11 +410,11 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化同步管理器
-	syncMgr := backup.NewSyncManager("/mnt/backups")
+	syncMgr := backup.NewSyncManager(cfg.MountPath("backups"))
 	log.Println("✅ 同步管理模块就绪")
 
 	// 初始化系统监控器
-	systemMonitor, err := system.NewMonitor("/var/lib/nas-os/system_monitor.db")
+	systemMonitor, err := system.NewMonitor(cfg.DataPath("system_monitor.db"))
 	if err != nil {
 		log.Printf("⚠️ 系统监控初始化警告：%v", err)
 		systemMonitor = nil
@@ -417,7 +423,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化虚拟机管理器
-	vmStoragePath := "/mnt/vms"
+	vmStoragePath := cfg.MountPath("vms")
 	vmLogger := zap.NewNop()
 	vmMgr, err := vm.NewManager(vmStoragePath, vmLogger)
 	if err != nil {
@@ -428,7 +434,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化 ISO 管理器
-	isoMgr, err := vm.NewISOManager("/mnt/isos", vmLogger)
+	isoMgr, err := vm.NewISOManager(cfg.MountPath("isos"), vmLogger)
 	if err != nil {
 		log.Printf("⚠️ ISO 管理初始化警告：%v", err)
 		isoMgr = nil
@@ -473,9 +479,9 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 引导式告警修复引擎就绪")
 
 	// 初始化智能分层规则引擎（对标群晖 Smarter Tiering）
-	tierMgr := tiering.NewManager("/etc/nas-os/tiering.json", tiering.PolicyEngineConfig{})
-	tierRulesEngine := tiering.NewRulesEngine(tierMgr, "/var/lib/nas-os/tiering")
-	smartTierEngine := tiering.NewAutoTierEngine(tierMgr, tierRulesEngine, "/var/lib/nas-os/tiering")
+	tierMgr := tiering.NewManager(cfg.ConfigPath("tiering.json"), tiering.PolicyEngineConfig{})
+	tierRulesEngine := tiering.NewRulesEngine(tierMgr, cfg.DataPath("tiering"))
+	smartTierEngine := tiering.NewAutoTierEngine(tierMgr, tierRulesEngine, cfg.DataPath("tiering"))
 	costAnalyzer := tiering.NewCostAnalyzer(tierMgr)
 	smartTierHdl := tiering.NewSmartTieringHandler(smartTierEngine, costAnalyzer)
 	log.Println("✅ 智能分层规则引擎就绪")
@@ -487,13 +493,13 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	// 初始化ZFS智能Scrub调度器（对标 TrueNAS 26 智能Scrub）
 	scrubConfig := zfs.DefaultScrubScheduleConfig()
 	scrubScheduler := zfs.NewScrubScheduler("tank", scrubConfig)
-	scrubScheduler.Start()
+	// ZFS scrub 调度器由 Server.Start 统一启动。
 	log.Println("✅ ZFS智能Scrub调度器就绪")
 
 	// 初始化S3策略与管理API（对标 TrueNAS V160 S3增强）
 	var s3PolicyHdl *s3.PolicyHandlers
 	// S3管理器已通过现有S3 handlers注册，这里复用
-	s3Mgr, err := s3.NewManager("/var/lib/nas-os/s3", "/var/lib/nas-os/s3-data")
+	s3Mgr, err := s3.NewManager(cfg.DataPath("s3"), cfg.DataPath("s3-data"))
 	if err != nil {
 		log.Printf("⚠️ S3管理器初始化警告：%v", err)
 		s3PolicyHdl = nil
@@ -506,8 +512,8 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 
 	// 初始化UPS电源监控（对标群晖 UPS 支持）
 	upsMgr := ups.NewManager(ups.DefaultUPSConfig())
-	upsMgr.Start()
-	log.Println("✅ UPS电源监控已启动")
+	// UPS 监控由 Server.Start 统一启动。
+	log.Println("✅ UPS电源监控就绪")
 
 	// 初始化网络唤醒 WOL（对标群晖 WOL）
 	wolMgr := wol.NewManager()
@@ -523,20 +529,20 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 
 	// 初始化 ML 勒索检测引擎（对标群晖 勒索防护增强）
 	ransomDetector := ransommldetect.NewDetector(ransommldetect.DefaultDetectorConfig(), logger)
-	ransomDetector.Start()
-	log.Println("✅ ML勒索检测引擎已启动")
+	// ML 勒索检测由 Server.Start 统一启动。
+	log.Println("✅ ML勒索检测引擎就绪")
 
 	// 初始化回收站自动清理（对标群晖 回收站策略）
 	recycleCleaner := recyclecleaner.NewManager()
-	recycleCleaner.Start()
-	log.Println("✅ 回收站自动清理已启动")
+	// 回收站清理由 Server.Start 统一启动。
+	log.Println("✅ 回收站自动清理就绪")
 
 	// 初始化多渠道通知管理（对标群晖 多通知渠道）
 	notifyChanMgr := notifychannel.NewManager()
 	log.Println("✅ 多渠道通知管理就绪")
 
 	// 初始化版本控制管理器
-	versioningMgr, err := versioning.NewManager("/etc/nas-os/versioning-config.json", nil)
+	versioningMgr, err := versioning.NewManager(cfg.ConfigPath("versioning-config.json"), nil)
 	if err != nil {
 		log.Printf("⚠️ 版本控制初始化警告：%v", err)
 		versioningMgr = nil
@@ -545,7 +551,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化数据去重管理器
-	dedupMgr, err := dedup.NewManager("/etc/nas-os/dedup-config.json", nil)
+	dedupMgr, err := dedup.NewManager(cfg.ConfigPath("dedup-config.json"), nil)
 	if err != nil {
 		log.Printf("⚠️ 数据去重初始化警告：%v", err)
 		dedupMgr = nil
@@ -554,7 +560,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化云同步管理器
-	cloudsyncMgr := cloudsync.NewManager("/etc/nas-os/cloudsync-config.json")
+	cloudsyncMgr := cloudsync.NewManager(cfg.ConfigPath("cloudsync-config.json"))
 	if err := cloudsyncMgr.Initialize(); err != nil {
 		log.Printf("⚠️ 云同步初始化警告：%v", err)
 	} else {
@@ -562,7 +568,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化标签管理器
-	tagsMgr, err := tags.NewManager("/var/lib/nas-os/tags.db")
+	tagsMgr, err := tags.NewManager(cfg.DataPath("tags.db"))
 	if err != nil {
 		log.Printf("⚠️ 标签管理初始化警告：%v", err)
 		tagsMgr = nil
@@ -572,7 +578,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 
 	// 初始化 OnlyOffice 管理器
 	var officeMgr *office.Manager
-	officeMgr, err = office.NewManager("/etc/nas-os/office.json", nil)
+	officeMgr, err = office.NewManager(cfg.ConfigPath("office.json"), nil)
 	if err != nil {
 		log.Printf("⚠️ OnlyOffice 初始化警告：%v", err)
 		officeMgr = nil
@@ -581,7 +587,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化 iSCSI 管理器
-	iscsiMgr, err := iscsi.NewManager("/etc/nas-os/iscsi-config.json", "/var/lib/nas-os/iscsi")
+	iscsiMgr, err := iscsi.NewManager(cfg.ConfigPath("iscsi-config.json"), cfg.DataPath("iscsi"))
 	if err != nil {
 		log.Printf("⚠️ iSCSI 初始化警告：%v", err)
 		iscsiMgr = nil
@@ -590,7 +596,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化 NVMe-oF 管理器
-	nvmeofMgr, err := nvmeof.NewManager("/etc/nas-os/nvmeof-config.json")
+	nvmeofMgr, err := nvmeof.NewManager(cfg.ConfigPath("nvmeof-config.json"))
 	if err != nil {
 		log.Printf("⚠️ NVMe-oF 初始化警告：%v", err)
 		nvmeofMgr = nil
@@ -613,7 +619,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 
 	// 初始化搜索引擎
 	searchEngine, err := search.NewEngine(search.IndexConfig{
-		IndexPath:    "/var/lib/nas-os/search/index.bleve",
+		IndexPath:    cfg.DataPath("search", "index.bleve"),
 		MaxFileSize:  10 * 1024 * 1024, // 10MB
 		Workers:      4,
 		IndexContent: true,
@@ -644,7 +650,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	// ========== v2.481.0 新增模块 ==========
 
 	// 初始化整机备份管理器（对标群晖 Active Backup for Business）
-	activeBackupMgr, err := activebackup.NewManager("/etc/nas-os/activebackup.json")
+	activeBackupMgr, err := activebackup.NewManager(cfg.ConfigPath("activebackup.json"))
 	if err != nil {
 		log.Printf("⚠️ 整机备份管理初始化警告：%v", err)
 		activeBackupMgr = nil
@@ -653,7 +659,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化音乐中心管理器（对标群晖 Audio Station）
-	audioStationMgr, err := audiostation.NewManager("/etc/nas-os/audiostation.json", []string{"/mnt/music"})
+	audioStationMgr, err := audiostation.NewManager(cfg.ConfigPath("audiostation.json"), []string{cfg.MountPath("music")})
 	if err != nil {
 		log.Printf("⚠️ 音乐中心初始化警告：%v", err)
 		audioStationMgr = nil
@@ -666,16 +672,16 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 容灾演练模块就绪")
 
 	// 初始化 Drive Sync 管理器（对标群晖 Drive Sync）
-	driveSyncMgr := drivesync.NewManager("/etc/nas-os/drivesync.json")
+	driveSyncMgr := drivesync.NewManager(cfg.ConfigPath("drivesync.json"))
 	log.Println("✅ Drive Sync 模块就绪")
 
 	// 初始化智能Scrub调度管理器（对标 TrueNAS 26 智能Scrub）
-	scrubSchedMgr := scrubsched.NewManager("/etc/nas-os/scrubsched.json", nil, nil, nil, nil, nil)
-	scrubSchedMgr.Start()
+	scrubSchedMgr := scrubsched.NewManager(cfg.ConfigPath("scrubsched.json"), nil, nil, nil, nil, nil)
+	// 智能 scrub 调度由 Server.Start 统一启动。
 	log.Println("✅ 智能Scrub调度管理器就绪")
 
 	// 初始化虚拟机导入导出管理器
-	vmImportMgr, err := vmimport.NewManager("/var/lib/nas-os/vmimport", "/var/lib/nas-os/vmimport/meta")
+	vmImportMgr, err := vmimport.NewManager(cfg.DataPath("vmimport"), cfg.DataPath("vmimport", "meta"))
 	if err != nil {
 		log.Printf("⚠️ 虚拟机导入导出初始化警告：%v", err)
 		vmImportMgr = nil
@@ -685,7 +691,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 
 	// 初始化S3对象存储网关（对标 MinIO/S3 兼容层）
 	s3Gateway := s3gateway.NewGateway(s3gateway.GatewayConfig{
-		StorageRoot: "/var/lib/nas-os/s3-gateway",
+		StorageRoot: cfg.DataPath("s3-gateway"),
 		Region:      "us-east-1",
 	})
 	log.Println("✅ S3对象存储网关就绪")
@@ -693,7 +699,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	// 初始化定时任务调度器
 	schedulerCfg := &scheduler.Config{
 		MaxConcurrentTasks: 10,
-		StoragePath:        "/var/lib/nas-os/scheduler",
+		StoragePath:        cfg.DataPath("scheduler"),
 	}
 	schedulerMgr, err := scheduler.NewScheduler(schedulerCfg)
 	if err != nil {
@@ -743,7 +749,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 温控管理模块就绪")
 
 	// 初始化文件索引器（全文索引与搜索）
-	fileindexMgr := fileindex.NewIndexer(logger, "/mnt")
+	fileindexMgr := fileindex.NewIndexer(logger, cfg.Paths.MountBase)
 	log.Println("✅ 文件索引模块就绪")
 
 	// 初始化Web终端管理器（WebSocket SSH终端）
@@ -765,7 +771,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	// ========== v2.498.0 新增模块初始化 ==========
 
 	// 初始化应用中心（对标群晖 Package Center）
-	appCenterMgr := appcenter.NewAppStore(logger, "/var/lib/nas-os/appcenter")
+	appCenterMgr := appcenter.NewAppStore(logger, cfg.DataPath("appcenter"))
 	log.Println("✅ 应用中心模块就绪")
 
 	// 初始化备份验证（对标群晖 Active Backup 验证）
@@ -801,7 +807,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 能源管理模块就绪")
 
 	// 初始化文件同步（对标群晖 Drive Sync）
-	fileSyncMgr := filesync.NewSyncManager(logger, "/var/lib/nas-os/filesync")
+	fileSyncMgr := filesync.NewSyncManager(logger, cfg.DataPath("filesync"))
 	log.Println("✅ 文件同步模块就绪")
 
 	// 初始化网络哨兵（对标群晖网络工具增强）
@@ -874,7 +880,13 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	musicServerMgr := musicserver.NewManager()
 	photoAIMgr := photoai.NewManager(nil)
 	syslogServerMgr := syslogserver.NewManager()
-	digitalLegacyMgr := digitallegacy.NewLegacyService([]byte("nas-os-legacy-key"))
+	var digitalLegacyMgr *digitallegacy.Manager
+	legacyKey := []byte(os.Getenv("NAS_DIGITAL_LEGACY_KEY"))
+	if len(legacyKey) == 16 || len(legacyKey) == 24 || len(legacyKey) == 32 {
+		digitalLegacyMgr = digitallegacy.NewLegacyService(legacyKey)
+	} else {
+		log.Println("⚠️ 数字遗产模块已禁用：NAS_DIGITAL_LEGACY_KEY 必须为 16、24 或 32 字节")
+	}
 	log.Println("✅ Spotlight 索引就绪")
 
 	// v2.548.0 新增模块初始化
@@ -889,6 +901,8 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ v2.548.0 新增模块就绪")
 
 	s := &Server{
+		cfg:           cfg,
+		modules:       append([]arch.Module(nil), modules...),
 		engine:        engine,
 		logger:        logger,
 		storageMgr:    storMgr,
@@ -922,11 +936,11 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		optimizer:  optimizer.NewOptimizer(nil, logger),
 		projectMgr: projectMgr,
 		trashMgr: func() *trash.Manager {
-			mgr, _ := trash.NewManager("/etc/nas-os/trash.json", "/var/lib/nas-os/trash", nil)
+			mgr, _ := trash.NewManager(cfg.ConfigPath("trash.json"), cfg.DataPath("trash"), nil)
 			return mgr
 		}(),
 		replMgr: func() *replication.Manager {
-			mgr, _ := replication.NewManager("/etc/nas-os/replication.json", nil)
+			mgr, _ := replication.NewManager(cfg.ConfigPath("replication.json"), nil)
 			return mgr
 		}(),
 		webdavSrv: func() *webdav.Server {
@@ -1112,49 +1126,35 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 }
 
 func (s *Server) setupRoutes() {
-	// API 路由
+	publicAPI := s.engine.Group("/api/v1")
+	for _, module := range s.modules {
+		if registrar, ok := module.(arch.PublicRouteRegistrar); ok {
+			registrar.RegisterPublicRoutes(publicAPI.Group("/auth"))
+			registrar.RegisterPublicRoutes(publicAPI) // 兼容旧版 /api/v1/login
+		}
+	}
+	publicAPI.GET("/system/health", s.getHealth)
+	// 兼容旧探针路径：/api/v1/health 与 /api/v1/system/health 等价
+	publicAPI.GET("/health", s.getHealth)
+
+	// 账户 API 要求登录，管理 API 默认要求管理员角色。
+	authenticatedAPI := s.engine.Group("/api/v1")
+	authenticatedAPI.Use(users.AuthMiddleware(s.userMgr))
+	for _, module := range s.modules {
+		if registrar, ok := module.(arch.AuthenticatedRouteRegistrar); ok {
+			registrar.RegisterAuthenticatedRoutes(authenticatedAPI)
+		}
+	}
+
 	api := s.engine.Group("/api/v1")
+	api.Use(users.AuthMiddleware(s.userMgr), users.RequireAdmin(s.userMgr))
+	for _, module := range s.modules {
+		if registrar, ok := module.(arch.RouteRegistrar); ok {
+			registrar.RegisterRoutes(api)
+		}
+	}
 	{
-		// ========== 存储管理 API (v2) ==========
-		NewStorageHandlers(s.storageMgr).RegisterRoutes(api)
-
-		// ========== 卷管理 ==========
-		api.GET("/volumes", s.listVolumes)
-		api.POST("/volumes", s.createVolume)
-		api.GET("/volumes/:name", s.getVolume)
-		api.DELETE("/volumes/:name", s.deleteVolume)
-		api.POST("/volumes/:name/mount", s.mountVolume)
-		api.POST("/volumes/:name/unmount", s.unmountVolume)
-		api.GET("/volumes/:name/usage", s.getVolumeUsage)
-		api.POST("/volumes/:name/devices", s.addDevice)
-		api.DELETE("/volumes/:name/devices/:device", s.removeDevice)
-		api.GET("/volumes/:name/devices", s.getDeviceStats)
-
-		// ========== 子卷管理 ==========
-		api.GET("/volumes/:name/subvolumes", s.listSubVolumes)
-		api.POST("/volumes/:name/subvolumes", s.createSubVolume)
-		api.GET("/volumes/:name/subvolumes/:subvol", s.getSubVolume)
-		api.DELETE("/volumes/:name/subvolumes/:subvol", s.deleteSubVolume)
-		api.PUT("/volumes/:name/subvolumes/:subvol/readonly", s.setSubVolumeReadOnly)
-
-		// ========== 快照管理 ==========
-		api.GET("/volumes/:name/snapshots", s.listSnapshots)
-		api.POST("/volumes/:name/snapshots", s.createSnapshot)
-		api.DELETE("/volumes/:name/snapshots/:snapshot", s.deleteSnapshot)
-		api.POST("/volumes/:name/snapshots/:snapshot/restore", s.restoreSnapshot)
-
-		// ========== RAID 配置 ==========
-		api.GET("/raid-configs", s.getRAIDConfigs)
-		api.POST("/volumes/:name/convert", s.convertRAID)
-
-		// ========== 维护操作 ==========
-		api.POST("/volumes/:name/balance", s.startBalance)
-		api.GET("/volumes/:name/balance", s.getBalanceStatus)
-		api.POST("/volumes/:name/scrub", s.startScrub)
-		api.GET("/volumes/:name/scrub", s.getScrubStatus)
-
-		// ========== 用户管理 ==========
-		users.NewHandlers(s.userMgr, s.mfaMgr).RegisterRoutes(api)
+		registerLegacyStorageRoutes(api, s)
 
 		// ========== MFA 管理 ==========
 		if s.mfaMgr != nil {
@@ -1165,12 +1165,6 @@ func (s *Server) setupRoutes() {
 		if s.rbacMgr != nil {
 			auth.NewRBACHandlers(s.rbacMgr).RegisterRoutes(api)
 		}
-
-		// ========== 共享管理（SMB + NFS）==========
-		shares.NewHandlers(s.smbMgr, s.nfsMgr).RegisterRoutes(api)
-
-		// ========== 网络管理 ==========
-		network.NewHandlers(s.networkMgr).RegisterRoutes(api)
 
 		// ========== Docker 管理 ==========
 		if s.dockerMgr != nil {
@@ -1184,7 +1178,6 @@ func (s *Server) setupRoutes() {
 
 		// ========== 系统信息 ==========
 		api.GET("/system/info", s.getSystemInfo)
-		api.GET("/system/health", s.getHealth)
 		api.GET("/system/status", s.getSystemStatus)
 
 		// ========== 性能监控 ==========
@@ -1312,7 +1305,7 @@ func (s *Server) setupRoutes() {
 		}
 
 		// ========== 通知管理 ==========
-		notify.NewHandlers(s.notifyMgr, "/etc/nas-os/notify-config.json").RegisterRoutes(api)
+		notify.NewHandlers(s.notifyMgr, s.cfg.ConfigPath("notify-config.json")).RegisterRoutes(api)
 
 		// ========== 下载中心 ==========
 		if s.downloadMgr != nil {
@@ -1664,7 +1657,22 @@ func (s *Server) setupRoutes() {
 			syslogserver.NewHandlers(s.syslogServerMgr).RegisterRoutes(api)
 		}
 		if s.digitalLegacyMgr != nil {
-			digitallegacy.NewHandlers(s.digitalLegacyMgr).RegisterRoutes(newMux, "/api/v1/legacy")
+			legacyMux := http.NewServeMux()
+			digitallegacy.NewHandlers(s.digitalLegacyMgr).RegisterRoutes(legacyMux, "/api/v1/legacy")
+			authenticatedAPI.Any("/legacy/*path", func(c *gin.Context) {
+				user, exists := c.Get("user")
+				if !exists {
+					c.AbortWithStatus(http.StatusUnauthorized)
+					return
+				}
+				authenticatedUser, ok := user.(*users.User)
+				if !ok {
+					c.AbortWithStatus(http.StatusInternalServerError)
+					return
+				}
+				ctx := digitallegacy.WithUserID(c.Request.Context(), authenticatedUser.ID)
+				legacyMux.ServeHTTP(c.Writer, c.Request.WithContext(ctx))
+			})
 		}
 		if s.containerImageCacheMgr != nil {
 			containerimagecache.NewHandler(s.containerImageCacheMgr).RegisterRoutes(newMux)
@@ -1690,7 +1698,11 @@ func (s *Server) setupRoutes() {
 		if s.apikeyMgr != nil {
 			apikey.NewHandler(s.apikeyMgr).RegisterRoutes(api)
 		}
-		s.engine.NoRoute(gin.WrapH(newMux))
+		s.engine.NoRoute(
+			users.AuthMiddleware(s.userMgr),
+			users.RequireAdmin(s.userMgr),
+			gin.WrapH(newMux),
+		)
 
 		// ========== 媒体中心 ==========
 		// if s.mediaMgr != nil {
@@ -1742,7 +1754,83 @@ func (s *Server) setupRoutes() {
 }
 
 // Start 启动服务器.
+// registerLegacyStorageRoutes 注册历史存储 API 契约。
+// 在客户端迁移完成前，路径、HTTP 方法和响应格式必须保持兼容。
+func registerLegacyStorageRoutes(api *gin.RouterGroup, s *Server) {
+	// ========== 卷管理 ==========
+	api.GET("/volumes", s.listVolumes)
+	api.POST("/volumes", s.createVolume)
+	api.GET("/volumes/:name", s.getVolume)
+	api.DELETE("/volumes/:name", s.deleteVolume)
+	api.POST("/volumes/:name/mount", s.mountVolume)
+	api.POST("/volumes/:name/unmount", s.unmountVolume)
+	api.GET("/volumes/:name/usage", s.getVolumeUsage)
+	api.POST("/volumes/:name/devices", s.addDevice)
+	api.DELETE("/volumes/:name/devices/:device", s.removeDevice)
+	api.GET("/volumes/:name/devices", s.getDeviceStats)
+
+	// ========== 子卷管理 ==========
+	api.GET("/volumes/:name/subvolumes", s.listSubVolumes)
+	api.POST("/volumes/:name/subvolumes", s.createSubVolume)
+	api.GET("/volumes/:name/subvolumes/:subvol", s.getSubVolume)
+	api.DELETE("/volumes/:name/subvolumes/:subvol", s.deleteSubVolume)
+	api.PUT("/volumes/:name/subvolumes/:subvol/readonly", s.setSubVolumeReadOnly)
+
+	// ========== 快照管理 ==========
+	api.GET("/volumes/:name/snapshots", s.listSnapshots)
+	api.POST("/volumes/:name/snapshots", s.createSnapshot)
+	api.DELETE("/volumes/:name/snapshots/:snapshot", s.deleteSnapshot)
+	api.POST("/volumes/:name/snapshots/:snapshot/restore", s.restoreSnapshot)
+
+	// ========== RAID 配置 ==========
+	api.GET("/raid-configs", s.getRAIDConfigs)
+	api.POST("/volumes/:name/convert", s.convertRAID)
+
+	// ========== 维护操作 ==========
+	api.POST("/volumes/:name/balance", s.startBalance)
+	api.GET("/volumes/:name/balance", s.getBalanceStatus)
+	api.POST("/volumes/:name/scrub", s.startScrub)
+	api.GET("/volumes/:name/scrub", s.getScrubStatus)
+}
+
 func (s *Server) Start(addr string) error {
+	s.lifecycleMu.Lock()
+	if s.stopping {
+		s.lifecycleMu.Unlock()
+		return nil
+	}
+	if s.started {
+		s.lifecycleMu.Unlock()
+		return errors.New("web server already started")
+	}
+	s.httpSrv = &http.Server{
+		Addr:              addr,
+		Handler:           s.engine,
+		ReadHeaderTimeout: 10 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       120 * time.Second,
+	}
+	s.started = true
+	httpSrv := s.httpSrv
+	s.lifecycleMu.Unlock()
+
+	// 所有构造期后台任务在此统一启动，Stop 中逆序停止。
+	if s.scrubScheduler != nil {
+		s.scrubScheduler.Start()
+	}
+	if s.upsMgr != nil {
+		s.upsMgr.Start()
+	}
+	if s.ransomDetector != nil {
+		s.ransomDetector.Start()
+	}
+	if s.recycleCleaner != nil {
+		s.recycleCleaner.Start()
+	}
+	if s.scrubSchedMgr != nil {
+		s.scrubSchedMgr.Start()
+	}
+
 	// 启动 WebDAV 服务器
 	if s.webdavSrv != nil {
 		if err := s.webdavSrv.Start(); err != nil {
@@ -1776,18 +1864,31 @@ func (s *Server) Start(addr string) error {
 		}
 	}
 
-	s.httpSrv = &http.Server{
-		Addr:              addr,
-		Handler:           s.engine,
-		ReadHeaderTimeout: 10 * time.Second,
-		WriteTimeout:      30 * time.Second,
-		IdleTimeout:       120 * time.Second,
+	if err := httpSrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		return err
 	}
-	return s.httpSrv.ListenAndServe()
+	return nil
 }
 
 // Stop 停止服务器.
 func (s *Server) Stop() error {
+	s.lifecycleMu.Lock()
+	if s.stopping {
+		s.lifecycleMu.Unlock()
+		return nil
+	}
+	s.stopping = true
+	httpSrv := s.httpSrv
+	s.lifecycleMu.Unlock()
+
+	// 先停止 HTTP 入口并等待在途请求，再关闭请求依赖。
+	var shutdownErr error
+	if httpSrv != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		shutdownErr = httpSrv.Shutdown(ctx)
+		cancel()
+	}
+
 	// 停止性能监控
 	if s.perfMgr != nil {
 		s.perfMgr.Stop()
@@ -1801,6 +1902,31 @@ func (s *Server) Stop() error {
 	// 停止 AI 相册管理
 	if s.photosAIMgr != nil {
 		s.photosAIMgr.Close()
+	}
+
+	// 停止智能 scrub 调度管理器
+	if s.scrubSchedMgr != nil {
+		s.scrubSchedMgr.Stop()
+	}
+
+	// 停止 ZFS scrub 调度器
+	if s.scrubScheduler != nil {
+		s.scrubScheduler.Stop()
+	}
+
+	// 停止 UPS 监控
+	if s.upsMgr != nil {
+		s.upsMgr.Stop()
+	}
+
+	// 停止 ML 勒索检测
+	if s.ransomDetector != nil {
+		s.ransomDetector.Stop()
+	}
+
+	// 停止回收站自动清理
+	if s.recycleCleaner != nil {
+		s.recycleCleaner.Stop()
 	}
 
 	// 停止 WebDAV 服务器
@@ -1818,9 +1944,7 @@ func (s *Server) Stop() error {
 		_ = s.sftpSrv.Stop()
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	return s.httpSrv.Shutdown(ctx)
+	return shutdownErr
 }
 
 // ========== 卷管理 API ==========

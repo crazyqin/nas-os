@@ -256,7 +256,7 @@ check_status() {
     
     # 检查健康端点
     sleep 2
-    if curl -sf http://localhost:8080/api/v1/health &> /dev/null; then
+    if curl -sf http://localhost:8080/api/v1/system/health &> /dev/null; then
         log_success "健康检查通过"
     else
         log_warn "健康检查未通过，服务可能仍在启动中"

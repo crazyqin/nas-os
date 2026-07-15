@@ -56,7 +56,7 @@ RUN mkdir -p /data /config /var/log/nas-os
 
 # 健康检查（与其他 Dockerfile 保持一致）
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -sf http://localhost:8080/api/v1/health || exit 1
+    CMD curl -sf http://localhost:8080/api/v1/system/health || exit 1
 
 # 非root用户运行（安全最佳实践）
 RUN addgroup -g 1000 nasos && \

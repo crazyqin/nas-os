@@ -10,6 +10,7 @@ import (
 	"math/big"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -283,6 +284,14 @@ func generateID() string {
 		panic("crypto/rand failed: " + err.Error())
 	}
 	return hex.EncodeToString(b)
+}
+
+func normalizeToken(token string) string {
+	const bearer = "Bearer "
+	if strings.HasPrefix(token, bearer) {
+		return strings.TrimSpace(strings.TrimPrefix(token, bearer))
+	}
+	return strings.TrimSpace(token)
 }
 
 // generateToken 生成会话令牌.
@@ -707,6 +716,7 @@ func (m *Manager) Authenticate(username, password string) (*Token, error) {
 
 // ValidateToken 验证令牌.
 func (m *Manager) ValidateToken(tokenStr string) (*User, error) {
+	tokenStr = normalizeToken(tokenStr)
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -734,6 +744,7 @@ func (m *Manager) ValidateToken(tokenStr string) (*User, error) {
 
 // Logout 登出（使令牌失效）.
 func (m *Manager) Logout(tokenStr string) {
+	tokenStr = normalizeToken(tokenStr)
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	delete(m.tokens, tokenStr)
@@ -744,6 +755,7 @@ func (m *Manager) Logout(tokenStr string) {
 
 // RefreshToken 刷新令牌.
 func (m *Manager) RefreshToken(tokenStr string) (*Token, error) {
+	tokenStr = normalizeToken(tokenStr)
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
