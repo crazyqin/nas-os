@@ -23,42 +23,51 @@ func NewHandlers(mgr *Manager, mfaMgr *auth.MFAManager) *Handlers {
 	}
 }
 
-// RegisterRoutes 注册路由.
+// RegisterRoutes 注册完整路由，并为受保护路由应用认证中间件.
 func (h *Handlers) RegisterRoutes(router *gin.RouterGroup) {
-	// ========== 认证相关（公开路由）==========
+	h.RegisterPublicRoutes(router)
+	protected := router.Group("")
+	protected.Use(AuthMiddleware(h.manager))
+	h.RegisterProtectedRoutes(protected)
+}
+
+// RegisterPublicRoutes 注册无需登录的认证路由.
+func (h *Handlers) RegisterPublicRoutes(router *gin.RouterGroup) {
 	router.POST("/login", h.login)
+}
+
+// RegisterProtectedRoutes 注册需要登录的用户路由.
+func (h *Handlers) RegisterProtectedRoutes(router *gin.RouterGroup) {
 	router.POST("/logout", h.logout)
 	router.POST("/refresh", h.refreshToken)
 	router.GET("/me", h.getCurrentUser)
 
-	// ========== 用户管理（需要认证和管理员权限）==========
+	// 用户和用户组管理只允许管理员访问。
 	users := router.Group("/users")
-	// 注意：调用方应在应用此路由组前添加认证和权限中间件
-	// 示例：router.Group("/users", authMiddleware, adminMiddleware)
+	users.Use(RequireAdmin(h.manager))
 	{
 		users.GET("", h.listUsers)
-		users.POST("", h.createUser) // 需要 admin 权限
+		users.POST("", h.createUser)
 		users.GET("/:username", h.getUser)
-		users.PUT("/:username", h.updateUser)           // 需要 admin 权限或本人
-		users.DELETE("/:username", h.deleteUser)        // 需要 admin 权限
-		users.POST("/:username/disable", h.disableUser) // 需要 admin 权限
-		users.POST("/:username/enable", h.enableUser)   // 需要 admin 权限
+		users.PUT("/:username", h.updateUser)
+		users.DELETE("/:username", h.deleteUser)
+		users.POST("/:username/disable", h.disableUser)
+		users.POST("/:username/enable", h.enableUser)
 		users.POST("/:username/password", h.changePassword)
-		users.POST("/:username/reset-password", h.resetPassword)        // 需要 admin 权限
-		users.PUT("/:username/role", h.setUserRole)                     // 需要 admin 权限
-		users.POST("/:username/groups/:group", h.addUserToGroup)        // 需要 admin 权限
-		users.DELETE("/:username/groups/:group", h.removeUserFromGroup) // 需要 admin 权限
+		users.POST("/:username/reset-password", h.resetPassword)
+		users.PUT("/:username/role", h.setUserRole)
+		users.POST("/:username/groups/:group", h.addUserToGroup)
+		users.DELETE("/:username/groups/:group", h.removeUserFromGroup)
 	}
 
-	// ========== 用户组管理（需要认证和管理员权限）==========
 	groups := router.Group("/groups")
-	// 注意：调用方应在应用此路由组前添加认证和权限中间件
+	groups.Use(RequireAdmin(h.manager))
 	{
 		groups.GET("", h.listGroups)
-		groups.POST("", h.createGroup) // 需要 admin 权限
+		groups.POST("", h.createGroup)
 		groups.GET("/:name", h.getGroup)
-		groups.PUT("/:name", h.updateGroup)    // 需要 admin 权限
-		groups.DELETE("/:name", h.deleteGroup) // 需要 admin 权限
+		groups.PUT("/:name", h.updateGroup)
+		groups.DELETE("/:name", h.deleteGroup)
 		groups.GET("/:name/users", h.getGroupUsers)
 	}
 }
@@ -599,11 +608,6 @@ func AuthMiddleware(mgr *Manager) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenStr := c.GetHeader("Authorization")
 		if tokenStr == "" {
-			// 尝试从查询参数获取
-			tokenStr = c.Query("token")
-		}
-
-		if tokenStr == "" {
 			c.JSON(http.StatusUnauthorized, apiresponse.Error(401, "需要认证"))
 			c.Abort()
 			return
@@ -618,6 +622,7 @@ func AuthMiddleware(mgr *Manager) gin.HandlerFunc {
 
 		// 将用户信息存入上下文
 		c.Set("user", user)
+		c.Set("user_id", user.ID)
 		c.Set("username", user.Username)
 		c.Next()
 	}

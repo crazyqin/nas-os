@@ -165,10 +165,9 @@ func main() {
 	webServer := web.NewServer(storMgr, userMgr, smbMgr, nfsMgr, netMgr, downloadMgr, logger)
 
 	// 启动 Web 服务
+	webErrCh := make(chan error, 1)
 	go func() {
-		if err := webServer.Start(":8080"); err != nil {
-			log.Fatalf("Web 服务启动失败：%v", err)
-		}
+		webErrCh <- webServer.Start(":8080")
 	}()
 
 	log.Println("✅ NAS-OS 就绪 - Web 管理界面：http://localhost:8080")
@@ -177,14 +176,26 @@ func main() {
 		log.Printf("🔗 集群模式 - 节点 ID: %s, 角色：%s", hostname, getClusterRole(clusterServices))
 	}
 
-	// 等待退出信号
+	// 等待退出信号或 Web 服务提前退出
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	<-sigChan
+	exitCode := 0
+	select {
+	case sig := <-sigChan:
+		log.Printf("👋 收到信号 %s，NAS-OS 正在关闭...", sig)
+	case err := <-webErrCh:
+		if err != nil {
+			logger.Error("web server exited with error", zap.Error(err))
+			exitCode = 1
+		}
+	}
 
-	log.Println("👋 NAS-OS 正在关闭...")
 	if err := webServer.Stop(); err != nil {
 		logger.Error("failed to stop web server", zap.Error(err))
+		exitCode = 1
+	}
+	if exitCode != 0 {
+		os.Exit(exitCode)
 	}
 }
 

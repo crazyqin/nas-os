@@ -761,6 +761,19 @@ func TestAPI_Config(t *testing.T) {
 	}
 }
 
+func TestGetUserIDOnlyTrustsAuthenticatedContext(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/legacy/plans", nil)
+	req.Header.Set("X-User-ID", "forged-user")
+	if got := getUserID(req); got != "" {
+		t.Fatalf("untrusted header must not set user ID, got %q", got)
+	}
+
+	req = req.WithContext(WithUserID(req.Context(), "authenticated-user"))
+	if got := getUserID(req); got != "authenticated-user" {
+		t.Fatalf("authenticated context user ID = %q", got)
+	}
+}
+
 // ========== 加密测试 ==========
 
 func TestEncryption(t *testing.T) {

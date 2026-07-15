@@ -2,11 +2,19 @@
 package digitallegacy
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 )
+
+type userIDContextKey struct{}
+
+// WithUserID 将已认证的用户 ID 写入请求上下文.
+func WithUserID(ctx context.Context, userID string) context.Context {
+	return context.WithValue(ctx, userIDContextKey{}, userID)
+}
 
 // Handlers 数字遗产 API 处理器.
 type Handlers struct {
@@ -89,13 +97,10 @@ func writeError(w http.ResponseWriter, status int, message string) {
 	})
 }
 
-// getUserID 获取用户ID.
+// getUserID 获取认证中间件写入的用户 ID.
 func getUserID(r *http.Request) string {
-	// 从请求头或上下文获取用户ID
-	if userID := r.Header.Get("X-User-ID"); userID != "" {
-		return userID
-	}
-	return "user-001"
+	userID, _ := r.Context().Value(userIDContextKey{}).(string)
+	return userID
 }
 
 // parseIDFromPath 从路径中解析 ID.

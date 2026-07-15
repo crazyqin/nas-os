@@ -55,7 +55,7 @@ EXPOSE 2345/tcp
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD wget -q --spider http://localhost:8080/api/v1/health || exit 1
+    CMD wget -q --spider http://localhost:8080/api/v1/system/health || exit 1
 
 # 使用 Air 启动（支持热重载）
 CMD ["air", "-c", ".air.toml"]

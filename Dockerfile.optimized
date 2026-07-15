@@ -62,7 +62,7 @@ import (
 )
 
 func main() {
-	resp, err := http.Get("http://localhost:8080/api/v1/health")
+	resp, err := http.Get("http://localhost:8080/api/v1/system/health")
 	if err != nil || resp.StatusCode != 200 {
 		os.Exit(1)
 	}

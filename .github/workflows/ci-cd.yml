@@ -801,7 +801,7 @@ jobs:
           echo ""
           echo "=== 健康检查 ==="
           # 尝试访问健康端点
-          curl -sf http://localhost:8080/api/v1/health && echo "✅ 健康端点正常" || echo "⚠️ 健康端点暂不可用"
+          curl -sf http://localhost:8080/api/v1/system/health && echo "✅ 健康端点正常" || echo "⚠️ 健康端点暂不可用"
       
       - name: 停止服务
         if: always()
