@@ -57,8 +57,8 @@ type Module interface {
 模块层级治理：
 
 - **Core**：进程主生命周期必需能力，只允许 `identity / storage / network / sharing / system`；
-- **Extension**：可选产品能力，允许保留独立 handler / manager，但不得伪装成启动主图核心；
-- **Lab**：实验性、概念验证或待收编模块，默认不进入生产核心图，优先降级、隔离或删除重复实现。
+- **Extension**：可选产品能力，允许保留独立 handler / manager，但不得伪装成启动主图核心；当前已收敛示例：`internal/extensions/activeprotect`；
+- **Lab**：实验性、概念验证或待收编模块，默认不进入生产核心图，优先降级、隔离或删除重复实现；当前已收敛示例：`internal/lab/aimediatag`、`internal/lab/brandinsight`、`internal/lab/releasemanager`。
 
 容器保证：
 
@@ -133,6 +133,7 @@ API 分成三层：
 ## 渐进迁移规则
 
 - 冻结新增顶层 `internal` 业务模块，优先归入现有领域；
+- 已完成首批目录收敛：`activeprotect` 已迁入 `internal/extensions/`；`aimediatag`、`brandinsight`、`releasemanager` 已迁入 `internal/lab/`；
 - 每次只迁移一个低风险领域或一组端点；
 - 每个提交保持可构建、可测试、可回滚；
 - 新模块优先使用小接口和显式构造函数；

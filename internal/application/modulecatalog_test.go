@@ -49,14 +49,31 @@ func TestModuleCatalogSnapshotReturnsCopy(t *testing.T) {
 
 func TestTieredModulesLiveUnderTieredNamespaces(t *testing.T) {
 	cases := map[string]string{
-		"/home/mrafter/nas-os/internal/lab/brandinsight":    "brandinsight should live under internal/lab",
-		"/home/mrafter/nas-os/internal/lab/releasemanager":  "releasemanager should live under internal/lab",
-		"/home/mrafter/nas-os/internal/lab/aimediatag":      "aimediatag should live under internal/lab",
+		"/home/mrafter/nas-os/internal/lab/brandinsight":       "brandinsight should live under internal/lab",
+		"/home/mrafter/nas-os/internal/lab/releasemanager":     "releasemanager should live under internal/lab",
+		"/home/mrafter/nas-os/internal/lab/aimediatag":         "aimediatag should live under internal/lab",
 		"/home/mrafter/nas-os/internal/extensions/activeprotect": "activeprotect should live under internal/extensions",
 	}
 	for path, msg := range cases {
 		if _, err := os.Stat(path); err != nil {
 			t.Fatalf("%s: %v", msg, err)
+		}
+	}
+}
+
+func TestDeprecatedTopLevelTieredModulePathsAreGone(t *testing.T) {
+	paths := map[string]string{
+		"/home/mrafter/nas-os/internal/activeprotect":  "activeprotect should not remain at internal top level",
+		"/home/mrafter/nas-os/internal/aimediatag":     "aimediatag should not remain at internal top level",
+		"/home/mrafter/nas-os/internal/brandinsight":   "brandinsight should not remain at internal top level",
+		"/home/mrafter/nas-os/internal/releasemanager": "releasemanager should not remain at internal top level",
+	}
+	for path, msg := range paths {
+		if _, err := os.Stat(path); !os.IsNotExist(err) {
+			if err == nil {
+				t.Fatal(msg)
+			}
+			t.Fatalf("%s: unexpected stat error: %v", msg, err)
 		}
 	}
 }
