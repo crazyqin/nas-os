@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.18.3 (2026-07-16) - 可选能力迁入 Extension 命名空间
+
+### 架构收敛
+- 将未接入 Core 生命周期主图的 `agentworkflow`、`aiguardrails`、`voicehub` 从 `internal/` 顶层迁入 `internal/extensions/`。
+- 保持 Go package 名称和对外行为不变，仅收紧目录所有权，避免可选能力继续占用伪核心顶层。
+- 扩充目录边界回归测试，锁定 Extension 新路径并禁止旧顶层路径回流。
+
+### 验证
+- `go test ./internal/application ./internal/extensions/agentworkflow ./internal/extensions/aiguardrails ./internal/extensions/voicehub`
+- `go build ./...`
+- `git diff --check`
+
 ## v3.18.2 (2026-07-16) - 伪核心 v2/pro 模块降级
 
 ### 架构收敛
