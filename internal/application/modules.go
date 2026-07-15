@@ -38,10 +38,10 @@ type coreModule struct {
 
 func (m *coreModule) Name() string { return m.name }
 func (m *coreModule) Tier() arch.ModuleTier {
-	if m.tier == "" {
-		return arch.ModuleTierCore
+	if m.tier != "" {
+		return m.tier
 	}
-	return m.tier
+	return ModuleTierFor(m.name)
 }
 func (m *coreModule) Dependencies() []string      { return append([]string(nil), m.deps...) }
 func (m *coreModule) Start(context.Context) error { return nil }
