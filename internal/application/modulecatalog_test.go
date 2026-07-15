@@ -30,3 +30,17 @@ func TestModuleCatalogSnapshotDemotesPseudoCoreModules(t *testing.T) {
 		}
 	}
 }
+
+func TestModuleTierForDefaultsUnknownModulesToExtension(t *testing.T) {
+	if got := ModuleTierFor("totally-new-module"); got != arch.ModuleTierExtension {
+		t.Fatalf("ModuleTierFor(unknown) = %q, want %q", got, arch.ModuleTierExtension)
+	}
+}
+
+func TestModuleCatalogSnapshotReturnsCopy(t *testing.T) {
+	catalog := ModuleCatalogSnapshot()
+	catalog[moduleIdentity] = arch.ModuleTierLab
+	if got := ModuleTierFor(moduleIdentity); got != arch.ModuleTierCore {
+		t.Fatalf("ModuleTierFor(%s) mutated to %q, want %q", moduleIdentity, got, arch.ModuleTierCore)
+	}
+}
