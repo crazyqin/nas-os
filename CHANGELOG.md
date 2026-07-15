@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.18.6 (2026-07-16) - Pro 伪核心模块降入 Lab
+
+### 架构收敛
+- 将零生产引用、未接入 Core 生命周期的 `containerpro`、`themepro`、`smarthomehubpro` 从 `internal/` 顶层迁入 `internal/lab/`。
+- 三个 `pro` 增强模块与现有容器、主题、智能家居领域重叠；保留实现用于实验评估，但不再占用生产核心命名空间。
+- 将三者登记为 Lab，并扩充目录边界回归测试，阻止旧顶层路径回流。
+
+### 验证
+- `go test ./internal/application ./internal/lab/containerpro ./internal/lab/themepro ./internal/lab/smarthomehubpro`
+- `go build ./...`
+- `git diff --check`
+
 ## v3.18.5 (2026-07-16) - 重复告警引擎降入 Lab
 
 ### 架构收敛
