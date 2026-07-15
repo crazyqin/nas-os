@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"nas-os/internal/acl"
+	"nas-os/internal/config"
 	"nas-os/internal/activebackup"
 	"nas-os/internal/ai"
 	"nas-os/internal/ai_classify"
@@ -143,6 +144,7 @@ import (
 
 // Server Web 服务器.
 type Server struct {
+	cfg           *config.Config
 	engine        *gin.Engine
 	httpSrv       *http.Server
 	logger        *zap.Logger
@@ -287,7 +289,12 @@ type Server struct {
 }
 
 // NewServer 创建 Web 服务器.
-func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Manager, nfsMgr *nfs.Manager, netMgr *network.Manager, downloadMgr *downloader.Manager, logger *zap.Logger) *Server {
+func NewServer(cfg *config.Config, storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Manager, nfsMgr *nfs.Manager, netMgr *network.Manager, downloadMgr *downloader.Manager, logger *zap.Logger) *Server {
+	// 如果未提供配置，回退到默认值，确保过渡期兼容。
+	if cfg == nil {
+		cfg = config.Default()
+	}
+
 	// 如果未提供 logger，使用 nop logger
 	if logger == nil {
 		logger = zap.NewNop()
@@ -335,8 +342,8 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	// 初始化插件管理器
 	pluginMgr, err := plugin.NewManager(plugin.ManagerConfig{
 		PluginDir: "/opt/nas/plugins",
-		ConfigDir: "/etc/nas-os/plugins",
-		DataDir:   "/var/lib/nas-os/plugins",
+		ConfigDir: cfg.ConfigPath("plugins"),
+		DataDir:   cfg.DataPath("plugins"),
 	})
 	if err != nil {
 		// 插件系统不可用时继续运行
@@ -350,7 +357,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 
 	// 初始化配额管理器
 	var quotaMgr *quota.Manager
-	quotaMgr, err = quota.NewManager("/etc/nas-os/quota.json",
+	quotaMgr, err = quota.NewManager(cfg.ConfigPath("quota.json"),
 		quota.NewStorageAdapter(storMgr),
 		quota.NewUserAdapter(userMgr))
 	if err != nil {
@@ -362,7 +369,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	filesMgr := files.NewManager(files.PreviewConfig{
 		ThumbnailSize:    256,
 		MaxPreviewSize:   50 * 1024 * 1024, // 50MB
-		CacheDir:         "/var/cache/nas-os/thumbnails",
+		CacheDir:         cfg.DataPath("cache", "thumbnails"),
 		CacheExpiry:      24 * time.Hour,
 		EnableVideoThumb: true,
 		EnableDocPreview: true,
@@ -370,11 +377,11 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 
 	// 初始化通知管理器
 	notifyMgr := notify.NewManager()
-	notify.NewHandlers(notifyMgr, "/etc/nas-os/notify-config.json")
+	notify.NewHandlers(notifyMgr, cfg.ConfigPath("notify-config.json"))
 
 	// 初始化 MFA 管理器
 	mfaMgr, err := auth.NewMFAManager(
-		"/etc/nas-os/mfa-config.json",
+		cfg.ConfigPath("mfa-config.json"),
 		"NAS-OS",
 		nil, // 短信提供商，生产环境配置为 AliyunSMSProvider 或 TencentSMSProvider
 	)
@@ -384,12 +391,12 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化相册管理器
-	photosMgr := photos.NewManager("/var/lib/nas-os/photos")
+	photosMgr := photos.NewManager(cfg.DataPath("photos"))
 
 	// 初始化 AI 相册管理器
 	var photosAIMgr *photos.AIManager
 	if photosMgr != nil {
-		photosAIMgr, err = photos.NewAIManager(photosMgr, "/var/lib/nas-os/photos/models")
+		photosAIMgr, err = photos.NewAIManager(photosMgr, cfg.DataPath("photos", "models"))
 		if err != nil {
 			log.Printf("⚠️ AI 相册管理初始化警告：%v", err)
 		} else {
@@ -398,7 +405,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化备份管理器
-	backupMgr := backup.NewManager("/etc/nas-os/backup-config.json", "/mnt/backups")
+	backupMgr := backup.NewManager(cfg.ConfigPath("backup-config.json"), cfg.MountPath("backups"))
 	if err := backupMgr.Initialize(); err != nil {
 		log.Printf("⚠️ 备份管理初始化警告：%v", err)
 	} else {
@@ -406,11 +413,11 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化同步管理器
-	syncMgr := backup.NewSyncManager("/mnt/backups")
+	syncMgr := backup.NewSyncManager(cfg.MountPath("backups"))
 	log.Println("✅ 同步管理模块就绪")
 
 	// 初始化系统监控器
-	systemMonitor, err := system.NewMonitor("/var/lib/nas-os/system_monitor.db")
+	systemMonitor, err := system.NewMonitor(cfg.DataPath("system_monitor.db"))
 	if err != nil {
 		log.Printf("⚠️ 系统监控初始化警告：%v", err)
 		systemMonitor = nil
@@ -419,7 +426,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化虚拟机管理器
-	vmStoragePath := "/mnt/vms"
+	vmStoragePath := cfg.MountPath("vms")
 	vmLogger := zap.NewNop()
 	vmMgr, err := vm.NewManager(vmStoragePath, vmLogger)
 	if err != nil {
@@ -430,7 +437,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化 ISO 管理器
-	isoMgr, err := vm.NewISOManager("/mnt/isos", vmLogger)
+	isoMgr, err := vm.NewISOManager(cfg.MountPath("isos"), vmLogger)
 	if err != nil {
 		log.Printf("⚠️ ISO 管理初始化警告：%v", err)
 		isoMgr = nil
@@ -475,9 +482,9 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 引导式告警修复引擎就绪")
 
 	// 初始化智能分层规则引擎（对标群晖 Smarter Tiering）
-	tierMgr := tiering.NewManager("/etc/nas-os/tiering.json", tiering.PolicyEngineConfig{})
-	tierRulesEngine := tiering.NewRulesEngine(tierMgr, "/var/lib/nas-os/tiering")
-	smartTierEngine := tiering.NewAutoTierEngine(tierMgr, tierRulesEngine, "/var/lib/nas-os/tiering")
+	tierMgr := tiering.NewManager(cfg.ConfigPath("tiering.json"), tiering.PolicyEngineConfig{})
+	tierRulesEngine := tiering.NewRulesEngine(tierMgr, cfg.DataPath("tiering"))
+	smartTierEngine := tiering.NewAutoTierEngine(tierMgr, tierRulesEngine, cfg.DataPath("tiering"))
 	costAnalyzer := tiering.NewCostAnalyzer(tierMgr)
 	smartTierHdl := tiering.NewSmartTieringHandler(smartTierEngine, costAnalyzer)
 	log.Println("✅ 智能分层规则引擎就绪")
@@ -495,7 +502,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	// 初始化S3策略与管理API（对标 TrueNAS V160 S3增强）
 	var s3PolicyHdl *s3.PolicyHandlers
 	// S3管理器已通过现有S3 handlers注册，这里复用
-	s3Mgr, err := s3.NewManager("/var/lib/nas-os/s3", "/var/lib/nas-os/s3-data")
+	s3Mgr, err := s3.NewManager(cfg.DataPath("s3"), cfg.DataPath("s3-data"))
 	if err != nil {
 		log.Printf("⚠️ S3管理器初始化警告：%v", err)
 		s3PolicyHdl = nil
@@ -538,7 +545,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 多渠道通知管理就绪")
 
 	// 初始化版本控制管理器
-	versioningMgr, err := versioning.NewManager("/etc/nas-os/versioning-config.json", nil)
+	versioningMgr, err := versioning.NewManager(cfg.ConfigPath("versioning-config.json"), nil)
 	if err != nil {
 		log.Printf("⚠️ 版本控制初始化警告：%v", err)
 		versioningMgr = nil
@@ -547,7 +554,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化数据去重管理器
-	dedupMgr, err := dedup.NewManager("/etc/nas-os/dedup-config.json", nil)
+	dedupMgr, err := dedup.NewManager(cfg.ConfigPath("dedup-config.json"), nil)
 	if err != nil {
 		log.Printf("⚠️ 数据去重初始化警告：%v", err)
 		dedupMgr = nil
@@ -556,7 +563,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化云同步管理器
-	cloudsyncMgr := cloudsync.NewManager("/etc/nas-os/cloudsync-config.json")
+	cloudsyncMgr := cloudsync.NewManager(cfg.ConfigPath("cloudsync-config.json"))
 	if err := cloudsyncMgr.Initialize(); err != nil {
 		log.Printf("⚠️ 云同步初始化警告：%v", err)
 	} else {
@@ -564,7 +571,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化标签管理器
-	tagsMgr, err := tags.NewManager("/var/lib/nas-os/tags.db")
+	tagsMgr, err := tags.NewManager(cfg.DataPath("tags.db"))
 	if err != nil {
 		log.Printf("⚠️ 标签管理初始化警告：%v", err)
 		tagsMgr = nil
@@ -574,7 +581,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 
 	// 初始化 OnlyOffice 管理器
 	var officeMgr *office.Manager
-	officeMgr, err = office.NewManager("/etc/nas-os/office.json", nil)
+	officeMgr, err = office.NewManager(cfg.ConfigPath("office.json"), nil)
 	if err != nil {
 		log.Printf("⚠️ OnlyOffice 初始化警告：%v", err)
 		officeMgr = nil
@@ -583,7 +590,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化 iSCSI 管理器
-	iscsiMgr, err := iscsi.NewManager("/etc/nas-os/iscsi-config.json", "/var/lib/nas-os/iscsi")
+	iscsiMgr, err := iscsi.NewManager(cfg.ConfigPath("iscsi-config.json"), cfg.DataPath("iscsi"))
 	if err != nil {
 		log.Printf("⚠️ iSCSI 初始化警告：%v", err)
 		iscsiMgr = nil
@@ -592,7 +599,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化 NVMe-oF 管理器
-	nvmeofMgr, err := nvmeof.NewManager("/etc/nas-os/nvmeof-config.json")
+	nvmeofMgr, err := nvmeof.NewManager(cfg.ConfigPath("nvmeof-config.json"))
 	if err != nil {
 		log.Printf("⚠️ NVMe-oF 初始化警告：%v", err)
 		nvmeofMgr = nil
@@ -615,7 +622,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 
 	// 初始化搜索引擎
 	searchEngine, err := search.NewEngine(search.IndexConfig{
-		IndexPath:    "/var/lib/nas-os/search/index.bleve",
+		IndexPath:    cfg.DataPath("search", "index.bleve"),
 		MaxFileSize:  10 * 1024 * 1024, // 10MB
 		Workers:      4,
 		IndexContent: true,
@@ -646,7 +653,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	// ========== v2.481.0 新增模块 ==========
 
 	// 初始化整机备份管理器（对标群晖 Active Backup for Business）
-	activeBackupMgr, err := activebackup.NewManager("/etc/nas-os/activebackup.json")
+	activeBackupMgr, err := activebackup.NewManager(cfg.ConfigPath("activebackup.json"))
 	if err != nil {
 		log.Printf("⚠️ 整机备份管理初始化警告：%v", err)
 		activeBackupMgr = nil
@@ -655,7 +662,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	}
 
 	// 初始化音乐中心管理器（对标群晖 Audio Station）
-	audioStationMgr, err := audiostation.NewManager("/etc/nas-os/audiostation.json", []string{"/mnt/music"})
+	audioStationMgr, err := audiostation.NewManager(cfg.ConfigPath("audiostation.json"), []string{cfg.MountPath("music")})
 	if err != nil {
 		log.Printf("⚠️ 音乐中心初始化警告：%v", err)
 		audioStationMgr = nil
@@ -668,16 +675,16 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 容灾演练模块就绪")
 
 	// 初始化 Drive Sync 管理器（对标群晖 Drive Sync）
-	driveSyncMgr := drivesync.NewManager("/etc/nas-os/drivesync.json")
+	driveSyncMgr := drivesync.NewManager(cfg.ConfigPath("drivesync.json"))
 	log.Println("✅ Drive Sync 模块就绪")
 
 	// 初始化智能Scrub调度管理器（对标 TrueNAS 26 智能Scrub）
-	scrubSchedMgr := scrubsched.NewManager("/etc/nas-os/scrubsched.json", nil, nil, nil, nil, nil)
+	scrubSchedMgr := scrubsched.NewManager(cfg.ConfigPath("scrubsched.json"), nil, nil, nil, nil, nil)
 	scrubSchedMgr.Start()
 	log.Println("✅ 智能Scrub调度管理器就绪")
 
 	// 初始化虚拟机导入导出管理器
-	vmImportMgr, err := vmimport.NewManager("/var/lib/nas-os/vmimport", "/var/lib/nas-os/vmimport/meta")
+	vmImportMgr, err := vmimport.NewManager(cfg.DataPath("vmimport"), cfg.DataPath("vmimport", "meta"))
 	if err != nil {
 		log.Printf("⚠️ 虚拟机导入导出初始化警告：%v", err)
 		vmImportMgr = nil
@@ -687,7 +694,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 
 	// 初始化S3对象存储网关（对标 MinIO/S3 兼容层）
 	s3Gateway := s3gateway.NewGateway(s3gateway.GatewayConfig{
-		StorageRoot: "/var/lib/nas-os/s3-gateway",
+		StorageRoot: cfg.DataPath("s3-gateway"),
 		Region:      "us-east-1",
 	})
 	log.Println("✅ S3对象存储网关就绪")
@@ -695,7 +702,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	// 初始化定时任务调度器
 	schedulerCfg := &scheduler.Config{
 		MaxConcurrentTasks: 10,
-		StoragePath:        "/var/lib/nas-os/scheduler",
+		StoragePath:        cfg.DataPath("scheduler"),
 	}
 	schedulerMgr, err := scheduler.NewScheduler(schedulerCfg)
 	if err != nil {
@@ -745,7 +752,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 温控管理模块就绪")
 
 	// 初始化文件索引器（全文索引与搜索）
-	fileindexMgr := fileindex.NewIndexer(logger, "/mnt")
+	fileindexMgr := fileindex.NewIndexer(logger, cfg.Paths.MountBase)
 	log.Println("✅ 文件索引模块就绪")
 
 	// 初始化Web终端管理器（WebSocket SSH终端）
@@ -767,7 +774,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	// ========== v2.498.0 新增模块初始化 ==========
 
 	// 初始化应用中心（对标群晖 Package Center）
-	appCenterMgr := appcenter.NewAppStore(logger, "/var/lib/nas-os/appcenter")
+	appCenterMgr := appcenter.NewAppStore(logger, cfg.DataPath("appcenter"))
 	log.Println("✅ 应用中心模块就绪")
 
 	// 初始化备份验证（对标群晖 Active Backup 验证）
@@ -803,7 +810,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 能源管理模块就绪")
 
 	// 初始化文件同步（对标群晖 Drive Sync）
-	fileSyncMgr := filesync.NewSyncManager(logger, "/var/lib/nas-os/filesync")
+	fileSyncMgr := filesync.NewSyncManager(logger, cfg.DataPath("filesync"))
 	log.Println("✅ 文件同步模块就绪")
 
 	// 初始化网络哨兵（对标群晖网络工具增强）
@@ -897,6 +904,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ v2.548.0 新增模块就绪")
 
 	s := &Server{
+		cfg:           cfg,
 		engine:        engine,
 		logger:        logger,
 		storageMgr:    storMgr,
@@ -930,11 +938,11 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		optimizer:  optimizer.NewOptimizer(nil, logger),
 		projectMgr: projectMgr,
 		trashMgr: func() *trash.Manager {
-			mgr, _ := trash.NewManager("/etc/nas-os/trash.json", "/var/lib/nas-os/trash", nil)
+			mgr, _ := trash.NewManager(cfg.ConfigPath("trash.json"), cfg.DataPath("trash"), nil)
 			return mgr
 		}(),
 		replMgr: func() *replication.Manager {
-			mgr, _ := replication.NewManager("/etc/nas-os/replication.json", nil)
+			mgr, _ := replication.NewManager(cfg.ConfigPath("replication.json"), nil)
 			return mgr
 		}(),
 		webdavSrv: func() *webdav.Server {
@@ -1329,7 +1337,7 @@ func (s *Server) setupRoutes() {
 		}
 
 		// ========== 通知管理 ==========
-		notify.NewHandlers(s.notifyMgr, "/etc/nas-os/notify-config.json").RegisterRoutes(api)
+		notify.NewHandlers(s.notifyMgr, s.cfg.ConfigPath("notify-config.json")).RegisterRoutes(api)
 
 		// ========== 下载中心 ==========
 		if s.downloadMgr != nil {
