@@ -1,6 +1,7 @@
 package application
 
 import (
+	"os"
 	"testing"
 
 	"nas-os/internal/arch"
@@ -42,5 +43,20 @@ func TestModuleCatalogSnapshotReturnsCopy(t *testing.T) {
 	catalog[moduleIdentity] = arch.ModuleTierLab
 	if got := ModuleTierFor(moduleIdentity); got != arch.ModuleTierCore {
 		t.Fatalf("ModuleTierFor(%s) mutated to %q, want %q", moduleIdentity, got, arch.ModuleTierCore)
+	}
+}
+
+
+func TestTieredModulesLiveUnderTieredNamespaces(t *testing.T) {
+	cases := map[string]string{
+		"/home/mrafter/nas-os/internal/lab/brandinsight":    "brandinsight should live under internal/lab",
+		"/home/mrafter/nas-os/internal/lab/releasemanager":  "releasemanager should live under internal/lab",
+		"/home/mrafter/nas-os/internal/lab/aimediatag":      "aimediatag should live under internal/lab",
+		"/home/mrafter/nas-os/internal/extensions/activeprotect": "activeprotect should live under internal/extensions",
+	}
+	for path, msg := range cases {
+		if _, err := os.Stat(path); err != nil {
+			t.Fatalf("%s: %v", msg, err)
+		}
 	}
 }
