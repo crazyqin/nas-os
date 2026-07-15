@@ -1,8 +1,17 @@
 # Changelog
 
-## Unreleased
+## v3.18.1 (2026-07-15) - tier 目录收口补强
 
-### 安全与运行时加固
+### 架构收敛
+- 补强 tier 命名空间校验测试：除验证 `internal/extensions/activeprotect` 与 `internal/lab/{aimediatag,brandinsight,releasemanager}` 存在外，新增断言旧的顶层 `internal/{activeprotect,aimediatag,brandinsight,releasemanager}` 路径必须消失，防止伪核心目录回流。
+- 更新 `docs/ARCHITECTURE.md`，把已完成的 Core / Extension / Lab 收敛实例写入正式架构说明，收紧目录治理边界。
+
+### 验证
+- `go test ./internal/application ./internal/extensions/activeprotect ./internal/lab/aimediatag ./internal/lab/brandinsight ./internal/lab/releasemanager`
+- `go build ./...`
+- `git diff --check`
+
+## Unreleased
 - API 按公开、已认证和管理员权限分层；管理接口默认要求管理员权限。
 - 认证令牌仅接受 Bearer Header，不再接受查询参数；敏感业务身份统一来自认证上下文。
 - 移除 Digital Legacy 硬编码加密密钥；无效或缺失密钥时安全禁用模块。
