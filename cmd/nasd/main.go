@@ -71,23 +71,15 @@ package main
 // @tag.description 系统信息 API - 系统状态、健康检查
 
 import (
+	"context"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 
-	"nas-os/internal/cluster"
+	"nas-os/internal/application"
 	"nas-os/internal/config"
-	"nas-os/internal/downloader"
-	"nas-os/internal/network"
-	"nas-os/internal/nfs"
-	"nas-os/internal/smb"
-	"nas-os/internal/storage"
-	"nas-os/internal/users"
-	"nas-os/internal/web"
 
 	"go.uber.org/zap"
 )
@@ -95,7 +87,6 @@ import (
 func main() {
 	log.Println("🚀 NAS-OS 启动中...")
 
-	// 解析命令行参数
 	var configPath string
 	fs := flag.NewFlagSet("nasd", flag.ExitOnError)
 	fs.StringVar(&configPath, "config", "/etc/nas-os/config.yaml", "配置文件路径")
@@ -103,7 +94,6 @@ func main() {
 		log.Fatalf("参数解析失败：%v", err)
 	}
 
-	// 加载运行时配置
 	cfg, err := config.Load(configPath)
 	if err != nil {
 		log.Fatalf("配置加载失败：%v", err)
@@ -111,127 +101,33 @@ func main() {
 	log.Printf("✅ 配置就绪：config=%s mount=%s config_dir=%s data_dir=%s",
 		configPath, cfg.Paths.MountBase, cfg.Paths.ConfigDir, cfg.Paths.DataDir)
 
-	// 初始化日志
-	logger, _ := zap.NewProduction()
+	logger, err := zap.NewProduction()
+	if err != nil {
+		log.Fatalf("日志初始化失败：%v", err)
+	}
 	defer func() { _ = logger.Sync() }()
 
-	// 初始化用户管理
-	userMgr, err := users.NewManager(cfg.Paths.MountBase)
+	app, err := application.New(cfg, logger)
 	if err != nil {
-		log.Fatalf("用户管理初始化失败：%v", err)
-	}
-	log.Println("✅ 用户管理模块就绪")
-
-	// 初始化存储管理
-	storMgr, err := storage.NewManager(cfg.Paths.MountBase)
-	if err != nil {
-		log.Fatalf("存储管理初始化失败：%v", err)
-	}
-	log.Println("✅ 存储管理模块就绪")
-
-	// 初始化 SMB 共享
-	smbMgr, err := smb.NewManagerWithUserMgr(userMgr, cfg.Paths.SambaConfig)
-	if err != nil {
-		log.Fatalf("SMB 管理初始化失败：%v", err)
-	}
-	log.Println("✅ SMB 共享模块就绪")
-
-	// 初始化 NFS 共享
-	nfsMgr, err := nfs.NewManager(cfg.Paths.NFSExports)
-	if err != nil {
-		log.Fatalf("NFS 管理初始化失败：%v", err)
-	}
-	log.Println("✅ NFS 共享模块就绪")
-
-	// 初始化网络管理
-	netMgr := network.NewManager(cfg.ConfigPath("network.json"))
-	if err := netMgr.Initialize(); err != nil {
-		log.Printf("⚠️ 网络管理初始化警告：%v", err)
-	}
-	log.Println("✅ 网络管理模块就绪")
-
-	// 启动 DDNS 后台任务
-	netMgr.StartDDNSWorker()
-
-	// 初始化集群服务（可选）
-	hostname, _ := os.Hostname()
-	clusterServices, err := cluster.InitializeCluster(cluster.RootConfig{
-		NodeID:  hostname,
-		DataDir: cfg.Paths.DataDir,
-	}, logger)
-	if err != nil {
-		log.Printf("⚠️ 集群服务初始化警告：%v", err)
-	} else if clusterServices != nil {
-		log.Println("✅ 集群服务就绪")
-		defer func() {
-			if err := cluster.ShutdownCluster(clusterServices); err != nil {
-				logger.Error("failed to shutdown cluster", zap.Error(err))
-			}
-		}()
+		logger.Fatal("application initialization failed", zap.Error(err))
 	}
 
-	// 初始化下载管理器
-	downloadMgr, err := downloader.NewManager(filepath.Join(cfg.Paths.DataDir, "downloads"), logger)
-	if err != nil {
-		log.Printf("⚠️ 下载管理初始化警告：%v", err)
-	} else {
-		// 配置 Transmission/qBittorrent 地址（可选）
-		downloadMgr.SetTransmissionURL("http://localhost:9091")
-		log.Println("✅ 下载管理模块就绪")
-		defer downloadMgr.Close()
-	}
+	ctx, stopSignal := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stopSignal()
 
-	// 初始化 Web 服务
-	webServer := web.NewServer(cfg, storMgr, userMgr, smbMgr, nfsMgr, netMgr, downloadMgr, logger)
-
-	// 启动 Web 服务
-	listenAddr := cfg.Server.Addr()
-	webErrCh := make(chan error, 1)
-	go func() {
-		webErrCh <- webServer.Start(listenAddr)
-	}()
-
-	log.Println("✅ NAS-OS 就绪 - Web 管理界面：http://" + friendlyAddr(cfg.Server))
-	log.Printf("📖 API 文档：http://%s/swagger/index.html", friendlyAddr(cfg.Server))
-	if clusterServices != nil {
-		log.Printf("🔗 集群模式 - 节点 ID: %s, 角色：%s", hostname, getClusterRole(clusterServices))
+	runErr := app.Run(ctx)
+	if ctx.Err() != nil {
+		log.Println("👋 NAS-OS 正在关闭...")
 	}
+	stopErr := app.Stop()
 
-	// 等待退出信号或 Web 服务提前退出
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	exitCode := 0
-	select {
-	case sig := <-sigChan:
-		log.Printf("👋 收到信号 %s，NAS-OS 正在关闭...", sig)
-	case err := <-webErrCh:
-		if err != nil {
-			logger.Error("web server exited with error", zap.Error(err))
-			exitCode = 1
-		}
+	if runErr != nil {
+		logger.Error("application exited with error", zap.Error(runErr))
 	}
-
-	if err := webServer.Stop(); err != nil {
-		logger.Error("failed to stop web server", zap.Error(err))
-		exitCode = 1
+	if stopErr != nil {
+		logger.Error("application shutdown failed", zap.Error(stopErr))
 	}
-	if exitCode != 0 {
-		os.Exit(exitCode)
+	if runErr != nil || stopErr != nil {
+		os.Exit(1)
 	}
-}
-
-func getClusterRole(services *cluster.Services) string {
-	if services.HA.IsLeader() {
-		return "leader"
-	}
-	return "follower"
-}
-
-// friendlyAddr 生成用户友好的访问地址（0.0.0.0 显示为 localhost）。
-func friendlyAddr(s config.ServerConfig) string {
-	host := s.Host
-	if host == "" || host == "0.0.0.0" {
-		host = "localhost"
-	}
-	return fmt.Sprintf("%s:%d", host, s.Port)
 }
