@@ -43,7 +43,7 @@ type Application struct {
 
 // New 构造 NAS-OS 应用及其核心依赖。
 // 必需模块初始化失败会终止启动；可选模块失败只记录警告并降级运行。
-func New(cfg *config.Config, logger *zap.Logger) (*Application, error) {
+func New(cfg *config.Config, logger *zap.Logger) (app *Application, err error) {
 	if cfg == nil {
 		return nil, errors.New("application config is required")
 	}
@@ -53,6 +53,16 @@ func New(cfg *config.Config, logger *zap.Logger) (*Application, error) {
 	if logger == nil {
 		logger = zap.NewNop()
 	}
+
+	cleanup := &cleanupStack{}
+	defer func() {
+		if err == nil {
+			return
+		}
+		if cleanupErr := cleanup.run(); cleanupErr != nil {
+			err = errors.Join(err, fmt.Errorf("cleanup after application init failure: %w", cleanupErr))
+		}
+	}()
 
 	userMgr, err := users.NewManager(cfg.Paths.MountBase)
 	if err != nil {
@@ -99,6 +109,7 @@ func New(cfg *config.Config, logger *zap.Logger) (*Application, error) {
 		log.Printf("⚠️ 集群服务初始化警告：%v", err)
 		clusterServices = nil
 	} else if clusterServices != nil {
+		cleanup.add("cluster", func() error { return cluster.ShutdownCluster(clusterServices) })
 		log.Println("✅ 集群服务就绪")
 	}
 
@@ -107,6 +118,10 @@ func New(cfg *config.Config, logger *zap.Logger) (*Application, error) {
 		log.Printf("⚠️ 下载管理初始化警告：%v", err)
 		downloadMgr = nil
 	} else {
+		cleanup.add("download manager", func() error {
+			downloadMgr.Close()
+			return nil
+		})
 		downloadMgr.SetTransmissionURL("http://localhost:9091")
 		log.Println("✅ 下载管理模块就绪")
 	}
@@ -119,9 +134,11 @@ func New(cfg *config.Config, logger *zap.Logger) (*Application, error) {
 	if err := modules.InitAll(context.Background()); err != nil {
 		return nil, fmt.Errorf("initialize core modules: %w", err)
 	}
+	cleanup.add("core modules", func() error { return modules.StopAll(context.Background()) })
 
 	webServer := web.NewServer(cfg, coreModules, storageMgr, userMgr, mfaMgr, smbMgr, nfsMgr, networkMgr, downloadMgr, logger)
 
+	cleanup.release()
 	return &Application{
 		cfg:             cfg,
 		logger:          logger,
@@ -215,4 +232,36 @@ func FriendlyAddr(s config.ServerConfig) string {
 		host = "localhost"
 	}
 	return fmt.Sprintf("%s:%d", host, s.Port)
+}
+
+type cleanupStack struct {
+	items []cleanupItem
+}
+
+type cleanupItem struct {
+	name string
+	fn   func() error
+}
+
+func (s *cleanupStack) add(name string, fn func() error) {
+	if fn == nil {
+		return
+	}
+	s.items = append(s.items, cleanupItem{name: name, fn: fn})
+}
+
+func (s *cleanupStack) release() {
+	s.items = nil
+}
+
+func (s *cleanupStack) run() error {
+	var errs []error
+	for i := len(s.items) - 1; i >= 0; i-- {
+		item := s.items[i]
+		if err := item.fn(); err != nil {
+			errs = append(errs, fmt.Errorf("cleanup %s: %w", item.name, err))
+		}
+	}
+	s.release()
+	return errors.Join(errs...)
 }
