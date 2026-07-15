@@ -45,6 +45,7 @@ identity   storage   network
 ```go
 type Module interface {
     Name() string
+    Tier() ModuleTier
     Dependencies() []string
     Init(context.Context) error
     Start(context.Context) error
@@ -53,6 +54,12 @@ type Module interface {
 }
 ```
 
+模块层级治理：
+
+- **Core**：进程主生命周期必需能力，只允许 `identity / storage / network / sharing / system`；
+- **Extension**：可选产品能力，允许保留独立 handler / manager，但不得伪装成启动主图核心；
+- **Lab**：实验性、概念验证或待收编模块，默认不进入生产核心图，优先降级、隔离或删除重复实现。
+
 容器保证：
 
 - 注册时拒绝 nil、空名称和重复模块；
@@ -60,7 +67,8 @@ type Module interface {
 - 按确定性拓扑顺序初始化、启动；
 - 启动失败时逆序回滚已启动模块；
 - 停止时逆序执行并聚合错误；
-- 健康回调在容器锁外执行，状态按名称稳定排序。
+- 健康回调在容器锁外执行，状态按名称稳定排序；
+- 模块状态接口会暴露 tier，供 Core / Extension / Lab 收敛审计。
 
 ## 依赖注入原则
 
@@ -79,6 +87,8 @@ API 分成三层：
 1. 公开路由：仅登录和健康探针；
 2. 已认证路由：账户自身操作；
 3. 管理员路由：存储、共享、网络、系统管理等敏感操作。
+
+模块状态接口返回 `name + tier + healthy + error`，便于识别伪核心模块。
 
 模块可按需要实现：
 

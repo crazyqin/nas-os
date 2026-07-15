@@ -10,10 +10,21 @@ import (
 	"go.uber.org/zap"
 )
 
+// ModuleTier 描述模块在生产架构中的收敛层级。
+type ModuleTier string
+
+const (
+	ModuleTierCore      ModuleTier = "core"
+	ModuleTierExtension ModuleTier = "extension"
+	ModuleTierLab       ModuleTier = "lab"
+)
+
 // Module 模块接口 - 所有模块必须实现.
 type Module interface {
 	// Name 模块名称
 	Name() string
+	// Tier 返回模块层级，用于 Core / Extension / Lab 收敛治理。
+	Tier() ModuleTier
 	// Init 初始化模块
 	Init(ctx context.Context) error
 	// Start 启动模块
@@ -254,6 +265,7 @@ type BaseModule struct {
 }
 
 func (b *BaseModule) Name() string                     { return b.NameStr }
+func (b *BaseModule) Tier() ModuleTier                 { return ModuleTierExtension }
 func (b *BaseModule) Init(ctx context.Context) error   { return nil }
 func (b *BaseModule) Start(ctx context.Context) error  { return nil }
 func (b *BaseModule) Stop(ctx context.Context) error   { return nil }

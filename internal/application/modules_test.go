@@ -114,6 +114,9 @@ func TestSystemModuleReportsContainerHealth(t *testing.T) {
 	if !strings.Contains(recorder.Body.String(), `"name":"system"`) {
 		t.Fatalf("module status missing: %s", recorder.Body.String())
 	}
+	if !strings.Contains(recorder.Body.String(), `"tier":"core"`) {
+		t.Fatalf("module tier missing: %s", recorder.Body.String())
+	}
 }
 
 type routeRecorder struct{ called bool }

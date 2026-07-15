@@ -29,13 +29,20 @@ const (
 // coreModule 是无后台任务领域的原生 Module 实现。
 type coreModule struct {
 	name     string
+	tier     arch.ModuleTier
 	deps     []string
 	initFn   func(context.Context) error
 	healthFn func(context.Context) error
 	logger   *zap.Logger
 }
 
-func (m *coreModule) Name() string                { return m.name }
+func (m *coreModule) Name() string { return m.name }
+func (m *coreModule) Tier() arch.ModuleTier {
+	if m.tier == "" {
+		return arch.ModuleTierCore
+	}
+	return m.tier
+}
 func (m *coreModule) Dependencies() []string      { return append([]string(nil), m.deps...) }
 func (m *coreModule) Start(context.Context) error { return nil }
 func (m *coreModule) Stop(context.Context) error  { return nil }

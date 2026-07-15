@@ -151,6 +151,9 @@ func TestContainer_GetModulesStatus(t *testing.T) {
 		if !s.Healthy {
 			t.Errorf("module %s should be healthy", s.Name)
 		}
+		if s.Tier != ModuleTierExtension {
+			t.Errorf("module %s tier = %q, want %q", s.Name, s.Tier, ModuleTierExtension)
+		}
 	}
 }
 
@@ -384,5 +387,17 @@ func TestContainer_HealthAllCallbacksRunOutsideLock(t *testing.T) {
 	}
 	if _, ok := c.GetModule("registered-during-health"); !ok {
 		t.Fatal("health callback could not register module; container lock may be held")
+	}
+}
+
+func TestModuleAdapterTier(t *testing.T) {
+	adapter := NewModuleAdapter("lab", nil, zap.NewNop()).WithTier(ModuleTierLab)
+	if got := adapter.Tier(); got != ModuleTierLab {
+		t.Fatalf("Tier() = %q, want %q", got, ModuleTierLab)
+	}
+
+	base := &BaseModule{NameStr: "default"}
+	if got := base.Tier(); got != ModuleTierExtension {
+		t.Fatalf("BaseModule.Tier() = %q, want %q", got, ModuleTierExtension)
 	}
 }
