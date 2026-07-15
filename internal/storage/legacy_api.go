@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -43,12 +44,13 @@ func (h *LegacyAPIHandlers) listVolumes(c *gin.Context) {
 // @Router /volumes/{name} [get].
 func (h *LegacyAPIHandlers) getVolume(c *gin.Context) {
 	name := c.Param("name")
-	vol := h.storageMgr.GetVolume(name)
-	if vol == nil {
-		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "卷不存在"})
-		return
-	}
-	c.JSON(http.StatusOK, buildLegacyEnvelope("success", vol))
+	h.runLegacyNotFoundQuery(c, func() (interface{}, error) {
+		vol := h.storageMgr.GetVolume(name)
+		if vol == nil {
+			return nil, errors.New("卷不存在")
+		}
+		return vol, nil
+	})
 }
 
 // getVolumeUsage 获取卷使用量
@@ -63,13 +65,9 @@ func (h *LegacyAPIHandlers) getVolume(c *gin.Context) {
 // @Router /volumes/{name}/usage [get].
 func (h *LegacyAPIHandlers) getVolumeUsage(c *gin.Context) {
 	name := c.Param("name")
-	total, used, free, err := h.storageMgr.GetUsage(name)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-
-	c.JSON(http.StatusOK, buildLegacyEnvelope("success", buildLegacyVolumeUsage(total, used, free)))
+	h.runLegacyUsageQuery(c, func() (uint64, uint64, uint64, error) {
+		return h.storageMgr.GetUsage(name)
+	})
 }
 
 // listSubVolumes 列出子卷
@@ -93,13 +91,9 @@ func (h *LegacyAPIHandlers) getSubVolume(c *gin.Context) {
 	volumeName := c.Param("name")
 	subvolName := c.Param("subvol")
 
-	subvol, err := h.storageMgr.GetSubVolume(volumeName, subvolName)
-	if err != nil {
-		c.JSON(http.StatusNotFound, buildLegacyError(404, err))
-		return
-	}
-
-	c.JSON(http.StatusOK, buildLegacyEnvelope("success", subvol))
+	h.runLegacyNotFoundQuery(c, func() (interface{}, error) {
+		return h.storageMgr.GetSubVolume(volumeName, subvolName)
+	})
 }
 
 // listSnapshots 列出快照
@@ -193,13 +187,9 @@ func (h *LegacyAPIHandlers) deleteVolume(c *gin.Context) {
 
 func (h *LegacyAPIHandlers) mountVolume(c *gin.Context) {
 	name := c.Param("name")
-
-	if err := h.storageMgr.MountVolume(name); err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-
-	c.JSON(http.StatusOK, buildLegacyMessage("挂载成功"))
+	h.runLegacyAction(c, "挂载成功", func() error {
+		return h.storageMgr.MountVolume(name)
+	})
 }
 
 // unmountVolume 卸载卷
@@ -215,13 +205,9 @@ func (h *LegacyAPIHandlers) mountVolume(c *gin.Context) {
 
 func (h *LegacyAPIHandlers) unmountVolume(c *gin.Context) {
 	name := c.Param("name")
-
-	if err := h.storageMgr.UnmountVolume(name); err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-
-	c.JSON(http.StatusOK, buildLegacyMessage("卸载成功"))
+	h.runLegacyAction(c, "卸载成功", func() error {
+		return h.storageMgr.UnmountVolume(name)
+	})
 }
 
 func (h *LegacyAPIHandlers) addDevice(c *gin.Context) {

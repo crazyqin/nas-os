@@ -309,6 +309,24 @@ func (h *LegacyAPIHandlers) runLegacyQuery(c *gin.Context, fn func() (interface{
 	c.JSON(http.StatusOK, buildLegacyEnvelope("success", data))
 }
 
+func (h *LegacyAPIHandlers) runLegacyNotFoundQuery(c *gin.Context, fn func() (interface{}, error)) {
+	data, err := fn()
+	if err != nil {
+		c.JSON(http.StatusNotFound, buildLegacyError(404, err))
+		return
+	}
+	c.JSON(http.StatusOK, buildLegacyEnvelope("success", data))
+}
+
+func (h *LegacyAPIHandlers) runLegacyUsageQuery(c *gin.Context, fn func() (uint64, uint64, uint64, error)) {
+	total, used, free, err := fn()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
+		return
+	}
+	c.JSON(http.StatusOK, buildLegacyEnvelope("success", buildLegacyVolumeUsage(total, used, free)))
+}
+
 func buildRAIDConfigsResponse(configs map[string]RAIDConfig) gin.H {
 	return buildLegacyEnvelope("success", configs)
 }
