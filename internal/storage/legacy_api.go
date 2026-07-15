@@ -11,6 +11,39 @@ type LegacyAPIHandlers struct {
 	storageMgr *Manager
 }
 
+type legacyCreateVolumeRequest struct {
+	Name    string   `json:"name" binding:"required"`
+	Devices []string `json:"devices" binding:"required"`
+	Profile string   `json:"profile"`
+}
+
+type legacyAddDeviceRequest struct {
+	Device string `json:"device" binding:"required"`
+}
+
+type legacyCreateSubVolumeRequest struct {
+	Name string `json:"name" binding:"required"`
+}
+
+type legacySetSubVolumeReadOnlyRequest struct {
+	ReadOnly bool `json:"readOnly"`
+}
+
+type legacyCreateSnapshotRequest struct {
+	SubVolumeName string `json:"subvolume" binding:"required"`
+	Name          string `json:"name" binding:"required"`
+	ReadOnly      bool   `json:"readonly"`
+}
+
+type legacyRestoreSnapshotRequest struct {
+	TargetName string `json:"target" binding:"required"`
+}
+
+type legacyConvertRAIDRequest struct {
+	DataProfile string `json:"dataProfile"`
+	MetaProfile string `json:"metaProfile"`
+}
+
 func NewLegacyAPIHandlers(storageMgr *Manager) *LegacyAPIHandlers {
 	return &LegacyAPIHandlers{storageMgr: storageMgr}
 }
@@ -24,12 +57,7 @@ func NewLegacyAPIHandlers(storageMgr *Manager) *LegacyAPIHandlers {
 // @Success 200 {object} GenericResponse "成功"
 // @Router /volumes [get].
 func (h *LegacyAPIHandlers) listVolumes(c *gin.Context) {
-	volumes := h.storageMgr.ListVolumes()
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    buildVolumeListResponses(volumes),
-	})
+	c.JSON(http.StatusOK, buildLegacyEnvelope("success", buildVolumeListResponses(h.storageMgr.ListVolumes())))
 }
 
 // getVolume 获取卷详情
@@ -147,11 +175,7 @@ func (h *LegacyAPIHandlers) getScrubStatus(c *gin.Context) {
 // @Failure 500 {object} GenericResponse "服务器内部错误"
 // @Router /volumes [post].
 func (h *LegacyAPIHandlers) createVolume(c *gin.Context) {
-	var req struct {
-		Name    string   `json:"name" binding:"required"`
-		Devices []string `json:"devices" binding:"required"`
-		Profile string   `json:"profile"`
-	}
+	var req legacyCreateVolumeRequest
 	if !h.bindLegacyJSON(c, &req) {
 		return
 	}
@@ -212,9 +236,7 @@ func (h *LegacyAPIHandlers) unmountVolume(c *gin.Context) {
 
 func (h *LegacyAPIHandlers) addDevice(c *gin.Context) {
 	volumeName := c.Param("name")
-	var req struct {
-		Device string `json:"device" binding:"required"`
-	}
+	var req legacyAddDeviceRequest
 	if !h.bindLegacyJSON(c, &req) {
 		return
 	}
@@ -247,22 +269,16 @@ func (h *LegacyAPIHandlers) removeDevice(c *gin.Context) {
 
 func (h *LegacyAPIHandlers) getDeviceStats(c *gin.Context) {
 	name := c.Param("name")
-	stats, err := h.storageMgr.GetDeviceStats(name)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-
-	c.JSON(http.StatusOK, buildLegacyEnvelope("success", stats))
+	h.runLegacyQuery(c, func() (interface{}, error) {
+		return h.storageMgr.GetDeviceStats(name)
+	})
 }
 
 // ========== 子卷管理 API ==========
 
 func (h *LegacyAPIHandlers) createSubVolume(c *gin.Context) {
 	volumeName := c.Param("name")
-	var req struct {
-		Name string `json:"name" binding:"required"`
-	}
+	var req legacyCreateSubVolumeRequest
 	if !h.bindLegacyJSON(c, &req) {
 		return
 	}
@@ -289,9 +305,7 @@ func (h *LegacyAPIHandlers) setSubVolumeReadOnly(c *gin.Context) {
 	volumeName := c.Param("name")
 	subvolName := c.Param("subvol")
 
-	var req struct {
-		ReadOnly bool `json:"readOnly"`
-	}
+	var req legacySetSubVolumeReadOnlyRequest
 	if !h.bindLegacyJSON(c, &req) {
 		return
 	}
@@ -305,11 +319,7 @@ func (h *LegacyAPIHandlers) setSubVolumeReadOnly(c *gin.Context) {
 
 func (h *LegacyAPIHandlers) createSnapshot(c *gin.Context) {
 	volumeName := c.Param("name")
-	var req struct {
-		SubVolumeName string `json:"subvolume" binding:"required"`
-		Name          string `json:"name" binding:"required"`
-		ReadOnly      bool   `json:"readonly"`
-	}
+	var req legacyCreateSnapshotRequest
 	if !h.bindLegacyJSON(c, &req) {
 		return
 	}
@@ -336,9 +346,7 @@ func (h *LegacyAPIHandlers) restoreSnapshot(c *gin.Context) {
 	volumeName := c.Param("name")
 	snapshotName := c.Param("snapshot")
 
-	var req struct {
-		TargetName string `json:"target" binding:"required"`
-	}
+	var req legacyRestoreSnapshotRequest
 	if !h.bindLegacyJSON(c, &req) {
 		return
 	}
@@ -352,10 +360,7 @@ func (h *LegacyAPIHandlers) restoreSnapshot(c *gin.Context) {
 
 func (h *LegacyAPIHandlers) convertRAID(c *gin.Context) {
 	volumeName := c.Param("name")
-	var req struct {
-		DataProfile string `json:"dataProfile"`
-		MetaProfile string `json:"metaProfile"`
-	}
+	var req legacyConvertRAIDRequest
 	if !h.bindLegacyJSON(c, &req) {
 		return
 	}
