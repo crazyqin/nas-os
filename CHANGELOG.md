@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+### 安全与运行时加固
+- API 按公开、已认证和管理员权限分层；管理接口默认要求管理员权限。
+- 认证令牌仅接受 Bearer Header，不再接受查询参数；敏感业务身份统一来自认证上下文。
+- 移除 Digital Legacy 硬编码加密密钥；无效或缺失密钥时安全禁用模块。
+- 统一健康探针，并完善监听错误传播、优雅关闭和后台 worker 停止流程。
+
+### 架构与配置
+- 新增 typed runtime configuration、`--config` 参数及 `NAS_OS_*` 环境覆盖。
+- 新增 `internal/application` 组合根，收口进程级依赖构造与生命周期。
+- 激活 identity、storage、network、sharing、system 核心模块图。
+- 模块容器新增缺失依赖/循环检测、确定性拓扑排序、启动失败回滚、逆序停止和错误聚合。
+- identity、storage、network、sharing、system 逐步接管路由与健康状态所有权。
+- 冻结历史 storage API 路由契约，后续按端点兼容迁移。
+
 ## v3.18.0 (2026-07-13)
 
 ### 新增模块 (27)
