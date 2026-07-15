@@ -181,8 +181,7 @@ func (h *LegacyAPIHandlers) createVolume(c *gin.Context) {
 		Devices []string `json:"devices" binding:"required"`
 		Profile string   `json:"profile"`
 	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, buildLegacyError(400, err))
+	if !h.bindLegacyJSON(c, &req) {
 		return
 	}
 
@@ -199,12 +198,9 @@ func (h *LegacyAPIHandlers) deleteVolume(c *gin.Context) {
 	name := c.Param("name")
 	force := c.Query("force") == "true"
 
-	if err := h.storageMgr.DeleteVolume(name, force); err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-
-	c.JSON(http.StatusOK, buildLegacyMessage("卷已删除"))
+	h.runLegacyAction(c, "卷已删除", func() error {
+		return h.storageMgr.DeleteVolume(name, force)
+	})
 }
 
 // mountVolume 挂载卷
@@ -256,17 +252,13 @@ func (h *LegacyAPIHandlers) addDevice(c *gin.Context) {
 	var req struct {
 		Device string `json:"device" binding:"required"`
 	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, buildLegacyError(400, err))
+	if !h.bindLegacyJSON(c, &req) {
 		return
 	}
 
-	if err := h.storageMgr.AddDevice(volumeName, req.Device); err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-
-	c.JSON(http.StatusOK, buildLegacyMessage("设备已添加"))
+	h.runLegacyAction(c, "设备已添加", func() error {
+		return h.storageMgr.AddDevice(volumeName, req.Device)
+	})
 }
 
 // removeDevice 从卷移除设备
@@ -285,12 +277,9 @@ func (h *LegacyAPIHandlers) removeDevice(c *gin.Context) {
 	volumeName := c.Param("name")
 	device := c.Param("device")
 
-	if err := h.storageMgr.RemoveDevice(volumeName, device); err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-
-	c.JSON(http.StatusOK, buildLegacyMessage("设备已移除"))
+	h.runLegacyAction(c, "设备已移除", func() error {
+		return h.storageMgr.RemoveDevice(volumeName, device)
+	})
 }
 
 func (h *LegacyAPIHandlers) getDeviceStats(c *gin.Context) {
@@ -311,8 +300,7 @@ func (h *LegacyAPIHandlers) createSubVolume(c *gin.Context) {
 	var req struct {
 		Name string `json:"name" binding:"required"`
 	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, buildLegacyError(400, err))
+	if !h.bindLegacyJSON(c, &req) {
 		return
 	}
 
@@ -329,12 +317,9 @@ func (h *LegacyAPIHandlers) deleteSubVolume(c *gin.Context) {
 	volumeName := c.Param("name")
 	subvolName := c.Param("subvol")
 
-	if err := h.storageMgr.DeleteSubVolume(volumeName, subvolName); err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-
-	c.JSON(http.StatusOK, buildLegacyMessage("子卷已删除"))
+	h.runLegacyAction(c, "子卷已删除", func() error {
+		return h.storageMgr.DeleteSubVolume(volumeName, subvolName)
+	})
 }
 
 func (h *LegacyAPIHandlers) setSubVolumeReadOnly(c *gin.Context) {
@@ -344,17 +329,13 @@ func (h *LegacyAPIHandlers) setSubVolumeReadOnly(c *gin.Context) {
 	var req struct {
 		ReadOnly bool `json:"readOnly"`
 	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, buildLegacyError(400, err))
+	if !h.bindLegacyJSON(c, &req) {
 		return
 	}
 
-	if err := h.storageMgr.SetSubVolumeReadOnly(volumeName, subvolName, req.ReadOnly); err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-
-	c.JSON(http.StatusOK, buildLegacyMessage("属性已更新"))
+	h.runLegacyAction(c, "属性已更新", func() error {
+		return h.storageMgr.SetSubVolumeReadOnly(volumeName, subvolName, req.ReadOnly)
+	})
 }
 
 // ========== 快照管理 API ==========
@@ -366,8 +347,7 @@ func (h *LegacyAPIHandlers) createSnapshot(c *gin.Context) {
 		Name          string `json:"name" binding:"required"`
 		ReadOnly      bool   `json:"readonly"`
 	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, buildLegacyError(400, err))
+	if !h.bindLegacyJSON(c, &req) {
 		return
 	}
 
@@ -384,12 +364,9 @@ func (h *LegacyAPIHandlers) deleteSnapshot(c *gin.Context) {
 	volumeName := c.Param("name")
 	snapshotName := c.Param("snapshot")
 
-	if err := h.storageMgr.DeleteSnapshot(volumeName, snapshotName); err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-
-	c.JSON(http.StatusOK, buildLegacyMessage("快照已删除"))
+	h.runLegacyAction(c, "快照已删除", func() error {
+		return h.storageMgr.DeleteSnapshot(volumeName, snapshotName)
+	})
 }
 
 func (h *LegacyAPIHandlers) restoreSnapshot(c *gin.Context) {
@@ -399,17 +376,13 @@ func (h *LegacyAPIHandlers) restoreSnapshot(c *gin.Context) {
 	var req struct {
 		TargetName string `json:"target" binding:"required"`
 	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, buildLegacyError(400, err))
+	if !h.bindLegacyJSON(c, &req) {
 		return
 	}
 
-	if err := h.storageMgr.RestoreSnapshot(volumeName, snapshotName, req.TargetName); err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-
-	c.JSON(http.StatusOK, buildLegacyMessage("快照已恢复"))
+	h.runLegacyAction(c, "快照已恢复", func() error {
+		return h.storageMgr.RestoreSnapshot(volumeName, snapshotName, req.TargetName)
+	})
 }
 
 // ========== RAID 配置 API ==========
@@ -420,37 +393,29 @@ func (h *LegacyAPIHandlers) convertRAID(c *gin.Context) {
 		DataProfile string `json:"dataProfile"`
 		MetaProfile string `json:"metaProfile"`
 	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, buildLegacyError(400, err))
+	if !h.bindLegacyJSON(c, &req) {
 		return
 	}
 
-	if err := h.storageMgr.ConvertRAID(volumeName, req.DataProfile, req.MetaProfile); err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-
-	c.JSON(http.StatusOK, buildLegacyMessage("RAID 配置转换已启动"))
+	h.runLegacyAction(c, "RAID 配置转换已启动", func() error {
+		return h.storageMgr.ConvertRAID(volumeName, req.DataProfile, req.MetaProfile)
+	})
 }
 
 // ========== 维护操作 API ==========
 
 func (h *LegacyAPIHandlers) startBalance(c *gin.Context) {
 	volumeName := c.Param("name")
-	if err := h.storageMgr.Balance(volumeName); err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-	c.JSON(http.StatusOK, buildLegacyMessage("平衡已启动"))
+	h.runLegacyAction(c, "平衡已启动", func() error {
+		return h.storageMgr.Balance(volumeName)
+	})
 }
 
 func (h *LegacyAPIHandlers) startScrub(c *gin.Context) {
 	volumeName := c.Param("name")
-	if err := h.storageMgr.Scrub(volumeName); err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-	c.JSON(http.StatusOK, buildLegacyMessage("校验已启动"))
+	h.runLegacyAction(c, "校验已启动", func() error {
+		return h.storageMgr.Scrub(volumeName)
+	})
 }
 
 // RegisterLegacyRoutes 注册历史存储 API 路由。

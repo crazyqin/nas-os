@@ -3,6 +3,7 @@ package storage
 
 import (
 	"fmt"
+	"net/http"
 
 	"nas-os/internal/api"
 
@@ -278,6 +279,25 @@ func buildLegacyError(code int, err error) gin.H {
 		"code":    code,
 		"message": err.Error(),
 	}
+}
+
+func (h *LegacyAPIHandlers) bindLegacyJSON(c *gin.Context, req interface{}) bool {
+	if err := c.ShouldBindJSON(req); err != nil {
+		c.JSON(http.StatusBadRequest, buildLegacyError(400, err))
+		return false
+	}
+	return true
+}
+
+func (h *LegacyAPIHandlers) runLegacyAction(c *gin.Context, successMessage string, fn func() error) bool {
+	if err := fn(); err != nil {
+		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
+		return false
+	}
+	if successMessage != "" {
+		c.JSON(http.StatusOK, buildLegacyMessage(successMessage))
+	}
+	return true
 }
 
 func buildRAIDConfigsResponse(configs map[string]RAIDConfig) gin.H {
