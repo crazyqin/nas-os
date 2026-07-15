@@ -71,12 +71,16 @@ package main
 // @tag.description 系统信息 API - 系统状态、健康检查
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	"nas-os/internal/cluster"
+	"nas-os/internal/config"
 	"nas-os/internal/downloader"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
@@ -91,40 +95,56 @@ import (
 func main() {
 	log.Println("🚀 NAS-OS 启动中...")
 
+	// 解析命令行参数
+	var configPath string
+	fs := flag.NewFlagSet("nasd", flag.ExitOnError)
+	fs.StringVar(&configPath, "config", "/etc/nas-os/config.yaml", "配置文件路径")
+	if err := fs.Parse(os.Args[1:]); err != nil {
+		log.Fatalf("参数解析失败：%v", err)
+	}
+
+	// 加载运行时配置
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		log.Fatalf("配置加载失败：%v", err)
+	}
+	log.Printf("✅ 配置就绪：config=%s mount=%s config_dir=%s data_dir=%s",
+		configPath, cfg.Paths.MountBase, cfg.Paths.ConfigDir, cfg.Paths.DataDir)
+
 	// 初始化日志
 	logger, _ := zap.NewProduction()
 	defer func() { _ = logger.Sync() }()
 
 	// 初始化用户管理
-	userMgr, err := users.NewManager("/mnt")
+	userMgr, err := users.NewManager(cfg.Paths.MountBase)
 	if err != nil {
 		log.Fatalf("用户管理初始化失败：%v", err)
 	}
 	log.Println("✅ 用户管理模块就绪")
 
 	// 初始化存储管理
-	storMgr, err := storage.NewManager("/mnt")
+	storMgr, err := storage.NewManager(cfg.Paths.MountBase)
 	if err != nil {
 		log.Fatalf("存储管理初始化失败：%v", err)
 	}
 	log.Println("✅ 存储管理模块就绪")
 
 	// 初始化 SMB 共享
-	smbMgr, err := smb.NewManagerWithUserMgr(userMgr, "/etc/samba/smb.conf")
+	smbMgr, err := smb.NewManagerWithUserMgr(userMgr, cfg.Paths.SambaConfig)
 	if err != nil {
 		log.Fatalf("SMB 管理初始化失败：%v", err)
 	}
 	log.Println("✅ SMB 共享模块就绪")
 
 	// 初始化 NFS 共享
-	nfsMgr, err := nfs.NewManager("/etc/exports")
+	nfsMgr, err := nfs.NewManager(cfg.Paths.NFSExports)
 	if err != nil {
 		log.Fatalf("NFS 管理初始化失败：%v", err)
 	}
 	log.Println("✅ NFS 共享模块就绪")
 
 	// 初始化网络管理
-	netMgr := network.NewManager("/etc/nas-os/network.json")
+	netMgr := network.NewManager(cfg.ConfigPath("network.json"))
 	if err := netMgr.Initialize(); err != nil {
 		log.Printf("⚠️ 网络管理初始化警告：%v", err)
 	}
@@ -137,7 +157,7 @@ func main() {
 	hostname, _ := os.Hostname()
 	clusterServices, err := cluster.InitializeCluster(cluster.RootConfig{
 		NodeID:  hostname,
-		DataDir: "/var/lib/nas-os",
+		DataDir: cfg.Paths.DataDir,
 	}, logger)
 	if err != nil {
 		log.Printf("⚠️ 集群服务初始化警告：%v", err)
@@ -151,7 +171,7 @@ func main() {
 	}
 
 	// 初始化下载管理器
-	downloadMgr, err := downloader.NewManager("/var/lib/nas-os/downloads", logger)
+	downloadMgr, err := downloader.NewManager(filepath.Join(cfg.Paths.DataDir, "downloads"), logger)
 	if err != nil {
 		log.Printf("⚠️ 下载管理初始化警告：%v", err)
 	} else {
@@ -162,16 +182,17 @@ func main() {
 	}
 
 	// 初始化 Web 服务
-	webServer := web.NewServer(storMgr, userMgr, smbMgr, nfsMgr, netMgr, downloadMgr, logger)
+	webServer := web.NewServer(cfg, storMgr, userMgr, smbMgr, nfsMgr, netMgr, downloadMgr, logger)
 
 	// 启动 Web 服务
+	listenAddr := cfg.Server.Addr()
 	webErrCh := make(chan error, 1)
 	go func() {
-		webErrCh <- webServer.Start(":8080")
+		webErrCh <- webServer.Start(listenAddr)
 	}()
 
-	log.Println("✅ NAS-OS 就绪 - Web 管理界面：http://localhost:8080")
-	log.Println("📖 API 文档：http://localhost:8080/swagger/index.html")
+	log.Println("✅ NAS-OS 就绪 - Web 管理界面：http://" + friendlyAddr(cfg.Server))
+	log.Printf("📖 API 文档：http://%s/swagger/index.html", friendlyAddr(cfg.Server))
 	if clusterServices != nil {
 		log.Printf("🔗 集群模式 - 节点 ID: %s, 角色：%s", hostname, getClusterRole(clusterServices))
 	}
@@ -204,4 +225,13 @@ func getClusterRole(services *cluster.Services) string {
 		return "leader"
 	}
 	return "follower"
+}
+
+// friendlyAddr 生成用户友好的访问地址（0.0.0.0 显示为 localhost）。
+func friendlyAddr(s config.ServerConfig) string {
+	host := s.Host
+	if host == "" || host == "0.0.0.0" {
+		host = "localhost"
+	}
+	return fmt.Sprintf("%s:%d", host, s.Port)
 }
