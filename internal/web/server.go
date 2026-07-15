@@ -7,10 +7,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"nas-os/internal/acl"
-	"nas-os/internal/config"
 	"nas-os/internal/activebackup"
 	"nas-os/internal/ai"
 	"nas-os/internal/ai_classify"
@@ -19,6 +19,7 @@ import (
 	"nas-os/internal/auth"
 	"nas-os/internal/backup"
 	"nas-os/internal/cloudsync"
+	"nas-os/internal/config"
 	"nas-os/internal/dedup"
 	"nas-os/internal/diskbench"
 	"nas-os/internal/docker"
@@ -147,6 +148,9 @@ type Server struct {
 	cfg           *config.Config
 	engine        *gin.Engine
 	httpSrv       *http.Server
+	lifecycleMu   sync.Mutex
+	started       bool
+	stopping      bool
 	logger        *zap.Logger
 	storageMgr    *storage.Manager
 	userMgr       *users.Manager
@@ -496,7 +500,7 @@ func NewServer(cfg *config.Config, storMgr *storage.Manager, userMgr *users.Mana
 	// 初始化ZFS智能Scrub调度器（对标 TrueNAS 26 智能Scrub）
 	scrubConfig := zfs.DefaultScrubScheduleConfig()
 	scrubScheduler := zfs.NewScrubScheduler("tank", scrubConfig)
-	scrubScheduler.Start()
+	// ZFS scrub 调度器由 Server.Start 统一启动。
 	log.Println("✅ ZFS智能Scrub调度器就绪")
 
 	// 初始化S3策略与管理API（对标 TrueNAS V160 S3增强）
@@ -515,8 +519,8 @@ func NewServer(cfg *config.Config, storMgr *storage.Manager, userMgr *users.Mana
 
 	// 初始化UPS电源监控（对标群晖 UPS 支持）
 	upsMgr := ups.NewManager(ups.DefaultUPSConfig())
-	upsMgr.Start()
-	log.Println("✅ UPS电源监控已启动")
+	// UPS 监控由 Server.Start 统一启动。
+	log.Println("✅ UPS电源监控就绪")
 
 	// 初始化网络唤醒 WOL（对标群晖 WOL）
 	wolMgr := wol.NewManager()
@@ -532,13 +536,13 @@ func NewServer(cfg *config.Config, storMgr *storage.Manager, userMgr *users.Mana
 
 	// 初始化 ML 勒索检测引擎（对标群晖 勒索防护增强）
 	ransomDetector := ransommldetect.NewDetector(ransommldetect.DefaultDetectorConfig(), logger)
-	ransomDetector.Start()
-	log.Println("✅ ML勒索检测引擎已启动")
+	// ML 勒索检测由 Server.Start 统一启动。
+	log.Println("✅ ML勒索检测引擎就绪")
 
 	// 初始化回收站自动清理（对标群晖 回收站策略）
 	recycleCleaner := recyclecleaner.NewManager()
-	recycleCleaner.Start()
-	log.Println("✅ 回收站自动清理已启动")
+	// 回收站清理由 Server.Start 统一启动。
+	log.Println("✅ 回收站自动清理就绪")
 
 	// 初始化多渠道通知管理（对标群晖 多通知渠道）
 	notifyChanMgr := notifychannel.NewManager()
@@ -680,7 +684,7 @@ func NewServer(cfg *config.Config, storMgr *storage.Manager, userMgr *users.Mana
 
 	// 初始化智能Scrub调度管理器（对标 TrueNAS 26 智能Scrub）
 	scrubSchedMgr := scrubsched.NewManager(cfg.ConfigPath("scrubsched.json"), nil, nil, nil, nil, nil)
-	scrubSchedMgr.Start()
+	// 智能 scrub 调度由 Server.Start 统一启动。
 	log.Println("✅ 智能Scrub调度管理器就绪")
 
 	// 初始化虚拟机导入导出管理器
@@ -1787,6 +1791,43 @@ func (s *Server) setupRoutes() {
 
 // Start 启动服务器.
 func (s *Server) Start(addr string) error {
+	s.lifecycleMu.Lock()
+	if s.stopping {
+		s.lifecycleMu.Unlock()
+		return nil
+	}
+	if s.started {
+		s.lifecycleMu.Unlock()
+		return errors.New("web server already started")
+	}
+	s.httpSrv = &http.Server{
+		Addr:              addr,
+		Handler:           s.engine,
+		ReadHeaderTimeout: 10 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       120 * time.Second,
+	}
+	s.started = true
+	httpSrv := s.httpSrv
+	s.lifecycleMu.Unlock()
+
+	// 所有构造期后台任务在此统一启动，Stop 中逆序停止。
+	if s.scrubScheduler != nil {
+		s.scrubScheduler.Start()
+	}
+	if s.upsMgr != nil {
+		s.upsMgr.Start()
+	}
+	if s.ransomDetector != nil {
+		s.ransomDetector.Start()
+	}
+	if s.recycleCleaner != nil {
+		s.recycleCleaner.Start()
+	}
+	if s.scrubSchedMgr != nil {
+		s.scrubSchedMgr.Start()
+	}
+
 	// 启动 WebDAV 服务器
 	if s.webdavSrv != nil {
 		if err := s.webdavSrv.Start(); err != nil {
@@ -1820,14 +1861,7 @@ func (s *Server) Start(addr string) error {
 		}
 	}
 
-	s.httpSrv = &http.Server{
-		Addr:              addr,
-		Handler:           s.engine,
-		ReadHeaderTimeout: 10 * time.Second,
-		WriteTimeout:      30 * time.Second,
-		IdleTimeout:       120 * time.Second,
-	}
-	if err := s.httpSrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+	if err := httpSrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
 	return nil
@@ -1835,6 +1869,23 @@ func (s *Server) Start(addr string) error {
 
 // Stop 停止服务器.
 func (s *Server) Stop() error {
+	s.lifecycleMu.Lock()
+	if s.stopping {
+		s.lifecycleMu.Unlock()
+		return nil
+	}
+	s.stopping = true
+	httpSrv := s.httpSrv
+	s.lifecycleMu.Unlock()
+
+	// 先停止 HTTP 入口并等待在途请求，再关闭请求依赖。
+	var shutdownErr error
+	if httpSrv != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		shutdownErr = httpSrv.Shutdown(ctx)
+		cancel()
+	}
+
 	// 停止性能监控
 	if s.perfMgr != nil {
 		s.perfMgr.Stop()
@@ -1848,6 +1899,11 @@ func (s *Server) Stop() error {
 	// 停止 AI 相册管理
 	if s.photosAIMgr != nil {
 		s.photosAIMgr.Close()
+	}
+
+	// 停止智能 scrub 调度管理器
+	if s.scrubSchedMgr != nil {
+		s.scrubSchedMgr.Stop()
 	}
 
 	// 停止 ZFS scrub 调度器
@@ -1870,11 +1926,6 @@ func (s *Server) Stop() error {
 		s.recycleCleaner.Stop()
 	}
 
-	// 停止 DDNS 后台任务
-	if s.networkMgr != nil {
-		s.networkMgr.StopDDNSWorker()
-	}
-
 	// 停止 WebDAV 服务器
 	if s.webdavSrv != nil {
 		_ = s.webdavSrv.Stop()
@@ -1890,12 +1941,7 @@ func (s *Server) Stop() error {
 		_ = s.sftpSrv.Stop()
 	}
 
-	if s.httpSrv == nil {
-		return nil
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	return s.httpSrv.Shutdown(ctx)
+	return shutdownErr
 }
 
 // ========== 卷管理 API ==========
