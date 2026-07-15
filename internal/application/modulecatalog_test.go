@@ -84,9 +84,12 @@ func TestTieredModulesLiveUnderTieredNamespaces(t *testing.T) {
 		"/home/mrafter/nas-os/internal/lab/truecloudbk":           "truecloudbk should live under internal/lab",
 		"/home/mrafter/nas-os/internal/lab/updatedirector":        "updatedirector should live under internal/lab",
 		"/home/mrafter/nas-os/internal/extensions/activeprotect":  "activeprotect should live under internal/extensions",
+		"/home/mrafter/nas-os/internal/extensions/agentworkflow":  "agentworkflow should live under internal/extensions",
+		"/home/mrafter/nas-os/internal/extensions/aiguardrails":   "aiguardrails should live under internal/extensions",
 		"/home/mrafter/nas-os/internal/extensions/compliancescan": "compliancescan should live under internal/extensions",
 		"/home/mrafter/nas-os/internal/extensions/deployorch":     "deployorch should live under internal/extensions",
 		"/home/mrafter/nas-os/internal/extensions/netdiag":        "netdiag should live under internal/extensions",
+		"/home/mrafter/nas-os/internal/extensions/voicehub":       "voicehub should live under internal/extensions",
 	}
 	for path, msg := range cases {
 		if _, err := os.Stat(path); err != nil {
@@ -98,6 +101,8 @@ func TestTieredModulesLiveUnderTieredNamespaces(t *testing.T) {
 func TestDeprecatedTopLevelTieredModulePathsAreGone(t *testing.T) {
 	paths := map[string]string{
 		"/home/mrafter/nas-os/internal/activeprotect":      "activeprotect should not remain at internal top level",
+		"/home/mrafter/nas-os/internal/agentworkflow":      "agentworkflow should not remain at internal top level",
+		"/home/mrafter/nas-os/internal/aiguardrails":       "aiguardrails should not remain at internal top level",
 		"/home/mrafter/nas-os/internal/aimediatag":         "aimediatag should not remain at internal top level",
 		"/home/mrafter/nas-os/internal/benchmarkpro":       "benchmarkpro should not remain at internal top level",
 		"/home/mrafter/nas-os/internal/blockdedup2":        "blockdedup2 should not remain at internal top level",
@@ -124,6 +129,7 @@ func TestDeprecatedTopLevelTieredModulePathsAreGone(t *testing.T) {
 		"/home/mrafter/nas-os/internal/tcodash":            "tcodash should not remain at internal top level",
 		"/home/mrafter/nas-os/internal/truecloudbk":        "truecloudbk should not remain at internal top level",
 		"/home/mrafter/nas-os/internal/updatedirector":     "updatedirector should not remain at internal top level",
+		"/home/mrafter/nas-os/internal/voicehub":           "voicehub should not remain at internal top level",
 	}
 	for path, msg := range paths {
 		if _, err := os.Stat(path); !os.IsNotExist(err) {
