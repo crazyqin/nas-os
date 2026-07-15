@@ -67,6 +67,7 @@ func TestRequireService(t *testing.T) {
 
 func TestCoreRouteContracts(t *testing.T) {
 	identity := &identityModule{}
+	storage := &storageModule{}
 	network := &networkModule{}
 	sharing := &sharingModule{}
 
@@ -80,6 +81,7 @@ func TestCoreRouteContracts(t *testing.T) {
 		t.Fatal("identity must not be registered as admin-only module")
 	}
 	for name, module := range map[string]interface{}{
+		moduleStorage: storage,
 		moduleNetwork: network,
 		moduleSharing: sharing,
 	} {
@@ -111,5 +113,18 @@ func TestSystemModuleReportsContainerHealth(t *testing.T) {
 	}
 	if !strings.Contains(recorder.Body.String(), `"name":"system"`) {
 		t.Fatalf("module status missing: %s", recorder.Body.String())
+	}
+}
+
+type routeRecorder struct{ called bool }
+
+func (r *routeRecorder) RegisterRoutes(*gin.RouterGroup) { r.called = true }
+
+func TestStorageModuleDelegatesCompatibilityRoutes(t *testing.T) {
+	recorder := &routeRecorder{}
+	module := &storageModule{compatRoutes: recorder}
+	module.RegisterRoutes(gin.New().Group("/api/v1"))
+	if !recorder.called {
+		t.Fatal("storage compatibility routes were not registered")
 	}
 }

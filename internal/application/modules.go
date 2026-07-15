@@ -12,6 +12,7 @@ import (
 	"nas-os/internal/smb"
 	"nas-os/internal/storage"
 	"nas-os/internal/users"
+	"nas-os/internal/web"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -62,6 +63,16 @@ func (m *identityModule) RegisterPublicRoutes(rg *gin.RouterGroup) {
 }
 func (m *identityModule) RegisterAuthenticatedRoutes(rg *gin.RouterGroup) {
 	m.handlers.RegisterProtectedRoutes(rg)
+}
+
+// storageModule 原生存储模块；兼容路由处理器将在后续迁入 storage 包。
+type storageModule struct {
+	coreModule
+	compatRoutes arch.RouteRegistrar
+}
+
+func (m *storageModule) RegisterRoutes(rg *gin.RouterGroup) {
+	m.compatRoutes.RegisterRoutes(rg)
 }
 
 // networkModule 原生网络模块，拥有 DDNS worker 和管理员路由。
@@ -134,16 +145,19 @@ func registerCoreModules(
 		},
 		handlers: users.NewHandlers(userMgr, mfaMgr),
 	}
-	storageMod := &coreModule{
-		name:   moduleStorage,
-		initFn: requireService("storage manager", storageMgr),
-		healthFn: func(context.Context) error {
-			if storageMgr == nil {
-				return fmt.Errorf("storage manager unavailable")
-			}
-			return nil
+	storageMod := &storageModule{
+		coreModule: coreModule{
+			name:   moduleStorage,
+			initFn: requireService("storage manager", storageMgr),
+			healthFn: func(context.Context) error {
+				if storageMgr == nil {
+					return fmt.Errorf("storage manager unavailable")
+				}
+				return nil
+			},
+			logger: logger,
 		},
-		logger: logger,
+		compatRoutes: web.NewStorageHandlers(storageMgr),
 	}
 	networkMod := &networkModule{
 		coreModule: coreModule{
@@ -217,6 +231,8 @@ var (
 	_ arch.Module                      = (*identityModule)(nil)
 	_ arch.PublicRouteRegistrar        = (*identityModule)(nil)
 	_ arch.AuthenticatedRouteRegistrar = (*identityModule)(nil)
+	_ arch.Module                      = (*storageModule)(nil)
+	_ arch.RouteRegistrar              = (*storageModule)(nil)
 	_ arch.Module                      = (*networkModule)(nil)
 	_ arch.RouteRegistrar              = (*networkModule)(nil)
 	_ arch.Module                      = (*sharingModule)(nil)
