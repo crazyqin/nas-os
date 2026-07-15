@@ -9,6 +9,8 @@
 - 统一健康探针，并完善监听错误传播、优雅关闭和后台 worker 停止流程。
 
 ### 架构与配置
+- 将 `brandinsight`、`releasemanager`、`aimediatag` 下沉到 `internal/lab/`，将 `activeprotect` 收敛到 `internal/extensions/`，避免非核心模块继续占用 `internal/` 顶层伪核心位置。
+- 新增 tier 命名空间校验测试，确保 Core / Extension / Lab 目录边界持续可检验。
 - 新增 typed runtime configuration、`--config` 参数及 `NAS_OS_*` 环境覆盖。
 - 新增 `internal/application` 组合根，收口进程级依赖构造与生命周期。
 - 激活 identity、storage、network、sharing、system 核心模块图。
