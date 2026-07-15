@@ -250,6 +250,40 @@ func buildSnapshotListResponses(volumeName string, snapshots []*Snapshot, subvol
 	return result
 }
 
+func buildLegacyVolumeUsage(total, used, free uint64) gin.H {
+	return gin.H{
+		"total": total,
+		"used":  used,
+		"free":  free,
+	}
+}
+
+func buildLegacyEnvelope(message string, data interface{}) gin.H {
+	return gin.H{
+		"code":    0,
+		"message": message,
+		"data":    data,
+	}
+}
+
+func buildLegacyMessage(message string) gin.H {
+	return gin.H{
+		"code":    0,
+		"message": message,
+	}
+}
+
+func buildLegacyError(code int, err error) gin.H {
+	return gin.H{
+		"code":    code,
+		"message": err.Error(),
+	}
+}
+
+func buildRAIDConfigsResponse(configs map[string]RAIDConfig) gin.H {
+	return buildLegacyEnvelope("success", configs)
+}
+
 // listVolumes 列出所有卷
 // @Summary 列出所有卷
 // @Description 获取系统中所有 Btrfs 卷的列表
