@@ -14,7 +14,7 @@ import (
 func newLegacyStorageTestRouter() *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
-	registerLegacyStorageRoutes(router.Group("/api/v1"), NewLegacyStorageHandlers(&storage.Manager{}))
+	storage.RegisterLegacyRoutes(router.Group("/api/v1"), storage.NewLegacyAPIHandlers(&storage.Manager{}))
 	return router
 }
 
