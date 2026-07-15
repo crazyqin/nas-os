@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.18.4 (2026-07-16) - 概念型独立模块降入 Lab
+
+### 架构收敛
+- 将零生产引用、未接入 Core 生命周期的 `digitalassetvault`、`familyactivityhub`、`iotedgegateway` 从 `internal/` 顶层迁入 `internal/lab/`。
+- 三个模块均为独立概念实现或学习型能力；保持 Go package 与行为不变，仅收紧目录层级。
+- 扩充目录边界回归测试，锁定 Lab 新路径并禁止旧顶层路径回流。
+
+### 验证
+- `go test ./internal/application ./internal/lab/digitalassetvault ./internal/lab/familyactivityhub ./internal/lab/iotedgegateway`
+- `go build ./...`
+- `git diff --check`
+
 ## v3.18.3 (2026-07-16) - 可选能力迁入 Extension 命名空间
 
 ### 架构收敛
