@@ -22,7 +22,13 @@ func TestModuleCatalogSnapshotDemotesPseudoCoreModules(t *testing.T) {
 		"activeprotect":    arch.ModuleTierExtension,
 		"agentworkflow":    arch.ModuleTierExtension,
 		"brandinsight":     arch.ModuleTierLab,
+		"cinemarec":        arch.ModuleTierLab,
+		"compliancescan":   arch.ModuleTierExtension,
 		"datasovereignty2": arch.ModuleTierLab,
+		"deployorch":       arch.ModuleTierExtension,
+		"netdiag":          arch.ModuleTierExtension,
+		"snapviz":          arch.ModuleTierLab,
+		"tcodash":          arch.ModuleTierLab,
 		"updatedirector":   arch.ModuleTierLab,
 	}
 	for name, want := range cases {
@@ -46,13 +52,18 @@ func TestModuleCatalogSnapshotReturnsCopy(t *testing.T) {
 	}
 }
 
-
 func TestTieredModulesLiveUnderTieredNamespaces(t *testing.T) {
 	cases := map[string]string{
-		"/home/mrafter/nas-os/internal/lab/brandinsight":       "brandinsight should live under internal/lab",
-		"/home/mrafter/nas-os/internal/lab/releasemanager":     "releasemanager should live under internal/lab",
-		"/home/mrafter/nas-os/internal/lab/aimediatag":         "aimediatag should live under internal/lab",
-		"/home/mrafter/nas-os/internal/extensions/activeprotect": "activeprotect should live under internal/extensions",
+		"/home/mrafter/nas-os/internal/lab/brandinsight":          "brandinsight should live under internal/lab",
+		"/home/mrafter/nas-os/internal/lab/cinemarec":             "cinemarec should live under internal/lab",
+		"/home/mrafter/nas-os/internal/lab/releasemanager":        "releasemanager should live under internal/lab",
+		"/home/mrafter/nas-os/internal/lab/aimediatag":            "aimediatag should live under internal/lab",
+		"/home/mrafter/nas-os/internal/lab/snapviz":               "snapviz should live under internal/lab",
+		"/home/mrafter/nas-os/internal/lab/tcodash":               "tcodash should live under internal/lab",
+		"/home/mrafter/nas-os/internal/extensions/activeprotect":  "activeprotect should live under internal/extensions",
+		"/home/mrafter/nas-os/internal/extensions/compliancescan": "compliancescan should live under internal/extensions",
+		"/home/mrafter/nas-os/internal/extensions/deployorch":     "deployorch should live under internal/extensions",
+		"/home/mrafter/nas-os/internal/extensions/netdiag":        "netdiag should live under internal/extensions",
 	}
 	for path, msg := range cases {
 		if _, err := os.Stat(path); err != nil {
@@ -66,7 +77,13 @@ func TestDeprecatedTopLevelTieredModulePathsAreGone(t *testing.T) {
 		"/home/mrafter/nas-os/internal/activeprotect":  "activeprotect should not remain at internal top level",
 		"/home/mrafter/nas-os/internal/aimediatag":     "aimediatag should not remain at internal top level",
 		"/home/mrafter/nas-os/internal/brandinsight":   "brandinsight should not remain at internal top level",
+		"/home/mrafter/nas-os/internal/cinemarec":      "cinemarec should not remain at internal top level",
+		"/home/mrafter/nas-os/internal/compliancescan": "compliancescan should not remain at internal top level",
+		"/home/mrafter/nas-os/internal/deployorch":     "deployorch should not remain at internal top level",
+		"/home/mrafter/nas-os/internal/netdiag":        "netdiag should not remain at internal top level",
 		"/home/mrafter/nas-os/internal/releasemanager": "releasemanager should not remain at internal top level",
+		"/home/mrafter/nas-os/internal/snapviz":        "snapviz should not remain at internal top level",
+		"/home/mrafter/nas-os/internal/tcodash":        "tcodash should not remain at internal top level",
 	}
 	for path, msg := range paths {
 		if _, err := os.Stat(path); !os.IsNotExist(err) {
