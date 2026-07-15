@@ -84,13 +84,9 @@ func (h *LegacyAPIHandlers) getVolumeUsage(c *gin.Context) {
 // @Router /volumes/{name}/subvolumes [get].
 func (h *LegacyAPIHandlers) listSubVolumes(c *gin.Context) {
 	volumeName := c.Param("name")
-	subvols, err := h.storageMgr.ListSubVolumes(volumeName)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-
-	c.JSON(http.StatusOK, buildLegacyEnvelope("success", subvols))
+	h.runLegacyQuery(c, func() (interface{}, error) {
+		return h.storageMgr.ListSubVolumes(volumeName)
+	})
 }
 
 func (h *LegacyAPIHandlers) getSubVolume(c *gin.Context) {
@@ -118,49 +114,30 @@ func (h *LegacyAPIHandlers) getSubVolume(c *gin.Context) {
 // @Router /volumes/{name}/snapshots [get].
 func (h *LegacyAPIHandlers) listSnapshots(c *gin.Context) {
 	volumeName := c.Param("name")
-	snapshots, err := h.storageMgr.ListSnapshots(volumeName)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-
-	c.JSON(http.StatusOK, buildLegacyEnvelope("success", buildSnapshotListResponses(volumeName, snapshots, "")))
+	h.runLegacyQuery(c, func() (interface{}, error) {
+		snapshots, err := h.storageMgr.ListSnapshots(volumeName)
+		if err != nil {
+			return nil, err
+		}
+		return buildSnapshotListResponses(volumeName, snapshots, ""), nil
+	})
 }
 
 func (h *LegacyAPIHandlers) getRAIDConfigs(c *gin.Context) {
-	configs := h.storageMgr.GetRAIDConfigs()
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    configs,
-	})
+	c.JSON(http.StatusOK, buildRAIDConfigsResponse(h.storageMgr.GetRAIDConfigs()))
 }
 
 func (h *LegacyAPIHandlers) getBalanceStatus(c *gin.Context) {
 	volumeName := c.Param("name")
-	status, err := h.storageMgr.GetBalanceStatus(volumeName)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    status,
+	h.runLegacyQuery(c, func() (interface{}, error) {
+		return h.storageMgr.GetBalanceStatus(volumeName)
 	})
 }
 
 func (h *LegacyAPIHandlers) getScrubStatus(c *gin.Context) {
 	volumeName := c.Param("name")
-	status, err := h.storageMgr.GetScrubStatus(volumeName)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    status,
+	h.runLegacyQuery(c, func() (interface{}, error) {
+		return h.storageMgr.GetScrubStatus(volumeName)
 	})
 }
 
