@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.18.2 (2026-07-16) - 伪核心 v2/pro 模块降级
+
+### 架构收敛
+- 将未被生产代码引用的 `benchmarkpro`、`blockdedup2`、`cloudsync2`、`filetimemachine2`、`resmonpro`、`smartthermal2` 从 `internal/` 顶层迁入 `internal/lab/`。
+- 将上述概念增强版统一登记为 Lab，阻止 `v2` / `pro` 命名的重复实现继续伪装成生产 Core。
+- 扩充目录边界回归测试，同时断言 Lab 新路径存在、旧顶层路径消失。
+
+### 验证
+- `go test ./internal/application ./internal/lab/benchmarkpro ./internal/lab/blockdedup2 ./internal/lab/cloudsync2 ./internal/lab/filetimemachine2 ./internal/lab/resmonpro ./internal/lab/smartthermal2`
+- `go build ./...`
+- `git diff --check`
+
 ## v3.18.1 (2026-07-15) - tier 目录收口补强
 
 ### 架构收敛
