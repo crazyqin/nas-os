@@ -71,19 +71,15 @@ package main
 // @tag.description 系统信息 API - 系统状态、健康检查
 
 import (
+	"context"
+	"flag"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"nas-os/internal/cluster"
-	"nas-os/internal/downloader"
-	"nas-os/internal/network"
-	"nas-os/internal/nfs"
-	"nas-os/internal/smb"
-	"nas-os/internal/storage"
-	"nas-os/internal/users"
-	"nas-os/internal/web"
+	"nas-os/internal/application"
+	"nas-os/internal/config"
 
 	"go.uber.org/zap"
 )
@@ -91,106 +87,47 @@ import (
 func main() {
 	log.Println("🚀 NAS-OS 启动中...")
 
-	// 初始化日志
-	logger, _ := zap.NewProduction()
+	var configPath string
+	fs := flag.NewFlagSet("nasd", flag.ExitOnError)
+	fs.StringVar(&configPath, "config", "/etc/nas-os/config.yaml", "配置文件路径")
+	if err := fs.Parse(os.Args[1:]); err != nil {
+		log.Fatalf("参数解析失败：%v", err)
+	}
+
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		log.Fatalf("配置加载失败：%v", err)
+	}
+	log.Printf("✅ 配置就绪：config=%s mount=%s config_dir=%s data_dir=%s",
+		configPath, cfg.Paths.MountBase, cfg.Paths.ConfigDir, cfg.Paths.DataDir)
+
+	logger, err := zap.NewProduction()
+	if err != nil {
+		log.Fatalf("日志初始化失败：%v", err)
+	}
 	defer func() { _ = logger.Sync() }()
 
-	// 初始化用户管理
-	userMgr, err := users.NewManager("/mnt")
+	app, err := application.New(cfg, logger)
 	if err != nil {
-		log.Fatalf("用户管理初始化失败：%v", err)
-	}
-	log.Println("✅ 用户管理模块就绪")
-
-	// 初始化存储管理
-	storMgr, err := storage.NewManager("/mnt")
-	if err != nil {
-		log.Fatalf("存储管理初始化失败：%v", err)
-	}
-	log.Println("✅ 存储管理模块就绪")
-
-	// 初始化 SMB 共享
-	smbMgr, err := smb.NewManagerWithUserMgr(userMgr, "/etc/samba/smb.conf")
-	if err != nil {
-		log.Fatalf("SMB 管理初始化失败：%v", err)
-	}
-	log.Println("✅ SMB 共享模块就绪")
-
-	// 初始化 NFS 共享
-	nfsMgr, err := nfs.NewManager("/etc/exports")
-	if err != nil {
-		log.Fatalf("NFS 管理初始化失败：%v", err)
-	}
-	log.Println("✅ NFS 共享模块就绪")
-
-	// 初始化网络管理
-	netMgr := network.NewManager("/etc/nas-os/network.json")
-	if err := netMgr.Initialize(); err != nil {
-		log.Printf("⚠️ 网络管理初始化警告：%v", err)
-	}
-	log.Println("✅ 网络管理模块就绪")
-
-	// 启动 DDNS 后台任务
-	netMgr.StartDDNSWorker()
-
-	// 初始化集群服务（可选）
-	hostname, _ := os.Hostname()
-	clusterServices, err := cluster.InitializeCluster(cluster.RootConfig{
-		NodeID:  hostname,
-		DataDir: "/var/lib/nas-os",
-	}, logger)
-	if err != nil {
-		log.Printf("⚠️ 集群服务初始化警告：%v", err)
-	} else if clusterServices != nil {
-		log.Println("✅ 集群服务就绪")
-		defer func() {
-			if err := cluster.ShutdownCluster(clusterServices); err != nil {
-				logger.Error("failed to shutdown cluster", zap.Error(err))
-			}
-		}()
+		logger.Fatal("application initialization failed", zap.Error(err))
 	}
 
-	// 初始化下载管理器
-	downloadMgr, err := downloader.NewManager("/var/lib/nas-os/downloads", logger)
-	if err != nil {
-		log.Printf("⚠️ 下载管理初始化警告：%v", err)
-	} else {
-		// 配置 Transmission/qBittorrent 地址（可选）
-		downloadMgr.SetTransmissionURL("http://localhost:9091")
-		log.Println("✅ 下载管理模块就绪")
-		defer downloadMgr.Close()
+	ctx, stopSignal := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stopSignal()
+
+	runErr := app.Run(ctx)
+	if ctx.Err() != nil {
+		log.Println("👋 NAS-OS 正在关闭...")
 	}
+	stopErr := app.Stop()
 
-	// 初始化 Web 服务
-	webServer := web.NewServer(storMgr, userMgr, smbMgr, nfsMgr, netMgr, downloadMgr, logger)
-
-	// 启动 Web 服务
-	go func() {
-		if err := webServer.Start(":8080"); err != nil {
-			log.Fatalf("Web 服务启动失败：%v", err)
-		}
-	}()
-
-	log.Println("✅ NAS-OS 就绪 - Web 管理界面：http://localhost:8080")
-	log.Println("📖 API 文档：http://localhost:8080/swagger/index.html")
-	if clusterServices != nil {
-		log.Printf("🔗 集群模式 - 节点 ID: %s, 角色：%s", hostname, getClusterRole(clusterServices))
+	if runErr != nil {
+		logger.Error("application exited with error", zap.Error(runErr))
 	}
-
-	// 等待退出信号
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	<-sigChan
-
-	log.Println("👋 NAS-OS 正在关闭...")
-	if err := webServer.Stop(); err != nil {
-		logger.Error("failed to stop web server", zap.Error(err))
+	if stopErr != nil {
+		logger.Error("application shutdown failed", zap.Error(stopErr))
 	}
-}
-
-func getClusterRole(services *cluster.Services) string {
-	if services.HA.IsLeader() {
-		return "leader"
+	if runErr != nil || stopErr != nil {
+		os.Exit(1)
 	}
-	return "follower"
 }

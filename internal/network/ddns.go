@@ -297,30 +297,56 @@ func (p *NoIPProvider) Update(domain, ip string) error {
 
 // StartDDNSWorker 启动 DDNS 后台更新任务.
 func (m *Manager) StartDDNSWorker() {
+	m.ddnsWorkerMu.Lock()
+	if m.ddnsWorkerCancel != nil {
+		m.ddnsWorkerMu.Unlock()
+		return
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	m.ddnsWorkerCancel = cancel
+	m.ddnsWorkerMu.Unlock()
+
 	go func() {
 		ticker := time.NewTicker(5 * time.Minute)
 		defer ticker.Stop()
 
-		for range ticker.C {
-			m.mu.RLock()
-			configs := make([]*DDNSConfig, 0, len(m.ddnsConfigs))
-			for _, cfg := range m.ddnsConfigs {
-				if cfg.Enabled {
-					configs = append(configs, cfg)
-				}
-			}
-			m.mu.RUnlock()
-
-			for _, cfg := range configs {
-				// 检查是否需要更新
-				if time.Since(m.parseTime(cfg.LastUpdate)).Seconds() < float64(cfg.Interval) {
-					continue
-				}
-
-				_ = m.RefreshDDNS(cfg.Domain)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				m.refreshDueDDNS()
 			}
 		}
 	}()
+}
+
+// StopDDNSWorker 停止 DDNS 后台更新任务.
+func (m *Manager) StopDDNSWorker() {
+	m.ddnsWorkerMu.Lock()
+	defer m.ddnsWorkerMu.Unlock()
+	if m.ddnsWorkerCancel != nil {
+		m.ddnsWorkerCancel()
+		m.ddnsWorkerCancel = nil
+	}
+}
+
+func (m *Manager) refreshDueDDNS() {
+	m.mu.RLock()
+	configs := make([]*DDNSConfig, 0, len(m.ddnsConfigs))
+	for _, cfg := range m.ddnsConfigs {
+		if cfg.Enabled {
+			configs = append(configs, cfg)
+		}
+	}
+	m.mu.RUnlock()
+
+	for _, cfg := range configs {
+		if time.Since(m.parseTime(cfg.LastUpdate)).Seconds() < float64(cfg.Interval) {
+			continue
+		}
+		_ = m.RefreshDDNS(cfg.Domain)
+	}
 }
 
 // parseTime 解析时间字符串.
