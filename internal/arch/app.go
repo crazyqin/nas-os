@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"sort"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -135,15 +136,15 @@ func (m *ModuleAdapter) Stop(ctx context.Context) error {
 	return nil
 }
 
-// ListModules 列出所有已注册模块.
+// ListModules 列出所有已注册模块（按名称排序）.
 func (c *Container) ListModules() []string {
 	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	var names []string
+	names := make([]string, 0, len(c.modules))
 	for name := range c.modules {
 		names = append(names, name)
 	}
+	c.mu.RUnlock()
+	sort.Strings(names)
 	return names
 }
 
@@ -162,15 +163,22 @@ type ModuleStatus struct {
 	Error   string `json:"error,omitempty"`
 }
 
-// GetModulesStatus 获取所有模块状态.
+// GetModulesStatus 获取所有模块状态。健康回调在容器锁外执行，避免阻塞注册和查询。
 func (c *Container) GetModulesStatus(ctx context.Context) []ModuleStatus {
 	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	var statuses []ModuleStatus
+	modules := make(map[string]Module, len(c.modules))
+	names := make([]string, 0, len(c.modules))
 	for name, mod := range c.modules {
+		modules[name] = mod
+		names = append(names, name)
+	}
+	c.mu.RUnlock()
+	sort.Strings(names)
+
+	statuses := make([]ModuleStatus, 0, len(names))
+	for _, name := range names {
 		status := ModuleStatus{Name: name, Healthy: true}
-		if err := mod.Health(ctx); err != nil {
+		if err := modules[name].Health(ctx); err != nil {
 			status.Healthy = false
 			status.Error = err.Error()
 		}

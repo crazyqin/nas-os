@@ -255,3 +255,53 @@ func TestContainerStopAggregatesErrorsAndContinues(t *testing.T) {
 		t.Fatalf("events = %v, want %v", events, want)
 	}
 }
+
+func TestContainer_ModuleQueriesAreDeterministic(t *testing.T) {
+	c := NewContainer(zap.NewNop())
+	for _, name := range []string{"storage", "identity", "network"} {
+		if err := c.RegisterModule(&BaseModule{NameStr: name, Logger: zap.NewNop()}); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	want := []string{"identity", "network", "storage"}
+	if got := c.ListModules(); !reflect.DeepEqual(got, want) {
+		t.Fatalf("ListModules() = %v, want %v", got, want)
+	}
+	statuses := c.GetModulesStatus(context.Background())
+	got := make([]string, 0, len(statuses))
+	for _, status := range statuses {
+		got = append(got, status.Name)
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("status order = %v, want %v", got, want)
+	}
+}
+
+type registeringHealthModule struct {
+	*BaseModule
+	container *Container
+}
+
+func (m *registeringHealthModule) Health(context.Context) error {
+	return m.container.RegisterModule(&BaseModule{NameStr: "registered-during-health", Logger: zap.NewNop()})
+}
+
+func TestContainer_HealthCallbacksRunOutsideLock(t *testing.T) {
+	c := NewContainer(zap.NewNop())
+	module := &registeringHealthModule{
+		BaseModule: &BaseModule{NameStr: "health", Logger: zap.NewNop()},
+		container:  c,
+	}
+	if err := c.RegisterModule(module); err != nil {
+		t.Fatal(err)
+	}
+
+	statuses := c.GetModulesStatus(context.Background())
+	if len(statuses) != 1 || !statuses[0].Healthy {
+		t.Fatalf("unexpected statuses: %+v", statuses)
+	}
+	if _, ok := c.GetModule("registered-during-health"); !ok {
+		t.Fatal("health callback could not register module; container lock may be held")
+	}
+}
