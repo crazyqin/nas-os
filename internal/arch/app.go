@@ -84,6 +84,7 @@ type RouteRegistrar interface {
 // ModuleAdapter 模块适配器 - 将现有Manager适配为Module接口.
 type ModuleAdapter struct {
 	*BaseModule
+	tier    ModuleTier
 	initFn  func(ctx context.Context) error
 	startFn func(ctx context.Context) error
 	stopFn  func(ctx context.Context) error
@@ -97,7 +98,13 @@ func NewModuleAdapter(name string, deps []string, logger *zap.Logger) *ModuleAda
 			Deps:    deps,
 			Logger:  logger,
 		},
+		tier: ModuleTierExtension,
 	}
+}
+
+func (m *ModuleAdapter) WithTier(tier ModuleTier) *ModuleAdapter {
+	m.tier = tier
+	return m
 }
 
 func (m *ModuleAdapter) WithInit(fn func(ctx context.Context) error) *ModuleAdapter {
@@ -136,6 +143,13 @@ func (m *ModuleAdapter) Stop(ctx context.Context) error {
 	return nil
 }
 
+func (m *ModuleAdapter) Tier() ModuleTier {
+	if m.tier == "" {
+		return ModuleTierExtension
+	}
+	return m.tier
+}
+
 // ListModules 列出所有已注册模块（按名称排序）.
 func (c *Container) ListModules() []string {
 	c.mu.RLock()
@@ -158,9 +172,10 @@ func (c *Container) GetModule(name string) (Module, bool) {
 
 // ModuleStatus 模块状态.
 type ModuleStatus struct {
-	Name    string `json:"name"`
-	Healthy bool   `json:"healthy"`
-	Error   string `json:"error,omitempty"`
+	Name    string     `json:"name"`
+	Tier    ModuleTier `json:"tier"`
+	Healthy bool       `json:"healthy"`
+	Error   string     `json:"error,omitempty"`
 }
 
 // GetModulesStatus 获取所有模块状态。健康回调在容器锁外执行，避免阻塞注册和查询。
@@ -177,7 +192,7 @@ func (c *Container) GetModulesStatus(ctx context.Context) []ModuleStatus {
 
 	statuses := make([]ModuleStatus, 0, len(names))
 	for _, name := range names {
-		status := ModuleStatus{Name: name, Healthy: true}
+		status := ModuleStatus{Name: name, Tier: modules[name].Tier(), Healthy: true}
 		if err := modules[name].Health(ctx); err != nil {
 			status.Healthy = false
 			status.Error = err.Error()
