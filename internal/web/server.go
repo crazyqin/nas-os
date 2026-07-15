@@ -15,6 +15,7 @@ import (
 	"nas-os/internal/ai"
 	"nas-os/internal/ai_classify"
 	alertremediation "nas-os/internal/alertremediation"
+	"nas-os/internal/arch"
 	"nas-os/internal/audiostation"
 	"nas-os/internal/auth"
 	"nas-os/internal/backup"
@@ -146,6 +147,7 @@ import (
 // Server Web 服务器.
 type Server struct {
 	cfg           *config.Config
+	modules       []arch.Module
 	engine        *gin.Engine
 	httpSrv       *http.Server
 	lifecycleMu   sync.Mutex
@@ -293,7 +295,7 @@ type Server struct {
 }
 
 // NewServer 创建 Web 服务器.
-func NewServer(cfg *config.Config, storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Manager, nfsMgr *nfs.Manager, netMgr *network.Manager, downloadMgr *downloader.Manager, logger *zap.Logger) *Server {
+func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manager, userMgr *users.Manager, mfaMgr *auth.MFAManager, smbMgr *smb.Manager, nfsMgr *nfs.Manager, netMgr *network.Manager, downloadMgr *downloader.Manager, logger *zap.Logger) *Server {
 	// 如果未提供配置，回退到默认值，确保过渡期兼容。
 	if cfg == nil {
 		cfg = config.Default()
@@ -383,16 +385,7 @@ func NewServer(cfg *config.Config, storMgr *storage.Manager, userMgr *users.Mana
 	notifyMgr := notify.NewManager()
 	notify.NewHandlers(notifyMgr, cfg.ConfigPath("notify-config.json"))
 
-	// 初始化 MFA 管理器
-	mfaMgr, err := auth.NewMFAManager(
-		cfg.ConfigPath("mfa-config.json"),
-		"NAS-OS",
-		nil, // 短信提供商，生产环境配置为 AliyunSMSProvider 或 TencentSMSProvider
-	)
-	if err != nil {
-		// MFA 不可用时继续运行（记录日志）
-		mfaMgr = nil
-	}
+	// MFA 管理器由 Application 构造并注入，身份模块拥有唯一实例。
 
 	// 初始化相册管理器
 	photosMgr := photos.NewManager(cfg.DataPath("photos"))
@@ -909,6 +902,7 @@ func NewServer(cfg *config.Config, storMgr *storage.Manager, userMgr *users.Mana
 
 	s := &Server{
 		cfg:           cfg,
+		modules:       append([]arch.Module(nil), modules...),
 		engine:        engine,
 		logger:        logger,
 		storageMgr:    storMgr,
@@ -1133,9 +1127,12 @@ func NewServer(cfg *config.Config, storMgr *storage.Manager, userMgr *users.Mana
 
 func (s *Server) setupRoutes() {
 	publicAPI := s.engine.Group("/api/v1")
-	userHandlers := users.NewHandlers(s.userMgr, s.mfaMgr)
-	userHandlers.RegisterPublicRoutes(publicAPI.Group("/auth"))
-	userHandlers.RegisterPublicRoutes(publicAPI) // 兼容旧版 /api/v1/login
+	for _, module := range s.modules {
+		if registrar, ok := module.(arch.PublicRouteRegistrar); ok {
+			registrar.RegisterPublicRoutes(publicAPI.Group("/auth"))
+			registrar.RegisterPublicRoutes(publicAPI) // 兼容旧版 /api/v1/login
+		}
+	}
 	publicAPI.GET("/system/health", s.getHealth)
 	// 兼容旧探针路径：/api/v1/health 与 /api/v1/system/health 等价
 	publicAPI.GET("/health", s.getHealth)
@@ -1143,10 +1140,19 @@ func (s *Server) setupRoutes() {
 	// 账户 API 要求登录，管理 API 默认要求管理员角色。
 	authenticatedAPI := s.engine.Group("/api/v1")
 	authenticatedAPI.Use(users.AuthMiddleware(s.userMgr))
-	userHandlers.RegisterProtectedRoutes(authenticatedAPI)
+	for _, module := range s.modules {
+		if registrar, ok := module.(arch.AuthenticatedRouteRegistrar); ok {
+			registrar.RegisterAuthenticatedRoutes(authenticatedAPI)
+		}
+	}
 
 	api := s.engine.Group("/api/v1")
 	api.Use(users.AuthMiddleware(s.userMgr), users.RequireAdmin(s.userMgr))
+	for _, module := range s.modules {
+		if registrar, ok := module.(arch.RouteRegistrar); ok {
+			registrar.RegisterRoutes(api)
+		}
+	}
 	{
 		// ========== 存储管理 API (v2) ==========
 		NewStorageHandlers(s.storageMgr).RegisterRoutes(api)
@@ -1195,12 +1201,6 @@ func (s *Server) setupRoutes() {
 		if s.rbacMgr != nil {
 			auth.NewRBACHandlers(s.rbacMgr).RegisterRoutes(api)
 		}
-
-		// ========== 共享管理（SMB + NFS）==========
-		shares.NewHandlers(s.smbMgr, s.nfsMgr).RegisterRoutes(api)
-
-		// ========== 网络管理 ==========
-		network.NewHandlers(s.networkMgr).RegisterRoutes(api)
 
 		// ========== Docker 管理 ==========
 		if s.dockerMgr != nil {

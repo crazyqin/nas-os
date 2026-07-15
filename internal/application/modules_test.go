@@ -60,3 +60,30 @@ func TestRequireService(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
+
+func TestCoreRouteContracts(t *testing.T) {
+	identity := &identityModule{}
+	network := &networkModule{}
+	sharing := &sharingModule{}
+
+	if _, ok := interface{}(identity).(arch.PublicRouteRegistrar); !ok {
+		t.Fatal("identity must own public routes")
+	}
+	if _, ok := interface{}(identity).(arch.AuthenticatedRouteRegistrar); !ok {
+		t.Fatal("identity must own authenticated routes")
+	}
+	if _, ok := interface{}(identity).(arch.RouteRegistrar); ok {
+		t.Fatal("identity must not be registered as admin-only module")
+	}
+	for name, module := range map[string]interface{}{
+		moduleNetwork: network,
+		moduleSharing: sharing,
+	} {
+		if _, ok := module.(arch.RouteRegistrar); !ok {
+			t.Fatalf("%s must own admin routes", name)
+		}
+		if _, ok := module.(arch.PublicRouteRegistrar); ok {
+			t.Fatalf("%s must not expose public routes", name)
+		}
+	}
+}

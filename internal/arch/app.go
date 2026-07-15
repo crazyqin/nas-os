@@ -199,3 +199,13 @@ func (c *Container) RestartModule(ctx context.Context, name string) error {
 
 	return mod.Start(ctx)
 }
+
+// PublicRouteRegistrar 注册无需身份认证的公开路由。
+type PublicRouteRegistrar interface {
+	RegisterPublicRoutes(rg *gin.RouterGroup)
+}
+
+// AuthenticatedRouteRegistrar 注册仅要求登录的路由。
+type AuthenticatedRouteRegistrar interface {
+	RegisterAuthenticatedRoutes(rg *gin.RouterGroup)
+}

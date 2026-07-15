@@ -5,12 +5,15 @@ import (
 	"fmt"
 
 	"nas-os/internal/arch"
+	"nas-os/internal/auth"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
+	"nas-os/internal/shares"
 	"nas-os/internal/smb"
 	"nas-os/internal/storage"
 	"nas-os/internal/users"
 
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
@@ -22,45 +25,155 @@ const (
 	moduleSystem   = "system"
 )
 
-// registerCoreModules 将核心领域纳入统一生命周期和依赖图。
-// 当前使用适配器渐进迁移，避免要求既有 Manager 一次性实现 arch.Module。
+// coreModule 是无后台任务领域的原生 Module 实现。
+type coreModule struct {
+	name     string
+	deps     []string
+	initFn   func(context.Context) error
+	healthFn func(context.Context) error
+	logger   *zap.Logger
+}
+
+func (m *coreModule) Name() string                { return m.name }
+func (m *coreModule) Dependencies() []string      { return append([]string(nil), m.deps...) }
+func (m *coreModule) Start(context.Context) error { return nil }
+func (m *coreModule) Stop(context.Context) error  { return nil }
+func (m *coreModule) Init(ctx context.Context) error {
+	if m.initFn != nil {
+		return m.initFn(ctx)
+	}
+	return nil
+}
+func (m *coreModule) Health(ctx context.Context) error {
+	if m.healthFn != nil {
+		return m.healthFn(ctx)
+	}
+	return nil
+}
+
+// identityModule 原生身份模块，同时拥有公开和已认证账户路由。
+type identityModule struct {
+	coreModule
+	handlers *users.Handlers
+}
+
+func (m *identityModule) RegisterPublicRoutes(rg *gin.RouterGroup) {
+	m.handlers.RegisterPublicRoutes(rg)
+}
+func (m *identityModule) RegisterAuthenticatedRoutes(rg *gin.RouterGroup) {
+	m.handlers.RegisterProtectedRoutes(rg)
+}
+
+// networkModule 原生网络模块，拥有 DDNS worker 和管理员路由。
+type networkModule struct {
+	coreModule
+	manager  *network.Manager
+	handlers *network.Handlers
+}
+
+func (m *networkModule) Start(context.Context) error {
+	m.manager.StartDDNSWorker()
+	return nil
+}
+func (m *networkModule) Stop(context.Context) error {
+	m.manager.StopDDNSWorker()
+	return nil
+}
+func (m *networkModule) RegisterRoutes(rg *gin.RouterGroup) {
+	m.handlers.RegisterRoutes(rg)
+}
+
+// sharingModule 原生共享模块，拥有 SMB/NFS 聚合路由。
+type sharingModule struct {
+	coreModule
+	handlers *shares.Handlers
+}
+
+func (m *sharingModule) RegisterRoutes(rg *gin.RouterGroup) {
+	m.handlers.RegisterRoutes(rg)
+}
+
+// registerCoreModules 注册核心领域并返回同一批实例供 Web 层发现路由契约。
 func registerCoreModules(
 	container *arch.Container,
 	userMgr *users.Manager,
+	mfaMgr *auth.MFAManager,
 	storageMgr *storage.Manager,
 	networkMgr *network.Manager,
 	smbMgr *smb.Manager,
 	nfsMgr *nfs.Manager,
 	logger *zap.Logger,
-) error {
-	modules := []arch.Module{
-		arch.NewModuleAdapter(moduleIdentity, nil, logger).
-			WithInit(requireService("users manager", userMgr)),
-		arch.NewModuleAdapter(moduleStorage, nil, logger).
-			WithInit(requireService("storage manager", storageMgr)),
-		arch.NewModuleAdapter(moduleNetwork, nil, logger).
-			WithInit(requireService("network manager", networkMgr)).
-			WithStart(func(context.Context) error {
-				networkMgr.StartDDNSWorker()
+) ([]arch.Module, error) {
+	identity := &identityModule{
+		coreModule: coreModule{
+			name:   moduleIdentity,
+			initFn: requireService("users manager", userMgr),
+			healthFn: func(context.Context) error {
+				if userMgr == nil {
+					return fmt.Errorf("users manager unavailable")
+				}
 				return nil
-			}).
-			WithStop(func(context.Context) error {
-				networkMgr.StopDDNSWorker()
+			},
+			logger: logger,
+		},
+		handlers: users.NewHandlers(userMgr, mfaMgr),
+	}
+	storageMod := &coreModule{
+		name:   moduleStorage,
+		initFn: requireService("storage manager", storageMgr),
+		healthFn: func(context.Context) error {
+			if storageMgr == nil {
+				return fmt.Errorf("storage manager unavailable")
+			}
+			return nil
+		},
+		logger: logger,
+	}
+	networkMod := &networkModule{
+		coreModule: coreModule{
+			name:   moduleNetwork,
+			initFn: requireService("network manager", networkMgr),
+			healthFn: func(context.Context) error {
+				if networkMgr == nil {
+					return fmt.Errorf("network manager unavailable")
+				}
 				return nil
-			}),
-		arch.NewModuleAdapter(moduleSharing, []string{moduleIdentity, moduleStorage, moduleNetwork}, logger).
-			WithInit(func(context.Context) error {
+			},
+			logger: logger,
+		},
+		manager:  networkMgr,
+		handlers: network.NewHandlers(networkMgr),
+	}
+	sharing := &sharingModule{
+		coreModule: coreModule{
+			name: moduleSharing,
+			deps: []string{moduleIdentity, moduleStorage, moduleNetwork},
+			initFn: func(context.Context) error {
 				if smbMgr == nil || nfsMgr == nil {
 					return fmt.Errorf("SMB and NFS managers are required")
 				}
 				return nil
-			}),
-		arch.NewModuleAdapter(moduleSystem, []string{moduleIdentity, moduleStorage, moduleNetwork, moduleSharing}, logger),
+			},
+			healthFn: func(context.Context) error {
+				if smbMgr == nil || nfsMgr == nil {
+					return fmt.Errorf("sharing managers unavailable")
+				}
+				return nil
+			},
+			logger: logger,
+		},
+		handlers: shares.NewHandlers(smbMgr, nfsMgr),
+	}
+	systemMod := &coreModule{
+		name:   moduleSystem,
+		deps:   []string{moduleIdentity, moduleStorage, moduleNetwork, moduleSharing},
+		logger: logger,
 	}
 
+	modules := []arch.Module{identity, storageMod, networkMod, sharing, systemMod}
 	for _, module := range modules {
 		if err := container.RegisterModule(module); err != nil {
-			return err
+			return nil, err
 		}
 	}
 
@@ -69,7 +182,7 @@ func registerCoreModules(
 	container.Register(moduleNetwork, networkMgr)
 	container.Register("sharing.smb", smbMgr)
 	container.Register("sharing.nfs", nfsMgr)
-	return nil
+	return modules, nil
 }
 
 func requireService(name string, service interface{}) func(context.Context) error {
@@ -80,3 +193,13 @@ func requireService(name string, service interface{}) func(context.Context) erro
 		return nil
 	}
 }
+
+var (
+	_ arch.Module                      = (*identityModule)(nil)
+	_ arch.PublicRouteRegistrar        = (*identityModule)(nil)
+	_ arch.AuthenticatedRouteRegistrar = (*identityModule)(nil)
+	_ arch.Module                      = (*networkModule)(nil)
+	_ arch.RouteRegistrar              = (*networkModule)(nil)
+	_ arch.Module                      = (*sharingModule)(nil)
+	_ arch.RouteRegistrar              = (*sharingModule)(nil)
+)

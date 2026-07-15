@@ -11,6 +11,7 @@ import (
 	"sync"
 
 	"nas-os/internal/arch"
+	"nas-os/internal/auth"
 	"nas-os/internal/cluster"
 	"nas-os/internal/config"
 	"nas-os/internal/downloader"
@@ -83,6 +84,12 @@ func New(cfg *config.Config, logger *zap.Logger) (*Application, error) {
 	}
 	log.Println("✅ 网络管理模块就绪")
 
+	mfaMgr, err := auth.NewMFAManager(cfg.ConfigPath("mfa-config.json"), "NAS-OS", nil)
+	if err != nil {
+		log.Printf("⚠️ MFA 管理初始化警告：%v", err)
+		mfaMgr = nil
+	}
+
 	hostname, _ := os.Hostname()
 	clusterServices, err := cluster.InitializeCluster(cluster.RootConfig{
 		NodeID:  hostname,
@@ -105,14 +112,15 @@ func New(cfg *config.Config, logger *zap.Logger) (*Application, error) {
 	}
 
 	modules := arch.NewContainer(logger)
-	if err := registerCoreModules(modules, userMgr, storageMgr, networkMgr, smbMgr, nfsMgr, logger); err != nil {
+	coreModules, err := registerCoreModules(modules, userMgr, mfaMgr, storageMgr, networkMgr, smbMgr, nfsMgr, logger)
+	if err != nil {
 		return nil, fmt.Errorf("register core modules: %w", err)
 	}
 	if err := modules.InitAll(context.Background()); err != nil {
 		return nil, fmt.Errorf("initialize core modules: %w", err)
 	}
 
-	webServer := web.NewServer(cfg, storageMgr, userMgr, smbMgr, nfsMgr, networkMgr, downloadMgr, logger)
+	webServer := web.NewServer(cfg, coreModules, storageMgr, userMgr, mfaMgr, smbMgr, nfsMgr, networkMgr, downloadMgr, logger)
 
 	return &Application{
 		cfg:             cfg,
