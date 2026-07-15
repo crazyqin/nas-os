@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"sync"
 
+	"nas-os/internal/arch"
 	"nas-os/internal/cluster"
 	"nas-os/internal/config"
 	"nas-os/internal/downloader"
@@ -27,6 +28,7 @@ import (
 type Application struct {
 	cfg             *config.Config
 	logger          *zap.Logger
+	modules         *arch.Container
 	hostname        string
 	clusterServices *cluster.Services
 	downloadManager *downloader.Manager
@@ -102,11 +104,20 @@ func New(cfg *config.Config, logger *zap.Logger) (*Application, error) {
 		log.Println("✅ 下载管理模块就绪")
 	}
 
+	modules := arch.NewContainer(logger)
+	if err := registerCoreModules(modules, userMgr, storageMgr, networkMgr, smbMgr, nfsMgr, logger); err != nil {
+		return nil, fmt.Errorf("register core modules: %w", err)
+	}
+	if err := modules.InitAll(context.Background()); err != nil {
+		return nil, fmt.Errorf("initialize core modules: %w", err)
+	}
+
 	webServer := web.NewServer(cfg, storageMgr, userMgr, smbMgr, nfsMgr, networkMgr, downloadMgr, logger)
 
 	return &Application{
 		cfg:             cfg,
 		logger:          logger,
+		modules:         modules,
 		hostname:        hostname,
 		clusterServices: clusterServices,
 		downloadManager: downloadMgr,
@@ -121,9 +132,13 @@ func (a *Application) Run(ctx context.Context) error {
 		return errors.New("run context is required")
 	}
 
+	var startErr error
 	a.startOnce.Do(func() {
-		a.networkManager.StartDDNSWorker()
+		startErr = a.modules.StartAll(ctx)
 	})
+	if startErr != nil {
+		return fmt.Errorf("start core modules: %w", startErr)
+	}
 
 	webErrCh := make(chan error, 1)
 	go func() {
@@ -153,11 +168,13 @@ func (a *Application) Stop() error {
 				errs = append(errs, fmt.Errorf("stop web server: %w", err))
 			}
 		}
+		if a.modules != nil {
+			if err := a.modules.StopAll(context.Background()); err != nil {
+				errs = append(errs, fmt.Errorf("stop core modules: %w", err))
+			}
+		}
 		if a.downloadManager != nil {
 			a.downloadManager.Close()
-		}
-		if a.networkManager != nil {
-			a.networkManager.StopDDNSWorker()
 		}
 		if a.clusterServices != nil {
 			if err := cluster.ShutdownCluster(a.clusterServices); err != nil {
