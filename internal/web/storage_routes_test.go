@@ -11,7 +11,7 @@ import (
 func TestLegacyStorageRouteSnapshot(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
-	registerLegacyStorageRoutes(router.Group("/api/v1"), &Server{})
+	registerLegacyStorageRoutes(router.Group("/api/v1"), NewLegacyStorageHandlers(nil))
 
 	got := make([]string, 0, len(router.Routes()))
 	for _, route := range router.Routes() {
