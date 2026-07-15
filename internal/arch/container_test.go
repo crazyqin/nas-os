@@ -209,6 +209,68 @@ func TestContainerRejectsDuplicateModule(t *testing.T) {
 	}
 }
 
+type initRollbackModule struct {
+	*BaseModule
+	events  *[]string
+	initErr error
+	stopErr error
+}
+
+func (m *initRollbackModule) Init(context.Context) error {
+	*m.events = append(*m.events, "init:"+m.Name())
+	return m.initErr
+}
+
+func (m *initRollbackModule) Stop(context.Context) error {
+	*m.events = append(*m.events, "stop:"+m.Name())
+	return m.stopErr
+}
+
+func TestContainerInitFailureRollsBackInitializedModules(t *testing.T) {
+	c := NewContainer(zap.NewNop())
+	events := []string{}
+	initFailure := fmt.Errorf("init boom")
+	mods := []*initRollbackModule{
+		{BaseModule: &BaseModule{NameStr: "identity"}, events: &events},
+		{BaseModule: &BaseModule{NameStr: "storage", Deps: []string{"identity"}}, events: &events},
+		{BaseModule: &BaseModule{NameStr: "sharing", Deps: []string{"identity", "storage"}}, events: &events, initErr: initFailure},
+	}
+	for _, mod := range mods {
+		if err := c.RegisterModule(mod); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if err := c.InitAll(context.Background()); !errors.Is(err, initFailure) {
+		t.Fatalf("expected init failure, got %v", err)
+	}
+	want := []string{"init:identity", "init:storage", "init:sharing", "stop:storage", "stop:identity"}
+	if !reflect.DeepEqual(events, want) {
+		t.Fatalf("events = %v, want %v", events, want)
+	}
+}
+
+func TestContainerInitRollbackAggregatesStopErrors(t *testing.T) {
+	c := NewContainer(zap.NewNop())
+	events := []string{}
+	initFailure := fmt.Errorf("init boom")
+	stopFailure := fmt.Errorf("stop boom")
+	mods := []*initRollbackModule{
+		{BaseModule: &BaseModule{NameStr: "identity"}, events: &events, stopErr: stopFailure},
+		{BaseModule: &BaseModule{NameStr: "sharing", Deps: []string{"identity"}}, events: &events, initErr: initFailure},
+	}
+	for _, mod := range mods {
+		if err := c.RegisterModule(mod); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	err := c.InitAll(context.Background())
+	if !errors.Is(err, initFailure) || !errors.Is(err, stopFailure) {
+		t.Fatalf("expected joined init and rollback errors, got %v", err)
+	}
+}
+
 func TestContainerStartFailureRollsBack(t *testing.T) {
 	c := NewContainer(zap.NewNop())
 	events := []string{}
@@ -300,6 +362,25 @@ func TestContainer_HealthCallbacksRunOutsideLock(t *testing.T) {
 	statuses := c.GetModulesStatus(context.Background())
 	if len(statuses) != 1 || !statuses[0].Healthy {
 		t.Fatalf("unexpected statuses: %+v", statuses)
+	}
+	if _, ok := c.GetModule("registered-during-health"); !ok {
+		t.Fatal("health callback could not register module; container lock may be held")
+	}
+}
+
+func TestContainer_HealthAllCallbacksRunOutsideLock(t *testing.T) {
+	c := NewContainer(zap.NewNop())
+	module := &registeringHealthModule{
+		BaseModule: &BaseModule{NameStr: "health-all", Logger: zap.NewNop()},
+		container:  c,
+	}
+	if err := c.RegisterModule(module); err != nil {
+		t.Fatal(err)
+	}
+
+	results := c.HealthAll(context.Background())
+	if err := results["health-all"]; err != nil {
+		t.Fatalf("unexpected health error: %v", err)
 	}
 	if _, ok := c.GetModule("registered-during-health"); !ok {
 		t.Fatal("health callback could not register module; container lock may be held")
