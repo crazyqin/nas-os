@@ -1,19 +1,17 @@
-package web
+package storage
 
 import (
 	"net/http"
 
-	"nas-os/internal/storage"
-
 	"github.com/gin-gonic/gin"
 )
 
-type LegacyStorageHandlers struct {
-	storageMgr *storage.Manager
+type LegacyAPIHandlers struct {
+	storageMgr *Manager
 }
 
-func NewLegacyStorageHandlers(storageMgr *storage.Manager) *LegacyStorageHandlers {
-	return &LegacyStorageHandlers{storageMgr: storageMgr}
+func NewLegacyAPIHandlers(storageMgr *Manager) *LegacyAPIHandlers {
+	return &LegacyAPIHandlers{storageMgr: storageMgr}
 }
 
 // listVolumes 列出所有卷
@@ -24,7 +22,7 @@ func NewLegacyStorageHandlers(storageMgr *storage.Manager) *LegacyStorageHandler
 // @Produce json
 // @Success 200 {object} GenericResponse "成功"
 // @Router /volumes [get].
-func (h *LegacyStorageHandlers) listVolumes(c *gin.Context) {
+func (h *LegacyAPIHandlers) listVolumes(c *gin.Context) {
 	volumes := h.storageMgr.ListVolumes()
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -43,7 +41,7 @@ func (h *LegacyStorageHandlers) listVolumes(c *gin.Context) {
 // @Success 200 {object} GenericResponse "成功"
 // @Failure 404 {object} GenericResponse "卷不存在"
 // @Router /volumes/{name} [get].
-func (h *LegacyStorageHandlers) getVolume(c *gin.Context) {
+func (h *LegacyAPIHandlers) getVolume(c *gin.Context) {
 	name := c.Param("name")
 	vol := h.storageMgr.GetVolume(name)
 	if vol == nil {
@@ -63,7 +61,7 @@ func (h *LegacyStorageHandlers) getVolume(c *gin.Context) {
 // @Success 200 {object} GenericResponse "成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
 // @Router /volumes/{name}/usage [get].
-func (h *LegacyStorageHandlers) getVolumeUsage(c *gin.Context) {
+func (h *LegacyAPIHandlers) getVolumeUsage(c *gin.Context) {
 	name := c.Param("name")
 	total, used, free, err := h.storageMgr.GetUsage(name)
 	if err != nil {
@@ -92,7 +90,7 @@ func (h *LegacyStorageHandlers) getVolumeUsage(c *gin.Context) {
 // @Success 200 {object} GenericResponse "成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
 // @Router /volumes/{name}/subvolumes [get].
-func (h *LegacyStorageHandlers) listSubVolumes(c *gin.Context) {
+func (h *LegacyAPIHandlers) listSubVolumes(c *gin.Context) {
 	volumeName := c.Param("name")
 	subvols, err := h.storageMgr.ListSubVolumes(volumeName)
 	if err != nil {
@@ -107,7 +105,7 @@ func (h *LegacyStorageHandlers) listSubVolumes(c *gin.Context) {
 	})
 }
 
-func (h *LegacyStorageHandlers) getSubVolume(c *gin.Context) {
+func (h *LegacyAPIHandlers) getSubVolume(c *gin.Context) {
 	volumeName := c.Param("name")
 	subvolName := c.Param("subvol")
 
@@ -130,7 +128,7 @@ func (h *LegacyStorageHandlers) getSubVolume(c *gin.Context) {
 // @Success 200 {object} GenericResponse "成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
 // @Router /volumes/{name}/snapshots [get].
-func (h *LegacyStorageHandlers) listSnapshots(c *gin.Context) {
+func (h *LegacyAPIHandlers) listSnapshots(c *gin.Context) {
 	volumeName := c.Param("name")
 	snapshots, err := h.storageMgr.ListSnapshots(volumeName)
 	if err != nil {
@@ -145,7 +143,7 @@ func (h *LegacyStorageHandlers) listSnapshots(c *gin.Context) {
 	})
 }
 
-func (h *LegacyStorageHandlers) getRAIDConfigs(c *gin.Context) {
+func (h *LegacyAPIHandlers) getRAIDConfigs(c *gin.Context) {
 	configs := h.storageMgr.GetRAIDConfigs()
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -154,7 +152,7 @@ func (h *LegacyStorageHandlers) getRAIDConfigs(c *gin.Context) {
 	})
 }
 
-func (h *LegacyStorageHandlers) getBalanceStatus(c *gin.Context) {
+func (h *LegacyAPIHandlers) getBalanceStatus(c *gin.Context) {
 	volumeName := c.Param("name")
 	status, err := h.storageMgr.GetBalanceStatus(volumeName)
 	if err != nil {
@@ -168,7 +166,7 @@ func (h *LegacyStorageHandlers) getBalanceStatus(c *gin.Context) {
 	})
 }
 
-func (h *LegacyStorageHandlers) getScrubStatus(c *gin.Context) {
+func (h *LegacyAPIHandlers) getScrubStatus(c *gin.Context) {
 	volumeName := c.Param("name")
 	status, err := h.storageMgr.GetScrubStatus(volumeName)
 	if err != nil {
@@ -193,7 +191,7 @@ func (h *LegacyStorageHandlers) getScrubStatus(c *gin.Context) {
 // @Failure 400 {object} GenericResponse "请求参数错误"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
 // @Router /volumes [post].
-func (h *LegacyStorageHandlers) createVolume(c *gin.Context) {
+func (h *LegacyAPIHandlers) createVolume(c *gin.Context) {
 	var req struct {
 		Name    string   `json:"name" binding:"required"`
 		Devices []string `json:"devices" binding:"required"`
@@ -213,7 +211,7 @@ func (h *LegacyStorageHandlers) createVolume(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": vol})
 }
 
-func (h *LegacyStorageHandlers) deleteVolume(c *gin.Context) {
+func (h *LegacyAPIHandlers) deleteVolume(c *gin.Context) {
 	name := c.Param("name")
 	force := c.Query("force") == "true"
 
@@ -236,7 +234,7 @@ func (h *LegacyStorageHandlers) deleteVolume(c *gin.Context) {
 // @Failure 500 {object} GenericResponse "服务器内部错误"
 // @Router /volumes/{name}/mount [post].
 
-func (h *LegacyStorageHandlers) mountVolume(c *gin.Context) {
+func (h *LegacyAPIHandlers) mountVolume(c *gin.Context) {
 	name := c.Param("name")
 
 	if err := h.storageMgr.MountVolume(name); err != nil {
@@ -258,7 +256,7 @@ func (h *LegacyStorageHandlers) mountVolume(c *gin.Context) {
 // @Failure 500 {object} GenericResponse "服务器内部错误"
 // @Router /volumes/{name}/unmount [post].
 
-func (h *LegacyStorageHandlers) unmountVolume(c *gin.Context) {
+func (h *LegacyAPIHandlers) unmountVolume(c *gin.Context) {
 	name := c.Param("name")
 
 	if err := h.storageMgr.UnmountVolume(name); err != nil {
@@ -269,7 +267,7 @@ func (h *LegacyStorageHandlers) unmountVolume(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "卸载成功"})
 }
 
-func (h *LegacyStorageHandlers) addDevice(c *gin.Context) {
+func (h *LegacyAPIHandlers) addDevice(c *gin.Context) {
 	volumeName := c.Param("name")
 	var req struct {
 		Device string `json:"device" binding:"required"`
@@ -299,7 +297,7 @@ func (h *LegacyStorageHandlers) addDevice(c *gin.Context) {
 // @Failure 500 {object} GenericResponse "服务器内部错误"
 // @Router /volumes/{name}/devices/{device} [delete].
 
-func (h *LegacyStorageHandlers) removeDevice(c *gin.Context) {
+func (h *LegacyAPIHandlers) removeDevice(c *gin.Context) {
 	volumeName := c.Param("name")
 	device := c.Param("device")
 
@@ -311,7 +309,7 @@ func (h *LegacyStorageHandlers) removeDevice(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "设备已移除"})
 }
 
-func (h *LegacyStorageHandlers) getDeviceStats(c *gin.Context) {
+func (h *LegacyAPIHandlers) getDeviceStats(c *gin.Context) {
 	name := c.Param("name")
 	stats, err := h.storageMgr.GetDeviceStats(name)
 	if err != nil {
@@ -328,7 +326,7 @@ func (h *LegacyStorageHandlers) getDeviceStats(c *gin.Context) {
 
 // ========== 子卷管理 API ==========
 
-func (h *LegacyStorageHandlers) createSubVolume(c *gin.Context) {
+func (h *LegacyAPIHandlers) createSubVolume(c *gin.Context) {
 	volumeName := c.Param("name")
 	var req struct {
 		Name string `json:"name" binding:"required"`
@@ -347,7 +345,7 @@ func (h *LegacyStorageHandlers) createSubVolume(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": subvol})
 }
 
-func (h *LegacyStorageHandlers) deleteSubVolume(c *gin.Context) {
+func (h *LegacyAPIHandlers) deleteSubVolume(c *gin.Context) {
 	volumeName := c.Param("name")
 	subvolName := c.Param("subvol")
 
@@ -359,7 +357,7 @@ func (h *LegacyStorageHandlers) deleteSubVolume(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "子卷已删除"})
 }
 
-func (h *LegacyStorageHandlers) setSubVolumeReadOnly(c *gin.Context) {
+func (h *LegacyAPIHandlers) setSubVolumeReadOnly(c *gin.Context) {
 	volumeName := c.Param("name")
 	subvolName := c.Param("subvol")
 
@@ -381,7 +379,7 @@ func (h *LegacyStorageHandlers) setSubVolumeReadOnly(c *gin.Context) {
 
 // ========== 快照管理 API ==========
 
-func (h *LegacyStorageHandlers) createSnapshot(c *gin.Context) {
+func (h *LegacyAPIHandlers) createSnapshot(c *gin.Context) {
 	volumeName := c.Param("name")
 	var req struct {
 		SubVolumeName string `json:"subvolume" binding:"required"`
@@ -402,7 +400,7 @@ func (h *LegacyStorageHandlers) createSnapshot(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": snap})
 }
 
-func (h *LegacyStorageHandlers) deleteSnapshot(c *gin.Context) {
+func (h *LegacyAPIHandlers) deleteSnapshot(c *gin.Context) {
 	volumeName := c.Param("name")
 	snapshotName := c.Param("snapshot")
 
@@ -414,7 +412,7 @@ func (h *LegacyStorageHandlers) deleteSnapshot(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "快照已删除"})
 }
 
-func (h *LegacyStorageHandlers) restoreSnapshot(c *gin.Context) {
+func (h *LegacyAPIHandlers) restoreSnapshot(c *gin.Context) {
 	volumeName := c.Param("name")
 	snapshotName := c.Param("snapshot")
 
@@ -436,7 +434,7 @@ func (h *LegacyStorageHandlers) restoreSnapshot(c *gin.Context) {
 
 // ========== RAID 配置 API ==========
 
-func (h *LegacyStorageHandlers) convertRAID(c *gin.Context) {
+func (h *LegacyAPIHandlers) convertRAID(c *gin.Context) {
 	volumeName := c.Param("name")
 	var req struct {
 		DataProfile string `json:"dataProfile"`
@@ -457,7 +455,7 @@ func (h *LegacyStorageHandlers) convertRAID(c *gin.Context) {
 
 // ========== 维护操作 API ==========
 
-func (h *LegacyStorageHandlers) startBalance(c *gin.Context) {
+func (h *LegacyAPIHandlers) startBalance(c *gin.Context) {
 	volumeName := c.Param("name")
 	if err := h.storageMgr.Balance(volumeName); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
@@ -466,11 +464,40 @@ func (h *LegacyStorageHandlers) startBalance(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "平衡已启动"})
 }
 
-func (h *LegacyStorageHandlers) startScrub(c *gin.Context) {
+func (h *LegacyAPIHandlers) startScrub(c *gin.Context) {
 	volumeName := c.Param("name")
 	if err := h.storageMgr.Scrub(volumeName); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "校验已启动"})
+}
+
+// RegisterLegacyRoutes 注册历史存储 API 路由。
+func RegisterLegacyRoutes(api *gin.RouterGroup, h *LegacyAPIHandlers) {
+	api.GET("/volumes", h.listVolumes)
+	api.POST("/volumes", h.createVolume)
+	api.GET("/volumes/:name", h.getVolume)
+	api.DELETE("/volumes/:name", h.deleteVolume)
+	api.POST("/volumes/:name/mount", h.mountVolume)
+	api.POST("/volumes/:name/unmount", h.unmountVolume)
+	api.GET("/volumes/:name/usage", h.getVolumeUsage)
+	api.POST("/volumes/:name/devices", h.addDevice)
+	api.DELETE("/volumes/:name/devices/:device", h.removeDevice)
+	api.GET("/volumes/:name/devices", h.getDeviceStats)
+	api.GET("/volumes/:name/subvolumes", h.listSubVolumes)
+	api.POST("/volumes/:name/subvolumes", h.createSubVolume)
+	api.GET("/volumes/:name/subvolumes/:subvol", h.getSubVolume)
+	api.DELETE("/volumes/:name/subvolumes/:subvol", h.deleteSubVolume)
+	api.PUT("/volumes/:name/subvolumes/:subvol/readonly", h.setSubVolumeReadOnly)
+	api.GET("/volumes/:name/snapshots", h.listSnapshots)
+	api.POST("/volumes/:name/snapshots", h.createSnapshot)
+	api.DELETE("/volumes/:name/snapshots/:snapshot", h.deleteSnapshot)
+	api.POST("/volumes/:name/snapshots/:snapshot/restore", h.restoreSnapshot)
+	api.GET("/raid-configs", h.getRAIDConfigs)
+	api.POST("/volumes/:name/convert", h.convertRAID)
+	api.POST("/volumes/:name/balance", h.startBalance)
+	api.GET("/volumes/:name/balance", h.getBalanceStatus)
+	api.POST("/volumes/:name/scrub", h.startScrub)
+	api.GET("/volumes/:name/scrub", h.getScrubStatus)
 }
