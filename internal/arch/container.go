@@ -88,17 +88,27 @@ func (c *Container) RegisterModule(mod Module) error {
 	return nil
 }
 
-// InitAll 按依赖顺序初始化所有模块.
+// InitAll 按依赖顺序初始化所有模块；初始化失败时逆序清理已初始化模块。
 func (c *Container) InitAll(ctx context.Context) error {
 	modules, sorted, err := c.lifecycleSnapshot()
 	if err != nil {
 		return err
 	}
+
+	initialized := make([]string, 0, len(sorted))
 	for _, name := range sorted {
 		c.logger.Info("Initializing module", zap.String("name", name))
 		if err := modules[name].Init(ctx); err != nil {
-			return fmt.Errorf("init module %s failed: %w", name, err)
+			errs := []error{fmt.Errorf("init module %s failed: %w", name, err)}
+			for i := len(initialized) - 1; i >= 0; i-- {
+				initializedName := initialized[i]
+				if stopErr := modules[initializedName].Stop(ctx); stopErr != nil {
+					errs = append(errs, fmt.Errorf("rollback initialized module %s failed: %w", initializedName, stopErr))
+				}
+			}
+			return errors.Join(errs...)
 		}
+		initialized = append(initialized, name)
 	}
 	return nil
 }
@@ -163,14 +173,21 @@ func (c *Container) lifecycleSnapshot() (map[string]Module, []string, error) {
 	return modules, sorted, nil
 }
 
-// HealthAll 检查所有模块健康状态.
+// HealthAll 检查所有模块健康状态；健康回调在容器锁外执行。
 func (c *Container) HealthAll(ctx context.Context) map[string]error {
 	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	results := make(map[string]error)
+	modules := make(map[string]Module, len(c.modules))
+	names := make([]string, 0, len(c.modules))
 	for name, mod := range c.modules {
-		results[name] = mod.Health(ctx)
+		modules[name] = mod
+		names = append(names, name)
+	}
+	c.mu.RUnlock()
+	sort.Strings(names)
+
+	results := make(map[string]error, len(names))
+	for _, name := range names {
+		results[name] = modules[name].Health(ctx)
 	}
 	return results
 }
