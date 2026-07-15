@@ -93,6 +93,22 @@ func (m *sharingModule) RegisterRoutes(rg *gin.RouterGroup) {
 	m.handlers.RegisterRoutes(rg)
 }
 
+// systemModule 暴露统一模块健康状态。
+type systemModule struct {
+	coreModule
+	container *arch.Container
+}
+
+func (m *systemModule) RegisterRoutes(rg *gin.RouterGroup) {
+	rg.GET("/system/modules", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"code":    0,
+			"message": "success",
+			"data":    m.container.GetModulesStatus(c.Request.Context()),
+		})
+	})
+}
+
 // registerCoreModules 注册核心领域并返回同一批实例供 Web 层发现路由契约。
 func registerCoreModules(
 	container *arch.Container,
@@ -164,10 +180,13 @@ func registerCoreModules(
 		},
 		handlers: shares.NewHandlers(smbMgr, nfsMgr),
 	}
-	systemMod := &coreModule{
-		name:   moduleSystem,
-		deps:   []string{moduleIdentity, moduleStorage, moduleNetwork, moduleSharing},
-		logger: logger,
+	systemMod := &systemModule{
+		coreModule: coreModule{
+			name:   moduleSystem,
+			deps:   []string{moduleIdentity, moduleStorage, moduleNetwork, moduleSharing},
+			logger: logger,
+		},
+		container: container,
 	}
 
 	modules := []arch.Module{identity, storageMod, networkMod, sharing, systemMod}
@@ -202,4 +221,6 @@ var (
 	_ arch.RouteRegistrar              = (*networkModule)(nil)
 	_ arch.Module                      = (*sharingModule)(nil)
 	_ arch.RouteRegistrar              = (*sharingModule)(nil)
+	_ arch.Module                      = (*systemModule)(nil)
+	_ arch.RouteRegistrar              = (*systemModule)(nil)
 )
