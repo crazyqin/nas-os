@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.18.5 (2026-07-16) - 重复告警引擎降入 Lab
+
+### 架构收敛
+- 将零生产引用、未接入 Core 生命周期的 `guidedalert`、`guidedalerts`、`smartalert` 从 `internal/` 顶层迁入 `internal/lab/`。
+- 三套模块均与现有告警能力重叠，继续保留用于实验和兼容评估，但不再占用生产核心命名空间。
+- 将三者登记为 Lab，并扩充目录边界回归测试，阻止旧顶层路径回流。
+
+### 验证
+- `go test ./internal/application ./internal/lab/guidedalert ./internal/lab/guidedalerts ./internal/lab/smartalert`
+- `go build ./...`
+- `git diff --check`
+
 ## v3.18.4 (2026-07-16) - 概念型独立模块降入 Lab
 
 ### 架构收敛
