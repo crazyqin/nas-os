@@ -156,6 +156,9 @@ func (a *Application) Stop() error {
 		if a.downloadManager != nil {
 			a.downloadManager.Close()
 		}
+		if a.networkManager != nil {
+			a.networkManager.StopDDNSWorker()
+		}
 		if a.clusterServices != nil {
 			if err := cluster.ShutdownCluster(a.clusterServices); err != nil {
 				errs = append(errs, fmt.Errorf("stop cluster: %w", err))
