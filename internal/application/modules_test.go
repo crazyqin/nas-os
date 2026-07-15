@@ -2,11 +2,15 @@ package application
 
 import (
 	"context"
+	"net/http"
+	"net/http/httptest"
 	"reflect"
+	"strings"
 	"testing"
 
 	"nas-os/internal/arch"
 
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
@@ -85,5 +89,27 @@ func TestCoreRouteContracts(t *testing.T) {
 		if _, ok := module.(arch.PublicRouteRegistrar); ok {
 			t.Fatalf("%s must not expose public routes", name)
 		}
+	}
+}
+
+func TestSystemModuleReportsContainerHealth(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	container := arch.NewContainer(zap.NewNop())
+	if err := container.RegisterModule(&coreModule{name: moduleSystem}); err != nil {
+		t.Fatal(err)
+	}
+	module := &systemModule{coreModule: coreModule{name: moduleSystem}, container: container}
+	router := gin.New()
+	api := router.Group("/api/v1")
+	module.RegisterRoutes(api)
+
+	recorder := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/system/modules", nil)
+	router.ServeHTTP(recorder, req)
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", recorder.Code, recorder.Body.String())
+	}
+	if !strings.Contains(recorder.Body.String(), `"name":"system"`) {
+		t.Fatalf("module status missing: %s", recorder.Body.String())
 	}
 }
