@@ -1058,18 +1058,20 @@ MIT
 
 ## 🏗️ v3.0.0 架构重构
 
-### 依赖注入框架 (arch)
-- Container: 统一服务/模块注册容器
-- Module接口: Init/Start/Stop/Health/Dependencies 生命周期
-- 拓扑排序: 自动解析模块依赖顺序
-- BaseModule: 可嵌入的默认实现
-- ModuleAdapter: 将现有Manager适配为Module接口
-- RouteRegistrar: 模块自动路由注册
-- 健康检查: 全模块健康状态监控
-- 模块重启: 支持单模块热重启
+### 应用组合与模块生命周期 (arch/application)
+- Application 组合根: 统一构造依赖、启动入口和逆序关闭资源
+- Typed Config: 配置文件、`NAS_OS_*` 环境覆盖和启动前校验
+- Module 接口: Init/Start/Stop/Health/Dependencies 生命周期
+- 拓扑排序: 检查缺失依赖与循环依赖，确定性启动和逆序停止
+- 故障回滚: 模块启动失败时逆序停止已启动模块
+- 分层路由: 公开、已认证和管理员路由由模块分别声明
+- 健康状态: `/api/v1/system/modules` 提供核心模块状态
 
 ### 设计原则
-- 模块自注册: 每个模块通过RegisterModule注册
-- 依赖声明: 模块通过Dependencies()声明依赖
-- 自动排序: 容器自动按拓扑序初始化/启动/停止
-- 解耦: 模块间通过Container获取依赖，无硬编码导入
+- 显式注入: 依赖由 `internal/application` 通过构造函数注入
+- 单一所有者: 后台任务只能由一个 Module 或 Server 生命周期管理
+- 构造无副作用: goroutine 在 Start 启动，在 Stop 关闭
+- 渐进迁移: 保留兼容 API，通过 contract test 逐端点收口
+- Container 不是 Service Locator: 新业务代码不得依赖字符串查找获取依赖
+
+详细说明见 [架构文档](docs/ARCHITECTURE.md)。
