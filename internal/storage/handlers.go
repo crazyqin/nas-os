@@ -207,16 +207,7 @@ type VolumeListResponse struct {
 	SubvolCount int      `json:"subvolCount"`
 }
 
-// listVolumes 列出所有卷
-// @Summary 列出所有卷
-// @Description 获取系统中所有 Btrfs 卷的列表
-// @Tags storage
-// @Produce json
-// @Success 200 {object} api.Response{data=[]VolumeListResponse}
-// @Router /volumes [get].
-func (h *Handlers) listVolumes(c *gin.Context) {
-	volumes := h.manager.ListVolumes()
-
+func buildVolumeListResponses(volumes []*Volume) []VolumeListResponse {
 	result := make([]VolumeListResponse, 0, len(volumes))
 	for _, v := range volumes {
 		result = append(result, VolumeListResponse{
@@ -232,8 +223,44 @@ func (h *Handlers) listVolumes(c *gin.Context) {
 			SubvolCount: len(v.Subvolumes),
 		})
 	}
+	return result
+}
 
-	api.OK(c, result)
+func buildSnapshotListResponses(volumeName string, snapshots []*Snapshot, subvolFilter string) []SnapshotListResponse {
+	result := make([]SnapshotListResponse, 0, len(snapshots))
+	for _, snap := range snapshots {
+		if subvolFilter != "" && snap.Source != subvolFilter {
+			continue
+		}
+		snapType := "scheduled"
+		if len(snap.Name) > 6 && snap.Name[:6] == "manual" {
+			snapType = "manual"
+		}
+		result = append(result, SnapshotListResponse{
+			Name:      snap.Name,
+			Volume:    volumeName,
+			Subvolume: snap.Source,
+			Path:      snap.Path,
+			ReadOnly:  snap.ReadOnly,
+			Size:      snap.Size,
+			CreatedAt: snap.CreatedAt.Format("2006-01-02 15:04"),
+			Type:      snapType,
+		})
+	}
+	return result
+}
+
+// listVolumes 列出所有卷
+// @Summary 列出所有卷
+// @Description 获取系统中所有 Btrfs 卷的列表
+// @Tags storage
+// @Produce json
+// @Success 200 {object} api.Response{data=[]VolumeListResponse}
+// @Router /volumes [get].
+func (h *Handlers) listVolumes(c *gin.Context) {
+	volumes := h.manager.ListVolumes()
+
+	api.OK(c, buildVolumeListResponses(volumes))
 }
 
 // getVolume 获取卷详情
@@ -699,30 +726,7 @@ func (h *Handlers) listSnapshots(c *gin.Context) {
 		return
 	}
 
-	result := make([]SnapshotListResponse, 0, len(snapshots))
-	for _, snap := range snapshots {
-		if subvolFilter != "" && snap.Source != subvolFilter {
-			continue
-		}
-
-		snapType := "scheduled"
-		if len(snap.Name) > 6 && snap.Name[:6] == "manual" {
-			snapType = "manual"
-		}
-
-		result = append(result, SnapshotListResponse{
-			Name:      snap.Name,
-			Volume:    volumeName,
-			Subvolume: snap.Source,
-			Path:      snap.Path,
-			ReadOnly:  snap.ReadOnly,
-			Size:      snap.Size,
-			CreatedAt: snap.CreatedAt.Format("2006-01-02 15:04"),
-			Type:      snapType,
-		})
-	}
-
-	api.OK(c, result)
+	api.OK(c, buildSnapshotListResponses(volumeName, snapshots, subvolFilter))
 }
 
 // listAllSnapshots 列出所有快照（跨卷）

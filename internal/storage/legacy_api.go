@@ -27,7 +27,7 @@ func (h *LegacyAPIHandlers) listVolumes(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
-		"data":    volumes,
+		"data":    buildVolumeListResponses(volumes),
 	})
 }
 
@@ -139,7 +139,7 @@ func (h *LegacyAPIHandlers) listSnapshots(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
-		"data":    snapshots,
+		"data":    buildSnapshotListResponses(volumeName, snapshots, ""),
 	})
 }
 
