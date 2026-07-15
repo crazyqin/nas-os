@@ -1154,7 +1154,7 @@ func (s *Server) setupRoutes() {
 		}
 	}
 	{
-		registerLegacyStorageRoutes(api, s)
+		registerLegacyStorageRoutes(api, NewLegacyStorageHandlers(s.storageMgr))
 
 		// ========== MFA 管理 ==========
 		if s.mfaMgr != nil {
