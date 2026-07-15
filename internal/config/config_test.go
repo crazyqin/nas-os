@@ -75,6 +75,13 @@ func TestEnvOverride(t *testing.T) {
 	}
 }
 
+func TestInvalidEnvPortReturnsError(t *testing.T) {
+	t.Setenv("NAS_OS_LISTEN_PORT", "not-a-port")
+	if _, err := Load(""); err == nil {
+		t.Fatal("expected invalid env port error")
+	}
+}
+
 func TestValidateRejectsRelativePath(t *testing.T) {
 	cfg := Default()
 	cfg.Paths.MountBase = "relative/path"

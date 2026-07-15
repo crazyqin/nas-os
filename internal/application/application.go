@@ -32,12 +32,12 @@ type Application struct {
 	hostname        string
 	clusterServices *cluster.Services
 	downloadManager *downloader.Manager
-	networkManager  *network.Manager
 	webServer       *web.Server
 
-	startOnce sync.Once
-	stopOnce  sync.Once
-	stopErr   error
+	runMu    sync.Mutex
+	hasRun   bool
+	stopOnce sync.Once
+	stopErr  error
 }
 
 // New 构造 NAS-OS 应用及其核心依赖。
@@ -121,7 +121,6 @@ func New(cfg *config.Config, logger *zap.Logger) (*Application, error) {
 		hostname:        hostname,
 		clusterServices: clusterServices,
 		downloadManager: downloadMgr,
-		networkManager:  networkMgr,
 		webServer:       webServer,
 	}, nil
 }
@@ -132,12 +131,19 @@ func (a *Application) Run(ctx context.Context) error {
 		return errors.New("run context is required")
 	}
 
-	var startErr error
-	a.startOnce.Do(func() {
-		startErr = a.modules.StartAll(ctx)
-	})
-	if startErr != nil {
-		return fmt.Errorf("start core modules: %w", startErr)
+	a.runMu.Lock()
+	if a.hasRun {
+		a.runMu.Unlock()
+		return errors.New("application has already run")
+	}
+	a.hasRun = true
+	a.runMu.Unlock()
+
+	if err := ctx.Err(); err != nil {
+		return nil
+	}
+	if err := a.modules.StartAll(ctx); err != nil {
+		return fmt.Errorf("start core modules: %w", err)
 	}
 
 	webErrCh := make(chan error, 1)

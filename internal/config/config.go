@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -131,7 +132,9 @@ func Load(path string) (*Config, error) {
 		}
 	}
 
-	cfg.applyEnv()
+	if err := cfg.applyEnv(); err != nil {
+		return nil, err
+	}
 
 	if err := cfg.Validate(); err != nil {
 		return nil, err
@@ -142,15 +145,16 @@ func Load(path string) (*Config, error) {
 
 // applyEnv 使用 NAS_OS_* 环境变量覆盖可选字段。
 // 仅覆盖运维/部署时最常调整的参数；密钥类字段禁止落 YAML。
-func (c *Config) applyEnv() {
+func (c *Config) applyEnv() error {
 	if v := os.Getenv("NAS_OS_LISTEN_HOST"); v != "" {
 		c.Server.Host = v
 	}
 	if v := os.Getenv("NAS_OS_LISTEN_PORT"); v != "" {
-		var port int
-		if _, err := fmt.Sscanf(v, "%d", &port); err == nil && port > 0 {
-			c.Server.Port = port
+		port, err := strconv.Atoi(v)
+		if err != nil || port <= 0 || port > 65535 {
+			return fmt.Errorf("NAS_OS_LISTEN_PORT 非法：%q", v)
 		}
+		c.Server.Port = port
 	}
 	if v := os.Getenv("NAS_OS_MOUNT_BASE"); v != "" {
 		c.Paths.MountBase = v
@@ -167,6 +171,7 @@ func (c *Config) applyEnv() {
 	if v := os.Getenv("NAS_OS_NFS_EXPORTS"); v != "" {
 		c.Paths.NFSExports = v
 	}
+	return nil
 }
 
 // Validate 校验根配置。
