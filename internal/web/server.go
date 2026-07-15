@@ -2,9 +2,11 @@ package web
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"nas-os/internal/acl"
@@ -874,7 +876,13 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	musicServerMgr := musicserver.NewManager()
 	photoAIMgr := photoai.NewManager(nil)
 	syslogServerMgr := syslogserver.NewManager()
-	digitalLegacyMgr := digitallegacy.NewLegacyService([]byte("nas-os-legacy-key"))
+	var digitalLegacyMgr *digitallegacy.Manager
+	legacyKey := []byte(os.Getenv("NAS_DIGITAL_LEGACY_KEY"))
+	if len(legacyKey) == 16 || len(legacyKey) == 24 || len(legacyKey) == 32 {
+		digitalLegacyMgr = digitallegacy.NewLegacyService(legacyKey)
+	} else {
+		log.Println("⚠️ 数字遗产模块已禁用：NAS_DIGITAL_LEGACY_KEY 必须为 16、24 或 32 字节")
+	}
 	log.Println("✅ Spotlight 索引就绪")
 
 	// v2.548.0 新增模块初始化
@@ -1112,8 +1120,21 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 }
 
 func (s *Server) setupRoutes() {
-	// API 路由
+	publicAPI := s.engine.Group("/api/v1")
+	userHandlers := users.NewHandlers(s.userMgr, s.mfaMgr)
+	userHandlers.RegisterPublicRoutes(publicAPI.Group("/auth"))
+	userHandlers.RegisterPublicRoutes(publicAPI) // 兼容旧版 /api/v1/login
+	publicAPI.GET("/system/health", s.getHealth)
+	// 兼容旧探针路径：/api/v1/health 与 /api/v1/system/health 等价
+	publicAPI.GET("/health", s.getHealth)
+
+	// 账户 API 要求登录，管理 API 默认要求管理员角色。
+	authenticatedAPI := s.engine.Group("/api/v1")
+	authenticatedAPI.Use(users.AuthMiddleware(s.userMgr))
+	userHandlers.RegisterProtectedRoutes(authenticatedAPI)
+
 	api := s.engine.Group("/api/v1")
+	api.Use(users.AuthMiddleware(s.userMgr), users.RequireAdmin(s.userMgr))
 	{
 		// ========== 存储管理 API (v2) ==========
 		NewStorageHandlers(s.storageMgr).RegisterRoutes(api)
@@ -1153,9 +1174,6 @@ func (s *Server) setupRoutes() {
 		api.POST("/volumes/:name/scrub", s.startScrub)
 		api.GET("/volumes/:name/scrub", s.getScrubStatus)
 
-		// ========== 用户管理 ==========
-		users.NewHandlers(s.userMgr, s.mfaMgr).RegisterRoutes(api)
-
 		// ========== MFA 管理 ==========
 		if s.mfaMgr != nil {
 			auth.NewHandlers(s.mfaMgr).RegisterRoutes(api)
@@ -1184,7 +1202,6 @@ func (s *Server) setupRoutes() {
 
 		// ========== 系统信息 ==========
 		api.GET("/system/info", s.getSystemInfo)
-		api.GET("/system/health", s.getHealth)
 		api.GET("/system/status", s.getSystemStatus)
 
 		// ========== 性能监控 ==========
@@ -1664,7 +1681,22 @@ func (s *Server) setupRoutes() {
 			syslogserver.NewHandlers(s.syslogServerMgr).RegisterRoutes(api)
 		}
 		if s.digitalLegacyMgr != nil {
-			digitallegacy.NewHandlers(s.digitalLegacyMgr).RegisterRoutes(newMux, "/api/v1/legacy")
+			legacyMux := http.NewServeMux()
+			digitallegacy.NewHandlers(s.digitalLegacyMgr).RegisterRoutes(legacyMux, "/api/v1/legacy")
+			authenticatedAPI.Any("/legacy/*path", func(c *gin.Context) {
+				user, exists := c.Get("user")
+				if !exists {
+					c.AbortWithStatus(http.StatusUnauthorized)
+					return
+				}
+				authenticatedUser, ok := user.(*users.User)
+				if !ok {
+					c.AbortWithStatus(http.StatusInternalServerError)
+					return
+				}
+				ctx := digitallegacy.WithUserID(c.Request.Context(), authenticatedUser.ID)
+				legacyMux.ServeHTTP(c.Writer, c.Request.WithContext(ctx))
+			})
 		}
 		if s.containerImageCacheMgr != nil {
 			containerimagecache.NewHandler(s.containerImageCacheMgr).RegisterRoutes(newMux)
@@ -1690,7 +1722,11 @@ func (s *Server) setupRoutes() {
 		if s.apikeyMgr != nil {
 			apikey.NewHandler(s.apikeyMgr).RegisterRoutes(api)
 		}
-		s.engine.NoRoute(gin.WrapH(newMux))
+		s.engine.NoRoute(
+			users.AuthMiddleware(s.userMgr),
+			users.RequireAdmin(s.userMgr),
+			gin.WrapH(newMux),
+		)
 
 		// ========== 媒体中心 ==========
 		// if s.mediaMgr != nil {
@@ -1783,7 +1819,10 @@ func (s *Server) Start(addr string) error {
 		WriteTimeout:      30 * time.Second,
 		IdleTimeout:       120 * time.Second,
 	}
-	return s.httpSrv.ListenAndServe()
+	if err := s.httpSrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		return err
+	}
+	return nil
 }
 
 // Stop 停止服务器.
@@ -1803,6 +1842,31 @@ func (s *Server) Stop() error {
 		s.photosAIMgr.Close()
 	}
 
+	// 停止 ZFS scrub 调度器
+	if s.scrubScheduler != nil {
+		s.scrubScheduler.Stop()
+	}
+
+	// 停止 UPS 监控
+	if s.upsMgr != nil {
+		s.upsMgr.Stop()
+	}
+
+	// 停止 ML 勒索检测
+	if s.ransomDetector != nil {
+		s.ransomDetector.Stop()
+	}
+
+	// 停止回收站自动清理
+	if s.recycleCleaner != nil {
+		s.recycleCleaner.Stop()
+	}
+
+	// 停止 DDNS 后台任务
+	if s.networkMgr != nil {
+		s.networkMgr.StopDDNSWorker()
+	}
+
 	// 停止 WebDAV 服务器
 	if s.webdavSrv != nil {
 		_ = s.webdavSrv.Stop()
@@ -1818,6 +1882,9 @@ func (s *Server) Stop() error {
 		_ = s.sftpSrv.Stop()
 	}
 
+	if s.httpSrv == nil {
+		return nil
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	return s.httpSrv.Shutdown(ctx)
