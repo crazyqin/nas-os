@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.23.1 (2026-07-16) - Skeptic fixes: transitive Lab cut, real Extension load, honest logs
+
+### Fixes
+- **Transitive Lab**: remove `internal/monitor` → `internal/lab/reports` import; report integration no longer pulls Lab into `go list -deps ./cmd/nasd`.
+- **Extensions**: activeprotect / compliancescan / deployorch / netdiag now **retain managers** and mount real status/list/run routes (no construct-and-discard no-op).
+- **False ready logs**: delete "✅ …就绪" and stale Start comments for stripped Lab managers (ML 勒索、日志中心、应用中心等).
+- **Governance**: `TestNasdDependencyGraphExcludesLab` runs `go list -deps` on `./cmd/nasd`, `./internal/web`, `./internal/monitor`.
+
+### Verify
+- `go list -deps ./cmd/nasd | grep lab` → empty
+- `go test ./internal/web ./internal/application ./internal/monitor`
+
 ## v3.23.0 (2026-07-16) - 运行时诚实与架构治理 (P0–P3)
 
 ### P0 运行时诚实

@@ -4,11 +4,11 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.23.0 Stable (2026-07-16)
+> **最新版本**: v3.23.1 Stable (2026-07-16)
 > **架构分层**: Core（5）/ Extension（`internal/extensions/*`）/ Lab（`internal/lab/*`）→ [架构说明](docs/ARCHITECTURE.md)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
-> **Release**: [v3.23.0](https://github.com/crazyqin/nas-os/releases/tag/v3.23.0)
+> **Release**: [v3.23.1](https://github.com/crazyqin/nas-os/releases/tag/v3.23.1)
 
 ## 🌟 五大差异化能力
 
@@ -666,7 +666,7 @@ nas-os/
 
 详细里程碑请查看 GitHub Milestones
 
-### 当前状态 (2026-07-16) - v3.23.0 Stable ✅
+### 当前状态 (2026-07-16) - v3.23.1 Stable ✅
 
 **8/8 里程碑全部完成**
 
@@ -696,7 +696,8 @@ nas-os/
 ### 版本路线图
 | 版本 | 类型 | 发布日期 | 核心功能 | 状态 |
 |------|------|----------|----------|------|
-| **v3.23.0** | **Stable** | **2026-07-16** | **P0–P3：Lab 默认剥离、Extension 按需、Core 健康、治理锁** | ✅ **已发布** |
+| **v3.23.1** | **Stable** | **2026-07-16** | **传递 Lab 切断、Extension 真加载、诚实日志、deps 治理** | ✅ **已发布** |
+| v3.23.0 | Stable | 2026-07-16 | P0–P3：Lab 默认剥离、Extension 按需、Core 健康、治理锁 | ✅ 已发布 |
 | v3.22.0 | Stable | 2026-07-16 | 163 伪核心降入 Lab；catalog 路径对齐；Core 仍为 5 | ✅ 已发布 |
 | v3.21.0 | Stable | 2026-07-16 | 195+ 伪核心降入 Lab（AI/smart/backup/security/media…） | ✅ 已发布 |
 | v3.20.0 | Stable | 2026-07-16 | 版本 bump 与文档同步 | ✅ 已发布 |
