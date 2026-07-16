@@ -26,16 +26,20 @@ type SecurityConfig struct {
 
 // DefaultSecurityConfig 默认安全配置.
 func DefaultSecurityConfig() *SecurityConfig {
-	// CSRFKey 从环境变量读取
+	// CSRFKey 从环境变量读取。生产/严格模式必须显式设置，禁止临时密钥。
 	csrfKey := os.Getenv("NAS_CSRF_KEY")
+	require := os.Getenv("NAS_OS_REQUIRE_CSRF_KEY") == "1" ||
+		os.Getenv("NAS_OS_ENV") == "production" ||
+		os.Getenv("NAS_OS_ENV") == "prod"
 	if csrfKey == "" {
-		// 生成随机密钥并警告
-		log.Println("⚠️  [SECURITY WARNING] NAS_CSRF_KEY 环境变量未设置，已生成临时随机密钥")
-		log.Println("⚠️  生产环境请设置 NAS_CSRF_KEY 环境变量（至少32字节）")
+		if require {
+			panic("❌ [SECURITY CRITICAL] NAS_CSRF_KEY is required when NAS_OS_ENV=production or NAS_OS_REQUIRE_CSRF_KEY=1")
+		}
+		log.Println("⚠️  [SECURITY WARNING] NAS_CSRF_KEY 未设置，使用进程内临时密钥（多实例不安全）")
+		log.Println("⚠️  生产请设置 NAS_CSRF_KEY，或设置 NAS_OS_ENV=production 强制失败")
 		keyBytes := make([]byte, 32)
 		if _, err := rand.Read(keyBytes); err != nil {
-			// 无法生成随机密钥是严重安全问题，直接 panic
-			panic(fmt.Sprintf("❌ [SECURITY CRITICAL] 无法生成 CSRF 随机密钥: %v。请设置 NAS_CSRF_KEY 环境变量", err))
+			panic(fmt.Sprintf("❌ [SECURITY CRITICAL] 无法生成 CSRF 随机密钥: %v。请设置 NAS_CSRF_KEY", err))
 		}
 		csrfKey = hex.EncodeToString(keyBytes)
 	}
@@ -294,7 +298,6 @@ func auditLogMiddleware() gin.HandlerFunc {
 	// 需要审计的敏感操作路径
 	sensitivePaths := []string{
 		// 存储管理
-		"/api/v1/volumes",
 		"/api/v1/raid",
 		"/api/v1/disks",
 		"/api/v1/pools",

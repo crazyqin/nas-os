@@ -35,20 +35,20 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 		oi.PUT("/buckets/:name/lock", h.setBucketObjectLock)
 		oi.GET("/buckets/:name/lock", h.getBucketObjectLock)
 
-		// 对象管理
-		oi.POST("/buckets/:bucket/objects", h.putObject)
-		oi.GET("/buckets/:bucket/objects/:key", h.getObject)
-		oi.DELETE("/buckets/:bucket/objects/:key", h.deleteObject)
-		oi.GET("/buckets/:bucket/objects", h.listObjects)
+		// 对象管理（param must stay :name to match gin wildcard on same path segment）
+		oi.POST("/buckets/:name/objects", h.putObject)
+		oi.GET("/buckets/:name/objects/:key", h.getObject)
+		oi.DELETE("/buckets/:name/objects/:key", h.deleteObject)
+		oi.GET("/buckets/:name/objects", h.listObjects)
 
 		// 保留管理
-		oi.PUT("/buckets/:bucket/objects/:key/retention", h.setObjectRetention)
-		oi.GET("/buckets/:bucket/objects/:key/retention", h.getObjectRetention)
-		oi.DELETE("/buckets/:bucket/objects/:key/retention", h.releaseObjectRetention)
+		oi.PUT("/buckets/:name/objects/:key/retention", h.setObjectRetention)
+		oi.GET("/buckets/:name/objects/:key/retention", h.getObjectRetention)
+		oi.DELETE("/buckets/:name/objects/:key/retention", h.releaseObjectRetention)
 
 		// 法律保留管理
-		oi.PUT("/buckets/:bucket/objects/:key/legal-hold", h.setObjectLegalHold)
-		oi.GET("/buckets/:bucket/objects/:key/legal-hold", h.getObjectLegalHold)
+		oi.PUT("/buckets/:name/objects/:key/legal-hold", h.setObjectLegalHold)
+		oi.GET("/buckets/:name/objects/:key/legal-hold", h.getObjectLegalHold)
 
 		// 审计日志
 		oi.GET("/audit-logs", h.listAuditLogs)
@@ -158,7 +158,7 @@ func (h *Handlers) getBucketObjectLock(c *gin.Context) {
 
 // putObject 上传对象.
 func (h *Handlers) putObject(c *gin.Context) {
-	bucketName := c.Param("bucket")
+	bucketName := c.Param("name")
 	objectKey := c.Param("key")
 
 	// 从 S3 兼容头获取内容类型
@@ -197,7 +197,7 @@ func (h *Handlers) putObject(c *gin.Context) {
 
 // getObject 获取对象.
 func (h *Handlers) getObject(c *gin.Context) {
-	bucketName := c.Param("bucket")
+	bucketName := c.Param("name")
 	objectKey := c.Param("key")
 
 	obj, err := h.mgr.GetObject(bucketName, objectKey)
@@ -229,7 +229,7 @@ func (h *Handlers) getObject(c *gin.Context) {
 
 // deleteObject 删除对象.
 func (h *Handlers) deleteObject(c *gin.Context) {
-	bucketName := c.Param("bucket")
+	bucketName := c.Param("name")
 	objectKey := c.Param("key")
 
 	// S3 兼容头
@@ -256,7 +256,7 @@ func (h *Handlers) deleteObject(c *gin.Context) {
 
 // listObjects 列出对象.
 func (h *Handlers) listObjects(c *gin.Context) {
-	bucketName := c.Param("bucket")
+	bucketName := c.Param("name")
 
 	req := ListObjectsRequest{
 		BucketName: bucketName,
@@ -293,7 +293,7 @@ func (h *Handlers) listObjects(c *gin.Context) {
 
 // setObjectRetention 设置对象保留.
 func (h *Handlers) setObjectRetention(c *gin.Context) {
-	bucketName := c.Param("bucket")
+	bucketName := c.Param("name")
 	objectKey := c.Param("key")
 
 	var req PutObjectRetentionRequest
@@ -339,7 +339,7 @@ func (h *Handlers) setObjectRetention(c *gin.Context) {
 
 // getObjectRetention 获取对象保留.
 func (h *Handlers) getObjectRetention(c *gin.Context) {
-	bucketName := c.Param("bucket")
+	bucketName := c.Param("name")
 	objectKey := c.Param("key")
 
 	retention, err := h.mgr.GetObjectRetention(bucketName, objectKey)
@@ -359,7 +359,7 @@ func (h *Handlers) getObjectRetention(c *gin.Context) {
 
 // releaseObjectRetention 释放对象保留.
 func (h *Handlers) releaseObjectRetention(c *gin.Context) {
-	bucketName := c.Param("bucket")
+	bucketName := c.Param("name")
 	objectKey := c.Param("key")
 
 	operator := c.GetHeader("x-amz-operator")
@@ -390,7 +390,7 @@ func (h *Handlers) releaseObjectRetention(c *gin.Context) {
 
 // setObjectLegalHold 设置对象法律保留.
 func (h *Handlers) setObjectLegalHold(c *gin.Context) {
-	bucketName := c.Param("bucket")
+	bucketName := c.Param("name")
 	objectKey := c.Param("key")
 
 	var req PutObjectLegalHoldRequest
@@ -426,7 +426,7 @@ func (h *Handlers) setObjectLegalHold(c *gin.Context) {
 
 // getObjectLegalHold 获取对象法律保留.
 func (h *Handlers) getObjectLegalHold(c *gin.Context) {
-	bucketName := c.Param("bucket")
+	bucketName := c.Param("name")
 	objectKey := c.Param("key")
 
 	legalHold, err := h.mgr.GetObjectLegalHold(bucketName, objectKey)

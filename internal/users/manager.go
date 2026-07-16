@@ -31,19 +31,20 @@ const (
 
 // User 用户信息.
 type User struct {
-	ID           string     `json:"id"`
-	Username     string     `json:"username"`
-	PasswordHash string     `json:"-"` // 不序列化
-	Role         Role       `json:"role"`
-	Email        string     `json:"email,omitempty"`
-	CreatedAt    time.Time  `json:"created_at"`
-	UpdatedAt    time.Time  `json:"updated_at"`
-	Disabled     bool       `json:"disabled"`
-	HomeDir      string     `json:"home_dir,omitempty"` // 用户主目录
-	Groups       []string   `json:"groups,omitempty"`   // 所属用户组
-	Config       UserConfig `json:"config,omitempty"`   // 用户配置
-	LastLoginAt  *time.Time `json:"last_login_at,omitempty"`
-	LastLoginIP  string     `json:"last_login_ip,omitempty"`
+	ID                 string     `json:"id"`
+	Username           string     `json:"username"`
+	PasswordHash       string     `json:"-"` // 不序列化
+	Role               Role       `json:"role"`
+	Email              string     `json:"email,omitempty"`
+	CreatedAt          time.Time  `json:"created_at"`
+	UpdatedAt          time.Time  `json:"updated_at"`
+	Disabled           bool       `json:"disabled"`
+	HomeDir            string     `json:"home_dir,omitempty"` // 用户主目录
+	Groups             []string   `json:"groups,omitempty"`   // 所属用户组
+	Config             UserConfig `json:"config,omitempty"`   // 用户配置
+	LastLoginAt        *time.Time `json:"last_login_at,omitempty"`
+	LastLoginIP        string     `json:"last_login_ip,omitempty"`
+	MustChangePassword bool       `json:"must_change_password,omitempty"` // bootstrap admin must rotate password
 }
 
 // UserConfig 用户配置.
@@ -169,12 +170,13 @@ func NewManagerWithConfig(mountBase, configPath string) (*Manager, error) {
 	// 如果没有用户，创建默认管理员
 	if len(m.users) == 0 {
 		adminUser := &User{
-			ID:        generateID(),
-			Username:  "admin",
-			Role:      RoleAdmin,
-			HomeDir:   mountBase + "/admin",
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+			ID:                 generateID(),
+			Username:           "admin",
+			Role:               RoleAdmin,
+			HomeDir:            mountBase + "/admin",
+			CreatedAt:          time.Now(),
+			UpdatedAt:          time.Now(),
+			MustChangePassword: true, // force rotate after reading bootstrap password file
 		}
 		// 生成随机默认密码（首次登录后应修改）
 		// 安全改进：不再使用硬编码密码
@@ -807,6 +809,7 @@ func (m *Manager) DisableUser(username string, disabled bool) error {
 
 // ChangePassword 修改密码.
 func (m *Manager) ChangePassword(username, oldPassword, newPassword string) error {
+	// MustChangePassword is cleared on successful rotation below.
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -826,6 +829,7 @@ func (m *Manager) ChangePassword(username, oldPassword, newPassword string) erro
 		return err
 	}
 	user.PasswordHash = string(hash)
+	user.MustChangePassword = false
 	user.UpdatedAt = time.Now()
 	if err := m.saveConfig(); err != nil {
 		log.Printf("保存配置失败: %v", err)

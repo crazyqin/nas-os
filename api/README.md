@@ -1,10 +1,9 @@
-# `api/` — non-shipped / orphan package
+# `api/` — removed product sources (v3.24+)
 
-**Status**: Not part of the `nasd` production entry path.
+This directory no longer contains production Go packages for `nasd`.
 
-- Live HTTP API is assembled in `internal/web` (and Core module route registrars).
-- Package helpers used by some extensions live under `internal/api`.
-- Sources in this directory (`container_handlers.go`, etc.) are **legacy / experimental**
-  and are **not imported** by `cmd/nasd`. Do not document them as the primary API surface.
+- Live HTTP API: `internal/web` + Core module route registrars.
+- Shared API helpers used by extensions: `internal/api`.
+- Historical container/websocket handlers under this path were **deleted** (breaking change).
 
-Primary docs: [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md), [docs/api/](../docs/api/).
+See [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md).

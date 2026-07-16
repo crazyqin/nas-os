@@ -3,7 +3,6 @@ package storage
 
 import (
 	"fmt"
-	"net/http"
 
 	"nas-os/internal/api"
 
@@ -249,86 +248,6 @@ func buildSnapshotListResponses(volumeName string, snapshots []*Snapshot, subvol
 		})
 	}
 	return result
-}
-
-func buildLegacyVolumeUsage(total, used, free uint64) gin.H {
-	return gin.H{
-		"total": total,
-		"used":  used,
-		"free":  free,
-	}
-}
-
-func buildLegacyEnvelope(message string, data interface{}) gin.H {
-	return gin.H{
-		"code":    0,
-		"message": message,
-		"data":    data,
-	}
-}
-
-func buildLegacyMessage(message string) gin.H {
-	return gin.H{
-		"code":    0,
-		"message": message,
-	}
-}
-
-func buildLegacyError(code int, err error) gin.H {
-	return gin.H{
-		"code":    code,
-		"message": err.Error(),
-	}
-}
-
-func (h *LegacyAPIHandlers) bindLegacyJSON(c *gin.Context, req interface{}) bool {
-	if err := c.ShouldBindJSON(req); err != nil {
-		c.JSON(http.StatusBadRequest, buildLegacyError(400, err))
-		return false
-	}
-	return true
-}
-
-func (h *LegacyAPIHandlers) runLegacyAction(c *gin.Context, successMessage string, fn func() error) bool {
-	if err := fn(); err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return false
-	}
-	if successMessage != "" {
-		c.JSON(http.StatusOK, buildLegacyMessage(successMessage))
-	}
-	return true
-}
-
-func (h *LegacyAPIHandlers) runLegacyQuery(c *gin.Context, fn func() (interface{}, error)) {
-	data, err := fn()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-	c.JSON(http.StatusOK, buildLegacyEnvelope("success", data))
-}
-
-func (h *LegacyAPIHandlers) runLegacyNotFoundQuery(c *gin.Context, fn func() (interface{}, error)) {
-	data, err := fn()
-	if err != nil {
-		c.JSON(http.StatusNotFound, buildLegacyError(404, err))
-		return
-	}
-	c.JSON(http.StatusOK, buildLegacyEnvelope("success", data))
-}
-
-func (h *LegacyAPIHandlers) runLegacyUsageQuery(c *gin.Context, fn func() (uint64, uint64, uint64, error)) {
-	total, used, free, err := fn()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, buildLegacyError(500, err))
-		return
-	}
-	c.JSON(http.StatusOK, buildLegacyEnvelope("success", buildLegacyVolumeUsage(total, used, free)))
-}
-
-func buildRAIDConfigsResponse(configs map[string]RAIDConfig) gin.H {
-	return buildLegacyEnvelope("success", configs)
 }
 
 // listVolumes 列出所有卷

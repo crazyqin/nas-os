@@ -1,5 +1,24 @@
 # Changelog
 
+## v3.24.0 (2026-07-16) - 默认表面收敛（破坏性）
+
+### 破坏性变更
+- `modules.optional` **默认 false**：非 Core 产品管理器（Docker/VM/Photos/AI/备份/云同步等）默认不构造、不注册。
+- **删除** legacy `/api/v1/volumes/*` 与 `internal/storage/legacy_api.go`。
+- **删除** 根目录 `api/*.go` 产品源码。
+- 默认监听 **127.0.0.1**（非 0.0.0.0）。
+- 静态 UI 改挂 `/webui`（避免与 `/api` 路由冲突）；可选页面仅 optional=true 时注册。
+
+### 功能
+- Core `Health()`：storage / users / smb / nfs / network 领域检查；bootstrap admin `MustChangePassword`。
+- 生产 CSRF：`NAS_OS_ENV=production` 时强制 `NAS_CSRF_KEY`。
+- 再降 ~120 零生产引用顶层包入 Lab；allowlist 刷新。
+
+### 验证
+- `go build ./cmd/nasd` ×2
+- `go test ./internal/web ./internal/application ./internal/config ./internal/storage ./internal/users`
+- `go list -deps ./cmd/nasd` 无 lab
+
 ## v3.23.1 (2026-07-16) - Skeptic fixes: transitive Lab cut, real Extension load, honest logs
 
 ### Fixes

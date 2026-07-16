@@ -1,6 +1,6 @@
 # NAS-OS 架构说明
 
-**版本**: v3.23.1  
+**版本**: v3.24.0  
 **更新日期**: 2026-07-16
 
 本文描述 NAS-OS 当前的进程组合、模块生命周期、API 安全边界和渐进迁移约束。模块分层以 **Core / Extension / Lab** 为准；目录与 `internal/application` catalog 标签必须一致，且 **运行时默认路径不得硬接线 Lab**。
@@ -126,22 +126,14 @@ API 分成三层：
 3. 核心模块逆序停止；
 4. 下载、集群等进程级资源关闭。
 
-## 存储 API 迁移约束（弃用时间表）
-
-当前保留两组生产契约：
+## 存储 API 契约（v3.24+ 单一）
 
 | 契约 | 路径 | 状态 |
 |------|------|------|
-| 历史 | `/api/v1/volumes/*` | **兼容保留**；新客户端请勿新增依赖 |
-| 现行 | `/api/v1/storage/*` | **推荐**；与新 handler 字段对齐中 |
+| 唯一 | `/api/v1/storage/*` | **现行**（资源名可含 volumes 子路径） |
+| 已删除 | `/api/v1/volumes/*` | **破坏性移除**（无兼容层） |
 
-`internal/storage.Handlers` 的字段、状态码和错误语义与历史契约不同，**禁止**一次性双注册切换。迁移必须逐端点进行，并用 contract/golden test 保证旧路径、HTTP 方法和响应格式不变。
-
-**弃用计划（多版本）**：
-
-1. **v3.23.x**：双契约并存；文档与 OpenAPI 优先描述 `/storage`。
-2. **后续次版本**：对 `/volumes` 响应增加弃用头/日志提示（不破坏体）。
-3. **未来主版本**：在客户端迁移完成后移除 `/volumes`（需 CHANGELOG 与发布说明明确）。
+历史 `RegisterLegacyRoutes` / `legacy_api.go` 已删除。客户端必须改用 `/storage`。
 
 ## 入口与部署（单一主路径）
 
@@ -151,7 +143,7 @@ API 分成三层：
 | HTTP | `internal/web` | 路由与可选 Extension 挂载 |
 | 主 UI | `webui/` | 静态 HTML/JS 管理界面（**主产品 UI**） |
 | 实验前端 | `web/src` | 部分 React 视图，**非**默认交付主线 |
-| 根 `api/` | **非 nasd 入口** | 见 `api/README.md`；勿当作线上 API |
+| 根 `api/` | **已无 Go 源码** | 见 `api/README.md`（仅说明）；勿当作线上 API |
 | 主部署 | `docker-compose.yml` + `Dockerfile` | 开发/单机默认；`*.prod` / `*.ai` 为场景叠加 |
 
 ## 健康探针
@@ -159,6 +151,12 @@ API 分成三层：
 - `GET /api/v1/system/health` 与 `GET /api/v1/health`：聚合 **Core** 模块 `Health()`；任一失败则 `data.status=unhealthy`、`code=1`（HTTP 仍 200，便于 LB 解析 body）。
 - `GET /api/v1/system/modules`（管理员）：含 tier 的模块状态列表。
 - `GET /api/v1/system/info`：版本来自 `internal/version`（与根 `VERSION` 同步）。
+
+## 默认产品表面（v3.24）
+
+- `modules.optional` **默认 false**：不构造 Docker/VM/Photos/AI/云同步等非 Core 管理器。
+- 启用：`modules.optional: true`（或配置文件/环境约定）。
+- Extension 仍仅 `modules.extensions` 列表。
 
 ## 功能矩阵（诚实口径）
 

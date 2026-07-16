@@ -1,6 +1,6 @@
 # 健康检查 API 文档
 
-**版本**: v3.23.1  
+**版本**: v3.24.0  
 **更新日期**: 2026-07-16
 
 ## 概述
@@ -9,7 +9,7 @@
 
 ## 基础路径
 
-生产健康探针（现行，v3.23.0+ 聚合 Core 模块 Health）：
+生产健康探针（现行，v3.24.0+ 聚合 Core 模块 Health）：
 
 ```
 GET /api/v1/system/health
@@ -28,7 +28,7 @@ GET /api/v1/health          # 兼容旧路径，与上者等价
 GET /api/v1/system/info     # version 来自 internal/version（与根 VERSION 同步）
 ```
 
-> 文档版本号随发行版对齐为 **v3.23.0**；健康契约语义以 `internal/web.AggregateCoreHealth` 为准。
+> 文档版本号随发行版对齐为 **v3.24.0**；健康契约语义以 `internal/web.AggregateCoreHealth` 为准。
 
 ---
 

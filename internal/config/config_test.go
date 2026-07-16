@@ -11,8 +11,18 @@ func TestDefaultIsValid(t *testing.T) {
 	if err := cfg.Validate(); err != nil {
 		t.Fatalf("default config invalid: %v", err)
 	}
-	if cfg.Server.Addr() != "0.0.0.0:8080" {
-		t.Fatalf("unexpected default addr: %s", cfg.Server.Addr())
+	if cfg.Server.Addr() != "127.0.0.1:8080" {
+		t.Fatalf("unexpected default addr (must bind localhost by default): %s", cfg.Server.Addr())
+	}
+	if cfg.Modules.Optional {
+		t.Fatal("default modules.optional must be false")
+	}
+}
+
+func TestOptionalModulesDefaultOff(t *testing.T) {
+	cfg := Default()
+	if cfg.Modules.Optional || len(cfg.Modules.Extensions) != 0 {
+		t.Fatalf("optional=%v extensions=%v want off", cfg.Modules.Optional, cfg.Modules.Extensions)
 	}
 }
 

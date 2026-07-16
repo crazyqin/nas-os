@@ -71,6 +71,9 @@ type AuthConfig struct {
 // ModulesConfig 描述可选模块开关。
 type ModulesConfig struct {
 	Docker DockerConfig `yaml:"docker"`
+	// Optional enables non-Core product managers (docker/VM/photos/AI/backup/…).
+	// Default false: only Core-supporting HTTP surface is constructed.
+	Optional bool `yaml:"optional"`
 	// Extensions lists optional product extension names to load on the HTTP path.
 	// Empty (default) loads none. Known names: activeprotect, agentworkflow,
 	// aiguardrails, compliancescan, deployorch, netdiag, voicehub.
@@ -88,7 +91,7 @@ type DockerConfig struct {
 func Default() *Config {
 	return &Config{
 		Server: ServerConfig{
-			Host: "0.0.0.0",
+			Host: "127.0.0.1",
 			Port: 8080,
 		},
 		Paths: PathsConfig{
@@ -111,7 +114,8 @@ func Default() *Config {
 				Enabled:  false,
 				DataRoot: "/mnt/docker",
 			},
-			Extensions: nil, // default: no optional extensions on production path
+			Optional:   false, // default: no non-Core product managers
+			Extensions: nil,
 		},
 	}
 }
