@@ -59,6 +59,39 @@ var moduleCatalog = map[string]arch.ModuleTier{
 	"themepro":           arch.ModuleTierLab,
 	"truecloudbk":        arch.ModuleTierLab,
 	"updatedirector":     arch.ModuleTierLab,
+
+	// demoted: smart* pseudo-core → lab
+	"smartrecipe":            arch.ModuleTierLab,
+	"smartcam":            arch.ModuleTierLab,
+	"smartpowerschedule":            arch.ModuleTierLab,
+	"smartwearleveling":            arch.ModuleTierLab,
+	"smartsleep":            arch.ModuleTierLab,
+	"smartredundancy":            arch.ModuleTierLab,
+	"smartlink":            arch.ModuleTierLab,
+	"smartlifebackup":            arch.ModuleTierLab,
+	"smartappcurator":            arch.ModuleTierLab,
+	"smartresource":            arch.ModuleTierLab,
+	"smartrecycle":            arch.ModuleTierLab,
+	"smartrebuild":            arch.ModuleTierLab,
+	"smartinsight":            arch.ModuleTierLab,
+	"smartlifecycle":            arch.ModuleTierLab,
+
+	// demoted: carbon/energy duplicates → lab
+	"carbonaware":            arch.ModuleTierLab,
+	"carbonfootprint":            arch.ModuleTierLab,
+	"carbontracker":            arch.ModuleTierLab,
+	"smartcarbon":            arch.ModuleTierLab,
+	"energydashboard":            arch.ModuleTierLab,
+	"energycost":            arch.ModuleTierLab,
+	"energymanager":            arch.ModuleTierLab,
+
+	// demoted: budget/finance duplicates → lab
+	"budgetalert":            arch.ModuleTierLab,
+	"budgetforecast":            arch.ModuleTierLab,
+	"budgetmgr":            arch.ModuleTierLab,
+	"budgetplan":            arch.ModuleTierLab,
+	"smartbudget":            arch.ModuleTierLab,
+	"familyfinance":            arch.ModuleTierLab,
 }
 
 // ModuleTierFor 返回模块在当前收敛目录中的层级；未知模块默认按 Extension 处理，避免伪装成 Core。

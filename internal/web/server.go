@@ -90,7 +90,7 @@ import (
 	"nas-os/internal/dlp"
 	"nas-os/internal/dockergui"
 	"nas-os/internal/edgecompute"
-	"nas-os/internal/energymanager"
+	"nas-os/internal/lab/energymanager"
 	"nas-os/internal/filesync"
 	"nas-os/internal/gpumonitor"
 	"nas-os/internal/netsentinel"
@@ -117,7 +117,7 @@ import (
 	"nas-os/internal/objectimmutable"
 	"nas-os/internal/privacyshield"
 	"nas-os/internal/selfserviceportal"
-	"nas-os/internal/smartlink"
+	"nas-os/internal/lab/smartlink"
 	"nas-os/internal/spotlight"
 
 	// v2.542.0 新增模块.
