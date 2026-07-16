@@ -3,7 +3,7 @@ package version
 // Version is the current application version (no "v" prefix).
 // Keep in sync with the root VERSION file (which uses a "v" prefix).
 // Overridable at link time via -X nas-os/internal/version.Version=...
-var Version = "3.24.0"
+var Version = "3.24.1"
 
 // BuildTime is the time when the application was built.
 // Overridable at link time via -X nas-os/internal/version.BuildTime=...
