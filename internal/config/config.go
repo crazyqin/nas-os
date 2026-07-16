@@ -68,9 +68,14 @@ type AuthConfig struct {
 	InitialPassword string `yaml:"initial_password"`
 }
 
-// ModulesConfig 描述可选模块开关（当前仅占位）。
+// ModulesConfig 描述可选模块开关。
 type ModulesConfig struct {
 	Docker DockerConfig `yaml:"docker"`
+	// Extensions lists optional product extension names to load on the HTTP path.
+	// Empty (default) loads none. Known names: activeprotect, agentworkflow,
+	// aiguardrails, compliancescan, deployorch, netdiag, voicehub.
+	// Lab packages are never loaded via this list.
+	Extensions []string `yaml:"extensions"`
 }
 
 // DockerConfig 描述 Docker 模块设置。
@@ -106,6 +111,7 @@ func Default() *Config {
 				Enabled:  false,
 				DataRoot: "/mnt/docker",
 			},
+			Extensions: nil, // default: no optional extensions on production path
 		},
 	}
 }

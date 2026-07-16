@@ -1,6 +1,6 @@
 # 健康检查 API 文档
 
-**版本**: v3.22.0  
+**版本**: v3.23.0  
 **更新日期**: 2026-07-16
 
 ## 概述
@@ -9,12 +9,18 @@
 
 ## 基础路径
 
-生产健康探针（现行）：
+生产健康探针（现行，v3.23.0+ 聚合 Core 模块 Health）：
 
 ```
 GET /api/v1/system/health
 GET /api/v1/health          # 兼容旧路径，与上者等价
 ```
+
+响应要点：
+
+- `data.status`: `healthy` | `unhealthy`（任一 **Core** 模块 `Health()` 失败则为 unhealthy）
+- `data.modules[]`: 各 Core 模块 `name` / `tier` / `healthy` / `error`
+- `code`: 0 健康，1 不健康（HTTP 状态仍为 200，便于负载均衡解析 body）
 
 系统信息（版本）：
 
@@ -22,7 +28,7 @@ GET /api/v1/health          # 兼容旧路径，与上者等价
 GET /api/v1/system/info     # version 来自 internal/version（与根 VERSION 同步）
 ```
 
-> 文档版本号随发行版对齐为 **v3.22.0**；健康契约语义以 `internal/web` 实现为准。
+> 文档版本号随发行版对齐为 **v3.23.0**；健康契约语义以 `internal/web.AggregateCoreHealth` 为准。
 
 ---
 

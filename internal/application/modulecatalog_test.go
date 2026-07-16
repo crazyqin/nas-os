@@ -77,9 +77,9 @@ func TestModuleCatalogSnapshotDemotesPseudoCoreModules(t *testing.T) {
 	}
 }
 
-func TestModuleTierForDefaultsUnknownModulesToExtension(t *testing.T) {
-	if got := ModuleTierFor("totally-new-module"); got != arch.ModuleTierExtension {
-		t.Fatalf("ModuleTierFor(unknown) = %q, want %q", got, arch.ModuleTierExtension)
+func TestModuleTierForDefaultsUnknownModulesToLab(t *testing.T) {
+	if got := ModuleTierFor("totally-new-module"); got != arch.ModuleTierLab {
+		t.Fatalf("ModuleTierFor(unknown) = %q, want %q (unknown must not look like product Extension)", got, arch.ModuleTierLab)
 	}
 }
 

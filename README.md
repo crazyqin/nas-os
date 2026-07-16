@@ -4,11 +4,11 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.22.0 Stable (2026-07-16)
+> **最新版本**: v3.23.0 Stable (2026-07-16)
 > **架构分层**: Core（5）/ Extension（`internal/extensions/*`）/ Lab（`internal/lab/*`）→ [架构说明](docs/ARCHITECTURE.md)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
-> **Release**: [v3.22.0](https://github.com/crazyqin/nas-os/releases/tag/v3.22.0)
+> **Release**: [v3.23.0](https://github.com/crazyqin/nas-os/releases/tag/v3.23.0)
 
 ## 🌟 五大差异化能力
 
@@ -35,6 +35,16 @@
 ---
 
 ## 特性
+
+### 🚀 v3.23.0 运行时诚实与治理 (P0–P3) ✅
+
+| 项 | 说明 |
+|----|------|
+| **Lab 默认剥离** | 生产 `web` 不再 import/构造 `internal/lab/*`；实验能力仅在 Lab 目录保留 |
+| **Extension 按需加载** | `modules.extensions` 配置列表；默认空=不加载；7 个扩展可显式启用 |
+| **Core 健康探针** | `GET /api/v1/system/health` 聚合 Core 模块 `Health()`，失败返回 unhealthy |
+| **治理测试** | 禁止 web→lab import；Core 仅五名；顶层 allowlist 冻结；未知 catalog→Lab |
+| **入口诚实** | 根 `api/` 标明非 nasd 入口；主 UI=`webui/`；主部署见 docker-compose |
 
 ### 🚀 v3.22.0 架构收敛（Core / Extension / Lab） ✅
 
@@ -656,7 +666,7 @@ nas-os/
 
 详细里程碑请查看 GitHub Milestones
 
-### 当前状态 (2026-07-16) - v3.22.0 Stable ✅
+### 当前状态 (2026-07-16) - v3.23.0 Stable ✅
 
 **8/8 里程碑全部完成**
 
@@ -686,7 +696,8 @@ nas-os/
 ### 版本路线图
 | 版本 | 类型 | 发布日期 | 核心功能 | 状态 |
 |------|------|----------|----------|------|
-| **v3.22.0** | **Stable** | **2026-07-16** | **163 伪核心降入 Lab；catalog 路径对齐；Core 仍为 5** | ✅ **已发布** |
+| **v3.23.0** | **Stable** | **2026-07-16** | **P0–P3：Lab 默认剥离、Extension 按需、Core 健康、治理锁** | ✅ **已发布** |
+| v3.22.0 | Stable | 2026-07-16 | 163 伪核心降入 Lab；catalog 路径对齐；Core 仍为 5 | ✅ 已发布 |
 | v3.21.0 | Stable | 2026-07-16 | 195+ 伪核心降入 Lab（AI/smart/backup/security/media…） | ✅ 已发布 |
 | v3.20.0 | Stable | 2026-07-16 | 版本 bump 与文档同步 | ✅ 已发布 |
 | v3.19.0 | Stable | 2026-07-16 | 架构收敛波次 | ✅ 已发布 |

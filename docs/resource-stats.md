@@ -1,7 +1,7 @@
 # NAS-OS 资源统计
 
 **更新日期**: 2026-07-16  
-**版本**: v3.22.0
+**版本**: v3.23.0
 
 ## 代码规模
 
@@ -30,6 +30,7 @@
 
 | 版本 | 变化 |
 |------|------|
+| v3.23.0 | 运行时：默认路径剥离 Lab 硬接线；Extension 仅 `modules.extensions` 启用；Core 健康聚合；web→lab 与顶层 allowlist 治理测试 |
 | v3.22.0 | 再降 163 个零引用伪核心 → Lab；catalog 与路径对齐（含 activebackup/reports/smartpricing 等） |
 | v3.21.0 | 195+ AI/smart/backup/security/media/vm/cluster 等 → Lab |
 | v3.18–v3.20 | Extension 命名空间、pro/v2/重复告警/quantum/cost 等分批降级 |
