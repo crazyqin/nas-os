@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	"nas-os/internal/smartbandwidth"
+	"nas-os/internal/lab/smartbandwidth"
 )
 
 func main() {

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"nas-os/internal/smartfolders"
+	"nas-os/internal/lab/smartfolders"
 )
 
 func TestBuildProfileLargeFilesAndMediaActions(t *testing.T) {
