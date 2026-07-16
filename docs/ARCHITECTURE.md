@@ -58,7 +58,11 @@ type Module interface {
 
 - **Core**：进程主生命周期必需能力，只允许 `identity / storage / network / sharing / system`；
 - **Extension**：可选产品能力，允许保留独立 handler / manager，但不得伪装成启动主图核心；当前已收敛示例：`internal/extensions/activeprotect`、`internal/extensions/agentworkflow`、`internal/extensions/aiguardrails`、`internal/extensions/voicehub`；
-- **Lab**：实验性、概念验证或待收编模块，默认不进入生产核心图，优先降级、隔离或删除重复实现；当前已收敛示例：`internal/lab/aimediatag`、`internal/lab/benchmarkpro`、`internal/lab/blockdedup2`、`internal/lab/brandinsight`、`internal/lab/cloudsync2`、`internal/lab/costbenchmark`、`internal/lab/datasovereignty2`、`internal/lab/digitalassetvault`、`internal/lab/draid2`、`internal/lab/featurematrix`、`internal/lab/familyactivityhub`、`internal/lab/filetimemachine2`、`internal/lab/forensics2`、`internal/lab/guidedalert`、`internal/lab/guidedalerts`、`internal/lab/iotedgegateway`、`internal/lab/netshield`、`internal/lab/posterwallpro`、`internal/lab/releasemanager`、`internal/lab/resmonpro`、`internal/lab/safeaccess`、`internal/lab/smartalert`、`internal/lab/storagecostpredict`、`internal/lab/truecloudbk`、`internal/lab/updatedirector`、`internal/lab/containerpro`、`internal/lab/themepro`、`internal/lab/smarthomehubpro`。
+- **Lab**：实验性、概念验证或待收编模块，默认不进入生产核心图，优先降级、隔离或删除重复实现；当前已收敛示例：`internal/lab/aimediatag`、`internal/lab/benchmarkpro`、`internal/lab/blockdedup2`、`internal/lab/brandinsight`、`internal/lab/cloudsync2`、`internal/lab/costbenchmark`、`internal/lab/datasovereignty2`、`internal/lab/digitalassetvault`、`internal/lab/draid2`、`internal/lab/featurematrix`、`internal/lab/familyactivityhub`、`internal/lab/filetimemachine2`、`internal/lab/forensics2`、`internal/lab/guidedalert`、`internal/lab/guidedalerts`、`internal/lab/iotedgegateway`、`internal/lab/netshield`、`internal/lab/posterwallpro`、`internal/lab/releasemanager`、`internal/lab/resmonpro`、`internal/lab/safeaccess`、`internal/lab/smartalert`、`internal/lab/storagecostpredict`、`internal/lab/truecloudbk`、`internal/lab/updatedirector`、`internal/lab/containerpro`、`internal/lab/themepro`、`internal/lab/smarthomehubpro`、
+  本轮新增降级（27个）：
+  - smart* 伪核心（14个）：`internal/lab/smartrecipe`、`internal/lab/smartcam`、`internal/lab/smartpowerschedule`、`internal/lab/smartwearleveling`、`internal/lab/smartsleep`、`internal/lab/smartredundancy`、`internal/lab/smartlink`、`internal/lab/smartlifebackup`、`internal/lab/smartappcurator`、`internal/lab/smartresource`、`internal/lab/smartrecycle`、`internal/lab/smartrebuild`、`internal/lab/smartinsight`、`internal/lab/smartlifecycle`；
+  - carbon/energy 重复（7个）：`internal/lab/carbonaware`、`internal/lab/carbonfootprint`、`internal/lab/carbontracker`、`internal/lab/smartcarbon`、`internal/lab/energydashboard`、`internal/lab/energycost`、`internal/lab/energymanager`；
+  - budget/finance 重复（6个）：`internal/lab/budgetalert`、`internal/lab/budgetforecast`、`internal/lab/budgetmgr`、`internal/lab/budgetplan`、`internal/lab/smartbudget`、`internal/lab/familyfinance`。
 
 容器保证：
 
@@ -134,6 +138,7 @@ API 分成三层：
 
 - 冻结新增顶层 `internal` 业务模块，优先归入现有领域；
 - 已完成一批目录收敛：`activeprotect`、`agentworkflow`、`aiguardrails`、`voicehub` 已迁入 `internal/extensions/`；`aimediatag`、`benchmarkpro`、`blockdedup2`、`brandinsight`、`cloudsync2`、`filetimemachine2`、`releasemanager`、`resmonpro`、`smartthermal2` 以及 `costbenchmark`、`datasovereignty2`、`digitalassetvault`、`draid2`、`featurematrix`、`familyactivityhub`、`forensics2`、`guidedalert`、`guidedalerts`、`iotedgegateway`、`netshield`、`posterwallpro`、`safeaccess`、`smartalert`、`storagecostpredict`、`truecloudbk`、`updatedirector` 以及 `containerpro`、`themepro`、`smarthomehubpro` 已迁入 `internal/lab/`；
+- 本轮降级 27 个 smart*/carbon/energy/budget 伪核心及重复模块到 `internal/lab/`；
 - 每次只迁移一个低风险领域或一组端点；
 - 每个提交保持可构建、可测试、可回滚；
 - 新模块优先使用小接口和显式构造函数；
