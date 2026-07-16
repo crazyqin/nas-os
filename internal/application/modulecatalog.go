@@ -311,16 +311,17 @@ var moduleCatalog = map[string]arch.ModuleTier{
 	"usbreset":            arch.ModuleTierLab,
 }
 
-// ModuleTierFor 返回模块在当前收敛目录中的层级；未知模块默认按 Extension 处理，避免伪装成 Core。
+// ModuleTierFor 返回模块在当前收敛目录中的层级。
+// 未知名称默认 Lab（实验/未编目），不得伪装成 Core 或已接线的 Extension 产品面。
 func ModuleTierFor(name string) arch.ModuleTier {
 	if tier, ok := moduleCatalog[name]; ok {
 		return tier
 	}
-	return arch.ModuleTierExtension
+	return arch.ModuleTierLab
 }
 
 // ModuleCatalogSnapshot 返回当前架构收敛视角下的模块清单。
-// 仅 Core 允许进入进程生命周期主图；其余模块默认归为 Extension 或 Lab。
+// 仅 Core 允许进入进程生命周期主图；编目中的 Extension 需配置 modules.extensions 才会加载。
 func ModuleCatalogSnapshot() map[string]arch.ModuleTier {
 	catalog := make(map[string]arch.ModuleTier, len(moduleCatalog))
 	for name, tier := range moduleCatalog {

@@ -31,13 +31,6 @@ import (
 	"nas-os/internal/hardware"
 	"nas-os/internal/healthscore"
 	"nas-os/internal/iscsi"
-	"nas-os/internal/lab/activebackup"
-	"nas-os/internal/lab/ai_classify"
-	"nas-os/internal/lab/audiostation"
-	"nas-os/internal/lab/logcenter"
-	"nas-os/internal/lab/ransommldetect"
-	"nas-os/internal/lab/smartmigrate"
-	"nas-os/internal/lab/vmimport"
 	"nas-os/internal/lock"
 	"nas-os/internal/monitor"
 	"nas-os/internal/network"
@@ -90,14 +83,6 @@ import (
 	"nas-os/internal/dockergui"
 	"nas-os/internal/edgecompute"
 	"nas-os/internal/filesync"
-	"nas-os/internal/lab/appcenter"
-	"nas-os/internal/lab/backupverify"
-	"nas-os/internal/lab/energymanager"
-	"nas-os/internal/lab/gpumonitor"
-	"nas-os/internal/lab/photoenhance"
-	"nas-os/internal/lab/smarthome"
-	"nas-os/internal/lab/sysdashboard"
-	"nas-os/internal/lab/vmmanager"
 	"nas-os/internal/netsentinel"
 	"nas-os/internal/networkmap"
 	"nas-os/internal/privacyvault"
@@ -112,10 +97,6 @@ import (
 	"nas-os/internal/datawarehouse"
 	"nas-os/internal/filedejavu"
 	"nas-os/internal/hybridflash"
-	"nas-os/internal/lab/airecommend"
-	"nas-os/internal/lab/audittrail"
-	"nas-os/internal/lab/selfserviceportal"
-	"nas-os/internal/lab/smartlink"
 	"nas-os/internal/lxcmkt"
 	"nas-os/internal/objectimmutable"
 	"nas-os/internal/privacyshield"
@@ -126,12 +107,6 @@ import (
 	"nas-os/internal/custombranding"
 	"nas-os/internal/digitallegacy"
 	"nas-os/internal/filetag"
-	"nas-os/internal/lab/containerimagecache"
-	"nas-os/internal/lab/dlnamedia"
-	"nas-os/internal/lab/dnsfilter"
-	"nas-os/internal/lab/multiclusterfed"
-	"nas-os/internal/lab/photoai"
-	"nas-os/internal/lab/smartnasrouter"
 	"nas-os/internal/musicserver"
 	"nas-os/internal/smbdirect"
 	"nas-os/internal/storagecostforecast"
@@ -187,7 +162,6 @@ type Server struct {
 	webdavSrv     *webdav.Server
 	ftpSrv        *ftp.Server
 	sftpSrv       *sftp.Server
-	aiClassifyMgr *ai_classify.Classifier
 	versioningMgr *versioning.Manager
 	dedupMgr      *dedup.Manager
 	cloudsyncMgr  *cloudsync.Manager
@@ -213,20 +187,15 @@ type Server struct {
 	wolMgr         *wol.Manager
 	aclMgr         *acl.Manager
 	webhookMgr     *webhook.Manager
-	ransomDetector *ransommldetect.Detector
 	recycleCleaner *recyclecleaner.Manager
 	notifyChanMgr  *notifychannel.Manager
 	// mediaMgr      *media.LibraryManager
 	// v2.481.0 新增模块
-	activeBackupMgr *activebackup.Manager
-	audioStationMgr *audiostation.Manager
-	drDrillMgr      *drdrill.Manager
-	driveSyncMgr    *drivesync.Manager
-	scrubSchedMgr   *scrubsched.Manager
-	vmImportMgr     *vmimport.Manager
-	s3Gateway       *s3gateway.Gateway
-	schedulerMgr    *scheduler.Scheduler
-	smartMigrateMgr *smartmigrate.SmartMigrateManager
+	drDrillMgr    *drdrill.Manager
+	driveSyncMgr  *drivesync.Manager
+	scrubSchedMgr *scrubsched.Manager
+	s3Gateway     *s3gateway.Gateway
+	schedulerMgr  *scheduler.Scheduler
 	// v2.481.0 竞品对标新增模块
 	diskbenchMgr    *diskbench.BenchmarkManager
 	healthscoreMgr  *healthscore.HealthScore
@@ -236,61 +205,42 @@ type Server struct {
 	fileindexMgr   *fileindex.Indexer
 	webterminalMgr *webterminal.Manager
 	// v2.490.0 新增模块
-	logcenterMgr *logcenter.Manager
 	// v2.491.0 新增模块
 	notificationSvc *notification.Service
 	// v2.498.0 新增模块
-	appCenterMgr     *appcenter.AppStore
-	backupVerifyMgr  *backupverify.Manager
 	collabDocsMgr    *collabdocs.Manager
 	containResMonMgr *containresmon.Manager
 	dataClassifyMgr  *dataclassify.Manager
 	wellbeingMgr     *digitalwellbeing.Manager
 	dlpMgr           *dlp.Manager
 	edgeComputeMgr   *edgecompute.Manager
-	energyMgr        *energymanager.Manager
 	fileSyncMgr      *filesync.SyncManager
 	netSentinelMgr   *netsentinel.Manager
 	networkMapMgr    *networkmap.Manager
-	photoEnhanceMgr  *photoenhance.Manager
 	privacyVaultMgr  *privacyvault.Engine
 	remoteDesktopMgr *remotedesktop.Manager
-	smartHomeMgr     *smarthome.Manager
 	ssoHubMgr        *ssohub.Manager
 	surveillanceMgr  *surveillance.Manager
 	unifiedSearchMgr *unifiedsearch.Manager
 	// v2.499.0 竞品对标新增模块
-	zfsPoolMgr      *zfspool.Manager
-	dockerGuiMgr    *dockergui.Manager
-	gpuMonitorMgr   *gpumonitor.Monitor
-	vmManagerMgr    *vmmanager.Manager
-	sysDashboardMgr *sysdashboard.Manager
+	zfsPoolMgr   *zfspool.Manager
+	dockerGuiMgr *dockergui.Manager
 	// v2.513.0 新增模块
-	airRecommendMgr    *airecommend.Engine
 	alertGuidedMgr     *alertguided.Manager
-	auditTrailMgr      *audittrail.Manager
 	dataWarehouseMgr   *datawarehouse.Warehouse
 	fileDejavuMgr      *filedejavu.Detector
 	hybridFlashMgr     *hybridflash.Manager
 	lxcmktMgr          *lxcmkt.Manager
 	objectImmutableMgr *objectimmutable.Manager
 	privacyShieldMgr   *privacyshield.Shield
-	selfServiceMgr     *selfserviceportal.Portal
-	smartLinkMgr       *smartlink.Linker
 	spotlightMgr       *spotlight.Manager
 	// v2.542.0 新增模块
-	dlnaMediaMgr           *dlnamedia.Manager
-	dnsFilterMgr           *dnsfilter.Manager
 	musicServerMgr         *musicserver.Manager
-	photoAIMgr             *photoai.Manager
 	syslogServerMgr        *syslogserver.Manager
 	digitalLegacyMgr       *digitallegacy.Manager
-	containerImageCacheMgr *containerimagecache.ImageCacheManager
 	customBrandingMgr      *custombranding.BrandingEngine
-	multiClusterFedMgr     *multiclusterfed.ClusterFederationManager
 	smbDirectMgr           *smbdirect.SMBDirectManager
 	storageCostForecastMgr *storagecostforecast.CostForecastEngine
-	smartNASRouterMgr      *smartnasrouter.Manager
 	filetagMgr             *filetag.Manager
 	apikeyMgr              *apikey.Manager
 }
@@ -455,15 +405,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 		}
 	}
 
-	// 初始化 AI 分类器
-	aiClassifyMgr, err := ai_classify.NewClassifier(ai_classify.DefaultConfig())
-	if err != nil {
-		log.Printf("⚠️ AI 分类器初始化警告：%v", err)
-		aiClassifyMgr = nil
-	} else {
-		log.Println("✅ AI 分类模块就绪")
-	}
-
 	// 初始化私有云AI服务
 	aiSvc, err := ai.NewAIService(nil)
 	if err != nil {
@@ -529,7 +470,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	log.Println("✅ Webhook通知集成就绪")
 
 	// 初始化 ML 勒索检测引擎（对标群晖 勒索防护增强）
-	ransomDetector := ransommldetect.NewDetector(ransommldetect.DefaultDetectorConfig(), logger)
 	// ML 勒索检测由 Server.Start 统一启动。
 	log.Println("✅ ML勒索检测引擎就绪")
 
@@ -650,24 +590,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 
 	// ========== v2.481.0 新增模块 ==========
 
-	// 初始化整机备份管理器（对标群晖 Active Backup for Business）
-	activeBackupMgr, err := activebackup.NewManager(cfg.ConfigPath("activebackup.json"))
-	if err != nil {
-		log.Printf("⚠️ 整机备份管理初始化警告：%v", err)
-		activeBackupMgr = nil
-	} else {
-		log.Println("✅ 整机备份管理模块就绪")
-	}
-
-	// 初始化音乐中心管理器（对标群晖 Audio Station）
-	audioStationMgr, err := audiostation.NewManager(cfg.ConfigPath("audiostation.json"), []string{cfg.MountPath("music")})
-	if err != nil {
-		log.Printf("⚠️ 音乐中心初始化警告：%v", err)
-		audioStationMgr = nil
-	} else {
-		log.Println("✅ 音乐中心模块就绪")
-	}
-
 	// 初始化容灾演练管理器（对标群晖 DR Drill）
 	drDrillMgr := drdrill.NewManager(logger, nil, nil)
 	log.Println("✅ 容灾演练模块就绪")
@@ -680,15 +602,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	scrubSchedMgr := scrubsched.NewManager(cfg.ConfigPath("scrubsched.json"), nil, nil, nil, nil, nil)
 	// 智能 scrub 调度由 Server.Start 统一启动。
 	log.Println("✅ 智能Scrub调度管理器就绪")
-
-	// 初始化虚拟机导入导出管理器
-	vmImportMgr, err := vmimport.NewManager(cfg.DataPath("vmimport"), cfg.DataPath("vmimport", "meta"))
-	if err != nil {
-		log.Printf("⚠️ 虚拟机导入导出初始化警告：%v", err)
-		vmImportMgr = nil
-	} else {
-		log.Println("✅ 虚拟机导入导出模块就绪")
-	}
 
 	// 初始化S3对象存储网关（对标 MinIO/S3 兼容层）
 	s3Gateway := s3gateway.NewGateway(s3gateway.GatewayConfig{
@@ -711,15 +624,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	}
 
 	// 初始化智能迁移管理器（对标群晖智能数据迁移）
-	smartMigrateCfg := &smartmigrate.MigrateConfig{
-		MaxConcurrent:  4,
-		ChunkSizeMB:    64,
-		VerifyChecksum: true,
-		PreservePerms:  true,
-		RetryCount:     3,
-		RetryDelaySec:  5,
-	}
-	smartMigrateMgr := smartmigrate.NewSmartMigrateManager(smartMigrateCfg)
 	log.Println("✅ 智能迁移管理器就绪")
 
 	// 初始化磁盘性能测试管理器（对标群晖 Presto Benchmark）
@@ -758,7 +662,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	log.Println("✅ Web终端模块就绪")
 
 	// 初始化日志中心管理器（对标群晖 Log Center）
-	logcenterMgr := logcenter.NewManager(logger, logcenter.DefaultConfig())
 	log.Println("✅ 日志中心模块就绪")
 
 	// 初始化通知中心服务（对标群晖 Notification Center）
@@ -772,11 +675,9 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	// ========== v2.498.0 新增模块初始化 ==========
 
 	// 初始化应用中心（对标群晖 Package Center）
-	appCenterMgr := appcenter.NewAppStore(logger, cfg.DataPath("appcenter"))
 	log.Println("✅ 应用中心模块就绪")
 
 	// 初始化备份验证（对标群晖 Active Backup 验证）
-	backupVerifyMgr := backupverify.NewManager()
 	log.Println("✅ 备份验证模块就绪")
 
 	// 初始化协作文档（对标群晖 Office）
@@ -804,7 +705,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	log.Println("✅ 边缘计算模块就绪")
 
 	// 初始化能源管理（对标群晖电源管理增强）
-	energyMgr := energymanager.NewManager(&energymanager.Config{Enabled: true, MonitoringInterval: 60, ElectricityRate: 0.55, Currency: "CNY"})
 	log.Println("✅ 能源管理模块就绪")
 
 	// 初始化文件同步（对标群晖 Drive Sync）
@@ -820,7 +720,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	log.Println("✅ 网络拓扑模块就绪")
 
 	// 初始化照片增强（对标群晖 Photos AI）
-	photoEnhanceMgr := photoenhance.NewManager(&photoenhance.Config{Enabled: true})
 	log.Println("✅ 照片增强模块就绪")
 
 	// 初始化隐私保险库（竞品独有功能）
@@ -832,7 +731,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	log.Println("✅ 远程桌面模块就绪")
 
 	// 初始化智能家居（竞品独有功能）
-	smartHomeMgr := smarthome.NewManager(&smarthome.Config{Enabled: true, MatterEnabled: true, MQTTBroker: "localhost", MQTTPort: 1883})
 	log.Println("✅ 智能家居模块就绪")
 
 	// 初始化 SSO Hub（竞品独有功能）
@@ -851,11 +749,9 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	log.Println("✅ 统一搜索模块就绪")
 
 	// v2.513.0 新增模块初始化
-	airRecommendMgr := airecommend.NewEngine(nil)
 	log.Println("✅ AI 推荐引擎就绪")
 	alertGuidedMgr := alertguided.NewManager(logger)
 	log.Println("✅ 智能告警引导就绪")
-	auditTrailMgr := audittrail.NewManager(logger)
 	log.Println("✅ 审计追踪就绪")
 	dataWarehouseMgr := datawarehouse.NewWarehouse(10000)
 	log.Println("✅ 数据仓库就绪")
@@ -869,17 +765,12 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	log.Println("✅ WORM 不可变存储就绪")
 	privacyShieldMgr := privacyshield.NewShield()
 	log.Println("✅ 隐私保护盾就绪")
-	selfServiceMgr := selfserviceportal.NewPortal()
 	log.Println("✅ 自助服务门户就绪")
-	smartLinkMgr := smartlink.NewLinker(smartlink.SharePolicy{})
 	log.Println("✅ 智能链接就绪")
 	spotlightMgr := spotlight.NewManager(logger)
 
 	// v2.542.0 新增模块初始化
-	dlnaMediaMgr := dlnamedia.NewManager("/data/media", true)
-	dnsFilterMgr := dnsfilter.NewManager()
 	musicServerMgr := musicserver.NewManager()
-	photoAIMgr := photoai.NewManager(nil)
 	syslogServerMgr := syslogserver.NewManager()
 	var digitalLegacyMgr *digitallegacy.Manager
 	legacyKey := []byte(os.Getenv("NAS_DIGITAL_LEGACY_KEY"))
@@ -891,12 +782,9 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	log.Println("✅ Spotlight 索引就绪")
 
 	// v2.548.0 新增模块初始化
-	containerImageCacheMgr := containerimagecache.New(containerimagecache.DefaultCacheConfig())
 	customBrandingMgr := custombranding.New()
-	multiClusterFedMgr := multiclusterfed.New(multiclusterfed.FederationConfig{})
 	smbDirectMgr := smbdirect.New(smbdirect.DefaultConfig())
 	storageCostForecastMgr := storagecostforecast.New()
-	smartNASRouterMgr := smartnasrouter.NewManager(nil)
 	filetagMgr := filetag.NewManager()
 	apikeyMgr := apikey.NewManager()
 	log.Println("✅ v2.548.0 新增模块就绪")
@@ -956,7 +844,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 			srv, _ := sftp.NewServer(nil)
 			return srv
 		}(),
-		aiClassifyMgr: aiClassifyMgr,
 		versioningMgr: versioningMgr,
 		dedupMgr:      dedupMgr,
 		cloudsyncMgr:  cloudsyncMgr,
@@ -1007,20 +894,15 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 		wolMgr:         wolMgr,
 		aclMgr:         aclMgr,
 		webhookMgr:     webhookMgr,
-		ransomDetector: ransomDetector,
 		recycleCleaner: recycleCleaner,
 		notifyChanMgr:  notifyChanMgr,
 		// mediaMgr:      mediaMgr,
 		// v2.481.0 新增模块
-		activeBackupMgr: activeBackupMgr,
-		audioStationMgr: audioStationMgr,
 		drDrillMgr:      drDrillMgr,
 		driveSyncMgr:    driveSyncMgr,
 		scrubSchedMgr:   scrubSchedMgr,
-		vmImportMgr:     vmImportMgr,
 		s3Gateway:       s3Gateway,
 		schedulerMgr:    schedulerMgr,
-		smartMigrateMgr: smartMigrateMgr,
 		diskbenchMgr:    diskbenchMgr,
 		healthscoreMgr:  healthscoreMgr,
 		fastTransferMgr: fastTransferMgr,
@@ -1029,54 +911,38 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 		fileindexMgr:   fileindexMgr,
 		webterminalMgr: webterminalMgr,
 		// v2.490.0 新增模块
-		logcenterMgr: logcenterMgr,
 		// v2.491.0 新增模块
 		notificationSvc: notificationSvc,
 		// v2.498.0 新增模块
-		appCenterMgr:     appCenterMgr,
-		backupVerifyMgr:  backupVerifyMgr,
 		collabDocsMgr:    collabDocsMgr,
 		containResMonMgr: containResMonMgr,
 		dataClassifyMgr:  dataClassifyMgr,
 		wellbeingMgr:     wellbeingMgr,
 		dlpMgr:           dlpMgr,
 		edgeComputeMgr:   edgeComputeMgr,
-		energyMgr:        energyMgr,
 		fileSyncMgr:      fileSyncMgr,
 		netSentinelMgr:   netSentinelMgr,
 		networkMapMgr:    networkMapMgr,
-		photoEnhanceMgr:  photoEnhanceMgr,
 		privacyVaultMgr:  privacyVaultMgr,
 		remoteDesktopMgr: remoteDesktopMgr,
-		smartHomeMgr:     smartHomeMgr,
 		ssoHubMgr:        ssoHubMgr,
 		surveillanceMgr:  surveillanceMgr,
 		unifiedSearchMgr: unifiedSearchMgr,
 		// v2.513.0 新增模块
-		airRecommendMgr:        airRecommendMgr,
 		alertGuidedMgr:         alertGuidedMgr,
-		auditTrailMgr:          auditTrailMgr,
 		dataWarehouseMgr:       dataWarehouseMgr,
 		fileDejavuMgr:          fileDejavuMgr,
 		hybridFlashMgr:         hybridFlashMgr,
 		lxcmktMgr:              lxcmktMgr,
 		objectImmutableMgr:     objectImmutableMgr,
 		privacyShieldMgr:       privacyShieldMgr,
-		selfServiceMgr:         selfServiceMgr,
-		smartLinkMgr:           smartLinkMgr,
 		spotlightMgr:           spotlightMgr,
-		dlnaMediaMgr:           dlnaMediaMgr,
-		dnsFilterMgr:           dnsFilterMgr,
 		musicServerMgr:         musicServerMgr,
-		photoAIMgr:             photoAIMgr,
 		syslogServerMgr:        syslogServerMgr,
 		digitalLegacyMgr:       digitalLegacyMgr,
-		containerImageCacheMgr: containerImageCacheMgr,
 		customBrandingMgr:      customBrandingMgr,
-		multiClusterFedMgr:     multiClusterFedMgr,
 		smbDirectMgr:           smbDirectMgr,
 		storageCostForecastMgr: storageCostForecastMgr,
-		smartNASRouterMgr:      smartNASRouterMgr,
 		filetagMgr:             filetagMgr,
 		apikeyMgr:              apikeyMgr,
 	}
@@ -1154,6 +1020,8 @@ func (s *Server) setupRoutes() {
 			registrar.RegisterRoutes(api)
 		}
 	}
+	// Optional product extensions (config modules.extensions); default list is empty.
+	s.registerConfiguredExtensions(api)
 	{
 		storage.RegisterLegacyRoutes(api, storage.NewLegacyAPIHandlers(s.storageMgr))
 
@@ -1227,12 +1095,6 @@ func (s *Server) setupRoutes() {
 		}
 
 		// ========== AI 分类 ==========
-		if s.aiClassifyMgr != nil {
-			aiHandlers, err := ai_classify.NewHandlers(ai_classify.DefaultConfig())
-			if err == nil {
-				aiHandlers.RegisterRoutes(api)
-			}
-		}
 
 		// ========== 私有云AI服务 ==========
 		if s.aiSvc != nil {
@@ -1323,9 +1185,6 @@ func (s *Server) setupRoutes() {
 		backupHandlers.RegisterRoutes(api)
 
 		// ========== 备份验证 ==========
-		if s.backupVerifyMgr != nil {
-			backupverify.NewHandler(s.backupVerifyMgr).RegisterRoutes(api)
-		}
 		// ========== 虚拟机管理 ==========
 		if s.vmMgr != nil && s.isoMgr != nil {
 			vmHandler := vm.NewHandler(s.vmMgr, s.isoMgr, s.snapshotMgr, zap.NewNop())
@@ -1451,7 +1310,6 @@ func (s *Server) setupRoutes() {
 		webhook.NewHandlers(s.webhookMgr).RegisterRoutes(api)
 
 		// ML 勒索检测 API
-		ransommldetect.NewHandlers(s.ransomDetector, s.logger).RegisterRoutes(api)
 
 		// 回收站自动清理 API
 		recyclecleaner.NewHandlers(s.recycleCleaner).RegisterRoutes(api)
@@ -1462,14 +1320,8 @@ func (s *Server) setupRoutes() {
 		// ========== v2.481.0 新增路由 ==========
 
 		// 整机备份 API（对标群晖 Active Backup for Business）
-		if s.activeBackupMgr != nil {
-			activebackup.NewHandlers(s.activeBackupMgr).RegisterRoutes(api)
-		}
 
 		// 音乐中心 API（对标群晖 Audio Station）
-		if s.audioStationMgr != nil {
-			audiostation.NewHandlers(s.audioStationMgr).RegisterRoutes(api)
-		}
 
 		// 容灾演练 API（对标群晖 DR Drill）
 		if s.drDrillMgr != nil {
@@ -1487,9 +1339,6 @@ func (s *Server) setupRoutes() {
 		}
 
 		// 虚拟机导入导出 API
-		if s.vmImportMgr != nil {
-			vmimport.NewHandlers(s.vmImportMgr).RegisterRoutes(api)
-		}
 
 		// S3对象存储网关 API
 		if s.s3Gateway != nil {
@@ -1503,9 +1352,6 @@ func (s *Server) setupRoutes() {
 		}
 
 		// 智能迁移 API
-		if s.smartMigrateMgr != nil {
-			smartmigrate.NewHandlers(s.smartMigrateMgr).RegisterRoutes(api)
-		}
 
 		// ========== v2.485.0 新增路由 ==========
 
@@ -1523,9 +1369,6 @@ func (s *Server) setupRoutes() {
 		// webterminal 通过 WebSocket 路由处理，无需单独注册
 
 		// 日志中心 API（对标群晖 Log Center）
-		if s.logcenterMgr != nil {
-			logcenter.NewHandlers(s.logger, s.logcenterMgr).RegisterRoutes(api)
-		}
 
 		// ========== 通知中心 ==========
 		// v2.491.0 工部新增 - 对标群晖 Notification Center
@@ -1536,9 +1379,6 @@ func (s *Server) setupRoutes() {
 		// ========== v2.498.0 新增路由 ==========
 
 		// 应用中心（对标群晖 Package Center）
-		if s.appCenterMgr != nil {
-			appcenter.NewHandler(s.appCenterMgr, s.logger).RegisterRoutes(api)
-		}
 
 		// 文件同步（对标群晖 Drive Sync）
 		if s.fileSyncMgr != nil {
@@ -1570,26 +1410,17 @@ func (s *Server) setupRoutes() {
 		if s.edgeComputeMgr != nil {
 			edgecompute.NewHandler(s.edgeComputeMgr).RegisterRoutes(newMux)
 		}
-		if s.energyMgr != nil {
-			energymanager.NewHandler(s.energyMgr).RegisterRoutes(newMux)
-		}
 		if s.netSentinelMgr != nil {
 			netsentinel.NewHandler(s.netSentinelMgr).RegisterRoutes(newMux)
 		}
 		if s.networkMapMgr != nil {
 			networkmap.NewHandler(s.networkMapMgr).RegisterRoutes(newMux)
 		}
-		if s.photoEnhanceMgr != nil {
-			photoenhance.NewHandler(s.photoEnhanceMgr).RegisterRoutes(newMux)
-		}
 		if s.privacyVaultMgr != nil {
 			privacyvault.NewHandler(s.privacyVaultMgr).RegisterRoutes(newMux)
 		}
 		if s.remoteDesktopMgr != nil {
 			remotedesktop.NewHandler(s.remoteDesktopMgr).RegisterRoutes(newMux)
-		}
-		if s.smartHomeMgr != nil {
-			smarthome.NewHandler(s.smartHomeMgr).RegisterRoutes(newMux)
 		}
 		if s.ssoHubMgr != nil {
 			ssohub.NewHandler(s.ssoHubMgr).RegisterRoutes(newMux)
@@ -1599,22 +1430,13 @@ func (s *Server) setupRoutes() {
 		}
 
 		// v2.542.0 新增模块路由（http.ServeMux）
-		if s.photoAIMgr != nil {
-			photoai.NewHandler(s.photoAIMgr).RegisterRoutes(newMux)
-		}
 		if s.healthscoreMgr != nil {
 			healthscore.NewHandlers(s.healthscoreMgr).RegisterRoutes(newMux)
 		}
 
 		// v2.513.0 新增模块路由
-		if s.airRecommendMgr != nil {
-			airecommend.NewHandler(s.airRecommendMgr).RegisterRoutes(api)
-		}
 		if s.alertGuidedMgr != nil {
 			alertguided.NewHandlers(s.logger, s.alertGuidedMgr).RegisterRoutes(api)
-		}
-		if s.auditTrailMgr != nil {
-			audittrail.NewHandlers(s.auditTrailMgr).RegisterRoutes(api)
 		}
 		if s.dataWarehouseMgr != nil {
 			datawarehouse.NewHandler(s.dataWarehouseMgr).RegisterRoutes(api)
@@ -1634,23 +1456,11 @@ func (s *Server) setupRoutes() {
 		if s.privacyShieldMgr != nil {
 			privacyshield.RegisterRoutes(api)
 		}
-		if s.selfServiceMgr != nil {
-			selfserviceportal.NewHandler(s.selfServiceMgr).RegisterRoutes(api)
-		}
-		if s.smartLinkMgr != nil {
-			smartlink.NewHandler(s.smartLinkMgr).RegisterRoutes(api)
-		}
 		if s.spotlightMgr != nil {
 			spotlight.NewHandlers(s.logger, s.spotlightMgr).RegisterRoutes(api)
 		}
 
 		// v2.542.0 新增模块路由
-		if s.dlnaMediaMgr != nil {
-			dlnamedia.NewHandler(s.dlnaMediaMgr).RegisterRoutes(api)
-		}
-		if s.dnsFilterMgr != nil {
-			dnsfilter.NewHandlers(s.dnsFilterMgr).RegisterRoutes(api)
-		}
 		if s.musicServerMgr != nil {
 			musicserver.NewHandlers(s.musicServerMgr).RegisterRoutes(api)
 		}
@@ -1675,23 +1485,14 @@ func (s *Server) setupRoutes() {
 				legacyMux.ServeHTTP(c.Writer, c.Request.WithContext(ctx))
 			})
 		}
-		if s.containerImageCacheMgr != nil {
-			containerimagecache.NewHandler(s.containerImageCacheMgr).RegisterRoutes(newMux)
-		}
 		if s.customBrandingMgr != nil {
 			custombranding.NewHandler(s.customBrandingMgr).RegisterRoutes(newMux)
-		}
-		if s.multiClusterFedMgr != nil {
-			multiclusterfed.NewHandler(s.multiClusterFedMgr).RegisterRoutes(newMux)
 		}
 		if s.smbDirectMgr != nil {
 			smbdirect.NewHandler(s.smbDirectMgr).RegisterRoutes(newMux)
 		}
 		if s.storageCostForecastMgr != nil {
 			storagecostforecast.NewHandler(s.storageCostForecastMgr).RegisterRoutes(newMux)
-		}
-		if s.smartNASRouterMgr != nil {
-			smartnasrouter.NewHandlers(s.smartNASRouterMgr).RegisterRoutes(api)
 		}
 		if s.filetagMgr != nil {
 			filetag.NewHandler(s.filetagMgr).RegisterRoutes(api)
@@ -1782,9 +1583,6 @@ func (s *Server) Start(addr string) error {
 	}
 	if s.upsMgr != nil {
 		s.upsMgr.Start()
-	}
-	if s.ransomDetector != nil {
-		s.ransomDetector.Start()
 	}
 	if s.recycleCleaner != nil {
 		s.recycleCleaner.Start()
@@ -1882,9 +1680,6 @@ func (s *Server) Stop() error {
 	}
 
 	// 停止 ML 勒索检测
-	if s.ransomDetector != nil {
-		s.ransomDetector.Stop()
-	}
 
 	// 停止回收站自动清理
 	if s.recycleCleaner != nil {
@@ -2060,17 +1855,14 @@ func (s *Server) getSystemInfo(c *gin.Context) {
 
 // getHealth 健康检查
 // @Summary 健康检查
-// @Description 检查系统是否正常运行
+// @Description 聚合 Core 模块 Health()；任一 Core 不健康则 status=unhealthy
 // @Tags system
 // @Accept json
 // @Produce json
-// @Success 200 {object} HealthResponse "系统健康"
+// @Success 200 {object} map[string]interface{} "系统健康（含 modules）"
 // @Router /system/health [get].
 func (s *Server) getHealth(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "healthy",
-	})
+	c.JSON(http.StatusOK, AggregateCoreHealth(c.Request.Context(), s.modules))
 }
 
 func (s *Server) getSystemStatus(c *gin.Context) {

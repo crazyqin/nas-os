@@ -1,9 +1,9 @@
 # NAS-OS 架构说明
 
-**版本**: v3.22.0  
+**版本**: v3.23.0  
 **更新日期**: 2026-07-16
 
-本文描述 NAS-OS 当前的进程组合、模块生命周期、API 安全边界和渐进迁移约束。模块分层以 **Core / Extension / Lab** 为准；目录与 `internal/application` catalog 标签必须一致。
+本文描述 NAS-OS 当前的进程组合、模块生命周期、API 安全边界和渐进迁移约束。模块分层以 **Core / Extension / Lab** 为准；目录与 `internal/application` catalog 标签必须一致，且 **运行时默认路径不得硬接线 Lab**。
 
 ## 进程组合
 
@@ -60,16 +60,10 @@ type Module interface {
 模块层级治理：
 
 - **Core**：进程主生命周期必需能力，只允许 `identity / storage / network / sharing / system`；
-- **Extension**：可选产品能力，允许保留独立 handler / manager，但不得伪装成启动主图核心；当前已收敛示例：`internal/extensions/activeprotect`、`internal/extensions/agentworkflow`、`internal/extensions/aiguardrails`、`internal/extensions/compliancescan`、`internal/extensions/deployorch`、`internal/extensions/netdiag`、`internal/extensions/voicehub`。零生产接入的旧 Extension 标签（如 `acme`/`alerting`/`selfheal`/`ztna`/`activebackup`/`reports`/`smartpricing`）已在本轮改为 Lab，并与 `internal/lab/` 路径对齐；
-- **Lab**：实验性、概念验证或待收编模块，默认不进入生产核心图，优先降级、隔离或删除重复实现。历史收敛示例见既有 `internal/lab/*`（AI/smart/carbon/budget/quantum/cost/cloud 等波次）。
-  **v3.22.0 本轮新增降级（163 个零生产引用伪核心 → `internal/lab/`）**：
-  - 文件生命周期/去重（25）：`filemanager`、`filetimemachine`、`fileversion`、`filesynchub`、`fastdedup`、`inlinededup` 等；
-  - 存储/硬件辅助（31）：`btrfs`、`draid`、`nvmeof`、`ssdcache`、`storagetiering`、`hybridpool`、`diskhealth` 等；
-  - 网络/边缘（17）：`connect`、`firewall`、`gateway`、`loadbalancer`、`nasdiscovery`、`ztna` 等；
-  - 身份/安全辅件（22）：`ldap`、`kerberos`、`fido2`、`fips`、`antivirus`、`audit`、`forensics` 等；
-  - 协作/内容应用（29）：`media`、`collaboration`、`downloadstation`、`notes`、`calendar`、`mailserver` 等；
-  - 运维/平台概念（+ acme/alerting/selfheal 等）：`automation`、`appstore`、`dockercompose`、`diagnostics`、`compliance` 等。
-  目录与 catalog 标签必须一致；路径边界测试锁定 `internal/lab/<name>` 存在且旧 `internal/<name>` 不得回流。
+- **Extension**：可选产品能力，**默认不加载**。通过配置 `modules.extensions: [name, ...]` 由 `internal/web/extensions_loader.go` 挂载路由或初始化管理器。已知名：`activeprotect`、`agentworkflow`、`aiguardrails`、`compliancescan`、`deployorch`、`netdiag`、`voicehub`（目录 `internal/extensions/*`）。未列入配置的 Extension **不会**出现在默认 `nasd` HTTP 面。
+- **Lab**：实验性、概念验证或待收编模块，位于 `internal/lab/*`。**v3.23.0**：生产 `internal/web`（非测试）**禁止** import Lab；默认启动不再构造 Lab 管理器。需要实验能力时在独立分支/构建中评估，或将来以 Extension 形式显式启用。
+- **未知 catalog 名**：`ModuleTierFor` 默认 **Lab**（不再默认 Extension，避免未编目包伪装成产品扩展）。
+- **治理锁**：`internal/application/governance_test.go` + `toplevel_allowlist.txt` 禁止 web→lab 回流、Core 扩编、顶层业务包随意新增。
 
 容器保证：
 
@@ -132,22 +126,54 @@ API 分成三层：
 3. 核心模块逆序停止；
 4. 下载、集群等进程级资源关闭。
 
-## 存储 API 迁移约束
+## 存储 API 迁移约束（弃用时间表）
 
 当前保留两组生产契约：
 
-- 历史契约：`/api/v1/volumes/*`
-- 兼容契约：`/api/v1/storage/*`
+| 契约 | 路径 | 状态 |
+|------|------|------|
+| 历史 | `/api/v1/volumes/*` | **兼容保留**；新客户端请勿新增依赖 |
+| 现行 | `/api/v1/storage/*` | **推荐**；与新 handler 字段对齐中 |
 
-`internal/storage.Handlers` 的字段、状态码和错误语义与历史契约不同，暂不直接替换。迁移必须逐端点进行，并用 contract/golden test 保证旧路径、HTTP 方法和响应格式不变。禁止一次性双注册或切换实现。
+`internal/storage.Handlers` 的字段、状态码和错误语义与历史契约不同，**禁止**一次性双注册切换。迁移必须逐端点进行，并用 contract/golden test 保证旧路径、HTTP 方法和响应格式不变。
+
+**弃用计划（多版本）**：
+
+1. **v3.23.x**：双契约并存；文档与 OpenAPI 优先描述 `/storage`。
+2. **后续次版本**：对 `/volumes` 响应增加弃用头/日志提示（不破坏体）。
+3. **未来主版本**：在客户端迁移完成后移除 `/volumes`（需 CHANGELOG 与发布说明明确）。
+
+## 入口与部署（单一主路径）
+
+| 角色 | 主路径 | 说明 |
+|------|--------|------|
+| 进程入口 | `cmd/nasd` → `internal/application` | 唯一生产守护进程组合根 |
+| HTTP | `internal/web` | 路由与可选 Extension 挂载 |
+| 主 UI | `webui/` | 静态 HTML/JS 管理界面（**主产品 UI**） |
+| 实验前端 | `web/src` | 部分 React 视图，**非**默认交付主线 |
+| 根 `api/` | **非 nasd 入口** | 见 `api/README.md`；勿当作线上 API |
+| 主部署 | `docker-compose.yml` + `Dockerfile` | 开发/单机默认；`*.prod` / `*.ai` 为场景叠加 |
+
+## 健康探针
+
+- `GET /api/v1/system/health` 与 `GET /api/v1/health`：聚合 **Core** 模块 `Health()`；任一失败则 `data.status=unhealthy`、`code=1`（HTTP 仍 200，便于 LB 解析 body）。
+- `GET /api/v1/system/modules`（管理员）：含 tier 的模块状态列表。
+- `GET /api/v1/system/info`：版本来自 `internal/version`（与根 `VERSION` 同步）。
+
+## 功能矩阵（诚实口径）
+
+| 层级 | 默认 `nasd` | 如何启用 |
+|------|-------------|----------|
+| Core（5） | 始终 | 生命周期主图 |
+| Extension（7） | **否** | `modules.extensions` 列表 |
+| Lab（~467） | **否** | 不在默认路径；仅源码保留 |
+| 其他顶层支撑包 | 视 web 硬接线 | 生产支撑（auth/storage/…），**非 Core 名** |
 
 ## 渐进迁移规则
 
-- 冻结新增顶层 `internal` 业务模块，优先归入现有领域；
-- 已完成多轮目录收敛：可选产品能力迁入 `internal/extensions/`；实验/重复/零引用伪核心迁入 `internal/lab/`；
-- **v3.22.0**：再降 163 个零生产引用伪核心到 Lab，并修正 catalog 标签与路径不一致（`activebackup`/`reports`/`smartpricing` 等已在 lab 的模块统一标为 Lab）；
+- 冻结新增顶层 `internal` 业务模块（allowlist 测试）；新实验进 `lab/`，可选产品进 `extensions/`；
+- **v3.23.0**：Lab 默认运行时剥离；Extension 按配置加载；Core 健康聚合；治理测试入仓；
+- **v3.22.0**：163 伪核心目录降入 Lab；catalog 路径对齐；
 - Core 生命周期主图仍仅允许 `identity` / `storage` / `network` / `sharing` / `system`；
-- 每次只迁移一个低风险领域或一组端点；
 - 每个提交保持可构建、可测试、可回滚；
-- 新模块优先使用小接口和显式构造函数；
 - 删除兼容路由前必须先完成客户端迁移和弃用周期。

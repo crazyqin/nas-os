@@ -27,6 +27,11 @@ modules:
   docker:
     enabled: false
     data_root: /mnt/docker
+  # Optional product extensions (empty = none loaded on default boot).
+  # Known: activeprotect, agentworkflow, aiguardrails, compliancescan,
+  #        deployorch, netdiag, voicehub
+  # Lab packages under internal/lab/ are never loaded via this list.
+  extensions: []
 
 # ==================== 兼容旧字段（未接入 config 包） ====================
 # 以下字段保留自旧版配置，后续按模块迁移到 config 包表达。

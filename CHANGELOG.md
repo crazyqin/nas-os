@@ -1,5 +1,30 @@
 # Changelog
 
+## v3.23.0 (2026-07-16) - 运行时诚实与架构治理 (P0–P3)
+
+### P0 运行时诚实
+- 生产 `internal/web` **移除全部 `internal/lab/*` import 与默认 Manager 构造/路由注册**（约 25 个 Lab 包不再进入默认 `nasd` 热路径）。
+- Extension 通过 `modules.extensions` **按需加载**（`extensions_loader.go`）；默认 `[]` 不加载任何扩展。
+- 已知 Extension：activeprotect、agentworkflow、aiguardrails、compliancescan、deployorch、netdiag、voicehub。
+
+### P2 健康探针
+- `GET /api/v1/system/health`（及兼容 `/health`）聚合 **Core** 模块 `Health()`；失败返回 `status=unhealthy`、`code=1`。
+- 新增 `AggregateCoreHealth` 与 handler 级回归测试。
+
+### P3 治理
+- 未知 catalog 名默认 **Lab**（不再默认 Extension）。
+- 测试：`TestProductionWebDoesNotImportLab`、`TestCoreCatalogExactlyFive`、`TestTopLevelInternalAllowlistFrozen`、路径锁。
+- 冻结 `internal/application/toplevel_allowlist.txt`。
+
+### P1 入口与文档诚实
+- 根 `api/README.md` 标明 **非 nasd 入口**。
+- 文档明确主 UI=`webui/`、主部署=`docker-compose.yml`、存储 `/volumes` 弃用时间表。
+- 功能矩阵：Core | 配置启用的 Extension | Lab（默认无）。
+
+### 验证
+- `go build ./cmd/nasd`（×2）
+- `go test ./internal/web ./internal/application ./internal/arch ./internal/version ./internal/config`
+
 ## Unreleased (docs + version integrity)
 
 ### 修复
