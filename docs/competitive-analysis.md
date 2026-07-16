@@ -1,17 +1,19 @@
-## v3.14.0 备份健康顾问对标补充
-
-- 群晖 Active Backup 强调集中保护 PC/Mac、裸机恢复、计划模板、增量备份与全局去重；本轮将这些能力抽象成终端保护率、失败任务修复、增量/去重节省空间建议。
-- TrueNAS 的快照、校验、复制和不可变恢复点适合作为数据韧性基线；本轮在关键共享、勒索告警、快照数量、不可变快照和异地副本信号上生成高优先级动作。
-- 飞牛 fnOS 的价值在于家庭用户低门槛体验；本轮把恢复演练、USB/ISO 恢复介质和 RPO/RTO 预估组织成向导可消费的下一步建议。
-
 # NAS-OS 竞品分析报告
 
-**更新日期**: 2026-07-06
-**版本**: v3.14.0
+**更新日期**: 2026-07-16  
+**版本**: v3.22.0
 
 ## 概述
 
 本文档对比分析 NAS-OS 与 Synology DSM、TrueNAS、飞牛 fnOS、QNAP QuTS hero 等主流 NAS 平台的公开能力，聚焦本地 AI、存储效率、权限安全、文件共享、媒体体验和企业运维。NAS-OS 的定位是开源、可自托管、兼顾家庭与中小企业的 NAS 系统。
+
+**架构说明（阅读对标表前请先了解）**：生产生命周期 **Core 仅** `identity` / `storage` / `network` / `sharing` / `system`。可选产品能力在 `internal/extensions/`；大量实验与对标增强实现在 `internal/lab/`，**不进入 Core 主图**。详见 [ARCHITECTURE.md](ARCHITECTURE.md)。
+
+### v3.14.0 备份健康顾问对标补充（历史能力）
+
+- 群晖 Active Backup 强调集中保护 PC/Mac、裸机恢复、计划模板、增量备份与全局去重；本轮将这些能力抽象成终端保护率、失败任务修复、增量/去重节省空间建议。
+- TrueNAS 的快照、校验、复制和不可变恢复点适合作为数据韧性基线；本轮在关键共享、勒索告警、快照数量、不可变快照和异地副本信号上生成高优先级动作。
+- 飞牛 fnOS 的价值在于家庭用户低门槛体验；本轮把恢复演练、USB/ISO 恢复介质和 RPO/RTO 预估组织成向导可消费的下一步建议。
 
 ---
 
@@ -22,12 +24,13 @@
 | 定位 | 开源家用/中小企业 NAS | 商用一体化 NAS | 企业级开源/订阅 NAS | 国产家用 NAS | 商用 NAS / ZFS 平台 |
 | 许可 | MIT 开源 | 硬件绑定 | 开源 + 企业订阅 | 免费闭源 | 硬件/授权绑定 |
 | 存储 | btrfs + ZFS 兼容能力 | Btrfs/ext4 | OpenZFS | ext4/ZFS | ZFS/QuTS hero |
-| 容器/虚拟化 | Docker + LXC + VM | Container Manager/VM | Docker + LXC | Docker/VM | Container Station/VM |
-| AI 能力 | 本地 LLM、CLIP、语义搜索治理、MCP | 本地 AI/AI Console/DSM Agent | TrueSearch 为主 | AI 相册/媒体体验 | AI/QuMagie 等应用能力 |
-| 安全 | RBAC/MFA/WORM/审计/设备信任 | RBAC/MFA/企业套件 | FIPS/STIG/企业审计 | ACL/远程访问 | passkeys/不可变快照 |
-| 体验引导 | 体验顾问按照片/媒体/备份/远程访问/应用/存储生成建议 | 套件化向导与通知 | 存储/数据保护告警 | 家庭影音和远程访问引导 | 系统通知与应用向导 |
-| 文件整理 | 智能文件夹按最近文件、大文件、照片、视频、文档生成虚拟视图 | Universal Search/Photos | 数据集与共享视图 | 文件/相册聚合 | QuMagie/File Station |
-| 成本容量治理 | 成本/容量风险摘要识别低利用、高水位、过载与浪费估算 | 容量管理与存储分析 | ZFS 容量规划/告警 | 家庭存储提醒 | 资源监控与分层建议 |
+| 容器/虚拟化 | Docker + LXC + VM（增强多在 Lab/Extension） | Container Manager/VM | Docker + LXC | Docker/VM | Container Station/VM |
+| AI 能力 | 本地 LLM、CLIP、语义搜索、MCP（大量 AI 辅件在 Lab） | 本地 AI/AI Console/DSM Agent | TrueSearch 为主 | AI 相册/媒体体验 | AI/QuMagie 等应用能力 |
+| 安全 | RBAC/MFA/WORM/审计；ZTNA/合规扫描等分属 Extension/Lab | RBAC/MFA/企业套件 | FIPS/STIG/企业审计 | ACL/远程访问 | passkeys/不可变快照 |
+| 模块治理 | Core 5 + Extension 7 + Lab ~467（v3.22.0） | 套件化 | 插件/应用 | 应用中心 | 应用中心 |
+| 体验引导 | 体验顾问/下一步建议（实现可能位于 Lab） | 套件化向导与通知 | 存储/数据保护告警 | 家庭影音和远程访问引导 | 系统通知与应用向导 |
+| 文件整理 | 智能文件夹等（Lab/产品层） | Universal Search/Photos | 数据集与共享视图 | 文件/相册聚合 | QuMagie/File Station |
+| 成本容量治理 | 成本/容量风险摘要（多在 Lab） | 容量管理与存储分析 | ZFS 容量规划/告警 | 家庭存储提醒 | 资源监控与分层建议 |
 
 ---
 

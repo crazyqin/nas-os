@@ -1,19 +1,17 @@
 #!/bin/bash
 # =============================================================================
-# NAS-OS 版本信息脚本 v2.76.0
+# NAS-OS 版本信息脚本
 # =============================================================================
 # 用途：显示 NAS-OS 及相关组件的版本信息
 # 用法：./version-info.sh [--json] [--check]
-#
-# v2.76.0 更新（工部增强）：
-# - 添加组件健康状态检查
-# - 添加配置版本显示
-# - 添加数据库版本信息
+# 版本号从仓库根目录 VERSION 文件读取，避免硬编码漂移。
 # =============================================================================
 
 set -euo pipefail
 
-VERSION="2.76.0"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+VERSION="$(tr -d '[:space:]' < "$PROJECT_ROOT/VERSION" 2>/dev/null || echo "unknown")"
 
 # 颜色
 RED='\033[0;31m'
@@ -114,7 +112,7 @@ check_latest_version() {
     # 尝试从 GitHub API 获取最新版本
     if command -v curl &> /dev/null; then
         latest=$(curl -sf --max-time 5 \
-            "https://api.github.com/repos/nas-os/nas-os/releases/latest" 2>/dev/null | \
+            "https://api.github.com/repos/crazyqin/nas-os/releases/latest" 2>/dev/null | \
             grep -o '"tag_name": "[^"]*"' | cut -d'"' -f4)
     fi
     

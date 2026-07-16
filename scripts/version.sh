@@ -12,15 +12,13 @@ VERSION_FILE="$PROJECT_ROOT/VERSION"
 VERSION=$(cat "$VERSION_FILE" | tr -d 'v' | tr -d '\n')
 echo "📋 当前版本: $VERSION"
 
-# 同步 internal/version/version.go
+# 同步 internal/version/version.go（var Version / BuildTime，无 v 前缀）
 VERSION_GO="$PROJECT_ROOT/internal/version/version.go"
 if [ -f "$VERSION_GO" ]; then
-    # 更新 Version 变量
-    sed -i "s/Version   = \"[^\"]*\"/Version   = \"$VERSION\"/" "$VERSION_GO"
-    # 更新 BuildDate
-    BUILD_DATE=$(date +%Y-%m-%d)
-    sed -i "s/BuildDate = \"[^\"]*\"/BuildDate = \"$BUILD_DATE\"/" "$VERSION_GO"
-    echo "✅ 已同步 version.go"
+    sed -i -E "s/^(var Version = )\"[^\"]*\"/\1\"$VERSION\"/" "$VERSION_GO"
+    BUILD_DATE=$(date -u '+%Y-%m-%d_%H:%M:%S')
+    sed -i -E "s/^(var BuildTime = )\"[^\"]*\"/\1\"$BUILD_DATE\"/" "$VERSION_GO"
+    echo "✅ 已同步 version.go -> $VERSION"
 fi
 
 # 同步 cmd/nasd/main.go Swagger 注释

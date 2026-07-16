@@ -2,7 +2,7 @@
 package main
 
 // @title NAS-OS API
-// @version 2.615.0
+// @version 3.22.0
 // @description NAS-OS 是一个现代化的网络存储操作系统，提供卷管理、用户管理、共享管理、网络配置等功能。
 // @description
 // @description ## 功能模块
@@ -14,10 +14,14 @@ package main
 // @description - **插件系统**: 可扩展的插件架构
 // @description - **配额管理**: 存储配额控制
 // @description - **性能监控**: 系统性能监控与报告
+// @description
+// @description ## 架构分层 (Core / Extension / Lab)
+// @description 生产核心生命周期仅注册 identity / storage / network / sharing / system；
+// @description 可选产品能力见 internal/extensions/*；实验与伪核心实现见 internal/lab/*。
 // @termsOfService http://swagger.io/terms/
 
 // @contact.name NAS-OS 团队
-// @contact.url https://github.com/nas-os/nas-os
+// @contact.url https://github.com/crazyqin/nas-os
 // @contact.email support@nas-os.io
 
 // @license.name MIT
