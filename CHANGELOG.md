@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.24.1 (2026-07-16) - WebUI gate, force password change, purge api/middleware
+
+### Fixes (skeptic)
+- **WebUI nav**: default `webui/index.html` Core-only (no containers/vms/cloudsync/apps links).
+- **Static bypass**: stop `Static("/webui")` whole-tree; serve assets + allowlisted core pages; optional pages 404 when `modules.optional=false`.
+- **api/**: delete remaining `api/middleware/*.go` product sources.
+- **MustChangePassword**: AuthMiddleware returns 403 for normal APIs until `POST /api/v1/me/password`; login response includes flag.
+
+### Verify
+- `go test ./internal/web ./internal/users` (optional on/off, webui gate, password force)
+- `find api -name '*.go'` empty
+
 ## v3.24.0 (2026-07-16) - 默认表面收敛（破坏性）
 
 ### 破坏性变更

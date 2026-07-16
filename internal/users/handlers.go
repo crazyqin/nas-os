@@ -2,6 +2,7 @@ package users
 
 import (
 	"net/http"
+	"strings"
 
 	apiresponse "nas-os/internal/api"
 	"nas-os/internal/auth"
@@ -41,6 +42,8 @@ func (h *Handlers) RegisterProtectedRoutes(router *gin.RouterGroup) {
 	router.POST("/logout", h.logout)
 	router.POST("/refresh", h.refreshToken)
 	router.GET("/me", h.getCurrentUser)
+	// Self password change (allowed even when MustChangePassword is set).
+	router.POST("/me/password", h.changeOwnPassword)
 
 	// 用户和用户组管理只允许管理员访问。
 	users := router.Group("/users")
@@ -84,12 +87,13 @@ type LoginRequest struct {
 
 // LoginResponse 登录响应.
 type LoginResponse struct {
-	Token       string `json:"token,omitempty"`
-	ExpiresAt   string `json:"expires_at,omitempty"`
-	MFARequired bool   `json:"mfa_required"`
-	MFAType     string `json:"mfa_type,omitempty"`   // totp, sms, webauthn
-	SessionID   string `json:"session_id,omitempty"` // 临时会话 ID
-	User        *User  `json:"user,omitempty"`
+	Token              string `json:"token,omitempty"`
+	ExpiresAt          string `json:"expires_at,omitempty"`
+	MFARequired        bool   `json:"mfa_required"`
+	MFAType            string `json:"mfa_type,omitempty"`   // totp, sms, webauthn
+	SessionID          string `json:"session_id,omitempty"` // 临时会话 ID
+	MustChangePassword bool   `json:"must_change_password,omitempty"`
+	User               *User  `json:"user,omitempty"`
 }
 
 // ChangePasswordRequest 修改密码请求.
@@ -513,10 +517,11 @@ func (h *Handlers) login(c *gin.Context) {
 
 			// MFA 验证成功，返回令牌
 			c.JSON(http.StatusOK, apiresponse.Success(LoginResponse{
-				Token:       token.Token,
-				ExpiresAt:   token.ExpiresAt.Format("2006-01-02T15:04:05Z07:00"),
-				MFARequired: false,
-				User:        user,
+				Token:              token.Token,
+				ExpiresAt:          token.ExpiresAt.Format("2006-01-02T15:04:05Z07:00"),
+				MFARequired:        false,
+				MustChangePassword: user.MustChangePassword,
+				User:               user,
 			}))
 			return
 		}
@@ -530,13 +535,35 @@ func (h *Handlers) login(c *gin.Context) {
 		return
 	}
 
-	// 不需要 MFA，直接返回令牌
+	// 不需要 MFA，直接返回令牌（MustChangePassword 时仅允许改密/登出/me）
 	c.JSON(http.StatusOK, apiresponse.Success(LoginResponse{
-		Token:       token.Token,
-		ExpiresAt:   token.ExpiresAt.Format("2006-01-02T15:04:05Z07:00"),
-		MFARequired: false,
-		User:        user,
+		Token:              token.Token,
+		ExpiresAt:          token.ExpiresAt.Format("2006-01-02T15:04:05Z07:00"),
+		MFARequired:        false,
+		MustChangePassword: user.MustChangePassword,
+		User:               user,
 	}))
+}
+
+// changeOwnPassword allows the authenticated user to rotate their password
+// (including bootstrap force-change flow).
+func (h *Handlers) changeOwnPassword(c *gin.Context) {
+	username, _ := c.Get("username")
+	uname, _ := username.(string)
+	if uname == "" {
+		c.JSON(http.StatusUnauthorized, apiresponse.Error(401, "未授权"))
+		return
+	}
+	var req ChangePasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, apiresponse.Error(400, err.Error()))
+		return
+	}
+	if err := h.manager.ChangePassword(uname, req.OldPassword, req.NewPassword); err != nil {
+		c.JSON(http.StatusBadRequest, apiresponse.Error(400, err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, apiresponse.Success(gin.H{"must_change_password": false}))
 }
 
 // logout 用户登出
@@ -624,7 +651,40 @@ func AuthMiddleware(mgr *Manager) gin.HandlerFunc {
 		c.Set("user", user)
 		c.Set("user_id", user.ID)
 		c.Set("username", user.Username)
+
+		// Bootstrap / forced password rotation: block normal API until password changed.
+		if user.MustChangePassword && !isPasswordForceAllowedPath(c.Request.Method, c.FullPath(), c.Request.URL.Path, user.Username) {
+			c.JSON(http.StatusForbidden, apiresponse.Error(403, "must change password before using the API; POST /api/v1/me/password"))
+			c.Abort()
+			return
+		}
 		c.Next()
+	}
+}
+
+// isPasswordForceAllowedPath returns true for routes permitted while MustChangePassword is set.
+func isPasswordForceAllowedPath(method, fullPath, rawPath, username string) bool {
+	path := fullPath
+	if path == "" {
+		path = rawPath
+	}
+	// Strip trailing slash noise
+	if len(path) > 1 && path[len(path)-1] == '/' {
+		path = path[:len(path)-1]
+	}
+	switch {
+	case method == http.MethodPost && (path == "/api/v1/logout" || path == "/logout" || strings.HasSuffix(path, "/logout")):
+		return true
+	case method == http.MethodPost && (path == "/api/v1/refresh" || strings.HasSuffix(path, "/refresh")):
+		return true
+	case method == http.MethodGet && (path == "/api/v1/me" || strings.HasSuffix(path, "/me")):
+		return true
+	case method == http.MethodPost && (path == "/api/v1/me/password" || strings.HasSuffix(path, "/me/password")):
+		return true
+	case method == http.MethodPost && strings.HasSuffix(path, "/users/"+username+"/password"):
+		return true
+	default:
+		return false
 	}
 }
 

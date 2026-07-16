@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -1578,14 +1580,55 @@ func (s *Server) setupRoutes() {
 		c.File("./docs/swagger/swagger.yaml")
 	})
 
-	// Primary UI under /webui (avoid Static("/") catch-all conflicting with /api).
+	// Primary UI under /webui. Never Static() the whole tree when optional=false —
+	// that would expose webui/pages/* optional HTML via path bypass.
 	const webuiRoot = "/usr/share/nas-os/webui"
-	s.engine.Static("/webui", webuiRoot)
+	s.registerWebUI(webuiRoot)
+}
+
+// coreWebUIPages are always served (Core surface).
+var coreWebUIPages = map[string]bool{
+	"login.html":     true,
+	"dashboard.html": true,
+	"storage.html":   true,
+	"shares.html":    true,
+	"users.html":     true,
+	"network.html":   true,
+	"settings.html":  true,
+	"api-docs.html":  true,
+}
+
+func (s *Server) registerWebUI(webuiRoot string) {
+	optional := s.cfg != nil && s.cfg.Modules.Optional
+
+	// Assets always available.
+	s.engine.Static("/webui/css", webuiRoot+"/css")
+	s.engine.Static("/webui/js", webuiRoot+"/js")
+	s.engine.Static("/webui/i18n", webuiRoot+"/i18n")
+	s.engine.StaticFile("/webui/index.html", webuiRoot+"/index.html")
+	s.engine.StaticFile("/webui/manifest.json", webuiRoot+"/manifest.json")
 	s.engine.StaticFile("/", webuiRoot+"/index.html")
 	s.engine.StaticFile("/index.html", webuiRoot+"/index.html")
 
-	// Core-facing pages only by default. Optional-product pages (containers/vms/…)
-	// are registered only when modules.optional=true.
+	// Pages: core allowlist always; full pages tree only when optional=true.
+	if optional {
+		s.engine.Static("/webui/pages", webuiRoot+"/pages")
+	} else {
+		s.engine.GET("/webui/pages/*filepath", func(c *gin.Context) {
+			rel := strings.TrimPrefix(c.Param("filepath"), "/")
+			base := filepath.Base(rel)
+			if !coreWebUIPages[base] {
+				c.JSON(http.StatusNotFound, gin.H{
+					"code":    404,
+					"message": "optional product UI disabled; set modules.optional=true",
+				})
+				return
+			}
+			c.File(filepath.Join(webuiRoot, "pages", rel))
+		})
+	}
+
+	// Short convenience paths for Core pages.
 	s.engine.StaticFile("/login", webuiRoot+"/pages/login.html")
 	s.engine.StaticFile("/dashboard", webuiRoot+"/pages/dashboard.html")
 	s.engine.StaticFile("/storage", webuiRoot+"/pages/storage.html")
@@ -1594,23 +1637,11 @@ func (s *Server) setupRoutes() {
 	s.engine.StaticFile("/network", webuiRoot+"/pages/network.html")
 	s.engine.StaticFile("/settings", webuiRoot+"/pages/settings.html")
 
-	if s.cfg != nil && s.cfg.Modules.Optional {
+	if optional {
 		s.engine.StaticFile("/downloader", webuiRoot+"/pages/downloader/index.html")
-		s.engine.StaticFile("/downloader/", webuiRoot+"/pages/downloader/index.html")
-		s.engine.StaticFile("/rbac", webuiRoot+"/pages/rbac.html")
-		s.engine.StaticFile("/monitoring", webuiRoot+"/pages/monitoring.html")
 		s.engine.StaticFile("/containers", webuiRoot+"/pages/containers.html")
 		s.engine.StaticFile("/vms", webuiRoot+"/pages/vms.html")
-		s.engine.StaticFile("/trash", webuiRoot+"/pages/trash.html")
-		s.engine.StaticFile("/replication", webuiRoot+"/pages/replication.html")
-		s.engine.StaticFile("/webdav", webuiRoot+"/pages/webdav.html")
-		s.engine.StaticFile("/dir-quota", webuiRoot+"/pages/dir-quota.html")
-		s.engine.StaticFile("/iscsi", webuiRoot+"/pages/iscsi.html")
-		s.engine.StaticFile("/nvmeof", webuiRoot+"/pages/nvmeof.html")
-		s.engine.StaticFile("/office", webuiRoot+"/pages/office.html")
-		s.engine.StaticFile("/notify", webuiRoot+"/pages/notify.html")
-		s.engine.StaticFile("/optimizer", webuiRoot+"/pages/optimizer.html")
-		s.engine.StaticFile("/tunnel", webuiRoot+"/pages/tunnel.html")
+		s.engine.StaticFile("/cloudsync", webuiRoot+"/pages/cloudsync.html")
 	}
 }
 
