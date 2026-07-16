@@ -142,11 +142,11 @@ func registerCoreModules(
 		coreModule: coreModule{
 			name:   moduleIdentity,
 			initFn: requireService("users manager", userMgr),
-			healthFn: func(context.Context) error {
+			healthFn: func(ctx context.Context) error {
 				if userMgr == nil {
 					return fmt.Errorf("users manager unavailable")
 				}
-				return nil
+				return userMgr.Health(ctx)
 			},
 			logger: logger,
 		},
@@ -156,11 +156,11 @@ func registerCoreModules(
 		coreModule: coreModule{
 			name:   moduleStorage,
 			initFn: requireService("storage manager", storageMgr),
-			healthFn: func(context.Context) error {
+			healthFn: func(ctx context.Context) error {
 				if storageMgr == nil {
 					return fmt.Errorf("storage manager unavailable")
 				}
-				return nil
+				return storageMgr.Health(ctx)
 			},
 			logger: logger,
 		},
@@ -170,11 +170,11 @@ func registerCoreModules(
 		coreModule: coreModule{
 			name:   moduleNetwork,
 			initFn: requireService("network manager", networkMgr),
-			healthFn: func(context.Context) error {
+			healthFn: func(ctx context.Context) error {
 				if networkMgr == nil {
 					return fmt.Errorf("network manager unavailable")
 				}
-				return nil
+				return networkMgr.Health(ctx)
 			},
 			logger: logger,
 		},
@@ -191,11 +191,14 @@ func registerCoreModules(
 				}
 				return nil
 			},
-			healthFn: func(context.Context) error {
+			healthFn: func(ctx context.Context) error {
 				if smbMgr == nil || nfsMgr == nil {
 					return fmt.Errorf("sharing managers unavailable")
 				}
-				return nil
+				if err := smbMgr.Health(ctx); err != nil {
+					return err
+				}
+				return nfsMgr.Health(ctx)
 			},
 			logger: logger,
 		},

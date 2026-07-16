@@ -101,29 +101,34 @@ func New(cfg *config.Config, logger *zap.Logger) (app *Application, err error) {
 	}
 
 	hostname, _ := os.Hostname()
-	clusterServices, err := cluster.InitializeCluster(cluster.RootConfig{
-		NodeID:  hostname,
-		DataDir: cfg.Paths.DataDir,
-	}, logger)
-	if err != nil {
-		log.Printf("⚠️ 集群服务初始化警告：%v", err)
-		clusterServices = nil
-	} else if clusterServices != nil {
-		cleanup.add("cluster", func() error { return cluster.ShutdownCluster(clusterServices) })
-		log.Println("✅ 集群服务就绪")
-	}
+	var clusterServices *cluster.Services
+	var downloadMgr *downloader.Manager
+	if cfg.Modules.Optional {
+		var err error
+		clusterServices, err = cluster.InitializeCluster(cluster.RootConfig{
+			NodeID:  hostname,
+			DataDir: cfg.Paths.DataDir,
+		}, logger)
+		if err != nil {
+			log.Printf("⚠️ 集群服务初始化警告：%v", err)
+			clusterServices = nil
+		} else if clusterServices != nil {
+			cleanup.add("cluster", func() error { return cluster.ShutdownCluster(clusterServices) })
+			log.Println("✅ 集群服务就绪")
+		}
 
-	downloadMgr, err := downloader.NewManager(filepath.Join(cfg.Paths.DataDir, "downloads"), logger)
-	if err != nil {
-		log.Printf("⚠️ 下载管理初始化警告：%v", err)
-		downloadMgr = nil
-	} else {
-		cleanup.add("download manager", func() error {
-			downloadMgr.Close()
-			return nil
-		})
-		downloadMgr.SetTransmissionURL("http://localhost:9091")
-		log.Println("✅ 下载管理模块就绪")
+		downloadMgr, err = downloader.NewManager(filepath.Join(cfg.Paths.DataDir, "downloads"), logger)
+		if err != nil {
+			log.Printf("⚠️ 下载管理初始化警告：%v", err)
+			downloadMgr = nil
+		} else {
+			cleanup.add("download manager", func() error {
+				downloadMgr.Close()
+				return nil
+			})
+			downloadMgr.SetTransmissionURL("http://localhost:9091")
+			log.Println("✅ 下载管理模块就绪")
+		}
 	}
 
 	modules := arch.NewContainer(logger)

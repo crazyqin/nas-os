@@ -1,53 +1,63 @@
 package web
 
 import (
-	"nas-os/internal/storage"
-	"reflect"
-	"sort"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
+
+	"nas-os/internal/arch"
+	"nas-os/internal/config"
 
 	"github.com/gin-gonic/gin"
 )
 
-func TestLegacyStorageRouteSnapshot(t *testing.T) {
+// TestLegacyVolumesRoutesNotRegistered asserts destructive removal of /api/v1/volumes.
+func TestLegacyVolumesRoutesNotRegistered(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	cfg := config.Default()
+	s := NewServer(cfg, nil, nil, nil, nil, nil, nil, nil, nil, nil)
+	// Collect routes from engine
+	var paths []string
+	for _, r := range s.engine.Routes() {
+		paths = append(paths, r.Method+" "+r.Path)
+		if strings.Contains(r.Path, "/volumes") && !strings.Contains(r.Path, "/storage/") {
+			// allow only if under storage - legacy is /api/v1/volumes without storage
+			if strings.HasPrefix(r.Path, "/api/v1/volumes") {
+				t.Fatalf("legacy volumes route still registered: %s %s", r.Method, r.Path)
+			}
+		}
+	}
+	// Explicit probe
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/volumes", nil)
+	s.engine.ServeHTTP(w, req)
+	if w.Code != http.StatusNotFound && w.Code != http.StatusUnauthorized {
+		// 404 expected when not registered; 401 if somehow hit auth wrapper only
+		if w.Code == http.StatusOK {
+			t.Fatalf("legacy /api/v1/volumes must not succeed, got %d", w.Code)
+		}
+	}
+	_ = paths
+	_ = arch.ModuleTierCore
+}
+
+// TestStorageContractPathRemains documents the single storage contract prefix.
+func TestStorageContractPathRemains(t *testing.T) {
+	// Storage handlers register under /storage/* (e.g. /storage/volumes resource names).
+	// That is NOT the removed legacy /api/v1/volumes surface.
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
-	storage.RegisterLegacyRoutes(router.Group("/api/v1"), storage.NewLegacyAPIHandlers(nil))
-
-	got := make([]string, 0, len(router.Routes()))
-	for _, route := range router.Routes() {
-		got = append(got, route.Method+" "+route.Path)
+	h := NewStorageHandlers(nil)
+	h.RegisterRoutes(router.Group("/api/v1"))
+	found := false
+	for _, r := range router.Routes() {
+		if strings.Contains(r.Path, "/storage") {
+			found = true
+			break
+		}
 	}
-	sort.Strings(got)
-	want := []string{
-		"DELETE /api/v1/volumes/:name",
-		"DELETE /api/v1/volumes/:name/devices/:device",
-		"DELETE /api/v1/volumes/:name/snapshots/:snapshot",
-		"DELETE /api/v1/volumes/:name/subvolumes/:subvol",
-		"GET /api/v1/raid-configs",
-		"GET /api/v1/volumes",
-		"GET /api/v1/volumes/:name",
-		"GET /api/v1/volumes/:name/balance",
-		"GET /api/v1/volumes/:name/devices",
-		"GET /api/v1/volumes/:name/scrub",
-		"GET /api/v1/volumes/:name/subvolumes",
-		"GET /api/v1/volumes/:name/subvolumes/:subvol",
-		"GET /api/v1/volumes/:name/snapshots",
-		"GET /api/v1/volumes/:name/usage",
-		"POST /api/v1/volumes",
-		"POST /api/v1/volumes/:name/balance",
-		"POST /api/v1/volumes/:name/convert",
-		"POST /api/v1/volumes/:name/devices",
-		"POST /api/v1/volumes/:name/mount",
-		"POST /api/v1/volumes/:name/scrub",
-		"POST /api/v1/volumes/:name/snapshots",
-		"POST /api/v1/volumes/:name/snapshots/:snapshot/restore",
-		"POST /api/v1/volumes/:name/subvolumes",
-		"POST /api/v1/volumes/:name/unmount",
-		"PUT /api/v1/volumes/:name/subvolumes/:subvol/readonly",
-	}
-	sort.Strings(want)
-	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("legacy storage routes changed\ngot:  %v\nwant: %v", got, want)
+	if !found {
+		t.Fatal("expected /storage contract routes from NewStorageHandlers")
 	}
 }

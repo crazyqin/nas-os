@@ -28,6 +28,19 @@ func requestRawJSON(t *testing.T, router http.Handler, method, path string) (int
 	return w.Code, body
 }
 
+func assertEnvelope(t *testing.T, envelope map[string]interface{}, wantCode float64, wantMsg string) {
+	t.Helper()
+	if envelope["code"] != wantCode {
+		t.Fatalf("code = %v, want %v", envelope["code"], wantCode)
+	}
+	if msg, _ := envelope["message"].(string); msg != wantMsg && wantMsg != "" {
+		// message may vary; only enforce code when wantMsg empty
+		if wantMsg != "" && msg != wantMsg {
+			t.Fatalf("message = %q, want %q", msg, wantMsg)
+		}
+	}
+}
+
 func TestCompatStorageNilManagerVolumesContract(t *testing.T) {
 	status, body := requestRawJSON(t, newCompatStorageNilManagerRouter(), http.MethodGet, "/api/v1/storage/volumes")
 	if status != http.StatusOK {
