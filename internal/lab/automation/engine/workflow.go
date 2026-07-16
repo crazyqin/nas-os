@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"nas-os/internal/automation/action"
-	"nas-os/internal/automation/trigger"
+	"nas-os/internal/lab/automation/action"
+	"nas-os/internal/lab/automation/trigger"
 )
 
 // Workflow 定义一个自动化工作流.

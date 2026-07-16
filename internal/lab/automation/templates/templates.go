@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"nas-os/internal/automation/action"
-	"nas-os/internal/automation/engine"
-	"nas-os/internal/automation/trigger"
+	"nas-os/internal/lab/automation/action"
+	"nas-os/internal/lab/automation/engine"
+	"nas-os/internal/lab/automation/trigger"
 )
 
 // Template 工作流模板.

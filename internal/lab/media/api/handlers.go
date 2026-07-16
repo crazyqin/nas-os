@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"nas-os/internal/media"
+	"nas-os/internal/lab/media"
 
 	"github.com/gorilla/mux"
 )

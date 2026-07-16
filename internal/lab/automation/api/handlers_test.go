@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"nas-os/internal/automation/engine"
+	"nas-os/internal/lab/automation/engine"
 
 	"github.com/gorilla/mux"
 )
