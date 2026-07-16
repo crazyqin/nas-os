@@ -3,7 +3,7 @@ package monitor
 import (
 	"time"
 
-	"nas-os/internal/reports"
+	"nas-os/internal/lab/reports"
 )
 
 // ReportIntegration 监控报告集成服务.

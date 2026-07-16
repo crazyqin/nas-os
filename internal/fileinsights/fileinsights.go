@@ -6,7 +6,7 @@ import (
 	"sort"
 	"time"
 
-	"nas-os/internal/smartfolders"
+	"nas-os/internal/lab/smartfolders"
 )
 
 // Action is a user-facing recommendation inspired by polished NAS assistants.
