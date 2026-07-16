@@ -39,7 +39,7 @@ TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/login \
   -d '{"username":"admin","password":"your-password"}' | jq -r '.data.token')
 
 # 使用 Token 请求
-curl http://localhost:8080/api/v1/volumes \
+curl http://localhost:8080/api/v1/storage/volumes \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -70,7 +70,7 @@ class NASOSClient:
     def get_volumes(self):
         """获取卷列表"""
         response = requests.get(
-            f"{self.base_url}/api/v1/volumes",
+            f"{self.base_url}/api/v1/storage/volumes",
             headers=self.get_headers()
         )
         response.raise_for_status()
@@ -104,7 +104,7 @@ class NASOSClient {
   }
 
   async getVolumes() {
-    const response = await this.client.get('/api/v1/volumes');
+    const response = await this.client.get('/api/v1/storage/volumes');
     return response.data;
   }
 }
@@ -128,7 +128,7 @@ class NASOSClient {
 
 ```bash
 # 创建单盘卷
-curl -X POST http://localhost:8080/api/v1/volumes \
+curl -X POST http://localhost:8080/api/v1/storage/volumes \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -138,7 +138,7 @@ curl -X POST http://localhost:8080/api/v1/volumes \
   }'
 
 # 创建 RAID1 卷
-curl -X POST http://localhost:8080/api/v1/volumes \
+curl -X POST http://localhost:8080/api/v1/storage/volumes \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -148,7 +148,7 @@ curl -X POST http://localhost:8080/api/v1/volumes \
   }'
 
 # 创建 RAID5 卷
-curl -X POST http://localhost:8080/api/v1/volumes \
+curl -X POST http://localhost:8080/api/v1/storage/volumes \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -164,7 +164,7 @@ curl -X POST http://localhost:8080/api/v1/volumes \
 def create_volume(client, name, devices, profile="single"):
     """创建存储卷"""
     response = requests.post(
-        f"{client.base_url}/api/v1/volumes",
+        f"{client.base_url}/api/v1/storage/volumes",
         headers=client.get_headers(),
         json={
             "name": name,
@@ -188,7 +188,7 @@ print(f"Volume created: {result}")
 def create_snapshot(client, volume_name, snapshot_name, readonly=True):
     """创建快照"""
     response = requests.post(
-        f"{client.base_url}/api/v1/volumes/{volume_name}/snapshots",
+        f"{client.base_url}/api/v1/storage/volumes/{volume_name}/snapshots",
         headers=client.get_headers(),
         json={
             "snapshot_name": snapshot_name,
@@ -201,7 +201,7 @@ def create_snapshot(client, volume_name, snapshot_name, readonly=True):
 def list_snapshots(client, volume_name):
     """列出快照"""
     response = requests.get(
-        f"{client.base_url}/api/v1/volumes/{volume_name}/snapshots",
+        f"{client.base_url}/api/v1/storage/volumes/{volume_name}/snapshots",
         headers=client.get_headers()
     )
     response.raise_for_status()
@@ -210,7 +210,7 @@ def list_snapshots(client, volume_name):
 def restore_snapshot(client, volume_name, snapshot_name):
     """恢复快照"""
     response = requests.post(
-        f"{client.base_url}/api/v1/volumes/{volume_name}/snapshots/{snapshot_name}/restore",
+        f"{client.base_url}/api/v1/storage/volumes/{volume_name}/snapshots/{snapshot_name}/restore",
         headers=client.get_headers()
     )
     response.raise_for_status()
@@ -582,7 +582,7 @@ def safe_request(func):
 @safe_request
 def get_volumes_safe(client):
     return requests.get(
-        f"{client.base_url}/api/v1/volumes",
+        f"{client.base_url}/api/v1/storage/volumes",
         headers=client.get_headers()
     )
 
@@ -628,7 +628,7 @@ class NASMonitor:
     def check_disk_usage(self, threshold=80):
         """检查磁盘使用率"""
         response = requests.get(
-            f"{self.base_url}/api/v1/volumes",
+            f"{self.base_url}/api/v1/storage/volumes",
             headers=self.get_headers()
         )
         alerts = []

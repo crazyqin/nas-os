@@ -98,24 +98,17 @@ func (h *StorageHandlers) ListVolumes(c *gin.Context) {
 	})
 }
 
-// CreateVolumeRequest 创建卷请求.
-type CreateVolumeRequest struct {
-	Name    string   `json:"name" binding:"required" example:"data-vol"`
-	Devices []string `json:"devices" binding:"required" example:"/dev/sda,/dev/sdb"`
-	Profile string   `json:"profile" example:"raid1"` // single, raid0, raid1, raid10, raid5, raid6
-}
-
 // CreateVolume 创建新卷
 // @Summary 创建新卷
 // @Description 使用指定设备和 RAID 配置创建新的 Btrfs 存储卷
 // @Tags storage
 // @Accept json
 // @Produce json
-// @Param request body CreateVolumeRequest true "卷创建参数"
+// @Param request body storage.CreateVolumeRequest true "卷创建参数"
 // @Success 200 {object} StorageResponse "创建成功"
 // @Failure 400 {object} StorageResponse "请求参数错误"
 // @Failure 500 {object} StorageResponse "服务器内部错误"
-// @Router /api/storage/volumes [post].
+// @Router /api/v1/storage/volumes [post].
 func (h *StorageHandlers) CreateVolume(c *gin.Context) {
 	if h.storageMgr == nil {
 		c.JSON(http.StatusInternalServerError, StorageResponse{
@@ -124,7 +117,8 @@ func (h *StorageHandlers) CreateVolume(c *gin.Context) {
 		})
 		return
 	}
-	var req CreateVolumeRequest
+	// Canonical DTO from internal/storage (same tags as domain handlers / WebUI).
+	var req storage.CreateVolumeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, StorageResponse{
 			Code:    400,
@@ -190,7 +184,7 @@ type PoolResponse struct {
 // @Router /api/storage/pools [get].
 func (h *StorageHandlers) ListPools(c *gin.Context) {
 	if h.storageMgr == nil {
-		c.JSON(http.StatusOK, []PoolResponse{})
+		c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success", Data: []PoolResponse{}})
 		return
 	}
 	volumes := h.storageMgr.ListVolumes()
@@ -350,9 +344,7 @@ func (h *StorageHandlers) CreateSubVolume(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: "storage manager not initialized"})
 		return
 	}
-	var req struct {
-		Name string `json:"name" binding:"required"`
-	}
+	var req storage.CreateSubvolumeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, StorageResponse{Code: 400, Message: err.Error()})
 		return
@@ -379,25 +371,24 @@ func (h *StorageHandlers) DeleteSubVolume(c *gin.Context) {
 	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success"})
 }
 
-// MountSubVolume mounts a subvolume (mount path from JSON body or default).
+// MountSubVolume mounts a subvolume (mount path from JSON body).
+// Body DTO: storage.MountSubvolumeRequest (`json:"mountPath"`).
 func (h *StorageHandlers) MountSubVolume(c *gin.Context) {
 	if h.storageMgr == nil {
 		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: "storage manager not initialized"})
 		return
 	}
 	subvol := c.Param("subvol")
-	var req struct {
-		MountPath string `json:"mount_path"`
-	}
-	_ = c.ShouldBindJSON(&req)
-	if req.MountPath == "" {
-		req.MountPath = "/mnt/" + c.Param("name") + "/" + subvol
+	var req storage.MountSubvolumeRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, StorageResponse{Code: 400, Message: err.Error()})
+		return
 	}
 	if err := h.storageMgr.MountSubVolume(c.Param("name"), subvol, req.MountPath); err != nil {
 		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success"})
+	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success", Data: gin.H{"mountPath": req.MountPath}})
 }
 
 // ListVolumeSnapshots lists snapshots for one volume.
@@ -428,16 +419,13 @@ func (h *StorageHandlers) ListVolumeSnapshots(c *gin.Context) {
 }
 
 // CreateVolumeSnapshot creates a snapshot.
+// Body DTO: storage.CreateSnapshotRequest (`subvolume`, `name`, `readOnly`).
 func (h *StorageHandlers) CreateVolumeSnapshot(c *gin.Context) {
 	if h.storageMgr == nil {
 		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: "storage manager not initialized"})
 		return
 	}
-	var req struct {
-		Subvolume string `json:"subvolume" binding:"required"`
-		Name      string `json:"name" binding:"required"`
-		ReadOnly  bool   `json:"readonly"`
-	}
+	var req storage.CreateSnapshotRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, StorageResponse{Code: 400, Message: err.Error()})
 		return
@@ -478,21 +466,23 @@ func (h *StorageHandlers) DeleteVolumeSnapshot(c *gin.Context) {
 }
 
 // RestoreVolumeSnapshot restores a snapshot.
+// Body DTO: storage.RestoreSnapshotRequest (`json:"targetName"`).
 func (h *StorageHandlers) RestoreVolumeSnapshot(c *gin.Context) {
 	if h.storageMgr == nil {
 		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: "storage manager not initialized"})
 		return
 	}
 	snap := c.Param("snap")
-	var req struct {
-		Target string `json:"target"`
+	var req storage.RestoreSnapshotRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, StorageResponse{Code: 400, Message: err.Error()})
+		return
 	}
-	_ = c.ShouldBindJSON(&req)
-	if err := h.storageMgr.RestoreSnapshot(c.Param("name"), snap, req.Target); err != nil {
+	if err := h.storageMgr.RestoreSnapshot(c.Param("name"), snap, req.TargetName); err != nil {
 		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success"})
+	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success", Data: gin.H{"targetName": req.TargetName}})
 }
 
 // ========== 辅助类型 ==========

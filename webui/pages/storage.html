@@ -757,27 +757,37 @@
             const tbody = document.getElementById('subvolumes-tbody');
             
             try {
-                let url = `${API_BASE}/subvolumes`;
+                // Live API has no global /subvolumes; aggregate per-volume under /storage.
+                let rows = [];
                 if (volumeFilter) {
-                    url = `${API_BASE}/storage/volumes/${volumeFilter}/subvolumes`;
-                }
-                
-                const res = await fetch(url);
-                const data = await res.json();
-                
-                if (data.code === 0) {
-                    renderSubvolumes(data.data || []);
+                    const res = await fetch(`${API_BASE}/storage/volumes/${volumeFilter}/subvolumes`);
+                    const data = await res.json();
+                    if (data.code !== 0) {
+                        tbody.innerHTML = `<tr><td colspan="6" class="text-muted" style="text-align: center;">加载失败: ${data.message}</td></tr>`;
+                        return;
+                    }
+                    rows = (data.data || []).map(sv => ({ ...sv, volume: volumeFilter }));
                 } else {
-                    tbody.innerHTML = `<tr><td colspan="6" class="text-muted" style="text-align: center;">加载失败: ${data.message}</td></tr>`;
+                    const vres = await fetch(`${API_BASE}/storage/volumes`);
+                    const vdata = await vres.json();
+                    if (vdata.code !== 0) {
+                        tbody.innerHTML = `<tr><td colspan="6" class="text-muted" style="text-align: center;">加载失败: ${vdata.message}</td></tr>`;
+                        return;
+                    }
+                    const vols = vdata.data || [];
+                    for (const vol of vols) {
+                        const vname = vol.name || vol.Name;
+                        if (!vname) continue;
+                        const res = await fetch(`${API_BASE}/storage/volumes/${encodeURIComponent(vname)}/subvolumes`);
+                        const data = await res.json();
+                        if (data.code === 0 && Array.isArray(data.data)) {
+                            rows = rows.concat(data.data.map(sv => ({ ...sv, volume: vname })));
+                        }
+                    }
                 }
+                renderSubvolumes(rows);
             } catch (err) {
-                // 示例数据
-                const demoData = [
-                    { name: '@home', volume: 'data', path: '/mnt/data/home', readOnly: false, snapshotCount: 5 },
-                    { name: '@share', volume: 'data', path: '/mnt/data/share', readOnly: false, snapshotCount: 3 },
-                    { name: '@backup', volume: 'backup', path: '/mnt/backup/data', readOnly: false, snapshotCount: 12 }
-                ];
-                renderSubvolumes(demoData);
+                tbody.innerHTML = `<tr><td colspan="6" class="text-muted" style="text-align: center;">加载失败: ${err.message}</td></tr>`;
             }
         }
 
@@ -891,7 +901,8 @@
             const tbody = document.getElementById('snapshots-tbody');
             
             try {
-                let url = `${API_BASE}/snapshots`;
+                // Global list: GET /storage/snapshots; per-volume: /storage/volumes/:name/snapshots
+                let url = `${API_BASE}/storage/snapshots`;
                 if (volumeFilter) {
                     url = `${API_BASE}/storage/volumes/${volumeFilter}/snapshots`;
                 }
@@ -900,20 +911,21 @@
                 const data = await res.json();
                 
                 if (data.code === 0) {
-                    renderSnapshots(data.data || []);
-                    renderTimeline(data.data || []);
+                    const rows = (data.data || []).map(s => ({
+                        ...s,
+                        name: s.name || s.Name,
+                        volume: s.volume || s.volumeName || s.VolumeName || volumeFilter || '-',
+                        subvolume: s.subvolume || s.source || s.Source || '-',
+                        createdAt: s.createdAt || s.CreatedAt || '-',
+                        type: s.type || 'manual'
+                    }));
+                    renderSnapshots(rows);
+                    renderTimeline(rows);
                 } else {
                     tbody.innerHTML = `<tr><td colspan="6" class="text-muted" style="text-align: center;">加载失败: ${data.message}</td></tr>`;
                 }
             } catch (err) {
-                // 示例数据
-                const demoData = [
-                    { name: 'daily-20260314', volume: 'data', subvolume: '@home', createdAt: '2026-03-14 00:00', type: 'scheduled' },
-                    { name: 'manual-before-update', volume: 'data', subvolume: '@share', createdAt: '2026-03-13 18:30', type: 'manual' },
-                    { name: 'hourly-14', volume: 'backup', subvolume: '@backup', createdAt: '2026-03-14 14:00', type: 'scheduled' }
-                ];
-                renderSnapshots(demoData);
-                renderTimeline(demoData);
+                tbody.innerHTML = `<tr><td colspan="6" class="text-muted" style="text-align: center;">加载失败: ${err.message}</td></tr>`;
             }
         }
 
@@ -976,11 +988,16 @@
                 const res = await fetch(`${API_BASE}/storage/volumes/${volume}/subvolumes`);
                 const data = await res.json();
                 
-                if (data.code === 0 && data.data) {
-                    select.innerHTML = data.data.map(sv => `<option value="${sv.name}">${sv.name}</option>`).join('');
+                if (data.code === 0 && data.data && data.data.length) {
+                    select.innerHTML = data.data.map(sv => {
+                        const n = sv.name || sv.Name;
+                        return `<option value="${n}">${n}</option>`;
+                    }).join('');
+                } else {
+                    select.innerHTML = '<option value="">无子卷</option>';
                 }
             } catch (err) {
-                select.innerHTML = '<option value="@home">@home</option><option value="@share">@share</option>';
+                select.innerHTML = `<option value="">加载失败: ${err.message}</option>`;
             }
         }
 

@@ -46,12 +46,17 @@ func TestCompatStorageNilManagerVolumesContract(t *testing.T) {
 	if status != http.StatusOK {
 		t.Fatalf("status = %d, want %d; body=%v", status, http.StatusOK, body)
 	}
-	data, ok := body.([]interface{})
+	envelope, ok := body.(map[string]interface{})
 	if !ok {
-		t.Fatalf("body type = %T, want bare array; body=%v", body, body)
+		t.Fatalf("body type = %T, want envelope object; body=%v", body, body)
+	}
+	assertEnvelope(t, envelope, 0, "success")
+	data, ok := envelope["data"].([]interface{})
+	if !ok {
+		t.Fatalf("data type = %T, want array; body=%v", envelope["data"], envelope)
 	}
 	if len(data) != 0 {
-		t.Fatalf("body len = %d, want 0; body=%v", len(data), body)
+		t.Fatalf("data len = %d, want 0; body=%v", len(data), envelope)
 	}
 }
 
@@ -60,12 +65,17 @@ func TestCompatStorageNilManagerPoolsContract(t *testing.T) {
 	if status != http.StatusOK {
 		t.Fatalf("status = %d, want %d; body=%v", status, http.StatusOK, body)
 	}
-	data, ok := body.([]interface{})
+	envelope, ok := body.(map[string]interface{})
 	if !ok {
-		t.Fatalf("body type = %T, want bare array; body=%v", body, body)
+		t.Fatalf("body type = %T, want envelope object; body=%v", body, body)
+	}
+	assertEnvelope(t, envelope, 0, "success")
+	data, ok := envelope["data"].([]interface{})
+	if !ok {
+		t.Fatalf("data type = %T, want array; body=%v", envelope["data"], envelope)
 	}
 	if len(data) != 0 {
-		t.Fatalf("body len = %d, want 0; body=%v", len(data), body)
+		t.Fatalf("data len = %d, want 0; body=%v", len(data), envelope)
 	}
 }
 

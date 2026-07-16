@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"nas-os/internal/storage"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -134,7 +136,7 @@ func TestPoolResponse_Struct(t *testing.T) {
 }
 
 func TestCreateVolumeRequest_Validation(t *testing.T) {
-	req := CreateVolumeRequest{
+	req := storage.CreateVolumeRequest{
 		Name:    "data-vol",
 		Devices: []string{"/dev/sda", "/dev/sdb"},
 		Profile: "raid1",

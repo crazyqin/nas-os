@@ -206,10 +206,10 @@ var APIFixtures = struct {
 	AuthEndpoints map[string]string
 }{
 	VolumeEndpoints: map[string]string{
-		"list":   "/api/v1/volumes",
-		"create": "/api/v1/volumes",
-		"get":    "/api/v1/volumes/:name",
-		"delete": "/api/v1/volumes/:name",
+		"list":   "/api/v1/storage/volumes",
+		"create": "/api/v1/storage/volumes",
+		"get":    "/api/v1/storage/volumes/:name",
+		"delete": "/api/v1/storage/volumes/:name",
 	},
 	AuthEndpoints: map[string]string{
 		"login":  "/api/v1/auth/login",

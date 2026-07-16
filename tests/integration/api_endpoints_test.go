@@ -39,67 +39,60 @@ func setupTestRouter() *gin.Engine {
 			})
 		})
 
-		// 存储端点
-		volumes := api.Group("/volumes")
+		// 存储端点（与 live /api/v1/storage/* 契约一致）
+		st := api.Group("/storage")
 		{
-			volumes.GET("", func(c *gin.Context) {
-				c.JSON(http.StatusOK, gin.H{
-					"volumes": []gin.H{
-						{"name": "data", "size": 1000000000000, "used": 500000000000},
-						{"name": "backup", "size": 2000000000000, "used": 1000000000000},
-					},
+			volumes := st.Group("/volumes")
+			{
+				volumes.GET("", func(c *gin.Context) {
+					c.JSON(http.StatusOK, gin.H{
+						"volumes": []gin.H{
+							{"name": "data", "size": 1000000000000, "used": 500000000000},
+							{"name": "backup", "size": 2000000000000, "used": 1000000000000},
+						},
+					})
 				})
-			})
-			volumes.POST("", func(c *gin.Context) {
-				c.JSON(http.StatusCreated, gin.H{
-					"name":   "new-volume",
-					"status": "created",
+				volumes.POST("", func(c *gin.Context) {
+					c.JSON(http.StatusCreated, gin.H{
+						"name":   "new-volume",
+						"status": "created",
+					})
 				})
-			})
-			volumes.GET("/:name", func(c *gin.Context) {
-				c.JSON(http.StatusOK, gin.H{
-					"name": c.Param("name"),
-					"size": 1000000000000,
+				volumes.GET("/:name", func(c *gin.Context) {
+					c.JSON(http.StatusOK, gin.H{
+						"name": c.Param("name"),
+						"size": 1000000000000,
+					})
 				})
-			})
-			volumes.DELETE("/:name", func(c *gin.Context) {
-				c.JSON(http.StatusNoContent, nil)
-			})
-		}
-
-		// 子卷端点
-		subvolumes := api.Group("/subvolumes")
-		{
-			subvolumes.GET("", func(c *gin.Context) {
-				c.JSON(http.StatusOK, gin.H{
-					"subvolumes": []gin.H{
-						{"id": 256, "name": "documents", "path": "/data/documents"},
-						{"id": 257, "name": "media", "path": "/data/media"},
-					},
+				volumes.DELETE("/:name", func(c *gin.Context) {
+					c.JSON(http.StatusNoContent, nil)
 				})
-			})
-			subvolumes.POST("", func(c *gin.Context) {
-				c.JSON(http.StatusCreated, gin.H{
-					"name":   "new-subvol",
-					"status": "created",
+				volumes.GET("/:name/subvolumes", func(c *gin.Context) {
+					c.JSON(http.StatusOK, gin.H{
+						"subvolumes": []gin.H{
+							{"id": 256, "name": "documents", "path": "/data/documents"},
+							{"id": 257, "name": "media", "path": "/data/media"},
+						},
+					})
 				})
-			})
-		}
-
-		// 快照端点
-		snapshots := api.Group("/snapshots")
-		{
-			snapshots.GET("", func(c *gin.Context) {
+				volumes.POST("/:name/subvolumes", func(c *gin.Context) {
+					c.JSON(http.StatusCreated, gin.H{
+						"name":   "new-subvol",
+						"status": "created",
+					})
+				})
+				volumes.POST("/:name/snapshots", func(c *gin.Context) {
+					c.JSON(http.StatusCreated, gin.H{
+						"name":   "manual-snapshot",
+						"status": "created",
+					})
+				})
+			}
+			st.GET("/snapshots", func(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{
 					"snapshots": []gin.H{
 						{"name": "daily-001", "created": "2026-03-14T00:00:00Z"},
 					},
-				})
-			})
-			snapshots.POST("", func(c *gin.Context) {
-				c.JSON(http.StatusCreated, gin.H{
-					"name":   "manual-snapshot",
-					"status": "created",
 				})
 			})
 		}
@@ -424,7 +417,7 @@ func TestAPI_SystemInfo(t *testing.T) {
 func TestAPI_ListVolumes(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/volumes", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/volumes", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -436,7 +429,7 @@ func TestAPI_ListVolumes(t *testing.T) {
 func TestAPI_CreateVolume(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/volumes", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/storage/volumes", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -448,7 +441,7 @@ func TestAPI_CreateVolume(t *testing.T) {
 func TestAPI_GetVolume(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/volumes/test-vol", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/volumes/test-vol", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -460,7 +453,7 @@ func TestAPI_GetVolume(t *testing.T) {
 func TestAPI_DeleteVolume(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/v1/volumes/test-vol", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/v1/storage/volumes/test-vol", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -474,7 +467,7 @@ func TestAPI_DeleteVolume(t *testing.T) {
 func TestAPI_ListSubvolumes(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/subvolumes", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/volumes/data/subvolumes", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -486,7 +479,7 @@ func TestAPI_ListSubvolumes(t *testing.T) {
 func TestAPI_CreateSubvolume(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/subvolumes", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/storage/volumes/data/subvolumes", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -500,7 +493,7 @@ func TestAPI_CreateSubvolume(t *testing.T) {
 func TestAPI_ListSnapshots(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/snapshots", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/snapshots", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -512,7 +505,7 @@ func TestAPI_ListSnapshots(t *testing.T) {
 func TestAPI_CreateSnapshot(t *testing.T) {
 	router := setupTestRouter()
 
-	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/snapshots", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/storage/volumes/data/snapshots", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

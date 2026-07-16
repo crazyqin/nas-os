@@ -1,18 +1,18 @@
 # 存储 API 文档
 
-**版本**: v3.24.2  
+**版本**: v3.24.3  
 **更新日期**: 2026-07-16
 
 ---
 
 ## 概述
 
-存储 API 提供卷管理、子卷管理、快照管理等功能。
+存储 API 提供卷、子卷、快照管理。自 **v3.24** 起仅保留 **单一契约**，无 `/api/v1/volumes` 兼容层。
 
 ## 基础路径
 
 ```
-/api/v1/volumes
+/api/v1/storage
 ```
 
 ---
@@ -22,7 +22,7 @@
 ### 获取卷列表
 
 ```http
-GET /api/v1/volumes
+GET /api/v1/storage/volumes
 ```
 
 **响应示例**
@@ -31,184 +31,110 @@ GET /api/v1/volumes
 {
   "code": 0,
   "message": "success",
-  "data": {
-    "volumes": [
-      {
-        "name": "data",
-        "path": "/data",
-        "fs_type": "btrfs",
-        "size_gb": 1000,
-        "used_gb": 350,
-        "available_gb": 650,
-        "usage_percent": 35
-      }
-    ]
-  }
+  "data": [
+    {
+      "name": "data",
+      "uuid": "...",
+      "devices": ["/dev/sda"],
+      "size": 1000000000000,
+      "used": 350000000000,
+      "free": 650000000000,
+      "dataProfile": "raid1",
+      "mountPoint": "/mnt/data",
+      "status": { "healthy": true }
+    }
+  ]
 }
 ```
 
 ### 创建卷
 
 ```http
-POST /api/v1/volumes
+POST /api/v1/storage/volumes
 ```
 
-**请求体**
+**请求体**（`storage.CreateVolumeRequest`）
 
 ```json
 {
   "name": "data",
-  "path": "/dev/sda1",
-  "raid_level": "single",
-  "options": {
-    "compression": "zstd"
-  }
+  "devices": ["/dev/sda", "/dev/sdb"],
+  "profile": "raid1"
 }
-```
-
-### 获取卷详情
-
-```http
-GET /api/v1/volumes/:name
 ```
 
 ### 删除卷
 
 ```http
-DELETE /api/v1/volumes/:name
+DELETE /api/v1/storage/volumes/:name?force=true
+```
+
+### 数据校验 / 平衡
+
+```http
+POST /api/v1/storage/volumes/:name/scrub
+POST /api/v1/storage/volumes/:name/balance
 ```
 
 ---
 
-## 子卷管理
-
-### 创建子卷
+## 子卷
 
 ```http
-POST /api/v1/volumes/:name/subvolumes
+GET  /api/v1/storage/volumes/:name/subvolumes
+POST /api/v1/storage/volumes/:name/subvolumes
+DELETE /api/v1/storage/volumes/:name/subvolumes/:subvol
+POST /api/v1/storage/volumes/:name/subvolumes/:subvol/mount
 ```
 
-**请求体**
+**创建子卷请求体**（`storage.CreateSubvolumeRequest`）
 
 ```json
-{
-  "subvolume_name": "photos",
-  "path": "/data/photos",
-  "options": {
-    "compression": "zstd"
-  }
-}
+{ "name": "@home", "path": "" }
 ```
 
-### 获取子卷列表
-
-```http
-GET /api/v1/volumes/:name/subvolumes
-```
-
-### 删除子卷
-
-```http
-DELETE /api/v1/volumes/:name/subvolumes/:subvol_name
-```
-
----
-
-## 快照管理
-
-### 创建快照
-
-```http
-POST /api/v1/volumes/:name/snapshots
-```
-
-**请求体**
+**挂载请求体**（`storage.MountSubvolumeRequest`）
 
 ```json
-{
-  "snapshot_name": "daily-2026-03-16",
-  "source_path": "/data/photos",
-  "readonly": true
-}
-```
-
-### 获取快照列表
-
-```http
-GET /api/v1/volumes/:name/snapshots
-```
-
-### 删除快照
-
-```http
-DELETE /api/v1/volumes/:name/snapshots/:snapshot_name
-```
-
-### 恢复快照
-
-```http
-POST /api/v1/volumes/:name/snapshots/:snapshot_name/restore
+{ "mountPath": "/mnt/home" }
 ```
 
 ---
 
-## 数据平衡
-
-### 启动数据平衡
+## 快照
 
 ```http
-POST /api/v1/volumes/:name/balance
+GET  /api/v1/storage/snapshots
+GET  /api/v1/storage/volumes/:name/snapshots
+POST /api/v1/storage/volumes/:name/snapshots
+DELETE /api/v1/storage/volumes/:name/snapshots/:snap
+POST /api/v1/storage/volumes/:name/snapshots/:snap/restore
 ```
 
-**请求体**
+**创建快照**（`storage.CreateSnapshotRequest`）
 
 ```json
-{
-  "force": false
-}
+{ "subvolume": "@home", "name": "manual-1", "readOnly": true }
 ```
 
-### 获取平衡状态
+**恢复快照**（`storage.RestoreSnapshotRequest`）
 
-```http
-GET /api/v1/volumes/:name/balance/status
-```
-
----
-
-## 数据校验
-
-### 启动数据校验
-
-```http
-POST /api/v1/volumes/:name/scrub
-```
-
-### 获取校验状态
-
-```http
-GET /api/v1/volumes/:name/scrub/status
+```json
+{ "targetName": "manual-1-restored" }
 ```
 
 ---
 
-## 错误码
+## 存储池
 
-| Code | 说明 |
+```http
+GET /api/v1/storage/pools
+```
+
+---
+
+## 已删除（破坏性）
+
+| 路径 | 状态 |
 |------|------|
-| 0 | 成功 |
-| 400 | 参数错误 |
-| 404 | 卷不存在 |
-| 409 | 卷已存在 |
-| 500 | 服务器内部错误 |
-
----
-
-## 相关文档
-
-- [存储管理指南](home-dashboard-guide.md) - 存储配置
-- [快照调度指南](scrub-scheduling-guide.md) - 数据完整性检查
-
----
-
-*最后更新：2026-03-16*
+| `/api/v1/volumes/*` | **已删除**，请改用 `/api/v1/storage/*` |
