@@ -124,6 +124,7 @@ import (
 type Server struct {
 	cfg           *config.Config
 	modules       []arch.Module
+	extHolders    *extensionHolders // optional modules.extensions holders
 	engine        *gin.Engine
 	httpSrv       *http.Server
 	lifecycleMu   sync.Mutex
@@ -469,9 +470,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	webhookMgr := webhook.NewManager()
 	log.Println("✅ Webhook通知集成就绪")
 
-	// 初始化 ML 勒索检测引擎（对标群晖 勒索防护增强）
-	// ML 勒索检测由 Server.Start 统一启动。
-	log.Println("✅ ML勒索检测引擎就绪")
 
 	// 初始化回收站自动清理（对标群晖 回收站策略）
 	recycleCleaner := recyclecleaner.NewManager()
@@ -623,9 +621,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 		log.Println("✅ 定时任务调度器就绪")
 	}
 
-	// 初始化智能迁移管理器（对标群晖智能数据迁移）
-	log.Println("✅ 智能迁移管理器就绪")
-
 	// 初始化磁盘性能测试管理器（对标群晖 Presto Benchmark）
 	diskbenchMgr := diskbench.NewBenchmarkManager("/tmp/nas-bench")
 	log.Println("✅ 磁盘性能测试模块就绪")
@@ -661,9 +656,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	webterminalMgr := webterminal.NewManager()
 	log.Println("✅ Web终端模块就绪")
 
-	// 初始化日志中心管理器（对标群晖 Log Center）
-	log.Println("✅ 日志中心模块就绪")
-
 	// 初始化通知中心服务（对标群晖 Notification Center）
 	notificationSvc, err := notification.NewService(nil)
 	if err != nil {
@@ -673,12 +665,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	}
 
 	// ========== v2.498.0 新增模块初始化 ==========
-
-	// 初始化应用中心（对标群晖 Package Center）
-	log.Println("✅ 应用中心模块就绪")
-
-	// 初始化备份验证（对标群晖 Active Backup 验证）
-	log.Println("✅ 备份验证模块就绪")
 
 	// 初始化协作文档（对标群晖 Office）
 	collabDocsMgr := collabdocs.NewManager(&collabdocs.Config{Enabled: true, MaxDocuments: 1000, CollaborationEnabled: true})
@@ -704,9 +690,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	edgeComputeMgr := edgecompute.NewManager(&edgecompute.Config{Enabled: true, MaxFunctions: 50, WasmEnabled: true})
 	log.Println("✅ 边缘计算模块就绪")
 
-	// 初始化能源管理（对标群晖电源管理增强）
-	log.Println("✅ 能源管理模块就绪")
-
 	// 初始化文件同步（对标群晖 Drive Sync）
 	fileSyncMgr := filesync.NewSyncManager(logger, cfg.DataPath("filesync"))
 	log.Println("✅ 文件同步模块就绪")
@@ -719,9 +702,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	networkMapMgr := networkmap.NewManager(&networkmap.Config{Enabled: true, AutoDiscover: true, BandwidthMonitor: true})
 	log.Println("✅ 网络拓扑模块就绪")
 
-	// 初始化照片增强（对标群晖 Photos AI）
-	log.Println("✅ 照片增强模块就绪")
-
 	// 初始化隐私保险库（竞品独有功能）
 	privacyVaultMgr := privacyvault.NewEngine(&privacyvault.PrivacyVaultConfig{Enabled: true, DefaultAlgorithm: "AES-256-GCM", MaxVaults: 100})
 	log.Println("✅ 隐私保险库模块就绪")
@@ -729,9 +709,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	// 初始化远程桌面（竞品独有功能）
 	remoteDesktopMgr := remotedesktop.NewManager(&remotedesktop.Config{Enabled: true, MaxSessions: 10, WebSocketPort: 8443})
 	log.Println("✅ 远程桌面模块就绪")
-
-	// 初始化智能家居（竞品独有功能）
-	log.Println("✅ 智能家居模块就绪")
 
 	// 初始化 SSO Hub（竞品独有功能）
 	ssoHubMgr := ssohub.NewManager(&ssohub.Config{Enabled: true, SessionTimeoutMin: 480, MaxSessions: 100})
@@ -749,10 +726,8 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	log.Println("✅ 统一搜索模块就绪")
 
 	// v2.513.0 新增模块初始化
-	log.Println("✅ AI 推荐引擎就绪")
 	alertGuidedMgr := alertguided.NewManager(logger)
 	log.Println("✅ 智能告警引导就绪")
-	log.Println("✅ 审计追踪就绪")
 	dataWarehouseMgr := datawarehouse.NewWarehouse(10000)
 	log.Println("✅ 数据仓库就绪")
 	fileDejavuMgr := filedejavu.NewDetector(nil)
@@ -765,8 +740,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	log.Println("✅ WORM 不可变存储就绪")
 	privacyShieldMgr := privacyshield.NewShield()
 	log.Println("✅ 隐私保护盾就绪")
-	log.Println("✅ 自助服务门户就绪")
-	log.Println("✅ 智能链接就绪")
 	spotlightMgr := spotlight.NewManager(logger)
 
 	// v2.542.0 新增模块初始化
@@ -1309,7 +1282,6 @@ func (s *Server) setupRoutes() {
 		// Webhook 通知 API
 		webhook.NewHandlers(s.webhookMgr).RegisterRoutes(api)
 
-		// ML 勒索检测 API
 
 		// 回收站自动清理 API
 		recyclecleaner.NewHandlers(s.recycleCleaner).RegisterRoutes(api)
@@ -1679,7 +1651,6 @@ func (s *Server) Stop() error {
 		s.upsMgr.Stop()
 	}
 
-	// 停止 ML 勒索检测
 
 	// 停止回收站自动清理
 	if s.recycleCleaner != nil {

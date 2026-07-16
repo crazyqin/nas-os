@@ -1,6 +1,7 @@
 package web
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -17,7 +18,6 @@ func TestRegisterConfiguredExtensionsEmptyByDefault(t *testing.T) {
 	api := r.Group("/api/v1")
 	s.registerConfiguredExtensions(api)
 
-	// No extension route should exist when list is empty.
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/agentworkflow/tasks", nil)
 	r.ServeHTTP(w, req)
@@ -38,9 +38,68 @@ func TestRegisterConfiguredExtensionsMountsAgentWorkflow(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/agentworkflow/tasks", nil)
 	r.ServeHTTP(w, req)
-	// Handler is registered; unauthenticated may still return 200 with empty list or 4xx from handler logic.
 	if w.Code == http.StatusNotFound {
 		t.Fatal("agentworkflow routes should be mounted when configured")
+	}
+}
+
+// TestRegisterConfiguredExtensionsRetainsActiveProtectManager proves enable is not
+// construct-and-discard: status route uses retained manager.
+func TestRegisterConfiguredExtensionsRetainsActiveProtectManager(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	cfg := config.Default()
+	cfg.Modules.Extensions = []string{"activeprotect"}
+	s := &Server{cfg: cfg}
+	r := gin.New()
+	api := r.Group("/api/v1")
+	s.registerConfiguredExtensions(api)
+
+	if s.extHolders == nil || s.extHolders.activeProtect == nil {
+		t.Fatal("activeprotect manager must be retained on Server")
+	}
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/activeprotect/status", nil)
+	r.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status route: %d body=%s", w.Code, w.Body.String())
+	}
+	var body map[string]interface{}
+	if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
+		t.Fatal(err)
+	}
+	if body["code"].(float64) != 0 {
+		t.Fatalf("unexpected body %v", body)
+	}
+	if len(s.LoadedExtensionNames()) != 1 || s.LoadedExtensionNames()[0] != "activeprotect" {
+		t.Fatalf("loaded names %v", s.LoadedExtensionNames())
+	}
+}
+
+func TestRegisterConfiguredExtensionsComplianceScanRoutes(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	cfg := config.Default()
+	cfg.Modules.Extensions = []string{"compliancescan", "deployorch", "netdiag"}
+	s := &Server{cfg: cfg}
+	r := gin.New()
+	api := r.Group("/api/v1")
+	s.registerConfiguredExtensions(api)
+
+	if s.extHolders.complianceScan == nil || s.extHolders.deployOrch == nil || s.extHolders.netDiag == nil {
+		t.Fatal("managers must be retained for all three extensions")
+	}
+
+	for _, path := range []string{
+		"/api/v1/compliancescan/standards",
+		"/api/v1/deployorch/nodes",
+		"/api/v1/netdiag/history",
+		"/api/v1/extensions",
+	} {
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, path, nil))
+		if w.Code == http.StatusNotFound {
+			t.Fatalf("%s not mounted", path)
+		}
 	}
 }
 

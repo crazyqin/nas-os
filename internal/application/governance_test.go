@@ -1,9 +1,11 @@
 package application
 
 import (
+	"bytes"
 	"go/parser"
 	"go/token"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -52,6 +54,32 @@ func TestProductionWebDoesNotImportLab(t *testing.T) {
 	}
 	if len(offenders) > 0 {
 		t.Fatalf("production web must not import lab packages:\n%s", strings.Join(offenders, "\n"))
+	}
+}
+
+// TestNasdDependencyGraphExcludesLab uses go list -deps so transitive lab coupling
+// (e.g. monitor → lab/reports) cannot hide behind direct-import-only scans.
+func TestNasdDependencyGraphExcludesLab(t *testing.T) {
+	root := repoRoot(t)
+	for _, target := range []string{"./cmd/nasd", "./internal/web", "./internal/monitor"} {
+		cmd := exec.Command("go", "list", "-deps", target)
+		cmd.Dir = root
+		var stdout, stderr bytes.Buffer
+		cmd.Stdout = &stdout
+		cmd.Stderr = &stderr
+		if err := cmd.Run(); err != nil {
+			t.Fatalf("go list -deps %s: %v\n%s", target, err, stderr.String())
+		}
+		var lab []string
+		for _, line := range strings.Split(stdout.String(), "\n") {
+			line = strings.TrimSpace(line)
+			if strings.HasPrefix(line, "nas-os/internal/lab/") || line == "nas-os/internal/lab" {
+				lab = append(lab, line)
+			}
+		}
+		if len(lab) > 0 {
+			t.Fatalf("%s dependency graph still includes lab packages:\n%s", target, strings.Join(lab, "\n"))
+		}
 	}
 }
 

@@ -2,6 +2,7 @@ package web
 
 import (
 	"log"
+	"net/http"
 	"strings"
 
 	"nas-os/internal/extensions/activeprotect"
@@ -28,6 +29,16 @@ var KnownExtensionNames = []string{
 	"voicehub",
 }
 
+// extensionHolders keeps live manager instances for enabled extensions so enable
+// is not a construct-and-discard no-op.
+type extensionHolders struct {
+	activeProtect  *activeprotect.Manager
+	complianceScan *compliancescan.Scanner
+	deployOrch     *deployorch.Orchestrator
+	netDiag        *netdiag.Diagnoser
+	names          []string
+}
+
 // registerConfiguredExtensions mounts HTTP routes for extensions enabled in config.
 // Unknown names are logged and skipped. Empty config means no extension routes.
 func (s *Server) registerConfiguredExtensions(api *gin.RouterGroup) {
@@ -39,6 +50,10 @@ func (s *Server) registerConfiguredExtensions(api *gin.RouterGroup) {
 		return
 	}
 
+	if s.extHolders == nil {
+		s.extHolders = &extensionHolders{}
+	}
+
 	seen := make(map[string]bool, len(enabled))
 	for _, raw := range enabled {
 		name := strings.ToLower(strings.TrimSpace(raw))
@@ -48,10 +63,23 @@ func (s *Server) registerConfiguredExtensions(api *gin.RouterGroup) {
 		seen[name] = true
 		if err := s.mountExtension(api, name); err != nil {
 			log.Printf("⚠️ extension %q not mounted: %v", name, err)
-		} else {
-			log.Printf("✅ extension enabled: %s", name)
+			continue
 		}
+		s.extHolders.names = append(s.extHolders.names, name)
+		log.Printf("✅ extension enabled: %s", name)
 	}
+
+	// Catalog of currently loaded extensions (always useful when any enabled).
+	api.GET("/extensions", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    0,
+			"message": "success",
+			"data": gin.H{
+				"enabled": s.EnabledExtensions(),
+				"known":   KnownExtensionNames,
+			},
+		})
+	})
 }
 
 func (s *Server) mountExtension(api *gin.RouterGroup, name string) error {
@@ -72,17 +100,55 @@ func (s *Server) mountExtension(api *gin.RouterGroup, name string) error {
 		voicehub.NewHandlers(voicehub.NewManager(logger, nil)).RegisterRoutes(api)
 		return nil
 	case "activeprotect":
-		// Manager-only extension: expose readiness via side registry for ops/tests.
-		_ = activeprotect.NewManager()
+		m := activeprotect.NewManager()
+		s.extHolders.activeProtect = m
+		g := api.Group("/activeprotect")
+		g.GET("/status", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"code": 0, "data": m.GetStatus()})
+		})
+		g.GET("/tasks", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"code": 0, "data": m.ListTasks("")})
+		})
+		g.GET("/templates", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"code": 0, "data": m.ListTemplates("")})
+		})
 		return nil
 	case "compliancescan":
-		_ = compliancescan.NewScanner()
+		sc := compliancescan.NewScanner()
+		s.extHolders.complianceScan = sc
+		g := api.Group("/compliancescan")
+		g.GET("/standards", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"code": 0, "data": sc.ListStandards()})
+		})
+		g.POST("/run/:standard", func(c *gin.Context) {
+			std := compliancescan.Standard(c.Param("standard"))
+			c.JSON(http.StatusOK, gin.H{"code": 0, "data": sc.RunScan(std)})
+		})
+		g.POST("/run-all", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"code": 0, "data": sc.RunAllScans()})
+		})
 		return nil
 	case "deployorch":
-		_ = deployorch.NewOrchestrator()
+		o := deployorch.NewOrchestrator()
+		s.extHolders.deployOrch = o
+		g := api.Group("/deployorch")
+		g.GET("/nodes", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"code": 0, "data": o.GetNodes()})
+		})
+		g.GET("/deployments", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"code": 0, "data": o.ListDeployments()})
+		})
 		return nil
 	case "netdiag":
-		_ = netdiag.NewDiagnoser()
+		d := netdiag.NewDiagnoser()
+		s.extHolders.netDiag = d
+		g := api.Group("/netdiag")
+		g.POST("/full", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"code": 0, "data": d.RunFullDiagnosis()})
+		})
+		g.GET("/history", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"code": 0, "data": d.GetHistory(20)})
+		})
 		return nil
 	default:
 		return errUnknownExtension(name)
@@ -102,5 +168,15 @@ func (s *Server) EnabledExtensions() []string {
 	}
 	out := make([]string, len(s.cfg.Modules.Extensions))
 	copy(out, s.cfg.Modules.Extensions)
+	return out
+}
+
+// LoadedExtensionNames returns names successfully mounted this process (may be empty).
+func (s *Server) LoadedExtensionNames() []string {
+	if s == nil || s.extHolders == nil {
+		return nil
+	}
+	out := make([]string, len(s.extHolders.names))
+	copy(out, s.extHolders.names)
 	return out
 }
