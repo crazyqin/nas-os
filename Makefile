@@ -33,16 +33,18 @@ build:
 	GOPROXY=$(GOPROXY) $(GO) build $(GOFLAGS) -o $(CLI_NAME) ./cmd/nasctl
 	@echo "✅ 构建完成"
 
-# 带版本信息的构建
+# 带版本信息的构建（Version 无 v 前缀；与 VERSION 文件同步）
 build-version:
 	@echo "🔨 编译带版本信息的二进制..."
 	@./scripts/version.sh
 	GOPROXY=$(GOPROXY) $(GO) build -ldflags="-w -s \
-		-X nas-os/internal/version.Version=$(VERSION) \
-		-X nas-os/internal/version.GitCommit=$(GIT_COMMIT) \
-		-X nas-os/internal/version.BuildDate=$(BUILD_TIME)" -o $(BINARY_NAME) ./cmd/nasd
+		-X nas-os/internal/version.Version=$(patsubst v%,%,$(VERSION)) \
+		-X nas-os/internal/version.Commit=$(GIT_COMMIT) \
+		-X nas-os/internal/version.BuildTime=$(BUILD_TIME)" -o $(BINARY_NAME) ./cmd/nasd
 	GOPROXY=$(GOPROXY) $(GO) build -ldflags="-w -s \
-		-X nas-os/internal/version.Version=$(VERSION)" -o $(CLI_NAME) ./cmd/nasctl
+		-X nas-os/internal/version.Version=$(patsubst v%,%,$(VERSION)) \
+		-X nas-os/internal/version.Commit=$(GIT_COMMIT) \
+		-X nas-os/internal/version.BuildTime=$(BUILD_TIME)" -o $(CLI_NAME) ./cmd/nasctl
 	@echo "✅ 构建完成: $(VERSION) ($(GIT_COMMIT))"
 
 build-debug:

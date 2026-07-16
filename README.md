@@ -4,9 +4,11 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.20.0 Stable (2026-07-16)
+> **最新版本**: v3.22.0 Stable (2026-07-16)
+> **架构分层**: Core（5）/ Extension（`internal/extensions/*`）/ Lab（`internal/lab/*`）→ [架构说明](docs/ARCHITECTURE.md)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Release**: [v3.22.0](https://github.com/crazyqin/nas-os/releases/tag/v3.22.0)
 
 ## 🌟 五大差异化能力
 
@@ -34,8 +36,17 @@
 
 ## 特性
 
+### 🚀 v3.22.0 架构收敛（Core / Extension / Lab） ✅
 
+生产进程生命周期主图仍只注册五个 Core 模块；本轮继续把 **163** 个零生产引用的伪核心包迁入 `internal/lab/`，并修正 catalog 与磁盘路径不一致的 Lab 标签。
 
+| 层级 | 规则 | 现状 |
+|------|------|------|
+| **Core** | 仅 `identity` / `storage` / `network` / `sharing` / `system` | 生命周期主图，不可扩张 |
+| **Extension** | 可选产品能力，不得伪装成 Core | 7 包位于 `internal/extensions/`（如 activeprotect、voicehub） |
+| **Lab** | 实验/重复/零生产引用实现 | ~467 包位于 `internal/lab/`（含 media、filemanager、selfheal、ztna 等） |
+
+> 历史版本亮点见下方时间线；**实验性能力以 Lab 路径为准**，不再视为顶层生产核心。完整变更见 [CHANGELOG](CHANGELOG.md)。
 
 ### 🚀 v3.17.0 数据分层与恢复置信 ✅
 
@@ -604,39 +615,48 @@ nas-os/
 
 ## 📊 项目资源统计
 
-| 指标 | 数值 |
+| 指标 | 数值（v3.22.0） |
 |------|------|
-| Go 源码总行数 | **1,450,000 行** |
-| 源代码文件 | **2,488 个** |
-| 测试文件 | **845 个** |
-| internal/ 模块数 | **686 个** |
-| 直接依赖 | **46 个** |
-| 依赖总数 | **170 个** |
+| Go 源码总行数 | **~1,670,000 行** |
+| Go 源文件 | **~3,805 个** |
+| 测试文件 | **~1,022 个** |
+| `internal/` 顶层目录 | **~330**（含 application/arch/web/lab/extensions 等） |
+| Lab 包（`internal/lab/*`） | **~467** |
+| Extension 包（`internal/extensions/*`） | **7** |
+| go.mod 依赖（require） | **~172** |
 
 > 📋 详细统计报告：[docs/resource-stats.md](docs/resource-stats.md)
 
-## 🔄 模块整合 (v3.0.0)
+## 🔄 模块治理与历史整合
 
-本次重构合并63个重复模块为6个规范模块，消除功能重叠，提升代码可维护性：
+### 当前分层（v3.18+ → v3.22.0）
 
-| 功能域 | 保留模块 | 说明 |
+| 层级 | 路径 | 说明 |
+|------|------|------|
+| Core | 生命周期注册名 | `identity` / `storage` / `network` / `sharing` / `system` |
+| Extension | `internal/extensions/<name>` | 可选产品能力（activeprotect、agentworkflow、aiguardrails、compliancescan、deployorch、netdiag、voicehub） |
+| Lab | `internal/lab/<name>` | 实验、重复与零生产引用实现（不得再当作顶层 Core） |
+
+### 历史合并域（v3.0.0，路径以现状为准）
+
+早期曾合并重复实现到领域包；**其中多数实验/辅件现已降入 Lab**：
+
+| 功能域 | 当前路径 | 说明 |
 |--------|----------|------|
-| 勒索防护 | `ransomware` | 12个模块合并，包含AI行为检测+蜜罐+取证 |
-| 合规审计 | `compliance` | 15个模块合并，支持CIS/STIG/GDPR多标准 |
-| 存储分层 | `tiering` | 13个模块合并，ML驱动智能分层 |
-| AI相册 | `photoai` | 6个模块合并，人脸识别+以文搜图 |
-| 成本分析 | `costanalyzer` | 5个模块合并，多维度TCO分析 |
-| 磁盘健康 | `diskhealth` | 5个模块合并，AI故障预测+健康评分 |
-| AI控制台 | `aiconsole` | 3个模块合并，本地LLM管理 |
-| AI Agent | `aiagentorch` | 2个模块合并，多Agent编排 |
-
-> 删除 **83,366行**重复代码，模块总数 1034 → 974
+| 勒索防护 | `internal/ransomware`（及相关 lab 实验） | 行为检测/蜜罐等能力 |
+| 合规审计 | `internal/lab/compliance` | CIS/STIG/GDPR 等实验与报告能力 |
+| 存储分层 | `internal/tiering` | 生产侧分层；lab 中另有增强实现 |
+| AI 相册 | `internal/lab/photoai` | 人脸/以文搜图等实验能力 |
+| 成本分析 | `internal/lab/costanalyzer` | TCO/成本实验实现 |
+| 磁盘健康 | `internal/lab/diskhealth` | AI 故障预测实验实现 |
+| AI 控制台 | `internal/lab/aiconsole` | 本地 LLM 管理实验 |
+| AI Agent | `internal/lab/aiagentorch` | 多 Agent 编排实验 |
 
 ## 开发计划
 
 详细里程碑请查看 GitHub Milestones
 
-### 当前状态 (2026-07-04) - v3.11.0 Stable ✅
+### 当前状态 (2026-07-16) - v3.22.0 Stable ✅
 
 **8/8 里程碑全部完成**
 
@@ -666,7 +686,11 @@ nas-os/
 ### 版本路线图
 | 版本 | 类型 | 发布日期 | 核心功能 | 状态 |
 |------|------|----------|----------|------|
-| **v3.11.0** | **Stable** | **2026-07-04** | **智能文件夹、成本/容量风险摘要、发布安全护栏、发布材料一致性** | ✅ **已发布** |
+| **v3.22.0** | **Stable** | **2026-07-16** | **163 伪核心降入 Lab；catalog 路径对齐；Core 仍为 5** | ✅ **已发布** |
+| v3.21.0 | Stable | 2026-07-16 | 195+ 伪核心降入 Lab（AI/smart/backup/security/media…） | ✅ 已发布 |
+| v3.20.0 | Stable | 2026-07-16 | 版本 bump 与文档同步 | ✅ 已发布 |
+| v3.19.0 | Stable | 2026-07-16 | 架构收敛波次 | ✅ 已发布 |
+| v3.11.0 | Stable | 2026-07-04 | 智能文件夹、成本/容量风险摘要、发布安全护栏 | ✅ 已发布 |
 | v2.490.61 | Alpha | 2026-03-10 | 项目骨架、btrfs 基础 | ✅ 发布 |
 | v2.490.61 | Alpha | 2026-03-10 | 文件共享、配置持久化 | ✅ 发布 |
 | v2.490.61 | Stable | 2026-03-11 | 生产就绪版本 | ✅ 已发布 |
@@ -1056,7 +1080,7 @@ MIT
 - 资源暴露: URI-based资源访问
 - 会话管理: 多会话支持
 
-## 🏗️ v3.0.0 架构重构
+## 🏗️ 架构（现行，v3.22.0）
 
 ### 应用组合与模块生命周期 (arch/application)
 - Application 组合根: 统一构造依赖、启动入口和逆序关闭资源
@@ -1066,6 +1090,8 @@ MIT
 - 故障回滚: 模块启动失败时逆序停止已启动模块
 - 分层路由: 公开、已认证和管理员路由由模块分别声明
 - 健康状态: `/api/v1/system/modules` 提供核心模块状态
+- **Core 仅五名**: identity / storage / network / sharing / system
+- **Extension / Lab**: 目录与 catalog 标签必须一致；路径边界测试防止伪核心回流
 
 ### 设计原则
 - 显式注入: 依赖由 `internal/application` 通过构造函数注入
@@ -1073,5 +1099,6 @@ MIT
 - 构造无副作用: goroutine 在 Start 启动，在 Stop 关闭
 - 渐进迁移: 保留兼容 API，通过 contract test 逐端点收口
 - Container 不是 Service Locator: 新业务代码不得依赖字符串查找获取依赖
+- 版本源: 根目录 `VERSION` 与 `internal/version` 同步；`GET /api/v1/system/info` 返回真实版本
 
 详细说明见 [架构文档](docs/ARCHITECTURE.md)。

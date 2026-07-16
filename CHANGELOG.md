@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased (docs + version integrity)
+
+### 修复
+- `internal/version`：默认版本从过时的 `3.20.0` 同步为 `3.22.0`，并将 `Version` 改为可被 `-ldflags -X` 覆盖的 `var`。
+- `GET /api/v1/system/info`：不再硬编码 `0.1.0`，改为返回 `internal/version` 的真实版本与构建信息。
+- `Makefile` `build-version`：ldflags 字段名与 `Commit`/`BuildTime` 对齐；版本去掉多余 `v` 前缀。
+- `scripts/version.sh` / `scripts/version-info.sh`：从 `VERSION` 文件同步，修正 GitHub 仓库名。
+
+### 文档
+- 全面修订 `README.md`、`docs/ARCHITECTURE.md`、`docs/resource-stats.md`、`docs/competitive-analysis.md`、`docs/api/*.md`：最新版本 **v3.22.0**，Core/Extension/Lab 路径与统计一致。
+
+### 测试
+- `TestVersionMatchesVERSIONFile`：断言 shipped version 与根 `VERSION` 一致。
+- `TestGetSystemInfoReportsShippedVersion`：驱动真实 `getSystemInfo` handler。
+
 ## v3.22.0 (2026-07-16) - 架构收敛：163 伪核心模块降入 Lab
 
 ### 架构收敛
@@ -87,7 +102,7 @@
 - `go build ./...`
 - `git diff --check`
 
-## Unreleased
+## Earlier notes (pre-v3.18, historical)
 - API 按公开、已认证和管理员权限分层；管理接口默认要求管理员权限。
 - 认证令牌仅接受 Bearer Header，不再接受查询参数；敏感业务身份统一来自认证上下文。
 - 移除 Digital Legacy 硬编码加密密钥；无效或缺失密钥时安全禁用模块。

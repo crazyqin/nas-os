@@ -1,9 +1,16 @@
 package web
 
 import (
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	appversion "nas-os/internal/version"
 )
 
 // ========== Server 结构体测试 ==========
@@ -78,6 +85,37 @@ func TestNilData(t *testing.T) {
 	}
 
 	assert.Nil(t, resp.Data)
+}
+
+// TestGetSystemInfoReportsShippedVersion drives the real getSystemInfo handler and
+// asserts the response version matches nas-os/internal/version (kept in sync with VERSION).
+func TestGetSystemInfoReportsShippedVersion(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	s := &Server{}
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest(http.MethodGet, "/api/v1/system/info", nil)
+
+	s.getSystemInfo(c)
+
+	require.Equal(t, http.StatusOK, w.Code)
+
+	var body struct {
+		Code int `json:"code"`
+		Data struct {
+			Hostname  string `json:"hostname"`
+			Version   string `json:"version"`
+			BuildDate string `json:"build_date"`
+			GitCommit string `json:"git_commit"`
+		} `json:"data"`
+	}
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &body))
+	assert.Equal(t, 0, body.Code)
+	assert.NotEmpty(t, body.Data.Hostname)
+	assert.Equal(t, appversion.GetVersion(), body.Data.Version, "system/info must report shipped app version, not a hard-coded placeholder")
+	assert.NotEqual(t, "0.1.0", body.Data.Version, "stale placeholder version must not leak")
+	assert.Equal(t, appversion.GetBuildInfo()["build_date"], body.Data.BuildDate)
+	assert.Equal(t, appversion.GetBuildInfo()["git_commit"], body.Data.GitCommit)
 }
 
 func TestEmptyData(t *testing.T) {

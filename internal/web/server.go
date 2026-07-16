@@ -11,12 +11,9 @@ import (
 	"time"
 
 	"nas-os/internal/acl"
-	"nas-os/internal/lab/activebackup"
 	"nas-os/internal/ai"
-	"nas-os/internal/lab/ai_classify"
 	alertremediation "nas-os/internal/alertremediation"
 	"nas-os/internal/arch"
-	"nas-os/internal/lab/audiostation"
 	"nas-os/internal/auth"
 	"nas-os/internal/backup"
 	"nas-os/internal/cloudsync"
@@ -34,8 +31,14 @@ import (
 	"nas-os/internal/hardware"
 	"nas-os/internal/healthscore"
 	"nas-os/internal/iscsi"
-	"nas-os/internal/lock"
+	"nas-os/internal/lab/activebackup"
+	"nas-os/internal/lab/ai_classify"
+	"nas-os/internal/lab/audiostation"
 	"nas-os/internal/lab/logcenter"
+	"nas-os/internal/lab/ransommldetect"
+	"nas-os/internal/lab/smartmigrate"
+	"nas-os/internal/lab/vmimport"
+	"nas-os/internal/lock"
 	"nas-os/internal/monitor"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
@@ -49,7 +52,6 @@ import (
 	"nas-os/internal/plugin"
 	"nas-os/internal/project"
 	"nas-os/internal/quota"
-	"nas-os/internal/lab/ransommldetect"
 	"nas-os/internal/recyclecleaner"
 	"nas-os/internal/replication"
 	"nas-os/internal/s3"
@@ -59,7 +61,6 @@ import (
 	"nas-os/internal/search"
 	sftp "nas-os/internal/sftp"
 	"nas-os/internal/shares"
-	"nas-os/internal/lab/smartmigrate"
 	"nas-os/internal/smb"
 	"nas-os/internal/storage"
 	"nas-os/internal/storage/nvmeof"
@@ -71,9 +72,9 @@ import (
 	"nas-os/internal/tunnel"
 	"nas-os/internal/ups"
 	"nas-os/internal/users"
+	appversion "nas-os/internal/version"
 	"nas-os/internal/versioning"
 	"nas-os/internal/vm"
-	"nas-os/internal/lab/vmimport"
 	"nas-os/internal/webdav"
 	"nas-os/internal/webhook"
 	"nas-os/internal/webterminal"
@@ -81,8 +82,6 @@ import (
 	"nas-os/internal/zfs"
 
 	// v2.498.0 新增模块.
-	"nas-os/internal/lab/appcenter"
-	"nas-os/internal/lab/backupverify"
 	"nas-os/internal/collabdocs"
 	"nas-os/internal/containresmon"
 	"nas-os/internal/dataclassify"
@@ -90,48 +89,50 @@ import (
 	"nas-os/internal/dlp"
 	"nas-os/internal/dockergui"
 	"nas-os/internal/edgecompute"
-	"nas-os/internal/lab/energymanager"
 	"nas-os/internal/filesync"
+	"nas-os/internal/lab/appcenter"
+	"nas-os/internal/lab/backupverify"
+	"nas-os/internal/lab/energymanager"
 	"nas-os/internal/lab/gpumonitor"
+	"nas-os/internal/lab/photoenhance"
+	"nas-os/internal/lab/smarthome"
+	"nas-os/internal/lab/sysdashboard"
+	"nas-os/internal/lab/vmmanager"
 	"nas-os/internal/netsentinel"
 	"nas-os/internal/networkmap"
-	"nas-os/internal/lab/photoenhance"
 	"nas-os/internal/privacyvault"
 	"nas-os/internal/remotedesktop"
-	"nas-os/internal/lab/smarthome"
 	"nas-os/internal/ssohub"
 	"nas-os/internal/surveillance"
-	"nas-os/internal/lab/sysdashboard"
 	"nas-os/internal/unifiedsearch"
-	"nas-os/internal/lab/vmmanager"
 	"nas-os/internal/zfspool"
 
 	// v2.513.0 新增模块.
-	"nas-os/internal/lab/airecommend"
 	"nas-os/internal/alertguided"
-	"nas-os/internal/lab/audittrail"
 	"nas-os/internal/datawarehouse"
 	"nas-os/internal/filedejavu"
 	"nas-os/internal/hybridflash"
+	"nas-os/internal/lab/airecommend"
+	"nas-os/internal/lab/audittrail"
+	"nas-os/internal/lab/selfserviceportal"
+	"nas-os/internal/lab/smartlink"
 	"nas-os/internal/lxcmkt"
 	"nas-os/internal/objectimmutable"
 	"nas-os/internal/privacyshield"
-	"nas-os/internal/lab/selfserviceportal"
-	"nas-os/internal/lab/smartlink"
 	"nas-os/internal/spotlight"
 
 	// v2.542.0 新增模块.
 	"nas-os/internal/apikey"
-	"nas-os/internal/lab/containerimagecache"
 	"nas-os/internal/custombranding"
 	"nas-os/internal/digitallegacy"
+	"nas-os/internal/filetag"
+	"nas-os/internal/lab/containerimagecache"
 	"nas-os/internal/lab/dlnamedia"
 	"nas-os/internal/lab/dnsfilter"
-	"nas-os/internal/filetag"
 	"nas-os/internal/lab/multiclusterfed"
-	"nas-os/internal/musicserver"
 	"nas-os/internal/lab/photoai"
 	"nas-os/internal/lab/smartnasrouter"
+	"nas-os/internal/musicserver"
 	"nas-os/internal/smbdirect"
 	"nas-os/internal/storagecostforecast"
 	"nas-os/internal/syslogserver"
@@ -2041,11 +2042,18 @@ func parseInt(s string) (int, error) {
 }
 
 func (s *Server) getSystemInfo(c *gin.Context) {
+	hostname, err := os.Hostname()
+	if err != nil || hostname == "" {
+		hostname = "nas-os"
+	}
+	build := appversion.GetBuildInfo()
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
 		"data": gin.H{
-			"hostname": "nas-os",
-			"version":  "0.1.0",
+			"hostname":   hostname,
+			"version":    appversion.GetVersion(),
+			"build_date": build["build_date"],
+			"git_commit": build["git_commit"],
 		},
 	})
 }

@@ -1,7 +1,7 @@
 # 健康检查 API 文档
 
-**版本**: v2.78.0  
-**更新日期**: 2026-03-16
+**版本**: v3.22.0  
+**更新日期**: 2026-07-16
 
 ## 概述
 
@@ -9,9 +9,20 @@
 
 ## 基础路径
 
+生产健康探针（现行）：
+
 ```
-/api/v1/health
+GET /api/v1/system/health
+GET /api/v1/health          # 兼容旧路径，与上者等价
 ```
+
+系统信息（版本）：
+
+```
+GET /api/v1/system/info     # version 来自 internal/version（与根 VERSION 同步）
+```
+
+> 文档版本号随发行版对齐为 **v3.22.0**；健康契约语义以 `internal/web` 实现为准。
 
 ---
 
