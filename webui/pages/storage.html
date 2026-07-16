@@ -559,7 +559,7 @@
         // ========== 卷管理 ==========
         async function loadVolumes() {
             try {
-                const res = await fetch(`${API_BASE}/volumes`);
+                const res = await fetch(`${API_BASE}/storage/volumes`);
                 const data = await res.json();
                 
                 if (data.code === 0) {
@@ -667,7 +667,7 @@
             const devices = devicesStr.split(',').map(s => s.trim()).filter(s => s);
 
             try {
-                const res = await fetch(`${API_BASE}/volumes`, {
+                const res = await fetch(`${API_BASE}/storage/volumes`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, devices, profile })
@@ -695,7 +695,7 @@
             if (!confirm(`确定要对卷 "${volumeName}" 执行数据校验吗？`)) return;
             
             try {
-                const res = await fetch(`${API_BASE}/volumes/${volumeName}/scrub`, { method: 'POST' });
+                const res = await fetch(`${API_BASE}/storage/volumes/${volumeName}/scrub`, { method: 'POST' });
                 const data = await res.json();
                 
                 if (data.code === 0) {
@@ -712,7 +712,7 @@
             if (!confirm(`确定要对卷 "${volumeName}" 执行数据平衡吗？`)) return;
             
             try {
-                const res = await fetch(`${API_BASE}/volumes/${volumeName}/balance`, { method: 'POST' });
+                const res = await fetch(`${API_BASE}/storage/volumes/${volumeName}/balance`, { method: 'POST' });
                 const data = await res.json();
                 
                 if (data.code === 0) {
@@ -737,7 +737,7 @@
             if (!confirm(`再次确认删除卷 "${name}"？所有数据将丢失！`)) return;
             
             try {
-                const res = await fetch(`${API_BASE}/volumes/${name}?force=true`, { method: 'DELETE' });
+                const res = await fetch(`${API_BASE}/storage/volumes/${name}?force=true`, { method: 'DELETE' });
                 const data = await res.json();
                 
                 if (data.code === 0 || res.status === 204) {
@@ -759,7 +759,7 @@
             try {
                 let url = `${API_BASE}/subvolumes`;
                 if (volumeFilter) {
-                    url = `${API_BASE}/volumes/${volumeFilter}/subvolumes`;
+                    url = `${API_BASE}/storage/volumes/${volumeFilter}/subvolumes`;
                 }
                 
                 const res = await fetch(url);
@@ -820,7 +820,7 @@
             }
 
             try {
-                const res = await fetch(`${API_BASE}/volumes/${volume}/subvolumes`, {
+                const res = await fetch(`${API_BASE}/storage/volumes/${volume}/subvolumes`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name })
@@ -851,7 +851,7 @@
             const path = prompt('请输入挂载路径:', `/mnt/${name.replace('@', '')}`);
             if (!path) return;
             
-            fetch(`${API_BASE}/volumes/${volume}/subvolumes/${encodeURIComponent(name)}/mount`, {
+            fetch(`${API_BASE}/storage/volumes/${volume}/subvolumes/${encodeURIComponent(name)}/mount`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ mountPath: path })
@@ -871,7 +871,7 @@
             if (!confirm(`确定要删除子卷 "${name}" 吗？`)) return;
             
             try {
-                const res = await fetch(`${API_BASE}/volumes/${volume}/subvolumes/${encodeURIComponent(name)}`, { method: 'DELETE' });
+                const res = await fetch(`${API_BASE}/storage/volumes/${volume}/subvolumes/${encodeURIComponent(name)}`, { method: 'DELETE' });
                 const data = await res.json();
                 
                 if (data.code === 0 || res.status === 204) {
@@ -893,7 +893,7 @@
             try {
                 let url = `${API_BASE}/snapshots`;
                 if (volumeFilter) {
-                    url = `${API_BASE}/volumes/${volumeFilter}/snapshots`;
+                    url = `${API_BASE}/storage/volumes/${volumeFilter}/snapshots`;
                 }
                 
                 const res = await fetch(url);
@@ -973,7 +973,7 @@
             }
 
             try {
-                const res = await fetch(`${API_BASE}/volumes/${volume}/subvolumes`);
+                const res = await fetch(`${API_BASE}/storage/volumes/${volume}/subvolumes`);
                 const data = await res.json();
                 
                 if (data.code === 0 && data.data) {
@@ -996,7 +996,7 @@
             }
 
             try {
-                const res = await fetch(`${API_BASE}/volumes/${volume}/snapshots`, {
+                const res = await fetch(`${API_BASE}/storage/volumes/${volume}/snapshots`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ subvolume, name, readOnly: readonly })
@@ -1020,7 +1020,7 @@
             if (!targetName) return;
             
             try {
-                const res = await fetch(`${API_BASE}/volumes/${volume}/snapshots/${encodeURIComponent(name)}/restore`, {
+                const res = await fetch(`${API_BASE}/storage/volumes/${volume}/snapshots/${encodeURIComponent(name)}/restore`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ targetName })
@@ -1042,7 +1042,7 @@
             if (!confirm(`确定要删除快照 "${name}" 吗？`)) return;
             
             try {
-                const res = await fetch(`${API_BASE}/volumes/${volume}/snapshots/${encodeURIComponent(name)}`, { method: 'DELETE' });
+                const res = await fetch(`${API_BASE}/storage/volumes/${volume}/snapshots/${encodeURIComponent(name)}`, { method: 'DELETE' });
                 const data = await res.json();
                 
                 if (data.code === 0 || res.status === 204) {

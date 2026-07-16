@@ -411,7 +411,7 @@
         // 加载卷列表
         async function loadVolumes() {
             try {
-                const res = await fetch(`${API_BASE}/volumes`);
+                const res = await fetch(`${API_BASE}/storage/volumes`);
                 const data = await res.json();
                 const tbody = document.getElementById('volumes-list');
                 
@@ -468,7 +468,7 @@
             if (!devices) return;
             const profile = prompt('RAID 配置 (single/raid0/raid1/raid10，留空为 single):') || 'single';
             
-            fetch(`${API_BASE}/volumes`, {
+            fetch(`${API_BASE}/storage/volumes`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({name, devices: devices.split(','), profile})
@@ -491,7 +491,7 @@
         function runScrub() {
             const name = prompt('要校验的卷名称:');
             if (!name) return;
-            fetch(`${API_BASE}/volumes/${name}/scrub`, {method: 'POST'})
+            fetch(`${API_BASE}/storage/volumes/${name}/scrub`, {method: 'POST'})
                 .then(r => r.json())
                 .then(data => alert(data.message || data.error));
         }
@@ -499,7 +499,7 @@
         function runBalance() {
             const name = prompt('要平衡的卷名称:');
             if (!name) return;
-            fetch(`${API_BASE}/volumes/${name}/balance`, {method: 'POST'})
+            fetch(`${API_BASE}/storage/volumes/${name}/balance`, {method: 'POST'})
                 .then(r => r.json())
                 .then(data => alert(data.message || data.error));
         }
@@ -510,7 +510,7 @@
             const snapName = prompt('快照名称:');
             if (!volName || !subvolName || !snapName) return;
             
-            fetch(`${API_BASE}/volumes/${volName}/snapshots`, {
+            fetch(`${API_BASE}/storage/volumes/${volName}/snapshots`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({subvolume: subvolName, name: snapName, readonly: false})
