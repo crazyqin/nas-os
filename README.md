@@ -471,17 +471,20 @@ sudo nasd
 
 ## API 接口
 
-### 存储管理
+### 存储管理（`/api/v1/storage/*` 唯一契约）
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /api/v1/volumes | 获取卷列表 |
-| POST | /api/v1/volumes | 创建卷 |
-| GET | /api/v1/volumes/:name | 获取卷详情 |
-| DELETE | /api/v1/volumes/:name | 删除卷 |
-| POST | /api/v1/volumes/:name/subvolumes | 创建子卷 |
-| POST | /api/v1/volumes/:name/snapshots | 创建快照 |
-| POST | /api/v1/volumes/:name/balance | 平衡数据 |
-| POST | /api/v1/volumes/:name/scrub | 数据校验 |
+| GET | /api/v1/storage/volumes | 获取卷列表 |
+| POST | /api/v1/storage/volumes | 创建卷 |
+| DELETE | /api/v1/storage/volumes/:name | 删除卷 |
+| POST | /api/v1/storage/volumes/:name/subvolumes | 创建子卷 |
+| POST | /api/v1/storage/volumes/:name/subvolumes/:subvol/mount | 挂载子卷（body: `mountPath`） |
+| GET | /api/v1/storage/snapshots | 列出全部快照 |
+| POST | /api/v1/storage/volumes/:name/snapshots | 创建快照 |
+| POST | /api/v1/storage/volumes/:name/snapshots/:snap/restore | 恢复快照（body: `targetName`） |
+| POST | /api/v1/storage/volumes/:name/balance | 平衡数据 |
+| POST | /api/v1/storage/volumes/:name/scrub | 数据校验 |
+| GET | /api/v1/storage/pools | 列出存储池 |
 
 ### 共享管理
 | 方法 | 路径 | 说明 |

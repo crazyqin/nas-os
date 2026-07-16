@@ -1,5 +1,19 @@
 # Changelog
 
+## v3.24.3 (2026-07-16) - Storage WebUI↔handler DTO contract convergence
+
+### Fixes (breaking-safe contract)
+- **Single DTO source**: live `web.StorageHandlers` bind `storage.CreateVolumeRequest`, `CreateSubvolumeRequest`, `MountSubvolumeRequest` (`mountPath`), `CreateSnapshotRequest`, `RestoreSnapshotRequest` (`targetName`) — same tags as domain handlers and Core WebUI.
+- **WebUI lists**: unfiltered subvolume load aggregates `/storage/volumes/:name/subvolumes`; snapshots use `/storage/snapshots` or per-volume paths (no bare `/subvolumes`/`/snapshots`, no demo fallback).
+- **Response envelope**: list endpoints (volumes/pools/snapshots) return `{code,message,data}` consistently.
+- **Docs/tests**: README API table, `docs/api/examples.md`, e2e/integration/fixtures/benchmarks migrate to `/api/v1/storage/*`.
+- **Contract tests**: `TestCoreStorageWebUIContract`, `TestMountAndRestoreBindCanonicalJSONTags`.
+
+### Verify
+- `go test ./internal/web -run 'TestCoreStorageWebUIContract|TestMountAndRestore|TestDefaultWebUI|TestStorageHandlers|TestLegacyVolumes'`
+- `go test ./internal/web ./internal/storage ./internal/users ./internal/config ./internal/application`
+- `go build ./cmd/nasd`
+
 ## v3.24.2 (2026-07-16) - WebUI uses /api/v1/storage/volumes only
 
 ### Fixes

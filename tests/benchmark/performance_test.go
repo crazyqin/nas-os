@@ -214,7 +214,7 @@ func setupBenchmarkRouter() *gin.Engine {
 			c.JSON(http.StatusOK, gin.H{"status": "ok", "version": "2.7.0"})
 		})
 
-		api.GET("/volumes", func(c *gin.Context) {
+		api.GET("/storage/volumes", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"volumes": []gin.H{
 					{"name": "data", "size": 1000000000000},
@@ -260,7 +260,7 @@ func BenchmarkAPIVolumesEndpoint(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/volumes", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/volumes", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
@@ -353,7 +353,7 @@ func BenchmarkAllocationsHTTPResponse(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/volumes", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/volumes", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}

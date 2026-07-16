@@ -24,8 +24,9 @@ func NewTestServer() *httptest.Server {
 			c.JSON(http.StatusOK, gin.H{"status": "ok"})
 		})
 
-		// 卷管理 - 模拟数据
-		volumes := api.Group("/volumes")
+		// 卷管理 - 模拟数据（与 live /api/v1/storage/volumes 契约一致）
+		storage := api.Group("/storage")
+		volumes := storage.Group("/volumes")
 		{
 			volumes.GET("", func(c *gin.Context) {
 				c.JSON(http.StatusOK, []gin.H{
@@ -86,7 +87,7 @@ func TestE2E_Storage_CreateVolume(t *testing.T) {
 		"profile": "raid1",
 	}
 
-	resp, err := client.Post("/api/v1/volumes", req)
+	resp, err := client.Post("/api/v1/storage/volumes", req)
 	if err != nil {
 		t.Fatalf("创建卷请求失败: %v", err)
 	}
@@ -108,7 +109,7 @@ func TestE2E_Storage_ListVolumes(t *testing.T) {
 
 	client := NewTestClient(server.URL)
 
-	resp, err := client.Get("/api/v1/volumes")
+	resp, err := client.Get("/api/v1/storage/volumes")
 	if err != nil {
 		t.Fatalf("获取卷列表请求失败: %v", err)
 	}
@@ -130,7 +131,7 @@ func TestE2E_Storage_GetVolume(t *testing.T) {
 
 	client := NewTestClient(server.URL)
 
-	resp, err := client.Get("/api/v1/volumes/test-vol")
+	resp, err := client.Get("/api/v1/storage/volumes/test-vol")
 	if err != nil {
 		t.Fatalf("获取卷请求失败: %v", err)
 	}
@@ -152,7 +153,7 @@ func TestE2E_Storage_DeleteVolume(t *testing.T) {
 
 	client := NewTestClient(server.URL)
 
-	resp, err := client.Delete("/api/v1/volumes/test-vol")
+	resp, err := client.Delete("/api/v1/storage/volumes/test-vol")
 	if err != nil {
 		t.Fatalf("删除卷请求失败: %v", err)
 	}
@@ -175,7 +176,7 @@ func TestE2E_Storage_CompleteWorkflow(t *testing.T) {
 	client := NewTestClient(server.URL)
 
 	t.Log("步骤 1: 创建存储卷")
-	resp, err := client.Post("/api/v1/volumes", map[string]interface{}{
+	resp, err := client.Post("/api/v1/storage/volumes", map[string]interface{}{
 		"name":    "workflow-vol",
 		"devices": []string{"/dev/sda1", "/dev/sdb1"},
 		"profile": "raid1",
@@ -186,7 +187,7 @@ func TestE2E_Storage_CompleteWorkflow(t *testing.T) {
 	resp.Body.Close()
 
 	t.Log("步骤 2: 验证卷创建成功")
-	resp, err = client.Get("/api/v1/volumes/workflow-vol")
+	resp, err = client.Get("/api/v1/storage/volumes/workflow-vol")
 	if err != nil {
 		t.Fatalf("获取卷失败: %v", err)
 	}
@@ -196,7 +197,7 @@ func TestE2E_Storage_CompleteWorkflow(t *testing.T) {
 	}
 
 	t.Log("步骤 3: 列出所有卷")
-	resp, err = client.Get("/api/v1/volumes")
+	resp, err = client.Get("/api/v1/storage/volumes")
 	if err != nil {
 		t.Fatalf("列出卷失败: %v", err)
 	}
@@ -206,7 +207,7 @@ func TestE2E_Storage_CompleteWorkflow(t *testing.T) {
 	}
 
 	t.Log("步骤 4: 删除卷")
-	resp, err = client.Delete("/api/v1/volumes/workflow-vol")
+	resp, err = client.Delete("/api/v1/storage/volumes/workflow-vol")
 	if err != nil {
 		t.Fatalf("删除卷失败: %v", err)
 	}

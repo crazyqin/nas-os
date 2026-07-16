@@ -30,12 +30,16 @@ func TestListVolumes_NilStorageMgr(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var resp []interface{}
+	var resp StorageResponse
 	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
 		t.Fatalf("failed to unmarshal response: %v", err)
 	}
-	// Should return empty array when storageMgr is nil
-	assert.Len(t, resp, 0)
+	assert.Equal(t, 0, resp.Code)
+	data, ok := resp.Data.([]interface{})
+	if !ok {
+		t.Fatalf("expected data array, got %T", resp.Data)
+	}
+	assert.Len(t, data, 0)
 }
 
 func TestListVolumes_WithMockData(t *testing.T) {
@@ -67,7 +71,7 @@ func TestCreateVolume_NilStorageMgr(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	body := CreateVolumeRequest{
+	body := storage.CreateVolumeRequest{
 		Name:    "test-vol",
 		Devices: []string{"/dev/sda"},
 		Profile: "single",
@@ -114,7 +118,7 @@ func TestCreateVolume_MissingDevices(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	body := CreateVolumeRequest{
+	body := storage.CreateVolumeRequest{
 		Name:    "test-vol",
 		Devices: []string{},
 		Profile: "single",
@@ -146,12 +150,16 @@ func TestListPools_NilStorageMgr(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var resp []interface{}
+	var resp StorageResponse
 	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
 		t.Fatalf("failed to unmarshal response: %v", err)
 	}
-	// Should return empty array when storageMgr is nil
-	assert.Len(t, resp, 0)
+	assert.Equal(t, 0, resp.Code)
+	data, ok := resp.Data.([]interface{})
+	if !ok {
+		t.Fatalf("expected data array, got %T", resp.Data)
+	}
+	assert.Len(t, data, 0)
 }
 
 // ========== ListAllSnapshots Handler Tests ==========
@@ -282,7 +290,7 @@ func TestSnapshotResponse_JSON(t *testing.T) {
 func TestCreateVolumeRequest_JSON(t *testing.T) {
 	jsonStr := `{"name":"test-vol","devices":["/dev/sda","/dev/sdb"],"profile":"raid1"}`
 
-	var req CreateVolumeRequest
+	var req storage.CreateVolumeRequest
 	err := json.Unmarshal([]byte(jsonStr), &req)
 	assert.NoError(t, err)
 	assert.Equal(t, "test-vol", req.Name)

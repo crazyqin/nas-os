@@ -95,8 +95,8 @@ func setupWebUITestRouter() *gin.Engine {
 			})
 		})
 
-		// 卷详情
-		api.GET("/volumes/:name/details", func(c *gin.Context) {
+		// 卷详情（storage 契约下的模拟详情端点）
+		api.GET("/storage/volumes/:name/details", func(c *gin.Context) {
 			name := c.Param("name")
 			c.JSON(http.StatusOK, gin.H{
 				"name":        name,
@@ -420,7 +420,7 @@ func TestWebUI_StorageOverview(t *testing.T) {
 func TestWebUI_VolumeDetails(t *testing.T) {
 	router := setupWebUITestRouter()
 
-	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/volumes/data/details", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/storage/volumes/data/details", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
