@@ -778,7 +778,7 @@
         // 加载存储卷列表
         async function loadVolumes() {
             try {
-                const response = await fetch('/api/v1/volumes');
+                const response = await fetch('/api/v1/storage/volumes');
                 const data = await response.json();
                 volumes = data.data || [];
                 renderVolumes();
@@ -990,7 +990,7 @@
             if (!confirm('确定要删除此存储卷吗？')) return;
             
             try {
-                const response = await fetch(`/api/v1/volumes/${name}?force=true`, { method: 'DELETE' });
+                const response = await fetch(`/api/v1/storage/volumes/${name}?force=true`, { method: 'DELETE' });
                 const data = await response.json();
                 if (data.code === 0) {
                     refreshData();

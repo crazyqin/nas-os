@@ -21,13 +21,24 @@ func NewStorageHandlers(storageMgr *storage.Manager) *StorageHandlers {
 	}
 }
 
-// RegisterRoutes 注册路由到 /api/storage 组.
+// RegisterRoutes 注册路由到 /api/v1/storage 组（单一契约，无 /api/v1/volumes 兼容层）.
 func (h *StorageHandlers) RegisterRoutes(rg *gin.RouterGroup) {
 	storage := rg.Group("/storage")
 	{
 		// 存储卷管理
 		storage.GET("/volumes", h.ListVolumes)
 		storage.POST("/volumes", h.CreateVolume)
+		storage.DELETE("/volumes/:name", h.DeleteVolume)
+		storage.POST("/volumes/:name/scrub", h.StartScrub)
+		storage.POST("/volumes/:name/balance", h.StartBalance)
+		storage.GET("/volumes/:name/subvolumes", h.ListSubVolumes)
+		storage.POST("/volumes/:name/subvolumes", h.CreateSubVolume)
+		storage.DELETE("/volumes/:name/subvolumes/:subvol", h.DeleteSubVolume)
+		storage.POST("/volumes/:name/subvolumes/:subvol/mount", h.MountSubVolume)
+		storage.GET("/volumes/:name/snapshots", h.ListVolumeSnapshots)
+		storage.POST("/volumes/:name/snapshots", h.CreateVolumeSnapshot)
+		storage.DELETE("/volumes/:name/snapshots/:snap", h.DeleteVolumeSnapshot)
+		storage.POST("/volumes/:name/snapshots/:snap/restore", h.RestoreVolumeSnapshot)
 
 		// 存储池管理
 		storage.GET("/pools", h.ListPools)
@@ -49,7 +60,7 @@ func (h *StorageHandlers) RegisterRoutes(rg *gin.RouterGroup) {
 // @Router /api/storage/volumes [get].
 func (h *StorageHandlers) ListVolumes(c *gin.Context) {
 	if h.storageMgr == nil {
-		c.JSON(http.StatusOK, []VolumeResponse{})
+		c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success", Data: []VolumeResponse{}})
 		return
 	}
 	volumes := h.storageMgr.ListVolumes()
@@ -277,6 +288,211 @@ func (h *StorageHandlers) ListAllSnapshots(c *gin.Context) {
 		Message: "success",
 		Data:    snapshots,
 	})
+}
+
+// DeleteVolume deletes a volume by name.
+func (h *StorageHandlers) DeleteVolume(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: "storage manager not initialized"})
+		return
+	}
+	force := c.Query("force") == "true"
+	if err := h.storageMgr.DeleteVolume(c.Param("name"), force); err != nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success"})
+}
+
+// StartScrub starts a scrub on the named volume.
+func (h *StorageHandlers) StartScrub(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: "storage manager not initialized"})
+		return
+	}
+	if err := h.storageMgr.Scrub(c.Param("name")); err != nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "scrub started"})
+}
+
+// StartBalance starts a balance on the named volume.
+func (h *StorageHandlers) StartBalance(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: "storage manager not initialized"})
+		return
+	}
+	if err := h.storageMgr.Balance(c.Param("name")); err != nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "balance started"})
+}
+
+// ListSubVolumes lists subvolumes for a volume.
+func (h *StorageHandlers) ListSubVolumes(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success", Data: []SubvolumeResponse{}})
+		return
+	}
+	subs, err := h.storageMgr.ListSubVolumes(c.Param("name"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success", Data: convertSubvolumes(subs)})
+}
+
+// CreateSubVolume creates a subvolume.
+func (h *StorageHandlers) CreateSubVolume(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: "storage manager not initialized"})
+		return
+	}
+	var req struct {
+		Name string `json:"name" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, StorageResponse{Code: 400, Message: err.Error()})
+		return
+	}
+	sub, err := h.storageMgr.CreateSubVolume(c.Param("name"), req.Name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success", Data: convertSubvolumes([]*storage.SubVolume{sub})[0]})
+}
+
+// DeleteSubVolume deletes a subvolume.
+func (h *StorageHandlers) DeleteSubVolume(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: "storage manager not initialized"})
+		return
+	}
+	subvol := c.Param("subvol")
+	if err := h.storageMgr.DeleteSubVolume(c.Param("name"), subvol); err != nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success"})
+}
+
+// MountSubVolume mounts a subvolume (mount path from JSON body or default).
+func (h *StorageHandlers) MountSubVolume(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: "storage manager not initialized"})
+		return
+	}
+	subvol := c.Param("subvol")
+	var req struct {
+		MountPath string `json:"mount_path"`
+	}
+	_ = c.ShouldBindJSON(&req)
+	if req.MountPath == "" {
+		req.MountPath = "/mnt/" + c.Param("name") + "/" + subvol
+	}
+	if err := h.storageMgr.MountSubVolume(c.Param("name"), subvol, req.MountPath); err != nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success"})
+}
+
+// ListVolumeSnapshots lists snapshots for one volume.
+func (h *StorageHandlers) ListVolumeSnapshots(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success", Data: []SnapshotResponse{}})
+		return
+	}
+	snaps, err := h.storageMgr.ListSnapshots(c.Param("name"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: err.Error()})
+		return
+	}
+	out := make([]SnapshotResponse, 0, len(snaps))
+	for _, snap := range snaps {
+		out = append(out, SnapshotResponse{
+			Name:       snap.Name,
+			Path:       snap.Path,
+			Source:     snap.Source,
+			SourceUUID: snap.SourceUUID,
+			ReadOnly:   snap.ReadOnly,
+			CreatedAt:  snap.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+			Size:       snap.Size,
+			VolumeName: c.Param("name"),
+		})
+	}
+	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success", Data: out})
+}
+
+// CreateVolumeSnapshot creates a snapshot.
+func (h *StorageHandlers) CreateVolumeSnapshot(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: "storage manager not initialized"})
+		return
+	}
+	var req struct {
+		Subvolume string `json:"subvolume" binding:"required"`
+		Name      string `json:"name" binding:"required"`
+		ReadOnly  bool   `json:"readonly"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, StorageResponse{Code: 400, Message: err.Error()})
+		return
+	}
+	snap, err := h.storageMgr.CreateSnapshot(c.Param("name"), req.Subvolume, req.Name, req.ReadOnly)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, StorageResponse{
+		Code:    0,
+		Message: "success",
+		Data: SnapshotResponse{
+			Name:       snap.Name,
+			Path:       snap.Path,
+			Source:     snap.Source,
+			SourceUUID: snap.SourceUUID,
+			ReadOnly:   snap.ReadOnly,
+			CreatedAt:  snap.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+			Size:       snap.Size,
+			VolumeName: c.Param("name"),
+		},
+	})
+}
+
+// DeleteVolumeSnapshot deletes a snapshot.
+func (h *StorageHandlers) DeleteVolumeSnapshot(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: "storage manager not initialized"})
+		return
+	}
+	snap := c.Param("snap")
+	if err := h.storageMgr.DeleteSnapshot(c.Param("name"), snap); err != nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success"})
+}
+
+// RestoreVolumeSnapshot restores a snapshot.
+func (h *StorageHandlers) RestoreVolumeSnapshot(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: "storage manager not initialized"})
+		return
+	}
+	snap := c.Param("snap")
+	var req struct {
+		Target string `json:"target"`
+	}
+	_ = c.ShouldBindJSON(&req)
+	if err := h.storageMgr.RestoreSnapshot(c.Param("name"), snap, req.Target); err != nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success"})
 }
 
 // ========== 辅助类型 ==========

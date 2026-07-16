@@ -1,5 +1,12 @@
 # Changelog
 
+## v3.24.2 (2026-07-16) - WebUI uses /api/v1/storage/volumes only
+
+### Fixes
+- Migrate default Core WebUI (`webui/index.html`, `webui/pages/storage.html`, `sw.js`) from legacy `/api/v1/volumes` to **`/api/v1/storage/volumes`**.
+- Expand `StorageHandlers` with delete/scrub/balance/subvolume/snapshot routes under `/storage`.
+- Regression: `TestDefaultWebUIDoesNotFetchLegacyVolumesAPI`, `TestStorageHandlersRegisterStorageVolumesContract`.
+
 ## v3.24.1 (2026-07-16) - WebUI gate, force password change, purge api/middleware
 
 ### Fixes (skeptic)
