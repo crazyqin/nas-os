@@ -1,5 +1,21 @@
 # Changelog
 
+## v3.22.0 (2026-07-16) - 架构收敛：163 伪核心模块降入 Lab
+
+### 架构收敛
+- 将 **163** 个零生产引用、未接入 Core 生命周期主图的伪核心模块从 `internal/` 顶层迁入 `internal/lab/`。
+- 主题分组：文件生命周期/去重、存储硬件辅助、网络边缘、身份安全辅件、协作内容应用、运维平台概念（含 `acme`/`alerting`/`selfheal`/`ztna` 等未接线旧 Extension 标签）。
+- 修正 catalog 与路径不一致：`activebackup`、`reports`、`smartpricing`（及缺失磁盘包 `download`）统一登记为 **Lab**，与 `internal/lab/` 放置对齐。
+- Core 仍仅 `identity` / `storage` / `network` / `sharing` / `system`；Extensions 命名空间包数量不变（7）。
+- 扩充 `modulecatalog_test` 路径边界与 Core-only-five 回归，阻止旧顶层路径回流。
+- 顶层 `internal/*` 业务包约 493→330；Lab 约 304→467。
+
+### 验证
+- `go build -o nasd ./cmd/nasd`（两次）
+- `go test ./internal/application ./internal/arch`
+- 抽样 `go test` 已迁移 lab 包
+- `go build` 覆盖迁移后的 import 图
+
 ## v3.18.6 (2026-07-16) - Pro 伪核心模块降入 Lab
 
 ### 架构收敛

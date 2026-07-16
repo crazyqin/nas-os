@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"nas-os/internal/media"
+	"nas-os/internal/lab/media"
 )
 
 // MediaCenterAPI provides API handlers for the media center
