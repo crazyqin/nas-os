@@ -1,6 +1,6 @@
 # Changelog
 
-## v3.24.3 (2026-07-16) - Storage WebUI↔handler DTO contract convergence
+## v3.24.3 (2026-07-16) - Contract fix + version honesty + Lab demotion
 
 ### Fixes (breaking-safe contract)
 - **Single DTO source**: live `web.StorageHandlers` bind `storage.CreateVolumeRequest`, `CreateSubvolumeRequest`, `MountSubvolumeRequest` (`mountPath`), `CreateSnapshotRequest`, `RestoreSnapshotRequest` (`targetName`) — same tags as domain handlers and Core WebUI.
@@ -9,10 +9,18 @@
 - **Docs/tests**: README API table, `docs/api/examples.md`, e2e/integration/fixtures/benchmarks migrate to `/api/v1/storage/*`.
 - **Contract tests**: `TestCoreStorageWebUIContract`, `TestMountAndRestoreBindCanonicalJSONTags`.
 
+### Fixes (P0–P2 project health)
+- **Version align**: `internal/version.Version` = `3.24.3` matching root `VERSION`; README / ARCHITECTURE / resource-stats latest badge updated.
+- **Integration Lab paths**: `tests/integration` imports `compress` / `health` / `natpierce` from `internal/lab/*` (fixes staged-release missing package).
+- **Default surface honesty**: README documents Core-only default (`modules.optional=false`, empty extensions); marketed WriteOnce/AI/LLM/CLIP/MCP require explicit enablement.
+- **Dead config**: `configs/default.yaml` removes unwired smb/nfs/monitor live-looking blocks; documents them as unused legacy comments only.
+- **Demote to Lab**: scrub*/storagecost*/search*/ups* duplicates beyond keepers, plus zero-dep experimentals (`web3storage`, `wasmruntime`, `serverless`, `sprintboard`, …); allowlist refreshed.
+
 ### Verify
-- `go test ./internal/web -run 'TestCoreStorageWebUIContract|TestMountAndRestore|TestDefaultWebUI|TestStorageHandlers|TestLegacyVolumes'`
-- `go test ./internal/web ./internal/storage ./internal/users ./internal/config ./internal/application`
+- `go test ./internal/version ./internal/web ./internal/storage ./internal/users ./internal/config ./internal/application`
+- `go test ./tests/integration/ -count=1`
 - `go build ./cmd/nasd`
+- `go list -deps ./cmd/nasd | grep lab` → empty (product path)
 
 ## v3.24.2 (2026-07-16) - WebUI uses /api/v1/storage/volumes only
 

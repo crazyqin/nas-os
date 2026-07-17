@@ -1,14 +1,16 @@
 # NAS-OS 资源统计
 
 **更新日期**: 2026-07-16  
-**版本**: v3.24.2
+**版本**: v3.24.3
+
+> **默认运行时**: `nasd` 仅 Core 五模块；`modules.optional=false`、`modules.extensions=[]`。WriteOnce/AI/LLM/CLIP/MCP 等需显式启用，见 README「默认交付面」。
 
 ## 代码规模
 
 | 指标 | 数值 |
 |------|------|
-| `internal/` 顶层目录 | ~330 |
-| Lab 包（`internal/lab/*`） | ~467 |
+| `internal/` 顶层目录 | ~190（收敛中；以 allowlist 为准） |
+| Lab 包（`internal/lab/*`） | ~600+（实验/重复/零生产引用） |
 | Extension 包（`internal/extensions/*`） | 7 |
 | Go 源文件数 | ~3,805 |
 | 测试文件数 | ~1,022 |

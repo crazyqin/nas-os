@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"nas-os/internal/natpierce"
+	"nas-os/internal/lab/natpierce"
 )
 
 // ==================== 连接测试 ====================

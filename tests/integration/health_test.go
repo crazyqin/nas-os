@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"nas-os/internal/health"
+	"nas-os/internal/lab/health"
 )
 
 func TestHealth_Integration(t *testing.T) {
