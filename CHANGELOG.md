@@ -1,5 +1,18 @@
 # Changelog
 
+## v3.24.3 (follow-up) - Health: demote zero-dep, unwire experimentals, docs honesty
+
+### Fixes
+- Demote zero-dep top-level packages (`wiki`, `whisperstt`, `wellbeing`, `teamfile`, `taskboard`, `warrantytracker`, `voicecontrol`, `voicescheduler`, unused `smb*ext`) and pure-optional experimentals (`edgecompute`, `digitallegacy`, `digitalwellbeing`, `collabdocs`) into Lab; refresh allowlist.
+- Unwire named experimentals from `internal/web/server.go` so default `go list -deps ./cmd/nasd` no longer links them.
+- README mid feature matrices: enablement column (default / optional / Lab); docs/api + competitive-analysis version headers → v3.24.3.
+- Paperless template: require `PAPERLESS_ADMIN_*` env (no `admin123` default).
+
+### Verify
+- `go test ./internal/application ./internal/web ./internal/version ./internal/config ./internal/storage ./internal/users`
+- `go list -deps ./cmd/nasd | grep -E 'lab/|edgecompute|collabdocs'` → empty for product lab path and unwired names
+- `go build ./cmd/nasd`
+
 ## v3.24.3 (2026-07-16) - Contract fix + version honesty + Lab demotion
 
 ### Fixes (breaking-safe contract)

@@ -95,8 +95,9 @@ services:
       - PAPERLESS_OCR_MODE=skip
       
       # ─── 安全配置 ─────────────────────────────────────────────────────────
-      - PAPERLESS_ADMIN_USER=${PAPERLESS_ADMIN_USER:-admin}
-      - PAPERLESS_ADMIN_PASSWORD=${PAPERLESS_ADMIN_PASSWORD:-admin123}
+      # Require operator-provided admin credentials (no weak baked-in default).
+      - PAPERLESS_ADMIN_USER=${PAPERLESS_ADMIN_USER:?set PAPERLESS_ADMIN_USER}
+      - PAPERLESS_ADMIN_PASSWORD=${PAPERLESS_ADMIN_PASSWORD:?set PAPERLESS_ADMIN_PASSWORD}
       
       # ─── 文件处理 ─────────────────────────────────────────────────────────
       - PAPERLESS_FILENAME_FORMAT={created_year}/{document_type}/{title}
