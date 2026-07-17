@@ -1,6 +1,9 @@
 # NAS-OS 默认配置
 # 强类型加载路径见 internal/config。可通过 --config 指定，
 # 也可用环境变量 NAS_OS_* 覆盖运行时字段。
+#
+# 默认产品面：仅 Core（identity/storage/network/sharing/system）。
+# modules.optional=false、modules.extensions=[] → 不加载 Docker/VM/Photos/AI 等。
 
 server:
   host: 127.0.0.1
@@ -35,20 +38,31 @@ modules:
   # Lab packages under internal/lab/ are never loaded via this list.
   extensions: []
 
-# ==================== 兼容旧字段（未接入 config 包） ====================
-# 以下字段保留自旧版配置，后续按模块迁移到 config 包表达。
-
-smb:
-  enabled: true
-  workgroup: WORKGROUP
-  guest_access: false
-
-nfs:
-  enabled: true
-  allowed_networks:
-    - 192.168.1.0/24
-
-monitor:
-  disk_check_interval: 60      # 秒
-  space_warning_threshold: 80  # %
-  space_critical_threshold: 95 # %
+# -----------------------------------------------------------------------------
+# UNUSED / LEGACY (not loaded by internal/config typed loader)
+# -----------------------------------------------------------------------------
+# The following YAML keys are kept only for historical compose snippets and
+# operator notes. They are NOT part of the typed config.Config schema and have
+# NO effect on nasd until a future migration wires them.
+#
+# Live SMB/NFS behavior is driven by managers constructed in application/web
+# (paths.samba_config / paths.nfs_exports), not by the blocks below.
+# Live monitoring uses modules constructed when optional=true or separate
+# monitoring configs under configs/monitoring*.yaml — not this monitor: block.
+#
+# Do not treat these as active defaults.
+#
+# unused-legacy-smb:
+#   enabled: true
+#   workgroup: WORKGROUP
+#   guest_access: false
+#
+# unused-legacy-nfs:
+#   enabled: true
+#   allowed_networks:
+#     - 192.168.1.0/24
+#
+# unused-legacy-monitor:
+#   disk_check_interval: 60
+#   space_warning_threshold: 80
+#   space_critical_threshold: 95

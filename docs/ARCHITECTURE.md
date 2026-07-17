@@ -1,6 +1,6 @@
 # NAS-OS 架构说明
 
-**版本**: v3.24.2  
+**版本**: v3.24.3  
 **更新日期**: 2026-07-16
 
 本文描述 NAS-OS 当前的进程组合、模块生命周期、API 安全边界和渐进迁移约束。模块分层以 **Core / Extension / Lab** 为准；目录与 `internal/application` catalog 标签必须一致，且 **运行时默认路径不得硬接线 Lab**。
@@ -152,19 +152,22 @@ API 分成三层：
 - `GET /api/v1/system/modules`（管理员）：含 tier 的模块状态列表。
 - `GET /api/v1/system/info`：版本来自 `internal/version`（与根 `VERSION` 同步）。
 
-## 默认产品表面（v3.24）
+## 默认产品表面（v3.24+）
 
-- `modules.optional` **默认 false**：不构造 Docker/VM/Photos/AI/云同步等非 Core 管理器。
-- 启用：`modules.optional: true`（或配置文件/环境约定）。
-- Extension 仍仅 `modules.extensions` 列表。
+- `modules.optional` **默认 false**：不构造 Docker/VM/Photos/AI/云同步/备份等非 Core 产品管理器。
+- 启用 optional：`modules.optional: true`（配置文件或等价环境覆盖）。
+- Extension **仅** `modules.extensions` 列表；默认 `[]` = 不加载。
+- **WriteOnce / 本地 LLM / CLIP 以文搜图 / MCP / 多云挂载** 等营销差异化能力 **不是** 默认开机能力；需 optional 和/或 extensions，部分仅存于 Lab 源码。
+- 主 UI 默认 Core 页面 allowlist；optional HTML 在 `modules.optional=false` 时 404。
 
 ## 功能矩阵（诚实口径）
 
 | 层级 | 默认 `nasd` | 如何启用 |
 |------|-------------|----------|
-| Core（5） | 始终 | 生命周期主图 |
+| Core（5） | 始终 | 生命周期主图（identity/storage/network/sharing/system） |
 | Extension（7） | **否** | `modules.extensions` 列表 |
-| Lab（~467） | **否** | 不在默认路径；仅源码保留 |
+| Lab（源码保留） | **否** | 不在默认路径；不可经 extensions 列表加载 |
+| optional 产品管理器 | **否** | `modules.optional: true` |
 | 其他顶层支撑包 | 视 web 硬接线 | 生产支撑（auth/storage/…），**非 Core 名** |
 
 ## 渐进迁移规则

@@ -4,33 +4,48 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.24.2 Stable (2026-07-16)
+> **最新版本**: v3.24.3 Stable (2026-07-16)
 > **架构分层**: Core（5）/ Extension（`internal/extensions/*`）/ Lab（`internal/lab/*`）→ [架构说明](docs/ARCHITECTURE.md)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
-> **Release**: [v3.24.2](https://github.com/crazyqin/nas-os/releases/tag/v3.24.2)
+> **Release**: [v3.24.3](https://github.com/crazyqin/nas-os/releases/tag/v3.24.3)
 
-## 🌟 五大差异化能力
+## 默认交付面（请先读）
 
-| # | 功能 | 说明 | 价值 |
+默认 `nasd` **只启用 Core**：身份 / 存储 / 网络 / 共享（SMB·NFS）/ 系统。  
+配置约定：`modules.optional: false`（默认）、`modules.extensions: []`（默认）。
+
+| 能力 | 默认是否开启 | 如何启用 |
+|------|--------------|----------|
+| 用户 / 卷 / SMB / NFS / 网络 / 健康探针 | **是** | 无需额外配置 |
+| Docker / VM / 相册 / AI / 备份 / 云同步等产品管理器 | **否** | `modules.optional: true` |
+| WriteOnce / 本地 LLM / CLIP 以文搜图 / MCP / 多云挂载等差异化能力 | **否** | `modules.optional: true` 和/或 `modules.extensions`；部分仅 Lab 源码 |
+| 已编目 Extension（7） | **否** | `modules.extensions: [name, ...]` |
+| Lab 实验包 | **否** | 不在默认路径；不经 extensions 列表加载 |
+
+下文「差异化能力 / 企业级存储」描述的是仓库内已实现或对标中的能力面，**不是**默认开机全开。详见 [架构说明](docs/ARCHITECTURE.md)。
+
+## 🌟 差异化能力（需显式启用，非默认）
+
+| # | 功能 | 说明 | 启用提示 |
+|---|------|------|----------|
+| 1 | 🔒 **WriteOnce 不可变存储** | WORM / 防篡改归档 | optional 产品面或对应模块 |
+| 2 | 🤖 **本地 LLM 服务** | Ollama + OpenAI 兼容 API | `modules.optional: true` + AI 部署 |
+| 3 | 🔐 **AI 以文搜图** | CLIP 本地推理搜图 | optional + Photos/AI |
+| 4 | ☁️ **多云存储挂载** | 多云统一挂载 | optional + cloudsync |
+| 5 | 🔗 **MCP 服务器集成** | Model Context Protocol | optional / 实验路径 |
+
+> 💡 **竞品对标**: 持续对标 Synology DSM 7.4、TrueNAS 26、飞牛 fnOS、QNAP QuTS hero h6.0；对标能力可能落在 Extension 或 Lab，**以是否进入默认 `nasd` 热路径为准** → [详细分析](docs/competitive-analysis.md)
+
+### 💾 企业级存储相关（部分 optional / Lab）
+
+| # | 功能 | 说明 | 备注 |
 |---|------|------|------|
-| 1 | 🔒 **WriteOnce不可变存储** | WORM文件系统，防篡改/防勒索，合规归档 | **企业数据安全终极防线** - 金融/医疗/政务必备 |
-| 2 | 🤖 **本地LLM服务** | Ollama集成 + OpenAI兼容API，本地AI推理 | **私有化AI能力** - 零数据外泄，智能对话/文档处理 |
-| 3 | 🔐 **AI以文搜图** | CLIP本地推理，自然语言搜索照片 | **超越人脸识别** - "海边日落"、"孩子笑脸"精准匹配 |
-| 4 | ☁️ **多云存储挂载** | 阿里云/腾讯云/AWS/GDrive/OneDrive统一挂载 | **云本地化** - 6+平台透明读写，覆盖最广 |
-| 5 | 🔗 **MCP服务器集成** | Model Context Protocol，AI工具标准化连接 | **AI生态开放** - 对标群晖AI Console，标准化AI工具链 |
-
-> 💡 **竞品对标**: 持续对标 Synology DSM 7.4、TrueNAS 26、飞牛 fnOS、QNAP QuTS hero h6.0，并以开源、本地 AI、不可变存储和多云挂载形成差异化 → [详细分析](docs/competitive-analysis.md)
-
-### 💾 企业级存储核心
-
-| # | 功能 | 说明 | 价值 |
-|---|------|------|------|
-| 1 | 💾 **RAID-Z Expansion** | 在线扩展RAID-Z vdev，不停机添加磁盘 | **存储弹性** - 突破传统RAID容量限制 |
-| 2 | 🔄 **dRAID分布式热备** | 分布式热备RAID，加速重建 | **数据安全** - 重建时间缩短80% |
-| 3 | 🏗️ **Enclosure Management** | SES-3/SGPIO机箱管理，指示灯/温控/电源 | **硬件掌控** - 企业级硬件管理 |
-| 4 | 🔀 **SAS Multipath** | SAS多路径故障切换与负载均衡 | **高可用** - 消除单点故障 |
-| 5 | 🧠 **Disk Health AI** | AI驱动磁盘故障预测与健康评分 | **预防性维护** - 提前30天预警 |
+| 1 | 💾 **RAID-Z Expansion** | 在线扩展 RAID-Z vdev | 源码/工具链能力；非 Core 生命周期名 |
+| 2 | 🔄 **dRAID 分布式热备** | 分布式热备 RAID | 多为 Lab / 实验路径 |
+| 3 | 🏗️ **Enclosure Management** | SES-3/SGPIO 机箱管理 | 视 optional 与硬件环境 |
+| 4 | 🔀 **SAS Multipath** | 多路径故障切换 | 视 optional 与硬件环境 |
+| 5 | 🧠 **Disk Health AI** | 磁盘健康评分 / 预测 | 非默认 Core；optional 或 Lab |
 
 ---
 
@@ -682,7 +697,7 @@ nas-os/
 
 详细里程碑请查看 GitHub Milestones
 
-### 当前状态 (2026-07-16) - v3.24.2 Stable ✅
+### 当前状态 (2026-07-16) - v3.24.3 Stable ✅
 
 **8/8 里程碑全部完成**
 
@@ -712,7 +727,7 @@ nas-os/
 ### 版本路线图
 | 版本 | 类型 | 发布日期 | 核心功能 | 状态 |
 |------|------|----------|----------|------|
-| **v3.24.2** | **Stable** | **2026-07-16** | **WebUI 迁到 /storage/volumes** | ✅ **已发布** |
+| **v3.24.3** | **Stable** | **2026-07-16** | **版本对齐 + 集成测试 Lab 路径 + 默认面诚实 + 伪核心再降 Lab** | ✅ **已发布** |
 | v3.24.1 | **Stable** | **2026-07-16** | **WebUI 门控、强制改密、api/middleware 清除** | ✅ **已发布** |
 | v3.24.0 | **Stable** | **2026-07-16** | **optional 默认关、去 /volumes、删根 api、Core 真健康** | ✅ **已发布** |
 | v3.23.1 | **Stable** | **2026-07-16** | **传递 Lab 切断、Extension 真加载、诚实日志、deps 治理** | ✅ **已发布** |

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"nas-os/internal/compress"
+	"nas-os/internal/lab/compress"
 )
 
 // MockCompressManager 模拟压缩管理器.
