@@ -14,7 +14,6 @@ backup
 cache
 cloudsync
 cluster
-collabdocs
 config
 containresmon
 custombranding
@@ -23,8 +22,6 @@ dataclassify
 datawarehouse
 db
 dedup
-digitallegacy
-digitalwellbeing
 disk
 diskbench
 dlp
@@ -33,7 +30,6 @@ dockergui
 downloader
 drdrill
 drivesync
-edgecompute
 fasttransfer
 filedejavu
 fileindex
@@ -97,10 +93,7 @@ shares
 sharewizard
 shrmanager
 smb
-smb3unixext
 smbdirect
-smbmultichannel
-smbunixext
 snapdiffviz
 snapscheduler
 snapshot
@@ -131,10 +124,8 @@ sysresmon
 system
 systemcopilot
 tags
-taskboard
 taskqueue
 team
-teamfile
 themeengine
 thermal
 tierheatmap
@@ -164,12 +155,9 @@ version
 versioning
 vlan
 vm
-voicecontrol
-voicescheduler
 volencrypt
 wakeonlanplus
 wanrepl
-warrantytracker
 web
 webapphost
 webdav
@@ -177,11 +165,8 @@ webhook
 webrtc
 websocket
 webterminal
-wellbeing
 wgvdeploy
-whisperstt
 wifimgr
-wiki
 wol
 workflow
 wormcomply

@@ -77,13 +77,10 @@ import (
 	"nas-os/internal/zfs"
 
 	// v2.498.0 新增模块.
-	"nas-os/internal/collabdocs"
 	"nas-os/internal/containresmon"
 	"nas-os/internal/dataclassify"
-	"nas-os/internal/digitalwellbeing"
 	"nas-os/internal/dlp"
 	"nas-os/internal/dockergui"
-	"nas-os/internal/edgecompute"
 	"nas-os/internal/filesync"
 	"nas-os/internal/netsentinel"
 	"nas-os/internal/networkmap"
@@ -107,7 +104,6 @@ import (
 	// v2.542.0 新增模块.
 	"nas-os/internal/apikey"
 	"nas-os/internal/custombranding"
-	"nas-os/internal/digitallegacy"
 	"nas-os/internal/filetag"
 	"nas-os/internal/musicserver"
 	"nas-os/internal/smbdirect"
@@ -211,12 +207,9 @@ type Server struct {
 	// v2.491.0 新增模块
 	notificationSvc *notification.Service
 	// v2.498.0 新增模块
-	collabDocsMgr    *collabdocs.Manager
 	containResMonMgr *containresmon.Manager
 	dataClassifyMgr  *dataclassify.Manager
-	wellbeingMgr     *digitalwellbeing.Manager
 	dlpMgr           *dlp.Manager
-	edgeComputeMgr   *edgecompute.Manager
 	fileSyncMgr      *filesync.SyncManager
 	netSentinelMgr   *netsentinel.Manager
 	networkMapMgr    *networkmap.Manager
@@ -240,7 +233,6 @@ type Server struct {
 	// v2.542.0 新增模块
 	musicServerMgr         *musicserver.Manager
 	syslogServerMgr        *syslogserver.Manager
-	digitalLegacyMgr       *digitallegacy.Manager
 	customBrandingMgr      *custombranding.BrandingEngine
 	smbDirectMgr           *smbdirect.SMBDirectManager
 	storageCostForecastMgr *storagecostforecast.CostForecastEngine
@@ -285,19 +277,16 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	var appStore *docker.AppStore
 	var backupMgr *backup.Manager
 	var cloudsyncMgr *cloudsync.Manager
-	var collabDocsMgr *collabdocs.Manager
 	var containResMonMgr *containresmon.Manager
 	var customBrandingMgr *custombranding.BrandingEngine
 	var dataClassifyMgr *dataclassify.Manager
 	var dataWarehouseMgr *datawarehouse.Warehouse
 	var dedupMgr *dedup.Manager
-	var digitalLegacyMgr *digitallegacy.Manager
 	var diskbenchMgr *diskbench.BenchmarkManager
 	var dlpMgr *dlp.Manager
 	var dockerMgr *docker.Manager
 	var drDrillMgr *drdrill.Manager
 	var driveSyncMgr *drivesync.Manager
-	var edgeComputeMgr *edgecompute.Manager
 	var fastTransferMgr *fasttransfer.TransferManager
 	var fileDejavuMgr *filedejavu.Detector
 	var fileSyncMgr *filesync.SyncManager
@@ -356,7 +345,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	var vmMgr *vm.Manager
 	var webhookMgr *webhook.Manager
 	var webterminalMgr *webterminal.Manager
-	var wellbeingMgr *digitalwellbeing.Manager
 	var wolMgr *wol.Manager
 	if cfg.Modules.Optional {
 		// 初始化 Docker 管理器
@@ -743,10 +731,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 
 		// ========== v2.498.0 新增模块初始化 ==========
 
-		// 初始化协作文档（对标群晖 Office）
-		collabDocsMgr = collabdocs.NewManager(&collabdocs.Config{Enabled: true, MaxDocuments: 1000, CollaborationEnabled: true})
-		log.Println("✅ 协作文档模块就绪")
-
 		// 初始化容器资源监控（对标群晖 Container Manager 增强）
 		containResMonMgr = containresmon.NewManager(&containresmon.Config{Enabled: true, MonitorIntervalSec: 30})
 		log.Println("✅ 容器资源监控模块就绪")
@@ -755,17 +739,9 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 		dataClassifyMgr = dataclassify.NewManager(&dataclassify.Config{Enabled: true, AutoClassify: true, DetectPII: true})
 		log.Println("✅ 数据分类模块就绪")
 
-		// 初始化数字健康（竞品独有功能）
-		wellbeingMgr = digitalwellbeing.NewManager(logger)
-		log.Println("✅ 数字健康模块就绪")
-
 		// 初始化数据防泄漏 DLP（竞品独有功能）
 		dlpMgr = dlp.NewManager(&dlp.Config{Enabled: true, ScanIntervalHours: 24})
 		log.Println("✅ 数据防泄漏模块就绪")
-
-		// 初始化边缘计算（竞品独有功能）
-		edgeComputeMgr = edgecompute.NewManager(&edgecompute.Config{Enabled: true, MaxFunctions: 50, WasmEnabled: true})
-		log.Println("✅ 边缘计算模块就绪")
 
 		// 初始化文件同步（对标群晖 Drive Sync）
 		fileSyncMgr = filesync.NewSyncManager(logger, cfg.DataPath("filesync"))
@@ -822,12 +798,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 		// v2.542.0 新增模块初始化
 		musicServerMgr = musicserver.NewManager()
 		syslogServerMgr = syslogserver.NewManager()
-		legacyKey := []byte(os.Getenv("NAS_DIGITAL_LEGACY_KEY"))
-		if len(legacyKey) == 16 || len(legacyKey) == 24 || len(legacyKey) == 32 {
-			digitalLegacyMgr = digitallegacy.NewLegacyService(legacyKey)
-		} else {
-			log.Println("⚠️ 数字遗产模块已禁用：NAS_DIGITAL_LEGACY_KEY 必须为 16、24 或 32 字节")
-		}
 		log.Println("✅ Spotlight 索引就绪")
 
 		// v2.548.0 新增模块初始化
@@ -967,12 +937,9 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 		// v2.491.0 新增模块
 		notificationSvc: notificationSvc,
 		// v2.498.0 新增模块
-		collabDocsMgr:    collabDocsMgr,
 		containResMonMgr: containResMonMgr,
 		dataClassifyMgr:  dataClassifyMgr,
-		wellbeingMgr:     wellbeingMgr,
 		dlpMgr:           dlpMgr,
-		edgeComputeMgr:   edgeComputeMgr,
 		fileSyncMgr:      fileSyncMgr,
 		netSentinelMgr:   netSentinelMgr,
 		networkMapMgr:    networkMapMgr,
@@ -992,7 +959,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 		spotlightMgr:           spotlightMgr,
 		musicServerMgr:         musicServerMgr,
 		syslogServerMgr:        syslogServerMgr,
-		digitalLegacyMgr:       digitalLegacyMgr,
 		customBrandingMgr:      customBrandingMgr,
 		smbDirectMgr:           smbDirectMgr,
 		storageCostForecastMgr: storageCostForecastMgr,
@@ -1443,23 +1409,14 @@ func (s *Server) setupRoutes() {
 		if s.surveillanceMgr != nil {
 			surveillance.NewHandler(s.surveillanceMgr).RegisterRoutes(newMux)
 		}
-		if s.collabDocsMgr != nil {
-			collabdocs.NewHandler(s.collabDocsMgr).RegisterRoutes(newMux)
-		}
 		if s.containResMonMgr != nil {
 			containresmon.NewHandler(s.containResMonMgr).RegisterRoutes(newMux)
 		}
 		if s.dataClassifyMgr != nil {
 			dataclassify.NewHandler(s.dataClassifyMgr).RegisterRoutes(newMux)
 		}
-		if s.wellbeingMgr != nil {
-			digitalwellbeing.NewHandlers(s.wellbeingMgr).RegisterRoutes(api)
-		}
 		if s.dlpMgr != nil {
 			dlp.NewHandler(s.dlpMgr).RegisterRoutes(newMux)
-		}
-		if s.edgeComputeMgr != nil {
-			edgecompute.NewHandler(s.edgeComputeMgr).RegisterRoutes(newMux)
 		}
 		if s.netSentinelMgr != nil {
 			netsentinel.NewHandler(s.netSentinelMgr).RegisterRoutes(newMux)
@@ -1517,24 +1474,6 @@ func (s *Server) setupRoutes() {
 		}
 		if s.syslogServerMgr != nil {
 			syslogserver.NewHandlers(s.syslogServerMgr).RegisterRoutes(api)
-		}
-		if s.digitalLegacyMgr != nil {
-			legacyMux := http.NewServeMux()
-			digitallegacy.NewHandlers(s.digitalLegacyMgr).RegisterRoutes(legacyMux, "/api/v1/legacy")
-			authenticatedAPI.Any("/legacy/*path", func(c *gin.Context) {
-				user, exists := c.Get("user")
-				if !exists {
-					c.AbortWithStatus(http.StatusUnauthorized)
-					return
-				}
-				authenticatedUser, ok := user.(*users.User)
-				if !ok {
-					c.AbortWithStatus(http.StatusInternalServerError)
-					return
-				}
-				ctx := digitallegacy.WithUserID(c.Request.Context(), authenticatedUser.ID)
-				legacyMux.ServeHTTP(c.Writer, c.Request.WithContext(ctx))
-			})
 		}
 		if s.customBrandingMgr != nil {
 			custombranding.NewHandler(s.customBrandingMgr).RegisterRoutes(newMux)
