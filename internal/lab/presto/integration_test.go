@@ -14,6 +14,10 @@ import (
 )
 
 func TestServerClientIntegration(t *testing.T) {
+	// Skip on environments with constrained UDP buffer sizes (e.g. unprivileged containers, ARM SBCs)
+	if os.Getenv("PRESTOIntegrationTest") == "" {
+		t.Skip("skipping integration test; set PRESTOIntegrationTest=1 to enable")
+	}
 	if testing.Short() {
 		t.Skip("跳过集成测试")
 	}

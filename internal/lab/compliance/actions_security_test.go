@@ -4,12 +4,26 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 	"testing"
 )
 
+// projectRoot returns an absolute path to a file/dir under the project root,
+// resolving correctly regardless of the test working directory.
+func projectRoot(t *testing.T, elems ...string) string {
+	t.Helper()
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatal("runtime.Caller failed")
+	}
+	// This file lives at <root>/internal/lab/compliance/actions_security_test.go
+	root := filepath.Join(filepath.Dir(filename), "..", "..", "..")
+	return filepath.Join(append([]string{root}, elems...)...)
+}
+
 func TestGitHubActionsSecurityScanWorkflowBaseline(t *testing.T) {
-	workflowPath := filepath.Join("..", "..", ".github", "workflows", "security-scan.yml")
+	workflowPath := projectRoot(t, ".github", "workflows", "security-scan.yml")
 	content, err := os.ReadFile(workflowPath)
 	if err != nil {
 		t.Fatalf("read security scan workflow: %v", err)
@@ -48,7 +62,7 @@ func TestGitHubActionsSecurityScanWorkflowBaseline(t *testing.T) {
 }
 
 func TestGitHubActionsDoNotUsePullRequestTarget(t *testing.T) {
-	workflowDir := filepath.Join("..", "..", ".github", "workflows")
+	workflowDir := projectRoot(t, ".github", "workflows")
 	entries, err := os.ReadDir(workflowDir)
 	if err != nil {
 		t.Fatalf("read workflow dir: %v", err)
@@ -70,7 +84,7 @@ func TestGitHubActionsDoNotUsePullRequestTarget(t *testing.T) {
 }
 
 func TestGitHubActionsPinThirdPartyActionsToVersion(t *testing.T) {
-	workflowDir := filepath.Join("..", "..", ".github", "workflows")
+	workflowDir := projectRoot(t, ".github", "workflows")
 	entries, err := os.ReadDir(workflowDir)
 	if err != nil {
 		t.Fatalf("read workflow dir: %v", err)
