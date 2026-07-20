@@ -110,6 +110,79 @@ func TestPackageEnableDisableUpdatesLoaded(t *testing.T) {
 	}
 }
 
+// TestPackageReEnableAfterDisableNoPanic drives Enable→Disable→Enable on a real
+// official HTTP extension. Second enable must not panic gin (duplicate routes)
+// and must report loaded again.
+func TestPackageReEnableAfterDisableNoPanic(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	cfg := config.Default()
+	cfg.Paths.DataDir = t.TempDir()
+	cfg.Paths.ConfigDir = t.TempDir()
+	s := &Server{cfg: cfg}
+	r := gin.New()
+	s.registerConfiguredExtensions(r.Group("/api/v1"))
+
+	enable := func() {
+		t.Helper()
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, httptest.NewRequest(http.MethodPost, "/api/v1/packages/netdiag/enable", nil))
+		if w.Code != http.StatusOK {
+			t.Fatalf("enable status %d %s", w.Code, w.Body.String())
+		}
+		var body map[string]interface{}
+		if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
+			t.Fatal(err)
+		}
+		if body["code"].(float64) != 0 {
+			t.Fatalf("enable code=%v msg=%v", body["code"], body["message"])
+		}
+	}
+	disable := func() {
+		t.Helper()
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, httptest.NewRequest(http.MethodPost, "/api/v1/packages/netdiag/disable", nil))
+		if w.Code != http.StatusOK {
+			t.Fatalf("disable status %d %s", w.Code, w.Body.String())
+		}
+	}
+
+	enable()
+	if !s.pkgRuntime.IsLoaded("netdiag") {
+		t.Fatal("first enable")
+	}
+	disable()
+	if s.pkgRuntime.IsLoaded("netdiag") {
+		t.Fatal("after disable")
+	}
+	// Second enable — previously panicked gin on duplicate /netdiag/* routes.
+	enable()
+	if !s.pkgRuntime.IsLoaded("netdiag") {
+		t.Fatal("second enable must load again")
+	}
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/api/v1/packages", nil))
+	var list map[string]interface{}
+	_ = json.Unmarshal(w.Body.Bytes(), &list)
+	data := list["data"].(map[string]interface{})
+	loaded, _ := data["loaded"].([]interface{})
+	found := false
+	for _, id := range loaded {
+		if id == "netdiag" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("list after re-enable missing netdiag: %v", loaded)
+	}
+	// Route still serves (first mount retained).
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/api/v1/netdiag/history", nil))
+	if w.Code == http.StatusNotFound {
+		t.Fatal("netdiag routes should still be mounted after re-enable")
+	}
+}
+
 func TestPackageEnableCommunityFixture(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	root := t.TempDir()

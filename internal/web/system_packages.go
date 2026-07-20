@@ -70,8 +70,10 @@ func (s *Server) registerSystemPackageCatalog(rt *packageruntime.Runtime, api *g
 		// Capture for factory closure.
 		m := mount
 		md := meta
+		srv := s
 		if err := rt.Register(md, func(hostapi.Host) (hostapi.Package, error) {
-			return &systemHTTPPackage{meta: md, mount: m}, nil
+			// New instance per Enable; Server.httpMounted makes remounts no-ops.
+			return &systemHTTPPackage{meta: md, mount: m, server: srv}, nil
 		}); err != nil {
 			return err
 		}
@@ -180,10 +182,12 @@ func MountTableHTTPExtensionIDs() []string {
 }
 
 // systemHTTPPackage is a TrustSystem package that mounts gin routes via MountHTTP.
+// Gin route registration is process-global per Server; Disable cannot unregister
+// routes, so remount after re-Enable must be skipped via Server.httpMounted.
 type systemHTTPPackage struct {
-	meta    hostapi.Meta
-	mount   func()
-	mounted bool
+	meta   hostapi.Meta
+	mount  func()
+	server *Server
 }
 
 func (p *systemHTTPPackage) Meta() hostapi.Meta                       { return p.meta }
@@ -196,10 +200,35 @@ func (p *systemHTTPPackage) MountHTTP(_ func(method, path string, h http.Handler
 	if p.mount == nil {
 		return fmt.Errorf("package %s: nil mount", p.meta.ID)
 	}
-	if p.mounted {
+	if p.server != nil && p.server.httpRoutesMounted(p.meta.ID) {
+		// Already registered on this Server — skip to avoid gin panic on re-Enable.
 		return nil
 	}
 	p.mount()
-	p.mounted = true
+	if p.server != nil {
+		p.server.markHTTPRoutesMounted(p.meta.ID)
+	}
 	return nil
+}
+
+func (s *Server) httpRoutesMounted(id string) bool {
+	if s == nil {
+		return false
+	}
+	s.httpMountedMu.Lock()
+	defer s.httpMountedMu.Unlock()
+	_, ok := s.httpMounted[id]
+	return ok
+}
+
+func (s *Server) markHTTPRoutesMounted(id string) {
+	if s == nil {
+		return
+	}
+	s.httpMountedMu.Lock()
+	defer s.httpMountedMu.Unlock()
+	if s.httpMounted == nil {
+		s.httpMounted = make(map[string]struct{})
+	}
+	s.httpMounted[id] = struct{}{}
 }
