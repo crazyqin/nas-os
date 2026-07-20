@@ -8,6 +8,8 @@
 > **项目结构**: Platform Core + Packages + Host SDK/Runtime + Lab 旁路 → **[结构图 STRUCTURE.md](docs/STRUCTURE.md)**（贡献者首选）  
 > **架构细节**: [ARCHITECTURE.md](docs/ARCHITECTURE.md) · 演进 [ADR-0001](docs/adr/0001-platform-packages-host-sdk.md)  
 > **默认**: 仅 Core；主配置 `packages.*`；`modules.*` 仅弃用兼容  
+> **运维手册**: [套件 / 应用中心 / SSOT](docs/ops-packages.md)  
+
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 > **Release**: [v3.24.3](https://github.com/crazyqin/nas-os/releases/tag/v3.24.3)

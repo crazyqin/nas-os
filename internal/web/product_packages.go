@@ -10,6 +10,7 @@ import (
 	"nas-os/internal/ai"
 	"nas-os/internal/backup"
 	"nas-os/internal/cloudsync"
+	"nas-os/internal/cluster"
 	"nas-os/internal/config"
 	"nas-os/internal/docker"
 	"nas-os/internal/downloader"
@@ -21,6 +22,36 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
+
+// SetClusterServices attaches process-level cluster services (from application).
+func (s *Server) SetClusterServices(svc *cluster.Services) {
+	if s == nil {
+		return
+	}
+	s.clusterMu.Lock()
+	defer s.clusterMu.Unlock()
+	s.clusterServices = svc
+}
+
+// SetClusterBootstrap registers a factory to start cluster at runtime enable.
+func (s *Server) SetClusterBootstrap(fn func() (*cluster.Services, error)) {
+	if s == nil {
+		return
+	}
+	s.clusterMu.Lock()
+	defer s.clusterMu.Unlock()
+	s.clusterBootstrap = fn
+}
+
+// ClusterRunning reports whether cluster services are live in this process.
+func (s *Server) ClusterRunning() bool {
+	if s == nil {
+		return false
+	}
+	s.clusterMu.Lock()
+	defer s.clusterMu.Unlock()
+	return s.clusterServices != nil
+}
 
 // registerRecommendedProductCatalog registers catalog recommended_product IDs as
 // TrustSystem packages operable via Application Center / packages API.
@@ -129,7 +160,19 @@ func (s *Server) releaseProductManager(id string) {
 		s.downloadMgr = nil
 		log.Printf("ℹ️  product downloader manager released")
 	case "cluster":
-		log.Printf("ℹ️  product cluster disable persisted; full teardown on process restart")
+		s.clusterMu.Lock()
+		svc := s.clusterServices
+		s.clusterServices = nil
+		s.clusterMu.Unlock()
+		if svc != nil {
+			if err := cluster.ShutdownCluster(svc); err != nil {
+				log.Printf("⚠️ cluster shutdown: %v", err)
+			} else {
+				log.Printf("✅ product cluster shut down in-process")
+			}
+		} else {
+			log.Printf("ℹ️  product cluster disable persisted (was not running in this process)")
+		}
 	}
 }
 
@@ -247,8 +290,31 @@ func (s *Server) ensureProductManager(id string) {
 		s.downloadMgr = mgr
 		log.Printf("✅ product downloader manager constructed")
 	case "cluster":
-		// Cluster is process-level in application; runtime enable only marks active.
-		log.Printf("ℹ️  product cluster active (lifecycle owned by application when wanted at boot)")
+		s.clusterMu.Lock()
+		if s.clusterServices != nil {
+			s.clusterMu.Unlock()
+			log.Printf("✅ product cluster already running")
+			return
+		}
+		boot := s.clusterBootstrap
+		s.clusterMu.Unlock()
+		if boot == nil {
+			log.Printf("⚠️  cluster bootstrap not wired; enable persisted — restart process to start cluster")
+			return
+		}
+		svc, err := boot()
+		if err != nil {
+			log.Printf("⚠️ runtime enable cluster: %v", err)
+			return
+		}
+		if svc == nil {
+			log.Printf("⚠️ cluster bootstrap returned nil services")
+			return
+		}
+		s.clusterMu.Lock()
+		s.clusterServices = svc
+		s.clusterMu.Unlock()
+		log.Printf("✅ product cluster started in-process (runtime enable)")
 	default:
 		log.Printf("ℹ️  product %s active via package runtime", id)
 	}

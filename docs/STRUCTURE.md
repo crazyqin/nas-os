@@ -51,6 +51,7 @@
 | `configs/default.yaml` | 默认配置（packages 关） |
 | `docker-compose.yml` + `Dockerfile` | 主部署路径 |
 | `docs/STRUCTURE.md` | **本文件** — 结构全景 |
+| `docs/ops-packages.md` | **运维手册**：SSOT、应用中心、cluster、停用 |
 | `docs/ARCHITECTURE.md` | 生命周期、API 边界、健康探针 |
 | `docs/adr/0001-*.md` | 架构演进 ADR |
 
@@ -133,6 +134,7 @@ packages:
 | 启用真相源 | **`data_dir/app-center-enabled.json`（SSOT）**；yaml `packages.enabled` 为首次启动种子；UI 启停会同步镜像到内存 `cfg.Packages.Enabled` |
 | HTTP 停用 | 路由中间件 `requirePackageActive` → **503**（非仅 loaded=false） |
 | 产品套件 | `docker` 等 `recommended_product` 与扩展同一列表可点 |
+| 运维细节 | **[ops-packages.md](ops-packages.md)**（SSOT 文件、cluster、排障） |
 
 默认仍 Core-only。
 

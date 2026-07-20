@@ -19,6 +19,7 @@ import (
 	"nas-os/internal/auth"
 	"nas-os/internal/backup"
 	"nas-os/internal/cloudsync"
+	"nas-os/internal/cluster"
 	"nas-os/internal/config"
 	"nas-os/internal/dedup"
 	"nas-os/internal/diskbench"
@@ -130,10 +131,13 @@ type Server struct {
 	runtimeEnabled           map[string]struct{} // App Center click-enabled set (persisted)
 	httpMountedMu            sync.Mutex
 	httpMounted              map[string]struct{} // gin routes registered once per package id
-	productRoutesMu          sync.Mutex
-	productRoutesRegistered  map[string]struct{}
-	adminAPI                 *gin.RouterGroup // admin /api/v1 group for late product route register
-	engine                   *gin.Engine
+	productRoutesMu         sync.Mutex
+	productRoutesRegistered map[string]struct{}
+	adminAPI                *gin.RouterGroup // admin /api/v1 group for late product route register
+	clusterMu               sync.Mutex
+	clusterServices         *cluster.Services
+	clusterBootstrap        func() (*cluster.Services, error)
+	engine                  *gin.Engine
 	httpSrv       *http.Server
 	lifecycleMu   sync.Mutex
 	started       bool
@@ -1482,7 +1486,7 @@ var coreWebUIPages = map[string]bool{
 
 func (s *Server) registerWebUI(webuiRoot string) {
 	// Optional product HTML (containers, etc.) when any product surface is wanted.
-	optional := s.cfg != nil && (s.cfg.OptionalProductsEnabled() || len(bootWantProducts(s.cfg)) > 0)
+	optional := s.cfg != nil && (s.cfg.OptionalProductsEnabled() || s.cfg.Modules.Optional || len(bootWantProducts(s.cfg)) > 0)
 
 	// Assets always available.
 	s.engine.Static("/webui/css", webuiRoot+"/css")

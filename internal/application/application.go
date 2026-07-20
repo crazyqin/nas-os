@@ -107,6 +107,7 @@ func New(cfg *config.Config, logger *zap.Logger) (app *Application, err error) {
 	if cfg.OptionalProductsEnabled() || cfg.WantsProduct("cluster") {
 		var err error
 		clusterServices, err = cluster.InitializeCluster(cluster.RootConfig{
+			Enabled: true, // product "cluster" requested at boot
 			NodeID:  hostname,
 			DataDir: cfg.Paths.DataDir,
 		}, logger)
@@ -145,6 +146,15 @@ func New(cfg *config.Config, logger *zap.Logger) (app *Application, err error) {
 	cleanup.add("core modules", func() error { return modules.StopAll(context.Background()) })
 
 	webServer := web.NewServer(cfg, coreModules, storageMgr, userMgr, mfaMgr, smbMgr, nfsMgr, networkMgr, downloadMgr, logger)
+	// Allow Application Center to start/stop cluster without full process restart when possible.
+	webServer.SetClusterServices(clusterServices)
+	webServer.SetClusterBootstrap(func() (*cluster.Services, error) {
+		return cluster.InitializeCluster(cluster.RootConfig{
+			Enabled: true,
+			NodeID:  hostname,
+			DataDir: cfg.Paths.DataDir,
+		}, logger)
+	})
 
 	cleanup.release()
 	return &Application{
