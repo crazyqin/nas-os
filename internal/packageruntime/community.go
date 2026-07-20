@@ -90,7 +90,17 @@ func (p *HostSDKPackage) Start(ctx context.Context) error {
 	if p.host == nil {
 		return fmt.Errorf("not initialized")
 	}
-	markerDir := p.host.DataPath("community-packages", sanitizeID(p.meta.ID))
+	safeID, err := sanitizeID(p.meta.ID)
+	if err != nil {
+		return fmt.Errorf("package id: %w", err)
+	}
+	base := p.host.DataPath("community-packages")
+	markerDir := filepath.Join(base, safeID)
+	// Ensure marker stays under DataDir/community-packages (no traversal).
+	rel, err := filepath.Rel(base, markerDir)
+	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return fmt.Errorf("marker path escapes community-packages: %s", markerDir)
+	}
 	if err := os.MkdirAll(markerDir, 0o750); err != nil {
 		return fmt.Errorf("marker dir: %w", err)
 	}
@@ -109,7 +119,17 @@ func (p *HostSDKPackage) Stop(ctx context.Context) error {
 	if p.host == nil {
 		return nil
 	}
-	marker := p.host.DataPath("community-packages", sanitizeID(p.meta.ID), "started")
+	safeID, err := sanitizeID(p.meta.ID)
+	if err != nil {
+		p.host.Logf("community package stop skipped bad id=%s: %v", p.meta.ID, err)
+		return nil
+	}
+	base := p.host.DataPath("community-packages")
+	marker := filepath.Join(base, safeID, "started")
+	rel, err := filepath.Rel(base, filepath.Dir(marker))
+	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return fmt.Errorf("marker path escapes community-packages")
+	}
 	_ = os.Remove(marker)
 	p.started = false
 	p.host.Logf("community package stopped id=%s", p.meta.ID)
@@ -127,15 +147,24 @@ func (p *HostSDKPackage) Health(ctx context.Context) error {
 // Started reports whether Start completed (tests).
 func (p *HostSDKPackage) Started() bool { return p.started }
 
-func sanitizeID(id string) string {
+// sanitizeID returns a filesystem-safe single path segment for the package id.
+// Rejects ".", "..", empty segments, and path separators (does not map them away).
+func sanitizeID(id string) (string, error) {
 	id = strings.ToLower(strings.TrimSpace(id))
+	if err := validatePackageID(id); err != nil {
+		return "", err
+	}
 	var b strings.Builder
 	for _, r := range id {
 		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '.' || r == '-' || r == '_' {
 			b.WriteRune(r)
 		} else {
-			b.WriteByte('_')
+			return "", fmt.Errorf("manifest id has illegal character %q in %q", r, id)
 		}
 	}
-	return b.String()
+	out := b.String()
+	if err := validatePackageID(out); err != nil {
+		return "", err
+	}
+	return out, nil
 }

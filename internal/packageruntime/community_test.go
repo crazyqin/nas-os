@@ -73,6 +73,58 @@ func TestValidateDiskManifest_RejectsSystemTrustAndHTTPAdmin(t *testing.T) {
 	}
 }
 
+// TestDiscoverAndEnableRejectsTraversalID drives real DiscoverDir → RegisterDiscovered
+// with id ".." — must fail validation and must not write outside community-packages.
+func TestDiscoverAndEnableRejectsTraversalID(t *testing.T) {
+	root := t.TempDir()
+	data := t.TempDir()
+	// Subdir name is arbitrary; malicious content is the manifest id.
+	writeManifest(t, filepath.Join(root, "evil"), `{
+  "id": "..",
+  "version": "1.0.0",
+  "trust": "local",
+  "entry": "host-sdk"
+}`)
+	_, err := DiscoverDir(root)
+	if err == nil {
+		t.Fatal("DiscoverDir must reject manifest id '..'")
+	}
+
+	// Direct validation / register path.
+	if err := ValidateDiskManifest(DiskManifest{ID: "..", Trust: "local"}); err == nil {
+		t.Fatal("ValidateDiskManifest must reject '..'")
+	}
+	for _, bad := range []string{".", "..", "foo/bar", `foo\bar`, "com..example", "/abs", "a/../b"} {
+		if err := ValidateDiskManifest(DiskManifest{ID: bad, Trust: "local"}); err == nil {
+			t.Fatalf("expected reject id %q", bad)
+		}
+	}
+
+	// Even if something registered a bad meta without discovery, Start must not escape.
+	host := &hostapi.StaticHost{Data: data, Config: t.TempDir()}
+	rt := New(host, nil)
+	// Bypass discovery: forge meta with ".." — Register allows any meta string;
+	// Enable → Start must fail via sanitizeID / path check.
+	_ = rt.Register(hostapi.Meta{ID: "..", Trust: hostapi.TrustLocal}, func(h hostapi.Host) (hostapi.Package, error) {
+		return NewHostSDKPackage(hostapi.Meta{ID: "..", Trust: hostapi.TrustLocal}, root), nil
+	})
+	_, _, err = rt.Enable(context.Background(), []string{".."})
+	if err == nil {
+		t.Fatal("Enable of id '..' must fail")
+	}
+	// Must not create DataDir/started (escape from community-packages).
+	if _, err := os.Stat(filepath.Join(data, "started")); err == nil {
+		t.Fatal("traversal wrote marker at DataDir/started")
+	}
+	// community-packages/.. would be DataDir/community-packages/.. = DataDir — also check no leak.
+	entries, _ := os.ReadDir(data)
+	for _, e := range entries {
+		if e.Name() == "started" {
+			t.Fatal("unexpected started at data root")
+		}
+	}
+}
+
 func TestCommunityLoadLifecycleAndNoHTTPPrivilege(t *testing.T) {
 	root := t.TempDir()
 	data := t.TempDir()

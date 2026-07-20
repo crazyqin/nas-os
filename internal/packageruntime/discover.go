@@ -81,8 +81,8 @@ func DiscoverDir(root string) ([]DiskManifest, error) {
 // ValidateDiskManifest enforces community/local trust rules (fail closed).
 func ValidateDiskManifest(m DiskManifest) error {
 	id := strings.ToLower(strings.TrimSpace(m.ID))
-	if id == "" {
-		return fmt.Errorf("manifest id is empty")
+	if err := validatePackageID(id); err != nil {
+		return err
 	}
 	trust := hostapi.Trust(strings.ToLower(strings.TrimSpace(m.Trust)))
 	if trust == "" {
@@ -111,6 +111,31 @@ func ValidateDiskManifest(m DiskManifest) error {
 	}
 	if entry != "host-sdk" {
 		return fmt.Errorf("unsupported entry %q (supported: host-sdk)", entry)
+	}
+	return nil
+}
+
+// validatePackageID rejects empty, path-like, and traversal tokens so package
+// IDs cannot escape host data paths (e.g. id ".." → DataDir/started).
+func validatePackageID(id string) error {
+	id = strings.ToLower(strings.TrimSpace(id))
+	if id == "" {
+		return fmt.Errorf("manifest id is empty")
+	}
+	if strings.ContainsAny(id, `/\:`) {
+		return fmt.Errorf("manifest id must not contain path separators: %q", id)
+	}
+	// Reject "." / ".." as whole ID or path segment; reject empty segments (e.g. "a..b").
+	if id == "." || id == ".." {
+		return fmt.Errorf("manifest id must not be %q", id)
+	}
+	for _, seg := range strings.Split(id, ".") {
+		if seg == "" {
+			return fmt.Errorf("manifest id has empty segment: %q", id)
+		}
+		if seg == "." || seg == ".." {
+			return fmt.Errorf("manifest id must not contain path traversal segments: %q", id)
+		}
 	}
 	return nil
 }
