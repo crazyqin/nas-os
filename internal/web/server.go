@@ -123,9 +123,10 @@ import (
 type Server struct {
 	cfg           *config.Config
 	modules       []arch.Module
-	extHolders    *extensionHolders       // optional modules.extensions holders
-	pkgRuntime    *packageruntime.Runtime // ADR-0001 Stage 2 unified package runtime
-	engine        *gin.Engine
+	extHolders           *extensionHolders                 // optional modules.extensions holders
+	pkgRuntime           *packageruntime.Runtime           // ADR-0001 Stage 2 unified package runtime
+	communityDiscovered  []packageruntime.DiskManifest     // third-party manifests from community_dir
+	engine               *gin.Engine
 	httpSrv       *http.Server
 	lifecycleMu   sync.Mutex
 	started       bool

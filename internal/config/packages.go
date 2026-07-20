@@ -19,9 +19,14 @@ type PackagesConfig struct {
 	// RecommendedSystem enables the official recommended system package set.
 	// Prefer this over deprecated modules.optional.
 	RecommendedSystem bool `yaml:"recommended_system"`
-	// Enabled lists system package IDs (HTTP extensions and/or named products).
+	// Enabled lists package IDs to enable: official HTTP extensions and/or
+	// discovered community/local package IDs (must appear on disk when third-party).
 	// Prefer this over deprecated modules.extensions.
 	Enabled []string `yaml:"enabled"`
+	// CommunityDir is the absolute path scanned for third-party package trees
+	// (each subdir with manifest.json). Empty (default) disables discovery —
+	// Core-only / no auto-load of community packages.
+	CommunityDir string `yaml:"community_dir"`
 }
 
 // PackageResolution is the unified enablement result after dual-read merge.
@@ -101,6 +106,14 @@ func (c *Config) EnabledPackageNames() []string {
 	out := make([]string, len(en))
 	copy(out, en)
 	return out
+}
+
+// CommunityDir returns the configured third-party package discovery directory.
+func (c *Config) CommunityDir() string {
+	if c == nil {
+		return ""
+	}
+	return strings.TrimSpace(c.Packages.CommunityDir)
 }
 
 // EnabledNamedPackages returns enabled package names that appear in known,

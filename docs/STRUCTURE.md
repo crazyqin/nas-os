@@ -87,17 +87,39 @@ cmd/nasd
 # 主配置面（唯一推荐写法）
 packages:
   recommended_system: false   # true → 展开推荐产品集（docker/vm/photos/…）
-  enabled: []                 # 如 [voicehub, netdiag] → HTTP 扩展
+  enabled: []                 # 官方 HTTP 扩展 和/或 第三方包 ID
+  community_dir: ""           # 第三方包扫描根目录；空 = 不发现、不加载
 ```
 
 | 开关 | 效果 |
 |------|------|
 | 默认 | 仅 Core |
 | `recommended_system: true` | 构造 Docker/VM/Photos/AI/备份等 **产品管理器**（非自动挂全部 HTTP 扩展） |
-| `enabled: [name]` | 按名加载 **HTTP 扩展**（须在 catalog 中） |
+| `enabled: [name]` | 加载 **官方 HTTP 扩展**（catalog）和/或 **已发现的第三方包** |
+| `community_dir: /path` | 扫描 `*/manifest.json` 注册 community/local 包（**不**自动 Start） |
 | `modules.optional` / `modules.extensions` | **已弃用**；双读并入上表，启动 warn |
 
-完整 ID 列表：`GET /api/v1/packages` 或阅读 `internal/config/system_catalog.go`。
+完整官方 ID：`GET /api/v1/packages` 或 `internal/config/system_catalog.go`。
+
+### 4.1 第三方插件（community / local）
+
+属于 **Package Surface**，不是第二套并行插件体系。
+
+| 规则 | 说明 |
+|------|------|
+| 发现 | `packages.community_dir` 下每个子目录的 `manifest.json` |
+| 信任 | 仅 `community` / `local`；禁止在 manifest 中声明 `system` |
+| 能力 | 默认 `host.sdk`；**禁止** `http.admin`（系统路由挂载仅官方 system） |
+| 宿主 API | 仅公共 **`pkg/hostapi`**（Host SDK）；勿 import `internal/*` |
+| 启用 | 必须同时出现在 `packages.enabled`；仅发现不会 Start |
+| 生命周期 | 统一 `internal/packageruntime`（Init/Start/Stop） |
+| 示例 | `examples/community-packages/hello-host/` |
+
+```yaml
+packages:
+  community_dir: /var/lib/nas-os/community-packages
+  enabled: [com.example.hello-host]
+```
 
 ---
 

@@ -10,6 +10,7 @@
 | **Stage 1 代码** | `internal/config/packages.go`（`ResolvePackages` / `OptionalProductsEnabled`）；生产门闸：`internal/web`、`internal/application` |
 | **Stage 2 代码** | `pkg/hostapi`（Host SDK v1.0.0）；`internal/packageruntime`；web 扩展经 Runtime 启用；`GET /api/v1/packages` |
 | **Stage 3 代码** | `config.SystemPackageCatalog`；文档/默认 YAML 主路径 `packages.*`；`modules.*` 弃用 warn 兼容 |
+| **Community 路径** | `packages.community_dir` 磁盘发现 + `packageruntime.RegisterDiscovered`；Host SDK only；默认不加载 |
 
 ---
 

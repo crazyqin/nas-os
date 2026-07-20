@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased - Third-party (community/local) package path
+
+### Features
+- **Disk discovery**: `packages.community_dir` scans `*/manifest.json` (not in SystemPackageCatalog).
+- **Unified runtime**: discovered packages register as `TrustCommunity`/`TrustLocal` and load only when listed in `packages.enabled`.
+- **Host SDK only**: default `entry: host-sdk` lifecycle via `pkg/hostapi`; `http.admin` and `trust: system` rejected for third-party packages.
+- **Example**: `examples/community-packages/hello-host/`; STRUCTURE documents the path.
+- Default remains Core-only (`community_dir` empty, `enabled` empty).
+
+### Verify
+- `go test ./internal/packageruntime ./internal/web ./internal/config ./pkg/hostapi`
+- `go build ./cmd/nasd`
+
 ## Unreleased - ADR-0001 Stage 3 package surface convergence
 
 ### Architecture
