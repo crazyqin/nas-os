@@ -1,0 +1,12 @@
+{
+  "id": "com.example.hello-host",
+  "name": "Hello Host",
+  "version": "1.0.0",
+  "description": "Minimal third-party package using only the Host SDK (pkg/hostapi).",
+  "trust": "local",
+  "capabilities": ["host.sdk"],
+  "host_api": "1.0.0",
+  "entry": "host-sdk",
+  "author": "NAS-OS examples",
+  "license": "MIT"
+}

@@ -27,15 +27,18 @@ auth:
   # initial_password 请勿写入版本控制，建议通过环境变量注入
   initial_password: ""
 
-# Preferred package surface (ADR-0001 Stage 3).
+# Preferred package surface (ADR-0001 Stage 3 + community path).
 packages:
   # When true, expands official recommended product set (docker/vm/photos/ai/…).
   recommended_system: false
-  # Named system packages / HTTP extensions, e.g.:
-  #   voicehub, netdiag, activeprotect, agentworkflow, aiguardrails,
-  #   compliancescan, deployorch
-  # Full catalog: GET /api/v1/packages or config.SystemPackageCatalog.
+  # Named packages: official HTTP extensions and/or third-party IDs, e.g.:
+  #   voicehub, netdiag, com.example.hello-host
+  # Full official catalog: GET /api/v1/packages or config.SystemPackageCatalog.
   enabled: []
+  # Third-party package root (subdirs with manifest.json). Empty = no discovery.
+  # Example: /var/lib/nas-os/community-packages
+  # See examples/community-packages/hello-host and docs/STRUCTURE.md.
+  community_dir: ""
 
 modules:
   # Docker data path settings (not deprecated).

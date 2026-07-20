@@ -46,12 +46,36 @@ func (t Trust) Rank() int {
 	}
 }
 
+// Capability is a declared package privilege request (host-evaluated).
+type Capability string
+
+const (
+	// CapHTTPAdmin requests unrestricted admin HTTP route mount (system-only).
+	CapHTTPAdmin Capability = "http.admin"
+	// CapHostSDK is the baseline community/local surface (Host interface only).
+	CapHostSDK Capability = "host.sdk"
+)
+
 // Meta describes a package for catalog and status APIs.
 type Meta struct {
-	ID          string `json:"id"`
-	Trust       Trust  `json:"trust"`
-	Description string `json:"description,omitempty"`
-	Version     string `json:"version,omitempty"`
+	ID           string       `json:"id"`
+	Trust        Trust        `json:"trust"`
+	Description  string       `json:"description,omitempty"`
+	Version      string       `json:"version,omitempty"`
+	Capabilities []Capability `json:"capabilities,omitempty"`
+}
+
+// AllowsCommunity reports whether the capability may be granted to community/local trust.
+func (c Capability) AllowsCommunity() bool {
+	switch c {
+	case CapHostSDK, "":
+		return true
+	case CapHTTPAdmin:
+		return false
+	default:
+		// Unknown capabilities are denied for community/local (fail closed).
+		return false
+	}
 }
 
 // Package is the lifecycle contract for a loadable package.

@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"strings"
 
 	"nas-os/internal/config"
 	"nas-os/internal/extensions/activeprotect"
@@ -31,18 +32,14 @@ type extensionHolders struct {
 	names          []string
 }
 
-// registerConfiguredExtensions mounts HTTP routes for extensions enabled via
-// unified package resolution, using the Stage-2 Package Runtime + Host SDK.
+// registerConfiguredExtensions mounts HTTP routes for system extensions and
+// discovers/loads third-party packages via the unified Package Runtime.
 func (s *Server) registerConfiguredExtensions(api *gin.RouterGroup) {
 	if s == nil || s.cfg == nil || api == nil {
 		return
 	}
 
-	// ADR-0001: dual-read resolution, filter to known HTTP catalog.
-	enabled := s.cfg.EnabledNamedPackages(KnownExtensionNames)
-
 	host := newConfigHost(s.cfg)
-	// HTTP register bridge for packages that use net/http handlers.
 	rt := packageruntime.New(host, func(method, path string, h http.Handler) {
 		api.Handle(method, path, gin.WrapH(h))
 	})
@@ -57,21 +54,40 @@ func (s *Server) registerConfiguredExtensions(api *gin.RouterGroup) {
 		return
 	}
 
-	if len(enabled) == 0 {
-		s.mountPackageStatusRoutes(api, rt)
-		return
+	// Third-party discovery (community/local): on-disk only; not SystemPackageCatalog.
+	var discovered []packageruntime.DiskManifest
+	if dir := s.cfg.CommunityDir(); dir != "" {
+		var err error
+		discovered, err = packageruntime.DiscoverDir(dir)
+		if err != nil {
+			log.Printf("⚠️ community discovery: %v", err)
+		} else if len(discovered) > 0 {
+			ids, err := rt.RegisterDiscovered(discovered)
+			if err != nil {
+				log.Printf("⚠️ community register: %v", err)
+			} else {
+				log.Printf("ℹ️  community packages discovered: %v", ids)
+			}
+		}
 	}
+	s.communityDiscovered = discovered
 
-	loaded, unknown, err := rt.Enable(context.Background(), enabled)
-	if err != nil {
-		log.Printf("⚠️ package runtime enable: %v", err)
-	}
-	for _, u := range unknown {
-		log.Printf("⚠️ package %q not in catalog", u)
-	}
-	s.extHolders.names = append([]string(nil), loaded...)
-	for _, name := range loaded {
-		log.Printf("✅ extension enabled: %s", name)
+	// Enable: packages.enabled ∩ runtime catalog (system HTTP + community).
+	// Default enabled empty → nothing loaded (Core-only package surface).
+	want := s.cfg.EnabledPackageNames()
+	toEnable := intersectIDs(want, rt.CatalogIDs())
+	if len(toEnable) > 0 {
+		loaded, unknown, err := rt.Enable(context.Background(), toEnable)
+		if err != nil {
+			log.Printf("⚠️ package runtime enable: %v", err)
+		}
+		for _, u := range unknown {
+			log.Printf("⚠️ package %q not in catalog", u)
+		}
+		s.extHolders.names = append([]string(nil), loaded...)
+		for _, name := range loaded {
+			log.Printf("✅ package enabled: %s", name)
+		}
 	}
 
 	s.mountPackageStatusRoutes(api, rt)
@@ -91,21 +107,27 @@ func (s *Server) mountPackageStatusRoutes(api *gin.RouterGroup, rt *packagerunti
 	})
 	api.GET("/packages", func(c *gin.Context) {
 		res := s.cfg.ResolvePackages()
+		var communityIDs []string
+		for _, m := range s.communityDiscovered {
+			communityIDs = append(communityIDs, strings.ToLower(strings.TrimSpace(m.ID)))
+		}
 		c.JSON(http.StatusOK, gin.H{
 			"code":    0,
 			"message": "success",
 			"data": gin.H{
-				"host_api_version":      hostapi.APIVersion,
-				"catalog":               rt.CatalogIDs(),
-				"system_catalog":        config.SystemPackageCatalog,
-				"http_extensions":       config.HTTPExtensionPackageIDs(),
-				"recommended_products":  config.RecommendedSystemPackageIDs(),
-				"loaded":                rt.LoadedIDs(),
-				"resolved":              res.Enabled,
-				"recommended":           res.RecommendedSystem,
-				"modules_deprecated":    res.ModulesDeprecated,
-				"warnings":              res.Warnings,
-				"statuses":              rt.Statuses(c.Request.Context()),
+				"host_api_version":     hostapi.APIVersion,
+				"catalog":              rt.CatalogIDs(),
+				"system_catalog":       config.SystemPackageCatalog,
+				"http_extensions":      config.HTTPExtensionPackageIDs(),
+				"recommended_products": config.RecommendedSystemPackageIDs(),
+				"community_dir":        s.cfg.CommunityDir(),
+				"community_discovered": communityIDs,
+				"loaded":               rt.LoadedIDs(),
+				"resolved":             res.Enabled,
+				"recommended":          res.RecommendedSystem,
+				"modules_deprecated":   res.ModulesDeprecated,
+				"warnings":             res.Warnings,
+				"statuses":             rt.Statuses(c.Request.Context()),
 			},
 		})
 	})
@@ -132,5 +154,32 @@ func (s *Server) LoadedExtensionNames() []string {
 	}
 	out := make([]string, len(s.extHolders.names))
 	copy(out, s.extHolders.names)
+	return out
+}
+
+func intersectIDs(want, catalog []string) []string {
+	if len(want) == 0 || len(catalog) == 0 {
+		return nil
+	}
+	allow := make(map[string]struct{}, len(catalog))
+	for _, id := range catalog {
+		allow[strings.ToLower(strings.TrimSpace(id))] = struct{}{}
+	}
+	var out []string
+	seen := make(map[string]struct{})
+	for _, raw := range want {
+		id := strings.ToLower(strings.TrimSpace(raw))
+		if id == "" {
+			continue
+		}
+		if _, ok := allow[id]; !ok {
+			continue
+		}
+		if _, dup := seen[id]; dup {
+			continue
+		}
+		seen[id] = struct{}{}
+		out = append(out, id)
+	}
 	return out
 }

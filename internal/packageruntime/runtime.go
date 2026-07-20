@@ -209,8 +209,15 @@ func (r *Runtime) enableOne(ctx context.Context, entry Entry) error {
 	if !r.host.Allows(entry.Meta.Trust) {
 		return fmt.Errorf("trust %s not allowed by host", entry.Meta.Trust)
 	}
-	// Stage 2: community packages may load lifecycle but cannot mount HTTP
-	// unless host policy expands later.
+	// Capability gate: community/local cannot receive system-only capabilities.
+	if entry.Meta.Trust.Rank() < hostapi.TrustSystem.Rank() {
+		for _, cap := range entry.Meta.Capabilities {
+			if !cap.AllowsCommunity() {
+				return fmt.Errorf("capability %q denied for trust %s", cap, entry.Meta.Trust)
+			}
+		}
+	}
+	// Community/local may load lifecycle but cannot mount unrestricted admin HTTP.
 	pkg, err := entry.Factory(r.host)
 	if err != nil {
 		return fmt.Errorf("factory: %w", err)

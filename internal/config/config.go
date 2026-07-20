@@ -126,6 +126,7 @@ func Default() *Config {
 		Packages: PackagesConfig{
 			RecommendedSystem: false, // default Core-only (ADR-0001 Stage 1)
 			Enabled:           nil,
+			CommunityDir:      "", // default: no third-party discovery
 		},
 	}
 }
