@@ -353,12 +353,13 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	var webhookMgr *webhook.Manager
 	var webterminalMgr *webterminal.Manager
 	var wolMgr *wol.Manager
-	// Product surface: any recommended product wanted (bulk recommended_system,
-	// packages.enabled product IDs, or app-center-enabled.json).
+	// Product surface: per-product managers only when that product is wanted.
+	// bulk (recommended_system) constructs the full optional set.
 	wantProducts := bootWantProducts(cfg)
-	if len(wantProducts) > 0 {
+	bulk := productBulkSurface(cfg)
+	if bulk || len(wantProducts) > 0 {
 		// 初始化 Docker 管理器（仅当 docker product 启用）
-		if wantProducts["docker"] {
+		if bulk || wantProducts["docker"] {
 			dockerMgr, err = docker.NewManager()
 			if err != nil {
 				dockerMgr = nil
@@ -371,135 +372,136 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 			}
 		}
 
-		// 初始化性能监控
-		perfMgr, err = perf.NewManager(nil)
-		if err != nil {
-			// 性能监控不可用时继续运行
-			perfMgr = nil
-		}
-
-		// Deprecated Go .so plugin host — opt-in packages.legacy_so_plugins only.
-		if cfg.LegacySOPluginHostEnabled() {
-			pluginMgr, err = plugin.NewManager(plugin.ManagerConfig{
-				PluginDir: "/opt/nas/plugins",
-				ConfigDir: cfg.ConfigPath("plugins"),
-				DataDir:   cfg.DataPath("plugins"),
-			})
+		// Shared non-catalog managers: only for full recommended_system bulk surface.
+		if bulk {
+			// 初始化性能监控
+			perfMgr, err = perf.NewManager(nil)
 			if err != nil {
-				pluginMgr = nil
+				perfMgr = nil
 			}
-			if pluginMgr != nil {
-				pluginMarket = plugin.NewMarket(plugin.MarketConfig{
-					BaseURL: "", // legacy mock market; not the community_dir path
+
+			// Deprecated Go .so plugin host — opt-in packages.legacy_so_plugins only.
+			if cfg.LegacySOPluginHostEnabled() {
+				pluginMgr, err = plugin.NewManager(plugin.ManagerConfig{
+					PluginDir: "/opt/nas/plugins",
+					ConfigDir: cfg.ConfigPath("plugins"),
+					DataDir:   cfg.DataPath("plugins"),
 				})
+				if err != nil {
+					pluginMgr = nil
+				}
+				if pluginMgr != nil {
+					pluginMarket = plugin.NewMarket(plugin.MarketConfig{
+						BaseURL: "",
+					})
+				}
 			}
+
+			// 初始化配额管理器
+			quotaMgr, err = quota.NewManager(cfg.ConfigPath("quota.json"),
+				quota.NewStorageAdapter(storMgr),
+				quota.NewUserAdapter(userMgr))
+			if err != nil {
+				quotaMgr = nil
+			}
+
+			// 初始化文件预览管理器
+			filesMgr = files.NewManager(files.PreviewConfig{
+				ThumbnailSize:    256,
+				MaxPreviewSize:   50 * 1024 * 1024,
+				CacheDir:         cfg.DataPath("cache", "thumbnails"),
+				CacheExpiry:      24 * time.Hour,
+				EnableVideoThumb: true,
+				EnableDocPreview: true,
+			})
+
+			// 初始化通知管理器
+			notifyMgr = notify.NewManager()
+			notify.NewHandlers(notifyMgr, cfg.ConfigPath("notify-config.json"))
+
+			// 系统监控（会注册 /system/*；勿与下方 Core 的 /system/info 双注册）
+			systemMonitor, err = system.NewMonitor(cfg.DataPath("system_monitor.db"))
+			if err != nil {
+				log.Printf("⚠️ 系统监控初始化警告：%v", err)
+				systemMonitor = nil
+			} else {
+				log.Println("✅ 系统监控模块就绪")
+			}
+
+			// 引导式告警修复引擎
+			alertEngine = alertremediation.NewEngine(logger)
+			log.Println("✅ 引导式告警修复引擎就绪")
 		}
-
-		// 初始化配额管理器
-		quotaMgr, err = quota.NewManager(cfg.ConfigPath("quota.json"),
-			quota.NewStorageAdapter(storMgr),
-			quota.NewUserAdapter(userMgr))
-		if err != nil {
-			// 配额管理不可用时继续运行
-			quotaMgr = nil
-		}
-
-		// 初始化文件预览管理器
-		filesMgr = files.NewManager(files.PreviewConfig{
-			ThumbnailSize:    256,
-			MaxPreviewSize:   50 * 1024 * 1024, // 50MB
-			CacheDir:         cfg.DataPath("cache", "thumbnails"),
-			CacheExpiry:      24 * time.Hour,
-			EnableVideoThumb: true,
-			EnableDocPreview: true,
-		})
-
-		// 初始化通知管理器
-		notifyMgr = notify.NewManager()
-		notify.NewHandlers(notifyMgr, cfg.ConfigPath("notify-config.json"))
 
 		// MFA 管理器由 Application 构造并注入，身份模块拥有唯一实例。
 
-		// 初始化相册管理器
-		photosMgr = photos.NewManager(cfg.DataPath("photos"))
-
-		// 初始化 AI 相册管理器
-		if photosMgr != nil {
-			photosAIMgr, err = photos.NewAIManager(photosMgr, cfg.DataPath("photos", "models"))
-			if err != nil {
-				log.Printf("⚠️ AI 相册管理初始化警告：%v", err)
-			} else {
-				log.Println("✅ AI 相册管理模块就绪")
+		// 相册
+		if bulk || wantProducts["photos"] {
+			photosMgr = photos.NewManager(cfg.DataPath("photos"))
+			if photosMgr != nil {
+				photosAIMgr, err = photos.NewAIManager(photosMgr, cfg.DataPath("photos", "models"))
+				if err != nil {
+					log.Printf("⚠️ AI 相册管理初始化警告：%v", err)
+				} else {
+					log.Println("✅ AI 相册管理模块就绪")
+				}
 			}
 		}
 
-		// 初始化备份管理器
-		backupMgr = backup.NewManager(cfg.ConfigPath("backup-config.json"), cfg.MountPath("backups"))
-		if err := backupMgr.Initialize(); err != nil {
-			log.Printf("⚠️ 备份管理初始化警告：%v", err)
-		} else {
-			log.Println("✅ 备份管理模块就绪")
-		}
-
-		// 初始化同步管理器
-		syncMgr = backup.NewSyncManager(cfg.MountPath("backups"))
-		log.Println("✅ 同步管理模块就绪")
-
-		// 初始化系统监控器
-		systemMonitor, err = system.NewMonitor(cfg.DataPath("system_monitor.db"))
-		if err != nil {
-			log.Printf("⚠️ 系统监控初始化警告：%v", err)
-			systemMonitor = nil
-		} else {
-			log.Println("✅ 系统监控模块就绪")
-		}
-
-		// 初始化虚拟机管理器
-		vmStoragePath := cfg.MountPath("vms")
-		vmLogger := zap.NewNop()
-		vmMgr, err = vm.NewManager(vmStoragePath, vmLogger)
-		if err != nil {
-			log.Printf("⚠️ 虚拟机管理初始化警告：%v", err)
-			vmMgr = nil
-		} else {
-			log.Println("✅ 虚拟机管理模块就绪")
-		}
-
-		// 初始化 ISO 管理器
-		isoMgr, err = vm.NewISOManager(cfg.MountPath("isos"), vmLogger)
-		if err != nil {
-			log.Printf("⚠️ ISO 管理初始化警告：%v", err)
-			isoMgr = nil
-		} else {
-			log.Println("✅ ISO 管理模块就绪")
-		}
-
-		// 初始化快照管理器
-		if vmMgr != nil {
-			snapshotMgr, err = vm.NewSnapshotManager(vmStoragePath, vmMgr, vmLogger)
-			if err != nil {
-				log.Printf("⚠️ 快照管理初始化警告：%v", err)
-				snapshotMgr = nil
+		// 备份
+		if bulk || wantProducts["backup"] {
+			backupMgr = backup.NewManager(cfg.ConfigPath("backup-config.json"), cfg.MountPath("backups"))
+			if err := backupMgr.Initialize(); err != nil {
+				log.Printf("⚠️ 备份管理初始化警告：%v", err)
 			} else {
-				log.Println("✅ 快照管理模块就绪")
+				log.Println("✅ 备份管理模块就绪")
+			}
+			syncMgr = backup.NewSyncManager(cfg.MountPath("backups"))
+			log.Println("✅ 同步管理模块就绪")
+		}
+
+		// 虚拟机
+		if bulk || wantProducts["vm"] {
+			vmStoragePath := cfg.MountPath("vms")
+			vmLogger := zap.NewNop()
+			vmMgr, err = vm.NewManager(vmStoragePath, vmLogger)
+			if err != nil {
+				log.Printf("⚠️ 虚拟机管理初始化警告：%v", err)
+				vmMgr = nil
+			} else {
+				log.Println("✅ 虚拟机管理模块就绪")
+			}
+			isoMgr, err = vm.NewISOManager(cfg.MountPath("isos"), vmLogger)
+			if err != nil {
+				log.Printf("⚠️ ISO 管理初始化警告：%v", err)
+				isoMgr = nil
+			} else {
+				log.Println("✅ ISO 管理模块就绪")
+			}
+			if vmMgr != nil {
+				snapshotMgr, err = vm.NewSnapshotManager(vmStoragePath, vmMgr, vmLogger)
+				if err != nil {
+					log.Printf("⚠️ 快照管理初始化警告：%v", err)
+					snapshotMgr = nil
+				} else {
+					log.Println("✅ 快照管理模块就绪")
+				}
 			}
 		}
 
-		// 初始化私有云AI服务
-		aiSvc, err = ai.NewAIService(nil)
-		if err != nil {
-			log.Printf("⚠️ 私有云AI服务初始化警告：%v", err)
-			aiSvc = nil
-		} else {
-			log.Println("✅ 私有云AI服务就绪")
+		// AI
+		if bulk || wantProducts["ai"] {
+			aiSvc, err = ai.NewAIService(nil)
+			if err != nil {
+				log.Printf("⚠️ 私有云AI服务初始化警告：%v", err)
+				aiSvc = nil
+			} else {
+				log.Println("✅ 私有云AI服务就绪")
+			}
 		}
 
-		// ========== v2.476.0 新增模块 ==========
-
-		// 初始化引导式告警修复引擎（对标 TrueNAS 26 Guided Alerts）
-		alertEngine = alertremediation.NewEngine(logger)
-		log.Println("✅ 引导式告警修复引擎就绪")
-
+		// ========== bulk-only optional managers (not individual product packages) ==========
+		if bulk {
 		// 初始化智能分层规则引擎（对标群晖 Smarter Tiering）
 		tierMgr := tiering.NewManager(cfg.ConfigPath("tiering.json"), tiering.PolicyEngineConfig{})
 		tierRulesEngine := tiering.NewRulesEngine(tierMgr, cfg.DataPath("tiering"))
@@ -573,14 +575,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 			dedupMgr = nil
 		} else {
 			log.Println("✅ 数据去重模块就绪")
-		}
-
-		// 初始化云同步管理器
-		cloudsyncMgr = cloudsync.NewManager(cfg.ConfigPath("cloudsync-config.json"))
-		if err := cloudsyncMgr.Initialize(); err != nil {
-			log.Printf("⚠️ 云同步初始化警告：%v", err)
-		} else {
-			log.Println("✅ 云同步模块就绪")
 		}
 
 		// 初始化标签管理器
@@ -817,6 +811,17 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 		filetagMgr = filetag.NewManager()
 		apikeyMgr = apikey.NewManager()
 		log.Println("✅ v2.548.0 新增模块就绪")
+		} // end bulk-only managers
+
+		// 云同步（独立 product 包，可单独启用）
+		if bulk || wantProducts["cloudsync"] {
+			cloudsyncMgr = cloudsync.NewManager(cfg.ConfigPath("cloudsync-config.json"))
+			if err := cloudsyncMgr.Initialize(); err != nil {
+				log.Printf("⚠️ 云同步初始化警告：%v", err)
+			} else {
+				log.Println("✅ 云同步模块就绪")
+			}
+		}
 
 	} else {
 		log.Println("ℹ️  packages/modules optional off: non-Core product managers not constructed")
@@ -1088,17 +1093,17 @@ func (s *Server) setupRoutes() {
 		}
 
 		// ========== 系统信息 ==========
-		api.GET("/system/info", s.getSystemInfo)
-		api.GET("/system/status", s.getSystemStatus)
+		// Avoid duplicate /system/info when system.Monitor handlers also register it.
+		if s.systemMonitor != nil {
+			system.NewHandlers(s.systemMonitor).RegisterRoutes(api)
+		} else {
+			api.GET("/system/info", s.getSystemInfo)
+			api.GET("/system/status", s.getSystemStatus)
+		}
 
 		// ========== 性能监控 ==========
 		if s.perfMgr != nil {
 			perf.NewHandlers(s.perfMgr).RegisterRoutes(api)
-		}
-
-		// ========== 系统监控仪表盘 ==========
-		if s.systemMonitor != nil {
-			system.NewHandlers(s.systemMonitor).RegisterRoutes(api)
 		}
 
 		// ========== 监控告警 ==========

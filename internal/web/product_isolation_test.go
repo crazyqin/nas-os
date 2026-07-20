@@ -1,0 +1,122 @@
+package web
+
+import (
+	"net/http"
+	"net/http/httptest"
+	"path/filepath"
+	"testing"
+	"time"
+
+	"nas-os/internal/config"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+)
+
+// TestNewServerDockerOnlyNoPanic uses writable TempDir paths so product
+// construction succeeds and must not panic on duplicate /system/info routes.
+func TestNewServerDockerOnlyNoPanic(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	cfg := config.Default()
+	cfg.Paths.DataDir = t.TempDir()
+	cfg.Paths.ConfigDir = t.TempDir()
+	cfg.Paths.MountBase = t.TempDir()
+	cfg.Packages.Enabled = []string{"docker"}
+	cfg.Packages.RecommendedSystem = false
+
+	// Must not panic.
+	s := NewServer(cfg, nil, nil, nil, nil, nil, nil, nil, nil, zap.NewNop())
+	if s == nil {
+		t.Fatal("nil server")
+	}
+	if s.dockerMgr == nil {
+		// Docker daemon may be unavailable; isolation still requires no panic
+		// and that bulk products are not constructed.
+		t.Log("dockerMgr nil (daemon unavailable) — OK if isolation holds")
+	}
+	// Per-product isolation: only docker wanted → no photos/vm/backup/ai managers.
+	if s.photosMgr != nil {
+		t.Fatal("photosMgr must not construct when only docker enabled")
+	}
+	if s.vmMgr != nil {
+		t.Fatal("vmMgr must not construct when only docker enabled")
+	}
+	if s.backupMgr != nil {
+		t.Fatal("backupMgr must not construct when only docker enabled")
+	}
+	if s.aiSvc != nil {
+		t.Fatal("aiSvc must not construct when only docker enabled")
+	}
+	if s.cloudsyncMgr != nil {
+		t.Fatal("cloudsyncMgr must not construct when only docker enabled")
+	}
+	// systemMonitor is bulk-only
+	if s.systemMonitor != nil {
+		t.Fatal("systemMonitor is bulk-only; must be nil for docker-only")
+	}
+
+	// Routes register without panic.
+	w := httptest.NewRecorder()
+	s.engine.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/api/v1/system/info", nil))
+	// May be 401 without auth depending on middleware — must not 500 from panic.
+	if w.Code == http.StatusInternalServerError {
+		t.Fatalf("system/info 500: %s", w.Body.String())
+	}
+}
+
+// TestNewServerRecommendedSystemNoPanic constructs bulk surface with writable paths.
+// Avoid hanging on background workers: only assert NewServer returns and route tree built.
+func TestNewServerRecommendedSystemNoPanic(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	cfg := config.Default()
+	cfg.Paths.DataDir = t.TempDir()
+	cfg.Paths.ConfigDir = t.TempDir()
+	cfg.Paths.MountBase = t.TempDir()
+	cfg.Packages.RecommendedSystem = true
+
+	done := make(chan *Server, 1)
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("NewServer panicked: %v", r)
+				done <- nil
+			}
+		}()
+		done <- NewServer(cfg, nil, nil, nil, nil, nil, nil, nil, nil, zap.NewNop())
+	}()
+	var s *Server
+	select {
+	case s = <-done:
+	case <-time.After(15 * time.Second):
+		t.Fatal("NewServer hung under recommended_system")
+	}
+	if s == nil {
+		t.Fatal("nil server")
+	}
+	// Legacy .so host still off by default.
+	if s.pluginMgr != nil {
+		t.Fatal("pluginMgr must stay nil without legacy_so_plugins")
+	}
+	// Route registration completed if engine has routes (no panic during setupRoutes).
+	if s.engine == nil {
+		t.Fatal("nil engine")
+	}
+}
+
+func TestBootWantProductsDockerOnly(t *testing.T) {
+	cfg := config.Default()
+	cfg.Packages.Enabled = []string{"docker", "voicehub"}
+	cfg.Packages.RecommendedSystem = false
+	want := bootWantProducts(cfg)
+	if !want["docker"] {
+		t.Fatal("want docker")
+	}
+	if want["vm"] || want["photos"] {
+		t.Fatalf("unexpected products: %v", want)
+	}
+	// voicehub is HTTP extension, not recommended product
+	if want["voicehub"] {
+		t.Fatal("voicehub is not a recommended product")
+	}
+	_ = filepath.Separator
+}

@@ -103,8 +103,8 @@ func New(cfg *config.Config, logger *zap.Logger) (app *Application, err error) {
 	hostname, _ := os.Hostname()
 	var clusterServices *cluster.Services
 	var downloadMgr *downloader.Manager
-	// ADR-0001 Stage 1: unified packages resolution (dual-read modules.* + packages.*).
-	if cfg.OptionalProductsEnabled() {
+	// Product surface: cluster/downloader only when those products (or bulk) are wanted.
+	if cfg.OptionalProductsEnabled() || cfg.WantsProduct("cluster") {
 		var err error
 		clusterServices, err = cluster.InitializeCluster(cluster.RootConfig{
 			NodeID:  hostname,
@@ -117,7 +117,9 @@ func New(cfg *config.Config, logger *zap.Logger) (app *Application, err error) {
 			cleanup.add("cluster", func() error { return cluster.ShutdownCluster(clusterServices) })
 			log.Println("✅ 集群服务就绪")
 		}
-
+	}
+	if cfg.OptionalProductsEnabled() || cfg.WantsProduct("downloader") {
+		var err error
 		downloadMgr, err = downloader.NewManager(filepath.Join(cfg.Paths.DataDir, "downloads"), logger)
 		if err != nil {
 			log.Printf("⚠️ 下载管理初始化警告：%v", err)
