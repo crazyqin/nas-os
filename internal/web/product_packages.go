@@ -118,11 +118,11 @@ func bootWantProducts(cfg *config.Config) map[string]bool {
 	for _, id := range cfg.BootProductIDs() {
 		want[id] = true
 	}
-	// Merge app-center persistence so restart restores product managers.
-	for _, id := range loadEnabledIDsFromFile(cfg.DataPath("app-center-enabled.json")) {
-		if e, ok := config.LookupSystemPackage(id); ok && e.Kind == config.KindRecommendedProduct {
-			want[id] = true
-		}
-	}
 	return want
+}
+
+// productBulkSurface is true when recommended_system (or deprecated modules.optional)
+// requests the full optional product manager set.
+func productBulkSurface(cfg *config.Config) bool {
+	return cfg != nil && cfg.OptionalProductsEnabled()
 }

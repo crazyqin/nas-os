@@ -7,6 +7,7 @@
 package config
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -133,8 +134,8 @@ func Default() *Config {
 }
 
 // BootProductIDs returns recommended_product IDs that should construct product
-// managers at process start: either full set when recommended_system, or
-// individually named IDs from packages.enabled (and optional modules dual-read).
+// managers at process start: full set when recommended_system, otherwise
+// individually named IDs from packages.enabled plus app-center-enabled.json.
 func (c *Config) BootProductIDs() []string {
 	if c == nil {
 		return nil
@@ -142,11 +143,75 @@ func (c *Config) BootProductIDs() []string {
 	if c.OptionalProductsEnabled() {
 		return RecommendedSystemPackageIDs()
 	}
+	seen := make(map[string]struct{})
 	var out []string
-	for _, id := range c.EnabledPackageNames() {
-		if e, ok := LookupSystemPackage(id); ok && e.Kind == KindRecommendedProduct {
-			out = append(out, id)
+	add := func(id string) {
+		id = strings.ToLower(strings.TrimSpace(id))
+		if id == "" {
+			return
 		}
+		if e, ok := LookupSystemPackage(id); !ok || e.Kind != KindRecommendedProduct {
+			return
+		}
+		if _, dup := seen[id]; dup {
+			return
+		}
+		seen[id] = struct{}{}
+		out = append(out, id)
+	}
+	for _, id := range c.EnabledPackageNames() {
+		add(id)
+	}
+	for _, id := range LoadAppCenterEnabledIDs(c.DataPath("app-center-enabled.json")) {
+		add(id)
+	}
+	return out
+}
+
+// WantsProduct reports whether a recommended product should be active at boot.
+func (c *Config) WantsProduct(id string) bool {
+	id = strings.ToLower(strings.TrimSpace(id))
+	if c == nil || id == "" {
+		return false
+	}
+	if c.OptionalProductsEnabled() {
+		return true // bulk recommended surface
+	}
+	for _, p := range c.BootProductIDs() {
+		if p == id {
+			return true
+		}
+	}
+	return false
+}
+
+// LoadAppCenterEnabledIDs reads data_dir/app-center-enabled.json (UI click persistence).
+func LoadAppCenterEnabledIDs(path string) []string {
+	if path == "" {
+		return nil
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil
+	}
+	var doc struct {
+		Enabled []string `json:"enabled"`
+	}
+	if err := json.Unmarshal(data, &doc); err != nil {
+		return nil
+	}
+	var out []string
+	seen := make(map[string]struct{})
+	for _, id := range doc.Enabled {
+		id = strings.ToLower(strings.TrimSpace(id))
+		if id == "" {
+			continue
+		}
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
+		out = append(out, id)
 	}
 	return out
 }

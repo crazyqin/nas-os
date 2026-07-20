@@ -293,28 +293,8 @@ func (s *Server) loadPersistedRuntimeEnabled() []string {
 	return ids
 }
 
-// loadEnabledIDsFromFile reads app-center-enabled.json (shared with bootWantProducts).
+// loadEnabledIDsFromFile reads app-center-enabled.json (shared with config.BootProductIDs).
 func loadEnabledIDsFromFile(path string) []string {
-	if path == "" {
-		return nil
-	}
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil
-	}
-	var doc struct {
-		Enabled []string `json:"enabled"`
-	}
-	if err := json.Unmarshal(data, &doc); err != nil {
-		return nil
-	}
-	var out []string
-	for _, id := range doc.Enabled {
-		id = strings.ToLower(strings.TrimSpace(id))
-		if id != "" {
-			out = append(out, id)
-		}
-	}
-	return out
+	return config.LoadAppCenterEnabledIDs(path)
 }
 

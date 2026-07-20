@@ -24,12 +24,13 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	{
 		s3.GET("/buckets", h.ListBuckets)
 		s3.POST("/buckets", h.CreateBucket)
-		s3.DELETE("/buckets/:name", h.DeleteBucket)
-		s3.GET("/buckets/:name/objects", h.ListObjects)
-		s3.PUT("/buckets/:name/objects/:key", h.PutObject)
-		s3.GET("/buckets/:name/objects/:key", h.GetObject)
-		s3.HEAD("/buckets/:name/objects/:key", h.HeadObject)
-		s3.DELETE("/buckets/:name/objects/:key", h.DeleteObject)
+		// Param must be :bucket (same segment name as s3.PolicyHandlers) for gin tree.
+		s3.DELETE("/buckets/:bucket", h.DeleteBucket)
+		s3.GET("/buckets/:bucket/objects", h.ListObjects)
+		s3.PUT("/buckets/:bucket/objects/:key", h.PutObject)
+		s3.GET("/buckets/:bucket/objects/:key", h.GetObject)
+		s3.HEAD("/buckets/:bucket/objects/:key", h.HeadObject)
+		s3.DELETE("/buckets/:bucket/objects/:key", h.DeleteObject)
 		s3.GET("/stats", h.GetStats)
 		s3.GET("/config", h.GetConfig)
 	}
@@ -74,9 +75,9 @@ func (h *Handler) CreateBucket(c *gin.Context) {
 	c.JSON(http.StatusCreated, bucket)
 }
 
-// DeleteBucket DELETE /buckets/:name.
+// DeleteBucket DELETE /buckets/:bucket.
 func (h *Handler) DeleteBucket(c *gin.Context) {
-	name := c.Param("name")
+	name := c.Param("bucket")
 	userID := c.GetString("userId")
 	if userID == "" {
 		userID = c.Query("userId")
@@ -88,9 +89,9 @@ func (h *Handler) DeleteBucket(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "bucket deleted"})
 }
 
-// ListObjects GET /buckets/:name/objects.
+// ListObjects GET /buckets/:bucket/objects.
 func (h *Handler) ListObjects(c *gin.Context) {
-	bucketName := c.Param("name")
+	bucketName := c.Param("bucket")
 	userID := c.GetString("userId")
 	if userID == "" {
 		userID = c.Query("userId")
@@ -110,9 +111,9 @@ func (h *Handler) ListObjects(c *gin.Context) {
 	})
 }
 
-// PutObject PUT /buckets/:name/objects/:key.
+// PutObject PUT /buckets/:bucket/objects/:key.
 func (h *Handler) PutObject(c *gin.Context) {
-	bucketName := c.Param("name")
+	bucketName := c.Param("bucket")
 	key := c.Param("key")
 	userID := c.GetString("userId")
 	if userID == "" {
@@ -159,9 +160,9 @@ func (h *Handler) PutObject(c *gin.Context) {
 	})
 }
 
-// GetObject GET /buckets/:name/objects/:key.
+// GetObject GET /buckets/:bucket/objects/:key.
 func (h *Handler) GetObject(c *gin.Context) {
-	bucketName := c.Param("name")
+	bucketName := c.Param("bucket")
 	key := c.Param("key")
 	userID := c.GetString("userId")
 	if userID == "" {
@@ -183,9 +184,9 @@ func (h *Handler) GetObject(c *gin.Context) {
 	c.Data(http.StatusOK, obj.ContentType, obj.Data)
 }
 
-// HeadObject HEAD /buckets/:name/objects/:key.
+// HeadObject HEAD /buckets/:bucket/objects/:key.
 func (h *Handler) HeadObject(c *gin.Context) {
-	bucketName := c.Param("name")
+	bucketName := c.Param("bucket")
 	key := c.Param("key")
 	userID := c.GetString("userId")
 	if userID == "" {
@@ -205,9 +206,9 @@ func (h *Handler) HeadObject(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-// DeleteObject DELETE /buckets/:name/objects/:key.
+// DeleteObject DELETE /buckets/:bucket/objects/:key.
 func (h *Handler) DeleteObject(c *gin.Context) {
-	bucketName := c.Param("name")
+	bucketName := c.Param("bucket")
 	key := c.Param("key")
 	userID := c.GetString("userId")
 	if userID == "" {
