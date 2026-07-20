@@ -71,15 +71,18 @@ type AuthConfig struct {
 	InitialPassword string `yaml:"initial_password"`
 }
 
-// ModulesConfig 描述可选模块开关。
+// ModulesConfig holds legacy module switches and docker path settings.
+//
+// Deprecated (ADR-0001 Stage 3): Optional and Extensions are compatibility aliases
+// for packages.recommended_system and packages.enabled. Prefer packages.*;
+// modules.optional / modules.extensions still work via dual-read but emit warnings.
 type ModulesConfig struct {
 	Docker DockerConfig `yaml:"docker"`
-	// Optional enables non-Core product managers (docker/VM/photos/AI/backup/…).
-	// Default false: only Core-supporting HTTP surface is constructed.
+	// Optional is deprecated; use packages.recommended_system.
+	// Still dual-read by ResolvePackages for compatibility.
 	Optional bool `yaml:"optional"`
-	// Extensions lists optional product extension names to load on the HTTP path.
-	// Empty (default) loads none. Known names: activeprotect, agentworkflow,
-	// aiguardrails, compliancescan, deployorch, netdiag, voicehub.
+	// Extensions is deprecated; use packages.enabled.
+	// Still dual-read by ResolvePackages for compatibility.
 	// Lab packages are never loaded via this list.
 	Extensions []string `yaml:"extensions"`
 }

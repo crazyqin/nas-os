@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"nas-os/internal/config"
 	"nas-os/internal/extensions/activeprotect"
 	"nas-os/internal/extensions/compliancescan"
 	"nas-os/internal/extensions/deployorch"
@@ -15,19 +16,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// KnownExtensionNames are optional product extensions loadable when listed in
-// modules.extensions or packages.enabled (ADR-0001 dual-read).
+// KnownExtensionNames are official HTTP extensions (packages.enabled).
+// Derived from config.SystemPackageCatalog (ADR-0001 Stage 3).
 // Default boot loads none. Recommended-system expansion does not auto-mount these.
-// Kept in sync with registerSystemPackageCatalog.
-var KnownExtensionNames = []string{
-	"activeprotect",
-	"agentworkflow",
-	"aiguardrails",
-	"compliancescan",
-	"deployorch",
-	"netdiag",
-	"voicehub",
-}
+var KnownExtensionNames = config.HTTPExtensionPackageIDs()
 
 // extensionHolders keeps live manager instances for enabled extensions so enable
 // is not a construct-and-discard no-op.
@@ -98,16 +90,22 @@ func (s *Server) mountPackageStatusRoutes(api *gin.RouterGroup, rt *packagerunti
 		})
 	})
 	api.GET("/packages", func(c *gin.Context) {
+		res := s.cfg.ResolvePackages()
 		c.JSON(http.StatusOK, gin.H{
 			"code":    0,
 			"message": "success",
 			"data": gin.H{
-				"host_api_version": hostapi.APIVersion,
-				"catalog":          rt.CatalogIDs(),
-				"loaded":           rt.LoadedIDs(),
-				"resolved":         s.cfg.EnabledPackageNames(),
-				"recommended":      s.cfg.OptionalProductsEnabled(),
-				"statuses":         rt.Statuses(c.Request.Context()),
+				"host_api_version":      hostapi.APIVersion,
+				"catalog":               rt.CatalogIDs(),
+				"system_catalog":        config.SystemPackageCatalog,
+				"http_extensions":       config.HTTPExtensionPackageIDs(),
+				"recommended_products":  config.RecommendedSystemPackageIDs(),
+				"loaded":                rt.LoadedIDs(),
+				"resolved":              res.Enabled,
+				"recommended":           res.RecommendedSystem,
+				"modules_deprecated":    res.ModulesDeprecated,
+				"warnings":              res.Warnings,
+				"statuses":              rt.Statuses(c.Request.Context()),
 			},
 		})
 	})

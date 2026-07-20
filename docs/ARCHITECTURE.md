@@ -6,11 +6,12 @@
 本文描述 NAS-OS **当前**的进程组合、模块生命周期、API 安全边界和渐进迁移约束。模块分层以 **Core / Extension / Lab** 为准；目录与 `internal/application` catalog 标签必须一致，且 **运行时默认路径不得硬接线 Lab**。
 
 > **目标架构（产品与演进主叙事）**：Platform Core + Package Surface + Host SDK + Runtime（Lab 旁路）。  
-> 与现行 `modules.optional` / `modules.extensions` 的兼容与分阶段落地见  
-> **[ADR-0001](adr/0001-platform-packages-host-sdk.md)**。  
-> **Stage 1 已实现**：`packages.recommended_system` / `packages.enabled` 与 `modules.*` 双读并集；  
-> 生产门闸经 `config.OptionalProductsEnabled()` / `EnabledNamedPackages`；**默认仍仅 Core**（与 v3.24 相同）。  
-> **Stage 2 已实现**：`pkg/hostapi` + `internal/packageruntime`；官方扩展经 Runtime 启用；`GET /api/v1/packages`。
+> 分阶段落地见 **[ADR-0001](adr/0001-platform-packages-host-sdk.md)**（**Stage 0–3 已实现**）。  
+> **主配置面**：`packages.recommended_system` / `packages.enabled`。  
+> `modules.optional` / `modules.extensions` **已弃用**（双读兼容 + 启动 warn）。  
+> 生产门闸：`config.OptionalProductsEnabled()` / `EnabledNamedPackages`；套件编目：`config.SystemPackageCatalog`。  
+> Runtime：`pkg/hostapi` + `internal/packageruntime`；`GET /api/v1/packages`。  
+> **默认仍仅 Core**（与 v3.24 相同）。
 
 ## 进程组合
 
@@ -67,7 +68,7 @@ type Module interface {
 模块层级治理：
 
 - **Core**：进程主生命周期必需能力，只允许 `identity / storage / network / sharing / system`；
-- **Extension**：可选产品能力，**默认不加载**。通过配置 `modules.extensions: [name, ...]` 由 `internal/web/extensions_loader.go` 挂载路由或初始化管理器。已知名：`activeprotect`、`agentworkflow`、`aiguardrails`、`compliancescan`、`deployorch`、`netdiag`、`voicehub`（目录 `internal/extensions/*`）。未列入配置的 Extension **不会**出现在默认 `nasd` HTTP 面。
+- **Extension / system packages**：可选产品能力，**默认不加载**。主配置 `packages.enabled: [name, ...]`（`modules.extensions` 弃用兼容）经 Package Runtime 挂载。HTTP 扩展名见 `config.HTTPExtensionPackageIDs()` / `internal/extensions/*`。未列入配置的扩展 **不会**出现在默认 `nasd` HTTP 面。
 - **Lab**：实验性、概念验证或待收编模块，位于 `internal/lab/*`。**v3.23.0**：生产 `internal/web`（非测试）**禁止** import Lab；默认启动不再构造 Lab 管理器。需要实验能力时在独立分支/构建中评估，或将来以 Extension 形式显式启用。
 - **未知 catalog 名**：`ModuleTierFor` 默认 **Lab**（不再默认 Extension，避免未编目包伪装成产品扩展）。
 - **治理锁**：`internal/application/governance_test.go` + `toplevel_allowlist.txt` 禁止 web→lab 回流、Core 扩编、顶层业务包随意新增。
@@ -159,23 +160,24 @@ API 分成三层：
 - `GET /api/v1/system/modules`（管理员）：含 tier 的模块状态列表。
 - `GET /api/v1/system/info`：版本来自 `internal/version`（与根 `VERSION` 同步）。
 
-## 默认产品表面（v3.24+ / ADR Stage 1）
+## 默认产品表面（v3.24+ / ADR Stage 3）
 
-- `modules.optional` / `packages.recommended_system` **默认 false**：不构造 Docker/VM/Photos/AI/云同步/备份等非 Core 产品管理器。
-- 启用官方推荐套件集：`packages.recommended_system: true` **或** `modules.optional: true`（双读，OR）。
-- 具名扩展：`packages.enabled` **∪** `modules.extensions`；默认 `[]` = 不加载 HTTP 扩展。
-- 解析入口：`internal/config.Config.ResolvePackages()`；生产勿只读旧字段。
-- **WriteOnce / 本地 LLM / CLIP 以文搜图 / MCP / 多云挂载** 等营销差异化能力 **不是** 默认开机能力；需 optional/packages 和/或具名扩展，部分仅存于 Lab 源码。
-- 主 UI 默认 Core 页面 allowlist；optional HTML 在推荐套件集关闭时 404。
+- **首选**：`packages.recommended_system` **默认 false**；`packages.enabled` **默认 []**。
+- 启用官方推荐产品集：`packages.recommended_system: true`（展开 `SystemPackageCatalog` 中 `recommended_product`）。
+- 启用 HTTP 扩展：`packages.enabled: [voicehub, …]`（catalog `http_extension`）。
+- **弃用兼容**：`modules.optional` / `modules.extensions` 仍双读并入解析结果，并产生 deprecation warn；勿在新配置中使用。
+- 解析入口：`internal/config.Config.ResolvePackages()`；生产勿只读 `Modules.Optional`。
+- **WriteOnce / 本地 LLM / CLIP 以文搜图 / MCP / 多云挂载** 等 **不是** 默认开机能力；需 packages 和/或 Lab。
+- 主 UI 默认 Core 页面 allowlist；推荐产品面关闭时 optional HTML 404。
 
 ## 功能矩阵（诚实口径）
 
 | 层级 | 默认 `nasd` | 如何启用 |
 |------|-------------|----------|
 | Core（5） | 始终 | 生命周期主图（identity/storage/network/sharing/system） |
-| Extension（7） | **否** | `packages.enabled` ∪ `modules.extensions` |
-| Lab（源码保留） | **否** | 不在默认路径；不可经 extensions/packages 列表加载 |
-| optional / recommended 产品管理器 | **否** | `packages.recommended_system` 或 `modules.optional` |
+| HTTP Extension（7） | **否** | `packages.enabled` |
+| Lab（源码保留） | **否** | 不在默认路径；不可经 packages 列表加载 |
+| recommended 产品管理器 | **否** | `packages.recommended_system: true` |
 | 其他顶层支撑包 | 视 web 硬接线 | 生产支撑（auth/storage/…），**非 Core 名** |
 
 ## 渐进迁移规则

@@ -81,6 +81,12 @@ func TestRegisterConfiguredExtensionsPackagesAPI(t *testing.T) {
 	if len(loaded) != 1 || loaded[0] != "netdiag" {
 		t.Fatalf("loaded field %v", loaded)
 	}
+	if data["modules_deprecated"] != false {
+		t.Fatalf("packages-only path must not mark modules_deprecated: %v", data["modules_deprecated"])
+	}
+	if data["system_catalog"] == nil {
+		t.Fatal("system_catalog missing from Stage 3 packages API")
+	}
 }
 
 // TestRegisterConfiguredExtensionsPackagesOnly drives real loader via packages.enabled

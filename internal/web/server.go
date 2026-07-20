@@ -814,11 +814,14 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	} else {
 		log.Println("ℹ️  packages/modules optional off: non-Core product managers not constructed")
 	}
-	if res := cfg.ResolvePackages(); res.DualSource {
+	if res := cfg.ResolvePackages(); len(res.Warnings) > 0 || res.RecommendedSystem || len(res.Enabled) > 0 {
 		for _, w := range res.Warnings {
 			log.Printf("⚠️  %s", w)
 		}
-		log.Printf("ℹ️  resolved packages enabled=%v recommended_system=%v", res.Enabled, res.RecommendedSystem)
+		if res.RecommendedSystem || len(res.Enabled) > 0 {
+			log.Printf("ℹ️  packages resolved: recommended_system=%v enabled=%v (prefer packages.* over deprecated modules.*)",
+				res.RecommendedSystem, res.Enabled)
+		}
 	}
 
 	s := &Server{
