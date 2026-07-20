@@ -130,8 +130,15 @@ func (s *Server) buildPackageItems() []packageItem {
 			item.Kind = string(config.KindRecommendedProduct)
 			item.Note = "Product surface — enable constructs/activates product managers"
 			if e.ID == "cluster" {
-				item.RequiresRestart = true
-				item.Note = "Cluster is process-scoped; enable/disable persists for next boot. Prefer restart after change."
+				running := s.ClusterRunning()
+				item.RequiresRestart = !running && !loaded
+				if running {
+					item.Note = "Cluster services running in this process; disable shuts them down and updates SSOT"
+				} else if loaded {
+					item.Note = "Cluster marked enabled but services not running — check logs or restart"
+				} else {
+					item.Note = "Enable starts cluster in-process when possible; disable shuts down. SSOT: app-center-enabled.json"
+				}
 			}
 		default:
 			continue

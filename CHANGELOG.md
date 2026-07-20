@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased - Ops docs + cluster lifecycle + harder disable
+
+### Docs
+- `docs/ops-packages.md`: SSOT (`app-center-enabled.json`), App Center, cluster, disable semantics, troubleshooting.
+- Linked from README and STRUCTURE.
+
+### Cluster
+- Boot sets `Enabled: true` when product wanted; runtime enable can `InitializeCluster` via bootstrap hook.
+- Runtime disable calls `ShutdownCluster` when services are live in-process.
+
+### Verify
+- `go test ./internal/web ./internal/config ./internal/application`
+- `go build ./cmd/nasd`
+
 ## Unreleased - Lean recommended_system + runtime product construct
 
 ### Behavior
