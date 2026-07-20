@@ -142,14 +142,24 @@ Cluster 是 **进程级** 服务（在 `application` 组合根初始化），与
 
 ---
 
-## 7. 停用语义
+## 7. 停用语义（路由真卸载）
+
+Gin 路由树节点注册后无法物理删除；本项目用 **挂载标志** 实现等效卸载：
+
+| 状态 | HTTP 行为 |
+|------|-----------|
+| **已挂载 + Runtime loaded** | 正常处理 |
+| **未挂载**（停用后） | **404** `package routes unmounted` |
+| 异常：挂载但未 loaded | **503**（防御性） |
 
 | 类型 | 停用后 |
 |------|--------|
-| HTTP 扩展 | Runtime 卸载；**中间件返回 503**（路由树可能仍在，请求不可用） |
-| 产品套件 | Runtime 卸载 + **释放 Manager**（尽量 Close）；API 503 |
-| 第三方 community | Runtime Stop；Host SDK 清理 marker |
-| 再启用 | 重新构造 Manager（如需）并恢复可用（不因 gin 重复注册 panic） |
+| HTTP 扩展 | Runtime Disable + **unmount** → 请求 **404**；释放无 Manager 时适用 |
+| 产品套件 | unmount + Runtime Disable + **释放 Manager**；请求 **404** |
+| 第三方 community | unmount（若有 HTTP）+ Runtime Stop + marker 清理 |
+| 再启用 | mount 标志打开；gin 树节点复用（不重复注册、不 panic） |
+
+实现：`mountPackageRoutes` / `unmountPackageRoutes` + `requirePackageActive` 中间件。
 
 ---
 
@@ -180,7 +190,7 @@ packages:
 | 改了 yaml 不生效 | 是否已有 `app-center-enabled.json` |
 | 第三方不出现 | `community_dir`、子目录 `manifest.json`、日志 discovery |
 | 启用 docker 仍无容器 API | 日志是否构造失败；docker 守护进程是否可用 |
-| 停用后接口仍 200 | 是否打到未挂 `requirePackageActive` 的旧路径；应 503 |
+| 停用后接口仍 200 | 是否打到未挂 `requirePackageActive` 的路径；**应为 404**（已卸载） |
 | cluster 启了没作用 | 日志 InitializeCluster；是否需重启；DataDir 是否可写 |
 
 ### 有用日志关键字

@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased - True route unmount + docs reorganization
+
+### Routes
+- Package disable **unmounts** routes (`packageMounted` flag) → HTTP **404** (not merely 503).
+- Re-enable remounts without re-registering gin tree nodes (no panic).
+
+### Docs
+- `docs/README.md` documentation index.
+- Aligned STRUCTURE / ARCHITECTURE / ops-packages / resource-stats / competitive-analysis / README.
+
+### Verify
+- `go test ./internal/web -run Package`
+- `go build ./cmd/nasd`
+
 ## Unreleased - Ops docs + cluster lifecycle + harder disable
 
 ### Docs

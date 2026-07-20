@@ -1,9 +1,10 @@
 # NAS-OS 资源统计
 
-**更新日期**: 2026-07-16  
+**更新日期**: 2026-07-20  
 **版本**: v3.24.3
 
-> **默认运行时**: `nasd` 仅 Core 五模块；`packages.recommended_system=false`、`packages.enabled=[]`（`modules.*` 弃用兼容）。WriteOnce/AI/LLM/CLIP/MCP 等需显式启用，见 README「默认交付面」。
+> **默认运行时**: `nasd` 仅 Core 五模块；`packages.recommended_system=false`、`packages.enabled=[]`。  
+> 套件/SSOT/应用中心见 [ops-packages.md](ops-packages.md)；结构见 [STRUCTURE.md](STRUCTURE.md)；文档索引 [README.md](README.md)。
 
 ## 代码规模
 
@@ -44,7 +45,9 @@
 | 守护进程 | `cmd/nasd` | 仅组合配置与 `internal/application` |
 | 组合根 | `internal/application` | 注册 Core 模块、启动 Web |
 | 版本 | `VERSION` + `internal/version` | `GET /api/v1/system/info` 返回真实版本 |
-| 项目结构图 | `docs/STRUCTURE.md` | 全景分层、入口、packages 启用（贡献者首选） |
+| 文档索引 | `docs/README.md` | 全文档入口 |
+| 项目结构图 | `docs/STRUCTURE.md` | 全景分层、入口、packages 启用 |
+| 运维手册 | `docs/ops-packages.md` | SSOT、应用中心、cluster、路由卸载 |
 | 架构说明 | `docs/ARCHITECTURE.md` | 进程生命周期、API 边界、Core 治理 |
 
 ## 竞品参考（能力对标，非模块路径）

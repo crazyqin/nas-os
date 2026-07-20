@@ -4,13 +4,13 @@
 **更新日期**: 2026-07-20
 
 本文描述 NAS-OS **当前**的进程组合、模块生命周期、API 安全边界和渐进迁移约束。  
-**全景目录与分层（贡献者首选）**：见 **[STRUCTURE.md](STRUCTURE.md)**。  
+**文档入口**：[docs/README.md](README.md) · **结构全景**：[STRUCTURE.md](STRUCTURE.md) · **运维**：[ops-packages.md](ops-packages.md)。  
 工程治理标签（Core / Extension / Lab）与目录 allowlist 必须一致；**运行时默认路径不得硬接线 Lab**。
 
 > **产品结构（唯一主叙事）**：Platform Core + Package Surface + Host SDK/Runtime + Lab 旁路 — [STRUCTURE.md](STRUCTURE.md)。  
-> **主配置面**：`packages.recommended_system` / `packages.enabled`（`modules.*` **仅**弃用兼容，非第二架构）。  
-> **编目 / 解析**：`config.SystemPackageCatalog` · `ResolvePackages()` · `OptionalProductsEnabled()`。  
-> **Runtime**：`pkg/hostapi` · `internal/packageruntime` · `GET /api/v1/packages`。  
+> **主配置面**：`packages.*`（`modules.*` **仅**弃用兼容）。  
+> **启用 SSOT**：`{data_dir}/app-center-enabled.json`（见 ops-packages）。  
+> **套件路由**：停用 = **卸载挂载标志 → HTTP 404**；再启用重新挂载（gin 树节点复用）。  
 > **默认仍仅 Core**。演进史见 [ADR-0001](adr/0001-platform-packages-host-sdk.md)。
 
 ## 进程组合

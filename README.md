@@ -5,10 +5,10 @@
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
 > **最新版本**: v3.24.3 Stable (2026-07-16)
-> **项目结构**: Platform Core + Packages + Host SDK/Runtime + Lab 旁路 → **[结构图 STRUCTURE.md](docs/STRUCTURE.md)**（贡献者首选）  
-> **架构细节**: [ARCHITECTURE.md](docs/ARCHITECTURE.md) · 演进 [ADR-0001](docs/adr/0001-platform-packages-host-sdk.md)  
-> **默认**: 仅 Core；主配置 `packages.*`；`modules.*` 仅弃用兼容  
-> **运维手册**: [套件 / 应用中心 / SSOT](docs/ops-packages.md)  
+> **文档索引**: [docs/README.md](docs/README.md)  
+> **项目结构**: [STRUCTURE.md](docs/STRUCTURE.md) · **运维**: [ops-packages.md](docs/ops-packages.md) · **架构**: [ARCHITECTURE.md](docs/ARCHITECTURE.md)  
+> **默认**: 仅 Core；套件走 `packages.*` / 应用中心；`modules.*` 仅弃用兼容  
+
 
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)

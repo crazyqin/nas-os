@@ -171,11 +171,14 @@ func TestPackageReEnableAfterDisableNoPanic(t *testing.T) {
 	if s.pkgRuntime.IsLoaded("netdiag") {
 		t.Fatal("after disable")
 	}
-	// After disable, routes must be inactive (503), not open.
+	// After disable, routes must be unmounted (404), not open.
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/api/v1/netdiag/history", nil))
-	if w.Code != http.StatusServiceUnavailable {
-		t.Fatalf("disabled package routes should be 503, got %d body=%s", w.Code, w.Body.String())
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("unmounted package routes should be 404, got %d body=%s", w.Code, w.Body.String())
+	}
+	if s.isPackageMounted("netdiag") {
+		t.Fatal("netdiag should not be mounted after disable")
 	}
 
 	// Second enable — must not panic gin; routes active again.
@@ -198,6 +201,9 @@ func TestPackageReEnableAfterDisableNoPanic(t *testing.T) {
 	}
 	if !found {
 		t.Fatalf("list after re-enable missing netdiag: %v", loaded)
+	}
+	if !s.isPackageMounted("netdiag") {
+		t.Fatal("netdiag should be mounted after re-enable")
 	}
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/api/v1/netdiag/history", nil))

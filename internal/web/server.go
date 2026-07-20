@@ -129,8 +129,10 @@ type Server struct {
 	communityDiscovered []packageruntime.DiskManifest // third-party manifests from community_dir
 	runtimeEnabledMu         sync.Mutex
 	runtimeEnabled           map[string]struct{} // App Center click-enabled set (persisted)
-	httpMountedMu            sync.Mutex
-	httpMounted              map[string]struct{} // gin routes registered once per package id
+	httpMountedMu           sync.Mutex
+	httpMounted             map[string]struct{} // gin tree nodes registered once per package id
+	packageMountMu          sync.RWMutex
+	packageMounted          map[string]struct{} // true unload: requests 404 when absent
 	productRoutesMu         sync.Mutex
 	productRoutesRegistered map[string]struct{}
 	adminAPI                *gin.RouterGroup // admin /api/v1 group for late product route register

@@ -124,7 +124,7 @@ func (s *Server) buildPackageItems() []packageItem {
 		case config.KindHTTPExtension:
 			item.Source = "system"
 			item.Kind = string(config.KindHTTPExtension)
-			item.Note = "HTTP extension — disable deactivates API routes until re-enabled"
+			item.Note = "HTTP extension — disable unmounts routes (404) until re-enabled"
 		case config.KindRecommendedProduct:
 			item.Source = "product"
 			item.Kind = string(config.KindRecommendedProduct)
@@ -196,14 +196,17 @@ func (s *Server) handlePackageEnable(c *gin.Context) {
 		return
 	}
 	s.addRuntimeEnabled(id)
+	// Product Start / HTTP MountHTTP already mount; ensure mount flag for all kinds.
+	s.mountPackageRoutes(id)
 	s.syncEnablementSSOT()
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "enabled",
 		"data": gin.H{
-			"id":     id,
-			"loaded": loaded,
-			"items":  s.buildPackageItems(),
+			"id":      id,
+			"loaded":  loaded,
+			"mounted": s.isPackageMounted(id),
+			"items":   s.buildPackageItems(),
 		},
 	})
 }
@@ -218,6 +221,8 @@ func (s *Server) handlePackageDisable(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"code": 1, "message": "package id required"})
 		return
 	}
+	// True unload first: stop serving routes (404) before lifecycle teardown.
+	s.unmountPackageRoutes(id)
 	if err := s.pkgRuntime.Disable(context.Background(), id); err != nil {
 		c.JSON(http.StatusOK, gin.H{"code": 1, "message": err.Error()})
 		return
@@ -229,9 +234,10 @@ func (s *Server) handlePackageDisable(c *gin.Context) {
 		"code":    0,
 		"message": "disabled",
 		"data": gin.H{
-			"id":     id,
-			"loaded": s.pkgRuntime.LoadedIDs(),
-			"items":  s.buildPackageItems(),
+			"id":       id,
+			"loaded":   s.pkgRuntime.LoadedIDs(),
+			"mounted":  s.isPackageMounted(id),
+			"items":    s.buildPackageItems(),
 		},
 	})
 }
