@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased - WebUI Application Center
+
+### Features
+- **应用中心** Core page: `webui/pages/app-center.html` (nav + allowlist; default Core surface).
+- Live package list/enable/disable: `GET/POST /api/v1/packages` (+ `/:id/enable|disable`) via Package Runtime.
+- Persist click-enabled IDs to `data_dir/app-center-enabled.json` when writable.
+
+### Verify
+- `go test ./internal/web ./internal/packageruntime`
+- `go build ./cmd/nasd`
+
 ## Unreleased - Third-party (community/local) package path
 
 ### Features

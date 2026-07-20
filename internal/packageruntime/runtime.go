@@ -259,6 +259,55 @@ func (r *Runtime) enableOne(ctx context.Context, entry Entry) error {
 	return nil
 }
 
+// Disable stops a single loaded package and removes it from the loaded set.
+// Unknown or not-loaded IDs return nil (idempotent). Catalog entry remains.
+func (r *Runtime) Disable(ctx context.Context, id string) error {
+	if r == nil {
+		return fmt.Errorf("runtime is nil")
+	}
+	id = normalizeID(id)
+	if id == "" {
+		return fmt.Errorf("package id is empty")
+	}
+	r.mu.Lock()
+	pkg, ok := r.loaded[id]
+	if !ok {
+		r.mu.Unlock()
+		return nil
+	}
+	delete(r.loaded, id)
+	// Remove from start order.
+	order := r.order[:0]
+	for _, x := range r.order {
+		if x != id {
+			order = append(order, x)
+		}
+	}
+	r.order = order
+	r.mu.Unlock()
+
+	if pkg != nil {
+		if err := pkg.Stop(ctx); err != nil {
+			return fmt.Errorf("stop %s: %w", id, err)
+		}
+	}
+	if r.host != nil {
+		r.host.Logf("package disabled: %s", id)
+	}
+	return nil
+}
+
+// IsLoaded reports whether id is currently started.
+func (r *Runtime) IsLoaded(id string) bool {
+	if r == nil {
+		return false
+	}
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	_, ok := r.loaded[normalizeID(id)]
+	return ok
+}
+
 // StopAll stops loaded packages in reverse start order.
 func (r *Runtime) StopAll(ctx context.Context) error {
 	r.mu.Lock()
