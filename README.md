@@ -23,8 +23,9 @@
 | 用户 / 卷 / SMB / NFS / 网络 / 健康探针 | **是** | 无需额外配置 |
 | Docker / VM / 相册 / AI / 备份 / 云同步等产品管理器 | **否** | `packages.recommended_system: true` |
 | WriteOnce / 本地 LLM / CLIP 以文搜图 / MCP / 多云挂载等差异化能力 | **否** | `packages.recommended_system: true` 和/或 `packages.enabled`；部分仅 Lab 源码 |
-| 已编目 HTTP Extension（7） | **否** | `packages.enabled: [name, ...]`（如 `voicehub`） |
+| 已编目 HTTP Extension（7） / 推荐产品（docker 等） | **否** | 应用中心或 `packages.enabled`；见 [STRUCTURE](docs/STRUCTURE.md) |
 | Lab 实验包 | **否** | 不在默认路径；不可经 packages 列表加载 |
+| 容器应用商店（Docker 模板） | **否** | `apps.html`（需 docker 产品启用）；**不是**应用中心 |
 
 ```yaml
 # 示例：启用官方推荐产品面 + 一个 HTTP 扩展

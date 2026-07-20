@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"nas-os/internal/config"
@@ -154,13 +155,20 @@ func TestPackageReEnableAfterDisableNoPanic(t *testing.T) {
 	if s.pkgRuntime.IsLoaded("netdiag") {
 		t.Fatal("after disable")
 	}
-	// Second enable — previously panicked gin on duplicate /netdiag/* routes.
+	// After disable, routes must be inactive (503), not open.
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/api/v1/netdiag/history", nil))
+	if w.Code != http.StatusServiceUnavailable {
+		t.Fatalf("disabled package routes should be 503, got %d body=%s", w.Code, w.Body.String())
+	}
+
+	// Second enable — must not panic gin; routes active again.
 	enable()
 	if !s.pkgRuntime.IsLoaded("netdiag") {
 		t.Fatal("second enable must load again")
 	}
 
-	w := httptest.NewRecorder()
+	w = httptest.NewRecorder()
 	r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/api/v1/packages", nil))
 	var list map[string]interface{}
 	_ = json.Unmarshal(w.Body.Bytes(), &list)
@@ -175,11 +183,10 @@ func TestPackageReEnableAfterDisableNoPanic(t *testing.T) {
 	if !found {
 		t.Fatalf("list after re-enable missing netdiag: %v", loaded)
 	}
-	// Route still serves (first mount retained).
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/api/v1/netdiag/history", nil))
-	if w.Code == http.StatusNotFound {
-		t.Fatal("netdiag routes should still be mounted after re-enable")
+	if w.Code == http.StatusServiceUnavailable || w.Code == http.StatusNotFound {
+		t.Fatalf("netdiag routes should work after re-enable, got %d", w.Code)
 	}
 }
 
@@ -228,5 +235,83 @@ func TestPackageEnableCommunityFixture(t *testing.T) {
 func TestAppCenterPageOnCoreAllowlist(t *testing.T) {
 	if !coreWebUIPages["app-center.html"] {
 		t.Fatal("app-center.html must be on Core WebUI allowlist")
+	}
+}
+
+func TestRecommendedProductEnableDisableViaPackagesAPI(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	cfg := config.Default()
+	cfg.Paths.DataDir = t.TempDir()
+	cfg.Paths.ConfigDir = t.TempDir()
+	s := &Server{cfg: cfg}
+	r := gin.New()
+	s.registerConfiguredExtensions(r.Group("/api/v1"))
+
+	// List includes recommended products as operable product kind.
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/api/v1/packages", nil))
+	var list map[string]interface{}
+	_ = json.Unmarshal(w.Body.Bytes(), &list)
+	items, _ := list["data"].(map[string]interface{})["items"].([]interface{})
+	var dockerItem map[string]interface{}
+	for _, raw := range items {
+		it := raw.(map[string]interface{})
+		if it["id"] == "docker" {
+			dockerItem = it
+			break
+		}
+	}
+	if dockerItem == nil {
+		t.Fatal("docker product missing from items")
+	}
+	if dockerItem["kind"] != "recommended_product" || dockerItem["operable"] != true {
+		t.Fatalf("docker item dishonest: %v", dockerItem)
+	}
+	if dockerItem["loaded"] == true {
+		t.Fatal("docker must not be loaded by default")
+	}
+
+	// Enable docker product.
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, httptest.NewRequest(http.MethodPost, "/api/v1/packages/docker/enable", nil))
+	var en map[string]interface{}
+	_ = json.Unmarshal(w.Body.Bytes(), &en)
+	if en["code"].(float64) != 0 {
+		t.Fatalf("enable docker: %v", en)
+	}
+	if !s.pkgRuntime.IsLoaded("docker") {
+		t.Fatal("docker not loaded")
+	}
+
+	// Disable.
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, httptest.NewRequest(http.MethodPost, "/api/v1/packages/docker/disable", nil))
+	if s.pkgRuntime.IsLoaded("docker") {
+		t.Fatal("docker still loaded after disable")
+	}
+}
+
+func TestPluginsPageIsNotMockMarket(t *testing.T) {
+	// Structural: plugins.html must redirect / not ship mock install list as primary.
+	var data []byte
+	var err error
+	for _, p := range []string{
+		"webui/pages/plugins.html",
+		filepath.Join("..", "..", "webui", "pages", "plugins.html"),
+	} {
+		data, err = os.ReadFile(p)
+		if err == nil {
+			break
+		}
+	}
+	if err != nil {
+		t.Fatalf("plugins.html not found: %v", err)
+	}
+	s := string(data)
+	if !strings.Contains(s, "app-center") {
+		t.Fatal("plugins.html must route users to app-center")
+	}
+	if strings.Contains(s, "const plugins = [") {
+		t.Fatal("plugins.html must not keep mock plugins array as install surface")
 	}
 }

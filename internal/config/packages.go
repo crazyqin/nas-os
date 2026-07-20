@@ -27,6 +27,10 @@ type PackagesConfig struct {
 	// (each subdir with manifest.json). Empty (default) disables discovery —
 	// Core-only / no auto-load of community packages.
 	CommunityDir string `yaml:"community_dir"`
+	// LegacySOPlugins enables the deprecated Go .so plugin.Manager host
+	// (internal/plugin). Default false — third-party path is community_dir + Host SDK.
+	// Only effective together with product surface (recommended products / recommended_system).
+	LegacySOPlugins bool `yaml:"legacy_so_plugins"`
 }
 
 // PackageResolution is the unified enablement result after dual-read merge.

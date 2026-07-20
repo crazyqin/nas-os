@@ -126,9 +126,37 @@ func Default() *Config {
 		Packages: PackagesConfig{
 			RecommendedSystem: false, // default Core-only (ADR-0001 Stage 1)
 			Enabled:           nil,
-			CommunityDir:      "", // default: no third-party discovery
+			CommunityDir:      "",    // default: no third-party discovery
+			LegacySOPlugins:   false, // deprecated .so host off by default
 		},
 	}
+}
+
+// BootProductIDs returns recommended_product IDs that should construct product
+// managers at process start: either full set when recommended_system, or
+// individually named IDs from packages.enabled (and optional modules dual-read).
+func (c *Config) BootProductIDs() []string {
+	if c == nil {
+		return nil
+	}
+	if c.OptionalProductsEnabled() {
+		return RecommendedSystemPackageIDs()
+	}
+	var out []string
+	for _, id := range c.EnabledPackageNames() {
+		if e, ok := LookupSystemPackage(id); ok && e.Kind == KindRecommendedProduct {
+			out = append(out, id)
+		}
+	}
+	return out
+}
+
+// LegacySOPluginHostEnabled reports whether the deprecated .so plugin host may start.
+func (c *Config) LegacySOPluginHostEnabled() bool {
+	if c == nil {
+		return false
+	}
+	return c.Packages.LegacySOPlugins && (c.OptionalProductsEnabled() || len(c.BootProductIDs()) > 0)
 }
 
 // Load 从磁盘加载 YAML 配置。

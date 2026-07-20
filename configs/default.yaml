@@ -39,6 +39,9 @@ packages:
   # Example: /var/lib/nas-os/community-packages
   # See examples/community-packages/hello-host and docs/STRUCTURE.md.
   community_dir: ""
+  # Deprecated Go .so plugin.Manager host (internal/plugin). Default off.
+  # Third-party path is community_dir + Host SDK + Application Center.
+  legacy_so_plugins: false
 
 modules:
   # Docker data path settings (not deprecated).

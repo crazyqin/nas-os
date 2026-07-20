@@ -84,12 +84,17 @@ func (s *Server) registerSystemPackageCatalog(rt *packageruntime.Runtime, api *g
 // httpExtensionMounts returns mount callbacks for each official HTTP extension.
 // Keys MUST stay aligned with config.HTTPExtensionPackageIDs().
 func (s *Server) httpExtensionMounts(api *gin.RouterGroup) map[string]func() {
+	// Each mount group uses requirePackageActive so Disable returns 503 until re-enabled.
 	return map[string]func(){
 		"agentworkflow": func() {
-			agentworkflow.NewHandler(agentworkflow.NewService()).RegisterRoutes(api)
+			g := api.Group("/")
+			g.Use(s.requirePackageActive("agentworkflow"))
+			agentworkflow.NewHandler(agentworkflow.NewService()).RegisterRoutes(g)
 		},
 		"aiguardrails": func() {
-			aiguardrails.NewHandlers(aiguardrails.NewService()).RegisterRoutes(api)
+			g := api.Group("/")
+			g.Use(s.requirePackageActive("aiguardrails"))
+			aiguardrails.NewHandlers(aiguardrails.NewService()).RegisterRoutes(g)
 		},
 		"voicehub": func() {
 			var logger *zap.Logger
@@ -98,7 +103,9 @@ func (s *Server) httpExtensionMounts(api *gin.RouterGroup) map[string]func() {
 			} else {
 				logger = zap.NewNop()
 			}
-			voicehub.NewHandlers(voicehub.NewManager(logger, nil)).RegisterRoutes(api)
+			g := api.Group("/")
+			g.Use(s.requirePackageActive("voicehub"))
+			voicehub.NewHandlers(voicehub.NewManager(logger, nil)).RegisterRoutes(g)
 		},
 		"activeprotect": func() {
 			m := activeprotect.NewManager()
@@ -106,6 +113,7 @@ func (s *Server) httpExtensionMounts(api *gin.RouterGroup) map[string]func() {
 				s.extHolders.activeProtect = m
 			}
 			g := api.Group("/activeprotect")
+			g.Use(s.requirePackageActive("activeprotect"))
 			g.GET("/status", func(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{"code": 0, "data": m.GetStatus()})
 			})
@@ -122,6 +130,7 @@ func (s *Server) httpExtensionMounts(api *gin.RouterGroup) map[string]func() {
 				s.extHolders.complianceScan = sc
 			}
 			g := api.Group("/compliancescan")
+			g.Use(s.requirePackageActive("compliancescan"))
 			g.GET("/standards", func(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{"code": 0, "data": sc.ListStandards()})
 			})
@@ -139,6 +148,7 @@ func (s *Server) httpExtensionMounts(api *gin.RouterGroup) map[string]func() {
 				s.extHolders.deployOrch = o
 			}
 			g := api.Group("/deployorch")
+			g.Use(s.requirePackageActive("deployorch"))
 			g.GET("/nodes", func(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{"code": 0, "data": o.GetNodes()})
 			})
@@ -152,6 +162,7 @@ func (s *Server) httpExtensionMounts(api *gin.RouterGroup) map[string]func() {
 				s.extHolders.netDiag = d
 			}
 			g := api.Group("/netdiag")
+			g.Use(s.requirePackageActive("netdiag"))
 			g.POST("/full", func(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{"code": 0, "data": d.RunFullDiagnosis()})
 			})

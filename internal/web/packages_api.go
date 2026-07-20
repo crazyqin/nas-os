@@ -19,12 +19,17 @@ import (
 type packageItem struct {
 	ID          string `json:"id"`
 	Trust       string `json:"trust"`
-	Source      string `json:"source"` // system | community
+	Source      string `json:"source"` // system | community | product
+	Kind        string `json:"kind"`   // http_extension | recommended_product | community
 	Description string `json:"description,omitempty"`
 	Version     string `json:"version,omitempty"`
 	Loaded      bool   `json:"loaded"`
-	CanEnable   bool   `json:"can_enable"`
-	CanDisable  bool   `json:"can_disable"`
+	// Operable: can enable/disable through unified package runtime (always true for listed items).
+	Operable   bool   `json:"operable"`
+	CanEnable  bool   `json:"can_enable"`
+	CanDisable bool   `json:"can_disable"`
+	// Note explains product vs HTTP semantics for the UI.
+	Note string `json:"note,omitempty"`
 }
 
 // runtimeEnabledMu guards s.runtimeEnabled (persisted user enable set).
@@ -79,7 +84,10 @@ func (s *Server) handlePackagesList(c *gin.Context) {
 			"modules_deprecated":   res.ModulesDeprecated,
 			"warnings":             res.Warnings,
 			"statuses":             rt.Statuses(c.Request.Context()),
-			"persistence":          "in-process + data_dir/app-center-enabled.json (survives restart when data dir writable)",
+			// Single source of truth for click path: app-center-enabled.json ∪ packages.enabled at boot;
+			// live loaded state is always Package Runtime.IsLoaded / data.loaded.
+			"enablement_source": "packages.enabled ∪ data_dir/app-center-enabled.json → Runtime loaded",
+			"persistence":       "data_dir/app-center-enabled.json (UI clicks); packages.enabled (static config)",
 		},
 	})
 }
@@ -99,26 +107,36 @@ func (s *Server) buildPackageItems() []packageItem {
 	}
 
 	var items []packageItem
-	// Official HTTP extensions from system catalog.
+	// Official catalog: HTTP extensions + recommended products (all Runtime-operable).
 	for _, e := range config.SystemPackageCatalog {
-		if e.Kind != config.KindHTTPExtension {
-			continue
-		}
 		_, loaded := loadedSet[e.ID]
-		items = append(items, packageItem{
+		item := packageItem{
 			ID:          e.ID,
 			Trust:       string(hostapi.TrustSystem),
-			Source:      "system",
 			Description: e.Description,
 			Loaded:      loaded,
+			Operable:    rt.Known(e.ID),
 			CanEnable:   !loaded && rt.Known(e.ID),
 			CanDisable:  loaded,
-		})
+		}
+		switch e.Kind {
+		case config.KindHTTPExtension:
+			item.Source = "system"
+			item.Kind = string(config.KindHTTPExtension)
+			item.Note = "HTTP extension — disable deactivates API routes until re-enabled"
+		case config.KindRecommendedProduct:
+			item.Source = "product"
+			item.Kind = string(config.KindRecommendedProduct)
+			item.Note = "Product surface — enable constructs/activates product managers (e.g. docker)"
+		default:
+			continue
+		}
+		items = append(items, item)
 	}
 	// Community packages discovered on disk.
 	for id, m := range communitySet {
 		if config.IsCatalogedSystemPackage(id) {
-			continue // already listed as system if any clash
+			continue
 		}
 		_, loaded := loadedSet[id]
 		trust := m.Trust
@@ -129,11 +147,14 @@ func (s *Server) buildPackageItems() []packageItem {
 			ID:          id,
 			Trust:       trust,
 			Source:      "community",
+			Kind:        "community",
 			Description: m.Description,
 			Version:     m.Version,
 			Loaded:      loaded,
+			Operable:    rt.Known(id),
 			CanEnable:   !loaded && rt.Known(id),
 			CanDisable:  loaded,
+			Note:        "Third-party Host SDK package (community_dir)",
 		})
 	}
 	return items
@@ -262,6 +283,18 @@ func (s *Server) persistRuntimeEnabled() error {
 
 func (s *Server) loadPersistedRuntimeEnabled() []string {
 	path := s.runtimeEnabledPath()
+	ids := loadEnabledIDsFromFile(path)
+	s.initRuntimeEnabled()
+	s.runtimeEnabledMu.Lock()
+	defer s.runtimeEnabledMu.Unlock()
+	for _, id := range ids {
+		s.runtimeEnabled[id] = struct{}{}
+	}
+	return ids
+}
+
+// loadEnabledIDsFromFile reads app-center-enabled.json (shared with bootWantProducts).
+func loadEnabledIDsFromFile(path string) []string {
 	if path == "" {
 		return nil
 	}
@@ -275,15 +308,13 @@ func (s *Server) loadPersistedRuntimeEnabled() []string {
 	if err := json.Unmarshal(data, &doc); err != nil {
 		return nil
 	}
-	s.initRuntimeEnabled()
-	s.runtimeEnabledMu.Lock()
-	defer s.runtimeEnabledMu.Unlock()
+	var out []string
 	for _, id := range doc.Enabled {
 		id = strings.ToLower(strings.TrimSpace(id))
 		if id != "" {
-			s.runtimeEnabled[id] = struct{}{}
+			out = append(out, id)
 		}
 	}
-	return doc.Enabled
+	return out
 }
 

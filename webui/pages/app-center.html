@@ -156,8 +156,9 @@
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML =
-                '<div><span class="badge ' + (it.source || '') + '">' + (it.source === 'community' ? '第三方' : '官方') + '</span>' +
-                '<span class="badge">' + (it.trust || '') + '</span>' +
+                '<div><span class="badge ' + (it.source || '') + '">' +
+                (it.source === 'community' ? '第三方' : (it.source === 'product' ? '产品套件' : '官方扩展')) + '</span>' +
+                '<span class="badge">' + (it.kind || it.trust || '') + '</span>' +
                 '<span class="badge ' + (it.loaded ? 'loaded' : 'off') + '">' + (it.loaded ? '已启用' : '未启用') + '</span></div>' +
                 '<h3></h3><div class="desc"></div><div class="actions"></div>';
             card.querySelector('h3').textContent = it.id;
