@@ -94,7 +94,8 @@ packages:
 | 开关 | 效果 |
 |------|------|
 | 默认 | 仅 Core |
-| `recommended_system: true` | 构造 Docker/VM/Photos/AI/备份等 **产品管理器**（非自动挂全部 HTTP 扩展） |
+| `recommended_system: true` | 仅启用 catalog 八件 **产品套件**（docker/vm/photos/ai/backup/cloudsync/downloader/cluster）；**不**再拉 bulk 附属包（perf/quota/s3…） |
+| `modules.optional: true`（弃用） | 旧「全家桶」bulk 产品面（含附属 manager） |
 | `enabled: [name]` | 加载 **官方 HTTP 扩展**（catalog）和/或 **已发现的第三方包** |
 | `community_dir: /path` | 扫描 `*/manifest.json` 注册 community/local 包（**不**自动 Start） |
 | `modules.optional` / `modules.extensions` | **已弃用**；双读并入上表，启动 warn |

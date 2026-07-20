@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -119,4 +120,51 @@ func TestBootWantProductsDockerOnly(t *testing.T) {
 		t.Fatal("voicehub is not a recommended product")
 	}
 	_ = filepath.Separator
+}
+
+// TestRecommendedSystemIsNotBulkKitchenSink: packages.recommended_system enables
+// catalog products only — not modules.optional bulk companions.
+func TestRecommendedSystemIsNotBulkKitchenSink(t *testing.T) {
+	cfg := config.Default()
+	cfg.Packages.RecommendedSystem = true
+	cfg.Modules.Optional = false
+	if productBulkSurface(cfg) {
+		t.Fatal("recommended_system must not enable bulk kitchen-sink surface")
+	}
+	want := bootWantProducts(cfg)
+	for _, id := range config.RecommendedSystemPackageIDs() {
+		if !want[id] {
+			t.Fatalf("missing product %s", id)
+		}
+	}
+}
+
+// TestRuntimeEnablePhotosConstructsManager drives Runtime Enable for photos
+// (same path as packages API after auth) and asserts manager construction.
+func TestRuntimeEnablePhotosConstructsManager(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	cfg := config.Default()
+	cfg.Paths.DataDir = t.TempDir()
+	cfg.Paths.ConfigDir = t.TempDir()
+	cfg.Paths.MountBase = t.TempDir()
+	s := NewServer(cfg, nil, nil, nil, nil, nil, nil, nil, nil, zap.NewNop())
+	if s.photosMgr != nil {
+		t.Fatal("photos must be nil on Core-only boot")
+	}
+	if s.pkgRuntime == nil {
+		t.Fatal("pkgRuntime required")
+	}
+	loaded, _, err := s.pkgRuntime.Enable(context.Background(), []string{"photos"})
+	if err != nil {
+		t.Fatalf("Enable photos: %v", err)
+	}
+	if len(loaded) != 1 || loaded[0] != "photos" {
+		t.Fatalf("loaded=%v", loaded)
+	}
+	if s.photosMgr == nil {
+		t.Fatal("photos manager must be constructed on runtime enable")
+	}
+	if !s.pkgRuntime.IsLoaded("photos") {
+		t.Fatal("photos not loaded")
+	}
 }

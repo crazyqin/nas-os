@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased - Lean recommended_system + runtime product construct
+
+### Behavior
+- `packages.recommended_system` enables **only** the 8 catalog products (docker/vm/photos/ai/backup/cloudsync/downloader/cluster); no longer pulls bulk companions (perf/quota/s3/…).
+- Deprecated `modules.optional: true` still enables the full kitchen-sink bulk surface.
+- Runtime enable of photos/backup/vm/ai/cloudsync/docker/downloader constructs real managers and registers product routes once.
+
+### Verify
+- `go test ./internal/web ./internal/config -run 'NewServer|Product|Photos|Recommended'`
+- `go build ./cmd/nasd`
+
 ## Unreleased - Structure P0–P3 convergence
 
 ### P0 entries
