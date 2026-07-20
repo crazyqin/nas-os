@@ -74,6 +74,18 @@ func TestPackageEnableDisableUpdatesLoaded(t *testing.T) {
 	if !s.pkgRuntime.IsLoaded("netdiag") {
 		t.Fatal("netdiag must be loaded after enable")
 	}
+	// SSOT: cfg mirror + file contain netdiag.
+	if !containsStr(s.cfg.Packages.Enabled, "netdiag") {
+		t.Fatalf("cfg.Packages.Enabled not synced: %v", s.cfg.Packages.Enabled)
+	}
+	persist := filepath.Join(cfg.Paths.DataDir, "app-center-enabled.json")
+	raw, err := os.ReadFile(persist)
+	if err != nil {
+		t.Fatalf("SSOT file missing: %v", err)
+	}
+	if !strings.Contains(string(raw), "netdiag") {
+		t.Fatalf("SSOT file: %s", raw)
+	}
 
 	// List reflects loaded.
 	w = httptest.NewRecorder()
@@ -101,14 +113,18 @@ func TestPackageEnableDisableUpdatesLoaded(t *testing.T) {
 	if s.pkgRuntime.IsLoaded("netdiag") {
 		t.Fatal("netdiag must not be loaded after disable")
 	}
-
-	// Persistence file written under data dir.
-	persist := filepath.Join(cfg.Paths.DataDir, "app-center-enabled.json")
-	// After disable, file may exist with empty list — either ok.
-	if _, err := os.Stat(persist); err == nil {
-		raw, _ := os.ReadFile(persist)
-		t.Logf("persist file: %s", raw)
+	if containsStr(s.cfg.Packages.Enabled, "netdiag") {
+		t.Fatalf("cfg still has netdiag after disable: %v", s.cfg.Packages.Enabled)
 	}
+}
+
+func containsStr(list []string, want string) bool {
+	for _, s := range list {
+		if s == want {
+			return true
+		}
+	}
+	return false
 }
 
 // TestPackageReEnableAfterDisableNoPanic drives Enable→Disable→Enable on a real

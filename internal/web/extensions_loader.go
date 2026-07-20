@@ -75,11 +75,16 @@ func (s *Server) registerConfiguredExtensions(api *gin.RouterGroup) {
 	}
 	s.communityDiscovered = discovered
 
-	// Boot enablement: config packages.enabled ∪ App Center persisted set.
+	// Boot enablement SSOT: app-center-enabled.json if present; else packages.enabled seed.
 	// Default both empty → nothing loaded (Core-only package surface).
-	persisted := s.loadPersistedRuntimeEnabled()
-	want := unionStrings(s.cfg.EnabledPackageNames(), persisted)
-	toEnable := intersectIDs(want, rt.CatalogIDs())
+	if s.appCenterSSOTExists() {
+		_ = s.loadPersistedRuntimeEnabled()
+	} else {
+		for _, id := range s.cfg.EnabledPackageNames() {
+			s.addRuntimeEnabled(id)
+		}
+	}
+	toEnable := intersectIDs(s.listRuntimeEnabled(), rt.CatalogIDs())
 	if len(toEnable) > 0 {
 		loaded, unknown, err := rt.Enable(context.Background(), toEnable)
 		if err != nil {
@@ -93,6 +98,8 @@ func (s *Server) registerConfiguredExtensions(api *gin.RouterGroup) {
 			log.Printf("✅ package enabled: %s", name)
 		}
 	}
+	// Keep cfg.Packages.Enabled mirrored to SSOT set (may create file on first boot with seed).
+	s.syncEnablementSSOT()
 
 	s.mountPackageStatusRoutes(api, rt)
 }
