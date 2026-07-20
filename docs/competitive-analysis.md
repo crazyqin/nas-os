@@ -7,7 +7,7 @@
 
 本文档对比分析 NAS-OS 与 Synology DSM、TrueNAS、飞牛 fnOS、QNAP QuTS hero 等主流 NAS 平台的公开能力，聚焦本地 AI、存储效率、权限安全、文件共享、媒体体验和企业运维。NAS-OS 的定位是开源、可自托管、兼顾家庭与中小企业的 NAS 系统。
 
-**架构说明（阅读对标表前请先了解）**：生产生命周期 **Core 仅** `identity` / `storage` / `network` / `sharing` / `system`。可选产品能力在 `internal/extensions/` 与 recommended 产品面，且 **默认不加载**（主配置 `packages.enabled` / `packages.recommended_system`；`modules.*` 已弃用兼容）。大量实验与对标增强实现在 `internal/lab/`，**不进入默认 `nasd` 热路径**。详见 [ARCHITECTURE.md](ARCHITECTURE.md)。
+**架构说明（阅读对标表前请先了解）**：生产生命周期 **Core 仅** `identity` / `storage` / `network` / `sharing` / `system`。可选能力在 Package Surface（`packages.*` / 应用中心），**默认不加载**。Lab 实验代码 **不进入默认 `nasd` 热路径**。详见 [STRUCTURE.md](STRUCTURE.md)、[ops-packages.md](ops-packages.md)。
 
 ### v3.14.0 备份健康顾问对标补充（历史能力）
 

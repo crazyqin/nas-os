@@ -92,10 +92,16 @@ func (p *productGatePackage) Start(context.Context) error {
 	if p.server != nil {
 		p.server.ensureProductManager(p.meta.ID)
 		p.server.registerProductRoutes(p.meta.ID)
+		p.server.mountPackageRoutes(p.meta.ID)
 	}
 	return nil
 }
-func (p *productGatePackage) Stop(context.Context) error   { return nil }
+func (p *productGatePackage) Stop(context.Context) error {
+	if p.server != nil {
+		p.server.unmountPackageRoutes(p.meta.ID)
+	}
+	return nil
+}
 func (p *productGatePackage) Health(context.Context) error { return nil }
 
 // IsPackageActive reports whether id is loaded in the package runtime.
@@ -106,10 +112,56 @@ func (s *Server) IsPackageActive(id string) bool {
 	return s.pkgRuntime.IsLoaded(id)
 }
 
-// requirePackageActive aborts with 503 when package is not loaded (disable semantics).
+// mountPackageRoutes marks package HTTP routes as mounted (requests served).
+// Gin tree nodes are registered once; this is the true unload toggle.
+func (s *Server) mountPackageRoutes(id string) {
+	if s == nil || id == "" {
+		return
+	}
+	s.packageMountMu.Lock()
+	defer s.packageMountMu.Unlock()
+	if s.packageMounted == nil {
+		s.packageMounted = make(map[string]struct{})
+	}
+	s.packageMounted[id] = struct{}{}
+	log.Printf("✅ package routes mounted: %s", id)
+}
+
+// unmountPackageRoutes marks package HTTP routes as unmounted (requests → 404).
+func (s *Server) unmountPackageRoutes(id string) {
+	if s == nil || id == "" {
+		return
+	}
+	s.packageMountMu.Lock()
+	defer s.packageMountMu.Unlock()
+	delete(s.packageMounted, id)
+	log.Printf("ℹ️  package routes unmounted: %s", id)
+}
+
+// isPackageMounted reports whether package routes are currently mounted.
+func (s *Server) isPackageMounted(id string) bool {
+	if s == nil {
+		return false
+	}
+	s.packageMountMu.RLock()
+	defer s.packageMountMu.RUnlock()
+	_, ok := s.packageMounted[id]
+	return ok
+}
+
+// requirePackageActive enforces true unload: unmounted → 404; mounted but not
+// loaded → 503; mounted+loaded → handler.
 func (s *Server) requirePackageActive(id string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if s == nil || !s.IsPackageActive(id) {
+		if s == nil || !s.isPackageMounted(id) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"code":    404,
+				"message": "package routes unmounted: " + id,
+			})
+			c.Abort()
+			return
+		}
+		if !s.IsPackageActive(id) {
 			c.JSON(http.StatusServiceUnavailable, gin.H{
 				"code":    1,
 				"message": "package disabled or not enabled: " + id,

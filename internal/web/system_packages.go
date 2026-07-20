@@ -84,7 +84,7 @@ func (s *Server) registerSystemPackageCatalog(rt *packageruntime.Runtime, api *g
 // httpExtensionMounts returns mount callbacks for each official HTTP extension.
 // Keys MUST stay aligned with config.HTTPExtensionPackageIDs().
 func (s *Server) httpExtensionMounts(api *gin.RouterGroup) map[string]func() {
-	// Each mount group uses requirePackageActive so Disable returns 503 until re-enabled.
+	// Each mount group uses requirePackageActive: unmounted → 404, disabled → 503.
 	return map[string]func(){
 		"agentworkflow": func() {
 			g := api.Group("/")
@@ -212,12 +212,14 @@ func (p *systemHTTPPackage) MountHTTP(_ func(method, path string, h http.Handler
 		return fmt.Errorf("package %s: nil mount", p.meta.ID)
 	}
 	if p.server != nil && p.server.httpRoutesMounted(p.meta.ID) {
-		// Already registered on this Server — skip to avoid gin panic on re-Enable.
+		// Tree nodes already registered — only remount (serve) the package.
+		p.server.mountPackageRoutes(p.meta.ID)
 		return nil
 	}
 	p.mount()
 	if p.server != nil {
 		p.server.markHTTPRoutesMounted(p.meta.ID)
+		p.server.mountPackageRoutes(p.meta.ID)
 	}
 	return nil
 }

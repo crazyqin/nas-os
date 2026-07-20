@@ -1,7 +1,8 @@
 # NAS-OS 项目结构图（贡献者入口）
 
 **版本**: v3.24.3 · **更新日期**: 2026-07-20  
-**地位**: 仓库内 **唯一** 全景结构说明。进程细节见 [ARCHITECTURE.md](ARCHITECTURE.md)；演进决策见 [ADR-0001](adr/0001-platform-packages-host-sdk.md)。
+**地位**: 仓库内 **唯一** 全景结构说明。  
+**文档索引**: [docs/README.md](README.md) · 运维: [ops-packages.md](ops-packages.md) · 进程: [ARCHITECTURE.md](ARCHITECTURE.md) · 决策: [ADR-0001](adr/0001-platform-packages-host-sdk.md)。
 
 ---
 
@@ -132,7 +133,7 @@ packages:
 | 列表 | `GET /api/v1/packages` → `items[]`：`http_extension` / `recommended_product` / `community` |
 | 启用/停用 | `POST .../packages/:id/enable|disable` → 统一 Runtime |
 | 启用真相源 | **`data_dir/app-center-enabled.json`（SSOT）**；yaml `packages.enabled` 为首次启动种子；UI 启停会同步镜像到内存 `cfg.Packages.Enabled` |
-| HTTP 停用 | 路由中间件 `requirePackageActive` → **503**（非仅 loaded=false） |
+| HTTP/产品停用 | **路由真卸载**：`unmountPackageRoutes` → 请求 **404**；再启用 `mountPackageRoutes` |
 | 产品套件 | `docker` 等 `recommended_product` 与扩展同一列表可点 |
 | 运维细节 | **[ops-packages.md](ops-packages.md)**（SSOT 文件、cluster、排障） |
 
