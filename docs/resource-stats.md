@@ -44,7 +44,8 @@
 | 守护进程 | `cmd/nasd` | 仅组合配置与 `internal/application` |
 | 组合根 | `internal/application` | 注册 Core 模块、启动 Web |
 | 版本 | `VERSION` + `internal/version` | `GET /api/v1/system/info` 返回真实版本 |
-| 架构说明 | `docs/ARCHITECTURE.md` | Core / Extension / Lab 治理规则 |
+| 项目结构图 | `docs/STRUCTURE.md` | 全景分层、入口、packages 启用（贡献者首选） |
+| 架构说明 | `docs/ARCHITECTURE.md` | 进程生命周期、API 边界、Core 治理 |
 
 ## 竞品参考（能力对标，非模块路径）
 
