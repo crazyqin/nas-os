@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"sort"
 
+	"nas-os/internal/config"
 	"nas-os/internal/extensions/activeprotect"
 	"nas-os/internal/extensions/agentworkflow"
 	"nas-os/internal/extensions/aiguardrails"
@@ -19,8 +21,10 @@ import (
 	"go.uber.org/zap"
 )
 
-// registerSystemPackageCatalog registers official HTTP extensions as TrustSystem
-// packages. api is closed over so MountHTTP can attach gin routes (Stage 2).
+// registerSystemPackageCatalog registers every HTTP extension ID from
+// config.SystemPackageCatalog into the Package Runtime. Mount implementations
+// live in a table keyed by catalog ID; a catalog ID without a mount is an error
+// (keeps catalog and runtime loadable set identical).
 func (s *Server) registerSystemPackageCatalog(rt *packageruntime.Runtime, api *gin.RouterGroup) error {
 	if rt == nil {
 		return fmt.Errorf("runtime is nil")
@@ -29,19 +33,63 @@ func (s *Server) registerSystemPackageCatalog(rt *packageruntime.Runtime, api *g
 		return fmt.Errorf("api group is nil")
 	}
 
-	type spec struct {
-		id, desc string
-		mount    func()
+	mounts := s.httpExtensionMounts(api)
+	catalogIDs := config.HTTPExtensionPackageIDs()
+	if len(catalogIDs) == 0 {
+		return fmt.Errorf("SystemPackageCatalog has no HTTP extensions")
 	}
 
-	specs := []spec{
-		{"agentworkflow", "Agent workflow automation", func() {
+	// Fail fast if mount table drifts from catalog (either direction).
+	for _, id := range catalogIDs {
+		if _, ok := mounts[id]; !ok {
+			return fmt.Errorf("catalog HTTP extension %q has no mount implementation", id)
+		}
+	}
+	for id := range mounts {
+		if !config.IsCatalogedSystemPackage(id) {
+			return fmt.Errorf("mount implementation %q is not in SystemPackageCatalog", id)
+		}
+		entry, _ := config.LookupSystemPackage(id)
+		if entry.Kind != config.KindHTTPExtension {
+			return fmt.Errorf("mount implementation %q is not KindHTTPExtension", id)
+		}
+	}
+
+	for _, id := range catalogIDs {
+		entry, ok := config.LookupSystemPackage(id)
+		if !ok {
+			return fmt.Errorf("catalog lookup failed for %q", id)
+		}
+		mount := mounts[id]
+		meta := hostapi.Meta{
+			ID:          entry.ID,
+			Trust:       hostapi.TrustSystem,
+			Description: entry.Description,
+			Version:     "1",
+		}
+		// Capture for factory closure.
+		m := mount
+		md := meta
+		if err := rt.Register(md, func(hostapi.Host) (hostapi.Package, error) {
+			return &systemHTTPPackage{meta: md, mount: m}, nil
+		}); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// httpExtensionMounts returns mount callbacks for each official HTTP extension.
+// Keys MUST stay aligned with config.HTTPExtensionPackageIDs().
+func (s *Server) httpExtensionMounts(api *gin.RouterGroup) map[string]func() {
+	return map[string]func(){
+		"agentworkflow": func() {
 			agentworkflow.NewHandler(agentworkflow.NewService()).RegisterRoutes(api)
-		}},
-		{"aiguardrails", "AI guardrails", func() {
+		},
+		"aiguardrails": func() {
 			aiguardrails.NewHandlers(aiguardrails.NewService()).RegisterRoutes(api)
-		}},
-		{"voicehub", "Voice hub", func() {
+		},
+		"voicehub": func() {
 			var logger *zap.Logger
 			if s.logger != nil {
 				logger = s.logger
@@ -49,8 +97,8 @@ func (s *Server) registerSystemPackageCatalog(rt *packageruntime.Runtime, api *g
 				logger = zap.NewNop()
 			}
 			voicehub.NewHandlers(voicehub.NewManager(logger, nil)).RegisterRoutes(api)
-		}},
-		{"activeprotect", "Active protect", func() {
+		},
+		"activeprotect": func() {
 			m := activeprotect.NewManager()
 			if s.extHolders != nil {
 				s.extHolders.activeProtect = m
@@ -65,8 +113,8 @@ func (s *Server) registerSystemPackageCatalog(rt *packageruntime.Runtime, api *g
 			g.GET("/templates", func(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{"code": 0, "data": m.ListTemplates("")})
 			})
-		}},
-		{"compliancescan", "Compliance scan", func() {
+		},
+		"compliancescan": func() {
 			sc := compliancescan.NewScanner()
 			if s.extHolders != nil {
 				s.extHolders.complianceScan = sc
@@ -82,8 +130,8 @@ func (s *Server) registerSystemPackageCatalog(rt *packageruntime.Runtime, api *g
 			g.POST("/run-all", func(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{"code": 0, "data": sc.RunAllScans()})
 			})
-		}},
-		{"deployorch", "Deploy orchestrator", func() {
+		},
+		"deployorch": func() {
 			o := deployorch.NewOrchestrator()
 			if s.extHolders != nil {
 				s.extHolders.deployOrch = o
@@ -95,8 +143,8 @@ func (s *Server) registerSystemPackageCatalog(rt *packageruntime.Runtime, api *g
 			g.GET("/deployments", func(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{"code": 0, "data": o.ListDeployments()})
 			})
-		}},
-		{"netdiag", "Network diagnostics", func() {
+		},
+		"netdiag": func() {
 			d := netdiag.NewDiagnoser()
 			if s.extHolders != nil {
 				s.extHolders.netDiag = d
@@ -108,32 +156,33 @@ func (s *Server) registerSystemPackageCatalog(rt *packageruntime.Runtime, api *g
 			g.GET("/history", func(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{"code": 0, "data": d.GetHistory(20)})
 			})
-		}},
+		},
 	}
-
-	for _, sp := range specs {
-		// Capture loop variables.
-		id, desc, mount := sp.id, sp.desc, sp.mount
-		meta := hostapi.Meta{
-			ID:          id,
-			Trust:       hostapi.TrustSystem,
-			Description: desc,
-			Version:     "1",
-		}
-		err := rt.Register(meta, func(hostapi.Host) (hostapi.Package, error) {
-			return &systemHTTPPackage{meta: meta, mount: mount}, nil
-		})
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
-// systemHTTPPackage is a TrustSystem package that mounts gin routes on Start/MountHTTP.
+// MountTableHTTPExtensionIDs returns sorted IDs present in the mount table
+// (without registering). Used by structure consistency tests.
+func MountTableHTTPExtensionIDs() []string {
+	// Build mounts with a throwaway group is not needed — keys only.
+	s := &Server{}
+	// Use a dummy group: mounts close over api but we only need map keys.
+	// Creating nil group is unsafe if called; only read keys from a local map builder.
+	// Replicate key set via empty gin engine for safety.
+	r := gin.New()
+	api := r.Group("/")
+	m := s.httpExtensionMounts(api)
+	out := make([]string, 0, len(m))
+	for id := range m {
+		out = append(out, id)
+	}
+	sort.Strings(out)
+	return out
+}
+
+// systemHTTPPackage is a TrustSystem package that mounts gin routes via MountHTTP.
 type systemHTTPPackage struct {
-	meta   hostapi.Meta
-	mount  func()
+	meta    hostapi.Meta
+	mount   func()
 	mounted bool
 }
 

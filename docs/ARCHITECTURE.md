@@ -3,15 +3,15 @@
 **版本**: v3.24.3  
 **更新日期**: 2026-07-20
 
-本文描述 NAS-OS **当前**的进程组合、模块生命周期、API 安全边界和渐进迁移约束。模块分层以 **Core / Extension / Lab** 为准；目录与 `internal/application` catalog 标签必须一致，且 **运行时默认路径不得硬接线 Lab**。
+本文描述 NAS-OS **当前**的进程组合、模块生命周期、API 安全边界和渐进迁移约束。  
+**全景目录与分层（贡献者首选）**：见 **[STRUCTURE.md](STRUCTURE.md)**。  
+工程治理标签（Core / Extension / Lab）与目录 allowlist 必须一致；**运行时默认路径不得硬接线 Lab**。
 
-> **目标架构（产品与演进主叙事）**：Platform Core + Package Surface + Host SDK + Runtime（Lab 旁路）。  
-> 分阶段落地见 **[ADR-0001](adr/0001-platform-packages-host-sdk.md)**（**Stage 0–3 已实现**）。  
-> **主配置面**：`packages.recommended_system` / `packages.enabled`。  
-> `modules.optional` / `modules.extensions` **已弃用**（双读兼容 + 启动 warn）。  
-> 生产门闸：`config.OptionalProductsEnabled()` / `EnabledNamedPackages`；套件编目：`config.SystemPackageCatalog`。  
-> Runtime：`pkg/hostapi` + `internal/packageruntime`；`GET /api/v1/packages`。  
-> **默认仍仅 Core**（与 v3.24 相同）。
+> **产品结构（唯一主叙事）**：Platform Core + Package Surface + Host SDK/Runtime + Lab 旁路 — [STRUCTURE.md](STRUCTURE.md)。  
+> **主配置面**：`packages.recommended_system` / `packages.enabled`（`modules.*` **仅**弃用兼容，非第二架构）。  
+> **编目 / 解析**：`config.SystemPackageCatalog` · `ResolvePackages()` · `OptionalProductsEnabled()`。  
+> **Runtime**：`pkg/hostapi` · `internal/packageruntime` · `GET /api/v1/packages`。  
+> **默认仍仅 Core**。演进史见 [ADR-0001](adr/0001-platform-packages-host-sdk.md)。
 
 ## 进程组合
 

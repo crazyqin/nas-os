@@ -5,8 +5,9 @@
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
 > **最新版本**: v3.24.3 Stable (2026-07-16)
-> **架构分层**: Core（5）/ Extension（`internal/extensions/*`）/ Lab（`internal/lab/*`）→ [架构说明](docs/ARCHITECTURE.md)  
-> **目标架构**: Platform + Packages + Host SDK → [ADR-0001](docs/adr/0001-platform-packages-host-sdk.md)（**Stage 1–3 已实现**；默认仍仅 Core；`modules.*` 弃用兼容）
+> **项目结构**: Platform Core + Packages + Host SDK/Runtime + Lab 旁路 → **[结构图 STRUCTURE.md](docs/STRUCTURE.md)**（贡献者首选）  
+> **架构细节**: [ARCHITECTURE.md](docs/ARCHITECTURE.md) · 演进 [ADR-0001](docs/adr/0001-platform-packages-host-sdk.md)  
+> **默认**: 仅 Core；主配置 `packages.*`；`modules.*` 仅弃用兼容  
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 > **Release**: [v3.24.3](https://github.com/crazyqin/nas-os/releases/tag/v3.24.3)
@@ -32,7 +33,8 @@ packages:
   enabled: [voicehub]
 ```
 
-下文「差异化能力 / 企业级存储」描述的是仓库内已实现或对标中的能力面，**不是**默认开机全开。详见 [架构说明](docs/ARCHITECTURE.md)。
+下文「差异化能力 / 企业级存储」描述的是仓库内已实现或对标中的能力面，**不是**默认开机全开。  
+仓库怎么分层、入口在哪、Lab/套件怎么分：见 **[项目结构图](docs/STRUCTURE.md)**；进程与 API 边界见 [架构说明](docs/ARCHITECTURE.md)。
 
 ## 🌟 差异化能力（需显式启用，非默认）
 
