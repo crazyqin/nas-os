@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>应用中心 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .page { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem; }
+        .page-title { font-size: 1.5rem; font-weight: 700; color: var(--text-primary, #111); }
+        .meta { font-size: 0.85rem; color: #6B7280; }
+        .toolbar { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
+        .toolbar input { flex: 1; min-width: 200px; padding: 0.6rem 0.9rem; border: 1px solid #E5E7EB; border-radius: 8px; }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .tab { padding: 0.4rem 0.9rem; border-radius: 999px; border: 1px solid #E5E7EB; background: #fff; cursor: pointer; font-size: 0.85rem; color: #4B5563; }
+        .tab.active { background: #2563EB; color: #fff; border-color: #2563EB; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+        .card { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.6rem; }
+        .card h3 { margin: 0; font-size: 1rem; word-break: break-all; }
+        .badge { display: inline-block; font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 999px; background: #F3F4F6; color: #374151; margin-right: 0.25rem; }
+        .badge.system { background: #DBEAFE; color: #1D4ED8; }
+        .badge.community { background: #D1FAE5; color: #047857; }
+        .badge.loaded { background: #DCFCE7; color: #166534; }
+        .badge.off { background: #FEE2E2; color: #991B1B; }
+        .desc { font-size: 0.85rem; color: #6B7280; min-height: 2.4em; flex: 1; }
+        .actions { display: flex; gap: 0.5rem; }
+        .btn { border: none; border-radius: 8px; padding: 0.45rem 0.9rem; font-size: 0.85rem; cursor: pointer; }
+        .btn-primary { background: #2563EB; color: #fff; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-secondary { background: #F3F4F6; color: #111; }
+        .btn-danger { background: #FEE2E2; color: #B91C1C; }
+        .alert { padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem; }
+        .alert.error { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
+        .alert.info { background: #EFF6FF; color: #1E40AF; border: 1px solid #BFDBFE; }
+        .empty { text-align: center; color: #6B7280; padding: 2rem; }
+        a.back { color: #2563EB; text-decoration: none; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="page-header">
+        <div>
+            <a class="back" href="../index.html">← 返回仪表盘</a>
+            <h1 class="page-title">应用中心</h1>
+            <div class="meta" id="meta">加载套件列表…</div>
+        </div>
+        <button class="btn btn-secondary" type="button" id="btn-refresh">刷新</button>
+    </div>
+    <div id="banner" class="alert info" style="display:none"></div>
+    <div class="toolbar">
+        <input type="search" id="q" placeholder="搜索包 ID 或描述…" autocomplete="off">
+    </div>
+    <div class="tabs">
+        <button type="button" class="tab active" data-filter="all">全部</button>
+        <button type="button" class="tab" data-filter="system">官方</button>
+        <button type="button" class="tab" data-filter="community">第三方</button>
+        <button type="button" class="tab" data-filter="loaded">已启用</button>
+    </div>
+    <div id="grid" class="grid"></div>
+    <div id="empty" class="empty" style="display:none">暂无套件。默认 Core-only：未启用任何包。</div>
+</div>
+<script>
+(function () {
+    // Live Application Center — data from GET /api/v1/packages (not a mock-only list).
+    const API = '/api/v1/packages';
+    let items = [];
+    let filter = 'all';
+    let query = '';
+
+    const el = {
+        grid: document.getElementById('grid'),
+        empty: document.getElementById('empty'),
+        meta: document.getElementById('meta'),
+        banner: document.getElementById('banner'),
+        q: document.getElementById('q'),
+    };
+
+    function showBanner(text, isError) {
+        el.banner.style.display = text ? 'block' : 'none';
+        el.banner.className = 'alert ' + (isError ? 'error' : 'info');
+        el.banner.textContent = text || '';
+    }
+
+    function authHeaders() {
+        const h = { 'Content-Type': 'application/json' };
+        const t = localStorage.getItem('token') || localStorage.getItem('nas_token') || '';
+        if (t) h['Authorization'] = 'Bearer ' + t;
+        return h;
+    }
+
+    async function loadPackages() {
+        showBanner('', false);
+        el.meta.textContent = '加载中…';
+        try {
+            const res = await fetch(API, { headers: authHeaders(), credentials: 'same-origin' });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const body = await res.json();
+            if (body.code !== 0 && body.code !== undefined) {
+                throw new Error(body.message || 'API error');
+            }
+            const data = body.data || {};
+            items = Array.isArray(data.items) ? data.items : [];
+            // If older server without items, synthesize from catalog + loaded.
+            if (items.length === 0 && Array.isArray(data.catalog)) {
+                const loaded = new Set(data.loaded || []);
+                items = data.catalog.map(function (id) {
+                    return {
+                        id: id,
+                        trust: 'unknown',
+                        source: (data.community_discovered || []).indexOf(id) >= 0 ? 'community' : 'system',
+                        description: '',
+                        loaded: loaded.has(id),
+                        can_enable: !loaded.has(id),
+                        can_disable: loaded.has(id)
+                    };
+                });
+            }
+            const loadedN = (data.loaded || []).length;
+            el.meta.textContent = 'Host SDK ' + (data.host_api_version || '?') +
+                ' · 目录 ' + (data.catalog || []).length +
+                ' · 已启用 ' + loadedN +
+                (data.community_dir ? ' · 社区目录 ' + data.community_dir : ' · 未配置 community_dir');
+            if (!data.community_dir) {
+                showBanner('第三方包需配置 packages.community_dir 并放置 manifest。官方 HTTP 扩展可在此直接启用。', false);
+            }
+            render();
+        } catch (e) {
+            showBanner('无法加载套件列表：' + e.message + '（请确认已登录且 /api/v1/packages 可用）', true);
+            el.meta.textContent = '加载失败';
+            items = [];
+            render();
+        }
+    }
+
+    function filtered() {
+        return items.filter(function (it) {
+            if (filter === 'system' && it.source !== 'system') return false;
+            if (filter === 'community' && it.source !== 'community') return false;
+            if (filter === 'loaded' && !it.loaded) return false;
+            if (query) {
+                const q = query.toLowerCase();
+                const hay = (it.id + ' ' + (it.description || '')).toLowerCase();
+                if (hay.indexOf(q) < 0) return false;
+            }
+            return true;
+        });
+    }
+
+    function render() {
+        const list = filtered();
+        el.grid.innerHTML = '';
+        el.empty.style.display = list.length ? 'none' : 'block';
+        list.forEach(function (it) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML =
+                '<div><span class="badge ' + (it.source || '') + '">' + (it.source === 'community' ? '第三方' : '官方') + '</span>' +
+                '<span class="badge">' + (it.trust || '') + '</span>' +
+                '<span class="badge ' + (it.loaded ? 'loaded' : 'off') + '">' + (it.loaded ? '已启用' : '未启用') + '</span></div>' +
+                '<h3></h3><div class="desc"></div><div class="actions"></div>';
+            card.querySelector('h3').textContent = it.id;
+            card.querySelector('.desc').textContent = it.description || (it.version ? 'v' + it.version : '—');
+            const actions = card.querySelector('.actions');
+            if (it.can_enable || (!it.loaded && it.can_enable !== false)) {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'btn btn-primary';
+                b.textContent = '启用';
+                b.disabled = it.loaded;
+                b.addEventListener('click', function () { enablePkg(it.id, b); });
+                actions.appendChild(b);
+            }
+            if (it.can_disable || it.loaded) {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'btn btn-danger';
+                b.textContent = '停用';
+                b.disabled = !it.loaded;
+                b.addEventListener('click', function () { disablePkg(it.id, b); });
+                actions.appendChild(b);
+            }
+            el.grid.appendChild(card);
+        });
+    }
+
+    async function enablePkg(id, btn) {
+        if (btn) btn.disabled = true;
+        try {
+            const res = await fetch(API + '/' + encodeURIComponent(id) + '/enable', {
+                method: 'POST',
+                headers: authHeaders(),
+                credentials: 'same-origin'
+            });
+            const body = await res.json();
+            if (body.code !== 0) throw new Error(body.message || 'enable failed');
+            if (Array.isArray(body.data && body.data.items)) {
+                items = body.data.items;
+                render();
+            } else {
+                await loadPackages();
+            }
+            showBanner('已启用 ' + id, false);
+        } catch (e) {
+            showBanner('启用失败：' + e.message, true);
+            if (btn) btn.disabled = false;
+        }
+    }
+
+    async function disablePkg(id, btn) {
+        if (btn) btn.disabled = true;
+        try {
+            const res = await fetch(API + '/' + encodeURIComponent(id) + '/disable', {
+                method: 'POST',
+                headers: authHeaders(),
+                credentials: 'same-origin'
+            });
+            const body = await res.json();
+            if (body.code !== 0) throw new Error(body.message || 'disable failed');
+            if (Array.isArray(body.data && body.data.items)) {
+                items = body.data.items;
+                render();
+            } else {
+                await loadPackages();
+            }
+            showBanner('已停用 ' + id, false);
+        } catch (e) {
+            showBanner('停用失败：' + e.message, true);
+            if (btn) btn.disabled = false;
+        }
+    }
+
+    document.querySelectorAll('.tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            document.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            filter = tab.getAttribute('data-filter') || 'all';
+            render();
+        });
+    });
+    el.q.addEventListener('input', function () {
+        query = el.q.value.trim();
+        render();
+    });
+    document.getElementById('btn-refresh').addEventListener('click', loadPackages);
+    loadPackages();
+})();
+</script>
+</body>
+</html>

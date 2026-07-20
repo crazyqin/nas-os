@@ -123,10 +123,12 @@ import (
 type Server struct {
 	cfg           *config.Config
 	modules       []arch.Module
-	extHolders           *extensionHolders                 // optional modules.extensions holders
-	pkgRuntime           *packageruntime.Runtime           // ADR-0001 Stage 2 unified package runtime
-	communityDiscovered  []packageruntime.DiskManifest     // third-party manifests from community_dir
-	engine               *gin.Engine
+	extHolders          *extensionHolders             // optional modules.extensions holders
+	pkgRuntime          *packageruntime.Runtime       // ADR-0001 Stage 2 unified package runtime
+	communityDiscovered []packageruntime.DiskManifest // third-party manifests from community_dir
+	runtimeEnabledMu    sync.Mutex
+	runtimeEnabled      map[string]struct{} // App Center click-enabled set (persisted)
+	engine              *gin.Engine
 	httpSrv       *http.Server
 	lifecycleMu   sync.Mutex
 	started       bool
@@ -1540,14 +1542,15 @@ func (s *Server) setupRoutes() {
 
 // coreWebUIPages are always served (Core surface).
 var coreWebUIPages = map[string]bool{
-	"login.html":     true,
-	"dashboard.html": true,
-	"storage.html":   true,
-	"shares.html":    true,
-	"users.html":     true,
-	"network.html":   true,
-	"settings.html":  true,
-	"api-docs.html":  true,
+	"login.html":      true,
+	"dashboard.html":  true,
+	"storage.html":    true,
+	"shares.html":     true,
+	"users.html":      true,
+	"network.html":    true,
+	"settings.html":   true,
+	"api-docs.html":   true,
+	"app-center.html": true, // Application Center — packages UI (Core surface)
 }
 
 func (s *Server) registerWebUI(webuiRoot string) {
@@ -1588,6 +1591,7 @@ func (s *Server) registerWebUI(webuiRoot string) {
 	s.engine.StaticFile("/users", webuiRoot+"/pages/users.html")
 	s.engine.StaticFile("/network", webuiRoot+"/pages/network.html")
 	s.engine.StaticFile("/settings", webuiRoot+"/pages/settings.html")
+	s.engine.StaticFile("/app-center", webuiRoot+"/pages/app-center.html")
 
 	if optional {
 		s.engine.StaticFile("/downloader", webuiRoot+"/pages/downloader/index.html")

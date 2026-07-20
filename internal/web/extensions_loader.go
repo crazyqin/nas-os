@@ -12,7 +12,6 @@ import (
 	"nas-os/internal/extensions/deployorch"
 	"nas-os/internal/extensions/netdiag"
 	"nas-os/internal/packageruntime"
-	"nas-os/pkg/hostapi"
 
 	"github.com/gin-gonic/gin"
 )
@@ -72,9 +71,10 @@ func (s *Server) registerConfiguredExtensions(api *gin.RouterGroup) {
 	}
 	s.communityDiscovered = discovered
 
-	// Enable: packages.enabled ∩ runtime catalog (system HTTP + community).
-	// Default enabled empty → nothing loaded (Core-only package surface).
-	want := s.cfg.EnabledPackageNames()
+	// Boot enablement: config packages.enabled ∪ App Center persisted set.
+	// Default both empty → nothing loaded (Core-only package surface).
+	persisted := s.loadPersistedRuntimeEnabled()
+	want := unionStrings(s.cfg.EnabledPackageNames(), persisted)
 	toEnable := intersectIDs(want, rt.CatalogIDs())
 	if len(toEnable) > 0 {
 		loaded, unknown, err := rt.Enable(context.Background(), toEnable)
@@ -93,44 +93,23 @@ func (s *Server) registerConfiguredExtensions(api *gin.RouterGroup) {
 	s.mountPackageStatusRoutes(api, rt)
 }
 
-func (s *Server) mountPackageStatusRoutes(api *gin.RouterGroup, rt *packageruntime.Runtime) {
-	api.GET("/extensions", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"code":    0,
-			"message": "success",
-			"data": gin.H{
-				"enabled": s.EnabledExtensions(),
-				"known":   KnownExtensionNames,
-				"loaded":  rt.LoadedIDs(),
-			},
-		})
-	})
-	api.GET("/packages", func(c *gin.Context) {
-		res := s.cfg.ResolvePackages()
-		var communityIDs []string
-		for _, m := range s.communityDiscovered {
-			communityIDs = append(communityIDs, strings.ToLower(strings.TrimSpace(m.ID)))
+func unionStrings(a, b []string) []string {
+	seen := make(map[string]struct{})
+	var out []string
+	for _, list := range [][]string{a, b} {
+		for _, raw := range list {
+			id := strings.ToLower(strings.TrimSpace(raw))
+			if id == "" {
+				continue
+			}
+			if _, ok := seen[id]; ok {
+				continue
+			}
+			seen[id] = struct{}{}
+			out = append(out, id)
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"code":    0,
-			"message": "success",
-			"data": gin.H{
-				"host_api_version":     hostapi.APIVersion,
-				"catalog":              rt.CatalogIDs(),
-				"system_catalog":       config.SystemPackageCatalog,
-				"http_extensions":      config.HTTPExtensionPackageIDs(),
-				"recommended_products": config.RecommendedSystemPackageIDs(),
-				"community_dir":        s.cfg.CommunityDir(),
-				"community_discovered": communityIDs,
-				"loaded":               rt.LoadedIDs(),
-				"resolved":             res.Enabled,
-				"recommended":          res.RecommendedSystem,
-				"modules_deprecated":   res.ModulesDeprecated,
-				"warnings":             res.Warnings,
-				"statuses":             rt.Statuses(c.Request.Context()),
-			},
-		})
-	})
+	}
+	return out
 }
 
 // EnabledExtensions returns resolved known extension names (copy).

@@ -46,7 +46,7 @@
 | `pkg/hostapi` | Host SDK（套件可依赖的稳定契约） |
 | `pkg/*` | 可复用库（存储/安全工具等），非业务 Manager |
 | `plugins/*` | 外置插件示例/宿主装载目录（community/local 方向） |
-| `webui/` | **主产品 UI**（静态 HTML/JS） |
+| `webui/` | **主产品 UI**（静态 HTML/JS）；**应用中心** `pages/app-center.html`（Core 面） |
 | `web/` | 实验前端（非默认交付主线） |
 | `configs/default.yaml` | 默认配置（packages 关） |
 | `docker-compose.yml` + `Dockerfile` | 主部署路径 |
@@ -120,6 +120,19 @@ packages:
   community_dir: /var/lib/nas-os/community-packages
   enabled: [com.example.hello-host]
 ```
+
+### 4.2 应用中心（用户可点）
+
+| 项 | 说明 |
+|----|------|
+| 页面 | `/webui/pages/app-center.html` 或 `/app-center`（**Core allowlist**，默认即可打开） |
+| 导航 | 主侧栏「应用中心」（`webui/index.html`） |
+| 列表 | `GET /api/v1/packages` → `data.items[]`（官方 + 已发现第三方，含 loaded） |
+| 启用 | `POST /api/v1/packages/:id/enable` → Package Runtime `Enable` |
+| 停用 | `POST /api/v1/packages/:id/disable` → Runtime `Disable` |
+| 持久化 | `data_dir/app-center-enabled.json`（可写时跨重启；否则进程内） |
+
+默认仍 Core-only：列表显示官方扩展为「未启用」，不自动加载第三方。
 
 ---
 
