@@ -43,6 +43,46 @@ func TestRegisterConfiguredExtensionsMountsAgentWorkflow(t *testing.T) {
 	}
 }
 
+// TestRegisterConfiguredExtensionsPackagesAPI drives Stage-2 /packages status route
+// via real package runtime after enabling a catalog package.
+func TestRegisterConfiguredExtensionsPackagesAPI(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	cfg := config.Default()
+	cfg.Packages.Enabled = []string{"netdiag"}
+	s := &Server{cfg: cfg}
+	r := gin.New()
+	api := r.Group("/api/v1")
+	s.registerConfiguredExtensions(api)
+
+	if s.pkgRuntime == nil {
+		t.Fatal("pkgRuntime must be set")
+	}
+	if len(s.pkgRuntime.LoadedIDs()) != 1 || s.pkgRuntime.LoadedIDs()[0] != "netdiag" {
+		t.Fatalf("loaded=%v", s.pkgRuntime.LoadedIDs())
+	}
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/api/v1/packages", nil))
+	if w.Code != http.StatusOK {
+		t.Fatalf("packages status: %d %s", w.Code, w.Body.String())
+	}
+	var body map[string]interface{}
+	if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
+		t.Fatal(err)
+	}
+	data, _ := body["data"].(map[string]interface{})
+	if data == nil {
+		t.Fatalf("no data: %v", body)
+	}
+	if data["host_api_version"] == "" {
+		t.Fatal("host_api_version missing")
+	}
+	loaded, _ := data["loaded"].([]interface{})
+	if len(loaded) != 1 || loaded[0] != "netdiag" {
+		t.Fatalf("loaded field %v", loaded)
+	}
+}
+
 // TestRegisterConfiguredExtensionsPackagesOnly drives real loader via packages.enabled
 // (ADR-0001 Stage 1 dual-read; modules.extensions left empty).
 func TestRegisterConfiguredExtensionsPackagesOnly(t *testing.T) {

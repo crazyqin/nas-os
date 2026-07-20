@@ -2,12 +2,13 @@
 
 | 字段 | 内容 |
 |------|------|
-| **状态** | Accepted — **Stage 1 implemented**（Stage 2–3 未做） |
+| **状态** | Accepted — **Stage 1 + Stage 2 implemented**（Stage 3 未做） |
 | **日期** | 2026-07-20 |
 | **范围** | 产品叙事、模块交付、默认表面、生态边界 |
-| **不影响** | 默认 `nasd` 仍仅 Core；Stage 1 **不改变** v3.24 默认行为 |
+| **不影响** | 默认 `nasd` 仍仅 Core；Stage 1–2 **不改变** v3.24 默认行为 |
 | **相关** | [ARCHITECTURE.md](../ARCHITECTURE.md)（现行运行时说明） |
 | **Stage 1 代码** | `internal/config/packages.go`（`ResolvePackages` / `OptionalProductsEnabled`）；生产门闸：`internal/web`、`internal/application` |
+| **Stage 2 代码** | `pkg/hostapi`（Host SDK v1.0.0）；`internal/packageruntime`；web 扩展经 Runtime 启用；`GET /api/v1/packages` |
 
 ---
 
@@ -140,12 +141,15 @@ packages:
 3. 若两者皆存在：**并集**启用；双源 warn（避免升级后功能静默消失）。  
 4. 弃用周期至少 **两个小版本** 后再考虑只读 `modules.*`（Stage 3）。
 
-### 3.3 阶段 2 — 统一运行时
+### 3.3 阶段 2 — 统一运行时（**已实现初版**）
 
-- 单一 Package Runtime：发现 → 校验 trust/签名 → Init/Start/Stop → 路由挂载。  
-- `modules.optional` 实现为「展开 recommended_system 清单」。  
-- `modules.extensions` 实现为 `packages.enabled` 的别名。  
-- community 包仅走 Host SDK + 沙箱。
+- 单一 Package Runtime（`internal/packageruntime`）：catalog 注册 → trust 校验 → Init → Start → HTTP mount（system）→ Stop。  
+- Host SDK 初版：`pkg/hostapi`（`APIVersion=1.0.0`，`Host` / `Package` / `HTTPMounter` / `Trust*`）。  
+- `modules.optional` / `packages.recommended_system` 仍经 Stage 1 解析展开推荐清单；`modules.extensions` ∪ `packages.enabled` 经 Runtime `Enable`。  
+- 官方 HTTP 扩展（7）注册为 `TrustSystem` catalog；生产路径 `registerConfiguredExtensions` 走 Runtime。  
+- **community** 包：可注册/生命周期加载，**Stage 2 不挂 HTTP**（需更高信任或后续沙箱策略）。  
+- 状态面：`GET /api/v1/packages`（host API 版本、catalog、loaded、resolved、statuses）；保留 `GET /api/v1/extensions`。  
+- 签名校验与完整 community 沙箱 **未**在本阶段实现（仍属后续增强）。
 
 ### 3.4 阶段 3 — 收敛（破坏性需发版说明）
 
@@ -162,7 +166,7 @@ packages:
 | Platform Core | `internal/application` 模块图；实现分布于 storage/users/smb/nfs/… | Core 名表冻结为五；`governance_test` |
 | System packages | `internal/extensions/*`；optional 管理器（docker/vm/photos/ai/…） | 新官方可选能力进 extensions 或编目套件，禁止伪 Core |
 | Community packages | `plugins/*`；`internal/plugin` 为**宿主**（属 Core/Platform） | 禁止插件直依赖 internal 业务包 |
-| Host SDK | 目标 `pkg/hostapi`（待建） | API 版本化；变更需兼容策略 |
+| Host SDK | `pkg/hostapi`（v1.0.0） | API 版本化；变更需兼容策略 |
 | Runtime | `pkg/*`、`arch`、`config`、`logging`、公共 `api` 中间件 | 不放带产品 Start/Stop 的 Manager |
 | Lab | `internal/lab/*` | 禁止生产 web→lab；未知 catalog → Lab |
 
@@ -191,7 +195,7 @@ Lab ──评审──► system package（官方套件）
 |------|------|----------|----------|------|
 | **0** 文档 | 本 ADR + ARCHITECTURE 链接 | 无 | 不变 | **done** |
 | **1** 别名 | `packages` 配置与双读兼容；生产门闸接线 | 小 | 不变（仍默认 Core-only） | **done** |
-| **2** 运行时 | 统一 Package Runtime；Host SDK 初版 | 中 | 不变（API 新增） | pending |
+| **2** 运行时 | 统一 Package Runtime；Host SDK 初版；`/api/v1/packages` | 中 | 不变（仅新增 API/目录） | **done** |
 | **3** 收敛 | 弃用 `modules.*` 文档主路径；套件编目 | 中 | 兼容期后可标 breaking | pending |
 
 每阶段约束：可构建、可测试、可回滚；删除兼容前完成客户端/文档迁移。
@@ -228,5 +232,5 @@ Lab ──评审──► system package（官方套件）
 2. **不新增**与 Package 并行的 Extension/Plugin 产品层；二者合并为 Packages + trust。  
 3. **现行** `modules.optional` / `modules.extensions` 在迁移完成前保持有效，语义解释为 system 套件。  
 4. **默认**仍为仅 Core，诚实交付面不回退。  
-5. 实现按阶段 0→3；**阶段 0 文档与阶段 1 双读/生产接线已完成**；默认表面仍为仅 Core。  
-6. Stage 2（统一 Package Runtime / Host SDK）与 Stage 3（弃用 `modules.*`）不在本实现范围内。
+5. 实现按阶段 0→3；**阶段 0–2 已完成**；默认表面仍为仅 Core。  
+6. Stage 3（文档主路径弃用 `modules.*`、破坏性收敛）仍待后续发版。

@@ -1,6 +1,8 @@
 # Frozen top-level internal package allowlist (v3.24.0 governance).
 # New business packages must land under internal/lab/ or internal/extensions/,
 # or this file must be updated in the same PR with an explicit rationale.
+#
+# packageruntime: ADR-0001 Stage 2 unified Package Runtime (not product business).
 acl
 ai
 alertguided
@@ -56,6 +58,7 @@ notifychannel
 objectimmutable
 office
 optimizer
+packageruntime
 perf
 photos
 plugin

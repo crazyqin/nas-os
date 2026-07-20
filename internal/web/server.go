@@ -42,6 +42,7 @@ import (
 	"nas-os/internal/notifychannel"
 	"nas-os/internal/office"
 	"nas-os/internal/optimizer"
+	"nas-os/internal/packageruntime"
 	"nas-os/internal/perf"
 	"nas-os/internal/photos"
 	"nas-os/internal/plugin"
@@ -122,7 +123,8 @@ import (
 type Server struct {
 	cfg           *config.Config
 	modules       []arch.Module
-	extHolders    *extensionHolders // optional modules.extensions holders
+	extHolders    *extensionHolders       // optional modules.extensions holders
+	pkgRuntime    *packageruntime.Runtime // ADR-0001 Stage 2 unified package runtime
 	engine        *gin.Engine
 	httpSrv       *http.Server
 	lifecycleMu   sync.Mutex

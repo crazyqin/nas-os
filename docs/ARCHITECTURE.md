@@ -9,7 +9,8 @@
 > 与现行 `modules.optional` / `modules.extensions` 的兼容与分阶段落地见  
 > **[ADR-0001](adr/0001-platform-packages-host-sdk.md)**。  
 > **Stage 1 已实现**：`packages.recommended_system` / `packages.enabled` 与 `modules.*` 双读并集；  
-> 生产门闸经 `config.OptionalProductsEnabled()` / `EnabledNamedPackages`；**默认仍仅 Core**（与 v3.24 相同）。
+> 生产门闸经 `config.OptionalProductsEnabled()` / `EnabledNamedPackages`；**默认仍仅 Core**（与 v3.24 相同）。  
+> **Stage 2 已实现**：`pkg/hostapi` + `internal/packageruntime`；官方扩展经 Runtime 启用；`GET /api/v1/packages`。
 
 ## 进程组合
 

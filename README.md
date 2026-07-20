@@ -6,7 +6,7 @@
 
 > **最新版本**: v3.24.3 Stable (2026-07-16)
 > **架构分层**: Core（5）/ Extension（`internal/extensions/*`）/ Lab（`internal/lab/*`）→ [架构说明](docs/ARCHITECTURE.md)  
-> **目标架构**: Platform + Packages + Host SDK → [ADR-0001](docs/adr/0001-platform-packages-host-sdk.md)（**Stage 1 已实现**；默认仍仅 Core）
+> **目标架构**: Platform + Packages + Host SDK → [ADR-0001](docs/adr/0001-platform-packages-host-sdk.md)（**Stage 1–2 已实现**；默认仍仅 Core）
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 > **Release**: [v3.24.3](https://github.com/crazyqin/nas-os/releases/tag/v3.24.3)
