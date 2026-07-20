@@ -8,6 +8,10 @@ BINARY_NAME=nasd
 CLI_NAME=nasctl
 GO=go
 GOFLAGS=-ldflags="-w -s"
+# Default build is Core-only (smaller). Product managers require nasd_full.
+#   make build        → core (~half size)
+#   make build-full   → full product surface (-tags nasd_full)
+BUILD_TAGS ?=
 DOCKER_IMAGE=ghcr.io/nas-os/nas-os
 DOCKER_TAG=latest
 
@@ -26,16 +30,24 @@ GOPROXY ?= https://proxy.golang.org,direct
 all: build
 
 # ========== 构建 ==========
-build:
-	@echo "🔨 编译 nasd..."
-	GOPROXY=$(GOPROXY) $(GO) build $(GOFLAGS) -o $(BINARY_NAME) ./cmd/nasd
+# Core-only default (no product managers linked).
+build build-core:
+	@echo "🔨 编译 nasd (Core surface)..."
+	GOPROXY=$(GOPROXY) $(GO) build $(GOFLAGS) $(if $(BUILD_TAGS),-tags $(BUILD_TAGS),) -o $(BINARY_NAME) ./cmd/nasd
 	@echo "🔨 编译 nasctl..."
 	GOPROXY=$(GOPROXY) $(GO) build $(GOFLAGS) -o $(CLI_NAME) ./cmd/nasctl
-	@echo "✅ 构建完成"
+	@echo "✅ Core 构建完成 (product managers NOT linked; use make build-full for docker/vm/photos/…)"
+
+# Full product surface (docker/vm/photos/ai/backup/… + bulk optional path).
+build-full:
+	@echo "🔨 编译 nasd (full products, -tags nasd_full)..."
+	GOPROXY=$(GOPROXY) $(GO) build $(GOFLAGS) -tags nasd_full -o $(BINARY_NAME) ./cmd/nasd
+	GOPROXY=$(GOPROXY) $(GO) build $(GOFLAGS) -o $(CLI_NAME) ./cmd/nasctl
+	@echo "✅ Full 构建完成"
 
 # 带版本信息的构建（Version 无 v 前缀；与 VERSION 文件同步）
 build-version:
-	@echo "🔨 编译带版本信息的二进制..."
+	@echo "🔨 编译带版本信息的二进制 (Core)..."
 	@./scripts/version.sh
 	GOPROXY=$(GOPROXY) $(GO) build -ldflags="-w -s \
 		-X nas-os/internal/version.Version=$(patsubst v%,%,$(VERSION)) \
@@ -47,13 +59,26 @@ build-version:
 		-X nas-os/internal/version.BuildTime=$(BUILD_TIME)" -o $(CLI_NAME) ./cmd/nasctl
 	@echo "✅ 构建完成: $(VERSION) ($(GIT_COMMIT))"
 
+build-version-full:
+	@echo "🔨 编译带版本信息的二进制 (full)..."
+	@./scripts/version.sh
+	GOPROXY=$(GOPROXY) $(GO) build -tags nasd_full -ldflags="-w -s \
+		-X nas-os/internal/version.Version=$(patsubst v%,%,$(VERSION)) \
+		-X nas-os/internal/version.Commit=$(GIT_COMMIT) \
+		-X nas-os/internal/version.BuildTime=$(BUILD_TIME)" -o $(BINARY_NAME) ./cmd/nasd
+	GOPROXY=$(GOPROXY) $(GO) build -ldflags="-w -s \
+		-X nas-os/internal/version.Version=$(patsubst v%,%,$(VERSION)) \
+		-X nas-os/internal/version.Commit=$(GIT_COMMIT) \
+		-X nas-os/internal/version.BuildTime=$(BUILD_TIME)" -o $(CLI_NAME) ./cmd/nasctl
+	@echo "✅ Full 构建完成: $(VERSION) ($(GIT_COMMIT))"
+
 build-debug:
 	@echo "🔨 编译调试版本..."
 	$(GO) build -race -o $(BINARY_NAME)-debug ./cmd/nasd
 
 # 跨平台构建
 build-all:
-	@echo "🌍 构建多平台二进制..."
+	@echo "🌍 构建多平台二进制 (Core)..."
 	GOPROXY=$(GOPROXY) GOOS=linux GOARCH=amd64 $(GO) build $(GOFLAGS) -o $(BINARY_NAME)-linux-amd64 ./cmd/nasd
 	GOPROXY=$(GOPROXY) GOOS=linux GOARCH=arm64 $(GO) build $(GOFLAGS) -o $(BINARY_NAME)-linux-arm64 ./cmd/nasd
 	GOPROXY=$(GOPROXY) GOOS=linux GOARCH=arm GOARM=7 $(GO) build $(GOFLAGS) -o $(BINARY_NAME)-linux-armv7 ./cmd/nasd
@@ -61,8 +86,10 @@ build-all:
 
 # ========== 测试 ==========
 test:
-	@echo "🧪 运行测试..."
+	@echo "🧪 运行测试 (Core + Full product surface)..."
 	$(GO) test -v -timeout 10m -parallel 4 ./...
+	$(GO) test -tags nasd_full -v -timeout 10m -parallel 4 ./internal/web/ ./internal/application/
+
 
 test-integration:
 	@echo "🔗 运行集成测试..."

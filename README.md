@@ -4,10 +4,11 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.24.3 Stable (2026-07-16)
+> **最新版本**: v3.24.3 Stable（文档同步 2026-07-21）  
 > **文档索引**: [docs/README.md](docs/README.md)  
-> **项目结构**: [STRUCTURE.md](docs/STRUCTURE.md) · **运维**: [ops-packages.md](docs/ops-packages.md) · **架构**: [ARCHITECTURE.md](docs/ARCHITECTURE.md)  
-> **默认**: 仅 Core；套件走 `packages.*` / 应用中心；`modules.*` 仅弃用兼容  
+> **项目结构**: [STRUCTURE.md](docs/STRUCTURE.md)（含 **Core / Full 编译面**） · **运维**: [ops-packages.md](docs/ops-packages.md) · **架构**: [ARCHITECTURE.md](docs/ARCHITECTURE.md)  
+> **默认**: 仅 Core 能力面 + Core 二进制（`make build`）；套件走 `packages.*` / 应用中心；完整产品需 `make build-full`（`-tags nasd_full`）  
+
 
 
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
@@ -20,14 +21,22 @@
 主配置面（ADR-0001 Stage 3）：`packages.recommended_system: false`、`packages.enabled: []`。  
 `modules.optional` / `modules.extensions` **已弃用**，仍双读兼容，启动时会 warn。
 
+> **诚实说明**  
+> - 下文大量「对标 / 新增」能力多在 **Package Surface** 或 **`internal/lab/`**，**默认不进 `nasd` 热路径**。  
+> - **二进制双面**：默认 `make build` / 无 tag = **Core-only**（约 47MB；不链接 docker/vm/photos、HTTP extensions、bleve、cluster、downloader）；完整产品+扩展需 `make build-full` 或 `-tags nasd_full`（约 118MB）。Docker 镜像默认仍带 `nasd_full`。  
+> - `packages.recommended_system` 只开 **8 个编目产品**（docker/vm/photos/…），**不会**再拉 tunnel/trash/ftp 等 bulk 附属。  
+> - 旧版全家桶附属仅在弃用开关 `modules.optional: true` 时构造。  
+> - Docker 默认 **非 privileged** + bridge + `127.0.0.1:8080`；全特权见 `docker-compose.privileged.yml`。
+
 | 能力 | 默认是否开启 | 如何启用 |
 |------|--------------|----------|
 | 用户 / 卷 / SMB / NFS / 网络 / 健康探针 | **是** | 无需额外配置 |
-| Docker / VM / 相册 / AI / 备份 / 云同步等产品管理器 | **否** | `packages.recommended_system: true` |
-| WriteOnce / 本地 LLM / CLIP 以文搜图 / MCP / 多云挂载等差异化能力 | **否** | `packages.recommended_system: true` 和/或 `packages.enabled`；部分仅 Lab 源码 |
-| 已编目 HTTP Extension（7） / 推荐产品（docker 等） | **否** | 应用中心或 `packages.enabled`；见 [STRUCTURE](docs/STRUCTURE.md) |
-| Lab 实验包 | **否** | 不在默认路径；不可经 packages 列表加载 |
-| 容器应用商店（Docker 模板） | **否** | `apps.html`（需 docker 产品启用）；**不是**应用中心 |
+| Docker / VM / 相册 / AI / 备份 / 云同步等产品管理器 | **否** | `packages.recommended_system: true` 或 `packages.enabled` |
+| tunnel / trash / ftp / webdav / monitor 等 bulk 附属 | **否** | 仅 `modules.optional: true`（弃用） |
+| WriteOnce / 本地 LLM / CLIP / MCP 等差异化 | **否** | packages 和/或 Lab 源码 |
+| 已编目 HTTP Extension（7） | **否** | 应用中心或 `packages.enabled` |
+| Lab 实验包（~600） | **否** | 不在默认路径；不可经 packages 列表加载 |
+| 容器应用商店（Docker 模板） | **否** | `apps.html`（需 docker 产品启用） |
 
 ```yaml
 # 示例：启用官方推荐产品面 + 一个 HTTP 扩展
@@ -991,11 +1000,17 @@ nas-os/
 
 ### Docker 部署
 ```bash
-# 快速启动（开发测试）
-docker-compose up -d
+# 默认：非 privileged + bridge + 127.0.0.1:8080 + /dev/disk
+docker compose up -d
+
+# 强制 CSRF（生产推荐）：在 .env 设置 NAS_CSRF_KEY 与 NAS_OS_ENV=production
+docker compose -f docker-compose.yml -f docker-compose.secure.yml up -d
+
+# 旧行为：privileged + host 网络（仅在确需时）
+docker compose -f docker-compose.yml -f docker-compose.privileged.yml up -d
 
 # 查看日志
-docker-compose logs -f
+docker compose logs -f
 ```
 
 ### 裸机安装
@@ -1016,49 +1031,35 @@ journalctl -u nas-os -f
 
 ## 配置示例
 
-创建配置文件 `/etc/nas-os/config.yaml`:
+以仓库 `configs/default.yaml` 为准。示意：
 
 ```yaml
-version: "1.0.0"
-
+# 默认监听本机；局域网访问请显式配置并配合防火墙
 server:
+  host: 127.0.0.1
   port: 8080
-  host: 0.0.0.0
-  tls_enabled: false
+
+paths:
+  mount_base: /mnt
+  config_dir: /etc/nas-os
+  data_dir: /var/lib/nas-os
 
 storage:
-  data_path: /data
+  default_profile: single
   auto_scrub: true
-  scrub_schedule: "0 3 * * 0"  # 每周日凌晨 3 点
+  scrub_schedule: "0 2 * * 0"
 
-shares:
-  smb:
-    enabled: true
-    workgroup: WORKGROUP
-    shares:
-      - name: public
-        path: /data/public
-        guest_ok: true
-      - name: home
-        path: /data/home
-        guest_ok: false
-  
-  nfs:
-    enabled: true
-    allowed_networks:
-      - 192.168.1.0/24
-    exports:
-      - path: /data/nfs
-        clients: ["192.168.1.0/24"]
-        options: ["rw", "sync", "no_subtree_check"]
+packages:
+  recommended_system: false   # true 时需 Full 二进制（-tags nasd_full）
+  enabled: []                 # 如 docker、voicehub；Core 二进制配置了未链接能力会启动失败
 
-logging:
-  level: info
-  format: json
-  file: /var/log/nas-os/nasd.log
-  max_size: 100
-  max_backups: 5
+auth:
+  session_ttl_hours: 24
 ```
+
+生产建议：`NAS_OS_ENV=production` + `NAS_CSRF_KEY`（见 `.env.example`）。  
+用户身份：`config_dir/users.json`。删卷需 JSON `confirm_name`；擦盘还需 `allow_wipe: true`。
+
 
 ## 快速使用
 

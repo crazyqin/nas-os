@@ -108,28 +108,40 @@ func (s *Server) buildPackageItems() []packageItem {
 	}
 
 	var items []packageItem
-	// Official catalog: HTTP extensions + recommended products (all Runtime-operable).
+	// Official catalog: HTTP extensions + recommended products.
+	// Operable requires both Runtime registration and compile-time linkage (nasd_full).
 	for _, e := range config.SystemPackageCatalog {
 		_, loaded := loadedSet[e.ID]
+		linked := packageLinked(e.ID)
+		known := rt.Known(e.ID)
+		operable := linked && known
 		item := packageItem{
 			ID:          e.ID,
 			Trust:       string(hostapi.TrustSystem),
 			Description: e.Description,
 			Loaded:      loaded,
-			Operable:    rt.Known(e.ID),
-			CanEnable:   !loaded && rt.Known(e.ID),
+			Operable:    operable,
+			CanEnable:   !loaded && operable,
 			CanDisable:  loaded,
 		}
 		switch e.Kind {
 		case config.KindHTTPExtension:
 			item.Source = "system"
 			item.Kind = string(config.KindHTTPExtension)
-			item.Note = "HTTP extension — disable unmounts routes (404) until re-enabled"
+			if !linked {
+				item.Note = "HTTP extension not linked in this binary (need -tags nasd_full)"
+			} else {
+				item.Note = "HTTP extension — disable unmounts routes (404) until re-enabled"
+			}
 		case config.KindRecommendedProduct:
 			item.Source = "product"
 			item.Kind = string(config.KindRecommendedProduct)
-			item.Note = "Product surface — enable constructs/activates product managers"
-			if e.ID == "cluster" {
+			if !linked {
+				item.Note = "Product not linked in this binary (need -tags nasd_full / make build-full)"
+			} else {
+				item.Note = "Product surface — enable constructs/activates product managers"
+			}
+			if linked && e.ID == "cluster" {
 				running := s.ClusterRunning()
 				item.RequiresRestart = !running && !loaded
 				if running {
@@ -184,6 +196,14 @@ func (s *Server) handlePackageEnable(c *gin.Context) {
 	}
 	if !s.pkgRuntime.Known(id) {
 		c.JSON(http.StatusNotFound, gin.H{"code": 1, "message": "package not in catalog (install/discover first)"})
+		return
+	}
+	if !packageLinked(id) {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"code":    1,
+			"message": "package not linked in this nasd binary; rebuild with -tags nasd_full (make build-full)",
+			"data":    gin.H{"id": id, "products_linked": ProductsLinked(), "extensions_linked": ExtensionsLinked()},
+		})
 		return
 	}
 	loaded, unknown, err := s.pkgRuntime.Enable(context.Background(), []string{id})

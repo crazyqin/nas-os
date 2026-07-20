@@ -109,11 +109,30 @@ type Permission struct {
 	Action   string `json:"action"`   // 操作：read, write, delete, admin
 }
 
-// persistentConfig 持久化配置.
+// diskUser is the on-disk persistence DTO. Password hashes are stored here
+// (API-facing User keeps PasswordHash with json:"-" so responses never leak them).
+type diskUser struct {
+	ID                 string     `json:"id"`
+	Username           string     `json:"username"`
+	PasswordHash       string     `json:"password_hash"`
+	Role               Role       `json:"role"`
+	Email              string     `json:"email,omitempty"`
+	CreatedAt          time.Time  `json:"created_at"`
+	UpdatedAt          time.Time  `json:"updated_at"`
+	Disabled           bool       `json:"disabled"`
+	HomeDir            string     `json:"home_dir,omitempty"`
+	Groups             []string   `json:"groups,omitempty"`
+	Config             UserConfig `json:"config,omitempty"`
+	LastLoginAt        *time.Time `json:"last_login_at,omitempty"`
+	LastLoginIP        string     `json:"last_login_ip,omitempty"`
+	MustChangePassword bool       `json:"must_change_password,omitempty"`
+}
+
+// persistentConfig 持久化配置（仅落盘，不直接作为 API 响应）.
 type persistentConfig struct {
-	Users  map[string]*User  `json:"users"`
-	Groups map[string]*Group `json:"groups"`
-	Tokens map[string]*Token `json:"tokens"`
+	Users  map[string]*diskUser `json:"users"`
+	Groups map[string]*Group    `json:"groups"`
+	Tokens map[string]*Token    `json:"tokens"`
 }
 
 // Manager 用户管理器.
@@ -124,6 +143,7 @@ type Manager struct {
 	tokens     map[string]*Token // token -> Token
 	mountBase  string
 	configPath string
+	sessionTTL time.Duration // 0 means default 24h
 }
 
 var (
@@ -145,12 +165,18 @@ var (
 	ErrLastAdmin = errors.New("系统必须保留至少一个管理员")
 )
 
-// NewManager 创建用户管理器.
+// DefaultSessionTTL is used when SessionTTL is not configured.
+const DefaultSessionTTL = 24 * time.Hour
+
+// NewManager 创建用户管理器（无持久化路径；仅测试/临时用途）.
+// 生产路径请使用 NewManagerWithConfig 并传入可写的 users.json 路径。
 func NewManager(mountBase string) (*Manager, error) {
 	return NewManagerWithConfig(mountBase, "")
 }
 
 // NewManagerWithConfig 创建用户管理器（带配置文件路径）.
+// configPath 非空时用户与密码哈希会持久化到该文件；启动时会加载。
+// 若 configPath 的父目录无法创建或首次引导无法写盘，返回错误（不静默内存模式）。
 func NewManagerWithConfig(mountBase, configPath string) (*Manager, error) {
 	m := &Manager{
 		users:      make(map[string]*User),
@@ -158,10 +184,14 @@ func NewManagerWithConfig(mountBase, configPath string) (*Manager, error) {
 		tokens:     make(map[string]*Token),
 		mountBase:  mountBase,
 		configPath: configPath,
+		sessionTTL: DefaultSessionTTL,
 	}
 
 	// 尝试加载配置
 	if configPath != "" {
+		if err := os.MkdirAll(filepath.Dir(configPath), 0750); err != nil {
+			return nil, fmt.Errorf("create user store directory: %w", err)
+		}
 		if err := m.loadConfig(); err != nil {
 			return nil, fmt.Errorf("加载配置失败：%w", err)
 		}
@@ -179,7 +209,6 @@ func NewManagerWithConfig(mountBase, configPath string) (*Manager, error) {
 			MustChangePassword: true, // force rotate after reading bootstrap password file
 		}
 		// 生成随机默认密码（首次登录后应修改）
-		// 安全改进：不再使用硬编码密码
 		defaultPassword := generateRandomPassword(16)
 		hash, err := bcrypt.GenerateFromPassword([]byte(defaultPassword), bcrypt.DefaultCost)
 		if err != nil {
@@ -188,16 +217,23 @@ func NewManagerWithConfig(mountBase, configPath string) (*Manager, error) {
 		adminUser.PasswordHash = string(hash)
 		m.users["admin"] = adminUser
 
-		// 将初始密码写入文件（仅首次启动）
-		// 安全改进：密码写入权限受限的文件，而非 stdout
-		// 安全实践：初始密码仅写入文件，不打印到控制台
-		passwordFile := filepath.Join(filepath.Dir(m.configPath), ".admin_password")
-		if err := os.WriteFile(passwordFile, []byte(defaultPassword), 0600); err != nil {
-			// 写入文件失败，记录错误但不暴露密码
-			log.Printf("⚠️  [SECURITY ERROR] 无法写入初始密码文件: %v", err)
-			return nil, fmt.Errorf("初始化管理员密码失败，请联系系统管理员")
+		// 初始密码写入 data/config 旁，绝不写进程 CWD
+		passwordFile := m.bootstrapPasswordPath()
+		if err := os.MkdirAll(filepath.Dir(passwordFile), 0750); err != nil {
+			return nil, fmt.Errorf("create bootstrap password directory: %w", err)
 		}
-		// 仅记录密码文件路径，不打印密码
+		if err := os.WriteFile(passwordFile, []byte(defaultPassword), 0600); err != nil {
+			log.Printf("⚠️  [SECURITY ERROR] 无法写入初始密码文件: %v", err)
+			return nil, fmt.Errorf("初始化管理员密码失败: %w", err)
+		}
+
+		// 有持久化路径时必须立刻落盘（含 password_hash），否则重启丢 admin
+		if m.configPath != "" {
+			if err := m.saveConfig(); err != nil {
+				return nil, fmt.Errorf("persist bootstrap admin: %w", err)
+			}
+		}
+
 		log.Println("========================================")
 		log.Println("⚠️  首次启动：默认管理员账号已创建")
 		log.Println("   用户名: admin")
@@ -208,6 +244,92 @@ func NewManagerWithConfig(mountBase, configPath string) (*Manager, error) {
 	}
 
 	return m, nil
+}
+
+// SetSessionTTL sets the TTL applied to new and refreshed sessions.
+// hours <= 0 keeps the current value (default 24h).
+func (m *Manager) SetSessionTTL(d time.Duration) {
+	if m == nil || d <= 0 {
+		return
+	}
+	m.mu.Lock()
+	m.sessionTTL = d
+	m.mu.Unlock()
+}
+
+// SessionTTL returns the configured session lifetime.
+func (m *Manager) SessionTTL() time.Duration {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	if m.sessionTTL <= 0 {
+		return DefaultSessionTTL
+	}
+	return m.sessionTTL
+}
+
+// ConfigPath returns the users store path (may be empty in tests).
+func (m *Manager) ConfigPath() string {
+	return m.configPath
+}
+
+// BootstrapPasswordPath returns where the one-time admin password is written.
+func (m *Manager) BootstrapPasswordPath() string {
+	return m.bootstrapPasswordPath()
+}
+
+func (m *Manager) bootstrapPasswordPath() string {
+	if m.configPath != "" {
+		return filepath.Join(filepath.Dir(m.configPath), ".admin_password")
+	}
+	// Tests without config path: place next to mount base, never process CWD.
+	if m.mountBase != "" {
+		return filepath.Join(m.mountBase, ".admin_password")
+	}
+	return filepath.Join(os.TempDir(), "nas-os-.admin_password")
+}
+
+func userToDisk(u *User) *diskUser {
+	if u == nil {
+		return nil
+	}
+	return &diskUser{
+		ID:                 u.ID,
+		Username:           u.Username,
+		PasswordHash:       u.PasswordHash,
+		Role:               u.Role,
+		Email:              u.Email,
+		CreatedAt:          u.CreatedAt,
+		UpdatedAt:          u.UpdatedAt,
+		Disabled:           u.Disabled,
+		HomeDir:            u.HomeDir,
+		Groups:             u.Groups,
+		Config:             u.Config,
+		LastLoginAt:        u.LastLoginAt,
+		LastLoginIP:        u.LastLoginIP,
+		MustChangePassword: u.MustChangePassword,
+	}
+}
+
+func userFromDisk(d *diskUser) *User {
+	if d == nil {
+		return nil
+	}
+	return &User{
+		ID:                 d.ID,
+		Username:           d.Username,
+		PasswordHash:       d.PasswordHash,
+		Role:               d.Role,
+		Email:              d.Email,
+		CreatedAt:          d.CreatedAt,
+		UpdatedAt:          d.UpdatedAt,
+		Disabled:           d.Disabled,
+		HomeDir:            d.HomeDir,
+		Groups:             d.Groups,
+		Config:             d.Config,
+		LastLoginAt:        d.LastLoginAt,
+		LastLoginIP:        d.LastLoginIP,
+		MustChangePassword: d.MustChangePassword,
+	}
 }
 
 // loadConfig 从文件加载配置.
@@ -231,36 +353,46 @@ func (m *Manager) loadConfig() error {
 	}
 
 	if pc.Users != nil {
-		m.users = pc.Users
+		m.users = make(map[string]*User, len(pc.Users))
+		for name, du := range pc.Users {
+			if du == nil {
+				continue
+			}
+			u := userFromDisk(du)
+			if u.Username == "" {
+				u.Username = name
+			}
+			m.users[name] = u
+		}
 	}
 	if pc.Groups != nil {
 		m.groups = pc.Groups
 	}
-	if pc.Tokens != nil {
-		// 清理过期令牌
-		now := time.Now()
-		for token, t := range pc.Tokens {
-			if now.After(t.ExpiresAt) {
-				delete(pc.Tokens, token)
-			}
-		}
-		m.tokens = pc.Tokens
-	}
+	// Intentionally ignore pc.Tokens: sessions are memory-only (not durable).
+	// Legacy files may still contain a tokens field; drop on next save.
+	m.tokens = make(map[string]*Token)
 
 	return nil
 }
 
 // saveConfig 保存配置到文件
-// 注意：调用者必须持有 m.mu 锁.
+// 注意：调用者必须持有 m.mu 锁（bootstrap 首次创建除外，调用方保证无并发）.
 func (m *Manager) saveConfig() error {
 	if m.configPath == "" {
 		return nil
 	}
 
+	diskUsers := make(map[string]*diskUser, len(m.users))
+	for name, u := range m.users {
+		diskUsers[name] = userToDisk(u)
+	}
+
+	// Sessions are process-local only — never write tokens next to password hashes.
+	// A stolen users.json must not grant active sessions.
 	pc := persistentConfig{
-		Users:  m.users,
+		Users:  diskUsers,
 		Groups: m.groups,
-		Tokens: m.tokens,
+		Tokens: nil,
 	}
 
 	data, err := json.MarshalIndent(pc, "", "  ")
@@ -272,7 +404,13 @@ func (m *Manager) saveConfig() error {
 		return fmt.Errorf("创建配置目录失败：%w", err)
 	}
 
-	if err := os.WriteFile(m.configPath, data, 0600); err != nil {
+	// Atomic-ish write: temp then rename
+	tmp := m.configPath + ".tmp"
+	if err := os.WriteFile(tmp, data, 0600); err != nil {
+		return fmt.Errorf("写入配置文件失败：%w", err)
+	}
+	if err := os.Rename(tmp, m.configPath); err != nil {
+		_ = os.Remove(tmp)
 		return fmt.Errorf("写入配置文件失败：%w", err)
 	}
 
@@ -701,11 +839,14 @@ func (m *Manager) Authenticate(username, password string) (*Token, error) {
 		return nil, ErrInvalidPassword
 	}
 
-	// 创建令牌（24 小时有效期）
+	ttl := m.sessionTTL
+	if ttl <= 0 {
+		ttl = DefaultSessionTTL
+	}
 	token := &Token{
 		UserID:    user.ID,
 		Token:     generateToken(),
-		ExpiresAt: time.Now().Add(24 * time.Hour),
+		ExpiresAt: time.Now().Add(ttl),
 		CreatedAt: time.Now(),
 	}
 	m.tokens[token.Token] = token
@@ -766,8 +907,11 @@ func (m *Manager) RefreshToken(tokenStr string) (*Token, error) {
 		return nil, ErrTokenInvalid
 	}
 
-	// 延长有效期
-	token.ExpiresAt = time.Now().Add(24 * time.Hour)
+	ttl := m.sessionTTL
+	if ttl <= 0 {
+		ttl = DefaultSessionTTL
+	}
+	token.ExpiresAt = time.Now().Add(ttl)
 	if err := m.saveConfig(); err != nil {
 		log.Printf("保存配置失败: %v", err)
 	}

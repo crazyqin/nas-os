@@ -31,6 +31,43 @@
 
 ---
 
+## 1.1 三轴模型（必读 · 避免「配置开了但二进制没有」）
+
+NAS-OS 能力是否可用取决于 **三个正交轴**，缺一不可：
+
+| 轴 | 含义 | 真相源 |
+|----|------|--------|
+| **目录 tier** | 代码放哪：Core 支撑 / `extensions/` / 产品包 / `lab/` | 仓库路径 + allowlist |
+| **运行时 packages** | 是否启用：`packages.*`、应用中心 SSOT | `config.ResolvePackages`、`app-center-enabled.json` |
+| **编译面 build tag** | 是否链入实现：`nasd_full` vs Core-only | `make build` vs `make build-full`；Docker `BUILD_TAGS` |
+
+```text
+配置 packages.enabled=[docker]
+        +  二进制 built with -tags nasd_full
+        +  Runtime 注册并 Enable
+        →  docker 产品可用
+
+配置 packages.enabled=[docker]
+        +  Core 二进制（无 nasd_full）
+        →  application.New 启动失败（fail-closed）
+           GET /api/v1/packages 中 docker operable=false
+           POST .../enable → 503
+```
+
+| 构建 | 命令 | 约体积 | 链接内容 |
+|------|------|--------|----------|
+| **Core（默认）** | `make build` / `go build ./cmd/nasd` | ~47MB | identity/storage/network/sharing/system + packages API |
+| **Full** | `make build-full` / `go build -tags nasd_full` | ~118MB | + 推荐产品 + HTTP 扩展 + bulk 可选附属 |
+
+- 共享 HTTP 热路径：`internal/web/server_common.go`（`registerCorePublicAndAdminGroups`、`registerCoreIdentityAndDocs`、中间件、WebUI 门闸）。
+- **Core 与 Full 均调用** `registerCorePublicAndAdminGroups` + `registerCoreIdentityAndDocs`（Full 在产品路由块之后调用后者；MFA/RBAC/storage/swagger/WebUI 不重复实现）。
+- 存储 HTTP：**唯一**由 `registerCoreIdentityAndDocs` → `StorageHandlers` 挂载；`storageModule.RegisterRoutes` 为空（防 gin 双挂 panic）。
+- Core/Full 服务器文件：`server_core.go` / `server_full.go`（`//go:build`）。
+- 能力探针：`web.ProductsLinked()` / `web.ExtensionsLinked()` / `web.ValidateBinaryCapabilities`。
+- Docker 默认 `ARG BUILD_TAGS=nasd_full`（镜像偏 full）；瘦镜像：`--build-arg BUILD_TAGS=`。
+
+---
+
 ## 2. 仓库根目录（你会碰到的）
 
 | 路径 | 角色 |

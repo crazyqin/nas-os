@@ -1,3 +1,5 @@
+//go:build nasd_full
+
 // Package web RAIDZ 扩展 WebUI API
 // 兵部 Round 230 - RAIDZ Expansion WebUI 集成
 // 对标 TrueNAS 24.10 Electric Eel RAIDZ Expansion UI特性

@@ -1,7 +1,9 @@
 package web
 
 import (
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/hex"
 	"encoding/json"
@@ -10,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -177,22 +180,35 @@ func securityHeadersMiddleware() gin.HandlerFunc {
 
 // rateLimitMiddleware 简单的速率限制中间件
 // 生产环境建议使用 redis 或 memcached 实现分布式限流.
+// Concurrency-safe: protects the clients map with a mutex and prunes expired entries.
 func rateLimitMiddleware(config *SecurityConfig) gin.HandlerFunc {
 	if !config.EnableRateLimit {
 		return func(c *gin.Context) { c.Next() }
 	}
 
-	// 简单的内存限流 (生产环境请用 Redis)
 	type clientRateLimit struct {
 		count     int
 		resetTime time.Time
 	}
 
+	var mu sync.Mutex
 	clients := make(map[string]*clientRateLimit)
+	lastPrune := time.Now()
 
 	return func(c *gin.Context) {
 		clientIP := c.ClientIP()
 		now := time.Now()
+
+		mu.Lock()
+		// Periodic prune to avoid unbounded growth (every ~60s)
+		if now.Sub(lastPrune) > time.Minute {
+			for ip, cl := range clients {
+				if now.After(cl.resetTime) {
+					delete(clients, ip)
+				}
+			}
+			lastPrune = now
+		}
 
 		client, exists := clients[clientIP]
 		if !exists || now.After(client.resetTime) {
@@ -200,11 +216,13 @@ func rateLimitMiddleware(config *SecurityConfig) gin.HandlerFunc {
 				count:     1,
 				resetTime: now.Add(time.Second),
 			}
+			mu.Unlock()
 			c.Next()
 			return
 		}
 
 		if client.count >= config.RateLimitRPS {
+			mu.Unlock()
 			c.JSON(http.StatusTooManyRequests, gin.H{
 				"code":    429,
 				"message": "请求过于频繁，请稍后再试",
@@ -214,6 +232,7 @@ func rateLimitMiddleware(config *SecurityConfig) gin.HandlerFunc {
 		}
 
 		client.count++
+		mu.Unlock()
 		c.Next()
 	}
 }
@@ -265,32 +284,63 @@ func csrfMiddleware(config *SecurityConfig) gin.HandlerFunc {
 
 // setCSRFToken 设置 CSRF token cookie.
 func setCSRFToken(c *gin.Context, config *SecurityConfig) {
-	// 生成新的 CSRF token
 	token := generateCSRFToken(config.CSRFKey)
 
-	// 设置 cookie
-	c.SetCookie("csrf_token", token, 3600, "/", "", false, true)
-	// 同时设置到上下文，方便模板使用
+	// Secure when request is TLS (or behind TLS-terminating proxy with X-Forwarded-Proto)
+	secure := c.Request.TLS != nil ||
+		strings.EqualFold(c.GetHeader("X-Forwarded-Proto"), "https")
+
+	// SameSite=Strict via http.Cookie for clearer attributes than SetCookie alone
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "csrf_token",
+		Value:    token,
+		Path:     "/",
+		MaxAge:   3600,
+		HttpOnly: true,
+		Secure:   secure,
+		SameSite: http.SameSiteStrictMode,
+	})
 	c.Set("csrfToken", token)
 }
 
-// generateCSRFToken 生成 CSRF token.
+// generateCSRFToken builds an HMAC-SHA256 signed token: ts.nonce.sig
+// The CSRFKey is required material; forging tokens without the key fails validation.
 func generateCSRFToken(key []byte) string {
-	// 使用 UUID 作为 token，结合密钥增加安全性
 	timestamp := time.Now().Unix()
-	random := uuid.New().String()
-	// 简单的 token 格式: timestamp-random
-	// 生产环境可考虑使用 HMAC 签名
-	return fmt.Sprintf("%d-%s", timestamp, random)
+	nonce := uuid.New().String()
+	payload := fmt.Sprintf("%d.%s", timestamp, nonce)
+	mac := hmac.New(sha256.New, key)
+	_, _ = mac.Write([]byte(payload))
+	sig := hex.EncodeToString(mac.Sum(nil))
+	return payload + "." + sig
 }
 
-// validateCSRFToken 验证 CSRF token.
+// verifyCSRFSignature checks token structure and HMAC against key.
+func verifyCSRFSignature(token string, key []byte) bool {
+	if token == "" || len(key) == 0 {
+		return false
+	}
+	// format: <unix>.<uuid>.<hex-hmac>
+	parts := strings.Split(token, ".")
+	if len(parts) != 3 {
+		return false
+	}
+	payload := parts[0] + "." + parts[1]
+	mac := hmac.New(sha256.New, key)
+	_, _ = mac.Write([]byte(payload))
+	expected := hex.EncodeToString(mac.Sum(nil))
+	return subtle.ConstantTimeCompare([]byte(parts[2]), []byte(expected)) == 1
+}
+
+// validateCSRFToken requires header token == cookie token AND a valid HMAC signature.
 func validateCSRFToken(token, expectedToken string, key []byte) bool {
 	if token == "" || expectedToken == "" {
 		return false
 	}
-	// 使用恒定时间比较防止时序攻击
-	return subtle.ConstantTimeCompare([]byte(token), []byte(expectedToken)) == 1
+	if subtle.ConstantTimeCompare([]byte(token), []byte(expectedToken)) != 1 {
+		return false
+	}
+	return verifyCSRFSignature(token, key)
 }
 
 // auditLogMiddleware 审计日志中间件 (记录关键操作).

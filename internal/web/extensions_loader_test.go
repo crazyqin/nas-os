@@ -1,3 +1,5 @@
+//go:build nasd_full
+
 package web
 
 import (
@@ -126,8 +128,8 @@ func TestRegisterConfiguredExtensionsRetainsActiveProtectManager(t *testing.T) {
 	api := r.Group("/api/v1")
 	s.registerConfiguredExtensions(api)
 
-	if s.extHolders == nil || s.extHolders.activeProtect == nil {
-		t.Fatal("activeprotect manager must be retained on Server")
+	if s.pkgRuntime == nil || !s.pkgRuntime.IsLoaded("activeprotect") {
+		t.Fatal("activeprotect must be loaded in package runtime")
 	}
 
 	w := httptest.NewRecorder()
@@ -157,8 +159,10 @@ func TestRegisterConfiguredExtensionsComplianceScanRoutes(t *testing.T) {
 	api := r.Group("/api/v1")
 	s.registerConfiguredExtensions(api)
 
-	if s.extHolders.complianceScan == nil || s.extHolders.deployOrch == nil || s.extHolders.netDiag == nil {
-		t.Fatal("managers must be retained for all three extensions")
+	for _, id := range []string{"compliancescan", "deployorch", "netdiag"} {
+		if !s.pkgRuntime.IsLoaded(id) {
+			t.Fatalf("%s must be loaded", id)
+		}
 	}
 
 	for _, path := range []string{

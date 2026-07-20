@@ -2,8 +2,11 @@
 package users
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -456,6 +459,135 @@ func TestManager_Persistence(t *testing.T) {
 	group, err := mgr2.GetGroup("testgroup")
 	assert.NoError(t, err)
 	assert.Equal(t, "testgroup", group.Name)
+
+	// 重启后密码必须仍可认证（password_hash 必须落盘）
+	tok, err := mgr2.Authenticate("persistent", "password123")
+	assert.NoError(t, err)
+	assert.NotNil(t, tok)
+	assert.NotEmpty(t, tok.Token)
+}
+
+// TestManager_PersistReloadAuthenticate proves the shipped identity path:
+// CreateUser → disk store → new Manager → Authenticate succeeds.
+// Bootstrap password file must live under the config directory, not CWD.
+func TestManager_PersistReloadAuthenticate(t *testing.T) {
+	tmpDir := t.TempDir()
+	storeDir := filepath.Join(tmpDir, "etc", "nas-os")
+	configPath := filepath.Join(storeDir, "users.json")
+	mountBase := filepath.Join(tmpDir, "mnt")
+
+	mgr1, err := NewManagerWithConfig(mountBase, configPath)
+	if err != nil {
+		t.Fatalf("NewManagerWithConfig: %v", err)
+	}
+
+	const username = "alice"
+	const password = "s3cure-pass-99"
+	if _, err := mgr1.CreateUser(UserInput{Username: username, Password: password, Role: RoleUser}); err != nil {
+		t.Fatalf("CreateUser: %v", err)
+	}
+
+	// On-disk file must contain password_hash field
+	raw, err := os.ReadFile(configPath)
+	if err != nil {
+		t.Fatalf("read store: %v", err)
+	}
+	if !bytes.Contains(raw, []byte(`"password_hash"`)) {
+		t.Fatalf("users.json missing password_hash; got:\n%s", string(raw))
+	}
+	// API-facing marshal of User must not include password_hash
+	u, err := mgr1.GetUser(username)
+	if err != nil {
+		t.Fatalf("GetUser: %v", err)
+	}
+	apiJSON, err := json.Marshal(u)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Contains(apiJSON, []byte("password_hash")) || bytes.Contains(apiJSON, []byte(u.PasswordHash)) {
+		t.Fatalf("API User JSON must omit password hash, got %s", apiJSON)
+	}
+
+	// Bootstrap password path under config dir
+	pwPath := mgr1.BootstrapPasswordPath()
+	if filepath.Dir(pwPath) != storeDir {
+		t.Fatalf("bootstrap password path %q not under store dir %q", pwPath, storeDir)
+	}
+
+	// Simulate process restart
+	mgr2, err := NewManagerWithConfig(mountBase, configPath)
+	if err != nil {
+		t.Fatalf("reload manager: %v", err)
+	}
+	tok, err := mgr2.Authenticate(username, password)
+	if err != nil {
+		t.Fatalf("Authenticate after reload: %v", err)
+	}
+	if tok == nil || tok.Token == "" {
+		t.Fatal("expected non-empty token after reload auth")
+	}
+	if _, err := mgr2.Authenticate(username, "wrong-password"); err == nil {
+		t.Fatal("expected wrong password to fail")
+	}
+}
+
+func TestManager_SessionsNotPersisted(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "users.json")
+	mgr, err := NewManagerWithConfig(tmpDir, configPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := mgr.CreateUser(UserInput{Username: "sess", Password: "password123"}); err != nil {
+		t.Fatal(err)
+	}
+	tok, err := mgr.Authenticate("sess", "password123")
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(configPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Contains(raw, []byte(tok.Token)) {
+		t.Fatal("session token must not be written to users.json")
+	}
+	// Reload: prior session invalid
+	mgr2, err := NewManagerWithConfig(tmpDir, configPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := mgr2.ValidateToken(tok.Token); err == nil {
+		t.Fatal("token from previous process must not validate after reload")
+	}
+	// Password login still works
+	if _, err := mgr2.Authenticate("sess", "password123"); err != nil {
+		t.Fatalf("password auth after reload: %v", err)
+	}
+}
+
+func TestManager_SessionTTLFromConfig(t *testing.T) {
+	tmpDir := t.TempDir()
+	mgr, err := NewManagerWithConfig(tmpDir, filepath.Join(tmpDir, "users.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	mgr.SetSessionTTL(2 * time.Hour)
+	if mgr.SessionTTL() != 2*time.Hour {
+		t.Fatalf("SessionTTL=%v want 2h", mgr.SessionTTL())
+	}
+	if _, err := mgr.CreateUser(UserInput{Username: "ttluser", Password: "password123"}); err != nil {
+		t.Fatal(err)
+	}
+	tok, err := mgr.Authenticate("ttluser", "password123")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// ExpiresAt should be ~2h from now (not default 24h)
+	until := time.Until(tok.ExpiresAt)
+	if until < 90*time.Minute || until > 3*time.Hour {
+		t.Fatalf("token TTL out of expected range: until=%v", until)
+	}
 }
 
 // ========== 角色权限测试 ==========

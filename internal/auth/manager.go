@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 )
@@ -20,6 +21,7 @@ type MFAManager struct {
 	backupManager *BackupCodeManager
 	webauthnMgr   *WebAuthnManager
 	issuer        string
+	encryption    *SecretEncryption // encrypts TOTP secrets at rest
 }
 
 // MFAStatus MFA 状态.
@@ -52,6 +54,8 @@ var (
 	ErrMFAAlreadyEnabled = errors.New("双因素认证已启用")
 )
 
+const totpSecretEncPrefix = "enc:v1:"
+
 // NewMFAManager 创建 MFA 管理器.
 func NewMFAManager(configPath, issuer string, smsProvider SMSProvider) (*MFAManager, error) {
 	m := &MFAManager{
@@ -63,6 +67,16 @@ func NewMFAManager(configPath, issuer string, smsProvider SMSProvider) (*MFAMana
 	// 创建子管理器
 	m.smsManager = NewSMSManager(smsProvider)
 	m.backupManager = NewBackupCodeManager()
+
+	// Machine-local key for TOTP secrets at rest (alongside mfa config).
+	if configPath != "" {
+		keyPath := filepath.Join(filepath.Dir(configPath), "mfa-master.key")
+		se := NewSecretEncryption(keyPath)
+		if err := se.EnsureKey(); err != nil {
+			return nil, fmt.Errorf("initialize MFA encryption key: %w", err)
+		}
+		m.encryption = se
+	}
 
 	// 创建 WebAuthn 管理器（默认配置）
 	webauthnCfg := WebAuthnConfig{
@@ -102,6 +116,18 @@ func (m *MFAManager) loadConfig() error {
 		return fmt.Errorf("解析配置文件失败：%w", err)
 	}
 
+	// Decrypt TOTP secrets into memory (plaintext only in process).
+	for _, cfg := range configs {
+		if cfg == nil || cfg.TOTPSecret == "" {
+			continue
+		}
+		plain, err := m.decryptSecret(cfg.TOTPSecret)
+		if err != nil {
+			return fmt.Errorf("decrypt TOTP secret for %s: %w", cfg.UserID, err)
+		}
+		cfg.TOTPSecret = plain
+	}
+
 	m.configs = configs
 	return nil
 }
@@ -112,7 +138,24 @@ func (m *MFAManager) saveConfig() error {
 		return nil
 	}
 
-	data, err := json.MarshalIndent(m.configs, "", "  ")
+	// Encrypt secrets for disk only; leave in-memory configs plaintext.
+	disk := make(map[string]*MFAConfig, len(m.configs))
+	for id, cfg := range m.configs {
+		if cfg == nil {
+			continue
+		}
+		copyCfg := *cfg
+		if copyCfg.TOTPSecret != "" {
+			enc, err := m.encryptSecret(copyCfg.TOTPSecret)
+			if err != nil {
+				return fmt.Errorf("encrypt TOTP secret: %w", err)
+			}
+			copyCfg.TOTPSecret = enc
+		}
+		disk[id] = &copyCfg
+	}
+
+	data, err := json.MarshalIndent(disk, "", "  ")
 	if err != nil {
 		return fmt.Errorf("序列化配置失败：%w", err)
 	}
@@ -121,11 +164,48 @@ func (m *MFAManager) saveConfig() error {
 		return fmt.Errorf("创建配置目录失败：%w", err)
 	}
 
-	if err := os.WriteFile(m.configPath, data, 0600); err != nil {
+	tmp := m.configPath + ".tmp"
+	if err := os.WriteFile(tmp, data, 0600); err != nil {
+		return fmt.Errorf("写入配置文件失败：%w", err)
+	}
+	if err := os.Rename(tmp, m.configPath); err != nil {
+		_ = os.Remove(tmp)
 		return fmt.Errorf("写入配置文件失败：%w", err)
 	}
 
 	return nil
+}
+
+func (m *MFAManager) encryptSecret(plain string) (string, error) {
+	if plain == "" {
+		return "", nil
+	}
+	// Already encrypted (re-save path) — leave as-is.
+	if strings.HasPrefix(plain, totpSecretEncPrefix) {
+		return plain, nil
+	}
+	if m.encryption == nil || !m.encryption.IsInitialized() {
+		return "", ErrEncryptionNotInitialized
+	}
+	enc, err := m.encryption.Encrypt(plain)
+	if err != nil {
+		return "", err
+	}
+	return totpSecretEncPrefix + enc, nil
+}
+
+func (m *MFAManager) decryptSecret(stored string) (string, error) {
+	if stored == "" {
+		return "", nil
+	}
+	if !strings.HasPrefix(stored, totpSecretEncPrefix) {
+		// Legacy plaintext on disk — accept and re-encrypt on next save.
+		return stored, nil
+	}
+	if m.encryption == nil || !m.encryption.IsInitialized() {
+		return "", ErrEncryptionNotInitialized
+	}
+	return m.encryption.Decrypt(strings.TrimPrefix(stored, totpSecretEncPrefix))
 }
 
 // GetConfig 获取用户 MFA 配置.
@@ -187,7 +267,7 @@ func (m *MFAManager) SetupTOTP(userID, username string) (*TOTPSetup, error) {
 		}
 	}
 
-	// 存储密钥（实际应该加密存储）
+	// Memory holds plaintext; saveConfig encrypts to disk.
 	m.configs[userID].TOTPSecret = setup.Secret
 	m.configs[userID].UpdatedAt = time.Now()
 

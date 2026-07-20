@@ -169,6 +169,7 @@ func TestGenerateCSRFToken(t *testing.T) {
 
 func TestValidateCSRFToken(t *testing.T) {
 	key := []byte("test-secret-key-32-bytes-long-!")
+	good := generateCSRFToken(key)
 
 	tests := []struct {
 		name          string
@@ -177,15 +178,21 @@ func TestValidateCSRFToken(t *testing.T) {
 		expected      bool
 	}{
 		{
-			name:          "valid tokens",
-			token:         "test-token",
-			expectedToken: "test-token",
+			name:          "valid HMAC tokens",
+			token:         good,
+			expectedToken: good,
 			expected:      true,
 		},
 		{
 			name:          "invalid tokens",
 			token:         "wrong-token",
 			expectedToken: "correct-token",
+			expected:      false,
+		},
+		{
+			name:          "matching but not signed",
+			token:         "1234567890.not-a-uuid.deadbeef",
+			expectedToken: "1234567890.not-a-uuid.deadbeef",
 			expected:      false,
 		},
 		{
@@ -214,6 +221,13 @@ func TestValidateCSRFToken(t *testing.T) {
 			assert.Equal(t, tt.expected, result)
 		})
 	}
+}
+
+func TestGenerateCSRFToken_IsHMACSigned(t *testing.T) {
+	key := []byte("another-test-key-for-hmac-sign!")
+	tok := generateCSRFToken(key)
+	assert.True(t, verifyCSRFSignature(tok, key), "token must verify against its key")
+	assert.False(t, verifyCSRFSignature(tok, []byte("wrong-key-material-here!!!!")), "wrong key must fail")
 }
 
 // ========== Input Validation Middleware 测试 ==========

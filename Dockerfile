@@ -27,6 +27,8 @@ FROM golang:1.26-alpine AS builder
 ARG VERSION=dev
 ARG BUILD_TIME
 ARG REVISION
+# nasd_full = product managers (docker/vm/photos/…); empty = Core-only slim binary
+ARG BUILD_TAGS=nasd_full
 # BuildKit 自动注入的跨平台构建参数
 ARG TARGETOS
 ARG TARGETARCH
@@ -60,7 +62,8 @@ ENV CGO_ENABLED=0
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg/mod \
     GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
-    go build -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \
+    if [ -n "${BUILD_TAGS}" ]; then TAGS="-tags ${BUILD_TAGS}"; else TAGS=""; fi; \
+    go build ${TAGS} -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \
     -o nasd ./cmd/nasd && \
     GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
     go build -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \

@@ -1,0 +1,33 @@
+# NAS-OS secure overlay — prefer this for production-like deploys.
+#
+# Usage:
+#   cp .env.example .env   # set NAS_CSRF_KEY and NAS_OS_ENV=production
+#   docker compose -f docker-compose.yml -f docker-compose.secure.yml up -d
+#
+# Differences vs base compose:
+#   - no privileged: true
+#   - bridge network + published port (not host network)
+#   - devices mount for disks (adjust list for your hardware)
+#   - forces production CSRF requirements via environment
+
+services:
+  nas-os:
+    privileged: false
+    network_mode: bridge
+    ports:
+      - "127.0.0.1:8080:8080"
+    devices:
+      # Uncomment and match host disks:
+      # - /dev/sda:/dev/sda
+      # - /dev/sdb:/dev/sdb
+      - /dev/disk:/dev/disk
+    cap_add:
+      - SYS_ADMIN
+      - DAC_READ_SEARCH
+    security_opt:
+      - apparmor:unconfined
+    environment:
+      - NAS_OS_ENV=${NAS_OS_ENV:-production}
+      - NAS_CSRF_KEY=${NAS_CSRF_KEY:?set NAS_CSRF_KEY in .env}
+      - NAS_OS_LISTEN_HOST=0.0.0.0
+    # Drop host network; bind only localhost on the host side via ports above.

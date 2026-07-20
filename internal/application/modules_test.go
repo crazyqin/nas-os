@@ -119,15 +119,18 @@ func TestSystemModuleReportsContainerHealth(t *testing.T) {
 	}
 }
 
-type routeRecorder struct{ called bool }
-
-func (r *routeRecorder) RegisterRoutes(*gin.RouterGroup) { r.called = true }
-
-func TestStorageModuleDelegatesCompatibilityRoutes(t *testing.T) {
-	recorder := &routeRecorder{}
-	module := &storageModule{compatRoutes: recorder}
-	module.RegisterRoutes(gin.New().Group("/api/v1"))
-	if !recorder.called {
-		t.Fatal("storage compatibility routes were not registered")
+// TestStorageModuleRegisterRoutesIsNoOp documents that storage HTTP is owned by
+// web.registerCoreIdentityAndDocs, not the arch storage module.
+func TestStorageModuleRegisterRoutesIsNoOp(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	api := r.Group("/api/v1")
+	module := &storageModule{}
+	// Must not panic and must not register /storage routes.
+	module.RegisterRoutes(api)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/api/v1/storage/volumes", nil))
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("storage module must not register /storage routes, got %d", w.Code)
 	}
 }

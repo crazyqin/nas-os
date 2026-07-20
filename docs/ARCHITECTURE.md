@@ -11,7 +11,20 @@
 > **主配置面**：`packages.*`（`modules.*` **仅**弃用兼容）。  
 > **启用 SSOT**：`{data_dir}/app-center-enabled.json`（见 ops-packages）。  
 > **套件路由**：停用 = **卸载挂载标志 → HTTP 404**；再启用重新挂载（gin 树节点复用）。  
-> **默认仍仅 Core**。演进史见 [ADR-0001](adr/0001-platform-packages-host-sdk.md)。
+> **默认仍仅 Core**。演进史见 [ADR-0001](adr/0001-platform-packages-host-sdk.md)。  
+> **编译面**：`nasd_full` 决定产品/扩展是否链入二进制 — 见 [STRUCTURE §1.1](STRUCTURE.md#11-三轴模型必读--避免配置开了但二进制没有)。
+
+## 编译面与配置诚实
+
+| 构建 | tag | 启动时若配置请求未链接能力 |
+|------|-----|---------------------------|
+| Core | （无 tag） | `application.New` → `web.ValidateBinaryCapabilities` **失败退出** |
+| Full | `nasd_full` | 正常构造；`packages` API `operable=true` 当 Runtime 已知 |
+
+共享路由注册：`web.registerCorePublicAndAdminGroups` + `registerCoreIdentityAndDocs`。  
+- Core：`setupRoutes` 直接调用二者。  
+- Full：`setupRoutes` 先 `registerCorePublicAndAdminGroups` + 产品路由，再 **`registerCoreIdentityAndDocs`**（MFA/RBAC/storage/swagger/WebUI；若已挂 bulk `systemMonitor` 则跳过 Core `/system/info`）。  
+存储删卷生产契约：**仅** `registerCoreIdentityAndDocs` → `web.StorageHandlers` → `/api/v1/storage/*` + `DeleteVolumeConfirmed`（arch storage 模块不挂 HTTP）。
 
 ## 进程组合
 
