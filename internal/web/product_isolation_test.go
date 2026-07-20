@@ -167,4 +167,13 @@ func TestRuntimeEnablePhotosConstructsManager(t *testing.T) {
 	if !s.pkgRuntime.IsLoaded("photos") {
 		t.Fatal("photos not loaded")
 	}
+
+	// Disable releases manager.
+	if err := s.pkgRuntime.Disable(context.Background(), "photos"); err != nil {
+		t.Fatal(err)
+	}
+	s.releaseProductManager("photos")
+	if s.photosMgr != nil {
+		t.Fatal("photos manager must be nil after release")
+	}
 }

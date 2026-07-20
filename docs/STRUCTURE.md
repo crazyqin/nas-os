@@ -130,7 +130,7 @@ packages:
 | 导航 | 主侧栏「应用中心」 |
 | 列表 | `GET /api/v1/packages` → `items[]`：`http_extension` / `recommended_product` / `community` |
 | 启用/停用 | `POST .../packages/:id/enable|disable` → 统一 Runtime |
-| 启用真相源 | `packages.enabled` ∪ `data_dir/app-center-enabled.json` → **Runtime loaded** |
+| 启用真相源 | **`data_dir/app-center-enabled.json`（SSOT）**；yaml `packages.enabled` 为首次启动种子；UI 启停会同步镜像到内存 `cfg.Packages.Enabled` |
 | HTTP 停用 | 路由中间件 `requirePackageActive` → **503**（非仅 loaded=false） |
 | 产品套件 | `docker` 等 `recommended_product` 与扩展同一列表可点 |
 

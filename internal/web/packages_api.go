@@ -24,12 +24,13 @@ type packageItem struct {
 	Description string `json:"description,omitempty"`
 	Version     string `json:"version,omitempty"`
 	Loaded      bool   `json:"loaded"`
-	// Operable: can enable/disable through unified package runtime (always true for listed items).
-	Operable   bool   `json:"operable"`
-	CanEnable  bool   `json:"can_enable"`
-	CanDisable bool   `json:"can_disable"`
-	// Note explains product vs HTTP semantics for the UI.
-	Note string `json:"note,omitempty"`
+	// Operable: can enable/disable through unified package runtime.
+	Operable   bool `json:"operable"`
+	CanEnable  bool `json:"can_enable"`
+	CanDisable bool `json:"can_disable"`
+	// RequiresRestart: enable persists but full process features need restart (e.g. cluster).
+	RequiresRestart bool   `json:"requires_restart,omitempty"`
+	Note            string `json:"note,omitempty"`
 }
 
 // runtimeEnabledMu guards s.runtimeEnabled (persisted user enable set).
@@ -84,10 +85,10 @@ func (s *Server) handlePackagesList(c *gin.Context) {
 			"modules_deprecated":   res.ModulesDeprecated,
 			"warnings":             res.Warnings,
 			"statuses":             rt.Statuses(c.Request.Context()),
-			// Single source of truth for click path: app-center-enabled.json ∪ packages.enabled at boot;
-			// live loaded state is always Package Runtime.IsLoaded / data.loaded.
-			"enablement_source": "packages.enabled ∪ data_dir/app-center-enabled.json → Runtime loaded",
-			"persistence":       "data_dir/app-center-enabled.json (UI clicks); packages.enabled (static config)",
+			// SSOT after first UI interaction: app-center-enabled.json;
+			// packages.enabled is boot seed and in-memory mirror (synced on enable/disable).
+			"enablement_source": "data_dir/app-center-enabled.json (SSOT) + packages.enabled boot seed → Runtime loaded",
+			"persistence":       "app-center-enabled.json; cfg.Packages.Enabled mirrored in-process",
 		},
 	})
 }
@@ -127,7 +128,11 @@ func (s *Server) buildPackageItems() []packageItem {
 		case config.KindRecommendedProduct:
 			item.Source = "product"
 			item.Kind = string(config.KindRecommendedProduct)
-			item.Note = "Product surface — enable constructs/activates product managers (e.g. docker)"
+			item.Note = "Product surface — enable constructs/activates product managers"
+			if e.ID == "cluster" {
+				item.RequiresRestart = true
+				item.Note = "Cluster is process-scoped; enable/disable persists for next boot. Prefer restart after change."
+			}
 		default:
 			continue
 		}
@@ -184,7 +189,7 @@ func (s *Server) handlePackageEnable(c *gin.Context) {
 		return
 	}
 	s.addRuntimeEnabled(id)
-	_ = s.persistRuntimeEnabled()
+	s.syncEnablementSSOT()
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "enabled",
@@ -210,8 +215,9 @@ func (s *Server) handlePackageDisable(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"code": 1, "message": err.Error()})
 		return
 	}
+	s.releaseProductManager(id)
 	s.removeRuntimeEnabled(id)
-	_ = s.persistRuntimeEnabled()
+	s.syncEnablementSSOT()
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "disabled",
@@ -221,6 +227,18 @@ func (s *Server) handlePackageDisable(c *gin.Context) {
 			"items":  s.buildPackageItems(),
 		},
 	})
+}
+
+// syncEnablementSSOT makes app-center-enabled.json + in-memory cfg.Packages.Enabled match
+// the UI enable set (single source of truth for optional packages).
+func (s *Server) syncEnablementSSOT() {
+	if s == nil || s.cfg == nil {
+		return
+	}
+	ids := s.listRuntimeEnabled()
+	// Mirror into typed config so ResolvePackages sees the same set.
+	s.cfg.Packages.Enabled = append([]string(nil), ids...)
+	_ = s.persistRuntimeEnabled()
 }
 
 // --- runtime-enabled persistence (user click path) ---
@@ -263,6 +281,16 @@ func (s *Server) runtimeEnabledPath() string {
 		return ""
 	}
 	return s.cfg.DataPath("app-center-enabled.json")
+}
+
+// appCenterSSOTExists reports whether the enablement SSOT file is already on disk.
+func (s *Server) appCenterSSOTExists() bool {
+	path := s.runtimeEnabledPath()
+	if path == "" {
+		return false
+	}
+	_, err := os.Stat(path)
+	return err == nil
 }
 
 func (s *Server) persistRuntimeEnabled() error {

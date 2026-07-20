@@ -90,6 +90,49 @@ func (s *Server) requirePackageActive(id string) gin.HandlerFunc {
 	}
 }
 
+// releaseProductManager drops product managers on disable (routes stay gated by IsPackageActive).
+func (s *Server) releaseProductManager(id string) {
+	if s == nil {
+		return
+	}
+	switch id {
+	case "docker":
+		s.dockerMgr = nil
+		s.appStore = nil
+		log.Printf("ℹ️  product docker manager released")
+	case "photos":
+		if s.photosAIMgr != nil {
+			s.photosAIMgr.Close()
+			s.photosAIMgr = nil
+		}
+		s.photosMgr = nil
+		log.Printf("ℹ️  product photos manager released")
+	case "backup":
+		s.backupMgr = nil
+		s.syncMgr = nil
+		log.Printf("ℹ️  product backup manager released")
+	case "vm":
+		s.vmMgr = nil
+		s.isoMgr = nil
+		s.snapshotMgr = nil
+		log.Printf("ℹ️  product vm manager released")
+	case "ai":
+		s.aiSvc = nil
+		log.Printf("ℹ️  product ai service released")
+	case "cloudsync":
+		s.cloudsyncMgr = nil
+		log.Printf("ℹ️  product cloudsync manager released")
+	case "downloader":
+		if s.downloadMgr != nil {
+			s.downloadMgr.Close()
+		}
+		s.downloadMgr = nil
+		log.Printf("ℹ️  product downloader manager released")
+	case "cluster":
+		log.Printf("ℹ️  product cluster disable persisted; full teardown on process restart")
+	}
+}
+
 // ensureProductManager lazily constructs managers when a product is runtime-enabled.
 func (s *Server) ensureProductManager(id string) {
 	if s == nil || s.cfg == nil {
