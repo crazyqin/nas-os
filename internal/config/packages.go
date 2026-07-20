@@ -5,47 +5,42 @@ import (
 	"strings"
 )
 
-// RecommendedSystemPackages is the official system package ID set expanded when
-// modules.optional or packages.recommended_system is true (ADR-0001 Stage 1).
-// Non-empty by design so recommended/optional resolution is observable.
-// IDs name the optional product surface gated today (docker/VM/photos/…);
-// HTTP catalog extensions (voicehub, …) remain opt-in via modules.extensions
-// or packages.enabled so optional=true does not change extension mounting.
-var RecommendedSystemPackages = []string{
-	"docker",
-	"vm",
-	"photos",
-	"ai",
-	"backup",
-	"cloudsync",
-	"downloader",
-	"cluster",
-}
+// RecommendedSystemPackages is the official recommended product package ID set
+// expanded when packages.recommended_system is true (or deprecated modules.optional).
+// Derived from SystemPackageCatalog (ADR-0001 Stage 3 single source of truth).
+//
+// HTTP catalog extensions remain opt-in via packages.enabled so recommended_system
+// does not auto-mount HTTP extensions.
+var RecommendedSystemPackages = RecommendedSystemPackageIDs()
 
-// PackagesConfig is the ADR Stage-1 packages surface (dual-read with modules.*).
+// PackagesConfig is the preferred ADR-0001 configuration surface.
+// Prefer packages.* over deprecated modules.optional / modules.extensions.
 type PackagesConfig struct {
 	// RecommendedSystem enables the official recommended system package set.
-	// Equivalent to modules.optional when only modules.* is set.
+	// Prefer this over deprecated modules.optional.
 	RecommendedSystem bool `yaml:"recommended_system"`
-	// Enabled lists system package IDs to enable (unioned with modules.extensions).
+	// Enabled lists system package IDs (HTTP extensions and/or named products).
+	// Prefer this over deprecated modules.extensions.
 	Enabled []string `yaml:"enabled"`
 }
 
 // PackageResolution is the unified enablement result after dual-read merge.
 type PackageResolution struct {
-	// RecommendedSystem is true when modules.optional or packages.recommended_system.
+	// RecommendedSystem is true when packages.recommended_system or modules.optional.
 	// Production gates non-Core product managers on this flag.
 	RecommendedSystem bool
-	// Enabled is the sorted unique union of modules.extensions, packages.enabled,
+	// Enabled is the sorted unique union of packages.enabled, modules.extensions,
 	// and RecommendedSystemPackages when RecommendedSystem is true.
 	Enabled []string
 	// DualSource is true when both modules.* and packages.* contributed enablement.
 	DualSource bool
-	// Warnings holds human-readable dual-source notes (may be empty).
+	// ModulesDeprecated is true when deprecated modules.optional/extensions contributed.
+	ModulesDeprecated bool
+	// Warnings holds dual-source and deprecation notes (may be empty).
 	Warnings []string
 }
 
-// ResolvePackages merges modules.* and packages.* per ADR-0001 dual-read rules.
+// ResolvePackages merges packages.* (preferred) with deprecated modules.* dual-read.
 // Pure function of config fields — no I/O.
 func (c *Config) ResolvePackages() PackageResolution {
 	if c == nil {
@@ -63,10 +58,15 @@ func (c *Config) ResolvePackages() PackageResolution {
 	res := PackageResolution{
 		RecommendedSystem: modOptional || pkgRec,
 		DualSource:        modulesContributed && packagesContributed,
+		ModulesDeprecated: modulesContributed,
+	}
+	if modulesContributed {
+		res.Warnings = append(res.Warnings,
+			"modules.optional / modules.extensions are deprecated (ADR-0001 Stage 3); prefer packages.recommended_system / packages.enabled")
 	}
 	if res.DualSource {
 		res.Warnings = append(res.Warnings,
-			"both modules.* and packages.* set; enabled packages use union (ADR-0001 Stage 1)")
+			"both modules.* and packages.* set; enabled packages use union (compatibility dual-read)")
 	}
 
 	// Named enablement: union of both lists.
@@ -74,7 +74,12 @@ func (c *Config) ResolvePackages() PackageResolution {
 
 	// When recommended/optional is on, expand official set then union with named.
 	if res.RecommendedSystem {
-		res.Enabled = unionSorted(RecommendedSystemPackages, named)
+		// Prefer live catalog-derived list; fall back if catalog empty (should not happen).
+		rec := RecommendedSystemPackages
+		if len(rec) == 0 {
+			rec = RecommendedSystemPackageIDs()
+		}
+		res.Enabled = unionSorted(rec, named)
 	} else {
 		res.Enabled = named
 	}
@@ -82,7 +87,7 @@ func (c *Config) ResolvePackages() PackageResolution {
 }
 
 // OptionalProductsEnabled reports whether non-Core product managers should run.
-// Prefer this over reading Modules.Optional in isolation (ADR Stage 1).
+// Prefer this over reading Modules.Optional in isolation.
 func (c *Config) OptionalProductsEnabled() bool {
 	return c.ResolvePackages().RecommendedSystem
 }

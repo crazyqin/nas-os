@@ -3,7 +3,7 @@
 **更新日期**: 2026-07-16  
 **版本**: v3.24.3
 
-> **默认运行时**: `nasd` 仅 Core 五模块；`modules.optional=false`、`modules.extensions=[]`。WriteOnce/AI/LLM/CLIP/MCP 等需显式启用，见 README「默认交付面」。
+> **默认运行时**: `nasd` 仅 Core 五模块；`packages.recommended_system=false`、`packages.enabled=[]`（`modules.*` 弃用兼容）。WriteOnce/AI/LLM/CLIP/MCP 等需显式启用，见 README「默认交付面」。
 
 ## 代码规模
 

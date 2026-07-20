@@ -2,13 +2,14 @@
 
 | 字段 | 内容 |
 |------|------|
-| **状态** | Accepted — **Stage 1 + Stage 2 implemented**（Stage 3 未做） |
+| **状态** | Accepted — **Stage 0–3 implemented** |
 | **日期** | 2026-07-20 |
 | **范围** | 产品叙事、模块交付、默认表面、生态边界 |
-| **不影响** | 默认 `nasd` 仍仅 Core；Stage 1–2 **不改变** v3.24 默认行为 |
+| **不影响** | 默认 `nasd` 仍仅 Core；Stage 0–3 **不改变** v3.24 默认行为 |
 | **相关** | [ARCHITECTURE.md](../ARCHITECTURE.md)（现行运行时说明） |
 | **Stage 1 代码** | `internal/config/packages.go`（`ResolvePackages` / `OptionalProductsEnabled`）；生产门闸：`internal/web`、`internal/application` |
 | **Stage 2 代码** | `pkg/hostapi`（Host SDK v1.0.0）；`internal/packageruntime`；web 扩展经 Runtime 启用；`GET /api/v1/packages` |
+| **Stage 3 代码** | `config.SystemPackageCatalog`；文档/默认 YAML 主路径 `packages.*`；`modules.*` 弃用 warn 兼容 |
 
 ---
 
@@ -151,11 +152,13 @@ packages:
 - 状态面：`GET /api/v1/packages`（host API 版本、catalog、loaded、resolved、statuses）；保留 `GET /api/v1/extensions`。  
 - 签名校验与完整 community 沙箱 **未**在本阶段实现（仍属后续增强）。
 
-### 3.4 阶段 3 — 收敛（破坏性需发版说明）
+### 3.4 阶段 3 — 收敛（**已实现；兼容层保留**）
 
-- 文档与示例默认只展示 `packages.*`。  
-- `modules.optional` / `modules.extensions` 标 deprecated，随后只保留兼容层或移除（另开 ADR）。  
-- optional 产品目录逐步编目为 system 套件 ID（不必一次物理搬家）。
+- 文档与 `configs/default.yaml` **主路径只推荐** `packages.*`。  
+- `modules.optional` / `modules.extensions` 在类型注释与解析结果中标 **deprecated**；使用时 `PackageResolution.ModulesDeprecated` + `Warnings`，启动 log warn。  
+- **不删除** YAML 字段：双读并集仍有效，避免升级静默丢功能。彻底移除另开 ADR。  
+- 官方套件编目：`config.SystemPackageCatalog`（`recommended_product` + `http_extension`）；`RecommendedSystemPackages` / HTTP 扩展名从此派生。  
+- 物理目录 **未** 搬家（docker/vm/photos/… 与 `internal/extensions/*` 路径保持）。
 
 ---
 
@@ -196,7 +199,7 @@ Lab ──评审──► system package（官方套件）
 | **0** 文档 | 本 ADR + ARCHITECTURE 链接 | 无 | 不变 | **done** |
 | **1** 别名 | `packages` 配置与双读兼容；生产门闸接线 | 小 | 不变（仍默认 Core-only） | **done** |
 | **2** 运行时 | 统一 Package Runtime；Host SDK 初版；`/api/v1/packages` | 中 | 不变（仅新增 API/目录） | **done** |
-| **3** 收敛 | 弃用 `modules.*` 文档主路径；套件编目 | 中 | 兼容期后可标 breaking | pending |
+| **3** 收敛 | 弃用 `modules.*` 文档主路径；套件编目；弃用 warn | 中 | 默认不变；兼容层保留 | **done** |
 
 每阶段约束：可构建、可测试、可回滚；删除兼容前完成客户端/文档迁移。
 
@@ -232,5 +235,5 @@ Lab ──评审──► system package（官方套件）
 2. **不新增**与 Package 并行的 Extension/Plugin 产品层；二者合并为 Packages + trust。  
 3. **现行** `modules.optional` / `modules.extensions` 在迁移完成前保持有效，语义解释为 system 套件。  
 4. **默认**仍为仅 Core，诚实交付面不回退。  
-5. 实现按阶段 0→3；**阶段 0–2 已完成**；默认表面仍为仅 Core。  
-6. Stage 3（文档主路径弃用 `modules.*`、破坏性收敛）仍待后续发版。
+5. 实现按阶段 0→3；**阶段 0–3 已完成**；默认表面仍为仅 Core。  
+6. 未来若 **移除** `modules.optional` / `modules.extensions` 字段，须另开 ADR 与破坏性发版说明（当前仅弃用 + 兼容）。

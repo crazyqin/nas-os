@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased - ADR-0001 Stage 3 package surface convergence
+
+### Architecture
+- **Preferred config**: `packages.recommended_system` / `packages.enabled` (docs + `configs/default.yaml`).
+- **Deprecated (compatible)**: `modules.optional` / `modules.extensions` still dual-read; emit deprecation warnings when used.
+- **System catalog**: `config.SystemPackageCatalog` single source for recommended products + HTTP extensions; Runtime / docs derive from it.
+- Host SDK + Package Runtime remain Stage 2; default product surface still Core-only.
+
+### Verify
+- `go test ./internal/config ./internal/packageruntime ./pkg/hostapi ./internal/web -run 'Package|Extension|Resolve|Catalog|Deprecat'`
+- `go build ./cmd/nasd`
+
 ## v3.24.3 (follow-up) - Health: demote zero-dep, unwire experimentals, docs honesty
 
 ### Fixes

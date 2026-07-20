@@ -6,7 +6,7 @@
 
 > **最新版本**: v3.24.3 Stable (2026-07-16)
 > **架构分层**: Core（5）/ Extension（`internal/extensions/*`）/ Lab（`internal/lab/*`）→ [架构说明](docs/ARCHITECTURE.md)  
-> **目标架构**: Platform + Packages + Host SDK → [ADR-0001](docs/adr/0001-platform-packages-host-sdk.md)（**Stage 1–2 已实现**；默认仍仅 Core）
+> **目标架构**: Platform + Packages + Host SDK → [ADR-0001](docs/adr/0001-platform-packages-host-sdk.md)（**Stage 1–3 已实现**；默认仍仅 Core；`modules.*` 弃用兼容）
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 > **Release**: [v3.24.3](https://github.com/crazyqin/nas-os/releases/tag/v3.24.3)
@@ -14,15 +14,23 @@
 ## 默认交付面（请先读）
 
 默认 `nasd` **只启用 Core**：身份 / 存储 / 网络 / 共享（SMB·NFS）/ 系统。  
-配置约定：`modules.optional: false`（默认）、`modules.extensions: []`（默认）。
+主配置面（ADR-0001 Stage 3）：`packages.recommended_system: false`、`packages.enabled: []`。  
+`modules.optional` / `modules.extensions` **已弃用**，仍双读兼容，启动时会 warn。
 
 | 能力 | 默认是否开启 | 如何启用 |
 |------|--------------|----------|
 | 用户 / 卷 / SMB / NFS / 网络 / 健康探针 | **是** | 无需额外配置 |
-| Docker / VM / 相册 / AI / 备份 / 云同步等产品管理器 | **否** | `modules.optional: true` |
-| WriteOnce / 本地 LLM / CLIP 以文搜图 / MCP / 多云挂载等差异化能力 | **否** | `modules.optional: true` 和/或 `modules.extensions`；部分仅 Lab 源码 |
-| 已编目 Extension（7） | **否** | `modules.extensions: [name, ...]` |
-| Lab 实验包 | **否** | 不在默认路径；不经 extensions 列表加载 |
+| Docker / VM / 相册 / AI / 备份 / 云同步等产品管理器 | **否** | `packages.recommended_system: true` |
+| WriteOnce / 本地 LLM / CLIP 以文搜图 / MCP / 多云挂载等差异化能力 | **否** | `packages.recommended_system: true` 和/或 `packages.enabled`；部分仅 Lab 源码 |
+| 已编目 HTTP Extension（7） | **否** | `packages.enabled: [name, ...]`（如 `voicehub`） |
+| Lab 实验包 | **否** | 不在默认路径；不可经 packages 列表加载 |
+
+```yaml
+# 示例：启用官方推荐产品面 + 一个 HTTP 扩展
+packages:
+  recommended_system: true
+  enabled: [voicehub]
+```
 
 下文「差异化能力 / 企业级存储」描述的是仓库内已实现或对标中的能力面，**不是**默认开机全开。详见 [架构说明](docs/ARCHITECTURE.md)。
 
@@ -31,7 +39,7 @@
 | # | 功能 | 说明 | 启用提示 |
 |---|------|------|----------|
 | 1 | 🔒 **WriteOnce 不可变存储** | WORM / 防篡改归档 | optional 产品面或对应模块 |
-| 2 | 🤖 **本地 LLM 服务** | Ollama + OpenAI 兼容 API | `modules.optional: true` + AI 部署 |
+| 2 | 🤖 **本地 LLM 服务** | Ollama + OpenAI 兼容 API | `packages.recommended_system: true` + AI 部署 |
 | 3 | 🔐 **AI 以文搜图** | CLIP 本地推理搜图 | optional + Photos/AI |
 | 4 | ☁️ **多云存储挂载** | 多云统一挂载 | optional + cloudsync |
 | 5 | 🔗 **MCP 服务器集成** | Model Context Protocol | optional / 实验路径 |
@@ -56,7 +64,7 @@
 
 | 项 | 说明 |
 |----|------|
-| **modules.optional=false** | 默认不构造 Docker/VM/Photos/AI 等非 Core 产品管理器 |
+| **packages 默认关** | 默认不构造 Docker/VM/Photos/AI 等非 Core 产品管理器（`packages.recommended_system=false`） |
 | **单一存储契约** | 仅 `/api/v1/storage/*`；移除 legacy `/api/v1/volumes` |
 | **删除根 api/ 源码** | 非 nasd 入口，避免误用 |
 | **主 UI** | `webui/`（`/webui` + 核心页面）；`web/src` 为实验 |
@@ -70,7 +78,7 @@
 | 项 | 说明 |
 |----|------|
 | **Lab 默认剥离** | 生产 `web` 不再 import/构造 `internal/lab/*`；实验能力仅在 Lab 目录保留 |
-| **Extension 按需加载** | `modules.extensions` 配置列表；默认空=不加载；7 个扩展可显式启用 |
+| **Extension 按需加载** | `packages.enabled`；默认空=不加载；7 个 HTTP 扩展可显式启用（`modules.extensions` 弃用兼容） |
 | **Core 健康探针** | `GET /api/v1/system/health` 聚合 Core 模块 `Health()`，失败返回 unhealthy |
 | **治理测试** | 禁止 web→lab import；Core 仅五名；顶层 allowlist 冻结；未知 catalog→Lab |
 | **入口诚实** | 根 `api/` 标明非 nasd 入口；主 UI=`webui/`；主部署见 docker-compose |
@@ -215,7 +223,7 @@ v3.10.0 把飞牛的家庭影音易用性、群晖的套件化引导、TrueNAS �
 
 ### 核心功能（默认 `nasd`）
 
-> **启用口径**：`默认` = Core 热路径；`optional` = 需 `modules.optional: true`；`extensions` = `modules.extensions`；`Lab` = 仅源码，默认不加载。源码「完成」≠ 默认开机开启。
+> **启用口径**：`默认` = Core 热路径；`recommended` = `packages.recommended_system: true`；`extensions` = `packages.enabled`；`Lab` = 仅源码，默认不加载。源码「完成」≠ 默认开机开启。
 
 | 模块 | 说明 | 启用 |
 |------|------|------|
