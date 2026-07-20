@@ -3,7 +3,8 @@
 # 也可用环境变量 NAS_OS_* 覆盖运行时字段。
 #
 # 默认产品面：仅 Core（identity/storage/network/sharing/system）。
-# modules.optional=false、modules.extensions=[] → 不加载 Docker/VM/Photos/AI 等。
+# modules.optional=false、modules.extensions=[]、packages 默认关 → 不加载 Docker/VM/Photos/AI 等。
+# ADR-0001 Stage 1: packages.* 与 modules.* 双读；并集启用；见 docs/adr/0001-platform-packages-host-sdk.md
 
 server:
   host: 127.0.0.1
@@ -26,8 +27,18 @@ auth:
   # initial_password 请勿写入版本控制，建议通过环境变量注入
   initial_password: ""
 
+# ADR-0001 Stage 1 packages surface (preferred new semantic).
+# Dual-read with modules.*: when both set, enabled packages are the union.
+packages:
+  # When true, expands official recommended system set (docker/vm/photos/…).
+  # Equivalent to modules.optional: true.
+  recommended_system: false
+  # Named system packages / HTTP extensions (e.g. voicehub, netdiag).
+  enabled: []
+
 modules:
   # When false (default), non-Core product managers are not constructed.
+  # Legacy alias of packages.recommended_system (dual-read Stage 1).
   optional: false
   docker:
     enabled: false
@@ -36,6 +47,7 @@ modules:
   # Known: activeprotect, agentworkflow, aiguardrails, compliancescan,
   #        deployorch, netdiag, voicehub
   # Lab packages under internal/lab/ are never loaded via this list.
+  # Unioned with packages.enabled (ADR-0001 Stage 1).
   extensions: []
 
 # -----------------------------------------------------------------------------

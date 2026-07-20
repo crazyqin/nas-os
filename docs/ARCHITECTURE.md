@@ -1,9 +1,15 @@
 # NAS-OS 架构说明
 
 **版本**: v3.24.3  
-**更新日期**: 2026-07-16
+**更新日期**: 2026-07-20
 
-本文描述 NAS-OS 当前的进程组合、模块生命周期、API 安全边界和渐进迁移约束。模块分层以 **Core / Extension / Lab** 为准；目录与 `internal/application` catalog 标签必须一致，且 **运行时默认路径不得硬接线 Lab**。
+本文描述 NAS-OS **当前**的进程组合、模块生命周期、API 安全边界和渐进迁移约束。模块分层以 **Core / Extension / Lab** 为准；目录与 `internal/application` catalog 标签必须一致，且 **运行时默认路径不得硬接线 Lab**。
+
+> **目标架构（产品与演进主叙事）**：Platform Core + Package Surface + Host SDK + Runtime（Lab 旁路）。  
+> 与现行 `modules.optional` / `modules.extensions` 的兼容与分阶段落地见  
+> **[ADR-0001](adr/0001-platform-packages-host-sdk.md)**。  
+> **Stage 1 已实现**：`packages.recommended_system` / `packages.enabled` 与 `modules.*` 双读并集；  
+> 生产门闸经 `config.OptionalProductsEnabled()` / `EnabledNamedPackages`；**默认仍仅 Core**（与 v3.24 相同）。
 
 ## 进程组合
 
@@ -152,22 +158,23 @@ API 分成三层：
 - `GET /api/v1/system/modules`（管理员）：含 tier 的模块状态列表。
 - `GET /api/v1/system/info`：版本来自 `internal/version`（与根 `VERSION` 同步）。
 
-## 默认产品表面（v3.24+）
+## 默认产品表面（v3.24+ / ADR Stage 1）
 
-- `modules.optional` **默认 false**：不构造 Docker/VM/Photos/AI/云同步/备份等非 Core 产品管理器。
-- 启用 optional：`modules.optional: true`（配置文件或等价环境覆盖）。
-- Extension **仅** `modules.extensions` 列表；默认 `[]` = 不加载。
-- **WriteOnce / 本地 LLM / CLIP 以文搜图 / MCP / 多云挂载** 等营销差异化能力 **不是** 默认开机能力；需 optional 和/或 extensions，部分仅存于 Lab 源码。
-- 主 UI 默认 Core 页面 allowlist；optional HTML 在 `modules.optional=false` 时 404。
+- `modules.optional` / `packages.recommended_system` **默认 false**：不构造 Docker/VM/Photos/AI/云同步/备份等非 Core 产品管理器。
+- 启用官方推荐套件集：`packages.recommended_system: true` **或** `modules.optional: true`（双读，OR）。
+- 具名扩展：`packages.enabled` **∪** `modules.extensions`；默认 `[]` = 不加载 HTTP 扩展。
+- 解析入口：`internal/config.Config.ResolvePackages()`；生产勿只读旧字段。
+- **WriteOnce / 本地 LLM / CLIP 以文搜图 / MCP / 多云挂载** 等营销差异化能力 **不是** 默认开机能力；需 optional/packages 和/或具名扩展，部分仅存于 Lab 源码。
+- 主 UI 默认 Core 页面 allowlist；optional HTML 在推荐套件集关闭时 404。
 
 ## 功能矩阵（诚实口径）
 
 | 层级 | 默认 `nasd` | 如何启用 |
 |------|-------------|----------|
 | Core（5） | 始终 | 生命周期主图（identity/storage/network/sharing/system） |
-| Extension（7） | **否** | `modules.extensions` 列表 |
-| Lab（源码保留） | **否** | 不在默认路径；不可经 extensions 列表加载 |
-| optional 产品管理器 | **否** | `modules.optional: true` |
+| Extension（7） | **否** | `packages.enabled` ∪ `modules.extensions` |
+| Lab（源码保留） | **否** | 不在默认路径；不可经 extensions/packages 列表加载 |
+| optional / recommended 产品管理器 | **否** | `packages.recommended_system` 或 `modules.optional` |
 | 其他顶层支撑包 | 视 web 硬接线 | 生产支撑（auth/storage/…），**非 Core 名** |
 
 ## 渐进迁移规则

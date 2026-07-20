@@ -18,7 +18,8 @@ import (
 )
 
 // KnownExtensionNames are optional product extensions loadable when listed in
-// config modules.extensions. Default boot loads none.
+// modules.extensions or packages.enabled (ADR-0001 Stage 1 dual-read).
+// Default boot loads none. Recommended-system expansion does not auto-mount these.
 var KnownExtensionNames = []string{
 	"activeprotect",
 	"agentworkflow",
@@ -39,13 +40,15 @@ type extensionHolders struct {
 	names          []string
 }
 
-// registerConfiguredExtensions mounts HTTP routes for extensions enabled in config.
-// Unknown names are logged and skipped. Empty config means no extension routes.
+// registerConfiguredExtensions mounts HTTP routes for extensions enabled via
+// unified package resolution (modules.extensions ∪ packages.enabled, filtered
+// to KnownExtensionNames). Empty resolution means no extension routes.
 func (s *Server) registerConfiguredExtensions(api *gin.RouterGroup) {
 	if s == nil || s.cfg == nil || api == nil {
 		return
 	}
-	enabled := s.cfg.Modules.Extensions
+	// ADR-0001 Stage 1: do not read Modules.Extensions in isolation.
+	enabled := s.cfg.EnabledNamedPackages(KnownExtensionNames)
 	if len(enabled) == 0 {
 		return
 	}
@@ -161,14 +164,13 @@ func (e unknownExtensionError) Error() string { return "unknown extension: " + s
 
 func errUnknownExtension(name string) error { return unknownExtensionError(name) }
 
-// EnabledExtensions returns the configured extension name list (copy).
+// EnabledExtensions returns resolved known extension names (copy).
+// Uses ADR-0001 unified package resolution, not Modules.Extensions alone.
 func (s *Server) EnabledExtensions() []string {
 	if s == nil || s.cfg == nil {
 		return nil
 	}
-	out := make([]string, len(s.cfg.Modules.Extensions))
-	copy(out, s.cfg.Modules.Extensions)
-	return out
+	return s.cfg.EnabledNamedPackages(KnownExtensionNames)
 }
 
 // LoadedExtensionNames returns names successfully mounted this process (may be empty).
