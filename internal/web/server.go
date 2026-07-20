@@ -128,6 +128,8 @@ type Server struct {
 	communityDiscovered []packageruntime.DiskManifest // third-party manifests from community_dir
 	runtimeEnabledMu    sync.Mutex
 	runtimeEnabled      map[string]struct{} // App Center click-enabled set (persisted)
+	httpMountedMu       sync.Mutex
+	httpMounted         map[string]struct{} // gin routes registered once per package id
 	engine              *gin.Engine
 	httpSrv       *http.Server
 	lifecycleMu   sync.Mutex
