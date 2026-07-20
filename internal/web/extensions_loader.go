@@ -52,6 +52,10 @@ func (s *Server) registerConfiguredExtensions(api *gin.RouterGroup) {
 		log.Printf("⚠️ system package catalog: %v", err)
 		return
 	}
+	if err := s.registerRecommendedProductCatalog(rt); err != nil {
+		log.Printf("⚠️ recommended product catalog: %v", err)
+		return
+	}
 
 	// Third-party discovery (community/local): on-disk only; not SystemPackageCatalog.
 	var discovered []packageruntime.DiskManifest

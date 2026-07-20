@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased - Structure P0–P3 convergence
+
+### P0 entries
+- `plugins.html` → redirect/stub to Application Center (mock market removed).
+- `apps.html` labeled **容器应用商店** (Docker/Compose), linked vs 应用中心.
+- App Center remains Core package UI.
+
+### P1 honesty / enablement
+- Package `items[]` include `kind`, `operable`, product vs HTTP notes.
+- Enablement source documented: `packages.enabled` ∪ `app-center-enabled.json` → Runtime loaded.
+
+### P2 legacy plugin host
+- `packages.legacy_so_plugins` default false; `.so` plugin.Manager not constructed unless opt-in.
+- STRUCTURE documents community_dir + Host SDK as third-party path.
+
+### P3 products + disable
+- `recommended_product` IDs registered in Package Runtime; enable/disable via same API as extensions.
+- HTTP extension disable → `requirePackageActive` returns **503** until re-enable (idempotent remount).
+
+### Verify
+- `go test ./internal/web ./internal/config ./internal/packageruntime`
+- `go build ./cmd/nasd`
+
 ## Unreleased - WebUI Application Center
 
 ### Features

@@ -37,8 +37,16 @@ func TestHTTPCatalogMatchesMountTableAndRuntime(t *testing.T) {
 		t.Fatal("pkgRuntime not set")
 	}
 	runtimeIDs := s.pkgRuntime.CatalogIDs()
-	if !sameStringSet(catalog, runtimeIDs) {
-		t.Fatalf("runtime CatalogIDs %v != config HTTP catalog %v", runtimeIDs, catalog)
+	// Runtime catalog includes HTTP extensions + recommended products + community.
+	for _, id := range catalog {
+		if !slices.Contains(runtimeIDs, id) {
+			t.Fatalf("HTTP extension %q missing from runtime catalog %v", id, runtimeIDs)
+		}
+	}
+	for _, id := range config.RecommendedSystemPackageIDs() {
+		if !slices.Contains(runtimeIDs, id) {
+			t.Fatalf("recommended product %q missing from runtime catalog", id)
+		}
 	}
 	// Default enablement: nothing loaded.
 	if loaded := s.pkgRuntime.LoadedIDs(); len(loaded) != 0 {

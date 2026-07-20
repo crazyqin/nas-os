@@ -353,20 +353,21 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	var webhookMgr *webhook.Manager
 	var webterminalMgr *webterminal.Manager
 	var wolMgr *wol.Manager
-	// ADR-0001 Stage 1: gate optional product managers via unified package resolution.
-	if cfg.OptionalProductsEnabled() {
-		// 初始化 Docker 管理器
-		dockerMgr, err = docker.NewManager()
-		if err != nil {
-			// Docker 不可用时继续运行
-			dockerMgr = nil
-		}
-
-		// 初始化应用商店
-		if dockerMgr != nil {
-			appStore, err = docker.NewAppStore(dockerMgr, "/opt/nas")
+	// Product surface: any recommended product wanted (bulk recommended_system,
+	// packages.enabled product IDs, or app-center-enabled.json).
+	wantProducts := bootWantProducts(cfg)
+	if len(wantProducts) > 0 {
+		// 初始化 Docker 管理器（仅当 docker product 启用）
+		if wantProducts["docker"] {
+			dockerMgr, err = docker.NewManager()
 			if err != nil {
-				appStore = nil
+				dockerMgr = nil
+			}
+			if dockerMgr != nil {
+				appStore, err = docker.NewAppStore(dockerMgr, "/opt/nas")
+				if err != nil {
+					appStore = nil
+				}
 			}
 		}
 
@@ -377,21 +378,22 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 			perfMgr = nil
 		}
 
-		// 初始化插件管理器
-		pluginMgr, err = plugin.NewManager(plugin.ManagerConfig{
-			PluginDir: "/opt/nas/plugins",
-			ConfigDir: cfg.ConfigPath("plugins"),
-			DataDir:   cfg.DataPath("plugins"),
-		})
-		if err != nil {
-			// 插件系统不可用时继续运行
-			pluginMgr = nil
+		// Deprecated Go .so plugin host — opt-in packages.legacy_so_plugins only.
+		if cfg.LegacySOPluginHostEnabled() {
+			pluginMgr, err = plugin.NewManager(plugin.ManagerConfig{
+				PluginDir: "/opt/nas/plugins",
+				ConfigDir: cfg.ConfigPath("plugins"),
+				DataDir:   cfg.DataPath("plugins"),
+			})
+			if err != nil {
+				pluginMgr = nil
+			}
+			if pluginMgr != nil {
+				pluginMarket = plugin.NewMarket(plugin.MarketConfig{
+					BaseURL: "", // legacy mock market; not the community_dir path
+				})
+			}
 		}
-
-		// 初始化插件市场
-		pluginMarket = plugin.NewMarket(plugin.MarketConfig{
-			BaseURL: "", // 使用内置模拟数据，可配置为实际市场地址
-		})
 
 		// 初始化配额管理器
 		quotaMgr, err = quota.NewManager(cfg.ConfigPath("quota.json"),
@@ -1071,14 +1073,18 @@ func (s *Server) setupRoutes() {
 			auth.NewRBACHandlers(s.rbacMgr).RegisterRoutes(api)
 		}
 
-		// ========== Docker 管理 ==========
+		// ========== Docker 管理（product package "docker" must be active）==========
 		if s.dockerMgr != nil {
-			docker.NewHandlers(s.dockerMgr).RegisterRoutes(api)
+			dg := api.Group("/")
+			dg.Use(s.requirePackageActive("docker"))
+			docker.NewHandlers(s.dockerMgr).RegisterRoutes(dg)
 		}
 
-		// ========== 应用商店 ==========
+		// ========== 容器应用商店（Docker templates）==========
 		if s.appStore != nil {
-			docker.NewAppHandlers(s.appStore).RegisterRoutes(api)
+			ag := api.Group("/")
+			ag.Use(s.requirePackageActive("docker"))
+			docker.NewAppHandlers(s.appStore).RegisterRoutes(ag)
 		}
 
 		// ========== 系统信息 ==========
@@ -1553,10 +1559,12 @@ var coreWebUIPages = map[string]bool{
 	"settings.html":   true,
 	"api-docs.html":   true,
 	"app-center.html": true, // Application Center — packages UI (Core surface)
+	"plugins.html":    true, // Legacy redirect stub → app-center (not mock market)
 }
 
 func (s *Server) registerWebUI(webuiRoot string) {
-	optional := s.cfg != nil && s.cfg.OptionalProductsEnabled()
+	// Optional product HTML (containers, etc.) when any product surface is wanted.
+	optional := s.cfg != nil && (s.cfg.OptionalProductsEnabled() || len(bootWantProducts(s.cfg)) > 0)
 
 	// Assets always available.
 	s.engine.Static("/webui/css", webuiRoot+"/css")

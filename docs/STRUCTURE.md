@@ -11,7 +11,7 @@
 ┌──────────────────────────────────────────────────────────┐
 │  Package Surface（可选）                                  │
 │  packages.recommended_system / packages.enabled          │
-│  官方 HTTP 扩展 · 推荐产品管理器 ·（未来 community 插件）    │
+│  官方 HTTP 扩展 · 推荐产品 · community（community_dir）     │
 ├──────────────────────────────────────────────────────────┤
 │  Platform Core（必选 · 默认唯一启用）                       │
 │  identity · storage · network · sharing · system         │
@@ -45,7 +45,7 @@
 | `internal/*` 其他 | Core 支撑与 recommended 产品实现（见 allowlist） |
 | `pkg/hostapi` | Host SDK（套件可依赖的稳定契约） |
 | `pkg/*` | 可复用库（存储/安全工具等），非业务 Manager |
-| `plugins/*` | 外置插件示例/宿主装载目录（community/local 方向） |
+| `plugins/*` | **遗留** `.so` 示例（已弃用）；新第三方用 `examples/community-packages` + `community_dir` |
 | `webui/` | **主产品 UI**（静态 HTML/JS）；**应用中心** `pages/app-center.html`（Core 面） |
 | `web/` | 实验前端（非默认交付主线） |
 | `configs/default.yaml` | 默认配置（packages 关） |
@@ -121,18 +121,33 @@ packages:
   enabled: [com.example.hello-host]
 ```
 
-### 4.2 应用中心（用户可点）
+### 4.2 应用中心（用户可点 · Package Surface 唯一 UI）
 
 | 项 | 说明 |
 |----|------|
-| 页面 | `/webui/pages/app-center.html` 或 `/app-center`（**Core allowlist**，默认即可打开） |
-| 导航 | 主侧栏「应用中心」（`webui/index.html`） |
-| 列表 | `GET /api/v1/packages` → `data.items[]`（官方 + 已发现第三方，含 loaded） |
-| 启用 | `POST /api/v1/packages/:id/enable` → Package Runtime `Enable` |
-| 停用 | `POST /api/v1/packages/:id/disable` → Runtime `Disable` |
-| 持久化 | `data_dir/app-center-enabled.json`（可写时跨重启；否则进程内） |
+| 页面 | `/webui/pages/app-center.html` 或 `/app-center`（**Core allowlist**） |
+| 导航 | 主侧栏「应用中心」 |
+| 列表 | `GET /api/v1/packages` → `items[]`：`http_extension` / `recommended_product` / `community` |
+| 启用/停用 | `POST .../packages/:id/enable|disable` → 统一 Runtime |
+| 启用真相源 | `packages.enabled` ∪ `data_dir/app-center-enabled.json` → **Runtime loaded** |
+| HTTP 停用 | 路由中间件 `requirePackageActive` → **503**（非仅 loaded=false） |
+| 产品套件 | `docker` 等 `recommended_product` 与扩展同一列表可点 |
 
-默认仍 Core-only：列表显示官方扩展为「未启用」，不自动加载第三方。
+默认仍 Core-only。
+
+**勿与下列页面混淆：**
+
+| 页面 | 角色 |
+|------|------|
+| **应用中心** `app-center.html` | 系统套件 / 第三方 Host SDK 包 |
+| **容器应用商店** `apps.html` | Docker/Compose 模板（需 docker 产品启用） |
+| **插件市场** `plugins.html` | **已废弃** → 跳转应用中心（原 mock 列表已移除） |
+
+### 4.3 遗留 `.so` 插件宿主（弃用）
+
+- 代码：`internal/plugin` + `plugins/*` 示例  
+- 默认 **不** 构造：需 `packages.legacy_so_plugins: true` 且产品面已开  
+- **不是** 第三方生态主路径；主路径 = `community_dir` + Host SDK + Runtime
 
 ---
 
