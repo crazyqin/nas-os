@@ -126,11 +126,14 @@ type Server struct {
 	extHolders          *extensionHolders             // optional modules.extensions holders
 	pkgRuntime          *packageruntime.Runtime       // ADR-0001 Stage 2 unified package runtime
 	communityDiscovered []packageruntime.DiskManifest // third-party manifests from community_dir
-	runtimeEnabledMu    sync.Mutex
-	runtimeEnabled      map[string]struct{} // App Center click-enabled set (persisted)
-	httpMountedMu       sync.Mutex
-	httpMounted         map[string]struct{} // gin routes registered once per package id
-	engine              *gin.Engine
+	runtimeEnabledMu         sync.Mutex
+	runtimeEnabled           map[string]struct{} // App Center click-enabled set (persisted)
+	httpMountedMu            sync.Mutex
+	httpMounted              map[string]struct{} // gin routes registered once per package id
+	productRoutesMu          sync.Mutex
+	productRoutesRegistered  map[string]struct{}
+	adminAPI                 *gin.RouterGroup // admin /api/v1 group for late product route register
+	engine                   *gin.Engine
 	httpSrv       *http.Server
 	lifecycleMu   sync.Mutex
 	started       bool
@@ -354,7 +357,8 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	var webterminalMgr *webterminal.Manager
 	var wolMgr *wol.Manager
 	// Product surface: per-product managers only when that product is wanted.
-	// bulk (recommended_system) constructs the full optional set.
+	// bulk = deprecated modules.optional kitchen-sink only.
+	// packages.recommended_system → BootProductIDs() = 8 catalog products, not bulk.
 	wantProducts := bootWantProducts(cfg)
 	bulk := productBulkSurface(cfg)
 	if bulk || len(wantProducts) > 0 {
@@ -1058,6 +1062,7 @@ func (s *Server) setupRoutes() {
 
 	api := s.engine.Group("/api/v1")
 	api.Use(users.AuthMiddleware(s.userMgr), users.RequireAdmin(s.userMgr))
+	s.adminAPI = api
 	for _, module := range s.modules {
 		if registrar, ok := module.(arch.RouteRegistrar); ok {
 			registrar.RegisterRoutes(api)
@@ -1065,6 +1070,10 @@ func (s *Server) setupRoutes() {
 	}
 	// Optional product extensions (config modules.extensions); default list is empty.
 	s.registerConfiguredExtensions(api)
+	// Register product routes for managers already constructed at boot.
+	for id := range bootWantProducts(s.cfg) {
+		s.registerProductRoutes(id)
+	}
 	{
 		// Storage contract is /api/v1/storage/* only (legacy /volumes removed in v3.24).
 
@@ -1078,19 +1087,7 @@ func (s *Server) setupRoutes() {
 			auth.NewRBACHandlers(s.rbacMgr).RegisterRoutes(api)
 		}
 
-		// ========== Docker 管理（product package "docker" must be active）==========
-		if s.dockerMgr != nil {
-			dg := api.Group("/")
-			dg.Use(s.requirePackageActive("docker"))
-			docker.NewHandlers(s.dockerMgr).RegisterRoutes(dg)
-		}
-
-		// ========== 容器应用商店（Docker templates）==========
-		if s.appStore != nil {
-			ag := api.Group("/")
-			ag.Use(s.requirePackageActive("docker"))
-			docker.NewAppHandlers(s.appStore).RegisterRoutes(ag)
-		}
+		// Docker / product routes: registered via registerProductRoutes (boot + runtime enable).
 
 		// ========== 系统信息 ==========
 		// Avoid duplicate /system/info when system.Monitor handlers also register it.
@@ -1141,16 +1138,7 @@ func (s *Server) setupRoutes() {
 			s.sftpSrv.RegisterRoutes(api)
 		}
 
-		// ========== AI 分类 ==========
-
-		// ========== 私有云AI服务 ==========
-		if s.aiSvc != nil {
-			gateway := s.aiSvc.GetGateway()
-			modelMgr := s.aiSvc.GetModelManager()
-			if gateway != nil {
-				ai.NewGatewayHandlers(gateway, modelMgr).RegisterRoutes(api)
-			}
-		}
+		// ========== AI / 云同步 → registerProductRoutes ==========
 
 		// ========== 文件版本控制 ==========
 		if s.versioningMgr != nil {
@@ -1160,11 +1148,6 @@ func (s *Server) setupRoutes() {
 		// ========== 数据去重 ==========
 		if s.dedupMgr != nil {
 			dedup.NewHandlers(s.dedupMgr).RegisterRoutes(api)
-		}
-
-		// ========== 云同步 ==========
-		if s.cloudsyncMgr != nil {
-			cloudsync.NewHandlers(s.cloudsyncMgr).RegisterRoutes(api)
 		}
 
 		// ========== 标签管理 ==========
@@ -1217,77 +1200,7 @@ func (s *Server) setupRoutes() {
 		// ========== 通知管理 ==========
 		notify.NewHandlers(s.notifyMgr, s.cfg.ConfigPath("notify-config.json")).RegisterRoutes(api)
 
-		// ========== 下载中心 ==========
-		if s.downloadMgr != nil {
-			downloader.NewHandler(s.downloadMgr).RegisterRoutes(api)
-		}
-
-		// ========== 相册中心 ==========
-		if s.photosMgr != nil {
-			photos.NewHandler(s.photosMgr).RegisterRoutes(api)
-		}
-
-		// ========== 备份与同步 ==========
-		backupHandlers := backup.NewHandlers(s.backupMgr, s.syncMgr)
-		backupHandlers.RegisterRoutes(api)
-
-		// ========== 备份验证 ==========
-		// ========== 虚拟机管理 ==========
-		if s.vmMgr != nil && s.isoMgr != nil {
-			vmHandler := vm.NewHandler(s.vmMgr, s.isoMgr, s.snapshotMgr, zap.NewNop())
-			// 注册 HTTP ServeMux 风格的路由到 Gin
-			api.GET("/vms", func(c *gin.Context) {
-				vmHandler.HandleListVMs(c.Writer, c.Request)
-			})
-			api.POST("/vms", func(c *gin.Context) {
-				vmHandler.HandleCreateVM(c.Writer, c.Request)
-			})
-			api.GET("/vms/:id", func(c *gin.Context) {
-				vmHandler.HandleVM(c.Writer, c.Request)
-			})
-			api.POST("/vms/:id", func(c *gin.Context) {
-				vmHandler.HandleVM(c.Writer, c.Request)
-			})
-			api.DELETE("/vms/:id", func(c *gin.Context) {
-				vmHandler.HandleVM(c.Writer, c.Request)
-			})
-			api.PUT("/vms/:id", func(c *gin.Context) {
-				vmHandler.HandleVM(c.Writer, c.Request)
-			})
-			api.GET("/vm-isos", func(c *gin.Context) {
-				vmHandler.HandleListISOs(c.Writer, c.Request)
-			})
-			api.GET("/vm-isos/:id", func(c *gin.Context) {
-				vmHandler.HandleISO(c.Writer, c.Request)
-			})
-			api.POST("/vm-isos/:id", func(c *gin.Context) {
-				vmHandler.HandleISO(c.Writer, c.Request)
-			})
-			api.DELETE("/vm-isos/:id", func(c *gin.Context) {
-				vmHandler.HandleISO(c.Writer, c.Request)
-			})
-			api.GET("/vm-snapshots", func(c *gin.Context) {
-				vmHandler.HandleListSnapshots(c.Writer, c.Request)
-			})
-			api.GET("/vm-snapshots/:id", func(c *gin.Context) {
-				vmHandler.HandleSnapshot(c.Writer, c.Request)
-			})
-			api.POST("/vm-snapshots/:id", func(c *gin.Context) {
-				vmHandler.HandleSnapshot(c.Writer, c.Request)
-			})
-			api.DELETE("/vm-snapshots/:id", func(c *gin.Context) {
-				vmHandler.HandleSnapshot(c.Writer, c.Request)
-			})
-			api.GET("/vm-templates", func(c *gin.Context) {
-				vmHandler.HandleListTemplates(c.Writer, c.Request)
-			})
-			api.GET("/vm-usb-devices", func(c *gin.Context) {
-				vmHandler.HandleUSBDevices(c.Writer, c.Request)
-			})
-			api.GET("/vm-pci-devices", func(c *gin.Context) {
-				vmHandler.HandlePCIDevices(c.Writer, c.Request)
-			})
-		}
+		// download/photos/backup/vm/cloudsync/ai/docker product routes: registerProductRoutes.
 
 		// ========== 项目管理 ==========
 		if s.projectMgr != nil {
