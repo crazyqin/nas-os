@@ -52,7 +52,11 @@ func NewHandlersWithSmartRAID(manager *Manager, immutableManager *ImmutableManag
 	}
 }
 
-// RegisterRoutes 注册路由.
+// RegisterRoutes 注册 domain 风格 /volumes 路由（非 nasd 主契约）。
+//
+// 生产 nasd 使用 internal/web.StorageHandlers 注册 /api/v1/storage/*（见 application
+// 的 storage 模块与 web.registerCoreIdentityAndDocs）。本 Handler 的删卷同样经
+// DeleteVolumeConfirmed 门闩，但路径不同，勿在 nasd 上重复挂载以免契约分叉。
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	// 卷管理
 	volumes := r.Group("/volumes")
@@ -323,18 +327,23 @@ func (h *Handlers) createVolume(c *gin.Context) {
 
 // deleteVolume 删除卷
 // @Summary 删除卷
-// @Description 删除指定卷（危险操作）
+// @Description 删除指定卷（危险操作）。必须提供 confirm_name（与卷名一致）与 allow_wipe=true。
 // @Tags storage
 // @Param name path string true "卷名称"
 // @Param force query bool false "强制删除（包含子卷）"
+// @Param body body DeleteVolumeOptions true "确认载荷：confirm_name + allow_wipe"
 // @Success 204 "No Content"
 // @Failure 400,404 {object} api.Response
 // @Router /volumes/{name} [delete].
 func (h *Handlers) deleteVolume(c *gin.Context) {
 	name := c.Param("name")
-	force := c.Query("force") == "true"
+	var opts DeleteVolumeOptions
+	_ = c.ShouldBindJSON(&opts)
+	if c.Query("force") == "true" {
+		opts.Force = true
+	}
 
-	if err := h.manager.DeleteVolume(name, force); err != nil {
+	if err := h.manager.DeleteVolumeConfirmed(name, opts); err != nil {
 		api.BadRequest(c, err.Error())
 		return
 	}

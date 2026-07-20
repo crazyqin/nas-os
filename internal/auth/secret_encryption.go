@@ -184,6 +184,23 @@ func (se *SecretEncryption) IsInitialized() bool {
 	return se.initialized
 }
 
+// EnsureKey loads an existing key file or creates a new machine-local key.
+// Prefer this for MFA at rest: no operator passphrase required for bootstrap.
+func (se *SecretEncryption) EnsureKey() error {
+	if se == nil {
+		return ErrEncryptionNotInitialized
+	}
+	if se.IsInitialized() {
+		return nil
+	}
+	// Random high-entropy passphrase used only to derive/store the key file once.
+	pass := make([]byte, 32)
+	if _, err := rand.Read(pass); err != nil {
+		return err
+	}
+	return se.Initialize(base64.RawStdEncoding.EncodeToString(pass))
+}
+
 // EncryptBytes 加密字节数据.
 func (se *SecretEncryption) EncryptBytes(plaintext []byte) (string, error) {
 	se.mu.RLock()

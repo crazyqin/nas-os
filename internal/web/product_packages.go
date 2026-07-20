@@ -1,8 +1,8 @@
+//go:build nasd_full
+
 package web
 
 import (
-	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -11,167 +11,14 @@ import (
 	"nas-os/internal/backup"
 	"nas-os/internal/cloudsync"
 	"nas-os/internal/cluster"
-	"nas-os/internal/config"
 	"nas-os/internal/docker"
 	"nas-os/internal/downloader"
-	"nas-os/internal/packageruntime"
 	"nas-os/internal/photos"
 	"nas-os/internal/vm"
-	"nas-os/pkg/hostapi"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
-
-// SetClusterServices attaches process-level cluster services (from application).
-func (s *Server) SetClusterServices(svc *cluster.Services) {
-	if s == nil {
-		return
-	}
-	s.clusterMu.Lock()
-	defer s.clusterMu.Unlock()
-	s.clusterServices = svc
-}
-
-// SetClusterBootstrap registers a factory to start cluster at runtime enable.
-func (s *Server) SetClusterBootstrap(fn func() (*cluster.Services, error)) {
-	if s == nil {
-		return
-	}
-	s.clusterMu.Lock()
-	defer s.clusterMu.Unlock()
-	s.clusterBootstrap = fn
-}
-
-// ClusterRunning reports whether cluster services are live in this process.
-func (s *Server) ClusterRunning() bool {
-	if s == nil {
-		return false
-	}
-	s.clusterMu.Lock()
-	defer s.clusterMu.Unlock()
-	return s.clusterServices != nil
-}
-
-// registerRecommendedProductCatalog registers catalog recommended_product IDs as
-// TrustSystem packages operable via Application Center / packages API.
-func (s *Server) registerRecommendedProductCatalog(rt *packageruntime.Runtime) error {
-	if rt == nil {
-		return fmt.Errorf("runtime is nil")
-	}
-	for _, e := range config.SystemPackageCatalog {
-		if e.Kind != config.KindRecommendedProduct {
-			continue
-		}
-		meta := hostapi.Meta{
-			ID:          e.ID,
-			Trust:       hostapi.TrustSystem,
-			Description: e.Description + " (product surface)",
-			Version:     "1",
-		}
-		md := meta
-		srv := s
-		if err := rt.Register(md, func(hostapi.Host) (hostapi.Package, error) {
-			return &productGatePackage{meta: md, server: srv}, nil
-		}); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// productGatePackage is a thin Runtime package for recommended product IDs.
-type productGatePackage struct {
-	meta   hostapi.Meta
-	server *Server
-}
-
-func (p *productGatePackage) Meta() hostapi.Meta                       { return p.meta }
-func (p *productGatePackage) Init(context.Context, hostapi.Host) error { return nil }
-func (p *productGatePackage) Start(context.Context) error {
-	if p.server != nil {
-		p.server.ensureProductManager(p.meta.ID)
-		p.server.registerProductRoutes(p.meta.ID)
-		p.server.mountPackageRoutes(p.meta.ID)
-	}
-	return nil
-}
-func (p *productGatePackage) Stop(context.Context) error {
-	if p.server != nil {
-		p.server.unmountPackageRoutes(p.meta.ID)
-	}
-	return nil
-}
-func (p *productGatePackage) Health(context.Context) error { return nil }
-
-// IsPackageActive reports whether id is loaded in the package runtime.
-func (s *Server) IsPackageActive(id string) bool {
-	if s == nil || s.pkgRuntime == nil {
-		return false
-	}
-	return s.pkgRuntime.IsLoaded(id)
-}
-
-// mountPackageRoutes marks package HTTP routes as mounted (requests served).
-// Gin tree nodes are registered once; this is the true unload toggle.
-func (s *Server) mountPackageRoutes(id string) {
-	if s == nil || id == "" {
-		return
-	}
-	s.packageMountMu.Lock()
-	defer s.packageMountMu.Unlock()
-	if s.packageMounted == nil {
-		s.packageMounted = make(map[string]struct{})
-	}
-	s.packageMounted[id] = struct{}{}
-	log.Printf("✅ package routes mounted: %s", id)
-}
-
-// unmountPackageRoutes marks package HTTP routes as unmounted (requests → 404).
-func (s *Server) unmountPackageRoutes(id string) {
-	if s == nil || id == "" {
-		return
-	}
-	s.packageMountMu.Lock()
-	defer s.packageMountMu.Unlock()
-	delete(s.packageMounted, id)
-	log.Printf("ℹ️  package routes unmounted: %s", id)
-}
-
-// isPackageMounted reports whether package routes are currently mounted.
-func (s *Server) isPackageMounted(id string) bool {
-	if s == nil {
-		return false
-	}
-	s.packageMountMu.RLock()
-	defer s.packageMountMu.RUnlock()
-	_, ok := s.packageMounted[id]
-	return ok
-}
-
-// requirePackageActive enforces true unload: unmounted → 404; mounted but not
-// loaded → 503; mounted+loaded → handler.
-func (s *Server) requirePackageActive(id string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if s == nil || !s.isPackageMounted(id) {
-			c.JSON(http.StatusNotFound, gin.H{
-				"code":    404,
-				"message": "package routes unmounted: " + id,
-			})
-			c.Abort()
-			return
-		}
-		if !s.IsPackageActive(id) {
-			c.JSON(http.StatusServiceUnavailable, gin.H{
-				"code":    1,
-				"message": "package disabled or not enabled: " + id,
-			})
-			c.Abort()
-			return
-		}
-		c.Next()
-	}
-}
 
 // releaseProductManager drops product managers on disable (routes stay gated by IsPackageActive).
 func (s *Server) releaseProductManager(id string) {
@@ -206,8 +53,8 @@ func (s *Server) releaseProductManager(id string) {
 		s.cloudsyncMgr = nil
 		log.Printf("ℹ️  product cloudsync manager released")
 	case "downloader":
-		if s.downloadMgr != nil {
-			s.downloadMgr.Close()
+		if m, ok := s.downloadMgr.(*downloader.Manager); ok && m != nil {
+			m.Close()
 		}
 		s.downloadMgr = nil
 		log.Printf("ℹ️  product downloader manager released")
@@ -217,10 +64,12 @@ func (s *Server) releaseProductManager(id string) {
 		s.clusterServices = nil
 		s.clusterMu.Unlock()
 		if svc != nil {
-			if err := cluster.ShutdownCluster(svc); err != nil {
-				log.Printf("⚠️ cluster shutdown: %v", err)
-			} else {
-				log.Printf("✅ product cluster shut down in-process")
+			if cs, ok := svc.(*cluster.Services); ok {
+				if err := cluster.ShutdownCluster(cs); err != nil {
+					log.Printf("⚠️ cluster shutdown: %v", err)
+				} else {
+					log.Printf("✅ product cluster shut down in-process")
+				}
 			}
 		} else {
 			log.Printf("ℹ️  product cluster disable persisted (was not running in this process)")
@@ -459,35 +308,17 @@ func (s *Server) registerProductRoutes(id string) {
 		g.Use(s.requirePackageActive("cloudsync"))
 		cloudsync.NewHandlers(s.cloudsyncMgr).RegisterRoutes(g)
 	case "downloader":
-		if s.downloadMgr == nil {
+		mgr, ok := s.downloadMgr.(*downloader.Manager)
+		if !ok || mgr == nil {
 			return
 		}
 		g := api.Group("/")
 		g.Use(s.requirePackageActive("downloader"))
-		downloader.NewHandler(s.downloadMgr).RegisterRoutes(g)
+		downloader.NewHandler(mgr).RegisterRoutes(g)
 	default:
 		return
 	}
 	s.productRoutesRegistered[id] = struct{}{}
 	log.Printf("✅ product routes registered: %s", id)
-}
-
-// bootWantProducts returns recommended product IDs to construct at NewServer time.
-func bootWantProducts(cfg *config.Config) map[string]bool {
-	want := make(map[string]bool)
-	if cfg == nil {
-		return want
-	}
-	for _, id := range cfg.BootProductIDs() {
-		want[id] = true
-	}
-	return want
-}
-
-// productBulkSurface is the deprecated kitchen-sink optional surface.
-// Only modules.optional (legacy) enables bulk companions (perf/quota/s3/…).
-// packages.recommended_system enables the 8 catalog products only.
-func productBulkSurface(cfg *config.Config) bool {
-	return cfg != nil && cfg.Modules.Optional
 }
 

@@ -7,10 +7,6 @@ import (
 	"strings"
 
 	"nas-os/internal/config"
-	"nas-os/internal/extensions/activeprotect"
-	"nas-os/internal/extensions/compliancescan"
-	"nas-os/internal/extensions/deployorch"
-	"nas-os/internal/extensions/netdiag"
 	"nas-os/internal/packageruntime"
 
 	"github.com/gin-gonic/gin"
@@ -19,20 +15,17 @@ import (
 // KnownExtensionNames are official HTTP extensions (packages.enabled).
 // Derived from config.SystemPackageCatalog (ADR-0001 Stage 3).
 // Default boot loads none. Recommended-system expansion does not auto-mount these.
+// Implementations are only linked when built with -tags nasd_full.
 var KnownExtensionNames = config.HTTPExtensionPackageIDs()
 
-// extensionHolders keeps live manager instances for enabled extensions so enable
-// is not a construct-and-discard no-op.
+// extensionHolders tracks loaded package names for this process.
+// Concrete extension manager types live only in nasd_full builds.
 type extensionHolders struct {
-	activeProtect  *activeprotect.Manager
-	complianceScan *compliancescan.Scanner
-	deployOrch     *deployorch.Orchestrator
-	netDiag        *netdiag.Diagnoser
-	names          []string
+	names []string
 }
 
-// registerConfiguredExtensions mounts HTTP routes for system extensions and
-// discovers/loads third-party packages via the unified Package Runtime.
+// registerConfiguredExtensions sets up Package Runtime, optional system HTTP
+// extension catalog (full build), recommended products, and community discovery.
 func (s *Server) registerConfiguredExtensions(api *gin.RouterGroup) {
 	if s == nil || s.cfg == nil || api == nil {
 		return
@@ -76,7 +69,6 @@ func (s *Server) registerConfiguredExtensions(api *gin.RouterGroup) {
 	s.communityDiscovered = discovered
 
 	// Boot enablement SSOT: app-center-enabled.json if present; else packages.enabled seed.
-	// Default both empty → nothing loaded (Core-only package surface).
 	if s.appCenterSSOTExists() {
 		_ = s.loadPersistedRuntimeEnabled()
 	} else {
@@ -98,7 +90,6 @@ func (s *Server) registerConfiguredExtensions(api *gin.RouterGroup) {
 			log.Printf("✅ package enabled: %s", name)
 		}
 	}
-	// Keep cfg.Packages.Enabled mirrored to SSOT set (may create file on first boot with seed).
 	s.syncEnablementSSOT()
 
 	s.mountPackageStatusRoutes(api, rt)

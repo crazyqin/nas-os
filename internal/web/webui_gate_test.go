@@ -69,8 +69,15 @@ func TestOptionalWebUIPagesServedWhenOptionalTrue(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	s.engine.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/webui/pages/containers.html", nil))
-	if w.Code != http.StatusOK {
-		t.Fatalf("containers.html should be OK when optional=true, got %d", w.Code)
+	if ProductsLinked() {
+		if w.Code != http.StatusOK {
+			t.Fatalf("containers.html should be OK when optional=true on Full, got %d", w.Code)
+		}
+	} else {
+		// Core binary: optional config alone cannot expose product UI (honesty).
+		if w.Code != http.StatusNotFound {
+			t.Fatalf("containers.html should be 404 on Core even if optional=true, got %d body=%s", w.Code, w.Body.String())
+		}
 	}
 	_ = zap.NewNop
 }

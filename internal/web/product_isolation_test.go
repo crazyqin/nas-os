@@ -1,3 +1,5 @@
+//go:build nasd_full
+
 package web
 
 import (

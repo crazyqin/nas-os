@@ -7,14 +7,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"sync"
+	"time"
 
 	"nas-os/internal/arch"
 	"nas-os/internal/auth"
-	"nas-os/internal/cluster"
 	"nas-os/internal/config"
-	"nas-os/internal/downloader"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
 	"nas-os/internal/smb"
@@ -31,8 +29,8 @@ type Application struct {
 	logger          *zap.Logger
 	modules         *arch.Container
 	hostname        string
-	clusterServices *cluster.Services
-	downloadManager *downloader.Manager
+	clusterServices any // full: *cluster.Services
+	downloadManager any // full: *downloader.Manager
 	webServer       *web.Server
 
 	runMu    sync.Mutex
@@ -54,6 +52,11 @@ func New(cfg *config.Config, logger *zap.Logger) (app *Application, err error) {
 		logger = zap.NewNop()
 	}
 
+	// Fail closed when config requests capabilities absent from this binary (Core vs nasd_full).
+	if err := web.ValidateBinaryCapabilities(cfg); err != nil {
+		return nil, fmt.Errorf("binary capability check: %w", err)
+	}
+
 	cleanup := &cleanupStack{}
 	defer func() {
 		if err == nil {
@@ -64,11 +67,16 @@ func New(cfg *config.Config, logger *zap.Logger) (app *Application, err error) {
 		}
 	}()
 
-	userMgr, err := users.NewManager(cfg.Paths.MountBase)
+	// Durable identity store under config_dir (never process CWD).
+	usersStore := cfg.ConfigPath("users.json")
+	userMgr, err := users.NewManagerWithConfig(cfg.Paths.MountBase, usersStore)
 	if err != nil {
 		return nil, fmt.Errorf("initialize users: %w", err)
 	}
-	log.Println("✅ 用户管理模块就绪")
+	if hours := cfg.Auth.SessionTTLHours; hours > 0 {
+		userMgr.SetSessionTTL(time.Duration(hours) * time.Hour)
+	}
+	log.Printf("✅ 用户管理模块就绪 (store=%s)", usersStore)
 
 	storageMgr, err := storage.NewManager(cfg.Paths.MountBase)
 	if err != nil {
@@ -101,39 +109,7 @@ func New(cfg *config.Config, logger *zap.Logger) (app *Application, err error) {
 	}
 
 	hostname, _ := os.Hostname()
-	var clusterServices *cluster.Services
-	var downloadMgr *downloader.Manager
-	// Product surface: cluster/downloader only when those products (or bulk) are wanted.
-	if cfg.OptionalProductsEnabled() || cfg.WantsProduct("cluster") {
-		var err error
-		clusterServices, err = cluster.InitializeCluster(cluster.RootConfig{
-			Enabled: true, // product "cluster" requested at boot
-			NodeID:  hostname,
-			DataDir: cfg.Paths.DataDir,
-		}, logger)
-		if err != nil {
-			log.Printf("⚠️ 集群服务初始化警告：%v", err)
-			clusterServices = nil
-		} else if clusterServices != nil {
-			cleanup.add("cluster", func() error { return cluster.ShutdownCluster(clusterServices) })
-			log.Println("✅ 集群服务就绪")
-		}
-	}
-	if cfg.OptionalProductsEnabled() || cfg.WantsProduct("downloader") {
-		var err error
-		downloadMgr, err = downloader.NewManager(filepath.Join(cfg.Paths.DataDir, "downloads"), logger)
-		if err != nil {
-			log.Printf("⚠️ 下载管理初始化警告：%v", err)
-			downloadMgr = nil
-		} else {
-			cleanup.add("download manager", func() error {
-				downloadMgr.Close()
-				return nil
-			})
-			downloadMgr.SetTransmissionURL("http://localhost:9091")
-			log.Println("✅ 下载管理模块就绪")
-		}
-	}
+	clusterServices, downloadMgr := attachOptionalProducts(cfg, logger, hostname, cleanup)
 
 	modules := arch.NewContainer(logger)
 	coreModules, err := registerCoreModules(modules, userMgr, mfaMgr, storageMgr, networkMgr, smbMgr, nfsMgr, logger)
@@ -146,15 +122,7 @@ func New(cfg *config.Config, logger *zap.Logger) (app *Application, err error) {
 	cleanup.add("core modules", func() error { return modules.StopAll(context.Background()) })
 
 	webServer := web.NewServer(cfg, coreModules, storageMgr, userMgr, mfaMgr, smbMgr, nfsMgr, networkMgr, downloadMgr, logger)
-	// Allow Application Center to start/stop cluster without full process restart when possible.
-	webServer.SetClusterServices(clusterServices)
-	webServer.SetClusterBootstrap(func() (*cluster.Services, error) {
-		return cluster.InitializeCluster(cluster.RootConfig{
-			Enabled: true,
-			NodeID:  hostname,
-			DataDir: cfg.Paths.DataDir,
-		}, logger)
-	})
+	wireClusterIntoWeb(webServer, cfg, logger, hostname, clusterServices)
 
 	cleanup.release()
 	return &Application{
@@ -222,13 +190,8 @@ func (a *Application) Stop() error {
 				errs = append(errs, fmt.Errorf("stop core modules: %w", err))
 			}
 		}
-		if a.downloadManager != nil {
-			a.downloadManager.Close()
-		}
-		if a.clusterServices != nil {
-			if err := cluster.ShutdownCluster(a.clusterServices); err != nil {
-				errs = append(errs, fmt.Errorf("stop cluster: %w", err))
-			}
+		if err := stopOptionalProducts(a.downloadManager, a.clusterServices); err != nil {
+			errs = append(errs, err)
 		}
 		a.stopErr = errors.Join(errs...)
 	})
@@ -237,10 +200,7 @@ func (a *Application) Stop() error {
 
 // ClusterRole 返回当前集群角色。
 func (a *Application) ClusterRole() string {
-	if a.clusterServices != nil && a.clusterServices.HA.IsLeader() {
-		return "leader"
-	}
-	return "follower"
+	return clusterRoleOf(a.clusterServices)
 }
 
 // FriendlyAddr 生成用户友好的访问地址（0.0.0.0 显示为 localhost）。

@@ -1,0 +1,15 @@
+# Opt-in privileged + host network overlay (legacy / full hardware access).
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.privileged.yml up -d
+#
+# Prefer the default compose (non-privileged + bridge + localhost port).
+# Prefer docker-compose.secure.yml when CSRF must be mandatory at start.
+
+services:
+  nas-os:
+    privileged: true
+    # host network: published ports from base compose are ignored
+    network_mode: host
+    environment:
+      - NAS_OS_LISTEN_HOST=${NAS_OS_LISTEN_HOST:-127.0.0.1}

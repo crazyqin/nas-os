@@ -1,3 +1,5 @@
+//go:build nasd_full
+
 package web
 
 import (
@@ -35,6 +37,15 @@ func TestDefaultConfigSkipsOptionalManagers(t *testing.T) {
 	if s.backupMgr != nil {
 		t.Fatal("backupMgr must be nil when modules.optional=false")
 	}
+	// Non-catalog companions must stay nil on bare Core
+	if s.trashMgr != nil || s.tunnelMgr != nil || s.frpManager != nil ||
+		s.monitorMgr != nil || s.optimizer != nil || s.webdavSrv != nil ||
+		s.ftpSrv != nil || s.sftpSrv != nil || s.replMgr != nil {
+		t.Fatal("bulk companions must be nil on default Core surface")
+	}
+	if s.upsMgr != nil || s.wolMgr != nil || s.aclMgr != nil {
+		t.Fatal("bulk-only ups/wol/acl must be nil on Core")
+	}
 }
 
 // TestOptionalConfigConstructsDockerManager drives NewServer with optional=true.
@@ -55,6 +66,7 @@ func TestOptionalConfigEnablesProductConstruction(t *testing.T) {
 
 // TestPackagesRecommendedSystemEnablesProductConstruction drives NewServer with
 // packages.recommended_system only (modules.optional left false) — ADR Stage 1.
+// Catalog products construct; bulk kitchen-sink companions do not.
 func TestPackagesRecommendedSystemEnablesProductConstruction(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	cfg := config.Default()
@@ -66,7 +78,29 @@ func TestPackagesRecommendedSystemEnablesProductConstruction(t *testing.T) {
 		t.Fatal("precondition: OptionalProductsEnabled via packages")
 	}
 	s := NewServer(cfg, nil, nil, nil, nil, nil, nil, nil, nil, zap.NewNop())
-	if s.optimizer == nil && s.projectMgr == nil && s.lockMgr == nil {
-		t.Fatal("expected optional pure-Go managers when packages.recommended_system=true")
+	// Catalog product: photos is pure-Go and should construct
+	if s.photosMgr == nil {
+		t.Fatal("photosMgr should construct when packages.recommended_system=true")
+	}
+	// Bulk companions must stay off under recommended_system alone
+	if s.optimizer != nil || s.projectMgr != nil || s.lockMgr != nil ||
+		s.trashMgr != nil || s.tunnelMgr != nil || s.systemMonitor != nil {
+		t.Fatal("bulk kitchen-sink managers must stay nil under recommended_system without modules.optional")
+	}
+}
+
+// TestDockerOnlyDoesNotPullBulkCompanions ensures a single catalog product
+// does not construct tunnel/trash/ftp companions.
+func TestDockerOnlyDoesNotPullBulkCompanions(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	cfg := config.Default()
+	cfg.Packages.Enabled = []string{"docker"}
+	s := NewServer(cfg, nil, nil, nil, nil, nil, nil, nil, nil, zap.NewNop())
+	if s.trashMgr != nil || s.tunnelMgr != nil || s.frpManager != nil ||
+		s.monitorMgr != nil || s.optimizer != nil || s.webdavSrv != nil {
+		t.Fatal("enabling only docker must not construct bulk companions")
+	}
+	if s.photosMgr != nil || s.vmMgr != nil {
+		t.Fatal("other catalog products must stay nil when only docker is enabled")
 	}
 }

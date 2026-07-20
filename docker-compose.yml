@@ -48,8 +48,9 @@
 #   DEBUG=false               # 调试模式
 #
 # 端口说明:
-#   默认使用 host 网络模式，无需端口映射
-#   Web UI: http://localhost:8080 (默认)
+#   默认 bridge 网络 + 127.0.0.1:8080 映射（更安全）
+#   需要 host 网络 / privileged 时: docker compose -f docker-compose.yml -f docker-compose.privileged.yml up -d
+#   Web UI: http://127.0.0.1:8080
 #
 # 存储挂载:
 #   configs/  → /etc/nas-os    配置文件（只读）
@@ -97,7 +98,7 @@ services:
     labels:
       - "nas-os.description=NAS-OS Storage Management System"
       - "nas-os.maintainer=工部"
-      - "nas-os.version=2.387.0"
+      - "nas-os.version=3.24.3"
       - "nas-os.docs=https://github.com/nas-os/nas-os"
     
     # ─── 进程管理 ───────────────────────────────────────────────────────────
@@ -107,15 +108,19 @@ services:
     # 优雅停止时间（等待服务正常关闭）
     stop_grace_period: 30s
     
-    # ─── 权限配置 ───────────────────────────────────────────────────────────
-    # ⚠️ 特权模式（访问磁盘设备）
-    # 生产环境建议使用 devices 精确授权替代特权模式
-    privileged: true
+    # ─── 权限配置（默认非 privileged）──────────────────────────────────────
+    # 需要全量磁盘/特权时叠加: -f docker-compose.privileged.yml
+    privileged: false
+    cap_add:
+      - SYS_ADMIN
+      - DAC_READ_SEARCH
+    security_opt:
+      - apparmor:unconfined
     
-    # ─── 网络配置 ───────────────────────────────────────────────────────────
-    # 网络模式：host 以获得最佳性能和设备发现能力
-    # 备选方案：使用 bridge + 端口映射（更安全但需额外配置）
-    network_mode: host
+    # ─── 网络配置（默认 bridge + 仅本机端口）────────────────────────────────
+    # host 网络见 docker-compose.privileged.yml
+    ports:
+      - "127.0.0.1:8080:8080"
     
     # ─── 存储挂载 ───────────────────────────────────────────────────────────
     volumes:
@@ -141,13 +146,19 @@ services:
       - NAS_OS_LOG_LEVEL=${LOG_LEVEL:-info}
       # 调试模式
       - NAS_OS_DEBUG=${DEBUG:-false}
+      # 生产安全：显式 CSRF 密钥（必填当 NAS_OS_ENV=production）
+      # 生成: openssl rand -hex 32
+      - NAS_CSRF_KEY=${NAS_CSRF_KEY:-}
+      # 设为 production 时强制要求 NAS_CSRF_KEY，禁止临时密钥
+      - NAS_OS_ENV=${NAS_OS_ENV:-}
+      # bridge 模式下监听容器内 0.0.0.0；宿主机仅 127.0.0.1:8080 映射
+      - NAS_OS_LISTEN_HOST=${NAS_OS_LISTEN_HOST:-0.0.0.0}
     
-    # ─── 设备访问（非特权模式）─────────────────────────────────────────────
-    # 如需精确控制设备访问，注释 privileged: true 并取消注释：
-    # devices:
-    #   - /dev/sda:/dev/sda
-    #   - /dev/sdb:/dev/sdb
-    #   - /dev/disk:/dev/disk
+    # ─── 设备访问（默认仅 /dev/disk；按需补充具体盘符）────────────────────
+    devices:
+      - /dev/disk:/dev/disk
+      # - /dev/sda:/dev/sda
+      # - /dev/sdb:/dev/sdb
     
     # ─── 资源限制 ───────────────────────────────────────────────────────────
     # 根据实际硬件调整限制值

@@ -1,3 +1,5 @@
+//go:build nasd_full
+
 package web
 
 import (
@@ -6,9 +8,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
-	"strings"
 	"sync"
 	"time"
 
@@ -19,12 +18,10 @@ import (
 	"nas-os/internal/auth"
 	"nas-os/internal/backup"
 	"nas-os/internal/cloudsync"
-	"nas-os/internal/cluster"
 	"nas-os/internal/config"
 	"nas-os/internal/dedup"
 	"nas-os/internal/diskbench"
 	"nas-os/internal/docker"
-	"nas-os/internal/downloader"
 	"nas-os/internal/drdrill"
 	"nas-os/internal/drivesync"
 	"nas-os/internal/fasttransfer"
@@ -69,7 +66,6 @@ import (
 	"nas-os/internal/tunnel"
 	"nas-os/internal/ups"
 	"nas-os/internal/users"
-	appversion "nas-os/internal/version"
 	"nas-os/internal/versioning"
 	"nas-os/internal/vm"
 	"nas-os/internal/webdav"
@@ -115,10 +111,15 @@ import (
 	_ "nas-os/docs/swagger" // Swagger 文档
 
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
 )
+
+// ProductsLinked reports whether product managers are compiled in.
+func ProductsLinked() bool { return true }
+
+// ExtensionsLinked reports whether official HTTP extension mounts are compiled in.
+func ExtensionsLinked() bool { return true }
+
 
 // Server Web 服务器.
 type Server struct {
@@ -137,8 +138,8 @@ type Server struct {
 	productRoutesRegistered map[string]struct{}
 	adminAPI                *gin.RouterGroup // admin /api/v1 group for late product route register
 	clusterMu               sync.Mutex
-	clusterServices         *cluster.Services
-	clusterBootstrap        func() (*cluster.Services, error)
+	clusterServices         any // *cluster.Services when set
+	clusterBootstrap        func() (any, error)
 	engine                  *gin.Engine
 	httpSrv       *http.Server
 	lifecycleMu   sync.Mutex
@@ -159,7 +160,7 @@ type Server struct {
 	quotaMgr      *quota.Manager
 	filesMgr      *files.Manager
 	notifyMgr     *notify.Manager
-	downloadMgr   *downloader.Manager
+	downloadMgr   any
 	photosMgr     *photos.Manager
 	photosAIMgr   *photos.AIManager
 	backupMgr     *backup.Manager
@@ -257,7 +258,7 @@ type Server struct {
 }
 
 // NewServer 创建 Web 服务器.
-func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manager, userMgr *users.Manager, mfaMgr *auth.MFAManager, smbMgr *smb.Manager, nfsMgr *nfs.Manager, netMgr *network.Manager, downloadMgr *downloader.Manager, logger *zap.Logger) *Server {
+func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manager, userMgr *users.Manager, mfaMgr *auth.MFAManager, smbMgr *smb.Manager, nfsMgr *nfs.Manager, netMgr *network.Manager, downloadMgr any, logger *zap.Logger) *Server {
 	// 如果未提供配置，回退到默认值，确保过渡期兼容。
 	if cfg == nil {
 		cfg = config.Default()
@@ -268,21 +269,7 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 		logger = zap.NewNop()
 	}
 
-	gin.SetMode(gin.ReleaseMode)
-	engine := gin.New()
-	engine.Use(gin.Recovery())
-
-	// 使用加固的安全配置
-	securityConfig := DefaultSecurityConfig()
-
-	// 中间件链 (顺序重要)
-	engine.Use(inputValidationMiddleware())         // 1. 输入验证
-	engine.Use(loggerMiddleware())                  // 2. 结构化日志
-	engine.Use(securityHeadersMiddleware())         // 3. 安全头
-	engine.Use(corsMiddleware(securityConfig))      // 4. CORS (加固版)
-	engine.Use(rateLimitMiddleware(securityConfig)) // 5. 速率限制
-	engine.Use(csrfMiddleware(securityConfig))      // 6. CSRF 保护
-	engine.Use(auditLogMiddleware())                // 7. 审计日志
+	engine := newEngineWithSecurity()
 
 	var err error
 	var aclMgr *acl.Manager
@@ -874,30 +861,56 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 		vmMgr:         vmMgr,
 		isoMgr:        isoMgr,
 		snapshotMgr:   snapshotMgr,
-		rbacMgr:       auth.NewRBACManager(),
+		rbacMgr: auth.NewRBACManager(),
+		// Non-catalog companions: ONLY deprecated modules.optional (bulk kitchen-sink).
+		// Enabling a single product (e.g. docker) must NOT pull tunnel/trash/ftp/….
+		// Catalog products are constructed in the block above via wantProducts.
 		monitorMgr: func() *monitor.Manager {
+			if !bulk {
+				return nil
+			}
 			mgr, _ := monitor.NewManager()
 			return mgr
 		}(),
-		optimizer:  optimizer.NewOptimizer(nil, logger),
+		optimizer: func() *optimizer.PerformanceOptimizer {
+			if !bulk {
+				return nil
+			}
+			return optimizer.NewOptimizer(nil, logger)
+		}(),
 		projectMgr: projectMgr,
 		trashMgr: func() *trash.Manager {
+			if !bulk {
+				return nil
+			}
 			mgr, _ := trash.NewManager(cfg.ConfigPath("trash.json"), cfg.DataPath("trash"), nil)
 			return mgr
 		}(),
 		replMgr: func() *replication.Manager {
+			if !bulk {
+				return nil
+			}
 			mgr, _ := replication.NewManager(cfg.ConfigPath("replication.json"), nil)
 			return mgr
 		}(),
 		webdavSrv: func() *webdav.Server {
+			if !bulk {
+				return nil
+			}
 			srv, _ := webdav.NewServer(nil)
 			return srv
 		}(),
 		ftpSrv: func() *ftp.Server {
+			if !bulk {
+				return nil
+			}
 			srv, _ := ftp.NewServer(nil)
 			return srv
 		}(),
 		sftpSrv: func() *sftp.Server {
+			if !bulk {
+				return nil
+			}
 			srv, _ := sftp.NewServer(nil)
 			return srv
 		}(),
@@ -912,7 +925,10 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 		searchEngine:  searchEngine,
 		searchSvc:     searchSvc,
 		tunnelMgr: func() *tunnel.Manager {
-			cfg := tunnel.Config{
+			if !bulk {
+				return nil
+			}
+			tcfg := tunnel.Config{
 				ServerAddr:   "tunnel.nas-os.local",
 				ServerPort:   7000,
 				DeviceID:     "nas-device",
@@ -923,12 +939,15 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 				MaxReconnect: 10,
 				Timeout:      30,
 			}
-			mgr, _ := tunnel.NewManager(cfg, logger)
+			mgr, _ := tunnel.NewManager(tcfg, logger)
 			return mgr
 		}(),
 		tunnelService: nil, // 在服务启动时初始化
 		frpManager: func() *tunnel.FRPManager {
-			cfg := &tunnel.FRPConfig{
+			if !bulk {
+				return nil
+			}
+			fcfg := &tunnel.FRPConfig{
 				Enabled:       false, // 默认关闭，用户配置后启用
 				ServerAddr:    "frp.nas-os.local",
 				ServerPort:    7000,
@@ -937,7 +956,7 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 				AutoReconnect: true,
 				LogLevel:      "info",
 			}
-			return tunnel.NewFRPManager(cfg, logger)
+			return tunnel.NewFRPManager(fcfg, logger)
 		}(),
 		aiSvc: aiSvc,
 		// v2.476.0 新增模块
@@ -1046,63 +1065,19 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 }
 
 func (s *Server) setupRoutes() {
-	publicAPI := s.engine.Group("/api/v1")
-	for _, module := range s.modules {
-		if registrar, ok := module.(arch.PublicRouteRegistrar); ok {
-			registrar.RegisterPublicRoutes(publicAPI.Group("/auth"))
-			registrar.RegisterPublicRoutes(publicAPI) // 兼容旧版 /api/v1/login
-		}
-	}
-	publicAPI.GET("/system/health", s.getHealth)
-	// 兼容旧探针路径：/api/v1/health 与 /api/v1/system/health 等价
-	publicAPI.GET("/health", s.getHealth)
-
-	// 账户 API 要求登录，管理 API 默认要求管理员角色。
-	authenticatedAPI := s.engine.Group("/api/v1")
-	authenticatedAPI.Use(users.AuthMiddleware(s.userMgr))
-	for _, module := range s.modules {
-		if registrar, ok := module.(arch.AuthenticatedRouteRegistrar); ok {
-			registrar.RegisterAuthenticatedRoutes(authenticatedAPI)
-		}
-	}
-
-	api := s.engine.Group("/api/v1")
-	api.Use(users.AuthMiddleware(s.userMgr), users.RequireAdmin(s.userMgr))
-	s.adminAPI = api
-	for _, module := range s.modules {
-		if registrar, ok := module.(arch.RouteRegistrar); ok {
-			registrar.RegisterRoutes(api)
-		}
-	}
-	// Optional product extensions (config modules.extensions); default list is empty.
+	// Shared Core route tree (modules, public health, admin auth).
+	api := s.registerCorePublicAndAdminGroups()
 	s.registerConfiguredExtensions(api)
-	// Register product routes for managers already constructed at boot.
+	// Product routes for managers already constructed at boot.
 	for id := range bootWantProducts(s.cfg) {
 		s.registerProductRoutes(id)
 	}
+	// Bulk system monitor (if any) before shared Core identity/docs so /system/info is not dual-registered.
+	if s.systemMonitor != nil {
+		system.NewHandlers(s.systemMonitor).RegisterRoutes(api)
+	}
 	{
-		// Storage contract is /api/v1/storage/* only (legacy /volumes removed in v3.24).
-
-		// ========== MFA 管理 ==========
-		if s.mfaMgr != nil {
-			auth.NewHandlers(s.mfaMgr).RegisterRoutes(api)
-		}
-
-		// ========== RBAC 权限管理 ==========
-		if s.rbacMgr != nil {
-			auth.NewRBACHandlers(s.rbacMgr).RegisterRoutes(api)
-		}
-
-		// Docker / product routes: registered via registerProductRoutes (boot + runtime enable).
-
-		// ========== 系统信息 ==========
-		// Avoid duplicate /system/info when system.Monitor handlers also register it.
-		if s.systemMonitor != nil {
-			system.NewHandlers(s.systemMonitor).RegisterRoutes(api)
-		} else {
-			api.GET("/system/info", s.getSystemInfo)
-			api.GET("/system/status", s.getSystemStatus)
-		}
+		// Full product-only routes (not MFA/RBAC/storage/swagger — those use registerCoreIdentityAndDocs).
 
 		// ========== 性能监控 ==========
 		if s.perfMgr != nil {
@@ -1176,13 +1151,12 @@ func (s *Server) setupRoutes() {
 			nvmeof.NewHandlers(s.nvmeofMgr).RegisterRoutes(api)
 		}
 
-		// ========== NVMe硬件监控 ==========
-		// 兵部 Round 141 - S.M.A.R.T. UI集成
-		hardware.NewNVMeHandlers().RegisterRoutes(api)
-
-		// ========== RAIDZ扩展管理 ==========
-		// 兵部 Round 141 - 对标TrueNAS 24.10
-		storage.NewRAIDZExpansionHandlers(nil).RegisterRoutes(api)
+		// ========== NVMe硬件监控 / RAIDZ 扩展 ==========
+		// Bulk (modules.optional) or storage-related product surface only — not bare Core.
+		if productBulkSurface(s.cfg) || s.cfg.OptionalProductsEnabled() {
+			hardware.NewNVMeHandlers().RegisterRoutes(api)
+			storage.NewRAIDZExpansionHandlers(nil).RegisterRoutes(api)
+		}
 
 		// ========== 插件系统 ==========
 		if s.pluginMgr != nil {
@@ -1204,7 +1178,9 @@ func (s *Server) setupRoutes() {
 		}
 
 		// ========== 通知管理 ==========
-		notify.NewHandlers(s.notifyMgr, s.cfg.ConfigPath("notify-config.json")).RegisterRoutes(api)
+		if s.notifyMgr != nil {
+			notify.NewHandlers(s.notifyMgr, s.cfg.ConfigPath("notify-config.json")).RegisterRoutes(api)
+		}
 
 		// download/photos/backup/vm/cloudsync/ai/docker product routes: registerProductRoutes.
 
@@ -1263,23 +1239,25 @@ func (s *Server) setupRoutes() {
 
 		// ========== v2.477.0 新增路由 ==========
 
-		// UPS电源监控 API
-		ups.NewHandlers(s.upsMgr).RegisterRoutes(api)
-
-		// 网络唤醒 WOL API
-		wol.NewHandlers(s.wolMgr).RegisterRoutes(api)
-
-		// 细粒度 ACL 权限 API
-		acl.NewHandlers(s.aclMgr).RegisterRoutes(api)
-
-		// Webhook 通知 API
-		webhook.NewHandlers(s.webhookMgr).RegisterRoutes(api)
-
-		// 回收站自动清理 API
-		recyclecleaner.NewHandlers(s.recycleCleaner).RegisterRoutes(api)
-
-		// 多渠道通知管理 API
-		notifychannel.NewHandlers(s.notifyChanMgr).RegisterRoutes(api)
+		// UPS / WOL / ACL / webhook / recycle / notifychannel — bulk-only managers
+		if s.upsMgr != nil {
+			ups.NewHandlers(s.upsMgr).RegisterRoutes(api)
+		}
+		if s.wolMgr != nil {
+			wol.NewHandlers(s.wolMgr).RegisterRoutes(api)
+		}
+		if s.aclMgr != nil {
+			acl.NewHandlers(s.aclMgr).RegisterRoutes(api)
+		}
+		if s.webhookMgr != nil {
+			webhook.NewHandlers(s.webhookMgr).RegisterRoutes(api)
+		}
+		if s.recycleCleaner != nil {
+			recyclecleaner.NewHandlers(s.recycleCleaner).RegisterRoutes(api)
+		}
+		if s.notifyChanMgr != nil {
+			notifychannel.NewHandlers(s.notifyChanMgr).RegisterRoutes(api)
+		}
 
 		// ========== v2.481.0 新增路由 ==========
 
@@ -1449,90 +1427,8 @@ func (s *Server) setupRoutes() {
 		// }
 	}
 
-	// Swagger API 文档
-	// 访问地址: http://localhost:8080/swagger/index.html
-	s.engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler,
-		ginSwagger.URL("/swagger/doc.json"),
-		ginSwagger.DefaultModelsExpandDepth(-1),
-	))
-
-	// OpenAPI JSON 规范
-	s.engine.GET("/openapi.json", func(c *gin.Context) {
-		c.File("./docs/swagger/swagger.json")
-	})
-
-	// OpenAPI YAML 规范
-	s.engine.GET("/openapi.yaml", func(c *gin.Context) {
-		c.File("./docs/swagger/swagger.yaml")
-	})
-
-	// Primary UI under /webui. Never Static() the whole tree when optional=false —
-	// that would expose webui/pages/* optional HTML via path bypass.
-	const webuiRoot = "/usr/share/nas-os/webui"
-	s.registerWebUI(webuiRoot)
-}
-
-// coreWebUIPages are always served (Core surface).
-var coreWebUIPages = map[string]bool{
-	"login.html":      true,
-	"dashboard.html":  true,
-	"storage.html":    true,
-	"shares.html":     true,
-	"users.html":      true,
-	"network.html":    true,
-	"settings.html":   true,
-	"api-docs.html":   true,
-	"app-center.html": true, // Application Center — packages UI (Core surface)
-	"plugins.html":    true, // Legacy redirect stub → app-center (not mock market)
-}
-
-func (s *Server) registerWebUI(webuiRoot string) {
-	// Optional product HTML (containers, etc.) when any product surface is wanted.
-	optional := s.cfg != nil && (s.cfg.OptionalProductsEnabled() || s.cfg.Modules.Optional || len(bootWantProducts(s.cfg)) > 0)
-
-	// Assets always available.
-	s.engine.Static("/webui/css", webuiRoot+"/css")
-	s.engine.Static("/webui/js", webuiRoot+"/js")
-	s.engine.Static("/webui/i18n", webuiRoot+"/i18n")
-	s.engine.StaticFile("/webui/index.html", webuiRoot+"/index.html")
-	s.engine.StaticFile("/webui/manifest.json", webuiRoot+"/manifest.json")
-	s.engine.StaticFile("/", webuiRoot+"/index.html")
-	s.engine.StaticFile("/index.html", webuiRoot+"/index.html")
-
-	// Pages: core allowlist always; full pages tree only when optional=true.
-	if optional {
-		s.engine.Static("/webui/pages", webuiRoot+"/pages")
-	} else {
-		s.engine.GET("/webui/pages/*filepath", func(c *gin.Context) {
-			rel := strings.TrimPrefix(c.Param("filepath"), "/")
-			base := filepath.Base(rel)
-			if !coreWebUIPages[base] {
-				c.JSON(http.StatusNotFound, gin.H{
-					"code":    404,
-					"message": "optional product UI disabled; set packages.recommended_system=true or modules.optional=true",
-				})
-				return
-			}
-			c.File(filepath.Join(webuiRoot, "pages", rel))
-		})
-	}
-
-	// Short convenience paths for Core pages.
-	s.engine.StaticFile("/login", webuiRoot+"/pages/login.html")
-	s.engine.StaticFile("/dashboard", webuiRoot+"/pages/dashboard.html")
-	s.engine.StaticFile("/storage", webuiRoot+"/pages/storage.html")
-	s.engine.StaticFile("/shares", webuiRoot+"/pages/shares.html")
-	s.engine.StaticFile("/users", webuiRoot+"/pages/users.html")
-	s.engine.StaticFile("/network", webuiRoot+"/pages/network.html")
-	s.engine.StaticFile("/settings", webuiRoot+"/pages/settings.html")
-	s.engine.StaticFile("/app-center", webuiRoot+"/pages/app-center.html")
-
-	if optional {
-		s.engine.StaticFile("/downloader", webuiRoot+"/pages/downloader/index.html")
-		s.engine.StaticFile("/containers", webuiRoot+"/pages/containers.html")
-		s.engine.StaticFile("/vms", webuiRoot+"/pages/vms.html")
-		s.engine.StaticFile("/cloudsync", webuiRoot+"/pages/cloudsync.html")
-	}
+	// Shared MFA/RBAC/system-info-or-skip/storage/swagger/WebUI (same as Core).
+	s.registerCoreIdentityAndDocs(api)
 }
 
 // Start 启动服务器.
@@ -1814,35 +1710,3 @@ func parseInt(s string) (int, error) {
 	return result, err
 }
 
-func (s *Server) getSystemInfo(c *gin.Context) {
-	hostname, err := os.Hostname()
-	if err != nil || hostname == "" {
-		hostname = "nas-os"
-	}
-	build := appversion.GetBuildInfo()
-	c.JSON(http.StatusOK, gin.H{
-		"code": 0,
-		"data": gin.H{
-			"hostname":   hostname,
-			"version":    appversion.GetVersion(),
-			"build_date": build["build_date"],
-			"git_commit": build["git_commit"],
-		},
-	})
-}
-
-// getHealth 健康检查
-// @Summary 健康检查
-// @Description 聚合 Core 模块 Health()；任一 Core 不健康则 status=unhealthy
-// @Tags system
-// @Accept json
-// @Produce json
-// @Success 200 {object} map[string]interface{} "系统健康（含 modules）"
-// @Router /system/health [get].
-func (s *Server) getHealth(c *gin.Context) {
-	c.JSON(http.StatusOK, AggregateCoreHealth(c.Request.Context(), s.modules))
-}
-
-func (s *Server) getSystemStatus(c *gin.Context) {
-	system.GetSystemStatus(c)
-}

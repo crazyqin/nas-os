@@ -1,3 +1,5 @@
+//go:build nasd_full
+
 package web
 
 import (
@@ -109,9 +111,6 @@ func (s *Server) httpExtensionMounts(api *gin.RouterGroup) map[string]func() {
 		},
 		"activeprotect": func() {
 			m := activeprotect.NewManager()
-			if s.extHolders != nil {
-				s.extHolders.activeProtect = m
-			}
 			g := api.Group("/activeprotect")
 			g.Use(s.requirePackageActive("activeprotect"))
 			g.GET("/status", func(c *gin.Context) {
@@ -126,9 +125,6 @@ func (s *Server) httpExtensionMounts(api *gin.RouterGroup) map[string]func() {
 		},
 		"compliancescan": func() {
 			sc := compliancescan.NewScanner()
-			if s.extHolders != nil {
-				s.extHolders.complianceScan = sc
-			}
 			g := api.Group("/compliancescan")
 			g.Use(s.requirePackageActive("compliancescan"))
 			g.GET("/standards", func(c *gin.Context) {
@@ -144,9 +140,6 @@ func (s *Server) httpExtensionMounts(api *gin.RouterGroup) map[string]func() {
 		},
 		"deployorch": func() {
 			o := deployorch.NewOrchestrator()
-			if s.extHolders != nil {
-				s.extHolders.deployOrch = o
-			}
 			g := api.Group("/deployorch")
 			g.Use(s.requirePackageActive("deployorch"))
 			g.GET("/nodes", func(c *gin.Context) {
@@ -158,9 +151,6 @@ func (s *Server) httpExtensionMounts(api *gin.RouterGroup) map[string]func() {
 		},
 		"netdiag": func() {
 			d := netdiag.NewDiagnoser()
-			if s.extHolders != nil {
-				s.extHolders.netDiag = d
-			}
 			g := api.Group("/netdiag")
 			g.Use(s.requirePackageActive("netdiag"))
 			g.POST("/full", func(c *gin.Context) {

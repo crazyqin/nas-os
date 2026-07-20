@@ -2,6 +2,7 @@
 package web
 
 import (
+	"errors"
 	"net/http"
 
 	"nas-os/internal/storage"
@@ -285,13 +286,27 @@ func (h *StorageHandlers) ListAllSnapshots(c *gin.Context) {
 }
 
 // DeleteVolume deletes a volume by name.
+// Requires JSON body confirm_name matching the volume name.
+// allow_wipe=false (default): soft detach — unmount + unregister, no wipefs.
+// allow_wipe=true: irreversible wipefs on member devices.
+// Query ?force=true alone is not sufficient.
 func (h *StorageHandlers) DeleteVolume(c *gin.Context) {
 	if h.storageMgr == nil {
 		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: "storage manager not initialized"})
 		return
 	}
-	force := c.Query("force") == "true"
-	if err := h.storageMgr.DeleteVolume(c.Param("name"), force); err != nil {
+	name := c.Param("name")
+	var opts storage.DeleteVolumeOptions
+	// Optional body; empty body → confirmation fails closed.
+	_ = c.ShouldBindJSON(&opts)
+	if c.Query("force") == "true" {
+		opts.Force = true
+	}
+	if err := h.storageMgr.DeleteVolumeConfirmed(name, opts); err != nil {
+		if errors.Is(err, storage.ErrDeleteNotConfirmed) || errors.Is(err, storage.ErrWipeNotAllowed) {
+			c.JSON(http.StatusBadRequest, StorageResponse{Code: 400, Message: err.Error()})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: err.Error()})
 		return
 	}

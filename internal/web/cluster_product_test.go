@@ -1,3 +1,5 @@
+//go:build nasd_full
+
 package web
 
 import (
@@ -20,7 +22,7 @@ func TestClusterEnableDisableInProcess(t *testing.T) {
 	s := NewServer(cfg, nil, nil, nil, nil, nil, nil, nil, nil, zap.NewNop())
 
 	var started, stopped int
-	s.SetClusterBootstrap(func() (*cluster.Services, error) {
+	s.SetClusterBootstrap(func() (any, error) {
 		started++
 		return &cluster.Services{}, nil
 	})

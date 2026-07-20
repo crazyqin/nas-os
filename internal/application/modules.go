@@ -12,7 +12,6 @@ import (
 	"nas-os/internal/smb"
 	"nas-os/internal/storage"
 	"nas-os/internal/users"
-	"nas-os/internal/web"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -72,14 +71,15 @@ func (m *identityModule) RegisterAuthenticatedRoutes(rg *gin.RouterGroup) {
 	m.handlers.RegisterProtectedRoutes(rg)
 }
 
-// storageModule 原生存储模块；兼容路由处理器将在后续迁入 storage 包。
+// storageModule 原生存储模块（生命周期 + Health）。
+// HTTP 路由唯一由 web.registerCoreIdentityAndDocs → StorageHandlers 挂载
+// （/api/v1/storage/* + DeleteVolumeConfirmed），避免与模块双挂载导致 gin panic。
 type storageModule struct {
 	coreModule
-	compatRoutes arch.RouteRegistrar
 }
 
 func (m *storageModule) RegisterRoutes(rg *gin.RouterGroup) {
-	m.compatRoutes.RegisterRoutes(rg)
+	// intentionally empty — storage routes owned by web.StorageHandlers
 }
 
 // networkModule 原生网络模块，拥有 DDNS worker 和管理员路由。
@@ -164,7 +164,6 @@ func registerCoreModules(
 			},
 			logger: logger,
 		},
-		compatRoutes: web.NewStorageHandlers(storageMgr),
 	}
 	networkMod := &networkModule{
 		coreModule: coreModule{
