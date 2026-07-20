@@ -346,7 +346,8 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	var webhookMgr *webhook.Manager
 	var webterminalMgr *webterminal.Manager
 	var wolMgr *wol.Manager
-	if cfg.Modules.Optional {
+	// ADR-0001 Stage 1: gate optional product managers via unified package resolution.
+	if cfg.OptionalProductsEnabled() {
 		// 初始化 Docker 管理器
 		dockerMgr, err = docker.NewManager()
 		if err != nil {
@@ -809,7 +810,13 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 		log.Println("✅ v2.548.0 新增模块就绪")
 
 	} else {
-		log.Println("ℹ️  modules.optional=false: non-Core product managers not constructed")
+		log.Println("ℹ️  packages/modules optional off: non-Core product managers not constructed")
+	}
+	if res := cfg.ResolvePackages(); res.DualSource {
+		for _, w := range res.Warnings {
+			log.Printf("⚠️  %s", w)
+		}
+		log.Printf("ℹ️  resolved packages enabled=%v recommended_system=%v", res.Enabled, res.RecommendedSystem)
 	}
 
 	s := &Server{
@@ -1538,7 +1545,7 @@ var coreWebUIPages = map[string]bool{
 }
 
 func (s *Server) registerWebUI(webuiRoot string) {
-	optional := s.cfg != nil && s.cfg.Modules.Optional
+	optional := s.cfg != nil && s.cfg.OptionalProductsEnabled()
 
 	// Assets always available.
 	s.engine.Static("/webui/css", webuiRoot+"/css")
@@ -1559,7 +1566,7 @@ func (s *Server) registerWebUI(webuiRoot string) {
 			if !coreWebUIPages[base] {
 				c.JSON(http.StatusNotFound, gin.H{
 					"code":    404,
-					"message": "optional product UI disabled; set modules.optional=true",
+					"message": "optional product UI disabled; set packages.recommended_system=true or modules.optional=true",
 				})
 				return
 			}

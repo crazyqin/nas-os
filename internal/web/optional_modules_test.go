@@ -52,3 +52,21 @@ func TestOptionalConfigEnablesProductConstruction(t *testing.T) {
 		t.Fatal("expected some optional pure-Go managers when modules.optional=true")
 	}
 }
+
+// TestPackagesRecommendedSystemEnablesProductConstruction drives NewServer with
+// packages.recommended_system only (modules.optional left false) — ADR Stage 1.
+func TestPackagesRecommendedSystemEnablesProductConstruction(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	cfg := config.Default()
+	cfg.Packages.RecommendedSystem = true
+	if cfg.Modules.Optional {
+		t.Fatal("precondition: modules.optional false")
+	}
+	if !cfg.OptionalProductsEnabled() {
+		t.Fatal("precondition: OptionalProductsEnabled via packages")
+	}
+	s := NewServer(cfg, nil, nil, nil, nil, nil, nil, nil, nil, zap.NewNop())
+	if s.optimizer == nil && s.projectMgr == nil && s.lockMgr == nil {
+		t.Fatal("expected optional pure-Go managers when packages.recommended_system=true")
+	}
+}

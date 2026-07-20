@@ -19,11 +19,14 @@ import (
 
 // Config 是 NAS-OS 运行时根配置。
 type Config struct {
-	Server  ServerConfig  `yaml:"server"`
-	Paths   PathsConfig   `yaml:"paths"`
-	Storage StorageConfig `yaml:"storage"`
-	Auth    AuthConfig    `yaml:"auth"`
-	Modules ModulesConfig `yaml:"modules"`
+	Server   ServerConfig   `yaml:"server"`
+	Paths    PathsConfig    `yaml:"paths"`
+	Storage  StorageConfig  `yaml:"storage"`
+	Auth     AuthConfig     `yaml:"auth"`
+	Modules  ModulesConfig  `yaml:"modules"`
+	// Packages is the ADR-0001 Stage-1 surface (dual-read with modules.*).
+	// Prefer ResolvePackages() / OptionalProductsEnabled() in production code.
+	Packages PackagesConfig `yaml:"packages"`
 }
 
 // ServerConfig 描述 HTTP/Web 服务参数。
@@ -116,6 +119,10 @@ func Default() *Config {
 			},
 			Optional:   false, // default: no non-Core product managers
 			Extensions: nil,
+		},
+		Packages: PackagesConfig{
+			RecommendedSystem: false, // default Core-only (ADR-0001 Stage 1)
+			Enabled:           nil,
 		},
 	}
 }

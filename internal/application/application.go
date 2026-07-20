@@ -103,7 +103,8 @@ func New(cfg *config.Config, logger *zap.Logger) (app *Application, err error) {
 	hostname, _ := os.Hostname()
 	var clusterServices *cluster.Services
 	var downloadMgr *downloader.Manager
-	if cfg.Modules.Optional {
+	// ADR-0001 Stage 1: unified packages resolution (dual-read modules.* + packages.*).
+	if cfg.OptionalProductsEnabled() {
 		var err error
 		clusterServices, err = cluster.InitializeCluster(cluster.RootConfig{
 			NodeID:  hostname,

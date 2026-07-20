@@ -43,6 +43,32 @@ func TestRegisterConfiguredExtensionsMountsAgentWorkflow(t *testing.T) {
 	}
 }
 
+// TestRegisterConfiguredExtensionsPackagesOnly drives real loader via packages.enabled
+// (ADR-0001 Stage 1 dual-read; modules.extensions left empty).
+func TestRegisterConfiguredExtensionsPackagesOnly(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	cfg := config.Default()
+	cfg.Packages.Enabled = []string{"agentworkflow"}
+	if len(cfg.Modules.Extensions) != 0 {
+		t.Fatal("precondition: modules.extensions empty")
+	}
+	s := &Server{cfg: cfg}
+	r := gin.New()
+	api := r.Group("/api/v1")
+	s.registerConfiguredExtensions(api)
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/agentworkflow/tasks", nil)
+	r.ServeHTTP(w, req)
+	if w.Code == http.StatusNotFound {
+		t.Fatal("agentworkflow must mount from packages.enabled alone")
+	}
+	names := s.EnabledExtensions()
+	if len(names) != 1 || names[0] != "agentworkflow" {
+		t.Fatalf("EnabledExtensions=%v", names)
+	}
+}
+
 // TestRegisterConfiguredExtensionsRetainsActiveProtectManager proves enable is not
 // construct-and-discard: status route uses retained manager.
 func TestRegisterConfiguredExtensionsRetainsActiveProtectManager(t *testing.T) {
