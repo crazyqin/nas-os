@@ -1,3 +1,5 @@
+// Package notify is the lighter alert/notifier used by monitor bulk surface.
+// Prefer internal/notification for the full Notification Center product path.
 package notify
 
 import (

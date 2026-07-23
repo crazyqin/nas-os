@@ -30,6 +30,9 @@ type FileListCache struct {
 	hits      int64
 	misses    int64
 	evictions int64
+	stopCh    chan struct{}
+	stopped   atomic.Bool
+	wg        sync.WaitGroup
 }
 
 // CachedFileList 缓存的文件列表.
@@ -46,12 +49,22 @@ func NewFileListCache(maxSize int, ttl time.Duration) *FileListCache {
 		cache:   make(map[string]*CachedFileList),
 		maxSize: maxSize,
 		ttl:     ttl,
+		stopCh:  make(chan struct{}),
 	}
 
-	// 启动后台清理
+	flc.wg.Add(1)
 	go flc.startCleanup()
 
 	return flc
+}
+
+// Stop stops the background cleanup goroutine. Safe to call multiple times.
+func (c *FileListCache) Stop() {
+	if c == nil || !c.stopped.CompareAndSwap(false, true) {
+		return
+	}
+	close(c.stopCh)
+	c.wg.Wait()
 }
 
 // Get 获取缓存的文件列表.
@@ -139,19 +152,25 @@ func (c *FileListCache) evictOldest() {
 
 // startCleanup 启动后台清理.
 func (c *FileListCache) startCleanup() {
+	defer c.wg.Done()
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
-	for range ticker.C {
-		c.mu.Lock()
-		now := time.Now()
-		for key, entry := range c.cache {
-			if now.After(entry.ExpiresAt) {
-				delete(c.cache, key)
-				atomic.AddInt64(&c.evictions, 1)
+	for {
+		select {
+		case <-c.stopCh:
+			return
+		case <-ticker.C:
+			c.mu.Lock()
+			now := time.Now()
+			for key, entry := range c.cache {
+				if now.After(entry.ExpiresAt) {
+					delete(c.cache, key)
+					atomic.AddInt64(&c.evictions, 1)
+				}
 			}
+			c.mu.Unlock()
 		}
-		c.mu.Unlock()
 	}
 }
 
@@ -165,6 +184,9 @@ type ThumbnailCache struct {
 	hits      int64
 	misses    int64
 	evictions int64
+	stopCh    chan struct{}
+	stopped   atomic.Bool
+	wg        sync.WaitGroup
 }
 
 // ThumbnailEntry 缩略图缓存条目.
@@ -184,12 +206,22 @@ func NewThumbnailCache(maxSize int, maxBytes int64) *ThumbnailCache {
 		cache:    make(map[string]*ThumbnailEntry),
 		maxSize:  maxSize,
 		maxBytes: maxBytes,
+		stopCh:   make(chan struct{}),
 	}
 
-	// 启动后台清理
+	tc.wg.Add(1)
 	go tc.startCleanup()
 
 	return tc
+}
+
+// Stop stops the background cleanup goroutine. Safe to call multiple times.
+func (c *ThumbnailCache) Stop() {
+	if c == nil || !c.stopped.CompareAndSwap(false, true) {
+		return
+	}
+	close(c.stopCh)
+	c.wg.Wait()
 }
 
 // Get 获取缩略图.
@@ -280,21 +312,27 @@ func (c *ThumbnailCache) evictOldestLocked() {
 
 // startCleanup 启动后台清理.
 func (c *ThumbnailCache) startCleanup() {
+	defer c.wg.Done()
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
 
-	for range ticker.C {
-		c.mu.Lock()
-		// 清理超过1小时的条目
-		cutoff := time.Now().Add(-1 * time.Hour)
-		for key, entry := range c.cache {
-			if entry.CachedAt.Before(cutoff) {
-				c.curBytes -= int64(entry.Bytes)
-				delete(c.cache, key)
-				atomic.AddInt64(&c.evictions, 1)
+	for {
+		select {
+		case <-c.stopCh:
+			return
+		case <-ticker.C:
+			c.mu.Lock()
+			// 清理超过1小时的条目
+			cutoff := time.Now().Add(-1 * time.Hour)
+			for key, entry := range c.cache {
+				if entry.CachedAt.Before(cutoff) {
+					c.curBytes -= int64(entry.Bytes)
+					delete(c.cache, key)
+					atomic.AddInt64(&c.evictions, 1)
+				}
 			}
+			c.mu.Unlock()
 		}
-		c.mu.Unlock()
 	}
 }
 
@@ -309,6 +347,7 @@ type OptimizedManager struct {
 	thumbnailWorkers int
 	thumbnailQueue   chan thumbnailRequest
 	thumbnailWg      sync.WaitGroup
+	stopped          atomic.Bool
 }
 
 type thumbnailRequest struct {
@@ -342,8 +381,27 @@ func NewOptimizedManager(config PreviewConfig, logger *zap.Logger) *OptimizedMan
 	return om
 }
 
+// Stop shuts down cache cleanup goroutines and thumbnail workers.
+// Safe to call multiple times.
+func (m *OptimizedManager) Stop() {
+	if m == nil || !m.stopped.CompareAndSwap(false, true) {
+		return
+	}
+	if m.thumbnailQueue != nil {
+		close(m.thumbnailQueue)
+	}
+	m.thumbnailWg.Wait()
+	if m.fileListCache != nil {
+		m.fileListCache.Stop()
+	}
+	if m.thumbnailCache != nil {
+		m.thumbnailCache.Stop()
+	}
+}
+
 // startThumbnailWorkers 启动缩略图工作池.
 func (m *OptimizedManager) startThumbnailWorkers() {
+	m.thumbnailWg.Add(m.thumbnailWorkers)
 	for i := 0; i < m.thumbnailWorkers; i++ {
 		go m.thumbnailWorker()
 	}
@@ -351,10 +409,10 @@ func (m *OptimizedManager) startThumbnailWorkers() {
 
 // thumbnailWorker 缩略图工作线程.
 func (m *OptimizedManager) thumbnailWorker() {
+	defer m.thumbnailWg.Done()
 	for req := range m.thumbnailQueue {
 		thumbnail, w, h := m.generateThumbnailInternal(req.path, req.thumbSize)
 		req.result <- thumbnailResult{thumbnail, w, h}
-		m.thumbnailWg.Done()
 	}
 }
 
@@ -541,10 +599,9 @@ func (m *OptimizedManager) GetCacheStats() map[string]interface{} {
 	}
 }
 
-// Close 关闭管理器.
+// Close 关闭管理器（与 Stop 等价，保留兼容）.
 func (m *OptimizedManager) Close() {
-	close(m.thumbnailQueue)
-	m.thumbnailWg.Wait()
+	m.Stop()
 }
 
 // SearchCache 搜索结果缓存.

@@ -89,7 +89,7 @@ func (s *Server) registerCoreIdentityAndDocs(api *gin.RouterGroup) {
 
 	// Full bulk may set systemMonitor; Core keeps it nil (any).
 	// Callers on Full must register system.Monitor handlers before this if non-nil.
-	if s.systemMonitor == nil {
+	if !s.hasHolder("systemMonitor") {
 		api.GET("/system/info", s.getSystemInfo)
 		api.GET("/system/status", s.getSystemStatus)
 	}

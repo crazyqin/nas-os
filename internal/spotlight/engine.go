@@ -1,5 +1,5 @@
-// Package spotlight 提供 macOS Spotlight 协议兼容的文件搜索服务
-// 支持 mDNS/Bonjour 发现、内容索引、亚秒级搜索和跨协议统一搜索
+// Package spotlight provides macOS Spotlight protocol-compatible search (mDNS/SMB).
+// Deprecated for product UI search: prefer internal/search. Retained for bulk/protocol mounts.
 package spotlight
 
 import (

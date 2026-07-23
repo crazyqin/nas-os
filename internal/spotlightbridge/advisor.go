@@ -1,3 +1,5 @@
+// Package spotlightbridge bridges Spotlight metadata into advisors.
+// Deprecated: prefer internal/search; retained for bulk optional mounts.
 package spotlightbridge
 
 import (

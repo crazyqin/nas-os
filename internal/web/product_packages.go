@@ -20,44 +20,50 @@ import (
 	"go.uber.org/zap"
 )
 
-// releaseProductManager drops product managers on disable (routes stay gated by IsPackageActive).
+// releaseProductManager drops product managers on disable.
+// True unload path: unmount routes (404) → Runtime.Disable → here (free managers).
+// Gin tree nodes remain (framework limit); managers are nil'd so memory can be reclaimed.
 func (s *Server) releaseProductManager(id string) {
 	if s == nil {
 		return
 	}
+	// Drop registry slot first (teardown is owned by the switch below — avoid double Close).
+	if s.productReg != nil {
+		s.productReg.drop(id)
+	}
 	switch id {
 	case "docker":
-		s.dockerMgr = nil
-		s.appStore = nil
-		log.Printf("ℹ️  product docker manager released")
+		s.setHolder("dockerMgr", nil)
+		s.setHolder("appStore", nil)
+		log.Printf("ℹ️  product docker manager released (memory reclaim)")
 	case "photos":
-		if s.photosAIMgr != nil {
-			s.photosAIMgr.Close()
-			s.photosAIMgr = nil
+		if s.hasHolder("photosAIMgr") {
+			holderAs[*photos.AIManager](s, "photosAIMgr").Close()
+			s.setHolder("photosAIMgr", nil)
 		}
-		s.photosMgr = nil
-		log.Printf("ℹ️  product photos manager released")
+		s.setHolder("photosMgr", nil)
+		log.Printf("ℹ️  product photos manager released (memory reclaim)")
 	case "backup":
-		s.backupMgr = nil
-		s.syncMgr = nil
-		log.Printf("ℹ️  product backup manager released")
+		s.setHolder("backupMgr", nil)
+		s.setHolder("syncMgr", nil)
+		log.Printf("ℹ️  product backup manager released (memory reclaim)")
 	case "vm":
-		s.vmMgr = nil
-		s.isoMgr = nil
-		s.snapshotMgr = nil
-		log.Printf("ℹ️  product vm manager released")
+		s.setHolder("vmMgr", nil)
+		s.setHolder("isoMgr", nil)
+		s.setHolder("snapshotMgr", nil)
+		log.Printf("ℹ️  product vm manager released (memory reclaim)")
 	case "ai":
-		s.aiSvc = nil
-		log.Printf("ℹ️  product ai service released")
+		s.setHolder("aiSvc", nil)
+		log.Printf("ℹ️  product ai service released (memory reclaim)")
 	case "cloudsync":
-		s.cloudsyncMgr = nil
-		log.Printf("ℹ️  product cloudsync manager released")
+		s.setHolder("cloudsyncMgr", nil)
+		log.Printf("ℹ️  product cloudsync manager released (memory reclaim)")
 	case "downloader":
-		if m, ok := s.downloadMgr.(*downloader.Manager); ok && m != nil {
+		if m, ok := holderAs[any](s, "downloadMgr").(*downloader.Manager); ok && m != nil {
 			m.Close()
 		}
-		s.downloadMgr = nil
-		log.Printf("ℹ️  product downloader manager released")
+		s.setHolder("downloadMgr", nil)
+		log.Printf("ℹ️  product downloader manager released (memory reclaim)")
 	case "cluster":
 		s.clusterMu.Lock()
 		svc := s.clusterServices
@@ -75,6 +81,66 @@ func (s *Server) releaseProductManager(id string) {
 			log.Printf("ℹ️  product cluster disable persisted (was not running in this process)")
 		}
 	}
+	// Allow re-register of HTTP routes on next enable (handlers re-bind to new managers).
+	s.productRoutesMu.Lock()
+	delete(s.productRoutesRegistered, id)
+	s.productRoutesMu.Unlock()
+}
+
+// trackProduct registers a live product manager in the lifecycle registry.
+func (s *Server) trackProduct(id string, holder any, stop func()) {
+	if s == nil || holder == nil {
+		return
+	}
+	if s.productReg == nil {
+		s.productReg = newProductRegistry()
+	}
+	s.productReg.put(id, holder, stop)
+}
+
+// seedProductRegistry registers managers constructed at NewServer boot into the registry.
+func (s *Server) seedProductRegistry() {
+	if s == nil {
+		return
+	}
+	if s.productReg == nil {
+		s.productReg = newProductRegistry()
+	}
+	if s.hasHolder("dockerMgr") {
+		s.trackProduct("docker", holderAs[*docker.Manager](s, "dockerMgr"), nil)
+	}
+	if s.hasHolder("photosMgr") {
+		s.trackProduct("photos", holderAs[*photos.Manager](s, "photosMgr"), func() {
+			if s.hasHolder("photosAIMgr") {
+				holderAs[*photos.AIManager](s, "photosAIMgr").Close()
+			}
+		})
+	}
+	if s.hasHolder("backupMgr") {
+		s.trackProduct("backup", holderAs[*backup.Manager](s, "backupMgr"), nil)
+	}
+	if s.hasHolder("vmMgr") {
+		s.trackProduct("vm", holderAs[*vm.Manager](s, "vmMgr"), nil)
+	}
+	if s.hasHolder("aiSvc") {
+		s.trackProduct("ai", holderAs[*ai.AIService](s, "aiSvc"), nil)
+	}
+	if s.hasHolder("cloudsyncMgr") {
+		s.trackProduct("cloudsync", holderAs[*cloudsync.Manager](s, "cloudsyncMgr"), nil)
+	}
+	if s.hasHolder("downloadMgr") {
+		s.trackProduct("downloader", holderAs[any](s, "downloadMgr"), func() {
+			if m, ok := holderAs[any](s, "downloadMgr").(*downloader.Manager); ok && m != nil {
+				m.Close()
+			}
+		})
+	}
+	s.clusterMu.Lock()
+	cs := s.clusterServices
+	s.clusterMu.Unlock()
+	if cs != nil {
+		s.trackProduct("cluster", cs, nil)
+	}
 }
 
 // ensureProductManager lazily constructs managers when a product is runtime-enabled.
@@ -84,7 +150,7 @@ func (s *Server) ensureProductManager(id string) {
 	}
 	switch id {
 	case "docker":
-		if s.dockerMgr != nil {
+		if s.hasHolder("dockerMgr") {
 			return
 		}
 		mgr, err := docker.NewManager()
@@ -92,42 +158,49 @@ func (s *Server) ensureProductManager(id string) {
 			log.Printf("⚠️ runtime enable docker: %v", err)
 			return
 		}
-		s.dockerMgr = mgr
-		if s.appStore == nil {
+		s.setHolder("dockerMgr", mgr)
+		if !s.hasHolder("appStore") {
 			store, err := docker.NewAppStore(mgr, "/opt/nas")
 			if err == nil {
-				s.appStore = store
+				s.setHolder("appStore", store)
 			}
 		}
+		s.trackProduct("docker", mgr, nil)
 		log.Printf("✅ product docker manager constructed")
 	case "photos":
-		if s.photosMgr != nil {
+		if s.hasHolder("photosMgr") {
 			return
 		}
-		s.photosMgr = photos.NewManager(s.cfg.DataPath("photos"))
-		if s.photosMgr != nil {
-			aiMgr, err := photos.NewAIManager(s.photosMgr, s.cfg.DataPath("photos", "models"))
+		s.setHolder("photosMgr", photos.NewManager(s.cfg.DataPath("photos")))
+		if s.hasHolder("photosMgr") {
+			aiMgr, err := photos.NewAIManager(holderAs[*photos.Manager](s, "photosMgr"), s.cfg.DataPath("photos", "models"))
 			if err != nil {
 				log.Printf("⚠️ photos AI manager: %v", err)
 			} else {
-				s.photosAIMgr = aiMgr
+				s.setHolder("photosAIMgr", aiMgr)
 			}
 		}
+		s.trackProduct("photos", holderAs[*photos.Manager](s, "photosMgr"), func() {
+			if s.hasHolder("photosAIMgr") {
+				holderAs[*photos.AIManager](s, "photosAIMgr").Close()
+			}
+		})
 		log.Printf("✅ product photos manager constructed")
 	case "backup":
-		if s.backupMgr != nil {
+		if s.hasHolder("backupMgr") {
 			return
 		}
-		s.backupMgr = backup.NewManager(s.cfg.ConfigPath("backup-config.json"), s.cfg.MountPath("backups"))
-		if err := s.backupMgr.Initialize(); err != nil {
+		s.setHolder("backupMgr", backup.NewManager(s.cfg.ConfigPath("backup-config.json"), s.cfg.MountPath("backups")))
+		if err := holderAs[*backup.Manager](s, "backupMgr").Initialize(); err != nil {
 			log.Printf("⚠️ backup init: %v", err)
 		}
-		if s.syncMgr == nil {
-			s.syncMgr = backup.NewSyncManager(s.cfg.MountPath("backups"))
+		if !s.hasHolder("syncMgr") {
+			s.setHolder("syncMgr", backup.NewSyncManager(s.cfg.MountPath("backups")))
 		}
+		s.trackProduct("backup", holderAs[*backup.Manager](s, "backupMgr"), nil)
 		log.Printf("✅ product backup manager constructed")
 	case "vm":
-		if s.vmMgr != nil {
+		if s.hasHolder("vmMgr") {
 			return
 		}
 		vmStoragePath := s.cfg.MountPath("vms")
@@ -137,26 +210,27 @@ func (s *Server) ensureProductManager(id string) {
 			log.Printf("⚠️ runtime enable vm: %v", err)
 			return
 		}
-		s.vmMgr = mgr
-		if s.isoMgr == nil {
+		s.setHolder("vmMgr", mgr)
+		if !s.hasHolder("isoMgr") {
 			iso, err := vm.NewISOManager(s.cfg.MountPath("isos"), vmLogger)
 			if err != nil {
 				log.Printf("⚠️ iso manager: %v", err)
 			} else {
-				s.isoMgr = iso
+				s.setHolder("isoMgr", iso)
 			}
 		}
-		if s.snapshotMgr == nil && s.vmMgr != nil {
-			snap, err := vm.NewSnapshotManager(vmStoragePath, s.vmMgr, vmLogger)
+		if !s.hasHolder("snapshotMgr") && s.hasHolder("vmMgr") {
+			snap, err := vm.NewSnapshotManager(vmStoragePath, holderAs[*vm.Manager](s, "vmMgr"), vmLogger)
 			if err != nil {
 				log.Printf("⚠️ snapshot manager: %v", err)
 			} else {
-				s.snapshotMgr = snap
+				s.setHolder("snapshotMgr", snap)
 			}
 		}
+		s.trackProduct("vm", holderAs[*vm.Manager](s, "vmMgr"), nil)
 		log.Printf("✅ product vm manager constructed")
 	case "ai":
-		if s.aiSvc != nil {
+		if s.hasHolder("aiSvc") {
 			return
 		}
 		svc, err := ai.NewAIService(nil)
@@ -164,19 +238,21 @@ func (s *Server) ensureProductManager(id string) {
 			log.Printf("⚠️ runtime enable ai: %v", err)
 			return
 		}
-		s.aiSvc = svc
+		s.setHolder("aiSvc", svc)
+		s.trackProduct("ai", svc, nil)
 		log.Printf("✅ product ai service constructed")
 	case "cloudsync":
-		if s.cloudsyncMgr != nil {
+		if s.hasHolder("cloudsyncMgr") {
 			return
 		}
-		s.cloudsyncMgr = cloudsync.NewManager(s.cfg.ConfigPath("cloudsync-config.json"))
-		if err := s.cloudsyncMgr.Initialize(); err != nil {
+		s.setHolder("cloudsyncMgr", cloudsync.NewManager(s.cfg.ConfigPath("cloudsync-config.json")))
+		if err := holderAs[*cloudsync.Manager](s, "cloudsyncMgr").Initialize(); err != nil {
 			log.Printf("⚠️ cloudsync init: %v", err)
 		}
+		s.trackProduct("cloudsync", holderAs[*cloudsync.Manager](s, "cloudsyncMgr"), nil)
 		log.Printf("✅ product cloudsync manager constructed")
 	case "downloader":
-		if s.downloadMgr != nil {
+		if s.hasHolder("downloadMgr") {
 			return
 		}
 		logger := s.logger
@@ -188,7 +264,12 @@ func (s *Server) ensureProductManager(id string) {
 			log.Printf("⚠️ runtime enable downloader: %v", err)
 			return
 		}
-		s.downloadMgr = mgr
+		s.setHolder("downloadMgr", mgr)
+		s.trackProduct("downloader", mgr, func() {
+			if m, ok := holderAs[any](s, "downloadMgr").(*downloader.Manager); ok && m != nil {
+				m.Close()
+			}
+		})
 		log.Printf("✅ product downloader manager constructed")
 	case "cluster":
 		s.clusterMu.Lock()
@@ -215,6 +296,7 @@ func (s *Server) ensureProductManager(id string) {
 		s.clusterMu.Lock()
 		s.clusterServices = svc
 		s.clusterMu.Unlock()
+		s.trackProduct("cluster", svc, nil)
 		log.Printf("✅ product cluster started in-process (runtime enable)")
 	default:
 		log.Printf("ℹ️  product %s active via package runtime", id)
@@ -238,36 +320,36 @@ func (s *Server) registerProductRoutes(id string) {
 	api := s.adminAPI
 	switch id {
 	case "docker":
-		if s.dockerMgr == nil {
+		if !s.hasHolder("dockerMgr") {
 			return
 		}
 		dg := api.Group("/")
 		dg.Use(s.requirePackageActive("docker"))
-		docker.NewHandlers(s.dockerMgr).RegisterRoutes(dg)
-		if s.appStore != nil {
+		docker.NewHandlers(holderAs[*docker.Manager](s, "dockerMgr")).RegisterRoutes(dg)
+		if s.hasHolder("appStore") {
 			ag := api.Group("/")
 			ag.Use(s.requirePackageActive("docker"))
-			docker.NewAppHandlers(s.appStore).RegisterRoutes(ag)
+			docker.NewAppHandlers(holderAs[*docker.AppStore](s, "appStore")).RegisterRoutes(ag)
 		}
 	case "photos":
-		if s.photosMgr == nil {
+		if !s.hasHolder("photosMgr") {
 			return
 		}
 		g := api.Group("/")
 		g.Use(s.requirePackageActive("photos"))
-		photos.NewHandler(s.photosMgr).RegisterRoutes(g)
+		photos.NewHandler(holderAs[*photos.Manager](s, "photosMgr")).RegisterRoutes(g)
 	case "backup":
-		if s.backupMgr == nil {
+		if !s.hasHolder("backupMgr") {
 			return
 		}
 		g := api.Group("/")
 		g.Use(s.requirePackageActive("backup"))
-		backup.NewHandlers(s.backupMgr, s.syncMgr).RegisterRoutes(g)
+		backup.NewHandlers(holderAs[*backup.Manager](s, "backupMgr"), holderAs[*backup.SyncManager](s, "syncMgr")).RegisterRoutes(g)
 	case "vm":
-		if s.vmMgr == nil || s.isoMgr == nil {
+		if !s.hasHolder("vmMgr") || !s.hasHolder("isoMgr") {
 			return
 		}
-		vmHandler := vm.NewHandler(s.vmMgr, s.isoMgr, s.snapshotMgr, zap.NewNop())
+		vmHandler := vm.NewHandler(holderAs[*vm.Manager](s, "vmMgr"), holderAs[*vm.ISOManager](s, "isoMgr"), holderAs[*vm.SnapshotManager](s, "snapshotMgr"), zap.NewNop())
 		g := api.Group("/")
 		g.Use(s.requirePackageActive("vm"))
 		g.GET("/vms", func(c *gin.Context) { vmHandler.HandleListVMs(c.Writer, c.Request) })
@@ -288,27 +370,27 @@ func (s *Server) registerProductRoutes(id string) {
 		g.GET("/vm-usb-devices", func(c *gin.Context) { vmHandler.HandleUSBDevices(c.Writer, c.Request) })
 		g.GET("/vm-pci-devices", func(c *gin.Context) { vmHandler.HandlePCIDevices(c.Writer, c.Request) })
 	case "ai":
-		if s.aiSvc == nil {
+		if !s.hasHolder("aiSvc") {
 			return
 		}
 		g := api.Group("/")
 		g.Use(s.requirePackageActive("ai"))
-		if gateway := s.aiSvc.GetGateway(); gateway != nil {
-			ai.NewGatewayHandlers(gateway, s.aiSvc.GetModelManager()).RegisterRoutes(g)
+		if gateway := holderAs[*ai.AIService](s, "aiSvc").GetGateway(); gateway != nil {
+			ai.NewGatewayHandlers(gateway, holderAs[*ai.AIService](s, "aiSvc").GetModelManager()).RegisterRoutes(g)
 		} else {
 			g.GET("/ai/status", func(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{"code": 0, "data": gin.H{"active": true}})
 			})
 		}
 	case "cloudsync":
-		if s.cloudsyncMgr == nil {
+		if !s.hasHolder("cloudsyncMgr") {
 			return
 		}
 		g := api.Group("/")
 		g.Use(s.requirePackageActive("cloudsync"))
-		cloudsync.NewHandlers(s.cloudsyncMgr).RegisterRoutes(g)
+		cloudsync.NewHandlers(holderAs[*cloudsync.Manager](s, "cloudsyncMgr")).RegisterRoutes(g)
 	case "downloader":
-		mgr, ok := s.downloadMgr.(*downloader.Manager)
+		mgr, ok := holderAs[any](s, "downloadMgr").(*downloader.Manager)
 		if !ok || mgr == nil {
 			return
 		}

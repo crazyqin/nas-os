@@ -46,9 +46,10 @@ type Server struct {
 	packageMounted          map[string]struct{}
 	productRoutesMu         sync.Mutex
 	productRoutesRegistered map[string]struct{}
+	productReg              *productRegistry
 	adminAPI                *gin.RouterGroup
 	clusterMu               sync.Mutex
-	clusterServices         any // full builds: *cluster.Services
+	clusterServices         any
 	clusterBootstrap        func() (any, error)
 	engine                  *gin.Engine
 	httpSrv                 *http.Server
@@ -56,61 +57,16 @@ type Server struct {
 	started                 bool
 	stopping                bool
 	logger                  *zap.Logger
-	storageMgr              *storage.Manager
-	userMgr                 *users.Manager
-	mfaMgr                  *auth.MFAManager
-	smbMgr                  *smb.Manager
-	nfsMgr                  *nfs.Manager
-	networkMgr              *network.Manager
-	downloadMgr             any // full builds: *downloader.Manager
-	rbacMgr                 *auth.RBACManager
-
-	// Product manager slots exist for API compatibility with full-build tests/helpers
-	// that only nil-check. Always nil in core builds (types not linked).
-	dockerMgr     any
-	appStore      any
-	perfMgr       any
-	pluginMgr     any
-	pluginMarket  any
-	quotaMgr      any
-	filesMgr      any
-	notifyMgr     any
-	photosMgr     any
-	photosAIMgr   any
-	backupMgr     any
-	syncMgr       any
-	systemMonitor any
-	vmMgr         any
-	isoMgr        any
-	snapshotMgr   any
-	monitorMgr    any
-	optimizer     any
-	projectMgr    any
-	trashMgr      any
-	replMgr       any
-	webdavSrv     any
-	ftpSrv        any
-	sftpSrv       any
-	versioningMgr any
-	dedupMgr      any
-	cloudsyncMgr  any
-	tagsMgr       any
-	officeMgr     any
-	iscsiMgr      any
-	nvmeofMgr     any
-	lockMgr       any
-	searchEngine  any
-	searchSvc     any
-	tunnelMgr     any
-	tunnelService any
-	frpManager    any
-	aiSvc         any
-	upsMgr        any
-	wolMgr        any
-	aclMgr        any
-	webhookMgr    any
-	recycleCleaner any
-	notifyChanMgr any
+	storageMgr  *storage.Manager
+	userMgr     *users.Manager
+	mfaMgr      *auth.MFAManager
+	smbMgr      *smb.Manager
+	nfsMgr      *nfs.Manager
+	networkMgr  *network.Manager
+	rbacMgr     *auth.RBACManager
+	// downloadMgr kept as constructor param wiring into holders under key "downloadMgr"
+	// Optional product slots: always empty on Core; held in h for field-compat tests.
+	h *holderBag
 }
 
 // NewServer constructs a Core-only HTTP server (identity/storage/sharing/system + packages API).
@@ -135,15 +91,17 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 		modules:     append([]arch.Module(nil), modules...),
 		engine:      engine,
 		logger:      logger,
+		productReg:  newProductRegistry(),
+		h:           newHolderBag(),
 		storageMgr:  storMgr,
 		userMgr:     userMgr,
 		mfaMgr:      mfaMgr,
 		smbMgr:      smbMgr,
 		nfsMgr:      nfsMgr,
 		networkMgr:  netMgr,
-		downloadMgr: downloadMgr,
 		rbacMgr:     auth.NewRBACManager(),
 	}
+	s.setHolder("downloadMgr", downloadMgr)
 	s.setupRoutes()
 	return s
 }

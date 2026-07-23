@@ -23,7 +23,7 @@ func TestCoreBuild_ProductsNotLinked(t *testing.T) {
 	if s == nil {
 		t.Fatal("nil server")
 	}
-	if s.dockerMgr != nil || s.photosMgr != nil || s.vmMgr != nil || s.trashMgr != nil {
+	if s.hasHolder("dockerMgr") || s.hasHolder("photosMgr") || s.hasHolder("vmMgr") || s.hasHolder("trashMgr") {
 		t.Fatal("product managers must be nil in core build")
 	}
 }

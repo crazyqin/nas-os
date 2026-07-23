@@ -1,4 +1,6 @@
 // Package spotlightfull - 搜索引擎核心
+// Package spotlightfull is experimental full-text spotlight.
+// Deprecated: prefer internal/search; do not add new product dependencies here.
 package spotlightfull
 
 import (

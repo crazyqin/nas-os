@@ -17,3 +17,9 @@ func (s *Server) releaseProductManager(id string) {}
 
 // registerProductRoutes is a no-op in Core-only builds.
 func (s *Server) registerProductRoutes(id string) {}
+
+// seedProductRegistry is a no-op in Core-only builds.
+func (s *Server) seedProductRegistry() {}
+
+// trackProduct is a no-op in Core-only builds.
+func (s *Server) trackProduct(id string, holder any, stop func()) {}

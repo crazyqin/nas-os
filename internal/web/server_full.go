@@ -28,7 +28,6 @@ import (
 	"nas-os/internal/fileindex"
 	"nas-os/internal/files"
 	ftp "nas-os/internal/ftp"
-	"nas-os/internal/hardware"
 	"nas-os/internal/healthscore"
 	"nas-os/internal/iscsi"
 	"nas-os/internal/lock"
@@ -123,138 +122,40 @@ func ExtensionsLinked() bool { return true }
 
 // Server Web 服务器.
 type Server struct {
-	cfg           *config.Config
-	modules       []arch.Module
-	extHolders          *extensionHolders             // optional modules.extensions holders
-	pkgRuntime          *packageruntime.Runtime       // ADR-0001 Stage 2 unified package runtime
-	communityDiscovered []packageruntime.DiskManifest // third-party manifests from community_dir
-	runtimeEnabledMu         sync.Mutex
-	runtimeEnabled           map[string]struct{} // App Center click-enabled set (persisted)
+	cfg                     *config.Config
+	modules                 []arch.Module
+	extHolders              *extensionHolders
+	pkgRuntime              *packageruntime.Runtime
+	communityDiscovered     []packageruntime.DiskManifest
+	runtimeEnabledMu        sync.Mutex
+	runtimeEnabled          map[string]struct{}
 	httpMountedMu           sync.Mutex
-	httpMounted             map[string]struct{} // gin tree nodes registered once per package id
+	httpMounted             map[string]struct{}
 	packageMountMu          sync.RWMutex
-	packageMounted          map[string]struct{} // true unload: requests 404 when absent
+	packageMounted          map[string]struct{}
 	productRoutesMu         sync.Mutex
 	productRoutesRegistered map[string]struct{}
-	adminAPI                *gin.RouterGroup // admin /api/v1 group for late product route register
+	productReg              *productRegistry
+	adminAPI                *gin.RouterGroup
 	clusterMu               sync.Mutex
-	clusterServices         any // *cluster.Services when set
+	clusterServices         any
 	clusterBootstrap        func() (any, error)
 	engine                  *gin.Engine
-	httpSrv       *http.Server
-	lifecycleMu   sync.Mutex
-	started       bool
-	stopping      bool
-	logger        *zap.Logger
-	storageMgr    *storage.Manager
-	userMgr       *users.Manager
-	mfaMgr        *auth.MFAManager
-	smbMgr        *smb.Manager
-	nfsMgr        *nfs.Manager
-	networkMgr    *network.Manager
-	dockerMgr     *docker.Manager
-	appStore      *docker.AppStore
-	perfMgr       *perf.Manager
-	pluginMgr     *plugin.Manager
-	pluginMarket  *plugin.Market
-	quotaMgr      *quota.Manager
-	filesMgr      *files.Manager
-	notifyMgr     *notify.Manager
-	downloadMgr   any
-	photosMgr     *photos.Manager
-	photosAIMgr   *photos.AIManager
-	backupMgr     *backup.Manager
-	syncMgr       *backup.SyncManager
-	systemMonitor *system.Monitor
-	vmMgr         *vm.Manager
-	isoMgr        *vm.ISOManager
-	snapshotMgr   *vm.SnapshotManager
-	rbacMgr       *auth.RBACManager
-	monitorMgr    *monitor.Manager
-	optimizer     *optimizer.PerformanceOptimizer
-	projectMgr    *project.Manager
-	trashMgr      *trash.Manager
-	replMgr       *replication.Manager
-	webdavSrv     *webdav.Server
-	ftpSrv        *ftp.Server
-	sftpSrv       *sftp.Server
-	versioningMgr *versioning.Manager
-	dedupMgr      *dedup.Manager
-	cloudsyncMgr  *cloudsync.Manager
-	tagsMgr       *tags.Manager
-	officeMgr     *office.Manager
-	iscsiMgr      *iscsi.Manager
-	nvmeofMgr     *nvmeof.Manager
-	lockMgr       *lock.Manager
-	searchEngine  *search.Engine
-	searchSvc     *search.GlobalSearchService
-	tunnelMgr     *tunnel.Manager
-	tunnelService *tunnel.TunnelService
-	frpManager    *tunnel.FRPManager
-	aiSvc         *ai.AIService
-	// v2.476.0 新增模块
-	alertEngine    *alertremediation.RemediationEngine
-	smartTierHdl   *tiering.SmartTieringHandler
-	recycleHdl     *shares.RecycleHandlers
-	scrubScheduler *zfs.ScrubScheduler
-	s3PolicyHdl    *s3.PolicyHandlers
-	// v2.477.0 新增模块
-	upsMgr         *ups.Manager
-	wolMgr         *wol.Manager
-	aclMgr         *acl.Manager
-	webhookMgr     *webhook.Manager
-	recycleCleaner *recyclecleaner.Manager
-	notifyChanMgr  *notifychannel.Manager
-	// mediaMgr      *media.LibraryManager
-	// v2.481.0 新增模块
-	drDrillMgr    *drdrill.Manager
-	driveSyncMgr  *drivesync.Manager
-	scrubSchedMgr *scrubsched.Manager
-	s3Gateway     *s3gateway.Gateway
-	schedulerMgr  *scheduler.Scheduler
-	// v2.481.0 竞品对标新增模块
-	diskbenchMgr    *diskbench.BenchmarkManager
-	healthscoreMgr  *healthscore.HealthScore
-	fastTransferMgr *fasttransfer.TransferManager
-	// v2.485.0 新增模块
-	thermalMgr     *thermal.Manager
-	fileindexMgr   *fileindex.Indexer
-	webterminalMgr *webterminal.Manager
-	// v2.490.0 新增模块
-	// v2.491.0 新增模块
-	notificationSvc *notification.Service
-	// v2.498.0 新增模块
-	containResMonMgr *containresmon.Manager
-	dataClassifyMgr  *dataclassify.Manager
-	dlpMgr           *dlp.Manager
-	fileSyncMgr      *filesync.SyncManager
-	netSentinelMgr   *netsentinel.Manager
-	networkMapMgr    *networkmap.Manager
-	privacyVaultMgr  *privacyvault.Engine
-	remoteDesktopMgr *remotedesktop.Manager
-	ssoHubMgr        *ssohub.Manager
-	surveillanceMgr  *surveillance.Manager
-	unifiedSearchMgr *unifiedsearch.Manager
-	// v2.499.0 竞品对标新增模块
-	zfsPoolMgr   *zfspool.Manager
-	dockerGuiMgr *dockergui.Manager
-	// v2.513.0 新增模块
-	alertGuidedMgr     *alertguided.Manager
-	dataWarehouseMgr   *datawarehouse.Warehouse
-	fileDejavuMgr      *filedejavu.Detector
-	hybridFlashMgr     *hybridflash.Manager
-	lxcmktMgr          *lxcmkt.Manager
-	objectImmutableMgr *objectimmutable.Manager
-	privacyShieldMgr   *privacyshield.Shield
-	spotlightMgr       *spotlight.Manager
-	// v2.542.0 新增模块
-	musicServerMgr         *musicserver.Manager
-	syslogServerMgr        *syslogserver.Manager
-	customBrandingMgr      *custombranding.BrandingEngine
-	smbDirectMgr           *smbdirect.SMBDirectManager
-	storageCostForecastMgr *storagecostforecast.CostForecastEngine
-	filetagMgr             *filetag.Manager
-	apikeyMgr              *apikey.Manager
+	httpSrv                 *http.Server
+	lifecycleMu             sync.Mutex
+	started                 bool
+	stopping                bool
+	logger                  *zap.Logger
+	// Core managers (always typed)
+	storageMgr *storage.Manager
+	userMgr    *users.Manager
+	mfaMgr     *auth.MFAManager
+	smbMgr     *smb.Manager
+	nfsMgr     *nfs.Manager
+	networkMgr *network.Manager
+	rbacMgr    *auth.RBACManager
+	// Optional/product/bulk managers live in h (see holders.go) — not 90+ fields.
+	h *holderBag
 }
 
 // NewServer 创建 Web 服务器.
@@ -303,6 +204,8 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	var lockMgr *lock.Manager
 	var lxcmktMgr *lxcmkt.Manager
 	var musicServerMgr *musicserver.Manager
+	var zfsPoolMgr *zfspool.Manager
+	var dockerGuiMgr *dockergui.Manager
 	var netSentinelMgr *netsentinel.Manager
 	var networkMapMgr *networkmap.Manager
 	var notificationSvc *notification.Service
@@ -834,206 +737,154 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	}
 
 	s := &Server{
-		cfg:           cfg,
-		modules:       append([]arch.Module(nil), modules...),
-		engine:        engine,
-		logger:        logger,
-		storageMgr:    storMgr,
-		userMgr:       userMgr,
-		mfaMgr:        mfaMgr,
-		smbMgr:        smbMgr,
-		nfsMgr:        nfsMgr,
-		networkMgr:    netMgr,
-		dockerMgr:     dockerMgr,
-		appStore:      appStore,
-		perfMgr:       perfMgr,
-		pluginMgr:     pluginMgr,
-		pluginMarket:  pluginMarket,
-		quotaMgr:      quotaMgr,
-		filesMgr:      filesMgr,
-		notifyMgr:     notifyMgr,
-		downloadMgr:   downloadMgr,
-		photosMgr:     photosMgr,
-		photosAIMgr:   photosAIMgr,
-		backupMgr:     backupMgr,
-		syncMgr:       syncMgr,
-		systemMonitor: systemMonitor,
-		vmMgr:         vmMgr,
-		isoMgr:        isoMgr,
-		snapshotMgr:   snapshotMgr,
-		rbacMgr: auth.NewRBACManager(),
-		// Non-catalog companions: ONLY deprecated modules.optional (bulk kitchen-sink).
-		// Enabling a single product (e.g. docker) must NOT pull tunnel/trash/ftp/….
-		// Catalog products are constructed in the block above via wantProducts.
-		monitorMgr: func() *monitor.Manager {
-			if !bulk {
-				return nil
-			}
-			mgr, _ := monitor.NewManager()
-			return mgr
-		}(),
-		optimizer: func() *optimizer.PerformanceOptimizer {
-			if !bulk {
-				return nil
-			}
-			return optimizer.NewOptimizer(nil, logger)
-		}(),
-		projectMgr: projectMgr,
-		trashMgr: func() *trash.Manager {
-			if !bulk {
-				return nil
-			}
-			mgr, _ := trash.NewManager(cfg.ConfigPath("trash.json"), cfg.DataPath("trash"), nil)
-			return mgr
-		}(),
-		replMgr: func() *replication.Manager {
-			if !bulk {
-				return nil
-			}
-			mgr, _ := replication.NewManager(cfg.ConfigPath("replication.json"), nil)
-			return mgr
-		}(),
-		webdavSrv: func() *webdav.Server {
-			if !bulk {
-				return nil
-			}
-			srv, _ := webdav.NewServer(nil)
-			return srv
-		}(),
-		ftpSrv: func() *ftp.Server {
-			if !bulk {
-				return nil
-			}
-			srv, _ := ftp.NewServer(nil)
-			return srv
-		}(),
-		sftpSrv: func() *sftp.Server {
-			if !bulk {
-				return nil
-			}
-			srv, _ := sftp.NewServer(nil)
-			return srv
-		}(),
-		versioningMgr: versioningMgr,
-		dedupMgr:      dedupMgr,
-		cloudsyncMgr:  cloudsyncMgr,
-		tagsMgr:       tagsMgr,
-		officeMgr:     officeMgr,
-		iscsiMgr:      iscsiMgr,
-		nvmeofMgr:     nvmeofMgr,
-		lockMgr:       lockMgr,
-		searchEngine:  searchEngine,
-		searchSvc:     searchSvc,
-		tunnelMgr: func() *tunnel.Manager {
-			if !bulk {
-				return nil
-			}
-			tcfg := tunnel.Config{
-				ServerAddr:   "tunnel.nas-os.local",
-				ServerPort:   7000,
-				DeviceID:     "nas-device",
-				DeviceName:   "NAS-OS",
-				STUNServers:  []string{"stun:stun.l.google.com:19302"},
-				HeartbeatInt: 30,
-				ReconnectInt: 5,
-				MaxReconnect: 10,
-				Timeout:      30,
-			}
-			mgr, _ := tunnel.NewManager(tcfg, logger)
-			return mgr
-		}(),
-		tunnelService: nil, // 在服务启动时初始化
-		frpManager: func() *tunnel.FRPManager {
-			if !bulk {
-				return nil
-			}
-			fcfg := &tunnel.FRPConfig{
-				Enabled:       false, // 默认关闭，用户配置后启用
-				ServerAddr:    "frp.nas-os.local",
-				ServerPort:    7000,
-				DeviceID:      "nas-device",
-				DeviceName:    "NAS-OS",
-				AutoReconnect: true,
-				LogLevel:      "info",
-			}
-			return tunnel.NewFRPManager(fcfg, logger)
-		}(),
-		aiSvc: aiSvc,
-		// v2.476.0 新增模块
-		alertEngine:    alertEngine,
-		smartTierHdl:   smartTierHdl,
-		recycleHdl:     recycleHdl,
-		scrubScheduler: scrubScheduler,
-		s3PolicyHdl:    s3PolicyHdl,
-		// v2.477.0 新增模块
-		upsMgr:         upsMgr,
-		wolMgr:         wolMgr,
-		aclMgr:         aclMgr,
-		webhookMgr:     webhookMgr,
-		recycleCleaner: recycleCleaner,
-		notifyChanMgr:  notifyChanMgr,
-		// mediaMgr:      mediaMgr,
-		// v2.481.0 新增模块
-		drDrillMgr:      drDrillMgr,
-		driveSyncMgr:    driveSyncMgr,
-		scrubSchedMgr:   scrubSchedMgr,
-		s3Gateway:       s3Gateway,
-		schedulerMgr:    schedulerMgr,
-		diskbenchMgr:    diskbenchMgr,
-		healthscoreMgr:  healthscoreMgr,
-		fastTransferMgr: fastTransferMgr,
-		// v2.485.0 新增模块
-		thermalMgr:     thermalMgr,
-		fileindexMgr:   fileindexMgr,
-		webterminalMgr: webterminalMgr,
-		// v2.490.0 新增模块
-		// v2.491.0 新增模块
-		notificationSvc: notificationSvc,
-		// v2.498.0 新增模块
-		containResMonMgr: containResMonMgr,
-		dataClassifyMgr:  dataClassifyMgr,
-		dlpMgr:           dlpMgr,
-		fileSyncMgr:      fileSyncMgr,
-		netSentinelMgr:   netSentinelMgr,
-		networkMapMgr:    networkMapMgr,
-		privacyVaultMgr:  privacyVaultMgr,
-		remoteDesktopMgr: remoteDesktopMgr,
-		ssoHubMgr:        ssoHubMgr,
-		surveillanceMgr:  surveillanceMgr,
-		unifiedSearchMgr: unifiedSearchMgr,
-		// v2.513.0 新增模块
-		alertGuidedMgr:         alertGuidedMgr,
-		dataWarehouseMgr:       dataWarehouseMgr,
-		fileDejavuMgr:          fileDejavuMgr,
-		hybridFlashMgr:         hybridFlashMgr,
-		lxcmktMgr:              lxcmktMgr,
-		objectImmutableMgr:     objectImmutableMgr,
-		privacyShieldMgr:       privacyShieldMgr,
-		spotlightMgr:           spotlightMgr,
-		musicServerMgr:         musicServerMgr,
-		syslogServerMgr:        syslogServerMgr,
-		customBrandingMgr:      customBrandingMgr,
-		smbDirectMgr:           smbDirectMgr,
-		storageCostForecastMgr: storageCostForecastMgr,
-		filetagMgr:             filetagMgr,
-		apikeyMgr:              apikeyMgr,
+		cfg:        cfg,
+		modules:    append([]arch.Module(nil), modules...),
+		engine:     engine,
+		logger:     logger,
+		productReg: newProductRegistry(),
+		h:          newHolderBag(),
+		storageMgr: storMgr,
+		userMgr:    userMgr,
+		mfaMgr:     mfaMgr,
+		smbMgr:     smbMgr,
+		nfsMgr:     nfsMgr,
+		networkMgr: netMgr,
+		rbacMgr:    auth.NewRBACManager(),
 	}
 
+	// Wire optional/product/bulk managers into holder bag (not Server fields).
+	s.setHolder("dockerMgr", dockerMgr)
+	s.setHolder("appStore", appStore)
+	s.setHolder("perfMgr", perfMgr)
+	s.setHolder("pluginMgr", pluginMgr)
+	s.setHolder("pluginMarket", pluginMarket)
+	s.setHolder("quotaMgr", quotaMgr)
+	s.setHolder("filesMgr", filesMgr)
+	s.setHolder("notifyMgr", notifyMgr)
+	s.setHolder("downloadMgr", downloadMgr)
+	s.setHolder("photosMgr", photosMgr)
+	s.setHolder("photosAIMgr", photosAIMgr)
+	s.setHolder("backupMgr", backupMgr)
+	s.setHolder("syncMgr", syncMgr)
+	s.setHolder("systemMonitor", systemMonitor)
+	s.setHolder("vmMgr", vmMgr)
+	s.setHolder("isoMgr", isoMgr)
+	s.setHolder("snapshotMgr", snapshotMgr)
+	if bulk {
+		if mgr, _ := monitor.NewManager(); mgr != nil {
+			s.setHolder("monitorMgr", mgr)
+		}
+		s.setHolder("optimizer", optimizer.NewOptimizer(nil, logger))
+		if mgr, _ := trash.NewManager(cfg.ConfigPath("trash.json"), cfg.DataPath("trash"), nil); mgr != nil {
+			s.setHolder("trashMgr", mgr)
+		}
+		if mgr, _ := replication.NewManager(cfg.ConfigPath("replication.json"), nil); mgr != nil {
+			s.setHolder("replMgr", mgr)
+		}
+		if srv, _ := webdav.NewServer(nil); srv != nil {
+			s.setHolder("webdavSrv", srv)
+		}
+		if srv, _ := ftp.NewServer(nil); srv != nil {
+			s.setHolder("ftpSrv", srv)
+		}
+		if srv, _ := sftp.NewServer(nil); srv != nil {
+			s.setHolder("sftpSrv", srv)
+		}
+		tcfg := tunnel.Config{
+			ServerAddr:   "tunnel.nas-os.local",
+			ServerPort:   7000,
+			DeviceID:     "nas-device",
+			DeviceName:   "NAS-OS",
+			STUNServers:  []string{"stun:stun.l.google.com:19302"},
+			HeartbeatInt: 30,
+			ReconnectInt: 5,
+			MaxReconnect: 10,
+			Timeout:      30,
+		}
+		if mgr, _ := tunnel.NewManager(tcfg, logger); mgr != nil {
+			s.setHolder("tunnelMgr", mgr)
+		}
+	}
+	s.setHolder("projectMgr", projectMgr)
+	s.setHolder("versioningMgr", versioningMgr)
+	s.setHolder("dedupMgr", dedupMgr)
+	s.setHolder("cloudsyncMgr", cloudsyncMgr)
+	s.setHolder("tagsMgr", tagsMgr)
+	s.setHolder("officeMgr", officeMgr)
+	s.setHolder("iscsiMgr", iscsiMgr)
+	s.setHolder("nvmeofMgr", nvmeofMgr)
+	s.setHolder("lockMgr", lockMgr)
+	s.setHolder("searchEngine", searchEngine)
+	s.setHolder("searchSvc", searchSvc)
+	s.setHolder("aiSvc", aiSvc)
+	s.setHolder("alertEngine", alertEngine)
+	s.setHolder("smartTierHdl", smartTierHdl)
+	s.setHolder("recycleHdl", recycleHdl)
+	s.setHolder("scrubScheduler", scrubScheduler)
+	s.setHolder("s3PolicyHdl", s3PolicyHdl)
+	s.setHolder("upsMgr", upsMgr)
+	s.setHolder("wolMgr", wolMgr)
+	s.setHolder("aclMgr", aclMgr)
+	s.setHolder("webhookMgr", webhookMgr)
+	s.setHolder("recycleCleaner", recycleCleaner)
+	s.setHolder("notifyChanMgr", notifyChanMgr)
+	s.setHolder("drDrillMgr", drDrillMgr)
+	s.setHolder("driveSyncMgr", driveSyncMgr)
+	s.setHolder("scrubSchedMgr", scrubSchedMgr)
+	s.setHolder("s3Gateway", s3Gateway)
+	s.setHolder("schedulerMgr", schedulerMgr)
+	s.setHolder("diskbenchMgr", diskbenchMgr)
+	s.setHolder("healthscoreMgr", healthscoreMgr)
+	s.setHolder("fastTransferMgr", fastTransferMgr)
+	s.setHolder("thermalMgr", thermalMgr)
+	s.setHolder("fileindexMgr", fileindexMgr)
+	s.setHolder("webterminalMgr", webterminalMgr)
+	s.setHolder("notificationSvc", notificationSvc)
+	s.setHolder("containResMonMgr", containResMonMgr)
+	s.setHolder("dataClassifyMgr", dataClassifyMgr)
+	s.setHolder("dlpMgr", dlpMgr)
+	s.setHolder("fileSyncMgr", fileSyncMgr)
+	s.setHolder("netSentinelMgr", netSentinelMgr)
+	s.setHolder("networkMapMgr", networkMapMgr)
+	s.setHolder("privacyVaultMgr", privacyVaultMgr)
+	s.setHolder("remoteDesktopMgr", remoteDesktopMgr)
+	s.setHolder("ssoHubMgr", ssoHubMgr)
+	s.setHolder("surveillanceMgr", surveillanceMgr)
+	s.setHolder("unifiedSearchMgr", unifiedSearchMgr)
+	s.setHolder("zfsPoolMgr", zfsPoolMgr)
+	s.setHolder("dockerGuiMgr", dockerGuiMgr)
+	s.setHolder("alertGuidedMgr", alertGuidedMgr)
+	s.setHolder("dataWarehouseMgr", dataWarehouseMgr)
+	s.setHolder("fileDejavuMgr", fileDejavuMgr)
+	s.setHolder("hybridFlashMgr", hybridFlashMgr)
+	s.setHolder("lxcmktMgr", lxcmktMgr)
+	s.setHolder("objectImmutableMgr", objectImmutableMgr)
+	s.setHolder("privacyShieldMgr", privacyShieldMgr)
+	s.setHolder("spotlightMgr", spotlightMgr)
+	s.setHolder("musicServerMgr", musicServerMgr)
+	s.setHolder("syslogServerMgr", syslogServerMgr)
+	s.setHolder("customBrandingMgr", customBrandingMgr)
+	s.setHolder("smbDirectMgr", smbDirectMgr)
+	s.setHolder("storageCostForecastMgr", storageCostForecastMgr)
+	s.setHolder("filetagMgr", filetagMgr)
+	s.setHolder("apikeyMgr", apikeyMgr)
+
+
 	// 设置 WebDAV 认证函数
-	if s.webdavSrv != nil && s.userMgr != nil {
-		s.webdavSrv.SetAuthFunc(func(username, password string) bool {
+	if s.hasHolder("webdavSrv") && s.userMgr != nil {
+		holderAs[*webdav.Server](s, "webdavSrv").SetAuthFunc(func(username, password string) bool {
 			_, err := s.userMgr.Authenticate(username, password)
 			return err == nil
 		})
 	}
 
 	// 设置 FTP 认证函数
-	if s.ftpSrv != nil && s.userMgr != nil {
-		s.ftpSrv.SetAuthFunc(func(username, password string) bool {
+	if s.hasHolder("ftpSrv") && s.userMgr != nil {
+		holderAs[*ftp.Server](s, "ftpSrv").SetAuthFunc(func(username, password string) bool {
 			_, err := s.userMgr.Authenticate(username, password)
 			return err == nil
 		})
-		s.ftpSrv.SetGetUserHome(func(username string) string {
+		holderAs[*ftp.Server](s, "ftpSrv").SetGetUserHome(func(username string) string {
 			if user, err := s.userMgr.GetUser(username); err == nil {
 				return user.HomeDir
 			}
@@ -1042,12 +893,12 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	}
 
 	// 设置 SFTP 认证函数
-	if s.sftpSrv != nil && s.userMgr != nil {
-		s.sftpSrv.SetAuthFunc(func(username, password string) bool {
+	if s.hasHolder("sftpSrv") && s.userMgr != nil {
+		holderAs[*sftp.Server](s, "sftpSrv").SetAuthFunc(func(username, password string) bool {
 			_, err := s.userMgr.Authenticate(username, password)
 			return err == nil
 		})
-		s.sftpSrv.SetGetUserHome(func(username string) string {
+		holderAs[*sftp.Server](s, "sftpSrv").SetGetUserHome(func(username string) string {
 			if user, err := s.userMgr.GetUser(username); err == nil {
 				return user.HomeDir
 			}
@@ -1060,6 +911,7 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 		engine.Use(perfMgr.Middleware())
 	}
 
+	s.seedProductRegistry()
 	s.setupRoutes()
 	return s
 }
@@ -1073,359 +925,10 @@ func (s *Server) setupRoutes() {
 		s.registerProductRoutes(id)
 	}
 	// Bulk system monitor (if any) before shared Core identity/docs so /system/info is not dual-registered.
-	if s.systemMonitor != nil {
-		system.NewHandlers(s.systemMonitor).RegisterRoutes(api)
+	if s.hasHolder("systemMonitor") {
+		system.NewHandlers(holderAs[*system.Monitor](s, "systemMonitor")).RegisterRoutes(api)
 	}
-	{
-		// Full product-only routes (not MFA/RBAC/storage/swagger — those use registerCoreIdentityAndDocs).
-
-		// ========== 性能监控 ==========
-		if s.perfMgr != nil {
-			perf.NewHandlers(s.perfMgr).RegisterRoutes(api)
-		}
-
-		// ========== 监控告警 ==========
-		if s.monitorMgr != nil {
-			monitor.NewHandlers(s.monitorMgr, s.notifyMgr).RegisterRoutes(api)
-		}
-
-		// ========== 性能优化 ==========
-		if s.optimizer != nil {
-			optimizer.NewHandlers(s.optimizer).RegisterRoutes(api)
-		}
-
-		// ========== 回收站 ==========
-		if s.trashMgr != nil {
-			trash.NewHandlers(s.trashMgr).RegisterRoutes(api)
-		}
-
-		// ========== 存储复制 ==========
-		if s.replMgr != nil {
-			replication.NewHandlers(s.replMgr).RegisterRoutes(api)
-		}
-
-		// ========== WebDAV 服务器 ==========
-		if s.webdavSrv != nil {
-			webdav.NewHandlers(s.webdavSrv).RegisterRoutes(api)
-		}
-
-		// ========== FTP 服务器 ==========
-		if s.ftpSrv != nil {
-			ftp.NewHandlers(s.ftpSrv).RegisterRoutes(api)
-		}
-
-		// ========== SFTP 服务器 ==========
-		if s.sftpSrv != nil {
-			s.sftpSrv.RegisterRoutes(api)
-		}
-
-		// ========== AI / 云同步 → registerProductRoutes ==========
-
-		// ========== 文件版本控制 ==========
-		if s.versioningMgr != nil {
-			versioning.NewHandlers(s.versioningMgr).RegisterRoutes(api)
-		}
-
-		// ========== 数据去重 ==========
-		if s.dedupMgr != nil {
-			dedup.NewHandlers(s.dedupMgr).RegisterRoutes(api)
-		}
-
-		// ========== 标签管理 ==========
-		if s.tagsMgr != nil {
-			tags.NewHandlers(s.tagsMgr).RegisterRoutes(api)
-		}
-
-		// ========== OnlyOffice 文档编辑 ==========
-		if s.officeMgr != nil {
-			office.NewHandlers(s.officeMgr).RegisterRoutes(api)
-		}
-
-		// ========== iSCSI 目标管理 ==========
-		if s.iscsiMgr != nil {
-			iscsi.NewHandlers(s.iscsiMgr).RegisterRoutes(api)
-		}
-
-		// ========== NVMe-oF 管理 ==========
-		if s.nvmeofMgr != nil {
-			nvmeof.NewHandlers(s.nvmeofMgr).RegisterRoutes(api)
-		}
-
-		// ========== NVMe硬件监控 / RAIDZ 扩展 ==========
-		// Bulk (modules.optional) or storage-related product surface only — not bare Core.
-		if productBulkSurface(s.cfg) || s.cfg.OptionalProductsEnabled() {
-			hardware.NewNVMeHandlers().RegisterRoutes(api)
-			storage.NewRAIDZExpansionHandlers(nil).RegisterRoutes(api)
-		}
-
-		// ========== 插件系统 ==========
-		if s.pluginMgr != nil {
-			plugin.NewHandlers(s.pluginMgr, s.pluginMarket).RegisterRoutes(api)
-		}
-
-		// ========== 配额管理 ==========
-		if s.quotaMgr != nil {
-			quota.NewHandlers(s.quotaMgr).RegisterRoutes(api)
-			// 注册 V2 API（历史统计、图表、报告等）
-			v2 := quota.NewHandlersV2(s.quotaMgr)
-			v2.Start()
-			v2.RegisterRoutesV2(api)
-		}
-
-		// ========== 文件预览 ==========
-		if s.filesMgr != nil {
-			files.NewHandlers(s.filesMgr).RegisterRoutes(api)
-		}
-
-		// ========== 通知管理 ==========
-		if s.notifyMgr != nil {
-			notify.NewHandlers(s.notifyMgr, s.cfg.ConfigPath("notify-config.json")).RegisterRoutes(api)
-		}
-
-		// download/photos/backup/vm/cloudsync/ai/docker product routes: registerProductRoutes.
-
-		// ========== 项目管理 ==========
-		if s.projectMgr != nil {
-			project.NewHandlers(s.projectMgr).RegisterRoutes(api)
-		}
-
-		// ========== 文件锁管理 ==========
-		if s.lockMgr != nil {
-			lock.NewHandlers(s.lockMgr, s.logger).RegisterRoutes(api)
-		}
-
-		// ========== 全局搜索 ==========
-		if s.searchSvc != nil && s.searchEngine != nil {
-			settingsRegistry := search.NewSettingsRegistry()
-			appRegistry := search.NewAppRegistry()
-			apiSearchHandler := NewAPISearchHandler(s.searchSvc, s.searchEngine, settingsRegistry, appRegistry, s.logger)
-			apiSearchHandler.RegisterRoutes(api)
-		}
-
-		// ========== 内网穿透服务 ==========
-		if s.frpManager != nil || s.tunnelMgr != nil {
-			tunnelHandler := tunnel.NewWebUIHandler(s.frpManager, s.tunnelService, s.logger)
-			tunnelHandler.RegisterRoutes(api)
-		}
-
-		// ========== v2.476.0 新增路由 ==========
-
-		// 引导式告警修复（对标 TrueNAS 26 Guided Alerts）
-		if s.alertEngine != nil {
-			alertHandlers := alertremediation.NewHandlers(s.alertEngine, s.logger)
-			alertHandlers.RegisterRoutes(api)
-		}
-
-		// 智能分层规则（对标群晖 Smarter Tiering）
-		if s.smartTierHdl != nil {
-			s.smartTierHdl.RegisterRoutes(api)
-		}
-
-		// SMB共享回收站（对标群晖回收站）
-		if s.recycleHdl != nil {
-			s.recycleHdl.RegisterRoutes(api)
-		}
-
-		// ZFS智能Scrub调度（对标 TrueNAS 26 智能Scrub）
-		if s.scrubScheduler != nil {
-			scrubHdl := zfs.NewScrubHandler(s.scrubScheduler)
-			scrubHdl.RegisterRoutes(api)
-		}
-
-		// S3策略与管理API增强（对标 TrueNAS V160 S3增强）
-		if s.s3PolicyHdl != nil {
-			s.s3PolicyHdl.RegisterRoutes(s.engine)
-		}
-
-		// ========== v2.477.0 新增路由 ==========
-
-		// UPS / WOL / ACL / webhook / recycle / notifychannel — bulk-only managers
-		if s.upsMgr != nil {
-			ups.NewHandlers(s.upsMgr).RegisterRoutes(api)
-		}
-		if s.wolMgr != nil {
-			wol.NewHandlers(s.wolMgr).RegisterRoutes(api)
-		}
-		if s.aclMgr != nil {
-			acl.NewHandlers(s.aclMgr).RegisterRoutes(api)
-		}
-		if s.webhookMgr != nil {
-			webhook.NewHandlers(s.webhookMgr).RegisterRoutes(api)
-		}
-		if s.recycleCleaner != nil {
-			recyclecleaner.NewHandlers(s.recycleCleaner).RegisterRoutes(api)
-		}
-		if s.notifyChanMgr != nil {
-			notifychannel.NewHandlers(s.notifyChanMgr).RegisterRoutes(api)
-		}
-
-		// ========== v2.481.0 新增路由 ==========
-
-		// 整机备份 API（对标群晖 Active Backup for Business）
-
-		// 音乐中心 API（对标群晖 Audio Station）
-
-		// 容灾演练 API（对标群晖 DR Drill）
-		if s.drDrillMgr != nil {
-			drdrill.NewHandlers(s.drDrillMgr, s.logger).RegisterRoutes(api)
-		}
-
-		// Drive Sync API（对标群晖 Drive Sync）
-		if s.driveSyncMgr != nil {
-			drivesync.NewHandler(s.driveSyncMgr).RegisterRoutes(api)
-		}
-
-		// 智能Scrub调度 API（对标 TrueNAS 26 智能Scrub）
-		if s.scrubSchedMgr != nil {
-			scrubsched.NewHandlers(s.scrubSchedMgr).RegisterRoutes(api)
-		}
-
-		// 虚拟机导入导出 API
-
-		// S3对象存储网关 API
-		if s.s3Gateway != nil {
-			s3Handler := s3gateway.NewHandler(s.s3Gateway)
-			s3Handler.RegisterRoutes(api)
-		}
-
-		// 定时任务调度器 API
-		if s.schedulerMgr != nil {
-			scheduler.NewHandlers(s.schedulerMgr).RegisterRoutes(api)
-		}
-
-		// 智能迁移 API
-
-		// ========== v2.485.0 新增路由 ==========
-
-		// 温控管理 API（系统散热与温控管理）
-		if s.thermalMgr != nil {
-			thermal.NewHandlers(s.logger, s.thermalMgr).RegisterRoutes(api)
-		}
-
-		// 文件索引 API（全文索引与搜索）
-		if s.fileindexMgr != nil {
-			fileindex.NewHandlers(s.logger, s.fileindexMgr).RegisterRoutes(api)
-		}
-
-		// Web终端 API（WebSocket SSH终端）
-		// webterminal 通过 WebSocket 路由处理，无需单独注册
-
-		// 日志中心 API（对标群晖 Log Center）
-
-		// ========== 通知中心 ==========
-		// v2.491.0 工部新增 - 对标群晖 Notification Center
-		if s.notificationSvc != nil {
-			notification.NewGinHandler(s.notificationSvc).RegisterRoutes(api)
-		}
-
-		// ========== v2.498.0 新增路由 ==========
-
-		// 应用中心（对标群晖 Package Center）
-
-		// 文件同步（对标群晖 Drive Sync）
-		if s.fileSyncMgr != nil {
-			filesync.NewHandler(s.fileSyncMgr, s.logger).RegisterRoutes(api)
-		}
-
-		// http.ServeMux 桥接：注册使用标准库的模块
-		newMux := http.NewServeMux()
-
-		// 监控中心（对标群晖 Surveillance Station）
-		if s.surveillanceMgr != nil {
-			surveillance.NewHandler(s.surveillanceMgr).RegisterRoutes(newMux)
-		}
-		if s.containResMonMgr != nil {
-			containresmon.NewHandler(s.containResMonMgr).RegisterRoutes(newMux)
-		}
-		if s.dataClassifyMgr != nil {
-			dataclassify.NewHandler(s.dataClassifyMgr).RegisterRoutes(newMux)
-		}
-		if s.dlpMgr != nil {
-			dlp.NewHandler(s.dlpMgr).RegisterRoutes(newMux)
-		}
-		if s.netSentinelMgr != nil {
-			netsentinel.NewHandler(s.netSentinelMgr).RegisterRoutes(newMux)
-		}
-		if s.networkMapMgr != nil {
-			networkmap.NewHandler(s.networkMapMgr).RegisterRoutes(newMux)
-		}
-		if s.privacyVaultMgr != nil {
-			privacyvault.NewHandler(s.privacyVaultMgr).RegisterRoutes(newMux)
-		}
-		if s.remoteDesktopMgr != nil {
-			remotedesktop.NewHandler(s.remoteDesktopMgr).RegisterRoutes(newMux)
-		}
-		if s.ssoHubMgr != nil {
-			ssohub.NewHandler(s.ssoHubMgr).RegisterRoutes(newMux)
-		}
-		if s.unifiedSearchMgr != nil {
-			unifiedsearch.NewHandler(s.unifiedSearchMgr).RegisterRoutes(newMux)
-		}
-
-		// v2.542.0 新增模块路由（http.ServeMux）
-		if s.healthscoreMgr != nil {
-			healthscore.NewHandlers(s.healthscoreMgr).RegisterRoutes(newMux)
-		}
-
-		// v2.513.0 新增模块路由
-		if s.alertGuidedMgr != nil {
-			alertguided.NewHandlers(s.logger, s.alertGuidedMgr).RegisterRoutes(api)
-		}
-		if s.dataWarehouseMgr != nil {
-			datawarehouse.NewHandler(s.dataWarehouseMgr).RegisterRoutes(api)
-		}
-		if s.fileDejavuMgr != nil {
-			filedejavu.NewHandlers().RegisterRoutes(api)
-		}
-		if s.hybridFlashMgr != nil {
-			hybridflash.NewHandlers(s.logger, s.hybridFlashMgr).RegisterRoutes(api)
-		}
-		if s.lxcmktMgr != nil {
-			lxcmkt.NewHandlers(s.logger, s.lxcmktMgr).RegisterRoutes(api)
-		}
-		if s.objectImmutableMgr != nil {
-			objectimmutable.NewHandlers(s.logger, s.objectImmutableMgr).RegisterRoutes(api)
-		}
-		if s.privacyShieldMgr != nil {
-			privacyshield.RegisterRoutes(api)
-		}
-		if s.spotlightMgr != nil {
-			spotlight.NewHandlers(s.logger, s.spotlightMgr).RegisterRoutes(api)
-		}
-
-		// v2.542.0 新增模块路由
-		if s.musicServerMgr != nil {
-			musicserver.NewHandlers(s.musicServerMgr).RegisterRoutes(api)
-		}
-		if s.syslogServerMgr != nil {
-			syslogserver.NewHandlers(s.syslogServerMgr).RegisterRoutes(api)
-		}
-		if s.customBrandingMgr != nil {
-			custombranding.NewHandler(s.customBrandingMgr).RegisterRoutes(newMux)
-		}
-		if s.smbDirectMgr != nil {
-			smbdirect.NewHandler(s.smbDirectMgr).RegisterRoutes(newMux)
-		}
-		if s.storageCostForecastMgr != nil {
-			storagecostforecast.NewHandler(s.storageCostForecastMgr).RegisterRoutes(newMux)
-		}
-		if s.filetagMgr != nil {
-			filetag.NewHandler(s.filetagMgr).RegisterRoutes(api)
-		}
-		if s.apikeyMgr != nil {
-			apikey.NewHandler(s.apikeyMgr).RegisterRoutes(api)
-		}
-		s.engine.NoRoute(
-			users.AuthMiddleware(s.userMgr),
-			users.RequireAdmin(s.userMgr),
-			gin.WrapH(newMux),
-		)
-
-		// ========== 媒体中心 ==========
-		// if s.mediaMgr != nil {
-		// 	media.NewHandlers(s.mediaMgr).RegisterRoutes(api)
-		// }
-	}
+	s.registerBulkOptionalRoutes(api)
 
 	// Shared MFA/RBAC/system-info-or-skip/storage/swagger/WebUI (same as Core).
 	s.registerCoreIdentityAndDocs(api)
@@ -1454,22 +957,22 @@ func (s *Server) Start(addr string) error {
 	s.lifecycleMu.Unlock()
 
 	// 所有构造期后台任务在此统一启动，Stop 中逆序停止。
-	if s.scrubScheduler != nil {
-		s.scrubScheduler.Start()
+	if s.hasHolder("scrubScheduler") {
+		holderAs[*zfs.ScrubScheduler](s, "scrubScheduler").Start()
 	}
-	if s.upsMgr != nil {
-		s.upsMgr.Start()
+	if s.hasHolder("upsMgr") {
+		holderAs[*ups.Manager](s, "upsMgr").Start()
 	}
-	if s.recycleCleaner != nil {
-		s.recycleCleaner.Start()
+	if s.hasHolder("recycleCleaner") {
+		holderAs[*recyclecleaner.Manager](s, "recycleCleaner").Start()
 	}
-	if s.scrubSchedMgr != nil {
-		s.scrubSchedMgr.Start()
+	if s.hasHolder("scrubSchedMgr") {
+		holderAs[*scrubsched.Manager](s, "scrubSchedMgr").Start()
 	}
 
 	// 启动 WebDAV 服务器
-	if s.webdavSrv != nil {
-		if err := s.webdavSrv.Start(); err != nil {
+	if s.hasHolder("webdavSrv") {
+		if err := holderAs[*webdav.Server](s, "webdavSrv").Start(); err != nil {
 			log.Printf("⚠️ WebDAV 服务器启动警告：%v", err)
 		} else {
 			log.Println("✅ WebDAV 服务器已启动")
@@ -1477,10 +980,10 @@ func (s *Server) Start(addr string) error {
 	}
 
 	// 启动 FTP 服务器
-	if s.ftpSrv != nil {
-		cfg := s.ftpSrv.GetConfig()
+	if s.hasHolder("ftpSrv") {
+		cfg := holderAs[*ftp.Server](s, "ftpSrv").GetConfig()
 		if cfg.Enabled {
-			if err := s.ftpSrv.Start(); err != nil {
+			if err := holderAs[*ftp.Server](s, "ftpSrv").Start(); err != nil {
 				log.Printf("⚠️ FTP 服务器启动警告：%v", err)
 			} else {
 				log.Println("✅ FTP 服务器已启动")
@@ -1489,10 +992,10 @@ func (s *Server) Start(addr string) error {
 	}
 
 	// 启动 SFTP 服务器
-	if s.sftpSrv != nil {
-		cfg := s.sftpSrv.GetConfig()
+	if s.hasHolder("sftpSrv") {
+		cfg := holderAs[*sftp.Server](s, "sftpSrv").GetConfig()
 		if cfg.Enabled {
-			if err := s.sftpSrv.Start(); err != nil {
+			if err := holderAs[*sftp.Server](s, "sftpSrv").Start(); err != nil {
 				log.Printf("⚠️ SFTP 服务器启动警告：%v", err)
 			} else {
 				log.Println("✅ SFTP 服务器已启动")
@@ -1526,53 +1029,53 @@ func (s *Server) Stop() error {
 	}
 
 	// 停止性能监控
-	if s.perfMgr != nil {
-		s.perfMgr.Stop()
+	if s.hasHolder("perfMgr") {
+		holderAs[*perf.Manager](s, "perfMgr").Stop()
 	}
 
 	// 停止配额管理
-	if s.quotaMgr != nil {
-		s.quotaMgr.Stop()
+	if s.hasHolder("quotaMgr") {
+		holderAs[*quota.Manager](s, "quotaMgr").Stop()
 	}
 
 	// 停止 AI 相册管理
-	if s.photosAIMgr != nil {
-		s.photosAIMgr.Close()
+	if s.hasHolder("photosAIMgr") {
+		holderAs[*photos.AIManager](s, "photosAIMgr").Close()
 	}
 
 	// 停止智能 scrub 调度管理器
-	if s.scrubSchedMgr != nil {
-		s.scrubSchedMgr.Stop()
+	if s.hasHolder("scrubSchedMgr") {
+		holderAs[*scrubsched.Manager](s, "scrubSchedMgr").Stop()
 	}
 
 	// 停止 ZFS scrub 调度器
-	if s.scrubScheduler != nil {
-		s.scrubScheduler.Stop()
+	if s.hasHolder("scrubScheduler") {
+		holderAs[*zfs.ScrubScheduler](s, "scrubScheduler").Stop()
 	}
 
 	// 停止 UPS 监控
-	if s.upsMgr != nil {
-		s.upsMgr.Stop()
+	if s.hasHolder("upsMgr") {
+		holderAs[*ups.Manager](s, "upsMgr").Stop()
 	}
 
 	// 停止回收站自动清理
-	if s.recycleCleaner != nil {
-		s.recycleCleaner.Stop()
+	if s.hasHolder("recycleCleaner") {
+		holderAs[*recyclecleaner.Manager](s, "recycleCleaner").Stop()
 	}
 
 	// 停止 WebDAV 服务器
-	if s.webdavSrv != nil {
-		_ = s.webdavSrv.Stop()
+	if s.hasHolder("webdavSrv") {
+		_ = holderAs[*webdav.Server](s, "webdavSrv").Stop()
 	}
 
 	// 停止 FTP 服务器
-	if s.ftpSrv != nil {
-		_ = s.ftpSrv.Stop()
+	if s.hasHolder("ftpSrv") {
+		_ = holderAs[*ftp.Server](s, "ftpSrv").Stop()
 	}
 
 	// 停止 SFTP 服务器
-	if s.sftpSrv != nil {
-		_ = s.sftpSrv.Stop()
+	if s.hasHolder("sftpSrv") {
+		_ = holderAs[*sftp.Server](s, "sftpSrv").Stop()
 	}
 
 	return shutdownErr

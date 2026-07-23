@@ -850,10 +850,7 @@ func (m *Manager) Authenticate(username, password string) (*Token, error) {
 		CreatedAt: time.Now(),
 	}
 	m.tokens[token.Token] = token
-
-	if err := m.saveConfig(); err != nil {
-		log.Printf("保存配置失败: %v", err)
-	}
+	// Sessions are memory-only; do not rewrite users.json on login.
 	return token, nil
 }
 
@@ -891,9 +888,7 @@ func (m *Manager) Logout(tokenStr string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	delete(m.tokens, tokenStr)
-	if err := m.saveConfig(); err != nil {
-		log.Printf("保存配置失败: %v", err)
-	}
+	// Sessions are memory-only; no disk write.
 }
 
 // RefreshToken 刷新令牌.
@@ -912,9 +907,7 @@ func (m *Manager) RefreshToken(tokenStr string) (*Token, error) {
 		ttl = DefaultSessionTTL
 	}
 	token.ExpiresAt = time.Now().Add(ttl)
-	if err := m.saveConfig(); err != nil {
-		log.Printf("保存配置失败: %v", err)
-	}
+	// Sessions are memory-only; no disk write on refresh.
 	return token, nil
 }
 
