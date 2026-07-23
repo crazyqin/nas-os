@@ -32,29 +32,29 @@ func TestNewServerDockerOnlyNoPanic(t *testing.T) {
 	if s == nil {
 		t.Fatal("nil server")
 	}
-	if s.dockerMgr == nil {
+	if !s.hasHolder("dockerMgr") {
 		// Docker daemon may be unavailable; isolation still requires no panic
 		// and that bulk products are not constructed.
 		t.Log("dockerMgr nil (daemon unavailable) — OK if isolation holds")
 	}
 	// Per-product isolation: only docker wanted → no photos/vm/backup/ai managers.
-	if s.photosMgr != nil {
+	if s.hasHolder("photosMgr") {
 		t.Fatal("photosMgr must not construct when only docker enabled")
 	}
-	if s.vmMgr != nil {
+	if s.hasHolder("vmMgr") {
 		t.Fatal("vmMgr must not construct when only docker enabled")
 	}
-	if s.backupMgr != nil {
+	if s.hasHolder("backupMgr") {
 		t.Fatal("backupMgr must not construct when only docker enabled")
 	}
-	if s.aiSvc != nil {
+	if s.hasHolder("aiSvc") {
 		t.Fatal("aiSvc must not construct when only docker enabled")
 	}
-	if s.cloudsyncMgr != nil {
+	if s.hasHolder("cloudsyncMgr") {
 		t.Fatal("cloudsyncMgr must not construct when only docker enabled")
 	}
 	// systemMonitor is bulk-only
-	if s.systemMonitor != nil {
+	if s.hasHolder("systemMonitor") {
 		t.Fatal("systemMonitor is bulk-only; must be nil for docker-only")
 	}
 
@@ -97,7 +97,7 @@ func TestNewServerRecommendedSystemNoPanic(t *testing.T) {
 		t.Fatal("nil server")
 	}
 	// Legacy .so host still off by default.
-	if s.pluginMgr != nil {
+	if s.hasHolder("pluginMgr") {
 		t.Fatal("pluginMgr must stay nil without legacy_so_plugins")
 	}
 	// Route registration completed if engine has routes (no panic during setupRoutes).
@@ -150,7 +150,7 @@ func TestRuntimeEnablePhotosConstructsManager(t *testing.T) {
 	cfg.Paths.ConfigDir = t.TempDir()
 	cfg.Paths.MountBase = t.TempDir()
 	s := NewServer(cfg, nil, nil, nil, nil, nil, nil, nil, nil, zap.NewNop())
-	if s.photosMgr != nil {
+	if s.hasHolder("photosMgr") {
 		t.Fatal("photos must be nil on Core-only boot")
 	}
 	if s.pkgRuntime == nil {
@@ -163,7 +163,7 @@ func TestRuntimeEnablePhotosConstructsManager(t *testing.T) {
 	if len(loaded) != 1 || loaded[0] != "photos" {
 		t.Fatalf("loaded=%v", loaded)
 	}
-	if s.photosMgr == nil {
+	if !s.hasHolder("photosMgr") {
 		t.Fatal("photos manager must be constructed on runtime enable")
 	}
 	if !s.pkgRuntime.IsLoaded("photos") {
@@ -175,7 +175,7 @@ func TestRuntimeEnablePhotosConstructsManager(t *testing.T) {
 		t.Fatal(err)
 	}
 	s.releaseProductManager("photos")
-	if s.photosMgr != nil {
+	if s.hasHolder("photosMgr") {
 		t.Fatal("photos manager must be nil after release")
 	}
 }

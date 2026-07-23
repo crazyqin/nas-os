@@ -13,10 +13,12 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 // SecurityConfig 安全配置.
@@ -58,53 +60,79 @@ func DefaultSecurityConfig() *SecurityConfig {
 	}
 }
 
-// loggerMiddleware 结构化日志中间件.
+// slowRequestThreshold logs 2xx/3xx under this duration only at sample rate.
+const slowRequestThreshold = 500 * time.Millisecond
+
+// accessLogSampleN: log 1 of every N successful fast requests (0 = always).
+// Overridable via NAS_ACCESS_LOG_SAMPLE (e.g. "1" always, "20" = 5%).
+var accessLogSampleN = func() uint64 {
+	if v := os.Getenv("NAS_ACCESS_LOG_SAMPLE"); v != "" {
+		var n uint64
+		if _, err := fmt.Sscanf(v, "%d", &n); err == nil && n > 0 {
+			return n
+		}
+	}
+	return 10
+}()
+
+var accessLogCounter atomic.Uint64
+
+// accessLogger is a process-wide zap logger for HTTP access lines (lazy init).
+var accessLogger = func() *zap.Logger {
+	cfg := zap.NewProductionConfig()
+	cfg.Encoding = "json"
+	cfg.OutputPaths = []string{"stdout"}
+	cfg.ErrorOutputPaths = []string{"stderr"}
+	cfg.DisableCaller = true
+	cfg.DisableStacktrace = true
+	l, err := cfg.Build()
+	if err != nil {
+		return zap.NewNop()
+	}
+	return l
+}()
+
+// loggerMiddleware 结构化访问日志（zap + 成功快路径采样）.
 func loggerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 生成请求追踪 ID
 		requestID := uuid.New().String()
 		c.Set("requestID", requestID)
 		c.Set("startTime", time.Now())
 
 		start := time.Now()
 		path := c.Request.URL.Path
+		method := c.Request.Method
 
-		// 执行请求
 		c.Next()
 
-		// 计算耗时
+		status := c.Writer.Status()
 		duration := time.Since(start)
+		ms := duration.Milliseconds()
 
-		// 结构化日志
-		logEntry := map[string]interface{}{
-			"timestamp":   time.Now().Format(time.RFC3339),
-			"level":       "info",
-			"request_id":  requestID,
-			"client_ip":   c.ClientIP(),
-			"method":      c.Request.Method,
-			"path":        path,
-			"status":      c.Writer.Status(),
-			"duration_ms": duration.Milliseconds(),
-			"user_agent":  c.Request.UserAgent(),
+		// Always log errors and slow requests; sample the rest.
+		shouldLog := status >= 400 || duration >= slowRequestThreshold
+		if !shouldLog {
+			n := accessLogCounter.Add(1)
+			if accessLogSampleN == 0 || n%accessLogSampleN != 0 {
+				return
+			}
 		}
 
-		// JSON 格式输出
-		logJSON, err := json.Marshal(logEntry)
-		if err != nil {
-			log.Printf("[ERROR] Failed to marshal log entry: %v", err)
-			return
+		fields := []zap.Field{
+			zap.String("request_id", requestID),
+			zap.String("client_ip", c.ClientIP()),
+			zap.String("method", method),
+			zap.String("path", path),
+			zap.Int("status", status),
+			zap.Int64("duration_ms", ms),
+			zap.String("user_agent", c.Request.UserAgent()),
 		}
-
-		// 写入日志文件和控制台
-		_, _ = os.Stdout.Write(logJSON)
-		_, _ = os.Stdout.WriteString("\n")
-
-		// 错误级别日志
-		if c.Writer.Status() >= 500 {
-			logEntry["level"] = "error"
-			logJSON, _ := json.Marshal(logEntry)
-			_, _ = os.Stderr.Write(logJSON)
-			_, _ = os.Stderr.WriteString("\n")
+		if status >= 500 {
+			accessLogger.Error("http_request", fields...)
+		} else if status >= 400 || duration >= slowRequestThreshold {
+			accessLogger.Warn("http_request", fields...)
+		} else {
+			accessLogger.Info("http_request", fields...)
 		}
 	}
 }

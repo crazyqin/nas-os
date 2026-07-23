@@ -1,4 +1,6 @@
 // Package spotlightcompat - Spotlight 协议兼容层管理器
+// Package spotlightcompat provides compatibility shims for Spotlight clients.
+// Deprecated: prefer internal/search for new features.
 package spotlightcompat
 
 import (

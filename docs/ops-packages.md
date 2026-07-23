@@ -142,9 +142,9 @@ Cluster 是 **进程级** 服务（在 `application` 组合根初始化），与
 
 ---
 
-## 7. 停用语义（路由真卸载）
+## 7. 停用语义（路由真卸载 + 内存回收）
 
-Gin 路由树节点注册后无法物理删除；本项目用 **挂载标志** 实现等效卸载：
+Gin 路由树节点注册后无法物理删除；本项目用 **挂载标志 + Manager 释放** 实现等效卸载：
 
 | 状态 | HTTP 行为 |
 |------|-----------|
@@ -154,12 +154,14 @@ Gin 路由树节点注册后无法物理删除；本项目用 **挂载标志** �
 
 | 类型 | 停用后 |
 |------|--------|
-| HTTP 扩展 | Runtime Disable + **unmount** → 请求 **404**；释放无 Manager 时适用 |
-| 产品套件 | unmount + Runtime Disable + **释放 Manager**；请求 **404** |
+| HTTP 扩展 | Runtime Disable + **unmount** → 请求 **404** |
+| 产品套件 | unmount → Runtime Disable → **`releaseProductManager`**（nil 字段 + `productRegistry.drop`）→ 可 GC 回收 |
 | 第三方 community | unmount（若有 HTTP）+ Runtime Stop + marker 清理 |
-| 再启用 | mount 标志打开；gin 树节点复用（不重复注册、不 panic） |
+| 再启用 | 重建 Manager、`productRoutesRegistered` 允许重注册、mount 标志打开 |
 
-实现：`mountPackageRoutes` / `unmountPackageRoutes` + `requirePackageActive` 中间件。
+实现：`mountPackageRoutes` / `unmountPackageRoutes` + `requirePackageActive` + `productRegistry` + `releaseProductManager`。
+
+**诚实边界：** gin 节点仍在树中，但 handler 链在 unmount 后立即 404，且 Manager 引用已释放。
 
 ---
 

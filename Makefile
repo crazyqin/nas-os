@@ -85,10 +85,16 @@ build-all:
 	@echo "✅ 多平台构建完成"
 
 # ========== 测试 ==========
+# Note: internal/lab is a nested module (own go.mod) — root ./... does not include it.
 test:
-	@echo "🧪 运行测试 (Core + Full product surface)..."
+	@echo "🧪 运行测试 (Core surface; lab nested-module excluded)..."
 	$(GO) test -v -timeout 10m -parallel 4 ./...
 	$(GO) test -tags nasd_full -v -timeout 10m -parallel 4 ./internal/web/ ./internal/application/
+
+# Lab is in-tree but nested module — opt-in only (slow).
+test-lab:
+	@echo "🧪 运行 Lab 嵌套模块测试 (internal/lab)..."
+	cd internal/lab && $(GO) test -timeout 20m -count=1 ./...
 
 
 test-integration:
@@ -114,14 +120,14 @@ test-suite:
 	@./scripts/test.sh all -v -r -c
 
 test-coverage:
-	@echo "📊 生成覆盖率报告..."
-	$(GO) test -v -race -coverprofile=coverage.out ./...
+	@echo "📊 生成覆盖率报告 (lab excluded via nested module)..."
+	$(GO) test -v -coverprofile=coverage.out ./...
 	$(GO) tool cover -html=coverage.out -o coverage.html
 	$(GO) tool cover -func=coverage.out | grep total || echo "覆盖率计算完成"
 	@echo "📄 覆盖率报告：coverage.html"
 
 test-race:
-	@echo "🏃 竞态检测..."
+	@echo "🏃 竞态检测 (lab excluded)..."
 	$(GO) test -race ./...
 
 test-all: test test-integration
@@ -728,3 +734,4 @@ docker-buildx-all:
 docker-size:
 	@echo "📊 Docker 镜像大小..."
 	@docker images $(DOCKER_IMAGE) --format "table {{.Tag}}\t{{.Size}}" 2>/dev/null || echo "镜像不存在"
+

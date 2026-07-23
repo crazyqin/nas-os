@@ -14,6 +14,7 @@ import (
 func TestFileListCache_Basic(t *testing.T) {
 	cache := NewFileListCache(10, time.Minute)
 
+	defer cache.Stop()
 	files := []FileInfo{
 		{Name: "test.txt", Path: "/test/test.txt", Size: 100},
 		{Name: "image.jpg", Path: "/test/image.jpg", Size: 500},
@@ -35,6 +36,7 @@ func TestFileListCache_Basic(t *testing.T) {
 func TestFileListCache_Expiry(t *testing.T) {
 	cache := NewFileListCache(10, 50*time.Millisecond)
 
+	defer cache.Stop()
 	files := []FileInfo{{Name: "test.txt"}}
 	cache.Set("/test", files)
 
@@ -53,6 +55,7 @@ func TestFileListCache_Expiry(t *testing.T) {
 func TestFileListCache_Delete(t *testing.T) {
 	cache := NewFileListCache(10, time.Minute)
 
+	defer cache.Stop()
 	files := []FileInfo{{Name: "test.txt"}}
 	cache.Set("/test", files)
 
@@ -65,6 +68,7 @@ func TestFileListCache_Delete(t *testing.T) {
 func TestFileListCache_Invalidate(t *testing.T) {
 	cache := NewFileListCache(10, time.Minute)
 
+	defer cache.Stop()
 	// Add multiple entries
 	cache.Set("/parent", []FileInfo{{Name: "parent.txt"}})
 	cache.Set("/parent/child1", []FileInfo{{Name: "child1.txt"}})
@@ -89,6 +93,7 @@ func TestFileListCache_Invalidate(t *testing.T) {
 func TestFileListCache_Stats(t *testing.T) {
 	cache := NewFileListCache(10, time.Minute)
 
+	defer cache.Stop()
 	// Miss
 	_, ok := cache.Get("/test")
 	assert.False(t, ok)
@@ -110,6 +115,7 @@ func TestFileListCache_Stats(t *testing.T) {
 func TestFileListCache_Eviction(t *testing.T) {
 	cache := NewFileListCache(3, time.Minute)
 
+	defer cache.Stop()
 	// Add more than capacity
 	cache.Set("/test1", []FileInfo{{Name: "test1.txt"}})
 	cache.Set("/test2", []FileInfo{{Name: "test2.txt"}})
@@ -124,6 +130,7 @@ func TestFileListCache_Eviction(t *testing.T) {
 func TestThumbnailCache_Basic(t *testing.T) {
 	cache := NewThumbnailCache(10, 1024*1024)
 
+	defer cache.Stop()
 	tmpFile := filepath.Join(t.TempDir(), "test.jpg")
 	err := os.WriteFile(tmpFile, []byte("test"), 0644)
 	require.NoError(t, err)
@@ -143,6 +150,7 @@ func TestThumbnailCache_Basic(t *testing.T) {
 func TestThumbnailCache_Miss(t *testing.T) {
 	cache := NewThumbnailCache(10, 1024*1024)
 
+	defer cache.Stop()
 	_, ok := cache.Get("/nonexistent", 100, time.Now())
 	assert.False(t, ok)
 }
@@ -150,6 +158,7 @@ func TestThumbnailCache_Miss(t *testing.T) {
 func TestThumbnailCache_ModTimeChange(t *testing.T) {
 	cache := NewThumbnailCache(10, 1024*1024)
 
+	defer cache.Stop()
 	// Set with one modtime
 	cache.Set("/test", 100, time.Now(), "thumb", 50, 50)
 
@@ -161,6 +170,7 @@ func TestThumbnailCache_ModTimeChange(t *testing.T) {
 func TestThumbnailCache_SizeChange(t *testing.T) {
 	cache := NewThumbnailCache(10, 1024*1024)
 
+	defer cache.Stop()
 	modTime := time.Now()
 	cache.Set("/test", 100, modTime, "thumb", 50, 50)
 
@@ -172,6 +182,7 @@ func TestThumbnailCache_SizeChange(t *testing.T) {
 func TestThumbnailCache_Stats(t *testing.T) {
 	cache := NewThumbnailCache(10, 1024*1024)
 
+	defer cache.Stop()
 	// Miss
 	cache.Get("/test", 100, time.Now())
 
@@ -194,6 +205,7 @@ func TestThumbnailCache_ByteLimit(t *testing.T) {
 	// Very small byte limit
 	cache := NewThumbnailCache(10, 20)
 
+	defer cache.Stop()
 	// Add entries that exceed byte limit
 	cache.Set("/test1", 100, time.Now(), "thumb12345678901234567890", 50, 50)
 	cache.Set("/test2", 100, time.Now(), "thumb12345678901234567890", 50, 50)
@@ -608,4 +620,27 @@ func TestGetThumbnailCached(t *testing.T) {
 	assert.Equal(t, thumb1, thumb2)
 	assert.Equal(t, w1, w2)
 	assert.Equal(t, h1, h2)
+}
+
+func TestFileListCache_Stop(t *testing.T) {
+	cache := NewFileListCache(10, time.Minute)
+	cache.Set("/x", []FileInfo{{Name: "a"}})
+	cache.Stop()
+	cache.Stop() // idempotent
+	_, ok := cache.Get("/x")
+	assert.True(t, ok)
+}
+
+func TestThumbnailCache_Stop(t *testing.T) {
+	cache := NewThumbnailCache(10, 1024)
+	cache.Set("/f", 1, time.Now(), "thumb", 10, 10)
+	cache.Stop()
+	cache.Stop()
+}
+
+func TestOptimizedManager_Stop(t *testing.T) {
+	om := NewOptimizedManager(PreviewConfig{}, zap.NewNop())
+	om.Stop()
+	om.Stop()
+	om.Close()
 }

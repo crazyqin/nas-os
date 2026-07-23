@@ -1,4 +1,5 @@
-// Package unifiedsearch 核心管理器，协调搜索引擎和索引任务
+// Package unifiedsearch is a legacy multi-module search facade.
+// Deprecated: prefer internal/search for new Full-build wiring; kept for bulk optional mounts.
 package unifiedsearch
 
 import (

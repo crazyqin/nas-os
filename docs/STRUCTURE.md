@@ -64,7 +64,7 @@ NAS-OS 能力是否可用取决于 **三个正交轴**，缺一不可：
 - 存储 HTTP：**唯一**由 `registerCoreIdentityAndDocs` → `StorageHandlers` 挂载；`storageModule.RegisterRoutes` 为空（防 gin 双挂 panic）。
 - Core/Full 服务器文件：`server_core.go` / `server_full.go`（`//go:build`）。
 - 能力探针：`web.ProductsLinked()` / `web.ExtensionsLinked()` / `web.ValidateBinaryCapabilities`。
-- Docker 默认 `ARG BUILD_TAGS=nasd_full`（镜像偏 full）；瘦镜像：`--build-arg BUILD_TAGS=`。
+- Docker 默认 `ARG BUILD_TAGS=`（Core-only，与 `make build` 一致）；完整产品：`--build-arg BUILD_TAGS=nasd_full`。
 
 ---
 
@@ -79,13 +79,14 @@ NAS-OS 能力是否可用取决于 **三个正交轴**，缺一不可：
 | `internal/config` | 强类型配置、`packages` 解析、`SystemPackageCatalog` |
 | `internal/web` | HTTP 入口、WebUI 门闸、HTTP 扩展经 Runtime 启用 |
 | `internal/extensions/*` | 官方 HTTP 扩展实现（system packages） |
-| `internal/lab/*` | 实验/未收编代码；生产 web 禁止 import |
+| `internal/lab/*` | 实验温室（**在仓内**）；嵌套 go.mod，根 `go test ./...` 不进入；生产禁止 import |
 | `internal/*` 其他 | Core 支撑与 recommended 产品实现（见 allowlist） |
 | `pkg/hostapi` | Host SDK（套件可依赖的稳定契约） |
 | `pkg/*` | 可复用库（存储/安全工具等），非业务 Manager |
 | `plugins/*` | **遗留** `.so` 示例（已弃用）；新第三方用 `examples/community-packages` + `community_dir` |
 | `webui/` | **主产品 UI**（静态 HTML/JS）；**应用中心** `pages/app-center.html`（Core 面） |
-| `web/` | 实验前端（非默认交付主线） |
+| `web/` | **实验前端（非交付）** — 见 `web/README.md`；默认镜像/进程不服务 |
+| `web/src` | React 草图；**禁止**当作主 UI；新功能先做 `webui/` |
 | `configs/default.yaml` | 默认配置（packages 关） |
 | `docker-compose.yml` + `Dockerfile` | 主部署路径 |
 | `docs/STRUCTURE.md` | **本文件** — 结构全景 |

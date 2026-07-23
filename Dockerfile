@@ -27,8 +27,10 @@ FROM golang:1.26-alpine AS builder
 ARG VERSION=dev
 ARG BUILD_TIME
 ARG REVISION
+# Default Core-only (matches make build / docs). Full product surface:
+#   docker build --build-arg BUILD_TAGS=nasd_full ...
 # nasd_full = product managers (docker/vm/photos/…); empty = Core-only slim binary
-ARG BUILD_TAGS=nasd_full
+ARG BUILD_TAGS=
 # BuildKit 自动注入的跨平台构建参数
 ARG TARGETOS
 ARG TARGETARCH

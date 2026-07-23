@@ -30,6 +30,10 @@ func (h *StorageHandlers) RegisterRoutes(rg *gin.RouterGroup) {
 		storage.GET("/volumes", h.ListVolumes)
 		storage.POST("/volumes", h.CreateVolume)
 		storage.DELETE("/volumes/:name", h.DeleteVolume)
+		// Soft-delete grace: list / restore / purge pending volumes
+		storage.GET("/volumes-pending", h.ListPendingDeletions)
+		storage.POST("/volumes-pending/:name/restore", h.RestorePendingVolume)
+		storage.DELETE("/volumes-pending/:name", h.PurgePendingVolume)
 		storage.POST("/volumes/:name/scrub", h.StartScrub)
 		storage.POST("/volumes/:name/balance", h.StartBalance)
 		storage.GET("/volumes/:name/subvolumes", h.ListSubVolumes)
@@ -287,8 +291,8 @@ func (h *StorageHandlers) ListAllSnapshots(c *gin.Context) {
 
 // DeleteVolume deletes a volume by name.
 // Requires JSON body confirm_name matching the volume name.
-// allow_wipe=false (default): soft detach — unmount + unregister, no wipefs.
-// allow_wipe=true: irreversible wipefs on member devices.
+// Default: soft-delete into grace pending (24h, restorable via volumes-pending).
+// allow_wipe=true + skip_grace: irreversible wipefs immediately.
 // Query ?force=true alone is not sufficient.
 func (h *StorageHandlers) DeleteVolume(c *gin.Context) {
 	if h.storageMgr == nil {
@@ -310,7 +314,52 @@ func (h *StorageHandlers) DeleteVolume(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success"})
+	msg := "soft-deleted (grace pending; restore via POST /storage/volumes-pending/:name/restore)"
+	if opts.SkipGrace || opts.GracePeriod < 0 {
+		if opts.AllowWipe {
+			msg = "deleted with wipe"
+		} else {
+			msg = "detached"
+		}
+	}
+	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: msg})
+}
+
+// ListPendingDeletions lists volumes in the soft-delete grace window.
+func (h *StorageHandlers) ListPendingDeletions(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success", Data: []any{}})
+		return
+	}
+	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "success", Data: h.storageMgr.ListPendingDeletions()})
+}
+
+// RestorePendingVolume restores a soft-deleted volume into the active list.
+func (h *StorageHandlers) RestorePendingVolume(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: "storage manager not initialized"})
+		return
+	}
+	name := c.Param("name")
+	if err := h.storageMgr.RestorePending(name); err != nil {
+		c.JSON(http.StatusBadRequest, StorageResponse{Code: 400, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "restored"})
+}
+
+// PurgePendingVolume permanently drops a pending soft-delete (and wipes if allow_wipe was set).
+func (h *StorageHandlers) PurgePendingVolume(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: "storage manager not initialized"})
+		return
+	}
+	name := c.Param("name")
+	if err := h.storageMgr.PurgePending(name); err != nil {
+		c.JSON(http.StatusBadRequest, StorageResponse{Code: 400, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, StorageResponse{Code: 0, Message: "purged"})
 }
 
 // StartScrub starts a scrub on the named volume.

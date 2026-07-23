@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 )
 
 // ErrDeleteNotConfirmed is returned when a destructive volume delete lacks
@@ -18,17 +19,25 @@ var ErrWipeNotAllowed = errors.New("device wipe not allowed: set allow_wipe=true
 // Callers (HTTP handlers) must populate ConfirmName from the request body;
 // force alone is not sufficient.
 //
-// Soft delete (default when allow_wipe=false): unmount + unregister only —
-// devices keep filesystem signatures for recovery.
-// Hard wipe (allow_wipe=true): wipefs on member devices after unmount.
+// Soft delete (default when allow_wipe=false): unmount + unregister into a
+// grace-period pending list (restorable via RestorePending until PurgeAt).
+// Hard wipe (allow_wipe=true): wipefs on member devices after unmount, unless
+// GracePeriod > 0 — then volume is held pending and wipe runs only on purge/expiry.
 type DeleteVolumeOptions struct {
 	// ConfirmName must exactly equal the volume name being deleted.
 	ConfirmName string `json:"confirm_name"`
 	// AllowWipe must be true to run wipefs on member devices.
-	// When false, only DetachVolume runs (no wipefs).
+	// When false, SoftDetachVolume (grace pending) or DetachVolume (grace 0).
 	AllowWipe bool `json:"allow_wipe"`
 	// Force allows deleting volumes that still have subvolumes / ignore unmount errors.
 	Force bool `json:"force"`
+	// GracePeriod overrides Manager default soft-delete window.
+	// Negative means immediate detach with no pending entry (legacy DetachVolume).
+	// Zero means use Manager.DeleteGracePeriod() (default 24h).
+	// Positive is an explicit window for this operation.
+	GracePeriod time.Duration `json:"grace_period,omitempty"`
+	// SkipGrace forces immediate detach/wipe without pending restore window.
+	SkipGrace bool `json:"skip_grace,omitempty"`
 }
 
 // ValidateDeleteConfirmation checks the confirmation payload before any
@@ -46,16 +55,26 @@ func ValidateDeleteConfirmation(volumeName string, opts DeleteVolumeOptions) err
 	return nil
 }
 
-// DeleteVolumeConfirmed validates confirmation then either soft-detaches
-// (no wipefs) or fully deletes with wipe when AllowWipe is set.
+// DeleteVolumeConfirmed validates confirmation then soft-detaches (grace pending)
+// or fully deletes with wipe when AllowWipe is set (optionally after grace).
 func (m *Manager) DeleteVolumeConfirmed(name string, opts DeleteVolumeOptions) error {
 	if err := ValidateDeleteConfirmation(name, opts); err != nil {
 		return err
 	}
-	if opts.AllowWipe {
+	// Immediate hard wipe (legacy danger path).
+	if opts.AllowWipe && (opts.SkipGrace || opts.GracePeriod < 0) {
 		return m.DeleteVolume(name, opts.Force)
 	}
-	return m.DetachVolume(name, opts.Force)
+	// Immediate soft detach without pending (opt-out of grace).
+	if opts.SkipGrace || opts.GracePeriod < 0 {
+		return m.DetachVolume(name, opts.Force)
+	}
+	grace := opts.GracePeriod
+	if grace == 0 {
+		grace = m.DeleteGracePeriod()
+	}
+	// Soft path with grace: recoverable until PurgeAt; wipe only if AllowWipe on purge.
+	return m.SoftDetachVolume(name, opts.Force, opts.AllowWipe, grace)
 }
 
 // DetachVolume unmounts and unregisters a volume without wiping devices.

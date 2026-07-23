@@ -1,3 +1,5 @@
+// Package notification is the Notification Center (product-facing) service.
+// Prefer this over notify/notifychannel for new product features.
 package notification
 
 import (

@@ -17,6 +17,7 @@ type Manager struct {
 	volumes   map[string]*Volume
 	mu        sync.RWMutex
 	mountBase string // 挂载基础目录
+	soft      *softDeleteState // soft-delete grace window (lazy)
 }
 
 // Volume 卷信息.

@@ -24,7 +24,8 @@
 共享路由注册：`web.registerCorePublicAndAdminGroups` + `registerCoreIdentityAndDocs`。  
 - Core：`setupRoutes` 直接调用二者。  
 - Full：`setupRoutes` 先 `registerCorePublicAndAdminGroups` + 产品路由，再 **`registerCoreIdentityAndDocs`**（MFA/RBAC/storage/swagger/WebUI；若已挂 bulk `systemMonitor` 则跳过 Core `/system/info`）。  
-存储删卷生产契约：**仅** `registerCoreIdentityAndDocs` → `web.StorageHandlers` → `/api/v1/storage/*` + `DeleteVolumeConfirmed`（arch storage 模块不挂 HTTP）。
+存储删卷生产契约：**仅** `registerCoreIdentityAndDocs` → `web.StorageHandlers` → `/api/v1/storage/*` + `DeleteVolumeConfirmed`（arch storage 模块不挂 HTTP）。  
+默认 **soft-delete 宽限期 24h**（`volumes-pending` 可 restore/purge）；`skip_grace` / `allow_wipe` 立即危险路径见 `internal/storage/soft_delete.go`。
 
 ## 进程组合
 

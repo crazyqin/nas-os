@@ -1,3 +1,5 @@
+// Package notifychannel manages outbound notify channels (webhook/email/etc).
+// Used with bulk optional surface; product center should use internal/notification.
 package notifychannel
 
 import (
