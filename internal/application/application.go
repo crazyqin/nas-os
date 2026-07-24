@@ -104,7 +104,9 @@ func New(cfg *config.Config, logger *zap.Logger) (app *Application, err error) {
 
 	mfaMgr, err := auth.NewMFAManager(cfg.ConfigPath("mfa-config.json"), "NAS-OS", nil)
 	if err != nil {
-		log.Printf("⚠️ MFA 管理初始化警告：%v", err)
+		// Fail-open for boot resilience, but make the degradation unmistakable in logs
+		// and system info (mfa_available). Prefer fixing key/path over silent 2FA loss.
+		log.Printf("⚠️ MFA 管理初始化失败，双因素功能不可用：%v（检查 config 目录权限与 mfa-master.key）", err)
 		mfaMgr = nil
 	}
 

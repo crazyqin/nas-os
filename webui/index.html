@@ -401,15 +401,18 @@
 
     <!-- Main Application Script -->
     <script src="js/app.js"></script>
+    <script src="js/api.js"></script>
     <script>
-        const API_BASE = '/api/v1';
+        const API_BASE = (typeof NasAPI !== 'undefined' && NasAPI.API_BASE) ? NasAPI.API_BASE : '/api/v1';
 
         // 加载系统信息
         async function loadSystemInfo() {
             try {
-                const res = await fetch(`${API_BASE}/system/info`);
-                const data = await res.json();
-                document.getElementById('stat-uptime').textContent = formatUptime(data.data.uptime || 0);
+                const r = typeof apiFetch === 'function'
+                    ? await apiFetch('/system/info')
+                    : { data: await (await fetch(`${API_BASE}/system/info`)).json() };
+                const data = r.data || {};
+                document.getElementById('stat-uptime').textContent = formatUptime((data.data && data.data.uptime) || 0);
             } catch (e) {
                 console.error('加载系统信息失败:', e);
             }
@@ -418,25 +421,27 @@
         // 加载卷列表
         async function loadVolumes() {
             try {
-                const res = await fetch(`${API_BASE}/storage/volumes`);
-                const data = await res.json();
+                const r = await apiFetch('/storage/volumes');
+                const data = r.data || {};
                 const tbody = document.getElementById('volumes-list');
+                const list = data.data || [];
                 
-                if (data.data && data.data.length > 0) {
-                    document.getElementById('stat-volumes').textContent = data.data.length;
+                if (list.length > 0) {
+                    document.getElementById('stat-volumes').textContent = list.length;
                     
                     let totalUsage = 0;
-                    tbody.innerHTML = data.data.map(vol => {
-                        const usage = vol.Usage || 0;
+                    tbody.innerHTML = list.map(vol => {
+                        const usage = vol.Usage || vol.usage || 0;
                         totalUsage += usage;
                         const statusClass = usage > 90 ? 'error' : usage > 70 ? 'warning' : 'success';
                         const statusText = usage > 90 ? '空间不足' : usage > 70 ? '注意' : '正常';
+                        const vname = vol.Name || vol.name || '';
                         
                         return `
                             <tr>
-                                <td><strong>${vol.Name}</strong></td>
-                                <td class="text-muted">${vol.Device}</td>
-                                <td><span class="badge badge-neutral">${vol.Profile || 'single'}</span></td>
+                                <td><strong>${vname}</strong></td>
+                                <td class="text-muted">${vol.Device || (vol.devices && vol.devices[0]) || ''}</td>
+                                <td><span class="badge badge-neutral">${vol.Profile || vol.profile || 'single'}</span></td>
                                 <td style="width: 200px;">
                                     <div class="progress" style="margin-bottom: 0.25rem;">
                                         <div class="progress-bar ${statusClass}" style="width: ${usage}%"></div>
@@ -445,14 +450,14 @@
                                 </td>
                                 <td><span class="badge badge-${statusClass}">${statusText}</span></td>
                                 <td>
-                                    <button class="btn btn-sm btn-secondary" onclick="viewVolume('${vol.Name}')">查看</button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteVolume('${vol.Name}')">删除</button>
+                                    <button class="btn btn-sm btn-secondary" onclick="viewVolume('${vname}')">查看</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteVolume('${vname}')">删除</button>
                                 </td>
                             </tr>
                         `;
                     }).join('');
                     
-                    document.getElementById('stat-usage').textContent = Math.round(totalUsage / data.data.length) + ' GB';
+                    document.getElementById('stat-usage').textContent = Math.round(totalUsage / list.length) + ' GB';
                 } else {
                     tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">暂无卷，点击上方按钮创建</td></tr>';
                 }
@@ -475,12 +480,12 @@
             if (!devices) return;
             const profile = prompt('RAID 配置 (single/raid0/raid1/raid10，留空为 single):') || 'single';
             
-            fetch(`${API_BASE}/storage/volumes`, {
+            apiFetch('/storage/volumes', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({name, devices: devices.split(','), profile})
-            }).then(r => r.json()).then(data => {
-                alert(data.message || data.error);
+                json: { name, devices: devices.split(',').map(s => s.trim()).filter(Boolean), profile }
+            }).then(r => {
+                const data = r.data || {};
+                alert(data.message || data.error || (r.ok ? 'ok' : 'failed'));
                 loadVolumes();
             });
         }
@@ -489,26 +494,41 @@
             alert('查看卷详情功能开发中...');
         }
 
-        function deleteVolume(name) {
-            if (confirm(`确定要删除卷 "${name}" 吗？此操作不可逆！`)) {
-                alert('删除功能开发中...');
+        async function deleteVolume(name) {
+            const typed = prompt(
+                `删除卷「${name}」\n默认进入 24 小时回收窗口（可恢复）。\n请输入卷名确认：`,
+                ''
+            );
+            if (typed === null) return;
+            if (String(typed).trim() !== name) {
+                alert('卷名不匹配，已取消');
+                return;
+            }
+            const wipe = confirm('是否允许彻底清除时抹盘（allow_wipe）？\n取消=仅软删除（推荐）');
+            try {
+                const r = await apiFetch(`/storage/volumes/${encodeURIComponent(name)}`, {
+                    method: 'DELETE',
+                    json: { confirm_name: name, allow_wipe: !!wipe, force: true }
+                });
+                alert((r.data && r.data.message) || (r.ok ? '已提交删除' : '删除失败'));
+                loadVolumes();
+            } catch (e) {
+                alert('删除失败: ' + e.message);
             }
         }
 
         function runScrub() {
             const name = prompt('要校验的卷名称:');
             if (!name) return;
-            fetch(`${API_BASE}/storage/volumes/${name}/scrub`, {method: 'POST'})
-                .then(r => r.json())
-                .then(data => alert(data.message || data.error));
+            apiFetch(`/storage/volumes/${encodeURIComponent(name)}/scrub`, { method: 'POST' })
+                .then(r => alert((r.data && (r.data.message || r.data.error)) || String(r.status)));
         }
 
         function runBalance() {
             const name = prompt('要平衡的卷名称:');
             if (!name) return;
-            fetch(`${API_BASE}/storage/volumes/${name}/balance`, {method: 'POST'})
-                .then(r => r.json())
-                .then(data => alert(data.message || data.error));
+            apiFetch(`/storage/volumes/${encodeURIComponent(name)}/balance`, { method: 'POST' })
+                .then(r => alert((r.data && (r.data.message || r.data.error)) || String(r.status)));
         }
 
         function createSnapshot() {
@@ -517,11 +537,10 @@
             const snapName = prompt('快照名称:');
             if (!volName || !subvolName || !snapName) return;
             
-            fetch(`${API_BASE}/storage/volumes/${volName}/snapshots`, {
+            apiFetch(`/storage/volumes/${encodeURIComponent(volName)}/snapshots`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({subvolume: subvolName, name: snapName, readonly: false})
-            }).then(r => r.json()).then(data => alert(data.message));
+                json: { subvolume: subvolName, name: snapName, readonly: false }
+            }).then(r => alert((r.data && r.data.message) || String(r.status)));
         }
 
         function showSettings() {

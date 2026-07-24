@@ -81,8 +81,8 @@ func TestGetHealthHandlerReflectsCoreFailure(t *testing.T) {
 
 	s.getHealth(c)
 
-	if w.Code != http.StatusOK {
-		t.Fatalf("status %d", w.Code)
+	if w.Code != http.StatusServiceUnavailable {
+		t.Fatalf("status %d want 503", w.Code)
 	}
 	var body CoreHealthReport
 	if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
@@ -93,5 +93,22 @@ func TestGetHealthHandlerReflectsCoreFailure(t *testing.T) {
 	}
 	if body.Message == "healthy" {
 		t.Fatal("message still constant healthy")
+	}
+}
+
+func TestGetHealthHandlerHealthyOK(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	s := &Server{
+		modules: []arch.Module{
+			&stubModule{name: "identity", tier: arch.ModuleTierCore},
+			&stubModule{name: "storage", tier: arch.ModuleTierCore},
+		},
+	}
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest(http.MethodGet, "/api/v1/system/health", nil)
+	s.getHealth(c)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status %d want 200", w.Code)
 	}
 }

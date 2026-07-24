@@ -107,8 +107,14 @@ func (s *Server) registerCoreIdentityAndDocs(api *gin.RouterGroup) {
 }
 
 // getHealth aggregates Core module health (shared by both builds).
+// Returns HTTP 503 when any Core module is unhealthy so Docker/K8s probes fail closed.
 func (s *Server) getHealth(c *gin.Context) {
-	c.JSON(http.StatusOK, AggregateCoreHealth(c.Request.Context(), s.modules))
+	report := AggregateCoreHealth(c.Request.Context(), s.modules)
+	status := http.StatusOK
+	if report.Data.Status != "healthy" || report.Code != 0 {
+		status = http.StatusServiceUnavailable
+	}
+	c.JSON(status, report)
 }
 
 // getSystemInfo returns version/build surface (shared by both builds).
@@ -128,6 +134,7 @@ func (s *Server) getSystemInfo(c *gin.Context) {
 			"products_linked":    ProductsLinked(),
 			"extensions_linked":  ExtensionsLinked(),
 			"surface":            map[bool]string{true: "full", false: "core"}[ProductsLinked()],
+			"mfa_available":      s.mfaMgr != nil,
 		},
 	})
 }

@@ -520,8 +520,9 @@
         </div>
     </div>
 
-    <div class="version-info">v2.79.0</div>
+    <div class="version-info">v3.24.3</div>
 
+    <script src="../js/api.js"></script>
     <script>
         // 切换密码可见性
         function togglePassword() {
@@ -558,22 +559,31 @@
             loginBtn.innerHTML = '<div class="spinner"></div><span>登录中...</span>';
 
             try {
-                // 尝试调用实际 API
-                const response = await fetch('/api/v1/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username, password, remember })
-                });
-
-                const data = await response.json();
+                // apiLogin: CSRF-exempt on server; stores Bearer for subsequent apiFetch
+                let data, ok;
+                if (typeof apiLogin === 'function') {
+                    const r = await apiLogin(username, password, remember);
+                    ok = r.ok;
+                    data = r.data || {};
+                } else {
+                    const response = await fetch('/api/v1/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password, remember })
+                    });
+                    data = await response.json();
+                    ok = response.ok && (data.code === 0 || data.code === undefined);
+                }
 
                 const token = data.data?.token;
-                if ((data.code === 0 || response.ok) && token) {
+                if (ok && token) {
                     // 登录成功：只接受服务端签发的真实 token，避免前端演示凭据绕过认证。
-                    localStorage.setItem('nasos_token', token);
-                    localStorage.setItem('token', token.startsWith('Bearer ') ? token : `Bearer ${token}`);
+                    if (typeof setAuthToken === 'function') {
+                        setAuthToken(token);
+                    } else {
+                        localStorage.setItem('nasos_token', token);
+                        localStorage.setItem('token', token.startsWith('Bearer ') ? token : `Bearer ${token}`);
+                    }
 
                     alertBox.classList.remove('alert-error');
                     alertBox.classList.add('alert-success');

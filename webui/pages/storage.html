@@ -513,9 +513,64 @@
     <div id="toast-container"></div>
 
     <script src="../js/app.js"></script>
+    <script src="../js/api.js"></script>
     <script>
-        const API_BASE = '/api/v1';
+        const API_BASE = (typeof NasAPI !== 'undefined' && NasAPI.API_BASE) ? NasAPI.API_BASE : '/api/v1';
         let volumesData = [];
+
+        // Prefer shared apiFetch (Bearer + JSON). Fallback to fetch for offline open.
+        async function storageFetch(path, opts) {
+            opts = opts || {};
+            if (typeof apiFetch === 'function') {
+                const r = await apiFetch(path, opts);
+                return r;
+            }
+            const headers = Object.assign({}, opts.headers || {});
+            if (opts.json !== undefined) {
+                headers['Content-Type'] = 'application/json';
+            }
+            const token = localStorage.getItem('token') || localStorage.getItem('nasos_token') || '';
+            if (token && !headers.Authorization) {
+                headers.Authorization = token.startsWith('Bearer ') ? token : 'Bearer ' + token;
+            }
+            const res = await fetch(path.startsWith('/api/') ? path : (API_BASE + (path.startsWith('/') ? path : '/' + path)), {
+                method: opts.method || 'GET',
+                headers,
+                body: opts.json !== undefined ? JSON.stringify(opts.json) : opts.body
+            });
+            const data = await res.json().catch(() => ({}));
+            return { ok: res.ok && (data.code === 0 || data.code === undefined), status: res.status, data, response: res };
+        }
+        function authHeaders(extra) {
+            const h = Object.assign({}, extra || {});
+            const token = (typeof getAuthToken === 'function' ? getAuthToken() : null)
+                || localStorage.getItem('token')
+                || localStorage.getItem('nasos_token')
+                || '';
+            if (token && !h.Authorization) {
+                h.Authorization = String(token).startsWith('Bearer ') ? token : 'Bearer ' + token;
+            }
+            return h;
+        }
+        // Bind remaining raw fetch(API_BASE...) sites to include Authorization
+        const _rawFetch = window.fetch.bind(window);
+        window.fetch = function(input, init) {
+            init = init || {};
+            const url = typeof input === 'string' ? input : (input && input.url) || '';
+            if (url.indexOf('/api/v1/') !== -1 || url.indexOf(API_BASE) === 0) {
+                const headers = new Headers(init.headers || {});
+                const token = (typeof getAuthToken === 'function' && getAuthToken())
+                    || localStorage.getItem('token')
+                    || localStorage.getItem('nasos_token')
+                    || '';
+                if (token && !headers.has('Authorization')) {
+                    headers.set('Authorization', String(token).startsWith('Bearer ') ? token : 'Bearer ' + token);
+                }
+                init = Object.assign({}, init, { headers });
+            }
+            return _rawFetch(input, init);
+        };
+
 
         // ========== 初始化 ==========
         document.addEventListener('DOMContentLoaded', () => {
@@ -559,23 +614,22 @@
         // ========== 卷管理 ==========
         async function loadVolumes() {
             try {
-                const res = await fetch(`${API_BASE}/storage/volumes`);
-                const data = await res.json();
-                
-                if (data.code === 0) {
-                    volumesData = data.data || [];
+                const r = await storageFetch('/storage/volumes');
+                if (r.ok) {
+                    volumesData = r.data.data || [];
                     renderVolumes(volumesData);
                     updateVolumeFilters();
                 } else {
-                    showToast('加载卷列表失败: ' + data.message, 'error');
+                    const msg = (r.data && r.data.message) || ('HTTP ' + r.status);
+                    showToast('加载卷列表失败: ' + msg, 'error');
+                    volumesData = [];
+                    renderVolumes(volumesData);
+                    updateVolumeFilters();
                 }
             } catch (err) {
                 console.error('加载卷列表失败:', err);
-                // 显示示例数据
-                volumesData = [
-                    { name: 'data', total: 500000000000, used: 225000000000, profile: 'raid1', devices: ['/dev/sda', '/dev/sdb'], healthy: true, subvolCount: 3 },
-                    { name: 'backup', total: 2000000000000, used: 1560000000000, profile: 'single', devices: ['/dev/sdc'], healthy: true, subvolCount: 1 }
-                ];
+                showToast('加载卷列表失败: ' + err.message, 'error');
+                volumesData = [];
                 renderVolumes(volumesData);
                 updateVolumeFilters();
             }
@@ -667,19 +721,16 @@
             const devices = devicesStr.split(',').map(s => s.trim()).filter(s => s);
 
             try {
-                const res = await fetch(`${API_BASE}/storage/volumes`, {
+                const r = await storageFetch('/storage/volumes', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, devices, profile })
+                    json: { name, devices, profile }
                 });
-                const data = await res.json();
-                
-                if (data.code === 0) {
+                if (r.ok) {
                     showToast('卷创建成功', 'success');
                     closeModal('modal-create-volume');
                     loadVolumes();
                 } else {
-                    showToast('创建失败: ' + data.message, 'error');
+                    showToast('创建失败: ' + ((r.data && r.data.message) || r.status), 'error');
                 }
             } catch (err) {
                 showToast('创建失败: ' + err.message, 'error');
@@ -695,13 +746,11 @@
             if (!confirm(`确定要对卷 "${volumeName}" 执行数据校验吗？`)) return;
             
             try {
-                const res = await fetch(`${API_BASE}/storage/volumes/${volumeName}/scrub`, { method: 'POST' });
-                const data = await res.json();
-                
-                if (data.code === 0) {
+                const r = await storageFetch(`/storage/volumes/${encodeURIComponent(volumeName)}/scrub`, { method: 'POST' });
+                if (r.ok) {
                     showToast('数据校验已启动', 'success');
                 } else {
-                    showToast('启动失败: ' + data.message, 'error');
+                    showToast('启动失败: ' + ((r.data && r.data.message) || r.status), 'error');
                 }
             } catch (err) {
                 showToast('启动失败: ' + err.message, 'error');
@@ -712,13 +761,11 @@
             if (!confirm(`确定要对卷 "${volumeName}" 执行数据平衡吗？`)) return;
             
             try {
-                const res = await fetch(`${API_BASE}/storage/volumes/${volumeName}/balance`, { method: 'POST' });
-                const data = await res.json();
-                
-                if (data.code === 0) {
+                const r = await storageFetch(`/storage/volumes/${encodeURIComponent(volumeName)}/balance`, { method: 'POST' });
+                if (r.ok) {
                     showToast('数据平衡已启动', 'success');
                 } else {
-                    showToast('启动失败: ' + data.message, 'error');
+                    showToast('启动失败: ' + ((r.data && r.data.message) || r.status), 'error');
                 }
             } catch (err) {
                 showToast('启动失败: ' + err.message, 'error');
@@ -733,18 +780,40 @@
         }
 
         async function deleteVolume(name) {
-            if (!confirm(`确定要删除卷 "${name}" 吗？\n\n⚠️ 警告：此操作不可恢复！`)) return;
-            if (!confirm(`再次确认删除卷 "${name}"？所有数据将丢失！`)) return;
-            
+            // Soft-delete by default (24h grace, restorable). Exact name confirm required by API.
+            const typed = prompt(
+                `删除卷「${name}」\n\n` +
+                `默认进入 24 小时回收站（可恢复），不会立刻抹盘。\n` +
+                `请输入卷名以确认：`,
+                ''
+            );
+            if (typed === null) return;
+            if (String(typed).trim() !== name) {
+                showToast('卷名不匹配，已取消删除', 'error');
+                return;
+            }
+            const wipe = confirm(
+                `是否同时请求抹盘（allow_wipe）？\n\n` +
+                `选「取消」= 仅软删除/卸载登记（推荐）\n` +
+                `选「确定」= 标记为允许在彻底清除时 wipefs（危险）`
+            );
             try {
-                const res = await fetch(`${API_BASE}/storage/volumes/${name}?force=true`, { method: 'DELETE' });
-                const data = await res.json();
-                
-                if (data.code === 0 || res.status === 204) {
-                    showToast('卷已删除', 'success');
+                const r = await storageFetch(`/storage/volumes/${encodeURIComponent(name)}`, {
+                    method: 'DELETE',
+                    json: {
+                        confirm_name: name,
+                        allow_wipe: !!wipe,
+                        force: true
+                    }
+                });
+                if (r.ok) {
+                    const msg = (r.data && r.data.message) || '已提交删除';
+                    showToast(msg.indexOf('soft') >= 0 || msg.indexOf('grace') >= 0
+                        ? '卷已移入回收窗口（可在待清除列表恢复）'
+                        : ('删除完成: ' + msg), 'success');
                     loadVolumes();
                 } else {
-                    showToast('删除失败: ' + data.message, 'error');
+                    showToast('删除失败: ' + ((r.data && r.data.message) || r.status), 'error');
                 }
             } catch (err) {
                 showToast('删除失败: ' + err.message, 'error');

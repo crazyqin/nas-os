@@ -23,7 +23,7 @@
 
 > **诚实说明**  
 > - 下文大量「对标 / 新增」能力多在 **Package Surface** 或 **`internal/lab/`**，**默认不进 `nasd` 热路径**。  
-> - **二进制双面**：默认 `make build` / 无 tag = **Core-only**（约 47MB；不链接 docker/vm/photos、HTTP extensions、bleve、cluster、downloader）；完整产品+扩展需 `make build-full` 或 `-tags nasd_full`（约 118MB）。Docker 镜像默认仍带 `nasd_full`。  
+> - **二进制双面**：默认 `make build` / 无 tag = **Core-only**（约 47MB；不链接 docker/vm/photos、HTTP extensions、bleve、cluster、downloader）；完整产品+扩展需 `make build-full` 或 `-tags nasd_full`（约 118MB）。**Docker 镜像默认也是 Core**（`Dockerfile` `ARG BUILD_TAGS=` 为空）；完整镜像：`docker build --build-arg BUILD_TAGS=nasd_full …`。  
 > - `packages.recommended_system` 只开 **8 个编目产品**（docker/vm/photos/…），**不会**再拉 tunnel/trash/ftp 等 bulk 附属。  
 > - 旧版全家桶附属仅在弃用开关 `modules.optional: true` 时构造。  
 > - Docker 默认 **非 privileged** + bridge + `127.0.0.1:8080`；全特权见 `docker-compose.privileged.yml`。
@@ -451,10 +451,10 @@ docker pull ghcr.io/crazyqin/nas-os:v2.490.61
 docker run -d \
   --name nasd \
   --restart unless-stopped \
-  -p 8080:8080 \
+  -p 127.0.0.1:8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v2.490.61
+  ghcr.io/crazyqin/nas-os:v3.24.3
 
 
 # 查看日志
