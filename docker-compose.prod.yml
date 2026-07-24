@@ -1,29 +1,18 @@
-# NAS-OS Production Docker Compose
-# 生产环境完整部署配置
+# NAS-OS Production Docker Compose (monitoring stack)
 #
-# 使用方式:
+# Prefer safer defaults for the nas-os service:
+#   - bridge network + 127.0.0.1:8080 (not host network)
+#   - privileged: false (add /dev/disk/* or use docker-compose.privileged.yml)
+#
+# Usage:
 #   docker compose -f docker-compose.prod.yml up -d
+# Full hardware / host network (legacy):
+#   docker compose -f docker-compose.prod.yml -f docker-compose.privileged.yml up -d
+# CSRF key required in production:
+#   export NAS_CSRF_KEY=...  NAS_OS_ENV=production
 #
-# 快速部署应用：
-#   ./apps/deploy.sh --list                 # 列出可用应用
-#   ./apps/deploy.sh plex                   # 一键部署 Plex
-#   ./apps/deploy.sh --stack media_center   # 部署家庭影院组合
+# Stack: NAS-OS + Prometheus + Grafana + Node Exporter + cAdvisor + Alertmanager
 #
-# 对标 TrueNAS Docker Apps 简化部署体验
-#
-# 包含:
-#   - NAS-OS 主服务
-#   - Prometheus 监控
-#   - Grafana 可视化
-#   - Node Exporter (系统指标)
-#   - cAdvisor (容器指标)
-#   - Alertmanager (告警管理)
-#
-# v2.374.0 工部优化：
-# - 版本标签同步更新
-# - 简化应用部署流程
-# - 应用模板系统集成
-# - 缓存策略优化
 
 services:
   # ==================== NAS-OS 主服务 ====================
@@ -41,12 +30,12 @@ services:
     # 优雅停止时间
     stop_grace_period: 60s
     
-    # ⚠️ 特权模式（访问磁盘设备）
-    # 生产环境建议使用 --device 精确授权
-    privileged: true
-    
-    # 网络模式：host 以获得最佳性能
-    network_mode: host
+    # Safer default: non-privileged + bridge. For disk/host network:
+    #   docker compose -f docker-compose.prod.yml -f docker-compose.privileged.yml up -d
+    privileged: false
+    # network_mode: host   # opt-in via privileged overlay
+    ports:
+      - "127.0.0.1:8080:8080"
     
     # 卷挂载
     volumes:
@@ -74,6 +63,12 @@ services:
       # Prometheus 指标
       - NAS_OS_METRICS_ENABLED=true
       - NAS_OS_METRICS_PORT=8080
+      # Security / WebAuthn (set NAS_CSRF_KEY when NAS_OS_ENV=production)
+      - NAS_OS_ENV=${NAS_OS_ENV:-production}
+      - NAS_CSRF_KEY=${NAS_CSRF_KEY:-}
+      - NAS_OS_LISTEN_HOST=${NAS_OS_LISTEN_HOST:-0.0.0.0}
+      - NAS_OS_WEBAUTHN_RPID=${NAS_OS_WEBAUTHN_RPID:-localhost}
+      - NAS_OS_WEBAUTHN_ORIGINS=${NAS_OS_WEBAUTHN_ORIGINS:-http://127.0.0.1:8080}
     
     # 资源限制（根据实际硬件调整）
     deploy:
@@ -145,7 +140,7 @@ services:
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
       - '--web.enable-lifecycle'
-      - '--web.enable-admin-api'
+      # - '--web.enable-admin-api'  # disabled by default (attack surface)
     
     # 资源限制
     deploy:

@@ -208,7 +208,12 @@ func (s *Server) handlePackageEnable(c *gin.Context) {
 	}
 	loaded, unknown, err := s.pkgRuntime.Enable(context.Background(), []string{id})
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{"code": 1, "message": err.Error(), "data": gin.H{"id": id, "loaded": s.pkgRuntime.LoadedIDs()}})
+		// Failures must not look like HTTP success to proxies/clients.
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    1,
+			"message": err.Error(),
+			"data":    gin.H{"id": id, "loaded": s.pkgRuntime.LoadedIDs()},
+		})
 		return
 	}
 	if len(unknown) > 0 {
@@ -244,7 +249,7 @@ func (s *Server) handlePackageDisable(c *gin.Context) {
 	// True unload first: stop serving routes (404) before lifecycle teardown.
 	s.unmountPackageRoutes(id)
 	if err := s.pkgRuntime.Disable(context.Background(), id); err != nil {
-		c.JSON(http.StatusOK, gin.H{"code": 1, "message": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 1, "message": err.Error()})
 		return
 	}
 	s.releaseProductManager(id)

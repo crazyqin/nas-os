@@ -78,12 +78,10 @@ func NewMFAManager(configPath, issuer string, smsProvider SMSProvider) (*MFAMana
 		m.encryption = se
 	}
 
-	// 创建 WebAuthn 管理器（默认配置）
-	webauthnCfg := WebAuthnConfig{
-		RPDisplayName: issuer,
-		RPID:          "localhost", // 需要配置为实际域名
-		RPOrigins:     []string{"http://localhost:8080", "https://localhost:8080"},
-	}
+	// WebAuthn RPID/origins: env overrides for real hostnames (defaults stay localhost).
+	// NAS_OS_WEBAUTHN_RPID=nas.example.com
+	// NAS_OS_WEBAUTHN_ORIGINS=https://nas.example.com,http://127.0.0.1:8080
+	webauthnCfg := DefaultWebAuthnConfig(issuer)
 	var err error
 	m.webauthnMgr, err = NewWebAuthnManager(webauthnCfg)
 	if err != nil {
