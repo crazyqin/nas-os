@@ -123,11 +123,13 @@ func (s *Server) Start(addr string) error {
 		s.lifecycleMu.Unlock()
 		return errors.New("web server already started")
 	}
+	// WriteTimeout 0 = unlimited body write (large file download/upload via admin API).
+	// ReadHeaderTimeout still bounds slowloris; IdleTimeout reaps idle keep-alives.
 	s.httpSrv = &http.Server{
 		Addr:              addr,
 		Handler:           s.engine,
 		ReadHeaderTimeout: 10 * time.Second,
-		WriteTimeout:      30 * time.Second,
+		WriteTimeout:      0,
 		IdleTimeout:       120 * time.Second,
 	}
 	s.started = true

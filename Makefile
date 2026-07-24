@@ -1,7 +1,7 @@
 # NAS-OS Makefile
 # 构建、测试、部署自动化
 
-.PHONY: all build test clean run docker help ci version-sync
+.PHONY: all build build-core build-full build-version build-version-full test test-lab clean run docker docker-build docker-build-full help ci version-sync
 
 # 变量
 BINARY_NAME=nasd
@@ -156,9 +156,15 @@ run-dev:
 	$(GO) run ./cmd/nasd
 
 # ========== Docker ==========
+# Default image is Core-only (matches make build / Dockerfile ARG BUILD_TAGS=).
 docker-build:
-	@echo "🐳 构建 Docker 镜像..."
+	@echo "🐳 构建 Docker 镜像 (Core, BUILD_TAGS empty)..."
 	docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
+
+# Full product surface image (docker/vm/photos/… linked).
+docker-build-full:
+	@echo "🐳 构建 Docker 镜像 (Full, BUILD_TAGS=nasd_full)..."
+	docker build --build-arg BUILD_TAGS=nasd_full -t $(DOCKER_IMAGE):$(DOCKER_TAG)-full -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
 
 # 多架构 Docker 构建 (v2.86.0)
 docker-buildx:
@@ -232,22 +238,25 @@ plugin-install:
 help:
 	@echo "NAS-OS Makefile 命令:"
 	@echo ""
-	@echo "  构建:"
-	@echo "    make build          - 编译二进制文件"
-	@echo "    make build-version  - 编译带版本信息的二进制"
-	@echo "    make build-all      - 跨平台构建"
-	@echo "    make build-debug    - 调试版本"
-	@echo "    make quick          - 快速构建 (跳过测试)"
+	@echo "  构建 (Core = 默认 ~47MB；Full = -tags nasd_full ~119MB):"
+	@echo "    make build / build-core - Core 二进制 (默认，无 docker/vm/photos 产品)"
+	@echo "    make build-full         - Full 产品面 (nasd_full)"
+	@echo "    make build-version      - Core + 版本 ldflags"
+	@echo "    make build-version-full - Full + 版本 ldflags"
+	@echo "    make build-all          - 跨平台 Core 构建"
+	@echo "    make build-debug        - 调试版本 (-race)"
+	@echo "    make quick              - 快速构建 (跳过测试)"
 	@echo ""
 	@echo "  测试:"
-	@echo "    make test           - 运行单元测试"
-	@echo "    make test-integration - 运行集成测试"
-	@echo "    make test-e2e       - 运行 E2E 测试"
-	@echo "    make test-benchmark - 运行性能基准测试"
-	@echo "    make test-report    - 生成测试报告"
-	@echo "    make test-suite     - 运行完整测试套件"
-	@echo "    make test-coverage  - 生成覆盖率报告"
-	@echo "    make test-race      - 竞态检测"
+	@echo "    make test             - 单元测试 (不含 lab 嵌套模块)"
+	@echo "    make test-lab         - Lab 嵌套模块测试 (internal/lab)"
+	@echo "    make test-integration - 集成测试"
+	@echo "    make test-e2e         - E2E 测试"
+	@echo "    make test-benchmark   - 性能基准"
+	@echo "    make test-report      - 测试报告"
+	@echo "    make test-suite       - 完整测试套件"
+	@echo "    make test-coverage    - 覆盖率"
+	@echo "    make test-race        - 竞态检测"
 	@echo ""
 	@echo "  代码质量:"
 	@echo "    make lint           - 代码检查"
@@ -275,12 +284,13 @@ help:
 	@echo "    make run-dev        - 开发模式"
 	@echo ""
 	@echo "  Docker:"
-	@echo "    make docker-build   - 构建镜像"
-	@echo "    make docker-buildx  - 构建多架构镜像 (amd64, arm64, armv7)"
+	@echo "    make docker-build       - 构建 Core 镜像 (默认)"
+	@echo "    make docker-build-full  - 构建 Full 镜像 (BUILD_TAGS=nasd_full)"
+	@echo "    make docker-buildx      - 多架构镜像 (amd64, arm64, armv7)"
 	@echo "    make docker-buildx-push - 构建并推送多架构镜像"
-	@echo "    make docker-run     - 启动容器"
-	@echo "    make docker-logs    - 查看日志"
-	@echo "    make docker-stop    - 停止容器"
+	@echo "    make docker-run         - 启动容器"
+	@echo "    make docker-logs        - 查看日志"
+	@echo "    make docker-stop        - 停止容器"
 	@echo ""
 	@echo "  安装:"
 	@echo "    make install        - 安装到系统"

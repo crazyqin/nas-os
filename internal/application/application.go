@@ -102,11 +102,19 @@ func New(cfg *config.Config, logger *zap.Logger) (app *Application, err error) {
 	}
 	log.Println("✅ 网络管理模块就绪")
 
-	mfaMgr, err := auth.NewMFAManager(cfg.ConfigPath("mfa-config.json"), "NAS-OS", nil)
+	mfaPath := cfg.ConfigPath("mfa-config.json")
+	mfaMgr, err := auth.NewMFAManager(mfaPath, "NAS-OS", nil)
 	if err != nil {
-		// Fail-open for boot resilience, but make the degradation unmistakable in logs
-		// and system info (mfa_available). Prefer fixing key/path over silent 2FA loss.
-		log.Printf("⚠️ MFA 管理初始化失败，双因素功能不可用：%v（检查 config 目录权限与 mfa-master.key）", err)
+		// Fail-closed when MFA is already in use (or NAS_OS_REQUIRE_MFA=1).
+		// Fresh installs without mfa-config still fail-open so a missing key file
+		// does not brick first boot.
+		requireMFA := os.Getenv("NAS_OS_REQUIRE_MFA") == "1" ||
+			os.Getenv("NAS_OS_REQUIRE_MFA") == "true" ||
+			auth.MFAConfigRequiresManager(mfaPath)
+		if requireMFA {
+			return nil, fmt.Errorf("MFA init failed and MFA is required (existing mfa-config or NAS_OS_REQUIRE_MFA): %w", err)
+		}
+		log.Printf("⚠️ MFA 管理初始化失败，双因素功能不可用：%v（检查 config 目录权限与 mfa-master.key；若已启用 2FA 将拒绝启动）", err)
 		mfaMgr = nil
 	}
 
