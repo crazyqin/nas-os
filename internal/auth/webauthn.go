@@ -4,6 +4,8 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
+	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -16,6 +18,7 @@ type WebAuthnManager struct {
 	sessions    map[string]*WebAuthnSession      // sessionID -> SessionData
 	rpID        string
 	rpName      string
+	rpOrigins   []string
 }
 
 // WebAuthnSession WebAuthn 会话.
@@ -34,14 +37,79 @@ type WebAuthnConfig struct {
 	RPOrigins     []string
 }
 
+// DefaultWebAuthnConfig builds config from issuer + environment.
+//
+//	NAS_OS_WEBAUTHN_RPID     relying party ID (hostname, no scheme), default "localhost"
+//	NAS_OS_WEBAUTHN_ORIGINS  comma-separated allowed origins; default localhost:8080 http/https
+//	NAS_OS_WEBAUTHN_NAME     optional display name override
+func DefaultWebAuthnConfig(issuer string) WebAuthnConfig {
+	name := strings.TrimSpace(os.Getenv("NAS_OS_WEBAUTHN_NAME"))
+	if name == "" {
+		name = strings.TrimSpace(issuer)
+	}
+	if name == "" {
+		name = "NAS-OS"
+	}
+	rpid := strings.TrimSpace(os.Getenv("NAS_OS_WEBAUTHN_RPID"))
+	if rpid == "" {
+		rpid = "localhost"
+	}
+	// strip accidental scheme/path
+	rpid = strings.TrimPrefix(rpid, "https://")
+	rpid = strings.TrimPrefix(rpid, "http://")
+	if i := strings.IndexAny(rpid, "/:"); i >= 0 {
+		rpid = rpid[:i]
+	}
+
+	origins := []string{"http://localhost:8080", "https://localhost:8080", "http://127.0.0.1:8080", "https://127.0.0.1:8080"}
+	if raw := strings.TrimSpace(os.Getenv("NAS_OS_WEBAUTHN_ORIGINS")); raw != "" {
+		var list []string
+		for _, p := range strings.Split(raw, ",") {
+			p = strings.TrimSpace(p)
+			if p != "" {
+				list = append(list, p)
+			}
+		}
+		if len(list) > 0 {
+			origins = list
+		}
+	}
+	return WebAuthnConfig{
+		RPDisplayName: name,
+		RPID:          rpid,
+		RPOrigins:     origins,
+	}
+}
+
 // NewWebAuthnManager 创建 WebAuthn 管理器.
 func NewWebAuthnManager(cfg WebAuthnConfig) (*WebAuthnManager, error) {
+	if strings.TrimSpace(cfg.RPID) == "" {
+		return nil, fmt.Errorf("webauthn RPID is required (set NAS_OS_WEBAUTHN_RPID)")
+	}
+	origins := append([]string(nil), cfg.RPOrigins...)
 	return &WebAuthnManager{
 		credentials: make(map[string][]*WebAuthnCredential),
 		sessions:    make(map[string]*WebAuthnSession),
 		rpID:        cfg.RPID,
 		rpName:      cfg.RPDisplayName,
+		rpOrigins:   origins,
 	}, nil
+}
+
+// RPID returns the configured relying party ID.
+func (m *WebAuthnManager) RPID() string {
+	if m == nil {
+		return ""
+	}
+	return m.rpID
+}
+
+// RPOrigins returns allowed origins (copy).
+func (m *WebAuthnManager) RPOrigins() []string {
+	if m == nil {
+		return nil
+	}
+	return append([]string(nil), m.rpOrigins...)
 }
 
 // generateChallenge 生成挑战.

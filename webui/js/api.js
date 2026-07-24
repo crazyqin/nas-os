@@ -1,8 +1,8 @@
 /**
  * NAS-OS WebUI shared API helper.
  * - Attaches Authorization Bearer from localStorage
+ * - Auto-injects Bearer on any window.fetch to /api/v1 (covers legacy pages)
  * - Normalizes token storage keys used across pages
- * - Parses JSON and surfaces API error messages
  *
  * CSRF: backend skips CSRF when Authorization: Bearer is present (see middleware).
  * Login is CSRF-exempt; use apiLogin() which does not require a token yet.
@@ -37,6 +37,45 @@
     TOKEN_KEYS.forEach((k) => localStorage.removeItem(k));
   }
 
+  function isAPIURL(url) {
+    if (!url) return false;
+    const s = String(url);
+    if (s.indexOf('/api/v1') !== -1) return true;
+    // relative api paths used by some pages
+    if (s.indexOf('/api/') === 0) return true;
+    return false;
+  }
+
+  /**
+   * Install once: every fetch to /api/* gets Authorization when available.
+   * Opt out per-request with header X-Nas-No-Auth: 1
+   */
+  function installFetchInterceptor() {
+    if (global.__nasFetchPatched || typeof global.fetch !== 'function') return;
+    const rawFetch = global.fetch.bind(global);
+    global.fetch = function (input, init) {
+      init = init || {};
+      let url = '';
+      if (typeof input === 'string') url = input;
+      else if (input && typeof input.url === 'string') url = input.url;
+
+      if (isAPIURL(url)) {
+        const headers = new Headers(init.headers || (input && input.headers) || {});
+        if (!headers.has('X-Nas-No-Auth')) {
+          const token = getAuthToken();
+          if (token && !headers.has('Authorization')) {
+            headers.set('Authorization', token);
+          }
+        } else {
+          headers.delete('X-Nas-No-Auth');
+        }
+        init = Object.assign({}, init, { headers: headers });
+      }
+      return rawFetch(input, init);
+    };
+    global.__nasFetchPatched = true;
+  }
+
   /**
    * @param {string} path - absolute path or path under /api/v1 (e.g. "/storage/volumes")
    * @param {RequestInit & { json?: any, auth?: boolean, raw?: boolean }} [opts]
@@ -64,6 +103,8 @@
       if (token && !headers.has('Authorization')) {
         headers.set('Authorization', token);
       }
+    } else {
+      headers.set('X-Nas-No-Auth', '1');
     }
 
     const init = Object.assign({}, opts);
@@ -104,6 +145,8 @@
     });
   }
 
+  installFetchInterceptor();
+
   global.NasAPI = {
     API_BASE,
     getAuthToken,
@@ -111,8 +154,8 @@
     clearAuthToken,
     apiFetch,
     apiLogin,
+    installFetchInterceptor,
   };
-  // Convenience globals for pages that prefer free functions
   global.apiFetch = apiFetch;
   global.apiLogin = apiLogin;
   global.getAuthToken = getAuthToken;
