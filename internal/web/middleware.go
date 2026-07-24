@@ -265,13 +265,51 @@ func rateLimitMiddleware(config *SecurityConfig) gin.HandlerFunc {
 	}
 }
 
+// csrfExemptPath returns true for auth bootstrap endpoints that cannot yet
+// send a Bearer token (login / refresh / MFA challenge exchange).
+func csrfExemptPath(path string) bool {
+	switch path {
+	case "/api/v1/auth/login",
+		"/api/v1/auth/refresh",
+		"/api/v1/auth/mfa/verify",
+		"/api/v1/auth/mfa/challenge":
+		return true
+	default:
+		return false
+	}
+}
+
+// hasBearerAuth reports Authorization: Bearer … (SPA token in header, not
+// auto-attached cross-site by browsers — CSRF not applicable).
+func hasBearerAuth(c *gin.Context) bool {
+	auth := strings.TrimSpace(c.GetHeader("Authorization"))
+	return len(auth) >= 7 && strings.EqualFold(auth[:7], "bearer ") && strings.TrimSpace(auth[7:]) != ""
+}
+
 // csrfMiddleware CSRF 保护中间件.
+//
+// Policy (Bearer SPA + double-submit for cookie/form clients):
+//   - Safe methods set a CSRF cookie and pass.
+//   - Bearer Authorization skips CSRF (token is not cookie-bound).
+//   - Public auth login/refresh paths are exempt (no token yet).
+//   - Other mutating requests require X-CSRF-Token == csrf_token cookie.
 func csrfMiddleware(config *SecurityConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 只对状态修改操作进行验证
 		if c.Request.Method == "GET" || c.Request.Method == "HEAD" || c.Request.Method == "OPTIONS" {
 			// 对于安全方法，设置 CSRF token cookie
 			setCSRFToken(c, config)
+			c.Next()
+			return
+		}
+
+		// SPA / API clients: Bearer is not auto-sent cross-origin → no CSRF surface.
+		if hasBearerAuth(c) {
+			c.Next()
+			return
+		}
+		// Login / token exchange before the client holds a Bearer token.
+		if csrfExemptPath(c.Request.URL.Path) {
 			c.Next()
 			return
 		}
@@ -375,10 +413,13 @@ func validateCSRFToken(token, expectedToken string, key []byte) bool {
 func auditLogMiddleware() gin.HandlerFunc {
 	// 需要审计的敏感操作路径
 	sensitivePaths := []string{
-		// 存储管理
+		// 存储管理（canonical contract is /api/v1/storage/*）
+		"/api/v1/storage",
 		"/api/v1/raid",
 		"/api/v1/disks",
 		"/api/v1/pools",
+		// 套件启停
+		"/api/v1/packages",
 		// 用户与权限
 		"/api/v1/users",
 		"/api/v1/roles",

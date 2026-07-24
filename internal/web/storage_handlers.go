@@ -349,12 +349,19 @@ func (h *StorageHandlers) RestorePendingVolume(c *gin.Context) {
 }
 
 // PurgePendingVolume permanently drops a pending soft-delete (and wipes if allow_wipe was set).
+// Requires JSON body confirm_name matching the volume name (same bar as DeleteVolume).
 func (h *StorageHandlers) PurgePendingVolume(c *gin.Context) {
 	if h.storageMgr == nil {
 		c.JSON(http.StatusInternalServerError, StorageResponse{Code: 500, Message: "storage manager not initialized"})
 		return
 	}
 	name := c.Param("name")
+	var opts storage.DeleteVolumeOptions
+	_ = c.ShouldBindJSON(&opts)
+	if err := storage.ValidateDeleteConfirmation(name, opts); err != nil {
+		c.JSON(http.StatusBadRequest, StorageResponse{Code: 400, Message: err.Error()})
+		return
+	}
 	if err := h.storageMgr.PurgePending(name); err != nil {
 		c.JSON(http.StatusBadRequest, StorageResponse{Code: 400, Message: err.Error()})
 		return

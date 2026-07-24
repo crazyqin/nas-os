@@ -89,6 +89,37 @@ func TestCSRFMiddleware_POST_WithoutToken(t *testing.T) {
 	assert.Equal(t, http.StatusForbidden, w.Code)
 }
 
+func TestCSRFMiddleware_POST_WithBearerSkipsCSRF(t *testing.T) {
+	config := DefaultSecurityConfig()
+	router := gin.New()
+	router.Use(csrfMiddleware(config))
+	router.POST("/test", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/test", strings.NewReader("{}"))
+	req.Header.Set("Authorization", "Bearer test-token-value")
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestCSRFMiddleware_LoginPathExempt(t *testing.T) {
+	config := DefaultSecurityConfig()
+	router := gin.New()
+	router.Use(csrfMiddleware(config))
+	router.POST("/api/v1/auth/login", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/auth/login", strings.NewReader(`{"username":"a","password":"b"}`))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
 func TestCSRFMiddleware_POST_WithToken(t *testing.T) {
 	config := DefaultSecurityConfig()
 	router := gin.New()

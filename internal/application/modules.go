@@ -76,10 +76,19 @@ func (m *identityModule) RegisterAuthenticatedRoutes(rg *gin.RouterGroup) {
 // （/api/v1/storage/* + DeleteVolumeConfirmed），避免与模块双挂载导致 gin panic。
 type storageModule struct {
 	coreModule
+	mgr *storage.Manager
 }
 
 func (m *storageModule) RegisterRoutes(rg *gin.RouterGroup) {
 	// intentionally empty — storage routes owned by web.StorageHandlers
+}
+
+// Stop stops soft-delete reaper goroutine on shutdown.
+func (m *storageModule) Stop(context.Context) error {
+	if m != nil && m.mgr != nil {
+		m.mgr.StopSoftDeleteReaper()
+	}
+	return nil
 }
 
 // networkModule 原生网络模块，拥有 DDNS worker 和管理员路由。
@@ -164,6 +173,7 @@ func registerCoreModules(
 			},
 			logger: logger,
 		},
+		mgr: storageMgr,
 	}
 	networkMod := &networkModule{
 		coreModule: coreModule{
