@@ -224,6 +224,13 @@ func rateLimitMiddleware(config *SecurityConfig) gin.HandlerFunc {
 	lastPrune := time.Now()
 
 	return func(c *gin.Context) {
+		// Health probes must not share the global RPS bucket with UI traffic.
+		path := c.Request.URL.Path
+		if path == "/api/v1/system/health" || path == "/api/v1/health" || path == "/healthz" || path == "/health" {
+			c.Next()
+			return
+		}
+
 		clientIP := c.ClientIP()
 		now := time.Now()
 

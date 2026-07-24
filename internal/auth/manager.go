@@ -56,6 +56,35 @@ var (
 
 const totpSecretEncPrefix = "enc:v1:"
 
+// MFAConfigRequiresManager reports whether mfa-config.json contains at least one
+// user with MFA enabled. Used to fail-closed when NewMFAManager fails but the
+// deployment already relies on 2FA (do not silently drop MFA).
+// Returns false when path is empty, missing, unreadable, or empty of enabled MFA.
+func MFAConfigRequiresManager(configPath string) bool {
+	configPath = strings.TrimSpace(configPath)
+	if configPath == "" {
+		return false
+	}
+	data, err := os.ReadFile(configPath)
+	if err != nil || len(data) == 0 {
+		return false
+	}
+	var configs map[string]*MFAConfig
+	if err := json.Unmarshal(data, &configs); err != nil {
+		// Corrupt file that was meant to hold MFA — treat as required.
+		return true
+	}
+	for _, cfg := range configs {
+		if cfg == nil {
+			continue
+		}
+		if cfg.Enabled || cfg.TOTPEnabled || cfg.SMSEnabled || cfg.WebAuthnEnabled {
+			return true
+		}
+	}
+	return false
+}
+
 // NewMFAManager 创建 MFA 管理器.
 func NewMFAManager(configPath, issuer string, smsProvider SMSProvider) (*MFAManager, error) {
 	m := &MFAManager{

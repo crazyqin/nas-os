@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+	"os"
 	"sort"
 	"strings"
 )
@@ -49,8 +51,16 @@ type PackageResolution struct {
 	Warnings []string
 }
 
+// StrictPackagesOnly reports whether deprecated modules.* dual-read is disabled.
+// Enable with NAS_OS_STRICT_PACKAGES=1|true (migration path before dual-read removal).
+func StrictPackagesOnly() bool {
+	v := strings.TrimSpace(strings.ToLower(os.Getenv("NAS_OS_STRICT_PACKAGES")))
+	return v == "1" || v == "true" || v == "yes"
+}
+
 // ResolvePackages merges packages.* (preferred) with deprecated modules.* dual-read.
-// Pure function of config fields — no I/O.
+// When NAS_OS_STRICT_PACKAGES is set, modules.* is ignored (with a warning if present).
+// Pure function of config fields + env — no I/O beyond env lookup.
 func (c *Config) ResolvePackages() PackageResolution {
 	if c == nil {
 		return PackageResolution{}
@@ -63,6 +73,31 @@ func (c *Config) ResolvePackages() PackageResolution {
 
 	modulesContributed := modOptional || len(modExt) > 0
 	packagesContributed := pkgRec || len(pkgEn) > 0
+	strict := StrictPackagesOnly()
+
+	// Strict mode: packages.* only (modules.* dual-read off).
+	if strict {
+		res := PackageResolution{
+			RecommendedSystem: pkgRec,
+			DualSource:        false,
+			ModulesDeprecated: modulesContributed,
+		}
+		if modulesContributed {
+			res.Warnings = append(res.Warnings,
+				"NAS_OS_STRICT_PACKAGES=1: ignoring modules.optional/extensions; use packages.recommended_system / packages.enabled only")
+		}
+		named := pkgEn
+		if res.RecommendedSystem {
+			rec := RecommendedSystemPackages
+			if len(rec) == 0 {
+				rec = RecommendedSystemPackageIDs()
+			}
+			res.Enabled = unionSorted(rec, named)
+		} else {
+			res.Enabled = named
+		}
+		return res
+	}
 
 	res := PackageResolution{
 		RecommendedSystem: modOptional || pkgRec,
@@ -71,7 +106,7 @@ func (c *Config) ResolvePackages() PackageResolution {
 	}
 	if modulesContributed {
 		res.Warnings = append(res.Warnings,
-			"modules.optional / modules.extensions are deprecated (ADR-0001 Stage 3); prefer packages.recommended_system / packages.enabled")
+			"modules.optional / modules.extensions are deprecated (ADR-0001 Stage 3); prefer packages.recommended_system / packages.enabled — set NAS_OS_STRICT_PACKAGES=1 to ignore modules.* now")
 	}
 	if res.DualSource {
 		res.Warnings = append(res.Warnings,
@@ -93,6 +128,22 @@ func (c *Config) ResolvePackages() PackageResolution {
 		res.Enabled = named
 	}
 	return res
+}
+
+// ValidateDeprecatedModulesStrict returns an error when modules.* is set and
+// NAS_OS_REJECT_MODULES=1 (hard reject; stricter than ignoring).
+func (c *Config) ValidateDeprecatedModulesStrict() error {
+	if c == nil {
+		return nil
+	}
+	v := strings.TrimSpace(strings.ToLower(os.Getenv("NAS_OS_REJECT_MODULES")))
+	if v != "1" && v != "true" && v != "yes" {
+		return nil
+	}
+	if c.Modules.Optional || len(c.Modules.Extensions) > 0 {
+		return fmt.Errorf("NAS_OS_REJECT_MODULES=1: modules.optional/extensions are forbidden; migrate to packages.*")
+	}
+	return nil
 }
 
 // OptionalProductsEnabled reports whether non-Core product managers should run.

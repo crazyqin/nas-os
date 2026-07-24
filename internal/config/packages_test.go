@@ -191,3 +191,38 @@ func TestOptionalProductsEnabled_PackagesFlag(t *testing.T) {
 		t.Fatal("packages.recommended_system alone must enable optional products")
 	}
 }
+
+func TestResolvePackages_StrictIgnoresModules(t *testing.T) {
+	t.Setenv("NAS_OS_STRICT_PACKAGES", "1")
+	cfg := Default()
+	cfg.Modules.Optional = true
+	cfg.Modules.Extensions = []string{"voicehub"}
+	cfg.Packages.RecommendedSystem = false
+	cfg.Packages.Enabled = nil
+	res := cfg.ResolvePackages()
+	if res.RecommendedSystem {
+		t.Fatal("strict must ignore modules.optional")
+	}
+	if len(res.Enabled) != 0 {
+		t.Fatalf("strict enabled=%v want empty", res.Enabled)
+	}
+	if !res.ModulesDeprecated {
+		t.Fatal("still mark ModulesDeprecated for migration signal")
+	}
+	if len(res.Warnings) == 0 {
+		t.Fatal("want strict ignore warning")
+	}
+}
+
+func TestValidateDeprecatedModulesStrict(t *testing.T) {
+	t.Setenv("NAS_OS_REJECT_MODULES", "1")
+	cfg := Default()
+	cfg.Modules.Optional = true
+	if err := cfg.ValidateDeprecatedModulesStrict(); err == nil {
+		t.Fatal("want reject error")
+	}
+	cfg.Modules.Optional = false
+	if err := cfg.ValidateDeprecatedModulesStrict(); err != nil {
+		t.Fatal(err)
+	}
+}

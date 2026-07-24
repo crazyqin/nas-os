@@ -314,6 +314,9 @@ func (c *Config) Validate() error {
 			return fmt.Errorf("paths.%s 必须是绝对路径：%s", name, p)
 		}
 	}
+	if err := c.ValidateDeprecatedModulesStrict(); err != nil {
+		return err
+	}
 	return nil
 }
 
