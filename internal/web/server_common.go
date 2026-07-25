@@ -99,11 +99,31 @@ func (s *Server) registerCoreIdentityAndDocs(api *gin.RouterGroup) {
 		NewStorageHandlers(s.storageMgr).RegisterRoutes(api)
 	}
 
-	s.engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler,
-		ginSwagger.URL("/swagger/doc.json"),
-		ginSwagger.DefaultModelsExpandDepth(-1),
-	))
+	// Swagger: off in production unless NAS_OS_SWAGGER=1; on otherwise unless NAS_OS_SWAGGER=0.
+	if swaggerEnabled() {
+		s.engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler,
+			ginSwagger.URL("/swagger/doc.json"),
+			ginSwagger.DefaultModelsExpandDepth(-1),
+		))
+	}
 	s.registerWebUI(resolveWebUIRoot())
+}
+
+// swaggerEnabled controls public OpenAPI UI.
+// Default: enabled outside production; disabled when NAS_OS_ENV=production|prod
+// unless NAS_OS_SWAGGER=1. Force off with NAS_OS_SWAGGER=0.
+func swaggerEnabled() bool {
+	switch strings.TrimSpace(strings.ToLower(os.Getenv("NAS_OS_SWAGGER"))) {
+	case "0", "false", "off", "no":
+		return false
+	case "1", "true", "on", "yes":
+		return true
+	}
+	env := strings.TrimSpace(strings.ToLower(os.Getenv("NAS_OS_ENV")))
+	if env == "production" || env == "prod" {
+		return false
+	}
+	return true
 }
 
 // getHealth aggregates Core module health (shared by both builds).

@@ -1,8 +1,8 @@
 // NAS-OS Service Worker v2.0
 // Enhanced PWA with Offline Support, Background Sync, and Push Notifications
 
-const CACHE_NAME = 'nas-os-v3.24.2';
-const RUNTIME_CACHE = 'nas-os-runtime-v3.24.2';
+const CACHE_NAME = 'nas-os-v3.24.3';
+const RUNTIME_CACHE = 'nas-os-runtime-v3.24.3';
 
 // Static assets to cache on install
 const STATIC_ASSETS = [

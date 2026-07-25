@@ -63,8 +63,14 @@
         const headers = new Headers(init.headers || (input && input.headers) || {});
         if (!headers.has('X-Nas-No-Auth')) {
           const token = getAuthToken();
-          if (token && !headers.has('Authorization')) {
-            headers.set('Authorization', token);
+          if (token) {
+            // Normalize double "Bearer Bearer …" and bare tokens from legacy pages.
+            let auth = headers.get('Authorization') || token;
+            auth = String(auth).replace(/^(Bearer\s+)+/i, 'Bearer ').trim();
+            if (!/^Bearer\s+\S+/i.test(auth)) {
+              auth = token;
+            }
+            headers.set('Authorization', auth);
           }
         } else {
           headers.delete('X-Nas-No-Auth');

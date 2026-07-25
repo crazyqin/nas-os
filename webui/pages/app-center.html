@@ -86,8 +86,17 @@
 
     function authHeaders() {
         const h = { 'Content-Type': 'application/json' };
-        const t = localStorage.getItem('token') || localStorage.getItem('nas_token') || '';
-        if (t) h['Authorization'] = 'Bearer ' + t;
+        // Prefer shared helper — never double-prefix "Bearer Bearer …"
+        const t = (typeof getAuthToken === 'function' && getAuthToken())
+            || localStorage.getItem('token')
+            || localStorage.getItem('nas_token')
+            || localStorage.getItem('nasos_token')
+            || '';
+        if (t) {
+            h['Authorization'] = String(t).startsWith('Bearer ') || String(t).startsWith('bearer ')
+                ? t
+                : 'Bearer ' + t;
+        }
         return h;
     }
 
@@ -95,7 +104,10 @@
         showBanner('', false);
         el.meta.textContent = '加载中…';
         try {
-            const token = localStorage.getItem('token') || localStorage.getItem('nas_token') || '';
+            const token = (typeof getAuthToken === 'function' && getAuthToken())
+                || localStorage.getItem('token')
+                || localStorage.getItem('nas_token')
+                || '';
             if (!token) {
                 showBanner('请先以管理员登录后再使用应用中心（登录页：login.html）。', true);
                 el.meta.textContent = '需要登录';

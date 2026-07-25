@@ -552,24 +552,7 @@
             }
             return h;
         }
-        // Bind remaining raw fetch(API_BASE...) sites to include Authorization
-        const _rawFetch = window.fetch.bind(window);
-        window.fetch = function(input, init) {
-            init = init || {};
-            const url = typeof input === 'string' ? input : (input && input.url) || '';
-            if (url.indexOf('/api/v1/') !== -1 || url.indexOf(API_BASE) === 0) {
-                const headers = new Headers(init.headers || {});
-                const token = (typeof getAuthToken === 'function' && getAuthToken())
-                    || localStorage.getItem('token')
-                    || localStorage.getItem('nasos_token')
-                    || '';
-                if (token && !headers.has('Authorization')) {
-                    headers.set('Authorization', String(token).startsWith('Bearer ') ? token : 'Bearer ' + token);
-                }
-                init = Object.assign({}, init, { headers });
-            }
-            return _rawFetch(input, init);
-        };
+        // Auth for remaining fetch() sites: webui/js/api.js interceptor
 
 
         // ========== 初始化 ==========
