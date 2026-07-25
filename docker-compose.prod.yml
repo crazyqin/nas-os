@@ -50,8 +50,8 @@ services:
       # 日志
       - ${LOG_PATH:-./logs}:/var/log/nas-os
       
-      # 运行时数据
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Docker socket: only needed for Full image (docker product). Opt-in:
+      # - /var/run/docker.sock:/var/run/docker.sock:ro
     
     # 环境变量
     environment:
@@ -121,9 +121,9 @@ services:
     networks:
       - monitoring
     
-    # 端口映射
+    # 端口映射（默认仅本机，避免监控面暴露到局域网）
     ports:
-      - "${PROMETHEUS_PORT:-9090}:9090"
+      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
     
     # 卷挂载
     volumes:
@@ -177,7 +177,7 @@ services:
       - monitoring
     
     ports:
-      - "${GRAFANA_PORT:-3000}:3000"
+      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
     
     volumes:
       - grafana-data:/var/lib/grafana
@@ -185,7 +185,8 @@ services:
     
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-changeme}
+      # Set GRAFANA_ADMIN_PASSWORD in the environment (do not ship default "changeme")
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?set GRAFANA_ADMIN_PASSWORD}
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL:-http://localhost:3000}
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel
@@ -228,7 +229,7 @@ services:
       - monitoring
     
     ports:
-      - "${ALERTMANAGER_PORT:-9093}:9093"
+      - "127.0.0.1:${ALERTMANAGER_PORT:-9093}:9093"
     
     volumes:
       - ${ALERTMANAGER_CONFIG:-./monitoring/alertmanager.yml}:/etc/alertmanager/alertmanager.yml:ro
@@ -272,7 +273,7 @@ services:
       - monitoring
     
     ports:
-      - "${NODE_EXPORTER_PORT:-9100}:9100"
+      - "127.0.0.1:${NODE_EXPORTER_PORT:-9100}:9100"
     
     volumes:
       - /proc:/host/proc:ro
@@ -315,8 +316,9 @@ services:
       retries: 3
       start_period: 15s
 
-  # cAdvisor 容器指标
+  # cAdvisor 容器指标（默认 profile 需显式启用：--profile monitoring）
   cadvisor:
+    profiles: ["monitoring"]
     image: gcr.io/cadvisor/cadvisor:v0.51.0
     container_name: nas-cadvisor
     restart: unless-stopped
@@ -325,17 +327,21 @@ services:
       - monitoring
     
     ports:
-      - "${CADVISOR_PORT:-8081}:8080"
+      - "127.0.0.1:${CADVISOR_PORT:-8081}:8080"
     
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
-      - /var/lib/docker:/var/lib/docker:ro
-      - /dev/disk:/dev/disk:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
     
-    # 提权模式以访问容器信息
-    privileged: true
+    # Prefer non-privileged; fall back to privileged overlay if metrics empty
+    privileged: false
+    devices: []
+    command:
+      - --docker_only=true
+      - --housekeeping_interval=30s
     
     deploy:
       resources:

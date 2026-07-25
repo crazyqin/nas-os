@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -416,7 +417,45 @@ func validateCSRFToken(token, expectedToken string, key []byte) bool {
 	return verifyCSRFSignature(token, key)
 }
 
-// auditLogMiddleware 审计日志中间件 (记录关键操作).
+// audit log sink: one long-lived file handle (mutex) instead of open/close per request.
+var (
+	auditFileMu   sync.Mutex
+	auditFile     *os.File
+	auditPath     = func() string {
+		if p := strings.TrimSpace(os.Getenv("NAS_OS_AUDIT_LOG")); p != "" {
+			return p
+		}
+		return "/var/log/nas-os/audit.log"
+	}()
+	auditOpenFail atomic.Uint64
+)
+
+func writeAuditLine(line []byte) {
+	auditFileMu.Lock()
+	defer auditFileMu.Unlock()
+	if auditFile == nil {
+		if err := os.MkdirAll(filepath.Dir(auditPath), 0o750); err != nil {
+			n := auditOpenFail.Add(1)
+			if n == 1 || n%100 == 0 {
+				log.Printf("[ERROR] audit log mkdir %s: %v", filepath.Dir(auditPath), err)
+			}
+			return
+		}
+		f, err := os.OpenFile(auditPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o640)
+		if err != nil {
+			n := auditOpenFail.Add(1)
+			if n == 1 || n%100 == 0 {
+				log.Printf("[ERROR] open audit log %s: %v", auditPath, err)
+			}
+			return
+		}
+		auditFile = f
+	}
+	_, _ = auditFile.Write(line)
+	_, _ = auditFile.WriteString("\n")
+}
+
+// auditLogMiddleware 审计日志中间件 (记录关键变更操作).
 func auditLogMiddleware() gin.HandlerFunc {
 	// 需要审计的敏感操作路径
 	sensitivePaths := []string{
@@ -451,7 +490,13 @@ func auditLogMiddleware() gin.HandlerFunc {
 	}
 
 	return func(c *gin.Context) {
-		// 只记录敏感操作
+		// 只记录敏感路径上的变更（GET/HEAD/OPTIONS 跳过，避免列表刷屏）
+		method := c.Request.Method
+		if method == http.MethodGet || method == http.MethodHead || method == http.MethodOptions {
+			c.Next()
+			return
+		}
+
 		isSensitive := false
 		for _, path := range sensitivePaths {
 			if strings.HasPrefix(c.Request.URL.Path, path) {
@@ -465,17 +510,12 @@ func auditLogMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// 记录请求开始时间
 		startTime := time.Now()
-
-		// 执行请求
 		c.Next()
 
-		// 获取用户信息
 		userID, _ := c.Get("user_id")
 		username, _ := c.Get("username")
 
-		// 确定操作级别
 		level := "audit"
 		if c.Writer.Status() >= 400 {
 			level = "audit_warning"
@@ -484,7 +524,6 @@ func auditLogMiddleware() gin.HandlerFunc {
 			level = "audit_error"
 		}
 
-		// 记录审计日志
 		auditEntry := map[string]interface{}{
 			"timestamp":    time.Now().Format(time.RFC3339),
 			"level":        level,
@@ -501,23 +540,12 @@ func auditLogMiddleware() gin.HandlerFunc {
 			"content_type": c.GetHeader("Content-Type"),
 		}
 
-		// 写入审计日志
 		auditJSON, err := json.Marshal(auditEntry)
 		if err != nil {
 			log.Printf("[ERROR] Failed to marshal audit entry: %v", err)
 			return
 		}
-
-		// 审计日志写入单独文件
-		f, err := os.OpenFile("/var/log/nas-os/audit.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0640)
-		if err != nil {
-			log.Printf("[ERROR] Failed to open audit log: %v", err)
-			return
-		}
-		defer func() { _ = f.Close() }()
-
-		_, _ = f.Write(auditJSON)
-		_, _ = f.WriteString("\n")
+		writeAuditLine(auditJSON)
 	}
 }
 

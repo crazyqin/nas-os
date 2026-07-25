@@ -204,7 +204,14 @@ install: build
 	sudo install -m 755 $(BINARY_NAME) /usr/local/bin/
 	sudo install -m 755 $(CLI_NAME) /usr/local/bin/
 	sudo mkdir -p /etc/nas-os
-	sudo cp configs/default.yaml /etc/nas-os/config.yaml
+	@# Never clobber an existing production config
+	@if [ ! -f /etc/nas-os/config.yaml ]; then \
+		sudo cp configs/default.yaml /etc/nas-os/config.yaml; \
+		echo "  wrote /etc/nas-os/config.yaml (new)"; \
+	else \
+		sudo cp configs/default.yaml /etc/nas-os/config.yaml.example; \
+		echo "  kept existing /etc/nas-os/config.yaml; refreshed config.yaml.example"; \
+	fi
 	@echo "✅ 安装完成"
 
 uninstall:
