@@ -1,6 +1,13 @@
 # Changelog
 
-## Unreleased - True route unmount + docs reorganization
+## v3.24.4 - 2026-07-30
+
+### Maintenance
+- Version bump v3.24.3 → v3.24.4
+- Resource stats refresh: 3,863 Go files / 1,050 tests / ~1.67M LOC / 166 deps
+- Docs date sync
+
+## v3.24.3 - 2026-07-21
 
 ### Routes
 - Package disable **unmounts** routes (`packageMounted` flag) → HTTP **404** (not merely 503).
