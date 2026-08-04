@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.24.5 - 2026-08-04
+
+### Fix
+- IPv6 listen test gracefully skips when IPv6 loopback unavailable (containers / CI / non-IPv6 hosts)
+
+### Maintenance
+- Version bump v3.24.4 → v3.24.5
+
 ## v3.24.4 - 2026-07-30
 
 ### Maintenance

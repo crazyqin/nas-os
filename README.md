@@ -4,7 +4,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.24.4 Stable（文档同步 2026-07-21）  
+> **最新版本**: v3.24.5 Stable（文档同步 2026-07-21）  
 > **文档索引**: [docs/README.md](docs/README.md)  
 > **项目结构**: [STRUCTURE.md](docs/STRUCTURE.md)（含 **Core / Full 编译面**） · **运维**: [ops-packages.md](docs/ops-packages.md) · **架构**: [ARCHITECTURE.md](docs/ARCHITECTURE.md)  
 > **默认**: 仅 Core 能力面 + Core 二进制（`make build`）；套件走 `packages.*` / 应用中心；完整产品需 `make build-full`（`-tags nasd_full`）  
@@ -13,7 +13,7 @@
 
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
-> **Release**: [v3.24.4](https://github.com/crazyqin/nas-os/releases/tag/v3.24.4)
+> **Release**: [v3.24.5](https://github.com/crazyqin/nas-os/releases/tag/v3.24.5)
 
 ## 默认交付面（请先读）
 
@@ -454,7 +454,7 @@ docker run -d \
   -p 127.0.0.1:8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v3.24.4
+  ghcr.io/crazyqin/nas-os:v3.24.5
 
 
 # 查看日志
@@ -723,7 +723,7 @@ nas-os/
 
 详细里程碑请查看 GitHub Milestones
 
-### 当前状态 (2026-07-16) - v3.24.4 Stable ✅
+### 当前状态 (2026-07-16) - v3.24.5 Stable ✅
 
 **8/8 里程碑全部完成**
 
@@ -753,7 +753,7 @@ nas-os/
 ### 版本路线图
 | 版本 | 类型 | 发布日期 | 核心功能 | 状态 |
 |------|------|----------|----------|------|
-| **v3.24.4** | **Stable** | **2026-07-16** | **版本对齐 + 集成测试 Lab 路径 + 默认面诚实 + 伪核心再降 Lab** | ✅ **已发布** |
+| **v3.24.5** | **Stable** | **2026-07-16** | **版本对齐 + 集成测试 Lab 路径 + 默认面诚实 + 伪核心再降 Lab** | ✅ **已发布** |
 | v3.24.1 | **Stable** | **2026-07-16** | **WebUI 门控、强制改密、api/middleware 清除** | ✅ **已发布** |
 | v3.24.0 | **Stable** | **2026-07-16** | **optional 默认关、去 /volumes、删根 api、Core 真健康** | ✅ **已发布** |
 | v3.23.1 | **Stable** | **2026-07-16** | **传递 Lab 切断、Extension 真加载、诚实日志、deps 治理** | ✅ **已发布** |
