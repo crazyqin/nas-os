@@ -5,6 +5,7 @@ package tests
 import (
 	"fmt"
 	"net"
+	"strings"
 	"testing"
 )
 
@@ -280,6 +281,10 @@ func TestListenIPv6Compatibility(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			listener, err := net.Listen(tt.network, tt.address)
 			if err != nil {
+				// IPv6 may not be available on all systems (e.g. containers, CI)
+				if strings.Contains(tt.address, "[") {
+					t.Skipf("IPv6 not available: %v", err)
+				}
 				t.Fatalf("net.Listen(%q, %q) failed: %v", tt.network, tt.address, err)
 			}
 			defer listener.Close()

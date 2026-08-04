@@ -1,7 +1,7 @@
 # NAS-OS 资源统计
 
 **更新日期**: 2026-07-30  
-**版本**: v3.24.4
+**版本**: v3.24.5
 
 > **默认运行时**: `nasd` 仅 Core 五模块；`packages.recommended_system=false`、`packages.enabled=[]`。  
 > 套件/SSOT/应用中心见 [ops-packages.md](ops-packages.md)；结构见 [STRUCTURE.md](STRUCTURE.md)；文档索引 [README.md](README.md)。
