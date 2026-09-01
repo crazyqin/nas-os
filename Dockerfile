@@ -63,8 +63,8 @@ ENV CGO_ENABLED=0
 # 支持 BuildKit 自动注入的跨平台参数
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg/mod \
-    GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
     if [ -n "${BUILD_TAGS}" ]; then TAGS="-tags ${BUILD_TAGS}"; else TAGS=""; fi; \
+    GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
     go build ${TAGS} -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \
     -o nasd ./cmd/nasd && \
     GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
