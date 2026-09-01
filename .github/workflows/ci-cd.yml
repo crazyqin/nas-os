@@ -638,7 +638,14 @@ jobs:
           max_attempts: 2
           retry_wait_seconds: 15
           command: |
+            set -o pipefail
             go test -v -timeout 10m ./tests/integration/... 2>&1 | tee integration-test-output.txt
+            # v3.24.6: lab 是嵌套独立模块，其测试（含从 tests/integration 迁入的
+            # compress/natpierce/health 用例）需在模块目录内单独运行
+            if [ -f internal/lab/go.mod ]; then
+              echo "🧪 运行 lab 模块集成测试..."
+              (cd internal/lab && go test -timeout 10m ./tests/integration/... 2>&1 | tee -a ../integration-test-output.txt)
+            fi
       
       - name: 验证构建（排除插件和 e2e 测试）
         run: |
@@ -647,7 +654,7 @@ jobs:
       
       - name: go vet 检查
         run: |
-          go vet ./cmd/...
+          go vet ./...
           echo "✅ go vet 检查通过"
       
       - name: 上传集成测试结果
