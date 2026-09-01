@@ -750,6 +750,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [prepare, test-merge]
     timeout-minutes: 20
+    env:
+      # CI runner 上 /dev/disk 不是设备节点,用 override 文件清空设备透传(生产配置不变)
+      COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
