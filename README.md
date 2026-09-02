@@ -1,10 +1,8 @@
 # NAS-OS 🖥️
 
-**中文** | English
-
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.24.5 Stable（文档同步 2026-07-21）  
+> **最新版本**: v3.24.5 Stable（文档同步 2026-08-04）  
 > **文档索引**: [docs/README.md](docs/README.md)  
 > **项目结构**: [STRUCTURE.md](docs/STRUCTURE.md)（含 **Core / Full 编译面**） · **运维**: [ops-packages.md](docs/ops-packages.md) · **架构**: [ARCHITECTURE.md](docs/ARCHITECTURE.md)  
 > **默认**: 仅 Core 能力面 + Core 二进制（`make build`）；套件走 `packages.*` / 应用中心；完整产品需 `make build-full`（`-tags nasd_full`）  
@@ -13,7 +11,7 @@
 
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
-> **Release**: [v3.24.5](https://github.com/crazyqin/nas-os/releases/tag/v3.24.5)
+> **Release**: [v3.24.3](https://github.com/crazyqin/nas-os/releases/tag/v3.24.3)（最新已发布 tag；v3.24.4/v3.24.5 为维护性提交，未发 Release）
 
 ## 默认交付面（请先读）
 
@@ -419,47 +417,50 @@ v3.10.0 把飞牛的家庭影音易用性、群晖的套件化引导、TrueNAS �
 ### 方式一：下载二进制文件 (推荐)
 
 ```bash
-# 下载 (根据你的架构选择)
+# 从 Release 下载（示例为最新已发布 tag v3.24.3，按需替换）
+VER=v3.24.3
+
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.490.61/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/${VER}/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.490.61/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/${VER}/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
-# ARMv7 (Raspberry Pi 3, 旧款 ARM)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.490.61/nasd-linux-armv7
-
-chmod +x nasd-linux-armv7
-sudo mv nasd-linux-armv7 /usr/local/bin/nasd
+# ARMv7 (Raspberry Pi 3, 旧款 ARM；Release 资产名为 nasd-linux-arm)
+wget https://github.com/crazyqin/nas-os/releases/download/${VER}/nasd-linux-arm
+chmod +x nasd-linux-arm
+sudo mv nasd-linux-arm /usr/local/bin/nasd
 
 # 验证安装
-nasd --version
+nasctl version
 ```
 
 ### 方式二：Docker 部署
 
 ```bash
-# 拉取镜像
-docker pull ghcr.io/crazyqin/nas-os:v2.490.61
+# 拉取镜像（按 Release tag 或 latest）
+docker pull ghcr.io/crazyqin/nas-os:v3.24.3   # 或 :latest
 
 
-# 运行容器
+# 运行容器（默认 Core 面：非 privileged + bridge + 127.0.0.1:8080）
 docker run -d \
   --name nasd \
   --restart unless-stopped \
   -p 127.0.0.1:8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v3.24.5
+  ghcr.io/crazyqin/nas-os:v3.24.3
 
 
 # 查看日志
 docker logs -f nasd
 ```
+
+> 完整体验推荐直接用仓库根的 `docker-compose.yml`（见下文「部署」）。
 
 ### 方式三：源码编译
 
@@ -495,17 +496,18 @@ sudo nasd
 
 访问 http://localhost:8080
 
-**默认登录凭据**：
+**首次登录**：
 - 用户名：`admin`
-- 密码：`admin123`
+- 初始密码：**随机生成**（16 位），写入首次启动日志提示的密码文件
+  （`<config_dir>/.admin_password`，如 `/etc/nas-os/.admin_password`，权限 0600）
+- 首次登录后系统强制要求修改密码（`MustChangePassword`）
 
-⚠️ **首次登录后请立即修改默认密码！**
+⚠️ **改密后请删除该密码文件。**
 
 ## 📚 文档
 
 | 文档 | 说明 |
 |------|------|
-| [快速入门](docs/GETTING_STARTED.md) | 5 分钟上手指南 |
 | [架构概览](docs/ARCHITECTURE.md) | 系统架构与模块说明 |
 | [API 文档](docs/api/) | REST API 接口参考 |
 | [竞品分析](docs/competitive-analysis.md) | 与群晖/TrueNAS/飞牛对比 |
@@ -530,35 +532,32 @@ sudo nasd
 ### 共享管理
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /api/v1/shares | 获取共享列表 |
+| GET | /api/v1/shares | 列出所有共享（SMB+NFS 聚合） |
+| GET | /api/v1/shares/status | 服务状态 |
 | POST | /api/v1/shares/smb | 创建 SMB 共享 |
-| POST | /api/v1/shares/nfs | 创建 NFS 共享 |
-| DELETE | /api/v1/shares/:id | 删除共享 |
-| PUT | /api/v1/shares/:id | 更新共享配置 |
+| PUT/DELETE | /api/v1/shares/smb/:name | 更新 / 删除 SMB 共享 |
+| POST | /api/v1/shares/smb/:name/permission | 设置 SMB 权限 |
+| POST | /api/v1/shares/nfs | 创建 NFS 导出 |
+| PUT/DELETE | /api/v1/shares/nfs/:path | 更新 / 删除 NFS 导出 |
 
 ### 配置管理
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/v1/config | 获取配置 |
-| PUT | /api/v1/config | 更新配置 |
-| POST | /api/v1/config/reload | 重载配置 |
+系统级配置经配置文件 + `NAS_OS_*` 环境变量加载（启动前校验），**没有**全局
+`/api/v1/config` 读写端点；模块级配置走各自子域，如
+`GET/PUT /api/v1/shares/smb/config`、`GET/PUT /api/v1/shares/nfs/config`。
 
-### WriteOnce 不可变存储
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/v1/immutable | 列出不可变记录 |
-| POST | /api/v1/immutable | 锁定路径（创建不可变快照） |
-| GET | /api/v1/immutable/:id | 获取记录详情 |
-| DELETE | /api/v1/immutable/:id | 解锁路径 |
-| POST | /api/v1/immutable/:id/extend | 延长锁定时间 |
-| POST | /api/v1/immutable/:id/restore | 从快照恢复 |
-| GET | /api/v1/immutable/status | 获取路径锁定状态 |
-| GET | /api/v1/immutable/statistics | 获取统计信息 |
-| POST | /api/v1/immutable/check-ransomware | 检查防勒索保护 |
-| POST | /api/v1/immutable/quick-lock | 快速锁定 |
-| POST | /api/v1/immutable/batch-lock | 批量锁定 |
+### WriteOnce 不可变存储（对象不可变，需 Full 构建）
+> 路由实际为 `/api/v1/object-immutable/*`（`internal/objectimmutable`，仅
+> `-tags nasd_full` 构建注册），WORM 桶/对象/保留/法律保留/审计：
 
-完整 API 文档请查看 GitHub API文档
+| 方法 | 路径（前缀 /api/v1/object-immutable） | 说明 |
+|------|------|------|
+| GET/POST | /buckets | 列出 / 创建桶 |
+| GET/PUT | /buckets/:name/lock | 查询 / 设置桶对象锁 |
+| PUT/DELETE | /buckets/:name/objects/:key/retention | 设置 / 释放对象保留 |
+| PUT | /buckets/:name/objects/:key/legal-hold | 法律保留 |
+| GET | /audit-logs · /stats | 审计日志 / 统计 |
+
+完整 API 文档见 [docs/api/](docs/api/) 与 [docs/swagger/](docs/swagger/)。
 
 ## 🏆 差异化优势（2026Q2竞品对标）
 
@@ -585,7 +584,7 @@ sudo nasd
 
 | 功能 | 说明 | 预计发布 |
 |------|------|----------|
-| 💾 **RAIDZ扩展** | 存储池在线扩容，单盘扩展无需重建 | v2.490.61 (M106) |
+| 💾 **RAIDZ扩展** | 存储池在线扩容，单盘扩展无需重建 | ✅ v3.7.0 已实现 |
 | 🔍 **全局搜索** | WebShare全文检索，对标TrueSearch | ✅ 已实现 |
 | 🖥️ **多系统管理** | CMS集中管理，对标TrueNAS Connect | ✅ 已实现 |
 
@@ -625,7 +624,7 @@ sudo nasd
 | 影视库 | ✅ | ✅ | ✅ | ❌ |
 | 相册备份 | ✅ | ✅ | ✅ | ❌ |
 | 虚拟机管理 | ✅ | ❌ | ✅ | ✅ |
-| **按需唤醒硬盘** | ✅ v2.490.61 | ✅ | ❌ | ❌ |
+| **按需唤醒硬盘** | ✅ | ✅ | ❌ | ❌ |
 | **价格** | **免费** | 免费 | 付费硬件 | **免费+Connect订阅** |
 
 #### 🆚 三大核心功能详细对比
@@ -668,29 +667,32 @@ sudo nasd
 
 ```
 nas-os/
-├── cmd/           # 可执行程序入口
-├── internal/      # 内部模块
-│   ├── storage/   # 存储管理
-│   ├── web/       # Web 服务
-│   ├── smb/       # SMB 共享
-│   ├── nfs/       # NFS 共享
-│   └── users/     # 用户管理
-├── pkg/           # 公共库
-├── webui/         # 前端界面
-└── configs/       # 配置文件
+├── cmd/               # 可执行程序入口（nasd / nasctl）
+├── internal/          # 内部模块
+│   ├── application/   # 组合根：模块生命周期与依赖注入
+│   ├── identity 核心域：storage / network / sharing / system / users …
+│   ├── web/           # Web 服务（生产路由；禁 import lab）
+│   ├── extensions/    # 7 个可选 HTTP Extension
+│   └── lab/           # 实验温室（独立 go.mod，默认不编译）
+├── pkg/               # 公共库
+├── webui/             # 产品前端（web/ 为实验前端，非交付面）
+├── configs/           # 配置文件
+└── charts/ deploy/    # Helm chart 与部署样例
 ```
+
+> 完整结构见 [docs/STRUCTURE.md](docs/STRUCTURE.md)。
 
 ## 📊 项目资源统计
 
-| 指标 | 数值（v3.22.0） |
+| 指标 | 实测（2026-09-02） |
 |------|------|
-| Go 源码总行数 | **~1,670,000 行** |
-| Go 源文件 | **~3,805 个** |
-| 测试文件 | **~1,022 个** |
-| `internal/` 顶层目录 | **~330**（含 application/arch/web/lab/extensions 等） |
-| Lab 包（`internal/lab/*`） | **~467** |
+| Go 源码总行数 | **~1,667,000 行** |
+| Go 源文件 | **~3,863 个** |
+| 测试文件 | **~1,050 个** |
+| `internal/` 顶层目录 | **~176**（治理收敛后） |
+| Lab 包（`internal/lab/*`） | **~623** |
 | Extension 包（`internal/extensions/*`） | **7** |
-| go.mod 依赖（require） | **~172** |
+| go.mod 依赖（require，含 indirect） | **~158** |
 
 > 📋 详细统计报告：[docs/resource-stats.md](docs/resource-stats.md)
 
@@ -721,9 +723,9 @@ nas-os/
 
 ## 开发计划
 
-详细里程碑请查看 GitHub Milestones
+完整变更见 [CHANGELOG.md](CHANGELOG.md)。
 
-### 当前状态 (2026-07-16) - v3.24.5 Stable ✅
+### 当前状态 (2026-08-04) - v3.24.5 Stable ✅
 
 **8/8 里程碑全部完成**
 
@@ -753,7 +755,7 @@ nas-os/
 ### 版本路线图
 | 版本 | 类型 | 发布日期 | 核心功能 | 状态 |
 |------|------|----------|----------|------|
-| **v3.24.5** | **Stable** | **2026-07-16** | **版本对齐 + 集成测试 Lab 路径 + 默认面诚实 + 伪核心再降 Lab** | ✅ **已发布** |
+| **v3.24.5** | **Stable** | **2026-08-04** | **版本对齐 + 集成测试 Lab 路径 + 默认面诚实 + 伪核心再降 Lab** | ✅ **已发布** |
 | v3.24.1 | **Stable** | **2026-07-16** | **WebUI 门控、强制改密、api/middleware 清除** | ✅ **已发布** |
 | v3.24.0 | **Stable** | **2026-07-16** | **optional 默认关、去 /volumes、删根 api、Core 真健康** | ✅ **已发布** |
 | v3.23.1 | **Stable** | **2026-07-16** | **传递 Lab 切断、Extension 真加载、诚实日志、deps 治理** | ✅ **已发布** |
@@ -808,133 +810,75 @@ nas-os/
 | **v2.490.61** | **Stable** | **2026-03-24** | **网盘挂载/AI脱敏/智能分层** | ✅ **已发布** |
 | **v2.490.61** | **Stable** | **2026-03-21** | **版本迭代/自动化协同维护** | ✅ **已发布** |
 
-## v2.490.61 新增功能
+<details>
+<summary>v2.490.61 历史更新汇总（合并自 15 个重复章节）</summary>
 
-| 功能 | 说明 |
-|------|------|
 | ☁️ 网盘挂载 | 支持阿里云 OSS、腾讯云 COS、AWS S3、Google Drive、OneDrive 等多云存储挂载为本地目录，透明读写 |
 | 🔐 AI 脱敏服务 | 智能 PII 识别与脱敏（邮箱/手机/身份证/信用卡/IP），保护隐私数据安全 |
 | 🤖 多 AI 提供商 | 支持 OpenAI、Google、Azure、百度、本地 LLM 多种 AI 服务接入 |
 | 🗂️ 智能存储分层 | 热/温/冷数据自动分层，SSD 缓存加速，云存储归档 |
 
-## v2.490.61 新增功能
-
-| 功能 | 说明 |
-|------|------|
 | 🔧 Lint 修复 | 修复 50+ golangci-lint revive 错误（命名规范、注释规范） |
 | 🛡️ 安全加固 | 修复整数溢出漏洞 (G115)，文件权限修复 (0644→0600) |
 | 🏗️ 代码重构 | 解决类型命名 stuttering 问题 (SnapshotExecutor→Executor 等) |
 | 📊 自动化协同 | 兵/刑/礼/工/吏/户自动化开发流程 |
 | 📚 文档同步 | 版本号一致性维护，CHANGELOG 规范化 |
 
-## v2.490.61 新增功能
-
-| 功能 | 说明 |
-|------|------|
 | 🔄 依赖更新 | 安全依赖更新，输入验证增强 |
 | 📚 文档同步 | 版本号一致性维护 |
 
-## v2.490.61 新增功能
-
-| 功能 | 说明 |
-|------|------|
 | 📚 文档体系完善 | README 版本同步、用户指南索引优化 |
 | 📖 API 文档补充 | 新增存储 API、用户 API 文档 |
 | 📝 用户指南优化 | 添加版本号、优化文档结构 |
 
-## v2.490.61 新增功能
-
-| 功能 | 说明 |
-|------|------|
 | 🧪 测试修复 | 告警模块测试用例优化 |
 | 📚 文档完善 | 用户快速入门、API示例、FAQ更新 |
 
-## v2.490.61 新增功能
-
-| 功能 | 说明 |
-|------|------|
 | 📚 Swagger API 文档 | 完整 OpenAPI/Swagger 文档生成，覆盖所有主要模块 |
 | 🧪 测试修复 | 并发测试、存储成本测试、容量规划测试完善 |
 | 🚀 CI/CD 优化 | Node.js 24 支持、缓存策略优化、构建并行化 |
 
-## v2.490.61 新增功能
-
-| 功能 | 说明 |
-|------|------|
 | 🛡️ 安全审计系统 | 9 项安全检查，完整测试覆盖 |
 | 🔧 并发安全修复 | WebSocket、Response、LDAP 等模块修复 |
 | 🚀 CI/CD 优化 | 超时配置、测试并行化、健康检查修复 |
 | 📊 配额管理优化 | 成本计算验证、资源效率分析 |
 
-## v2.490.61 新增功能
-
-| 功能 | 说明 |
-|------|------|
 | 📚 项目治理完善 | 版本号统一、CHANGELOG 规范化 |
 | 📖 文档体系完善 | 文档结构优化、发布说明完善 |
 
-## v2.490.61 新增功能
-
-| 功能 | 说明 |
-|------|------|
 | 📚 文档同步 | 所有文档版本号同步至 v2.490.61 |
 | 📖 README 更新 | 更新下载链接、Docker 镜像版本 |
 | 📝 docs 更新 | 更新文档中心索引和英文文档 |
 
-## v2.490.61 新增功能
-
-| 功能 | 说明 |
-|------|------|
 | 🌐 国际化补全 | 日韩文翻译补全，四种语言键数一致 (286个) |
 | 📚 文档更新 | CHANGELOG 添加 v2.490.61，README 版本号同步 |
 | 🔧 CI/CD 优化 | 工作流优化，安全扫描增强 |
 | 🧪 测试改进 | 测试用例修复，覆盖率保持稳定 |
 
-## v2.490.61 新增功能
-
-| 功能 | 说明 |
-|------|------|
 | 🌐 i18n 国际化框架 | 完整翻译系统，支持中/英/日/韩四种语言 |
 | 🔌 API 中间件系统 | 统一错误处理、响应时间记录、WebSocket 增强 |
 | 💰 成本分析报告 | 存储成本分析、资源计费统计、趋势预测 |
 | 📊 监控配置增强 | Prometheus 集成优化、告警规则完善 |
 
-## v2.490.61 新增功能
-
-| 功能 | 说明 |
-|------|------|
 | 📝 请求日志中间件 | 完整请求日志记录、请求ID追踪、结构化输出 |
 | 📊 Excel 报告导出 | 完整Excel导出器、样式设置、多工作表支持 |
 | 🔧 开发环境增强 | Air热重载、Docker Compose开发环境 |
 | 📖 文档完善 | API快速入门指南、发布流程文档 |
 
-## v2.490.61 新增功能
-
-| 功能 | 说明 |
-|------|------|
 | 📊 稳定性提升 | 核心模块测试覆盖率提升 |
 | 📚 文档完善 | API 文档 Swagger 注释完善 |
 | ⚡ 性能优化 | 缓存和并发性能优化 |
 | 🔒 安全增强 | 权限检查和安全审计 |
 
-## v2.490.61 新增功能
-
-| 功能 | 说明 |
-|------|------|
 | 📚 文档完善 | 快速开始指南、用户文档更新 |
 | 📡 API 文档覆盖 | 完善所有 API 模块的 Swagger 注释 |
 | 📖 文档索引优化 | 更新文档中心索引，按角色导航 |
 
-## v2.490.61 新增功能
-
-| 功能 | 说明 |
-|------|------|
 | 🎬 媒体服务 | HLS/DASH 流媒体、字幕处理、视频转码、缩略图生成 |
 | 📈 配额自动扩展 | 自动扩展配额策略、审批流程、回滚支持 |
 | 📊 监控增强 | 健康评分系统、指标收集器、报告集成 |
 
-<details>
-<summary>v2.490.61 新增功能</summary>
+**v2.490.61 新增功能**
 
 | 功能 | 说明 |
 |------|------|
@@ -942,10 +886,7 @@ nas-os/
 | 🐳 Docker 增强 | 容器批量操作、镜像管理、网络配置、卷管理 |
 | ⚙️ 自动化完善 | 工作流执行优化、Action 解析增强、错误处理改进 |
 
-</details>
-
-<details>
-<summary>v2.490.61 新增功能</summary>
+**v2.490.61 新增功能**
 
 | 功能 | 说明 |
 |------|------|
@@ -955,10 +896,7 @@ nas-os/
 | 🗜️ 压缩存储 | 文件级/块级压缩，透明压缩，节省空间 |
 | 🏷️ 文件标签 | 标签分类，颜色图标，批量操作，标签云 |
 
-</details>
-
-<details>
-<summary>v2.490.61 新增功能</summary>
+**v2.490.61 新增功能**
 
 | 功能 | 说明 |
 |------|------|
@@ -967,10 +905,7 @@ nas-os/
 | 🖥️ 仪表板增强 | 全新 WebUI 仪表板，可自定义小部件布局 |
 | 📊 性能监控增强 | 性能基线学习、异常检测、优化建议 |
 
-</details>
-
-<details>
-<summary>v2.490.61 新增功能</summary>
+**v2.490.61 新增功能**
 
 | 功能 | 说明 |
 |------|------|
@@ -981,8 +916,7 @@ nas-os/
 | 📊 去重报告 | 详细的空间节省统计和可视化 |
 | 🌐 多云存储 | 统一管理多个云存储提供商 |
 
-<details>
-<summary>v2.490.61 新增功能</summary>
+**v2.490.61 新增功能**
 
 | 功能 | 说明 |
 |------|------|
@@ -1016,7 +950,7 @@ docker compose logs -f
 ### 裸机安装
 ```bash
 # 一键安装脚本
-curl -fsSL https://raw.githubusercontent.com/your-org/nas-os/main/scripts/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/crazyqin/nas-os/master/scripts/install.sh | sudo bash
 
 # 或手动安装
 sudo ./scripts/install.sh
@@ -1065,12 +999,12 @@ auth:
 
 ### 1. 创建存储卷
 ```bash
-sudo nasctl volume create mydata --path /dev/sda1
+sudo nasctl volume create mydata --devices /dev/sda1 --raid single
 ```
 
 ### 2. 创建 SMB 共享
 ```bash
-sudo nasctl share create smb public --path /data/public --guest
+sudo nasctl share create smb public --path /data/public --guest-ok
 ```
 
 ### 3. 创建 NFS 共享
@@ -1090,9 +1024,8 @@ sudo nasctl share create nfs backup --path /data/backup --network 192.168.1.0/24
 - 💬 **社区讨论**: [GitHub Discussions](https://github.com/crazyqin/nas-os/discussions)
 - 📦 **Docker 镜像**: [GHCR](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
-## License
-
-MIT
+<details>
+<summary>历史版本亮点存档（v2.800 / v2.900，无对应 git tag，能力多在 Lab）</summary>
 
 ## 🚀 v2.800 存储引擎升级
 
@@ -1143,6 +1076,12 @@ MIT
 - 工具注册: 标准MCP工具定义
 - 资源暴露: URI-based资源访问
 - 会话管理: 多会话支持
+
+</details>
+
+## License
+
+MIT
 
 ## 🏗️ 架构（现行，v3.22.0）
 

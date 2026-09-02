@@ -1,6 +1,6 @@
 # NAS-OS 项目结构图（贡献者入口）
 
-**版本**: v3.24.3 · **更新日期**: 2026-07-20  
+**版本**: v3.24.5 · **更新日期**: 2026-09-02  
 **地位**: 仓库内 **唯一** 全景结构说明。  
 **文档索引**: [docs/README.md](README.md) · 运维: [ops-packages.md](ops-packages.md) · 进程: [ARCHITECTURE.md](ARCHITECTURE.md) · 决策: [ADR-0001](adr/0001-platform-packages-host-sdk.md)。
 

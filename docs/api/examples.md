@@ -683,9 +683,9 @@ if __name__ == "__main__":
 
 ## 相关文档
 
-- [API 文档索引](README.md) - API 模块文档
-- [API 使用指南](../API_GUIDE.md) - 完整 API 参考
-- [Swagger UI](../swagger/) - 交互式 API 文档
+- [文档索引](../README.md) - 全部文档入口
+- [各域 API 文档](storage-api.md) 等 - 同目录分域文档
+- [Swagger 文档](../swagger/) - OpenAPI 生成物
 
 ---
 

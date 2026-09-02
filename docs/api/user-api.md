@@ -335,8 +335,9 @@ DELETE /api/v1/users/:id/sessions
 
 ## 相关文档
 
-- [权限管理指南](../user-guide/permission-guide.md) - RBAC 权限系统
-- [权限 API](permission-api.md) - 权限管理 API
+- [文档索引](../README.md) - 全部文档入口
+- [API 示例](examples.md) - 各域 API 调用示例
+- [Swagger 文档](../swagger/) - OpenAPI 生成物
 
 ---
 
