@@ -372,7 +372,7 @@ help:
 swagger:
 	@echo "📚 生成 Swagger/OpenAPI 文档..."
 	@which swag > /dev/null || go install github.com/swaggo/swag/cmd/swag@latest
-	swag init -g cmd/nasd/main.go -o docs/swagger --parseDependency --parseInternal
+	swag init -g cmd/nasd/main.go -o docs/swagger --parseDependency --parseInternal --exclude internal/lab,internal/api
 	@echo "✅ 文档生成完成："
 	@echo "   - docs/swagger/swagger.json"
 	@echo "   - docs/swagger/swagger.yaml"

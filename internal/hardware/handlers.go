@@ -15,6 +15,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// AlertConfig 是 nvme.AlertConfig 的本地文档别名（仓库有两个 package nvme，swag 短包名无法消歧）.
+type AlertConfig = nvme.AlertConfig
+
 // NVMeHandlers NVMe硬件监控处理器.
 type NVMeHandlers struct {
 	monitor  *nvme.NVMeMonitor
@@ -205,7 +208,7 @@ func (h *NVMeHandlers) refreshData(c *gin.Context) {
 // @Tags hardware
 // @Accept json
 // @Produce json
-// @Param config body nvme.AlertConfig true "告警配置"
+// @Param config body AlertConfig true "告警配置"
 // @Success 200 {object} api.Response "成功"
 // @Failure 400 {object} api.Response "配置参数错误"
 // @Router /hardware/nvme/config [put]

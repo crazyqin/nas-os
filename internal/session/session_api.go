@@ -384,7 +384,7 @@ func (a *API) KickSessionsByClient(c *gin.Context) {
 // @Tags sessions
 // @Accept json
 // @Produce json
-// @Success 200 {object} map[string]interface{}}
+// @Success 200 {object} map[string]interface{}
 // @Router /sessions/monitor/status [get].
 func (a *API) GetMonitorStatus(c *gin.Context) {
 	if a.monitor == nil {
@@ -405,7 +405,7 @@ func (a *API) GetMonitorStatus(c *gin.Context) {
 // @Tags sessions
 // @Accept json
 // @Produce json
-// @Success 200 {object} map[string]string}
+// @Success 200 {object} map[string]string
 // @Failure 500 {object} api.ErrorResponse
 // @Router /sessions/monitor/refresh [post].
 func (a *API) ForceRefresh(c *gin.Context) {
