@@ -32,12 +32,11 @@ fi
 README="$PROJECT_ROOT/README.md"
 if [ -f "$README" ]; then
     # 更新最新版本行
-    sed -i "s/\*\*最新版本\*\*: v[0-9.]* / **最新版本**: v$VERSION /" "$README"
+    sed -i "s/\*\*最新版本\*\*: v[0-9][0-9.]*/**最新版本**: v$VERSION/" "$README"
     # 更新 Docker badge
-    sed -i "s/docker\/v[0-9.]*/docker\/v$VERSION/" "$README"
+    sed -i "s/docker\/v[0-9][0-9.]*/docker\/v$VERSION/" "$README"
     # 更新下载链接
     sed -i "s/releases\/download\/v[0-9.]*/releases\/download\/v$VERSION/" "$README"
-    sed -i "s/nasd-linux-[a-z0-9]*$/nasd-linux-\1/g" "$README" 2>/dev/null || true
     echo "✅ 已同步 README.md"
 fi
 

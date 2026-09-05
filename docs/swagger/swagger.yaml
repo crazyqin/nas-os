@@ -9090,7 +9090,7 @@ info:
     url: https://opensource.org/licenses/MIT
   termsOfService: http://swagger.io/terms/
   title: NAS-OS API
-  version: 3.24.5
+  version: 3.24.6
 paths:
   /ai/v1/chat/completions:
     post:

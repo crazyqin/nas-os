@@ -1,5 +1,23 @@
 # Changelog
 
+## v3.24.6 - 2026-09-05
+
+### Removed
+- 删除非 lab 死代码 127 包 / 214,339 行（PR #19）：core 与 full 双构建面均不链接的零引用包，含 security 全家（ransomware/scanner/v2）、dashboard、snapshot、session 及 ai/storage/backup/search 等死子包
+
+### Docs
+- swagger 重生成对齐 577 个真实端点（PR #18）
+- README 与 docs 准确性清扫（PR #17）
+
+### CI
+- benchmark 超时修复：动态发现 BENCH_PKGS + 22m timeout（PR #18）
+- CI compose 测试 override 移除 /dev/disk 设备；lab-importing 测试移入 internal/lab 模块（PR #16）
+
+### Maintenance
+- Version bump v3.24.5 → v3.24.6
+- Resource stats refresh: 2,437 Go 源文件 / 927 测试文件 / ~1.49M LOC / 158 deps / internal 顶层目录 100
+- version.sh 修复：README badge 正则不再误伤正文（docker/vm/photos）、版本行替换幂等化、清理失效 sed
+
 ## v3.24.5 - 2026-08-04
 
 ### Fix

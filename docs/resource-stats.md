@@ -1,7 +1,7 @@
 # NAS-OS 资源统计
 
-**更新日期**: 2026-09-02  
-**版本**: v3.24.5
+**更新日期**: 2026-09-05  
+**版本**: v3.24.6
 
 > **默认运行时**: `nasd` 仅 Core 五模块；`packages.recommended_system=false`、`packages.enabled=[]`。  
 > 套件/SSOT/应用中心见 [ops-packages.md](ops-packages.md)；结构见 [STRUCTURE.md](STRUCTURE.md)；文档索引 [README.md](README.md)。
@@ -10,12 +10,12 @@
 
 | 指标 | 数值 |
 |------|------|
-| `internal/` 顶层目录 | ~176（收敛中；以 allowlist 为准） |
-| Lab 包（`internal/lab/*`） | ~623（实验/重复/零生产引用） |
+| `internal/` 顶层目录 | ~100（收敛中；以 allowlist 为准） |
+| Lab 包（`internal/lab/*`） | ~626（实验/重复/零生产引用） |
 | Extension 包（`internal/extensions/*`） | 7 |
-| Go 源文件数 | ~3,863 |
-| 测试文件数 | ~1,050 |
-| Go 代码总行数（约） | ~1,667,000 |
+| Go 源文件数 | ~2,437 |
+| 测试文件数 | ~927 |
+| Go 代码总行数（约） | ~1,493,000 |
 | go.mod require 依赖数 | ~158 |
 
 > 统计为仓库快照近似值；以 `find`/`wc` 与 `go list` 实测为准。模块数按目录计，不等于 Core 生命周期注册数。
