@@ -705,7 +705,7 @@ type Status struct {
 // @Tags quota
 // @Produce json
 // @Param id path string true "配额 ID"
-// @Success 200 {object} Response{data=QuotaStatus}
+// @Success 200 {object} Response{data=Status}
 // @Failure 404 {object} Response
 // @Router /quota/v2/status/{id} [get]
 // @Security BearerAuth.

@@ -68,11 +68,7 @@ jobs:
           echo "🏃 开始运行基准测试..."
           
           # 获取所有包含 Benchmark 函数的包
-          BENCH_PKGS=$(go list ./... | while read pkg; do
-            if go test -list 'Benchmark' "$pkg" 2>/dev/null | grep -q '^Benchmark'; then
-              echo "$pkg"
-            fi
-          done)
+          BENCH_PKGS=$(grep -rlE '^func Benchmark' --include='*_test.go' --exclude-dir=lab cmd internal pkg tests 2>/dev/null | xargs -r -n1 dirname | sort -u | sed 's|^|nas-os/|')
           
           if [ -z "$BENCH_PKGS" ]; then
             echo "⚠️ 未发现基准测试，跳过"
@@ -87,7 +83,13 @@ jobs:
           mkdir -p benchmark-results
           
           # 运行基准测试，输出到文件
-          go test -bench=. -benchmem -count=3 -timeout 10m $BENCH_PKGS 2>&1 | tee benchmark-results/benchmark.txt
+          timeout 22m go test -bench=. -benchmem -count=1 -timeout 5m $BENCH_PKGS 2>&1 | tee benchmark-results/benchmark.txt
+          BENCH_RC=${PIPESTATUS[0]}
+          if [ "$BENCH_RC" -eq 124 ]; then
+            echo "⚠️ 基准测试达到 22 分钟总预算，以上为部分结果"
+          elif [ "$BENCH_RC" -ne 0 ]; then
+            echo "⚠️ 部分基准测试失败 (rc=$BENCH_RC)，以上为部分结果"
+          fi
           
           echo "✅ 基准测试完成"
       

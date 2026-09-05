@@ -436,7 +436,7 @@ chmod +x nasd-linux-arm
 sudo mv nasd-linux-arm /usr/local/bin/nasd
 
 # 验证安装
-nasctl version
+nasctl --version
 ```
 
 ### 方式二：Docker 部署

@@ -60,7 +60,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 // @Accept json
 // @Produce json
 // @Param group query string false "分组名称"
-// @Success 200 {object} Response "成功"
+// @Success 200 {object} apiresponse.Response "成功"
 // @Router /tags [get].
 func (h *Handlers) listTags(c *gin.Context) {
 	group := c.Query("group")
@@ -89,8 +89,8 @@ func (h *Handlers) listTags(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "标签ID"
-// @Success 200 {object} Response "成功"
-// @Failure 404 {object} Response "标签不存在"
+// @Success 200 {object} apiresponse.Response "成功"
+// @Failure 404 {object} apiresponse.Response "标签不存在"
 // @Router /tags/{id} [get].
 func (h *Handlers) getTag(c *gin.Context) {
 	id := c.Param("id")
@@ -115,9 +115,9 @@ func (h *Handlers) getTag(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body TagInput true "标签参数"
-// @Success 201 {object} Response "创建成功"
-// @Failure 400 {object} Response "请求参数错误"
-// @Failure 409 {object} Response "标签名称已存在"
+// @Success 201 {object} apiresponse.Response "创建成功"
+// @Failure 400 {object} apiresponse.Response "请求参数错误"
+// @Failure 409 {object} apiresponse.Response "标签名称已存在"
 // @Router /tags [post].
 func (h *Handlers) createTag(c *gin.Context) {
 	var req TagInput
@@ -154,10 +154,10 @@ func (h *Handlers) createTag(c *gin.Context) {
 // @Produce json
 // @Param id path string true "标签ID"
 // @Param request body TagInput true "标签参数"
-// @Success 200 {object} Response "更新成功"
-// @Failure 400 {object} Response "请求参数错误"
-// @Failure 404 {object} Response "标签不存在"
-// @Failure 409 {object} Response "标签名称已存在"
+// @Success 200 {object} apiresponse.Response "更新成功"
+// @Failure 400 {object} apiresponse.Response "请求参数错误"
+// @Failure 404 {object} apiresponse.Response "标签不存在"
+// @Failure 409 {object} apiresponse.Response "标签名称已存在"
 // @Router /tags/{id} [put].
 func (h *Handlers) updateTag(c *gin.Context) {
 	id := c.Param("id")
@@ -194,8 +194,8 @@ func (h *Handlers) updateTag(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "标签ID"
-// @Success 200 {object} Response "删除成功"
-// @Failure 404 {object} Response "标签不存在"
+// @Success 200 {object} apiresponse.Response "删除成功"
+// @Failure 404 {object} apiresponse.Response "标签不存在"
 // @Router /tags/{id} [delete].
 func (h *Handlers) deleteTag(c *gin.Context) {
 	id := c.Param("id")
@@ -219,7 +219,7 @@ func (h *Handlers) deleteTag(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param q query string true "搜索关键词"
-// @Success 200 {object} Response "成功"
+// @Success 200 {object} apiresponse.Response "成功"
 // @Router /tags/search [get].
 func (h *Handlers) searchTags(c *gin.Context) {
 	keyword := c.Query("q")
@@ -243,7 +243,7 @@ func (h *Handlers) searchTags(c *gin.Context) {
 // @Tags tags
 // @Accept json
 // @Produce json
-// @Success 200 {object} Response "成功"
+// @Success 200 {object} apiresponse.Response "成功"
 // @Router /tags/groups [get].
 func (h *Handlers) listGroups(c *gin.Context) {
 	groups, err := h.manager.ListGroups()
@@ -261,7 +261,7 @@ func (h *Handlers) listGroups(c *gin.Context) {
 // @Tags tags
 // @Accept json
 // @Produce json
-// @Success 200 {object} Response "成功"
+// @Success 200 {object} apiresponse.Response "成功"
 // @Router /tags/stats [get].
 func (h *Handlers) getStats(c *gin.Context) {
 	stats, err := h.manager.GetStats()
@@ -280,7 +280,7 @@ func (h *Handlers) getStats(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "标签ID"
-// @Success 200 {object} Response "成功"
+// @Success 200 {object} apiresponse.Response "成功"
 // @Router /tags/{id}/files [get].
 func (h *Handlers) getTagFiles(c *gin.Context) {
 	id := c.Param("id")
@@ -312,7 +312,7 @@ func (h *Handlers) getTagFiles(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "标签ID"
-// @Success 200 {object} Response "成功"
+// @Success 200 {object} apiresponse.Response "成功"
 // @Router /tags/{id}/usage [get].
 func (h *Handlers) getTagUsage(c *gin.Context) {
 	id := c.Param("id")
@@ -346,7 +346,7 @@ func (h *Handlers) getTagUsage(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "文件路径（URL编码）"
-// @Success 200 {object} Response "成功"
+// @Success 200 {object} apiresponse.Response "成功"
 // @Router /files/{id}/tags [get].
 func (h *Handlers) getFileTags(c *gin.Context) {
 	filePath := c.Param("id")
@@ -368,8 +368,8 @@ func (h *Handlers) getFileTags(c *gin.Context) {
 // @Produce json
 // @Param id path string true "文件路径（URL编码）"
 // @Param request body addFileTagsRequest true "标签ID列表"
-// @Success 200 {object} Response "成功"
-// @Failure 400 {object} Response "请求参数错误"
+// @Success 200 {object} apiresponse.Response "成功"
+// @Failure 400 {object} apiresponse.Response "请求参数错误"
 // @Router /files/{id}/tags [post].
 func (h *Handlers) addFileTags(c *gin.Context) {
 	filePath := c.Param("id")
@@ -409,7 +409,7 @@ func (h *Handlers) addFileTags(c *gin.Context) {
 // @Produce json
 // @Param id path string true "文件路径（URL编码）"
 // @Param tagId path string true "标签ID"
-// @Success 200 {object} Response "成功"
+// @Success 200 {object} apiresponse.Response "成功"
 // @Router /files/{id}/tags/{tagId} [delete].
 func (h *Handlers) removeFileTag(c *gin.Context) {
 	filePath := c.Param("id")
@@ -431,7 +431,7 @@ func (h *Handlers) removeFileTag(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param tagId path string true "标签ID"
-// @Success 200 {object} Response "成功"
+// @Success 200 {object} apiresponse.Response "成功"
 // @Router /files/by-tag/{tagId} [get].
 func (h *Handlers) getFilesByTagID(c *gin.Context) {
 	tagID := c.Param("tagId")
@@ -463,8 +463,8 @@ func (h *Handlers) getFilesByTagID(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body BatchTagRequest true "批量标签请求"
-// @Success 200 {object} Response "成功"
-// @Failure 400 {object} Response "请求参数错误"
+// @Success 200 {object} apiresponse.Response "成功"
+// @Failure 400 {object} apiresponse.Response "请求参数错误"
 // @Router /files/batch-tags [post].
 func (h *Handlers) batchTagFiles(c *gin.Context) {
 	var req BatchTagRequest
@@ -551,5 +551,5 @@ type BatchTagRequest struct {
 // @Param tags query string true "标签ID列表，逗号分隔"
 // @Param match query string false "匹配模式：all（必须包含所有标签）或 any（包含任意标签），默认 any"
 // @Param q query string false "文件路径关键词"
-// @Success 200 {object} Response "成功"
+// @Success 200 {object} apiresponse.Response "成功"
 // @Router /files/by-tags [get]

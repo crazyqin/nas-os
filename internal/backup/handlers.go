@@ -348,7 +348,7 @@ func (h *Handlers) cancelTask(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param configId path string true "配置 ID"
-// @Success 200 {object} api.Response{data=[]HistoryEntry}
+// @Success 200 {object} api.Response{data=[]History}
 // @Failure 500 {object} api.Response
 // @Router /backup/history/{configId} [get]
 // @Security BearerAuth.
@@ -525,7 +525,7 @@ func (h *Handlers) runSyncTask(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param path query string true "文件路径"
-// @Success 200 {object} api.Response{data=[]Version}
+// @Success 200 {object} api.Response{data=[]VersionInfo}
 // @Failure 400 {object} api.Response
 // @Failure 500 {object} api.Response
 // @Router /backup/sync/versions [get]
@@ -657,7 +657,7 @@ func (h *Handlers) checkConfig(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "配置 ID"
-// @Success 200 {object} api.Response{data=DetailedCheckResult}
+// @Success 200 {object} api.Response{data=ConfigCheckResult}
 // @Failure 500 {object} api.Response
 // @Router /backup/configs/{id}/check-detailed [get]
 // @Security BearerAuth.

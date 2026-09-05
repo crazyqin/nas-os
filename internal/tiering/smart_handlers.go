@@ -52,7 +52,7 @@ func (h *SmartTieringHandler) RegisterRoutes(r *gin.RouterGroup) {
 //	@Tags         智能分层
 //	@Accept       json
 //	@Produce      json
-//	@Success      200  {object}  Response
+//	@Success      200  {object}  map[string]interface{}
 //	@Router       /api/v1/tiering/smart-rules [get]
 func (h *SmartTieringHandler) ListSmartRules(c *gin.Context) {
 	rules := h.engine.ListSmartRules()
@@ -71,8 +71,8 @@ func (h *SmartTieringHandler) ListSmartRules(c *gin.Context) {
 //	@Accept       json
 //	@Produce      json
 //	@Param        rule  body      SmartRule  true  "智能分层规则"
-//	@Success      200   {object}  Response
-//	@Failure      400   {object}  ErrorResponse
+//	@Success      200   {object}  map[string]interface{}
+//	@Failure      400   {object}  map[string]interface{}
 //	@Router       /api/v1/tiering/smart-rules [post]
 func (h *SmartTieringHandler) CreateSmartRule(c *gin.Context) {
 	var rule SmartRule
@@ -108,8 +108,8 @@ func (h *SmartTieringHandler) CreateSmartRule(c *gin.Context) {
 //	@Accept       json
 //	@Produce      json
 //	@Param        id   path      string  true  "规则ID"
-//	@Success      200  {object}  Response
-//	@Failure      404  {object}  ErrorResponse
+//	@Success      200  {object}  map[string]interface{}
+//	@Failure      404  {object}  map[string]interface{}
 //	@Router       /api/v1/tiering/smart-rules/{id} [get]
 func (h *SmartTieringHandler) GetSmartRule(c *gin.Context) {
 	id := c.Param("id")
@@ -138,9 +138,9 @@ func (h *SmartTieringHandler) GetSmartRule(c *gin.Context) {
 //	@Produce      json
 //	@Param        id    path      string     true  "规则ID"
 //	@Param        rule  body      SmartRule  true  "更新内容"
-//	@Success      200   {object}  Response
-//	@Failure      400   {object}  ErrorResponse
-//	@Failure      404   {object}  ErrorResponse
+//	@Success      200   {object}  map[string]interface{}
+//	@Failure      400   {object}  map[string]interface{}
+//	@Failure      404   {object}  map[string]interface{}
 //	@Router       /api/v1/tiering/smart-rules/{id} [put]
 func (h *SmartTieringHandler) UpdateSmartRule(c *gin.Context) {
 	id := c.Param("id")
@@ -175,8 +175,8 @@ func (h *SmartTieringHandler) UpdateSmartRule(c *gin.Context) {
 //	@Accept       json
 //	@Produce      json
 //	@Param        id   path      string  true  "规则ID"
-//	@Success      200  {object}  Response
-//	@Failure      404  {object}  ErrorResponse
+//	@Success      200  {object}  map[string]interface{}
+//	@Failure      404  {object}  map[string]interface{}
 //	@Router       /api/v1/tiering/smart-rules/{id} [delete]
 func (h *SmartTieringHandler) DeleteSmartRule(c *gin.Context) {
 	id := c.Param("id")
@@ -201,8 +201,8 @@ func (h *SmartTieringHandler) DeleteSmartRule(c *gin.Context) {
 //	@Tags         智能分层
 //	@Accept       json
 //	@Produce      json
-//	@Success      200  {object}  Response
-//	@Failure      500  {object}  ErrorResponse
+//	@Success      200  {object}  map[string]interface{}
+//	@Failure      500  {object}  map[string]interface{}
 //	@Router       /api/v1/tiering/smart-rules/execute [post]
 func (h *SmartTieringHandler) ExecuteSmartRules(c *gin.Context) {
 	result, err := h.engine.ExecuteSmartRules()
@@ -228,7 +228,7 @@ func (h *SmartTieringHandler) ExecuteSmartRules(c *gin.Context) {
 //	@Tags         智能分层
 //	@Accept       json
 //	@Produce      json
-//	@Success      200  {object}  Response
+//	@Success      200  {object}  map[string]interface{}
 //	@Router       /api/v1/tiering/templates [get]
 func (h *SmartTieringHandler) ListTemplates(c *gin.Context) {
 	templates := GetPresetTemplates()
@@ -246,8 +246,8 @@ func (h *SmartTieringHandler) ListTemplates(c *gin.Context) {
 //	@Tags         智能分层
 //	@Accept       json
 //	@Produce      json
-//	@Success      200  {object}  Response
-//	@Failure      500  {object}  ErrorResponse
+//	@Success      200  {object}  map[string]interface{}
+//	@Failure      500  {object}  map[string]interface{}
 //	@Router       /api/v1/tiering/migration-plan [post]
 func (h *SmartTieringHandler) GenerateMigrationPlan(c *gin.Context) {
 	plan, err := h.engine.GenerateMigrationPlan()
@@ -273,7 +273,7 @@ func (h *SmartTieringHandler) GenerateMigrationPlan(c *gin.Context) {
 //	@Tags         智能分层
 //	@Accept       json
 //	@Produce      json
-//	@Success      200  {object}  Response
+//	@Success      200  {object}  map[string]interface{}
 //	@Router       /api/v1/tiering/report [get]
 func (h *SmartTieringHandler) GetTieringReport(c *gin.Context) {
 	report := h.analyzer.GenerateTieringEffectReport()
@@ -291,7 +291,7 @@ func (h *SmartTieringHandler) GetTieringReport(c *gin.Context) {
 //	@Tags         智能分层
 //	@Accept       json
 //	@Produce      json
-//	@Success      200  {object}  Response
+//	@Success      200  {object}  map[string]interface{}
 //	@Router       /api/v1/tiering/report/roi [get]
 func (h *SmartTieringHandler) GetROIReport(c *gin.Context) {
 	report := h.analyzer.GenerateROIReport()
