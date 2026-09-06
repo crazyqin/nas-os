@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API 文档 - NAS-OS</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
     <link rel="stylesheet" href="../css/design-system.css">
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui.css">
     <style>
@@ -378,9 +377,8 @@
         <!-- Sidebar -->
         <nav class="api-docs-sidebar">
             <div class="api-logo">
-                <img src="../brand/logo/logo-64.png" alt="NAS-OS">
                 <span class="api-logo-text">API 文档</span>
-                <span class="api-version-badge">v2.59.0</span>
+                <span class="api-version-badge">v3.24.6</span>
             </div>
 
             <div class="api-nav-section">
@@ -435,13 +433,7 @@
 
             <div class="api-nav-section">
                 <div class="api-nav-title">资源</div>
-                <a href="../docs/API_GUIDE.md" class="api-nav-item" target="_blank">
-                    <span>📄 API 指南</span>
-                </a>
-                <a href="../docs/API_QUICK_START.md" class="api-nav-item" target="_blank">
-                    <span>🚀 快速入门</span>
-                </a>
-                <a href="../docs/swagger.json" class="api-nav-item" target="_blank">
+                <a href="/swagger/doc.json" class="api-nav-item" target="_blank">
                     <span>📦 OpenAPI JSON</span>
                 </a>
             </div>
@@ -519,7 +511,7 @@
         // 初始化 Swagger UI
         window.onload = function() {
             const ui = SwaggerUIBundle({
-                url: "../docs/swagger.json",
+                url: "/swagger/doc.json",
                 dom_id: '#swagger-ui',
                 presets: [
                     SwaggerUIBundle.presets.apis,
@@ -583,8 +575,8 @@
         // 导出 OpenAPI
         function exportOpenAPI() {
             const link = document.createElement('a');
-            link.href = '../docs/swagger.json';
-            link.download = 'nas-os-api-v2.52.0.json';
+            link.href = '/swagger/doc.json';
+            link.download = 'nas-os-api.json';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
