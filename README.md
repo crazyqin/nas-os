@@ -13,6 +13,8 @@
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 > **Release**: [v3.24.6](https://github.com/crazyqin/nas-os/releases/tag/v3.24.6)（最新已发布 tag）
 
+> **怎么读**：想跑起来 → 直接跳「快速开始」；想知道默认有什么 → 「默认交付面」；想看全部能力 → 「扩展能力」（130+ 项折叠清单）；升级历史 → 「版本状态」。
+
 ## 默认交付面（请先读）
 
 默认 `nasd` **只启用 Core**：身份 / 存储 / 网络 / 共享（SMB·NFS）/ 系统。  
@@ -46,6 +48,25 @@ packages:
 下文「差异化能力 / 企业级存储」描述的是仓库内已实现或对标中的能力面，**不是**默认开机全开。  
 仓库怎么分层、入口在哪、Lab/套件怎么分：见 **[项目结构图](docs/STRUCTURE.md)**；进程与 API 边界见 [架构说明](docs/ARCHITECTURE.md)。
 
+## 核心功能（默认 `nasd`）
+
+> **启用口径**：`默认` = Core 热路径；`recommended` = `packages.recommended_system: true`；`extensions` = `packages.enabled`；`Lab` = 仅源码，默认不加载。源码「完成」≠ 默认开机开启。
+
+| 模块 | 说明 | 启用 |
+|------|------|------|
+| 💾 btrfs 存储 | 卷/子卷/快照/RAID | **默认** |
+| 🌐 Web 界面 | Core WebUI（`/webui`） | **默认** |
+| 📁 文件共享 | SMB/NFS | **默认** |
+| 👥 用户权限 | 账户/RBAC 基础 | **默认** |
+| 🔒 安全认证 | 会话/JWT/强制改密 | **默认** |
+| 📊 系统健康 | Core `Health()` 聚合 | **默认** |
+| 🐳 Docker 镜像发布 | 多架构容器产物 | 部署产物（非运行时模块） |
+| 📊 监控告警 | 指标/多通道通知 | optional |
+| ⚡ 性能优化 | 缓存/工作池等 | optional |
+| 🛡️ 集群支持 | 多节点/负载均衡 | optional |
+
+---
+
 ## 🌟 差异化能力（需显式启用，非默认）
 
 | # | 功能 | 说明 | 启用提示 |
@@ -70,185 +91,19 @@ packages:
 
 ---
 
-## 特性
+## 扩展能力（需显式启用）
 
-### 🚀 v3.24.0 默认表面收敛（破坏性） ✅
+| 类别 | 内容 | 启用方式 |
+|------|------|----------|
+| 产品套件（8） | docker / vm / photos / ai / backup / cloudsync / downloader / cluster | `packages.recommended_system: true` 或 `packages.enabled`（需 Full 构建） |
+| HTTP 扩展（7） | activeprotect / agentworkflow / aiguardrails / compliancescan / deployorch / netdiag / voicehub | 应用中心或 `packages.enabled` |
+| 容器应用商店 | 30+ 常用应用一键部署模板 | `apps.html`（需 docker 套件） |
+| Lab 实验包（~626） | 实验 / 重复 / 零生产引用实现 | 仅源码，不进默认路径，不可经 packages 加载 |
 
-| 项 | 说明 |
-|----|------|
-| **packages 默认关** | 默认不构造 Docker/VM/Photos/AI 等非 Core 产品管理器（`packages.recommended_system=false`） |
-| **单一存储契约** | 仅 `/api/v1/storage/*`；移除 legacy `/api/v1/volumes` |
-| **删除根 api/ 源码** | 非 nasd 入口，避免误用 |
-| **主 UI** | `webui/`（`/webui` + 核心页面）；`web/src` 为实验 |
-| **主部署** | 根 `docker-compose.yml` + `Dockerfile` |
-| **Core 健康** | storage/users/smb/nfs/network 真实 `Health()` |
-| **安全默认** | 监听 `127.0.0.1`；生产强制 `NAS_CSRF_KEY`；bootstrap admin `MustChangePassword` |
-| **零引用削减** | 再降 ~120 顶层包入 Lab |
+> 停用语义（路由真卸载 + 内存回收）、启用状态 SSOT 与运维操作见 [docs/ops-packages.md](docs/ops-packages.md)；下方折叠清单为源码口径全量列表。
 
-### 🚀 v3.23.0 运行时诚实与治理 (P0–P3) ✅
-
-| 项 | 说明 |
-|----|------|
-| **Lab 默认剥离** | 生产 `web` 不再 import/构造 `internal/lab/*`；实验能力仅在 Lab 目录保留 |
-| **Extension 按需加载** | `packages.enabled`；默认空=不加载；7 个 HTTP 扩展可显式启用（`modules.extensions` 弃用兼容） |
-| **Core 健康探针** | `GET /api/v1/system/health` 聚合 Core 模块 `Health()`，失败返回 unhealthy |
-| **治理测试** | 禁止 web→lab import；Core 仅五名；顶层 allowlist 冻结；未知 catalog→Lab |
-| **入口诚实** | 根 `api/` 标明非 nasd 入口；主 UI=`webui/`；主部署见 docker-compose |
-
-### 🚀 v3.22.0 架构收敛（Core / Extension / Lab） ✅
-
-生产进程生命周期主图仍只注册五个 Core 模块；本轮继续把 **163** 个零生产引用的伪核心包迁入 `internal/lab/`，并修正 catalog 与磁盘路径不一致的 Lab 标签。
-
-| 层级 | 规则 | 现状 |
-|------|------|------|
-| **Core** | 仅 `identity` / `storage` / `network` / `sharing` / `system` | 生命周期主图，不可扩张 |
-| **Extension** | 可选产品能力，不得伪装成 Core | 7 包位于 `internal/extensions/`（如 activeprotect、voicehub） |
-| **Lab** | 实验/重复/零生产引用实现 | ~467 包位于 `internal/lab/`（含 media、filemanager、selfheal、ztna 等） |
-
-> 历史版本亮点见下方时间线；**实验性能力以 Lab 路径为准**，不再视为顶层生产核心。完整变更见 [CHANGELOG](CHANGELOG.md)。
-
-### 🚀 v3.17.0 数据分层与恢复置信 ✅
-
-本轮对标 TrueNAS 26 OpenZFS 2.4 dataset tiering、Synology TCO Calculator、TrueNAS FEC 网络纠错、TrueNAS Clean Restore Confidence 勒索恢复、GDPR/PIPL/HIPAA 多标准合规审计和 Apple Memories/Synology Photos 故事生成，新增 6 个模块覆盖数据集冷热分层、5年TCO可视化、AI照片故事、FEC网络纠错、合规工作流编排和恢复置信度评估。
-
-| 亮点 | 用户收益 | 状态 |
-|------|----------|------|
-| 💾 **ZFS 数据集分层调度** | 冷热数据自动分层、预测式分层、闪存容量预警、归档层启用 | ✅ v3.17.0 新增 |
-| 💰 **TCO 可视化仪表板** | 5年总拥有成本分析、电力/云/人工成本拆解、竞品对比 | ✅ v3.17.0 新增 |
-| 📸 **AI 照片故事生成** | 7种故事主题（旅行/家庭/季节/冒险/回溯/精选/日常）、自动聚类 | ✅ v3.17.0 新增 |
-| 🔧 **FEC 网络纠错配置** | RS/Hamming/BCH/LDPC 编码推荐、存储接口保护、长距离纠错 | ✅ v3.17.0 新增 |
-| 📋 **合规审计工作流** | GDPR/PIPL/HIPAA/SOC2/ISO27001/PCI-DSS 6阶段审计流程编排 | ✅ v3.17.0 新增 |
-| 🛡️ **勒索恢复置信度** | 恢复演练追踪、RTO/RPO达标、不可变/异地检查、Clean Restore评分 | ✅ v3.17.0 新增 |
-
-
-### 🚀 v3.16.0 智能调度与数据主权 ✅
-
-本轮对标 Synology SSD Cache Advisor/Power Schedule/CMS、TrueNAS L2ARC/Cluster/Cloud Sync Cost 和飞牛影视墙，新增 6 个模块覆盖 SSD 缓存调度、云成本审计、海报刮削、电源管理、集群编排和数据主权合规。
-
-| 亮点 | 用户收益 | 状态 |
-|------|----------|------|
-| 💾 **SSD 缓存智能调度** | 分析缓存命中率、磨损、温度和读写放大，给出扩容、预热和 NVMe 升级建议 | ✅ v3.16.0 新增 |
-| ☁️ **云存储成本审计** | 检测预算超支、休眠账户、高出口流量和缺失分层策略，建议 R2 迁移节省出口费 | ✅ v3.16.0 新增 |
-| 🎬 **多媒体海报刮削** | 批量检测缺失海报、文件名解析失败、字幕缺失，建议自动刮削和缓存清理 | ✅ v3.16.0 新增 |
-| ⚡ **电源管理调度** | 空闲切换、待机调度、磁盘转速策略、夜间计划和太阳能对齐，降低功耗 | ✅ v3.16.0 新增 |
-| 🔗 **多 NAS 集群编排** | HA 启用建议、故障转移验证、脑裂检测、复制延迟监控和集群健康评分 | ✅ v3.16.0 新增 |
-| 🌐 **数据主权审计** | PII 加密检测、跨境复制审查、访问日志和保留策略缺失审计，覆盖 GDPR/PIPL/HIPAA | ✅ v3.16.0 新增 |
-
-
-### 🚀 v3.14.0 备份健康顾问 ✅
-
-本轮参考群晖 Active Backup 的集中备份与自助恢复、TrueNAS 的快照/校验/不可变保护，以及飞牛家庭 NAS 的低门槛灾备体验，新增备份健康顾问：把终端保护、备份新鲜度、恢复演练和灾备准备转化为可执行建议。
-
-| 亮点 | 用户收益 | 状态 |
-|------|----------|------|
-| 🛡️ **终端保护率** | 自动识别未纳入备份的电脑/移动设备，提示下发代理、套用模板和展示未保护清单 | ✅ v3.14.0 新增 |
-| 🔁 **备份失败修复** | 对过期备份和失败任务给出重试、错误定位、容量/凭据/任务锁检查建议 | ✅ v3.14.0 新增 |
-| 🔒 **快照与不可变恢复点** | 关键共享缺少快照或出现勒索告警时，提示只读快照、时间线恢复和不可变保留 | ✅ v3.14.0 新增 |
-| 🧪 **恢复演练与灾备介质** | 最近 30 天无演练、缺少异地副本或恢复介质时，提示自动试恢复和 RPO/RTO 预估 | ✅ v3.14.0 新增 |
-
-
-### 🚀 v3.13.0 WebShare 搜索顾问 ✅
-
-本轮继续对标 TrueNAS 26 WebShare/TrueSearch、群晖 DSM 的移动端分享体验和飞牛家庭媒体易用性，新增 WebShare 搜索顾问：把文件规模、索引覆盖、外链安全和快照保护转化为可执行建议。
-
-| 亮点 | 用户收益 | 状态 |
-|------|----------|------|
-| 🌐 **WebShare 启用建议** | 文件库存在但未开放浏览器访问时，自动提示开启上传、下载、筛选和可撤销外链 | ✅ v3.13.0 新增 |
-| 🔎 **搜索索引覆盖率** | 计算本地索引覆盖率，提示 SSD 索引缓存、文档内容索引和加密数据集说明 | ✅ v3.13.0 新增 |
-| 🔐 **外链安全加固** | 对外部分享建议 passkey/一次性访问码、过期时间、下载次数和审计记录 | ✅ v3.13.0 新增 |
-| 📸 **分享前快照保护** | 共享协作场景自动提示只读快照与时间线入口，降低误删覆盖风险 | ✅ v3.13.0 新增 |
-
-
-### 🚀 v3.12.0 文件洞察与媒体整理建议 ✅
-
-本轮参考 DSM 7.4 的本地 AI/语义搜索、飞牛的相册与影视易用性、TrueNAS 26 的 WebShare/TrueSearch 与数据治理体验，新增文件洞察引擎：把智能文件夹结果转换成可执行的清理、相册索引和媒体库整理建议。
-
-| 亮点 | 用户收益 | 状态 |
-|------|----------|------|
-| 🧠 **文件洞察 Advisor** | 自动识别大文件、照片库和视频库，给出清理、归档、索引、刮削与转码建议 | ✅ v3.12.0 新增 |
-| 🖼️ **照片整理触发器** | 当照片积累到阈值时提示 EXIF 时间线、人脸聚合和本地以文搜图索引 | ✅ v3.12.0 新增 |
-| 🎬 **媒体库体验建议** | 视频库达到规模后提示海报墙、字幕匹配和跨端续播准备 | ✅ v3.12.0 新增 |
-| 🧹 **容量治理动作化** | 大文件占用转化为 warning/info 级别建议，便于前端和通知系统直接展示 | ✅ v3.12.0 新增 |
-
-### 🚀 v3.11.0 智能文件夹与治理状态同步 ✅
-
-v3.11.0 把 v3.10.0 的“下一步推荐”继续落到文件整理、容量治理和安全发布上：用户能更快找到该整理的文件、看懂容量风险，也能获得版本一致、可审计的发布包。
-
-| 亮点 | 用户收益 | 状态 |
-|------|----------|------|
-| 🗂️ **智能文件夹** | 内置 recent、large-files、photos、videos、documents 等规则化视图，按类型、扩展名、大小和最近修改快速整理文件 | ✅ v3.11.0 新增 |
-| 📊 **成本/容量风险摘要** | 汇总低利用、高水位、过载资源和浪费估算，把容量风险转化为清理、分层或扩容建议 | ✅ v3.11.0 增强 |
-| 🔒 **发布安全护栏** | CI/Docker 发布中的 Trivy Action 固定到明确版本，并补充 workflow 安全基线测试，降低供应链漂移风险 | ✅ v3.11.0 增强 |
-| 🧾 **版本一致性** | 命令行、API 构建信息、README、CHANGELOG、资源统计和竞品分析统一到 v3.11.0，减少用户升级时的版本判断成本 | ✅ v3.11.0 同步 |
-
-### 🚀 v3.10.0 用户体验顾问与下一步推荐 ✅
-
-v3.10.0 把飞牛的家庭影音易用性、群晖的套件化引导、TrueNAS 的数据保护思路融合成一个“下一步推荐”体验：系统不只展示状态，还会根据本地使用信号告诉用户接下来最值得做什么。
-
-| 亮点 | 用户收益 | 状态 |
-|------|----------|------|
-| 🧭 **体验顾问引擎** | 聚合照片、媒体、备份、远程访问、应用和存储信号，自动生成可执行建议，降低 NAS 配置门槛 | ✅ v3.10.0 新增 |
-| 🖼️ **AI 相册整理建议** | 大型照片库会提示人物聚类、动态照片解析、重复照片清理，让家庭相册更接近开箱即用 | ✅ v3.10.0 新增 |
-| 🎬 **影视库体验建议** | 针对影片数量、字幕与转码场景，推荐海报墙刮削、字幕匹配、跨端播放进度同步等优化 | ✅ v3.10.0 新增 |
-| 🔐 **备份与快照建议** | 根据备份规模、存储异常和快照状态，提示恢复校验、不可变快照、scrub 与生命周期分层 | ✅ v3.10.0 新增 |
-| 🌐 **远程访问健康建议** | 多设备访问或异常连接时，建议 NAT 穿透、DDNS、证书续期与公网入口收敛，兼顾易用与安全 | ✅ v3.10.0 新增 |
-| 📦 **应用与存储下一步** | 低活跃应用提示清理或替代方案，容量增长时提示分层、归档和扩容规划 | ✅ v3.10.0 新增 |
-
-### 🚀 v3.9.0 安全与运维体验增强 ✅
-
-| 模块 | 说明 | 状态 |
-|------|------|------|
-| 📋 重启原因运维闭环 | Log Center 增强重启原因处理、历史记录与 handler 测试，覆盖用户触发、异常、计划维护等复盘场景 | ✅ v3.9.0 增强 |
-| 🌐 WebShare 交互增强 | 优化文件分享前端逻辑、分享状态展示与用户操作一致性 | ✅ v3.9.0 增强 |
-| 👥 登录与用户管理体验 | 调整登录页和用户管理页交互细节，改善权限管理与日常运维体验 | ✅ v3.9.0 增强 |
-| 📚 竞品分析与资源统计 | 新增 2026-06-29 竞品分析，刷新 competitive-analysis 与 resource-stats 文档 | ✅ v3.9.0 更新 |
-| 🌐 网络 FEC 管理 | 25G/100G 链路 FEC 模式推荐、配置意图与审计记录，对标 TrueNAS 26 高速网络可用性 | ✅ v3.8.0 新增 |
-| 🔎 本地 AI 语义搜索治理 | local-only 查询、脱敏返回、请求人/用途审计，对标 DSM 7.4 私有 AI 与 TrueSearch 体验 | ✅ v3.8.0 新增 |
-| 🐧 LXC 迁移计划 | 冷/热/在线迁移步骤生成，含预检、快照、同步、回滚，对标 TrueNAS 26 LXC 运维 | ✅ v3.8.0 新增 |
-| 🧊 不可变快照策略 | WORM/合规快照/审计链组合，覆盖 QNAP h6.0 immutable snapshots 类场景 | ✅ 已支持 |
-| 🗂️ 存储效率与分层 | 压缩/去重/生命周期/冷热数据策略，回应 DSM 存储效率与 QNAP FileTiers 方向 | ✅ 已支持 |
-| 🔑 现代身份安全 | RBAC/MFA/设备信任/审计，预留 passkeys 等无密码登录演进路线 | ✅ 已支持 |
-| 🎬 媒体与远程访问 | 智能海报墙、P2P 远程访问、WebShare 与多端体验，对标 fnOS 家庭场景 | ✅ 已支持 |
-
-### 🚀 v3.7.0 存储与应用生态增强 ✅
-
-| 模块 | 说明 | 状态 |
-|------|------|------|
-| 💾 RAIDZ vdev 扩展 | 扩展前健康检查、Dry Run、进度跟踪、取消/失败状态管理 | ✅ v3.7.0 新增 |
-| 📈 存储 ROI 分析 | 采购成本、容量利用率、寿命追踪、TCO/ROI 评分与优化建议 | ✅ v3.7.0 新增 |
-| 🎬 智能海报墙 | 媒体刮削、布局展示、播放进度同步、观影清单与推荐 | ✅ v3.7.0 新增 |
-| ⭐ 应用中心评价 | 评分评论、开发者回复、举报审核、统计聚合 | ✅ v3.7.0 新增 |
-| 🔐 NFS Kerberos 审计 | 认证事件、加密类型、风险告警与合规报告 | ✅ v3.7.0 新增 |
-| 🧭 生命周期/容量/安全顾问 | 应用 Dry Run、预算容量规划、容器运维洞察、RAIDZ 预飞计划、安全评分 | ✅ v3.7.0 增强 |
-
-### 🚀 v3.1.0 架构重构稳定化 ✅
-
-| 模块 | 说明 | 状态 |
-|------|------|------|
-| 💾 块级备份增强 | 增强引擎、REST API、增量/去重/恢复测试 | ✅ v3.1.0 稳定化 |
-| 📊 性能监控增强 | 指标采集、阈值告警、历史查询、HTTP API | ✅ v3.1.0 稳定化 |
-| 🛡️ ML 勒索检测 | 熵分析、写频异常、批量扩展名检测、响应 API | ✅ v3.1.0 稳定化 |
-| 📸 快照管理增强 | 保留策略、团队快照、ZFS 快照封装、扩展测试 | ✅ v3.1.0 稳定化 |
-| 🖥️ 系统监控增强 | CPU/内存/磁盘/网络指标、告警、API 测试 | ✅ v3.1.0 稳定化 |
-| 🔐 安全与协作模块 | Secure Boot、SMB Guard、WORM 合规、Team File、User API Key | ✅ v3.1.0 稳定化 |
-| 🌐 WebShare Pro | 协作、分享链接、WebRTC 分享命名冲突清理 | ✅ v3.1.0 稳定化 |
-
-### 核心功能（默认 `nasd`）
-
-> **启用口径**：`默认` = Core 热路径；`recommended` = `packages.recommended_system: true`；`extensions` = `packages.enabled`；`Lab` = 仅源码，默认不加载。源码「完成」≠ 默认开机开启。
-
-| 模块 | 说明 | 启用 |
-|------|------|------|
-| 💾 btrfs 存储 | 卷/子卷/快照/RAID | **默认** |
-| 🌐 Web 界面 | Core WebUI（`/webui`） | **默认** |
-| 📁 文件共享 | SMB/NFS | **默认** |
-| 👥 用户权限 | 账户/RBAC 基础 | **默认** |
-| 🔒 安全认证 | 会话/JWT/强制改密 | **默认** |
-| 📊 系统健康 | Core `Health()` 聚合 | **默认** |
-| 🐳 Docker 镜像发布 | 多架构容器产物 | 部署产物（非运行时模块） |
-| 📊 监控告警 | 指标/多通道通知 | optional |
-| ⚡ 性能优化 | 缓存/工作池等 | optional |
-| 🛡️ 集群支持 | 多节点/负载均衡 | optional |
+<details>
+<summary>全部可选 / 实验能力清单（130+ 项，源码口径）</summary>
 
 ### 扩展功能（optional / extensions / Lab）
 
@@ -412,6 +267,10 @@ v3.10.0 把飞牛的家庭影音易用性、群晖的套件化引导、TrueNAS �
 | 🔐 **弹性存储加密** | AES-256-XTS密码解锁加密存储/动态密钥管理 | optional |
 | 📋 **邮件审核机制** | 敏感邮件管理员审批工作流/多级审核策略 | optional |
 
+</details>
+
+---
+
 ## 快速开始
 
 ### 方式一：下载二进制文件 (推荐)
@@ -504,13 +363,93 @@ sudo nasd
 
 ⚠️ **改密后请删除该密码文件。**
 
-## 📚 文档
+## 部署
 
-| 文档 | 说明 |
-|------|------|
-| [架构概览](docs/ARCHITECTURE.md) | 系统架构与模块说明 |
-| [API 文档](docs/api/) | REST API 接口参考 |
-| [竞品分析](docs/competitive-analysis.md) | 与群晖/TrueNAS/飞牛对比 |
+### Docker 部署
+```bash
+# 默认：非 privileged + bridge + 127.0.0.1:8080 + /dev/disk
+docker compose up -d
+
+# 强制 CSRF（生产推荐）：在 .env 设置 NAS_CSRF_KEY 与 NAS_OS_ENV=production
+docker compose -f docker-compose.yml -f docker-compose.secure.yml up -d
+
+# 旧行为：privileged + host 网络（仅在确需时）
+docker compose -f docker-compose.yml -f docker-compose.privileged.yml up -d
+
+# 查看日志
+docker compose logs -f
+```
+
+### 裸机安装
+```bash
+# 一键安装脚本
+curl -fsSL https://raw.githubusercontent.com/crazyqin/nas-os/master/scripts/install.sh | sudo bash
+
+# 或手动安装
+sudo ./scripts/install.sh
+```
+
+### 系统服务
+```bash
+systemctl status nas-os
+systemctl restart nas-os
+journalctl -u nas-os -f
+```
+
+## 配置示例
+
+以仓库 `configs/default.yaml` 为准。示意：
+
+```yaml
+# 默认监听本机；局域网访问请显式配置并配合防火墙
+server:
+  host: 127.0.0.1
+  port: 8080
+
+paths:
+  mount_base: /mnt
+  config_dir: /etc/nas-os
+  data_dir: /var/lib/nas-os
+
+storage:
+  default_profile: single
+  auto_scrub: true
+  scrub_schedule: "0 2 * * 0"
+
+packages:
+  recommended_system: false   # true 时需 Full 二进制（-tags nasd_full）
+  enabled: []                 # 如 docker、voicehub；Core 二进制配置了未链接能力会启动失败
+
+auth:
+  session_ttl_hours: 24
+```
+
+生产建议：`NAS_OS_ENV=production` + `NAS_CSRF_KEY`（见 `.env.example`）。  
+用户身份：`config_dir/users.json`。删卷需 JSON `confirm_name`；擦盘还需 `allow_wipe: true`。
+
+## 快速使用
+
+### 1. 创建存储卷
+```bash
+sudo nasctl volume create mydata --devices /dev/sda1 --raid single
+```
+
+### 2. 创建 SMB 共享
+```bash
+sudo nasctl share create smb public --path /data/public --guest-ok
+```
+
+### 3. 创建 NFS 共享
+```bash
+sudo nasctl share create nfs backup --path /data/backup --network 192.168.1.0/24
+```
+
+### 4. 从客户端访问
+- **Windows**: `\\<服务器 IP>\public`
+- **macOS**: `smb://<服务器 IP>/public`
+- **Linux (NFS)**: `sudo mount <服务器 IP>:/backup /mnt/local_backup`
+
+---
 
 ## API 接口
 
@@ -559,6 +498,22 @@ sudo nasd
 
 完整 API 文档见 [docs/api/](docs/api/) 与 [docs/swagger/](docs/swagger/)。
 
+---
+
+## 📚 文档
+
+| 文档 | 内容 |
+|------|------|
+| [架构概览](docs/ARCHITECTURE.md) | 系统架构、模块生命周期、API 安全边界 |
+| [项目结构](docs/STRUCTURE.md) | 仓库分层：Core / Extension / Lab 与入口 |
+| [运维手册](docs/ops-packages.md) | 套件与应用中心：启用 SSOT、停用语义 |
+| [API 文档](docs/api/) · [Swagger](docs/swagger/) | REST API 参考（运行时 `/swagger/`） |
+| [竞品分析](docs/competitive-analysis.md) | 与群晖 / TrueNAS / 飞牛 / QNAP 对照 |
+| [资源统计](docs/resource-stats.md) | 代码规模与包数量 |
+| [文档索引](docs/README.md) | 按角色导航 |
+
+---
+
 ## 🏆 差异化优势（2026Q2竞品对标）
 
 ### 🥇 四大独家功能（竞品均无）
@@ -577,91 +532,12 @@ sudo nasd
 | 📊 **Fusion Pool** | 智能热冷数据分层，SSD缓存+HDD容量 | TrueNAS无，群晖有Tiering |
 | 🔥 **Hot Spare** | 热备盘自动故障切换，RAID自愈 | 飞牛fnOS无此功能 |
 | 📈 **SSD三级预警** | 寿命预测+健康评分+预警通知 | 领先竞品方案 |
-| 🤖 **AI以文搜图** | CLIP本地推理，自然语言搜索照片 | 飞牛/群晖仅人脸，TrueNAS无 |
 | 🛡️ **勒索防护** | WriteOnce + SMB行为监控 | TrueNAS规划中，竞品无 |
+| 🚪 **内网穿透(免费)** | NAT穿透远程访问 | 竞品 Connect 需订阅 |
 
-### 📋 P0对标规划（对标TrueNAS 24.10）
+> 完整对比矩阵（DSM 7.4 / TrueNAS 26 / fnOS / QNAP h6.0）与差异化策略见 [docs/competitive-analysis.md](docs/competitive-analysis.md)。
 
-| 功能 | 说明 | 预计发布 |
-|------|------|----------|
-| 💾 **RAIDZ扩展** | 存储池在线扩容，单盘扩展无需重建 | ✅ v3.7.0 已实现 |
-| 🔍 **全局搜索** | WebShare全文检索，对标TrueSearch | ✅ 已实现 |
-| 🖥️ **多系统管理** | CMS集中管理，对标TrueNAS Connect | ✅ 已实现 |
-
-> 详细竞品分析: [docs/competitive-analysis.md](docs/competitive-analysis.md)
-
-### 竞品对比矩阵
-
-#### 🏆 四大独家功能（竞品均无）
-
-| 功能 | nas-os | 飞牛fnOS | 群晖DSM 7.3 | TrueNAS 25.10 | 价值主张 |
-|-----|:------:|:--------:|:-----------:|:-------------:|----------|
-| 🔒 **WriteOnce不可变存储** | ✅ **独家** | ❌ | ❌ | ❌ | 防勒索、合规归档、一键还原 |
-| 🤖 **本地LLM服务** | ✅ **独家** | ❌ | ✅ 本地LLM | ❌ | OpenAI兼容API，私有化AI |
-| 🔐 **AI以文搜图（CLIP）** | ✅ **独家** | ✅ 人脸 | ✅ 人脸 | ❌ | 自然语言搜索，本地推理 |
-| ☁️ **多云存储挂载** | ✅ **6+平台** | ✅ 网盘 | ⚠️ 有限 | ❌ | 阿里/腾讯/AWS/GDrive全覆盖 |
-
-#### ⭐ 领先功能对比
-
-| 功能特性 | nas-os | 飞牛fnOS | 群晖DSM 7.3 | TrueNAS 25.10 |
-|---------|:------:|:--------:|:-----------:|:-------------:|
-| **RAIDZ扩展/单盘扩容** | 📋 P0规划 | ❌ | ❌ | ✅ **OpenZFS 2.3原生** |
-| **勒索软件检测** | ✅ WriteOnce | ❌ | ❌ | ✅ Connect Plus |
-| **私有云AI服务** | ✅ Ollama | ❌ | ✅ 本地LLM | ❌ |
-| **OpenAI兼容API** | ✅ **独家** | ❌ | ❌ | ❌ |
-| **多系统集中管理** | ✅ CMS | ✅ FN Connect | ✅ DSM群管 | ✅ **Connect Business** |
-| **Hot Spare热备盘** | ✅ | ❌ | ✅ | ✅ |
-| **SSD健康三级预警** | ✅ | ✅ | ✅ | ✅ NVMe S.M.A.R.T |
-| **AI数据脱敏** | ✅ | ❌ | ✅ AI Console | ❌ |
-| **内网穿透(免费)** | ✅ | ✅ FN Connect | ❌ | ❌ Connect需订阅 |
-| **智能影视** | ✅ | ✅ 海报墙+刮削 | ✅ | ❌ |
-| **Docker Compose管理** | ✅ | ✅ | ✅ | ✅ 24.10从K8s切换 |
-| **共享标签系统** | 📋 P1规划 | ❌ | ✅ Drive 4.0 | ❌ |
-| AI人脸识别 | ✅ | ✅ | ✅ | ❌ |
-| RAID管理 | ✅ btrfs | ✅ ext4/ZFS | ✅ | ✅ **ZFS原生** |
-| 快照管理 | ✅ | ✅ | ✅ | ✅ |
-| Docker支持 | ✅ | ✅ | ✅ | ✅ |
-| 影视库 | ✅ | ✅ | ✅ | ❌ |
-| 相册备份 | ✅ | ✅ | ✅ | ❌ |
-| 虚拟机管理 | ✅ | ❌ | ✅ | ✅ |
-| **按需唤醒硬盘** | ✅ | ✅ | ❌ | ❌ |
-| **价格** | **免费** | 免费 | 付费硬件 | **免费+Connect订阅** |
-
-#### 🆚 三大核心功能详细对比
-
-**RAIDZ扩展对比** → 详见上方表格
-
-| 功能 | nas-os | TrueNAS 24.10 | 飞牛fnOS | 群晖 |
-|------|:------:|:-------------:|:--------:|:----:|
-| 单盘扩容 | ✅ RAID1/10 | ✅ RAIDZ1/2/3 | ❌ | ❌ |
-| 在线操作 | ✅ | ✅ | ❌ | ❌ |
-| 中断恢复 | 📋 | ✅ | ❌ | ❌ |
-| WebUI进度 | ✅ | ✅ 完善 | ❌ | ❌ |
-
-**照片管理对比** → 详见上方表格
-
-| 功能 | nas-os | 飞牛fnOS | 群晖Photos | TrueNAS |
-|------|:------:|:--------:|:----------:|:-------:|
-| 以文搜图 | ✅ **独家** | ❌ | ❌ | ❌ |
-| 人脸识别 | ✅ 本地AI | ✅ | ✅ | ❌ |
-| 地图视图 | ✅ | ✅ | ✅ | ❌ |
-| 智能相册 | ✅ | ✅ | ✅ | ❌ |
-
-**云同步对比** → 详见上方表格
-
-| 功能 | nas-os | 群晖Cloud Sync | 飞牛fnOS | TrueNAS |
-|------|:------:|:--------------:|:--------:|:-------:|
-| Google Drive | ✅ | ✅ | ✅ | ❌ |
-| OneDrive | ✅ | ✅ | ✅ | ❌ |
-| 阿里云OSS | ✅ | ✅ | ✅ | ❌ |
-| 腾讯云COS | ✅ **独家** | ❌ | ✅ | ❌ |
-| 双向同步 | ✅ | ✅ | ✅ | ❌ |
-| 加密传输 | ✅ AES-256 | ✅ | ❌ | ❌ |
-| 冲突策略 | ✅ 6种 | ✅ 3种 | ❌ | ❌ |
-
-> 详细竞品分析请查看 [docs/competitive-analysis.md](docs/competitive-analysis.md)
-> **差异化策略**: 以WriteOnce建立安全壁垒，以Fusion Pool优化成本效率，以AI相册领先用户体验
-> **新对标**: TrueNAS 25.10 RAIDZ扩展(OpenZFS 2.3)、群晖DSM 7.3共享标签(TrueNAS Connect Business多系统管理)
+---
 
 ## 项目结构
 
@@ -682,75 +558,54 @@ nas-os/
 
 > 完整结构见 [docs/STRUCTURE.md](docs/STRUCTURE.md)。
 
+## 🏗️ 架构（现行，v3.22.0）
+
+### 应用组合与模块生命周期 (arch/application)
+- Application 组合根: 统一构造依赖、启动入口和逆序关闭资源
+- Typed Config: 配置文件、`NAS_OS_*` 环境覆盖和启动前校验
+- Module 接口: Init/Start/Stop/Health/Dependencies 生命周期
+- 拓扑排序: 检查缺失依赖与循环依赖，确定性启动和逆序停止
+- 故障回滚: 模块启动失败时逆序停止已启动模块
+- 分层路由: 公开、已认证和管理员路由由模块分别声明
+- 健康状态: `/api/v1/system/modules` 提供核心模块状态
+- **Core 仅五名**: identity / storage / network / sharing / system
+- **Extension / Lab**: 目录与 catalog 标签必须一致；路径边界测试防止伪核心回流
+
+### 设计原则
+- 显式注入: 依赖由 `internal/application` 通过构造函数注入
+- 单一所有者: 后台任务只能由一个 Module 或 Server 生命周期管理
+- 构造无副作用: goroutine 在 Start 启动，在 Stop 关闭
+- 渐进迁移: 保留兼容 API，通过 contract test 逐端点收口
+- Container 不是 Service Locator: 新业务代码不得依赖字符串查找获取依赖
+- 版本源: 根目录 `VERSION` 与 `internal/version` 同步；`GET /api/v1/system/info` 返回真实版本
+
+详细说明见 [架构文档](docs/ARCHITECTURE.md)。
+
+---
+
 ## 📊 项目资源统计
 
-| 指标 | 实测（2026-09-02） |
+| 指标 | 实测（2026-09-06，死代码清理后） |
 |------|------|
-| Go 源码总行数 | **~1,667,000 行** |
-| Go 源文件 | **~3,863 个** |
-| 测试文件 | **~1,050 个** |
-| `internal/` 顶层目录 | **~176**（治理收敛后） |
-| Lab 包（`internal/lab/*`） | **~623** |
+| Go 源码总行数 | **~1,493,000 行** |
+| Go 源文件 | **~2,437 个** |
+| 测试文件 | **~927 个** |
+| `internal/` 顶层目录 | **~100**（治理收敛后） |
+| Lab 包（`internal/lab/*`） | **~626** |
 | Extension 包（`internal/extensions/*`） | **7** |
 | go.mod 依赖（require，含 indirect） | **~158** |
 
 > 📋 详细统计报告：[docs/resource-stats.md](docs/resource-stats.md)
 
-## 🔄 模块治理与历史整合
+---
 
-### 当前分层（v3.18+ → v3.22.0）
-
-| 层级 | 路径 | 说明 |
-|------|------|------|
-| Core | 生命周期注册名 | `identity` / `storage` / `network` / `sharing` / `system` |
-| Extension | `internal/extensions/<name>` | 可选产品能力（activeprotect、agentworkflow、aiguardrails、compliancescan、deployorch、netdiag、voicehub） |
-| Lab | `internal/lab/<name>` | 实验、重复与零生产引用实现（不得再当作顶层 Core） |
-
-### 历史合并域（v3.0.0，路径以现状为准）
-
-早期曾合并重复实现到领域包；**其中多数实验/辅件现已降入 Lab**：
-
-| 功能域 | 当前路径 | 说明 |
-|--------|----------|------|
-| 勒索防护 | `internal/ransomware`（及相关 lab 实验） | 行为检测/蜜罐等能力 |
-| 合规审计 | `internal/lab/compliance` | CIS/STIG/GDPR 等实验与报告能力 |
-| 存储分层 | `internal/tiering` | 生产侧分层；lab 中另有增强实现 |
-| AI 相册 | `internal/lab/photoai` | 人脸/以文搜图等实验能力 |
-| 成本分析 | `internal/lab/costanalyzer` | TCO/成本实验实现 |
-| 磁盘健康 | `internal/lab/diskhealth` | AI 故障预测实验实现 |
-| AI 控制台 | `internal/lab/aiconsole` | 本地 LLM 管理实验 |
-| AI Agent | `internal/lab/aiagentorch` | 多 Agent 编排实验 |
-
-## 开发计划
+## 版本状态
 
 完整变更见 [CHANGELOG.md](CHANGELOG.md)。
 
 ### 当前状态 (2026-09-05) - v3.24.6 Stable ✅
 
-**8/8 里程碑全部完成**
-
-- [x] 项目骨架
-- [x] btrfs 完整功能 (卷/子卷/快照/balance/scrub)
-- [x] Web 框架 + Web UI (响应式设计)
-- [x] SMB/NFS 共享实现
-- [x] 用户权限系统 (RBAC/MFA)
-- [x] 系统监控告警 (多通道通知)
-- [x] 性能优化 (LRU 缓存/GC 调优/工作池)
-- [x] Docker 多架构镜像 (amd64/arm64/armv7)
-- [x] CI/CD 自动化 (全绿通过)
-- [x] **容器管理** (Docker Compose 支持)
-- [x] **虚拟机管理** (ISO 挂载/快照)
-- [x] **权限管理 WebUI** (角色/ACL)
-- [x] **监控告警 WebUI** (实时图表)
-- [x] **自动化轮值系统** (自动推进开发)
-- [x] **配额管理** (用户/组/目录三级)
-- [x] **回收站功能** (安全删除/恢复)
-- [x] **WebDAV 支持** (完整协议)
-- [x] **存储复制** (跨节点同步)
-- [x] **AI 智能分类** (照片/文件分类)
-- [x] **文件版本控制** (自动快照/版本对比/一键还原)
-- [x] **云同步增强** (多云存储/双向同步)
-- [x] **数据去重** (文件级/块级去重)
+**8/8 里程碑全部完成**——存储 / 共享 / 权限 / 监控 / 容器 / 虚拟机等能力均已交付；能力启用口径见上方「默认交付面」。
 
 ### 版本路线图
 | 版本 | 类型 | 发布日期 | 核心功能 | 状态 |
@@ -765,6 +620,10 @@ nas-os/
 | v3.21.0 | Stable | 2026-07-16 | 195+ 伪核心降入 Lab（AI/smart/backup/security/media…） | ✅ 已发布 |
 | v3.20.0 | Stable | 2026-07-16 | 版本 bump 与文档同步 | ✅ 已发布 |
 | v3.19.0 | Stable | 2026-07-16 | 架构收敛波次 | ✅ 已发布 |
+
+<details>
+<summary>更早版本路线（v3.11.0 → v1.x）</summary>
+
 | v3.11.0 | Stable | 2026-07-04 | 智能文件夹、成本/容量风险摘要、发布安全护栏 | ✅ 已发布 |
 | v2.490.61 | Alpha | 2026-03-10 | 项目骨架、btrfs 基础 | ✅ 发布 |
 | v2.490.61 | Alpha | 2026-03-10 | 文件共享、配置持久化 | ✅ 发布 |
@@ -810,6 +669,8 @@ nas-os/
 | **v2.490.61** | **Stable** | **2026-03-21** | **依赖更新/安全增强/文档同步** | ✅ **已发布** |
 | **v2.490.61** | **Stable** | **2026-03-24** | **网盘挂载/AI脱敏/智能分层** | ✅ **已发布** |
 | **v2.490.61** | **Stable** | **2026-03-21** | **版本迭代/自动化协同维护** | ✅ **已发布** |
+
+</details>
 
 <details>
 <summary>v2.490.61 历史更新汇总（合并自 15 个重复章节）</summary>
@@ -931,99 +792,207 @@ nas-os/
 
 </details>
 
-## 部署
+---
 
-### Docker 部署
-```bash
-# 默认：非 privileged + bridge + 127.0.0.1:8080 + /dev/disk
-docker compose up -d
+## 历史版本亮点
 
-# 强制 CSRF（生产推荐）：在 .env 设置 NAS_CSRF_KEY 与 NAS_OS_ENV=production
-docker compose -f docker-compose.yml -f docker-compose.secure.yml up -d
+逐版本完整变更见 [CHANGELOG.md](CHANGELOG.md)；以下存档保留各版本亮点速览与模块治理历史（其中 v3.12.0 未进 CHANGELOG，此处为唯一记录）。
 
-# 旧行为：privileged + host 网络（仅在确需时）
-docker compose -f docker-compose.yml -f docker-compose.privileged.yml up -d
+<details>
+<summary>版本亮点速览（v3.24.0 → v3.1.0）</summary>
 
-# 查看日志
-docker compose logs -f
-```
+### 🚀 v3.24.0 默认表面收敛（破坏性） ✅
 
-### 裸机安装
-```bash
-# 一键安装脚本
-curl -fsSL https://raw.githubusercontent.com/crazyqin/nas-os/master/scripts/install.sh | sudo bash
+| 项 | 说明 |
+|----|------|
+| **packages 默认关** | 默认不构造 Docker/VM/Photos/AI 等非 Core 产品管理器（`packages.recommended_system=false`） |
+| **单一存储契约** | 仅 `/api/v1/storage/*`；移除 legacy `/api/v1/volumes` |
+| **删除根 api/ 源码** | 非 nasd 入口，避免误用 |
+| **主 UI** | `webui/`（`/webui` + 核心页面）；`web/src` 为实验 |
+| **主部署** | 根 `docker-compose.yml` + `Dockerfile` |
+| **Core 健康** | storage/users/smb/nfs/network 真实 `Health()` |
+| **安全默认** | 监听 `127.0.0.1`；生产强制 `NAS_CSRF_KEY`；bootstrap admin `MustChangePassword` |
+| **零引用削减** | 再降 ~120 顶层包入 Lab |
 
-# 或手动安装
-sudo ./scripts/install.sh
-```
+### 🚀 v3.23.0 运行时诚实与治理 (P0–P3) ✅
 
-### 系统服务
-```bash
-systemctl status nas-os
-systemctl restart nas-os
-journalctl -u nas-os -f
-```
+| 项 | 说明 |
+|----|------|
+| **Lab 默认剥离** | 生产 `web` 不再 import/构造 `internal/lab/*`；实验能力仅在 Lab 目录保留 |
+| **Extension 按需加载** | `packages.enabled`；默认空=不加载；7 个 HTTP 扩展可显式启用（`modules.extensions` 弃用兼容） |
+| **Core 健康探针** | `GET /api/v1/system/health` 聚合 Core 模块 `Health()`，失败返回 unhealthy |
+| **治理测试** | 禁止 web→lab import；Core 仅五名；顶层 allowlist 冻结；未知 catalog→Lab |
+| **入口诚实** | 根 `api/` 标明非 nasd 入口；主 UI=`webui/`；主部署见 docker-compose |
 
-## 配置示例
+### 🚀 v3.22.0 架构收敛（Core / Extension / Lab） ✅
 
-以仓库 `configs/default.yaml` 为准。示意：
+生产进程生命周期主图仍只注册五个 Core 模块；本轮继续把 **163** 个零生产引用的伪核心包迁入 `internal/lab/`，并修正 catalog 与磁盘路径不一致的 Lab 标签。
 
-```yaml
-# 默认监听本机；局域网访问请显式配置并配合防火墙
-server:
-  host: 127.0.0.1
-  port: 8080
+| 层级 | 规则 | 现状 |
+|------|------|------|
+| **Core** | 仅 `identity` / `storage` / `network` / `sharing` / `system` | 生命周期主图，不可扩张 |
+| **Extension** | 可选产品能力，不得伪装成 Core | 7 包位于 `internal/extensions/`（如 activeprotect、voicehub） |
+| **Lab** | 实验/重复/零生产引用实现 | ~467 包位于 `internal/lab/`（含 media、filemanager、selfheal、ztna 等） |
 
-paths:
-  mount_base: /mnt
-  config_dir: /etc/nas-os
-  data_dir: /var/lib/nas-os
+> 历史版本亮点见下方时间线；**实验性能力以 Lab 路径为准**，不再视为顶层生产核心。完整变更见 [CHANGELOG](CHANGELOG.md)。
 
-storage:
-  default_profile: single
-  auto_scrub: true
-  scrub_schedule: "0 2 * * 0"
+### 🚀 v3.17.0 数据分层与恢复置信 ✅
 
-packages:
-  recommended_system: false   # true 时需 Full 二进制（-tags nasd_full）
-  enabled: []                 # 如 docker、voicehub；Core 二进制配置了未链接能力会启动失败
+本轮对标 TrueNAS 26 OpenZFS 2.4 dataset tiering、Synology TCO Calculator、TrueNAS FEC 网络纠错、TrueNAS Clean Restore Confidence 勒索恢复、GDPR/PIPL/HIPAA 多标准合规审计和 Apple Memories/Synology Photos 故事生成，新增 6 个模块覆盖数据集冷热分层、5年TCO可视化、AI照片故事、FEC网络纠错、合规工作流编排和恢复置信度评估。
 
-auth:
-  session_ttl_hours: 24
-```
-
-生产建议：`NAS_OS_ENV=production` + `NAS_CSRF_KEY`（见 `.env.example`）。  
-用户身份：`config_dir/users.json`。删卷需 JSON `confirm_name`；擦盘还需 `allow_wipe: true`。
+| 亮点 | 用户收益 | 状态 |
+|------|----------|------|
+| 💾 **ZFS 数据集分层调度** | 冷热数据自动分层、预测式分层、闪存容量预警、归档层启用 | ✅ v3.17.0 新增 |
+| 💰 **TCO 可视化仪表板** | 5年总拥有成本分析、电力/云/人工成本拆解、竞品对比 | ✅ v3.17.0 新增 |
+| 📸 **AI 照片故事生成** | 7种故事主题（旅行/家庭/季节/冒险/回溯/精选/日常）、自动聚类 | ✅ v3.17.0 新增 |
+| 🔧 **FEC 网络纠错配置** | RS/Hamming/BCH/LDPC 编码推荐、存储接口保护、长距离纠错 | ✅ v3.17.0 新增 |
+| 📋 **合规审计工作流** | GDPR/PIPL/HIPAA/SOC2/ISO27001/PCI-DSS 6阶段审计流程编排 | ✅ v3.17.0 新增 |
+| 🛡️ **勒索恢复置信度** | 恢复演练追踪、RTO/RPO达标、不可变/异地检查、Clean Restore评分 | ✅ v3.17.0 新增 |
 
 
-## 快速使用
+### 🚀 v3.16.0 智能调度与数据主权 ✅
 
-### 1. 创建存储卷
-```bash
-sudo nasctl volume create mydata --devices /dev/sda1 --raid single
-```
+本轮对标 Synology SSD Cache Advisor/Power Schedule/CMS、TrueNAS L2ARC/Cluster/Cloud Sync Cost 和飞牛影视墙，新增 6 个模块覆盖 SSD 缓存调度、云成本审计、海报刮削、电源管理、集群编排和数据主权合规。
 
-### 2. 创建 SMB 共享
-```bash
-sudo nasctl share create smb public --path /data/public --guest-ok
-```
+| 亮点 | 用户收益 | 状态 |
+|------|----------|------|
+| 💾 **SSD 缓存智能调度** | 分析缓存命中率、磨损、温度和读写放大，给出扩容、预热和 NVMe 升级建议 | ✅ v3.16.0 新增 |
+| ☁️ **云存储成本审计** | 检测预算超支、休眠账户、高出口流量和缺失分层策略，建议 R2 迁移节省出口费 | ✅ v3.16.0 新增 |
+| 🎬 **多媒体海报刮削** | 批量检测缺失海报、文件名解析失败、字幕缺失，建议自动刮削和缓存清理 | ✅ v3.16.0 新增 |
+| ⚡ **电源管理调度** | 空闲切换、待机调度、磁盘转速策略、夜间计划和太阳能对齐，降低功耗 | ✅ v3.16.0 新增 |
+| 🔗 **多 NAS 集群编排** | HA 启用建议、故障转移验证、脑裂检测、复制延迟监控和集群健康评分 | ✅ v3.16.0 新增 |
+| 🌐 **数据主权审计** | PII 加密检测、跨境复制审查、访问日志和保留策略缺失审计，覆盖 GDPR/PIPL/HIPAA | ✅ v3.16.0 新增 |
 
-### 3. 创建 NFS 共享
-```bash
-sudo nasctl share create nfs backup --path /data/backup --network 192.168.1.0/24
-```
 
-### 4. 从客户端访问
-- **Windows**: `\\<服务器 IP>\public`
-- **macOS**: `smb://<服务器 IP>/public`
-- **Linux (NFS)**: `sudo mount <服务器 IP>:/backup /mnt/local_backup`
+### 🚀 v3.14.0 备份健康顾问 ✅
 
-## 获取帮助
+本轮参考群晖 Active Backup 的集中备份与自助恢复、TrueNAS 的快照/校验/不可变保护，以及飞牛家庭 NAS 的低门槛灾备体验，新增备份健康顾问：把终端保护、备份新鲜度、恢复演练和灾备准备转化为可执行建议。
 
-- 📖 **完整文档**: [docs/](docs/) 目录
-- 🐛 **报告问题**: [GitHub Issues](https://github.com/crazyqin/nas-os/issues)
-- 💬 **社区讨论**: [GitHub Discussions](https://github.com/crazyqin/nas-os/discussions)
-- 📦 **Docker 镜像**: [GHCR](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+| 亮点 | 用户收益 | 状态 |
+|------|----------|------|
+| 🛡️ **终端保护率** | 自动识别未纳入备份的电脑/移动设备，提示下发代理、套用模板和展示未保护清单 | ✅ v3.14.0 新增 |
+| 🔁 **备份失败修复** | 对过期备份和失败任务给出重试、错误定位、容量/凭据/任务锁检查建议 | ✅ v3.14.0 新增 |
+| 🔒 **快照与不可变恢复点** | 关键共享缺少快照或出现勒索告警时，提示只读快照、时间线恢复和不可变保留 | ✅ v3.14.0 新增 |
+| 🧪 **恢复演练与灾备介质** | 最近 30 天无演练、缺少异地副本或恢复介质时，提示自动试恢复和 RPO/RTO 预估 | ✅ v3.14.0 新增 |
+
+
+### 🚀 v3.13.0 WebShare 搜索顾问 ✅
+
+本轮继续对标 TrueNAS 26 WebShare/TrueSearch、群晖 DSM 的移动端分享体验和飞牛家庭媒体易用性，新增 WebShare 搜索顾问：把文件规模、索引覆盖、外链安全和快照保护转化为可执行建议。
+
+| 亮点 | 用户收益 | 状态 |
+|------|----------|------|
+| 🌐 **WebShare 启用建议** | 文件库存在但未开放浏览器访问时，自动提示开启上传、下载、筛选和可撤销外链 | ✅ v3.13.0 新增 |
+| 🔎 **搜索索引覆盖率** | 计算本地索引覆盖率，提示 SSD 索引缓存、文档内容索引和加密数据集说明 | ✅ v3.13.0 新增 |
+| 🔐 **外链安全加固** | 对外部分享建议 passkey/一次性访问码、过期时间、下载次数和审计记录 | ✅ v3.13.0 新增 |
+| 📸 **分享前快照保护** | 共享协作场景自动提示只读快照与时间线入口，降低误删覆盖风险 | ✅ v3.13.0 新增 |
+
+
+### 🚀 v3.12.0 文件洞察与媒体整理建议 ✅
+
+本轮参考 DSM 7.4 的本地 AI/语义搜索、飞牛的相册与影视易用性、TrueNAS 26 的 WebShare/TrueSearch 与数据治理体验，新增文件洞察引擎：把智能文件夹结果转换成可执行的清理、相册索引和媒体库整理建议。
+
+| 亮点 | 用户收益 | 状态 |
+|------|----------|------|
+| 🧠 **文件洞察 Advisor** | 自动识别大文件、照片库和视频库，给出清理、归档、索引、刮削与转码建议 | ✅ v3.12.0 新增 |
+| 🖼️ **照片整理触发器** | 当照片积累到阈值时提示 EXIF 时间线、人脸聚合和本地以文搜图索引 | ✅ v3.12.0 新增 |
+| 🎬 **媒体库体验建议** | 视频库达到规模后提示海报墙、字幕匹配和跨端续播准备 | ✅ v3.12.0 新增 |
+| 🧹 **容量治理动作化** | 大文件占用转化为 warning/info 级别建议，便于前端和通知系统直接展示 | ✅ v3.12.0 新增 |
+
+### 🚀 v3.11.0 智能文件夹与治理状态同步 ✅
+
+v3.11.0 把 v3.10.0 的“下一步推荐”继续落到文件整理、容量治理和安全发布上：用户能更快找到该整理的文件、看懂容量风险，也能获得版本一致、可审计的发布包。
+
+| 亮点 | 用户收益 | 状态 |
+|------|----------|------|
+| 🗂️ **智能文件夹** | 内置 recent、large-files、photos、videos、documents 等规则化视图，按类型、扩展名、大小和最近修改快速整理文件 | ✅ v3.11.0 新增 |
+| 📊 **成本/容量风险摘要** | 汇总低利用、高水位、过载资源和浪费估算，把容量风险转化为清理、分层或扩容建议 | ✅ v3.11.0 增强 |
+| 🔒 **发布安全护栏** | CI/Docker 发布中的 Trivy Action 固定到明确版本，并补充 workflow 安全基线测试，降低供应链漂移风险 | ✅ v3.11.0 增强 |
+| 🧾 **版本一致性** | 命令行、API 构建信息、README、CHANGELOG、资源统计和竞品分析统一到 v3.11.0，减少用户升级时的版本判断成本 | ✅ v3.11.0 同步 |
+
+### 🚀 v3.10.0 用户体验顾问与下一步推荐 ✅
+
+v3.10.0 把飞牛的家庭影音易用性、群晖的套件化引导、TrueNAS 的数据保护思路融合成一个“下一步推荐”体验：系统不只展示状态，还会根据本地使用信号告诉用户接下来最值得做什么。
+
+| 亮点 | 用户收益 | 状态 |
+|------|----------|------|
+| 🧭 **体验顾问引擎** | 聚合照片、媒体、备份、远程访问、应用和存储信号，自动生成可执行建议，降低 NAS 配置门槛 | ✅ v3.10.0 新增 |
+| 🖼️ **AI 相册整理建议** | 大型照片库会提示人物聚类、动态照片解析、重复照片清理，让家庭相册更接近开箱即用 | ✅ v3.10.0 新增 |
+| 🎬 **影视库体验建议** | 针对影片数量、字幕与转码场景，推荐海报墙刮削、字幕匹配、跨端播放进度同步等优化 | ✅ v3.10.0 新增 |
+| 🔐 **备份与快照建议** | 根据备份规模、存储异常和快照状态，提示恢复校验、不可变快照、scrub 与生命周期分层 | ✅ v3.10.0 新增 |
+| 🌐 **远程访问健康建议** | 多设备访问或异常连接时，建议 NAT 穿透、DDNS、证书续期与公网入口收敛，兼顾易用与安全 | ✅ v3.10.0 新增 |
+| 📦 **应用与存储下一步** | 低活跃应用提示清理或替代方案，容量增长时提示分层、归档和扩容规划 | ✅ v3.10.0 新增 |
+
+### 🚀 v3.9.0 安全与运维体验增强 ✅
+
+| 模块 | 说明 | 状态 |
+|------|------|------|
+| 📋 重启原因运维闭环 | Log Center 增强重启原因处理、历史记录与 handler 测试，覆盖用户触发、异常、计划维护等复盘场景 | ✅ v3.9.0 增强 |
+| 🌐 WebShare 交互增强 | 优化文件分享前端逻辑、分享状态展示与用户操作一致性 | ✅ v3.9.0 增强 |
+| 👥 登录与用户管理体验 | 调整登录页和用户管理页交互细节，改善权限管理与日常运维体验 | ✅ v3.9.0 增强 |
+| 📚 竞品分析与资源统计 | 新增 2026-06-29 竞品分析，刷新 competitive-analysis 与 resource-stats 文档 | ✅ v3.9.0 更新 |
+| 🌐 网络 FEC 管理 | 25G/100G 链路 FEC 模式推荐、配置意图与审计记录，对标 TrueNAS 26 高速网络可用性 | ✅ v3.8.0 新增 |
+| 🔎 本地 AI 语义搜索治理 | local-only 查询、脱敏返回、请求人/用途审计，对标 DSM 7.4 私有 AI 与 TrueSearch 体验 | ✅ v3.8.0 新增 |
+| 🐧 LXC 迁移计划 | 冷/热/在线迁移步骤生成，含预检、快照、同步、回滚，对标 TrueNAS 26 LXC 运维 | ✅ v3.8.0 新增 |
+| 🧊 不可变快照策略 | WORM/合规快照/审计链组合，覆盖 QNAP h6.0 immutable snapshots 类场景 | ✅ 已支持 |
+| 🗂️ 存储效率与分层 | 压缩/去重/生命周期/冷热数据策略，回应 DSM 存储效率与 QNAP FileTiers 方向 | ✅ 已支持 |
+| 🔑 现代身份安全 | RBAC/MFA/设备信任/审计，预留 passkeys 等无密码登录演进路线 | ✅ 已支持 |
+| 🎬 媒体与远程访问 | 智能海报墙、P2P 远程访问、WebShare 与多端体验，对标 fnOS 家庭场景 | ✅ 已支持 |
+
+### 🚀 v3.7.0 存储与应用生态增强 ✅
+
+| 模块 | 说明 | 状态 |
+|------|------|------|
+| 💾 RAIDZ vdev 扩展 | 扩展前健康检查、Dry Run、进度跟踪、取消/失败状态管理 | ✅ v3.7.0 新增 |
+| 📈 存储 ROI 分析 | 采购成本、容量利用率、寿命追踪、TCO/ROI 评分与优化建议 | ✅ v3.7.0 新增 |
+| 🎬 智能海报墙 | 媒体刮削、布局展示、播放进度同步、观影清单与推荐 | ✅ v3.7.0 新增 |
+| ⭐ 应用中心评价 | 评分评论、开发者回复、举报审核、统计聚合 | ✅ v3.7.0 新增 |
+| 🔐 NFS Kerberos 审计 | 认证事件、加密类型、风险告警与合规报告 | ✅ v3.7.0 新增 |
+| 🧭 生命周期/容量/安全顾问 | 应用 Dry Run、预算容量规划、容器运维洞察、RAIDZ 预飞计划、安全评分 | ✅ v3.7.0 增强 |
+
+### 🚀 v3.1.0 架构重构稳定化 ✅
+
+| 模块 | 说明 | 状态 |
+|------|------|------|
+| 💾 块级备份增强 | 增强引擎、REST API、增量/去重/恢复测试 | ✅ v3.1.0 稳定化 |
+| 📊 性能监控增强 | 指标采集、阈值告警、历史查询、HTTP API | ✅ v3.1.0 稳定化 |
+| 🛡️ ML 勒索检测 | 熵分析、写频异常、批量扩展名检测、响应 API | ✅ v3.1.0 稳定化 |
+| 📸 快照管理增强 | 保留策略、团队快照、ZFS 快照封装、扩展测试 | ✅ v3.1.0 稳定化 |
+| 🖥️ 系统监控增强 | CPU/内存/磁盘/网络指标、告警、API 测试 | ✅ v3.1.0 稳定化 |
+| 🔐 安全与协作模块 | Secure Boot、SMB Guard、WORM 合规、Team File、User API Key | ✅ v3.1.0 稳定化 |
+| 🌐 WebShare Pro | 协作、分享链接、WebRTC 分享命名冲突清理 | ✅ v3.1.0 稳定化 |
+
+</details>
+
+<details>
+<summary>模块治理与历史整合</summary>
+
+## 🔄 模块治理与历史整合
+
+### 当前分层（v3.18+ → v3.22.0）
+
+| 层级 | 路径 | 说明 |
+|------|------|------|
+| Core | 生命周期注册名 | `identity` / `storage` / `network` / `sharing` / `system` |
+| Extension | `internal/extensions/<name>` | 可选产品能力（activeprotect、agentworkflow、aiguardrails、compliancescan、deployorch、netdiag、voicehub） |
+| Lab | `internal/lab/<name>` | 实验、重复与零生产引用实现（不得再当作顶层 Core） |
+
+### 历史合并域（v3.0.0，路径以现状为准）
+
+早期曾合并重复实现到领域包；**其中多数实验/辅件现已降入 Lab**：
+
+| 功能域 | 当前路径 | 说明 |
+|--------|----------|------|
+| 勒索防护 | `internal/ransomware`（及相关 lab 实验） | 行为检测/蜜罐等能力 |
+| 合规审计 | `internal/lab/compliance` | CIS/STIG/GDPR 等实验与报告能力 |
+| 存储分层 | `internal/tiering` | 生产侧分层；lab 中另有增强实现 |
+| AI 相册 | `internal/lab/photoai` | 人脸/以文搜图等实验能力 |
+| 成本分析 | `internal/lab/costanalyzer` | TCO/成本实验实现 |
+| 磁盘健康 | `internal/lab/diskhealth` | AI 故障预测实验实现 |
+| AI 控制台 | `internal/lab/aiconsole` | 本地 LLM 管理实验 |
+| AI Agent | `internal/lab/aiagentorch` | 多 Agent 编排实验 |
+
+</details>
 
 <details>
 <summary>历史版本亮点存档（v2.800 / v2.900，无对应 git tag，能力多在 Lab）</summary>
@@ -1080,29 +1049,15 @@ sudo nasctl share create nfs backup --path /data/backup --network 192.168.1.0/24
 
 </details>
 
+---
+
+## 获取帮助
+
+- 📖 **完整文档**: [docs/](docs/) 目录
+- 🐛 **报告问题**: [GitHub Issues](https://github.com/crazyqin/nas-os/issues)
+- 💬 **社区讨论**: [GitHub Discussions](https://github.com/crazyqin/nas-os/discussions)
+- 📦 **Docker 镜像**: [GHCR](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+
 ## License
 
 MIT
-
-## 🏗️ 架构（现行，v3.22.0）
-
-### 应用组合与模块生命周期 (arch/application)
-- Application 组合根: 统一构造依赖、启动入口和逆序关闭资源
-- Typed Config: 配置文件、`NAS_OS_*` 环境覆盖和启动前校验
-- Module 接口: Init/Start/Stop/Health/Dependencies 生命周期
-- 拓扑排序: 检查缺失依赖与循环依赖，确定性启动和逆序停止
-- 故障回滚: 模块启动失败时逆序停止已启动模块
-- 分层路由: 公开、已认证和管理员路由由模块分别声明
-- 健康状态: `/api/v1/system/modules` 提供核心模块状态
-- **Core 仅五名**: identity / storage / network / sharing / system
-- **Extension / Lab**: 目录与 catalog 标签必须一致；路径边界测试防止伪核心回流
-
-### 设计原则
-- 显式注入: 依赖由 `internal/application` 通过构造函数注入
-- 单一所有者: 后台任务只能由一个 Module 或 Server 生命周期管理
-- 构造无副作用: goroutine 在 Start 启动，在 Stop 关闭
-- 渐进迁移: 保留兼容 API，通过 contract test 逐端点收口
-- Container 不是 Service Locator: 新业务代码不得依赖字符串查找获取依赖
-- 版本源: 根目录 `VERSION` 与 `internal/version` 同步；`GET /api/v1/system/info` 返回真实版本
-
-详细说明见 [架构文档](docs/ARCHITECTURE.md)。
