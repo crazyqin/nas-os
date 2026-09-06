@@ -677,7 +677,7 @@ nas-os/
 ├── pkg/               # 公共库
 ├── webui/             # 产品前端（web/ 为实验前端，非交付面）
 ├── configs/           # 配置文件
-└── charts/ deploy/    # Helm chart 与部署样例
+└── deploy/            # 部署脚本与样例
 ```
 
 > 完整结构见 [docs/STRUCTURE.md](docs/STRUCTURE.md)。

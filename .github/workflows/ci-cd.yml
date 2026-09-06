@@ -81,7 +81,6 @@ jobs:
     outputs:
       go-changed: ${{ steps.filter.outputs.go }}
       docs-changed: ${{ steps.filter.outputs.docs }}
-      charts-changed: ${{ steps.filter.outputs.charts }}
       docker-changed: ${{ steps.filter.outputs.docker }}
       test-changed: ${{ steps.filter.outputs.test }}
     steps:
@@ -100,8 +99,6 @@ jobs:
             docs:
               - 'docs/**'
               - '*.md'
-            charts:
-              - 'charts/**'
             docker:
               - 'Dockerfile*'
               - 'docker-compose*.yml'
@@ -118,7 +115,6 @@ jobs:
           echo "|------|----------|" >> $GITHUB_STEP_SUMMARY
           echo "| Go 代码 | ${{ steps.filter.outputs.go == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 文档 | ${{ steps.filter.outputs.docs == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Charts | ${{ steps.filter.outputs.charts == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Docker | ${{ steps.filter.outputs.docker == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 测试 | ${{ steps.filter.outputs.test == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
 
