@@ -15,6 +15,7 @@ import (
 // TaskType 备份任务类型.
 type TaskType string
 
+// 备份任务类型常量.
 const (
 	TaskTypeFull         TaskType = "full"         // 完整备份
 	TaskTypeIncremental  TaskType = "incremental"  // 增量备份
@@ -24,6 +25,7 @@ const (
 // TaskStatus 备份任务状态.
 type TaskStatus string
 
+// 备份任务状态常量.
 const (
 	TaskStatusPending   TaskStatus = "pending"   // 等待执行
 	TaskStatusRunning   TaskStatus = "running"   // 正在执行
@@ -35,6 +37,7 @@ const (
 // Platform 备份目标平台.
 type Platform string
 
+// 备份目标平台常量.
 const (
 	PlatformPC     Platform = "pc"     // Windows PC
 	PlatformMac    Platform = "mac"    // macOS
