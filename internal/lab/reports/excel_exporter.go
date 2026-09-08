@@ -550,9 +550,11 @@ func (e *ExcelExporter) createChartSheet(f *excelize.File, report *GeneratedRepo
 					Values:     dataRange,
 				},
 			},
-			Title: []excelize.RichTextRun{
-				{
-					Text: fmt.Sprintf("%s 统计", numericFields[0]),
+			Title: excelize.ChartTitle{
+				Paragraph: []excelize.RichTextRun{
+					{
+						Text: fmt.Sprintf("%s 统计", numericFields[0]),
+					},
 				},
 			},
 		}); err != nil {
@@ -1360,7 +1362,7 @@ func (a *AdvancedExcelExporter) createChart(f *excelize.File, chartSheet, dataSh
 	chart := &excelize.Chart{
 		Type:   chartType,
 		Series: series,
-		Title:  []excelize.RichTextRun{{Text: config.Title}},
+		Title:  excelize.ChartTitle{Paragraph: []excelize.RichTextRun{{Text: config.Title}}},
 		Legend: excelize.ChartLegend{Position: config.LegendPosition},
 		PlotArea: excelize.ChartPlotArea{
 			ShowVal: config.ShowValues,

@@ -649,6 +649,15 @@ jobs:
           go build -v ./cmd/...
           echo "✅ 主程序构建验证通过"
       
+      - name: 验证 lab 模块构建
+        run: |
+          # lab 是嵌套独立模块，excelize v2.11.0 升级曾因 CI 只跑其集成测试
+          # 而漏掉编译破损（reports 包不在集成测试依赖内），此处补齐全量构建门禁
+          if [ -f internal/lab/go.mod ]; then
+            (cd internal/lab && go build ./... && go vet ./...)
+            echo "✅ lab 模块构建验证通过"
+          fi
+      
       - name: go vet 检查
         run: |
           go vet ./...
