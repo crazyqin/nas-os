@@ -818,11 +818,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初始化移动端菜单
     MobileMenu.init();
 
-    // 初始化国际化
-    if (window.I18n) {
-        I18n.init();
-    }
-
     // 主题切换按钮
     const themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {

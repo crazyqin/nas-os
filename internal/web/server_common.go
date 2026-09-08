@@ -203,7 +203,6 @@ func (s *Server) registerWebUI(webuiRoot string) {
 	for _, prefix := range []string{"/webui", ""} {
 		s.engine.Static(prefix+"/css", webuiRoot+"/css")
 		s.engine.Static(prefix+"/js", webuiRoot+"/js")
-		s.engine.Static(prefix+"/i18n", webuiRoot+"/i18n")
 		s.engine.Static(prefix+"/brand", webuiRoot+"/brand")
 	}
 	s.engine.StaticFile("/webui/index.html", webuiRoot+"/index.html")
