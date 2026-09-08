@@ -22,6 +22,7 @@ CONFIG_DIR="/etc/nas-os"
 DATA_DIR="/var/lib/nas-os"
 LOG_DIR="/var/log/nas-os"
 SYSTEMD_SERVICE="/etc/systemd/system/nas-os.service"
+WEBUI_DIR="/usr/share/nas-os/webui"
 MAX_RETRY=3
 RETRY_DELAY=5
 
@@ -195,6 +196,35 @@ download_binary() {
     log_success "二进制文件下载完成"
 }
 
+# ========== 下载 Web 管理界面 ==========
+download_webui() {
+    log_info "安装 Web 管理界面..."
+
+    if [[ "$NAS_OS_VERSION" == "latest" ]]; then
+        WEBUI_URL="https://github.com/crazyqin/nas-os/releases/latest/download/webui.tar.gz"
+    else
+        WEBUI_URL="https://github.com/crazyqin/nas-os/releases/download/${NAS_OS_VERSION}/webui.tar.gz"
+    fi
+
+    if ! curl -fsSL "$WEBUI_URL" -o /tmp/nas-os-webui.tar.gz; then
+        if [ -d "$WEBUI_DIR" ]; then
+            log_warn "Web 界面下载失败，保留现有版本（$WEBUI_DIR）"
+        else
+            log_warn "Web 界面下载失败，服务将以 API-only 模式运行（无管理页面）"
+        fi
+        return 0
+    fi
+
+    mkdir -p /usr/share/nas-os
+    rm -rf "$WEBUI_DIR"
+    if tar xzf /tmp/nas-os-webui.tar.gz -C /usr/share/nas-os; then
+        log_success "Web 界面安装完成：$WEBUI_DIR"
+    else
+        log_error "Web 界面解包失败"
+    fi
+    rm -f /tmp/nas-os-webui.tar.gz
+}
+
 # ========== 创建配置文件 ==========
 create_config() {
     log_info "创建配置文件..."
@@ -354,6 +384,7 @@ main() {
     check_btrfs || install_dependencies
     create_directories
     download_binary
+    download_webui
     create_config
     create_systemd_service
     configure_firewall
@@ -365,6 +396,7 @@ main() {
     echo "================================"
     echo
     echo "📊 Web 管理界面：http://$(hostname -I | awk '{print $1}'):8080"
+    echo "🎨 界面资产：$WEBUI_DIR"
     echo "📁 配置文件：$CONFIG_DIR/config.yaml"
     echo "📝 日志查看：journalctl -u nas-os -f"
     echo
