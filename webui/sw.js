@@ -11,6 +11,7 @@ const STATIC_ASSETS = [
     '/css/design-system.css',
     '/css/mobile.css',
     '/js/app.js',
+    '/js/vendor/echarts.min.js',
     '/manifest.json'
 ];
 
