@@ -242,7 +242,7 @@ jobs:
             ~/go/bin
           key: go-tools-${{ env.CACHE_VERSION }}-${{ runner.os }}
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v7
         with:
           version: v2.11.3
           args: --timeout=10m --new-from-rev=origin/master
