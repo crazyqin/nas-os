@@ -21,24 +21,25 @@ import (
 func TestWebUIStaticRoutesServed(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	root := t.TempDir()
-	for _, d := range []string{"css", "js", "i18n", "brand/logo", "pages"} {
+	for _, d := range []string{"css", "js", "js/vendor", "i18n", "brand/logo", "pages"} {
 		if err := os.MkdirAll(filepath.Join(root, d), 0o755); err != nil {
 			t.Fatal(err)
 		}
 	}
 	files := map[string]string{
-		"css/design-system.css":  "body{}",
-		"js/app.js":              "// app",
-		"i18n/zh-CN.json":        "{}",
-		"brand/logo/logo-32.png": "png",
-		"manifest.json":          "{}",
-		"sw.js":                  "// sw",
-		"index.html":             "<html></html>",
-		"pages/login.html":       "<html></html>",
-		"pages/storage.html":     "<html></html>",
-		"pages/api-docs.html":    "<html></html>",
-		"pages/plugins.html":     "<html></html>",
-		"pages/containers.html":  "<html></html>",
+		"css/design-system.css":      "body{}",
+		"js/app.js":                  "// app",
+		"js/vendor/chart.umd.min.js": "/* chart */",
+		"i18n/zh-CN.json":            "{}",
+		"brand/logo/logo-32.png":     "png",
+		"manifest.json":              "{}",
+		"sw.js":                      "// sw",
+		"index.html":                 "<html></html>",
+		"pages/login.html":           "<html></html>",
+		"pages/storage.html":         "<html></html>",
+		"pages/api-docs.html":        "<html></html>",
+		"pages/plugins.html":         "<html></html>",
+		"pages/containers.html":      "<html></html>",
 	}
 	for rel, content := range files {
 		if err := os.WriteFile(filepath.Join(root, rel), []byte(content), 0o644); err != nil {
@@ -55,6 +56,7 @@ func TestWebUIStaticRoutesServed(t *testing.T) {
 		// Root-level assets used by pretty-route pages and the PWA.
 		"/css/design-system.css",
 		"/js/app.js",
+		"/js/vendor/chart.umd.min.js",
 		"/i18n/zh-CN.json",
 		"/brand/logo/logo-32.png",
 		"/manifest.json",
@@ -63,6 +65,7 @@ func TestWebUIStaticRoutesServed(t *testing.T) {
 		"/pages/storage.html",
 		// Brand must also resolve under /webui (pages opened via /webui/pages/…).
 		"/webui/brand/logo/logo-32.png",
+		"/webui/js/vendor/chart.umd.min.js",
 		"/webui/pages/storage.html",
 		// Existing contract must keep working.
 		"/login",
