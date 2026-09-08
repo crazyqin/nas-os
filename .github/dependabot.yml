@@ -28,8 +28,6 @@ updates:
     labels:
       - "dependencies"
       - "go"
-    reviewers:
-      - "mrafter"
     # 忽略重大版本更新（需要手动处理）
     ignore:
       # 示例：忽略 gin 框架主版本更新
@@ -62,8 +60,6 @@ updates:
     labels:
       - "dependencies"
       - "docker"
-    reviewers:
-      - "mrafter"
     ignore:
       # 稳定版本约束
       - dependency-name: "golang"
@@ -84,8 +80,6 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
-    reviewers:
-      - "mrafter"
     groups:
       # 将 GitHub Actions 更新合并为一个 PR
       github-actions:
