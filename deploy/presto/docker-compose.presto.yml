@@ -15,7 +15,7 @@
 services:
   # ==================== Presto 传输服务 ====================
   presto:
-    image: ${NAS_OS_IMAGE:-ghcr.io/nas-os/nas-os:latest}
+    image: ${NAS_OS_IMAGE:-ghcr.io/crazyqin/nas-os:latest}
     container_name: nas-presto
     restart: unless-stopped
 

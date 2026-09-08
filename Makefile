@@ -12,7 +12,7 @@ GOFLAGS=-ldflags="-w -s"
 #   make build        → core (~half size)
 #   make build-full   → full product surface (-tags nasd_full)
 BUILD_TAGS ?=
-DOCKER_IMAGE=ghcr.io/nas-os/nas-os
+DOCKER_IMAGE=ghcr.io/crazyqin/nas-os
 DOCKER_TAG=latest
 
 # 版本信息 (v2.615.0)

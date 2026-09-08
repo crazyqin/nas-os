@@ -6,7 +6,7 @@
 
 services:
   nas-ai:
-    image: ghcr.io/nas-os/nas-os-ai:latest-cpu
+    image: ghcr.io/crazyqin/nas-os-ai:latest-cpu
     build:
       target: ai-cpu
     # CPU 版本：移除 GPU 预留，设置较低资源限制

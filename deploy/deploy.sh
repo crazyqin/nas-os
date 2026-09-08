@@ -19,7 +19,7 @@ DATA_DIR="${DATA_DIR:-/var/lib/nas-os}"
 LOG_DIR="${LOG_DIR:-/var/log/nas-os}"
 VERSION="${VERSION:-latest}"
 DOCKER_VARIANT="${DOCKER_VARIANT:-full}"  # minimal 或 full
-RELEASE_URL="https://github.com/nas-os/nas-os/releases"
+RELEASE_URL="https://github.com/crazyqin/nas-os/releases"
 
 # 颜色
 RED='\033[0;31m'
@@ -285,7 +285,7 @@ deploy_docker() {
         image_tag="${VERSION}-minimal"
     fi
     
-    local image="ghcr.io/nas-os/nas-os:${image_tag}"
+    local image="ghcr.io/crazyqin/nas-os:${image_tag}"
     
     # 拉取镜像
     log_info "拉取镜像: $image ($DOCKER_VARIANT 版本)..."

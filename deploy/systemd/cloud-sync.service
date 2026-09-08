@@ -7,7 +7,7 @@
 
 [Unit]
 Description=NAS-OS Cloud Drive Sync Daemon
-Documentation=https://github.com/nas-os/nas-os
+Documentation=https://github.com/crazyqin/nas-os
 After=network-online.target nas-os.service
 Wants=network-online.target
 PartOf=nas-os.service

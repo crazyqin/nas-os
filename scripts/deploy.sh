@@ -38,7 +38,7 @@ BACKUP_DIR="${BACKUP_DIR:-/var/lib/nas-os/backups}"
 
 # 发布配置
 RELEASE_VERSION="${RELEASE_VERSION:-latest}"
-RELEASE_URL="https://github.com/nas-os/nas-os/releases"
+RELEASE_URL="https://github.com/crazyqin/nas-os/releases"
 
 # 健康检查配置
 HEALTH_CHECK_URL="${HEALTH_CHECK_URL:-http://localhost:8080/api/v1/health}"
@@ -591,7 +591,7 @@ deploy_docker() {
     
     # 拉取镜像
     log_info "拉取镜像..."
-    local image="ghcr.io/nas-os/nas-os:$RELEASE_VERSION"
+    local image="ghcr.io/crazyqin/nas-os:$RELEASE_VERSION"
     run_cmd docker pull "$image"
     
     # 停止旧容器

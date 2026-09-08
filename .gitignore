@@ -45,5 +45,9 @@ credentials.json
 
 # 管理员密码文件
 .admin_password
-**/.admin_passwordnasctl
+**/.admin_password
 nasctl
+
+# Python 字节码
+__pycache__/
+*.pyc
