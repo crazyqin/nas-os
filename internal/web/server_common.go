@@ -147,14 +147,14 @@ func (s *Server) getSystemInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
 		"data": gin.H{
-			"hostname":           hostname,
-			"version":            appversion.GetVersion(),
-			"build_date":         build["build_date"],
-			"git_commit":         build["git_commit"],
-			"products_linked":    ProductsLinked(),
-			"extensions_linked":  ExtensionsLinked(),
-			"surface":            map[bool]string{true: "full", false: "core"}[ProductsLinked()],
-			"mfa_available":      s.mfaMgr != nil,
+			"hostname":          hostname,
+			"version":           appversion.GetVersion(),
+			"build_date":        build["build_date"],
+			"git_commit":        build["git_commit"],
+			"products_linked":   ProductsLinked(),
+			"extensions_linked": ExtensionsLinked(),
+			"surface":           map[bool]string{true: "full", false: "core"}[ProductsLinked()],
+			"mfa_available":     s.mfaMgr != nil,
 		},
 	})
 }
@@ -196,30 +196,49 @@ func (s *Server) registerWebUI(webuiRoot string) {
 	// Only expose full pages tree when products are both wanted and linked.
 	fullPages := optional && ProductsLinked()
 
-	s.engine.Static("/webui/css", webuiRoot+"/css")
-	s.engine.Static("/webui/js", webuiRoot+"/js")
-	s.engine.Static("/webui/i18n", webuiRoot+"/i18n")
+	// Assets are mounted twice: under /webui (pages opened via /webui/pages/…)
+	// and at the origin root (pages served from pretty routes like /, /login,
+	// /storage, whose relative references resolve to /css, /js, /brand, …).
+	// The PWA also registers /sw.js and /manifest.json at the root.
+	for _, prefix := range []string{"/webui", ""} {
+		s.engine.Static(prefix+"/css", webuiRoot+"/css")
+		s.engine.Static(prefix+"/js", webuiRoot+"/js")
+		s.engine.Static(prefix+"/i18n", webuiRoot+"/i18n")
+		s.engine.Static(prefix+"/brand", webuiRoot+"/brand")
+	}
 	s.engine.StaticFile("/webui/index.html", webuiRoot+"/index.html")
 	s.engine.StaticFile("/webui/manifest.json", webuiRoot+"/manifest.json")
+	s.engine.StaticFile("/sw.js", webuiRoot+"/sw.js")
+	s.engine.StaticFile("/manifest.json", webuiRoot+"/manifest.json")
 	s.engine.StaticFile("/", webuiRoot+"/index.html")
 	s.engine.StaticFile("/index.html", webuiRoot+"/index.html")
 
+	// corePageGate serves a page only when it belongs to the core WebUI set.
+	// ".." path segments are rejected outright (defense in depth).
+	corePageGate := func(c *gin.Context) {
+		rel := strings.TrimPrefix(c.Param("filepath"), "/")
+		if rel == "" || strings.Contains(rel, "..") {
+			c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "page not found"})
+			return
+		}
+		base := filepath.Base(rel)
+		if !coreWebUIPages[base] {
+			msg := "optional product UI disabled; set packages.recommended_system=true or modules.optional=true"
+			if optional && !ProductsLinked() {
+				msg = "product UI requested but this binary is Core-only (rebuild with -tags nasd_full)"
+			}
+			c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": msg})
+			return
+		}
+		c.File(filepath.Join(webuiRoot, "pages", rel))
+	}
+
 	if fullPages {
 		s.engine.Static("/webui/pages", webuiRoot+"/pages")
+		s.engine.Static("/pages", webuiRoot+"/pages")
 	} else {
-		s.engine.GET("/webui/pages/*filepath", func(c *gin.Context) {
-			rel := strings.TrimPrefix(c.Param("filepath"), "/")
-			base := filepath.Base(rel)
-			if !coreWebUIPages[base] {
-				msg := "optional product UI disabled; set packages.recommended_system=true or modules.optional=true"
-				if optional && !ProductsLinked() {
-					msg = "product UI requested but this binary is Core-only (rebuild with -tags nasd_full)"
-				}
-				c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": msg})
-				return
-			}
-			c.File(filepath.Join(webuiRoot, "pages", rel))
-		})
+		s.engine.GET("/webui/pages/*filepath", corePageGate)
+		s.engine.GET("/pages/*filepath", corePageGate)
 	}
 
 	s.engine.StaticFile("/login", webuiRoot+"/pages/login.html")
