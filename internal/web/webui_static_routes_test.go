@@ -16,12 +16,12 @@ import (
 // served from pretty routes (/, /login, /dashboard …): those pages reference
 // assets relatively (css/…, ../css, ../brand, pages/…) and app.js registers
 // the PWA service worker at the origin root (/sw.js, /manifest.json), so the
-// server must expose css/js/i18n/brand/pages/sw.js at the root as well, not
+// server must expose css/js/brand/pages/sw.js at the root as well, not
 // only under /webui/*. sw.js precaches the root paths — that is the contract.
 func TestWebUIStaticRoutesServed(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	root := t.TempDir()
-	for _, d := range []string{"css", "js", "js/vendor", "i18n", "brand/logo", "pages"} {
+	for _, d := range []string{"css", "js", "js/vendor", "brand/logo", "pages"} {
 		if err := os.MkdirAll(filepath.Join(root, d), 0o755); err != nil {
 			t.Fatal(err)
 		}
@@ -30,7 +30,6 @@ func TestWebUIStaticRoutesServed(t *testing.T) {
 		"css/design-system.css":      "body{}",
 		"js/app.js":                  "// app",
 		"js/vendor/chart.umd.min.js": "/* chart */",
-		"i18n/zh-CN.json":            "{}",
 		"brand/logo/logo-32.png":     "png",
 		"manifest.json":              "{}",
 		"sw.js":                      "// sw",
@@ -57,7 +56,6 @@ func TestWebUIStaticRoutesServed(t *testing.T) {
 		"/css/design-system.css",
 		"/js/app.js",
 		"/js/vendor/chart.umd.min.js",
-		"/i18n/zh-CN.json",
 		"/brand/logo/logo-32.png",
 		"/manifest.json",
 		"/sw.js",
