@@ -17,7 +17,7 @@
 services:
   # ==================== NAS-OS 主服务 ====================
   nas-os:
-    image: ${NAS_OS_IMAGE:-ghcr.io/nas-os/nas-os:latest}
+    image: ${NAS_OS_IMAGE:-ghcr.io/crazyqin/nas-os:latest}
     build:
       context: .
       dockerfile: Dockerfile

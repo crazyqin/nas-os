@@ -38,7 +38,7 @@ func main() {
 		Short: "NAS-OS 命令行管理工具",
 		Long: `nasctl 是 NAS-OS 的命令行管理工具，提供卷管理、共享管理、快照管理等功能。
 
-完整文档：https://github.com/nas-os/nas-os/docs/NASCTL-CLI.md`,
+完整文档：https://github.com/crazyqin/nas-os`,
 		Version: "1.0.0",
 	}
 

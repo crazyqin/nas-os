@@ -3,7 +3,7 @@
 # ║                    对标 TrueNAS 24.10 简化部署体验                           ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 #
-# 📦 镜像地址: ghcr.io/nas-os/nas-os
+# 📦 镜像地址: ghcr.io/crazyqin/nas-os
 #
 # ⚠️ 生产环境建议直接安装在宿主机（需要磁盘设备访问）
 #    此配置适用于开发测试或受限场景
@@ -87,7 +87,7 @@ services:
   # NAS-OS 主服务
   # ═══════════════════════════════════════════════════════════════════════════
   nas-os:
-    image: ghcr.io/nas-os/nas-os:latest
+    image: ghcr.io/crazyqin/nas-os:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -99,7 +99,7 @@ services:
       - "nas-os.description=NAS-OS Storage Management System"
       - "nas-os.maintainer=工部"
       - "nas-os.version=3.24.3"
-      - "nas-os.docs=https://github.com/nas-os/nas-os"
+      - "nas-os.docs=https://github.com/crazyqin/nas-os"
     
     # ─── 进程管理 ───────────────────────────────────────────────────────────
     # 使用 init 进程管理子进程（PID 1 问题解决方案）

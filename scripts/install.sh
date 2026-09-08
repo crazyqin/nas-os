@@ -9,7 +9,7 @@
 # - 增加安装前系统检查
 # - 优化防火墙配置
 #
-# 用法: curl -fsSL https://raw.githubusercontent.com/your-org/nas-os/main/scripts/install.sh | sudo bash
+# 用法: curl -fsSL https://raw.githubusercontent.com/crazyqin/nas-os/master/scripts/install.sh | sudo bash
 # 或：wget -qO- https://... | sudo bash
 #
 
@@ -176,7 +176,7 @@ download_binary() {
     esac
     
     # 下载（从 GitHub Releases）
-    BASE_URL="https://github.com/your-org/nas-os/releases"
+    BASE_URL="https://github.com/crazyqin/nas-os/releases"
     
     if [[ "$NAS_OS_VERSION" == "latest" ]]; then
         DOWNLOAD_URL="${BASE_URL}/latest/download/nasd-linux-${ARCH}"
@@ -247,7 +247,7 @@ create_systemd_service() {
     cat > "$SYSTEMD_SERVICE" << 'EOF'
 [Unit]
 Description=NAS-OS Management Service
-Documentation=https://github.com/your-org/nas-os
+Documentation=https://github.com/crazyqin/nas-os
 After=network.target btrfs.target
 Wants=btrfs.target
 

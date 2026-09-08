@@ -10,7 +10,7 @@
 services:
   # ========== AI 服务主容器（GPU） ==========
   nas-ai:
-    image: ghcr.io/nas-os/nas-os-ai:latest-gpu
+    image: ghcr.io/crazyqin/nas-os-ai:latest-gpu
     build:
       context: .
       dockerfile: Dockerfile.ai
