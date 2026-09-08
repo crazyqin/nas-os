@@ -16,7 +16,7 @@ func TestNewAdvisor(t *testing.T) {
 func TestRecommend_Lossless(t *testing.T) {
 	advisor := NewAdvisor()
 	opts := RecommendOptions{
-		NetworkBandwidth: 2.0,    // 2000 kbps
+		NetworkBandwidth: 2.0, // 2000 kbps
 		DeviceName:       "HiFi",
 		StorageFreeGB:    100,
 		PreferLossless:   true,

@@ -22,42 +22,42 @@ const (
 type ScrapingSource string
 
 const (
-	SourceTMDB     ScrapingSource = "tmdb"
-	SourceTVDB     ScrapingSource = "tvdb"
-	SourceIMDB     ScrapingSource = "imdb"
+	SourceTMDB        ScrapingSource = "tmdb"
+	SourceTVDB        ScrapingSource = "tvdb"
+	SourceIMDB        ScrapingSource = "imdb"
 	SourceMusicBrainz ScrapingSource = "musicbrainz"
-	SourceLocal    ScrapingSource = "local_embedded"
+	SourceLocal       ScrapingSource = "local_embedded"
 )
 
 // MediaItem describes a single media file needing poster scraping.
 type MediaItem struct {
-	ID            string        `json:"id"`
-	Title         string        `json:"title"`
-	Type          MediaType     `json:"type"`
-	FilePath      string        `json:"file_path"`
-	HasPoster     bool          `json:"has_poster"`
-	HasMetadata   bool          `json:"has_metadata"`
-	HasSubtitle   bool          `json:"has_subtitle"`
-	Source         ScrapingSource `json:"source,omitempty"`
-	Resolution    string        `json:"resolution,omitempty"`
-	DurationMin   int           `json:"duration_min,omitempty"`
-	Year          int           `json:"year,omitempty"`
-	ParseConfidence float64     `json:"parse_confidence,omitempty"`
+	ID              string         `json:"id"`
+	Title           string         `json:"title"`
+	Type            MediaType      `json:"type"`
+	FilePath        string         `json:"file_path"`
+	HasPoster       bool           `json:"has_poster"`
+	HasMetadata     bool           `json:"has_metadata"`
+	HasSubtitle     bool           `json:"has_subtitle"`
+	Source          ScrapingSource `json:"source,omitempty"`
+	Resolution      string         `json:"resolution,omitempty"`
+	DurationMin     int            `json:"duration_min,omitempty"`
+	Year            int            `json:"year,omitempty"`
+	ParseConfidence float64        `json:"parse_confidence,omitempty"`
 }
 
 // Signal describes the current media library scraping state.
 type Signal struct {
 	TotalItems           int
-	ItemsWithoutPoster    int
-	ItemsWithoutMetadata  int
-	ItemsWithoutSubtitle  int
-	ParseFailures         int
-	Items                 []MediaItem
-	LibraryLastScrapedAt  time.Time
-	AutoScrapeEnabled     bool
-	PosterCacheGB         float64
-	MaxPosterCacheGB      float64
-	ParseLowConfidence    int
+	ItemsWithoutPoster   int
+	ItemsWithoutMetadata int
+	ItemsWithoutSubtitle int
+	ParseFailures        int
+	Items                []MediaItem
+	LibraryLastScrapedAt time.Time
+	AutoScrapeEnabled    bool
+	PosterCacheGB        float64
+	MaxPosterCacheGB     float64
+	ParseLowConfidence   int
 }
 
 // Recommendation is an actionable poster scraping suggestion.

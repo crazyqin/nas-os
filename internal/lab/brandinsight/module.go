@@ -16,14 +16,14 @@ import (
 
 // BrandReport is the top-level brand insight report.
 type BrandReport struct {
-	Title         string             // report title
-	Version       string             // NAS-OS version
-	GeneratedAt   time.Time          // generation timestamp
+	Title           string           // report title
+	Version         string           // NAS-OS version
+	GeneratedAt     time.Time        // generation timestamp
 	Differentiators []Differentiator // unique NAS-OS capabilities
-	Competitors   []CompetitorSummary
-	Coverage      CoverageAnalysis
-	Score         float64 // overall brand strength 0–100
-	Summary       string  // executive summary
+	Competitors     []CompetitorSummary
+	Coverage        CoverageAnalysis
+	Score           float64 // overall brand strength 0–100
+	Summary         string  // executive summary
 }
 
 // Differentiator describes a single NAS-OS unique selling point.
@@ -47,20 +47,20 @@ type CompetitorSummary struct {
 
 // CoverageAnalysis compares NAS-OS features against competitors.
 type CoverageAnalysis struct {
-	TotalFeatures    int
-	CoveredFeatures  int // features that have a matching NAS-OS capability
-	UniqueFeatures   int // NAS-OS exclusive features
-	GapFeatures      int // competitor features not covered by NAS-OS
-	FeatureMatrix    []FeatureRow
+	TotalFeatures   int
+	CoveredFeatures int // features that have a matching NAS-OS capability
+	UniqueFeatures  int // NAS-OS exclusive features
+	GapFeatures     int // competitor features not covered by NAS-OS
+	FeatureMatrix   []FeatureRow
 }
 
 // FeatureRow represents a single row in the coverage feature matrix.
 type FeatureRow struct {
 	Feature     string
 	Category    string
-	NASOSScore  int // 0–5 capability score
+	NASOSScore  int            // 0–5 capability score
 	Competitors map[string]int // competitor name → score
-	Status      string // "leading" | "parity" | "gap" | "unique"
+	Status      string         // "leading" | "parity" | "gap" | "unique"
 }
 
 // ---------------------------------------------------------------------------
@@ -75,14 +75,14 @@ func GenerateReport(version string, competitors []CompetitorSummary) (*BrandRepo
 	score := computeScore(diffs, coverage)
 
 	r := &BrandReport{
-		Title:         fmt.Sprintf("NAS-OS Brand Insight Report v%s", version),
-		Version:       version,
-		GeneratedAt:   time.Now(),
+		Title:           fmt.Sprintf("NAS-OS Brand Insight Report v%s", version),
+		Version:         version,
+		GeneratedAt:     time.Now(),
 		Differentiators: diffs,
-		Competitors:   competitors,
-		Coverage:      *coverage,
-		Score:         score,
-		Summary:       buildSummary(diffs, coverage, score),
+		Competitors:     competitors,
+		Coverage:        *coverage,
+		Score:           score,
+		Summary:         buildSummary(diffs, coverage, score),
 	}
 	return r, nil
 }

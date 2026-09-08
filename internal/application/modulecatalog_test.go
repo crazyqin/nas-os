@@ -1,8 +1,8 @@
 package application
 
 import (
-	"path/filepath"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"nas-os/internal/arch"
@@ -92,8 +92,6 @@ func TestModuleCatalogSnapshotReturnsCopy(t *testing.T) {
 	}
 }
 
-
-
 // labRoot returns the on-disk lab tree under internal/lab (in-repo greenhouse).
 // Empty only if the tree is missing (should not happen in a full checkout).
 func labRoot(t *testing.T) string {
@@ -108,7 +106,6 @@ func labRoot(t *testing.T) string {
 	}
 	return ""
 }
-
 
 func TestTieredModulesLiveUnderTieredNamespaces(t *testing.T) {
 	lab := labRoot(t)

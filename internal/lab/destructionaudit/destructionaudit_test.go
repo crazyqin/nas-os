@@ -19,13 +19,13 @@ func TestCreateRequest(t *testing.T) {
 	a := NewAuditor()
 
 	opts := DestructionRequestOptions{
-		RequesterID:  "user-001",
-		TargetPath:   "/data/sensitive/customer_records",
-		DataType:     "database",
-		Sensitivity:  SensitivityConfidential,
-		Reason:       "GDPR Art.17 data subject erasure request",
-		Deadline:     time.Now().Unix() + 86400,
-		ApproverID:   "approver-001",
+		RequesterID: "user-001",
+		TargetPath:  "/data/sensitive/customer_records",
+		DataType:    "database",
+		Sensitivity: SensitivityConfidential,
+		Reason:      "GDPR Art.17 data subject erasure request",
+		Deadline:    time.Now().Unix() + 86400,
+		ApproverID:  "approver-001",
 	}
 
 	req, err := a.CreateRequest(opts)
@@ -81,12 +81,12 @@ func TestCreateRequestPendingApproval(t *testing.T) {
 	a := NewAuditor()
 
 	opts := DestructionRequestOptions{
-		RequesterID:  "user-002",
-		TargetPath:   "/data/logs/access",
-		DataType:     "log",
-		Sensitivity:  SensitivityRestricted,
-		Reason:       "Retention period expired",
-		Deadline:     time.Now().Unix() + 3600,
+		RequesterID: "user-002",
+		TargetPath:  "/data/logs/access",
+		DataType:    "log",
+		Sensitivity: SensitivityRestricted,
+		Reason:      "Retention period expired",
+		Deadline:    time.Now().Unix() + 3600,
 	}
 
 	req, err := a.CreateRequest(opts)
@@ -102,13 +102,13 @@ func TestExecuteDestruction(t *testing.T) {
 	a := NewAuditor()
 
 	opts := DestructionRequestOptions{
-		RequesterID:  "user-001",
-		TargetPath:   "/data/sensitive/db",
-		DataType:     "database",
-		Sensitivity:  SensitivityConfidential,
-		Reason:       "GDPR erasure",
-		Deadline:     time.Now().Unix() + 86400,
-		ApproverID:   "approver-001",
+		RequesterID: "user-001",
+		TargetPath:  "/data/sensitive/db",
+		DataType:    "database",
+		Sensitivity: SensitivityConfidential,
+		Reason:      "GDPR erasure",
+		Deadline:    time.Now().Unix() + 86400,
+		ApproverID:  "approver-001",
 	}
 
 	req, err := a.CreateRequest(opts)
@@ -117,9 +117,9 @@ func TestExecuteDestruction(t *testing.T) {
 	}
 
 	method := DestructionMethod{
-		Type:      MethodOverwrite,
-		Passes:    3,
-		Algorithm: "AES-256",
+		Type:        MethodOverwrite,
+		Passes:      3,
+		Algorithm:   "AES-256",
 		Description: "3-pass overwrite with AES-256 pattern",
 	}
 
@@ -591,13 +591,13 @@ func TestFullWorkflow(t *testing.T) {
 
 	// Step 1: Request
 	req, err := a.CreateRequest(DestructionRequestOptions{
-		RequesterID:  "compliance-officer",
-		TargetPath:   "/data/gdpr/subject-12345",
+		RequesterID: "compliance-officer",
+		TargetPath:  "/data/gdpr/subject-12345",
 		DataType:    "database",
-		Sensitivity:  SensitivityConfidential,
-		Reason:       "GDPR Art.17 right to erasure — data subject request #DSR-12345",
-		Deadline:     time.Now().Unix() + 172800,
-		ApproverID:   "dpo-001",
+		Sensitivity: SensitivityConfidential,
+		Reason:      "GDPR Art.17 right to erasure — data subject request #DSR-12345",
+		Deadline:    time.Now().Unix() + 172800,
+		ApproverID:  "dpo-001",
 	})
 	if err != nil {
 		t.Fatalf("CreateRequest failed: %v", err)

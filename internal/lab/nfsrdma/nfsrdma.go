@@ -14,9 +14,9 @@ import (
 type RDMAStatus string
 
 const (
-	RDMAStatusDown    RDMAStatus = "down"
-	RDMAStatusInit    RDMAStatus = "initializing"
-	RDMAStatusUp      RDMAStatus = "up"
+	RDMAStatusDown     RDMAStatus = "down"
+	RDMAStatusInit     RDMAStatus = "initializing"
+	RDMAStatusUp       RDMAStatus = "up"
 	RDMAStatusDegraded RDMAStatus = "degraded"
 )
 
@@ -24,49 +24,49 @@ const (
 type TransportType string
 
 const (
-	TransportRoCEv2  TransportType = "rocev2"
-	TransportIB       TransportType = "infiniband"
-	TransportIWARP    TransportType = "iwarp"
+	TransportRoCEv2 TransportType = "rocev2"
+	TransportIB     TransportType = "infiniband"
+	TransportIWARP  TransportType = "iwarp"
 )
 
 // RDMAInterface RDMA 网络接口.
 type RDMAInterface struct {
-	Name         string        `json:"name"`
-	Device       string        `json:"device"`
-	Transport    TransportType `json:"transport"`
-	Status       RDMAStatus    `json:"status"`
-	SpeedGbps    int           `json:"speed_gbps"`
-	Port         int           `json:"port"`
-	MTU          int           `json:"mtu"`
-	PeerCount    int           `json:"peer_count"`
-	ErrorCount   int64         `json:"error_count"`
-	RxBytes      int64         `json:"rx_bytes"`
-	TxBytes      int64         `json:"tx_bytes"`
+	Name       string        `json:"name"`
+	Device     string        `json:"device"`
+	Transport  TransportType `json:"transport"`
+	Status     RDMAStatus    `json:"status"`
+	SpeedGbps  int           `json:"speed_gbps"`
+	Port       int           `json:"port"`
+	MTU        int           `json:"mtu"`
+	PeerCount  int           `json:"peer_count"`
+	ErrorCount int64         `json:"error_count"`
+	RxBytes    int64         `json:"rx_bytes"`
+	TxBytes    int64         `json:"tx_bytes"`
 }
 
 // NFSRDMAExport NFS over RDMA 导出配置.
 type NFSRDMAExport struct {
-	ID            string   `json:"id"`
-	Path          string   `json:"path"`
-	ExportPath    string   `json:"export_path"`
-	AllowedHosts  []string `json:"allowed_hosts"`
-	Readonly      bool     `json:"readonly"`
-	Squash        string   `json:"squash"`
-	SecType       string   `json:"sec_type"`
-	RDMAOnly      bool     `json:"rdma_only"`
-	TransportBoth bool     `json:"transport_both"`
-	OutputThrottleBW int64  `json:"output_throttle_bw_mbps"`
+	ID               string   `json:"id"`
+	Path             string   `json:"path"`
+	ExportPath       string   `json:"export_path"`
+	AllowedHosts     []string `json:"allowed_hosts"`
+	Readonly         bool     `json:"readonly"`
+	Squash           string   `json:"squash"`
+	SecType          string   `json:"sec_type"`
+	RDMAOnly         bool     `json:"rdma_only"`
+	TransportBoth    bool     `json:"transport_both"`
+	OutputThrottleBW int64    `json:"output_throttle_bw_mbps"`
 }
 
 // NFSRDMAStats 性能统计.
 type NFSRDMAStats struct {
-	ReadOpsPerSec   float64 `json:"read_ops_sec"`
-	WriteOpsPerSec  float64 `json:"write_ops_sec"`
-	ReadBWMBps      float64 `json:"read_bw_mbps"`
-	WriteBWMBps     float64 `json:"write_bw_mbps"`
-	AvgLatencyUs    float64 `json:"avg_latency_us"`
-	P99LatencyUs    float64 `json:"p99_latency_us"`
-	ActiveConnections int   `json:"active_connections"`
+	ReadOpsPerSec     float64 `json:"read_ops_sec"`
+	WriteOpsPerSec    float64 `json:"write_ops_sec"`
+	ReadBWMBps        float64 `json:"read_bw_mbps"`
+	WriteBWMBps       float64 `json:"write_bw_mbps"`
+	AvgLatencyUs      float64 `json:"avg_latency_us"`
+	P99LatencyUs      float64 `json:"p99_latency_us"`
+	ActiveConnections int     `json:"active_connections"`
 }
 
 // Manager NFS over RDMA 管理器.

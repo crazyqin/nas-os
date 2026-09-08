@@ -13,14 +13,14 @@ import (
 // DestructionAuditor manages data destruction requests, execution, verification,
 // audit trail generation, and compliance certification per GDPR/CCPA and NIST 800-88.
 type DestructionAuditor struct {
-	mu          sync.RWMutex
-	requests    map[string]*DestructionRequest
-	records     map[string]*DestructionRecord
+	mu            sync.RWMutex
+	requests      map[string]*DestructionRequest
+	records       map[string]*DestructionRecord
 	verifications map[string]*VerificationResult
 	certificates  map[string]*DestructionCertificate
-	nextReqID    int
-	nextRecID    int
-	nextCertID   int
+	nextReqID     int
+	nextRecID     int
+	nextCertID    int
 }
 
 // DestructionRequestOptions defines parameters for creating a new destruction request.
@@ -50,11 +50,11 @@ type DestructionRequest struct {
 
 // DestructionMethod describes the method utilized to destroy data.
 type DestructionMethod struct {
-	Type            string
-	Passes          int
-	Algorithm       string
+	Type             string
+	Passes           int
+	Algorithm        string
 	VerificationHash string
-	Description     string
+	Description      string
 }
 
 // DestructionRecord captures the outcome of a destruction execution.
@@ -83,9 +83,9 @@ type VerificationResult struct {
 
 // AuditTrail contains a tamper-evident chain of events for a destruction request.
 type AuditTrail struct {
-	RequestID     string
-	Events        []AuditEvent
-	ChainHash     string
+	RequestID      string
+	Events         []AuditEvent
+	ChainHash      string
 	TamperDetected bool
 }
 
@@ -113,28 +113,28 @@ type DestructionCertificate struct {
 
 // MethodRecommendation suggests a destruction method based on data characteristics.
 type MethodRecommendation struct {
-	RecommendedMethod   string
-	Rationale           string
-	NISTLevel          string
-	EstimatedTime       string
-	Passes              int
-	CompatibleMediums  []string
+	RecommendedMethod string
+	Rationale         string
+	NISTLevel         string
+	EstimatedTime     string
+	Passes            int
+	CompatibleMediums []string
 }
 
 // Sensitivity / method constants
 const (
-	SensitivityRestricted = "restricted"
+	SensitivityRestricted   = "restricted"
 	SensitivityConfidential = "confidential"
-	SensitivitySecret      = "secret"
-	SensitivityTopSecret   = "top_secret"
-	SensitivityPublic      = "public"
+	SensitivitySecret       = "secret"
+	SensitivityTopSecret    = "top_secret"
+	SensitivityPublic       = "public"
 )
 
 const (
-	MethodOverwrite    = "overwrite"
+	MethodOverwrite          = "overwrite"
 	MethodCryptographicErase = "cryptographic_erase"
-	MethodPhysicalDestroy   = "physical_destruction"
-	MethodDegauss      = "degauss"
+	MethodPhysicalDestroy    = "physical_destruction"
+	MethodDegauss            = "degauss"
 )
 
 // NewAuditor creates a fully initialized DestructionAuditor.
@@ -424,9 +424,9 @@ func (a *DestructionAuditor) GenerateAuditTrail(requestID string) (*AuditTrail, 
 	}
 
 	return &AuditTrail{
-		RequestID:     requestID,
-		Events:        events,
-		ChainHash:     chainHash,
+		RequestID:      requestID,
+		Events:         events,
+		ChainHash:      chainHash,
 		TamperDetected: tamperDetected,
 	}, nil
 }
@@ -622,10 +622,10 @@ func buildEvent(timestamp int64, action, actor, details, prevHash string) AuditE
 	hash := computeEventHash(timestamp, action, actor, details, prevHash)
 	return AuditEvent{
 		Timestamp: timestamp,
-		Action:   action,
-		Actor:    actor,
-		Details:  details,
-		Hash:     hash,
+		Action:    action,
+		Actor:     actor,
+		Details:   details,
+		Hash:      hash,
 	}
 }
 

@@ -348,6 +348,12 @@ jobs:
           echo "✅ 校验和文件已生成"
           cat checksums.txt
       
+      - name: 打包 WebUI 静态资产
+        run: |
+          tar czf webui.tar.gz webui/
+          sha256sum webui.tar.gz > webui.tar.gz.sha256
+          echo "✅ WebUI 资产已打包"
+
       - name: 创建发布包
         run: |
           VERSION="${{ needs.prepare-release.outputs.version }}"
@@ -357,6 +363,7 @@ jobs:
           
           # 复制二进制文件
           cp nasd-* nasctl-* release/
+          cp webui.tar.gz webui.tar.gz.sha256 release/
           
           # 复制校验和和 SBOM
           cp checksums.txt checksums.txt.sig release/
@@ -382,6 +389,8 @@ jobs:
           files: |
             nasd-*
             nasctl-*
+            webui.tar.gz
+            webui.tar.gz.sha256
             checksums.txt
             checksums.txt.sig
             sbom/sbom-source-spdx.json

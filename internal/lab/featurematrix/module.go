@@ -160,12 +160,12 @@ func IdentifyGaps(matrix *FeatureMatrix) []GapAnalysis {
 		severity := classifySeverity(entry.Category, gapType, len(aheadCompetitors))
 
 		gaps = append(gaps, GapAnalysis{
-			FeatureName:        entry.Name,
-			Category:           entry.Category,
-			GapType:            gapType,
-			Severity:           severity,
+			FeatureName:         entry.Name,
+			Category:            entry.Category,
+			GapType:             gapType,
+			Severity:            severity,
 			AffectedCompetitors: aheadCompetitors,
-			Description:        entry.Description,
+			Description:         entry.Description,
 		})
 	}
 	return gaps
@@ -223,9 +223,9 @@ func rankSeverity(severity string) int {
 func classifySeverity(category, gapType string, competitorsAhead int) string {
 	// Critical categories that affect core NAS functionality.
 	criticalCategories := map[string]bool{
-		"Storage":    true,
-		"Backup":     true,
-		"Security":   true,
+		"Storage":     true,
+		"Backup":      true,
+		"Security":    true,
 		"FileSharing": true,
 	}
 

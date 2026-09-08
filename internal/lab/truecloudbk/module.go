@@ -15,23 +15,23 @@ import (
 type CloudProvider string
 
 const (
-	CloudProviderS3      CloudProvider = "s3"       // AWS S3
-	CloudProviderB2      CloudProvider = "b2"       // Backblaze B2
-	CloudProviderAzure   CloudProvider = "azure"    // Azure Blob
-	CloudProviderGCS     CloudProvider = "gcs"      // Google Cloud Storage
-	CloudProviderR2      CloudProvider = "r2"       // Cloudflare R2
-	CloudProviderMinIO   CloudProvider = "minio"    // MinIO / S3 兼容
-	CloudProviderOSS     CloudProvider = "oss"      // 阿里云 OSS
-	CloudProviderCOS     CloudProvider = "cos"      // 腾讯云 COS
+	CloudProviderS3    CloudProvider = "s3"    // AWS S3
+	CloudProviderB2    CloudProvider = "b2"    // Backblaze B2
+	CloudProviderAzure CloudProvider = "azure" // Azure Blob
+	CloudProviderGCS   CloudProvider = "gcs"   // Google Cloud Storage
+	CloudProviderR2    CloudProvider = "r2"    // Cloudflare R2
+	CloudProviderMinIO CloudProvider = "minio" // MinIO / S3 兼容
+	CloudProviderOSS   CloudProvider = "oss"   // 阿里云 OSS
+	CloudProviderCOS   CloudProvider = "cos"   // 腾讯云 COS
 )
 
 // JobStatus 备份任务状态.
 type JobStatus string
 
 const (
-	JobStatusPending   JobStatus = "pending"    // 等待执行
-	JobStatusRunning   JobStatus = "running"    // 正在执行
-	JobStatusPaused    JobStatus = "paused"     // 已暂停（可续传）
+	JobStatusPending   JobStatus = "pending"   // 等待执行
+	JobStatusRunning   JobStatus = "running"   // 正在执行
+	JobStatusPaused    JobStatus = "paused"    // 已暂停（可续传）
 	JobStatusCompleted JobStatus = "completed" // 已完成
 	JobStatusFailed    JobStatus = "failed"    // 失败
 	JobStatusVerifying JobStatus = "verifying" // 正在验证
@@ -42,90 +42,90 @@ type EncryptionAlgorithm string
 
 const (
 	EncryptionAES256GCM EncryptionAlgorithm = "aes-256-gcm" // AES-256-GCM
-	EncryptionChaCha20 EncryptionAlgorithm = "chacha20"   // ChaCha20-Poly1305
+	EncryptionChaCha20  EncryptionAlgorithm = "chacha20"    // ChaCha20-Poly1305
 )
 
 // CloudTarget 云备份目标.
 type CloudTarget struct {
-	ID            string            `json:"id"`                       // 目标 ID
-	Name          string            `json:"name"`                     // 目标名称
-	Provider      CloudProvider     `json:"provider"`                 // 云供应商
-	Endpoint      string            `json:"endpoint"`                 // 端点地址
-	Bucket        string            `json:"bucket"`                   // 存储桶
-	AccessKey     string            `json:"-"`                        // 访问密钥（不序列化）
-	SecretKey     string            `json:"-"`                        // 私密密钥（不序列化）
-	Region        string            `json:"region,omitempty"`         // 区域
-	Prefix        string            `json:"prefix,omitempty"`         // 路径前缀
-	StorageClass  string            `json:"storage_class,omitempty"` // 存储类别
-	Encryption    bool              `json:"encryption"`               // 是否启用加密
-	Algorithm     EncryptionAlgorithm `json:"algorithm,omitempty"`    // 加密算法
-	MaxBandwidth  int64             `json:"max_bandwidth,omitempty"`  // 最大带宽限制 (bytes/s)
-	Timeout       time.Duration     `json:"timeout,omitempty"`        // 超时时间
-	CreatedAt     time.Time         `json:"created_at"`              // 创建时间
-	LastAccessed  *time.Time        `json:"last_accessed,omitempty"`  // 最后访问时间
-	Healthy       bool              `json:"healthy"`                  // 连接是否健康
+	ID           string              `json:"id"`                      // 目标 ID
+	Name         string              `json:"name"`                    // 目标名称
+	Provider     CloudProvider       `json:"provider"`                // 云供应商
+	Endpoint     string              `json:"endpoint"`                // 端点地址
+	Bucket       string              `json:"bucket"`                  // 存储桶
+	AccessKey    string              `json:"-"`                       // 访问密钥（不序列化）
+	SecretKey    string              `json:"-"`                       // 私密密钥（不序列化）
+	Region       string              `json:"region,omitempty"`        // 区域
+	Prefix       string              `json:"prefix,omitempty"`        // 路径前缀
+	StorageClass string              `json:"storage_class,omitempty"` // 存储类别
+	Encryption   bool                `json:"encryption"`              // 是否启用加密
+	Algorithm    EncryptionAlgorithm `json:"algorithm,omitempty"`     // 加密算法
+	MaxBandwidth int64               `json:"max_bandwidth,omitempty"` // 最大带宽限制 (bytes/s)
+	Timeout      time.Duration       `json:"timeout,omitempty"`       // 超时时间
+	CreatedAt    time.Time           `json:"created_at"`              // 创建时间
+	LastAccessed *time.Time          `json:"last_accessed,omitempty"` // 最后访问时间
+	Healthy      bool                `json:"healthy"`                 // 连接是否健康
 }
 
 // BackupChain 加密备份链.
 type BackupChain struct {
-	ID            string            `json:"id"`                 // 备份链 ID
-	JobID         string            `json:"job_id"`            // 所属任务 ID
-	TargetID      string            `json:"target_id"`         // 目标 ID
-	Algorithm     EncryptionAlgorithm `json:"algorithm"`       // 加密算法
-	FullBackupID  string            `json:"full_backup_id"`   // 全量备份 ID
-	Increments    []string          `json:"increments"`        // 增量备份 ID 列表
-	TotalSize     int64             `json:"total_size"`        // 链总大小 (bytes)
-	ChunkSize     int64             `json:"chunk_size"`        // 分块大小 (bytes)
-	ManifestHash string            `json:"manifest_hash"`     // 清单哈希
-	CreatedAt     time.Time         `json:"created_at"`        // 创建时间
-	UpdatedAt     time.Time         `json:"updated_at"`        // 更新时间
-	Sealed        bool              `json:"sealed"`            // 备份链是否已封存
+	ID           string              `json:"id"`             // 备份链 ID
+	JobID        string              `json:"job_id"`         // 所属任务 ID
+	TargetID     string              `json:"target_id"`      // 目标 ID
+	Algorithm    EncryptionAlgorithm `json:"algorithm"`      // 加密算法
+	FullBackupID string              `json:"full_backup_id"` // 全量备份 ID
+	Increments   []string            `json:"increments"`     // 增量备份 ID 列表
+	TotalSize    int64               `json:"total_size"`     // 链总大小 (bytes)
+	ChunkSize    int64               `json:"chunk_size"`     // 分块大小 (bytes)
+	ManifestHash string              `json:"manifest_hash"`  // 清单哈希
+	CreatedAt    time.Time           `json:"created_at"`     // 创建时间
+	UpdatedAt    time.Time           `json:"updated_at"`     // 更新时间
+	Sealed       bool                `json:"sealed"`         // 备份链是否已封存
 }
 
 // CloudBackupJob 云备份任务.
 type CloudBackupJob struct {
-	ID            string      `json:"id"`              // 任务 ID
-	Name          string      `json:"name"`            // 任务名称
-	SourcePath    string      `json:"source_path"`     // 源路径
-	TargetIDs     []string    `json:"target_ids"`       // 目标 ID 列表（多云）
-	Status        JobStatus   `json:"status"`           // 任务状态
-	Schedule      string      `json:"schedule"`        // 计划表达式
-	ChainID       string      `json:"chain_id,omitempty"` // 当前备份链 ID
-	TotalBytes    int64       `json:"total_bytes"`      // 总字节数
-	SentBytes     int64       `json:"sent_bytes"`       // 已发送字节数
-	VerifyEnabled bool        `json:"verify_enabled"`   // 是否启用验证
-	MaxRetries    int         `json:"max_retries"`      // 最大重试次数
-	RetryCount    int         `json:"retry_count"`      // 当前重试次数
-	LastRun       *time.Time  `json:"last_run"`         // 最后执行时间
-	NextRun       *time.Time  `json:"next_run"`         // 下次执行时间
-	CreatedAt     time.Time   `json:"created_at"`      // 创建时间
-	UpdatedAt     time.Time   `json:"updated_at"`      // 更新时间
-	ErrorMessage  string      `json:"error_message,omitempty"` // 错误信息
+	ID            string     `json:"id"`                      // 任务 ID
+	Name          string     `json:"name"`                    // 任务名称
+	SourcePath    string     `json:"source_path"`             // 源路径
+	TargetIDs     []string   `json:"target_ids"`              // 目标 ID 列表（多云）
+	Status        JobStatus  `json:"status"`                  // 任务状态
+	Schedule      string     `json:"schedule"`                // 计划表达式
+	ChainID       string     `json:"chain_id,omitempty"`      // 当前备份链 ID
+	TotalBytes    int64      `json:"total_bytes"`             // 总字节数
+	SentBytes     int64      `json:"sent_bytes"`              // 已发送字节数
+	VerifyEnabled bool       `json:"verify_enabled"`          // 是否启用验证
+	MaxRetries    int        `json:"max_retries"`             // 最大重试次数
+	RetryCount    int        `json:"retry_count"`             // 当前重试次数
+	LastRun       *time.Time `json:"last_run"`                // 最后执行时间
+	NextRun       *time.Time `json:"next_run"`                // 下次执行时间
+	CreatedAt     time.Time  `json:"created_at"`              // 创建时间
+	UpdatedAt     time.Time  `json:"updated_at"`              // 更新时间
+	ErrorMessage  string     `json:"error_message,omitempty"` // 错误信息
 }
 
 // VerifyResult 云备份验证结果.
 type VerifyResult struct {
-	JobID          string    `json:"job_id"`            // 任务 ID
-	ChainID        string    `json:"chain_id"`         // 备份链 ID
-	Verified       bool      `json:"verified"`         // 是否验证通过
-	TotalObjects   int64     `json:"total_objects"`    // 总对象数
-	VerifiedObjects int64    `json:"verified_objects"` // 已验证对象数
-	FailedObjects  int64     `json:"failed_objects"`   // 失败对象数
-	HashMismatch   int64     `json:"hash_mismatch"`    // 哈希不匹配数
-	TotalSize      int64     `json:"total_size"`       // 总大小 (bytes)
-	VerifiedSize   int64     `json:"verified_size"`    // 已验证大小 (bytes)
-	StartTime      time.Time `json:"start_time"`       // 开始时间
-	EndTime        *time.Time `json:"end_time,omitempty"` // 结束时间
-	Issues         []string  `json:"issues,omitempty"`  // 问题列表
+	JobID           string     `json:"job_id"`             // 任务 ID
+	ChainID         string     `json:"chain_id"`           // 备份链 ID
+	Verified        bool       `json:"verified"`           // 是否验证通过
+	TotalObjects    int64      `json:"total_objects"`      // 总对象数
+	VerifiedObjects int64      `json:"verified_objects"`   // 已验证对象数
+	FailedObjects   int64      `json:"failed_objects"`     // 失败对象数
+	HashMismatch    int64      `json:"hash_mismatch"`      // 哈希不匹配数
+	TotalSize       int64      `json:"total_size"`         // 总大小 (bytes)
+	VerifiedSize    int64      `json:"verified_size"`      // 已验证大小 (bytes)
+	StartTime       time.Time  `json:"start_time"`         // 开始时间
+	EndTime         *time.Time `json:"end_time,omitempty"` // 结束时间
+	Issues          []string   `json:"issues,omitempty"`   // 问题列表
 }
 
 // Manager 云备份管理器.
 type Manager struct {
 	mu       sync.RWMutex
-	jobs     map[string]*CloudBackupJob  // 任务列表
-	targets  map[string]*CloudTarget      // 目标列表
-	chains   map[string]*BackupChain      // 备份链列表
-	verifies map[string]*VerifyResult     // 验证结果
+	jobs     map[string]*CloudBackupJob // 任务列表
+	targets  map[string]*CloudTarget    // 目标列表
+	chains   map[string]*BackupChain    // 备份链列表
+	verifies map[string]*VerifyResult   // 验证结果
 }
 
 // NewManager 创建云备份管理器.
@@ -208,17 +208,17 @@ func (m *Manager) VerifyBackup(jobID string) (*VerifyResult, error) {
 	job.UpdatedAt = time.Now()
 
 	result := &VerifyResult{
-		JobID:          jobID,
-		ChainID:        job.ChainID,
-		Verified:       true,
-		TotalObjects:   0,
+		JobID:           jobID,
+		ChainID:         job.ChainID,
+		Verified:        true,
+		TotalObjects:    0,
 		VerifiedObjects: 0,
 		FailedObjects:   0,
-		HashMismatch:   0,
-		TotalSize:      job.TotalBytes,
-		VerifiedSize:   job.TotalBytes,
-		StartTime:      time.Now(),
-		Issues:         []string{},
+		HashMismatch:    0,
+		TotalSize:       job.TotalBytes,
+		VerifiedSize:    job.TotalBytes,
+		StartTime:       time.Now(),
+		Issues:          []string{},
 	}
 
 	m.verifies[jobID] = result

@@ -7,21 +7,21 @@ import (
 
 // Signal represents the current state metrics of a hybrid storage pool.
 type Signal struct {
-	HybridPoolEnabled    bool
-	FlashDeviceCount     int
-	FlashDeviceTotalGB   int
-	HDDDeviceCount       int
-	HDDTotalGBGB         int
-	FlashTierRatio       float64
-	HotDataOnFlash       bool
-	ColdDataMigrated     bool
-	PoolUtilizationPct   int
-	FragmentationScore   float64
+	HybridPoolEnabled     bool
+	FlashDeviceCount      int
+	FlashDeviceTotalGB    int
+	HDDDeviceCount        int
+	HDDTotalGBGB          int
+	FlashTierRatio        float64
+	HotDataOnFlash        bool
+	ColdDataMigrated      bool
+	PoolUtilizationPct    int
+	FragmentationScore    float64
 	HasSpecialDeviceClass bool
-	LastRebalanceAge     time.Duration
-	AutoRebalance        bool
-	FlashWearLevelPct    int
-	FlashTemperatureC    int
+	LastRebalanceAge      time.Duration
+	AutoRebalance         bool
+	FlashWearLevelPct     int
+	FlashTemperatureC     int
 }
 
 // Recommendation is a structured suggestion produced by Analyze.

@@ -8,7 +8,7 @@ import (
 func TestAnalyze_PII_NoGDPR(t *testing.T) {
 	recs := Analyze(Signal{
 		PIIDataDetected: true,
-		HasGDPR:        false,
+		HasGDPR:         false,
 	})
 	found := false
 	for _, r := range recs {
@@ -26,7 +26,7 @@ func TestAnalyze_PII_NoGDPR(t *testing.T) {
 
 func TestAnalyze_PII_CrossBorder_NoPIPL(t *testing.T) {
 	recs := Analyze(Signal{
-		PIIDataDetected:  true,
+		PIIDataDetected: true,
 		CrossBorderData: true,
 		HasPIPL:         false,
 	})
@@ -44,7 +44,7 @@ func TestAnalyze_PII_CrossBorder_NoPIPL(t *testing.T) {
 func TestAnalyze_PHI_NoHIPAA(t *testing.T) {
 	recs := Analyze(Signal{
 		PHIDataDetected: true,
-		HasHIPAA:       false,
+		HasHIPAA:        false,
 	})
 	found := false
 	for _, r := range recs {

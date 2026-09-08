@@ -27,7 +27,7 @@ func TestAnalyze_EnableHA(t *testing.T) {
 func TestAnalyze_PrimaryOfflineWithFailover(t *testing.T) {
 	recs := Analyze(Signal{
 		HasPrimaryOffline: true,
-		HAFailoverEnabled:  true,
+		HAFailoverEnabled: true,
 	})
 	found := false
 	for _, r := range recs {
@@ -43,7 +43,7 @@ func TestAnalyze_PrimaryOfflineWithFailover(t *testing.T) {
 func TestAnalyze_PrimaryOfflineNoFailover(t *testing.T) {
 	recs := Analyze(Signal{
 		HasPrimaryOffline: true,
-		HAFailoverEnabled:  false,
+		HAFailoverEnabled: false,
 	})
 	found := false
 	for _, r := range recs {

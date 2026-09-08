@@ -2,7 +2,6 @@
 package storage
 
 import (
-
 	"nas-os/internal/api"
 
 	"github.com/gin-gonic/gin"
@@ -53,4 +52,3 @@ func (h *Handlers) convertRAID(c *gin.Context) {
 func (h *Handlers) getRAIDConfigs(c *gin.Context) {
 	api.OK(c, RAIDConfigs)
 }
-

@@ -12,13 +12,13 @@ import (
 type ComplianceStandard string
 
 const (
-	StandardGDPR      ComplianceStandard = "gdpr"        // EU General Data Protection Regulation
-	StandardPIPL      ComplianceStandard = "pipl"        // China Personal Information Protection Law
-	StandardHIPAA     ComplianceStandard = "hipaa"       // US Health Insurance Portability
-	StandardSOC2      ComplianceStandard = "soc2"        // Service Organization Control 2
-	StandardISO27001  ComplianceStandard = "iso27001"    // ISO/IEC 27001
-	StandardCCPA      ComplianceStandard = "ccpa"        // California Consumer Privacy Act
-	StandardPCI       ComplianceStandard = "pci_dss"     // Payment Card Industry
+	StandardGDPR     ComplianceStandard = "gdpr"     // EU General Data Protection Regulation
+	StandardPIPL     ComplianceStandard = "pipl"     // China Personal Information Protection Law
+	StandardHIPAA    ComplianceStandard = "hipaa"    // US Health Insurance Portability
+	StandardSOC2     ComplianceStandard = "soc2"     // Service Organization Control 2
+	StandardISO27001 ComplianceStandard = "iso27001" // ISO/IEC 27001
+	StandardCCPA     ComplianceStandard = "ccpa"     // California Consumer Privacy Act
+	StandardPCI      ComplianceStandard = "pci_dss"  // Payment Card Industry
 )
 
 // AuditPhase indicates the phase of the compliance workflow.
@@ -28,20 +28,20 @@ const (
 	PhaseDiscovery   AuditPhase = "discovery"    // identify data and scope
 	PhaseGapAnalysis AuditPhase = "gap_analysis" // compare against requirements
 	PhaseRemediation AuditPhase = "remediation"  // fix gaps
-	PhaseEvidence     AuditPhase = "evidence"     // collect audit evidence
-	PhaseReporting    AuditPhase = "reporting"    // generate compliance report
-	PhaseReview       AuditPhase = "review"       // review and sign-off
+	PhaseEvidence    AuditPhase = "evidence"     // collect audit evidence
+	PhaseReporting   AuditPhase = "reporting"    // generate compliance report
+	PhaseReview      AuditPhase = "review"       // review and sign-off
 )
 
 // ControlStatus indicates the status of a compliance control.
 type ControlStatus string
 
 const (
-	ControlPassed    ControlStatus = "passed"
-	ControlFailed    ControlStatus = "failed"
-	ControlWarning   ControlStatus = "warning"
+	ControlPassed        ControlStatus = "passed"
+	ControlFailed        ControlStatus = "failed"
+	ControlWarning       ControlStatus = "warning"
 	ControlNotApplicable ControlStatus = "not_applicable"
-	ControlPending    ControlStatus = "pending"
+	ControlPending       ControlStatus = "pending"
 )
 
 // Control describes a single compliance control check.
@@ -59,45 +59,45 @@ type Control struct {
 
 // Workflow describes a compliance audit workflow state.
 type Workflow struct {
-	Standard      ComplianceStandard `json:"standard"`
-	CurrentPhase  AuditPhase         `json:"current_phase"`
-	Controls      []Control          `json:"controls"`
-	StartTime     time.Time          `json:"start_time"`
-	LastActivity  time.Time          `json:"last_activity"`
-	AssignedTo    string             `json:"assigned_to,omitempty"`
+	Standard     ComplianceStandard `json:"standard"`
+	CurrentPhase AuditPhase         `json:"current_phase"`
+	Controls     []Control          `json:"controls"`
+	StartTime    time.Time          `json:"start_time"`
+	LastActivity time.Time          `json:"last_activity"`
+	AssignedTo   string             `json:"assigned_to,omitempty"`
 }
 
 // Signal aggregates compliance workflow signals for analysis.
 type Signal struct {
-	Workflows           []Workflow          `json:"workflows"`
-	FailedControls      int                 `json:"failed_controls"`
-	WarningControls     int                 `json:"warning_controls"`
-	OverdueReviews      int                 `json:"overdue_reviews"`
-	HasGDPR             bool                `json:"has_gdpr"`
-	HasPIPL             bool                `json:"has_pipl"`
-	HasHIPAA            bool                `json:"has_hipaa"`
-	HasSOC2             bool                `json:"has_soc2"`
-	HasISO27001         bool                `json:"has_iso27001"`
-	PIIDataDetected     bool                `json:"pii_data_detected"`
-	PHIDataDetected     bool                `json:"phi_data_detected"`
-	PaymentDataDetected bool                `json:"payment_data_detected"`
-	CrossBorderData     bool                `json:"cross_border_data"`
-	EncryptionAtRest    bool                `json:"encryption_at_rest"`
-	EncryptionInTransit bool                `json:"encryption_in_transit"`
-	AuditLoggingEnabled bool                `json:"audit_logging_enabled"`
-	TArray             []string            `json:"data_categories_present"`
+	Workflows           []Workflow `json:"workflows"`
+	FailedControls      int        `json:"failed_controls"`
+	WarningControls     int        `json:"warning_controls"`
+	OverdueReviews      int        `json:"overdue_reviews"`
+	HasGDPR             bool       `json:"has_gdpr"`
+	HasPIPL             bool       `json:"has_pipl"`
+	HasHIPAA            bool       `json:"has_hipaa"`
+	HasSOC2             bool       `json:"has_soc2"`
+	HasISO27001         bool       `json:"has_iso27001"`
+	PIIDataDetected     bool       `json:"pii_data_detected"`
+	PHIDataDetected     bool       `json:"phi_data_detected"`
+	PaymentDataDetected bool       `json:"payment_data_detected"`
+	CrossBorderData     bool       `json:"cross_border_data"`
+	EncryptionAtRest    bool       `json:"encryption_at_rest"`
+	EncryptionInTransit bool       `json:"encryption_in_transit"`
+	AuditLoggingEnabled bool       `json:"audit_logging_enabled"`
+	TArray              []string   `json:"data_categories_present"`
 }
 
 // Recommendation is an actionable compliance workflow suggestion.
 type Recommendation struct {
-	ID         string              `json:"id"`
-	Title      string              `json:"title"`
-	Priority   string              `json:"priority"`
-	Action     string              `json:"action"`
-	Reason     string              `json:"reason"`
-	Standard   ComplianceStandard  `json:"standard,omitempty"`
-	Phase      AuditPhase          `json:"phase,omitempty"`
-	ControlID  string              `json:"control_id,omitempty"`
+	ID        string             `json:"id"`
+	Title     string             `json:"title"`
+	Priority  string             `json:"priority"`
+	Action    string             `json:"action"`
+	Reason    string             `json:"reason"`
+	Standard  ComplianceStandard `json:"standard,omitempty"`
+	Phase     AuditPhase         `json:"phase,omitempty"`
+	ControlID string             `json:"control_id,omitempty"`
 }
 
 // Analyze evaluates compliance workflow signals and returns recommendations.
@@ -236,13 +236,13 @@ func Analyze(s Signal) []Recommendation {
 	for _, w := range s.Workflows {
 		if w.CurrentPhase == PhaseDiscovery && time.Since(w.StartTime) > 7*24*time.Hour {
 			recs = append(recs, Recommendation{
-				ID:        fmt.Sprintf("compliance-stalled-%s", w.Standard),
-				Title:     fmt.Sprintf("%s workflow stalled in discovery", w.Standard),
-				Priority:  "medium",
-				Action:    fmt.Sprintf("Advance %s workflow to gap analysis phase; discovery should not exceed 7 days", w.Standard),
-				Reason:    "Workflow has been in discovery for over 7 days; risk of non-compliance increases with delay",
-				Standard:  w.Standard,
-				Phase:     PhaseGapAnalysis,
+				ID:       fmt.Sprintf("compliance-stalled-%s", w.Standard),
+				Title:    fmt.Sprintf("%s workflow stalled in discovery", w.Standard),
+				Priority: "medium",
+				Action:   fmt.Sprintf("Advance %s workflow to gap analysis phase; discovery should not exceed 7 days", w.Standard),
+				Reason:   "Workflow has been in discovery for over 7 days; risk of non-compliance increases with delay",
+				Standard: w.Standard,
+				Phase:    PhaseGapAnalysis,
 			})
 		}
 	}

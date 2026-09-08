@@ -14,33 +14,33 @@ import (
 
 // PosterEntry represents a single movie/show poster in the wall.
 type PosterEntry struct {
-	ID          string   // unique identifier (e.g. tmdb-id or imdb-id)
-	Title       string   // display title
-	OriginalTitle string // original-language title
-	Year        int      // release year
-	Genres      []string // genre tags: Action, Drama, …
-	Rating      float64  // 0–10 aggregate rating (e.g. TMDB/IMDb)
-	VoteCount   int      // number of votes behind the rating
-	PosterURL   string   // remote poster image URL
-	LocalPath   string   // local cached poster path (after scraping)
-	Collection  string   // collection / franchise name (e.g. "Marvel MCU")
-	Width       int      // poster pixel width
-	Height      int      // poster pixel height
-	FileSize    int64    // file size in bytes
-	Enhanced    bool     // whether AI enhancement has been applied
-	Tags        []string // free-form tags
+	ID            string   // unique identifier (e.g. tmdb-id or imdb-id)
+	Title         string   // display title
+	OriginalTitle string   // original-language title
+	Year          int      // release year
+	Genres        []string // genre tags: Action, Drama, …
+	Rating        float64  // 0–10 aggregate rating (e.g. TMDB/IMDb)
+	VoteCount     int      // number of votes behind the rating
+	PosterURL     string   // remote poster image URL
+	LocalPath     string   // local cached poster path (after scraping)
+	Collection    string   // collection / franchise name (e.g. "Marvel MCU")
+	Width         int      // poster pixel width
+	Height        int      // poster pixel height
+	FileSize      int64    // file size in bytes
+	Enhanced      bool     // whether AI enhancement has been applied
+	Tags          []string // free-form tags
 }
 
 // PosterLayout describes the visual arrangement of posters on the wall.
 type PosterLayout struct {
-	Rows       int          // number of rows in the grid
-	Cols       int          // number of columns per row
-	CellWidth  int          // pixel width of each poster cell
-	CellHeight int          // pixel height of each poster cell
-	GapX       int          // horizontal gap in px
-	GapY       int          // vertical gap in px
-	Order      []string     // ordered PosterEntry IDs (left→right, top→bottom)
-	Total      int          // total posters rendered
+	Rows       int      // number of rows in the grid
+	Cols       int      // number of columns per row
+	CellWidth  int      // pixel width of each poster cell
+	CellHeight int      // pixel height of each poster cell
+	GapX       int      // horizontal gap in px
+	GapY       int      // vertical gap in px
+	Order      []string // ordered PosterEntry IDs (left→right, top→bottom)
+	Total      int      // total posters rendered
 }
 
 // ScraperConfig controls poster metadata + image scraping behaviour.
@@ -57,13 +57,13 @@ type ScraperConfig struct {
 
 // PosterEnhanceOption configures AI poster enhancement.
 type PosterEnhanceOption struct {
-	Mode         string // "upscale" | "denoise" | "restore" | "all"
-	TargetWidth  int    // desired output width
-	TargetHeight int    // desired output height
+	Mode         string  // "upscale" | "denoise" | "restore" | "all"
+	TargetWidth  int     // desired output width
+	TargetHeight int     // desired output height
 	Sharpen      float64 // sharpen factor 0–1
 	Denoise      float64 // denoise strength 0–1
-	Format       string // output format: "png" | "jpeg" | "webp"
-	Quality      int    // output quality (1–100, for jpeg/webp)
+	Format       string  // output format: "png" | "jpeg" | "webp"
+	Quality      int     // output quality (1–100, for jpeg/webp)
 }
 
 // -----------------------------------------------------------------------

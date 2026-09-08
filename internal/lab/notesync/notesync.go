@@ -26,11 +26,11 @@ type Note struct {
 
 // SyncResult 是一次同步操作的结果。
 type SyncResult struct {
-	NoteID   string    `json:"note_id"`
-	Status   string    `json:"status"` // "synced", "conflict", "noop"
-	SyncedAt int64     `json:"synced_at"`
+	NoteID    string     `json:"note_id"`
+	Status    string     `json:"status"` // "synced", "conflict", "noop"
+	SyncedAt  int64      `json:"synced_at"`
 	Conflicts []Conflict `json:"conflicts,omitempty"`
-	Version  int       `json:"version"`
+	Version   int        `json:"version"`
 }
 
 // Conflict 描述单个字段上的同步冲突及其解决方式。
@@ -43,9 +43,9 @@ type Conflict struct {
 
 // MergedNote 是冲突合并后的笔记。
 type MergedNote struct {
-	Note             Note   `json:"note"`
-	MergeStrategy    string `json:"merge_strategy"` // "field_level", "local_wins", "remote_wins"
-	ConflictsResolved int   `json:"conflicts_resolved"`
+	Note              Note   `json:"note"`
+	MergeStrategy     string `json:"merge_strategy"` // "field_level", "local_wins", "remote_wins"
+	ConflictsResolved int    `json:"conflicts_resolved"`
 }
 
 // NoteVersion 是笔记某个历史版本的摘要。
@@ -88,8 +88,8 @@ type FlushResult struct {
 // 元数据以及离线编辑队列。
 type NoteSyncEngine struct {
 	mu           sync.RWMutex
-	notes        map[string]*Note            // noteID -> latest note
-	versions     map[string][]NoteVersion    // noteID -> version history
+	notes        map[string]*Note             // noteID -> latest note
+	versions     map[string][]NoteVersion     // noteID -> version history
 	permissions  map[string]map[string]string // notebookID -> user -> permission
 	sharedUsers  map[string][]string          // notebookID -> users list
 	offlineQueue []OfflineQueueEntry          // pending offline edits

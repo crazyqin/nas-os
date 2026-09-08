@@ -403,4 +403,3 @@ func (s *Server) registerProductRoutes(id string) {
 	s.productRoutesRegistered[id] = struct{}{}
 	log.Printf("✅ product routes registered: %s", id)
 }
-

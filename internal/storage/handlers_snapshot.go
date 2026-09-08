@@ -2,7 +2,6 @@
 package storage
 
 import (
-
 	"nas-os/internal/api"
 
 	"github.com/gin-gonic/gin"
@@ -244,4 +243,3 @@ func (h *Handlers) rollbackSnapshot(c *gin.Context) {
 
 	api.OKWithMessage(c, "已回滚到快照", nil)
 }
-

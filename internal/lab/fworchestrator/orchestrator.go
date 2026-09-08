@@ -10,54 +10,54 @@ import (
 
 // UpdatePhase represents a stage in the update process.
 const (
-	PhaseIdle       = "idle"
-	PhasePreCheck   = "pre-check"
-	PhaseBackup     = "backup"
-	PhaseDownload   = "download"
-	PhaseStaging    = "staging"
-	PhaseInstall    = "install"
-	PhasePostCheck  = "post-check"
-	PhaseReboot     = "reboot"
-	PhaseVerify     = "verify"
-	PhaseComplete   = "complete"
-	PhaseFailed     = "failed"
-	PhaseRollback   = "rollback"
+	PhaseIdle      = "idle"
+	PhasePreCheck  = "pre-check"
+	PhaseBackup    = "backup"
+	PhaseDownload  = "download"
+	PhaseStaging   = "staging"
+	PhaseInstall   = "install"
+	PhasePostCheck = "post-check"
+	PhaseReboot    = "reboot"
+	PhaseVerify    = "verify"
+	PhaseComplete  = "complete"
+	PhaseFailed    = "failed"
+	PhaseRollback  = "rollback"
 )
 
 // UpdateStatus represents the current state of a firmware update.
 type UpdateStatus struct {
-	Phase            string     `json:"phase"`
-	CurrentVersion   string     `json:"current_version"`
-	TargetVersion    string     `json:"target_version"`
-	ProgressPercent  int        `json:"progress_percent"`
-	StartedAt        time.Time  `json:"started_at,omitempty"`
-	CompletedAt      time.Time  `json:"completed_at,omitempty"`
-	Error            string     `json:"error,omitempty"`
-	PreCheckPassed   bool       `json:"pre_check_passed"`
-	BackupCreated    bool       `json:"backup_created"`
-	DownloadComplete bool       `json:"download_complete"`
-	StagedOK          bool       `json:"staged_ok"`
-	InstalledOK       bool       `json:"installed_ok"`
-	PostCheckPassed   bool       `json:"post_check_passed"`
-	RebootRequired    bool       `json:"reboot_required"`
-	RollbackAvailable bool       `json:"rollback_available"`
+	Phase             string    `json:"phase"`
+	CurrentVersion    string    `json:"current_version"`
+	TargetVersion     string    `json:"target_version"`
+	ProgressPercent   int       `json:"progress_percent"`
+	StartedAt         time.Time `json:"started_at,omitempty"`
+	CompletedAt       time.Time `json:"completed_at,omitempty"`
+	Error             string    `json:"error,omitempty"`
+	PreCheckPassed    bool      `json:"pre_check_passed"`
+	BackupCreated     bool      `json:"backup_created"`
+	DownloadComplete  bool      `json:"download_complete"`
+	StagedOK          bool      `json:"staged_ok"`
+	InstalledOK       bool      `json:"installed_ok"`
+	PostCheckPassed   bool      `json:"post_check_passed"`
+	RebootRequired    bool      `json:"reboot_required"`
+	RollbackAvailable bool      `json:"rollback_available"`
 }
 
 // Signal describes the firmware update environment.
 type Signal struct {
-	CurrentVersion       string
-	AvailableVersion     string
-	UpdateAvailable      bool
-	IsCriticalUpdate     bool
-	RunningServices      int
-	ActiveConnections    int
-	FreeSpaceMB          int
-	HasBackup            bool
-	LastUpdateTime       time.Time
-	FailedUpdates        int
-	MaintenanceWindow    bool
-	DiskHealthOK         bool
-	Uptime              time.Duration
+	CurrentVersion    string
+	AvailableVersion  string
+	UpdateAvailable   bool
+	IsCriticalUpdate  bool
+	RunningServices   int
+	ActiveConnections int
+	FreeSpaceMB       int
+	HasBackup         bool
+	LastUpdateTime    time.Time
+	FailedUpdates     int
+	MaintenanceWindow bool
+	DiskHealthOK      bool
+	Uptime            time.Duration
 }
 
 // Recommendation is an actionable firmware update suggestion.
@@ -181,9 +181,9 @@ func PlanUpdate(current, target string) []UpdateStatus {
 	plan := make([]UpdateStatus, 0, len(phases))
 	for i, p := range phases {
 		plan = append(plan, UpdateStatus{
-			Phase:          p,
-			CurrentVersion: current,
-			TargetVersion:  target,
+			Phase:           p,
+			CurrentVersion:  current,
+			TargetVersion:   target,
 			ProgressPercent: int(float64(i) / float64(len(phases)) * 100),
 		})
 	}

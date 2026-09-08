@@ -65,8 +65,8 @@ func TestAnalyze_NoStandbyCloseBackup(t *testing.T) {
 func TestAnalyze_DiskSpinDown(t *testing.T) {
 	recs := Analyze(Signal{
 		DiskSpinPolicy: SpinNever,
-		HasSSDCache:   true,
-		IdleSince:     45 * time.Minute,
+		HasSSDCache:    true,
+		IdleSince:      45 * time.Minute,
 	})
 	found := false
 	for _, r := range recs {
@@ -117,8 +117,8 @@ func TestAnalyze_NightlySchedule(t *testing.T) {
 
 func TestAnalyze_SolarAlign(t *testing.T) {
 	recs := Analyze(Signal{
-		HasSolar:        true,
-		SolarPeakHours:  "11:00-14:00",
+		HasSolar:       true,
+		SolarPeakHours: "11:00-14:00",
 	})
 	found := false
 	for _, r := range recs {
@@ -134,7 +134,7 @@ func TestAnalyze_SolarAlign(t *testing.T) {
 func TestAnalyze_EnableWoL(t *testing.T) {
 	recs := Analyze(Signal{
 		CurrentMode: ModeStandby,
-		WakeOnLAN:  false,
+		WakeOnLAN:   false,
 	})
 	found := false
 	for _, r := range recs {
@@ -184,9 +184,9 @@ func TestAnalyze_WakeForUsers(t *testing.T) {
 
 func TestAnalyze_ShortSpinTimer(t *testing.T) {
 	recs := Analyze(Signal{
-		HasSSDCache:      true,
-		DiskSpinPolicy:   SpinAfter10,
-		IdleSince:        5 * time.Minute,
+		HasSSDCache:    true,
+		DiskSpinPolicy: SpinAfter10,
+		IdleSince:      5 * time.Minute,
 	})
 	found := false
 	for _, r := range recs {

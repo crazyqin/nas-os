@@ -10,19 +10,19 @@ import (
 // Signal 描述 NAS 存储池去重相关的信号，参考 TrueNAS ZFS Fast Dedup
 // 和 Synology 存储效率管理。
 type Signal struct {
-	PoolName             string // 存储池名称
-	TotalSizeGB          int    // 池总容量（GB）
-	UsedSizeGB           int    // 已用容量（GB）
-	DedupRatio           float64 // 当前去重率（1.0 = 无去重收益）
-	DedupEnabled         bool    // 是否已启用去重
-	FileCount            int     // 池中文件总数
-	DuplicateFileEstimate int    // 估算重复文件数量
-	AvgFileSizeMB        int     // 平均文件大小（MB）
-	PoolType             string  // 池类型：zfs / btrfs / xfs
-	HasSSDTier           bool    // 是否有 SSD 缓存层
-	FreePercent          int     // 可用空间百分比
-	CompressEnabled      bool    // 是否已启用压缩
-	WorkloadType         string  // 工作负载类型：archive / media / vm / photos / documents
+	PoolName              string  // 存储池名称
+	TotalSizeGB           int     // 池总容量（GB）
+	UsedSizeGB            int     // 已用容量（GB）
+	DedupRatio            float64 // 当前去重率（1.0 = 无去重收益）
+	DedupEnabled          bool    // 是否已启用去重
+	FileCount             int     // 池中文件总数
+	DuplicateFileEstimate int     // 估算重复文件数量
+	AvgFileSizeMB         int     // 平均文件大小（MB）
+	PoolType              string  // 池类型：zfs / btrfs / xfs
+	HasSSDTier            bool    // 是否有 SSD 缓存层
+	FreePercent           int     // 可用空间百分比
+	CompressEnabled       bool    // 是否已启用压缩
+	WorkloadType          string  // 工作负载类型：archive / media / vm / photos / documents
 }
 
 // Recommendation 是一条可操作的去重优化建议。

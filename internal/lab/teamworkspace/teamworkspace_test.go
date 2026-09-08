@@ -358,7 +358,7 @@ func TestManageMembers_BatchMixed(t *testing.T) {
 		{UserID: "user-002", Action: ActionRemove},
 		{UserID: "user-003", Action: ActionUpdate, Permission: PermissionEditor},
 		{UserID: "user-001", Action: ActionAdd, Permission: PermissionEditor}, // duplicate
-		{UserID: "", Action: ActionAdd, Permission: PermissionEditor},  // empty
+		{UserID: "", Action: ActionAdd, Permission: PermissionEditor},         // empty
 	})
 	if err != nil {
 		t.Fatalf("ManageMembers failed: %v", err)
@@ -467,9 +467,9 @@ func TestInviteExternal_Success(t *testing.T) {
 	ws, _ := m.CreateWorkspace(defaultCreateOpts())
 
 	invite := ExternalInvite{
-		Email:      "external@example.com",
-		Permission: PermissionViewer,
-		ExpiresIn:  48,
+		Email:       "external@example.com",
+		Permission:  PermissionViewer,
+		ExpiresIn:   48,
 		WorkspaceID: ws.ID,
 	}
 
@@ -875,9 +875,9 @@ func TestIntegration_FullWorkflow(t *testing.T) {
 
 	// 5. Invite external user
 	inviteResult, err := m.InviteExternal(ws.ID, ExternalInvite{
-		Email:      "contractor@external.com",
-		Permission: PermissionViewer,
-		ExpiresIn:  168, // 1 week
+		Email:       "contractor@external.com",
+		Permission:  PermissionViewer,
+		ExpiresIn:   168, // 1 week
 		WorkspaceID: ws.ID,
 	})
 	if err != nil {

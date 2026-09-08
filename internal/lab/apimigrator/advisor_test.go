@@ -243,12 +243,12 @@ func TestAnalyzeEmptySignal(t *testing.T) {
 	// recommendations: WebSocket, rate limiting, OpenAPI, webhooks,
 	// audit logging, and API documentation.
 	expected := map[string]bool{
-		"enable-websocket-api":    false,
-		"enable-rate-limiting":     false,
-		"enable-openapi-docs":      false,
-		"enable-webhooks":          false,
-		"enable-audit-logging":     false,
-		"update-api-docs":          false,
+		"enable-websocket-api": false,
+		"enable-rate-limiting": false,
+		"enable-openapi-docs":  false,
+		"enable-webhooks":      false,
+		"enable-audit-logging": false,
+		"update-api-docs":      false,
 	}
 
 	for _, r := range recs {
@@ -283,12 +283,12 @@ func TestAnalyzeEmptySignal(t *testing.T) {
 func TestAnalyzeFullyModernizedSignal(t *testing.T) {
 	s := Signal{
 		LegacyAPIEnabled:        false,
-		WebSocketAPIEnabled:      true,
+		WebSocketAPIEnabled:     true,
 		APIKeyAuthMethod:        "scram-sha-512",
 		SCRAMEnabled:            true,
 		APIDeprecatedEndpoints:  0,
 		APIVersion:              "2.0",
-		ClientsUsingLegacyAPI:  0,
+		ClientsUsingLegacyAPI:   0,
 		TokenRotationAge:        30 * 24 * time.Hour,
 		RateLimitEnabled:        true,
 		APIDocumentationUpdated: true,
@@ -309,7 +309,7 @@ func TestAnalyzePriorityOrdering(t *testing.T) {
 		WebSocketAPIEnabled:     false,
 		SCRAMEnabled:            false,
 		APIKeyAuthMethod:        "basic",
-		ClientsUsingLegacyAPI:  5,
+		ClientsUsingLegacyAPI:   5,
 		TokenRotationAge:        100 * 24 * time.Hour,
 		RateLimitEnabled:        false,
 		APIDocumentationUpdated: false,

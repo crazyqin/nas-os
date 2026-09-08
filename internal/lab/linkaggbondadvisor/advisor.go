@@ -8,27 +8,27 @@ import (
 // BondMode constants for Linux bonding driver modes.
 const (
 	BondModeBalanceRR    = "balance-rr"
-	BondModeActiveBackup  = "active-backup"
+	BondModeActiveBackup = "active-backup"
 	BondModeBalanceXOR   = "balance-xor"
-	BondModeBroadcast     = "broadcast"
-	BondMode8023ad        = "802.3ad"
-	BondModeBalanceTLB    = "balance-tlb"
-	BondModeBalanceALB    = "balance-alb"
+	BondModeBroadcast    = "broadcast"
+	BondMode8023ad       = "802.3ad"
+	BondModeBalanceTLB   = "balance-tlb"
+	BondModeBalanceALB   = "balance-alb"
 )
 
 // BondSignal holds the current state of a link aggregation bond for analysis.
 type BondSignal struct {
-	InterfaceName      string
-	BondMode           string
-	SlaveCount         int
-	ActiveSlaves       int
-	ThroughputMbps     float64
-	PacketLoss         float64
-	LatencyMs          float64
-	FailoverCount      int64
-	LastFailoverTime   time.Time
-	RecommendedMode    string
-	EfficiencyScore     float64
+	InterfaceName    string
+	BondMode         string
+	SlaveCount       int
+	ActiveSlaves     int
+	ThroughputMbps   float64
+	PacketLoss       float64
+	LatencyMs        float64
+	FailoverCount    int64
+	LastFailoverTime time.Time
+	RecommendedMode  string
+	EfficiencyScore  float64
 }
 
 // BondRecommendation represents a single bond improvement suggestion.
@@ -59,13 +59,13 @@ var priorityRank = map[string]int{
 
 // validBondModes is the set of recognised Linux bonding modes.
 var validBondModes = map[string]bool{
-	BondModeBalanceRR:   true,
+	BondModeBalanceRR:    true,
 	BondModeActiveBackup: true,
-	BondModeBalanceXOR:  true,
-	BondModeBroadcast:   true,
-	BondMode8023ad:      true,
-	BondModeBalanceTLB:  true,
-	BondModeBalanceALB:  true,
+	BondModeBalanceXOR:   true,
+	BondModeBroadcast:    true,
+	BondMode8023ad:       true,
+	BondModeBalanceTLB:   true,
+	BondModeBalanceALB:   true,
 }
 
 // AnalyzeBond examines the bond signal and returns the recommended mode plus

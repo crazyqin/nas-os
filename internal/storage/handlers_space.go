@@ -117,4 +117,3 @@ func (h *Handlers) getSpaceTrend(c *gin.Context) {
 	trend := h.spaceAnalyzer.predictTrend(volumeName, vol)
 	api.OK(c, trend)
 }
-

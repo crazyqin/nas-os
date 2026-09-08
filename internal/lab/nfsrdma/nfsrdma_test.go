@@ -29,8 +29,8 @@ func TestRDMAInterface(t *testing.T) {
 func TestExport(t *testing.T) {
 	m := NewManager("/tmp/test-rdma")
 	export := &NFSRDMAExport{
-		Path:       "/mnt/pool1/share",
-		ExportPath: "/export/mnt/pool1/share",
+		Path:         "/mnt/pool1/share",
+		ExportPath:   "/export/mnt/pool1/share",
 		AllowedHosts: []string{"192.168.1.0/24"},
 	}
 	if err := m.AddExport(export); err != nil {

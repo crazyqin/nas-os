@@ -18,47 +18,47 @@ import (
 type Protocol string
 
 const (
-	ProtocolOIDC  Protocol = "oidc"
-	ProtocolSAML  Protocol = "saml"
-	ProtocolCAS   Protocol = "cas"
+	ProtocolOIDC Protocol = "oidc"
+	ProtocolSAML Protocol = "saml"
+	ProtocolCAS  Protocol = "cas"
 )
 
 // AppStatus 应用状态.
 type AppStatus string
 
 const (
-	AppStatusActive    AppStatus = "active"
-	AppStatusDisabled  AppStatus = "disabled"
-	AppStatusPending   AppStatus = "pending"
+	AppStatusActive   AppStatus = "active"
+	AppStatusDisabled AppStatus = "disabled"
+	AppStatusPending  AppStatus = "pending"
 )
 
 // SSOApp SSO 应用注册.
 type SSOApp struct {
-	ID           string     `json:"id"`
-	Name         string     `json:"name"`
-	Desc         string     `json:"description"`
-	Protocol     Protocol   `json:"protocol"`
-	Issuer       string     `json:"issuer"`
-	RedirectURIs []string   `json:"redirect_uris"`
-	Secret       string     `json:"secret"` // 只存 hash
-	Status       AppStatus  `json:"status"`
-	CreatedAt    time.Time  `json:"created_at"`
-	UpdatedAt    time.Time  `json:"updated_at"`
-	LogoURL      string     `json:"logo_url,omitempty"`
-	Scopes       []string   `json:"scopes"`
-	TokenTTL     int        `json:"token_ttl_seconds"`
+	ID           string    `json:"id"`
+	Name         string    `json:"name"`
+	Desc         string    `json:"description"`
+	Protocol     Protocol  `json:"protocol"`
+	Issuer       string    `json:"issuer"`
+	RedirectURIs []string  `json:"redirect_uris"`
+	Secret       string    `json:"secret"` // 只存 hash
+	Status       AppStatus `json:"status"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	LogoURL      string    `json:"logo_url,omitempty"`
+	Scopes       []string  `json:"scopes"`
+	TokenTTL     int       `json:"token_ttl_seconds"`
 }
 
 // Session SSO 会话.
 type Session struct {
-	ID          string    `json:"id"`
-	UserID      string    `json:"user_id"`
-	AppID       string    `json:"app_id"`
-	CreatedAt   time.Time `json:"created_at"`
-	ExpiresAt   time.Time `json:"expires_at"`
-	IP          string    `json:"ip"`
-	UserAgent   string    `json:"user_agent"`
-	Revoked     bool      `json:"revoked"`
+	ID        string    `json:"id"`
+	UserID    string    `json:"user_id"`
+	AppID     string    `json:"app_id"`
+	CreatedAt time.Time `json:"created_at"`
+	ExpiresAt time.Time `json:"expires_at"`
+	IP        string    `json:"ip"`
+	UserAgent string    `json:"user_agent"`
+	Revoked   bool      `json:"revoked"`
 }
 
 // AuditEvent 审计事件.
@@ -126,7 +126,7 @@ func (m *Manager) RegisterApp(app *SSOApp) error {
 	m.apps[app.ID] = app
 	m.addAudit(AuditEvent{
 		Type: "app_register", AppID: app.ID,
-		Detail: fmt.Sprintf("App %s registered with protocol %s", app.Name, app.Protocol),
+		Detail:    fmt.Sprintf("App %s registered with protocol %s", app.Name, app.Protocol),
 		Timestamp: time.Now(), Success: true,
 	})
 	return nil
@@ -316,4 +316,3 @@ func randomID(n int) string {
 	rand.Read(b)
 	return hex.EncodeToString(b)
 }
-

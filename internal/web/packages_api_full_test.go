@@ -294,4 +294,3 @@ func TestPluginsPageIsNotMockMarket(t *testing.T) {
 		t.Fatal("plugins.html must not keep mock plugins array as install surface")
 	}
 }
-

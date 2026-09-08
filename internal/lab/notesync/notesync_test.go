@@ -83,7 +83,7 @@ func TestSyncNote_Conflict(t *testing.T) {
 	note := Note{
 		ID:      "note-1",
 		Title:   "Title A",
-		Content:  "content A",
+		Content: "content A",
 		Author:  "alice",
 	}
 	if _, err := e.SyncNote(note); err != nil {
@@ -94,7 +94,7 @@ func TestSyncNote_Conflict(t *testing.T) {
 	conflicting := Note{
 		ID:      "note-1",
 		Title:   "Title B",
-		Content:  "content B",
+		Content: "content B",
 		Author:  "bob",
 	}
 	result, err := e.SyncNote(conflicting)
@@ -188,16 +188,16 @@ func TestMergeConflicts_NoConflicts(t *testing.T) {
 func TestMergeConflicts_MergesTags(t *testing.T) {
 	e := NewEngine()
 	local := Note{
-		ID:    "n1",
-		Title: "T",
+		ID:      "n1",
+		Title:   "T",
 		Content: "c",
-		Tags:  []string{"a", "b"},
+		Tags:    []string{"a", "b"},
 	}
 	remote := Note{
-		ID:    "n1",
-		Title: "T",
+		ID:      "n1",
+		Title:   "T",
 		Content: "c",
-		Tags:  []string{"b", "c"},
+		Tags:    []string{"b", "c"},
 	}
 	merged, err := e.MergeConflicts(local, remote)
 	if err != nil {

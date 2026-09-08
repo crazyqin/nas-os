@@ -24,13 +24,13 @@ func TestEnableHA(t *testing.T) {
 
 func TestConfigureStaticIP(t *testing.T) {
 	s := Signal{
-		HAEnabled:          true,
-		StaticIPConfigured: false,
-		ContainerCount:     3,
-		ContainersWithHA:   3,
-		FailoverTestedAt:   time.Hour,
-		FailoverTestPassed: true,
-		ClusterNodeCount:   2,
+		HAEnabled:              true,
+		StaticIPConfigured:     false,
+		ContainerCount:         3,
+		ContainersWithHA:       3,
+		FailoverTestedAt:       time.Hour,
+		FailoverTestPassed:     true,
+		ClusterNodeCount:       2,
 		CPUFailoverCapacityPct: 100,
 		MemFailoverCapacityGB:  16,
 		StorageReplicated:      true,
@@ -50,13 +50,13 @@ func TestConfigureStaticIP(t *testing.T) {
 
 func TestCoverAllContainers(t *testing.T) {
 	s := Signal{
-		HAEnabled:          true,
-		StaticIPConfigured: true,
-		ContainerCount:     10,
-		ContainersWithHA:   5,
-		FailoverTestedAt:   time.Hour,
-		FailoverTestPassed: true,
-		ClusterNodeCount:   2,
+		HAEnabled:              true,
+		StaticIPConfigured:     true,
+		ContainerCount:         10,
+		ContainersWithHA:       5,
+		FailoverTestedAt:       time.Hour,
+		FailoverTestPassed:     true,
+		ClusterNodeCount:       2,
 		CPUFailoverCapacityPct: 100,
 		MemFailoverCapacityGB:  16,
 		StorageReplicated:      true,
@@ -76,13 +76,13 @@ func TestCoverAllContainers(t *testing.T) {
 
 func TestTestFailover(t *testing.T) {
 	s := Signal{
-		HAEnabled:          true,
-		StaticIPConfigured: true,
-		ContainerCount:     3,
-		ContainersWithHA:   3,
-		FailoverTestedAt:   31 * 24 * time.Hour,
-		FailoverTestPassed: true,
-		ClusterNodeCount:   2,
+		HAEnabled:              true,
+		StaticIPConfigured:     true,
+		ContainerCount:         3,
+		ContainersWithHA:       3,
+		FailoverTestedAt:       31 * 24 * time.Hour,
+		FailoverTestPassed:     true,
+		ClusterNodeCount:       2,
 		CPUFailoverCapacityPct: 100,
 		MemFailoverCapacityGB:  16,
 		StorageReplicated:      true,
@@ -102,13 +102,13 @@ func TestTestFailover(t *testing.T) {
 
 func TestFixFailoverTest(t *testing.T) {
 	s := Signal{
-		HAEnabled:          true,
-		StaticIPConfigured: true,
-		ContainerCount:     3,
-		ContainersWithHA:   3,
-		FailoverTestedAt:   time.Hour,
-		FailoverTestPassed: false,
-		ClusterNodeCount:   2,
+		HAEnabled:              true,
+		StaticIPConfigured:     true,
+		ContainerCount:         3,
+		ContainersWithHA:       3,
+		FailoverTestedAt:       time.Hour,
+		FailoverTestPassed:     false,
+		ClusterNodeCount:       2,
 		CPUFailoverCapacityPct: 100,
 		MemFailoverCapacityGB:  16,
 		StorageReplicated:      true,
@@ -128,13 +128,13 @@ func TestFixFailoverTest(t *testing.T) {
 
 func TestAddClusterNodes(t *testing.T) {
 	s := Signal{
-		HAEnabled:          true,
-		StaticIPConfigured: true,
-		ContainerCount:     3,
-		ContainersWithHA:   3,
-		FailoverTestedAt:   time.Hour,
-		FailoverTestPassed: true,
-		ClusterNodeCount:   1,
+		HAEnabled:              true,
+		StaticIPConfigured:     true,
+		ContainerCount:         3,
+		ContainersWithHA:       3,
+		FailoverTestedAt:       time.Hour,
+		FailoverTestPassed:     true,
+		ClusterNodeCount:       1,
 		CPUFailoverCapacityPct: 100,
 		MemFailoverCapacityGB:  16,
 		StorageReplicated:      true,
@@ -154,13 +154,13 @@ func TestAddClusterNodes(t *testing.T) {
 
 func TestEnableStorageReplication(t *testing.T) {
 	s := Signal{
-		HAEnabled:          true,
-		StaticIPConfigured: true,
-		ContainerCount:     3,
-		ContainersWithHA:   3,
-		FailoverTestedAt:   time.Hour,
-		FailoverTestPassed: true,
-		ClusterNodeCount:   2,
+		HAEnabled:              true,
+		StaticIPConfigured:     true,
+		ContainerCount:         3,
+		ContainersWithHA:       3,
+		FailoverTestedAt:       time.Hour,
+		FailoverTestPassed:     true,
+		ClusterNodeCount:       2,
 		CPUFailoverCapacityPct: 100,
 		MemFailoverCapacityGB:  16,
 		StorageReplicated:      false,
@@ -180,13 +180,13 @@ func TestEnableStorageReplication(t *testing.T) {
 
 func TestAddWitnessNode(t *testing.T) {
 	s := Signal{
-		HAEnabled:          true,
-		StaticIPConfigured: true,
-		ContainerCount:     3,
-		ContainersWithHA:   3,
-		FailoverTestedAt:   time.Hour,
-		FailoverTestPassed: true,
-		ClusterNodeCount:   2,
+		HAEnabled:              true,
+		StaticIPConfigured:     true,
+		ContainerCount:         3,
+		ContainersWithHA:       3,
+		FailoverTestedAt:       time.Hour,
+		FailoverTestPassed:     true,
+		ClusterNodeCount:       2,
 		CPUFailoverCapacityPct: 100,
 		MemFailoverCapacityGB:  16,
 		StorageReplicated:      true,
@@ -206,13 +206,13 @@ func TestAddWitnessNode(t *testing.T) {
 
 func TestFixSplitBrain(t *testing.T) {
 	s := Signal{
-		HAEnabled:          true,
-		StaticIPConfigured: true,
-		ContainerCount:     3,
-		ContainersWithHA:   3,
-		FailoverTestedAt:   time.Hour,
-		FailoverTestPassed: true,
-		ClusterNodeCount:   2,
+		HAEnabled:              true,
+		StaticIPConfigured:     true,
+		ContainerCount:         3,
+		ContainersWithHA:       3,
+		FailoverTestedAt:       time.Hour,
+		FailoverTestPassed:     true,
+		ClusterNodeCount:       2,
 		CPUFailoverCapacityPct: 100,
 		MemFailoverCapacityGB:  16,
 		StorageReplicated:      true,
@@ -233,13 +233,13 @@ func TestFixSplitBrain(t *testing.T) {
 
 func TestIncreaseCPURedundancy(t *testing.T) {
 	s := Signal{
-		HAEnabled:          true,
-		StaticIPConfigured: true,
-		ContainerCount:     3,
-		ContainersWithHA:   3,
-		FailoverTestedAt:   time.Hour,
-		FailoverTestPassed: true,
-		ClusterNodeCount:   2,
+		HAEnabled:              true,
+		StaticIPConfigured:     true,
+		ContainerCount:         3,
+		ContainersWithHA:       3,
+		FailoverTestedAt:       time.Hour,
+		FailoverTestPassed:     true,
+		ClusterNodeCount:       2,
 		CPUFailoverCapacityPct: 80,
 		MemFailoverCapacityGB:  16,
 		StorageReplicated:      true,
@@ -259,13 +259,13 @@ func TestIncreaseCPURedundancy(t *testing.T) {
 
 func TestIncreaseMemRedundancy(t *testing.T) {
 	s := Signal{
-		HAEnabled:          true,
-		StaticIPConfigured: true,
-		ContainerCount:     3,
-		ContainersWithHA:   3,
-		FailoverTestedAt:   time.Hour,
-		FailoverTestPassed: true,
-		ClusterNodeCount:   2,
+		HAEnabled:              true,
+		StaticIPConfigured:     true,
+		ContainerCount:         3,
+		ContainersWithHA:       3,
+		FailoverTestedAt:       time.Hour,
+		FailoverTestPassed:     true,
+		ClusterNodeCount:       2,
 		CPUFailoverCapacityPct: 100,
 		MemFailoverCapacityGB:  8,
 		StorageReplicated:      true,
@@ -299,15 +299,15 @@ func TestPriorityOrdering(t *testing.T) {
 		HAEnabled:              true,
 		StaticIPConfigured:     false, // high
 		ContainerCount:         10,
-		ContainersWithHA:       3,    // high
+		ContainersWithHA:       3,                   // high
 		FailoverTestedAt:       31 * 24 * time.Hour, // medium
-		FailoverTestPassed:     false, // critical
-		ClusterNodeCount:       1,    // critical
-		CPUFailoverCapacityPct: 50,   // medium
-		MemFailoverCapacityGB:  4,    // medium
-		StorageReplicated:      false, // high
-		HasWitnessNode:         false, // medium
-		SplitBrainDetected:     true,  // critical
+		FailoverTestPassed:     false,               // critical
+		ClusterNodeCount:       1,                   // critical
+		CPUFailoverCapacityPct: 50,                  // medium
+		MemFailoverCapacityGB:  4,                   // medium
+		StorageReplicated:      false,               // high
+		HasWitnessNode:         false,               // medium
+		SplitBrainDetected:     true,                // critical
 	}
 	recs := Analyze(s)
 	if len(recs) < 2 {

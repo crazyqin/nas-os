@@ -23,36 +23,36 @@ const (
 type DataRegion string
 
 const (
-	RegionEU        DataRegion = "eu"
-	RegionUS        DataRegion = "us"
-	RegionChina     DataRegion = "china"
-	RegionAPAC      DataRegion = "apac"
-	RegionOnPrem    DataRegion = "on_prem"
-	RegionUnknown   DataRegion = "unknown"
+	RegionEU      DataRegion = "eu"
+	RegionUS      DataRegion = "us"
+	RegionChina   DataRegion = "china"
+	RegionAPAC    DataRegion = "apac"
+	RegionOnPrem  DataRegion = "on_prem"
+	RegionUnknown DataRegion = "unknown"
 )
 
 // DataClass indicates the sensitivity classification of data.
 type DataClass string
 
 const (
-	ClassPublic      DataClass = "public"
-	ClassInternal    DataClass = "internal"
+	ClassPublic       DataClass = "public"
+	ClassInternal     DataClass = "internal"
 	ClassConfidential DataClass = "confidential"
-	ClassRestricted  DataClass = "restricted"
+	ClassRestricted   DataClass = "restricted"
 )
 
 // ShareSignal describes a single share's sovereignty posture.
 type ShareSignal struct {
-	Name            string     `json:"name"`
-	DataClass       DataClass  `json:"data_class"`
-	Region          DataRegion `json:"region"`
-	HasPII          bool       `json:"has_pii"`
-	HasCrossBorderRep bool     `json:"has_cross_border_rep"`
+	Name               string       `json:"name"`
+	DataClass          DataClass    `json:"data_class"`
+	Region             DataRegion   `json:"region"`
+	HasPII             bool         `json:"has_pii"`
+	HasCrossBorderRep  bool         `json:"has_cross_border_rep"`
 	ReplicationRegions []DataRegion `json:"replication_regions,omitempty"`
-	HasEncryption   bool       `json:"has_encryption"`
-	HasAccessLog    bool       `json:"has_access_log"`
-	HasRetentionPolicy bool     `json:"has_retention_policy"`
-	LastAuditAt     time.Time  `json:"last_audit_at"`
+	HasEncryption      bool         `json:"has_encryption"`
+	HasAccessLog       bool         `json:"has_access_log"`
+	HasRetentionPolicy bool         `json:"has_retention_policy"`
+	LastAuditAt        time.Time    `json:"last_audit_at"`
 }
 
 // Signal describes the overall data sovereignty state.
@@ -62,12 +62,12 @@ type Signal struct {
 	PIIShares           int
 	UnencryptedPII      int
 	CrossBorderRepCount int
-	NoAccessLogShares    int
-	NoRetentionShares    int
-	StaleAuditShares     int
-	ActiveRegulations    []Regulation
-	HasDPAProcessors     bool
-	HasDataInventory     bool
+	NoAccessLogShares   int
+	NoRetentionShares   int
+	StaleAuditShares    int
+	ActiveRegulations   []Regulation
+	HasDPAProcessors    bool
+	HasDataInventory    bool
 }
 
 // Recommendation is an actionable sovereignty compliance suggestion.

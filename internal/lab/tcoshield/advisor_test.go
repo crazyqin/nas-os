@@ -11,11 +11,11 @@ func TestEmptySignal(t *testing.T) {
 
 func TestWarrantyUpgrade(t *testing.T) {
 	recs := Analyze(Signal{
-		HardwareCostUSD:   5000,
-		YearsInService:    6,
-		HasWarranty:       false,
-		TotalCapacityTB:    10,
-		UsedCapacityTB:    8,
+		HardwareCostUSD: 5000,
+		YearsInService:  6,
+		HasWarranty:     false,
+		TotalCapacityTB: 10,
+		UsedCapacityTB:  8,
 	})
 	found := false
 	for _, r := range recs {
@@ -56,11 +56,11 @@ func TestEnergyOptimization(t *testing.T) {
 
 func TestCapacityUnderutilized(t *testing.T) {
 	recs := Analyze(Signal{
-		HardwareCostUSD:   5000,
-		YearsInService:    3,
-		HasWarranty:       true,
-		TotalCapacityTB:   100,
-		UsedCapacityTB:    20, // 20% < 30%
+		HardwareCostUSD: 5000,
+		YearsInService:  3,
+		HasWarranty:     true,
+		TotalCapacityTB: 100,
+		UsedCapacityTB:  20, // 20% < 30%
 	})
 	found := false
 	for _, r := range recs {
@@ -113,7 +113,7 @@ func TestCloudComparison(t *testing.T) {
 		TotalCapacityTB:               10,
 		UsedCapacityTB:                8,
 		StaffHoursPerWeek:             5,
-		StaffHourlyRateUSD:            40, // 5*40*52 = 10400 > 3000 → triggers automation
+		StaffHourlyRateUSD:            40,   // 5*40*52 = 10400 > 3000 → triggers automation
 		CloudEquivalentCostPerYearUSD: 5000, // annualTCO = 10000/3 + 2000 + 600 + 0 + 3000 + 0 + 0 + 10400 = 19333.33; 5000 < 0.7*19333 = 13533
 	})
 	found := false
@@ -132,13 +132,13 @@ func TestCloudComparison(t *testing.T) {
 
 func TestCoolingOptimization(t *testing.T) {
 	recs := Analyze(Signal{
-		HardwareCostUSD:         5000,
-		PowerCostPerYearUSD:     1000,
-		CoolingCostPerYearUSD:   600, // > 50% of 1000
-		YearsInService:          3,
-		HasWarranty:             true,
-		TotalCapacityTB:         10,
-		UsedCapacityTB:          8,
+		HardwareCostUSD:       5000,
+		PowerCostPerYearUSD:   1000,
+		CoolingCostPerYearUSD: 600, // > 50% of 1000
+		YearsInService:        3,
+		HasWarranty:           true,
+		TotalCapacityTB:       10,
+		UsedCapacityTB:        8,
 	})
 	found := false
 	for _, r := range recs {
@@ -160,9 +160,9 @@ func TestAvailabilityImprovement(t *testing.T) {
 		MaintenanceCostPerYearUSD: 1000,
 		DowntimeCostPerYearUSD:    5000, // > 1000
 		YearsInService:            3,
-		HasWarranty:              true,
-		TotalCapacityTB:          10,
-		UsedCapacityTB:           8,
+		HasWarranty:               true,
+		TotalCapacityTB:           10,
+		UsedCapacityTB:            8,
 	})
 	found := false
 	for _, r := range recs {

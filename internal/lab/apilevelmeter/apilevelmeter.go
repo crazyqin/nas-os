@@ -13,15 +13,15 @@ import (
 
 // APIKey API Key 定义.
 type APIKey struct {
-	ID          string    `json:"id"`
-	Label       string    `json:"label"`
-	UserID      string    `json:"user_id"`
-	KeyPrefix   string    `json:"key_prefix"` // 只存前8位用于显示
-	Scopes      []string  `json:"scopes"`
-	CreatedAt   time.Time `json:"created_at"`
-	LastUsedAt  *time.Time `json:"last_used_at,omitempty"`
-	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
-	Disabled    bool      `json:"disabled"`
+	ID         string     `json:"id"`
+	Label      string     `json:"label"`
+	UserID     string     `json:"user_id"`
+	KeyPrefix  string     `json:"key_prefix"` // 只存前8位用于显示
+	Scopes     []string   `json:"scopes"`
+	CreatedAt  time.Time  `json:"created_at"`
+	LastUsedAt *time.Time `json:"last_used_at,omitempty"`
+	ExpiresAt  *time.Time `json:"expires_at,omitempty"`
+	Disabled   bool       `json:"disabled"`
 }
 
 // UsageRecord 使用量记录.
@@ -31,8 +31,8 @@ type UsageRecord struct {
 	Method         string    `json:"method"`
 	StatusCode     int       `json:"status_code"`
 	ResponseTimeMs int64     `json:"response_time_ms"`
-	BytesIn        int64    `json:"bytes_in"`
-	BytesOut       int64    `json:"bytes_out"`
+	BytesIn        int64     `json:"bytes_in"`
+	BytesOut       int64     `json:"bytes_out"`
 	Timestamp      time.Time `json:"timestamp"`
 }
 
@@ -42,12 +42,12 @@ type UsageSummary struct {
 	TotalRequests   int64   `json:"total_requests"`
 	ErrorCount      int64   `json:"error_count"`
 	ErrorRate       float64 `json:"error_rate"`
-	TotalBytesIn     int64   `json:"total_bytes_in"`
+	TotalBytesIn    int64   `json:"total_bytes_in"`
 	TotalBytesOut   int64   `json:"total_bytes_out"`
 	AvgResponseMs   float64 `json:"avg_response_ms"`
 	P99ResponseMs   float64 `json:"p99_response_ms"`
 	RequestsPerMin  float64 `json:"requests_per_min"`
-	UniqueEndpoints  int     `json:"unique_endpoints"`
+	UniqueEndpoints int     `json:"unique_endpoints"`
 	WindowMinutes   int     `json:"window_minutes"`
 }
 
@@ -73,11 +73,11 @@ type Alert struct {
 
 // Manager API 使用量管理器.
 type Manager struct {
-	mu       sync.RWMutex
-	keys     map[string]*APIKey
-	records  map[string][]UsageRecord // keyID -> records
-	quotas   map[string]*Quota
-	alerts   []Alert
+	mu               sync.RWMutex
+	keys             map[string]*APIKey
+	records          map[string][]UsageRecord // keyID -> records
+	quotas           map[string]*Quota
+	alerts           []Alert
 	maxRecordsPerKey int
 }
 
@@ -184,11 +184,11 @@ func (m *Manager) GetSummary(keyID string, windowMinutes int) (*UsageSummary, er
 		respTimes = append(respTimes, float64(r.ResponseTimeMs))
 	}
 	summary := &UsageSummary{
-		KeyID:          keyID,
-		TotalRequests:  totalReq,
-		ErrorCount:     errCount,
+		KeyID:           keyID,
+		TotalRequests:   totalReq,
+		ErrorCount:      errCount,
 		UniqueEndpoints: len(endpoints),
-		WindowMinutes:  windowMinutes,
+		WindowMinutes:   windowMinutes,
 	}
 	if totalReq > 0 {
 		summary.ErrorRate = float64(errCount) / float64(totalReq)
@@ -232,7 +232,7 @@ func (m *Manager) CheckQuota(keyID string) (*Quota, error) {
 		q.Throttled = true
 		m.alerts = append(m.alerts, Alert{
 			KeyID: keyID, Type: "rate_limit",
-			Message: fmt.Sprintf("Rate limit exceeded: %d/%d req/min", q.CurrentReqPerMin, q.MaxRequestsPerMin),
+			Message:   fmt.Sprintf("Rate limit exceeded: %d/%d req/min", q.CurrentReqPerMin, q.MaxRequestsPerMin),
 			Timestamp: time.Now(),
 		})
 	}
@@ -240,14 +240,14 @@ func (m *Manager) CheckQuota(keyID string) (*Quota, error) {
 		q.Throttled = true
 		m.alerts = append(m.alerts, Alert{
 			KeyID: keyID, Type: "bandwidth",
-			Message: fmt.Sprintf("Bandwidth limit exceeded: %d/%d bytes/hr", q.CurrentBytesHour, q.MaxBytesPerHour),
+			Message:   fmt.Sprintf("Bandwidth limit exceeded: %d/%d bytes/hr", q.CurrentBytesHour, q.MaxBytesPerHour),
 			Timestamp: time.Now(),
 		})
 	}
 	if q.MaxErrorsPerHour > 0 && q.CurrentErrorsHour >= q.MaxErrorsPerHour {
 		m.alerts = append(m.alerts, Alert{
 			KeyID: keyID, Type: "error_rate",
-			Message: fmt.Sprintf("Error limit exceeded: %d/%d errors/hr", q.CurrentErrorsHour, q.MaxErrorsPerHour),
+			Message:   fmt.Sprintf("Error limit exceeded: %d/%d errors/hr", q.CurrentErrorsHour, q.MaxErrorsPerHour),
 			Timestamp: time.Now(),
 		})
 	}

@@ -2,7 +2,6 @@
 package storage
 
 import (
-
 	"nas-os/internal/api"
 
 	"github.com/gin-gonic/gin"
@@ -82,4 +81,3 @@ func (h *Handlers) removeDevice(c *gin.Context) {
 
 	api.OKWithMessage(c, "设备已移除", nil)
 }
-

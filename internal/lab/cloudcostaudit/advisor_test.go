@@ -148,8 +148,8 @@ func TestAnalyze_EmptySignal(t *testing.T) {
 
 func TestAnalyze_PriorityOrdering(t *testing.T) {
 	recs := Analyze(Signal{
-		TotalMonthlyCost: 500,
-		BudgetMonthlyUSD: 300,
+		TotalMonthlyCost:  500,
+		BudgetMonthlyUSD:  300,
 		HasUnusedAccounts: true,
 		LastAuditAge:      45 * 24 * time.Hour,
 	})

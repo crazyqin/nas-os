@@ -16,7 +16,7 @@ type Manager struct {
 	client    *btrfs.Client
 	volumes   map[string]*Volume
 	mu        sync.RWMutex
-	mountBase string // 挂载基础目录
+	mountBase string           // 挂载基础目录
 	soft      *softDeleteState // soft-delete grace window (lazy)
 }
 

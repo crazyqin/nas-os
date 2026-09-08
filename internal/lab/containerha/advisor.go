@@ -34,10 +34,10 @@ type Recommendation struct {
 // Priority ranking values (lower index = higher priority).
 var priorityRank = map[string]int{
 	"critical": 0,
-	"high":      1,
-	"medium":    2,
-	"low":       3,
-	"info":      4,
+	"high":     1,
+	"medium":   2,
+	"low":      3,
+	"info":     4,
 }
 
 // Analyze examines the container HA signal and returns ordered recommendations.

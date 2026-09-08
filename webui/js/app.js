@@ -125,7 +125,7 @@ const ChartManager = {
     loadECharts() {
         return new Promise((resolve, reject) => {
             const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js';
+            script.src = '/js/vendor/echarts.min.js';
             script.onload = resolve;
             script.onerror = reject;
             document.head.appendChild(script);

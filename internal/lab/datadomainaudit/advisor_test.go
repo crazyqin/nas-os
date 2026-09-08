@@ -278,12 +278,12 @@ func TestAdvisor_EmptySignal_NoConditionalRecs(t *testing.T) {
 
 func TestAdvisor_AllViolations(t *testing.T) {
 	s := Signal{
-		PIIPresent:                   true,
-		PIIEncrypted:                 false,
-		CrossBorderReplication:       true,
-		DataResidencyPolicyExists:    false,
-		AccessLogComplete:            false,
-		RetentionPolicyExists:        false,
+		PIIPresent:                    true,
+		PIIEncrypted:                  false,
+		CrossBorderReplication:        true,
+		DataResidencyPolicyExists:     false,
+		AccessLogComplete:             false,
+		RetentionPolicyExists:         false,
 		DataProcessingInventoryExists: false,
 		DPAAgreementExists:            false,
 		EncryptionAtRest:              false,
@@ -302,12 +302,12 @@ func TestAdvisor_AllViolations(t *testing.T) {
 
 func TestAdvisor_AllCompliant(t *testing.T) {
 	s := Signal{
-		PIIPresent:                   true,
-		PIIEncrypted:                 true,
-		CrossBorderReplication:       true,
-		DataResidencyPolicyExists:    true,
-		AccessLogComplete:            true,
-		RetentionPolicyExists:        true,
+		PIIPresent:                    true,
+		PIIEncrypted:                  true,
+		CrossBorderReplication:        true,
+		DataResidencyPolicyExists:     true,
+		AccessLogComplete:             true,
+		RetentionPolicyExists:         true,
 		DataProcessingInventoryExists: true,
 		DPAAgreementExists:            true,
 		EncryptionAtRest:              true,
@@ -326,13 +326,13 @@ func TestAdvisor_AllCompliant(t *testing.T) {
 
 func TestAdvisor_PriorityOrdering(t *testing.T) {
 	s := Signal{
-		PIIPresent:                   true,
+		PIIPresent:                    true,
 		PIIEncrypted:                  false,
-		CrossBorderReplication:       true,
-		DataLocalizationRequired:     true,
-		DataResidencyPolicyExists:    false,
-		AccessLogComplete:            false,
-		RetentionPolicyExists:        false,
+		CrossBorderReplication:        true,
+		DataLocalizationRequired:      true,
+		DataResidencyPolicyExists:     false,
+		AccessLogComplete:             false,
+		RetentionPolicyExists:         false,
 		DataProcessingInventoryExists: false,
 		DPAAgreementExists:            false,
 		ThirdPartyDataSharing:         true,
@@ -355,12 +355,12 @@ func TestAdvisor_PriorityOrdering(t *testing.T) {
 func TestAdvisor_PriorityOrdering_AllPresent(t *testing.T) {
 	// Trigger all 11 recommendations and verify strict ordering
 	s := Signal{
-		PIIPresent:                   true,
+		PIIPresent:                    true,
 		PIIEncrypted:                  false,
-		CrossBorderReplication:       true,
-		DataResidencyPolicyExists:    false,
-		AccessLogComplete:            false,
-		RetentionPolicyExists:        false,
+		CrossBorderReplication:        true,
+		DataResidencyPolicyExists:     false,
+		AccessLogComplete:             false,
+		RetentionPolicyExists:         false,
 		DataProcessingInventoryExists: false,
 		DPAAgreementExists:            false,
 		EncryptionAtRest:              false,
@@ -400,15 +400,15 @@ func TestAdvisor_PriorityOrdering_AllPresent(t *testing.T) {
 
 func TestAdvisor_JurisdictionFieldPreserved(t *testing.T) {
 	s := Signal{
-		Jurisdiction:              "EU-GDPR",
-		DataResidencyPolicyExists: true,
-		AccessLogComplete:         true,
-		RetentionPolicyExists:     true,
+		Jurisdiction:                  "EU-GDPR",
+		DataResidencyPolicyExists:     true,
+		AccessLogComplete:             true,
+		RetentionPolicyExists:         true,
 		DataProcessingInventoryExists: true,
-		EncryptionAtRest:          true,
-		EncryptionInTransit:       true,
-		DSARCompliant:             true,
-		BreachNotificationReady:   true,
+		EncryptionAtRest:              true,
+		EncryptionInTransit:           true,
+		DSARCompliant:                 true,
+		BreachNotificationReady:       true,
 	}
 	recs := Analyze(s)
 	if len(recs) != 0 {

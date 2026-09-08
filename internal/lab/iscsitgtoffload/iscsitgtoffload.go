@@ -16,52 +16,52 @@ import (
 type OffloadStatus string
 
 const (
-	OffloadStatusDisabled  OffloadStatus = "disabled"
-	OffloadStatusEnabling  OffloadStatus = "enabling"
-	OffloadStatusEnabled   OffloadStatus = "enabled"
-	OffloadStatusFailed    OffloadStatus = "failed"
-	OffloadStatusDegraded  OffloadStatus = "degraded"
+	OffloadStatusDisabled OffloadStatus = "disabled"
+	OffloadStatusEnabling OffloadStatus = "enabling"
+	OffloadStatusEnabled  OffloadStatus = "enabled"
+	OffloadStatusFailed   OffloadStatus = "failed"
+	OffloadStatusDegraded OffloadStatus = "degraded"
 )
 
 // OffloadType 卸载硬件类型.
 type OffloadType string
 
 const (
-	OffloadTypeNIC     OffloadType = "smartnic"    // 智能网卡
-	OffloadTypeHBAL    OffloadType = "hba"          // 专用 HBA
-	OffloadTypeDPU     OffloadType = "dpu"           // DPU 数据处理单元
-	OffloadTypeTCPOff  OffloadType = "tcp_offload"   // TCP 卸载引擎
+	OffloadTypeNIC    OffloadType = "smartnic"    // 智能网卡
+	OffloadTypeHBAL   OffloadType = "hba"         // 专用 HBA
+	OffloadTypeDPU    OffloadType = "dpu"         // DPU 数据处理单元
+	OffloadTypeTCPOff OffloadType = "tcp_offload" // TCP 卸载引擎
 )
 
 // OffloadEngine 卸载引擎.
 type OffloadEngine struct {
-	ID           string        `json:"id"`
-	Name         string        `json:"name"`
-	Type         OffloadType   `json:"type"`
-	Device       string        `json:"device"`
-	PCISlot      string        `json:"pci_slot"`
-	Status       OffloadStatus  `json:"status"`
-	Firmware     string        `json:"firmware"`
-	MaxTargets   int           `json:"max_targets"`
-	MaxSessions  int           `json:"max_sessions"`
-	MaxLunMBps   int           `json:"max_lun_mbps"`
-	ActiveTargets int          `json:"active_targets"`
-	ActiveSessions int         `json:"active_sessions"`
-	CPUUsage     float64       `json:"cpu_usage"` // 卸载引擎自身 CPU 占用
-	Temperature  float64       `json:"temperature_c"`
+	ID             string        `json:"id"`
+	Name           string        `json:"name"`
+	Type           OffloadType   `json:"type"`
+	Device         string        `json:"device"`
+	PCISlot        string        `json:"pci_slot"`
+	Status         OffloadStatus `json:"status"`
+	Firmware       string        `json:"firmware"`
+	MaxTargets     int           `json:"max_targets"`
+	MaxSessions    int           `json:"max_sessions"`
+	MaxLunMBps     int           `json:"max_lun_mbps"`
+	ActiveTargets  int           `json:"active_targets"`
+	ActiveSessions int           `json:"active_sessions"`
+	CPUUsage       float64       `json:"cpu_usage"` // 卸载引擎自身 CPU 占用
+	Temperature    float64       `json:"temperature_c"`
 }
 
 // OffloadTarget 卸载 iSCSI Target.
 type OffloadTarget struct {
-	ID          string   `json:"id"`
-	IQN         string   `json:"iqn"`
-	LunCount    int      `json:"lun_count"`
-	EngineID    string   `json:"engine_id"`
-	ReadMBps    float64  `json:"read_mbps"`
-	WriteMBps   float64  `json:"write_mbps"`
-	ReadIOPS    int64    `json:"read_iops"`
-	WriteIOPS   int64    `json:"write_iops"`
-	CPUOffload  float64  `json:"cpu_offload_percent"` // CPU 占用减少百分比
+	ID         string  `json:"id"`
+	IQN        string  `json:"iqn"`
+	LunCount   int     `json:"lun_count"`
+	EngineID   string  `json:"engine_id"`
+	ReadMBps   float64 `json:"read_mbps"`
+	WriteMBps  float64 `json:"write_mbps"`
+	ReadIOPS   int64   `json:"read_iops"`
+	WriteIOPS  int64   `json:"write_iops"`
+	CPUOffload float64 `json:"cpu_offload_percent"` // CPU 占用减少百分比
 }
 
 // OffloadStats 卸载性能统计.
@@ -74,15 +74,15 @@ type OffloadStats struct {
 	CpuSavedPercent float64 `json:"cpu_saved_percent"`
 	SessionCount    int     `json:"session_count"`
 	LatencyAvgUs    float64 `json:"latency_avg_us"`
-	ErrorsLast1h    int      `json:"errors_last_1h"`
+	ErrorsLast1h    int     `json:"errors_last_1h"`
 }
 
 // Manager 卸载管理器.
 type Manager struct {
-	mu       sync.RWMutex
-	engines  map[string]*OffloadEngine
-	targets  map[string]*OffloadTarget
-	stats    map[string]*OffloadStats
+	mu      sync.RWMutex
+	engines map[string]*OffloadEngine
+	targets map[string]*OffloadTarget
+	stats   map[string]*OffloadStats
 }
 
 var idCounter uint64

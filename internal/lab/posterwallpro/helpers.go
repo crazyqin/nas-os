@@ -22,13 +22,13 @@ func sanitizeID(title string, year int) string {
 }
 
 var genreKeywords = map[string][]string{
-	"Action":  {"fight", "war", "battle", "gun", "mission"},
-	"Drama":   {"love", "life", "heart", "story", "family"},
-	"Comedy":  {"funny", "laugh", "comedy", "happy"},
-	"Horror":  {"terror", "scary", "blood", "ghost", "demon"},
-	"Sci-Fi":  {"space", "alien", "future", "robot", "cyber"},
-	"Fantasy": {"magic", "dragon", "wizard", "kingdom"},
-	"Crime":   {"crime", "police", "detective", "gangster"},
+	"Action":   {"fight", "war", "battle", "gun", "mission"},
+	"Drama":    {"love", "life", "heart", "story", "family"},
+	"Comedy":   {"funny", "laugh", "comedy", "happy"},
+	"Horror":   {"terror", "scary", "blood", "ghost", "demon"},
+	"Sci-Fi":   {"space", "alien", "future", "robot", "cyber"},
+	"Fantasy":  {"magic", "dragon", "wizard", "kingdom"},
+	"Crime":    {"crime", "police", "detective", "gangster"},
 	"Thriller": {"suspense", "mystery", "psycho"},
 }
 

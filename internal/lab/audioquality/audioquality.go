@@ -16,9 +16,9 @@ import (
 
 // 音质等级常量
 const (
-	TierLossless  = "lossless"  // 无损 FLAC/ALAC
-	TierHigh      = "high"      // 高品 320k AAC
-	TierStandard  = "standard"  // 标准 192k AAC
+	TierLossless   = "lossless"   // 无损 FLAC/ALAC
+	TierHigh       = "high"       // 高品 320k AAC
+	TierStandard   = "standard"   // 标准 192k AAC
 	TierCompressed = "compressed" // 压缩 128k MP3
 )
 
@@ -35,15 +35,15 @@ var bluetoothCodecTable = map[string]struct {
 	MaxBitrate int
 	Lossless   bool
 }{
-	"LDAC":    {MaxBitrate: 990, Lossless: false},
-	"LDHC":    {MaxBitrate: 1024, Lossless: false},
-	"aptX":    {MaxBitrate: 384, Lossless: false},
-	"aptX_HD": {MaxBitrate: 576, Lossless: false},
+	"LDAC":          {MaxBitrate: 990, Lossless: false},
+	"LDHC":          {MaxBitrate: 1024, Lossless: false},
+	"aptX":          {MaxBitrate: 384, Lossless: false},
+	"aptX_HD":       {MaxBitrate: 576, Lossless: false},
 	"aptX_Adaptive": {MaxBitrate: 420, Lossless: false},
-	"AAC":     {MaxBitrate: 256, Lossless: false},
-	"SBC":     {MaxBitrate: 328, Lossless: false},
-	"LC3":     {MaxBitrate: 345, Lossless: false},
-	"LC3plus": {MaxBitrate: 512, Lossless: false},
+	"AAC":           {MaxBitrate: 256, Lossless: false},
+	"SBC":           {MaxBitrate: 328, Lossless: false},
+	"LC3":           {MaxBitrate: 345, Lossless: false},
+	"LC3plus":       {MaxBitrate: 512, Lossless: false},
 }
 
 // AudioQualityAdvisor 智能音频流质量控制适配器。
@@ -84,10 +84,10 @@ type BluetoothDeviceInfo struct {
 
 // CodecMatch 编解码器匹配结果。
 type CodecMatch struct {
-	RecommendedCodec     string // 推荐编解码器
-	MaxSupportedBitrate  int    // 最大支持比特率 kbps
-	Compatible           bool   // 是否兼容
-	Notes                string // 备注
+	RecommendedCodec    string // 推荐编解码器
+	MaxSupportedBitrate int    // 最大支持比特率 kbps
+	Compatible          bool   // 是否兼容
+	Notes               string // 备注
 }
 
 // QualityProfile 音质配置。
@@ -100,11 +100,11 @@ type QualityProfile struct {
 
 // DowngradeResult 降级结果。
 type DowngradeResult struct {
-	NewTier         string  // 新音质等级
-	NewBitrate      int     // 新比特率 kbps
-	SavingsPercent  float64 // 节省百分比
-	QualityLoss     string  // 音质损失描述
-	Recommended     bool    // 是否推荐降级
+	NewTier        string  // 新音质等级
+	NewBitrate     int     // 新比特率 kbps
+	SavingsPercent float64 // 节省百分比
+	QualityLoss    string  // 音质损失描述
+	Recommended    bool    // 是否推荐降级
 }
 
 // NewAdvisor 创建音频质量推荐器。

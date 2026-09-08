@@ -15,15 +15,17 @@ import (
 // TaskType 备份任务类型.
 type TaskType string
 
+// 备份任务类型常量.
 const (
-	TaskTypeFull    TaskType = "full"    // 完整备份
-	TaskTypeIncremental TaskType = "incremental" // 增量备份
+	TaskTypeFull         TaskType = "full"         // 完整备份
+	TaskTypeIncremental  TaskType = "incremental"  // 增量备份
 	TaskTypeDifferential TaskType = "differential" // 差异备份
 )
 
 // TaskStatus 备份任务状态.
 type TaskStatus string
 
+// 备份任务状态常量.
 const (
 	TaskStatusPending   TaskStatus = "pending"   // 等待执行
 	TaskStatusRunning   TaskStatus = "running"   // 正在执行
@@ -35,92 +37,93 @@ const (
 // Platform 备份目标平台.
 type Platform string
 
+// 备份目标平台常量.
 const (
-	PlatformPC       Platform = "pc"       // Windows PC
-	PlatformMac      Platform = "mac"      // macOS
-	PlatformServer   Platform = "server"   // 服务器
-	PlatformVM       Platform = "vm"       // 虚拟机
+	PlatformPC     Platform = "pc"     // Windows PC
+	PlatformMac    Platform = "mac"    // macOS
+	PlatformServer Platform = "server" // 服务器
+	PlatformVM     Platform = "vm"     // 虚拟机
 )
 
 // ProtectTask 备份保护任务.
 type ProtectTask struct {
-	ID            string      `json:"id"`              // 任务 ID
-	Name          string      `json:"name"`            // 任务名称
-	Platform      Platform    `json:"platform"`         // 目标平台
-	TargetHost    string      `json:"target_host"`      // 目标主机地址
-	TargetPath    string      `json:"target_path"`      // 目标路径
-	Type          TaskType    `json:"type"`             // 备份类型
-	Status        TaskStatus  `json:"status"`           // 任务状态
-	TemplateID    string      `json:"template_id"`      // 使用的模板 ID
-	Schedule      string      `json:"schedule"`         // 计划表达式 (cron)
-	LastRun       *time.Time  `json:"last_run"`         // 最后执行时间
-	NextRun       *time.Time  `json:"next_run"`         // 下次执行时间
-	TotalSize     int64       `json:"total_size"`       // 备份总大小 (bytes)
-	DedupSize     int64       `json:"dedup_size"`       // 去重后大小 (bytes)
-	KeepVersions  int         `json:"keep_versions"`   // 保留版本数
-	CreatedAt     time.Time   `json:"created_at"`      // 创建时间
-	UpdatedAt     time.Time   `json:"updated_at"`      // 更新时间
-	ErrorMessage  string      `json:"error_message,omitempty"` // 错误信息
+	ID           string     `json:"id"`                      // 任务 ID
+	Name         string     `json:"name"`                    // 任务名称
+	Platform     Platform   `json:"platform"`                // 目标平台
+	TargetHost   string     `json:"target_host"`             // 目标主机地址
+	TargetPath   string     `json:"target_path"`             // 目标路径
+	Type         TaskType   `json:"type"`                    // 备份类型
+	Status       TaskStatus `json:"status"`                  // 任务状态
+	TemplateID   string     `json:"template_id"`             // 使用的模板 ID
+	Schedule     string     `json:"schedule"`                // 计划表达式 (cron)
+	LastRun      *time.Time `json:"last_run"`                // 最后执行时间
+	NextRun      *time.Time `json:"next_run"`                // 下次执行时间
+	TotalSize    int64      `json:"total_size"`              // 备份总大小 (bytes)
+	DedupSize    int64      `json:"dedup_size"`              // 去重后大小 (bytes)
+	KeepVersions int        `json:"keep_versions"`           // 保留版本数
+	CreatedAt    time.Time  `json:"created_at"`              // 创建时间
+	UpdatedAt    time.Time  `json:"updated_at"`              // 更新时间
+	ErrorMessage string     `json:"error_message,omitempty"` // 错误信息
 }
 
 // ProtectTemplate 备份计划模板.
 type ProtectTemplate struct {
-	ID            string     `json:"id"`              // 模板 ID
-	Name          string     `json:"name"`            // 模板名称
-	Description   string     `json:"description"`     // 模板描述
-	Platform      Platform   `json:"platform"`        // 适用平台
-	DefaultType   TaskType   `json:"default_type"`    // 默认备份类型
-	Schedule      string     `json:"schedule"`        // 默认计划表达式
-	KeepVersions  int        `json:"keep_versions"`   // 默认保留版本数
-	Compression   bool       `json:"compression"`     // 是否启用压缩
-	Encryption    bool       `json:"encryption"`      // 是否启用加密
-	CreatedAt     time.Time  `json:"created_at"`      // 创建时间
+	ID           string    `json:"id"`            // 模板 ID
+	Name         string    `json:"name"`          // 模板名称
+	Description  string    `json:"description"`   // 模板描述
+	Platform     Platform  `json:"platform"`      // 适用平台
+	DefaultType  TaskType  `json:"default_type"`  // 默认备份类型
+	Schedule     string    `json:"schedule"`      // 默认计划表达式
+	KeepVersions int       `json:"keep_versions"` // 默认保留版本数
+	Compression  bool      `json:"compression"`   // 是否启用压缩
+	Encryption   bool      `json:"encryption"`    // 是否启用加密
+	CreatedAt    time.Time `json:"created_at"`    // 创建时间
 }
 
 // DedupStats 去重统计信息.
 type DedupStats struct {
-	TaskID          string    `json:"task_id"`           // 任务 ID
-	OriginalSize    int64     `json:"original_size"`     // 原始大小 (bytes)
-	DedupSize      int64     `json:"dedup_size"`        // 去重后大小 (bytes)
-	DedupRatio     float64   `json:"dedup_ratio"`       // 去重率 (%)
-	SavedSpace     int64     `json:"saved_space"`       // 节省空间 (bytes)
-	ChunkCount     int64     `json:"chunk_count"`      // 数据块总数
-	UniqueChunks   int64     `json:"unique_chunks"`     // 唯一数据块数
-	DuplicateChunks int64    `json:"duplicate_chunks"` // 重复数据块数
-	LastUpdated    time.Time `json:"last_updated"`     // 最后更新时间
+	TaskID          string    `json:"task_id"`          // 任务 ID
+	OriginalSize    int64     `json:"original_size"`    // 原始大小 (bytes)
+	DedupSize       int64     `json:"dedup_size"`       // 去重后大小 (bytes)
+	DedupRatio      float64   `json:"dedup_ratio"`      // 去重率 (%)
+	SavedSpace      int64     `json:"saved_space"`      // 节省空间 (bytes)
+	ChunkCount      int64     `json:"chunk_count"`      // 数据块总数
+	UniqueChunks    int64     `json:"unique_chunks"`    // 唯一数据块数
+	DuplicateChunks int64     `json:"duplicate_chunks"` // 重复数据块数
+	LastUpdated     time.Time `json:"last_updated"`     // 最后更新时间
 }
 
 // ProtectStatus 备份保护状态.
 type ProtectStatus struct {
-	TotalTasks       int            `json:"total_tasks"`        // 总任务数
-	RunningTasks     int            `json:"running_tasks"`     // 运行中任务数
-	CompletedTasks   int            `json:"completed_tasks"`   // 已完成任务数
-	FailedTasks      int            `json:"failed_tasks"`       // 失败任务数
-	TotalProtected   int64          `json:"total_protected"`   // 总保护数据量 (bytes)
-	TotalDedupSaved  int64          `json:"total_dedup_saved"` // 总去重节省 (bytes)
-	Platforms        map[Platform]int `json:"platforms"`       // 各平台任务数
-	LastBackupTime   *time.Time     `json:"last_backup_time"`  // 最近备份时间
-	GeneratedAt      time.Time      `json:"generated_at"`     // 生成时间
+	TotalTasks      int              `json:"total_tasks"`       // 总任务数
+	RunningTasks    int              `json:"running_tasks"`     // 运行中任务数
+	CompletedTasks  int              `json:"completed_tasks"`   // 已完成任务数
+	FailedTasks     int              `json:"failed_tasks"`      // 失败任务数
+	TotalProtected  int64            `json:"total_protected"`   // 总保护数据量 (bytes)
+	TotalDedupSaved int64            `json:"total_dedup_saved"` // 总去重节省 (bytes)
+	Platforms       map[Platform]int `json:"platforms"`         // 各平台任务数
+	LastBackupTime  *time.Time       `json:"last_backup_time"`  // 最近备份时间
+	GeneratedAt     time.Time        `json:"generated_at"`      // 生成时间
 }
 
 // BareMetalReadiness 裸机恢复就绪检查结果.
 type BareMetalReadiness struct {
-	TaskID            string    `json:"task_id"`             // 任务 ID
-	Ready             bool      `json:"ready"`               // 是否就绪
-	BootMediaCreated  bool      `json:"boot_media_created"`  // 启动介质已创建
-	RecoveryImageOK   bool      `json:"recovery_image_ok"`   // 恢复镜像完整
-	DriverPackOK      bool      `json:"driver_pack_ok"`      // 驱动包完整
-	NetworkConfigOK   bool      `json:"network_config_ok"`   // 网络配置就绪
-	LastChecked       time.Time `json:"last_checked"`        // 最后检查时间
-	Issues            []string  `json:"issues,omitempty"`    // 存在的问题
+	TaskID           string    `json:"task_id"`            // 任务 ID
+	Ready            bool      `json:"ready"`              // 是否就绪
+	BootMediaCreated bool      `json:"boot_media_created"` // 启动介质已创建
+	RecoveryImageOK  bool      `json:"recovery_image_ok"`  // 恢复镜像完整
+	DriverPackOK     bool      `json:"driver_pack_ok"`     // 驱动包完整
+	NetworkConfigOK  bool      `json:"network_config_ok"`  // 网络配置就绪
+	LastChecked      time.Time `json:"last_checked"`       // 最后检查时间
+	Issues           []string  `json:"issues,omitempty"`   // 存在的问题
 }
 
 // Manager 集中备份保护管理器.
 type Manager struct {
 	mu         sync.RWMutex
-	tasks      map[string]*ProtectTask      // 任务列表
-	templates  map[string]*ProtectTemplate  // 模板列表
-	dedupStats map[string]*DedupStats      // 去重统计
+	tasks      map[string]*ProtectTask        // 任务列表
+	templates  map[string]*ProtectTemplate    // 模板列表
+	dedupStats map[string]*DedupStats         // 去重统计
 	readiness  map[string]*BareMetalReadiness // 就绪检查结果
 }
 

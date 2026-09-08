@@ -119,7 +119,6 @@ func ProductsLinked() bool { return true }
 // ExtensionsLinked reports whether official HTTP extension mounts are compiled in.
 func ExtensionsLinked() bool { return true }
 
-
 // Server Web 服务器.
 type Server struct {
 	cfg                     *config.Config
@@ -402,315 +401,315 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 
 		// ========== bulk-only optional managers (not individual product packages) ==========
 		if bulk {
-		// 初始化智能分层规则引擎（对标群晖 Smarter Tiering）
-		tierMgr := tiering.NewManager(cfg.ConfigPath("tiering.json"), tiering.PolicyEngineConfig{})
-		tierRulesEngine := tiering.NewRulesEngine(tierMgr, cfg.DataPath("tiering"))
-		smartTierEngine := tiering.NewAutoTierEngine(tierMgr, tierRulesEngine, cfg.DataPath("tiering"))
-		costAnalyzer := tiering.NewCostAnalyzer(tierMgr)
-		smartTierHdl = tiering.NewSmartTieringHandler(smartTierEngine, costAnalyzer)
-		log.Println("✅ 智能分层规则引擎就绪")
+			// 初始化智能分层规则引擎（对标群晖 Smarter Tiering）
+			tierMgr := tiering.NewManager(cfg.ConfigPath("tiering.json"), tiering.PolicyEngineConfig{})
+			tierRulesEngine := tiering.NewRulesEngine(tierMgr, cfg.DataPath("tiering"))
+			smartTierEngine := tiering.NewAutoTierEngine(tierMgr, tierRulesEngine, cfg.DataPath("tiering"))
+			costAnalyzer := tiering.NewCostAnalyzer(tierMgr)
+			smartTierHdl = tiering.NewSmartTieringHandler(smartTierEngine, costAnalyzer)
+			log.Println("✅ 智能分层规则引擎就绪")
 
-		// 初始化SMB共享回收站（对标群晖回收站）
-		recycleHdl = shares.NewRecycleHandlers(smbMgr)
-		log.Println("✅ SMB共享回收站就绪")
+			// 初始化SMB共享回收站（对标群晖回收站）
+			recycleHdl = shares.NewRecycleHandlers(smbMgr)
+			log.Println("✅ SMB共享回收站就绪")
 
-		// 初始化ZFS智能Scrub调度器（对标 TrueNAS 26 智能Scrub）
-		scrubConfig := zfs.DefaultScrubScheduleConfig()
-		scrubScheduler = zfs.NewScrubScheduler("tank", scrubConfig)
-		// ZFS scrub 调度器由 Server.Start 统一启动。
-		log.Println("✅ ZFS智能Scrub调度器就绪")
+			// 初始化ZFS智能Scrub调度器（对标 TrueNAS 26 智能Scrub）
+			scrubConfig := zfs.DefaultScrubScheduleConfig()
+			scrubScheduler = zfs.NewScrubScheduler("tank", scrubConfig)
+			// ZFS scrub 调度器由 Server.Start 统一启动。
+			log.Println("✅ ZFS智能Scrub调度器就绪")
 
-		// 初始化S3策略与管理API（对标 TrueNAS V160 S3增强）
-		// S3管理器已通过现有S3 handlers注册，这里复用
-		s3Mgr, err := s3.NewManager(cfg.DataPath("s3"), cfg.DataPath("s3-data"))
-		if err != nil {
-			log.Printf("⚠️ S3管理器初始化警告：%v", err)
-			s3PolicyHdl = nil
-		} else {
-			s3PolicyHdl = s3.NewPolicyHandlers(s3Mgr)
-			log.Println("✅ S3策略管理模块就绪")
-		}
+			// 初始化S3策略与管理API（对标 TrueNAS V160 S3增强）
+			// S3管理器已通过现有S3 handlers注册，这里复用
+			s3Mgr, err := s3.NewManager(cfg.DataPath("s3"), cfg.DataPath("s3-data"))
+			if err != nil {
+				log.Printf("⚠️ S3管理器初始化警告：%v", err)
+				s3PolicyHdl = nil
+			} else {
+				s3PolicyHdl = s3.NewPolicyHandlers(s3Mgr)
+				log.Println("✅ S3策略管理模块就绪")
+			}
 
-		// ========== v2.477.0 新增模块 ==========
+			// ========== v2.477.0 新增模块 ==========
 
-		// 初始化UPS电源监控（对标群晖 UPS 支持）
-		upsMgr = ups.NewManager(ups.DefaultUPSConfig())
-		// UPS 监控由 Server.Start 统一启动。
-		log.Println("✅ UPS电源监控就绪")
+			// 初始化UPS电源监控（对标群晖 UPS 支持）
+			upsMgr = ups.NewManager(ups.DefaultUPSConfig())
+			// UPS 监控由 Server.Start 统一启动。
+			log.Println("✅ UPS电源监控就绪")
 
-		// 初始化网络唤醒 WOL（对标群晖 WOL）
-		wolMgr = wol.NewManager()
-		log.Println("✅ 网络唤醒模块就绪")
+			// 初始化网络唤醒 WOL（对标群晖 WOL）
+			wolMgr = wol.NewManager()
+			log.Println("✅ 网络唤醒模块就绪")
 
-		// 初始化细粒度 ACL 权限控制（对标群晖 ACL）
-		aclMgr = acl.NewManager()
-		log.Println("✅ 细粒度ACL权限控制就绪")
+			// 初始化细粒度 ACL 权限控制（对标群晖 ACL）
+			aclMgr = acl.NewManager()
+			log.Println("✅ 细粒度ACL权限控制就绪")
 
-		// 初始化 Webhook 通知集成（对标群晖 Webhook 通知）
-		webhookMgr = webhook.NewManager()
-		log.Println("✅ Webhook通知集成就绪")
+			// 初始化 Webhook 通知集成（对标群晖 Webhook 通知）
+			webhookMgr = webhook.NewManager()
+			log.Println("✅ Webhook通知集成就绪")
 
-		// 初始化回收站自动清理（对标群晖 回收站策略）
-		recycleCleaner = recyclecleaner.NewManager()
-		// 回收站清理由 Server.Start 统一启动。
-		log.Println("✅ 回收站自动清理就绪")
+			// 初始化回收站自动清理（对标群晖 回收站策略）
+			recycleCleaner = recyclecleaner.NewManager()
+			// 回收站清理由 Server.Start 统一启动。
+			log.Println("✅ 回收站自动清理就绪")
 
-		// 初始化多渠道通知管理（对标群晖 多通知渠道）
-		notifyChanMgr = notifychannel.NewManager()
-		log.Println("✅ 多渠道通知管理就绪")
+			// 初始化多渠道通知管理（对标群晖 多通知渠道）
+			notifyChanMgr = notifychannel.NewManager()
+			log.Println("✅ 多渠道通知管理就绪")
 
-		// 初始化版本控制管理器
-		versioningMgr, err = versioning.NewManager(cfg.ConfigPath("versioning-config.json"), nil)
-		if err != nil {
-			log.Printf("⚠️ 版本控制初始化警告：%v", err)
-			versioningMgr = nil
-		} else {
-			log.Println("✅ 版本控制模块就绪")
-		}
+			// 初始化版本控制管理器
+			versioningMgr, err = versioning.NewManager(cfg.ConfigPath("versioning-config.json"), nil)
+			if err != nil {
+				log.Printf("⚠️ 版本控制初始化警告：%v", err)
+				versioningMgr = nil
+			} else {
+				log.Println("✅ 版本控制模块就绪")
+			}
 
-		// 初始化数据去重管理器
-		dedupMgr, err = dedup.NewManager(cfg.ConfigPath("dedup-config.json"), nil)
-		if err != nil {
-			log.Printf("⚠️ 数据去重初始化警告：%v", err)
-			dedupMgr = nil
-		} else {
-			log.Println("✅ 数据去重模块就绪")
-		}
+			// 初始化数据去重管理器
+			dedupMgr, err = dedup.NewManager(cfg.ConfigPath("dedup-config.json"), nil)
+			if err != nil {
+				log.Printf("⚠️ 数据去重初始化警告：%v", err)
+				dedupMgr = nil
+			} else {
+				log.Println("✅ 数据去重模块就绪")
+			}
 
-		// 初始化标签管理器
-		tagsMgr, err = tags.NewManager(cfg.DataPath("tags.db"))
-		if err != nil {
-			log.Printf("⚠️ 标签管理初始化警告：%v", err)
-			tagsMgr = nil
-		} else {
-			log.Println("✅ 标签管理模块就绪")
-		}
+			// 初始化标签管理器
+			tagsMgr, err = tags.NewManager(cfg.DataPath("tags.db"))
+			if err != nil {
+				log.Printf("⚠️ 标签管理初始化警告：%v", err)
+				tagsMgr = nil
+			} else {
+				log.Println("✅ 标签管理模块就绪")
+			}
 
-		// 初始化 OnlyOffice 管理器
-		officeMgr, err = office.NewManager(cfg.ConfigPath("office.json"), nil)
-		if err != nil {
-			log.Printf("⚠️ OnlyOffice 初始化警告：%v", err)
-			officeMgr = nil
-		} else {
-			log.Println("✅ OnlyOffice 文档编辑模块就绪")
-		}
+			// 初始化 OnlyOffice 管理器
+			officeMgr, err = office.NewManager(cfg.ConfigPath("office.json"), nil)
+			if err != nil {
+				log.Printf("⚠️ OnlyOffice 初始化警告：%v", err)
+				officeMgr = nil
+			} else {
+				log.Println("✅ OnlyOffice 文档编辑模块就绪")
+			}
 
-		// 初始化 iSCSI 管理器
-		iscsiMgr, err = iscsi.NewManager(cfg.ConfigPath("iscsi-config.json"), cfg.DataPath("iscsi"))
-		if err != nil {
-			log.Printf("⚠️ iSCSI 初始化警告：%v", err)
-			iscsiMgr = nil
-		} else {
-			log.Println("✅ iSCSI 目标管理模块就绪")
-		}
+			// 初始化 iSCSI 管理器
+			iscsiMgr, err = iscsi.NewManager(cfg.ConfigPath("iscsi-config.json"), cfg.DataPath("iscsi"))
+			if err != nil {
+				log.Printf("⚠️ iSCSI 初始化警告：%v", err)
+				iscsiMgr = nil
+			} else {
+				log.Println("✅ iSCSI 目标管理模块就绪")
+			}
 
-		// 初始化 NVMe-oF 管理器
-		nvmeofMgr, err = nvmeof.NewManager(cfg.ConfigPath("nvmeof-config.json"))
-		if err != nil {
-			log.Printf("⚠️ NVMe-oF 初始化警告：%v", err)
-			nvmeofMgr = nil
-		} else {
-			log.Println("✅ NVMe-oF 模块就绪")
-		}
+			// 初始化 NVMe-oF 管理器
+			nvmeofMgr, err = nvmeof.NewManager(cfg.ConfigPath("nvmeof-config.json"))
+			if err != nil {
+				log.Printf("⚠️ NVMe-oF 初始化警告：%v", err)
+				nvmeofMgr = nil
+			} else {
+				log.Println("✅ NVMe-oF 模块就绪")
+			}
 
-		// 初始化项目管理器
-		projectMgr = project.NewManager()
-		log.Println("✅ 项目管理模块就绪")
+			// 初始化项目管理器
+			projectMgr = project.NewManager()
+			log.Println("✅ 项目管理模块就绪")
 
-		// 初始化文件锁管理器
-		lockMgr = lock.NewManager(lock.FileLockConfig{
-			DefaultTimeout:  30 * time.Minute,
-			MaxTimeout:      24 * time.Hour,
-			CleanupInterval: 5 * time.Minute,
-			MaxLocksPerFile: 10,
-		}, logger)
-		log.Println("✅ 文件锁管理模块就绪")
+			// 初始化文件锁管理器
+			lockMgr = lock.NewManager(lock.FileLockConfig{
+				DefaultTimeout:  30 * time.Minute,
+				MaxTimeout:      24 * time.Hour,
+				CleanupInterval: 5 * time.Minute,
+				MaxLocksPerFile: 10,
+			}, logger)
+			log.Println("✅ 文件锁管理模块就绪")
 
-		// 初始化搜索引擎
-		searchEngine, err = search.NewEngine(search.IndexConfig{
-			IndexPath:    cfg.DataPath("search", "index.bleve"),
-			MaxFileSize:  10 * 1024 * 1024, // 10MB
-			Workers:      4,
-			IndexContent: true,
-			BatchSize:    100,
-		}, logger)
-		if err != nil {
-			log.Printf("⚠️ 搜索引擎初始化警告：%v", err)
-			searchEngine = nil
-		} else {
-			log.Println("✅ 搜索引擎模块就绪")
-		}
+			// 初始化搜索引擎
+			searchEngine, err = search.NewEngine(search.IndexConfig{
+				IndexPath:    cfg.DataPath("search", "index.bleve"),
+				MaxFileSize:  10 * 1024 * 1024, // 10MB
+				Workers:      4,
+				IndexContent: true,
+				BatchSize:    100,
+			}, logger)
+			if err != nil {
+				log.Printf("⚠️ 搜索引擎初始化警告：%v", err)
+				searchEngine = nil
+			} else {
+				log.Println("✅ 搜索引擎模块就绪")
+			}
 
-		// 初始化全局搜索服务
-		if searchEngine != nil {
-			settingsRegistry := search.NewSettingsRegistry()
-			appRegistry := search.NewAppRegistry()
-			searchSvc = search.NewGlobalSearchService(searchEngine, settingsRegistry, appRegistry, logger)
-			log.Println("✅ 全局搜索服务就绪")
-		}
+			// 初始化全局搜索服务
+			if searchEngine != nil {
+				settingsRegistry := search.NewSettingsRegistry()
+				appRegistry := search.NewAppRegistry()
+				searchSvc = search.NewGlobalSearchService(searchEngine, settingsRegistry, appRegistry, logger)
+				log.Println("✅ 全局搜索服务就绪")
+			}
 
-		// 初始化媒体库管理器
-		// mediaMgr := media.NewLibraryManager("/etc/nas-os/media-libraries.json")
-		// 添加元数据提供商（如果配置了 API 密钥）
-		// mediaMgr.AddMetadataProvider(media.NewTMDBProvider("", "zh-CN"))
-		// mediaMgr.AddMetadataProvider(media.NewDoubanProvider(""))
+			// 初始化媒体库管理器
+			// mediaMgr := media.NewLibraryManager("/etc/nas-os/media-libraries.json")
+			// 添加元数据提供商（如果配置了 API 密钥）
+			// mediaMgr.AddMetadataProvider(media.NewTMDBProvider("", "zh-CN"))
+			// mediaMgr.AddMetadataProvider(media.NewDoubanProvider(""))
 
-		// ========== v2.481.0 新增模块 ==========
+			// ========== v2.481.0 新增模块 ==========
 
-		// 初始化容灾演练管理器（对标群晖 DR Drill）
-		drDrillMgr = drdrill.NewManager(logger, nil, nil)
-		log.Println("✅ 容灾演练模块就绪")
+			// 初始化容灾演练管理器（对标群晖 DR Drill）
+			drDrillMgr = drdrill.NewManager(logger, nil, nil)
+			log.Println("✅ 容灾演练模块就绪")
 
-		// 初始化 Drive Sync 管理器（对标群晖 Drive Sync）
-		driveSyncMgr = drivesync.NewManager(cfg.ConfigPath("drivesync.json"))
-		log.Println("✅ Drive Sync 模块就绪")
+			// 初始化 Drive Sync 管理器（对标群晖 Drive Sync）
+			driveSyncMgr = drivesync.NewManager(cfg.ConfigPath("drivesync.json"))
+			log.Println("✅ Drive Sync 模块就绪")
 
-		// 初始化智能Scrub调度管理器（对标 TrueNAS 26 智能Scrub）
-		scrubSchedMgr = scrubsched.NewManager(cfg.ConfigPath("scrubsched.json"), nil, nil, nil, nil, nil)
-		// 智能 scrub 调度由 Server.Start 统一启动。
-		log.Println("✅ 智能Scrub调度管理器就绪")
+			// 初始化智能Scrub调度管理器（对标 TrueNAS 26 智能Scrub）
+			scrubSchedMgr = scrubsched.NewManager(cfg.ConfigPath("scrubsched.json"), nil, nil, nil, nil, nil)
+			// 智能 scrub 调度由 Server.Start 统一启动。
+			log.Println("✅ 智能Scrub调度管理器就绪")
 
-		// 初始化S3对象存储网关（对标 MinIO/S3 兼容层）
-		s3Gateway = s3gateway.NewGateway(s3gateway.GatewayConfig{
-			StorageRoot: cfg.DataPath("s3-gateway"),
-			Region:      "us-east-1",
-		})
-		log.Println("✅ S3对象存储网关就绪")
+			// 初始化S3对象存储网关（对标 MinIO/S3 兼容层）
+			s3Gateway = s3gateway.NewGateway(s3gateway.GatewayConfig{
+				StorageRoot: cfg.DataPath("s3-gateway"),
+				Region:      "us-east-1",
+			})
+			log.Println("✅ S3对象存储网关就绪")
 
-		// 初始化定时任务调度器
-		schedulerCfg := &scheduler.Config{
-			MaxConcurrentTasks: 10,
-			StoragePath:        cfg.DataPath("scheduler"),
-		}
-		schedulerMgr, err = scheduler.NewScheduler(schedulerCfg)
-		if err != nil {
-			log.Printf("⚠️ 定时任务调度器初始化警告：%v", err)
-			schedulerMgr = nil
-		} else {
-			log.Println("✅ 定时任务调度器就绪")
-		}
+			// 初始化定时任务调度器
+			schedulerCfg := &scheduler.Config{
+				MaxConcurrentTasks: 10,
+				StoragePath:        cfg.DataPath("scheduler"),
+			}
+			schedulerMgr, err = scheduler.NewScheduler(schedulerCfg)
+			if err != nil {
+				log.Printf("⚠️ 定时任务调度器初始化警告：%v", err)
+				schedulerMgr = nil
+			} else {
+				log.Println("✅ 定时任务调度器就绪")
+			}
 
-		// 初始化磁盘性能测试管理器（对标群晖 Presto Benchmark）
-		diskbenchMgr = diskbench.NewBenchmarkManager("/tmp/nas-bench")
-		log.Println("✅ 磁盘性能测试模块就绪")
+			// 初始化磁盘性能测试管理器（对标群晖 Presto Benchmark）
+			diskbenchMgr = diskbench.NewBenchmarkManager("/tmp/nas-bench")
+			log.Println("✅ 磁盘性能测试模块就绪")
 
-		// 初始化系统健康评分管理器（对标 TrueNAS Dashboard）
-		healthscoreMgr = healthscore.NewHealthScoreManager()
-		healthscoreMgr.SetWeights(healthscore.DefaultWeights)
-		dc := healthscore.NewDefaultCollectors(healthscoreMgr)
-		dc.RegisterDefaultCollectors()
-		log.Println("✅ 系统健康评分模块就绪")
+			// 初始化系统健康评分管理器（对标 TrueNAS Dashboard）
+			healthscoreMgr = healthscore.NewHealthScoreManager()
+			healthscoreMgr.SetWeights(healthscore.DefaultWeights)
+			dc := healthscore.NewDefaultCollectors(healthscoreMgr)
+			dc.RegisterDefaultCollectors()
+			log.Println("✅ 系统健康评分模块就绪")
 
-		// 初始化高速传输管理器（对标群晖 Presto File Server）
-		fastTransferMgr = fasttransfer.NewTransferManager(&fasttransfer.Config{
-			MaxConcurrent: 4,
-			CompressLevel: 6,
-			EncryptAES:    true,
-			ChunkSizeMB:   64,
-		})
-		log.Println("✅ 高速传输模块就绪")
+			// 初始化高速传输管理器（对标群晖 Presto File Server）
+			fastTransferMgr = fasttransfer.NewTransferManager(&fasttransfer.Config{
+				MaxConcurrent: 4,
+				CompressLevel: 6,
+				EncryptAES:    true,
+				ChunkSizeMB:   64,
+			})
+			log.Println("✅ 高速传输模块就绪")
 
-		// 初始化温控管理器（系统散热与温控管理）
-		thermalMgr = thermal.NewManager(logger)
-		if err := thermalMgr.LoadZones(); err != nil {
-			log.Printf("⚠️ 温控管理加载警告：%v", err)
-		}
-		log.Println("✅ 温控管理模块就绪")
+			// 初始化温控管理器（系统散热与温控管理）
+			thermalMgr = thermal.NewManager(logger)
+			if err := thermalMgr.LoadZones(); err != nil {
+				log.Printf("⚠️ 温控管理加载警告：%v", err)
+			}
+			log.Println("✅ 温控管理模块就绪")
 
-		// 初始化文件索引器（全文索引与搜索）
-		fileindexMgr = fileindex.NewIndexer(logger, cfg.Paths.MountBase)
-		log.Println("✅ 文件索引模块就绪")
+			// 初始化文件索引器（全文索引与搜索）
+			fileindexMgr = fileindex.NewIndexer(logger, cfg.Paths.MountBase)
+			log.Println("✅ 文件索引模块就绪")
 
-		// 初始化Web终端管理器（WebSocket SSH终端）
-		webterminalMgr = webterminal.NewManager()
-		log.Println("✅ Web终端模块就绪")
+			// 初始化Web终端管理器（WebSocket SSH终端）
+			webterminalMgr = webterminal.NewManager()
+			log.Println("✅ Web终端模块就绪")
 
-		// 初始化通知中心服务（对标群晖 Notification Center）
-		notificationSvc, err = notification.NewService(nil)
-		if err != nil {
-			log.Printf("⚠️ 通知中心初始化失败: %v", err)
-		} else {
-			log.Println("✅ 通知中心模块就绪")
-		}
+			// 初始化通知中心服务（对标群晖 Notification Center）
+			notificationSvc, err = notification.NewService(nil)
+			if err != nil {
+				log.Printf("⚠️ 通知中心初始化失败: %v", err)
+			} else {
+				log.Println("✅ 通知中心模块就绪")
+			}
 
-		// ========== v2.498.0 新增模块初始化 ==========
+			// ========== v2.498.0 新增模块初始化 ==========
 
-		// 初始化容器资源监控（对标群晖 Container Manager 增强）
-		containResMonMgr = containresmon.NewManager(&containresmon.Config{Enabled: true, MonitorIntervalSec: 30})
-		log.Println("✅ 容器资源监控模块就绪")
+			// 初始化容器资源监控（对标群晖 Container Manager 增强）
+			containResMonMgr = containresmon.NewManager(&containresmon.Config{Enabled: true, MonitorIntervalSec: 30})
+			log.Println("✅ 容器资源监控模块就绪")
 
-		// 初始化数据分类（对标群晖 AI 分类）
-		dataClassifyMgr = dataclassify.NewManager(&dataclassify.Config{Enabled: true, AutoClassify: true, DetectPII: true})
-		log.Println("✅ 数据分类模块就绪")
+			// 初始化数据分类（对标群晖 AI 分类）
+			dataClassifyMgr = dataclassify.NewManager(&dataclassify.Config{Enabled: true, AutoClassify: true, DetectPII: true})
+			log.Println("✅ 数据分类模块就绪")
 
-		// 初始化数据防泄漏 DLP（竞品独有功能）
-		dlpMgr = dlp.NewManager(&dlp.Config{Enabled: true, ScanIntervalHours: 24})
-		log.Println("✅ 数据防泄漏模块就绪")
+			// 初始化数据防泄漏 DLP（竞品独有功能）
+			dlpMgr = dlp.NewManager(&dlp.Config{Enabled: true, ScanIntervalHours: 24})
+			log.Println("✅ 数据防泄漏模块就绪")
 
-		// 初始化文件同步（对标群晖 Drive Sync）
-		fileSyncMgr = filesync.NewSyncManager(logger, cfg.DataPath("filesync"))
-		log.Println("✅ 文件同步模块就绪")
+			// 初始化文件同步（对标群晖 Drive Sync）
+			fileSyncMgr = filesync.NewSyncManager(logger, cfg.DataPath("filesync"))
+			log.Println("✅ 文件同步模块就绪")
 
-		// 初始化网络哨兵（对标群晖网络工具增强）
-		netSentinelMgr = netsentinel.NewManager(&netsentinel.Config{Enabled: true, MonitorInterval: 60})
-		log.Println("✅ 网络哨兵模块就绪")
+			// 初始化网络哨兵（对标群晖网络工具增强）
+			netSentinelMgr = netsentinel.NewManager(&netsentinel.Config{Enabled: true, MonitorInterval: 60})
+			log.Println("✅ 网络哨兵模块就绪")
 
-		// 初始化网络拓扑（对标群晖网络地图）
-		networkMapMgr = networkmap.NewManager(&networkmap.Config{Enabled: true, AutoDiscover: true, BandwidthMonitor: true})
-		log.Println("✅ 网络拓扑模块就绪")
+			// 初始化网络拓扑（对标群晖网络地图）
+			networkMapMgr = networkmap.NewManager(&networkmap.Config{Enabled: true, AutoDiscover: true, BandwidthMonitor: true})
+			log.Println("✅ 网络拓扑模块就绪")
 
-		// 初始化隐私保险库（竞品独有功能）
-		privacyVaultMgr = privacyvault.NewEngine(&privacyvault.PrivacyVaultConfig{Enabled: true, DefaultAlgorithm: "AES-256-GCM", MaxVaults: 100})
-		log.Println("✅ 隐私保险库模块就绪")
+			// 初始化隐私保险库（竞品独有功能）
+			privacyVaultMgr = privacyvault.NewEngine(&privacyvault.PrivacyVaultConfig{Enabled: true, DefaultAlgorithm: "AES-256-GCM", MaxVaults: 100})
+			log.Println("✅ 隐私保险库模块就绪")
 
-		// 初始化远程桌面（竞品独有功能）
-		remoteDesktopMgr = remotedesktop.NewManager(&remotedesktop.Config{Enabled: true, MaxSessions: 10, WebSocketPort: 8443})
-		log.Println("✅ 远程桌面模块就绪")
+			// 初始化远程桌面（竞品独有功能）
+			remoteDesktopMgr = remotedesktop.NewManager(&remotedesktop.Config{Enabled: true, MaxSessions: 10, WebSocketPort: 8443})
+			log.Println("✅ 远程桌面模块就绪")
 
-		// 初始化 SSO Hub（竞品独有功能）
-		ssoHubMgr = ssohub.NewManager(&ssohub.Config{Enabled: true, SessionTimeoutMin: 480, MaxSessions: 100})
-		log.Println("✅ SSO Hub模块就绪")
+			// 初始化 SSO Hub（竞品独有功能）
+			ssoHubMgr = ssohub.NewManager(&ssohub.Config{Enabled: true, SessionTimeoutMin: 480, MaxSessions: 100})
+			log.Println("✅ SSO Hub模块就绪")
 
-		// 初始化监控中心（对标群晖 Surveillance Station）
-		surveillanceMgr = surveillance.NewManager()
-		log.Println("✅ 监控中心模块就绪")
+			// 初始化监控中心（对标群晖 Surveillance Station）
+			surveillanceMgr = surveillance.NewManager()
+			log.Println("✅ 监控中心模块就绪")
 
-		// 初始化统一搜索（对标群晖 Universal Search 增强）
-		unifiedSearchMgr, err = unifiedsearch.NewManager(unifiedsearch.DefaultSearchConfig(), logger)
-		if err != nil {
-			log.Printf("⚠️ 统一搜索初始化警告: %v", err)
-		}
-		log.Println("✅ 统一搜索模块就绪")
+			// 初始化统一搜索（对标群晖 Universal Search 增强）
+			unifiedSearchMgr, err = unifiedsearch.NewManager(unifiedsearch.DefaultSearchConfig(), logger)
+			if err != nil {
+				log.Printf("⚠️ 统一搜索初始化警告: %v", err)
+			}
+			log.Println("✅ 统一搜索模块就绪")
 
-		// v2.513.0 新增模块初始化
-		alertGuidedMgr = alertguided.NewManager(logger)
-		log.Println("✅ 智能告警引导就绪")
-		dataWarehouseMgr = datawarehouse.NewWarehouse(10000)
-		log.Println("✅ 数据仓库就绪")
-		fileDejavuMgr = filedejavu.NewDetector(nil)
-		log.Println("✅ 重复文件检测就绪")
-		hybridFlashMgr = hybridflash.NewManager(logger)
-		log.Println("✅ 混合闪存管理就绪")
-		lxcmktMgr = lxcmkt.NewManager(logger)
-		log.Println("✅ LXC 容器市场就绪")
-		objectImmutableMgr = objectimmutable.NewManager(logger)
-		log.Println("✅ WORM 不可变存储就绪")
-		privacyShieldMgr = privacyshield.NewShield()
-		log.Println("✅ 隐私保护盾就绪")
-		spotlightMgr = spotlight.NewManager(logger)
+			// v2.513.0 新增模块初始化
+			alertGuidedMgr = alertguided.NewManager(logger)
+			log.Println("✅ 智能告警引导就绪")
+			dataWarehouseMgr = datawarehouse.NewWarehouse(10000)
+			log.Println("✅ 数据仓库就绪")
+			fileDejavuMgr = filedejavu.NewDetector(nil)
+			log.Println("✅ 重复文件检测就绪")
+			hybridFlashMgr = hybridflash.NewManager(logger)
+			log.Println("✅ 混合闪存管理就绪")
+			lxcmktMgr = lxcmkt.NewManager(logger)
+			log.Println("✅ LXC 容器市场就绪")
+			objectImmutableMgr = objectimmutable.NewManager(logger)
+			log.Println("✅ WORM 不可变存储就绪")
+			privacyShieldMgr = privacyshield.NewShield()
+			log.Println("✅ 隐私保护盾就绪")
+			spotlightMgr = spotlight.NewManager(logger)
 
-		// v2.542.0 新增模块初始化
-		musicServerMgr = musicserver.NewManager()
-		syslogServerMgr = syslogserver.NewManager()
-		log.Println("✅ Spotlight 索引就绪")
+			// v2.542.0 新增模块初始化
+			musicServerMgr = musicserver.NewManager()
+			syslogServerMgr = syslogserver.NewManager()
+			log.Println("✅ Spotlight 索引就绪")
 
-		// v2.548.0 新增模块初始化
-		customBrandingMgr = custombranding.New()
-		smbDirectMgr = smbdirect.New(smbdirect.DefaultConfig())
-		storageCostForecastMgr = storagecostforecast.New()
-		filetagMgr = filetag.NewManager()
-		apikeyMgr = apikey.NewManager()
-		log.Println("✅ v2.548.0 新增模块就绪")
+			// v2.548.0 新增模块初始化
+			customBrandingMgr = custombranding.New()
+			smbDirectMgr = smbdirect.New(smbdirect.DefaultConfig())
+			storageCostForecastMgr = storagecostforecast.New()
+			filetagMgr = filetag.NewManager()
+			apikeyMgr = apikey.NewManager()
+			log.Println("✅ v2.548.0 新增模块就绪")
 		} // end bulk-only managers
 
 		// 云同步（独立 product 包，可单独启用）
@@ -868,7 +867,6 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	s.setHolder("storageCostForecastMgr", storageCostForecastMgr)
 	s.setHolder("filetagMgr", filetagMgr)
 	s.setHolder("apikeyMgr", apikeyMgr)
-
 
 	// 设置 WebDAV 认证函数
 	if s.hasHolder("webdavSrv") && s.userMgr != nil {
@@ -1213,4 +1211,3 @@ func parseInt(s string) (int, error) {
 	_, err := fmt.Sscanf(s, "%d", &result)
 	return result, err
 }
-

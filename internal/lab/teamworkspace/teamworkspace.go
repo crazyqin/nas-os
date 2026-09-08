@@ -17,11 +17,11 @@ import (
 // ========== 权限常量 ==========
 
 const (
-	PermissionViewer  = "viewer"   // 只读
-	PermissionEditor  = "editor"   // 读写
-	PermissionManager = "manager"  // 管理（不含删除工作区）
-	PermissionAdmin   = "admin"    // 完全管理
-	PermissionOwner   = "owner"    // 所有者
+	PermissionViewer  = "viewer"  // 只读
+	PermissionEditor  = "editor"  // 读写
+	PermissionManager = "manager" // 管理（不含删除工作区）
+	PermissionAdmin   = "admin"   // 完全管理
+	PermissionOwner   = "owner"   // 所有者
 
 	// 成员操作
 	ActionAdd    = "add"
@@ -69,17 +69,17 @@ type CreateWorkspaceOptions struct {
 
 // Workspace 工作区信息.
 type Workspace struct {
-	ID              string   // 工作区唯一ID
-	Name            string   // 名称
-	Description     string   // 描述
-	OwnerID         string   // 所有者ID
-	MemberCount     int      // 成员数量
-	QuotaGB         float64  // 配额(GB)
-	UsedGB          float64  // 已用(GB)
-	CreatedAt       int64    // 创建时间(Unix)
-	Health          string   // 健康状态
-	Tags            []string // 标签
-	DefaultPermission string // 默认权限
+	ID                string   // 工作区唯一ID
+	Name              string   // 名称
+	Description       string   // 描述
+	OwnerID           string   // 所有者ID
+	MemberCount       int      // 成员数量
+	QuotaGB           float64  // 配额(GB)
+	UsedGB            float64  // 已用(GB)
+	CreatedAt         int64    // 创建时间(Unix)
+	Health            string   // 健康状态
+	Tags              []string // 标签
+	DefaultPermission string   // 默认权限
 }
 
 // MemberChange 成员变更.
@@ -100,38 +100,38 @@ type MemberUpdateResult struct {
 
 // QuotaResult 配额设置结果.
 type QuotaResult struct {
-	WorkspaceID      string  // 工作区ID
-	QuotaGB          float64 // 新配额
-	PreviousQuotaGB  float64 // 旧配额
-	Effective        bool    // 是否生效
+	WorkspaceID     string  // 工作区ID
+	QuotaGB         float64 // 新配额
+	PreviousQuotaGB float64 // 旧配额
+	Effective       bool    // 是否生效
 	Warning         string  // 警告信息
 }
 
 // ExternalInvite 外部用户邀请.
 type ExternalInvite struct {
-	Email      string // 邀请邮箱
-	Permission string // 权限
-	ExpiresIn  int    // 过期小时数(0=默认72h)
+	Email       string // 邀请邮箱
+	Permission  string // 权限
+	ExpiresIn   int    // 过期小时数(0=默认72h)
 	WorkspaceID string // 工作区ID
 }
 
 // InviteResult 邀请结果.
 type InviteResult struct {
-	InviteID    string // 邀请ID
-	Email       string // 邮箱
-	Status      string // 状态
-	ExpiresAt   int64  // 过期时间(Unix)
-	InviteLink  string // 邀请链接
+	InviteID   string // 邀请ID
+	Email      string // 邮箱
+	Status     string // 状态
+	ExpiresAt  int64  // 过期时间(Unix)
+	InviteLink string // 邀请链接
 }
 
 // WorkspaceHealth 工作区健康度.
 type WorkspaceHealth struct {
-	WorkspaceID      string   // 工作区ID
-	Score            float64  // 健康分(0-100)
-	Issues           []string // 问题列表
-	Recommendations  []string // 建议
-	ActiveMembers    int      // 活跃成员数
-	StorageTrend     string   // 存储趋势
+	WorkspaceID     string   // 工作区ID
+	Score           float64  // 健康分(0-100)
+	Issues          []string // 问题列表
+	Recommendations []string // 建议
+	ActiveMembers   int      // 活跃成员数
+	StorageTrend    string   // 存储趋势
 }
 
 // WorkspaceFilter 工作区过滤.
@@ -166,7 +166,7 @@ type inviteInfo struct {
 // WorkspaceManager 团队工作区管理器.
 type WorkspaceManager struct {
 	mu         sync.RWMutex
-	workspaces map[string]*Workspace          // workspaceID -> Workspace
+	workspaces map[string]*Workspace             // workspaceID -> Workspace
 	members    map[string]map[string]*memberInfo // workspaceID -> userID -> memberInfo
 	invites    map[string]*inviteInfo            // inviteID -> inviteInfo
 	tags       map[string]map[string]bool        // workspaceID -> tag set
@@ -402,7 +402,7 @@ func (m *WorkspaceManager) SetQuota(workspaceID string, quotaGB float64) (*Quota
 
 	result := &QuotaResult{
 		WorkspaceID:     workspaceID,
-		QuotaGB:        quotaGB,
+		QuotaGB:         quotaGB,
 		PreviousQuotaGB: prev,
 		Effective:       true,
 	}
@@ -510,7 +510,7 @@ type healthInfo struct {
 	Issues          []string
 	Recommendations []string
 	ActiveMembers   int
-	StorageTrend   string
+	StorageTrend    string
 }
 
 // computeHealth 计算工作区健康度.

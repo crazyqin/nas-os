@@ -16,13 +16,13 @@ import (
 
 // MediaTag represents a single AI-generated or user-added tag.
 type MediaTag struct {
-	ID        string   // unique tag id
-	Name      string   // human-readable tag label
-	Category  string   // "genre" | "scene" | "person" | "object" | "mood"
-	Confidence float64 // AI confidence 0–1
-	Source    string   // "ai" | "user" | "import"
-	Aliases   []string // alternative spellings / synonyms
-	MediaIDs  []string // media items carrying this tag
+	ID         string   // unique tag id
+	Name       string   // human-readable tag label
+	Category   string   // "genre" | "scene" | "person" | "object" | "mood"
+	Confidence float64  // AI confidence 0–1
+	Source     string   // "ai" | "user" | "import"
+	Aliases    []string // alternative spellings / synonyms
+	MediaIDs   []string // media items carrying this tag
 }
 
 // TagBatch holds a batch of tagging operations to apply in bulk.
@@ -39,12 +39,12 @@ type TagOperation struct {
 
 // TagRule defines an auto-tagging rule (keyword / pattern → tag).
 type TagRule struct {
-	ID         string
-	Pattern    string   // keyword or regex pattern to match
-	Tag        string   // tag to apply when pattern matches
-	Category   string   // tag category
-	Priority   int      // higher = evaluated first
-	Enabled    bool
+	ID       string
+	Pattern  string // keyword or regex pattern to match
+	Tag      string // tag to apply when pattern matches
+	Category string // tag category
+	Priority int    // higher = evaluated first
+	Enabled  bool
 }
 
 // TagMergeResult records the outcome of merging duplicate tags.
@@ -52,7 +52,7 @@ type TagMergeResult struct {
 	KeptTagID  string   // the surviving tag
 	MergedIDs  []string // tag IDs that were merged away
 	Conflict   bool     // whether manual review is recommended
-	TotalMedia int     // number of media items affected
+	TotalMedia int      // number of media items affected
 }
 
 // ---------------------------------------------------------------------------
@@ -60,9 +60,9 @@ type TagMergeResult struct {
 // ---------------------------------------------------------------------------
 
 var (
-	mu       sync.RWMutex
-	tagStore   = make(map[string]*MediaTag)
-	ruleStore  = make(map[string]*TagRule)
+	mu        sync.RWMutex
+	tagStore  = make(map[string]*MediaTag)
+	ruleStore = make(map[string]*TagRule)
 )
 
 // ---------------------------------------------------------------------------

@@ -7,7 +7,7 @@ import (
 func TestAnalyze_EncryptPII(t *testing.T) {
 	recs := Analyze(Signal{
 		PIIShares:      5,
-		UnencryptedPII:  2,
+		UnencryptedPII: 2,
 	})
 	found := false
 	for _, r := range recs {
@@ -26,7 +26,7 @@ func TestAnalyze_EncryptPII(t *testing.T) {
 func TestAnalyze_CrossBorderRep(t *testing.T) {
 	recs := Analyze(Signal{
 		CrossBorderRepCount: 3,
-		ActiveRegulations:    []Regulation{RegGDPR},
+		ActiveRegulations:   []Regulation{RegGDPR},
 	})
 	found := false
 	for _, r := range recs {
@@ -42,7 +42,7 @@ func TestAnalyze_CrossBorderRep(t *testing.T) {
 func TestAnalyze_CrossBorderPIPL(t *testing.T) {
 	recs := Analyze(Signal{
 		CrossBorderRepCount: 1,
-		ActiveRegulations:    []Regulation{RegPIPL},
+		ActiveRegulations:   []Regulation{RegPIPL},
 	})
 	found := false
 	for _, r := range recs {
@@ -72,7 +72,7 @@ func TestAnalyze_AccessLogs(t *testing.T) {
 
 func TestAnalyze_RetentionPII(t *testing.T) {
 	recs := Analyze(Signal{
-		PIIShares:        5,
+		PIIShares:         5,
 		NoRetentionShares: 2,
 	})
 	found := false
@@ -168,7 +168,7 @@ func TestAnalyze_RestrictedUnencrypted(t *testing.T) {
 func TestAnalyze_HIPAAInventory(t *testing.T) {
 	recs := Analyze(Signal{
 		ActiveRegulations: []Regulation{RegHIPAA},
-		HasDataInventory:   false,
+		HasDataInventory:  false,
 	})
 	found := false
 	for _, r := range recs {

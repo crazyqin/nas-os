@@ -122,8 +122,8 @@ func TestAnalyze_EnablePredictive(t *testing.T) {
 
 func TestAnalyze_HDDOverload(t *testing.T) {
 	recs := Analyze(Signal{
-		HDDBusyPct:    80,
-		FlashHitRate:  0.3,
+		HDDBusyPct:   80,
+		FlashHitRate: 0.3,
 	})
 	found := false
 	for _, r := range recs {

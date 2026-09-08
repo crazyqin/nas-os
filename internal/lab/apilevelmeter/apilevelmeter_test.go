@@ -8,11 +8,11 @@ import (
 func TestKeyManagement(t *testing.T) {
 	m := NewManager()
 	key := &APIKey{
-		ID:    "key-001",
-		Label: "Test Key",
-		UserID: "user-001",
+		ID:        "key-001",
+		Label:     "Test Key",
+		UserID:    "user-001",
 		KeyPrefix: "sk-test12",
-		Scopes: []string{"read", "write"},
+		Scopes:    []string{"read", "write"},
 	}
 	if err := m.RegisterKey(key); err != nil {
 		t.Fatalf("RegisterKey failed: %v", err)
@@ -34,14 +34,14 @@ func TestUsageRecording(t *testing.T) {
 	m.RegisterKey(&APIKey{ID: "key-001", Label: "Test", UserID: "u1", KeyPrefix: "sk-test"})
 	for i := 0; i < 100; i++ {
 		rec := UsageRecord{
-			KeyID:      "key-001",
-			Endpoint:   "/api/v1/data",
-			Method:     "GET",
-			StatusCode: 200,
+			KeyID:          "key-001",
+			Endpoint:       "/api/v1/data",
+			Method:         "GET",
+			StatusCode:     200,
 			ResponseTimeMs: int64(10 + i),
-			BytesIn:    100,
-			BytesOut:   1024,
-			Timestamp:  time.Now(),
+			BytesIn:        100,
+			BytesOut:       1024,
+			Timestamp:      time.Now(),
 		}
 		if err := m.RecordUsage(rec); err != nil {
 			t.Fatalf("RecordUsage failed: %v", err)

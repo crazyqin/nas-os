@@ -25,34 +25,34 @@ type TrafficShield struct {
 
 // FlowStats tracks aggregate traffic statistics for anomaly detection.
 type FlowStats struct {
-	TotalPackets   uint64        `json:"total_packets"`
-	TotalBytes     uint64        `json:"total_bytes"`
-	TotalSYN      uint64        `json:"total_syn"`
-	TotalConnections uint64      `json:"total_connections"`
-	WindowStart   time.Time      `json:"window_start"`
+	TotalPackets     uint64    `json:"total_packets"`
+	TotalBytes       uint64    `json:"total_bytes"`
+	TotalSYN         uint64    `json:"total_syn"`
+	TotalConnections uint64    `json:"total_connections"`
+	WindowStart      time.Time `json:"window_start"`
 }
 
 // DetectionThresholds configures when alerts are triggered.
 type DetectionThresholds struct {
 	PortScanMaxUniquePorts int           `json:"port_scan_max_unique_ports"` // default 10
 	PortScanTimeWindow     time.Duration `json:"port_scan_time_window"`      // default 60s
-	DDoSPacketsPerSecond    uint64        `json:"ddos_pps_threshold"`         // default 50000
-	DDoSBytesPerSecond      uint64        `json:"ddos_bps_threshold"`        // default 100_000_000
-	DDoSConnPerSecond       uint64        `json:"ddos_conn_threshold"`       // default 1000
-	SYNRatioThreshold       float64       `json:"syn_ratio_threshold"`       // default 0.8
+	DDoSPacketsPerSecond   uint64        `json:"ddos_pps_threshold"`         // default 50000
+	DDoSBytesPerSecond     uint64        `json:"ddos_bps_threshold"`         // default 100_000_000
+	DDoSConnPerSecond      uint64        `json:"ddos_conn_threshold"`        // default 1000
+	SYNRatioThreshold      float64       `json:"syn_ratio_threshold"`        // default 0.8
 }
 
 // PortScanAlert represents a detected port scanning attempt.
 type PortScanAlert struct {
-	ID            string    `json:"id"`
-	SourceIP      net.IP    `json:"source_ip"`
-	TargetIP      net.IP    `json:"target_ip"`
-	ScannedPorts  []int     `json:"scanned_ports"`
-	ScanType      ScanType  `json:"scan_type"`
-	Severity      string    `json:"severity"`     // "low" | "medium" | "high"
-	PacketCount   int       `json:"packet_count"`
-	DetectedAt    time.Time `json:"detected_at"`
-	AutoBlocked   bool      `json:"auto_blocked"`
+	ID           string    `json:"id"`
+	SourceIP     net.IP    `json:"source_ip"`
+	TargetIP     net.IP    `json:"target_ip"`
+	ScannedPorts []int     `json:"scanned_ports"`
+	ScanType     ScanType  `json:"scan_type"`
+	Severity     string    `json:"severity"` // "low" | "medium" | "high"
+	PacketCount  int       `json:"packet_count"`
+	DetectedAt   time.Time `json:"detected_at"`
+	AutoBlocked  bool      `json:"auto_blocked"`
 }
 
 // ScanType classifies the kind of port scan detected.
@@ -68,18 +68,18 @@ const (
 
 // DDoSMitigation tracks an ongoing or completed DDoS mitigation response.
 type DDoSMitigation struct {
-	ID              string          `json:"id"`
-	AttackType      string          `json:"attack_type"` // "syn_flood" | "udp_flood" | "http_flood" | "amplification"
-	SourceIPs       []net.IP        `json:"source_ips"`
-	TargetIP        net.IP          `json:"target_ip"`
-	TargetPort      int             `json:"target_port,omitempty"`
-	PeakPPS         uint64          `json:"peak_pps"`
-	PeakBPS         uint64          `json:"peak_bps"`
-	StartTime       time.Time       `json:"start_time"`
-	EndTime         *time.Time      `json:"end_time,omitempty"`
-	MitigationStrategy string       `json:"mitigation_strategy"`
-	Status          MitigationStatus `json:"status"`
-	BlockedIPs      []net.IP        `json:"blocked_ips"`
+	ID                 string           `json:"id"`
+	AttackType         string           `json:"attack_type"` // "syn_flood" | "udp_flood" | "http_flood" | "amplification"
+	SourceIPs          []net.IP         `json:"source_ips"`
+	TargetIP           net.IP           `json:"target_ip"`
+	TargetPort         int              `json:"target_port,omitempty"`
+	PeakPPS            uint64           `json:"peak_pps"`
+	PeakBPS            uint64           `json:"peak_bps"`
+	StartTime          time.Time        `json:"start_time"`
+	EndTime            *time.Time       `json:"end_time,omitempty"`
+	MitigationStrategy string           `json:"mitigation_strategy"`
+	Status             MitigationStatus `json:"status"`
+	BlockedIPs         []net.IP         `json:"blocked_ips"`
 }
 
 // MitigationStatus tracks the lifecycle of a DDoS response.
@@ -93,27 +93,27 @@ const (
 
 // IsolationPolicy defines rules for isolating compromised or untrusted hosts.
 type IsolationPolicy struct {
-	ID            string         `json:"id"`
-	Name          string         `json:"name"`
-	Description   string         `json:"description,omitempty"`
-	TargetHosts   []string       `json:"target_hosts"`     // IP or CIDR
-	IsolationMode IsolationMode  `json:"isolation_mode"`
-	Allowlist     []string       `json:"allowlist,omitempty"`  // IPs allowed through isolation
-	Denylist      []string       `json:"denylist,omitempty"`
-	Duration      time.Duration  `json:"duration,omitempty"`   // 0 = indefinite
-	Enabled       bool           `json:"enabled"`
-	CreatedAt     time.Time      `json:"created_at"`
-	Reason        string         `json:"reason,omitempty"`
+	ID            string        `json:"id"`
+	Name          string        `json:"name"`
+	Description   string        `json:"description,omitempty"`
+	TargetHosts   []string      `json:"target_hosts"` // IP or CIDR
+	IsolationMode IsolationMode `json:"isolation_mode"`
+	Allowlist     []string      `json:"allowlist,omitempty"` // IPs allowed through isolation
+	Denylist      []string      `json:"denylist,omitempty"`
+	Duration      time.Duration `json:"duration,omitempty"` // 0 = indefinite
+	Enabled       bool          `json:"enabled"`
+	CreatedAt     time.Time     `json:"created_at"`
+	Reason        string        `json:"reason,omitempty"`
 }
 
 // IsolationMode specifies the degree of network isolation.
 type IsolationMode string
 
 const (
-	IsolationModeFull       IsolationMode = "full"        // no traffic in or out
+	IsolationModeFull       IsolationMode = "full"         // no traffic in or out
 	IsolationModeInbound    IsolationMode = "inbound_only" // only allow inbound from allowlist
 	IsolationModeOutbound   IsolationMode = "outbound_blocked"
-	IsolationModeQuarantine IsolationMode = "quarantine"   // only management VLAN
+	IsolationModeQuarantine IsolationMode = "quarantine" // only management VLAN
 )
 
 // -------------------- Constructor --------------------
@@ -128,10 +128,10 @@ func NewTrafficShield() *TrafficShield {
 		thresholds: DetectionThresholds{
 			PortScanMaxUniquePorts: 10,
 			PortScanTimeWindow:     60 * time.Second,
-			DDoSPacketsPerSecond:    50000,
-			DDoSBytesPerSecond:      100_000_000,
-			DDoSConnPerSecond:       1000,
-			SYNRatioThreshold:       0.8,
+			DDoSPacketsPerSecond:   50000,
+			DDoSBytesPerSecond:     100_000_000,
+			DDoSConnPerSecond:      1000,
+			SYNRatioThreshold:      0.8,
 		},
 	}
 }
@@ -160,13 +160,13 @@ func (s *TrafficShield) DetectPortScan(ctx context.Context, sourceIP, targetIP n
 
 	if alert == nil {
 		alert = &PortScanAlert{
-			ID:         "ps-" + sourceIP.String() + "-" + now.Format("20060102150405"),
-			SourceIP:   sourceIP,
-			TargetIP:   targetIP,
+			ID:           "ps-" + sourceIP.String() + "-" + now.Format("20060102150405"),
+			SourceIP:     sourceIP,
+			TargetIP:     targetIP,
 			ScannedPorts: []int{port},
-			ScanType:   ScanTypeTCPConnect,
-			Severity:   "low",
-			DetectedAt: now,
+			ScanType:     ScanTypeTCPConnect,
+			Severity:     "low",
+			DetectedAt:   now,
 		}
 		s.alerts = append(s.alerts, *alert)
 	} else {

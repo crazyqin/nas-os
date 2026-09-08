@@ -200,4 +200,3 @@ func TestCommunityLoadLifecycleAndNoHTTPPrivilege(t *testing.T) {
 		t.Fatal("http.admin community package must fail enable")
 	}
 }
-

@@ -15,11 +15,11 @@ import (
 type Channel string
 
 const (
-	ChannelStable   Channel = "stable"
-	ChannelBeta     Channel = "beta"
-	ChannelCanary   Channel = "canary"
-	ChannelNightly  Channel = "nightly"
-	ChannelLTS      Channel = "lts"
+	ChannelStable  Channel = "stable"
+	ChannelBeta    Channel = "beta"
+	ChannelCanary  Channel = "canary"
+	ChannelNightly Channel = "nightly"
+	ChannelLTS     Channel = "lts"
 )
 
 // ChannelConfig 通道配置.
@@ -28,56 +28,56 @@ type ChannelConfig struct {
 	DisplayName    string  `json:"display_name"`
 	Description    string  `json:"description"`
 	AutoUpdate     bool    `json:"auto_update"`
-	BatchSize      int     `json:"batch_size"`       // 灰度推送批次大小百分比
-	BatchDelayMin  int     `json:"batch_delay_min"`   // 批次间隔分钟
+	BatchSize      int     `json:"batch_size"`      // 灰度推送批次大小百分比
+	BatchDelayMin  int     `json:"batch_delay_min"` // 批次间隔分钟
 	RollbackOnErr  bool    `json:"rollback_on_error"`
-	ErrorThreshold float64 `json:"error_threshold"`   // 错误率阈值
+	ErrorThreshold float64 `json:"error_threshold"` // 错误率阈值
 }
 
 // Release 发布版本.
 type Release struct {
-	Version      string    `json:"version"`
-	Channel      Channel   `json:"channel"`
-	ReleaseNotes string    `json:"release_notes"`
-	CreatedAt    time.Time `json:"created_at"`
+	Version      string     `json:"version"`
+	Channel      Channel    `json:"channel"`
+	ReleaseNotes string     `json:"release_notes"`
+	CreatedAt    time.Time  `json:"created_at"`
 	PublishedAt  *time.Time `json:"published_at,omitempty"`
-	RolledBack   bool      `json:"rolled_back"`
-	RollbackNote string    `json:"rollback_note,omitempty"`
-	Checksum     string    `json:"checksum"`
-	SizeBytes    int64     `json:"size_bytes"`
-	Tags         []string  `json:"tags"`
+	RolledBack   bool       `json:"rolled_back"`
+	RollbackNote string     `json:"rollback_note,omitempty"`
+	Checksum     string     `json:"checksum"`
+	SizeBytes    int64      `json:"size_bytes"`
+	Tags         []string   `json:"tags"`
 }
 
 // Deployment 部署记录.
 type Deployment struct {
-	ID           string    `json:"id"`
-	ReleaseVer   string    `json:"release_version"`
-	Channel      Channel   `json:"channel"`
-	BatchPercent int       `json:"batch_percent"`
-	StartedAt    time.Time `json:"started_at"`
+	ID           string     `json:"id"`
+	ReleaseVer   string     `json:"release_version"`
+	Channel      Channel    `json:"channel"`
+	BatchPercent int        `json:"batch_percent"`
+	StartedAt    time.Time  `json:"started_at"`
 	CompletedAt  *time.Time `json:"completed_at,omitempty"`
-	Status       string    `json:"status"` // pending, deploying, completed, failed, rolled_back
-	TargetCount  int       `json:"target_count"`
-	DoneCount    int       `json:"done_count"`
-	ErrorCount   int       `json:"error_count"`
+	Status       string     `json:"status"` // pending, deploying, completed, failed, rolled_back
+	TargetCount  int        `json:"target_count"`
+	DoneCount    int        `json:"done_count"`
+	ErrorCount   int        `json:"error_count"`
 }
 
 // RollbackPlan 回滚计划.
 type RollbackPlan struct {
-	FromVersion string  `json:"from_version"`
-	ToVersion   string  `json:"to_version"`
-	Reason      string  `json:"reason"`
+	FromVersion string    `json:"from_version"`
+	ToVersion   string    `json:"to_version"`
+	Reason      string    `json:"reason"`
 	CreatedAt   time.Time `json:"created_at"`
-	Channel     Channel  `json:"channel"`
+	Channel     Channel   `json:"channel"`
 }
 
 // Manager 发布通道管理器.
 type Manager struct {
-	mu         sync.RWMutex
-	channels   map[Channel]*ChannelConfig
-	releases   map[Channel][]*Release
-	deployments []Deployment
-	rollbacks  []RollbackPlan
+	mu             sync.RWMutex
+	channels       map[Channel]*ChannelConfig
+	releases       map[Channel][]*Release
+	deployments    []Deployment
+	rollbacks      []RollbackPlan
 	currentRelease map[Channel]string
 }
 
@@ -85,8 +85,8 @@ type Manager struct {
 func NewManager() *Manager {
 	m := &Manager{
 		channels:       make(map[Channel]*ChannelConfig),
-		releases:        make(map[Channel][]*Release),
-		currentRelease:  make(map[Channel]string),
+		releases:       make(map[Channel][]*Release),
+		currentRelease: make(map[Channel]string),
 	}
 	// 默认通道
 	m.channels[ChannelStable] = &ChannelConfig{
@@ -194,11 +194,11 @@ func (m *Manager) StartDeployment(version string, ch Channel, targetCount int) (
 		return nil, fmt.Errorf("channel %s not configured", ch)
 	}
 	dep := &Deployment{
-		ID:           fmt.Sprintf("deploy-%d", time.Now().UnixMilli()),
-		ReleaseVer:   version, Channel: ch,
+		ID:         fmt.Sprintf("deploy-%d", time.Now().UnixMilli()),
+		ReleaseVer: version, Channel: ch,
 		BatchPercent: cfg.BatchSize,
 		StartedAt:    time.Now(), Status: "deploying",
-		TargetCount:  targetCount,
+		TargetCount: targetCount,
 	}
 	m.deployments = append(m.deployments, *dep)
 	return dep, nil

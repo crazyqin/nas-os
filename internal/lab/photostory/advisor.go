@@ -12,45 +12,45 @@ import (
 type StoryTheme string
 
 const (
-	ThemeTravel      StoryTheme = "travel"       // location-based travel story
-	ThemeFamily      StoryTheme = "family"       // family gatherings and milestones
-	ThemeSeasonal    StoryTheme = "seasonal"     // seasonal/holiday events
-	ThemeMilestone   StoryTheme = "milestone"    // birthdays, graduations, anniversaries
-	ThemeAdventure   StoryTheme = "adventure"    // outdoor activities, sports
-	ThemeDaily       StoryTheme = "daily"        // everyday moments
-	ThemeThrowback   StoryTheme = "throwback"    // "on this day" memories
+	ThemeTravel    StoryTheme = "travel"    // location-based travel story
+	ThemeFamily    StoryTheme = "family"    // family gatherings and milestones
+	ThemeSeasonal  StoryTheme = "seasonal"  // seasonal/holiday events
+	ThemeMilestone StoryTheme = "milestone" // birthdays, graduations, anniversaries
+	ThemeAdventure StoryTheme = "adventure" // outdoor activities, sports
+	ThemeDaily     StoryTheme = "daily"     // everyday moments
+	ThemeThrowback StoryTheme = "throwback" // "on this day" memories
 )
 
 // PhotoMetadata describes a photo with AI-extracted metadata.
 type PhotoMetadata struct {
-	ID            string    `json:"id"`
-	Path          string    `json:"path"`
-	DateTaken     time.Time `json:"date_taken"`
-	Location      string    `json:"location,omitempty"`
-	GPSLat        float64   `json:"gps_lat,omitempty"`
-	GPSLon        float64   `json:"gps_lon,omitempty"`
-	HasFaces      int       `json:"has_faces"`     // number of faces detected
-	FaceNames     []string  `json:"face_names,omitempty"`
-	SceneTags     []string  `json:"scene_tags,omitempty"`   // beach, sunset, party, etc.
-	Objects       []string  `json:"objects,omitempty"`      // detected objects
-	EmotionTags   []string  `json:"emotion_tags,omitempty"` // happy, serene, energetic
-	IsFavorite    bool      `json:"is_favorite"`
-	QualityScore   float64   `json:"quality_score"`
-	Width         int       `json:"width"`
-	Height        int       `json:"height"`
+	ID           string    `json:"id"`
+	Path         string    `json:"path"`
+	DateTaken    time.Time `json:"date_taken"`
+	Location     string    `json:"location,omitempty"`
+	GPSLat       float64   `json:"gps_lat,omitempty"`
+	GPSLon       float64   `json:"gps_lon,omitempty"`
+	HasFaces     int       `json:"has_faces"` // number of faces detected
+	FaceNames    []string  `json:"face_names,omitempty"`
+	SceneTags    []string  `json:"scene_tags,omitempty"`   // beach, sunset, party, etc.
+	Objects      []string  `json:"objects,omitempty"`      // detected objects
+	EmotionTags  []string  `json:"emotion_tags,omitempty"` // happy, serene, energetic
+	IsFavorite   bool      `json:"is_favorite"`
+	QualityScore float64   `json:"quality_score"`
+	Width        int       `json:"width"`
+	Height       int       `json:"height"`
 }
 
 // Story represents a generated photo story.
 type Story struct {
-	Title       string         `json:"title"`
-	Theme       StoryTheme     `json:"theme"`
-	Summary     string         `json:"summary"`
-	PhotoIDs    []string       `json:"photo_ids"`
-	StartDate   time.Time     `json:"start_date"`
-	EndDate     time.Time     `json:"end_date"`
-	Location    string         `json:"location,omitempty"`
-	Tags        []string       `json:"tags"`
-	CoverPhotoID string        `json:"cover_photo_id"`
+	Title        string     `json:"title"`
+	Theme        StoryTheme `json:"theme"`
+	Summary      string     `json:"summary"`
+	PhotoIDs     []string   `json:"photo_ids"`
+	StartDate    time.Time  `json:"start_date"`
+	EndDate      time.Time  `json:"end_date"`
+	Location     string     `json:"location,omitempty"`
+	Tags         []string   `json:"tags"`
+	CoverPhotoID string     `json:"cover_photo_id"`
 }
 
 // Signal aggregates photo collection data for story generation.
@@ -60,20 +60,20 @@ type Signal struct {
 	ThrowbackMode       bool            `json:"throwback_mode"`  // "on this day" mode
 	MinPhotosForStory   int             `json:"min_photos_for_story"`
 	PreferredThemes     []StoryTheme    `json:"preferred_themes,omitempty"`
-	IncludeLocationless  bool            `json:"include_locationless"` // include photos without GPS
+	IncludeLocationless bool            `json:"include_locationless"` // include photos without GPS
 	MaxStories          int             `json:"max_stories"`
 }
 
 // Recommendation is an actionable photo story or suggestion.
 type Recommendation struct {
-	ID          string     `json:"id"`
-	Title       string     `json:"title"`
-	Priority    string     `json:"priority"`
-	Action      string     `json:"action"`
-	Reason      string     `json:"reason"`
-	StoryTheme  StoryTheme `json:"story_theme,omitempty"`
-	PhotoCount  int        `json:"photo_count,omitempty"`
-	DateString  string     `json:"date_string,omitempty"`
+	ID         string     `json:"id"`
+	Title      string     `json:"title"`
+	Priority   string     `json:"priority"`
+	Action     string     `json:"action"`
+	Reason     string     `json:"reason"`
+	StoryTheme StoryTheme `json:"story_theme,omitempty"`
+	PhotoCount int        `json:"photo_count,omitempty"`
+	DateString string     `json:"date_string,omitempty"`
 }
 
 // Analyze evaluates the photo collection and generates story recommendations.
@@ -219,9 +219,9 @@ func Analyze(s Signal) []Recommendation {
 				Priority:   "low",
 				Action:     fmt.Sprintf("Generate story for %s-%s with %d photos", startDate.Format("Jan 2"), endDate.Format("Jan 2"), len(cluster)),
 				Reason:     fmt.Sprintf("%d photos clustered in a short period suggest an event worth narrating", len(cluster)),
-				StoryTheme:  ThemeDaily,
-				PhotoCount:  len(cluster),
-				DateString:  startDate.Format("2006-01-02"),
+				StoryTheme: ThemeDaily,
+				PhotoCount: len(cluster),
+				DateString: startDate.Format("2006-01-02"),
 			})
 		}
 	}
@@ -376,9 +376,9 @@ func generateThrowbacks(photos []PhotoMetadata, minPhotos int) []Recommendation 
 				Priority:   "medium",
 				Action:     fmt.Sprintf("Generate throwback story with %d photos from %d years ago", len(cluster), years),
 				Reason:     fmt.Sprintf("%d photos taken on this day %d years ago", len(cluster), years),
-				StoryTheme:  ThemeThrowback,
-				PhotoCount:  len(cluster),
-				DateString:  fmt.Sprintf("%d years ago", years),
+				StoryTheme: ThemeThrowback,
+				PhotoCount: len(cluster),
+				DateString: fmt.Sprintf("%d years ago", years),
 			})
 		}
 	}

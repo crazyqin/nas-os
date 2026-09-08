@@ -131,13 +131,13 @@ func TestAnalyze_EnableHotDataTiering(t *testing.T) {
 // score exceeds 0.7.
 func TestAnalyze_RebalancePool(t *testing.T) {
 	recs := Analyze(Signal{
-		HybridPoolEnabled:   true,
-		FlashTierRatio:      0.1,
-		HotDataOnFlash:      true,
-		ColdDataMigrated:    true,
-		PoolUtilizationPct:  50,
-		FragmentationScore:  0.8,
-		AutoRebalance:       true,
+		HybridPoolEnabled:  true,
+		FlashTierRatio:     0.1,
+		HotDataOnFlash:     true,
+		ColdDataMigrated:   true,
+		PoolUtilizationPct: 50,
+		FragmentationScore: 0.8,
+		AutoRebalance:      true,
 	})
 	found := false
 	for _, r := range recs {
@@ -279,12 +279,12 @@ func TestAnalyze_ReduceFlashTemperature(t *testing.T) {
 // special device class is configured.
 func TestAnalyze_ConfigureSpecialDeviceClass(t *testing.T) {
 	recs := Analyze(Signal{
-		HybridPoolEnabled:    true,
-		FlashTierRatio:       0.1,
-		HotDataOnFlash:       true,
-		ColdDataMigrated:     true,
-		PoolUtilizationPct:   50,
-		AutoRebalance:        true,
+		HybridPoolEnabled:     true,
+		FlashTierRatio:        0.1,
+		HotDataOnFlash:        true,
+		ColdDataMigrated:      true,
+		PoolUtilizationPct:    50,
+		AutoRebalance:         true,
 		HasSpecialDeviceClass: false,
 	})
 	found := false
@@ -331,17 +331,17 @@ func TestAnalyze_MigrateColdData(t *testing.T) {
 func TestAnalyze_PriorityOrdering(t *testing.T) {
 	// Construct a Signal that triggers multiple recommendations across all priorities.
 	signal := Signal{
-		HybridPoolEnabled:    true,
-		FlashTierRatio:       0.03,       // medium: increase-flash-capacity
-		HotDataOnFlash:       false,      // high: enable-hot-data-tiering
-		ColdDataMigrated:     false,      // medium: migrate-cold-data
-		PoolUtilizationPct:   90,         // high: expand-pool
-		FragmentationScore:   0.8,       // medium: rebalance-pool
-		HasSpecialDeviceClass: false,     // low: configure-special-device-class
-		AutoRebalance:        false,      // low: enable-auto-rebalance (with stale age)
-		LastRebalanceAge:     10 * 24 * time.Hour,
-		FlashWearLevelPct:    85,        // high: replace-flash-devices
-		FlashTemperatureC:    75,        // high: reduce-flash-temperature
+		HybridPoolEnabled:     true,
+		FlashTierRatio:        0.03,  // medium: increase-flash-capacity
+		HotDataOnFlash:        false, // high: enable-hot-data-tiering
+		ColdDataMigrated:      false, // medium: migrate-cold-data
+		PoolUtilizationPct:    90,    // high: expand-pool
+		FragmentationScore:    0.8,   // medium: rebalance-pool
+		HasSpecialDeviceClass: false, // low: configure-special-device-class
+		AutoRebalance:         false, // low: enable-auto-rebalance (with stale age)
+		LastRebalanceAge:      10 * 24 * time.Hour,
+		FlashWearLevelPct:     85, // high: replace-flash-devices
+		FlashTemperatureC:     75, // high: reduce-flash-temperature
 	}
 
 	recs := Analyze(signal)
@@ -364,17 +364,17 @@ func TestAnalyze_PriorityOrdering(t *testing.T) {
 // possible recommendations produces the expected count.
 func TestAnalyze_AllRecommendations(t *testing.T) {
 	signal := Signal{
-		HybridPoolEnabled:    true,
-		FlashTierRatio:       0.03,
-		HotDataOnFlash:       false,
-		ColdDataMigrated:     false,
-		PoolUtilizationPct:   90,
-		FragmentationScore:   0.8,
+		HybridPoolEnabled:     true,
+		FlashTierRatio:        0.03,
+		HotDataOnFlash:        false,
+		ColdDataMigrated:      false,
+		PoolUtilizationPct:    90,
+		FragmentationScore:    0.8,
 		HasSpecialDeviceClass: false,
-		AutoRebalance:        false,
-		LastRebalanceAge:     10 * 24 * time.Hour,
-		FlashWearLevelPct:    85,
-		FlashTemperatureC:    75,
+		AutoRebalance:         false,
+		LastRebalanceAge:      10 * 24 * time.Hour,
+		FlashWearLevelPct:     85,
+		FlashTemperatureC:     75,
 	}
 
 	recs := Analyze(signal)

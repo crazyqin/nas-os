@@ -218,6 +218,9 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v5
 
+      - name: 获取 master 基线（lint 只拦新问题）
+        run: git fetch --no-tags origin master
+
       - name: 恢复 Go 缓存
         uses: actions/cache/restore@v4
         with:
@@ -239,15 +242,13 @@ jobs:
             ~/go/bin
           key: go-tools-${{ env.CACHE_VERSION }}-${{ runner.os }}
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
-        continue-on-error: true
+        uses: golangci/golangci-lint-action@v7
         with:
-          version: latest
-          args: --timeout=10m --issues-exit-code=0
+          version: v2.11.3
+          args: --timeout=10m --new-from-rev=origin/master
           skip-cache: true
       
       - name: 检查代码格式
-        continue-on-error: true
         run: |
           FMT_OUTPUT=$(gofmt -l .)
           if [ -n "$FMT_OUTPUT" ]; then
