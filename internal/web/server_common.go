@@ -249,6 +249,8 @@ func (s *Server) registerWebUI(webuiRoot string) {
 	s.engine.StaticFile("/network", webuiRoot+"/pages/network.html")
 	s.engine.StaticFile("/settings", webuiRoot+"/pages/settings.html")
 	s.engine.StaticFile("/app-center", webuiRoot+"/pages/app-center.html")
+	s.engine.StaticFile("/api-docs", webuiRoot+"/pages/api-docs.html")
+	s.engine.StaticFile("/plugins", webuiRoot+"/pages/plugins.html")
 
 	if fullPages {
 		s.engine.StaticFile("/downloader", webuiRoot+"/pages/downloader/index.html")

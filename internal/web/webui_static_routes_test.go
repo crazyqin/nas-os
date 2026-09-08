@@ -36,6 +36,8 @@ func TestWebUIStaticRoutesServed(t *testing.T) {
 		"index.html":             "<html></html>",
 		"pages/login.html":       "<html></html>",
 		"pages/storage.html":     "<html></html>",
+		"pages/api-docs.html":    "<html></html>",
+		"pages/plugins.html":     "<html></html>",
 		"pages/containers.html":  "<html></html>",
 	}
 	for rel, content := range files {
@@ -64,6 +66,8 @@ func TestWebUIStaticRoutesServed(t *testing.T) {
 		"/webui/pages/storage.html",
 		// Existing contract must keep working.
 		"/login",
+		"/api-docs",
+		"/plugins",
 		"/webui/css/design-system.css",
 	} {
 		w := httptest.NewRecorder()
