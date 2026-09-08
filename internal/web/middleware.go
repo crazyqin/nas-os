@@ -419,9 +419,9 @@ func validateCSRFToken(token, expectedToken string, key []byte) bool {
 
 // audit log sink: one long-lived file handle (mutex) instead of open/close per request.
 var (
-	auditFileMu   sync.Mutex
-	auditFile     *os.File
-	auditPath     = func() string {
+	auditFileMu sync.Mutex
+	auditFile   *os.File
+	auditPath   = func() string {
 		if p := strings.TrimSpace(os.Getenv("NAS_OS_AUDIT_LOG")); p != "" {
 			return p
 		}

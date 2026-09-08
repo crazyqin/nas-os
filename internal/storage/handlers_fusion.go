@@ -2,7 +2,6 @@
 package storage
 
 import (
-
 	"nas-os/internal/api"
 
 	"github.com/gin-gonic/gin"
@@ -300,4 +299,3 @@ func (h *Handlers) getFusionPoolStats(c *gin.Context) {
 
 	api.OK(c, stats)
 }
-

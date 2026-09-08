@@ -572,4 +572,3 @@ type TemplateVersion struct {
 	Environment  map[string]string `json:"environment,omitempty"`
 	MinVersion   string            `json:"minVersion,omitempty"` // 最低系统版本要求
 }
-

@@ -31,9 +31,9 @@ func TestGenerateHighDuplicateRisk(t *testing.T) {
 	}
 
 	wantIDs := map[string]bool{
-		"enable-block-dedup":       false,
-		"enable-compression":       false,
-		"add-ssd-tier-for-dedup":   false, // zfs + dedupEnabled=false → 不会出现；但 enable-block-dedup 后不会触发此条
+		"enable-block-dedup":     false,
+		"enable-compression":     false,
+		"add-ssd-tier-for-dedup": false, // zfs + dedupEnabled=false → 不会出现；但 enable-block-dedup 后不会触发此条
 	}
 	for _, rec := range report.Recommendations {
 		if _, ok := wantIDs[rec.ID]; ok {

@@ -21,44 +21,44 @@ import (
 // ForensicSnapshot captures a point-in-time forensic image of a file system
 // path, including file metadata and cryptographic hashes.
 type ForensicSnapshot struct {
-	ID          string       // Unique snapshot identifier
-	SnapshotPath string      // File system path that was snapshotted
-	Timestamp   time.Time    // When the snapshot was taken
-	Entries     []SnapshotEntry // Individual file entries captured
-	TotalFiles  int          // Total number of files captured
-	TotalBytes  int64        // Total size of captured files
-	HashChain   string       // SHA-256 of the entire entry chain
-	mu          sync.Mutex
+	ID           string          // Unique snapshot identifier
+	SnapshotPath string          // File system path that was snapshotted
+	Timestamp    time.Time       // When the snapshot was taken
+	Entries      []SnapshotEntry // Individual file entries captured
+	TotalFiles   int             // Total number of files captured
+	TotalBytes   int64           // Total size of captured files
+	HashChain    string          // SHA-256 of the entire entry chain
+	mu           sync.Mutex
 }
 
 // SnapshotEntry represents a single file within a forensic snapshot.
 type SnapshotEntry struct {
-	Path     string    // Full file path
-	Size     int64     // File size in bytes
-	Mode     os.FileMode // File permissions
-	ModTime  time.Time // Last modification time
-	SHA256   string    // SHA-256 hash of file content
-	IsDir    bool      // Whether entry is a directory
+	Path    string      // Full file path
+	Size    int64       // File size in bytes
+	Mode    os.FileMode // File permissions
+	ModTime time.Time   // Last modification time
+	SHA256  string      // SHA-256 hash of file content
+	IsDir   bool        // Whether entry is a directory
 }
 
 // AuditChain maintains a tamper-evident chain of audited operations using
 // linked SHA-256 hashes.
 type AuditChain struct {
-	ID       string        // Chain identifier
-	Head     string        // Hash of the latest entry (chain head)
-	Entries  []AuditEntry  // Ordered list of audit entries
-	mu       sync.Mutex
+	ID      string       // Chain identifier
+	Head    string       // Hash of the latest entry (chain head)
+	Entries []AuditEntry // Ordered list of audit entries
+	mu      sync.Mutex
 }
 
 // AuditEntry is a single record in the audit chain.
 type AuditEntry struct {
-	Index     int       // Sequential index in the chain
-	Action    string    // What action was performed (e.g., "read", "write", "delete")
-	Actor     string    // Who performed the action
-	Resource  string    // Target resource (file path, object, etc.)
-	Timestamp time.Time // When the action occurred
-	PrevHash  string    // Hash of the previous entry
-	ThisHash  string    // Hash of this entry
+	Index     int               // Sequential index in the chain
+	Action    string            // What action was performed (e.g., "read", "write", "delete")
+	Actor     string            // Who performed the action
+	Resource  string            // Target resource (file path, object, etc.)
+	Timestamp time.Time         // When the action occurred
+	PrevHash  string            // Hash of the previous entry
+	ThisHash  string            // Hash of this entry
 	Metadata  map[string]string // Additional context
 }
 
@@ -68,11 +68,11 @@ type EvidencePack struct {
 	ID           string         // Evidence pack identifier
 	CaseID       string         // Associated case/incident ID
 	Collector    string         // Who collected the evidence
-	CollectedAt  time.Time     // Collection timestamp
+	CollectedAt  time.Time      // Collection timestamp
 	SnapshotID   string         // Link to ForensicSnapshot
-	AuditChainID string        // Link to AuditChain
+	AuditChainID string         // Link to AuditChain
 	Sealed       bool           // Whether evidence has been sealed
-	SealHash     string        // Hash that locks the evidence
+	SealHash     string         // Hash that locks the evidence
 	Description  string         // Human-readable description
 	Items        []EvidenceItem // Individual evidence items
 }
@@ -87,23 +87,23 @@ type EvidenceItem struct {
 
 // ForensicReport is a generated report summarizing forensic findings.
 type ForensicReport struct {
-	ID           string    // Report identifier
-	CaseID       string    // Associated case/incident ID
-	GeneratedAt  time.Time // When the report was generated
-	GeneratedBy  string    // Who or what generated the report
-	Summary      string    // Executive summary
-	SnapshotID   string    // Reference to the forensic snapshot used
-	AuditChainID string   // Reference to the audit chain used
-	Findings     []Finding // Individual findings
+	ID           string          // Report identifier
+	CaseID       string          // Associated case/incident ID
+	GeneratedAt  time.Time       // When the report was generated
+	GeneratedBy  string          // Who or what generated the report
+	Summary      string          // Executive summary
+	SnapshotID   string          // Reference to the forensic snapshot used
+	AuditChainID string          // Reference to the audit chain used
+	Findings     []Finding       // Individual findings
 	Timeline     []TimelineEvent // Chronological events
-	Status       string    // "draft", "final", "archived"
+	Status       string          // "draft", "final", "archived"
 }
 
 // Finding represents a single forensic finding in a report.
 type Finding struct {
-	Title       string // Short title
-	Description string // Detailed description
-	Severity    string // "info", "low", "medium", "high", "critical"
+	Title       string   // Short title
+	Description string   // Detailed description
+	Severity    string   // "info", "low", "medium", "high", "critical"
 	Evidence    []string // References to evidence items
 }
 

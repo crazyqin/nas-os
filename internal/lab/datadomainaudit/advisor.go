@@ -5,21 +5,21 @@ import "sort"
 // Signal represents the data-domain isolation audit signal extracted from
 // GDPR data-localization checks and TrueNAS encrypted-dataset exclusion indexes.
 type Signal struct {
-	PIIPresent                  bool
-	PIIEncrypted                bool
-	CrossBorderReplication      bool
-	DataResidencyPolicyExists   bool
-	AccessLogComplete           bool
-	RetentionPolicyExists       bool
+	PIIPresent                    bool
+	PIIEncrypted                  bool
+	CrossBorderReplication        bool
+	DataResidencyPolicyExists     bool
+	AccessLogComplete             bool
+	RetentionPolicyExists         bool
 	DataProcessingInventoryExists bool
-	DPAAgreementExists           bool
-	EncryptionAtRest             bool
-	EncryptionInTransit          bool
-	DataLocalizationRequired     bool
-	Jurisdiction                 string
-	ThirdPartyDataSharing        bool
-	DSARCompliant                bool
-	BreachNotificationReady      bool
+	DPAAgreementExists            bool
+	EncryptionAtRest              bool
+	EncryptionInTransit           bool
+	DataLocalizationRequired      bool
+	Jurisdiction                  string
+	ThirdPartyDataSharing         bool
+	DSARCompliant                 bool
+	BreachNotificationReady       bool
 }
 
 // Recommendation is a single audit finding with actionable guidance.

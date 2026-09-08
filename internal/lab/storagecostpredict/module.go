@@ -155,11 +155,11 @@ func fitLinear(x, y []float64) linReg {
 func (e *Engine) PredictCost(periodStart, periodEnd time.Time) CostPrediction {
 	if len(e.History) < 2 {
 		return CostPrediction{
-			PeriodStart:      periodStart,
-			PeriodEnd:        periodEnd,
-			PredictedCost:    0,
-			ConfidenceLevel:  0,
-			Method:           "insufficient-data",
+			PeriodStart:     periodStart,
+			PeriodEnd:       periodEnd,
+			PredictedCost:   0,
+			ConfidenceLevel: 0,
+			Method:          "insufficient-data",
 		}
 	}
 
@@ -179,7 +179,7 @@ func (e *Engine) PredictCost(periodStart, periodEnd time.Time) CostPrediction {
 	if days <= 0 {
 		days = 30
 	}
-	midDay := periodStart.Add(periodEnd.Sub(periodStart) / 2).Sub(t0).Hours() / 24
+	midDay := periodStart.Add(periodEnd.Sub(periodStart)/2).Sub(t0).Hours() / 24
 	dailyCost := reg.slope*midDay + reg.intercept
 	if dailyCost < 0 {
 		dailyCost = 0
@@ -195,16 +195,16 @@ func (e *Engine) PredictCost(periodStart, periodEnd time.Time) CostPrediction {
 	}
 
 	return CostPrediction{
-		PeriodStart:      periodStart,
-		PeriodEnd:        periodEnd,
-		PredictedCost:    dailyCost * days,
-		ConfidenceLevel:  conf,
+		PeriodStart:     periodStart,
+		PeriodEnd:       periodEnd,
+		PredictedCost:   dailyCost * days,
+		ConfidenceLevel: conf,
 		CostBreakdown: map[string]float64{
-			"hardware":   dailyCost * days * 0.35,
+			"hardware":    dailyCost * days * 0.35,
 			"electricity": dailyCost * days * 0.20,
 			"maintenance": dailyCost * days * 0.15,
-			"cloud":      dailyCost * days * 0.20,
-			"other":      dailyCost * days * 0.10,
+			"cloud":       dailyCost * days * 0.20,
+			"other":       dailyCost * days * 0.10,
 		},
 		Method: "linear-regression",
 	}
@@ -319,39 +319,39 @@ func (e *Engine) CheckBudgetOverrun(budgetLimit, currentSpend float64, periodSta
 	// Already over budget?
 	if currentSpend >= budgetLimit {
 		return &BudgetAlert{
-			AlertID:       "budget-overrun",
-			TriggeredAt:   time.Now(),
-			BudgetLimit:   budgetLimit,
+			AlertID:        "budget-overrun",
+			TriggeredAt:    time.Now(),
+			BudgetLimit:    budgetLimit,
 			ProjectedSpend: projectedSpend,
-			CurrentSpend:  currentSpend,
-			AlertType:     "overrun",
-			Message:       "Budget limit has been exceeded. Immediate action required.",
+			CurrentSpend:   currentSpend,
+			AlertType:      "overrun",
+			Message:        "Budget limit has been exceeded. Immediate action required.",
 		}
 	}
 
 	// Projected to exceed?
 	if projectedSpend >= budgetLimit {
 		return &BudgetAlert{
-			AlertID:       "budget-projected-overrun",
-			TriggeredAt:   time.Now(),
-			BudgetLimit:   budgetLimit,
+			AlertID:        "budget-projected-overrun",
+			TriggeredAt:    time.Now(),
+			BudgetLimit:    budgetLimit,
 			ProjectedSpend: projectedSpend,
-			CurrentSpend:  currentSpend,
-			AlertType:     "overrun",
-			Message:       "Projected spend will exceed the budget limit before the period ends.",
+			CurrentSpend:   currentSpend,
+			AlertType:      "overrun",
+			Message:        "Projected spend will exceed the budget limit before the period ends.",
 		}
 	}
 
 	// Warning threshold reached?
 	if currentSpend >= budgetLimit*e.WarningThreshold {
 		return &BudgetAlert{
-			AlertID:       "budget-warning",
-			TriggeredAt:   time.Now(),
-			BudgetLimit:   budgetLimit,
+			AlertID:        "budget-warning",
+			TriggeredAt:    time.Now(),
+			BudgetLimit:    budgetLimit,
 			ProjectedSpend: projectedSpend,
-			CurrentSpend:  currentSpend,
-			AlertType:     "warning",
-			Message:       "Spending has exceeded the warning threshold. Monitor closely.",
+			CurrentSpend:   currentSpend,
+			AlertType:      "warning",
+			Message:        "Spending has exceeded the warning threshold. Monitor closely.",
 		}
 	}
 

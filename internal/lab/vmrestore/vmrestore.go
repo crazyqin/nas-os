@@ -27,46 +27,46 @@ const (
 type RestoreType string
 
 const (
-	RestoreTypeFull    RestoreType = "full"     // 全量恢复
-	RestoreTypeDelta   RestoreType = "delta"    // 增量恢复
-	RestoreTypeMemory  RestoreType = "memory"   // 含内存状态恢复
-	RestoreTypeFile    RestoreType = "file"     // 单文件恢复
+	RestoreTypeFull   RestoreType = "full"   // 全量恢复
+	RestoreTypeDelta  RestoreType = "delta"  // 增量恢复
+	RestoreTypeMemory RestoreType = "memory" // 含内存状态恢复
+	RestoreTypeFile   RestoreType = "file"   // 单文件恢复
 )
 
 // VMSnapshot 虚拟机快照.
 type VMSnapshot struct {
-	ID          string     `json:"id"`
-	VMID        string     `json:"vm_id"`
-	VMName      string     `json:"vm_name"`
-	Name        string     `json:"name"`
-	Desc        string     `json:"description"`
+	ID          string      `json:"id"`
+	VMID        string      `json:"vm_id"`
+	VMName      string      `json:"vm_name"`
+	Name        string      `json:"name"`
+	Desc        string      `json:"description"`
 	Type        RestoreType `json:"type"`
-	SizeBytes   int64      `json:"size_bytes"`
-	Checksum    string     `json:"checksum"`
-	CreatedAt   time.Time  `json:"created_at"`
-	ParentSnap  string     `json:"parent_snapshot,omitempty"`
-	Consistent  bool       `json:"consistent"`  // 是否一致性快照
-	Verified    bool       `json:"verified"`
-	StoragePath string     `json:"storage_path"`
+	SizeBytes   int64       `json:"size_bytes"`
+	Checksum    string      `json:"checksum"`
+	CreatedAt   time.Time   `json:"created_at"`
+	ParentSnap  string      `json:"parent_snapshot,omitempty"`
+	Consistent  bool        `json:"consistent"` // 是否一致性快照
+	Verified    bool        `json:"verified"`
+	StoragePath string      `json:"storage_path"`
 }
 
 // RestoreJob 恢复任务.
 type RestoreJob struct {
-	ID           string        `json:"id"`
-	VMID         string       `json:"vm_id"`
-	VMName       string       `json:"vm_name"`
-	SnapshotID   string       `json:"snapshot_id"`
-	Type         RestoreType  `json:"type"`
-	Status       RestoreStatus `json:"status"`
-	StartedAt    *time.Time    `json:"started_at,omitempty"`
-	CompletedAt  *time.Time    `json:"completed_at,omitempty"`
-	TargetPath   string       `json:"target_path"`
-	Progress     float64      `json:"progress"`
-	RestoredBytes int64        `json:"restored_bytes"`
-	TotalBytes    int64        `json:"total_bytes"`
-	ErrorMsg     string        `json:"error_msg,omitempty"`
-	PreserveMac  bool          `json:"preserve_mac"`
-	DryRun       bool          `json:"dry_run"`
+	ID            string        `json:"id"`
+	VMID          string        `json:"vm_id"`
+	VMName        string        `json:"vm_name"`
+	SnapshotID    string        `json:"snapshot_id"`
+	Type          RestoreType   `json:"type"`
+	Status        RestoreStatus `json:"status"`
+	StartedAt     *time.Time    `json:"started_at,omitempty"`
+	CompletedAt   *time.Time    `json:"completed_at,omitempty"`
+	TargetPath    string        `json:"target_path"`
+	Progress      float64       `json:"progress"`
+	RestoredBytes int64         `json:"restored_bytes"`
+	TotalBytes    int64         `json:"total_bytes"`
+	ErrorMsg      string        `json:"error_msg,omitempty"`
+	PreserveMac   bool          `json:"preserve_mac"`
+	DryRun        bool          `json:"dry_run"`
 }
 
 // VerifyResult 验证结果.
@@ -82,9 +82,9 @@ type VerifyResult struct {
 
 // Manager 虚拟机恢复管理器.
 type Manager struct {
-	mu        sync.RWMutex
-	snapshots map[string]*VMSnapshot
-	jobs      map[string]*RestoreJob
+	mu            sync.RWMutex
+	snapshots     map[string]*VMSnapshot
+	jobs          map[string]*RestoreJob
 	verifyResults map[string]*VerifyResult
 }
 
@@ -244,12 +244,12 @@ func (m *Manager) VerifySnapshot(snapshotID string) (*VerifyResult, error) {
 		return nil, fmt.Errorf("snapshot %s not found", snapshotID)
 	}
 	result := &VerifyResult{
-		SnapshotID: snapshotID,
-		Valid:      true,
-		ChecksumOK: true,
-		Bootable:   true,
+		SnapshotID:  snapshotID,
+		Valid:       true,
+		ChecksumOK:  true,
+		Bootable:    true,
 		FSIntegrity: true,
-		VerifiedAt: time.Now(),
+		VerifiedAt:  time.Now(),
 	}
 	if snap.SizeBytes == 0 {
 		result.Valid = false

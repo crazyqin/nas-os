@@ -21,26 +21,26 @@ const (
 type NodeStatus string
 
 const (
-	StatusOnline    NodeStatus = "online"
-	StatusOffline   NodeStatus = "offline"
-	StatusDegraded  NodeStatus = "degraded"
-	StatusSyncing   NodeStatus = "syncing"
-	StatusFailing   NodeStatus = "failing"
+	StatusOnline   NodeStatus = "online"
+	StatusOffline  NodeStatus = "offline"
+	StatusDegraded NodeStatus = "degraded"
+	StatusSyncing  NodeStatus = "syncing"
+	StatusFailing  NodeStatus = "failing"
 )
 
 // Node describes a single NAS node in the cluster.
 type Node struct {
-	ID            string     `json:"id"`
-	Name          string     `json:"name"`
-	Role          NodeRole   `json:"role"`
-	Status        NodeStatus `json:"status"`
-	IP            string     `json:"ip"`
-	CPUUsagePct   float64    `json:"cpu_usage_pct"`
-	MemUsagePct   float64    `json:"mem_usage_pct"`
-	DiskUsagePct  float64    `json:"disk_usage_pct"`
-	StorageGB     int        `json:"storage_gb"`
-	UsedStorageGB int        `json:"used_storage_gb"`
-	LastHeartbeat time.Time  `json:"last_heartbeat"`
+	ID             string        `json:"id"`
+	Name           string        `json:"name"`
+	Role           NodeRole      `json:"role"`
+	Status         NodeStatus    `json:"status"`
+	IP             string        `json:"ip"`
+	CPUUsagePct    float64       `json:"cpu_usage_pct"`
+	MemUsagePct    float64       `json:"mem_usage_pct"`
+	DiskUsagePct   float64       `json:"disk_usage_pct"`
+	StorageGB      int           `json:"storage_gb"`
+	UsedStorageGB  int           `json:"used_storage_gb"`
+	LastHeartbeat  time.Time     `json:"last_heartbeat"`
 	ReplicationLag time.Duration `json:"replication_lag"`
 }
 

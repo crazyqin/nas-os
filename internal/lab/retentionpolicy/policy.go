@@ -10,14 +10,14 @@ import (
 
 // RetentionClass defines how long data is kept.
 type RetentionClass struct {
-	ID           string        `json:"id"`
-	Name         string        `json:"name"`
-	Duration     time.Duration `json:"duration"`
-	AfterExpiry  string        `json:"after_expiry"`  // delete, archive, notify, review
-	Immutable    bool          `json:"immutable"`
-	LegalHold    bool          `json:"legal_hold"`
-	ShareScope   []string      `json:"share_scope,omitempty"`
-	Category     string        `json:"category"`      // financial, hr, legal, medical, general
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Duration    time.Duration `json:"duration"`
+	AfterExpiry string        `json:"after_expiry"` // delete, archive, notify, review
+	Immutable   bool          `json:"immutable"`
+	LegalHold   bool          `json:"legal_hold"`
+	ShareScope  []string      `json:"share_scope,omitempty"`
+	Category    string        `json:"category"` // financial, hr, legal, medical, general
 }
 
 // Signal describes the retention policy environment.

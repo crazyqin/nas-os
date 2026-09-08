@@ -8,14 +8,14 @@ import (
 func TestEngineRegistration(t *testing.T) {
 	m := NewManager()
 	e := &OffloadEngine{
-		Name:    "mlx5offload",
-		Type:    OffloadTypeNIC,
-		Device:  "mlx5_0",
-		PCISlot: "0000:01:00.0",
-		MaxTargets: 64,
+		Name:        "mlx5offload",
+		Type:        OffloadTypeNIC,
+		Device:      "mlx5_0",
+		PCISlot:     "0000:01:00.0",
+		MaxTargets:  64,
 		MaxSessions: 512,
-		MaxLunMBps: 12800,
-		Firmware: "16.32.1010",
+		MaxLunMBps:  12800,
+		Firmware:    "16.32.1010",
 	}
 	if err := m.RegisterEngine(e); err != nil {
 		t.Fatalf("RegisterEngine failed: %v", err)
@@ -59,7 +59,7 @@ func TestAssignTarget(t *testing.T) {
 	m.RegisterEngine(e)
 	m.EnableOffload(e.ID)
 	tgt := &OffloadTarget{
-		IQN: "iqn.2026-01.local:target1",
+		IQN:      "iqn.2026-01.local:target1",
 		LunCount: 1,
 		EngineID: e.ID,
 	}

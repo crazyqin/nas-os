@@ -259,10 +259,10 @@ func (s *Server) handlePackageDisable(c *gin.Context) {
 		"code":    0,
 		"message": "disabled",
 		"data": gin.H{
-			"id":       id,
-			"loaded":   s.pkgRuntime.LoadedIDs(),
-			"mounted":  s.isPackageMounted(id),
-			"items":    s.buildPackageItems(),
+			"id":      id,
+			"loaded":  s.pkgRuntime.LoadedIDs(),
+			"mounted": s.isPackageMounted(id),
+			"items":   s.buildPackageItems(),
 		},
 	})
 }
@@ -363,4 +363,3 @@ func (s *Server) loadPersistedRuntimeEnabled() []string {
 func loadEnabledIDsFromFile(path string) []string {
 	return config.LoadAppCenterEnabledIDs(path)
 }
-

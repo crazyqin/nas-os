@@ -14,19 +14,19 @@ import (
 
 // AccessEvent records a single user access attempt (successful or failed).
 type AccessEvent struct {
-	ID           string            `json:"id"`
-	UserID       string            `json:"user_id"`
-	Username     string            `json:"username"`
-	SourceIP     net.IP            `json:"source_ip"`
-	DeviceID     string            `json:"device_id"`
-	DeviceName   string            `json:"device_name"`
-	Service      string            `json:"service"`   // e.g. "ssh", "web", "smb"
-	Action       string            `json:"action"`     // "login" | "logout" | "denied"
-	Success      bool              `json:"success"`
-	GeoLocation  *GeoInfo          `json:"geo_location,omitempty"`
-	Timestamp    time.Time         `json:"timestamp"`
-	UserAgent    string            `json:"user_agent,omitempty"`
-	Metadata     map[string]string `json:"metadata,omitempty"`
+	ID          string            `json:"id"`
+	UserID      string            `json:"user_id"`
+	Username    string            `json:"username"`
+	SourceIP    net.IP            `json:"source_ip"`
+	DeviceID    string            `json:"device_id"`
+	DeviceName  string            `json:"device_name"`
+	Service     string            `json:"service"` // e.g. "ssh", "web", "smb"
+	Action      string            `json:"action"`  // "login" | "logout" | "denied"
+	Success     bool              `json:"success"`
+	GeoLocation *GeoInfo          `json:"geo_location,omitempty"`
+	Timestamp   time.Time         `json:"timestamp"`
+	UserAgent   string            `json:"user_agent,omitempty"`
+	Metadata    map[string]string `json:"metadata,omitempty"`
 }
 
 // GeoInfo holds approximate geographic data for an IP.
@@ -56,47 +56,47 @@ type LoginAnomaly struct {
 
 // TrustScore represents the computed trust level for a user/device combination.
 type TrustScore struct {
-	UserID    string    `json:"user_id"`
-	DeviceID  string    `json:"device_id"`
-	Score     float64   `json:"score"`      // 0.0 (untrusted) to 100.0 (fully trusted)
+	UserID    string     `json:"user_id"`
+	DeviceID  string     `json:"device_id"`
+	Score     float64    `json:"score"` // 0.0 (untrusted) to 100.0 (fully trusted)
 	Level     TrustLevel `json:"level"`
-	Reasons   []string  `json:"reasons"`    // factors contributing to the score
-	ExpiresAt time.Time `json:"expires_at"` // when this score needs re-evaluation
-	UpdatedAt time.Time `json:"updated_at"`
+	Reasons   []string   `json:"reasons"`    // factors contributing to the score
+	ExpiresAt time.Time  `json:"expires_at"` // when this score needs re-evaluation
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 // TrustLevel is an enumerated trust tier.
 type TrustLevel string
 
 const (
-	TrustLevelBlocked   TrustLevel = "blocked"
-	TrustLevelLow       TrustLevel = "low"
-	TrustLevelMedium    TrustLevel = "medium"
-	TrustLevelHigh      TrustLevel = "high"
-	TrustLevelTrusted   TrustLevel = "trusted"
+	TrustLevelBlocked TrustLevel = "blocked"
+	TrustLevelLow     TrustLevel = "low"
+	TrustLevelMedium  TrustLevel = "medium"
+	TrustLevelHigh    TrustLevel = "high"
+	TrustLevelTrusted TrustLevel = "trusted"
 )
 
 // AccessPolicy defines a rule governing access decisions.
 type AccessPolicy struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Description string            `json:"description,omitempty"`
-	Priority    int               `json:"priority"`      // lower = higher priority
-	Enabled     bool              `json:"enabled"`
-	MatchExpr   PolicyMatch       `json:"match"`
-	Action      PolicyAction      `json:"action"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	ID          string       `json:"id"`
+	Name        string       `json:"name"`
+	Description string       `json:"description,omitempty"`
+	Priority    int          `json:"priority"` // lower = higher priority
+	Enabled     bool         `json:"enabled"`
+	MatchExpr   PolicyMatch  `json:"match"`
+	Action      PolicyAction `json:"action"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
 // PolicyMatch specifies the conditions under which a policy applies.
 type PolicyMatch struct {
-	UserIDs    []string `json:"user_ids,omitempty"`    // empty = all users
-	GroupIDs   []string `json:"group_ids,omitempty"`
-	Services   []string `json:"services,omitempty"`   // empty = all services
-	SourceIPs  []string `json:"source_ips,omitempty"`  // CIDR notation
+	UserIDs    []string     `json:"user_ids,omitempty"` // empty = all users
+	GroupIDs   []string     `json:"group_ids,omitempty"`
+	Services   []string     `json:"services,omitempty"`   // empty = all services
+	SourceIPs  []string     `json:"source_ips,omitempty"` // CIDR notation
 	TrustLevel []TrustLevel `json:"trust_levels,omitempty"`
-	TimeWindow *TimeWindow `json:"time_window,omitempty"`
+	TimeWindow *TimeWindow  `json:"time_window,omitempty"`
 }
 
 // TimeWindow defines a recurring time range (e.g. business hours).
@@ -109,19 +109,19 @@ type TimeWindow struct {
 
 // PolicyAction defines what to do when a policy matches.
 type PolicyAction struct {
-	Decision       string  `json:"decision"`         // "allow" | "deny" | "require_2fa" | "require_approval"
+	Decision        string `json:"decision"`           // "allow" | "deny" | "require_2fa" | "require_approval"
 	CooldownSeconds int    `json:"cooldown,omitempty"` // rate-limit cooldown
 	NotifyAdmins    bool   `json:"notify_admins"`
-	LogLevel        string `json:"log_level"`         // "info" | "warn" | "alert"
+	LogLevel        string `json:"log_level"` // "info" | "warn" | "alert"
 }
 
 // -------------------- Service --------------------
 
 // Auditor is the core service for access analysis.
 type Auditor struct {
-	events   []AccessEvent
+	events    []AccessEvent
 	anomalies []LoginAnomaly
-	policies []AccessPolicy
+	policies  []AccessPolicy
 }
 
 // NewAuditor creates a new Auditor with default policies loaded.
@@ -198,8 +198,8 @@ func (a *Auditor) DetectAnomaly(event AccessEvent) (*LoginAnomaly, bool) {
 			EventID:     event.ID,
 			AnomalyType: "new_device",
 			Severity:    "medium",
-			Description:  "Login from a previously unseen device",
-			DetectedAt:   time.Now(),
+			Description: "Login from a previously unseen device",
+			DetectedAt:  time.Now(),
 		}, true
 	}
 

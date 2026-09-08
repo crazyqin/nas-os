@@ -252,9 +252,9 @@ func TestOptimizeBudget_Basic(t *testing.T) {
 	constraints := BudgetConstraints{
 		TotalBudget: 2000,
 		Priorities: map[string]int{
-			"shares":   5,
-			"backups":  3,
-			"archive":  1,
+			"shares":  5,
+			"backups": 3,
+			"archive": 1,
 		},
 		MinReservedGB: 200,
 	}

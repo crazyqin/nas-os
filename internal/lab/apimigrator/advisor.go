@@ -7,19 +7,19 @@ import (
 
 // Signal represents the current state of API configuration and usage.
 type Signal struct {
-	LegacyAPIEnabled         bool
-	WebSocketAPIEnabled      bool
-	APIKeyAuthMethod         string
-	SCRAMEnabled             bool
-	APIDeprecatedEndpoints   int
-	APIVersion               string
+	LegacyAPIEnabled        bool
+	WebSocketAPIEnabled     bool
+	APIKeyAuthMethod        string
+	SCRAMEnabled            bool
+	APIDeprecatedEndpoints  int
+	APIVersion              string
 	ClientsUsingLegacyAPI   int
 	TokenRotationAge        time.Duration
-	RateLimitEnabled         bool
-	APIDocumentationUpdated  bool
-	OpenAPIEnabled           bool
-	WebhookSupport           bool
-	AuditLogEnabled          bool
+	RateLimitEnabled        bool
+	APIDocumentationUpdated bool
+	OpenAPIEnabled          bool
+	WebhookSupport          bool
+	AuditLogEnabled         bool
 }
 
 // Recommendation is a single actionable suggestion produced by the advisor.

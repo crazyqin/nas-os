@@ -12,39 +12,39 @@ type CostCategory string
 
 const (
 	CostHardware    CostCategory = "hardware"
-	CostStorage     CostCategory = "storage"      // disks, SSDs, expansion
-	CostPower       CostCategory = "power"         // electricity
-	CostNetwork     CostCategory = "network"      // switches, cables
-	CostSoftware    CostCategory = "software"     // licenses, subscriptions
-	CostMaintenance CostCategory = "maintenance"  // support, repairs
-	CostCloud       CostCategory = "cloud"        // cloud sync, backup storage
-	CostLabor       CostCategory = "labor"         // admin time
+	CostStorage     CostCategory = "storage"     // disks, SSDs, expansion
+	CostPower       CostCategory = "power"       // electricity
+	CostNetwork     CostCategory = "network"     // switches, cables
+	CostSoftware    CostCategory = "software"    // licenses, subscriptions
+	CostMaintenance CostCategory = "maintenance" // support, repairs
+	CostCloud       CostCategory = "cloud"       // cloud sync, backup storage
+	CostLabor       CostCategory = "labor"       // admin time
 )
 
 // CostEntry represents a single cost line item over time.
 type CostEntry struct {
-	Category    CostCategory `json:"category"`
-	Label       string       `json:"label"`
-	Year1Cost   float64      `json:"year1_cost"`
-	Year2Cost   float64      `json:"year2_cost"`
-	Year3Cost   float64      `json:"year3_cost"`
-	Year4Cost   float64      `json:"year4_cost"`
-	Year5Cost   float64      `json:"year5_cost"`
-	OneTime     bool         `json:"one_time"`
-	EscalationPct float64    `json:"escalation_pct"` // annual cost increase %
+	Category      CostCategory `json:"category"`
+	Label         string       `json:"label"`
+	Year1Cost     float64      `json:"year1_cost"`
+	Year2Cost     float64      `json:"year2_cost"`
+	Year3Cost     float64      `json:"year3_cost"`
+	Year4Cost     float64      `json:"year4_cost"`
+	Year5Cost     float64      `json:"year5_cost"`
+	OneTime       bool         `json:"one_time"`
+	EscalationPct float64      `json:"escalation_pct"` // annual cost increase %
 }
 
 // HardwareProfile describes the NAS hardware configuration.
 type HardwareProfile struct {
-	DriveBays      int     `json:"drive_bays"`
-	NVMeSlots      int     `json:"nvme_slots"`
-	DriveCount     int     `json:"drive_count"`
-	DriveCostEach  float64 `json:"drive_cost_each"`
-	NVMeCount      int     `json:"nvme_count"`
-	NVMeCostEach   float64 `json:"nvme_cost_each"`
-	SystemCost     float64 `json:"system_cost"`     // NAS unit cost
-	WattageIdle    int     `json:"wattage_idle"`
-	WattageLoad    int     `json:"wattage_load"`
+	DriveBays       int     `json:"drive_bays"`
+	NVMeSlots       int     `json:"nvme_slots"`
+	DriveCount      int     `json:"drive_count"`
+	DriveCostEach   float64 `json:"drive_cost_each"`
+	NVMeCount       int     `json:"nvme_count"`
+	NVMeCostEach    float64 `json:"nvme_cost_each"`
+	SystemCost      float64 `json:"system_cost"` // NAS unit cost
+	WattageIdle     int     `json:"wattage_idle"`
+	WattageLoad     int     `json:"wattage_load"`
 	ElectricityRate float64 `json:"electricity_rate"` // per kWh
 	UptimeHoursPct  float64 `json:"uptime_hours_pct"` // % of day active
 }
@@ -52,48 +52,48 @@ type HardwareProfile struct {
 // CloudProfile describes cloud subscription costs.
 type CloudProfile struct {
 	CloudBackupGB    int     `json:"cloud_backup_gb"`
-	CloudBackupPerGB  float64 `json:"cloud_backup_per_gb"`
-	CloudSyncGB       int     `json:"cloud_sync_gb"`
-	CloudSyncPerGB    float64 `json:"cloud_sync_per_gb"`
-	CloudEgressPct    float64 `json:"cloud_egress_pct"` // % of data egress/month
+	CloudBackupPerGB float64 `json:"cloud_backup_per_gb"`
+	CloudSyncGB      int     `json:"cloud_sync_gb"`
+	CloudSyncPerGB   float64 `json:"cloud_sync_per_gb"`
+	CloudEgressPct   float64 `json:"cloud_egress_pct"` // % of data egress/month
 }
 
 // Signal aggregates TCO data for analysis.
 type Signal struct {
-	Hardware         HardwareProfile `json:"hardware"`
+	Hardware        HardwareProfile `json:"hardware"`
 	Cloud           CloudProfile    `json:"cloud"`
 	SoftwareLicense float64         `json:"software_license_annual"`
-	MaintenancePct   float64         `json:"maintenance_pct"` // % of hardware cost/year
-	LaborHoursWeek   float64         `json:"labor_hours_week"`
-	LaborRateHourly  float64         `json:"labor_rate_hourly"`
-	YearsProjection  int             `json:"years_projection"`
-	CompareSynology  float64         `json:"compare_synology_5yr"` // Synology TCO for comparison
-	CompareTrueNAS   float64         `json:"compare_truenas_5yr"`  // TrueNAS TCO for comparison
+	MaintenancePct  float64         `json:"maintenance_pct"` // % of hardware cost/year
+	LaborHoursWeek  float64         `json:"labor_hours_week"`
+	LaborRateHourly float64         `json:"labor_rate_hourly"`
+	YearsProjection int             `json:"years_projection"`
+	CompareSynology float64         `json:"compare_synology_5yr"` // Synology TCO for comparison
+	CompareTrueNAS  float64         `json:"compare_truenas_5yr"`  // TrueNAS TCO for comparison
 }
 
 // YearlyBreakdown is the cost breakdown for a single year.
 type YearlyBreakdown struct {
-	Year          int                `json:"year"`
-	Hardware      float64            `json:"hardware"`
-	Storage       float64            `json:"storage"`
-	Power         float64            `json:"power"`
-	Network       float64            `json:"network"`
-	Software      float64            `json:"software"`
-	Maintenance   float64            `json:"maintenance"`
-	Cloud         float64            `json:"cloud"`
-	Labor         float64            `json:"labor"`
-	Total         float64            `json:"total"`
-	CumulativeTotal float64          `json:"cumulative_total"`
+	Year            int     `json:"year"`
+	Hardware        float64 `json:"hardware"`
+	Storage         float64 `json:"storage"`
+	Power           float64 `json:"power"`
+	Network         float64 `json:"network"`
+	Software        float64 `json:"software"`
+	Maintenance     float64 `json:"maintenance"`
+	Cloud           float64 `json:"cloud"`
+	Labor           float64 `json:"labor"`
+	Total           float64 `json:"total"`
+	CumulativeTotal float64 `json:"cumulative_total"`
 }
 
 // Recommendation is an actionable cost optimization suggestion.
 type Recommendation struct {
-	ID           string `json:"id"`
-	Title        string `json:"title"`
-	Priority     string `json:"priority"`
-	Action       string `json:"action"`
-	Reason       string `json:"reason"`
-	Saving5yr    float64 `json:"saving_5yr,omitempty"`
+	ID        string  `json:"id"`
+	Title     string  `json:"title"`
+	Priority  string  `json:"priority"`
+	Action    string  `json:"action"`
+	Reason    string  `json:"reason"`
+	Saving5yr float64 `json:"saving_5yr,omitempty"`
 }
 
 // Compute calculates the 5-year TCO breakdown.

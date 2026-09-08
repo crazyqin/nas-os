@@ -423,10 +423,10 @@ func TestCalculateEfficiencyScoreHighPacketLoss(t *testing.T) {
 
 func TestCalculateEfficiencyScorePartial(t *testing.T) {
 	s := BondSignal{
-		ThroughputMbps: 500,   // 500/1000*40 = 20
-		PacketLoss:     2.5,   // 25*(1-2.5/10) = 18.75
-		LatencyMs:      5.0,  // 20*(1-5/20) = 15
-		FailoverCount:  3,    // 15*(1-3/10) = 10.5
+		ThroughputMbps: 500, // 500/1000*40 = 20
+		PacketLoss:     2.5, // 25*(1-2.5/10) = 18.75
+		LatencyMs:      5.0, // 20*(1-5/20) = 15
+		FailoverCount:  3,   // 15*(1-3/10) = 10.5
 	}
 	score := CalculateEfficiencyScore(s)
 	expected := 20.0 + 18.75 + 15.0 + 10.5
@@ -455,8 +455,8 @@ func TestCalculateEfficiencyScoreClampedLoss(t *testing.T) {
 
 func TestDetectMisconfigInvalidMode(t *testing.T) {
 	s := BondSignal{
-		BondMode:   "not-a-real-mode",
-		SlaveCount: 2,
+		BondMode:     "not-a-real-mode",
+		SlaveCount:   2,
 		ActiveSlaves: 2,
 	}
 	results := DetectMisconfig(s)
@@ -599,9 +599,9 @@ func TestDetectMisconfigBalanceXOR(t *testing.T) {
 
 func TestDetectMisconfigBalanceRRHighFailover(t *testing.T) {
 	s := BondSignal{
-		BondMode:     BondModeBalanceRR,
-		SlaveCount:   2,
-		ActiveSlaves: 2,
+		BondMode:      BondModeBalanceRR,
+		SlaveCount:    2,
+		ActiveSlaves:  2,
 		FailoverCount: 15,
 	}
 	results := DetectMisconfig(s)
@@ -621,9 +621,9 @@ func TestDetectMisconfigBalanceRRHighFailover(t *testing.T) {
 
 func TestDetectMisconfigCleanConfig(t *testing.T) {
 	s := BondSignal{
-		BondMode:     BondMode8023ad,
-		SlaveCount:   2,
-		ActiveSlaves: 2,
+		BondMode:      BondMode8023ad,
+		SlaveCount:    2,
+		ActiveSlaves:  2,
 		FailoverCount: 0,
 	}
 	results := DetectMisconfig(s)

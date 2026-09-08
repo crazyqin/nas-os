@@ -20,39 +20,39 @@ import (
 // SovereigntyPolicy represents a top-level data sovereignty policy that
 // governs how data is stored, transferred, and classified within the system.
 type SovereigntyPolicy struct {
-	ID            string           // Unique policy identifier
-	Name          string           // Human-readable policy name
-	Description   string           // Detailed description
-	ResidencyRules []ResidencyRule // Rules governing data residency
-	Regulations   []RegulationMapping // Applicable regulations
-	DataLabels    map[string]string // Default classification labels
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-	mu            sync.RWMutex
+	ID             string              // Unique policy identifier
+	Name           string              // Human-readable policy name
+	Description    string              // Detailed description
+	ResidencyRules []ResidencyRule     // Rules governing data residency
+	Regulations    []RegulationMapping // Applicable regulations
+	DataLabels     map[string]string   // Default classification labels
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	mu             sync.RWMutex
 }
 
 // ResidencyRule defines where data must physically reside.
 type ResidencyRule struct {
-	ID              string   // Rule identifier
-	Name            string   // Rule name
-	AllowedRegions  []string // Regions where data may reside (e.g., "EU", "CN", "US")
+	ID                string   // Rule identifier
+	Name              string   // Rule name
+	AllowedRegions    []string // Regions where data may reside (e.g., "EU", "CN", "US")
 	ProhibitedRegions []string // Regions where data must NOT reside
-	DataTypeScope   []string // Data types this rule applies to (e.g., "PII", "financial")
-	EnforceReplica  bool     // Whether replicas must also respect residency
+	DataTypeScope     []string // Data types this rule applies to (e.g., "PII", "financial")
+	EnforceReplica    bool     // Whether replicas must also respect residency
 }
 
 // CrossBorderCheck represents the result and context of a cross-border
 // data transfer compliance check.
 type CrossBorderCheck struct {
-	ID               string    // Check identifier
-	SourceRegion     string    // Region the data currently resides in
-	DestinationRegion string   // Region the data is being transferred to
-	DataType         string    // Classification of the data being transferred
-	PolicyID         string    // Reference to the governing SovereigntyPolicy
-	Approved         bool      // Whether the transfer is approved
-	Reason           string    // Explanation for the decision
-	Violations       []string  // List of regulation violations, if any
-	Timestamp        time.Time // When the check was performed
+	ID                string    // Check identifier
+	SourceRegion      string    // Region the data currently resides in
+	DestinationRegion string    // Region the data is being transferred to
+	DataType          string    // Classification of the data being transferred
+	PolicyID          string    // Reference to the governing SovereigntyPolicy
+	Approved          bool      // Whether the transfer is approved
+	Reason            string    // Explanation for the decision
+	Violations        []string  // List of regulation violations, if any
+	Timestamp         time.Time // When the check was performed
 }
 
 // RegulationMapping maps a data type and region to applicable regulations

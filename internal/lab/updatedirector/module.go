@@ -15,23 +15,23 @@ import (
 
 // UpdateDirector is the central coordinator for cluster updates.
 type UpdateDirector struct {
-	mu         sync.RWMutex
-	nodes      map[string]*NodeState
-	rollouts   map[string]*RolloutPlan
-	rollbacks  map[string]*RollbackState
-	windows    map[string]*UpdateWindow
-	version    string
+	mu        sync.RWMutex
+	nodes     map[string]*NodeState
+	rollouts  map[string]*RolloutPlan
+	rollbacks map[string]*RollbackState
+	windows   map[string]*UpdateWindow
+	version   string
 }
 
 // NodeState tracks the update status of a single node.
 type NodeState struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Role        string    `json:"role"`        // "controller" | "worker" | "storage"
-	Version     string    `json:"version"`     // current running version
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	Role        string     `json:"role"`    // "controller" | "worker" | "storage"
+	Version     string     `json:"version"` // current running version
 	Status      NodeStatus `json:"status"`
-	LastUpdated time.Time `json:"last_updated"`
-	Error       string    `json:"error,omitempty"`
+	LastUpdated time.Time  `json:"last_updated"`
+	Error       string     `json:"error,omitempty"`
 }
 
 // NodeStatus represents the update lifecycle state of a node.
@@ -50,27 +50,27 @@ const (
 
 // RolloutPlan describes a multi-node update rollout strategy.
 type RolloutPlan struct {
-	ID           string         `json:"id"`
-	FromVersion  string         `json:"from_version"`
-	ToVersion    string         `json:"to_version"`
+	ID           string          `json:"id"`
+	FromVersion  string          `json:"from_version"`
+	ToVersion    string          `json:"to_version"`
 	Strategy     RolloutStrategy `json:"strategy"`
-	BatchSize    int            `json:"batch_size"`    // nodes per batch (for rolling)
-	Batches      [][]string     `json:"batches"`       // node IDs per batch
-	CurrentBatch int            `json:"current_batch"`
-	Status       RolloutStatus  `json:"status"`
-	StartTime    *time.Time     `json:"start_time,omitempty"`
-	EndTime      *time.Time     `json:"end_time,omitempty"`
-	AutoRollback bool           `json:"auto_rollback"`
-	CreatedAt    time.Time      `json:"created_at"`
+	BatchSize    int             `json:"batch_size"` // nodes per batch (for rolling)
+	Batches      [][]string      `json:"batches"`    // node IDs per batch
+	CurrentBatch int             `json:"current_batch"`
+	Status       RolloutStatus   `json:"status"`
+	StartTime    *time.Time      `json:"start_time,omitempty"`
+	EndTime      *time.Time      `json:"end_time,omitempty"`
+	AutoRollback bool            `json:"auto_rollback"`
+	CreatedAt    time.Time       `json:"created_at"`
 }
 
 // RolloutStrategy defines how nodes are updated.
 type RolloutStrategy string
 
 const (
-	StrategyRolling  RolloutStrategy = "rolling"   // one batch at a time
+	StrategyRolling   RolloutStrategy = "rolling" // one batch at a time
 	StrategyAllAtOnce RolloutStrategy = "all_at_once"
-	StrategyCanary   RolloutStrategy = "canary"    // single node first, then rest
+	StrategyCanary    RolloutStrategy = "canary" // single node first, then rest
 	StrategyBlueGreen RolloutStrategy = "blue_green"
 )
 
@@ -78,40 +78,40 @@ const (
 type RolloutStatus string
 
 const (
-	RolloutStatusPending   RolloutStatus = "pending"
+	RolloutStatusPending    RolloutStatus = "pending"
 	RolloutStatusRunning    RolloutStatus = "running"
-	RolloutStatusPaused    RolloutStatus = "paused"
-	RolloutStatusCompleted RolloutStatus = "completed"
-	RolloutStatusFailed    RolloutStatus = "failed"
+	RolloutStatusPaused     RolloutStatus = "paused"
+	RolloutStatusCompleted  RolloutStatus = "completed"
+	RolloutStatusFailed     RolloutStatus = "failed"
 	RolloutStatusRolledBack RolloutStatus = "rolled_back"
 )
 
 // RollbackState tracks the state of a rollback operation.
 type RollbackState struct {
-	ID            string         `json:"id"`
-	RolloutID     string         `json:"rollout_id"`
-	Reason        string         `json:"reason"`
-	FromVersion   string         `json:"to_version"`  // what we tried to upgrade to
-	ToVersion     string         `json:"from_version"` // what we're going back to
+	ID             string        `json:"id"`
+	RolloutID      string        `json:"rollout_id"`
+	Reason         string        `json:"reason"`
+	FromVersion    string        `json:"to_version"`   // what we tried to upgrade to
+	ToVersion      string        `json:"from_version"` // what we're going back to
 	CompletedNodes []string      `json:"completed_nodes"`
-	Status        RolloutStatus  `json:"status"`
-	StartedAt     time.Time      `json:"started_at"`
-	CompletedAt   *time.Time     `json:"completed_at,omitempty"`
+	Status         RolloutStatus `json:"status"`
+	StartedAt      time.Time     `json:"started_at"`
+	CompletedAt    *time.Time    `json:"completed_at,omitempty"`
 }
 
 // UpdateWindow defines a scheduled maintenance window for updates.
 type UpdateWindow struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	StartTime   time.Time    `json:"start_time"`
-	EndTime     time.Time    `json:"end_time"`
-	Recurring   bool         `json:"recurring"`
-	Recurrence  string      `json:"recurrence,omitempty"` // "daily" | "weekly" | "monthly"
-	Weekdays    []time.Weekday `json:"weekdays,omitempty"`
-	MaxNodes    int          `json:"max_nodes"`    // max concurrent updates during window
-	AutoStart    bool         `json:"auto_start"`   // auto-trigger pending rollouts
-	Enabled     bool         `json:"enabled"`
-	CreatedAt   time.Time    `json:"created_at"`
+	ID         string         `json:"id"`
+	Name       string         `json:"name"`
+	StartTime  time.Time      `json:"start_time"`
+	EndTime    time.Time      `json:"end_time"`
+	Recurring  bool           `json:"recurring"`
+	Recurrence string         `json:"recurrence,omitempty"` // "daily" | "weekly" | "monthly"
+	Weekdays   []time.Weekday `json:"weekdays,omitempty"`
+	MaxNodes   int            `json:"max_nodes"`  // max concurrent updates during window
+	AutoStart  bool           `json:"auto_start"` // auto-trigger pending rollouts
+	Enabled    bool           `json:"enabled"`
+	CreatedAt  time.Time      `json:"created_at"`
 }
 
 // -------------------- Constructor --------------------
@@ -161,14 +161,14 @@ func (d *UpdateDirector) PlanRollout(ctx context.Context, targetVersion string, 
 	defer d.mu.Unlock()
 
 	plan := &RolloutPlan{
-		ID:          fmt.Sprintf("rollout-%d", time.Now().UnixMilli()),
-		FromVersion: d.version,
-		ToVersion:   targetVersion,
-		Strategy:    strategy,
-		BatchSize:   batchSize,
-		Status:      RolloutStatusPending,
+		ID:           fmt.Sprintf("rollout-%d", time.Now().UnixMilli()),
+		FromVersion:  d.version,
+		ToVersion:    targetVersion,
+		Strategy:     strategy,
+		BatchSize:    batchSize,
+		Status:       RolloutStatusPending,
 		AutoRollback: true,
-		CreatedAt:   time.Now(),
+		CreatedAt:    time.Now(),
 	}
 
 	// Collect node IDs and organize into batches.
@@ -244,14 +244,14 @@ func (d *UpdateDirector) Rollback(ctx context.Context, rolloutID, reason string)
 	}
 
 	rb := &RollbackState{
-		ID:           fmt.Sprintf("rollback-%d", time.Now().UnixMilli()),
-		RolloutID:    rolloutID,
-		Reason:       reason,
-		FromVersion:  plan.ToVersion,
-		ToVersion:    plan.FromVersion,
+		ID:             fmt.Sprintf("rollback-%d", time.Now().UnixMilli()),
+		RolloutID:      rolloutID,
+		Reason:         reason,
+		FromVersion:    plan.ToVersion,
+		ToVersion:      plan.FromVersion,
 		CompletedNodes: make([]string, 0),
-		Status:       RolloutStatusRunning,
-		StartedAt:    time.Now(),
+		Status:         RolloutStatusRunning,
+		StartedAt:      time.Now(),
 	}
 	d.rollbacks[rb.ID] = rb
 	plan.Status = RolloutStatusRolledBack

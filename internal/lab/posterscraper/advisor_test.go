@@ -42,7 +42,7 @@ func TestAnalyze_ParseFailures(t *testing.T) {
 
 func TestAnalyze_MissingSubtitles(t *testing.T) {
 	recs := Analyze(Signal{
-		TotalItems:          100,
+		TotalItems:           100,
 		ItemsWithoutSubtitle: 60,
 	})
 	found := false
@@ -58,7 +58,7 @@ func TestAnalyze_MissingSubtitles(t *testing.T) {
 
 func TestAnalyze_LowConfidence(t *testing.T) {
 	recs := Analyze(Signal{
-		TotalItems:        100,
+		TotalItems:         100,
 		ParseLowConfidence: 25,
 	})
 	found := false
@@ -107,7 +107,7 @@ func TestAnalyze_CacheExceeded(t *testing.T) {
 
 func TestAnalyze_StaleLibrary(t *testing.T) {
 	recs := Analyze(Signal{
-		TotalItems:          100,
+		TotalItems:           100,
 		LibraryLastScrapedAt: time.Now().AddDate(0, 0, -35),
 	})
 	found := false
@@ -166,7 +166,7 @@ func TestAnalyze_EmptyLibrary(t *testing.T) {
 
 func TestAnalyze_PriorityOrdering(t *testing.T) {
 	recs := Analyze(Signal{
-		TotalItems:          100,
+		TotalItems:           100,
 		ItemsWithoutPoster:   50,
 		ParseFailures:        15,
 		ItemsWithoutSubtitle: 60,

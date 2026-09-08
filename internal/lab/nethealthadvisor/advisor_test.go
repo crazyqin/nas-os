@@ -98,9 +98,9 @@ func TestGenerateHighLatencyAndPacketLoss(t *testing.T) {
 	})
 
 	wantIDs := map[string]bool{
-		"investigate-packet-loss":   false,
-		"optimize-network-latency":  false,
-		"optimize-qos-for-jitter":   false,
+		"investigate-packet-loss":  false,
+		"optimize-network-latency": false,
+		"optimize-qos-for-jitter":  false,
 	}
 	for _, rec := range report.Recommendations {
 		if _, ok := wantIDs[rec.ID]; ok {

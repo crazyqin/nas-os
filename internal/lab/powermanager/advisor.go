@@ -11,42 +11,42 @@ import (
 type PowerMode string
 
 const (
-	ModeActive     PowerMode = "active"
-	ModeIdle       PowerMode = "idle"
-	ModeStandby    PowerMode = "standby"
-	ModeSuspend    PowerMode = "suspend"
-	ModeHibernate  PowerMode = "hibernate"
+	ModeActive    PowerMode = "active"
+	ModeIdle      PowerMode = "idle"
+	ModeStandby   PowerMode = "standby"
+	ModeSuspend   PowerMode = "suspend"
+	ModeHibernate PowerMode = "hibernate"
 )
 
 // DiskSpinPolicy indicates when disks should spin down.
 type DiskSpinPolicy string
 
 const (
-	SpinAfter10   DiskSpinPolicy = "after_10min"
-	SpinAfter20   DiskSpinPolicy = "after_20min"
-	SpinAfter30   DiskSpinPolicy = "after_30min"
-	SpinNever     DiskSpinPolicy = "never"
+	SpinAfter10 DiskSpinPolicy = "after_10min"
+	SpinAfter20 DiskSpinPolicy = "after_20min"
+	SpinAfter30 DiskSpinPolicy = "after_30min"
+	SpinNever   DiskSpinPolicy = "never"
 )
 
 // Signal describes the current power management state.
 type Signal struct {
-	CurrentMode          PowerMode     `json:"current_mode"`
-	ScheduledMode        PowerMode     `json:"scheduled_mode"`
-	DiskSpinPolicy       DiskSpinPolicy `json:"disk_spin_policy"`
-	IdleSince            time.Duration `json:"idle_since"`
-	ScheduledWakeTime    string        `json:"scheduled_wake_time"`
-	WakeOnLAN            bool          `json:"wake_on_lan"`
-	HasSSDCache          bool          `json:"has_ssd_cache"`
-	ActiveUsers          int           `json:"active_users"`
-	RunningTasks         int           `json:"running_tasks"`
-	LastBackupComplete   time.Time     `json:"last_backup_complete"`
-	NextBackupScheduled  time.Time     `json:"next_backup_scheduled"`
-	PowerConsumptionW    float64       `json:"power_consumption_w"`
-	IdlePowerW           float64       `json:"idle_power_w"`
-	DailyActiveHours     float64       `json:"daily_active_hours"`
-	NightlySchedule      bool          `json:"nightly_schedule"`
-	HasSolar             bool          `json:"has_solar"`
-	SolarPeakHours       string        `json:"solar_peak_hours"`
+	CurrentMode         PowerMode      `json:"current_mode"`
+	ScheduledMode       PowerMode      `json:"scheduled_mode"`
+	DiskSpinPolicy      DiskSpinPolicy `json:"disk_spin_policy"`
+	IdleSince           time.Duration  `json:"idle_since"`
+	ScheduledWakeTime   string         `json:"scheduled_wake_time"`
+	WakeOnLAN           bool           `json:"wake_on_lan"`
+	HasSSDCache         bool           `json:"has_ssd_cache"`
+	ActiveUsers         int            `json:"active_users"`
+	RunningTasks        int            `json:"running_tasks"`
+	LastBackupComplete  time.Time      `json:"last_backup_complete"`
+	NextBackupScheduled time.Time      `json:"next_backup_scheduled"`
+	PowerConsumptionW   float64        `json:"power_consumption_w"`
+	IdlePowerW          float64        `json:"idle_power_w"`
+	DailyActiveHours    float64        `json:"daily_active_hours"`
+	NightlySchedule     bool           `json:"nightly_schedule"`
+	HasSolar            bool           `json:"has_solar"`
+	SolarPeakHours      string         `json:"solar_peak_hours"`
 }
 
 // Recommendation is an actionable power management suggestion.

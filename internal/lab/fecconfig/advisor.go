@@ -12,12 +12,12 @@ import (
 type FECMode string
 
 const (
-	FECNone      FECMode = "none"        // No FEC
-	FECRS        FECMode = "reed_solomon" // Reed-Solomon
-	FECHamming   FECMode = "hamming"      // Hamming code
-	FECBCH       FECMode = "bch"           // Bose-Chaudhuri-Hocquenghem
-	FECLDPC      FECMode = "ldpc"          // Low-Density Parity-Check
-	FECConv      FECMode = "convolutional" // Convolutional
+	FECNone    FECMode = "none"          // No FEC
+	FECRS      FECMode = "reed_solomon"  // Reed-Solomon
+	FECHamming FECMode = "hamming"       // Hamming code
+	FECBCH     FECMode = "bch"           // Bose-Chaudhuri-Hocquenghem
+	FECLDPC    FECMode = "ldpc"          // Low-Density Parity-Check
+	FECConv    FECMode = "convolutional" // Convolutional
 )
 
 // LinkType indicates the network link type.
@@ -32,43 +32,43 @@ const (
 
 // Interface describes a network interface with FEC signals.
 type Interface struct {
-	Name            string    `json:"name"`
-	LinkType        LinkType  `json:"link_type"`
-	SpeedGbps       float64   `json:"speed_gbps"`
-	MTU             int       `json:"mtu"`
-	FECModeCurrent  FECMode   `json:"fec_mode_current"`
-	FECModeRecommended FECMode `json:"fec_mode_recommended,omitempty"`
-	BitErrorRate    float64   `json:"bit_error_rate"`   // errors per billion bits
-	PacketLossPct   float64   `json:"packet_loss_pct"`
-	BandwidthUtilPct float64  `json:"bandwidth_util_pct"`
-	IsStorage       bool      `json:"is_storage"`       // iSCSI/NFS/SMB interface
-	IsReplication   bool      `json:"is_replication"`    // replication target interface
-	HasFECSupport   bool      `json:"has_fec_support"`
-	CableLengthM     int      `json:"cable_length_m"`
+	Name               string   `json:"name"`
+	LinkType           LinkType `json:"link_type"`
+	SpeedGbps          float64  `json:"speed_gbps"`
+	MTU                int      `json:"mtu"`
+	FECModeCurrent     FECMode  `json:"fec_mode_current"`
+	FECModeRecommended FECMode  `json:"fec_mode_recommended,omitempty"`
+	BitErrorRate       float64  `json:"bit_error_rate"` // errors per billion bits
+	PacketLossPct      float64  `json:"packet_loss_pct"`
+	BandwidthUtilPct   float64  `json:"bandwidth_util_pct"`
+	IsStorage          bool     `json:"is_storage"`     // iSCSI/NFS/SMB interface
+	IsReplication      bool     `json:"is_replication"` // replication target interface
+	HasFECSupport      bool     `json:"has_fec_support"`
+	CableLengthM       int      `json:"cable_length_m"`
 }
 
 // Signal aggregates FEC configuration signals for analysis.
 type Signal struct {
 	Interfaces        []Interface `json:"interfaces"`
-	TotalPacketLoss   float64    `json:"total_packet_loss_pct"`
-	ProtocolErrors    int        `json:"protocol_errors"`
-	IsHighSpeed25G     bool       `json:"is_high_speed_25g"`
-	StorageOnSameNIC   bool       `json:"storage_on_same_nic"`
-	ReplicationActive  bool      `json:"replication_active"`
-	FECUniversallyOff  bool       `json:"fec_universally_off"`
-	LastFECReview      time.Time  `json:"last_fec_review"`
+	TotalPacketLoss   float64     `json:"total_packet_loss_pct"`
+	ProtocolErrors    int         `json:"protocol_errors"`
+	IsHighSpeed25G    bool        `json:"is_high_speed_25g"`
+	StorageOnSameNIC  bool        `json:"storage_on_same_nic"`
+	ReplicationActive bool        `json:"replication_active"`
+	FECUniversallyOff bool        `json:"fec_universally_off"`
+	LastFECReview     time.Time   `json:"last_fec_review"`
 }
 
 // Recommendation is an actionable FEC configuration suggestion.
 type Recommendation struct {
-	ID          string  `json:"id"`
-	Title       string  `json:"title"`
-	Priority    string  `json:"priority"`
-	Action      string  `json:"action"`
-	Reason      string  `json:"reason"`
-	Interface   string  `json:"interface,omitempty"`
-	FECFrom     FECMode `json:"fec_from,omitempty"`
-	FECTo       FECMode `json:"fec_to,omitempty"`
+	ID        string  `json:"id"`
+	Title     string  `json:"title"`
+	Priority  string  `json:"priority"`
+	Action    string  `json:"action"`
+	Reason    string  `json:"reason"`
+	Interface string  `json:"interface,omitempty"`
+	FECFrom   FECMode `json:"fec_from,omitempty"`
+	FECTo     FECMode `json:"fec_to,omitempty"`
 }
 
 // Analyze evaluates FEC configuration signals and returns recommendations.
@@ -196,9 +196,9 @@ func Analyze(s Signal) []Recommendation {
 		recs = append(recs, Recommendation{
 			ID:       "fec-separate-nics",
 			Title:    "Storage and replication on same interface",
-			Priority:  "medium",
-			Action:    "Dedicate separate interfaces for storage and replication traffic",
-			Reason:    "Shared interface risks contention during replication; FEC cannot resolve bandwidth competition",
+			Priority: "medium",
+			Action:   "Dedicate separate interfaces for storage and replication traffic",
+			Reason:   "Shared interface risks contention during replication; FEC cannot resolve bandwidth competition",
 		})
 	}
 
@@ -207,9 +207,9 @@ func Analyze(s Signal) []Recommendation {
 		recs = append(recs, Recommendation{
 			ID:       "fec-stale-review",
 			Title:    "FEC configuration not reviewed in 90+ days",
-			Priority:  "low",
-			Action:    "Review FEC configuration after any network hardware changes",
-			Reason:    "Network changes may require FEC reconfiguration; stale config risks undetected errors",
+			Priority: "low",
+			Action:   "Review FEC configuration after any network hardware changes",
+			Reason:   "Network changes may require FEC reconfiguration; stale config risks undetected errors",
 		})
 	}
 

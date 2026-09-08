@@ -57,13 +57,13 @@ type Server struct {
 	started                 bool
 	stopping                bool
 	logger                  *zap.Logger
-	storageMgr  *storage.Manager
-	userMgr     *users.Manager
-	mfaMgr      *auth.MFAManager
-	smbMgr      *smb.Manager
-	nfsMgr      *nfs.Manager
-	networkMgr  *network.Manager
-	rbacMgr     *auth.RBACManager
+	storageMgr              *storage.Manager
+	userMgr                 *users.Manager
+	mfaMgr                  *auth.MFAManager
+	smbMgr                  *smb.Manager
+	nfsMgr                  *nfs.Manager
+	networkMgr              *network.Manager
+	rbacMgr                 *auth.RBACManager
 	// downloadMgr kept as constructor param wiring into holders under key "downloadMgr"
 	// Optional product slots: always empty on Core; held in h for field-compat tests.
 	h *holderBag
@@ -87,19 +87,19 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	}
 
 	s := &Server{
-		cfg:         cfg,
-		modules:     append([]arch.Module(nil), modules...),
-		engine:      engine,
-		logger:      logger,
-		productReg:  newProductRegistry(),
-		h:           newHolderBag(),
-		storageMgr:  storMgr,
-		userMgr:     userMgr,
-		mfaMgr:      mfaMgr,
-		smbMgr:      smbMgr,
-		nfsMgr:      nfsMgr,
-		networkMgr:  netMgr,
-		rbacMgr:     auth.NewRBACManager(),
+		cfg:        cfg,
+		modules:    append([]arch.Module(nil), modules...),
+		engine:     engine,
+		logger:     logger,
+		productReg: newProductRegistry(),
+		h:          newHolderBag(),
+		storageMgr: storMgr,
+		userMgr:    userMgr,
+		mfaMgr:     mfaMgr,
+		smbMgr:     smbMgr,
+		nfsMgr:     nfsMgr,
+		networkMgr: netMgr,
+		rbacMgr:    auth.NewRBACManager(),
 	}
 	s.setHolder("downloadMgr", downloadMgr)
 	s.setupRoutes()
@@ -160,4 +160,3 @@ func (s *Server) Stop() error {
 	defer cancel()
 	return httpSrv.Shutdown(ctx)
 }
-

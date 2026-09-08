@@ -46,12 +46,12 @@ type Forecast struct {
 
 // Recommendation is an actionable cost optimization suggestion.
 type Recommendation struct {
-	ID      string  `json:"id"`
-	Title   string  `json:"title"`
-	Priority string `json:"priority"`
-	Action  string  `json:"action"`
-	Reason  string  `json:"reason"`
-	Savings float64 `json:"estimated_savings_mo,omitempty"`
+	ID       string  `json:"id"`
+	Title    string  `json:"title"`
+	Priority string  `json:"priority"`
+	Action   string  `json:"action"`
+	Reason   string  `json:"reason"`
+	Savings  float64 `json:"estimated_savings_mo,omitempty"`
 }
 
 // Analyze evaluates cost trends and produces recommendations + forecast.

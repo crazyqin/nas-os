@@ -13,20 +13,20 @@ import (
 
 // 阵列状态常量.
 const (
-	StatusActive     = "active"     // 正常运行
-	StatusDegraded   = "degraded"   // 降级运行（有磁盘故障）
-	StatusRebuilding = "rebuilding" // 正在重建
+	StatusActive      = "active"      // 正常运行
+	StatusDegraded    = "degraded"    // 降级运行（有磁盘故障）
+	StatusRebuilding  = "rebuilding"  // 正在重建
 	StatusResilvering = "resilvering" // 正在银化
-	StatusFailed     = "failed"     // 已失败
-	StatusCreating   = "creating"   // 创建中
+	StatusFailed      = "failed"      // 已失败
+	StatusCreating    = "creating"    // 创建中
 )
 
 // 热备状态常量.
 const (
-	SpareActive    = "active"    // 活跃热备
-	SpareStandby   = "standby"   // 待机热备
+	SpareActive     = "active"     // 活跃热备
+	SpareStandby    = "standby"    // 待机热备
 	SpareRebuilding = "rebuilding" // 正在重建
-	SpareFaulty    = "faulty"    // 故障
+	SpareFaulty     = "faulty"     // 故障
 )
 
 // 演练状态常量.
@@ -40,83 +40,83 @@ const (
 
 // DRAID2Config dRAID2 配置.
 type DRAID2Config struct {
-	ID            string   `json:"id"`              // 阵列 ID
-	Name          string   `json:"name"`            // 阵列名称
-	Devices       []string `json:"devices"`         // 数据磁盘列表
-	SpareDevices  []string `json:"spare_devices"`   // 热备磁盘列表
-	ParityDisks   int      `json:"parity_disks"`   // 校验磁盘数 (dRAID2 固定为 2)
-	DataDisks     int      `json:"data_disks"`     // 数据磁盘数
-	TotalDisks    int      `json:"total_disks"`    // 总磁盘数
-	GroupSize     int      `json:"group_size"`     // 重建组大小
-	ChunkSize     string   `json:"chunk_size"`      // 块大小 (如 "128K", "256K")
-	StripeSize    string   `json:"stripe_size"`    // 条带大小
-	Status        string   `json:"status"`          // 阵列状态
-	UsableCapacity int64   `json:"usable_capacity"` // 可用容量 (bytes)
-	CreatedAt     time.Time `json:"created_at"`     // 创建时间
+	ID             string    `json:"id"`              // 阵列 ID
+	Name           string    `json:"name"`            // 阵列名称
+	Devices        []string  `json:"devices"`         // 数据磁盘列表
+	SpareDevices   []string  `json:"spare_devices"`   // 热备磁盘列表
+	ParityDisks    int       `json:"parity_disks"`    // 校验磁盘数 (dRAID2 固定为 2)
+	DataDisks      int       `json:"data_disks"`      // 数据磁盘数
+	TotalDisks     int       `json:"total_disks"`     // 总磁盘数
+	GroupSize      int       `json:"group_size"`      // 重建组大小
+	ChunkSize      string    `json:"chunk_size"`      // 块大小 (如 "128K", "256K")
+	StripeSize     string    `json:"stripe_size"`     // 条带大小
+	Status         string    `json:"status"`          // 阵列状态
+	UsableCapacity int64     `json:"usable_capacity"` // 可用容量 (bytes)
+	CreatedAt      time.Time `json:"created_at"`      // 创建时间
 }
 
 // RebuildEstimate 重建速度预估.
 type RebuildEstimate struct {
-	ArrayID          string        `json:"array_id"`           // 阵列 ID
-	FailedDisk       string        `json:"failed_disk"`        // 故障磁盘
-	ReplacementDisk  string        `json:"replacement_disk"`   // 替换磁盘
-	TotalBytes       int64         `json:"total_bytes"`        // 需重建总字节数
-	EstimatedSpeed   int64         `json:"estimated_speed"`    // 预估速度 (bytes/s)
-	EstimatedSeconds int64         `json:"estimated_seconds"`  // 预估耗时 (秒)
-	EstimatedTime    time.Duration `json:"estimated_time"`     // 预估耗时
-	ParallelRebuilds int           `json:"parallel_rebuilds"`  // 并行重建数
-	ParallelGroups   int           `json:"parallel_groups"`   // 并行组数
-	ImpactOnPerf    float64       `json:"impact_on_perf"`     // 对性能的影响 (%)
-	StartTime       *time.Time    `json:"start_time,omitempty"` // 开始时间
-	EndTime         *time.Time    `json:"end_time,omitempty"`   // 预计结束时间
+	ArrayID          string        `json:"array_id"`             // 阵列 ID
+	FailedDisk       string        `json:"failed_disk"`          // 故障磁盘
+	ReplacementDisk  string        `json:"replacement_disk"`     // 替换磁盘
+	TotalBytes       int64         `json:"total_bytes"`          // 需重建总字节数
+	EstimatedSpeed   int64         `json:"estimated_speed"`      // 预估速度 (bytes/s)
+	EstimatedSeconds int64         `json:"estimated_seconds"`    // 预估耗时 (秒)
+	EstimatedTime    time.Duration `json:"estimated_time"`       // 预估耗时
+	ParallelRebuilds int           `json:"parallel_rebuilds"`    // 并行重建数
+	ParallelGroups   int           `json:"parallel_groups"`      // 并行组数
+	ImpactOnPerf     float64       `json:"impact_on_perf"`       // 对性能的影响 (%)
+	StartTime        *time.Time    `json:"start_time,omitempty"` // 开始时间
+	EndTime          *time.Time    `json:"end_time,omitempty"`   // 预计结束时间
 }
 
 // SparePool 热备池.
 type SparePool struct {
-	ID         string        `json:"id"`           // 热备池 ID
-	Name       string        `json:"name"`         // 热备池名称
-	ArrayID    string        `json:"array_id"`     // 关联的阵列 ID
-	Spares     []SpareDisk   `json:"spares"`       // 热备磁盘列表
-	MinSpares  int           `json:"min_spares"`   // 最少热备数
-	MaxSpares  int           `json:"max_spares"`   // 最多热备数
-	AutoAssign bool          `json:"auto_assign"`  // 是否自动分配
-	CreatedAt  time.Time     `json:"created_at"`   // 创建时间
-	UpdatedAt  time.Time     `json:"updated_at"`    // 更新时间
+	ID         string      `json:"id"`          // 热备池 ID
+	Name       string      `json:"name"`        // 热备池名称
+	ArrayID    string      `json:"array_id"`    // 关联的阵列 ID
+	Spares     []SpareDisk `json:"spares"`      // 热备磁盘列表
+	MinSpares  int         `json:"min_spares"`  // 最少热备数
+	MaxSpares  int         `json:"max_spares"`  // 最多热备数
+	AutoAssign bool        `json:"auto_assign"` // 是否自动分配
+	CreatedAt  time.Time   `json:"created_at"`  // 创建时间
+	UpdatedAt  time.Time   `json:"updated_at"`  // 更新时间
 }
 
 // SpareDisk 热备磁盘信息.
 type SpareDisk struct {
-	Device     string    `json:"device"`      // 设备路径
-	Status     string    `json:"status"`      // 状态
-	Capacity   int64     `json:"capacity"`     // 容量 (bytes)
-	Model      string    `json:"model,omitempty"` // 型号
-	Serial     string    `json:"serial,omitempty"` // 序列号
-	AssignedTo string   `json:"assigned_to,omitempty"` // 分配到的故障设备
-	AddedAt    time.Time `json:"added_at"`    // 添加时间
+	Device     string    `json:"device"`                // 设备路径
+	Status     string    `json:"status"`                // 状态
+	Capacity   int64     `json:"capacity"`              // 容量 (bytes)
+	Model      string    `json:"model,omitempty"`       // 型号
+	Serial     string    `json:"serial,omitempty"`      // 序列号
+	AssignedTo string    `json:"assigned_to,omitempty"` // 分配到的故障设备
+	AddedAt    time.Time `json:"added_at"`              // 添加时间
 }
 
 // FailoverDrill 故障切换演练.
 type FailoverDrill struct {
-	ID            string    `json:"id"`                       // 演练 ID
-	ArrayID       string    `json:"array_id"`                 // 阵列 ID
-	Name          string    `json:"name"`                     // 演练名称
-	Status        string    `json:"status"`                   // 演练状态
-	SimulatedDisk string    `json:"simulated_disk"`           // 模拟故障磁盘
-	SpareUsed     string    `json:"spare_used,omitempty"`    // 使用的热备盘
-	StartTime     time.Time `json:"start_time"`              // 开始时间
-	EndTime       *time.Time `json:"end_time,omitempty"`     // 结束时间
-	RebuildSeconds int64   `json:"rebuild_seconds,omitempty"` // 实际重建耗时 (秒)
-	Passed        bool      `json:"passed"`                  // 是否通过
-	Notes         []string  `json:"notes,omitempty"`          // 备注
-	CreatedAt     time.Time `json:"created_at"`              // 创建时间
+	ID             string     `json:"id"`                        // 演练 ID
+	ArrayID        string     `json:"array_id"`                  // 阵列 ID
+	Name           string     `json:"name"`                      // 演练名称
+	Status         string     `json:"status"`                    // 演练状态
+	SimulatedDisk  string     `json:"simulated_disk"`            // 模拟故障磁盘
+	SpareUsed      string     `json:"spare_used,omitempty"`      // 使用的热备盘
+	StartTime      time.Time  `json:"start_time"`                // 开始时间
+	EndTime        *time.Time `json:"end_time,omitempty"`        // 结束时间
+	RebuildSeconds int64      `json:"rebuild_seconds,omitempty"` // 实际重建耗时 (秒)
+	Passed         bool       `json:"passed"`                    // 是否通过
+	Notes          []string   `json:"notes,omitempty"`           // 备注
+	CreatedAt      time.Time  `json:"created_at"`                // 创建时间
 }
 
 // Manager dRAID2 管理器.
 type Manager struct {
 	mu     sync.RWMutex
-	arrays map[string]*DRAID2Config    // 阵列列表
-	pools  map[string]*SparePool       // 热备池列表
-	drills map[string]*FailoverDrill   // 演练列表
+	arrays map[string]*DRAID2Config  // 阵列列表
+	pools  map[string]*SparePool     // 热备池列表
+	drills map[string]*FailoverDrill // 演练列表
 }
 
 // NewManager 创建 dRAID2 管理器.

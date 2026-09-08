@@ -36,15 +36,15 @@ var ErrMissingKey = errors.New("apisignverify: signing key not found")
 
 // APISignSignal represents a single API request signing verification signal.
 type APISignSignal struct {
-	Endpoint           string
-	Method             string
-	Timestamp          time.Time
-	SignatureAlgo      string // "HMAC-SHA256" or "RSA-SHA256"
-	KeyID              string
-	RequestBody        string
-	ExpectedSignature  string
-	ActualSignature    string
-	IsVerified         bool
+	Endpoint            string
+	Method              string
+	Timestamp           time.Time
+	SignatureAlgo       string // "HMAC-SHA256" or "RSA-SHA256"
+	KeyID               string
+	RequestBody         string
+	ExpectedSignature   string
+	ActualSignature     string
+	IsVerified          bool
 	VerificationLatency time.Duration
 }
 
@@ -159,22 +159,22 @@ func Verify(s *APISignSignal, keys KeyProvider, tracker ReplayTracker, now time.
 
 // AuditResult summarises a batch of signature verification records.
 type AuditResult struct {
-	TotalRequests    int
-	VerifiedCount    int
-	FailedCount      int
-	FailureRate      float64
-	AverageLatency   time.Duration
-	SuspiciousList   []SuspiciousRequest
+	TotalRequests  int
+	VerifiedCount  int
+	FailedCount    int
+	FailureRate    float64
+	AverageLatency time.Duration
+	SuspiciousList []SuspiciousRequest
 }
 
 // SuspiciousRequest highlights a request that failed verification or
 // exhibits characteristics worthy of investigation.
 type SuspiciousRequest struct {
-	KeyID      string
-	Endpoint   string
-	Method     string
-	Reason     string
-	Timestamp  time.Time
+	KeyID     string
+	Endpoint  string
+	Method    string
+	Reason    string
+	Timestamp time.Time
 }
 
 // AuditSignatures analyses a slice of APISignSignal records and returns

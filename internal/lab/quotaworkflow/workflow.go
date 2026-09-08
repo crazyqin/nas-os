@@ -17,31 +17,31 @@ const (
 
 // Quota represents a storage quota for a share or user.
 type Quota struct {
-	ID            string  `json:"id"`
-	ShareName     string  `json:"share_name"`
-	UserName      string  `json:"user_name,omitempty"`
-	LimitGB       float64 `json:"limit_gb"`
-	UsedGB        float64 `json:"used_gb"`
-	State         string  `json:"state"`
+	ID             string  `json:"id"`
+	ShareName      string  `json:"share_name"`
+	UserName       string  `json:"user_name,omitempty"`
+	LimitGB        float64 `json:"limit_gb"`
+	UsedGB         float64 `json:"used_gb"`
+	State          string  `json:"state"`
 	WarningPct     int     `json:"warning_pct"`
-	CriticalPct   int     `json:"critical_pct"`
-	NotifyUser    bool    `json:"notify_user"`
+	CriticalPct    int     `json:"critical_pct"`
+	NotifyUser     bool    `json:"notify_user"`
 	AutoEnlargePct int     `json:"auto_enlarge_pct,omitempty"`
-	MaxAutoGB     float64 `json:"max_auto_gb,omitempty"`
+	MaxAutoGB      float64 `json:"max_auto_gb,omitempty"`
 }
 
 // Signal describes the quota environment.
 type Signal struct {
-	TotalShares       int
-	SharesWithQuota   int
-	UsersWithQuota    int
-	OverQuotaShares   int
-	NearQuotaShares   int
-	QuotaList         []Quota
-	HasGlobalPolicy   bool
-	DefaultQuotaGB    float64
-	PoolFreeGB        float64
-	PoolTotalGB       float64
+	TotalShares     int
+	SharesWithQuota int
+	UsersWithQuota  int
+	OverQuotaShares int
+	NearQuotaShares int
+	QuotaList       []Quota
+	HasGlobalPolicy bool
+	DefaultQuotaGB  float64
+	PoolFreeGB      float64
+	PoolTotalGB     float64
 }
 
 // Recommendation is an actionable quota management suggestion.

@@ -12,9 +12,9 @@ import (
 type TierLevel string
 
 const (
-	TierFlash  TierLevel = "flash"   // NVMe/SSD hot tier
-	TierHybrid TierLevel = "hybrid"  // SSD cache + HDD
-	TierHDD    TierLevel = "hdd"     // spinning disk cold tier
+	TierFlash   TierLevel = "flash"   // NVMe/SSD hot tier
+	TierHybrid  TierLevel = "hybrid"  // SSD cache + HDD
+	TierHDD     TierLevel = "hdd"     // spinning disk cold tier
 	TierArchive TierLevel = "archive" // tape/cloud archive
 )
 
@@ -22,64 +22,64 @@ const (
 type TierPolicy string
 
 const (
-	PolicyAuto      TierPolicy = "auto"       // automatic tiering based on access patterns
-	PolicyManual    TierPolicy = "manual"     // manually pinned tier
-	PolicyScheduled TierPolicy = "scheduled"  // scheduled movement
+	PolicyAuto       TierPolicy = "auto"       // automatic tiering based on access patterns
+	PolicyManual     TierPolicy = "manual"     // manually pinned tier
+	PolicyScheduled  TierPolicy = "scheduled"  // scheduled movement
 	PolicyPredictive TierPolicy = "predictive" // AI-driven predictive tiering
 )
 
 // Dataset describes a ZFS dataset with tiering signals.
 type Dataset struct {
-	Name           string    `json:"name"`
-	CurrentTier    TierLevel `json:"current_tier"`
-	TargetTier     TierLevel `json:"target_tier,omitempty"`
-	SizeGB         int       `json:"size_gb"`
-	UsedGB         int       `json:"used_gb"`
-	AccessFrequency float64  `json:"access_frequency"` // accesses per day
-	ReadBlocked    int64     `json:"read_blocked"`      // blocks read last 7d
-	WriteBlocked   int64     `json:"write_blocked"`     // blocks written last 7d
-	LastAccessed   time.Time `json:"last_accessed"`
-	Policy         TierPolicy `json:"policy"`
-	Pinned         bool      `json:"pinned"`
-	IsSnapshot     bool      `json:"is_snapshot"`
+	Name            string     `json:"name"`
+	CurrentTier     TierLevel  `json:"current_tier"`
+	TargetTier      TierLevel  `json:"target_tier,omitempty"`
+	SizeGB          int        `json:"size_gb"`
+	UsedGB          int        `json:"used_gb"`
+	AccessFrequency float64    `json:"access_frequency"` // accesses per day
+	ReadBlocked     int64      `json:"read_blocked"`     // blocks read last 7d
+	WriteBlocked    int64      `json:"write_blocked"`    // blocks written last 7d
+	LastAccessed    time.Time  `json:"last_accessed"`
+	Policy          TierPolicy `json:"policy"`
+	Pinned          bool       `json:"pinned"`
+	IsSnapshot      bool       `json:"is_snapshot"`
 }
 
 // Pool describes the storage pool tiering state.
 type Pool struct {
-	Name           string    `json:"name"`
-	FlashCapacityGB int     `json:"flash_capacity_gb"`
-	FlashUsedGB    int       `json:"flash_used_gb"`
-	HDDBCapacityGB int       `json:"hdd_capacity_gb"`
-	HDDUsedGB      int       `json:"hdd_used_gb"`
-	ArchiveEnabled bool      `json:"archive_enabled"`
-	Datasets       []Dataset `json:"datasets"`
-	HasOpenZFS24   bool      `json:"has_openzfs_2_4"`
+	Name            string    `json:"name"`
+	FlashCapacityGB int       `json:"flash_capacity_gb"`
+	FlashUsedGB     int       `json:"flash_used_gb"`
+	HDDBCapacityGB  int       `json:"hdd_capacity_gb"`
+	HDDUsedGB       int       `json:"hdd_used_gb"`
+	ArchiveEnabled  bool      `json:"archive_enabled"`
+	Datasets        []Dataset `json:"datasets"`
+	HasOpenZFS24    bool      `json:"has_openzfs_2_4"`
 }
 
 // Signal aggregates dataset tiering signals for analysis.
 type Signal struct {
-	Pool                 Pool     `json:"pool"`
-	FlashHitRate         float64  `json:"flash_hit_rate"`
-	HDDBusyPct           float64  `json:"hdd_busy_pct"`
-	HotDatasetsOnHDD     int      `json:"hot_datasets_on_hdd"`
-	ColdDatasetsOnFlash  int      `json:"cold_datasets_on_flash"`
-	TierOverflowRisk     bool     `json:"tier_overflow_risk"`
-	LastTieringRun       time.Time `json:"last_tiering_run"`
-	AutoTierEnabled      bool      `json:"auto_tier_enabled"`
-	PredictiveEnabled     bool     `json:"predictive_enabled"`
+	Pool                Pool      `json:"pool"`
+	FlashHitRate        float64   `json:"flash_hit_rate"`
+	HDDBusyPct          float64   `json:"hdd_busy_pct"`
+	HotDatasetsOnHDD    int       `json:"hot_datasets_on_hdd"`
+	ColdDatasetsOnFlash int       `json:"cold_datasets_on_flash"`
+	TierOverflowRisk    bool      `json:"tier_overflow_risk"`
+	LastTieringRun      time.Time `json:"last_tiering_run"`
+	AutoTierEnabled     bool      `json:"auto_tier_enabled"`
+	PredictiveEnabled   bool      `json:"predictive_enabled"`
 }
 
 // Recommendation is an actionable dataset tiering suggestion.
 type Recommendation struct {
-	ID         string     `json:"id"`
-	Title      string     `json:"title"`
-	Priority   string     `json:"priority"`
-	Action     string     `json:"action"`
-	Reason     string     `json:"reason"`
-	Dataset    string     `json:"dataset,omitempty"`
-	FromTier   TierLevel  `json:"from_tier,omitempty"`
-	ToTier     TierLevel  `json:"to_tier,omitempty"`
-	ScheduleAt string     `json:"schedule_at,omitempty"`
+	ID         string    `json:"id"`
+	Title      string    `json:"title"`
+	Priority   string    `json:"priority"`
+	Action     string    `json:"action"`
+	Reason     string    `json:"reason"`
+	Dataset    string    `json:"dataset,omitempty"`
+	FromTier   TierLevel `json:"from_tier,omitempty"`
+	ToTier     TierLevel `json:"to_tier,omitempty"`
+	ScheduleAt string    `json:"schedule_at,omitempty"`
 }
 
 // Analyze evaluates dataset tiering signals and returns recommendations.

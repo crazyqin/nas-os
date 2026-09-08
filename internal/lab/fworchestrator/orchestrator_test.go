@@ -24,11 +24,11 @@ func TestAnalyze_NoUpdate_Stale(t *testing.T) {
 
 func TestAnalyze_CriticalUpdate(t *testing.T) {
 	s := Signal{
-		UpdateAvailable:  true,
-		IsCriticalUpdate: true,
-		DiskHealthOK:     true,
-		FreeSpaceMB:      5000,
-		HasBackup:        true,
+		UpdateAvailable:   true,
+		IsCriticalUpdate:  true,
+		DiskHealthOK:      true,
+		FreeSpaceMB:       5000,
+		HasBackup:         true,
 		MaintenanceWindow: true,
 	}
 	recs := Analyze(s)
@@ -49,9 +49,9 @@ func TestAnalyze_CriticalUpdate(t *testing.T) {
 func TestAnalyze_DiskHealthFail(t *testing.T) {
 	s := Signal{
 		UpdateAvailable: true,
-		DiskHealthOK:   false,
-		FreeSpaceMB:    5000,
-		HasBackup:      true,
+		DiskHealthOK:    false,
+		FreeSpaceMB:     5000,
+		HasBackup:       true,
 	}
 	recs := Analyze(s)
 	found := false
@@ -68,9 +68,9 @@ func TestAnalyze_DiskHealthFail(t *testing.T) {
 func TestAnalyze_NoBackup(t *testing.T) {
 	s := Signal{
 		UpdateAvailable: true,
-		DiskHealthOK:   true,
-		FreeSpaceMB:    5000,
-		HasBackup:      false,
+		DiskHealthOK:    true,
+		FreeSpaceMB:     5000,
+		HasBackup:       false,
 	}
 	recs := Analyze(s)
 	found := false
@@ -87,9 +87,9 @@ func TestAnalyze_NoBackup(t *testing.T) {
 func TestAnalyze_LowSpace(t *testing.T) {
 	s := Signal{
 		UpdateAvailable: true,
-		DiskHealthOK:   true,
-		FreeSpaceMB:    500,
-		HasBackup:      true,
+		DiskHealthOK:    true,
+		FreeSpaceMB:     500,
+		HasBackup:       true,
 	}
 	recs := Analyze(s)
 	found := false
@@ -106,10 +106,10 @@ func TestAnalyze_LowSpace(t *testing.T) {
 func TestAnalyze_FailedUpdates(t *testing.T) {
 	s := Signal{
 		UpdateAvailable: true,
-		DiskHealthOK:   true,
-		FreeSpaceMB:    5000,
-		HasBackup:      true,
-		FailedUpdates:  2,
+		DiskHealthOK:    true,
+		FreeSpaceMB:     5000,
+		HasBackup:       true,
+		FailedUpdates:   2,
 	}
 	recs := Analyze(s)
 	found := false

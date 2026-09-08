@@ -22,10 +22,10 @@ func NewAdvisor() *BudgetAdvisor {
 
 // AllocateOptions 分配选项。
 type AllocateOptions struct {
-	TotalCapacityGB float64    // 总容量（GB）
+	TotalCapacityGB float64     // 总容量（GB）
 	Shares          []ShareInfo // 共享文件夹列表
-	Users           []UserInfo // 用户列表
-	BudgetTier     string     // 预算层级: "economy", "standard", "premium"
+	Users           []UserInfo  // 用户列表
+	BudgetTier      string      // 预算层级: "economy", "standard", "premium"
 }
 
 // ShareInfo 共享文件夹信息。
@@ -39,9 +39,9 @@ type ShareInfo struct {
 
 // UserInfo 用户信息。
 type UserInfo struct {
-	Name     string  // 用户名
-	UsageGB  float64 // 当前使用量（GB）
-	QuotaGB  float64 // 当前配额（GB）
+	Name    string  // 用户名
+	UsageGB float64 // 当前使用量（GB）
+	QuotaGB float64 // 当前配额（GB）
 }
 
 // ========== 输出结构 ==========
@@ -79,25 +79,25 @@ type ShareUsage struct {
 
 // MisallocationReport 错配报告。
 type MisallocationReport struct {
-	Overallocated            []string            // 过度分配的共享
-	Underallocated           []string            // 分配不足的共享
-	ReallocationSuggestions map[string]float64  // 重新分配建议（GB）
-	TotalWastedGB            float64            // 总浪费空间（GB）
+	Overallocated           []string           // 过度分配的共享
+	Underallocated          []string           // 分配不足的共享
+	ReallocationSuggestions map[string]float64 // 重新分配建议（GB）
+	TotalWastedGB           float64            // 总浪费空间（GB）
 }
 
 // BudgetConstraints 预算约束。
 type BudgetConstraints struct {
-	TotalBudget   float64          // 总预算（GB 表示容量预算）
-	Priorities    map[string]int   // 各项优先级
-	MinReservedGB float64          // 最小保留空间（GB）
+	TotalBudget   float64        // 总预算（GB 表示容量预算）
+	Priorities    map[string]int // 各项优先级
+	MinReservedGB float64        // 最小保留空间（GB）
 }
 
 // BudgetOptimization 预算优化结果。
 type BudgetOptimization struct {
 	RecommendedAllocations map[string]float64 // 推荐分配（GB）
 	EstimatedSavings       float64            // 预计节省（GB）
-	RiskLevel             string             // 风险等级: "low", "medium", "high"
-	Tradeoffs             []string           // 权衡说明
+	RiskLevel              string             // 风险等级: "low", "medium", "high"
+	Tradeoffs              []string           // 权衡说明
 }
 
 // ========== 核心方法 ==========
@@ -368,9 +368,9 @@ func (a *BudgetAdvisor) DetectMisallocation(current []ShareUsage) (*Misallocatio
 	}
 
 	report := &MisallocationReport{
-		Overallocated:            []string{},
-		Underallocated:           []string{},
-		ReallocationSuggestions:  make(map[string]float64),
+		Overallocated:           []string{},
+		Underallocated:          []string{},
+		ReallocationSuggestions: make(map[string]float64),
 	}
 
 	// 利用率阈值
@@ -421,7 +421,7 @@ func (a *BudgetAdvisor) OptimizeBudget(constraints BudgetConstraints) (*BudgetOp
 
 	result := &BudgetOptimization{
 		RecommendedAllocations: make(map[string]float64),
-		Tradeoffs:             []string{},
+		Tradeoffs:              []string{},
 	}
 
 	// 保留空间

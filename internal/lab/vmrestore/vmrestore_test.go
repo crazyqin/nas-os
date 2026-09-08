@@ -8,12 +8,12 @@ import (
 func TestSnapshotCreate(t *testing.T) {
 	m := NewManager()
 	s := &VMSnapshot{
-		VMID:   "vm-001",
-		VMName: "test-vm",
-		Name:   "pre-update",
-		Type:   RestoreTypeFull,
+		VMID:      "vm-001",
+		VMName:    "test-vm",
+		Name:      "pre-update",
+		Type:      RestoreTypeFull,
 		SizeBytes: 1024 * 1024 * 1024,
-		Checksum: "sha256:abc",
+		Checksum:  "sha256:abc",
 	}
 	if err := m.CreateSnapshot(s); err != nil {
 		t.Fatalf("CreateSnapshot failed: %v", err)

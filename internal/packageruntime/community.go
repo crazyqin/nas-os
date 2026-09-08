@@ -45,9 +45,9 @@ func (r *Runtime) RegisterDiscovered(manifests []DiskManifest) (registered []str
 // HostSDKPackage is the default third-party package: Host SDK lifecycle only.
 // It never mounts admin HTTP routes (does not implement HTTPMounter).
 type HostSDKPackage struct {
-	meta   hostapi.Meta
-	pkgDir string
-	host   hostapi.Host
+	meta    hostapi.Meta
+	pkgDir  string
+	host    hostapi.Host
 	started bool
 }
 

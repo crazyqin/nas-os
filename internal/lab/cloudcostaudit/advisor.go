@@ -11,19 +11,19 @@ import (
 type CloudProvider string
 
 const (
-	ProviderAWS      CloudProvider = "aws_s3"
-	ProviderGCS      CloudProvider = "gcs"
-	ProviderAzure   CloudProvider = "azure_blob"
+	ProviderAWS       CloudProvider = "aws_s3"
+	ProviderGCS       CloudProvider = "gcs"
+	ProviderAzure     CloudProvider = "azure_blob"
 	ProviderBackblaze CloudProvider = "backblaze"
-	ProviderR2       CloudProvider = "cloudflare_r2"
-	ProviderOther    CloudProvider = "other"
+	ProviderR2        CloudProvider = "cloudflare_r2"
+	ProviderOther     CloudProvider = "other"
 )
 
 // EgressType describes outbound data transfer cost type.
 type EgressType string
 
 const (
-	EgressInterRegion EgressType = "inter_region"
+	EgressInterRegion  EgressType = "inter_region"
 	EgressInternet     EgressType = "internet"
 	EgressSameProvider EgressType = "same_provider"
 )
@@ -32,15 +32,15 @@ const (
 type AccountSignal struct {
 	Provider       CloudProvider `json:"provider"`
 	AccountID      string        `json:"account_id"`
-	MonthlyCostUSD float64      `json:"monthly_cost_usd"`
-	StorageGB      float64      `json:"storage_gb"`
-	EgressGB       float64      `json:"egress_gb"`
-	EgressCostUSD  float64      `json:"egress_cost_usd"`
-	APICallCount   int64        `json:"api_call_count"`
-	APICostUSD     float64      `json:"api_cost_usd"`
-	LastBilledAt   time.Time    `json:"last_billed_at"`
-	DormantDays    int          `json:"dormant_days"`
-	TierPolicyOK   bool         `json:"tier_policy_ok"`
+	MonthlyCostUSD float64       `json:"monthly_cost_usd"`
+	StorageGB      float64       `json:"storage_gb"`
+	EgressGB       float64       `json:"egress_gb"`
+	EgressCostUSD  float64       `json:"egress_cost_usd"`
+	APICallCount   int64         `json:"api_call_count"`
+	APICostUSD     float64       `json:"api_cost_usd"`
+	LastBilledAt   time.Time     `json:"last_billed_at"`
+	DormantDays    int           `json:"dormant_days"`
+	TierPolicyOK   bool          `json:"tier_policy_ok"`
 }
 
 // Signal aggregates all cloud cost signals.

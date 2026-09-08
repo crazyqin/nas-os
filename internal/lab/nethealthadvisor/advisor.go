@@ -10,23 +10,23 @@ import (
 // Signal describes NAS network health signals inspired by TrueNAS 25.04 network improvements
 // and Synology network management best practices.
 type Signal struct {
-	InterfaceName        string
-	LinkSpeedMbps        int
-	MTU                  int
-	IsBonded             bool
-	BondSlaveCount       int
-	HasIPv6              bool
-	HasDDNS              bool
-	HasValidCert         bool
-	CertDaysLeft         int
-	FirewallEnabled      bool
-	UPnPEnabled          bool
-	RemoteAccessEnabled  bool
-	FailedLoginAttempts  int
-	ConcurrentUsers      int
-	PacketLossPercent    float64
-	LatencyMs            float64
-	JitterMs             float64
+	InterfaceName       string
+	LinkSpeedMbps       int
+	MTU                 int
+	IsBonded            bool
+	BondSlaveCount      int
+	HasIPv6             bool
+	HasDDNS             bool
+	HasValidCert        bool
+	CertDaysLeft        int
+	FirewallEnabled     bool
+	UPnPEnabled         bool
+	RemoteAccessEnabled bool
+	FailedLoginAttempts int
+	ConcurrentUsers     int
+	PacketLossPercent   float64
+	LatencyMs           float64
+	JitterMs            float64
 }
 
 // Recommendation is an actionable network hardening suggestion.

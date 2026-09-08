@@ -25,8 +25,8 @@ func TestAnalyze_FECUniversallyOff(t *testing.T) {
 
 func TestAnalyze_LossWithFECOff(t *testing.T) {
 	recs := Analyze(Signal{
-		FECUniversallyOff:  true,
-		TotalPacketLoss:    0.5,
+		FECUniversallyOff: true,
+		TotalPacketLoss:   0.5,
 	})
 	found := false
 	for _, r := range recs {

@@ -48,10 +48,10 @@ func TestAnalyze_BudgetOverrun(t *testing.T) {
 
 func TestAnalyze_Tiering(t *testing.T) {
 	s := Signal{
-		TotalCapacityGB:  2000,
-		UsedGB:           1200,
-		HasTiering:       false,
-		CostPerGBPerMo:   0.01,
+		TotalCapacityGB:   2000,
+		UsedGB:            1200,
+		HasTiering:        false,
+		CostPerGBPerMo:    0.01,
 		ColdTierCostPerGB: 0.005,
 	}
 	recs, _ := Analyze(s)
@@ -87,10 +87,10 @@ func TestAnalyze_Dedup(t *testing.T) {
 
 func TestAnalyze_Compress(t *testing.T) {
 	s := Signal{
-		TotalCapacityGB:  1000,
-		UsedGB:           600,
+		TotalCapacityGB:   1000,
+		UsedGB:            600,
 		CompressSavingsGB: 0,
-		CostPerGBPerMo:   0.01,
+		CostPerGBPerMo:    0.01,
 	}
 	recs, _ := Analyze(s)
 	found := false
@@ -106,7 +106,7 @@ func TestAnalyze_Compress(t *testing.T) {
 
 func TestAnalyze_CloudOptimize(t *testing.T) {
 	s := Signal{
-		TotalCapacityGB:  10000,
+		TotalCapacityGB: 10000,
 		UsedGB:          3000,
 		CostPerGBPerMo:  0.01,
 		CloudBuckets:    3,

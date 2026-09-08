@@ -4,21 +4,21 @@ import "sort"
 
 // Signal contains all cost and operational parameters needed for TCO analysis.
 type Signal struct {
-	HardwareCostUSD           float64
-	SoftwareCostUSD           float64
-	PowerCostPerYearUSD       float64
-	CoolingCostPerYearUSD     float64
-	MaintenanceCostPerYearUSD float64
-	ReplacementCostPerYearUSD float64
-	DowntimeCostPerYearUSD    float64
-	YearsInService           int
-	TotalCapacityTB           float64
-	UsedCapacityTB            float64
-	StaffHoursPerWeek         float64
-	StaffHourlyRateUSD        float64
+	HardwareCostUSD               float64
+	SoftwareCostUSD               float64
+	PowerCostPerYearUSD           float64
+	CoolingCostPerYearUSD         float64
+	MaintenanceCostPerYearUSD     float64
+	ReplacementCostPerYearUSD     float64
+	DowntimeCostPerYearUSD        float64
+	YearsInService                int
+	TotalCapacityTB               float64
+	UsedCapacityTB                float64
+	StaffHoursPerWeek             float64
+	StaffHourlyRateUSD            float64
 	CloudEquivalentCostPerYearUSD float64
-	HasWarranty              bool
-	WarrantyYearsLeft         int
+	HasWarranty                   bool
+	WarrantyYearsLeft             int
 }
 
 // Recommendation is a single actionable suggestion produced by the TCO analysis.
@@ -192,7 +192,7 @@ func floatToStr(f float64, n int) string {
 	for i := 0; i < n; i++ {
 		scale *= 10
 	}
-	rounded := float64(int64(f*scale + 0.5)) / scale
+	rounded := float64(int64(f*scale+0.5)) / scale
 	intPart := int64(rounded)
 	frac := rounded - float64(intPart)
 	// Build fractional part

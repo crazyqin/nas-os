@@ -55,11 +55,11 @@ func TestAnalyze_LastDrillFailed(t *testing.T) {
 
 func TestAnalyze_RTOExceeded(t *testing.T) {
 	recs := Analyze(Signal{
-		HasDrillIn30Days: true,
-		HasDrillIn90Days: true,
-		LastDrillSuccess: true,
+		HasDrillIn30Days:   true,
+		HasDrillIn90Days:   true,
+		LastDrillSuccess:   true,
 		HasImmutableBackup: true,
-		HasOffsiteReplica: true,
+		HasOffsiteReplica:  true,
 		RecoveryTargets: []RecoveryTarget{
 			{DatasetName: "critical", TargetRTOMinutes: 30, ActualRTOMinutes: 120},
 		},
@@ -77,9 +77,9 @@ func TestAnalyze_RTOExceeded(t *testing.T) {
 
 func TestAnalyze_NoImmutable(t *testing.T) {
 	recs := Analyze(Signal{
-		HasDrillIn30Days: true,
-		HasDrillIn90Days: true,
-		LastDrillSuccess: true,
+		HasDrillIn30Days:   true,
+		HasDrillIn90Days:   true,
+		LastDrillSuccess:   true,
 		HasImmutableBackup: false,
 	})
 	found := false
@@ -98,11 +98,11 @@ func TestAnalyze_NoImmutable(t *testing.T) {
 
 func TestAnalyze_NoOffsiteReplica(t *testing.T) {
 	recs := Analyze(Signal{
-		HasDrillIn30Days: true,
-		HasDrillIn90Days: true,
-		LastDrillSuccess: true,
+		HasDrillIn30Days:   true,
+		HasDrillIn90Days:   true,
+		LastDrillSuccess:   true,
 		HasImmutableBackup: true,
-		HasOffsiteReplica: false,
+		HasOffsiteReplica:  false,
 	})
 	found := false
 	for _, r := range recs {
@@ -117,12 +117,12 @@ func TestAnalyze_NoOffsiteReplica(t *testing.T) {
 
 func TestAnalyze_NoTFA(t *testing.T) {
 	recs := Analyze(Signal{
-		HasDrillIn30Days: true,
-		HasDrillIn90Days: true,
-		LastDrillSuccess: true,
+		HasDrillIn30Days:   true,
+		HasDrillIn90Days:   true,
+		LastDrillSuccess:   true,
 		HasImmutableBackup: true,
-		HasOffsiteReplica: true,
-		TFAEnabled: false,
+		HasOffsiteReplica:  true,
+		TFAEnabled:         false,
 	})
 	found := false
 	for _, r := range recs {
@@ -153,14 +153,14 @@ func TestAnalyze_VeryLowConfidence(t *testing.T) {
 
 func TestAnalyze_HighConfidence(t *testing.T) {
 	recs := Analyze(Signal{
-		HasDrillIn30Days:   true,
-		HasDrillIn90Days:   true,
-		LastDrillSuccess:   true,
-		HasImmutableBackup:  true,
-		HasOffsiteReplica:   true,
+		HasDrillIn30Days:       true,
+		HasDrillIn90Days:       true,
+		LastDrillSuccess:       true,
+		HasImmutableBackup:     true,
+		HasOffsiteReplica:      true,
 		HasRansomwareDetection: true,
-		ScanEnabled:         true,
-		TFAEnabled:          true,
+		ScanEnabled:            true,
+		TFAEnabled:             true,
 	})
 	for _, r := range recs {
 		if r.ID == "restore-confidence-very-low" || r.ID == "restore-confidence-low" {
@@ -171,15 +171,15 @@ func TestAnalyze_HighConfidence(t *testing.T) {
 
 func TestAnalyze_NoRollbackPlan(t *testing.T) {
 	recs := Analyze(Signal{
-		HasDrillIn30Days: true,
-		HasDrillIn90Days: true,
-		LastDrillSuccess: true,
-		HasImmutableBackup: true,
-		HasOffsiteReplica: true,
+		HasDrillIn30Days:       true,
+		HasDrillIn90Days:       true,
+		LastDrillSuccess:       true,
+		HasImmutableBackup:     true,
+		HasOffsiteReplica:      true,
 		HasRansomwareDetection: true,
-		ScanEnabled: true,
-		TFAEnabled: true,
-		HasRollbackPlan: false,
+		ScanEnabled:            true,
+		TFAEnabled:             true,
+		HasRollbackPlan:        false,
 	})
 	found := false
 	for _, r := range recs {

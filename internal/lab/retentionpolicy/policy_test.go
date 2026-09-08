@@ -68,9 +68,9 @@ func TestAnalyze_AuditOverdue(t *testing.T) {
 	s := Signal{
 		TotalShares:        2,
 		SharesWithPolicy:   2,
-		WORMEnabled:         true,
-		ComplianceAuditDue:  true,
-		LastAuditDate:       time.Now().Add(-120 * 24 * time.Hour),
+		WORMEnabled:        true,
+		ComplianceAuditDue: true,
+		LastAuditDate:      time.Now().Add(-120 * 24 * time.Hour),
 	}
 	recs := Analyze(s)
 	found := false

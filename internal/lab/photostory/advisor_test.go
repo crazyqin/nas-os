@@ -26,8 +26,8 @@ func TestAnalyze_TravelStory(t *testing.T) {
 		{ID: "4", Location: "Beijing", DateTaken: time.Now().Add(-21 * time.Hour)},
 	}
 	recs := Analyze(Signal{
-		Photos: photos,
-		MaxStories: 10,
+		Photos:              photos,
+		MaxStories:          10,
 		IncludeLocationless: true,
 	})
 	found := false
@@ -51,8 +51,8 @@ func TestAnalyze_FamilyStory(t *testing.T) {
 		{ID: "6", FaceNames: []string{"Alice"}, DateTaken: time.Now().Add(-144 * time.Hour)},
 	}
 	recs := Analyze(Signal{
-		Photos: photos,
-		MaxStories: 10,
+		Photos:            photos,
+		MaxStories:        10,
 		MinPhotosForStory: 3,
 	})
 	found := false
@@ -77,9 +77,9 @@ func TestAnalyze_ThrowbackStory(t *testing.T) {
 		{ID: "6", DateTaken: time.Date(now.Year()-3, now.Month(), now.Day(), 12, 0, 0, 0, time.UTC)},
 	}
 	recs := Analyze(Signal{
-		Photos: photos,
-		ThrowbackMode: true,
-		MaxStories: 10,
+		Photos:            photos,
+		ThrowbackMode:     true,
+		MaxStories:        10,
 		MinPhotosForStory: 3,
 	})
 	found := false
@@ -101,8 +101,8 @@ func TestAnalyze_AdventureStory(t *testing.T) {
 		{ID: "4", SceneTags: []string{"cycling"}, DateTaken: time.Now().Add(-96 * time.Hour)},
 	}
 	recs := Analyze(Signal{
-		Photos: photos,
-		MaxStories: 10,
+		Photos:            photos,
+		MaxStories:        10,
 		MinPhotosForStory: 3,
 	})
 	found := false
@@ -120,15 +120,15 @@ func TestAnalyze_BestOfStory(t *testing.T) {
 	photos := make([]PhotoMetadata, 20)
 	for i := range photos {
 		photos[i] = PhotoMetadata{
-			ID:          string(rune(i)),
-			IsFavorite:  true,
+			ID:           string(rune(i)),
+			IsFavorite:   true,
 			QualityScore: 0.9,
 			DateTaken:    time.Now().Add(-time.Duration(i) * time.Hour),
 		}
 	}
 	recs := Analyze(Signal{
-		Photos: photos,
-		MaxStories: 10,
+		Photos:            photos,
+		MaxStories:        10,
 		MinPhotosForStory: 3,
 	})
 	found := false

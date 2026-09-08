@@ -2,7 +2,6 @@
 package storage
 
 import (
-
 	"nas-os/internal/api"
 
 	"github.com/gin-gonic/gin"
@@ -217,4 +216,3 @@ func (h *Handlers) updateHotSpareConfig(c *gin.Context) {
 	h.hotSpareManager.SetConfig(config)
 	api.OKWithMessage(c, "配置已更新", nil)
 }
-

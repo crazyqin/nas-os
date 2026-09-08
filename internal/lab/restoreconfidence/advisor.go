@@ -12,67 +12,67 @@ import (
 type ConfidenceLevel string
 
 const (
-	ConfidenceHigh       ConfidenceLevel = "high"         // >95% confidence
-	ConfidenceMedium     ConfidenceLevel = "medium"        // 70-95%
-	ConfidenceLow        ConfidenceLevel = "low"           // 40-70%
-	ConfidenceVeryLow    ConfidenceLevel = "very_low"      // <40%
-	ConfidenceUnknown    ConfidenceLevel = "unknown"       // cannot determine
+	ConfidenceHigh    ConfidenceLevel = "high"     // >95% confidence
+	ConfidenceMedium  ConfidenceLevel = "medium"   // 70-95%
+	ConfidenceLow     ConfidenceLevel = "low"      // 40-70%
+	ConfidenceVeryLow ConfidenceLevel = "very_low" // <40%
+	ConfidenceUnknown ConfidenceLevel = "unknown"  // cannot determine
 )
 
 // SnapshotInfo describes a recovery snapshot.
 type SnapshotInfo struct {
-	ID            string    `json:"id"`
-	Dataset       string    `json:"dataset"`
-	CreatedAt     time.Time `json:"created_at"`
-	IsImmutable   bool      `json:"is_immutable"`
-	SizeGB        int       `json:"size_gb"`
-	HasReplica    bool      `json:"has_replica"`
+	ID            string        `json:"id"`
+	Dataset       string        `json:"dataset"`
+	CreatedAt     time.Time     `json:"created_at"`
+	IsImmutable   bool          `json:"is_immutable"`
+	SizeGB        int           `json:"size_gb"`
+	HasReplica    bool          `json:"has_replica"`
 	ReplicaLag    time.Duration `json:"replica_lag"`
-	VerifiedClean bool      `json:"verified_clean"`      // scan results
-	ScanDate      time.Time `json:"scan_date"`
+	VerifiedClean bool          `json:"verified_clean"` // scan results
+	ScanDate      time.Time     `json:"scan_date"`
 }
 
 // RecoveryTarget describes a planned recovery operation.
 type RecoveryTarget struct {
-	DatasetName    string    `json:"dataset_name"`
-	SnapshotID     string    `json:"snapshot_id"`
-	TargetRPOMinutes int     `json:"target_rpo_minutes"`
-	TargetRTOMinutes int     `json:"target_rto_minutes"`
-	ActualRPOMinutes  int     `json:"actual_rpo_minutes"`
-	ActualRTOMinutes  int     `json:"actual_rto_minutes"`
+	DatasetName      string `json:"dataset_name"`
+	SnapshotID       string `json:"snapshot_id"`
+	TargetRPOMinutes int    `json:"target_rpo_minutes"`
+	TargetRTOMinutes int    `json:"target_rto_minutes"`
+	ActualRPOMinutes int    `json:"actual_rpo_minutes"`
+	ActualRTOMinutes int    `json:"actual_rto_minutes"`
 }
 
 // Signal aggregates restore confidence signals for analysis.
 type Signal struct {
-	Snapshots          []SnapshotInfo   `json:"snapshots"`
-	RecoveryTargets    []RecoveryTarget `json:"recovery_targets"`
-	HasDrillIn90Days   bool             `json:"has_drill_in_90_days"`
-	HasDrillIn30Days   bool             `json:"has_drill_in_30_days"`
-	LastDrillDate      time.Time        `json:"last_drill_date"`
-	LastDrillSuccess   bool             `json:"last_drill_success"`
-	DrillRTOActual     int             `json:"drill_rto_actual_minutes"`
-	DrillRPOActual     int             `json:"drill_rpo_actual_minutes"`
-	HasImmutableBackup  bool             `json:"has_immutable_backup"`
-	HasOffsiteReplica   bool             `json:"has_offsite_replica"`
-	HasRansomwareDetection bool         `json:"has_ransomware_detection"`
-	ScanEnabled         bool             `json:"scan_enabled"`
-	LastScanDate        time.Time       `json:"last_scan_date"`
-	TotalDatasets       int             `json:"total_datasets"`
-	SnapshotsPerDataset float64        `json:"snapshots_per_dataset"`
-	EncryptionEnabled   bool            `json:"encryption_enabled"`
-	TFAEnabled          bool            `json:"tfa_enabled"`
-	AlertingEnabled    bool            `json:"alerting_enabled"`
-	HasRollbackPlan     bool            `json:"has_rollback_plan"`
+	Snapshots              []SnapshotInfo   `json:"snapshots"`
+	RecoveryTargets        []RecoveryTarget `json:"recovery_targets"`
+	HasDrillIn90Days       bool             `json:"has_drill_in_90_days"`
+	HasDrillIn30Days       bool             `json:"has_drill_in_30_days"`
+	LastDrillDate          time.Time        `json:"last_drill_date"`
+	LastDrillSuccess       bool             `json:"last_drill_success"`
+	DrillRTOActual         int              `json:"drill_rto_actual_minutes"`
+	DrillRPOActual         int              `json:"drill_rpo_actual_minutes"`
+	HasImmutableBackup     bool             `json:"has_immutable_backup"`
+	HasOffsiteReplica      bool             `json:"has_offsite_replica"`
+	HasRansomwareDetection bool             `json:"has_ransomware_detection"`
+	ScanEnabled            bool             `json:"scan_enabled"`
+	LastScanDate           time.Time        `json:"last_scan_date"`
+	TotalDatasets          int              `json:"total_datasets"`
+	SnapshotsPerDataset    float64          `json:"snapshots_per_dataset"`
+	EncryptionEnabled      bool             `json:"encryption_enabled"`
+	TFAEnabled             bool             `json:"tfa_enabled"`
+	AlertingEnabled        bool             `json:"alerting_enabled"`
+	HasRollbackPlan        bool             `json:"has_rollback_plan"`
 }
 
 // Recommendation is an actionable restore confidence suggestion.
 type Recommendation struct {
-	ID          string           `json:"id"`
-	Title       string           `json:"title"`
-	Priority    string           `json:"priority"`
-	Action      string           `json:"action"`
-	Reason      string           `json:"reason"`
-	Confidence  ConfidenceLevel  `json:"confidence,omitempty"`
+	ID         string          `json:"id"`
+	Title      string          `json:"title"`
+	Priority   string          `json:"priority"`
+	Action     string          `json:"action"`
+	Reason     string          `json:"reason"`
+	Confidence ConfidenceLevel `json:"confidence,omitempty"`
 }
 
 // Analyze evaluates restore confidence signals and returns recommendations.
@@ -266,14 +266,30 @@ func computeConfidence(s Signal) ConfidenceLevel {
 	score := 0
 	maxScore := 10
 
-	if s.HasDrillIn30Days { score += 2 }
-	if s.HasDrillIn90Days { score += 1 }
-	if s.LastDrillSuccess { score += 1 }
-	if s.HasImmutableBackup { score += 2 }
-	if s.HasOffsiteReplica { score += 1 }
-	if s.HasRansomwareDetection { score += 1 }
-	if s.ScanEnabled { score += 1 }
-	if s.TFAEnabled { score += 1 }
+	if s.HasDrillIn30Days {
+		score += 2
+	}
+	if s.HasDrillIn90Days {
+		score += 1
+	}
+	if s.LastDrillSuccess {
+		score += 1
+	}
+	if s.HasImmutableBackup {
+		score += 2
+	}
+	if s.HasOffsiteReplica {
+		score += 1
+	}
+	if s.HasRansomwareDetection {
+		score += 1
+	}
+	if s.ScanEnabled {
+		score += 1
+	}
+	if s.TFAEnabled {
+		score += 1
+	}
 
 	pct := float64(score) / float64(maxScore)
 	switch {
