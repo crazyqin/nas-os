@@ -506,12 +506,12 @@
                                 <div class="info-value" id="sys-hostname">-</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-label">设备型号</div>
-                                <div class="info-value" id="sys-model">-</div>
+                                <div class="info-label">构建时间</div>
+                                <div class="info-value" id="sys-build">-</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-label">序列号</div>
-                                <div class="info-value" id="sys-serial">-</div>
+                                <div class="info-label">Git 提交</div>
+                                <div class="info-value" id="sys-commit">-</div>
                             </div>
                             <div class="info-item">
                                 <div class="info-label">系统版本</div>
@@ -1185,34 +1185,10 @@
                         <div class="form-grid">
                             <div>
                                 <div class="form-label">自动检查更新</div>
-                                <div class="form-description">每天自动检查新版本</div>
+                                <div class="form-description">打开设置页时自动检查（每 24 小时至多一次），仅查询版本不自动安装</div>
                             </div>
                             <div>
-                                <div class="toggle-switch active" id="auto-check-toggle" onclick="this.classList.toggle('active')"></div>
-                            </div>
-                        </div>
-                        
-                        <hr class="divider">
-                        
-                        <div class="form-grid">
-                            <div>
-                                <div class="form-label">自动下载更新</div>
-                                <div class="form-description">发现新版本自动下载</div>
-                            </div>
-                            <div>
-                                <div class="toggle-switch" id="auto-download-toggle" onclick="this.classList.toggle('active')"></div>
-                            </div>
-                        </div>
-                        
-                        <hr class="divider">
-                        
-                        <div class="form-grid">
-                            <div>
-                                <div class="form-label">自动安装更新</div>
-                                <div class="form-description">下载后自动安装（需要重启）</div>
-                            </div>
-                            <div>
-                                <div class="toggle-switch" id="auto-install-toggle" onclick="this.classList.toggle('active')"></div>
+                                <div class="toggle-switch" id="auto-check-toggle" onclick="this.classList.toggle('active')"></div>
                             </div>
                         </div>
                     </div>
@@ -1260,15 +1236,14 @@
         // 加载系统信息
         async function loadSystemInfo() {
             try {
-                const response = await fetch('/api/system/info');
-                const data = await response.json();
-                if (data.code === 0) {
-                    document.getElementById('sys-hostname').textContent = data.data.hostname || '-';
-                    document.getElementById('sys-model').textContent = data.data.model || '-';
-                    document.getElementById('sys-serial').textContent = data.data.serial || '-';
-                    document.getElementById('sys-version').textContent = data.data.version || '-';
-                    document.getElementById('sys-uptime').textContent = formatUptime(data.data.uptime) || '-';
-                }
+                const r = await apiFetch('/system/info');
+                const d = (r.data && r.data.data) || {};
+                document.getElementById('sys-hostname').textContent = d.hostname || '-';
+                document.getElementById('sys-version').textContent = d.version ? 'v' + d.version : '-';
+                document.getElementById('sys-build').textContent = d.build_date || '-';
+                const commit = (d.git_commit && d.git_commit !== 'unknown') ? String(d.git_commit).slice(0, 7) : '-';
+                document.getElementById('sys-commit').textContent = commit;
+                document.getElementById('sys-uptime').textContent = formatUptime(d.uptimeSeconds) || '-';
             } catch (error) {
                 console.error('加载系统信息失败:', error);
             }
@@ -1381,40 +1356,104 @@
             }, 1500);
         }
         
-        // 保存更新设置
-        function saveUpdateSettings() {
-            const settings = {
-                autoCheck: document.getElementById('auto-check-toggle').classList.contains('active'),
-                autoDownload: document.getElementById('auto-download-toggle').classList.contains('active'),
-                autoInstall: document.getElementById('auto-install-toggle').classList.contains('active')
-            };
-            console.log('保存更新设置:', settings);
-            showToast('更新设置已保存', 'success');
+        // ========== 系统更新（接真实后端 /system/updates）==========
+        function escHtml(v) {
+            return String(v == null ? '' : v).replace(/[&<>"']/g, function (ch) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+            });
         }
-        
-        // 检查更新
-        async function checkForUpdates() {
-            const statusDiv = document.getElementById('update-status');
-            statusDiv.innerHTML = `
-                <div style="text-align: center; padding: 2rem;">
-                    <div class="spinner" style="width: 40px; height: 40px; border: 3px solid var(--color-primary-light); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
-                    <p>正在检查更新...</p>
-                </div>
-            `;
-            
-            setTimeout(() => {
-                statusDiv.innerHTML = `
-                    <div class="alert alert-success">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
+
+        function renderUpdateStatus(st) {
+            const box = document.getElementById('update-status');
+            const checked = st.checkedAt ? new Date(st.checkedAt).toLocaleString('zh-CN') : '';
+            if (st.error) {
+                box.innerHTML = `
+                    <div class="alert alert-error">
                         <div>
-                            <strong>已是最新版本</strong><br>
-                            当前版本：v1.0.0 | 最后检查：${new Date().toLocaleString('zh-CN')}
+                            <strong>检查更新失败</strong><br>
+                            ${escHtml(st.error)}<br>
+                            当前版本：v${escHtml(st.currentVersion)}${checked ? ' | 检查时间：' + checked : ''}
                         </div>
+                    </div>`;
+                return;
+            }
+            if (st.updateAvailable) {
+                const published = st.publishedAt ? new Date(st.publishedAt).toLocaleDateString('zh-CN') : '';
+                box.innerHTML = `
+                    <div class="alert alert-warning">
+                        <div>
+                            <strong>发现新版本 ${escHtml(st.latestVersion)}</strong>
+                            <span class="text-muted" style="margin-left: 0.5rem;">${published ? '发布于 ' + published : ''}</span><br>
+                            当前版本：v${escHtml(st.currentVersion)}
+                            ${st.releaseNotes ? `<pre style="white-space: pre-wrap; max-height: 240px; overflow: auto; margin: 0.75rem 0; padding: 0.75rem; border: 1px solid var(--surface-border); border-radius: 8px;">${escHtml(st.releaseNotes)}</pre>` : ''}
+                            <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                                <a class="btn btn-primary" href="${escHtml(st.releaseUrl)}" target="_blank" rel="noopener">📋 查看发布页</a>
+                                <span class="text-muted">升级方式：Docker 拉取新镜像 / 裸机重新执行 install.sh</span>
+                            </div>
+                        </div>
+                    </div>`;
+                return;
+            }
+            box.innerHTML = `
+                <div class="alert alert-success">
+                    <div>
+                        <strong>已是最新版本</strong><br>
+                        当前版本：v${escHtml(st.currentVersion)} · 最新版本：${escHtml(st.latestVersion)}${checked ? ' | 检查时间：' + checked : ''}
                     </div>
-                `;
-            }, 2000);
+                </div>`;
+        }
+
+        async function checkForUpdates(silent) {
+            const statusDiv = document.getElementById('update-status');
+            if (!silent) {
+                statusDiv.innerHTML = `
+                    <div style="text-align: center; padding: 2rem;">
+                        <div class="spinner" style="width: 40px; height: 40px; border: 3px solid var(--color-primary-light); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+                        <p>正在检查更新...</p>
+                    </div>`;
+            }
+            try {
+                const r = await apiFetch('/system/updates');
+                const st = (r.data && r.data.data) || null;
+                if (!r.ok || !st) {
+                    throw new Error((r.data && r.data.message) || ('HTTP ' + r.status));
+                }
+                localStorage.setItem('last-update-check', String(Date.now()));
+                renderUpdateStatus(st);
+            } catch (e) {
+                if (!silent) {
+                    statusDiv.innerHTML = `
+                        <div class="alert alert-error">
+                            <div><strong>检查更新失败</strong><br>${escHtml(e.message)}</div>
+                        </div>`;
+                }
+            }
+        }
+
+        async function loadUpdateSettings() {
+            try {
+                const r = await apiFetch('/system/update-settings');
+                const st = (r.data && r.data.data) || {};
+                document.getElementById('auto-check-toggle').classList.toggle('active', !!st.autoCheck);
+                // 自动检查：开启且距上次检查超过 24 小时时静默执行
+                if (st.autoCheck) {
+                    const last = Number(localStorage.getItem('last-update-check') || 0);
+                    if (Date.now() - last > 24 * 3600 * 1000) checkForUpdates(true);
+                }
+            } catch (_) { /* 读取失败保持默认 */ }
+        }
+
+        async function saveUpdateSettings() {
+            const payload = {
+                autoCheck: document.getElementById('auto-check-toggle').classList.contains('active')
+            };
+            try {
+                const r = await apiFetch('/system/update-settings', { method: 'PUT', json: payload });
+                if (!r.ok) throw new Error((r.data && r.data.message) || ('HTTP ' + r.status));
+                showToast('更新设置已保存', 'success');
+            } catch (e) {
+                showToast('保存更新设置失败: ' + e.message, 'error');
+            }
         }
         
         // 添加防火墙规则
@@ -1557,6 +1596,7 @@
         // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', function() {
             loadSystemInfo();
+            loadUpdateSettings();
         });
     </script>
 </body>

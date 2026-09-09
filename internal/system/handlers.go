@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"nas-os/internal/api"
+	appversion "nas-os/internal/version"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -141,12 +142,18 @@ func (h *Handlers) getSystemStats(c *gin.Context) {
 // @Router /system/info [get]
 // @Security BearerAuth.
 func (h *Handlers) getSystemInfo(c *gin.Context) {
+	build := appversion.GetBuildInfo()
+	uptime, _ := h.monitor.getUptime()
 	api.OK(c, gin.H{
-		"hostname":  h.monitor.GetHostname(),
-		"cores":     runtime.NumCPU(),
-		"goVersion": runtime.Version(),
-		"os":        runtime.GOOS,
-		"arch":      runtime.GOARCH,
+		"hostname":      h.monitor.GetHostname(),
+		"cores":         runtime.NumCPU(),
+		"goVersion":     runtime.Version(),
+		"os":            runtime.GOOS,
+		"arch":          runtime.GOARCH,
+		"version":       appversion.GetVersion(),
+		"build_date":    build["build_date"],
+		"git_commit":    build["git_commit"],
+		"uptimeSeconds": uptime,
 	})
 }
 

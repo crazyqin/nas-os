@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -94,6 +95,9 @@ func (s *Server) registerCoreIdentityAndDocs(api *gin.RouterGroup) {
 		api.GET("/system/status", s.getSystemStatus)
 	}
 
+	// 系统更新检查与设置（Core/Full 双构建共用；只读上游 Release 元数据，不执行升级）
+	s.registerUpdateRoutes(api)
+
 	// Single ownership for nasd storage contract (confirm_name / allow_wipe gate).
 	if s.storageMgr != nil {
 		NewStorageHandlers(s.storageMgr).RegisterRoutes(api)
@@ -137,6 +141,19 @@ func (s *Server) getHealth(c *gin.Context) {
 	c.JSON(status, report)
 }
 
+// uptimeSeconds 读取 /proc/uptime 的开机秒数（非 Linux 或读取失败返回 0）.
+func uptimeSeconds() uint64 {
+	data, err := os.ReadFile("/proc/uptime")
+	if err != nil {
+		return 0
+	}
+	var up float64
+	if _, err := fmt.Sscanf(string(data), "%f", &up); err != nil {
+		return 0
+	}
+	return uint64(up)
+}
+
 // getSystemInfo returns version/build surface (shared by both builds).
 func (s *Server) getSystemInfo(c *gin.Context) {
 	hostname, err := os.Hostname()
@@ -151,6 +168,7 @@ func (s *Server) getSystemInfo(c *gin.Context) {
 			"version":           appversion.GetVersion(),
 			"build_date":        build["build_date"],
 			"git_commit":        build["git_commit"],
+			"uptimeSeconds":     uptimeSeconds(),
 			"products_linked":   ProductsLinked(),
 			"extensions_linked": ExtensionsLinked(),
 			"surface":           map[bool]string{true: "full", false: "core"}[ProductsLinked()],
