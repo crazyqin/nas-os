@@ -6,6 +6,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"sync"
 	"time"
 )
@@ -45,6 +47,13 @@ func NewService(config *ServiceConfig) (*Service, error) {
 			DefaultRetryInterval: 5 * time.Minute,
 			MaxHistoryDays:       30,
 			MaxConcurrent:        10,
+		}
+	}
+
+	// 状态目录提前创建（history/channels 落盘依赖目录存在）.
+	if config.StoragePath != "" {
+		if err := os.MkdirAll(config.StoragePath, 0o755); err != nil {
+			return nil, fmt.Errorf("创建通知存储目录失败：%w", err)
 		}
 	}
 
@@ -140,6 +149,9 @@ func (s *Service) loadChannels() error {
 
 // saveChannels 保存渠道配置.
 func (s *Service) saveChannels() error {
+	if s.config.StoragePath == "" {
+		return nil // 未配置存储路径：仅内存模式
+	}
 	channels := s.channelManager.ListChannels("")
 	data, err := json.MarshalIndent(channels, "", "  ")
 	if err != nil {
@@ -419,6 +431,11 @@ func (s *Service) SetWebSocketBroadcaster(broadcaster WebSocketBroadcaster) {
 	s.senderRegistry.SetWebSocketSender(broadcaster)
 }
 
+// RegisterChannelSender 注册外部渠道发送器（如浏览器 Web Push，经 webpush.Manager 适配）.
+func (s *Service) RegisterChannelSender(sender ChannelSender) {
+	s.senderRegistry.Register(sender)
+}
+
 // AddChannel 添加渠道.
 func (s *Service) AddChannel(config *ChannelConfig) error {
 	if err := s.channelManager.AddChannel(config); err != nil {
@@ -514,16 +531,19 @@ func (s *Service) GetStats(startTime, endTime *time.Time) *HistoryStats {
 	return s.historyManager.GetStats(startTime, endTime)
 }
 
-// 辅助函数（模拟文件操作，实际项目中应该使用真实的文件操作）
+// 辅助函数（状态文件落盘读写；串行化避免并发写同一路径撕裂）
+
+var fileMu sync.Mutex
 
 func readFile(path string) ([]byte, error) {
-	// 这里应该使用 os.ReadFile
-	// 为了避免导入问题，这里只是占位
-	return nil, fmt.Errorf("file not found")
+	return os.ReadFile(path)
 }
 
 func writeFile(path string, data []byte) error {
-	// 这里应该使用 os.WriteFile
-	// 为了避免导入问题，这里只是占位
-	return nil
+	fileMu.Lock()
+	defer fileMu.Unlock()
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+	return os.WriteFile(path, data, 0o644)
 }

@@ -70,6 +70,7 @@ import (
 	"nas-os/internal/versioning"
 	"nas-os/internal/webdav"
 	"nas-os/internal/webhook"
+	"nas-os/internal/webpush"
 	"nas-os/internal/wol"
 	"nas-os/internal/zfs"
 
@@ -322,6 +323,11 @@ func (s *Server) registerBulkOptionalRoutes(api *gin.RouterGroup) {
 	// v2.491.0 工部新增 - 对标群晖 Notification Center
 	if s.hasHolder("notificationSvc") {
 		notification.NewGinHandler(holderAs[*notification.Service](s, "notificationSvc")).RegisterRoutes(api)
+	}
+
+	// 浏览器 Web Push（VAPID）：公钥下发/订阅/退订/测试推送
+	if s.hasHolder("webpushMgr") {
+		webpush.NewGinHandler(holderAs[*webpush.Manager](s, "webpushMgr")).RegisterRoutes(api)
 	}
 
 	// ========== v2.498.0 新增路由 ==========

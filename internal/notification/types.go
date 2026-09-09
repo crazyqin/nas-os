@@ -40,6 +40,8 @@ const (
 	ChannelDingTalk ChannelType = "dingtalk"
 	// ChannelTelegram 表示 Telegram 渠道.
 	ChannelTelegram ChannelType = "telegram"
+	// ChannelWebPush 表示浏览器 Web Push 渠道.
+	ChannelWebPush ChannelType = "webpush"
 )
 
 // Status 通知状态.
