@@ -43,6 +43,7 @@ RUN apk add --no-cache git ca-certificates tzdata upx
 
 # 复制 go mod 文件（利用 Docker 缓存）
 COPY go.mod go.sum ./
+COPY VERSION ./
 
 # 下载依赖（使用缓存挂载加速）
 RUN --mount=type=cache,target=/go/pkg/mod \
@@ -63,12 +64,14 @@ ENV CGO_ENABLED=0
 # 支持 BuildKit 自动注入的跨平台参数
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg/mod \
+    V="${VERSION#v}"; \
+    if ! echo "$V" | grep -Eq '^[0-9]+\.[0-9]+'; then V="$(sed 's/^v//' VERSION)"; fi; \
     if [ -n "${BUILD_TAGS}" ]; then TAGS="-tags ${BUILD_TAGS}"; else TAGS=""; fi; \
     GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
-    go build ${TAGS} -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \
+    go build ${TAGS} -ldflags="-w -s -X nas-os/internal/version.Version=$V -X nas-os/internal/version.BuildTime=${BUILD_TIME} -X nas-os/internal/version.Commit=${REVISION}" \
     -o nasd ./cmd/nasd && \
     GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
-    go build -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \
+    go build -ldflags="-w -s -X nas-os/internal/version.Version=$V -X nas-os/internal/version.BuildTime=${BUILD_TIME} -X nas-os/internal/version.Commit=${REVISION}" \
     -o nasctl ./cmd/nasctl
 
 # UPX 压缩（进一步减小 30-50%）

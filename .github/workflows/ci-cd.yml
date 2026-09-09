@@ -726,11 +726,13 @@ jobs:
             BINARY_NAME="${BINARY_NAME}v${{ matrix.arm }}"
           fi
           
-          # v2.254.0: 添加版本信息嵌入
-          VERSION="${{ github.ref_name }}"
+          # 版本戳打向 internal/version（main 包无 Version 变量，旧 -X main.* 一直是无效戳）；
+          # 非 tag 构建（如 master）退回 VERSION 文件，避免把分支名当版本号
+          VERSION="$(printf '%s' "${{ github.ref_name }}" | sed 's/^v//')"
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+'; then VERSION="$(sed 's/^v//' VERSION)"; fi
           COMMIT="${{ github.sha }}"
           BUILD_TIME=$(date -u '+%Y-%m-%d_%H:%M:%S')
-          LDFLAGS="-w -s -X main.Version=$VERSION -X main.Commit=$COMMIT -X main.BuildTime=$BUILD_TIME"
+          LDFLAGS="-w -s -X nas-os/internal/version.Version=$VERSION -X nas-os/internal/version.Commit=$COMMIT -X nas-os/internal/version.BuildTime=$BUILD_TIME"
           
           go build -ldflags="$LDFLAGS" -trimpath -o "${BINARY_NAME}" ./cmd/nasd
           echo "✅ 编译成功: ${BINARY_NAME}"

@@ -169,11 +169,11 @@ jobs:
             export GOARM="${{ matrix.arm }}"
           fi
           
-          # 构建 nasd
-          go build -trimpath -ldflags "-s -w -X main.Version=${VERSION#v}" -o "$BINARY_NAME" ./cmd/nasd
+          # 构建 nasd（版本戳打向 internal/version，并补 Commit/BuildTime）
+          go build -trimpath -ldflags "-s -w -X nas-os/internal/version.Version=${VERSION#v} -X nas-os/internal/version.Commit=${{ github.sha }} -X nas-os/internal/version.BuildTime=$(date -u '+%Y-%m-%d_%H:%M:%S')" -o "$BINARY_NAME" ./cmd/nasd
           
           # 构建 nasctl
-          go build -trimpath -ldflags "-s -w -X main.Version=${VERSION#v}" -o "$CTL_NAME" ./cmd/nasctl
+          go build -trimpath -ldflags "-s -w -X nas-os/internal/version.Version=${VERSION#v}" -o "$CTL_NAME" ./cmd/nasctl
           
           echo "✅ 构建完成: $BINARY_NAME, $CTL_NAME"
           
