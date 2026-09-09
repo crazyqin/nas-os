@@ -477,3 +477,68 @@ func (idx *Indexer) Count() int {
 	defer idx.mu.RUnlock()
 	return len(idx.entries)
 }
+
+// DirSize 一级目录占用统计.
+type DirSize struct {
+	Name  string `json:"name"`
+	Size  int64  `json:"size"`
+	Files int    `json:"files"`
+}
+
+// SizeByExtension 按扩展名统计文件占用空间（字节数）.
+func (idx *Indexer) SizeByExtension() map[string]int64 {
+	idx.mu.RLock()
+	defer idx.mu.RUnlock()
+	sizes := make(map[string]int64)
+	for _, e := range idx.entries {
+		if !e.IsDir {
+			sizes[e.Extension] += e.Size
+		}
+	}
+	return sizes
+}
+
+// TopDirs 按一级子目录聚合文件占用空间，按大小降序返回前 limit 个；
+// basePath 根下的散文件归入 "(根目录)". limit<=0 时默认 10.
+func (idx *Indexer) TopDirs(limit int) []DirSize {
+	if limit <= 0 {
+		limit = 10
+	}
+	idx.mu.RLock()
+	defer idx.mu.RUnlock()
+
+	prefix := ""
+	if idx.basePath != "" {
+		prefix = strings.TrimSuffix(idx.basePath, string(filepath.Separator)) + string(filepath.Separator)
+	}
+	agg := make(map[string]*DirSize)
+	for _, e := range idx.entries {
+		if e.IsDir {
+			continue
+		}
+		name := "(根目录)"
+		if prefix != "" && strings.HasPrefix(e.Path, prefix) {
+			rest := e.Path[len(prefix):]
+			if i := strings.IndexByte(rest, filepath.Separator); i >= 0 {
+				name = rest[:i]
+			}
+		}
+		d := agg[name]
+		if d == nil {
+			d = &DirSize{Name: name}
+			agg[name] = d
+		}
+		d.Size += e.Size
+		d.Files++
+	}
+
+	dirs := make([]DirSize, 0, len(agg))
+	for _, d := range agg {
+		dirs = append(dirs, *d)
+	}
+	sort.Slice(dirs, func(i, j int) bool { return dirs[i].Size > dirs[j].Size })
+	if len(dirs) > limit {
+		dirs = dirs[:limit]
+	}
+	return dirs
+}

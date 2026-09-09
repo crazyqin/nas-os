@@ -274,5 +274,6 @@ func (s *Server) registerWebUI(webuiRoot string) {
 		s.engine.StaticFile("/containers", webuiRoot+"/pages/containers.html")
 		s.engine.StaticFile("/vms", webuiRoot+"/pages/vms.html")
 		s.engine.StaticFile("/cloudsync", webuiRoot+"/pages/cloudsync.html")
+		s.engine.StaticFile("/space-analysis", webuiRoot+"/pages/space-analysis.html")
 	}
 }

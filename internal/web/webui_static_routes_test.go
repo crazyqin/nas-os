@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -39,6 +40,7 @@ func TestWebUIStaticRoutesServed(t *testing.T) {
 		"pages/api-docs.html":        "<html></html>",
 		"pages/plugins.html":         "<html></html>",
 		"pages/containers.html":      "<html></html>",
+		"pages/space-analysis.html":  "<html></html>",
 	}
 	for rel, content := range files {
 		if err := os.WriteFile(filepath.Join(root, rel), []byte(content), 0o644); err != nil {
@@ -83,5 +85,15 @@ func TestWebUIStaticRoutesServed(t *testing.T) {
 	s.engine.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/pages/containers.html", nil))
 	if w.Code != http.StatusNotFound {
 		t.Errorf("GET /pages/containers.html = %d, want 404 (core gate)", w.Code)
+	}
+	w = httptest.NewRecorder()
+	s.engine.ServeHTTP(w, httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/pages/space-analysis.html", nil))
+	if w.Code != http.StatusNotFound {
+		t.Errorf("GET /pages/space-analysis.html = %d, want 404 (core gate)", w.Code)
+	}
+	w = httptest.NewRecorder()
+	s.engine.ServeHTTP(w, httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/space-analysis", nil))
+	if w.Code != http.StatusNotFound {
+		t.Errorf("GET /space-analysis = %d, want 404 (core gate)", w.Code)
 	}
 }

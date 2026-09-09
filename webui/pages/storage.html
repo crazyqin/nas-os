@@ -266,6 +266,7 @@
             <nav class="header-nav">
                 <a href="../index.html">仪表盘</a>
                 <a href="#" class="active">存储管理</a>
+                <a href="/space-analysis" id="nav-space-analysis" style="display:none">空间分析</a>
                 <a href="/settings">设置</a>
             </nav>
             <div class="header-actions">
@@ -561,6 +562,16 @@
             initProfileHints();
             loadVolumes();
         });
+
+        // 空间分析入口探测（仅 Full 构建 + 产品面开启时存在，Core 自动隐藏）
+        (function () {
+            fetch('/space-analysis', { method: 'HEAD' }).then(function (r) {
+                if (r.ok) {
+                    var el = document.getElementById('nav-space-analysis');
+                    if (el) el.style.display = '';
+                }
+            }).catch(function () {});
+        })();
 
         // Tab 切换
         function initTabs() {

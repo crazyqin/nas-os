@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>空间分析 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .space-container { max-width: 1400px; margin: 0 auto; }
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card { padding: 1rem 1.25rem; }
+        .stat-value { font-size: 1.4rem; font-weight: 600; color: var(--text-primary); }
+        .stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .chart-box { width: 100%; height: 380px; }
+        .path-cell { max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .empty-hint { text-align: center; padding: 2rem 1rem; color: var(--text-muted); }
+        @media (max-width: 900px) {
+            .chart-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-brand">
+                <img src="../brand/logo/logo-64.png" alt="Logo" width="40" height="40">
+                <h1>NAS-OS</h1>
+            </div>
+            <nav class="header-nav">
+                <a href="/">仪表盘</a>
+                <a href="/storage">存储管理</a>
+                <a href="/settings">设置</a>
+            </nav>
+            <div class="header-actions">
+                <button class="theme-toggle" id="theme-toggle" title="切换主题"></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+        <div class="container space-container">
+            <!-- 页面标题 -->
+            <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="margin-bottom: 0.25rem;">📊 空间分析</h1>
+                    <p class="text-muted" style="margin: 0;">看清楚「什么吃掉了我的盘」：目录占用、文件类型与最大文件排行</p>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-secondary" onclick="refreshAll()">🔄 刷新</button>
+                    <button class="btn btn-primary" id="btn-build" title="在挂载根目录上重建全量索引，大目录可能耗时数分钟" onclick="buildIndex()">🧱 重建索引</button>
+                </div>
+            </div>
+
+            <!-- 未建索引提示 -->
+            <div class="card" id="empty-state" style="display: none; margin-bottom: 1.5rem;">
+                <div class="empty-hint">
+                    <p style="font-size: 1.05rem; margin-bottom: 0.5rem;">尚未建立文件索引</p>
+                    <p style="margin-bottom: 1rem;">空间分析基于文件索引。首次使用请先构建索引。</p>
+                    <button class="btn btn-primary" onclick="buildIndex()">🧱 立即构建索引</button>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stat-grid">
+                <div class="card stat-card">
+                    <div class="stat-value" id="stat-files">-</div>
+                    <div class="stat-label">文件总数</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-value" id="stat-dirs">-</div>
+                    <div class="stat-label">目录总数</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-value" id="stat-size">-</div>
+                    <div class="stat-label">索引总大小</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-value" id="stat-indexed" style="font-size: 1rem;">-</div>
+                    <div class="stat-label">索引时间</div>
+                </div>
+            </div>
+
+            <!-- 图表区 -->
+            <div class="chart-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">📁 目录占用</h2>
+                    </div>
+                    <div id="chart-dirs" class="chart-box"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">🏷️ 文件类型 Top 15</h2>
+                    </div>
+                    <div id="chart-exts" class="chart-box"></div>
+                </div>
+            </div>
+
+            <!-- 最大文件 -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h2 class="card-title">🐘 最大文件 Top 20</h2>
+                </div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr><th>文件</th><th>大小</th><th>修改时间</th><th>路径</th></tr>
+                        </thead>
+                        <tbody id="largest-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 最近变更 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🕐 最近变更 Top 20</h2>
+                </div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr><th>文件</th><th>类型</th><th>修改时间</th><th>路径</th></tr>
+                        </thead>
+                        <tbody id="recent-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast 容器 -->
+    <div id="toast-container"></div>
+
+    <script src="../js/app.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/vendor/echarts.min.js"></script>
+    <script>
+        let dirChart = null;
+        let extChart = null;
+
+        function esc(v) {
+            return String(v == null ? '' : v).replace(/[&<>"']/g, function (ch) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+            });
+        }
+
+        function fmtBytes(n) {
+            if (!n || n <= 0) return '0 B';
+            const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+            let i = 0;
+            let v = n;
+            while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+            return v.toFixed(v >= 100 || i === 0 ? 0 : 1) + ' ' + units[i];
+        }
+
+        async function jfetch(path, opts) {
+            const r = await apiFetch(path, opts);
+            if (!r.ok || !r.data || r.data.code !== 0) {
+                throw new Error((r.data && r.data.message) || ('请求失败: ' + r.status));
+            }
+            return r.data.data;
+        }
+
+        function emptyRow(msg) {
+            return '<tr><td colspan="4" class="text-muted" style="text-align: center; padding: 1.5rem;">' + esc(msg) + '</td></tr>';
+        }
+
+        async function loadStats() {
+            try {
+                const st = await jfetch('/fileindex/stats');
+                document.getElementById('stat-files').textContent = (st.totalFiles || 0).toLocaleString();
+                document.getElementById('stat-dirs').textContent = (st.totalDirs || 0).toLocaleString();
+                document.getElementById('stat-size').textContent = fmtBytes(st.totalSize);
+                const at = (st.totalFiles || 0) > 0 && st.indexedAt ? new Date(st.indexedAt).toLocaleString('zh-CN') : '-';
+                document.getElementById('stat-indexed').textContent = at + (st.duration ? '（' + st.duration + '）' : '');
+                document.getElementById('empty-state').style.display = (st.totalFiles || 0) === 0 ? '' : 'none';
+            } catch (e) {
+                document.getElementById('stat-files').textContent = '—';
+                showToast('加载索引统计失败: ' + e.message, 'error');
+            }
+        }
+
+        async function loadTopDirs() {
+            try {
+                const dirs = await jfetch('/fileindex/top-dirs?limit=12');
+                dirChart.setOption({
+                    tooltip: {
+                        formatter: function (info) {
+                            const d = info.data || {};
+                            return esc(d.name) + '<br/>' + fmtBytes(d.value) + ' · ' + (d.files || 0).toLocaleString() + ' 个文件';
+                        }
+                    },
+                    series: [{
+                        type: 'treemap',
+                        roam: false,
+                        nodeClick: 'zoomToNode',
+                        breadcrumb: { show: true, bottom: 0 },
+                        itemStyle: { gapWidth: 2, borderWidth: 1, borderColor: 'rgba(0,0,0,0.15)' },
+                        label: {
+                            show: true,
+                            formatter: function (p) { return p.name + '\n' + fmtBytes(p.value); }
+                        },
+                        data: (dirs || []).map(function (d) {
+                            return { name: d.name, value: d.size, files: d.files };
+                        })
+                    }]
+                });
+            } catch (e) {
+                dirChart.clear();
+                showToast('加载目录统计失败: ' + e.message, 'error');
+            }
+        }
+
+        async function loadExtSizes() {
+            try {
+                const m = await jfetch('/fileindex/ext-sizes');
+                const entries = Object.keys(m || {})
+                    .map(function (k) { return { ext: k === '' ? '(无扩展名)' : k, size: m[k] }; })
+                    .sort(function (a, b) { return b.size - a.size; })
+                    .slice(0, 15);
+                extChart.setOption({
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: { type: 'shadow' },
+                        valueFormatter: function (v) { return fmtBytes(v); }
+                    },
+                    grid: { left: 70, right: 20, top: 20, bottom: 50 },
+                    xAxis: {
+                        type: 'category',
+                        data: entries.map(function (e) { return e.ext; }),
+                        axisLabel: { interval: 0, rotate: 40 }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        axisLabel: { formatter: function (v) { return fmtBytes(v); } }
+                    },
+                    series: [{
+                        type: 'bar',
+                        data: entries.map(function (e) { return e.size; }),
+                        barMaxWidth: 36,
+                        itemStyle: { borderRadius: [4, 4, 0, 0] }
+                    }]
+                });
+            } catch (e) {
+                extChart.clear();
+                showToast('加载类型统计失败: ' + e.message, 'error');
+            }
+        }
+
+        function fileRows(files) {
+            if (!files || !files.length) return emptyRow('暂无数据（先构建索引）');
+            return files.map(function (f) {
+                const mt = f.modTime ? new Date(f.modTime).toLocaleString('zh-CN') : '-';
+                return '<tr>' +
+                    '<td><strong>' + esc(f.name) + '</strong></td>' +
+                    '<td>' + fmtBytes(f.size) + '</td>' +
+                    '<td class="text-muted">' + esc(mt) + '</td>' +
+                    '<td class="text-muted path-cell" title="' + esc(f.path) + '">' + esc(f.path) + '</td>' +
+                    '</tr>';
+            }).join('');
+        }
+
+        async function loadLargest() {
+            try {
+                document.getElementById('largest-body').innerHTML = fileRows(await jfetch('/fileindex/largest?limit=20'));
+            } catch (e) {
+                document.getElementById('largest-body').innerHTML = emptyRow(e.message);
+            }
+        }
+
+        async function loadRecent() {
+            try {
+                const files = await jfetch('/fileindex/recent?limit=20');
+                if (!files || !files.length) {
+                    document.getElementById('recent-body').innerHTML = emptyRow('暂无数据（先构建索引）');
+                    return;
+                }
+                document.getElementById('recent-body').innerHTML = files.map(function (f) {
+                    const mt = f.modTime ? new Date(f.modTime).toLocaleString('zh-CN') : '-';
+                    return '<tr>' +
+                        '<td><strong>' + esc(f.name) + '</strong></td>' +
+                        '<td>' + esc(f.extension || '-') + '</td>' +
+                        '<td class="text-muted">' + esc(mt) + '</td>' +
+                        '<td class="text-muted path-cell" title="' + esc(f.path) + '">' + esc(f.path) + '</td>' +
+                        '</tr>';
+                }).join('');
+            } catch (e) {
+                document.getElementById('recent-body').innerHTML = emptyRow(e.message);
+            }
+        }
+
+        async function buildIndex() {
+            const btn = document.getElementById('btn-build');
+            const old = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = '⏳ 正在构建索引…';
+            try {
+                const st = await jfetch('/fileindex/build', { method: 'POST' });
+                showToast('索引构建完成：' + (st.totalFiles || 0).toLocaleString() + ' 个文件，耗时 ' + (st.duration || '-'), 'success');
+                refreshAll();
+            } catch (e) {
+                showToast('构建索引失败: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = old;
+            }
+        }
+
+        function refreshAll() {
+            loadStats();
+            loadTopDirs();
+            loadExtSizes();
+            loadLargest();
+            loadRecent();
+        }
+
+        function showToast(message, type) {
+            const colors = { info: '#3B82F6', success: '#10B981', error: '#EF4444' };
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position: fixed; bottom: 2rem; right: 2rem; background: ' + (colors[type] || colors.info) +
+                '; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10000;';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(function () { toast.remove(); }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            dirChart = echarts.init(document.getElementById('chart-dirs'));
+            extChart = echarts.init(document.getElementById('chart-exts'));
+            window.addEventListener('resize', function () {
+                dirChart.resize();
+                extChart.resize();
+            });
+            refreshAll();
+        });
+    </script>
+</body>
+</html>

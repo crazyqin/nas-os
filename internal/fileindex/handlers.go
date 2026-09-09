@@ -30,6 +30,8 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 		idx.GET("/recent", h.recent)
 		idx.GET("/largest", h.largest)
 		idx.GET("/entry", h.getEntry)
+		idx.GET("/ext-sizes", h.extSizes)
+		idx.GET("/top-dirs", h.topDirs)
 	}
 }
 
@@ -101,4 +103,18 @@ func (h *Handlers) getEntry(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": entry})
+}
+
+// extSizes 按扩展名统计文件占用空间.
+func (h *Handlers) extSizes(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": h.indexer.SizeByExtension()})
+}
+
+// topDirs 一级子目录占用排行.
+func (h *Handlers) topDirs(c *gin.Context) {
+	limit := 12
+	if l, err := strconv.Atoi(c.Query("limit")); err == nil && l > 0 {
+		limit = l
+	}
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": h.indexer.TopDirs(limit)})
 }
