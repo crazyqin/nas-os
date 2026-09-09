@@ -1198,6 +1198,51 @@
                             💾 保存更新设置
                         </button>
                     </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                                HTTPS 证书
+                            </h2>
+                        </div>
+                        
+                        <div id="tls-status">
+                            <div style="text-align: center; padding: 1.5rem; color: var(--text-muted);">加载中...</div>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">HTTP → HTTPS 跳转</div>
+                                <div class="form-description">开启后非本机的明文请求自动 301 到 HTTPS；本机与容器探针豁免（需已有证书）</div>
+                            </div>
+                            <div>
+                                <div class="toggle-switch" id="tls-redirect-toggle" onclick="toggleTLSRedirect(this)"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="generateTLSCert()">
+                                🔒 生成自签证书
+                            </button>
+                            <button class="btn btn-secondary" onclick="showTLSImport()">
+                                📥 导入证书
+                            </button>
+                            <button class="btn btn-danger" onclick="removeTLSCert()">
+                                🗑️ 删除
+                            </button>
+                        </div>
+                        
+                        <div id="tls-import-form" style="display:none">
+                            <textarea id="tls-cert-pem" class="form-input" rows="5" placeholder="证书 PEM（cert.pem 全文，可含中间证书链）" style="width:100%; font-family:monospace; font-size:12px; margin-bottom:0.5rem;"></textarea>
+                            <textarea id="tls-key-pem" class="form-input" rows="5" placeholder="私钥 PEM（key.pem 全文）" style="width:100%; font-family:monospace; font-size:12px; margin-bottom:0.75rem;"></textarea>
+                            <button class="btn btn-primary" onclick="importTLSCert()">
+                                导入并启用
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -1455,6 +1500,122 @@
                 showToast('保存更新设置失败: ' + e.message, 'error');
             }
         }
+
+        // ========== HTTPS 证书管理（接 /system/tls）==========
+        let tlsHasCert = false;
+
+        function renderTLSStatus(st) {
+            tlsHasCert = !!st.hasCert;
+            document.getElementById('tls-redirect-toggle').classList.toggle('active', !!st.enabled);
+            const box = document.getElementById('tls-status');
+            if (!st.hasCert) {
+                box.innerHTML = `
+                    <div class="alert alert-info">
+                        <div>
+                            <strong>当前为 HTTP 明文访问</strong><br>
+                            生成自签证书或导入自有证书后，HTTPS 将在同一端口启用（不改端口、不重启、热生效）
+                        </div>
+                    </div>`;
+                return;
+            }
+            const src = st.source === 'user' ? '用户导入' : '自签';
+            let daysText;
+            if (st.daysRemaining < 0) {
+                daysText = '<span style="color:#e74c3c;">已过期 ' + (-st.daysRemaining) + ' 天</span>';
+            } else if (st.daysRemaining < 30) {
+                daysText = '<span style="color:#f39c12;">剩余 ' + st.daysRemaining + ' 天</span>';
+            } else {
+                daysText = '剩余 ' + st.daysRemaining + ' 天';
+            }
+            const sans = (st.sans || []).slice(0, 8).map(escHtml).join('、');
+            box.innerHTML = `
+                <div class="alert alert-success">
+                    <div>
+                        <strong>HTTPS 已启用（同端口兼容 HTTP）</strong><br>
+                        证书来源：${escHtml(src)} · 主体：${escHtml(st.subject || '-')} · ${daysText}
+                        ${sans ? '<br>覆盖：' + sans : ''}
+                    </div>
+                </div>`;
+        }
+
+        async function loadTLSStatus() {
+            try {
+                const r = await apiFetch('/system/tls');
+                const st = (r.data && r.data.data) || null;
+                if (!r.ok || !st) throw new Error((r.data && r.data.message) || ('HTTP ' + r.status));
+                renderTLSStatus(st);
+            } catch (e) {
+                document.getElementById('tls-status').innerHTML =
+                    `<div class="alert alert-error"><div>${escHtml(e.message)}</div></div>`;
+            }
+        }
+
+        async function generateTLSCert() {
+            const hosts = prompt('证书覆盖的主机名 / IP（逗号或空格分隔，留空自动收集本机标识）：', '');
+            if (hosts === null) return;
+            const list = hosts.split(/[,，\s]+/).map(s => s.trim()).filter(Boolean);
+            if (tlsHasCert && !confirm('已有证书，重新生成将覆盖现有证书，确定？')) return;
+            try {
+                const r = await apiFetch('/system/tls/generate', { method: 'POST', json: { hosts: list } });
+                if (!r.ok) throw new Error((r.data && r.data.message) || ('HTTP ' + r.status));
+                showToast('自签证书已生成，HTTPS 已启用', 'success');
+                loadTLSStatus();
+            } catch (e) {
+                showToast('生成证书失败: ' + e.message, 'error');
+            }
+        }
+
+        function showTLSImport() {
+            const f = document.getElementById('tls-import-form');
+            f.style.display = f.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function importTLSCert() {
+            const cert = document.getElementById('tls-cert-pem').value.trim();
+            const key = document.getElementById('tls-key-pem').value.trim();
+            if (!cert || !key) {
+                showToast('请同时粘贴证书与私钥的 PEM 内容', 'error');
+                return;
+            }
+            if (tlsHasCert && !confirm('已有证书，导入将覆盖现有证书，确定？')) return;
+            try {
+                const r = await apiFetch('/system/tls/import', { method: 'POST', json: { certPEM: cert, keyPEM: key } });
+                if (!r.ok) throw new Error((r.data && r.data.message) || ('HTTP ' + r.status));
+                showToast('证书已导入，HTTPS 已启用', 'success');
+                document.getElementById('tls-import-form').style.display = 'none';
+                loadTLSStatus();
+            } catch (e) {
+                showToast('导入失败: ' + e.message, 'error');
+            }
+        }
+
+        async function removeTLSCert() {
+            if (!tlsHasCert) {
+                showToast('当前没有证书', 'info');
+                return;
+            }
+            if (!confirm('删除证书并停用 HTTPS？明文 HTTP 访问不受影响。')) return;
+            try {
+                const r = await apiFetch('/system/tls/certificate', { method: 'DELETE' });
+                if (!r.ok) throw new Error((r.data && r.data.message) || ('HTTP ' + r.status));
+                showToast('证书已删除', 'success');
+                loadTLSStatus();
+            } catch (e) {
+                showToast('删除失败: ' + e.message, 'error');
+            }
+        }
+
+        async function toggleTLSRedirect(el) {
+            const enabled = el.classList.toggle('active');
+            try {
+                const r = await apiFetch('/system/tls/settings', { method: 'PUT', json: { enabled } });
+                if (!r.ok) throw new Error((r.data && r.data.message) || ('HTTP ' + r.status));
+                showToast(enabled ? '已开启 HTTP→HTTPS 跳转' : '已关闭跳转', 'success');
+            } catch (e) {
+                el.classList.toggle('active');
+                showToast('设置失败: ' + e.message, 'error');
+            }
+        }
         
         // 添加防火墙规则
         function addFirewallRule() {
@@ -1597,6 +1758,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadSystemInfo();
             loadUpdateSettings();
+            loadTLSStatus();
         });
     </script>
 </body>

@@ -70,6 +70,7 @@ import (
 	"nas-os/internal/webdav"
 	"nas-os/internal/webhook"
 	"nas-os/internal/webterminal"
+	"nas-os/internal/webtls"
 	"nas-os/internal/wol"
 	"nas-os/internal/zfs"
 
@@ -153,6 +154,8 @@ type Server struct {
 	nfsMgr     *nfs.Manager
 	networkMgr *network.Manager
 	rbacMgr    *auth.RBACManager
+	// tlsMgr 管理 Web UI HTTPS（自签生成/用户上传），构造期由 registerTLSRoutes 惰性初始化.
+	tlsMgr *webtls.Manager
 	// Optional/product/bulk managers live in h (see holders.go) — not 90+ fields.
 	h *holderBag
 }
@@ -910,6 +913,8 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	}
 
 	s.seedProductRegistry()
+	// 明文 → HTTPS 跳转必须在任何路由注册前挂载（gin 中间件只作用于其后注册的路由）.
+	s.engine.Use(s.httpsRedirectMiddleware())
 	s.setupRoutes()
 	return s
 }
@@ -1002,7 +1007,7 @@ func (s *Server) Start(addr string) error {
 		}
 	}
 
-	if err := httpSrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+	if err := s.serveHTTPWithOptionalTLS(addr, httpSrv); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
 	return nil
