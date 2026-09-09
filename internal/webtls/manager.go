@@ -8,6 +8,7 @@
 package webtls
 
 import (
+	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -34,9 +35,10 @@ const (
 	certFile = "cert.pem"
 	keyFile  = "key.pem"
 
-	// SourceSelfSigned / SourceUser 证书来源标记.
+	// SourceSelfSigned 自签生成的证书来源标记.
 	SourceSelfSigned = "self-signed"
-	SourceUser       = "user"
+	// SourceUser 用户上传的证书来源标记.
+	SourceUser = "user"
 
 	// selfSignedValidity 自签证书有效期（约 2.25 年，与主流浏览器自签策略一致）.
 	selfSignedValidity = 825 * 24 * time.Hour
@@ -306,9 +308,7 @@ func (m *Manager) statusLocked() Status {
 		}
 		st.NotAfter = m.leaf.NotAfter
 		st.DaysRemaining = int(time.Until(m.leaf.NotAfter).Hours() / 24)
-		for _, d := range m.leaf.DNSNames {
-			st.SANs = append(st.SANs, d)
-		}
+		st.SANs = append(st.SANs, m.leaf.DNSNames...)
 		for _, ip := range m.leaf.IPAddresses {
 			st.SANs = append(st.SANs, ip.String())
 		}
@@ -415,11 +415,11 @@ func defaultHosts() []string {
 
 // outboundIP 通过 UDP 拨号探测默认路由出站 IP（不实际发包）.
 func outboundIP() string {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
+	conn, err := (&net.Dialer{}).DialContext(context.Background(), "udp", "8.8.8.8:80")
 	if err != nil {
 		return ""
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 	if udp, ok := conn.LocalAddr().(*net.UDPAddr); ok {
 		return udp.IP.String()
 	}
@@ -434,9 +434,7 @@ func validHost(h string) bool {
 	if h == "" || len(h) > 253 {
 		return false
 	}
-	if strings.HasPrefix(h, "*.") {
-		h = h[2:]
-	}
+	h = strings.TrimPrefix(h, "*.")
 	if h == "" {
 		return false
 	}

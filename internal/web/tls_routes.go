@@ -2,6 +2,7 @@
 package web
 
 import (
+	"context"
 	"log"
 	"net"
 	"net/http"
@@ -159,7 +160,7 @@ func (s *Server) serveHTTPWithOptionalTLS(addr string, httpSrv *http.Server) err
 	if mgr == nil || !mgr.HasValidCert() {
 		return httpSrv.ListenAndServe()
 	}
-	ln, err := net.Listen("tcp", addr)
+	ln, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", addr)
 	if err != nil {
 		return err
 	}

@@ -118,7 +118,7 @@ func TestManagerGenerateValidation(t *testing.T) {
 
 func TestManagerImport(t *testing.T) {
 	m := NewManager(t.TempDir())
-	certPEM, keyPEM := makeUserCert(t, time.Now().Add(90*24*time.Hour), true)
+	certPEM, keyPEM := makeUserCert(t, time.Now().Add(90*24*time.Hour))
 
 	st, err := m.Import(certPEM, keyPEM)
 	if err != nil {
@@ -129,15 +129,21 @@ func TestManagerImport(t *testing.T) {
 	}
 
 	// 错配的私钥应失败
-	_, otherKey := makeUserCert(t, time.Now().Add(90*24*time.Hour), true)
+	_, otherKey := makeUserCert(t, time.Now().Add(90*24*time.Hour))
 	if _, err := m.Import(certPEM, otherKey); err == nil {
 		t.Fatal("证书私钥不匹配应报错")
 	}
 
 	// 过期证书应被拒绝
-	expiredPEM, expiredKey := makeUserCert(t, time.Now().Add(-24*time.Hour), true)
+	expiredPEM, expiredKey := makeUserCert(t, time.Now().Add(-24*time.Hour))
 	if _, err := m.Import(expiredPEM, expiredKey); err == nil {
 		t.Fatal("过期证书应报错")
+	}
+
+	// 仅客户端用途（缺 ServerAuth）的证书应被拒绝
+	clientPEM, clientKey := makeClientOnlyCert(t, time.Now().Add(90*24*time.Hour))
+	if _, err := m.Import(clientPEM, clientKey); err == nil {
+		t.Fatal("缺少 ServerAuth 用途的证书应报错")
 	}
 
 	// 空 body
@@ -151,7 +157,7 @@ func TestRedirectDisablesWhenCertExpires(t *testing.T) {
 	// 用短有效期证书：导入时仍有效，轮询等待其过期.
 	m := NewManager(t.TempDir())
 	notAfter := time.Now().Add(1 * time.Second)
-	pemC, pemK := makeUserCert(t, notAfter, true)
+	pemC, pemK := makeUserCert(t, notAfter)
 	if _, err := m.Import(pemC, pemK); err != nil {
 		t.Fatalf("Import 短效期证书: %v", err)
 	}
@@ -195,8 +201,18 @@ func TestTLSConfigServesCertificate(t *testing.T) {
 	}
 }
 
-// makeUserCert 构造测试用用户证书（模拟用户上传场景）.
-func makeUserCert(t *testing.T, notAfter time.Time, serverAuth bool) (certPEM, keyPEM []byte) {
+// makeUserCert 构造测试用用户证书（ServerAuth 用途，模拟用户上传场景）.
+func makeUserCert(t *testing.T, notAfter time.Time) (certPEM, keyPEM []byte) {
+	return makeCert(t, notAfter, []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth})
+}
+
+// makeClientOnlyCert 构造仅含 ClientAuth 用途的证书（应被 Import 拒绝）.
+func makeClientOnlyCert(t *testing.T, notAfter time.Time) (certPEM, keyPEM []byte) {
+	return makeCert(t, notAfter, []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth})
+}
+
+// makeCert 构造测试用证书（eku 为扩展用途）.
+func makeCert(t *testing.T, notAfter time.Time, eku []x509.ExtKeyUsage) (certPEM, keyPEM []byte) {
 	t.Helper()
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
@@ -211,9 +227,7 @@ func makeUserCert(t *testing.T, notAfter time.Time, serverAuth bool) (certPEM, k
 		KeyUsage:     x509.KeyUsageDigitalSignature,
 		DNSNames:     []string{"import.example.com"},
 		IPAddresses:  []net.IP{net.ParseIP("10.0.0.5")},
-	}
-	if serverAuth {
-		tmpl.ExtKeyUsage = []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}
+		ExtKeyUsage:  eku,
 	}
 	der, err := x509.CreateCertificate(rand.Reader, tmpl, tmpl, &key.PublicKey, key)
 	if err != nil {
