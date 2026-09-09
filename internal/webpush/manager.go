@@ -287,7 +287,7 @@ func (m *Manager) Send(ctx context.Context, title, body, level, url string) (int
 
 // persistVAPID 落盘 VAPID 密钥（仅初始化路径调用，无需持锁）.
 func (m *Manager) persistVAPID() error {
-	data, err := json.MarshalIndent(m.keys, "", "  ")
+	data, err := json.MarshalIndent(m.keys, "", "  ") // #nosec G117 -- VAPID 私钥落盘为设计意图：仅写 DataDir/webpush/vapid.json（0600），与 TLS key.pem 同类，不出网不进日志
 	if err != nil {
 		return err
 	}
