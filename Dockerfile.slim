@@ -24,11 +24,11 @@ COPY . .
 
 # 构建精简二进制（nasd + nasctl）
 RUN CGO_ENABLED=0 GOOS=linux go build \
-    -ldflags="-s -w -X main.version=$(cat VERSION)" \
+    -ldflags="-s -w -X nas-os/internal/version.Version=$(sed 's/^v//' VERSION)" \
     -trimpath \
     -o nasd ./cmd/nasd && \
     CGO_ENABLED=0 GOOS=linux go build \
-    -ldflags="-s -w -X main.version=$(cat VERSION)" \
+    -ldflags="-s -w -X nas-os/internal/version.Version=$(sed 's/^v//' VERSION)" \
     -trimpath \
     -o nasctl ./cmd/nasctl
 

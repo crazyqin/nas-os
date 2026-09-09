@@ -51,10 +51,10 @@ ENV CGO_ENABLED=0
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg/mod \
     GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
-    go build -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \
+    go build -ldflags="-w -s -X nas-os/internal/version.Version=${VERSION#v} -X nas-os/internal/version.BuildTime=${BUILD_TIME} -X nas-os/internal/version.Commit=${REVISION}" \
     -o nasd ./cmd/nasd && \
     GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
-    go build -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \
+    go build -ldflags="-w -s -X nas-os/internal/version.Version=${VERSION#v} -X nas-os/internal/version.BuildTime=${BUILD_TIME} -X nas-os/internal/version.Commit=${REVISION}" \
     -o nasctl ./cmd/nasctl
 
 # UPX 压缩（armv7 跳过：QEMU 下极慢）

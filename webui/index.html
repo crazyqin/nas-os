@@ -168,6 +168,10 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
             存储管理
         </div>
+        <div class="nav-item" data-space-analysis-entry style="display:none" onclick="window.location.href='/space-analysis'">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 3a7.5 7.5 0 0 1 7.5 7.5h-7.5V3Z"/></svg>
+            空间分析
+        </div>
         <div class="nav-item" data-core-nav="1" onclick="window.location.href='pages/shares.html'">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
             共享管理
@@ -229,6 +233,10 @@
         <div class="mobile-nav-item" data-core-nav="1" onclick="window.location.href='pages/storage.html'">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
             存储管理
+        </div>
+        <div class="mobile-nav-item" data-space-analysis-entry style="display:none" onclick="window.location.href='/space-analysis'">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 3a7.5 7.5 0 0 1 7.5 7.5h-7.5V3Z"/></svg>
+            空间分析
         </div>
         <div class="mobile-nav-item" data-core-nav="1" onclick="window.location.href='pages/shares.html'">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
@@ -551,6 +559,17 @@
             NotificationManager.markAllRead();
             alert('通知中心功能开发中...');
         }
+
+        // 空间分析入口探测：仅 Full 构建 + 产品面开启时存在（Core 默认隐藏）
+        (function () {
+            fetch('/space-analysis', { method: 'HEAD' }).then(function (r) {
+                if (r.ok) {
+                    document.querySelectorAll('[data-space-analysis-entry]').forEach(function (el) {
+                        el.style.display = '';
+                    });
+                }
+            }).catch(function () {});
+        })();
 
         // 初始化
         loadSystemInfo();
