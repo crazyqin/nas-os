@@ -172,7 +172,7 @@ func (a *Application) Run(ctx context.Context) error {
 		webErrCh <- a.webServer.Start(a.cfg.Server.Addr())
 	}()
 
-	log.Printf("✅ NAS-OS 就绪 - Web 管理界面：http://%s", FriendlyAddr(a.cfg.Server))
+	log.Printf("✅ NAS-OS 就绪 - Web 管理界面：http://%s%s", FriendlyAddr(a.cfg.Server), a.webServer.TLSStatusHint())
 	log.Printf("📖 API 文档：http://%s/swagger/index.html", FriendlyAddr(a.cfg.Server))
 	if a.clusterServices != nil {
 		log.Printf("🔗 集群模式 - 节点 ID: %s, 角色：%s", a.hostname, a.ClusterRole())

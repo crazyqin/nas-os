@@ -98,6 +98,9 @@ func (s *Server) registerCoreIdentityAndDocs(api *gin.RouterGroup) {
 	// 系统更新检查与设置（Core/Full 双构建共用；只读上游 Release 元数据，不执行升级）
 	s.registerUpdateRoutes(api)
 
+	// Web UI HTTPS 证书管理（自签生成/用户上传/跳转开关）
+	s.registerTLSRoutes(api)
+
 	// Single ownership for nasd storage contract (confirm_name / allow_wipe gate).
 	if s.storageMgr != nil {
 		NewStorageHandlers(s.storageMgr).RegisterRoutes(api)

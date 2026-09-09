@@ -19,6 +19,7 @@ import (
 	"nas-os/internal/smb"
 	"nas-os/internal/storage"
 	"nas-os/internal/users"
+	"nas-os/internal/webtls"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -64,6 +65,8 @@ type Server struct {
 	nfsMgr                  *nfs.Manager
 	networkMgr              *network.Manager
 	rbacMgr                 *auth.RBACManager
+	// tlsMgr 管理 Web UI HTTPS（自签生成/用户上传），构造期由 registerTLSRoutes 惰性初始化.
+	tlsMgr *webtls.Manager
 	// downloadMgr kept as constructor param wiring into holders under key "downloadMgr"
 	// Optional product slots: always empty on Core; held in h for field-compat tests.
 	h *holderBag
@@ -102,6 +105,8 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 		rbacMgr:    auth.NewRBACManager(),
 	}
 	s.setHolder("downloadMgr", downloadMgr)
+	// 明文 → HTTPS 跳转必须在任何路由注册前挂载（gin 中间件只作用于其后注册的路由）.
+	s.engine.Use(s.httpsRedirectMiddleware())
 	s.setupRoutes()
 	return s
 }
@@ -136,7 +141,7 @@ func (s *Server) Start(addr string) error {
 	httpSrv := s.httpSrv
 	s.lifecycleMu.Unlock()
 
-	if err := httpSrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+	if err := s.serveHTTPWithOptionalTLS(addr, httpSrv); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
 	return nil
