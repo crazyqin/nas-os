@@ -2,6 +2,7 @@
 package webpush
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -25,9 +26,9 @@ func newHandlerRouter(t *testing.T) (*gin.Engine, *Manager) {
 func doJSON(r *gin.Engine, method, path, body string) *httptest.ResponseRecorder {
 	var req *http.Request
 	if body == "" {
-		req = httptest.NewRequest(method, path, nil)
+		req = httptest.NewRequestWithContext(context.Background(), method, path, nil)
 	} else {
-		req = httptest.NewRequest(method, path, strings.NewReader(body))
+		req = httptest.NewRequestWithContext(context.Background(), method, path, strings.NewReader(body))
 	}
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()

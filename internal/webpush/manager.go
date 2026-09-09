@@ -245,10 +245,10 @@ func (m *Manager) Send(ctx context.Context, title, body, level, url string) (int
 		status := resp.StatusCode
 		_, _ = io.Copy(io.Discard, resp.Body)
 		_ = resp.Body.Close()
-		switch {
-		case status == http.StatusCreated || status == http.StatusOK:
+		switch status {
+		case http.StatusCreated, http.StatusOK:
 			sent++
-		case status == http.StatusNotFound || status == http.StatusGone:
+		case http.StatusNotFound, http.StatusGone:
 			dead = append(dead, s.Endpoint)
 		default:
 			errs = append(errs, fmt.Sprintf("推送服务返回 %d", status))
