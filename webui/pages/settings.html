@@ -1134,6 +1134,33 @@
                         </button>
                     </div>
                     
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                </svg>
+                                浏览器推送
+                            </h2>
+                        </div>
+                        
+                        <div id="push-status">
+                            <div style="text-align: center; padding: 1.5rem; color: var(--text-muted);">加载中...</div>
+                        </div>
+                        
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="enablePush()">
+                                🔔 订阅此浏览器
+                            </button>
+                            <button class="btn btn-secondary" onclick="testPush()">
+                                📤 测试推送
+                            </button>
+                            <button class="btn btn-danger" onclick="disablePush()">
+                                退订
+                            </button>
+                        </div>
+                    </div>
+                    
                     <div class="btn-group">
                         <button class="btn btn-primary" onclick="saveNotificationSettings()">
                             💾 保存通知设置
@@ -1373,32 +1400,207 @@
         }
         
         // 保存通知设置
-        function saveNotificationSettings() {
-            const settings = {
-                email: {
-                    enabled: document.getElementById('email-toggle').classList.contains('active'),
-                    smtp: document.getElementById('email-smtp').value,
-                    port: parseInt(document.getElementById('email-port').value),
-                    username: document.getElementById('email-username').value,
-                    password: document.getElementById('email-password').value,
-                    from: document.getElementById('email-from').value,
-                    to: document.getElementById('email-to').value
-                },
-                wechat: {
-                    enabled: document.getElementById('wechat-toggle').classList.contains('active'),
-                    webhook: document.getElementById('wechat-webhook').value
+        // ========== 通知渠道（接真实后端 /notifications/channels，Full 构建）==========
+        let hasNotificationCenter = true;
+
+        function extractErr(r) {
+            const d = r.data || {};
+            return d.error || d.message || ('HTTP ' + r.status);
+        }
+
+        function splitAddrs(v) {
+            return String(v || '').split(/[,，;；\s]+/).map(s => s.trim()).filter(Boolean);
+        }
+
+        async function upsertChannel(id, name, type, enabled, cfg) {
+            const body = { id, name, type, enabled, config: cfg };
+            let r = await apiFetch('/notifications/channels/' + id, { method: 'PUT', json: body });
+            if (!r.ok && r.status === 404) {
+                r = await apiFetch('/notifications/channels', { method: 'POST', json: body });
+            }
+            if (!r.ok) throw new Error(extractErr(r));
+        }
+
+        async function loadNotificationSettings() {
+            try {
+                const r = await apiFetch('/notifications/channels');
+                if (r.status === 404) { hasNotificationCenter = false; return; }
+                if (!r.ok) throw new Error(extractErr(r));
+                const channels = (r.data && r.data.channels) || [];
+                const email = channels.find(c => c.type === 'email');
+                if (email) {
+                    document.getElementById('email-toggle').classList.toggle('active', !!email.enabled);
+                    const cfg = email.config || {};
+                    if (cfg.smtpHost) document.getElementById('email-smtp').value = cfg.smtpHost;
+                    if (cfg.smtpPort) document.getElementById('email-port').value = cfg.smtpPort;
+                    if (cfg.username) document.getElementById('email-username').value = cfg.username;
+                    if (cfg.password) document.getElementById('email-password').value = cfg.password;
+                    if (cfg.from) document.getElementById('email-from').value = cfg.from;
+                    if (Array.isArray(cfg.to)) document.getElementById('email-to').value = cfg.to.join(', ');
                 }
+                const wechat = channels.find(c => c.type === 'wechat');
+                if (wechat) {
+                    document.getElementById('wechat-toggle').classList.toggle('active', !!wechat.enabled);
+                    const cfg = wechat.config || {};
+                    if (cfg.webhookUrl) document.getElementById('wechat-webhook').value = cfg.webhookUrl;
+                }
+            } catch (e) {
+                // 加载失败不阻塞页面，仅保留默认值
+                console.warn('加载通知渠道失败:', e.message);
+            }
+        }
+
+        async function saveNotificationSettings() {
+            if (!hasNotificationCenter) {
+                showToast('通知中心需要 Full 构建（当前 Core 构建未包含）', 'error');
+                return;
+            }
+            const emailEnabled = document.getElementById('email-toggle').classList.contains('active');
+            const wechatEnabled = document.getElementById('wechat-toggle').classList.contains('active');
+            const emailCfg = {
+                smtpHost: document.getElementById('email-smtp').value.trim(),
+                smtpPort: parseInt(document.getElementById('email-port').value) || 587,
+                username: document.getElementById('email-username').value.trim(),
+                password: document.getElementById('email-password').value,
+                from: document.getElementById('email-from').value.trim(),
+                to: splitAddrs(document.getElementById('email-to').value),
+                useTLS: true,
+                skipVerify: false
             };
-            console.log('保存通知设置:', settings);
-            showToast('通知设置已保存', 'success');
+            const wechatCfg = { webhookUrl: document.getElementById('wechat-webhook').value.trim() };
+            if (emailEnabled && (!emailCfg.smtpHost || emailCfg.to.length === 0)) {
+                showToast('请填写 SMTP 服务器与收件人邮箱', 'error');
+                return;
+            }
+            if (wechatEnabled && !wechatCfg.webhookUrl) {
+                showToast('请填写企业微信 Webhook URL', 'error');
+                return;
+            }
+            try {
+                await upsertChannel('email-main', '邮件通知', 'email', emailEnabled, emailCfg);
+                await upsertChannel('wechat-main', '企业微信', 'wechat', wechatEnabled, wechatCfg);
+                showToast('通知设置已保存', 'success');
+            } catch (e) {
+                showToast('保存失败: ' + e.message, 'error');
+            }
         }
         
-        // 测试通知
-        function testNotification(channel) {
-            showToast(`正在发送${channel === 'email' ? '邮件' : '微信'}测试通知...`, 'info');
-            setTimeout(() => {
-                showToast('测试通知已发送', 'success');
-            }, 1500);
+        // 测试通知（真实发送到已保存的渠道）
+        async function testNotification(channel) {
+            if (!hasNotificationCenter) {
+                showToast('通知中心需要 Full 构建', 'error');
+                return;
+            }
+            const id = channel === 'email' ? 'email-main' : 'wechat-main';
+            const label = channel === 'email' ? '邮件' : '微信';
+            try {
+                const r = await apiFetch('/notifications/channels/' + id + '/test', { method: 'POST' });
+                if (!r.ok) throw new Error(extractErr(r));
+                showToast(label + '测试通知已发送，请查收', 'success');
+            } catch (e) {
+                showToast(label + '测试失败: ' + e.message, 'error');
+            }
+        }
+
+        // ========== 浏览器推送（接 /webpush/*，Full 构建）==========
+        let pushPublicKey = '';
+
+        function urlBase64ToUint8Array(b64) {
+            const padding = '='.repeat((4 - b64.length % 4) % 4);
+            const base64 = (b64 + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const raw = atob(base64);
+            const arr = new Uint8Array(raw.length);
+            for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+            return arr;
+        }
+
+        function renderPushStatus(center, subs, error) {
+            const box = document.getElementById('push-status');
+            if (error) {
+                box.innerHTML = '<div class="alert alert-error"><div>' + escHtml(error) + '</div></div>';
+                return;
+            }
+            if (!center) {
+                box.innerHTML = '<div class="alert alert-info"><div><strong>当前 Core 构建不含通知中心</strong><br>浏览器推送需要 Full 构建（-tags nasd_full）</div></div>';
+                return;
+            }
+            if (subs > 0) {
+                box.innerHTML = '<div class="alert alert-success"><div><strong>已订阅 ' + subs + ' 台浏览器</strong><br>系统通知将推送到这些设备，即使页面已关闭</div></div>';
+            } else {
+                box.innerHTML = '<div class="alert alert-info"><div><strong>尚未订阅</strong><br>点击「订阅此浏览器」接收系统通知。订阅需通过 HTTPS 或 localhost 访问（可在「系统更新」页一键启用 HTTPS）</div></div>';
+            }
+        }
+
+        async function loadPushStatus() {
+            try {
+                const r = await apiFetch('/webpush/status');
+                if (r.status === 404) { renderPushStatus(false, 0); return; }
+                if (!r.ok) throw new Error(extractErr(r));
+                const st = (r.data && r.data.data) || {};
+                pushPublicKey = st.publicKey || '';
+                renderPushStatus(true, st.subscriptions || 0);
+            } catch (e) {
+                renderPushStatus(true, 0, e.message);
+            }
+        }
+
+        async function enablePush() {
+            if (!pushPublicKey) { showToast('推送服务未就绪', 'error'); return; }
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                showToast('此浏览器不支持 Web Push', 'error');
+                return;
+            }
+            if (typeof Notification === 'undefined') {
+                showToast('此浏览器不支持系统通知', 'error');
+                return;
+            }
+            if (window.isSecureContext === false) {
+                showToast('订阅需 HTTPS 或 localhost 访问（可在「系统更新」页一键启用 HTTPS）', 'error');
+                return;
+            }
+            try {
+                const perm = await Notification.requestPermission();
+                if (perm !== 'granted') { showToast('通知权限未授予', 'error'); return; }
+                const reg = await navigator.serviceWorker.register('/sw.js');
+                await navigator.serviceWorker.ready;
+                const sub = await reg.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(pushPublicKey)
+                });
+                const r = await apiFetch('/webpush/subscribe', { method: 'POST', json: sub.toJSON() });
+                if (!r.ok) throw new Error(extractErr(r));
+                showToast('订阅成功，关闭页面后也能收到通知', 'success');
+                loadPushStatus();
+            } catch (e) {
+                showToast('订阅失败: ' + e.message, 'error');
+            }
+        }
+
+        async function disablePush() {
+            try {
+                const reg = await navigator.serviceWorker.getRegistration();
+                if (reg) {
+                    const sub = await reg.pushManager.getSubscription();
+                    if (sub) {
+                        await apiFetch('/webpush/unsubscribe', { method: 'POST', json: { endpoint: sub.endpoint } });
+                        await sub.unsubscribe();
+                    }
+                }
+                showToast('已退订', 'success');
+                loadPushStatus();
+            } catch (e) {
+                showToast('退订失败: ' + e.message, 'error');
+            }
+        }
+
+        async function testPush() {
+            try {
+                const r = await apiFetch('/webpush/test', { method: 'POST', json: {} });
+                if (!r.ok) throw new Error(extractErr(r));
+                showToast('测试推送已发送', 'success');
+            } catch (e) {
+                showToast('推送失败: ' + e.message, 'error');
+            }
         }
         
         // ========== 系统更新（接真实后端 /system/updates）==========
@@ -1759,6 +1961,8 @@
             loadSystemInfo();
             loadUpdateSettings();
             loadTLSStatus();
+            loadNotificationSettings();
+            loadPushStatus();
         });
     </script>
 </body>

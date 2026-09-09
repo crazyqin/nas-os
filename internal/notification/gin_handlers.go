@@ -282,8 +282,9 @@ func (h *GinHandler) TestChannel(c *gin.Context) {
 		Category: "test",
 	}
 
-	registry := NewSenderRegistry()
-	sender, ok := registry.Get(channel.Type)
+	// 用服务自身的发送器注册表：注入型渠道（websocket/webpush）只在服务 registry 里，
+	// 新建 registry 会永远测不到它们.
+	sender, ok := h.service.senderRegistry.Get(channel.Type)
 	if !ok || sender == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "unsupported channel type: " + string(channel.Type)})
 		return

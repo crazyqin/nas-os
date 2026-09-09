@@ -69,6 +69,7 @@ import (
 	"nas-os/internal/vm"
 	"nas-os/internal/webdav"
 	"nas-os/internal/webhook"
+	"nas-os/internal/webpush"
 	"nas-os/internal/webterminal"
 	"nas-os/internal/webtls"
 	"nas-os/internal/wol"
@@ -252,6 +253,7 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	var versioningMgr *versioning.Manager
 	var vmMgr *vm.Manager
 	var webhookMgr *webhook.Manager
+	var webpushMgr *webpush.Manager
 	var webterminalMgr *webterminal.Manager
 	var wolMgr *wol.Manager
 	// Product surface: per-product managers only when that product is wanted.
@@ -627,11 +629,42 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 			webterminalMgr = webterminal.NewManager()
 			log.Println("✅ Web终端模块就绪")
 
+			// 初始化浏览器 Web Push（VAPID）推送管理器
+			webpushMgr = webpush.NewManager(cfg.DataPath("webpush"))
+			if err := webpushMgr.Load(); err != nil {
+				log.Printf("⚠️ Web Push 初始化失败: %v", err)
+			} else {
+				log.Println("✅ Web Push 模块就绪")
+			}
+
 			// 初始化通知中心服务（对标群晖 Notification Center）
-			notificationSvc, err = notification.NewService(nil)
+			notificationSvc, err = notification.NewService(&notification.ServiceConfig{
+				DefaultRetryCount:    3,
+				DefaultRetryInterval: 5 * time.Minute,
+				MaxHistoryDays:       30,
+				MaxConcurrent:        10,
+				StoragePath:          cfg.DataPath("notification"),
+			})
 			if err != nil {
 				log.Printf("⚠️ 通知中心初始化失败: %v", err)
 			} else {
+				if serr := notificationSvc.Start(); serr != nil {
+					log.Printf("⚠️ 通知中心加载渠道失败: %v", serr)
+				}
+				if webpushMgr != nil {
+					// Web Push 作为通知中心渠道注入（订阅由 /webpush 端点管理）
+					notificationSvc.RegisterChannelSender(webpush.NewSender(webpushMgr))
+					if len(notificationSvc.GetChannelManager().ListChannels(notification.ChannelWebPush)) == 0 {
+						_ = notificationSvc.AddChannel(&notification.ChannelConfig{
+							ID:          "webpush-browsers",
+							Name:        "浏览器推送",
+							Type:        notification.ChannelWebPush,
+							Enabled:     true,
+							Description: "全部已订阅浏览器（自动创建）",
+							Config:      map[string]interface{}{},
+						})
+					}
+				}
 				log.Println("✅ 通知中心模块就绪")
 			}
 
@@ -841,6 +874,7 @@ func NewServer(cfg *config.Config, modules []arch.Module, storMgr *storage.Manag
 	s.setHolder("thermalMgr", thermalMgr)
 	s.setHolder("fileindexMgr", fileindexMgr)
 	s.setHolder("webterminalMgr", webterminalMgr)
+	s.setHolder("webpushMgr", webpushMgr)
 	s.setHolder("notificationSvc", notificationSvc)
 	s.setHolder("containResMonMgr", containResMonMgr)
 	s.setHolder("dataClassifyMgr", dataClassifyMgr)
