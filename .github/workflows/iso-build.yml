@@ -12,6 +12,10 @@ name: ISO Build
 
 on:
   workflow_dispatch:
+  # 分支验证期：push 即构建；合并后可移除（保留 workflow_dispatch）
+  push:
+    branches:
+      - feat/iso-installer
 
 permissions:
   contents: read
