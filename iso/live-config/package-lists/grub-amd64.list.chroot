@@ -1,5 +1,7 @@
-# amd64 引导加载器：BIOS (isolinux + grub-pc) + UEFI (grub-efi-amd64, fallback 路径)
+# amd64 引导加载器：BIOS (isolinux + grub-pc-bin) + UEFI (grub-efi-amd64-bin)
+# 注意：grub-pc 与 grub-efi-amd64 元包互斥，用 -bin 变体 + grub2-common 共存
 syslinux
 syslinux-common
-grub-pc
-grub-efi-amd64
+grub2-common
+grub-pc-bin
+grub-efi-amd64-bin

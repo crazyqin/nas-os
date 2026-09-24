@@ -35,6 +35,10 @@ export LC_ALL=C.UTF-8
 echo ">>> [1/6] 安装 live-build 工具链（含 recommends: xorriso/mtools 等）"
 apt-get update -qq
 apt-get install -y -qq live-build rsync >/dev/null
+if [ "$ARCH" = arm64 ]; then
+  # 异架构：qemu-user-static（含 binfmt 注册）让 debootstrap/dpkg 在 amd64 容器里跑 arm64
+  apt-get install -y -qq qemu-user-static >/dev/null
+fi
 echo "live-build 版本: $(dpkg-query -W -f='${Version}' live-build)"
 # 参考：合法 bootloader 值随 live-build 版本/架构而异，输出校验源位置便于排障
 grep -rn "not a valid bootloader" /usr/share/live/build/ 2>/dev/null | head -2 || true
@@ -58,6 +62,11 @@ case "$ARCH" in
 esac
 
 CONFIGURED=0
+QEMU_OPTS=()
+if [ "$ARCH" = arm64 ]; then
+  # 异架构构建：live-build 需显式 qemu 指引，否则 bootstrap 阶段会被跳过（foreign architecture）
+  QEMU_OPTS=(--bootstrap-qemu-arch arm64 --bootstrap-qemu-static /usr/bin/qemu-aarch64-static)
+fi
 for BL in "${BOOTLOADER_CANDIDATES[@]}"; do
   rm -rf "$WORK/config"
   if lb config \
@@ -72,7 +81,8 @@ for BL in "${BOOTLOADER_CANDIDATES[@]}"; do
     --mirror-bootstrap "$MIRROR" \
     --mirror-chroot "$MIRROR" \
     --mirror-binary "$MIRROR" \
-    --bootappend-live "$BOOTAPPEND" 2>&1; then
+    --bootappend-live "$BOOTAPPEND" \
+    "${QEMU_OPTS[@]}" 2>&1; then
     echo ">>> lb config 成功 (bootloaders='$BL')"
     CONFIGURED=1
     break
