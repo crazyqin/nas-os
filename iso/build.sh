@@ -46,8 +46,8 @@ cd "$WORK"
 echo ">>> [3/6] lb config ($ARCH, bookworm)"
 case "$ARCH" in
   amd64)
-    # 已验证合法值：syslinux(BIOS) + grub(UEFI via hybrid)
-    BOOTLOADER_CANDIDATES=("syslinux grub")
+    # bookworm live-build 已无裸 'grub' 值：BIOS=syslinux + UEFI=grub-efi
+    BOOTLOADER_CANDIDATES=("syslinux grub-efi" "grub-efi" "syslinux")
     BOOTAPPEND="hostname=nasos console=tty0 console=ttyS0,115200n8"
     ;;
   arm64)
