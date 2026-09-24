@@ -113,13 +113,16 @@ sed 's/^\([[:space:]]*host:[[:space:]]*\)127\.0\.0\.1[[:space:]]*$/\10.0.0.0/' \
 mkdir -p "$WORK/config/package-lists"
 cp "$SRC/iso/live-config/package-lists/nas-os.list.chroot" "$WORK/config/package-lists/"
 cp "$SRC/iso/live-config/package-lists/grub-$ARCH.list.chroot" "$WORK/config/package-lists/grub.list.chroot"
-# 钩子（bookworm live-build 新布局：chroot 阶段 config/hooks/normal/，
-# binary 阶段 config/hooks/binary/；顶层 config/hooks/ 已不被执行，勿回退）
-mkdir -p "$WORK/config/hooks/normal" "$WORK/config/hooks/binary"
+# 钩子（bookworm live-build 布局陷阱，实证 1:20230131 源码，gitlab debdistutils 镜像 tag debian/1%2020230131）：
+# chroot_hooks 只扫 config/hooks/normal|live/*.chroot；binary_hooks 只扫
+# config/hooks/normal|live/*.binary——live-manual 文档写的 config/hooks/binary/，
+# 但 binary_hooks 源码根本不看该目录（静默跳过，2026-09-24 冒烟卡菜单的根因）。
+# 因此 binary 钩子也必须放进 normal/（.hook.binary 后缀不匹配 *.chroot，chroot 阶段不会误执行）。
+mkdir -p "$WORK/config/hooks/normal"
 cp "$SRC"/iso/live-config/hooks/normal/*.hook.chroot "$WORK/config/hooks/normal/"
-cp "$SRC"/iso/live-config/hooks/binary/*.hook.binary "$WORK/config/hooks/binary/"
-chmod 0755 "$WORK/config/hooks/normal/"*.hook.chroot "$WORK/config/hooks/binary/"*.hook.binary
-echo ">>> NAS-OS: 钩子就位 normal=$(ls "$WORK/config/hooks/normal") binary=$(ls "$WORK/config/hooks/binary")"
+cp "$SRC"/iso/live-config/hooks/binary/*.hook.binary "$WORK/config/hooks/normal/"
+chmod 0755 "$WORK/config/hooks/normal/"*.hook.chroot "$WORK/config/hooks/normal/"*.hook.binary
+echo ">>> NAS-OS: 钩子就位 normal/=$(ls "$WORK/config/hooks/normal" | tr '\n' ' ')"
 
 echo ">>> [5/6] lb build（chroot 组装 + squashfs + ISO，arm64 交叉模拟下约 30-60 分钟）"
 lb build 2>&1 | tee "$WORK/lb-build.log"

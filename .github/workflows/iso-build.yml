@@ -134,7 +134,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nas-os-smoke-amd64-serial
-          path: serial-*.log
+          path: serial*.log
           if-no-files-found: ignore
 
   smoke-arm64:

@@ -5,9 +5,11 @@
 # 无头设备（CI 冒烟、无键盘的服务器）会永远停在菜单上不引导。
 # NAS-OS 是家电式系统：倒计时自动进 live（试用/安装）符合产品预期。
 #
-# 布局：bookworm live-build 新钩子体系，binary 钩子位于
-# config/hooks/binary/，在 binary 阶段（ISO 生成前）对 binary/ 树操作。
-# 钩子执行时 CWD 不做假设，对常见根探测后按内容修补。
+# 布局：bookworm live-build 陷阱——binary_hooks 源码只扫 config/hooks/normal|live/*.binary，
+# 根本不看 live-manual 文档写的 config/hooks/binary/（曾因此静默不执行，冒烟卡死菜单）。
+# 故本钩子由 build.sh 放进 config/hooks/normal/（.binary 后缀不会被 chroot 阶段误扫）。
+# 钩子执行时 CWD 已在 binary/ 树（binary_hooks 源码：cd binary 后 ../<hook> 执行），
+# 仍做双 CWD 探测以容错。
 set -e
 
 find_root() {
