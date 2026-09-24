@@ -113,10 +113,13 @@ sed 's/^\([[:space:]]*host:[[:space:]]*\)127\.0\.0\.1[[:space:]]*$/\10.0.0.0/' \
 mkdir -p "$WORK/config/package-lists"
 cp "$SRC/iso/live-config/package-lists/nas-os.list.chroot" "$WORK/config/package-lists/"
 cp "$SRC/iso/live-config/package-lists/grub-$ARCH.list.chroot" "$WORK/config/package-lists/grub.list.chroot"
-# chroot 钩子
-mkdir -p "$WORK/config/hooks"
-cp "$SRC/iso/live-config/hooks/"*.hook.chroot "$WORK/config/hooks/"
-chmod 0755 "$WORK/config/hooks/"*.hook.chroot
+# 钩子（bookworm live-build 新布局：chroot 阶段 config/hooks/normal/，
+# binary 阶段 config/hooks/binary/；顶层 config/hooks/ 已不被执行，勿回退）
+mkdir -p "$WORK/config/hooks/normal" "$WORK/config/hooks/binary"
+cp "$SRC"/iso/live-config/hooks/normal/*.hook.chroot "$WORK/config/hooks/normal/"
+cp "$SRC"/iso/live-config/hooks/binary/*.hook.binary "$WORK/config/hooks/binary/"
+chmod 0755 "$WORK/config/hooks/normal/"*.hook.chroot "$WORK/config/hooks/binary/"*.hook.binary
+echo ">>> NAS-OS: 钩子就位 normal=$(ls "$WORK/config/hooks/normal") binary=$(ls "$WORK/config/hooks/binary")"
 
 echo ">>> [5/6] lb build（chroot 组装 + squashfs + ISO，arm64 交叉模拟下约 30-60 分钟）"
 lb build 2>&1 | tee "$WORK/lb-build.log"

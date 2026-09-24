@@ -1,0 +1,67 @@
+#!/bin/sh
+# NAS-OS binary 钩子：让 ISO 自动引导默认启动项（3 秒）。
+#
+# 背景：live-build 生成的 GRUB/syslinux 菜单默认无限等待人工选择，
+# 无头设备（CI 冒烟、无键盘的服务器）会永远停在菜单上不引导。
+# NAS-OS 是家电式系统：倒计时自动进 live（试用/安装）符合产品预期。
+#
+# 布局：bookworm live-build 新钩子体系，binary 钩子位于
+# config/hooks/binary/，在 binary 阶段（ISO 生成前）对 binary/ 树操作。
+# 钩子执行时 CWD 不做假设，对常见根探测后按内容修补。
+set -e
+
+find_root() {
+    # 依次探测 binary/ 树（CWD=构建根）或当前树（CWD=binary/）
+    for d in binary/boot/grub boot/grub binary/isolinux isolinux; do
+        if [ -d "$d" ] || [ -f "$d/grub.cfg" ] || [ -f "$d/isolinux.cfg" ]; then
+            echo "$d"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# ---- GRUB（amd64 UEFI 部分 + arm64 全部）----
+fix_grub() {
+    for f in $(find . -maxdepth 4 -name grub.cfg 2>/dev/null); do
+        FOUND=1
+        echo ">>> NAS-OS: 处理 $f"
+        if grep -Eq '^[[:space:]]*set[[:space:]]+timeout' "$f"; then
+            sed -i -E 's/^([[:space:]]*set[[:space:]]+timeout[[:space:]]*=).*/\13/' "$f"
+        else
+            sed -i '1i set timeout=3' "$f"
+        fi
+        grep -n 'set timeout' "$f" || true
+    done
+}
+
+# ---- syslinux/isolinux（amd64 BIOS 部分）----
+fix_isolinux() {
+    for f in $(find . -maxdepth 4 \( -name isolinux.cfg -o -name syslinux.cfg -o -name stdmenu.cfg \) 2>/dev/null); do
+        case "$f" in *stdmenu.cfg) continue ;; esac
+        FOUND=1
+        echo ">>> NAS-OS: 处理 $f"
+        # TIMEOUT 单位 0.1s；PROMPT 0 = 不等待交互提示
+        if grep -Eq '^[[:space:]]*TIMEOUT' "$f"; then
+            sed -i -E 's/^([[:space:]]*TIMEOUT[[:space:]]+).*/\130/I' "$f"
+        else
+            printf '\nTIMEOUT 30\n' >> "$f"
+        fi
+        if grep -Eq '^[[:space:]]*PROMPT' "$f"; then
+            sed -i -E 's/^([[:space:]]*PROMPT[[:space:]]+).*/\10/I' "$f"
+        fi
+        grep -niE '^(TIMEOUT|PROMPT)' "$f" || true
+    done
+}
+
+# CWD 可能在构建根（存在 binary/），也可能就在 binary/ 本身
+if [ -d binary ]; then
+    cd binary
+fi
+
+FOUND=0
+fix_grub
+fix_isolinux
+[ "$FOUND" = 1 ] || echo ">>> NAS-OS: 警告——未找到任何引导配置可修补（检查钩子执行时机）" 1>&2
+
+echo ">>> NAS-OS: binary 钩子完成（自动引导 3 秒倒计时）"

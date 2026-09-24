@@ -55,3 +55,4 @@ __pycache__/
 # ISO 构建产物
 iso-bin/
 dist/
+issue-22-draft.md
