@@ -1,0 +1,230 @@
+#!/bin/bash
+# NAS-OS 裸机安装器（在 live 安装环境中运行）
+#
+# 流程: 选盘 → 确认清盘 → GPT(ESP+root) → 复制 live 根文件系统 →
+#       chroot 清理 live 组件 / 装 GRUB / 启用服务 → 重启
+# 特性: 全程离线（不依赖网络），安装后 Web 初始化。
+set -euo pipefail
+
+LOG=/tmp/nasos-install.log
+TARGET_MNT=/mnt/nasos-target
+
+say()   { echo "[nasos-install] $*"; }
+die()   { echo "[nasos-install] 错误: $*" | tee -a "$LOG" >&2; exit 1; }
+
+cleanup() {
+  local rc=$?
+  if mountpoint -q "$TARGET_MNT" 2>/dev/null; then
+    umount -R "$TARGET_MNT" 2>/dev/null || true
+  fi
+  exit $rc
+}
+trap cleanup EXIT INT TERM
+
+whip() { whiptail "$@"; }
+
+# ---------------------------------------------------------------- 前置检查
+[ "$(id -u)" = 0 ] || die "请以 root 运行（live 控制台已自动登录 root）"
+command -v whiptail >/dev/null || die "缺少 whiptail"
+[ -d /run/live ] || die "本工具只能在 NAS-OS live 安装环境中运行（当前已是安装到磁盘的系统）"
+command -v rsync >/dev/null || die "缺少 rsync"
+
+echo "=== NAS-OS 安装 $(date) ===" > "$LOG"
+
+whip --title "NAS-OS 裸机安装" --yesno \
+"将把 NAS-OS 安装到内置硬盘。
+
+流程：
+  1. 选择目标磁盘（会被完全清空！）
+  2. 设置主机名与 root 密码
+  3. 复制系统并安装引导（全程离线，约 1-5 分钟）
+  4. 重启后浏览器访问 http://<设备IP>:8080 初始化
+
+当前处于 live 试用模式，安装不会影响 ISO 介质本身。
+
+是否继续？" 20 78 || { say "已取消。"; exit 0; }
+
+# ---------------------------------------------------------------- 磁盘选择
+# 排除 live 介质所在磁盘、回环与内存盘
+MEDIUM_DEV="$(findmnt -n -o SOURCE /run/live/medium 2>/dev/null || true)"
+MEDIUM_DISK=""
+if [ -n "$MEDIUM_DEV" ]; then
+  MEDIUM_DISK="$(lsblk -dn -o PKNAME "$MEDIUM_DEV" 2>/dev/null | tail -n1 || true)"
+fi
+say "live 介质: ${MEDIUM_DEV:-未知}（所在磁盘: ${MEDIUM_DISK:-无/光驱}）" | tee -a "$LOG"
+
+DISK_MENU=()
+while read -r name size type model; do
+  [ "$type" = "disk" ] || continue
+  case "$name" in loop*|ram*|zram*) continue ;; esac
+  desc="/dev/$name  $size  ${model:-}"
+  if [ "$name" = "$MEDIUM_DISK" ]; then
+    desc="$desc  [安装介质，已排除]"
+  else
+    DISK_MENU+=("$name" "$desc" "off")
+  fi
+done < <(lsblk -dn -o NAME,SIZE,TYPE,MODEL)
+
+[ "${#DISK_MENU[@]}" -ge 3 ] || die "没有可用的目标磁盘（内置盘均被排除？）"
+
+DISK=$(whip --title "选择目标磁盘" --radiolist \
+"选择要安装 NAS-OS 的磁盘（该盘数据将被完全清除）：" 20 78 8 "${DISK_MENU[@]}" 3>&1 1>&2 2>&3) || die "未选择磁盘"
+DISK="/dev/$DISK"
+say "目标磁盘: $DISK" | tee -a "$LOG"
+
+DISK_DESC="$(lsblk -dn -o SIZE,MODEL,TRAN "$DISK" 2>/dev/null | head -n1)"
+whip --title "确认清盘" --yesno --defaultno \
+"即将完全清空：
+
+  $DISK  ${DISK_DESC}
+
+该盘上的所有分区和数据都会丢失，且无法恢复。
+
+确定继续？" 12 78 || { say "已取消。"; exit 0; }
+
+# ---------------------------------------------------------------- 主机名 / 密码
+HOSTNAME=$(whip --title "主机名" --inputbox \
+"设置系统主机名（局域网内可通过 http://<主机名>.local:8080 访问）：" 10 60 "nasos" 3>&1 1>&2 2>&3) || die "已取消"
+HOSTNAME="$(echo "$HOSTNAME" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-')"
+[ -n "$HOSTNAME" ] || HOSTNAME=nasos
+
+while :; do
+  PW1=$(whip --title "root 密码" --passwordbox "为安装后的系统设置 root 控制台密码：" 10 60 3>&1 1>&2 2>&3) || die "已取消"
+  PW2=$(whip --title "确认密码" --passwordbox "再次输入 root 密码：" 10 60 3>&1 1>&2 2>&3) || die "已取消"
+  [ "$PW1" = "$PW2" ] && [ -n "$PW1" ] && break
+  whip --title "密码不一致" --msgbox "两次输入不一致或为空，请重试。" 8 50
+done
+ROOT_PW="$PW1"; unset PW1 PW2
+
+# ---------------------------------------------------------------- 分区 / 格式化
+whip --title "安装中" --infobox "正在对 $DISK 分区并格式化……" 8 60
+
+part_suffix() { case "$1" in *[0-9]) echo p ;; *) echo "" ;; esac; }
+SUF="$(part_suffix "${DISK#/dev/}")"
+PART_EFI="$DISK$SUF"1
+PART_ROOT="$DISK$SUF"2
+
+{
+  sgdisk --zap-all "$DISK"
+  sgdisk -n 1:0:+512M -t 1:ef00 -c 1:ESP "$DISK"
+  sgdisk -n 2:0:0    -t 2:8300 -c 2:ROOT "$DISK"
+  partprobe "$DISK"
+  udevadm settle
+  sleep 2
+  mkfs.vfat -F 32 -n NASOS-ESP "$PART_EFI"
+  mkfs.btrfs -f -L NASOS-ROOT "$PART_ROOT"
+} >> "$LOG" 2>&1 || die "分区/格式化失败（详见 $LOG）"
+
+mkdir -p "$TARGET_MNT"
+mount "$PART_ROOT" "$TARGET_MNT"
+mkdir -p "$TARGET_MNT/boot/efi"
+mount "$PART_EFI" "$TARGET_MNT/boot/efi"
+
+# ---------------------------------------------------------------- 复制系统
+whip --title "安装中" --infobox "正在复制系统到 $DISK（约 1-5 分钟，请勿断电）……" 8 60
+
+rsync -aHx \
+  --exclude='/mnt/*' --exclude='/tmp/*' --exclude='/var/tmp/*' \
+  --exclude='/media/*' --exclude='/proc/*' --exclude='/sys/*' \
+  --exclude='/dev/*' --exclude='/run/*' --exclude='/lost+found/*' \
+  / "$TARGET_MNT" >> "$LOG" 2>&1 || die "系统复制失败（详见 $LOG）"
+
+# ---------------------------------------------------------------- fstab
+ROOT_UUID="$(blkid -s UUID -o value "$PART_ROOT")"
+EFI_UUID="$(blkid -s UUID -o value "$PART_EFI")"
+cat > "$TARGET_MNT/etc/fstab" <<EOF
+# NAS-OS 安装于 $(date '+%Y-%m-%d %H:%M')
+UUID=$ROOT_UUID  /          btrfs  defaults,noatime       0 1
+UUID=$EFI_UUID   /boot/efi  vfat   umask=0077             0 2
+tmpfs            /tmp       tmpfs  defaults,nosuid,nodev  0 0
+EOF
+
+# ---------------------------------------------------------------- chroot 收尾
+whip --title "安装中" --infobox "正在安装引导加载器并启用服务……" 8 60
+
+INNER="$TARGET_MNT/root/.nasos-post-install.sh"
+cat > "$INNER" <<'EOS'
+#!/bin/bash
+set -euo pipefail
+DISK="${NASOS_DISK:?}"
+ARCH="$(dpkg --print-architecture)"
+
+# machine-id 清零（首启重新生成，避免磁盘克隆冲突）
+: > /etc/machine-id
+
+# SSH 主机密钥重新生成（live 生成的不能带到正式系统）
+rm -f /etc/ssh/ssh_host_*
+ssh-keygen -A >/dev/null 2>&1
+
+# 移除 live 专用的自动登录配置
+rm -rf /etc/systemd/system/getty@tty1.service.d \
+       /etc/systemd/system/serial-getty@.service.d
+
+# 卸载 live 组件并重生成 initramfs（去掉 live-boot 钩子）
+apt-get purge -y live-boot live-config live-config-systemd >/dev/null 2>&1 || true
+rm -rf /etc/live /etc/live-build /lib/live
+
+# 主机名 / hosts
+echo "$NASOS_HOSTNAME" > /etc/hostname
+cat > /etc/hosts <<EOH
+127.0.0.1   localhost
+127.0.1.1   $NASOS_HOSTNAME
+::1         localhost ip6-localhost ip6-loopback
+EOH
+
+# root 密码
+printf 'root:%s\n' "$NASOS_ROOT_PW" | chpasswd
+
+# 引导加载器
+if [ "$ARCH" = "amd64" ]; then
+  grub-install --target=i386-pc "$DISK"
+  grub-install --target=x86_64-efi --efi-directory=/boot/efi --removable
+else
+  grub-install --target=arm64-efi --efi-directory=/boot/efi --removable
+fi
+update-grub
+update-initramfs -u
+
+# 服务
+systemctl enable nas-os.service avahi-daemon.service \
+  systemd-networkd.service systemd-resolved.service \
+  ssh.service systemd-timesyncd.service 2>&1 || true
+systemctl disable networking.service 2>/dev/null || true
+ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+
+echo "post-install ok"
+EOS
+chmod 0700 "$INNER"
+
+env NASOS_DISK="$DISK" NASOS_HOSTNAME="$HOSTNAME" NASOS_ROOT_PW="$ROOT_PW" \
+  chroot "$TARGET_MNT" /bin/bash /root/.nasos-post-install.sh >> "$LOG" 2>&1 \
+  || { tail -n 30 "$LOG"; die "chroot 收尾失败（详见 $LOG）"; }
+rm -f "$INNER"
+unset ROOT_PW
+
+sync
+umount -R "$TARGET_MNT"
+
+# ---------------------------------------------------------------- 完成
+IP=$(ip -4 -o addr show scope global 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | head -n1)
+URL="http://${IP:-<设备IP>}:8080"
+
+whip --title "安装完成" --msgbox \
+"NAS-OS 已安装到 $DISK。
+
+重启后：
+  • 浏览器访问  $URL
+  • 主机名      ${HOSTNAME}（可试 http://${HOSTNAME}.local:8080）
+  • 初始管理员  用户名 admin
+                密码: cat /etc/nas-os/.admin_password
+                （首次登录会强制改密）
+  • 控制台登录  root / 你刚才设置的密码
+
+是否立即重启进入新系统？" 18 70
+
+if whip --title "重启" --yesno "立即重启进入已安装的 NAS-OS？" 8 50; then
+  say "重启中……"
+  systemctl reboot
+else
+  say "已保留在 live 环境（可继续试用或手动重启）。"
+fi

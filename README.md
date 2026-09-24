@@ -387,10 +387,19 @@ docker compose logs -f
 ### 裸机安装
 ```bash
 # 一键安装脚本
+# 适用于已有 Debian/Ubuntu 系统
 curl -fsSL https://raw.githubusercontent.com/crazyqin/nas-os/master/scripts/install.sh | sudo bash
 
 # 或手动安装
 sudo ./scripts/install.sh
+```
+
+### 安装 ISO（从零安装到空盘）
+
+提供可引导安装盘：Live 试用 → 控制台 `nasos-install` 离线安装 → 浏览器初始化。
+支持 amd64（BIOS+UEFI）与 arm64（UEFI），详见 [iso/README.md](iso/README.md)。
+```bash
+make iso   # 本地构建（需 docker）；正式产物见 GitHub Actions "ISO Build" 工作流
 ```
 
 ### 系统服务

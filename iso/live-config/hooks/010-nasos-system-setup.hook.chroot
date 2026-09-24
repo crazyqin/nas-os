@@ -1,0 +1,21 @@
+#!/bin/sh
+# NAS-OS chroot 钩子：启用服务、网络基础配置
+set -e
+
+echo ">>> NAS-OS: 启用系统服务"
+systemctl enable nas-os.service avahi-daemon.service \
+  systemd-networkd.service systemd-resolved.service \
+  ssh.service systemd-timesyncd.service 2>&1 || true
+
+# 避免传统 ifupdown 与 systemd-networkd 争抢接口（若存在）
+systemctl disable networking.service 2>/dev/null || true
+
+# systemd-resolved：resolv.conf 指向 stub
+ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+
+# mDNS 名称解析（nasos.local），libnss-mdns 不自动改 nsswitch
+if ! grep -q 'mdns4_minimal' /etc/nsswitch.conf 2>/dev/null; then
+  sed -i 's/^hosts:.*/hosts: files mdns4_minimal [NOTFOUND=continue] dns mdns4/' /etc/nsswitch.conf || true
+fi
+
+echo ">>> NAS-OS: chroot 钩子完成"

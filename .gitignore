@@ -51,3 +51,7 @@ nasctl
 # Python 字节码
 __pycache__/
 *.pyc
+
+# ISO 构建产物
+iso-bin/
+dist/

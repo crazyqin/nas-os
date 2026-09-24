@@ -1,0 +1,121 @@
+# NAS-OS 裸机安装 ISO 构建
+#
+# 产物: dist/nas-os-<version>-{amd64,arm64}.iso（Debian bookworm live 系统 + nasos-install 离线安装器）
+# 触发: 手动 workflow_dispatch（v1；正式发布节奏由维护者决定后续是否挂 tag）
+#
+# 验证: amd64 ISO 在 QEMU 中真实引导，轮询 WebUI 健康端点 /api/v1/system/health
+#       arm64 交叉模拟构建仅出制品（真机引导验证由维护者在 arm64 KVM 环境执行）
+#
+# v1 范围: 单盘安装；Secure Boot 需关闭；arm64 仅 UEFI（无 u-boot/SD 支持）
+
+name: ISO Build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GO_VERSION: '1.26.1'
+
+jobs:
+  build:
+    name: Build ISO (${{ matrix.arch }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+
+      - name: Build nasd/nasctl binaries
+        run: ./iso/prepare-binaries.sh ${{ matrix.arch }}
+
+      - name: Register QEMU binfmt (arm64 交叉模拟)
+        if: matrix.arch == 'arm64'
+        run: docker run --privileged --rm tonistiigi/binfmt --install arm64
+
+      - name: Build ISO (live-build in debian:bookworm)
+        run: docker run --rm -v "$PWD":/src debian:bookworm bash /src/iso/build.sh ${{ matrix.arch }}
+
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nas-os-iso-${{ matrix.arch }}
+          path: |
+            dist/*.iso
+            dist/*.sha256
+          retention-days: 14
+          if-no-files-found: error
+
+  smoke-amd64:
+    name: Smoke test (amd64 QEMU boot)
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Download ISO artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nas-os-iso-amd64
+
+      - name: Install QEMU
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq qemu-system-x86
+
+      - name: Boot ISO and probe WebUI health
+        run: |
+          ISO=$(ls nas-os-*-amd64.iso)
+          echo ">>> ISO: $ISO ($(stat -c%s "$ISO") bytes)"
+          sha256sum --check "$ISO.sha256"
+
+          # BIOS 引导 live ISO；串口落盘便于排障；hostfwd 将宿主 8080 转发给 WebUI
+          qemu-system-x86_64 \
+            -m 2048 -smp 2 \
+            -cdrom "$ISO" -boot d \
+            -display none -vga none \
+            -serial file:serial.log \
+            -nic user,model=e1000,hostfwd=tcp::8080-:8080 \
+            -pidfile qemu.pid &
+          QEMU_PID=$!
+          echo ">>> QEMU pid=$QEMU_PID，轮询 http://127.0.0.1:8080/api/v1/system/health（最长 8 分钟）…"
+
+          ok=0
+          for i in $(seq 1 96); do
+            if curl -sf -m 5 http://127.0.0.1:8080/api/v1/system/health >/dev/null 2>&1 \
+               || curl -sf -m 5 http://127.0.0.1:8080/api/v1/health >/dev/null 2>&1; then
+              ok=1; break
+            fi
+            # QEMU 意外退出立即失败
+            kill -0 "$QEMU_PID" 2>/dev/null || { echo "QEMU 进程已退出"; break; }
+            sleep 5
+          done
+
+          if [ "$ok" = 1 ]; then
+            echo ">>> 冒烟通过：live 系统已引导，nasd WebUI 健康端点可达"
+            curl -sf -m 5 http://127.0.0.1:8080/api/v1/system/health | head -c 400; echo
+          else
+            echo ">>> 冒烟失败，串口日志尾部："
+            tail -n 120 serial.log || true
+            exit 1
+          fi
+          kill "$QEMU_PID" 2>/dev/null || true
+
+      - name: Upload serial log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nas-os-smoke-amd64-serial
+          path: serial.log
+          if-no-files-found: ignore
