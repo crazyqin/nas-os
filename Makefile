@@ -197,7 +197,7 @@ ISO_ARCH?=amd64
 iso:
 	@echo "💽 构建裸机安装 ISO ($(ISO_ARCH))..."
 	./iso/prepare-binaries.sh $(ISO_ARCH)
-	docker run --rm -v "$$(pwd)":/src debian:bookworm bash /src/iso/build.sh $(ISO_ARCH)
+	docker run --privileged --rm -v "$$(pwd)":/src debian:bookworm bash /src/iso/build.sh $(ISO_ARCH)
 	@echo "✅ ISO 完成: dist/"
 
 iso-arm64:

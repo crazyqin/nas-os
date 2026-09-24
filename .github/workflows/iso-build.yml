@@ -50,7 +50,7 @@ jobs:
         run: docker run --privileged --rm tonistiigi/binfmt --install arm64
 
       - name: Build ISO (live-build in debian:bookworm)
-        run: docker run --rm -v "$PWD":/src debian:bookworm bash /src/iso/build.sh ${{ matrix.arch }}
+        run: docker run --privileged --rm -v "$PWD":/src debian:bookworm bash /src/iso/build.sh ${{ matrix.arch }}
 
       - name: Upload ISO artifact
         uses: actions/upload-artifact@v4

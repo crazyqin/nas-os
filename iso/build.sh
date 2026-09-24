@@ -34,40 +34,53 @@ export LC_ALL=C.UTF-8
 
 echo ">>> [1/6] 安装 live-build 工具链（含 recommends: xorriso/mtools 等）"
 apt-get update -qq
-apt-get install -y -qq live-build sudo rsync >/dev/null
+apt-get install -y -qq live-build rsync >/dev/null
+echo "live-build 版本: $(dpkg-query -W -f='${Version}' live-build)"
+# 参考：合法 bootloader 值随 live-build 版本/架构而异，输出校验源位置便于排障
+grep -rn "not a valid bootloader" /usr/share/live/build/ 2>/dev/null | head -2 || true
 
-echo ">>> [2/6] 准备构建目录与非 root 构建用户（live-build 官方要求非 root 运行）"
+echo ">>> [2/6] 准备构建目录（live-build lb build 要求 root，容器内直接 root 运行）"
 rm -rf "$WORK"; mkdir -p "$WORK"
-useradd -m builder 2>/dev/null || true
-printf 'builder ALL=(ALL) NOPASSWD: ALL\n' > /etc/sudoers.d/builder
-chmod 0440 /etc/sudoers.d/builder
-chown -R builder:builder "$WORK"
+cd "$WORK"
 
 echo ">>> [3/6] lb config ($ARCH, bookworm)"
 case "$ARCH" in
   amd64)
-    BOOTLOADERS="--bootloaders syslinux grub"
+    # 已验证合法值：syslinux(BIOS) + grub(UEFI via hybrid)
+    BOOTLOADER_CANDIDATES=("syslinux grub")
     BOOTAPPEND="hostname=nasos console=tty0 console=ttyS0,115200n8"
     ;;
   arm64)
-    BOOTLOADERS="--bootloaders grub"
+    # 无 BIOS：grub-efi；live-build 各版本命名有差异，多候选重试
+    BOOTLOADER_CANDIDATES=("grub-efi" "grub")
     BOOTAPPEND="hostname=nasos console=ttyAMA0,115200n8"
     ;;
 esac
 
-su builder -s /bin/bash -c "cd '$WORK' && lb config \
-  --architecture '$ARCH' \
-  --distribution bookworm \
-  --archive-areas 'main non-free-firmware' \
-  --binary-images iso-hybrid \
-  $BOOTLOADERS \
-  --debian-installer none \
-  --security true \
-  --updates true \
-  --mirror-bootstrap '$MIRROR' \
-  --mirror-chroot '$MIRROR' \
-  --mirror-binary '$MIRROR' \
-  --bootappend-live '$BOOTAPPEND'"
+CONFIGURED=0
+for BL in "${BOOTLOADER_CANDIDATES[@]}"; do
+  rm -rf "$WORK/config"
+  if lb config \
+    --architecture "$ARCH" \
+    --distribution bookworm \
+    --archive-areas 'main non-free-firmware' \
+    --binary-images iso-hybrid \
+    --bootloaders "$BL" \
+    --debian-installer none \
+    --security true \
+    --updates true \
+    --mirror-bootstrap "$MIRROR" \
+    --mirror-chroot "$MIRROR" \
+    --mirror-binary "$MIRROR" \
+    --bootappend-live "$BOOTAPPEND" 2>&1; then
+    echo ">>> lb config 成功 (bootloaders='$BL')"
+    CONFIGURED=1
+    break
+  else
+    echo ">>> lb config 失败 (bootloaders='$BL')，尝试下一候选…" >&2
+  fi
+done
+[ "$CONFIGURED" = 1 ] || { echo "错误: 所有 bootloader 候选均失败" >&2; exit 1; }
 
 echo ">>> [4/6] 叠加 NAS-OS 内容（二进制 / WebUI / 配置 / 安装器 / 服务）"
 INC="$WORK/config/includes.chroot"
@@ -95,11 +108,8 @@ mkdir -p "$WORK/config/hooks"
 cp "$SRC/iso/live-config/hooks/"*.hook.chroot "$WORK/config/hooks/"
 chmod 0755 "$WORK/config/hooks/"*.hook.chroot
 
-chown -R builder:builder "$WORK"
-
 echo ">>> [5/6] lb build（chroot 组装 + squashfs + ISO，arm64 交叉模拟下约 30-60 分钟）"
-su builder -s /bin/bash -c "cd '$WORK' && lb build" 2>&1 | tee "$WORK/lb-build.log"
-chown -R root:root "$WORK"
+lb build 2>&1 | tee "$WORK/lb-build.log"
 
 LIVE_ISO="$(ls "$WORK"/live-image-*.hybrid.iso 2>/dev/null || true)"
 if [ -z "$LIVE_ISO" ]; then
