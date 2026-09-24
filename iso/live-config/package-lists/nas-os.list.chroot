@@ -39,6 +39,9 @@ iptables
 avahi-daemon
 libnss-mdns
 openssh-server
+# bookworm 中 resolved 从 systemd 包拆出；缺它则 DNS 死（钩子会把 resolv.conf
+# 指向 resolved stub）且多单元 enable 原子失败连累 nas-os.service
+systemd-resolved
 
 # ---- 固件（bookworm non-free-firmware，覆盖常见服务器网卡）----
 firmware-linux
