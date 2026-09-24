@@ -116,10 +116,67 @@ jobs:
           fi
           kill "$QEMU_PID" 2>/dev/null || true
 
-      - name: Upload serial log
+  smoke-arm64:
+    name: Smoke test (arm64 QEMU boot)
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Download ISO artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nas-os-iso-arm64
+
+      - name: Install QEMU + AAVMF firmware
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq qemu-system-arm qemu-efi-aarch64
+
+      - name: Boot ISO (UEFI chain) and probe WebUI health
+        run: |
+          ISO=$(ls nas-os-*-arm64.iso)
+          echo ">>> ISO: $ISO ($(stat -c%s "$ISO") bytes)"
+          sha256sum --check "$ISO.sha256"
+
+          # UEFI 完整引导链：AAVMF -> grub(EFI El Torito) -> kernel（与真实 arm64 UEFI 硬件一致）
+          qemu-system-aarch64 \
+            -M virt -cpu cortex-a72 -smp 4 -m 2560 \
+            -bios /usr/share/qemu-efi-aarch64/QEMU_EFI.fd \
+            -drive file="$ISO",media=cdrom,if=none,id=cd,readonly=on \
+            -device virtio-scsi-pci -device scsi-cd,drive=cd \
+            -display none -serial file:serial-efi.log \
+            -device virtio-net-pci,netdev=n0 \
+            -netdev user,id=n0,hostfwd=tcp::8080-:8080 \
+            -pidfile qemu.pid &
+          QEMU_PID=$!
+          echo ">>> QEMU pid=$QEMU_PID（UEFI + TCG 模拟，较慢），轮询健康端点（最长 30 分钟）…"
+
+          ok=0
+          for i in $(seq 1 180); do
+            if curl -sf -m 5 http://127.0.0.1:8080/api/v1/system/health >/dev/null 2>&1 \
+               || curl -sf -m 5 http://127.0.0.1:8080/api/v1/health >/dev/null 2>&1; then
+              ok=1; break
+            fi
+            kill -0 "$QEMU_PID" 2>/dev/null || { echo "QEMU 进程已退出"; break; }
+            sleep 10
+          done
+
+          if [ "$ok" = 1 ]; then
+            echo ">>> arm64 UEFI 冒烟通过：live 系统已引导，nasd WebUI 健康端点可达"
+            curl -sf -m 5 http://127.0.0.1:8080/api/v1/system/health | head -c 400; echo
+            kill "$QEMU_PID" 2>/dev/null || true
+            exit 0
+          fi
+
+          echo ">>> UEFI 链冒烟失败。串口日志尾部："
+          tail -n 150 serial-efi.log || true
+          kill "$QEMU_PID" 2>/dev/null || true
+          exit 1
+
+      - name: Upload serial logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nas-os-smoke-amd64-serial
-          path: serial.log
+          name: nas-os-smoke-arm64-serial
+          path: serial-*.log
           if-no-files-found: ignore
