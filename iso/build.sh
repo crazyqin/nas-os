@@ -52,12 +52,15 @@ case "$ARCH" in
   amd64)
     # bookworm live-build 已无裸 'grub' 值：BIOS=syslinux + UEFI=grub-efi
     BOOTLOADER_CANDIDATES=("syslinux grub-efi" "grub-efi" "syslinux")
-    BOOTAPPEND="hostname=nasos console=tty0 console=ttyS0,115200n8"
+    # boot=live components 必须保留：--bootappend-live 会整体替换 live-build 默认值
+    # （默认即 "boot=live components"），丢了 boot=live 则 initramfs 找不到 live 媒体、
+    # 落 BusyBox "No root device specified"（run 35994846584 实测教训）
+    BOOTAPPEND="boot=live components hostname=nasos console=tty0 console=ttyS0,115200n8"
     ;;
   arm64)
     # 无 BIOS：grub-efi；live-build 各版本命名有差异，多候选重试
     BOOTLOADER_CANDIDATES=("grub-efi" "grub")
-    BOOTAPPEND="hostname=nasos console=ttyAMA0,115200n8"
+    BOOTAPPEND="boot=live components hostname=nasos console=ttyAMA0,115200n8"
     ;;
 esac
 
