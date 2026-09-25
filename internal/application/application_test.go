@@ -2,6 +2,7 @@ package application
 
 import (
 	"errors"
+	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -75,5 +76,24 @@ func TestCleanupStackReleaseSkipsCleanup(t *testing.T) {
 	}
 	if called {
 		t.Fatal("released cleanup stack should not run callbacks")
+	}
+}
+
+// TestSmbStatePathDecoupledFromSambaConf 锁住冒烟第 7 次根因的接线：
+// SMB 状态文件必须落在 ConfigDir 下的 smb.json，绝不能指向 Samba 的
+// ini 配置路径（stock /etc/samba/smb.conf 会让 nasd 启动即 JSON 解析 fatal）。
+func TestSmbStatePathDecoupledFromSambaConf(t *testing.T) {
+	cfg := config.Default()
+	cfg.Paths.ConfigDir = t.TempDir()
+	// 模拟生产：SambaConfig 指向 chroot 阶段 dpkg 带出的 ini 文件
+	cfg.Paths.SambaConfig = "/etc/samba/smb.conf"
+
+	got := smbStatePath(cfg)
+	if got == cfg.Paths.SambaConfig {
+		t.Fatalf("SMB 状态路径不得复用 SambaConfig ini 路径: %s", got)
+	}
+	want := filepath.Join(cfg.Paths.ConfigDir, "smb.json")
+	if got != want {
+		t.Fatalf("smbStatePath() = %s, want %s", got, want)
 	}
 }

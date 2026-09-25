@@ -84,7 +84,7 @@ func New(cfg *config.Config, logger *zap.Logger) (app *Application, err error) {
 	}
 	log.Println("✅ 存储管理模块就绪")
 
-	smbMgr, err := smb.NewManagerWithUserMgr(userMgr, cfg.Paths.SambaConfig)
+	smbMgr, err := smb.NewManagerWithUserMgr(userMgr, smbStatePath(cfg))
 	if err != nil {
 		return nil, fmt.Errorf("initialize SMB: %w", err)
 	}
@@ -252,4 +252,15 @@ func (s *cleanupStack) run() error {
 	}
 	s.release()
 	return errors.Join(errs...)
+}
+
+// smbStatePath 返回 SMB 管理器的 JSON 状态文件路径。
+//
+// 必须位于 ConfigDir（与 users.json / network.json 同层），绝不能指向
+// cfg.Paths.SambaConfig：那是 Samba 自己的 ini 配置（chroot 装 samba 包时
+// dpkg 会带出带 '#' 注释的 stock 文件），而 smb.Manager 以 JSON 解析状态
+// 文件——历史上误接 smb.conf 曾导致 live ISO 上 nasd 启动即 fatal
+// （initialize SMB: 解析配置文件失败，2026-09-25 冒烟第 7 次根因）。
+func smbStatePath(cfg *config.Config) string {
+	return cfg.ConfigPath("smb.json")
 }

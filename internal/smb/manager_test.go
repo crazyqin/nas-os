@@ -1007,3 +1007,25 @@ func TestUpdateShareFromInput(t *testing.T) {
 		t.Errorf("注释错误: %s", share.Comment)
 	}
 }
+
+// TestLoadConfigRejectsIniStateFile 锁定 fail-closed 行为：状态文件不是
+// 合法 JSON（如 stock /etc/samba/smb.conf 的 ini 内容）时必须报错，而不是
+// 静默吞掉当作空配置——否则共享状态丢失会被掩盖。接线层须保证传入的
+// 是 ConfigDir 下的 smb.json（见 application.smbStatePath）。
+func TestLoadConfigRejectsIniStateFile(t *testing.T) {
+	tmpDir := t.TempDir()
+	// 模拟 chroot 装 samba 包时 dpkg 带出的 stock 文件（含 '#' 注释）
+	iniPath := filepath.Join(tmpDir, "smb.conf")
+	ini := "#\n# Sample configuration file for the Samba suite\n#\n[global]\n   workgroup = WORKGROUP\n"
+	if err := os.WriteFile(iniPath, []byte(ini), 0640); err != nil {
+		t.Fatalf("写入测试文件失败：%v", err)
+	}
+
+	_, err := NewManager(iniPath)
+	if err == nil {
+		t.Fatal("状态文件为 ini 内容时必须报错（fail-closed），不得静默使用默认配置")
+	}
+	if !strings.Contains(err.Error(), "解析配置文件失败") {
+		t.Fatalf("错误应指明解析失败：%v", err)
+	}
+}
