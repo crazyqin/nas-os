@@ -97,3 +97,22 @@ func TestSmbStatePathDecoupledFromSambaConf(t *testing.T) {
 		t.Fatalf("smbStatePath() = %s, want %s", got, want)
 	}
 }
+
+// TestNfsStatePathDecoupledFromExportsConf 锁住冒烟第 8 次根因的接线：
+// NFS 状态文件必须落在 ConfigDir 下的 nfs.json，绝不能指向 NFS 的
+// ini 导出路径（stock /etc/exports 会让 nasd 启动即 JSON 解析 fatal）。
+func TestNfsStatePathDecoupledFromExportsConf(t *testing.T) {
+	cfg := config.Default()
+	cfg.Paths.ConfigDir = t.TempDir()
+	// 模拟生产：NFSExports 指向 chroot 阶段 dpkg 带出的 ini 文件
+	cfg.Paths.NFSExports = "/etc/exports"
+
+	got := nfsStatePath(cfg)
+	if got == cfg.Paths.NFSExports {
+		t.Fatalf("NFS 状态路径不得复用 NFSExports ini 路径: %s", got)
+	}
+	want := filepath.Join(cfg.Paths.ConfigDir, "nfs.json")
+	if got != want {
+		t.Fatalf("nfsStatePath() = %s, want %s", got, want)
+	}
+}
