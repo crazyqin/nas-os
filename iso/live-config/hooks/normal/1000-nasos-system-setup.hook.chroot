@@ -24,6 +24,15 @@ if [ ! -e /etc/systemd/system/multi-user.target.wants/nas-os.service ]; then
   exit 1
 fi
 
+# 硬校验：live WebUI 必须监听 0.0.0.0。无 config.yaml 时 nasd 默认只绑
+# 127.0.0.1（2026-09-25 冒烟第 6 次根因：QEMU hostfwd 只能转发到 guest
+# 外部地址，loopback 监听导致 8080 永远 RST 不可达，而系统其余部分全部正常）。
+if ! grep -q 'host:.*0\.0\.0\.0' /etc/nas-os/config.yaml 2>/dev/null; then
+  echo "FATAL: /etc/nas-os/config.yaml 缺失或 server.host 非 0.0.0.0" >&2
+  cat /etc/nas-os/config.yaml >&2 || true
+  exit 1
+fi
+
 # 避免传统 ifupdown 与 systemd-networkd 争抢接口（若存在）
 systemctl disable networking.service 2>/dev/null || true
 

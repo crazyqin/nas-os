@@ -26,4 +26,23 @@ if [ -n "${PS1:-}" ] && [ "$(id -u)" = 0 ] && [ -t 1 ] 2>/dev/null; then
   echo "   主机名       : $(hostname)（局域网可试 http://nasos.local:8080）"
   echo "  ============================================================"
   echo
+
+  # 后台探针（非交互，不改系统状态）：把 nasd 监听状态回报到当前控制
+  # 台，供冒烟串口与真机排障观测——就绪打一行；10 分钟仍未监听则将
+  # nas-os 单元状态与最近日志转储出来（否则这些只进 journal，串口
+  # 冒烟里无从诊断）。依赖 bash 的 /dev/tcp，不适用时静默退出。
+  (
+    i=0
+    while [ "$i" -lt 60 ]; do
+      if (exec 3<>/dev/tcp/127.0.0.1/8080) 2>/dev/null; then
+        echo "  [nasd] WebUI 已就绪：8080 端口可连（$(hostname) $(date '+%H:%M:%S')）"
+        exit 0
+      fi
+      i=$((i+1))
+      sleep 10
+    done
+    echo "  [nasd] 警告：10 分钟仍未监听 8080，诊断转储："
+    systemctl status nas-os --no-pager -l 2>&1 | sed 's/^/  | /'
+    journalctl -u nas-os -n 20 --no-pager 2>&1 | sed 's/^/  | /'
+  ) &
 fi
