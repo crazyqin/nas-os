@@ -395,6 +395,8 @@ jobs:
           max_attempts: 3
           retry_wait_seconds: 10
           command: |
+            # pipefail：tee 不得吞 go test 的非零退出码
+            set -o pipefail
             # v2.254.0 优化：智能分片，按测试包大小均衡分配
             PKGS=$(go list ./... | grep -v /tests/e2e | grep -v /tests/fixtures | grep -v /tests/reports | grep -v /tests/benchmark | grep -v /plugins/)
             
