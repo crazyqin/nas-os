@@ -1,3 +1,6 @@
+# 2026-09-25 retro-registration: sysupdate (#43), webtls (#44), webpush (#45)
+# merged without updating this list; governance test was red on master,
+# masked by CI log pipes without pipefail (fixed same day).
 # Frozen top-level internal package allowlist (v3.24.0 governance).
 # New business packages must land under internal/lab/ or internal/extensions/,
 # or this file must be updated in the same PR with an explicit rationale.
@@ -126,6 +129,7 @@ sysmonitor
 sysresmon
 system
 systemcopilot
+sysupdate
 tags
 taskqueue
 team
@@ -165,9 +169,11 @@ web
 webapphost
 webdav
 webhook
+webpush
 webrtc
 websocket
 webterminal
+webtls
 wgvdeploy
 wifimgr
 wol

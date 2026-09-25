@@ -1,7 +1,7 @@
 # NAS-OS Makefile
 # 构建、测试、部署自动化
 
-.PHONY: all build build-core build-full build-version build-version-full test test-lab clean run docker docker-build docker-build-full help ci version-sync
+.PHONY: all build build-core build-full build-version build-version-full test test-lab clean run docker docker-build docker-build-full help ci version-sync iso iso-arm64 iso-clean
 
 # 变量
 BINARY_NAME=nasd
@@ -190,6 +190,26 @@ docker-clean:
 	docker-compose down -v
 	docker rmi $(DOCKER_IMAGE):$(DOCKER_TAG) 2>/dev/null || true
 
+# ========== ISO (裸机安装盘) ==========
+# Debian bookworm live 系统 + nasos-install 离线安装器。需要本地 docker。
+ISO_ARCH?=amd64
+
+iso:
+	@echo "💽 构建裸机安装 ISO ($(ISO_ARCH))..."
+	./iso/prepare-binaries.sh $(ISO_ARCH)
+	docker run --privileged --rm -v "$$(pwd)":/src debian:bookworm bash /src/iso/build.sh $(ISO_ARCH)
+	@echo "✅ ISO 完成: dist/"
+
+iso-arm64:
+	@echo "💽 构建裸机安装 ISO (arm64, 需先注册 binfmt)..."
+	docker run --privileged --rm tonistiigi/binfmt --install arm64 || true
+	$(MAKE) iso ISO_ARCH=arm64
+
+iso-clean:
+	@echo "🧹 清理 ISO 构建产物..."
+	rm -rf iso-bin dist
+	@echo "✅ 清理完成"
+
 # ========== 清理 ==========
 clean:
 	@echo "🧹 清理构建产物..."
@@ -293,6 +313,11 @@ help:
 	@echo "  Docker:"
 	@echo "    make docker-build       - 构建 Core 镜像 (默认)"
 	@echo "    make docker-build-full  - 构建 Full 镜像 (BUILD_TAGS=nasd_full)"
+	@echo ""
+	@echo "  ISO (裸机安装盘，需 docker):"
+	@echo "    make iso               - 构建 amd64 安装 ISO (默认)"
+	@echo "    make iso-arm64         - 构建 arm64 安装 ISO (UEFI)"
+	@echo "    make iso-clean          - 清理 ISO 构建产物"
 	@echo "    make docker-buildx      - 多架构镜像 (amd64, arm64, armv7)"
 	@echo "    make docker-buildx-push - 构建并推送多架构镜像"
 	@echo "    make docker-run         - 启动容器"

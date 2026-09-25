@@ -1,0 +1,50 @@
+# NAS-OS live/安装系统公共包列表（live-build chroot 阶段安装）
+# 运行时依赖对齐 Dockerfile.full 的 apk 清单（Debian 等价包）
+
+# ---- live 系统框架 ----
+live-boot
+live-config
+live-config-systemd
+systemd-sysv
+
+# ---- 基础用户态 ----
+tzdata
+ca-certificates
+curl
+procps
+iproute2
+kbd
+whiptail
+nano
+less
+
+# ---- NAS 运行时（nasd Core 外部依赖）----
+btrfs-progs
+samba
+nfs-kernel-server
+smartmontools
+nvme-cli
+hdparm
+util-linux
+e2fsprogs
+dosfstools
+gdisk
+parted
+rsync
+zstd
+xz-utils
+iptables
+
+# ---- 网络 / 服务发现 / 远程管理 ----
+avahi-daemon
+libnss-mdns
+openssh-server
+# bookworm 中 resolved 从 systemd 包拆出；缺它则 DNS 死（钩子会把 resolv.conf
+# 指向 resolved stub）且多单元 enable 原子失败连累 nas-os.service
+systemd-resolved
+
+# ---- 固件（bookworm non-free-firmware，覆盖常见服务器网卡）----
+firmware-linux
+firmware-linux-free
+firmware-bnx2
+firmware-realtek
