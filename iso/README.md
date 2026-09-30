@@ -33,8 +33,17 @@ make iso-arm64         # arm64（自动注册 binfmt）
 ```
 
 CI：GitHub Actions `ISO Build` workflow（手动触发 `workflow_dispatch`），
-amd64 与 arm64 产物附带 QEMU 引导冒烟（轮询 `/api/v1/system/health`）。
-注意：这些检查只验证 Live 系统启动，不覆盖装入硬盘后重启；安装后 BIOS/UEFI 启动仍需单独验收。
+amd64、arm64 使用同架构 runner 原生构建，再执行 Live 引导冒烟和安装后磁盘验收。
+
+安装验收覆盖 amd64 BIOS、amd64 UEFI、arm64 UEFI：在禁止访问外网的 QEMU 客体中，
+自动回答安装器提示，运行 ISO 内真实安装器，将系统装入新建的 12G 虚拟盘。
+移除 ISO 后检查 btrfs 根文件系统、服务和 WebUI，完成管理员首登改密，
+再冷启动验证新密码仍然有效。系统根卷不作为可删除的数据卷管理。
+临时 SSH 公钥仅用于测试；工件保存诊断日志与结果，不上传虚拟磁盘或私钥。
+
+`ISO installed disk acceptance` 可手动复测已有构建工件，需要提供 ISO Build 运行编号；
+工作流会检查工件对应的系统源码一致，避免旧 ISO 验证新代码。
+QEMU 结果不代替具体 NAS 硬件、USB/Ventoy、固件和网卡兼容性验收。
 
 ## 系统构成
 
