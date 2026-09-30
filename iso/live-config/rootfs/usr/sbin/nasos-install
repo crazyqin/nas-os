@@ -188,9 +188,17 @@ ssh-keygen -A >/dev/null 2>&1
 rm -rf /etc/systemd/system/getty@tty1.service.d \
        /etc/systemd/system/serial-getty@.service.d
 
-# 卸载 live 组件并重生成 initramfs（去掉 live-boot 钩子）
-apt-get purge -y live-boot live-config live-config-systemd >/dev/null 2>&1 || true
-rm -rf /etc/live /etc/live-build /lib/live
+# live-tools diverts update-initramfs to a wrapper that exits successfully
+# without rebuilding while /proc/cmdline still says boot=live. Purge the
+# wrapper and the actual initramfs hook package before regenerating every
+# installed kernel; a failed purge/rebuild must abort installation.
+prepare_installed_boot() {
+  apt-get purge -y live-tools live-boot live-boot-initramfs-tools \
+    live-config live-config-systemd || return 1
+  rm -rf /etc/live /etc/live-build /lib/live || return 1
+  update-initramfs -u -k all || return 1
+}
+prepare_installed_boot
 
 # 主机名 / hosts
 echo "$NASOS_HOSTNAME" > /etc/hostname
@@ -203,6 +211,16 @@ EOH
 # root 密码
 printf 'root:%s\n' "$NASOS_ROOT_PW" | chpasswd
 
+# Keep the installed kernel observable on headless x86 consoles.
+mkdir -p /etc/default/grub.d
+cat > /etc/default/grub.d/nasos.cfg <<'EOG'
+GRUB_DISTRIBUTOR="NAS-OS"
+GRUB_TERMINAL_OUTPUT="console"
+EOG
+if [ "$ARCH" = amd64 ]; then
+  echo 'GRUB_CMDLINE_LINUX="${GRUB_CMDLINE_LINUX:-} console=tty0 console=ttyS0,115200n8"' >> /etc/default/grub.d/nasos.cfg
+fi
+
 # 引导加载器
 if [ "$ARCH" = "amd64" ]; then
   grub-install --target=i386-pc "$DISK"
@@ -211,7 +229,6 @@ else
   grub-install --target=arm64-efi --efi-directory=/boot/efi --removable
 fi
 update-grub
-update-initramfs -u
 
 # 服务
 for unit in nas-os.service systemd-networkd.service systemd-resolved.service; do

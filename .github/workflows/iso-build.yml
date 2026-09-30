@@ -4,7 +4,7 @@
 # 触发: 手动 workflow_dispatch（v1；正式发布节奏由维护者决定后续是否挂 tag）
 #
 # 验证: amd64 ISO 在 QEMU 中真实引导，轮询 WebUI 健康端点 /api/v1/system/health
-#       arm64 交叉模拟构建仅出制品（真机引导验证由维护者在 arm64 KVM 环境执行）
+#       amd64 BIOS/UEFI、arm64 UEFI 完整离线安装、移除介质、两次磁盘启动与管理员改密
 #
 # v1 范围: 单盘安装；Secure Boot 需关闭；arm64 仅 UEFI（无 u-boot/SD 支持）
 

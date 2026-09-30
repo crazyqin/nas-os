@@ -32,6 +32,28 @@ TARGET_MNT=/test-target
 
 
 class InstallerTests(unittest.TestCase):
+    def test_live_wrappers_and_hooks_are_removed_before_rebuilding(self):
+        mocks = """
+apt-get() { printf 'purge %s\\n' "$*"; }
+rm() { :; }
+update-initramfs() { printf 'rebuild %s\\n' "$*"; }
+"""
+        result = subprocess.run(["bash", "-euo", "pipefail", "-c", mocks +
+                                 function("prepare_installed_boot") + "\nprepare_installed_boot"],
+                                capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("live-tools live-boot live-boot-initramfs-tools", result.stdout)
+        self.assertTrue(result.stdout.endswith("rebuild -u -k all\n"))
+
+    def test_failed_live_cleanup_or_initramfs_rebuild_aborts(self):
+        for failing in ("apt-get", "update-initramfs"):
+            mocks = "apt-get() { :; }; rm() { :; }; update-initramfs() { :; }\n"
+            mocks += failing + "() { return 1; }\n"
+            result = subprocess.run(["bash", "-euo", "pipefail", "-c", mocks +
+                                     function("prepare_installed_boot") +
+                                     "\nprepare_installed_boot || exit 9"], capture_output=True)
+            self.assertNotEqual(result.returncode, 0, failing)
+
     def test_live_medium_excludes_whole_disk_partition_and_mapper_backing_disks(self):
         for topology, expected in (
             ("sda disk\n", "sda\n"),
