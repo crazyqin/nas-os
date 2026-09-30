@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       iso_run_id:
-        description: Successful ISO Build run to test (must match installer/source)
+        description: ISO Build run with completed ISO artifacts (source must match)
         type: string
         required: true
         default: '36677124501'
@@ -41,7 +41,7 @@ jobs:
         run: |
           SOURCE_SHA=$(gh api repos/${{ github.repository }}/actions/runs/$ISO_RUN_ID --jq .head_sha)
           # Test harness/docs/workflows may change; booted code and image inputs may not.
-          git diff --exit-code "$SOURCE_SHA" HEAD -- iso/live-config iso/build.sh iso/prepare-binaries.sh cmd internal webui go.mod go.sum
+          git diff --exit-code "$SOURCE_SHA" HEAD -- iso/live-config iso/build.sh iso/prepare-binaries.sh cmd internal pkg configs webui VERSION go.mod go.sum
           echo "ISO_SOURCE_SHA=$SOURCE_SHA" >> "$GITHUB_ENV"
       - uses: actions/download-artifact@v4
         with:
