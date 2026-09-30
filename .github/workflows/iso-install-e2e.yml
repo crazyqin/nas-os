@@ -1,0 +1,71 @@
+name: ISO installed disk acceptance
+on:
+  workflow_dispatch:
+    inputs:
+      iso_run_id:
+        description: Successful ISO Build run to test (must match installer/source)
+        type: string
+        required: true
+        default: '36663582306'
+  push:
+    branches: [feat/iso-installer]
+    paths:
+      - iso/e2e_install.py
+      - .github/workflows/iso-install-e2e.yml
+permissions:
+  contents: read
+  actions: read
+jobs:
+  installed-disk:
+    name: Install and reboot (${{ matrix.arch }}, ${{ matrix.firmware }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            firmware: bios
+          - arch: amd64
+            firmware: uefi
+          - arch: arm64
+            firmware: uefi
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check artifact source matches tested system
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISO_RUN_ID: ${{ inputs.iso_run_id || '36663582306' }}
+        run: |
+          SOURCE_SHA=$(gh api repos/${{ github.repository }}/actions/runs/$ISO_RUN_ID --jq .head_sha)
+          # Test harness/docs/workflows may change; booted code and image inputs may not.
+          git diff --exit-code "$SOURCE_SHA" HEAD -- iso/live-config iso/build.sh iso/prepare-binaries.sh cmd internal webui go.mod go.sum
+          echo "ISO_SOURCE_SHA=$SOURCE_SHA" >> "$GITHUB_ENV"
+      - uses: actions/download-artifact@v4
+        with:
+          name: nas-os-iso-${{ matrix.arch }}
+          path: iso-artifact
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.iso_run_id || '36663582306' }}
+      - name: Install VM tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq qemu-system-x86 qemu-system-arm qemu-utils ovmf qemu-efi-aarch64
+      - name: Install offline, boot disk, initialize admin, cold reboot
+        run: |
+          cd iso-artifact
+          sha256sum --check *.sha256
+          cd ..
+          python3 iso/e2e_install.py --arch ${{ matrix.arch }} --firmware ${{ matrix.firmware }} --iso "$(find iso-artifact -name '*.iso' -print -quit)"
+      - name: Upload acceptance results and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: installed-disk-${{ matrix.arch }}-${{ matrix.firmware }}
+          path: |
+            e2e-results/*.log
+            e2e-results/*.txt
+            e2e-results/result.json
+          if-no-files-found: warn
