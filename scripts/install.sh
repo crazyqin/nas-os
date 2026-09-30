@@ -172,7 +172,7 @@ download_binary() {
     case $ARCH in
         x86_64) ARCH="amd64" ;;
         aarch64) ARCH="arm64" ;;
-        armv7l) ARCH="armv7" ;;
+        armv7l) ARCH="arm" ;;
         *) log_error "不支持的架构：$ARCH"; exit 1 ;;
     esac
     
@@ -330,13 +330,24 @@ configure_firewall() {
     fi
 }
 
+# ========== 启动失败诊断 ==========
+service_diagnostics() {
+    # status returns nonzero for failed units; still print the process logs.
+    systemctl status nas-os --no-pager --full || true
+    journalctl -u nas-os -b -n 100 --no-pager -o short-precise || true
+}
+
 # ========== 启用服务 ==========
 enable_service() {
     log_info "启用并启动服务..."
     
     systemctl daemon-reload
     systemctl enable nas-os
-    systemctl start nas-os
+    if ! systemctl start nas-os; then
+        log_error "systemctl start 失败，输出服务状态和本次启动日志"
+        service_diagnostics
+        return 1
+    fi
     
     # v2.375.0: 增加健康检查等待逻辑
     log_info "等待服务启动..."
@@ -349,7 +360,7 @@ enable_service() {
         
         if systemctl is-active --quiet nas-os; then
             # 检查健康端点
-            if curl -sf http://localhost:8080/api/v1/health >/dev/null 2>&1; then
+            if curl --connect-timeout 2 --max-time 3 -sf http://localhost:8080/api/v1/health >/dev/null 2>&1; then
                 log_success "NAS-OS 服务已启动并健康"
                 return 0
             fi
@@ -362,11 +373,13 @@ enable_service() {
     
     # 超时后检查状态
     if systemctl is-active --quiet nas-os; then
-        log_warn "服务已启动但健康检查未通过，请检查日志"
+        log_error "服务已启动但健康检查未通过"
+        service_diagnostics
+        return 1
     else
         log_error "服务启动失败，请检查日志：journalctl -u nas-os -n 50"
-        systemctl status nas-os --no-pager
-        exit 1
+        service_diagnostics
+        return 1
     fi
 }
 
