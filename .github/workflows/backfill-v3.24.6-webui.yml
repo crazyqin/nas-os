@@ -19,14 +19,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = e72c7830d2ae9488e2d4fd62ce27c8fd326b97d0
+          test "$(git rev-parse HEAD)" = 5f18cba550b054c35e038d4c9931aae2b58e3269
           test -s webui/index.html
           git archive --format=tar HEAD webui/ | gzip -n > webui.tar.gz
           sha256sum webui.tar.gz > webui.tar.gz.sha256
           echo '76892d0583cfb651282116e91ba371e90386ebb4860a1f35961b15081a434532  webui.tar.gz' | sha256sum -c -
           tar tzf webui.tar.gz > archive-files.txt
           grep -Fx webui/index.html archive-files.txt
-          echo 'Source: v3.24.6 / e72c7830d2ae9488e2d4fd62ce27c8fd326b97d0' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Source: v3.24.6 / 5f18cba550b054c35e038d4c9931aae2b58e3269' >> "$GITHUB_STEP_SUMMARY"
           cat webui.tar.gz.sha256 >> "$GITHUB_STEP_SUMMARY"
       - name: Add missing assets without replacing existing release files
         env:
