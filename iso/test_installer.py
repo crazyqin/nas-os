@@ -26,12 +26,34 @@ mount() { printf 'mount %s\n' "$*"; [[ "$*" != "$FAIL" ]]; }
 DISK=/dev/testdisk
 TARGET_MNT=/test-target
 '''
-    return subprocess.run(["bash", "-eu", "-c", mocks + function(name) + "\n" + name + " || exit 9"],
+    return subprocess.run(["bash", "-euo", "pipefail", "-c", mocks + function(name) + "\n" + name + " || exit 9"],
                           env={**os.environ, "ARCH": arch, "FAIL": fail},
                           capture_output=True, text=True)
 
 
 class InstallerTests(unittest.TestCase):
+    def test_live_medium_excludes_whole_disk_partition_and_mapper_backing_disks(self):
+        for topology, expected in (
+            ("sda disk\n", "sda\n"),
+            ("nvme0n1p1 part\nnvme0n1 disk\n", "nvme0n1\n"),
+            ("ventoy dm\nsda1 part\nsda disk\nsdb disk\n", "sda\nsdb\n"),
+            ("sr0 rom\n", ""),
+        ):
+            with self.subTest(topology=topology):
+                script = 'lsblk() { printf "%s" "$TOPOLOGY"; }\n' + function("find_medium_disks")
+                result = subprocess.run(["bash", "-euo", "pipefail", "-c", script +
+                                         '\nfind_medium_disks /dev/source'],
+                                        env={**os.environ, "TOPOLOGY": topology},
+                                        capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0)
+                self.assertEqual(result.stdout, expected)
+
+    def test_live_medium_lookup_failure_is_not_hidden_by_pipeline(self):
+        script = 'lsblk() { return 1; }\n' + function("find_medium_disks")
+        result = subprocess.run(["bash", "-euo", "pipefail", "-c", script +
+                                 '\nfind_medium_disks /dev/source'], capture_output=True)
+        self.assertNotEqual(result.returncode, 0)
+
     def test_bios_embedding_partition_precedes_esp_and_root(self):
         result = run("partition_disk")
         self.assertEqual(result.returncode, 0, result.stderr)

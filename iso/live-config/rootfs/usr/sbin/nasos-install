@@ -47,6 +47,10 @@ prepare_chroot() {
   done
 }
 
+find_medium_disks() {
+  lsblk -snr -o NAME,TYPE "$1" | awk '$2 == "disk" {print $1}' | sort -u
+}
+
 # ---------------------------------------------------------------- 前置检查
 [ "$(id -u)" = 0 ] || die "请以 root 运行（live 控制台已自动登录 root）"
 command -v whiptail >/dev/null || die "缺少 whiptail"
@@ -71,18 +75,22 @@ whip --title "NAS-OS 裸机安装" --yesno \
 # ---------------------------------------------------------------- 磁盘选择
 # 排除 live 介质所在磁盘、回环与内存盘
 MEDIUM_DEV="$(findmnt -n -o SOURCE /run/live/medium 2>/dev/null || true)"
-MEDIUM_DISK=""
-if [ -n "$MEDIUM_DEV" ]; then
-  MEDIUM_DISK="$(lsblk -dn -o PKNAME "$MEDIUM_DEV" 2>/dev/null | tail -n1 || true)"
-fi
-say "live 介质: ${MEDIUM_DEV:-未知}（所在磁盘: ${MEDIUM_DISK:-无/光驱}）" | tee -a "$LOG"
+[ -n "$MEDIUM_DEV" ] || die "无法识别 live 安装介质，拒绝继续清盘"
+MEDIUM_DEV="${MEDIUM_DEV%%\[*}"
+MEDIUM_DEV="$(readlink -f "$MEDIUM_DEV")"
+[ -b "$MEDIUM_DEV" ] || die "无法解析 live 安装介质块设备，拒绝继续清盘"
+# Include the source itself (whole-disk USB) and all backing disks (device
+# mapper / Ventoy). PKNAME alone misses whole disks and stacked devices.
+MEDIUM_DISKS="$(find_medium_disks "$MEDIUM_DEV")" \
+  || die "无法识别安装介质所在磁盘，拒绝继续清盘"
+say "live 介质: $MEDIUM_DEV（所在磁盘: ${MEDIUM_DISKS:-光驱}）" | tee -a "$LOG"
 
 DISK_MENU=()
 while read -r name size type model; do
   [ "$type" = "disk" ] || continue
   case "$name" in loop*|ram*|zram*) continue ;; esac
   desc="/dev/$name  $size  ${model:-}"
-  if [ "$name" = "$MEDIUM_DISK" ]; then
+  if printf '%s\n' "$MEDIUM_DISKS" | grep -Fxq -- "$name"; then
     desc="$desc  [安装介质，已排除]"
   else
     DISK_MENU+=("$name" "$desc" "off")
@@ -206,9 +214,12 @@ update-grub
 update-initramfs -u
 
 # 服务
-systemctl enable nas-os.service avahi-daemon.service \
-  systemd-networkd.service systemd-resolved.service \
-  ssh.service systemd-timesyncd.service 2>&1 || true
+for unit in nas-os.service systemd-networkd.service systemd-resolved.service; do
+  systemctl enable "$unit"
+done
+for unit in avahi-daemon.service ssh.service systemd-timesyncd.service; do
+  systemctl enable "$unit" || echo "warning: cannot enable $unit" >&2
+done
 systemctl disable networking.service 2>/dev/null || true
 ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
