@@ -7,11 +7,6 @@ on:
         type: string
         required: true
         default: '36663582306'
-  push:
-    branches: [feat/iso-installer]
-    paths:
-      - iso/e2e_install.py
-      - .github/workflows/iso-install-e2e.yml
 permissions:
   contents: read
   actions: read

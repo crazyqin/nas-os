@@ -15,6 +15,7 @@ import socket
 import subprocess
 import threading
 import time
+import urllib.error
 import urllib.request
 
 
@@ -132,6 +133,7 @@ def request(path, data=None, token=None):
 def wait_health(vm, timeout):
     deadline = time.monotonic() + timeout
     last_report = 0
+    detail = "no response"
     while time.monotonic() < deadline:
         if vm.proc.poll() is not None:
             raise RuntimeError("QEMU exited before health check")
@@ -140,10 +142,14 @@ def wait_health(vm, timeout):
             if result["data"]["status"] == "healthy":
                 print(f"{vm.phase}: healthy", flush=True)
                 return result
-        except (OSError, ValueError, KeyError):
-            pass
+            detail = json.dumps(result)
+        except urllib.error.HTTPError as error:
+            detail = f"HTTP {error.code}: " + error.read().decode(errors="replace")
+        except (OSError, ValueError, KeyError) as error:
+            detail = str(error)
+        (vm.logdir / (vm.phase + "-health.log")).write_text(detail + "\n")
         if time.monotonic() - last_report > 45:
-            print(f"{vm.phase}: waiting for healthy API", flush=True)
+            print(f"{vm.phase}: waiting for healthy API ({detail})", flush=True)
             last_report = time.monotonic()
         time.sleep(5)
     raise RuntimeError(f"{vm.phase}: health timeout")

@@ -215,3 +215,45 @@ jobs:
           name: nas-os-smoke-arm64-serial
           path: serial-*.log
           if-no-files-found: ignore
+
+  installed-disk:
+    name: Installed disk (${{ matrix.arch }}, ${{ matrix.firmware }})
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            firmware: bios
+          - arch: amd64
+            firmware: uefi
+          - arch: arm64
+            firmware: uefi
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: nas-os-iso-${{ matrix.arch }}
+          path: iso-artifact
+      - name: Install VM tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq qemu-system-x86 qemu-system-arm qemu-utils ovmf qemu-efi-aarch64
+      - name: Install offline, boot disk, initialize admin, cold reboot
+        run: |
+          cd iso-artifact
+          sha256sum --check *.sha256
+          cd ..
+          python3 iso/e2e_install.py --arch ${{ matrix.arch }} --firmware ${{ matrix.firmware }} --iso "$(find iso-artifact -name '*.iso' -print -quit)"
+      - name: Upload installed disk acceptance diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: installed-disk-${{ matrix.arch }}-${{ matrix.firmware }}
+          path: |
+            e2e-results/*.log
+            e2e-results/*.txt
+            e2e-results/result.json
+          if-no-files-found: warn
