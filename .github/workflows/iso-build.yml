@@ -35,12 +35,16 @@ jobs:
 
   build:
     name: Build ISO (${{ matrix.arch }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
-        arch: [amd64, arm64]
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,10 +57,6 @@ jobs:
 
       - name: Build nasd/nasctl binaries
         run: ./iso/prepare-binaries.sh ${{ matrix.arch }}
-
-      - name: Register QEMU binfmt (arm64 交叉模拟)
-        if: matrix.arch == 'arm64'
-        run: docker run --privileged --rm tonistiigi/binfmt --install arm64
 
       - name: Build ISO (live-build in debian:bookworm)
         run: docker run --privileged --rm -v "$PWD":/src debian:bookworm bash /src/iso/build.sh ${{ matrix.arch }}

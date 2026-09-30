@@ -35,7 +35,7 @@ export LC_ALL=C.UTF-8
 echo ">>> [1/6] 安装 live-build 工具链（含 recommends: xorriso/mtools 等）"
 apt-get update -qq
 apt-get install -y -qq live-build rsync >/dev/null
-if [ "$ARCH" = arm64 ]; then
+if [ "$ARCH" = arm64 ] && [ "$(dpkg --print-architecture)" != arm64 ]; then
   # 异架构：qemu-user-static（含 binfmt 注册）让 debootstrap/dpkg 在 amd64 容器里跑 arm64
   apt-get install -y -qq qemu-user-static >/dev/null
 fi
@@ -66,7 +66,7 @@ esac
 
 CONFIGURED=0
 QEMU_OPTS=()
-if [ "$ARCH" = arm64 ]; then
+if [ "$ARCH" = arm64 ] && [ "$(dpkg --print-architecture)" != arm64 ]; then
   # 异架构构建：live-build 需显式 qemu 指引，否则 bootstrap 阶段会被跳过（foreign architecture）
   QEMU_OPTS=(--bootstrap-qemu-arch arm64 --bootstrap-qemu-static /usr/bin/qemu-aarch64-static)
 fi
@@ -127,7 +127,7 @@ cp "$SRC"/iso/live-config/hooks/binary/*.hook.binary "$WORK/config/hooks/normal/
 chmod 0755 "$WORK/config/hooks/normal/"*.hook.chroot "$WORK/config/hooks/normal/"*.hook.binary
 echo ">>> NAS-OS: 钩子就位 normal/=$(ls "$WORK/config/hooks/normal" | tr '\n' ' ')"
 
-echo ">>> [5/6] lb build（chroot 组装 + squashfs + ISO，arm64 交叉模拟下约 30-60 分钟）"
+echo ">>> [5/6] lb build（chroot 组装 + squashfs + ISO；同架构原生构建，异架构使用 QEMU）"
 lb build 2>&1 | tee "$WORK/lb-build.log"
 
 LIVE_ISO="$(ls "$WORK"/live-image-*.hybrid.iso 2>/dev/null || true)"
