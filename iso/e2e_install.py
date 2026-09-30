@@ -212,6 +212,14 @@ sha256sum /usr/sbin/nasos-install
 if /usr/sbin/nasos-install; then
   mkdir -p /mnt/e2e-target
   mount /dev/vda2 /mnt/e2e-target
+  printf '\n=== INSTALLER LOG ===\n'
+  cat /tmp/nasos-install.log
+  printf '\n=== TARGET BOOT DIAGNOSTICS ===\n'
+  ls -la /mnt/e2e-target/boot /mnt/e2e-target/boot/grub
+  find /mnt/e2e-target/boot/efi -type f -exec sha256sum {} \;
+  cat /mnt/e2e-target/etc/default/grub /mnt/e2e-target/boot/grub/grub.cfg 2>/dev/null || true
+  find /mnt/e2e-target/etc/grub.d -maxdepth 1 -type f -exec ls -l {} \;
+  printf '\n=== END BOOT DIAGNOSTICS ===\n'
   install -d -m 700 /mnt/e2e-target/root/.ssh
   printf '%s\n' '__PUBKEY__' > /mnt/e2e-target/root/.ssh/authorized_keys
   chmod 600 /mnt/e2e-target/root/.ssh/authorized_keys
