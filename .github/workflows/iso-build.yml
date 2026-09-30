@@ -24,6 +24,15 @@ env:
   GO_VERSION: '1.26.1'
 
 jobs:
+  installer-regression:
+    name: Installer regression checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash -n iso/live-config/rootfs/usr/sbin/nasos-install
+      - run: python3 iso/test_installer.py
+
   build:
     name: Build ISO (${{ matrix.arch }})
     runs-on: ubuntu-latest

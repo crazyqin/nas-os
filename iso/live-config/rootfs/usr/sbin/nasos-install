@@ -23,6 +23,30 @@ trap cleanup EXIT INT TERM
 
 whip() { whiptail "$@"; }
 
+# GPT BIOS GRUB needs an embedding partition; ESP remains partition 1 and
+# btrfs root partition 2 for both architectures.
+partition_disk() {
+  sgdisk --zap-all "$DISK" || return 1
+  if [ "$(dpkg --print-architecture)" = amd64 ]; then
+    sgdisk -n 3:2048:4095 -t 3:ef02 -c 3:BIOS-GRUB "$DISK" || return 1
+  fi
+  sgdisk -n 1:0:+512M -t 1:ef00 -c 1:ESP "$DISK" || return 1
+  sgdisk -n 2:0:0 -t 2:8300 -c 2:ROOT "$DISK" || return 1
+  partprobe "$DISK" || return 1
+  udevadm settle || return 1
+}
+
+# GRUB and initramfs tools need the target disk devices and kernel mounts.
+# Slave propagation prevents target cleanup from unmounting live-system mounts.
+prepare_chroot() {
+  local fs
+  for fs in dev proc sys run; do
+    mkdir -p "$TARGET_MNT/$fs" || return 1
+    mount --rbind "/$fs" "$TARGET_MNT/$fs" || return 1
+    mount --make-rslave "$TARGET_MNT/$fs" || return 1
+  done
+}
+
 # ---------------------------------------------------------------- 前置检查
 [ "$(id -u)" = 0 ] || die "请以 root 运行（live 控制台已自动登录 root）"
 command -v whiptail >/dev/null || die "缺少 whiptail"
@@ -105,11 +129,7 @@ PART_EFI="$DISK$SUF"1
 PART_ROOT="$DISK$SUF"2
 
 {
-  sgdisk --zap-all "$DISK"
-  sgdisk -n 1:0:+512M -t 1:ef00 -c 1:ESP "$DISK"
-  sgdisk -n 2:0:0    -t 2:8300 -c 2:ROOT "$DISK"
-  partprobe "$DISK"
-  udevadm settle
+  partition_disk
   sleep 2
   mkfs.vfat -F 32 -n NASOS-ESP "$PART_EFI"
   mkfs.btrfs -f -L NASOS-ROOT "$PART_ROOT"
@@ -123,7 +143,7 @@ mount "$PART_EFI" "$TARGET_MNT/boot/efi"
 # ---------------------------------------------------------------- 复制系统
 whip --title "安装中" --infobox "正在复制系统到 $DISK（约 1-5 分钟，请勿断电）……" 8 60
 
-rsync -aHx \
+rsync -aHAXx \
   --exclude='/mnt/*' --exclude='/tmp/*' --exclude='/var/tmp/*' \
   --exclude='/media/*' --exclude='/proc/*' --exclude='/sys/*' \
   --exclude='/dev/*' --exclude='/run/*' --exclude='/lost+found/*' \
@@ -195,6 +215,8 @@ ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 echo "post-install ok"
 EOS
 chmod 0700 "$INNER"
+
+prepare_chroot >> "$LOG" 2>&1 || die "chroot 挂载失败（详见 $LOG）"
 
 env NASOS_DISK="$DISK" NASOS_HOSTNAME="$HOSTNAME" NASOS_ROOT_PW="$ROOT_PW" \
   chroot "$TARGET_MNT" /bin/bash /root/.nasos-post-install.sh >> "$LOG" 2>&1 \

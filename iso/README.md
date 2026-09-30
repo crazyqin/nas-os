@@ -18,7 +18,7 @@ Debian bookworm live 系统打包 nasd，插盘即用：**Live 试用 → `nasos
 2. **Live 试用**：控制台自动登录 root，nasd 已在运行 —— 同网段浏览器访问
    `http://<设备IP>:8080`（或 `http://nasos.local:8080`，mDNS）。此模式不写盘，断电即失。
 3. **安装**：控制台运行 `nasos-install`，选择目标磁盘（安装介质所在盘自动排除），
-   设置主机名与 root 密码。GPT 分区：512M ESP + btrfs root，复制 live 根文件系统、
+   设置主机名与 root 密码。GPT 分区：amd64 额外保留 1M BIOS GRUB 分区，512M ESP + btrfs root，复制 live 根文件系统、
    装 GRUB、清理 live 组件（`live-boot` 等）并重生成 initramfs。**全程离线**。
 4. **初始化**：重启后浏览器访问 `http://<设备IP>:8080`，用户名 `admin`，
    初始密码在 **新系统** 的 `/etc/nas-os/.admin_password`（控制台 `cat` 查看），
@@ -33,7 +33,8 @@ make iso-arm64         # arm64（自动注册 binfmt）
 ```
 
 CI：GitHub Actions `ISO Build` workflow（手动触发 `workflow_dispatch`），
-amd64 产物附带 QEMU 引导冒烟（轮询 `/api/v1/system/health`）。
+amd64 与 arm64 产物附带 QEMU 引导冒烟（轮询 `/api/v1/system/health`）。
+注意：这些检查只验证 Live 系统启动，不覆盖装入硬盘后重启；安装后 BIOS/UEFI 启动仍需单独验收。
 
 ## 系统构成
 
