@@ -1,0 +1,55 @@
+name: Backfill v3.24.6 WebUI
+on:
+  push:
+    branches: [fix/issue-50-webui-backfill]
+    paths: [.github/workflows/backfill-v3.24.6-webui.yml]
+permissions:
+  contents: write
+jobs:
+  backfill:
+    if: github.repository == 'crazyqin/nas-os'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: v3.24.6
+          fetch-depth: 1
+      - name: Package only the original tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = e72c7830d2ae9488e2d4fd62ce27c8fd326b97d0
+          test -s webui/index.html
+          git archive --format=tar HEAD webui/ | gzip -n > webui.tar.gz
+          sha256sum webui.tar.gz > webui.tar.gz.sha256
+          echo '76892d0583cfb651282116e91ba371e90386ebb4860a1f35961b15081a434532  webui.tar.gz' | sha256sum -c -
+          tar tzf webui.tar.gz > archive-files.txt
+          grep -Fx webui/index.html archive-files.txt
+          echo 'Source: v3.24.6 / e72c7830d2ae9488e2d4fd62ce27c8fd326b97d0' >> "$GITHUB_STEP_SUMMARY"
+          cat webui.tar.gz.sha256 >> "$GITHUB_STEP_SUMMARY"
+      - name: Add missing assets without replacing existing release files
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: crazyqin/nas-os
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release view v3.24.6 --json tagName,isDraft,assets > release.json
+          jq -e '.tagName == "v3.24.6" and .isDraft == false' release.json
+          mkdir existing
+          for asset in webui.tar.gz webui.tar.gz.sha256; do
+            if jq -e --arg name "$asset" '.assets[] | select(.name == $name)' release.json >/dev/null; then
+              gh release download v3.24.6 --pattern "$asset" --dir existing
+              cmp "$asset" "existing/$asset"
+            else
+              gh release upload v3.24.6 "$asset"
+            fi
+          done
+          mkdir verified
+          for asset in webui.tar.gz webui.tar.gz.sha256; do
+            curl --fail --location --retry 3 --output "verified/$asset" "https://github.com/crazyqin/nas-os/releases/download/v3.24.6/$asset"
+          done
+          cd verified
+          sha256sum -c webui.tar.gz.sha256
+          cmp webui.tar.gz ../webui.tar.gz
