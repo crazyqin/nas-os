@@ -103,6 +103,7 @@ func NewService(config *ServiceConfig) (*Service, error) {
 
 	// 启动工作协程
 	for i := 0; i < config.MaxConcurrent; i++ {
+		s.wg.Add(1)
 		go s.worker()
 	}
 
@@ -163,7 +164,6 @@ func (s *Service) saveChannels() error {
 
 // worker 工作协程.
 func (s *Service) worker() {
-	s.wg.Add(1)
 	defer s.wg.Done()
 
 	for {

@@ -370,18 +370,17 @@ func (m *Manager) RunBackupWithContext(ctx context.Context, configID string) (*T
 	}
 	backupCtx, cancel := context.WithTimeout(ctx, timeout)
 	m.cancels[task.ID] = cancel
+	snapshot := *task
 	m.mu.Unlock()
-
 	go m.executeBackup(backupCtx, cfg, task)
-
-	return task, nil
+	return &snapshot, nil
 }
 
 func (m *Manager) executeBackup(ctx context.Context, cfg *JobConfig, task *Task) {
 	defer func() {
+		m.mu.Lock()
 		task.EndTime = time.Now()
 		cfg.LastRun = task.StartTime.Format("2006-01-02 15:04:05")
-		m.mu.Lock()
 		if err := m.saveConfig(); err != nil {
 			log.Printf("保存配置失败：%v", err)
 		}
@@ -454,7 +453,9 @@ func (m *Manager) runLocalBackup(ctx context.Context, cfg *JobConfig, task *Task
 		}
 		return "", fmt.Errorf("压缩失败：%w, output: %s", err, string(output))
 	}
+	m.mu.Lock()
 	task.Progress = 100
+	m.mu.Unlock()
 
 	// 加密备份
 	if cfg.Encrypt {
@@ -666,20 +667,27 @@ func (m *Manager) RestoreWithContext(ctx context.Context, options RestoreOptions
 	// 创建带超时的上下文
 	restoreCtx, cancel := context.WithTimeout(ctx, DefaultRestoreTimeout)
 	m.cancels[task.ID] = cancel
+	snapshot := *task
 	m.mu.Unlock()
-
 	go m.executeRestore(restoreCtx, options, task)
-
-	return task, nil
+	return &snapshot, nil
 }
 
 func (m *Manager) executeRestore(ctx context.Context, options RestoreOptions, task *Task) {
+	shared := task
+	m.mu.RLock()
+	snapshot := *task
+	m.mu.RUnlock()
+	task = &snapshot
 	defer func() {
 		task.EndTime = time.Now()
 		m.mu.Lock()
 		// 清理取消函数
 		delete(m.cancels, task.ID)
-		task.Status = StatusCompleted
+		if task.Status == StatusRunning {
+			task.Status = StatusCompleted
+		}
+		*shared = *task
 		m.mu.Unlock()
 	}()
 
@@ -755,7 +763,8 @@ func (m *Manager) GetTask(taskID string) (*Task, error) {
 	if !ok {
 		return nil, fmt.Errorf("任务不存在：%s", taskID)
 	}
-	return task, nil
+	snapshot := *task
+	return &snapshot, nil
 }
 
 // ListTasks 列出所有任务.
@@ -765,7 +774,8 @@ func (m *Manager) ListTasks() []*Task {
 
 	tasks := make([]*Task, 0, len(m.tasks))
 	for _, task := range m.tasks {
-		tasks = append(tasks, task)
+		snapshot := *task
+		tasks = append(tasks, &snapshot)
 	}
 	return tasks
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"sync"
@@ -260,6 +261,8 @@ func (ts *TaskScheduler) CreateTask(task *Task) error {
 		task.Config.MaxRetries = ts.config.RetryAttempts
 	}
 
+	// Keep the caller-owned task independent of scheduler updates.
+	task = cloneTask(task)
 	ts.tasks[task.ID] = task
 
 	ts.logger.Info("创建任务",
@@ -274,7 +277,7 @@ func (ts *TaskScheduler) CreateTask(task *Task) error {
 
 	// 触发回调
 	if ts.callbacks.OnTaskCreated != nil {
-		go ts.callbacks.OnTaskCreated(task)
+		go ts.callbacks.OnTaskCreated(cloneTask(task))
 	}
 
 	// 持久化（使用不加锁版本）
@@ -287,7 +290,10 @@ func (ts *TaskScheduler) GetTask(taskID string) (*Task, bool) {
 	defer ts.tasksMutex.RUnlock()
 
 	task, exists := ts.tasks[taskID]
-	return task, exists
+	if !exists {
+		return nil, false
+	}
+	return cloneTask(task), true
 }
 
 // GetTasks 获取所有任务.
@@ -297,7 +303,7 @@ func (ts *TaskScheduler) GetTasks() []*Task {
 
 	tasks := make([]*Task, 0, len(ts.tasks))
 	for _, task := range ts.tasks {
-		tasks = append(tasks, task)
+		tasks = append(tasks, cloneTask(task))
 	}
 	return tasks
 }
@@ -310,7 +316,7 @@ func (ts *TaskScheduler) GetTasksByStatus(status string) []*Task {
 	tasks := make([]*Task, 0)
 	for _, task := range ts.tasks {
 		if task.Status == status {
-			tasks = append(tasks, task)
+			tasks = append(tasks, cloneTask(task))
 		}
 	}
 	return tasks
@@ -324,7 +330,7 @@ func (ts *TaskScheduler) GetTasksByNode(nodeID string) []*Task {
 	tasks := make([]*Task, 0)
 	for _, task := range ts.tasks {
 		if task.NodeID == nodeID {
-			tasks = append(tasks, task)
+			tasks = append(tasks, cloneTask(task))
 		}
 	}
 	return tasks
@@ -457,7 +463,10 @@ func (ts *TaskScheduler) processTask(task *Task) {
 		ts.logger.Warn("选择节点失败", zap.String("task_id", task.ID), zap.Error(err))
 		// 重新入队等待
 		time.Sleep(time.Second * time.Duration(ts.config.ScheduleInterval))
-		if task.Status == TaskStatusPending {
+		ts.tasksMutex.RLock()
+		pending := task.Status == TaskStatusPending
+		ts.tasksMutex.RUnlock()
+		if pending {
 			ts.pending <- task
 		}
 		return
@@ -481,7 +490,10 @@ func (ts *TaskScheduler) scheduleTaskToNode(task *Task, nodeID string) {
 
 	// 触发回调
 	if ts.callbacks.OnTaskScheduled != nil {
-		go ts.callbacks.OnTaskScheduled(task, nodeID)
+		ts.tasksMutex.RLock()
+		snapshot := cloneTask(task)
+		ts.tasksMutex.RUnlock()
+		go ts.callbacks.OnTaskScheduled(snapshot, nodeID)
 	}
 
 	// 更新节点任务计数
@@ -514,7 +526,10 @@ func (ts *TaskScheduler) executeTask(task *Task) {
 
 	// 触发回调
 	if ts.callbacks.OnTaskStarted != nil {
-		go ts.callbacks.OnTaskStarted(task)
+		ts.tasksMutex.RLock()
+		snapshot := cloneTask(task)
+		ts.tasksMutex.RUnlock()
+		go ts.callbacks.OnTaskStarted(snapshot)
 	}
 
 	// 设置超时
@@ -587,7 +602,8 @@ func (ts *TaskScheduler) markTaskCompleted(task *Task, result *TaskResult) {
 
 	// 触发回调
 	if ts.callbacks.OnTaskCompleted != nil {
-		go ts.callbacks.OnTaskCompleted(task, result)
+		snapshot := cloneTask(task)
+		go ts.callbacks.OnTaskCompleted(snapshot, snapshot.Result)
 	}
 
 	// 更新节点状态
@@ -598,7 +614,7 @@ func (ts *TaskScheduler) markTaskCompleted(task *Task, result *TaskResult) {
 		}
 	}
 
-	_ = ts.saveTasks()
+	_ = ts.saveTasksLocked()
 }
 
 // handleTaskFailure 处理任务失败.
@@ -620,8 +636,10 @@ func (ts *TaskScheduler) handleTaskFailure(task *Task, result *TaskResult) {
 		// 延迟重试
 		go func() {
 			time.Sleep(time.Duration(task.Config.RetryDelay) * time.Second)
+			ts.tasksMutex.Lock()
 			task.Status = TaskStatusPending
 			task.NodeID = ""
+			ts.tasksMutex.Unlock()
 			ts.pending <- task
 		}()
 
@@ -639,10 +657,10 @@ func (ts *TaskScheduler) handleTaskFailure(task *Task, result *TaskResult) {
 
 	// 触发回调
 	if ts.callbacks.OnTaskFailed != nil {
-		go ts.callbacks.OnTaskFailed(task, fmt.Errorf("%s", result.Error))
+		go ts.callbacks.OnTaskFailed(cloneTask(task), fmt.Errorf("%s", result.Error))
 	}
 
-	_ = ts.saveTasks()
+	_ = ts.saveTasksLocked()
 }
 
 // markTaskFailed 标记任务失败.
@@ -655,7 +673,7 @@ func (ts *TaskScheduler) markTaskFailed(task *Task, err error) {
 	task.CompletedAt = time.Now()
 
 	if ts.callbacks.OnTaskFailed != nil {
-		go ts.callbacks.OnTaskFailed(task, err)
+		go ts.callbacks.OnTaskFailed(cloneTask(task), err)
 	}
 }
 
@@ -792,4 +810,21 @@ func (ts *TaskScheduler) saveSchedules() error {
 
 func generateTaskID() string {
 	return fmt.Sprintf("task-%d", time.Now().UnixNano())
+}
+
+// cloneTask is called while tasksMutex protects the source task.
+func cloneTask(task *Task) *Task {
+	copy := *task
+	copy.Payload = append(json.RawMessage(nil), task.Payload...)
+	copy.Requirements.Labels = maps.Clone(task.Requirements.Labels)
+	copy.Config.Tags = append([]string(nil), task.Config.Tags...)
+	copy.ChildTaskIDs = append([]string(nil), task.ChildTaskIDs...)
+	copy.Metadata = maps.Clone(task.Metadata)
+	if task.Result != nil {
+		result := *task.Result
+		result.Data = append(json.RawMessage(nil), task.Result.Data...)
+		result.Metrics = maps.Clone(task.Result.Metrics)
+		copy.Result = &result
+	}
+	return &copy
 }

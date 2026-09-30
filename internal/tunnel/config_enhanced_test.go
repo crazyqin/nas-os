@@ -286,6 +286,8 @@ func TestConfigManager(t *testing.T) {
 	// 修改并保存
 	config.ServerAddr = "test-server"
 	config.ServerPort = 8080
+	// Configuration persistence tests must not depend on public DNS.
+	config.STUNServers = []string{"stun:127.0.0.1:19302"}
 
 	err = manager.Set(config)
 	require.NoError(t, err)

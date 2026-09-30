@@ -387,6 +387,9 @@ func TestRebalance(t *testing.T) {
 	// 等待重平衡完成
 	time.Sleep(100 * time.Millisecond)
 
+	if result.Status != "running" {
+		t.Fatal("initial rebalance snapshot was mutated")
+	}
 	// 检查任务状态
 	task, err := manager.GetRebalanceTask(result.TaskID)
 	if err != nil {

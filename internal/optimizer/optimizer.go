@@ -137,7 +137,10 @@ func (opt *PerformanceOptimizer) tuneGC() {
 
 // startMonitoring 启动性能监控.
 func (opt *PerformanceOptimizer) startMonitoring() {
-	ticker := time.NewTicker(opt.config.GCInterval)
+	opt.mu.RLock()
+	interval := opt.config.GCInterval
+	opt.mu.RUnlock()
+	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
 	for {

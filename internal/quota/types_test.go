@@ -1,6 +1,7 @@
 package quota
 
 import (
+	"sync"
 	"testing"
 	"time"
 )
@@ -382,11 +383,14 @@ func TestQuota_ConcurrentAccess(t *testing.T) {
 	}
 
 	done := make(chan bool)
+	var mu sync.Mutex
 
 	// 并发修改
 	for i := 0; i < 10; i++ {
 		go func(i int) {
+			mu.Lock()
 			quota.HardLimit += uint64(i)
+			mu.Unlock()
 			done <- true
 		}(i)
 	}
@@ -394,6 +398,9 @@ func TestQuota_ConcurrentAccess(t *testing.T) {
 	// 等待所有操作完成
 	for i := 0; i < 10; i++ {
 		<-done
+	}
+	if quota.HardLimit != 10737418240+45 {
+		t.Fatalf("unexpected hard limit: %d", quota.HardLimit)
 	}
 }
 

@@ -251,15 +251,22 @@ func (m *Manager) Rebalance(poolID string, req *RebalanceRequest) (*RebalanceRes
 		zap.Bool("dryRun", req.DryRun),
 	)
 
-	return result, nil
+	snapshot := *result
+	return &snapshot, nil
 }
 
 // executeRebalance 执行重平衡.
 func (m *Manager) executeRebalance(poolID string, result *RebalanceResult, req *RebalanceRequest) {
+	shared := result
+	m.mu.RLock()
+	snapshot := *result
+	m.mu.RUnlock()
+	result = &snapshot
 	defer func() {
 		m.mu.Lock()
 		defer m.mu.Unlock()
 
+		*shared = *result
 		pool, exists := m.pools[poolID]
 		if exists {
 			pool.State = PoolStateOnline
@@ -605,7 +612,8 @@ func (m *Manager) GetRebalanceTask(taskID string) (*RebalanceResult, error) {
 		return nil, fmt.Errorf("任务 %s 不存在", taskID)
 	}
 
-	return task, nil
+	snapshot := *task
+	return &snapshot, nil
 }
 
 // calculateTotalBytes 计算块列表总字节数.

@@ -945,17 +945,30 @@ func TestManager_RunBackup_LocalBackup(t *testing.T) {
 		t.Errorf("expected status running, got %s", task.Status)
 	}
 
-	// Wait for backup to complete (with timeout)
-	time.Sleep(500 * time.Millisecond)
-
-	// Check task status
-	updatedTask, _ := mgr.GetTask(task.ID)
-	if updatedTask.Status == TaskStatusCompleted {
-		// Verify backup file exists
-		files, _ := filepath.Glob(filepath.Join(dstDir, "*.tar.gz"))
-		if len(files) == 0 {
-			t.Error("no backup files created")
+	// Poll snapshots with a deadline; sleeping does not synchronize with the worker.
+	deadline := time.Now().Add(5 * time.Second)
+	for {
+		updated, err := mgr.GetTask(task.ID)
+		if err != nil {
+			t.Fatal(err)
 		}
+		if !updated.EndTime.IsZero() {
+			if updated.Status != TaskStatusCompleted {
+				t.Fatalf("backup failed: %+v", updated)
+			}
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("backup did not finish")
+		}
+		time.Sleep(time.Millisecond)
+	}
+	if task.Status != TaskStatusRunning {
+		t.Fatal("initial task snapshot was mutated")
+	}
+	files, _ := filepath.Glob(filepath.Join(dstDir, "*.tar.gz"))
+	if len(files) == 0 {
+		t.Error("no backup files created")
 	}
 }
 

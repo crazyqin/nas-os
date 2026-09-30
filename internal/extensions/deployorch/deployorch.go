@@ -277,7 +277,7 @@ func (o *Orchestrator) Deploy(templateID, nodeID string) (*Deployment, error) {
 	}(dep)
 
 	o.deployments[dep.ID] = dep
-	return dep, nil
+	return cloneDeployment(dep), nil
 }
 
 // GetDeployment 获取部署
@@ -289,7 +289,7 @@ func (o *Orchestrator) GetDeployment(depID string) (*Deployment, error) {
 	if !exists {
 		return nil, fmt.Errorf("部署 %s 不存在", depID)
 	}
-	return dep, nil
+	return cloneDeployment(dep), nil
 }
 
 // ListDeployments 列出部署
@@ -299,7 +299,7 @@ func (o *Orchestrator) ListDeployments() []*Deployment {
 
 	var deps []*Deployment
 	for _, dep := range o.deployments {
-		deps = append(deps, dep)
+		deps = append(deps, cloneDeployment(dep))
 	}
 	sort.Slice(deps, func(i, j int) bool {
 		return deps[i].StartedAt.After(deps[j].StartedAt)
@@ -365,4 +365,17 @@ func (o *Orchestrator) FormatDeployment(dep *Deployment) string {
 			svc.Name, svc.Status, svc.Healthy, svc.Replicas))
 	}
 	return sb.String()
+}
+
+// cloneDeployment returns an independent snapshot while o.mu is held.
+func cloneDeployment(dep *Deployment) *Deployment {
+	copy := *dep
+	copy.Services = make([]*ServiceInstance, len(dep.Services))
+	for i, svc := range dep.Services {
+		if svc != nil {
+			service := *svc
+			copy.Services[i] = &service
+		}
+	}
+	return &copy
 }
