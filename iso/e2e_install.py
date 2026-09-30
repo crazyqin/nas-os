@@ -158,7 +158,20 @@ def ssh(logdir, command):
 
 
 def verify_installed(vm, logdir):
-    health = wait_health(vm, 1800)
+    try:
+        health = wait_health(vm, 600)
+    except RuntimeError:
+        # Use the test root account to collect guest diagnostics after boot failure.
+        vm.send("root")
+        time.sleep(3)
+        vm.send("Nasos-Test-Only-8392!")
+        time.sleep(3)
+        vm.script("ip -br addr; ip route; systemctl --no-pager --failed; systemctl --no-pager status nas-os systemd-networkd; journalctl -b -u nas-os --no-pager -n 100; ss -lntp; curl -s http://127.0.0.1:8080/api/v1/system/health; printf '\\nE2E_BOOT_DIAGNOSTICS_DONE\\n'\n")
+        try:
+            vm.marker("E2E_BOOT_DIAGNOSTICS_DONE", 60)
+        except RuntimeError:
+            pass
+        raise
     # Explicitly assert the root is the installed disk, not squashfs/overlay/live.
     diagnostics = ssh(logdir, "set -eu; test ! -d /run/live/medium; "
                       "test \"$(findmnt -n -o FSTYPE /)\" = btrfs; "
