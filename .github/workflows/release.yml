@@ -142,6 +142,8 @@ jobs:
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.prepare-release.outputs.version }}
       
       # v2.254.0: 优化缓存策略
       - name: 恢复 Go 模块缓存
@@ -170,7 +172,7 @@ jobs:
           fi
           
           # 构建 nasd（版本戳打向 internal/version，并补 Commit/BuildTime）
-          go build -trimpath -ldflags "-s -w -X nas-os/internal/version.Version=${VERSION#v} -X nas-os/internal/version.Commit=${{ github.sha }} -X nas-os/internal/version.BuildTime=$(date -u '+%Y-%m-%d_%H:%M:%S')" -o "$BINARY_NAME" ./cmd/nasd
+          go build -trimpath -ldflags "-s -w -X nas-os/internal/version.Version=${VERSION#v} -X nas-os/internal/version.Commit=$(git rev-parse HEAD) -X nas-os/internal/version.BuildTime=$(date -u '+%Y-%m-%d_%H:%M:%S')" -o "$BINARY_NAME" ./cmd/nasd
           
           # 构建 nasctl
           go build -trimpath -ldflags "-s -w -X nas-os/internal/version.Version=${VERSION#v}" -o "$CTL_NAME" ./cmd/nasctl
@@ -200,6 +202,8 @@ jobs:
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.prepare-release.outputs.version }}
       
       # v2.377.0: Syft 下载重试机制（应对 GitHub 临时故障）
       - name: 安装 Syft（带重试）
@@ -321,6 +325,8 @@ jobs:
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.prepare-release.outputs.version }}
       
       - name: 下载所有构建产物
         uses: actions/download-artifact@v5
@@ -429,41 +435,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: [prepare-release, create-release]
     steps:
-      - name: 验证 Release 已创建
-        run: |
-          VERSION="${{ needs.prepare-release.outputs.version }}"
-          
-          echo "🔍 验证发布..."
-          
-          # 等待 Release 生效
-          sleep 10
-          
-          # 检查 Release API
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-            "https://api.github.com/repos/${{ github.repository }}/releases/tags/$VERSION")
-          
-          if [ "$RESPONSE" = "200" ]; then
-            echo "✅ Release 已成功创建"
-          else
-            echo "❌ Release 验证失败 (HTTP $RESPONSE)"
-            exit 1
-          fi
-      
-      - name: 验证二进制文件可下载
-        run: |
-          VERSION="${{ needs.prepare-release.outputs.version }}"
-          
-          # 测试下载
-          URL="https://github.com/${{ github.repository }}/releases/download/$VERSION/nasd-linux-amd64"
-          
-          echo "🔍 测试下载: $URL"
-          RESPONSE=$(curl -sI "$URL" | head -1)
-          
-          if echo "$RESPONSE" | grep -q "302\|200"; then
-            echo "✅ 二进制文件可下载"
-          else
-            echo "⚠️ 下载测试响应: $RESPONSE"
-          fi
+      - uses: actions/checkout@v5
+      - name: 验证安装所需资产及校验和
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+          RELEASE_VERSION: ${{ needs.prepare-release.outputs.version }}
+        run: bash scripts/verify-release-assets.sh
 
   # ========== 触发 Docker 构建 ==========
   trigger-docker:

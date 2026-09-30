@@ -1,0 +1,27 @@
+name: Installer and release asset checks
+on:
+  pull_request:
+    paths:
+      - scripts/install.sh
+      - scripts/verify-release-assets.sh
+      - scripts/test_install_release.py
+      - .github/workflows/release.yml
+      - .github/workflows/install-release-checks.yml
+  push:
+    branches: [master, fix/issue-50-install-release]
+    paths:
+      - scripts/install.sh
+      - scripts/verify-release-assets.sh
+      - scripts/test_install_release.py
+      - .github/workflows/release.yml
+      - .github/workflows/install-release-checks.yml
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - run: bash -n scripts/install.sh scripts/verify-release-assets.sh
+      - run: python3 scripts/test_install_release.py
