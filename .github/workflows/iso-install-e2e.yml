@@ -6,7 +6,12 @@ on:
         description: Successful ISO Build run to test (must match installer/source)
         type: string
         required: true
-        default: '36663582306'
+        default: '36677124501'
+  push:
+    branches: [feat/iso-installer]
+    paths:
+      - iso/e2e_install.py
+      - .github/workflows/iso-install-e2e.yml
 permissions:
   contents: read
   actions: read
@@ -32,7 +37,7 @@ jobs:
       - name: Check artifact source matches tested system
         env:
           GH_TOKEN: ${{ github.token }}
-          ISO_RUN_ID: ${{ inputs.iso_run_id || '36663582306' }}
+          ISO_RUN_ID: ${{ inputs.iso_run_id || '36677124501' }}
         run: |
           SOURCE_SHA=$(gh api repos/${{ github.repository }}/actions/runs/$ISO_RUN_ID --jq .head_sha)
           # Test harness/docs/workflows may change; booted code and image inputs may not.
@@ -43,7 +48,7 @@ jobs:
           name: nas-os-iso-${{ matrix.arch }}
           path: iso-artifact
           github-token: ${{ github.token }}
-          run-id: ${{ inputs.iso_run_id || '36663582306' }}
+          run-id: ${{ inputs.iso_run_id || '36677124501' }}
       - name: Install VM tools
         run: |
           sudo apt-get update -qq

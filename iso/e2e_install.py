@@ -250,6 +250,7 @@ else
   printf '\nE2E_INSTALL_FAILED\n'
 fi
 '''.replace("__PUBKEY__", pubkey)
+        vm.marker("root@nasos:~#", 300)
         vm.script("printf '\nE2E_SERIAL_READY\n'\n")
         vm.marker("E2E_SERIAL_READY", 120)
         vm.script(script)
