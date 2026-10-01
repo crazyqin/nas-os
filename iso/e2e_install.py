@@ -10,6 +10,7 @@ import base64
 import json
 import os
 from pathlib import Path
+import platform
 import shutil
 import socket
 import subprocess
@@ -31,8 +32,12 @@ class VM:
                "-m", "3072", "-smp", "2", "-display", "none",
                "-serial", f"unix:{self.sockpath},server=on,wait=off",
                "-monitor", "none", "-netdev", network]
+        host_arch = platform.machine()
+        native = host_arch in ({"x86_64", "AMD64"} if args.arch == "amd64" else {"aarch64", "arm64"})
+        kvm = native and os.access("/dev/kvm", os.R_OK | os.W_OK)
+        print(f"{phase}: host={host_arch} guest={args.arch} accelerator={'kvm' if kvm else 'tcg'}", flush=True)
         if args.arch == "amd64":
-            if os.access("/dev/kvm", os.W_OK):
+            if kvm:
                 cmd += ["-enable-kvm", "-cpu", "host"]
             cmd += ["-device", "e1000,netdev=n0",
                     "-drive", f"file={disk},format=qcow2,if=virtio"]
@@ -44,7 +49,9 @@ class VM:
             else:
                 cmd += ["-boot", "c"]
         else:
-            cmd += ["-M", "virt", "-cpu", "cortex-a72",
+            if kvm:
+                cmd += ["-enable-kvm"]
+            cmd += ["-M", "virt", "-cpu", "host" if kvm else "cortex-a72",
                     "-bios", "/usr/share/qemu-efi-aarch64/QEMU_EFI.fd",
                     "-device", "virtio-net-pci,netdev=n0",
                     "-drive", f"file={disk},format=qcow2,if=none,id=root",

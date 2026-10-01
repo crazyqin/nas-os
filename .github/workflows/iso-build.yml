@@ -219,7 +219,7 @@ jobs:
   installed-disk:
     name: Installed disk (${{ matrix.arch }}, ${{ matrix.firmware }})
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 100
     strategy:
       fail-fast: false
@@ -227,10 +227,13 @@ jobs:
         include:
           - arch: amd64
             firmware: bios
+            runner: ubuntu-24.04
           - arch: amd64
             firmware: uefi
+            runner: ubuntu-24.04
           - arch: arm64
             firmware: uefi
+            runner: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
