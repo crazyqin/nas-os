@@ -32,11 +32,14 @@ jobs:
             runner: ubuntu-24.04
           - arch: arm64
             firmware: uefi
-            runner: ubuntu-24.04-arm
+            # JSON runner label(s); dedicated ephemeral ARM64 hosts may expose KVM.
+            runner: ${{ fromJSON(vars.ISO_ARM64_KVM_RUNNER || '["ubuntu-24.04-arm"]') }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Check acceptance harness
+        run: python3 iso/test_e2e_install.py
       - name: Check artifact source matches tested system
         env:
           GH_TOKEN: ${{ github.token }}
@@ -57,11 +60,15 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq qemu-system-x86 qemu-system-arm qemu-utils ovmf qemu-efi-aarch64
       - name: Install offline, boot disk, initialize admin, cold reboot
+        env:
+          REQUIRE_KVM: ${{ matrix.arch == 'arm64' && vars.ISO_ARM64_KVM_RUNNER != '' }}
         run: |
           cd iso-artifact
           sha256sum --check *.sha256
           cd ..
-          python3 iso/e2e_install.py --arch ${{ matrix.arch }} --firmware ${{ matrix.firmware }} --iso "$(find iso-artifact -name '*.iso' -print -quit)"
+          KVM_ARGS=()
+          if [ "$REQUIRE_KVM" = true ]; then KVM_ARGS+=(--require-kvm); fi
+          python3 iso/e2e_install.py "${KVM_ARGS[@]}" --arch ${{ matrix.arch }} --firmware ${{ matrix.firmware }} --iso "$(find iso-artifact -name '*.iso' -print -quit)"
       - name: Upload acceptance results and diagnostics
         if: always()
         uses: actions/upload-artifact@v4

@@ -7,6 +7,7 @@ connections, so the installation cannot fetch packages from the Internet.
 """
 import argparse
 import base64
+from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
@@ -18,6 +19,34 @@ import threading
 import time
 import urllib.error
 import urllib.request
+
+
+def acceleration(arch, require_kvm=False):
+    host_arch = platform.machine()
+    native = host_arch in ({"x86_64", "AMD64"} if arch == "amd64" else {"aarch64", "arm64"})
+    kvm = native and os.access("/dev/kvm", os.R_OK | os.W_OK)
+    if require_kvm and not kvm:
+        raise RuntimeError(f"KVM required for {arch} installation acceptance; host={host_arch}, "
+                           "no usable /dev/kvm. Configure ISO_ARM64_KVM_RUNNER with a "
+                           "native ARM64 KVM runner; TCG cannot replace this gate.")
+    return "kvm" if kvm else "tcg"
+
+
+INSTALL_DIAGNOSTICS = r'''
+install_diagnostics() {
+  while :; do
+    printf '\n=== INSTALL PROGRESS %s ===\n' "$(date -u +%FT%TZ)"
+    # No argv/environment: the installer carries the test root password.
+    ps -eo pid,ppid,stat,etimes,time,wchan:24,comm
+    find /mnt/nasos-target/boot /mnt/nasos-target/var/tmp -maxdepth 2 -type f \
+      -name '*initrd*' -printf '%p bytes=%s modified=%TY-%Tm-%TdT%TH:%TM:%TS\n' 2>/dev/null || true
+    df -h /mnt/nasos-target
+    sleep 60
+  done
+}
+install_diagnostics &
+install_diagnostics_pid=$!
+'''
 
 
 class VM:
@@ -32,13 +61,14 @@ class VM:
                "-m", "3072", "-smp", "2", "-display", "none",
                "-serial", f"unix:{self.sockpath},server=on,wait=off",
                "-monitor", "none", "-netdev", network]
-        host_arch = platform.machine()
-        native = host_arch in ({"x86_64", "AMD64"} if args.arch == "amd64" else {"aarch64", "arm64"})
-        kvm = native and os.access("/dev/kvm", os.R_OK | os.W_OK)
-        print(f"{phase}: host={host_arch} guest={args.arch} accelerator={'kvm' if kvm else 'tcg'}", flush=True)
+        self.accelerator = acceleration(args.arch, args.require_kvm)
+        kvm = self.accelerator == "kvm"
+        # Explicit accelerator: a failed KVM initialization must never fall back.
+        cmd += ["-accel", self.accelerator]
+        print(f"{phase}: host={platform.machine()} guest={args.arch} accelerator={self.accelerator}", flush=True)
         if args.arch == "amd64":
             if kvm:
-                cmd += ["-enable-kvm", "-cpu", "host"]
+                cmd += ["-cpu", "host"]
             cmd += ["-device", "e1000,netdev=n0",
                     "-drive", f"file={disk},format=qcow2,if=virtio"]
             if args.firmware == "uefi":
@@ -49,8 +79,6 @@ class VM:
             else:
                 cmd += ["-boot", "c"]
         else:
-            if kvm:
-                cmd += ["-enable-kvm"]
             cmd += ["-M", "virt", "-cpu", "host" if kvm else "cortex-a72",
                     "-bios", "/usr/share/qemu-efi-aarch64/QEMU_EFI.fd",
                     "-device", "virtio-net-pci,netdev=n0",
@@ -61,6 +89,8 @@ class VM:
                         "-device", "virtio-scsi-pci", "-device", "scsi-cd,drive=cd"]
         self.stderr = (logdir / (phase + "-qemu.log")).open("wb")
         self.serial = (logdir / (phase + "-serial.log")).open("wb")
+        self.timeline = (logdir / (phase + "-timeline.log")).open("w")
+        self.started = time.monotonic()
         self.proc = subprocess.Popen(cmd, stdout=self.stderr, stderr=self.stderr)
         deadline = time.monotonic() + 30
         self.socket = socket.socket(socket.AF_UNIX)
@@ -84,6 +114,11 @@ class VM:
                 self.buffer.extend(data)
                 self.serial.write(data)
                 self.serial.flush()
+                self.timeline.write(json.dumps({
+                    "utc": datetime.now(timezone.utc).isoformat(),
+                    "elapsed_seconds": round(time.monotonic() - self.started, 3),
+                    "serial": data.decode(errors="replace")}, ensure_ascii=False) + "\n")
+                self.timeline.flush()
         except OSError:
             pass
 
@@ -122,6 +157,7 @@ class VM:
         self.reader.join(timeout=3)
         self.stderr.close()
         self.serial.close()
+        self.timeline.close()
 
 
 def request(path, data=None, token=None):
@@ -206,6 +242,8 @@ def main():
     parser.add_argument("--firmware", choices=["bios", "uefi"], required=True)
     parser.add_argument("--iso", type=Path, required=True)
     parser.add_argument("--output", type=Path, default=Path("e2e-results"))
+    parser.add_argument("--require-kvm", action="store_true",
+                        help="fail instead of using TCG when native KVM is unavailable")
     args = parser.parse_args()
     args.iso = args.iso.resolve()
     args.output.mkdir(parents=True, exist_ok=True)
@@ -219,6 +257,7 @@ def main():
     results = {"arch": args.arch, "firmware": args.firmware, "status": "running"}
     vm = None
     try:
+        results["accelerator"] = acceleration(args.arch, args.require_kvm)
         vm = VM(args, disk, logdir, "live-install", True)
         wait_health(vm, 1800)
         # Answer only the UI prompts. /dev/vda is the one newly created test disk.
@@ -239,7 +278,8 @@ sha256sum /usr/sbin/nasos-install
 touch /tmp/nasos-install.log
 tail -n +1 -F /tmp/nasos-install.log &
 install_log_pid=$!
-trap 'kill "$install_log_pid" 2>/dev/null || true' EXIT
+__INSTALL_DIAGNOSTICS__
+trap 'kill "$install_log_pid" "$install_diagnostics_pid" 2>/dev/null || true' EXIT
 if /usr/sbin/nasos-install; then
   mkdir -p /mnt/e2e-target
   mount /dev/vda2 /mnt/e2e-target
@@ -261,7 +301,7 @@ else
   cat /tmp/nasos-install.log
   printf '\nE2E_INSTALL_FAILED\n'
 fi
-'''.replace("__PUBKEY__", pubkey)
+'''.replace("__PUBKEY__", pubkey).replace("__INSTALL_DIAGNOSTICS__", INSTALL_DIAGNOSTICS)
         vm.marker("root@nasos:~#", 300)
         vm.script("printf '\nE2E_SERIAL_READY\n'\n")
         vm.marker("E2E_SERIAL_READY", 120)
