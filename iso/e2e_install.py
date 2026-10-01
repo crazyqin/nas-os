@@ -228,6 +228,11 @@ whiptail() {
 }
 export -f whiptail
 sha256sum /usr/sbin/nasos-install
+# Stream the real installer's redirected output even if installation hangs.
+touch /tmp/nasos-install.log
+tail -n +1 -F /tmp/nasos-install.log &
+install_log_pid=$!
+trap 'kill "$install_log_pid" 2>/dev/null || true' EXIT
 if /usr/sbin/nasos-install; then
   mkdir -p /mnt/e2e-target
   mount /dev/vda2 /mnt/e2e-target
