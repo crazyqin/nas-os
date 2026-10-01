@@ -32,6 +32,29 @@ def acceleration(arch, require_kvm=False):
     return "kvm" if kvm else "tcg"
 
 
+def probe_kvm(arch, logdir):
+    """Verify VM creation, not just existence/permissions of /dev/kvm."""
+    cmd = ["qemu-system-x86_64" if arch == "amd64" else "qemu-system-aarch64",
+           "-accel", "kvm", "-machine", "q35" if arch == "amd64" else "virt",
+           "-cpu", "host", "-m", "128", "-S", "-display", "none",
+           "-serial", "none", "-qmp", "stdio"]
+    commands = '\n'.join(json.dumps({"execute": name}) for name in
+                         ("qmp_capabilities", "query-kvm", "quit")) + '\n'
+    result = subprocess.run(cmd, input=commands, text=True, capture_output=True, timeout=20)
+    (logdir / "kvm-probe.log").write_text(result.stdout + result.stderr)
+    replies = []
+    for line in result.stdout.splitlines():
+        try:
+            replies.append(json.loads(line))
+        except ValueError:
+            pass
+    if result.returncode or not any(row.get("return", {}).get("enabled") is True
+                                   for row in replies):
+        raise RuntimeError("QEMU could not enable KVM; see kvm-probe.log. "
+                           "TCG cannot replace this gate.")
+    print("KVM preflight: QEMU query-kvm enabled=true", flush=True)
+
+
 INSTALL_DIAGNOSTICS = r'''
 install_diagnostics() {
   while :; do
@@ -249,15 +272,20 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     logdir = args.output.resolve()
     disk = logdir / "installed.qcow2"
-    subprocess.run(["qemu-img", "create", "-f", "qcow2", str(disk), "12G"], check=True)
-    subprocess.run(["ssh-keygen", "-q", "-t", "ed25519", "-N", "", "-f", str(logdir / "key")], check=True)
-    if args.arch == "amd64" and args.firmware == "uefi":
-        shutil.copyfile("/usr/share/OVMF/OVMF_VARS_4M.fd", logdir / "vars.fd")
-    pubkey = (logdir / "key.pub").read_text().strip()
-    results = {"arch": args.arch, "firmware": args.firmware, "status": "running"}
+    results = {"arch": args.arch, "firmware": args.firmware, "status": "running",
+               "require_kvm": args.require_kvm, "runner_arch": platform.machine(),
+               "source_commit": os.environ.get("ISO_SOURCE_SHA", os.environ.get("GITHUB_SHA")),
+               "harness_commit": os.environ.get("GITHUB_SHA")}
     vm = None
     try:
         results["accelerator"] = acceleration(args.arch, args.require_kvm)
+        if results["accelerator"] == "kvm":
+            probe_kvm(args.arch, logdir)
+        subprocess.run(["qemu-img", "create", "-f", "qcow2", str(disk), "12G"], check=True)
+        subprocess.run(["ssh-keygen", "-q", "-t", "ed25519", "-N", "", "-f", str(logdir / "key")], check=True)
+        if args.arch == "amd64" and args.firmware == "uefi":
+            shutil.copyfile("/usr/share/OVMF/OVMF_VARS_4M.fd", logdir / "vars.fd")
+        pubkey = (logdir / "key.pub").read_text().strip()
         vm = VM(args, disk, logdir, "live-install", True)
         wait_health(vm, 1800)
         # Answer only the UI prompts. /dev/vda is the one newly created test disk.

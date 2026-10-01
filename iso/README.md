@@ -45,6 +45,44 @@ amd64、arm64 使用同架构 runner 原生构建，再执行 Live 引导冒烟�
 工作流会检查工件对应的系统源码一致，避免旧 ISO 验证新代码。
 QEMU 结果不代替具体 NAS 硬件、USB/Ventoy、固件和网卡兼容性验收。
 
+### ARM 完整安装验收的运行环境
+
+构建和 Live 冒烟可使用 GitHub-hosted runner；ARM 完整安装 gate 要求原生 ARM64
+和实际可用的 KVM。`ubuntu-24.04-arm` 只保证 CPU 架构，不能保证嵌套虚拟化。
+2026-10-01 的运行 `36802104374` / `36802104332` 实际均为 TCG，安装 30 分钟后
+在 Live 包 purge 触发的第二次 initramfs 生成阶段超时。迁移 runner 标签不能视为
+安装验收已通过。
+
+两个工作流的 ARM 安装矩阵读取仓库变量 `ISO_ARM64_KVM_RUNNER`，值是 JSON
+runner 标签数组。例如专用自托管 ARM Linux 主机：
+
+```json
+["self-hosted", "Linux", "ARM64", "nas-os-kvm"]
+```
+
+主机应为 ARM64 裸机，或已确认向客体提供 ARM KVM 的虚拟机；至少 4 核、8 GiB
+内存和 30 GiB 空闲磁盘。runner 用户需可读写 `/dev/kvm`（通常加入 `kvm` 组后
+重启 runner 服务），预装 Python 3、Git、GitHub CLI、OpenSSH 客户端，以及支持
+无密码 sudo 的 apt 环境。工作流安装 QEMU 和 AAVMF。`/dev/kvm` 存在不够：验收
+先启动暂停的同架构 QEMU，并通过 QMP `query-kvm` 确认 `enabled=true`；正式安装
+及两次冷启动均使用显式 `-accel kvm`，初始化失败不会回退 TCG。
+
+当前触发范围是维护者的分支 push / 手动运行；自托管主机应专用于该仓库，采用
+一次任务后销毁的 ephemeral runner，且不承载业务数据或其他凭据。不要把此 job
+改为自动执行外部 fork 的代码。checkout 不保留 Git 凭据，工件仍仅含日志和结果。
+
+变量未设置时会在默认 hosted ARM runner 上明确失败；缺少 KVM 是环境阻塞，
+不会跳过 ARM、使用 `continue-on-error` 或把 Live 冒烟当作完整安装通过。
+接好 KVM 主机后手动运行 `ISO installed disk acceptance`，`iso_run_id` 填入
+当前系统源码对应的 ISO Build 运行编号，仍检查源码一致性和 ISO SHA256。
+
+诊断复现可以直接在无 KVM 主机上省略 `--require-kvm` 运行 `iso/e2e_install.py`；
+这是性能调查，不替代 gate。安装上限仍为 1800 秒。`*-timeline.log` 是每段串口
+数据的 UTC 接收时间和累计秒数（JSON Lines）；串口每分钟附加客体进程的状态、
+CPU 累计时间、等待位置及 initrd 文件大小/修改时间。用这些变化区分压缩计算、
+磁盘等待与没有进展，不能只根据最后一行推断死锁。`result.json` 保存实际加速器、
+工件系统源码和验收脚本提交，KVM 探针输出保存为 `kvm-probe.log`。
+
 ## 系统构成
 
 - **基础**：Debian bookworm（minbase + 自定义包列表，含 `non-free-firmware` 常见网卡固件）

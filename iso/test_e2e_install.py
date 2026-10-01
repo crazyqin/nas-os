@@ -5,11 +5,12 @@ from pathlib import Path
 import socket
 import subprocess
 import threading
+import tempfile
 import time
 import unittest
 from unittest.mock import patch
 
-from e2e_install import acceleration, INSTALL_DIAGNOSTICS, VM
+from e2e_install import acceleration, INSTALL_DIAGNOSTICS, probe_kvm, VM
 
 
 class AcceptanceTests(unittest.TestCase):
@@ -30,6 +31,29 @@ class AcceptanceTests(unittest.TestCase):
                 patch("e2e_install.os.access", return_value=True):
             with self.assertRaisesRegex(RuntimeError, "KVM required"):
                 acceleration("arm64", require_kvm=True)
+
+    def test_kvm_probe_requires_enabled_not_just_present(self):
+        for enabled in (False, True):
+            output = json.dumps({"return": {"present": True, "enabled": enabled}}) + "\n"
+            result = subprocess.CompletedProcess([], 0, stdout=output, stderr="")
+            with tempfile.TemporaryDirectory() as directory, \
+                    patch("e2e_install.subprocess.run", return_value=result) as run:
+                if enabled:
+                    probe_kvm("arm64", Path(directory))
+                else:
+                    with self.assertRaisesRegex(RuntimeError, "could not enable KVM"):
+                        probe_kvm("arm64", Path(directory))
+                self.assertIn('"query-kvm"', run.call_args.kwargs["input"])
+                self.assertIn("-accel", run.call_args.args[0])
+                self.assertNotIn("kvm:tcg", run.call_args.args[0])
+
+    def test_kvm_initialization_failure_is_saved_and_fails(self):
+        result = subprocess.CompletedProcess([], 1, stdout="", stderr="KVM_CREATE_VM failed")
+        with tempfile.TemporaryDirectory() as directory, \
+                patch("e2e_install.subprocess.run", return_value=result):
+            with self.assertRaisesRegex(RuntimeError, "could not enable KVM"):
+                probe_kvm("arm64", Path(directory))
+            self.assertIn("KVM_CREATE_VM failed", (Path(directory) / "kvm-probe.log").read_text())
 
     def test_serial_timeline_preserves_bytes_and_times_receipt(self):
         vm = VM.__new__(VM)

@@ -238,6 +238,8 @@ jobs:
             runner: ${{ fromJSON(vars.ISO_ARM64_KVM_RUNNER || '["ubuntu-24.04-arm"]') }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/download-artifact@v4
         with:
           name: nas-os-iso-${{ matrix.arch }}
@@ -248,7 +250,7 @@ jobs:
           sudo apt-get install -y -qq qemu-system-x86 qemu-system-arm qemu-utils ovmf qemu-efi-aarch64
       - name: Install offline, boot disk, initialize admin, cold reboot
         env:
-          REQUIRE_KVM: ${{ matrix.arch == 'arm64' && vars.ISO_ARM64_KVM_RUNNER != '' }}
+          REQUIRE_KVM: ${{ matrix.arch == 'arm64' }}
         run: |
           cd iso-artifact
           sha256sum --check *.sha256
