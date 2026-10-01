@@ -37,7 +37,8 @@ class AcceptanceTests(unittest.TestCase):
             output = json.dumps({"return": {"present": True, "enabled": enabled}}) + "\n"
             result = subprocess.CompletedProcess([], 0, stdout=output, stderr="")
             with tempfile.TemporaryDirectory() as directory, \
-                    patch("e2e_install.subprocess.run", return_value=result) as run:
+                    patch("e2e_install.subprocess.run", return_value=result) as run, \
+                    patch("builtins.print"):
                 if enabled:
                     probe_kvm("arm64", Path(directory))
                 else:
@@ -83,6 +84,20 @@ class AcceptanceTests(unittest.TestCase):
         result = subprocess.run(["bash", "-n"], input=INSTALL_DIAGNOSTICS,
                                 text=True, capture_output=True)
         self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_sampler_survives_target_directory_not_created_yet(self):
+        mocks = r'''
+set -eu
+ps() { printf 'process sample\n'; }
+find() { return 1; }
+df() { return 1; }
+sleep() { printf 'SAMPLE_CYCLE_COMPLETED\n'; exit 0; }
+'''
+        result = subprocess.run(["bash", "-c", mocks + INSTALL_DIAGNOSTICS +
+                                 '\nwait "$install_diagnostics_pid"'],
+                                text=True, capture_output=True, timeout=5)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("SAMPLE_CYCLE_COMPLETED", result.stdout)
 
 
 if __name__ == "__main__":

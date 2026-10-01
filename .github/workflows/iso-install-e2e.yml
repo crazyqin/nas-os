@@ -80,3 +80,58 @@ jobs:
             e2e-results/*.txt
             e2e-results/result.json
           if-no-files-found: warn
+
+  arm-tcg-diagnostics:
+    name: ARM TCG performance diagnostics (not acceptance)
+    # Until a KVM host is connected, collect bounded profiles on the hosted ARM CPU.
+    # This job never substitutes for installed-disk (arm64, uefi), which requires KVM.
+    if: ${{ vars.ISO_ARM64_KVM_RUNNER == '' }}
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check acceptance harness
+        run: python3 iso/test_e2e_install.py
+      - name: Check artifact source matches tested system
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISO_RUN_ID: ${{ inputs.iso_run_id || '36797932136' }}
+        run: |
+          SOURCE_SHA=$(gh api repos/${{ github.repository }}/actions/runs/$ISO_RUN_ID --jq .head_sha)
+          # Test harness/docs/workflows may change; booted code and image inputs may not.
+          git diff --exit-code "$SOURCE_SHA" HEAD -- iso/live-config iso/build.sh iso/prepare-binaries.sh cmd internal pkg configs webui VERSION go.mod go.sum
+          echo "ISO_SOURCE_SHA=$SOURCE_SHA" >> "$GITHUB_ENV"
+      - uses: actions/download-artifact@v4
+        with:
+          name: nas-os-iso-arm64
+          path: iso-artifact
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.iso_run_id || '36797932136' }}
+      - name: Install VM tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq qemu-system-x86 qemu-system-arm qemu-utils ovmf qemu-efi-aarch64
+      - name: Sample real ARM installer performance for at most 15 minutes
+        env:
+          REQUIRE_KVM: 'false'
+          NASOS_E2E_PURPOSE: diagnostic
+        run: |
+          cd iso-artifact
+          sha256sum --check *.sha256
+          cd ..
+          KVM_ARGS=()
+          if [ "$REQUIRE_KVM" = true ]; then KVM_ARGS+=(--require-kvm); fi
+          timeout --signal=INT --kill-after=30s 15m python3 iso/e2e_install.py "${KVM_ARGS[@]}" --arch arm64 --firmware uefi --iso "$(find iso-artifact -name '*.iso' -print -quit)"
+      - name: Upload acceptance results and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arm-tcg-performance-diagnostics
+          path: |
+            e2e-results/*.log
+            e2e-results/*.txt
+            e2e-results/result.json
+          if-no-files-found: warn

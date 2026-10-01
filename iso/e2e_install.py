@@ -62,8 +62,9 @@ install_diagnostics() {
     # No argv/environment: the installer carries the test root password.
     ps -eo pid,ppid,stat,etimes,time,wchan:24,comm
     find /mnt/nasos-target/boot /mnt/nasos-target/var/tmp -maxdepth 2 -type f \
-      -name '*initrd*' -printf '%p bytes=%s modified=%TY-%Tm-%TdT%TH:%TM:%TS\n' 2>/dev/null || true
-    df -h /mnt/nasos-target
+      \( -name '*initrd*' -o -name 'mkinitramfs-*' \) \
+      -printf '%p bytes=%s modified=%TY-%Tm-%TdT%TH:%TM:%TS\n' 2>/dev/null || true
+    df -h /mnt/nasos-target 2>/dev/null || true
     sleep 60
   done
 }
@@ -275,7 +276,8 @@ def main():
     results = {"arch": args.arch, "firmware": args.firmware, "status": "running",
                "require_kvm": args.require_kvm, "runner_arch": platform.machine(),
                "source_commit": os.environ.get("ISO_SOURCE_SHA", os.environ.get("GITHUB_SHA")),
-               "harness_commit": os.environ.get("GITHUB_SHA")}
+               "harness_commit": os.environ.get("GITHUB_SHA"),
+               "purpose": os.environ.get("NASOS_E2E_PURPOSE", "acceptance")}
     vm = None
     try:
         results["accelerator"] = acceleration(args.arch, args.require_kvm)
@@ -367,9 +369,9 @@ fi
                              "enabled active service", "WebUI HTML", "bootstrap login",
                              "password rotation", "second cold boot", "password persistence"]
         print(json.dumps(results), flush=True)
-    except Exception as error:
+    except (Exception, KeyboardInterrupt) as error:
         results["status"] = "failed"
-        results["error"] = str(error)
+        results["error"] = str(error) or "interrupted"
         raise
     finally:
         if vm:

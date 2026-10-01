@@ -77,7 +77,10 @@ runner 标签数组。例如专用自托管 ARM Linux 主机：
 当前系统源码对应的 ISO Build 运行编号，仍检查源码一致性和 ISO SHA256。
 
 诊断复现可以直接在无 KVM 主机上省略 `--require-kvm` 运行 `iso/e2e_install.py`；
-这是性能调查，不替代 gate。安装上限仍为 1800 秒。`*-timeline.log` 是每段串口
+这是性能调查，不替代 gate。尚未配置 KVM runner 时，独立验收工作流另跑
+`ARM TCG performance diagnostics (not acceptance)`：对真实安装器采样最多 15 分钟，
+结果的 `purpose=diagnostic`，工件名独立；完整 ARM job 仍要求 KVM，不能因诊断
+通过而变绿。完整安装上限仍为 1800 秒。`*-timeline.log` 是每段串口
 数据的 UTC 接收时间和累计秒数（JSON Lines）；串口每分钟附加客体进程的状态、
 CPU 累计时间、等待位置及 initrd 文件大小/修改时间。用这些变化区分压缩计算、
 磁盘等待与没有进展，不能只根据最后一行推断死锁。`result.json` 保存实际加速器、
