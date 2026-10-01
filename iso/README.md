@@ -50,7 +50,7 @@ QEMU 结果不代替具体 NAS 硬件、USB/Ventoy、固件和网卡兼容性验
 构建和 Live 冒烟可使用 GitHub-hosted runner；ARM 完整安装 gate 要求原生 ARM64
 和实际可用的 KVM。`ubuntu-24.04-arm` 只保证 CPU 架构，不能保证嵌套虚拟化。
 2026-10-01 的运行 `36802104374` / `36802104332` 实际均为 TCG，安装 30 分钟后
-在 Live 包 purge 触发的第二次 initramfs 生成阶段超时。迁移 runner 标签不能视为
+在 Live 包 purge 完成后的第二次（最终）initramfs 重建阶段超时。迁移 runner 标签不能视为
 安装验收已通过。
 
 两个工作流的 ARM 安装矩阵读取仓库变量 `ISO_ARM64_KVM_RUNNER`，值是 JSON
