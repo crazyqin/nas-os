@@ -386,12 +386,15 @@ docker compose logs -f
 
 ### 裸机安装
 ```bash
-# 一键安装脚本
-curl -fsSL https://raw.githubusercontent.com/crazyqin/nas-os/master/scripts/install.sh | sudo bash
+# 一键安装最新稳定版
+curl -fsSL https://github.com/crazyqin/nas-os/releases/latest/download/install.sh | sudo bash
 
-# 或手动安装
-sudo ./scripts/install.sh
+# 安装指定版本（将 vX.Y.Z 替换为已发布且带 install.sh 资产的 tag）
+VERSION=vX.Y.Z
+curl -fsSL "https://github.com/crazyqin/nas-os/releases/download/${VERSION}/install.sh" | sudo env NAS_OS_VERSION="$VERSION" bash
 ```
+
+Release 安装器来自对应 tag，并绑定该版本的二进制和 WebUI；`latest` 后续变化不会切换安装资产。指定版本须使用该版本的安装器，版本不匹配会在安装前报错。旧 Release 若没有 `install.sh` 资产，不支持此入口。
 
 ### 系统服务
 ```bash

@@ -360,6 +360,15 @@ jobs:
           sha256sum webui.tar.gz > webui.tar.gz.sha256
           echo "✅ WebUI 资产已打包"
 
+      - name: 打包与目标 tag 绑定的安装器
+        env:
+          RELEASE_VERSION: ${{ needs.prepare-release.outputs.version }}
+        run: |
+          test "$(grep -Fxc 'NAS_OS_RELEASE_VERSION=""' scripts/install.sh)" -eq 1
+          sed "s/^NAS_OS_RELEASE_VERSION=\"\"$/NAS_OS_RELEASE_VERSION=\"$RELEASE_VERSION\"/" scripts/install.sh > install.sh
+          bash -n install.sh
+          sha256sum install.sh > install.sh.sha256
+
       - name: 创建发布包
         run: |
           VERSION="${{ needs.prepare-release.outputs.version }}"
@@ -370,6 +379,7 @@ jobs:
           # 复制二进制文件
           cp nasd-* nasctl-* release/
           cp webui.tar.gz webui.tar.gz.sha256 release/
+          cp install.sh install.sh.sha256 release/
           
           # 复制校验和和 SBOM
           cp checksums.txt checksums.txt.sig release/
@@ -397,6 +407,8 @@ jobs:
             nasctl-*
             webui.tar.gz
             webui.tar.gz.sha256
+            install.sh
+            install.sh.sha256
             checksums.txt
             checksums.txt.sig
             sbom/sbom-source-spdx.json

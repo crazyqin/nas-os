@@ -2,6 +2,7 @@ name: Installer and release asset checks
 on:
   pull_request:
     paths:
+      - README.md
       - scripts/install.sh
       - scripts/verify-release-assets.sh
       - scripts/test_install_release.py
@@ -10,6 +11,7 @@ on:
   push:
     branches: [master, fix/issue-50-install-release]
     paths:
+      - README.md
       - scripts/install.sh
       - scripts/verify-release-assets.sh
       - scripts/test_install_release.py

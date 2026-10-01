@@ -9,14 +9,23 @@
 # - 增加安装前系统检查
 # - 优化防火墙配置
 #
-# 用法: curl -fsSL https://raw.githubusercontent.com/crazyqin/nas-os/master/scripts/install.sh | sudo bash
+# 用法: curl -fsSL https://github.com/crazyqin/nas-os/releases/latest/download/install.sh | sudo bash
 # 或：wget -qO- https://... | sudo bash
 #
 
 set -eo pipefail
 
 # ========== 配置 ==========
+# 发布流程从目标 tag 打包时填入版本，避免 latest 在下载期间切换。
+NAS_OS_RELEASE_VERSION=""
 NAS_OS_VERSION="${NAS_OS_VERSION:-latest}"
+if [[ -n "$NAS_OS_RELEASE_VERSION" ]]; then
+    if [[ "$NAS_OS_VERSION" != "latest" && "$NAS_OS_VERSION" != "$NAS_OS_RELEASE_VERSION" ]]; then
+        echo "安装器版本为 $NAS_OS_RELEASE_VERSION，请从 https://github.com/crazyqin/nas-os/releases/download/$NAS_OS_VERSION/install.sh 获取指定版本安装器" >&2
+        exit 1
+    fi
+    NAS_OS_VERSION="$NAS_OS_RELEASE_VERSION"
+fi
 INSTALL_DIR="/opt/nas-os"
 CONFIG_DIR="/etc/nas-os"
 DATA_DIR="/var/lib/nas-os"
