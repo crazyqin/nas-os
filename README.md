@@ -2,7 +2,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.24.6 Stable（文档同步 2026-09-05）  
+> **正式版本**: [最新稳定 Release](https://github.com/crazyqin/nas-os/releases/latest)；源码版本见 [VERSION](VERSION)，未发布的分支提交不代表稳定版本。
 > **文档索引**: [docs/README.md](docs/README.md)  
 > **项目结构**: [STRUCTURE.md](docs/STRUCTURE.md)（含 **Core / Full 编译面**） · **运维**: [ops-packages.md](docs/ops-packages.md) · **架构**: [ARCHITECTURE.md](docs/ARCHITECTURE.md)  
 > **默认**: 仅 Core 能力面 + Core 二进制（`make build`）；套件走 `packages.*` / 应用中心；完整产品需 `make build-full`（`-tags nasd_full`）  
@@ -11,7 +11,7 @@
 
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
-> **Release**: [v3.24.6](https://github.com/crazyqin/nas-os/releases/tag/v3.24.6)（最新已发布 tag）
+> **Release**: [已发布版本](https://github.com/crazyqin/nas-os/releases)
 
 > **怎么读**：想跑起来 → 直接跳「快速开始」；想知道默认有什么 → 「默认交付面」；想看全部能力 → 「扩展能力」（130+ 项折叠清单）；升级历史 → 「版本状态」。
 
@@ -280,8 +280,8 @@ packages:
 ### 方式一：下载二进制文件 (推荐)
 
 ```bash
-# 从 Release 下载（示例为最新已发布 tag v3.24.6，按需替换）
-VER=v3.24.6
+# 从 Release 下载（将 vX.Y.Z 替换为 Release 页面已发布的正式 tag）
+VER=vX.Y.Z
 
 # AMD64 (x86_64)
 wget https://github.com/crazyqin/nas-os/releases/download/${VER}/nasd-linux-amd64
@@ -420,7 +420,7 @@ Compose 的初始密码保存在宿主机 `configs/.admin_password`（权限 060
 ### 裸机安装
 ```bash
 # 一键安装脚本
-# 最新稳定 Release 必须带有 install.sh；当前 v3.24.6 尚不支持此入口
+# 最新稳定 Release 必须带有 install.sh；旧版本 v3.24.6 不支持此入口
 (
   set -e
   installer=$(mktemp)
@@ -653,7 +653,7 @@ nas-os/
 
 完整变更见 [CHANGELOG.md](CHANGELOG.md)。
 
-### 当前状态 (2026-09-05) - v3.24.6 Stable ✅
+### 版本记录 (2026-09-05) - v3.24.6 Stable ✅
 
 **8/8 里程碑全部完成**——存储 / 共享 / 权限 / 监控 / 容器 / 虚拟机等能力均已交付；能力启用口径见上方「默认交付面」。
 
