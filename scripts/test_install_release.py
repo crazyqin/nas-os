@@ -3,6 +3,7 @@ import hashlib
 import os
 from pathlib import Path
 import subprocess
+import struct
 import tarfile
 import tempfile
 import textwrap
@@ -146,8 +147,11 @@ enable_service
             assets = root / "assets"
             assets.mkdir()
             binary_names = ["nasd-linux-amd64", "nasd-linux-arm64", "nasd-linux-arm"]
-            for name in binary_names:
-                (assets / name).write_bytes(b"binary fixture: " + name.encode())
+            for name, elf_class, machine in zip(binary_names, (2, 2, 1), (62, 183, 40)):
+                header = bytearray(64)
+                header[:6] = b"\x7fELF" + bytes((elf_class, 1))
+                struct.pack_into("<H", header, 18, machine)
+                (assets / name).write_bytes(header)
             (assets / "checksums.txt").write_text("".join(
                 f"{hashlib.sha256((assets / n).read_bytes()).hexdigest()}  {n}\n"
                 for n in binary_names))
@@ -204,6 +208,20 @@ cp "$FIXTURES/$name" "$name"
             for draft in ("false", "true"):
                 result = run(draft)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                # Valid checksums must not allow an amd64 file named as ARM64.
+                arm64 = assets / "nasd-linux-arm64"
+                saved_arm64 = arm64.read_bytes()
+                checksums = assets / "checksums.txt"
+                saved_checksums = checksums.read_text()
+                arm64.write_bytes((assets / "nasd-linux-amd64").read_bytes())
+                checksums.write_text("".join(
+                    f"{hashlib.sha256((assets / n).read_bytes()).hexdigest()}  {n}\n"
+                    for n in binary_names))
+                result = run(draft)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("expected linux/arm64", result.stderr)
+                arm64.write_bytes(saved_arm64)
+                checksums.write_text(saved_checksums)
                 for name in ("install.sh", "install.sh.sha256"):
                     with self.subTest(draft=draft, missing=name):
                         saved = (assets / name).read_bytes()
