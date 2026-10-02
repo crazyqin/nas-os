@@ -1,0 +1,73 @@
+name: Verify public v3.24.8 release
+
+on:
+  push:
+    branches: [ops/publish-v3.24.8-131a06b]
+
+permissions: {}
+
+jobs:
+  public-verification:
+    if: github.repository == 'crazyqin/nas-os' && github.ref == 'refs/heads/ops/publish-v3.24.8-131a06b'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_REPOSITORY: crazyqin/nas-os
+      RELEASE_VERSION: v3.24.8
+      EXPECTED_SHA: 131a06b489634f15ea33342b758aedd8fd58e977
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: v3.24.8
+          persist-credentials: false
+      - name: Check the published release, public assets and latest installer
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          test "$(cat VERSION)" = "$RELEASE_VERSION"
+          gh api "repos/$RELEASE_REPOSITORY/git/ref/tags/$RELEASE_VERSION" > tag.json
+          jq -e --arg sha "$EXPECTED_SHA" '.object.type == "commit" and .object.sha == $sha' tag.json
+          gh api "repos/$RELEASE_REPOSITORY/releases/latest" > latest.json
+          jq -e --arg tag "$RELEASE_VERSION" --arg sha "$EXPECTED_SHA" '.tag_name == $tag and .target_commitish == $sha and .draft == false and .prerelease == false' latest.json
+          bash scripts/verify-release-assets.sh
+          mkdir public-installer-check
+          cd public-installer-check
+          curl --fail --location --retry 3 --connect-timeout 10 --max-time 180 --output install.sh "https://github.com/$RELEASE_REPOSITORY/releases/latest/download/install.sh"
+          curl --fail --location --retry 3 --connect-timeout 10 --max-time 180 --output install.sh.sha256 "https://github.com/$RELEASE_REPOSITORY/releases/download/$RELEASE_VERSION/install.sh.sha256"
+          test "$(wc -l < install.sh.sha256)" -eq 1
+          awk '$2 == "install.sh" {print}' install.sh.sha256 > selected.sha256
+          test "$(wc -l < selected.sha256)" -eq 1
+          sha256sum --check selected.sha256
+          grep -Fx "NAS_OS_RELEASE_VERSION=\"$RELEASE_VERSION\"" install.sh
+          bash -n install.sh
+          echo "PASS: latest public installer matches the fixed v3.24.8 asset"
+      - name: Exercise the anonymous public Core image with Compose
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          path = Path("scripts/test_docker_compose.py").resolve()
+          source = path.read_text()
+          replacements = {
+              'image = "nas-os-smoke:" + project':
+                  'image = "ghcr.io/crazyqin/nas-os:v3.24.8"',
+              '            compose("build", "nas-os")':
+                  '            subprocess.run(["docker", "pull", image], check=True, env=env)\n'
+                  '            labels = json.loads(subprocess.run(["docker", "image", "inspect", image], check=True, text=True, capture_output=True, env=env).stdout)[0]["Config"]["Labels"]\n'
+                  '            require(labels.get("org.opencontainers.image.revision") == os.environ["EXPECTED_SHA"], "Published image source mismatch")\n'
+                  '            require(labels.get("org.opencontainers.image.version", "").lstrip("v") == "3.24.8", "Published image version mismatch")',
+              '        def compose(*args, capture=False, check=True):':
+                  '        def compose(*args, capture=False, check=True):\n'
+                  '            if args and args[0] == "up":\n'
+                  '                args = (args[0], "--no-build", "--pull", "never", *args[1:])',
+          }
+          for old, new in replacements.items():
+              if source.count(old) != 1:
+                  raise SystemExit("Compose adapter source changed; refusing to weaken the test")
+              source = source.replace(old, new)
+          exec(compile(source, str(path), "exec"), {"__name__": "__main__", "__file__": str(path)})
+          PY
