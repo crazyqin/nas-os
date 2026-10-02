@@ -1,0 +1,98 @@
+# One-time release bootstrap, confined to this operations branch.
+# The release tag points to the previously validated commit, without this file.
+name: Bootstrap validated v3.24.7 release
+
+on:
+  push:
+    branches: [ops/publish-v3.24.7-af77ed6]
+
+permissions: {}
+
+concurrency:
+  group: bootstrap-v3.24.7-af77ed6
+  cancel-in-progress: false
+
+jobs:
+  bootstrap:
+    if: github.repository == 'crazyqin/nas-os' && github.ref == 'refs/heads/ops/publish-v3.24.7-af77ed6'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - name: Validate candidate, create fixed tag and dispatch gated release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import base64
+          import json
+          import os
+          import subprocess
+
+          REPO = "crazyqin/nas-os"
+          SHA = "af77ed6268aab0b70641d01bdf03d908f45b1dd0"
+          TREE = "d2531afa37e7cf1c32553d56c5f0725b4efadb5e"
+          TAG = "v3.24.7"
+          DRAFT_ID = 401626091
+          RUNS = {
+              36974209170: ".github/workflows/ci-cd.yml",
+              36974209177: ".github/workflows/docker-publish.yml",
+              36974209196: ".github/workflows/install-release-checks.yml",
+              36974209145: ".github/workflows/compatibility.yml",
+              36974209155: ".github/workflows/security-scan.yml",
+          }
+
+          def require(condition, message):
+              if not condition:
+                  raise SystemExit(message)
+
+          def api(path, method="GET", fields=(), missing_ok=False):
+              cmd = ["gh", "api", "--method", method, f"repos/{REPO}/{path}"]
+              for key, value in fields:
+                  cmd += ["-f", f"{key}={value}"]
+              result = subprocess.run(cmd, text=True, capture_output=True)
+              if result.returncode:
+                  if missing_ok and "HTTP 404" in result.stderr:
+                      return None
+                  raise SystemExit(f"GitHub API {path} failed: {result.stderr.strip()}")
+              return json.loads(result.stdout) if result.stdout.strip() else None
+
+          require(os.environ.get("GITHUB_REPOSITORY") == REPO, "Wrong repository")
+          require(os.environ.get("GITHUB_REF") == "refs/heads/ops/publish-v3.24.7-af77ed6", "Wrong operations branch")
+          require(os.environ.get("GITHUB_EVENT_NAME") == "push", "Wrong event")
+          require(api(f"git/commits/{SHA}")["tree"]["sha"] == TREE, "Candidate tree changed")
+          version = api(f"contents/VERSION?ref={SHA}")
+          require(base64.b64decode(version["content"]).decode().strip() == TAG, "VERSION does not match tag")
+          for run_id, path in RUNS.items():
+              run = api(f"actions/runs/{run_id}")
+              require(run["head_sha"] == SHA and run["path"] == path and
+                      run["head_branch"] == "master" and run["event"] == "push" and
+                      run["status"] == "completed" and run["conclusion"] == "success",
+                      f"Required candidate check {run_id} is not successful")
+          release = api(f"releases/{DRAFT_ID}")
+          require(release["tag_name"] == TAG and release["target_commitish"] == SHA and
+                  release["draft"] is True and release["prerelease"] is False,
+                  "Release draft does not match the validated candidate")
+
+          ref = api(f"git/ref/tags/{TAG}", missing_ok=True)
+          if ref is None:
+              api("git/refs", "POST", (("ref", f"refs/tags/{TAG}"), ("sha", SHA)))
+          ref = api(f"git/ref/tags/{TAG}")
+          require(ref["object"]["type"] == "commit" and ref["object"]["sha"] == SHA,
+                  "Existing tag points to another commit; refusing to overwrite it")
+          print(f"Validated {TAG} -> {SHA}")
+
+          # GITHUB_TOKEN-created tags do not trigger push workflows. Explicit
+          # workflow_dispatch runs the existing Release workflow on the tag.
+          runs = api(f"actions/workflows/release.yml/runs?head_sha={SHA}&event=workflow_dispatch&per_page=100")
+          matching = [r for r in runs["workflow_runs"] if r["head_sha"] == SHA and r["head_branch"] == TAG]
+          if any(r["status"] != "completed" or r["conclusion"] == "success" for r in matching):
+              print("A matching Release run is active or successful; no duplicate dispatch")
+          else:
+              subprocess.run(["gh", "workflow", "run", "release.yml", "--repo", REPO,
+                              "--ref", TAG, "-f", f"version={TAG}",
+                              "-f", "prerelease=false", "-f", "draft=false"], check=True)
+              print("Dispatched the existing gated Release workflow on the fixed tag")
+          PY
