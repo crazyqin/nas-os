@@ -57,7 +57,12 @@ permissions:
   contents: write          # 创建 Release
   packages: write          # 推送到 GHCR
   id-token: write          # OIDC 签名
-  actions: write           # 触发其他 workflow
+  security-events: write   # 可复用 Docker workflow 的镜像扫描
+  attestations: write      # 可复用 Docker workflow 的 attestations
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   # ========== 准备发布 ==========
@@ -77,12 +82,21 @@ jobs:
       
       - name: 确定版本
         id: version
+        env:
+          REQUESTED_VERSION: ${{ inputs.version || '' }}
+          REQUESTED_PRERELEASE: ${{ inputs.prerelease || false }}
         run: |
+          set -euo pipefail
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            VERSION="${{ github.event.inputs.version }}"
+            VERSION="$REQUESTED_VERSION"
           else
             VERSION="${GITHUB_REF#refs/tags/}"
           fi
+
+          # Release、安装器与镜像必须取自同一 tag；手工触发也不能从 master 套版本。
+          test "$GITHUB_REF" = "refs/tags/$VERSION"
+          test "$(git rev-parse HEAD)" = "$(git rev-parse "refs/tags/$VERSION^{commit}")"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           
           # 验证版本格式
           if ! [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
@@ -95,7 +109,7 @@ jobs:
           if [[ "$VERSION" =~ - ]]; then
             IS_PRERELEASE="true"
           else
-            IS_PRERELEASE="${{ github.event.inputs.prerelease || 'false' }}"
+            IS_PRERELEASE="$REQUESTED_PRERELEASE"
           fi
           
           # 获取上一个 tag
@@ -398,10 +412,10 @@ jobs:
           tag_name: ${{ needs.prepare-release.outputs.version }}
           name: NAS-OS ${{ needs.prepare-release.outputs.version }}
           body_path: CHANGELOG.md
-          draft: ${{ github.event.inputs.draft == 'true' }}
+          draft: true
           prerelease: ${{ needs.prepare-release.outputs.is-prerelease == 'true' }}
           generate_release_notes: false
-          make_latest: ${{ needs.prepare-release.outputs.is-prerelease != 'true' }}
+          make_latest: false
           files: |
             nasd-*
             nasctl-*
@@ -420,7 +434,7 @@ jobs:
         run: |
           VERSION="${{ needs.prepare-release.outputs.version }}"
           
-          echo "## 🚀 发布完成" >> $GITHUB_STEP_SUMMARY
+          echo "## 📦 发布草稿已生成，等待资产和镜像验证" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**版本:** $VERSION" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -448,6 +462,8 @@ jobs:
     needs: [prepare-release, create-release]
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.prepare-release.outputs.version }}
       - name: 验证安装所需资产及校验和
         env:
           GH_TOKEN: ${{ github.token }}
@@ -457,14 +473,30 @@ jobs:
 
   # ========== 触发 Docker 构建 ==========
   trigger-docker:
-    name: 触发 Docker 构建
-    runs-on: ubuntu-latest
-    needs: [prepare-release, create-release]
+    name: 构建并验证同 tag 的 Docker 镜像
+    needs: [prepare-release, verify-release]
     if: needs.prepare-release.outputs.is-prerelease != 'true'
+    uses: ./.github/workflows/docker-publish.yml
+    with:
+      version: ${{ needs.prepare-release.outputs.version }}
+    secrets: inherit
+
+  publish-release:
+    name: 验证后发布 Release
+    runs-on: ubuntu-latest
+    needs: [prepare-release, verify-release, trigger-docker]
+    if: always() && !cancelled() && needs.verify-release.result == 'success' && (needs.trigger-docker.result == 'success' || needs.prepare-release.outputs.is-prerelease == 'true') && github.event.inputs.draft != 'true'
     steps:
-      - name: 触发 Docker 发布工作流
-        uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: docker-publish.yml
-          ref: ${{ github.ref }}
-          inputs: '{"version": "${{ needs.prepare-release.outputs.version }}"}'
+      - name: 发布已验证的草稿
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+          RELEASE_VERSION: ${{ needs.prepare-release.outputs.version }}
+          IS_PRERELEASE: ${{ needs.prepare-release.outputs.is-prerelease }}
+        run: |
+          set -euo pipefail
+          if [ "$IS_PRERELEASE" = true ]; then
+            gh release edit "$RELEASE_VERSION" --repo "$RELEASE_REPOSITORY" --draft=false --prerelease --latest=false
+          else
+            gh release edit "$RELEASE_VERSION" --repo "$RELEASE_REPOSITORY" --draft=false --latest
+          fi

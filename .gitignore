@@ -46,6 +46,13 @@ credentials.json
 # 管理员密码文件
 .admin_password
 **/.admin_password
+
+# 默认 Compose 写入的运行状态与本地配置
+/configs/config.yaml
+/configs/users.json
+/configs/users.json.tmp
+/configs/network.json
+/configs/mfa-config.json
 nasctl
 
 # Python 字节码

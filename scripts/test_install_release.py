@@ -18,20 +18,38 @@ class InstallReleaseTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             calls = Path(tmp) / "calls"
             mock = r'''
-curl() { printf 'curl %s\n' "$*" >> "$CALLS"; echo ':'; }
-sudo() { printf 'sudo %s\n' "$*" >> "$CALLS"; cat >/dev/null; }
+curl() {
+    printf 'curl %s\n' "$*" >> "$CALLS"
+    if [[ "$2" == */latest/* && "${MISSING_LATEST:-false}" == true ]]; then return 22; fi
+    if [[ "$3" == --output ]]; then printf ':\n' > "$4"; else echo ':'; fi
+}
+sudo() {
+    printf 'sudo %s\n' "$*" >> "$CALLS"
+    if [[ "$1" == bash && "$#" == 2 ]]; then bash "$2"; else cat >/dev/null; fi
+}
 '''
             result = subprocess.run(["bash", "-e", "-o", "pipefail", "-c",
                                      mock + block.replace("VERSION=vX.Y.Z", "VERSION=v3.25.0")],
                                     env={**os.environ, "CALLS": str(calls)},
                                     capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            self.assertCountEqual(calls.read_text().splitlines(), [
-                "curl -fsSL https://github.com/crazyqin/nas-os/releases/latest/download/install.sh",
-                "sudo bash",
-                "curl -fsSL https://github.com/crazyqin/nas-os/releases/download/v3.25.0/install.sh",
-                "sudo env NAS_OS_VERSION=v3.25.0 bash",
-            ])
+            lines = calls.read_text().splitlines()
+            self.assertEqual(len(lines), 4)
+            self.assertTrue(lines[0].startswith("curl -fsSL https://github.com/crazyqin/nas-os/releases/latest/download/install.sh --output "))
+            installer = lines[0].split(" --output ", 1)[1]
+            self.assertIn("sudo bash " + installer, lines)
+            self.assertFalse(Path(installer).exists(), "Temporary installer was not removed")
+            self.assertIn("curl -fsSL https://github.com/crazyqin/nas-os/releases/download/v3.25.0/install.sh", lines)
+            self.assertIn("sudo env NAS_OS_VERSION=v3.25.0 bash", lines)
+
+            calls.unlink()
+            result = subprocess.run(["bash", "-e", "-o", "pipefail", "-c", mock + block],
+                                    env={**os.environ, "CALLS": str(calls), "MISSING_LATEST": "true"},
+                                    capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("当前 latest Release 尚无可用安装器", result.stderr)
+            self.assertNotIn("sudo ", calls.read_text())
+            self.assertFalse(Path(calls.read_text().strip().split(" --output ", 1)[1]).exists())
 
     def package_installer(self, root, version):
         workflow = (SCRIPTS.parent / ".github/workflows/release.yml").read_text()

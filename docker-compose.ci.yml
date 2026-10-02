@@ -1,7 +1,5 @@
-# CI 环境覆盖文件
-# GitHub Actions runner 上 /dev/disk 是普通目录而非设备节点,
-# docker compose up 会报 "error gathering device information ... not a device node"。
-# 生产部署请继续直接使用 docker-compose.yml(保留 /dev/disk 设备透传)。
+# 兼容旧 CI 调用的覆盖文件。默认 docker-compose.yml 已不透传磁盘，
+# 新的启动验收直接测试默认配置，不依赖此覆盖文件。
 # 用法: docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d
 services:
   nas-os:
