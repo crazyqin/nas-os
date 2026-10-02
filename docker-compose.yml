@@ -181,8 +181,7 @@ services:
         tag: "{{.Name}}/{{.ImageName}}"
     
     # ─── 健康检查 ───────────────────────────────────────────────────────────
-    # v2.136.0: distroless 镜像无 shell，必须使用 CMD 而非 CMD-SHELL
-    # 注意：如使用 Dockerfile.full (alpine)，可改为 wget 或 curl
+    # 直接运行内置探针，不依赖 shell、curl 或 wget
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck"]
       interval: 30s          # 检查间隔

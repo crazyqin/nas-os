@@ -326,7 +326,7 @@ docker logs -f nasd
 
 访问 http://127.0.0.1:8080。两个命名卷分别保存配置/账户和运行数据，重建容器时保留。`/etc/nas-os` 必须可写，首次启动和改密都会更新用户数据。
 
-默认镜像为 distroless，没有 shell 或 `cat`。读取首次管理员密码请复制到宿主机：
+`v3.24.6` 镜像为 distroless，没有 shell 或 `cat`；后续 Core 镜像补齐了启动必需的 `sudo`/`btrfs` 工具。通用的首次管理员密码读取方式是复制到宿主机：
 
 ```bash
 docker cp nasd:/etc/nas-os/.admin_password ./.admin_password
