@@ -12,6 +12,11 @@ name: ISO Build
 
 on:
   workflow_dispatch:
+    inputs:
+      include_arm64:
+        description: Enable experimental ARM64 build, smoke and strict KVM acceptance
+        type: boolean
+        default: false
   # 分支验证期：push 即构建；合并后可移除（保留 workflow_dispatch）
   push:
     branches:
@@ -41,11 +46,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - arch: amd64
-            runner: ubuntu-24.04
-          - arch: arm64
-            runner: ubuntu-24.04-arm
+        include: ${{ fromJSON(inputs.include_arm64 && '[{"arch":"amd64","runner":"ubuntu-24.04"},{"arch":"arm64","runner":"ubuntu-24.04-arm"}]' || '[{"arch":"amd64","runner":"ubuntu-24.04"}]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -148,6 +149,7 @@ jobs:
           if-no-files-found: ignore
 
   smoke-arm64:
+    if: ${{ inputs.include_arm64 == true }}
     name: Smoke test (arm64 QEMU boot)
     needs: build
     runs-on: ubuntu-latest
@@ -220,22 +222,16 @@ jobs:
   installed-disk:
     name: Installed disk (${{ matrix.arch }}, ${{ matrix.firmware }})
     needs: build
-    runs-on: ${{ matrix.runner }}
+    runs-on: ${{ matrix.arch == 'arm64' && fromJSON(vars.ISO_ARM64_KVM_RUNNER || '["ubuntu-24.04-arm"]') || 'ubuntu-24.04' }}
     timeout-minutes: 100
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - arch: amd64
-            firmware: bios
-            runner: ubuntu-24.04
-          - arch: amd64
-            firmware: uefi
-            runner: ubuntu-24.04
+        arch: ${{ fromJSON(inputs.include_arm64 && '["amd64","arm64"]' || '["amd64"]') }}
+        firmware: [bios, uefi]
+        exclude:
           - arch: arm64
-            firmware: uefi
-            # JSON runner label(s); dedicated ephemeral ARM64 hosts may expose KVM.
-            runner: ${{ fromJSON(vars.ISO_ARM64_KVM_RUNNER || '["ubuntu-24.04-arm"]') }}
+            firmware: bios
     steps:
       - uses: actions/checkout@v4
         with:

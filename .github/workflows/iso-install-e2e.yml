@@ -2,11 +2,15 @@ name: ISO installed disk acceptance
 on:
   workflow_dispatch:
     inputs:
+      include_arm64:
+        description: Include experimental ARM64 strict KVM acceptance
+        type: boolean
+        default: false
       iso_run_id:
         description: ISO Build run with completed ISO artifacts (source must match)
         type: string
         required: true
-        default: '36797932136'
+        default: '36997446764'
   push:
     branches: [feat/iso-installer]
     paths:
@@ -18,22 +22,16 @@ permissions:
 jobs:
   installed-disk:
     name: Install and reboot (${{ matrix.arch }}, ${{ matrix.firmware }})
-    runs-on: ${{ matrix.runner }}
+    runs-on: ${{ matrix.arch == 'arm64' && fromJSON(vars.ISO_ARM64_KVM_RUNNER || '["ubuntu-24.04-arm"]') || 'ubuntu-24.04' }}
     timeout-minutes: 100
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - arch: amd64
-            firmware: bios
-            runner: ubuntu-24.04
-          - arch: amd64
-            firmware: uefi
-            runner: ubuntu-24.04
+        arch: ${{ fromJSON(inputs.include_arm64 && '["amd64","arm64"]' || '["amd64"]') }}
+        firmware: [bios, uefi]
+        exclude:
           - arch: arm64
-            firmware: uefi
-            # JSON runner label(s); dedicated ephemeral ARM64 hosts may expose KVM.
-            runner: ${{ fromJSON(vars.ISO_ARM64_KVM_RUNNER || '["ubuntu-24.04-arm"]') }}
+            firmware: bios
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,7 +42,7 @@ jobs:
       - name: Check artifact source matches tested system
         env:
           GH_TOKEN: ${{ github.token }}
-          ISO_RUN_ID: ${{ inputs.iso_run_id || '36797932136' }}
+          ISO_RUN_ID: ${{ inputs.iso_run_id || '36997446764' }}
         run: |
           SOURCE_SHA=$(gh api repos/${{ github.repository }}/actions/runs/$ISO_RUN_ID --jq .head_sha)
           # Test harness/docs/workflows may change; booted code and image inputs may not.
@@ -55,7 +53,7 @@ jobs:
           name: nas-os-iso-${{ matrix.arch }}
           path: iso-artifact
           github-token: ${{ github.token }}
-          run-id: ${{ inputs.iso_run_id || '36797932136' }}
+          run-id: ${{ inputs.iso_run_id || '36997446764' }}
       - name: Install VM tools
         run: |
           sudo apt-get update -qq
@@ -85,7 +83,7 @@ jobs:
     name: ARM TCG performance diagnostics (not acceptance)
     # Until a KVM host is connected, collect bounded profiles on the hosted ARM CPU.
     # This job never substitutes for installed-disk (arm64, uefi), which requires KVM.
-    if: ${{ vars.ISO_ARM64_KVM_RUNNER == '' }}
+    if: ${{ inputs.include_arm64 == true && vars.ISO_ARM64_KVM_RUNNER == '' }}
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 25
     steps:
@@ -98,7 +96,7 @@ jobs:
       - name: Check artifact source matches tested system
         env:
           GH_TOKEN: ${{ github.token }}
-          ISO_RUN_ID: ${{ inputs.iso_run_id || '36797932136' }}
+          ISO_RUN_ID: ${{ inputs.iso_run_id || '36997446764' }}
         run: |
           SOURCE_SHA=$(gh api repos/${{ github.repository }}/actions/runs/$ISO_RUN_ID --jq .head_sha)
           # Test harness/docs/workflows may change; booted code and image inputs may not.
@@ -109,7 +107,7 @@ jobs:
           name: nas-os-iso-arm64
           path: iso-artifact
           github-token: ${{ github.token }}
-          run-id: ${{ inputs.iso_run_id || '36797932136' }}
+          run-id: ${{ inputs.iso_run_id || '36997446764' }}
       - name: Install VM tools
         run: |
           sudo apt-get update -qq

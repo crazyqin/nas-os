@@ -442,7 +442,7 @@ Release 安装器来自对应 tag，并绑定该版本的二进制和 WebUI；`l
 ### 安装 ISO（从零安装到空盘）
 
 提供可引导安装盘：Live 试用 → 控制台 `nasos-install` 离线安装 → 浏览器初始化。
-支持 amd64（BIOS+UEFI）与 arm64（UEFI），详见 [iso/README.md](iso/README.md)。
+当前验收范围为 amd64（BIOS+UEFI）；arm64（UEFI）暂缓，保留实验性构建和严格 KVM 验收入口，详见 [iso/README.md](iso/README.md)。
 ```bash
 make iso   # 本地构建（需 docker）；正式产物见 GitHub Actions "ISO Build" 工作流
 ```

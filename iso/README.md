@@ -5,12 +5,14 @@ Debian bookworm live 系统打包 nasd，插盘即用：**Live 试用 → `nasos
 > 对应 Issue #22（"几时制作 ISO 文件"）。v1 形态为 live + 控制台安装器；
 > Docker 与 `install.sh` 安装路径不受影响。
 
+当前 v1 验收范围为 **amd64 BIOS/UEFI**。ARM 工作暂缓，arm64 为实验性入口，尚未完成严格 KVM 安装验收；不计入当前 amd64 合并门槛。
+
 ## 产物
 
 | 文件 | 架构 | 启动方式 |
 |------|------|----------|
 | `dist/nas-os-<version>-amd64.iso` | x86_64 | BIOS（isolinux/grub-pc）+ UEFI（EFI fallback 路径） |
-| `dist/nas-os-<version>-arm64.iso` | aarch64 | 仅 UEFI（EFI fallback 路径） |
+| `dist/nas-os-<version>-arm64.iso` | aarch64（实验性，默认不构建） | 仅 UEFI（EFI fallback 路径） |
 
 ## 使用流程
 
@@ -28,12 +30,13 @@ Debian bookworm live 系统打包 nasd，插盘即用：**Live 试用 → `nasos
 
 ```bash
 make iso               # amd64（需本地 docker）
-make iso-arm64         # arm64（自动注册 binfmt）
+make iso-arm64         # 实验性 arm64，暂缓验收（自动注册 binfmt）
 # 产物: dist/nas-os-*.iso + .sha256
 ```
 
 CI：GitHub Actions `ISO Build` workflow（手动触发 `workflow_dispatch`），
-amd64、arm64 使用同架构 runner 原生构建，再执行 Live 引导冒烟和安装后磁盘验收。
+默认只构建 amd64，并执行 Live 引导冒烟和 BIOS/UEFI 完整安装验收。
+以后恢复 ARM 工作时，手动运行并勾选 `include_arm64`，才会追加 arm64 构建、Live 冒烟和严格 KVM 完整安装；分支 push 不运行 ARM。
 
 安装验收覆盖 amd64 BIOS、amd64 UEFI、arm64 UEFI：在禁止访问外网的 QEMU 客体中，
 自动回答安装器提示，运行 ISO 内真实安装器，将系统装入新建的 12G 虚拟盘。
@@ -42,6 +45,7 @@ amd64、arm64 使用同架构 runner 原生构建，再执行 Live 引导冒烟�
 临时 SSH 公钥仅用于测试；工件保存诊断日志与结果，不上传虚拟磁盘或私钥。
 
 `ISO installed disk acceptance` 可手动复测已有构建工件，需要提供 ISO Build 运行编号；
+工作流默认仅复测 amd64；恢复 ARM 验收时另勾选 `include_arm64`，并选择包含 arm64 工件的运行。
 工作流会检查工件对应的系统源码一致，避免旧 ISO 验证新代码。
 QEMU 结果不代替具体 NAS 硬件、USB/Ventoy、固件和网卡兼容性验收。
 
@@ -71,13 +75,13 @@ runner 标签数组。例如专用自托管 ARM Linux 主机：
 一次任务后销毁的 ephemeral runner，且不承载业务数据或其他凭据。不要把此 job
 改为自动执行外部 fork 的代码。checkout 不保留 Git 凭据，工件仍仅含日志和结果。
 
-变量未设置时会在默认 hosted ARM runner 上明确失败；缺少 KVM 是环境阻塞，
-不会跳过 ARM、使用 `continue-on-error` 或把 Live 冒烟当作完整安装通过。
+显式启用 `include_arm64` 后，变量未设置时会在默认 hosted ARM runner 上明确失败；缺少 KVM 是环境阻塞，
+不会使用 `continue-on-error`、回退 TCG 或把 Live 冒烟当作完整安装通过。默认未启用 ARM 只表示延期，不表示 ARM 验收通过。
 接好 KVM 主机后手动运行 `ISO installed disk acceptance`，`iso_run_id` 填入
-当前系统源码对应的 ISO Build 运行编号，仍检查源码一致性和 ISO SHA256。
+当前系统源码对应且包含 arm64 工件的 ISO Build 运行编号，勾选 `include_arm64`，仍检查源码一致性和 ISO SHA256。
 
 诊断复现可以直接在无 KVM 主机上省略 `--require-kvm` 运行 `iso/e2e_install.py`；
-这是性能调查，不替代 gate。尚未配置 KVM runner 时，独立验收工作流另跑
+这是性能调查，不替代 gate。显式启用 ARM 且尚未配置 KVM runner 时，独立验收工作流另跑
 `ARM TCG performance diagnostics (not acceptance)`：对真实安装器采样最多 15 分钟，
 结果的 `purpose=diagnostic`，工件名独立；完整 ARM job 仍要求 KVM，不能因诊断
 通过而变绿。完整安装上限仍为 1800 秒。`*-timeline.log` 是每段串口
