@@ -14,7 +14,8 @@ concurrency:
 
 jobs:
   bootstrap:
-    if: github.repository == 'crazyqin/nas-os' && github.ref == 'refs/heads/ops/publish-v3.24.8-131a06b'
+    # One-time tag creation and dispatch completed; prevent later re-dispatch.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
