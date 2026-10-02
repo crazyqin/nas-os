@@ -131,7 +131,7 @@ func (m *MultichannelManager) Start() error {
 	// 启动健康检查
 	m.healthyChan = make(chan int, 10)
 	m.stopHealthCheck = make(chan struct{})
-	go m.healthCheckLoop()
+	go m.healthCheckLoop(m.stopHealthCheck, m.config.HealthCheckSec)
 
 	m.running = true
 	logInfo("多通道SMB已启动", "channels", len(m.channels))
@@ -424,13 +424,13 @@ func (m *MultichannelManager) createChannels() error {
 }
 
 // healthCheckLoop 健康检查循环.
-func (m *MultichannelManager) healthCheckLoop() {
-	ticker := time.NewTicker(time.Duration(m.config.HealthCheckSec) * time.Second)
+func (m *MultichannelManager) healthCheckLoop(stop <-chan struct{}, interval int) {
+	ticker := time.NewTicker(time.Duration(interval) * time.Second)
 	defer ticker.Stop()
 
 	for {
 		select {
-		case <-m.stopHealthCheck:
+		case <-stop:
 			return
 		case <-ticker.C:
 			m.performHealthCheck()

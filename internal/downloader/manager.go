@@ -154,7 +154,7 @@ func (m *Manager) CreateTask(req CreateTaskRequest) (*DownloadTask, error) {
 	m.tasks[task.ID] = task
 
 	// 保存到文件
-	if err := m.saveTasks(); err != nil {
+	if err := m.saveTasksLocked(); err != nil {
 		return nil, err
 	}
 
@@ -267,7 +267,7 @@ func (m *Manager) UpdateTask(id string, req UpdateTaskRequest) (*DownloadTask, e
 	}
 
 	// 保存
-	if err := m.saveTasks(); err != nil {
+	if err := m.saveTasksLocked(); err != nil {
 		return nil, err
 	}
 
@@ -331,7 +331,7 @@ func (m *Manager) DeleteTask(id string, deleteFiles bool) error {
 	delete(m.tasks, id)
 
 	// 保存
-	if err := m.saveTasks(); err != nil {
+	if err := m.saveTasksLocked(); err != nil {
 		return err
 	}
 
@@ -577,7 +577,7 @@ func (m *Manager) updateTasks() {
 	}
 
 	// 定期保存
-	_ = m.saveTasks()
+	_ = m.saveTasksLocked()
 }
 
 // updateBittorrentTask 从 BT 客户端获取任务状态.
@@ -910,6 +910,13 @@ func (m *Manager) loadTasks() error {
 
 // saveTasks 保存任务.
 func (m *Manager) saveTasks() error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.saveTasksLocked()
+}
+
+// saveTasksLocked requires m.mu to be held throughout serialization.
+func (m *Manager) saveTasksLocked() error {
 	tasks := make([]*DownloadTask, 0, len(m.tasks))
 	for _, task := range m.tasks {
 		tasks = append(tasks, task)

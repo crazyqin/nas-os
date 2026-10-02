@@ -233,18 +233,24 @@ func TestScan_Cancel(t *testing.T) {
 
 	// 使用 channel 同步
 	started := make(chan struct{})
+	done := make(chan struct{})
 	var result *ScanResult
 	var scanErr error
 
 	go func() {
 		close(started)
 		result, scanErr = detector.Scan(context.Background())
+		close(done)
 	}()
 
 	<-started
 	time.Sleep(1 * time.Millisecond)
 	detector.Cancel()
-	time.Sleep(100 * time.Millisecond)
+	select {
+	case <-done:
+	case <-time.After(5 * time.Second):
+		t.Fatal("scan did not finish after cancellation")
+	}
 
 	// 取消操作最终会产生 cancelled 状态
 	if result != nil {

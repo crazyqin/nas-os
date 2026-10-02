@@ -145,13 +145,15 @@ func (m *Manager) ExecutePlan(ctx context.Context, planID string) (*DrillExecuti
 	m.executions[exec.ID] = exec
 	m.mu.Unlock()
 
-	// 异步执行
-	go m.runExecution(ctx, exec, plan)
+	// The worker owns its copy; API callers receive an independent snapshot.
+	worker := cloneExecution(exec)
+	go m.runExecution(ctx, worker, plan)
 
-	return exec, nil
+	return cloneExecution(exec), nil
 }
 
 func (m *Manager) runExecution(ctx context.Context, exec *DrillExecution, plan *DrillPlan) {
+	defer m.publishExecution(exec)
 	m.logger.Info("演练开始执行",
 		zap.String("execution_id", exec.ID),
 		zap.String("plan_id", plan.ID),
@@ -182,6 +184,7 @@ func (m *Manager) runExecution(ctx context.Context, exec *DrillExecution, plan *
 		}
 
 		m.executeStep(ctx, exec, plan, i, step)
+		m.publishExecution(exec)
 
 		if exec.StepResults[i].Status == StepFailed {
 			failed = true
@@ -222,6 +225,7 @@ func (m *Manager) executeStep(ctx context.Context, exec *DrillExecution, plan *D
 	result := &exec.StepResults[idx]
 	result.Status = StepRunning
 	result.StartTime = time.Now()
+	m.publishExecution(exec)
 
 	stepCtx := ctx
 	if step.Timeout > 0 {
@@ -239,6 +243,7 @@ func (m *Manager) executeStep(ctx context.Context, exec *DrillExecution, plan *D
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		if attempt > 0 {
 			result.Retried = attempt
+			m.publishExecution(exec)
 			m.logger.Info("步骤重试",
 				zap.String("step", step.Name),
 				zap.Int("attempt", attempt),
@@ -293,7 +298,7 @@ func (m *Manager) ListExecutions() []*DrillExecution {
 
 	result := make([]*DrillExecution, 0, len(m.executions))
 	for _, e := range m.executions {
-		result = append(result, e)
+		result = append(result, cloneExecution(e))
 	}
 	return result
 }
@@ -307,7 +312,7 @@ func (m *Manager) GetExecution(id string) (*DrillExecution, error) {
 	if !ok {
 		return nil, fmt.Errorf("execution not found: %s", id)
 	}
-	return exec, nil
+	return cloneExecution(exec), nil
 }
 
 // GetReport 获取演练报告.
@@ -551,4 +556,16 @@ func validateMode(m string) error {
 	default:
 		return fmt.Errorf("invalid drill mode: %s", m)
 	}
+}
+
+func cloneExecution(exec *DrillExecution) *DrillExecution {
+	copy := *exec
+	copy.StepResults = append([]StepResult(nil), exec.StepResults...)
+	return &copy
+}
+
+func (m *Manager) publishExecution(exec *DrillExecution) {
+	m.mu.Lock()
+	m.executions[exec.ID] = cloneExecution(exec)
+	m.mu.Unlock()
 }

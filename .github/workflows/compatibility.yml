@@ -94,6 +94,8 @@ jobs:
       - name: 运行测试
         run: |
           # 跳过 e2e 和插件测试，使用并行测试
+          # pipefail：go test 失败必须让本步骤红（此前 tail 吞退出码，测试红 workflow 仍绿）
+          set -o pipefail
           go test -short -timeout 15m -count=1 -p 4 $(go list ./... | grep -v /e2e | grep -v /plugins/) 2>&1 | tail -100
 
       - name: go vet 检查

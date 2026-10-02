@@ -1,0 +1,2 @@
+# arm64 引导加载器：UEFI (grub-efi-arm64, EFI fallback 路径，无需 NVRAM)
+grub-efi-arm64

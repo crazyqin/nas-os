@@ -557,5 +557,33 @@ func TestEdgeIntegration(t *testing.T) {
 		t.Fatalf("创建聚合失败: %v", err)
 	}
 
+	task, _ = services.TaskScheduler.GetTask(task.ID)
 	t.Logf("集成测试完成: 任务 %s 调度到节点 %s, 聚合 ID %s, LB选择节点 %s", task.ID, task.NodeID, agg.ID, selected.ID)
+}
+
+func TestTaskScheduler_Snapshots(t *testing.T) {
+	scheduler, err := NewTaskScheduler(TaskSchedulerConfig{DataDir: t.TempDir()}, zap.NewNop())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer scheduler.Shutdown()
+	original := &Task{Name: "snapshot", Requirements: TaskRequirements{Labels: map[string]string{"zone": "a"}}}
+	if err := scheduler.CreateTask(original); err != nil {
+		t.Fatal(err)
+	}
+	worker := <-scheduler.pending
+	scheduler.tasksMutex.Lock()
+	worker.Status = TaskStatusRunning
+	worker.NodeID = "node-1"
+	scheduler.tasksMutex.Unlock()
+	if original.Status != TaskStatusPending || original.NodeID != "" {
+		t.Fatal("caller task was mutated")
+	}
+	snapshot, _ := scheduler.GetTask(original.ID)
+	snapshot.Status = TaskStatusFailed
+	snapshot.Requirements.Labels["zone"] = "changed"
+	stored, _ := scheduler.GetTask(original.ID)
+	if stored.Status != TaskStatusRunning || stored.Requirements.Labels["zone"] != "a" {
+		t.Fatal("GetTask exposed internal state")
+	}
 }

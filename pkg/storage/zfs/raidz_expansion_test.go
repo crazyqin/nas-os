@@ -249,9 +249,9 @@ func TestExpansionStatusUpdate(t *testing.T) {
 	defer mgr.Close()
 
 	// 测试状态更新
-	updated := false
+	updated := make(chan struct{}, 1)
 	mgr.SetStateChangeCallback(func(status *ExpansionStatus) {
-		updated = true
+		updated <- struct{}{}
 	})
 
 	// 手动设置状态
@@ -276,10 +276,10 @@ func TestExpansionStatusUpdate(t *testing.T) {
 		t.Errorf("Progress should be 75, got %f", status.Progress)
 	}
 
-	// 回调是异步的，等待一下
-	time.Sleep(100 * time.Millisecond)
-	if !updated {
-		t.Error("Callback should have been called")
+	select {
+	case <-updated:
+	case <-time.After(5 * time.Second):
+		t.Fatal("Callback should have been called")
 	}
 }
 

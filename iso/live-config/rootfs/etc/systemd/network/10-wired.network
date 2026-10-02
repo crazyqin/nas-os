@@ -1,0 +1,11 @@
+# NAS-OS 有线网络：所有以太网口 DHCP（systemd-networkd）
+[Match]
+Name=en* eth*
+
+[Network]
+DHCP=yes
+IPv6AcceptRA=yes
+LinkLocalAddressing=ipv6
+
+[DHCP]
+RouteMetric=100

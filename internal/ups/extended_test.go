@@ -225,19 +225,13 @@ func TestRunSelfTestDeviceNotFound(t *testing.T) {
 func TestRegisterEventCallback(t *testing.T) {
 	manager := NewExtendedManager(DefaultUPSConfig())
 
-	var receivedEvent Event
-	callbackCalled := false
-
-	manager.RegisterEventCallback(func(e Event) {
-		receivedEvent = e
-		callbackCalled = true
-	})
-
+	events := make(chan Event, 1)
+	manager.RegisterEventCallback(func(e Event) { events <- e })
 	_ = manager.AddDevice(&Device{ID: "dev1", Name: "UPS-1"})
-
-	// 等待回调执行
-	time.Sleep(100 * time.Millisecond)
-
-	assert.True(t, callbackCalled)
-	assert.Equal(t, EventDeviceConnected, receivedEvent.Type)
+	select {
+	case event := <-events:
+		assert.Equal(t, EventDeviceConnected, event.Type)
+	case <-time.After(5 * time.Second):
+		t.Fatal("event callback was not called")
+	}
 }

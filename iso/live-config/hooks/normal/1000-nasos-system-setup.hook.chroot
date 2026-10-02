@@ -1,0 +1,50 @@
+#!/bin/sh
+# NAS-OS chroot 钩子：启用服务、网络基础配置
+set -e
+
+echo ">>> NAS-OS: 启用系统服务"
+# 逐个 enable：systemctl enable 的多单元调用是原子操作——列表中任一单元
+# 缺失则整批静默失败、一个符号链接都不建（2026-09-25 冒烟第 5 次根因：
+# systemd-resolved.service 在 bookworm 最小 chroot 中不存在，导致排第一的
+# nas-os.service 也从未启用，而 2>&1 || true 把整批失败吞掉了）。
+for unit in nas-os.service avahi-daemon.service \
+  systemd-networkd.service systemd-networkd-wait-online.service \
+  systemd-resolved.service ssh.service systemd-timesyncd.service; do
+  if systemctl enable "$unit" >/dev/null 2>&1; then
+    echo ">>> NAS-OS:   已启用 $unit"
+  else
+    echo ">>> NAS-OS:   警告: 无法启用 $unit（单元缺失，跳过）"
+  fi
+done
+
+# 硬校验：nas-os.service 是 live ISO 的存在意义，宁可构建红也不允许静默缺失
+if [ ! -e /etc/systemd/system/multi-user.target.wants/nas-os.service ]; then
+  echo "FATAL: nas-os.service 未能启用（multi-user.target.wants 无符号链接）" >&2
+  ls -la /etc/systemd/system/multi-user.target.wants/ >&2 || true
+  exit 1
+fi
+
+# 硬校验：live WebUI 必须监听 0.0.0.0。无 config.yaml 时 nasd 默认只绑
+# 127.0.0.1（2026-09-25 冒烟第 6 次根因：QEMU hostfwd 只能转发到 guest
+# 外部地址，loopback 监听导致 8080 永远 RST 不可达，而系统其余部分全部正常）。
+if ! grep -q 'host:.*0\.0\.0\.0' /etc/nas-os/config.yaml 2>/dev/null; then
+  echo "FATAL: /etc/nas-os/config.yaml 缺失或 server.host 非 0.0.0.0" >&2
+  cat /etc/nas-os/config.yaml >&2 || true
+  exit 1
+fi
+
+# 避免传统 ifupdown 与 systemd-networkd 争抢接口（若存在）
+systemctl disable networking.service 2>/dev/null || true
+
+# systemd-resolved：resolv.conf 指向 stub（仅当 resolved 实际启用时才链接，
+# 否则保留 DHCP 客户端写入的 resolv.conf，避免悬空符号链接导致 live 系统断 DNS）
+if [ -e /etc/systemd/system/multi-user.target.wants/systemd-resolved.service ]; then
+  ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+fi
+
+# mDNS 名称解析（nasos.local），libnss-mdns 不自动改 nsswitch
+if ! grep -q 'mdns4_minimal' /etc/nsswitch.conf 2>/dev/null; then
+  sed -i 's/^hosts:.*/hosts: files mdns4_minimal [NOTFOUND=continue] dns mdns4/' /etc/nsswitch.conf || true
+fi
+
+echo ">>> NAS-OS: chroot 钩子完成"

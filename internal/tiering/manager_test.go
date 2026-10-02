@@ -298,6 +298,7 @@ func TestManager_TaskOperations(t *testing.T) {
 func TestAccessTracker(t *testing.T) {
 	config := DefaultPolicyEngineConfig()
 	tracker := NewAccessTracker(config)
+	tracker.dataPath = filepath.Join(t.TempDir(), "access_records.json")
 
 	err := tracker.Start()
 	require.NoError(t, err)

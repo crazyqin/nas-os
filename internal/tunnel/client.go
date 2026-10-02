@@ -372,8 +372,11 @@ func (c *AutoClient) Connect(ctx context.Context) error {
 
 // Disconnect 断开连接
 func (c *AutoClient) Disconnect() error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.status.State = StateDisconnected
+	c.connected = false
 	if c.currentClient != nil {
-		c.connected = false
 		return c.currentClient.Disconnect()
 	}
 	return nil
@@ -381,6 +384,8 @@ func (c *AutoClient) Disconnect() error {
 
 // GetStatus 获取状态
 func (c *AutoClient) GetStatus() TunnelStatus {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	if c.currentClient != nil {
 		return c.currentClient.GetStatus()
 	}
@@ -389,22 +394,30 @@ func (c *AutoClient) GetStatus() TunnelStatus {
 
 // Send 发送数据
 func (c *AutoClient) Send(data []byte) (int, error) {
-	if c.currentClient != nil {
-		return c.currentClient.Send(data)
+	c.mu.RLock()
+	client := c.currentClient
+	c.mu.RUnlock()
+	if client != nil {
+		return client.Send(data)
 	}
 	return 0, ErrNotConnected
 }
 
 // Receive 接收数据
 func (c *AutoClient) Receive() ([]byte, error) {
-	if c.currentClient != nil {
-		return c.currentClient.Receive()
+	c.mu.RLock()
+	client := c.currentClient
+	c.mu.RUnlock()
+	if client != nil {
+		return client.Receive()
 	}
 	return nil, ErrNotConnected
 }
 
 // IsConnected 检查是否已连接
 func (c *AutoClient) IsConnected() bool {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	if c.currentClient != nil {
 		return c.currentClient.IsConnected()
 	}

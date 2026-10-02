@@ -212,12 +212,15 @@ func TestExecutePlan_Success(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotEmpty(t, exec.ID)
 	assert.Equal(t, ExecRunning, exec.Status)
+	initial := exec
 
 	// 等待异步完成
-	time.Sleep(200 * time.Millisecond)
+	waitForExecutions(t, mgr)
 
 	exec, _ = mgr.GetExecution(exec.ID)
 	assert.Equal(t, ExecSuccess, exec.Status)
+	assert.Equal(t, ExecRunning, initial.Status)
+	assert.Equal(t, StepPending, initial.StepResults[0].Status)
 	assert.True(t, snap.restored) // 执行后恢复保护点
 	assert.Len(t, exec.StepResults, 2)
 	for _, sr := range exec.StepResults {
@@ -243,7 +246,7 @@ func TestExecutePlan_StepFailure(t *testing.T) {
 	drillExec, err := mgr.ExecutePlan(context.Background(), plan.ID)
 	require.NoError(t, err)
 
-	time.Sleep(200 * time.Millisecond)
+	waitForExecutions(t, mgr)
 
 	drillExec, _ = mgr.GetExecution(drillExec.ID)
 	assert.Equal(t, ExecFailed, drillExec.Status)
@@ -274,7 +277,7 @@ func TestExecutePlan_SnapshotCreateError(t *testing.T) {
 	drillExec, err := mgr.ExecutePlan(context.Background(), plan.ID)
 	require.NoError(t, err)
 
-	time.Sleep(200 * time.Millisecond)
+	waitForExecutions(t, mgr)
 
 	drillExec, _ = mgr.GetExecution(drillExec.ID)
 	assert.Equal(t, ExecFailed, drillExec.Status)
@@ -298,7 +301,7 @@ func TestExecutePlan_WithRetries(t *testing.T) {
 	drillExec, err := mgr.ExecutePlan(context.Background(), plan.ID)
 	require.NoError(t, err)
 
-	time.Sleep(200 * time.Millisecond)
+	waitForExecutions(t, mgr)
 
 	drillExec, _ = mgr.GetExecution(drillExec.ID)
 	assert.Equal(t, ExecSuccess, drillExec.Status)
@@ -338,7 +341,7 @@ func TestListExecutions(t *testing.T) {
 	})
 
 	mgr.ExecutePlan(context.Background(), plan.ID)
-	time.Sleep(100 * time.Millisecond)
+	waitForExecutions(t, mgr)
 
 	execs := mgr.ListExecutions()
 	assert.Len(t, execs, 1)
@@ -356,7 +359,7 @@ func TestGetReport(t *testing.T) {
 	})
 
 	exec, _ := mgr.ExecutePlan(context.Background(), plan.ID)
-	time.Sleep(200 * time.Millisecond)
+	waitForExecutions(t, mgr)
 
 	report, err := mgr.GetReport(exec.ID)
 	require.NoError(t, err)
@@ -381,7 +384,7 @@ func TestGetMetrics(t *testing.T) {
 	})
 
 	mgr.ExecutePlan(context.Background(), plan.ID)
-	time.Sleep(200 * time.Millisecond)
+	waitForExecutions(t, mgr)
 
 	metrics = mgr.GetMetrics()
 	assert.Equal(t, 1, metrics.TotalExecs)
@@ -517,7 +520,7 @@ func TestHTTP_GetExecution(t *testing.T) {
 	})
 
 	exec, _ := mgr.ExecutePlan(context.Background(), plan.ID)
-	time.Sleep(200 * time.Millisecond)
+	waitForExecutions(t, mgr)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/dr-drill/executions/"+exec.ID, nil)
 	w := httptest.NewRecorder()
@@ -540,7 +543,7 @@ func TestHTTP_GetReport(t *testing.T) {
 	})
 
 	exec, _ := mgr.ExecutePlan(context.Background(), plan.ID)
-	time.Sleep(200 * time.Millisecond)
+	waitForExecutions(t, mgr)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/dr-drill/executions/"+exec.ID+"/report", nil)
 	w := httptest.NewRecorder()
@@ -587,4 +590,16 @@ func TestValidateMode(t *testing.T) {
 	assert.NoError(t, validateMode("dry_run"))
 	assert.NoError(t, validateMode("real"))
 	assert.Error(t, validateMode("simulation"))
+}
+
+func waitForExecutions(t *testing.T, mgr *Manager) {
+	t.Helper()
+	require.Eventually(t, func() bool {
+		for _, exec := range mgr.ListExecutions() {
+			if exec.Status == ExecRunning {
+				return false
+			}
+		}
+		return true
+	}, 5*time.Second, time.Millisecond)
 }

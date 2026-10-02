@@ -183,7 +183,15 @@ func (m *Manager) scanVolumes() error {
 		return err
 	}
 
+	mountInfo, err := os.ReadFile("/proc/self/mountinfo")
+	if err != nil {
+		return fmt.Errorf("identify system root filesystem: %w", err)
+	}
+	rootDevice := rootBtrfsDevice(string(mountInfo))
 	for _, v := range vols {
+		if isSystemVolume(v, rootDevice) {
+			continue
+		}
 		volume := &Volume{
 			Name:        v.Name,
 			UUID:        v.UUID,

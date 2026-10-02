@@ -100,6 +100,9 @@ func TestDeploy(t *testing.T) {
 
 	time.Sleep(2 * time.Second)
 
+	if dep.Status != DeployRunning || dep.Services[0].Healthy != 0 {
+		t.Fatal("initial deployment snapshot was mutated")
+	}
 	updated, _ := o.GetDeployment(dep.ID)
 	if updated.Status != DeploySuccess {
 		t.Errorf("异步部署后状态应为 success, 实际 %s", updated.Status)

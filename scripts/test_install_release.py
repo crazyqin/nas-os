@@ -174,6 +174,13 @@ enable_service
                 digest = hashlib.sha256((assets / "webui.tar.gz").read_bytes()).hexdigest()
                 (assets / "webui.tar.gz.sha256").write_text(f"{digest}  webui.tar.gz\n")
 
+            iso_name = "nas-os-v3.24.6-amd64.iso"
+            (assets / iso_name).write_bytes(b"ISO fixture")
+            digest = hashlib.sha256((assets / iso_name).read_bytes()).hexdigest()
+            (assets / (iso_name + ".sha256")).write_text(f"{digest}  {iso_name}\n")
+            source = '{"version":"v3.24.6","source_commit":"' + "a" * 40 + '","architecture":"amd64"}'
+            (assets / (iso_name + ".source.json")).write_text(source)
+
             mocks = root / "bin"
             mocks.mkdir()
             (mocks / "gh").write_text('''#!/bin/bash
@@ -194,6 +201,7 @@ while (($#)); do
 done
 cp "$FIXTURES/$name" "$name"
 ''')
+            (mocks / "xorriso").write_text('#!/bin/bash\ncp "$FIXTURES/nas-os-v3.24.6-amd64.iso.source.json" "${@: -1}"\n')
             for path in mocks.iterdir():
                 path.chmod(0o755)
 
@@ -201,7 +209,8 @@ cp "$FIXTURES/$name" "$name"
                 return subprocess.run(["bash", str(SCRIPTS / "verify-release-assets.sh")],
                     env={**os.environ, "PATH": f"{mocks}:{os.environ['PATH']}",
                          "FIXTURES": str(assets), "DRAFT": draft,
-                         "RELEASE_REPOSITORY": "crazyqin/nas-os", "RELEASE_VERSION": "v3.24.6"},
+                         "RELEASE_REPOSITORY": "crazyqin/nas-os", "RELEASE_VERSION": "v3.24.6",
+                         "RELEASE_SOURCE_COMMIT": "a" * 40},
                     capture_output=True, text=True)
 
             archive()
@@ -222,7 +231,7 @@ cp "$FIXTURES/$name" "$name"
                 self.assertIn("expected linux/arm64", result.stderr)
                 arm64.write_bytes(saved_arm64)
                 checksums.write_text(saved_checksums)
-                for name in ("install.sh", "install.sh.sha256"):
+                for name in ("install.sh", "install.sh.sha256", iso_name, iso_name + ".sha256", iso_name + ".source.json"):
                     with self.subTest(draft=draft, missing=name):
                         saved = (assets / name).read_bytes()
                         (assets / name).unlink()

@@ -439,6 +439,16 @@ curl -fsSL "https://github.com/crazyqin/nas-os/releases/download/${VERSION}/inst
 
 Release 安装器来自对应 tag，并绑定该版本的二进制和 WebUI；`latest` 后续变化不会切换安装资产。指定版本须使用该版本的安装器，版本不匹配会在安装前报错。旧 Release 若没有 `install.sh` 资产，不支持此入口。
 
+### 安装 ISO（从零安装到空盘）
+
+提供可引导安装盘：Live 试用 → 控制台 `nasos-install` 离线安装 → 浏览器初始化。
+当前验收范围为 amd64（BIOS+UEFI）；arm64（UEFI）暂缓，保留实验性构建和严格 KVM 验收入口，详见 [iso/README.md](iso/README.md)。
+```bash
+make iso   # 本地构建（需 docker）
+```
+
+正式 amd64 ISO 将从包含本功能的下一版本 [Release](https://github.com/crazyqin/nas-os/releases) 提供：`nas-os-<tag>-amd64.iso`、同名 `.iso.sha256` 和 `.iso.source.json`。下载后运行 `sha256sum --check nas-os-<tag>-amd64.iso.sha256`。v3.24.8 不含 ISO；ARM ISO 暂不作为正式 Release 资产。
+
 ### 系统服务
 ```bash
 systemctl status nas-os
