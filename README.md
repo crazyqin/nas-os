@@ -314,8 +314,9 @@ docker run -d \
   --name nasd \
   --restart unless-stopped \
   -p 127.0.0.1:8080:8080 \
-  -v /data:/data \
-  -v /etc/nas-os:/config \
+  -e NAS_OS_LISTEN_HOST=0.0.0.0 \
+  -v nas-os-config:/etc/nas-os \
+  -v nas-os-data:/var/lib/nas-os \
   ghcr.io/crazyqin/nas-os:v3.24.6
 
 
@@ -323,7 +324,19 @@ docker run -d \
 docker logs -f nasd
 ```
 
-> 完整体验推荐直接用仓库根的 `docker-compose.yml`（见下文「部署」）。
+访问 http://127.0.0.1:8080。两个命名卷分别保存配置/账户和运行数据，重建容器时保留。`/etc/nas-os` 必须可写，首次启动和改密都会更新用户数据。
+
+默认镜像为 distroless，没有 shell 或 `cat`。读取首次管理员密码请复制到宿主机：
+
+```bash
+docker cp nasd:/etc/nas-os/.admin_password ./nas-os-admin-password
+chmod 600 ./nas-os-admin-password
+cat ./nas-os-admin-password
+```
+
+以 `admin` 登录并完成强制改密后，删除宿主机密码副本；容器内密码文件也应通过挂载卷或宿主机卷管理移除。密码请勿放进 Issue 或日志截图。
+
+Compose 部署和失败排查见下文「部署」。默认容器支持 Core 管理界面；实际磁盘操作和 SMB/NFS 服务还需要设备权限及系统工具，完整 NAS 使用推荐裸机部署。
 
 ### 方式三：源码编译
 
@@ -371,7 +384,11 @@ sudo nasd
 
 ### Docker 部署
 ```bash
-# 默认：非 privileged + bridge + 127.0.0.1:8080 + /dev/disk
+# 在仓库根目录执行；配置目录必须可写
+mkdir -p configs logs
+cp -n configs/default.yaml configs/config.yaml
+
+# 默认：非 privileged + bridge + 127.0.0.1:8080；不透传宿主机磁盘
 docker compose up -d
 
 # 强制 CSRF（生产推荐）：在 .env 设置 NAS_CSRF_KEY 与 NAS_OS_ENV=production
@@ -383,6 +400,12 @@ docker compose -f docker-compose.yml -f docker-compose.privileged.yml up -d
 # 查看日志
 docker compose logs -f
 ```
+
+Compose 的初始密码保存在宿主机 `configs/.admin_password`（权限 0600）；以 `admin` 登录并改密后，执行 `sudo rm configs/.admin_password`。保留 `configs/users.json`，否则会丢失账户和密码。需要管理物理盘时，在 Compose 的 `devices` 中显式添加实际设备节点（例如 `/dev/sda:/dev/sda`），或使用特权覆盖文件。
+
+容器启动失败时，先收集 `docker compose ps -a` 和 `docker compose logs --tail=100 nas-os`；`read-only file system` 请检查配置目录可写，设备透传错误请检查 `devices` 中的宿主机路径。健康接口应返回 HTTP 200：`curl -fsS http://127.0.0.1:8080/api/v1/system/health`。
+
+开发时可执行 `python3 scripts/test_docker_compose.py`，在临时目录中构建、启动并重建容器，检查健康、WebUI、首次改密及密码持久化；需要 Docker Compose 2.24.4+，测试使用独立容器、端口和数据卷。
 
 ### 裸机安装
 ```bash

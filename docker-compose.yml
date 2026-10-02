@@ -53,7 +53,7 @@
 #   Web UI: http://127.0.0.1:8080
 #
 # 存储挂载:
-#   configs/  → /etc/nas-os    配置文件（只读）
+#   configs/  → /etc/nas-os    配置与用户状态（必须可写）
 #   logs/     → /var/log/nas-os 日志目录
 #   nas-os-data → /var/lib/nas-os 数据持久化
 #
@@ -124,8 +124,8 @@ services:
     
     # ─── 存储挂载 ───────────────────────────────────────────────────────────
     volumes:
-      # 配置文件（只读挂载）
-      - ./configs:/etc/nas-os:ro
+      # 首次启动写入 .admin_password、users.json；改密和网络配置也需持久化
+      - ./configs:/etc/nas-os
       # 数据持久化
       - nas-os-data:/var/lib/nas-os
       
@@ -154,11 +154,11 @@ services:
       # bridge 模式下监听容器内 0.0.0.0；宿主机仅 127.0.0.1:8080 映射
       - NAS_OS_LISTEN_HOST=${NAS_OS_LISTEN_HOST:-0.0.0.0}
     
-    # ─── 设备访问（默认仅 /dev/disk；按需补充具体盘符）────────────────────
-    devices:
-      - /dev/disk:/dev/disk
-      # - /dev/sda:/dev/sda
-      # - /dev/sdb:/dev/sdb
+    # 默认不透传宿主机磁盘，可在无磁盘设备的主机上启动管理界面。
+    # 确需访问物理盘时，显式添加实际存在的设备节点：
+    # devices:
+    #   - /dev/sda:/dev/sda
+    #   - /dev/sdb:/dev/sdb
     
     # ─── 资源限制 ───────────────────────────────────────────────────────────
     # 根据实际硬件调整限制值
