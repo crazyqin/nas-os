@@ -304,20 +304,23 @@ nasctl --version
 
 ### 方式二：Docker 部署
 
-```bash
-# 拉取镜像（按 Release tag 或 latest）
-docker pull ghcr.io/crazyqin/nas-os:v3.24.6   # 或 :latest
+已发布的 `v3.24.6` Docker 镜像缺少启动必需的 `sudo`/`btrfs`，存在启动阻断，请勿用它部署。包含此修复的正式 tag 及其对应 GHCR 镜像发布并验证前，暂不提供稳定镜像拉取示例；`latest`/`master` 是移动开发标签，不能替代稳定 Release。
 
+以下命令在包含 PR #54 修复的源码 checkout 根目录执行，从当前源码构建 `nas-os:local`，用于开发/验收，不代表稳定 Release。后续正式部署应使用同一已发布 tag 的源码和镜像，并确认该版本包含启动修复。
+
+```bash
+# 从当前源码构建本地镜像
+docker build -t nas-os:local .
 
 # 运行容器（默认 Core 面：非 privileged + bridge + 127.0.0.1:8080）
-docker run -d \
+docker run -d --pull=never \
   --name nasd \
   --restart unless-stopped \
   -p 127.0.0.1:8080:8080 \
   -e NAS_OS_LISTEN_HOST=0.0.0.0 \
   -v nas-os-config:/etc/nas-os \
   -v nas-os-data:/var/lib/nas-os \
-  ghcr.io/crazyqin/nas-os:v3.24.6
+  nas-os:local
 
 
 # 查看日志
@@ -326,7 +329,7 @@ docker logs -f nasd
 
 访问 http://127.0.0.1:8080。两个命名卷分别保存配置/账户和运行数据，重建容器时保留。`/etc/nas-os` 必须可写，首次启动和改密都会更新用户数据。
 
-`v3.24.6` 镜像为 distroless，没有 shell 或 `cat`；后续 Core 镜像补齐了启动必需的 `sudo`/`btrfs` 工具。通用的首次管理员密码读取方式是复制到宿主机：
+首次管理员密码可复制到宿主机读取：
 
 ```bash
 docker cp nasd:/etc/nas-os/.admin_password ./.admin_password
@@ -383,21 +386,26 @@ sudo nasd
 ## 部署
 
 ### Docker 部署
+
+当前使用上文的本地源码构建方式。Compose 默认镜像名为 `nas-os:local`；以下启动命令显式构建并禁止拉取预构建的服务镜像，避免复用旧镜像或把开发构建误认成稳定 Release。正式镜像可用后，应使用同一 Release tag 的源码和 Compose 配置，将 `NAS_OS_IMAGE` 设为经验证的对应镜像，先拉取再以 `--no-build` 启动；本地构建继续使用本地镜像名。
+
 ```bash
 # 在仓库根目录执行；配置目录必须可写
+# 固定本地镜像名，覆盖宿主机或 .env 中可能遗留的发布镜像名
+export NAS_OS_IMAGE=nas-os:local
 mkdir -p configs logs
 cp -n configs/default.yaml configs/config.yaml
 # 默认数据卷绑定这个宿主机目录；必须先创建
 sudo mkdir -p /var/lib/nas-os
 
 # 默认：非 privileged + bridge + 127.0.0.1:8080；不透传宿主机磁盘
-docker compose up -d
+docker compose up -d --build --pull never
 
 # 强制 CSRF（生产推荐）：在 .env 设置 NAS_CSRF_KEY 与 NAS_OS_ENV=production
-docker compose -f docker-compose.yml -f docker-compose.secure.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.secure.yml up -d --build --pull never
 
 # 旧行为：privileged + host 网络（仅在确需时）
-docker compose -f docker-compose.yml -f docker-compose.privileged.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.privileged.yml up -d --build --pull never
 
 # 查看日志
 docker compose logs -f

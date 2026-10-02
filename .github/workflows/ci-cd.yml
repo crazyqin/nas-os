@@ -99,6 +99,7 @@ jobs:
             docs:
               - 'docs/**'
               - '*.md'
+              - 'scripts/test_docker_docs.py'
             docker:
               - 'Dockerfile*'
               - 'docker-compose*.yml'
@@ -755,6 +756,17 @@ jobs:
             checksums.txt
           retention-days: 7
 
+  # ========== Docker 文档发布基线回归 ==========
+  docker-docs-test:
+    name: Docker 文档基线检查
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.docs-changed == 'true' || needs.changes.outputs.docker-changed == 'true' || github.event_name == 'workflow_dispatch'
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - run: python3 scripts/test_docker_docs.py
+
   # ========== Docker Compose 首次启动与持久化验收 ==========
   docker-compose-test:
     name: Docker Compose 测试
@@ -837,7 +849,7 @@ jobs:
   build-summary:
     name: 构建汇总
     runs-on: ubuntu-latest
-    needs: [changes, lint, codeql, dependency-scan, test, test-merge, test-integration, build, build-artifacts, docker-compose-test]
+    needs: [changes, lint, codeql, dependency-scan, test, test-merge, test-integration, build, build-artifacts, docker-docs-test, docker-compose-test]
     if: always()
     timeout-minutes: 5
     steps:
@@ -858,6 +870,7 @@ jobs:
           echo "| 二进制构建 | ${{ needs.build.result == 'success' && '✅ 通过' || needs.build.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 产物整合 | ${{ needs.build-artifacts.result == 'success' && '✅ 通过' || needs.build-artifacts.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Docker Compose | ${{ needs.docker-compose-test.result == 'success' && '✅ 通过' || needs.docker-compose-test.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docker 文档基线 | ${{ needs.docker-docs-test.result == 'success' && '✅ 通过' || needs.docker-docs-test.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
           echo "**提交:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
