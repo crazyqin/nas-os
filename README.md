@@ -329,9 +329,9 @@ docker logs -f nasd
 默认镜像为 distroless，没有 shell 或 `cat`。读取首次管理员密码请复制到宿主机：
 
 ```bash
-docker cp nasd:/etc/nas-os/.admin_password ./nas-os-admin-password
-chmod 600 ./nas-os-admin-password
-cat ./nas-os-admin-password
+docker cp nasd:/etc/nas-os/.admin_password ./.admin_password
+chmod 600 ./.admin_password
+cat ./.admin_password
 ```
 
 以 `admin` 登录并完成强制改密后，删除宿主机密码副本；容器内密码文件也应通过挂载卷或宿主机卷管理移除。密码请勿放进 Issue 或日志截图。
