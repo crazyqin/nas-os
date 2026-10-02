@@ -107,6 +107,14 @@ class ReleasePipelineTests(unittest.TestCase):
         self.assertNotIn("  push:", self.staged.split("on:\n", 1)[1].split("\nenv:", 1)[0])
         self.assertIn("ref: ${{ needs.prepare-release.outputs.version }}", job(self.release, "verify-release"))
 
+    def test_release_targets_are_explicit_and_verified_before_upload(self):
+        build = step(self.release, "构建二进制文件")
+        self.assertIn("GOOS: ${{ matrix.os }}", build)
+        self.assertIn("GOARCH: ${{ matrix.arch }}", build)
+        self.assertIn('verify-release-binaries.py --os "$GOOS" --arch "$GOARCH" "$BINARY_NAME" "$CTL_NAME"', build)
+        assets = (ROOT / "scripts/verify-release-assets.sh").read_text()
+        self.assertIn('verify-release-binaries.py" --os linux --arch "${asset#nasd-linux-}" "$asset"', assets)
+
     def test_formal_image_verification_uses_release_alias_digest_and_revision(self):
         verify = job(self.docker, "verify-release-image")
         self.assertTrue(evaluate(condition(verify), {"github.ref": "refs/tags/v3.24.7", "github.event_name": "push"}))

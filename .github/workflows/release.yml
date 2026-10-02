@@ -175,7 +175,11 @@ jobs:
           cache: false
       
       - name: 构建二进制文件
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
         run: |
+          set -euo pipefail
           VERSION="${{ needs.prepare-release.outputs.version }}"
           BINARY_NAME="nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}"
           CTL_NAME="nasctl-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}"
@@ -190,6 +194,8 @@ jobs:
           
           # 构建 nasctl
           go build -trimpath -ldflags "-s -w -X nas-os/internal/version.Version=${VERSION#v}" -o "$CTL_NAME" ./cmd/nasctl
+
+          python3 scripts/verify-release-binaries.py --os "$GOOS" --arch "$GOARCH" "$BINARY_NAME" "$CTL_NAME"
           
           echo "✅ 构建完成: $BINARY_NAME, $CTL_NAME"
           
@@ -444,7 +450,7 @@ jobs:
           echo "|------|------|" >> $GITHUB_STEP_SUMMARY
           echo "| Linux AMD64 | \`nasd-linux-amd64\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Linux ARM64 | \`nasd-linux-arm64\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Linux ARMv7 | \`nasd-linux-armv7\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Linux ARMv7 | \`nasd-linux-arm\` |" >> $GITHUB_STEP_SUMMARY
           echo "| macOS AMD64 | \`nasd-darwin-amd64\` |" >> $GITHUB_STEP_SUMMARY
           echo "| macOS ARM64 | \`nasd-darwin-arm64\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Windows | \`nasd-windows-amd64.exe\` |" >> $GITHUB_STEP_SUMMARY

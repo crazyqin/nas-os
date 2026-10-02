@@ -3,6 +3,7 @@
 set -euo pipefail
 : "${RELEASE_REPOSITORY:?required}"
 : "${RELEASE_VERSION:?required}"
+script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 work_dir=$(mktemp -d)
 trap 'rm -rf "$work_dir"' EXIT
@@ -31,6 +32,7 @@ for asset in nasd-linux-amd64 nasd-linux-arm64 nasd-linux-arm; do
     awk -v name="$asset" '$2 == name {print}' checksums.txt > selected.sha256
     test "$(wc -l < selected.sha256)" -eq 1
     sha256sum --check selected.sha256
+    python3 "$script_dir/verify-release-binaries.py" --os linux --arch "${asset#nasd-linux-}" "$asset"
 done
 for asset in webui.tar.gz install.sh; do
     awk -v name="$asset" '$2 == name {print}' "$asset.sha256" > selected.sha256
