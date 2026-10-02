@@ -74,6 +74,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       is-prerelease: ${{ steps.version.outputs.is_prerelease }}
       previous-tag: ${{ steps.version.outputs.previous_tag }}
+      source-commit: ${{ steps.version.outputs.source_commit }}
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
@@ -118,10 +119,20 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
           echo "previous_tag=$PREVIOUS_TAG" >> $GITHUB_OUTPUT
+          echo "source_commit=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
           
           echo "📦 发布版本: $VERSION"
           echo "📝 预发布: $IS_PRERELEASE"
           echo "📌 上一个版本: ${PREVIOUS_TAG:-无}"
+
+  # 同 tag 的 amd64 ISO，复用 Live 冒烟及 BIOS/UEFI 完整安装；ARM 仍仅实验性手动入口。
+  build-iso:
+    name: 构建并验收正式 amd64 ISO
+    needs: [prepare-release]
+    uses: ./.github/workflows/iso-build.yml
+    with:
+      source_commit: ${{ needs.prepare-release.outputs.source-commit }}
+      release_version: ${{ needs.prepare-release.outputs.version }}
 
   # ========== 构建二进制文件（并行） ==========
   build-binaries:
@@ -322,6 +333,10 @@ jobs:
           echo "\`\`\`bash" >> CHANGELOG.md
           echo "docker pull ghcr.io/${{ github.repository }}:$VERSION" >> CHANGELOG.md
           echo "\`\`\`" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "**amd64 安装 ISO（BIOS/UEFI）:**" >> CHANGELOG.md
+          echo "https://github.com/${{ github.repository }}/releases/download/$VERSION/nas-os-$VERSION-amd64.iso" >> CHANGELOG.md
+          echo "下载同名 .iso.sha256 后运行 sha256sum --check nas-os-$VERSION-amd64.iso.sha256。来源记录见同名 .iso.source.json；ARM ISO 暂不作为正式资产。" >> CHANGELOG.md
           
           # 保存到输出
           {
@@ -341,7 +356,7 @@ jobs:
   create-release:
     name: 创建 GitHub Release
     runs-on: ubuntu-latest
-    needs: [prepare-release, build-binaries, generate-sbom, generate-changelog]
+    needs: [prepare-release, build-binaries, build-iso, generate-sbom, generate-changelog]
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
@@ -359,6 +374,21 @@ jobs:
         with:
           name: sbom
           path: ./sbom
+
+      - name: 下载已验收的 amd64 ISO
+        uses: actions/download-artifact@v5
+        with:
+          name: nas-os-iso-amd64
+          path: ./release-iso
+
+      - name: 上传前验证 ISO 校验和与目标 tag 来源
+        env:
+          RELEASE_VERSION: ${{ needs.prepare-release.outputs.version }}
+          RELEASE_SOURCE_COMMIT: ${{ needs.prepare-release.outputs.source-commit }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xorriso
+          python3 scripts/verify-release-iso.py --directory release-iso --version "$RELEASE_VERSION" --source-commit "$RELEASE_SOURCE_COMMIT"
       
       - name: 下载变更日志
         uses: actions/download-artifact@v5
@@ -400,6 +430,7 @@ jobs:
           cp nasd-* nasctl-* release/
           cp webui.tar.gz webui.tar.gz.sha256 release/
           cp install.sh install.sh.sha256 release/
+          cp release-iso/nas-os-*-amd64.iso* release/
           
           # 复制校验和和 SBOM
           cp checksums.txt checksums.txt.sig release/
@@ -429,6 +460,9 @@ jobs:
             webui.tar.gz.sha256
             install.sh
             install.sh.sha256
+            release-iso/nas-os-*-amd64.iso
+            release-iso/nas-os-*-amd64.iso.sha256
+            release-iso/nas-os-*-amd64.iso.source.json
             checksums.txt
             checksums.txt.sig
             sbom/sbom-source-spdx.json
@@ -475,7 +509,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_REPOSITORY: ${{ github.repository }}
           RELEASE_VERSION: ${{ needs.prepare-release.outputs.version }}
-        run: bash scripts/verify-release-assets.sh
+          RELEASE_SOURCE_COMMIT: ${{ needs.prepare-release.outputs.source-commit }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xorriso
+          bash scripts/verify-release-assets.sh
 
   # ========== 触发 Docker 构建 ==========
   trigger-docker:

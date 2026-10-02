@@ -1,7 +1,7 @@
 # NAS-OS 裸机安装 ISO 构建
 #
 # 产物: dist/nas-os-<version>-{amd64,arm64}.iso（Debian bookworm live 系统 + nasos-install 离线安装器）
-# 触发: 手动 workflow_dispatch（v1；正式发布节奏由维护者决定后续是否挂 tag）
+# 触发: 手动 workflow_dispatch；正式 Release 复用此工作流，仅发布 amd64
 #
 # 验证: amd64 ISO 在 QEMU 中真实引导，轮询 WebUI 健康端点 /api/v1/system/health
 #       amd64 BIOS/UEFI、arm64 UEFI 完整离线安装、移除介质、两次磁盘启动与管理员改密
@@ -11,6 +11,14 @@
 name: ISO Build
 
 on:
+  workflow_call:
+    inputs:
+      source_commit:
+        type: string
+        required: true
+      release_version:
+        type: string
+        required: true
   workflow_dispatch:
     inputs:
       include_arm64:
@@ -35,6 +43,21 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_commit || github.sha }}
+          fetch-depth: 0
+      - name: Check immutable ISO source
+        env:
+          EXPECTED_SOURCE: ${{ inputs.source_commit || github.sha }}
+          RELEASE_VERSION: ${{ inputs.release_version || '' }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE"
+          if [ -n "$RELEASE_VERSION" ]; then
+            test "$GITHUB_REF" = "refs/tags/$RELEASE_VERSION"
+            test "$(git rev-parse "refs/tags/$RELEASE_VERSION^{commit}")" = "$EXPECTED_SOURCE"
+            test "$(tr -d '[:space:]' < VERSION)" = "$RELEASE_VERSION"
+          fi
       - run: bash -n iso/live-config/rootfs/usr/sbin/nasos-install
       - run: python3 iso/test_installer.py
       - run: python3 iso/test_e2e_install.py
@@ -50,6 +73,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_commit || github.sha }}
 
       - name: Setup Go
         uses: actions/setup-go@v5
@@ -63,6 +88,15 @@ jobs:
       - name: Build ISO (live-build in debian:bookworm)
         run: docker run --privileged --rm -v "$PWD":/src debian:bookworm bash /src/iso/build.sh ${{ matrix.arch }}
 
+      - name: Verify ISO checksum and embedded source
+        if: matrix.arch == 'amd64'
+        env:
+          EXPECTED_SOURCE: ${{ inputs.source_commit || github.sha }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xorriso
+          python3 scripts/verify-release-iso.py --directory dist --version "$(tr -d '[:space:]' < VERSION)" --source-commit "$EXPECTED_SOURCE"
+
       - name: Upload ISO artifact
         uses: actions/upload-artifact@v4
         with:
@@ -70,6 +104,7 @@ jobs:
           path: |
             dist/*.iso
             dist/*.sha256
+            dist/*.source.json
           retention-days: 14
           if-no-files-found: error
 
@@ -235,6 +270,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.source_commit || github.sha }}
           persist-credentials: false
       - uses: actions/download-artifact@v4
         with:
@@ -247,6 +283,7 @@ jobs:
       - name: Install offline, boot disk, initialize admin, cold reboot
         env:
           REQUIRE_KVM: ${{ matrix.arch == 'arm64' }}
+          ISO_SOURCE_SHA: ${{ inputs.source_commit || github.sha }}
         run: |
           cd iso-artifact
           sha256sum --check *.sha256

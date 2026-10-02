@@ -14,6 +14,8 @@ Debian bookworm live 系统打包 nasd，插盘即用：**Live 试用 → `nasos
 | `dist/nas-os-<version>-amd64.iso` | x86_64 | BIOS（isolinux/grub-pc）+ UEFI（EFI fallback 路径） |
 | `dist/nas-os-<version>-arm64.iso` | aarch64（实验性，默认不构建） | 仅 UEFI（EFI fallback 路径） |
 
+从包含本功能的下一正式 [Release](https://github.com/crazyqin/nas-os/releases) 下载 amd64 ISO 及同名 `.iso.sha256`、`.iso.source.json`；现有 v3.24.8 不含 ISO。先运行 `sha256sum --check nas-os-<tag>-amd64.iso.sha256`。发布流程从目标 tag 的完整 commit 构建，复用 Live 冒烟和 BIOS/UEFI 完整安装，在上传前及草稿发布前核对 SHA256、外部与 ISO 内部来源记录。ARM ISO 保持实验性手动构建，不进入正式 Release。
+
 ## 使用流程
 
 1. **启动**：ISO 写入 U 盘（`dd` 或 Rufus/Ventoy）或虚拟机光驱直接引导。

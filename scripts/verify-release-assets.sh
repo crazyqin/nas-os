@@ -3,6 +3,7 @@
 set -euo pipefail
 : "${RELEASE_REPOSITORY:?required}"
 : "${RELEASE_VERSION:?required}"
+: "${RELEASE_SOURCE_COMMIT:?required}"
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 work_dir=$(mktemp -d)
@@ -15,6 +16,8 @@ gh release view "$RELEASE_VERSION" --repo "$RELEASE_REPOSITORY" \
     --json isDraft > release.json
 assets=(nasd-linux-amd64 nasd-linux-arm64 nasd-linux-arm
         checksums.txt webui.tar.gz webui.tar.gz.sha256 install.sh install.sh.sha256)
+iso="nas-os-$RELEASE_VERSION-amd64.iso"
+assets+=("$iso" "$iso.sha256" "$iso.source.json")
 for asset in "${assets[@]}"; do
     if jq -e '.isDraft' release.json >/dev/null; then
         gh release download "$RELEASE_VERSION" --repo "$RELEASE_REPOSITORY" \
@@ -44,4 +47,6 @@ grep -Fx "NAS_OS_RELEASE_VERSION=\"$RELEASE_VERSION\"" install.sh
 tar tzf webui.tar.gz > archive-files.txt
 grep -Fx 'webui/index.html' archive-files.txt
 grep -Fx 'webui/pages/login.html' archive-files.txt
+python3 "$script_dir/verify-release-iso.py" --directory . --version "$RELEASE_VERSION" \
+    --source-commit "$RELEASE_SOURCE_COMMIT"
 echo "Release installation assets verified: $RELEASE_VERSION"

@@ -444,8 +444,10 @@ Release 安装器来自对应 tag，并绑定该版本的二进制和 WebUI；`l
 提供可引导安装盘：Live 试用 → 控制台 `nasos-install` 离线安装 → 浏览器初始化。
 当前验收范围为 amd64（BIOS+UEFI）；arm64（UEFI）暂缓，保留实验性构建和严格 KVM 验收入口，详见 [iso/README.md](iso/README.md)。
 ```bash
-make iso   # 本地构建（需 docker）；正式产物见 GitHub Actions "ISO Build" 工作流
+make iso   # 本地构建（需 docker）
 ```
+
+正式 amd64 ISO 将从包含本功能的下一版本 [Release](https://github.com/crazyqin/nas-os/releases) 提供：`nas-os-<tag>-amd64.iso`、同名 `.iso.sha256` 和 `.iso.source.json`。下载后运行 `sha256sum --check nas-os-<tag>-amd64.iso.sha256`。v3.24.8 不含 ISO；ARM ISO 暂不作为正式 Release 资产。
 
 ### 系统服务
 ```bash

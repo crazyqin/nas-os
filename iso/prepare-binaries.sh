@@ -12,11 +12,14 @@ esac
 
 cd "$(dirname "$0")/.."
 VERSION="$(tr -d '[:space:]' < VERSION)"
-COMMIT="$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+COMMIT="$(git rev-parse HEAD)"
+[[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]
 BUILD_TIME="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 
 OUT="iso-bin/$ARCH"
 mkdir -p "$OUT"
+printf '{"version":"%s","source_commit":"%s","architecture":"%s"}\n' \
+  "$VERSION" "$COMMIT" "$ARCH" > "$OUT/source.json"
 
 LDFLAGS="-s -w -X nas-os/internal/version.Version=$VERSION -X nas-os/internal/version.Commit=$COMMIT -X nas-os/internal/version.BuildTime=$BUILD_TIME"
 

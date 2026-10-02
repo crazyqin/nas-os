@@ -115,6 +115,52 @@ class ReleasePipelineTests(unittest.TestCase):
         assets = (ROOT / "scripts/verify-release-assets.sh").read_text()
         self.assertIn('verify-release-binaries.py" --os linux --arch "${asset#nasd-linux-}" "$asset"', assets)
 
+    def test_iso_acceptance_is_required_before_release_creation(self):
+        build = job(self.release, "build-iso")
+        self.assertIn("uses: ./.github/workflows/iso-build.yml", build)
+        self.assertIn("source_commit: ${{ needs.prepare-release.outputs.source-commit }}", build)
+        self.assertIn("release_version: ${{ needs.prepare-release.outputs.version }}", build)
+        self.assertNotIn("include_arm64", build)
+        create = job(self.release, "create-release")
+        needs = re.search(r"needs: \[(.+)\]", create).group(1).split(", ")
+        self.assertIn("build-iso", needs)
+        self.assertLess(create.index("上传前验证 ISO"), create.index("softprops/action-gh-release"))
+        self.assertIn("name: nas-os-iso-amd64", create)
+        for suffix in ("", ".sha256", ".source.json"):
+            self.assertIn("release-iso/nas-os-*-amd64.iso" + suffix + "\n", create)
+        self.assertNotIn("release-iso/*.iso", create)
+        verify = job(self.release, "verify-release")
+        self.assertIn("RELEASE_SOURCE_COMMIT: ${{ needs.prepare-release.outputs.source-commit }}", verify)
+
+    def test_iso_source_guard_rejects_wrong_version_tag_and_commit(self):
+        iso = (ROOT / ".github/workflows/iso-build.yml").read_text()
+        script = run_script(iso, "Check immutable ISO source")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            def git(*args):
+                return subprocess.run(["git", *args], cwd=root, text=True, check=True,
+                                      capture_output=True).stdout.strip()
+            git("init", "--quiet")
+            (root / "VERSION").write_text("v3.25.0\n")
+            git("add", "VERSION")
+            git("-c", "user.name=Regression", "-c", "user.email=regression@localhost",
+                "-c", "commit.gpgsign=false", "commit", "--quiet", "-m", "ISO source")
+            commit = git("rev-parse", "HEAD")
+            git("tag", "v3.25.0")
+            git("tag", "v3.24.8")
+            cases = [("refs/tags/v3.25.0", "v3.25.0", commit, True),
+                     ("refs/heads/master", "v3.25.0", commit, False),
+                     ("refs/tags/v3.24.8", "v3.25.0", commit, False),
+                     ("refs/tags/v3.24.8", "v3.24.8", commit, False),
+                     ("refs/tags/v3.25.0", "v3.25.0", "b" * 40, False),
+                     ("refs/heads/master", "", commit, True)]
+            for ref, version, expected_source, expected in cases:
+                with self.subTest(ref=ref, version=version, source=expected_source):
+                    result = subprocess.run(["bash", "-c", script], cwd=root,
+                        env={**os.environ, "GITHUB_REF": ref, "RELEASE_VERSION": version,
+                             "EXPECTED_SOURCE": expected_source}, capture_output=True, text=True)
+                    self.assertEqual(result.returncode == 0, expected, result.stderr)
+
     def test_formal_image_verification_uses_release_alias_digest_and_revision(self):
         verify = job(self.docker, "verify-release-image")
         self.assertTrue(evaluate(condition(verify), {"github.ref": "refs/tags/v3.24.7", "github.event_name": "push"}))

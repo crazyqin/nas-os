@@ -107,6 +107,10 @@ install -m 0755 "$SRC/iso-bin/$ARCH/nasctl" "$INC/usr/local/bin/nasctl"
 # WebUI 静态文件（nasd 会自动探测 /usr/share/nas-os/webui）
 mkdir -p "$INC/usr/share/nas-os"
 cp -a "$SRC/webui" "$INC/usr/share/nas-os/webui"
+# 同一来源记录进入 Live/安装后的系统及 ISO 根目录，供发布前独立提取核对。
+cp "$SRC/iso-bin/$ARCH/source.json" "$INC/usr/share/nas-os/iso-source.json"
+mkdir -p "$WORK/config/includes.binary"
+cp "$SRC/iso-bin/$ARCH/source.json" "$WORK/config/includes.binary/nas-os-source.json"
 # 主配置：裸机场景监听 0.0.0.0（原 default.yaml 是 127.0.0.1，面向容器/本地）
 mkdir -p "$INC/etc/nas-os"
 sed 's/^\([[:space:]]*host:[[:space:]]*\)127\.0\.0\.1[[:space:]]*$/\10.0.0.0/' \
@@ -141,6 +145,7 @@ echo ">>> [6/6] 产出 dist/ 制品"
 mkdir -p "$SRC/dist"
 FINAL_ISO="$SRC/dist/nas-os-$VERSION-$ARCH.iso"
 cp "$LIVE_ISO" "$FINAL_ISO"
+cp "$SRC/iso-bin/$ARCH/source.json" "$FINAL_ISO.source.json"
 ( cd "$SRC/dist" && sha256sum "nas-os-$VERSION-$ARCH.iso" > "nas-os-$VERSION-$ARCH.iso.sha256" )
 ls -lh "$FINAL_ISO"
 echo ">>> 完成: $FINAL_ISO"
