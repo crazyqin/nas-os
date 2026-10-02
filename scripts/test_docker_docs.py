@@ -28,6 +28,8 @@ def commands(document):
 
 
 def check_examples(quick, deployment):
+    assert "export NAS_OS_IMAGE=" + LOCAL_IMAGE in deployment, \
+        "Local builds must not inherit a published image name from the host or .env"
     quick_commands = list(commands(quick))
     build = next(c for c in quick_commands if c[1] == "build")
     run = next(c for c in quick_commands if c[1] == "run")
@@ -82,6 +84,8 @@ class DockerDocsTests(unittest.TestCase):
                                self.deployment)
         with self.assertRaises(AssertionError):
             check_examples(self.quick.replace("--pull=never", ""), self.deployment)
+        with self.assertRaises(AssertionError):
+            check_examples(self.quick, self.deployment.replace("export NAS_OS_IMAGE=nas-os:local", ""))
         for option in (" --build", " --pull never"):
             with self.subTest(option=option), self.assertRaises((AssertionError, ValueError)):
                 check_examples(self.quick, self.deployment.replace(option, ""))

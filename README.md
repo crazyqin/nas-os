@@ -387,10 +387,12 @@ sudo nasd
 
 ### Docker 部署
 
-当前使用上文的本地源码构建方式。Compose 默认镜像名为 `nas-os:local`；以下启动命令显式构建并禁止拉取远程镜像，避免复用旧镜像或把开发构建误认成稳定 Release。正式镜像可用后，可通过 `NAS_OS_IMAGE` 指定经验证的同一 Release tag，使用该 tag 的源码和 Compose 配置部署。
+当前使用上文的本地源码构建方式。Compose 默认镜像名为 `nas-os:local`；以下启动命令显式构建并禁止拉取预构建的服务镜像，避免复用旧镜像或把开发构建误认成稳定 Release。正式镜像可用后，应使用同一 Release tag 的源码和 Compose 配置，将 `NAS_OS_IMAGE` 设为经验证的对应镜像，先拉取再以 `--no-build` 启动；本地构建继续使用本地镜像名。
 
 ```bash
 # 在仓库根目录执行；配置目录必须可写
+# 固定本地镜像名，覆盖宿主机或 .env 中可能遗留的发布镜像名
+export NAS_OS_IMAGE=nas-os:local
 mkdir -p configs logs
 cp -n configs/default.yaml configs/config.yaml
 # 默认数据卷绑定这个宿主机目录；必须先创建
