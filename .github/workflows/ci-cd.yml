@@ -103,6 +103,7 @@ jobs:
               - 'Dockerfile*'
               - 'docker-compose*.yml'
               - '.dockerignore'
+              - 'configs/default.yaml'
               - 'scripts/test_docker_compose.py'
               - '.github/workflows/ci-cd.yml'
             test:
