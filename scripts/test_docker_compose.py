@@ -1,7 +1,8 @@
 """Exercise default Compose from empty config/log directories on a Docker host.
 
-The isolation overlay changes only names, build context and the published port;
-it never overrides devices, config mounts, capabilities or application settings.
+The isolation overlay changes names, build context, published port and the host
+data directory; it preserves bind-volume semantics, devices, config mounts,
+capabilities and application settings.
 No bootstrap passwords, hashes or session tokens are printed or uploaded.
 """
 
@@ -42,13 +43,17 @@ def main():
         fixture = Path(temp)
         (fixture / "configs").mkdir()
         (fixture / "logs").mkdir()
+        (fixture / "data").mkdir()
         shutil.copyfile(ROOT / "docker-compose.yml", fixture / "compose.yml")
         # YAML !override ensures the default published port is not also bound.
         (fixture / "isolation.yml").write_text(
             "services:\n  nas-os:\n"
             f"    container_name: {project}\n    image: {image}\n"
             f"    build:\n      context: {json.dumps(str(ROOT))}\n"
-            f'    ports: !override ["127.0.0.1:{port}:8080"]\n')
+            f'    ports: !override ["127.0.0.1:{port}:8080"]\n'
+            f"networks:\n  default:\n    name: {project}-network\n"
+            "volumes:\n  nas-os-data:\n    driver_opts:\n"
+            f"      device: {json.dumps(str(fixture / 'data'))}\n")
         command = ["docker", "compose", "--project-name", project,
                    "--file", str(fixture / "compose.yml"),
                    "--file", str(fixture / "isolation.yml")]
@@ -97,12 +102,16 @@ def main():
             return data["token"]
 
         try:
-            service = json.loads(compose("config", "--format", "json",
-                                         capture=True).stdout)["services"]["nas-os"]
+            plan = json.loads(compose("config", "--format", "json", capture=True).stdout)
+            service = plan["services"]["nas-os"]
             mounts = [v for v in service["volumes"] if v["target"] == "/etc/nas-os"]
             require(len(mounts) == 1 and not mounts[0].get("read_only", False),
                     "Default config/state mount must be writable")
             require(not service.get("devices"), "Default deployment requires host devices")
+            options = plan["volumes"]["nas-os-data"]["driver_opts"]
+            require(options.get("type") == "none" and options.get("o") == "bind"
+                    and options.get("device") == str(fixture / "data"),
+                    "Data volume must retain bind semantics in an isolated directory")
             compose("build", "nas-os")
 
             # Reproduce the previous readonly bootstrap failure with the real image.

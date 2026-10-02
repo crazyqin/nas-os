@@ -387,6 +387,8 @@ sudo nasd
 # 在仓库根目录执行；配置目录必须可写
 mkdir -p configs logs
 cp -n configs/default.yaml configs/config.yaml
+# 默认数据卷绑定这个宿主机目录；必须先创建
+sudo mkdir -p /var/lib/nas-os
 
 # 默认：非 privileged + bridge + 127.0.0.1:8080；不透传宿主机磁盘
 docker compose up -d
@@ -401,9 +403,9 @@ docker compose -f docker-compose.yml -f docker-compose.privileged.yml up -d
 docker compose logs -f
 ```
 
-Compose 的初始密码保存在宿主机 `configs/.admin_password`（权限 0600）；以 `admin` 登录并改密后，执行 `sudo rm configs/.admin_password`。保留 `configs/users.json`，否则会丢失账户和密码。需要管理物理盘时，在 Compose 的 `devices` 中显式添加实际设备节点（例如 `/dev/sda:/dev/sda`），或使用特权覆盖文件。
+Compose 的初始密码保存在宿主机 `configs/.admin_password`（权限 0600）；以 `admin` 登录并改密后，执行 `sudo rm configs/.admin_password`。保留 `configs/users.json`，否则会丢失账户和密码。运行数据保存在宿主机 `/var/lib/nas-os`，请保留并备份。需要管理物理盘时，在 Compose 的 `devices` 中显式添加实际设备节点（例如 `/dev/sda:/dev/sda`），或使用特权覆盖文件。
 
-容器启动失败时，先收集 `docker compose ps -a` 和 `docker compose logs --tail=100 nas-os`；`read-only file system` 请检查配置目录可写，设备透传错误请检查 `devices` 中的宿主机路径。健康接口应返回 HTTP 200：`curl -fsS http://127.0.0.1:8080/api/v1/system/health`。
+容器启动失败时，先收集 `docker compose ps -a` 和 `docker compose logs --tail=100 nas-os`；`read-only file system` 请检查配置目录可写，数据卷挂载失败请检查 `/var/lib/nas-os` 已创建，设备透传错误请检查 `devices` 中的宿主机路径。健康接口应返回 HTTP 200：`curl -fsS http://127.0.0.1:8080/api/v1/system/health`。
 
 开发时可执行 `python3 scripts/test_docker_compose.py`，在临时目录中构建、启动并重建容器，检查健康、WebUI、首次改密及密码持久化；需要 Docker Compose 2.24.4+，测试使用独立容器、端口和数据卷。
 
