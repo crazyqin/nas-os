@@ -2,7 +2,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v3.24.6 Stable（文档同步 2026-09-05）  
+> **正式版本**: [最新稳定 Release](https://github.com/crazyqin/nas-os/releases/latest)；源码版本见 [VERSION](VERSION)，未发布的分支提交不代表稳定版本。
 > **文档索引**: [docs/README.md](docs/README.md)  
 > **项目结构**: [STRUCTURE.md](docs/STRUCTURE.md)（含 **Core / Full 编译面**） · **运维**: [ops-packages.md](docs/ops-packages.md) · **架构**: [ARCHITECTURE.md](docs/ARCHITECTURE.md)  
 > **默认**: 仅 Core 能力面 + Core 二进制（`make build`）；套件走 `packages.*` / 应用中心；完整产品需 `make build-full`（`-tags nasd_full`）  
@@ -11,7 +11,7 @@
 
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
 > **Docker**: [![Docker](https://img.shields.io/badge/ghcr.io-crazyqin%2Fnas--os-blue?logo=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
-> **Release**: [v3.24.6](https://github.com/crazyqin/nas-os/releases/tag/v3.24.6)（最新已发布 tag）
+> **Release**: [已发布版本](https://github.com/crazyqin/nas-os/releases)
 
 > **怎么读**：想跑起来 → 直接跳「快速开始」；想知道默认有什么 → 「默认交付面」；想看全部能力 → 「扩展能力」（130+ 项折叠清单）；升级历史 → 「版本状态」。
 
@@ -280,8 +280,8 @@ packages:
 ### 方式一：下载二进制文件 (推荐)
 
 ```bash
-# 从 Release 下载（示例为最新已发布 tag v3.24.6，按需替换）
-VER=v3.24.6
+# 从 Release 下载（将 vX.Y.Z 替换为 Release 页面已发布的正式 tag）
+VER=vX.Y.Z
 
 # AMD64 (x86_64)
 wget https://github.com/crazyqin/nas-os/releases/download/${VER}/nasd-linux-amd64
@@ -304,26 +304,42 @@ nasctl --version
 
 ### 方式二：Docker 部署
 
-```bash
-# 拉取镜像（按 Release tag 或 latest）
-docker pull ghcr.io/crazyqin/nas-os:v3.24.6   # 或 :latest
+已发布的 `v3.24.6` Docker 镜像缺少启动必需的 `sudo`/`btrfs`，存在启动阻断，请勿用它部署。包含此修复的正式 tag 及其对应 GHCR 镜像发布并验证前，暂不提供稳定镜像拉取示例；`latest`/`master` 是移动开发标签，不能替代稳定 Release。
 
+以下命令在包含 PR #54 修复的源码 checkout 根目录执行，从当前源码构建 `nas-os:local`，用于开发/验收，不代表稳定 Release。后续正式部署应使用同一已发布 tag 的源码和镜像，并确认该版本包含启动修复。
+
+```bash
+# 从当前源码构建本地镜像
+docker build -t nas-os:local .
 
 # 运行容器（默认 Core 面：非 privileged + bridge + 127.0.0.1:8080）
-docker run -d \
+docker run -d --pull=never \
   --name nasd \
   --restart unless-stopped \
   -p 127.0.0.1:8080:8080 \
-  -v /data:/data \
-  -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v3.24.6
+  -e NAS_OS_LISTEN_HOST=0.0.0.0 \
+  -v nas-os-config:/etc/nas-os \
+  -v nas-os-data:/var/lib/nas-os \
+  nas-os:local
 
 
 # 查看日志
 docker logs -f nasd
 ```
 
-> 完整体验推荐直接用仓库根的 `docker-compose.yml`（见下文「部署」）。
+访问 http://127.0.0.1:8080。两个命名卷分别保存配置/账户和运行数据，重建容器时保留。`/etc/nas-os` 必须可写，首次启动和改密都会更新用户数据。
+
+首次管理员密码可复制到宿主机读取：
+
+```bash
+docker cp nasd:/etc/nas-os/.admin_password ./.admin_password
+chmod 600 ./.admin_password
+cat ./.admin_password
+```
+
+以 `admin` 登录并完成强制改密后，删除宿主机密码副本；容器内密码文件也应通过挂载卷或宿主机卷管理移除。密码请勿放进 Issue 或日志截图。
+
+Compose 部署和失败排查见下文「部署」。默认容器支持 Core 管理界面；实际磁盘操作和 SMB/NFS 服务还需要设备权限及系统工具，完整 NAS 使用推荐裸机部署。
 
 ### 方式三：源码编译
 
@@ -370,29 +386,58 @@ sudo nasd
 ## 部署
 
 ### Docker 部署
+
+当前使用上文的本地源码构建方式。Compose 默认镜像名为 `nas-os:local`；以下启动命令显式构建并禁止拉取预构建的服务镜像，避免复用旧镜像或把开发构建误认成稳定 Release。正式镜像可用后，应使用同一 Release tag 的源码和 Compose 配置，将 `NAS_OS_IMAGE` 设为经验证的对应镜像，先拉取再以 `--no-build` 启动；本地构建继续使用本地镜像名。
+
 ```bash
-# 默认：非 privileged + bridge + 127.0.0.1:8080 + /dev/disk
-docker compose up -d
+# 在仓库根目录执行；配置目录必须可写
+# 固定本地镜像名，覆盖宿主机或 .env 中可能遗留的发布镜像名
+export NAS_OS_IMAGE=nas-os:local
+mkdir -p configs logs
+cp -n configs/default.yaml configs/config.yaml
+# 默认数据卷绑定这个宿主机目录；必须先创建
+sudo mkdir -p /var/lib/nas-os
+
+# 默认：非 privileged + bridge + 127.0.0.1:8080；不透传宿主机磁盘
+docker compose up -d --build --pull never
 
 # 强制 CSRF（生产推荐）：在 .env 设置 NAS_CSRF_KEY 与 NAS_OS_ENV=production
-docker compose -f docker-compose.yml -f docker-compose.secure.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.secure.yml up -d --build --pull never
 
 # 旧行为：privileged + host 网络（仅在确需时）
-docker compose -f docker-compose.yml -f docker-compose.privileged.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.privileged.yml up -d --build --pull never
 
 # 查看日志
 docker compose logs -f
 ```
 
+Compose 的初始密码保存在宿主机 `configs/.admin_password`（权限 0600）；以 `admin` 登录并改密后，执行 `sudo rm configs/.admin_password`。保留 `configs/users.json`，否则会丢失账户和密码。运行数据保存在宿主机 `/var/lib/nas-os`，请保留并备份。需要管理物理盘时，在 Compose 的 `devices` 中显式添加实际设备节点（例如 `/dev/sda:/dev/sda`），或使用特权覆盖文件。
+
+容器启动失败时，先收集 `docker compose ps -a` 和 `docker compose logs --tail=100 nas-os`；`read-only file system` 请检查配置目录可写，数据卷挂载失败请检查 `/var/lib/nas-os` 已创建，设备透传错误请检查 `devices` 中的宿主机路径。健康接口应返回 HTTP 200：`curl -fsS http://127.0.0.1:8080/api/v1/system/health`。
+
+开发时可执行 `python3 scripts/test_docker_compose.py`，在临时目录中构建、启动并重建容器，检查健康、WebUI、首次改密及密码持久化；需要 Docker Compose 2.24.4+，测试使用独立容器、端口和数据卷。
+
 ### 裸机安装
 ```bash
 # 一键安装脚本
-# 适用于已有 Debian/Ubuntu 系统
-curl -fsSL https://raw.githubusercontent.com/crazyqin/nas-os/master/scripts/install.sh | sudo bash
+# 最新稳定 Release 必须带有 install.sh；旧版本 v3.24.6 不支持此入口
+(
+  set -e
+  installer=$(mktemp)
+  trap 'rm -f "$installer"' EXIT
+  if ! curl -fsSL https://github.com/crazyqin/nas-os/releases/latest/download/install.sh --output "$installer"; then
+    echo '当前 latest Release 尚无可用安装器，请等待包含此资产的正式版本。' >&2
+    exit 1
+  fi
+  sudo bash "$installer"
+)
 
-# 或手动安装
-sudo ./scripts/install.sh
+# 安装指定版本（将 vX.Y.Z 替换为已发布且带 install.sh 资产的 tag）
+VERSION=vX.Y.Z
+curl -fsSL "https://github.com/crazyqin/nas-os/releases/download/${VERSION}/install.sh" | sudo env NAS_OS_VERSION="$VERSION" bash
 ```
+
+Release 安装器来自对应 tag，并绑定该版本的二进制和 WebUI；`latest` 后续变化不会切换安装资产。指定版本须使用该版本的安装器，版本不匹配会在安装前报错。旧 Release 若没有 `install.sh` 资产，不支持此入口。
 
 ### 安装 ISO（从零安装到空盘）
 
@@ -616,7 +661,7 @@ nas-os/
 
 完整变更见 [CHANGELOG.md](CHANGELOG.md)。
 
-### 当前状态 (2026-09-05) - v3.24.6 Stable ✅
+### 版本记录 (2026-09-05) - v3.24.6 Stable ✅
 
 **8/8 里程碑全部完成**——存储 / 共享 / 权限 / 监控 / 容器 / 虚拟机等能力均已交付；能力启用口径见上方「默认交付面」。
 

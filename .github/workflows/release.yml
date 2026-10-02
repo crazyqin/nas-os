@@ -57,7 +57,12 @@ permissions:
   contents: write          # 创建 Release
   packages: write          # 推送到 GHCR
   id-token: write          # OIDC 签名
-  actions: write           # 触发其他 workflow
+  security-events: write   # 可复用 Docker workflow 的镜像扫描
+  attestations: write      # 可复用 Docker workflow 的 attestations
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   # ========== 准备发布 ==========
@@ -77,12 +82,21 @@ jobs:
       
       - name: 确定版本
         id: version
+        env:
+          REQUESTED_VERSION: ${{ inputs.version || '' }}
+          REQUESTED_PRERELEASE: ${{ inputs.prerelease || false }}
         run: |
+          set -euo pipefail
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            VERSION="${{ github.event.inputs.version }}"
+            VERSION="$REQUESTED_VERSION"
           else
             VERSION="${GITHUB_REF#refs/tags/}"
           fi
+
+          # Release、安装器与镜像必须取自同一 tag；手工触发也不能从 master 套版本。
+          test "$GITHUB_REF" = "refs/tags/$VERSION"
+          test "$(git rev-parse HEAD)" = "$(git rev-parse "refs/tags/$VERSION^{commit}")"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           
           # 验证版本格式
           if ! [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
@@ -95,7 +109,7 @@ jobs:
           if [[ "$VERSION" =~ - ]]; then
             IS_PRERELEASE="true"
           else
-            IS_PRERELEASE="${{ github.event.inputs.prerelease || 'false' }}"
+            IS_PRERELEASE="$REQUESTED_PRERELEASE"
           fi
           
           # 获取上一个 tag
@@ -142,6 +156,8 @@ jobs:
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.prepare-release.outputs.version }}
       
       # v2.254.0: 优化缓存策略
       - name: 恢复 Go 模块缓存
@@ -159,7 +175,11 @@ jobs:
           cache: false
       
       - name: 构建二进制文件
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
         run: |
+          set -euo pipefail
           VERSION="${{ needs.prepare-release.outputs.version }}"
           BINARY_NAME="nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}"
           CTL_NAME="nasctl-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}"
@@ -170,10 +190,12 @@ jobs:
           fi
           
           # 构建 nasd（版本戳打向 internal/version，并补 Commit/BuildTime）
-          go build -trimpath -ldflags "-s -w -X nas-os/internal/version.Version=${VERSION#v} -X nas-os/internal/version.Commit=${{ github.sha }} -X nas-os/internal/version.BuildTime=$(date -u '+%Y-%m-%d_%H:%M:%S')" -o "$BINARY_NAME" ./cmd/nasd
+          go build -trimpath -ldflags "-s -w -X nas-os/internal/version.Version=${VERSION#v} -X nas-os/internal/version.Commit=$(git rev-parse HEAD) -X nas-os/internal/version.BuildTime=$(date -u '+%Y-%m-%d_%H:%M:%S')" -o "$BINARY_NAME" ./cmd/nasd
           
           # 构建 nasctl
           go build -trimpath -ldflags "-s -w -X nas-os/internal/version.Version=${VERSION#v}" -o "$CTL_NAME" ./cmd/nasctl
+
+          python3 scripts/verify-release-binaries.py --os "$GOOS" --arch "$GOARCH" "$BINARY_NAME" "$CTL_NAME"
           
           echo "✅ 构建完成: $BINARY_NAME, $CTL_NAME"
           
@@ -200,6 +222,8 @@ jobs:
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.prepare-release.outputs.version }}
       
       # v2.377.0: Syft 下载重试机制（应对 GitHub 临时故障）
       - name: 安装 Syft（带重试）
@@ -321,6 +345,8 @@ jobs:
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.prepare-release.outputs.version }}
       
       - name: 下载所有构建产物
         uses: actions/download-artifact@v5
@@ -354,6 +380,15 @@ jobs:
           sha256sum webui.tar.gz > webui.tar.gz.sha256
           echo "✅ WebUI 资产已打包"
 
+      - name: 打包与目标 tag 绑定的安装器
+        env:
+          RELEASE_VERSION: ${{ needs.prepare-release.outputs.version }}
+        run: |
+          test "$(grep -Fxc 'NAS_OS_RELEASE_VERSION=""' scripts/install.sh)" -eq 1
+          sed "s/^NAS_OS_RELEASE_VERSION=\"\"$/NAS_OS_RELEASE_VERSION=\"$RELEASE_VERSION\"/" scripts/install.sh > install.sh
+          bash -n install.sh
+          sha256sum install.sh > install.sh.sha256
+
       - name: 创建发布包
         run: |
           VERSION="${{ needs.prepare-release.outputs.version }}"
@@ -364,6 +399,7 @@ jobs:
           # 复制二进制文件
           cp nasd-* nasctl-* release/
           cp webui.tar.gz webui.tar.gz.sha256 release/
+          cp install.sh install.sh.sha256 release/
           
           # 复制校验和和 SBOM
           cp checksums.txt checksums.txt.sig release/
@@ -382,15 +418,17 @@ jobs:
           tag_name: ${{ needs.prepare-release.outputs.version }}
           name: NAS-OS ${{ needs.prepare-release.outputs.version }}
           body_path: CHANGELOG.md
-          draft: ${{ github.event.inputs.draft == 'true' }}
+          draft: true
           prerelease: ${{ needs.prepare-release.outputs.is-prerelease == 'true' }}
           generate_release_notes: false
-          make_latest: ${{ needs.prepare-release.outputs.is-prerelease != 'true' }}
+          make_latest: false
           files: |
             nasd-*
             nasctl-*
             webui.tar.gz
             webui.tar.gz.sha256
+            install.sh
+            install.sh.sha256
             checksums.txt
             checksums.txt.sig
             sbom/sbom-source-spdx.json
@@ -402,7 +440,7 @@ jobs:
         run: |
           VERSION="${{ needs.prepare-release.outputs.version }}"
           
-          echo "## 🚀 发布完成" >> $GITHUB_STEP_SUMMARY
+          echo "## 📦 发布草稿已生成，等待资产和镜像验证" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**版本:** $VERSION" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -412,7 +450,7 @@ jobs:
           echo "|------|------|" >> $GITHUB_STEP_SUMMARY
           echo "| Linux AMD64 | \`nasd-linux-amd64\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Linux ARM64 | \`nasd-linux-arm64\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Linux ARMv7 | \`nasd-linux-armv7\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Linux ARMv7 | \`nasd-linux-arm\` |" >> $GITHUB_STEP_SUMMARY
           echo "| macOS AMD64 | \`nasd-darwin-amd64\` |" >> $GITHUB_STEP_SUMMARY
           echo "| macOS ARM64 | \`nasd-darwin-arm64\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Windows | \`nasd-windows-amd64.exe\` |" >> $GITHUB_STEP_SUMMARY
@@ -429,52 +467,42 @@ jobs:
     runs-on: ubuntu-latest
     needs: [prepare-release, create-release]
     steps:
-      - name: 验证 Release 已创建
-        run: |
-          VERSION="${{ needs.prepare-release.outputs.version }}"
-          
-          echo "🔍 验证发布..."
-          
-          # 等待 Release 生效
-          sleep 10
-          
-          # 检查 Release API
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-            "https://api.github.com/repos/${{ github.repository }}/releases/tags/$VERSION")
-          
-          if [ "$RESPONSE" = "200" ]; then
-            echo "✅ Release 已成功创建"
-          else
-            echo "❌ Release 验证失败 (HTTP $RESPONSE)"
-            exit 1
-          fi
-      
-      - name: 验证二进制文件可下载
-        run: |
-          VERSION="${{ needs.prepare-release.outputs.version }}"
-          
-          # 测试下载
-          URL="https://github.com/${{ github.repository }}/releases/download/$VERSION/nasd-linux-amd64"
-          
-          echo "🔍 测试下载: $URL"
-          RESPONSE=$(curl -sI "$URL" | head -1)
-          
-          if echo "$RESPONSE" | grep -q "302\|200"; then
-            echo "✅ 二进制文件可下载"
-          else
-            echo "⚠️ 下载测试响应: $RESPONSE"
-          fi
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.prepare-release.outputs.version }}
+      - name: 验证安装所需资产及校验和
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+          RELEASE_VERSION: ${{ needs.prepare-release.outputs.version }}
+        run: bash scripts/verify-release-assets.sh
 
   # ========== 触发 Docker 构建 ==========
   trigger-docker:
-    name: 触发 Docker 构建
-    runs-on: ubuntu-latest
-    needs: [prepare-release, create-release]
+    name: 构建并验证同 tag 的 Docker 镜像
+    needs: [prepare-release, verify-release]
     if: needs.prepare-release.outputs.is-prerelease != 'true'
+    uses: ./.github/workflows/docker-publish.yml
+    with:
+      version: ${{ needs.prepare-release.outputs.version }}
+    secrets: inherit
+
+  publish-release:
+    name: 验证后发布 Release
+    runs-on: ubuntu-latest
+    needs: [prepare-release, verify-release, trigger-docker]
+    if: always() && !cancelled() && needs.verify-release.result == 'success' && (needs.trigger-docker.result == 'success' || needs.prepare-release.outputs.is-prerelease == 'true') && github.event.inputs.draft != 'true'
     steps:
-      - name: 触发 Docker 发布工作流
-        uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: docker-publish.yml
-          ref: ${{ github.ref }}
-          inputs: '{"version": "${{ needs.prepare-release.outputs.version }}"}'
+      - name: 发布已验证的草稿
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+          RELEASE_VERSION: ${{ needs.prepare-release.outputs.version }}
+          IS_PRERELEASE: ${{ needs.prepare-release.outputs.is-prerelease }}
+        run: |
+          set -euo pipefail
+          if [ "$IS_PRERELEASE" = true ]; then
+            gh release edit "$RELEASE_VERSION" --repo "$RELEASE_REPOSITORY" --draft=false --prerelease --latest=false
+          else
+            gh release edit "$RELEASE_VERSION" --repo "$RELEASE_REPOSITORY" --draft=false --latest
+          fi

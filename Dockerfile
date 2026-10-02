@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.4
 # NAS-OS Dockerfile
-# 多阶段构建，优化后的生产镜像约 15-18MB
+# 多阶段构建，Core 二进制 + 必需的存储运行工具
 # 支持 amd64, arm64, arm/v7 架构
 #
 # 镜像地址: ghcr.io/nas-os/nas-os
@@ -15,10 +15,10 @@
 # Go 版本: 1.26（与 go.mod 保持一致）
 #
 # 镜像特性:
-# - 基于 distroless/static，约 15-18MB
+# - 基于 Debian bookworm slim，包含启动扫描所需的 sudo/btrfs
 # - UPX 压缩进一步减小体积
 # - 内置健康检查工具
-# - 支持 minimal（distroless）和 full（alpine）两种版本
+# - 默认 Core；额外系统工具见 Dockerfile.full（Alpine）
 
 # ========== 构建阶段 ==========
 FROM golang:1.26-alpine AS builder
@@ -105,10 +105,15 @@ func main() {
 EOF
 RUN CGO_ENABLED=0 go build -ldflags="-w -s" -o /healthcheck /tmp/health.go
 
-# ========== 运行阶段（轻量级） ==========
-# 使用 distroless/static 作为基础镜像（约 2MB，无 shell）
-# 对于需要系统工具的场景，可以使用 distroless/base 或 alpine
-FROM gcr.io/distroless/static-debian12:latest
+# ========== 运行阶段（Core + 必需的存储工具） ==========
+# Core 启动必须扫描 btrfs；仅有静态 Go 二进制的 distroless 无法启动。
+# 保持 Debian 12 用户空间，补齐实际命令，不跳过初始化或伪造健康。
+FROM debian:bookworm-slim
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      btrfs-progs sudo ca-certificates tzdata && \
+    rm -rf /var/lib/apt/lists/*
 
 # 重新声明构建参数（运行阶段需要）
 ARG VERSION=dev
@@ -128,8 +133,7 @@ LABEL org.opencontainers.image.documentation="https://docs.nas-os.io"
 LABEL org.opencontainers.image.vendor="NAS-OS Team"
 LABEL org.opencontainers.image.licenses="MIT"
 
-# 注意：distroless 镜像没有 shell，无法使用 RUN 命令
-# 如需系统工具（btrfs-progs, samba, nfs-utils），请使用 alpine 版本
+# 更多系统工具（samba、nfs-utils 等）见 Dockerfile.full。
 
 # 复制编译产物
 COPY --from=builder --chmod=755 /build/nasd /usr/local/bin/nasd

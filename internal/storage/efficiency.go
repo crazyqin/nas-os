@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
-	"syscall"
 	"time"
 )
 
@@ -107,10 +106,8 @@ func (ec *EfficiencyCollector) Refresh(ctx context.Context) error {
 	}
 
 	// Get filesystem stats
-	var stat syscall.Statfs_t
-	if err := syscall.Statfs(ec.dataDir, &stat); err == nil {
-		totalSpace = int64(stat.Blocks) * int64(stat.Bsize)
-		freeSpace := int64(stat.Bavail) * int64(stat.Bsize)
+	if total, freeSpace, err := filesystemSpace(ec.dataDir); err == nil {
+		totalSpace = total
 		ec.stats.TotalSpace = totalSpace
 		ec.stats.FreeSpace = freeSpace
 	}
