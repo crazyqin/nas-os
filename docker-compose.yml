@@ -12,15 +12,15 @@
 # 🚀 快速部署向导（3步启动）
 # ═════════════════════════════════════════════════════════════════════════════
 #
-# 步骤 1: 拉取镜像
-#   $ docker compose pull
+# 步骤 1: 使用包含启动修复的源码 checkout（本地构建用于开发/验收）
+#   正式部署需使用包含修复的已发布 tag 及对应镜像，见 README。
 #
 # 步骤 2: 创建必要目录
 #   $ mkdir -p configs logs
 #   $ sudo mkdir -p /var/lib/nas-os
 #
 # 步骤 3: 启动服务
-#   $ docker compose up -d
+#   $ docker compose up -d --build --pull never
 #
 # 步骤 4: 验证运行状态
 #   $ docker compose ps
@@ -30,12 +30,12 @@
 # 📋 常用命令
 # ═════════════════════════════════════════════════════════════════════════════
 #
-# 启动服务:     docker compose up -d
+# 启动服务:     docker compose up -d --build --pull never
 # 停止服务:     docker compose down
 # 重启服务:     docker compose restart
 # 查看状态:     docker compose ps
 # 查看日志:     docker compose logs -f
-# 更新镜像:     docker compose pull && docker compose up -d
+# 更新本地镜像: docker compose up -d --build --pull never
 # 进入容器:     docker compose exec nas-os sh
 #
 # ═════════════════════════════════════════════════════════════════════════════
@@ -43,6 +43,7 @@
 # ═════════════════════════════════════════════════════════════════════════════
 #
 # 环境变量 (.env 文件或直接设置):
+#   NAS_OS_IMAGE=nas-os:local  # 默认本地构建；正式镜像需指定经验证的 Release tag
 #   TZ=Asia/Shanghai          # 时区设置
 #   LOG_LEVEL=info            # 日志级别: debug, info, warn, error
 #   DEBUG=false               # 调试模式
@@ -87,7 +88,7 @@ services:
   # NAS-OS 主服务
   # ═══════════════════════════════════════════════════════════════════════════
   nas-os:
-    image: ghcr.io/crazyqin/nas-os:latest
+    image: ${NAS_OS_IMAGE:-nas-os:local}
     build:
       context: .
       dockerfile: Dockerfile
