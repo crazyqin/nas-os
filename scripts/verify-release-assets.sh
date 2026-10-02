@@ -13,7 +13,7 @@ cd "$work_dir"
 gh release view "$RELEASE_VERSION" --repo "$RELEASE_REPOSITORY" \
     --json isDraft > release.json
 assets=(nasd-linux-amd64 nasd-linux-arm64 nasd-linux-arm
-        checksums.txt webui.tar.gz webui.tar.gz.sha256)
+        checksums.txt webui.tar.gz webui.tar.gz.sha256 install.sh install.sh.sha256)
 for asset in "${assets[@]}"; do
     if jq -e '.isDraft' release.json >/dev/null; then
         gh release download "$RELEASE_VERSION" --repo "$RELEASE_REPOSITORY" \
@@ -32,9 +32,13 @@ for asset in nasd-linux-amd64 nasd-linux-arm64 nasd-linux-arm; do
     test "$(wc -l < selected.sha256)" -eq 1
     sha256sum --check selected.sha256
 done
-awk '$2 == "webui.tar.gz" {print}' webui.tar.gz.sha256 > selected.sha256
-test "$(wc -l < selected.sha256)" -eq 1
-sha256sum --check selected.sha256
+for asset in webui.tar.gz install.sh; do
+    awk -v name="$asset" '$2 == name {print}' "$asset.sha256" > selected.sha256
+    test "$(wc -l < selected.sha256)" -eq 1
+    sha256sum --check selected.sha256
+done
+bash -n install.sh
+grep -Fx "NAS_OS_RELEASE_VERSION=\"$RELEASE_VERSION\"" install.sh
 tar tzf webui.tar.gz > archive-files.txt
 grep -Fx 'webui/index.html' archive-files.txt
 grep -Fx 'webui/pages/login.html' archive-files.txt

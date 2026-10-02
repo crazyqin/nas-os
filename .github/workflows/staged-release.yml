@@ -16,9 +16,7 @@
 name: Staged Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  # 正式 tag 统一由 release.yml 验证后发布，避免并行流程提前切换 latest。
   workflow_dispatch:
     inputs:
       version:

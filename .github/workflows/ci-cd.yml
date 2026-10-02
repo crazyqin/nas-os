@@ -101,6 +101,7 @@ jobs:
               - '*.md'
               - 'scripts/test_docker_docs.py'
             docker:
+              - 'VERSION'
               - 'Dockerfile*'
               - 'docker-compose*.yml'
               - '.dockerignore'
