@@ -14,7 +14,8 @@ concurrency:
 
 jobs:
   bootstrap:
-    if: github.repository == 'crazyqin/nas-os' && github.ref == 'refs/heads/ops/publish-v3.24.7-af77ed6'
+    # Withdrawn candidate: keep the tag for traceability, never dispatch it again.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
