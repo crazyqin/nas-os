@@ -101,6 +101,7 @@ def main():
             require(data.get("token"), "Login did not return a session")
             return data["token"]
 
+        built = False
         try:
             plan = json.loads(compose("config", "--format", "json", capture=True).stdout)
             service = plan["services"]["nas-os"]
@@ -113,6 +114,7 @@ def main():
                     and options.get("device") == str(fixture / "data"),
                     "Data volume must retain bind semantics in an isolated directory")
             compose("build", "nas-os")
+            built = True
 
             # Reproduce the previous readonly bootstrap failure with the real image.
             readonly = subprocess.run(
@@ -159,6 +161,19 @@ def main():
             subprocess.run(["docker", "rm", "--force", project + "-readonly"],
                            env=env, check=False, capture_output=True)
             compose("down", "--volumes", "--remove-orphans", check=False)
+            if built:
+                # Root-owned private TLS directories in the bind data volume
+                # cannot be removed by a non-root CI user. Use this same image
+                # to remove only our four disposable paths after stopping nasd;
+                # do not relax production file modes or require host sudo.
+                subprocess.run(
+                    ["docker", "run", "--rm", "--pull", "never",
+                     "--network", "none", "--read-only", "--mount",
+                     f"type=bind,src={fixture},dst=/fixture",
+                     "--entrypoint", "/bin/rm", image, "-rf", "--",
+                     "/fixture/configs", "/fixture/data", "/fixture/logs",
+                     "/fixture/bootstrap-password"],
+                    env=env, check=True, capture_output=True, timeout=30)
             subprocess.run(["docker", "image", "rm", image], env=env,
                            check=False, capture_output=True)
 
