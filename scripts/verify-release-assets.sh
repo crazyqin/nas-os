@@ -13,11 +13,28 @@ cd "$work_dir"
 # Authenticated API supports draft releases too; public downloads are checked
 # for published releases so redirect-only success cannot hide a missing asset.
 gh release view "$RELEASE_VERSION" --repo "$RELEASE_REPOSITORY" \
-    --json isDraft > release.json
+    --json isDraft,assets > release.json
+# A post-publication check must never silently fall back to authenticated draft downloads.
+if [ "${REQUIRE_PUBLIC_RELEASE:-false}" = true ]; then
+    jq -e '.isDraft == false' release.json >/dev/null || {
+        echo "Release is still a draft; public downloads are required" >&2
+        exit 1
+    }
+fi
 assets=(nasd-linux-amd64 nasd-linux-arm64 nasd-linux-arm
         checksums.txt webui.tar.gz webui.tar.gz.sha256 install.sh install.sh.sha256)
 iso="nas-os-$RELEASE_VERSION-amd64.iso"
 assets+=("$iso" "$iso.sha256" "$iso.source.json")
+# Inspect the full remote manifest, including assets not selected for download.
+# This also rejects stale ISOs and experimental ARM uploads on a rerun.
+jq -e --arg iso "$iso" '
+    [.assets[].name | select(contains(".iso"))] | sort ==
+    ([$iso, ($iso + ".sha256"), ($iso + ".source.json")] | sort)
+' release.json >/dev/null || {
+    echo "Release ISO manifest must contain only the target amd64 ISO, checksum and source metadata" >&2
+    jq '[.assets[].name | select(contains(".iso"))]' release.json >&2
+    exit 1
+}
 for asset in "${assets[@]}"; do
     if jq -e '.isDraft' release.json >/dev/null; then
         gh release download "$RELEASE_VERSION" --repo "$RELEASE_REPOSITORY" \

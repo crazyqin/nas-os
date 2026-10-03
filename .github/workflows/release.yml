@@ -98,6 +98,7 @@ jobs:
           test "$GITHUB_REF" = "refs/tags/$VERSION"
           test "$(git rev-parse HEAD)" = "$(git rev-parse "refs/tags/$VERSION^{commit}")"
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(tr -d '[:space:]' < VERSION)" = "$VERSION"
           
           # 验证版本格式
           if ! [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
@@ -293,8 +294,10 @@ jobs:
       - name: 生成变更日志
         id: changelog
         run: |
+          set -euo pipefail
           VERSION="${{ needs.prepare-release.outputs.version }}"
           PREVIOUS_TAG="${{ needs.prepare-release.outputs.previous-tag }}"
+          cp CHANGELOG.md SOURCE_CHANGELOG.md
           
           echo "## 🎉 $VERSION 更新内容" > CHANGELOG.md
           echo "" >> CHANGELOG.md
@@ -307,11 +310,14 @@ jobs:
             echo "" >> CHANGELOG.md
           fi
           
-          # 从 CHANGELOG.md 提取当前版本的变更（如果存在）
-          if [ -f "CHANGELOG.md" ] && grep -q "$VERSION" CHANGELOG.md; then
+          # 从源码 changelog 提取当前版本，不能读取正在生成的发布说明。
+          if grep -q "^## $VERSION " SOURCE_CHANGELOG.md; then
             echo "### 📋 详细变更" >> CHANGELOG.md
             echo "" >> CHANGELOG.md
-            sed -n "/## $VERSION/,/^## /p" CHANGELOG.md | head -n -2 | tail -n +3 >> CHANGELOG.md
+            awk -v version="$VERSION" '
+              /^## / { if (found) exit; if ($2 == version) { found=1; next } }
+              found { print }
+            ' SOURCE_CHANGELOG.md >> CHANGELOG.md
             echo "" >> CHANGELOG.md
           fi
           
@@ -544,3 +550,23 @@ jobs:
           else
             gh release edit "$RELEASE_VERSION" --repo "$RELEASE_REPOSITORY" --draft=false --latest
           fi
+
+  verify-public-release:
+    name: 验证公开下载资产
+    runs-on: ubuntu-latest
+    needs: [prepare-release, publish-release]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.prepare-release.outputs.source-commit }}
+      - name: 从公开下载地址复核 ISO 和安装资产
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+          RELEASE_VERSION: ${{ needs.prepare-release.outputs.version }}
+          RELEASE_SOURCE_COMMIT: ${{ needs.prepare-release.outputs.source-commit }}
+          REQUIRE_PUBLIC_RELEASE: 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xorriso
+          bash scripts/verify-release-assets.sh

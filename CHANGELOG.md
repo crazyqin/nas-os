@@ -1,5 +1,20 @@
 # Changelog
 
+## v3.25.0 - 2026-10-03
+
+### Added
+- 正式发布 amd64 Debian bookworm Live ISO，支持 BIOS/UEFI、单系统盘离线安装、移除介质后启动和管理员首登改密。
+- ISO、同名 SHA256 与 source metadata 绑定同一正式 tag 和完整 source commit；来源记录同时写入 ISO 根目录及安装后的系统。
+
+### Release
+- ISO Live 冒烟、BIOS/UEFI 完整安装与两次冷启动验收成功后才创建 Release 草稿；资产、同 tag 镜像、签名与扫描全部通过后才公开。
+- 公开后再次从稳定下载地址校验安装资产、ISO SHA256 及实际 ISO 内来源记录；Release 完整 ISO 清单必须只有目标版本的 amd64 三项资产。
+- ARM ISO 延期，不进入正式构建或发布资产；既有 v3.24.8 Release/tag 保持原样。
+
+### Limitations
+- 单系统盘 GPT（ESP+btrfs；amd64 额外 BIOS GRUB 分区），安装将清空所选系统盘；数据池、RAID 与共享在安装后配置。
+- Secure Boot 需关闭；QEMU 验收不替代具体 NAS 硬件、USB/Ventoy、固件与网卡的实机兼容性验证。
+
 ## v3.24.6 - 2026-09-05
 
 ### Removed
