@@ -1,0 +1,65 @@
+name: Create source-bound release tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version matching VERSION (for example v3.25.0)'
+        required: true
+        type: string
+      source_commit:
+        description: 'Full 40-character commit of the checked master source'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-tag-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.source_commit }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify source and create immutable tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_SOURCE_COMMIT: ${{ inputs.source_commit }}
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]
+          [[ "$RELEASE_SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          test "$GITHUB_REF" = refs/heads/master
+          test "$GITHUB_SHA" = "$RELEASE_SOURCE_COMMIT"
+          test "$(git rev-parse HEAD)" = "$RELEASE_SOURCE_COMMIT"
+          test "$(tr -d '[:space:]' < VERSION)" = "$RELEASE_VERSION"
+
+          ref="refs/tags/$RELEASE_VERSION"
+          matches=$(gh api "repos/$RELEASE_REPOSITORY/git/matching-refs/tags/$RELEASE_VERSION")
+          existing=$(jq -c --arg ref "$ref" '[.[] | select(.ref == $ref)]' <<< "$matches")
+          if [ "$(jq length <<< "$existing")" = 0 ]; then
+            gh api --method POST "repos/$RELEASE_REPOSITORY/git/refs" \
+              -f "ref=$ref" -f "sha=$RELEASE_SOURCE_COMMIT"
+          else
+            jq -e --arg sha "$RELEASE_SOURCE_COMMIT" \
+              'length == 1 and .[0].object.type == "commit" and .[0].object.sha == $sha' \
+              <<< "$existing" >/dev/null || {
+                echo "Existing release tag differs; refusing to move or overwrite it" >&2
+                exit 1
+              }
+          fi
+          test "$(gh api "repos/$RELEASE_REPOSITORY/git/ref/tags/$RELEASE_VERSION" --jq .object.sha)" = "$RELEASE_SOURCE_COMMIT"
+          echo "Verified $ref -> $RELEASE_SOURCE_COMMIT" >> "$GITHUB_STEP_SUMMARY"
+          echo "Next: run GitHub Release on this tag with version=$RELEASE_VERSION; draft/prerelease=false." >> "$GITHUB_STEP_SUMMARY"
+          # GITHUB_TOKEN-created tags do not trigger push workflows. The release
+          # workflow must be dispatched explicitly on the verified tag in Actions.

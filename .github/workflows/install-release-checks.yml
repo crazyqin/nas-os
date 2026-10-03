@@ -19,6 +19,7 @@ on:
       - .github/workflows/docker-publish.yml
       - .github/workflows/staged-release.yml
       - .github/workflows/release.yml
+      - .github/workflows/create-release-tag.yml
       - .github/workflows/install-release-checks.yml
   push:
     branches: [master, fix/issue-50-install-release]
@@ -40,6 +41,7 @@ on:
       - .github/workflows/docker-publish.yml
       - .github/workflows/staged-release.yml
       - .github/workflows/release.yml
+      - .github/workflows/create-release-tag.yml
       - .github/workflows/install-release-checks.yml
 permissions:
   contents: read

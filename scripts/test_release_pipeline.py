@@ -1,6 +1,7 @@
 """Offline release orchestration regressions; no GitHub writes or Docker needed."""
 
 import os
+import json
 from pathlib import Path
 import re
 import subprocess
@@ -50,6 +51,7 @@ class ReleasePipelineTests(unittest.TestCase):
         cls.release = (ROOT / ".github/workflows/release.yml").read_text()
         cls.docker = (ROOT / ".github/workflows/docker-publish.yml").read_text()
         cls.staged = (ROOT / ".github/workflows/staged-release.yml").read_text()
+        cls.tag = (ROOT / ".github/workflows/create-release-tag.yml").read_text()
 
     def test_release_is_draft_until_all_required_jobs_succeed(self):
         create = job(self.release, "create-release")
@@ -264,11 +266,70 @@ class ReleasePipelineTests(unittest.TestCase):
                 self.assertIn("--latest=false" if prerelease == "true" else "--latest", args)
 
     def test_all_embedded_shell_blocks_parse(self):
-        for source in (self.release, self.docker, self.staged):
+        for source in (self.release, self.docker, self.staged, self.tag):
             for block in re.findall(r"(?m)^        run: \|\n((?:^          [^\n]*\n|^[ \t]*\n)*)", source):
                 script = re.sub(r"\$\{\{.*?\}\}", "placeholder", textwrap.dedent(block))
                 result = subprocess.run(["bash", "-n"], input=script, text=True, capture_output=True)
                 self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_tag_creation_rejects_wrong_source_and_never_moves_existing_tags(self):
+        script = run_script(self.tag, "Verify source and create immutable tag")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            def git(*args):
+                return subprocess.run(["git", *args], cwd=root, text=True, check=True,
+                                      capture_output=True).stdout.strip()
+            git("init", "--quiet")
+            (root / "VERSION").write_text("v3.25.0\n")
+            git("add", "VERSION")
+            git("-c", "user.name=Regression", "-c", "user.email=regression@localhost",
+                "-c", "commit.gpgsign=false", "commit", "--quiet", "-m", "release")
+            source = git("rev-parse", "HEAD")
+            mock = root / "gh"
+            mock.write_text('''#!/usr/bin/env python3
+import json, os, sys
+with open(os.environ["CALLS"], "a") as stream:
+    stream.write(" ".join(sys.argv[1:]) + "\\n")
+if "matching-refs" in sys.argv[2]:
+    print(os.environ["TAG_MATCHES"])
+elif "--method" in sys.argv:
+    print("{}")
+else:
+    print(os.environ["RELEASE_SOURCE_COMMIT"])
+''')
+            mock.chmod(0o755)
+            ref = "refs/tags/v3.25.0"
+            matching = [{"ref": ref, "object": {"type": "commit", "sha": source}}]
+            conflicting = [{"ref": ref, "object": {"type": "commit", "sha": "b" * 40}}]
+            prefix = [{"ref": ref + "-rc.1", "object": {"type": "commit", "sha": "b" * 40}}]
+            cases = [
+                ("refs/heads/master", "v3.25.0", source, [], True, True),
+                ("refs/heads/master", "v3.25.0", source, matching, True, False),
+                ("refs/heads/master", "v3.25.0", source, prefix, True, True),
+                ("refs/heads/master", "v3.25.0", source, conflicting, False, False),
+                ("refs/heads/other", "v3.25.0", source, [], False, False),
+                ("refs/heads/master", "v3.24.8", source, [], False, False),
+                ("refs/heads/master", "v3.25.0", "b" * 40, [], False, False),
+                ("refs/heads/master", "v3.25.0", source[:7], [], False, False),
+                ("refs/heads/master", "v3.25.0; echo invalid", source, [], False, False),
+            ]
+            calls = root / "calls"
+            for github_ref, version, requested, matches, success, created in cases:
+                calls.unlink(missing_ok=True)
+                with self.subTest(ref=github_ref, version=version, source=requested, matches=matches):
+                    result = subprocess.run(["bash", "-c", script], cwd=root,
+                        env={**os.environ, "PATH": str(root) + ":" + os.environ["PATH"],
+                             "CALLS": str(calls), "TAG_MATCHES": json.dumps(matches),
+                             "GITHUB_REF": github_ref, "GITHUB_SHA": source,
+                             "RELEASE_VERSION": version, "RELEASE_SOURCE_COMMIT": requested,
+                             "RELEASE_REPOSITORY": "crazyqin/nas-os",
+                             "GITHUB_STEP_SUMMARY": str(root / "summary")},
+                        capture_output=True, text=True)
+                    self.assertEqual(result.returncode == 0, success, result.stdout + result.stderr)
+                    commands = calls.read_text() if calls.exists() else ""
+                    self.assertEqual("--method POST" in commands, created)
+                    self.assertNotIn("--method PATCH", commands)
+                    self.assertNotIn("--method DELETE", commands)
 
 
 if __name__ == "__main__":
