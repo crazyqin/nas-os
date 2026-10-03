@@ -200,6 +200,7 @@ class ReleasePipelineTests(unittest.TestCase):
             ]
             for event, ref, requested, head, sha, expected in cases:
                 git("checkout", "--quiet", "--detach", head)
+                (root / "VERSION").write_text(ref.removeprefix("refs/tags/") + "\n")
                 for script in scripts:
                     with self.subTest(event=event, ref=ref, requested=requested, head=head, sha=sha):
                         script = script.replace("${{ github.event_name }}", event)
@@ -209,6 +210,41 @@ class ReleasePipelineTests(unittest.TestCase):
                                                      "GITHUB_OUTPUT": str(root / "output")},
                                                 capture_output=True, text=True)
                         self.assertEqual(result.returncode == 0, expected, result.stdout + result.stderr)
+
+            git("checkout", "--quiet", "--detach", first)
+            (root / "VERSION").write_text("v3.24.8\n")
+            script = scripts[1].replace("${{ github.event_name }}", "push")
+            result = subprocess.run(["bash", "-c", script], cwd=root,
+                env={**os.environ, "GITHUB_REF": "refs/tags/v3.24.7", "GITHUB_SHA": first,
+                     "REQUESTED_VERSION": "", "REQUESTED_PRERELEASE": "false",
+                     "GITHUB_OUTPUT": str(root / "output")}, capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0, "A tag must match the source VERSION")
+
+    def test_public_download_verification_runs_only_after_publication(self):
+        public = job(self.release, "verify-public-release")
+        self.assertIn("needs: [prepare-release, publish-release]", public)
+        self.assertNotIn("always()", public)
+        self.assertIn("REQUIRE_PUBLIC_RELEASE: 'true'", public)
+        self.assertIn("ref: ${{ needs.prepare-release.outputs.source-commit }}", public)
+        self.assertIn("bash scripts/verify-release-assets.sh", public)
+
+    def test_generated_notes_preserve_current_source_changelog_section(self):
+        script = run_script(self.release, "生成变更日志")
+        script = script.replace("${{ needs.prepare-release.outputs.version }}", "v3.25.0")
+        script = script.replace("${{ needs.prepare-release.outputs.previous-tag }}", "")
+        script = script.replace("${{ github.repository }}", "crazyqin/nas-os")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            original = "# Changelog\n\n## v3.25.0 - 2026-10-03\n\n### Added\n- ISO current change\n\n## v3.24.8 - older\n- Old change\n"
+            (root / "CHANGELOG.md").write_text(original)
+            result = subprocess.run(["bash", "-c", script], cwd=root,
+                env={**os.environ, "GITHUB_OUTPUT": str(root / "output")},
+                capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            notes = (root / "CHANGELOG.md").read_text()
+            self.assertIn("ISO current change", notes)
+            self.assertNotIn("Old change", notes)
+            self.assertEqual((root / "SOURCE_CHANGELOG.md").read_text(), original)
 
     def test_promotion_commands_never_mark_prerelease_latest(self):
         script = run_script(self.release, "发布已验证的草稿")

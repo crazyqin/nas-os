@@ -1,5 +1,6 @@
 """Regression checks without installing services or contacting GitHub."""
 import hashlib
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -185,7 +186,7 @@ enable_service
             mocks.mkdir()
             (mocks / "gh").write_text('''#!/bin/bash
 if [[ "$2" == view ]]; then
-    printf '{"isDraft":%s}\\n' "${DRAFT:-false}"
+    cat "$FIXTURES/release.json"
 else
     while (($#)); do
         if [[ "$1" == --pattern ]]; then name=$2; break; fi
@@ -205,10 +206,15 @@ cp "$FIXTURES/$name" "$name"
             for path in mocks.iterdir():
                 path.chmod(0o755)
 
-            def run(draft="false"):
+            def run(draft="false", require_public="false"):
+                manifest = {"isDraft": draft == "true", "assets": [
+                    {"name": path.name} for path in assets.iterdir()
+                    if path.name != "release.json"]}
+                (assets / "release.json").write_text(json.dumps(manifest))
                 return subprocess.run(["bash", str(SCRIPTS / "verify-release-assets.sh")],
                     env={**os.environ, "PATH": f"{mocks}:{os.environ['PATH']}",
                          "FIXTURES": str(assets), "DRAFT": draft,
+                         "REQUIRE_PUBLIC_RELEASE": require_public,
                          "RELEASE_REPOSITORY": "crazyqin/nas-os", "RELEASE_VERSION": "v3.24.6",
                          "RELEASE_SOURCE_COMMIT": "a" * 40},
                     capture_output=True, text=True)
@@ -217,6 +223,15 @@ cp "$FIXTURES/$name" "$name"
             for draft in ("false", "true"):
                 result = run(draft)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(run(draft, require_public="true").returncode == 0,
+                                 draft == "false")
+                for extra in ("nas-os-v3.24.8-amd64.iso",
+                              "nas-os-v3.24.6-arm64.iso",
+                              "nas-os-v3.24.6-arm64.iso.source.json"):
+                    with self.subTest(draft=draft, unexpected=extra):
+                        (assets / extra).write_bytes(b"unexpected ISO asset")
+                        self.assertNotEqual(run(draft).returncode, 0)
+                        (assets / extra).unlink()
                 # Valid checksums must not allow an amd64 file named as ARM64.
                 arm64 = assets / "nasd-linux-arm64"
                 saved_arm64 = arm64.read_bytes()
