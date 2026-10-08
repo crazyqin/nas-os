@@ -304,13 +304,13 @@ nasctl --version
 
 ### 方式二：Docker 部署
 
-已发布的 `v3.24.6` Docker 镜像缺少启动必需的 `sudo`/`btrfs`，存在启动阻断，请勿用它部署。包含此修复的正式 tag 及其对应 GHCR 镜像发布并验证前，暂不提供稳定镜像拉取示例；`latest`/`master` 是移动开发标签，不能替代稳定 Release。
+已发布的 `v3.24.6` Docker 镜像缺少启动必需的 `sudo`/`btrfs`，存在启动阻断，请勿用它部署。稳定 Release `v3.25.0` 已包含此修复并提供经验证的同 tag GHCR 镜像；`latest`/`master` 是移动开发标签，不能替代稳定 Release。
 
-以下命令在包含 PR #54 修复的源码 checkout 根目录执行，从当前源码构建 `nas-os:local`，用于开发/验收，不代表稳定 Release。后续正式部署应使用同一已发布 tag 的源码和镜像，并确认该版本包含启动修复。
+以下命令使用正式 `v3.25.0` 镜像。正式部署如需使用仓库中的配置，源码、Release tag 和镜像必须同为 `v3.25.0`；本地源码构建使用独立的 `nas-os:local` 镜像名，仅用于开发/验收，不代表稳定 Release。
 
 ```bash
-# 从当前源码构建本地镜像
-docker build -t nas-os:local .
+# 拉取固定版本的稳定镜像
+docker pull ghcr.io/crazyqin/nas-os:v3.25.0
 
 # 运行容器（默认 Core 面：非 privileged + bridge + 127.0.0.1:8080）
 docker run -d --pull=never \
@@ -320,7 +320,7 @@ docker run -d --pull=never \
   -e NAS_OS_LISTEN_HOST=0.0.0.0 \
   -v nas-os-config:/etc/nas-os \
   -v nas-os-data:/var/lib/nas-os \
-  nas-os:local
+  ghcr.io/crazyqin/nas-os:v3.25.0
 
 
 # 查看日志
@@ -387,25 +387,29 @@ sudo nasd
 
 ### Docker 部署
 
-当前使用上文的本地源码构建方式。Compose 默认镜像名为 `nas-os:local`；以下启动命令显式构建并禁止拉取预构建的服务镜像，避免复用旧镜像或把开发构建误认成稳定 Release。正式镜像可用后，应使用同一 Release tag 的源码和 Compose 配置，将 `NAS_OS_IMAGE` 设为经验证的对应镜像，先拉取再以 `--no-build` 启动；本地构建继续使用本地镜像名。
+正式部署使用 `v3.25.0` tag 的源码和 Compose 配置，将 `NAS_OS_IMAGE` 显式设为同版本的稳定镜像，先拉取再以 `--no-build` 启动，确保源码、tag、镜像同版本。Compose 默认镜像名仍为 `nas-os:local`；本地开发/验收应显式设置该本地镜像名，并使用 `--build --pull never`，不代表稳定 Release。
 
 ```bash
-# 在仓库根目录执行；配置目录必须可写
-# 固定本地镜像名，覆盖宿主机或 .env 中可能遗留的发布镜像名
-export NAS_OS_IMAGE=nas-os:local
+# 在仓库根目录执行；源码和配置固定到同一正式 tag
+git fetch origin tag v3.25.0
+git checkout --detach v3.25.0
+# 固定稳定镜像名，覆盖宿主机或 .env 中可能遗留的镜像名
+export NAS_OS_IMAGE=ghcr.io/crazyqin/nas-os:v3.25.0
+# 配置目录必须可写
 mkdir -p configs logs
 cp -n configs/default.yaml configs/config.yaml
 # 默认数据卷绑定这个宿主机目录；必须先创建
 sudo mkdir -p /var/lib/nas-os
 
 # 默认：非 privileged + bridge + 127.0.0.1:8080；不透传宿主机磁盘
-docker compose up -d --build --pull never
+docker compose pull nas-os
+docker compose up -d --no-build --pull never
 
 # 强制 CSRF（生产推荐）：在 .env 设置 NAS_CSRF_KEY 与 NAS_OS_ENV=production
-docker compose -f docker-compose.yml -f docker-compose.secure.yml up -d --build --pull never
+docker compose -f docker-compose.yml -f docker-compose.secure.yml up -d --no-build --pull never
 
 # 旧行为：privileged + host 网络（仅在确需时）
-docker compose -f docker-compose.yml -f docker-compose.privileged.yml up -d --build --pull never
+docker compose -f docker-compose.yml -f docker-compose.privileged.yml up -d --no-build --pull never
 
 # 查看日志
 docker compose logs -f
@@ -447,7 +451,13 @@ Release 安装器来自对应 tag，并绑定该版本的二进制和 WebUI；`l
 make iso   # 本地构建（需 docker）
 ```
 
-正式 amd64 ISO 将从包含本功能的下一版本 [Release](https://github.com/crazyqin/nas-os/releases) 提供：`nas-os-<tag>-amd64.iso`、同名 `.iso.sha256` 和 `.iso.source.json`。下载后运行 `sha256sum --check nas-os-<tag>-amd64.iso.sha256`。v3.24.8 不含 ISO；ARM ISO 暂不作为正式 Release 资产。
+正式 [v3.25.0 Release](https://github.com/crazyqin/nas-os/releases/tag/v3.25.0) 已提供 amd64 安装资产：
+
+- [nas-os-v3.25.0-amd64.iso](https://github.com/crazyqin/nas-os/releases/download/v3.25.0/nas-os-v3.25.0-amd64.iso)
+- [nas-os-v3.25.0-amd64.iso.sha256](https://github.com/crazyqin/nas-os/releases/download/v3.25.0/nas-os-v3.25.0-amd64.iso.sha256)
+- [nas-os-v3.25.0-amd64.iso.source.json](https://github.com/crazyqin/nas-os/releases/download/v3.25.0/nas-os-v3.25.0-amd64.iso.source.json)
+
+将 ISO 与同名 SHA256 文件下载到同一目录后，运行 `sha256sum --check nas-os-v3.25.0-amd64.iso.sha256`；source metadata 绑定 `v3.25.0` tag 的完整源码 commit `df1b0af14fa8d54ba8e0d633f20edb6310e68341`。v3.24.8 不含 ISO；ARM ISO 暂不作为正式 Release 资产。
 
 ### 系统服务
 ```bash
@@ -663,13 +673,14 @@ nas-os/
 
 完整变更见 [CHANGELOG.md](CHANGELOG.md)。
 
-### 版本记录 (2026-09-05) - v3.24.6 Stable ✅
+### 版本记录 (2026-10-03) - v3.25.0 Stable ✅
 
 **8/8 里程碑全部完成**——存储 / 共享 / 权限 / 监控 / 容器 / 虚拟机等能力均已交付；能力启用口径见上方「默认交付面」。
 
 ### 版本路线图
 | 版本 | 类型 | 发布日期 | 核心功能 | 状态 |
 |------|------|----------|----------|------|
+| **v3.25.0** | **Stable** | **2026-10-03** | **Docker 启动修复 + amd64 安装 ISO、SHA256 与源码来源记录** | ✅ **已发布** |
 | **v3.24.6** | **Stable** | **2026-09-05** | **删除非 lab 死代码 21.4 万行 + swagger 577 端点重生成 + benchmark 超时修复** | ✅ **已发布** |
 | v3.24.5 | Stable | 2026-08-04 | 版本对齐 + 集成测试 Lab 路径 + 默认面诚实 + 伪核心再降 Lab | 未发 Release（维护性提交） |
 | v3.24.1 | **Stable** | **2026-07-16** | **WebUI 门控、强制改密、api/middleware 清除** | ✅ **已发布** |
